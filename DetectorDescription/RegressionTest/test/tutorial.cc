@@ -269,11 +269,11 @@ void tutorial()
 	    << cpv.root() << "]" << std::endl << std::endl;
  
   // The same, but creating a reference to it:
-  DDLogicalPart root = cpv.root(); 
-  DDLogicalPart world = root; //(DDName("CMS","cms"));
+  const DDLogicalPart& root = cpv.root(); 
+  const DDLogicalPart& world = root; //(DDName("CMS","cms"));
   std::cout << "The world volume is described by following solid:" << std::endl;
   std::cout << world.solid() << std::endl << std::endl;
-  DDMaterial worldMaterial = root.material();
+  const DDMaterial& worldMaterial = root.material();
   std::cout << "The world volume is filled with following material:" << std::endl;
   std::cout << worldMaterial << std::endl << std::endl;
  

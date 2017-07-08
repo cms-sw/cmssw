@@ -162,7 +162,7 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 	    const edm::OwnVector< reco::PFBlockElement >& elements = blockRef->elements();
 	    const reco::PFBlockElement& pfbe(elements[elementIndex]); 
 	    if( pfbe.type() == reco::PFBlockElement::ECAL ){
-	      reco::PFClusterRef myPFClusterRef = pfbe.clusterRef();
+	      const reco::PFClusterRef& myPFClusterRef = pfbe.clusterRef();
 	      if(myPFClusterRef.isNull()) continue;
 	      for(reco::CaloCluster_iterator it = candRef->superCluster()->clustersBegin(); it != candRef->superCluster()->clustersEnd(); ++it){
 		if( myPFClusterRef->seed() == (*it)->seed() ){
@@ -243,7 +243,7 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 	    const edm::OwnVector< reco::PFBlockElement >& elements = blockRef->elements();
 	    const reco::PFBlockElement& pfbe(elements[elementIndex]); 
 	    if( pfbe.type() == reco::PFBlockElement::ECAL ){
-	      reco::PFClusterRef myPFClusterRef = pfbe.clusterRef();
+	      const reco::PFClusterRef& myPFClusterRef = pfbe.clusterRef();
 	      if(myPFClusterRef.isNull()) continue;
 	      for(reco::CaloCluster_iterator it = eleRef->superCluster()->clustersBegin(); it != eleRef->superCluster()->clustersEnd(); ++it){
 		if( myPFClusterRef->seed() == (*it)->seed() ){

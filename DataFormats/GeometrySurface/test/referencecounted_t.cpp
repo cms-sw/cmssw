@@ -51,7 +51,7 @@ namespace testreferencecounted {
       {
 	 RefPtr pointer( new RefTest );
 	 {
-	    RefPtr pointer2( pointer );
+	    const RefPtr& pointer2( pointer );
 	 }
       }
       assert( 0 == s_construct );

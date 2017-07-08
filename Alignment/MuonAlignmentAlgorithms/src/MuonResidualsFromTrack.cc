@@ -97,9 +97,9 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
         TrajectoryMeasurement trajMeasurement = *iTrajMeasurement;
 
         TrajectoryStateOnSurface tsos = m_tsoscomb(trajMeasurement.forwardPredictedState(), trajMeasurement.backwardPredictedState());
-        TrajectoryStateOnSurface tsosF = trajMeasurement.forwardPredictedState();
-        TrajectoryStateOnSurface tsosB = trajMeasurement.backwardPredictedState();
-        TrajectoryStateOnSurface tsosU = trajMeasurement.updatedState();
+        const TrajectoryStateOnSurface& tsosF = trajMeasurement.forwardPredictedState();
+        const TrajectoryStateOnSurface& tsosB = trajMeasurement.backwardPredictedState();
+        const TrajectoryStateOnSurface& tsosU = trajMeasurement.updatedState();
         if (m_debug) std::cout << "      TrajectoryMeasurement TSOS validity: " << tsos.isValid() << std::endl;
         if ( tsos.isValid() ) {
             double tsosGlobalPositionR = sqrt( tsos.globalPosition().x()*tsos.globalPosition().x() + tsos.globalPosition().y()*tsos.globalPosition().y() );

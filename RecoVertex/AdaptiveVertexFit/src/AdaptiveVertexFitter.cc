@@ -342,7 +342,7 @@ AdaptiveVertexFitter::reLinearizeTracks(
                                 const vector<RefCountedVertexTrack> & tracks,
                                 const CachingVertex<5> & vertex ) const
 {
-  VertexState seed = vertex.vertexState();
+  const VertexState& seed = vertex.vertexState();
   GlobalPoint linP = seed.position();
   vector<RefCountedLinearizedTrackState> lTracks;
   for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
@@ -394,7 +394,7 @@ AdaptiveVertexFitter::reWeightTracks(
                     const vector<RefCountedLinearizedTrackState> & lTracks,
                     const CachingVertex<5> & vertex ) const
 {
-  VertexState seed = vertex.vertexState();
+  const VertexState& seed = vertex.vertexState();
   // cout << "[AdaptiveVertexFitter] now reweight around " << seed.position() << endl;
   theNr++;
   // GlobalPoint pos = seed.position();

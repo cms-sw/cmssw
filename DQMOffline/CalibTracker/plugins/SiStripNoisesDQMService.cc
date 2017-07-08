@@ -52,7 +52,7 @@ void SiStripNoisesDQMService::readNoises()
   MEs.erase(newEnd, MEs.end());
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos  = reader.getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos  = reader.getAllData();
   for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin(); it != DetInfos.end(); ++it) {
 
 

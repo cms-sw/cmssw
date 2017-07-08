@@ -120,7 +120,7 @@ uint32_t HcalTB06BeamSD::setDetUnitId(G4Step * aStep) {
   } else {
     det = 2;
     lay = (touch->GetReplicaNumber(1));
-    G4ThreeVector hitPoint    = preStepPoint->GetPosition();
+    const G4ThreeVector& hitPoint    = preStepPoint->GetPosition();
     G4ThreeVector localPoint  = setToLocal(hitPoint, touch);
     x   = (int)(localPoint.x()/(0.2*mm));
     y   = (int)(localPoint.y()/(0.2*mm));

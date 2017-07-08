@@ -665,7 +665,7 @@ void MultiHitGeneratorFromChi2::refit2Hits(HitOwnPtr & hit1,
 					   const TrackingRegion& region, float nomField, bool isDebug) {
 
   //these need to be sorted in R
-  GlobalPoint gp0 = region.origin();
+  const GlobalPoint& gp0 = region.origin();
   GlobalPoint gp1 = hit1->globalPosition();
   GlobalPoint gp2 = hit2->globalPosition();
 

@@ -331,7 +331,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	// set the "forward" ref to the thinned collection
 	edm::Ref<reco::GenJetCollection > genForwardRef ( h_genJetsOut, genJetsOut->size() - 1 );
 	// set the "backward" ref to the original collection
-	edm::Ref<reco::GenJetCollection > genBackRef ( genjet );
+	const edm::Ref<reco::GenJetCollection >& genBackRef ( genjet );
 	// make the FwdPtr
 	edm::FwdRef<reco::GenJetCollection > genjetFwdRef ( genForwardRef, genBackRef );
 	ajet.setGenJetRef(genjetFwdRef );
@@ -378,7 +378,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	      // set the "forward" ptr to the thinned collection
 	      edm::Ptr<reco::BaseTagInfo> tagInfoForwardPtr ( h_tagInfosOut.id(), &tagInfosOut->back(), tagInfosOut->size() - 1 );
 	      // set the "backward" ptr to the original collection for association
-	      edm::Ptr<reco::BaseTagInfo> tagInfoBackPtr ( match );
+	      const edm::Ptr<reco::BaseTagInfo>& tagInfoBackPtr ( match );
 	      // make FwdPtr
 	      TagInfoFwdPtrCollection::value_type tagInfoFwdPtr( tagInfoForwardPtr, tagInfoBackPtr ) ;
 	      ajet.addTagInfo(tagInfoLabels_[k], tagInfoFwdPtr );

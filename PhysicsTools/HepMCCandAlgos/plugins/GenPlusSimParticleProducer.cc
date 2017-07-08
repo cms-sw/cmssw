@@ -133,7 +133,7 @@ void GenPlusSimParticleProducer::addGenParticle( const SimTrack &stMom,
   // Make the genParticle for stDau and add it to the new collection and update the parent-child relationship
   // Make up a GenParticleCandidate from the GEANT track info.
   int charge = static_cast<int>(stDau.charge());
-  Particle::LorentzVector p4 = stDau.momentum();
+  const Particle::LorentzVector& p4 = stDau.momentum();
   Particle::Point vtx; // = (0,0,0) by default
   if (!stDau.noVertex()) vtx = simvertices[stDau.vertIndex()].position();
   GenParticle genp(charge, p4, vtx, stDau.type(), setStatus_, true);

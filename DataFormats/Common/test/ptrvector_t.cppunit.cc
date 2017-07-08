@@ -64,7 +64,7 @@ using namespace testPtr;
 
 void
 do_some_tests(edm::PtrVector<Base> const& x) {
-  edm::PtrVector<Base> copy(x);
+  const edm::PtrVector<Base>& copy(x);
 
   CPPUNIT_ASSERT(x.empty() == copy.empty());
   CPPUNIT_ASSERT(x.size() == copy.size());
@@ -91,7 +91,7 @@ testPtrVector::check() {
   rv2.push_back(Ptr<Inherit2 >(h2, 1));
 
   PtrVector<Base> empty;
-  PtrVector<Base> copy_of_empty(empty);
+  const PtrVector<Base>& copy_of_empty(empty);
 
   CPPUNIT_ASSERT(empty == copy_of_empty);
 

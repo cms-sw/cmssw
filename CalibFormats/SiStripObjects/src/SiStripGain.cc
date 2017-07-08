@@ -42,7 +42,7 @@ void SiStripGain::fillNewGain(const SiStripApvGain * apvgain, const double & fac
   SiStripApvGain * newApvGain = new SiStripApvGain;
   edm::FileInPath fp("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
   SiStripDetInfoFileReader reader(fp.fullPath());
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos = reader.getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>& DetInfos = reader.getAllData();
 
   // Loop on the apvgain in input and fill the newApvGain with the values/factor.
   std::vector<uint32_t> detIds;

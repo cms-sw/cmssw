@@ -74,10 +74,10 @@ G4bool HFChamberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   double edep = aStep->GetTotalEnergyDeposit();
   double time = (preStepPoint->GetGlobalTime())/ns;
 
-  G4ThreeVector globalPos = preStepPoint->GetPosition();
+  const G4ThreeVector& globalPos = preStepPoint->GetPosition();
   G4ThreeVector localPos  = touch->GetHistory()->GetTopTransform().TransformPoint(globalPos);
   const G4DynamicParticle* particle =  aStep->GetTrack()->GetDynamicParticle();
-  G4ThreeVector momDir   = particle->GetMomentumDirection();
+  const G4ThreeVector& momDir   = particle->GetMomentumDirection();
 
   HFShowerG4Hit *aHit = new HFShowerG4Hit(detID, trackID, edep, time);
   aHit->setLocalPos(localPos);

@@ -330,12 +330,12 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   rememberCrackSegments(me0,  crackSegments);
 
 
-  MuonRecHitContainer list24 = me4;
-  MuonRecHitContainer list23 = me3;
+  const MuonRecHitContainer& list24 = me4;
+  const MuonRecHitContainer& list23 = me3;
 
-  MuonRecHitContainer list12 = me2;
+  const MuonRecHitContainer& list12 = me2;
 
-  MuonRecHitContainer list22 = me12;
+  const MuonRecHitContainer& list22 = me12;
   MuonRecHitContainer list21 = me11;
   // add ME0 to ME1
   list21.reserve(list21.size()+me0.size());

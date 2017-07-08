@@ -702,7 +702,7 @@ void TrackerGeometryCompare::setCommonTrackerSystem(){
 	
 	//adjust translational difference factoring in different rotational CM
 	//needed because rotateInGlobalFrame is about CM of alignable, not Tracker
-	align::GlobalVector::BasicVectorType lpvgf = cmDiff.basicVector();
+	const align::GlobalVector::BasicVectorType& lpvgf = cmDiff.basicVector();
 	align::GlobalVector moveV( rot.multiplyInverse(lpvgf) - lpvgf);
 	align::GlobalVector theRprime(theR + moveV);
 	
@@ -920,7 +920,7 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 	for(std::vector<Alignable*>::iterator k = rcdAlis.begin(); k != rcdAlis.end(); k++){
 		
 		const SurveyDet* surveyInfo = (*k)->survey();
-		align::PositionType pos(surveyInfo->position());
+		const align::PositionType& pos(surveyInfo->position());
 		align::RotationType rot(surveyInfo->rotation());
 		CLHEP::Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
 		CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));

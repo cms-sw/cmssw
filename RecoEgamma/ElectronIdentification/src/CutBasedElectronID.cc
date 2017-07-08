@@ -492,7 +492,7 @@ double CutBasedElectronID::robustSelection(const reco::GsfElectron* electron ,
     e.getByToken(verticesCollection_, pBeamSpot);
     if (pBeamSpot.isValid()) {
       const reco::BeamSpot *bspot = pBeamSpot.product();
-      const math::XYZPoint bspotPosition = bspot->position();
+      const math::XYZPoint& bspotPosition = bspot->position();
       ip = fabs(electron->gsfTrack()->dxy(bspotPosition));
     } else
       ip = fabs(electron->gsfTrack()->dxy());

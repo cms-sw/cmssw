@@ -398,8 +398,8 @@ metsig::SignAlgoResolutions::initializeJetResolutions( const edm::ParameterSet &
     if (stat(path.c_str(),&st)!=0) {
       cerr<<"ERROR: tried to set path but failed, abort."<<endl;
     }    
-    string era(resolutionsEra);
-    string alg(resolutionsAlgo);
+    const string& era(resolutionsEra);
+    const string& alg(resolutionsAlgo);
     string ptFileName  = path + "/" + era + "_PtResolution_" +alg+".txt";
     string phiFileName = path + "/" + era + "_PhiResolution_"+alg+".txt";
     

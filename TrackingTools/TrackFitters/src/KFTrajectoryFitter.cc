@@ -14,7 +14,7 @@ Trajectory KFTrajectoryFitter::fitOne(const Trajectory& aTraj, fitType type) con
 
   if(aTraj.empty()) return Trajectory();
 
-  TM firstTM = aTraj.firstMeasurement();
+  const TM& firstTM = aTraj.firstMeasurement();
   TSOS firstTsos = TrajectoryStateWithArbitraryError()(firstTM.updatedState());
 
   return fitOne(aTraj.seed(), aTraj.recHits(), firstTsos,type);

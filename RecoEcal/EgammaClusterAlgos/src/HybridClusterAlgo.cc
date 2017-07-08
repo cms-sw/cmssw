@@ -91,7 +91,7 @@ void HybridClusterAlgo::makeClusters(const EcalRecHitCollection*recColl,
       //Make the vector of seeds that we're going to use.
       //One of the few places position is used, needed for ET calculation.    
       const CaloCellGeometry & this_cell = *(*geometry).getGeometry(it->id());
-      GlobalPoint position = this_cell.getPosition();
+      const GlobalPoint& position = this_cell.getPosition();
       
       
       // Require that RecHit is within clustering region in case

@@ -634,7 +634,7 @@ bool CkfDebugger::associated(CTTRHp rechit, const PSimHit& pSimHit) const
 bool CkfDebugger::correctMeas( const TM& tm, const PSimHit* correctHit) const
 {
   LogTrace("CkfDebugger") << "now in correctMeas" ;
-  CTTRHp recHit = tm.recHit();
+  const CTTRHp& recHit = tm.recHit();
   if (recHit->isValid()) LogTrace("CkfDebugger") << "hit at position:" << recHit->globalPosition() ;
   TransientTrackingRecHit::RecHitContainer comp = recHit->transientHits();
   if (comp.empty()) {

@@ -141,7 +141,7 @@ void testCaloGeometryTools::checkSM()
   for(unsigned ic=0;ic<size;++ic)
     {
       const CaloCellGeometry * geom=myGeometry.getEcalBarrelGeometry()->getGeometry(vec[ic]);
-      GlobalPoint p=geom->getPosition();
+      const GlobalPoint& p=geom->getPosition();
       XYZPoint pp(p.x(),p.y(),p.z());
        // Build the name of the object
       std::ostringstream oss,oss2;
@@ -163,7 +163,7 @@ void testCaloGeometryTools::checkSC()
   for(unsigned ic=0;ic<size;++ic)
     {
       const CaloCellGeometry * geom=myGeometry.getEcalEndcapGeometry()->getGeometry(vec[ic]);
-      GlobalPoint p=geom->getPosition();
+      const GlobalPoint& p=geom->getPosition();
       XYZPoint pp(p.x(),p.y(),p.z());
        // Build the name of the object
       std::ostringstream oss,oss2;

@@ -189,7 +189,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
   if (! caloHits_.empty()){
     //Take the SC position
  
-    math::XYZPoint theCaloPosition = sc->position();
+    const math::XYZPoint& theCaloPosition = sc->position();
     GlobalPoint pclu (theCaloPosition.x () ,
 		      theCaloPosition.y () ,
 		      theCaloPosition.z () );

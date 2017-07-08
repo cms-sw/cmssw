@@ -218,7 +218,7 @@ void SimG4HGCalValidation::update(const G4Step * aStep) {
 
     // Only for Sensitive detector
     if (curSD != 0) {
-      G4String name = curPV->GetName();
+      const G4String& name = curPV->GetName();
       int type(-1);
       for (unsigned int k=0; k<names_.size(); ++k) {
 	if (name.find(names_[k].c_str()) != std::string::npos) {

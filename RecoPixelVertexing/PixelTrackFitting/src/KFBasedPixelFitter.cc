@@ -92,7 +92,7 @@ std::unique_ptr<reco::Track> KFBasedPixelFitter::run(const std::vector<const Tra
 
   float ptMin = region.ptMin();
 
-  const GlobalPoint vertexPos = region.origin();
+  const GlobalPoint& vertexPos = region.origin();
   GlobalError vertexErr( sqr(region.originRBound()), 0, sqr(region.originRBound()), 0, 0, sqr(region.originZBound()));
 
   std::vector<GlobalPoint> points(nhits);

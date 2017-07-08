@@ -655,7 +655,7 @@ void TEcnaRead::FileParameters(const TString&      typ_ana,    const Int_t& nb_o
   // Preliminary save of the arguments values because they can be of the form: fFileHeader->...
   // and because fFileHeader can be deleted and re-created in this method
 
-  TString sTypAna      = typ_ana;
+  const TString& sTypAna      = typ_ana;
   Int_t   nNbOfSamples = nb_of_samples;
   Int_t   nRunNumber   = run_number;
   Int_t   nFirstEvt    = nfirst;

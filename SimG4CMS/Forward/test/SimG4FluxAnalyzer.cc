@@ -122,7 +122,7 @@ void SimG4FluxAnalyzer::analyze(const edm::Event& iEvent,
     iEvent.getByToken(token, pFlux);
     if (pFlux.isValid()) {
       const ParticleFlux             *pflux = pFlux.product();
-      std::string                     name = pflux->getName();
+      const std::string&                     name = pflux->getName();
       int                             id   = pflux->getId();
       std::vector<ParticleFlux::flux> flux = pflux->getFlux();
 #ifdef EDM_ML_DEBUG

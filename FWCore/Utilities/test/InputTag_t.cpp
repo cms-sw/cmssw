@@ -128,7 +128,7 @@ int main() {
     abort();
   }
 
-  edm::InputTag tag9(tag8);
+  const edm::InputTag& tag9(tag8);
   edm::InputTag tag11("a:b:c");
   edm::InputTag tag10(std::move(tag11));
   tag6 = tag10;
@@ -168,7 +168,7 @@ int main() {
     abort();
   }
 
-  edm::InputTag tag12c(tag12b);
+  const edm::InputTag& tag12c(tag12b);
   if (!tag12c.willSkipCurrentProcess()) {
     std::cout << "Test of tag12c failed" << std::endl;
     abort();

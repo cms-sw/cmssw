@@ -106,7 +106,7 @@ class EcalTBH4Trigger : public SimWatcher,
 	}
 	std::cout <<std::endl; 
 	const G4Track* theTrack = iStep->GetTrack();
-	const G4ThreeVector pos = post->GetPosition();
+	const G4ThreeVector& pos = post->GetPosition();
 	std::cout << "( "<<pos.x()<<","<<pos.y()<<","<<pos.z()<<") ";
 	std::cout << " released energy (MeV) " 
 		  <<  iStep->GetTotalEnergyDeposit()/CLHEP::MeV  ;

@@ -944,7 +944,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const
   //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
 
-  LocalVector trackdirection = ldir;
+  const LocalVector& trackdirection = ldir;
 
   GlobalVector gtrkdir = gluedDet->toGlobal(trackdirection);
   LocalVector monotkdir = monodet->toLocal(gtrkdir);
@@ -1101,7 +1101,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir, const Trackin
   MeasurementPoint Mposition = topol.measurementPosition(position);
   MeasurementError Merror = topol.measurementError(position,error);
  
-  LocalVector trackdirection = ldir;
+  const LocalVector& trackdirection = ldir;
   rechitpro.trackangle = std::atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
   rechitpro.trackanglebeta = std::atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
 

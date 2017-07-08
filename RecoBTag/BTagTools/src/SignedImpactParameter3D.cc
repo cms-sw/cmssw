@@ -31,7 +31,7 @@ pair<bool,Measurement1D> SignedImpactParameter3D::apply(const TransientTrack & t
   
   const FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
 
-  GlobalVector JetDirection(direction);
+  const GlobalVector& JetDirection(direction);
   
   TrajectoryStateOnSurface theTSOS = closestApproachToJet(*FTS, vertex, JetDirection,transientTrack.field());
   theIsValid= theTSOS.isValid();
@@ -122,7 +122,7 @@ pair<double,Measurement1D> SignedImpactParameter3D::distanceWithJetAxis(const Tr
   
   const FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
 
-  GlobalVector jetDirection(direction);
+  const GlobalVector& jetDirection(direction);
 
   //
   // Check whether the track has been used in the vertex

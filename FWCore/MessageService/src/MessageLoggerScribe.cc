@@ -603,7 +603,7 @@ void
     if (timespan == NO_VALUE_SET) timespan = dest_default_timespan;
        								// change log 7 
 
-    std::string category = msgID;
+    const std::string& category = msgID;
     if ( limit     == NO_VALUE_SET )  {				// change log 24
        limit = messageLoggerDefaults->limit(filename,category);
     }  
@@ -863,7 +863,7 @@ void
      )
   {
     String statname = *it;
-    String psetname = statname;
+    const String& psetname = statname;
 
     // check that this destination is not just a placeholder // change log 20
     PSet  stat_pset = getAparameter<PSet>(*job_pset_p, psetname, empty_PSet);

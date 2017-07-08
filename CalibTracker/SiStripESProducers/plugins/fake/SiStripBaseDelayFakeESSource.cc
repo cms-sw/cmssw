@@ -68,7 +68,7 @@ SiStripBaseDelayFakeESSource::produce(const SiStripBaseDelayRcd& iRecord)
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
 
-  const auto detInfos = reader.getAllData();
+  const auto& detInfos = reader.getAllData();
   if ( detInfos.empty() ) {
     edm::LogError("SiStripBaseDelayGenerator") << "Error: detInfo map is empty.";
   }

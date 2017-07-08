@@ -608,13 +608,13 @@ bool testMultiAssociation::tryBadFill(int i) {
         case 11:
             { // Can copy a LazyFiller, but crash if I fill twice
               MultiRef::LazyFiller filler = m.lazyFiller(handleK1,true);
-              MultiRef::LazyFiller filler2 = filler;
+              const MultiRef::LazyFiller& filler2 = filler;
             }
             break;
         case 12:
             { // Can copy a FastFiller
               MultiRef::FastFiller filler = m.fastFiller(handleK1);
-              MultiRef::FastFiller filler2 = filler;
+              const MultiRef::FastFiller& filler2 = filler;
             }
             break;
         default:

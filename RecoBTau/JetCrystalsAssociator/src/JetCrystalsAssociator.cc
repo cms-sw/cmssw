@@ -164,7 +164,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		DetId id = theRecHit->detid();
 		const CaloCellGeometry* this_cell = EB->getGeometry(id);
 		if (this_cell) {
-		  GlobalPoint posi = this_cell->getPosition();
+		  const GlobalPoint& posi = this_cell->getPosition();
 		  double energy = theRecHit->energy();
 		  double eta = posi.eta();
 		  double phi = posi.phi();
@@ -183,7 +183,7 @@ JetCrystalsAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		DetId id = theRecHit->detid();
 		const CaloCellGeometry* this_cell = EE->getGeometry(id);
 		if (this_cell) {
-		  GlobalPoint posi = this_cell->getPosition();
+		  const GlobalPoint& posi = this_cell->getPosition();
 		  double energy = theRecHit->energy();
 		  double eta = posi.eta();
 		  double phi = posi.phi();

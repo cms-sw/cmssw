@@ -36,7 +36,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
   }
 
   // Get the seed cluster  	
-  reco::CaloClusterPtr seedC = cl.seed();
+  const reco::CaloClusterPtr& seedC = cl.seed();
 
   
   LogTrace("EgammaSCEnergyCorrectionAlgo")<< "   Seed cluster energy... " << seedC->energy() << std::endl;

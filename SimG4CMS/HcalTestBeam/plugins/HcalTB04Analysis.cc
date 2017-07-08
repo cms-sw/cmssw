@@ -256,7 +256,7 @@ void HcalTB04Analysis::update(const G4Step * aStep) {
     G4Track*      aTrack   = aStep->GetTrack();
     int           trackID  = aTrack->GetTrackID();
     int           parentID = aTrack->GetParentID();
-    G4ThreeVector position = aTrack->GetPosition();
+    const G4ThreeVector& position = aTrack->GetPosition();
     G4ThreeVector momentum = aTrack->GetMomentum();
     G4String      partType = aTrack->GetDefinition()->GetParticleType();
     G4String      partSubType = aTrack->GetDefinition()->GetParticleSubType();

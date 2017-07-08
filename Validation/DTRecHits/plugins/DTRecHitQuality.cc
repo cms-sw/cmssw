@@ -475,7 +475,7 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
     } else {
       recHitReconstructed = true;
       // vector<type> recHits = (*wireAndRecHits).second;
-      vector<type> recHits = recHitsPerWire.at(wireId);
+      const vector<type>& recHits = recHitsPerWire.at(wireId);
       if(debug)
         cout << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId << endl;
 

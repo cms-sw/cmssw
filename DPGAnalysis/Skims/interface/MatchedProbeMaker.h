@@ -115,7 +115,7 @@ void MatchedProbeMaker<T>::produce(edm::Event& iEvent, const edm::EventSetup& iS
       for (unsigned j=0; j<Refs->size(); j++) {
 	//const edm::Ref< collection > RefRef = (*Refs)[j];
 	RefToBase<Candidate> RefRef(Refs, j);
-	reco::CandidateBaseRef refBaseRef( RefRef );
+	const reco::CandidateBaseRef& refBaseRef( RefRef );
 	
 	if(overlap(*CandRef,*RefRef)) {
 	   ppass = true; 

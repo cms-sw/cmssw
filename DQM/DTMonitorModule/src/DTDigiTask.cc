@@ -328,7 +328,7 @@ void DTDigiTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh
   if (folder == "Occupancies")    {
 
     const DTChamber* dtchamber = muonGeom->chamber(dtCh);
-    const std::vector<const DTSuperLayer*> dtSupLylist = dtchamber->superLayers();
+    const std::vector<const DTSuperLayer*>& dtSupLylist = dtchamber->superLayers();
     std::vector<const DTSuperLayer*>::const_iterator suly = dtSupLylist.begin();
     std::vector<const DTSuperLayer*>::const_iterator sulyend = dtSupLylist.end();
 

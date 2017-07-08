@@ -315,7 +315,7 @@ double DreamSD::cherenkovDeposit_( G4Step* aStep ) {
   // Get particle properties
   G4StepPoint* pPreStepPoint  = aStep->GetPreStepPoint();
   G4StepPoint* pPostStepPoint = aStep->GetPostStepPoint();
-  G4ThreeVector x0 = pPreStepPoint->GetPosition();
+  const G4ThreeVector& x0 = pPreStepPoint->GetPosition();
   G4ThreeVector p0 = aStep->GetDeltaPosition().unit();
   const G4DynamicParticle* aParticle = aStep->GetTrack()->GetDynamicParticle();
   const double charge = aParticle->GetDefinition()->GetPDGCharge();

@@ -216,10 +216,10 @@ CastorShowerEvent CastorShowerLibrary::getShowerHits(G4Step * aStep, bool & ok) 
   G4Track *     track         = aStep->GetTrack();
   // Get Z-direction 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector               momDir = aParticle->GetMomentumDirection();
+  const G4ThreeVector&               momDir = aParticle->GetMomentumDirection();
   //  double mom = aParticle->GetTotalMomentum();
 
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4String      partType = track->GetDefinition()->GetParticleName();
   int           parCode  = track->GetDefinition()->GetPDGEncoding();
 

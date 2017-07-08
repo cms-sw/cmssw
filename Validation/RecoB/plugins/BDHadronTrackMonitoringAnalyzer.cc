@@ -225,7 +225,7 @@ void BDHadronTrackMonitoringAnalyzer::analyze(const edm::Event& iEvent, const ed
             TrkTruthEta = tpr->eta();
             TrkTruthPhi = tpr->phi();
         
-            TrackingParticle::Point vertex_pv = pv->position();
+            const TrackingParticle::Point& vertex_pv = pv->position();
             TrackingParticle::Point vertex_tpr = tpr->vertex();
             TrackingParticle::Vector momentum_tpr = tpr->momentum();
             TrkTruthDxy = (-(vertex_tpr.x()-vertex_pv.x())*momentum_tpr.y()+(vertex_tpr.y()-vertex_pv.y())*momentum_tpr.x())/tpr->pt();

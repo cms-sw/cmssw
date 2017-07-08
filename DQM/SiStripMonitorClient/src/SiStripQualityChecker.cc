@@ -420,7 +420,7 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
 	std::ostringstream detid_str;  
 	detid_str << detId;  
 	//now in the layer/wheel dir  
-	std::string currentdir = dqm_store->pwd();  
+	const std::string& currentdir = dqm_store->pwd();  
 	std::string thisMEpath = currentdir.substr( 0 , currentdir.rfind( "/" ) ) + "/BadModuleList/" + detid_str.str() ;  
 	
 	MonitorElement *meBadModule = dqm_store->get ( thisMEpath );  

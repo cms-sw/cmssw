@@ -46,7 +46,7 @@ void testView::basic()
   View v1;
   CPPUNIT_ASSERT(v1.size() == 0);
   CPPUNIT_ASSERT(v1.empty());
-  View v2(v1);
+  const View& v2(v1);
   CPPUNIT_ASSERT(v1==v2);
   View v3;
   v3 = v1;

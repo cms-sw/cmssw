@@ -179,7 +179,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 //	   " eta "<<(*hite).detid()<<" phi "<<(*hite).detid().getPosition().phi()<<endl;
 
-	 GlobalPoint posE = geo->getPosition((*hite).detid());
+	 const GlobalPoint& posE = geo->getPosition((*hite).detid());
 
            cout<<" Energy ECAL "<<(*hite).energy()<<
 	   " eta "<<posE.eta()<<" phi "<<posE.phi()<<endl;
@@ -197,7 +197,7 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
           for (; hith != (hbhe.product())->end (); hith++)
          {
 
-	 GlobalPoint posH = geo->getPosition((*hith).detid());
+	 const GlobalPoint& posH = geo->getPosition((*hith).detid());
 
            cout<<" Energy HCAL "<<(*hith).energy()<<
 	   " eta "<<posH.eta()<<" phi "<<posH.phi()<<endl;

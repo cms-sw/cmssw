@@ -126,7 +126,7 @@ void AlignableDetUnit::addAlignmentPositionErrorFromRotation(const RotationType&
 								     .5 * surface().length(),
 								     0.) );
 
-  LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+  const LocalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );

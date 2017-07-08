@@ -184,7 +184,7 @@ void SiStripDetVOffBuilder::BuildDetVOffObj()
         // Use the file
         edm::FileInPath fp(detIdListFile_);
         SiStripDetInfoFileReader reader(fp.fullPath());
-        const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > detInfos  = reader.getAllData();
+        const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& detInfos  = reader.getAllData();
 
 	//FIXME:
 	//Following code is actually broken (well not until the cfg has "" for excludedDetIDListFile parameter!

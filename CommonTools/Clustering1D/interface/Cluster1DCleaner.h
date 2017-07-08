@@ -49,7 +49,7 @@ template <class T>
 std::vector<Cluster1D<T> >
 Cluster1DCleaner<T>::clusters(const std::vector<Cluster1D<T> >& _clust)
 {
-    std::vector<Cluster1D<T> > clust = _clust;
+    const std::vector<Cluster1D<T> >& clust = _clust;
     cleanCluster1Ds(clust);
     return theCleanedCluster1Ds;
 }

@@ -118,7 +118,7 @@ std::vector<HFShowerParam::Hit> HFShowerParam::getHits(G4Step * aStep,
 						       double weight) {
   G4StepPoint * preStepPoint  = aStep->GetPreStepPoint(); 
   G4Track *     track    = aStep->GetTrack();   
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();   
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();   
   G4int         particleCode = track->GetDefinition()->GetPDGEncoding();
   double        zv = std::abs(hitPoint.z()) - gpar[4] - 0.5*gpar[1];
   G4ThreeVector localPoint = G4ThreeVector(hitPoint.x(),hitPoint.y(),zv);

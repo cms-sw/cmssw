@@ -230,7 +230,7 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.getByLabel(offlineBSCollection_, pBeamSpot);
 
   const reco::BeamSpot *bspot = pBeamSpot.product();
-  math::XYZPoint bspotPosition = bspot->position();
+  const math::XYZPoint& bspotPosition = bspot->position();
 
   std::vector<const GsfElectron*> goodElectrons;  
   float ptMax=-999.;

@@ -658,7 +658,7 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   trackHists2D[iNhit17]->Fill(nhitinENDCAPplus,nhitinENDCAPminus);
 
   if (track->innerOk()) {
-    const reco::TrackBase::Point firstPoint(track->innerPosition());
+    const reco::TrackBase::Point& firstPoint(track->innerPosition());
     static const int iR1 = this->GetIndex(trackHists1D, "r1Track");
     trackHists1D[iR1]->Fill(firstPoint.Rho());
     const double rSigned1 = (firstPoint.y() > 0 ? firstPoint.Rho() : -firstPoint.Rho());
@@ -679,7 +679,7 @@ void MillePedeMonitor::fillTrack(const reco::Track *track, std::vector<TH1*> &tr
   }
 
   if (track->outerOk()) {
-    const reco::TrackBase::Point lastPoint(track->outerPosition());
+    const reco::TrackBase::Point& lastPoint(track->outerPosition());
     static const int iRlast = this->GetIndex(trackHists1D, "rLastTrack");
     trackHists1D[iRlast]->Fill(lastPoint.Rho());
     static const int iZlast = this->GetIndex(trackHists1D, "zLastTrack");

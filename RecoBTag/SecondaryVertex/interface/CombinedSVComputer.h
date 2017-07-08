@@ -266,7 +266,7 @@ void CombinedSVComputer::fillCommonVariables(reco::TaggingVariableList & vars, r
                 double vertexMass = vertexSum.M();
                 if (vtxType == btag::Vertices::RecoVertex &&
                     vertexMassCorrection) {
-                        GlobalVector dir = svInfo.flightDirection(vtx);
+                        const GlobalVector& dir = svInfo.flightDirection(vtx);
                         double vertexPt2 = math::XYZVector(dir.x(), dir.y(), dir.z()).Cross(vertexSum).Mag2() / dir.mag2();
                         vertexMass = std::sqrt(vertexMass * vertexMass + vertexPt2) + std::sqrt(vertexPt2);
                 }

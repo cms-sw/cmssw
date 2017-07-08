@@ -118,8 +118,8 @@ namespace edm {
                      ObjectWithDict const& iObject,
                      std::string const& iIndent,
                      std::string const& iIndentDelta) {
-       std::string printName = iName;
-       ObjectWithDict objectToPrint = iObject;
+       const std::string& printName = iName;
+       const ObjectWithDict& objectToPrint = iObject;
        std::string indent(iIndent);
        if(iObject.typeOf().isPointer()) {
          LogAbsolute("EventContent") << iIndent << iName << kNameValueSep << formatClassName(iObject.typeOf().name()) << std::hex << iObject.address() << std::dec;// << "\n";

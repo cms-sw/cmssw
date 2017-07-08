@@ -722,7 +722,7 @@ void SiStripCondObjBuilderFromDb::buildAnalysisRelatedObjects( SiStripConfigDb* 
 
   // Get all detIds from the ideal geometry to build the payload
   SiStripDetInfoFileReader * fr=edm::Service<SiStripDetInfoFileReader>().operator->();
-  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = fr->getAllData();
+  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos  = fr->getAllData();
 
   for(auto it = DetInfos.begin(); it != DetInfos.end(); ++it){
     // check if det id is correct and if it is actually cabled in the detector

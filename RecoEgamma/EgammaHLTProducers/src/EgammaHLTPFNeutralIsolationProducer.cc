@@ -137,7 +137,7 @@ void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm:
 	  }
 	  
 	  // Shift the RecoEcalCandidate direction vector according to the PF vertex
-	  math::XYZPoint pfvtx = pfc.vertex();
+	  const math::XYZPoint& pfvtx = pfc.vertex();
 	  math::XYZVector candDirectionWrtVtx(candRef->superCluster()->x() - pfvtx.x(),
 					      candRef->superCluster()->y() - pfvtx.y(),
 					      candRef->superCluster()->z() - pfvtx.z());

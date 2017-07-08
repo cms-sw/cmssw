@@ -148,7 +148,7 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
    for(unsigned int i = 0;  i < ebrhitsuncleaned->size(); i++){
      const EcalRecHit & rhit = (*ebrhitsuncleaned)[i];
      bool isclean(true);
-     edm::RefVector<EcalRecHitCollection> refbeamhalorechits =  TheSummaryHalo.GetEBRechits();
+     const edm::RefVector<EcalRecHitCollection>& refbeamhalorechits =  TheSummaryHalo.GetEBRechits();
      for(unsigned int j = 0; j <refbeamhalorechits.size() ; j++){
        const EcalRecHit &rhitbeamhalo = *(refbeamhalorechits)[j];
        if( rhit.detid() == rhitbeamhalo.detid() ) { 
@@ -164,7 +164,7 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
    for(unsigned int i = 0;  i < eerhitsuncleaned->size(); i++){
      const EcalRecHit & rhit = (*eerhitsuncleaned)[i];
      bool isclean(true);
-     edm::RefVector<EcalRecHitCollection> refbeamhalorechits =  TheSummaryHalo.GetEERechits();
+     const edm::RefVector<EcalRecHitCollection>& refbeamhalorechits =  TheSummaryHalo.GetEERechits();
      for(unsigned int j = 0; j <refbeamhalorechits.size() ; j++){
        const EcalRecHit &rhitbeamhalo = *(refbeamhalorechits)[j];
        if( rhit.detid() == rhitbeamhalo.detid() ) { 
@@ -180,7 +180,7 @@ CaloRecHitsBeamHaloCleaned::produce(edm::Event& iEvent, const edm::EventSetup& i
    for(unsigned int i = 0;  i < hbherhitsuncleaned->size(); i++){
      const HBHERecHit & rhit = (*hbherhitsuncleaned)[i];
      bool isclean(true);
-     edm::RefVector<HBHERecHitCollection> refbeamhalorechits =  TheSummaryHalo.GetHBHERechits();
+     const edm::RefVector<HBHERecHitCollection>& refbeamhalorechits =  TheSummaryHalo.GetHBHERechits();
      for(unsigned int j = 0; j <refbeamhalorechits.size() ; j++){
        const HBHERecHit &rhitbeamhalo = *(refbeamhalorechits)[j];
        if( rhit.detid() == rhitbeamhalo.detid() ) { 

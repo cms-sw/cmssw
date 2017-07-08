@@ -154,7 +154,7 @@ bool HLTDisplacedmumuFilter::hltFilter(edm::Event& iEvent, const edm::EventSetup
         			  0.);
 
 
-	  reco::Vertex::Point vpoint=displacedVertex.position();
+	  const reco::Vertex::Point& vpoint=displacedVertex.position();
 	  //translate to global point, should be improved
 	  GlobalPoint secondaryVertex (vpoint.x(), vpoint.y(), vpoint.z());
 

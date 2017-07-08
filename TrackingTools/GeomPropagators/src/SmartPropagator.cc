@@ -153,7 +153,7 @@ bool SmartPropagator::insideTkVol(const FreeTrajectoryState& fts) const {
 
 bool SmartPropagator::insideTkVol(const Surface& surface) const {
 
-  GlobalPoint gp = surface.position();
+  const GlobalPoint& gp = surface.position();
  // LocalPoint lp = theTkVolume()->toLocal(gp);
 
  // return theTkVolume()->bounds().inside(lp);
@@ -176,7 +176,7 @@ bool SmartPropagator::insideTkVol( const BoundCylinder& cylin)  const {
 
 bool SmartPropagator::insideTkVol( const Plane& plane)  const {
 
-  GlobalPoint gp = plane.position();
+  const GlobalPoint& gp = plane.position();
 //  LocalPoint lp = theTkVolume()->toLocal(gp);
 //  return theTkVolume()->bounds().inside(lp);
   return ( (gp.perp()<= TrackerBounds::radius()+10.) && (fabs(gp.z())<= TrackerBounds::halfLength()+10.) );

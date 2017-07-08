@@ -198,7 +198,7 @@ reco::PreshowerCluster PreshowerClusterAlgo::makeOneCluster(ESDetId strip,
      double E = cp->second.energy();
      energy_pos += E; 
      const CaloCellGeometry *thisCell = geometry_p->getGeometry(cp->first);
-     GlobalPoint position = thisCell->getPosition();
+     const GlobalPoint& position = thisCell->getPosition();
      x_pos += E * position.x();
      y_pos += E * position.y();
      z_pos += E * position.z();     

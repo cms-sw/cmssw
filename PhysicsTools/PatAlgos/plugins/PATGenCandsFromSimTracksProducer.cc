@@ -209,7 +209,7 @@ reco::GenParticle
 PATGenCandsFromSimTracksProducer::makeGenParticle_(const SimTrack &tk, const edm::Ref<reco::GenParticleCollection> & mother, const GlobalContext &g) const {
     // Make up a GenParticleCandidate from the GEANT track info.
     int charge = static_cast<int>(tk.charge());
-    Particle::LorentzVector p4 = tk.momentum();
+    const Particle::LorentzVector& p4 = tk.momentum();
     Particle::Point vtx; // = (0,0,0) by default
     if (!tk.noVertex()) vtx = g.simvtxs[tk.vertIndex()].position();
     GenParticle gp(charge, p4, vtx, tk.type(), setStatus_, true);

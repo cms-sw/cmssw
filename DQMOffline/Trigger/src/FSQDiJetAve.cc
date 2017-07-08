@@ -692,7 +692,7 @@ void HandlerTemplate<trigger::TriggerObject, trigger::TriggerObject>::getFiltere
 
     // 2. Fetch HLT objects saved by selected filter. Save those fullfilling preselection
     //      objects are saved in cands variable
-    std::string process = trgEvent.usedProcessName(); // broken?
+    const std::string& process = trgEvent.usedProcessName(); // broken?
     edm::InputTag hltTag(filterFullName ,"", process);
     
     const int hltIndex = trgEvent.filterIndex(hltTag);

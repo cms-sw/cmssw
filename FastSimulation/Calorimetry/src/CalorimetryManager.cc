@@ -555,7 +555,7 @@ void CalorimetryManager::HDShowerSimulation(const FSimTrack& myTrack, RandomEngi
   // const edm::ParameterSet& fastCalo){
   
   //  TimeMe t(" FASTEnergyReconstructor::HDShower");
-  XYZTLorentzVector moment = myTrack.momentum();
+  const XYZTLorentzVector& moment = myTrack.momentum();
   
   if(debug_)
     LogInfo("FastCalorimetry") 

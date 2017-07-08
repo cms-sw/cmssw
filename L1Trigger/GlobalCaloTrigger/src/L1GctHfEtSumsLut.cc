@@ -63,7 +63,7 @@ std::vector<unsigned> L1GctHfEtSumsLut::getThresholdsGct() const
 
 L1GctHfEtSumsLut L1GctHfEtSumsLut::operator= (const L1GctHfEtSumsLut& lut)
 {
-  L1GctHfEtSumsLut temp(lut);
+  const L1GctHfEtSumsLut& temp(lut);
   return temp;
 }
 

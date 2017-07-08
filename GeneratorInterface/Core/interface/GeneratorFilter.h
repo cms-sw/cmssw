@@ -293,7 +293,7 @@ namespace edm
 
     GenRunInfoProduct genRunInfo = GenRunInfoProduct(hadronizer_.getGenRunInfo());
     std::vector<GenLumiInfoProduct::ProcessInfo> GenLumiProcess;
-    GenRunInfoProduct::XSec xsec = genRunInfo.internalXSec();
+    const GenRunInfoProduct::XSec& xsec = genRunInfo.internalXSec();
     GenLumiInfoProduct::ProcessInfo temp;      
     temp.setProcess(0);
     temp.setLheXSec(xsec.value(), xsec.error()); // Pythia gives error of -1

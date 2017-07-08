@@ -472,7 +472,7 @@ TrajectoryManager::updateWithDaughters(ParticlePropagator& PP, int fsimi, Random
 
     // Before-propagation and after-propagation momentum and vertex position
     XYZTLorentzVector momentumBefore = mySimEvent->track(fsimi).momentum();
-    XYZTLorentzVector momentumAfter = PP.momentum();
+    const XYZTLorentzVector& momentumAfter = PP.momentum();
     double magBefore = std::sqrt(momentumBefore.Vect().mag2());
     double magAfter = std::sqrt(momentumAfter.Vect().mag2());
     // Rotation to be applied

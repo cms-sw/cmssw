@@ -107,7 +107,7 @@ void MonopoleSteppingAction::update(const G4Step* aStep) {
       pT    = std::sqrt(pxStart*pxStart+pyStart*pyStart);
       pZ    = pzStart;
     } else {
-      G4ThreeVector dirStep = aTrack->GetMomentumDirection();
+      const G4ThreeVector& dirStep = aTrack->GetMomentumDirection();
       double        lStep   = aTrack->GetStepLength();
       double        xStep   = aTrack->GetPosition().x()-lStep*dirStep.x();
       double        yStep   = aTrack->GetPosition().y()-lStep*dirStep.y();

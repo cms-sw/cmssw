@@ -200,7 +200,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   }
 
   // Check whether contains monitored trigger and accepted
-  const edm::TriggerNames triggerNames = iEvent.triggerNames(*triggerResults); 
+  const edm::TriggerNames& triggerNames = iEvent.triggerNames(*triggerResults); 
   bool triggered = isMonitoredTriggerAccepted(triggerNames, triggerResults); 
 
   // if (!triggered) return; 
@@ -222,7 +222,7 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
 
   // Fill trigger info
   for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
-    std::string triggername = triggerNames.triggerName(itrig);
+    const std::string& triggername = triggerNames.triggerName(itrig);
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
   	 triggers_reco_->Fill(i);
@@ -339,7 +339,7 @@ HigPhotonJetHLTOfflineSource::isMonitoredTriggerAccepted(const edm::TriggerNames
   for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
     // Only consider the triggered case.
     if ( triggerAccept_ && ( (*triggerResults)[itrig].accept() != 1) ) continue; 
-    std::string triggername = triggerNames.triggerName(itrig);
+    const std::string& triggername = triggerNames.triggerName(itrig);
     for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
       if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
   	return true;

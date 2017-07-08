@@ -60,10 +60,10 @@ std::vector<ZdcShowerLibrary::Hit> & ZdcShowerLibrary::getHits(G4Step * aStep, b
   G4Track *     track    = aStep->GetTrack();
 
   const G4DynamicParticle *aParticle = track->GetDynamicParticle();
-  G4ThreeVector momDir = aParticle->GetMomentumDirection();
+  const G4ThreeVector& momDir = aParticle->GetMomentumDirection();
   double energy = preStepPoint->GetKineticEnergy();
   G4ThreeVector hitPoint = preStepPoint->GetPosition();  
-  G4ThreeVector hitPointOrig = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPointOrig = preStepPoint->GetPosition();
   G4int parCode  = track->GetDefinition()->GetPDGEncoding();
 
   hits.clear();

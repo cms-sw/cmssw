@@ -1651,9 +1651,9 @@ void L1GtHwValidation::compareFDL(const edm::Event& iEvent,
     }
 
     // get  extended algorithms bits (extended decision word)
-    const DecisionWordExtended gtDecisionWordExtendedData =
+    const DecisionWordExtended& gtDecisionWordExtendedData =
             fdlBlockData.gtDecisionWordExtended();
-    const DecisionWordExtended gtDecisionWordExtendedEmul =
+    const DecisionWordExtended& gtDecisionWordExtendedEmul =
             fdlBlockEmul.gtDecisionWordExtended();
 
     if (gtDecisionWordExtendedData == gtDecisionWordExtendedEmul) {

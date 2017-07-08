@@ -121,7 +121,7 @@ void testSortedCollection::constructTest()
   scoll_type c3(values);
   CPPUNIT_ASSERT(c3.size() == values.size());
 
-  scoll_type c4(c3);
+  const scoll_type& c4(c3);
   CPPUNIT_ASSERT(c4.size() == c3.size());
   CPPUNIT_ASSERT(c3 == c4);
 }

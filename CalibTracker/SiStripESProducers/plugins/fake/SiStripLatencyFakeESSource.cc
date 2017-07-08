@@ -67,7 +67,7 @@ SiStripLatencyFakeESSource::produce(const SiStripLatencyRcd& iRecord)
   std::shared_ptr<SiStripLatency> latency{new SiStripLatency};
 
   SiStripDetInfoFileReader reader{m_file.fullPath()};
-  const auto detInfos = reader.getAllData();
+  const auto& detInfos = reader.getAllData();
   // Take the last detId. Since the map is sorted it will be the biggest value
   if ( ! detInfos.empty() ) {
     // Set the apv number as 6, the highest possible

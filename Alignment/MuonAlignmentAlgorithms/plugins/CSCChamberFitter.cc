@@ -296,7 +296,7 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
     }
   }
   TMatrixDEigen tmatrixdeigen(tmatrix); 
-  TMatrixD basis = tmatrixdeigen.GetEigenVectors();
+  const TMatrixD& basis = tmatrixdeigen.GetEigenVectors();
   TMatrixD invbasis = tmatrixdeigen.GetEigenVectors();
   invbasis.Invert();
   TMatrixD diagonalized = invbasis * (tmatrix * basis);

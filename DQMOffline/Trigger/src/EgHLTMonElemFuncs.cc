@@ -445,7 +445,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>&
 //Only one at a time so I can set the folder
 void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins)
 {   
-  std::string trigName(filterName);
+  const std::string& trigName(filterName);
   //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(filterName);
   float etCutValue = 0.;
   //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
@@ -519,7 +519,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>&
 
 void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string filterName,int cutMask,const BinData& bins)
 {
-    std::string trigName(filterName);
+    const std::string& trigName(filterName);
     //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;

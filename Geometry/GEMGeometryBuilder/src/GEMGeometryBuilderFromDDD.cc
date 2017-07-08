@@ -249,7 +249,7 @@ GEMGeometryBuilderFromDDD::boundPlane(const DDFilteredView& fv,
   //     ORCA uses 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
   //  DDRotationMatrix tmp = fv.rotation();
-  DDRotationMatrix rotation = fv.rotation();//REMOVED .Inverse();
+  const DDRotationMatrix& rotation = fv.rotation();//REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x,y,z);
   // LogDebug("GEMGeometryBuilderFromDDD") << "translation: "<< fv.translation() << std::endl;

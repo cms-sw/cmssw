@@ -45,8 +45,8 @@ void examplesSiStripFecKey::beginJob() {
 		    sistrip::invalid_);
   SiStripFecKey valid(1,2,1,1,16,1,32);
   SiStripFecKey all(0,0,0,0,0,0,0);
-  SiStripFecKey same(valid);
-  SiStripFecKey equal = valid;
+  const SiStripFecKey& same(valid);
+  const SiStripFecKey& equal = valid;
   SiStripFecKey equals; 
   equals = valid;
   SiStripFecKey to_gran(valid,sistrip::CCU_CHAN); 

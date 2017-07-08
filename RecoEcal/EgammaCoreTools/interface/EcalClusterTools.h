@@ -645,7 +645,7 @@ std::vector<typename EcalClusterToolsT<noZS>::EcalClusterEnergyDeposition> EcalC
             }
             DetId id_ = (*posCurrent).first;
             const CaloCellGeometry *this_cell = geometry->getSubdetectorGeometry(id_)->getGeometry(id_);
-            GlobalPoint cellPos = this_cell->getPosition();
+            const GlobalPoint& cellPos = this_cell->getPosition();
             CLHEP::Hep3Vector gblPos (cellPos.x(),cellPos.y(),cellPos.z()); //surface position?
             // Evaluate the distance from the cluster centroid
             CLHEP::Hep3Vector diff = gblPos - clVect;

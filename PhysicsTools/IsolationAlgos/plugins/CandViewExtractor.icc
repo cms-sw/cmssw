@@ -16,7 +16,7 @@ IsoDeposit CandViewExtractor::depositFromObject(const Event & event, const Event
     }
 
     double eta = cand.eta(), phi = cand.phi();
-    reco::Particle::Point vtx = cand.vertex();
+    const reco::Particle::Point& vtx = cand.vertex();
     for (View<Candidate>::const_iterator it = candViewH->begin(), ed = candViewH->end(); it != ed; ++it) {
         double dR = deltaR(it->eta(), it->phi(), eta, phi);
         if ( (dR < theDR_Max) && (dR > theDR_Veto) &&

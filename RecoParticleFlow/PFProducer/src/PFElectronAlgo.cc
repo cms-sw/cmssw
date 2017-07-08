@@ -144,7 +144,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 
   const reco::PFBlock& block = *blockRef;
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
-  PFBlock::LinkData linkData =  block.linkData();  
+  const PFBlock::LinkData& linkData =  block.linkData();  
   
   bool IsThereAGSFTrack = false;
   bool IsThereAGoodGSFTrack = false;
@@ -266,7 +266,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	      // of the tracking fifth step
 	      const reco::PFBlockElementTrack * kfEle =  
 		dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iEle])])); 	
-	      reco::TrackRef refKf = kfEle->trackRef();
+	      const reco::TrackRef& refKf = kfEle->trackRef();
 	      
 	      int nexhits = refKf->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
 	      
@@ -781,7 +781,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 				      reco::PFBlock::LINKTEST_ALL );
 	    if(ecalConvElems.size() > 0) {
 	      // Further Cleaning: DANIELE This could be improved!
-	      TrackRef trkRef =   TrkEl->trackRef();
+	      const TrackRef& trkRef =   TrkEl->trackRef();
 	      // iter0, iter1, iter2, iter3 = Algo < 3
 	      bool isGoodTrack = PFTrackAlgoTools::isGoodForEGM(trkRef->algo());
 	      float secpin = trkRef->p();	
@@ -998,7 +998,7 @@ bool PFElectronAlgo::SetLinks(const reco::PFBlockRef&  blockRef,
 	  if(localactive[(trackIs[iTrack])]==true) {
 	    const reco::PFBlockElementTrack * kfEle =  
 	      dynamic_cast<const reco::PFBlockElementTrack*>((&elements[(trackIs[iTrack])])); 	
-	    reco::TrackRef trkref = kfEle->trackRef();
+	    const reco::TrackRef& trkref = kfEle->trackRef();
 	    if (trkref.isNonnull()) {
 	      double deta_trk =  trkref->eta() - RefGSF->etaMode();
 	      double dphi_trk =  trkref->phi() - RefGSF->phiMode();
@@ -1426,7 +1426,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 					const reco::Vertex & primaryVertex){
   //PFEnergyCalibration pfcalib_;  
   const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();     
+  const PFBlock::LinkData& linkData =  block.linkData();     
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   bool DebugIDOutputs = false;
   if(DebugIDOutputs) cout << " ######## Enter in SetIDOutputs #########" << endl;
@@ -1753,7 +1753,7 @@ void PFElectronAlgo::SetIDOutputs(const reco::PFBlockRef&  blockRef,
 		//if(kfTk->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)) continue;
 		
 		
-		reco::TrackRef trackref =  kfTk->trackRef();
+		const reco::TrackRef& trackref =  kfTk->trackRef();
 		bool goodTrack = PFTrackAlgoTools::isGoodForEGM(trackref->algo());
 		// iter0, iter1, iter2, iter3 = Algo < 3
 		// algo 4,5,6,7
@@ -1912,7 +1912,7 @@ void PFElectronAlgo::SetCandidates(const reco::PFBlockRef&  blockRef,
 					 AssMap& associatedToEcal_){
   
   const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();     
+  const PFBlock::LinkData& linkData =  block.linkData();     
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   PFEnergyResolution pfresol_;
   //PFEnergyCalibration pfcalib_;
@@ -2548,7 +2548,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
 				     AssMap& associatedToEcal_,
 				     std::vector<bool>& active){
   const reco::PFBlock& block = *blockRef;
-  PFBlock::LinkData linkData =  block.linkData();  
+  const PFBlock::LinkData& linkData =  block.linkData();  
    
   const edm::OwnVector< reco::PFBlockElement >&  elements = block.elements();
   
@@ -2559,7 +2559,7 @@ void PFElectronAlgo::SetActive(const reco::PFBlockRef&  blockRef,
     unsigned int gsf_index =  igsf->first;
     const reco::PFBlockElementGsfTrack * GsfEl  =  
       dynamic_cast<const reco::PFBlockElementGsfTrack*>((&elements[gsf_index]));
-    reco::GsfTrackRef RefGSF = GsfEl->GsftrackRef();
+    const reco::GsfTrackRef& RefGSF = GsfEl->GsftrackRef();
 
     // lock only the elements that pass the BDT cut
     bool bypassmva=false;
@@ -2669,10 +2669,10 @@ bool PFElectronAlgo::isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 				    const reco::PFBlockElementGsfTrack& GsfEl) {
   bool isPrimary = false;
   
-  GsfPFRecTrackRef gsfPfRef = GsfEl.GsftrackRefPF();
+  const GsfPFRecTrackRef& gsfPfRef = GsfEl.GsftrackRefPF();
   
   if(gsfPfRef.isNonnull()) {
-    PFRecTrackRef  kfPfRef = KfEl.trackRefPF();
+    const PFRecTrackRef&  kfPfRef = KfEl.trackRefPF();
     PFRecTrackRef  kfPfRef_fromGsf = (*gsfPfRef).kfPFRecTrackRef();
     if(kfPfRef.isNonnull() && kfPfRef_fromGsf.isNonnull()) {
       reco::TrackRef kfref= (*kfPfRef).trackRef();

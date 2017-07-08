@@ -173,7 +173,7 @@ template <class Container, class Base> TaggingVariableList IPTagInfo<Container,B
      using namespace ROOT::Math;
      const Track * track = selectedTrack(*it);
      const btag::TrackIPData *data = &m_data[*it];
-     math::XYZVector trackMom = track->momentum();
+     const math::XYZVector& trackMom = track->momentum();
      double trackMag = std::sqrt(trackMom.Mag2());
 
      vars.insert(btau::trackMomentum, trackMag, true);
@@ -222,7 +222,7 @@ template<class Container, class Base> std::vector<bool> IPTagInfo<Container,Base
     //Track parameters
     const Track * track =  selectedTrack(i);    
     double trackpT = track->pt();
-    math::XYZVector trackMom = track->momentum();
+    const math::XYZVector& trackMom = track->momentum();
 
     // do the math in passVariableJTA
     result.push_back(passVariableJTA( params, jetpT, trackpT, ROOT::Math::VectorUtil::DeltaR(trackMom, jetDir)));

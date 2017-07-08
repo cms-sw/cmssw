@@ -51,7 +51,7 @@ float EcalBasicClusterLocalContCorrection::getValue( const reco::BasicCluster & 
   const CaloSubdetectorGeometry* geom = caloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);//EcalBarrel = 1
   
 
-  const math::XYZPoint position_ = basicCluster.position(); 
+  const math::XYZPoint& position_ = basicCluster.position(); 
   double Theta = -position_.theta()+0.5*TMath::Pi();
   double Eta = position_.eta();
   double Phi = TVector2::Phi_mpi_pi(position_.phi());

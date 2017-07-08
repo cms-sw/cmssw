@@ -260,8 +260,8 @@ void TrackingRecoMaterialAnalyser::analyze(const edm::Event& event,
   for (auto const track : *tracks) {
     if (!selector(track, pv))
       continue;
-    auto const inner = track.innerMomentum();
-    auto const outer = track.outerMomentum();
+    auto const& inner = track.innerMomentum();
+    auto const& outer = track.outerMomentum();
     deltaP_in_out_vs_eta_->Fill(inner.eta(), inner.R() - outer.R());
     deltaP_in_out_vs_z_->Fill(track.outerZ(), inner.R() - outer.R());
     deltaP_in_out_vs_eta_2d_->Fill(inner.eta(), inner.R() - outer.R());

@@ -111,8 +111,8 @@ PGeometricDetBuilder::beginRun( const edm::Run&, edm::EventSetup const& es)
 void PGeometricDetBuilder::putOne ( const GeometricDet* gd, PGeometricDet* pgd, int lev ) {
 
   PGeometricDet::Item item;
-  DDTranslation tran = gd->translation();
-  DDRotationMatrix rot = gd->rotation();
+  const DDTranslation& tran = gd->translation();
+  const DDRotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name           = gd->name().name();

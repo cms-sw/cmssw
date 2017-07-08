@@ -835,7 +835,7 @@ bool TrackerTrackHitFilter::checkHitAngle(const TrajectoryMeasurement &meas){
 
   bool angle_ok=false;
   bool corrcharge_ok=true;
-  TrajectoryStateOnSurface tsos = meas.updatedState();
+  const TrajectoryStateOnSurface& tsos = meas.updatedState();
   /*
   edm::LogDebug("TrackerTrackHitFilter")<<"TSOS parameters: ";
   edm::LogDebug("TrackerTrackHitFilter") <<"Global momentum: "<<tsos.globalMomentum().x()<<"  "<<tsos.globalMomentum().y()<<"  "<<tsos.globalMomentum().z();
@@ -856,7 +856,7 @@ bool TrackerTrackHitFilter::checkHitAngle(const TrajectoryMeasurement &meas){
     if(angle_ok &&  PXLcorrClusChargeCut_>0.0){
       //
       //get the hit from the TM and check that it is in the pixel
-      TransientTrackingRecHit::ConstRecHitPointer hitpointer = meas.recHit();
+      const TransientTrackingRecHit::ConstRecHitPointer& hitpointer = meas.recHit();
       if(hitpointer->isValid()){
       const TrackingRecHit *hit=(*hitpointer).hit();
       if(GeomDetEnumerators::isTrackerPixel(theGeometry->geomDetSubDetector(hit->geographicalId().subdetId()))) {//do it only for pixel hits
@@ -897,14 +897,14 @@ bool TrackerTrackHitFilter::checkPXLCorrClustCharge(const TrajectoryMeasurement 
 
   bool corrcharge_ok=false;
   //get the hit from the TM and check that it is in the pixel
-  TransientTrackingRecHit::ConstRecHitPointer hitpointer = meas.recHit();
+  const TransientTrackingRecHit::ConstRecHitPointer& hitpointer = meas.recHit();
   if(!hitpointer->isValid()) return corrcharge_ok;
   const TrackingRecHit *hit=(*hitpointer).hit();
   if(GeomDetEnumerators::isTrackerStrip(theGeometry->geomDetSubDetector(hit->geographicalId().subdetId()))) {//SiStrip hit, skip
      return corrcharge_ok;
   }
 
-  TrajectoryStateOnSurface tsos = meas.updatedState();
+  const TrajectoryStateOnSurface& tsos = meas.updatedState();
   if(tsos.isValid()){
     float mom_x=tsos.localDirection().x();
     float mom_y=tsos.localDirection().y();

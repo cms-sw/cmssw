@@ -96,7 +96,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
       
       for (int i = 0; i < 2 ; ++i) { 
         edm::InputTag const& tag = tags[i];
-        std::string const label = tag.label();
+        std::string const& label = tag.label();
         tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
         tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
         tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));
@@ -114,7 +114,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
     if(m_stage1_layer2_ == true) {
       for (int i = 0; i < 2 ; ++i) { 
         edm::InputTag const& tag = tags[i];
-        std::string const label = tag.label();
+        std::string const& label = tag.label();
         tokenGctEmCand_isoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "isoEm"));
         tokenGctEmCand_nonIsoEm_[i] = consumes<L1GctEmCandCollection>(edm::InputTag(label, "nonIsoEm"));
         tokenGctJetCand_cenJets_[i] = consumes<L1GctJetCandCollection>(edm::InputTag(label, "cenJets"));

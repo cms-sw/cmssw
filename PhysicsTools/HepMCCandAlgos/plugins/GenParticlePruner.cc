@@ -102,13 +102,13 @@ GenParticlePruner::GenParticlePruner(const ParameterSet& cfg) :
 }
 
 void GenParticlePruner::flagDaughters(const reco::GenParticle & gen, int keepOrDrop) {
-  GenParticleRefVector daughters = gen.daughterRefVector();
+  const GenParticleRefVector& daughters = gen.daughterRefVector();
   for(GenParticleRefVector::const_iterator i = daughters.begin(); i != daughters.end(); ++i)
     flags_[i->key()] = keepOrDrop;
 }
 
 void GenParticlePruner::flagMothers(const reco::GenParticle & gen, int keepOrDrop) {
-  GenParticleRefVector mothers = gen.motherRefVector();
+  const GenParticleRefVector& mothers = gen.motherRefVector();
   for(GenParticleRefVector::const_iterator i = mothers.begin(); i != mothers.end(); ++i)
     flags_[i->key()] = keepOrDrop;
 }

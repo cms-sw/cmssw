@@ -65,7 +65,7 @@ namespace edm {
   
     TypeID 
     getContainedType(TypeID const& typeID) {
-      std::string className = typeID.className();
+      const std::string& className = typeID.className();
       TypeWithDict const wrappedType = TypeWithDict::byName(wrappedClassName(className));
       TypeID const wrappedTypeID = TypeID(wrappedType.typeInfo());
       return getContainedTypeFromWrapper(wrappedTypeID, className);

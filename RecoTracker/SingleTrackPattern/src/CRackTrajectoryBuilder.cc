@@ -925,7 +925,7 @@ CRackTrajectoryBuilder::innerState( const Trajectory& traj) const
   }
 
   TrajectoryMeasurement firstMeas = fitres[0].lastMeasurement();
-  TSOS firstState = firstMeas.updatedState();
+  const TSOS& firstState = firstMeas.updatedState();
 
   //  cout << "FitTester: Fitted first state " << firstState << endl;
   //cout << "FitTester: chi2 = " << fitres[0].chiSquared() << endl;

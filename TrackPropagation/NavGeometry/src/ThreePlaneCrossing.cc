@@ -11,9 +11,9 @@ ThreePlaneCrossing::crossing( const Plane& a, const Plane& b,
   const GlobalVector n2g( b.normalVector());
   const GlobalVector n3g( c.normalVector());
 
-  Basic3DVector<T> n1(n1g.basicVector());
-  Basic3DVector<T> n2(n2g.basicVector());
-  Basic3DVector<T> n3(n3g.basicVector());
+  const Basic3DVector<T>& n1(n1g.basicVector());
+  const Basic3DVector<T>& n2(n2g.basicVector());
+  const Basic3DVector<T>& n3(n3g.basicVector());
   Basic3DVector<T> rhs( n1.dot( a.position().basicVector()),
 			n2.dot( b.position().basicVector()),
 			n3.dot( c.position().basicVector()));

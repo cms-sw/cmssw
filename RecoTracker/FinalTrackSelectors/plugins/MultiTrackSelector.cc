@@ -641,7 +641,7 @@ MultiTrackSelector::Point MultiTrackSelector::getBestVertex(TrackBaseRef track,V
   bool weightMatch = false;
   for(auto const & vertex : vertices){
     float w = vertex.trackWeight(track);
-    Point v_pos = vertex.position();
+    const Point& v_pos = vertex.position();
     if(w > bestWeight){
       p = v_pos;
       bestWeight = w;

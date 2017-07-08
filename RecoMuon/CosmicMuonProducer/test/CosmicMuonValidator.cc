@@ -228,7 +228,7 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
 
    if ( fabs(muon.p()) < 1e-5 ) return; //prevent those failed to extrapolation to vertex
 
-   math::XYZVector innerMo = muon.innerMomentum();
+   const math::XYZVector& innerMo = muon.innerMomentum();
 
    float ptreco = muon.pt();
    int qreco = muon.charge();
@@ -246,13 +246,13 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
    h_theta->Fill(Geom::Theta<float>(thetareco-thetasim));
    h_phi->Fill(Geom::Phi<float>(phireco-phisim));
 
-   math::XYZPoint innerPo = muon.innerPosition();
+   const math::XYZPoint& innerPo = muon.innerPosition();
    GlobalPoint ip(innerPo.x(), innerPo.y(),innerPo.z());
 
    h_innerPosXY->Fill(ip.x(), ip.y());
    h_innerPosEP->Fill(ip.eta(), Geom::Phi<float>(ip.phi()));
 
-   math::XYZPoint outerPo = muon.outerPosition();
+   const math::XYZPoint& outerPo = muon.outerPosition();
    GlobalPoint op(outerPo.x(), outerPo.y(),outerPo.z());
 
    h_outerPosXY->Fill(op.x(), op.y());

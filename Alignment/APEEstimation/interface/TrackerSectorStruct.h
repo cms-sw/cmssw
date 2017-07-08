@@ -185,7 +185,7 @@ TrackerSectorStruct::bookCorrHists(TString xY,TString varName,TString varTitle,T
     suffix = "_y";
   }
   
-  std::string o(options);
+  const std::string& o(options);
   CorrelationHists correlationHists;
   
   if(!(o.find("n") != std::string::npos || o.find("p") != std::string::npos || o.find("h") != std::string::npos || 
@@ -244,7 +244,7 @@ TrackerSectorStruct::bookCorrHists(TString xY,TString varName,TString labelX,TSt
     xy = "y";
   }
   
-  std::string o(options);
+  const std::string& o(options);
   CorrelationHists correlationHists;
   
   if(!(o.find("n") != std::string::npos || o.find("p") != std::string::npos || o.find("h") != std::string::npos || 

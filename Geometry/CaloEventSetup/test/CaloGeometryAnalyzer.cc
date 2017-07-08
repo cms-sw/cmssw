@@ -1025,7 +1025,7 @@ CaloGeometryAnalyzer::build( const CaloGeometry& cg      ,
 
 	 f << "  // " << HcalDetId(*i) << std::endl;
 	    
-	 const GlobalPoint gp ( cell->getPosition() ) ;
+	 const GlobalPoint& gp ( cell->getPosition() ) ;
 
 	 f << "  // Checking getClosestCell for position " 
 	   << gp

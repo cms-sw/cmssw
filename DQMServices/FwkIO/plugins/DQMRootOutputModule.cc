@@ -410,7 +410,7 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& i
     }
   }
 
-  edm::ProcessHistoryID id = iLumi.processHistoryID();
+  const edm::ProcessHistoryID& id = iLumi.processHistoryID();
   std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
   if(itFind == m_seenHistories.end()) {
     m_processHistoryRegistry.registerProcessHistory(iLumi.processHistory());
@@ -471,7 +471,7 @@ void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun){
     }
   }
 
-  edm::ProcessHistoryID id = iRun.processHistoryID();
+  const edm::ProcessHistoryID& id = iRun.processHistoryID();
   std::vector<edm::ProcessHistoryID>::iterator itFind = std::find(m_seenHistories.begin(),m_seenHistories.end(),id);
   if(itFind == m_seenHistories.end()) {
     m_processHistoryRegistry.registerProcessHistory(iRun.processHistory());

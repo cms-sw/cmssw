@@ -134,8 +134,8 @@ void GeometricDetLoader::putOne ( const GeometricDet* gd, PGeometricDet* pgd, in
 //   std::cout << " type: " << gd->type() << std::endl;
 //  std::cout << "shape = " << gd->shape()<<"; name = "<<gd->name().name()<<"; parameter number = "<<gd->params().size()<<std::endl;
   PGeometricDet::Item item;
-  DDTranslation tran = gd->translation();
-  DDRotationMatrix rot = gd->rotation();
+  const DDTranslation& tran = gd->translation();
+  const DDRotationMatrix& rot = gd->rotation();
   DD3Vector x, y, z;
   rot.GetComponents(x, y, z);
   item._name           = gd->name().name();

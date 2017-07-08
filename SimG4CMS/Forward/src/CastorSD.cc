@@ -168,8 +168,8 @@ double CastorSD::getEnergyDeposit(G4Step * aStep) {
   
   // if particle moves from interaction point or "backwards (halo)
   bool backward = false;
-  G4ThreeVector  hitPoint = preStepPoint->GetPosition();	
-  G4ThreeVector  hit_mom  = preStepPoint->GetMomentumDirection();
+  const G4ThreeVector&  hitPoint = preStepPoint->GetPosition();	
+  const G4ThreeVector&  hit_mom  = preStepPoint->GetMomentumDirection();
   double zint = hitPoint.z();
   double pz   = hit_mom.z();
   

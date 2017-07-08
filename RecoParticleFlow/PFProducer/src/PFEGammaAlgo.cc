@@ -300,7 +300,7 @@ namespace {
 	docast(const ClusterElement*,e.first);
       const float gsf_eta_diff = std::abs(comp->positionAtECALEntrance().eta()-
 					  comp->Pout().eta());
-      const reco::PFClusterRef cRef = elemascluster->clusterRef();
+      const reco::PFClusterRef& cRef = elemascluster->clusterRef();
       return ( gsf_eta_diff <= 0.3 && cRef->energy()/comp->Pout().t() <= 5 );
     }
   };
@@ -572,7 +572,7 @@ namespace {
 				       matched_pfcs.end()));	
       }
       for( const auto& clelem : best_comb ) {
-	reco::PFClusterRef clref = clelem->clusterRef();
+	const reco::PFClusterRef& clref = clelem->clusterRef();
 	if( std::find(cluster_list.begin(),cluster_list.end(),clelem) ==
 	    cluster_list.end() ) {
 	  cluster_list.push_back(clelem);
@@ -1426,7 +1426,7 @@ initializeProtoCands(std::list<PFEGammaAlgo::ProtoEGObject>& egobjs) {
 	   // determine if we should remove the matched cluster
 	   const reco::PFBlockElementTrack * kfEle = 
 	     docast(const reco::PFBlockElementTrack*,kftrack.first);
-	   const reco::TrackRef trackref = kfEle->trackRef();
+	   const reco::TrackRef& trackref = kfEle->trackRef();
 
 	   const int nexhits = 
 	     trackref->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
@@ -2049,7 +2049,7 @@ fillPFCandidates(const pfEGHelpers::HeavyObjectCache* hoc,
     } else if ( cfg_.produceEGCandsWithNoSuperCluster && 
 		RO.primaryGSFs.size() ) {
       const PFGSFElement* gsf = RO.primaryGSFs[0].first;
-      reco::GsfTrackRef gref = gsf->GsftrackRef();
+      const reco::GsfTrackRef& gref = gsf->GsftrackRef();
       math::XYZTLorentzVector p4(gref->pxMode(),gref->pyMode(),
 				 gref->pzMode(),gref->pMode());
       cand.setP4(p4);      
@@ -2614,10 +2614,10 @@ bool PFEGammaAlgo::isPrimaryTrack(const reco::PFBlockElementTrack& KfEl,
 				    const reco::PFBlockElementGsfTrack& GsfEl) {
   bool isPrimary = false;
   
-  GsfPFRecTrackRef gsfPfRef = GsfEl.GsftrackRefPF();
+  const GsfPFRecTrackRef& gsfPfRef = GsfEl.GsftrackRefPF();
   
   if(gsfPfRef.isNonnull()) {
-    PFRecTrackRef  kfPfRef = KfEl.trackRefPF();
+    const PFRecTrackRef&  kfPfRef = KfEl.trackRefPF();
     PFRecTrackRef  kfPfRef_fromGsf = (*gsfPfRef).kfPFRecTrackRef();
     if(kfPfRef.isNonnull() && kfPfRef_fromGsf.isNonnull()) {
       reco::TrackRef kfref= (*kfPfRef).trackRef();

@@ -178,7 +178,7 @@ static CachingVertex<5> vertexAtState(const TransientTrack &ghostTrack,
 
 	GlobalPoint point = vtxMean(pca1, err1, pca2, err2);
 
-	TransientTrack recTrack = state.track();
+	const TransientTrack& recTrack = state.track();
 
 	RefCountedLinearizedTrackState linState[2] = {
 		linTrackFactory.linearizedTrackState(point, ghostTrack),

@@ -95,6 +95,6 @@ void testRPCCompDetId::testFail(){
 
 void testRPCCompDetId::testMemberOperators(){
   RPCCompDetId unit1(0,-2,1,2,2,1,1);
-  RPCCompDetId unit2=unit1;
+  const RPCCompDetId& unit2=unit1;
   CPPUNIT_ASSERT(unit2==unit1);
 }

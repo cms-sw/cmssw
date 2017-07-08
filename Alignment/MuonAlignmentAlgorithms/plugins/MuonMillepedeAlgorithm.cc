@@ -278,7 +278,7 @@
 		if (hit->isValid()  && theAlignableDetAccessor->detAndSubdetInMap( hit->geographicalId() ))
 		{
 		  //***Forward
-		  TrajectoryStateOnSurface tsos = meas.forwardPredictedState();
+		  const TrajectoryStateOnSurface& tsos = meas.forwardPredictedState();
 		  if (tsos.isValid())
 		  {
 		    hitvec.push_back(hit);

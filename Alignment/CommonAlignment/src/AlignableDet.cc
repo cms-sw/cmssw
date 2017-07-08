@@ -151,7 +151,7 @@ void AlignableDet::addAlignmentPositionErrorFromRotation(const RotationType& rot
   // (xWidth/2,yLength/2,0) caused by the rotation rot
   GlobalVector localPositionVector = surface().toGlobal( LocalVector(.5 * surface().width(), .5 * surface().length(), 0.) );
 
-  LocalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
+  const LocalVector::BasicVectorType& lpvgf = localPositionVector.basicVector();
   GlobalVector gv( rot.multiplyInverse(lpvgf) - lpvgf );
 
   AlignmentPositionError  ape( gv.x(),gv.y(),gv.z() );

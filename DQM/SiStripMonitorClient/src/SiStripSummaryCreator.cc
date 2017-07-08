@@ -307,7 +307,7 @@ void SiStripSummaryCreator::fillHistos(int ival, int istep, std::string htype,
     //    if (me->kind() == MonitorElement::DQM_KIND_TPROFILE) prof = me->getTProfile();
     
     int nbins = me_src->getNbinsX();
-    std::string name = me_src->getName();
+    const std::string& name = me_src->getName();
     if (htype == "mean" || htype == "Mean" ) {
       if (hist2 &&  name.find("NoisyStrips") != std::string::npos) {
 	float bad = 0.0;

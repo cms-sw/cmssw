@@ -343,16 +343,16 @@ void BscTest::update(const G4Step * aStep) {
   G4ThreeVector   trackmom       = theTrack->GetMomentum();
   G4double       entot          = theTrack->GetTotalEnergy();   //   !!! deposited on step
   G4int         curstepnumber  = theTrack->GetCurrentStepNumber();
-  G4ThreeVector   vert_pos       = theTrack->GetVertexPosition(); // vertex ,where this track was created
-  G4ThreeVector   vert_mom       = theTrack->GetVertexMomentumDirection();
+  const G4ThreeVector&   vert_pos       = theTrack->GetVertexPosition(); // vertex ,where this track was created
+  const G4ThreeVector&   vert_mom       = theTrack->GetVertexMomentumDirection();
   G4double        stepl         = aStep->GetStepLength();
   G4double        EnerDeposit   = aStep->GetTotalEnergyDeposit();
   G4StepPoint*      preStepPoint = aStep->GetPreStepPoint(); 
-  G4ThreeVector     preposition   = preStepPoint->GetPosition();	
+  const G4ThreeVector&     preposition   = preStepPoint->GetPosition();	
   G4ThreeVector     prelocalpoint = theTrack->GetTouchable()->GetHistory()->
     GetTopTransform().TransformPoint(preposition);
   G4VPhysicalVolume* currentPV     = preStepPoint->GetPhysicalVolume();
-  G4String         prename       = currentPV->GetName();
+  const G4String&         prename       = currentPV->GetName();
 
   const G4VTouchable*  pre_touch    = preStepPoint->GetTouchable();
   int          pre_levels   = detLevels(pre_touch);

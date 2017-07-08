@@ -246,7 +246,7 @@ void ME0SegmentMatcher::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
 	LocalTrajectoryParameters ltp(r3FinalReco,p3FinalReco,chargeReco);
 	JacobianCartesianToLocal jctl(chamber->surface(),ltp);
-	AlgebraicMatrix56 jacobGlbToLoc = jctl.jacobian(); 
+	const AlgebraicMatrix56& jacobGlbToLoc = jctl.jacobian(); 
 
 	AlgebraicMatrix55 Ctmp =  (jacobGlbToLoc * covFinalReco) * ROOT::Math::Transpose(jacobGlbToLoc); 
 	AlgebraicSymMatrix55 C;  // I couldn't find any other way, so I resort to the brute force

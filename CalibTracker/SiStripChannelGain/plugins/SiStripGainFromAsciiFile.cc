@@ -65,7 +65,7 @@ SiStripApvGain * SiStripGainFromAsciiFile::getNewObject(){
 
   SiStripDetInfoFileReader reader(fp_.fullPath());
   
-  const std::vector<uint32_t> DetIds = reader.getAllDetIds();
+  const std::vector<uint32_t>& DetIds = reader.getAllDetIds();
   
   ss.str("");
   ss << "[SiStripGainFromAsciiFile::getNewObject]\n Filling SiStripApvGain object";

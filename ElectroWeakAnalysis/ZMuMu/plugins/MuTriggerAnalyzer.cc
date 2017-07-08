@@ -220,7 +220,7 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 
            for(unsigned int i =0 ; i < nHighPtGlbMu ; i++) {
 	    reco::Muon muon1 = highPtGlbMuons[i];
-	    math::XYZTLorentzVector mu1(muon1.p4());
+	    const math::XYZTLorentzVector& mu1(muon1.p4());
 	    //      double pt1= muon1.pt();
 
 	    /* bool singleTrigFlag1 =*/ IsMuMatchedToHLTMu ( muon1,  HLTMuMatched ,maxDeltaR_, maxDPtRel_ );

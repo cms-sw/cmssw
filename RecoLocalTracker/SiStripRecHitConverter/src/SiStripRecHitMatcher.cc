@@ -122,7 +122,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
 
   if(trackdirection.mag2()<FLT_MIN){// in case of no track hypothesis assume a track from the origin through the center of the strip
-    LocalPoint lcenterofstrip=monoRH->localPositionFast();
+    const LocalPoint& lcenterofstrip=monoRH->localPositionFast();
     GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
     trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);
@@ -285,7 +285,7 @@ SiStripRecHitMatcher::match(const SiStripRecHit2D *monoRH,
   StripPosition stripmono=StripPosition(topol.localPosition(RPHIpointini),topol.localPosition(RPHIpointend));
 
   if(trackdirection.mag2()<float(FLT_MIN)){// in case of no track hypothesis assume a track from the origin through the center of the strip
-    LocalPoint lcenterofstrip=monoRH->localPositionFast();
+    const LocalPoint& lcenterofstrip=monoRH->localPositionFast();
     GlobalPoint gcenterofstrip=(stripdet->surface()).toGlobal(lcenterofstrip);
     GlobalVector gtrackdirection=gcenterofstrip-GlobalPoint(0,0,0);
     trackdirection=(gluedDet->surface()).toLocal(gtrackdirection);

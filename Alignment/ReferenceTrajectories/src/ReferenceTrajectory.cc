@@ -430,7 +430,7 @@ void ReferenceTrajectory::fillMeasurementAndError(const TransientTrackingRecHit:
   //             hit uncertainty estimate!
 
    // FIXME FIXME  CLONE
-  auto newHitPtr =  hitPtr;
+  const auto& newHitPtr =  hitPtr;
 //  TransientTrackingRecHit::ConstRecHitPointer newHitPtr(hitPtr->canImproveWithTrack() ?
 //							hitPtr->clone(updatedTsos) : hitPtr);
 

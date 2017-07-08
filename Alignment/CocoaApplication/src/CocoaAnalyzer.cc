@@ -177,8 +177,8 @@ void CocoaAnalyzer::ReadXMLFile( const edm::EventSetup& evts )
     DDTranslation transl = (fv.translation());
     DDRotationMatrix rot = (fv.rotation());
     DDExpandedNode parent = fv.geoHistory()[ fv.geoHistory().size()-2 ];
-    DDTranslation parentTransl = parent.absTranslation();
-    DDRotationMatrix parentRot = parent.absRotation();
+    const DDTranslation& parentTransl = parent.absTranslation();
+    const DDRotationMatrix& parentRot = parent.absRotation();
     transl = parentRot.Inverse()*(transl - parentTransl );
     rot = parentRot.Inverse()*rot;
     rot = rot.Inverse(); //DDL uses opposite convention than COCOA

@@ -1025,7 +1025,7 @@ bool L1GtTriggerMenuXmlParser::insertConditionIntoMap(L1GtCondition& cond, const
 bool L1GtTriggerMenuXmlParser::insertAlgorithmIntoMap(const L1GtAlgorithm& alg) {
 
     std::string algName = alg.algoName();
-    std::string algAlias = alg.algoAlias();
+    const std::string& algAlias = alg.algoAlias();
     //LogTrace("L1GtTriggerMenuXmlParser")
     //<< "    Trying to insert algorithm \"" << algName << "\" in the algorithm map." ;
 

@@ -78,7 +78,7 @@ bool ConversionTools::matchesConversion(const reco::SuperCluster &sc, const reco
 
   math::XYZVector mom(conv.refittedPairMomentum());
   
-  math::XYZPoint scpos(sc.position());
+  const math::XYZPoint& scpos(sc.position());
   math::XYZPoint cvtx(conv.conversionVertex().position());
 
 

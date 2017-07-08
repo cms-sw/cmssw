@@ -105,7 +105,7 @@ JetTranslatorBase<CLHEP::HepLorentzVector>::JetTranslatorBase()
     std::string CMSSW_BASE(getenv("CMSSW_BASE"));
     std::string udsc_resolution_filename = CMSSW_BASE +
         std::string("/src/TopQuarkAnalysis/TopHitFit/data/exampleJetResolution.txt");
-    std::string b_resolution_filename = udsc_resolution_filename;
+    const std::string& b_resolution_filename = udsc_resolution_filename;
 
     udscResolution_ = EtaDepResolution(udsc_resolution_filename);
     bResolution_    = EtaDepResolution(b_resolution_filename);

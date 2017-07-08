@@ -828,7 +828,7 @@ testNuclearInteractions::analyze(const edm::Event& iEvent, const edm::EventSetup
     //      if (abs(myDaugh.type()) == 11 || abs(myDaugh.type()) == 13 ) return;
     //    } 
     
-    XYZTLorentzVector totMoth = thePion.momentum();
+    const XYZTLorentzVector& totMoth = thePion.momentum();
     XYZTLorentzVector totDaugh(0.,0.,0.,0.);
     // double qMoth = thePion.charge();
     // double qDaugh = 0;

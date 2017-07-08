@@ -86,7 +86,7 @@ double L6SLBCorrector::correction(const reco::Jet& fJet,
   const reco::SoftLeptonTagInfo& sltMuon =
     (*muoninfos)[getBTagInfoIndex(refToRawJet,*muoninfos)];
   if (sltMuon.leptons()>0) {
-    edm::RefToBase<reco::Track> trackRef = sltMuon.lepton(0);
+    const edm::RefToBase<reco::Track>& trackRef = sltMuon.lepton(0);
     values.setLepPx(trackRef->px());
     values.setLepPy(trackRef->py());
     values.setLepPz(trackRef->pz());
@@ -99,7 +99,7 @@ double L6SLBCorrector::correction(const reco::Jet& fJet,
     const reco::SoftLeptonTagInfo& sltElec =
       (*elecinfos)[getBTagInfoIndex(refToRawJet,*elecinfos)];
     if (sltElec.leptons()>0) {
-      edm::RefToBase<reco::Track> trackRef = sltElec.lepton(0);
+      const edm::RefToBase<reco::Track>& trackRef = sltElec.lepton(0);
       values.setLepPx(trackRef->px());
       values.setLepPy(trackRef->py());
       values.setLepPz(trackRef->pz());

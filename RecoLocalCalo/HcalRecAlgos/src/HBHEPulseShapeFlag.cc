@@ -123,7 +123,7 @@ void HBHEPulseShapeFlagSetter::Initialize()
    std::vector<double> PulseShape;
 
    HcalPulseShapes Shapes;
-   HcalPulseShapes::Shape HPDShape = Shapes.hbShape();
+   const HcalPulseShapes::Shape& HPDShape = Shapes.hbShape();
 
    PulseShape.reserve(350);
    for(int i = 0; i < 200; i++)

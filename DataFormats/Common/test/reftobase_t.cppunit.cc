@@ -49,7 +49,7 @@ testRefToBase::check()
   CPPUNIT_ASSERT(b1.id() == ProductID(1, 1));
   
   //copy constructor
-  RefToBase<Base> b2(b1);
+  const RefToBase<Base>& b2(b1);
   CPPUNIT_ASSERT(&(*b2) == static_cast<Base*>(&(v1[1])));
   CPPUNIT_ASSERT(b2.id() == b1.id());
 
