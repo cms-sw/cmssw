@@ -346,7 +346,7 @@ void RBCProcessRPCSimDigis::setInputBit( std::bitset<15> & signals , int digipos
   
   int bitpos = m_layermap[digipos];
   if( m_debug ) std::cout << "Bitpos: " << bitpos << std::endl;
-  signals.set( bitpos , 1 );
+  signals.set( bitpos , true );
   
 }
 

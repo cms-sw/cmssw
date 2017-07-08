@@ -393,7 +393,7 @@ void EcalPedOffset::writeDb ()
       DBtable.setDACG1 (result->second->m_DACvalue[2][xtal]);
       DBtable.setDACG6 (result->second->m_DACvalue[1][xtal]);
       DBtable.setDACG12 (result->second->m_DACvalue[0][xtal]);
-      DBtable.setTaskStatus (1); //FIXME to be set correctly
+      DBtable.setTaskStatus (true); //FIXME to be set correctly
 
       // fill the table
       if ( DBconnection ) 

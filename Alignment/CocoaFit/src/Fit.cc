@@ -110,7 +110,7 @@ void Fit::startFit()
     NTmgr->BookNtuple();
   }
 
-  ALIUtils::setFirstTime( 1 );
+  ALIUtils::setFirstTime( true );
 
   WriteVisualisationFiles();
 
@@ -163,14 +163,14 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
   }
   
   
-  ALIbool lastEvent = 0;
+  ALIbool lastEvent = false;
   
   //-    DeviationsFromFileSensor2D::setApply( 1 );
   
   //m  ALIbool moreDataSets = Model::readMeasurementsFromFile( Measurement::only1Date, Measurement::only1Time );
   
   //----- Check if there are more data sets
-  ALIbool moreDataSets = 1;
+  ALIbool moreDataSets = true;
   if(CocoaDaqReader::GetDaqReader() != 0) moreDataSets = CocoaDaqReader::GetDaqReader()->ReadNextEvent();
   
   if(ALIUtils::debug >= 5)  std::cout << CocoaDaqReader::GetDaqReader() << "$$$$$$$$$$$$$$$ More Data Sets to be processed: " << moreDataSets << std::endl;
@@ -303,7 +303,7 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     if( CocoaDaqReader::GetDaqReader() == 0 ) {
       //m    if( Measurement::measurementsFileName() == "" ) {
   if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : only one measurement " << nEvent << std::endl;
-      lastEvent = 1;
+      lastEvent = true;
       return !lastEvent;
     }
     
@@ -311,19 +311,19 @@ ALIbool Fit::fitNextEvent( ALIuint& nEvent )
     if( Measurement::only1 ) {
       if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : 'Measurement::only1'  is set" << std::endl;
 
-      lastEvent = 1;
+      lastEvent = true;
       return !lastEvent;
     }
 
     if(GlobalOptionMgr::getInstance()->GlobalOptions()["maxEvents"] <= nEvent ){
       if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : 'Number of events exhausted " << nEvent << std::endl;
 
-      lastEvent = 1;
+      lastEvent = true;
       return !lastEvent;
     }
 
   } else {
-    lastEvent = 1;
+    lastEvent = true;
     if( ALIUtils::debug >= 1 ) std::cout << std::endl << "@@@@@@@@@@@@@@@@@@ Fit has ended : ??no more data sets' " << nEvent << std::endl;
     return !lastEvent;
   }
@@ -398,7 +398,7 @@ FitQuality Fit::fitParameters( const double daFactor )
 
   //---- Get chi2 of first iteration
   if( Model::getCocoaStatus() == COCOA_FirstIterationInEvent ) {
-    thePreviousIterationFitQuality = GetSChi2( 0 );
+    thePreviousIterationFitQuality = GetSChi2( false );
 
     GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
     if (gomgr->GlobalOptions()[ ALIstring("stopAfter1stIteration") ] == 1) {
@@ -504,7 +504,7 @@ void Fit::PropagateErrors()
   if(ALIUtils::debug >= 0) std::cout << "TIME:MAT_MULTIPLIED : " << now << " " << difftime(now, ALIUtils::time_now())/1.E6 << std::endl;
   ALIUtils::set_time_now(now); 
 
-  if( ALIUtils::getFirstTime() == 1) ALIUtils::setFirstTime( 0 );
+  if( ALIUtils::getFirstTime() == 1) ALIUtils::setFirstTime( false );
 
 }
 
@@ -517,7 +517,7 @@ void Fit::calculateSimulatedMeasurementsWithOriginalValues()
   //  if( ALIUtils::debug >= 4) OpticalObjectMgr::getInstance()->dumpOptOs();
 
   //---------- Set DeviationsFromFileSensor2D::apply true
-  DeviationsFromFileSensor2D::setApply( 1 );
+  DeviationsFromFileSensor2D::setApply( true );
 
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::calculateSimulatedMeasurementsWithOriginalValues" <<std::endl;
   //---------- Loop Measurements
@@ -529,7 +529,7 @@ void Fit::calculateSimulatedMeasurementsWithOriginalValues()
 
   //---------- Set DeviationsFromFileSensor2D::apply false
   // It cannot be applied when calculating derivatives, because after a displacement the laser could hit another square in matrix and then cause a big step in the derivative
-  DeviationsFromFileSensor2D::setApply( 0 );
+  DeviationsFromFileSensor2D::setApply( false );
 
 }
 
@@ -901,7 +901,7 @@ FitQuality Fit::getFitQuality( const ALIbool canBeGood )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ Fit::getFitQuality" << std::endl;
 
-  double fit_quality = GetSChi2(1);
+  double fit_quality = GetSChi2(true);
 
   //---------- Calculate DS = Variable to recognize convergence (distance to minimum)
   ALIMatrix* DatMatrix = new ALIMatrix( *DaMatrix );

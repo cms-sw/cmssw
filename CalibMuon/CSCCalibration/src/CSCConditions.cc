@@ -163,7 +163,7 @@ void CSCConditions::fillBadStripWord( const CSCDetId& id ){
     //    short f1 = theBadStrips->channels[j].flag1;
     //    short f2 = theBadStrips->channels[j].flag2;
     //    short f3 = theBadStrips->channels[j].flag3;
-        badStripWord_.set( chan-1, 1 ); // set bit 0-79 (111) in 80 (112)-bit bitset representing this layer
+        badStripWord_.set( chan-1, true ); // set bit 0-79 (111) in 80 (112)-bit bitset representing this layer
       } // j
     } // i
 
@@ -195,7 +195,7 @@ void CSCConditions::fillBadWireWord( const CSCDetId& id ){
     //    short f1 = theBadWires->channels[j].flag1;
     //    short f2 = theBadWires->channels[j].flag2;
     //    short f3 = theBadWires->channels[j].flag3;
-        badWireWord_.set( chan-1, 1 ); // set bit 0-111 in 112-bit bitset representing this layer
+        badWireWord_.set( chan-1, true ); // set bit 0-111 in 112-bit bitset representing this layer
       } // j
     } // i
 

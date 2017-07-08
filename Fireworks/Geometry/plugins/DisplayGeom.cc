@@ -213,7 +213,7 @@ DisplayGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	 TEveQuadSet* q = new TEveQuadSet("MF_quad_values");
          q->Reset(TEveQuadSet::kQT_RectangleXY, kFALSE, 32);
 	 q->SetOwnIds(kTRUE);
-	 q->SetAlwaysSecSelect(1);
+	 q->SetAlwaysSecSelect(true);
 	 q->SetPickable(m_MF_isPickable);
 	 q->SetPalette(pal);
 

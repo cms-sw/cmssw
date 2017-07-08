@@ -324,9 +324,9 @@ namespace edm {
 
     if(metaDataTree->FindBranch(poolNames::moduleDescriptionMapBranchName().c_str()) != nullptr) {
       if(metaDataTree->GetBranch(poolNames::moduleDescriptionMapBranchName().c_str())->GetSplitLevel() != 0) {
-        metaDataTree->SetBranchStatus((poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), 0);
+        metaDataTree->SetBranchStatus((poolNames::moduleDescriptionMapBranchName() + ".*").c_str(), false);
       } else {
-        metaDataTree->SetBranchStatus(poolNames::moduleDescriptionMapBranchName().c_str(), 0);
+        metaDataTree->SetBranchStatus(poolNames::moduleDescriptionMapBranchName().c_str(), false);
       }
     }
 

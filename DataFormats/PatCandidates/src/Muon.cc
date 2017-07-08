@@ -75,7 +75,7 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     pfCandidateRef_(),
     cachedNormChi2_(false),
     normChi2_(0.0),
-    cachedNumberOfValidHits_(0),
+    cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
     pfEcalEnergy_(0)
 {
@@ -99,7 +99,7 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     pfCandidateRef_(),
     cachedNormChi2_(false),
     normChi2_(0.0),
-    cachedNumberOfValidHits_(0),
+    cachedNumberOfValidHits_(false),
     numberOfValidHits_(0),
     pfEcalEnergy_(0)
 {

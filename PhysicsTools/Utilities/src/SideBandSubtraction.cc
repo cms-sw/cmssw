@@ -319,7 +319,7 @@ SideBandSubtract::SideBandSubtract()
     ModelPDF(0), 
     Data(0),
     SeparationVariable(0),
-    verbose(0),
+    verbose(false),
     SignalRegions(),
     SideBandRegions(),
     SideBandHistos(0),

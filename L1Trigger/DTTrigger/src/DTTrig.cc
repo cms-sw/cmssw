@@ -48,7 +48,7 @@
 //----------------
 
 DTTrig::DTTrig(const  edm::ParameterSet &params,edm::ConsumesCollector && iC) :
- _inputexist(1) ,  _configid(0) , _geomid(0) {
+ _inputexist(true) ,  _configid(0) , _geomid(0) {
 
   // Set configuration parameters
   _debug = params.getUntrackedParameter<bool>("debug");

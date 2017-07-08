@@ -151,7 +151,7 @@ protected:
 
 	unsigned int * nBinsPtr_ = nullptr;
 	int cacheI_;//int cache
-	bool isCached_=0;
+	bool isCached_=false;
 
 	unsigned int fastIndex_ = 0;
 

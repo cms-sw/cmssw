@@ -44,7 +44,7 @@ DTTriggerEfficiencyTest::DTTriggerEfficiencyTest(const edm::ParameterSet& ps){
   baseFolderDDU = "DT/04-LocalTrigger-DDU/";
   detailedPlots = ps.getUntrackedParameter<bool>("detailedAnalysis",true);
 
-  bookingdone = 0;
+  bookingdone = false;
 }
 
 
@@ -359,7 +359,7 @@ void DTTriggerEfficiencyTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IG
       }
     }
   }
-  bookingdone = 1;
+  bookingdone = true;
 }
 
 

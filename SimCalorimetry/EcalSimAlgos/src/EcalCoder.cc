@@ -173,7 +173,7 @@ EcalCoder::encode( const EcalSamples& ecalSamples ,
 
    int wait = 0 ;
    int gainId = 0 ;
-   bool isSaturated = 0;
+   bool isSaturated = false;
 
    for( unsigned int i ( 0 ) ; i != csize ; ++i )
    {    

@@ -271,7 +271,7 @@ FWConvTrackHitsDetailView::build (const FWModelId &id, const reco::Conversion* c
 
    
    TEveVectorD c  = ( trk1->GetVertex() + trk0->GetVertex()) *0.5;
-   if (1)
+   if (true)
    { 
       setCameraInit(viewerGL(),TGLViewer::kCameraPerspXOZ, fwd, up, c); //default
       setCameraInit(viewerGL(),TGLViewer::kCameraPerspYOZ, up,  lft,c);

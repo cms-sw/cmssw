@@ -1163,7 +1163,7 @@ namespace sistrip {
        << " Buffer contains " << buffer.size()
        << " bytes (NB: payload is byte-swapped)" << std::endl;
 
-    if ( 0 ) { 
+    if ( false ) { 
       uint32_t* buffer_u32 = reinterpret_cast<uint32_t*>( const_cast<unsigned char*>( buffer.data() ) );
       unsigned int empty = 0;
 

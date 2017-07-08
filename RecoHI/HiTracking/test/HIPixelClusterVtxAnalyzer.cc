@@ -85,7 +85,7 @@ void HIPixelClusterVtxAnalyzer::analyze(const edm::Event& ev, const edm::EventSe
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
-      if (1) {
+      if (true) {
         const RectangularPixelTopology *pixTopo = 
           static_cast<const RectangularPixelTopology*>(&(pgdu->specificTopology()));
 	std::vector<SiPixelCluster::Pixel> pixels(hit->cluster()->pixels());

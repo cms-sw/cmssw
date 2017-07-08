@@ -25,7 +25,7 @@ void CSCTFSPCoreLogic::loadData(const CSCTriggerContainer<csctf::TrackStub>& the
 				const int& minBX, const int& maxBX, const bool gangedME1a)
 {
   io_.clear();
-  runme = 0;
+  runme = false;
   io_.resize(maxBX - minBX + 2);
   unsigned relative_bx = 0;
 

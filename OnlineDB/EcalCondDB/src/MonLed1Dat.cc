@@ -18,7 +18,7 @@ MonLed1Dat::MonLed1Dat()
   m_vptRMS = 0;
   m_vptOverPNMean = 0;
   m_vptOverPNRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
   
 }
 

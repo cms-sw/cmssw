@@ -74,14 +74,14 @@ void PlotCompareUtility::makePlots<Plot1D>(HistoData *HD) {
   TH1F *hnew = (TH1F *)HD->getNewHisto();
 
   // set drawing options on the reference histogram
-  href->SetStats(0);
+  href->SetStats(false);
   href->SetLineWidth(2);
   href->SetLineColor(14);
   href->SetMarkerColor(14);
   href->SetFillColor(18);
 
   // set drawing options on the new histogram
-  hnew->SetStats(0);
+  hnew->SetStats(false);
   hnew->SetLineWidth(2);
   hnew->SetLineColor(HD->getShadedLineColor());
   hnew->SetFillStyle(HD->getShadedFillStyle());

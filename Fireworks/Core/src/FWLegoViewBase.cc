@@ -154,7 +154,7 @@ FWLegoViewBase::setContext(const fireworks::Context& ctx)
    m_overlay->SetCaloLego(m_lego);
    m_overlay->SetShowPlane(kFALSE);
    m_overlay->SetScalePosition(0.8, 0.6);
-   m_overlay->SetShowScales(1); //temporary
+   m_overlay->SetShowScales(true); //temporary
    viewerGL()->AddOverlayElement(m_overlay);
 }
    

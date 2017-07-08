@@ -54,7 +54,7 @@ bool SimMuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    int nTracks = simTracks.size();
 
-   bool pass = 0;
+   bool pass = false;
    
    for(int it=0;it<nTracks;it++)
      {
@@ -91,7 +91,7 @@ bool SimMuFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	     nSimHitDT++;
 	  }
 	
-	if( nSimHitRPC+nSimHitCSC+nSimHitDT > 0 ) pass = 1;
+	if( nSimHitRPC+nSimHitCSC+nSimHitDT > 0 ) pass = true;
      }
 
    return pass;

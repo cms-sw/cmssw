@@ -282,7 +282,7 @@ void PlotCompareUtility::makeSummaryPlot(string Name) {
   summary.GetXaxis()->SetLabelSize(float(summaryLeftMargin) / (11 * summaryWidth)); //used to be 3*
   summary.GetYaxis()->SetLabelSize(summary.GetXaxis()->GetLabelSize());
   summary.GetYaxis()->SetTitle("Compatibility");
-  summary.SetStats(0);
+  summary.SetStats(false);
   summary.GetYaxis()->SetRangeUser(getThreshold()/10,2);
   summary.Draw("hbar0");
 

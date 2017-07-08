@@ -142,8 +142,8 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const std::vector<DetId>& eeDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing endcap trig tower mapping **"<<std::endl;
@@ -203,8 +203,8 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       h->GetXaxis()->SetTitleOffset(1.8);
       h->GetYaxis()->SetTitleOffset(1.9);
       
-      h->GetXaxis()->CenterTitle(1);
-      h->GetYaxis()->CenterTitle(1);  
+      h->GetXaxis()->CenterTitle(true);
+      h->GetYaxis()->CenterTitle(true);  
       const std::vector<DetId>& ebDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing barrel trig tower mapping **"<<std::endl;

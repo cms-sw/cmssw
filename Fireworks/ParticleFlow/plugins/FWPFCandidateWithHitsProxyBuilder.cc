@@ -285,8 +285,8 @@ void FWPFCandidateWithHitsProxyBuilder::addHitsForCandidate(const reco::PFCandid
                boxset = new TEveBoxSet();
                boxset->Reset(TEveBoxSet::kBT_FreeBox, true, hitsandfracs.size());
                boxset->SetAntiFlick(true);
-               boxset->SetAlwaysSecSelect(1);
-               boxset->SetPickable(1);
+               boxset->SetAlwaysSecSelect(true);
+               boxset->SetPickable(true);
                boxset->SetTooltipCBFoo(boxset_tooltip_callback);
             }
 

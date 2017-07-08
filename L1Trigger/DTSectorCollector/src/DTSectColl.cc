@@ -286,7 +286,7 @@ DTSectColl::addTSTheta(int step, const DTChambThSegm* tstsegm, int istat) {
   }
 
   // Check if a trigger is present in theta
-  bool is_empty=0;
+  bool is_empty=false;
   for (int i=0;i<7;i++) if (tstsegm->position(i)==1){
       is_empty = false;
       break;

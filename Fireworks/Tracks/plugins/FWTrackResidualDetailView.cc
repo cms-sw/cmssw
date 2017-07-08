@@ -320,7 +320,7 @@ FWTrackResidualDetailView::setTextInfo(const FWModelId &/*id*/, const reco::Trac
    y -=  yStep;
    latex->DrawLatex(x0, y, "Y hit");
    pos[1] = y; pos[3] = pos[1] + boxH;
-   drawCanvasBox(pos, m_resYCol, m_resYFill, 0);
+   drawCanvasBox(pos, m_resYCol, m_resYFill, false);
 
    y -= yStep;
    latex->DrawLatex(x0, y, "stereo hit");

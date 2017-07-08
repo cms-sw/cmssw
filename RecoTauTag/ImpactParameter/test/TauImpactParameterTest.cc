@@ -276,7 +276,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip->cd(1);
 	  gPad->SetLogy();
-	  h_ip2d_1prong->SetStats(0);
+	  h_ip2d_1prong->SetStats(false);
 	  LogInfo("TauImpactParameterTest") << "1-prong taus: " << h_ip2d_1prong->GetEntries() ;
 	  if(h_ip2d_1prong->GetMaximum() > 0) h_ip2d_1prong->Scale(1/h_ip2d_1prong->GetMaximum());
           h_ip2d_1prong->GetXaxis()->SetTitle("ip_{T} (mm)");
@@ -286,7 +286,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip->cd(2);
           gPad->SetLogy();
-          h_ip2d_3prong_leadingTrack->SetStats(0);
+          h_ip2d_3prong_leadingTrack->SetStats(false);
           LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip2d_3prong_leadingTrack->GetEntries() ;
           if(h_ip2d_3prong_leadingTrack->GetMaximum() > 0) h_ip2d_3prong_leadingTrack->Scale(1/h_ip2d_3prong_leadingTrack->GetMaximum());
           h_ip2d_3prong_leadingTrack->GetXaxis()->SetTitle("ip_{T} (mm)");
@@ -298,7 +298,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip->cd(3);
           gPad->SetLogy();
-	  h_ip2d_3prong->SetStats(0);
+	  h_ip2d_3prong->SetStats(false);
           LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip2d_3prong->GetEntries() ;
           if(h_ip2d_3prong->GetMaximum() > 0) h_ip2d_3prong->Scale(1/h_ip2d_3prong->GetMaximum());
 	  h_ip2d_3prong->GetXaxis()->SetTitle("ip_{T} (mm)");
@@ -312,7 +312,7 @@ void TauImpactParameterTest::endJob(){
           gPad->SetLogy();
 
           TH2F* frame = new TH2F("frame","",50,0,1,100,0.001,1);
-	  frame->SetStats(0);
+	  frame->SetStats(false);
 	  frame->GetXaxis()->SetTitle("ipt cut (mm)");
 	  frame->GetYaxis()->SetTitle("efficiency");
 	  frame->Draw();
@@ -327,7 +327,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip->cd(5);
           gPad->SetLogy();
-	  h_sip2d_leadingTrack->SetStats(0);
+	  h_sip2d_leadingTrack->SetStats(false);
 	  if(h_sip2d_leadingTrack->GetMaximum() > 0) h_sip2d_leadingTrack->Scale(1/h_sip2d_leadingTrack->GetMaximum());
           h_sip2d_leadingTrack->GetXaxis()->SetTitle("#sigma_{ipt}");
 	  h_sip2d_leadingTrack->Draw();
@@ -336,7 +336,7 @@ void TauImpactParameterTest::endJob(){
           gPad->SetLogy();
 
           TH2F* frame_s = new TH2F("frame_s","",10,0,M,10,0.01,1);
-          frame_s->SetStats(0);
+          frame_s->SetStats(false);
           frame_s->GetXaxis()->SetTitle("#sigma_{ipt} cut");
           frame_s->GetYaxis()->SetTitle("efficiency");
           frame_s->Draw();
@@ -357,7 +357,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip3D->cd(1);
           gPad->SetLogy();
-          h_ip3d_1prong->SetStats(0);
+          h_ip3d_1prong->SetStats(false);
           LogInfo("TauImpactParameterTest") << "1-prong taus: " << h_ip3d_1prong->GetEntries() ;
           if(h_ip3d_1prong->GetMaximum() > 0) h_ip3d_1prong->Scale(1/h_ip3d_1prong->GetMaximum());
           h_ip3d_1prong->GetXaxis()->SetTitle("ip_{3D} (mm)");
@@ -367,7 +367,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip3D->cd(2);
           gPad->SetLogy();
-          h_ip3d_3prong_leadingTrack->SetStats(0);
+          h_ip3d_3prong_leadingTrack->SetStats(false);
           LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip3d_3prong_leadingTrack->GetEntries() ;
           if(h_ip3d_3prong_leadingTrack->GetMaximum() > 0) h_ip3d_3prong_leadingTrack->Scale(1/h_ip3d_3prong_leadingTrack->GetMaximum());
           h_ip3d_3prong_leadingTrack->GetXaxis()->SetTitle("ip_{3D} (mm)");
@@ -379,7 +379,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip3D->cd(3);
           gPad->SetLogy();
-          h_ip3d_3prong->SetStats(0);
+          h_ip3d_3prong->SetStats(false);
           LogInfo("TauImpactParameterTest") << "3-prong taus: " << h_ip3d_3prong->GetEntries() ;
           if(h_ip3d_3prong->GetMaximum() > 0) h_ip3d_3prong->Scale(1/h_ip3d_3prong->GetMaximum());
           h_ip3d_3prong->GetXaxis()->SetTitle("ip_{3D} (mm)");
@@ -393,7 +393,7 @@ void TauImpactParameterTest::endJob(){
           gPad->SetLogy();
 
           TH2F* frame3D = new TH2F("frame3D","",50,0,1,100,0.001,1);
-          frame3D->SetStats(0);
+          frame3D->SetStats(false);
           frame3D->GetXaxis()->SetTitle("ip3D cut (mm)");
           frame3D->GetYaxis()->SetTitle("efficiency");
           frame3D->Draw();
@@ -404,7 +404,7 @@ void TauImpactParameterTest::endJob(){
 
         tauip3D->cd(5);
           gPad->SetLogy();
-          h_sip3d_leadingTrack->SetStats(0);
+          h_sip3d_leadingTrack->SetStats(false);
           if(h_sip3d_leadingTrack->GetMaximum() > 0) h_sip3d_leadingTrack->Scale(1/h_sip3d_leadingTrack->GetMaximum());
           h_sip3d_leadingTrack->GetXaxis()->SetTitle("#sigma_{ip3D}");
           h_sip3d_leadingTrack->Draw();
@@ -413,7 +413,7 @@ void TauImpactParameterTest::endJob(){
           gPad->SetLogy();
 
           TH2F* frame3D_s = new TH2F("frame3D_s","",10,0,M,10,0.01,1);
-          frame3D_s->SetStats(0);
+          frame3D_s->SetStats(false);
           frame3D_s->GetXaxis()->SetTitle("sip3D cut");
           frame3D_s->GetYaxis()->SetTitle("efficiency");
           frame3D_s->Draw();

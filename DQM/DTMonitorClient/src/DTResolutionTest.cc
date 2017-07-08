@@ -58,7 +58,7 @@ DTResolutionTest::DTResolutionTest(const edm::ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -97,7 +97,7 @@ DTResolutionTest::~DTResolutionTest(){
   }
 
   }
-  bookingdone = 1; 
+  bookingdone = true; 
 
 
   edm::LogVerbatim ("resolution") <<"[DTResolutionTest]: End of LS transition, performing the DQM client operation";

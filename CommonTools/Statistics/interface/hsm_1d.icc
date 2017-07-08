@@ -16,7 +16,7 @@ hsm_1d_returning_iterators ( std::vector<T> & values )
                  typename std::vector<T>::iterator begin = values.begin();
                  typename std::vector<T>::iterator end = values.end()-1;
 
-                 while (1) 
+                 while (true) 
                  {   
                      const int size = (int) (end-begin);
                      // const int stepsize = size / 2;

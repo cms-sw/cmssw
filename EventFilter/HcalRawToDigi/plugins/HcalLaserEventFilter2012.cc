@@ -107,7 +107,7 @@ void HcalLaserEventFilter2012::readEventListFile(const string & eventFileName)
   unsigned int i;
   char * pch;
 
-  while (1) {
+  while (true) {
     bytes_read = gzread (file, buffer, LENGTH - 1);
     buffer[bytes_read] = '\0';
     i=0;

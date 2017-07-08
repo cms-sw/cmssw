@@ -86,12 +86,12 @@ public:
 	virtual void resetValue() {
 		theVar_=0;
 		updates_=0;
-		notSame_=0;
+		notSame_=false;
 	}
 	void operator=(long sth) {
 		theVar_ = sth;
 		updates_=1;
-		notSame_=0;
+		notSame_=false;
 	}
 	long & value() {
 		return theVar_;
@@ -129,12 +129,12 @@ public:
 	virtual void resetValue() {
 		theVar_=0;
 		updates_=0;
-		notSame_=0;
+		notSame_=false;
 	}
 	void operator=(double sth) {
 		theVar_ = sth;
 		updates_=1;
-		notSame_=0;
+		notSame_=false;
 	}
 	double & value() {
 		return theVar_;
@@ -163,12 +163,12 @@ public:
 	virtual void resetValue() {
 		theVar_=std::string();
 		updates_ = 0;
-		notSame_=0;
+		notSame_=false;
 	}
 	void operator=(std::string sth) {
 		theVar_ = sth;
 		updates_=1;
-		notSame_=0;
+		notSame_=false;
 	}
 	std::string & value() {
 		return theVar_;

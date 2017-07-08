@@ -98,9 +98,9 @@ bool RBCEmulator::initialise()
   
   if ( !status ) { 
     if( m_debug ) std::cout << "RBCEmulator> Problem initialising the Configuration \n"; 
-    return 0; };
+    return false; };
   
-  return 1;
+  return true;
   
 }
 

@@ -15,14 +15,14 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   // core configuration
   // by default everything is disabled: we need to set them
   // coincidence and singles
-  bool run_core        = 0;
-  bool trigger_on_ME1a = 0;
-  bool trigger_on_ME1b = 0;
-  bool trigger_on_ME2  = 0;
-  bool trigger_on_ME3  = 0;
-  bool trigger_on_ME4  = 0;
-  bool trigger_on_MB1a = 0;
-  bool trigger_on_MB1d = 0;
+  bool run_core        = false;
+  bool trigger_on_ME1a = false;
+  bool trigger_on_ME1b = false;
+  bool trigger_on_ME2  = false;
+  bool trigger_on_ME3  = false;
+  bool trigger_on_ME4  = false;
+  bool trigger_on_MB1a = false;
+  bool trigger_on_MB1d = false;
 
   unsigned int BXAdepth   = 0;
   unsigned int useDT      = 0;
@@ -34,11 +34,11 @@ edm::ParameterSet L1MuCSCTFConfiguration::parameters(int sp) const {
   // these are very important parameters.
   // Double check with Alex
   unsigned int CoreLatency = 7;
-  bool rescaleSinglesPhi = 1;
+  bool rescaleSinglesPhi = true;
 
   // ask Alex if use or remove them or what
-  bool AllowALCTonly = 0;
-  bool AllowCLCTonly = 0;
+  bool AllowALCTonly = false;
+  bool AllowCLCTonly = false;
 
   // other useful parameters in general not set in the OMDS  
   unsigned int QualityEnableME1a = 0xFFFF;

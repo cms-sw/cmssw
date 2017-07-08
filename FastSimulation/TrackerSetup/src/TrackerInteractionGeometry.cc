@@ -762,7 +762,7 @@ TrackerInteractionGeometry::TrackerInteractionGeometry(const edm::ParameterSet& 
     theDisk = new BoundDisk(PTID3,theRotation2,TID3);
     theDisk->setMediumProperties(*_theMPInner3);
     if ( theDisk->mediumProperties().radLen() > 0. ) 
-      _theCylinders.push_back(TrackerLayer(theDisk,12,layerNr,
+      _theCylinders.push_back(TrackerLayer(theDisk,true,layerNr,
 					   minDim(layerNr),maxDim(layerNr),
 					   fudgeFactors(layerNr)));
     else

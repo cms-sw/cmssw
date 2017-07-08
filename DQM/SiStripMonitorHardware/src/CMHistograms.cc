@@ -147,10 +147,10 @@ void CMHistograms::bookTopLevelHistograms(DQMStore::IBooker & ibooker)
     
   //book map after, as it creates a new folder...
   if (tkMapConfig_.enabled){
-    tkmapCM_[0] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV",0.,500);
-    tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV",0.,500);
-    tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0minusAPV1",-500.,500);
-    tkmapCM_[3] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0minusAPV1",-500.,500);
+    tkmapCM_[0] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV",0.,true);
+    tkmapCM_[1] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV",0.,true);
+    tkmapCM_[2] = new TkHistoMap("SiStrip/TkHisto","TkHMap_MeanCMAPV0minusAPV1",-500.,true);
+    tkmapCM_[3] = new TkHistoMap("SiStrip/TkHisto","TkHMap_RmsCMAPV0minusAPV1",-500.,true);
   }
   else {
     tkmapCM_[0] = 0;

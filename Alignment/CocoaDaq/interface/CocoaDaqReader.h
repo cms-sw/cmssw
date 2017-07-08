@@ -16,7 +16,7 @@ class CocoaDaqReader {
   virtual ~CocoaDaqReader(){ };
 
   virtual bool ReadNextEvent() = 0;
-  virtual bool ReadEvent( int nev ){ return 0; };
+  virtual bool ReadEvent( int nev ){ return false; };
   virtual void BuildMeasurementsFromOptAlign( std::vector<OpticalAlignMeasurementInfo>& measList );
 
  public:

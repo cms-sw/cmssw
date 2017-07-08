@@ -44,7 +44,7 @@ namespace pat {
       packedPuppiweightNoLepDiff_(0),
       rawCaloFraction_(0),
       hcalFraction_(0),
-      isIsolatedChargedHadron_(0),
+      isIsolatedChargedHadron_(false),
       p4_(new PolarLorentzVector(0,0,0,0)), p4c_( new LorentzVector(0,0,0,0)), 
       vertex_(new Point(0,0,0)), dphi_(0), deta_(0), dtrkpt_(0),track_(nullptr), pdgId_(0),
       qualityFlags_(0), pvRefKey_(reco::VertexRef::invalidKey()),
@@ -54,7 +54,7 @@ namespace pat {
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
-      isIsolatedChargedHadron_(0),
+      isIsolatedChargedHadron_(false),
       p4_( new PolarLorentzVector(c.pt(), c.eta(), c.phi(), c.mass())), 
       p4c_( new LorentzVector(*p4_)), vertex_( new Point(c.vertex())), 
       dphi_(0), deta_(0), dtrkpt_(0),
@@ -69,7 +69,7 @@ namespace pat {
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
-      isIsolatedChargedHadron_(0),
+      isIsolatedChargedHadron_(false),
       p4_( new PolarLorentzVector(p4) ), p4c_( new LorentzVector(*p4_)), 
       vertex_( new Point(vtx) ), 
       dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 
@@ -86,7 +86,7 @@ namespace pat {
                               const reco::VertexRefProd &pvRefProd,
                               reco::VertexRef::key_type pvRefKey) :
       packedPuppiweight_(0), packedPuppiweightNoLepDiff_(0), rawCaloFraction_(0), hcalFraction_(0),
-      isIsolatedChargedHadron_(0),
+      isIsolatedChargedHadron_(false),
       p4_(new PolarLorentzVector(p4.Pt(), p4.Eta(), p4.Phi(), p4.M())), 
       p4c_( new LorentzVector(p4)), vertex_( new Point(vtx) ) ,
       dphi_(reco::deltaPhi(phiAtVtx,p4_.load()->phi())), 

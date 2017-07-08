@@ -85,8 +85,8 @@ CentralityTableProducer::CentralityTableProducer(const edm::ParameterSet& iConfi
    runnum_(0)
 {
    //now do what ever initialization is needed
-   makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile",1);
-   makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB",0);
+   makeDBFromTFile_ = iConfig.getUntrackedParameter<bool>("makeDBFromTFile",true);
+   makeTFileFromDB_ = iConfig.getUntrackedParameter<bool>("makeTFileFromDB",false);
    firstRunOnly_ = iConfig.getUntrackedParameter<bool>("isMC",false);
    debug_ = iConfig.getUntrackedParameter<bool>("debug",false);
    if(makeDBFromTFile_){

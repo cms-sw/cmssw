@@ -57,7 +57,7 @@ class TreeReader {
 	static const double	kOptVal;
 
 	struct Bool {
-		inline Bool() : value(0) {}
+		inline Bool() : value(false) {}
 		inline operator Bool_t() const { return value; }
 		Bool_t	value;
 	};

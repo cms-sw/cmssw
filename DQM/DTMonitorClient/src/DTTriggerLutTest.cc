@@ -46,7 +46,7 @@ DTTriggerLutTest::DTTriggerLutTest(const edm::ParameterSet& ps){
   validRange = ps.getUntrackedParameter<double>("validRange");
   detailedAnalysis = ps.getUntrackedParameter<bool>("detailedAnalysis");
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -58,7 +58,7 @@ DTTriggerLutTest::~DTTriggerLutTest(){
 
 void DTTriggerLutTest::Bookings(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) {
 
-  bookingdone = 1;  
+  bookingdone = true;  
 
   vector<string>::const_iterator iTr   = trigSources.begin();
   vector<string>::const_iterator trEnd = trigSources.end();

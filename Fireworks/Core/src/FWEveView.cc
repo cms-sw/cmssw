@@ -296,7 +296,7 @@ FWEveView::voteCaloMaxVal()
 {
    TEveCaloViz* calo = getEveCalo();
    if (calo)
-      context().voteMaxEtAndEnergy(calo->GetData()->GetMaxVal(1), calo->GetData()->GetMaxVal(0));
+      context().voteMaxEtAndEnergy(calo->GetData()->GetMaxVal(true), calo->GetData()->GetMaxVal(false));
 }
 
 void

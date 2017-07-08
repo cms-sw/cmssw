@@ -193,7 +193,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 
     subfolderStringBegin = 0;
     Folder * curr = &dbeFolder;
-    while(1)
+    while(true)
     {
       subfolderStringEnd = path.find( '/', subfolderStringBegin );
       if( std::string::npos == subfolderStringEnd )

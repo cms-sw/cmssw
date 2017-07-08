@@ -50,7 +50,7 @@ DTNoiseAnalysisTest::DTNoiseAnalysisTest(const edm::ParameterSet& ps){
 
   nevents = 0;
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -77,7 +77,7 @@ void DTNoiseAnalysisTest::beginRun(Run const& run, EventSetup const& context) {
     // book the histos
   bookHistos(ibooker);
   }
-  bookingdone = 1; 
+  bookingdone = true; 
 
 
   LogVerbatim ("DTDQM|DTMonitorClient|DTNoiseAnalysisTest")

@@ -219,7 +219,7 @@ ALIbool ALIFileIn::eof()
   //only real closing if all files are closed
   //-  std::cout << " eof " << isok << " " << theCurrentFile << std::endl;
   if( theCurrentFile != -1 ) { 
-    return 0;
+    return false;
   } else {
     return isok;
   }

@@ -34,7 +34,7 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   uint32_t mbp0(0), mbm0(0), mbp1(0), mbm1(0);
   uint32_t ntow(0);
 
-  bool metSat(0);
+  bool metSat(false);
 
   // Add up the x, y and scalar components
   for (std::vector<l1t::EtSum>::const_iterator eSum = inputSums.begin() ; eSum != inputSums.end() ; ++eSum )

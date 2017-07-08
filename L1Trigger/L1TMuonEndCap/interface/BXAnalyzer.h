@@ -91,7 +91,7 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
   
   for(int i=0;i<3;i++){
     
-    bool set = 0;
+    bool set = false;
     
     for(int zone=0;zone<4;zone++){
       for(int strip=0;strip<192;strip++){//was 128
@@ -102,7 +102,7 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
 	  layer[zone][strip] = Pout[i].detected.layer[zone][strip];
 	  straightness[zone][strip] = Pout[i].detected.straightness[zone][strip];
 	  bxgroup[zone][strip] = i+1;
-	  set = 1;
+	  set = true;
 	}
       }
     }

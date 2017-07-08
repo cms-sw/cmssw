@@ -369,7 +369,7 @@ BuildTrackerMapPlugin::endJob()
 
     //(pset_,pDD1); 
     lTkMap->setPalette(1);
-    lTkMap->showPalette(1);
+    lTkMap->showPalette(true);
     if (!tkHistoMapVec_.at(i) || !isValidMap_.at(i)) {
       std::cout << "Warning, tkHistoMap is invalid for element " << i << "... continuing ..." << std::endl;
       continue;

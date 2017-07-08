@@ -641,15 +641,15 @@ void EcalPerEvtLaserAnalyzer::endJob() {
     stringstream name3;
     name3<<"ABCol"<<i;  
     alphaTree[i]=(TTree*)alphaFile->Get(name3.str().c_str());
-    alphaTree[i]->SetBranchStatus( "*",         0 );
-    alphaTree[i]->SetBranchStatus( "alpha",     1 );
-    alphaTree[i]->SetBranchStatus( "beta",      1 );
-    alphaTree[i]->SetBranchStatus( "iphi",      1 );
-    alphaTree[i]->SetBranchStatus( "ieta",      1 );
-    alphaTree[i]->SetBranchStatus( "dccID",     1 );
-    alphaTree[i]->SetBranchStatus( "towerID",   1 );
-    alphaTree[i]->SetBranchStatus( "channelID", 1 );
-    alphaTree[i]->SetBranchStatus( "flag",      1 );
+    alphaTree[i]->SetBranchStatus( "*",         false );
+    alphaTree[i]->SetBranchStatus( "alpha",     true );
+    alphaTree[i]->SetBranchStatus( "beta",      true );
+    alphaTree[i]->SetBranchStatus( "iphi",      true );
+    alphaTree[i]->SetBranchStatus( "ieta",      true );
+    alphaTree[i]->SetBranchStatus( "dccID",     true );
+    alphaTree[i]->SetBranchStatus( "towerID",   true );
+    alphaTree[i]->SetBranchStatus( "channelID", true );
+    alphaTree[i]->SetBranchStatus( "flag",      true );
        
     alphaTree[i]->SetBranchAddress( "alpha",     &alphaRun     );
     alphaTree[i]->SetBranchAddress( "beta",      &betaRun      );

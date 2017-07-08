@@ -177,10 +177,10 @@ void RPCRecHitValid::bookHistograms(DQMStore::IBooker& booker,
   h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetContour(10);
   h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetContour(10);
 
-  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
-  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
-  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(0);
-  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(0);
+  h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(false);
+  h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(false);
+  h_recPunchOccupancyBarrel_wheel_station->getTH2F()->SetStats(false);
+  h_recPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetStats(false);
 
   h_refPunchOccupancyBarrel_wheel_station->getTH2F()->SetMinimum(0);
   h_refPunchOccupancyEndcap_disk_ring    ->getTH2F()->SetMinimum(0);

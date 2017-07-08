@@ -604,7 +604,7 @@ Value::operator <( const Value &other ) const
    default:
       JSON_ASSERT_UNREACHABLE;
    }
-   return 0;  // unreachable
+   return false;  // unreachable
 }
 
 bool 
@@ -666,7 +666,7 @@ Value::operator ==( const Value &other ) const
    default:
       JSON_ASSERT_UNREACHABLE;
    }
-   return 0;  // unreachable
+   return false;  // unreachable
 }
 
 bool 

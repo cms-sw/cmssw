@@ -56,7 +56,7 @@ DTRunConditionVarClient::DTRunConditionVarClient(const ParameterSet& pSet)
 
   nevents = 0;
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 

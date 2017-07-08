@@ -151,7 +151,7 @@ class L1MuBMTrack : public l1t::RegionalMuonCand {
     void setEta(int eta);
 
     /// set fine eta bit
-    inline void setFineEtaBit() { setHwHF(1); }
+    inline void setFineEtaBit() { setHwHF(true); }
 
     /// set pt-code of muon candidate
     inline void setPt(int pt) { setHwPt(pt); }

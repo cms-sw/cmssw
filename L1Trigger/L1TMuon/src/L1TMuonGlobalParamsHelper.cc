@@ -24,7 +24,7 @@ std::bitset<72> L1TMuonGlobalParamsHelper::inputFlags(const int &nodeIdx) const
     inputFlags[CALOLINK1 + i] = ((pnodes_[nodeIdx].uparams_[CALOINPUTS] >> i) & 0x1);
     if (i < CALOLINK1) {
       // disable unused inputs
-      inputFlags[i] = 0x1;
+      inputFlags[i] = true;
     }
     if (i < 12) {
       inputFlags[BMTFLINK1 + i] = ((pnodes_[nodeIdx].uparams_[BMTFINPUTS] >> i) & 0x1);

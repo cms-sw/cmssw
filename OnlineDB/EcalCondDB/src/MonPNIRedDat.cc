@@ -24,7 +24,7 @@ MonPNIRedDat::MonPNIRedDat()
   m_pedRMSG1 = 0;
   m_pedMeanG16 = 0;
   m_pedRMSG16 = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

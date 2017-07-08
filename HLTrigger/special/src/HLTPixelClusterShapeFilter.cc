@@ -128,7 +128,7 @@ bool HLTPixelClusterShapeFilter::hltFilter(edm::Event& event, const edm::EventSe
       if(id.subdetId() != int(PixelSubdetector::PixelBarrel))
         continue;
       const PixelGeomDetUnit *pgdu = static_cast<const PixelGeomDetUnit*>(tgeo->idToDet(id));
-      if (1) {
+      if (true) {
         const PixelTopology *pixTopo = &(pgdu->specificTopology());
         std::vector<SiPixelCluster::Pixel> pixels(hit.cluster()->pixels());
         bool pixelOnEdge = false;

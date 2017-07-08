@@ -115,10 +115,10 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
       int itdum = ntrigs;
       for (auto & dummyBranche : dummyBranches_) {
 	TString trigName(dummyBranche.data());
-	bool addThisBranch = 1;
+	bool addThisBranch = true;
 	for (int itrig = 0; itrig != ntrigs; ++itrig) {
 	  TString realTrigName = triggerNames.triggerName(itrig);
-	  if(trigName == realTrigName) addThisBranch = 0;
+	  if(trigName == realTrigName) addThisBranch = false;
 	}
 	if(addThisBranch){
 	  HltTree->Branch(trigName,trigflag+itdum,trigName+"/I");

@@ -125,7 +125,7 @@ const bool EventWithHistoryFilter::is_selected(const EventWithHistory& he, const
   selected = selected && (isCutInactive(m_dbxrangelat) ||
 			  isInRange(he.deltaBX()-latency,m_dbxrangelat,he.depth()!=0 && latency>=0));
 
-  selected = selected && (isCutInactive(m_bxrange) || isInRange(he.absoluteBX()%70,m_bxrange,1));
+  selected = selected && (isCutInactive(m_bxrange) || isInRange(he.absoluteBX()%70,m_bxrange,true));
 
   selected = selected && (isCutInactive(m_bxrangelat) ||
 			  isInRange((he.absoluteBX()-latency)%70,m_bxrangelat,latency>=0));

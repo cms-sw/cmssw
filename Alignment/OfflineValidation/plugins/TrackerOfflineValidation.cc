@@ -1573,7 +1573,7 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
     DetId detId_ = it->first;
     treeMem.moduleId = detId_;
     treeMem.subDetId = detId_.subdetId();
-    treeMem.isDoubleSide =0;
+    treeMem.isDoubleSide =false;
 
     if(treeMem.subDetId == PixelSubdetector::PixelBarrel){
       unsigned int whichHalfBarrel(1), rawId(detId_.rawId());  //DetId does not know about halfBarrels is PXB ...

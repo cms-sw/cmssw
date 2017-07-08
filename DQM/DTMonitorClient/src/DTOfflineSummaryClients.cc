@@ -31,7 +31,7 @@ DTOfflineSummaryClients::DTOfflineSummaryClients(const ParameterSet& ps) : neven
 
   LogVerbatim("DTDQM|DTMonitorClient|DTOfflineSummaryClients") << "[DTOfflineSummaryClients]: Constructor";
  
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 

@@ -177,7 +177,7 @@ void PlotCompareUtility::makePlots<Plot2D>(HistoData *HD) {
     // create and setup the summary histogram
     TH1F projectionsSummary("projectionsSummary","Compatibility with Reference Histograms",numHistos,1,numHistos+1);
     projectionsSummary.GetYaxis()->SetRangeUser(getThreshold()/10,2);
-    projectionsSummary.SetStats(0);
+    projectionsSummary.SetStats(false);
 
     // display histogram (take axis from original histogram)
     projectionsSummary.Draw("AH");

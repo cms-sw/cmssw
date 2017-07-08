@@ -29,7 +29,7 @@ FWHGCalMultiClusterProxyBuilder::build( const reco::HGCalMultiCluster& iData, un
   TEveBoxSet* boxset = new TEveBoxSet();
   boxset->Reset(TEveBoxSet::kBT_FreeBox, true, 64);
   boxset->UseSingleColor();
-  boxset->SetPickable(1);
+  boxset->SetPickable(true);
   for (const auto & c : clusters)
     {
       std::vector<std::pair<DetId, float> > clusterDetIds = c->hitsAndFractions();

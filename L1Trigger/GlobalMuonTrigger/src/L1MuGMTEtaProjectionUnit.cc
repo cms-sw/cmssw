@@ -94,15 +94,15 @@ void L1MuGMTEtaProjectionUnit::run() {
     if (isFwd) { // forward
       for (int i=0; i<5; i++)
 	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i] = 1;
+	  m_eta_select[i] = true;
       
       for (int i=5; i<10; i++)
 	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i+4] = 1;            
+	  m_eta_select[i+4] = true;            
     } else { // barrel
       for (int i=0; i<10; i++)
 	if ( (eta_sel_bits & (1 << i))  == (unsigned) (1<<i))
-	  m_eta_select[i+2] = 1;
+	  m_eta_select[i+2] = true;
     }
     
     //    m_MIAU.GMT().DebugBlockForFill()->SetEtaSelBits( m_id, m_eta_select.read(0,14)) ;

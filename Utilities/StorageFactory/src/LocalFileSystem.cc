@@ -193,7 +193,7 @@ LocalFileSystem::initFSInfo(void *arg)
   i->fstype = -1;
   i->freespc = 0;
   i->local = 0;
-  i->checked = 0;
+  i->checked = false;
   i->bind = strstr(m->mnt_opts, "bind") != nullptr;
 
   for (size_t j = 0; j < fstypes_.size() && ! i->local; ++j)
@@ -272,7 +272,7 @@ LocalFileSystem::statFSInfo(FSInfo *i) const
   {
     if (lstat(i->dir, &s) < 0)
     {
-      i->checked = 1;
+      i->checked = true;
 
       int nerr = errno;
       if (nerr != ENOENT && nerr != EACCES)
@@ -284,7 +284,7 @@ LocalFileSystem::statFSInfo(FSInfo *i) const
 
     if (statfs(i->dir, &sfs) < 0)
     {
-      i->checked = 1;
+      i->checked = true;
       int nerr = errno;
       edm::LogWarning("LocalFileSystem::statFSInfo()")
 	<< "Cannot statfs('" << i->dir << "'): "
@@ -300,7 +300,7 @@ LocalFileSystem::statFSInfo(FSInfo *i) const
       i->freespc *= sfs.f_bsize;
       i->freespc /= 1024. * 1024. * 1024.;
     }
-    i->checked = 1;
+    i->checked = true;
   }
   else if (i->fstype == -1)
   {

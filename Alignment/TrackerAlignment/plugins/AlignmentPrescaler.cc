@@ -47,10 +47,10 @@ void AlignmentPrescaler::beginJob(){
    fpresc_=new TFile(prescfilename_.c_str(),"READ");
    tpresc_=(TTree*)fpresc_->Get(presctreename_.c_str());
    tpresc_->BuildIndex("DetId");
-   tpresc_->SetBranchStatus("*",0);
-   tpresc_->SetBranchStatus("DetId",1);
-   tpresc_->SetBranchStatus("PrescaleFactor",1);
-   tpresc_->SetBranchStatus("PrescaleFactorOverlap",1);
+   tpresc_->SetBranchStatus("*",false);
+   tpresc_->SetBranchStatus("DetId",true);
+   tpresc_->SetBranchStatus("PrescaleFactor",true);
+   tpresc_->SetBranchStatus("PrescaleFactorOverlap",true);
    cout<<" Branches activated "<<std::flush;
    detid_=0;
    hitPrescFactor_=99.0;

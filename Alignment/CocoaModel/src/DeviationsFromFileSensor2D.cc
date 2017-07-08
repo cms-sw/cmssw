@@ -159,7 +159,7 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
   auto yrows = std::make_unique<unsigned int[]>(theNPoints);
 
   unsigned int ii = 0;
-  ALIbool insideMatrix = 0;
+  ALIbool insideMatrix = false;
   for( vvdite = theDeviations.begin(); vvdite != (theDeviations.end()-1); ++vvdite ){
     for( vdite = (*vvdite).begin(); vdite != ((*vvdite).end()-1); ++vdite ){
      if( verbose >= 5 ) std::cout << " check posy " << (*(vdite))->posY()  << " " <<  (*(vdite+1))->posY()  << " " <<  (*(vdite)) << std::endl;
@@ -172,7 +172,7 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
 	//-std::cout << " ii " << ii << std::endl;
 	yrows[ii] = vdite - (*vvdite).begin();
 	if( verbose >= 3 ) std::cout << intersY << " DeviationsFromFileSensor2D yrows " << ii << " " << yrows[ii] << " : " << (*(vdite))->posY() << std::endl;
-	insideMatrix = 1;
+	insideMatrix = true;
 	break;
       }
     }
@@ -182,7 +182,7 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
     std::cerr << "!!EXITING intersection in Y outside matrix of deviations from file " << intersY << std::endl;
     exit(1);
   }
-  insideMatrix = 0;
+  insideMatrix = false;
 
   vd thePoints;
   thePoints.clear();
@@ -199,7 +199,7 @@ std::pair< ALIdouble, ALIdouble > DeviationsFromFileSensor2D::getDevis( ALIdoubl
 	&& (intersX - dev2->posX() )*theScanSenseX < 0) {
       thePoints.push_back( dev1 );
       thePoints.push_back( dev2 );
-      insideMatrix = 1;
+      insideMatrix = true;
       if( verbose >= 3 ) std::cout << " column up " << ii << " " << dev1->posX()  << " " << dev2->posX() << " : " << intersX << std::endl;
     }
 

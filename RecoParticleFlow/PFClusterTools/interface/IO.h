@@ -109,7 +109,7 @@ bool pftools::IO::GetOpt(const char* tag, const char* key, std::vector< T >& val
   std::string data = GetLineData(tag,key);
  
   std::istringstream in(data.c_str());  
-  while(1) {
+  while(true) {
     T tmp;
     in>>tmp;
     if(!in) break;

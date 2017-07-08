@@ -156,10 +156,10 @@ void QcdLowPtDQM::dqmBeginRun(const Run &run, const EventSetup &iSetup) {
   // names/bits
   for (size_t i = 0; i < hltTrgNames_.size(); ++i) {
     const string &n1(hltTrgNames_.at(i));
-    bool found = 0;
+    bool found = false;
     for (size_t j = 0; j < hltConfig_.size(); ++j) {
       const string &n2(hltConfig_.triggerName(j));
-      if (0)
+      if (false)
         print(0,
               Form("Checking trigger name %s for %s", n2.c_str(), n1.c_str()));
       if (n2 == n1) {
@@ -168,7 +168,7 @@ void QcdLowPtDQM::dqmBeginRun(const Run &run, const EventSetup &iSetup) {
         hltTrgDeci_.push_back(false);
         print(0, Form("Added trigger %d with name %s for bit %d",
                       int(hltTrgBits_.size() - 1), n1.c_str(), int(j)));
-        found = 1;
+        found = true;
         break;
       }
     }
@@ -224,14 +224,14 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
   iBooker.setCurrentFolder("Physics/QcdLowPt");
   if (hNhitsL1_.size()) return;  // histograms already booked
 
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/EventInfo/");
     repSumMap_ = iBooker.book2D("reportSummaryMap", "reportSummaryMap", 1, 0,
                                  1, 1, 0, 1);
     repSummary_ = iBooker.bookFloat("reportSummary");
   }
 
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/");
     const int Nx = hltTrgUsedNames_.size();
     const double x1 = -0.5;
@@ -243,65 +243,65 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
       h2TrigCorr_->setBinLabel(i, hltTrgUsedNames_.at(i - 1), 2);
     }
     TH1 *h = h2TrigCorr_->getTH1();
-    if (h) h->SetStats(0);
+    if (h) h->SetStats(false);
   }
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/HitsLayer/");
     const int Nx = 30;
     const double x1 = -0.5;
     const double x2 = 149.5;
     book1D(iBooker, hNhitsL1_, "hNhitsLayer1", "number of hits on layer 1;#hits;#", Nx,
            x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hNhitsL2_, "hNhitsLayer2", "number of hits on layer 2;#hits;#", Nx,
              x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hNhitsL3_, "hNhitsLayer3", "number of hits on layer 3;#hits;#", Nx,
              x1, x2);
   }
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/HitsLayerZoom/");
     const int Nx = 15;
     const double x1 = -0.5;
     const double x2 = 14.5;
     book1D(iBooker, hNhitsL1z_, "hNhitsLayer1Zoom", "number of hits on layer 1;#hits;#",
            Nx, x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hNhitsL2z_, "hNhitsLayer2Zoom",
              "number of hits on layer 2;#hits;#", Nx, x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hNhitsL3z_, "hNhitsLayer3Zoom",
              "number of hits on layer 3;#hits;#", Nx, x1, x2);
   }
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/HitsLayerEta/");
     const int Nx = 60;
     const double x1 = -3;
     const double x2 = +3;
     book1D(iBooker, hdNdEtaHitsL1_, "hdNdEtaHitsLayer1",
            "Hits on layer 1;detector #eta;#", Nx, x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hdNdEtaHitsL2_, "hdNdEtaHitsLayer2",
              "Hits on layer 2;detector #eta;#", Nx, x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hdNdEtaHitsL3_, "hdNdEtaHitsLayer3",
              "Hits on layer 3;detector #eta;#", Nx, x1, x2);
   }
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/HitsLayerPhi/");
     const int Nx = 64;
     const double x1 = -3.2;
     const double x2 = +3.2;
     book1D(iBooker, hdNdPhiHitsL1_, "hdNdPhiHitsLayer1", "Hits on layer 1;#phi;#", Nx,
            x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hdNdPhiHitsL2_, "hdNdPhiHitsLayer2", "Hits on layer 2;#phi;#", Nx,
              x1, x2);
-    if (0)
+    if (false)
       book1D(iBooker, hdNdPhiHitsL3_, "hdNdPhiHitsLayer3", "Hits on layer 3;#phi;#", Nx,
              x1, x2);
   }
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/TrackletVtxZ/");
     const int Nx = 100;
     const double x1 = -25;
@@ -317,7 +317,7 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
              "z vertex from tracklets23;vz [cm];#", Nx, x1, x2);
   }
 
-  if (1) {
+  if (true) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/TrackletEtaVtxZ/");
     const int Nx = 60;
     const double x1 = -3;
@@ -328,17 +328,17 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
     if (pixLayers_ >= 12)
       book2D(iBooker, hRawTrkEtaVtxZ12_, "hRawTrkEtaVtxZ12",
              "raw #eta vs z vertex from tracklets12;#eta;vz [cm]", Nx, x1, x2,
-             Ny, y1, y2, 0, 0);
+             Ny, y1, y2, false, false);
     if (pixLayers_ >= 13)
       book2D(iBooker, hRawTrkEtaVtxZ13_, "hRawTrkEtaVtxZ13",
              "raw #eta vs z vertex from tracklets13;#eta;vz [cm]", Nx, x1, x2,
-             Ny, y1, y2, 0, 0);
+             Ny, y1, y2, false, false);
     if (pixLayers_ >= 23)
       book2D(iBooker, hRawTrkEtaVtxZ23_, "hRawTrkEtaVtxZ23",
              "raw #eta vs z vertex from tracklets23;#eta;vz [cm]", Nx, x1, x2,
-             Ny, y1, y2, 0, 0);
+             Ny, y1, y2, false, false);
   }
-  if (0) {
+  if (false) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/TrackletDetaDphi/");
     const int Nx = 60;
     const double x1 = -3;
@@ -349,17 +349,17 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
     if (pixLayers_ >= 12)
       book2D(iBooker, hTrkRawDetaDphi12_, "hTracklet12RawDetaDphi",
              "tracklet12 raw #Delta#eta vs #Delta#phi;#Delta#eta;#Delta#phi",
-             Nx, x1, x2, Ny, y1, y2, 0, 0);
+             Nx, x1, x2, Ny, y1, y2, false, false);
     if (pixLayers_ >= 13)
       book2D(iBooker, hTrkRawDetaDphi13_, "hTracklet13RawDetaDphi",
              "tracklet13 raw #Delta#eta vs #Delta#phi;#Delta#eta;#Delta#phi",
-             Nx, x1, x2, Ny, y1, y2, 0, 0);
+             Nx, x1, x2, Ny, y1, y2, false, false);
     if (pixLayers_ >= 23)
       book2D(iBooker, hTrkRawDetaDphi23_, "hTracklet23RawDetaDphi",
              "tracklet12 raw #Delta#eta vs #Delta#phi;#Delta#eta;#Delta#phi",
-             Nx, x1, x2, Ny, y1, y2, 0, 0);
+             Nx, x1, x2, Ny, y1, y2, false, false);
   }
-  if (0) {
+  if (false) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/TrackletDeta/");
     const int Nx = 60;
     const double x1 = -3;
@@ -367,17 +367,17 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
     if (pixLayers_ >= 12)
       book1D(iBooker, hTrkRawDeta12_, "hTracklet12RawDeta",
              "tracklet12 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta", Nx, x1,
-             x2, 0, 0);
+             x2, false, false);
     if (pixLayers_ >= 13)
       book1D(iBooker, hTrkRawDeta13_, "hTracklet13RawDeta",
              "tracklet13 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta", Nx, x1,
-             x2, 0, 0);
+             x2, false, false);
     if (pixLayers_ >= 23)
       book1D(iBooker, hTrkRawDeta23_, "hTracklet23RawDeta",
              "tracklet23 raw dN/#Delta#eta;#Delta#eta;dN/#Delta#eta", Nx, x1,
-             x2, 0, 0);
+             x2, false, false);
   }
-  if (0) {
+  if (false) {
     iBooker.setCurrentFolder("Physics/QcdLowPt/TrackletDphi/");
     const int Nx = 64;
     const double x1 = -3.2;
@@ -385,15 +385,15 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
     if (pixLayers_ >= 12)
       book1D(iBooker, hTrkRawDphi12_, "hTracklet12RawDphi",
              "tracklet12 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi", Nx, x1,
-             x2, 0, 0);
+             x2, false, false);
     if (pixLayers_ >= 13)
       book1D(iBooker, hTrkRawDphi13_, "hTracklet13RawDphi",
              "tracklet13 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi", Nx, x1,
-             x2, 0, 0);
+             x2, false, false);
     if (pixLayers_ >= 23)
       book1D(iBooker, hTrkRawDphi23_, "hTracklet23RawDphi",
              "tracklet23 raw dN/#Delta#phi;#Delta#phi;dN/#Delta#phi", Nx, x1,
-             x2, 0, 0);
+             x2, false, false);
   }
   if (AlphaTracklets12_) {
     TAxis *xa = AlphaTracklets12_->GetXaxis();
@@ -402,17 +402,17 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
     const double x2 = xa->GetBinLowEdge(Nx + 1);
     iBooker.setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(iBooker, hdNdEtaRawTrkl12_, "hdNdEtaRawTracklets12",
-           "raw dN/d#eta for tracklets12;#eta;dN/d#eta", Nx, x1, x2, 0, 0);
+           "raw dN/d#eta for tracklets12;#eta;dN/d#eta", Nx, x1, x2, false, false);
     iBooker.setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(iBooker, hdNdEtaSubTrkl12_, "hdNdEtaSubTracklets12",
-           "(1-#beta) dN/d#eta for tracklets12;#eta;dN/d#eta", Nx, x1, x2, 0,
-           0);
+           "(1-#beta) dN/d#eta for tracklets12;#eta;dN/d#eta", Nx, x1, x2, false,
+           false);
     iBooker.setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(iBooker, hdNdEtaTrklets12_, "hdNdEtaTracklets12",
-           "dN/d#eta for tracklets12;#eta;dN/d#eta", Nx, x1, x2, 0, 0);
+           "dN/d#eta for tracklets12;#eta;dN/d#eta", Nx, x1, x2, false, false);
     create1D(hEvtCountsPerEta12_, "hEventCountsPerEta12_",
              "Events per vtx-#eta bin from tracklets12;#eta;#", 1,
-             -ZVEtaRegion_, ZVEtaRegion_, 0, 0);
+             -ZVEtaRegion_, ZVEtaRegion_, false, false);
   }
   if (AlphaTracklets13_) {
     TAxis *xa = AlphaTracklets13_->GetXaxis();
@@ -421,17 +421,17 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
     const double x2 = xa->GetBinLowEdge(Nx + 1);
     iBooker.setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(iBooker, hdNdEtaRawTrkl13_, "hdNdEtaRawTracklets13",
-           "raw dN/d#eta for tracklets13;#eta;dN/d#eta", Nx, x1, x2, 0, 0);
+           "raw dN/d#eta for tracklets13;#eta;dN/d#eta", Nx, x1, x2, false, false);
     iBooker.setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(iBooker, hdNdEtaSubTrkl13_, "hdNdEtaSubTracklets13",
-           "(1-#beta) dN/d#eta for tracklets13;#eta;dN/d#eta", Nx, x1, x2, 0,
-           0);
+           "(1-#beta) dN/d#eta for tracklets13;#eta;dN/d#eta", Nx, x1, x2, false,
+           false);
     iBooker.setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(iBooker, hdNdEtaTrklets13_, "hdNdEtaTracklets13",
-           "dN/d#eta for tracklets13;#eta;dN/d#eta", Nx, x1, x2, 0, 0);
+           "dN/d#eta for tracklets13;#eta;dN/d#eta", Nx, x1, x2, false, false);
     create1D(hEvtCountsPerEta13_, "hEventCountsPerEta13",
              "Events per vtx-#eta bin from tracklets13;#eta;#", 1,
-             -ZVEtaRegion_, ZVEtaRegion_, 0, 0);
+             -ZVEtaRegion_, ZVEtaRegion_, false, false);
   }
   if (AlphaTracklets23_) {
     TAxis *xa = AlphaTracklets23_->GetXaxis();
@@ -440,20 +440,20 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
     const double x2 = xa->GetBinLowEdge(Nx + 1);
     iBooker.setCurrentFolder("Physics/QcdLowPt/RawTracklets/");
     book1D(iBooker, hdNdEtaRawTrkl23_, "hdNdEtaRawTracklets23",
-           "raw dN/d#eta for tracklets23;#eta;dN/d#eta", Nx, x1, x2, 0, 0);
+           "raw dN/d#eta for tracklets23;#eta;dN/d#eta", Nx, x1, x2, false, false);
     iBooker.setCurrentFolder("Physics/QcdLowPt/SubTracklets/");
     book1D(iBooker, hdNdEtaSubTrkl23_, "hdNdEtaSubTracklets23",
-           "(1-#beta) dN/d#eta for tracklets23;#eta;dN/d#eta", Nx, x1, x2, 0,
-           0);
+           "(1-#beta) dN/d#eta for tracklets23;#eta;dN/d#eta", Nx, x1, x2, false,
+           false);
     iBooker.setCurrentFolder("Physics/QcdLowPt/CorTracklets/");
     book1D(iBooker, hdNdEtaTrklets23_, "hdNdEtaTracklets23",
-           "dN/d#eta for tracklets23;#eta;dN/d#eta", Nx, x1, x2, 0, 0);
+           "dN/d#eta for tracklets23;#eta;dN/d#eta", Nx, x1, x2, false, false);
     create1D(hEvtCountsPerEta23_, "hEventCountsPerEta23",
              "Events per vtx-#eta bin from tracklets23;#eta;#", 1,
-             -ZVEtaRegion_, ZVEtaRegion_, 0, 0);
+             -ZVEtaRegion_, ZVEtaRegion_, false, false);
   }
-  if (1) {
-    if (1) {
+  if (true) {
+    if (true) {
       const int Nx = 100;
       const double x1 = -25;
       const double x2 = +25;
@@ -461,7 +461,7 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
       book1D(iBooker, hClusterVertexZ_, "hClusterVertex",
              "z vertex from clusters12;vz [cm];#", Nx, x1, x2);
     }
-    if (1) {
+    if (true) {
       iBooker.setCurrentFolder("Physics/QcdLowPt/ClusterSize/");
       const int Nx = 60;
       const double x1 = -3;
@@ -472,17 +472,17 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
       if (clusLayers_ >= 12)
         book2D(iBooker, hClusterYSize1_, "hClusterYSize1",
                "cluster #eta vs local y size on layer 1;#eta;size", Nx, x1, x2,
-               Ny, y1, y2, 0, 0);
+               Ny, y1, y2, false, false);
       if (clusLayers_ >= 13)
         book2D(iBooker, hClusterYSize2_, "hClusterYSize2",
                "cluster #eta vs local y size on layer 2;#eta;size", Nx, x1, x2,
-               Ny, y1, y2, 0, 0);
+               Ny, y1, y2, false, false);
       if (clusLayers_ >= 23)
         book2D(iBooker, hClusterYSize3_, "hClusterYSize3",
                "cluster #eta vs local y size on layer 3;#eta;size", Nx, x1, x2,
-               Ny, y1, y2, 0, 0);
+               Ny, y1, y2, false, false);
     }
-    if (1) {
+    if (true) {
       iBooker.setCurrentFolder("Physics/QcdLowPt/ClusterCharge/");
       const int Nx = 60;
       const double x1 = -3;
@@ -493,15 +493,15 @@ void QcdLowPtDQM::bookHistograms(DQMStore::IBooker &iBooker,
       if (clusLayers_ >= 12)
         book2D(iBooker, hClusterADC1_, "hClusterADC1",
                "cluster #eta vs adc on layer 1;#eta;adc", Nx, x1, x2, Ny, y1,
-               y2, 0, 0);
+               y2, false, false);
       if (clusLayers_ >= 13)
         book2D(iBooker, hClusterADC2_, "hClusterADC2",
                "cluster #eta vs adc on layer 2;#eta;adc", Nx, x1, x2, Ny, y1,
-               y2, 0, 0);
+               y2, false, false);
       if (clusLayers_ >= 23)
         book2D(iBooker, hClusterADC3_, "hClusterADC3",
                "cluster #eta vs adc on layer 3;#eta;adc", Nx, x1, x2, Ny, y1,
-               y2, 0, 0);
+               y2, false, false);
     }
   }
 }
@@ -786,7 +786,7 @@ void QcdLowPtDQM::fillHltBits(const Event &iEvent) {
     size_t tbit = hltTrgBits_.at(i);
     if (tbit < triggerResultsHLT->size()) {
       hltTrgDeci_[i] = triggerResultsHLT->accept(tbit);
-      if (0)
+      if (false)
         print(0, Form("Decision %i for %s", (int)hltTrgDeci_.at(i),
                       hltTrgUsedNames_.at(i).c_str()));
     } else {

@@ -370,7 +370,7 @@ CSCCathodeLCTProcessor::CSCCathodeLCTProcessor() :
   early_tbins = 4;
 
   start_bx_shift = 0;
-  use_dead_time_zoning = 1;
+  use_dead_time_zoning = true;
   clct_state_machine_zone = 8;
   
   // Check and print configuration parameters.
@@ -2330,11 +2330,11 @@ bool CSCCathodeLCTProcessor::preTrigger(
 	      << " nhits = "     << nhits[hstrip];
 	  }
 	}
-	ispretrig[hstrip] = 0;
+	ispretrig[hstrip] = false;
 	if (nhits[hstrip]    >= nplanes_hit_pretrig &&
 	    best_pid[hstrip] >= pid_thresh_pretrig) {
 	  pre_trig = true;
-	  ispretrig[hstrip] = 1;
+	  ispretrig[hstrip] = true;
 	}
       }
 
@@ -2587,7 +2587,7 @@ CSCCathodeLCTProcessor::findLCTsSLHC(const std::vector<int> halfstrip[CSCConstan
         // first, mark half-strip zones around pretriggers
         // that happened at the current first_bx
         for (int hstrip = 0; hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; hstrip++)
-          pretrig_zone[hstrip] = 0;
+          pretrig_zone[hstrip] = false;
         for (int hstrip = 0; hstrip < CSCConstants::NUM_HALF_STRIPS_7CFEBS; hstrip++)
         {
           if (ispretrig[hstrip])
@@ -2599,7 +2599,7 @@ CSCCathodeLCTProcessor::findLCTsSLHC(const std::vector<int> halfstrip[CSCConstan
             if (max_hs > CSCConstants::NUM_HALF_STRIPS_7CFEBS - 1)
               max_hs = CSCConstants::NUM_HALF_STRIPS_7CFEBS - 1;
             for (int hs = min_hs; hs <= max_hs; hs++)
-              pretrig_zone[hs] = 1;
+              pretrig_zone[hs] = true;
             if (infoV > 1)
               LogTrace("CSCCathodeLCTProcessor") << " marked pretrigger halfstrip zone [" << min_hs << "," << max_hs << "]";
           }

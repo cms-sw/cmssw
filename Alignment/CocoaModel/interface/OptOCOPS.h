@@ -24,7 +24,7 @@ public:
   //---------- Constructors / Destructor
   OptOCOPS(){ };
   OptOCOPS(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
-  OpticalObject( parent, type, name, copy_data), fdevi_from_file(0){ };
+  OpticalObject( parent, type, name, copy_data), fdevi_from_file(false){ };
   ~OptOCOPS(){ };
 
   //---------- defaultBehaviour: make measurement 

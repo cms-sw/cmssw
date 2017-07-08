@@ -118,7 +118,7 @@ HLTMuonL2PreFilter::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<std::vector<double> >("AbsEtaBins", std::vector<double>(1, 9999.));
   desc.add<std::vector<int> >("MinNstations", std::vector<int>(1, 1));
   desc.add<std::vector<int> >("MinNhits", std::vector<int>(1, 0));
-  desc.add<bool> ("CutOnChambers", 0);
+  desc.add<bool> ("CutOnChambers", false);
   desc.add<std::vector<int> >("MinNchambers", std::vector<int>(1, 0));
   desc.add<double>("MaxDr",9999.0);
   desc.add<double>("MinDr",-1.0);

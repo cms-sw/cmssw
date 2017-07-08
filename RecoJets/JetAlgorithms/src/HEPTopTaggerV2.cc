@@ -138,7 +138,7 @@ double HEPTopTaggerV2_fixed_R::nsub(fastjet::PseudoJet jet, int order, fastjet::
   return nsub.result(jet);
 }
 
-HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(0),
+HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(false),
 					       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 					       _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
 					       _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), _minpt_tag(200.),
@@ -164,7 +164,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(0),
   
 }
 						
-HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _do_qjets(0),
+HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _do_qjets(false),
 									   _jet(jet), _initial_jet(jet),
 									   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 									   _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4),  _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -178,7 +178,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _
 {}
 
 HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet, 
-					   double mtmass, double mwmass) : _do_qjets(0),
+					   double mtmass, double mwmass) : _do_qjets(false),
 									   _jet(jet), _initial_jet(jet),
 									   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 									   _mode(Mode(0)), _mtmass(mtmass), _mwmass(mwmass), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -434,7 +434,7 @@ void HEPTopTaggerV2::UnclusterFatjets(const vector<fastjet::PseudoJet> & big_fat
   }
 }
 
-HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(0), _do_qjets(0),
+HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(false), _do_qjets(false),
 			       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 			       _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
 			       _m23cut(0.35), _m13cutmin(0.2), _m13cutmax(1.3), _minpt_tag(200.),
@@ -450,7 +450,7 @@ HEPTopTaggerV2::HEPTopTaggerV2() : _do_optimalR(0), _do_qjets(0),
 {}
 
 HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet 
-			   ) : _do_optimalR(0), _do_qjets(0),
+			   ) : _do_optimalR(false), _do_qjets(false),
 			       _jet(jet), _initial_jet(jet),
 			       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 			       _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -469,7 +469,7 @@ HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet
 
 HEPTopTaggerV2::HEPTopTaggerV2(const fastjet::PseudoJet & jet, 
 			   double mtmass, double mwmass
-			   ) : _do_optimalR(0), _do_qjets(0),
+			   ) : _do_optimalR(false), _do_qjets(false),
 			       _jet(jet), _initial_jet(jet),
 			       _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 			       _mode(Mode(0)), _mtmass(mtmass), _mwmass(mwmass), _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),

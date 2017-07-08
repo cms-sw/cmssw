@@ -20,7 +20,7 @@ MonTTConsistencyDat::MonTTConsistencyDat()
   m_problemsSize = 0;
   m_problemsLV1 = 0;
   m_problemsBunchX = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
 }
 
 

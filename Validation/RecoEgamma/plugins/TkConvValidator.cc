@@ -1474,7 +1474,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     }// end loop on sim photons
 
 
-    if (0) {
+    if (false) {
         theConvTP_.clear();
         theConvTP_ = tpForFakeRate;
         reco::RecoToSimCollection p1incl =  theTrackAssociator->associateRecoToSim(tc1,theConvTP_);

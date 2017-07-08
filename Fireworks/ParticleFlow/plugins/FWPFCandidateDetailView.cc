@@ -364,7 +364,7 @@ namespace
 {
 TEveStraightLineSet::Line_t* AddLineToLineSet(TEveStraightLineSet* ls, const std::vector< TEveVector >& pnts, int i0, int i1) 
 {
-   if (0) {
+   if (false) {
       printf("add line \n");
       pnts[i0].Dump();
       pnts[i1].Dump();

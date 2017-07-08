@@ -1320,7 +1320,7 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const std::vector<
  
   unsigned int nCry=0;
   double denominator=0.;
-  bool isBarrel(1);
+  bool isBarrel(true);
 
   // loop over rechits and compute weights:
   for(std::vector<std::pair<const EcalRecHit*, float> >::const_iterator rhf_ptr = RH_ptrs_fracs.begin(); rhf_ptr != RH_ptrs_fracs.end(); rhf_ptr++){

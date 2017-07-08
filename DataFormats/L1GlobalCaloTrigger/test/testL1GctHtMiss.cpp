@@ -17,8 +17,8 @@ using namespace std;
 class TestIO
 {
 public:
-  TestIO():rawInput(0), bxInput(0), etInput(0), phiInput(0), overflowInput(0),
-           rawOutput(0), bxOutput(0), etOutput(0), phiOutput(0), overflowOutput(0) {}
+  TestIO():rawInput(0), bxInput(0), etInput(0), phiInput(0), overflowInput(false),
+           rawOutput(0), bxOutput(0), etOutput(0), phiOutput(0), overflowOutput(false) {}
 
   uint32_t rawInput;
   int16_t bxInput;

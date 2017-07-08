@@ -11,7 +11,7 @@ TT6NoiseCalculator::TT6NoiseCalculator() :
   numberOfEvents(0) ,
   alreadyUsedEvent(false)  
 {
-  if (0) cout << "Constructing TT6NoiseCalculator " << endl;
+  if (false) cout << "Constructing TT6NoiseCalculator " << endl;
   init();
 }
 //
@@ -20,7 +20,7 @@ TT6NoiseCalculator::TT6NoiseCalculator(int evnt_ini,
   numberOfEvents(0) ,
   alreadyUsedEvent(false)  
 {
-  if (0) cout << "Constructing TT6NoiseCalculator " << endl;
+  if (false) cout << "Constructing TT6NoiseCalculator " << endl;
   eventsRequiredToCalibrate_ = evnt_ini;
   eventsRequiredToUpdate_    = evnt_iter;
   cutToAvoidSignal_          = sig_cut;
@@ -41,7 +41,7 @@ void TT6NoiseCalculator::init() {
 //  Destructor 
 //
 TT6NoiseCalculator::~TT6NoiseCalculator() {
-  if (0) cout << "Destructing TT6NoiseCalculator " << endl;
+  if (false) cout << "Destructing TT6NoiseCalculator " << endl;
 }
 //
 // Update the Status of Noise Calculation
@@ -105,7 +105,7 @@ void TT6NoiseCalculator::updateNoise(ApvAnalysis::PedestalType& in){
 
         theNoise.push_back(static_cast<float>(rmsVal));
   
-        if (0) cout << " TT6NoiseCalculator::updateNoise " 
+        if (false) cout << " TT6NoiseCalculator::updateNoise " 
                     << theNoiseSum[i] << " " 
                     << theNoiseSqSum[i] << " "
                     << theEventPerStrip[i] << " "  

@@ -31,7 +31,7 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
     // First nCellsInModule_ bits are encoding the map of selected trigger cells
     // Followed by nData_ words of dataLength_ bits, corresponding to energy/transverse energy of
     // the selected trigger cells
-    std::vector<bool> result(nCellsInModule_ + dataLength_*nData_, 0);
+    std::vector<bool> result(nCellsInModule_ + dataLength_*nData_, false);
     // No data: return vector of 0
     if(data.payload.size()==0) return result;
     // All trigger cells are in the same module
@@ -74,7 +74,7 @@ encode(const HGCalTriggerCellBestChoiceCodecImpl::data_type& data, const HGCalTr
                     << "      : Number of energy values = "<<nData_<<"\n";
             }
             // Set map bit to 1
-            result[index] =  1;
+            result[index] =  true;
             // Saturate and truncate energy values
             if(value+1>(0x1u<<triggerCellSaturationBits_)) value = (0x1<<triggerCellSaturationBits_)-1;
             for(size_t i=0; i<dataLength_; i++)

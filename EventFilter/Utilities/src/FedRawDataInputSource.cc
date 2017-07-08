@@ -1184,7 +1184,7 @@ void FedRawDataInputSource::readWorker(unsigned int tid)
   bool init = true;
   threadInit_.exchange(true,std::memory_order_acquire);
 
-  while (1) {
+  while (true) {
 
     tid_active_[tid]=false;
     std::unique_lock<std::mutex> lk(mReader_);

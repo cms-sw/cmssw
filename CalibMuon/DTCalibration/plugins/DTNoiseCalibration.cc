@@ -402,7 +402,7 @@ void DTNoiseCalibration::endJob(){
            double rateOffset = (useAbsoluteRate_) ? 0. : averageRate;
 	   if( (channelRate - rateOffset) > maximumNoiseRate_ ){
 	      DTWireId wireID((*lHisto).first, i_wire);
-	      statusMap->setCellNoise(wireID,1);
+	      statusMap->setCellNoise(wireID,true);
               LogVerbatim("Calibration") << ">>> Channel noisy: " << wireID;
 	   }
         }

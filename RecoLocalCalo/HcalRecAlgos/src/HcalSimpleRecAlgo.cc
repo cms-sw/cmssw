@@ -64,7 +64,7 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 			       iTS4Min, iTS4Max, iPulseJitter,iTimeMean,iTimeSig,iTimeSigSiPM,iPedMean,iPedSig,iPedSigSiPM,iNoise,iNoiseSiPM,iTMin,iTMax,its4Chi2,
 			       HcalTimeSlew::Medium, iFitTimes);
 
-  psFitOOTpuCorr_->setChi2Term(1); // isHPD all the time
+  psFitOOTpuCorr_->setChi2Term(true); // isHPD all the time
 
 //  int shapeNum = HPDShapev3MCNum;
 //  psFitOOTpuCorr_->setPulseShapeTemplate(theHcalPulseShapes_.getShape(shapeNum));

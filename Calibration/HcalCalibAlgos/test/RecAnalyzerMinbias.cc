@@ -129,7 +129,7 @@ RecAnalyzerMinbias::RecAnalyzerMinbias(const edm::ParameterSet& iConfig) :
 			       << "' for the correction file";
   } else {
     unsigned int ndets(0), nrec(0);
-    while(1) {
+    while(true) {
       unsigned int id;
       double       cfac;
       infile >> id >> cfac;

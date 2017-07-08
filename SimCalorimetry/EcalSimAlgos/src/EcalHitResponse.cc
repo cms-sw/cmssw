@@ -32,7 +32,7 @@ EcalHitResponse::EcalHitResponse( const CaloVSimParameterMap* parameterMap ,
    m_maxBunch        (  10          ) ,
    m_phaseShift      ( 1            ) ,
    m_iTime           ( 0            ) ,
-   m_useLCcorrection ( 0            )  
+   m_useLCcorrection ( false            )  
 {
 }
 

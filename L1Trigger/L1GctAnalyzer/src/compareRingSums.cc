@@ -29,7 +29,7 @@ compareRingSums::~compareRingSums() {
 
 bool compareRingSums::doCompare(TH1I *errorFlag_hist_) {
 
-  bool errorFlag=0;
+  bool errorFlag=false;
   
   for(unsigned int i=0; i < data_->size(); i++) {
     //check that the GCT trig bx is being considered
@@ -45,7 +45,7 @@ bool compareRingSums::doCompare(TH1I *errorFlag_hist_) {
 	  errorFlag_hist_->Fill(0); //i.e. the two match
 	} else {
 	  errorFlag_hist_->Fill(1);
-	  errorFlag=1;
+	  errorFlag=true;
 	}
       }
     }

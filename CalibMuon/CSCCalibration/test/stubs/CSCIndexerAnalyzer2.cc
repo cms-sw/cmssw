@@ -100,8 +100,8 @@ void CSCIndexerAnalyzer2::analyze( const edm::Event& iEvent, const edm::EventSet
   std::cout << dashedLine_ << std::endl;
 
 
-  bool ganged = 1;
-  if ( myAlgo() == "CSCIndexerPostls1" ) ganged = 0;
+  bool ganged = true;
+  if ( myAlgo() == "CSCIndexerPostls1" ) ganged = false;
 
 
   std::cout << myName() << ": Begin iteration over geometry..." << std::endl;

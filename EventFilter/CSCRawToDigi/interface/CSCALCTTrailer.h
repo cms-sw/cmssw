@@ -125,7 +125,7 @@ public:
     default:
       edm::LogError("CSCALCTTrailer|CSCRawToDigi")
 	<<"couldn't check: ALCT firmware version is bad/not defined!";
-      return 0;
+      return false;
     }
   }
   

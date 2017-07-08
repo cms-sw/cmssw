@@ -167,8 +167,8 @@ double TkLasBeamFitter::gBeamZ0 = 0.0;
 double TkLasBeamFitter::gBeamSplitterZprime = 0.0;
 unsigned int TkLasBeamFitter::gHitsAtTecMinus = 0;
 double TkLasBeamFitter::gBSparam = 0.0;
-bool TkLasBeamFitter::gFitBeamSplitters = 0;
-bool TkLasBeamFitter::gIsInnerBarrel = 0;
+bool TkLasBeamFitter::gFitBeamSplitters = false;
+bool TkLasBeamFitter::gIsInnerBarrel = false;
 
 // handles
 Handle<TkLasBeamCollection> laserBeams;
@@ -413,10 +413,10 @@ void TkLasBeamFitter::getLasBeams(TkFittedLasBeam &beam, vector<TrajectoryStateO
       gBarrelModuleOffset.push_back(gBarrelModuleRadius.back() - gBeamR);
       // TIB/TOB flag
       if(gBarrelModuleOffset.back() < 0.0){
-	gIsInnerBarrel = 1;
+	gIsInnerBarrel = true;
       }
       else{
-	gIsInnerBarrel = 0;
+	gIsInnerBarrel = false;
       }
       gHitZprime.push_back(globHit[hit].z() - gBeamZ0 - abs(gBarrelModuleOffset.back())); 
     }

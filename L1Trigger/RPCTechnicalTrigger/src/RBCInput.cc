@@ -40,12 +40,12 @@ void RBCInput::mask( const std::vector<int> & maskvec )
   //... operate on the first sector
 
   for(int i=0; i < 15; ++i) 
-    if ( maskvec[i] ) input_sec[0].set(i,0);
+    if ( maskvec[i] ) input_sec[0].set(i,false);
   
   //... operate on the second sector
   
   for(int i=15; i < 30; ++i)
-    if ( maskvec[i] ) input_sec[1].set( (i-15),0);
+    if ( maskvec[i] ) input_sec[1].set( (i-15),false);
   
 }
 

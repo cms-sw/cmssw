@@ -57,7 +57,7 @@ TrajectoryManager::TrajectoryManager(FSimEvent* aSimEvent,
   theLayerMap(56, static_cast<const DetLayer*>(0)), // reserve space for layers here
   theNegLayerOffset(27),
   //  myHistos(0),
-  use_hardcoded(1)
+  use_hardcoded(true)
 
 {  
   //std::cout << "TrajectoryManager.cc 1 use_hardcoded = " << use_hardcoded << std::endl;

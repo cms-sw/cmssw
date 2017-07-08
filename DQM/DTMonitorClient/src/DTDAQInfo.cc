@@ -38,7 +38,7 @@ using namespace edm;
 
 DTDAQInfo::DTDAQInfo(const ParameterSet& pset) {
 
-  bookingdone = 0;
+  bookingdone = false;
 
 }
 
@@ -135,7 +135,7 @@ DTDAQInfo::~DTDAQInfo() {}
   }
 
   }
-  bookingdone = 1; 
+  bookingdone = true; 
 
   // create a record key for RunInfoRcd
   eventsetup::EventSetupRecordKey recordKey(eventsetup::EventSetupRecordKey::TypeTag::findType("RunInfoRcd"));

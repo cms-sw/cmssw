@@ -130,7 +130,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                             {
                                 mergeGroupByHit[i] = mergeGroupByHit[j];
                                 mergeGroupByHit[i]->group.push_back(simHitIdPairs[i]);
-                                mergeGroupByHit[i]->smearIt = 1;
+                                mergeGroupByHit[i]->smearIt = true;
                             }
                             else
                             {
@@ -139,7 +139,7 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                                     for (auto hit_it = mergeGroupByHit[j]->group.begin(); hit_it != mergeGroupByHit[j]->group.end(); ++hit_it)
                                     {
                                         mergeGroupByHit[i]->group.push_back( *hit_it );
-                                        mergeGroupByHit[i]->smearIt = 1;
+                                        mergeGroupByHit[i]->smearIt = true;
                                     }
 
                                     // Step 2: iterate over all hits, replace mgbh[j] by mgbh[i] (so that nobody points to i)                               
@@ -152,8 +152,8 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                                                 mergeGroupByHit[k] = mergeGroupByHit[i];
 					    }
                                     }
-                                    mgbhj->smearIt = 0;
-                                    mergeGroupByHit[i]->smearIt = 1;
+                                    mgbhj->smearIt = false;
+                                    mergeGroupByHit[i]->smearIt = true;
 
                                     //  Step 3 would have been to delete mgbh[j]... however, we'll do that at the end anyway.                              
                                     //  The key was to prevent mgbh[j] from being accessed further, and we have done that,                                 
@@ -178,11 +178,11 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
                                 // (simHits[i] is a const pointer to PSimHit).
                                 //std::cout << "ALICE: simHits" << simHits[i] << std::endl;
                                 mergeGroupByHit[i]->group.push_back( simHitIdPairs[i] );
-                                mergeGroupByHit[i]->smearIt = 1;
+                                mergeGroupByHit[i]->smearIt = true;
                             }
                             //--- Add hit j as well
                             mergeGroupByHit[i]->group.push_back( simHitIdPairs[j] );
-                            mergeGroupByHit[i]->smearIt = 1;
+                            mergeGroupByHit[i]->smearIt = true;
                             
                             mergeGroupByHit[j] = mergeGroupByHit[i];
 

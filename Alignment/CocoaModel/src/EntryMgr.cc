@@ -52,7 +52,7 @@ ALIbool EntryMgr::readEntryFromReportOut( const std::vector<ALIstring>& wl )
     data->fill( wl );
   }
 
-  return 1;  
+  return true;  
 }
 
 

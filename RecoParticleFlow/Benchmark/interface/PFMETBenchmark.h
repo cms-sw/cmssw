@@ -39,7 +39,7 @@ class PFMETBenchmark {
   void setup(
 	     std::string Filename,
 	     bool debug, 
-	     bool plotAgainstReco=0, 
+	     bool plotAgainstReco=false, 
              std::string benchmarkLabel_ = "ParticleFlow", 
 	     DQMStore * dbe_store = NULL
 	     );

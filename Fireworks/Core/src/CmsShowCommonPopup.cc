@@ -110,7 +110,7 @@ CmsShowCommonPopup::CmsShowCommonPopup(CmsShowCommon* model, const TGWindow* p, 
 
 
    // color palette swapping
-   if (1) {
+   if (true) {
       const TGCompositeFrame* f = static_cast<const TGCompositeFrame*>(makeSetter(vf2, &m_common->m_palette));
       // MTXXXX combo is at(0) (label on right!) and there is a tgframeelement in between!
       // for (int i = 0; i < f->GetList()->GetEntries(); ++i)

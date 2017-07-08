@@ -609,8 +609,8 @@ void CastorShowerLibraryMaker::update(const EndOfRun * run)
     theTree->Fill();
     nEvtInTree++;
     if (nEvtInTree==1) {
-       theTree->SetBranchStatus("emShowerLibInfo.",0);
-       theTree->SetBranchStatus("hadShowerLibInfo.",0);
+       theTree->SetBranchStatus("emShowerLibInfo.",false);
+       theTree->SetBranchStatus("hadShowerLibInfo.",false);
     }
   }
 // check if run is nullptr and exit

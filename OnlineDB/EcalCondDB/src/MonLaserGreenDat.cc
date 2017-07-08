@@ -18,7 +18,7 @@ MonLaserGreenDat::MonLaserGreenDat()
   m_apdRMS = 0;
   m_apdOverPNMean = 0;
   m_apdOverPNRMS = 0;
-  m_taskStatus = 0;
+  m_taskStatus = false;
   
 }
 
