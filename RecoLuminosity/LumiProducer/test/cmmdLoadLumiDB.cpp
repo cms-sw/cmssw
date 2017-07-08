@@ -232,7 +232,7 @@ int main(int argc, char** argv){
   if(!without_lumi){
     std::cout<<"Loading lumi from "<<lumipath<<" to "<< destconnect <<" run "<<runnumber<<" with "<<lumipluginName<<std::endl;
     try{
-      std::auto_ptr<lumi::DataPipe> lumiptr(lumi::DataPipeFactory::get()->create(lumipluginName,destconnect));
+      std::unique_ptr<lumi::DataPipe> lumiptr(lumi::DataPipeFactory::get()->create(lumipluginName,destconnect));
       lumiptr->setAuthPath(authpath);
       lumiptr->setSource(lumipath);
       if(novalidate){
@@ -283,7 +283,7 @@ int main(int argc, char** argv){
   if(!without_runsummary){
     std::cout<<"Loading runsummary from "<<runinfodb<<" to "<<destconnect <<" run "<<runnumber<<" with "<<runsummarypluginName<<std::endl;
      try{
-	std::auto_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create(runsummarypluginName,destconnect));
+	std::unique_ptr<lumi::DataPipe> runptr(lumi::DataPipeFactory::get()->create(runsummarypluginName,destconnect));
 	runptr->setSource(runinfodb);
 	runptr->setAuthPath(authpath);
 	if(!collision_only){
@@ -313,7 +313,7 @@ int main(int argc, char** argv){
   if(!without_hltconf){
     try{
       std::cout<<"Loading hlt conf from "<<hltconfdb<<" to "<<destconnect <<" run "<<runnumber<<" with "<<hltconfpluginName<<std::endl;
-      std::auto_ptr<lumi::DataPipe> confptr(lumi::DataPipeFactory::get()->create(hltconfpluginName,destconnect));
+      std::unique_ptr<lumi::DataPipe> confptr(lumi::DataPipeFactory::get()->create(hltconfpluginName,destconnect));
       confptr->setSource(hltconfdb);
       confptr->setAuthPath(authpath);
       startClock=clock();
@@ -337,7 +337,7 @@ int main(int argc, char** argv){
     try{
       if(!use_wbm){
 	std::cout<<"Loading trg from GT "<<trgdb<<" to "<<destconnect <<" run "<<runnumber<<" with "<<trgpluginName<<std::endl;
-	std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create(trgpluginName,destconnect));
+	std::unique_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create(trgpluginName,destconnect));
 	trgptr->setAuthPath(authpath);
 	trgptr->setSource(trgdb);
 	if(!schemav2_only){
@@ -351,7 +351,7 @@ int main(int argc, char** argv){
 	trgptr.release();
       }else{
 	std::cout<<"Loading trg from WBM "<<wbmdb<<" to "<<destconnect <<" run "<<runnumber<<" with "<<wbmpluginName<<std::endl;
-	std::auto_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create(wbmpluginName,destconnect));
+	std::unique_ptr<lumi::DataPipe> trgptr(lumi::DataPipeFactory::get()->create(wbmpluginName,destconnect));
 	trgptr->setAuthPath(authpath);
 	trgptr->setSource(wbmdb);
 	startClock=clock();
@@ -375,7 +375,7 @@ int main(int argc, char** argv){
   if(!without_hlt){
     std::cout<<"Loading hlt from Runinfo "<<runinfodb <<" to "<<destconnect<<" run "<<runnumber<<" with "<<hltpluginName<<std::endl;
     try{
-      std::auto_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create(hltpluginName,destconnect));
+      std::unique_ptr<lumi::DataPipe> hltptr(lumi::DataPipeFactory::get()->create(hltpluginName,destconnect));
       hltptr->setSource(runinfodb);
       hltptr->setAuthPath(authpath);
       if(!schemav2_only){

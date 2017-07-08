@@ -84,14 +84,14 @@ class ProcLikelihood : public VarProcessor {
 		SigBkg(const Calibration::ProcLikelihood::SigBkg &calib)
 		{
 			if (calib.useSplines) {
-				signal = std::auto_ptr<PDF>(
+				signal = std::unique_ptr<PDF>(
 					new SplinePDF(&calib.signal));
-				background = std::auto_ptr<PDF>(
+				background = std::unique_ptr<PDF>(
 					new SplinePDF(&calib.background));
 			} else {
-				signal = std::auto_ptr<PDF>(
+				signal = std::unique_ptr<PDF>(
 					new HistogramPDF(&calib.signal));
-				background = std::auto_ptr<PDF>(
+				background = std::unique_ptr<PDF>(
 					new HistogramPDF(&calib.background));
 			}
 			double norm = (calib.signal.numberOfBins() +
@@ -100,8 +100,8 @@ class ProcLikelihood : public VarProcessor {
 			background->norm = norm;
 		}
 
-		std::auto_ptr<PDF>	signal;
-		std::auto_ptr<PDF>	background;
+		std::unique_ptr<PDF>	signal;
+		std::unique_ptr<PDF>	background;
 	};
 
 	int findPDFs(ValueIterator iter, unsigned int n,

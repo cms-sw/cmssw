@@ -65,7 +65,7 @@ MuonNumberingInitialization::produce(const MuonNumberingRecord& iRecord)
     edm::LogError( "MuonNumberingInitialization" ) << "MuonNumberingInitialization::produceMuonDDDConstants has NOT been initialized!";
     throw;
   }
-  return std::auto_ptr<MuonDDDConstants> ( muonDDDConst_ ) ;
+  return std::unique_ptr<MuonDDDConstants> ( muonDDDConst_ ) ;
 }
 
 void

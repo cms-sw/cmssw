@@ -70,7 +70,7 @@ NjettinessAdder::NjettinessAdder(const edm::ParameterSet& iConfig) :
   case  MultiPass_Axes : axesDef = &multipass_axes; break;
   };
 
-  routine_ = std::auto_ptr<fastjet::contrib::Njettiness> ( new fastjet::contrib::Njettiness( *axesDef, *measureDef ) );
+  routine_ = std::unique_ptr<fastjet::contrib::Njettiness> ( new fastjet::contrib::Njettiness( *axesDef, *measureDef ) );
       
 }
 

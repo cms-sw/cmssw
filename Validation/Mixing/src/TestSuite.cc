@@ -100,7 +100,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MonitorElement * trhistsig = dbe_->book1D(sighistotracks,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
   MonitorElement * trindhist = dbe_->book1D(histotracksind,"Track to Vertex indices",100,0,500);
   MonitorElement * trindhistsig = dbe_->book1D(histotracksindsig,"Signal Track to Vertex indices",100,0,500);
-  std::auto_ptr<MixCollection<SimTrack> > col1(new MixCollection<SimTrack>(cf_track.product()));
+  std::unique_ptr<MixCollection<SimTrack> > col1(new MixCollection<SimTrack>(cf_track.product()));
   MixCollection<SimTrack>::iterator cfi1;
   for (cfi1=col1->begin(); cfi1!=col1->end();cfi1++) {
     if (cfi1.getTrigger()==0) {
@@ -123,7 +123,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MonitorElement * vtxhistsig = dbe_->book1D(sighistovertices,"Bunchcrossings",maxbunch_-minbunch_+1,minbunch_,maxbunch_+1);
   MonitorElement * vtxindhist = dbe_->book1D(histovertexindices,"Vertex to Track Indices",100,0,300);
   MonitorElement * vtxindhistsig = dbe_->book1D(histovertexindicessig,"Signal Vertex to Track Indices",100,0,300);
-  std::auto_ptr<MixCollection<SimVertex> > col2(new MixCollection<SimVertex>(cf_vertex.product()));
+  std::unique_ptr<MixCollection<SimVertex> > col2(new MixCollection<SimVertex>(cf_vertex.product()));
   MixCollection<SimVertex>::iterator cfi2;
   for (cfi2=col2->begin(); cfi2!=col2->end();cfi2++) {
     if (cfi2.getTrigger()==0) {
@@ -143,7 +143,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   MonitorElement * tofhist = dbe_->book1D(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
   sprintf(tof,"SignalTrackerHit_Tof_bcr_%d",bunchcr_);
   MonitorElement * tofhist_sig = dbe_->book1D(tof,"TrackerHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
-  std::auto_ptr<MixCollection<PSimHit> > colsh(new MixCollection<PSimHit>(cf_simhit.product()));
+  std::unique_ptr<MixCollection<PSimHit> > colsh(new MixCollection<PSimHit>(cf_simhit.product()));
   MixCollection<PSimHit>::iterator cfish;
   for (cfish=colsh->begin(); cfish!=colsh->end();cfish++) {
     if (cfish.getTrigger())  {
@@ -160,7 +160,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   sprintf(tof,"SignalEcalEBHit_Tof_bcr_%d",bunchcr_);
   MonitorElement * tofecalhist_sig = dbe_->book1D(tof,"EcalEBHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
   //    std::string ecalsubdet("EcalHitsEB");
-  std::auto_ptr<MixCollection<PCaloHit> > colecal(new MixCollection<PCaloHit>(cf_calohitEcal.product()));
+  std::unique_ptr<MixCollection<PCaloHit> > colecal(new MixCollection<PCaloHit>(cf_calohitEcal.product()));
   MixCollection<PCaloHit>::iterator cfiecal;
   for (cfiecal=colecal->begin(); cfiecal!=colecal->end();cfiecal++) {
     if (cfiecal.getTrigger())    tofecalhist_sig->Fill(cfiecal->time());
@@ -173,7 +173,7 @@ TestSuite::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   sprintf(tof,"SignalHcalHit_Tof_bcr_%d",bunchcr_);
   MonitorElement * tofhcalhist_sig = dbe_->book1D(tof,"HcalHit_ToF",100,float(bsp*minbunch_),float(bsp*maxbunch_)+50.);
   //    std::string hcalsubdet("HcalHits");
-  std::auto_ptr<MixCollection<PCaloHit> > colhcal(new MixCollection<PCaloHit>(cf_calohitHcal.product()));
+  std::unique_ptr<MixCollection<PCaloHit> > colhcal(new MixCollection<PCaloHit>(cf_calohitHcal.product()));
   MixCollection<PCaloHit>::iterator cfihcal;
 
   for (cfihcal=colhcal->begin(); cfihcal!=colhcal->end();cfihcal++) {

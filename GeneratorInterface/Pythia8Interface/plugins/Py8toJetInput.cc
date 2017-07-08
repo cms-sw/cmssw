@@ -248,6 +248,7 @@ int Py8toJetInput::getAncestor( int pos, const Event& fullEvent, const Event& wo
 
 #include "HepMC/HEPEVT_Wrapper.h"
 #include <cassert>
+#include <utility>
 
 const std::vector<fastjet::PseudoJet> 
 Py8toJetInputHEPEVT::fillJetAlgoInput( const Event& event, const Event& workEvent, 

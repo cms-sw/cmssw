@@ -39,10 +39,10 @@ AttachSD::create(const DDDWorld & w,
     std::string className = clg.className(*it);
     //std::cout<<" trying to find something for "<<className<<" " <<*it<<std::endl;
     edm::LogInfo("SimG4CoreSensitiveDetector") << " AttachSD: trying to find something for " << className << " "  << *it ;
-    std::auto_ptr<SensitiveDetectorMakerBase> temp(
+    std::unique_ptr<SensitiveDetectorMakerBase> temp(
 						   SensitiveDetectorPluginFactory::get()->create(className) );
-    std::auto_ptr<SensitiveTkDetector> tkDet;
-    std::auto_ptr<SensitiveCaloDetector> caloDet;
+    std::unique_ptr<SensitiveTkDetector> tkDet;
+    std::unique_ptr<SensitiveCaloDetector> caloDet;
     temp->make(*it,cpv,clg,p,m,reg,tkDet,caloDet);
     if(tkDet.get()){
       detList.first.push_back(tkDet.get());

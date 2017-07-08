@@ -13,6 +13,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <utility>
 
 #include "boost/bind.hpp"
 
@@ -274,7 +275,7 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
     seedCandIdsCurrentStrip.clear();
     addCandIdsCurrentStrip.clear();
 
-    std::auto_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seedCands[idxSeed], RecoTauPiZero::kStrips));
+    std::unique_ptr<RecoTauPiZero> strip(new RecoTauPiZero(*seedCands[idxSeed], RecoTauPiZero::kStrips));
     strip->addDaughter(seedCands[idxSeed]);
     seedCandIdsCurrentStrip.insert(idxSeed);
 
@@ -298,7 +299,7 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
 
       // Update the vertex
       if ( strip->daughterPtr(0).isNonnull() ) strip->setVertex(strip->daughterPtr(0)->vertex());
-      output.push_back(strip);
+      output.push_back(std::move(strip));
 
       // Mark daughters as being part of this strip
       markCandsInStrip(seedCandFlags, seedCandIdsCurrentStrip);
@@ -336,7 +337,7 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
         secondP4 = applyMassConstraint(secondP4, combinatoricStripMassHypo_);
         Candidate::LorentzVector totalP4 = firstP4 + secondP4;
         // Make our new combined strip
-        std::auto_ptr<RecoTauPiZero> combinedStrips(
+        std::unique_ptr<RecoTauPiZero> combinedStrips(
             new RecoTauPiZero(0, totalP4,
               Candidate::Point(0, 0, 0),
               //111, 10001, true, RecoTauPiZero::kCombinatoricStrips));
@@ -355,7 +356,7 @@ RecoTauPiZeroStripPlugin3::return_type RecoTauPiZeroStripPlugin3::operator()(con
 	}
 
         // Add to our collection of combined strips
-        stripCombinations.push_back(combinedStrips);
+        stripCombinations.push_back(std::move(combinedStrips));
       }
     }
     // When done doing all the combinations, add the combined strips to the

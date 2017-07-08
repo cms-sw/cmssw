@@ -37,8 +37,8 @@ class XMLDocument {
     public:
 	class Handler : public XERCES_CPP_NAMESPACE_QUALIFIER DefaultHandler {};
 
-	XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler);
-	XMLDocument(std::auto_ptr<StorageWrap> &in, Handler &handler);
+	XMLDocument(std::unique_ptr<std::istream> &in, Handler &handler);
+	XMLDocument(std::unique_ptr<StorageWrap> &in, Handler &handler);
 	virtual ~XMLDocument();
 
 	bool parse();
@@ -59,10 +59,10 @@ class XMLDocument {
 
 	void init(Handler &handler);
 
-	std::auto_ptr<XercesPlatform>					platform;
+	std::unique_ptr<XercesPlatform>					platform;
 
-	std::auto_ptr<XERCES_CPP_NAMESPACE_QUALIFIER InputSource>	source;
-	std::auto_ptr<XERCES_CPP_NAMESPACE_QUALIFIER SAX2XMLReader>	parser;
+	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER InputSource>	source;
+	std::unique_ptr<XERCES_CPP_NAMESPACE_QUALIFIER SAX2XMLReader>	parser;
 
 	XERCES_CPP_NAMESPACE_QUALIFIER XMLPScanToken			token;
 
@@ -115,14 +115,14 @@ class XMLInputSourceWrapper :
     public:
 	typedef typename T::Stream_t Stream_t;
 
-	XMLInputSourceWrapper(std::auto_ptr<Stream_t> &obj) : obj(obj) {}
+	XMLInputSourceWrapper(std::unique_ptr<Stream_t> &obj) : obj(std::move(obj)) {}
 	virtual ~XMLInputSourceWrapper() {}
 
 	virtual XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream* makeStream() const
 	{ return new T(*obj); }
 
     private:
-	std::auto_ptr<Stream_t>	obj;
+	std::unique_ptr<Stream_t>	obj;
 };
 
 class CBInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {

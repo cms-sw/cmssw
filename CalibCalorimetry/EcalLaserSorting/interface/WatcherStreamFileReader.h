@@ -60,7 +60,7 @@ private:
   
   /** Cached input file stream
    */
-  std::auto_ptr<edm::StreamerInputFile> streamerInputFile_;
+  std::unique_ptr<edm::StreamerInputFile> streamerInputFile_;
 
   std::string fileName_;
 

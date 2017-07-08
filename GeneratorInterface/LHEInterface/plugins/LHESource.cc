@@ -6,6 +6,7 @@
 
 #include <boost/bind.hpp>
 #include <boost/ptr_container/ptr_deque.hpp>
+#include <utility>
 
 #include "FWCore/Framework/interface/InputSourceMacros.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -80,7 +81,7 @@ void LHESource::nextEvent()
 		runInfoLast = runInfoThis;
 	}
 	if (runInfo) {
-		std::auto_ptr<LHERunInfoProduct> product(
+		std::unique_ptr<LHERunInfoProduct> product(
 				new LHERunInfoProduct(*runInfo->getHEPRUP()));
 		std::for_each(runInfo->getHeaders().begin(),
 		              runInfo->getHeaders().end(),
@@ -96,7 +97,7 @@ void LHESource::nextEvent()
 		  if (runInfoProducts.front().mergeProduct(*product)) {
 			if (!wasMerged) {
 				runInfoProducts.pop_front();
-				runInfoProducts.push_front(product);
+				runInfoProducts.push_front(std::move(product));
 				wasMerged = true;
 			}
 		  } else {

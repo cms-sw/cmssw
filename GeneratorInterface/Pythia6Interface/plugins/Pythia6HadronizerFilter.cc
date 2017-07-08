@@ -1,5 +1,7 @@
 // -*- C++ -*-
 
+#include <utility>
+
 #include "GeneratorInterface/Core/interface/HadronizerFilter.h"
 #include "GeneratorInterface/ExternalDecays/interface/ExternalDecayDriver.h"
 #include "Pythia6Hadronizer.h"

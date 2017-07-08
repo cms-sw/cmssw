@@ -5,6 +5,7 @@
 #include <fstream>
 #include <cstring>
 #include <string>
+#include <utility>
 #include <vector>
 #include <cstdio>
 
@@ -70,7 +71,7 @@ class LHEReader::FileSource : public LHEReader::Source {
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
-	std::auto_ptr<StorageWrap>	fileStream;
+	std::unique_ptr<StorageWrap>	fileStream;
 };
 
 class LHEReader::StringSource : public LHEReader::Source {
@@ -92,7 +93,7 @@ class LHEReader::StringSource : public LHEReader::Source {
 	{ return new XMLDocument(fileStream, handler); }
 
     private:
-  std::auto_ptr<std::istream>	fileStream;
+  std::unique_ptr<std::istream>	fileStream;
 };
 
 class LHEReader::XMLHandler : public XMLDocument::Handler {

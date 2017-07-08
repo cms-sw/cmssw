@@ -84,7 +84,7 @@ class SiStripBaselineAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedReso
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
       
-	  std::auto_ptr<SiStripPedestalsSubtractor>   subtractorPed_;
+	  std::unique_ptr<SiStripPedestalsSubtractor>   subtractorPed_;
           edm::ESHandle<SiStripPedestals> pedestalsHandle;
           std::vector<int> pedestals;
           uint32_t peds_cache_id;

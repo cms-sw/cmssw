@@ -9,6 +9,7 @@
 
 #include <boost/foreach.hpp>
 #include <boost/bind.hpp>
+#include <utility>
 
 namespace reco { namespace tau {
 
@@ -351,7 +352,7 @@ namespace
   }
 }
 
-std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) 
+std::unique_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects) 
 {
   LogDebug("TauConstructorGet") << "Start getting" ;
 
@@ -444,6 +445,6 @@ std::auto_ptr<reco::PFTau> RecoTauConstructor::get(bool setupLeadingObjects)
     if(leadingGammaCand != getCollection(kSignal, kGamma)->end())
       tau_->setleadPFNeutralCand(*leadingGammaCand);
   }
-  return tau_;
+  return std::move(tau_);
 }
 }} // end namespace reco::tau

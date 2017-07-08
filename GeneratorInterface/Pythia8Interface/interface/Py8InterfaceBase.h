@@ -43,8 +43,8 @@ namespace gen {
 
       protected:
          
-	 std::auto_ptr<Pythia8::Pythia> fMasterGen;
-	 std::auto_ptr<Pythia8::Pythia> fDecayer;
+	 std::unique_ptr<Pythia8::Pythia> fMasterGen;
+	 std::unique_ptr<Pythia8::Pythia> fDecayer;
 	 HepMC::Pythia8ToHepMC          toHepMC;
 // 	 ParameterCollector	        fParameters;
          edm::ParameterSet	        fParameters;
@@ -58,7 +58,7 @@ namespace gen {
          // EvtGen plugin
          //
          bool useEvtGen;
-         std::auto_ptr<EvtGenDecays> evtgenDecays;
+         std::unique_ptr<EvtGenDecays> evtgenDecays;
          std::string evtgenDecFile;
          std::string evtgenPdlFile;
          std::vector<std::string> evtgenUserFiles;

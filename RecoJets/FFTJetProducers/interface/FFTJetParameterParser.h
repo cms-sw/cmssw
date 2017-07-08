@@ -24,57 +24,57 @@
 namespace fftjetcms {
     // Pseudo-constructors for various FFTJet classes using ParameterSet
     // objects as arguments
-    std::auto_ptr<fftjet::Grid2d<Real> >
+    std::unique_ptr<fftjet::Grid2d<Real> >
     fftjet_Grid2d_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::Functor1<bool,fftjet::Peak> >
+    std::unique_ptr<fftjet::Functor1<bool,fftjet::Peak> >
     fftjet_PeakSelector_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::ScaleSpaceKernel>
+    std::unique_ptr<fftjet::ScaleSpaceKernel>
     fftjet_MembershipFunction_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<AbsBgFunctor>
+    std::unique_ptr<AbsBgFunctor>
     fftjet_BgFunctor_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<std::vector<double> >
+    std::unique_ptr<std::vector<double> >
     fftjet_ScaleSet_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::ClusteringTreeSparsifier<fftjet::Peak,long> >
+    std::unique_ptr<fftjet::ClusteringTreeSparsifier<fftjet::Peak,long> >
     fftjet_ClusteringTreeSparsifier_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::AbsDistanceCalculator<fftjet::Peak> >
+    std::unique_ptr<fftjet::AbsDistanceCalculator<fftjet::Peak> >
     fftjet_DistanceCalculator_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::LinearInterpolator1d>
+    std::unique_ptr<fftjet::LinearInterpolator1d>
     fftjet_LinearInterpolator1d_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::LinearInterpolator2d>
+    std::unique_ptr<fftjet::LinearInterpolator2d>
     fftjet_LinearInterpolator2d_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjetcms::LinInterpolatedTable1D>
+    std::unique_ptr<fftjetcms::LinInterpolatedTable1D>
     fftjet_LinInterpolatedTable1D_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::Functor1<double,fftjet::Peak> >
+    std::unique_ptr<fftjet::Functor1<double,fftjet::Peak> >
     fftjet_PeakFunctor_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::Functor1<double,fftjet::RecombinedJet<VectorLike> > >
+    std::unique_ptr<fftjet::Functor1<double,fftjet::RecombinedJet<VectorLike> > >
     fftjet_JetFunctor_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::Functor2<double,
+    std::unique_ptr<fftjet::Functor2<double,
                                    fftjet::RecombinedJet<VectorLike>,
                                    fftjet::RecombinedJet<VectorLike> > >
     fftjet_JetDistance_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::Functor1<double,double> >
+    std::unique_ptr<fftjet::Functor1<double,double> >
     fftjet_Function_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<AbsPileupCalculator>
+    std::unique_ptr<AbsPileupCalculator>
     fftjet_PileupCalculator_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::JetMagnitudeMapper2d<fftjet::Peak> >
+    std::unique_ptr<fftjet::JetMagnitudeMapper2d<fftjet::Peak> >
     fftjet_PeakMagnitudeMapper2d_parser(const edm::ParameterSet& ps);
 
-    std::auto_ptr<fftjet::JetMagnitudeMapper2d<fftjet::RecombinedJet<VectorLike> > >
+    std::unique_ptr<fftjet::JetMagnitudeMapper2d<fftjet::RecombinedJet<VectorLike> > >
     fftjet_JetMagnitudeMapper2d_parser(const edm::ParameterSet& ps);
 }
 

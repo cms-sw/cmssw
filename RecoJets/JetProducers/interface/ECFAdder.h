@@ -26,7 +26,7 @@ class ECFAdder : public edm::stream::EDProducer<> {
     std::vector<std::string>               variables_;
     double                                 beta_ ;
 
-    std::vector<std::auto_ptr<fastjet::contrib::EnergyCorrelator> >  routine_; 
+    std::vector<std::unique_ptr<fastjet::contrib::EnergyCorrelator> >  routine_; 
 };
 
 #endif

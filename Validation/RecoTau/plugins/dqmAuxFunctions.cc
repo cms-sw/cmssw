@@ -139,7 +139,7 @@ void dqmCopyRecursively(DQMStore& dqmStore, const std::string& inputDirectory, c
       continue;
     }
 
-    std::auto_ptr<TH1> clone(dynamic_cast<TH1*>(histogram->Clone()));
+    std::unique_ptr<TH1> clone(dynamic_cast<TH1*>(histogram->Clone()));
     clone->Scale(scaleFactor);
 
     dqmStore.setCurrentFolder(outputDirectory);   

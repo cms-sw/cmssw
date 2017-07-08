@@ -85,7 +85,7 @@ private:
   private:
     int fedId_;
     edm::LuminosityBlockNumber_t startingLumiBlock_;
-    std::auto_ptr<std::ofstream> out_;
+    std::unique_ptr<std::ofstream> out_;
     std::string tmpFileName_;
     std::string finalFileName_;
     const static std::string emptyString_;

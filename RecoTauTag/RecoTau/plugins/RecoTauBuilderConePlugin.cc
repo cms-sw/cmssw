@@ -8,6 +8,7 @@
  *
  */
 
+#include <utility>
 #include <vector>
 #include <algorithm>
 
@@ -455,7 +456,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   // Put our built tau in the output - 'false' indicates don't build the
   // leading candidates, we already did that explicitly above.
 
-  std::auto_ptr<reco::PFTau> tauPtr = tau.get(false);
+  std::unique_ptr<reco::PFTau> tauPtr = tau.get(false);
 
   // Set event vertex position for tau
   reco::VertexRef primaryVertexRef = primaryVertex(*tauPtr);
@@ -468,7 +469,7 @@ RecoTauBuilderConePlugin::return_type RecoTauBuilderConePlugin::operator()(
   		   minRelPhotonSumPt_insideSignalCone_
 		   );
 
-  output.push_back(tauPtr);
+  output.push_back(std::move(tauPtr));
   return output.release();
 }
 }}  // end namespace reco::tauk

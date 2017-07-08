@@ -4,8 +4,8 @@
 int main() {
   float fixedphase_ns = 6.0;
   float max_fracerror = 0.02;
-  std::auto_ptr<HcalPulseContainmentManager> manager;
-  manager = std::auto_ptr<HcalPulseContainmentManager>( new HcalPulseContainmentManager(max_fracerror));
+  std::unique_ptr<HcalPulseContainmentManager> manager;
+  manager = std::unique_ptr<HcalPulseContainmentManager>( new HcalPulseContainmentManager(max_fracerror));
 
   HcalDetId hb1(HcalBarrel, 1, 1, 1);
   HcalDetId he1(HcalEndcap, 17, 1, 1);

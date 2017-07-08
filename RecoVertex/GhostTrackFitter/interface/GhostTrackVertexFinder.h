@@ -179,9 +179,9 @@ class GhostTrackVertexFinder { // : public VertexReconstructor
 	double	seccut_;
 	FitType	fitType_;
 
-	mutable std::auto_ptr<GhostTrackFitter>	ghostTrackFitter_;
-	mutable std::auto_ptr<VertexFitter<5> > primVertexFitter_;
-	mutable std::auto_ptr<VertexFitter<5> > secVertexFitter_;
+	mutable std::unique_ptr<GhostTrackFitter>	ghostTrackFitter_;
+	mutable std::unique_ptr<VertexFitter<5> > primVertexFitter_;
+	mutable std::unique_ptr<VertexFitter<5> > secVertexFitter_;
 };
 
 }

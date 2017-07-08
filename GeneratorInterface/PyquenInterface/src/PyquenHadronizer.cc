@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <ctime>
+#include <utility>
 
 #include "GeneratorInterface/PyquenInterface/interface/PyquenHadronizer.h"
 

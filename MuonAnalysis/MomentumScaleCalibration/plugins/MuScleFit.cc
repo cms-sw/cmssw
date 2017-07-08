@@ -309,7 +309,7 @@ class MuScleFit: public edm::EDLooper, MuScleFitBase
   edm::InputTag puInfoSrc_;
   edm::InputTag vertexSrc_;
 
-  std::auto_ptr<MuScleFitMuonSelector> muonSelector_;
+  std::unique_ptr<MuScleFitMuonSelector> muonSelector_;
 };
 
 template<typename T>

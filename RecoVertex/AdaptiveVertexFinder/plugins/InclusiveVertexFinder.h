@@ -60,8 +60,8 @@ class TemplatedInclusiveVertexFinder : public edm::stream::EDProducer<> {
 	double 					fitterRatio;
 	bool 					useVertexFitter;
 	bool 					useVertexReco;
-	std::auto_ptr<VertexReconstructor>	vtxReco;
-	std::auto_ptr<TracksClusteringFromDisplacedSeed>	clusterizer;
+	std::unique_ptr<VertexReconstructor>	vtxReco;
+	std::unique_ptr<TracksClusteringFromDisplacedSeed>	clusterizer;
 
 };
 template <class InputContainer, class VTX>

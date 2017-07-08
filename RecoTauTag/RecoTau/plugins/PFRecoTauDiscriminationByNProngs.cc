@@ -25,8 +25,8 @@ class PFRecoTauDiscriminationByNProngs : public PFTauDiscriminationProducerBase 
 	double discriminate(const reco::PFTauRef&) const override;
 
     private:
-	std::auto_ptr<tau::RecoTauQualityCuts> qcuts_;
-	std::auto_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
+	std::unique_ptr<tau::RecoTauQualityCuts> qcuts_;
+	std::unique_ptr<tau::RecoTauVertexAssociator> vertexAssociator_;
 
 	uint32_t minN,maxN;
 	bool booleanOutput;

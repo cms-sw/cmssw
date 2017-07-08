@@ -20,6 +20,7 @@ Implementation:
 // system include files
 #include <cstdio>
 #include <memory>
+#include <utility>
 #include <vector>
 #include <string>
 #include <fstream>
@@ -190,7 +191,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   iEvent.put(std::move(product));
 
   if (runInfo) {
-    std::auto_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
+    std::unique_ptr<LHERunInfoProduct> product(new LHERunInfoProduct(*runInfo->getHEPRUP()));
     std::for_each(runInfo->getHeaders().begin(),
                   runInfo->getHeaders().end(),
                   boost::bind(&LHERunInfoProduct::addHeader,
@@ -204,7 +205,7 @@ ExternalLHEProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       runInfoProducts.front().mergeProduct(*product);
       if (!wasMerged) {
         runInfoProducts.pop_front();
-        runInfoProducts.push_front(product);
+        runInfoProducts.push_front(std::move(product));
         wasMerged = true;
       }
     }

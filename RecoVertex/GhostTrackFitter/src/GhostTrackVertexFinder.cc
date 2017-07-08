@@ -306,7 +306,7 @@ GhostTrackFitter &GhostTrackVertexFinder::ghostTrackFitter() const
 
 VertexFitter<5> &GhostTrackVertexFinder::vertexFitter(bool primary) const
 {
-	std::auto_ptr<VertexFitter<5> > *ptr =
+	std::unique_ptr<VertexFitter<5> > *ptr =
 			primary ? &primVertexFitter_ : &secVertexFitter_;
 	if (!ptr->get())
 		ptr->reset(new AdaptiveVertexFitter(

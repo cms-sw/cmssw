@@ -92,7 +92,7 @@ namespace cms
 
 
   private:
-    std::auto_ptr<fastjet::HEPTopTaggerV2>        fjHEPTopTagger_;
+    std::unique_ptr<fastjet::HEPTopTaggerV2>        fjHEPTopTagger_;
 
     // Below are all configurable options. 
     // Parenthesis indicates if this is enforced by the tagger itself or by the producer

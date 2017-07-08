@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoParticleFlow/PFTracking/interface/PFDisplacedVertexCandidateFinder.h"
 
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
@@ -432,7 +434,7 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
   }
 
 
-  const std::auto_ptr< reco::PFDisplacedVertexCandidateCollection >& vertexCandidates
+  const std::unique_ptr< reco::PFDisplacedVertexCandidateCollection >& vertexCandidates
     = a.vertexCandidates(); 
     
   if(!vertexCandidates.get() ) {

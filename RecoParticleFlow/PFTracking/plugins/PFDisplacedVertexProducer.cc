@@ -20,6 +20,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFDisplacedVertexCandidateFwd.h"
 
 #include <set>
+#include <utility>
 
 using namespace std;
 using namespace edm;

@@ -81,8 +81,8 @@ private:
     double ptToDensityFactor;
     unsigned filterNumber;
     std::vector<double> uncertaintyZones;
-    std::auto_ptr<fftjet::Functor1<double,double> > calibrationCurve;
-    std::auto_ptr<fftjet::Functor1<double,double> > uncertaintyCurve;
+    std::unique_ptr<fftjet::Functor1<double,double> > calibrationCurve;
+    std::unique_ptr<fftjet::Functor1<double,double> > uncertaintyCurve;
 
     // Alternative method to calibrate the pileup.
     // We will fetch three lookup tables from the database:

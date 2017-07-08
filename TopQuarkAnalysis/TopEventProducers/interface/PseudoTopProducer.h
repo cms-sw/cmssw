@@ -26,7 +26,7 @@ private:
 
   const reco::Candidate* getLast(const reco::Candidate* p);
   reco::GenParticleRef buildGenParticle(const reco::Candidate* p, reco::GenParticleRefProd& refHandle,
-                                        std::auto_ptr<reco::GenParticleCollection>& outColl) const;
+                                        std::unique_ptr<reco::GenParticleCollection>& outColl) const;
   typedef reco::Particle::LorentzVector LorentzVector;
 
 private:

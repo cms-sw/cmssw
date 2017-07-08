@@ -21,7 +21,7 @@ OptoScanHistograms::OptoScanHistograms( const edm::ParameterSet& pset,
                              bei,
                              sistrip::OPTO_SCAN )
 {
-  factory_ = auto_ptr<OptoScanSummaryFactory>( new OptoScanSummaryFactory );
+  factory_ = unique_ptr<OptoScanSummaryFactory>( new OptoScanSummaryFactory );
   LogTrace(mlDqmClient_) 
     << "[OptoScanHistograms::" << __func__ << "]"
     << " Constructing object...";

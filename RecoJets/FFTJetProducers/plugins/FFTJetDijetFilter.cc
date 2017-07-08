@@ -95,10 +95,10 @@ private:
     bool insertCompleteEvent;
 
     // Distance calculator for the clustering tree
-    std::auto_ptr<fftjet::AbsDistanceCalculator<fftjet::Peak> > distanceCalc;
+    std::unique_ptr<fftjet::AbsDistanceCalculator<fftjet::Peak> > distanceCalc;
 
     // Scales used
-    std::auto_ptr<std::vector<double> > iniScales;
+    std::unique_ptr<std::vector<double> > iniScales;
 
     // The clustering trees
     ClusteringTree* clusteringTree;

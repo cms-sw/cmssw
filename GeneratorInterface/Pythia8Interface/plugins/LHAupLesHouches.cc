@@ -4,6 +4,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
+#include <utility>
 #include <assert.h>
 
 #include "GeneratorInterface/Pythia8Interface/plugins/LHAupLesHouches.h"

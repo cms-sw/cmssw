@@ -146,7 +146,7 @@ namespace funct {
     ROOT::Math::IntegrationOneDim::Type type_;
     double absTol_, relTol_;
     unsigned int size_, rule_;
-    mutable std::auto_ptr<ROOT::Math::Integrator> integrator_;
+    mutable std::unique_ptr<ROOT::Math::Integrator> integrator_;
   };    
 }
 

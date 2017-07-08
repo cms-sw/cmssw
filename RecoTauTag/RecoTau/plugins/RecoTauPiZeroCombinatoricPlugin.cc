@@ -10,6 +10,7 @@
  */
 
 #include <algorithm>
+#include <utility>
 
 #include "RecoTauTag/RecoTau/interface/RecoTauPiZeroPlugins.h"
 #include "DataFormats/TauReco/interface/RecoTauPiZero.h"
@@ -79,7 +80,7 @@ RecoTauPiZeroCombinatoricPlugin::operator()(
   for (ComboGenerator::iterator combo = generator.begin();
       combo != generator.end(); ++combo) {
     const Candidate::LorentzVector totalP4;
-    std::auto_ptr<RecoTauPiZero> piZero(
+    std::unique_ptr<RecoTauPiZero> piZero(
         new RecoTauPiZero(0, totalP4, Candidate::Point(0, 0, 0),
                           111, 10001, true, RecoTauPiZero::kCombinatoric));
     // Add our daughters from this combination
@@ -94,7 +95,7 @@ RecoTauPiZeroCombinatoricPlugin::operator()(
 
     if ((maxMass_ < 0 || piZero->mass() < maxMass_) &&
         piZero->mass() > minMass_)
-      output.push_back(piZero);
+      output.push_back(std::move(piZero));
   }
   return output.release();
 }

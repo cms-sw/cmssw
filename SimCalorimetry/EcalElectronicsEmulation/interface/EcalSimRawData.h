@@ -442,7 +442,7 @@ private:
 
   /** Selective readout simulator
    */
-  std::auto_ptr<EcalSelectiveReadout> esr_;
+  std::unique_ptr<EcalSelectiveReadout> esr_;
 
   /** Output file for trigger tower flags
    */

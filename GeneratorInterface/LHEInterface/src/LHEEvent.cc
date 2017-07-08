@@ -4,6 +4,7 @@
 #include <sstream>
 #include <cstring>
 #include <string>
+#include <utility>
 #include <vector>
 #include <memory>
 #include <cmath>
@@ -254,9 +255,9 @@ void LHEEvent::fillEventInfo(HepMC::GenEvent *event) const
 	event->set_alphaQCD(hepeup.AQCDUP);
 }
 
-std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
+std::unique_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 {
-	std::auto_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
+	std::unique_ptr<HepMC::GenEvent> hepmc(new HepMC::GenEvent);
 
 	hepmc->set_signal_process_id(hepeup.IDPRUP);
 	hepmc->set_event_scale(hepeup.SCALUP);
@@ -270,7 +271,7 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 		edm::LogWarning("Generator|LHEInterface")
 			<< "Les Houches Event does not contain any partons. "
 			<< "Not much to convert." ;
-		return hepmc;
+		return std::move(hepmc);
 	}
 
 	// stores (pointers to) converted particles
@@ -381,7 +382,7 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 			const_cast<HepMC::GenVertex*>(
 				findSignalVertex(hepmc.get(), false)));
 
-	return hepmc;
+	return std::move(hepmc);
 }
 
 HepMC::GenParticle *LHEEvent::makeHepMCParticle(unsigned int i) const

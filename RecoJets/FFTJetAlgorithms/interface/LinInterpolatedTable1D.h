@@ -82,7 +82,7 @@ namespace fftjetcms {
         // refer to the inverted table (note that left and right will
         // exchange places if the original table is decreasing).
         //
-        std::auto_ptr<LinInterpolatedTable1D> inverse(
+        std::unique_ptr<LinInterpolatedTable1D> inverse(
             unsigned npoints, bool leftExtrapolationLinear,
             bool rightExtrapolationLinear) const;
 

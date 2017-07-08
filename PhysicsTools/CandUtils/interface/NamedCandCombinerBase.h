@@ -26,25 +26,25 @@ public:
   /// destructor
   virtual ~NamedCandCombinerBase();
   /// return all selected candidate pairs
-  std::auto_ptr<reco::NamedCompositeCandidateCollection> 
+  std::unique_ptr<reco::NamedCompositeCandidateCollection> 
   combine(const std::vector<reco::CandidatePtrVector> &, string_coll const &) const;
   /// return all selected candidate pairs
-  std::auto_ptr<reco::NamedCompositeCandidateCollection> 
+  std::unique_ptr<reco::NamedCompositeCandidateCollection> 
   combine(const reco::CandidatePtrVector &, 
 	  string_coll const &) const;
   /// return all selected candidate pairs
-  std::auto_ptr<reco::NamedCompositeCandidateCollection> 
+  std::unique_ptr<reco::NamedCompositeCandidateCollection> 
   combine(const reco::CandidatePtrVector &, 
 	  const reco::CandidatePtrVector &, 
 	  string_coll const &) const;
   /// return all selected candidate pairs
-  std::auto_ptr<reco::NamedCompositeCandidateCollection> 
+  std::unique_ptr<reco::NamedCompositeCandidateCollection> 
   combine(const reco::CandidatePtrVector &, 
 	  const reco::CandidatePtrVector &, 
 	  const reco::CandidatePtrVector &, 
 	  string_coll const &) const;
   /// return all selected candidate pairs
-  std::auto_ptr<reco::NamedCompositeCandidateCollection> 
+  std::unique_ptr<reco::NamedCompositeCandidateCollection> 
   combine(const reco::CandidatePtrVector &, 
 	  const reco::CandidatePtrVector &, 
 	  const reco::CandidatePtrVector &, 
@@ -69,7 +69,7 @@ private:
 	       string_coll const & names,
 	       std::vector<reco::CandidatePtrVector>::const_iterator begin,
 	       std::vector<reco::CandidatePtrVector>::const_iterator end,
-	       std::auto_ptr<reco::NamedCompositeCandidateCollection> & comps
+	       std::unique_ptr<reco::NamedCompositeCandidateCollection> & comps
 	       ) const;
   /// select a candidate
   virtual bool select(const reco::Candidate &) const = 0;

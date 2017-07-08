@@ -16,7 +16,7 @@ public:
     inline ~StorableDoubleMap() {clear();}
 
     inline void add(const std::string& name, const std::string& category,
-                    std::auto_ptr<T> ptr)
+                    std::unique_ptr<T> ptr)
         {delete data_[category][name]; data_[category][name] = ptr.release();}
 
     void clear();

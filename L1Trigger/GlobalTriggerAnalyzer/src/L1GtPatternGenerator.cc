@@ -285,7 +285,7 @@ void L1GtPatternGenerator::beginJob()
     edm::LogError("L1GtPatternGenerator") <<  "Failed to open output file " << m_fileName;
   }
 
-  m_writer = std::auto_ptr<L1GtPatternWriter>(new L1GtPatternWriter(m_fileStream, m_header, m_footer, m_columnNames, m_columnLengths, m_columnDefaults, m_bx, m_debug));
+  m_writer = std::unique_ptr<L1GtPatternWriter>(new L1GtPatternWriter(m_fileStream, m_header, m_footer, m_columnNames, m_columnLengths, m_columnDefaults, m_bx, m_debug));
 }
 
 /** Method called once each job just after ending the event loop.

@@ -559,7 +559,7 @@ void
 CmsShowMain::openDataViaURL()
 {
    if (m_searchFiles.get() == 0) {
-      m_searchFiles = std::auto_ptr<CmsShowSearchFiles>(new CmsShowSearchFiles("",
+      m_searchFiles = std::unique_ptr<CmsShowSearchFiles>(new CmsShowSearchFiles("",
                                                                                "Open Remote Data Files",
                                                                                guiManager()->getMainFrame(),
                                                                                500, 400));
@@ -738,7 +738,7 @@ CmsShowMain::setLoadedAnyInputFileAfterStartup()
 void
 CmsShowMain::setupSocket(unsigned int iSocket)
 {
-   m_monitor = std::auto_ptr<TMonitor>(new TMonitor);
+   m_monitor = std::unique_ptr<TMonitor>(new TMonitor);
    TServerSocket* server = new TServerSocket(iSocket,kTRUE);
    if (server->GetErrorCode())
    {

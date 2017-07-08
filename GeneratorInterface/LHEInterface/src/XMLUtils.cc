@@ -1,6 +1,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 #include <cstring>
 
@@ -54,7 +55,7 @@ XMLDocument::XercesPlatform::~XercesPlatform()
 		cms::concurrency::xercesTerminate();
 }
 
-XMLDocument::XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler) :
+XMLDocument::XMLDocument(std::unique_ptr<std::istream> &in, Handler &handler) :
 	platform(new XercesPlatform()),
 	source(new STLInputSource(in)),
 	parser(XMLReaderFactory::createXMLReader()),
@@ -63,7 +64,7 @@ XMLDocument::XMLDocument(std::auto_ptr<std::istream> &in, Handler &handler) :
 	init(handler);
 }
 
-XMLDocument::XMLDocument(std::auto_ptr<StorageWrap> &in, Handler &handler) :
+XMLDocument::XMLDocument(std::unique_ptr<StorageWrap> &in, Handler &handler) :
 	platform(new XercesPlatform()),
 	source(new StorageInputSource(in)),
 	parser(XMLReaderFactory::createXMLReader()),

@@ -11,7 +11,7 @@
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
-std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
+std::unique_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(const CaloTowerTopology *limits, const HcalTopology *hcaltopo, const HcalDDDRecConstants* hcons) {
 
   m_limits = limits;
   m_hcaltopo = hcaltopo;
@@ -43,7 +43,7 @@ std::auto_ptr<CaloSubdetectorGeometry> CaloTowerHardcodeGeometryLoader::load(con
     makeCell(din, geom);
   }
   edm::LogInfo("Geometry") << "CaloTowersHardcodeGeometry made " << m_limits->sizeForDenseIndexing() << " towers.";
-  return std::auto_ptr<CaloSubdetectorGeometry>(geom); 
+  return std::unique_ptr<CaloSubdetectorGeometry>(geom); 
 }
 
 void

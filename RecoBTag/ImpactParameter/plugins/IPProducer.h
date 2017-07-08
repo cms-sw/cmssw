@@ -151,7 +151,7 @@ class IPProducer : public edm::stream::EDProducer<> {
     bool m_computeProbabilities;
     bool m_computeGhostTrack;
     double m_ghostTrackPriorDeltaR;
-    std::auto_ptr<HistogramProbabilityEstimator> m_probabilityEstimator;
+    std::unique_ptr<HistogramProbabilityEstimator> m_probabilityEstimator;
     unsigned long long  m_calibrationCacheId2D; 
     unsigned long long  m_calibrationCacheId3D;
     bool m_useDB;
@@ -310,7 +310,7 @@ IPProducer<Container,Base,Helper>::produce(edm::Event& iEvent, const edm::EventS
 //	std::cout <<"SIZE: " << transientTracks.size() << std::endl;
      GlobalVector direction(jetMomentum.x(), jetMomentum.y(), jetMomentum.z());
 
-     std::auto_ptr<reco::GhostTrack> ghostTrack;
+     std::unique_ptr<reco::GhostTrack> ghostTrack;
      reco::TrackRef ghostTrackRef;
      if (m_computeGhostTrack) {
        reco::GhostTrackFitter fitter;

@@ -5,6 +5,7 @@
 #include "Geometry/ForwardGeometry/src/CastorGeometryData.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <algorithm>
+#include <utility>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 
@@ -32,27 +33,27 @@ void CastorHardcodeGeometryLoader::init()
    theHADSectiondZ = 1212.;
 }
 
-std::auto_ptr<CaloSubdetectorGeometry> 
+std::unique_ptr<CaloSubdetectorGeometry> 
 CastorHardcodeGeometryLoader::load( DetId::Detector /*det*/, 
 				    int             subdet)
 {
-   std::auto_ptr<CaloSubdetectorGeometry> hg(new CastorGeometry( extTopology ));
+   std::unique_ptr<CaloSubdetectorGeometry> hg(new CastorGeometry( extTopology ));
    if( subdet == HcalCastorDetId::SubdetectorId )
    {
       fill( HcalCastorDetId::EM,  hg.get() ) ;
       fill( HcalCastorDetId::HAD, hg.get() ) ;
    }
-   return hg;
+   return std::move(hg);
 }
 
-std::auto_ptr<CaloSubdetectorGeometry> 
+std::unique_ptr<CaloSubdetectorGeometry> 
 CastorHardcodeGeometryLoader::load() 
 {
-   std::auto_ptr<CaloSubdetectorGeometry> hg
+   std::unique_ptr<CaloSubdetectorGeometry> hg
       ( new CastorGeometry( extTopology ) ) ;
    fill( HcalCastorDetId::EM,  hg.get() ) ;
    fill( HcalCastorDetId::HAD, hg.get() ) ;
-   return hg;
+   return std::move(hg);
 }
 
 void 

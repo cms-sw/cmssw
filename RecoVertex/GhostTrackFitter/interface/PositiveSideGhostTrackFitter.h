@@ -37,7 +37,7 @@ class PositiveSideGhostTrackFitter : public GhostTrackFitter::FitterImpl {
 	{ return new PositiveSideGhostTrackFitter(*this); }
 
 	GlobalPoint					origin_;
-	std::auto_ptr<GhostTrackFitter::FitterImpl>	actualFitter_;
+	std::unique_ptr<GhostTrackFitter::FitterImpl>	actualFitter_;
 };
 
 }

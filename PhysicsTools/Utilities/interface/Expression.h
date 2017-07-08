@@ -33,7 +33,7 @@ namespace funct {
    inline double operator()() const { return (*_f)(); }
    inline std::ostream& print(std::ostream& cout) const { return _f->print(cout); }
  private:
-   std::auto_ptr<AbsExpression> _f;
+   std::unique_ptr<AbsExpression> _f;
  };
 
  inline std::ostream& operator<<(std::ostream& cout, const Expression& e) { 
@@ -64,7 +64,7 @@ namespace funct {
    inline FunctExpression& operator=(const FunctExpression& e) { _f.reset(e._f->clone()); return *this; }
    inline double operator()(double x) const { return (*_f)(x); }
  private:
-   std::auto_ptr<AbsFunctExpression> _f;
+   std::unique_ptr<AbsFunctExpression> _f;
  };
 
 }

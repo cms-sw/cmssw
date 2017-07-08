@@ -1,6 +1,7 @@
 #include <sstream>
 
 #include <boost/bind.hpp>
+#include <utility>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"

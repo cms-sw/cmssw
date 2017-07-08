@@ -22,7 +22,7 @@ namespace sistrip {
     
     void newChannel(const uint32_t key, const uint16_t firstItem = 0);
     void addItem(const T& item);
-    std::auto_ptr< edm::DetSetVector<T> > createDetSetVector();
+    std::unique_ptr< edm::DetSetVector<T> > createDetSetVector();
   private:
     struct ChannelRegistryItem
     {
@@ -95,7 +95,7 @@ namespace sistrip {
       }
       iReg = jReg;
     }
-    return typename std::auto_ptr< edm::DetSetVector<T> >( new edm::DetSetVector<T>(sorted_and_merged, true) );
+    return typename std::unique_ptr< edm::DetSetVector<T> >( new edm::DetSetVector<T>(sorted_and_merged, true) );
   }
   
   typedef DetSetVectorFiller<SiStripRawDigi,false> RawDigiDetSetVectorFiller;

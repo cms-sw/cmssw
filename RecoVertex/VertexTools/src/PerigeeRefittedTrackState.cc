@@ -39,7 +39,7 @@ TrajectoryStateOnSurface
 PerigeeRefittedTrackState::trajectoryStateOnSurface(const Surface & surface,
 				const Propagator & propagator) const
 {
-  std::auto_ptr<Propagator> thePropagator( propagator.clone());
+  std::unique_ptr<Propagator> thePropagator( propagator.clone());
   thePropagator->setPropagationDirection(anyDirection);
 
   TrajectoryStateOnSurface tsos = thePropagator->propagate(freeTrajectoryState(), surface);

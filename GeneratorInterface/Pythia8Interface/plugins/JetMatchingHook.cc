@@ -7,6 +7,7 @@
 
 //#include "HepMC/HEPEVT_Wrapper.h"
 #include <cassert>
+#include <utility>
 
 #include "GeneratorInterface/Pythia8Interface/plugins/Py8toJetInput.h"
 

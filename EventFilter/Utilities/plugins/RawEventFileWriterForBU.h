@@ -72,7 +72,7 @@ class RawEventFileWriterForBU
   jsoncollector::DataPointDefinition eorJsonDef_;
   bool writtenJSDs_=false;
 
-  std::auto_ptr<std::ofstream> ost_;
+  std::unique_ptr<std::ofstream> ost_;
   std::string fileName_;
   std::string destinationDir_;
 

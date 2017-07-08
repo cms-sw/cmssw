@@ -3,6 +3,6 @@
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
 #include <memory>
 
-std::auto_ptr<reco::Candidate> cloneDecayTree( const reco::Candidate & );
+std::unique_ptr<reco::Candidate> cloneDecayTree( const reco::Candidate & );
 
 #endif
