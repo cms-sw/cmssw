@@ -71,390 +71,763 @@
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
 
+#include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfCscDataWord64.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfDtDataWord64.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfRpcDataWord64.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfMuonDataWord64.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfEleIndex.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfRpcLinkMap.h"
 
-typedef uint64_t Word64;
+using namespace Omtf;
+namespace Omtf {
 
-namespace DataWord64 {
-  enum Type { csc=0xC, dt= 0xD, rpc=0xE, omtf=0xF };
-  template <typename T> Type type(const T&);
-  template <> Type type<Word64>(const Word64 & data) { return static_cast<Type> (data>>60); }
-  template <> Type type<unsigned int>(const unsigned int & intType) { return static_cast<Type> (intType); }
-  std::ostream & operator<< (std::ostream &out, const DataWord64::Type &o) {
-    switch(o) {
-      case(csc)  : out <<"csc "; break;
-      case(rpc)  : out <<"rpc "; break;
-      case(dt)   : out <<"dt  "; break;
-      case(omtf) : out <<"omtf"; break;
-      default    : out <<"unkn"; break; 
-    }
-    out<<"(0x"<<std::hex<<static_cast<int>(o)<<std::dec<<")";
-    return out;
-  }
-};
+//typedef uint64_t Word64;
+//
+//namespace DataWord64 {
+//  enum Type { csc=0xC, dt= 0xD, rpc=0xE, omtf=0xF };
+//  template <typename T> Type type(const T&);
+//  template <> Type type<Word64>(const Word64 & data) { return static_cast<Type> (data>>60); }
+//  template <> Type type<unsigned int>(const unsigned int & intType) { return static_cast<Type> (intType); }
+//  std::ostream & operator<< (std::ostream &out, const DataWord64::Type &o) {
+//    switch(o) {
+//      case(csc)  : out <<"csc "; break;
+//      case(rpc)  : out <<"rpc "; break;
+//      case(dt)   : out <<"dt  "; break;
+//      case(omtf) : out <<"omtf"; break;
+//      default    : out <<"unkn"; break; 
+//    }
+//    out<<"(0x"<<std::hex<<static_cast<int>(o)<<std::dec<<")";
+//    return out;
+//  }
+//};
 
-class RpcDataWord64 {
-public: 
-  RpcDataWord64(Word64 data) : rawData(data) {}
-  RpcDataWord64() : rawData(Word64(DataWord64::rpc)<<60) {}
-  unsigned int frame1() const { return frame1_;}
-  unsigned int frame2() const { return frame2_;}
-  unsigned int frame3() const { return frame3_;}
-  unsigned int empty() const { return empty_;}
-  unsigned int linkNum() const { return linkNum_;}
-  unsigned int bxNum() const { return bxNum_; }
-  unsigned int type() const { return type_;}
-  friend class OmtfPacker;
-  friend std::ostream & operator<< (std::ostream &out, const RpcDataWord64 &o) {
-    out << "RpcDataWord64: "
-        <<" type: "<< std::bitset<4>(o.type_) 
-        << " bx: "<<o.bxNum_
-        << " lnk: "<< o.linkNum_;
-    out << std::hex;
-    out << " frame1: 0x"<< o.frame1_; if (o.frame1_ != 0) out <<" ("<< std::bitset<16>(o.frame1_)<<")";
-    out << " frame2: 0x"<< o.frame2_; if (o.frame2_ != 0) out <<" ("<< std::bitset<16>(o.frame2_)<<")";
-    out << " frame3: 0x"<< o.frame3_; if (o.frame3_ != 0) out <<" ("<< std::bitset<16>(o.frame3_)<<")";
-    out << std::dec;
-    return out;
-  }
-private:
-  union {
-    uint64_t rawData;
-    struct {
-      uint64_t frame3_  : 16;
-      uint64_t frame2_  : 16;
-      uint64_t frame1_  : 16;
-      uint64_t empty_   : 4;
-      uint64_t linkNum_ : 5;
-      uint64_t bxNum_   : 3;
-      uint64_t type_    : 4;
-    };
-  };
-};
+//class RpcDataWord64 {
+//public: 
+//  RpcDataWord64(Word64 data) : rawData(data) {}
+//  RpcDataWord64() : rawData(Word64(DataWord64::rpc)<<60) {}
+//  unsigned int frame1() const { return frame1_;}
+//  unsigned int frame2() const { return frame2_;}
+//  unsigned int frame3() const { return frame3_;}
+//  unsigned int empty() const { return empty_;}
+//  unsigned int linkNum() const { return linkNum_;}
+//  unsigned int bxNum() const { return bxNum_; }
+//  unsigned int type() const { return type_;}
+//  friend class OmtfPacker;
+//  friend std::ostream & operator<< (std::ostream &out, const RpcDataWord64 &o) {
+//    out << "RpcDataWord64: "
+//        <<" type: "<< std::bitset<4>(o.type_) 
+//        << " bx: "<<o.bxNum_
+//        << " lnk: "<< o.linkNum_;
+//    out << std::hex;
+//    out << " frame1: 0x"<< o.frame1_; if (o.frame1_ != 0) out <<" ("<< std::bitset<16>(o.frame1_)<<")";
+//    out << " frame2: 0x"<< o.frame2_; if (o.frame2_ != 0) out <<" ("<< std::bitset<16>(o.frame2_)<<")";
+//    out << " frame3: 0x"<< o.frame3_; if (o.frame3_ != 0) out <<" ("<< std::bitset<16>(o.frame3_)<<")";
+//    out << std::dec;
+//    return out;
+//  }
+//private:
+//  union {
+//    uint64_t rawData;
+//    struct {
+//      uint64_t frame3_  : 16;
+//      uint64_t frame2_  : 16;
+//      uint64_t frame1_  : 16;
+//      uint64_t empty_   : 4;
+//      uint64_t linkNum_ : 5;
+//      uint64_t bxNum_   : 3;
+//      uint64_t type_    : 4;
+//    };
+//  };
+//};
 
-class OmtfDataWord64 {
-public:
-  OmtfDataWord64(Word64 data=0) : rawData(data) {}
-  unsigned int weight_lowBits() const { return weight_; } 
-  unsigned int layers() const { return layers_; }
-  unsigned int ch() const { return ch_; } 
-  unsigned int vch() const { return vch_; } 
-           int phi() const { return phi_; }
-           int eta() const { return eta_; }
-  unsigned int pT() const { return pT_; }
-  unsigned int quality() const { return quality_; }
-  unsigned int bxNum() const { return bxNum_; }
-  unsigned int type() const { return type_;}
-  friend class OmtfPacker;
-  friend std::ostream & operator<< (std::ostream &out, const OmtfDataWord64 &o) {
-    out << "OmtfDataWord64: "
-        <<" type: "<< DataWord64::type(o.type())
-        << " bx: "<<o.bxNum()
-        << " pT: "<<o.pT()
-        << " eta: "<<o.eta()
-        << " phi: "<<o.phi()
-        << " quality: "<<o.quality()
-        << " layers: "<< std::bitset<18>(o.layers())
-        << "";
-    return out;
-  }
-  friend class OmtfPacker;
-private:
-  union {
-    uint64_t rawData;
-    struct {
-      uint64_t pT_ : 9;
-      uint64_t quality_ : 4;
-       int64_t eta_ : 9;
-      uint64_t empty_   : 1; //not used, orig h/f
-       int64_t phi_ : 8;
-      uint64_t bc0_  : 1;
-      uint64_t ch_ : 1;
-      uint64_t vch_ : 1;
-      uint64_t layers_ : 18;
-      uint64_t weight_ : 5;
-      uint64_t bxNum_   : 3;
-      uint64_t type_    : 4;
-    };
-  };
-};
+//class MuonDataWord64 {
+//public:
+//  MuonDataWord64(Word64 data=0) : rawData(data) {}
+//  unsigned int weight_lowBits() const { return weight_; } 
+//  unsigned int layers() const { return layers_; }
+//  unsigned int ch() const { return ch_; } 
+//  unsigned int vch() const { return vch_; } 
+//           int phi() const { return phi_; }
+//           int eta() const { return eta_; }
+//  unsigned int pT() const { return pT_; }
+//  unsigned int quality() const { return quality_; }
+//  unsigned int bxNum() const { return bxNum_; }
+//  unsigned int type() const { return type_;}
+//  friend class OmtfPacker;
+//  friend std::ostream & operator<< (std::ostream &out, const MuonDataWord64 &o) {
+//    out << "OmtfDataWord64: "
+//        <<" type: "<< DataWord64::type(o.type())
+//        << " bx: "<<o.bxNum()
+//        << " pT: "<<o.pT()
+//        << " eta: "<<o.eta()
+//        << " phi: "<<o.phi()
+//        << " quality: "<<o.quality()
+//        << " layers: "<< std::bitset<18>(o.layers())
+//        << "";
+//    return out;
+//  }
+//  friend class OmtfPacker;
+//private:
+//  union {
+//    uint64_t rawData;
+//    struct {
+//      uint64_t pT_ : 9;
+//      uint64_t quality_ : 4;
+//       int64_t eta_ : 9;
+//      uint64_t empty_   : 1; //not used, orig h/f
+//       int64_t phi_ : 8;
+//      uint64_t bc0_  : 1;
+//      uint64_t ch_ : 1;
+//      uint64_t vch_ : 1;
+//      uint64_t layers_ : 18;
+//      uint64_t weight_ : 5;
+//      uint64_t bxNum_   : 3;
+//      uint64_t type_    : 4;
+//    };
+//  };
+//};
+//
+//class DtDataWord64 {
+//public:
+//  DtDataWord64(Word64 data) : rawData(data) {}
+//  DtDataWord64() : rawData(Word64(DataWord64::dt)<<60) {}
+//  int phi() const { return st_phi_; }
+//  int phiB() const { return st_phib_; }
+//  unsigned int quality() const { return st_q_; }
+//  unsigned int eta() const { return eta_hit_; }
+//  unsigned int etaQuality() const { return eta_qbit_; }
+//  unsigned int bcnt_st() const { return bcnt_st_; }
+//  unsigned int bcnt_e0() const { return bcnt_e0_; }
+//  unsigned int bcnt_e1() const { return bcnt_e1_; }
+//  unsigned int valid() const { return valid_; }
+//  unsigned int station() const { return st_; }
+//  unsigned int fiber() const { return fiber_; }
+//  unsigned int sector() const { return sector_; }
+//  unsigned int bxNum() const { return bxNum_; }
+//  unsigned int type() const { return type_;}
+//  friend class OmtfPacker;
+//  friend std::ostream & operator<< (std::ostream &out, const DtDataWord64 &o) {
+//    out << "DtDataWord64: "
+//        <<" type: "<< DataWord64::type(o.type())
+//        << " bx: "<<o.bxNum()
+//        << " station: " << o.station()
+//        << " sector: " << o.sector()
+//        << " fiber: " << o.fiber()
+//        << " phi: "<<o.phi()
+//        << " quality: "<<o.quality()
+//        << " eta: "<<o.eta()
+//        << " etaQ: "<<o.etaQuality()
+//        << " bcnt: "<<o.bcnt_st()<<"_"<<o.bcnt_e0()<<"_"<<o.bcnt_e1()
+//        << "";
+//    return out;
+//  }
+//private:
+//  union {
+//    uint64_t rawData;
+//    struct {
+//      int64_t st_phi_ : 12;
+//      int64_t st_phib_ : 10;
+//      uint64_t st_q_     : 5;
+//      uint64_t st_cal_   : 1;
+//      uint64_t eta_qbit_ : 7;
+//      uint64_t eta_hit_ : 7;
+//      uint64_t dummy1_  : 1;
+//      uint64_t bcnt_st_ : 2;
+//      uint64_t bcnt_e0_ : 2;
+//      uint64_t bcnt_e1_ : 2;
+//      uint64_t valid_   : 3;
+//      uint64_t st_      : 2;
+//      uint64_t fiber_   : 1;
+//      uint64_t sector_  : 2;
+//      uint64_t bxNum_   : 3;
+//      uint64_t type_    : 4;
+//    };
+//  };
+//};
+//
+//class CscDataWord64 {
+//public:
+//  CscDataWord64(const Word64 & data) : rawData(data) {}  
+//  CscDataWord64() : rawData(Word64(DataWord64::csc)<<60) {}
+//
+//  unsigned int type() const { return type_;}
+//  unsigned int bxNum() const { return bxNum_; }
+//  unsigned int hitNum() const { return hitNum_; }
+//  unsigned int wireGroup() const { return keyWG_; }
+//  unsigned int quality() const { return quality_; }
+//  unsigned int clctPattern() const { return clctPattern_; }
+//  unsigned int cscID() const { return cscID_; }
+//  unsigned int halfStrip() const { return halfStrip_; }
+//  unsigned int linkNum() const { return linkNum_;}
+//  unsigned int station() const { return station_; }
+//  unsigned int bend() const { return lr_; }
+//  unsigned int valid() const { return vp_; }
+//
+//  friend class OmtfPacker;
+//  friend std::ostream & operator<< (std::ostream &out, const CscDataWord64 &o) {
+//    out << "CscDataWord64: "
+//        <<" type: "<< DataWord64::type(o.type())
+//        << " val: "<< o.valid()
+//        << " bx: "<<o.bxNum()
+//        << " lnk: "<< o.linkNum() 
+//        << " stat: "<<o.station()
+//        << " cscId: " << o.cscID() 
+//        << " hit: "<< o.hitNum()
+//        << " qual: "<< o.quality()
+//        << " patt: " << o.clctPattern()
+//        << " bending: " << o.bend()
+//        << " hs: "<<o.halfStrip()
+//        << " wg: "<< o.wireGroup();
+//    return out;
+//  }
+//private:
+//  union {
+//    uint64_t rawData;
+//    struct {               // watch out - bit fields are  is implementation-defined
+//      uint64_t dummy7_      : 3; //2:0   unused, oryginalnie TBIN Num  
+//      uint64_t vp_          : 1; //3:3   VP      
+//      uint64_t station_     : 3; //6:4   Station                      
+//      uint64_t af_          : 1; //7:7   AF       
+//      uint64_t dummy6_      : 4; //11:8  unused, oryginalnie EPC     
+//      uint64_t sm_          : 1; //12:12 unused, oryginalnie SM     
+//      uint64_t se_          : 1; //13:13 SE     
+//      uint64_t dummy5_      : 1; //14:14 unused, oryginalnie AFEF   
+//      uint64_t dummy4_      : 2; //16:15 unused, oryginalnie ME BXN [11:0] 
+//      uint64_t nit_         : 1; //17:17 NIT   
+//      uint64_t cik_         : 1; //18:18 CIK    
+//      uint64_t dummy3_      : 1; //19:19 unused, oryginalnie AFFF  
+//      uint64_t linkNum_     : 6; //25:20 numer linku CSC               
+//      uint64_t halfStrip_   : 8; //33:26 CLCT key half-strip [7:0]      
+//      uint64_t cscID_       : 4; //37:34 CSC ID [3:0]                    
+//      uint64_t lr_          : 1; //38:38 L/R
+//      uint64_t dummy2_      : 1; //39:39 unused, oryginalnie BXE   
+//      uint64_t dummy1_      : 1; //40:40 unused, oryginalnie BC0    
+//      uint64_t clctPattern_ : 4; //44:41 CLCT pattern [3:0]              4b
+//      uint64_t quality_     : 4; //48:45 Quality [3:0]                   
+//      uint64_t keyWG_       : 7; //55:49 Key wire group [6:0]            
+//      uint64_t hitNum_      : 1; //56:56 int in chamber 0 or 1
+//      uint64_t bxNum_       : 3; //59:57 SBXN
+//      uint64_t type_        : 4; //63:60 CSC identifier 0xC        
+//    };
+//  };
+//};
+//
+//
 
-class DtDataWord64 {
-public:
-  DtDataWord64(Word64 data) : rawData(data) {}
-  DtDataWord64() : rawData(Word64(DataWord64::dt)<<60) {}
-  int phi() const { return st_phi_; }
-  int phiB() const { return st_phib_; }
-  unsigned int quality() const { return st_q_; }
-  unsigned int eta() const { return eta_hit_; }
-  unsigned int etaQuality() const { return eta_qbit_; }
-  unsigned int bcnt_st() const { return bcnt_st_; }
-  unsigned int bcnt_e0() const { return bcnt_e0_; }
-  unsigned int bcnt_e1() const { return bcnt_e1_; }
-  unsigned int valid() const { return valid_; }
-  unsigned int station() const { return st_; }
-  unsigned int fiber() const { return fiber_; }
-  unsigned int sector() const { return sector_; }
-  unsigned int bxNum() const { return bxNum_; }
-  unsigned int type() const { return type_;}
-  friend class OmtfPacker;
-  friend std::ostream & operator<< (std::ostream &out, const DtDataWord64 &o) {
-    out << "DtDataWord64: "
-        <<" type: "<< DataWord64::type(o.type())
-        << " bx: "<<o.bxNum()
-        << " station: " << o.station()
-        << " sector: " << o.sector()
-        << " fiber: " << o.fiber()
-        << " phi: "<<o.phi()
-        << " quality: "<<o.quality()
-        << " eta: "<<o.eta()
-        << " etaQ: "<<o.etaQuality()
-        << " bcnt: "<<o.bcnt_st()<<"_"<<o.bcnt_e0()<<"_"<<o.bcnt_e1()
-        << "";
-    return out;
-  }
-private:
-  union {
-    uint64_t rawData;
-    struct {
-      int64_t st_phi_ : 12;
-      int64_t st_phib_ : 10;
-      uint64_t st_q_     : 5;
-      uint64_t st_cal_   : 1;
-      uint64_t eta_qbit_ : 7;
-      uint64_t eta_hit_ : 7;
-      uint64_t dummy1_  : 1;
-      uint64_t bcnt_st_ : 2;
-      uint64_t bcnt_e0_ : 2;
-      uint64_t bcnt_e1_ : 2;
-      uint64_t valid_   : 3;
-      uint64_t st_      : 2;
-      uint64_t fiber_   : 1;
-      uint64_t sector_  : 2;
-      uint64_t bxNum_   : 3;
-      uint64_t type_    : 4;
-    };
-  };
-};
+//class OmtfEleIndex {
+//public:
+//  OmtfEleIndex() : packed_(0) {}
+//  OmtfEleIndex(const std::string & board, unsigned int link) {
+//    unsigned int fed = 0;
+//    if (board.substr(4,1)=="n") fed = 1380; else if (board.substr(4,1)=="p") fed = 1381;
+//    unsigned int amc = std::stoi( board.substr(5,1) );
+//    packed_ = fed*1000+amc*100+link; 
+//  }
+//  OmtfEleIndex(unsigned int fed, unsigned int amc, unsigned int link) { packed_ = fed*1000+amc*100+link; }
+//  unsigned int fed() const  { return packed_/1000; }
+//  unsigned int amc() const  { return ( (packed_ /100) %10); }
+//  unsigned int link() const { return packed_ % 100; } 
+//  friend std::ostream & operator<< (std::ostream &out, const OmtfEleIndex&o) {
+//    out << "OMTF";
+//    if (o.fed()==1380) out <<"n";
+//    if (o.fed()==1381) out <<"p";
+//    out << o.amc();
+//    out <<" (fed: "<<o.fed()<<"), ln: " << o.link();
+//    return out;
+//  }
+//  inline bool operator< (const OmtfEleIndex& o) const { return this->packed_ < o.packed_; }
+//
+//private:
+//  uint32_t packed_;
+//
+//};
 
-class CscDataWord64 {
-public:
-  CscDataWord64(const Word64 & data) : rawData(data) {}  
-  CscDataWord64() : rawData(Word64(DataWord64::csc)<<60) {}
+//class RpcLinkMap {
+//public:
+//  RpcLinkMap() { }
+//
+//  void init(const RPCAMCLinkMap::map_type & amcMap) {
+//
+//    for (const auto & item : amcMap ) {
+//      unsigned int fedId = item.first.getFED();
+//      unsigned int amcSlot = item.first.getAMCNumber();
+//      unsigned int link = item.first.getAMCInput();
+//      std::string lbName =  item.second.getName();
+//
+//      std::ostringstream processorNameStr; processorNameStr<<"OMTF";;
+//      if (fedId==1380) processorNameStr<< "n"; else processorNameStr<< "p";
+//      processorNameStr<< amcSlot/2+1;
+//      std::string processorName(processorNameStr.str());
+//
+//      std::map< unsigned int, std::string > & li2lb = link2lbName[processorName];
+//      std::map< std::string, unsigned int > & lb2li = lbName2link[processorName];
+//      li2lb[link] = lbName;
+//      lb2li[lbName] = link;
+//      EleIndex ele(processorName, link);
+//      lbName2OmtfIndex[lbName].push_back(ele);
+//    } 
+//  }
+//
+//  void init( const std::string& fName) {
+//    std::ifstream inFile;
+//    inFile.open(fName);
+//    if (inFile) {
+//      LogTrace("")<<" reading OmtfRpcLinksMap from: "<<fName;
+//    } else {
+//      LogTrace("")<<" Unable to open file "<<fName;
+//
+//      throw std::runtime_error("Unable to open OmtfRpcLinksMap file " + fName);
+//    }
+//
+//    std::string line;
+//    while (std::getline(inFile, line)) {
+//      line.erase(0, line.find_first_not_of(" \t\r\n"));      //cut first character
+//      if (line.empty() || !line.compare(0,2,"--")) continue; // empty or comment line
+//      std::stringstream ss(line);
+//      std::string processorName, lbName;
+//      unsigned int link, dbId;
+//      if (ss >> processorName >> link >> lbName >> dbId) {
+//          std::map< unsigned int, std::string > & li2lb = link2lbName[processorName];
+//          std::map< std::string, unsigned int > & lb2li = lbName2link[processorName];
+//          li2lb[link] = lbName;
+//          lb2li[lbName] = link;
+//         EleIndex ele(processorName, link);
+//          lbName2OmtfIndex[lbName].push_back(ele);
+//      }
+//    }
+//    inFile.close();
+//  }
+//
+//  const std::string & lbName(const std::string& board, unsigned int link) const {
+//    return link2lbName.at(board).at(link);
+//  }
+//
+//  unsigned int        link(const std::string& board, const std::string& lbName) const {
+//    return lbName2link.at(board).at(lbName);
+//  }
+//
+//  const std::vector<EleIndex> &omtfEleIndex ( const std::string& lbName) const {
+//     return lbName2OmtfIndex.at(lbName);
+//  }
+//
+//private:
+//    std::map<std::string, std::map<unsigned int, std::string> > link2lbName; //[processorName][rpcRxNum] - lbName
+//    std::map<std::string, std::map<std::string, unsigned int> > lbName2link; //[processorName][lbName] - rpcRxNum
+//    std::map<std::string, std::vector<EleIndex> > lbName2OmtfIndex; //[lbName] - vector of {board,rpcRxNum}
+//
+//};
+//
 
-  unsigned int type() const { return type_;}
-  unsigned int bxNum() const { return bxNum_; }
-  unsigned int hitNum() const { return hitNum_; }
-  unsigned int wireGroup() const { return keyWG_; }
-  unsigned int quality() const { return quality_; }
-  unsigned int clctPattern() const { return clctPattern_; }
-  unsigned int cscID() const { return cscID_; }
-  unsigned int halfStrip() const { return halfStrip_; }
-  unsigned int linkNum() const { return linkNum_;}
-  unsigned int station() const { return station_; }
-  unsigned int bend() const { return lr_; }
-  unsigned int valid() const { return vp_; }
+//class OmtfPacker: public edm::stream::EDProducer<> {
+//public:
+//
+//    ///Constructor
+//    OmtfPacker(const edm::ParameterSet& pset);
+//
+//    ~OmtfPacker() {}
+//
+//    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+//
+//    void produce(edm::Event & ev, const edm::EventSetup& es) override;
+//
+//    void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
+//
+//private:
+//
+//  edm::ParameterSet theConfig;
+//  edm::InputTag dataLabel_;
+//  unsigned long eventCounter_;
+//
+//  edm::EDGetTokenT<RPCDigiCollection> rpcToken_;
+//  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> cscToken_;
+//  edm::EDGetTokenT<L1MuDTChambThContainer> dtThToken_;
+//  edm::EDGetTokenT<L1MuDTChambPhContainer> dtPhToken_;
+//
+//  std::map<EleIndex, LinkBoardElectronicIndex> omtf2rpc_;
+//  std::map<EleIndex, CSCDetId> omtf2csc_;
+//
+//  const RPCReadOutMapping* theCabling;
+//
+//
+//};
+//
+//
+//OmtfPacker::OmtfPacker(const edm::ParameterSet& pset) : theConfig(pset), eventCounter_(0) {
+//
+//  produces<FEDRawDataCollection>("OmtfPacker");
+//
+//  rpcToken_ = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("rpcInputLabel"));
+//  cscToken_ = consumes<CSCCorrelatedLCTDigiCollection>(pset.getParameter<edm::InputTag>("cscInputLabel")); 
+//  dtPhToken_ = consumes<L1MuDTChambPhContainer>(pset.getParameter<edm::InputTag>("dtPhInputLabel"));
+//  dtThToken_ = consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag>("dtThInputLabel"));
+//}
+//
+//void OmtfPacker::beginRun(const edm::Run &run, const edm::EventSetup& es) {
+//  edm::ESTransientHandle<RPCEMap> readoutMapping;
+//  es.get<RPCEMapRcd>().get(readoutMapping);
+//  const RPCReadOutMapping * cabling= readoutMapping->convert();
+//  theCabling = cabling;
+//  std::cout << "HERE !!!! " << std::endl;
+//  LogDebug("OmtfPacker") <<" Has readout map, VERSION: " << cabling->version() << std::endl;
+//
+//  RpcLinkMap omtfLink2Ele;
+//
+////  if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
+////    edm::FileInPath fip(theConfig.getParameter<string>("rpcConnectionFile"));
+////    omtfLink2Ele.init(fip.fullPath());
+////  } else {
+//    edm::ESHandle<RPCAMCLinkMap> amcMapping;
+//    es.get<RPCOMTFLinkMapRcd>().get(amcMapping);
+//    omtfLink2Ele.init(amcMapping->getMap());
+////  }
+//
+//  std::vector<const DccSpec*> dccs = cabling->dccList();
+//  for (std::vector<const DccSpec*>::const_iterator it1= dccs.begin(); it1!= dccs.end(); ++it1) {
+//    const std::vector<TriggerBoardSpec> & rmbs = (*it1)->triggerBoards();
+//    for (std::vector<TriggerBoardSpec>::const_iterator it2 = rmbs.begin(); it2 != rmbs.end(); ++it2) {
+//      const  std::vector<LinkConnSpec> & links = it2->linkConns();
+//      for (std::vector<LinkConnSpec>::const_iterator it3 = links.begin(); it3 != links.end(); ++it3) {
+//        const  std::vector<LinkBoardSpec> & lbs = it3->linkBoards();
+//        for (std::vector<LinkBoardSpec>::const_iterator it4=lbs.begin(); it4 != lbs.end(); ++it4) {
+//          
+//          try {
+//            std::string lbNameCH = it4->linkBoardName();
+//            std::string lbName = lbNameCH.substr(0,lbNameCH.size()-4);
+//            const std::vector<EleIndex> & omtfEles = omtfLink2Ele.omtfEleIndex(lbName); 
+////          std::cout <<"  isOK ! " <<  it4->linkBoardName() <<" has: " << omtfEles.size() << " first: "<< omtfEles[0] << std::endl;
+//            LinkBoardElectronicIndex rpcEle = { (*it1)->id(), it2->dccInputChannelNum(), it3->triggerBoardInputNumber(), it4->linkBoardNumInLink()};
+//            for ( const auto & omtfEle : omtfEles ) omtf2rpc_[omtfEle]= rpcEle; 
+//          } 
+//          catch(...) { ; } // std::cout << "exception! "<<it4->linkBoardName()<< std::endl; }
+//        }
+//      }
+//    }
+//  }
+//  LogTrace(" ") << " SIZE OF OMTF to RPC map  is: " << omtf2rpc_.size() << std::endl;
+//
+//  //
+//  // init CSC Link map
+//  //
+//  omtf2csc_.clear();
+//  for (unsigned int fed=1380; fed<=1381; fed++) {
+//    //Endcap label. 1=forward (+Z); 2=backward (-Z)
+//    unsigned int endcap = (fed==1380) ? 2 : 1;
+//    for (unsigned int amc=1;    amc<=6; amc++) {
+//      for (unsigned int link=0; link <=34; link++) {
+//        unsigned int stat=0;
+//        unsigned int ring=0;
+//        unsigned int cham=0;
+//        switch (link) {
+//          case ( 0) : { stat=1; ring=2; cham=3; break;} //  (0,  9, 2, 3 ), --channel_0  OV1A_4 chamber_ME1/2/3  layer_9 input 2, 3
+//          case ( 1) : { stat=1; ring=2; cham=4; break;} //  (1,  9, 4, 5 ), --channel_1  OV1A_5 chamber_ME1/2/4  layer_9 input 4, 5
+//          case ( 2) : { stat=1; ring=2; cham=5; break;} //  (2,  9, 6, 7 ), --channel_2  OV1A_6 chamber_ME1/2/5  layer_9 input 6, 7
+//          case ( 3) : { stat=1; ring=3; cham=3; break;} //  (3,  6, 2, 3 ), --channel_3  OV1A_7 chamber_ME1/3/3  layer_6 input 2, 3 
+//          case ( 4) : { stat=1; ring=3; cham=4; break;} //  (4,  6, 4, 5 ), --channel_4  OV1A_8 chamber_ME1/3/4  layer_6 input 4, 5
+//          case ( 5) : { stat=1; ring=3; cham=5; break;} //  (5,  6, 6, 7 ), --channel_5  OV1A_9 chamber_ME1/3/5  layer_6 input 6, 7
+//          case ( 6) : { stat=1; ring=2; cham=6; break;} //  (6,  9, 8, 9 ), --channel_6  OV1B_4 chamber_ME1/2/6  layer_9 input 8, 9
+//          case ( 7) : { stat=1; ring=2; cham=7; break;} //  (7,  9, 10,11), --channel_7  OV1B_5 chamber_ME1/2/7  layer_9 input 10,11
+//          case ( 8) : { stat=1; ring=2; cham=8; break;} //  (8,  9, 12,13), --channel_8  OV1B_6 chamber_ME1/2/8  layer_9 input 12,13
+//          case ( 9) : { stat=1; ring=3; cham=6; break;} //  (9,  6, 8, 9 ), --channel_9  OV1B_7 chamber_ME1/3/6  layer_6 input 8, 9 
+//          case (10) : { stat=1; ring=3; cham=7; break;} //  (10, 6, 10,11), --channel_10 OV1B_8 chamber_ME1/3/7  layer_6 input 10,11
+//          case (11) : { stat=1; ring=3; cham=8; break;} //  (11, 6, 12,13), --channel_11 OV1B_9 chamber_ME1/3/8  layer_6 input 12,13
+//          case (12) : { stat=2; ring=2; cham=3; break;} //  (12, 7, 2, 3 ), --channel_0  OV2_4  chamber_ME2/2/3  layer_7 input 2, 3
+//          case (13) : { stat=2; ring=2; cham=4; break;} //  (13, 7, 4, 5 ), --channel_1  OV2_5  chamber_ME2/2/4  layer_7 input 4, 5
+//          case (14) : { stat=2; ring=2; cham=5; break;} //  (14, 7, 6, 7 ), --channel_2  OV2_6  chamber_ME2/2/5  layer_7 input 6, 7
+//          case (15) : { stat=2; ring=2; cham=6; break;} //  (15, 7, 8, 9 ), --channel_3  OV2_7  chamber_ME2/2/6  layer_7 input 8, 9 
+//          case (16) : { stat=2; ring=2; cham=7; break;} //  (16, 7, 10,11), --channel_4  OV2_8  chamber_ME2/2/7  layer_7 input 10,11
+//          case (17) : { stat=2; ring=2; cham=8; break;} //  (17, 7, 12,13), --channel_5  OV2_9  chamber_ME2/2/8  layer_7 input 12,13
+//          case (18) : { stat=3; ring=2; cham=3; break;} //  (18, 8, 2, 3 ), --channel_6  OV3_4  chamber_ME3/2/3  layer_8 input 2, 3 
+//          case (19) : { stat=3; ring=2; cham=4; break;} //  (19, 8, 4, 5 ), --channel_7  OV3_5  chamber_ME3/2/4  layer_8 input 4, 5 
+//          case (20) : { stat=3; ring=2; cham=5; break;} //  (20, 8, 6, 7 ), --channel_8  OV3_6  chamber_ME3/2/5  layer_8 input 6, 7 
+//          case (21) : { stat=3; ring=2; cham=6; break;} //  (21, 8, 8, 9 ), --channel_9  OV3_7  chamber_ME3/2/6  layer_8 input 8, 9 
+//          case (22) : { stat=3; ring=2; cham=7; break;} //  (22, 8, 10,11), --channel_10 OV3_8  chamber_ME3/2/7  layer_8 input 10,11
+//          case (23) : { stat=3; ring=2; cham=8; break;} //  (23, 8, 12,13), --channel_11 OV3_9  chamber_ME3/2/8  layer_8 input 12,13
+//          case (24) : { stat=4; ring=2; cham=3; break;} //--(24,  ,      ), --channel_3  OV4_4  chamber_ME4/2/3  layer   input       
+//          case (25) : { stat=4; ring=2; cham=4; break;} //--(25,  ,      ), --channel_4  OV4_5  chamber_ME4/2/4  layer   input       
+//          case (26) : { stat=4; ring=2; cham=5; break;} //--(26,  ,      ), --channel_5  OV4_6  chamber_ME4/2/5  layer   input       
+//          case (27) : { stat=4; ring=2; cham=6; break;} //--(27,  ,      ), --channel_7  OV4_7  chamber_ME4/2/6  layer   input       
+//          case (28) : { stat=4; ring=2; cham=7; break;} //--(28,  ,      ), --channel_8  OV4_8  chamber_ME4/2/7  layer   input      
+//          case (29) : { stat=4; ring=2; cham=8; break;} //--(29,  ,      ), --channel_9  OV4_9  chamber_ME4/2/8  layer   input      
+//          case (30) : { stat=1; ring=2; cham=2; break;} //  (30, 9, 0, 1 ), --channel_0  OV1B_6 chamber_ME1/2/2  layer_9 input 0, 1 
+//          case (31) : { stat=1; ring=3; cham=2; break;} //  (31, 6, 0, 1 ), --channel_1  OV1B_9 chamber_ME1/3/2  layer_6 input 0, 1 
+//          case (32) : { stat=2; ring=2; cham=2; break;} //  (32, 7, 0, 1 ), --channel_2  OV2_9  chamber_ME2/2/2  layer_7 input 0, 1 
+//          case (33) : { stat=3; ring=2; cham=2; break;} //  (33, 8, 0, 1 ), --channel_3  ON3_9  chamber_ME3/2/2  layer_8 input 0, 1 
+//          case (34) : { stat=4; ring=2; cham=2; break;} //--(34,  ,      ), --channel_4  ON4_9  chamber_ME4/2/2  layer   input      
+//          default   : { stat=0; ring=0; cham=0; break;}
+//        }
+//        if (ring !=0) {
+//          int chamber = cham+(amc-1)*6; 
+//          if (chamber > 36) chamber -= 36;
+//          CSCDetId cscDetId(endcap, stat, ring, chamber);
+////          std::cout <<" INIT CSC DET ID: "<< cscDetId << std::endl;
+//         EleIndex omtfEle(fed, amc, link);
+//          omtf2csc_[omtfEle]=cscDetId;
+//        }
+//      }
+//    }
+//  }
+//}
+//
+//void OmtfPacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+//  edm::ParameterSetDescription desc;
+//  desc.add<edm::InputTag>("rpcInputLabel",edm::InputTag(""));
+//  desc.add<edm::InputTag>("cscInputLabel",edm::InputTag(""));
+//  desc.add<edm::InputTag>("dtPhInputLabel",edm::InputTag(""));
+//  desc.add<edm::InputTag>("dtThInputLabel",edm::InputTag(""));
+//  desc.add<bool>("useRpcConnectionFile",bool(false));
+//  desc.add<std::string>("rpcConnectionFile",std::string("EventFilter/L1TRawToDigi/data/OmtfRpcLinksMap.txt"));
+//  descriptions.add("omtfPacker",desc);
+//}
+//
+//void OmtfPacker::produce(edm::Event& ev, const edm::EventSetup& es)
+//{
+//  bool debug = edm::MessageDrop::instance()->debugEnabled;
+//  eventCounter_++;
+//  if (debug) LogDebug ("OmtfPacker::produce") <<"Beginning To Pack Event: "<<eventCounter_;
+//
+//  std::map< std::pair<unsigned int, unsigned int>, std::vector<Word64> > raws;
+//  std::list<unsigned int> amcIds = { 1, 3, 5, 7, 9, 11};
+//  std::list<unsigned int> fedIds = { 1380, 1381};
+//  for (auto & fedId : fedIds) { for (auto & amdId : amcIds) { raws[std::make_pair(fedId, amdId)]; } }
+//
+//  //
+//  // DT raws 
+//  //
+//  edm::Handle<L1MuDTChambPhContainer> digiCollectionDTPh;
+//  ev.getByToken(dtPhToken_, digiCollectionDTPh);
+//  const L1MuDTChambPhContainer& dtphDigisBMTF = *digiCollectionDTPh.product();
+//
+//  edm::Handle<L1MuDTChambThContainer> digiCollectionDTTh;
+//  ev.getByToken(dtThToken_, digiCollectionDTTh);
+//  const L1MuDTChambThContainer& dtthDigisBMTF = *digiCollectionDTTh.product();
+//
+//  for (const auto &  chDigi : *dtphDigisBMTF.getContainer() ) {
+//    if (abs(chDigi.whNum()) != 2) continue;
+//    if (chDigi.stNum() ==4) continue;
+//    DtDataWord64 data;
+//    data.st_phi_ = chDigi.phi();
+//    data.st_phib_ = chDigi.phiB();
+//    data.st_q_    = chDigi.code();
+//    int bxNumber = chDigi.bxNum();
+//    data.bxNum_ = (3+bxNumber);
+//    data.st_ = chDigi.stNum()-1;
+//    data.valid_ = 1;
+//    int bxCnt = (chDigi.BxCnt() >= 0 && chDigi.BxCnt() <=3) ? chDigi.BxCnt() : 0;
+//    data.bcnt_st_ = bxCnt;
+//    data.bcnt_e0_ = bxCnt;
+//    data.bcnt_e1_ = bxCnt;
+//    data.fiber_   = chDigi.Ts2Tag();
+//    unsigned int amc;
+//    unsigned int amc2=0;
+//    unsigned int fed = (chDigi.whNum()==-2)? 1380: 1381; 
+//    if (chDigi.scNum()%2 !=0) {
+//      amc = chDigi.scNum();
+//      data.sector_ = 1;
+//    } else {
+//      amc = chDigi.scNum()+1;
+//      data.sector_ = 0;
+//      amc2 = (chDigi.scNum()+11)%12; // in this case data.sector_ should be 2, fixed later
+//    }
+////    LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT PH DATA: " << data << std::endl;
+//    raws[std::make_pair(fed,amc)].push_back(data.rawData);
+//    if (amc2 != 0) {
+//      data.sector_ = 2;
+////      LogTrace("")<<" fed: "<< fed <<" amc: "<<amc2<<" DT PH DATA: " << data << std::endl;
+//      raws[std::make_pair(fed,amc2)].push_back(data.rawData);
+//    }
+//  }
+//
+//  for (const auto &  chDigi : *dtthDigisBMTF.getContainer() ) {
+//    if (abs(chDigi.whNum()) != 2) continue;
+//    if (chDigi.stNum() ==4) continue;
+//    DtDataWord64 data;
+//    int bxNumber = chDigi.bxNum();
+//    data.bxNum_ = (3+bxNumber);
+//    data.st_ = chDigi.stNum()-1;
+//    data.valid_ = 1;
+//    unsigned int amc;
+//    unsigned int amc2=0;
+//    unsigned int fed = (chDigi.whNum()==-2)? 1380: 1381; 
+//    if (chDigi.scNum()%2 !=0) {
+//      amc = chDigi.scNum();
+//      data.sector_ = 1;
+//    } else {
+//      amc = chDigi.scNum()+1;
+//      data.sector_ = 0;
+//      amc2 = (chDigi.scNum()+11)%12; // in this case data.sector_ should be 2, fixed later
+//    }
+//    unsigned int eta = 0;
+//    unsigned int etaQ = 0;
+//    for (unsigned int ipos=0; ipos <7; ipos++) {
+//      if (chDigi.position(ipos) >1 ) std::cout <<"DT TH position to ETA,  PROBLEM !!!!" << std::endl;
+//      if (chDigi.position(ipos)==1) eta |= (1 <<ipos);
+//      if (chDigi.quality(ipos)==1) etaQ |= (1 <<ipos);
+//    }
+//    data.eta_qbit_ = etaQ;
+//    data.eta_hit_  = eta; 
+//    bool foundDigi = false;
+//    for (auto & raw : raws) {
+//      if (raw.first.first != fed) continue;
+//      if (raw.first.second != amc &&  raw.first.second != amc2) continue;
+//      auto & words = raw.second;
+//      for (auto & word : words) { 
+//        if (DataWord64::dt != DataWord64::type(word)) continue;
+//        DtDataWord64 dataRaw(word);
+//        if (dataRaw.bxNum_ != data.bxNum_) continue;
+//        if (dataRaw.st_    != data.st_) continue;
+//        foundDigi = true;
+//        dataRaw.eta_qbit_ =  data.eta_qbit_;
+//        dataRaw.eta_hit_ =  data.eta_hit_;
+//        word = dataRaw.rawData;
+////        LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT TH DATA: " << dataRaw << std::endl;
+//      }
+//    }
+//    if (!foundDigi) {
+////      LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT TH DATA: " << data<< std::endl;
+//      raws[std::make_pair(fed,amc)].push_back(data.rawData);
+//      if (amc2 != 0) {
+//        data.sector_ = 2;
+////        LogTrace("")<<" fed: "<< fed <<" amc: "<<amc2<<" DT TH DATA: " << data<< std::endl;
+//        raws[std::make_pair(fed,amc2)].push_back(data.rawData);
+//      }
+//    }
+//  }
+//
+//  //
+//  // csc raws
+//  //
+//  edm::Handle<CSCCorrelatedLCTDigiCollection> digiCollectionCSC;
+//  ev.getByToken(cscToken_,digiCollectionCSC);
+//  const CSCCorrelatedLCTDigiCollection & cscDigis = *digiCollectionCSC.product();
+//  for (const auto & chDigis : cscDigis) {
+//    auto rawId = chDigis.first;
+//    CSCDetId cscDetId(rawId);
+//    unsigned int fed = (cscDetId.zendcap()==-1)? 1380: 1381; 
+// //   std::cout <<"--------------"<< std::endl;
+// //   std::cout <<"CSC DET ID: "<< cscDetId << std::endl;
+//    unsigned int amc = 0;
+//    for (auto digi = chDigis.second.first; digi != chDigis.second.second; digi++) {
+// //     std::cout << *digi << std::endl;
+//      CscDataWord64 data;
+//      data.hitNum_ = digi->getTrknmb();
+//      data.vp_ = digi->isValid();
+//      data.bxNum_ = digi->getBX()-3;
+//      data.halfStrip_ = digi->getStrip();
+//      data.clctPattern_ = digi->getPattern();
+//      data.keyWG_ = digi->getKeyWG();
+//      data.lr_ = digi->getBend();
+//      data.quality_ = digi->getQuality(); 
+//      for (const auto & im : omtf2csc_) {
+//        if (im.second == rawId) {
+//  //        LogTrace("")<<" FOUND ELE INDEX " << im.first;
+//          data.station_ = cscDetId.station()-1;
+//          data.linkNum_ = im.first.link();
+//          data.cscID_ = cscDetId.chamber()-(im.first.amc()-1)*6;
+//          amc =  im.first.amc()*2-1;
+//          raws[std::make_pair(fed,amc)].push_back(data.rawData);
+//          LogTrace("") <<"ADDED RAW: fed: "<< fed <<" amc: "<<amc <<" CSC DATA: " << data<< std::endl;
+//        }
+//      }
+//    }
+//  }
+//
+//  //
+//  // rpc raws
+//  //
+//  edm::Handle< RPCDigiCollection > digiCollectionRPC;
+//  ev.getByToken(rpcToken_,digiCollectionRPC);
+//  LogTrace("")<<" HERE HERE !!! RPC PACKER" << rpcrawtodigi::DebugDigisPrintout()(digiCollectionRPC.product());
+//  for (int dcc=790; dcc <= 792; dcc++) {
+//    RPCRecordFormatter formatter(dcc, theCabling);
+//    std::vector<rpcrawtodigi::EventRecords> merged = RPCPackingModule::eventRecords(dcc,200, digiCollectionRPC.product(),formatter);
+//    LogTrace("") << " SIZE OF MERGED, for DCC="<<dcc<<" is: "<<merged.size()<<std::endl;
+//    for (const auto & rpcEvent : merged) {
+//      RpcDataWord64 data;
+////
+//      data.bxNum_ =  rpcEvent.dataToTriggerDelay(); 
+//      data.frame1_ = rpcEvent.recordCD().data();
+//      LinkBoardElectronicIndex rpcEle = { dcc, rpcEvent.recordSLD().rmb(),  rpcEvent.recordSLD().tbLinkInputNumber(), rpcEvent.recordCD().lbInLink() };
+//      for ( const auto & omtf2rpc : omtf2rpc_) { 
+//        if (   omtf2rpc.second.dccId                == rpcEle.dccId
+//            && omtf2rpc.second.dccInputChannelNum == rpcEle.dccInputChannelNum
+//            && omtf2rpc.second.tbLinkInputNum     == rpcEle.tbLinkInputNum) {
+//          data.linkNum_ = omtf2rpc.first.link();
+//          std::cout << "KUKUK " << std::endl;
+//          raws[std::make_pair(omtf2rpc.first.fed(), omtf2rpc.first.amc()*2-1)].push_back(data.rawData);
+//        }
+//      }
+//      if (data.linkNum_==0) LogTrace("")<< " could not find omtfIndex for rpcEle : "<<rpcEle.print();  
+//    }
+//    
+//  }
+//
+//  auto bxId  = ev.bunchCrossing();
+//  auto evtId = ev.id().event();
+//  auto orbit = ev.eventAuxiliary().orbitNumber();
+//  std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
+//  for (auto & fedId : fedIds) { 
+//
+//    //
+//    // assign formatted raws to feds
+//    //
+//    amc13::Packet amc13;
+//    for (const auto & it : raws) {
+//      if (fedId != it.first.first) continue;
+//      const std::vector<Word64> & amcData = it.second;
+//      unsigned int amcId = it.first.second;
+//      for (const auto & raw : amcData) {
+//        std::ostringstream dataStr;
+//        if (DataWord64::csc  == DataWord64::type(raw)) dataStr <<  CscDataWord64(raw);
+//        if (DataWord64::dt   == DataWord64::type(raw)) dataStr <<   DtDataWord64(raw);
+//        if (DataWord64::rpc  == DataWord64::type(raw)) dataStr <<  RpcDataWord64(raw);
+//        if (DataWord64::omtf == DataWord64::type(raw)) dataStr << MuonDataWord64(raw);
+////        DtDataWord64 data(raw);
+//          LogTrace("")<<" fed: "<< fedId <<" amcId: "<<amcId<<" RAW DATA: " << dataStr.str() << std::endl;
+//        }
+//      amc13.add(amcId, 43981, evtId, orbit, bxId, amcData);
+//    }
+//
+//    FEDRawData& fed_data = raw_coll->FEDData(fedId);
+//
+//    const unsigned int slinkHeaderSize_  = 8;
+//    const unsigned int slinkTrailerSize_ = 8;
+//    unsigned int size = (amc13.size()) * sizeof(Word64)+slinkHeaderSize_+slinkTrailerSize_;
+//    fed_data.resize(size);
+//    unsigned char * payload = fed_data.data();
+//    unsigned char * payload_start = payload;
+//
+//    FEDHeader header(payload);
+//    const unsigned int evtType_ = 1;
+//    header.set(payload, evtType_, evtId, bxId, fedId);
+//
+//    amc13.write(ev, payload, slinkHeaderSize_, size - slinkHeaderSize_ - slinkTrailerSize_);
+//
+//    payload += slinkHeaderSize_;
+//    payload += amc13.size() * 8;
+//
+//    FEDTrailer trailer(payload);
+//    trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
+//  }
+//  ev.put(std::move(raw_coll),"OmtfPacker");
+//  
+//
+//}
 
-  friend class OmtfPacker;
-  friend std::ostream & operator<< (std::ostream &out, const CscDataWord64 &o) {
-    out << "CscDataWord64: "
-        <<" type: "<< DataWord64::type(o.type())
-        << " val: "<< o.valid()
-        << " bx: "<<o.bxNum()
-        << " lnk: "<< o.linkNum() 
-        << " stat: "<<o.station()
-        << " cscId: " << o.cscID() 
-        << " hit: "<< o.hitNum()
-        << " qual: "<< o.quality()
-        << " patt: " << o.clctPattern()
-        << " bending: " << o.bend()
-        << " hs: "<<o.halfStrip()
-        << " wg: "<< o.wireGroup();
-    return out;
-  }
-private:
-  union {
-    uint64_t rawData;
-    struct {               // watch out - bit fields are  is implementation-defined
-      uint64_t dummy7_      : 3; //2:0   unused, oryginalnie TBIN Num  
-      uint64_t vp_          : 1; //3:3   VP      
-      uint64_t station_     : 3; //6:4   Station                      
-      uint64_t af_          : 1; //7:7   AF       
-      uint64_t dummy6_      : 4; //11:8  unused, oryginalnie EPC     
-      uint64_t sm_          : 1; //12:12 unused, oryginalnie SM     
-      uint64_t se_          : 1; //13:13 SE     
-      uint64_t dummy5_      : 1; //14:14 unused, oryginalnie AFEF   
-      uint64_t dummy4_      : 2; //16:15 unused, oryginalnie ME BXN [11:0] 
-      uint64_t nit_         : 1; //17:17 NIT   
-      uint64_t cik_         : 1; //18:18 CIK    
-      uint64_t dummy3_      : 1; //19:19 unused, oryginalnie AFFF  
-      uint64_t linkNum_     : 6; //25:20 numer linku CSC               
-      uint64_t halfStrip_   : 8; //33:26 CLCT key half-strip [7:0]      
-      uint64_t cscID_       : 4; //37:34 CSC ID [3:0]                    
-      uint64_t lr_          : 1; //38:38 L/R
-      uint64_t dummy2_      : 1; //39:39 unused, oryginalnie BXE   
-      uint64_t dummy1_      : 1; //40:40 unused, oryginalnie BC0    
-      uint64_t clctPattern_ : 4; //44:41 CLCT pattern [3:0]              4b
-      uint64_t quality_     : 4; //48:45 Quality [3:0]                   
-      uint64_t keyWG_       : 7; //55:49 Key wire group [6:0]            
-      uint64_t hitNum_      : 1; //56:56 int in chamber 0 or 1
-      uint64_t bxNum_       : 3; //59:57 SBXN
-      uint64_t type_        : 4; //63:60 CSC identifier 0xC        
-    };
-  };
-};
-
-
-
-class OmtfEleIndex {
-public:
-  OmtfEleIndex() : packed_(0) {}
-  OmtfEleIndex(const std::string & board, unsigned int link) {
-    unsigned int fed = 0;
-    if (board.substr(4,1)=="n") fed = 1380; else if (board.substr(4,1)=="p") fed = 1381;
-    unsigned int amc = std::stoi( board.substr(5,1) );
-    packed_ = fed*1000+amc*100+link; 
-  }
-  OmtfEleIndex(unsigned int fed, unsigned int amc, unsigned int link) { packed_ = fed*1000+amc*100+link; }
-  unsigned int fed() const  { return packed_/1000; }
-  unsigned int amc() const  { return ( (packed_ /100) %10); }
-  unsigned int link() const { return packed_ % 100; } 
-  friend std::ostream & operator<< (std::ostream &out, const OmtfEleIndex&o) {
-    out << "OMTF";
-    if (o.fed()==1380) out <<"n";
-    if (o.fed()==1381) out <<"p";
-    out << o.amc();
-    out <<" (fed: "<<o.fed()<<"), ln: " << o.link();
-    return out;
-  }
-  inline bool operator< (const OmtfEleIndex& o) const { return this->packed_ < o.packed_; }
-
-private:
-  uint32_t packed_;
-
-};
-
-
-class RpcLinkMap {
-public:
-  RpcLinkMap() { }
-
-  void init(const RPCAMCLinkMap::map_type & amcMap) {
-
-    for (const auto & item : amcMap ) {
-      unsigned int fedId = item.first.getFED();
-      unsigned int amcSlot = item.first.getAMCNumber();
-      unsigned int link = item.first.getAMCInput();
-      std::string lbName =  item.second.getName();
-
-      std::ostringstream processorNameStr; processorNameStr<<"OMTF";;
-      if (fedId==1380) processorNameStr<< "n"; else processorNameStr<< "p";
-      processorNameStr<< amcSlot/2+1;
-      std::string processorName(processorNameStr.str());
-
-      std::map< unsigned int, std::string > & li2lb = link2lbName[processorName];
-      std::map< std::string, unsigned int > & lb2li = lbName2link[processorName];
-      li2lb[link] = lbName;
-      lb2li[lbName] = link;
-      OmtfEleIndex ele(processorName, link);
-      lbName2OmtfIndex[lbName].push_back(ele);
-    } 
-  }
-
-  void init( const std::string& fName) {
-    std::ifstream inFile;
-    inFile.open(fName);
-    if (inFile) {
-      LogTrace("")<<" reading OmtfRpcLinksMap from: "<<fName;
-    } else {
-      LogTrace("")<<" Unable to open file "<<fName;
-
-      throw std::runtime_error("Unable to open OmtfRpcLinksMap file " + fName);
-    }
-
-    std::string line;
-    while (std::getline(inFile, line)) {
-      line.erase(0, line.find_first_not_of(" \t\r\n"));      //cut first character
-      if (line.empty() || !line.compare(0,2,"--")) continue; // empty or comment line
-      std::stringstream ss(line);
-      std::string processorName, lbName;
-      unsigned int link, dbId;
-      if (ss >> processorName >> link >> lbName >> dbId) {
-          std::map< unsigned int, std::string > & li2lb = link2lbName[processorName];
-          std::map< std::string, unsigned int > & lb2li = lbName2link[processorName];
-          li2lb[link] = lbName;
-          lb2li[lbName] = link;
-          OmtfEleIndex ele(processorName, link);
-          lbName2OmtfIndex[lbName].push_back(ele);
-      }
-    }
-    inFile.close();
-  }
-
-  const std::string & lbName(const std::string& board, unsigned int link) const {
-    return link2lbName.at(board).at(link);
-  }
-
-  unsigned int        link(const std::string& board, const std::string& lbName) const {
-    return lbName2link.at(board).at(lbName);
-  }
-
-  const std::vector<OmtfEleIndex> & omtfEleIndex ( const std::string& lbName) const {
-     return lbName2OmtfIndex.at(lbName);
-  }
-
-private:
-    std::map<std::string, std::map<unsigned int, std::string> > link2lbName; //[processorName][rpcRxNum] - lbName
-    std::map<std::string, std::map<std::string, unsigned int> > lbName2link; //[processorName][lbName] - rpcRxNum
-    std::map<std::string, std::vector<OmtfEleIndex> > lbName2OmtfIndex; //[lbName] - vector of {board,rpcRxNum}
-
-};
-
-class OmtfPacker: public edm::stream::EDProducer<> {
-public:
-
-    ///Constructor
-    OmtfPacker(const edm::ParameterSet& pset);
-
-    ~OmtfPacker() {}
-
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
-
-    void produce(edm::Event & ev, const edm::EventSetup& es) override;
-
-    void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
-
-private:
-
-  edm::ParameterSet theConfig;
-  edm::InputTag dataLabel_;
-  unsigned long eventCounter_;
-
-  edm::EDGetTokenT<RPCDigiCollection> rpcToken_;
-  edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> cscToken_;
-  edm::EDGetTokenT<L1MuDTChambThContainer> dtThToken_;
-  edm::EDGetTokenT<L1MuDTChambPhContainer> dtPhToken_;
-
-  std::map<OmtfEleIndex, LinkBoardElectronicIndex> omtf2rpc_;
-  std::map<OmtfEleIndex, CSCDetId> omtf2csc_;
-
-  const RPCReadOutMapping* theCabling;
-
-
-};
 
 class OmtfUnpacker: public edm::stream::EDProducer<> {
 public:
 
-    ///Constructor
+  ///Constructor
     OmtfUnpacker(const edm::ParameterSet& pset);
 
-    ~OmtfUnpacker() {}
+  ~OmtfUnpacker() {}
 
-    static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-    void produce(edm::Event & ev, const edm::EventSetup& es) override;
+  void produce(edm::Event & ev, const edm::EventSetup& es) override;
 
-    void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
+  void beginRun(const edm::Run &run, const edm::EventSetup& es) override;
 
 private:
 
@@ -463,375 +836,14 @@ private:
 
   edm::EDGetTokenT<FEDRawDataCollection> fedToken_;
 
-  std::map<OmtfEleIndex, LinkBoardElectronicIndex> omtf2rpc_;
-  std::map<OmtfEleIndex, CSCDetId> omtf2csc_;
+  std::map<EleIndex, LinkBoardElectronicIndex> omtf2rpc_;
+  std::map<EleIndex, CSCDetId> omtf2csc_;
   
   const RPCReadOutMapping* theCabling;
 
   edm::ParameterSet theConfig;
   std::string theOutputTag;
 };
-
-OmtfPacker::OmtfPacker(const edm::ParameterSet& pset) : theConfig(pset), eventCounter_(0) {
-
-  produces<FEDRawDataCollection>("OmtfPacker");
-
-  rpcToken_ = consumes<RPCDigiCollection>(pset.getParameter<edm::InputTag>("rpcInputLabel"));
-  cscToken_ = consumes<CSCCorrelatedLCTDigiCollection>(pset.getParameter<edm::InputTag>("cscInputLabel")); 
-  dtPhToken_ = consumes<L1MuDTChambPhContainer>(pset.getParameter<edm::InputTag>("dtPhInputLabel"));
-  dtThToken_ = consumes<L1MuDTChambThContainer>(pset.getParameter<edm::InputTag>("dtThInputLabel"));
-}
-
-void OmtfPacker::beginRun(const edm::Run &run, const edm::EventSetup& es) {
-  edm::ESTransientHandle<RPCEMap> readoutMapping;
-  es.get<RPCEMapRcd>().get(readoutMapping);
-  const RPCReadOutMapping * cabling= readoutMapping->convert();
-  theCabling = cabling;
-  std::cout << "HERE !!!! " << std::endl;
-  LogDebug("OmtfPacker") <<" Has readout map, VERSION: " << cabling->version() << std::endl;
-
-  RpcLinkMap omtfLink2Ele;
-
-//  if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
-//    edm::FileInPath fip(theConfig.getParameter<string>("rpcConnectionFile"));
-//    omtfLink2Ele.init(fip.fullPath());
-//  } else {
-    edm::ESHandle<RPCAMCLinkMap> amcMapping;
-    es.get<RPCOMTFLinkMapRcd>().get(amcMapping);
-    omtfLink2Ele.init(amcMapping->getMap());
-//  }
-
-  std::vector<const DccSpec*> dccs = cabling->dccList();
-  for (std::vector<const DccSpec*>::const_iterator it1= dccs.begin(); it1!= dccs.end(); ++it1) {
-    const std::vector<TriggerBoardSpec> & rmbs = (*it1)->triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it2 = rmbs.begin(); it2 != rmbs.end(); ++it2) {
-      const  std::vector<LinkConnSpec> & links = it2->linkConns();
-      for (std::vector<LinkConnSpec>::const_iterator it3 = links.begin(); it3 != links.end(); ++it3) {
-        const  std::vector<LinkBoardSpec> & lbs = it3->linkBoards();
-        for (std::vector<LinkBoardSpec>::const_iterator it4=lbs.begin(); it4 != lbs.end(); ++it4) {
-          
-          try {
-            std::string lbNameCH = it4->linkBoardName();
-            std::string lbName = lbNameCH.substr(0,lbNameCH.size()-4);
-            const std::vector<OmtfEleIndex> & omtfEles = omtfLink2Ele.omtfEleIndex(lbName); 
-//          std::cout <<"  isOK ! " <<  it4->linkBoardName() <<" has: " << omtfEles.size() << " first: "<< omtfEles[0] << std::endl;
-            LinkBoardElectronicIndex rpcEle = { (*it1)->id(), it2->dccInputChannelNum(), it3->triggerBoardInputNumber(), it4->linkBoardNumInLink()};
-            for ( const auto & omtfEle : omtfEles ) omtf2rpc_[omtfEle]= rpcEle; 
-          } 
-          catch(...) { ; } // std::cout << "exception! "<<it4->linkBoardName()<< std::endl; }
-        }
-      }
-    }
-  }
-  LogTrace(" ") << " SIZE OF OMTF to RPC map  is: " << omtf2rpc_.size() << std::endl;
-
-  //
-  // init CSC Link map
-  //
-  omtf2csc_.clear();
-  for (unsigned int fed=1380; fed<=1381; fed++) {
-    //Endcap label. 1=forward (+Z); 2=backward (-Z)
-    unsigned int endcap = (fed==1380) ? 2 : 1;
-    for (unsigned int amc=1;    amc<=6; amc++) {
-      for (unsigned int link=0; link <=34; link++) {
-        unsigned int stat=0;
-        unsigned int ring=0;
-        unsigned int cham=0;
-        switch (link) {
-          case ( 0) : { stat=1; ring=2; cham=3; break;} //  (0,  9, 2, 3 ), --channel_0  OV1A_4 chamber_ME1/2/3  layer_9 input 2, 3
-          case ( 1) : { stat=1; ring=2; cham=4; break;} //  (1,  9, 4, 5 ), --channel_1  OV1A_5 chamber_ME1/2/4  layer_9 input 4, 5
-          case ( 2) : { stat=1; ring=2; cham=5; break;} //  (2,  9, 6, 7 ), --channel_2  OV1A_6 chamber_ME1/2/5  layer_9 input 6, 7
-          case ( 3) : { stat=1; ring=3; cham=3; break;} //  (3,  6, 2, 3 ), --channel_3  OV1A_7 chamber_ME1/3/3  layer_6 input 2, 3 
-          case ( 4) : { stat=1; ring=3; cham=4; break;} //  (4,  6, 4, 5 ), --channel_4  OV1A_8 chamber_ME1/3/4  layer_6 input 4, 5
-          case ( 5) : { stat=1; ring=3; cham=5; break;} //  (5,  6, 6, 7 ), --channel_5  OV1A_9 chamber_ME1/3/5  layer_6 input 6, 7
-          case ( 6) : { stat=1; ring=2; cham=6; break;} //  (6,  9, 8, 9 ), --channel_6  OV1B_4 chamber_ME1/2/6  layer_9 input 8, 9
-          case ( 7) : { stat=1; ring=2; cham=7; break;} //  (7,  9, 10,11), --channel_7  OV1B_5 chamber_ME1/2/7  layer_9 input 10,11
-          case ( 8) : { stat=1; ring=2; cham=8; break;} //  (8,  9, 12,13), --channel_8  OV1B_6 chamber_ME1/2/8  layer_9 input 12,13
-          case ( 9) : { stat=1; ring=3; cham=6; break;} //  (9,  6, 8, 9 ), --channel_9  OV1B_7 chamber_ME1/3/6  layer_6 input 8, 9 
-          case (10) : { stat=1; ring=3; cham=7; break;} //  (10, 6, 10,11), --channel_10 OV1B_8 chamber_ME1/3/7  layer_6 input 10,11
-          case (11) : { stat=1; ring=3; cham=8; break;} //  (11, 6, 12,13), --channel_11 OV1B_9 chamber_ME1/3/8  layer_6 input 12,13
-          case (12) : { stat=2; ring=2; cham=3; break;} //  (12, 7, 2, 3 ), --channel_0  OV2_4  chamber_ME2/2/3  layer_7 input 2, 3
-          case (13) : { stat=2; ring=2; cham=4; break;} //  (13, 7, 4, 5 ), --channel_1  OV2_5  chamber_ME2/2/4  layer_7 input 4, 5
-          case (14) : { stat=2; ring=2; cham=5; break;} //  (14, 7, 6, 7 ), --channel_2  OV2_6  chamber_ME2/2/5  layer_7 input 6, 7
-          case (15) : { stat=2; ring=2; cham=6; break;} //  (15, 7, 8, 9 ), --channel_3  OV2_7  chamber_ME2/2/6  layer_7 input 8, 9 
-          case (16) : { stat=2; ring=2; cham=7; break;} //  (16, 7, 10,11), --channel_4  OV2_8  chamber_ME2/2/7  layer_7 input 10,11
-          case (17) : { stat=2; ring=2; cham=8; break;} //  (17, 7, 12,13), --channel_5  OV2_9  chamber_ME2/2/8  layer_7 input 12,13
-          case (18) : { stat=3; ring=2; cham=3; break;} //  (18, 8, 2, 3 ), --channel_6  OV3_4  chamber_ME3/2/3  layer_8 input 2, 3 
-          case (19) : { stat=3; ring=2; cham=4; break;} //  (19, 8, 4, 5 ), --channel_7  OV3_5  chamber_ME3/2/4  layer_8 input 4, 5 
-          case (20) : { stat=3; ring=2; cham=5; break;} //  (20, 8, 6, 7 ), --channel_8  OV3_6  chamber_ME3/2/5  layer_8 input 6, 7 
-          case (21) : { stat=3; ring=2; cham=6; break;} //  (21, 8, 8, 9 ), --channel_9  OV3_7  chamber_ME3/2/6  layer_8 input 8, 9 
-          case (22) : { stat=3; ring=2; cham=7; break;} //  (22, 8, 10,11), --channel_10 OV3_8  chamber_ME3/2/7  layer_8 input 10,11
-          case (23) : { stat=3; ring=2; cham=8; break;} //  (23, 8, 12,13), --channel_11 OV3_9  chamber_ME3/2/8  layer_8 input 12,13
-          case (24) : { stat=4; ring=2; cham=3; break;} //--(24,  ,      ), --channel_3  OV4_4  chamber_ME4/2/3  layer   input       
-          case (25) : { stat=4; ring=2; cham=4; break;} //--(25,  ,      ), --channel_4  OV4_5  chamber_ME4/2/4  layer   input       
-          case (26) : { stat=4; ring=2; cham=5; break;} //--(26,  ,      ), --channel_5  OV4_6  chamber_ME4/2/5  layer   input       
-          case (27) : { stat=4; ring=2; cham=6; break;} //--(27,  ,      ), --channel_7  OV4_7  chamber_ME4/2/6  layer   input       
-          case (28) : { stat=4; ring=2; cham=7; break;} //--(28,  ,      ), --channel_8  OV4_8  chamber_ME4/2/7  layer   input      
-          case (29) : { stat=4; ring=2; cham=8; break;} //--(29,  ,      ), --channel_9  OV4_9  chamber_ME4/2/8  layer   input      
-          case (30) : { stat=1; ring=2; cham=2; break;} //  (30, 9, 0, 1 ), --channel_0  OV1B_6 chamber_ME1/2/2  layer_9 input 0, 1 
-          case (31) : { stat=1; ring=3; cham=2; break;} //  (31, 6, 0, 1 ), --channel_1  OV1B_9 chamber_ME1/3/2  layer_6 input 0, 1 
-          case (32) : { stat=2; ring=2; cham=2; break;} //  (32, 7, 0, 1 ), --channel_2  OV2_9  chamber_ME2/2/2  layer_7 input 0, 1 
-          case (33) : { stat=3; ring=2; cham=2; break;} //  (33, 8, 0, 1 ), --channel_3  ON3_9  chamber_ME3/2/2  layer_8 input 0, 1 
-          case (34) : { stat=4; ring=2; cham=2; break;} //--(34,  ,      ), --channel_4  ON4_9  chamber_ME4/2/2  layer   input      
-          default   : { stat=0; ring=0; cham=0; break;}
-        }
-        if (ring !=0) {
-          int chamber = cham+(amc-1)*6; 
-          if (chamber > 36) chamber -= 36;
-          CSCDetId cscDetId(endcap, stat, ring, chamber);
-//          std::cout <<" INIT CSC DET ID: "<< cscDetId << std::endl;
-          OmtfEleIndex omtfEle(fed, amc, link);
-          omtf2csc_[omtfEle]=cscDetId;
-        }
-      }
-    }
-  }
-}
-
-void OmtfPacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  edm::ParameterSetDescription desc;
-  desc.add<edm::InputTag>("rpcInputLabel",edm::InputTag(""));
-  desc.add<edm::InputTag>("cscInputLabel",edm::InputTag(""));
-  desc.add<edm::InputTag>("dtPhInputLabel",edm::InputTag(""));
-  desc.add<edm::InputTag>("dtThInputLabel",edm::InputTag(""));
-  desc.add<bool>("useRpcConnectionFile",bool(false));
-  desc.add<std::string>("rpcConnectionFile",std::string("EventFilter/L1TRawToDigi/data/OmtfRpcLinksMap.txt"));
-  descriptions.add("omtfPacker",desc);
-}
-
-void OmtfPacker::produce(edm::Event& ev, const edm::EventSetup& es)
-{
-  bool debug = edm::MessageDrop::instance()->debugEnabled;
-  eventCounter_++;
-  if (debug) LogDebug ("OmtfPacker::produce") <<"Beginning To Pack Event: "<<eventCounter_;
-
-  std::map< std::pair<unsigned int, unsigned int>, std::vector<Word64> > raws;
-  std::list<unsigned int> amcIds = { 1, 3, 5, 7, 9, 11};
-  std::list<unsigned int> fedIds = { 1380, 1381};
-  for (auto & fedId : fedIds) { for (auto & amdId : amcIds) { raws[std::make_pair(fedId, amdId)]; } }
-
-  //
-  // DT raws 
-  //
-  edm::Handle<L1MuDTChambPhContainer> digiCollectionDTPh;
-  ev.getByToken(dtPhToken_, digiCollectionDTPh);
-  const L1MuDTChambPhContainer& dtphDigisBMTF = *digiCollectionDTPh.product();
-
-  edm::Handle<L1MuDTChambThContainer> digiCollectionDTTh;
-  ev.getByToken(dtThToken_, digiCollectionDTTh);
-  const L1MuDTChambThContainer& dtthDigisBMTF = *digiCollectionDTTh.product();
-
-  for (const auto &  chDigi : *dtphDigisBMTF.getContainer() ) {
-    if (abs(chDigi.whNum()) != 2) continue;
-    if (chDigi.stNum() ==4) continue;
-    DtDataWord64 data;
-    data.st_phi_ = chDigi.phi();
-    data.st_phib_ = chDigi.phiB();
-    data.st_q_    = chDigi.code();
-    int bxNumber = chDigi.bxNum();
-    data.bxNum_ = (3+bxNumber);
-    data.st_ = chDigi.stNum()-1;
-    data.valid_ = 1;
-    int bxCnt = (chDigi.BxCnt() >= 0 && chDigi.BxCnt() <=3) ? chDigi.BxCnt() : 0;
-    data.bcnt_st_ = bxCnt;
-    data.bcnt_e0_ = bxCnt;
-    data.bcnt_e1_ = bxCnt;
-    data.fiber_   = chDigi.Ts2Tag();
-    unsigned int amc;
-    unsigned int amc2=0;
-    unsigned int fed = (chDigi.whNum()==-2)? 1380: 1381; 
-    if (chDigi.scNum()%2 !=0) {
-      amc = chDigi.scNum();
-      data.sector_ = 1;
-    } else {
-      amc = chDigi.scNum()+1;
-      data.sector_ = 0;
-      amc2 = (chDigi.scNum()+11)%12; // in this case data.sector_ should be 2, fixed later
-    }
-//    LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT PH DATA: " << data << std::endl;
-    raws[std::make_pair(fed,amc)].push_back(data.rawData);
-    if (amc2 != 0) {
-      data.sector_ = 2;
-//      LogTrace("")<<" fed: "<< fed <<" amc: "<<amc2<<" DT PH DATA: " << data << std::endl;
-      raws[std::make_pair(fed,amc2)].push_back(data.rawData);
-    }
-  }
-
-  for (const auto &  chDigi : *dtthDigisBMTF.getContainer() ) {
-    if (abs(chDigi.whNum()) != 2) continue;
-    if (chDigi.stNum() ==4) continue;
-    DtDataWord64 data;
-    int bxNumber = chDigi.bxNum();
-    data.bxNum_ = (3+bxNumber);
-    data.st_ = chDigi.stNum()-1;
-    data.valid_ = 1;
-    unsigned int amc;
-    unsigned int amc2=0;
-    unsigned int fed = (chDigi.whNum()==-2)? 1380: 1381; 
-    if (chDigi.scNum()%2 !=0) {
-      amc = chDigi.scNum();
-      data.sector_ = 1;
-    } else {
-      amc = chDigi.scNum()+1;
-      data.sector_ = 0;
-      amc2 = (chDigi.scNum()+11)%12; // in this case data.sector_ should be 2, fixed later
-    }
-    unsigned int eta = 0;
-    unsigned int etaQ = 0;
-    for (unsigned int ipos=0; ipos <7; ipos++) {
-      if (chDigi.position(ipos) >1 ) std::cout <<"DT TH position to ETA,  PROBLEM !!!!" << std::endl;
-      if (chDigi.position(ipos)==1) eta |= (1 <<ipos);
-      if (chDigi.quality(ipos)==1) etaQ |= (1 <<ipos);
-    }
-    data.eta_qbit_ = etaQ;
-    data.eta_hit_  = eta; 
-    bool foundDigi = false;
-    for (auto & raw : raws) {
-      if (raw.first.first != fed) continue;
-      if (raw.first.second != amc &&  raw.first.second != amc2) continue;
-      auto & words = raw.second;
-      for (auto & word : words) { 
-        if (DataWord64::dt != DataWord64::type(word)) continue;
-        DtDataWord64 dataRaw(word);
-        if (dataRaw.bxNum_ != data.bxNum_) continue;
-        if (dataRaw.st_    != data.st_) continue;
-        foundDigi = true;
-        dataRaw.eta_qbit_ =  data.eta_qbit_;
-        dataRaw.eta_hit_ =  data.eta_hit_;
-        word = dataRaw.rawData;
-//        LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT TH DATA: " << dataRaw << std::endl;
-      }
-    }
-    if (!foundDigi) {
-//      LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT TH DATA: " << data<< std::endl;
-      raws[std::make_pair(fed,amc)].push_back(data.rawData);
-      if (amc2 != 0) {
-        data.sector_ = 2;
-//        LogTrace("")<<" fed: "<< fed <<" amc: "<<amc2<<" DT TH DATA: " << data<< std::endl;
-        raws[std::make_pair(fed,amc2)].push_back(data.rawData);
-      }
-    }
-  }
-
-  //
-  // csc raws
-  //
-  edm::Handle<CSCCorrelatedLCTDigiCollection> digiCollectionCSC;
-  ev.getByToken(cscToken_,digiCollectionCSC);
-  const CSCCorrelatedLCTDigiCollection & cscDigis = *digiCollectionCSC.product();
-  for (const auto & chDigis : cscDigis) {
-    auto rawId = chDigis.first;
-    CSCDetId cscDetId(rawId);
-    unsigned int fed = (cscDetId.zendcap()==-1)? 1380: 1381; 
- //   std::cout <<"--------------"<< std::endl;
- //   std::cout <<"CSC DET ID: "<< cscDetId << std::endl;
-    unsigned int amc = 0;
-    for (auto digi = chDigis.second.first; digi != chDigis.second.second; digi++) {
- //     std::cout << *digi << std::endl;
-      CscDataWord64 data;
-      data.hitNum_ = digi->getTrknmb();
-      data.vp_ = digi->isValid();
-      data.bxNum_ = digi->getBX()-3;
-      data.halfStrip_ = digi->getStrip();
-      data.clctPattern_ = digi->getPattern();
-      data.keyWG_ = digi->getKeyWG();
-      data.lr_ = digi->getBend();
-      data.quality_ = digi->getQuality(); 
-      for (const auto & im : omtf2csc_) {
-        if (im.second == rawId) {
-  //        LogTrace("")<<" FOUND ELE INDEX " << im.first;
-          data.station_ = cscDetId.station()-1;
-          data.linkNum_ = im.first.link();
-          data.cscID_ = cscDetId.chamber()-(im.first.amc()-1)*6;
-          amc =  im.first.amc()*2-1;
-          raws[std::make_pair(fed,amc)].push_back(data.rawData);
-          LogTrace("") <<"ADDED RAW: fed: "<< fed <<" amc: "<<amc <<" CSC DATA: " << data<< std::endl;
-        }
-      }
-    }
-  }
-
-  //
-  // rpc raws
-  //
-  edm::Handle< RPCDigiCollection > digiCollectionRPC;
-  ev.getByToken(rpcToken_,digiCollectionRPC);
-  LogTrace("")<<" HERE HERE !!! RPC PACKER" << rpcrawtodigi::DebugDigisPrintout()(digiCollectionRPC.product());
-  for (int dcc=790; dcc <= 792; dcc++) {
-    RPCRecordFormatter formatter(dcc, theCabling);
-    std::vector<rpcrawtodigi::EventRecords> merged = RPCPackingModule::eventRecords(dcc,200, digiCollectionRPC.product(),formatter);
-    LogTrace("") << " SIZE OF MERGED, for DCC="<<dcc<<" is: "<<merged.size()<<std::endl;
-    for (const auto & rpcEvent : merged) {
-      RpcDataWord64 data;
-      data.bxNum_ =  rpcEvent.dataToTriggerDelay(); 
-      data.frame1_ = rpcEvent.recordCD().data();
-      LinkBoardElectronicIndex rpcEle = { dcc, rpcEvent.recordSLD().rmb(),  rpcEvent.recordSLD().tbLinkInputNumber(), rpcEvent.recordCD().lbInLink() };
-      for ( const auto & omtf2rpc : omtf2rpc_) { 
-        if (   omtf2rpc.second.dccId                == rpcEle.dccId
-            && omtf2rpc.second.dccInputChannelNum == rpcEle.dccInputChannelNum
-            && omtf2rpc.second.tbLinkInputNum     == rpcEle.tbLinkInputNum) {
-          data.linkNum_ = omtf2rpc.first.link();
-          std::cout << "KUKUK " << std::endl;
-          raws[std::make_pair(omtf2rpc.first.fed(), omtf2rpc.first.amc()*2-1)].push_back(data.rawData);
-        }
-      }
-      if (data.linkNum_==0) LogTrace("")<< " could not find omtfIndex for rpcEle : "<<rpcEle.print();  
-    }
-    
-  }
-
-  auto bxId  = ev.bunchCrossing();
-  auto evtId = ev.id().event();
-  auto orbit = ev.eventAuxiliary().orbitNumber();
-  std::unique_ptr<FEDRawDataCollection> raw_coll(new FEDRawDataCollection());
-  for (auto & fedId : fedIds) { 
-
-    //
-    // assign formatted raws to feds
-    //
-    amc13::Packet amc13;
-    for (const auto & it : raws) {
-      if (fedId != it.first.first) continue;
-      const std::vector<Word64> & amcData = it.second;
-      unsigned int amcId = it.first.second;
-      for (const auto & raw : amcData) {
-        std::ostringstream dataStr;
-        if (DataWord64::csc  == DataWord64::type(raw)) dataStr <<  CscDataWord64(raw);
-        if (DataWord64::dt   == DataWord64::type(raw)) dataStr <<   DtDataWord64(raw);
-        if (DataWord64::rpc  == DataWord64::type(raw)) dataStr <<  RpcDataWord64(raw);
-        if (DataWord64::omtf == DataWord64::type(raw)) dataStr << OmtfDataWord64(raw);
-//        DtDataWord64 data(raw);
-          LogTrace("")<<" fed: "<< fedId <<" amcId: "<<amcId<<" RAW DATA: " << dataStr.str() << std::endl;
-        }
-      amc13.add(amcId, 43981, evtId, orbit, bxId, amcData);
-    }
-
-    FEDRawData& fed_data = raw_coll->FEDData(fedId);
-
-    const unsigned int slinkHeaderSize_  = 8;
-    const unsigned int slinkTrailerSize_ = 8;
-    unsigned int size = (amc13.size()) * sizeof(Word64)+slinkHeaderSize_+slinkTrailerSize_;
-    fed_data.resize(size);
-    unsigned char * payload = fed_data.data();
-    unsigned char * payload_start = payload;
-
-    FEDHeader header(payload);
-    const unsigned int evtType_ = 1;
-    header.set(payload, evtType_, evtId, bxId, fedId);
-
-    amc13.write(ev, payload, slinkHeaderSize_, size - slinkHeaderSize_ - slinkTrailerSize_);
-
-    payload += slinkHeaderSize_;
-    payload += amc13.size() * 8;
-
-    FEDTrailer trailer(payload);
-    trailer.set(payload, size / 8, evf::compute_crc(payload_start, size), 0, 0);
-  }
-  ev.put(std::move(raw_coll),"OmtfPacker");
-  
-
-}
-
 
 OmtfUnpacker::OmtfUnpacker(const edm::ParameterSet& pset) : theConfig(pset) {
   theOutputTag = pset.exists("outputTag") ? pset.getParameter<std::string>("outputTag") : "OmtfUnpacker" ; 
@@ -876,7 +888,7 @@ void OmtfUnpacker::beginRun(const edm::Run &run, const edm::EventSetup& es) {
           try {
             std::string lbNameCH = it4->linkBoardName();
             std::string lbName = lbNameCH.substr(0,lbNameCH.size()-4);
-            const std::vector<OmtfEleIndex> & omtfEles = omtfLink2Ele.omtfEleIndex(lbName); 
+            const std::vector<EleIndex> & omtfEles = omtfLink2Ele.omtfEleIndex(lbName); 
 //          std::cout <<"  isOK ! " <<  it4->linkBoardName() <<" has: " << omtfEles.size() << " first: "<< omtfEles[0] << std::endl;
             LinkBoardElectronicIndex rpcEle = { (*it1)->id(), it2->dccInputChannelNum(), it3->triggerBoardInputNumber(), it4->linkBoardNumInLink()};
             for ( const auto & omtfEle : omtfEles ) omtf2rpc_[omtfEle]= rpcEle; 
@@ -944,7 +956,7 @@ void OmtfUnpacker::beginRun(const edm::Run &run, const edm::EventSetup& es) {
           if (chamber > 36) chamber -= 36;
           CSCDetId cscDetId(endcap, stat, ring, chamber);
 //          std::cout <<" INIT CSC DET ID: "<< cscDetId << std::endl;
-          OmtfEleIndex omtfEle(fed, amc, link);
+         EleIndex omtfEle(fed, amc, link);
           omtf2csc_[omtfEle]=cscDetId;
         }
       }
@@ -1155,7 +1167,7 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
           RpcDataWord64 data(*word);
           LogTrace("") << data;
   
-          OmtfEleIndex omtfEle(fedHeader.sourceID(), bh.getAMCNumber()/2+1, data.linkNum());
+         EleIndex omtfEle(fedHeader.sourceID(), bh.getAMCNumber()/2+1, data.linkNum());
           LinkBoardElectronicIndex rpcEle = omtf2rpc_.at(omtfEle);
           RPCRecordFormatter formater(rpcEle.dccId, theCabling);
   
@@ -1192,8 +1204,8 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
         //
         if (DataWord64::csc==recordType) {
           CscDataWord64   data(*word);
-          OmtfEleIndex omtfEle(fedHeader.sourceID(), bh.getAMCNumber()/2+1, data.linkNum());
-          std::map<OmtfEleIndex,CSCDetId>::const_iterator icsc = omtf2csc_.find(omtfEle);
+          EleIndex omtfEle(fedHeader.sourceID(), bh.getAMCNumber()/2+1, data.linkNum());
+          std::map<EleIndex,CSCDetId>::const_iterator icsc = omtf2csc_.find(omtfEle);
           if (icsc==omtf2csc_.end()) {LogTrace(" ") <<" CANNOT FIND key: " << omtfEle << std::endl; continue; }
           CSCDetId cscId = omtf2csc_[omtfEle];
           LogTrace("") <<"OMTF->CSC "<<cscId << std::endl; 
@@ -1216,7 +1228,7 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
         // OMTF (muon) data
         //
         if (DataWord64::omtf==recordType) {
-          OmtfDataWord64   data(*word);
+          MuonDataWord64   data(*word);
           LogTrace("") <<"OMTF->MUON " << std::endl;
           LogTrace("") << data << std::endl;
           l1t::tftype  overlap = (fedId==1380) ? l1t::tftype::omtf_neg :  l1t::tftype::omtf_pos;
@@ -1281,6 +1293,7 @@ void OmtfUnpacker::produce(edm::Event& event, const edm::EventSetup& setup)
   event.put(std::move(producedDTThDigis),theOutputTag);
 
 }
-DEFINE_FWK_MODULE(OmtfUnpacker);
-DEFINE_FWK_MODULE(OmtfPacker);
 
+};
+
+DEFINE_FWK_MODULE(OmtfUnpacker);
