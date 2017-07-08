@@ -341,10 +341,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void OutputModule::maybeOpenFile() {
-    if(!isFileOpen()) reallyOpenFile();
-  }
-
   void OutputModule::doCloseFile() {
     if(isFileOpen()) {
       reallyCloseFile();

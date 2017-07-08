@@ -140,7 +140,7 @@ namespace edm {
     virtual void writeLuminosityBlock(LuminosityBlockForOutput const& lb) override;
     virtual void writeRun(RunForOutput const& r) override;
     virtual bool isFileOpen() const override;
-    virtual void reallyOpenFile() override;
+    void reallyOpenFile();
     virtual void reallyCloseFile() override;
     virtual void beginJob() override;
 

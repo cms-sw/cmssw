@@ -133,13 +133,6 @@ namespace edm {
       for_all(subProcesses_, [](auto& subProcess) { subProcess.closeOutputFiles(); });
     }
 
-    // Call openNewFileIfNeeded() on all OutputModules
-    void openNewOutputFilesIfNeeded() {
-      ServiceRegistry::Operate operate(serviceToken_);
-      schedule_->openNewOutputFilesIfNeeded();
-      for_all(subProcesses_, [](auto& subProcess) { subProcess.openNewOutputFilesIfNeeded(); });
-    }
-
     // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock& fb) {
       ServiceRegistry::Operate operate(serviceToken_);
