@@ -177,7 +177,7 @@ namespace JME {
 
     void JetResolutionObject::Definition::init() {
         if (m_formula_str.size())
-            m_formula = std::shared_ptr<TFormula>(new TFormula("jet_resolution_formula", m_formula_str.c_str()));
+            m_formula = std::make_shared<TFormula>("jet_resolution_formula", m_formula_str.c_str());
 
         for (const auto& bin: m_bins_name) {
             const auto& b = JetParameters::binning_to_string.right.find(bin);

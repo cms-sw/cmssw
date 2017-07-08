@@ -755,41 +755,41 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
         edm::ParameterSet pset = todo.at(i);
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
-            m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::HLTHandler>(pset, m_eventCache));
         }
         else if (type == "RecoCandidateCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateCounter>(new FSQ::RecoCandidateCounter(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoCandidateCounter>(pset, m_eventCache));
         }
         else if (type == "RecoTrackCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounter>(new FSQ::RecoTrackCounter(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoTrackCounter>(pset, m_eventCache));
         }
         else if (type == "RecoTrackCounterWithVertexConstraint") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackCounterWithVertexConstraint>
-                    (new FSQ::RecoTrackCounterWithVertexConstraint(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoTrackCounterWithVertexConstraint>
+                    (pset, m_eventCache));
         }
         else if (type == "FromRecoCandidate") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoCandidateHandler>(new FSQ::RecoCandidateHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoCandidateHandler>(pset, m_eventCache));
         }
         else if (type == "RecoPFJet") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetHandler>(new FSQ::RecoPFJetHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoPFJetHandler>(pset, m_eventCache));
         }
         else if (type == "RecoPFJetWithJEC") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPFJetWithJECHandler>(new FSQ::RecoPFJetWithJECHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoPFJetWithJECHandler>(pset, m_eventCache));
         }
         else if (type == "RecoTrack") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoTrackHandler>(new FSQ::RecoTrackHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoTrackHandler>(pset, m_eventCache));
         } 
         else if (type == "RecoPhoton") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoPhotonHandler>(new FSQ::RecoPhotonHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoPhotonHandler>(pset, m_eventCache));
         } 
         else if (type == "RecoMuon") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoMuonHandler>(new FSQ::RecoMuonHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoMuonHandler>(pset, m_eventCache));
         } 
         else if (type == "RecoGenParticleCounter") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoGenParticleCounter>(new FSQ::RecoGenParticleCounter(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoGenParticleCounter>(pset, m_eventCache));
         }
         else if (type == "RecoGenParticleHandler") {
-            m_handlers.push_back(std::shared_ptr<FSQ::RecoGenParticleHandler>(new FSQ::RecoGenParticleHandler(pset, m_eventCache)));
+            m_handlers.push_back(std::make_shared<FSQ::RecoGenParticleHandler>(pset, m_eventCache));
         } 
         else {
             throw cms::Exception("FSQ DQM handler not know: "+ type);

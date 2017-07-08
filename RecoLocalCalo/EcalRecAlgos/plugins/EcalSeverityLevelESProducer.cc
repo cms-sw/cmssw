@@ -40,7 +40,7 @@ EcalSeverityLevelESProducer::EcalSeverityLevelESProducer(const edm::ParameterSet
   setWhatProduced(this, 
 		  dependsOn (&EcalSeverityLevelESProducer::chstatusCallback));
 
-  algo_ = ReturnType(new EcalSeverityLevelAlgo(iConfig));
+  algo_ = std::make_shared<EcalSeverityLevelAlgo>(iConfig);
 }
 
 
