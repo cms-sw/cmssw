@@ -48,7 +48,7 @@ class DataProxy : public edm::eventsetup::DataProxyTemplate<RecordT, DataT >{
   }
   private:
   //DataProxy(); // stop default
-  const DataProxy& operator=( const DataProxy& ); // stop default
+  const DataProxy& operator=( const DataProxy& ) = delete; // stop default
   // ---------- member data --------------------------------
 
   std::shared_ptr<cond::persistency::PayloadProxy<DataT> >  m_data;

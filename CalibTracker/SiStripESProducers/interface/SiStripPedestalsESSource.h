@@ -33,8 +33,8 @@ class SiStripPedestalsESSource : public edm::ESProducer, public edm::EventSetupR
   
  private:
   
-  SiStripPedestalsESSource( const SiStripPedestalsESSource& );
-  const SiStripPedestalsESSource& operator=( const SiStripPedestalsESSource& );
+  SiStripPedestalsESSource( const SiStripPedestalsESSource& ) = delete;
+  const SiStripPedestalsESSource& operator=( const SiStripPedestalsESSource& ) = delete;
 
   virtual SiStripPedestals* makePedestals() = 0; 
 

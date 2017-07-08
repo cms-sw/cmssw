@@ -50,8 +50,8 @@ private:
     // -----------------------------------------------------------------------
     //  Unimplemented methods.
     // -----------------------------------------------------------------------
-    StreamOutFormatTarget(const StreamOutFormatTarget&);
-    StreamOutFormatTarget& operator=(const StreamOutFormatTarget&);
+    StreamOutFormatTarget(const StreamOutFormatTarget&) = delete;
+    StreamOutFormatTarget& operator=(const StreamOutFormatTarget&) = delete;
 };
 
 XERCES_CPP_NAMESPACE_END

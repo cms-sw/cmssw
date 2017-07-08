@@ -107,8 +107,8 @@ protected:
 
 
 private:
-   CmsShowCommon(const CmsShowCommon&); // stop default
-   const CmsShowCommon& operator=(const CmsShowCommon&); // stop default
+   CmsShowCommon(const CmsShowCommon&) = delete; // stop default
+   const CmsShowCommon& operator=(const CmsShowCommon&) = delete; // stop default
 
 };
 

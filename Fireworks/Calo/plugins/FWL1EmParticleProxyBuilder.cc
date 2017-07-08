@@ -24,8 +24,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWL1EmParticleProxyBuilder( const FWL1EmParticleProxyBuilder& );    // stop default
-   const FWL1EmParticleProxyBuilder& operator=( const FWL1EmParticleProxyBuilder& );    // stop default
+   FWL1EmParticleProxyBuilder( const FWL1EmParticleProxyBuilder& ) = delete;    // stop default
+   const FWL1EmParticleProxyBuilder& operator=( const FWL1EmParticleProxyBuilder& ) = delete;    // stop default
   
    using FWSimpleProxyBuilderTemplate<l1extra::L1EmParticle>::build;
    virtual void build( const l1extra::L1EmParticle& iData, unsigned int iIndex, TEveElement& oItemHolder , const FWViewContext* );

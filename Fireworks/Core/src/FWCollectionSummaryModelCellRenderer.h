@@ -52,9 +52,9 @@ public:
    ClickHit clickHit(int iX, int iY) const;
    
 private:
-   FWCollectionSummaryModelCellRenderer(const FWCollectionSummaryModelCellRenderer&); // stop default
+   FWCollectionSummaryModelCellRenderer(const FWCollectionSummaryModelCellRenderer&) = delete; // stop default
    
-   const FWCollectionSummaryModelCellRenderer& operator=(const FWCollectionSummaryModelCellRenderer&); // stop default
+   const FWCollectionSummaryModelCellRenderer& operator=(const FWCollectionSummaryModelCellRenderer&) = delete; // stop default
    
    // ---------- member data --------------------------------
    FWColorBoxIcon* m_colorBox;

@@ -108,9 +108,9 @@ namespace fwlite {
          friend class internal::ProductGetter;
          friend class LumiHistoryGetter;
 
-         LuminosityBlock(const LuminosityBlock&); // stop default
+         LuminosityBlock(const LuminosityBlock&) = delete; // stop default
 
-         const LuminosityBlock& operator=(const LuminosityBlock&); // stop default
+         const LuminosityBlock& operator=(const LuminosityBlock&) = delete; // stop default
 
          const edm::ProcessHistory& history() const;
          void updateAux(Long_t lumiIndex) const;

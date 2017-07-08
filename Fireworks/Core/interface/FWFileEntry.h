@@ -82,8 +82,8 @@ public:
    void updateFilters(const FWEventItemsManager* eiMng, bool isOR);
 
 private:
-   FWFileEntry(const FWFileEntry&);    // stop default
-   const FWFileEntry& operator=(const FWFileEntry&);    // stop default
+   FWFileEntry(const FWFileEntry&) = delete;    // stop default
+   const FWFileEntry& operator=(const FWFileEntry&) = delete;    // stop default
    
    void runFilter(Filter* fe, const FWEventItemsManager* eiMng);
    bool filterEventsWithCustomParser(Filter* filter);

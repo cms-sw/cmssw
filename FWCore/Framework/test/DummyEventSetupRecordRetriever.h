@@ -53,9 +53,9 @@ namespace edm {
       }
 
    private:
-      DummyEventSetupRecordRetriever(const DummyEventSetupRecordRetriever&); // stop default
+      DummyEventSetupRecordRetriever(const DummyEventSetupRecordRetriever&) = delete; // stop default
 
-      const DummyEventSetupRecordRetriever& operator=(const DummyEventSetupRecordRetriever&); // stop default
+      const DummyEventSetupRecordRetriever& operator=(const DummyEventSetupRecordRetriever&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

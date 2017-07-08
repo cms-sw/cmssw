@@ -43,7 +43,7 @@ public:
   }
 
 private:
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface* econn;
   run_t run;
 };

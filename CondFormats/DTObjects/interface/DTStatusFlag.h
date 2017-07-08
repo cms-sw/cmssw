@@ -267,8 +267,8 @@ class DTStatusFlag {
 
  private:
 
-  DTStatusFlag(DTStatusFlag const&);
-  DTStatusFlag& operator=(DTStatusFlag const&);
+  DTStatusFlag(DTStatusFlag const&) = delete;
+  DTStatusFlag& operator=(DTStatusFlag const&) = delete;
 
   std::string dataVersion;
 

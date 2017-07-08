@@ -84,9 +84,9 @@ public:
 
 private:
   /** Copy constructor */
-  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator &p);
+  MixBoostEvtVtxGenerator(const MixBoostEvtVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  MixBoostEvtVtxGenerator&  operator = (const MixBoostEvtVtxGenerator & rhs );
+  MixBoostEvtVtxGenerator&  operator = (const MixBoostEvtVtxGenerator & rhs ) = delete;
 
   double alpha_, phi_;
   //TMatrixD boost_;

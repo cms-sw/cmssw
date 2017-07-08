@@ -34,8 +34,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWPhotonProxyBuilder( const FWPhotonProxyBuilder& );
-   const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& );
+   FWPhotonProxyBuilder( const FWPhotonProxyBuilder& ) = delete;
+   const FWPhotonProxyBuilder& operator=( const FWPhotonProxyBuilder& ) = delete;
   
    using FWSimpleProxyBuilderTemplate<reco::Photon> ::buildViewType;
    virtual void buildViewType( const reco::Photon& photon, unsigned int iIndex, TEveElement& oItemHolder, FWViewType::EType type , const FWViewContext*) override;

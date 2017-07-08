@@ -75,8 +75,8 @@ namespace gs {
         static std::string compressionModeName(CompressionMode m,
                                                bool useShortName=true);
     private:
-        CStringStream(const CStringStream&);
-        CStringStream& operator=(const CStringStream&);
+        CStringStream(const CStringStream&) = delete;
+        CStringStream& operator=(const CStringStream&) = delete;
 
         CStringBuf buf_;
         CompressionMode mode_;

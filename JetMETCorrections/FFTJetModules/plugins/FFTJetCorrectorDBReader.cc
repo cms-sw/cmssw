@@ -49,9 +49,9 @@ public:
     virtual ~FFTJetCorrectorDBReader() {}
 
 private:
-    FFTJetCorrectorDBReader();
-    FFTJetCorrectorDBReader(const FFTJetCorrectorDBReader&);
-    FFTJetCorrectorDBReader& operator=(const FFTJetCorrectorDBReader&);
+    FFTJetCorrectorDBReader() = delete;
+    FFTJetCorrectorDBReader(const FFTJetCorrectorDBReader&) = delete;
+    FFTJetCorrectorDBReader& operator=(const FFTJetCorrectorDBReader&) = delete;
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 

@@ -32,8 +32,8 @@ class SiStripGainESSource : public edm::ESProducer, public edm::EventSetupRecord
   
  private:
   
-  SiStripGainESSource( const SiStripGainESSource& );
-  const SiStripGainESSource& operator=( const SiStripGainESSource& );
+  SiStripGainESSource( const SiStripGainESSource& ) = delete;
+  const SiStripGainESSource& operator=( const SiStripGainESSource& ) = delete;
 
   virtual SiStripApvGain* makeGain() = 0; 
 

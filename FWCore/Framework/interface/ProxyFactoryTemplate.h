@@ -55,9 +55,9 @@ class ProxyFactoryTemplate : public ProxyFactoryBase
       // ---------- member functions ---------------------------
 
    private:
-      ProxyFactoryTemplate(const ProxyFactoryTemplate&); // stop default
+      ProxyFactoryTemplate(const ProxyFactoryTemplate&) = delete; // stop default
 
-      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&); // stop default
+      const ProxyFactoryTemplate& operator=(const ProxyFactoryTemplate&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

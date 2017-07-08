@@ -59,9 +59,9 @@ protected:
    virtual void itemBeingDestroyed(const FWEventItem*);
 
 private:
-   FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&); // stop default
+   FWCaloDataProxyBuilderBase(const FWCaloDataProxyBuilderBase&) = delete; // stop default
 
-   const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&); // stop default
+   const FWCaloDataProxyBuilderBase& operator=(const FWCaloDataProxyBuilderBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

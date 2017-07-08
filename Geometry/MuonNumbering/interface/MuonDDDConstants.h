@@ -28,7 +28,7 @@ class MuonDDDConstants {
   void addValue( const std::string& name, const int& value );
       
  private:
-  MuonDDDConstants();
+  MuonDDDConstants() = delete;
   std::map<std::string, int> namesAndValues_;
 };
 

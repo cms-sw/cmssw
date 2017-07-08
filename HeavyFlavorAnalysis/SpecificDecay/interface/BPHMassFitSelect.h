@@ -130,8 +130,8 @@ class BPHMassFitSelect: public BPHFitSelect, public BPHMassCuts {
  private:
 
   // private copy and assigment constructors
-  BPHMassFitSelect           ( const BPHMassFitSelect& x );
-  BPHMassFitSelect& operator=( const BPHMassFitSelect& x );
+  BPHMassFitSelect           ( const BPHMassFitSelect& x ) = delete;
+  BPHMassFitSelect& operator=( const BPHMassFitSelect& x ) = delete;
 
   enum fit_type { none, mcss, mcst, kf, mtkf };
 

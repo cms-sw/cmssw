@@ -19,8 +19,8 @@ public:
   REGISTER_PROXYBUILDER_METHODS();
 
 private:
-  FWME0SegmentProxyBuilder( const FWME0SegmentProxyBuilder& );   
-  const FWME0SegmentProxyBuilder& operator=( const FWME0SegmentProxyBuilder& );
+  FWME0SegmentProxyBuilder( const FWME0SegmentProxyBuilder& ) = delete;   
+  const FWME0SegmentProxyBuilder& operator=( const FWME0SegmentProxyBuilder& ) = delete;
 
   void build( const ME0Segment& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );
 };

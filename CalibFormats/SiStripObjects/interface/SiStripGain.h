@@ -108,8 +108,8 @@ class SiStripGain
 
   void fillNewGain(const SiStripApvGain * apvgain, const double & factor,
 		   const SiStripApvGain * apvgain2 = 0, const double & factor2 = 1.);
-  SiStripGain(const SiStripGain&); // stop default
-  const SiStripGain& operator=(const SiStripGain&); // stop default
+  SiStripGain(const SiStripGain&) = delete; // stop default
+  const SiStripGain& operator=(const SiStripGain&) = delete; // stop default
 
   // ---------- member data --------------------------------
 

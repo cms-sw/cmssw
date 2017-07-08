@@ -62,9 +62,9 @@ public:
     
 private:
   /** Copy constructor */
-  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p);
+  BetafuncEvtVtxGenerator(const BetafuncEvtVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs );
+  BetafuncEvtVtxGenerator&  operator = (const BetafuncEvtVtxGenerator & rhs ) = delete;
 
   void setBoost(double alpha, double phi);
 private:

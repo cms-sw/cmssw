@@ -45,9 +45,9 @@ class MuonAlignmentInputXML: public MuonAlignmentInputMethod {
       virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
    private:
-      MuonAlignmentInputXML(const MuonAlignmentInputXML&); // stop default
+      MuonAlignmentInputXML(const MuonAlignmentInputXML&) = delete; // stop default
 
-      const MuonAlignmentInputXML& operator=(const MuonAlignmentInputXML&); // stop default
+      const MuonAlignmentInputXML& operator=(const MuonAlignmentInputXML&) = delete; // stop default
 
       void recursiveGetId(std::map<unsigned int, Alignable*> &alignableNavigator, const align::Alignables &alignables) const;
 

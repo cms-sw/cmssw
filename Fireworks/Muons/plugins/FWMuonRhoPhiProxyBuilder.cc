@@ -23,9 +23,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWMuonRhoPhiProxyBuilder( const FWMuonRhoPhiProxyBuilder& );
+   FWMuonRhoPhiProxyBuilder( const FWMuonRhoPhiProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWMuonRhoPhiProxyBuilder& operator=( const FWMuonRhoPhiProxyBuilder& );
+   const FWMuonRhoPhiProxyBuilder& operator=( const FWMuonRhoPhiProxyBuilder& ) = delete;
 
    using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
    void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

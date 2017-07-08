@@ -114,8 +114,8 @@ protected:
      mutable bool m_caughtExceptionInCellRender;
 
 private:
-     FWTableViewTableManager(const FWTableViewTableManager&); // stop default     
-     const FWTableViewTableManager& operator=(const FWTableViewTableManager&); // stop default
+     FWTableViewTableManager(const FWTableViewTableManager&) = delete; // stop default     
+     const FWTableViewTableManager& operator=(const FWTableViewTableManager&) = delete; // stop default
 };
 
 

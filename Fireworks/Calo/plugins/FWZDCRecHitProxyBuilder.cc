@@ -19,8 +19,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWZDCRecHitProxyBuilder( const FWZDCRecHitProxyBuilder& );
-   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& );	
+   FWZDCRecHitProxyBuilder( const FWZDCRecHitProxyBuilder& ) = delete;
+   const FWZDCRecHitProxyBuilder& operator=( const FWZDCRecHitProxyBuilder& ) = delete;	
 };
 
 

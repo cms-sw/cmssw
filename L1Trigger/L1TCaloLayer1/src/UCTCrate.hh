@@ -45,15 +45,15 @@ private:
 
   // No default constructor is needed
 
-  UCTCrate();
+  UCTCrate() = delete;
 
   // No copy constructor is needed
 
-  UCTCrate(const UCTCrate&);
+  UCTCrate(const UCTCrate&) = delete;
 
   // No equality operator is needed
 
-  const UCTCrate& operator=(const UCTCrate&);
+  const UCTCrate& operator=(const UCTCrate&) = delete;
 
   // Owned crate level data 
 

@@ -64,8 +64,8 @@ protected:
    FWBoolParameter    m_plotEt;
    
 private:
-   FWViewEnergyScale(const FWViewEnergyScale&); // stop default
-   const FWViewEnergyScale& operator=(const FWViewEnergyScale&); // stop default
+   FWViewEnergyScale(const FWViewEnergyScale&) = delete; // stop default
+   const FWViewEnergyScale& operator=(const FWViewEnergyScale&) = delete; // stop default
 
    float calculateScaleFactor(float iMaxVal, bool isLego) const;
 

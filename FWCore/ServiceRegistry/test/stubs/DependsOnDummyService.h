@@ -35,8 +35,8 @@ namespace testserviceregistry {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      DependsOnDummyService(const DependsOnDummyService&); // stop default
-      const DependsOnDummyService& operator=(const DependsOnDummyService&); // stop default
+      DependsOnDummyService(const DependsOnDummyService&) = delete; // stop default
+      const DependsOnDummyService& operator=(const DependsOnDummyService&) = delete; // stop default
 
       int value_;
    };

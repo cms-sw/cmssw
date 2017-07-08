@@ -38,8 +38,8 @@ class FWPFPatJet3DProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
       virtual ~FWPFPatJet3DProxyBuilder();
 
    private:
-      FWPFPatJet3DProxyBuilder(const FWPFPatJet3DProxyBuilder&); // Stop default
-      const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&); // Stop default
+      FWPFPatJet3DProxyBuilder(const FWPFPatJet3DProxyBuilder&) = delete; // Stop default
+      const FWPFPatJet3DProxyBuilder& operator=(const FWPFPatJet3DProxyBuilder&) = delete; // Stop default
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<T>::build;

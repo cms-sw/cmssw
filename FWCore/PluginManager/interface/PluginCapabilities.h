@@ -53,9 +53,9 @@ class PluginCapabilities : public PluginFactoryBase
 
    private:
       PluginCapabilities();
-      PluginCapabilities(const PluginCapabilities&); // stop default
+      PluginCapabilities(const PluginCapabilities&) = delete; // stop default
 
-      const PluginCapabilities& operator=(const PluginCapabilities&); // stop default
+      const PluginCapabilities& operator=(const PluginCapabilities&) = delete; // stop default
 
       // ---------- member data --------------------------------
       std::map<std::string, boost::filesystem::path> classToLoadable_;

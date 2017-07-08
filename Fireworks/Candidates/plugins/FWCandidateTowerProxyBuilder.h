@@ -31,8 +31,8 @@ protected:
    virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
 
 private:
-   FWCandidateTowerProxyBuilder(const FWCandidateTowerProxyBuilder&); // stop default
-   const FWCandidateTowerProxyBuilder& operator=(const FWCandidateTowerProxyBuilder&); // stop default
+   FWCandidateTowerProxyBuilder(const FWCandidateTowerProxyBuilder&) = delete; // stop default
+   const FWCandidateTowerProxyBuilder& operator=(const FWCandidateTowerProxyBuilder&) = delete; // stop default
   
    virtual void itemChangedImp(const FWEventItem*);
    // ---------- member data --------------------------------

@@ -43,9 +43,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&); // stop default
+   FWEDProductRepresentationChecker(const FWEDProductRepresentationChecker&) = delete; // stop default
 
-   const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&); // stop default
+   const FWEDProductRepresentationChecker& operator=(const FWEDProductRepresentationChecker&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const std::string m_typeidName;

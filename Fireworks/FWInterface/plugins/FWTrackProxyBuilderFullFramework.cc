@@ -43,8 +43,8 @@ public:
    virtual bool visibilityModelChanges(const FWModelId&, TEveElement*, FWViewType::EType, const FWViewContext*) override;
    
 private:
-   FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&); // stop default
-   const FWTrackProxyBuilderFullFramework& operator=(const FWTrackProxyBuilderFullFramework&); // stop default
+   FWTrackProxyBuilderFullFramework(const FWTrackProxyBuilderFullFramework&) = delete; // stop default
+   const FWTrackProxyBuilderFullFramework& operator=(const FWTrackProxyBuilderFullFramework&) = delete; // stop default
 
    void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
    void buildTrack(TrajTrackAssociationCollection::const_iterator it, TEveCompound* comp);

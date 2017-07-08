@@ -76,8 +76,8 @@ protected:
    //   virtual  const char* cellName(const NodeInfo& data) const;
 
 private:
-   FWOverlapTableManager(const FWOverlapTableManager&); // stop default
-   const FWOverlapTableManager& operator=(const FWOverlapTableManager&); // stop default
+   FWOverlapTableManager(const FWOverlapTableManager&) = delete; // stop default
+   const FWOverlapTableManager& operator=(const FWOverlapTableManager&) = delete; // stop default
 
    void addOverlapEntry(TGeoOverlap*, int, int , TGeoHMatrix*);
    FWOverlapTableView* m_browser;

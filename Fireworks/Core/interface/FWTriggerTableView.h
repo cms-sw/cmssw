@@ -77,8 +77,8 @@ protected:
    virtual void fillTable(fwlite::Event* event) = 0;
 
 private:
-   FWTriggerTableView( const FWTriggerTableView& );      // stop default
-   const FWTriggerTableView& operator=( const FWTriggerTableView& );      // stop default
+   FWTriggerTableView( const FWTriggerTableView& ) = delete;      // stop default
+   const FWTriggerTableView& operator=( const FWTriggerTableView& ) = delete;      // stop default
 
    bool isProcessValid()const;
    virtual void populateController(ViewerParameterGUI&) const;

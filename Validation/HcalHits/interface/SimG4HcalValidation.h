@@ -45,8 +45,8 @@ public:
   void produce(edm::Event&, const edm::EventSetup&);
 
 private:
-  SimG4HcalValidation(const SimG4HcalValidation&); // stop default
-  const SimG4HcalValidation& operator=(const SimG4HcalValidation&);
+  SimG4HcalValidation(const SimG4HcalValidation&) = delete; // stop default
+  const SimG4HcalValidation& operator=(const SimG4HcalValidation&) = delete;
 
   void  init();
 

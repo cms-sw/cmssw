@@ -49,9 +49,9 @@ public:
    void doUpdate(Long_t);
    
 private:
-   FWDoubleParameterSetter(const FWDoubleParameterSetter&);    // stop default
+   FWDoubleParameterSetter(const FWDoubleParameterSetter&) = delete;    // stop default
 
-   const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&);    // stop default
+   const FWDoubleParameterSetter& operator=(const FWDoubleParameterSetter&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    FWDoubleParameter* m_param;

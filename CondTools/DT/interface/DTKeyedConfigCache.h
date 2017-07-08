@@ -46,8 +46,8 @@ public:
 
 private:
 
-  DTKeyedConfigCache( const DTKeyedConfigCache& x );
-  const DTKeyedConfigCache& operator=( const DTKeyedConfigCache& x );
+  DTKeyedConfigCache( const DTKeyedConfigCache& x ) = delete;
+  const DTKeyedConfigCache& operator=( const DTKeyedConfigCache& x ) = delete;
 
   typedef std::pair<int,const DTKeyedConfig*> counted_brick;
   std::map<int,counted_brick> brickMap;

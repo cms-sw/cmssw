@@ -185,8 +185,8 @@ class DTHVStatus {
 
  private:
 
-  DTHVStatus(DTHVStatus const&);
-  DTHVStatus& operator=(DTHVStatus const&);
+  DTHVStatus(DTHVStatus const&) = delete;
+  DTHVStatus& operator=(DTHVStatus const&) = delete;
 
   std::string dataVersion;
 

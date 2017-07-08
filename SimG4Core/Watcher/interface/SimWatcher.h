@@ -43,9 +43,9 @@ class SimWatcher
       // ---------- member functions ---------------------------
 
    private:
-      SimWatcher(const SimWatcher&); // stop default
+      SimWatcher(const SimWatcher&) = delete; // stop default
 
-      const SimWatcher& operator=(const SimWatcher&); // stop default
+      const SimWatcher& operator=(const SimWatcher&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

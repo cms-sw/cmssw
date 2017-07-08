@@ -37,8 +37,8 @@ public:
    void    setAllowDestroy(bool x) { fAllowDestroy = x; }
 
 private:
-   CmsAnnotation(const CmsAnnotation&); // stop default
-   const CmsAnnotation& operator=(const CmsAnnotation&); // stop default
+   CmsAnnotation(const CmsAnnotation&) = delete; // stop default
+   const CmsAnnotation& operator=(const CmsAnnotation&) = delete; // stop default
    
    Float_t           fPosX;           // x position [0, 1]
    Float_t           fPosY;           // y position [0, 1]

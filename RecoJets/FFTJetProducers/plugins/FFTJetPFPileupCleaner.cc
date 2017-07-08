@@ -55,9 +55,9 @@ protected:
     void endJob() override;
 
 private:
-    FFTJetPFPileupCleaner();
-    FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&);
-    FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&);
+    FFTJetPFPileupCleaner() = delete;
+    FFTJetPFPileupCleaner(const FFTJetPFPileupCleaner&) = delete;
+    FFTJetPFPileupCleaner& operator=(const FFTJetPFPileupCleaner&) = delete;
 
     bool isRemovable(reco::PFCandidate::ParticleType ptype) const;
     void setRemovalBit(reco::PFCandidate::ParticleType ptype, bool onOff);

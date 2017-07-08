@@ -25,8 +25,8 @@ public:
    void setEvent();
   
 private:
-   FWEventAnnotation(const FWEventAnnotation&); // stop default
-   const FWEventAnnotation& operator=(const FWEventAnnotation&); // stop default
+   FWEventAnnotation(const FWEventAnnotation&) = delete; // stop default
+   const FWEventAnnotation& operator=(const FWEventAnnotation&) = delete; // stop default
 
    void updateOverlayText();
 

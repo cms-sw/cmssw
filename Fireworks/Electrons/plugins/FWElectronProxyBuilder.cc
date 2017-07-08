@@ -51,8 +51,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWElectronProxyBuilder( const FWElectronProxyBuilder& ); // stop default
-   const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ); // stop default
+   FWElectronProxyBuilder( const FWElectronProxyBuilder& ) = delete; // stop default
+   const FWElectronProxyBuilder& operator=( const FWElectronProxyBuilder& ) = delete; // stop default
   
  
    TEveElementList* requestCommon();
@@ -156,9 +156,9 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&); // stop default
+   FWElectronGlimpseProxyBuilder(const FWElectronGlimpseProxyBuilder&) = delete; // stop default
 
-   const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&); // stop default
+   const FWElectronGlimpseProxyBuilder& operator=(const FWElectronGlimpseProxyBuilder&) = delete; // stop default
 
    virtual void build(const reco::GsfElectron& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext*) override;
 };

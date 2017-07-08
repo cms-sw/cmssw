@@ -37,8 +37,8 @@ namespace edm {
     virtual Status endOfLoop(EventSetup const& es, unsigned int iCounter) override;
 
   private:
-    NavigateEventsLooper(NavigateEventsLooper const&); // stop default
-    NavigateEventsLooper const& operator=(NavigateEventsLooper const&); // stop default
+    NavigateEventsLooper(NavigateEventsLooper const&) = delete; // stop default
+    NavigateEventsLooper const& operator=(NavigateEventsLooper const&) = delete; // stop default
 
     int maxLoops_;
     int countLoops_;

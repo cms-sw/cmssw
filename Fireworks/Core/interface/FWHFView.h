@@ -39,9 +39,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWHFView(const FWHFView&); // stop default
+   FWHFView(const FWHFView&) = delete; // stop default
 
-   const FWHFView& operator=(const FWHFView&); // stop default
+   const FWHFView& operator=(const FWHFView&) = delete; // stop default
 
    // ---------- member data --------------------------------
 };

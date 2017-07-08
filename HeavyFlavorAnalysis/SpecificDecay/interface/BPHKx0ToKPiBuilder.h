@@ -77,8 +77,8 @@ class BPHKx0ToKPiBuilder {
  private:
 
   // private copy and assigment constructors
-  BPHKx0ToKPiBuilder           ( const BPHKx0ToKPiBuilder& x );
-  BPHKx0ToKPiBuilder& operator=( const BPHKx0ToKPiBuilder& x );
+  BPHKx0ToKPiBuilder           ( const BPHKx0ToKPiBuilder& x ) = delete;
+  BPHKx0ToKPiBuilder& operator=( const BPHKx0ToKPiBuilder& x ) = delete;
 
   std::string kaonName;
   std::string pionName;

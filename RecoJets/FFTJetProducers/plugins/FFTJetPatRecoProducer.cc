@@ -136,9 +136,9 @@ protected:
     const bool sparsify;
 
 private:
-    FFTJetPatRecoProducer();
-    FFTJetPatRecoProducer(const FFTJetPatRecoProducer&);
-    FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&);
+    FFTJetPatRecoProducer() = delete;
+    FFTJetPatRecoProducer(const FFTJetPatRecoProducer&) = delete;
+    FFTJetPatRecoProducer& operator=(const FFTJetPatRecoProducer&) = delete;
 
     // Members needed for storing grids externally
     std::ofstream externalGridStream;

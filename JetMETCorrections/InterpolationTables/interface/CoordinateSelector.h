@@ -41,7 +41,7 @@ namespace npstat {
         inline unsigned maxDim() const {return UINT_MAX;}
 
     private:
-        CoordinateSelector();
+        CoordinateSelector() = delete;
         unsigned index_;
     };
 }

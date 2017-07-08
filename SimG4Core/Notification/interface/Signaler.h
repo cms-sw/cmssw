@@ -66,9 +66,9 @@ namespace sim_act {
 	 }
 
       private:
-	 Signaler(const Signaler&); // stop default
+	 Signaler(const Signaler&) = delete; // stop default
 	 
-	 const Signaler& operator=(const Signaler&); // stop default
+	 const Signaler& operator=(const Signaler&) = delete; // stop default
 	 
 	 void update(const T* iData) {
 	    this->operator()(iData);

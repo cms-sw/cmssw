@@ -68,9 +68,9 @@ namespace edm {
             callback_->newRecordComing();
          }
       private:
-         CallbackProxy(const CallbackProxy&); // stop default
+         CallbackProxy(const CallbackProxy&) = delete; // stop default
          
-         const CallbackProxy& operator=(const CallbackProxy&); // stop default
+         const CallbackProxy& operator=(const CallbackProxy&) = delete; // stop default
          
          // ---------- member data --------------------------------
          DataT data_;

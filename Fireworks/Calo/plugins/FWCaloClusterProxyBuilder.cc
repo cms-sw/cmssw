@@ -14,8 +14,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCaloClusterProxyBuilder( const FWCaloClusterProxyBuilder& ); 			// stop default
-   const FWCaloClusterProxyBuilder& operator=( const FWCaloClusterProxyBuilder& ); 	// stop default
+   FWCaloClusterProxyBuilder( const FWCaloClusterProxyBuilder& ) = delete; 			// stop default
+   const FWCaloClusterProxyBuilder& operator=( const FWCaloClusterProxyBuilder& ) = delete; 	// stop default
 
    using FWSimpleProxyBuilderTemplate<reco::CaloCluster>::build;
    void build( const reco::CaloCluster& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* );

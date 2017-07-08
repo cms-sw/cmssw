@@ -63,8 +63,8 @@ public:
 
 private:
 
-  HcalTB04Analysis(const HcalTB04Analysis&); // stop default
-  const HcalTB04Analysis& operator=(const HcalTB04Analysis&);
+  HcalTB04Analysis(const HcalTB04Analysis&) = delete; // stop default
+  const HcalTB04Analysis& operator=(const HcalTB04Analysis&) = delete;
  
   void  init();
  

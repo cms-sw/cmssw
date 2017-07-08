@@ -109,9 +109,9 @@ namespace reco {
       std::swap(m_impl, iOther.m_impl);
     }
   private:
-    TrackToTrackingParticleAssociator(const TrackToTrackingParticleAssociator&); // stop default
+    TrackToTrackingParticleAssociator(const TrackToTrackingParticleAssociator&) = delete; // stop default
     
-    const TrackToTrackingParticleAssociator& operator=(const TrackToTrackingParticleAssociator&); // stop default
+    const TrackToTrackingParticleAssociator& operator=(const TrackToTrackingParticleAssociator&) = delete; // stop default
     
     // ---------- member data --------------------------------
     TrackToTrackingParticleAssociatorBaseImpl* m_impl;

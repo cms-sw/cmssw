@@ -45,7 +45,7 @@ namespace gs {
         CPP11_shared_ptr<T> getShared(unsigned long index) const;
 
     private:
-        Reference();
+        Reference() = delete;
         T* getPtr(unsigned long index) const;
     };
 }

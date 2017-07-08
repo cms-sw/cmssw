@@ -16,8 +16,8 @@ protected:
                       const FWViewContext*);
 
 private:
-   FWJetLegoProxyBuilder( const FWJetLegoProxyBuilder& ); // stop default
-   const FWJetLegoProxyBuilder& operator=( const FWJetLegoProxyBuilder& ); // stop default
+   FWJetLegoProxyBuilder( const FWJetLegoProxyBuilder& ) = delete; // stop default
+   const FWJetLegoProxyBuilder& operator=( const FWJetLegoProxyBuilder& ) = delete; // stop default
 };
 
 void

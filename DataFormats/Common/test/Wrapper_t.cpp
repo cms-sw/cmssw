@@ -25,8 +25,8 @@ class SwappyNoCopy
   SwappyNoCopy() {}
   void swap(SwappyNoCopy&) { /* std::cout << "swapped\n";*/ }
  private:
-  SwappyNoCopy(SwappyNoCopy const&); // not implemented
-  SwappyNoCopy& operator=(SwappyNoCopy const&); // not implemented
+  SwappyNoCopy(SwappyNoCopy const&) = delete; // not implemented
+  SwappyNoCopy& operator=(SwappyNoCopy const&) = delete; // not implemented
 };
 
 void work()

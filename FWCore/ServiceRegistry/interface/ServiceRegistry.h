@@ -47,8 +47,8 @@ namespace edm {
 
          //override operator new to stop use on heap?
       private:
-         Operate(Operate const&); //stop default
-         Operate const& operator=(Operate const&); //stop default
+         Operate(Operate const&) = delete; //stop default
+         Operate const& operator=(Operate const&) = delete; //stop default
          ServiceToken oldToken_;
       };
 
@@ -138,9 +138,9 @@ private:
       void unsetContext(ServiceToken const& iOldToken);
 
       ServiceRegistry();
-      ServiceRegistry(ServiceRegistry const&); // stop default
+      ServiceRegistry(ServiceRegistry const&) = delete; // stop default
 
-      ServiceRegistry const& operator=(ServiceRegistry const&); // stop default
+      ServiceRegistry const& operator=(ServiceRegistry const&) = delete; // stop default
 
       // ---------- member data --------------------------------
       std::shared_ptr<serviceregistry::ServicesManager> manager_;

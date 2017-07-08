@@ -56,9 +56,9 @@ protected:
     void endJob() override;
 
 private:
-    FFTJetPileupEstimator();
-    FFTJetPileupEstimator(const FFTJetPileupEstimator&);
-    FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&);
+    FFTJetPileupEstimator() = delete;
+    FFTJetPileupEstimator(const FFTJetPileupEstimator&) = delete;
+    FFTJetPileupEstimator& operator=(const FFTJetPileupEstimator&) = delete;
 
     std::unique_ptr<reco::FFTJetPileupSummary> calibrateFromConfig(
         double uncalibrated) const;

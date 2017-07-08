@@ -188,8 +188,8 @@ class DTTtrig {
 
  private:
 
-  DTTtrig(DTTtrig const&);
-  DTTtrig& operator=(DTTtrig const&);
+  DTTtrig(DTTtrig const&) = delete;
+  DTTtrig& operator=(DTTtrig const&) = delete;
 
   std::string dataVersion;
   float nsPerCount;

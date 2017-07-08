@@ -47,11 +47,11 @@ private:
 
   // No copy constructor is needed
 
-  UCTLayer1(const UCTLayer1&);
+  UCTLayer1(const UCTLayer1&) = delete;
 
   // No equality operator is needed
 
-  const UCTLayer1& operator=(const UCTLayer1&);
+  const UCTLayer1& operator=(const UCTLayer1&) = delete;
 
   // Helper functions
 

@@ -33,8 +33,8 @@ class FWPFTrackRPZProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFTrackRPZProxyBuilder( const FWPFTrackRPZProxyBuilder& );
-      const FWPFTrackRPZProxyBuilder& operator=( const FWPFTrackRPZProxyBuilder& );
+      FWPFTrackRPZProxyBuilder( const FWPFTrackRPZProxyBuilder& ) = delete;
+      const FWPFTrackRPZProxyBuilder& operator=( const FWPFTrackRPZProxyBuilder& ) = delete;
 
    // --------------------- Member Functions --------------------------
 };

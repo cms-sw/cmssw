@@ -61,9 +61,9 @@ protected:
    virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound,
                                   FWViewType::EType viewType, const FWViewContext* vc);
 private:
-   FWTauProxyBuilderBase(const FWTauProxyBuilderBase&); // stop default
+   FWTauProxyBuilderBase(const FWTauProxyBuilderBase&) = delete; // stop default
 
-   const FWTauProxyBuilderBase& operator=(const FWTauProxyBuilderBase&); // stop default
+   const FWTauProxyBuilderBase& operator=(const FWTauProxyBuilderBase&) = delete; // stop default
 
    // ---------- member data --------------------------------
    // Add Tracks which passed quality cuts and

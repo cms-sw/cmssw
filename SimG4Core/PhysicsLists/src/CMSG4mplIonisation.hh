@@ -83,8 +83,8 @@ protected:
 private:
 
   // hide assignment operator
-  CMSG4mplIonisation & operator=(const CMSG4mplIonisation &right);
-  CMSG4mplIonisation(const CMSG4mplIonisation&);
+  CMSG4mplIonisation & operator=(const CMSG4mplIonisation &right) = delete;
+  CMSG4mplIonisation(const CMSG4mplIonisation&) = delete;
 
   G4double    magneticCharge;
   G4bool      isInitialised;

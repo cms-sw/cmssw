@@ -37,8 +37,8 @@ public:
 private:
   using FWProxyBuilderBase::build;
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
-  FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&);    
-  const FWGEMDigiProxyBuilder& operator=(const FWGEMDigiProxyBuilder&);
+  FWGEMDigiProxyBuilder(const FWGEMDigiProxyBuilder&) = delete;    
+  const FWGEMDigiProxyBuilder& operator=(const FWGEMDigiProxyBuilder&) = delete;
 };
 
 void
@@ -124,8 +124,8 @@ public:
 
 private:
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
-  FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&);    
-  const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&);
+  FWGEMPadDigiProxyBuilder(const FWGEMPadDigiProxyBuilder&) = delete;    
+  const FWGEMPadDigiProxyBuilder& operator=(const FWGEMPadDigiProxyBuilder&) = delete;
 };
 
 void

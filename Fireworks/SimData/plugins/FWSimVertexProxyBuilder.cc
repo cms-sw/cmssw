@@ -21,9 +21,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWSimVertexProxyBuilder( const FWSimVertexProxyBuilder& );
+   FWSimVertexProxyBuilder( const FWSimVertexProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWSimVertexProxyBuilder& operator=( const FWSimVertexProxyBuilder& );
+   const FWSimVertexProxyBuilder& operator=( const FWSimVertexProxyBuilder& ) = delete;
 
    using FWSimpleProxyBuilderTemplate<SimVertex>::build;
    void build( const SimVertex& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

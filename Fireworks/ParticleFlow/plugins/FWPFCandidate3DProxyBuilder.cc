@@ -38,8 +38,8 @@ class FWPFCandidate3DProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::PF
       REGISTER_PROXYBUILDER_METHODS();
 
    private:
-      FWPFCandidate3DProxyBuilder( const FWPFCandidate3DProxyBuilder& );                    // Stop default
-      const FWPFCandidate3DProxyBuilder& operator=( const FWPFCandidate3DProxyBuilder& );   // Stop default
+      FWPFCandidate3DProxyBuilder( const FWPFCandidate3DProxyBuilder& ) = delete;                    // Stop default
+      const FWPFCandidate3DProxyBuilder& operator=( const FWPFCandidate3DProxyBuilder& ) = delete;   // Stop default
 
    // --------------------- Member Functions --------------------------
       using FWSimpleProxyBuilderTemplate<reco::PFCandidate>::build;

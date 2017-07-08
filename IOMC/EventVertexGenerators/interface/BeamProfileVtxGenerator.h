@@ -54,9 +54,9 @@ public:
   
 private:
   /** Copy constructor */
-  BeamProfileVtxGenerator(const BeamProfileVtxGenerator &p);
+  BeamProfileVtxGenerator(const BeamProfileVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  BeamProfileVtxGenerator& operator = (const BeamProfileVtxGenerator& rhs);
+  BeamProfileVtxGenerator& operator = (const BeamProfileVtxGenerator& rhs) = delete;
 private:
   double      fSigmaX, fSigmaY;
   double      fMeanX,  fMeanY, fMeanZ;

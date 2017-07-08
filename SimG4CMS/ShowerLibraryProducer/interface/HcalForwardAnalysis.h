@@ -58,8 +58,8 @@ public:
 
 private:
 
-  HcalForwardAnalysis(const HcalForwardAnalysis&); // stop default
-  const HcalForwardAnalysis& operator=(const HcalForwardAnalysis&);
+  HcalForwardAnalysis(const HcalForwardAnalysis&) = delete; // stop default
+  const HcalForwardAnalysis& operator=(const HcalForwardAnalysis&) = delete;
 
   void  init();
 

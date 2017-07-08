@@ -13,7 +13,7 @@ class FFTJetLookupTableSequenceLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTJetLookupTableSequence> Base;
     friend class StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader>;
-    FFTJetLookupTableSequenceLoader();
+    FFTJetLookupTableSequenceLoader() = delete;
 };
         
 typedef StaticFFTJetRcdMapper<FFTJetLookupTableSequenceLoader>

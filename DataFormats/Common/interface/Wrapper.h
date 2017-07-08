@@ -67,8 +67,8 @@ private:
   private:
     // We wish to disallow copy construction and assignment.
     // We make the copy constructor and assignment operator private.
-    Wrapper(Wrapper<T> const& rh); // disallow copy construction
-    Wrapper<T>& operator=(Wrapper<T> const&); // disallow assignment
+    Wrapper(Wrapper<T> const& rh) = delete; // disallow copy construction
+    Wrapper<T>& operator=(Wrapper<T> const&) = delete; // disallow assignment
 
     bool present;
     T obj;

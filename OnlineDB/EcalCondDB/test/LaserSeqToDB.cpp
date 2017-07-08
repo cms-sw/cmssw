@@ -817,7 +817,7 @@ public:
   
 private:
   
-  CondDBApp();  // hidden default constructor
+  CondDBApp() = delete;  // hidden default constructor
   EcalCondDBInterface* econn;
 
   //   uint64_t startmicros;

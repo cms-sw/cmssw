@@ -173,9 +173,9 @@ namespace edm {
         }
       }
 
-      EDAnalyzerAdaptor(const EDAnalyzerAdaptor&); // stop default
+      EDAnalyzerAdaptor(const EDAnalyzerAdaptor&) = delete; // stop default
       
-      const EDAnalyzerAdaptor& operator=(const EDAnalyzerAdaptor&); // stop default
+      const EDAnalyzerAdaptor& operator=(const EDAnalyzerAdaptor&) = delete; // stop default
       
       // ---------- member data --------------------------------
       typename impl::choose_unique_ptr<typename T::GlobalCache>::type m_global;

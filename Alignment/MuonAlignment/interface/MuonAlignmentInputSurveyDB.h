@@ -43,9 +43,9 @@ class MuonAlignmentInputSurveyDB: public MuonAlignmentInputMethod {
       virtual AlignableMuon *newAlignableMuon(const edm::EventSetup &iSetup) const;
 
    private:
-      MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&); // stop default
+      MuonAlignmentInputSurveyDB(const MuonAlignmentInputSurveyDB&) = delete; // stop default
 
-      const MuonAlignmentInputSurveyDB& operator=(const MuonAlignmentInputSurveyDB&); // stop default
+      const MuonAlignmentInputSurveyDB& operator=(const MuonAlignmentInputSurveyDB&) = delete; // stop default
 
       void addSurveyInfo_(Alignable* ali,
 			  unsigned int* theSurveyIndex,

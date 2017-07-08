@@ -111,8 +111,8 @@ protected:
    const fireworks::Context*  m_context;
 
 private:
-   FWEveView(const FWEveView&);    // stop default
-   const FWEveView& operator=(const FWEveView&);    // stop default
+   FWEveView(const FWEveView&) = delete;    // stop default
+   const FWEveView& operator=(const FWEveView&) = delete;    // stop default
   
 
    // ---------- member data --------------------------------

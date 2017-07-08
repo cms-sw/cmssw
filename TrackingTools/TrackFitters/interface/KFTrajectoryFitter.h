@@ -105,7 +105,7 @@ public:
 
 
 private:
-  KFTrajectoryFitter(KFTrajectoryFitter const&);
+  KFTrajectoryFitter(KFTrajectoryFitter const&) = delete;
 
 
   static const DetLayerGeometry dummyGeometry;

@@ -38,9 +38,9 @@ public:
    // ---------- member functions ---------------------------
 
 private:
-   FWEveLegoView(const FWEveLegoView&); // stop default
+   FWEveLegoView(const FWEveLegoView&) = delete; // stop default
 
-   const FWEveLegoView& operator=(const FWEveLegoView&); // stop default
+   const FWEveLegoView& operator=(const FWEveLegoView&) = delete; // stop default
 
    // ---------- member data --------------------------------
    TEveStraightLineSet* m_boundaries;

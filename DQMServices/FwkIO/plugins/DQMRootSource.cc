@@ -315,7 +315,7 @@ class DQMRootSource : public edm::InputSource
 
    private:
 
-      DQMRootSource(const DQMRootSource&); // stop default
+      DQMRootSource(const DQMRootSource&) = delete; // stop default
 
       class RunPHIDKey {
       public:
@@ -374,7 +374,7 @@ class DQMRootSource : public edm::InputSource
       void readElements();
       bool skipIt(edm::RunNumber_t, edm::LuminosityBlockNumber_t) const;
       
-      const DQMRootSource& operator=(const DQMRootSource&); // stop default
+      const DQMRootSource& operator=(const DQMRootSource&) = delete; // stop default
 
       // ---------- member data --------------------------------
       edm::InputFileCatalog m_catalog;

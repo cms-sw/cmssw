@@ -73,9 +73,9 @@ protected:
       throw std::runtime_error("virtual buildViewType(const T&, unsigned int, TEveElement&, FWViewType::EType, const FWViewContext*) not implemented by inherited class");
    };
 private:
-   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&); // stop default
+   FWSimpleProxyBuilderTemplate(const FWSimpleProxyBuilderTemplate&) = delete; // stop default
 
-   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&); // stop default
+   const FWSimpleProxyBuilderTemplate& operator=(const FWSimpleProxyBuilderTemplate&) = delete; // stop default
 
 
 

@@ -51,8 +51,8 @@ class BPHMuonPtSelect: public BPHParticlePtSelect {
  private:
 
   // private copy and assigment constructors
-  BPHMuonPtSelect           ( const BPHMuonPtSelect& x );
-  BPHMuonPtSelect& operator=( const BPHMuonPtSelect& x );
+  BPHMuonPtSelect           ( const BPHMuonPtSelect& x ) = delete;
+  BPHMuonPtSelect& operator=( const BPHMuonPtSelect& x ) = delete;
 
 };
 

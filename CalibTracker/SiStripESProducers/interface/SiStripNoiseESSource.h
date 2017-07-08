@@ -33,8 +33,8 @@ class SiStripNoiseESSource : public edm::ESProducer, public edm::EventSetupRecor
   
  private:
   
-  SiStripNoiseESSource( const SiStripNoiseESSource& );
-  const SiStripNoiseESSource& operator=( const SiStripNoiseESSource& );
+  SiStripNoiseESSource( const SiStripNoiseESSource& ) = delete;
+  const SiStripNoiseESSource& operator=( const SiStripNoiseESSource& ) = delete;
 
   virtual SiStripNoises* makeNoise() = 0; 
 

@@ -53,9 +53,9 @@ public:
    TGLFBO* GenerateFbo(Int_t w, Int_t h, Float_t pixel_object_scale);
 
 private:
-   FWTGLViewer(const FWTGLViewer&); // stop default
+   FWTGLViewer(const FWTGLViewer&) = delete; // stop default
 
-   const FWTGLViewer& operator=(const FWTGLViewer&); // stop default
+   const FWTGLViewer& operator=(const FWTGLViewer&) = delete; // stop default
 
    // ---------- member data --------------------------------
 

@@ -35,8 +35,8 @@ protected:
    FWIntValueListener* m_sliderListener;
   
 private:
-   FWTrackHitsDetailView(const FWTrackHitsDetailView&); // stop default
-   const FWTrackHitsDetailView& operator=(const FWTrackHitsDetailView&); // stop default
+   FWTrackHitsDetailView(const FWTrackHitsDetailView&) = delete; // stop default
+   const FWTrackHitsDetailView& operator=(const FWTrackHitsDetailView&) = delete; // stop default
 
    using FWDetailView<reco::Track>::build;
    void build (const FWModelId &id, const reco::Track*);

@@ -99,9 +99,9 @@ class BareRootProductGetter : public edm::EDProductGetter {
         edm::propagate_const<TClass*> class_;
       };
 
-      BareRootProductGetter(BareRootProductGetter const&); // stop default
+      BareRootProductGetter(BareRootProductGetter const&) = delete; // stop default
 
-      BareRootProductGetter const& operator=(BareRootProductGetter const&); // stop default
+      BareRootProductGetter const& operator=(BareRootProductGetter const&) = delete; // stop default
 
       Buffer* createNewBuffer(edm::BranchID const&) const;
       edm::ThinnedAssociation const* getThinnedAssociation(edm::BranchID const& branchID, Long_t eventEntry) const;

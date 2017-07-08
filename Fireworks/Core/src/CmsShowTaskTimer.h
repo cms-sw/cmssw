@@ -41,9 +41,9 @@ public:
    virtual Bool_t Notify();
 
 private:
-   CmsShowTaskTimer(const CmsShowTaskTimer&);    // stop default
+   CmsShowTaskTimer(const CmsShowTaskTimer&) = delete;    // stop default
 
-   const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&);    // stop default
+   const CmsShowTaskTimer& operator=(const CmsShowTaskTimer&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    CmsShowTaskExecutorBase* m_taskExec;

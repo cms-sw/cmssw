@@ -58,9 +58,9 @@ class SensitiveDetectorMaker : public SensitiveDetectorMakerBase
       // ---------- member functions ---------------------------
 
    private:
-      SensitiveDetectorMaker(const SensitiveDetectorMaker&); // stop default
+      SensitiveDetectorMaker(const SensitiveDetectorMaker&) = delete; // stop default
 
-      const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&); // stop default
+      const SensitiveDetectorMaker& operator=(const SensitiveDetectorMaker&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

@@ -106,9 +106,9 @@ namespace fftjetcms {
 
   private:
     // Explicitly disable other ways to construct this object
-    FFTJetInterface();
-    FFTJetInterface(const FFTJetInterface&);
-    FFTJetInterface& operator=(const FFTJetInterface&);
+    FFTJetInterface() = delete;
+    FFTJetInterface(const FFTJetInterface&) = delete;
+    FFTJetInterface& operator=(const FFTJetInterface&) = delete;
 
     const bool insertCompleteEvent;
     const double completeEventScale;

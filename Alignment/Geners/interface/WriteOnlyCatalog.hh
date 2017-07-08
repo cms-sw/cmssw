@@ -58,8 +58,8 @@ namespace gs {
         inline virtual bool isEqual(const AbsCatalog&) const {return false;}
 
     private:
-        WriteOnlyCatalog(const WriteOnlyCatalog&);
-        WriteOnlyCatalog& operator=(const WriteOnlyCatalog&);
+        WriteOnlyCatalog(const WriteOnlyCatalog&) = delete;
+        WriteOnlyCatalog& operator=(const WriteOnlyCatalog&) = delete;
 
         std::ostream& os_;
         unsigned long long count_;

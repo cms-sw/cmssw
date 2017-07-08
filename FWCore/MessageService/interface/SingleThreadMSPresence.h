@@ -18,8 +18,8 @@ public:
 
 private:
   // --- no copying:
-  SingleThreadMSPresence(SingleThreadMSPresence const &);
-  void  operator = (SingleThreadMSPresence const &);
+  SingleThreadMSPresence(SingleThreadMSPresence const &) = delete;
+  void  operator = (SingleThreadMSPresence const &) = delete;
   
 };  // SingleThreadMSPresence
 

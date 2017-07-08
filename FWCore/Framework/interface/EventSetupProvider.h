@@ -117,9 +117,9 @@ class EventSetupProvider {
          }
 
    private:
-      EventSetupProvider(EventSetupProvider const&); // stop default
+      EventSetupProvider(EventSetupProvider const&) = delete; // stop default
 
-      EventSetupProvider const& operator=(EventSetupProvider const&); // stop default
+      EventSetupProvider const& operator=(EventSetupProvider const&) = delete; // stop default
 
       void insert(EventSetupRecordKey const&, std::unique_ptr<EventSetupRecordProvider>);
 

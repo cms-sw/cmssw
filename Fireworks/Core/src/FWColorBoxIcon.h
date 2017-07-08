@@ -42,9 +42,9 @@ public:
    }
    
 private:
-   FWColorBoxIcon(const FWColorBoxIcon&); // stop default
+   FWColorBoxIcon(const FWColorBoxIcon&) = delete; // stop default
    
-   const FWColorBoxIcon& operator=(const FWColorBoxIcon&); // stop default
+   const FWColorBoxIcon& operator=(const FWColorBoxIcon&) = delete; // stop default
 
    void drawInsideBox(Drawable_t iID, GContext_t iContext, int iX, int iY, unsigned int iSize) const;
 

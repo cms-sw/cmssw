@@ -20,8 +20,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 
 private:
-   FWCastorRecHitProxyBuilder( const FWCastorRecHitProxyBuilder& );
-   const FWCastorRecHitProxyBuilder& operator=( const FWCastorRecHitProxyBuilder& );
+   FWCastorRecHitProxyBuilder( const FWCastorRecHitProxyBuilder& ) = delete;
+   const FWCastorRecHitProxyBuilder& operator=( const FWCastorRecHitProxyBuilder& ) = delete;
 };
 
 REGISTER_FWPROXYBUILDER( FWCastorRecHitProxyBuilder, CastorRecHitCollection, "Castor RecHit", FWViewType::kISpyBit );

@@ -62,8 +62,8 @@ private :
     // -----------------------------------------------------------------------
     //  Unimplemented constructors and operators
     // -----------------------------------------------------------------------
-    DOMCountErrorHandler(const DOMCountErrorHandler&);
-    void operator=(const DOMCountErrorHandler&);
+    DOMCountErrorHandler(const DOMCountErrorHandler&) = delete;
+    void operator=(const DOMCountErrorHandler&) = delete;
 
 
     // -----------------------------------------------------------------------

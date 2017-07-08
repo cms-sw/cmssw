@@ -45,8 +45,8 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
       using FWSimpleProxyBuilderTemplate<T>::build;
       void build( const T&, unsigned int, TEveElement&, const FWViewContext* );
    private:
-      FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&);             //stop default
-      const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&);  //stop default
+      FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&) = delete;             //stop default
+      const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&) = delete;  //stop default
 
    // --------------------- Member Functions --------------------------
 

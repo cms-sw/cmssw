@@ -108,9 +108,9 @@ class PluginFactoryBase
       void registerPMaker(void* iPMaker, const std::string& iName);
       
    private:
-      PluginFactoryBase(const PluginFactoryBase&); // stop default
+      PluginFactoryBase(const PluginFactoryBase&) = delete; // stop default
 
-      const PluginFactoryBase& operator=(const PluginFactoryBase&); // stop default
+      const PluginFactoryBase& operator=(const PluginFactoryBase&) = delete; // stop default
 
       void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------

@@ -26,9 +26,9 @@ public:
     virtual ~BufferedBoostIODBWriter() {}
 
 private:
-    BufferedBoostIODBWriter();
-    BufferedBoostIODBWriter(const BufferedBoostIODBWriter&);
-    BufferedBoostIODBWriter& operator=(const BufferedBoostIODBWriter&);
+    BufferedBoostIODBWriter() = delete;
+    BufferedBoostIODBWriter(const BufferedBoostIODBWriter&) = delete;
+    BufferedBoostIODBWriter& operator=(const BufferedBoostIODBWriter&) = delete;
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 

@@ -76,9 +76,9 @@ public:
 private:
 
    void removeItem(const FWEventItem*);
-   FWEventItemsManager(const FWEventItemsManager&);    // stop default
+   FWEventItemsManager(const FWEventItemsManager&) = delete;    // stop default
 
-   const FWEventItemsManager& operator=(const FWEventItemsManager&);    // stop default
+   const FWEventItemsManager& operator=(const FWEventItemsManager&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    std::vector<FWEventItem*> m_items;

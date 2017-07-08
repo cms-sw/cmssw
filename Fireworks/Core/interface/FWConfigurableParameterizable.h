@@ -46,9 +46,9 @@ public:
    virtual void setFrom(const FWConfiguration&);
 
 private:
-   FWConfigurableParameterizable(const FWConfigurableParameterizable&);    // stop default
+   FWConfigurableParameterizable(const FWConfigurableParameterizable&) = delete;    // stop default
 
-   const FWConfigurableParameterizable& operator=(const FWConfigurableParameterizable&);    // stop default
+   const FWConfigurableParameterizable& operator=(const FWConfigurableParameterizable&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    unsigned int m_version;

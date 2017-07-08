@@ -54,9 +54,9 @@ namespace edm {
                                           std::unique_ptr<eventsetup::ProxyFactoryBase> iFactory,
                                           const std::string& iLabel= std::string() );
 private:
-      ESProducerLooper(const ESProducerLooper&); // stop default
+      ESProducerLooper(const ESProducerLooper&) = delete; // stop default
 
-      const ESProducerLooper& operator=(const ESProducerLooper&); // stop default
+      const ESProducerLooper& operator=(const ESProducerLooper&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

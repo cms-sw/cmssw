@@ -48,9 +48,9 @@ namespace simwatcher {
       void produce(edm::Event&, const edm::EventSetup&);
 
    private:
-      BeginOfTrackCounter(const BeginOfTrackCounter&); // stop default
+      BeginOfTrackCounter(const BeginOfTrackCounter&) = delete; // stop default
 
-      const BeginOfTrackCounter& operator=(const BeginOfTrackCounter&); // stop default
+      const BeginOfTrackCounter& operator=(const BeginOfTrackCounter&) = delete; // stop default
 
       void update(const BeginOfTrack*);
       // ---------- member data --------------------------------

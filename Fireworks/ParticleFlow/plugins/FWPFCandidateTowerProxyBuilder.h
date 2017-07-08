@@ -41,8 +41,8 @@ protected:
    virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
 
 private:
-   FWPFCandidateTowerProxyBuilder(const FWPFCandidateTowerProxyBuilder&); // stop default
-   const FWPFCandidateTowerProxyBuilder& operator=(const FWPFCandidateTowerProxyBuilder&); // stop default
+   FWPFCandidateTowerProxyBuilder(const FWPFCandidateTowerProxyBuilder&) = delete; // stop default
+   const FWPFCandidateTowerProxyBuilder& operator=(const FWPFCandidateTowerProxyBuilder&) = delete; // stop default
   
    // ---------- member data --------------------------------
    const reco::PFCandidateCollection* m_towers;
@@ -70,8 +70,8 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWECalPFCandidateProxyBuilder(const FWECalPFCandidateProxyBuilder&); // stop default
-   const FWECalPFCandidateProxyBuilder& operator=(const FWECalPFCandidateProxyBuilder&); // stop default
+   FWECalPFCandidateProxyBuilder(const FWECalPFCandidateProxyBuilder&) = delete; // stop default
+   const FWECalPFCandidateProxyBuilder& operator=(const FWECalPFCandidateProxyBuilder&) = delete; // stop default
 };
 
 
@@ -94,9 +94,9 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWHCalPFCandidateProxyBuilder(const FWHCalPFCandidateProxyBuilder&); // stop default
+   FWHCalPFCandidateProxyBuilder(const FWHCalPFCandidateProxyBuilder&) = delete; // stop default
 
-   const FWHCalPFCandidateProxyBuilder& operator=(const FWHCalPFCandidateProxyBuilder&); // stop default
+   const FWHCalPFCandidateProxyBuilder& operator=(const FWHCalPFCandidateProxyBuilder&) = delete; // stop default
 };
 
 #endif

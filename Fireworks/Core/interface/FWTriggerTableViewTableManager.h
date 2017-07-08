@@ -55,8 +55,8 @@ protected:
    FWTextTableCellRenderer *m_renderer;
 
 private:
-   FWTriggerTableViewTableManager(const FWTriggerTableViewTableManager&); // stop default     
-   const FWTriggerTableViewTableManager& operator=(const FWTriggerTableViewTableManager&); // stop default
+   FWTriggerTableViewTableManager(const FWTriggerTableViewTableManager&) = delete; // stop default     
+   const FWTriggerTableViewTableManager& operator=(const FWTriggerTableViewTableManager&) = delete; // stop default
 };
 
 

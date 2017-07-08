@@ -36,8 +36,8 @@ private:
 		       const edm::IOVSyncValue& iov,
 		       edm::ValidityInterval& iValidity);
   
-  SiStripQualityFakeESSource( const SiStripQualityFakeESSource& );
-  const SiStripQualityFakeESSource& operator=( const SiStripQualityFakeESSource& );
+  SiStripQualityFakeESSource( const SiStripQualityFakeESSource& ) = delete;
+  const SiStripQualityFakeESSource& operator=( const SiStripQualityFakeESSource& ) = delete;
 };
 
 #endif

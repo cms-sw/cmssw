@@ -44,9 +44,9 @@ public:
   
 private:
   /** Copy constructor */
-  FlatEvtVtxGenerator(const FlatEvtVtxGenerator &p);
+  FlatEvtVtxGenerator(const FlatEvtVtxGenerator &p) = delete;
   /** Copy assignment operator */
-  FlatEvtVtxGenerator&  operator = (const FlatEvtVtxGenerator & rhs );
+  FlatEvtVtxGenerator&  operator = (const FlatEvtVtxGenerator & rhs ) = delete;
 private:
   double fMinX, fMinY, fMinZ;
   double fMaxX, fMaxY, fMaxZ;

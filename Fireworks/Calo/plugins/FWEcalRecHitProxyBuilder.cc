@@ -20,8 +20,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
 	
 private:
-   FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& );
-   const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& );
+   FWEcalRecHitProxyBuilder( const FWEcalRecHitProxyBuilder& ) = delete;
+   const FWEcalRecHitProxyBuilder& operator=( const FWEcalRecHitProxyBuilder& ) = delete;
 };
 
 

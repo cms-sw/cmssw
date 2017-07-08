@@ -28,8 +28,8 @@ public:
    void setViewer(FWEveView* ev) { m_viewer = ev; }
 
 private:
-   FWGLEventHandler(const FWGLEventHandler&); // stop default
-   const FWGLEventHandler& operator=(const FWGLEventHandler&); // stop default
+   FWGLEventHandler(const FWGLEventHandler&) = delete; // stop default
+   const FWGLEventHandler& operator=(const FWGLEventHandler&) = delete; // stop default
 
    FWEveView *m_viewer;
 };

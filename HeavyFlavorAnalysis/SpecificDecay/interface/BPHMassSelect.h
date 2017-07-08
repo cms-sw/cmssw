@@ -53,8 +53,8 @@ class BPHMassSelect: public BPHMomentumSelect, public BPHMassCuts {
  private:
 
   // private copy and assigment constructors
-  BPHMassSelect           ( const BPHMassSelect& x );
-  BPHMassSelect& operator=( const BPHMassSelect& x );
+  BPHMassSelect           ( const BPHMassSelect& x ) = delete;
+  BPHMassSelect& operator=( const BPHMassSelect& x ) = delete;
 
 };
 

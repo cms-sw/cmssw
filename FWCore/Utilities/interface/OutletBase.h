@@ -40,9 +40,9 @@ class OutletBase
 
   
    private:
-      OutletBase(const OutletBase&); // stop default
+      OutletBase(const OutletBase&) = delete; // stop default
 
-      const OutletBase& operator=(const OutletBase&); // stop default
+      const OutletBase& operator=(const OutletBase&) = delete; // stop default
 
       // ---------- member data --------------------------------
       ExtensionCord<T>& cord_;

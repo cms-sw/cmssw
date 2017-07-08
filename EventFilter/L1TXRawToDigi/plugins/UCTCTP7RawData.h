@@ -338,8 +338,8 @@ private:
 
   // No copy constructor and equality operator are needed
   
-  UCTCTP7RawData(const UCTCTP7RawData&);
-  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i);
+  UCTCTP7RawData(const UCTCTP7RawData&) = delete;
+  const UCTCTP7RawData& operator=(const UCTCTP7RawData& i) = delete;
   
   // RawData data
   

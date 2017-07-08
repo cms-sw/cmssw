@@ -55,7 +55,7 @@ public:
 
 private:
 
-  DDHtmlFormatter& operator= ( const DDHtmlFormatter& );
+  DDHtmlFormatter& operator= ( const DDHtmlFormatter& ) = delete;
 };
 
 

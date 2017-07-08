@@ -72,9 +72,9 @@ class FWTableCellRendererBase
       virtual void buttonEvent(Event_t* iClickEvent, int iRelClickX, int iRelClickY);
 
    private:
-      FWTableCellRendererBase(const FWTableCellRendererBase&); // stop default
+      FWTableCellRendererBase(const FWTableCellRendererBase&) = delete; // stop default
 
-      const FWTableCellRendererBase& operator=(const FWTableCellRendererBase&); // stop default
+      const FWTableCellRendererBase& operator=(const FWTableCellRendererBase&) = delete; // stop default
 
       // ---------- member data --------------------------------
 

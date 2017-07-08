@@ -45,9 +45,9 @@ public:
 protected:
    virtual void DoRedraw();
 private:
-   FWBoxIconButton(const FWBoxIconButton&); // stop default
+   FWBoxIconButton(const FWBoxIconButton&) = delete; // stop default
    
-   const FWBoxIconButton& operator=(const FWBoxIconButton&); // stop default
+   const FWBoxIconButton& operator=(const FWBoxIconButton&) = delete; // stop default
    
    // ---------- member data --------------------------------
    FWBoxIconBase* m_iconBase;

@@ -38,9 +38,9 @@ namespace edm {
          void  runCommand(MessageLoggerQ::OpCode  opcode, void * operand);
          
       private:
-         SilentMLscribe(const SilentMLscribe&); // stop default
+         SilentMLscribe(const SilentMLscribe&) = delete; // stop default
          
-         const SilentMLscribe& operator=(const SilentMLscribe&); // stop default
+         const SilentMLscribe& operator=(const SilentMLscribe&) = delete; // stop default
          
          // ---------- member data --------------------------------
          

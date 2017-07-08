@@ -42,7 +42,7 @@ protected:
   inline bool nextChildposp();
   
 private:
-  DDCompareEqual();  
+  DDCompareEqual() = delete;  
   const DDGeoHistory & hist_;
   const DDPartSelection & partsel_;
   DDGeoHistory::size_type const hMax_;

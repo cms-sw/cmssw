@@ -20,9 +20,9 @@ public:
 
 private:
    // Disable default copy constructor
-   FWMuonGlimpseProxyBuilder( const FWMuonGlimpseProxyBuilder& );
+   FWMuonGlimpseProxyBuilder( const FWMuonGlimpseProxyBuilder& ) = delete;
    // Disable default assignment operator
-   const FWMuonGlimpseProxyBuilder& operator=( const FWMuonGlimpseProxyBuilder& );
+   const FWMuonGlimpseProxyBuilder& operator=( const FWMuonGlimpseProxyBuilder& ) = delete;
 
    using FWSimpleProxyBuilderTemplate<reco::Muon>::build;
    void build( const reco::Muon& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;

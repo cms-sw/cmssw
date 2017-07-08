@@ -28,8 +28,8 @@ public:
   void produce(edm::Event&, const edm::EventSetup&);
 
 private:
-  StoreSecondary(const StoreSecondary&); // stop default
-  const StoreSecondary& operator=(const StoreSecondary&);
+  StoreSecondary(const StoreSecondary&) = delete; // stop default
+  const StoreSecondary& operator=(const StoreSecondary&) = delete;
 
   // observer classes
   void update(const BeginOfEvent * evt);

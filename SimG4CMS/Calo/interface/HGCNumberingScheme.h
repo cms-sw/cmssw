@@ -38,7 +38,7 @@ public:
 
 private:
   
-  HGCNumberingScheme();
+  HGCNumberingScheme() = delete;
   const HGCalDDDConstants& hgcons_;
 };
 

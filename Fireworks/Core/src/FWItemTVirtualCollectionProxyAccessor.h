@@ -51,9 +51,9 @@ public:
    void reset();
 
 private:
-   FWItemTVirtualCollectionProxyAccessor(const FWItemTVirtualCollectionProxyAccessor&); // stop default
+   FWItemTVirtualCollectionProxyAccessor(const FWItemTVirtualCollectionProxyAccessor&) = delete; // stop default
 
-   const FWItemTVirtualCollectionProxyAccessor& operator=(const FWItemTVirtualCollectionProxyAccessor&); // stop default
+   const FWItemTVirtualCollectionProxyAccessor& operator=(const FWItemTVirtualCollectionProxyAccessor&) = delete; // stop default
 
    // ---------- member data --------------------------------
    const TClass* m_type;

@@ -56,8 +56,8 @@ class BPHParticleEtaSelect: public BPHRecoSelect {
  private:
 
   // private copy and assigment constructors
-  BPHParticleEtaSelect           ( const BPHParticleEtaSelect& x );
-  BPHParticleEtaSelect& operator=( const BPHParticleEtaSelect& x );
+  BPHParticleEtaSelect           ( const BPHParticleEtaSelect& x ) = delete;
+  BPHParticleEtaSelect& operator=( const BPHParticleEtaSelect& x ) = delete;
 
   double etaMax;
 

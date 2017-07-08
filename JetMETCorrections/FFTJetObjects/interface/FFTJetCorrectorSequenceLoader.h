@@ -9,7 +9,7 @@ class FFTBasicJetCorrectorSequenceLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTBasicJetCorrectorSequence> Base;
     friend class StaticFFTJetRcdMapper<FFTBasicJetCorrectorSequenceLoader>;
-    FFTBasicJetCorrectorSequenceLoader();
+    FFTBasicJetCorrectorSequenceLoader() = delete;
 };
 
 typedef StaticFFTJetRcdMapper<FFTBasicJetCorrectorSequenceLoader>
@@ -20,7 +20,7 @@ class FFTCaloJetCorrectorSequenceLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTCaloJetCorrectorSequence> Base;
     friend class StaticFFTJetRcdMapper<FFTCaloJetCorrectorSequenceLoader>;
-    FFTCaloJetCorrectorSequenceLoader();
+    FFTCaloJetCorrectorSequenceLoader() = delete;
 };
 
 typedef StaticFFTJetRcdMapper<FFTCaloJetCorrectorSequenceLoader>
@@ -31,7 +31,7 @@ class FFTGenJetCorrectorSequenceLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTGenJetCorrectorSequence> Base;
     friend class StaticFFTJetRcdMapper<FFTGenJetCorrectorSequenceLoader>;
-    FFTGenJetCorrectorSequenceLoader();
+    FFTGenJetCorrectorSequenceLoader() = delete;
 };
 
 typedef StaticFFTJetRcdMapper<FFTGenJetCorrectorSequenceLoader>
@@ -42,7 +42,7 @@ class FFTPFJetCorrectorSequenceLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTPFJetCorrectorSequence> Base;
     friend class StaticFFTJetRcdMapper<FFTPFJetCorrectorSequenceLoader>;
-    FFTPFJetCorrectorSequenceLoader();
+    FFTPFJetCorrectorSequenceLoader() = delete;
 };
 
 typedef StaticFFTJetRcdMapper<FFTPFJetCorrectorSequenceLoader>
@@ -53,7 +53,7 @@ class FFTTrackJetCorrectorSequenceLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTTrackJetCorrectorSequence> Base;
     friend class StaticFFTJetRcdMapper<FFTTrackJetCorrectorSequenceLoader>;
-    FFTTrackJetCorrectorSequenceLoader();
+    FFTTrackJetCorrectorSequenceLoader() = delete;
 };
 
 typedef StaticFFTJetRcdMapper<FFTTrackJetCorrectorSequenceLoader>
@@ -64,7 +64,7 @@ class FFTJPTJetCorrectorSequenceLoader :
 {
     typedef DefaultFFTJetRcdMapper<FFTJPTJetCorrectorSequence> Base;
     friend class StaticFFTJetRcdMapper<FFTJPTJetCorrectorSequenceLoader>;
-    FFTJPTJetCorrectorSequenceLoader();
+    FFTJPTJetCorrectorSequenceLoader() = delete;
 };
 
 typedef StaticFFTJetRcdMapper<FFTJPTJetCorrectorSequenceLoader>

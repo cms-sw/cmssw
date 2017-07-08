@@ -46,9 +46,9 @@ public:
    void doUpdate();
 
 private:
-   FWBoolParameterSetter(const FWBoolParameterSetter&);    // stop default
+   FWBoolParameterSetter(const FWBoolParameterSetter&) = delete;    // stop default
 
-   const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&);    // stop default
+   const FWBoolParameterSetter& operator=(const FWBoolParameterSetter&) = delete;    // stop default
 
    // ---------- member data --------------------------------
    FWBoolParameter* m_param;

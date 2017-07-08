@@ -24,9 +24,9 @@ class EmptyESSource : public  EventSetupRecordIntervalFinder {
                         ValidityInterval& oInterval) override;
       
    private:
-      EmptyESSource(EmptyESSource const&); // stop default
+      EmptyESSource(EmptyESSource const&) = delete; // stop default
 
-      EmptyESSource const& operator=(EmptyESSource const&); // stop default
+      EmptyESSource const& operator=(EmptyESSource const&) = delete; // stop default
       
       void delaySettingRecords() override;
       // ---------- member data --------------------------------

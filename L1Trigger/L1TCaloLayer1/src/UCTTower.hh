@@ -135,15 +135,15 @@ private:
 
   // No default constructor is needed
 
-  UCTTower();
+  UCTTower() = delete;
 
   // No copy constructor is needed
 
-  UCTTower(const UCTTower&);
+  UCTTower(const UCTTower&) = delete;
 
   // No equality operator is needed
 
-  const UCTTower& operator=(const UCTTower&);
+  const UCTTower& operator=(const UCTTower&) = delete;
 
   // Tower location definition
 

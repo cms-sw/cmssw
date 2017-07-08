@@ -94,9 +94,9 @@ class SimProducer : public SimWatcher
       }
 
    private:
-      SimProducer(const SimProducer&); // stop default
+      SimProducer(const SimProducer&) = delete; // stop default
 
-      const SimProducer& operator=(const SimProducer&); // stop default
+      const SimProducer& operator=(const SimProducer&) = delete; // stop default
 
       // ---------- member data --------------------------------
       std::vector<std::shared_ptr< simproducer::ProductInfoBase> > m_info;

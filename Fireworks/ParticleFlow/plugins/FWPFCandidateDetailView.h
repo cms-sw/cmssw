@@ -31,8 +31,8 @@ public:
 protected:
   
 private:
-   FWPFCandidateDetailView(const FWPFCandidateDetailView&); // stop default
-   const FWPFCandidateDetailView& operator=(const FWPFCandidateDetailView&); // stop default
+   FWPFCandidateDetailView(const FWPFCandidateDetailView&) = delete; // stop default
+   const FWPFCandidateDetailView& operator=(const FWPFCandidateDetailView&) = delete; // stop default
 
    using FWDetailView<reco::PFCandidate>::build;
    void build (const FWModelId &id, const reco::PFCandidate*);

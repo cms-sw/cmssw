@@ -40,10 +40,10 @@ public:
    
 private:
     /** Copy constructor */
-    HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator &p);
+    HLLHCEvtVtxGenerator(const HLLHCEvtVtxGenerator &p) = delete;
 
     /** Copy assignment operator */
-    HLLHCEvtVtxGenerator&  operator = (const HLLHCEvtVtxGenerator & rhs );
+    HLLHCEvtVtxGenerator&  operator = (const HLLHCEvtVtxGenerator & rhs ) = delete;
     
     //spatial and time offset for mean collision
     const double fMeanX, fMeanY, fMeanZ, fTimeOffset;

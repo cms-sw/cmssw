@@ -112,9 +112,9 @@ public:
    
    
 private:
-   FWLiteESSource(const FWLiteESSource&); // stop default
+   FWLiteESSource(const FWLiteESSource&) = delete; // stop default
    
-   const FWLiteESSource& operator=(const FWLiteESSource&); // stop default
+   const FWLiteESSource& operator=(const FWLiteESSource&) = delete; // stop default
    
    virtual void registerProxies(const edm::eventsetup::EventSetupRecordKey& iRecordKey ,
                                 KeyedProxies& aProxyList) override;

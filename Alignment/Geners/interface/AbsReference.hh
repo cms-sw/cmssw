@@ -69,7 +69,7 @@ namespace gs {
     private:
         friend class AbsArchive;
 
-        AbsReference();
+        AbsReference() = delete;
 
         void initialize() const;
         void addItemId(unsigned long long id);

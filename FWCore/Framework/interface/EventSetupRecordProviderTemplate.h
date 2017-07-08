@@ -102,9 +102,9 @@ namespace edm {
          EventSetupRecord& record() { return record_; }
          
       private:
-         EventSetupRecordProviderTemplate(EventSetupRecordProviderTemplate const&); // stop default
+         EventSetupRecordProviderTemplate(EventSetupRecordProviderTemplate const&) = delete; // stop default
          
-         EventSetupRecordProviderTemplate const& operator=(EventSetupRecordProviderTemplate const&); // stop default
+         EventSetupRecordProviderTemplate const& operator=(EventSetupRecordProviderTemplate const&) = delete; // stop default
          
          // ---------- member data --------------------------------
          T record_;

@@ -34,8 +34,8 @@ public:
    virtual ~FWElectronDetailView();
 
 private:
-   FWElectronDetailView(const FWElectronDetailView&); // stop default
-   const FWElectronDetailView& operator=(const FWElectronDetailView&); // stop default
+   FWElectronDetailView(const FWElectronDetailView&) = delete; // stop default
+   const FWElectronDetailView& operator=(const FWElectronDetailView&) = delete; // stop default
 
    using FWDetailViewGL<reco::GsfElectron>::build;
    virtual void build (const FWModelId &id, const reco::GsfElectron*);

@@ -64,9 +64,9 @@ namespace edm {
         return result;
       }
    private:
-      ESWatcher(const ESWatcher&); // stop default
+      ESWatcher(const ESWatcher&) = delete; // stop default
 
-      const ESWatcher& operator=(const ESWatcher&); // stop default
+      const ESWatcher& operator=(const ESWatcher&) = delete; // stop default
 
       // ---------- member data --------------------------------
       std::function<void (const T&)> callback_;

@@ -40,9 +40,9 @@ public:
    virtual void updateEditor();
 
 private:
-   FWParameterSetterEditorBase(const FWParameterSetterEditorBase&);    // stop default
+   FWParameterSetterEditorBase(const FWParameterSetterEditorBase&) = delete;    // stop default
 
-   const FWParameterSetterEditorBase& operator=(const FWParameterSetterEditorBase&);    // stop default
+   const FWParameterSetterEditorBase& operator=(const FWParameterSetterEditorBase&) = delete;    // stop default
 
    // ---------- member data --------------------------------
 

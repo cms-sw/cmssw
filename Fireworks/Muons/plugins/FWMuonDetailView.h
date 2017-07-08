@@ -23,8 +23,8 @@ public:
 
 
 private:
-   FWMuonDetailView(const FWMuonDetailView&); // stop default
-   const FWMuonDetailView& operator=(const FWMuonDetailView&); // stop default
+   FWMuonDetailView(const FWMuonDetailView&) = delete; // stop default
+   const FWMuonDetailView& operator=(const FWMuonDetailView&) = delete; // stop default
 
    virtual void build (const FWModelId &id, const reco::Muon*);
    virtual void setTextInfo(const FWModelId&, const reco::Muon*);

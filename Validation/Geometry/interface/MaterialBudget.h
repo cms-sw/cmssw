@@ -34,8 +34,8 @@ public:
   
 private:
 
-  MaterialBudget(const MaterialBudget&);          // stop default
-  const MaterialBudget& operator=(const MaterialBudget&); // ...
+  MaterialBudget(const MaterialBudget&) = delete;          // stop default
+  const MaterialBudget& operator=(const MaterialBudget&) = delete; // ...
   
   void update(const BeginOfRun*);
   void update(const BeginOfTrack*);

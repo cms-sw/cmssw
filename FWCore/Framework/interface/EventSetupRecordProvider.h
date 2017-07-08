@@ -121,9 +121,9 @@ class EventSetupRecordProvider {
       }
 
    private:
-      EventSetupRecordProvider(EventSetupRecordProvider const&); // stop default
+      EventSetupRecordProvider(EventSetupRecordProvider const&) = delete; // stop default
 
-      EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&); // stop default
+      EventSetupRecordProvider const& operator=(EventSetupRecordProvider const&) = delete; // stop default
 
       void resetTransients();
       bool checkResetTransients();

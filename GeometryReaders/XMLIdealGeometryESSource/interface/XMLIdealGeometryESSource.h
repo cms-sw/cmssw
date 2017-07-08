@@ -26,8 +26,8 @@ protected:
     virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey &,
 				const edm::IOVSyncValue &,edm::ValidityInterval &);
 private:
-    XMLIdealGeometryESSource(const XMLIdealGeometryESSource &);
-    const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &);
+    XMLIdealGeometryESSource(const XMLIdealGeometryESSource &) = delete;
+    const XMLIdealGeometryESSource & operator=(const XMLIdealGeometryESSource &) = delete;
     std::string rootNodeName_;
     bool userNS_;
     GeometryConfiguration geoConfig_;

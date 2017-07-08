@@ -46,8 +46,8 @@ protected:
    virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*);
 
 private:
-   FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&); // stop default
-   const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&); // stop default
+   FWCaloTowerProxyBuilderBase(const FWCaloTowerProxyBuilderBase&) = delete; // stop default
+   const FWCaloTowerProxyBuilderBase& operator=(const FWCaloTowerProxyBuilderBase&) = delete; // stop default
 
    const CaloTowerCollection* m_towers;
 };
@@ -71,8 +71,8 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWECalCaloTowerProxyBuilder(const FWECalCaloTowerProxyBuilder&); // stop default
-   const FWECalCaloTowerProxyBuilder& operator=(const FWECalCaloTowerProxyBuilder&); // stop default
+   FWECalCaloTowerProxyBuilder(const FWECalCaloTowerProxyBuilder&) = delete; // stop default
+   const FWECalCaloTowerProxyBuilder& operator=(const FWECalCaloTowerProxyBuilder&) = delete; // stop default
 };
 
 
@@ -95,9 +95,9 @@ public:
 
    REGISTER_PROXYBUILDER_METHODS();
 private:
-   FWHCalCaloTowerProxyBuilder(const FWHCalCaloTowerProxyBuilder&); // stop default
+   FWHCalCaloTowerProxyBuilder(const FWHCalCaloTowerProxyBuilder&) = delete; // stop default
 
-   const FWHCalCaloTowerProxyBuilder& operator=(const FWHCalCaloTowerProxyBuilder&); // stop default
+   const FWHCalCaloTowerProxyBuilder& operator=(const FWHCalCaloTowerProxyBuilder&) = delete; // stop default
 };
 
 //
@@ -120,8 +120,8 @@ public:
    REGISTER_PROXYBUILDER_METHODS();
    
 private:
-   FWHOCaloTowerProxyBuilder(const FWHOCaloTowerProxyBuilder&); // stop default   
-   const FWHOCaloTowerProxyBuilder& operator=(const FWHOCaloTowerProxyBuilder&); // stop default
+   FWHOCaloTowerProxyBuilder(const FWHOCaloTowerProxyBuilder&) = delete; // stop default   
+   const FWHOCaloTowerProxyBuilder& operator=(const FWHOCaloTowerProxyBuilder&) = delete; // stop default
 };
 
 #endif

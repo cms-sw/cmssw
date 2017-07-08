@@ -39,9 +39,9 @@ protected:
                                 edm::ValidityInterval& iInterval);
    
 private:
-   IntProductESSource(const IntProductESSource&); // stop default
+   IntProductESSource(const IntProductESSource&) = delete; // stop default
    
-   const IntProductESSource& operator=(const IntProductESSource&); // stop default
+   const IntProductESSource& operator=(const IntProductESSource&) = delete; // stop default
    
    // ---------- member data --------------------------------
    unsigned int nCalls_;

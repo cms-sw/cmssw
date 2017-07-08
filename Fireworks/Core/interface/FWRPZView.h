@@ -62,8 +62,8 @@ public:
    void shiftOrigin(TEveVector& center);
    void resetOrigin();
 private:
-   FWRPZView(const FWRPZView&);    // stop default
-   const FWRPZView& operator=(const FWRPZView&);    // stop default 
+   FWRPZView(const FWRPZView&) = delete;    // stop default
+   const FWRPZView& operator=(const FWRPZView&) = delete;    // stop default 
 
    void doPreScaleDistortion();
    void doFishEyeDistortion();

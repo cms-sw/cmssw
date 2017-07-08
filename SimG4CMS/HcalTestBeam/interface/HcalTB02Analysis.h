@@ -50,8 +50,8 @@ public:
 
 private:
 
-  HcalTB02Analysis(const HcalTB02Analysis&); // stop default
-  const HcalTB02Analysis& operator=(const HcalTB02Analysis&);
+  HcalTB02Analysis(const HcalTB02Analysis&) = delete; // stop default
+  const HcalTB02Analysis& operator=(const HcalTB02Analysis&) = delete;
  
   // observer methods
   void update(const BeginOfEvent * evt);

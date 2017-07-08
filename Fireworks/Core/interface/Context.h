@@ -110,8 +110,8 @@ public:
    static double caloMaxEta();
 
 private:
-   Context(const Context&); // stop default
-   const Context& operator=(const Context&); // stop default
+   Context(const Context&) = delete; // stop default
+   const Context& operator=(const Context&) = delete; // stop default
 
    // ---------- member data --------------------------------
    FWModelChangeManager *m_changeManager;

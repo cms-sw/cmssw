@@ -57,9 +57,9 @@ public:
 protected:
    virtual void implSort(int iCol, bool iSortOrder);
 private:
-   FWCollectionSummaryTableManager(const FWCollectionSummaryTableManager&); // stop default
+   FWCollectionSummaryTableManager(const FWCollectionSummaryTableManager&) = delete; // stop default
    
-   const FWCollectionSummaryTableManager& operator=(const FWCollectionSummaryTableManager&); // stop default
+   const FWCollectionSummaryTableManager& operator=(const FWCollectionSummaryTableManager&) = delete; // stop default
    
    void dataChanged();
    // ---------- member data --------------------------------

@@ -39,8 +39,8 @@ class FWLegoCandidate : public TEveStraightLineSet
       void updateScale( const FWViewContext *vc, const fireworks::Context& );
 
    private:
-      FWLegoCandidate( const FWLegoCandidate& );                    // Disable default copy constructor
-      const FWLegoCandidate& operator=( const FWLegoCandidate& );   // Disable default assignment operator
+      FWLegoCandidate( const FWLegoCandidate& ) = delete;                    // Disable default copy constructor
+      const FWLegoCandidate& operator=( const FWLegoCandidate& ) = delete;   // Disable default assignment operator
 
    // ----------------------- Data Members ----------------------------
       float m_energy;

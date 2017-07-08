@@ -49,9 +49,9 @@ public:
    void addSliceSelector(int iSlice, FWFromSliceSelector*);
    void resetSliceSelector(int iSlice);
 private:
-   FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&); // stop default
+   FWFromTEveCaloDataSelector(const FWFromTEveCaloDataSelector&) = delete; // stop default
    
-   const FWFromTEveCaloDataSelector& operator=(const FWFromTEveCaloDataSelector&); // stop default
+   const FWFromTEveCaloDataSelector& operator=(const FWFromTEveCaloDataSelector&) = delete; // stop default
    
    // ---------- member data --------------------------------
    std::vector<FWFromSliceSelector*> m_sliceSelectors;

@@ -33,8 +33,8 @@ public:
 private:
   using FWProxyBuilderBase::build;
   virtual void build(const FWEventItem* iItem, TEveElementList* product, const FWViewContext*) override;
-  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&);    
-  const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&);
+  FWCSCWireDigiProxyBuilder(const FWCSCWireDigiProxyBuilder&) = delete;    
+  const FWCSCWireDigiProxyBuilder& operator=(const FWCSCWireDigiProxyBuilder&) = delete;
 
   // NOTE: these parameters are not available via a public interface
   // from the geometry or topology so must be hard-coded.

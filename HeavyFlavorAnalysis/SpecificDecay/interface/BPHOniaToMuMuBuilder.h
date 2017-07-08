@@ -97,8 +97,8 @@ class BPHOniaToMuMuBuilder {
  private:
 
   // private copy and assigment constructors
-  BPHOniaToMuMuBuilder           ( const BPHOniaToMuMuBuilder& x );
-  BPHOniaToMuMuBuilder& operator=( const BPHOniaToMuMuBuilder& x );
+  BPHOniaToMuMuBuilder           ( const BPHOniaToMuMuBuilder& x ) = delete;
+  BPHOniaToMuMuBuilder& operator=( const BPHOniaToMuMuBuilder& x ) = delete;
 
   std::string muPosName;
   std::string muNegName;

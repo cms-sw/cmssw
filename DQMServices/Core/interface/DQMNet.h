@@ -352,8 +352,8 @@ private:
   bool			flush_;
 
   // copying is not available
-  DQMNet(const DQMNet &);
-  DQMNet &operator=(const DQMNet &);
+  DQMNet(const DQMNet &) = delete;
+  DQMNet &operator=(const DQMNet &) = delete;
 };
 
 template <class ObjType>

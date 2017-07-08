@@ -178,8 +178,8 @@ class DQMStore
       owner_ = store;
     }
 
-    IBooker();
-    IBooker(const IBooker&);
+    IBooker() = delete;
+    IBooker(const IBooker&) = delete;
 
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main
@@ -225,8 +225,8 @@ class DQMStore
       owner_ = store;
     }
 
-    IGetter();
-    IGetter(const IGetter&);
+    IGetter() = delete;
+    IGetter(const IGetter&) = delete;
 
     // Embedded classes do not natively own a pointer to the embedding
     // class. We therefore need to store a pointer to the main

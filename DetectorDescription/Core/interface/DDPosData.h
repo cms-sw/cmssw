@@ -39,8 +39,8 @@ struct DDPosData
   const DDDivision * div_; /**< provides original division that created this pos */
 
 private:
-  DDPosData();  
-  DDPosData & operator=(const DDPosData &);
+  DDPosData() = delete;  
+  DDPosData & operator=(const DDPosData &) = delete;
 };
 
 #endif
