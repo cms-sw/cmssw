@@ -11,6 +11,7 @@
 #include <fstream>
 #include <cctype>
 #include <cstdlib>
+#include <utility>
 
 using namespace std;
 using namespace pos;
@@ -36,7 +37,7 @@ PixelModuleName::PixelModuleName(PixelROCName roc)
 PixelModuleName::PixelModuleName(string modulename)
 {
 
-    parsename(modulename);
+    parsename(std::move(modulename));
 
 }
 

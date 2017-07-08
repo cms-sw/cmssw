@@ -15,6 +15,7 @@
 namespace edm {
   class EventSetup;
 }
+#include <utility>
 #include <vector>
 #include "TString.h"
 
@@ -51,8 +52,8 @@ class CachingVariable {
   };
 
   CachingVariable(std::string m, std::string n, const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC) :
-    cache_(std::make_pair(false,0)),method_(m),
-    name_(n),conf_(iConfig) {}
+    cache_(std::make_pair(false,0)),method_(std::move(m)),
+    name_(std::move(n)),conf_(iConfig) {}
 
   virtual ~CachingVariable() {}
 
@@ -67,7 +68,7 @@ class CachingVariable {
   const Description & description()const { return d_;}
   void addDescriptionLine(const std::string & s){ d_.addLine(s);}
   const std::string & holderName() const { return holderName_;}
-  void setHolder(std::string hn) const { holderName_=hn;}
+  void setHolder(std::string hn) const { holderName_=std::move(hn);}
 
   void print() const {
     edm::LogVerbatim("CachingVariable")<<name()
@@ -118,10 +119,10 @@ class VariableComputer{
 
   virtual void compute(const edm::Event & iEvent) const = 0;
   const std::string & name() const { return name_;}
-  void declare(std::string var, edm::ConsumesCollector& iC);
-  void assign(std::string  var, double & value) const;
+  void declare(const std::string& var, edm::ConsumesCollector& iC);
+  void assign(const std::string&  var, double & value) const;
   void doesNotCompute() const;
-  void doesNotCompute(std::string var) const;
+  void doesNotCompute(const std::string& var) const;
 
   bool notSeenThisEventAlready(const edm::Event& iEvent) const {
     bool retValue = (std::numeric_limits<edm::Event::CacheIdentifier_t>::max() != eventCacheID_ and
@@ -177,7 +178,7 @@ class VariableComputerTest : public VariableComputer {
 class Splitter : public CachingVariable {
  public:
   Splitter(std::string method, std::string n, const edm::ParameterSet & iConfig, edm::ConsumesCollector& iC) :
-    CachingVariable(method,n,iConfig,iC) {}
+    CachingVariable(std::move(method),std::move(n),iConfig,iC) {}
 
   //purely virtual here
   virtual CachingVariable::evalType eval(const edm::Event & iEvent) const =0;

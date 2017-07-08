@@ -51,8 +51,8 @@ SegSelector::~SegSelector(){
 // ********************************************
 // ***********  Utility functions  ************
 // ********************************************
-std::vector<SimSegment> SegSelector::Sim_DTSegments(int trkId, Handle<edm::PSimHitContainer> dsimHits,
-                                      ESHandle<DTGeometry> dtGeom){
+std::vector<SimSegment> SegSelector::Sim_DTSegments(int trkId, const Handle<edm::PSimHitContainer>& dsimHits,
+                                      const ESHandle<DTGeometry>& dtGeom){
 
      SimSegment sim_dseg;
 
@@ -114,8 +114,8 @@ std::vector<SimSegment> SegSelector::Sim_DTSegments(int trkId, Handle<edm::PSimH
 }
 
 // build a sim-segment sets 
-std::vector<SimSegment> SegSelector::Sim_CSCSegments(int trkId, Handle<edm::PSimHitContainer> csimHits,
-                                       ESHandle<CSCGeometry> cscGeom){
+std::vector<SimSegment> SegSelector::Sim_CSCSegments(int trkId, const Handle<edm::PSimHitContainer>& csimHits,
+                                       const ESHandle<CSCGeometry>& cscGeom){
      SimSegment sim_cseg;
 
      // collect the simhits in the same chamber and then build a sim segment
@@ -173,8 +173,8 @@ std::vector<SimSegment> SegSelector::Sim_CSCSegments(int trkId, Handle<edm::PSim
 }
 
 // pick up the DT Segments which are studied
-std::vector<DTRecSegment4D> SegSelector::Select_DTSeg( Handle<DTRecSegment4DCollection> dtSeg,
-                                   ESHandle<DTGeometry> dtGeom, std::vector<SimSegment> sDT_v1 ) {
+std::vector<DTRecSegment4D> SegSelector::Select_DTSeg( const Handle<DTRecSegment4DCollection>& dtSeg,
+                                   const ESHandle<DTGeometry>& dtGeom, std::vector<SimSegment> sDT_v1 ) {
      dtseg_V.clear();
      for (std::vector<SimSegment>::const_iterator it1 = sDT_v1.begin(); it1 != sDT_v1.end(); it1++)
      {
@@ -241,8 +241,8 @@ std::vector<DTRecSegment4D> SegSelector::Select_DTSeg( Handle<DTRecSegment4DColl
 }
 
 // pick up the CSC segments which are studied
-std::vector<CSCSegment> SegSelector::Select_CSCSeg(Handle<CSCSegmentCollection> cscSeg,
-                              ESHandle<CSCGeometry> cscGeom, std::vector<SimSegment> sCSC_v1 ) {
+std::vector<CSCSegment> SegSelector::Select_CSCSeg(const Handle<CSCSegmentCollection>& cscSeg,
+                              const ESHandle<CSCGeometry>& cscGeom, std::vector<SimSegment> sCSC_v1 ) {
 
      cscseg_V.clear();
      for (std::vector<SimSegment>::const_iterator it1 = sCSC_v1.begin(); it1 != sCSC_v1.end(); it1++) 
@@ -358,7 +358,7 @@ void SegSelector::LongDTSegment(std::vector<DTRecSegment4D> dtsegs) {
 }
 
 // DT Sim Segment fitting
-void SegSelector::DTSimHitFit(ESHandle<DTGeometry> dtGeom){
+void SegSelector::DTSimHitFit(const ESHandle<DTGeometry>& dtGeom){
 
      std::vector<PSimHit> sp;
      std::vector<PSimHit> sp1;
@@ -441,7 +441,7 @@ void SegSelector::DTSimHitFit(ESHandle<DTGeometry> dtGeom){
 }
 
 // CSC Sim Segment fitting 
-void SegSelector::CSCSimHitFit(ESHandle<CSCGeometry> cscGeom){
+void SegSelector::CSCSimHitFit(const ESHandle<CSCGeometry>& cscGeom){
 
      bool rv_flag=false;    
      for (std::vector<PSimHit>::const_iterator sh_i = hit_V.begin(); sh_i!=hit_V.end(); ++sh_i)

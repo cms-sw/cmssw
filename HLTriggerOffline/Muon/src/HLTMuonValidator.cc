@@ -56,7 +56,7 @@ private:
   virtual void endJob();
 
   // Extra Methods
-  std::vector<std::string> moduleLabels(std::string);
+  std::vector<std::string> moduleLabels(const std::string&);
   std::vector<std::string> stepLabels(const std::vector<std::string>&);
 
   // Input from Configuration File
@@ -104,7 +104,7 @@ HLTMuonValidator::HLTMuonValidator(const ParameterSet& pset) :
 
 
 vector<string> 
-HLTMuonValidator::moduleLabels(string path) {
+HLTMuonValidator::moduleLabels(const string& path) {
 
   vector<string> modules = hltConfig_.moduleLabels(path);
   vector<string>::iterator iter = modules.begin();

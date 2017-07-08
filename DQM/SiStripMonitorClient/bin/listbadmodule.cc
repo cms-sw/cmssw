@@ -36,7 +36,7 @@ int main(int argc , char *argv[]) {
 }
 
 
-void listbadmodule(std::string filename, std::string pclfilename) {
+void listbadmodule(const std::string& filename, const std::string& pclfilename) {
 
   int debug = 1;
 

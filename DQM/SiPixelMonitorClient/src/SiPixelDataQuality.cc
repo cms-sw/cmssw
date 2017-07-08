@@ -641,7 +641,7 @@ void SiPixelDataQuality::computeGlobalQualityFlagByLumi(DQMStore::IGetter & iGet
 
 //**********************************************************************************************
 
-void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool init, edm::ESHandle<SiPixelFedCablingMap> theCablingMap, int nFEDs, bool Tier0Flag, int lumisec){
+void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool init, const edm::ESHandle<SiPixelFedCablingMap>& theCablingMap, int nFEDs, bool Tier0Flag, int lumisec){
 //std::cout<<"Entering SiPixelDataQuality::fillGlobalQualityPlot: "<<nFEDs<<std::endl;
   if(init){
     count=0; errcount=0;

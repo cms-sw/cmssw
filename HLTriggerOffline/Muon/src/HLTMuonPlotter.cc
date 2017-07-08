@@ -4,6 +4,8 @@
 
 
 
+#include <utility>
+
 #include "HLTriggerOffline/Muon/interface/HLTMuonPlotter.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +46,7 @@ HLTMuonPlotter::HLTMuonPlotter(const ParameterSet & pset,
   l1Matcher_(pset)
 {
 
-  hltPath_ = hltPath;
+  hltPath_ = std::move(hltPath);
   moduleLabels_ = moduleLabels;
   stepLabels_ = stepLabels;
   hltProcessName_  = pset.getParameter<string>("hltProcessName");
@@ -397,8 +399,8 @@ HLTMuonPlotter::findMatches(
 
 void 
 HLTMuonPlotter::bookHist(DQMStore::IBooker & iBooker,
-			 string path, string label, 
-                         string source, string type)
+			 const string& path, const string& label, 
+                         const string& source, const string& type)
 {
 
   string sourceUpper = source; 

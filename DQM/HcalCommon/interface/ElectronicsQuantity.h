@@ -6,6 +6,8 @@
  *	Author:		Viktor Khristenko
  */
 
+#include <utility>
+
 #include "DQM/HcalCommon/interface/Quantity.h"
 #include "boost/unordered_map.hpp"
 #include "boost/foreach.hpp"
@@ -411,7 +413,7 @@ namespace hcaldqm
 				this->setup(emap);
 			}
 			CrateQuantity(std::vector<int> crates, CrateHashMap crateHashes) : ElectronicsQuantity(fCrate, false) {
-				this->setup(crates, crateHashes);
+				this->setup(std::move(crates), std::move(crateHashes));
 			}
 			virtual ~CrateQuantity() {}
 

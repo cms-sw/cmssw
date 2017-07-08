@@ -49,10 +49,10 @@ class PFCheckHitPattern {
 
   PFTrackHitFullInfo 
     analyze(const TrackerTopology* tkerTopo, const TrackerGeometry* tkerGeom,
-            const reco::TrackBaseRef track, const TransientVertex& vert);
+            const reco::TrackBaseRef& track, const TransientVertex& vert);
 
   /// Print hit pattern on track
-  void print(const reco::TrackBaseRef track) const;
+  void print(const reco::TrackBaseRef& track) const;
 
 
 

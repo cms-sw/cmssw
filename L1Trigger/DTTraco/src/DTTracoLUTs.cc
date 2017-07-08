@@ -25,6 +25,7 @@
 #include <string>
 #include <cmath>
 #include <algorithm>
+#include <utility>
 
 //-------------------------------
 // Collaborating Class Headers --
@@ -43,7 +44,7 @@ using namespace std;
 //----------------
 
 DTTracoLUTs::DTTracoLUTs(string testfile):
-			_testfile(testfile) {
+			_testfile(std::move(testfile)) {
 }
 
 

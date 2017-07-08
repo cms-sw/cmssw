@@ -18,7 +18,7 @@ class RunModeDef : public IDef {
 
   // Methods for user data
   std::string getRunMode() const;
-  void setRunMode(std::string runmode);
+  void setRunMode(const std::string& runmode);
   
 
 

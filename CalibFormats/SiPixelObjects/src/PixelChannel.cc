@@ -1,9 +1,11 @@
+#include <utility>
+
 #include "CalibFormats/SiPixelObjects/interface/PixelChannel.h"
 
 using namespace pos;
 
 PixelChannel::PixelChannel(PixelModuleName module, std::string TBMChannel):
-  module_(module), TBMChannel_(TBMChannel)
+  module_(module), TBMChannel_(std::move(TBMChannel))
 {}
 
 PixelChannel::PixelChannel(PixelModuleName module, PixelTBMChannel TBMChannel):

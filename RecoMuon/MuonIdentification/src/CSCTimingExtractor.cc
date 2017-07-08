@@ -94,7 +94,7 @@ CSCTimingExtractor::~CSCTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack, 
+CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, const reco::TrackRef& muonTrack, 
                                const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
 

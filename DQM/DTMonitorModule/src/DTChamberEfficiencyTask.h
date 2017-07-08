@@ -71,7 +71,7 @@ private:
 			 const DTRecSegment4D& seg3,
 			 const DTChamberId& MB2) const;
 
-  void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId);
+  void bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& chId);
 
   // Switch for verbosity
   bool debug;

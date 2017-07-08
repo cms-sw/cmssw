@@ -13,6 +13,7 @@
 // system include files
 #include <sstream>
 #include <cstdio>
+#include <utility>
 #include "TMath.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
@@ -120,7 +121,7 @@ bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string
       {
          if(parse(temp.c_str(), grammar.use_parser<1>() >> end_p, space_p).full) 
          {
-            m_entries.push_back(Entry(tmpPtr, iExpression, iUnit, iTitle.empty() ? iExpression :iTitle , iPrec));
+            m_entries.push_back(Entry(tmpPtr, iExpression, std::move(iUnit), iTitle.empty() ? iExpression :iTitle , iPrec));
             m_titleWidth = TMath::Max(m_titleWidth, (int) m_entries.back().m_title.size());
             return true;
          }

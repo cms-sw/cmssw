@@ -398,7 +398,7 @@ void GenericBenchmark::fillHistos( const reco::Candidate* genParticle,
 
 }
 
-void GenericBenchmark::write(std::string Filename) {
+void GenericBenchmark::write(const std::string& Filename) {
 
   if (Filename.size() != 0 && file_)
     file_->Write(Filename.c_str());

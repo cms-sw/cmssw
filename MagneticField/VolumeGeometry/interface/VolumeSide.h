@@ -1,6 +1,8 @@
 #ifndef VolumeSide_H
 #define VolumeSide_H
 
+#include <utility>
+
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
@@ -24,7 +26,7 @@ public:
 
   VolumeSide( SurfacePointer surf, GlobalFace gSide,
 	      Side sSide) : 
-    theSurface( surf),  theGlobalFace( gSide), theSurfaceSide( sSide) {}
+    theSurface( std::move(surf)),  theGlobalFace( gSide), theSurfaceSide( sSide) {}
 
   Surface& mutableSurface() const {return *theSurface;}
 

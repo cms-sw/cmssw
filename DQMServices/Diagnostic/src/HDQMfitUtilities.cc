@@ -355,7 +355,7 @@ double HDQMfitUtilities::doGaussFit(TH1F* htoFit){
 }
 
 //-----------------------------------------------------------------------------------------------
-double HDQMfitUtilities::getLanGaussPar(std::string s){
+double HDQMfitUtilities::getLanGaussPar(const std::string& s){
   if(s=="landau_width")
     return pLanGausS[0];
   else if(s=="mpv")
@@ -368,7 +368,7 @@ double HDQMfitUtilities::getLanGaussPar(std::string s){
     return -99999;
 }
 
-double HDQMfitUtilities::getLanGaussParErr(std::string s){
+double HDQMfitUtilities::getLanGaussParErr(const std::string& s){
   if(s=="landau_width")
     return epLanGausS[0];
   else if(s=="mpv")
@@ -381,7 +381,7 @@ double HDQMfitUtilities::getLanGaussParErr(std::string s){
     return -99999;
 }
 
-double HDQMfitUtilities::getLanGaussConv(std::string s) {
+double HDQMfitUtilities::getLanGaussConv(const std::string& s) {
   if(s=="mpv")
     return pLanConv[0];
   else if(s=="fwhm")
@@ -390,7 +390,7 @@ double HDQMfitUtilities::getLanGaussConv(std::string s) {
     return -99999;
 }
 
-double HDQMfitUtilities::getGaussPar(std::string s) {
+double HDQMfitUtilities::getGaussPar(const std::string& s) {
   if(s=="area")
     return pGausS[0];
   else if(s=="mean")
@@ -401,7 +401,7 @@ double HDQMfitUtilities::getGaussPar(std::string s) {
     return -99999;
 }
 
-double HDQMfitUtilities::getGaussParErr(std::string s) {
+double HDQMfitUtilities::getGaussParErr(const std::string& s) {
   if(s=="area")
     return epGausS[0];
   else if(s=="mean")

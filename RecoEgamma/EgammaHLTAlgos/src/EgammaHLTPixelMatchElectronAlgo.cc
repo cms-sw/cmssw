@@ -115,7 +115,7 @@ void  EgammaHLTPixelMatchElectronAlgo::run(Event& e, ElectronCollection & outEle
   return;
 }
 
-void EgammaHLTPixelMatchElectronAlgo::process(edm::Handle<TrackCollection> tracksH, edm::Handle<GsfTrackCollection> gsfTracksH, ElectronCollection & outEle, Global3DPoint & bs) {
+void EgammaHLTPixelMatchElectronAlgo::process(const edm::Handle<TrackCollection>& tracksH, const edm::Handle<GsfTrackCollection>& gsfTracksH, ElectronCollection & outEle, Global3DPoint & bs) {
 
   if (!useGsfTracks_) {
 

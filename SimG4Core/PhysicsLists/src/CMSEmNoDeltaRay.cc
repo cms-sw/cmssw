@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "SimG4Core/PhysicsLists/interface/CMSEmNoDeltaRay.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
 #include "G4EmParameters.hh"
@@ -67,7 +69,7 @@
 #include "G4SystemOfUnits.hh"
 
 CMSEmNoDeltaRay::CMSEmNoDeltaRay(const G4String& name, G4int ver, std::string reg):
-  G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+  G4VPhysicsConstructor(name), verbose(ver), region(std::move(reg)) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);

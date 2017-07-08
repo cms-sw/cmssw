@@ -1591,7 +1591,7 @@ void SiPixelTrackResidualSource::triplets(double x1,double y1,double z1,double x
 }
 
 
-void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology* tTopo, TransientTrackingRecHit::ConstRecHitPointer hit, 
+void SiPixelTrackResidualSource::getepixrococcupancyontrk(const TrackerTopology* tTopo, const TransientTrackingRecHit::ConstRecHitPointer& hit, 
 							  float xclust, float yclust, float z, MonitorElement* meinput) {
   
   int pxfpanel     = tTopo->pxfPanel((*hit).geographicalId());

@@ -26,13 +26,13 @@ using namespace std;
 bool debug = false;
 int numlumis = -1;
 
-int     nlumis     ( string filename ); //get number of run lumisections
-string  runnum_str ( string filename ); //read the run number, return in string
-int     getplot    ( string filename , string iDir , string strplot , TH1F& plot ); //read given plot
+int     nlumis     ( const string& filename ); //get number of run lumisections
+string  runnum_str ( const string& filename ); //read the run number, return in string
+int     getplot    ( const string& filename , const string& iDir , const string& strplot , TH1F& plot ); //read given plot
 void    Cleaning   ( vector<int> & );
 string  ListOut    ( vector<int> & );
 void    vector_AND ( vector<int> & , vector<int> );
-void    lsbs_cert( string filename ); 
+void    lsbs_cert( const string& filename ); 
 
 int main(int argc , char *argv[]) {
 
@@ -49,7 +49,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-void    lsbs_cert( string filename ) 
+void    lsbs_cert( const string& filename ) 
 {
   void check_offset ( string filename , string iDir , string plot , float limit_min , float limit_max , vector <int>& );
   void check_sigma  ( string filename , string iDir , string plot , float limit_err , vector <int>& );
@@ -243,7 +243,7 @@ void    lsbs_cert( string filename )
 void check_offset ( string filename , string iDir , string plot , float limit_min , float limit_max , vector <int>& badLS ) 
 {  
   TH1F checkPlot;
-  if ( getplot ( filename , iDir , plot , checkPlot ) < 0 ) return;
+  if ( getplot ( std::move(filename) , std::move(iDir) , std::move(plot) , checkPlot ) < 0 ) return;
 
   
   //look at each LS, save the bad one
@@ -261,7 +261,7 @@ void check_offset ( string filename , string iDir , string plot , float limit_mi
 void check_sigma ( string filename , string iDir , string plot , float limit_err , vector <int>& badLS ) 
 {  
   TH1F checkPlot;
-  if ( getplot ( filename , iDir , plot , checkPlot ) < 0 ) return;
+  if ( getplot ( std::move(filename) , std::move(iDir) , std::move(plot) , checkPlot ) < 0 ) return;
 
   //look at each LS
   for ( int i = 1; i <= checkPlot.GetNbinsX() ; i++ )
@@ -285,7 +285,7 @@ bool check_isgood ( vector<int> & ls_badlist, int ls )
   return true;
 }
 
-int nlumis( string filename )
+int nlumis( const string& filename )
 {
   if ( numlumis > -1 ) 
     return numlumis;
@@ -324,12 +324,12 @@ int nlumis( string filename )
   return numlumis;
 }
 
-string runnum_str( string filename )
+string runnum_str( const string& filename )
 {
   return filename.substr(filename.find("_R000")+5, 6);  
 }
 
-int getplot( string filename , string iDir , string strplot , TH1F& plot )
+int getplot( const string& filename , const string& iDir , const string& strplot , TH1F& plot )
 {
   string run = runnum_str( filename );
   if (debug) std::cout << filename.c_str() << endl;

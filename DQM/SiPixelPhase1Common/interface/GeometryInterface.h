@@ -20,6 +20,7 @@
 #include <map>
 #include <string>
 #include <array>
+#include <utility>
 
 class GeometryInterface {
  public:
@@ -156,7 +157,7 @@ class GeometryInterface {
     max_value[id] = max;
     min_value[id] = min;
     bin_width[id] = binwidth;
-    extractors[id] = func;
+    extractors[id] = std::move(func);
   }
 
   std::vector<InterestingQuantities> all_modules;

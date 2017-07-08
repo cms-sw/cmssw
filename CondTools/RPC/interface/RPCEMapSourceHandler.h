@@ -49,7 +49,7 @@ namespace popcon
     ~RPCEMapSourceHandler();
     void getNewObjects();
     std::string id() const {return m_name;}
-    void ConnectOnlineDB(std::string connect, std::string authPath);
+    void ConnectOnlineDB(const std::string& connect, const std::string& authPath);
     void DisconnectOnlineDB();
     void readEMap1();
     int Compare2EMaps(const Ref& map1, RPCEMap* map2);

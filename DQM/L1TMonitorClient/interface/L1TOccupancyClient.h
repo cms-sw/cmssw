@@ -45,7 +45,7 @@ class L1TOccupancyClient: public DQMEDHarvester {
   
     //DQM test routines
     double xySymmetry(const edm::ParameterSet& ps, 
-                     std::string test_name, 
+                     const std::string& test_name, 
                      std::vector<std::pair<int,double> >& deadChannels, 
                      std::vector<std::pair<int,double> >& statDev, 
                      bool& enoughStats);  // Performs the checking of enough statistics and invokes compareWithStrip()
@@ -71,7 +71,7 @@ class L1TOccupancyClient: public DQMEDHarvester {
 
     // performs the actual test
     int compareWithStrip(TH2F* histo, 
-                         std::string test, 
+                         const std::string& test, 
                          int binStrip, 
                          int nBins, 
                          int axis, 
@@ -89,10 +89,10 @@ class L1TOccupancyClient: public DQMEDHarvester {
     void printDeadChannels(const std::vector<std::pair<int,double> >& deadChannels, 
                            TH2F* h2f, 
                            const std::vector<std::pair<int,double> >& statDev, 
-                           std::string test_name); 
+                           const std::string& test_name); 
 
     // Gets the average (avrgMode=1 arithmetic, avrgMode=2 median) for a specific binStrip in histo h2f for a specific test
-    double getAvrg(TH2F* h2f, std::string test, int axis, int nBins, int binStrip, int avrgMode); 
+    double getAvrg(TH2F* h2f, const std::string& test, int axis, int nBins, int binStrip, int avrgMode); 
 
 };
 

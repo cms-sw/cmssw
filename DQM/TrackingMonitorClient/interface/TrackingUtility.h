@@ -21,9 +21,9 @@ class TrackingUtility
 {
  public:
  
- static int getMEList(std::string name, std::vector<std::string>& values);
- static bool checkME(std::string element, std::string name, std::string& full_path);
- static int getMEList(std::string name, std::string& dir_path, std::vector<std::string>& me_names);
+ static int getMEList(const std::string& name, std::vector<std::string>& values);
+ static bool checkME(const std::string& element, const std::string& name, std::string& full_path);
+ static int getMEList(const std::string& name, std::string& dir_path, std::vector<std::string>& me_names);
 
  static void split(const std::string& str, std::vector<std::string>& tokens, 
              const std::string& delimiters=" ");
@@ -33,10 +33,10 @@ class TrackingUtility
  static int getMEStatus(MonitorElement* me, int& bad_channels);
  static void getModuleFolderList(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::vector<std::string>& m_ids);
  static void getMEValue(MonitorElement* me, std::string & val);
- static bool goToDir(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string name);
+ static bool goToDir(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& name);
  static void setBadModuleFlag(std::string & hname, uint16_t& flg);
  static void getBadModuleStatus(uint16_t flag, std::string& message);
- static void getTopFolderPath(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, std::string top_dir, std::string& path);   
+ static void getTopFolderPath(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter, const std::string& top_dir, std::string& path);   
 };
 
 #endif

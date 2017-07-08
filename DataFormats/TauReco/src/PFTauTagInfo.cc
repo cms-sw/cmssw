@@ -20,4 +20,4 @@ const std::vector<reco::PFCandidatePtr>& PFTauTagInfo::PFGammaCands() const {ret
 void  PFTauTagInfo::setPFGammaCands(const std::vector<reco::PFCandidatePtr>& x){PFGammaCands_=x;}
 
 const PFJetRef& PFTauTagInfo::pfjetRef()const{return PFJetRef_;}
-void PFTauTagInfo::setpfjetRef(const PFJetRef x){PFJetRef_=x;}
+void PFTauTagInfo::setpfjetRef(const PFJetRef& x){PFJetRef_=x;}

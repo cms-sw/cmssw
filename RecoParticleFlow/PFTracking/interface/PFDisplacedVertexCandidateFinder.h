@@ -72,8 +72,8 @@ class PFDisplacedVertexCandidateFinder {
   void findDisplacedVertexCandidates();
 
 
-  void setPrimaryVertex(edm::Handle< reco::VertexCollection > mainVertexHandle, 
-			edm::Handle< reco::BeamSpot > beamSpotHandle);
+  void setPrimaryVertex(const edm::Handle< reco::VertexCollection >& mainVertexHandle, 
+			const edm::Handle< reco::BeamSpot >& beamSpotHandle);
 
  private:
 

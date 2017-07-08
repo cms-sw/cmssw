@@ -121,11 +121,11 @@ public:
   explicit GammaJetAnalysis(const edm::ParameterSet&);
   ~GammaJetAnalysis();
 
-  float pfEcalIso(const reco::Photon* localPho1, edm::Handle<reco::PFCandidateCollection> pfHandle, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse);
+  float pfEcalIso(const reco::Photon* localPho1, const edm::Handle<reco::PFCandidateCollection>& pfHandle, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse);
 
-  float pfHcalIso(const reco::Photon* localPho,edm::Handle<reco::PFCandidateCollection> pfHandle,float dRmax, float dRveto,reco::PFCandidate::ParticleType pfToUse);
+  float pfHcalIso(const reco::Photon* localPho,const edm::Handle<reco::PFCandidateCollection>& pfHandle,float dRmax, float dRveto,reco::PFCandidate::ParticleType pfToUse);
 
-  std::vector<float> pfTkIsoWithVertex(const reco::Photon* localPho1, edm::Handle<reco::PFCandidateCollection> pfHandle, edm::Handle<reco::VertexCollection> vtxHandle, float dRmax, float dRvetoBarrel, float dRvetoEndcap, float ptMin, float dzMax, float dxyMax, reco::PFCandidate::ParticleType pfToUse);
+  std::vector<float> pfTkIsoWithVertex(const reco::Photon* localPho1, const edm::Handle<reco::PFCandidateCollection>& pfHandle, const edm::Handle<reco::VertexCollection>& vtxHandle, float dRmax, float dRvetoBarrel, float dRvetoEndcap, float ptMin, float dzMax, float dxyMax, reco::PFCandidate::ParticleType pfToUse);
 
 private:
   virtual void beginJob();//(const edm::EventSetup&);

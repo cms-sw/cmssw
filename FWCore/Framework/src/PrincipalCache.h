@@ -62,18 +62,18 @@ namespace edm {
 
     EventPrincipal& eventPrincipal(unsigned int iStreamIndex) const { return *(eventPrincipals_[iStreamIndex]); }
 
-    void merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg);
-    void merge(std::shared_ptr<LuminosityBlockAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg);
+    void merge(const std::shared_ptr<RunAuxiliary>& aux, const std::shared_ptr<ProductRegistry const>& reg);
+    void merge(const std::shared_ptr<LuminosityBlockAuxiliary>& aux, const std::shared_ptr<ProductRegistry const>& reg);
 
     void setNumberOfConcurrentPrincipals(PreallocationConfiguration const&);
-    void insert(std::shared_ptr<RunPrincipal> rp);
-    void insert(std::shared_ptr<LuminosityBlockPrincipal> lbp);
-    void insert(std::shared_ptr<EventPrincipal> ep);
+    void insert(const std::shared_ptr<RunPrincipal>& rp);
+    void insert(const std::shared_ptr<LuminosityBlockPrincipal>& lbp);
+    void insert(const std::shared_ptr<EventPrincipal>& ep);
 
     void deleteRun(ProcessHistoryID const& phid, RunNumber_t run);
     void deleteLumi(ProcessHistoryID const& phid, RunNumber_t run, LuminosityBlockNumber_t lumi);
 
-    void adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg);
+    void adjustEventsToNewProductRegistry(const std::shared_ptr<ProductRegistry const>& reg);
 
     void adjustIndexesAfterProductRegistryAddition();
 

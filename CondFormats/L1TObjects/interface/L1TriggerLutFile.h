@@ -39,7 +39,7 @@ class L1TriggerLutFile {
   public:
  
     /// constructor
-    L1TriggerLutFile(const std::string name = "" );
+    L1TriggerLutFile(const std::string& name = "" );
     
     /// copy constructor
     L1TriggerLutFile(const L1TriggerLutFile& ); 

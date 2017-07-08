@@ -6,6 +6,8 @@
 #define sim_cxx
 
 
+#include <utility>
+
 #include "GeneratorInterface/CosmicMuonGenerator/interface/CosmicMuonGenerator.h"
 
 
@@ -1057,7 +1059,7 @@ void CosmicMuonGenerator::setZCentrOfTarget(double Z){ if (NotInitialized) ZCent
 void CosmicMuonGenerator::setTrackerOnly(bool Tracker){ if (NotInitialized) TrackerOnly = Tracker; }
 
 void CosmicMuonGenerator::setMultiMuon(bool MultiMu){ if (NotInitialized) MultiMuon = MultiMu; }
-void CosmicMuonGenerator::setMultiMuonFileName(std::string MultiMuFile){ if (NotInitialized) MultiMuonFileName = MultiMuFile; }
+void CosmicMuonGenerator::setMultiMuonFileName(std::string MultiMuFile){ if (NotInitialized) MultiMuonFileName = std::move(MultiMuFile); }
 void CosmicMuonGenerator::setMultiMuonFileFirstEvent(int MultiMuFile1stEvt){ if (NotInitialized) MultiMuonFileFirstEvent = MultiMuFile1stEvt; }
 void CosmicMuonGenerator::setMultiMuonNmin(int MultiMuNmin){ if (NotInitialized) MultiMuonNmin = MultiMuNmin; }
 

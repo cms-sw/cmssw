@@ -84,23 +84,23 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   virtual void endJob();
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   bool isHit2D(const TrackingRecHit &hit) const;
-  bool hasFirstLayerPixelHits(const reco::TransientTrack track);
-  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack track);
+  bool hasFirstLayerPixelHits(const reco::TransientTrack& track);
+  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack& track);
   std::pair<Double_t,Double_t> getMedian(TH1F *histo);
   std::pair<Double_t,Double_t> getMAD(TH1F *histo);
   std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);
-  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], statmode::estimator fitPar_, TString var_);
+  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], statmode::estimator fitPar_, const TString& var_);
   void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, statmode::estimator fitPar_); 
 
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
-  bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
+  bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
 
-  std::vector<TH1F*> bookResidualsHistogram(TFileDirectory dir,unsigned int theNOfBins,TString resType,TString varType); 
-  std::map<std::string, TH1*> bookVertexHistograms(TFileDirectory dir);
+  std::vector<TH1F*> bookResidualsHistogram(const TFileDirectory& dir,unsigned int theNOfBins,TString resType,const TString& varType); 
+  std::map<std::string, TH1*> bookVertexHistograms(const TFileDirectory& dir);
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
   void add(std::map<std::string, TH1*>& h, TH1* hist);
-  void fill(std::map<std::string, TH1*>& h, std::string s, double x);
-  void fill(std::map<std::string, TH1*>& h, std::string s, double x, double y);
+  void fill(std::map<std::string, TH1*>& h, const std::string& s, double x);
+  void fill(std::map<std::string, TH1*>& h, const std::string& s, double x, double y);
   void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x); 
   void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], statmode::estimator fitPar_);
   

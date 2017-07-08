@@ -10,6 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
+#include <utility>
+
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/src/SelectorPtr.h"
 
@@ -17,7 +19,7 @@ namespace reco {
   namespace parser {    
     struct NotCombiner : public SelectorBase {
       NotCombiner( SelectorPtr arg ) :
-	arg_( arg ) {}
+	arg_( std::move(arg) ) {}
       virtual bool operator()( const edm::ObjectWithDict& o ) const {
 	return ! (*arg_)( o );
       }

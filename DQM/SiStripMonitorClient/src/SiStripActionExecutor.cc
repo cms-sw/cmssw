@@ -19,6 +19,7 @@
 
 
 #include <iomanip>
+#include <utility>
 //
 // -- Constructor
 // 
@@ -122,7 +123,7 @@ void SiStripActionExecutor::createTkInfoFile(std::vector<std::string> map_names,
   if (tkMapCreator_) {
     detInfoFileReader_ = edm::Service<SiStripDetInfoFileReader>().operator->();
     std::vector<uint32_t> detidList = detInfoFileReader_->getAllDetIds();
-    tkMapCreator_->createInfoFile(map_names, tkinfo_tree, dqm_store, detidList);
+    tkMapCreator_->createInfoFile(std::move(map_names), tkinfo_tree, dqm_store, detidList);
   }
 }
 //
@@ -225,7 +226,7 @@ void SiStripActionExecutor::createShiftReport(DQMStore * dqm_store){
 //  -- Print Report Summary
 //
 void SiStripActionExecutor::printReportSummary(MonitorElement* me,
-					       std::ostringstream& str_val, std::string name) { 
+					       std::ostringstream& str_val, const std::string& name) { 
   str_val <<" " << name << "  : ";
   std::string value;
   SiStripUtility::getMEValue(me, value);

@@ -176,8 +176,8 @@ void EvtSLBaryonAmp::CalcAmp( EvtParticle *parent,
 double EvtSLBaryonAmp::CalcMaxProb( EvtId parent, EvtId baryon, 
 					      EvtId lepton, EvtId nudaug,
 					      EvtSemiLeptonicFF *FormFactors,
-					      EvtComplex r00, EvtComplex r01, 
-					      EvtComplex r10, EvtComplex r11) {
+					      const EvtComplex& r00, const EvtComplex& r01, 
+					      const EvtComplex& r10, const EvtComplex& r11) {
 
   //This routine takes the arguements parent, baryon, and lepton
   //number, and a form factor model, and returns a maximum
@@ -363,8 +363,8 @@ double EvtSLBaryonAmp::CalcMaxProb( EvtId parent, EvtId baryon,
 void EvtSLBaryonAmp::CalcAmp(EvtParticle *parent,
 				       EvtAmp& amp,
 				       EvtSemiLeptonicFF *FormFactors,
-				       EvtComplex r00, EvtComplex r01, 
-				       EvtComplex r10, EvtComplex r11) {
+				       const EvtComplex& r00, const EvtComplex& r01, 
+				       const EvtComplex& r10, const EvtComplex& r11) {
   //  Leptons
   static EvtId EM=EvtPDL::getId("e-");
   static EvtId MUM=EvtPDL::getId("mu-");

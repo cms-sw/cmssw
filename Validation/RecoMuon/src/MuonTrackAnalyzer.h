@@ -60,9 +60,9 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
 
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup) override;
   void tracksAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
-		      edm::Handle<edm::SimTrackContainer> simTracks);
+		      const edm::Handle<edm::SimTrackContainer>& simTracks);
   void seedsAnalysis(const edm::Event & event, const edm::EventSetup& eventSetup,
-		     edm::Handle<edm::SimTrackContainer> simTracks);
+		     const edm::Handle<edm::SimTrackContainer>& simTracks);
     
 
   virtual void beginJob() ;
@@ -73,10 +73,10 @@ class MuonTrackAnalyzer: public DQMEDAnalyzer {
  private:
   bool isInTheAcceptance(double eta);
   bool checkMuonSimHitPresence(const edm::Event & event,
-			       edm::Handle<edm::SimTrackContainer> simTracks);
+			       const edm::Handle<edm::SimTrackContainer>& simTracks);
 
   std::pair<SimTrack,double> getSimTrack(TrajectoryStateOnSurface &tsos,
-				       edm::Handle<edm::SimTrackContainer> simTracks);  
+				       const edm::Handle<edm::SimTrackContainer>& simTracks);  
 
   void fillPlots(const edm::Event &event, edm::Handle<edm::SimTrackContainer> &simTracks);
   void fillPlots(reco::TransientTrack &track, SimTrack &simTrack);

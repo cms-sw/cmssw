@@ -58,8 +58,8 @@ class L1MuGMTPattern : public edm::EDAnalyzer {
     virtual ~L1MuGMTPattern();
 
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
-    void printRegional(std::string tag, const std::vector<L1MuRegionalCand>& rmc);
-    void printGMT(std::string tag, const std::vector<L1MuGMTExtendedCand>& exc);
+    void printRegional(const std::string& tag, const std::vector<L1MuRegionalCand>& rmc);
+    void printGMT(const std::string& tag, const std::vector<L1MuGMTExtendedCand>& exc);
     void printMipIso(L1CaloRegionCollection const* regions);
     void printMI(const std::vector<unsigned>* mi);
     void printCANC();

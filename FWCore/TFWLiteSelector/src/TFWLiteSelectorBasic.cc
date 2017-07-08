@@ -56,6 +56,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -65,7 +66,7 @@ namespace edm {
       FWLiteDelayedReader() : entry_(-1), eventTree_(nullptr), reg_() {}
       void setEntry(Long64_t iEntry) { entry_ = iEntry; }
       void setTree(TTree* iTree) {eventTree_ = iTree;}
-      void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = iReg;}
+      void set(std::shared_ptr<ProductRegistry const> iReg) { reg_ = std::move(iReg);}
      private:
       std::unique_ptr<WrapperBase> getTheProduct(BranchKey const& k) const;
       virtual std::unique_ptr<WrapperBase> getProduct_(BranchKey const& k, EDProductGetter const* ep) override;

@@ -50,7 +50,7 @@ class EGammaMvaEleEstimatorCSA14{
     };
   
     void     initialize( std::string methodName,
-                         std::string weightsfile,
+                         const std::string& weightsfile,
                          EGammaMvaEleEstimatorCSA14::MVAType type);
     void     initialize( std::string methodName,
                          EGammaMvaEleEstimatorCSA14::MVAType type,

@@ -1,5 +1,6 @@
 #include "PhysicsTools/Heppy/interface/Megajet.h"
 
+#include <utility>
 #include <vector>
 #include <math.h>
 #include <TLorentzVector.h>
@@ -11,7 +12,7 @@ namespace heppy {
 // constructor specifying the association methods
 Megajet::Megajet(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
                  vector<float> E_vector, int megajet_association_method) : 
-  Object_Px(Px_vector), Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), 
+  Object_Px(std::move(Px_vector)), Object_Py(std::move(Py_vector)), Object_Pz(std::move(Pz_vector)), Object_E(std::move(E_vector)), 
   megajet_meth(megajet_association_method),  status(0) { 
 
   if(Object_Px.size() < 2) cout << "Error in Megajet: you should provide at least two jets to form Megajets" << endl;
@@ -24,7 +25,7 @@ Megajet::Megajet(vector<float> Px_vector, vector<float> Py_vector, vector<float>
 // in this case, the latter must be given by calling SetMethod before invoking Combine()
 Megajet::Megajet(vector<float> Px_vector, vector<float> Py_vector, vector<float> Pz_vector,
                  vector<float> E_vector) : 
-  Object_Px(Px_vector), Object_Py(Py_vector), Object_Pz(Pz_vector), Object_E(E_vector), 
+  Object_Px(std::move(Px_vector)), Object_Py(std::move(Py_vector)), Object_Pz(std::move(Pz_vector)), Object_E(std::move(E_vector)), 
   status(0) { 
 
   if(Object_Px.size() < 2) cout << "Error in Megajet: you should provide at least two jets to form Megajets" << endl;

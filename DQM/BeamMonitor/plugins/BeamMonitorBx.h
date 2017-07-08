@@ -55,11 +55,11 @@ class BeamMonitorBx : public edm::EDAnalyzer {
  private:
 
   void FitAndFill(const edm::LuminosityBlock& lumiSeg, int&, int&, int&);
-  void BookTables(int, std::map<std::string,std::string>&,std::string);
+  void BookTables(int, std::map<std::string,std::string>&,const std::string&);
   void BookTrendHistos(bool, int, std::map<std::string,std::string>&, 
-		       std::string, const TString&, const TString&);
+		       const std::string&, const TString&, const TString&);
   void FillTables(int, int, std::map<std::string,std::string>&,
-		  reco::BeamSpot&, std::string);
+		  reco::BeamSpot&, const std::string&);
   void FillTrendHistos(int, int, std::map<std::string,std::string>&,
 		       reco::BeamSpot&, const TString&);
   void weight(BeamSpotMapBx&, const BeamSpotMapBx&);

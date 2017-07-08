@@ -47,7 +47,7 @@ public:
   edm::ESHandle<MuonDetLayerGeometry> detLayerGeometry() const {return theDetLayerGeometry;}
 
   /// get the propagator
-  edm::ESHandle<Propagator> propagator(std::string propagatorName) const;
+  edm::ESHandle<Propagator> propagator(const std::string& propagatorName) const;
 
   /// get the whole EventSetup
   const edm::EventSetup &eventSetup() const {return *theEventSetup;}

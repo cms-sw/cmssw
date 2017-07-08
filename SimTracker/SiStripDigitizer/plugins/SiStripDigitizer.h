@@ -65,7 +65,7 @@ public:
 
   
 private:
-  void accumulateStripHits(edm::Handle<std::vector<PSimHit> >, const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin, CLHEP::HepRandomEngine*);
+  void accumulateStripHits(const edm::Handle<std::vector<PSimHit> >&, const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin, CLHEP::HepRandomEngine*);
   CLHEP::HepRandomEngine* randomEngine(edm::StreamID const& streamID);
 
   typedef std::vector<std::string> vstring;

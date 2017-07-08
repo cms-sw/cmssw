@@ -67,7 +67,7 @@ public:
 
 protected:
   /// Parser of the parameters file
-  void readParameters( TString fileName );
+  void readParameters( const TString& fileName );
 
   backgroundFunctionBase ** backgroundFunction_;
   std::vector<backgroundFunctionBase * > backgroundFunctionVec_;

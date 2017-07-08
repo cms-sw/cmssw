@@ -5,7 +5,7 @@ using namespace reco;
 PFConversion::PFConversion(  const reco::ConversionRef& cp, const std::vector<reco::PFRecTrackRef>& tr ) :
   originalConversion_(cp), pfTracks_(tr) {  }
 
-PFConversion::PFConversion(  const reco::ConversionRef cp ) :
+PFConversion::PFConversion(  const reco::ConversionRef& cp ) :
   originalConversion_(cp) {  }
 
 

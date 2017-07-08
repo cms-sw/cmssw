@@ -25,7 +25,7 @@ public:
     
     virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
     void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, std::string nameHist, TH1F* num, TH1F* den );
-    TProfile* ComputeEff(TH1F* num, TH1F* denum, std::string nameHist );
+    TProfile* ComputeEff(TH1F* num, TH1F* denum, const std::string& nameHist );
     
 private:
     std::string dbe_path_;

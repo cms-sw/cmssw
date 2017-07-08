@@ -24,7 +24,7 @@ class SourceVariableSet {
 		kWeight
 	};
 
-	SourceVariable *find(AtomicId name) const; SourceVariable
+	SourceVariable *find(const AtomicId& name) const; SourceVariable
 	*find(Magic magic) const;
 
 	bool append(SourceVariable *var, Magic magic = kRegular,
@@ -47,7 +47,7 @@ class SourceVariableSet {
 
 		bool noMagic() const { return magic == kRegular; }
 
-		static bool VarNameLess(const PosVar &var, AtomicId name)
+		static bool VarNameLess(const PosVar &var, const AtomicId& name)
 		{ return var.var->getName() < name; }
 	};
 

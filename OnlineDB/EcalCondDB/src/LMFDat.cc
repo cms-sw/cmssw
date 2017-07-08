@@ -1,6 +1,7 @@
 #include "OnlineDB/EcalCondDB/interface/LMFDat.h"
 
 #include <sstream>
+#include <utility>
 #include <math.h>
 
 using std::cout;
@@ -122,7 +123,7 @@ std::string LMFDat::getIovIdFieldName() const {
 
 void LMFDat::setWhereClause(std::string where) {
   // to be used by experts to restrict the results of a query
-  _where = where;
+  _where = std::move(where);
 }
 
 void LMFDat::setWhereClause(std::string where, 
@@ -133,7 +134,7 @@ void LMFDat::setWhereClause(std::string where,
   // float parameters. The parameters are all passed as strings
   // in parameters
   _wherePars  = parameters;
-  _where      = where;
+  _where      = std::move(where);
 }
 
 std::string LMFDat::buildSelectSql(int logic_id, int direction) {

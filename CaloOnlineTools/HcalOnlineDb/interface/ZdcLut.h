@@ -34,7 +34,7 @@ class ZdcLut
 		       int emap_htr_fiber,
 		       int emap_fi_ch);
 
-  std::vector <int> get_lut(std::string zdc_section,
+  std::vector <int> get_lut(const std::string& zdc_section,
 		       int zdc_side,
 		       int zdc_channel);
   

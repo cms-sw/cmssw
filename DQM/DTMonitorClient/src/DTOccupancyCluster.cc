@@ -133,7 +133,7 @@ double  DTOccupancyCluster::maxRMS() const {
 
 
 
-TH2F * DTOccupancyCluster::getHisto(std::string histoName, int nBinsX, double minX, double maxX,
+TH2F * DTOccupancyCluster::getHisto(const std::string& histoName, int nBinsX, double minX, double maxX,
 				    int nBinsY, double minY, double maxY, int fillColor) const {
   TH2F *histo = new TH2F(histoName.c_str(),histoName.c_str(),
 			 nBinsX, minX, maxX, nBinsY, minY, maxY);

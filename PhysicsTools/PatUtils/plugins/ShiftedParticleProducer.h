@@ -25,6 +25,7 @@
 #include "DataFormats/Candidate/interface/LeafCandidate.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <TF2.h>
@@ -53,17 +54,17 @@ class ShiftedParticleProducer : public edm::stream::EDProducer<>
   {
   binningEntryType(std::string uncertainty, std::string moduleLabel)
       : binSelection_(nullptr),
-      binUncertainty_(uncertainty),
+      binUncertainty_(std::move(uncertainty)),
       energyDep_(false)
     {
-      binUncFormula_ = std::make_unique<TF2>(std::string(moduleLabel).append("_uncFormula").c_str(), binUncertainty_.c_str() );
+      binUncFormula_ = std::make_unique<TF2>(std::string(std::move(moduleLabel)).append("_uncFormula").c_str(), binUncertainty_.c_str() );
     }
   binningEntryType(const edm::ParameterSet& cfg, std::string moduleLabel)
   : binSelection_(new StringCutObjectSelector<reco::Candidate>(cfg.getParameter<std::string>("binSelection"))),
       binUncertainty_(cfg.getParameter<std::string>("binUncertainty")),
       energyDep_(false)
     {
-      binUncFormula_ = std::make_unique<TF2>(std::string(moduleLabel).append("_uncFormula").c_str(), binUncertainty_.c_str() );
+      binUncFormula_ = std::make_unique<TF2>(std::string(std::move(moduleLabel)).append("_uncFormula").c_str(), binUncertainty_.c_str() );
       if(cfg.exists("energyDependency") ) {energyDep_=cfg.getParameter<bool>("energyDependency");
       }
     }

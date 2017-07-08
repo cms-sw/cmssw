@@ -109,7 +109,7 @@ class EventSetupRecordProvider {
    protected:
       void addProxiesToRecordHelper(edm::propagate_const<std::shared_ptr<DataProxyProvider>>& dpp,
                               DataToPreferredProviderMap const& mp) {addProxiesToRecord(get_underlying_safe(dpp), mp);}
-      void addProxiesToRecord(std::shared_ptr<DataProxyProvider>,
+      void addProxiesToRecord(const std::shared_ptr<DataProxyProvider>&,
                               DataToPreferredProviderMap const&);
       void cacheReset();
    

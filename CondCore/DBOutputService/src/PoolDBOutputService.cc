@@ -184,7 +184,7 @@ cond::service::PoolDBOutputService::currentTime() const{
 
 void 
 cond::service::PoolDBOutputService::createNewIOV( const std::string& firstPayloadId,
-						  const std::string payloadType, 
+						  const std::string& payloadType, 
                                                   cond::Time_t firstSinceTime, 
                                                   cond::Time_t firstTillTime,
                                                   const std::string& recordName, 

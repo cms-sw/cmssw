@@ -41,7 +41,7 @@ struct ErrorSummaryEntry
   ELseverityLevel severity;
   unsigned int    count;
   ErrorSummaryEntry(std::string const & cat, std::string const & mod, 
-  		    ELseverityLevel sev, unsigned int cnt = 0) 
+  		    const ELseverityLevel& sev, unsigned int cnt = 0) 
 	: category(cat)
 	, module  (mod)
 	, severity(sev)

@@ -111,7 +111,7 @@ PFDisplacedVertex::nameVertexType() const {
 
 
 const math::XYZTLorentzVector 
-PFDisplacedVertex::momentum(string massHypo, VertexTrackType T, bool useRefitted, double mass) const {
+PFDisplacedVertex::momentum(const string& massHypo, VertexTrackType T, bool useRefitted, double mass) const {
 
   M_Hypo mHypo = M_CUSTOM;
 

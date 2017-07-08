@@ -621,7 +621,7 @@ void PixelFEDCard::readDBROCLevels(std::vector<std::vector<std::string> > &table
 
 
 // Read the configuration parameters from file
-PixelFEDCard::PixelFEDCard(string fileName):
+PixelFEDCard::PixelFEDCard(const string& fileName):
   PixelConfigBase(" "," "," ")
 {
 

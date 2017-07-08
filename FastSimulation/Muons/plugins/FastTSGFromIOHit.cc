@@ -98,7 +98,7 @@ void FastTSGFromIOHit::trackerSeeds(const TrackCand& staMuon, const TrackingRegi
 }
 
 bool
-FastTSGFromIOHit::clean(reco::TrackRef muRef,
+FastTSGFromIOHit::clean(const reco::TrackRef& muRef,
 			const RectangularEtaPhiTrackingRegion& region,
 			const TrajectorySeed* aSeed,
 			const SimTrack& theSimTrack) 

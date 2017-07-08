@@ -48,14 +48,14 @@ helper::Parser::elementType(const edm::TypeWithDict &wrapperType) {
 }
 
 bool
-helper::Parser::test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict type, const void * ptr) {
+helper::Parser::test(const reco::parser::SelectorPtr &sel, const edm::TypeWithDict& type, const void * ptr) {
     if (sel.get() == 0) return false;
     edm::ObjectWithDict obj(type, const_cast<void *>(ptr));
     return (*sel)(obj);
 }
 
 double
-helper::Parser::eval(const reco::parser::ExpressionPtr &expr, const edm::TypeWithDict type, const void * ptr) {
+helper::Parser::eval(const reco::parser::ExpressionPtr &expr, const edm::TypeWithDict& type, const void * ptr) {
     if (expr.get() == 0) return 0;
     edm::ObjectWithDict obj(type, const_cast<void *>(ptr));
     return expr->value(obj);

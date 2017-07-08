@@ -113,14 +113,14 @@ EventSetupProvider::insert(const EventSetupRecordKey& iKey, std::unique_ptr<Even
 }
 
 void 
-EventSetupProvider::add(std::shared_ptr<DataProxyProvider> iProvider)
+EventSetupProvider::add(const std::shared_ptr<DataProxyProvider>& iProvider)
 {
    assert(iProvider.get() != 0);
    dataProviders_->push_back(iProvider);
 }
 
 void 
-EventSetupProvider::replaceExisting(std::shared_ptr<DataProxyProvider> dataProxyProvider)
+EventSetupProvider::replaceExisting(const std::shared_ptr<DataProxyProvider>& dataProxyProvider)
 {
    ParameterSetIDHolder psetID(dataProxyProvider->description().pid_);
    std::set<EventSetupRecordKey> const& keysForPSetID = (*psetIDToRecordKey_)[psetID];
@@ -131,7 +131,7 @@ EventSetupProvider::replaceExisting(std::shared_ptr<DataProxyProvider> dataProxy
 }
 
 void 
-EventSetupProvider::add(std::shared_ptr<EventSetupRecordIntervalFinder> iFinder)
+EventSetupProvider::add(const std::shared_ptr<EventSetupRecordIntervalFinder>& iFinder)
 {
    assert(iFinder.get() != 0);
    finders_->push_back(iFinder);

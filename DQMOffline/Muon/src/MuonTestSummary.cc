@@ -469,7 +469,7 @@ void MuonTestSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &i
 }
 
 
-void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muonType, int bin){
+void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, const string& muonType, int bin){
   
   // chi2 test
   string path = "Muons/MuonRecoAnalyzer/" + muonType + "chi2OverDf";
@@ -718,7 +718,7 @@ void MuonTestSummary::doKinematicsTests(DQMStore::IGetter & igetter, string muon
 
 }
 //--GH new
-void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err) {
+void MuonTestSummary::GaussFit(const string& type, const string& parameter, MonitorElement *  Histo, float &mean, float &mean_err, float &sigma, float &sigma_err) {
   
   // Gaussian Fit
   float statMean = Histo->getMean(1);
@@ -754,7 +754,7 @@ void MuonTestSummary::GaussFit(string type, string parameter, MonitorElement *  
     sigma_err=1;
   }
 }  
-void MuonTestSummary::doResidualsTests(DQMStore::IGetter &igetter, string type, string parameter, int bin){
+void MuonTestSummary::doResidualsTests(DQMStore::IGetter &igetter, const string& type, const string& parameter, int bin){
 
   // residuals test
   if(type!="GlbMuon"){
@@ -1056,7 +1056,7 @@ void MuonTestSummary::doMuonIDTests(DQMStore::IGetter &igetter){
   
 }
 
-void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter, std::string muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err){
+void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter, const std::string& muType, const std::vector<std::string>& resHistos, int &numPlot, double &Mean, double &Mean_err, double &Sigma, double &Sigma_err){
 
   numPlot=0;
   Mean=0;
@@ -1124,7 +1124,7 @@ void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter, std::string muTy
   return;
 
 }
-void MuonTestSummary::doEnergyTests(DQMStore::IGetter &igetter, string histname, string muonType, int binNumber){
+void MuonTestSummary::doEnergyTests(DQMStore::IGetter &igetter, const string& histname, const string& muonType, int binNumber){
 
   // num matches test
   string path = "Muons/MuonEnergyDepositAnalyzer/"+histname+muonType;

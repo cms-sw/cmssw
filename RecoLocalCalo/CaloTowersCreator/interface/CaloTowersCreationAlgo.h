@@ -189,8 +189,8 @@ public:
 
   // set the EE EB handles
   
-  void setEbHandle(const edm::Handle<EcalRecHitCollection> eb) { theEbHandle = eb; }
-  void setEeHandle(const edm::Handle<EcalRecHitCollection> ee) { theEeHandle = ee; }
+  void setEbHandle(const edm::Handle<EcalRecHitCollection>& eb) { theEbHandle = eb; }
+  void setEeHandle(const edm::Handle<EcalRecHitCollection>& ee) { theEeHandle = ee; }
 
 
 

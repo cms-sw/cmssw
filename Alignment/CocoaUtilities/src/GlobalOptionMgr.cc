@@ -142,7 +142,7 @@ ALIint GlobalOptionMgr::getGlobalOptionValue( const ALIstring& sstr, ALIdouble& 
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val, ALIFileIn& filein )
+void GlobalOptionMgr::setGlobalOption( const ALIstring& gopt, const ALIdouble val, ALIFileIn& filein )
 {
 
   if( !setGlobalOption( gopt, val, 0 ) ){
@@ -162,7 +162,7 @@ void GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-bool GlobalOptionMgr::setGlobalOption( const ALIstring gopt, const ALIdouble val, bool bExit )
+bool GlobalOptionMgr::setGlobalOption( const ALIstring& gopt, const ALIdouble val, bool bExit )
 {
   //----- If global option exists: set it to value read
   if ( GlobalOptions().find( gopt ) != GlobalOptions().end() ){

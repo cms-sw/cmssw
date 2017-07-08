@@ -78,7 +78,7 @@ class HiggsValidation : public DQMEDAnalyzer {
       return convert(channels[i-1].first)+convert(channels[i-1].second);
     }
 
-    int convert(std::string s){
+    int convert(const std::string& s){
       if( namePidMap.count(s)){
         return namePidMap[s];
       }
@@ -115,7 +115,7 @@ class HiggsValidation : public DQMEDAnalyzer {
     }
 
   private:
-    void fill(std::string s){
+    void fill(const std::string& s){
       size_t pos = s.find("+");
       std::string particle1 = s.substr(0,pos);
       std::string particle2 = s.substr(pos+1,s.length()-pos);

@@ -23,7 +23,7 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
   CSCChipSpeedCorrectionDBConditions(const edm::ParameterSet&);
   ~CSCChipSpeedCorrectionDBConditions();
   
-  inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection(bool isForMC, std::string dataCorrFileName, float dataOffse);
+  inline static CSCDBChipSpeedCorrection * prefillDBChipSpeedCorrection(bool isForMC, const std::string& dataCorrFileName, float dataOffse);
 
   typedef const  CSCDBChipSpeedCorrection * ReturnType;
   
@@ -53,7 +53,7 @@ class CSCChipSpeedCorrectionDBConditions: public edm::ESProducer, public edm::Ev
 
 
 // to workaround plugin library
-inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(bool isMC, std::string filename,float dataOffset)  
+inline CSCDBChipSpeedCorrection * CSCChipSpeedCorrectionDBConditions::prefillDBChipSpeedCorrection(bool isMC, const std::string& filename,float dataOffset)  
 {
   if (isMC)
     printf("\n Generating fake DB constants for MC\n");

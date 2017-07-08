@@ -12,6 +12,7 @@ This struct is used to communication parameters into the worker factory.
 #include <memory>
 
 #include <string>
+#include <utility>
 
 namespace edm {
   class ProcessConfiguration;
@@ -32,7 +33,7 @@ namespace edm {
       pset_(pset),
       reg_(&reg),
       preallocate_(prealloc),
-      processConfiguration_(processConfiguration),
+      processConfiguration_(std::move(processConfiguration)),
       actions_(&actions) {}
 
     ParameterSet* pset_;

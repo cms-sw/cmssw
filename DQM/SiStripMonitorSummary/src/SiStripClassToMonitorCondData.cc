@@ -194,7 +194,7 @@ void SiStripClassToMonitorCondData::getModMEsOnDemand(edm::EventSetup const& eSe
 //
 // ----- getlayerMEsOnDemand
 //
-void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const& eSetup, std::string requestedSubDetector, 
+void SiStripClassToMonitorCondData::getLayerMEsOnDemand(edm::EventSetup const& eSetup, const std::string& requestedSubDetector, 
                                                         uint32_t requestedSide, 
 							uint32_t requestedLayer){
  

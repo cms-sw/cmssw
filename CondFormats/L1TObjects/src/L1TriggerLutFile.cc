@@ -41,7 +41,7 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1TriggerLutFile::L1TriggerLutFile(const string name) : m_file(name) {}
+L1TriggerLutFile::L1TriggerLutFile(const string& name) : m_file(name) {}
 
 L1TriggerLutFile::L1TriggerLutFile(const L1TriggerLutFile& in) : m_file(in.m_file) {}
 

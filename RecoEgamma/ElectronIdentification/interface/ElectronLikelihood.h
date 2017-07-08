@@ -24,8 +24,8 @@ class ElectronLikelihood {
   //! ctor
   ElectronLikelihood (const ElectronLikelihoodCalibration *calibration,
 		      LikelihoodSwitches eleIDSwitches,
-		      std::string signalWeightSplitting,
-		      std::string backgroundWeightSplitting,
+		      const std::string& signalWeightSplitting,
+		      const std::string& backgroundWeightSplitting,
 		      bool splitSignalPdfs,
 		      bool splitBackgroundPdfs) ;
 
@@ -47,8 +47,8 @@ class ElectronLikelihood {
   //! build the likelihood model from histograms 
   //! in Barrel file and Endcap file
   void Setup (const ElectronLikelihoodCalibration *calibration,
-	      std::string signalWeightSplitting,
-	      std::string backgroundWeightSplitting,
+	      const std::string& signalWeightSplitting,
+	      const std::string& backgroundWeightSplitting,
 	      bool splitSignalPdfs,
 	      bool splitBackgroundPdfs) ;
 

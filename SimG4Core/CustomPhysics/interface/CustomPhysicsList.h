@@ -15,7 +15,7 @@ class G4Decay;
 class CustomPhysicsList : public G4VPhysicsConstructor 
 {
 public:
-  CustomPhysicsList(std::string name, const edm::ParameterSet & p);
+  CustomPhysicsList(const std::string& name, const edm::ParameterSet & p);
   virtual ~CustomPhysicsList();
 
   virtual void ConstructParticle();

@@ -20,7 +20,7 @@ namespace pos{
  
   public:
    
-    PixelTTCciConfig(std::string filename);
+    PixelTTCciConfig(const std::string& filename);
     PixelTTCciConfig(std::vector<std::vector<std::string> > &) ;
     //std::string getTTCConfigPath() {return ttcConfigPath_;}
     std::stringstream& getTTCConfigStream() {return ttcConfigStream_;}

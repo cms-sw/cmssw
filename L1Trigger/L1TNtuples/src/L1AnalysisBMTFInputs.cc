@@ -16,7 +16,7 @@ L1Analysis::L1AnalysisBMTFInputs::~L1AnalysisBMTFInputs()
 
 }
 
-void L1Analysis::L1AnalysisBMTFInputs::SetBMPH(const edm::Handle<L1MuDTChambPhContainer > L1MuDTChambPhContainer, unsigned int maxDTPH)
+void L1Analysis::L1AnalysisBMTFInputs::SetBMPH(const edm::Handle<L1MuDTChambPhContainer >& L1MuDTChambPhContainer, unsigned int maxDTPH)
 {
 
    L1MuDTChambPhContainer::Phi_Container const *PhContainer = L1MuDTChambPhContainer->getContainer();
@@ -44,7 +44,7 @@ void L1Analysis::L1AnalysisBMTFInputs::SetBMPH(const edm::Handle<L1MuDTChambPhCo
 }
 
 
-void L1Analysis::L1AnalysisBMTFInputs::SetBMTH(const edm::Handle<L1MuDTChambThContainer > L1MuDTChambThContainer, unsigned int maxDTTH)
+void L1Analysis::L1AnalysisBMTFInputs::SetBMTH(const edm::Handle<L1MuDTChambThContainer >& L1MuDTChambThContainer, unsigned int maxDTTH)
 {
 
    L1MuDTChambThContainer::The_Container const *ThContainer = L1MuDTChambThContainer->getContainer();

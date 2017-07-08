@@ -12,6 +12,7 @@
 
 // system include files
 #include <cassert>
+#include <utility>
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include "TVirtualCollectionProxy.h"
@@ -36,7 +37,7 @@ FWItemTVirtualCollectionProxyAccessor::FWItemTVirtualCollectionProxyAccessor(
    std::shared_ptr<TVirtualCollectionProxy> iProxy,
    size_t iOffset)
    : m_type(iType),
-     m_colProxy(iProxy),
+     m_colProxy(std::move(iProxy)),
      m_data(0),
      m_offset(iOffset)
 {

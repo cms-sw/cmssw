@@ -44,8 +44,8 @@ class DQMScaleToClient: public DQMEDHarvester{
   
  private:
 
-  static MEPSet       getHistoPSet      (edm::ParameterSet pset);
-  static OutputMEPSet getOutputHistoPSet(edm::ParameterSet pset);
+  static MEPSet       getHistoPSet      (const edm::ParameterSet& pset);
+  static OutputMEPSet getOutputHistoPSet(const edm::ParameterSet& pset);
 
 //private variables
 

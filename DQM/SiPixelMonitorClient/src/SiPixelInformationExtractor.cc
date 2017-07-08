@@ -112,7 +112,7 @@ std::string  SiPixelInformationExtractor::getMEType(MonitorElement * theMe)
  *  This method 
  */
 void SiPixelInformationExtractor::getItemList(const multimap<string, string>& req_map, 
-                                              string item_name,
+                                              const string& item_name,
 					      vector<string>& items) {
   items.clear();
   for (multimap<string, string>::const_iterator it = req_map.begin();
@@ -129,7 +129,7 @@ void SiPixelInformationExtractor::getItemList(const multimap<string, string>& re
  *  This method 
  */
 bool SiPixelInformationExtractor::hasItem(multimap<string,string>& req_map,
-					  string item_name){
+					  const string& item_name){
   multimap<string,string>::iterator pos = req_map.find(item_name);
   if (pos != req_map.end()) return true;
   return false;  
@@ -141,7 +141,7 @@ bool SiPixelInformationExtractor::hasItem(multimap<string,string>& req_map,
  *  This method 
  */
 std::string SiPixelInformationExtractor::getItemValue(const std::multimap<std::string,std::string>& req_map,
-						 std::string item_name){
+						 const std::string& item_name){
   std::multimap<std::string,std::string>::const_iterator pos = req_map.find(item_name);
   std::string value = " ";
   if (pos != req_map.end()) {
@@ -150,7 +150,7 @@ std::string SiPixelInformationExtractor::getItemValue(const std::multimap<std::s
   return value;
 }
 std::string SiPixelInformationExtractor::getItemValue(std::multimap<std::string,std::string>& req_map,
-						 std::string item_name){
+						 const std::string& item_name){
   std::multimap<std::string,std::string>::iterator pos = req_map.find(item_name);
   std::string value = " ";
   if (pos != req_map.end()) {
@@ -268,7 +268,7 @@ void SiPixelInformationExtractor::computeStatus(MonitorElement      * theME,
  */
 void SiPixelInformationExtractor::getNormalization(MonitorElement     * theME, 
                                                    pair<double,double>& norm,
-						   std::string          theMEType) 
+						   const std::string&          theMEType) 
 {
   double normLow  = 0 ;
   double normHigh = 0 ;
@@ -288,7 +288,7 @@ void SiPixelInformationExtractor::getNormalization(MonitorElement     * theME,
 void SiPixelInformationExtractor::getNormalization2D(MonitorElement     * theME, 
                                                      pair<double,double>& normX,
                                                      pair<double,double>& normY,
-						     std::string          theMEType) 
+						     const std::string&          theMEType) 
 {
   double normLow  = 0 ;
   double normHigh = 0 ;
@@ -347,7 +347,7 @@ void SiPixelInformationExtractor::bookNoisyPixels(DQMStore::IBooker & iBooker, f
           
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool init, float noiseRate_, int noiseRateDenominator_, edm::ESHandle<SiPixelFedCablingMap> theCablingMap)
+void SiPixelInformationExtractor::findNoisyPixels(DQMStore::IBooker & iBooker, DQMStore::IGetter & iGetter, bool init, float noiseRate_, int noiseRateDenominator_, const edm::ESHandle<SiPixelFedCablingMap>& theCablingMap)
 {
 
   

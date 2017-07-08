@@ -75,7 +75,7 @@ MultiStatePropagation<T>::propagateWithPath (const TrajectoryStateOnSurface& tso
 
 template <class T>
 TrajectoryStateOnSurface 
-MultiStatePropagation<T>::setWeight (const TrajectoryStateOnSurface state,
+MultiStatePropagation<T>::setWeight (const TrajectoryStateOnSurface& state,
 				     const double weight) const {
   return TrajectoryStateOnSurface(weight, state.localParameters(),
 				  state.localError(),

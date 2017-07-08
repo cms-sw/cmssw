@@ -176,7 +176,7 @@ void DTTTrigOffsetCalibration::endJob() {
 }
 
 // Book a set of histograms for a given Chamber
-void DTTTrigOffsetCalibration::bookHistos(DTChamberId chId) {
+void DTTTrigOffsetCalibration::bookHistos(const DTChamberId& chId) {
 
   LogTrace("Calibration") << "   Booking histos for Chamber: " << chId;
 

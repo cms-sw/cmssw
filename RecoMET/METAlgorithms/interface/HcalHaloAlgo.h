@@ -90,7 +90,7 @@ class HcalHaloAlgo{
   int NHitsThreshold;
 
   const CaloGeometry *geo;
-  math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
+  math::XYZPoint getPosition(const DetId &id, const reco::Vertex::Point& vtx);
   
 };
 

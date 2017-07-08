@@ -109,13 +109,13 @@ class HLTObjectsMonitor : public DQMEDAnalyzer {
       virtual void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
       void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
-      static hltPlot getPlotPSet(edm::ParameterSet pset);
+      static hltPlot getPlotPSet(const edm::ParameterSet& pset);
       void getPSet();
       bool isHEP17(double eta, double phi);
       bool isHEM17(double eta, double phi);
 
-      double dxyFinder(double, double, edm::Handle<reco::RecoChargedCandidateCollection>, edm::Handle<reco::BeamSpot>, double);
-      double dzFinder(double, double, double, double, edm::Handle<reco::RecoChargedCandidateCollection>, double);
+      double dxyFinder(double, double, const edm::Handle<reco::RecoChargedCandidateCollection>&, const edm::Handle<reco::BeamSpot>&, double);
+      double dzFinder(double, double, double, double, const edm::Handle<reco::RecoChargedCandidateCollection>&, double);
       // ----------member data ---------------------------
 
   std::string TopFolder_;
@@ -204,7 +204,7 @@ const MEbinning eta_binning_hem17_{
 // static data member definitions
 //
 hltPlot
-HLTObjectsMonitor::getPlotPSet(edm::ParameterSet pset) {
+HLTObjectsMonitor::getPlotPSet(const edm::ParameterSet& pset) {
 
   return hltPlot{
     std::make_pair<MonitorElement*,bool>(nullptr,false), 
@@ -873,7 +873,7 @@ void HLTObjectsMonitor::bookHistograms(DQMStore::IBooker & ibooker, edm::Run con
 }
 
 double 
-HLTObjectsMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::RecoChargedCandidateCollection> candidates, edm::Handle<reco::BeamSpot> beamspot, double dRcut = 0.1)
+HLTObjectsMonitor::dxyFinder(double eta, double phi, const edm::Handle<reco::RecoChargedCandidateCollection>& candidates, const edm::Handle<reco::BeamSpot>& beamspot, double dRcut = 0.1)
 {
   double dxy = -99.;
   if ( !candidates.isValid() ) {
@@ -905,7 +905,7 @@ HLTObjectsMonitor::dxyFinder(double eta, double phi, edm::Handle<reco::RecoCharg
 }
 
 double 
-HLTObjectsMonitor::dzFinder(double eta1, double phi1, double eta2, double phi2, edm::Handle<reco::RecoChargedCandidateCollection> candidates, double dRcut = 0.1)
+HLTObjectsMonitor::dzFinder(double eta1, double phi1, double eta2, double phi2, const edm::Handle<reco::RecoChargedCandidateCollection>& candidates, double dRcut = 0.1)
 {
   double dz = -99.;
   if ( !candidates.isValid() ) {

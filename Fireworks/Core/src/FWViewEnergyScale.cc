@@ -13,6 +13,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <boost/bind.hpp>
+#include <utility>
 
 #include "Rtypes.h"
 #include "TMath.h"
@@ -28,7 +29,7 @@ m_scaleMode(this, "ScaleMode", 1l, 1l, 2l),
 m_fixedValToHeight(this, "EnergyToLength [GeV/m]", 50.0, 1.0, 100.0),
 m_maxTowerHeight(this, "MaximumLength [m]", 3.0, 0.01, 30.0 ),
 m_plotEt(this, "PlotEt", true),
-m_name(name),
+m_name(std::move(name)),
 m_scaleFactor3D(1.f),
 m_scaleFactorLego(0.05f)
 {

@@ -9,6 +9,7 @@
 # include <sstream>
 # include <string>
 # include <map>
+#include <utility>
 
 //#include "DQMServices/Core/interface/DQMStore.h"
 
@@ -67,7 +68,7 @@ public:
                                         { return std::vector<DQMChannel>(); }
 
 protected:
-  QCriterion(std::string qtname)        { qtname_ = qtname; init(); }
+  QCriterion(std::string qtname)        { qtname_ = std::move(qtname); init(); }
   /// initialize values
   void init(void);
 
@@ -75,7 +76,7 @@ protected:
 
   virtual float runTest(const MonitorElement *me);
   /// set algorithm name
-  void setAlgoName(std::string name)    { algoName_ = name; }
+  void setAlgoName(std::string name)    { algoName_ = std::move(name); }
 
   float runTest(const MonitorElement *me, QReport &qr, DQMNet::QValue &qv)   {
       assert(qr.qcriterion_ == this);

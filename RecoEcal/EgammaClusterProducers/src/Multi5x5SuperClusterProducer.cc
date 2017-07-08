@@ -94,7 +94,7 @@ void Multi5x5SuperClusterProducer::produce(edm::Event& evt, const edm::EventSetu
 void Multi5x5SuperClusterProducer::
 produceSuperclustersForECALPart(edm::Event& evt, 
 								const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
-								std::string superclusterCollection)
+								const std::string& superclusterCollection)
 {
   // get the cluster collection out and turn it to a BasicClusterRefVector:
   reco::CaloClusterPtrVector *clusterPtrVector_p = new reco::CaloClusterPtrVector;

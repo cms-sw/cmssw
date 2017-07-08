@@ -561,7 +561,7 @@ void PixelDetectorConfig::addROC(   PixelROCName &theROC)  // Added by Dario (Ma
 }
 
 //=============================================================================================
-void PixelDetectorConfig::addROC(   PixelROCName &theROC, string statusLabel)  // modified by MR on 14-05-2008 11:29:51
+void PixelDetectorConfig::addROC(   PixelROCName &theROC, const string& statusLabel)  // modified by MR on 14-05-2008 11:29:51
 {
  std::stringstream s ; s << __LINE__ << "]\t[PixelDetectorConfig::addROC()]\t\t\t\t    " ;
  std::string mthn = s.str() ;

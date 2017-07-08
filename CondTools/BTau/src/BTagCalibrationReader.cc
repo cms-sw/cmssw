@@ -24,7 +24,7 @@ private:
 
   void load(const BTagCalibration & c,
             BTagEntry::JetFlavor jf,
-            std::string measurementType);
+            const std::string& measurementType);
 
   double eval(BTagEntry::JetFlavor jf,
               float eta,
@@ -73,7 +73,7 @@ BTagCalibrationReader::BTagCalibrationReaderImpl::BTagCalibrationReaderImpl(
 void BTagCalibrationReader::BTagCalibrationReaderImpl::load(
                                              const BTagCalibration & c,
                                              BTagEntry::JetFlavor jf,
-                                             std::string measurementType)
+                                             const std::string& measurementType)
 {
   if (tmpData_[jf].size()) {
     throw cms::Exception("BTagCalibrationReader")

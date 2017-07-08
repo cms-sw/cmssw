@@ -183,7 +183,7 @@ namespace pat {
       /// get list of tag info labels
       std::vector<std::string> const & tagInfoLabels() const { return tagInfoLabels_; }
       /// check to see if the given tag info is nonzero
-      bool hasTagInfo( const std::string label) const { return tagInfo(label) != 0; }
+      bool hasTagInfo( const std::string& label) const { return tagInfo(label) != 0; }
       /// get a tagInfo with the given name, or NULL if none is found.
       /// You should omit the 'TagInfos' part from the label
       const reco::BaseTagInfo            * tagInfo(const std::string &label) const;
@@ -482,7 +482,7 @@ namespace pat {
 	}
       }
 
-      void updateFwdGenJetFwdRef( edm::Ref<reco::GenJetCollection> updateRef ) {
+      void updateFwdGenJetFwdRef( const edm::Ref<reco::GenJetCollection>& updateRef ) {
 	genJetFwdRef_ = edm::FwdRef<reco::GenJetCollection>( updateRef, genJetFwdRef_.backRef() );
       }
 
@@ -496,13 +496,13 @@ namespace pat {
 
 
       /// String access to subjet list
-      pat::JetPtrCollection const & subjets( std::string label ) const ;
+      pat::JetPtrCollection const & subjets( const std::string& label ) const ;
 
       /// Add new set of subjets
-      void addSubjets( pat::JetPtrCollection const & pieces, std::string label = ""  );
+      void addSubjets( pat::JetPtrCollection const & pieces, const std::string& label = ""  );
 
       /// Check to see if the subjet collection exists
-      bool hasSubjets( std::string label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
+      bool hasSubjets( const std::string& label ) const { return find( subjetLabels_.begin(), subjetLabels_.end(), label) != subjetLabels_.end(); }
       
       /// Number of subjet collections
       unsigned int nSubjetCollections(  ) const { return  subjetCollections_.size(); }

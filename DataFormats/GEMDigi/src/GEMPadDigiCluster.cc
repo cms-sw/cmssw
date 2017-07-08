@@ -1,8 +1,9 @@
 #include "DataFormats/GEMDigi/interface/GEMPadDigiCluster.h"
 #include <iostream>
+#include <utility>
 
 GEMPadDigiCluster::GEMPadDigiCluster (std::vector<uint16_t> pads, int bx) :
-  v_(pads),
+  v_(std::move(pads)),
   bx_(bx)
 {}
 

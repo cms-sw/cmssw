@@ -132,7 +132,7 @@ namespace cms
   //
 
   void
-  SiPixelDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+  SiPixelDigitizer::accumulatePixelHits(const edm::Handle<std::vector<PSimHit> >& hSimHits,
 					size_t globalSimHitIndex,
 					const unsigned int tofBin,
 					CLHEP::HepRandomEngine* engine,

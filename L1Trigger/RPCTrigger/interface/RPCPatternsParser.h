@@ -41,7 +41,7 @@ public:
   
   void endElement (const XMLCh* const uri, const XMLCh* const localname, const XMLCh* const qname);
 
-  void parse(std::string fileName);
+  void parse(const std::string& fileName);
 
   const RPCPattern::RPCPatVec& getPatternsVec(const RPCConst::l1RpcConeCrdnts& coneCrds) const;
 

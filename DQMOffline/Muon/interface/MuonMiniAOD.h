@@ -61,8 +61,8 @@ class MuonMiniAOD : public DQMEDAnalyzer {
   edm::EDGetTokenT<reco::VertexCollection> theVertexLabel_;
   edm::EDGetTokenT<reco::BeamSpot>         theBeamSpotLabel_;
 
-  bool PassesCut_A(edm::View<pat::Muon>::const_iterator,reco::Vertex,TString);
-  bool PassesCut_B(edm::View<pat::Muon>::const_iterator,reco::Vertex,TString);
+  bool PassesCut_A(edm::View<pat::Muon>::const_iterator,const reco::Vertex&,const TString&);
+  bool PassesCut_B(edm::View<pat::Muon>::const_iterator,const reco::Vertex&,const TString&);
 
 };
 #endif

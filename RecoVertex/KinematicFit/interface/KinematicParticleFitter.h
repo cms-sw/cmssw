@@ -60,7 +60,7 @@ public:
  * In case of failure, an invalid tree is returned.
  */
  RefCountedKinematicTree fit(KinematicConstraint * cs , 
-                    RefCountedKinematicTree tree)const;
+                    const RefCountedKinematicTree& tree)const;
 private:
  
  ParentParticleFitter * parentFitter;

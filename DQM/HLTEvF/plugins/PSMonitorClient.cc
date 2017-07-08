@@ -36,7 +36,7 @@ public:
 
 private:
 
-  static MEPSet getHistoPSet(edm::ParameterSet pset);
+  static MEPSet getHistoPSet(const edm::ParameterSet& pset);
 
   std::string m_dqm_path;
 
@@ -55,7 +55,7 @@ PSMonitorClient::PSMonitorClient(edm::ParameterSet const & config) :
 {
 }
 
-MEPSet PSMonitorClient::getHistoPSet(edm::ParameterSet pset)
+MEPSet PSMonitorClient::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEPSet{
     pset.getParameter<std::string>("name"),

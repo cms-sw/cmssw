@@ -846,7 +846,7 @@ void SiStripMonitorTrack::hitStudy(
 	const SiStripMatchedRecHit2D*         matchedhit,
 	const SiStripRecHit2D*                hit2D,
 	const SiStripRecHit1D*                hit1D,
-	      LocalVector                     localMomentum,
+	      const LocalVector&                     localMomentum,
 	const bool                            track_ok
 ) {
   LocalVector statedirection;
@@ -945,7 +945,7 @@ bool SiStripMonitorTrack::trackFilter(const reco::Track& track) {
 }
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::trackStudyFromTrack(
-  edm::Handle<reco::TrackCollection > trackCollectionHandle,
+  const edm::Handle<reco::TrackCollection >& trackCollectionHandle,
   const edm::DetSetVector<SiStripDigi>& digilist,
   const edm::Event& ev,
   const edm::EventSetup& es
@@ -1029,7 +1029,7 @@ void SiStripMonitorTrack::trackStudyFromTrack(
 }
 //------------------------------------------------------------------------
 void SiStripMonitorTrack::trackStudyFromTrajectory(
-  edm::Handle<reco::TrackCollection > trackCollectionHandle,
+  const edm::Handle<reco::TrackCollection >& trackCollectionHandle,
   const edm::DetSetVector<SiStripDigi>& digilist,
   const edm::Event& ev,
   const edm::EventSetup& es
@@ -1061,7 +1061,7 @@ void SiStripMonitorTrack::trackStudyFromTrajectory(
 //------------------------------------------------------------------------
 template <class T> void SiStripMonitorTrack::RecHitInfo(
   const T*                              tkrecHit,
-  LocalVector                           LV,
+  const LocalVector&                           LV,
   const edm::DetSetVector<SiStripDigi>& digilist,
   const edm::Event&                     ev,
   const edm::EventSetup&                es,
@@ -1309,7 +1309,7 @@ bool SiStripMonitorTrack::clusterInfos(
   const uint32_t detid,
   enum ClusterFlags flag,
   bool track_ok,
-  const LocalVector LV,
+  const LocalVector& LV,
   const Det2MEs& MEs ,
   const TrackerTopology* tTopo,
   const SiStripGain*     stripGain,

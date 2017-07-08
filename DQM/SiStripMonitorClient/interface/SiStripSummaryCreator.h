@@ -27,12 +27,12 @@ class SiStripSummaryCreator {
 
  private:
  MonitorElement* getSummaryME(DQMStore* dqm_store,
-                              std::string& name, std::string htype);
+                              std::string& name, const std::string& htype);
 
 
   void fillGrandSummaryHistos(DQMStore* dqm_store);
   void fillSummaryHistos(DQMStore* dqm_store);
-  void fillHistos(int ival, int istep, std::string htype, 
+  void fillHistos(int ival, int istep, const std::string& htype, 
 		  MonitorElement* me_src, MonitorElement* me);
 
 

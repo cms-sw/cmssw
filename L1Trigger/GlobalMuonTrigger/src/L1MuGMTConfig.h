@@ -195,8 +195,8 @@ class L1MuGMTConfig {
     
     void createLUTsRegs();
     void clearLUTsRegs();
-    void dumpLUTs(std::string dir);
-    void dumpRegs(std::string dir);
+    void dumpLUTs(const std::string& dir);
+    void dumpRegs(const std::string& dir);
 
     void setDefaults();
   

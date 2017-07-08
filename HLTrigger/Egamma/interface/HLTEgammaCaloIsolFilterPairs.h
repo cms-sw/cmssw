@@ -57,7 +57,7 @@ class HLTEgammaCaloIsolFilterPairs : public HLTFilter {
 
     bool AlsoNonIso_1, AlsoNonIso_2;
 
-    bool PassCaloIsolation(edm::Ref<reco::RecoEcalCandidateCollection> ref,const reco::RecoEcalCandidateIsolationMap& IsoMap,const reco::RecoEcalCandidateIsolationMap& NonIsoMap, int which, bool ChekAlsoNonIso) const;
+    bool PassCaloIsolation(const edm::Ref<reco::RecoEcalCandidateCollection>& ref,const reco::RecoEcalCandidateIsolationMap& IsoMap,const reco::RecoEcalCandidateIsolationMap& NonIsoMap, int which, bool ChekAlsoNonIso) const;
 };
 
 #endif //HLTEgammaCaloIsolFilterPairs_h

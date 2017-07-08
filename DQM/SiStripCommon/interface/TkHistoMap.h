@@ -9,6 +9,7 @@
 #include "CalibTracker/SiStripCommon/interface/TkDetMap.h"
 #include "CommonTools/TrackerMap/interface/TrackerMap.h"
 #include <string>
+#include <utility>
 
 class TkHistoMap{
 
@@ -29,20 +30,20 @@ class TkHistoMap{
 
   float getValue(uint32_t& detid);
   float getEntries(uint32_t& detid);
-  uint32_t getDetId(std::string title, int ix, int iy){return getDetId(getLayerNum(getLayerName(title)),ix,iy);}
+  uint32_t getDetId(std::string title, int ix, int iy){return getDetId(getLayerNum(getLayerName(std::move(title))),ix,iy);}
   uint32_t getDetId(int layer, int ix, int iy){return tkdetmap_->getDetFromBin(layer,ix,iy);}
   uint32_t getDetId(MonitorElement*ME, int ix, int iy){return getDetId(ME->getTitle(),ix,iy);}
   std::string getLayerName(std::string title){return title.erase(0,MapName_.size()+1);}
-  uint16_t getLayerNum(std::string layerName){return tkdetmap_->getLayerNum(layerName);}
+  uint16_t getLayerNum(const std::string& layerName){return tkdetmap_->getLayerNum(layerName);}
 
-  void fillFromAscii(std::string filename);
+  void fillFromAscii(const std::string& filename);
   void fill(uint32_t& detid,float value);
   void setBinContent(uint32_t& detid,float value);
   void add(uint32_t& detid,float value);
 
   void dumpInTkMap(TrackerMap* tkmap, bool dumpEntries=false); //dumpEntries==true? (dump entries) : (dump mean values)
-  void save(std::string filename);
-  void saveAsCanvas(std::string filename,std::string options="", std::string mode="RECREATE");
+  void save(const std::string& filename);
+  void saveAsCanvas(const std::string& filename,const std::string& options="", const std::string& mode="RECREATE");
 
  private:
 

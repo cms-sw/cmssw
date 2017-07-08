@@ -591,7 +591,7 @@ void DDHCalEndcapAlgo::constructGeneralVolume(DDCompactView& cpv) {
 }
 
 
-void DDHCalEndcapAlgo::constructInsideSector(DDLogicalPart sector, DDCompactView& cpv) {
+void DDHCalEndcapAlgo::constructInsideSector(const DDLogicalPart& sector, DDCompactView& cpv) {
   
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HCalGeom") << "DDHCalEndcapAlgo test: Modules (" << getModules()
@@ -779,7 +779,7 @@ void DDHCalEndcapAlgo::parameterLayer(int iphi, double rinF, double routF,
 }
 
 
-void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod, DDCompactView& cpv) {
+void DDHCalEndcapAlgo::constructInsideModule0(const DDLogicalPart& module, int mod, DDCompactView& cpv) {
   
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HCalGeom") << "DDHCalEndcapAlgo test: \t\tInside module0 ..."
@@ -901,7 +901,7 @@ void DDHCalEndcapAlgo::constructInsideModule0(DDLogicalPart module, int mod, DDC
 }
 
 
-void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDCompactView& cpv) {
+void DDHCalEndcapAlgo::constructInsideModule(const DDLogicalPart& module, int mod, DDCompactView& cpv) {
   
 #ifdef EDM_ML_DEBUG
   edm::LogInfo("HCalGeom") << "DDHCalEndcapAlgo test: \t\tInside module ..." 
@@ -1023,9 +1023,9 @@ void DDHCalEndcapAlgo::constructInsideModule(DDLogicalPart module, int mod, DDCo
 }
 
  
-void DDHCalEndcapAlgo::constructScintLayer(DDLogicalPart detector, double dz,
+void DDHCalEndcapAlgo::constructScintLayer(const DDLogicalPart& detector, double dz,
                                            double yh, double bl, double tl, 
-					   double alp, string nm, int id, DDCompactView& cpv) {
+					   double alp, const string& nm, int id, DDCompactView& cpv) {
 
   DDName matname(DDSplit(getScintMat()).first, DDSplit(getScintMat()).second);
   DDMaterial matter(matname);

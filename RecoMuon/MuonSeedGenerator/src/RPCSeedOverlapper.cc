@@ -165,7 +165,7 @@ void RPCSeedOverlapper::CheckOverlap(const edm::EventSetup& iSetup, std::vector<
     *weightedSeedsRef = sortweightedSeeds;
 }
 
-bool RPCSeedOverlapper::isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits, const TrackingRecHit& hit, edm::ESHandle<RPCGeometry> rpcGeometry) {
+bool RPCSeedOverlapper::isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits, const TrackingRecHit& hit, const edm::ESHandle<RPCGeometry>& rpcGeometry) {
 
     bool istheSame = false;
     unsigned int n = 1;

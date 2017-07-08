@@ -1,5 +1,6 @@
 #include "CalibCalorimetry/EcalTPGTools/plugins/EcalTPGDBApp.h"
 
+#include <utility>
 #include <vector>
 #include <time.h>
 
@@ -7,11 +8,11 @@ using namespace std;
 using namespace oracle::occi;
 
 EcalTPGDBApp::EcalTPGDBApp(string host, string sid, string user, string pass, int port)
-  : EcalCondDBInterface( host, sid, user, pass, port )
+  : EcalCondDBInterface( std::move(host), std::move(sid), std::move(user), std::move(pass), port )
 {}
  
 EcalTPGDBApp::EcalTPGDBApp(string sid, string user, string pass)
-  : EcalCondDBInterface(  sid, user, pass )
+  : EcalCondDBInterface(  std::move(sid), std::move(user), std::move(pass) )
 {}
 
 int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPedDat> & pedset, int iovId, string tag) {
@@ -25,7 +26,7 @@ int EcalTPGDBApp::writeToConfDB_TPGPedestals(const  map<EcalLogicID, FEConfigPed
   cout << "creating fe record " <<endl;
   FEConfigPedInfo fe_ped_info ;
   fe_ped_info.setIOVId(iovId) ;
-  fe_ped_info.setConfigTag(tag) ;
+  fe_ped_info.setConfigTag(std::move(tag)) ;
   insertConfigSet(&fe_ped_info) ;
   result = fe_ped_info.getID() ;
 
@@ -51,7 +52,7 @@ int EcalTPGDBApp::writeToConfDB_TPGLinearCoef(const  map<EcalLogicID, FEConfigLi
   cout << "creating fe record " <<endl;
   FEConfigLinInfo fe_lin_info ;
   fe_lin_info.setIOVId(iovId) ;
-  fe_lin_info.setConfigTag(tag) ;
+  fe_lin_info.setConfigTag(std::move(tag)) ;
   insertConfigSet(&fe_lin_info) ;
   result = fe_lin_info.getID() ;
   
@@ -87,7 +88,7 @@ int EcalTPGDBApp::writeToConfDB_TPGMain(int ped, int lin, int lut, int fgr, int 
   fe_main.setBxtId(bxt) ;
   fe_main.setBttId(btt) ;
   fe_main.setBstId(bst) ;
-  fe_main.setConfigTag(tag) ;
+  fe_main.setConfigTag(std::move(tag)) ;
   fe_main.setVersion(ver) ;
 
   insertConfigSet(&fe_main) ;
@@ -200,7 +201,7 @@ int EcalTPGDBApp::writeToConfDB_TPGSliding(const  map<EcalLogicID, FEConfigSlidi
 
   FEConfigSlidingInfo fe_info ;
   fe_info.setIOVId(iovId); 
-  fe_info.setConfigTag(tag);
+  fe_info.setConfigTag(std::move(tag));
   insertConfigSet(&fe_info);
   
   //  Tm tdb = fe_lut_info.getDBTime();
@@ -230,7 +231,7 @@ int EcalTPGDBApp::writeToConfDB_TPGLUT(const  map<EcalLogicID, FEConfigLUTGroupD
 
   FEConfigLUTInfo fe_lut_info ;
   fe_lut_info.setNumberOfGroups(iovId); 
-  fe_lut_info.setConfigTag(tag);
+  fe_lut_info.setConfigTag(std::move(tag));
   insertConfigSet(&fe_lut_info);
   
   //  Tm tdb = fe_lut_info.getDBTime();
@@ -263,7 +264,7 @@ int EcalTPGDBApp::writeToConfDB_TPGWeight(const  map<EcalLogicID, FEConfigWeight
 
   FEConfigWeightInfo fe_wei_info ;
   fe_wei_info.setNumberOfGroups(5); // this eventually refers to some other table 
-  fe_wei_info.setConfigTag(tag);
+  fe_wei_info.setConfigTag(std::move(tag));
   insertConfigSet(&fe_wei_info);
   
   //  Tm tdb = fe_lut_info.getDBTime();
@@ -299,7 +300,7 @@ int EcalTPGDBApp::writeToConfDB_TPGFgr(const  map<EcalLogicID, FEConfigFgrGroupD
 
   FEConfigFgrInfo fe_fgr_info ;
   fe_fgr_info.setNumberOfGroups(iovId); // this eventually refers to some other table 
-  fe_fgr_info.setConfigTag(tag);
+  fe_fgr_info.setConfigTag(std::move(tag));
   insertConfigSet(&fe_fgr_info);
   
   //  Tm tdb = fe_fgr_info.getDBTime();
@@ -334,7 +335,7 @@ int EcalTPGDBApp::writeToConfDB_Spike(const  map<EcalLogicID, FEConfigSpikeDat> 
   int result=0; 
 
   FEConfigSpikeInfo fe_spike_info ;
-  fe_spike_info.setConfigTag(tag);
+  fe_spike_info.setConfigTag(std::move(tag));
   insertConfigSet(&fe_spike_info);
   
   //  Tm tdb = fe_fgr_info.getDBTime();
@@ -361,7 +362,7 @@ int EcalTPGDBApp::writeToConfDB_Delay(const  map<EcalLogicID, FEConfigTimingDat>
   int result=0; 
 
   FEConfigTimingInfo fe_time_info ;
-  fe_time_info.setConfigTag(tag);
+  fe_time_info.setConfigTag(std::move(tag));
   insertConfigSet(&fe_time_info);
   
   //  Tm tdb = fe_fgr_info.getDBTime();

@@ -30,7 +30,7 @@ bool SourceVariableSet::append(SourceVariable *var, Magic magic, int offset)
 	return false;
 }
 
-SourceVariable *SourceVariableSet::find(AtomicId name) const
+SourceVariable *SourceVariableSet::find(const AtomicId& name) const
 {
 	std::vector<PosVar>::const_iterator pos =
 			std::lower_bound(vars.begin(), vars.end(),

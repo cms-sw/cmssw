@@ -93,26 +93,26 @@ private:
   MuonSeeddPhiScale* ScaledPhi;
 
   // Utility functions
-  void CSCsegment_stat(edm::Handle<CSCSegmentCollection> cscSeg);
-  void DTsegment_stat(edm::Handle<DTRecSegment4DCollection> dtSeg);
+  void CSCsegment_stat(const edm::Handle<CSCSegmentCollection>& cscSeg);
+  void DTsegment_stat(const edm::Handle<DTRecSegment4DCollection>& dtSeg);
 
-  void CSCRecHit_stat(edm::Handle<CSCRecHit2DCollection> cscrechit, edm::ESHandle<CSCGeometry> cscGeom);
-  void DTRecHit_stat(edm::Handle<DTRecHitCollection> dtrechit, edm::ESHandle<DTGeometry> dtGeom);
+  void CSCRecHit_stat(const edm::Handle<CSCRecHit2DCollection>& cscrechit, const edm::ESHandle<CSCGeometry>& cscGeom);
+  void DTRecHit_stat(const edm::Handle<DTRecHitCollection>& dtrechit, const edm::ESHandle<DTGeometry>& dtGeom);
   
   bool SameChamber(CSCDetId SimDetId, CSCDetId SegDetId);
 
-  void SimInfo(const edm::Handle<edm::SimTrackContainer> simTracks,
-               const edm::Handle<edm::PSimHitContainer> dsimHits,
-               const edm::Handle<edm::PSimHitContainer> csimHits,
-               edm::ESHandle<DTGeometry> dtGeom,edm::ESHandle<CSCGeometry> cscGeom);  
+  void SimInfo(const edm::Handle<edm::SimTrackContainer>& simTracks,
+               const edm::Handle<edm::PSimHitContainer>& dsimHits,
+               const edm::Handle<edm::PSimHitContainer>& csimHits,
+               const edm::ESHandle<DTGeometry>& dtGeom,const edm::ESHandle<CSCGeometry>& cscGeom);  
 
-  void FromCSCSeg( std::vector<CSCSegment> cscSeg, edm::ESHandle<CSCGeometry> cscGeom 
+  void FromCSCSeg( std::vector<CSCSegment> cscSeg, const edm::ESHandle<CSCGeometry>& cscGeom 
                        ,std::vector<SimSegment> seg);
-  void FromCSCSingleSeg( std::vector<CSCSegment> cscSeg, edm::ESHandle<CSCGeometry> cscGeom 
+  void FromCSCSingleSeg( std::vector<CSCSegment> cscSeg, const edm::ESHandle<CSCGeometry>& cscGeom 
                        ,std::vector<SimSegment> seg);
-  void FromDTSeg( std::vector<DTRecSegment4D> dtSeg, edm::ESHandle<DTGeometry> dtGeom
+  void FromDTSeg( std::vector<DTRecSegment4D> dtSeg, const edm::ESHandle<DTGeometry>& dtGeom
                        ,std::vector<SimSegment> seg);
-  void FromDTSingleSeg( std::vector<DTRecSegment4D> dtSeg, edm::ESHandle<DTGeometry> dtGeom
+  void FromDTSingleSeg( std::vector<DTRecSegment4D> dtSeg, const edm::ESHandle<DTGeometry>& dtGeom
                        ,std::vector<SimSegment> seg);
   void FromOverlap();
 

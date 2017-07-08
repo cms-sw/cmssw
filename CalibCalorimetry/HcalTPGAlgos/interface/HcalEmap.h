@@ -23,6 +23,7 @@
 //
 
 // system include files
+#include <utility>
 #include<vector>
 #include <string.h>
 #include <fstream>
@@ -35,7 +36,7 @@ class HcalEmap
 {
  public:
   HcalEmap(){}
-  HcalEmap( std::string filename ){ read_map(filename); }
+  HcalEmap( std::string filename ){ read_map(std::move(filename)); }
   ~HcalEmap(){}
 
   class HcalEmapRow
@@ -64,7 +65,7 @@ class HcalEmap
     
   }; // end of class HcalEmapRow
 
-  int read_map( std::string filename );
+  int read_map( const std::string& filename );
 
   std::vector<HcalEmap::HcalEmapRow> & get_map( void );
 

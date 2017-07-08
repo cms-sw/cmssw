@@ -32,11 +32,11 @@ class TauElementsOperators{
   const reco::TrackRef leadTk(const math::XYZVector& jetAxis,std::string matchingConeMetric,double matchingConeSize,double ptTrackMin)const;
   
   // return all Tracks in a cone of metric* "coneMetric" and size "coneSize" around a direction "coneAxis" 
-  const reco::TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const std::string coneMetric,const double coneSize,const double ptTrackMin)const;
-  const reco::TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const std::string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &myPV)const;
+  const reco::TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const std::string& coneMetric,const double coneSize,const double ptTrackMin)const;
+  const reco::TrackRefVector tracksInCone(const math::XYZVector& coneAxis,const std::string& coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &myPV)const;
   // return all Tracks in an annulus defined by inner(metric* "innerconeMetric" and size "innerconeSize") and outer(metric* "outerconeMetric" and size "outerconeSize") cones around a direction "coneAxis" 
-  const reco::TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const std::string innerconeMetric,const double innerconeSize,const std::string outerconeMetric,const double outerconeSize,const double ptTrackMin)const;  
-  const reco::TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const std::string innerconeMetric,const double innerconeSize,const std::string outerconeMetric,const double outerconeSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &myPV)const;  
+  const reco::TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const std::string& innerconeMetric,const double innerconeSize,const std::string& outerconeMetric,const double outerconeSize,const double ptTrackMin)const;  
+  const reco::TrackRefVector tracksInAnnulus(const math::XYZVector& coneAxis,const std::string& innerconeMetric,const double innerconeSize,const std::string& outerconeMetric,const double outerconeSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &myPV)const;  
   // return 1 if no/low Tracks activity in an isolation annulus around a leading Track, 0 otherwise; 
   // different possible metrics* for the matching, signal and isolation cones; 
   double discriminatorByIsolTracksN(unsigned int isolationAnnulus_Tracksmaxn)const;

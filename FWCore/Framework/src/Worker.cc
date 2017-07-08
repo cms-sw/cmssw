@@ -3,6 +3,8 @@
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/src/Worker.h"
+
+#include <utility>
 #include "FWCore/Framework/src/EarlyDeleteHelper.h"
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Concurrency/interface/WaitingTask.h"
@@ -92,7 +94,7 @@ private:
   }
 
   void Worker::setActivityRegistry(std::shared_ptr<ActivityRegistry> areg) {
-    actReg_ = areg;
+    actReg_ = std::move(areg);
   }
 
   

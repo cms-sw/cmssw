@@ -153,10 +153,10 @@ public:
    *
    * Modified 01/May/2014 to take the TrackerHitAssociator as a parameter rather than using a member.
    */
-  template<typename iter> double getDoubleCount( const TrackerHitAssociator& hitAssociator, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
+  template<typename iter> double getDoubleCount( const TrackerHitAssociator& hitAssociator, iter begin, iter end, const TrackingParticleRef& associatedTrackingParticle ) const;
   /** @brief Overload for when using cluster to TrackingParticle association list.
    */
-  template<typename iter> double getDoubleCount( const ClusterTPAssociation& clusterToTPList, iter begin, iter end, TrackingParticleRef associatedTrackingParticle ) const;
+  template<typename iter> double getDoubleCount( const ClusterTPAssociation& clusterToTPList, iter begin, iter end, const TrackingParticleRef& associatedTrackingParticle ) const;
   
   /** @brief Returns a vector of pairs where first is a SimTrackIdentifiers (see typedef above) and second is the number of hits that came from that sim track.
    *

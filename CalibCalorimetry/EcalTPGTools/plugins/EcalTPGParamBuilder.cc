@@ -2037,7 +2037,7 @@ void EcalTPGParamBuilder::beginJob()
 
 
 
-bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio, double calibCoeff, std::string subdet, int & mult , int & shift) 
+bool EcalTPGParamBuilder::computeLinearizerParam(double theta, double gainRatio, double calibCoeff, const std::string& subdet, int & mult , int & shift) 
 {
   /*
     Linearization coefficient are determined in order to satisfy:
@@ -2307,7 +2307,7 @@ std::vector<unsigned int> EcalTPGParamBuilder::computeWeights(EcalShapeBase & sh
   return theWeights ;
 }
 
-void EcalTPGParamBuilder::computeLUT(int * lut, std::string det) 
+void EcalTPGParamBuilder::computeLUT(int * lut, const std::string& det) 
 {
   double Et_sat = Et_sat_EB_ ;
   double LUT_threshold = LUT_threshold_EB_ ;

@@ -10,6 +10,7 @@
 #include "FWCore/ServiceRegistry/interface/ServiceToken.h"
 
 #include <cstdlib>
+#include <utility>
 #include <vector>
 #include <memory>
 #include <iostream>
@@ -17,7 +18,7 @@
 class TestServicesManagerOrder {
 public:
   static edm::ServiceToken makeToken(std::shared_ptr<edm::serviceregistry::ServicesManager> iManager) {
-    return edm::ServiceToken(iManager);
+    return edm::ServiceToken(std::move(iManager));
   }
 };
 

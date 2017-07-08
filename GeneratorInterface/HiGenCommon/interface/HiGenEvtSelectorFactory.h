@@ -7,7 +7,7 @@ class HiGenEvtSelectorFactory {
    HiGenEvtSelectorFactory(){;}
    virtual ~HiGenEvtSelectorFactory(){;}
    
-   static BaseHiGenEvtSelector* get(std::string, const edm::ParameterSet&);
+   static BaseHiGenEvtSelector* get(const std::string&, const edm::ParameterSet&);
    
 };
 

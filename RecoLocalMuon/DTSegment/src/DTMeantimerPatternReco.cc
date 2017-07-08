@@ -292,7 +292,7 @@ DTMeantimerPatternReco::addHits(DTSegmentCand* segCand, const vector<std::shared
 
 
 bool
-DTMeantimerPatternReco::geometryFilter( const DTWireId first, const DTWireId second ) const
+DTMeantimerPatternReco::geometryFilter( const DTWireId& first, const DTWireId& second ) const
 {
 //  return true;
 

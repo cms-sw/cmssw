@@ -85,7 +85,7 @@ class DTRecHit1D : public RecHit1D {
 
 
   /// Set local position 
-  void setPosition(LocalPoint pos) {
+  void setPosition(const LocalPoint& pos) {
     theLocalPosition = pos;
   }
 
@@ -97,7 +97,7 @@ class DTRecHit1D : public RecHit1D {
 
 
   /// Set the local position and its error
-  void setPositionAndError(LocalPoint pos, LocalError err) {
+  void setPositionAndError(const LocalPoint& pos, LocalError err) {
     theLocalPosition = pos;
     theLocalError = err;
   }

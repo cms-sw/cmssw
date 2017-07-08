@@ -16,11 +16,11 @@ class MatchedPartons
     
     MatchedPartons() { }
     MatchedPartons( 
-                    GenParticleRef hv,
-                    GenParticleRef n2,
-                    GenParticleRef n3,
-                    GenParticleRef pd,
-                    GenParticleRef ad 
+                    const GenParticleRef& hv,
+                    const GenParticleRef& n2,
+                    const GenParticleRef& n3,
+                    const GenParticleRef& pd,
+                    const GenParticleRef& ad 
                   ) : 
        m_heaviest(hv),
        m_nearest2(n2),

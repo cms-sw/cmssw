@@ -46,8 +46,8 @@ public:
     
 private:
     
-    float getEnergy(T1Ref) const;
-    float getEt(T1Ref) const;
+    float getEnergy(const T1Ref&) const;
+    float getEt(const T1Ref&) const;
     
     edm::InputTag candTag_; // input tag identifying product that contains filtered candidates
     edm::InputTag varTag_; // input tag identifying product that contains variable map

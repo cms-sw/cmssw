@@ -974,7 +974,7 @@ void SiStripMonitorDigi::createModuleMEs(DQMStore::IBooker & ibooker , ModMEs& m
 // -- Create Module Level MEs
 //  
 
-void SiStripMonitorDigi::createLayerMEs( DQMStore::IBooker & ibooker , std::string label, int ndets ) {
+void SiStripMonitorDigi::createLayerMEs( DQMStore::IBooker & ibooker , const std::string& label, int ndets ) {
 
   std::map<std::string, LayerMEs>::iterator iLayerME  = LayerMEsMap.find(label);
   if(iLayerME==LayerMEsMap.end()){
@@ -1042,7 +1042,7 @@ void SiStripMonitorDigi::createLayerMEs( DQMStore::IBooker & ibooker , std::stri
 //
 // -- Create SubDetector MEs
 //
-void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , std::string label ) {
+void SiStripMonitorDigi::createSubDetMEs(DQMStore::IBooker & ibooker , const std::string& label ) {
 
   SubDetMEs subdetMEs; 
   subdetMEs.totNDigis         = 0;

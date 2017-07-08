@@ -54,7 +54,7 @@ class RPCRecHitReader : public edm::EDAnalyzer
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
 
-  unsigned int layerRecHit(RPCRecHit);
+  unsigned int layerRecHit(const RPCRecHit&);
 
  private:
   std::string fOutputFileName;

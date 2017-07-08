@@ -40,7 +40,7 @@ VariableComputer::VariableComputer(const CachingVariable::CachingVariableFactory
   method_ = arg_.iConfig.getParameter<std::string>("computer");
 }
 
-void VariableComputer::declare(std::string var, edm::ConsumesCollector& iC){
+void VariableComputer::declare(const std::string& var, edm::ConsumesCollector& iC){
   std::string aName = name_+separator_+var;
   ComputedVariable * newVar = new ComputedVariable(method_,aName,arg_.iConfig,this,iC);
   if (iCompute_.find(var) != iCompute_.end()){
@@ -51,7 +51,7 @@ void VariableComputer::declare(std::string var, edm::ConsumesCollector& iC){
   iCompute_[var] = newVar;
   arg_.m.insert(std::make_pair(aName,newVar));
 }
-void VariableComputer::assign(std::string var, double & value) const{
+void VariableComputer::assign(const std::string& var, double & value) const{
   std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.find(var);
   if (it == iCompute_.end()){
     std::stringstream ss;
@@ -68,7 +68,7 @@ void VariableComputer::doesNotCompute() const{
   for ( std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.begin(); it!=iCompute_.end();++it)
     it->second->setNotCompute();
 }
-void VariableComputer::doesNotCompute(std::string var) const{
+void VariableComputer::doesNotCompute(const std::string& var) const{
   std::map<std::string ,const ComputedVariable *>::const_iterator it=iCompute_.find(var);
   if (it == iCompute_.end()){
     std::stringstream ss;

@@ -73,9 +73,9 @@ class EventSetupProvider {
       //called by specializations of EventSetupRecordProviders
       void addRecordToEventSetup(EventSetupRecord& iRecord);
 
-      void add(std::shared_ptr<DataProxyProvider>);
-      void replaceExisting(std::shared_ptr<DataProxyProvider>);
-      void add(std::shared_ptr<EventSetupRecordIntervalFinder>);
+      void add(const std::shared_ptr<DataProxyProvider>&);
+      void replaceExisting(const std::shared_ptr<DataProxyProvider>&);
+      void add(const std::shared_ptr<EventSetupRecordIntervalFinder>&);
 
       void finishConfiguration();
 

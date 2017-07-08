@@ -26,7 +26,7 @@ public:
   virtual void endJob();
 
 private:
-  std::string formatIOV(cond::Time_t iov, std::string format="%Y-%m-%d__%H_%M_%S");
+  std::string formatIOV(cond::Time_t iov, const std::string& format="%Y-%m-%d__%H_%M_%S");
 
   cond::persistency::ConnectionPool m_connectionPool;
   std::string m_condDb;
@@ -120,7 +120,7 @@ void SiStripDetVOffTkMapPlotter::analyze(const edm::Event& evt, const edm::Event
 void SiStripDetVOffTkMapPlotter::endJob() {
 }
 
-std::string SiStripDetVOffTkMapPlotter::formatIOV(cond::Time_t iov, std::string format) {
+std::string SiStripDetVOffTkMapPlotter::formatIOV(cond::Time_t iov, const std::string& format) {
   auto facet = new boost::posix_time::time_facet(format.c_str());
    std::ostringstream stream;
    stream.imbue(std::locale(stream.getloc(), facet));

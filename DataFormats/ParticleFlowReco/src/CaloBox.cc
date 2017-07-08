@@ -79,7 +79,7 @@ bool CaloBox::fill(double eta, double phi, double energy) {
 
 }
 
-std::ostream& CaloBox::dump(std::ostream& stream, double norm, string rowDelim) const {
+std::ostream& CaloBox::dump(std::ostream& stream, double norm, const string& rowDelim) const {
 
 	for (int r = phiPosBound_; r >= phiNegBound_; --r) {
 		for (int c = etaNegBound_; c <= etaPosBound_; ++c) {

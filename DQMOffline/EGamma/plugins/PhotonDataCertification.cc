@@ -75,7 +75,7 @@ PhotonDataCertification::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter
   reportSummary_->Fill(AllResult);
 }
 
-float PhotonDataCertification::invMassZtest(string path, TString name,
+float PhotonDataCertification::invMassZtest(const string& path, const TString& name,
     DQMStore::IGetter & igetter) {
 
   float ZMass = 91.2;

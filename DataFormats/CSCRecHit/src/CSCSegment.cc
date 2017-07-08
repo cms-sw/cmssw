@@ -5,6 +5,7 @@
 
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <iostream>
+#include <utility>
 
 namespace {
   // Get CSCDetId from one of the rechits, but then remove the layer part so it's a _chamber_ id
@@ -18,8 +19,8 @@ namespace {
 CSCSegment::CSCSegment(const std::vector<const CSCRecHit2D*>& proto_segment, LocalPoint origin, 
 	LocalVector direction, const AlgebraicSymMatrix& errors, double chi2) : 
   RecSegment(buildDetId(proto_segment.front()->cscDetId())),
-  theOrigin(origin), 
-  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2), aME11a_duplicate(false) {
+  theOrigin(std::move(origin)), 
+  theLocalDirection(std::move(direction)), theCovMatrix(errors), theChi2(chi2), aME11a_duplicate(false) {
 
   for(unsigned int i=0; i<proto_segment.size(); ++i)
     theCSCRecHits.push_back(*proto_segment[i]);

@@ -125,7 +125,7 @@ void DDHGCalModule::execute(DDCompactView& cpv) {
 #endif
 }
 
-void DDHGCalModule::constructLayers(DDLogicalPart module, 
+void DDHGCalModule::constructLayers(const DDLogicalPart& module, 
 				    DDCompactView& cpv) {
   
 #ifdef EDM_ML_DEBUG

@@ -305,7 +305,7 @@ void PhotonPostprocessing::endLuminosityBlock(const edm::LuminosityBlock& lumi, 
 
 
 
-void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator, std::string type ){
+void  PhotonPostprocessing::dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator, const std::string& type ){
   double value,err;
   if(nullptr == dividend or nullptr == denominator or nullptr == numerator) {
     return;

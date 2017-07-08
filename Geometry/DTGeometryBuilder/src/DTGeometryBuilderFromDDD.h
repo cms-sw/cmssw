@@ -61,7 +61,7 @@ class DTGeometryBuilderFromDDD {
     RCPPlane plane(const DDFilteredView& fv, 
                    Bounds * bounds) const ;
 
-    void buildGeometry(std::shared_ptr<DTGeometry> theGeometry,
+    void buildGeometry(const std::shared_ptr<DTGeometry>& theGeometry,
                        DDFilteredView& fv,
                        const MuonDDDConstants& muonConstants) const;
 

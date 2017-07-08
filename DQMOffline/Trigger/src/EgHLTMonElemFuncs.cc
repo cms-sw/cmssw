@@ -413,7 +413,7 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 //tag and probe trigger efficiencies
 //this is to measure the trigger efficiency with respect to a fully selected offline electron
 //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
-void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& filterNames,int cutMask,const BinData& bins)
 {
   for(size_t filterNr=0;filterNr<filterNames.size();filterNr++){ 
     
@@ -443,7 +443,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>&
 }
 
 //Only one at a time so I can set the folder
-void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string& filterName,int cutMask,const BinData& bins)
 {   
   std::string trigName(filterName);
   //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(filterName);
@@ -469,7 +469,7 @@ void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& 
 }
 
 
-void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string& filterName,int cutMask,const BinData& bins)
 {  
  
   std::string trigNameLeg1 = filterName.substr(0,filterName.find("::")); 
@@ -488,7 +488,7 @@ void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle
 
 
 //Now same for photons
-void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& filterNames,int cutMask,const BinData& bins)
 {
   for(size_t filterNr=0;filterNr<filterNames.size();filterNr++){ 
     
@@ -517,7 +517,7 @@ void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>&
    
 }
 
-void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string filterName,int cutMask,const BinData& bins)
+void MonElemFuncs::initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string& filterName,int cutMask,const BinData& bins)
 {
     std::string trigName(filterName);
     //float etCutValue = 1.1*trigTools::getSecondEtThresFromName(trigName);

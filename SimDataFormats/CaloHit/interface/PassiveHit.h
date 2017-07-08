@@ -2,6 +2,7 @@
 #define SimDataFormats_PassiveHit_H
 
 #include<string>
+#include <utility>
 #include <vector>
 
 // Persistent Hit in passive material
@@ -11,7 +12,7 @@ class PassiveHit {
 public: 
 
  PassiveHit(std::string vname, unsigned int id, float e=0., float t=0., 
-	    int it=0) : vname_(vname), id_(id), energy_(e), time_(t), it_(it) {}
+	    int it=0) : vname_(std::move(vname)), id_(id), energy_(e), time_(t), it_(it) {}
  PassiveHit() : vname_(""), id_(0), energy_(0), time_(0), it_(0) {}
   
   //Names
@@ -33,7 +34,7 @@ public:
   void setTrackId(int it) { it_ = it; }
 
   //DetId where the Hit is recorded
-  void setID(std::string vname, unsigned int id) { vname_ = vname; id_ = id; }
+  void setID(std::string vname, unsigned int id) { vname_ = std::move(vname); id_ = id; }
   std::string   vname() const { return vname_; }
   unsigned int  id()    const { return id_; }
 

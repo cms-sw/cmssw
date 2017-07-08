@@ -1,6 +1,8 @@
 #ifndef EgammaTools_ConversionInfo_h
 #define EgammaTools_ConversionInfo_h
 
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 //#include "DataFormats/TrackReco/interface/Track.h"
@@ -28,15 +30,15 @@ class ConversionInfo
     ConversionInfo
      ( double dist, double dcot,
        double radiusOfConversion, math::XYZPoint pointOfConversion,
-       reco::TrackRef conversionPartnerCtfTk,
-       reco::GsfTrackRef conversionPartnerGsfTk,
+       const reco::TrackRef& conversionPartnerCtfTk,
+       const reco::GsfTrackRef& conversionPartnerGsfTk,
        int deltaMissingHits,
        int flag )
      {
       dist_ = dist;
       dcot_ = dcot;
       radiusOfConversion_ = radiusOfConversion;
-      pointOfConversion_ = pointOfConversion;
+      pointOfConversion_ = std::move(pointOfConversion);
       conversionPartnerCtfTk_ = conversionPartnerCtfTk;
       conversionPartnerGsfTk_ = conversionPartnerGsfTk;
       deltaMissingHits_ = deltaMissingHits;

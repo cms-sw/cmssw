@@ -38,7 +38,7 @@ MuonSeedFromRecHits::MuonSeedFromRecHits()
 
 TrajectorySeed MuonSeedFromRecHits::createSeed(float ptmean,
 					       float sptmean,
-					       ConstMuonRecHitPointer last) const
+					       const ConstMuonRecHitPointer& last) const
 {
   
   const std::string metname = "Muon|RecoMuon|MuonSeedFromRecHits";

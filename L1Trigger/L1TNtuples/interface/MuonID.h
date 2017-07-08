@@ -39,7 +39,7 @@ bool isMediumMuonCustom(const reco::Muon & recoMu)
    }
 
 
-bool isTightMuonCustom(const reco::Muon & recoMu, const reco::Vertex recoVtx) 
+bool isTightMuonCustom(const reco::Muon & recoMu, const reco::Vertex& recoVtx) 
    {
 
      //bp

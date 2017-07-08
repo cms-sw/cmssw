@@ -25,7 +25,7 @@ namespace spr{
     int                           maxInMiss, maxOutMiss;
   };
 
-  bool goodTrack (const reco::Track* pTrack, math::XYZPoint leadPV, trackSelectionParameters parameters, bool debug=false);
+  bool goodTrack (const reco::Track* pTrack, const math::XYZPoint& leadPV, trackSelectionParameters parameters, bool debug=false);
 
 }
 #endif

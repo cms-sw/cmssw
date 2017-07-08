@@ -86,7 +86,7 @@ public:
     // It is provided only until prescales and masks are available as CondFormats...
     // Most users should simply ignore this method and use the default ctor only!
     // Will look for prescale csv file in L1Trigger/L1TGlobal/data/Luminosity/startup/<filename>
-    void OverridePrescalesAndMasks(std::string filename, unsigned int psColumn=1);
+    void OverridePrescalesAndMasks(const std::string& filename, unsigned int psColumn=1);
 
     /// initialize the class (mainly reserve)
     void retrieveL1(const edm::Event& iEvent, const edm::EventSetup& evSetup); // using helper

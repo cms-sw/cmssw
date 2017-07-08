@@ -27,7 +27,7 @@ class Herwig6Instance : public FortranInstance {
 	{ InstanceWrapper wrapper(this); return timeout(secs, fn); }
 
         // method to open External Particle Spectra Files
-        void openParticleSpecFile(const std::string fileName);
+        void openParticleSpecFile(const std::string& fileName);
 
          void setHerwigRandomEngine(CLHEP::HepRandomEngine* v) { randomEngine = v; }
 

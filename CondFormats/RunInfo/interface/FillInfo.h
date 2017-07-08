@@ -159,4 +159,4 @@ class FillInfo {
  COND_SERIALIZABLE;
 };
 
-std::ostream & operator<<( std::ostream &, FillInfo fillInfo );
+std::ostream & operator<<( std::ostream &, const FillInfo& fillInfo );

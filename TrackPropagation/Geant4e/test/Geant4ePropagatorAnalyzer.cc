@@ -65,7 +65,7 @@ public:
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   virtual void beginJob();
-  void iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits,
+  void iterateOverHits(const edm::Handle<edm::PSimHitContainer>& simHits,
 		       testMuChamberType muonChamberType,
 		       unsigned int trkIndex,
 		       const FreeTrajectoryState& ftsTrack);
@@ -519,7 +519,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
 
 void
-Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> simHits, 
+Geant4ePropagatorAnalyzer::iterateOverHits(const edm::Handle<edm::PSimHitContainer>& simHits, 
 					   testMuChamberType muonChamberType,
 					   unsigned int trkIndex,
 					   const FreeTrajectoryState& ftsTrack) {

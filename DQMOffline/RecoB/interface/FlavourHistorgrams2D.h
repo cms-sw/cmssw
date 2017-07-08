@@ -31,16 +31,16 @@ class FlavourHistograms2D {
 
 public:
 
-  FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+  FlavourHistograms2D (const TString& baseNameTitle_ , const TString& baseNameDescription_ ,
 		       int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
 		       int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-		       std::string folder, unsigned int mc,
+		       const std::string& folder, unsigned int mc,
 		       bool createProfile, DQMStore::IGetter & iget) ;
 
-  FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+  FlavourHistograms2D (const TString& baseNameTitle_ , const TString& baseNameDescription_ ,
 		       int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
 		       int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-		       bool statistics_ , std::string folder, unsigned int mc,
+		       bool statistics_ , const std::string& folder, unsigned int mc,
 		       bool createProfile, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms2D () ;
@@ -182,9 +182,9 @@ protected:
 
 
 template <class T, class G>
-FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+FlavourHistograms2D<T, G>::FlavourHistograms2D (const TString& baseNameTitle_ , const TString& baseNameDescription_ ,
 						int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
-						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ , std::string folder, 
+						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ , const std::string& folder, 
 						unsigned int mc, bool createProfile, DQMStore::IGetter & iget) :
   // BaseFlavourHistograms2D () ,
   // theVariable ( variable_ ) ,
@@ -286,10 +286,10 @@ FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString
 }
 
 template <class T, class G>
-FlavourHistograms2D<T, G>::FlavourHistograms2D (TString baseNameTitle_ , TString baseNameDescription_ ,
+FlavourHistograms2D<T, G>::FlavourHistograms2D (const TString& baseNameTitle_ , const TString& baseNameDescription_ ,
 						int nBinsX_ , double lowerBoundX_ , double upperBoundX_ ,
 						int nBinsY_ , double lowerBoundY_ , double upperBoundY_ ,
-						bool statistics_ , std::string folder, 
+						bool statistics_ , const std::string& folder, 
 						unsigned int mc, bool createProfile, DQMStore::IBooker & ibook) :
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_.Data() ) , theBaseNameDescription ( baseNameDescription_.Data() ) ,
   theNBinsX ( nBinsX_ ) , theNBinsY (nBinsY_), 

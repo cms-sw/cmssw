@@ -49,6 +49,7 @@
 #include <TMath.h>
 
 #include <iostream>
+#include <utility>
 
 
 
@@ -80,7 +81,7 @@ PedeSteererWeakModeConstraints::PedeSteererWeakModeConstraints(AlignableTracker 
                                                                ) :
   myLabels_(labels),
   myConfig_(config),
-  steerFile_(sf),
+  steerFile_(std::move(sf)),
   alignableObjectId_{AlignableObjectId::commonObjectIdProvider(aliTracker, nullptr)}
 {
   unsigned int psetnr = 0;
@@ -306,9 +307,9 @@ PedeSteererWeakModeConstraints::getX(const int sysdeformation,
 double
 PedeSteererWeakModeConstraints::getCoefficient(const int sysdeformation,
 					       const align::GlobalPoint &pos,
-					       const GlobalPoint gUDirection,
-					       const GlobalPoint gVDirection,
-					       const GlobalPoint gWDirection,
+					       const GlobalPoint& gUDirection,
+					       const GlobalPoint& gVDirection,
+					       const GlobalPoint& gWDirection,
 					       const int iParameter, const double &x0,
 					       const std::vector<double> &constraintparameters) const
 {

@@ -27,7 +27,7 @@ private:
   virtual void beginRun(const edm::Run&, const edm::EventSetup&) ; 
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
-  void writeHeader(const std::vector<LHERunInfoProduct::Header>::const_iterator, const std::string) ;
+  void writeHeader(const std::vector<LHERunInfoProduct::Header>::const_iterator, const std::string&) ;
       // ----------member data ---------------------------
   std::string unwParFile_;
   std::string wgtFile_;
@@ -106,7 +106,7 @@ AlpgenExtractor::endJob() {
 }
 
 void
-AlpgenExtractor::writeHeader(std::vector<LHERunInfoProduct::Header>::const_iterator header, const std::string filename)
+AlpgenExtractor::writeHeader(std::vector<LHERunInfoProduct::Header>::const_iterator header, const std::string& filename)
 {
   std::ofstream outfile;
   outfile.open(filename.c_str());

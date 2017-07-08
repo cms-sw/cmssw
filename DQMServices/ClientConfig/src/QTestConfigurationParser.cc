@@ -3,6 +3,7 @@
 #include "DQMServices/ClientConfig/interface/ParserFunctions.h"
 #include <cstring>
 #include <stdexcept>         
+#include <utility>
 /** \file
  *
  *  Implementation of QTestConfigurationParser
@@ -100,7 +101,7 @@ bool QTestConfigurationParser::qtestsConfig(){
 std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElement* qtestElement, std::string qtestType){
 	
 	std::map<std::string, std::string> paramNamesValues;
-	paramNamesValues["type"]=qtestType;
+	paramNamesValues["type"]=std::move(qtestType);
 	
 	DOMNodeList *arguments = qtestElement->getElementsByTagName (qtxml::_toDOMS ("PARAM"));
 	
@@ -120,9 +121,9 @@ std::map<std::string, std::string> QTestConfigurationParser::getParams(DOMElemen
 
 }
 
-bool QTestConfigurationParser::checkParameters(std::string qtestName, std::string qtestType){
+bool QTestConfigurationParser::checkParameters(const std::string& qtestName, std::string qtestType){
 	
-	std::vector<std::string> paramNames=qtestParamNames->getTestParamNames(qtestType);
+	std::vector<std::string> paramNames=qtestParamNames->getTestParamNames(std::move(qtestType));
         // commenting out as does not seem to be logical SDutta 22/3/2013 
 	/*if(paramNames.size() == 0) {
 

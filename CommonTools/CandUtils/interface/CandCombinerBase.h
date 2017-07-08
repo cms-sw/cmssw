@@ -15,15 +15,15 @@ class CandCombinerBase {
 public:
   typedef std::vector<std::string> vstring;
   /// default construct
-  explicit CandCombinerBase(const std::string  = "");
+  explicit CandCombinerBase(const std::string&  = "");
   /// construct from two charge values
-  CandCombinerBase(int, int, const std::string  = "");
+  CandCombinerBase(int, int, const std::string&  = "");
   /// construct from three charge values
-  CandCombinerBase(int, int, int, const std::string  = "");
+  CandCombinerBase(int, int, int, const std::string&  = "");
   /// construct from four charge values
-  CandCombinerBase(int, int, int, int, const std::string  = "");
+  CandCombinerBase(int, int, int, int, const std::string&  = "");
   /// constructor from a selector, specifying optionally to check for charge
-  CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector <int> &, const std::string  = "");
+  CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector <int> &, const std::string&  = "");
   /// destructor
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
@@ -54,7 +54,7 @@ private:
   /// returns a composite candidate combined from two daughters
   void combine(typename OutputCollection::value_type &, 
 	       const CandPtr &, 
-	       const CandPtr &, const std::string = "", const std::string = "") const;
+	       const CandPtr &, const std::string& = "", const std::string& = "") const;
   /// temporary candidate stack
   typedef std::vector<std::pair<std::pair<CandPtr, size_t>, 
 				std::vector<edm::Handle<reco::CandidateView> >::const_iterator> > CandStack;
@@ -86,19 +86,19 @@ private:
 };
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(const std::string name) :
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(const std::string& name) :
   checkCharge_(false), checkOverlap_(true), dauCharge_(), overlap_(), name_(name) {
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, const std::string name) :
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, const std::string& name) :
   checkCharge_(true), checkOverlap_(true), dauCharge_(2), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, const std::string name) :
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, const std::string& name) :
   checkCharge_(true), checkOverlap_(true), dauCharge_(3), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
@@ -106,7 +106,7 @@ CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, in
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, int q4, const std::string name) :
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, int q3, int q4, const std::string& name) :
   checkCharge_(true), checkOverlap_(true), dauCharge_(4), overlap_(), name_(name) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
@@ -115,7 +115,7 @@ CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(int q1, int q2, in
 }
 
 template<typename OutputCollection, typename CandPtr>
-CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector<int> & dauCharge, const std::string name) :
+CandCombinerBase<OutputCollection, CandPtr>::CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector<int> & dauCharge, const std::string& name) :
   checkCharge_(checkCharge), checkOverlap_(checkOverlap), dauCharge_(dauCharge), overlap_(), name_(name) {
 }
 
@@ -137,7 +137,7 @@ bool CandCombinerBase<OutputCollection, CandPtr>::preselect(const reco::Candidat
 template<typename OutputCollection, typename CandPtr>
 void CandCombinerBase<OutputCollection, CandPtr>::combine(typename OutputCollection::value_type & cmp, 
 							  const CandPtr & c1, const CandPtr & c2,
-							  const std::string name1, const std::string name2) const {
+							  const std::string& name1, const std::string& name2) const {
   addDaughter(cmp, c1, name1);
   addDaughter(cmp, c2, name2);
   setup(cmp);

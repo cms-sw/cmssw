@@ -19,7 +19,7 @@ public:
   virtual double  correction (const LorentzVector& fJet) const;
   virtual double  correction(const reco::Jet&) const;
 
-  void setParameters(std::string, int);
+  void setParameters(const std::string&, int);
   /// if correction needs event information
   virtual bool eventRequired () const {return false;}
    

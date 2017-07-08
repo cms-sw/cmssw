@@ -20,7 +20,7 @@ class SiStripFedIdListReader  {
  public:
   
   /** */
-  explicit SiStripFedIdListReader( std::string filePath );
+  explicit SiStripFedIdListReader( const std::string& filePath );
 
   /** */
   explicit SiStripFedIdListReader( const SiStripFedIdListReader& );

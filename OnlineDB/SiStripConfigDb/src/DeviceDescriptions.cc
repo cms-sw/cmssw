@@ -1,4 +1,6 @@
 
+#include <utility>
+
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "DataFormats/SiStripCommon/interface/SiStripFecKey.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -8,7 +10,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( std::string partition ) {
+SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions( const std::string& partition ) {
 
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -142,7 +144,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
   }
   
   try { 
-    DeviceDescriptionsRange devs = SiStripConfigDb::getDeviceDescriptions( partition );
+    DeviceDescriptionsRange devs = SiStripConfigDb::getDeviceDescriptions( std::move(partition) );
     if ( !devs.empty() ) {
       DeviceDescriptionsV tmp( devs.begin(), devs.end() );
       typedDevices_ = FecFactory::getDeviceFromDeviceVector( tmp, device_type );
@@ -196,7 +198,7 @@ SiStripConfigDb::DeviceDescriptionsRange SiStripConfigDb::getDeviceDescriptions(
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addDeviceDescriptions( std::string partition, DeviceDescriptionsV& devs ) {
+void SiStripConfigDb::addDeviceDescriptions( const std::string& partition, DeviceDescriptionsV& devs ) {
 
   if ( !deviceFactory(__func__) ) { return; }
 
@@ -265,7 +267,7 @@ void SiStripConfigDb::addDeviceDescriptions( std::string partition, DeviceDescri
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
+void SiStripConfigDb::uploadDeviceDescriptions( const std::string& partition ) {
 
   if ( dbParams_.usingDbCache() ) {
     edm::LogWarning(mlConfigDb_)
@@ -342,7 +344,7 @@ void SiStripConfigDb::uploadDeviceDescriptions( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
+void SiStripConfigDb::clearDeviceDescriptions( const std::string& partition ) {
   LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]";
   
   if ( devices_.empty() ) { 
@@ -408,7 +410,7 @@ void SiStripConfigDb::clearDeviceDescriptions( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::printDeviceDescriptions( std::string partition ) {
+void SiStripConfigDb::printDeviceDescriptions( const std::string& partition ) {
 
   std::stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"

@@ -66,7 +66,7 @@ Histos::book(const std::string& name,
 }
 
 void 
-Histos::put(const std::string& file, std::string name) {
+Histos::put(const std::string& file, const std::string& name) {
 
   TFile * f = new TFile(file.c_str(),"recreate");
   f->cd();

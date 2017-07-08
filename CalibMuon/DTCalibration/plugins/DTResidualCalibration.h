@@ -42,11 +42,11 @@ class DTResidualCalibration: public edm::EDAnalyzer{
  private:
   float segmentToWireDistance(const DTRecHit1D& recHit1D, const DTRecSegment4D& segment); 
   // Book a set of histograms for a given super-layer/layer
-  void bookHistos(DTSuperLayerId slId);
-  void bookHistos(DTLayerId slId);
+  void bookHistos(const DTSuperLayerId& slId);
+  void bookHistos(const DTLayerId& slId);
   // Fill a set of histograms for a given super-layer/layer 
-  void fillHistos(DTSuperLayerId slId, float distance, float residualOnDistance);
-  void fillHistos(DTLayerId slId, float distance, float residualOnDistance);
+  void fillHistos(const DTSuperLayerId& slId, float distance, float residualOnDistance);
+  void fillHistos(const DTLayerId& slId, float distance, float residualOnDistance);
 
   DTSegmentSelector select_;
   edm::InputTag segment4DLabel_;

@@ -1,8 +1,9 @@
 #include "DataFormats/GEMDigi/interface/ME0PadDigiCluster.h"
 #include <iostream>
+#include <utility>
 
 ME0PadDigiCluster::ME0PadDigiCluster (std::vector<uint16_t> pads, int bx) :
-  v_(pads),
+  v_(std::move(pads)),
   bx_(bx)
 {}
 

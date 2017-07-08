@@ -25,7 +25,7 @@ namespace cond {
       // 
       BasePayloadProxy();
 
-      void setUp( Session dbSession );
+      void setUp( const Session& dbSession );
       
       void loadTag( const std::string& tag );
 

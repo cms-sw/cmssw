@@ -20,8 +20,8 @@ class HcalL1TriggerObjects: public HcalCondObjectContainer<HcalL1TriggerObject>
   HcalL1TriggerObjects(const HcalTopology* topo):HcalCondObjectContainer<HcalL1TriggerObject>(topo) {}
 
   //fill the chars and read them
-  void setTagString(std::string fTag) {strncpy(mTag,fTag.c_str(),128);}
-  void setAlgoString(std::string fAlgo) {strncpy(mAlgo,fAlgo.c_str(),128);}
+  void setTagString(const std::string& fTag) {strncpy(mTag,fTag.c_str(),128);}
+  void setAlgoString(const std::string& fAlgo) {strncpy(mAlgo,fAlgo.c_str(),128);}
 
   std::string getTagString() const {return (std::string)mTag;}
   std::string getAlgoString() const {return (std::string)mAlgo;}

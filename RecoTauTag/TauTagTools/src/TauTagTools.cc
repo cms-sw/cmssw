@@ -74,7 +74,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     return filteredTracks;
   }
 
-  TrackRefVector filteredTracks(const TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, Vertex pv){
+  TrackRefVector filteredTracks(const TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, const Vertex& pv){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
       if ((**iTk).pt()>=tkminPt &&
@@ -86,7 +86,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     }
     return filteredTracks;
   }
-  TrackRefVector filteredTracks(const TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
+  TrackRefVector filteredTracks(const TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,const Vertex& pv, double refpoint_Z){
     TrackRefVector filteredTracks;
     for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
       if(pv.isFake()) tktorefpointmaxDZ=30.;
@@ -116,7 +116,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     return filteredPFChargedHadrCands;
   }
 
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, Vertex pv){
+  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, const Vertex& pv){
     std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands;
     for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
       if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
@@ -135,7 +135,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     }
     return filteredPFChargedHadrCands;
   }
-  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
+  std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,const Vertex& pv, double refpoint_Z){
     if(pv.isFake()) ChargedHadrCand_tktorefpointmaxDZ = 30.;
     std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands;
     for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
@@ -181,7 +181,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     return filteredPFGammaCands;
   }
   
-  math::XYZPoint propagTrackECALSurfContactPoint(const MagneticField* theMagField,TrackRef theTrack){ 
+  math::XYZPoint propagTrackECALSurfContactPoint(const MagneticField* theMagField,const TrackRef& theTrack){ 
     AnalyticalPropagator thefwdPropagator(theMagField,alongMomentum);
     math::XYZPoint propTrack_XYZPoint(0.,0.,0.);
     

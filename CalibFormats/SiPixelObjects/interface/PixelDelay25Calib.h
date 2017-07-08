@@ -25,7 +25,7 @@ namespace pos{
 
   public:
   
-    PixelDelay25Calib(std::string);
+    PixelDelay25Calib(const std::string&);
     PixelDelay25Calib(std::vector<std::vector<std::string> > &);
     ~PixelDelay25Calib();
 
@@ -56,10 +56,10 @@ namespace pos{
     int getOrigSDa() {return origSDa_;}
     int getOrigRDa() {return origRDa_;}
     int getCommands() {return commands_;}
-    void openFiles(std::string portcardName, std::string moduleName, 
+    void openFiles(const std::string& portcardName, const std::string& moduleName, 
 		   std::string path="");
-    void writeSettings(std::string portcardName, std::string moduleName);
-    void writeFiles(std::string tmp);
+    void writeSettings(const std::string& portcardName, const std::string& moduleName);
+    void writeFiles(const std::string& tmp);
     void writeFiles(int currentSDa, int currentRDa, int number);
     void closeFiles();
 

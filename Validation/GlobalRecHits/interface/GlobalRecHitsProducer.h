@@ -303,14 +303,14 @@ class GlobalRecHitsProducer : public edm::EDProducer
   
   // Compute SimHit distance from wire (cm)
   float simHitDistFromWire(const DTLayer* layer,
-			   DTWireId wireId,
+			   const DTWireId& wireId,
 			   const PSimHit& hit);
   
   // Find the RecHit closest to the muon SimHit
   template  <typename type>
     const type* 
     findBestRecHit(const DTLayer* layer,
-		   DTWireId wireId,
+		   const DTWireId& wireId,
 		   const std::vector<type>& recHits,
 		   const float simHitDist);
   

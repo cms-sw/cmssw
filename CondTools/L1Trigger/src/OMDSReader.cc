@@ -88,7 +88,7 @@ OMDSReader::~OMDSReader()
     const std::string& schemaName,
     const std::string& tableName,
     const std::string& conditionLHS,
-    const QueryResults conditionRHS,
+    const QueryResults& conditionRHS,
     const std::string& conditionRHSName )
   {
     coral::ISessionProxy& coralSession = session.coralSession();
@@ -152,7 +152,7 @@ OMDSReader::~OMDSReader()
     const std::string& schemaName,
     const std::string& tableName,
     const std::string& conditionLHS,
-    const QueryResults conditionRHS,
+    const QueryResults& conditionRHS,
     const std::string& conditionRHSName ) 
   {
     std::vector< std::string > columnNames ;
@@ -194,7 +194,7 @@ OMDSReader::~OMDSReader()
     const std::string& schemaName,
     const std::string& viewName,
     const std::string& conditionLHS,
-    const QueryResults conditionRHS,
+    const QueryResults& conditionRHS,
     const std::string& conditionRHSName ) 
   {
     coral::ISessionProxy& coralSession = session.coralSession();
@@ -267,7 +267,7 @@ OMDSReader::~OMDSReader()
     const std::string& schemaName,
     const std::string& viewName,
     const std::string& conditionLHS,
-    const QueryResults conditionRHS,
+    const QueryResults& conditionRHS,
     const std::string& conditionRHSName ) 
   {
     std::vector< std::string > columnNames ;

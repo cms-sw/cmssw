@@ -196,7 +196,7 @@ void DTChamberEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::I
 
 }
 
-string DTChamberEfficiencyTest::getMEName(string histoTag, const DTChamberId & chID) {
+string DTChamberEfficiencyTest::getMEName(const string& histoTag, const DTChamberId & chID) {
 
   stringstream wheel; wheel << chID.wheel();
   stringstream station; station << chID.station();

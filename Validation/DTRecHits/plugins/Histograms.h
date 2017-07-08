@@ -25,7 +25,7 @@
 /// A set of histograms of residuals and pulls for 1D RecHits
 class HRes1DHit{
   public:
-    HRes1DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local=true){
+    HRes1DHit(const std::string& name_,DQMStore* dbe_,bool doall=true,bool local=true){
       std::string pre ="1D_";
       pre += name_;
       _doall = doall;
@@ -162,7 +162,7 @@ class HRes1DHit{
 //---------------------------------------------------------------------------------------
 class HEff1DHit{
   public:
-    HEff1DHit(std::string name_,DQMStore *dbe_){
+    HEff1DHit(const std::string& name_,DQMStore *dbe_){
       std::string pre ="1D_";
       pre += name_;
       name = pre;
@@ -329,7 +329,7 @@ class HEff1DHit{
 // Histos of residuals for 2D rechits
 class HRes2DHit{
   public:
-    HRes2DHit(std::string name_,DQMStore* dbe_,bool doall=true,bool local=true){
+    HRes2DHit(const std::string& name_,DQMStore* dbe_,bool doall=true,bool local=true){
       _doall = doall;
       std::string pre ="2D_";
       pre += name_;
@@ -452,7 +452,7 @@ class HRes2DHit{
 // Histos for 2D RecHit efficiency
 class HEff2DHit{
   public:
-    HEff2DHit(std::string name_, DQMStore * dbe_){
+    HEff2DHit(const std::string& name_, DQMStore * dbe_){
       std::string pre ="2D_";
       pre += name_;
       name = pre;
@@ -665,7 +665,7 @@ class HEff2DHit{
 // Histos of residuals for 4D rechits
 class HRes4DHit{
   public:
-  HRes4DHit(std::string name_,DQMStore *dbe_,bool doall=true,bool local=true) : isLocal(local){
+  HRes4DHit(const std::string& name_,DQMStore *dbe_,bool doall=true,bool local=true) : isLocal(local){
       std::string pre ="4D_";
       pre += name_;
       _doall = doall;
@@ -1005,7 +1005,7 @@ class HRes4DHit{
 /// A set of histograms for efficiency 4D RecHits
 class HEff4DHit{
   public:
-    HEff4DHit(std::string name_,DQMStore *dbe_){
+    HEff4DHit(const std::string& name_,DQMStore *dbe_){
       std::string pre ="4D_";
       pre += name_;
       name = pre;

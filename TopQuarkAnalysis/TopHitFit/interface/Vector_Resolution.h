@@ -110,7 +110,7 @@ public:
 
      @param s String enconding the resolution parameters.
    */
-  Vector_Resolution (std::string s);
+  Vector_Resolution (const std::string& s);
 
   // Constructor from individual resolution objects.
   /**

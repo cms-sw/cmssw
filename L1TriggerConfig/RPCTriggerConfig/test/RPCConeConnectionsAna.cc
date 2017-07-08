@@ -63,7 +63,7 @@ class RPCConeConnectionsAna : public edm::EDAnalyzer {
       virtual void endJob() ;
       int getDCCNumber(int iTower, int iSec);
       int getDCC(int iSec);
-      void printSymetric(RPCDetId det, edm::ESHandle<RPCGeometry> rpcGeom);
+      void printSymetric(RPCDetId det, const edm::ESHandle<RPCGeometry>& rpcGeom);
       void printRoll(RPCRoll const * roll); 
       int   m_towerBeg;
       int   m_towerEnd;
@@ -294,7 +294,7 @@ int RPCConeConnectionsAna::getDCC(int iSec){
 
 
 
-void RPCConeConnectionsAna::printSymetric(RPCDetId det,  edm::ESHandle<RPCGeometry> rpcGeom){
+void RPCConeConnectionsAna::printSymetric(RPCDetId det,  const edm::ESHandle<RPCGeometry>& rpcGeom){
 
     RPCDetId detSym;
 

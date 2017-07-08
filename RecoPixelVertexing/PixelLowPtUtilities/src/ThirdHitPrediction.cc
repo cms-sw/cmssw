@@ -21,10 +21,10 @@ using namespace std;
 
 /*****************************************************************************/
 ThirdHitPrediction::ThirdHitPrediction
-  (const TrackingRegion & region, GlobalPoint inner, GlobalPoint outer,
+  (const TrackingRegion & region, const GlobalPoint& inner, const GlobalPoint& outer,
    const edm::EventSetup& es,
    double nSigMultipleScattering, double maxAngleRatio,
-   string builderName)
+   const string& builderName)
 {
  using namespace edm;
  ESHandle<MagneticField> magfield;
@@ -379,7 +379,7 @@ void ThirdHitPrediction::getRanges
 
 /*****************************************************************************/
 bool ThirdHitPrediction::isCompatibleWithMultipleScattering
-  (GlobalPoint g3, const vector<const TrackingRecHit*>& h,
+  (const GlobalPoint& g3, const vector<const TrackingRecHit*>& h,
    vector<GlobalVector>& globalDirs, const edm::EventSetup& es)
 {
   Global2DVector p1(g1.x(),g1.y());

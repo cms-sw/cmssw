@@ -10,6 +10,7 @@
 
 #include <string>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <memory>
 //#include "EventFilter/Utilities/interface/Utils.h"
@@ -38,7 +39,7 @@ public:
 	bool getNotSame() {return notSame_;}
 
 	virtual void setName(std::string name) {
-		name_=name;
+		name_=std::move(name);
 	}
 
 	virtual std::string & getName() {
@@ -166,7 +167,7 @@ public:
 		notSame_=0;
 	}
 	void operator=(std::string sth) {
-		theVar_ = sth;
+		theVar_ = std::move(sth);
 		updates_=1;
 		notSame_=0;
 	}

@@ -195,7 +195,7 @@ class GsfElectron : public RecoCandidate
       TrackRef ctfTrack ; // best matching ctf track
       float shFracInnerHits ; // fraction of common hits between the ctf and gsf tracks
       ClosestCtfTrack() : shFracInnerHits(0.) {}
-      ClosestCtfTrack( TrackRef track, float sh ) : ctfTrack(track), shFracInnerHits(sh) {}
+      ClosestCtfTrack( const TrackRef& track, float sh ) : ctfTrack(track), shFracInnerHits(sh) {}
      } ;
     float shFracInnerHits() const { return core()->ctfGsfOverlap() ; }
     TrackRef closestCtfTrackRef() const { return core()->ctfTrack() ; }

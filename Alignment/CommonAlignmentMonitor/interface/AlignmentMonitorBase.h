@@ -46,7 +46,7 @@ class AlignmentMonitorBase
       typedef std::vector<ConstTrajTrackPair>  ConstTrajTrackPairCollection;
 
       /// Constructor
-      AlignmentMonitorBase(const edm::ParameterSet &cfg, std::string name);
+      AlignmentMonitorBase(const edm::ParameterSet &cfg, const std::string& name);
       
       /// Destructor
       virtual ~AlignmentMonitorBase() {}
@@ -82,10 +82,10 @@ class AlignmentMonitorBase
       /// Use this every time you book a histogram (so that
       /// AlignmentMonitorBase can find your histograms in a
       /// collector (parallel-processing) job)
-      TH1F *book1D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX);
-      TProfile *bookProfile(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., const char *option="s");
-      TH2F *book2D(std::string dir, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
-      TFileDirectory *directory(std::string dir);
+      TH1F *book1D(std::string dir, const std::string& name, const std::string& title, int nchX, double lowX, double highX);
+      TProfile *bookProfile(const std::string& dir, const std::string& name, const std::string& title, int nchX, double lowX, double highX, int nchY=1, double lowY=0., double highY=0., const char *option="s");
+      TH2F *book2D(std::string dir, const std::string& name, const std::string& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY);
+      TFileDirectory *directory(const std::string& dir);
       
       int                     iteration()    { return m_iteration; }
       AlignableTracker        *pTracker()    { return mp_tracker; }

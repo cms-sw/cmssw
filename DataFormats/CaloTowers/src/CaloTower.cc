@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 
 
@@ -41,7 +43,7 @@ CaloTower::CaloTower(CaloTowerDetId id,
 		     GlobalPoint emPos, GlobalPoint hadPos) : 
   LeafCandidate(0, p3, iEnergy, massless, Point(0,0,0)),  
   id_(id),
-  emPosition_(emPos), hadPosition_(hadPos),
+  emPosition_(std::move(emPos)), hadPosition_(std::move(hadPos)),
   emE_(emE), hadE_(hadE), outerE_(outerE),
   emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
 
@@ -52,7 +54,7 @@ CaloTower::CaloTower(CaloTowerDetId id,
                      GlobalPoint emPos, GlobalPoint hadPos) :
   LeafCandidate(0, p3, iEnergy, imass, Point(0,0,0)),
   id_(id),
-  emPosition_(emPos), hadPosition_(hadPos),
+  emPosition_(std::move(emPos)), hadPosition_(std::move(hadPos)),
   emE_(emE), hadE_(hadE), outerE_(outerE),
   emLvl1_(ecal_tp), hadLvl1_(hcal_tp) {}
 

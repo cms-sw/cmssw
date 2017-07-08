@@ -30,7 +30,7 @@
 class LoadEPDB {
  public:
 
-  explicit LoadEPDB(const edm::ESHandle<RPFlatParams> flatparmsDB_, HiEvtPlaneFlatten ** flat)
+  explicit LoadEPDB(const edm::ESHandle<RPFlatParams>& flatparmsDB_, HiEvtPlaneFlatten ** flat)
   {
     int Hbins;
     int Obins;

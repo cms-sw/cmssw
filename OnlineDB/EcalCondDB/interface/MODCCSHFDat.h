@@ -58,7 +58,7 @@ class MODCCSHFDat : public IDataItem {
   int testing;
   unsigned char* readClob (Clob &clob, int size)
     noexcept(false);
-  void populateClob (Clob &clob, std::string fname, unsigned int clob_size)
+  void populateClob (Clob &clob, const std::string& fname, unsigned int clob_size)
     noexcept(false);
 
 

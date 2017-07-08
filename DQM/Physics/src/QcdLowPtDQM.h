@@ -171,10 +171,10 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
       std::vector<MonitorElement *> &deta, std::vector<MonitorElement *> &dphi,
       std::vector<MonitorElement *> &etavsvtx);
   template <typename TYPE>
-  void getProduct(const std::string name, edm::Handle<TYPE> &prod,
+  void getProduct(const std::string& name, edm::Handle<TYPE> &prod,
                   const edm::Event &event) const;
   template <typename TYPE>
-  bool getProductSafe(const std::string name, edm::Handle<TYPE> &prod,
+  bool getProductSafe(const std::string& name, edm::Handle<TYPE> &prod,
                       const edm::Event &event) const;
   void print(int level, const char *msg);
   void print(int level, const std::string &msg) { print(level, msg.c_str()); }
@@ -310,7 +310,7 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>
-inline void QcdLowPtDQM::getProduct(const std::string name,
+inline void QcdLowPtDQM::getProduct(const std::string& name,
                                     edm::Handle<TYPE> &prod,
                                     const edm::Event &event) const {
   // Try to access data collection from EDM file. We check if we really get just
@@ -326,7 +326,7 @@ inline void QcdLowPtDQM::getProduct(const std::string name,
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>
-inline bool QcdLowPtDQM::getProductSafe(const std::string name,
+inline bool QcdLowPtDQM::getProductSafe(const std::string& name,
                                         edm::Handle<TYPE> &prod,
                                         const edm::Event &event) const {
   // Try to safely access data collection from EDM file. We check if we really

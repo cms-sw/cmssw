@@ -45,7 +45,7 @@ class SiPixelCalibDigiError
   std::string printError() const;
   
 };
-inline bool operator <( const SiPixelCalibDigiError & one, const SiPixelCalibDigiError other){
+inline bool operator <( const SiPixelCalibDigiError & one, const SiPixelCalibDigiError& other){
   if(one.getCol()!=other.getCol())
     return one.getCol() < other.getCol();
   

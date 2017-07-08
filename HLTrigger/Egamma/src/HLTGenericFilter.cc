@@ -114,7 +114,7 @@ float HLTGenericFilter<T1>::getEnergy(T1Ref candRef) const{
 }
 
 template<>
-float HLTGenericFilter<reco::RecoEcalCandidate>::getEnergy(T1Ref candRef) const{
+float HLTGenericFilter<reco::RecoEcalCandidate>::getEnergy(const T1Ref& candRef) const{
     return candRef->superCluster()->energy();
 }
 
@@ -124,7 +124,7 @@ float HLTGenericFilter<T1>::getEt(T1Ref candRef) const{
 }
 
 template<>
-float HLTGenericFilter<reco::RecoEcalCandidate>::getEt(T1Ref candRef) const{
+float HLTGenericFilter<reco::RecoEcalCandidate>::getEt(const T1Ref& candRef) const{
     return candRef->superCluster()->energy() * sin (2*atan(exp(-candRef->eta())));
 }
 

@@ -3,6 +3,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <utility>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #define USE_NORM 1
@@ -26,7 +27,7 @@ class ODTTCFConfig : public IODConfig {
   inline void setId(int id) { m_ID = id; }
   inline int getId() const { return m_ID; }
 
-  inline void setTTCFConfigurationFile(std::string x) { m_ttcf_file = x; }
+  inline void setTTCFConfigurationFile(std::string x) { m_ttcf_file = std::move(x); }
   inline std::string getTTCFConfigurationFile() const { return m_ttcf_file; }
 
   inline void setTTCFClob(unsigned char* x) { m_ttcf_clob = x; }

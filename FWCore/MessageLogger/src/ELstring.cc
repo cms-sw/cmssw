@@ -39,7 +39,7 @@ bool  eq_nocase( const ELstring & s1, const char s2[] )  {
 }  // eq_nocase()
 
 
-bool  eq( const ELstring & s1, const ELstring s2 )  {
+bool  eq( const ELstring & s1, const ELstring& s2 )  {
 
   return  s1 == s2;
 

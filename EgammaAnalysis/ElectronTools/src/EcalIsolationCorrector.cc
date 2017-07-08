@@ -72,7 +72,7 @@ float EcalIsolationCorrector::correctForNoise(float iso, bool isBarrel, EcalIsol
 
 #ifndef STANDALONE_ECALCORR
 // GSF Electron Methods 
-float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const reco::GsfElectron& e, int runNumber, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -83,7 +83,7 @@ float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, int runNumber
   return correctForNoise(iso, e.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const reco::GsfElectron& e, const std::string& runName, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;  
@@ -105,7 +105,7 @@ float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, std::string r
   return correctForNoise(iso, e.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForNoise(const reco::GsfElectron& e, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -119,7 +119,7 @@ float EcalIsolationCorrector::correctForNoise(reco::GsfElectron e, bool isData, 
 }
 
 // PAT Electron Methods 
-float EcalIsolationCorrector::correctForNoise(pat::Electron e, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const pat::Electron& e, int runNumber, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -130,7 +130,7 @@ float EcalIsolationCorrector::correctForNoise(pat::Electron e, int runNumber, bo
   return correctForNoise(iso, e.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(pat::Electron e, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const pat::Electron& e, const std::string& runName, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;  
@@ -152,7 +152,7 @@ float EcalIsolationCorrector::correctForNoise(pat::Electron e, std::string runNa
   return correctForNoise(iso, e.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(pat::Electron e, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForNoise(const pat::Electron& e, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -166,7 +166,7 @@ float EcalIsolationCorrector::correctForNoise(pat::Electron e, bool isData, floa
 }
 
 // RECO Photon Method
-float EcalIsolationCorrector::correctForNoise(reco::Photon p, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const reco::Photon& p, int runNumber, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -177,7 +177,7 @@ float EcalIsolationCorrector::correctForNoise(reco::Photon p, int runNumber, boo
   return correctForNoise(iso, p.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(reco::Photon p, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const reco::Photon& p, const std::string& runName, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -199,7 +199,7 @@ float EcalIsolationCorrector::correctForNoise(reco::Photon p, std::string runNam
   return correctForNoise(iso, p.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(reco::Photon p, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForNoise(const reco::Photon& p, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -213,7 +213,7 @@ float EcalIsolationCorrector::correctForNoise(reco::Photon p, bool isData, float
 }
 
 // PAT Photon Method
-float EcalIsolationCorrector::correctForNoise(pat::Photon p, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const pat::Photon& p, int runNumber, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -224,7 +224,7 @@ float EcalIsolationCorrector::correctForNoise(pat::Photon p, int runNumber, bool
   return correctForNoise(iso, p.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(pat::Photon p, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForNoise(const pat::Photon& p, const std::string& runName, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -246,7 +246,7 @@ float EcalIsolationCorrector::correctForNoise(pat::Photon p, std::string runName
   return correctForNoise(iso, p.isEB(), runRange, isData);
 }
 
-float EcalIsolationCorrector::correctForNoise(pat::Photon p, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForNoise(const pat::Photon& p, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -339,7 +339,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(float iso, bool isBarrel, 
 
 #ifndef STANDALONE_ECALCORR
 // GSF Electron Methods
-float EcalIsolationCorrector::correctForHLTDefinition(reco::GsfElectron e, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const reco::GsfElectron& e, int runNumber, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -353,7 +353,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(reco::GsfElectron e, int r
   return correctForHLTDefinition(iso, e.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(reco::GsfElectron e, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const reco::GsfElectron& e, const std::string& runName, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -377,7 +377,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(reco::GsfElectron e, std::
   return correctForHLTDefinition(iso, e.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(reco::GsfElectron e, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForHLTDefinition(const reco::GsfElectron& e, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -394,7 +394,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(reco::GsfElectron e, bool 
 }
  
 // PAT Electron Methods
-float EcalIsolationCorrector::correctForHLTDefinition(pat::Electron e, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const pat::Electron& e, int runNumber, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -408,7 +408,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(pat::Electron e, int runNu
   return correctForHLTDefinition(iso, e.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(pat::Electron e, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const pat::Electron& e, const std::string& runName, bool isData) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -432,7 +432,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(pat::Electron e, std::stri
   return correctForHLTDefinition(iso, e.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(pat::Electron e, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForHLTDefinition(const pat::Electron& e, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (!isElectron_)
     std::cerr << "Warning: this corrector is setup for photons and you are passing an electron !" << std::endl;
@@ -449,7 +449,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(pat::Electron e, bool isDa
 }
 
 // RECO Photon Methods
-float EcalIsolationCorrector::correctForHLTDefinition(reco::Photon p, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const reco::Photon& p, int runNumber, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -463,7 +463,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(reco::Photon p, int runNum
   return correctForHLTDefinition(iso, p.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(reco::Photon p, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const reco::Photon& p, const std::string& runName, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -488,7 +488,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(reco::Photon p, std::strin
   return correctForHLTDefinition(iso, p.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(reco::Photon p, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForHLTDefinition(const reco::Photon& p, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -506,7 +506,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(reco::Photon p, bool isDat
 }
 
 // PAT Photon Methods
-float EcalIsolationCorrector::correctForHLTDefinition(pat::Photon p, int runNumber, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const pat::Photon& p, int runNumber, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -520,7 +520,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(pat::Photon p, int runNumb
   return correctForHLTDefinition(iso, p.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(pat::Photon p, std::string runName, bool isData) {
+float EcalIsolationCorrector::correctForHLTDefinition(const pat::Photon& p, const std::string& runName, bool isData) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;
@@ -545,7 +545,7 @@ float EcalIsolationCorrector::correctForHLTDefinition(pat::Photon p, std::string
   return correctForHLTDefinition(iso, p.isEB(), runRange);
 }
 
-float EcalIsolationCorrector::correctForHLTDefinition(pat::Photon p, bool isData, float intL_AB, float intL_C, float intL_D) {
+float EcalIsolationCorrector::correctForHLTDefinition(const pat::Photon& p, bool isData, float intL_AB, float intL_C, float intL_D) {
   
   if (isElectron_)
     std::cerr << "Warning: this corrector is setup for electrons and you are passing a photon !" << std::endl;

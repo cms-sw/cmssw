@@ -46,7 +46,7 @@ public:
 };
 
 
-NavPlane* navPlane( RandomPlaneGenerator::PlanePtr p) {
+NavPlane* navPlane( const RandomPlaneGenerator::PlanePtr& p) {
   return new NavPlane(p.get());
 }
 

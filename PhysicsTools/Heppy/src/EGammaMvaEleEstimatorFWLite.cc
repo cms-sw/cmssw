@@ -18,7 +18,7 @@ EGammaMvaEleEstimatorFWLite::~EGammaMvaEleEstimatorFWLite()
     delete estimatorCSA14_;
 }
 
-void EGammaMvaEleEstimatorFWLite::initialize( std::string methodName,
+void EGammaMvaEleEstimatorFWLite::initialize( const std::string& methodName,
         MVAType type,
         bool useBinnedVersion,
         std::vector<std::string> weightsfiles ) 

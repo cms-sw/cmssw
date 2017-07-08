@@ -1,6 +1,7 @@
 #ifndef RecoJets_JetAlgorithms_CATopJetAlgorithm2_h
 #define RecoJets_JetAlgorithms_CATopJetAlgorithm2_h
 
+#include <utility>
 #include <vector>
 
 #include "boost/shared_ptr.hpp"
@@ -29,9 +30,9 @@ class SubJetAlgorithm{
     nSubjets_      (subjets       ),
     zcut_          (zcut          ),
     rcut_factor_   (rcut_factor   ),
-    fjJetDefinition_(fjJetDefinition),
+    fjJetDefinition_(std::move(fjJetDefinition)),
     doAreaFastjet_ (doAreaFastjet),
-    fjActiveArea_  (fjActiveArea),
+    fjActiveArea_  (std::move(fjActiveArea)),
     voronoiRfact_  (voronoiRfact)
       { 
 	

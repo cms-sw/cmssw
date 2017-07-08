@@ -33,7 +33,7 @@ string RunTag::getGeneralTag() const
 
 
 
-void RunTag::setGeneralTag(string genTag)
+void RunTag::setGeneralTag(const string& genTag)
 {
   if (genTag != m_genTag) {
     m_ID = 0;

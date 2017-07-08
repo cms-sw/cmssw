@@ -16,7 +16,7 @@ class TSOSHistogramMaker {
  public:
   TSOSHistogramMaker();
   TSOSHistogramMaker(const edm::ParameterSet& iConfig);
-  void fill(const TrajectoryStateOnSurface& tsos, TransientTrackingRecHit::ConstRecHitPointer hit) const;
+  void fill(const TrajectoryStateOnSurface& tsos, const TransientTrackingRecHit::ConstRecHitPointer& hit) const;
   
 
  private:

@@ -21,6 +21,7 @@
 #include "DQMOffline/Trigger/interface/EgHLTOffEvt.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 namespace egHLT {
   template<class T> class MonElemContainer : public MonElemWithCutBase<T> {
@@ -44,8 +45,8 @@ namespace egHLT {
     
     MonElemContainer(std::string baseName="",std::string baseTitle="",
 		     EgHLTDQMCut<T>* cut=NULL):
-      baseName_(baseName),
-      baseTitle_(baseTitle),
+      baseName_(std::move(baseName)),
+      baseTitle_(std::move(baseTitle)),
       cut_(cut){}
     
     ~MonElemContainer();

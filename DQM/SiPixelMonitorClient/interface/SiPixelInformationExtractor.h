@@ -49,11 +49,11 @@ class SiPixelInformationExtractor {
 				std::pair<double,double>                & norm) ;
   void getNormalization(        MonitorElement                          * mE,
                                 std::pair<double,double>                & norm,
-				std::string                               theMEType) ;
+				const std::string&                               theMEType) ;
   void getNormalization2D(      MonitorElement                          * mE,
                                 std::pair<double,double>                & normX,
                                 std::pair<double,double>                & normY,
-				std::string                               theMEType) ;
+				const std::string&                               theMEType) ;
   int getDetId(                 MonitorElement                          * mE) ;				
   std::string getMEType(        MonitorElement                          * mE) ;
     
@@ -71,19 +71,19 @@ class SiPixelInformationExtractor {
                                  bool                                     init,
 				 float                                    noiseRate,
 				 int                                      noiseRateDenominator,
-                                 edm::ESHandle<SiPixelFedCablingMap>      theCablingMap);
+                                 const edm::ESHandle<SiPixelFedCablingMap>&      theCablingMap);
   
  private:
 
   void getItemList(             const std::multimap<std::string, std::string> & req_map,
-                                std::string                               item_name, 
+                                const std::string&                               item_name, 
 				std::vector<std::string>                & items);
   bool hasItem(                 std::multimap<std::string, std::string> & req_map,
-	                        std::string                               item_name);
+	                        const std::string&                               item_name);
   std::string getItemValue(     const std::multimap<std::string, std::string> & req_map,
-	                        std::string                               item_name);
+	                        const std::string&                               item_name);
   std::string getItemValue(     std::multimap<std::string, std::string> & req_map,
-	                        std::string                               item_name);
+	                        const std::string&                               item_name);
   void createDummiesFromLayout();  
   void selectImage(            std::string                              & name, 
                                int                                        status);

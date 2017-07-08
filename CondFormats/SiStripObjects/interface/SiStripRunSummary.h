@@ -3,6 +3,7 @@
 
 #include "CondFormats/Serialization/interface/Serializable.h"
 
+#include <utility>
 #include<vector>
 #include<string>
 #include<iostream>
@@ -16,7 +17,7 @@ class SiStripRunSummary {
   SiStripRunSummary(){};
   ~SiStripRunSummary(){};
   
-  bool put( std::string runSummary ){ runSummary_ = runSummary; return true; }
+  bool put( std::string runSummary ){ runSummary_ = std::move(runSummary); return true; }
   std::string getRunSummary() const { return runSummary_; } 
 
  private:

@@ -293,7 +293,7 @@ bool DTTriggerEfficiencyTask::hasRPCTriggers(const edm::Event& e) {
 }
 
 void DTTriggerEfficiencyTask::bookChamberHistos(DQMStore::IBooker& ibooker,const DTChamberId& dtCh, 
-                                                  string histoType, string folder) {
+                                                  const string& histoType, const string& folder) {
 
   int wh = dtCh.wheel();
   int sc = dtCh.sector();
@@ -335,8 +335,8 @@ void DTTriggerEfficiencyTask::bookChamberHistos(DQMStore::IBooker& ibooker,const
 
 }
 
-void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker,int wheel,string hTag,
-                                                string folder) {
+void DTTriggerEfficiencyTask::bookWheelHistos(DQMStore::IBooker& ibooker,int wheel,const string& hTag,
+                                                const string& folder) {
 
   stringstream wh; wh << wheel;
   string basedir;

@@ -95,7 +95,7 @@ namespace sistrip {
 		       const uint16_t aFirstBits);
 
     static std::string print(const Frame & aFrame,
-			     std::string aErr);
+			     const std::string& aErr);
 
     static void fedIndex(uint32_t   aFedIndex,
 			 uint16_t & aFedId,

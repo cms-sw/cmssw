@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoTauTag/TauTagTools/interface/TauElementsOperators.h"
 
 using namespace reco;
@@ -75,7 +77,7 @@ void TauElementsOperators::replaceSubStr(string& s,const string& oldSubStr,const
   } 
 }
 
-const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin) const{
+const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string& coneMetric,const double coneSize,const double ptTrackMin) const{
   TrackRefVector theFilteredTracks;
   for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
     if ((**iTrack).pt()>ptTrackMin)theFilteredTracks.push_back(*iTrack);
@@ -95,7 +97,7 @@ const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& c
   }else return TrackRefVector(); 
   return theFilteredTracksInCone;
 }
-const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV) const{
+const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string& coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV) const{
   TrackRefVector theFilteredTracks;
   for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
     if ((**iTrack).pt()>ptTrackMin && fabs((**iTrack).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
@@ -115,7 +117,7 @@ const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& c
   }else return TrackRefVector(); 
   return theFilteredTracksInCone;
 }
-const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
+const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt)const{     
   TrackRefVector theFilteredTracks;
   for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
     if ((**iTrack).pt()>minPt)theFilteredTracks.push_back(*iTrack);
@@ -167,7 +169,7 @@ const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector
   }
   return theFilteredTracksInAnnulus;
 }
-const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
+const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   TrackRefVector theFilteredTracks;
   for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
     if ((**iTrack).pt()>minPt && fabs((**iTrack).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
@@ -221,11 +223,11 @@ const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector
 }
 
 const TrackRef TauElementsOperators::leadTk(string matchingConeMetric,double matchingConeSize,double ptTrackMin)const{
-  return leadTk(BaseTau_.momentum(),matchingConeMetric,matchingConeSize,ptTrackMin);
+  return leadTk(BaseTau_.momentum(),std::move(matchingConeMetric),matchingConeSize,ptTrackMin);
 }
 
 const TrackRef TauElementsOperators::leadTk(const math::XYZVector& jetAxis,string matchingConeMetric,double matchingConeSize,double ptTrackMin)const{
-  const TrackRefVector matchingConeTracks=tracksInCone(jetAxis,matchingConeMetric,matchingConeSize,ptTrackMin);
+  const TrackRefVector matchingConeTracks=tracksInCone(jetAxis,std::move(matchingConeMetric),matchingConeSize,ptTrackMin);
   if ((int)matchingConeTracks.size()==0) return TrackRef();
   TrackRef leadingTrack;
   double leadingTrackPt=0.;
@@ -246,15 +248,15 @@ double TauElementsOperators::discriminatorByIsolTracksN(const math::XYZVector& j
 							string matchingConeMetric,double matchingConeSize,double ptLeadingTrackMin,double ptOtherTracksMin,
 							string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
 							unsigned int isolationAnnulus_Tracksmaxn)const{
-  const TrackRef leadingTrack=leadTk(jetAxis,matchingConeMetric,matchingConeSize,ptLeadingTrackMin);
+  const TrackRef leadingTrack=leadTk(jetAxis,std::move(matchingConeMetric),matchingConeSize,ptLeadingTrackMin);
   if(!leadingTrack)return 0.; 
   math::XYZVector coneAxis=leadingTrack->momentum();
-  TrackRefVector isolationAnnulusTracks=tracksInAnnulus(coneAxis,signalConeMetric,signalConeSize,isolationConeMetric,isolationConeSize,ptOtherTracksMin);
+  TrackRefVector isolationAnnulusTracks=tracksInAnnulus(coneAxis,std::move(signalConeMetric),signalConeSize,std::move(isolationConeMetric),isolationConeSize,ptOtherTracksMin);
   if ((unsigned int)isolationAnnulusTracks.size()>isolationAnnulus_Tracksmaxn)return 0.;
   else return 1.;
 }
 double TauElementsOperators::discriminatorByIsolTracksN(string matchingConeMetric,double matchingConeSize,double ptLeadingTrackMin,double ptOtherTracksMin, 
 							string signalConeMetric,double signalConeSize,string isolationConeMetric,double isolationConeSize, 
 							unsigned int isolationAnnulus_Tracksmaxn)const{
-  return discriminatorByIsolTracksN(BaseTau_.momentum(),matchingConeMetric,matchingConeSize,ptLeadingTrackMin,ptOtherTracksMin,signalConeMetric,signalConeSize,isolationConeMetric,isolationConeSize,isolationAnnulus_Tracksmaxn);
+  return discriminatorByIsolTracksN(BaseTau_.momentum(),std::move(matchingConeMetric),matchingConeSize,ptLeadingTrackMin,ptOtherTracksMin,std::move(signalConeMetric),signalConeSize,std::move(isolationConeMetric),isolationConeSize,isolationAnnulus_Tracksmaxn);
 }

@@ -60,7 +60,7 @@ PixelTTCciConfig::PixelTTCciConfig(vector< vector<string> > &tableMat):PixelConf
 //   cout << "[PixelTTCciConfig::PixelTTCciConfig()]\tRead: "<< endl<< ttcConfigStream_.str() << endl ;
 }
 
-PixelTTCciConfig::PixelTTCciConfig(std::string filename):
+PixelTTCciConfig::PixelTTCciConfig(const std::string& filename):
   PixelConfigBase(" "," "," "){
 
     std::string mthn ="]\t[PixelTKFECConfig::PixelTKFECConfig()]\t\t\t    " ;

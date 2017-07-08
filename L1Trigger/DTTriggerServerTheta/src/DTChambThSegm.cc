@@ -31,7 +31,7 @@
 //----------------
 // Constructors --
 //----------------
-DTChambThSegm::DTChambThSegm(DTChamberId chamberid, int step, 
+DTChambThSegm::DTChambThSegm(const DTChamberId& chamberid, int step, 
 				     int* pos, int* qual)
   : m_chamberid(chamberid),  m_step(step) {
 

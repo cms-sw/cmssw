@@ -44,7 +44,7 @@ class DTTracoTrigData : public DTTrigData {
   DTTracoTrigData() {}
 
   //!  Constructor
-  DTTracoTrigData(DTTracoId, int);
+  DTTracoTrigData(const DTTracoId&, int);
   
   //!  Destructor 
   ~DTTracoTrigData() {}
@@ -52,7 +52,7 @@ class DTTracoTrigData : public DTTrigData {
   // Non-const methods
   
   //! Set the parent TRACO Identifier
-  inline void setParent(DTTracoId tracoid) { 
+  inline void setParent(const DTTracoId& tracoid) { 
     _tracoid = tracoid; 
   }
 

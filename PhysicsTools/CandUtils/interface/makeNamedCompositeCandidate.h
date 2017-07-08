@@ -10,7 +10,7 @@ namespace helpers {
     NamedCompositeCandidateMaker( std::auto_ptr<reco::NamedCompositeCandidate> cmp ) :
       cmp_( cmp ) {
     }
-    void addDaughter( const reco::Candidate & dau, std::string name ) {
+    void addDaughter( const reco::Candidate & dau, const std::string& name ) {
       cmp_->addDaughter( dau, name );
     }
     template<typename S>

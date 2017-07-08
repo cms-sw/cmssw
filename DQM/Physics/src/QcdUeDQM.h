@@ -86,20 +86,20 @@ class QcdUeDQM : public DQMEDAnalyzer {
                       const reco::Vertex &vtx, int sizevtx);
   void fillHltBits(const edm::Event &iEvent, const edm::EventSetup &iSetup);
   bool fillVtxPlots(const reco::BeamSpot *bs,
-                    const edm::Handle<reco::VertexCollection> vtxColl);
+                    const edm::Handle<reco::VertexCollection>& vtxColl);
   void fillpTMaxRelated(const std::vector<const reco::Track *> &track);
   void fillChargedJetSpectra(
-      const edm::Handle<reco::TrackJetCollection> trackJets);
+      const edm::Handle<reco::TrackJetCollection>& trackJets);
   void fillUE_with_ChargedJets(
       const std::vector<const reco::Track *> &track,
       const edm::Handle<reco::TrackJetCollection> &trackJets);
   void fillUE_with_MaxpTtrack(const std::vector<const reco::Track *> &track);
 
   template <typename TYPE>
-  void getProduct(const std::string name, edm::Handle<TYPE> &prod,
+  void getProduct(const std::string& name, edm::Handle<TYPE> &prod,
                   const edm::Event &event) const;
   template <typename TYPE>
-  bool getProductSafe(const std::string name, edm::Handle<TYPE> &prod,
+  bool getProductSafe(const std::string& name, edm::Handle<TYPE> &prod,
                       const edm::Event &event) const;
 
   HLTConfigProvider hltConfig;
@@ -406,7 +406,7 @@ class QcdUeDQM : public DQMEDAnalyzer {
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>
-inline void QcdUeDQM::getProduct(const std::string name,
+inline void QcdUeDQM::getProduct(const std::string& name,
                                  edm::Handle<TYPE> &prod,
                                  const edm::Event &event) const {
   // Try to access data collection from EDM file. We check if we really get just
@@ -421,7 +421,7 @@ inline void QcdUeDQM::getProduct(const std::string name,
 
 //--------------------------------------------------------------------------------------------------
 template <typename TYPE>
-inline bool QcdUeDQM::getProductSafe(const std::string name,
+inline bool QcdUeDQM::getProductSafe(const std::string& name,
                                      edm::Handle<TYPE> &prod,
                                      const edm::Event &event) const {
   // Try to safely access data collection from EDM file. We check if we really

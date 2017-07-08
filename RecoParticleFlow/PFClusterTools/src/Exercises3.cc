@@ -22,7 +22,7 @@
 
 using namespace pftools;
 
-void resetElement3(DetectorElementPtr de) {
+void resetElement3(const DetectorElementPtr& de) {
 	de->setCalib(1.0);
 }
 
@@ -245,7 +245,7 @@ void Exercises3::calibrateCalibratables(TChain& sourceTree,
 
 }
 
-void Exercises3::getCalibrations(SpaceManagerPtr s) {
+void Exercises3::getCalibrations(const SpaceManagerPtr& s) {
 
 	std::map<SpaceVoxelPtr, CalibratorPtr>* smCalibrators = s->getCalibrators();
 
@@ -261,7 +261,7 @@ void Exercises3::getCalibrations(SpaceManagerPtr s) {
 	}
 }
 
-void Exercises3::evaluateSpaceManager(SpaceManagerPtr s,
+void Exercises3::evaluateSpaceManager(const SpaceManagerPtr& s,
 		const std::vector<DetectorElementPtr>& detEls) {
 
 	int autoFit(0);
@@ -390,9 +390,9 @@ void Exercises3::evaluateSpaceManager(SpaceManagerPtr s,
 
 }
 
-void Exercises3::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
-		TTree& tree, Calibratable* calibrated, DetectorElementPtr ecal,
-		DetectorElementPtr hcal, DetectorElementPtr offset,
+void Exercises3::evaluateCalibrator(const SpaceManagerPtr& s, const CalibratorPtr& c,
+		TTree& tree, Calibratable* calibrated, const DetectorElementPtr& ecal,
+		const DetectorElementPtr& hcal, const DetectorElementPtr& offset,
 		CalibrationProvenance cp, CalibrationProvenance cpCorr) {
 
 	if (c->hasParticles() > static_cast<int>(threshold_)) {

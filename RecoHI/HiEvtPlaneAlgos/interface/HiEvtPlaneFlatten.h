@@ -35,7 +35,7 @@ public:
   }
 
 
-  void init(int order, int nbins,   std::string tag, int vord)
+  void init(int order, int nbins,   const std::string& tag, int vord)
   {
     hOrder_ = order;  //order of flattening
     vorder_ = vord;   //1(v1), 2(v2), 3(v3), 4(v4)	

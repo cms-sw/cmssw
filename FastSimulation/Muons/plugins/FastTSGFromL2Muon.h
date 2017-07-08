@@ -31,7 +31,7 @@ class FastTSGFromL2Muon : public edm::stream::EDProducer <> {
   
  private:
 
-  bool clean(reco::TrackRef muRef,
+  bool clean(const reco::TrackRef& muRef,
 	     RectangularEtaPhiTrackingRegion* region,
 	     const BasicTrajectorySeed* aSeed, 
 	     const SimTrack& theSimTrack); 

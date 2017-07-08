@@ -27,7 +27,7 @@ CaloTau::CaloTau(Charge q,const LorentzVector& p4,const Point& vtx) : BaseTau(q,
 CaloTau* CaloTau::clone()const{return new CaloTau(*this);}
 
 const CaloTauTagInfoRef& CaloTau::caloTauTagInfoRef()const{return CaloTauTagInfoRef_;}
-void CaloTau::setcaloTauTagInfoRef(const CaloTauTagInfoRef x) {CaloTauTagInfoRef_=x;}
+void CaloTau::setcaloTauTagInfoRef(const CaloTauTagInfoRef& x) {CaloTauTagInfoRef_=x;}
 
 const CaloJetRef CaloTau::rawJetRef() const {
 	return this->caloTauTagInfoRef()->calojetRef();

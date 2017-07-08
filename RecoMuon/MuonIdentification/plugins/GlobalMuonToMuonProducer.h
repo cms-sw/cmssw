@@ -45,7 +45,7 @@ private:
 
   // tmp
   void printTrackRecHits(const reco::Track &track, 
-			 edm::ESHandle<GlobalTrackingGeometry> trackingGeometry) const;
+			 const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry) const;
 
 
 private:

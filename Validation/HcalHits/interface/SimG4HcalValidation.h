@@ -65,7 +65,7 @@ private:
   void   fetchHits(PHcalValidInfoLayer&);
   void   clear();
   void   collectEnergyRdir(const double, const double); 
-  double getHcalScale(std::string, int) const; 
+  double getHcalScale(const std::string&, int) const; 
 
 
 private:

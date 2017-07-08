@@ -36,7 +36,7 @@ class SiStripConfigWriter{
 	~SiStripConfigWriter();
 	///Write XML file
         bool init(std::string main);
-        void write(std::string fname);
+        void write(const std::string& fname);
         void createElement(std::string tag);
         void createElement(std::string tag, std::string name);
         void createChildElement(std::string tag,std::string name);

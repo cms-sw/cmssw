@@ -2,6 +2,7 @@
 #define EnergySegmentFP420_h
 
 
+#include <utility>
 #include<vector>
 
 #include "G4StepPoint.hh"
@@ -19,7 +20,7 @@ class EnergySegmentFP420{
       //	_energy(energy),_position(position){}
 
       EnergySegmentFP420(float energy, Local3DPoint position):
-	_energy(energy),_position(position){}
+	_energy(energy),_position(std::move(position)){}
 
 	float x() const{return _position.x();}
 	float y() const{return _position.y();}

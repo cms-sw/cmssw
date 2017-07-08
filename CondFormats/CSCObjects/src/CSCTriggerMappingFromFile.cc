@@ -2,9 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 CSCTriggerMappingFromFile::CSCTriggerMappingFromFile( std::string filename ) 
-  : filename_( filename ) { fill(); }
+  : filename_( std::move(filename) ) { fill(); }
 
 CSCTriggerMappingFromFile::~CSCTriggerMappingFromFile(){}
 

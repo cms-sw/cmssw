@@ -30,13 +30,13 @@ public:
   RefCountedKinematicTree 
   buildTree(const std::vector<RefCountedKinematicParticle> & initialParticles, 
 	    const std::vector<KinematicState> & finalStates,
-	    const RefCountedKinematicVertex vtx, 
+	    const RefCountedKinematicVertex& vtx, 
 	    const ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> >& fCov) const;
 
 private:
 
-  RefCountedKinematicTree buildRealTree(const RefCountedKinematicParticle virtualParticle, 
-	const RefCountedKinematicVertex vtx, const std::vector<RefCountedKinematicParticle> & particles) const;
+  RefCountedKinematicTree buildRealTree(const RefCountedKinematicParticle& virtualParticle, 
+	const RefCountedKinematicVertex& vtx, const std::vector<RefCountedKinematicParticle> & particles) const;
 
   /**
    * Metod to reconstruct the full covariance matrix of the resulting particle.					      
@@ -59,7 +59,7 @@ template<int nTrk>
 RefCountedKinematicTree 
 ConstrainedTreeBuilderT::buildTree(const std::vector<RefCountedKinematicParticle> & initialParticles, 
 				   const std::vector<KinematicState> & finalStates,
-				   const RefCountedKinematicVertex vertex, 
+				   const RefCountedKinematicVertex& vertex, 
 				   const ROOT::Math::SMatrix<double,3+7*nTrk,3+7*nTrk,ROOT::Math::MatRepSym<double,3+7*nTrk> >& fullCov) const
 {
   if (!vertex->vertexIsValid()) {

@@ -9,7 +9,7 @@
 
 namespace {
   
-  void verify(OmniClusterRef const ref) {
+  void verify(OmniClusterRef const& ref) {
     std::cout << 
       ref.rawIndex() << " " <<
       ref.isValid() << " " <<

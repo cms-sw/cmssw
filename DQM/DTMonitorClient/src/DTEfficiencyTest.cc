@@ -326,7 +326,7 @@ void DTEfficiencyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
 }
 
 
-string DTEfficiencyTest::getMEName(string histoTag, const DTLayerId & lID) {
+string DTEfficiencyTest::getMEName(const string& histoTag, const DTLayerId & lID) {
 
   stringstream wheel; wheel << lID.superlayerId().wheel();
   stringstream station; station << lID.superlayerId().station();

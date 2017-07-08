@@ -227,7 +227,7 @@ namespace edm {
       void updateEventStats(edm::EventID const & e);
       std::string eventStatOutput(std::string title,
                                   SignificantEvent const& e) const;
-      void eventStatOutput(std::string title,
+      void eventStatOutput(const std::string& title,
                            SignificantEvent const& e,
                            std::map<std::string, std::string> &m) const;
       std::string mallOutput(std::string title, size_t const& n) const;
@@ -950,7 +950,7 @@ namespace edm {
 
 #ifdef SIMPLE_MEMORY_CHECK_ORIGINAL_XML_OUTPUT
     void
-    SimpleMemoryCheck::eventStatOutput(std::string title,
+    SimpleMemoryCheck::eventStatOutput(const std::string& title,
                                        SignificantEvent const& e,
                                        std::map<std::string, std::string>& m) const {
       { std::ostringstream os;

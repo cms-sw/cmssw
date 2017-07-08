@@ -96,7 +96,7 @@ namespace edm {
     return lumiPrincipal_;
   }
 
-  void PrincipalCache::merge(std::shared_ptr<RunAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg) {
+  void PrincipalCache::merge(const std::shared_ptr<RunAuxiliary>& aux, const std::shared_ptr<ProductRegistry const>& reg) {
     if (runPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::merge\n"
@@ -126,7 +126,7 @@ namespace edm {
     runPrincipal_->mergeAuxiliary(*aux);
   }
 
-  void PrincipalCache::merge(std::shared_ptr<LuminosityBlockAuxiliary> aux, std::shared_ptr<ProductRegistry const> reg) {
+  void PrincipalCache::merge(const std::shared_ptr<LuminosityBlockAuxiliary>& aux, const std::shared_ptr<ProductRegistry const>& reg) {
     if (lumiPrincipal_.get() == 0) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::merge\n"
@@ -157,7 +157,7 @@ namespace edm {
     lumiPrincipal_->mergeAuxiliary(*aux);
   }
 
-  void PrincipalCache::insert(std::shared_ptr<RunPrincipal> rp) {
+  void PrincipalCache::insert(const std::shared_ptr<RunPrincipal>& rp) {
     if (runPrincipal_.get() != 0) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::insert\n"
@@ -172,7 +172,7 @@ namespace edm {
     runPrincipal_ = rp; 
   }
 
-  void PrincipalCache::insert(std::shared_ptr<LuminosityBlockPrincipal> lbp) {
+  void PrincipalCache::insert(const std::shared_ptr<LuminosityBlockPrincipal>& lbp) {
     if (lumiPrincipal_.get() != 0) {
       throw edm::Exception(edm::errors::LogicError)
         << "PrincipalCache::insert\n"
@@ -207,7 +207,7 @@ namespace edm {
     lumiPrincipal_ = lbp; 
   }
 
-  void PrincipalCache::insert(std::shared_ptr<EventPrincipal> ep) {
+  void PrincipalCache::insert(const std::shared_ptr<EventPrincipal>& ep) {
     unsigned int iStreamIndex = ep->streamID().value();
     assert(iStreamIndex < eventPrincipals_.size());
     eventPrincipals_[iStreamIndex] = ep;
@@ -252,7 +252,7 @@ namespace edm {
     lumiPrincipal_.reset();
   }
 
-  void PrincipalCache::adjustEventsToNewProductRegistry(std::shared_ptr<ProductRegistry const> reg) {
+  void PrincipalCache::adjustEventsToNewProductRegistry(const std::shared_ptr<ProductRegistry const>& reg) {
     for(auto &eventPrincipal : eventPrincipals_) {
       if (eventPrincipal) {
         eventPrincipal->adjustIndexesAfterProductRegistryAddition();

@@ -26,7 +26,7 @@ BeamSpotHistogramMaker::~BeamSpotHistogramMaker() {
 }
 
 
-void BeamSpotHistogramMaker::book(const std::string dirname) {
+void BeamSpotHistogramMaker::book(const std::string& dirname) {
 
   edm::Service<TFileService> tfserv;
   TFileDirectory* currdir = &(tfserv->tFileDirectory());

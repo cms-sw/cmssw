@@ -81,21 +81,21 @@ class PhotonOfflineClient : public  DQMEDHarvester
   //virtual void runClient();
   
   virtual void runClient(DQMStore::IBooker& iBooker, DQMStore::IGetter& iGetter );
-  MonitorElement* bookHisto(DQMStore::IBooker& iBooker,std::string histoName, std::string title, int bin, double min, double max);
+  MonitorElement* bookHisto(DQMStore::IBooker& iBooker,const std::string& histoName, std::string title, int bin, double min, double max);
 
   void book2DHistoVector(DQMStore::IBooker& iBooker,std::vector<std::vector<MonitorElement*> >& vecOfHist, 
-			 std::string histoType, std::string histoName, std::string title, 
+			 const std::string& histoType, const std::string& histoName, const std::string& title, 
 			 int xbin, double xmin, double xmax,
 			 int ybin=1,double ymin=1, double ymax=2);
   void book3DHistoVector(DQMStore::IBooker& iBooker, std::vector<std::vector<std::vector<MonitorElement*> > >& vecOfHist, 
-			 std::string histoType, std::string histoName, std::string title, 
+			 const std::string& histoType, const std::string& histoName, const std::string& title, 
 			 int xbin, double xmin, double xmax,
 			 int ybin=1,double ymin=1, double ymax=2);
 
 
 
 
-  MonitorElement* retrieveHisto(DQMStore::IGetter& iGetter, std::string dir, std::string name);
+  MonitorElement* retrieveHisto(DQMStore::IGetter& iGetter, std::string dir, const std::string& name);
 
  private:
 

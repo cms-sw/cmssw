@@ -633,7 +633,7 @@ void MultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es, 
 
 }
 
-MultiTrackSelector::Point MultiTrackSelector::getBestVertex(TrackBaseRef track,VertexCollection vertices) const {
+MultiTrackSelector::Point MultiTrackSelector::getBestVertex(const TrackBaseRef& track,VertexCollection vertices) const {
   Point p(0,0,-99999);
   Point p_dz(0,0,-99999);
   float bestWeight = 0;

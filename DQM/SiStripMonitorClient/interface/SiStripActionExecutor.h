@@ -52,7 +52,7 @@ class SiStripActionExecutor {
 
  void createDummyShiftReport();
  void createShiftReport(DQMStore * dqm_store);
- void printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name);
+ void printReportSummary(MonitorElement* me, std::ostringstream& str_val, const std::string& name);
  void printShiftHistoParameters(DQMStore * dqm_store,
              std::map<std::string, std::vector<std::string> >&layout_map,std::ostringstream& str_val);
  void printFaultyModuleList(DQMStore * dqm_store, std::ostringstream& str_val);

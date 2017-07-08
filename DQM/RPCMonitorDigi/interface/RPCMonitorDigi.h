@@ -47,7 +47,7 @@ class RPCMonitorDigi : public DQMEDAnalyzer {
 
 	bool useMuonDigis_;
 
-	void performSourceOperation(std::map < RPCDetId , std::vector<RPCRecHit> > &, std::string );
+	void performSourceOperation(std::map < RPCDetId , std::vector<RPCRecHit> > &, const std::string& );
 	int stripsInRoll(RPCDetId & ,const edm::EventSetup& );
 
 	static const std::string regionNames_[3];

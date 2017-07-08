@@ -27,7 +27,7 @@ class ECalSD : public CaloSD {
 
 public:    
 
-  ECalSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  ECalSD(const G4String&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	 edm::ParameterSet const & p, const SimTrackManager*);
   virtual ~ECalSD();
   virtual double                    getEnergyDeposit(G4Step*);
@@ -38,7 +38,7 @@ public:
   virtual int                       getTrackID(G4Track*);
   virtual uint16_t                  getDepth(G4Step*);
 private:    
-  void                              initMap(G4String, const DDCompactView &);
+  void                              initMap(const G4String&, const DDCompactView &);
   double                            curve_LY(G4Step*); 
   double                            crystalLength(G4LogicalVolume*);
   void                              getBaseNumber(const G4Step*); 

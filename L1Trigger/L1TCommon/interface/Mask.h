@@ -4,6 +4,7 @@
 
 //boost libraries
 #include <boost/lexical_cast.hpp>
+#include <utility>
 
 namespace l1t{
 	
@@ -11,9 +12,9 @@ class Mask
 {
 	public:
 		Mask() {};
-		Mask(std::string id, std::string procRole);
-		void setProcRole(std::string procRole) { procRole_ = procRole; };
-		void setPort(std::string id);
+		Mask(const std::string& id, std::string procRole);
+		void setProcRole(std::string procRole) { procRole_ = std::move(procRole); };
+		void setPort(const std::string& id);
 		std::string getProcRole() { return procRole_; };
 		unsigned getPort() { return port_; };
 		std::string getId() {return id_;};

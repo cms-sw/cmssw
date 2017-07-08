@@ -13,7 +13,7 @@
 #include <cassert>
 
 GeometryInterface::Column 
-SummationSpecification::parse_columns(std::string name, GeometryInterface& geometryInterface) {
+SummationSpecification::parse_columns(const std::string& name, GeometryInterface& geometryInterface) {
   return geometryInterface.intern(name); 
 }
 

@@ -181,7 +181,7 @@ void SiStripSummaryCreator::fillGrandSummaryHistos(DQMStore* dqm_store) {
 // -- Get Summary ME
 //
 MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store, 
-                         std::string& name, std::string htype) {
+                         std::string& name, const std::string& htype) {
   MonitorElement* me = 0;
   std::string currDir = dqm_store->pwd();
   std::string sum_name, tag_name;
@@ -295,7 +295,7 @@ MonitorElement* SiStripSummaryCreator::getSummaryME(DQMStore* dqm_store,
 //
 //
 //
-void SiStripSummaryCreator::fillHistos(int ival, int istep, std::string htype, 
+void SiStripSummaryCreator::fillHistos(int ival, int istep, const std::string& htype, 
                        MonitorElement* me_src, MonitorElement* me) {
   
   if (me->getTH1()) {

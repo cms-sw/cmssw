@@ -5,6 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <sstream>
+#include <utility>
 #include <math.h>
 #include "TH2F.h"
 #include "TProfile.h"
@@ -19,7 +20,7 @@ SummaryGenerator::SummaryGenerator( std::string name ) :
   max_(-1.*sistrip::invalid_),
   min_(1.*sistrip::invalid_),
   label_(""),
-  myName_(name)
+  myName_(std::move(name))
 {
   // TH1::SetDefaultSumw2(true); // use square of weights to calc error   
 }

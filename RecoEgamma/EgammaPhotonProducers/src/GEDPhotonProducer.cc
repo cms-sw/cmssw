@@ -743,9 +743,9 @@ void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 void GEDPhotonProducer::fillPhotonCollection(edm::Event& evt,
 					     edm::EventSetup const & es,
 					     const edm::Handle<reco::PhotonCollection> & photonHandle,
-					     const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
-					     const edm::Handle<reco::PFCandidateCollection> pfEGCandidateHandle,
-					     edm::ValueMap<reco::PhotonRef> pfEGCandToPhotonMap,
+					     const edm::Handle<reco::PFCandidateCollection>& pfCandidateHandle,
+					     const edm::Handle<reco::PFCandidateCollection>& pfEGCandidateHandle,
+					     const edm::ValueMap<reco::PhotonRef>& pfEGCandToPhotonMap,
 					     edm::Handle< reco::VertexCollection >  & vertexHandle,
 					     reco::PhotonCollection & outputPhotonCollection, int& iSC, const edm::Handle<edm::ValueMap<float>>& chargedHadrons_, const edm::Handle<edm::ValueMap<float>>& neutralHadrons_, const edm::Handle<edm::ValueMap<float>>& photons_) {
 

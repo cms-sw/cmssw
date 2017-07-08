@@ -19,7 +19,7 @@
 
 #include "G4SystemOfUnits.hh"
 
-EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
+EcalTBH4BeamSD::EcalTBH4BeamSD(const G4String& name, const DDCompactView & cpv,
 			       const SensitiveDetectorCatalog & clg,
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 

@@ -12,7 +12,7 @@ L1Analysis::L1AnalysisRecoMet::~L1AnalysisRecoMet()
 {
 }
 
-void L1Analysis::L1AnalysisRecoMet::SetMet(const edm::Handle<reco::CaloMETCollection> recoMet)
+void L1Analysis::L1AnalysisRecoMet::SetMet(const edm::Handle<reco::CaloMETCollection>& recoMet)
 { 
   const reco::CaloMETCollection *metCol = recoMet.product();
   const reco::CaloMET theMet = metCol->front();
@@ -23,7 +23,7 @@ void L1Analysis::L1AnalysisRecoMet::SetMet(const edm::Handle<reco::CaloMETCollec
 
 }
 
-void L1Analysis::L1AnalysisRecoMet::SetHtMht(const edm::Handle<reco::CaloJetCollection> caloJets, float jetptThreshold)
+void L1Analysis::L1AnalysisRecoMet::SetHtMht(const edm::Handle<reco::CaloJetCollection>& caloJets, float jetptThreshold)
 {  
   float mHx = 0.;
   float mHy = 0.;
@@ -48,9 +48,9 @@ void L1Analysis::L1AnalysisRecoMet::SetHtMht(const edm::Handle<reco::CaloJetColl
 
 }
 
-void L1Analysis::L1AnalysisRecoMet::SetECALFlags(const edm::ESHandle<EcalChannelStatus> chStatus,
-						 const edm::Handle<EcalRecHitCollection> ebRecHits,
-						 const edm::Handle<EcalRecHitCollection> eeRecHits,
+void L1Analysis::L1AnalysisRecoMet::SetECALFlags(const edm::ESHandle<EcalChannelStatus>& chStatus,
+						 const edm::Handle<EcalRecHitCollection>& ebRecHits,
+						 const edm::Handle<EcalRecHitCollection>& eeRecHits,
                                                  const EcalSeverityLevelAlgo* sevlv)
 {
   int ecalFlag=0;

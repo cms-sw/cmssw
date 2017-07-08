@@ -13,7 +13,7 @@ class Source;
 
 class SourceVariable : public Variable {
     public:
-	SourceVariable(Source *source, AtomicId name,
+	SourceVariable(Source *source, const AtomicId& name,
 	               Variable::Flags flags) :
 		Variable(name, flags), source(source) {}
 	~SourceVariable() {}

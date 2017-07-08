@@ -6,6 +6,7 @@
 #include "OnlineDB/EcalCondDB/interface/LMFSeqVers.h"
 
 #include <iostream>
+#include <utility>
 
 LMFDefFabric::LMFDefFabric() {
   noDebug();
@@ -47,7 +48,7 @@ std::list<LMFRunTag> LMFDefFabric::getRunTags() const {
   return _lmfRunTags;
 }
 
-LMFColor LMFDefFabric::getColor(std::string name) const {
+LMFColor LMFDefFabric::getColor(const std::string& name) const {
   std::list<LMFColor>::const_iterator i = _lmfColors.begin();
   std::list<LMFColor>::const_iterator e = _lmfColors.end();
   LMFColor ret;
@@ -93,7 +94,7 @@ LMFColor LMFDefFabric::getColor(int index) const {
 }
 
 int LMFDefFabric::getColorID(std::string sname) const {
-  return getColor(sname).getID();
+  return getColor(std::move(sname)).getID();
 }
 
 int LMFDefFabric::getColorID(int index) const {
@@ -101,10 +102,10 @@ int LMFDefFabric::getColorID(int index) const {
 }
 
 int LMFDefFabric::getTrigTypeID(std::string sname) const {
-  return getTrigType(sname).getID();
+  return getTrigType(std::move(sname)).getID();
 }
 
-LMFTrigType LMFDefFabric::getTrigType(std::string sname) const {
+LMFTrigType LMFDefFabric::getTrigType(const std::string& sname) const {
   std::list<LMFTrigType>::const_iterator i = _lmfTrigTypes.begin();
   std::list<LMFTrigType>::const_iterator e = _lmfTrigTypes.end();
   LMFTrigType tt;
@@ -134,7 +135,7 @@ LMFTrigType LMFDefFabric::getTrigTypeFromID(int id) const {
   return tt;
 }
 
-LMFRunTag LMFDefFabric::getRunTag(std::string tag, int version) const {
+LMFRunTag LMFDefFabric::getRunTag(const std::string& tag, int version) const {
   std::list<LMFRunTag>::const_iterator i = _lmfRunTags.begin();
   std::list<LMFRunTag>::const_iterator e = _lmfRunTags.end();
   LMFRunTag rt;
@@ -163,7 +164,7 @@ LMFRunTag LMFDefFabric::getRunTagFromID(int id) const {
 }
 
 int LMFDefFabric::getRunTagID(std::string tag, int version) const {
-  return getRunTag(tag, version).getID();
+  return getRunTag(std::move(tag), version).getID();
 }
 
 void LMFDefFabric::initialize() 

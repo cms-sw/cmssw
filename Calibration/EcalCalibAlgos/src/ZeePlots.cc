@@ -338,7 +338,7 @@ void ZeePlots::bookHLTHistograms(){
 
 //========================================================================
 
-void ZeePlots::fillHLTInfo( edm::Handle<edm::TriggerResults> hltTriggerResultHandle ){
+void ZeePlots::fillHLTInfo( const edm::Handle<edm::TriggerResults>& hltTriggerResultHandle ){
 
   file_->cd();
   

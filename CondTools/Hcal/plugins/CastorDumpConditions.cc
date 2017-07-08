@@ -56,7 +56,7 @@ class CastorDumpConditions : public edm::EDAnalyzer {
       explicit CastorDumpConditions(const edm::ParameterSet&);
       ~CastorDumpConditions();
 
-       template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);
+       template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, const std::string& name);
 
    private:
       std::string file_prefix;
@@ -184,7 +184,7 @@ CastorDumpConditions::endJob() {
 }
 
 template<class S, class SRcd>
-  void CastorDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name) {
+  void CastorDumpConditions::dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, const std::string& name) {
     int myrun = e.id().run();
     edm::ESHandle<S> p;
     context.get<SRcd>().get(p);

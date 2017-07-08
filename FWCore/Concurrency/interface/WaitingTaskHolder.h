@@ -64,7 +64,7 @@ namespace edm {
     // ---------- static member functions --------------------
     
     // ---------- member functions ---------------------------
-    void doneWaiting(std::exception_ptr iExcept) {
+    void doneWaiting(const std::exception_ptr& iExcept) {
       if(iExcept) {
         m_task->dependentTaskFailed(iExcept);
       }

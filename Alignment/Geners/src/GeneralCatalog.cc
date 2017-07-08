@@ -37,7 +37,7 @@ namespace gs {
         }
     }
 
-    bool GeneralCatalog::addEntry(const SPtr inptr)
+    bool GeneralCatalog::addEntry(const SPtr& inptr)
     {
         assert(inptr.get());
 

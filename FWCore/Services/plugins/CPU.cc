@@ -78,7 +78,7 @@ namespace edm {
         return t.str();
       }
 
-      double str2d(std::string s){
+      double str2d(const std::string& s){
         return atof(s.c_str());
       }
 

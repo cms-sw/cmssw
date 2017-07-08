@@ -185,7 +185,7 @@ void BeamMonitorBx::endLuminosityBlock(const LuminosityBlock& lumiSeg,
 
 
 //--------------------------------------------------------
-void BeamMonitorBx::BookTables(int nBx, map<string,string> & vMap, string suffix_) {
+void BeamMonitorBx::BookTables(int nBx, map<string,string> & vMap, const string& suffix_) {
   // to rebin histograms when number of bx increases
   dbe_->cd(monitorName_+"FitBx");
 
@@ -215,7 +215,7 @@ void BeamMonitorBx::BookTables(int nBx, map<string,string> & vMap, string suffix
 
 //--------------------------------------------------------
 void BeamMonitorBx::BookTrendHistos(bool plotPV,int nBx,map<string,string> & vMap,
-				    string subDir_, const TString& prefix_, const TString& suffix_) {
+				    const string& subDir_, const TString& prefix_, const TString& suffix_) {
   int nType_ = 2;
   if (plotPV) nType_ = 4;
   std::ostringstream ss;
@@ -444,7 +444,7 @@ void BeamMonitorBx::FitAndFill(const LuminosityBlock& lumiSeg,
 //--------------------------------------------------------
 void BeamMonitorBx::FillTables(int nthbx,int nthbin_,
 			       map<string,string>&vMap,
-			       reco::BeamSpot&bs_, string suffix_){
+			       reco::BeamSpot&bs_, const string& suffix_){
   map<string,pair<double,double> > val_;
   val_["x0_bx"] = pair<double,double>(bs_.x0(),bs_.x0Error());
   val_["y0_bx"] = pair<double,double>(bs_.y0(),bs_.y0Error());

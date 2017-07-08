@@ -70,7 +70,7 @@ template <typename DetIdT> class EcalDeadChannelRecoveryNN {
   MultiLayerPerceptronContext ctx_[9];
 
   void load();
-  void load_file(MultiLayerPerceptronContext &ctx, std::string fn);
+  void load_file(MultiLayerPerceptronContext &ctx, const std::string& fn);
 
  public:
   double estimateEnergy(double *M3x3Input, double epsilon = 0.0000001);

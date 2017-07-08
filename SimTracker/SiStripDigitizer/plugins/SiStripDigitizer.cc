@@ -94,7 +94,7 @@ SiStripDigitizer::SiStripDigitizer(const edm::ParameterSet& conf, edm::stream::E
 SiStripDigitizer::~SiStripDigitizer() { 
 }  
 
-void SiStripDigitizer::accumulateStripHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+void SiStripDigitizer::accumulateStripHits(const edm::Handle<std::vector<PSimHit> >& hSimHits,
 					   const TrackerTopology *tTopo, size_t globalSimHitIndex, const unsigned int tofBin, CLHEP::HepRandomEngine* engine ) {
   // globalSimHitIndex is the index the sim hit will have when it is put in a collection
   // of sim hits for all crossings. This is only used when creating digi-sim links if

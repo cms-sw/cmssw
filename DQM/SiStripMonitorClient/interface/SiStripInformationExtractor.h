@@ -61,11 +61,11 @@ class SiStripInformationExtractor {
   void readConfiguration();
 
   void getItemList(const std::multimap<std::string, std::string>& req_map,
-                   std::string item_name, std::vector<std::string>& items);
+                   const std::string& item_name, std::vector<std::string>& items);
   bool hasItem(const std::multimap<std::string, std::string>& req_map,
-	      std::string item_name);
+	      const std::string& item_name);
   std::string getItemValue(const std::multimap<std::string, std::string>& req_map,
-	      std::string item_name);
+	      const std::string& item_name);
   void printSummaryHistoList(DQMStore* dqm_store, std::ostringstream& str_val);
   void printAlarmList(DQMStore * dqm_store, std::ostringstream& str_val);
   void printNonGeomHistoList(DQMStore * dqm_store, std::ostringstream& str_val);

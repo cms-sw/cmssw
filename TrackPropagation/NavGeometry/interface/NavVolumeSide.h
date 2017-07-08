@@ -1,6 +1,8 @@
 #ifndef NavVolumeSide_H
 #define NavVolumeSide_H
 
+#include <utility>
+
 #include "TrackPropagation/NavGeometry/interface/NavSurface.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
@@ -23,7 +25,7 @@ public:
     theSurface( surf),  theGlobalFace( gSide), theSurfaceSide( sSide) {}
 
   NavVolumeSide( SurfacePointer surf, GlobalFace gSide, Side sSide) : 
-    theSurface( surf),  theGlobalFace( gSide), theSurfaceSide( sSide) {}
+    theSurface( std::move(surf)),  theGlobalFace( gSide), theSurfaceSide( sSide) {}
 
   NavSurface& mutableSurface() const {return *theSurface;}
 

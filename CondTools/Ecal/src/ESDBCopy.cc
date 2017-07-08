@@ -70,7 +70,7 @@ void ESDBCopy::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup)
 
 
 
-bool ESDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container)
+bool ESDBCopy::shouldCopy(const edm::EventSetup& evtSetup, const std::string& container)
 {
 
   unsigned long long cacheID = 0;
@@ -103,7 +103,7 @@ bool ESDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container
 
 
 
-void ESDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container)
+void ESDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& container)
 {
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
   if ( !dbOutput.isAvailable() ) {

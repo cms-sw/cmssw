@@ -151,7 +151,7 @@ void StoreEcalCondition::analyze( const edm::Event& evt, const edm::EventSetup& 
 
 
 //------------------------------------------------------------
-void StoreEcalCondition::writeToLogFile(string a, string b, unsigned long long since) {
+void StoreEcalCondition::writeToLogFile(const string& a, const string& b, unsigned long long since) {
 //-------------------------------------------------------------
   
     FILE *outFile; // output log file for appending 

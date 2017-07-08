@@ -10,6 +10,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <map>
 #include <stdexcept>
@@ -56,7 +57,7 @@ class EcalCondDBInterface : public EcalDBConnection {
 		       std::string user,
 		       std::string pass,
 		       int port=1521 )
-    : EcalDBConnection( host, sid, user, pass, port )
+    : EcalDBConnection( std::move(host), std::move(sid), std::move(user), std::move(pass), port )
     {
       // call the parent constructor
 
@@ -76,7 +77,7 @@ class EcalCondDBInterface : public EcalDBConnection {
   EcalCondDBInterface( std::string sid,
 		       std::string user,
 		       std::string pass )
-    : EcalDBConnection( sid, user, pass )
+    : EcalDBConnection( std::move(sid), std::move(user), std::move(pass) )
     {
       // call the parent constructor
 
@@ -115,7 +116,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  id1, id2, id3:  ids of the channel type
    *  mapsTo:         name of the channel type you are mapping to
    */
-  EcalLogicID getEcalLogicID( std::string name,
+  EcalLogicID getEcalLogicID( const std::string& name,
 			      int id1 = EcalLogicID::NULLID,
 			      int id2 = EcalLogicID::NULLID,
 			      int id3 = EcalLogicID::NULLID,
@@ -127,7 +128,7 @@ class EcalCondDBInterface : public EcalDBConnection {
    *  Map an LMR, or a Ex_LM_PN into the set of components
    */
 
-  std::vector<EcalLogicID> getEcalLogicIDMappedTo(int logic_id, std::string maps_to);
+  std::vector<EcalLogicID> getEcalLogicIDMappedTo(int logic_id, const std::string& maps_to);
 
   std::vector<EcalLogicID> getEcalLogicIDForLMR(int lmr_logic_id);
   std::vector<EcalLogicID> getEcalLogicIDForLMR(const EcalLogicID &lmr_logic_id);

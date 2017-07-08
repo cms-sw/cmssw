@@ -78,7 +78,7 @@ public:
 
   void correctBField();
 
-  TTree * readNtuple(std::string fname, unsigned int wheel, unsigned int station, unsigned int sector, unsigned int preselected = 1);
+  TTree * readNtuple(const std::string& fname, unsigned int wheel, unsigned int station, unsigned int sector, unsigned int preselected = 1);
 
 protected:
   void inform(TMinuit *tMinuit);

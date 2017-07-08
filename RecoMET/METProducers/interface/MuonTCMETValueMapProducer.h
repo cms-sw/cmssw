@@ -108,7 +108,7 @@ private:
   bool isGoodCaloMuon( const reco::Muon*, const unsigned int );
   bool isGoodTrack( const reco::Muon* );
   class TVector3 propagateTrack( const reco::Muon* );
-  int nLayers(const reco::TrackRef);
+  int nLayers(const reco::TrackRef&);
   bool isValidVertex();
 };
 

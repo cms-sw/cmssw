@@ -2,9 +2,10 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <utility>
 
 CSCTriggerElectronicsMappingFromFile::CSCTriggerElectronicsMappingFromFile( std::string filename ) 
-  : filename_( filename ) { fill(); }
+  : filename_( std::move(filename) ) { fill(); }
 
 CSCTriggerElectronicsMappingFromFile::~CSCTriggerElectronicsMappingFromFile(){}
 

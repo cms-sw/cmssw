@@ -437,7 +437,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 
 
 // Fill a set of histograms for a given Layer
-void DTEfficiencyTask::fillHistos(DTLayerId lId,
+void DTEfficiencyTask::fillHistos(const DTLayerId& lId,
 				  int firstWire, int lastWire,
 				  int numWire) {
 
@@ -448,7 +448,7 @@ void DTEfficiencyTask::fillHistos(DTLayerId lId,
 }
 
 // Fill a set of histograms for a given Layer
-void DTEfficiencyTask::fillHistos(DTLayerId lId,
+void DTEfficiencyTask::fillHistos(const DTLayerId& lId,
 				  int firstWire, int lastWire,
 				  int missingWire,
 				  bool unassHit) {

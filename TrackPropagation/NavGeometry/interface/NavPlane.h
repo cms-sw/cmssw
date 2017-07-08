@@ -6,6 +6,7 @@
 #include "TrackPropagation/NavGeometry/interface/LinearSearchNavSurfaceImpl.h"
 #include "DataFormats/GeometrySurface/interface/ReferenceCounted.h"
 
+#include <utility>
 #include <vector>
 class Bounds;
 
@@ -19,7 +20,7 @@ public:
 
     // NavPlane( const Plane* plane) : theSurfaceP(plane) {}
   
-    NavPlane( PlanePointer plane) : theSurfaceP(plane) {}
+    NavPlane( PlanePointer plane) : theSurfaceP(std::move(plane)) {}
 
     // FIXME: restore covariant return type when gcc version upgraded
     //virtual const Plane& surface() const {return *theSurfaceP;} 

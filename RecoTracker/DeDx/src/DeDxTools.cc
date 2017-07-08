@@ -218,7 +218,7 @@ void makeCalibrationMap(const std::string& m_calibrationPath, const TrackerGeome
 }
 
 
-void buildDiscrimMap(edm::Run const& run, const edm::EventSetup& iSetup, std::string Reccord, std::string ProbabilityMode, TH3F*& Prob_ChargePath)
+void buildDiscrimMap(edm::Run const& run, const edm::EventSetup& iSetup, const std::string& Reccord, const std::string& ProbabilityMode, TH3F*& Prob_ChargePath)
 {
    edm::ESHandle<PhysicsTools::Calibration::HistogramD3D> deDxMapHandle;    
    if(      strcmp(Reccord.c_str(),"SiStripDeDxMip_3D_Rcd")==0){

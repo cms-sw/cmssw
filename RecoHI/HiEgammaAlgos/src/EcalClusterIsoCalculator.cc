@@ -17,7 +17,7 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<BasicClusterCollection> pEBclusters, const edm::Handle<BasicClusterCollection> pEEclusters)
+EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<BasicClusterCollection>& pEBclusters, const edm::Handle<BasicClusterCollection>& pEEclusters)
 {
   if(pEBclusters.isValid())
      fEBclusters_ = pEBclusters.product();
@@ -37,7 +37,7 @@ EcalClusterIsoCalculator::EcalClusterIsoCalculator(const edm::Event &iEvent, con
      geometry_ = nullptr;
 }
 
-double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef cluster, const double x, const double threshold)
+double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef& cluster, const double x, const double threshold)
 {
    if(!fEBclusters_) {
       return -100;
@@ -90,7 +90,7 @@ double EcalClusterIsoCalculator::getEcalClusterIso(const reco::SuperClusterRef c
    return TotalEt;
 }
 
-double EcalClusterIsoCalculator::getBkgSubEcalClusterIso(const reco::SuperClusterRef cluster, const double x, double const threshold)
+double EcalClusterIsoCalculator::getBkgSubEcalClusterIso(const reco::SuperClusterRef& cluster, const double x, double const threshold)
 {
    if(!fEBclusters_) {
       return -100;

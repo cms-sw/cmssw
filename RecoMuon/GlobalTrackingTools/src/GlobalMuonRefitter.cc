@@ -216,7 +216,7 @@ vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
 // build a combined tracker-muon trajectory
 //
 vector<Trajectory> GlobalMuonRefitter::refit(const reco::Track& globalTrack,
-					     const reco::TransientTrack track,
+					     const reco::TransientTrack& track,
 					     const TransientTrackingRecHit::ConstRecHitContainer& allRecHitsTemp,
 					     const int theMuonHitsOption,
 					     const TrackerTopology *tTopo) const {
@@ -690,7 +690,7 @@ GlobalMuonRefitter::checkRecHitsOrdering(const TransientTrackingRecHit::ConstRec
 // Convert Tracks into Trajectories with a given set of hits
 //
 vector<Trajectory> GlobalMuonRefitter::transform(const reco::Track& newTrack,
-						 const reco::TransientTrack track,
+						 const reco::TransientTrack& track,
 						 const TransientTrackingRecHit::ConstRecHitContainer& urecHitsForReFit) const {
   
   TransientTrackingRecHit::ConstRecHitContainer recHitsForReFit = urecHitsForReFit;

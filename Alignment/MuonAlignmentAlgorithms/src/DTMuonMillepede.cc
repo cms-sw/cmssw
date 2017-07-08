@@ -2,13 +2,14 @@
 
 
 #include <iostream>
+#include <utility>
 
 DTMuonMillepede::DTMuonMillepede(std::string path, int n_files,
 				 float MaxPt, float MinPt,
 				 int nPhihits, int nThetahits,
 				 int workingmode, int nMtxSection) {
   
-  ntuplePath = path;
+  ntuplePath = std::move(path);
   numberOfRootFiles = n_files;
   
   ptMax = MaxPt; 

@@ -1,6 +1,8 @@
 #ifndef __EmulatorClasses_
 #define __EmulatorClasses_
 
+#include <utility>
+
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 #include "L1Trigger/L1TMuon/interface/deprecate/MuonTriggerPrimitive.h"
 
@@ -36,7 +38,7 @@ class ConvertedHit{
   void SetZhit(int zhit){_zhit = zhit;};
   void SetTheta(int theta){_th = theta;};
   void SetTheta2(int theta2){_th2 = theta2;};
-  void SetTP(L1TMuon::TriggerPrimitive tp){_tp = tp;};
+  void SetTP(const L1TMuon::TriggerPrimitive& tp){_tp = tp;};
   void SetSectorIndex(int sectorIndex){_sectorIndex = sectorIndex;};
   void SetNeighbor(int neighbor){_isNeighbor = neighbor;};
   void AddTheta(int theta){_thetas.push_back(theta);};
@@ -117,9 +119,9 @@ class Winner{
 class SortingOutput{
   
  public:
-  void SetHits(std::vector<ConvertedHit> hits){_hits = hits;};
-  void SetWinners(std::vector<std::vector<Winner>> winners){_winners = winners;};
-  void SetValues(std::vector<std::vector<Winner>> winners, std::vector<ConvertedHit> hits){_winners = winners;_hits = hits;};
+  void SetHits(std::vector<ConvertedHit> hits){_hits = std::move(hits);};
+  void SetWinners(std::vector<std::vector<Winner>> winners){_winners = std::move(winners);};
+  void SetValues(std::vector<std::vector<Winner>> winners, std::vector<ConvertedHit> hits){_winners = std::move(winners);_hits = std::move(hits);};
   
   std::vector<ConvertedHit> Hits(){return _hits;};
   std::vector<std::vector<Winner>> Winners(){return _winners;};
@@ -136,17 +138,17 @@ typedef struct PhOutput { ConvertedHit x[4][3][4]; } PhOutput;
 class MatchingOutput{
   
  public:
-  void SetHits(std::vector<ConvertedHit> hits){_hits = hits;};
-  void SetWinners(std::vector<std::vector<Winner>> winners){_winners = winners;};
-  void SetThOut(ThOutput th_output){_th_output = th_output;};
-  void SetPhOut(PhOutput ph_output){_ph_output = ph_output;};
-  void SetSegment(std::vector<int> segment){_segment = segment;};
+  void SetHits(std::vector<ConvertedHit> hits){_hits = std::move(hits);};
+  void SetWinners(std::vector<std::vector<Winner>> winners){_winners = std::move(winners);};
+  void SetThOut(ThOutput th_output){_th_output = std::move(th_output);};
+  void SetPhOut(PhOutput ph_output){_ph_output = std::move(ph_output);};
+  void SetSegment(std::vector<int> segment){_segment = std::move(segment);};
   void SetValues(ThOutput th_output,PhOutput ph_output,std::vector<ConvertedHit> hits,std::vector<std::vector<Winner>> winners,std::vector<int> segment){
-    _th_output = th_output;
-    _ph_output = ph_output;
-    _hits = hits;
-    _winners = winners;
-    _segment = segment;
+    _th_output = std::move(th_output);
+    _ph_output = std::move(ph_output);
+    _hits = std::move(hits);
+    _winners = std::move(winners);
+    _segment = std::move(segment);
   }
   
   void setM2(ThOutput2 t2){
@@ -175,7 +177,7 @@ class DeltaOutput{
  public:
   void SetNull(){_Phi = -999;_Theta = -999;};
   void SetValues(MatchingOutput Mout, std::vector<std::vector<int>> Deltas, int Phi, int Theta, Winner winner){
-    _Mout = Mout;_Deltas = Deltas;_Phi = Phi; _Theta = Theta;_winner = winner;
+    _Mout = std::move(Mout);_Deltas = std::move(Deltas);_Phi = Phi; _Theta = Theta;_winner = winner;
   }
   
   MatchingOutput GetMatchOut(){return _Mout;};

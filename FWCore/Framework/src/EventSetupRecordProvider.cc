@@ -135,7 +135,7 @@ EventSetupRecordProvider::usePreferred(const DataToPreferredProviderMap& iMap)
 }
 
 void 
-EventSetupRecordProvider::addProxiesToRecord(std::shared_ptr<DataProxyProvider> iProvider,
+EventSetupRecordProvider::addProxiesToRecord(const std::shared_ptr<DataProxyProvider>& iProvider,
                                 const EventSetupRecordProvider::DataToPreferredProviderMap& iMap) {
    typedef DataProxyProvider::KeyedProxies ProxyList ;
    typedef EventSetupRecordProvider::DataToPreferredProviderMap PreferredMap;

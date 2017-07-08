@@ -360,7 +360,7 @@ FWGUIManager::eventChangedCallback() {
 }
 
 CSGAction*
-FWGUIManager::getAction(const std::string name)
+FWGUIManager::getAction(const std::string& name)
 {
    return m_cmsShowMainFrame->getAction(name);
 }

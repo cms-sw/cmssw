@@ -5,8 +5,8 @@
 
 
 
-RefCountedKinematicTree ConstrainedTreeBuilderT::buildRealTree(const RefCountedKinematicParticle virtualParticle,
-							   const RefCountedKinematicVertex vtx, const std::vector<RefCountedKinematicParticle> & particles) const
+RefCountedKinematicTree ConstrainedTreeBuilderT::buildRealTree(const RefCountedKinematicParticle& virtualParticle,
+							   const RefCountedKinematicVertex& vtx, const std::vector<RefCountedKinematicParticle> & particles) const
 {
 
 //making a resulting tree:

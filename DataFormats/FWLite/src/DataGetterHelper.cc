@@ -13,6 +13,7 @@
 // system include files
 #include <cassert>
 #include <iostream>
+#include <utility>
 
 // user include files
 #include "DataFormats/FWLite/interface/DataGetterHelper.h"
@@ -51,9 +52,9 @@ namespace fwlite {
     DataGetterHelper::DataGetterHelper(TTree* tree,
                                        std::shared_ptr<HistoryGetterBase> historyGetter,
                                        std::shared_ptr<BranchMapReader> branchMap,
-                                       std::shared_ptr<edm::EDProductGetter> getter,
+                                       const std::shared_ptr<edm::EDProductGetter>& getter,
                                        bool useCache):
-        branchMap_(branchMap),
+        branchMap_(std::move(branchMap)),
         historyGetter_(historyGetter),
         getter_(getter),
         tcTrained_(false)

@@ -110,11 +110,11 @@ private:
 			      const TrajectoryStateOnSurface &tsosAtIP,
 			      const Propagator& propagatorAlong,
 			      const Propagator& propagatorOpposite,
-			      const reco::TrackRef l2,
+			      const reco::TrackRef& l2,
 			      std::unique_ptr<std::vector<TrajectorySeed> >& seeds);
 
 	/// Function used to calculate the dynamic error SF by analysing the L2
-	double calculateSFFromL2(const reco::TrackRef track);
+	double calculateSFFromL2(const reco::TrackRef& track);
 
 	/// Function to find hits on layers and create seeds from updated TSOS
 	int makeSeedsFromHits(

@@ -51,7 +51,7 @@ bool acceptedEvt(std::vector<double> pathStatus) {
 
 //TRUE - the target module is included in time calculation
 //FALSE - the target module is skipped by user
-bool useModuleByName(HLTPerformanceInfo::Module module,
+bool useModuleByName(const HLTPerformanceInfo::Module& module,
                      std::vector<std::string> skip) {
   for (unsigned int i=0; i<skip.size(); i++)
     if (module.name() == skip.at(i)) return false ; 
@@ -60,7 +60,7 @@ bool useModuleByName(HLTPerformanceInfo::Module module,
 
 //TRUE - the target path is included in time calculation
 //FALSE - the target path is skipped by user
-bool usePathByName(HLTPerformanceInfo::Path path,
+bool usePathByName(const HLTPerformanceInfo::Path& path,
                      std::vector<std::string> skip) {
   for (unsigned int i=0; i<skip.size(); i++)
     if (path.name() == skip.at(i)) return false; 
@@ -69,8 +69,8 @@ bool usePathByName(HLTPerformanceInfo::Path path,
 
 //initialize the following parameters
 void initialize(HLTPerformanceInfo hltPerf,
-                std::vector<std::string> skipMod,
-		std::vector<std::string> skipPath,
+                const std::vector<std::string>& skipMod,
+		const std::vector<std::string>& skipPath,
                 std::vector<bool>* mod,                              //useModule
                 std::vector<bool>* path,                             //usePath
                 std::vector< std::vector<bool> >* mip,               //useModInPath
@@ -184,7 +184,7 @@ void initialize(HLTPerformanceInfo hltPerf,
   }
 }
 
-double getTime(HLTPerformanceInfo::Module mod, bool useCPU) {
+double getTime(const HLTPerformanceInfo::Module& mod, bool useCPU) {
   if (useCPU) return mod.cputime() ;
   return mod.time() ; 
 }
@@ -201,11 +201,11 @@ double calculateMiPTime(std::vector<double> modTimes,
   return time ; 
 }
 
-TH1D* createSummaryHistogram(std::string name,
-                             std::string title,
+TH1D* createSummaryHistogram(const std::string& name,
+                             const std::string& title,
                              unsigned int nbins,
                              std::vector<std::string> labels,
-                             std::string yaxis) {
+                             const std::string& yaxis) {
     
   TH1D* histo = new TH1D(name.c_str(),title.c_str(),int(nbins),0.,double(nbins)) ;
   for (unsigned int i=0; i<nbins; i++)
@@ -215,8 +215,8 @@ TH1D* createSummaryHistogram(std::string name,
   return histo ; 
 }
 
-std::vector<TH1D*> createEventHistograms(std::string name,
-                                         std::string title,
+std::vector<TH1D*> createEventHistograms(const std::string& name,
+                                         const std::string& title,
                                          unsigned int nHistos,
                                          std::vector<std::string> nameTag,
                                          int nbins, double min, double max) {
@@ -232,7 +232,7 @@ std::vector<TH1D*> createEventHistograms(std::string name,
   return histos ; 
 }
 
-bool isFilterModule(HLTPerformanceInfo::Module module,
+bool isFilterModule(const HLTPerformanceInfo::Module& module,
                     std::vector<std::string> modList) {
     
   for (unsigned int i=0; i<modList.size(); i++)

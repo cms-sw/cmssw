@@ -53,10 +53,10 @@ public:
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
   void loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string& fileName, bool &endOfFile, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string& fileName, const int16_t bx);
   void loadNextEvent(L1GlobalCaloTrigger* &gct, const edm::Event& iEvent, const int16_t bx);
-  void loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
+  void loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string& fileName, const int16_t bx);
 
   /// Read the input electron data (after GCT processing).
   void fillElectronData(const L1GlobalCaloTrigger* gct);

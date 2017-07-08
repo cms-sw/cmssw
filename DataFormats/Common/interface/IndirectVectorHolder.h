@@ -20,7 +20,7 @@ namespace edm {
 
       IndirectVectorHolder();
       IndirectVectorHolder( const IndirectVectorHolder & other);
-      IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p);
+      IndirectVectorHolder(const std::shared_ptr<RefVectorHolderBase>& p);
       IndirectVectorHolder(RefVectorHolderBase * p);
       virtual ~IndirectVectorHolder();
       IndirectVectorHolder& operator= (IndirectVectorHolder const& rhs);
@@ -102,7 +102,7 @@ namespace edm {
     IndirectVectorHolder<T>::IndirectVectorHolder() : BaseVectorHolder<T>(), helper_( nullptr ) { }
 
     template <typename T>
-    IndirectVectorHolder<T>::IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p) :
+    IndirectVectorHolder<T>::IndirectVectorHolder(const std::shared_ptr<RefVectorHolderBase>& p) :
       BaseVectorHolder<T>(), helper_(p->clone()) { }
 
     template <typename T>

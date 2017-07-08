@@ -18,8 +18,8 @@ using namespace std;
 using namespace dttmaxenums;
 using namespace DTEnums;
 
-DTTMax::InfoLayer::InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, GlobalVector dir,
-			     GlobalPoint pos, DTTTrigBaseSync* sync):
+DTTMax::InfoLayer::InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, const GlobalVector& dir,
+			     const GlobalPoint& pos, DTTTrigBaseSync* sync):
   rh(rh_), idWire(rh.wireId()), lr(rh.lrSide()) {
     const DTLayer*  layer = isl.layer(idWire.layerId());
     LocalPoint wirePosInLayer(layer->specificTopology().wirePosition(idWire.wire()), 0, 0);
@@ -40,8 +40,8 @@ DTTMax::InfoLayer::InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, Gl
   }
 
 
-DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalVector dir, 
-	       GlobalPoint pos, DTTTrigBaseSync* sync):
+DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, const GlobalVector& dir, 
+	       const GlobalPoint& pos, DTTTrigBaseSync* sync):
   theInfoLayers(4,(InfoLayer*)0), //FIXME
   theTMaxes(4,(TMax*)0) 
 {

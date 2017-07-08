@@ -6,6 +6,7 @@
 //=============================================================================
 //*****************************************************************************
 //C++ includes
+#include <utility>
 #include <vector>
 #include <functional>
 //ROOT includes
@@ -43,7 +44,7 @@ ElectronTkIsolation::ElectronTkIsolation (double extRadius,
   lip_(lip),
   drb_(drb),
   trackCollection_(trackCollection),
-  beamPoint_(beamPoint)
+  beamPoint_(std::move(beamPoint))
 {
     setAlgosToReject();
     setDzOption(dzOptionString);

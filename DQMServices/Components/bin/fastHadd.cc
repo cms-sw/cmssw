@@ -113,8 +113,8 @@ int debug = 0;
 struct MicroME {
   MicroME(
           TObject *o,
-          const std::string dir,
-          const std::string obj,
+          const std::string& dir,
+          const std::string& obj,
           uint32_t flags = 0)
       : obj(o), dirname(dir), objname(obj), flags(flags) {}
 
@@ -466,7 +466,7 @@ void tryRootPreload() {
 }
 
 /* fork_id represents the position in a node (node number). */
-void addFilesWithFork(int parent_fd, const int fork_id, const int fork_total, const std::vector<std::string> filenames) {
+void addFilesWithFork(int parent_fd, const int fork_id, const int fork_total, const std::vector<std::string>& filenames) {
   DEBUG(1, "Start process: " << fork_id << " parent: " << (fork_id / 2) << std::endl);
 
   std::list<std::pair<int, int> > children;

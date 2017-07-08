@@ -313,7 +313,7 @@ SiPixelDQMRocLevelAnalyzer::endJob() {
 }
 
 void 
-SiPixelDQMRocLevelAnalyzer::RocSummary(std::string tagname){
+SiPixelDQMRocLevelAnalyzer::RocSummary(const std::string& tagname){
     
   int maxcrow, maxccol;
   std::string name, path = "first"; 

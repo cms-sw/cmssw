@@ -53,6 +53,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include <vector>
 #include <string>
 #include <sstream>
@@ -542,14 +543,14 @@ class JetMETHLTOfflineSource : public DQMEDAnalyzer {
 	     size_t type,
 	     std::string triggerType):
       prescaleUsed_(prescaleUsed),
-      denomPathName_(denomPathName),
-      pathName_(pathName),
-      l1pathName_(l1pathName),
-      filterName_(filterName),
-      DenomfilterName_(DenomfilterName),
-      processName_(processName),
+      denomPathName_(std::move(denomPathName)),
+      pathName_(std::move(pathName)),
+      l1pathName_(std::move(l1pathName)),
+      filterName_(std::move(filterName)),
+      DenomfilterName_(std::move(DenomfilterName)),
+      processName_(std::move(processName)),
       objectType_(type),
-      triggerType_(triggerType){};
+      triggerType_(std::move(triggerType)){};
 
       MonitorElement * getMEhisto_N() { return N_;}
       MonitorElement * getMEhisto_Pt() { return Pt_;}
@@ -733,11 +734,11 @@ class JetMETHLTOfflineSource : public DQMEDAnalyzer {
       }
 
       void setLabel(std::string labelName){
-	filterName_ = labelName;
+	filterName_ = std::move(labelName);
 	return;
       }
       void setDenomLabel(std::string labelName){
-	DenomfilterName_ = labelName;
+	DenomfilterName_ = std::move(labelName);
 	return;
       }
       const std::string getPath(void ) const {
@@ -769,7 +770,7 @@ class JetMETHLTOfflineSource : public DQMEDAnalyzer {
 	edm::InputTag tagName(DenomfilterName_,"",processName_);
 	return tagName;
       }
-      bool operator==(const std::string v)
+      bool operator==(const std::string& v)
       {
 	return v==pathName_;
       }
@@ -963,7 +964,7 @@ class JetMETHLTOfflineSource : public DQMEDAnalyzer {
   public:
     PathInfoCollection(): std::vector<PathInfo>()
       {};
-      std::vector<PathInfo>::iterator find(std::string pathName) {
+      std::vector<PathInfo>::iterator find(const std::string& pathName) {
         return std::find(begin(), end(), pathName);
       }
   };

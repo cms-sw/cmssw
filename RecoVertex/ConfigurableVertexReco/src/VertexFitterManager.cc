@@ -5,7 +5,7 @@
 using namespace std;
 
 void VertexFitterManager::registerFitter (
-      const string & name, std::function<AbstractConfFitter*()> o, const string & d )
+      const string & name, const std::function<AbstractConfFitter*()>& o, const string & d )
 {
   theAbstractConfFitters[name]=o;
   theDescription[name]=d;

@@ -8,6 +8,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <utility>
 
 //--- temporary for printouts
 // #include<iostream>
@@ -73,7 +74,7 @@ void HcalSimpleRecAlgo::setpuCorrParams(bool   iPedestalConstraint, bool iTimeCo
 void HcalSimpleRecAlgo::setMeth3Params( bool iApplyTimeSlew, float iPedSubThreshold, int iTimeSlewParsType, std::vector<double> iTimeSlewPars, double irespCorrM3) {
 
   pedSubFxn_->init(0, iPedSubThreshold, 0.0);
-  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, iApplyTimeSlew, *pedSubFxn_, iTimeSlewPars,irespCorrM3);
+  hltOOTpuCorr_->init((HcalTimeSlew::ParaSource)iTimeSlewParsType, HcalTimeSlew::Medium, iApplyTimeSlew, *pedSubFxn_, std::move(iTimeSlewPars),irespCorrM3);
 
 }
 
@@ -94,19 +95,19 @@ void HcalSimpleRecAlgo::setLeakCorrection () { setLeakCorrection_ = true;}
 void HcalSimpleRecAlgo::setHBHEPileupCorrection(
      boost::shared_ptr<AbsOOTPileupCorrection> corr)
 {
-    hbhePileupCorr_ = corr;
+    hbhePileupCorr_ = std::move(corr);
 }
 
 void HcalSimpleRecAlgo::setHFPileupCorrection(
      boost::shared_ptr<AbsOOTPileupCorrection> corr)
 {
-    hfPileupCorr_ = corr;
+    hfPileupCorr_ = std::move(corr);
 }
 
 void HcalSimpleRecAlgo::setHOPileupCorrection(
      boost::shared_ptr<AbsOOTPileupCorrection> corr)
 {
-    hoPileupCorr_ = corr;
+    hoPileupCorr_ = std::move(corr);
 }
 
 void HcalSimpleRecAlgo::setBXInfo(const BunchXParameter* info,

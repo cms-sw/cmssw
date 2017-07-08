@@ -1,6 +1,7 @@
 #include <memory>
 #include <string>
 #include <iostream>
+#include <utility>
 #include <TMath.h>
 #include "Validation/RecoTrack/interface/SiStripTrackingRecHitsValid.h"
 
@@ -914,7 +915,7 @@ std::pair < LocalPoint, LocalVector > SiStripTrackingRecHitsValid::projectHit(co
   return std::pair < LocalPoint, LocalVector > (projectedPos, localStripDir);
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const TrackingRecHit *rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, edm::ESHandle<StripClusterParameterEstimator> stripcpe, const MatchStatus matchedmonorstereo){
+void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const TrackingRecHit *rechit, const GluedGeomDet* gluedDet, TrackerHitAssociator&  associate, const edm::ESHandle<StripClusterParameterEstimator>& stripcpe, const MatchStatus matchedmonorstereo){
   
   rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
   rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.; rechitpro.trackangle = -999999.; rechitpro.trackanglebeta = -999999.;
@@ -944,7 +945,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const
   //if (hit && matchedhit) cout<<"manganosimpleandmatchedhit"<<endl;
   const StripTopology & topol = (const StripTopology &) stripdet->topology();
 
-  LocalVector trackdirection = ldir;
+  LocalVector trackdirection = std::move(ldir);
 
   GlobalVector gtrkdir = gluedDet->toGlobal(trackdirection);
   LocalVector monotkdir = monodet->toLocal(gtrkdir);
@@ -1085,7 +1086,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis_matched(LocalVector ldir, const
   }
 }
 //--------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir, const TrackingRecHit *rechit, const StripGeomDetUnit *stripdet,edm::ESHandle<StripClusterParameterEstimator> stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
+void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir, const TrackingRecHit *rechit, const StripGeomDetUnit *stripdet,const edm::ESHandle<StripClusterParameterEstimator>& stripcpe, TrackerHitAssociator& associate,  bool simplehit1or2D){
 
   rechitpro.resx = -999999.; rechitpro.resy = -999999.; rechitpro.resxMF = -999999.; 
   rechitpro.pullx = -999999.; rechitpro.pully = -999999.; rechitpro.pullxMF = -999999.;
@@ -1101,7 +1102,7 @@ void SiStripTrackingRecHitsValid::rechitanalysis(LocalVector ldir, const Trackin
   MeasurementPoint Mposition = topol.measurementPosition(position);
   MeasurementError Merror = topol.measurementError(position,error);
  
-  LocalVector trackdirection = ldir;
+  LocalVector trackdirection = std::move(ldir);
   rechitpro.trackangle = std::atan(trackdirection.x() / trackdirection.z()) * TMath::RadToDeg();
   rechitpro.trackanglebeta = std::atan(trackdirection.y() / trackdirection.z()) * TMath::RadToDeg();
 
@@ -1503,7 +1504,7 @@ void SiStripTrackingRecHitsValid::createSimpleHitsMEs(DQMStore::IBooker & ibooke
          
 }
 //------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std::string label) 
+void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,const std::string& label) 
 {
   SiStripHistoId hidmanager;
   LayerMEs layerMEs; 
@@ -1857,7 +1858,7 @@ void SiStripTrackingRecHitsValid::createLayerMEs(DQMStore::IBooker & ibooker,std
  
 }
 //------------------------------------------------------------------------------------------
-void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,std::string label) 
+void SiStripTrackingRecHitsValid::createStereoAndMatchedMEs(DQMStore::IBooker & ibooker,const std::string& label) 
 {
   SiStripHistoId hidmanager;
   StereoAndMatchedMEs stereoandmatchedMEs; 

@@ -130,7 +130,7 @@ void L1MuGMTPattern::analyze(const edm::Event& e, const edm::EventSetup& es) {
   
 }
 
-void L1MuGMTPattern::printRegional(string tag, const vector<L1MuRegionalCand>& rmc) {
+void L1MuGMTPattern::printRegional(const string& tag, const vector<L1MuRegionalCand>& rmc) {
   ofstream of;
   if(m_outputType==4) {
     of.open((m_outfilename+tag).c_str(), ios::app);
@@ -183,7 +183,7 @@ void L1MuGMTPattern::printRegional(string tag, const vector<L1MuRegionalCand>& r
   }
 }
 
-void L1MuGMTPattern::printGMT(string tag, const vector<L1MuGMTExtendedCand>& exc) {
+void L1MuGMTPattern::printGMT(const string& tag, const vector<L1MuGMTExtendedCand>& exc) {
   ofstream of(m_outfilename.c_str(), ios::app);
   int i=0;
   vector<L1MuGMTExtendedCand>::const_iterator gmt_iter;

@@ -98,30 +98,30 @@ class MonitorEnsemble {
       const;
 
   /// set labels for event logging histograms
-  void loggerBinLabels(std::string hist);
+  void loggerBinLabels(const std::string& hist);
   /// set configurable labels for trigger monitoring histograms
-  void triggerBinLabels(std::string channel,
-                        const std::vector<std::string> labels);
+  void triggerBinLabels(const std::string& channel,
+                        const std::vector<std::string>& labels);
   /// fill trigger monitoring histograms
   void fill(const edm::Event& event, const edm::TriggerResults& triggerTable,
-            std::string channel, const std::vector<std::string> labels) const;
+            const std::string& channel, const std::vector<std::string>& labels) const;
 
   /// check if histogram was booked
-  bool booked(const std::string histName) const {
+  bool booked(const std::string& histName) const {
     return hists_.find(histName.c_str()) != hists_.end();
   };
   /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const {
+  void fill(const std::string& histName, double value) const {
     if (booked(histName.c_str()))
       hists_.find(histName.c_str())->second->Fill(value);
   };
   /// fill histogram if it had been booked before (2-dim version)
-  void fill(const std::string histName, double xValue, double yValue) const {
+  void fill(const std::string& histName, double xValue, double yValue) const {
     if (booked(histName.c_str()))
       hists_.find(histName.c_str())->second->Fill(xValue, yValue);
   };
   /// fill histogram if it had been booked before (2-dim version)
-  void fill(const std::string histName, double xValue, double yValue,
+  void fill(const std::string& histName, double xValue, double yValue,
             double zValue) const {
     if (booked(histName.c_str()))
       hists_.find(histName.c_str())->second->Fill(xValue, yValue, zValue);
@@ -196,7 +196,7 @@ class MonitorEnsemble {
   std::string directory_;
 };
 
-inline void MonitorEnsemble::loggerBinLabels(std::string hist) {
+inline void MonitorEnsemble::loggerBinLabels(const std::string& hist) {
   // set axes titles for selected events
   hists_[hist.c_str()]->getTH1()->SetOption("TEXT");
   hists_[hist.c_str()]->setBinLabel(1, "Run", 1);
@@ -222,7 +222,7 @@ inline void MonitorEnsemble::loggerBinLabels(std::string hist) {
 }
 
 inline void MonitorEnsemble::triggerBinLabels(
-    std::string channel, const std::vector<std::string> labels) {
+    const std::string& channel, const std::vector<std::string>& labels) {
   for (unsigned int idx = 0; idx < labels.size(); ++idx) {
     hists_[(channel + "Mon_").c_str()]
         ->setBinLabel(idx + 1, "[" + monitorPath(labels[idx]) + "]", 1);
@@ -235,8 +235,8 @@ inline void MonitorEnsemble::triggerBinLabels(
 
 inline void MonitorEnsemble::fill(const edm::Event& event,
                                   const edm::TriggerResults& triggerTable,
-                                  std::string channel,
-                                  const std::vector<std::string> labels) const {
+                                  const std::string& channel,
+                                  const std::vector<std::string>& labels) const {
   for (unsigned int idx = 0; idx < labels.size(); ++idx) {
     if (accept(event, triggerTable, monitorPath(labels[idx]))) {
       fill((channel + "Mon_").c_str(), idx + 0.5);

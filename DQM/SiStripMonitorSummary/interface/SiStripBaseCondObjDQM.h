@@ -58,7 +58,7 @@ class SiStripBaseCondObjDQM {
     void analysisOnDemand(const edm::EventSetup & eSetup_, uint32_t detIdOnDemand);
     void analysisOnDemand(const edm::EventSetup & eSetup_, const std::vector<uint32_t>& detIdsOnDemand);
     void analysisOnDemand(const edm::EventSetup & eSetup_,
-                        std::string requestedSubDetector, 
+                        const std::string& requestedSubDetector, 
                         uint32_t requestedSide, 
 			uint32_t requestedLayer);
   

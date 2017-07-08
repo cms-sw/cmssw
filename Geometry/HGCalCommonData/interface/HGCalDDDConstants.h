@@ -24,7 +24,7 @@ class HGCalDDDConstants {
 
 public:
 
-  HGCalDDDConstants(const HGCalParameters* hp, const std::string name);
+  HGCalDDDConstants(const HGCalParameters* hp, const std::string& name);
   ~HGCalDDDConstants();
 
   std::pair<int,int>  assignCell(float x, float y, int lay, int subSec,

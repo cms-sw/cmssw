@@ -143,7 +143,7 @@ MVAComputer::~MVAComputer()
 {
 }
 
-int MVAComputer::getVariableId(AtomicId name) const
+int MVAComputer::getVariableId(const AtomicId& name) const
 {
 
 	std::vector<InputVar>::const_iterator pos = std::lower_bound(inputVariables.begin(), inputVariables.end(), name);

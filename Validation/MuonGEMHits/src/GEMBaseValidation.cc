@@ -88,7 +88,7 @@ string GEMBaseValidation::getStationLabel(int i) {
 GEMBaseValidation::~GEMBaseValidation() {
 }
 
-MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TString title, TString histname) {
+MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, const TString& title, TString histname) {
     std::vector<double> xbins_vector;
     double station1_xmin = RangeZR_[ 0 ];
     double station1_xmax = RangeZR_[ 1 ];
@@ -104,7 +104,7 @@ MonitorElement* GEMBaseValidation::getSimpleZR(DQMStore::IBooker& ibooker, TStri
     return simpleZR;
 }
 
-MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker, const GEMStation* station, TString title, TString histname ) {
+MonitorElement* GEMBaseValidation::getDCEta(DQMStore::IBooker& ibooker, const GEMStation* station, const TString& title, TString histname ) {
   if( station->rings()[0]->superChambers().size() ==0) {
     LogDebug("MuonBaseValidation")<<"+++ Error! can not get superChambers. Skip "<<getSuffixTitle(station->region(), station->station())<<" on "<<histname<<"\n";
     return nullptr;

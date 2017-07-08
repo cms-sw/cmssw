@@ -10,7 +10,7 @@ namespace cond {
 
     BasePayloadProxy::~BasePayloadProxy(){}
 
-    void BasePayloadProxy::setUp( Session dbSession ){
+    void BasePayloadProxy::setUp( const Session& dbSession ){
       m_session = dbSession;
       invalidateCache();    
     }

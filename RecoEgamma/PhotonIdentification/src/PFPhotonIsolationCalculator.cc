@@ -87,7 +87,7 @@ PFPhotonIsolationCalculator::~PFPhotonIsolationCalculator()
 
 
 void PFPhotonIsolationCalculator::calculate(const reco::Photon* aPho, 
-					    const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
+					    const edm::Handle<reco::PFCandidateCollection>& pfCandidateHandle,
 					    //					    reco::VertexRef vtx,
 					    edm::Handle< reco::VertexCollection >& vertices,
 					    const edm::Event& e , const edm::EventSetup& es,
@@ -136,7 +136,7 @@ void PFPhotonIsolationCalculator::initializeRings(int iNumberOfRings, float fRin
 
 
 //--------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle ,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, const  edm::Handle<reco::PFCandidateCollection>& pfCandidateHandle ,const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
  
   fGetIsolationInRings( photon, pfCandidateHandle, vtx, vertices);
   fIsolation_ = fIsolationInRings_[0];
@@ -146,7 +146,7 @@ float PFPhotonIsolationCalculator::fGetIsolation(const reco::Photon * photon, co
 
 
 //--------------------------------------------------------------------------------------------------
-std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Photon * photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle, reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float > PFPhotonIsolationCalculator::fGetIsolationInRings(const reco::Photon * photon, const  edm::Handle<reco::PFCandidateCollection>& pfCandidateHandle, const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
 
 
   int isoBin;
@@ -303,7 +303,7 @@ float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandida
 
 
 //--------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandidateRef pfIsoCand ){
+float PFPhotonIsolationCalculator::isPhotonParticleVetoed( const reco::PFCandidateRef& pfIsoCand ){
   
   
   float fDeltaR = deltaR(fEta_,fPhi_,pfIsoCand->eta(),pfIsoCand->phi());
@@ -412,7 +412,7 @@ float PFPhotonIsolationCalculator::isNeutralParticleVetoed( const reco::PFCandid
 
 
 //--------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::isNeutralParticleVetoed( const reco::PFCandidateRef pfIsoCand ){
+float PFPhotonIsolationCalculator::isNeutralParticleVetoed( const reco::PFCandidateRef& pfIsoCand ){
 
   float fDeltaR = deltaR(fEta_,fPhi_,pfIsoCand->eta(),pfIsoCand->phi());
   
@@ -464,14 +464,14 @@ float PFPhotonIsolationCalculator::isNeutralParticleVetoed( const reco::PFCandid
 
 
 //----------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand, edm::Handle< reco::VertexCollection > vertices ){
+float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand, const edm::Handle< reco::VertexCollection >& vertices ){
   //need code to handle special conditions
   
   return -999;
 }
 
 //-----------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,reco::VertexRef vtxMain, edm::Handle< reco::VertexCollection > vertices ){
+float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,const reco::VertexRef& vtxMain, const edm::Handle< reco::VertexCollection >& vertices ){
   
   reco::VertexRef vtx = chargedHadronVertex(vertices, *pfIsoCand );
   if(vtx.isNull())
@@ -576,7 +576,7 @@ if(fabs(dxy) > 0.2)
 
 
 //-----------------------------------------------------------------------------------------------------
-float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidateRef pfIsoCand,reco::VertexRef vtxMain, edm::Handle< reco::VertexCollection > vertices ){
+float PFPhotonIsolationCalculator::isChargedParticleVetoed(const reco::PFCandidateRef& pfIsoCand,const reco::VertexRef& vtxMain, const edm::Handle< reco::VertexCollection >& vertices ){
   
   reco::VertexRef vtx = chargedHadronVertex(vertices, *pfIsoCand );
   if(vtx.isNull())
@@ -682,7 +682,7 @@ if(fabs(dxy) > 0.2)
 
 
 //--------------------------------------------------------------------------------------------------
-reco::VertexRef PFPhotonIsolationCalculator::chargedHadronVertex( edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
+reco::VertexRef PFPhotonIsolationCalculator::chargedHadronVertex( const edm::Handle< reco::VertexCollection >& verticesColl, const reco::PFCandidate& pfcand ){
 
   //code copied from Florian's PFNoPU class (corrected removing the double loop....)
     

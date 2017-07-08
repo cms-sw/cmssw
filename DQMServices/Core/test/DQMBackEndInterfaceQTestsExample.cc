@@ -90,7 +90,7 @@ private:
   // run quality tests; expected_status: test status that is expected
   // (see Core/interface/QTestStatus.h)
   // test_type: info message on what kind of tests are run
-  void runTests(int expected_status, string test_type);
+  void runTests(int expected_status, const string& test_type);
   // called by runTests; return status
   int checkTest(QCriterion *qc);
   // show channels that failed test
@@ -265,7 +265,7 @@ void DQMStoreQTestsExample::endJob(void)
 // (see Core/interface/QTestStatus.h)
 // test_type: info message on what kind of tests are run
 void DQMStoreQTestsExample::runTests(int expected_status, 
-					    string test_type)
+					    const string& test_type)
 {
   cout << " ========================================================== " << endl;
   cout << " Results of attempt to run " << test_type << ", expected status " << expected_status << endl;

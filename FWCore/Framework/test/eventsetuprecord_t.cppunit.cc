@@ -6,6 +6,8 @@
  *  Changed by Viji on 06/07/2005
  */
 
+#include <utility>
+
 #include "cppunit/extensions/HelperMacros.h"
 
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -148,7 +150,7 @@ class WorkingDummyProvider : public edm::eventsetup::DataProxyProvider {
 public:
   WorkingDummyProvider( const edm::eventsetup::DataKey& iKey, std::shared_ptr<WorkingDummyProxy> iProxy) :
   m_key(iKey),
-  m_proxy(iProxy) {
+  m_proxy(std::move(iProxy)) {
     usingRecord<DummyRecord>();
   }
   

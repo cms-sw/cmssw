@@ -85,7 +85,7 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
 //=====================================
 // -----
 void SiStripBaseCondObjDQM::analysisOnDemand(const edm::EventSetup & eSetup_, 
-                                            std::string requestedSubDetector, 
+                                            const std::string& requestedSubDetector, 
                                             uint32_t requestedSide, 
 					    uint32_t requestedLayer){
   

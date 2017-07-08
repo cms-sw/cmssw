@@ -20,6 +20,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "formulaEvaluatorBase.h"
@@ -34,8 +35,8 @@ namespace reco {
                                  std::shared_ptr<EvaluatorBase> iRHS,
                                  Precedence iPrec) :
       EvaluatorBase(iPrec),
-        m_lhs(iLHS),
-        m_rhs(iRHS) {}
+        m_lhs(std::move(iLHS)),
+        m_rhs(std::move(iRHS)) {}
 
     BinaryOperatorEvaluatorBase(Precedence iPrec) :
       EvaluatorBase(iPrec) {}

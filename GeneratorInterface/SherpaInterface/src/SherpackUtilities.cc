@@ -151,7 +151,7 @@ void zerr(int ret)
 }
 
 /* compress or decompress from stdin to stdout */
-int Unzip(std::string infile, std::string outfile)
+int Unzip(const std::string& infile, const std::string& outfile)
 {
     int ret;
 	FILE *in = fopen(infile.c_str(),"r");
@@ -478,7 +478,7 @@ void Untar(FILE *a, const char *path) {
 
 
 // function for calculating the MD5 checksum of a file
-void md5_File(std::string filename, char* result ) {
+void md5_File(const std::string& filename, char* result ) {
 	  char buffer[4096];
 	  MD5_CTX md5;		 
 	  MD5_Init(&md5);

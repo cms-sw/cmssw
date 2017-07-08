@@ -44,7 +44,7 @@ public:
   bool outerMomentumFromMode (const reco::GsfTrack& tk,GlobalVector& momentum) const;
 
   /** Extrapolation to a point using the TransverseImpactPointExtrapolator */
-  TrajectoryStateOnSurface extrapolatedState (const TrajectoryStateOnSurface tsos,
+  TrajectoryStateOnSurface extrapolatedState (const TrajectoryStateOnSurface& tsos,
 					      const GlobalPoint& point) const;
 
   /** TrajectoryStateOnSurface from the innermost state of a reco::GsfTrack 

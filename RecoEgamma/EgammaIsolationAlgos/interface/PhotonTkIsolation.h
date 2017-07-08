@@ -11,6 +11,7 @@
 
 //C++ includes
 #include <string>
+#include <utility>
 #
 //CMSSW includes
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -42,7 +43,7 @@ class PhotonTkIsolation {
     lip_(lip),
     drb_(drb),
     trackCollection_(trackCollection),
-    beamPoint_(beamPoint) {
+    beamPoint_(std::move(beamPoint)) {
     
     setDzOption("vz");
 
@@ -65,7 +66,7 @@ class PhotonTkIsolation {
     lip_(lip),
     drb_(drb),
     trackCollection_(trackCollection),
-    beamPoint_(beamPoint) {
+    beamPoint_(std::move(beamPoint)) {
     
     setDzOption("vz");
     
@@ -91,7 +92,7 @@ class PhotonTkIsolation {
     lip_(lip),
     drb_(drb),
     trackCollection_(trackCollection),
-    beamPoint_(beamPoint) {
+    beamPoint_(std::move(beamPoint)) {
     
     setDzOption("vz");
     

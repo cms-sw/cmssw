@@ -4,6 +4,8 @@
 // Original Author:  G. Bruno
 //         Created:  Mon May 20 10:04:31 CET 2007
 
+#include <utility>
+
 #include "CalibTracker/SiStripCommon/interface/SiStripDetInfoFileReader.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -29,10 +31,10 @@ SiStripDetInfoFileReader::SiStripDetInfoFileReader(const SiStripDetInfoFileReade
 }
 
 SiStripDetInfoFileReader::SiStripDetInfoFileReader(std::string filePath) {
-  reader(filePath);
+  reader(std::move(filePath));
 }
 
-void SiStripDetInfoFileReader::reader(std::string filePath) {
+void SiStripDetInfoFileReader::reader(const std::string& filePath) {
 
 //   if(filePath==std::string("")){
 //     filePath = edm::FileInPath(std::string("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat") ).fullPath();

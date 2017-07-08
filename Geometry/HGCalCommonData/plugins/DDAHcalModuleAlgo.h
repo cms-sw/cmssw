@@ -24,7 +24,7 @@ public:
 
 protected:
 
-  void          constructLayers (DDLogicalPart, DDCompactView& cpv);
+  void          constructLayers (const DDLogicalPart&, DDCompactView& cpv);
   void          positionSensitive(DDLogicalPart& glog, DDCompactView& cpv);
 
 private:

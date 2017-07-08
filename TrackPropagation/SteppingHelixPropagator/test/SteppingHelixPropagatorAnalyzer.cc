@@ -119,7 +119,7 @@ protected:
 		  int& charge, AlgebraicSymMatrix66& cov);
 
   void addPSimHits(const edm::Event& iEvent,
-		   const std::string instanceName, 
+		   const std::string& instanceName, 
 		   const edm::ESHandle<GlobalTrackingGeometry>& geom,
 		   std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const;
 
@@ -524,7 +524,7 @@ void SteppingHelixPropagatorAnalyzer::getFromFTS(const FreeTrajectoryState& fts,
 
 void SteppingHelixPropagatorAnalyzer
 ::addPSimHits(const edm::Event& iEvent,
-	      const std::string instanceName, 
+	      const std::string& instanceName, 
 	      const edm::ESHandle<GlobalTrackingGeometry>& geom,
 	      std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const {
   static std::string metname = "SteppingHelixPropagatorAnalyzer";

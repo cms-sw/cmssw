@@ -153,9 +153,9 @@ void CSCSegmentReader::analyze(const edm::Event& event, const edm::EventSetup& e
 }
 
 
-void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits, 
-                               const edm::Handle<CSCRecHit2DCollection> recHits, 
-                               const edm::Handle<CSCSegmentCollection> cscSegments,
+void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer>& simHits, 
+                               const edm::Handle<CSCRecHit2DCollection>& recHits, 
+                               const edm::Handle<CSCSegmentCollection>& cscSegments,
                                const CSCGeometry* geom) {
     
   hsegment->Fill(cscSegments->end() - cscSegments->begin());
@@ -298,7 +298,7 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 }
 
 
-void CSCSegmentReader::simInfo(const edm::Handle<edm::SimTrackContainer> simTracks) {
+void CSCSegmentReader::simInfo(const edm::Handle<edm::SimTrackContainer>& simTracks) {
 
   for (edm::SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
         
@@ -310,9 +310,9 @@ void CSCSegmentReader::simInfo(const edm::Handle<edm::SimTrackContainer> simTrac
 }
   
   
-void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHits, 
-                                  const edm::Handle<CSCRecHit2DCollection> recHits, 
-                                  const edm::Handle<CSCSegmentCollection> cscSegments, 
+void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer>& simHits, 
+                                  const edm::Handle<CSCRecHit2DCollection>& recHits, 
+                                  const edm::Handle<CSCSegmentCollection>& cscSegments, 
                                   const CSCGeometry* geom) {
  
   int idx = -1;
@@ -504,8 +504,8 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
 
 
 int CSCSegmentReader::bestMatch( CSCDetId id0,
-                                 const edm::Handle<edm::PSimHitContainer> simHits,
-                                 const edm::Handle<CSCSegmentCollection> cscSegments,
+                                 const edm::Handle<edm::PSimHitContainer>& simHits,
+                                 const edm::Handle<CSCSegmentCollection>& cscSegments,
                                  const CSCGeometry* geom) {
 
   int bestIndex  = -1;

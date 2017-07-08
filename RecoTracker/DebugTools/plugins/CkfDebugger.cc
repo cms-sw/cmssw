@@ -508,7 +508,7 @@ bool CkfDebugger::correctTrajectory( const Trajectory& traj,unsigned int& trajId
   return true;
 }
 
-int CkfDebugger::assocTrackId(CTTRHp rechit) const
+int CkfDebugger::assocTrackId(const CTTRHp& rechit) const
 {
   LogTrace("CkfDebugger") << "now in assocTrackId" ;
 
@@ -611,7 +611,7 @@ bool CkfDebugger::goodSimHit(const PSimHit& sh) const
 }
 
 
-bool CkfDebugger::associated(CTTRHp rechit, const PSimHit& pSimHit) const
+bool CkfDebugger::associated(const CTTRHp& rechit, const PSimHit& pSimHit) const
 {
   LogTrace("CkfDebugger") << "now in associated" ;
 
@@ -901,7 +901,7 @@ const PSimHit* CkfDebugger::pSimHit(unsigned int tkId, DetId detId)
   return 0;
 }
 
-int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, CTTRHp correctRecHit)
+int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, const CTTRHp& correctRecHit)
 {
   unsigned int correctDetId = correctRecHit->det()->geographicalId().rawId();
   int correctLayId = layer(correctRecHit->det());
@@ -986,7 +986,7 @@ int CkfDebugger::analyseRecHitNotFound(const Trajectory& traj, CTTRHp correctRec
 
 }
 
-double CkfDebugger::testSeed(CTTRHp recHit1, CTTRHp recHit2, TSOS state){
+double CkfDebugger::testSeed(const CTTRHp& recHit1, const CTTRHp& recHit2, const TSOS& state){
   //edm::LogVerbatim("CkfDebugger") << "CkfDebugger::testSeed";
   //test Deltas
   const std::vector<PSimHit>& pSimHitVec1 = hitAssociator->associateHit(*recHit1->hit());

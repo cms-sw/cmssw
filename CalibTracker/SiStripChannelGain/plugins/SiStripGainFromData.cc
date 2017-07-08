@@ -95,7 +95,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       DQMStore* dqmStore_infile;
 
       double              ComputeChargeOverPath(const SiStripCluster*   Cluster,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup, const Track* track, double trajChi2OverN);
-      bool                IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup);
+      bool                IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const uint32_t detid, const edm::EventSetup* iSetup);
 
       void                getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=0, double HighRange=5400);
 
@@ -1190,7 +1190,7 @@ SiStripGainFromData::ComputeChargeOverPath(const SiStripCluster*   Cluster ,Traj
    return ClusterChargeOverPath;
 }
 
-bool SiStripGainFromData::IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup)
+bool SiStripGainFromData::IsFarFromBorder(const TrajectoryStateOnSurface& trajState, const uint32_t detid, const edm::EventSetup* iSetup)
 { 
   edm::ESHandle<TrackerGeometry> tkGeom; iSetup->get<TrackerDigiGeometryRecord>().get( tkGeom );
 

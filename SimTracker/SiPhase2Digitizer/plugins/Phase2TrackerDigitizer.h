@@ -79,7 +79,7 @@ namespace cms
     };
     AlgorithmType getAlgoType(unsigned int idet); 
 
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >, 
+    void accumulatePixelHits(const edm::Handle<std::vector<PSimHit> >&, 
 			     size_t globalSimHitIndex,
 			     const unsigned int tofBin);   
     void addPixelCollection(edm::Event& iEvent, const edm::EventSetup& iSetup, const bool ot_analog);

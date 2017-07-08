@@ -9,6 +9,7 @@
 #include "DataFormats/GeometryVector/interface/Pi.h"
 
 #include <algorithm>
+#include <utility>
 
 namespace {
   template <typename T>
@@ -572,7 +573,7 @@ void QuadrupletSeedMerger::printNtuplet( const SeedingHitSet& aNtuplet ) const {
 ///
 void QuadrupletSeedMerger::setTTRHBuilderLabel( std::string label ) {
 
-  theTTRHBuilderLabel_ = label;
+  theTTRHBuilderLabel_ = std::move(label);
   
 }
 

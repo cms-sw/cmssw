@@ -39,7 +39,7 @@ void setStyle ()
 // -----------------------------------------------------------------
 
 
-TCanvas * getGlobalCanvas (std::string name) 
+TCanvas * getGlobalCanvas (const std::string& name) 
 {
   setStyle () ;
   TCanvas * globalCanvas = static_cast<TCanvas*> 
@@ -61,7 +61,7 @@ TCanvas * getGlobalCanvas (std::string name)
 // -----------------------------------------------------------------
 
 
-TFile * getGlobalTFile (std::string name) 
+TFile * getGlobalTFile (const std::string& name) 
 {
 //    std::cout << "writing " << name << std::endl ;
 //    setStyle () ;
@@ -79,7 +79,7 @@ TFile * getGlobalTFile (std::string name)
 // -----------------------------------------------------------------
 
 
-int saveGlobalTFile (std::string name) 
+int saveGlobalTFile (const std::string& name) 
 {
   TFile * globalTFile = static_cast<TFile*> 
                          (gROOT->FindObject (name.c_str ())) ;
@@ -341,7 +341,7 @@ int extract (std::vector<int> * output , const std::string & dati)
 int writeCalibTxt (const CLHEP::HepMatrix & AmplitudeMatrix,
                    const CLHEP::HepMatrix & SigmaMatrix,
                    const CLHEP::HepMatrix & StatisticMatrix,
-                   std::string fileName)
+                   const std::string& fileName)
 {
   // look for the reference crystal
   double reference = 0. ;
@@ -397,11 +397,11 @@ int writeCMSSWCoeff (const CLHEP::HepMatrix & amplMatrix,
                      float ERef,
                      const CLHEP::HepMatrix & sigmaMatrix,
                      const CLHEP::HepMatrix & statisticMatrix,
-                     std::string fileName,
-                     std::string genTag,
-                     std::string method,
-                     std::string version,
-                     std::string type) 
+                     const std::string& fileName,
+                     const std::string& genTag,
+                     const std::string& method,
+                     const std::string& version,
+                     const std::string& type) 
 {
   // open the file for output
   std::ofstream txt_outfile ;
@@ -447,11 +447,11 @@ int writeCMSSWCoeff (const CLHEP::HepMatrix & amplMatrix,
                      int etaRef, int phiRef,
                      const CLHEP::HepMatrix & sigmaMatrix,
                      const CLHEP::HepMatrix & statisticMatrix,
-                     std::string fileName,
-                     std::string genTag,
-                     std::string method,
-                     std::string version,
-                     std::string type) 
+                     const std::string& fileName,
+                     const std::string& genTag,
+                     const std::string& method,
+                     const std::string& version,
+                     const std::string& type) 
 {
   // open the file for output
     std::ofstream txt_outfile ;
@@ -502,13 +502,13 @@ int writeCMSSWCoeff (const CLHEP::HepMatrix & amplMatrix,
 int translateCoeff (const CLHEP::HepMatrix & calibcoeff,
                     const CLHEP::HepMatrix & sigmaMatrix,
                     const CLHEP::HepMatrix & statisticMatrix,
-                    std::string SMnumber,
+                    const std::string& SMnumber,
                     double calibThres,
-                    std::string fileName,
-                    std::string genTag,
-                    std::string method,
-                    std::string version,
-                    std::string type) 
+                    const std::string& fileName,
+                    const std::string& genTag,
+                    const std::string& method,
+                    const std::string& version,
+                    const std::string& type) 
 {
     // open the file for output
     std::ofstream txt_outfile ;

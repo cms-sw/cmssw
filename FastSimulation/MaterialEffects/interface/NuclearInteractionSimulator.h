@@ -44,7 +44,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 			      std::vector<double>& lengthRatio,
 			      std::vector< std::vector<double> >& ratios,
 			      std::map<int,int >& idMap,
-			      std::string inputFile,
+			      const std::string& inputFile,
 			      unsigned int distAlgo,
 			      double distCut);
 
@@ -55,7 +55,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   void save();
 
   /// Read former nuclear interaction (from previous run)
-  bool read(std::string inputFile);
+  bool read(const std::string& inputFile);
 
  private:
 

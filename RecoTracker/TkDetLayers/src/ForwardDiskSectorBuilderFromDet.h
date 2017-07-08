@@ -27,7 +27,7 @@ public:
 private:
 
   Surface::RotationType
-  computeRotation( const std::vector<const GeomDet*>& dets, Surface::PositionType pos) const;
+  computeRotation( const std::vector<const GeomDet*>& dets, const Surface::PositionType& pos) const;
 
   std::vector<GlobalPoint> 
   computeTrapezoidalCorners( const GeomDet* detu) const;

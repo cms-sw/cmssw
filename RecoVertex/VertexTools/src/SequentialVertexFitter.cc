@@ -256,7 +256,7 @@ SequentialVertexFitter<N>::reLinearizeTracks(
 template <unsigned int N>
 CachingVertex<N> 
 SequentialVertexFitter<N>::fit(const std::vector<RefCountedVertexTrack> & tracks,
-  			    const VertexState priorVertex, bool withPrior ) const
+  			    const VertexState& priorVertex, bool withPrior ) const
 {
   std::vector<RefCountedVertexTrack> initialTracks;
   GlobalPoint priorVertexPosition = priorVertex.position();

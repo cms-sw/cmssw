@@ -95,7 +95,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack (const TrajectoryFitter * theFit
 						 const TrajectorySeed& seed,
 						 float ndof,
 						 const reco::BeamSpot& bs,
-						 SeedRef seedRef,
+						 const SeedRef& seedRef,
 						 int qualityMask,signed char nLoops)
 {
   //variable declarations
@@ -247,7 +247,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack (const TrajectoryFitter * the
 						    const TrajectorySeed& seed,
 						    float ndof,
 						    const reco::BeamSpot& bs,
-						    SeedRef seedRef,
+						    const SeedRef& seedRef,
 						    int qualityMask,signed char nLoops)
 {
 

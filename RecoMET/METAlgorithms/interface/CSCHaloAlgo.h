@@ -93,7 +93,7 @@ class CSCHaloAlgo {
   CSCHaloAlgo();
   ~CSCHaloAlgo(){}
   reco::CSCHaloData Calculate(const CSCGeometry& TheCSCGeometry,edm::Handle<reco::MuonCollection>& TheCosmicMuons, 
-			      const edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
+			      const edm::Handle<reco::MuonTimeExtraMap>& TheCSCTimeMap,
 			      edm::Handle<reco::MuonCollection>& TheMuons, edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
 			      edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,edm::Handle < L1MuGMTReadoutCollection >& TheL1GMTReadout,
 			      edm::Handle<HBHERecHitCollection>& hbhehits,edm::Handle<EcalRecHitCollection>& ecalebhits,
@@ -155,7 +155,7 @@ class CSCHaloAlgo {
   
   
   const CaloGeometry *geo;
-  math::XYZPoint getPosition(const DetId &id, reco::Vertex::Point vtx);
+  math::XYZPoint getPosition(const DetId &id, const reco::Vertex::Point& vtx);
   bool HCALSegmentMatching(edm::Handle<HBHERecHitCollection>& rechitcoll, float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi);
   bool ECALSegmentMatching(edm::Handle<EcalRecHitCollection>& rechitcoll,  float et_thresh_rh, float dphi_thresh_segvsrh, float dr_lowthresh_segvsrh, float dr_highthresh_segvsrh, float dt_lowthresh_segvsrh, float dt_highthresh_segvsrh, float iZ, float iR, float iT, float iPhi );
 

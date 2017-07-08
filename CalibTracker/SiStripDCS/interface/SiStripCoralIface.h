@@ -23,7 +23,7 @@ class SiStripCoralIface
   /** destructor*/
   ~SiStripCoralIface();
   /** Method to retrieve information from status change table or lastValue table.  queryType defines which table is to be accessed.*/
-  void doQuery(std::string queryType, const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp>&, std::vector<float>&, std::vector<std::string>& );
+  void doQuery(const std::string& queryType, const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp>&, std::vector<float>&, std::vector<std::string>& );
   /** Method to access the settings for each channel stored in the status change table*/
   void doSettingsQuery(const coral::TimeStamp& startTime,const coral::TimeStamp& endTime,std::vector<coral::TimeStamp>&,std::vector<float>&,std::vector<std::string>&,std::vector<uint32_t>&);
   //

@@ -308,7 +308,7 @@ void EcalPedHists::initHists(int FED)
 }
 
 
-void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis)
+void EcalPedHists::readEBdigis(const edm::Handle<EBDigiCollection>& digis)
 {
   using namespace std;
   using namespace edm;
@@ -366,7 +366,7 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis)
 }
 
 
-void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis)
+void EcalPedHists::readEEdigis(const edm::Handle<EEDigiCollection>& digis)
 {
   using namespace std;
   using namespace edm;

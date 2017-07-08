@@ -41,11 +41,11 @@ public:
 
 private:
 
-  bool checkResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
+  bool checkResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag);
 
-  bool checkJets   (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
-  bool checkEtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
-  bool checkHtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag);
+  bool checkJets   (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag);
+  bool checkEtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag);
+  bool checkHtSums (const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag);
 
 };
 

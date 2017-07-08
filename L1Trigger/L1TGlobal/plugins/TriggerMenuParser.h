@@ -312,7 +312,7 @@ private:
     bool insertAlgorithmIntoMap(const GlobalAlgorithm& alg);
 
     template <typename T> std::string l1t2string( T );
-    int l1tstr2int( const std::string data );
+    int l1tstr2int( const std::string& data );
 
 
     /// parse scales
@@ -325,7 +325,7 @@ private:
 /*     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node, */
 /*             const std::string& name, unsigned int chipNr = 0, */
 /*             const bool corrFlag = false); */
-    bool parseMuon( tmeventsetup::esCondition condMu,
+    bool parseMuon( const tmeventsetup::esCondition& condMu,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
     bool parseMuonCorr(const tmeventsetup::esObject* condMu,
@@ -336,7 +336,7 @@ private:
 /*     bool parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node, */
 /*             const std::string& name, unsigned int chipNr = 0, */
 /*             const bool corrFlag = false); */
-    bool parseCalo( tmeventsetup::esCondition condCalo,
+    bool parseCalo( const tmeventsetup::esCondition& condCalo,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
     bool parseCaloCorr(const tmeventsetup::esObject* corrCalo,
@@ -347,7 +347,7 @@ private:
     /*         const std::string& name, unsigned int chipNr = 0, */
     /*         const bool corrFlag = false); */
 
-    bool parseEnergySum( tmeventsetup::esCondition condEnergySums,
+    bool parseEnergySum( const tmeventsetup::esCondition& condEnergySums,
             unsigned int chipNr = 0, const bool corrFlag = false);
 
 
@@ -355,12 +355,12 @@ private:
             unsigned int chipNr = 0);
 
 
-      bool parseExternal(tmeventsetup::esCondition condExt,
+      bool parseExternal(const tmeventsetup::esCondition& condExt,
         unsigned int chipNr = 0);
 
 
     /// parse a correlation condition
-    bool parseCorrelation(tmeventsetup::esCondition corrCond, unsigned int chipNr = 0);
+    bool parseCorrelation(const tmeventsetup::esCondition& corrCond, unsigned int chipNr = 0);
 
     /// parse a correlation condition with overlap removal
     bool parseCorrelationWithOverlapRemoval(const tmeventsetup::esCondition& corrCond, unsigned int chipNr = 0);
@@ -368,25 +368,25 @@ private:
 
     /// parse all algorithms
     //bool parseAlgorithms(XERCES_CPP_NAMESPACE::XercesDOMParser* parser);
-    bool parseAlgorithm( tmeventsetup::esAlgorithm algorithm,
+    bool parseAlgorithm( const tmeventsetup::esAlgorithm& algorithm,
             unsigned int chipNr = 0 );
 
     // Parse LUT for Cal Mu Eta
     void parseCalMuEta_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-                std::string obj1, std::string obj2);
+                const std::string& obj1, const std::string& obj2);
 
 
     // Parse LUT for Cal Mu Phi
     void parseCalMuPhi_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-                std::string obj1, std::string obj2);
+                const std::string& obj1, const std::string& obj2);
 
     // Parse LUT for Pt LUT in Mass calculation
     void parsePt_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-                std::string lutpfx, std::string obj1, unsigned int prec);
+                const std::string& lutpfx, std::string obj1, unsigned int prec);
 
     // Parse LUT for Delta Eta and Cosh
     void parseDeltaEta_Cosh_LUTS(std::map<std::string, tmeventsetup::esScale> scaleMap,
-            std::string obj1, std::string obj2,
+            const std::string& obj1, const std::string& obj2,
 	    unsigned int prec1, unsigned int prec2) ;
 
     // Parse LUT for Delta Eta and Cosh

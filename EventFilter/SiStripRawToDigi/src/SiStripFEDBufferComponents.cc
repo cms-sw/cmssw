@@ -575,7 +575,7 @@ namespace sistrip {
     printFlagsForBuffer(feFPGABufferState(),"FE",os);
   }
   
-  void FEDBackendStatusRegister::printFlagsForBuffer(const FEDBufferState bufferState, const std::string name, std::ostream& os) const
+  void FEDBackendStatusRegister::printFlagsForBuffer(const FEDBufferState bufferState, const std::string& name, std::ostream& os) const
   {
     if (bufferState&BUFFER_STATE_EMPTY) os << name << "_EMPTY ";
     if (bufferState&BUFFER_STATE_PARTIAL_FULL) os << name << "_PARTIAL_FULL ";

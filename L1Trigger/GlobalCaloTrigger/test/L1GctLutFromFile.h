@@ -14,7 +14,7 @@ class L1GctLutFromFile : public L1GctLut<NAddressBits, NDataBits>
   static L1GctLutFromFile<NAddressBits, NDataBits>* setupLut(const std::string filename);
   virtual ~L1GctLutFromFile<NAddressBits, NDataBits>();
 
-  void readFromFile(const std::string filename);
+  void readFromFile(const std::string& filename);
   
  protected:
   
@@ -50,7 +50,7 @@ L1GctLutFromFile<NAddressBits, NDataBits>::~L1GctLutFromFile<NAddressBits, NData
 }
 
 template <int NAddressBits, int NDataBits>
-void L1GctLutFromFile<NAddressBits, NDataBits>::readFromFile(const std::string filename)
+void L1GctLutFromFile<NAddressBits, NDataBits>::readFromFile(const std::string& filename)
 {
   static const unsigned maxAddress=L1GctLut<NAddressBits, NDataBits>::MAX_ADDRESS_BITMASK;
   static const unsigned rowLength=16;

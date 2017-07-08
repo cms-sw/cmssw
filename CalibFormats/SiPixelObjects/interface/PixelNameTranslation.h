@@ -43,7 +43,7 @@ namespace pos{
   public:
  
     PixelNameTranslation(std::vector< std::vector<std::string> > &tableMat);
-    PixelNameTranslation(std::string filename);
+    PixelNameTranslation(const std::string& filename);
 
     virtual ~PixelNameTranslation(){}
 

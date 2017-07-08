@@ -16,7 +16,7 @@ CSCGeometryBuilder::CSCGeometryBuilder() : myName("CSCGeometryBuilder"){}
 CSCGeometryBuilder::~CSCGeometryBuilder(){}
 
 
-void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
+void CSCGeometryBuilder::build( const std::shared_ptr<CSCGeometry>& theGeometry
 				, const RecoIdealGeometry& rig
 				, const CSCRecoDigiParameters& cscpars ) {
 
@@ -117,7 +117,7 @@ void CSCGeometryBuilder::build( std::shared_ptr<CSCGeometry> theGeometry
 }
 
 void CSCGeometryBuilder::buildChamber (  
-				       std::shared_ptr<CSCGeometry> theGeometry // the geometry container
+				       const std::shared_ptr<CSCGeometry>& theGeometry // the geometry container
 				       , CSCDetId chamberId                         // the DetId for this chamber
 				       , const std::vector<float>& fpar           // volume parameters hB, hT. hD, hH	
 				       , const std::vector<float>& fupar          // user parameters 

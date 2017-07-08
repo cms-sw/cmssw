@@ -534,7 +534,7 @@ double MuonResiduals6DOFrphiFitter::plot(std::string name, TFileDirectory *dir, 
 }
 
 
-TTree * MuonResiduals6DOFrphiFitter::readNtuple(std::string fname, unsigned int endcap, unsigned int station, unsigned int ring, unsigned int chamber, unsigned int preselected)
+TTree * MuonResiduals6DOFrphiFitter::readNtuple(const std::string& fname, unsigned int endcap, unsigned int station, unsigned int ring, unsigned int chamber, unsigned int preselected)
 {
   TFile *f = new TFile(fname.c_str());
   TTree *t = (TTree*)f->Get("mual_ttree");

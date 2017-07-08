@@ -161,7 +161,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const int fedM
 
 
 
-void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder, DTROChainCoding code) {
+void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, const string& folder, const DTROChainCoding& code) {
 
   stringstream dduID_s; dduID_s << code.getDDU();
   stringstream rosID_s; rosID_s << code.getROS();
@@ -477,7 +477,7 @@ void DTDataIntegrityTask::bookHistos(DQMStore::IBooker & ibooker, string folder,
 }
 
 
-void DTDataIntegrityTask::bookHistosROS25(DQMStore::IBooker & ibooker, DTROChainCoding code) {
+void DTDataIntegrityTask::bookHistosROS25(DQMStore::IBooker & ibooker, const DTROChainCoding& code) {
   bookHistos(ibooker, string("ROS"), code);
 
     if(mode <= 1)

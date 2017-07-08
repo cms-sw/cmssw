@@ -1,4 +1,5 @@
 #include <sstream>
+#include <utility>
 
 //Geant4e
 #include "TrackPropagation/Geant4e/interface/Geant4ePropagator.h"
@@ -40,7 +41,7 @@
 Geant4ePropagator::Geant4ePropagator(const MagneticField* field,
 		std::string particleName, PropagationDirection dir) :
 		Propagator(dir), theField(field), theParticleName(
-				particleName), theG4eManager(
+				std::move(particleName)), theG4eManager(
 				G4ErrorPropagatorManager::GetErrorPropagatorManager()), theG4eData(
 				G4ErrorPropagatorData::GetErrorPropagatorData())
 {

@@ -24,10 +24,10 @@ class EcalDBConnection {
    *  Constructor
    *  Makes a connection to an oracle database without TNS_ADMIN
    */
-  EcalDBConnection( std::string host,
-		    std::string sid,
-		    std::string user,
-		    std::string pass,
+  EcalDBConnection( const std::string& host,
+		    const std::string& sid,
+		    const std::string& user,
+		    const std::string& pass,
 		    int port = 1521 )
     noexcept(false);
 
@@ -37,9 +37,9 @@ class EcalDBConnection {
    *  Constructor
    *  Makes a connection to an oracle database using TNS_ADMIN
    */
-  EcalDBConnection( std::string sid,
-		    std::string user,
-		    std::string pass )
+  EcalDBConnection( const std::string& sid,
+		    const std::string& user,
+		    const std::string& pass )
     noexcept(false);
   
 

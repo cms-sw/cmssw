@@ -58,7 +58,7 @@ private:
 
   void findAllSubdirectories (DQMStore::IBooker& ibooker,
 			      DQMStore::IGetter& igetter,
-			      std::string dir,
+			      const std::string& dir,
 			      std::set<std::string> * myList,
 			      const TString& pattern);
   
@@ -185,7 +185,7 @@ HLTMuonRefMethod::beginRun(const edm::Run& run, const edm::EventSetup& c)
 
 
 void
-HLTMuonRefMethod::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string dir, std::set<std::string> * myList,
+HLTMuonRefMethod::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& dir, std::set<std::string> * myList,
 					 const TString& _pattern = TString("")) {
   TString pattern = _pattern;
   TPRegexp nonPerlWildcard("\\w\\*|^\\*");

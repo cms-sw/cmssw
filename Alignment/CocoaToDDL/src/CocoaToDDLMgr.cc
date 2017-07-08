@@ -4,6 +4,8 @@
 //   History: v1.0 
 //   Pedro Arce
 
+#include <utility>
+
 #include "Alignment/CocoaToDDL/interface/CocoaToDDLMgr.h"
 #include "Alignment/CocoaToDDL/interface/UnitConverter.h"
 #define UC(val,category) UnitConverter(val,category).ucstring()
@@ -31,7 +33,7 @@ CocoaToDDLMgr* CocoaToDDLMgr::getInstance()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::writeDDDFile( ALIstring filename) 
+void CocoaToDDLMgr::writeDDDFile( const ALIstring& filename) 
 {
   //---- Write header
   writeHeader( filename );
@@ -62,7 +64,7 @@ void CocoaToDDLMgr::writeDDDFile( ALIstring filename)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::writeHeader( ALIstring filename)
 {
-  newPartPre( filename ); 
+  newPartPre( std::move(filename) ); 
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -183,7 +185,7 @@ void CocoaToDDLMgr::writeSpecPars()
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void CocoaToDDLMgr::newPartPre(std::string name)
 {
-   filename_=name;
+   filename_=std::move(name);
    file_.open(filename_.c_str()); 
    file_.precision(8);
    file_ << "<?xml version=\"1.0\"?>" << std::endl;
@@ -200,7 +202,7 @@ void CocoaToDDLMgr::newPartPre(std::string name)
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newPartPost(std::string name, std::string extension)
+void CocoaToDDLMgr::newPartPost(const std::string& name, const std::string& extension)
 {
    file_ << std::endl << "</DDDefinition>" << std::endl;
    file_.close();
@@ -209,7 +211,7 @@ void CocoaToDDLMgr::newPartPost(std::string name, std::string extension)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPre_ma(std::string name)
+void CocoaToDDLMgr::newSectPre_ma(const std::string& name)
 {
 #ifdef gdebug
   std::cout << " sect-mat-pre:" << name << '-' << std::endl;
@@ -249,7 +251,7 @@ void CocoaToDDLMgr::ma(CocoaMaterialElementary* ma)
 } 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPost_ma(std::string name)
+void CocoaToDDLMgr::newSectPost_ma(const std::string& name)
 {
    #ifdef gdebug
     cout << " sect-mat-post:" << name << '-' << std::endl;
@@ -260,7 +262,7 @@ void CocoaToDDLMgr::newSectPost_ma(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPre_so(std::string name)
+void CocoaToDDLMgr::newSectPre_so(const std::string& name)
 {
    #ifdef gdebug
     cout << " sect-so-pre:" << name << '-' << std::endl;
@@ -443,7 +445,7 @@ std::string solidType = so->getType();
 }      
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPost_so(std::string name)
+void CocoaToDDLMgr::newSectPost_so(const std::string& name)
 {
    #ifdef gdebug
     cout << " sect-so-post:" << name << '-' << std::endl;
@@ -454,7 +456,7 @@ void CocoaToDDLMgr::newSectPost_so(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPre_lv(std::string name)
+void CocoaToDDLMgr::newSectPre_lv(const std::string& name)
 {
    #ifdef gdebug
     cout << " sect-lv-pre:" << name << '-'  << std::endl;
@@ -491,7 +493,7 @@ void CocoaToDDLMgr::lv(OpticalObject * opto)
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPost_lv(std::string name)
+void CocoaToDDLMgr::newSectPost_lv(const std::string& name)
 {
    #ifdef gdebug
     cout << " sect-lv-post:" << name << '-'<< std::endl;
@@ -502,7 +504,7 @@ void CocoaToDDLMgr::newSectPost_lv(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPre_pv(std::string name)
+void CocoaToDDLMgr::newSectPre_pv(const std::string& name)
 {
    #ifdef gdebug
      cout << " sect-pv-pre:" << name << '-' << std::endl;
@@ -551,7 +553,7 @@ void CocoaToDDLMgr::pv(OpticalObject * opto)
 }   
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPost_pv(std::string name)
+void CocoaToDDLMgr::newSectPost_pv(const std::string& name)
 {
    #ifdef gdebug
     cout << " sect-pv-post:" << name << '-' << std::endl;
@@ -562,7 +564,7 @@ void CocoaToDDLMgr::newSectPost_pv(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPre_ro(std::string name)
+void CocoaToDDLMgr::newSectPre_ro(const std::string& name)
 {
    newSectPre(filename_,std::string("RotationSection"));
 }
@@ -595,7 +597,7 @@ void CocoaToDDLMgr::ro(const CLHEP::HepRotation& ro, int n)
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPost_ro(std::string name)
+void CocoaToDDLMgr::newSectPost_ro(const std::string& name)
 {
    newSectPost("RotationSection");
 }
@@ -603,7 +605,7 @@ void CocoaToDDLMgr::newSectPost_ro(std::string name)
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPre_specPar(std::string name)
+void CocoaToDDLMgr::newSectPre_specPar(const std::string& name)
 {
    #ifdef gdebug
     cout << " sect-lv-pre:" << name << '-'  << std::endl;
@@ -741,7 +743,7 @@ void CocoaToDDLMgr::writeSpecParsCocoa()
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPost_specPar(std::string name)
+void CocoaToDDLMgr::newSectPost_specPar(const std::string& name)
 {
    newSectPost("SpecParSection");
 }
@@ -750,14 +752,14 @@ void CocoaToDDLMgr::newSectPost_specPar(std::string name)
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPre(std::string name, std::string type)
+void CocoaToDDLMgr::newSectPre(const std::string& name, const std::string& type)
 {
    file_ << "<" << type << " label=\"" << name << "\">" << std::endl;
 }
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void CocoaToDDLMgr::newSectPost(std::string name)
+void CocoaToDDLMgr::newSectPost(const std::string& name)
 {
    file_ << "</" << name << ">" << std::endl << std::endl;
 }

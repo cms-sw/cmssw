@@ -53,7 +53,7 @@ class SiStripClassToMonitorCondData{
    void endJob() ;
   
    void getModMEsOnDemand(edm::EventSetup const& eSetup, uint32_t requestedDetId);
-   void getLayerMEsOnDemand(edm::EventSetup const& eSetup, std::string requestedSubDetector, uint32_t requestedSide, uint32_t requestedLayer);
+   void getLayerMEsOnDemand(edm::EventSetup const& eSetup, const std::string& requestedSubDetector, uint32_t requestedSide, uint32_t requestedLayer);
   
  private:  
   

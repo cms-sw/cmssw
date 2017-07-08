@@ -30,7 +30,7 @@ string LocationDef::getLocation() const
 
 
 
-void LocationDef::setLocation(string loc)
+void LocationDef::setLocation(const string& loc)
 {
   if (loc != m_loc) {
     m_ID = 0;

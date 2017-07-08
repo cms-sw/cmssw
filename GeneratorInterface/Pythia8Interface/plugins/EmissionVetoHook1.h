@@ -32,7 +32,7 @@ public:
   bool canVetoMPIEmission() { return MPIvetoOn; }
   bool doVetoMPIEmission(int, const Pythia8::Event &e);
 
-  void fatalEmissionVeto(std::string message);
+  void fatalEmissionVeto(const std::string& message);
 
   double pTpythia(const Pythia8::Event &e, int RadAfterBranch,
                   int EmtAfterBranch, int RecAfterBranch, bool FSR);

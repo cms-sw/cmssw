@@ -204,7 +204,7 @@ private:
    *   \return The fitted vertex
    */
   CachingVertex<N> fit(const std::vector<RefCountedVertexTrack> & tracks,
-  	const VertexState priorVertex, bool withPrior) const;
+  	const VertexState& priorVertex, bool withPrior) const;
 
   /**
    * Construct a container of VertexTrack from a set of RecTracks.

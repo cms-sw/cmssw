@@ -29,7 +29,7 @@ AnalyticalTrajectoryExtrapolatorToLine::extrapolate (const FreeTrajectoryState& 
 }
 
 TrajectoryStateOnSurface 
-AnalyticalTrajectoryExtrapolatorToLine::extrapolate (const TrajectoryStateOnSurface tsos, 
+AnalyticalTrajectoryExtrapolatorToLine::extrapolate (const TrajectoryStateOnSurface& tsos, 
 						     const Line& line) const
 {
   if ( tsos.isValid() )  return extrapolateFullState(tsos,line);
@@ -37,7 +37,7 @@ AnalyticalTrajectoryExtrapolatorToLine::extrapolate (const TrajectoryStateOnSurf
 }
 
 TrajectoryStateOnSurface 
-AnalyticalTrajectoryExtrapolatorToLine::extrapolateFullState (const TrajectoryStateOnSurface tsos, 
+AnalyticalTrajectoryExtrapolatorToLine::extrapolateFullState (const TrajectoryStateOnSurface& tsos, 
 							      const Line& line) const
 {
   //

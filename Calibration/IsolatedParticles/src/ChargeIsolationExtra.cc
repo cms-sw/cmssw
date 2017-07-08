@@ -17,12 +17,12 @@ namespace spr{
 			 const edm::EventSetup& iSetup, 
 			 CaloNavigator<DetId>& theNavigator,
 			 reco::TrackCollection::const_iterator trkItr,
-			 edm::Handle<reco::TrackCollection> trkCollection, 
+			 const edm::Handle<reco::TrackCollection>& trkCollection, 
 			 const CaloSubdetectorGeometry* gEB, 
 			 const CaloSubdetectorGeometry* gEE, 
 			 TrackDetectorAssociator& associator, 
 			 TrackAssociatorParameters& parameters_, int ieta, 
-			 int iphi, std::string theTrackQuality, bool
+			 int iphi, const std::string& theTrackQuality, bool
 #ifdef EDM_ML_DEBUG
 			 debug
 #endif
@@ -95,7 +95,7 @@ namespace spr{
 
   //===========================================================================================================
 
-  double chargeIsolationEcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
+  double chargeIsolationEcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, const edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
   
     const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
     const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
@@ -146,7 +146,7 @@ namespace spr{
 
   //===========================================================================================================
 
-  double chargeIsolationHcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
+  double chargeIsolationHcal(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, const edm::Handle<reco::TrackCollection>& trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
 
     std::vector<DetId> dets(1,ClosestCell);
 

@@ -179,7 +179,7 @@ void RivetHarvesting::endJob(){
   _analysisHandler.writeData(_outFileName);
 }
 
-vector<YODA::Point2D> RivetHarvesting::getPoint2DValsErrs(std::string filename, std::string path, std::string name) {
+vector<YODA::Point2D> RivetHarvesting::getPoint2DValsErrs(const std::string& filename, const std::string& path, const std::string& name) {
   
     // Open YODA XML file
     TiXmlDocument doc(filename);

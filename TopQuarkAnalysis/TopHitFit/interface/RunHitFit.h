@@ -259,7 +259,7 @@ public:
               const LeptonTranslatorBase<AMuon>&     mu,
               const JetTranslatorBase<AJet>&         jet,
               const METTranslatorBase<AMet>&         met,
-              const std::string                      default_file,
+              const std::string&                      default_file,
               double                                 lepw_mass,
               double                                 hadw_mass,
               double                                 top_mass):

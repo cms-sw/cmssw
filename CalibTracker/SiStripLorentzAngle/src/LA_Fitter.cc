@@ -92,7 +92,7 @@ find_rebin(const TH1* const hist) {
 }
 
 TH1* LA_Filler_Fitter::
-rms_profile(const std::string name, const TProfile* const prof) {
+rms_profile(const std::string& name, const TProfile* const prof) {
   const int bins = prof->GetNbinsX();
   TH1* const rms = new TH1F(name.c_str(),"",bins, prof->GetBinLowEdge(1),  prof->GetBinLowEdge(bins) + prof->GetBinWidth(bins) );
   for(int i = 1; i<=bins; i++) {
@@ -105,7 +105,7 @@ rms_profile(const std::string name, const TProfile* const prof) {
 }
 
 TH1* LA_Filler_Fitter::
-subset_probability(const std::string name, const TH1* const subset, const TH1* const total) {
+subset_probability(const std::string& name, const TH1* const subset, const TH1* const total) {
   const int bins = subset->GetNbinsX();
   TH1* const prob = new TH1F(name.c_str(),"",bins, subset->GetBinLowEdge(1),  subset->GetBinLowEdge(bins) + subset->GetBinWidth(bins) );
   for(int i = 1; i<=bins; i++) {

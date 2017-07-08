@@ -137,7 +137,7 @@ void DQMFileSaverOnline::appendSnapshot(SnapshotFiles f) const {
   }
 }
 
-void DQMFileSaverOnline::checkError(const char* msg, const std::string file,
+void DQMFileSaverOnline::checkError(const char* msg, const std::string& file,
                                     int status) const {
   if (status != 0) {
     std::string actual_msg = msg;
@@ -147,7 +147,7 @@ void DQMFileSaverOnline::checkError(const char* msg, const std::string file,
 }
 
 const std::string DQMFileSaverOnline::fillOrigin(
-    const std::string filename, const std::string final_filename) {
+    const std::string& filename, const std::string& final_filename) {
   // format.origin (one line):
   //   md5:d566a34b27f48d507150a332b189398b 294835 final_filename.root
 

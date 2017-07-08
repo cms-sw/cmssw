@@ -22,7 +22,7 @@ template <class T> class SurveyPxbImageReader
 	};
 
 	//! Constructor with filename and destination vector
-	SurveyPxbImageReader(std::string filename, measurements_t &measurements, SurveyPxbImage::count_t reserve = 800)
+	SurveyPxbImageReader(const std::string& filename, measurements_t &measurements, SurveyPxbImage::count_t reserve = 800)
 	{ 
 		std::ifstream infile(filename.c_str());
 		if (!infile)

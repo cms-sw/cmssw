@@ -139,7 +139,7 @@ namespace cms
     edm::LogInfo("Phase2TrackerDigitizer") << "Destroying the Digitizer";
   }
   void
-  Phase2TrackerDigitizer::accumulatePixelHits(edm::Handle<std::vector<PSimHit> > hSimHits,
+  Phase2TrackerDigitizer::accumulatePixelHits(const edm::Handle<std::vector<PSimHit> >& hSimHits,
 				       size_t globalSimHitIndex,const unsigned int tofBin) {
       if (hSimHits.isValid()) {
       std::set<unsigned int> detIds;

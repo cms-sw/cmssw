@@ -69,9 +69,9 @@ class MVATrainer {
 	};
 
     private:
-	SourceVariable *getVariable(AtomicId source, AtomicId name) const;
+	SourceVariable *getVariable(const AtomicId& source, const AtomicId& name) const;
 
-	SourceVariable *createVariable(Source *source, AtomicId name,
+	SourceVariable *createVariable(Source *source, const AtomicId& name,
 	                               Variable::Flags flags);
 
 	void fillInputVars(SourceVariableSet &vars,

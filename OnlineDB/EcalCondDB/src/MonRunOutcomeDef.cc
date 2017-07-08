@@ -32,7 +32,7 @@ string MonRunOutcomeDef::getShortDesc() const
 
 
 
-void MonRunOutcomeDef::setShortDesc(string desc)
+void MonRunOutcomeDef::setShortDesc(const string& desc)
 {
   if (desc != m_shortDesc) {
     m_ID = 0;

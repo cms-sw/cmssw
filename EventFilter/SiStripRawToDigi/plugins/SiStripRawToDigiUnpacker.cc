@@ -1232,7 +1232,7 @@ namespace sistrip {
        << " End of FED buffer";
   }
 
-  void RawToDigiUnpacker::handleException( std::string method_name, std::string extra_info ) { 
+  void RawToDigiUnpacker::handleException( std::string method_name, const std::string& extra_info ) { 
 
     method_name = "sistrip::RawToDigiUnpacker::" + method_name;
     try {

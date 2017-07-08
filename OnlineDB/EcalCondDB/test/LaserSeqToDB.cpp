@@ -36,7 +36,7 @@ class CondDBApp
 {
 public:
 
-  CondDBApp( string sid, string user, string pass ) : _debug(0), _insert(true),_run(0), _seq(0), _type(0), _color(0), _t0(0), _t1(0)
+  CondDBApp( const string& sid, const string& user, const string& pass ) : _debug(0), _insert(true),_run(0), _seq(0), _type(0), _color(0), _t0(0), _t1(0)
   {
     _location="P5_Co";
     _runtype ="TEST";     //???

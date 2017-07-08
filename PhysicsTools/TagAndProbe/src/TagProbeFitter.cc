@@ -48,7 +48,7 @@
 using namespace std;
 using namespace RooFit;
 
-TagProbeFitter::TagProbeFitter(const std::vector<std::string>& inputFileNames, string inputDirectoryName, string inputTreeName, string outputFileName, int numCPU_, bool saveWorkspace_, bool floatShapeParameters_, const std::vector<std::string>& fixVars_){
+TagProbeFitter::TagProbeFitter(const std::vector<std::string>& inputFileNames, const string& inputDirectoryName, const string& inputTreeName, const string& outputFileName, int numCPU_, bool saveWorkspace_, bool floatShapeParameters_, const std::vector<std::string>& fixVars_){
   inputTree = new TChain((inputDirectoryName+"/"+inputTreeName).c_str());
   for(size_t i=0; i<inputFileNames.size(); i++){
     inputTree->Add(inputFileNames[i].c_str());
@@ -95,14 +95,14 @@ void TagProbeFitter::setQuiet(bool quiet_) {
         RooMsgService::instance().setGlobalKillBelow(RooFit::WARNING);
     }
 }
-bool TagProbeFitter::addVariable(string name, string title, double low, double hi, string units){
+bool TagProbeFitter::addVariable(const string& name, const string& title, double low, double hi, const string& units){
   RooRealVar temp(name.c_str(), title.c_str(), low, hi, units.c_str());
   temp.setBins(5000,"cache");
   variables.addClone(temp);
   return true;
 }
 
-bool TagProbeFitter::addCategory(string name, string title, string expression){
+bool TagProbeFitter::addCategory(const string& name, const string& title, const string& expression){
   RooCategory* c = (RooCategory*) parameterParser.factory(expression.c_str());
   if(!c)
     return false;
@@ -125,7 +125,7 @@ bool TagProbeFitter::addThresholdCategory(string categoryName, string title, str
 }
 
 
-void TagProbeFitter::addPdf(string name, vector<string>& pdfCommands){
+void TagProbeFitter::addPdf(const string& name, vector<string>& pdfCommands){
   pdfs[name] = pdfCommands;
 }
 
@@ -137,7 +137,7 @@ void TagProbeFitter::setWeightVar(const std::string &var) {
   weightVar = var;
 }
 
-string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<string>& effCats,const std::vector<string>& effStates, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap){
+string TagProbeFitter::calculateEfficiency(const string& dirName,const std::vector<string>& effCats,const std::vector<string>& effStates, vector<string>& unbinnedVariables, map<string, vector<double> >& binnedReals, map<string, std::vector<string> >& binnedCategories, vector<string>& binToPDFmap){
   //go to home directory
   outputDirectory->cd();
   //make a directory corresponding to this efficiency binning
@@ -372,7 +372,7 @@ string TagProbeFitter::calculateEfficiency(string dirName,const std::vector<stri
   return "";
 }
 
-void TagProbeFitter::doFitEfficiency(RooWorkspace* w, string pdfName, RooRealVar& efficiency){
+void TagProbeFitter::doFitEfficiency(RooWorkspace* w, const string& pdfName, RooRealVar& efficiency){
   //if pdfName is empty skip the fit
   if(pdfName == "all"){
     return;

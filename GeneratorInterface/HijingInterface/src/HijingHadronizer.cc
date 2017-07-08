@@ -256,7 +256,7 @@ bool HijingHadronizer::get_particles(HepMC::GenEvent *evt )
 }
 
 //_____________________________________________________________________
-bool HijingHadronizer::call_hijset(double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt)
+bool HijingHadronizer::call_hijset(double efrm, const std::string& frame, const std::string& proj, const std::string& targ, int iap, int izp, int iat, int izt)
 {
 
    float ef = efrm;

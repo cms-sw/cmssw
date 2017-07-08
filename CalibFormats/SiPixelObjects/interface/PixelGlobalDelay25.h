@@ -27,7 +27,7 @@ namespace pos{
 
   public:
 
-    PixelGlobalDelay25(std::string filename);                         // create from file
+    PixelGlobalDelay25(const std::string& filename);                         // create from file
     PixelGlobalDelay25(std::vector<std::vector<std::string> > & tab); // create from DB
     virtual ~PixelGlobalDelay25(); 
 

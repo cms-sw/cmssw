@@ -4,6 +4,7 @@
 #define VariableMapCont_H
 
 #include <map>
+#include <utility>
 #include <vector>
 #include <string>
 
@@ -103,7 +104,7 @@ class VariableMapCont
       // returns OptionType (or kNone (0)) of a given option.  
       OptionType hasVariable (std::string key);
       OptionType hasOption (std::string key)
-      { return hasVariable (key); }
+      { return hasVariable (std::move(key)); }
 
 
       // Add variable to option maps.  'key' is passed in by copy
@@ -127,19 +128,19 @@ class VariableMapCont
                       bool defaultValue);
       //   addVariable works just like addOption, but has no description.
       void addVariable (std::string key, OptionType type)
-      { addOption (key, type, ""); }
+      { addOption (std::move(key), type, ""); }
       void addVariable (std::string key, OptionType type, int defaultValue)
-      { addOption (key, type, "", defaultValue); }
+      { addOption (std::move(key), type, "", defaultValue); }
       void addVariable (std::string key, OptionType type, double defaultValue)
-      { addOption (key, type, "", defaultValue); }
+      { addOption (std::move(key), type, "", defaultValue); }
       void addVariable (std::string key, OptionType type, 
                         const std::string &defaultValue)
-      { addOption (key, type, "", defaultValue); }
+      { addOption (std::move(key), type, "", defaultValue); }
       void addVariable (std::string key, OptionType type, 
                         const char *defaultValue)
-      { addOption (key, type, "", defaultValue); }
+      { addOption (std::move(key), type, "", defaultValue); }
       void addVariable (std::string key, OptionType type, bool defaultValue)
-      { addOption (key, type, "", defaultValue); }
+      { addOption (std::move(key), type, "", defaultValue); }
 
 
       // some of the guts of above

@@ -9,6 +9,8 @@
 #ifndef Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 #define Geometry_VeryForwardGeometryBuilder_DetGeomDesc
 
+#include <utility>
+
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 #include "DetectorDescription/Core/interface/DDTranslation.h"
@@ -72,7 +74,7 @@ class DetGeomDesc
 
 		/// components (children) management
 		void setComponents(Container cont)
-			{ _container = cont; }
+			{ _container = std::move(cont); }
 		void addComponents(Container cont);
 		void addComponent(DetGeomDesc*);
 		void clearComponents()

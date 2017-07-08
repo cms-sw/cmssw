@@ -461,7 +461,7 @@ namespace evf {
     return run_dir_ + "/" + fffnaming::eorFileName(run_);
   }
 
-  void EvFDaqDirector::removeFile(std::string filename) {
+  void EvFDaqDirector::removeFile(const std::string& filename) {
     int retval = remove(filename.c_str());
     if (retval != 0)
       edm::LogError("EvFDaqDirector") << "Could not remove used file -: " << filename << ". error = "

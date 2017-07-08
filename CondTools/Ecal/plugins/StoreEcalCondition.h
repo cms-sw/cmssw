@@ -45,7 +45,7 @@ class  StoreEcalCondition : public edm::EDAnalyzer {
   EcalIntercalibConstantsMC* readEcalIntercalibConstantsMCFromFile(const char *, const char *);
   EcalGainRatios* readEcalGainRatiosFromFile(const char *);
   EcalChannelStatus* readEcalChannelStatusFromFile(const char *);
-  void writeToLogFile(std::string , std::string, unsigned long long) ;
+  void writeToLogFile(const std::string& , const std::string&, unsigned long long) ;
   void writeToLogFileResults(char* ) ;
   int convertFromConstructionSMToSlot(int ,int );
 

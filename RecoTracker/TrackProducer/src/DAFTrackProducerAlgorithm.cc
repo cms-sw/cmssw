@@ -136,7 +136,7 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
 }
 /*------------------------------------------------------------------------------------------------------*/
 std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface>
-DAFTrackProducerAlgorithm::collectHits(const Trajectory vtraj,
+DAFTrackProducerAlgorithm::collectHits(const Trajectory& vtraj,
                                        const MultiRecHitCollector* measurementCollector,
                                        const MeasurementTrackerEvent *measTk) const
 {
@@ -176,7 +176,7 @@ DAFTrackProducerAlgorithm::collectHits(const Trajectory vtraj,
 }
 /*------------------------------------------------------------------------------------------------------*/
 std::pair<TransientTrackingRecHit::RecHitContainer, TrajectoryStateOnSurface>
-DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
+DAFTrackProducerAlgorithm::updateHits(const Trajectory& vtraj,
 				      const SiTrackerMultiRecHitUpdator* updator,
 				      const MeasurementTrackerEvent* theMTE,
 				      double annealing) const 
@@ -220,7 +220,7 @@ DAFTrackProducerAlgorithm::updateHits(const Trajectory vtraj,
 Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHit::RecHitContainer,
         	                          TrajectoryStateOnSurface>& hits,
                                           const TrajectoryFitter * theFitter,
-                                          Trajectory vtraj) const {
+                                          const Trajectory& vtraj) const {
 
   //creating a new trajectory starting from the direction of the seed of the input one and the hits
   Trajectory newVec = theFitter->fitOne(TrajectorySeed(PTrajectoryStateOnDet(),
@@ -236,7 +236,7 @@ Trajectory DAFTrackProducerAlgorithm::fit(const std::pair<TransientTrackingRecHi
 
 }
 /*------------------------------------------------------------------------------------------------------*/
-bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
+bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory& vtraj,
 					    AlgoProductCollection& algoResults,
 					    float ndof,
 					    const reco::BeamSpot& bs,
@@ -286,7 +286,7 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
   }
 }
 /*------------------------------------------------------------------------------------------------------*/
-int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory traj) const{
+int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory& traj) const{
 
   int ngoodhits = 0;
   Trajectory myTraj = traj;
@@ -375,7 +375,7 @@ void  DAFTrackProducerAlgorithm::filter(const TrajectoryFitter* fitter, std::vec
 
 }
 /*------------------------------------------------------------------------------------------------------*/
-float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const 
+float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory& vtraj) const 
 {
 
   if (!vtraj.isValid()) return 0;
@@ -399,7 +399,7 @@ float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const
 
 }
 //------------------------------------------------------------------------------------------------
-int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory iFinalTraj) const {
+int DAFTrackProducerAlgorithm::checkHits( Trajectory iInitTraj, const Trajectory& iFinalTraj) const {
 
   std::vector<TrajectoryMeasurement> initmeasurements = iInitTraj.measurements();
   std::vector<TrajectoryMeasurement> finalmeasurements = iFinalTraj.measurements();

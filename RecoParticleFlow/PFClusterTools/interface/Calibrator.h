@@ -24,9 +24,9 @@ public:
 	Calibrator();
 	virtual ~Calibrator();
 
-	void addDetectorElement(DetectorElementPtr const de);
+	void addDetectorElement(DetectorElementPtr const& de);
 
-	void addParticleDeposit(ParticleDepositPtr pd);
+	void addParticleDeposit(const ParticleDepositPtr& pd);
 
 	/*
 	 * Returns the calibration coefficient for each detector element, using data

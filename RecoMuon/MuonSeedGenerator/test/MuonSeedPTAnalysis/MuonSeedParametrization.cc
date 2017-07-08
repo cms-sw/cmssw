@@ -426,7 +426,7 @@ void MuonSeedParametrization::analyze(const Event& event, const EventSetup& even
 // cscseg_stat[i] = the number of segments in station i
 // cscseg_stat[5] = the number of stations which have segments
 // cscseg_stat1 is the statistic for segments w/ more than 4 rechits
-void MuonSeedParametrization::CSCsegment_stat( Handle<CSCSegmentCollection> cscSeg ) {
+void MuonSeedParametrization::CSCsegment_stat( const Handle<CSCSegmentCollection>& cscSeg ) {
 
      for (int i=0; i<6; i++) {
          cscseg_stat[i]=0;
@@ -453,7 +453,7 @@ void MuonSeedParametrization::CSCsegment_stat( Handle<CSCSegmentCollection> cscS
      
 }
 // the same as CSCsegment_stat
-void MuonSeedParametrization::DTsegment_stat( Handle<DTRecSegment4DCollection> dtSeg ) {
+void MuonSeedParametrization::DTsegment_stat( const Handle<DTRecSegment4DCollection>& dtSeg ) {
 
      for (int i=0; i<6; i++) {
          dtseg_stat[i]=0;
@@ -493,7 +493,7 @@ void MuonSeedParametrization::DTsegment_stat( Handle<DTRecSegment4DCollection> d
 
 }
 // number rechit in each station, basically only for those station cannot form a segment
-void MuonSeedParametrization::CSCRecHit_stat(Handle<CSCRecHit2DCollection> cscrechit, ESHandle<CSCGeometry> cscGeom){
+void MuonSeedParametrization::CSCRecHit_stat(const Handle<CSCRecHit2DCollection>& cscrechit, const ESHandle<CSCGeometry>& cscGeom){
      for (int i=0; i <6; i++) {
          cscrh_sum[i]=0;
      }
@@ -514,7 +514,7 @@ void MuonSeedParametrization::CSCRecHit_stat(Handle<CSCRecHit2DCollection> cscre
      }
 }
 
-void MuonSeedParametrization::DTRecHit_stat(Handle<DTRecHitCollection> dtrechit, ESHandle<DTGeometry> dtGeom){
+void MuonSeedParametrization::DTRecHit_stat(const Handle<DTRecHitCollection>& dtrechit, const ESHandle<DTGeometry>& dtGeom){
 
      //double phi[4]={999.0};
      for (int i=0; i <6; i++) {
@@ -555,9 +555,9 @@ bool MuonSeedParametrization::SameChamber(CSCDetId SimDetId, CSCDetId SegDetId){
 
 }
 
-void MuonSeedParametrization::SimInfo(Handle<edm::SimTrackContainer> simTracks,
-                            Handle<edm::PSimHitContainer> dsimHits, Handle<edm::PSimHitContainer> csimHits,
-                            ESHandle<DTGeometry> dtGeom, ESHandle<CSCGeometry> cscGeom){
+void MuonSeedParametrization::SimInfo(const Handle<edm::SimTrackContainer>& simTracks,
+                            const Handle<edm::PSimHitContainer>& dsimHits, const Handle<edm::PSimHitContainer>& csimHits,
+                            const ESHandle<DTGeometry>& dtGeom, const ESHandle<CSCGeometry>& cscGeom){
 
   // pt1 -> pt in different station pt1[0] is the track pt
   for (int i=0; i<5; i++) {
@@ -646,7 +646,7 @@ void MuonSeedParametrization::SimInfo(Handle<edm::SimTrackContainer> simTracks,
 }
 
 // Fill the phi and eta information for CSC
-void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHandle<CSCGeometry> cscGeom,
+void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, const ESHandle<CSCGeometry>& cscGeom,
                                            std::vector<SimSegment> seg) {
      
      /// get the global dphi from recHits for CSC
@@ -736,7 +736,7 @@ void MuonSeedParametrization::FromCSCSeg( std::vector<CSCSegment> cscSeg, ESHand
 }
 
 // Fill the phi and eta information for DT
-void MuonSeedParametrization::FromDTSeg( std::vector<DTRecSegment4D> dtSeg, ESHandle<DTGeometry> dtGeom,
+void MuonSeedParametrization::FromDTSeg( std::vector<DTRecSegment4D> dtSeg, const ESHandle<DTGeometry>& dtGeom,
                                           std::vector<SimSegment> seg) {
      
      /// get the global dphi from recHits for DT
@@ -835,7 +835,7 @@ void MuonSeedParametrization::FromOverlap() {
 
 }
      
-void MuonSeedParametrization::FromCSCSingleSeg( std::vector<CSCSegment> cscSeg, ESHandle<CSCGeometry> cscGeom,
+void MuonSeedParametrization::FromCSCSingleSeg( std::vector<CSCSegment> cscSeg, const ESHandle<CSCGeometry>& cscGeom,
                                            std::vector<SimSegment> seg) {
 
   for (int i=0; i<2; i++) {
@@ -897,7 +897,7 @@ void MuonSeedParametrization::FromCSCSingleSeg( std::vector<CSCSegment> cscSeg, 
   }
 }
 
-void MuonSeedParametrization::FromDTSingleSeg( std::vector<DTRecSegment4D> dtSeg, ESHandle<DTGeometry> dtGeom,
+void MuonSeedParametrization::FromDTSingleSeg( std::vector<DTRecSegment4D> dtSeg, const ESHandle<DTGeometry>& dtGeom,
                                           std::vector<SimSegment> seg) {
 
   for (int i=0; i<2; i++) {

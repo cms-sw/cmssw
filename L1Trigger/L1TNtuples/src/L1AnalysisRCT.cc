@@ -18,7 +18,7 @@ L1Analysis::L1AnalysisRCT::~L1AnalysisRCT()
 
 }
 
-void L1Analysis::L1AnalysisRCT::SetHdRCT(const edm::Handle < L1CaloRegionCollection > rgn)
+void L1Analysis::L1AnalysisRCT::SetHdRCT(const edm::Handle < L1CaloRegionCollection >& rgn)
 { 
 
   // Regions
@@ -43,7 +43,7 @@ void L1Analysis::L1AnalysisRCT::SetHdRCT(const edm::Handle < L1CaloRegionCollect
    
 }
 
-void L1Analysis::L1AnalysisRCT::SetEmRCT(const edm::Handle < L1CaloEmCollection > em)
+void L1Analysis::L1AnalysisRCT::SetEmRCT(const edm::Handle < L1CaloEmCollection >& em)
 { 
    
   // Isolated and non-isolated EM

@@ -80,7 +80,7 @@ const PixelHdwAddress& PixelHdwAddress::operator=(const PixelHdwAddress& aROC){
 
 //====================================================================================
 // Added by Dario
-void PixelHdwAddress::setAddress(std::string what, int value)
+void PixelHdwAddress::setAddress(const std::string& what, int value)
 {
     std::string mthn = "[PixelHdwAddress::setAddress()]\t\t\t    " ;
     if(        what == "fecnumber"   )
@@ -110,7 +110,7 @@ void PixelHdwAddress::setAddress(std::string what, int value)
 }
 
 //====================================================================================
-void PixelHdwAddress::compare(std::string what, bool &changed, unsigned int newValue, unsigned int &oldValue)
+void PixelHdwAddress::compare(const std::string& what, bool &changed, unsigned int newValue, unsigned int &oldValue)
 {
     std::string mthn = "[PixelHdwAddress::compare()]\t\t\t    " ;
     changed  = false ;

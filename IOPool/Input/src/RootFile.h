@@ -29,6 +29,7 @@ RootFile.h // used by ROOT input sources
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -112,11 +113,11 @@ namespace edm {
              bool bypassVersionCheck,
              bool labelRawDataLikeMC,
              bool enablePrefetching) : RootFile(
-               fileName, processConfiguration, logicalFileName, filePtr,
+               fileName, processConfiguration, logicalFileName, std::move(filePtr),
                nullptr, false, -1, -1, nStreams, 0U, treeMaxVirtualSize,
                processingMode, runHelper,
-               false, productSelectorRules, inputType, branchIDListHelper,
-               thinnedAssociationsHelper, associationsFromSecondary,
+               false, productSelectorRules, inputType, std::move(branchIDListHelper),
+               std::move(thinnedAssociationsHelper), associationsFromSecondary,
                nullptr, dropDescendantsOfDroppedProducts, processHistoryRegistry,
                indexesIntoFiles, currentIndexIntoFile, orderedProcessHistoryIDs,
                bypassVersionCheck, labelRawDataLikeMC,
@@ -138,7 +139,7 @@ namespace edm {
              std::vector<ProcessHistoryID>& orderedProcessHistoryIDs,
              bool bypassVersionCheck,
              bool enablePrefetching) : RootFile(
-               fileName, processConfiguration, logicalFileName, filePtr,
+               fileName, processConfiguration, logicalFileName, std::move(filePtr),
                nullptr, false, -1, -1, nStreams, treeCacheSize, treeMaxVirtualSize,
                InputSource::RunsLumisAndEvents, runHelper,
                false, productSelectorRules, inputType, nullptr, nullptr,

@@ -67,7 +67,7 @@ namespace edm {
   //
   
   EDProductGetter const*
-  mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID) {
+  mustBeNonZero(EDProductGetter const* prodGetter, const std::string& refType, ProductID const& productID) {
     if (prodGetter != nullptr) return prodGetter;
         throw Exception(errors::InvalidReference, refType)
   	<< "Attempt to construct a " << refType << " with ProductID " << productID << "\n"

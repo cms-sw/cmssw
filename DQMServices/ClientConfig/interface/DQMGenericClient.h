@@ -123,7 +123,7 @@ class DQMGenericClient : public DQMEDHarvester
 
   void findAllSubdirectories (DQMStore::IBooker& ibooker,
 			      DQMStore::IGetter& igetter,
-			      std::string dir,
+			      const std::string& dir,
 			      std::set<std::string> * myList,
 			      const TString& pattern);
 

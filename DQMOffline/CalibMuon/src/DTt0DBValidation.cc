@@ -206,7 +206,7 @@ void DTt0DBValidation::endJob() {
 }
 
   // Book a set of histograms for a given Layer
-void DTt0DBValidation::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
+void DTt0DBValidation::bookHistos(const DTLayerId& lId, int firstWire, int lastWire) {
   
   LogTrace(metname_)<< "   Booking histos for L: " << lId;
 

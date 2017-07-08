@@ -245,7 +245,7 @@ namespace {
       PassServices(edm::ServiceToken iToken,
                     bool& oSucceeded,
                     bool& oCaughtException) :
-                    token_(iToken), success_(&oSucceeded), caught_(&oCaughtException)
+                    token_(std::move(iToken)), success_(&oSucceeded), caught_(&oCaughtException)
    { *success_ = false; *caught_ = false; }
 
       void operator()() {
@@ -301,3 +301,4 @@ testServiceRegistry::threadTest()
    CPPUNIT_ASSERT(succeededToPassServices);
 }
 #include <Utilities/Testing/interface/CppUnit_testdriver.icpp>
+#include <utility>

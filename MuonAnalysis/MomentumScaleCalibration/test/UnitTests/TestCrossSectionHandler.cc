@@ -219,7 +219,7 @@ public:
     checkRelativeCrossSections( relativeCrossSections );
   }
 
-  std::vector<double> getRelativeCrossSections(CrossSectionHandler * crossSectionHandler, const std::vector<int> resfind)
+  std::vector<double> getRelativeCrossSections(CrossSectionHandler * crossSectionHandler, const std::vector<int>& resfind)
   {
     crossSectionHandler->computeRelativeCrossSections(crossSection, resfind);
     crossSectionHandler->imposeConstraint();

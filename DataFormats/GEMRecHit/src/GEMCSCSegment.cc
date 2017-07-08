@@ -6,6 +6,7 @@
 
 #include "DataFormats/GEMRecHit/interface/GEMCSCSegment.h"
 #include <iostream>
+#include <utility>
 
 
 namespace {
@@ -36,11 +37,11 @@ public:
 
 
 
-GEMCSCSegment::GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<const GEMRecHit*> gem_rhs, LocalPoint origin, LocalVector direction, AlgebraicSymMatrix errors, double chi2) : 
+GEMCSCSegment::GEMCSCSegment(const CSCSegment* csc_segment, const std::vector<const GEMRecHit*>& gem_rhs, LocalPoint origin, LocalVector direction, const AlgebraicSymMatrix& errors, double chi2) : 
 
   RecSegment(buildDetId(csc_segment->cscDetId())),
-  theOrigin(origin), 
-  theLocalDirection(direction), theCovMatrix(errors), theChi2(chi2) {
+  theOrigin(std::move(origin)), 
+  theLocalDirection(std::move(direction)), theCovMatrix(errors), theChi2(chi2) {
 
   for(unsigned int i=0; i<gem_rhs.size(); ++i) {
     theGEMRecHits.push_back((*gem_rhs[i]));

@@ -26,7 +26,7 @@ public:
   
   virtual double   correction (const LorentzVector& fJet) const;
    
-  void setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture);
+  void setParameters(const std::string& aCalibrationType, double aJetFinderRadius, int aPartonMixture);
 
   /// if correction needs event information
   virtual bool eventRequired () const {return false;}

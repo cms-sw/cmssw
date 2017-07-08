@@ -51,7 +51,7 @@ private:
 
 
 
-NavPlane* navPlane( ReferenceCountingPointer<BoundPlane> p) {
+NavPlane* navPlane( const ReferenceCountingPointer<BoundPlane>& p) {
   return new NavPlane(p.get());
 }
 

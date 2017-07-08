@@ -36,16 +36,16 @@ public:
   typedef TkTrackingRegionsMargin<float> Margin;
 
   ThirdHitPrediction
-    (const TrackingRegion & region, GlobalPoint inner, GlobalPoint outer,
+    (const TrackingRegion & region, const GlobalPoint& inner, const GlobalPoint& outer,
 const edm::EventSetup& es, double nSigMultipleScattering, double
-maxAngleRatio, std::string builderName);
+maxAngleRatio, const std::string& builderName);
   ~ThirdHitPrediction();
 
   void getRanges(const DetLayer *layer, float phi[],float rz[]);
   void getRanges(float rORz           , float phi[],float rz[]);
 
   bool isCompatibleWithMultipleScattering
-    (GlobalPoint g3, const std::vector<const TrackingRecHit*>& h,
+    (const GlobalPoint& g3, const std::vector<const TrackingRecHit*>& h,
      std::vector<GlobalVector>& localDirs, const edm::EventSetup& es);
 
 private:

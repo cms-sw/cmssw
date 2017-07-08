@@ -25,7 +25,7 @@ DTOccupancyPoint::DTOccupancyPoint(double mean, double rms) : theMean(mean),
 }
 
 
-DTOccupancyPoint::DTOccupancyPoint(double mean, double rms, DTLayerId layerId) : theMean(mean),
+DTOccupancyPoint::DTOccupancyPoint(double mean, double rms, const DTLayerId& layerId) : theMean(mean),
 										 theRMS(rms),
 										 theLayerId(layerId) {
  debug = false; // FIXME: to be removed
@@ -126,7 +126,7 @@ double computeMinRMS(const DTOccupancyPoint& onePoint, const DTOccupancyPoint& a
 
 
 
-void DTOccupancyPoint::setLayerId(DTLayerId layerId) {
+void DTOccupancyPoint::setLayerId(const DTLayerId& layerId) {
   theLayerId = layerId;
 }
 

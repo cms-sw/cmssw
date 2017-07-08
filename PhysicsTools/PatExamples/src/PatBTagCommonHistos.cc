@@ -59,7 +59,7 @@ PatBTagCommonHistos::~PatBTagCommonHistos()
 
 // ------------ method called to for each event  ------------
 void
-PatBTagCommonHistos::Fill( edm::View<pat::Jet>::const_iterator& jet_iter, std::string flavor)
+PatBTagCommonHistos::Fill( edm::View<pat::Jet>::const_iterator& jet_iter, const std::string& flavor)
 {
 
 float isb    =jet_iter->bDiscriminator(BTagdiscriminator_);
@@ -188,7 +188,7 @@ if(
 // ------------ method called once each job just before starting event loop  ------------
 // ------------  This function is needed to set a group of histogram  -------------------
 void 
-PatBTagCommonHistos::Set(std::string flavor)
+PatBTagCommonHistos::Set(const std::string& flavor)
 {
 
   const int ntptarray = 23;

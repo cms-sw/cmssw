@@ -255,7 +255,7 @@ DTBtiCard::localClear(){
 // }
 
 void 
-DTBtiCard::loadBTI(const DTDigiCollection dtDigis) {
+DTBtiCard::loadBTI(const DTDigiCollection& dtDigis) {
   
   localClear();
 
@@ -489,7 +489,7 @@ DTBtiCard::btiList(int sl) {
 }
 
 DTBtiTrig*
-DTBtiCard::storeTrigger(DTBtiTrigData td) {
+DTBtiCard::storeTrigger(const DTBtiTrigData& td) {
   DTBtiId btiid = td.parentId();
   if(!(btiid.wheel()==wheel() &&
        btiid.sector()==sector() &&

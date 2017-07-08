@@ -10,6 +10,8 @@
  * \version $Revision: 1.2 $
  *
  */
+#include <utility>
+
 #include "CommonTools/Utils/src/SelectorBase.h"
 #include "CommonTools/Utils/src/SelectorPtr.h"
 
@@ -17,7 +19,7 @@ namespace reco {
   namespace parser {    
      struct AndCombiner : public SelectorBase {
       AndCombiner(SelectorPtr lhs, SelectorPtr rhs) :
-	lhs_(lhs), rhs_(rhs) { }
+	lhs_(std::move(lhs)), rhs_(std::move(rhs)) { }
       virtual bool operator()(const edm::ObjectWithDict& o) const {
 	return (*lhs_)(o) && (*rhs_)(o);
       }

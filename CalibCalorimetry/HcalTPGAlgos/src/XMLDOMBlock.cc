@@ -14,6 +14,7 @@
 #include <iostream>
 #include <string>
 #include<time.h>
+#include <utility>
 #include <xercesc/parsers/XercesDOMParser.hpp>
 #include <xercesc/sax/HandlerBase.hpp>
 #include <xercesc/dom/DOM.hpp>
@@ -58,7 +59,7 @@ XMLDOMBlock::XMLDOMBlock( std::string _root, int rootElementName )
 {
   //std::cout << "XMLDOMBlock (or derived): default constructor called - this is meaningless!" << std::endl;
   //std::cout << "XMLDOMBlock (or derived): use yourClass( loaderBaseConfig & ) instead." << std::endl;
-  init( _root );
+  init( std::move(_root) );
 }
 
 
@@ -183,7 +184,7 @@ int XMLDOMBlock::init( std::string _root )
   document = impl->createDocument(
 				  0,                      // root element namespace URI.
 				  //XMLString::transcode("ROOT"), // root element name
-				  XMLProcessor::_toXMLCh(_root), // root element name
+				  XMLProcessor::_toXMLCh(std::move(_root)), // root element name
 				  0);                     // document type object (DTD).
 
   the_string = 0;
@@ -224,7 +225,7 @@ XMLDOMBlock::XMLDOMBlock( std::string xmlFileName )
 
   theProcessor = XMLProcessor::getInstance();
 
-  theFileName = xmlFileName;
+  theFileName = std::move(xmlFileName);
 
   // initialize the parser
   parser = new XercesDOMParser();
@@ -269,7 +270,7 @@ DOMDocument * XMLDOMBlock::getNewDocument( std::string xmlFileName )
 
   theProcessor = XMLProcessor::getInstance();
 
-  theFileName = xmlFileName;
+  theFileName = std::move(xmlFileName);
 
   // initialize the parser
   parser = new XercesDOMParser();
@@ -321,7 +322,7 @@ DOMDocument * XMLDOMBlock::getDocumentConst( void ) const
 
 int XMLDOMBlock::write( std::string target )
 {
-  theProcessor -> write( this, target );
+  theProcessor -> write( this, std::move(target) );
 
   return 0;
 }

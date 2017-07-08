@@ -48,7 +48,7 @@ private:
 };
 
 
-std::ostream& operator<< (std::ostream& out, edm::RefToBase<reco::Track> ref) {
+std::ostream& operator<< (std::ostream& out, const edm::RefToBase<reco::Track>& ref) {
   out << std::fixed
       << " {"     << std::setw(2) << ref->found() << "}    "
       << " ["     << std::setw(4) << ref.key() << "]"
@@ -59,7 +59,7 @@ std::ostream& operator<< (std::ostream& out, edm::RefToBase<reco::Track> ref) {
   return out;
 }
 
-std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
+std::ostream& operator<< (std::ostream& out, const reco::MuonRef& ref) {
   out << std::fixed;
   if (ref->isGlobalMuon()) {
     out << " {"     << std::setw(2) << ref->innerTrack()->found() << "+" << std::setw(2) << ref->outerTrack()->found() << "} "
@@ -88,7 +88,7 @@ std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
   return out;
 }
 
-std::ostream& operator<< (std::ostream& out, TrackingParticleRef ref) {
+std::ostream& operator<< (std::ostream& out, const TrackingParticleRef& ref) {
   out << std::fixed;
   out << " ["     << std::setw(4) << ref.key() << "]"
       << " type:" << std::setw(6) << ref->pdgId()

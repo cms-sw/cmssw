@@ -63,7 +63,7 @@ private:
   virtual void newDetID(uint32_t detid);
   void fillDatabase();
   void printSummary();
-  std::vector<float> CalculateAveragePerColumn(uint32_t detid, std::string label);
+  std::vector<float> CalculateAveragePerColumn(uint32_t detid, const std::string& label);
   // ----------member data --------------------------- 
   edm::ParameterSet conf_;
   // more class members used to keep track of the histograms

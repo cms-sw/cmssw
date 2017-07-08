@@ -47,8 +47,8 @@ class TrajectoryReader: public edm::EDAnalyzer {
   void endJob();
   
 protected:
-  void printTrajectoryRecHits(const Trajectory &, edm::ESHandle<GlobalTrackingGeometry>) const;
-  void printTrackRecHits(const reco::Track &, edm::ESHandle<GlobalTrackingGeometry>) const;
+  void printTrajectoryRecHits(const Trajectory &, const edm::ESHandle<GlobalTrackingGeometry>&) const;
+  void printTrackRecHits(const reco::Track &, const edm::ESHandle<GlobalTrackingGeometry>&) const;
   
  private:
   

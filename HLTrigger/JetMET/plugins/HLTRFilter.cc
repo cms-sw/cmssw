@@ -241,7 +241,7 @@ HLTRFilter::CalcMR(TLorentzVector ja, TLorentzVector jb){
 }
 
 double 
-  HLTRFilter::CalcR(double MR, TLorentzVector ja, TLorentzVector jb, edm::Handle<edm::View<reco::MET> > inputMet, const std::vector<math::XYZTLorentzVector>& muons){
+  HLTRFilter::CalcR(double MR, const TLorentzVector& ja, const TLorentzVector& jb, const edm::Handle<edm::View<reco::MET> >& inputMet, const std::vector<math::XYZTLorentzVector>& muons){
   //now we can calculate MTR
   TVector3 met;
   met.SetPtEtaPhi((inputMet->front()).pt(),0.0,(inputMet->front()).phi());

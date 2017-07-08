@@ -3,6 +3,7 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include <cmath>
 #include <numeric>
+#include <utility>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/SiStripCluster/interface/SiStripClusterTools.h"
@@ -12,7 +13,7 @@ ThreeThresholdAlgorithm(float chan, float seed, float cluster, unsigned holes, u
 			bool removeApvShots, float minGoodCharge) 
   : ChannelThreshold( chan ), SeedThreshold( seed ), ClusterThresholdSquared( cluster*cluster ),
     MaxSequentialHoles( holes ), MaxSequentialBad( bad ), MaxAdjacentBad( adj ), RemoveApvShots(removeApvShots), minGoodCharge(minGoodCharge) {
-  qualityLabel = (qL);
+  qualityLabel = (std::move(qL));
 }
 
 template<class digiDetSet>

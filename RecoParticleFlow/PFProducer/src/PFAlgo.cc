@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "RecoParticleFlow/PFProducer/interface/PFAlgo.h"
@@ -97,7 +99,7 @@ PFMuonAlgo* PFAlgo::getPFMuonAlgo() {
 //PFElectrons: a new method added to set the parameters for electron reconstruction. 
 void 
 PFAlgo::setPFEleParameters(double mvaEleCut,
-			   string mvaWeightFileEleID,
+			   const string& mvaWeightFileEleID,
 			   bool usePFElectrons,
 			   const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
@@ -159,7 +161,7 @@ PFAlgo::setPFEleParameters(double mvaEleCut,
 
 void 
 PFAlgo::setPFPhotonParameters(bool usePFPhotons,  
-			      std::string mvaWeightFileConvID, 
+			      const std::string& mvaWeightFileConvID, 
 			      double mvaConvCut,
 			      bool useReg,
 			      std::string X0_Map,
@@ -200,7 +202,7 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
   pfpho_ = new PFPhotonAlgo(mvaWeightFileConvID, 
 			    mvaConvCut, 
 			    useReg,
-			    X0_Map,  
+			    std::move(X0_Map),  
 			    *pv,
 			    thePFEnergyCalibration,
                             sumPtTrackIsoForPhoton,
@@ -210,7 +212,7 @@ PFAlgo::setPFPhotonParameters(bool usePFPhotons,
 }
 
 void PFAlgo::setEGammaParameters(bool use_EGammaFilters,
-				 std::string ele_iso_path_mvaWeightFile,
+				 const std::string& ele_iso_path_mvaWeightFile,
 				 double ele_iso_pt,
 				 double ele_iso_mva_barrel,
 				 double ele_iso_mva_endcap,
@@ -3417,7 +3419,7 @@ PFAlgo::associatePSClusters(unsigned iEcal,
 
 
 bool
-PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, string order) const {
+PFAlgo::isFromSecInt(const reco::PFBlockElement& eTrack, const string& order) const {
 
   reco::PFBlockElement::TrackType T_TO_DISP = reco::PFBlockElement::T_TO_DISP;
   reco::PFBlockElement::TrackType T_FROM_DISP = reco::PFBlockElement::T_FROM_DISP;

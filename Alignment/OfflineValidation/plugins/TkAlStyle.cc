@@ -58,8 +58,8 @@ static TString toTString(const Era era) {
 class TkAlStyle {
 public:
   // Adjusts the gStyle settings and store the PublicationStatus
-  static void set(const PublicationStatus status, const Era era = NONE, const TString customTitle = "", const TString customRightTitle = "");
-  static void set(const TString customTitle);
+  static void set(const PublicationStatus status, const Era era = NONE, const TString& customTitle = "", const TString& customRightTitle = "");
+  static void set(const TString& customTitle);
   static PublicationStatus status() { return publicationStatus_; }
 
   // Draws a title "<CMS label> 2015" on the current pad
@@ -398,7 +398,7 @@ TString TkAlStyle::rightheader(const Era era)
 
 
 // --------------------------------------------------------------
-void TkAlStyle::set(const PublicationStatus status, const Era era, const TString customTitle, const TString customRightTitle) {
+void TkAlStyle::set(const PublicationStatus status, const Era era, const TString& customTitle, const TString& customRightTitle) {
   // Store the PublicationStatus for later usage, e.g. in the title
   publicationStatus_ = status;
   customTitle_ = customTitle;
@@ -482,7 +482,7 @@ void TkAlStyle::set(const PublicationStatus status, const Era era, const TString
   gStyle->SetLegendBorderSize(0);
 }
 
-void TkAlStyle::set(const TString customTitle)
+void TkAlStyle::set(const TString& customTitle)
 {
   set(CUSTOM, NONE, customTitle);
 }

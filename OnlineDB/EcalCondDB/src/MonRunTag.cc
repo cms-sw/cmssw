@@ -30,7 +30,7 @@ string MonRunTag::getGeneralTag() const
 
 
 
-void MonRunTag::setGeneralTag(string genTag)
+void MonRunTag::setGeneralTag(const string& genTag)
 { 
   if (genTag != m_genTag) {
     m_ID = 0;

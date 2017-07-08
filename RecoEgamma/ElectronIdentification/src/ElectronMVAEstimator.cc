@@ -17,7 +17,7 @@ ElectronMVAEstimator::ElectronMVAEstimator():
   cfg_{}
 {}
 
-ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName):
+ElectronMVAEstimator::ElectronMVAEstimator(const std::string& fileName):
   cfg_{} 
 {
   TMVA::Reader tmvaReader("!Color:Silent");

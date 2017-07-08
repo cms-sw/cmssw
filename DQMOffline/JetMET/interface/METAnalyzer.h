@@ -117,9 +117,9 @@ class METAnalyzer : public DQMEDAnalyzer{
   void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup) override;
   //  void endRun(const edm::Run& iRun, const edm::EventSetup& iSetup);
   // Fill MonitorElements
-  void fillMESet(const edm::Event&, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,std::vector<bool>,std::vector<bool>);
-  void fillMonitorElement(const edm::Event&, std::string, std::string, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& , const reco::Candidate::PolarLorentzVector& ,std::map<std::string,MonitorElement*>&,bool,bool,std::vector<bool>,std::vector<bool>);
-  void makeRatePlot(std::string, double);
+  void fillMESet(const edm::Event&, const std::string&, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET&, const reco::Candidate::PolarLorentzVector&, std::map<std::string,MonitorElement*>&,const std::vector<bool>&,const std::vector<bool>&);
+  void fillMonitorElement(const edm::Event&, std::string, const std::string&, const reco::MET&, const pat::MET&, const reco::PFMET&, const reco::CaloMET& , const reco::Candidate::PolarLorentzVector& ,std::map<std::string,MonitorElement*>&,bool,bool,std::vector<bool>,std::vector<bool>);
+  void makeRatePlot(const std::string&, double);
 
 //  bool selectHighPtJetEvent(const edm::Event&);
 //  bool selectLowPtJetEvent(const edm::Event&);
@@ -129,9 +129,9 @@ class METAnalyzer : public DQMEDAnalyzer{
  private:
 
  // Book MonitorElements
-  void bookMESet(std::string,DQMStore::IBooker &,std::map<std::string,MonitorElement*>&);
+  void bookMESet(const std::string&,DQMStore::IBooker &,std::map<std::string,MonitorElement*>&);
 // Book MonitorElements
-  void bookMonitorElement(std::string,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool,bool);
+  void bookMonitorElement(const std::string&,DQMStore::IBooker &, std::map<std::string,MonitorElement*>&,bool ,bool,bool);
 
   // ----------member data ---------------------------
   edm::ParameterSet parameters;

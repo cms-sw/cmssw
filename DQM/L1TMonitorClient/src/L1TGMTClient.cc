@@ -131,7 +131,7 @@ void L1TGMTClient::processHistograms(DQMStore::IBooker &ibooker, DQMStore::IGett
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void L1TGMTClient::makeRatio1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* mer, std::string h1Name, std::string h2Name) {
+void L1TGMTClient::makeRatio1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* mer, const std::string& h1Name, const std::string& h2Name) {
 
     igetter.setCurrentFolder(output_dir_);
 
@@ -153,7 +153,7 @@ void L1TGMTClient::makeRatio1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &ig
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void L1TGMTClient::makeEfficiency1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* meeff, std::string heName, std::string hiName) {
+void L1TGMTClient::makeEfficiency1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* meeff, const std::string& heName, const std::string& hiName) {
 
     igetter.setCurrentFolder(output_dir_);
 
@@ -178,7 +178,7 @@ void L1TGMTClient::makeEfficiency1D(DQMStore::IBooker &ibooker, DQMStore::IGette
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-void L1TGMTClient::makeEfficiency2D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* meeff, std::string heName, std::string hiName) {
+void L1TGMTClient::makeEfficiency2D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* meeff, const std::string& heName, const std::string& hiName) {
 
     igetter.setCurrentFolder(output_dir_);
 
@@ -203,7 +203,7 @@ void L1TGMTClient::makeEfficiency2D(DQMStore::IBooker &ibooker, DQMStore::IGette
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-TH1F* L1TGMTClient::get1DHisto(std::string meName, DQMStore::IGetter &igetter) {
+TH1F* L1TGMTClient::get1DHisto(const std::string& meName, DQMStore::IGetter &igetter) {
 
     MonitorElement * me_ = igetter.get(meName);
 
@@ -216,7 +216,7 @@ TH1F* L1TGMTClient::get1DHisto(std::string meName, DQMStore::IGetter &igetter) {
 }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
-TH2F* L1TGMTClient::get2DHisto(std::string meName, DQMStore::IGetter &igetter) {
+TH2F* L1TGMTClient::get2DHisto(const std::string& meName, DQMStore::IGetter &igetter) {
     MonitorElement * me_ = igetter.get(meName);
 
     if (!me_) {

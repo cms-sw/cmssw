@@ -27,7 +27,7 @@ public:
   virtual ~MuonGEMHitsHarvestor();
 
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
-  void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, std::string label_suffix, TH1F* track_hist, TH1F* sh_hist=nullptr );
+  void ProcessBooking( DQMStore::IBooker& , DQMStore::IGetter&, const std::string& label_suffix, TH1F* track_hist, TH1F* sh_hist=nullptr );
   TProfile* ComputeEff(TH1F* num, TH1F* denum );
   
 

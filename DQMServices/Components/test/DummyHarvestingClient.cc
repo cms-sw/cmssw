@@ -36,6 +36,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -70,7 +71,7 @@ class TH1FCumulator : public CumulatorBase {
                 std::string folder,
                 bool iSetLumiFlag)
       :store_(&iStore),
-       folder_(folder) {
+       folder_(std::move(folder)) {
     std::string extension;
     if (iSetLumiFlag) {
       extension = "_lumi";
@@ -134,7 +135,7 @@ class TH2FCumulator : public CumulatorBase {
                 std::string folder,
                 bool iSetLumiFlag)
       :store_(&iStore),
-       folder_(folder) {
+       folder_(std::move(folder)) {
     std::string extension;
     if (iSetLumiFlag) {
       extension = "_lumi";

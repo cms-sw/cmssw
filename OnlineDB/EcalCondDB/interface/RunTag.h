@@ -20,7 +20,7 @@ class RunTag : public ITag {
 
   // Methods for user data
   std::string getGeneralTag() const;
-  void setGeneralTag(std::string tag);
+  void setGeneralTag(const std::string& tag);
 
   LocationDef getLocationDef() const;
   void setLocationDef(const LocationDef& locDef);

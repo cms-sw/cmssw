@@ -18,6 +18,8 @@
 //
 
 
+#include <utility>
+
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
@@ -81,20 +83,20 @@ class EgammaHLTTrackIsolation
   /// Get number of tracks and Pt sum of tracks inside an isolation cone for electrons
   std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks);
   std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);
-  std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
+  std::pair<int,float> electronIsolation(const reco::Track * const tr, const reco::TrackCollection* isoTracks, const GlobalPoint& vertex);
   
   /// Get number of tracks and Pt sum of tracks inside an isolation cone for photons
   /// set useVertex=true to use PhotonCandidate vertex from EgammaPhotonVtxFinder
   /// set useVertex=false to consider all tracks for isolation
   std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, bool useVertex);
-  std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex);
+  std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, const GlobalPoint& vertex);
   std::pair<int,float> photonIsolation(const reco::RecoCandidate * const recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);  
 
   /// Get number of tracks inside an isolation cone for electrons
   int electronTrackCount(const reco::Track * const tr, const reco::TrackCollection* isoTracks)
   {return electronIsolation(tr,isoTracks).first;}
   int electronTrackCount(const reco::Track * const tr, const reco::TrackCollection* isoTracks, GlobalPoint vertex)
-  {return electronIsolation(tr,isoTracks,vertex).first;}
+  {return electronIsolation(tr,isoTracks,std::move(vertex)).first;}
 
   /// Get number of tracks inside an isolation cone for photons
   /// set useVertex=true to use Photon vertex from EgammaPhotonVtxFinder
@@ -102,7 +104,7 @@ class EgammaHLTTrackIsolation
   int photonTrackCount(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, bool useVertex)
   {return photonIsolation(recocand,isoTracks,useVertex).first;}
   int photonTrackCount(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex)
-  {return photonIsolation(recocand,isoTracks,vertex).first;}
+  {return photonIsolation(recocand,isoTracks,std::move(vertex)).first;}
   int photonTrackCount(const reco::RecoCandidate * const recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
   {return photonIsolation(recocand,allEle,isoTracks).first;}
 
@@ -110,7 +112,7 @@ class EgammaHLTTrackIsolation
   float electronPtSum(const reco::Track * const tr, const reco::TrackCollection* isoTracks)
   {return electronIsolation(tr,isoTracks).second;}
   float electronPtSum(const reco::Track * const tr, const reco::TrackCollection* isoTracks, GlobalPoint vertex)
-  {return electronIsolation(tr,isoTracks,vertex).second;}
+  {return electronIsolation(tr,isoTracks,std::move(vertex)).second;}
   float electronPtSum(const reco::Track * const tr, const reco::ElectronCollection* allEle ,const reco::TrackCollection* isoTracks)
   {return electronIsolation(tr,allEle,isoTracks).second;} 
 
@@ -120,7 +122,7 @@ class EgammaHLTTrackIsolation
   float photonPtSum(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, bool useVertex)
   {return photonIsolation(recocand,isoTracks, useVertex).second;}
   float photonPtSum(const reco::RecoCandidate * const recocand, const reco::TrackCollection* isoTracks, GlobalPoint vertex)
-  {return photonIsolation(recocand,isoTracks, vertex).second;}
+  {return photonIsolation(recocand,isoTracks, std::move(vertex)).second;}
   float photonPtSum(const reco::RecoCandidate * const recocand, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
   {return photonIsolation(recocand,allEle,isoTracks).second;}
 
@@ -138,8 +140,8 @@ class EgammaHLTTrackIsolation
 
    private:
   // Call track reconstruction
-  std::pair<int,float> findIsoTracks(GlobalVector mom, GlobalPoint vtx, const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex=true);
-  std::pair<int,float> findIsoTracksWithoutEle(GlobalVector mom, GlobalPoint vtx, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);
+  std::pair<int,float> findIsoTracks(const GlobalVector& mom, const GlobalPoint& vtx, const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex=true);
+  std::pair<int,float> findIsoTracksWithoutEle(const GlobalVector& mom, const GlobalPoint& vtx, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks);
 
   // Parameters of isolation cone geometry.
   double ptMin;

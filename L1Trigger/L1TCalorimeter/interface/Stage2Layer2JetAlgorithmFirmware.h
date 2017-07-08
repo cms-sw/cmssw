@@ -27,7 +27,7 @@ namespace l1t {
 			      std::vector<Jet> & jets, std::vector<Jet> & alljets);
 
     void create(const std::vector<CaloTower> & towers,
-	                      std::vector<Jet> & jets, std::vector<Jet> & alljets, std::string PUSubMethod);
+	                      std::vector<Jet> & jets, std::vector<Jet> & alljets, const std::string& PUSubMethod);
 
     void accuSort(std::vector<Jet> & jets);
 

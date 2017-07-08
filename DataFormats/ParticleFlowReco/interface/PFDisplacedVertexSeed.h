@@ -47,7 +47,7 @@ namespace reco {
     PFDisplacedVertexSeed();
 
     /// Add a track Reference to the current Seed
-    void addElement(TrackBaseRef);
+    void addElement(const TrackBaseRef&);
 
     /// Add a track Ref to the Seed and recalculate the seedPoint with a new dcaPoint
     /// A weight different from 1 may be assign to the new DCA point 

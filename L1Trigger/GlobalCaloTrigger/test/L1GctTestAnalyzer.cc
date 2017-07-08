@@ -81,7 +81,7 @@ L1GctTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
 }
 
-void L1GctTestAnalyzer::doEM(const edm::Event& iEvent, edm::InputTag label) {
+void L1GctTestAnalyzer::doEM(const edm::Event& iEvent, const edm::InputTag& label) {
 
   using namespace edm;
 
@@ -108,7 +108,7 @@ void L1GctTestAnalyzer::doEM(const edm::Event& iEvent, edm::InputTag label) {
 
 }
 
-void L1GctTestAnalyzer::doRctEM(const edm::Event& iEvent, edm::InputTag label) {
+void L1GctTestAnalyzer::doRctEM(const edm::Event& iEvent, const edm::InputTag& label) {
 
   using namespace edm;
 
@@ -129,7 +129,7 @@ void L1GctTestAnalyzer::doRctEM(const edm::Event& iEvent, edm::InputTag label) {
 }
 
 
-void L1GctTestAnalyzer::doInternEM(const edm::Event& iEvent, edm::InputTag label) {
+void L1GctTestAnalyzer::doInternEM(const edm::Event& iEvent, const edm::InputTag& label) {
 
   using namespace edm;
 
@@ -149,7 +149,7 @@ void L1GctTestAnalyzer::doInternEM(const edm::Event& iEvent, edm::InputTag label
 
 
 
-void L1GctTestAnalyzer::doJets(const edm::Event& iEvent, edm::InputTag label) {
+void L1GctTestAnalyzer::doJets(const edm::Event& iEvent, const edm::InputTag& label) {
 
   using namespace edm;
 
@@ -187,7 +187,7 @@ void L1GctTestAnalyzer::doJets(const edm::Event& iEvent, edm::InputTag label) {
 
 }
 
-void L1GctTestAnalyzer::doEnergySums(const edm::Event& iEvent, edm::InputTag label) {
+void L1GctTestAnalyzer::doEnergySums(const edm::Event& iEvent, const edm::InputTag& label) {
 
   using namespace edm;
 

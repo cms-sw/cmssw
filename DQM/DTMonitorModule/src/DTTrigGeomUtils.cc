@@ -23,12 +23,13 @@
 #include "Geometry/DTGeometry/interface/DTTopology.h"
 
 #include <iostream>
+#include <utility>
 
 using namespace edm;
 using namespace std;
 
 
-DTTrigGeomUtils::DTTrigGeomUtils(ESHandle<DTGeometry> muonGeom, bool dirInDeg) : muonGeom_(muonGeom) {
+DTTrigGeomUtils::DTTrigGeomUtils(ESHandle<DTGeometry> muonGeom, bool dirInDeg) : muonGeom_(std::move(muonGeom)) {
 
   radToDeg_ = dirInDeg ? 180./Geom::pi() : 1;
 

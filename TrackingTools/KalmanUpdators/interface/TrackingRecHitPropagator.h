@@ -28,9 +28,9 @@ class TrackingRecHitPropagator {
 	~TrackingRecHitPropagator() {delete thePropagator;}
 
         
-	template <class ResultingHit> TrackingRecHit::RecHitPointer project(const TrackingRecHit::ConstRecHitPointer hit,
+	template <class ResultingHit> TrackingRecHit::RecHitPointer project(const TrackingRecHit::ConstRecHitPointer& hit,
                          					            const GeomDet& det,
-                         					            const TrajectoryStateOnSurface ts,
+                         					            const TrajectoryStateOnSurface& ts,
 									    const TransientTrackingRecHitBuilder* builder) const{
 
         TkClonerImpl hc = static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner();

@@ -10,6 +10,7 @@
 #include "CommonTools/TrackerMap/interface/TmCcu.h"
 #include "CommonTools/TrackerMap/interface/TmPsu.h"
 #include <fstream>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include <sstream>
@@ -412,7 +413,7 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset) {
 TrackerMap::TrackerMap(std::string s,int xsize1,int ysize1) {
  psetAvailable=false;
   xsize=xsize1;ysize=ysize1;
-  title=s;
+  title=std::move(s);
   jsfilename="CommonTools/TrackerMap/data/trackermap.txt";
   infilename="CommonTools/TrackerMap/data/tracker.dat";
   saveWebInterface=false;
@@ -695,7 +696,7 @@ if(tkMapLog) {minval=log(minval)/log(10);maxval=log(maxval)/log(10);}
 //export  tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
-void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,int width, int height){
+void TrackerMap::save(bool print_total,float minval, float maxval,const std::string& s,int width, int height){
 
   printflag=true;
   bool rangefound = true; 
@@ -1299,7 +1300,7 @@ else *svgfile <<"\" />" <<std::endl;
 
 }
 
-void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxval,const std::string& s,int width, int height){
 
  if(enableFecProcessing){
   std::string filetype=s,outputfilename=s;
@@ -1559,7 +1560,7 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
 }//if(temporary_file)
 }//if(enabledFecProcessing)
 }
-void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxval,const std::string& s,int width, int height){
   
  if(enableHVProcessing){
   std::string filetype=s,outputfilename=s;
@@ -1842,7 +1843,7 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
 }
 
 
-void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxval,const std::string& s,int width, int height){
 
  if(enableLVProcessing){
   
@@ -2124,7 +2125,7 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
 }//if(enabledFedProcessing)
 }
 
-void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,std::string s,int width, int height){
+void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxval,const std::string& s,int width, int height){
  if(enableFedProcessing){
   printflag=true;
    bool rangefound = true; 
@@ -2396,7 +2397,7 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
 }//if(enabledFedProcessing)
 }
 
-void TrackerMap::load(std::string inputfilename){
+void TrackerMap::load(const std::string& inputfilename){
   inputfile = new std::ifstream(inputfilename.c_str(),std::ios::in);
   std::string line,value;
   int ipos,ipos1,ipos2,id=0,val=0;
@@ -2431,7 +2432,7 @@ void TrackerMap::load(std::string inputfilename){
 //print in svg format tracker map
 //print_total = true represent in color the total stored in the module
 //print_total = false represent in color the average  
-void TrackerMap::print(bool print_total, float minval, float maxval, std::string outputfilename){
+void TrackerMap::print(bool print_total, float minval, float maxval, const std::string& outputfilename){
   temporary_file=false;
   std::ostringstream outs;
   minvalue=minval; maxvalue=maxval;
@@ -2790,7 +2791,7 @@ void TrackerMap::setText(int idmod, std::string s){
 
   TmModule * mod = imoduleMap[idmod];
   if(mod!=0){
-     mod->text=s;
+     mod->text=std::move(s);
   }
   else std::cout << "**************************error in IdModuleMap **************";
 }
@@ -2801,7 +2802,7 @@ void TrackerMap::setText(int layer, int ring, int nmod, std::string s){
   int key = layer*100000+ring*1000+nmod;
   TmModule * mod = smoduleMap[key];
   if(mod!=0){
-     mod->text=s;
+     mod->text=std::move(s);
   }
   else std::cout << "**************************error in SvgModuleMap **************";
 } 
@@ -3177,7 +3178,7 @@ save_as_HVtrackermap(true,gminvalue,gmaxvalue,outs6.str(),3000,1600);
  } 
  
 }
-void TrackerMap::printall(bool print_total, float minval1, float maxval1, std::string s,int width, int height){
+void TrackerMap::printall(bool print_total, float minval1, float maxval1, const std::string& s,int width, int height){
 //Copy interface
  float minval,maxval; minval=minval1; maxval=maxval1; 
   if(tkMapLog && (minval<maxval)) {minval=pow(10.,minval1);maxval=pow(10.,maxval1);}
@@ -3508,7 +3509,7 @@ save_as_HVtrackermap(true,0.,0.,outs6.str(),3000,1600);
 }
 
 
-std::ifstream * TrackerMap::findfile(std::string filename) {
+std::ifstream * TrackerMap::findfile(const std::string& filename) {
   std::ifstream * ifilename;
   std::string ifname;
   if(jsPath!=""){
@@ -3525,7 +3526,7 @@ std::ifstream * TrackerMap::findfile(std::string filename) {
   if(!ifilename)std::cout << "File " << filename << " missing" << std::endl;
   return ifilename;
  }
-void TrackerMap::printlayers(bool print_total, float minval, float maxval, std::string outputfilename){
+void TrackerMap::printlayers(bool print_total, float minval, float maxval, const std::string& outputfilename){
   std::ofstream * xmlfile;
 saveAsSingleLayer=true;
 if(!print_total){

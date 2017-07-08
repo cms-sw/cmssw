@@ -30,7 +30,7 @@ namespace reco
       const reco::Track      *track()                           const { return track_.get();         }
       const TrackBaseRef     &trackRef()                        const { return track_;               }
       const edm::Ref<std::vector<Trajectory> > &trajRef()       const { return traj_;                }
-      void                    setTrajRef(edm::Ref<std::vector<Trajectory> > tr) { traj_ = tr;        }
+      void                    setTrajRef(const edm::Ref<std::vector<Trajectory> >& tr) { traj_ = tr;        }
       void                    setIsTrackerOnly(bool b)                { isTrackerOnly_ = b;          }
       void                    setIsArbitratedEcalSeeded(bool b)       { isArbitratedEcalSeeded_ = b; }      
       void                    setIsArbitratedMerged(bool b)           { isArbitratedMerged_ = b;     }

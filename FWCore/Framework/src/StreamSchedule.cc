@@ -34,6 +34,7 @@
 #include <list>
 #include <map>
 #include <exception>
+#include <utility>
 
 namespace edm {
   namespace {
@@ -74,9 +75,9 @@ namespace edm {
     StreamSchedule::WorkerPtr
     makeInserter(ExceptionToActionTable const& actions,
                  std::shared_ptr<ActivityRegistry> areg,
-                 std::shared_ptr<TriggerResultInserter> inserter) {
+                 const std::shared_ptr<TriggerResultInserter>& inserter) {
       StreamSchedule::WorkerPtr ptr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
-      ptr->setActivityRegistry(areg);
+      ptr->setActivityRegistry(std::move(areg));
       return ptr;
     }
 
@@ -132,18 +133,18 @@ namespace edm {
 
   // -----------------------------
 
-  StreamSchedule::StreamSchedule(std::shared_ptr<TriggerResultInserter> inserter,
+  StreamSchedule::StreamSchedule(const std::shared_ptr<TriggerResultInserter>& inserter,
                                  std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
                                  std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
-                                 std::shared_ptr<ModuleRegistry> modReg,
+                                 const std::shared_ptr<ModuleRegistry>& modReg,
                                  ParameterSet& proc_pset,
                                  service::TriggerNamesService const& tns,
                                  PreallocationConfiguration const& prealloc,
                                  ProductRegistry& preg,
                                  BranchIDListHelper& branchIDListHelper,
                                  ExceptionToActionTable const& actions,
-                                 std::shared_ptr<ActivityRegistry> areg,
-                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 const std::shared_ptr<ActivityRegistry>& areg,
+                                 const std::shared_ptr<ProcessConfiguration>& processConfiguration,
                                  bool allowEarlyDelete,
                                  StreamID streamID,
                                  ProcessContext const* processContext) :
@@ -402,7 +403,7 @@ namespace edm {
   void StreamSchedule::fillWorkers(ParameterSet& proc_pset,
                                    ProductRegistry& preg,
                                    PreallocationConfiguration const* prealloc,
-                                   std::shared_ptr<ProcessConfiguration const> processConfiguration,
+                                   const std::shared_ptr<ProcessConfiguration const>& processConfiguration,
                                    std::string const& pathName,
                                    bool ignoreFilters,
                                    PathWorkers& out,
@@ -463,7 +464,7 @@ namespace edm {
                                     int bitpos, std::string const& name, TrigResPtr trptr,
                                     std::vector<std::string> const& endPathNames) {
     PathWorkers tmpworkers;
-    fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, false, tmpworkers, endPathNames);
+    fillWorkers(proc_pset, preg, prealloc, std::move(processConfiguration), name, false, tmpworkers, endPathNames);
 
     // an empty path will cause an extra bit that is not used
     if (!tmpworkers.empty()) {
@@ -483,7 +484,7 @@ namespace edm {
                                    int bitpos, std::string const& name,
                                    std::vector<std::string> const& endPathNames) {
     PathWorkers tmpworkers;
-    fillWorkers(proc_pset, preg, prealloc, processConfiguration, name, true, tmpworkers, endPathNames);
+    fillWorkers(proc_pset, preg, prealloc, std::move(processConfiguration), name, true, tmpworkers, endPathNames);
 
     if (!tmpworkers.empty()) {
       //EndPaths are not supposed to stop if SkipEvent type exception happens

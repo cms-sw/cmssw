@@ -24,7 +24,7 @@ private:
   computeBounds( const std::vector<const TECWedge*>& wedges) const;
 
   Surface::RotationType
-  computeRotation( const std::vector<const TECWedge*>& wedges, Surface::PositionType pos) const;
+  computeRotation( const std::vector<const TECWedge*>& wedges, const Surface::PositionType& pos) const;
 
 };
  

@@ -120,7 +120,7 @@ PixelPortcardMap::PixelPortcardMap(std::vector< std::vector < std::string> > &ta
 }//end constructor
 //*****************************************************************************
 
-PixelPortcardMap::PixelPortcardMap(std::string filename):
+PixelPortcardMap::PixelPortcardMap(const std::string& filename):
   PixelConfigBase(" "," "," "){
 
   std::string mthn = "[PixelPortcardMap::PixelPortcardMap()]\t\t\t    " ;
@@ -236,7 +236,7 @@ const std::set< std::pair< std::string, int > > PixelPortcardMap::PortCardAndAOH
 }
 
 // Added by Dario for Debbie (the PixelPortcardMap::portcards is way to slow for the interactive tool)
-bool PixelPortcardMap::getName(std::string moduleName, std::string &portcardName)
+bool PixelPortcardMap::getName(const std::string& moduleName, std::string &portcardName)
 {
 	for( std::map< PixelChannel, std::pair<std::string, int> >::const_iterator map_itr = map_.begin(); map_itr != map_.end(); ++map_itr )
 	{
@@ -284,7 +284,7 @@ const std::pair< std::string, int > PixelPortcardMap::PortCardAndAOH(const Pixel
 	}
 }
 
-std::set< PixelModuleName > PixelPortcardMap::modules(std::string portCardName) const
+std::set< PixelModuleName > PixelPortcardMap::modules(const std::string& portCardName) const
 {
 	std::set< PixelModuleName > returnThis;
 	

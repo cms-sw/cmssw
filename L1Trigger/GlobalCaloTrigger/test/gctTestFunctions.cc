@@ -91,7 +91,7 @@ void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpl
   m_inputRegions.at(bx-m_bxStart) = theEnergyAlgosTester->loadEvent(gct, simpleEvent, bx);
 }
 
-void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx)
+void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string& fileName, bool &endOfFile, const int16_t bx)
 {
   bxRangeUpdate(bx);
   std::vector<L1CaloRegion> temp = theEnergyAlgosTester->loadEvent(gct, fileName, endOfFile, bx);
@@ -102,7 +102,7 @@ void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::strin
   }
 }
 
-void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx)
+void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string& fileName, const int16_t bx)
 {
   bxRangeUpdate(bx);
   m_inputEmCands.at(bx-m_bxStart) = theElectronsTester->loadEvent(gct, fileName, bx);
@@ -114,7 +114,7 @@ void gctTestFunctions::loadNextEvent(L1GlobalCaloTrigger* &gct, const edm::Event
   m_inputRegions.at(bx-m_bxStart) = theEnergyAlgosTester->loadEvent(gct, theRealDataTester->loadEvent(iEvent, bx), bx);
 }
 
-void gctTestFunctions::loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx)
+void gctTestFunctions::loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string& fileName, const int16_t bx)
 {
   bxRangeUpdate(bx);
   m_inputRegions.at(bx-m_bxStart) = theEnergyAlgosTester->loadEvent(gct, theSingleEventTester->loadEvent(fileName, bx), bx);

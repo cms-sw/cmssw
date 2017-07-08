@@ -18,6 +18,7 @@ ________________________________________________________________**/
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 class BSpdfsFcn : public ROOT::Minuit2::FCNBase {
 	
@@ -30,7 +31,7 @@ class BSpdfsFcn : public ROOT::Minuit2::FCNBase {
 	};
 	// define pdfs to use
 	void SetPDFs(std::string usepdfs) {
-		fusepdfs = usepdfs;
+		fusepdfs = std::move(usepdfs);
 	}
 
 	virtual double operator() (const std::vector<double>&) const;

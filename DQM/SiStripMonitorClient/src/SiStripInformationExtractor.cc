@@ -592,7 +592,7 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
 //
 // Get elements from multi map
 //
-void SiStripInformationExtractor::getItemList(const std::multimap<std::string, std::string>& req_map, std::string item_name,std::vector<std::string>& items) {
+void SiStripInformationExtractor::getItemList(const std::multimap<std::string, std::string>& req_map, const std::string& item_name,std::vector<std::string>& items) {
   items.clear();
   for (std::multimap<std::string, std::string>::const_iterator it = req_map.begin();
        it != req_map.end(); it++) {
@@ -606,7 +606,7 @@ void SiStripInformationExtractor::getItemList(const std::multimap<std::string, s
 //  check a specific item in the map
 //
 bool SiStripInformationExtractor::hasItem(const std::multimap<std::string,std::string>& req_map,
-					  std::string item_name){
+					  const std::string& item_name){
   std::multimap<std::string,std::string>::const_iterator pos = req_map.find(item_name);
   if (pos != req_map.end()) return true;
   return false;  
@@ -615,7 +615,7 @@ bool SiStripInformationExtractor::hasItem(const std::multimap<std::string,std::s
 // check the value of an item in the map
 //  
 std::string SiStripInformationExtractor::getItemValue(const std::multimap<std::string,std::string>& req_map,
-						 std::string item_name){
+						 const std::string& item_name){
   std::multimap<std::string,std::string>::const_iterator pos = req_map.find(item_name);
   std::string value = " ";
   if (pos != req_map.end()) {

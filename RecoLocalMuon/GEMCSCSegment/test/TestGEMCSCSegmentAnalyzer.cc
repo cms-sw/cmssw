@@ -80,7 +80,7 @@ class TestGEMCSCSegmentAnalyzer : public edm::EDAnalyzer {
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
 
-      edm::PSimHitContainer SimHitMatched(std::vector<GEMRecHit>::const_iterator, edm::ESHandle<GEMGeometry>, const edm::Event&);
+      edm::PSimHitContainer SimHitMatched(std::vector<GEMRecHit>::const_iterator, const edm::ESHandle<GEMGeometry>&, const edm::Event&);
 
       // ----------member data ---------------------------
     edm::ESHandle<GEMGeometry> gemGeom;
@@ -1516,7 +1516,7 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 //
 
 
-edm::PSimHitContainer TestGEMCSCSegmentAnalyzer::SimHitMatched(std::vector<GEMRecHit>::const_iterator recHit, edm::ESHandle<GEMGeometry> gemGeom, const Event & iEvent)
+edm::PSimHitContainer TestGEMCSCSegmentAnalyzer::SimHitMatched(std::vector<GEMRecHit>::const_iterator recHit, const edm::ESHandle<GEMGeometry>& gemGeom, const Event & iEvent)
 {
     
 

@@ -27,6 +27,7 @@
 template <class T>
 class PCrossingFrame;
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -180,7 +181,7 @@ class CrossingFrame
 template <class T> 
 CrossingFrame<T>::CrossingFrame(int minb, int maxb, int bunchsp, std::string subdet ,unsigned int
 maxNbSources):firstCrossing_(minb), lastCrossing_(maxb),
-bunchSpace_(bunchsp),subdet_(subdet),maxNbSources_(maxNbSources) {
+bunchSpace_(bunchsp),subdet_(std::move(subdet)),maxNbSources_(maxNbSources) {
  pileupOffsetsSource_.resize(maxNbSources_);
  for (unsigned int i=0;i<maxNbSources_;++i)
    pileupOffsetsSource_[i].reserve(-firstCrossing_+lastCrossing_+1);

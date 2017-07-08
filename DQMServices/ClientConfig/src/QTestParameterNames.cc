@@ -36,8 +36,8 @@ QTestParameterNames::QTestParameterNames(){
 
 
 
-void QTestParameterNames::constructMap(std::string testType, std::string param1,std::string param2,std::string param3,
-	     std::string param4,std::string param5,std::string param6,std::string param7,std::string param8){
+void QTestParameterNames::constructMap(const std::string& testType, const std::string& param1,const std::string& param2,const std::string& param3,
+	     const std::string& param4,const std::string& param5,const std::string& param6,const std::string& param7,const std::string& param8){
 	
 	
 	std::vector<std::string> paramNames;
@@ -56,7 +56,7 @@ void QTestParameterNames::constructMap(std::string testType, std::string param1,
 
 
 
-std::vector<std::string> QTestParameterNames::getTestParamNames(std::string theTestType){
+std::vector<std::string> QTestParameterNames::getTestParamNames(const std::string& theTestType){
 	
 	if(configurationMap.find(theTestType) != configurationMap.end()) {
 		return configurationMap[theTestType];

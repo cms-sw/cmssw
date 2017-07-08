@@ -124,22 +124,22 @@ class WriteVHDL : public edm::EDAnalyzer {
 
       std::string writeVersion();
       
-      std::string writeCNT(const edm::EventSetup& iSetup, int tower, int logsector,std::string pacT);
+      std::string writeCNT(const edm::EventSetup& iSetup, int tower, int logsector,const std::string& pacT);
 
       std::string writePACandLPDef(const edm::EventSetup& iSetup, 
-                                   int tower, int logsector, std::string PACt);
+                                   int tower, int logsector, const std::string& PACt);
       
       std::string writeConeDef(const edm::EventSetup& iSetup, 
-                               int tower, int sector, std::string PACt);
+                               int tower, int sector, const std::string& PACt);
       
       std::string writeQualTable(const edm::EventSetup& iSetup, int tower, int sector);
       
       std::string writePatterns(const edm::EventSetup& iSetup,
-                                int tower, int sector, std::string PACt);
+                                int tower, int sector, const std::string& PACt);
       
-      std::string writeGB(std::string PACt);
+      std::string writeGB(const std::string& PACt);
 
-      void prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> geom, edm::ESHandle<RPCReadOutMapping> map);
+      void prepareEncdap4thPlaneConnections(const edm::ESHandle<RPCGeometry>& geom, const edm::ESHandle<RPCReadOutMapping>& map);
       // ----------member data ---------------------------
 };
 
@@ -307,7 +307,7 @@ std::string WriteVHDL::writeVersion(){
   return ret.str();
 }
 
-std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int sector, std::string pacT){
+std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int sector, const std::string& pacT){
    
    std::stringstream ret;
    int nT=0, nE=0, refGrps = 0;
@@ -371,7 +371,7 @@ std::string WriteVHDL::writeCNT(const edm::EventSetup& iSetup, int tower, int se
 }
 
 
-std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector,  std::string pacT){
+std::string WriteVHDL::writePACandLPDef(const edm::EventSetup& iSetup, int tower, int logsector,  const std::string& pacT){
 
   std::stringstream ret; 
 
@@ -476,7 +476,7 @@ std::string WriteVHDL::writeQualTable(const edm::EventSetup& iSetup, int tower, 
 }
 
 std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup, 
-                                     int tower, int sector, std::string pacT)
+                                     int tower, int sector, const std::string& pacT)
 {
 
 
@@ -552,7 +552,7 @@ std::string WriteVHDL::writePatterns(const edm::EventSetup& iSetup,
   return ret.str();
 }
 
-std::string WriteVHDL::writeGB(std::string PACt){
+std::string WriteVHDL::writeGB(const std::string& PACt){
 
   std::stringstream ret;
   bool frun=true;
@@ -577,7 +577,7 @@ std::string WriteVHDL::writeGB(std::string PACt){
 
 
 
-void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcGeom, edm::ESHandle<RPCReadOutMapping> map) {
+void WriteVHDL::prepareEncdap4thPlaneConnections(const edm::ESHandle<RPCGeometry>& rpcGeom, const edm::ESHandle<RPCReadOutMapping>& map) {
 
  static bool jobDone = true;
  if (jobDone) return;
@@ -802,7 +802,7 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
 
 }
 
-std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, int sector,  std::string PACt )
+std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, int sector,  const std::string& PACt )
 {
     std::stringstream ret;
 

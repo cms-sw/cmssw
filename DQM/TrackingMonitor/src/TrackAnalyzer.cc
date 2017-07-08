@@ -204,7 +204,7 @@ void TrackAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::EventSetup
 
 void TrackAnalyzer::bookHistosForEfficiencyFromHitPatter(DQMStore::IBooker &ibooker,
                                                          const edm::EventSetup & iSetup,
-							 const std::string suffix)
+							 const std::string& suffix)
 {
 
     ibooker.setCurrentFolder(TopFolder_ + "/HitEffFromHitPattern" + suffix);
@@ -1257,7 +1257,7 @@ void TrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 }
 
-void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string suffix, const float monitoring) {
+void TrackAnalyzer::fillHistosForEfficiencyFromHitPatter(const reco::Track & track, const std::string& suffix, const float monitoring) {
 
     int mon = -1;
     for (int i=0; i<monQuantity::END; i++) {
@@ -1650,7 +1650,7 @@ void TrackAnalyzer::bookHistosForState(std::string sname, DQMStore::IBooker & ib
 
 // fill histograms at differnt measurement points
 // ---------------------------------------------------------------------------------//
-void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco::Track & track, std::string sname) 
+void TrackAnalyzer::fillHistosForState(const edm::EventSetup& iSetup, const reco::Track & track, const std::string& sname) 
 {
     //get the kinematic parameters
     double p, px, py, pz, pt, theta, phi, eta, q;

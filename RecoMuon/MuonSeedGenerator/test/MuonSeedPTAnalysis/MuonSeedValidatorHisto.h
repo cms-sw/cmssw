@@ -18,7 +18,7 @@
 class H2DRecHit1 {
 public:
  
- H2DRecHit1(std::string name_) {
+ H2DRecHit1(const std::string& name_) {
     TString N1 = name_.c_str();
     name=N1;
 
@@ -95,7 +95,7 @@ public:
     hP_maxR3 = new TH2F(N1+"_hP_maxR3", "Pt vs max dR of the cone 3", 600, 0., 1200., 300, -0.5, 1.);
  } 
 
- H2DRecHit1(TString name_, TFile* file) {
+ H2DRecHit1(const TString& name_, TFile* file) {
     name=name_;
     heta_mu4 = (TH2F *) file->Get(name+"_heta_mu4");
     heta_mu3 = (TH2F *) file->Get(name+"_heta_mu3");
@@ -484,7 +484,7 @@ public:
 class H2DRecHit2 {
 public:
 
- H2DRecHit2(std::string name_) {
+ H2DRecHit2(const std::string& name_) {
     TString N2 = name_.c_str();
     name=N2;
 
@@ -499,7 +499,7 @@ public:
 
   }
 
- H2DRecHit2(TString name_, TFile* file) {
+ H2DRecHit2(const TString& name_, TFile* file) {
     name=name_;
 
     heta_nSimSegs= (TH2F *) file->Get(name+"_heta_nSimSegs");
@@ -575,7 +575,7 @@ public:
 class H2DRecHit3 {
 public:
 
- H2DRecHit3(std::string name_) {
+ H2DRecHit3(const std::string& name_) {
     TString N3 = name_.c_str();
     name=N3;
 
@@ -597,7 +597,7 @@ public:
 
   }
 
- H2DRecHit3(TString name_, TFile* file) {
+ H2DRecHit3(const TString& name_, TFile* file) {
     name=name_;
 
     hsimEta_NSeed   = (TH2F *) file->Get(name+"_hsimEta_NSeed");

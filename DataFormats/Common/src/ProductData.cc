@@ -14,7 +14,7 @@ namespace edm {
     prov_() {
   }
 
-  ProductData::ProductData(std::shared_ptr<BranchDescription const> bd) :
+  ProductData::ProductData(const std::shared_ptr<BranchDescription const>& bd) :
     wrapper_(),
     prov_(bd, ProductID()) {
   }
@@ -26,7 +26,7 @@ namespace edm {
   }
 
   void
-  ProductData::resetBranchDescription(std::shared_ptr<BranchDescription const> bd) {
+  ProductData::resetBranchDescription(const std::shared_ptr<BranchDescription const>& bd) {
     prov_.setBranchDescription(bd);
   }
 

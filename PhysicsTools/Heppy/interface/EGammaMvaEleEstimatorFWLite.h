@@ -24,7 +24,7 @@ class EGammaMvaEleEstimatorFWLite {
             kNonTrigPhys14 = 5, // MVA for non-triggering electrons 
         };
 
-        void initialize( std::string methodName,
+        void initialize( const std::string& methodName,
                 MVAType type,
                 bool useBinnedVersion,
                 std::vector<std::string> weightsfiles );

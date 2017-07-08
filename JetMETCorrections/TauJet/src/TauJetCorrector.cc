@@ -52,7 +52,7 @@ double TauJetCorrector::ParametrizationTauJet::value(double et, double eta)const
 
 class   JetCalibrationParameterSetTauJet{
 public:
-  JetCalibrationParameterSetTauJet(string tag);
+  JetCalibrationParameterSetTauJet(const string& tag);
   int neta(){return etavector.size();}
   double eta(int ieta){return etavector[ieta];}
   int type(int ieta){return typevector[ieta];}
@@ -65,7 +65,7 @@ private:
   vector<int> typevector;
   vector< vector<double> > pars;
 };
-JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(string tag){
+JetCalibrationParameterSetTauJet::JetCalibrationParameterSetTauJet(const string& tag){
 
   std::string file="JetMETCorrections/TauJet/data/"+tag+".txt";
   
@@ -108,7 +108,7 @@ TauJetCorrector::~TauJetCorrector()
   for(ParametersMap::iterator ip=parametrization.begin();ip!=parametrization.end();ip++) delete ip->second;
 }
 
-void TauJetCorrector::setParameters(std::string aCalibrationType, int itype)
+void TauJetCorrector::setParameters(const std::string& aCalibrationType, int itype)
 {
      //cout<< " Start to set parameters "<<endl;
      type = itype;

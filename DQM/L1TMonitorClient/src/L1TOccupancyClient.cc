@@ -375,7 +375,7 @@ void L1TOccupancyClient::dqmEndLuminosityBlock(DQMStore::IBooker &ibooker, DQMSt
 // * double = fraction of bins that failed test, DeadChannels in vector, in: ParameterSet of test parameters
 //____________________________________________________________________________
 double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps, 
-                                      string                      iTestName, 
+                                      const string&                      iTestName, 
                                       vector< pair<int,double> >& deadChannels, 
                                       vector< pair<int,double> >& statDev, 
                                       bool&                       enoughStats){
@@ -567,7 +567,7 @@ double L1TOccupancyClient::xySymmetry(const ParameterSet  &              ps,
 // Outputs:
 // * double = Average of input strip
 //____________________________________________________________________________
-double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int iNBins, int iBinStrip, int iAvgMode) {
+double L1TOccupancyClient::getAvrg(TH2F* iHist, const string& iTestName, int iAxis, int iNBins, int iBinStrip, int iAvgMode) {
 
   double avg = 0.0;
   TH1D* proj = NULL;
@@ -642,7 +642,7 @@ double L1TOccupancyClient::getAvrg(TH2F* iHist, string iTestName, int iAxis, int
 // * vector< pair<int,double> > statDev           = ???
 // * string                     iTestName         = Name of the test
 //____________________________________________________________________________
-void L1TOccupancyClient::printDeadChannels(const vector< pair<int,double> >& iDeadChannels, TH2F* oHistDeadChannels, const vector<std::pair<int,double> >& statDev, string iTestName) {
+void L1TOccupancyClient::printDeadChannels(const vector< pair<int,double> >& iDeadChannels, TH2F* oHistDeadChannels, const vector<std::pair<int,double> >& statDev, const string& iTestName) {
 
   // Reset the dead channels histogram
   oHistDeadChannels->Reset();
@@ -694,7 +694,7 @@ void L1TOccupancyClient::printDeadChannels(const vector< pair<int,double> >& iDe
 // Outputs:
 // * int = Number of dead channels
 //____________________________________________________________________________
-int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBinStrip, int iNBins, int iAxis, double iAvg, const ParameterSet& iPS, vector<pair<int,double> >& oChannels) {
+int L1TOccupancyClient::compareWithStrip(TH2F* iHist, const string& iTestName, int iBinStrip, int iNBins, int iAxis, double iAvg, const ParameterSet& iPS, vector<pair<int,double> >& oChannels) {
 
   int dead = 0;
   

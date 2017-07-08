@@ -6,7 +6,7 @@ using namespace reco;
 CaloTauTagInfo* CaloTauTagInfo::clone()const{return new CaloTauTagInfo(*this);}
     
 const CaloJetRef& CaloTauTagInfo::calojetRef()const{return CaloJetRef_;}
-void CaloTauTagInfo::setcalojetRef(const CaloJetRef x){CaloJetRef_=x;}
+void CaloTauTagInfo::setcalojetRef(const CaloJetRef& x){CaloJetRef_=x;}
 
 const JetBaseRef CaloTauTagInfo::jetRef()const{
         if(JetRef_.isNonnull()) {
@@ -15,7 +15,7 @@ const JetBaseRef CaloTauTagInfo::jetRef()const{
 }
 
 #include "DataFormats/JetReco/interface/JPTJet.h"
-void CaloTauTagInfo::setJetRef(const JetBaseRef x){
+void CaloTauTagInfo::setJetRef(const JetBaseRef& x){
         JetRef_=x;
         const reco::Jet *base = x.get();
 

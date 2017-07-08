@@ -642,7 +642,7 @@ void PATMuonProducer::fillDescriptions(edm::ConfigurationDescriptions & descript
 // embed various impact parameters with errors
 // embed high level selection
 void PATMuonProducer::embedHighLevel( pat::Muon & aMuon,
-				      reco::TrackRef track,
+				      const reco::TrackRef& track,
 				      reco::TransientTrack & tt,
 				      reco::Vertex & primaryVertex,
 				      bool primaryVertexIsValid,

@@ -18,7 +18,7 @@ using namespace sistrip;
     T_ANALYSIS_CALIBRATION.
 */
 SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescriptions( AnalysisType analysis_type,
-										     std::string partition ) {
+										     const std::string& partition ) {
   
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -157,7 +157,7 @@ SiStripConfigDb::AnalysisDescriptionsRange SiStripConfigDb::getAnalysisDescripti
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addAnalysisDescriptions( std::string partition, AnalysisDescriptionsV& anals ) {
+void SiStripConfigDb::addAnalysisDescriptions( const std::string& partition, AnalysisDescriptionsV& anals ) {
 
   if ( !deviceFactory(__func__) ) { return; }
 
@@ -227,7 +227,7 @@ void SiStripConfigDb::addAnalysisDescriptions( std::string partition, AnalysisDe
 // -----------------------------------------------------------------------------
 // 
 void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
-						  std::string partition ) {
+						  const std::string& partition ) {
 
   if ( dbParams_.usingDbCache() ) {
     edm::LogWarning(mlConfigDb_)
@@ -323,7 +323,7 @@ void SiStripConfigDb::uploadAnalysisDescriptions( bool calibration_for_physics,
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
+void SiStripConfigDb::clearAnalysisDescriptions( const std::string& partition ) {
   LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]";
   
   if ( analyses_.empty() ) { 
@@ -389,7 +389,7 @@ void SiStripConfigDb::clearAnalysisDescriptions( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::printAnalysisDescriptions( std::string partition ) {
+void SiStripConfigDb::printAnalysisDescriptions( const std::string& partition ) {
   
   std::stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"

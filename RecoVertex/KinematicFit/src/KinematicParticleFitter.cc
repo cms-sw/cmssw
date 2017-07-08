@@ -31,7 +31,7 @@ std::vector<RefCountedKinematicTree> KinematicParticleFitter::fit(KinematicConst
 } 
 
 RefCountedKinematicTree KinematicParticleFitter::fit(KinematicConstraint * cs , 
-                                            RefCountedKinematicTree tree)const
+                                            const RefCountedKinematicTree& tree)const
 {
  std::vector<RefCountedKinematicTree> trees;
  trees.push_back(tree);

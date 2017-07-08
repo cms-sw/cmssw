@@ -50,7 +50,7 @@ private:
   void fillPathSummaryPlots(    DQMStore::IBooker & booker, DQMStore::IGetter & getter, double events, std::string const & path);
   void fillPlotsVsLumi(DQMStore::IBooker & booker, DQMStore::IGetter & getter, std::string const & current_path, std::string const & suffix, MEPSet pset);
 
-  static MEPSet getHistoPSet  (edm::ParameterSet pset);
+  static MEPSet getHistoPSet  (const edm::ParameterSet& pset);
 
   bool doPlotsVsScalLumi_;
   bool doPlotsVsPixelLumi_;
@@ -445,7 +445,7 @@ FastTimerServiceClient::fillLumiMePSetDescription(edm::ParameterSetDescription &
 }
 
 
-MEPSet FastTimerServiceClient::getHistoPSet(edm::ParameterSet pset)
+MEPSet FastTimerServiceClient::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEPSet{
     pset.getParameter<std::string>("folder"),

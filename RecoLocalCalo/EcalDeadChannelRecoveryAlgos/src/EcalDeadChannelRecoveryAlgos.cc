@@ -20,7 +20,7 @@ void EcalDeadChannelRecoveryAlgos<T>::setCaloTopology(
 
 template <typename T>
 EcalRecHit EcalDeadChannelRecoveryAlgos<T>::correct(
-    const T id, const EcalRecHitCollection &hit_collection, std::string algo,
+    const T id, const EcalRecHitCollection &hit_collection, const std::string& algo,
     double Sum8Cut, bool *AcceptFlag) {
   // recover as single dead channel
   double NewEnergy = 0.0;

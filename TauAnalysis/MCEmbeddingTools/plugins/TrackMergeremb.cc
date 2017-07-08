@@ -53,7 +53,7 @@ typedef TrackMergeremb<reco::PFCandidateCollection > PFColMerger;
 
 // Here some overloaded functions, which are needed such that the right merger function is called for the indivudal Collections
 template <typename T1>
-void  TrackMergeremb<T1>::willproduce(std::string instance, std::string alias)
+void  TrackMergeremb<T1>::willproduce(std::string instance, const std::string& alias)
 {
   produces<TrackCollectionemb>(instance);
 }
@@ -87,7 +87,7 @@ void  TrackMergeremb<T1>::merg_and_put(edm::Event& iEvent, std::string instance,
 }
 
 template <>
-void  TrackMergeremb<reco::TrackCollection>::willproduce(std::string instance, std::string alias)
+void  TrackMergeremb<reco::TrackCollection>::willproduce(const std::string& instance, const std::string& alias)
 {
 
     produces<reco::TrackCollection>(instance).setBranchAlias( alias + "Tracks" );
@@ -98,7 +98,7 @@ void  TrackMergeremb<reco::TrackCollection>::willproduce(std::string instance, s
 }
 
 template <>
-void  TrackMergeremb<reco::TrackCollection>::merg_and_put(edm::Event& iEvent, std::string instance,  std::vector<edm::EDGetTokenT<reco::TrackCollection> > &to_merge )
+void  TrackMergeremb<reco::TrackCollection>::merg_and_put(edm::Event& iEvent, const std::string& instance,  std::vector<edm::EDGetTokenT<reco::TrackCollection> > &to_merge )
 {
     
     std::unique_ptr<reco::TrackCollection> outTracks = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection);
@@ -147,7 +147,7 @@ void  TrackMergeremb<reco::TrackCollection>::merg_and_put(edm::Event& iEvent, st
 
 
 template <>
-void  TrackMergeremb<reco::GsfTrackCollection>::willproduce(std::string instance, std::string alias)
+void  TrackMergeremb<reco::GsfTrackCollection>::willproduce(const std::string& instance, const std::string& alias)
 {
     produces<reco::GsfTrackCollection>(instance).setBranchAlias( alias + "GsfTracks" );
     produces<reco::TrackExtraCollection>(instance).setBranchAlias( alias + "TrackExtras" );
@@ -156,7 +156,7 @@ void  TrackMergeremb<reco::GsfTrackCollection>::willproduce(std::string instance
 }
 
 template <>
-void  TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(edm::Event& iEvent, std::string instance,  std::vector<edm::EDGetTokenT<reco::GsfTrackCollection> > &to_merge )
+void  TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(edm::Event& iEvent, const std::string& instance,  std::vector<edm::EDGetTokenT<reco::GsfTrackCollection> > &to_merge )
 {
     std::unique_ptr<reco::GsfTrackCollection> outTracks = std::unique_ptr<reco::GsfTrackCollection>(new reco::GsfTrackCollection);
     std::unique_ptr<reco::TrackExtraCollection> outTracks_ex = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
@@ -196,7 +196,7 @@ void  TrackMergeremb<reco::GsfTrackCollection>::merg_and_put(edm::Event& iEvent,
 
 
 template <>
-void  TrackMergeremb<reco::MuonCollection >::willproduce(std::string instance, std::string alias)
+void  TrackMergeremb<reco::MuonCollection >::willproduce(const std::string& instance, const std::string& alias)
 {
    produces<reco::MuonCollection>();
    produces<reco::CaloMuonCollection>();
@@ -229,7 +229,7 @@ void  TrackMergeremb<reco::MuonCollection >::willconsume(const edm::ParameterSet
 
 
 template <>
-void  TrackMergeremb<reco::MuonCollection  >::merg_and_put(edm::Event& iEvent, std::string instance,  std::vector<edm::EDGetTokenT<reco::MuonCollection> > &to_merge )
+void  TrackMergeremb<reco::MuonCollection  >::merg_and_put(edm::Event& iEvent, const std::string& instance,  std::vector<edm::EDGetTokenT<reco::MuonCollection> > &to_merge )
 {
     std::unique_ptr<reco::MuonCollection> outTracks = std::unique_ptr<reco::MuonCollection>(new reco::MuonCollection);
     std::unique_ptr<reco::CaloMuonCollection> calomu = std::unique_ptr<reco::CaloMuonCollection>(new reco::CaloMuonCollection); //not implemented so far 
@@ -307,7 +307,7 @@ void  TrackMergeremb<reco::MuonCollection  >::merg_and_put(edm::Event& iEvent, s
 
 
 template <>
-void  TrackMergeremb<reco::PFCandidateCollection >::willproduce(std::string instance, std::string alias)
+void  TrackMergeremb<reco::PFCandidateCollection >::willproduce(const std::string& instance, const std::string& alias)
 {
 
   produces<reco::PFCandidateCollection>(instance);
@@ -331,7 +331,7 @@ void  TrackMergeremb<reco::PFCandidateCollection>::willconsume(const edm::Parame
 
 
 template <>
-void  TrackMergeremb<reco::PFCandidateCollection >::merg_and_put(edm::Event& iEvent, std::string instance,  std::vector<edm::EDGetTokenT<reco::PFCandidateCollection> > &to_merge )
+void  TrackMergeremb<reco::PFCandidateCollection >::merg_and_put(edm::Event& iEvent, const std::string& instance,  std::vector<edm::EDGetTokenT<reco::PFCandidateCollection> > &to_merge )
 {
     std::unique_ptr<reco::PFCandidateCollection> outTracks = std::unique_ptr<reco::PFCandidateCollection>(new reco::PFCandidateCollection);
     

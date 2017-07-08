@@ -31,7 +31,7 @@ public:
  * chi2, number of degrees of freedom and history information
  */
   RefCountedKinematicParticle particle(const KinematicState& kineState, float& chiSquared,
-                 float& degreesOfFr, ReferenceCountingPointer<KinematicParticle> previousParticle,
+                 float& degreesOfFr, const ReferenceCountingPointer<KinematicParticle>& previousParticle,
 				           KinematicConstraint * lastConstraint = 0)const;
 private:
   

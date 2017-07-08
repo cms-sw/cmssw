@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "SimG4Core/PhysicsLists/interface/CMSEmStandardPhysics95msc93.h"
 #include "SimG4Core/PhysicsLists/interface/UrbanMscModel93.h"
 #include "SimG4Core/PhysicsLists/interface/EmParticleList.h"
@@ -71,7 +73,7 @@
 
 CMSEmStandardPhysics95msc93::CMSEmStandardPhysics95msc93(const G4String& name, 
 							 G4int ver, std::string reg)
-: G4VPhysicsConstructor(name), verbose(ver), region(reg) {
+: G4VPhysicsConstructor(name), verbose(ver), region(std::move(reg)) {
   G4EmParameters* param = G4EmParameters::Instance();
   param->SetDefaults();
   param->SetVerbose(verbose);

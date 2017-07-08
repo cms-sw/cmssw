@@ -10,6 +10,7 @@
  */
 #include <boost/cstdint.hpp>
 #include <iostream>
+#include <utility>
 #include <vector>
 
 class EcalErrorDictionary {
@@ -22,10 +23,10 @@ class EcalErrorDictionary {
 
   static uint64_t hasError(std::string shortDesc, uint64_t bitcode)
     {
-      return getMask(shortDesc) & bitcode;
+      return getMask(std::move(shortDesc)) & bitcode;
     }
 
-  static uint64_t getMask(std::string shortDesc)
+  static uint64_t getMask(const std::string& shortDesc)
     {
       for (unsigned int i=0; i<DICTSIZE; i++) {
 	if (getDef(i).shortDesc == shortDesc) {

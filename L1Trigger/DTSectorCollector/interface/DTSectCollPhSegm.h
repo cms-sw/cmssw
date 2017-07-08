@@ -41,10 +41,10 @@ class DTSectCollPhSegm : public DTTrigData {
  public:
 
   //!  Constructor
-  DTSectCollPhSegm(DTSectCollId scId, int step);
+  DTSectCollPhSegm(const DTSectCollId& scId, int step);
   
   //!  Constructor
-  DTSectCollPhSegm(DTSectCollId scId, int step, 
+  DTSectCollPhSegm(const DTSectCollId& scId, int step, 
 		    const DTChambPhSegm* tsPhiTrig, int isFirst);
   //!  Constructor
   DTSectCollPhSegm(const DTSectCollPhSegm&);

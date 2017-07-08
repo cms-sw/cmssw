@@ -34,8 +34,8 @@ public:
   std::string getStationLabel(int i);
   const GEMGeometry* initGeometry(const edm::EventSetup&);
 
-  MonitorElement* getSimpleZR( DQMStore::IBooker &, TString, TString) ;
-  MonitorElement* getDCEta(DQMStore::IBooker& , const GEMStation*, TString, TString) ;
+  MonitorElement* getSimpleZR( DQMStore::IBooker &, const TString&, TString) ;
+  MonitorElement* getDCEta(DQMStore::IBooker& , const GEMStation*, const TString&, TString) ;
 
   unsigned int nRegion() { return nregion;  }
   unsigned int nStation() { return nstation;  }

@@ -456,7 +456,7 @@ void
 
 
 void
-  MessageLoggerScribe::configure_dest( std::shared_ptr<ELdestination> dest_ctrl
+  MessageLoggerScribe::configure_dest( const std::shared_ptr<ELdestination>& dest_ctrl
                                      , String const &  filename
 				     )
 {

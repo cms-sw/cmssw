@@ -10,6 +10,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <map>
 
@@ -78,10 +79,10 @@ class SiStripDbParams {
   iterator_range partitions();
 
   /** Returns const iterator to partition object. */
-  SiStripPartitions::const_iterator partition( std::string partition_name ) const;
+  SiStripPartitions::const_iterator partition( const std::string& partition_name ) const;
   
   /** Returns iterator to partition object. */
-  SiStripPartitions::iterator partition( std::string partition_name );
+  SiStripPartitions::iterator partition( const std::string& partition_name );
   
   /** */
   void clearPartitions();
@@ -93,7 +94,7 @@ class SiStripDbParams {
   std::vector<std::string> partitionNames() const;
   
   /** Extract (non-zero) partition names from string. */
-  std::vector<std::string> partitionNames( std::string ) const;
+  std::vector<std::string> partitionNames( const std::string& ) const;
   
   /** Construct string from (non-zero) partition names. */
   std::string partitionNames( const std::vector<std::string>& ) const;
@@ -197,6 +198,6 @@ inline std::string SiStripDbParams::outputFedXml() const { return outputFedXml_;
 inline void SiStripDbParams::clearPartitions() { partitions_.clear(); }
 inline void SiStripDbParams::usingDb( bool using_db ) { usingDb_ = using_db; }
 inline void SiStripDbParams::usingDbCache( bool using_cache ) { usingDbCache_ = using_cache; }
-inline void SiStripDbParams::sharedMemory( std::string name ) { sharedMemory_ = name; }
+inline void SiStripDbParams::sharedMemory( std::string name ) { sharedMemory_ = std::move(name); }
 
 #endif // OnlineDB_SiStripConfigDb_SiStripDbParams_h

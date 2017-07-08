@@ -24,7 +24,7 @@ public:
 
 private:
 
-  void orient(LocalVector LC1, LocalVector LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ);
+  void orient(const LocalVector& LC1, const LocalVector& LC2, double a, double b, double &T, double &dx, double &dy, double &dz, double &PhX, double &PhZ);
   void errors(double a, double b, bool missing1, bool missing2, double &dx_dx, double &dy_dy, double &dz_dz, double &phix_phix, double &phiz_phiz, double &dy_phix);
 
   void fillAllRecords(Alignable *ali);

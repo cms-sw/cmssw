@@ -58,7 +58,7 @@ FWTypeToRepresentations::~FWTypeToRepresentations()
 // member functions
 //
 void
-FWTypeToRepresentations::add( std::shared_ptr<FWRepresentationCheckerBase> iChecker)
+FWTypeToRepresentations::add( const std::shared_ptr<FWRepresentationCheckerBase>& iChecker)
 {
    m_checkers.push_back(iChecker);
    if(m_typeToReps.size()) {

@@ -42,7 +42,7 @@ public:
 		return energies_;
 	}
 
-	std::ostream& dump(std::ostream& stream, double norm = 1.0, std::string rowDelim = "\n") const;
+	std::ostream& dump(std::ostream& stream, double norm = 1.0, const std::string& rowDelim = "\n") const;
 
 private:
 	std::map<std::pair<int, int>, double> energies_;

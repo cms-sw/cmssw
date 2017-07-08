@@ -193,7 +193,7 @@ namespace HLTOfflineDQMTopDiLepton {
     }
 
   void 
-    MonitorDiLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths)
+    MonitorDiLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string>& triggerPaths)
     {
       // fetch trigger event if configured such 
       edm::Handle<edm::TriggerResults> triggerTable;

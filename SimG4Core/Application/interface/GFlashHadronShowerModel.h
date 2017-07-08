@@ -23,7 +23,7 @@ public:
   //-------------------------
   // Constructor, destructor
   //-------------------------
-  GFlashHadronShowerModel (G4String modelName, G4Region* envelope, 
+  GFlashHadronShowerModel (const G4String& modelName, G4Region* envelope, 
 			   const edm::ParameterSet& parSet);
   ~GFlashHadronShowerModel ();
 

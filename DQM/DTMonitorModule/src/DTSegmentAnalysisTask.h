@@ -83,9 +83,9 @@ private:
   edm::ParameterSet parameters;
 
   // book the histos
-  void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chamberId);
+  void bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& chamberId);
   // Fill a set of histograms for a given chamber
-  void fillHistos(DTChamberId chamberId,
+  void fillHistos(const DTChamberId& chamberId,
 		  int nHits,
 		  float chi2);
 

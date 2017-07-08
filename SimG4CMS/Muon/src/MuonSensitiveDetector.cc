@@ -186,11 +186,11 @@ Local3DPoint MuonSensitiveDetector::toOrcaRef(Local3DPoint in ,G4Step * s){
   return (in);
 }
 
-Local3DPoint MuonSensitiveDetector::toOrcaUnits(Local3DPoint in){
+Local3DPoint MuonSensitiveDetector::toOrcaUnits(const Local3DPoint& in){
   return Local3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
 }
 
-Global3DPoint MuonSensitiveDetector::toOrcaUnits(Global3DPoint in){
+Global3DPoint MuonSensitiveDetector::toOrcaUnits(const Global3DPoint& in){
   return Global3DPoint(in.x()/cm,in.y()/cm,in.z()/cm);
 }
 

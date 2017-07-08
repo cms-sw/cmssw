@@ -243,7 +243,7 @@ namespace edm {
     
     
     void
-    ThreadSafeLogMessageLoggerScribe::configure_dest( std::shared_ptr<ELdestination> dest_ctrl
+    ThreadSafeLogMessageLoggerScribe::configure_dest( const std::shared_ptr<ELdestination>& dest_ctrl
                                                      , String const &  filename
                                                      )
     {

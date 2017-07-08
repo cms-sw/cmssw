@@ -40,7 +40,7 @@ namespace edm {
    
    template<typename T>
    void print_eventsetup_record_dependencies(std::ostream&,
-                                             std::string,
+                                             const std::string&,
                                              T const*,
                                              T const*) { }
 

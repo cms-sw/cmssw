@@ -242,7 +242,7 @@ void SiStripDbParams::confdb( const std::string& user,
 
 // -----------------------------------------------------------------------------
 // 
-SiStripDbParams::SiStripPartitions::const_iterator SiStripDbParams::partition( std::string partition_name ) const {
+SiStripDbParams::SiStripPartitions::const_iterator SiStripDbParams::partition( const std::string& partition_name ) const {
   SiStripDbParams::SiStripPartitions::const_iterator ii = partitions().begin();
   SiStripDbParams::SiStripPartitions::const_iterator jj = partitions().end();
   for ( ; ii != jj; ++ii ) { if ( partition_name == ii->second.partitionName() ) { return ii; } }
@@ -251,7 +251,7 @@ SiStripDbParams::SiStripPartitions::const_iterator SiStripDbParams::partition( s
 
 // -----------------------------------------------------------------------------
 // 
-SiStripDbParams::SiStripPartitions::iterator SiStripDbParams::partition( std::string partition_name ) {
+SiStripDbParams::SiStripPartitions::iterator SiStripDbParams::partition( const std::string& partition_name ) {
   SiStripDbParams::SiStripPartitions::iterator ii = partitions().begin();
   SiStripDbParams::SiStripPartitions::iterator jj = partitions().end();
   for ( ; ii != jj; ++ii ) { if ( partition_name == ii->second.partitionName() ) { return ii; } }
@@ -281,7 +281,7 @@ std::vector<std::string> SiStripDbParams::partitionNames() const {
 
 // -----------------------------------------------------------------------------
 // 
-std::vector<std::string> SiStripDbParams::partitionNames( std::string input ) const {
+std::vector<std::string> SiStripDbParams::partitionNames( const std::string& input ) const {
   std::istringstream ss(input);
   std::vector<std::string> partitions;
   std::string delimiter = ":";

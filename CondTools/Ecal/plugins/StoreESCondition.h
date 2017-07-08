@@ -41,7 +41,7 @@ class  StoreESCondition : public edm::EDAnalyzer {
   ESIntercalibConstants* readESIntercalibConstantsFromFile(const char*);
   ESMissingEnergyCalibration* readESMissingEnergyFromFile(const char*);
   ESEEIntercalibConstants* readESEEIntercalibConstantsFromFile(const char*);
-  void writeToLogFile(std::string , std::string, unsigned long long) ;
+  void writeToLogFile(const std::string& , const std::string&, unsigned long long) ;
   void writeToLogFileResults(char* ) ;
   
   explicit  StoreESCondition(const edm::ParameterSet& iConfig );

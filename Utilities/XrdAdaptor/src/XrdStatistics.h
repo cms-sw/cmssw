@@ -77,7 +77,7 @@ public:
     // thread is reading data.
     void recomputeProperties(std::map<std::string, std::string> &props);
 
-    static std::shared_ptr<XrdReadStatistics> startRead(std::shared_ptr<XrdSiteStatistics> parent, std::shared_ptr<ClientRequest> req);
+    static std::shared_ptr<XrdReadStatistics> startRead(std::shared_ptr<XrdSiteStatistics> parent, const std::shared_ptr<ClientRequest>& req);
 
     void finishRead(XrdReadStatistics const &);
 

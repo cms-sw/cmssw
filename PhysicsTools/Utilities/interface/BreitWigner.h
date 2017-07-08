@@ -3,6 +3,7 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include <boost/shared_ptr.hpp>
 #include <cmath>
+#include <utility>
 
 namespace funct {
   const double twoOverPi = 2./M_PI;
@@ -11,7 +12,7 @@ namespace funct {
     BreitWigner(const Parameter& m, const Parameter& g):
       mass(m.ptr()), width(g.ptr()) { }
     BreitWigner(boost::shared_ptr<double> m, boost::shared_ptr<double> g): 
-      mass(m), width(g) {}
+      mass(std::move(m)), width(std::move(g)) {}
     BreitWigner(double m, double g): 
       mass(new double(m)), width(new double(g)) {}
     double operator()(double x) const {

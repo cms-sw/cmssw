@@ -31,12 +31,12 @@ public:
 
 	//void gaussianFits(TFile& exercisefile, std::vector<Calibratable>& calibs);
 
-	void evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c, TTree& tree,
-			Calibratable* calibrated, DetectorElementPtr ecal,
-			DetectorElementPtr hcal, DetectorElementPtr offset, CalibrationProvenance cp, CalibrationProvenance cpCorr = NONE);
+	void evaluateCalibrator(const SpaceManagerPtr& s, const CalibratorPtr& c, TTree& tree,
+			Calibratable* calibrated, const DetectorElementPtr& ecal,
+			const DetectorElementPtr& hcal, const DetectorElementPtr& offset, CalibrationProvenance cp, CalibrationProvenance cpCorr = NONE);
 
 	
-	void evaluateSpaceManager(SpaceManagerPtr s, const std::vector<DetectorElementPtr>& detEls);
+	void evaluateSpaceManager(const SpaceManagerPtr& s, const std::vector<DetectorElementPtr>& detEls);
 
 	
 	void setTarget(CalibrationTarget t) {
@@ -44,7 +44,7 @@ public:
 	}
 	
 	
-	void getCalibrations(SpaceManagerPtr s);
+	void getCalibrations(const SpaceManagerPtr& s);
 
 private:
 	

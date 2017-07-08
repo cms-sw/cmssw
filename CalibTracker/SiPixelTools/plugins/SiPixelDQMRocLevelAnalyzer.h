@@ -55,7 +55,7 @@ class SiPixelDQMRocLevelAnalyzer : public edm::EDAnalyzer {
       virtual void endJob() ;
 
       //
-      void RocSummary(std::string tagname);
+      void RocSummary(const std::string& tagname);
       void RocSumOneModule(int maxr, int maxc, MonitorElement* const &me, std::vector<double> &vecCN, std::vector<double> &vecMean, std::vector<double> &vecSD, int &chipNumber);
       void FillRocLevelHistos(TH1F *hrocdep, TH1F *hdist, std::vector<double> &vecx, std::vector<double> &vecy);
 

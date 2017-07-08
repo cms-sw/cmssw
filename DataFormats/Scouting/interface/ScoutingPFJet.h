@@ -1,6 +1,7 @@
 #ifndef DataFormats_ScoutingPFJet_h
 #define DataFormats_ScoutingPFJet_h
 
+#include <utility>
 #include <vector>
 
 //class for holding PF jet information, for use in data scouting 
@@ -24,7 +25,7 @@ class ScoutingPFJet
             photonMultiplicity_(photonMultiplicity), electronMultiplicity_(electronMultiplicity),
             muonMultiplicity_(muonMultiplicity), HFHadronMultiplicity_(HFHadronMultiplicity),
             HFEMMultiplicity_(HFEMMultiplicity), HOEnergy_(HOEnergy), csv_(csv), mvaDiscriminator_(mvaDiscriminator),
-            constituents_(constituents) {}
+            constituents_(std::move(constituents)) {}
         //default constructor
         ScoutingPFJet():pt_(0), eta_(0), phi_(0), m_(0), 
         jetArea_(0), chargedHadronEnergy_(0), neutralHadronEnergy_(0),

@@ -6,6 +6,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <cstring>
+#include <utility>
 
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
@@ -28,7 +29,7 @@ class IODConfig : public IDBObject {
 
   virtual std::string getTable() =0;
 
-  inline void setConfigTag(std::string x) {m_config_tag=x;}
+  inline void setConfigTag(std::string x) {m_config_tag=std::move(x);}
   inline std::string getConfigTag() {return m_config_tag;}
  
 
@@ -80,7 +81,7 @@ class IODConfig : public IDBObject {
   //  virtual void writeDB() noexcept(false) ;
 
 
-void populateClob (Clob &clob, std::string fname, unsigned int bufsize) noexcept(false)
+void populateClob (Clob &clob, const std::string& fname, unsigned int bufsize) noexcept(false)
 {
 
   try{

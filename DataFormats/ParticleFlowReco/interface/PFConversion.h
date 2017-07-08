@@ -28,7 +28,7 @@ namespace reco {
     //    PFConversion(const reco::ConversionRef c);
     // PFConversion(const reco::ConversionRef c, const std::vector<reco::PFRecTrackRef>&  tr   );
 
-    PFConversion( reco::ConversionRef c);
+    PFConversion( const reco::ConversionRef& c);
     PFConversion( const reco::ConversionRef& c, const std::vector<reco::PFRecTrackRef>&  tr   );
 
 

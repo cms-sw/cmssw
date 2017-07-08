@@ -77,7 +77,7 @@ class testMagneticField : public edm::EDAnalyzer {
   ~testMagneticField(){}
 
 
-  void go(GlobalPoint g) {
+  void go(const GlobalPoint& g) {
     std::cout << "At: " << g << " phi=" << g.phi()<< " B= " << field->inTesla(g) << std::endl;
   }
 
@@ -122,16 +122,16 @@ class testMagneticField : public edm::EDAnalyzer {
 //   }
   }
   
-  void writeValidationTable(int npoints, string filename);
-  void validate(string filename, string type="xyz");
-  void validateVsTOSCATable(string filename);
+  void writeValidationTable(int npoints, const string& filename);
+  void validate(const string& filename, const string& type="xyz");
+  void validateVsTOSCATable(const string& filename);
 
   const MagVolume6Faces* findVolume(GlobalPoint& gp);
   const MagVolume6Faces* findMasterVolume(int volume, int sector);
 
-  void parseTOSCATablePath(string filename, int& volNo, int& sector, string& type);
-  void fillFromTable(string inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, string type);
-  void compareSectorTables(string file);
+  void parseTOSCATablePath(const string& filename, int& volNo, int& sector, string& type);
+  void fillFromTable(const string& inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, const string& type);
+  void compareSectorTables(const string& file);
 
  private:
   const MagneticField* field;
@@ -146,7 +146,7 @@ class testMagneticField : public edm::EDAnalyzer {
 };
 
 
-void testMagneticField::writeValidationTable(int npoints, string filename) {
+void testMagneticField::writeValidationTable(int npoints, const string& filename) {
   GlobalPointProvider p(InnerRadius, OuterRadius, -Geom::pi(), Geom::pi(), -HalfLength, HalfLength);
   ofstream file(filename.c_str());
 
@@ -159,7 +159,7 @@ void testMagneticField::writeValidationTable(int npoints, string filename) {
   }
 }
 
-void testMagneticField::validate(string filename, string type) {  
+void testMagneticField::validate(const string& filename, const string& type) {  
   ifstream file(filename.c_str());
   string line;
 
@@ -210,7 +210,7 @@ void testMagneticField::validate(string filename, string type) {
 
 
 
-void  testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& sector, string& type) {
+void  testMagneticField::parseTOSCATablePath(const string& filename, int& volNo, int& sector, string& type) {
   // Determine volume number, type, and sector from filename, assumed to be like:
   // [path]/s01_1/v-xyz-1156.table
   using boost::lexical_cast;
@@ -242,7 +242,7 @@ void  testMagneticField::parseTOSCATablePath(string filename, int& volNo, int& s
 
 
 
-void testMagneticField::validateVsTOSCATable(string filename) {
+void testMagneticField::validateVsTOSCATable(const string& filename) {
   // The magic here is that we want to check against the result of the master volume only 
   // as grid points on the border of volumes can end up in the neighbor volume.
   
@@ -337,7 +337,7 @@ void testMagneticField::validateVsTOSCATable(string filename) {
 
 
 // Compare the TOSCA txt table with the corresponding one in other sector.
-void testMagneticField::compareSectorTables(string file1) {
+void testMagneticField::compareSectorTables(const string& file1) {
 
   bool list = false; // true: print one line per volume
                     // false: print formatted table
@@ -440,7 +440,7 @@ void testMagneticField::compareSectorTables(string file1) {
   cout << endl;
 }
 
-void testMagneticField::fillFromTable(string inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, string type) {
+void testMagneticField::fillFromTable(const string& inputFile, vector<GlobalPoint>& p, vector<GlobalVector>& b, const string& type) {
 
   ifstream file(inputFile.c_str());
   string line;

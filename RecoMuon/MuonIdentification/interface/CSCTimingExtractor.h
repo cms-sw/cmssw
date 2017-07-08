@@ -71,7 +71,7 @@ public:
      float weightInvbeta;
   };
 
-  void fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
+  void fillTiming(TimeMeasurementSequence &tmSequence, const reco::TrackRef& muonTrack,
                   const edm::Event& iEvent, const edm::EventSetup& iSetup);
 
 private:

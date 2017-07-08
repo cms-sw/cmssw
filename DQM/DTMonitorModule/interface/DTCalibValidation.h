@@ -95,7 +95,7 @@ class DTCalibValidation: public DQMEDAnalyzer{
   template  <typename type>
   const type*
   findBestRecHit(const DTLayer* layer,
-		 DTWireId wireId,
+		 const DTWireId& wireId,
 		 const std::vector<type>& recHits,
 		 const float simHitDist);
 

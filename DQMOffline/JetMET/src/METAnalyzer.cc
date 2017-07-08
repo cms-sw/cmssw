@@ -219,7 +219,7 @@ void METAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 
 // ***********************************************************
-void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs)
+void METAnalyzer::bookMESet(const std::string& DirName, DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs)
 {
   bool bLumiSecPlot=fill_met_high_level_histo;
   //bool inTriggerPathPlots=false;
@@ -245,7 +245,7 @@ void METAnalyzer::bookMESet(std::string DirName, DQMStore::IBooker & ibooker, st
 }
 
 // ***********************************************************
-void METAnalyzer::bookMonitorElement(std::string DirName,DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs, bool bLumiSecPlot=false, bool fillPFCandPlots=false, bool fillZPlots=false)
+void METAnalyzer::bookMonitorElement(const std::string& DirName,DQMStore::IBooker & ibooker, std::map<std::string,MonitorElement*>& map_of_MEs, bool bLumiSecPlot=false, bool fillPFCandPlots=false, bool fillZPlots=false)
 {
   if (verbose_) std::cout << "bookMonitorElement " << DirName << std::endl;
 
@@ -1084,7 +1084,7 @@ void METAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSetup)
 
 
 // ***********************************************************
-void METAnalyzer::makeRatePlot(std::string DirName, double totltime)
+void METAnalyzer::makeRatePlot(const std::string& DirName, double totltime)
 {
   
   //dbe_->setCurrentFolder(DirName);
@@ -1668,8 +1668,8 @@ void METAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
 
 // ***********************************************************
-void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
-			    const reco::MET& met, const pat::MET& patmet, const reco::PFMET& pfmet, const reco::CaloMET& calomet,const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs, std::vector<bool>techTriggerCase, std::vector<bool>METFilterDecision)
+void METAnalyzer::fillMESet(const edm::Event& iEvent, const std::string& DirName,
+			    const reco::MET& met, const pat::MET& patmet, const reco::PFMET& pfmet, const reco::CaloMET& calomet,const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs, const std::vector<bool>&techTriggerCase, const std::vector<bool>&METFilterDecision)
 {
   bool bLumiSecPlot=fill_met_high_level_histo;
   bool fillPFCandidatePlots=false;
@@ -1698,7 +1698,7 @@ void METAnalyzer::fillMESet(const edm::Event& iEvent, std::string DirName,
 
 // ***********************************************************
 void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirName,
-					 std::string subFolderName,
+					 const std::string& subFolderName,
 				     const reco::MET& met,const pat::MET & patmet, const reco::PFMET & pfmet, const reco::CaloMET &calomet, const reco::Candidate::PolarLorentzVector& zCand,std::map<std::string,MonitorElement*>&  map_of_MEs,bool bLumiSecPlot, bool fillPFCandidatePlots,std::vector<bool> techTriggerCase,std::vector<bool> METFilterDecision)
 {
   bool do_only_Z_histograms=false;

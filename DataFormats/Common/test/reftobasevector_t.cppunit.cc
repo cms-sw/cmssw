@@ -39,7 +39,7 @@ namespace testreftobase {
 using namespace testreftobase;
 
 void
-do_some_tests(edm::RefToBaseVector<Base> x)
+do_some_tests(const edm::RefToBaseVector<Base>& x)
 {
   edm::RefToBaseVector<Base> copy(x);
  

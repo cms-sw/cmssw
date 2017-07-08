@@ -40,7 +40,7 @@ void EcalDeadChannelRecoveryNN<EEDetId>::setCaloTopology(const CaloTopology  *to
 }
 
 template <typename T>
-void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, std::string fn) {
+void EcalDeadChannelRecoveryNN<T>::load_file(MultiLayerPerceptronContext& ctx, const std::string& fn) {
   std::string path = edm::FileInPath(fn).fullPath();
 
   auto t = std::make_unique<TTree>("t", "dummy MLP tree");

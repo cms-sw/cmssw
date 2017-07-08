@@ -35,7 +35,7 @@ namespace hist_helper {
 
 class hDigis{
  public:
-  hDigis(std::string name_){
+  hDigis(const std::string& name_){
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
@@ -56,7 +56,7 @@ class hDigis{
 //     delete hMuonTimeDigis_vs_theta_RPhi;
   }
   	 
-  hDigis(std::string name_,TFile *file){
+  hDigis(const std::string& name_,TFile *file){
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
@@ -125,7 +125,7 @@ class hDigis{
 
 class hHits{
  public:
-  hHits(std::string name_){
+  hHits(const std::string& name_){
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
@@ -200,7 +200,7 @@ class hHits{
 
  }
   	 
-  hHits(std::string name_,TFile *file){
+  hHits(const std::string& name_,TFile *file){
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
@@ -367,7 +367,7 @@ class hHits{
 
 class hDeltaR{
  public:
-  hDeltaR(std::string name_){
+  hDeltaR(const std::string& name_){
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
@@ -398,7 +398,7 @@ class hDeltaR{
 //     delete hZoomPathX;
   }
   
-  hDeltaR(std::string name_,TFile *file){
+  hDeltaR(const std::string& name_,TFile *file){
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
@@ -470,7 +470,7 @@ class hDeltaR{
 
 class hParam{
  public:
-  hParam(std::string name_){
+  hParam(const std::string& name_){
     TString N = name_.c_str();
     name=N;
     //booking degli istogrammi unidimensionali
@@ -487,7 +487,7 @@ class hParam{
 //   delete HitParam_Bnorm;
   }
   	 
-  hParam(std::string name_,TFile *file){
+  hParam(const std::string& name_,TFile *file){
     name=name_.c_str();
     //per lettura da file degli istogrammi
     //1D
@@ -524,7 +524,7 @@ class hParam{
 
 class hMuonStat{
  public:
-    hMuonStat(std::string name_){
+    hMuonStat(const std::string& name_){
       TString N = name_.c_str();
       name=N;
       //booking degli istogrammi unidimensionali
@@ -533,7 +533,7 @@ class hMuonStat{
       hMuonVsPhi  = std::make_shared<TH1F> ("hMuon"+N+"VsPhi", "Muon "+N+" vs phi",100, -Geom::pi(), +Geom::pi());
     }
         
-    hMuonStat(std::string name_,TFile *file){
+    hMuonStat(const std::string& name_,TFile *file){
       name=name_.c_str();
       //per lettura da file degli istogrammi
       //1D
@@ -572,7 +572,7 @@ class hMuonStat{
 
 class hTOF{
 public:
-  hTOF(std::string name){
+  hTOF(const std::string& name){
     TString N = name.c_str();
 
     hTOF_true =   std::make_shared<TH1F>(N+"_TOF_true","TOF true",200,10.,35.);
@@ -584,7 +584,7 @@ public:
 
   }
   
-  hTOF(std::string name_,TFile *file){
+  hTOF(const std::string& name_,TFile *file){
     name=name_.c_str();
     hTOF_true =  hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TOF_true"));
     hTOF_hitPos=  hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TOF_hitPos"));
@@ -634,7 +634,7 @@ public:
 
 class hTDelay{
 public:
-  hTDelay(std::string name){
+  hTDelay(const std::string& name){
     TString N = name.c_str();
     
     hTDelay_true     = std::make_shared<TH1F>(N+"_TDelay_true", "Delay (true)",
@@ -652,7 +652,7 @@ public:
 
   }
   
-  hTDelay(std::string name_,TFile *file){
+  hTDelay(const std::string& name_,TFile *file){
     name=name_.c_str();
     hTDelay_true = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TDelay_true"));
     hTDelay_WC  = hist_helper::make_non_owning_cast<TH1F>( file->Get(name+"_TDelay_WC"));
@@ -697,7 +697,7 @@ public:
 template<class hTime>
 class hTimes{
  public:
-  hTimes(std::string name){
+  hTimes(const std::string& name){
     RZ = std::make_shared<hTime>(name+"_RZ");
     RPhi = std::make_shared<hTime>(name+"_RPhi");
     W0 = std::make_shared<hTime>(name+"_Wheel0");
@@ -705,7 +705,7 @@ class hTimes{
     W2 = std::make_shared<hTime>(name+"_Wheel2");  
   }
   
-  hTimes(std::string name_,TFile *file){
+  hTimes(const std::string& name_,TFile *file){
     name=name_.c_str();
 
     RZ =   hist_helper::make_non_owning_cast<hTime>( file->Get(name+"_RZ"));

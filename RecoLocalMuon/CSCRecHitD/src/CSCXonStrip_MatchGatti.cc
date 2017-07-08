@@ -502,7 +502,7 @@ void CSCXonStrip_MatchGatti::initChamberSpecs() {
 }
 
 
-void CSCXonStrip_MatchGatti::getCorrectionValues(std::string estimator){
+void CSCXonStrip_MatchGatti::getCorrectionValues(const std::string& estimator){
   hardcodedCorrectionInitialization();
 }
 

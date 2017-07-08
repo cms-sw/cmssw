@@ -70,7 +70,7 @@ namespace muon {
 				    const reco::TrackRef& fmsTrack,
 				    const double tune=4.);
   
-  double trackProbability(const reco::TrackRef track);
+  double trackProbability(const reco::TrackRef& track);
 }
 
 #endif

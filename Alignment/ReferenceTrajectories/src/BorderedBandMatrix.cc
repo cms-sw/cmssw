@@ -129,7 +129,7 @@ namespace gbl {
    * \param anIndex [in] List of rows/colums to be used
    */
   MatrixXd BorderedBandMatrix::getBlockMatrix(
-                                              const std::vector<unsigned int> anIndex) const {
+                                              const std::vector<unsigned int>& anIndex) const {
 
     MatrixXd aMatrix(anIndex.size(), anIndex.size());
     int nBorder = numBorder;

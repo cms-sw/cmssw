@@ -1,6 +1,8 @@
 #ifndef TrackAssociator_TrackDetMatchInfo_h
 #define TrackAssociator_TrackDetMatchInfo_h
 
+#include <utility>
+
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include "DataFormats/HcalRecHit/interface/HBHERecHit.h"
@@ -109,7 +111,7 @@ class TrackDetMatchInfo {
    int numberOfSegmentsInStation(int station, int detector) const;
    int numberOfSegmentsInDetector(int detector) const;
    
-   void setCaloGeometry( edm::ESHandle<CaloGeometry> geometry ) { caloGeometry = geometry; }
+   void setCaloGeometry( edm::ESHandle<CaloGeometry> geometry ) { caloGeometry = std::move(geometry); }
    GlobalPoint getPosition( const DetId& );
    std::string dumpGeometry( const DetId& );
  private:

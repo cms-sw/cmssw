@@ -12,10 +12,10 @@ using namespace oracle::occi;
 #include "OnlineDB/EcalCondDB/interface/EcalDBConnection.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
 
-EcalDBConnection::EcalDBConnection( string host,
-				    string sid,
-				    string user,
-				    string pass,
+EcalDBConnection::EcalDBConnection( const string& host,
+				    const string& sid,
+				    const string& user,
+				    const string& pass,
 				    int port )
   noexcept(false)
 {
@@ -38,9 +38,9 @@ EcalDBConnection::EcalDBConnection( string host,
   this->port = port;
 }
 
-EcalDBConnection::EcalDBConnection( string sid,
-				    string user,
-				    string pass )
+EcalDBConnection::EcalDBConnection( const string& sid,
+				    const string& user,
+				    const string& pass )
   noexcept(false)
 {
   try {    

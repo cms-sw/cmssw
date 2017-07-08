@@ -54,7 +54,7 @@ namespace edmtest
 
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name, const HcalTopology * topo);
     template<class S, class SRcd> void dumpIt(S* myS, SRcd* mySRcd, const edm::Event& e, const edm::EventSetup& context, std::string name);
-    template<class S> void writeToFile(S* myS, const edm::Event& e, std::string name);
+    template<class S> void writeToFile(S* myS, const edm::Event& e, const std::string& name);
 
   private:
     std::string front;
@@ -93,7 +93,7 @@ namespace edmtest
 
   }
 
-  template<class S> void HcalDumpConditions::writeToFile(S* myS, const edm::Event& e, std::string name){
+  template<class S> void HcalDumpConditions::writeToFile(S* myS, const edm::Event& e, const std::string& name){
     int myrun = e.id().run();
     std::ostringstream file;
     file << front << name.c_str() << "_Run" << myrun << ".txt";

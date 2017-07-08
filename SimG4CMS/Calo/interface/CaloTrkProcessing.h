@@ -42,8 +42,8 @@ private:
 
   void                     update(const BeginOfEvent * evt);
   void                     update(const G4Step *);
-  std::vector<std::string> getNames(G4String, const DDsvalues_type&);
-  std::vector<double>      getNumbers(G4String, const DDsvalues_type&);
+  std::vector<std::string> getNames(const G4String&, const DDsvalues_type&);
+  std::vector<double>      getNumbers(const G4String&, const DDsvalues_type&);
   int                      isItCalo(const G4VTouchable*);
   int                      isItInside(const G4VTouchable*, int, int);
 

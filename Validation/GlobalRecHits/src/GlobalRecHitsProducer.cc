@@ -2160,7 +2160,7 @@ GlobalRecHitsProducer::map1DRecHitsPerWire(const DTRecHitCollection*
 
 // Compute SimHit distance from wire (cm)
 float GlobalRecHitsProducer::simHitDistFromWire(const DTLayer* layer,
-						DTWireId wireId,
+						const DTWireId& wireId,
 						const PSimHit& hit) {
   float xwire = layer->specificTopology().wirePosition(wireId.wire());
   LocalPoint entryP = hit.entryPoint();
@@ -2176,7 +2176,7 @@ float GlobalRecHitsProducer::simHitDistFromWire(const DTLayer* layer,
 template  <typename type>
 const type* 
 GlobalRecHitsProducer::findBestRecHit(const DTLayer* layer,
-				      DTWireId wireId,
+				      const DTWireId& wireId,
 				      const std::vector<type>& recHits,
 				      const float simHitDist) {
   float res = 99999;

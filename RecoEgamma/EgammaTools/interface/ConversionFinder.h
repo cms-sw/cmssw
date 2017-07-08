@@ -81,9 +81,9 @@ class ConversionFinder {
   ConversionInfo findBestConversionMatch(const std::vector<ConversionInfo>& v_convCandidates);
 
   //function below is only for backwards compatibility
-  static std::pair<double, double> getConversionInfo(math::XYZTLorentzVector trk1_p4,
+  static std::pair<double, double> getConversionInfo(const math::XYZTLorentzVector& trk1_p4,
 						     int trk1_q, float trk1_d0,
-						     math::XYZTLorentzVector trk2_p4,
+						     const math::XYZTLorentzVector& trk2_p4,
 						     int trk2_q, float trk2_d0,
 						     float bFieldAtOrigin);
 

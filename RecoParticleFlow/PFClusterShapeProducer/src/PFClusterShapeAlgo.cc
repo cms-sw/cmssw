@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoParticleFlow/PFClusterShapeProducer/interface/PFClusterShapeAlgo.h"
 
 PFClusterShapeAlgo::PFClusterShapeAlgo(bool useFractions, double w0)
@@ -11,7 +13,7 @@ PFClusterShapeAlgo::~PFClusterShapeAlgo()
 }
 
 reco::ClusterShapeCollection * 
-PFClusterShapeAlgo::makeClusterShapes(edm::Handle<reco::PFClusterCollection> clusterHandle,
+PFClusterShapeAlgo::makeClusterShapes(const edm::Handle<reco::PFClusterCollection>& clusterHandle,
 				      edm::Handle<reco::PFRecHitCollection>   rechitHandle,
 				      const CaloSubdetectorGeometry * the_barrelGeo_p,
 				      const CaloSubdetectorTopology * the_barrelTop_p,
@@ -27,7 +29,7 @@ PFClusterShapeAlgo::makeClusterShapes(edm::Handle<reco::PFClusterCollection> clu
 
   reco::ClusterShapeCollection * shape_v_p = new reco::ClusterShapeCollection();
 
-  currentRecHit_v_p = rechitHandle;
+  currentRecHit_v_p = std::move(rechitHandle);
 
   for (unsigned int i = 0; i < clusterHandle->size(); ++i)
     {

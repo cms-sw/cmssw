@@ -40,7 +40,7 @@ class PFGsfHelper{
 
  private:
   
-  void computeQpMode (const TrajectoryStateOnSurface tsos,
+  void computeQpMode (const TrajectoryStateOnSurface& tsos,
 		      AlgebraicVector5& parameters, AlgebraicSymMatrix55& covariance) const;
   
 

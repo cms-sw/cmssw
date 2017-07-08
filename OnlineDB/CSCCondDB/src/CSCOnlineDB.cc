@@ -24,8 +24,8 @@
     oracle::occi::Environment::terminateEnvironment (env);
   }  // end of ~condbon ()
 
-  void condbon::cdbon_write (CSCobject *obj, std::string obj_name, int record,
-                            int global_run, std::string data_time)
+  void condbon::cdbon_write (CSCobject *obj, const std::string& obj_name, int record,
+                            int global_run, const std::string& data_time)
 {
   int i,j,k;
   std::string tab, tab_map, tab_data;
@@ -229,7 +229,7 @@
   con->terminateStatement (stmt1);
 } //end of cdbon_write
 
-void condbon::cdbon_last_record (std::string obj_name, int *record)
+void condbon::cdbon_last_record (const std::string& obj_name, int *record)
 {
   std::string sqlStmt;
   sqlStmt = "SELECT max(record_id) from "+obj_name;
@@ -249,7 +249,7 @@ void condbon::cdbon_last_record (std::string obj_name, int *record)
   con->terminateStatement (stmt);
 } // end of cdbon_last_record
 
-  void condbon::cdbon_read_rec (std::string obj_name, int record,
+  void condbon::cdbon_read_rec (const std::string& obj_name, int record,
                                 CSCobject *obj)
 {
   int i,len;

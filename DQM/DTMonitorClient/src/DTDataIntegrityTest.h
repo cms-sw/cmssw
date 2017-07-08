@@ -39,10 +39,10 @@ protected:
   void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
   /// Get the ME name
-  std::string getMEName(std::string histoType, int FEDId);
+  std::string getMEName(const std::string& histoType, int FEDId);
 
   /// Book the MEs
-  void bookHistos(DQMStore::IBooker &, std::string histoType, int dduId);
+  void bookHistos(DQMStore::IBooker &, const std::string& histoType, int dduId);
 
   /// DQM Client Diagnostic
   void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const &) override;

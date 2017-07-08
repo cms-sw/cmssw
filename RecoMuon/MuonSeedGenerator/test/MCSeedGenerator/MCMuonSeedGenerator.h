@@ -7,6 +7,8 @@
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
 
+#include <utility>
+
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -46,7 +48,7 @@ private:
   
   struct RadiusComparatorInOut{
 
-    RadiusComparatorInOut(edm::ESHandle<GlobalTrackingGeometry> tg):theTG(tg){}
+    RadiusComparatorInOut(edm::ESHandle<GlobalTrackingGeometry> tg):theTG(std::move(tg)){}
     
     bool operator()(const PSimHit *a,
 		    const PSimHit *b) const{ 

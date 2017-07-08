@@ -1392,7 +1392,7 @@ return mScale;
 }
 // -----------------------------------------------------------------------------
 //
-Map::Map( std::string input, bool verbose )
+Map::Map( const std::string& input, bool verbose )
   : eta_(),
     pt_(),
     data_()
@@ -1714,7 +1714,7 @@ void Efficiency::addE( uint32_t eta_bin, uint32_t pt_bin, double energy ) {
 
 // -----------------------------------------------------------------------------
 //
-bool Efficiency::check( uint32_t eta_bin, uint32_t pt_bin, std::string method ) const {
+bool Efficiency::check( uint32_t eta_bin, uint32_t pt_bin, const std::string& method ) const {
   if ( eta_bin < data_.size() && pt_bin < ( data_.empty() ? 0 : data_[0].size() ) ) { return true; }
   else { 
 //    edm::LogWarning("JetPlusTrackCorrector") 

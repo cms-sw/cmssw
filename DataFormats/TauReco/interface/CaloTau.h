@@ -24,7 +24,7 @@ namespace reco {
     CaloTau* clone()const;
     
     const CaloTauTagInfoRef& caloTauTagInfoRef()const;
-    void setcaloTauTagInfoRef(const CaloTauTagInfoRef);
+    void setcaloTauTagInfoRef(const CaloTauTagInfoRef&);
 
     const CaloJetRef rawJetRef() const;
 

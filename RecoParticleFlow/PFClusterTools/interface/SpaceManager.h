@@ -59,7 +59,7 @@ public:
 	 * Returns a pointer to it once it's been created, and returns a pointer to
 	 * any exisitng calibrator should that SpaceVoxel already exist.
 	 */
-	CalibratorPtr createCalibrator(const Calibrator& toClone, SpaceVoxelPtr s);
+	CalibratorPtr createCalibrator(const Calibrator& toClone, const SpaceVoxelPtr& s);
 
 	/*
 	 * Returns a pointer to the calibrator you need for the specified space point.
@@ -70,11 +70,11 @@ public:
 	
 	void assignCalibration(const CalibratorPtr& c, const std::map<DetectorElementPtr, double>& result);
 	
-	std::map<DetectorElementPtr, double> getCalibration(CalibratorPtr c);
+	std::map<DetectorElementPtr, double> getCalibration(const CalibratorPtr& c);
 	
 	std::ostream& printCalibrations(std::ostream& stream);
 	
-	TH1* extractEvolution(DetectorElementPtr det, Region region, TF1& f1, bool useTruth = true);
+	TH1* extractEvolution(const DetectorElementPtr& det, Region region, TF1& f1, bool useTruth = true);
 
 	void addEvolution(const DetectorElementPtr& det, Region region, const TF1& f) {
 		if(region == BARREL_POS)
@@ -83,9 +83,9 @@ public:
 			endcapPosEvolutions_[det] = f;
 	}
 	
-	double interpolateCoefficient(DetectorElementPtr det, double energy, double eta, double  phi);
+	double interpolateCoefficient(const DetectorElementPtr& det, double energy, double eta, double  phi);
 	
-	double evolveCoefficient(DetectorElementPtr det, double energy, double eta, double  phi);
+	double evolveCoefficient(const DetectorElementPtr& det, double energy, double eta, double  phi);
 	
 	int getNCalibrations() {
 		return calibrationCoeffs_.size();

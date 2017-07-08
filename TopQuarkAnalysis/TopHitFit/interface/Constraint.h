@@ -90,7 +90,7 @@ public:
 
      @param s The string to parse describing the constraint.
    */
-  Constraint (std::string s);
+  Constraint (const std::string& s);
 
   /**
      Copy constructor.

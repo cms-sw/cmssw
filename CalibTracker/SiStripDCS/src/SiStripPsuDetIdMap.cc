@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <sstream>
 #include <string>
+#include <utility>
 
 using namespace sistrip;
 
@@ -150,7 +151,7 @@ void SiStripPsuDetIdMap::RemoveDuplicateDetIDs(std::vector<uint32_t> & detids) {
   }
 }
 
-std::vector<uint32_t> SiStripPsuDetIdMap::getLvDetID(std::string PSU) {
+std::vector<uint32_t> SiStripPsuDetIdMap::getLvDetID(const std::string& PSU) {
   //Function that returns a vector with all detids associated with a PSU 
   //(no channel information is saved in the map since it is not relevant for LV!)
   if (LVMap.find(PSU)!=LVMap.end()) {
@@ -162,7 +163,7 @@ std::vector<uint32_t> SiStripPsuDetIdMap::getLvDetID(std::string PSU) {
   }
 }
 
-void SiStripPsuDetIdMap::getHvDetID(std::string PSUChannel, std::vector<uint32_t> & ids, std::vector<uint32_t> & unmapped_ids, std::vector<uint32_t> & crosstalking_ids ) {
+void SiStripPsuDetIdMap::getHvDetID(const std::string& PSUChannel, std::vector<uint32_t> & ids, std::vector<uint32_t> & unmapped_ids, std::vector<uint32_t> & crosstalking_ids ) {
   //Function that (via reference parameters) populates ids, unmapped_ids, crosstalking_ids vectors of detids associated with a given PSU *HV* channel.
   if (HVMap.find(PSUChannel)!=HVMap.end()) {
     ids=HVMap[PSUChannel];
@@ -189,7 +190,7 @@ void SiStripPsuDetIdMap::getDetID(std::string PSUChannel,const bool debug,std::v
   //3-crosstalking_detids->the detids that are matching the PSU in question but exhibit the HV channel cross-talking behavior (they are ON as long as ANY of the 2 HV channels of the supply is ON, so they only go OFF when both channels are OFF)
   //The second and third vectors are only relevant for the HV case, when unmapped and cross-talking channels need further processing before being turned ON and OFF.
   
-  std::string PSUChannelFromQuery = PSUChannel;
+  std::string PSUChannelFromQuery = std::move(PSUChannel);
 
   //Get the channel to see if it is LV or HV, they will be treated differently
   std::string ChannelFromQuery=PSUChannelFromQuery.substr(PSUChannelFromQuery.size()-10);
@@ -343,7 +344,7 @@ std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid) {
   return "UNKNOWN";
 }
 
-std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid, std::string group) {
+std::string SiStripPsuDetIdMap::getPSUName(uint32_t detid, const std::string& group) {
   std::vector< std::pair<uint32_t, std::string> >::iterator iter;
   if (group == "PG") {
     for (iter = pgMap.begin(); iter != pgMap.end(); iter++) {
@@ -368,7 +369,7 @@ std::string SiStripPsuDetIdMap::getDetectorLocation(uint32_t detid) {
 }
 
 // returns the PVSS name for a given DETID, depending on specified map
-std::string SiStripPsuDetIdMap::getDetectorLocation(uint32_t detid, std::string group) {
+std::string SiStripPsuDetIdMap::getDetectorLocation(uint32_t detid, const std::string& group) {
   if (group == "PG") {
     for (unsigned int i = 0; i < pgMap.size(); i++) {
       if (pgMap[i].first == detid) {return detectorLocations[i];}
@@ -383,7 +384,7 @@ std::string SiStripPsuDetIdMap::getDetectorLocation(uint32_t detid, std::string 
 }
 
 // returns the PVSS name for a given PSU channel
-std::string SiStripPsuDetIdMap::getDetectorLocation(std::string PSUChannel) {
+std::string SiStripPsuDetIdMap::getDetectorLocation(const std::string& PSUChannel) {
   for (unsigned int i = 0; i < pgMap.size(); i++) {
     if (pgMap[i].second == PSUChannel) {return detectorLocations[i];}
   }
@@ -394,7 +395,7 @@ std::string SiStripPsuDetIdMap::getDetectorLocation(std::string PSUChannel) {
 }
 
 // returns the DCU ID for a given PSU channel
-uint32_t SiStripPsuDetIdMap::getDcuId(std::string PSUChannel) {
+uint32_t SiStripPsuDetIdMap::getDcuId(const std::string& PSUChannel) {
   for (unsigned int i = 0; i < pgMap.size(); i++) {
     if (pgMap[i].second == PSUChannel) {return dcuIds[i];}
   }
@@ -412,7 +413,7 @@ uint32_t SiStripPsuDetIdMap::getDcuId(uint32_t detid) {
 }
 
 // determine if a given PSU channel is HV or not
-int SiStripPsuDetIdMap::IsHVChannel(std::string PSUChannel) {
+int SiStripPsuDetIdMap::IsHVChannel(const std::string& PSUChannel) {
   // isHV = 0 means LV, = 1 means HV, = -1 means error
   int isHV = 0;
   std::string::size_type loc = PSUChannel.find( "channel", 0 );
@@ -505,7 +506,7 @@ void SiStripPsuDetIdMap::checkMapInputValues(const SiStripConfigDb::DcuDetIdsV& 
 }
 
 //std::vector< std::pair<uint32_t, SiStripConfigDb::DeviceAddress> > SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
-std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(std::string partition) {
+std::vector< std::pair< std::vector<uint16_t> , std::vector<uint32_t> > > SiStripPsuDetIdMap::retrieveDcuDeviceAddresses(const std::string& partition) {
   // get the DB parameters
   SiStripDbParams dbParams_ = db_->dbParams();
   SiStripDbParams::SiStripPartitions::const_iterator iter;

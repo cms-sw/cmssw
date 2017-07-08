@@ -64,7 +64,7 @@ class BuildTrackerMapPlugin : public edm::EDAnalyzer
   virtual void endJob() override;
 
   void read(bool aMechView,
-	    std::string aFile,
+	    const std::string& aFile,
 	    std::vector<TkHistoMap*> & aTkMapVec,
 	    std::vector<bool> & aValidVec);
   void subtractMap(TkHistoMap*& aResult,
@@ -150,7 +150,7 @@ BuildTrackerMapPlugin::~BuildTrackerMapPlugin()
 
 /*Check that is possible to load in tkhistomaps histograms already stored in a DQM root file (if the folder and name are known)*/
 void BuildTrackerMapPlugin::read(bool aMechView,
-				 std::string aFile,
+				 const std::string& aFile,
 				 std::vector<TkHistoMap*> & aTkMapVec,
 				 std::vector<bool> & aValidVec)
 {

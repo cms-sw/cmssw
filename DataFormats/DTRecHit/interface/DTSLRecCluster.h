@@ -35,10 +35,10 @@ class DTSLRecCluster : public RecHit1D {
     DTSLRecCluster() {}
 
     /// c'tor from hits
-    DTSLRecCluster(const DTSuperLayerId id, const std::vector<DTRecHit1DPair>& pair) ;
+    DTSLRecCluster(const DTSuperLayerId& id, const std::vector<DTRecHit1DPair>& pair) ;
 
     /// complete constructor
-    DTSLRecCluster(const DTSuperLayerId id,
+    DTSLRecCluster(const DTSuperLayerId& id,
                    const LocalPoint&,
                    const LocalError&,
                    const std::vector<DTRecHit1DPair>& pair) ;

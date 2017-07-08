@@ -48,7 +48,7 @@ BPHDecayMomentum::BPHDecayMomentum(
 
 BPHDecayMomentum::BPHDecayMomentum(
                   const map<string,BPHDecayMomentum::Component>& daugMap,
-                  const map<string,BPHRecoConstCandPtr> compMap ):
+                  const map<string,BPHRecoConstCandPtr>& compMap ):
  // store the map of names to previously reconstructed particles
  cMap( compMap ),
  oldMom( true ) {

@@ -25,9 +25,9 @@ using namespace std;
 //global vars
 int numlumis = -1;
 
-int     nlumis     ( string filename ); //get number of run lumisections
-string  runnum_str ( string filename ); //read the run number, return in string
-void    ls_cert( float threshold_pixel , float threshold , string filename ) ;
+int     nlumis     ( const string& filename ); //get number of run lumisections
+string  runnum_str ( const string& filename ); //read the run number, return in string
+void    ls_cert( float threshold_pixel , float threshold , const string& filename ) ;
 
 int main(int argc , char *argv[]) {
 
@@ -53,10 +53,10 @@ int main(int argc , char *argv[]) {
 
 }
 
-void    ls_cert( float threshold_pixel , float threshold , string filename ) 
+void    ls_cert( float threshold_pixel , float threshold , const string& filename ) 
 {
-  void ls_cert_type ( string iDir , float threshold , string filename , vector <string>& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& );
-  void cert_plot    ( float threshold_pixel , float threshold , string filename , 
+  void ls_cert_type ( const string& iDir , float threshold , const string& filename , vector <string>& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& );
+  void cert_plot    ( float threshold_pixel , float threshold , const string& filename , 
 		      vector <string>& , vector <string>& , vector <string>& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& , vector<pair<string,vector<float> > >& );
 
   //presets
@@ -149,7 +149,7 @@ void    ls_cert( float threshold_pixel , float threshold , string filename )
   cert_plot ( threshold_pixel , threshold , filename , cert_strip , cert_track , cert_pixel , gLS_strip , gLS_track , gLS_pixel );
 }
 
-void ls_cert_type(string iDir, float threshold, string filename, vector <string>& cert, vector<pair<string,vector<float> > >& gLS, vector<pair<string,vector<float> > >& bLS, vector<pair<string,vector<float> > >& mLS ) 
+void ls_cert_type(const string& iDir, float threshold, const string& filename, vector <string>& cert, vector<pair<string,vector<float> > >& gLS, vector<pair<string,vector<float> > >& bLS, vector<pair<string,vector<float> > >& mLS ) 
 {  
   void Cleaning(vector<int> &);
   string ListOut(vector<int> &);
@@ -315,7 +315,7 @@ void ls_cert_type(string iDir, float threshold, string filename, vector <string>
     }
 }
 
-void cert_plot( float threshold_pixel , float threshold , string filename , vector <string>& cert_strip , vector <string>& cert_track , 
+void cert_plot( float threshold_pixel , float threshold , const string& filename , vector <string>& cert_strip , vector <string>& cert_track , 
 		vector <string>& cert_pixel , vector<pair<string,vector<float> > >& LS_strip , vector<pair<string,vector<float> > >& LS_track , 
 		vector<pair<string,vector<float> > >& LS_pixel )
 {
@@ -430,7 +430,7 @@ void cert_plot( float threshold_pixel , float threshold , string filename , vect
 }
 
 
-int nlumis( string filename )
+int nlumis( const string& filename )
 {
   if ( numlumis > -1 ) 
     return numlumis;
@@ -490,7 +490,7 @@ int nlumis( string filename )
   return numlumis;
 }
 
-string runnum_str( string filename )
+string runnum_str( const string& filename )
 {
   return filename.substr(filename.find("_R000")+5, 6);  
 }

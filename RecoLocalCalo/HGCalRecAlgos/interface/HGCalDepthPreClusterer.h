@@ -7,6 +7,7 @@
 #include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
 
 #include <list>
+#include <utility>
 
 #include "RecoLocalCalo/HGCalRecAlgos/interface/ClusterTools.h"
 
@@ -19,7 +20,7 @@ public:
   }
 
  HGCalDepthPreClusterer(const edm::ParameterSet& conf, edm::ConsumesCollector& sumes, std::vector<float> radii_in, uint32_t min_clusters, bool real_space_cone) :
-  radii(radii_in),
+  radii(std::move(radii_in)),
   minClusters(min_clusters),
   realSpaceCone(real_space_cone),
   clusterTools(std::make_unique<hgcal::ClusterTools>(conf,sumes)) {

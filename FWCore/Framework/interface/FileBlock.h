@@ -14,6 +14,7 @@ class TTree;
 #include <memory>
 #include <array>
 #include <string>
+#include <utility>
 
 namespace edm {
   class BranchDescription;
@@ -89,7 +90,7 @@ namespace edm {
       fileName_(fileName),
       branchListIndexesUnchanged_(branchListIndexesUnchanged),
       modifiedIDs_(modifiedIDs),
-      branchChildren_(branchChildren) {}
+      branchChildren_(std::move(branchChildren)) {}
 
     ~FileBlock() {}
 

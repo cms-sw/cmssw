@@ -248,7 +248,7 @@ void CaloTrkProcessing::update(const G4Step * aStep) {
   }
 }
 
-std::vector<std::string> CaloTrkProcessing::getNames(const G4String str,
+std::vector<std::string> CaloTrkProcessing::getNames(const G4String& str,
 						     const DDsvalues_type &sv){
 
 #ifdef DebugLog
@@ -277,7 +277,7 @@ std::vector<std::string> CaloTrkProcessing::getNames(const G4String str,
   }
 }
 
-std::vector<double> CaloTrkProcessing::getNumbers(const G4String str,
+std::vector<double> CaloTrkProcessing::getNumbers(const G4String& str,
 						  const DDsvalues_type &sv) {
 
 #ifdef DebugLog

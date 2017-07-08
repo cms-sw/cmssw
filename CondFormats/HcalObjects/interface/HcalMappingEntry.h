@@ -23,11 +23,11 @@ class HBHEHFLogicalMapEntry {
   // constructor from map information
   HBHEHFLogicalMapEntry( ) {}
   HBHEHFLogicalMapEntry( 
-			int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, std::string in_s_fpga,
-			std::string in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
+			int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, const std::string& in_s_fpga,
+			const std::string& in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
 			int in_dph, int in_wed, int in_rm, int in_rm_fi, int in_pix, int in_qie, int in_adc,
 			int in_slb, int in_rctcra, int in_rctcar, int in_rctcon,
-			std::string in_s_rbx, std::string in_s_slb, std::string in_s_slb2, std::string in_s_slnam, std::string in_s_rctnam
+			const std::string& in_s_rbx, std::string in_s_slb, std::string in_s_slb2, std::string in_s_slnam, std::string in_s_rctnam
 			);
   
   ~HBHEHFLogicalMapEntry() {}
@@ -61,10 +61,10 @@ class HOHXLogicalMapEntry {
          
   HOHXLogicalMapEntry( ) {}
   HOHXLogicalMapEntry( 
-		      int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, std::string in_s_fpga,
-		      std::string in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
+		      int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, const std::string& in_s_fpga,
+		      const std::string& in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
 		      int in_dph, int in_sec, int in_rm, int in_rm_fi, int in_pix, int in_qie, int in_adc,
-		      std::string in_s_rbx, std::string in_s_let 
+		      const std::string& in_s_rbx, std::string in_s_let 
 		      );
 
   ~HOHXLogicalMapEntry() {}
@@ -99,9 +99,9 @@ class CALIBLogicalMapEntry {
          
   CALIBLogicalMapEntry( ) {}
   CALIBLogicalMapEntry( 
-		       int in_fi_ch, int in_htr_fi, int in_spig, int in_fed,  int in_cr, int in_htr, std::string in_s_fpga,  
-		       std::string in_s_det, int in_et, int in_ph, int in_ch_ty, 
-		       int in_sid, int in_dph, std::string in_s_rbx, int in_wed, int in_rm_fi,
+		       int in_fi_ch, int in_htr_fi, int in_spig, int in_fed,  int in_cr, int in_htr, const std::string& in_s_fpga,  
+		       const std::string& in_s_det, int in_et, int in_ph, int in_ch_ty, 
+		       int in_sid, int in_dph, const std::string& in_s_rbx, int in_wed, int in_rm_fi,
 		       std::string in_s_subdet
 		       );
   
@@ -136,8 +136,8 @@ class ZDCLogicalMapEntry {
 
   ZDCLogicalMapEntry( ) {}
   ZDCLogicalMapEntry(
-		     int in_fi_ch, int in_htr_fi, int in_spigot, int in_fed, int in_cr, int in_htr, std::string in_s_fpga,
-		     std::string in_s_det, int in_sid, int in_dep, 
+		     int in_fi_ch, int in_htr_fi, int in_spigot, int in_fed, int in_cr, int in_htr, const std::string& in_s_fpga,
+		     const std::string& in_s_det, int in_sid, int in_dep, 
 		     int in_x, int in_y, int in_dx, int in_det_ch, int in_cab, int in_rm, int in_qie, 
 		     int in_adc, int in_rm_fi
 		     );

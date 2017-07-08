@@ -32,8 +32,8 @@ public:
 
 	unsigned getParticleDepositsDirectly(TChain& sourceChain,
 			std::vector<ParticleDepositPtr>& toBeFilled,
-			CalibrationTarget target, DetectorElementPtr offset,
-			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
+			CalibrationTarget target, const DetectorElementPtr& offset,
+			const DetectorElementPtr& ecal, const DetectorElementPtr& hcal, bool includeOffset = false);
 
 	unsigned getCalibratablesFromRootFile(TChain& tree,
 			std::vector<Calibratable>& toBeFilled);
@@ -41,10 +41,10 @@ public:
 	unsigned convertCalibratablesToParticleDeposits(
 			const std::vector<Calibratable>& input,
 			std::vector<ParticleDepositPtr>& toBeFilled,
-			CalibrationTarget target, DetectorElementPtr offset,
-			DetectorElementPtr ecal, DetectorElementPtr hcal, bool includeOffset = false);
+			CalibrationTarget target, const DetectorElementPtr& offset,
+			const DetectorElementPtr& ecal, const DetectorElementPtr& hcal, bool includeOffset = false);
 
-	void dumpCaloDataToCSV(TChain& chain, std::string csvFilename, double range, bool gaus = false);
+	void dumpCaloDataToCSV(TChain& chain, const std::string& csvFilename, double range, bool gaus = false);
 
 
 private:

@@ -96,7 +96,7 @@ class DTTrig {
     TU_iterator end() { /*check();*/ return _cache.end(); }
 
     //! Find a trigger unit in the map
-    TU_iterator find(DTChamberId id) { /*check();*/ return _cache.find(id); }
+    TU_iterator find(const DTChamberId& id) { /*check();*/ return _cache.find(id); }
 
     //! Begin of the trigger units store
     Range cache() { /*check();*/ return Range(_cache.begin(), _cache.end()); }
@@ -113,19 +113,19 @@ class DTTrig {
     SC_iterator end1() { /*check();*/ return _cache1.end(); }
 
     //! Find a Sector Collector in the map
-    SC_iterator find1(DTSectCollId id) { /*check();*/ return _cache1.find(id); }
+    SC_iterator find1(const DTSectCollId& id) { /*check();*/ return _cache1.find(id); }
 
     //! Range of the sector collector store
     SCRange cache1() { /*check();*/ return SCRange(_cache1.begin(), _cache1.end()); }
 
     //! Return a trigger unit - Muon numbering
-    DTSCTrigUnit* trigUnit(DTChamberId sid);
+    DTSCTrigUnit* trigUnit(const DTChamberId& sid);
 
     //! Return a trigger unit - Muon numbering, MTTF numbering
     DTSCTrigUnit* trigUnit(int wheel, int stat, int sect);
 
     //! Return the first phi track segment in req. chamber/step
-    DTChambPhSegm* chPhiSegm1(DTChamberId sid, int step);
+    DTChambPhSegm* chPhiSegm1(const DTChamberId& sid, int step);
 
     //! Return the first phi track segment in req. chamber/step
     DTChambPhSegm* chPhiSegm1(DTSCTrigUnit* unit, int step);
@@ -134,7 +134,7 @@ class DTTrig {
     DTChambPhSegm* chPhiSegm1(int wheel, int stat, int sect, int step); 
 
     //! Return the second phi track segment in req. chamber/step
-    DTChambPhSegm* chPhiSegm2(DTChamberId sid, int step);
+    DTChambPhSegm* chPhiSegm2(const DTChamberId& sid, int step);
 
     //! Return the second phi track segment in req. chamber/step
     DTChambPhSegm* chPhiSegm2(DTSCTrigUnit* unit, int step);
@@ -143,7 +143,7 @@ class DTTrig {
     DTChambPhSegm* chPhiSegm2(int wheel, int stat, int sect, int step);
 
     //! Return the theta candidates in req. chamber/step
-    DTChambThSegm* chThetaSegm(DTChamberId sid, int step);
+    DTChambThSegm* chThetaSegm(const DTChamberId& sid, int step);
 
     //! Return the theta candidates in req. chamber/step
     DTChambThSegm* chThetaSegm(DTSCTrigUnit* unit, int step);
@@ -231,13 +231,13 @@ class DTTrig {
 
     // const version of the methods to access TUs and SCs are private to avoid misuse
     //! Return a trigger unit - Muon numbering - const version
-    DTSCTrigUnit* constTrigUnit(DTChamberId sid) const;
+    DTSCTrigUnit* constTrigUnit(const DTChamberId& sid) const;
 
     //! Return a trigger unit - Muon numbering, MTTF numbering - const version
     DTSCTrigUnit* constTrigUnit(int wheel, int stat, int sect) const;
 
     //! Return a SC unit - Muon numbering - const version
-    DTSectColl* SCUnit(DTSectCollId scid) const;
+    DTSectColl* SCUnit(const DTSectCollId& scid) const;
 
     //! Return a SC Unit Muon Numbering, MTTF numbering - const version
     DTSectColl* SCUnit(int wheel, int sect) const;

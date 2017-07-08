@@ -1,5 +1,7 @@
 #ifndef PhysicsTools_Utilities_Polynomial_h
 #define PhysicsTools_Utilities_Polynomial_h
+#include <utility>
+
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include "boost/shared_ptr.hpp"
 
@@ -49,7 +51,7 @@ namespace funct {
       c0_(new double(*c)) {
     }
     Polynomial(boost::shared_ptr<double> c0) : 
-      c0_(c0) {
+      c0_(std::move(c0)) {
     }
     Polynomial(const Parameter & c0) : 
       c0_(c0.ptr()) {
@@ -80,7 +82,7 @@ namespace funct {
       c0_(new double(*c)), poly_(c + 1) {
     }
     Polynomial(boost::shared_ptr<double> c0, boost::shared_ptr<double> c1) : 
-      c0_(c0), poly_(c1) {
+      c0_(std::move(c0)), poly_(std::move(c1)) {
     }
     Polynomial(const Parameter& c0, const Parameter& c1) : 
       c0_(c0.ptr()), poly_(c1.ptr()) {
@@ -110,7 +112,7 @@ namespace funct {
     }
     Polynomial(boost::shared_ptr<double> c0, 
 	       boost::shared_ptr<double> c1, 
-	       boost::shared_ptr<double> c2) : c0_(c0), poly_(c1, c2) {
+	       boost::shared_ptr<double> c2) : c0_(std::move(c0)), poly_(std::move(c1), std::move(c2)) {
     }
     Polynomial(const Parameter &c0, 
 	       const Parameter &c1, 

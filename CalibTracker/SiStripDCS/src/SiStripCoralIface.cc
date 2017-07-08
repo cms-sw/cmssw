@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "CalibTracker/SiStripDCS/interface/SiStripCoralIface.h"
 #include "CondCore/CondDB/interface/ConnectionPool.h"
 #include "RelationalAccess/ISessionProxy.h"
@@ -18,7 +20,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 // constructor
-SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connectionString(connectionString), m_authPath( authenticationPath ), m_session(), debug_(debug)
+SiStripCoralIface::SiStripCoralIface( std::string connectionString , std::string authenticationPath, const bool debug) : m_connectionString(std::move(connectionString)), m_authPath( std::move(authenticationPath) ), m_session(), debug_(debug)
 {
   std::cout << "Building coral interface" << std::endl;
   initialize();
@@ -48,7 +50,7 @@ void  SiStripCoralIface::initialize() {
 }
 
 // access the status change or lastValue tables
-void SiStripCoralIface::doQuery(std::string queryType, const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate, 
+void SiStripCoralIface::doQuery(const std::string& queryType, const coral::TimeStamp& startTime, const coral::TimeStamp& endTime, std::vector<coral::TimeStamp> &vec_changedate, 
 				std::vector<float> &vec_actualValue, std::vector<std::string> &vec_dpname)
 {
   std::auto_ptr<coral::IQuery> query( m_session.coralSession().schema(std::string("CMS_TRK_DCS_PVSS_COND")).newQuery());

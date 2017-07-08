@@ -101,7 +101,7 @@ void DTChamberEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker, edm::R
 }
 
 // Book a set of histograms for a given Layer
-void DTChamberEfficiencyTask::bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId) {
+void DTChamberEfficiencyTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& chId) {
 
   edm::LogVerbatim ("DTDQM|DTMonitorModule|DTChamberEfficiencyTask") << "   Booking histos for CH : " << chId;
 

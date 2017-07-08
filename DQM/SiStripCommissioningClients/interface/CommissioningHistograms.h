@@ -100,7 +100,7 @@ class CommissioningHistograms {
 				   const std::string& top_level_dir,
 				   const sistrip::Granularity& );
   
-  void remove( std::string pattern = "" ); 
+  void remove( const std::string& pattern = "" ); 
   
   void save( std::string& filename,
 	     uint32_t run_number = 0 ); 

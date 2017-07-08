@@ -70,13 +70,13 @@ class DTGeometry : public TrackingGeometry {
 
 
     /// Return a DTChamber given its id
-    const DTChamber* chamber(DTChamberId id) const;
+    const DTChamber* chamber(const DTChamberId& id) const;
 
     /// Return a DTSuperLayer given its id
-    const DTSuperLayer* superLayer(DTSuperLayerId id) const;
+    const DTSuperLayer* superLayer(const DTSuperLayerId& id) const;
 
     /// Return a layer given its id
-    const DTLayer* layer(DTLayerId id) const;
+    const DTLayer* layer(const DTLayerId& id) const;
 
 
   private:

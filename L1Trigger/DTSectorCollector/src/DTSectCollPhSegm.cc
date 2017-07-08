@@ -32,12 +32,12 @@
 //----------------
 // Constructors --
 //----------------
-DTSectCollPhSegm::DTSectCollPhSegm(DTSectCollId scId, int step) : 
+DTSectCollPhSegm::DTSectCollPhSegm(const DTSectCollId& scId, int step) : 
                                          m_sectcollid(scId), m_step(step) {
   clear();
 }
 
-DTSectCollPhSegm::DTSectCollPhSegm(DTSectCollId scId, int step, 
+DTSectCollPhSegm::DTSectCollPhSegm(const DTSectCollId& scId, int step, 
 				     const DTChambPhSegm* tsPhiTrig, 
 				     int isFirst) :
                                      m_sectcollid(scId), m_step(step),

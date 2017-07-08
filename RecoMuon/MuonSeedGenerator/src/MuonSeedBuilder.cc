@@ -1277,7 +1277,7 @@ bool MuonSeedBuilder::IdentifyShowering( SegmentContainer& segs, BoolContainer& 
 
 }
 
-double MuonSeedBuilder::etaError(const GlobalPoint gp, double rErr) {
+double MuonSeedBuilder::etaError(const GlobalPoint& gp, double rErr) {
 
   double dHdTheta = 0.0;
   double dThetadR = 0.0;

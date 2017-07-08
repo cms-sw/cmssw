@@ -17,7 +17,7 @@ public:
 
 private:
 
-  void     readResponse (std::string fName);
+  void     readResponse (const std::string& fName);
 
   bool                            useTable;
   double                          scale;

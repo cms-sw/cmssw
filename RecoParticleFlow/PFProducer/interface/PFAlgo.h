@@ -89,7 +89,7 @@ class PFAlgo {
   PFMuonAlgo*  getPFMuonAlgo();
   
   void setPFEleParameters(double mvaEleCut,
-			  std::string mvaWeightFileEleID,
+			  const std::string& mvaWeightFileEleID,
 			  bool usePFElectrons,
 			  const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 			  const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
@@ -106,7 +106,7 @@ class PFAlgo {
 			  bool useEGammaSupercluster = true);
 
   void setPFPhotonParameters(bool usePFPhoton,
-			     std::string mvaWeightFileConvID,
+			     const std::string& mvaWeightFileConvID,
 			     double mvaConvCut,
 			     bool useReg,
 			     std::string X0_Map,
@@ -115,7 +115,7 @@ class PFAlgo {
 			     double sumPtTrackIsoSlopeForPhoton);
 
   void setEGammaParameters(bool use_EGammaFilters,
-			   std::string ele_iso_path_mvaWeightFile,
+			   const std::string& ele_iso_path_mvaWeightFile,
 			   double ele_iso_pt,
 			   double ele_iso_mva_barrel,
 			   double ele_iso_mva_endcap,
@@ -303,7 +303,7 @@ class PFAlgo {
 			   std::vector<bool>& active, 
 			   std::vector<double>& psEne);
 
-  bool isFromSecInt(const reco::PFBlockElement& eTrack,  std::string order) const;
+  bool isFromSecInt(const reco::PFBlockElement& eTrack,  const std::string& order) const;
 
 
   // Post HF Cleaning

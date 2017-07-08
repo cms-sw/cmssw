@@ -6,6 +6,7 @@
 //=============================================================================
 //*****************************************************************************
 //C++ includes
+#include <utility>
 #include <vector>
 #include <functional>
 
@@ -43,7 +44,7 @@ EgammaRecHitIsolation::EgammaRecHitIsolation (double extRadius,
     etaSlice_(etaSlice),
     etLow_(etLow),
     eLow_(eLow),
-    theCaloGeom_(theCaloGeom) ,  
+    theCaloGeom_(std::move(theCaloGeom)) ,  
     caloHits_(caloHits),
     sevLevel_(sl),
     useNumCrystals_(false),

@@ -37,7 +37,7 @@ struct FileResources {
 };
 
 struct RunResources {
-  RunResources(EventProcessor& iEP, edm::ProcessHistoryID iHist,edm::RunNumber_t iRun) noexcept:
+  RunResources(EventProcessor& iEP, const edm::ProcessHistoryID& iHist,edm::RunNumber_t iRun) noexcept:
   ep_(iEP), history_(iHist), run_(iRun) {}
   
   ~RunResources() noexcept {
@@ -127,7 +127,7 @@ class EventsInLumiProcessor {
 public:
   EventsInLumiProcessor(){}
   
-  edm::InputSource::ItemType processEvents(EventProcessor& iEP, std::shared_ptr<LumiResources> iLumi) {
+  edm::InputSource::ItemType processEvents(EventProcessor& iEP, const std::shared_ptr<LumiResources>& iLumi) {
     auto ret = iEP.readAndProcessEvents();
     if(iEP.shouldWeStop()) {
       //looper requested stopping event processing
@@ -148,7 +148,7 @@ private:
 
 class LumisInRunProcessor {
 public:
-  edm::InputSource::ItemType processLumis(EventProcessor& iEP, std::shared_ptr<RunResources> iRun) {
+  edm::InputSource::ItemType processLumis(EventProcessor& iEP, const std::shared_ptr<RunResources>& iRun) {
     bool finished = false;
     auto nextTransition = edm::InputSource::IsLumi;
     do {

@@ -28,6 +28,7 @@
 #include <string>
 #include <algorithm>
 #include <boost/shared_ptr.hpp>
+#include <utility>
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "PhysicsTools/Utilities/interface/Lumi3DReWeighting.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -42,11 +43,11 @@ Lumi3DReWeighting::Lumi3DReWeighting( std::string generatedFile,
 				      std::string GenHistName = "pileup",
 				      std::string DataHistName = "pileup", 
 				      std::string WeightOutputFile ="") :
-      generatedFileName_( generatedFile), 
-      dataFileName_     ( dataFile ), 
-      GenHistName_      ( GenHistName ), 
-      DataHistName_     ( DataHistName ),
-      weightFileName_   (WeightOutputFile)
+      generatedFileName_( std::move(generatedFile)), 
+      dataFileName_     ( std::move(dataFile) ), 
+      GenHistName_      ( std::move(GenHistName) ), 
+      DataHistName_     ( std::move(DataHistName) ),
+      weightFileName_   (std::move(WeightOutputFile))
       {
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution
 	dataFile_      = boost::shared_ptr<TFile>( new TFile(dataFileName_.c_str()) );      //Data distribution
@@ -71,7 +72,7 @@ Lumi3DReWeighting::Lumi3DReWeighting( std::string generatedFile,
 Lumi3DReWeighting::Lumi3DReWeighting( const std::vector< float >& MC_distr, const std::vector< float >& Lumi_distr,
 				      std::string WeightOutputFile ="") {
 
-  weightFileName_ = WeightOutputFile;
+  weightFileName_ = std::move(WeightOutputFile);
 
   // no histograms for input: use vectors
   
@@ -165,11 +166,11 @@ double Lumi3DReWeighting::weight3D( const edm::EventBase &e ) {
 void Lumi3DReWeighting::weight3D_set( std::string generatedFile, std::string dataFile, std::string GenHistName, std::string DataHistName, std::string WeightOutputFile )
 {
  
-  generatedFileName_ = generatedFile;
-  dataFileName_ = dataFile ; 
-  GenHistName_ = GenHistName ; 
-  DataHistName_= DataHistName ;
-  weightFileName_  = WeightOutputFile; 	
+  generatedFileName_ = std::move(generatedFile);
+  dataFileName_ = std::move(dataFile) ; 
+  GenHistName_ = std::move(GenHistName) ; 
+  DataHistName_= std::move(DataHistName) ;
+  weightFileName_  = std::move(WeightOutputFile); 	
     
   std::cout<< " seting values: " << generatedFileName_ << " " << dataFileName_ << " " << GenHistName_ << " " << DataHistName_ << std::endl;
 
@@ -376,7 +377,7 @@ void Lumi3DReWeighting::weight3D_init( float ScaleFactor ) {
 }
 
 
-void Lumi3DReWeighting::weight3D_init( std::string WeightFileName ) { 
+void Lumi3DReWeighting::weight3D_init( const std::string& WeightFileName ) { 
 
   TFile *infile = new TFile(WeightFileName.c_str());
   TH1F *WHist = (TH1F*)infile->Get("WHist");
@@ -406,7 +407,7 @@ void Lumi3DReWeighting::weight3D_init( std::string WeightFileName ) {
 
 }
 
-void Lumi3DReWeighting::weight3D_init( std::string MCWeightFileName, std::string DataWeightFileName ) { 
+void Lumi3DReWeighting::weight3D_init( const std::string& MCWeightFileName, const std::string& DataWeightFileName ) { 
 
   TFile *infileMC = new TFile(MCWeightFileName.c_str());
   TH3D *MHist = (TH3D*)infileMC->Get("MHist");

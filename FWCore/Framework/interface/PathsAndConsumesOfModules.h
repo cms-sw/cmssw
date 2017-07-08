@@ -31,7 +31,7 @@ namespace edm {
 
     virtual ~PathsAndConsumesOfModules();
 
-    void initialize(Schedule const*, std::shared_ptr<ProductRegistry const>);
+    void initialize(Schedule const*, const std::shared_ptr<ProductRegistry const>&);
 
   private:
 

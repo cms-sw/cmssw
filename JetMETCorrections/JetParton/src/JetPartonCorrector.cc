@@ -100,7 +100,7 @@ double ParametrizationJetParton::value(double e, double eta)const{
 
 class   JetPartonCalibrationParameterSet{
  public:
-  JetPartonCalibrationParameterSet(string tag);
+  JetPartonCalibrationParameterSet(const string& tag);
   int neta(){return etavector.size();}
   double eta(int ieta){return etavector[ieta];}
   int type(int ieta){return typevector[ieta];}
@@ -114,7 +114,7 @@ class   JetPartonCalibrationParameterSet{
   vector< vector<double> > pars;
 };
 
-JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(string tag){
+JetPartonCalibrationParameterSet::JetPartonCalibrationParameterSet(const string& tag){
 
   std::string file="JetMETCorrections/JetParton/data/"+tag+".txt";
 
@@ -155,7 +155,7 @@ JetPartonCorrector::~JetPartonCorrector()
   for(ParametersMap::iterator ip=parametrization.begin();ip!=parametrization.end();ip++) delete ip->second;  
 }
 
-void JetPartonCorrector::setParameters(std::string aCalibrationType, double aJetFinderRadius, int aPartonMixture )
+void JetPartonCorrector::setParameters(const std::string& aCalibrationType, double aJetFinderRadius, int aPartonMixture )
 {
      
      theJetFinderRadius = aJetFinderRadius;

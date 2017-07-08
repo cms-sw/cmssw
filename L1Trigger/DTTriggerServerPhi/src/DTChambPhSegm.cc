@@ -32,12 +32,12 @@
 //----------------
 // Constructors --
 //----------------
-DTChambPhSegm::DTChambPhSegm(DTChamberId chamberid, int step) : 
+DTChambPhSegm::DTChambPhSegm(const DTChamberId& chamberid, int step) : 
                                          m_chamberid(chamberid), m_step(step) {
   clear();
 }
 
-DTChambPhSegm::DTChambPhSegm(DTChamberId chamberid, int step, 
+DTChambPhSegm::DTChambPhSegm(const DTChamberId& chamberid, int step, 
 				     const DTTracoTrigData* tracotrig, 
 				     int isfirst) :
                                      m_chamberid(chamberid), m_step(step),

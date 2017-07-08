@@ -17,6 +17,7 @@
 //Standard library headers
 #include <fstream>   //for file IO
 #include <string>
+#include <utility>
 #include <vector>
 #include <iostream>
 #include <exception> //for exception handling
@@ -255,7 +256,7 @@ void LoadFileData(const string &inputFile, int elecs, bool iso)
 //Function definition, that writes the output to a file
 void WriteFileData(EmOutputCandVec outputs)
 {
-  EmOutputCandVec writeThis = outputs;
+  EmOutputCandVec writeThis = std::move(outputs);
   ofile.open("sortOutput.txt",ios::out);
   for(unsigned int i=0;i!=writeThis.size();i++){ 
       ofile<<std::hex<<writeThis[i].rank();
@@ -269,7 +270,7 @@ void WriteFileData(EmOutputCandVec outputs)
 }
 
 void print(EmOutputCandVec candidates){
-  EmOutputCandVec cands = candidates;
+  EmOutputCandVec cands = std::move(candidates);
   for(unsigned int i=0; i!=cands.size(); i++){
     cout<<"          Rank: "<<cands[i].rank()<<"  Eta: "<<cands[i].etaIndex()<<"  Phi: "<<cands[i].phiIndex()<<endl;
   }
@@ -279,7 +280,7 @@ void print(EmOutputCandVec candidates){
 // Copy of the private function in ElectronSorter to convert a CaloEmCand to a gctEmCand
 void convertToGct(EmInputCandVec candidates)
 {
-  EmInputCandVec cand = candidates;
+  EmInputCandVec cand = std::move(candidates);
   for(unsigned int i = 0;i!=cand.size();i++){
     unsigned rank = cand[i].rank();
     unsigned card = cand[i].rctCard();

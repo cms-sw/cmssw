@@ -55,7 +55,7 @@ RecoTauElectronRejectionPlugin::RecoTauElectronRejectionPlugin(
 }
 
 namespace {
-bool checkPos(std::vector<math::XYZPoint> CalPos,math::XYZPoint CandPos) {
+bool checkPos(std::vector<math::XYZPoint> CalPos,const math::XYZPoint& CandPos) {
   bool flag = false;
   for (unsigned int i=0;i<CalPos.size();i++) {
     if (CalPos[i] == CandPos) {

@@ -445,7 +445,7 @@ PixelCPEBase::DetParam const & PixelCPEBase::detParam(const GeomDetUnit & det) c
 //
 //-----------------------------------------------------------------------------
 LocalVector
-PixelCPEBase::driftDirection(DetParam & theDetParam, GlobalVector bfield ) const {
+PixelCPEBase::driftDirection(DetParam & theDetParam, const GlobalVector& bfield ) const {
    
    Frame detFrame(theDetParam.theDet->surface().position(), theDetParam.theDet->surface().rotation());
    LocalVector Bfield = detFrame.toLocal(bfield);
@@ -454,7 +454,7 @@ PixelCPEBase::driftDirection(DetParam & theDetParam, GlobalVector bfield ) const
 }
 
 LocalVector
-PixelCPEBase::driftDirection(DetParam & theDetParam, LocalVector Bfield ) const {
+PixelCPEBase::driftDirection(DetParam & theDetParam, const LocalVector& Bfield ) const {
    const bool LocalPrint = false;
    
    // Use LA from DB or from config

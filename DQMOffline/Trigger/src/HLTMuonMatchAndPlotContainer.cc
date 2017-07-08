@@ -2,6 +2,8 @@
  *
  */
 
+#include <utility>
+
 #include "DQMOffline/Trigger/interface/HLTMuonMatchAndPlotContainer.h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -45,7 +47,7 @@ void HLTMuonMatchAndPlotContainer::addPlotter(const edm::ParameterSet &pset , st
 					      std::string label, bool islastfilter)
 {
 
-  plotters_.push_back(HLTMuonMatchAndPlot(pset,path,label,islastfilter));
+  plotters_.push_back(HLTMuonMatchAndPlot(pset,std::move(path),std::move(label),islastfilter));
 
 }
 

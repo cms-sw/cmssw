@@ -76,7 +76,7 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat):PixelC
 }
 
 
-PixelGlobalDelay25::PixelGlobalDelay25(std::string filename):
+PixelGlobalDelay25::PixelGlobalDelay25(const std::string& filename):
     PixelConfigBase(" "," "," "){
 
     std::string mthn = "[PixelGlobalDelay25::PixelGlobalDelay25()]\t\t\t    " ;

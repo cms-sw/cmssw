@@ -14,6 +14,7 @@
 #include "CommonTools/Utils/src/ExpressionBase.h"
 #include "CommonTools/Utils/src/ComparisonBase.h"
 #include <boost/shared_ptr.hpp>
+#include <utility>
 
 namespace reco {
   namespace parser {
@@ -21,7 +22,7 @@ namespace reco {
       BinarySelector( boost::shared_ptr<ExpressionBase> lhs,
 		      boost::shared_ptr<ComparisonBase> cmp,
 		      boost::shared_ptr<ExpressionBase> rhs ) :
-	lhs_( lhs ), cmp_( cmp ), rhs_( rhs ) { }
+	lhs_( std::move(lhs) ), cmp_( std::move(cmp) ), rhs_( std::move(rhs) ) { }
       virtual bool operator()( const edm::ObjectWithDict & o ) const {
 	return cmp_->compare( lhs_->value( o ), rhs_->value( o ) );
       }

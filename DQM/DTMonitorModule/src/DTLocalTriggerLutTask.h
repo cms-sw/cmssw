@@ -80,7 +80,7 @@ class DTLocalTriggerLutTask: public DQMEDAnalyzer{
   std::string& topFolder() { return  baseFolder; }
 
   /// Book histos
-  void bookHistos(DQMStore::IBooker & ibooker,DTChamberId chId);
+  void bookHistos(DQMStore::IBooker & ibooker,const DTChamberId& chId);
 
  private :
 

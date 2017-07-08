@@ -117,7 +117,7 @@ namespace l1t {
     return RPCDigi( strip, bx + 6 );
   }
 
-  void EMTFHit::ImportME( const emtf::ME _ME) {
+  void EMTFHit::ImportME( const emtf::ME& _ME) {
 
     EMTFHit::set_wire       ( _ME.Wire() );
     EMTFHit::set_strip      ( _ME.Strip() );

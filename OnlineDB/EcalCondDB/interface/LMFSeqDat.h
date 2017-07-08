@@ -71,7 +71,7 @@ class LMFSeqDat : public LMFUnique {
     return fetchByRunNumber(runno)[seq_num];
   }
   LMFSeqDat fetchByRunNumber(int runno, const Tm& taken_at);
-  LMFSeqDat fetchByRunNumber(int runno, std::string taken_at);
+  LMFSeqDat fetchByRunNumber(int runno, const std::string& taken_at);
   LMFSeqDat fetchLast();
   RunIOV    fetchLastRun();
 
@@ -91,8 +91,8 @@ class LMFSeqDat : public LMFUnique {
 
   void fetchParentIDs() noexcept(false);
   std::map<int, LMFSeqDat> fetchByRunIOV(const std::vector<std::string>& par, 
-					 std::string sql,
-					 std::string method) 
+					 const std::string& sql,
+					 const std::string& method) 
     noexcept(false);
   std::map<int, LMFSeqDat> fetchByRunIOV(int par, std::string sql,
 					 std::string method) 

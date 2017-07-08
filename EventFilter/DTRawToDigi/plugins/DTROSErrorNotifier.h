@@ -14,7 +14,7 @@ class DTROSErrorNotifier {
 public:
   
   /// Constructor
-  DTROSErrorNotifier(DTROSErrorWord error ); 
+  DTROSErrorNotifier(const DTROSErrorWord& error ); 
 
   /// Destructor
   virtual ~DTROSErrorNotifier(); 

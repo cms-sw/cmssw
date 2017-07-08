@@ -21,10 +21,10 @@
 
 
 MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
-        edm::ESHandle<MagneticField> magneticField,
-        edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
-        edm::ESHandle<DetIdAssociator> muonDetIdAssociator_,					       
-        edm::ESHandle<Propagator> prop,
+        const edm::ESHandle<MagneticField>& magneticField,
+        const edm::ESHandle<GlobalTrackingGeometry>& globalGeometry,
+        const edm::ESHandle<DetIdAssociator>& muonDetIdAssociator_,					       
+        const edm::ESHandle<Propagator>& prop,
         const Trajectory *traj,
         const reco::Track* recoTrack,
         AlignableNavigator *navigator,
@@ -543,7 +543,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
             }
 
 
-            MuonResidualsFromTrack::MuonResidualsFromTrack( edm::ESHandle<GlobalTrackingGeometry> globalGeometry,
+            MuonResidualsFromTrack::MuonResidualsFromTrack( const edm::ESHandle<GlobalTrackingGeometry>& globalGeometry,
                     const reco::Muon *recoMuon,
                     AlignableNavigator *navigator,
                     double maxResidual )

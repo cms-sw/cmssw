@@ -42,6 +42,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include <vector>
 #include <string>
 
@@ -224,11 +225,11 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
 	     size_t type, 
 	     std::string triggerType):
       prescaleUsed_(prescaleUsed), 
-      pathName_(pathName), 
-      filterName_(filterName), 
-      processName_(processName), 
+      pathName_(std::move(pathName)), 
+      filterName_(std::move(filterName)), 
+      processName_(std::move(processName)), 
       objectType_(type), 
-      triggerType_(triggerType){};
+      triggerType_(std::move(triggerType)){};
     
       MonitorElement * getMEhisto_RECO_deltaEta_DiJet()       { return RECO_deltaEta_DiJet_; }
       MonitorElement * getMEhisto_RECO_deltaPhi_DiJet()       { return RECO_deltaPhi_DiJet_; }
@@ -249,7 +250,7 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
 	return filterName_;
       }
       void setLabel(std::string labelName){
-	filterName_ = labelName;
+	filterName_ = std::move(labelName);
 	return;
       }
       const std::string getPath(void ) const {
@@ -271,7 +272,7 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
 	edm::InputTag tagName(filterName_,"",processName_);
 	return tagName;
       }
-      bool operator==(const std::string v){
+      bool operator==(const std::string& v){
 	return v==pathName_;
       }
       
@@ -304,7 +305,7 @@ class HLTInclusiveVBFSource : public DQMEDAnalyzer {
   public:
     PathInfoCollection(): std::vector<PathInfo>()
       {};
-      std::vector<PathInfo>::iterator find(std::string pathName) {
+      std::vector<PathInfo>::iterator find(const std::string& pathName) {
         return std::find(begin(), end(), pathName);
       }
   };

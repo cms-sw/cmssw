@@ -431,7 +431,7 @@ m_ep()
 namespace {
   template<typename T>
   void
-  testTransition(std::shared_ptr<T> iMod, edm::Worker* iWorker, testGlobalModule::Trans iTrans, testGlobalModule::Expectations const& iExpect, std::function<void(edm::Worker*)> iFunc) {
+  testTransition(std::shared_ptr<T> iMod, edm::Worker* iWorker, testGlobalModule::Trans iTrans, testGlobalModule::Expectations const& iExpect, const std::function<void(edm::Worker*)>& iFunc) {
     assert(0==iMod->m_count);
     iFunc(iWorker);
     auto count = std::count(iExpect.begin(),iExpect.end(),iTrans);

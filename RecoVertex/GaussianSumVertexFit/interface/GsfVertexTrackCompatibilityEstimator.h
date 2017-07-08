@@ -59,8 +59,8 @@ public:
 
 private:
 
-  BDpair estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;
-  BDpair estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack track) const;  
+  BDpair estimateFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack& track) const;
+  BDpair estimateNFittedTrack(const CachingVertex<5> & v, const RefCountedVertexTrack& track) const;  
 
   GsfVertexUpdator updator;
 //   KalmanVertexTrackUpdator trackUpdator;

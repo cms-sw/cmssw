@@ -19,7 +19,7 @@
 class H1DRecHit {
 public:
   /// Constructor from collection name
-  H1DRecHit(std::string name_) {
+  H1DRecHit(const std::string& name_) {
     TString N = name_.c_str();
     name=N;
     
@@ -34,7 +34,7 @@ public:
 
   /// Constructor from collection name and TFile.
   /// It retrieves all the histos of the set from the file.
-  H1DRecHit(TString name_, TFile* file) {
+  H1DRecHit(const TString& name_, TFile* file) {
     name=name_;
     hRecDist          = (TH1F *) file->Get(name+"_hRecDist");
     hSimDist          = (TH1F *) file->Get(name+"_hSimDist");

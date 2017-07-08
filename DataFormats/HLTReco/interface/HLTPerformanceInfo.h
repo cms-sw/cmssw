@@ -66,7 +66,7 @@ public:
     edm::HLTPathStatus status_;
         
   public:
-    Path(const std::string n = "unknown") : 
+    Path(const std::string& n = "unknown") : 
       name_(n),
       moduleView_(),
       status_()

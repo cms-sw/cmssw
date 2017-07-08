@@ -9,6 +9,8 @@
  */
 
 
+#include <utility>
+
 #include "MagneticField/Engine/interface/MagneticField.h"
 
 class UniformMagneticField final : public MagneticField {
@@ -17,9 +19,9 @@ class UniformMagneticField final : public MagneticField {
   ///Construct passing the Z field component in Tesla
   UniformMagneticField(float value) : theField(0.f,0.f,value) {}
 
-  UniformMagneticField(GlobalVector value) :  theField(value) {}
+  UniformMagneticField(GlobalVector value) :  theField(std::move(value)) {}
 
-  void set(GlobalVector value) { theField =value;}
+  void set(const GlobalVector& value) { theField =value;}
   void set(float value) { set(GlobalVector(0.f,0.f,value)); }
 
 

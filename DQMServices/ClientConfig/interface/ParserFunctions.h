@@ -4,7 +4,7 @@ namespace qtxml{
 		return tmp;
 	}
 
-	inline XMLCh*  _toDOMS( std::string temp ){
+	inline XMLCh*  _toDOMS( const std::string& temp ){
 		XMLCh* buff = xercesc::XMLString::transcode(temp.c_str());    
 		return  buff;
 	}

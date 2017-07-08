@@ -148,7 +148,7 @@ class TrackerDetIdSelector
         {
         }
 
-        bool passSelection(std::string selectionStr) const;
+        bool passSelection(const std::string& selectionStr) const;
 };
 
 class Accessor:
@@ -224,7 +224,7 @@ struct WalkAST
 
     void operator()() const {}
     void operator()(int n) const { std::cout << n; std::cout<<" ["<<_acc(n)<<"] "; }
-    void operator()(std::string str) const { std::cout << str; std::cout<<" ["<<_acc(str)<<"] "; }
+    void operator()(const std::string& str) const { std::cout << str; std::cout<<" ["<<_acc(str)<<"] "; }
     void operator()(ExpressionAST const& ast) const
     {
         boost::apply_visitor(*this, ast.expr);
@@ -344,7 +344,7 @@ struct TrackerDetIdSelectorGrammar:
 };
 
 
-bool TrackerDetIdSelector::passSelection(std::string selectionStr) const
+bool TrackerDetIdSelector::passSelection(const std::string& selectionStr) const
 {
     std::string::const_iterator begin = selectionStr.cbegin();
     std::string::const_iterator end = selectionStr.cend();

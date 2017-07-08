@@ -1,4 +1,6 @@
 
+#include <utility>
+
 #include "OnlineDB/SiStripConfigDb/interface/SiStripConfigDb.h"
 #include "CondFormats/SiStripObjects/interface/SiStripFedCabling.h"
 #include "CondFormats/SiStripObjects/interface/FedChannelConnection.h"
@@ -9,7 +11,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::string partition ) {
+SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( const std::string& partition ) {
 
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -128,7 +130,7 @@ SiStripConfigDb::FedDescriptionsRange SiStripConfigDb::getFedDescriptions( std::
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addFedDescriptions( std::string partition, FedDescriptionsV& feds ) {
+void SiStripConfigDb::addFedDescriptions( const std::string& partition, FedDescriptionsV& feds ) {
 
   if ( !deviceFactory(__func__) ) { return; }
 
@@ -198,7 +200,7 @@ void SiStripConfigDb::addFedDescriptions( std::string partition, FedDescriptions
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::uploadFedDescriptions( std::string partition ) { 
+void SiStripConfigDb::uploadFedDescriptions( const std::string& partition ) { 
   
   if ( dbParams_.usingDbCache() ) {
     edm::LogWarning(mlConfigDb_)
@@ -275,7 +277,7 @@ void SiStripConfigDb::uploadFedDescriptions( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
+void SiStripConfigDb::clearFedDescriptions( const std::string& partition ) {
   LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]";
   
   if ( feds_.empty() ) { 
@@ -344,7 +346,7 @@ void SiStripConfigDb::clearFedDescriptions( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::printFedDescriptions( std::string partition ) {
+void SiStripConfigDb::printFedDescriptions( const std::string& partition ) {
 
   std::stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"
@@ -441,7 +443,7 @@ SiStripConfigDb::FedIdsRange SiStripConfigDb::getFedIds( std::string partition )
     // Inhibit download of strip info
     bool using_strips = usingStrips_;
     if ( factory_ ) { factory_->setUsingStrips( false ); }
-    FedDescriptionsRange feds = getFedDescriptions( partition );
+    FedDescriptionsRange feds = getFedDescriptions( std::move(partition) );
     if ( factory_ ) { factory_->setUsingStrips( using_strips ); }
     
     if ( !feds.empty() ) {

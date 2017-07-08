@@ -58,7 +58,7 @@ namespace gen
     HepMC::GenVertex*                           build_ampt_vertex(int i, int id);
     bool					get_particles(HepMC::GenEvent* evt);
     bool                                        ampt_init(const edm::ParameterSet &pset);
-    bool                                        call_amptset(double efrm, std::string frame, std::string proj, std::string targ, int iap, int izp, int iat, int izt);
+    bool                                        call_amptset(double efrm, const std::string& frame, const std::string& proj, const std::string& targ, int iap, int izp, int iat, int izt);
     //    inline double			        nuclear_radius() const;
     void                                        rotateEvtPlane();
 

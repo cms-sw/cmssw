@@ -63,7 +63,7 @@ class DTRunConditionVarClient: public DQMEDHarvester{
 
     /// book the report summary
 
-    void bookWheelHistos(DQMStore::IBooker &,std::string histoType, std::string subfolder, 
+    void bookWheelHistos(DQMStore::IBooker &,const std::string& histoType, const std::string& subfolder, 
                          int wh, int nbins, float min, float max, bool isVDCorr=false);
 
     /// DQM Client Diagnostic
@@ -71,11 +71,11 @@ class DTRunConditionVarClient: public DQMEDHarvester{
 
 
   float varQuality(float var, float maxGood, float minBad);
-  void percDevVDrift(DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD);
+  void percDevVDrift(const DTChamberId& indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD);
 
   private:
 
-    MonitorElement* getChamberHistos(DQMStore::IGetter & ,const DTChamberId&, std::string);
+    MonitorElement* getChamberHistos(DQMStore::IGetter & ,const DTChamberId&, const std::string&);
 
     int nevents;      
 

@@ -35,8 +35,8 @@ HepMC::GenParticle * JetFlavourCutFilter::findParticle(const GenPartVect& genPar
 
 
 void
-JetFlavourCutFilter::printHisto(const HepMC::GenEvent::particle_iterator start, 
-			       const HepMC::GenEvent::particle_iterator end)
+JetFlavourCutFilter::printHisto(const HepMC::GenEvent::particle_iterator& start, 
+			       const HepMC::GenEvent::particle_iterator& end)
 {
   HepMC::GenEvent::particle_iterator p;
   for (p = start; p != end; p++) 

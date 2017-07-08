@@ -70,8 +70,8 @@ public Observer<const EndOfEvent*>
   virtual void clearHits();
 
   Local3DPoint toOrcaRef(Local3DPoint in ,G4Step * s);
-  Local3DPoint toOrcaUnits(Local3DPoint);
-  Global3DPoint toOrcaUnits(Global3DPoint);
+  Local3DPoint toOrcaUnits(const Local3DPoint&);
+  Global3DPoint toOrcaUnits(const Global3DPoint&);
 
   TrackInformation* getOrCreateTrackInformation( const G4Track* theTrack );
 

@@ -37,7 +37,7 @@ private:
   const CheckSecondary& operator=(const CheckSecondary&);
 
   // observer classes
-  TTree * bookTree(std::string);
+  TTree * bookTree(const std::string&);
   void endTree();
   void update(const BeginOfEvent * evt);
   void update(const BeginOfTrack * trk);

@@ -81,7 +81,7 @@ namespace pos{
     void setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans) const;
     void setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNameTranslation* trans, PixelDetectorConfig* detconfig) const;
 
-    void writeBinary(std::string filename) const;
+    void writeBinary(const std::string& filename) const;
 
     void         writeASCII(std::string dir) const;
     void 	 writeXML(        pos::PixelConfigKey key, int version, std::string path) const  {;}

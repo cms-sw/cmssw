@@ -1,4 +1,5 @@
 #include <string>
+#include <utility>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
 #include "OnlineDB/EcalCondDB/interface/RunSeqDef.h"
@@ -27,7 +28,7 @@ string RunSeqDef::getRunSeq() const {  return m_runSeq;}
 
 
 
-void RunSeqDef::setRunSeq(string runseq){    m_runSeq = runseq;}
+void RunSeqDef::setRunSeq(string runseq){    m_runSeq = std::move(runseq);}
 
 RunTypeDef RunSeqDef::getRunTypeDef() const
 {

@@ -80,19 +80,19 @@ class TrackerMap {
   void build();
   void init();
   void drawModule(TmModule * mod, int key, int layer, bool total, std::ofstream * file);
-  void print(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap");
-  void printall(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap",int width=6000, int height=3200);
+  void print(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="svgmap");
+  void printall(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="svgmap",int width=6000, int height=3200);
   void printonline();
-  void printlayers(bool print_total=true,float minval=0., float maxval=0.,std::string s="layer");
-  void save(bool print_total=true,float minval=0., float maxval=0.,std::string s="svgmap.svg",int width=1500, int height=800);
-  void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fed_svgmap.svg",
+  void printlayers(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="layer");
+  void save(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="svgmap.svg",int width=1500, int height=800);
+  void save_as_fedtrackermap(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="fed_svgmap.svg",
 			     int width=YFEDOFFSET+(YFEDCSIZE+YFEDOFFSET)*NUMFEDCRATE_INROW+300,
 			     int height=XFEDOFFSET+(XFEDCSIZE+XFEDOFFSET)*NUMFEDCRATE_INCOLUMN+300);
-  void save_as_fectrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="fec_svgmap.svg",int width=1500, int height=800);
-  void save_as_psutrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",
+  void save_as_fectrackermap(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="fec_svgmap.svg",int width=1500, int height=800);
+  void save_as_psutrackermap(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="psu_svgmap.svg",
 			     int width=YPSUOFFSET+(YPSURSIZE+YPSUOFFSET)*NUMPSURACK_INROW+300, 
 			     int height=XPSUOFFSET+(XPSURSIZE+XPSUOFFSET)*NUMPSURACK_INCOLUMN+300);
-  void save_as_HVtrackermap(bool print_total=true,float minval=0., float maxval=0.,std::string s="psu_svgmap.svg",int width=1500, int height=800);
+  void save_as_HVtrackermap(bool print_total=true,float minval=0., float maxval=0.,const std::string& s="psu_svgmap.svg",int width=1500, int height=800);
   void drawApvPair( int crate, int numfed_incrate, bool total, TmApvPair* apvPair,std::ofstream * file,bool useApvPairValue);
   void drawCcu( int crate, int numfed_incrate, bool total, TmCcu* ccu,std::ofstream * file,bool useCcuValue);
   void drawPsu(int rack,int numcrate_inrack, bool print_total, TmPsu* psu,std::ofstream * svgfile,bool usePsuValue);
@@ -124,17 +124,17 @@ class TrackerMap {
   void setPalette(int numpalette){palette=numpalette;} 
   void drawPalette(std::ofstream * file, int xoffset=3660, int yoffset=1540); 
   void showPalette(bool printflag1){printflag=printflag1;}; 
-  void setTitle(std::string s){title=s;};
+  void setTitle(std::string s){title=std::move(s);};
   void setRange(float min,float max);
   std::pair<float,float>getAutomaticRange();
   void addPixel(bool addPixelfl){addPixelFlag=addPixelfl;};
   void onlyPixel(bool onlyPixelfl){onlyPixelFlag=onlyPixelfl;};
   void reset();
-  void load(std::string s="tmap.svg"); 
+  void load(const std::string& s="tmap.svg"); 
   int getxsize(){return xsize;};
   int getysize(){return ysize;};
   int getcolor(float value, int palette);
-  std::ifstream * findfile(std::string filename);
+  std::ifstream * findfile(const std::string& filename);
   int getNumMod(){return number_modules;};
   std::vector<TColor*> vc; 
   typedef std::map<const int  , TmModule *> SmoduleMap;

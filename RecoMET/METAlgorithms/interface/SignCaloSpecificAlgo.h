@@ -43,11 +43,11 @@ public:
   double getSignificance(){return significance_;}
   reco::METCovMatrix getSignificanceMatrix()const {return matrix_;}
 
-  void calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers,  const CommonMETData& met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
+  void calculateBaseCaloMET(const edm::Handle<edm::View<reco::Candidate> >& towers,  const CommonMETData& met, const metsig::SignAlgoResolutions & resolutions, bool noHF, double globalthreshold);
   
  private:
   
-  std::vector<metsig::SigInputObj> makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Candidate> > towers, const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalthreshold);
+  std::vector<metsig::SigInputObj> makeVectorOutOfCaloTowers(const edm::Handle<edm::View<reco::Candidate> >& towers, const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalthreshold);
   
   double significance_;
   reco::METCovMatrix matrix_;

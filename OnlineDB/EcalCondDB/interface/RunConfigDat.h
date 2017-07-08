@@ -1,6 +1,7 @@
 #ifndef RUNCONFIGDAT_H
 #define RUNCONFIGDAT_H
 
+#include <utility>
 #include <vector>
 #include <stdexcept>
 
@@ -18,7 +19,7 @@ class RunConfigDat : public IDataItem {
   inline std::string getTable() { return "RUN_CONFIG_DAT"; }
 
   inline std::string getConfigTag() const { return m_configTag; }
-  inline void setConfigTag(std::string tag) { m_configTag = tag; }
+  inline void setConfigTag(std::string tag) { m_configTag = std::move(tag); }
 
   inline int getConfigVersion() const { return m_configVer; }
   inline void setConfigVersion(int ver) { m_configVer = ver; }

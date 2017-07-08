@@ -4,31 +4,31 @@ using namespace std;
 using namespace reco;
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name) :
-  checkCharge_(false), checkOverlap_(true), dauCharge_(), overlap_(), name_(name) {
+  checkCharge_(false), checkOverlap_(true), dauCharge_(), overlap_(), name_(std::move(name)) {
 }
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name, int q1, int q2) :
-  checkCharge_(true), checkOverlap_(true), dauCharge_(2), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(2), overlap_(), name_(std::move(name)) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
 }
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name, int q1, int q2, int q3) :
-  checkCharge_(true), checkOverlap_(true), dauCharge_(3), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(3), overlap_(), name_(std::move(name)) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
 }
 
 NamedCandCombinerBase::NamedCandCombinerBase(std::string name, int q1, int q2, int q3, int q4) :
-  checkCharge_(true), checkOverlap_(true), dauCharge_(4), overlap_(), name_(name) {
+  checkCharge_(true), checkOverlap_(true), dauCharge_(4), overlap_(), name_(std::move(name)) {
   dauCharge_[0] = q1;
   dauCharge_[1] = q2;
   dauCharge_[2] = q3;
   dauCharge_[3] = q4;
 }
 
-NamedCandCombinerBase::NamedCandCombinerBase(std::string name, bool checkCharge, bool checkOverlap, const vector<int> & dauCharge) :
+NamedCandCombinerBase::NamedCandCombinerBase(const std::string& name, bool checkCharge, bool checkOverlap, const vector<int> & dauCharge) :
   checkCharge_(checkCharge), checkOverlap_(checkOverlap), dauCharge_(dauCharge), overlap_() {
 }
 
@@ -47,8 +47,8 @@ bool NamedCandCombinerBase::preselect(const Candidate & c1, const Candidate & c2
 
 void NamedCandCombinerBase::combine(NamedCompositeCandidate & cmp, const CandidatePtr & c1, const CandidatePtr & c2,
 				    std::string n1, std::string n2 ) const {
-  addDaughter(cmp, c1, n1);
-  addDaughter(cmp, c2, n2);
+  addDaughter(cmp, c1, std::move(n1));
+  addDaughter(cmp, c2, std::move(n2));
   setup(cmp);
 }
 

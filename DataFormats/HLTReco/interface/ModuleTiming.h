@@ -1,6 +1,7 @@
 #ifndef Edm_Module_Timing_h
 #define Edm_Module_Timing_h
 
+#include <utility>
 #include <vector>
 #include <string>
 
@@ -14,7 +15,7 @@ namespace edm
   {
   public:
     ModuleTime(): name_(""), time_(-1) {}
-    ModuleTime(std::string Name, double Time): name_(Name), time_(Time) {}
+    ModuleTime(std::string Name, double Time): name_(std::move(Name)), time_(Time) {}
       ~ModuleTime(){}
       
       std::string name() const {return name_;} // module name ("label")

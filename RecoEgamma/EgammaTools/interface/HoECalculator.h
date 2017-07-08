@@ -37,7 +37,7 @@ class HoECalculator
 
   private:
   
-   double getHoE(GlobalPoint pos, float energy,
+   double getHoE(const GlobalPoint& pos, float energy,
 		 const edm::Event& e , 
 		 const edm::EventSetup& c )  ;
    /*      

@@ -5,7 +5,7 @@ namespace PhysicsTools {
 
 class MLP {
     public:
-	MLP(unsigned int nIn, unsigned int nOut, const std::string layout);
+	MLP(unsigned int nIn, unsigned int nOut, const std::string& layout);
 	~MLP();
 
 	void clear();
@@ -13,8 +13,8 @@ class MLP {
 	void set(unsigned int row, double *data, double *target, double weight = 1.0);
 	double train();
 	const double *eval(double *data) const;
-	void save(const std::string file) const;
-	void load(const std::string file);
+	void save(const std::string& file) const;
+	void load(const std::string& file);
 
 	inline unsigned int getEpoch() const { return epoch; }
 	inline int getLayers() const { return layers; }

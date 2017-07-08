@@ -27,7 +27,7 @@ class HGCSD : public CaloSD, public Observer<const BeginOfJob *> {
 
 public:    
 
-  HGCSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
+  HGCSD(const G4String& , const DDCompactView &, const SensitiveDetectorCatalog &,
 	edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HGCSD();
   virtual bool                    ProcessHits(G4Step * , G4TouchableHistory * );

@@ -366,7 +366,7 @@ std::vector<double> MuonSeedPtExtractor::pT_extract(MuonTransientTrackingRecHit:
 }
 
 
-int MuonSeedPtExtractor::stationCode(MuonTransientTrackingRecHit::ConstMuonRecHitPointer hit) const
+int MuonSeedPtExtractor::stationCode(const MuonTransientTrackingRecHit::ConstMuonRecHitPointer& hit) const
 {
   DetId detId(hit->hit()->geographicalId());
   int result = -999;

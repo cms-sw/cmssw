@@ -12,6 +12,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
+#include <utility>
 
 class PFElectronSelector : public Selector<pat::Electron> {
 
@@ -73,7 +74,7 @@ class PFElectronSelector : public Selector<pat::Electron> {
     //    size_t found;
     //    found = eidUsed.find("NONE");
     //  if ( found != string::npos)
-    electronIDvalue_ = eidUsed;
+    electronIDvalue_ = std::move(eidUsed);
 
     push_back("D0",        d0     );
     push_back("MaxMissingHits", nMissingHits  );

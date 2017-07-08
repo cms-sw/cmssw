@@ -94,7 +94,7 @@ class MuonAlignmentFromReference : public AlignmentAlgorithmBase
 
     private:
         bool numeric(std::string s);
-        int number(std::string s);
+        int number(const std::string& s);
         std::string chamberPrettyNameFromId(unsigned int idx);
 
         void parseReference(std::vector<Alignable*> &reference, 
@@ -300,7 +300,7 @@ bool MuonAlignmentFromReference::numeric(std::string s)
 }
 
 
-int MuonAlignmentFromReference::number(std::string s)
+int MuonAlignmentFromReference::number(const std::string& s)
 {
     if (!numeric(s)) assert(false);
     return atoi(s.c_str());

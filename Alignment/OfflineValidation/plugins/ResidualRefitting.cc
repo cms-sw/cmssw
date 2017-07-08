@@ -272,7 +272,7 @@ ResidualRefitting::~ResidualRefitting() {
 //
 // Track Collection Analysis
 //
-void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trackColl,
+void ResidualRefitting::CollectTrackHits(const edm::Handle<reco::TrackCollection>& trackColl,
                                          ResidualRefitting::storage_trackExtrap& trackExtrap,
                                          const edm::EventSetup& eventSetup) {
 
@@ -425,8 +425,8 @@ void ResidualRefitting::CollectTrackHits(edm::Handle<reco::TrackCollection> trac
 //
 //
 
-void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> trackCollOrig,
-	 edm::Handle<reco::TrackCollection> trackColl,  ResidualRefitting::storage_trackExtrap& trackExtrap) {
+void ResidualRefitting::NewTrackMeasurements(const edm::Handle<reco::TrackCollection>& trackCollOrig,
+	 const edm::Handle<reco::TrackCollection>& trackColl,  ResidualRefitting::storage_trackExtrap& trackExtrap) {
 
 	int numTracks 	= 0;	
 	int recCounter	= 0;
@@ -476,7 +476,7 @@ void ResidualRefitting::NewTrackMeasurements(edm::Handle<reco::TrackCollection> 
 // Find the original track that corresponds to the re-fitted track
 //
 int ResidualRefitting::MatchTrackWithRecHits(reco::TrackCollection::const_iterator trackIt,
-	 edm::Handle<reco::TrackCollection> ref) {
+	 const edm::Handle<reco::TrackCollection>& ref) {
 
 	if (debug_) printf("Matching a re-fitted track to the original track.\n");
 	
@@ -671,7 +671,7 @@ void ResidualRefitting::StoreTrackerRecHits(DetId detid, const TrackerTopology* 
 //
 // Store Muon info on P, Pt, eta, phi
 //
-void ResidualRefitting::muonInfo(ResidualRefitting::storage_muon& storeMuon, reco::TrackRef muon, int val) {
+void ResidualRefitting::muonInfo(ResidualRefitting::storage_muon& storeMuon, const reco::TrackRef& muon, int val) {
 
 
 	storeMuon.pt_ [val]			= muon->pt();
@@ -815,7 +815,7 @@ int ResidualRefitting::ReturnSector(DetId detid) {
 // 
 // Store the SAM and Track position info at a particular rho
 // 
-void ResidualRefitting::cylExtrapTrkSam(int recNum, reco::TrackRef track, ResidualRefitting::storage_trackExtrap& storage, double rho) {
+void ResidualRefitting::cylExtrapTrkSam(int recNum, const reco::TrackRef& track, ResidualRefitting::storage_trackExtrap& storage, double rho) {
 
 	Cylinder::PositionType pos(0,0,0);
 	Cylinder::RotationType rot;
@@ -1154,7 +1154,7 @@ void ResidualRefitting::beginJob() {
 //
 // Set the Muon Branches
 //
-void ResidualRefitting::branchMuon(ResidualRefitting::storage_muon& storageTmp, std::string branchName){
+void ResidualRefitting::branchMuon(ResidualRefitting::storage_muon& storageTmp, const std::string& branchName){
 
 	outputBranch_ = outputTree_ -> Branch(branchName.c_str(), &storageTmp, 
 									"n_/I:"
@@ -1174,7 +1174,7 @@ void ResidualRefitting::branchMuon(ResidualRefitting::storage_muon& storageTmp, 
 //
 // Set the Branches for Track Extrapolations
 //
-void ResidualRefitting::branchTrackExtrap(ResidualRefitting::storage_trackExtrap& storageTmp, std::string branchName){
+void ResidualRefitting::branchTrackExtrap(ResidualRefitting::storage_trackExtrap& storageTmp, const std::string& branchName){
 
 	outputBranch_ = outputTree_ -> Branch(branchName.c_str(), &storageTmp, 
 									"n_/I:"
@@ -1209,7 +1209,7 @@ void ResidualRefitting::endJob() {
 // 
 // Return a Free Trajectory state for a muon track
 // 
-FreeTrajectoryState ResidualRefitting::freeTrajStateMuon(reco::TrackRef muon){
+FreeTrajectoryState ResidualRefitting::freeTrajStateMuon(const reco::TrackRef& muon){
 					
 			math::XYZPoint  innerPos = muon -> referencePoint();
 			math::XYZVector innerMom = muon -> momentum();
@@ -1305,7 +1305,7 @@ void ResidualRefitting::dumpTrackHits(const ResidualRefitting::storage_trackHit&
 //
 //Dump a TrackRef 
 //
-void ResidualRefitting::dumpTrackRef(reco::TrackRef muon, std::string str) {
+void ResidualRefitting::dumpTrackRef(const reco::TrackRef& muon, const std::string& str) {
 
 	float pt = muon->pt();
 	float p  = muon->p  ();

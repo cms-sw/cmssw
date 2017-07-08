@@ -37,10 +37,10 @@ class PFMETBenchmark {
   virtual ~PFMETBenchmark();
 	
   void setup(
-	     std::string Filename,
+	     const std::string& Filename,
 	     bool debug, 
 	     bool plotAgainstReco=0, 
-             std::string benchmarkLabel_ = "ParticleFlow", 
+             const std::string& benchmarkLabel_ = "ParticleFlow", 
 	     DQMStore * dbe_store = NULL
 	     );
   void process(const reco::PFMETCollection& , 

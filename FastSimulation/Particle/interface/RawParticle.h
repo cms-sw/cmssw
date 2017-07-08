@@ -57,7 +57,7 @@ public:
   /** Construct from a fourvector and a name.
    *  The fourvector and name are taken for the particle, the vertex is set to 0.
    */
-  RawParticle(const std::string name, 
+  RawParticle(const std::string& name, 
 	      const XYZTLorentzVector& p);
 
   /** Construct from 2 fourvectors.
@@ -89,7 +89,7 @@ public:
    *  This should be a standard HEP-PID name. It will be used to deduce the 
    *  particle properties from a particle data table.
    */
-  void setID(const std::string name); 
+  void setID(const std::string& name); 
 
   /** Set the status of this particle.
    *  The coding follows PYTHIAs convention:

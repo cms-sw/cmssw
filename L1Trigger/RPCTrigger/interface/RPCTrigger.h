@@ -69,7 +69,7 @@ class RPCTrigger : public edm::EDProducer {
     unsigned long long m_cacheID;
     // TODO keep L1MuRegionalCandVec equally as RPCDigiL1LinkVec
     std::vector<L1MuRegionalCand> giveFinallCandindates(const L1RpcTBMuonsVec& finalMuons, int type, int bx,   
-                                     edm::Handle<RPCDigiCollection> rpcDigis, std::vector<RPCDigiL1Link> & retRPCDigiLink);
+                                     const edm::Handle<RPCDigiCollection>& rpcDigis, std::vector<RPCDigiL1Link> & retRPCDigiLink);
 
     std::string m_label;
 

@@ -11,6 +11,7 @@
 //
 
 #include <boost/bind.hpp>
+#include <utility>
 
 #include "TFile.h"
 #include "TSystem.h"
@@ -32,7 +33,7 @@ TGeoManager* FWGeometryTableViewManager_GetGeoManager() { return FWGeometryTable
 
 FWGeometryTableViewManager::FWGeometryTableViewManager(FWGUIManager* iGUIMgr, std::string fileName):
    FWViewManagerBase(),
-   m_fileName(fileName)
+   m_fileName(std::move(fileName))
 {
    FWGUIManager::ViewBuildFunctor f;
    f=boost::bind(&FWGeometryTableViewManager::buildView, this, _1, _2);                

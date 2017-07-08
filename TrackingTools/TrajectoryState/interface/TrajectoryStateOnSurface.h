@@ -7,6 +7,7 @@
 
 
 #include <iosfwd>
+#include <utility>
 
 /** As the class name suggests, this class encapsulates the state of a
  *  trajectory on a surface.
@@ -25,7 +26,7 @@ public:
   // construct
   TrajectoryStateOnSurface() {}
   /// Constructor from one of the basic states
-  explicit TrajectoryStateOnSurface( Base::pointer p) : Base(p) {}
+  explicit TrajectoryStateOnSurface( Base::pointer p) : Base(std::move(p)) {}
   explicit TrajectoryStateOnSurface( BasicTrajectoryState* p) : Base(p) {}
   explicit TrajectoryStateOnSurface( BasicSingleTrajectoryState* p) : Base(p) {}
 

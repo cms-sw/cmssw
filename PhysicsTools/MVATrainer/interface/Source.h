@@ -12,13 +12,13 @@ class MVATrainer;
 
 class Source {
     public:
-	Source(AtomicId name, bool trained = false) :
+	Source(const AtomicId& name, bool trained = false) :
 		trained(trained), name(name) {}
 	virtual ~Source() {}
 
 	inline AtomicId getName() const { return name; }
 
-	inline SourceVariable *getOutput(AtomicId name) const
+	inline SourceVariable *getOutput(const AtomicId& name) const
 	{ return outputs.find(name); }
 
 	inline bool isTrained() const { return trained; }

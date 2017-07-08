@@ -128,9 +128,9 @@ class HTrackAssociator {
    void useDefaultPropagator();
    
    /// specify names of EDProducts to use for different input data types
-   void addDataLabels( const std::string className,
-		       const std::string moduleLabel,
-		       const std::string productInstanceLabel = "");
+   void addDataLabels( const std::string& className,
+		       const std::string& moduleLabel,
+		       const std::string& productInstanceLabel = "");
    
    /// get FreeTrajectoryState from different track representations
    FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&, 

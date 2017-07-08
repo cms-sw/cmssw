@@ -122,7 +122,7 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	} /// for triggers
 }
 
-bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string num,std::string den,TH1 * & ptrnum,TH1* & ptrden,int type)
+bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& num,const std::string& den,TH1 * & ptrnum,TH1* & ptrden,int type)
 {
         using namespace edm;
 /*
@@ -218,7 +218,7 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 }
 
 
-void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName ){
+void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, const std::string& effName ){
 	//do the efficiency_vs_mistag_rate plot
 	TH1F* eff;
 	eff = new TH1F(effName.c_str(),effName.c_str(),100,0,1);
@@ -252,7 +252,7 @@ void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore:
 	return;
 }
 
-void HLTBTagHarvestingAnalyzer::modulesrate(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName ){
+void HLTBTagHarvestingAnalyzer::modulesrate(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, const std::string& effName ){
 	//do the eff_vs_disc_HEP17 / eff_vs_disc_HEM17 plot
 	TH1F* eff=new TH1F(*num);
 	//eff = new TH1F(effName.c_str(),effName.c_str(),100,0,1);

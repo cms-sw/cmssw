@@ -1,6 +1,8 @@
 // Implementation of class LXXXCorrectorImpl.
 // Generic LX jet corrector class.
 
+#include <utility>
+
 #include "JetMETCorrections/Algorithms/interface/LXXXCorrectorImpl.h"
 #include "CondFormats/JetMETObjects/interface/FactorizedJetCorrectorCalculator.h"
 
@@ -60,7 +62,7 @@ LXXXCorrectorImplMaker::fillDescriptions(edm::ConfigurationDescriptions& iDescri
 //------------------------------------------------------------------------
 LXXXCorrectorImpl::LXXXCorrectorImpl(std::shared_ptr<FactorizedJetCorrectorCalculator const> calculator, unsigned int level):
   mLevel(level),
-  mCorrector(calculator)
+  mCorrector(std::move(calculator))
 {
 }
 //------------------------------------------------------------------------ 

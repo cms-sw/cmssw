@@ -46,7 +46,7 @@ class Histos
 
 
   /// Write one or all histogram(s) in a file
-  void put(const std::string& file, std::string name="");
+  void put(const std::string& file, const std::string& name="");
 
   /// Divide two histograms and put the result in the first
   void divide(const std::string& h1, const std::string& h2, const std::string& h3);
@@ -61,7 +61,7 @@ class Histos
   void addObject(const std::string& name, TObject * obj);
 
   /// 
-    void debug(std::string p="") const {std::cout << " Histos myMap : "<< &theHistos << " " << p <<std::endl;}
+    void debug(const std::string& p="") const {std::cout << " Histos myMap : "<< &theHistos << " " << p <<std::endl;}
 
  private:
 

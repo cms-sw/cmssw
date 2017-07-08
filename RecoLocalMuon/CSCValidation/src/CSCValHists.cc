@@ -97,14 +97,14 @@ using namespace std;
 
   }
 
-  void CSCValHists::insertPlot(TH1* thePlot, std::string name, std::string folder){
+  void CSCValHists::insertPlot(TH1* thePlot, const std::string& name, std::string folder){
 
     theMap[name] = std::pair<TH1*,string>(thePlot, folder);
 
   }
   
 
-  void CSCValHists::fillCalibHist(float x, std::string name, std::string title, int bins, float xmin, float xmax,
+  void CSCValHists::fillCalibHist(float x, const std::string& name, const std::string& title, int bins, float xmin, float xmax,
                                   int bin, std::string folder){
 
     std::map<std::string,std::pair<TH1*,string> >::iterator it;
@@ -118,7 +118,7 @@ using namespace std;
   }
 
 
-  void CSCValHists::fill1DHist(float x, std::string name, std::string title,
+  void CSCValHists::fill1DHist(float x, const std::string& name, const std::string& title,
                                int bins, float xmin, float xmax, std::string folder){
 
     std::map<std::string,std::pair<TH1*,string> >::iterator it;
@@ -133,7 +133,7 @@ using namespace std;
   }
 
 
-  void CSCValHists::fill2DHist(float x, float y, std::string name, std::string title,
+  void CSCValHists::fill2DHist(float x, float y, const std::string& name, const std::string& title,
                                int binsx, float xmin, float xmax,
                                int binsy, float ymin, float ymax, std::string folder){
 
@@ -371,7 +371,7 @@ using namespace std;
     
   }
 
-  void CSCValHists::fill2DHist(float z, string name, string title, CSCDetId id, string folder){
+  void CSCValHists::fill2DHist(float z, const string& name, const string& title, CSCDetId id, string folder){
 
     map<string,pair<TH1*,string> >::iterator it;
     it = theMap.find(name);
@@ -443,7 +443,7 @@ using namespace std;
   }
 
 
-  void CSCValHists::fillProfile(float x, float y, std::string name, std::string title,
+  void CSCValHists::fillProfile(float x, float y, const std::string& name, const std::string& title,
                                 int binsx, float xmin, float xmax,
                                 float ymin, float ymax, std::string folder){
 
@@ -510,7 +510,7 @@ using namespace std;
   }
 
 
-  void CSCValHists::fill2DProfile(float x, float y, float z, std::string name, std::string title,
+  void CSCValHists::fill2DProfile(float x, float y, float z, const std::string& name, const std::string& title,
                                   int binsx, float xmin, float xmax,
                                   int binsy, float ymin, float ymax,
                                   float zmin, float zmax, std::string folder){

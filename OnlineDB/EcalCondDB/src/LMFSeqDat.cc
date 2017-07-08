@@ -1,5 +1,6 @@
 #include <stdexcept>
 #include <sstream>
+#include <utility>
 #include <limits.h>
 #include "OnlineDB/EcalCondDB/interface/LMFSeqDat.h"
 #include "OnlineDB/EcalCondDB/interface/DateHandler.h"
@@ -197,7 +198,7 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(std::string sql,
   noexcept(false)
 {
   std::vector<std::string> pars;
-  return fetchByRunIOV(pars, sql, method);
+  return fetchByRunIOV(pars, std::move(sql), std::move(method));
 }
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par, 
@@ -209,12 +210,12 @@ std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(int par,
   std::stringstream ss;
   ss << "I" << par;
   pars.push_back(ss.str());
-  return fetchByRunIOV(pars, sql, method);
+  return fetchByRunIOV(pars, std::move(sql), std::move(method));
 }
 
 std::map<int, LMFSeqDat> LMFSeqDat::fetchByRunIOV(const std::vector<std::string>& pars, 
-						  std::string sql,
-						  std::string method)
+						  const std::string& sql,
+						  const std::string& method)
   noexcept(false)
 {
   std::map<int, LMFSeqDat> l;
@@ -304,7 +305,7 @@ LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, const Tm& taken_at) {
   return fetchByRunNumber(runno, taken_at.str());
 }
 
-LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, std::string taken_at) {
+LMFSeqDat LMFSeqDat::fetchByRunNumber(int runno, const std::string& taken_at) {
   std::map<int, LMFSeqDat> l;
   std::vector<std::string> pars;
   std::stringstream ss;

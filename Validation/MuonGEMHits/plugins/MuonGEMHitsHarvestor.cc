@@ -79,7 +79,7 @@ TProfile* MuonGEMHitsHarvestor::ComputeEff(TH1F* num, TH1F* denum )
   }
   return efficHist;
 }
-void MuonGEMHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, std::string label_suffix, TH1F* track_hist, TH1F* sh_hist )
+void MuonGEMHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::IGetter& ig, const std::string& label_suffix, TH1F* track_hist, TH1F* sh_hist )
 {
   TString dbe_label = TString(dbe_path_)+label_suffix;
   //std::cout<<dbe_label<<"   "<<track_hist->GetName()<<std::endl;

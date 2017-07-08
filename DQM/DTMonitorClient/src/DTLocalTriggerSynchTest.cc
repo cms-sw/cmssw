@@ -37,6 +37,7 @@
 //C++ headers
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace edm;
 using namespace std;
@@ -231,7 +232,7 @@ void DTLocalTriggerSynchTest::makeRatioME(TH1F* numerator, TH1F* denominator, Mo
 }
 
 float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter & igetter,
-                                                 DTChamberId chId, std::string meType) {
+                                                 const DTChamberId& chId, const std::string& meType) {
    
    stringstream wheel; wheel << chId.wheel();
    stringstream station; station << chId.station();
@@ -259,13 +260,13 @@ float DTLocalTriggerSynchTest::getFloatFromME(DQMStore::IGetter & igetter,
  }
 
 void DTLocalTriggerSynchTest::bookChambHistos(DQMStore::IBooker & ibooker, 
-                                                 DTChamberId chambId, string htype, string subfolder) {
+                                                 const DTChamberId& chambId, string htype, const string& subfolder) {
   
   stringstream wheel; wheel << chambId.wheel();
   stringstream station; station << chambId.station();	
   stringstream sector; sector << chambId.sector();
 
-  string fullType  = fullName(htype);
+  string fullType  = fullName(std::move(htype));
   bool isTM = hwSource=="TM" ;
   string HistoName = fullType + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
 

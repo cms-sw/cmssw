@@ -2,7 +2,7 @@
 
 using namespace l1t;
 
-HGCalCluster::HGCalCluster( const LorentzVector p4, 
+HGCalCluster::HGCalCluster( const LorentzVector& p4, 
                             int pt,
                             int eta,
                             int phi )

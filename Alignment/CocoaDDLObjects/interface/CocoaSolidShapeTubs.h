@@ -16,7 +16,7 @@ class CocoaSolidShapeTubs : public CocoaSolidShape
 
 public:
   //---------- Constructors / Destructor
-  CocoaSolidShapeTubs( const ALIstring pType, ALIfloat pRMin, ALIfloat pRMax, ALIfloat pDz, ALIfloat pSPhi = 0.*deg, ALIfloat pDPhi = 360.*deg );
+  CocoaSolidShapeTubs( const ALIstring& pType, ALIfloat pRMin, ALIfloat pRMax, ALIfloat pDz, ALIfloat pSPhi = 0.*deg, ALIfloat pDPhi = 360.*deg );
   ~CocoaSolidShapeTubs(){ };
   ALIfloat getInnerRadius() const {
     return theInnerRadius; }

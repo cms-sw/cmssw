@@ -47,23 +47,23 @@ namespace spr{
     double   cHadronEne_[3];
   };
 
-  void eGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, spr::genSimInfo & info, bool debug=false);
+  void eGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, spr::genSimInfo & info, bool debug=false);
 
-  void eGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool debug=false);
+  void eGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool debug=false);
 
   void eGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, spr::genSimInfo & info, bool debug=false);
 
   void eGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool debug=false);
 
-  void hGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const HcalTopology* topology, int ieta, int iphi, spr::genSimInfo & info, bool includeHO=false, bool debug=false);
+  void hGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const HcalTopology* topology, int ieta, int iphi, spr::genSimInfo & info, bool includeHO=false, bool debug=false);
 
-  void hGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool includeHO=false, bool debug=false);
+  void hGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool includeHO=false, bool debug=false);
 
   void hGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const HcalTopology* topology, int ieta, int iphi, spr::genSimInfo & info, bool includeHO=false, bool debug=false);
 
   void hGenSimInfo(const DetId& coreDet, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool includeHO=false, bool debug=false);
 
-  void cGenSimInfo(std::vector<DetId>& vdets, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug=false);
+  void cGenSimInfo(std::vector<DetId>& vdets, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug=false);
 
   void cGenSimInfo(std::vector<DetId>& vdets, reco::GenParticleCollection::const_iterator trkItr, std::vector<spr::propagatedGenParticleID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug=false);
 

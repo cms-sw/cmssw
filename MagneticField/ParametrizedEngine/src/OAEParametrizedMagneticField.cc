@@ -7,6 +7,8 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/MessageLogger/interface/MessageLogger.h>
 
+#include <utility>
+
 #include "TkBfield.h"
 
 using namespace std;
@@ -16,7 +18,7 @@ OAEParametrizedMagneticField::OAEParametrizedMagneticField(float B) :
   theParam(B){}
 
 OAEParametrizedMagneticField::OAEParametrizedMagneticField(string T) : 
-  theParam(T){}
+  theParam(std::move(T)){}
 
 
 OAEParametrizedMagneticField::OAEParametrizedMagneticField(const edm::ParameterSet& parameters) : 

@@ -68,7 +68,7 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::processEvent(const std::vector<l
 void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::CaloTower> & towers,
 						       std::vector<l1t::Jet> & jets, 
 						       std::vector<l1t::Jet> & alljets, 
-						       std::string PUSubMethod) {
+						       const std::string& PUSubMethod) {
   
   // etaSide=1 is positive eta, etaSide=-1 is negative eta
   for (int etaSide=1; etaSide>=-1; etaSide-=2) {

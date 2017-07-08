@@ -444,7 +444,7 @@ void TkAccumulatingSensitiveDetector::clearHits()
     slaveHighTof->Initialize();
 }
 
-void TkAccumulatingSensitiveDetector::checkExitPoint(Local3DPoint p)
+void TkAccumulatingSensitiveDetector::checkExitPoint(const Local3DPoint& p)
 {
     double z = p.z();
     if (std::abs(z)<0.3*mm) return;

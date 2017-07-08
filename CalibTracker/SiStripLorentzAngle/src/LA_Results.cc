@@ -11,7 +11,7 @@
 #include <TProfile.h>
 
 LA_Filler_Fitter::Result LA_Filler_Fitter::
-result(Method m, const std::string name, const Book& book) {
+result(Method m, const std::string& name, const Book& book) {
   Result p;
   const std::string base = boost::erase_all_copy(name,method(m));
   

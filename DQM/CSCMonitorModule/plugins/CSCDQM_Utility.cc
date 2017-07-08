@@ -158,7 +158,7 @@ namespace cscdqm {
    * @param  message value to check
    * @param  replace string to replace matched part 
    */
-  void Utility::regexReplace(const std::string& expression, std::string& message, const std::string replace) {
+  void Utility::regexReplace(const std::string& expression, std::string& message, const std::string& replace) {
     Utility::regexReplace(TPRegexp(expression), message, replace);
   }
 
@@ -169,7 +169,7 @@ namespace cscdqm {
    * @param  message value to check
    * @param  replace string to replace matched part 
    */
-  void Utility::regexReplace(const TPRegexp& re_expression, std::string& message, const std::string replace) {
+  void Utility::regexReplace(const TPRegexp& re_expression, std::string& message, const std::string& replace) {
     TString s(message); 
     TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
     re->Substitute(s, replace);
@@ -184,7 +184,7 @@ namespace cscdqm {
    * @param  replace string to replace matched part 
    * @return modified string
    */
-  std::string Utility::regexReplaceStr(const std::string& expression, const std::string& message, const std::string replace) {
+  std::string Utility::regexReplaceStr(const std::string& expression, const std::string& message, const std::string& replace) {
     return regexReplaceStr(TPRegexp(expression), message, replace);
   }
 
@@ -196,7 +196,7 @@ namespace cscdqm {
    * @param  replace string to replace matched part 
    * @return modified string
    */
-  std::string Utility::regexReplaceStr(const TPRegexp& re_expression, const std::string& message, const std::string replace) {
+  std::string Utility::regexReplaceStr(const TPRegexp& re_expression, const std::string& message, const std::string& replace) {
     TString s(message); 
     TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
     re->Substitute(s, replace);

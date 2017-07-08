@@ -122,7 +122,7 @@ void DDHCalEndcapModuleAlgo::execute(DDCompactView& cpv) {
 }
 
 
-void DDHCalEndcapModuleAlgo::constructInsideModule0(DDLogicalPart module, DDCompactView& cpv) {
+void DDHCalEndcapModuleAlgo::constructInsideModule0(const DDLogicalPart& module, DDCompactView& cpv) {
   
   edm::LogInfo("HCalGeom") <<"DDHCalEndcapModuleAlgo test: \t\tInside module0";
 
@@ -224,7 +224,7 @@ void DDHCalEndcapModuleAlgo::constructInsideModule0(DDLogicalPart module, DDComp
 }
 
 
-void DDHCalEndcapModuleAlgo::constructInsideModule(DDLogicalPart module, DDCompactView& cpv) {
+void DDHCalEndcapModuleAlgo::constructInsideModule(const DDLogicalPart& module, DDCompactView& cpv) {
   
   edm::LogInfo("HCalGeom") << "DDHCalEndcapModuleAlgo test: \t\tInside module";
 
@@ -428,9 +428,9 @@ DDHCalEndcapModuleAlgo::parameterLayer(unsigned int iphi, double rinF,
 }
 
  
-void DDHCalEndcapModuleAlgo::constructScintLayer(DDLogicalPart detector, double dz,
+void DDHCalEndcapModuleAlgo::constructScintLayer(const DDLogicalPart& detector, double dz,
 						 DDHCalEndcapModuleAlgo::HcalEndcapPar parm,
-						 std::string nm, int id, DDCompactView& cpv) {
+						 const std::string& nm, int id, DDCompactView& cpv) {
 
   DDName matname(DDSplit(scintMat).first, DDSplit(scintMat).second);
   DDMaterial matter(matname);

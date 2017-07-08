@@ -17,6 +17,8 @@
 //			
 // 
 
+#include <utility>
+
 #include "FWCore/MessageService/interface/MainThreadMLscribe.h"
 #include "FWCore/MessageService/interface/MessageServicePresence.h"
 #include "FWCore/MessageService/interface/MessageLoggerScribe.h"
@@ -34,7 +36,7 @@ void
 {
   sigset_t oldset;
   edm::disableAllSigs(&oldset);
-  MessageLoggerScribe  m(queue);  
+  MessageLoggerScribe  m(std::move(queue));  
   m.run();
   // explicitly DO NOT reenableSigs(oldset) because -
   // 1) When this terminates, the main thread may not yet have done a join() and we

@@ -12,7 +12,7 @@
 #include <iostream>
 
 bool
-MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurface tsos,
+MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurface& tsos,
 						     GlobalVector& momentum) const
 {
   //
@@ -60,7 +60,7 @@ MultiTrajectoryStateMode::momentumFromModeCartesian (const TrajectoryStateOnSurf
 }
 
 bool
-MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurface tsos,
+MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurface& tsos,
 						     GlobalPoint& position) const
 {
   //
@@ -109,7 +109,7 @@ MultiTrajectoryStateMode::positionFromModeCartesian (const TrajectoryStateOnSurf
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModeLocal (const TrajectoryStateOnSurface tsos,
+MultiTrajectoryStateMode::momentumFromModeLocal (const TrajectoryStateOnSurface& tsos,
 						 GlobalVector& momentum) const
 {
   //
@@ -150,7 +150,7 @@ MultiTrajectoryStateMode::momentumFromModeLocal (const TrajectoryStateOnSurface 
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModeQP (const TrajectoryStateOnSurface tsos,
+MultiTrajectoryStateMode::momentumFromModeQP (const TrajectoryStateOnSurface& tsos,
 					      double& momentum) const
 {
   //
@@ -180,7 +180,7 @@ MultiTrajectoryStateMode::momentumFromModeQP (const TrajectoryStateOnSurface tso
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModeP (const TrajectoryStateOnSurface tsos,
+MultiTrajectoryStateMode::momentumFromModeP (const TrajectoryStateOnSurface& tsos,
 					     double& momentum) const
 {
   //
@@ -217,7 +217,7 @@ MultiTrajectoryStateMode::momentumFromModeP (const TrajectoryStateOnSurface tsos
 }
 
 bool
-MultiTrajectoryStateMode::positionFromModeLocal (const TrajectoryStateOnSurface tsos,
+MultiTrajectoryStateMode::positionFromModeLocal (const TrajectoryStateOnSurface& tsos,
 						 GlobalPoint& position) const
 {
   //
@@ -254,7 +254,7 @@ MultiTrajectoryStateMode::positionFromModeLocal (const TrajectoryStateOnSurface 
 }
 
 bool
-MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurface tsos,
+MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurface& tsos,
 						   GlobalVector& momentum) const
 {
   //
@@ -334,7 +334,7 @@ MultiTrajectoryStateMode::momentumFromModePPhiEta (const TrajectoryStateOnSurfac
 }
 
 int
-MultiTrajectoryStateMode::chargeFromMode (const TrajectoryStateOnSurface tsos) const
+MultiTrajectoryStateMode::chargeFromMode (const TrajectoryStateOnSurface& tsos) const
 {
   //
   // clear result vector and check validity of the TSOS

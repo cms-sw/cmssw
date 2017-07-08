@@ -350,7 +350,7 @@ void TrackEfficiencyMonitor::endJob(void)
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks, const NavigationSchool& navigationSchool)
+void TrackEfficiencyMonitor::testTrackerTracks(const edm::Handle<reco::TrackCollection>& tkTracks, const edm::Handle<reco::TrackCollection>& staTracks, const NavigationSchool& navigationSchool)
 //-----------------------------------------------------------------------------------
 {
   
@@ -490,7 +490,7 @@ void TrackEfficiencyMonitor::testTrackerTracks(edm::Handle<reco::TrackCollection
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::testSTATracks(edm::Handle<reco::TrackCollection> tkTracks, edm::Handle<reco::TrackCollection> staTracks)
+void TrackEfficiencyMonitor::testSTATracks(const edm::Handle<reco::TrackCollection>& tkTracks, const edm::Handle<reco::TrackCollection>& staTracks)
 //-----------------------------------------------------------------------------------
 {
 
@@ -590,7 +590,7 @@ TrackEfficiencyMonitor::SemiCylinder TrackEfficiencyMonitor::checkSemiCylinder(c
   
   
 //-----------------------------------------------------------------------------------
-bool TrackEfficiencyMonitor::trackerAcceptance( TrajectoryStateOnSurface theTSOS, double theRadius, double theMaxZ)
+bool TrackEfficiencyMonitor::trackerAcceptance( const TrajectoryStateOnSurface& theTSOS, double theRadius, double theMaxZ)
 //-----------------------------------------------------------------------------------
 {
 

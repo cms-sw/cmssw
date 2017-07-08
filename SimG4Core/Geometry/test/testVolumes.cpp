@@ -577,10 +577,10 @@ doCutTubs( const std::string& name, double rIn, double rOut,
 //                    std::vector<ZSection> zsections)
 //
 void
-doExtrudedPgon( const std::string& name, const std::vector<double> x,
-		const std::vector<double> y, const std::vector<double> z,
-		const std::vector<double> zx, const std::vector<double> zy,
-		const std::vector<double> zscale )
+doExtrudedPgon( const std::string& name, const std::vector<double>& x,
+		const std::vector<double>& y, const std::vector<double>& z,
+		const std::vector<double>& zx, const std::vector<double>& zy,
+		const std::vector<double>& zscale )
 {
   std::vector<G4TwoVector> polygon;
   std::vector<G4ExtrudedSolid::ZSection> zsections;

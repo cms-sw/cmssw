@@ -143,7 +143,7 @@ class MuonTrackValidatorBase {
     }
   }
 
-  void fillPlotFromVectors(MonitorElement* h, std::vector<int>& numerator, std::vector<int>& denominator,std::string type){
+  void fillPlotFromVectors(MonitorElement* h, std::vector<int>& numerator, std::vector<int>& denominator,const std::string& type){
     double value,err;
     for (unsigned int j=0; j<numerator.size(); j++){
       if (denominator[j]!=0){

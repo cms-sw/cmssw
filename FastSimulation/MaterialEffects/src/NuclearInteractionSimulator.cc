@@ -31,7 +31,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector<double>& lengthRatio,
   std::vector< std::vector<double> >& ratios,
   std::map<int,int >& idMap,
-  std::string inputFile,
+  const std::string& inputFile,
   unsigned int distAlgo,
   double distCut)
   :
@@ -624,7 +624,7 @@ NuclearInteractionSimulator::save() {
 }
 
 bool
-NuclearInteractionSimulator::read(std::string inputFile) {
+NuclearInteractionSimulator::read(const std::string& inputFile) {
 
   std::ifstream myInputFile;
   struct stat results;

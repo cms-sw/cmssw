@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -42,7 +43,7 @@ MuonME0SegHarvestor::~MuonME0SegHarvestor()
 }
 
 
-TProfile* MuonME0SegHarvestor::ComputeEff(TH1F* num, TH1F* denum, std::string nameHist)
+TProfile* MuonME0SegHarvestor::ComputeEff(TH1F* num, TH1F* denum, const std::string& nameHist)
 {
   std::string name  = "eff_"+nameHist;
   std::string title = "Segment Efficiency"+std::string(num->GetTitle());
@@ -79,7 +80,7 @@ void MuonME0SegHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMStore::
     
   if( num !=nullptr && den !=nullptr ) {
       
-    TProfile* profile = ComputeEff(num, den, nameHist);
+    TProfile* profile = ComputeEff(num, den, std::move(nameHist));
 
     TString x_axis_title = TString(num->GetXaxis()->GetTitle());
     TString title  = TString::Format("Segment Efficiency;%s;Eff.",x_axis_title.Data());

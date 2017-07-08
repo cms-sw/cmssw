@@ -48,7 +48,7 @@ void gctTestUsingLhcData::checkEmResults(const L1GlobalCaloTrigger* gct, const e
   std::cout << "Check against emulator results " << (passed ? "ok" : "FAILED") << std::endl;
 }
 
-bool gctTestUsingLhcData::checkResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag)
+bool gctTestUsingLhcData::checkResults(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag)
 {
   bool checkPassed = true;
   checkPassed &= checkJets(gct, iEvent, tag);
@@ -57,7 +57,7 @@ bool gctTestUsingLhcData::checkResults(const L1GlobalCaloTrigger* gct, const edm
   return checkPassed;
 }
 
-bool gctTestUsingLhcData::checkJets(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag)
+bool gctTestUsingLhcData::checkJets(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag)
 {
   edm::InputTag cenJetsTag(tag.label(), "cenJets");
   edm::Handle<L1GctJetCandCollection> cenJetsColl;
@@ -115,7 +115,7 @@ bool gctTestUsingLhcData::checkJets(const L1GlobalCaloTrigger* gct, const edm::E
   return match; 
 }
 
-bool gctTestUsingLhcData::checkEtSums(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag)
+bool gctTestUsingLhcData::checkEtSums(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag)
 {
   edm::Handle<L1GctEtTotalCollection> ETTColl;
   iEvent.getByLabel(tag, ETTColl);
@@ -142,7 +142,7 @@ bool gctTestUsingLhcData::checkEtSums(const L1GlobalCaloTrigger* gct, const edm:
   return match;
 }
 
-bool gctTestUsingLhcData::checkHtSums(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag tag)
+bool gctTestUsingLhcData::checkHtSums(const L1GlobalCaloTrigger* gct, const edm::Event& iEvent, const edm::InputTag& tag)
 {
   edm::Handle<L1GctEtHadCollection> HTTColl;
   iEvent.getByLabel(tag, HTTColl);

@@ -69,7 +69,7 @@ CSCHaloAlgo::CSCHaloAlgo()
 
 reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 					 edm::Handle<reco::MuonCollection>& TheCosmicMuons,  
-					 const edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap,
+					 const edm::Handle<reco::MuonTimeExtraMap>& TheCSCTimeMap,
 					 edm::Handle<reco::MuonCollection>& TheMuons,
 					 edm::Handle<CSCSegmentCollection>& TheCSCSegments, 
 					 edm::Handle<CSCRecHit2DCollection>& TheCSCRecHits,
@@ -519,7 +519,7 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
    return TheCSCHaloData;
 }
 
-math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
+math::XYZPoint CSCHaloAlgo::getPosition(const DetId &id, const reco::Vertex::Point& vtx){
 
   const GlobalPoint& pos=geo->getPosition(id);
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());

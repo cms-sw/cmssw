@@ -124,7 +124,7 @@ void EcalDBCopy::analyze( const edm::Event& evt, const edm::EventSetup& evtSetup
 
 
 
-bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string container)
+bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, const std::string& container)
 {
 
   unsigned long long cacheID = 0;
@@ -209,7 +209,7 @@ bool EcalDBCopy::shouldCopy(const edm::EventSetup& evtSetup, std::string contain
 
 
 
-void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, std::string container)
+void EcalDBCopy::copyToDB(const edm::EventSetup& evtSetup, const std::string& container)
 {
   edm::Service<cond::service::PoolDBOutputService> dbOutput;
   if ( !dbOutput.isAvailable() ) {

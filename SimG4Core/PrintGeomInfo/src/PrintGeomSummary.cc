@@ -133,7 +133,7 @@ void PrintGeomSummary::fillLV(G4LogicalVolume * lv) {
     fillLV(lv->GetDaughter(ii)->GetLogicalVolume());
 }
 
-void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
+void PrintGeomSummary::dumpSummary(std::ostream & out, const std::string& name) {
 
   //---------- Dump number of objects of each class
   out << G4endl << G4endl

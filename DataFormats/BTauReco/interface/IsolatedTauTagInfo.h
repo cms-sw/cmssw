@@ -60,7 +60,7 @@ namespace reco {
     const TrackRefVector tracksInCone(const math::XYZVector& myVector, const float size, const float pt_min, const float z_pv, const float dz_lt ) const;
     
     // return the leading track in a given cone around the jet axis or a given direction
-    void setLeadingTrack(const TrackRef) ; 
+    void setLeadingTrack(const TrackRef&) ; 
     const TrackRef leadingSignalTrack() const;
     const TrackRef  leadingSignalTrack(const float rm_cone, const float pt_min) const;
     const TrackRef  leadingSignalTrack(const math::XYZVector& myVector, const float rm_cone, const float pt_min) const;

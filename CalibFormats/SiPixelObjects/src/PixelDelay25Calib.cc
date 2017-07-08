@@ -142,7 +142,7 @@ PixelDelay25Calib::PixelDelay25Calib(vector< vector<string> > &tableMat) :
 }
 
 
-PixelDelay25Calib::PixelDelay25Calib(std::string filename) : 
+PixelDelay25Calib::PixelDelay25Calib(const std::string& filename) : 
   PixelCalibBase(),
   PixelConfigBase("","",""){
 
@@ -242,14 +242,14 @@ PixelDelay25Calib::PixelDelay25Calib(std::string filename) :
 PixelDelay25Calib::~PixelDelay25Calib() {
 }
 
-void PixelDelay25Calib::openFiles(std::string portcardName, std::string moduleName, std::string path) {
+void PixelDelay25Calib::openFiles(const std::string& portcardName, const std::string& moduleName, std::string path) {
   if (path!="") path+="/";
   graph_ = path+"graph_"+portcardName+"_"+moduleName+".dat";
   graphout_.open(graph_.c_str());
   return;
 }
 
-void PixelDelay25Calib::writeSettings(std::string portcardName, std::string moduleName) {
+void PixelDelay25Calib::writeSettings(const std::string& portcardName, const std::string& moduleName) {
   graphout_ << "Portcard: " << portcardName << endl;
   graphout_ << "Module: " << moduleName << endl;
   graphout_ << "SDaOrigin: " << origSDa_ << endl;
@@ -261,7 +261,7 @@ void PixelDelay25Calib::writeSettings(std::string portcardName, std::string modu
   return;
 }
 
-void PixelDelay25Calib::writeFiles( std::string tmp ) {
+void PixelDelay25Calib::writeFiles( const std::string& tmp ) {
   graphout_ << tmp << endl;
   return;
 }

@@ -136,7 +136,7 @@ namespace {
     PFECALSuperClusterAlgo::clustering_type _type;
     bool dynamic_dphi;
     double etawidthSuperCluster_ = .0 , phiwidthSuperCluster_ = .0;
-    IsClustered(const CalibClusterPtr s, 
+    IsClustered(const CalibClusterPtr& s, 
 		PFECALSuperClusterAlgo::clustering_type ct,
 		const bool dyn_dphi) : 
       the_seed(s), _type(ct), dynamic_dphi(dyn_dphi) {}

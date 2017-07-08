@@ -341,7 +341,7 @@ void sumSmallDepths(vector<TCell> &selectCells) {
 }
 
 
-void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint hitPositionHcal, 
+void filterCellsInCone(std::vector<TCell>& selectCells, const GlobalPoint& hitPositionHcal, 
 		       Float_t maxConeDist, const CaloGeometry* theCaloGeometry) {
 
   vector<TCell> filteredCells;

@@ -41,7 +41,7 @@ class MonPedestalOffsetsDat : public IDataItem {
     noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov, std::string mappa=" cv.maps_to " )
+  void fetchData(std::map< EcalLogicID, MonPedestalOffsetsDat >* fillMap, MonRunIOV* iov, const std::string& mappa=" cv.maps_to " )
      noexcept(false);
 
   // User data

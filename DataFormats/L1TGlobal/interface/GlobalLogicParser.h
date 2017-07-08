@@ -66,8 +66,8 @@ public:
     GlobalLogicParser(std::string& logicalExpressionVal);
 
     ///   from a logical and a numerical expression
-    GlobalLogicParser(const std::string logicalExpressionVal,
-                    const std::string numericalExpressionVal);
+    GlobalLogicParser(const std::string& logicalExpressionVal,
+                    const std::string& numericalExpressionVal);
 
     ///   from a logical and a numerical expression
     ///   no checks for correctness - use it only after the correctness was tested

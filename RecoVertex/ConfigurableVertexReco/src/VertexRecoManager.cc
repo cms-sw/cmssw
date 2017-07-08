@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoVertex/ConfigurableVertexReco/interface/VertexRecoManager.h"
 
 using namespace std;
@@ -5,7 +7,7 @@ using namespace std;
 void VertexRecoManager::registerReconstructor (
 					       const string & name, std::function<AbstractConfReconstructor*()> o, const string & d )
 {
-  theAbstractConfReconstructors[name]=o;
+  theAbstractConfReconstructors[name]=std::move(o);
   theDescription[name]=d;
 }
 

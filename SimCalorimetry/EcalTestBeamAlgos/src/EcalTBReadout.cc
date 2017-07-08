@@ -6,7 +6,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "SimDataFormats/EcalTestBeam/interface/PEcalTBInfo.h"
 
-EcalTBReadout::EcalTBReadout(const std::string theEcalTBInfoLabel) : 
+EcalTBReadout::EcalTBReadout(const std::string& theEcalTBInfoLabel) : 
    ecalTBInfoLabel_(theEcalTBInfoLabel)
 {
    theTargetCrystal_ = -1 ;

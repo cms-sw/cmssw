@@ -60,7 +60,7 @@ HepMC::GenParticle * BdecayFilter::findParticle(HepMC::GenVertex* vertex,
   return 0;
 }
 
-HepMC::GenEvent::particle_const_iterator BdecayFilter::getNextBs(const HepMC::GenEvent::particle_const_iterator start, const HepMC::GenEvent::particle_const_iterator end)
+HepMC::GenEvent::particle_const_iterator BdecayFilter::getNextBs(const HepMC::GenEvent::particle_const_iterator& start, const HepMC::GenEvent::particle_const_iterator& end)
 {
   HepMC::GenEvent::particle_const_iterator p;
   for (p = start; p != end; p++) 

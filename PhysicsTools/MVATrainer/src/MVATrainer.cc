@@ -395,7 +395,7 @@ const AtomicId MVATrainer::kWeightId("__WEIGHT__");
 
 static const AtomicId kOutputId("__OUTPUT__");
 
-static bool isMagic(AtomicId id)
+static bool isMagic(const AtomicId& id)
 {
 	return id == MVATrainer::kTargetId ||
 	       id == MVATrainer::kWeightId ||
@@ -722,7 +722,7 @@ TrainerMonitoring::Module *MVATrainer::bookMonitor(const std::string &name)
 	return monitoring->book(name);
 }
 
-SourceVariable *MVATrainer::getVariable(AtomicId source, AtomicId name) const
+SourceVariable *MVATrainer::getVariable(const AtomicId& source, const AtomicId& name) const
 {
 	std::map<AtomicId, Source*>::const_iterator pos = sources.find(source);
 	if (pos == sources.end())
@@ -731,7 +731,7 @@ SourceVariable *MVATrainer::getVariable(AtomicId source, AtomicId name) const
 	return pos->second->getOutput(name);
 }
 
-SourceVariable *MVATrainer::createVariable(Source *source, AtomicId name,
+SourceVariable *MVATrainer::createVariable(Source *source, const AtomicId& name,
                                            Variable::Flags flags)
 {
 	SourceVariable *var = getVariable(source->getName(), name);

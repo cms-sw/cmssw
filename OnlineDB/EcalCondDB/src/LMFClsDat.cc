@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "OnlineDB/EcalCondDB/interface/LMFClsDat.h"
 
 LMFClsDat::LMFClsDat() : LMFColoredTable() {
@@ -17,7 +19,7 @@ LMFClsDat::LMFClsDat(EcalDBConnection *c) : LMFColoredTable(c) {
 LMFClsDat::LMFClsDat(std::string color) : 
   LMFColoredTable() {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFClsDat::LMFClsDat(int color) : 
@@ -31,7 +33,7 @@ LMFClsDat::LMFClsDat(oracle::occi::Environment* env,
 			 std::string color) : 
   LMFColoredTable(env, conn) {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFClsDat::LMFClsDat(oracle::occi::Environment* env,
@@ -44,7 +46,7 @@ LMFClsDat::LMFClsDat(oracle::occi::Environment* env,
 
 LMFClsDat::LMFClsDat(EcalDBConnection *c, std::string color) : LMFColoredTable(c) {
   init();
-  setColor(color);
+  setColor(std::move(color));
 }
 
 LMFClsDat::LMFClsDat(EcalDBConnection *c, int color) : LMFColoredTable(c) {

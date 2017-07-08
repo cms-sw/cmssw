@@ -33,6 +33,7 @@
 #include <map>
 #include <memory>
 #include <typeinfo>
+#include <utility>
 #include <vector>
 
 // forward declarations
@@ -56,7 +57,7 @@ namespace fwlite {
             DataGetterHelper(TTree* tree,
                              std::shared_ptr<HistoryGetterBase> historyGetter,
                              std::shared_ptr<BranchMapReader> branchMap = std::shared_ptr<BranchMapReader>(),
-                             std::shared_ptr<edm::EDProductGetter> getter = std::shared_ptr<edm::EDProductGetter>(),
+                             const std::shared_ptr<edm::EDProductGetter>& getter = std::shared_ptr<edm::EDProductGetter>(),
                              bool useCache = false);
             virtual ~DataGetterHelper();
 
@@ -81,7 +82,7 @@ namespace fwlite {
             // ---------- member functions ---------------------------
 
             void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) {
-                getter_ = getter;
+                getter_ = std::move(getter);
             }
 
             edm::EDProductGetter const* getter() const {

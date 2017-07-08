@@ -29,7 +29,7 @@
 class HcalTB02SD : public CaloSD {
 
 public:
-  HcalTB02SD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  HcalTB02SD(const G4String&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	     edm::ParameterSet const &, const SimTrackManager*);
   virtual ~HcalTB02SD();
   virtual double getEnergyDeposit(G4Step*);
@@ -38,9 +38,9 @@ public:
 
 private:    
 
-  void   initMap(G4String, const DDCompactView &);
+  void   initMap(const G4String&, const DDCompactView &);
   double curve_LY(G4String& , G4StepPoint* ); 
-  double crystalLength(G4String);
+  double crystalLength(const G4String&);
 
 private:    
 

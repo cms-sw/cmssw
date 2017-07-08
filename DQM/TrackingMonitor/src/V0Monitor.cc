@@ -80,21 +80,21 @@ V0Monitor::~V0Monitor()
   if (genTriggerEventFlag_) delete genTriggerEventFlag_;
 }
 
-void V0Monitor::getHistoPSet(edm::ParameterSet pset, MEbinning& mebinning)
+void V0Monitor::getHistoPSet(const edm::ParameterSet& pset, MEbinning& mebinning)
 {
   mebinning.nbins = pset.getParameter<int32_t>("nbins");
   mebinning.xmin  = pset.getParameter<double>("xmin");
   mebinning.xmax  = pset.getParameter<double>("xmax");
 }
 
-MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning binning)
+MonitorElement* V0Monitor::bookHisto1D(DQMStore::IBooker & ibooker,std::string name, const std::string& title, const std::string& xaxis, const std::string& yaxis, MEbinning binning)
 {
   std::string title_w_axes = title+";"+xaxis+";"+yaxis;
   return ibooker.book1D(name, title_w_axes, 
 			binning.nbins, binning.xmin, binning.xmax);  
   
 }
-MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning xbinning, MEbinning ybinning)
+MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker & ibooker,std::string name, const std::string& title, const std::string& xaxis, const std::string& yaxis, MEbinning xbinning, MEbinning ybinning)
 {
   std::string title_w_axes = title+";"+xaxis+";"+yaxis;
   return ibooker.book2D(name, title_w_axes, 
@@ -102,7 +102,7 @@ MonitorElement* V0Monitor::bookHisto2D(DQMStore::IBooker & ibooker,std::string n
 			ybinning.nbins, ybinning.xmin, ybinning.xmax
 			);  
 }
-MonitorElement* V0Monitor::bookProfile(DQMStore::IBooker & ibooker,std::string name, std::string title, std::string xaxis, std::string yaxis, MEbinning xbinning, MEbinning ybinning)
+MonitorElement* V0Monitor::bookProfile(DQMStore::IBooker & ibooker,std::string name, const std::string& title, const std::string& xaxis, const std::string& yaxis, MEbinning xbinning, MEbinning ybinning)
 {
   std::string title_w_axes = title+";"+xaxis+";"+yaxis;
   return ibooker.bookProfile(name, title_w_axes, 

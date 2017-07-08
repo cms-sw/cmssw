@@ -555,7 +555,7 @@ namespace {
 		AtomicId	name;
 		unsigned int	category;
 
-		inline Id(AtomicId source, AtomicId name,
+		inline Id(const AtomicId& source, const AtomicId& name,
 		          unsigned int category) :
 			source(source), name(name), category(category) {}
 

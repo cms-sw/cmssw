@@ -5,6 +5,7 @@
 #include "boost/intrusive_ptr.hpp" 
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include<algorithm>
+#include <utility>
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 class DetLayer;
@@ -36,7 +37,7 @@ public:
                         ConstRecHitPointer aRecHit) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
+    theRecHit(std::move(aRecHit)),
     theLayer(0), theEstimate(0) {}
 
   /// Constructor with forward predicted state, RecHit, estimate
@@ -44,7 +45,7 @@ public:
                         ConstRecHitPointer aRecHit, float aEstimate) :
     theFwdPredictedState(fwdTrajectoryStateOnSurface),
     theUpdatedState(fwdTrajectoryStateOnSurface),
-    theRecHit(aRecHit), 
+    theRecHit(std::move(aRecHit)), 
     theLayer(0),
     theEstimate(aEstimate) {}
 
@@ -91,7 +92,7 @@ public:
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
+    theRecHit(std::move(aRecHit)),
     theLayer(0), theEstimate(0) {}
 
   /** Constructor with forward predicted, backward predicted & updated state, 
@@ -104,7 +105,7 @@ public:
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
+    theRecHit(std::move(aRecHit)),
     theLayer(0), theEstimate(aEstimate) {}
 
   TrajectoryMeasurement(TrajectoryStateOnSurface fwdPredTrajectoryStateOnSurface,
@@ -115,7 +116,7 @@ public:
     theFwdPredictedState(fwdPredTrajectoryStateOnSurface),
     theBwdPredictedState(bwdPredTrajectoryStateOnSurface),
     theUpdatedState(uTrajectoryStateOnSurface),
-    theRecHit(aRecHit),
+    theRecHit(std::move(aRecHit)),
     theLayer(layer), theEstimate(aEstimate) {}
 
  

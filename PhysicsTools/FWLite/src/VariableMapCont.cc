@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <cassert>
 #include <algorithm>
+#include <utility>
 #include "PhysicsTools/FWLite/interface/VariableMapCont.h"
 
 using namespace std;
@@ -163,7 +164,7 @@ VariableMapCont::addOption (string key, OptionType type,
                         const string &description, 
                         const char* defaultValue)
 {
-   addOption (key, type, description, (string) defaultValue);
+   addOption (std::move(key), type, description, (string) defaultValue);
 }
 
 void

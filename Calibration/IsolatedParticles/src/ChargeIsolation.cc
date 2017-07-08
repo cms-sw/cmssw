@@ -46,7 +46,7 @@ namespace spr{
 
   //===========================================================================================================
 
-  double chargeIsolationEcal(const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
+  double chargeIsolationEcal(const DetId& coreDet, reco::TrackCollection::const_iterator trkItr, const edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const CaloTopology* caloTopology, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
   
     const EcalBarrelGeometry *barrelGeom = (dynamic_cast< const EcalBarrelGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalBarrel)));
     const EcalEndcapGeometry *endcapGeom = (dynamic_cast< const EcalEndcapGeometry *> (geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap)));
@@ -128,7 +128,7 @@ namespace spr{
 
   //===========================================================================================================
 
-  double chargeIsolationHcal(reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
+  double chargeIsolationHcal(reco::TrackCollection::const_iterator trkItr, const edm::Handle<reco::TrackCollection>& trkCollection, const DetId ClosestCell, const HcalTopology* topology, const CaloSubdetectorGeometry* gHB, const MagneticField* bField, int ieta, int iphi, std::string& theTrackQuality, bool debug) {
 
     std::vector<DetId> dets(1,ClosestCell);
 #ifdef EDM_ML_DEBUG
@@ -196,7 +196,7 @@ namespace spr{
 
   //===========================================================================================================
 
-  double coneChargeIsolation(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, edm::Handle<reco::TrackCollection> trkCollection, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, std::string theTrackQuality, int &nNearTRKs, int &nLayers_maxNearP, int &trkQual_maxNearP, double &maxNearP_goodTrk, const GlobalPoint& hpoint1, const GlobalVector& trackMom, double dR) {
+  double coneChargeIsolation(const edm::Event& iEvent, const edm::EventSetup& iSetup, reco::TrackCollection::const_iterator trkItr, const edm::Handle<reco::TrackCollection>& trkCollection, TrackDetectorAssociator& associator, TrackAssociatorParameters& parameters_, const std::string& theTrackQuality, int &nNearTRKs, int &nLayers_maxNearP, int &trkQual_maxNearP, double &maxNearP_goodTrk, const GlobalPoint& hpoint1, const GlobalVector& trackMom, double dR) {
 
     nNearTRKs=0;
     nLayers_maxNearP=0;

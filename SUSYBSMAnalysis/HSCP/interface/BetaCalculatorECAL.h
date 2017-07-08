@@ -51,7 +51,7 @@ class BetaCalculatorECAL {
            std::map<int,float>& trackCrossedXtalMap,
            DetId aDetId,
            float step,
-           GlobalPoint point,
+           const GlobalPoint& point,
            const CaloSubdetectorGeometry* theSubdetGeometry);
 
       // Data members

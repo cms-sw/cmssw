@@ -25,9 +25,9 @@ using namespace std;
 
 int  read_badmodlist     ( int            , string         , vector < int >& );
 void get_difference      ( vector < int > , vector < int > , vector < int >& );
-int  get_filename        ( int            , string         , string& );
-int  search_closest_run  ( int , string );
-void modulediff ( int run_2 , string repro_run2 );
+int  get_filename        ( int            , const string&         , string& );
+int  search_closest_run  ( int , const string& );
+void modulediff ( int run_2 , const string& repro_run2 );
 
 int main(int argc , char *argv[]) {
 
@@ -48,7 +48,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-void modulediff ( int run_2 , string repro_run2 )
+void modulediff ( int run_2 , const string& repro_run2 )
 {
   vector < int > badmodlist_run1;
   vector < int > badmodlist_run2;
@@ -147,7 +147,7 @@ void get_difference  ( vector < int > badlist1 , vector < int > badlist2 , vecto
 int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
 {
   string filename;
-  int flag = get_filename ( run , repro_type , filename );
+  int flag = get_filename ( run , std::move(repro_type) , filename );
   
   if ( flag < 0 )
     {
@@ -198,7 +198,7 @@ int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
 }
 
 
-int get_filename  ( int run , string repro_type , string& filename )
+int get_filename  ( int run , const string& repro_type , string& filename )
 {
   stringstream runstr;
   runstr << run;
@@ -250,7 +250,7 @@ int get_filename  ( int run , string repro_type , string& filename )
 }
 
 
-int  search_closest_run  ( int thisrun , string repro_type )
+int  search_closest_run  ( int thisrun , const string& repro_type )
 {
   string filename;
 

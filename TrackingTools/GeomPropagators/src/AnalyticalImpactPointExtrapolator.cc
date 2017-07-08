@@ -33,7 +33,7 @@ AnalyticalImpactPointExtrapolator::extrapolate (const FreeTrajectoryState& fts,
 }
 
 TrajectoryStateOnSurface 
-AnalyticalImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface tsos, 
+AnalyticalImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface& tsos, 
 						const GlobalPoint& vtx) const
 {
   if ( tsos.isValid() )  return extrapolateFullState(tsos,vtx);
@@ -41,7 +41,7 @@ AnalyticalImpactPointExtrapolator::extrapolate (const TrajectoryStateOnSurface t
 }
 
 TrajectoryStateOnSurface 
-AnalyticalImpactPointExtrapolator::extrapolateFullState (const TrajectoryStateOnSurface tsos, 
+AnalyticalImpactPointExtrapolator::extrapolateFullState (const TrajectoryStateOnSurface& tsos, 
 							 const GlobalPoint& vertex) const
 {
   //

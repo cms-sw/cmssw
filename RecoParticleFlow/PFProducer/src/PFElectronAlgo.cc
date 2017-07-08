@@ -31,7 +31,7 @@
 using namespace std;
 using namespace reco;
 PFElectronAlgo::PFElectronAlgo(const double mvaEleCut,
-			       string mvaWeightFileEleID,
+			       const string& mvaWeightFileEleID,
 			       const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 			       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			       bool applyCrackCorrections,

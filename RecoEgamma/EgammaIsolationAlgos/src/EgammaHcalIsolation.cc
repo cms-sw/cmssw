@@ -6,6 +6,7 @@
 //=============================================================================
 //*****************************************************************************
 //C++ includes
+#include <utility>
 #include <vector>
 #include <functional>
 
@@ -41,7 +42,7 @@ EgammaHcalIsolation::EgammaHcalIsolation (
   eLowE_(eLowE),
   etLowB_(etLowB),
   etLowE_(etLowE),
-  theCaloGeom_(theCaloGeom) ,  
+  theCaloGeom_(std::move(theCaloGeom)) ,  
   mhbhe_(mhbhe)
 {
     //set up the geometry and selector

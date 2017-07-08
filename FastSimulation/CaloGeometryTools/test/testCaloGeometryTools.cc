@@ -63,7 +63,7 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  void testpoint(const XYZPoint& , std::string name, bool barrel, RandomEngineAndDistribution const*);
+  void testpoint(const XYZPoint& , const std::string& name, bool barrel, RandomEngineAndDistribution const*);
   void checkSM();
   void checkSC();
   void testBorderCrossing();
@@ -182,7 +182,7 @@ void testCaloGeometryTools::checkSC()
 
 
 
-void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, bool barrel,
+void testCaloGeometryTools::testpoint(const XYZPoint& point, const std::string& name, bool barrel,
                                       RandomEngineAndDistribution const* random)
 {
    DetId myCell = myGeometry.getClosestCell(point,true,barrel);

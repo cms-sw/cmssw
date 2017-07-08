@@ -362,7 +362,7 @@ CSCSkim::filter(edm::Event& event, const edm::EventSetup& eventSetup)
 //
 // ==============================================
 
-bool CSCSkim::doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::Handle<CSCSegmentCollection> cscSegments){
+bool CSCSkim::doCSCSkimming(const edm::Handle<CSCRecHit2DCollection>& cscRecHits, const edm::Handle<CSCSegmentCollection>& cscSegments){
 
   // how many RecHits in the collection?
   int nRecHits = cscRecHits->size();
@@ -490,7 +490,7 @@ bool CSCSkim::doCSCSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::
 // A module to select events useful in aligning chambers relative to each other
 // using the overlap regions at the edges (in Xlocal) of the chamber.
 //-------------------------------------------------------------------------------
-bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments){
+bool CSCSkim::doOverlapSkimming(const edm::Handle<CSCSegmentCollection>& cscSegments){
 
   const int nhitsMinimum = 4;
   const float chisqMaximum = 100.;
@@ -572,7 +572,7 @@ bool CSCSkim::doOverlapSkimming(edm::Handle<CSCSegmentCollection> cscSegments){
 // of recHits and larger number of chambers with hits.
 //
 //============================================================
-bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits, edm::Handle<CSCSegmentCollection> cscSegments){
+bool CSCSkim::doMessyEventSkimming(const edm::Handle<CSCRecHit2DCollection>& cscRecHits, const edm::Handle<CSCSegmentCollection>& cscSegments){
 
   // how many RecHits in the collection?
   int nRecHits = cscRecHits->size();
@@ -703,8 +703,8 @@ bool CSCSkim::doMessyEventSkimming(edm::Handle<CSCRecHit2DCollection> cscRecHits
 // Select events with DIGIs are a particular chamber.
 //
 //============================================================
-bool CSCSkim::doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires,
-					edm::Handle<CSCStripDigiCollection> strips) {
+bool CSCSkim::doCertainChamberSelection(const edm::Handle<CSCWireDigiCollection>& wires,
+					const edm::Handle<CSCStripDigiCollection>& strips) {
 
   // Loop through the wire DIGIs, looking for a match
   bool certainChamberIsPresentInWires = false;
@@ -749,7 +749,7 @@ bool CSCSkim::doCertainChamberSelection(edm::Handle<CSCWireDigiCollection> wires
 // Select events which *might* probe the DT-CSC overlap region.
 //
 //============================================================
-bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
+bool CSCSkim::doDTOverlap(const Handle<CSCSegmentCollection>& cscSegments) {
   const float chisqMax = 100.;
   const int nhitsMin = 5;
   const int maxNSegments = 3;
@@ -857,7 +857,7 @@ bool CSCSkim::doDTOverlap(Handle<CSCSegmentCollection> cscSegments) {
 // stations 1, 2, 3 and 4.
 //
 //============================================================
-bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
+bool CSCSkim::doHaloLike(const Handle<CSCSegmentCollection>& cscSegments) {
   const float chisqMax = 100.;
   const int nhitsMin = 5; // on a segment
   const int maxNSegments = 3; // in a chamber
@@ -1002,7 +1002,7 @@ bool CSCSkim::doHaloLike(Handle<CSCSegmentCollection> cscSegments) {
 //--------------------------------------------------------------
 // select events with at least one "long" stand-alone muon
 //--------------------------------------------------------------
-bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
+bool CSCSkim::doLongSATrack(const edm::Handle<reco::TrackCollection>& saMuons) {
 
   const float zDistanceMax = 2500.;
   const float zDistanceMin =  700.;
@@ -1078,7 +1078,7 @@ bool CSCSkim::doLongSATrack(edm::Handle<reco::TrackCollection> saMuons) {
 //
 //  D.Dibur and M.Schmitt
 //============================================================
-bool CSCSkim::doBFieldStudySelection(edm::Handle<reco::TrackCollection> saMuons,  edm::Handle<reco::TrackCollection> tracks, edm::Handle<reco::MuonCollection> gMuons) {
+bool CSCSkim::doBFieldStudySelection(const edm::Handle<reco::TrackCollection>& saMuons,  const edm::Handle<reco::TrackCollection>& tracks, const edm::Handle<reco::MuonCollection>& gMuons) {
 
   bool acceptThisEvent = false;
 

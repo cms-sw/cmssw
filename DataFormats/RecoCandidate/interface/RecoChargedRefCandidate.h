@@ -14,7 +14,7 @@ namespace reco {
   class RecoChargedRefCandidate : public  LeafRefCandidateT {
   public:
     RecoChargedRefCandidate() {}
-    RecoChargedRefCandidate(TrackRef ref, float m) : LeafRefCandidateT( ref, m) {}
+    RecoChargedRefCandidate(const TrackRef& ref, float m) : LeafRefCandidateT( ref, m) {}
     
     ~RecoChargedRefCandidate() {}
 

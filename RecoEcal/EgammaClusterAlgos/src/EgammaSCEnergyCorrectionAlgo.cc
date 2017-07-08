@@ -21,7 +21,7 @@ reco::SuperCluster EgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::Sup
 								 const EcalRecHitCollection &rhc, reco::CaloCluster::AlgoId theAlgo, 
 								 const CaloSubdetectorGeometry* geometry,
 								 EcalClusterFunctionBaseClass* energyCorrectionFunction,
-								 std::string energyCorrectorName_,
+								 const std::string& energyCorrectorName_,
 								 const int modeEB_,
 								 const int modeEE_) {	
 

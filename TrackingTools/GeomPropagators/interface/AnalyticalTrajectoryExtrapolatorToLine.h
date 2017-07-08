@@ -39,12 +39,12 @@ public:
 					const Line & L) const;
 
   /// extrapolation from TrajectoryStateOnSurface
-  TrajectoryStateOnSurface extrapolate (const TrajectoryStateOnSurface tsos,
+  TrajectoryStateOnSurface extrapolate (const TrajectoryStateOnSurface& tsos,
 					const Line & L) const;
 
 private:
   /// extrapolation of (multi) TSOS
-  TrajectoryStateOnSurface extrapolateFullState (const TrajectoryStateOnSurface tsos, 
+  TrajectoryStateOnSurface extrapolateFullState (const TrajectoryStateOnSurface& tsos, 
 						 const Line& line) const dso_internal;
   /// extrapolation of (single) FTS
   TrajectoryStateOnSurface extrapolateSingleState (const FreeTrajectoryState& fts, 

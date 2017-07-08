@@ -10,11 +10,11 @@ Calibrator::Calibrator(){
 Calibrator::~Calibrator() {
 }
 
-void Calibrator::addDetectorElement(DetectorElementPtr const de) {
+void Calibrator::addDetectorElement(DetectorElementPtr const& de) {
 	//std::cout << "myDetecotElements has size: " << myDetectorElements.size() << "before addition.\n";
 	myDetectorElements.push_back(de);
 }
-void Calibrator::addParticleDeposit(ParticleDepositPtr pd) {
+void Calibrator::addParticleDeposit(const ParticleDepositPtr& pd) {
 	myParticleDeposits.push_back(pd);
 }
 

@@ -12,12 +12,12 @@ class EcalLogicID {
   EcalLogicID();
 
   // Initializing constructor
-  EcalLogicID( std::string name,
+  EcalLogicID( const std::string& name,
 	       int logicID,
 	       int id1 = NULLID,
 	       int id2 = NULLID,
 	       int id3 = NULLID,
-	       std::string mapsTo = "" );
+	       const std::string& mapsTo = "" );
 
   // Destructor
   virtual ~EcalLogicID();

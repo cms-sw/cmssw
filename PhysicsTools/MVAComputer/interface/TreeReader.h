@@ -29,17 +29,17 @@ class TreeReader {
 	void setTree(TTree *tree);
 
 	void addBranch(const std::string &expression,
-	               AtomicId name = AtomicId(), bool opt = true);
+	               const AtomicId& name = AtomicId(), bool opt = true);
 	void addBranch(TBranch *branch,
 	               AtomicId name = AtomicId(), bool opt = true);
 	template<typename T>
 	void addSingle(AtomicId name, const T *value, bool opt = false);
 	template<typename T>
 	void addMulti(AtomicId name, const std::vector<T> *value);
-	void setOptional(AtomicId name, bool opt, double optVal = kOptVal);
+	void setOptional(const AtomicId& name, bool opt, double optVal = kOptVal);
 
-	void addTypeSingle(AtomicId name, const void *value, char type, bool opt);
-	void addTypeMulti(AtomicId name, const void *value, char type);
+	void addTypeSingle(const AtomicId& name, const void *value, char type, bool opt);
+	void addTypeMulti(const AtomicId& name, const void *value, char type);
 
 	void automaticAdd(bool skipTarget = false, bool skipWeight = false);
 
@@ -78,7 +78,7 @@ class TreeReader {
 		{ this->ptr = ptr; }
 
 		void update(TreeReader *reader) const;
-		void fill(AtomicId name, TreeReader *reader) const;
+		void fill(const AtomicId& name, TreeReader *reader) const;
 
 	    private:
 		TString		name;

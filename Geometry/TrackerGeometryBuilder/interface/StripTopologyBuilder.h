@@ -16,7 +16,7 @@ public:
 
   StripTopologyBuilder( void );
 
-  StripTopology* build( const Bounds*, double, std::string );
+  StripTopology* build( const Bounds*, double, const std::string& );
 
 private:
 

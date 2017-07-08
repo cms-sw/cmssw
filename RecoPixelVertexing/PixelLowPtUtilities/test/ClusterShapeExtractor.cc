@@ -66,9 +66,9 @@ class ClusterShapeExtractor : public edm::EDAnalyzer
 
    // Rec
    void processRec(const SiPixelRecHit &   recHit,
-                   LocalVector ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & hrpc);
+                   const LocalVector& ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & hrpc);
    void processRec(const SiStripRecHit2D & recHit,
-                   LocalVector ldir, vector<TH1F *> & hrsc);
+                   const LocalVector& ldir, vector<TH1F *> & hrsc);
 
    bool checkSimHits
     (const TrackingRecHit & recHit, PSimHit & simHit,
@@ -222,7 +222,7 @@ bool ClusterShapeExtractor::isSuitable(const PSimHit & simHit)
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processRec(const SiStripRecHit2D & recHit,
-     LocalVector ldir, vector<TH1F *> & histo)
+     const LocalVector& ldir, vector<TH1F *> & histo)
 {
   int meas;
   float pred;
@@ -234,7 +234,7 @@ void ClusterShapeExtractor::processRec(const SiStripRecHit2D & recHit,
 
 /*****************************************************************************/
 void ClusterShapeExtractor::processRec(const SiPixelRecHit & recHit,
-    LocalVector ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & histo)
+    const LocalVector& ldir, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & histo)
 {
   int part;
   ClusterData::ArrayType meas;

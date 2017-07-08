@@ -99,11 +99,11 @@ namespace cscdqm {
       
       static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, std::string& value);
       static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, int& value);
-      static const bool checkHistoValue(const CoHistoProps& h, const std::string name, double& value);
+      static const bool checkHistoValue(const CoHistoProps& h, const std::string& name, double& value);
 
       static std::string& getHistoValue(const CoHistoProps& h, const std::string& name, std::string& value, const std::string& def_value = "");
       static int&         getHistoValue(const CoHistoProps& h, const std::string& name, int& value, const int& def_value = 0);
-      static double&      getHistoValue(const CoHistoProps& h, const std::string name, double& value, const int def_value = 0.0);
+      static double&      getHistoValue(const CoHistoProps& h, const std::string& name, double& value, const int def_value = 0.0);
       
       void book(const HistoDef& h, const CoHistoProps& p, const std::string& folder) const;
       static const int ParseAxisLabels(const std::string& s, std::map<int, std::string>& labels);

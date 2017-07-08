@@ -94,7 +94,7 @@ private:
 
  public:
 
-  inline bool accept(SiPixelClusterRefNew & r, const std::vector<bool> skipClusters) const {
+  inline bool accept(SiPixelClusterRefNew & r, const std::vector<bool>& skipClusters) const {
     
     if(skipClusters.empty()) return true;
     if (r.key()>=skipClusters.size()){

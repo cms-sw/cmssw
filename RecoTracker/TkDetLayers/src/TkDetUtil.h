@@ -23,7 +23,7 @@ namespace tkDetUtil {
 
 
   inline
-  bool overlapInPhi( GlobalPoint crossPoint,const GeomDet & det, float phiWindow) {
+  bool overlapInPhi( const GlobalPoint& crossPoint,const GeomDet & det, float phiWindow) {
     return overlapInPhi(crossPoint.barePhi(), det,phiWindow);
   }
 

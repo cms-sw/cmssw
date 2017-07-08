@@ -75,7 +75,7 @@ class GEMRecHit : public RecHit2DLocalPos {
 
 
   /// Set local position 
-  void setPosition(LocalPoint pos) {
+  void setPosition(const LocalPoint& pos) {
     theLocalPosition = pos;
   }
 
@@ -87,7 +87,7 @@ class GEMRecHit : public RecHit2DLocalPos {
 
 
   /// Set the local position and its error
-  void setPositionAndError(LocalPoint pos, LocalError err) {
+  void setPositionAndError(const LocalPoint& pos, LocalError err) {
     theLocalPosition = pos;
     theLocalError = err;
   }

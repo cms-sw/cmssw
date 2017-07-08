@@ -32,7 +32,7 @@
 
 using namespace CLHEP;
 
-GflashHadronShowerModel::GflashHadronShowerModel(G4String modelName, G4Region* envelope, const edm::ParameterSet& parSet)
+GflashHadronShowerModel::GflashHadronShowerModel(const G4String& modelName, G4Region* envelope, const edm::ParameterSet& parSet)
   : G4VFastSimulationModel(modelName, envelope), theParSet(parSet)
 {
   theWatcherOn = parSet.getParameter<bool>("watcherOn");

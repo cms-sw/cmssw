@@ -62,7 +62,7 @@ const PFTauTagInfoRef& PFTau::pfTauTagInfoRef() const {
   return PFTauTagInfoRef_;
 }
 
-void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef x) { PFTauTagInfoRef_ = x; }
+void PFTau::setpfTauTagInfoRef(const PFTauTagInfoRef& x) { PFTauTagInfoRef_ = x; }
 
 const PFCandidatePtr& PFTau::leadPFChargedHadrCand() const { return leadPFChargedHadrCand_; }
 const PFCandidatePtr& PFTau::leadPFNeutralCand() const { return leadPFNeutralCand_; }

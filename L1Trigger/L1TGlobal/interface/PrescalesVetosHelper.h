@@ -2,6 +2,7 @@
 #define PRESCALESVETOSHELPERS_H__
 
 #include <cassert>
+#include <utility>
 #include "CondFormats/L1TObjects/interface/L1TGlobalPrescalesVetos.h"
 
 // If you want to create a new object that you can read and write, use this constructor:
@@ -48,12 +49,12 @@ namespace l1t {
     void setBxMaskDefault(int value) { check_write(); write_->bxmask_default_ = value; };
 
     inline const std::vector<std::vector<int> >& prescaleTable() const { return read_->prescale_table_; };
-    void setPrescaleFactorTable(std::vector<std::vector<int> > value){ check_write(); write_->prescale_table_ = value; };
+    void setPrescaleFactorTable(std::vector<std::vector<int> > value){ check_write(); write_->prescale_table_ = std::move(value); };
     inline const std::vector<int>& triggerMaskVeto() const { return read_->veto_; };
-    void setTriggerMaskVeto(std::vector<int> value){ check_write(); write_->veto_ = value; };
+    void setTriggerMaskVeto(std::vector<int> value){ check_write(); write_->veto_ = std::move(value); };
     
     inline const std::map<int, std::vector<int> >& triggerAlgoBxMask() const { return read_->bxmask_map_; };
-    void setTriggerAlgoBxMask(std::map<int, std::vector<int> > value){ check_write(); write_->bxmask_map_ = value; };
+    void setTriggerAlgoBxMask(std::map<int, std::vector<int> > value){ check_write(); write_->bxmask_map_ = std::move(value); };
 
     // access to underlying pointers, mainly for ESProducer:
     const L1TGlobalPrescalesVetos *  getReadInstance() const {return read_;}

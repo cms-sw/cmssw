@@ -39,7 +39,7 @@ FittedEntry::FittedEntry( Entry* entry, ALIint order, ALIdouble sigma)
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@2
-FittedEntry::FittedEntry( ALIstring name, float value, float sigma)
+FittedEntry::FittedEntry( const ALIstring& name, float value, float sigma)
 { 
   //ar.lass1.laser.centre_X
   theOrder = 0;

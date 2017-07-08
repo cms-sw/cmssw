@@ -91,7 +91,7 @@ void DDG4ProductionCuts::initialize() {
 }
 
 
-void DDG4ProductionCuts::setProdCuts(const DDLogicalPart lpart, 
+void DDG4ProductionCuts::setProdCuts(const DDLogicalPart& lpart, 
 				     G4LogicalVolume* lvol ) {  
   
   if ( m_Verbosity > 0 ) 

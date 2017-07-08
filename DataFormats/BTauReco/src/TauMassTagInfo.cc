@@ -19,7 +19,7 @@ float reco::TauMassTagInfo::discriminator(double matching_cone, double leading_t
 //
 // -- Set IsolatedTauTag
 //
-void reco::TauMassTagInfo::setIsolatedTauTag(const IsolatedTauTagInfoRef isolationRef){
+void reco::TauMassTagInfo::setIsolatedTauTag(const IsolatedTauTagInfoRef& isolationRef){
    isolatedTau = isolationRef;
 }
 //
@@ -31,7 +31,7 @@ const IsolatedTauTagInfoRef& reco::TauMassTagInfo::getIsolatedTauTag() const {
 //
 // -- Set Cluster Collection
 //
-void reco::TauMassTagInfo::storeClusterTrackCollection(reco::BasicClusterRef clusterRef,float dr) {
+void reco::TauMassTagInfo::storeClusterTrackCollection(const reco::BasicClusterRef& clusterRef,float dr) {
   
   clusterMap.insert(clusterRef, dr);
 }

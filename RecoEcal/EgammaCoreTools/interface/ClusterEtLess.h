@@ -8,7 +8,7 @@
 class ClusterEtLess : public std::binary_function<reco::CaloCluster, reco::CaloCluster, bool>
 {
  public:
-  bool operator()(reco::CaloCluster x, reco::CaloCluster y)
+  bool operator()(const reco::CaloCluster& x, const reco::CaloCluster& y)
     {
       return ( (x.energy() * sin(x.position().theta())) < (y.energy() * sin(y.position().theta())) ) ;
     }

@@ -39,7 +39,7 @@ class SiStripBadComponentsDQMService : public SiStripCondObjBuilderBase<SiStripB
   void openRequestedFile();
   // void scanTreeAndFillSummary(const std::vector<MonitorElement*>& MEs, SiStripBadStrip* summary,std::string& histoName, std::vector<std::string>& Quantities);
   uint32_t getRunNumber() const;
-  bool goToDir(DQMStore * dqm_store, std::string name);
+  bool goToDir(DQMStore * dqm_store, const std::string& name);
   void getModuleFolderList(DQMStore * dqm_store, std::vector<std::string>& mfolders);
 
   DQMStore* dqmStore_;

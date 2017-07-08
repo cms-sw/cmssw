@@ -269,7 +269,7 @@ TrackAlgoCompareUtil::produce(edm::StreamID, edm::Event& iEvent, const edm::Even
 }
 
 // ------------ Producer Specific Meber Fucntions ----------------------------------------
-void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const
+void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(const TrackingParticleRef& tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const
 {
     GlobalPoint trackingParticleVertex( tp->vertex().x(), tp->vertex().y(), tp->vertex().z() );
     GlobalVector trackingParticleP3(tp->g4Track_begin()->momentum().x(),
@@ -297,7 +297,7 @@ void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const
 }
 
 
-void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const
+void TrackAlgoCompareUtil::SetTrackingParticleD0Dz(const TrackingParticleRef& tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const
 {
     GlobalPoint trackingParticleVertex( tp->vertex().x(), tp->vertex().y(), tp->vertex().z() );
     GlobalVector trackingParticleP3(tp->g4Track_begin()->momentum().x(),

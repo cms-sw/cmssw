@@ -5,13 +5,14 @@
 #include <iomanip>
 #include <cstdlib>
 #include <cmath>		// include floating-point std::abs functions
+#include <utility>
 
 ALIUnitsTable      ALIUnitDefinition::theUnitsTable;
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIUnitDefinition::ALIUnitDefinition(ALIstring name, ALIstring symbol,
-                                   ALIstring category, ALIdouble value)
+ALIUnitDefinition::ALIUnitDefinition(const ALIstring& name, const ALIstring& symbol,
+                                   const ALIstring& category, ALIdouble value)
   : Name(name),SymbolName(symbol),Value(value)
 {
   //
@@ -72,7 +73,7 @@ ALIint ALIUnitDefinition::operator!=(const ALIUnitDefinition &right) const
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
-ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
+ALIdouble ALIUnitDefinition::GetValueOf(const ALIstring& stri)
 {
   if(theUnitsTable.size()==0) BuildUnitsTable();
   ALIstring name,symbol;
@@ -92,7 +93,7 @@ ALIdouble ALIUnitDefinition::GetValueOf(ALIstring stri)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIstring ALIUnitDefinition::GetCategory(ALIstring stri)
+ALIstring ALIUnitDefinition::GetCategory(const ALIstring& stri)
 {
   if(theUnitsTable.size()==0) BuildUnitsTable();
   ALIstring name,symbol;
@@ -250,7 +251,7 @@ void ALIUnitDefinition::PrintUnitsTable()
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
 ALIUnitsCategory::ALIUnitsCategory(ALIstring name)
-:Name(name),NameMxLen(0),SymbMxLen(0)
+:Name(std::move(name)),NameMxLen(0),SymbMxLen(0)
 {
     UnitsList = *(new ALIUnitsContainer);
 }
@@ -306,7 +307,7 @@ void ALIUnitsCategory::PrintCategory()
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIBestUnit::ALIBestUnit(ALIdouble value,ALIstring category)
+ALIBestUnit::ALIBestUnit(ALIdouble value,const ALIstring& category)
 {
  // find the category
     ALIUnitsTable& theUnitsTable = ALIUnitDefinition::GetUnitsTable();
@@ -328,7 +329,7 @@ ALIBestUnit::ALIBestUnit(ALIdouble value,ALIstring category)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo....
 
-ALIBestUnit::ALIBestUnit(const CLHEP::Hep3Vector& value,ALIstring category)
+ALIBestUnit::ALIBestUnit(const CLHEP::Hep3Vector& value,const ALIstring& category)
 {
  // find the category
     ALIUnitsTable& theUnitsTable = ALIUnitDefinition::GetUnitsTable();

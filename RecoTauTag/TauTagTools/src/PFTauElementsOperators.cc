@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoTauTag/TauTagTools/interface/PFTauElementsOperators.h"
 
 using namespace reco;
@@ -17,7 +19,7 @@ using std::string;
 }
 void PFTauElementsOperators::setAreaMetricrecoElementsmaxabsEta( double x) {AreaMetric_recoElements_maxabsEta_=x;}
 
-std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInCone(const std::vector<reco::PFCandidatePtr>& thePFCands,const math::XYZVector& myVector,const string conemetric,const double conesize,const double minPt)const{     
+std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInCone(const std::vector<reco::PFCandidatePtr>& thePFCands,const math::XYZVector& myVector,const string& conemetric,const double conesize,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCands;
   for (std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=thePFCands.begin();iPFCand!=thePFCands.end();++iPFCand) {
     if ((**iPFCand).pt()>minPt)theFilteredPFCands.push_back(*iPFCand);
@@ -37,15 +39,15 @@ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInCone(const st
   }else return std::vector<reco::PFCandidatePtr>();
   return theFilteredPFCandsInCone;
 }
-std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInCone(const math::XYZVector& myVector,const string conemetric,const double conesize,const double minPt)const{     
+std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInCone(const math::XYZVector& myVector,const string& conemetric,const double conesize,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFCandsInCone(PFCands_,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
 }
-std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector& myVector,const string conemetric,const double conesize,const double minPt)const{     
+std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector& myVector,const string& conemetric,const double conesize,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFCandsInCone(PFChargedHadrCands_,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
 }
-std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector& myVector,const string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
+std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInCone(const math::XYZVector& myVector,const string& conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands;
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
     TrackRef PFChargedHadrCand_track=(**iPFCand).trackRef();
@@ -55,11 +57,11 @@ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInCo
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFCandsInCone(filteredPFChargedHadrCands,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
 }
-std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFNeutrHadrCandsInCone(const math::XYZVector& myVector,const string conemetric,const double conesize,const double minPt)const{     
+std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFNeutrHadrCandsInCone(const math::XYZVector& myVector,const string& conemetric,const double conesize,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFCandsInCone(PFNeutrHadrCands_,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
 }
- std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFGammaCandsInCone(const math::XYZVector& myVector,const string conemetric,const double conesize,const double minPt)const{     
+ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFGammaCandsInCone(const math::XYZVector& myVector,const string& conemetric,const double conesize,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFCandsInCone(PFGammaCands_,myVector,conemetric,conesize,minPt);
   return theFilteredPFCandsInCone;
 }
@@ -81,7 +83,7 @@ std::pair<std::vector<reco::PFCandidatePtr>, std::vector<reco::PFCandidatePtr>> 
 // EELL
 
 
- std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInAnnulus(const std::vector<reco::PFCandidatePtr>& thePFCands,const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
+ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInAnnulus(const std::vector<reco::PFCandidatePtr>& thePFCands,const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCands;
   for (std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=thePFCands.begin();iPFCand!=thePFCands.end();++iPFCand) {
     if ((**iPFCand).pt()>minPt)theFilteredPFCands.push_back(*iPFCand);
@@ -133,15 +135,15 @@ std::pair<std::vector<reco::PFCandidatePtr>, std::vector<reco::PFCandidatePtr>> 
   }
   return theFilteredPFCandsInAnnulus;
 }
- std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
+ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFCandsInAnnulus(const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;
 }
- std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
+ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFChargedHadrCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;
 }
-std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
+std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands;
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++){
     TrackRef PFChargedHadrCand_track=(**iPFCand).trackRef();
@@ -151,15 +153,15 @@ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFChargedHadrCandsInAn
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInAnnulus=PFCandsInAnnulus(filteredPFChargedHadrCands,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;
 }
- std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFNeutrHadrCandsInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
+ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFNeutrHadrCandsInAnnulus(const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFNeutrHadrCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;
 }
- std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFGammaCandsInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
+ std::vector<reco::PFCandidatePtr> PFTauElementsOperators::PFGammaCandsInAnnulus(const math::XYZVector& myVector,const string& innercone_metric,const double innercone_size,const string& outercone_metric,const double outercone_size,const double minPt)const{     
   std::vector<reco::PFCandidatePtr> theFilteredPFCandsInAnnulus=PFCandsInAnnulus(PFGammaCands_,myVector,innercone_metric,innercone_size,outercone_metric,outercone_size,minPt);
   return theFilteredPFCandsInAnnulus;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFCand(const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFCand(const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
@@ -175,7 +177,7 @@ PFCandidatePtr PFTauElementsOperators::leadPFCand(const string matchingcone_metr
   }
   return myleadPFCand;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFCand(const math::XYZVector& myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFCand(const math::XYZVector& myVector,const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   const std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
@@ -189,7 +191,7 @@ PFCandidatePtr PFTauElementsOperators::leadPFCand(const math::XYZVector& myVecto
   }
   return myleadPFCand;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFChargedHadrCand(const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFChargedHadrCand(const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
@@ -205,7 +207,7 @@ PFCandidatePtr PFTauElementsOperators::leadPFChargedHadrCand(const string matchi
   }
   return myleadPFCand;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFChargedHadrCand(const math::XYZVector& myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFChargedHadrCand(const math::XYZVector& myVector,const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   const std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFChargedHadrCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
@@ -219,7 +221,7 @@ PFCandidatePtr PFTauElementsOperators::leadPFChargedHadrCand(const math::XYZVect
   }
   return myleadPFCand;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFNeutrHadrCand(const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFNeutrHadrCand(const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
@@ -235,7 +237,7 @@ PFCandidatePtr PFTauElementsOperators::leadPFNeutrHadrCand(const string matching
   }
   return myleadPFCand;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFNeutrHadrCand(const math::XYZVector& myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFNeutrHadrCand(const math::XYZVector& myVector,const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   const std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFNeutrHadrCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
@@ -249,7 +251,7 @@ PFCandidatePtr PFTauElementsOperators::leadPFNeutrHadrCand(const math::XYZVector
   }
   return myleadPFCand;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFGammaCand(const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFGammaCand(const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   if (!PFJetRef_) return myleadPFCand;
   math::XYZVector PFJet_XYZVector=(*PFJetRef_).momentum();
@@ -265,7 +267,7 @@ PFCandidatePtr PFTauElementsOperators::leadPFGammaCand(const string matchingcone
   }
   return myleadPFCand;
 }
-PFCandidatePtr PFTauElementsOperators::leadPFGammaCand(const math::XYZVector& myVector,const string matchingcone_metric,const double matchingcone_size,const double minPt)const{
+PFCandidatePtr PFTauElementsOperators::leadPFGammaCand(const math::XYZVector& myVector,const string& matchingcone_metric,const double matchingcone_size,const double minPt)const{
   PFCandidatePtr myleadPFCand;
   const std::vector<reco::PFCandidatePtr> theFilteredPFCandsInCone=PFGammaCandsInCone(myVector,matchingcone_metric,matchingcone_size,minPt);
   double pt_cut=minPt;
@@ -458,7 +460,7 @@ double PFTauElementsOperators::discriminatorByIsolPFCandsN(int IsolPFCands_maxN)
   if ((int)IsolPFCands_.size()<=IsolPFCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFCandsN(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFCandsN(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFCands_maxN){
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -466,11 +468,11 @@ double PFTauElementsOperators::discriminatorByIsolPFCandsN(string matchingcone_m
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-  const std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+  const std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   if ((int)isolPFCands.size()<=IsolPFCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFCandsN(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFCandsN(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFCands_maxN){
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(myVector,matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -478,7 +480,7 @@ double PFTauElementsOperators::discriminatorByIsolPFCandsN(const math::XYZVector
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-  const std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+  const std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   if ((int)isolPFCands.size()<=IsolPFCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
@@ -487,7 +489,7 @@ double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsN(int IsolPF
   if ((int)IsolPFChargedHadrCands_.size()<=IsolPFChargedHadrCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsN(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFChargedHadrCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsN(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFChargedHadrCands_maxN){
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -495,11 +497,11 @@ double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsN(string mat
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-  std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+  std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   if ((int)isolPFChargedHadrCands.size()<=IsolPFChargedHadrCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsN(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFChargedHadrCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsN(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFChargedHadrCands_maxN){
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(myVector,matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -507,7 +509,7 @@ double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsN(const math
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+   std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   if ((int)isolPFChargedHadrCands.size()<=IsolPFChargedHadrCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
@@ -516,7 +518,7 @@ double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsN(int IsolPFNe
   if ((int)IsolPFNeutrHadrCands_.size()<=IsolPFNeutrHadrCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsN(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFNeutrHadrCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsN(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFNeutrHadrCands_maxN){
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -524,11 +526,11 @@ double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsN(string match
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   if ((int)isolPFNeutrHadrCands.size()<=IsolPFNeutrHadrCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsN(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFNeutrHadrCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsN(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFNeutrHadrCands_maxN){
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(myVector,matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -536,7 +538,7 @@ double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsN(const math::
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   if ((int)isolPFNeutrHadrCands.size()<=IsolPFNeutrHadrCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
@@ -545,7 +547,7 @@ double PFTauElementsOperators::discriminatorByIsolPFGammaCandsN(int IsolPFGammaC
   if ((int)IsolPFGammaCands_.size()<=IsolPFGammaCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFGammaCandsN(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFGammaCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFGammaCandsN(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFGammaCands_maxN){
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -553,11 +555,11 @@ double PFTauElementsOperators::discriminatorByIsolPFGammaCandsN(string matchingc
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   if ((int)isolPFGammaCands.size()<=IsolPFGammaCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFGammaCandsN(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFGammaCands_maxN){
+double PFTauElementsOperators::discriminatorByIsolPFGammaCandsN(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,int IsolPFGammaCands_maxN){
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
   if (useOnlyChargedHadrforleadPFCand) myleadPFCand=leadPFChargedHadrCand(myVector,matchingcone_metric,matchingcone_size,minPt_leadPFCand);  
@@ -565,7 +567,7 @@ double PFTauElementsOperators::discriminatorByIsolPFGammaCandsN(const math::XYZV
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   if ((int)isolPFGammaCands.size()<=IsolPFGammaCands_maxN) myDiscriminator=1;
   return myDiscriminator;
 }
@@ -576,7 +578,7 @@ double PFTauElementsOperators::discriminatorByIsolPFCandsEtSum(double IsolPFCand
   if (myIsolPFCandsEtSum<=IsolPFCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFCandsEtSum(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFCandsEtSum(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
@@ -585,12 +587,12 @@ double PFTauElementsOperators::discriminatorByIsolPFCandsEtSum(string matchingco
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+   std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFCands.begin();iPFCand!=isolPFCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFCandsEtSum(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFCandsEtSum(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
@@ -599,7 +601,7 @@ double PFTauElementsOperators::discriminatorByIsolPFCandsEtSum(const math::XYZVe
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+   std::vector<reco::PFCandidatePtr> isolPFCands=PFCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFCands.begin();iPFCand!=isolPFCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
@@ -611,7 +613,7 @@ double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsEtSum(double
   if (myIsolPFCandsEtSum<=IsolPFChargedHadrCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsEtSum(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFChargedHadrCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsEtSum(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFChargedHadrCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
@@ -620,12 +622,12 @@ double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsEtSum(string
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+   std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFChargedHadrCands.begin();iPFCand!=isolPFChargedHadrCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFChargedHadrCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsEtSum(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFChargedHadrCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsEtSum(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFChargedHadrCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
@@ -634,7 +636,7 @@ double PFTauElementsOperators::discriminatorByIsolPFChargedHadrCandsEtSum(const 
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+   std::vector<reco::PFCandidatePtr> isolPFChargedHadrCands=PFChargedHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFChargedHadrCands.begin();iPFCand!=isolPFChargedHadrCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFChargedHadrCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
@@ -646,7 +648,7 @@ double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsEtSum(double I
   if (myIsolPFCandsEtSum<=IsolPFNeutrHadrCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsEtSum(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFNeutrHadrCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsEtSum(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFNeutrHadrCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
@@ -655,12 +657,12 @@ double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsEtSum(string m
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFNeutrHadrCands.begin();iPFCand!=isolPFNeutrHadrCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFNeutrHadrCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsEtSum(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFNeutrHadrCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsEtSum(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFNeutrHadrCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
@@ -669,7 +671,7 @@ double PFTauElementsOperators::discriminatorByIsolPFNeutrHadrCandsEtSum(const ma
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+   std::vector<reco::PFCandidatePtr> isolPFNeutrHadrCands=PFNeutrHadrCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFNeutrHadrCands.begin();iPFCand!=isolPFNeutrHadrCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFNeutrHadrCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
@@ -681,7 +683,7 @@ double PFTauElementsOperators::discriminatorByIsolPFGammaCandsEtSum(double IsolP
   if (myIsolPFCandsEtSum<=IsolPFGammaCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFGammaCandsEtSum(string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFGammaCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFGammaCandsEtSum(const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFGammaCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0.;
   PFCandidatePtr myleadPFCand;
@@ -690,12 +692,12 @@ double PFTauElementsOperators::discriminatorByIsolPFGammaCandsEtSum(string match
   if(!myleadPFCand)return myDiscriminator;
   if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);   
+   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);   
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFGammaCands.begin();iPFCand!=isolPFGammaCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFGammaCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;
 }
-double PFTauElementsOperators::discriminatorByIsolPFGammaCandsEtSum(const math::XYZVector& myVector,string matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFGammaCands_maxEtSum){
+double PFTauElementsOperators::discriminatorByIsolPFGammaCandsEtSum(const math::XYZVector& myVector,const string& matchingcone_metric,double matchingcone_size,string signalcone_metric,double signalcone_size,string isolcone_metric,double isolcone_size,bool useOnlyChargedHadrforleadPFCand,double minPt_leadPFCand,double minPt_PFCand,double IsolPFGammaCands_maxEtSum){
   double myIsolPFCandsEtSum=0.;
   double myDiscriminator=0;
   PFCandidatePtr myleadPFCand;
@@ -704,7 +706,7 @@ double PFTauElementsOperators::discriminatorByIsolPFGammaCandsEtSum(const math::
   if(!myleadPFCand)return myDiscriminator;
   //if(signalcone_size>=isolcone_size) return 1.;
   math::XYZVector leadPFCand_XYZVector=(*myleadPFCand).momentum() ;
-   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,signalcone_metric,signalcone_size,isolcone_metric,isolcone_size,minPt_PFCand);  
+   std::vector<reco::PFCandidatePtr> isolPFGammaCands=PFGammaCandsInAnnulus(leadPFCand_XYZVector,std::move(signalcone_metric),signalcone_size,std::move(isolcone_metric),isolcone_size,minPt_PFCand);  
   for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=isolPFGammaCands.begin();iPFCand!=isolPFGammaCands.end();iPFCand++) myIsolPFCandsEtSum+=(**iPFCand).et();
   if (myIsolPFCandsEtSum<=IsolPFGammaCands_maxEtSum) myDiscriminator=1;
   return myDiscriminator;

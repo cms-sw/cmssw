@@ -55,7 +55,7 @@ void SegmentToTrackAssociator::clear()
 }
 
 MuonTransientTrackingRecHit::MuonRecHitContainer
-  SegmentToTrackAssociator::associate( const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track, std::string TrackRefitterType)
+  SegmentToTrackAssociator::associate( const edm::Event& iEvent, const edm::EventSetup& iSetup, const reco::Track& track, const std::string& TrackRefitterType)
 {
 
   // The segment collections

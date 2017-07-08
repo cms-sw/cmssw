@@ -2,11 +2,12 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <sstream>
 #include <fstream>
+#include <utility>
 
 using namespace std;
 
 AsciiNeutronWriter::AsciiNeutronWriter(string fileNameBase) :
-  theFileNameBase(fileNameBase)  {
+  theFileNameBase(std::move(fileNameBase))  {
 }
 
 

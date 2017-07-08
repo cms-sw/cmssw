@@ -47,7 +47,7 @@ PFCand_AssoMapAlgos::GetInputCollections(edm::Event& iEvent, const edm::EventSet
 /*************************************************************************************/
 
 std::auto_ptr<PFCandToVertexAssMap>
-PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
+PFCand_AssoMapAlgos::CreatePFCandToVertexMap(const edm::Handle<reco::PFCandidateCollection>& pfCandH, const edm::EventSetup& iSetup)
 {
 
         auto_ptr<PFCandToVertexAssMap> pfcand2vertex(new PFCandToVertexAssMap(vtxcollH, pfCandH));
@@ -113,7 +113,7 @@ PFCand_AssoMapAlgos::CreatePFCandToVertexMap(edm::Handle<reco::PFCandidateCollec
 /*************************************************************************************/
 
 std::auto_ptr<VertexToPFCandAssMap>
-PFCand_AssoMapAlgos::CreateVertexToPFCandMap(edm::Handle<reco::PFCandidateCollection> pfCandH, const edm::EventSetup& iSetup)
+PFCand_AssoMapAlgos::CreateVertexToPFCandMap(const edm::Handle<reco::PFCandidateCollection>& pfCandH, const edm::EventSetup& iSetup)
 {
 
   	auto_ptr<VertexToPFCandAssMap> vertex2pfcand(new VertexToPFCandAssMap(pfCandH, vtxcollH));

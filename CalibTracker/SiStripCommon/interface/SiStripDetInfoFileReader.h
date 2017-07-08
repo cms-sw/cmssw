@@ -64,7 +64,7 @@ public:
 
 private:
 
-  void reader(std::string filePath);
+  void reader(const std::string& filePath);
 
   std::ifstream inputFile_; 
   //  std::string filePath_;

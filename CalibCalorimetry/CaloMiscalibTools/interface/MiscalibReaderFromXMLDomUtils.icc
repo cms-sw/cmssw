@@ -16,7 +16,7 @@ MiscalibReaderFromXMLDomUtils::toString(const XMLCh *str)
 //----------------------------------------------------------------------
 
 inline int 
-MiscalibReaderFromXMLDomUtils::getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, std::string attr_name, bool &well_formed_string)
+MiscalibReaderFromXMLDomUtils::getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, const std::string& attr_name, bool &well_formed_string)
 {
   XMLCh *buffer = XERCES_CPP_NAMESPACE::XMLString::transcode(attr_name.c_str());
 
@@ -37,7 +37,7 @@ MiscalibReaderFromXMLDomUtils::getIntAttribute(XERCES_CPP_NAMESPACE::DOMNamedNod
 //----------------------------------------------------------------------
 
 inline double 
-MiscalibReaderFromXMLDomUtils::getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, std::string attr_name, bool &well_formed_string)
+MiscalibReaderFromXMLDomUtils::getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, const std::string& attr_name, bool &well_formed_string)
 {
   XMLCh *buffer = XERCES_CPP_NAMESPACE::XMLString::transcode(attr_name.c_str());
 
@@ -59,7 +59,7 @@ MiscalibReaderFromXMLDomUtils::getFloatAttribute(XERCES_CPP_NAMESPACE::DOMNamedN
 //----------------------------------------------------------------------
 
 inline std::string 
-MiscalibReaderFromXMLDomUtils::getStringAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, std::string attr_name)
+MiscalibReaderFromXMLDomUtils::getStringAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, const std::string& attr_name)
 {
   XMLCh *buffer = XERCES_CPP_NAMESPACE::XMLString::transcode(attr_name.c_str());
   std::string retval = toString(attributes->getNamedItem(buffer)->getNodeValue());
@@ -72,7 +72,7 @@ MiscalibReaderFromXMLDomUtils::getStringAttribute(XERCES_CPP_NAMESPACE::DOMNamed
 //----------------------------------------------------------------------
 
 inline bool 
-MiscalibReaderFromXMLDomUtils::hasAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, std::string attr_name)
+MiscalibReaderFromXMLDomUtils::hasAttribute(XERCES_CPP_NAMESPACE::DOMNamedNodeMap *attributes, const std::string& attr_name)
 {
   bool retval;
   XMLCh *buffer = XERCES_CPP_NAMESPACE::XMLString::transcode(attr_name.c_str());

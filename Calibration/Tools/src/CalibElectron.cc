@@ -17,7 +17,7 @@ CalibElectron::CalibElectron() : theElectron_(0), theHits_(0), theEEHits_(0)
 }
 
 
-std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TString calibtype)
+std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(const TString& calibtype)
 {
   std::vector< std::pair<int,float> > theWeights;
 

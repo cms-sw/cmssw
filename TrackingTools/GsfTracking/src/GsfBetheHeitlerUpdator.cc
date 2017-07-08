@@ -53,7 +53,7 @@ namespace {
 }
 */
 
-GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string fileName,
+GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string& fileName,
 					       const int correctionFlag) :
   GsfMaterialEffectsUpdator(0.000511,6),
   theNrComponents(0),
@@ -70,7 +70,7 @@ GsfBetheHeitlerUpdator::GsfBetheHeitlerUpdator(const std::string fileName,
   resize(theNrComponents);
 }
 
-void GsfBetheHeitlerUpdator::readParameters (const std::string fileName)
+void GsfBetheHeitlerUpdator::readParameters (const std::string& fileName)
 {  
   std::string name = "TrackingTools/GsfTracking/data/";
   name += fileName;

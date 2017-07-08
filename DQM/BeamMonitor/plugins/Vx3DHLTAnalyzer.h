@@ -65,7 +65,7 @@ class Vx3DHLTAnalyzer : public DQMEDAnalyzer
   unsigned int HitCounter (const edm::Event& iEvent);
   std::string formatTime (const time_t& t);
   int MyFit (std::vector<double>* vals);
-  void reset (std::string ResetType);
+  void reset (const std::string& ResetType);
   void writeToFile (std::vector<double>* vals,
 		    edm::TimeValue_t BeginTimeOfFit,
 		    edm::TimeValue_t EndTimeOfFit,

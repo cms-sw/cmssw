@@ -13,7 +13,7 @@ class ElectronMVAEstimator {
          std::vector<std::string> vweightsfiles;
    };
   ElectronMVAEstimator();
-  ElectronMVAEstimator(std::string fileName);
+  ElectronMVAEstimator(const std::string& fileName);
   ElectronMVAEstimator(const Configuration & );
   ~ElectronMVAEstimator() {;}
   double mva(const reco::GsfElectron& myElectron, int nvertices=0) const;

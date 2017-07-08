@@ -1323,7 +1323,7 @@ void JetAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
 
 }
 
-void JetAnalyzer::bookMESetSelection(std::string DirName, DQMStore::IBooker & ibooker)
+void JetAnalyzer::bookMESetSelection(const std::string& DirName, DQMStore::IBooker & ibooker)
 {
   ibooker.setCurrentFolder(DirName);
   // Generic jet parameters

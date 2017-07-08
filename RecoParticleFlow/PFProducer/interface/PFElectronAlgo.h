@@ -28,7 +28,7 @@ class PFElectronAlgo {
   
   //constructor
   PFElectronAlgo(const double mvaEleCut,
-		 std::string  mvaWeightFileEleID,
+		 const std::string&  mvaWeightFileEleID,
 		 const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 		 const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 		 bool applyCrackCorrections,

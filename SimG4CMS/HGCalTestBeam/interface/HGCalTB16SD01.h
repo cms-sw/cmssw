@@ -20,7 +20,7 @@ class HGCalTB16SD01 : public CaloSD {
 
 public:    
 
-  HGCalTB16SD01(G4String , const DDCompactView &, 
+  HGCalTB16SD01(const G4String& , const DDCompactView &, 
 		const SensitiveDetectorCatalog &, edm::ParameterSet const &, 
 		const SimTrackManager*);
   virtual ~HGCalTB16SD01();

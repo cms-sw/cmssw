@@ -119,7 +119,7 @@ GsfPropagatorWithMaterial::convoluteWithMaterial (const TsosWP& aStateWithPath) 
 }
 
 TrajectoryStateOnSurface
-GsfPropagatorWithMaterial::convoluteStateWithMaterial (const TrajectoryStateOnSurface tsos,
+GsfPropagatorWithMaterial::convoluteStateWithMaterial (const TrajectoryStateOnSurface& tsos,
 						       const PropagationDirection propDir) const
 {
   //

@@ -148,7 +148,7 @@ void L1TDTTPGClient::makeRatioHisto(DQMStore::IGetter &igetter, MonitorElement *
 
 }
 
-TH1F * L1TDTTPGClient::get1DHisto(string meName, DQMStore::IGetter &igetter)
+TH1F * L1TDTTPGClient::get1DHisto(const string& meName, DQMStore::IGetter &igetter)
 {
 
   MonitorElement * me_ = igetter.get(meName);
@@ -161,7 +161,7 @@ TH1F * L1TDTTPGClient::get1DHisto(string meName, DQMStore::IGetter &igetter)
   return me_->getTH1F();
 }
 
-TH2F * L1TDTTPGClient::get2DHisto(string meName, DQMStore::IGetter &igetter)
+TH2F * L1TDTTPGClient::get2DHisto(const string& meName, DQMStore::IGetter &igetter)
 {
 
 
@@ -177,7 +177,7 @@ TH2F * L1TDTTPGClient::get2DHisto(string meName, DQMStore::IGetter &igetter)
 
 
 
-TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DQMStore::IGetter &igetter)
+TProfile2D * L1TDTTPGClient::get2DProfile(const string& meName, DQMStore::IGetter &igetter)
 {
 
 
@@ -192,7 +192,7 @@ TProfile2D * L1TDTTPGClient::get2DProfile(string meName, DQMStore::IGetter &iget
 }
 
 
-TProfile * L1TDTTPGClient::get1DProfile(string meName, DQMStore::IGetter &igetter)
+TProfile * L1TDTTPGClient::get1DProfile(const string& meName, DQMStore::IGetter &igetter)
 {
 
 

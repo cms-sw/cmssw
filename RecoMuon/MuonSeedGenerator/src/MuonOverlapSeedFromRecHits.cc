@@ -9,6 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/CSCGeometry/interface/CSCChamberSpecs.h"
 #include <iomanip>
+#include <utility>
 
 
 MuonOverlapSeedFromRecHits::MuonOverlapSeedFromRecHits()
@@ -74,7 +75,7 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
                                      MuonTransientTrackingRecHit::ConstMuonRecHitPointer bestSegment,
                                      TrajectorySeed & result) const
 {
-  std::vector<double> pts = thePtExtractor->pT_extract(barrelHit, endcapHit);
+  std::vector<double> pts = thePtExtractor->pT_extract(std::move(barrelHit), std::move(endcapHit));
   double minpt = 3.;
   double pt = pts[0];
   double sigmapt = pts[1];
@@ -93,7 +94,7 @@ MuonOverlapSeedFromRecHits::makeSeed(MuonTransientTrackingRecHit::ConstMuonRecHi
       }
     }
 
-    result = createSeed(pt, sigmapt, bestSegment);
+    result = createSeed(pt, sigmapt, std::move(bestSegment));
     //std::cout << "OVERLAPFITTED PT " << pt << " dphi " << dphi << " eta " << eta << std::endl;
     return true;
   }

@@ -41,7 +41,7 @@ class DTSectCollThSegm : public DTTrigData {
   public:
 
     /// Constructor
-    DTSectCollThSegm(DTSectCollId, int, const DTChambThSegm*);
+    DTSectCollThSegm(const DTSectCollId&, int, const DTChambThSegm*);
 
     /// Constructor
     DTSectCollThSegm(const DTSectCollThSegm& seg);

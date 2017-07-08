@@ -19,6 +19,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 
 #include "SiPixelErrorsDigisToCalibDigis.h"
 
@@ -152,13 +153,13 @@ SiPixelErrorsDigisToCalibDigis::endJob() {
 
 // ------------ helper functions ---------------------------------------------------------
 
-MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t detid, std::string name, std::string title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
+MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistogram2D(uint32_t detid, std::string name, const std::string& title, int nchX, double lowX, double highX, int nchY, double lowY, double highY)
 {
-  std::string hid = theHistogramIdWorker_->setHistoId(name,detid);
+  std::string hid = theHistogramIdWorker_->setHistoId(std::move(name),detid);
   return daqBE_->book2D(hid, title, nchX, lowX, highX, nchY, lowY, highY);
 }
 
-MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,std::string title){
+MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(uint32_t detid, std::string name,const std::string& title){
 
   DetId detId(detid);
   const TrackerGeometry &theTracker(*geom_);
@@ -166,11 +167,11 @@ MonitorElement* SiPixelErrorsDigisToCalibDigis::bookDQMHistoPlaquetteSummary2D(u
   int maxcol = theGeomDet->specificTopology().ncolumns();
   int maxrow = theGeomDet->specificTopology().nrows();  
 
-  std::string hid = theHistogramIdWorker_->setHistoId(name,detid);
+  std::string hid = theHistogramIdWorker_->setHistoId(std::move(name),detid);
   return daqBE_->book2D(hid,title,maxcol,0,maxcol,maxrow,0,maxrow);
 }
 
-bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(std::string dirName)
+bool SiPixelErrorsDigisToCalibDigis::setDQMDirectory(const std::string& dirName)
 {
    daqBE_->setCurrentFolder(dirName);
    return daqBE_->dirExists(dirName);

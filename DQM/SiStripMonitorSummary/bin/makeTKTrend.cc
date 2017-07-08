@@ -13,7 +13,7 @@
 #include "TH1F.h"
 #include "TFile.h"
 
-void makeTKTrend(const char* inFileName, const char* outFileName, std::string subDetName, std::string partName, const unsigned int partNumber);
+void makeTKTrend(const char* inFileName, const char* outFileName, const std::string& subDetName, std::string partName, const unsigned int partNumber);
 
 int main(int argc , char *argv[]) {
 
@@ -41,7 +41,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-void makeTKTrend(const char* inFileName, const char* outFileName, std::string subDetName, std::string partName, const unsigned int partNumber)
+void makeTKTrend(const char* inFileName, const char* outFileName, const std::string& subDetName, std::string partName, const unsigned int partNumber)
 {
   // Maps <Run number, nBad>
   std::map<unsigned int, unsigned int> badModulesTK;

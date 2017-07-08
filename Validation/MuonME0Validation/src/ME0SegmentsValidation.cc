@@ -329,7 +329,7 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
 }
 
 
-std::pair<int,int> ME0SegmentsValidation::isMatched(ME0DetId me0id, LocalPoint rhLP, edm::Handle<ME0DigiPreRecoCollection> ME0Digis)
+std::pair<int,int> ME0SegmentsValidation::isMatched(ME0DetId me0id, const LocalPoint& rhLP, const edm::Handle<ME0DigiPreRecoCollection>& ME0Digis)
 {
     int region_rh = (int) me0id.region();
     int layer_rh = (int) me0id.layer();

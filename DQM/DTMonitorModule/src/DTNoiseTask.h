@@ -63,8 +63,8 @@ protected:
 
 private:
 
-  void bookHistos(DQMStore::IBooker &, DTChamberId chId);
-  void bookHistos(DQMStore::IBooker &, DTSuperLayerId slId);
+  void bookHistos(DQMStore::IBooker &, const DTChamberId& chId);
+  void bookHistos(DQMStore::IBooker &, const DTSuperLayerId& slId);
 
   // The label to retrieve the digis
   edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;

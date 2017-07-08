@@ -70,7 +70,7 @@ void VertexHistory::newEvent (
 }
 
 
-bool VertexHistory::evaluate (reco::VertexBaseRef tv)
+bool VertexHistory::evaluate (const reco::VertexBaseRef& tv)
 {
 
     if ( !enableRecoToSim_ ) return false;

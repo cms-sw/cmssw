@@ -10,7 +10,7 @@ DQMHelper::~DQMHelper(){
 }
 
 MonitorElement* DQMHelper::book1dHisto(std::string name,std::string title,int n,double xmin,double xmax, 
-				       std::string xaxis, std::string yaxis){
+				       const std::string& xaxis, const std::string& yaxis){
   MonitorElement* dqm=ibooker->book1D(name,title,n,xmin,xmax);
   dqm->getTH1()->Sumw2();
   dqm->setAxisTitle(xaxis,1);
@@ -25,7 +25,7 @@ MonitorElement* DQMHelper::book1dHisto(const std::string &name,const std::string
 }
 
 MonitorElement* DQMHelper::book2dHisto(std::string name,std::string title,int nx,double xmin,double xmax,
-				       int ny,double ymin,double ymax,std::string xaxis, std::string yaxis){
+				       int ny,double ymin,double ymax,const std::string& xaxis, const std::string& yaxis){
   MonitorElement* dqm=ibooker->book2D(name,title,nx,xmin,xmax,ny,ymin,ymax);
   dqm->getTH1()->Sumw2();
   dqm->setAxisTitle(xaxis,1);

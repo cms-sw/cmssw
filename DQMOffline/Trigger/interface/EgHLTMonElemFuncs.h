@@ -72,11 +72,11 @@ namespace egHLT {
     void initTightLooseDiObjTrigHistsTrigCuts( std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins);
 
     //ele only (Now for pho also!)
-    void initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins);
-    void initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins);
-    void initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins);
-    void initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string filterName,int cutMask,const BinData& bins);
-    void initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string filterName,int cutMask,const BinData& bins);
+    void initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& filterNames,int cutMask,const BinData& bins);
+    void initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& filterNames,int cutMask,const BinData& bins);
+    void initTrigTagProbeHist(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string& filterName,int cutMask,const BinData& bins);
+    void initTrigTagProbeHist(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::string& filterName,int cutMask,const BinData& bins);
+    void initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::string& filterName,int cutMask,const BinData& bins);
   
 
     template<class T,typename varType> void addStdHist( std::vector<MonElemManagerBase<T>*>& histVec,const std::string& name,const std::string& title,

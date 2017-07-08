@@ -6,7 +6,7 @@
 #include <TMath.h>
 #include <TVector2.h>
 using namespace reco;
-PFPhotonClusters::PFPhotonClusters(PFClusterRef PFClusterRef):
+PFPhotonClusters::PFPhotonClusters(const PFClusterRef& PFClusterRef):
   PFClusterRef_(PFClusterRef)
 {
   if(PFClusterRef_->layer()==PFLayer:: ECAL_BARREL )isEB_=true;

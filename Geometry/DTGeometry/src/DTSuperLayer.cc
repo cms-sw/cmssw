@@ -18,7 +18,7 @@
 /* ====================================================================== */
 
 /* Constructor */ 
-DTSuperLayer::DTSuperLayer(DTSuperLayerId id,
+DTSuperLayer::DTSuperLayer(const DTSuperLayerId& id,
                            ReferenceCountingPointer<BoundPlane>& plane,
                            const DTChamber* ch) :
   GeomDet(plane), theId(id) , theLayers(4,(const DTLayer*)0), theCh(ch) {
@@ -65,7 +65,7 @@ const DTChamber* DTSuperLayer::chamber() const {
   return theCh;
 }
 
-const DTLayer* DTSuperLayer::layer(DTLayerId id) const {
+const DTLayer* DTSuperLayer::layer(const DTLayerId& id) const {
   if (id.superlayerId()!=theId) return 0; // not in this SL!
   return layer(id.layer());
 }

@@ -66,7 +66,7 @@ class LutXml : public XMLDOMBlock
   //_____ following removed as a xalan-c component_____________________
   //
   //int test_xpath( std::string filename );
-  int test_access( std::string filename );
+  int test_access( const std::string& filename );
 
   //LutXml & operator+=( const LutXml & other);
 

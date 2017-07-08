@@ -16,6 +16,7 @@
 #include "CaloOnlineTools/HcalOnlineDb/interface/XMLLUTLoader.h"
 #include "CalibCalorimetry/HcalTPGAlgos/interface/XMLProcessor.h"
 #include <cstdio>
+#include <utility>
 XERCES_CPP_NAMESPACE_USE 
 
 //
@@ -49,7 +50,7 @@ XMLLUTLoader::XMLLUTLoader()
 {
 }
 
-XMLLUTLoader::XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, std::string templateBase ) : XMLDOMBlock( templateBase )
+XMLLUTLoader::XMLLUTLoader( XMLProcessor::loaderBaseConfig * config, std::string templateBase ) : XMLDOMBlock( std::move(templateBase) )
 {
   setTagValue( "EXTENSION_TABLE_NAME", config -> extention_table_name );
   setTagValue( "NAME", config -> name );
@@ -97,7 +98,7 @@ int XMLLUTLoader::addLUT( lutDBConfig * config, std::string templateFileName )
 {
   DOMElement * root = document -> getDocumentElement();
 
-  XMLDOMBlock dataSetDoc( templateFileName );
+  XMLDOMBlock dataSetDoc( std::move(templateFileName) );
   DOMDocument * dataSet = dataSetDoc . getDocument();
 
   // changes to the LUT <data_set> node
@@ -124,7 +125,7 @@ int XMLLUTLoader::addChecksums( checksumsDBConfig * config, std::string template
 {
   DOMElement * root = document -> getDocumentElement();
 
-  XMLDOMBlock dataSetDoc( templateFileName );
+  XMLDOMBlock dataSetDoc( std::move(templateFileName) );
   DOMDocument * dataSet = dataSetDoc . getDocument();
 
   // changes to the Checksums <data_set> node

@@ -58,7 +58,7 @@ private:
   virtual void endJob();
 
   // Extra Methods
-  std::vector<std::string> moduleLabels(std::string);
+  std::vector<std::string> moduleLabels(const std::string&);
 
   // Input from Configuration File
   edm::ParameterSet pset_;
@@ -100,7 +100,7 @@ HLTMuonOfflineAnalyzer::HLTMuonOfflineAnalyzer(const ParameterSet& pset) :
 
 
 vector<string> 
-HLTMuonOfflineAnalyzer::moduleLabels(string path) 
+HLTMuonOfflineAnalyzer::moduleLabels(const string& path) 
 {
 
   vector<string> modules = hltConfig_.moduleLabels(path);

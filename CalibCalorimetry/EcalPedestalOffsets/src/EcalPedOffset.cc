@@ -458,7 +458,7 @@ void EcalPedOffset::writeDb ()
 
 
 //! write the m_pedResults to XML files
-void EcalPedOffset::writeXMLFiles(std::string fileName)
+void EcalPedOffset::writeXMLFiles(const std::string& fileName)
 {
   // loop over the super-modules
   for (std::map<int,TPedResult*>::const_iterator smRes = m_pedResult.begin();

@@ -33,7 +33,7 @@ namespace edmtest {
 
     static void fillDescription(edm::ParameterSetDescription & desc);
 
-    void preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es);
+    void preChoose(const edm::Handle<edmtest::ThingCollection>& tc, edm::Event const& event, edm::EventSetup const& es);
 
     bool choose( unsigned int iIndex, edmtest::Thing const& iItem);
 
@@ -56,7 +56,7 @@ namespace edmtest {
     desc.add<unsigned int>("expectedCollectionSize");
   }
 
-  void ThinningThingSelector::preChoose(edm::Handle<edmtest::ThingCollection> tc, edm::Event const& event, edm::EventSetup const& es) {
+  void ThinningThingSelector::preChoose(const edm::Handle<edmtest::ThingCollection>& tc, edm::Event const& event, edm::EventSetup const& es) {
     edm::Handle<TrackOfThingsCollection> trackCollection;
     event.getByToken(trackToken_, trackCollection);
     for (auto const& track : *trackCollection) {

@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "L1Trigger/RPCTrigger/interface/TPatternsGroup.h"
 
 //called by addPattern
@@ -27,7 +29,7 @@ void TPatternsGroup::setPatternsGroupType(RPCPattern::TPatternType patternsGroup
 }
 
 void TPatternsGroup::setGroupDescription(std::string groupDescription){ 
-  m_GroupDescription = groupDescription; 
+  m_GroupDescription = std::move(groupDescription); 
 }
 
 std::string TPatternsGroup::getGroupDescription() const { 

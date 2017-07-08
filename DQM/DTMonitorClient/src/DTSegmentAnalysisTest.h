@@ -55,7 +55,7 @@ public:
   void bookHistos(DQMStore::IBooker &);
 
   /// Get the ME name
-  std::string getMEName(const DTChamberId & chID, std::string histoTag);
+  std::string getMEName(const DTChamberId & chID, const std::string& histoTag);
 
   /// Perform client diagnostic operations
   void performClientDiagnostic(DQMStore::IGetter &);

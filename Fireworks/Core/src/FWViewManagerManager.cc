@@ -64,7 +64,7 @@ FWViewManagerManager::~FWViewManagerManager()
 // member functions
 //
 void
-FWViewManagerManager::add( std::shared_ptr<FWViewManagerBase> iManager)
+FWViewManagerManager::add( const std::shared_ptr<FWViewManagerBase>& iManager)
 {
    m_viewManagers.push_back(iManager);
    iManager->setChangeManager(m_changeManager);

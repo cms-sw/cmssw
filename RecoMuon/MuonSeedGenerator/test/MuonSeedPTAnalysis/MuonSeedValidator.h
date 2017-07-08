@@ -95,38 +95,38 @@ private:
 
   // Utility functions
 
-  void CSCsegment_stat(edm::Handle<CSCSegmentCollection> cscSeg, edm::ESHandle<CSCGeometry> cscGeom,
+  void CSCsegment_stat(const edm::Handle<CSCSegmentCollection>& cscSeg, const edm::ESHandle<CSCGeometry>& cscGeom,
                         double trkEta, double trkPhi);
-  void DTsegment_stat(edm::Handle<DTRecSegment4DCollection> dtSeg,edm::ESHandle<DTGeometry> dtGeom,
+  void DTsegment_stat(const edm::Handle<DTRecSegment4DCollection>& dtSeg,const edm::ESHandle<DTGeometry>& dtGeom,
                         double trkEta, double trkPhi);
   void Simsegment_stat(std::vector<SimSegment> sCSC_v, std::vector<SimSegment> sDT_v);
 
-  void CSCRecHit_Stat(edm::Handle<CSCRecHit2DCollection> cscrechit, edm::ESHandle<CSCGeometry> cscGeom,
+  void CSCRecHit_Stat(const edm::Handle<CSCRecHit2DCollection>& cscrechit, const edm::ESHandle<CSCGeometry>& cscGeom,
                       double trkEta, double trkPhi);
-  void DTRecHit_Stat(edm::Handle<DTRecHitCollection> dtrechit, edm::ESHandle<DTGeometry> dtGeom,
+  void DTRecHit_Stat(const edm::Handle<DTRecHitCollection>& dtrechit, const edm::ESHandle<DTGeometry>& dtGeom,
                       double trkEta, double trkPhi);
   
-  int ChargeAssignment(GlobalVector Va, GlobalVector Vb);
+  int ChargeAssignment(const GlobalVector& Va, const GlobalVector& Vb);
  
-  void RecSeedReader(edm::Handle<TrajectorySeedCollection> rec_seeds );
-  void SegOfRecSeed(edm::Handle<TrajectorySeedCollection> rec_seeds, int seed_idx,
+  void RecSeedReader(const edm::Handle<TrajectorySeedCollection>& rec_seeds );
+  void SegOfRecSeed(const edm::Handle<TrajectorySeedCollection>& rec_seeds, int seed_idx,
                     std::vector<SimSegment> sCSC_v, std::vector<SimSegment> sDT_v);
-  void SegOfRecSeed(edm::Handle<TrajectorySeedCollection> rec_seeds, int seed_idx);
+  void SegOfRecSeed(const edm::Handle<TrajectorySeedCollection>& rec_seeds, int seed_idx);
 
-  void StaTrackReader(edm::Handle<reco::TrackCollection> sta_trk, int sta_glb);
-  void SimInfo(const edm::Handle<edm::SimTrackContainer> simTracks,
-               const edm::Handle<edm::PSimHitContainer> dsimHits,
-               const edm::Handle<edm::PSimHitContainer> csimHits,
-               edm::ESHandle<DTGeometry> dtGeom,edm::ESHandle<CSCGeometry> cscGeom);
-  int RecSegReader( edm::Handle<CSCSegmentCollection> cscSeg, edm::Handle<DTRecSegment4DCollection> dtSeg,
-                    edm::ESHandle<CSCGeometry> cscGeom, edm::ESHandle<DTGeometry> dtGeom, 
+  void StaTrackReader(const edm::Handle<reco::TrackCollection>& sta_trk, int sta_glb);
+  void SimInfo(const edm::Handle<edm::SimTrackContainer>& simTracks,
+               const edm::Handle<edm::PSimHitContainer>& dsimHits,
+               const edm::Handle<edm::PSimHitContainer>& csimHits,
+               const edm::ESHandle<DTGeometry>& dtGeom,const edm::ESHandle<CSCGeometry>& cscGeom);
+  int RecSegReader( const edm::Handle<CSCSegmentCollection>& cscSeg, const edm::Handle<DTRecSegment4DCollection>& dtSeg,
+                    const edm::ESHandle<CSCGeometry>& cscGeom, const edm::ESHandle<DTGeometry>& dtGeom, 
                     double trkEta, double trkPhi);
 
   double getEta(double vx, double vy, double vz);
   double getEta(double theta);
 
-  std::vector<int> IdentifyShowering( edm::Handle<CSCSegmentCollection> cscSeg , edm::ESHandle<CSCGeometry> cscGeom,
-                                      edm::Handle<DTRecSegment4DCollection> dtSeg, edm::ESHandle<DTGeometry> dtGeom,
+  std::vector<int> IdentifyShowering( const edm::Handle<CSCSegmentCollection>& cscSeg , const edm::ESHandle<CSCGeometry>& cscGeom,
+                                      const edm::Handle<DTRecSegment4DCollection>& dtSeg, const edm::ESHandle<DTGeometry>& dtGeom,
                                       double trkTheta, double trkPhi) ;
   double getdR(std::vector<double> etav , std::vector<double> phiv );
 

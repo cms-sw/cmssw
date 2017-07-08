@@ -168,7 +168,7 @@ PixelFEDTestDAC::PixelFEDTestDAC(std::vector<std::vector<std::string> > & tableM
 }
 
 
-PixelFEDTestDAC::PixelFEDTestDAC(std::string filename) 
+PixelFEDTestDAC::PixelFEDTestDAC(const std::string& filename) 
 {
 
   std::string mthn = "[PixelFEDTestDAC::PixelFEDTestDAC()]\t\t\t\t    " ;

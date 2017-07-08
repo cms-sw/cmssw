@@ -9,8 +9,8 @@
 
 ElectronLikelihood::ElectronLikelihood (const ElectronLikelihoodCalibration *calibration,
 					LikelihoodSwitches eleIDSwitches,
-					std::string signalWeightSplitting,
-					std::string backgroundWeightSplitting,
+					const std::string& signalWeightSplitting,
+					const std::string& backgroundWeightSplitting,
 					bool splitSignalPdfs,
 					bool splitBackgroundPdfs) :
   _EB0lt15lh (new LikelihoodPdfProduct ("electronID_EB0_ptLt15_likelihood",0,0)) ,
@@ -50,8 +50,8 @@ ElectronLikelihood::~ElectronLikelihood () {
 
 void 
 ElectronLikelihood::Setup (const ElectronLikelihoodCalibration *calibration,
-			   std::string signalWeightSplitting,
-			   std::string backgroundWeightSplitting,
+			   const std::string& signalWeightSplitting,
+			   const std::string& backgroundWeightSplitting,
 			   bool splitSignalPdfs,
 			   bool splitBackgroundPdfs) 
 {

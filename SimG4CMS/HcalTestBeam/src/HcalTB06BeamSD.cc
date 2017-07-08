@@ -20,7 +20,7 @@
 #include "G4Material.hh"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-HcalTB06BeamSD::HcalTB06BeamSD(G4String name, const DDCompactView & cpv,
+HcalTB06BeamSD::HcalTB06BeamSD(const G4String& name, const DDCompactView & cpv,
 			       const SensitiveDetectorCatalog & clg,
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 
@@ -145,7 +145,7 @@ std::vector<G4String> HcalTB06BeamSD::getNames(DDFilteredView& fv) {
   return tmp;
 }
  
-bool HcalTB06BeamSD::isItWireChamber (G4String name) {
+bool HcalTB06BeamSD::isItWireChamber (const G4String& name) {
  
   std::vector<G4String>::const_iterator it = wcNames.begin();
   for (; it != wcNames.end(); it++)

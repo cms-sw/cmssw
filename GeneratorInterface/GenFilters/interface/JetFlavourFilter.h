@@ -39,8 +39,8 @@ private:
 
   HepMC::GenParticle * findParticle(const GenPartVect& genPartVect, const int requested_id) ;
 
-  void printHisto(const HepMC::GenEvent::particle_iterator start, 
-			       const HepMC::GenEvent::particle_iterator end);
+  void printHisto(const HepMC::GenEvent::particle_iterator& start, 
+			       const HepMC::GenEvent::particle_iterator& end);
 
 
   int jetType;

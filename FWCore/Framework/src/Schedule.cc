@@ -62,8 +62,8 @@ namespace edm {
                  PreallocationConfiguration const& iPrealloc,
                  ProductRegistry& preg,
                  ExceptionToActionTable const& actions,
-                 std::shared_ptr<ActivityRegistry> areg,
-                 std::shared_ptr<ProcessConfiguration> processConfiguration) {
+                 const std::shared_ptr<ActivityRegistry>& areg,
+                 const std::shared_ptr<ProcessConfiguration>& processConfiguration) {
 
       ParameterSet* trig_pset = proc_pset.getPSetForUpdate("@trigger_paths");
       trig_pset->registerIt();
@@ -107,8 +107,8 @@ namespace edm {
                             std::vector<std::string> const& pathNames,
                             PreallocationConfiguration const& iPrealloc,
                             ProductRegistry& preg,
-                            std::shared_ptr<ActivityRegistry> areg,
-                            std::shared_ptr<ProcessConfiguration> processConfiguration,
+                            const std::shared_ptr<ActivityRegistry>& areg,
+                            const std::shared_ptr<ProcessConfiguration>& processConfiguration,
                             std::string const& moduleTypeName) {
 
       ParameterSet pset;

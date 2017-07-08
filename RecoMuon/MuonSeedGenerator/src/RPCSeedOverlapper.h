@@ -32,7 +32,7 @@ class RPCSeedOverlapper {
         void setEventSetup(const edm::EventSetup& iSetup);
     private:
         void CheckOverlap(const edm::EventSetup& iSetup, std::vector<weightedTrajectorySeed> *SeedsRef);
-        bool isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits, const TrackingRecHit& hit, edm::ESHandle<RPCGeometry> rpcGeometry);
+        bool isShareHit(const edm::OwnVector<TrackingRecHit> &RecHits, const TrackingRecHit& hit, const edm::ESHandle<RPCGeometry>& rpcGeometry);
         // Signal for call run()
         bool isConfigured;
         bool isIOset;

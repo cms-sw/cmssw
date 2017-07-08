@@ -54,8 +54,8 @@ class BTagPerformanceAnalyzerMC : public DQMEDAnalyzer {
 			 edm::RefToBase<reco::Jet> caloRef,
                          const FlavourMap& _flavours, JetWithFlavour &jetWithFlavour,
 			 const reco::JetCorrector * corrector, 
-			 edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched);
-  bool getJetWithGenJet(edm::RefToBase<reco::Jet> jetRef, edm::Handle<edm::Association<reco::GenJetCollection> > genJetsMatched); 
+			 const edm::Handle<edm::Association<reco::GenJetCollection> >& genJetsMatched);
+  bool getJetWithGenJet(const edm::RefToBase<reco::Jet>& jetRef, const edm::Handle<edm::Association<reco::GenJetCollection> >& genJetsMatched); 
 
   std::vector<std::string> tiDataFormatType;
   AcceptJet jetSelector;   // Decides if jet and parton satisfy kinematic cuts.

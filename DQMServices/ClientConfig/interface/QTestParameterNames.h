@@ -24,14 +24,14 @@ struct QTestParameterNames{
 	~QTestParameterNames(){}
 	///returns the list of parameters used by the test of a given type (the string theTestType 
 	///must be one of the names defined in DQMServices/ClientConfig/interface/DQMQualityTestsConfiguration.h
-	std::vector<std::string> getTestParamNames(std::string theTestType);
+	std::vector<std::string> getTestParamNames(const std::string& theTestType);
 
   private:
-	void constructMap(std::string testType,
-		std::string param1="undefined",std::string param2="undefined",std::string param3="undefined",
-		std::string param4="undefined",std::string param5="undefined",
-		std::string param6="undefined",std::string param7="undefined"
-		,std::string param8="undefined");
+	void constructMap(const std::string& testType,
+		const std::string& param1="undefined",const std::string& param2="undefined",const std::string& param3="undefined",
+		const std::string& param4="undefined",const std::string& param5="undefined",
+		const std::string& param6="undefined",const std::string& param7="undefined"
+		,const std::string& param8="undefined");
 
   private:
 	std::map<std::string, std::vector<std::string> > configurationMap;

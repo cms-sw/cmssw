@@ -70,7 +70,7 @@ class ConversionPostprocessing : public edm::EDAnalyzer
 
 
 
-  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator,std::string type);
+  void dividePlots(MonitorElement* dividend, MonitorElement* numerator, MonitorElement* denominator,const std::string& type);
   void dividePlots(MonitorElement* dividend, MonitorElement* numerator, double denominator); 
   virtual void runPostprocessing();      
 

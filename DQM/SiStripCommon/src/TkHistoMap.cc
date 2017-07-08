@@ -15,7 +15,7 @@ TkHistoMap::TkHistoMap():
 
 TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, bool mechanicalView): 
   HistoNumber(35),
-  MapName_(MapName)
+  MapName_(std::move(MapName))
 {
   cached_detid=0;
   cached_layer=0;
@@ -26,7 +26,7 @@ TkHistoMap::TkHistoMap(std::string path, std::string MapName,float baseline, boo
 
 TkHistoMap::TkHistoMap(DQMStore::IBooker & ibooker , std::string path, std::string MapName,float baseline, bool mechanicalView): 
   HistoNumber(35),
-  MapName_(MapName)
+  MapName_(std::move(MapName))
 {
   cached_detid=0;
   cached_layer=0;
@@ -54,12 +54,12 @@ void TkHistoMap::loadServices(){
   tkdetmap_=edm::Service<TkDetMap>().operator->();
 }
 
-void TkHistoMap::save(std::string filename){
+void TkHistoMap::save(const std::string& filename){
   dqmStore_->save(filename);
 }
 
 void TkHistoMap::loadTkHistoMap(std::string path, std::string MapName, bool mechanicalView){
-  MapName_=MapName;
+  MapName_=std::move(MapName);
   std::string fullName, folder;
   tkHistoMap_.resize(HistoNumber);    
   for(int layer=1;layer<HistoNumber;++layer){
@@ -165,7 +165,8 @@ std::string TkHistoMap::folderDefinition(std::string& path, std::string& MapName
 }
 
 #include <iostream>
-void TkHistoMap::fillFromAscii(std::string filename){
+#include <utility>
+void TkHistoMap::fillFromAscii(const std::string& filename){
   std::ifstream file;
   file.open(filename.c_str());
   float value;
@@ -249,7 +250,7 @@ void TkHistoMap::dumpInTkMap(TrackerMap* tkmap,bool dumpEntries){
 
 #include "TCanvas.h"
 #include "TFile.h"
-void TkHistoMap::saveAsCanvas(std::string filename,std::string options,std::string mode){
+void TkHistoMap::saveAsCanvas(const std::string& filename,const std::string& options,const std::string& mode){
   //  TCanvas C(MapName_,MapName_,200,10,900,700);
   TCanvas* CTIB=new TCanvas(std::string("Canvas_"+MapName_+"TIB").c_str(),std::string("Canvas_"+MapName_+"TIB").c_str());
   TCanvas* CTOB=new TCanvas(std::string("Canvas_"+MapName_+"TOB").c_str(),std::string("Canvas_"+MapName_+"TOB").c_str());

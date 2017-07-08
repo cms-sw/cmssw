@@ -169,7 +169,7 @@ void TSGForOI::findSeedsOnLayer(
 				const TrajectoryStateOnSurface &tsosAtIP,
 				const Propagator& propagatorAlong,
 				const Propagator& propagatorOpposite,
-				const reco::TrackRef l2,
+				const reco::TrackRef& l2,
 				std::unique_ptr<std::vector<TrajectorySeed> >& out) {
   
   if (numSeedsMade_>numOfMaxSeeds_) return;
@@ -218,7 +218,7 @@ void TSGForOI::findSeedsOnLayer(
   numSeedsMade_=out->size();
 }
 
-double TSGForOI::calculateSFFromL2(const reco::TrackRef track){
+double TSGForOI::calculateSFFromL2(const reco::TrackRef& track){
 
   double theSF=1.0;
   //	L2 direction vs pT blowup - as was previously done:

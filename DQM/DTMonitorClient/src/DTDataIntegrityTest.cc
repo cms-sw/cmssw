@@ -191,7 +191,7 @@ void DTDataIntegrityTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGett
   LogTrace ("DTDQM|DTRawToDigi|DTMonitorClient|DTDataIntegrityTest") <<"[DTDataIntegrityTest] endjob called!";
 }
 
-string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
+string DTDataIntegrityTest::getMEName(const string& histoType, int FEDId){
   //Use the DDU name to find the ME
   stringstream dduID_s; dduID_s << FEDId;
 
@@ -201,7 +201,7 @@ string DTDataIntegrityTest::getMEName(string histoType, int FEDId){
   return histoName;
 }
 
-void DTDataIntegrityTest::bookHistos(DQMStore::IBooker & ibooker, string histoType, int dduId){
+void DTDataIntegrityTest::bookHistos(DQMStore::IBooker & ibooker, const string& histoType, int dduId){
   stringstream dduId_s; dduId_s << dduId;
 
   ibooker.setCurrentFolder("DT/00-DataIntegrity/FED" + dduId_s.str());

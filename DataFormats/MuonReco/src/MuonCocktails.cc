@@ -107,7 +107,7 @@ reco::Muon::MuonTrackTypePair  muon::tevOptimized(const reco::TrackRef& combined
 //
 // calculate the tail probability (-ln(P)) of a fit
 //
-double muon::trackProbability(const reco::TrackRef track) {
+double muon::trackProbability(const reco::TrackRef& track) {
   
   int nDOF = (int)track->ndof();
   if ( nDOF > 0 && track->chi2()> 0) { 

@@ -72,10 +72,10 @@ private:
 		      int form = 1,
 		      int w=-1);
 
-  TCanvas * newCanvas(TString name, int xdiv, int ydiv, int form, int w);
+  TCanvas * newCanvas(const TString& name, int xdiv, int ydiv, int form, int w);
   TCanvas * newCanvas(int xdiv, int ydiv, int form = 1);
   TCanvas * newCanvas(int form = 1);
-  TCanvas * newCanvas(TString name, int form, int w=-1);
+  TCanvas * newCanvas(const TString& name, int form, int w=-1);
 
   DTTimeBoxFitter *theFitter;
   TFile *theFile;

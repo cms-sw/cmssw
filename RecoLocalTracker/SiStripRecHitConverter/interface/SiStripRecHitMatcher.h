@@ -89,7 +89,7 @@ public:
   
   // project strip coordinates on Glueddet
   
-  StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,LocalVector trackdirection) const;
+  StripPosition project(const GeomDetUnit *det,const GluedGeomDet* glueddet,StripPosition strip,const LocalVector& trackdirection) const;
   
   
   // needed by the obsolete version still in use on some architectures

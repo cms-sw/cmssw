@@ -8,7 +8,7 @@ CaloTauElementsOperators::CaloTauElementsOperators(CaloTau& theCaloTau) : TauEle
 }
 
 std::vector<std::pair<math::XYZPoint,float> > 
-CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,const std::string coneMetric,const double coneSize,const double EcalRecHit_minEt,const std::vector<std::pair<math::XYZPoint,float> >& myEcalRecHits)const{
+CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,const std::string& coneMetric,const double coneSize,const double EcalRecHit_minEt,const std::vector<std::pair<math::XYZPoint,float> >& myEcalRecHits)const{
    std::vector<std::pair<math::XYZPoint,float> > theFilteredEcalRecHits;
    for (std::vector<std::pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myEcalRecHits.begin();iEcalRecHit!=myEcalRecHits.end();++iEcalRecHit) {
       if ((*iEcalRecHit).second*fabs(sin((*iEcalRecHit).first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(*iEcalRecHit);
@@ -30,7 +30,7 @@ CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,cons
 }
 
 std::vector<std::pair<math::XYZPoint,float> > 
-CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const std::string innerconeMetric,const double innerconeSize,const std::string outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt,const std::vector<std::pair<math::XYZPoint,float> >& myEcalRecHits) const {     
+CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const std::string& innerconeMetric,const double innerconeSize,const std::string& outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt,const std::vector<std::pair<math::XYZPoint,float> >& myEcalRecHits) const {     
    std::vector<std::pair<math::XYZPoint,float> > theFilteredEcalRecHits;
    for (std::vector<std::pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myEcalRecHits.begin();iEcalRecHit!=myEcalRecHits.end();++iEcalRecHit) {
       if ((*iEcalRecHit).second*fabs(sin((*iEcalRecHit).first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(*iEcalRecHit);
@@ -84,15 +84,15 @@ CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,c
 }
 
 std::vector<std::pair<math::XYZPoint,float> >
-CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,const std::string coneMetric,const double coneSize,const double EcalRecHit_minEt) const 
+CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,const std::string& coneMetric,const double coneSize,const double EcalRecHit_minEt) const 
 {
    //this function exists only to provide compatability w/ CMSSW_2_2_3 out of the box.Newer versions recompute the interesting rechits inside RecoTau
    return EcalRecHitsInCone(coneAxis, coneMetric, coneSize, EcalRecHit_minEt, this->EcalRecHits_);
 }
 
 std::vector<std::pair<math::XYZPoint,float> >
-CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const std::string innerconeMetric, const double innerconeSize,
-                                               const std::string outerconeMetric, const double outerconeSize, const double EcalRecHit_minEt) const 
+CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const std::string& innerconeMetric, const double innerconeSize,
+                                               const std::string& outerconeMetric, const double outerconeSize, const double EcalRecHit_minEt) const 
 {
    //this function exists only to provide compatability w/ CMSSW_2_2_3 out of the box.  Newer versions recompute the interesting rechits inside RecoTau
    return EcalRecHitsInAnnulus(coneAxis, innerconeMetric, innerconeSize, outerconeMetric, outerconeSize, EcalRecHit_minEt, this->EcalRecHits_);

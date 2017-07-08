@@ -32,7 +32,7 @@ class HLTEgammaL1MatchFilterPairs : public HLTFilter {
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      bool CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection>ref,std::vector<l1extra::L1EmParticleRef >& l1EGIso,std::vector<l1extra::L1EmParticleRef >& l1EGNonIso) const;
+      bool CheckL1Matching(const edm::Ref<reco::RecoEcalCandidateCollection>&ref,std::vector<l1extra::L1EmParticleRef >& l1EGIso,std::vector<l1extra::L1EmParticleRef >& l1EGNonIso) const;
 
       edm::InputTag candIsolatedTag_; // input tag identifying product contains egammas
       edm::InputTag l1IsolatedTag_; // input tag identifying product contains egammas

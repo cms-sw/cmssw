@@ -213,7 +213,7 @@ void MuonTrackAnalyzer::analyze(const Event & event, const EventSetup& eventSetu
 }
 
 void MuonTrackAnalyzer::seedsAnalysis(const Event & event, const EventSetup& eventSetup,
-				      Handle<SimTrackContainer> simTracks){
+				      const Handle<SimTrackContainer>& simTracks){
 
   MuonPatternRecoDumper debug;
 
@@ -243,7 +243,7 @@ void MuonTrackAnalyzer::seedsAnalysis(const Event & event, const EventSetup& eve
 
 
 void MuonTrackAnalyzer::tracksAnalysis(const Event & event, const EventSetup& eventSetup,
-				      Handle<SimTrackContainer> simTracks){
+				      const Handle<SimTrackContainer>& simTracks){
   MuonPatternRecoDumper debug;
   
   
@@ -378,7 +378,7 @@ void  MuonTrackAnalyzer::fillPlots(FreeTrajectoryState &recoFTS,SimTrack &simTra
 }
 
 pair<SimTrack,double> MuonTrackAnalyzer::getSimTrack(TrajectoryStateOnSurface &tsos,
-						     Handle<SimTrackContainer> simTracks){
+						     const Handle<SimTrackContainer>& simTracks){
   
 //   // Loop over the Sim tracks
 //   SimTrackContainer::const_iterator simTrack;
@@ -434,7 +434,7 @@ bool MuonTrackAnalyzer::isInTheAcceptance(double eta){
 }
 
 bool MuonTrackAnalyzer::checkMuonSimHitPresence(const Event & event,
-						edm::Handle<edm::SimTrackContainer> simTracks){
+						const edm::Handle<edm::SimTrackContainer>& simTracks){
 
   // Get the SimHit collection from the event
   Handle<PSimHitContainer> dtSimHits;

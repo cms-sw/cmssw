@@ -7,7 +7,7 @@
 
 
 namespace l1t {
-  CaloParamsHelper::CaloParamsHelper(const CaloParams p) : CaloParams(p) {
+  CaloParamsHelper::CaloParamsHelper(const CaloParams& p) : CaloParams(p) {
     if (pnode_.size() < NUM_CALOPARAMNODES){
       pnode_.resize(NUM_CALOPARAMNODES);
       // at version 2, tauCompress was added, we can add a default version here if necessary...

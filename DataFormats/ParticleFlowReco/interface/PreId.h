@@ -31,11 +31,11 @@ namespace reco
       mva_.resize(nselection,-999.);
       geomMatching_.resize(5,-999.);
     }
-    void setTrack(reco::TrackRef trackref)     {
+    void setTrack(const reco::TrackRef& trackref)     {
       trackRef_ = trackref;
     }
 
-    void setECALMatchingProperties(PFClusterRef clusterRef, const math::XYZPoint & ecalpos, const math::XYZPoint &meanShower, float deta,float dphi,float chieta,float chiphi, float chi2, float eop){
+    void setECALMatchingProperties(const PFClusterRef& clusterRef, const math::XYZPoint & ecalpos, const math::XYZPoint &meanShower, float deta,float dphi,float chieta,float chiphi, float chi2, float eop){
       clusterRef_ = clusterRef;
       EcalPos_ = ecalpos;
       meanShower_ = meanShower;

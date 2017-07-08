@@ -66,7 +66,7 @@ bool QTestConfigure::enableTests(
   return false;
 }
 
-void QTestConfigure::EnableComp2RefEqualHTest(std::string testName,
+void QTestConfigure::EnableComp2RefEqualHTest(const std::string& testName,
                                               const std::map<std::string, std::string> & params,
                                               DQMStore *bei) {
   QCriterion * qc1;
@@ -83,7 +83,7 @@ void QTestConfigure::EnableComp2RefEqualHTest(std::string testName,
   me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableComp2RefChi2Test(std::string testName,
+void QTestConfigure::EnableComp2RefChi2Test(const std::string& testName,
                                             const std::map<std::string, std::string> & params,
                                             DQMStore *bei) {
   QCriterion * qc1;
@@ -100,7 +100,7 @@ void QTestConfigure::EnableComp2RefChi2Test(std::string testName,
   me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableComp2Ref2DChi2Test(std::string testName,
+void QTestConfigure::EnableComp2Ref2DChi2Test(const std::string& testName,
                                               const std::map<std::string, std::string> & params,
                                               DQMStore *bei) {
   QCriterion * qc1;
@@ -120,7 +120,7 @@ void QTestConfigure::EnableComp2Ref2DChi2Test(std::string testName,
     me_qc1->setMinimumEntries(minEntries);
 }
 
-void QTestConfigure::EnableComp2RefKolmogorovTest(std::string testName,
+void QTestConfigure::EnableComp2RefKolmogorovTest(const std::string& testName,
                                                   const std::map<std::string, std::string> & params,
                                                   DQMStore *bei) {
   QCriterion * qc1;
@@ -137,7 +137,7 @@ void QTestConfigure::EnableComp2RefKolmogorovTest(std::string testName,
   me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableXRangeTest(std::string testName,
+void QTestConfigure::EnableXRangeTest(const std::string& testName,
                                       const std::map<std::string, std::string> & params,
                                       DQMStore *bei) {
   QCriterion * qc1;
@@ -157,7 +157,7 @@ void QTestConfigure::EnableXRangeTest(std::string testName,
   me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableYRangeTest(std::string testName,
+void QTestConfigure::EnableYRangeTest(const std::string& testName,
                                       const std::map<std::string, std::string> & params,
                                       DQMStore *bei) {
   QCriterion * qc1;
@@ -179,7 +179,7 @@ void QTestConfigure::EnableYRangeTest(std::string testName,
   me_qc1->setUseEmptyBins(useEmptyBins);
 }
 
-void QTestConfigure::EnableDeadChannelTest(std::string testName,
+void QTestConfigure::EnableDeadChannelTest(const std::string& testName,
                                            const std::map<std::string, std::string> & params,
                                            DQMStore *bei) {
   QCriterion * qc1;
@@ -198,7 +198,7 @@ void QTestConfigure::EnableDeadChannelTest(std::string testName,
   me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableNoisyChannelTest(std::string testName,
+void QTestConfigure::EnableNoisyChannelTest(const std::string& testName,
                                             const std::map<std::string, std::string> & params,
                                             DQMStore *bei) {
   QCriterion * qc1;
@@ -219,7 +219,7 @@ void QTestConfigure::EnableNoisyChannelTest(std::string testName,
   me_qc1->setErrorProb(error);
 }
 
-void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName,
+void QTestConfigure::EnableMeanWithinExpectedTest(const std::string& testName,
                                                   const std::map<std::string, std::string> & params,
                                                   DQMStore *bei) {
   QCriterion * qc1;
@@ -265,7 +265,7 @@ void QTestConfigure::EnableMeanWithinExpectedTest(std::string testName,
   }
 }
 
-void QTestConfigure::EnableCompareToMedianTest(std::string testName,
+void QTestConfigure::EnableCompareToMedianTest(const std::string& testName,
                                                const std::map<std::string, std::string> & params,
                                                DQMStore *bei) {
   QCriterion *qc1;
@@ -316,7 +316,7 @@ void QTestConfigure::EnableCompareToMedianTest(std::string testName,
   poQTest->setSigma        ( atof( roMfindOrDefault(params, "sigma", "0") );
   }
 */
-void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName,
+void QTestConfigure::EnableContentsWithinExpectedTest(const std::string& testName,
                                                       const std::map<std::string, std::string> & params,
                                                       DQMStore *bei) {
   QCriterion * qc1;
@@ -353,7 +353,7 @@ void QTestConfigure::EnableContentsWithinExpectedTest(std::string testName,
     me_qc1->setMinimumEntries(minEntries);
 }
 
-void QTestConfigure::EnableCompareLastFilledBinTest(std::string testName,
+void QTestConfigure::EnableCompareLastFilledBinTest(const std::string& testName,
                                                     const std::map<std::string, std::string> & params,
                                                     DQMStore *bei) {
   QCriterion * qc1;
@@ -376,7 +376,7 @@ void QTestConfigure::EnableCompareLastFilledBinTest(std::string testName,
   me_qc1->setMin(minVal);
   me_qc1->setMax(maxVal);
 }
-void QTestConfigure::EnableCheckVarianceTest(std::string testName, 
+void QTestConfigure::EnableCheckVarianceTest(const std::string& testName, 
 					     const std::map<std::string, std::string>& params, 
 					     DQMStore *bei){
   QCriterion * qc1;

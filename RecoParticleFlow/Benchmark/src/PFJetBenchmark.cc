@@ -63,12 +63,12 @@ void PFJetBenchmark::write() {
 } 
 
 void PFJetBenchmark::setup(
-			   string Filename,
+			   const string& Filename,
 			   bool debug, 
 			   bool plotAgainstReco,
 			   bool onlyTwoJets,
 			   double deltaRMax, 
-			   string benchmarkLabel_, 
+			   const string& benchmarkLabel_, 
 			   double recPt, 
 			   double maxEta, 
 			   DQMStore * dbe_store) {

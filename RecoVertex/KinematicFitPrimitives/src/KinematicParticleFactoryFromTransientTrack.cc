@@ -65,7 +65,7 @@ RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle
 RefCountedKinematicParticle KinematicParticleFactoryFromTransientTrack::particle(const KinematicState& kineState, 
                                                                            float& chiSquared,
                                                                            float& degreesOfFr,
-	                                          ReferenceCountingPointer<KinematicParticle> previousParticle,
+	                                          const ReferenceCountingPointer<KinematicParticle>& previousParticle,
 							           KinematicConstraint * lastConstraint) const
 {
  const reco::TransientTrack * track;

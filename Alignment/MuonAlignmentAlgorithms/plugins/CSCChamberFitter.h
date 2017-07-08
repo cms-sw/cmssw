@@ -30,7 +30,7 @@ public:
   void radiusCorrection(AlignableNavigator *alignableNavigator, AlignmentParameterStore *alignmentParameterStore, bool combineME11) const;
 
 protected:
-  int index(std::string alignable) const;
+  int index(const std::string& alignable) const;
   void walk(std::map<int,bool> &touched, int alignable) const;
   long alignableId(std::string alignable) const;
   bool isFrame(int i) const;

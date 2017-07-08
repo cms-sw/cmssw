@@ -56,7 +56,7 @@ class DigiSimLinkAlgorithm {
   // Runs the algorithm
   void  run(edm::DetSet<SiStripDigi>&, edm::DetSet<SiStripRawDigi>&,
             const std::vector<std::pair<const PSimHit*, int > >  &, 
-            StripGeomDetUnit const *, GlobalVector, float, 
+            StripGeomDetUnit const *, const GlobalVector&, float, 
             edm::ESHandle<SiStripGain> &, edm::ESHandle<SiStripThreshold> &, 
             edm::ESHandle<SiStripNoises> &, edm::ESHandle<SiStripPedestals> &, edm::ESHandle<SiStripBadStrip> &,
 	    const TrackerTopology *tTopo,

@@ -9,6 +9,7 @@
 //*****************************************************************************
 
 //C++ includes
+#include <utility>
 #include <vector>
 #include <functional>
 
@@ -44,7 +45,7 @@ class ElectronTkIsolation {
   lip_(lip),
   drb_(drb),
   trackCollection_(trackCollection),
-  beamPoint_(beamPoint) {
+  beamPoint_(std::move(beamPoint)) {
         setAlgosToReject();
         setDzOption("vz");
 
@@ -69,7 +70,7 @@ class ElectronTkIsolation {
   lip_(lip),
   drb_(drb),
   trackCollection_(trackCollection),
-  beamPoint_(beamPoint) {
+  beamPoint_(std::move(beamPoint)) {
         setAlgosToReject();
         setDzOption("vz");
 

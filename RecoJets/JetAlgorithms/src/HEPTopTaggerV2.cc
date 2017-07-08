@@ -133,7 +133,7 @@ bool HEPTopTaggerV2_fixed_R::check_mass_criteria(const std::vector<PseudoJet> & 
   return is_passed;
 }
 
-double HEPTopTaggerV2_fixed_R::nsub(fastjet::PseudoJet jet, int order, fastjet::contrib::Njettiness::AxesMode axes, double beta, double R0) {
+double HEPTopTaggerV2_fixed_R::nsub(const fastjet::PseudoJet& jet, int order, fastjet::contrib::Njettiness::AxesMode axes, double beta, double R0) {
   fastjet::contrib::Nsubjettiness nsub(order, axes, beta, R0);
   return nsub.result(jet);
 }
@@ -164,7 +164,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R() : _do_qjets(0),
   
 }
 						
-HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _do_qjets(0),
+HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet& jet) : _do_qjets(0),
 									   _jet(jet), _initial_jet(jet),
 									   _mass_drop_threshold(0.8), _max_subjet_mass(30.),
 									   _mode(Mode(0)), _mtmass(172.3), _mwmass(80.4),  _mtmin(150.), _mtmax(200.), _rmin(0.85*80.4/172.3), _rmax(1.15*80.4/172.3),
@@ -177,7 +177,7 @@ HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet) : _
                                                                            _debug(false),_first_time(true)  									  
 {}
 
-HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet jet, 
+HEPTopTaggerV2_fixed_R::HEPTopTaggerV2_fixed_R(const fastjet::PseudoJet& jet, 
 					   double mtmass, double mwmass) : _do_qjets(0),
 									   _jet(jet), _initial_jet(jet),
 									   _mass_drop_threshold(0.8), _max_subjet_mass(30.),

@@ -127,7 +127,7 @@ void MaterialBudgetCategorizer::buildMaps()
   
 }
 
-void MaterialBudgetCategorizer::buildCategoryMap(std::string theMaterialFileName, std::map<std::string,std::vector<float> >& theMap) {
+void MaterialBudgetCategorizer::buildCategoryMap(const std::string& theMaterialFileName, std::map<std::string,std::vector<float> >& theMap) {
   //  const G4MaterialTable* matTable = G4Material::GetMaterialTable();
   //  G4int matSize = matTable->size();
   

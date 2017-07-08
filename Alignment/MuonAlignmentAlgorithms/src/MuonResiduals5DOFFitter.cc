@@ -499,7 +499,7 @@ double MuonResiduals5DOFFitter::plot(std::string name, TFileDirectory *dir, Alig
 }
 
 
-TTree * MuonResiduals5DOFFitter::readNtuple(std::string fname, unsigned int wheel, unsigned int station, unsigned int sector, unsigned int preselected)
+TTree * MuonResiduals5DOFFitter::readNtuple(const std::string& fname, unsigned int wheel, unsigned int station, unsigned int sector, unsigned int preselected)
 {
   TFile *f = new TFile(fname.c_str());
   TTree *t = (TTree*)f->Get("mual_ttree");

@@ -209,7 +209,7 @@ class JetCorrectorParametersCollection {
 
   // Helper method to find all of the sections in a given 
   // parameters file
-  static void getSections(std::string inputFile,
+  static void getSections(const std::string& inputFile,
                           std::vector<std::string> & outputs );
 
   // Find the L5 bin for hashing

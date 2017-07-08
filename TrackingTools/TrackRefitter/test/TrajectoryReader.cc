@@ -74,7 +74,7 @@ void TrajectoryReader::endJob(){
  
 
 void TrajectoryReader::printTrajectoryRecHits(const Trajectory &trajectory,
-					      ESHandle<GlobalTrackingGeometry> trackingGeometry) const{
+					      const ESHandle<GlobalTrackingGeometry>& trackingGeometry) const{
 
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
   
@@ -94,7 +94,7 @@ void TrajectoryReader::printTrajectoryRecHits(const Trajectory &trajectory,
 }
 
 void TrajectoryReader::printTrackRecHits(const reco::Track &track, 
-					 ESHandle<GlobalTrackingGeometry> trackingGeometry) const{
+					 const ESHandle<GlobalTrackingGeometry>& trackingGeometry) const{
 
   const std::string metname = "Reco|TrackingTools|TrajectoryReader";
 

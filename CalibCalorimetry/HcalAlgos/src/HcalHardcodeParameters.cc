@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "CalibCalorimetry/HcalAlgos/interface/HcalHardcodeParameters.h"
 
 HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalWidth, std::vector<double> gain, std::vector<double> gainWidth, 
@@ -5,15 +7,15 @@ HcalHardcodeParameters::HcalHardcodeParameters(double pedestal, double pedestalW
 											   double photoelectronsToAnalog, std::vector<double> darkCurrent)
 :	pedestal_(pedestal),
 	pedestalWidth_(pedestalWidth),
-	gain_(gain),
-	gainWidth_(gainWidth),
+	gain_(std::move(gain)),
+	gainWidth_(std::move(gainWidth)),
 	qieType_(qieType),
-	qieOffset_(qieOffset),
-	qieSlope_(qieSlope),
+	qieOffset_(std::move(qieOffset)),
+	qieSlope_(std::move(qieSlope)),
 	mcShape_(mcShape),
 	recoShape_(recoShape),
 	photoelectronsToAnalog_(photoelectronsToAnalog),
-	darkCurrent_(darkCurrent),
+	darkCurrent_(std::move(darkCurrent)),
 	doSipmRadiationDamage_(false)
 {
 }

@@ -1,6 +1,7 @@
 #include "CommonTools/Clustering1D/interface/Clusterizer1DCommons.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 #include <map>
 #include <cmath>
@@ -15,7 +16,7 @@ namespace
 inline Cluster1D<string> createCluster ( float pos, float err, float weight, string name )
 {
     vector < const string * > names;
-    names.push_back ( new string(name) );
+    names.push_back ( new string(std::move(name)) );
     Cluster1D<string> ret ( Measurement1D ( pos, err ), names, weight );
     return ret;
 }
@@ -106,7 +107,7 @@ vector < Cluster1D<string> > fourItems()
  *  In this function the user gives the name of
  *  the "secnario"
  */
-inline vector < Cluster1D<string> > createInput( string name )
+inline vector < Cluster1D<string> > createInput( const string& name )
 {
     // that's a map that maps the function to ordinary names.
     map < string, vector < Cluster1D<string> > (*)() > inputs;

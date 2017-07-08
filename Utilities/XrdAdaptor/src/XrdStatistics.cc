@@ -10,6 +10,7 @@
 #include "XrdStatistics.h"
 
 #include <chrono>
+#include <utility>
 
 using namespace XrdAdaptor;
 
@@ -102,9 +103,9 @@ XrdSiteStatistics::XrdSiteStatistics(std::string const &site) :
 }
 
 std::shared_ptr<XrdReadStatistics>
-XrdSiteStatistics::startRead(std::shared_ptr<XrdSiteStatistics> parent, std::shared_ptr<ClientRequest> req)
+XrdSiteStatistics::startRead(std::shared_ptr<XrdSiteStatistics> parent, const std::shared_ptr<ClientRequest>& req)
 {
-    std::shared_ptr<XrdReadStatistics> readStats(new XrdReadStatistics(parent, req->getSize(), req->getCount()));
+    std::shared_ptr<XrdReadStatistics> readStats(new XrdReadStatistics(std::move(parent), req->getSize(), req->getCount()));
     return readStats;
 }
 

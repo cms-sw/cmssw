@@ -16,13 +16,13 @@ using namespace edm;
 using namespace reco;
 using namespace std;
 
-TrackIsoCalculator::TrackIsoCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::TrackCollection> trackLabel, const std::string trackQuality)
+TrackIsoCalculator::TrackIsoCalculator (const edm::Event &iEvent, const edm::EventSetup &iSetup, const edm::Handle<reco::TrackCollection>& trackLabel, const std::string& trackQuality)
 {
   recCollection = trackLabel;
   trackQuality_ = trackQuality;
 }
 
-double TrackIsoCalculator::getTrackIso(const reco::Photon cluster, const double x, const double threshold, const double innerDR)
+double TrackIsoCalculator::getTrackIso(const reco::Photon& cluster, const double x, const double threshold, const double innerDR)
 {
   double TotalPt = 0;
 
@@ -45,7 +45,7 @@ double TrackIsoCalculator::getTrackIso(const reco::Photon cluster, const double 
   return TotalPt;
 }
 
-double TrackIsoCalculator::getBkgSubTrackIso(const reco::Photon cluster, const double x, const double threshold, const double innerDR)
+double TrackIsoCalculator::getBkgSubTrackIso(const reco::Photon& cluster, const double x, const double threshold, const double innerDR)
 {
   double SClusterEta = cluster.eta();
   double TotalPt = 0;

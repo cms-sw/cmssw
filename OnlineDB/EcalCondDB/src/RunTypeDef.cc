@@ -30,7 +30,7 @@ string RunTypeDef::getRunType() const
 
 
 
-void RunTypeDef::setRunType(string runtype)
+void RunTypeDef::setRunType(const string& runtype)
 {
   if (runtype != m_runType) {
     m_ID = 0;

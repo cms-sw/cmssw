@@ -41,7 +41,7 @@ namespace pat {
             virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
             //sorting of cands to maximize the zlib compression
-            bool candsOrdering(pat::PackedCandidate i,pat::PackedCandidate j) const {
+            bool candsOrdering(const pat::PackedCandidate& i,const pat::PackedCandidate& j) const {
                 if (std::abs(i.charge()) == std::abs(j.charge())) {
                     if(i.charge()!=0){
                         if(i.hasTrackDetails() and ! j.hasTrackDetails() ) return true;
@@ -94,7 +94,7 @@ namespace pat {
             float calcDxy(float dx, float dy, float phi) const {
                 return - dx * std::sin(phi) + dy * std::cos(phi);
             }
-            float calcDz(reco::Candidate::Point p, reco::Candidate::Point v, const reco::Candidate &c) const {
+            float calcDz(const reco::Candidate::Point& p, const reco::Candidate::Point& v, const reco::Candidate &c) const {
                 return p.Z()-v.Z() - ((p.X()-v.X()) * c.px() + (p.Y()-v.Y())*c.py()) * c.pz()/(c.pt()*c.pt());
             }
     };

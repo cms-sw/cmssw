@@ -408,7 +408,7 @@ namespace sistrip {
 
 
   std::string SpyUtilities::print(const SpyUtilities::Frame & aFrame,
-				  std::string aErr)
+				  const std::string& aErr)
   {
 
     std::ostringstream lOs;

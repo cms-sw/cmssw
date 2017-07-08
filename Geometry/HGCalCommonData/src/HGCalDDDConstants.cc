@@ -13,7 +13,7 @@ constexpr double k_horizontalShift = 1.0;
 constexpr double k_ScaleFromDDD = 0.1;
 
 HGCalDDDConstants::HGCalDDDConstants(const HGCalParameters* hp,
-				     const std::string name) : hgpar_(hp) {
+				     const std::string& name) : hgpar_(hp) {
   mode_ = hgpar_->mode_;
   if (mode_ == HGCalGeometryMode::Square) {
     rmax_    = 0;

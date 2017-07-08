@@ -21,6 +21,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 #include <vector>
 #include <sstream>
 #include <iostream>
@@ -64,7 +65,7 @@ public:
   void setMinNumEntriesPerStrip(unsigned short m){MinNumEntriesPerStrip_=m;}
   void setOccupancyThreshold(long double occupancy){occupancy_=occupancy;minNevents_=occupancy_*Nevents_;}
   void setNumberOfEvents(double Nevents);
-  void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=OutputFileName; WriteOutputFile_=WriteOutputFile;}
+  void setOutputFileName(std::string OutputFileName, bool WriteOutputFile){OutFileName_=std::move(OutputFileName); WriteOutputFile_=WriteOutputFile;}
   void setTrackerGeometry(const TrackerGeometry* tkgeom){TkGeom = tkgeom;}
   void extractBadStrips(SiStripQuality*,HistoMap&,  edm::ESHandle<SiStripQuality>&);
 

@@ -79,7 +79,7 @@ GsfVertexTrackCompatibilityEstimator::estimate(const reco::Vertex & vertex,
 
 std::pair<bool, double> 
 GsfVertexTrackCompatibilityEstimator::estimateFittedTrack
-		(const CachingVertex<5> & v, const RefCountedVertexTrack track) const
+		(const CachingVertex<5> & v, const RefCountedVertexTrack& track) const
 {
   //remove track from the vertex using the vertex updator
   // Using the update instead of the remove methode, we can specify a weight which
@@ -97,7 +97,7 @@ GsfVertexTrackCompatibilityEstimator::estimateFittedTrack
 //with the track not belonging to vertex
 std::pair<bool, double>
 GsfVertexTrackCompatibilityEstimator::estimateNFittedTrack
- 	(const CachingVertex<5> & v, const RefCountedVertexTrack track) const
+ 	(const CachingVertex<5> & v, const RefCountedVertexTrack& track) const
 {
   // Using the update instead of the add methode, we can specify a weight which
   // is different than then one which the vertex track has been defined with.

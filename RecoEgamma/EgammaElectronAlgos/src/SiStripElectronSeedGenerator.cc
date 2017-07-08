@@ -143,8 +143,8 @@ void  SiStripElectronSeedGenerator::run(edm::Event& e, const edm::EventSetup& se
 
 // Find seeds using a supercluster
 void SiStripElectronSeedGenerator::findSeedsFromCluster
- ( edm::Ref<reco::SuperClusterCollection> seedCluster,
-   edm::Handle<reco::BeamSpot> bs,
+ ( const edm::Ref<reco::SuperClusterCollection>& seedCluster,
+   const edm::Handle<reco::BeamSpot>& bs,
    const MeasurementTrackerEvent & trackerData,
 	 reco::ElectronSeedCollection & result )
  {
@@ -694,7 +694,7 @@ bool SiStripElectronSeedGenerator::altCheckHitsAndTSOS(std::vector<const SiStrip
 }
 
 
-bool SiStripElectronSeedGenerator::preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope,int hitLayer){
+bool SiStripElectronSeedGenerator::preselection(const GlobalPoint& position,const GlobalPoint& superCluster,double phiVsRSlope,int hitLayer){
   double r = position.perp();
   double phi = position.phi();
   double z = position.z();
@@ -741,13 +741,13 @@ int SiStripElectronSeedGenerator::whichSubdetector(std::vector<const SiStripMatc
   return result;
 }
 
-const SiStripMatchedRecHit2D* SiStripElectronSeedGenerator::matchedHitConverter(ConstRecHitPointer crhp){
+const SiStripMatchedRecHit2D* SiStripElectronSeedGenerator::matchedHitConverter(const ConstRecHitPointer& crhp){
   const TrackingRecHit* trh = crhp->hit();
   const SiStripMatchedRecHit2D* matchedHit = dynamic_cast<const SiStripMatchedRecHit2D*>(trh);
   return matchedHit;
 }
 
-const SiStripRecHit2D* SiStripElectronSeedGenerator::backupHitConverter(ConstRecHitPointer crhp){
+const SiStripRecHit2D* SiStripElectronSeedGenerator::backupHitConverter(const ConstRecHitPointer& crhp){
   const TrackingRecHit* trh = crhp->hit();
   const SiStripRecHit2D* backupHit = dynamic_cast<const SiStripRecHit2D*>(trh);
   return backupHit;

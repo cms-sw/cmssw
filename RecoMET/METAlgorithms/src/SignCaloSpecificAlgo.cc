@@ -46,7 +46,7 @@ void SignCaloSpecificAlgo::usePreviousSignif(const std::vector<double> &values)
 // Convert a list of calo towers to objects that can be passed to the significance algo:
 
 std::vector<metsig::SigInputObj> 
-SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Candidate> > towers, const::metsig::SignAlgoResolutions& resolutions, bool noHF, double globalThreshold)
+SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(const edm::Handle<edm::View<reco::Candidate> >& towers, const::metsig::SignAlgoResolutions& resolutions, bool noHF, double globalThreshold)
 {
 
   edm::View<Candidate>::const_iterator towerCand = towers->begin();
@@ -147,7 +147,7 @@ SignCaloSpecificAlgo::makeVectorOutOfCaloTowers(edm::Handle<edm::View<reco::Cand
 ////////////////
 //
 // Basic MET algorithm. gets towers, does sum. Very similar to standard MET.
-void SignCaloSpecificAlgo::calculateBaseCaloMET(edm::Handle<edm::View<reco::Candidate> > towers, const CommonMETData& met,const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalThreshold)
+void SignCaloSpecificAlgo::calculateBaseCaloMET(const edm::Handle<edm::View<reco::Candidate> >& towers, const CommonMETData& met,const metsig::SignAlgoResolutions& resolutions, bool noHF, double globalThreshold)
 { 
 
   //retreive calo tower information from candidates

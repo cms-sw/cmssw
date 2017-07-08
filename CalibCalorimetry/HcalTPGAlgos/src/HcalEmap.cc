@@ -16,6 +16,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include "CalibCalorimetry/HcalTPGAlgos/interface/HcalEmap.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -25,7 +26,7 @@ using namespace std;
 
 
 
-int HcalEmap::read_map( std::string filename )
+int HcalEmap::read_map( const std::string& filename )
 {
   int lines=0;
 
@@ -86,7 +87,7 @@ bool HcalEmap::HcalEmapRow::operator<( const HcalEmap::HcalEmapRow & other) cons
 //
 int HcalEmap_test::test_read_map( std::string filename )
 {
-  HcalEmap map( filename );
+  HcalEmap map( std::move(filename) );
   return 0;
 }
 

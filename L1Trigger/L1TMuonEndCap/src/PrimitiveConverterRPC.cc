@@ -11,7 +11,7 @@ PrimitiveConverterRPC::PrimitiveConverterRPC() {
 
 l1t::EMTFHitExtraCollection 
 PrimitiveConverterRPC::convert( std::vector<L1TMuon::TriggerPrimitive> TrigPrim, 
-				int SectIndex, edm::ESHandle<RPCGeometry> rpc_geom ) {
+				int SectIndex, const edm::ESHandle<RPCGeometry>& rpc_geom ) {
 
   // bool verbose = true;
   bool verbose = false;
@@ -127,7 +127,7 @@ PrimitiveConverterRPC::fillConvHits(l1t::EMTFHitExtraCollection exHits) {
   return ConvHits;
 }
 
-bool PrimitiveConverterRPC::sameRpcChamber( l1t::EMTFHitExtra hitA, l1t::EMTFHitExtra hitB ) {
+bool PrimitiveConverterRPC::sameRpcChamber( const l1t::EMTFHitExtra& hitA, const l1t::EMTFHitExtra& hitB ) {
 
   if ( hitA.Endcap() == hitB.Endcap() && hitA.Station() == hitB.Station() && hitA.Ring() == hitB.Ring() &&
        hitA.Roll() == hitB.Roll() && hitA.Sector() == hitB.Sector() && hitA.Subsector() == hitB.Subsector() &&

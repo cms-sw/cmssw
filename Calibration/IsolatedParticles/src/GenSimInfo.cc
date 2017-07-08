@@ -10,7 +10,7 @@
 
 namespace spr{
 
-  void eGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, genSimInfo & info, bool debug) {
+  void eGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, int ieta, int iphi, genSimInfo & info, bool debug) {
     
 #ifdef EDM_ML_DEBUG
     if (debug) std::cout << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
@@ -22,7 +22,7 @@ namespace spr{
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
-  void eGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool debug) {
+  void eGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const CaloTopology* caloTopology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool debug) {
 
 #ifdef EDM_ML_DEBUG
     if (debug) std::cout << "eGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
@@ -58,7 +58,7 @@ namespace spr{
     spr::cGenSimInfo(vdets, trkItr, trackIds, true, info, debug);
   }
 
-  void hGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const HcalTopology* topology, int ieta, int iphi, genSimInfo & info, bool includeHO, bool debug) {
+  void hGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const HcalTopology* topology, int ieta, int iphi, genSimInfo & info, bool includeHO, bool debug) {
     
 #ifdef EDM_ML_DEBUG
     if (debug) std::cout << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with ieta:iphi " << ieta << ":" << iphi << std::endl;
@@ -72,7 +72,7 @@ namespace spr{
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
-  void hGenSimInfo(const DetId& coreDet, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool includeHO, bool debug) {
+  void hGenSimInfo(const DetId& coreDet, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, const CaloGeometry* geo, const HcalTopology* topology, double dR, const GlobalVector& trackMom, spr::genSimInfo & info, bool includeHO, bool debug) {
     
 #ifdef EDM_ML_DEBUG
     if (debug) std::cout << "hGenSimInfo:: For track " << (*trkItr)->momentum().rho() << "/" << (*trkItr)->momentum().eta() << "/" << (*trkItr)->momentum().phi() << " with dR,tMom " << dR << " " << trackMom << std::endl;
@@ -110,7 +110,7 @@ namespace spr{
     spr::cGenSimInfo(vdets, trkItr, trackIds, false, info, debug);
   }
 
-  void cGenSimInfo(std::vector<DetId>& vdets, HepMC::GenEvent::particle_const_iterator trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug) {
+  void cGenSimInfo(std::vector<DetId>& vdets, const HepMC::GenEvent::particle_const_iterator& trkItr, std::vector<spr::propagatedGenTrackID>& trackIds, bool ifECAL, spr::genSimInfo & info, bool debug) {
 
     info.maxNearP=-1.0;
     info.cHadronEne=info.nHadronEne=info.eleEne=info.muEne=info.photonEne=0.0;

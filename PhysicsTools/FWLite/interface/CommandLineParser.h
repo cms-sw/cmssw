@@ -82,7 +82,7 @@ class CommandLineParser : public VariableMapCont
 
       // splits a line into words
       static void split (SVec &retval, std::string line, 
-                         std::string match = " \t",
+                         const std::string& match = " \t",
                          bool ignoreComments = true);
 
       // removes '# ....' comment

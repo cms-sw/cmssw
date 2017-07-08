@@ -14,7 +14,7 @@ class DTTDCErrorNotifier {
 public:
   
   /// Constructor
-  DTTDCErrorNotifier(DTTDCErrorWord error ); 
+  DTTDCErrorNotifier(const DTTDCErrorWord& error ); 
 
   /// Destructor
   virtual ~DTTDCErrorNotifier(); 

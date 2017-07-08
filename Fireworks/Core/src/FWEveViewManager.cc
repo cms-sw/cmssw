@@ -343,7 +343,7 @@ FWEveViewManager::buildView(TEveWindowSlot* iParent, const std::string& viewName
 }
 
 FWEveView*
-FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view)
+FWEveViewManager::finishViewCreate(const std::shared_ptr<FWEveView>& view)
 {
    // printf("new view %s added \n", view->typeName().c_str());
    gEve->DisableRedraw();

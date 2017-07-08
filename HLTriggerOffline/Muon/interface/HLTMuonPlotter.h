@@ -116,8 +116,8 @@ class HLTMuonPlotter {
       const l1t::MuonVectorRef& candsL1,
       const std::vector< std::vector< const reco::RecoChargedCandidate *> >&
       );
-  void bookHist(DQMStore::IBooker &, std::string,
-		std::string, std::string, std::string);
+  void bookHist(DQMStore::IBooker &, const std::string&,
+		const std::string&, const std::string&, const std::string&);
 
   std::string  hltPath_;
   std::string  hltProcessName_;

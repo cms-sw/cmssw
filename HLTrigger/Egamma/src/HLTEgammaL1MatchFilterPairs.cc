@@ -166,7 +166,7 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
   return accept;
 }
 
-bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(edm::Ref<reco::RecoEcalCandidateCollection> ref, std::vector<l1extra::L1EmParticleRef >& l1EGIso, std::vector<l1extra::L1EmParticleRef >& l1EGNonIso) const {
+bool HLTEgammaL1MatchFilterPairs::CheckL1Matching(const edm::Ref<reco::RecoEcalCandidateCollection>& ref, std::vector<l1extra::L1EmParticleRef >& l1EGIso, std::vector<l1extra::L1EmParticleRef >& l1EGNonIso) const {
 
   for (auto & i : l1EGIso) {
     //ORCA matching method

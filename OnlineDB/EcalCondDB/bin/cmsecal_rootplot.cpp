@@ -13,6 +13,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <cfloat>
 
@@ -24,10 +25,10 @@ public:
   static const int DEFAULT_AXIS = 111;
   static const int TIME_AXIS = 222;
 
-  RootPlot(string type, string format, string file, float hmin=0., float hmax=0.) 
+  RootPlot(string type, const string& format, const string& file, float hmin=0., float hmax=0.) 
   {
     m_isInit = 0;
-    m_type = type;
+    m_type = std::move(type);
     m_outputFormat = format;
     m_outputFile = file+"."+format;
     m_outputRoot = file+".root";
@@ -95,9 +96,9 @@ public:
   };
 
 
-  void setTitle(string title) { m_title = title; }
-  void setXTitle(string xtitle) { m_xtitle = xtitle; }
-  void setYTitle(string ytitle) { m_ytitle = ytitle; }
+  void setTitle(string title) { m_title = std::move(title); }
+  void setXTitle(string xtitle) { m_xtitle = std::move(xtitle); }
+  void setYTitle(string ytitle) { m_ytitle = std::move(ytitle); }
   void setDebug(int debug) { m_debug = debug; }
   void setXAxisType(int code) { m_xAxisType = code; }
 
@@ -591,7 +592,7 @@ private:
   TDatime m_T0;
 };
 
-void arg_error(string msg)
+void arg_error(const string& msg)
 {
   cerr << "ERROR:  " << msg << endl;
   cerr << "Use 'ECALrootPlotter -h' for help" << endl;

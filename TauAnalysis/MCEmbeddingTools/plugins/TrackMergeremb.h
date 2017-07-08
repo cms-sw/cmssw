@@ -47,9 +47,9 @@ class TrackMergeremb : public edm::stream::EDProducer<>
   typedef T1 TrackCollectionemb;
   
   
-  void willproduce(std::string instance, std::string alias);
+  void willproduce(const std::string& instance, const std::string& alias);
   void willconsume(const edm::ParameterSet& iConfig);
-  void merg_and_put(edm::Event&, std::string ,  std::vector<edm::EDGetTokenT<TrackCollectionemb> > & );
+  void merg_and_put(edm::Event&, const std::string& ,  std::vector<edm::EDGetTokenT<TrackCollectionemb> > & );
   
   std::map<std::string,  std::vector<edm::EDGetTokenT<TrackCollectionemb > > > inputs_;
   std::map<std::string,  std::vector<edm::EDGetTokenT<edm::ValueMap<reco::MuonQuality> > > > inputs_qual_;

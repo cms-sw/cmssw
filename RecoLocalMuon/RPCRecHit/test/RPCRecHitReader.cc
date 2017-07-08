@@ -350,7 +350,7 @@ void RPCRecHitReader::analyze(const edm::Event & event, const edm::EventSetup& e
   }
 }
 
-unsigned int RPCRecHitReader::layerRecHit(RPCRecHit rechit){
+unsigned int RPCRecHitReader::layerRecHit(const RPCRecHit& rechit){
 
   unsigned int layer=0;
   RPCDetId id = (RPCDetId)(rechit).rpcId();

@@ -39,7 +39,7 @@ namespace popcon
     ~L1RPCHwConfigSourceHandler();
     void getNewObjects();
     std::string id() const {return m_name;}
-    void ConnectOnlineDB(std::string connect, std::string authPath);
+    void ConnectOnlineDB(const std::string& connect, const std::string& authPath);
     void DisconnectOnlineDB();
     void readHwConfig1();
     int Compare2Configs(const Ref& set1, L1RPCHwConfig* set2);

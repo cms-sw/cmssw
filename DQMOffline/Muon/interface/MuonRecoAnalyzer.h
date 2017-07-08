@@ -40,7 +40,7 @@ class MuonRecoAnalyzer : public DQMEDAnalyzer {
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
  
   //calculate residual & pull:
-  void GetRes( reco::TrackRef t1, reco::TrackRef t2, std::string par, float &res, float &pull);
+  void GetRes( const reco::TrackRef& t1, const reco::TrackRef& t2, const std::string& par, float &res, float &pull);
 
  private:
   // ----------member data ---------------------------

@@ -31,7 +31,7 @@ template <class T>
 {
 
  public:
-  HistoParams(T** pointer, const std::string type, const std::string name, const std::string title,
+  HistoParams(T** pointer, const std::string& type, const std::string& name, const std::string& title,
 	      const unsigned int nbinx=-1, const double xmin = -1., const double xmax = -1.,
 	      const unsigned int nbiny=-1, const double ymin = -1., const double ymax = -1.):
     BaseHistoParams(),
@@ -90,7 +90,7 @@ template <>
 {
 
  public:
-  HistoParams(TH2F** pointer, const std::string type, const std::string name, const std::string title,
+  HistoParams(TH2F** pointer, const std::string& type, const std::string& name, const std::string& title,
 	      const unsigned int nbinx=-1, const double xmin = -1., const double xmax = -1.,
 	      const unsigned int nbiny=-1, const double ymin = -1., const double ymax = -1.):
     BaseHistoParams(),
@@ -154,7 +154,7 @@ template <>
 {
 
  public:
-  HistoParams(TProfile2D** pointer, const std::string type, const std::string name, const std::string title,
+  HistoParams(TProfile2D** pointer, const std::string& type, const std::string& name, const std::string& title,
 	      const unsigned int nbinx=-1, const double xmin = -1., const double xmax = -1.,
 	      const unsigned int nbiny=-1, const double ymin = -1., const double ymax = -1.):
     BaseHistoParams(),

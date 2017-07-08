@@ -53,8 +53,8 @@ namespace gen
     HepMC::GenParticle*	                        build_hijing( int index, int barcode );	
     HepMC::GenVertex*                           build_hijing_vertex(int i, int id);
     bool					get_particles(HepMC::GenEvent* evt);
-    bool                                        call_hijset(double efrm, std::string frame, std::string proj, 
-                                                            std::string targ, int iap, int izp, int iat, int izt);
+    bool                                        call_hijset(double efrm, const std::string& frame, const std::string& proj, 
+                                                            const std::string& targ, int iap, int izp, int iat, int izt);
     //    inline double			        nuclear_radius() const;
     void                                        rotateEvtPlane();
 

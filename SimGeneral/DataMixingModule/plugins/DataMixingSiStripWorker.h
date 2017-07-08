@@ -78,7 +78,7 @@ namespace edm
 
       class StrictWeakOrdering{
       public:
-	bool operator() (SiStripDigi i,SiStripDigi j) const {return i.strip() < j.strip();}
+	bool operator() (const SiStripDigi& i,const SiStripDigi& j) const {return i.strip() < j.strip();}
       };
 
 

@@ -5,7 +5,7 @@
 
 // calculate the Colins-Soper variables;
 // everything is in the lab frame
-void calCSVariables(TLorentzVector mu, TLorentzVector mubar, 
+void calCSVariables(const TLorentzVector& mu, const TLorentzVector& mubar, 
 		    double *res, bool swap) {
 
   // convention. beam direction is on the positive Z direction.

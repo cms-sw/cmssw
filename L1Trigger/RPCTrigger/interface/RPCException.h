@@ -20,7 +20,7 @@ class RPCException: public TException {
 #include "FWCore/Utilities/interface/Exception.h"
   class RPCException: public cms::Exception {
     public:
-      RPCException(std::string msg) : cms::Exception(msg) {};
+      RPCException(const std::string& msg) : cms::Exception(msg) {};
 };
 #endif // _STAND_ALONE
  

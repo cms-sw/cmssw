@@ -420,9 +420,9 @@ ConversionInfo ConversionFinder::findBestConversionMatch(const std::vector<Conve
 
 //------------------------------------------------------------------------------------
 // Exists here for backwards compatibility only. Provides only the dist and dcot
-std::pair<double, double> ConversionFinder::getConversionInfo(LorentzVector trk1_p4,
+std::pair<double, double> ConversionFinder::getConversionInfo(const LorentzVector& trk1_p4,
 							      int trk1_q, float trk1_d0,
-							      LorentzVector trk2_p4,
+							      const LorentzVector& trk2_p4,
 							      int trk2_q, float trk2_d0,
 							      float bFieldAtOrigin) {
 

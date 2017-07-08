@@ -25,7 +25,7 @@ class CSCLayer : public GeomDetUnit {
 
 public:
 
-  CSCLayer( const BoundPlane::BoundPlanePointer sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
+  CSCLayer( const BoundPlane::BoundPlanePointer& sp, CSCDetId id, const CSCChamber* ch, const CSCLayerGeometry* geo ) : 
   GeomDetUnit( sp ), theId( id ), theChamber( ch ), theGeometry( geo ) {
     setDetId(id);
 }

@@ -42,7 +42,7 @@ namespace jpt {
 
   public:
 
-    Map( std::string, bool verbose = false );
+    Map( const std::string&, bool verbose = false );
     Map();
     ~Map();
     
@@ -121,7 +121,7 @@ namespace jpt {
     double sumE( uint32_t eta_bin, uint32_t pt_bin ) const;
     double meanE( uint32_t eta_bin, uint32_t pt_bin ) const;
 
-    bool check( uint32_t eta_bin, uint32_t pt_bin, std::string name = "check" ) const;
+    bool check( uint32_t eta_bin, uint32_t pt_bin, const std::string& name = "check" ) const;
 
     typedef std::vector<Pair> VPair;
     typedef std::vector<VPair> VVPair;

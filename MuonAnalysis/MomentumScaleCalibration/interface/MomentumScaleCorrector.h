@@ -95,7 +95,7 @@ class MomentumScaleCorrector : public BaseFunction
 
  protected:
   /// Parser of the parameters file
-  void readParameters( TString fileName );
+  void readParameters( const TString& fileName );
 
   scaleFunctionBase<double * > ** scaleFunction_;
   std::vector<scaleFunctionBase<double * > * > scaleFunctionVec_;

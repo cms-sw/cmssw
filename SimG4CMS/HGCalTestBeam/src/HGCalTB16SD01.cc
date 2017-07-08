@@ -21,7 +21,7 @@
 
 //#define EDM_ML_DEBUG
 
-HGCalTB16SD01::HGCalTB16SD01(G4String name, const DDCompactView & cpv,
+HGCalTB16SD01::HGCalTB16SD01(const G4String& name, const DDCompactView & cpv,
 			     const SensitiveDetectorCatalog & clg,
 			     edm::ParameterSet const & p, 
 			     const SimTrackManager* manager) : 

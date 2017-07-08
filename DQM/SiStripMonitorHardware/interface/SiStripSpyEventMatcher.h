@@ -126,15 +126,15 @@ namespace sistrip {
       static CountersPtr getCounters(const edm::EventPrincipal& event, const edm::InputTag& tag, const bool mapKeyIsByFedID = true);
       void operator()(const edm::EventPrincipal& event);
       static void findMatchingFeds(const uint32_t eventId, const uint8_t apvAddress,
-                                   CountersPtr totalEventCounters,
-                                   CountersPtr l1aCounters,
-                                   CountersPtr apvAddresses,
+                                   const CountersPtr& totalEventCounters,
+                                   const CountersPtr& l1aCounters,
+                                   const CountersPtr& apvAddresses,
                                    std::set<uint16_t>& matchingFeds);
       static void mergeMatchingData(const std::set<uint16_t>& matchingFeds,
                                     const FEDRawDataCollection& inputRawData,
-                                    CountersPtr inputTotalEventCounters,
-                                    CountersPtr inputL1ACounters,
-                                    CountersPtr inputAPVAddresses,
+                                    const CountersPtr& inputTotalEventCounters,
+                                    const CountersPtr& inputL1ACounters,
+                                    const CountersPtr& inputAPVAddresses,
                                     const edm::DetSetVector<SiStripRawDigi>* inputScopeDigis,
                                     const edm::DetSetVector<SiStripRawDigi>* inputPayloadDigis,
                                     const edm::DetSetVector<SiStripRawDigi>* inputReorderedDigis,

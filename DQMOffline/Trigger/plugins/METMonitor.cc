@@ -53,7 +53,7 @@ METMonitor::~METMonitor()
   if (den_genTriggerEventFlag_) delete den_genTriggerEventFlag_;
 }
 
-MEbinning METMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning METMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -62,7 +62,7 @@ MEbinning METMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-MEbinning METMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning METMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -71,7 +71,7 @@ MEbinning METMonitor::getHistoLSPSet(edm::ParameterSet pset)
       };
 }
 
-void METMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
+void METMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX,1);
   me.numerator->setAxisTitle(titleY,2);

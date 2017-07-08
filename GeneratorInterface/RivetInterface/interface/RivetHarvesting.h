@@ -36,7 +36,7 @@ class RivetHarvesting : public edm::EDAnalyzer
   private:
 
   //std::vector<Rivet::DPSXYPoint>  getDPSXYValsErrs(std::string filename, std::string path, std::string name);
-  std::vector<YODA::Point2D> getPoint2DValsErrs(std::string filename, std::string path, std::string name);
+  std::vector<YODA::Point2D> getPoint2DValsErrs(const std::string& filename, const std::string& path, const std::string& name);
 
   Rivet::AnalysisHandler   _analysisHandler;
   std::vector<std::string> _fileNames;

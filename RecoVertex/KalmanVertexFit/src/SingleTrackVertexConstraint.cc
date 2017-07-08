@@ -29,7 +29,7 @@ SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
 
 
 SingleTrackVertexConstraint::BTFtuple SingleTrackVertexConstraint::constrain(
-	const TransientTrack & track,  const VertexState priorVertexState) const
+	const TransientTrack & track,  const VertexState& priorVertexState) const
 {
   // Linearize tracks
 

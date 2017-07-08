@@ -13,7 +13,7 @@ class AHCalSD : public CaloSD {
 
 public:    
 
-  AHCalSD(G4String , const DDCompactView &, const SensitiveDetectorCatalog &,
+  AHCalSD(const G4String& , const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~AHCalSD();
   virtual double                getEnergyDeposit(G4Step* );

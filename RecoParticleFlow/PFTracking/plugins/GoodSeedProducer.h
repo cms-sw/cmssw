@@ -85,7 +85,7 @@ class GoodSeedProducer final : public edm::stream::EDProducer<edm::GlobalCache<g
       ///Find the bin in pt and eta
       int getBin(float,float);
 
-      void fillPreIdRefValueMap( edm::Handle<reco::TrackCollection> tkhandle,
+      void fillPreIdRefValueMap( const edm::Handle<reco::TrackCollection>& tkhandle,
 				 const edm::OrphanHandle<reco::PreIdCollection>&,
 				 edm::ValueMap<reco::PreIdRef>::Filler & filler);
       // ----------member data ---------------------------

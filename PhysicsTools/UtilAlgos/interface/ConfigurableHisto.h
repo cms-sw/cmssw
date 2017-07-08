@@ -1,6 +1,8 @@
 #ifndef ConfigurableAnalysis_ConfigurableHisto_H
 #define ConfigurableAnalysis_ConfigurableHisto_H
 
+#include <utility>
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "CommonTools/Utils/interface/TFileDirectory.h"
 
@@ -54,7 +56,7 @@ class ConfigurableHisto {
  public:
   enum HType { h1 ,h2, prof };
   ConfigurableHisto(HType t, std::string name, edm::ParameterSet & iConfig) :
-    type_(t),h_(0),name_(name), conf_(iConfig),x_(0),y_(0),z_(0),w_(0){}
+    type_(t),h_(0),name_(std::move(name)), conf_(iConfig),x_(0),y_(0),z_(0),w_(0){}
 
   virtual ~ConfigurableHisto(){}
 
@@ -224,7 +226,7 @@ class ConfigurableHisto {
 
 class SplittingConfigurableHisto : public ConfigurableHisto {
  public:
-  SplittingConfigurableHisto(HType t, std::string name, edm::ParameterSet & pset) :
+  SplittingConfigurableHisto(HType t, const std::string& name, edm::ParameterSet & pset) :
     ConfigurableHisto(t,name,pset) , splitter_(0) {
     std::string title=pset.getParameter<std::string>("title");
 

@@ -609,7 +609,7 @@ void CommissioningHistograms::createSummaryHisto( const sistrip::Monitorable& mo
 
 // -----------------------------------------------------------------------------
 /** */
-void CommissioningHistograms::remove( std::string pattern ) {
+void CommissioningHistograms::remove( const std::string& pattern ) {
   
   if ( !bei_ ) { 
     edm::LogError(mlDqmClient_)

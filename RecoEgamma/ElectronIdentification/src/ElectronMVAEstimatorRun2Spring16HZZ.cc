@@ -23,7 +23,7 @@ ElectronMVAEstimatorRun2Spring16HZZ::ElectronMVAEstimatorRun2Spring16HZZ(const e
   init(weightFileNames);
 }
 
-void ElectronMVAEstimatorRun2Spring16HZZ::init(const std::vector <std::string> weightFileNames) {
+void ElectronMVAEstimatorRun2Spring16HZZ::init(const std::vector <std::string>& weightFileNames) {
   if( (int)(weightFileNames.size()) != nCategories )
     throw cms::Exception("MVA config failure: ")
       << "wrong number of weightfiles" << std::endl;
@@ -297,7 +297,7 @@ fillMVAVariables(const edm::Ptr<reco::Candidate>& particle,
 // A function that should work on both pat and reco objects
 std::vector<float> ElectronMVAEstimatorRun2Spring16HZZ::
 fillMVAVariables(const reco::GsfElectron* eleRecoPtr,
-                 const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *theBeamSpot ) const {
+                 const edm::Handle<reco::ConversionCollection>& conversions, const reco::BeamSpot *theBeamSpot ) const {
 
 
   // Both pat and reco particles have exactly the same accessors, so we use a reco ptr 

@@ -45,13 +45,13 @@ class EvtSLBaryonAmp:public EvtSemiLeptonicAmp {
 
   void CalcAmp( EvtParticle *parent, EvtAmp& amp,
 		EvtSemiLeptonicFF *FormFactors,
-		EvtComplex r00, EvtComplex r01,
-		EvtComplex r10, EvtComplex r11 );
+		const EvtComplex& r00, const EvtComplex& r01,
+		const EvtComplex& r10, const EvtComplex& r11 );
   
   double CalcMaxProb( EvtId parent, EvtId meson, EvtId lepton,
                       EvtId nudaug, EvtSemiLeptonicFF *FormFactors,
-                      EvtComplex r00, EvtComplex r01,
-                      EvtComplex r10, EvtComplex r11);
+                      const EvtComplex& r00, const EvtComplex& r01,
+                      const EvtComplex& r10, const EvtComplex& r11);
 
 
  private:

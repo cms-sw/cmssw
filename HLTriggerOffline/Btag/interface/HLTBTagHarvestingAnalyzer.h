@@ -31,9 +31,9 @@ class HLTBTagHarvestingAnalyzer : public DQMEDHarvester {
 
 			virtual void dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
 			TH1F  calculateEfficiency1D( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1 & num, TH1 & den, std::string name );
-			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string num, std::string den,TH1 * & ptrnum,TH1* & ptrden,int type);
-			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName );
-			void modulesrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName );
+			bool GetNumDenumerators(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& num, const std::string& den,TH1 * & ptrnum,TH1* & ptrden,int type);
+			void mistagrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, const std::string& effName );
+			void modulesrate( DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, const std::string& effName );
 
 		private:
 			// ----------member data ---------------------------

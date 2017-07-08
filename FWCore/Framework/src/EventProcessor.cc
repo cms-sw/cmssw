@@ -118,7 +118,7 @@ namespace edm {
             std::shared_ptr<BranchIDListHelper> branchIDListHelper,
             std::shared_ptr<ThinnedAssociationsHelper> thinnedAssociationsHelper,
             std::shared_ptr<ActivityRegistry> areg,
-            std::shared_ptr<ProcessConfiguration const> processConfiguration,
+            const std::shared_ptr<ProcessConfiguration const>& processConfiguration,
             PreallocationConfiguration const& allocations) {
     ParameterSet* main_input = params.getPSetForUpdate("@main_input");
     if(main_input == 0) {
@@ -160,7 +160,7 @@ namespace edm {
                          processConfiguration.get(),
                          ModuleDescription::getUniqueID());
 
-    InputSourceDescription isdesc(md, preg, branchIDListHelper, thinnedAssociationsHelper, areg,
+    InputSourceDescription isdesc(md, std::move(preg), std::move(branchIDListHelper), std::move(thinnedAssociationsHelper), areg,
                                   common.maxEventsInput_, common.maxLumisInput_,
                                   common.maxSecondsUntilRampdown_, allocations);
 
@@ -1544,7 +1544,7 @@ namespace edm {
   bool EventProcessor::setDeferredException(std::exception_ptr iException) {
     bool expected =false;
     if(deferredExceptionPtrIsSet_.compare_exchange_strong(expected,true)) {
-      deferredExceptionPtr_ = iException;
+      deferredExceptionPtr_ = std::move(iException);
       return true;
     }
     return false;

@@ -60,8 +60,8 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
 		    const TrackingRecHit* hit,
                     double hitwt);  
 
-  int readIterationFile(std::string filename);
-  void writeIterationFile(std::string filename, int iter);
+  int readIterationFile(const std::string& filename);
+  void writeIterationFile(const std::string& filename, int iter);
   void setAlignmentPositionError(void);
   double calcAPE(double* par, int iter, double function);
   void bookRoot(void);

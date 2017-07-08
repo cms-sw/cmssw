@@ -15,7 +15,7 @@ class GflashHadronWrapperProcess : public G4WrapperProcess {
   
 public:
 
-  GflashHadronWrapperProcess(G4String processName);	
+  GflashHadronWrapperProcess(const G4String& processName);	
   //  GflashHadronWrapperProcess();	
   
   virtual ~GflashHadronWrapperProcess();	

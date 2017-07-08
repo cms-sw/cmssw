@@ -14,14 +14,14 @@ L2MuonTrajectorySeed::L2MuonTrajectorySeed():TrajectorySeed(){}
 L2MuonTrajectorySeed::L2MuonTrajectorySeed(PTrajectoryStateOnDet const & ptsos, 
 					   recHitContainer const & rh, 
 					   PropagationDirection  dir,
-					   l1extra::L1MuonParticleRef l1Ref):TrajectorySeed(ptsos, rh, dir){
+					   const l1extra::L1MuonParticleRef& l1Ref):TrajectorySeed(ptsos, rh, dir){
   theL1Particle = l1Ref;
 }
 
 L2MuonTrajectorySeed::L2MuonTrajectorySeed(PTrajectoryStateOnDet const & ptsos, 
 					   recHitContainer const & rh, 
 					   PropagationDirection  dir,
-					   l1t::MuonRef l1Ref):TrajectorySeed(ptsos, rh, dir){
+					   const l1t::MuonRef& l1Ref):TrajectorySeed(ptsos, rh, dir){
   theL1TParticle = l1Ref;
 }
 

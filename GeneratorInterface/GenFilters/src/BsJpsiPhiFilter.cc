@@ -55,8 +55,8 @@ HepMC::GenParticle * BsJpsiPhiFilter::findParticle(HepMC::GenVertex* vertex,
 }
 
 HepMC::GenEvent::particle_const_iterator 
-BsJpsiPhiFilter::getNextBs(const HepMC::GenEvent::particle_const_iterator start, 
-			   const HepMC::GenEvent::particle_const_iterator end)
+BsJpsiPhiFilter::getNextBs(const HepMC::GenEvent::particle_const_iterator& start, 
+			   const HepMC::GenEvent::particle_const_iterator& end)
 {
   HepMC::GenEvent::particle_const_iterator p;
   for (p = start; p != end; p++) 

@@ -1,5 +1,6 @@
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -32,7 +33,7 @@ class TH1FReader : public ReaderBase {
              DQMStore& iStore,
              std::string folder,
              bool iSetLumiFlag)
-      : folder_(folder),
+      : folder_(std::move(folder)),
         m_store(&iStore),
         m_element(0),
         m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),
@@ -99,7 +100,7 @@ class TH1FReader : public ReaderBase {
 class TH2FReader : public ReaderBase {
  public:
   TH2FReader(const edm::ParameterSet& iPSet,DQMStore& iStore, std::string folder, bool iSetLumiFlag):
-      folder_(folder),
+      folder_(std::move(folder)),
       m_store(&iStore),
       m_element(0),
       m_means(iPSet.getUntrackedParameter<std::vector<double> >("means")),

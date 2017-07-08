@@ -53,13 +53,13 @@ class Variable {
 		inline Value() {}
 		inline Value(const Value &orig) :
 			name(orig.name), value(orig.value) {}
-		inline Value(AtomicId name, double value) :
+		inline Value(const AtomicId& name, double value) :
 			name(name), value(value) {}
 
 		inline Value &operator = (const Value &orig)
 		{ name = orig.name; value = orig.value; return *this; }
 
-		inline void setName(AtomicId name) { this->name = name; }
+		inline void setName(const AtomicId& name) { this->name = name; }
 		inline void setValue(double value) { this->value = value; }
 
 		inline AtomicId getName() const { return name; }
@@ -103,7 +103,7 @@ class Variable {
 		inline void clear()
 		{ data_.clear(); }
 
-		inline void add(AtomicId id, double value)
+		inline void add(const AtomicId& id, double value)
 		{ data_.push_back(Value(id, value)); }
 
 		inline void add(const Value &value)
@@ -137,7 +137,7 @@ class Variable {
 	inline Variable() {}
 	inline Variable(const Variable &orig) :
 		name(orig.name), flags(orig.flags) {}
-	inline Variable(AtomicId name, Flags flags = FLAG_NONE) :
+	inline Variable(const AtomicId& name, Flags flags = FLAG_NONE) :
 		name(name), flags(flags) {}
 
 	const AtomicId getName() const { return name; }

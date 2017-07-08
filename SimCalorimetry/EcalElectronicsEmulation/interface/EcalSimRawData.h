@@ -287,7 +287,7 @@ private:
    * @param iEvent event index
    * @param adcCount the payload, the ADC count of the channels.
    */
-  void genFeData(std::string basename, int iEvent,
+  void genFeData(const std::string& basename, int iEvent,
 		 const std::vector<uint16_t> adcCount[nEbEta][nEbPhi]) const;
 
 
@@ -297,7 +297,7 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccIn(std::string basename, int iEvent,
+  void genTccIn(const std::string& basename, int iEvent,
 		const int tps[nTtEta][nTtPhi]) const;
 
   /** Generates TCC->DCC data
@@ -306,7 +306,7 @@ private:
    * @param iEvent event index
    * @param tps the payload, the trigger primitives
    */
-  void genTccOut(std::string basename, int iEvent,
+  void genTccOut(const std::string& basename, int iEvent,
 		 const int tps[nTtEta][nTtPhi]) const;
 
 
@@ -363,7 +363,7 @@ private:
    * @param iEvent event index
    * @param the trigger tower flags
    */
-  void genSrData(std::string basename, int iEvent,
+  void genSrData(const std::string& basename, int iEvent,
 		 int ttf[nEbTtEta][nTtPhi]) const;
   
 private:

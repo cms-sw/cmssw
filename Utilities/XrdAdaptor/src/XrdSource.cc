@@ -341,7 +341,7 @@ Source::getXrootdSite(XrdCl::File &fh, std::string &site)
 }
 
 bool
-Source::getXrootdSiteFromURL(std::string url, std::string &site)
+Source::getXrootdSiteFromURL(const std::string& url, std::string &site)
 {
     const std::string attr = "sitename";
     XrdCl::Buffer *response = 0;

@@ -249,7 +249,7 @@ public:
 				   int charge, const AlgebraicSymMatrix66& cov,
 				   const MagneticField* field);
 
-  void linearExtrapolation(GlobalPoint initialPosition ,GlobalVector initialDirection, 
+  void linearExtrapolation(const GlobalPoint& initialPosition ,const GlobalVector& initialDirection, 
 			   float zSurface, std::vector <float> &posZY);
   double extrapolate1D(double initPosition, double initDirection, double parameterOfTheLine);
   double lineParameter(double initZPosition, double destZPosition, double initZDirection);

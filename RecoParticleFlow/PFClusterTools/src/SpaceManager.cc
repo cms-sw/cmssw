@@ -4,13 +4,14 @@
 #include <cmath>
 #include "TROOT.h"
 #include <string>
+#include <utility>
 #include "TH3F.h"
 #include "TVirtualFitter.h"
 #include "TProfile.h"
 using namespace pftools;
 
 SpaceManager::SpaceManager(std::string name) :
-	name_(name), barrelLimit_(1.4), transitionLimit_(1.4), endcapLimit_(5.0) {
+	name_(std::move(name)), barrelLimit_(1.4), transitionLimit_(1.4), endcapLimit_(5.0) {
 	regionsToSVs_[BARREL_POS] = barrelPosRegion_;
 	regionsToSVs_[ENDCAP_POS] = endcapPosRegion_;
 }
@@ -211,7 +212,7 @@ void SpaceManager::createCalibrators(const Calibrator& toClone,
 
 }
 CalibratorPtr SpaceManager::createCalibrator(const Calibrator& toClone,
-		SpaceVoxelPtr s) {
+		const SpaceVoxelPtr& s) {
 	CalibratorPtr c;
 	int known = count(myKnownSpaceVoxels.begin(), myKnownSpaceVoxels.end(), s);
 	if (known == 0) {
@@ -249,11 +250,11 @@ void SpaceManager::assignCalibration(const CalibratorPtr& c,
 	makeInverseAddressBook();
 }
 
-std::map<DetectorElementPtr, double> SpaceManager::getCalibration(CalibratorPtr c) {
+std::map<DetectorElementPtr, double> SpaceManager::getCalibration(const CalibratorPtr& c) {
 	return calibrationCoeffs_[c];
 }
 
-TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1,
+TH1* SpaceManager::extractEvolution(const DetectorElementPtr& det, Region r, TF1& f1,
 		bool useTruth) {
 
 	std::vector<SpaceVoxelPtr> region;
@@ -317,7 +318,7 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1,
 
 }
 
-double SpaceManager::evolveCoefficient(DetectorElementPtr det, double energy,
+double SpaceManager::evolveCoefficient(const DetectorElementPtr& det, double energy,
 		double eta, double phi) {
 	if (eta < barrelLimit_) {
 		TF1& func = barrelPosEvolutions_[det];
@@ -327,7 +328,7 @@ double SpaceManager::evolveCoefficient(DetectorElementPtr det, double energy,
 	return func.Eval(energy);
 }
 
-double SpaceManager::interpolateCoefficient(DetectorElementPtr det,
+double SpaceManager::interpolateCoefficient(const DetectorElementPtr& det,
 		double energy, double eta, double phi) {
 	CalibratorPtr c = findCalibrator(eta, phi, energy);
 

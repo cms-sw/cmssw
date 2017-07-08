@@ -220,7 +220,7 @@ std::vector <int> ZdcLut::get_lut(int emap_side,
 
 
 // get LUT by proper ZDC channel
-std::vector <int> ZdcLut::get_lut(std::string zdc_section,
+std::vector <int> ZdcLut::get_lut(const std::string& zdc_section,
 			          int zdc_side,
 			          int zdc_channel){
   int side_num = (1-zdc_side)/2;

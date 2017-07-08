@@ -53,7 +53,7 @@ public:
   /// ReadConfig
   virtual int readConfig( const std::string& filename );
 
-  void push_back( std::string fileName, std::string url = std::string( "./" ));
+  void push_back( const std::string& fileName, const std::string& url = std::string( "./" ));
 
   void setSchemaLocation( std::string path = std::string( "../../DDSchema" ));
 
@@ -94,7 +94,7 @@ DDLTestDoc::getURLList( void ) const
 }
 
 void
-DDLTestDoc::push_back( std::string fileName, std::string url ) 
+DDLTestDoc::push_back( const std::string& fileName, const std::string& url ) 
 {
   fnames_.push_back(fileName);
   urls_.push_back(url);
@@ -110,7 +110,7 @@ DDLTestDoc::doValidation( void ) const
 
 void
 DDLTestDoc::setSchemaLocation( std::string path )
-{ schemaLoc_ = path; }
+{ schemaLoc_ = std::move(path); }
 
 std::string
 DDLTestDoc::getSchemaLocation( void ) const

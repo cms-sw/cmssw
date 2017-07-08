@@ -302,7 +302,7 @@ struct GsfElectronAlgo::ElectronData
   ~ElectronData() ;
 
   // utilities
-  void checkCtfTrack( edm::Handle<reco::TrackCollection> currentCtfTracks ) ;
+  void checkCtfTrack( const edm::Handle<reco::TrackCollection>& currentCtfTracks ) ;
   void computeCharge( int & charge, reco::GsfElectron::ChargeInfo & info ) ;
   CaloClusterPtr getEleBasicCluster( const MultiTrajectoryStateTransform * ) ;
   bool calculateTSOS( const MultiTrajectoryStateTransform *, GsfConstraintAtVertex * ) ;
@@ -337,7 +337,7 @@ GsfElectronAlgo::ElectronData::ElectronData
 GsfElectronAlgo::ElectronData::~ElectronData()
  {}
 
-void GsfElectronAlgo::ElectronData::checkCtfTrack( edm::Handle<reco::TrackCollection> currentCtfTracks )
+void GsfElectronAlgo::ElectronData::checkCtfTrack( const edm::Handle<reco::TrackCollection>& currentCtfTracks )
 {
     if (!ctfTrackRef.isNull()) return ;
 

@@ -27,6 +27,7 @@
 #include <string>
 #include <algorithm>
 #include <boost/shared_ptr.hpp>
+#include <utility>
 #include "SimDataFormats/PileupSummaryInfo/interface/PileupSummaryInfo.h" 
 #include "PhysicsTools/Utilities/interface/LumiReWeighting.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -41,10 +42,10 @@ LumiReWeighting::LumiReWeighting( std::string generatedFile,
 		   std::string GenHistName,
 		   std::string DataHistName,
 		   const edm::InputTag& PileupSumInfoInputTag ) :
-      generatedFileName_( generatedFile), 
-      dataFileName_     ( dataFile ), 
-      GenHistName_      ( GenHistName ), 
-      DataHistName_     ( DataHistName ),
+      generatedFileName_( std::move(generatedFile)), 
+      dataFileName_     ( std::move(dataFile) ), 
+      GenHistName_      ( std::move(GenHistName) ), 
+      DataHistName_     ( std::move(DataHistName) ),
       pileupSumInfoTag_ ( PileupSumInfoInputTag )
       {
 	generatedFile_ = boost::shared_ptr<TFile>( new TFile(generatedFileName_.c_str()) ); //MC distribution

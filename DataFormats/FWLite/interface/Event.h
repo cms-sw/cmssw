@@ -44,6 +44,7 @@
 // system include files
 #include <typeinfo>
 #include <map>
+#include <utility>
 #include <vector>
 #include <memory>
 #include <cstring>
@@ -175,7 +176,7 @@ namespace fwlite {
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
-         void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(getter);}
+         void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(std::move(getter));}
 
          // ---------- member data --------------------------------
          mutable TFile* file_;

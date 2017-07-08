@@ -565,7 +565,7 @@ GoodSeedProducer::getBin(float eta, float pt){
   return iep;
 }
 
-void GoodSeedProducer::fillPreIdRefValueMap( Handle<TrackCollection> tracks,
+void GoodSeedProducer::fillPreIdRefValueMap( const Handle<TrackCollection>& tracks,
 					     const edm::OrphanHandle<reco::PreIdCollection>& preidhandle,
 					     edm::ValueMap<reco::PreIdRef>::Filler & filler)
 {

@@ -9,6 +9,7 @@
 
 #include "TrackingTools/TransientTrackingRecHit/interface/HelpertRecHit2DLocalPos.h"
 #include<boost/bind.hpp>
+#include <utility>
 
 #include <DataFormats/TrackingRecHit/interface/AlignmentPositionError.h>
 
@@ -47,7 +48,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
   std::vector<SiStripMatchedRecHit2D*> result;
   result.reserve(end-begin);
-  match(monoRH,begin,end,result,gluedDet,trackdirection);
+  match(monoRH,begin,end,result,gluedDet,std::move(trackdirection));
   for (std::vector<SiStripMatchedRecHit2D*>::iterator p=result.begin(); p!=result.end();
        p++) collector.push_back(*p);
 }
@@ -61,7 +62,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     LocalVector trackdirection) const {
   Collector result(boost::bind(&pb1,boost::ref(collector),
 			     boost::bind(&SiStripMatchedRecHit2D::clone,_1)));
-  match(monoRH,begin,end,result,gluedDet,trackdirection);
+  match(monoRH,begin,end,result,gluedDet,std::move(trackdirection));
 }
 
 void
@@ -72,7 +73,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 			     LocalVector trackdirection) const {
 
   Collector result(boost::bind(pb2,boost::ref(collector),_1));
-  match(monoRH,begin,end,result,gluedDet,trackdirection);
+  match(monoRH,begin,end,result,gluedDet,std::move(trackdirection));
   
 }
 
@@ -95,7 +96,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
   return match( monoRH,
 		stereoHits.begin(), stereoHits.end(),
 		collector,
-		gluedDet,trackdirection);
+		gluedDet,std::move(trackdirection));
 }
 
 
@@ -243,7 +244,7 @@ SiStripRecHitMatcher::match( const SiStripRecHit2D *monoRH,
 
 SiStripRecHitMatcher::StripPosition 
 SiStripRecHitMatcher::project(const GeomDetUnit *det,const GluedGeomDet* glueddet,
-			      StripPosition strip,LocalVector trackdirection) const {
+			      StripPosition strip,const LocalVector& trackdirection) const {
 
   GlobalPoint globalpointini=(det->surface()).toGlobal(strip.first);
   GlobalPoint globalpointend=(det->surface()).toGlobal(strip.second);

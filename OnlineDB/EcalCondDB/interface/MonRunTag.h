@@ -21,7 +21,7 @@ class MonRunTag : public ITag {
 
   // Methods for user data
   std::string getGeneralTag() const;
-  void setGeneralTag(std::string tag);
+  void setGeneralTag(const std::string& tag);
 
   MonVersionDef getMonVersionDef() const;
   void setMonVersionDef(const MonVersionDef& ver);

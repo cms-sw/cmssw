@@ -12,7 +12,7 @@ namespace edm {
   PathsAndConsumesOfModules::~PathsAndConsumesOfModules() {
   }
 
-  void PathsAndConsumesOfModules::initialize(Schedule const* schedule, std::shared_ptr<ProductRegistry const> preg) {
+  void PathsAndConsumesOfModules::initialize(Schedule const* schedule, const std::shared_ptr<ProductRegistry const>& preg) {
 
     schedule_ = schedule;
     preg_ = preg;

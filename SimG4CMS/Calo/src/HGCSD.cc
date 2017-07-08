@@ -33,7 +33,7 @@
 
 //#define EDM_ML_DEBUG
 
-HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
+HGCSD::HGCSD(const G4String& name, const DDCompactView & cpv,
 	     const SensitiveDetectorCatalog & clg, 
 	     edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager,

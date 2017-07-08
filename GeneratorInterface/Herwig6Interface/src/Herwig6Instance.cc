@@ -300,7 +300,7 @@ bool Herwig6Instance::give(const std::string &line)
 	return true;
 }
 
-void Herwig6Instance::openParticleSpecFile(const std::string fileName) {
+void Herwig6Instance::openParticleSpecFile(const std::string& fileName) {
 
   edm::FileInPath fileAndPath( fileName );
   // WARING : This will call HWWARN if file does not exist.

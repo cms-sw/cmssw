@@ -67,7 +67,7 @@ Double_t SideBandSubtract::getYield(const std::vector<SbsRegion>& Regions, RooAb
     }
   return yield;
 }
-static void setHistOptions(TH1F* histo, string name, string title, string axis_label)
+static void setHistOptions(TH1F* histo, const string& name, const string& title, string axis_label)
 {
 
   histo->SetName(name.c_str());
@@ -148,7 +148,7 @@ static void print_histo(TH1F* plot, string outname)
   outname.replace(outname.size()-3,3,"gif");
   genericCanvas.SaveAs(outname.c_str());
 }
-void SideBandSubtract::printResults(string prefix)
+void SideBandSubtract::printResults(const string& prefix)
 {//handles *all* printing
   //spool over vectors of histograms and print them, then print
   //separation variable plots and the results text file.
@@ -211,7 +211,7 @@ void SideBandSubtract::printResults(string prefix)
 }
 
 
-void SideBandSubtract::saveResults(string outname)
+void SideBandSubtract::saveResults(const string& outname)
 {
   //saves the ephemeral stuff to a root file for future
   //use/modification (ie everything printed by printResults())

@@ -34,7 +34,7 @@ private:
   void update(const BeginOfRun * run);
   void addSolid(const DDLogicalPart & part);
   void fillLV(G4LogicalVolume * lv);
-  void dumpSummary(std::ostream& out, std::string name);
+  void dumpSummary(std::ostream& out, const std::string& name);
   G4VPhysicalVolume * getTopPV();
   void addName(std::string name);
   void printSummary(std::ostream & out);

@@ -211,7 +211,7 @@ void DTOccupancyTest::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &
 // --------------------------------------------------
 
 void DTOccupancyTest::bookHistos(DQMStore::IBooker & ibooker, const int wheelId, 
-                                                      string folder, string histoTag) {
+                                                      const string& folder, const string& histoTag) {
   // Set the current folder
   stringstream wheel; wheel << wheelId;	
 
@@ -243,7 +243,7 @@ void DTOccupancyTest::bookHistos(DQMStore::IBooker & ibooker, const int wheelId,
 
 
 
-string DTOccupancyTest::getMEName(string histoTag, const DTChamberId& chId) {
+string DTOccupancyTest::getMEName(const string& histoTag, const DTChamberId& chId) {
 
   stringstream wheel; wheel << chId.wheel();
   stringstream station; station << chId.station();

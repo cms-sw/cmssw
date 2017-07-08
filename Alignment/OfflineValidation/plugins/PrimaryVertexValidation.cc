@@ -955,7 +955,7 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
 
 
 // ------------ method to check the presence of pixel hits  ------------
-std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::TransientTrack track){
+std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::TransientTrack& track){
   
   bool hasBPixHits = false;
   bool hasFPixHits = false;
@@ -973,7 +973,7 @@ std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::Transie
 
 
 // ------------ method to check the presence of pixel hits  ------------
-bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack track)
+bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack& track)
 {
   using namespace reco;
   const HitPattern& p = track.hitPattern();      
@@ -2330,7 +2330,7 @@ std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t>  > PrimaryV
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], statmode::estimator fitPar_, TString var_)
+void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], statmode::estimator fitPar_, const TString& var_)
 //*************************************************************
 {
    
@@ -2519,7 +2519,7 @@ bool PrimaryVertexValidation::vtxSort( const reco::Vertex & a, const reco::Verte
 }
 
 //*************************************************************
-bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_)
+bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_)
 //*************************************************************
 {
  
@@ -2546,7 +2546,7 @@ bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const r
 
 
 //*************************************************************
-std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileDirectory dir)
+std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(const TFileDirectory& dir)
 //*************************************************************
 {
 
@@ -2600,10 +2600,10 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileD
 //*************************************************************
 // Generic booker function
 //*************************************************************
-std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(TFileDirectory dir,
+std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDirectory& dir,
 								   unsigned int theNOfBins,
 								   TString resType,
-								   TString varType){
+								   const TString& varType){
   TH1F::SetDefaultSumw2(kTRUE);
   
   Double_t up   = 1000;
@@ -2753,7 +2753,7 @@ void PrimaryVertexValidation::add(std::map<std::string, TH1*>& h, TH1* hist)
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s, double x)
+void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, const std::string& s, double x)
 //*************************************************************
 {
   if(h.count(s)==0){
@@ -2764,7 +2764,7 @@ void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s, double x, double y)
+void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, const std::string& s, double x, double y)
 //*************************************************************
 {
   if(h.count(s)==0){

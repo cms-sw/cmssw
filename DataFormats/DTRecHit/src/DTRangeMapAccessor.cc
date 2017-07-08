@@ -19,7 +19,7 @@ DTRangeMapAccessor::~DTRangeMapAccessor(){}
 
 // Access by SL objects written into a RangeMap by layer.
 pair<DTLayerId, DTSuperLayerIdComparator>
-DTRangeMapAccessor::layersBySuperLayer(DTSuperLayerId slId) {
+DTRangeMapAccessor::layersBySuperLayer(const DTSuperLayerId& slId) {
   return make_pair(DTLayerId(slId,0), DTSuperLayerIdComparator());
 }
 
@@ -27,7 +27,7 @@ DTRangeMapAccessor::layersBySuperLayer(DTSuperLayerId slId) {
 
 // Access by chamber objects written into a RangeMap by layer.
 pair<DTLayerId, DTChamberIdComparator>
-DTRangeMapAccessor::layersByChamber(DTChamberId chamberId) {
+DTRangeMapAccessor::layersByChamber(const DTChamberId& chamberId) {
   return make_pair(DTLayerId(chamberId,0,0), DTChamberIdComparator());
 }
 
@@ -35,14 +35,14 @@ DTRangeMapAccessor::layersByChamber(DTChamberId chamberId) {
 
 // Access by chamber objects written into a RangeMap by SL.
 pair<DTSuperLayerId, DTChamberIdComparator>
-DTRangeMapAccessor::superLayersByChamber(DTChamberId chamberId) {
+DTRangeMapAccessor::superLayersByChamber(const DTChamberId& chamberId) {
   return make_pair(DTSuperLayerId(chamberId,0), DTChamberIdComparator());
 }
 
 
 // Access by chamber objects written into a RangeMap by DetLayer.
 pair<DTChamberId, DTChamberIdDetLayerComparator>
-DTRangeMapAccessor::chambersByDetLayer(DTChamberId chamberId) {
+DTRangeMapAccessor::chambersByDetLayer(const DTChamberId& chamberId) {
   return make_pair(DTChamberId(chamberId), DTChamberIdDetLayerComparator());
 }
 

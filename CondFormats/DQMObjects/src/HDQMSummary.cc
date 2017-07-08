@@ -2,6 +2,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <utility>
 		
 HDQMSummary::HDQMSummary(std::vector<std::string>& userDBContent)
 {
@@ -82,7 +83,7 @@ std::vector<uint32_t> HDQMSummary::getDetIds() const
 
 
 
-const short HDQMSummary::getPosition(std::string elementName) const
+const short HDQMSummary::getPosition(const std::string& elementName) const
 {
   // returns position of elementName in UserDBContent_
     
@@ -95,7 +96,7 @@ const short HDQMSummary::getPosition(std::string elementName) const
 
 
 
-void  HDQMSummary::setObj(const uint32_t& detID, std::string elementName, float value) 
+void  HDQMSummary::setObj(const uint32_t& detID, const std::string& elementName, float value) 
 {
   // modifies value of info "elementName" for the given detID
   // requires that an entry has be defined beforehand for detId in DB
@@ -160,7 +161,7 @@ std::vector<float> HDQMSummary::getSummaryObj(std::string elementName) const
 {
   std::vector<float> vSumElement;
   std::vector<uint32_t> DetIds_ = getDetIds();
-  const short pos = getPosition(elementName);
+  const short pos = getPosition(std::move(elementName));
    
   if (pos !=-1)
     {

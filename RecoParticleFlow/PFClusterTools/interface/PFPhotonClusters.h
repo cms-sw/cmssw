@@ -11,7 +11,7 @@ Developer: Rishi Patel rpatel@cern.ch
 */
 class PFPhotonClusters{
  public:
-  PFPhotonClusters(reco::PFClusterRef PFClusterRef);
+  PFPhotonClusters(const reco::PFClusterRef& PFClusterRef);
   void SetSeed();
   void PFCrystalCoor();
   void FillClusterShape();

@@ -85,7 +85,7 @@ MultiGaussianStateTransform::multiState1D (const std::vector<MultiGaussianState<
 }
 
 MultiGaussianState<5> 
-MultiGaussianStateTransform::multiState (const TrajectoryStateOnSurface tsos)
+MultiGaussianStateTransform::multiState (const TrajectoryStateOnSurface& tsos)
 {
   GetComponents comps(tsos);
   auto const & tsosComponents = comps();
@@ -103,7 +103,7 @@ MultiGaussianStateTransform::multiState (const TrajectoryStateOnSurface tsos)
 }
 
 MultiGaussianState1D
-MultiGaussianStateTransform::multiState1D (const TrajectoryStateOnSurface tsos,
+MultiGaussianStateTransform::multiState1D (const TrajectoryStateOnSurface& tsos,
 					   unsigned int index)
 {
   if ( index>=N )  
@@ -123,7 +123,7 @@ MultiGaussianStateTransform::multiState1D (const TrajectoryStateOnSurface tsos,
 
 TrajectoryStateOnSurface
 MultiGaussianStateTransform::tsosFromSingleState (const SingleGaussianState<5>& singleState,
-						  const TrajectoryStateOnSurface refTsos)
+						  const TrajectoryStateOnSurface& refTsos)
 {
   const LocalTrajectoryParameters& refPars(refTsos.localParameters());
   double pzSign = refPars.pzSign();

@@ -57,7 +57,7 @@ void TriggerDQMBase::fillHistoLSPSetDescription(edm::ParameterSetDescription & p
   pset.add<unsigned>   ( "nbins", 2500);
 }
 
-TriggerDQMBase::MEbinning TriggerDQMBase::getHistoPSet(edm::ParameterSet pset)
+TriggerDQMBase::MEbinning TriggerDQMBase::getHistoPSet(const edm::ParameterSet& pset)
 {
   return TriggerDQMBase::MEbinning{
     pset.getParameter<uint32_t>("nbins"),
@@ -66,7 +66,7 @@ TriggerDQMBase::MEbinning TriggerDQMBase::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-TriggerDQMBase::MEbinning TriggerDQMBase::getHistoLSPSet(edm::ParameterSet pset)
+TriggerDQMBase::MEbinning TriggerDQMBase::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return TriggerDQMBase::MEbinning{
     pset.getParameter<uint32_t>("nbins"),

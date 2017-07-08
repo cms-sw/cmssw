@@ -32,7 +32,7 @@ class HcalLogicalMapGenerator {
     void ConstructTriggerTower(const HcalTopology* topo,
 			       std::vector <HTLogicalMapEntry>&,
 			       int i_side, int i_eta, int i_phi, int i_dphi, int i_depth, std::string i_det, int i_wedge, int i_rm,
-			       int i_pixel, int i_qie, int i_adc, int i_rm_fi, int i_fi_ch, int i_crate, int i_htr, std::string i_fpga,
+			       int i_pixel, int i_qie, int i_adc, int i_rm_fi, int i_fi_ch, int i_crate, int i_htr, const std::string& i_fpga,
 			       int i_htr_fi, int i_spigot, int i_slb, std::string i_slbin, std::string i_slbin2,
 			       std::string i_slnam, int i_rctcra, int i_rctcar, int i_rctcon, std::string i_rctnam, int i_fed
 			       );

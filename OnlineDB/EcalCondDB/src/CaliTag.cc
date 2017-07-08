@@ -33,7 +33,7 @@ string CaliTag::getGeneralTag() const
 
 
 
-void CaliTag::setGeneralTag(string genTag)
+void CaliTag::setGeneralTag(const string& genTag)
 {
   if (genTag != m_genTag) {
     m_ID = 0;
@@ -67,7 +67,7 @@ string CaliTag::getMethod() const
 
 
 
-void CaliTag::setMethod(string method)
+void CaliTag::setMethod(const string& method)
 {
   if (method != m_method) {
     m_ID = 0;
@@ -84,7 +84,7 @@ string CaliTag::getVersion() const
 
 
 
-void CaliTag::setVersion(string version)
+void CaliTag::setVersion(const string& version)
 {
   if (version != m_version) {
     m_ID = 0;
@@ -101,7 +101,7 @@ string CaliTag::getDataType() const
 
 
 
-void CaliTag::setDataType(string dataType)
+void CaliTag::setDataType(const string& dataType)
 {
   if (dataType != m_dataType) {
     m_ID = 0;

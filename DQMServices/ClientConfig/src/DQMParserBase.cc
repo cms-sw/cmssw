@@ -3,6 +3,7 @@
 
 
 #include <stdexcept>         
+#include <utility>
 /** \file
  *
  *  Implementation of DQMParserBase
@@ -23,7 +24,7 @@ DQMParserBase::~DQMParserBase(){
 }
 
 
-void DQMParserBase::getDocument(std::string configFile, bool UseDB){
+void DQMParserBase::getDocument(const std::string& configFile, bool UseDB){
 	
     parser = new XercesDOMParser;     
     parser->setValidationScheme(XercesDOMParser::Val_Auto);
@@ -42,7 +43,7 @@ void DQMParserBase::getDocument(std::string configFile, bool UseDB){
 
 }
 
-void DQMParserBase::getNewDocument(std::string configFile, bool UseDB){
+void DQMParserBase::getNewDocument(const std::string& configFile, bool UseDB){
   parser->resetDocumentPool();
   if(UseDB){
     std::cout<<"=== This is config file from getNewDocument ==== "<<std::endl;
@@ -59,6 +60,6 @@ void DQMParserBase::getNewDocument(std::string configFile, bool UseDB){
 }
 int DQMParserBase::countNodes(std::string tagName){
 	unsigned int tagsNum  = 
-	  parser->getDocument()->getElementsByTagName(qtxml::_toDOMS(tagName))->getLength();
+	  parser->getDocument()->getElementsByTagName(qtxml::_toDOMS(std::move(tagName)))->getLength();
 	return tagsNum;
 }

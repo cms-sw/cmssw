@@ -5,6 +5,8 @@
  *  \author:  Mia Tosi,40 3-B32,+41227671609 
  */
 
+#include <utility>
+
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -20,7 +22,7 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputT
     : conf_( iConfig )
     , primaryVertexInputTag_         ( primaryVertexInputTag )
     , selectedPrimaryVertexInputTag_ ( selectedPrimaryVertexInputTag )
-    , label_                         ( pvLabel )
+    , label_                         ( std::move(pvLabel) )
     , NumberOfPVtx(NULL)
     , NumberOfPVtxVsBXlumi(NULL)
     , NumberOfPVtxVsGoodPVtx(NULL)
@@ -55,7 +57,7 @@ VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputT
 
 }
 
-VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputTag& primaryVertexInputTag, const edm::InputTag& selectedPrimaryVertexInputTag, std::string pvLabel, edm::ConsumesCollector& iC) : VertexMonitor(iConfig,primaryVertexInputTag,selectedPrimaryVertexInputTag,pvLabel)
+VertexMonitor::VertexMonitor(const edm::ParameterSet& iConfig, const edm::InputTag& primaryVertexInputTag, const edm::InputTag& selectedPrimaryVertexInputTag, std::string pvLabel, edm::ConsumesCollector& iC) : VertexMonitor(iConfig,primaryVertexInputTag,selectedPrimaryVertexInputTag,std::move(pvLabel))
 {
 
   if ( doPlotsVsBXlumi_ )

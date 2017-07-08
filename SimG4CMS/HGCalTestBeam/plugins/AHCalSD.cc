@@ -17,7 +17,7 @@
 #include <iomanip>
 //#define EDM_ML_DEBUG
 
-AHCalSD::AHCalSD(G4String name, const DDCompactView & cpv,
+AHCalSD::AHCalSD(const G4String& name, const DDCompactView & cpv,
 		 const SensitiveDetectorCatalog & clg,
 		 edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager,

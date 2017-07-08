@@ -17,7 +17,7 @@ DQMCorrelationClient::DQMCorrelationClient(const edm::ParameterSet& iConfig) :
 
 }
 
-MEPSet DQMCorrelationClient::getHistoPSet(edm::ParameterSet pset)
+MEPSet DQMCorrelationClient::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEPSet{
     pset.getParameter<std::string>("name"),
@@ -26,7 +26,7 @@ MEPSet DQMCorrelationClient::getHistoPSet(edm::ParameterSet pset)
   };
 }
 
-OutputMEPSet DQMCorrelationClient::getOutputHistoPSet(edm::ParameterSet pset)
+OutputMEPSet DQMCorrelationClient::getOutputHistoPSet(const edm::ParameterSet& pset)
 {
   return OutputMEPSet{
     pset.getParameter<std::string>("name"),

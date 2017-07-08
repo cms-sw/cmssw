@@ -9,7 +9,7 @@ using namespace reco;
 
 PFDisplacedVertexCandidate::PFDisplacedVertexCandidate(){}
 
-void PFDisplacedVertexCandidate::addElement(const TrackBaseRef element) {
+void PFDisplacedVertexCandidate::addElement(const TrackBaseRef& element) {
   elements_.push_back( element ); 
 }
 

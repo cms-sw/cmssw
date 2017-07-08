@@ -32,7 +32,7 @@
 
 // Constructor
 // ----------
-MuScleFitPlotter::MuScleFitPlotter(std::string theGenInfoRootFileName){
+MuScleFitPlotter::MuScleFitPlotter(const std::string& theGenInfoRootFileName){
   outputFile = new TFile(theGenInfoRootFileName.c_str(),"RECREATE");
   fillHistoMap();
 }
@@ -232,7 +232,7 @@ void MuScleFitPlotter::fillGen(const edm::HepMCProduct* evtMC, bool sherpaFlag_)
 
 // Find and store in histograms the simulated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillSim(edm::Handle<edm::SimTrackContainer> simTracks)
+void MuScleFitPlotter::fillSim(const edm::Handle<edm::SimTrackContainer>& simTracks)
 {
   std::vector<SimTrack> simMuons;
 
@@ -274,7 +274,7 @@ void MuScleFitPlotter::fillSim(edm::Handle<edm::SimTrackContainer> simTracks)
 
 // Find and store in histograms the RIGHT simulated resonance and muons
 // --------------------------------------------------------------
-void MuScleFitPlotter::fillGenSim(edm::Handle<edm::HepMCProduct> evtMC, edm::Handle<edm::SimTrackContainer> simTracks)
+void MuScleFitPlotter::fillGenSim(const edm::Handle<edm::HepMCProduct>& evtMC, const edm::Handle<edm::SimTrackContainer>& simTracks)
 {
   std::pair<reco::Particle::LorentzVector, reco::Particle::LorentzVector> simMuFromRes = 
     MuScleFitUtils::findSimMuFromRes(evtMC,simTracks);

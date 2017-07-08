@@ -12,6 +12,7 @@
 
 #include<iostream>
 #include<sstream>
+#include <utility>
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DQM/SiPixelCommon/interface/SiPixelHistogramId.h"
@@ -26,7 +27,7 @@ SiPixelHistogramId::SiPixelHistogramId() :
 }
 /// Constructor with collection
 SiPixelHistogramId::SiPixelHistogramId(std::string dataCollection) : 
-  dataCollection_(dataCollection),
+  dataCollection_(std::move(dataCollection)),
   separator_("_")
 {
 }
@@ -36,7 +37,7 @@ SiPixelHistogramId::~SiPixelHistogramId()
 {
 }
 /// Create Histogram Id
-std::string SiPixelHistogramId::setHistoId( std::string variable, uint32_t& rawId )
+std::string SiPixelHistogramId::setHistoId( const std::string& variable, uint32_t& rawId )
 {
   std::string histoId;
   std::ostringstream rawIdString;
@@ -47,16 +48,16 @@ std::string SiPixelHistogramId::setHistoId( std::string variable, uint32_t& rawI
 }
 /// get Data Collection
 std::string SiPixelHistogramId::getDataCollection( std::string histoid ) {
-  return returnIdPart(histoid,2);
+  return returnIdPart(std::move(histoid),2);
 }
 /// get Raw Id
 uint32_t SiPixelHistogramId::getRawId( std::string histoid ) {
   uint32_t local_component_id;
-  std::istringstream input(returnIdPart(histoid,3)); input >> local_component_id; 
+  std::istringstream input(returnIdPart(std::move(histoid),3)); input >> local_component_id; 
   return local_component_id;
 }
 /// get Part
-std::string SiPixelHistogramId::returnIdPart(std::string histoid, uint32_t whichpart){
+std::string SiPixelHistogramId::returnIdPart(const std::string& histoid, uint32_t whichpart){
 
   size_t length1=histoid.find(separator_,0);
   if(length1==std::string::npos){ // no separator1 found

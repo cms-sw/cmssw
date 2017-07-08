@@ -83,7 +83,7 @@ class DynamicTruncation {
   bool                 chooseLayers(int&, double const &, DTRecSegment4D const &, TrajectoryStateOnSurface const &, double const &, CSCSegment const &, TrajectoryStateOnSurface const &);
   void                 fillDYTInfos(int const&, bool const&, int&, double const&, double const&, DTRecSegment4D const&, CSCSegment const&);
   int                  stationfromDet(DetId const&);
-  void                 update(TrajectoryStateOnSurface&, ConstRecHitPointer);
+  void                 update(TrajectoryStateOnSurface&, const ConstRecHitPointer&);
   void                 updateWithDThits(TrajectoryStateOnSurface&, DTRecSegment4D const &);
   void                 updateWithCSChits(TrajectoryStateOnSurface&, CSCSegment const &);
   void                 getThresholdFromDB(double&, DetId const&);

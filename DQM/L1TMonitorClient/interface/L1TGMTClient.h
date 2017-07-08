@@ -29,11 +29,11 @@ private:
 
     void initialize();
     void processHistograms(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter);
-    void makeRatio1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* mer, std::string h1Name, std::string h2Name);
-    void makeEfficiency1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement *meeff, std::string heName, std::string hiName);
-    void makeEfficiency2D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement *meeff, std::string heName, std::string hiName);
-    TH1F * get1DHisto(std::string meName, DQMStore::IGetter &igetter);
-    TH2F * get2DHisto(std::string meName, DQMStore::IGetter &igetter);
+    void makeRatio1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement* mer, const std::string& h1Name, const std::string& h2Name);
+    void makeEfficiency1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement *meeff, const std::string& heName, const std::string& hiName);
+    void makeEfficiency2D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, MonitorElement *meeff, const std::string& heName, const std::string& hiName);
+    TH1F * get1DHisto(const std::string& meName, DQMStore::IGetter &igetter);
+    TH2F * get2DHisto(const std::string& meName, DQMStore::IGetter &igetter);
 
     MonitorElement* bookClone1D(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const std::string& name, const std::string& title, const std::string& hrefName);
     MonitorElement* bookClone1DVB(DQMStore::IBooker &ibooker, DQMStore::IGetter &igetter, const std::string& name, const std::string& title, const std::string& hrefName);

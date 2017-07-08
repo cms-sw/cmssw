@@ -190,7 +190,7 @@ void ElectronSeedGenerator::setupES(const edm::EventSetup& setup) {
 
 }
 
-void display_seed( const std::string & title1, const std::string & title2, const reco::ElectronSeed & seed, edm::ESHandle<TrackerGeometry> trackerGeometry )
+void display_seed( const std::string & title1, const std::string & title2, const reco::ElectronSeed & seed, const edm::ESHandle<TrackerGeometry>& trackerGeometry )
  {
   const PTrajectoryStateOnDet & startingState = seed.startingState() ;
   const LocalTrajectoryParameters & parameters = startingState.parameters() ;
@@ -294,7 +294,7 @@ void  ElectronSeedGenerator::run
 }
 
 void ElectronSeedGenerator::seedsFromThisCluster
-( edm::Ref<reco::SuperClusterCollection> seedCluster,
+( const edm::Ref<reco::SuperClusterCollection>& seedCluster,
   float hoe1, float hoe2,
   reco::ElectronSeedCollection & out, const TrackerTopology *tTopo )
 {
@@ -583,8 +583,8 @@ void ElectronSeedGenerator::addSeed
  }
 
 bool ElectronSeedGenerator::prepareElTrackSeed
- ( ConstRecHitPointer innerhit,
-   ConstRecHitPointer outerhit,
+ ( const ConstRecHitPointer& innerhit,
+   const ConstRecHitPointer& outerhit,
    const GlobalPoint& vertexPos )
  {
 

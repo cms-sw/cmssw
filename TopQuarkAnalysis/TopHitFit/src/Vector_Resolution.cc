@@ -108,7 +108,7 @@ Vector_Resolution::Vector_Resolution ()
 }
 
 
-Vector_Resolution::Vector_Resolution (std::string s)
+Vector_Resolution::Vector_Resolution (const std::string& s)
 //
 // Purpose: Constructor.
 //

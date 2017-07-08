@@ -107,17 +107,17 @@ private:
 
   // Compute SimHit distance from wire (cm)
   float simHitDistFromWire(const DTLayer* layer,
-                           DTWireId wireId,
+                           const DTWireId& wireId,
                            const PSimHit& hit);
 
   // Compute SimHit impact angle (in direction perp to wire)
   float simHitImpactAngle(const DTLayer* layer,
-			   DTWireId wireId,
+			   const DTWireId& wireId,
 			   const PSimHit& hit);
 
   // Compute SimHit distance from FrontEnd
   float simHitDistFromFE(const DTLayer* layer,
-			   DTWireId wireId,
+			   const DTWireId& wireId,
 			   const PSimHit& hit);
 
   // Find the RecHit closest to the muon SimHit
@@ -129,7 +129,7 @@ private:
   template  <typename type>
   const type* 
   findBestRecHit(const DTLayer* layer,
-				  DTWireId wireId,
+				  const DTWireId& wireId,
 				  const std::vector<type>& recHits,
 				  const float simHitDist);
 

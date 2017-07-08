@@ -70,7 +70,7 @@ namespace cms {
     virtual PileupMixingContent* getEventPileupInfo() override { return PileupInfo_; }
 
   private:
-    void accumulatePixelHits(edm::Handle<std::vector<PSimHit> >,
+    void accumulatePixelHits(const edm::Handle<std::vector<PSimHit> >&,
 			     size_t globalSimHitIndex,
 			     const unsigned int tofBin,
 			     CLHEP::HepRandomEngine*,

@@ -258,7 +258,7 @@ float DTRunConditionVarClient::varQuality(float var, float maxGood, float minBad
   return qual;
 }
 
-void DTRunConditionVarClient::percDevVDrift(DTChamberId indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD) {
+void DTRunConditionVarClient::percDevVDrift(const DTChamberId& indexCh, float meanVD, float sigmaVD, float& devVD, float& errdevVD) {
 
   DTSuperLayerId indexSLPhi1(indexCh,1);
   DTSuperLayerId indexSLPhi2(indexCh,3);
@@ -284,7 +284,7 @@ void DTRunConditionVarClient::percDevVDrift(DTChamberId indexCh, float meanVD, f
   return;
 }
 
-void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker & ibooker, string histoType, string subfolder, 
+void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker & ibooker, const string& histoType, const string& subfolder, 
                                               int wh, int nbins, float min, float max, bool isVDCorr )
 {
   stringstream wheel; wheel << wh;
@@ -319,7 +319,7 @@ void DTRunConditionVarClient::bookWheelHistos(DQMStore::IBooker & ibooker, strin
   return;
 }
 
-MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter & igetter,const DTChamberId& dtCh, string histoType) {
+MonitorElement* DTRunConditionVarClient::getChamberHistos(DQMStore::IGetter & igetter,const DTChamberId& dtCh, const string& histoType) {
 
   int wh = dtCh.wheel();		
   int sc = dtCh.sector();	

@@ -230,7 +230,7 @@ class BPHRecoBuilder {
   bool contained( ComponentSet& compSet,
                   const reco::Candidate* cand ) const;
   bool contained( ComponentSet& compSet,
-                  BPHRecoConstCandPtr cand ) const;
+                  const BPHRecoConstCandPtr& cand ) const;
   // compare two particles with their track reference and return 
   // true or false for same or different particles, including a
   // check with momentum difference

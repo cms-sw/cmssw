@@ -11,6 +11,7 @@
 #include <cctype>
 #include <cassert>
 #include <cstdlib>
+#include <utility>
 
 using namespace std;
 using namespace pos;
@@ -22,7 +23,7 @@ PixelROCName::PixelROCName():
 PixelROCName::PixelROCName(std::string rocname)
 {
 
-    parsename(rocname);
+    parsename(std::move(rocname));
 
 }
 

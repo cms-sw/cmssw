@@ -89,9 +89,9 @@ class MuonGmtPair {
 
     private :
     // propagation private members
-        TrajectoryStateOnSurface cylExtrapTrkSam(reco::TrackRef track, double rho);
-        TrajectoryStateOnSurface surfExtrapTrkSam(reco::TrackRef track, double z);
-        FreeTrajectoryState freeTrajStateMuon(reco::TrackRef track);
+        TrajectoryStateOnSurface cylExtrapTrkSam(const reco::TrackRef& track, double rho);
+        TrajectoryStateOnSurface surfExtrapTrkSam(const reco::TrackRef& track, double z);
+        FreeTrajectoryState freeTrajStateMuon(const reco::TrackRef& track);
 
     private :
         const reco::Muon *m_muon;

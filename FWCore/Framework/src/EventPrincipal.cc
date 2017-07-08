@@ -25,10 +25,11 @@
 #include <cassert>
 #include <limits>
 #include <memory>
+#include <utility>
 
 namespace edm {
   EventPrincipal::EventPrincipal(
-        std::shared_ptr<ProductRegistry const> reg,
+        const std::shared_ptr<ProductRegistry const>& reg,
         std::shared_ptr<BranchIDListHelper const> branchIDListHelper,
         std::shared_ptr<ThinnedAssociationsHelper const> thinnedAssociationsHelper,
         ProcessConfiguration const& pc,
@@ -40,8 +41,8 @@ namespace edm {
           luminosityBlockPrincipal_(),
           provRetrieverPtr_(new ProductProvenanceRetriever(streamIndex)),
           eventSelectionIDs_(),
-          branchIDListHelper_(branchIDListHelper),
-          thinnedAssociationsHelper_(thinnedAssociationsHelper),
+          branchIDListHelper_(std::move(branchIDListHelper)),
+          thinnedAssociationsHelper_(std::move(thinnedAssociationsHelper)),
           branchListIndexes_(),
           branchListIndexToProcessIndex_(),
           streamID_(streamIndex) {

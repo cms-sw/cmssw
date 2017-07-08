@@ -36,6 +36,7 @@
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 
 #include "CLHEP/Vector/ThreeVector.h"
+#include <utility>
 #include <vector>
 #include <unordered_map>
 #include <limits>
@@ -80,7 +81,7 @@ class RecHitWithDist
     
 
     RecHitWithDist( ConstRecHitPointer rh, float & dphi )
-     : rh_(rh), dphi_(dphi)
+     : rh_(std::move(rh)), dphi_(dphi)
      {}
 
     ConstRecHitPointer recHit() const { return rh_ ; }
@@ -107,7 +108,7 @@ class RecHitWithInfo
     RecHitWithInfo( ConstRecHitPointer rh, int subDet =0,
        float dRz = std::numeric_limits<float>::infinity(),
        float dPhi = std::numeric_limits<float>::infinity() )
-     : rh_(rh), subDet_(subDet), dRz_(dRz), dPhi_(dPhi)
+     : rh_(std::move(rh)), subDet_(subDet), dRz_(dRz), dPhi_(dPhi)
      {}
 
     ConstRecHitPointer recHit() const { return rh_; }
@@ -131,7 +132,7 @@ class SeedWithInfo
   public :
 
     SeedWithInfo( TrajectorySeed seed, unsigned char hitsMask, int subDet2, float dRz2, float dPhi2 , int subDet1, float dRz1, float dPhi1)
-     : seed_(seed), hitsMask_(hitsMask),
+     : seed_(std::move(seed)), hitsMask_(hitsMask),
        subDet2_(subDet2), dRz2_(dRz2), dPhi2_(dPhi2),
        subDet1_(subDet1), dRz1_(dRz1), dPhi1_(dPhi1)
      {}

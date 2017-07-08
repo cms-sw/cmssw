@@ -99,24 +99,24 @@ private:
   
  MonitorElement* getSummaryME(      DQMStore::IBooker            & iBooker,
 				    DQMStore::IGetter            & iGetter,
-                                    std::string 	     	   me_name,
+                                    const std::string& 	     	   me_name,
 				    bool			   isUpgrade);
  MonitorElement* getFEDSummaryME(   DQMStore::IBooker  		 & iBooker,
 				    DQMStore::IGetter            & iGetter,
-                                    std::string 	     	   me_name);
+                                    const std::string& 	     	   me_name);
   void GetBladeSubdirs(             DQMStore::IBooker            & iBooker, 
 				    DQMStore::IGetter            & iGetter,
 				    std::vector<std::string>& blade_subdirs); 
   void fillSummary(           	    DQMStore::IBooker     	 & iBooker,
 				    DQMStore::IGetter            & iGetter,
-                                    std::string 	     	   dir_name,
+                                    const std::string& 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names,
 				    bool isbarrel,
 				    bool isUpgrade);
   void fillDeviations(              DQMStore::IGetter            & iGetter);
   void fillFEDErrorSummary(         DQMStore::IBooker  		 & iBooker,
 				    DQMStore::IGetter            & iGetter,
-                                    std::string 	     	   dir_name,
+                                    const std::string& 	     	   dir_name,
                                     std::vector<std::string> 	 & me_names);
   void fillGrandBarrelSummaryHistos(DQMStore::IBooker  		 & iBooker,
 				    DQMStore::IGetter            & iGetter,

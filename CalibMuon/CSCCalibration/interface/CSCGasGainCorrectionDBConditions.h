@@ -23,7 +23,7 @@ class CSCGasGainCorrectionDBConditions: public edm::ESProducer, public edm::Even
   CSCGasGainCorrectionDBConditions(const edm::ParameterSet&);
   ~CSCGasGainCorrectionDBConditions();
   
-  inline static CSCDBGasGainCorrection * prefillDBGasGainCorrection(bool isForMC, std::string dataCorrFileName);
+  inline static CSCDBGasGainCorrection * prefillDBGasGainCorrection(bool isForMC, const std::string& dataCorrFileName);
 
   typedef const  CSCDBGasGainCorrection * ReturnType;
   
@@ -52,7 +52,7 @@ class CSCGasGainCorrectionDBConditions: public edm::ESProducer, public edm::Even
 
 
 // to workaround plugin library
-inline CSCDBGasGainCorrection * CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(bool isMC, std::string filename)  
+inline CSCDBGasGainCorrection * CSCGasGainCorrectionDBConditions::prefillDBGasGainCorrection(bool isMC, const std::string& filename)  
 {
   if (isMC)
     printf("\n Generating fake DB constants for MC\n");

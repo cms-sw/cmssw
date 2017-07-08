@@ -2,7 +2,7 @@
 
 using namespace l1t;
 
-HGCalMulticluster::HGCalMulticluster( const LorentzVector p4, 
+HGCalMulticluster::HGCalMulticluster( const LorentzVector& p4, 
                             int pt,
                             int eta,
                             int phi )

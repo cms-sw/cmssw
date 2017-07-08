@@ -467,7 +467,7 @@ namespace {
   }
   template<typename T>
   void
-  testTransition(edm::Worker* iWorker, testStreamModule::Trans iTrans, testStreamModule::Expectations const& iExpect, std::function<void(edm::Worker*)> iFunc) {
+  testTransition(edm::Worker* iWorker, testStreamModule::Trans iTrans, testStreamModule::Expectations const& iExpect, const std::function<void(edm::Worker*)>& iFunc) {
     assert(0==T::m_count);
     iFunc(iWorker);
     auto count = std::count(iExpect.begin(),iExpect.end(),iTrans);

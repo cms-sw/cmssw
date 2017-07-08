@@ -36,7 +36,7 @@ LumiMonitor::LumiMonitor( const edm::ParameterSet& iConfig ) :
 
 }
 
-MEbinning LumiMonitor::getHistoPSet(edm::ParameterSet pset)
+MEbinning LumiMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),
@@ -45,7 +45,7 @@ MEbinning LumiMonitor::getHistoPSet(edm::ParameterSet pset)
       };
 }
 
-MEbinning LumiMonitor::getHistoLSPSet(edm::ParameterSet pset)
+MEbinning LumiMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
     pset.getParameter<int32_t>("nbins"),

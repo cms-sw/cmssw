@@ -301,7 +301,7 @@ void DTLocalTriggerTask::analyze(const edm::Event& e, const edm::EventSetup& c){
 }
 
 
-void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker & ibooker, string histoTag) {
+void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker & ibooker, const string& histoTag) {
 
   bool isTM = histoTag.substr(0,2) == "TM";
   ibooker.setCurrentFolder(topFolder(isTM));
@@ -314,7 +314,7 @@ void DTLocalTriggerTask::bookBarrelHistos(DQMStore::IBooker & ibooker, string hi
 
 }
 
-void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh, string folder, string histoTag) {
+void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh, const string& folder, const string& histoTag) {
 
   int wh=dtCh.wheel();
   int sc=dtCh.sector();
@@ -478,7 +478,7 @@ void DTLocalTriggerTask::bookHistos(DQMStore::IBooker & ibooker, const DTChamber
 
 }
 
-void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker & ibooker, int wh, string histoTag) {
+void DTLocalTriggerTask::bookWheelHistos(DQMStore::IBooker & ibooker, int wh, const string& histoTag) {
 
   stringstream wheel; wheel << wh;
 

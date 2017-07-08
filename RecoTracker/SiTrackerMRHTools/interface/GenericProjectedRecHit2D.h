@@ -10,7 +10,7 @@ public:
 
   GenericProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
                      const GeomDet* det, const GeomDet* originaldet,
-                     const TransientTrackingRecHit::ConstRecHitPointer originalHit,
+                     const TransientTrackingRecHit::ConstRecHitPointer& originalHit,
                      const TrackingRecHitPropagator* propagator);
 
   virtual AlgebraicSymMatrix parametersError() const {
@@ -56,7 +56,7 @@ public:
 
   static RecHitPointer build( const LocalPoint& pos, const LocalError& err, 
 			      const GeomDet* det, const GeomDet* originaldet,
-			      const TransientTrackingRecHit::ConstRecHitPointer originalHit,
+			      const TransientTrackingRecHit::ConstRecHitPointer& originalHit,
 			      const TrackingRecHitPropagator* propagator) {
     return RecHitPointer( new GenericProjectedRecHit2D( pos, err, det, originaldet, originalHit, propagator));
   }

@@ -10,6 +10,7 @@
 #include <stdio.h>
 #include <string>
 #include <cstring>
+#include <utility>
 
 using namespace std;
 
@@ -17,11 +18,11 @@ using namespace std;
 //class HBHEHFLogicalMapEntry 
 
 HBHEHFLogicalMapEntry::HBHEHFLogicalMapEntry( 
-             int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, std::string in_s_fpga,
-             std::string in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
+             int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, const std::string& in_s_fpga,
+             const std::string& in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
              int in_dph, int in_wed, int in_rm, int in_rm_fi, int in_pix, int in_qie, int in_adc,
              int in_slb, int in_rctcra, int in_rctcar, int in_rctcon,
-             std::string in_s_rbx, std::string in_s_slb, std::string in_s_slb2, std::string in_s_slnam, std::string in_s_rctnam
+             const std::string& in_s_rbx, std::string in_s_slb, std::string in_s_slb2, std::string in_s_slnam, std::string in_s_rctnam
   )
 {
   int mytopbot;
@@ -35,10 +36,10 @@ HBHEHFLogicalMapEntry::HBHEHFLogicalMapEntry(
   myrctcon_ = in_rctcon;
 
   // string data members
-  myslbin_  = in_s_slb;
-  myslbin2_ = in_s_slb2;
-  myslnam_  = in_s_slnam;
-  myrctnam_ = in_s_rctnam;
+  myslbin_  = std::move(in_s_slb);
+  myslbin2_ = std::move(in_s_slb2);
+  myslnam_  = std::move(in_s_slnam);
+  myrctnam_ = std::move(in_s_rctnam);
 
   // create the hcal electronics id
   HcalElectronicsId heid( in_fi_ch, in_htr_fi, in_spig, in_fed - 700 );
@@ -102,10 +103,10 @@ char* HBHEHFLogicalMapEntry::printLMapLine() {
 // class HOHXLogicalMapEntry 
 
 HOHXLogicalMapEntry::HOHXLogicalMapEntry(
-           int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, std::string in_s_fpga,
-           std::string in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
+           int in_fi_ch, int in_htr_fi, int in_spig, int in_fed, int in_cr, int in_htr, const std::string& in_s_fpga,
+           const std::string& in_s_det, int in_sid, int in_et, int in_ph, int in_dep,
            int in_dph, int in_sec, int in_rm, int in_rm_fi, int in_pix, int in_qie, int in_adc,
-           std::string in_s_rbx, std::string in_s_let 
+           const std::string& in_s_rbx, std::string in_s_let 
   )
 {
   int mytopbot;
@@ -114,7 +115,7 @@ HOHXLogicalMapEntry::HOHXLogicalMapEntry(
   mydphi_   = in_dph;
   mysector_ = in_sec;
   // string data members
-  myletter_ = in_s_let;
+  myletter_ = std::move(in_s_let);
 
   // create the hcal electronics id
   HcalElectronicsId heid( in_fi_ch, in_htr_fi, in_spig, in_fed - 700 );
@@ -199,9 +200,9 @@ char* HOHXLogicalMapEntry::printLMapLine() {
 // class CalibLogicalMapEntry 
 
 CALIBLogicalMapEntry::CALIBLogicalMapEntry(
-            int in_fi_ch, int in_htr_fi, int in_spig, int in_fed,  int in_cr, int in_htr, std::string in_s_fpga,  
-            std::string in_s_det, int in_et, int in_ph, int in_ch_ty, 
-            int in_sid, int in_dph, std::string in_s_rbx, int in_wed, int in_rm_fi,
+            int in_fi_ch, int in_htr_fi, int in_spig, int in_fed,  int in_cr, int in_htr, const std::string& in_s_fpga,  
+            const std::string& in_s_det, int in_et, int in_ph, int in_ch_ty, 
+            int in_sid, int in_dph, const std::string& in_s_rbx, int in_wed, int in_rm_fi,
             std::string in_s_subdet
   )
 {
@@ -212,7 +213,7 @@ CALIBLogicalMapEntry::CALIBLogicalMapEntry(
   mydphi_   = in_dph;
   mywedge_  = in_wed;
   // string data members
-  mycalibsubdet_ = in_s_subdet;
+  mycalibsubdet_ = std::move(in_s_subdet);
 
   //create the hcal electronics id
   HcalElectronicsId heid( in_fi_ch, in_htr_fi, in_spig, in_fed - 700 );
@@ -287,8 +288,8 @@ char* CALIBLogicalMapEntry::printLMapLine() {
 // class ZDCLogicalMapEntry 
 
 ZDCLogicalMapEntry::ZDCLogicalMapEntry(
-          int in_fi_ch, int in_htr_fi, int in_spigot, int in_fed, int in_cr, int in_htr, std::string in_s_fpga,
-          std::string in_s_det, int in_sid, int in_dep, 
+          int in_fi_ch, int in_htr_fi, int in_spigot, int in_fed, int in_cr, int in_htr, const std::string& in_s_fpga,
+          const std::string& in_s_det, int in_sid, int in_dep, 
           int in_x, int in_y, int in_dx, int in_det_ch, int in_cab, int in_rm, int in_qie, 
           int in_adc, int in_rm_fi
   )
@@ -384,11 +385,11 @@ HTLogicalMapEntry::HTLogicalMapEntry(
   myrctcon_ = in_rctcon;
   
   // string data members
-  mydet_    = in_s_chDet;
-  myslbin_  = in_s_slb;
-  myslbin2_ = in_s_slb2;
-  myslnam_  = in_s_slnam;
-  myrctnam_ = in_s_rctnam;
+  mydet_    = std::move(in_s_chDet);
+  myslbin_  = std::move(in_s_slb);
+  myslbin2_ = std::move(in_s_slb2);
+  myslnam_  = std::move(in_s_slnam);
+  myrctnam_ = std::move(in_s_rctnam);
 
   // necessary since LMap code makes top = 0, bottom = 1, but det ids have top = 1, bottom = 0
   int top = 1;

@@ -24,7 +24,7 @@ class VirtualKinematicParticle:public KinematicParticle
  */  
   VirtualKinematicParticle(const KinematicState& kineState,float& chiSquared,
                          float& degreesOfFr, KinematicConstraint * lastConstraint,
-                     ReferenceCountingPointer<KinematicParticle> previousParticle,
+                     const ReferenceCountingPointer<KinematicParticle>& previousParticle,
 		                                   KinematicStatePropagator * pr);
  
  virtual ~VirtualKinematicParticle();

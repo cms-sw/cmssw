@@ -18,7 +18,7 @@
 class H2DRecHit1 {
 public:
  
- H2DRecHit1(std::string name_) {
+ H2DRecHit1(const std::string& name_) {
     TString N1 = name_.c_str();
     name=N1;
     hcsc_dt  = new TH2F(N1+"_hcsc_dt", " CSC Seg vs DT Seg ", 20, -0.25, 9.75, 20, -0.25, 9.75);
@@ -51,7 +51,7 @@ public:
     hpt_ptLossD1 = new TH2F(N1+"_hpt_ptLossD1","DT pt vs ptLoss at layer1", 250, 0., 250., 80, 0.3, 1.1);
  } 
 
- H2DRecHit1(TString name_, TFile* file) {
+ H2DRecHit1(const TString& name_, TFile* file) {
     name=name_;
     hcsc_dt  = (TH2F *) file->Get(name+"_hcsc_dt");
     heta_csc = (TH2F *) file->Get(name+"_heta_csc");
@@ -232,7 +232,7 @@ public:
 class H2DRecHit2 {
 public:
 
- H2DRecHit2(std::string name_) {
+ H2DRecHit2(const std::string& name_) {
     TString N2 = name_.c_str();
     name=N2;
 
@@ -277,7 +277,7 @@ public:
 
   }
 
- H2DRecHit2(TString name_, TFile* file) {
+ H2DRecHit2(const TString& name_, TFile* file) {
     name=name_;
 
     hPt = (TH1F *) file->Get(name+"_hPt");
@@ -522,7 +522,7 @@ public:
 class H2DRecHit3 {
 public:
 
- H2DRecHit3(std::string name_) {
+ H2DRecHit3(const std::string& name_) {
     TString N3 = name_.c_str();
     name=N3;
 
@@ -566,7 +566,7 @@ public:
 
   }
 
- H2DRecHit3(TString name_, TFile* file) {
+ H2DRecHit3(const TString& name_, TFile* file) {
     name=name_;
 
     hPt = (TH1F *) file->Get(name+"_hPt");
@@ -799,7 +799,7 @@ public:
 class H2DRecHit4 {
 public:
 
- H2DRecHit4(std::string name_) {
+ H2DRecHit4(const std::string& name_) {
     TString N4 = name_.c_str();
     name=N4;
 
@@ -817,7 +817,7 @@ public:
     hpt_rdphiA = new TH2F(N4+"_hpt_rdphiA", "pt vs rdphi @ME", 50, 5., 205, 200, 0.0, 0.1);
   }
 
- H2DRecHit4(TString name_, TFile* file) {
+ H2DRecHit4(const TString& name_, TFile* file) {
     name=name_;
 
     eta_dphiA = (TH2F *) file->Get(name+"_eta_dphiA");
@@ -902,7 +902,7 @@ public:
 class H2DRecHit5 {
 public:
 
- H2DRecHit5(std::string name_) {
+ H2DRecHit5(const std::string& name_) {
     TString N5 = name_.c_str();
     name=N5;
 
@@ -920,7 +920,7 @@ public:
     hpt_rdphiA = new TH2F(N5+"_hpt_rdphiA", "pt vs rdphi @MB", 50, 5., 205.0, 200, 0.0, 0.1);
   }
 
- H2DRecHit5(TString name_, TFile* file) {
+ H2DRecHit5(const TString& name_, TFile* file) {
     name=name_;
 
     eta_dphiA = (TH2F *) file->Get(name+"_eta_dphiA");
@@ -1006,7 +1006,7 @@ public:
 class H2DRecHit6 {
 public:
 
- H2DRecHit6(std::string name_) {
+ H2DRecHit6(const std::string& name_) {
     TString N6 = name_.c_str();
     name=N6;
 
@@ -1024,7 +1024,7 @@ public:
     hpt_rdphi = new TH2F(N6+"_hpt_rdphi", "pt vs rdphi @ME", 50, 5., 205, 200, 0.0, 0.1);
   }
 
- H2DRecHit6(TString name_, TFile* file) {
+ H2DRecHit6(const TString& name_, TFile* file) {
     name=name_;
 
     eta_dphi  = (TH2F *) file->Get(name+"_eta_dphi");
@@ -1110,7 +1110,7 @@ public:
 class H2DRecHit7 {
 public:
 
- H2DRecHit7(std::string name_) {
+ H2DRecHit7(const std::string& name_) {
     TString N7 = name_.c_str();
     name=N7;
 
@@ -1128,7 +1128,7 @@ public:
     hpt_rdphi = new TH2F(N7+"_hpt_rdphi", "pt vs rdphi @MB", 50, 5., 205, 200, 0.0, 0.1);
   }
 
- H2DRecHit7(TString name_, TFile* file) {
+ H2DRecHit7(const TString& name_, TFile* file) {
     name=name_;
 
     eta_dphi  = (TH2F *) file->Get(name+"_eta_dphi");
@@ -1214,7 +1214,7 @@ public:
 class H2DRecHit10 {
 public:
 
- H2DRecHit10(std::string name_) {
+ H2DRecHit10(const std::string& name_) {
     TString N10 = name_.c_str();
     name=N10;
 
@@ -1232,7 +1232,7 @@ public:
     hpt_rdphiA = new TH2F(N10+"_hpt_rdphiA", "pt vs rdphi @OL", 50, 5., 205.0, 200, 0.0, 0.1);
   }
 
- H2DRecHit10(TString name_, TFile* file) {
+ H2DRecHit10(const TString& name_, TFile* file) {
     name=name_;
 
     eta_dphiA = (TH2F *) file->Get(name+"_eta_dphiA");

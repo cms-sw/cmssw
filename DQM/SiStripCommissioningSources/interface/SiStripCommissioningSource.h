@@ -46,7 +46,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   SiStripCommissioningSource();
   
   /** */
-  DQMStore* const dqm( std::string method = "" ) const;
+  DQMStore* const dqm( const std::string& method = "" ) const;
   
   /** */
   void createRunNumber();

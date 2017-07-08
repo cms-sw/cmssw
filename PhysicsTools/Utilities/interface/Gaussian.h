@@ -3,6 +3,7 @@
 #include "PhysicsTools/Utilities/interface/Parameter.h"
 #include <boost/shared_ptr.hpp>
 #include <cmath>
+#include <utility>
 
 namespace funct {
 
@@ -12,7 +13,7 @@ namespace funct {
     Gaussian(const Parameter & m, const Parameter & s) : 
       mean(m.ptr()), sigma(s.ptr()) { }
     Gaussian(boost::shared_ptr<double> m, boost::shared_ptr<double> s): 
-      mean(m), sigma(s) { }
+      mean(std::move(m)), sigma(std::move(s)) { }
     Gaussian(double m, double s): 
       mean(new double(m)), sigma(new double(s)){}
     double operator()(double x) const {

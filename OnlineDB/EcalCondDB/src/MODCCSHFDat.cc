@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdio.h>
 #include <cstring>
+#include <utility>
 
 #include "OnlineDB/Oracle/interface/Oracle.h"
 
@@ -35,7 +36,7 @@ MODCCSHFDat::~MODCCSHFDat()
 
 
 void MODCCSHFDat::setFile(std::string x) {
-  m_file=x;
+  m_file=std::move(x);
   //try {
   std::cout<< "file is "<< m_file<<endl;
   // }catch (Exception &e) {
@@ -255,7 +256,7 @@ void MODCCSHFDat::writeArrayDB(const std::map< EcalLogicID, MODCCSHFDat >* data,
 
 
 
-void MODCCSHFDat::populateClob (Clob &clob, std::string fname, unsigned int clob_size )
+void MODCCSHFDat::populateClob (Clob &clob, const std::string& fname, unsigned int clob_size )
  noexcept(false)
 {
 

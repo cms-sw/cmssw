@@ -362,7 +362,7 @@ void SiPixelActionExecutor::GetBladeSubdirs(DQMStore::IBooker & iBooker, DQMStor
 
 //=============================================================================================================
 
-void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IGetter & iGetter, string dir_name, vector<string>& me_names, bool isbarrel, bool isUpgrade)
+void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IGetter & iGetter, const string& dir_name, vector<string>& me_names, bool isbarrel, bool isUpgrade)
 {
 
 
@@ -729,7 +729,7 @@ void SiPixelActionExecutor::fillSummary(DQMStore::IBooker& iBooker, DQMStore::IG
 //=============================================================================================================
 void SiPixelActionExecutor::fillFEDErrorSummary(DQMStore::IBooker& iBooker,
 						DQMStore::IGetter& iGetter,
-                                                string dir_name,
+                                                const string& dir_name,
 						vector<string>& me_names) {
   //printing cout<<"entering SiPixelActionExecutor::fillFEDErrorSummary..."<<endl;
   string currDir = iBooker.pwd();
@@ -1432,7 +1432,7 @@ void SiPixelActionExecutor::getGrandSummaryME(DQMStore::IBooker& iBooker,
 //
 MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore::IBooker & iBooker,
 						    DQMStore::IGetter & iGetter,
-                                                    string me_name,
+                                                    const string& me_name,
                                                     bool isUpgrade) {
   //printing cout<<"Entering SiPixelActionExecutor::getSummaryME for: "<<me_name<<endl;
   MonitorElement* me = 0;
@@ -1480,7 +1480,7 @@ MonitorElement* SiPixelActionExecutor::getSummaryME(DQMStore::IBooker & iBooker,
 //=============================================================================================================
 MonitorElement* SiPixelActionExecutor::getFEDSummaryME(DQMStore::IBooker & iBooker,
 						       DQMStore::IGetter & iGetter,
-                                                       string me_name) {
+                                                       const string& me_name) {
   //printing cout<<"Entering SiPixelActionExecutor::getFEDSummaryME..."<<endl;
   MonitorElement* me = 0;
   if((iBooker.pwd()).find("Pixel")==string::npos) return me;

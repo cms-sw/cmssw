@@ -59,9 +59,9 @@ private:
                                             const DDsvalues_type&);
   std::vector<G4String>         getNames(DDFilteredView&);
   bool                          isItHF(G4Step *);
-  bool                          isItHF(G4String);
+  bool                          isItHF(const G4String&);
   bool                          isItFibre(G4LogicalVolume*);
-  bool                          isItFibre(G4String);
+  bool                          isItFibre(const G4String&);
   bool                          isItPMT(G4LogicalVolume*);
   bool                          isItStraightBundle(G4LogicalVolume*);
   bool                          isItConicalBundle(G4LogicalVolume*);
@@ -73,7 +73,7 @@ private:
   void                          getHitPMT(G4Step * step);
   void                          getHitFibreBundle(G4Step * step, bool type);
   int                           setTrackID(G4Step * step);
-  void                          readWeightFromFile(std::string);
+  void                          readWeightFromFile(const std::string&);
   double                        layerWeight(int, const G4ThreeVector&, int, int);
   void                          plotProfile(G4Step* step, const G4ThreeVector& pos, 
                                             double edep, double time, int id);

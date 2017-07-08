@@ -3,7 +3,7 @@
 
 namespace l1t {
 
-  void EMTFTrack::ImportSP( const emtf::SP _SP, int _sector) {
+  void EMTFTrack::ImportSP( const emtf::SP& _SP, int _sector) {
 
     EMTFTrack::set_sector       ( _sector );
     EMTFTrack::set_sector_GMT   ( calc_sector_GMT(_sector) );

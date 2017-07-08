@@ -53,8 +53,8 @@ protected:
 
 private:
 
-  static MEbinning getHistoPSet  (edm::ParameterSet pset);
-  static MEbinning getHistoLSPSet(edm::ParameterSet pset);
+  static MEbinning getHistoPSet  (const edm::ParameterSet& pset);
+  static MEbinning getHistoLSPSet(const edm::ParameterSet& pset);
 
   std::string folderName_;
 

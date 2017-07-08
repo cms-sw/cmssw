@@ -5,6 +5,7 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <iostream>
@@ -195,13 +196,13 @@ namespace reco {
     const math::XYZTLorentzVector 
       secondaryMomentum(std::string massHypo = "PI", 
 			bool useRefitted = true, double mass = 0.0) const 
-      {return momentum(massHypo, T_FROM_VERTEX, useRefitted, mass);}
+      {return momentum(std::move(massHypo), T_FROM_VERTEX, useRefitted, mass);}
 
     /// Momentum of primary or merged track calculated with a mass hypothesis.
     const math::XYZTLorentzVector 
       primaryMomentum(std::string massHypo = "PI", 
 		      bool useRefitted = true, double mass = 0.0) const
-      {return momentum(massHypo, T_TO_VERTEX, useRefitted, mass);}
+      {return momentum(std::move(massHypo), T_TO_VERTEX, useRefitted, mass);}
 
 
 
@@ -282,7 +283,7 @@ namespace reco {
     const int nKindTracks(VertexTrackType) const;
 
     /// Common tool to calculate the momentum vector of tracks with a given Kind
-    const  math::XYZTLorentzVector momentum(std::string, 
+    const  math::XYZTLorentzVector momentum(const std::string&, 
 					    VertexTrackType,
 					    bool, double mass) const;
 

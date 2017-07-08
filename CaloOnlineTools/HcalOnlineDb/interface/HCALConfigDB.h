@@ -29,9 +29,9 @@ class HCALConfigDB{
   void connect( std::string _accessor1, std::string _accessor2 ); // for very specific case of XML and Oracle
   void disconnect( void );
   void setAccessor( std::string _accessor );
-  std::vector<unsigned int> getOnlineLUT( std::string tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype );
-  std::vector<unsigned int> getOnlineLUT( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
-  std::vector<unsigned int> getOnlineLUTFromXML( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
+  std::vector<unsigned int> getOnlineLUT( const std::string& tag, int crate, int slot, int topbottom, int fiber, int channel, int luttype );
+  std::vector<unsigned int> getOnlineLUT( const std::string& tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
+  std::vector<unsigned int> getOnlineLUTFromXML( const std::string& tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt = hcal::ConfigurationDatabase::LinearizerLUT );
 
   oracle::occi::Connection * getConnection( void );
   oracle::occi::Environment * getEnvironment( void );

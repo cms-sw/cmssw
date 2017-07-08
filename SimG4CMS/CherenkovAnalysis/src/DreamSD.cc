@@ -26,7 +26,7 @@
 #include "G4PhysicalConstants.hh"
 
 //________________________________________________________________________________________
-DreamSD::DreamSD(G4String name, const DDCompactView & cpv,
+DreamSD::DreamSD(const G4String& name, const DDCompactView & cpv,
 	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager) {
@@ -191,7 +191,7 @@ uint32_t DreamSD::setDetUnitId(G4Step * aStep) {
 
 
 //________________________________________________________________________________________
-void DreamSD::initMap(G4String sd, const DDCompactView & cpv) {
+void DreamSD::initMap(const G4String& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};

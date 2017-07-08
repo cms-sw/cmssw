@@ -45,7 +45,7 @@ unsigned TreeUtility::getCalibratablesFromRootFile(TChain& tree,
 
 }
 
-void TreeUtility::dumpCaloDataToCSV(TChain& tree, std::string csvFilename, double range, bool gaus) {
+void TreeUtility::dumpCaloDataToCSV(TChain& tree, const std::string& csvFilename, double range, bool gaus) {
 
 	CalibratablePtr calib_ptr(new Calibratable());
 
@@ -115,8 +115,8 @@ void TreeUtility::dumpCaloDataToCSV(TChain& tree, std::string csvFilename, doubl
 
 unsigned TreeUtility::getParticleDepositsDirectly(TChain& sourceChain,
 		std::vector<ParticleDepositPtr>& toBeFilled, CalibrationTarget target,
-		DetectorElementPtr offset, DetectorElementPtr ecal,
-		DetectorElementPtr hcal, bool includeOffset) {
+		const DetectorElementPtr& offset, const DetectorElementPtr& ecal,
+		const DetectorElementPtr& hcal, bool includeOffset) {
 
 	CalibratablePtr calib_ptr(new Calibratable());
 	sourceChain.SetBranchAddress("Calibratable", &calib_ptr);
@@ -238,8 +238,8 @@ unsigned TreeUtility::getParticleDepositsDirectly(TChain& sourceChain,
 unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 		const std::vector<Calibratable>& input,
 		std::vector<ParticleDepositPtr>& toBeFilled, CalibrationTarget target,
-		DetectorElementPtr offset, DetectorElementPtr ecal,
-		DetectorElementPtr hcal, bool includeOffset) {
+		const DetectorElementPtr& offset, const DetectorElementPtr& ecal,
+		const DetectorElementPtr& hcal, bool includeOffset) {
 
 	std::cout << __PRETTY_FUNCTION__ << std::endl;
 	std::cout << "WARNING: Using fabs() for eta value assignments!\n";

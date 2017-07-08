@@ -38,8 +38,8 @@ class RamdiskMonitor : public DQMEDAnalyzer {
   virtual void analyze(edm::Event const &e,
                        edm::EventSetup const &eSetup) override{};
 
-  void analyzeFile(std::string fn, unsigned int run, unsigned int lumi,
-                   std::string label);
+  void analyzeFile(const std::string& fn, unsigned int run, unsigned int lumi,
+                   const std::string& label);
   double getRunTimestamp();
 
   unsigned int runNumber_;
@@ -130,8 +130,8 @@ double RamdiskMonitor::getRunTimestamp() {
   return global_start_;
 };
 
-void RamdiskMonitor::analyzeFile(std::string fn, unsigned int run,
-                                 unsigned int lumi, std::string label) {
+void RamdiskMonitor::analyzeFile(const std::string& fn, unsigned int run,
+                                 unsigned int lumi, const std::string& label) {
   using LumiEntry = dqmservices::DQMFileIterator::LumiEntry;
 
   // we are disabled, at least for this stream

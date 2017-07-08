@@ -79,7 +79,7 @@ class TreeSaver : public TrainProcessor {
 		std::vector<double>	values;
 		std::vector<double>	*ptr;
 
-		bool hasName(std::string other) const
+		bool hasName(const std::string& other) const
 		{ return name == other; }
 	};
 

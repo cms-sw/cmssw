@@ -20,7 +20,7 @@ cond::UtilitiesError::UtilitiesError(const std::string& message ):Exception(mess
 cond::UtilitiesError::~UtilitiesError() throw(){}
 
 cond::Utilities::Utilities( const std::string& commandName,
-                            std::string positionalParameter):m_name(commandName),
+                            const std::string& positionalParameter):m_name(commandName),
 							     m_options(std::string("Usage: ")+m_name+
 								       std::string(" [options] ")+positionalParameter
 								       +std::string(" \n")),

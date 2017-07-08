@@ -282,7 +282,7 @@ void L1TMuonBarrelParamsHelper::configFromDB(l1t::TriggerSystem& trgSys)
 int L1TMuonBarrelParamsHelper::load_pt(std::vector<LUT>& pta_lut,
                                   std::vector<int>& pta_threshold,
                                   unsigned short int nbitphi,
-                                  std::string AssLUTpath
+                                  const std::string& AssLUTpath
                                   ){
 
 
@@ -389,7 +389,7 @@ enum PtAssMethod { PT12L,  PT12H,  PT13L,  PT13H,  PT14L,  PT14H,
 int L1TMuonBarrelParamsHelper::load_phi(std::vector<LUT>& phi_lut,
                                   unsigned short int nbit_phi,
                                   unsigned short int nbit_phib,
-                                  std::string AssLUTpath
+                                  const std::string& AssLUTpath
                                   ) {
 
 

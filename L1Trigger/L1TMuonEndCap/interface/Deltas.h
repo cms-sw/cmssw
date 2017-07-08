@@ -206,7 +206,7 @@ DeltaOutput Deltas(MatchingOutput Mout, int zone, int winner){
   
 }
 
-std::vector<std::vector<DeltaOutput>> CalcDeltas(MatchingOutput Mout){
+std::vector<std::vector<DeltaOutput>> CalcDeltas(const MatchingOutput& Mout){
 
   DeltaOutput output;output.SetNull();
   

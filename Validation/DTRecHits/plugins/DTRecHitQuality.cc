@@ -347,7 +347,7 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds)
 
 // Compute SimHit distance from wire (cm)
 float DTRecHitQuality::simHitDistFromWire(const DTLayer* layer,
-                                          DTWireId wireId,
+                                          const DTWireId& wireId,
                                           const PSimHit& hit) {
   float xwire = layer->specificTopology().wirePosition(wireId.wire());
   LocalPoint entryP = hit.entryPoint();
@@ -360,7 +360,7 @@ float DTRecHitQuality::simHitDistFromWire(const DTLayer* layer,
 
 // Compute SimHit impact angle (in direction perp to wire), in the SL RF 
 float DTRecHitQuality::simHitImpactAngle(const DTLayer* layer,
-                                         DTWireId wireId,
+                                         const DTWireId& wireId,
                                          const PSimHit& hit) {
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
@@ -370,7 +370,7 @@ float DTRecHitQuality::simHitImpactAngle(const DTLayer* layer,
 
 // Compute SimHit distance from FrontEnd
 float DTRecHitQuality::simHitDistFromFE(const DTLayer* layer,
-                                        DTWireId wireId,
+                                        const DTWireId& wireId,
                                         const PSimHit& hit) {
   LocalPoint entryP = hit.entryPoint();
   LocalPoint exitP = hit.exitPoint();
@@ -386,7 +386,7 @@ float DTRecHitQuality::simHitDistFromFE(const DTLayer* layer,
 template  <typename type>
 const type* 
 DTRecHitQuality::findBestRecHit(const DTLayer* layer,
-                                DTWireId wireId,
+                                const DTWireId& wireId,
                                 const vector<type>& recHits,
                                 const float simHitDist) {
   float res = 99999;

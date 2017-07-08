@@ -1,5 +1,6 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelTKFECParameters.h"
 #include <ostream>
+#include <utility>
 
 using namespace pos;
 
@@ -36,16 +37,16 @@ unsigned int PixelTKFECParameters::getAddress() const{
 
 void PixelTKFECParameters::setTKFECParameters( std::string TKFECID , unsigned int crate , std::string type, unsigned int address){
 
-TKFECID_ = TKFECID;
+TKFECID_ = std::move(TKFECID);
 crate_ = crate;
-type_ = type;
+type_ = std::move(type);
 address_ =address;
 
 }
 
 void PixelTKFECParameters::setTKFECID(std::string TKFECID) {
 
-TKFECID_ = TKFECID;
+TKFECID_ = std::move(TKFECID);
 
 }
 
@@ -57,7 +58,7 @@ crate_=crate;
 
 void PixelTKFECParameters::setType(std::string type) {
 
-type_ = type;
+type_ = std::move(type);
 
 }
 

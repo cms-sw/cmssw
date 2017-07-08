@@ -32,7 +32,7 @@ RawParticle::RawParticle(const int id,
   this->setID(id);
 }
 
-RawParticle::RawParticle(const std::string name, 
+RawParticle::RawParticle(const std::string& name, 
 			 const XYZTLorentzVector& p) 
   : XYZTLorentzVector(p), tab( ParticleTable::instance() ) {
   this->init();
@@ -112,7 +112,7 @@ RawParticle::setID(const int id) {
 }
 
 void 
-RawParticle::setID(const std::string name) {
+RawParticle::setID(const std::string& name) {
   if ( tab ) { 
     if ( !myInfo ) myInfo = tab->theTable()->particle(name);
     if ( myInfo ) { 

@@ -5,11 +5,12 @@
 
 #include <string>
 #include <iostream>
+#include <utility>
 #include <sys/stat.h>
 
-L1Analysis::L1AnalysisEvent::L1AnalysisEvent(std::string puMCFile, 
+L1Analysis::L1AnalysisEvent::L1AnalysisEvent(const std::string& puMCFile, 
 					     std::string puMCHist, 
-					     std::string puDataFile, 
+					     const std::string& puDataFile, 
 					     std::string puDataHist,
 					     bool useAvgVtx,
 					     double maxWeight,
@@ -27,8 +28,8 @@ L1Analysis::L1AnalysisEvent::L1AnalysisEvent(std::string puMCFile,
   if ((stat(puMCFile.c_str(), &buf) != -1) && (stat(puDataFile.c_str(), &buf) != -1)) {
     lumiWeights_ = edm::LumiReWeighting(puMCFile,
 					puDataFile,
-					puMCHist,
-					puDataHist);
+					std::move(puMCHist),
+					std::move(puDataHist));
     doPUWeights_ = true;
   }
   else {

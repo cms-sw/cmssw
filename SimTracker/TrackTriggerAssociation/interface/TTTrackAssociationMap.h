@@ -57,14 +57,14 @@ class TTTrackAssociationMap
       { theStubAssociationMap = aStubAssoMap; }
 
     /// Operations
-    edm::Ptr< TrackingParticle >            findTrackingParticlePtr( edm::Ptr< TTTrack< T > > aTrack ) const;
-    std::vector< edm::Ptr< TTTrack< T > > > findTTTrackPtrs( edm::Ptr< TrackingParticle > aTrackingParticle ) const; 
+    edm::Ptr< TrackingParticle >            findTrackingParticlePtr( const edm::Ptr< TTTrack< T > >& aTrack ) const;
+    std::vector< edm::Ptr< TTTrack< T > > > findTTTrackPtrs( const edm::Ptr< TrackingParticle >& aTrackingParticle ) const; 
 
     /// MC Truth methods
-    bool isGenuine( edm::Ptr< TTTrack< T > > aTrack ) const;
-    bool isLooselyGenuine( edm::Ptr< TTTrack< T > > aTrack ) const;
-    bool isCombinatoric( edm::Ptr< TTTrack< T > > aTrack ) const;
-    bool isUnknown( edm::Ptr< TTTrack< T > > aTrack ) const;
+    bool isGenuine( const edm::Ptr< TTTrack< T > >& aTrack ) const;
+    bool isLooselyGenuine( const edm::Ptr< TTTrack< T > >& aTrack ) const;
+    bool isCombinatoric( const edm::Ptr< TTTrack< T > >& aTrack ) const;
+    bool isUnknown( const edm::Ptr< TTTrack< T > >& aTrack ) const;
 
   private:
     /// Data members
@@ -97,25 +97,25 @@ TTTrackAssociationMap< T >::~TTTrackAssociationMap(){}
 
 /// Operations
 template< >
-edm::Ptr< TrackingParticle > TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::findTrackingParticlePtr( edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > aTrack ) const;
+edm::Ptr< TrackingParticle > TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::findTrackingParticlePtr( const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& aTrack ) const;
 
 template< >
-std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::findTTTrackPtrs( edm::Ptr< TrackingParticle > aTrackingParticle ) const;
+std::vector< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::findTTTrackPtrs( const edm::Ptr< TrackingParticle >& aTrackingParticle ) const;
 
 /// MC truth
 template< >
-bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isLooselyGenuine( edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > aTrack ) const;
+bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isLooselyGenuine( const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& aTrack ) const;
 
 /// MC truth
 template< >
-bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isGenuine( edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > aTrack ) const;
+bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isGenuine( const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& aTrack ) const;
 
 
 template< >
-bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isCombinatoric( edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > aTrack ) const;
+bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isCombinatoric( const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& aTrack ) const;
 
 template< >
-bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isUnknown( edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > > aTrack ) const;
+bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isUnknown( const edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >& aTrack ) const;
 
 #endif
 

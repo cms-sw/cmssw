@@ -4,6 +4,7 @@
 #ifndef __l1t_EMTFTrackExtra_h__
 #define __l1t_EMTFTrackExtra_h__
 
+#include <utility>
 #include <vector>
 #include <boost/cstdint.hpp> 
 
@@ -24,9 +25,9 @@ namespace l1t {
 
     EMTFTrack CreateEMTFTrack();
 
-    void set_HitsExtra(EMTFHitExtraCollection bits)  { _HitsExtra = bits;                numHitsExtra = _HitsExtra.size(); }
-    void push_HitExtra(EMTFHitExtra bits)            { _HitsExtra.push_back(bits);       numHitsExtra = _HitsExtra.size(); }
-    void set_HitExtraIndices(std::vector<uint> bits) { _HitExtraIndices = bits;          numHitsExtra = _HitExtraIndices.size(); }
+    void set_HitsExtra(EMTFHitExtraCollection bits)  { _HitsExtra = std::move(bits);                numHitsExtra = _HitsExtra.size(); }
+    void push_HitExtra(const EMTFHitExtra& bits)            { _HitsExtra.push_back(bits);       numHitsExtra = _HitsExtra.size(); }
+    void set_HitExtraIndices(std::vector<uint> bits) { _HitExtraIndices = std::move(bits);          numHitsExtra = _HitExtraIndices.size(); }
     void push_HitExtraIndex(uint bits)               { _HitExtraIndices.push_back(bits); numHitsExtra = _HitExtraIndices.size(); }
 
     int NumHitsExtra()                             const { return numHitsExtra; }
@@ -37,8 +38,8 @@ namespace l1t {
     
     /* // Can't have a vector of vectors of vectors in ROOT files */
     /* void set_deltas (vector< vector<int> > _deltas) { deltas = _deltas; } */
-    void set_phis   (std::vector<int> _phis)   { phis   = _phis; }
-    void set_thetas (std::vector<int> _thetas) { thetas = _thetas; }
+    void set_phis   (std::vector<int> _phis)   { phis   = std::move(_phis); }
+    void set_thetas (std::vector<int> _thetas) { thetas = std::move(_thetas); }
     
     void set_first_bx      (int  bits) { first_bx     = bits; }
     void set_second_bx     (int  bits) { second_bx    = bits; }

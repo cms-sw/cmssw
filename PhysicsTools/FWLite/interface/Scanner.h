@@ -182,7 +182,7 @@ namespace fwlite {
              *
              *  See setMaxEvents() to specify how many events to loop on when plotting.
              *  Events can be further selected by using addEventSelector(). */ 
-            TH1 * draw(const char *expr, const char *cut, TString drawopt, TH1 *hist) {
+            TH1 * draw(const char *expr, const char *cut, const TString& drawopt, TH1 *hist) {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);
@@ -276,7 +276,7 @@ namespace fwlite {
 
    //------------------------------------------------------------------------------------------------------------------------------------
             /// Just like draw() except that it uses TProfile. Note that the order is (x,y) while in ROOT it's usually (y,x)!
-            TProfile * drawProf(TString xexpr, TString yexpr, const char *cut, TString drawopt, TProfile *hist) {
+            TProfile * drawProf(const TString& xexpr, const TString& yexpr, const char *cut, const TString& drawopt, TProfile *hist) {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);
@@ -341,7 +341,7 @@ namespace fwlite {
 
    //------------------------------------------------------------------------------------------------------------------------------------
             /// Just like draw() except that it uses TH2. Note that the order is (x,y) while in ROOT it's usually (y,x)!
-            TH2 * draw2D(TString xexpr, TString yexpr, const char *cut, TString drawopt, TH2 *hist) {
+            TH2 * draw2D(const TString& xexpr, const TString& yexpr, const char *cut, const TString& drawopt, TH2 *hist) {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);
@@ -433,7 +433,7 @@ namespace fwlite {
             }
 
             /** Draw a scatter plot of x vs y for events passing the cut. */
-            TGraph * drawGraph(TString xexpr, TString yexpr, const char *cut, TString drawopt, TGraph *graph) {
+            TGraph * drawGraph(const TString& xexpr, const TString& yexpr, const char *cut, const TString& drawopt, TGraph *graph) {
                 // prep the machinery
                 helper::ScannerBase scanner(objType);
                 scanner.setIgnoreExceptions(ignoreExceptions_);

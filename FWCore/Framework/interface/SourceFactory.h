@@ -69,7 +69,7 @@ namespace edm {
                std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
                iProvider.add(pFinder);
             }
-         static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<EventSetupRecordIntervalFinder> iComponent); 
+         static void replaceExisting(EventSetupProvider& iProvider, const std::shared_ptr<EventSetupRecordIntervalFinder>& iComponent); 
                
          static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
                                                                             ParameterSet const& iConfiguration);

@@ -15,7 +15,7 @@ namespace PhysicsTools {
 
 bool MLP::inUse = false;
 
-static std::vector<std::string> split(const std::string line, char delim)
+static std::vector<std::string> split(const std::string& line, char delim)
 {
 	const char *str = line.c_str();
 	const char *p = str;
@@ -40,7 +40,7 @@ static std::vector<std::string> split(const std::string line, char delim)
 	return tokens;
 }
 
-MLP::MLP(unsigned int nIn, unsigned int nOut, const std::string layout_) :
+MLP::MLP(unsigned int nIn, unsigned int nOut, const std::string& layout_) :
 	initialized(false), layers(0), layout(0), epoch(0)
 {
 	if (inUse)
@@ -151,14 +151,14 @@ const double *MLP::eval(double *data) const
 	return &NET.Outn[layers - 1][0];
 }
 
-void MLP::save(const std::string file) const
+void MLP::save(const std::string& file) const
 {
 	if (SaveWeights(const_cast<char*>(file.c_str()), (int)epoch) < 0)
 		throw cms::Exception("MLP")
 			<< "Error opening \"" << file << "\"." << std::endl;
 }
 
-void MLP::load(const std::string file)
+void MLP::load(const std::string& file)
 {
 	int epoch_ = 0;
 	if (LoadWeights(const_cast<char*>(file.c_str()), &epoch_) < 0)

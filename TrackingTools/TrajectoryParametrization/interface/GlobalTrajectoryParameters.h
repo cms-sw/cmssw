@@ -1,6 +1,8 @@
 #ifndef _TRACKER_GLOBALTRAJECTORYPARAMETERS_H_
 #define _TRACKER_GLOBALTRAJECTORYPARAMETERS_H_
 
+#include <utility>
+
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 #include "DataFormats/TrajectoryState/interface/TrackCharge.h"
@@ -41,7 +43,7 @@ public:
                              GlobalVector fieldValue):
     theField(fieldProvider),
     theX(aX), theP(aP),
-    cachedMagneticField(fieldValue),
+    cachedMagneticField(std::move(fieldValue)),
     theCharge(aCharge)
     {}
 

@@ -17,6 +17,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 
 //////////////////////////////////////////////////////////////////////////////
 //////// Namespaces and Typedefs /////////////////////////////////////////////
@@ -42,8 +43,8 @@ HLTMuonMatchAndPlot::HLTMuonMatchAndPlot(const ParameterSet & pset,
   requiredTriggers_(pset.getUntrackedParameter<vstring>("requiredTriggers")),
   targetParams_(pset.getParameterSet("targetParams")),
   probeParams_(pset.getParameterSet("probeParams")),
-  hltPath_(hltPath),
-  moduleLabel_(moduleLabel),
+  hltPath_(std::move(hltPath)),
+  moduleLabel_(std::move(moduleLabel)),
   isLastFilter_(islastfilter),
   hasTargetRecoCuts(targetParams_.exists("recoCuts")),
   hasProbeRecoCuts(probeParams_.exists("recoCuts")),
@@ -586,7 +587,7 @@ HLTMuonMatchAndPlot::fillEdges(size_t & nBins, float * & edges,
 template <class T>
 void 
 HLTMuonMatchAndPlot::fillMapFromPSet(map<string, T> & m, 
-                                     const ParameterSet& pset, string target) 
+                                     const ParameterSet& pset, const string& target) 
 {
 
   // Get the ParameterSet with name 'target' from 'pset'
@@ -692,7 +693,7 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
   const TriggerObjectCollection & triggerObjects,
   const TriggerEvent & triggerSummary,
   bool hasTriggerCuts,
-  const StringCutObjectSelector<TriggerObject> triggerSelector)
+  const StringCutObjectSelector<TriggerObject>& triggerSelector)
 {
   if ( !hasTriggerCuts) return TriggerObjectCollection();
 
@@ -717,7 +718,7 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 
 
 void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker & iBooker, string name, 
-				 string binningType, string title)
+				 const string& binningType, string title)
 {
 
   /* Properly delete the array of floats that has been allocated on
@@ -742,9 +743,9 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker & iBooker, string name,
 
 
 void
-HLTMuonMatchAndPlot::book2D(DQMStore::IBooker & iBooker, string name, 
-			    string binningTypeX, string binningTypeY, 
-			    string title) 
+HLTMuonMatchAndPlot::book2D(DQMStore::IBooker & iBooker, const string& name, 
+			    const string& binningTypeX, const string& binningTypeY, 
+			    const string& title) 
 {
   
   /* Properly delete the arrays of floats that have been allocated on

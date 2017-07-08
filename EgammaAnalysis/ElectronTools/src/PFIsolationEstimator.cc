@@ -197,7 +197,7 @@ void PFIsolationEstimator::initializeRings(int iNumberOfRings, float fRingSize){
   
  
 //--------------------------------------------------------------------------------------------------
-float PFIsolationEstimator::fGetIsolation(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+float PFIsolationEstimator::fGetIsolation(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
  
   fGetIsolationInRings( pfCandidate, pfParticlesColl, vtx, vertices);
   refSC = reco::SuperClusterRef();
@@ -208,7 +208,7 @@ float PFIsolationEstimator::fGetIsolation(const reco::PFCandidate * pfCandidate,
 
 
 //--------------------------------------------------------------------------------------------------
-std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCandidate * pfCandidate, const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
 
   int isoBin;
 
@@ -274,7 +274,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::PFCa
 
 
 //--------------------------------------------------------------------------------------------------
-float PFIsolationEstimator::fGetIsolation(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+float PFIsolationEstimator::fGetIsolation(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
  
   fGetIsolationInRings( photon, pfParticlesColl, vtx, vertices);
   fIsolation = fIsolationInRings[0];
@@ -284,7 +284,7 @@ float PFIsolationEstimator::fGetIsolation(const reco::Photon * photon, const rec
 
 
 //--------------------------------------------------------------------------------------------------
-std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Photon * photon, const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
 
   int isoBin;
   
@@ -379,7 +379,7 @@ std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::Phot
 
 
 //--------------------------------------------------------------------------------------------------
-float PFIsolationEstimator::fGetIsolation(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+float PFIsolationEstimator::fGetIsolation(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
  
   fGetIsolationInRings( electron, pfParticlesColl, vtx, vertices);
   fIsolation = fIsolationInRings[0];
@@ -389,7 +389,7 @@ float PFIsolationEstimator::fGetIsolation(const reco::GsfElectron * electron, co
 
 
 //--------------------------------------------------------------------------------------------------
-std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices) {
+std::vector<float >  PFIsolationEstimator::fGetIsolationInRings(const reco::GsfElectron * electron, const reco::PFCandidateCollection* pfParticlesColl,const reco::VertexRef& vtx, const edm::Handle< reco::VertexCollection >& vertices) {
 
   int isoBin;
   
@@ -565,14 +565,14 @@ float  PFIsolationEstimator::isNeutralParticleVetoed( const reco::PFCandidate* p
 
 
 //----------------------------------------------------------------------------------------------------
-float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand, edm::Handle< reco::VertexCollection >  vertices  ){
+float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand, const edm::Handle< reco::VertexCollection >&  vertices  ){
   //need code to handle special conditions
   
   return -999;
 }
 
 //-----------------------------------------------------------------------------------------------------
-float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,reco::VertexRef vtxMain, edm::Handle< reco::VertexCollection >  vertices  ){
+float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pfIsoCand,const reco::VertexRef& vtxMain, const edm::Handle< reco::VertexCollection >&  vertices  ){
   
   reco::VertexRef vtx = chargedHadronVertex(vertices,  *pfIsoCand );
   if(vtx.isNull())
@@ -680,7 +680,7 @@ float  PFIsolationEstimator::isChargedParticleVetoed(const reco::PFCandidate* pf
 
 
 //--------------------------------------------------------------------------------------------------
-reco::VertexRef  PFIsolationEstimator::chargedHadronVertex(  edm::Handle< reco::VertexCollection > verticesColl, const reco::PFCandidate& pfcand ){
+reco::VertexRef  PFIsolationEstimator::chargedHadronVertex(  const edm::Handle< reco::VertexCollection >& verticesColl, const reco::PFCandidate& pfcand ){
 
   //code copied from Florian's PFNoPU class
     

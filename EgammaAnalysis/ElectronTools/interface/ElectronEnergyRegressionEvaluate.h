@@ -46,7 +46,7 @@ class ElectronEnergyRegressionEvaluate{
     kWithSubCluVar
   };
 
-  void initialize(std::string weightsFile,
+  void initialize(const std::string& weightsFile,
                   ElectronEnergyRegressionEvaluate::ElectronEnergyRegressionType type);
 
   bool isInitialized() const {return fIsInitialized;}

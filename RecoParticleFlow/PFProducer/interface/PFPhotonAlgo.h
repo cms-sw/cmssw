@@ -33,10 +33,10 @@ class PFPhotonAlgo {
  public:
   
   //constructor
-  PFPhotonAlgo(std::string mvaweightfile,  
+  PFPhotonAlgo(const std::string& mvaweightfile,  
 	       double mvaConvCut, 
 	       bool useReg, 
-	       std::string X0_Map,
+	       const std::string& X0_Map,
 	       const reco::Vertex& primary,
 	       const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                double sumPtTrackIsoForPhoton,
@@ -212,7 +212,7 @@ private:
 			    unsigned int track_index);
   
   double ClustersPhiRMS(const std::vector<reco::CaloCluster>&PFClusters, float PFPhoPhi);
-  float EvaluateLCorrMVA(reco::PFClusterRef clusterRef );
+  float EvaluateLCorrMVA(const reco::PFClusterRef& clusterRef );
   float EvaluateGCorrMVA(const reco::PFCandidate&, const std::vector<reco::CaloCluster>& PFClusters);
   float EvaluateResMVA(const reco::PFCandidate&,const std::vector<reco::CaloCluster>& PFClusters );
   std::vector<int> getPFMustacheClus(int nClust, std::vector<float>& ClustEt, std::vector<float>& ClustEta, std::vector<float>& ClustPhi);

@@ -40,12 +40,12 @@ class HDQMfitUtilities{
   double doGaussFit(MonitorElement* ME){return doGaussFit(ME->getTH1F());}
   double doGaussFit(TH1F*);
   
-  double getLanGaussPar(std::string s)   ;
-  double getLanGaussParErr(std::string s);
-  double getLanGaussConv(std::string s)  ;
+  double getLanGaussPar(const std::string& s)   ;
+  double getLanGaussParErr(const std::string& s);
+  double getLanGaussConv(const std::string& s)  ;
   
-  double getGaussPar(std::string s)   ;
-  double getGaussParErr(std::string s);
+  double getGaussPar(const std::string& s)   ;
+  double getGaussParErr(const std::string& s);
 
   double getFitChi()  {return chi2GausS;}
   int    getFitnDof() {return nDofGausS;}

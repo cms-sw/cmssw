@@ -53,7 +53,7 @@ class PATJetCorrExtractor
 {
  public:
 
-  reco::Candidate::LorentzVector operator()(const pat::Jet rawJet, const reco::JetCorrector* jetCorr,
+  reco::Candidate::LorentzVector operator()(const pat::Jet& rawJet, const reco::JetCorrector* jetCorr,
 					    double jetCorrEtaMax = 9.9,
 					    const reco::Candidate::LorentzVector * const rawJetP4_specified = nullptr) const
   {

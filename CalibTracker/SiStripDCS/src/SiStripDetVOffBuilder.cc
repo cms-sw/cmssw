@@ -332,7 +332,7 @@ int SiStripDetVOffBuilder::findSetting(uint32_t id, const coral::TimeStamp& chan
   return setting;
 }
 
-int SiStripDetVOffBuilder::findSetting(std::string dpname, const coral::TimeStamp& changeDate, const std::vector<std::string>& settingDpname, const std::vector<coral::TimeStamp>& settingDate) {
+int SiStripDetVOffBuilder::findSetting(const std::string& dpname, const coral::TimeStamp& changeDate, const std::vector<std::string>& settingDpname, const std::vector<coral::TimeStamp>& settingDate) {
   int setting = -1;
   // find out how many channel entries there are
   std::vector<int> locations;
@@ -698,7 +698,7 @@ string SiStripDetVOffBuilder::timeToStream(const coral::TimeStamp & coralTime, c
      << ", nanosecond = " << coralTime.nanosecond() << std::endl;
   return ss.str();
 }
-bool SiStripDetVOffBuilder::FileExists(string FileName) {
+bool SiStripDetVOffBuilder::FileExists(const string& FileName) {
   //Helper method to check if local files exist (needed to handle HVUnmapped, HVCrosstalking modules)
   struct stat FileInfo;
   bool Existence;

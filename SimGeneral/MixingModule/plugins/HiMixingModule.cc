@@ -158,7 +158,7 @@ class HiMixingModule : public edm::stream::EDProducer<> {
       //virtual void beginJob() override {}
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       //virtual void endJob() override {}
-      bool verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label);      
+      bool verifyRegistry(const std::string& object, const std::string& subdet, InputTag &tag,std::string &label);      
       // ----------member data ---------------------------
 
    std::vector<HiMixingWorkerBase *> workers_;
@@ -265,7 +265,7 @@ HiMixingModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-bool HiMixingModule::verifyRegistry(std::string object, std::string subdet, InputTag &tag,std::string &label) {
+bool HiMixingModule::verifyRegistry(const std::string& object, const std::string& subdet, InputTag &tag,std::string &label) {
    // verify that the given product exists in the product registry                                                                          
    // and create the label to be given to the CrossingFrame                                                                                 
 

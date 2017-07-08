@@ -35,42 +35,42 @@ class QTestConfigure{
  private:
 
   ///Creates ContentsXRangeROOT test
-  void EnableXRangeTest(std::string testName, 
+  void EnableXRangeTest(const std::string& testName, 
                         const std::map<std::string, std::string>& params,DQMStore * bei); 
   ///Creates ContentsXRangeASROOT test
 //  void EnableXRangeASTest(std::string testName, 
 //                        std::map<std::string, std::string>params,DQMStore * bei); 
   ///Creates ContentsYRangeROOT test
-  void EnableYRangeTest(std::string testName, 
+  void EnableYRangeTest(const std::string& testName, 
                         const std::map<std::string, std::string>& params,DQMStore * bei); 
   ///Creates ContentsYRangeASROOT test
 //  void EnableYRangeASTest(std::string testName, 
 //                        std::map<std::string, std::string>params,DQMStore * bei); 
    ///Creates DeadChannelROOT test
-  void EnableDeadChannelTest(std::string testName, 
+  void EnableDeadChannelTest(const std::string& testName, 
                              const std::map<std::string,std::string>& params,DQMStore * bei); 
    ///Creates NoisyChannelROOT test
-  void EnableNoisyChannelTest(std::string testName, 
+  void EnableNoisyChannelTest(const std::string& testName, 
                               const std::map<std::string,std::string>& params,DQMStore * bei);
     ///Creates MeanWithinExpectedROOT test
-  void EnableMeanWithinExpectedTest(std::string testName, 
+  void EnableMeanWithinExpectedTest(const std::string& testName, 
                                     const std::map<std::string,std::string>& params,DQMStore * bei);
 
   //===================== new quality tests in the parser =============================//
 ///Creates Comp2RefEqualH test
- void EnableComp2RefEqualHTest(std::string testName, 
+ void EnableComp2RefEqualHTest(const std::string& testName, 
                      const std::map<std::string, std::string>& params,DQMStore * bei); 
 
 ///Creates Comp2RefChi2 test
- void EnableComp2RefChi2Test(std::string testName, 
+ void EnableComp2RefChi2Test(const std::string& testName, 
                      const std::map<std::string, std::string>& params,DQMStore * bei); 
 
 ///Creates Comp2Ref2DChi2 test
- void EnableComp2Ref2DChi2Test(std::string testName, 
+ void EnableComp2Ref2DChi2Test(const std::string& testName, 
                      const std::map<std::string, std::string>& params,DQMStore * bei); 
 
  ///Creates EnableComp2RefKolmogorov test
- void EnableComp2RefKolmogorovTest(std::string testName, 
+ void EnableComp2RefKolmogorovTest(const std::string& testName, 
                      const std::map<std::string, std::string>& params,DQMStore * bei); 
 
   /*
@@ -80,7 +80,7 @@ class QTestConfigure{
   */
 
     /// Creates ContentsWithinRangeROOT test
-  void EnableContentsWithinExpectedTest(std::string testName,
+  void EnableContentsWithinExpectedTest(const std::string& testName,
                                         const std::map<std::string,std::string>& params,DQMStore * bei);
 
     /// Creates ContentsWithinRangeROOT test
@@ -88,14 +88,14 @@ class QTestConfigure{
 //                                        std::map<std::string,std::string> params,DQMStore * bei);
 
   ///Creates CompareToMedian test
-  void EnableCompareToMedianTest(std::string testName,
+  void EnableCompareToMedianTest(const std::string& testName,
                            const std::map<std::string,std::string>& params,DQMStore * bei); 
 
   ///Creates EnableCompareLastFilledBinTest test  
-  void EnableCompareLastFilledBinTest(std::string testName, const std::map<std::string, std::string>& params, DQMStore *bei);
+  void EnableCompareLastFilledBinTest(const std::string& testName, const std::map<std::string, std::string>& params, DQMStore *bei);
 
   ///Creates CheckVariance test
-  void EnableCheckVarianceTest(std::string testName,
+  void EnableCheckVarianceTest(const std::string& testName,
 			       const std::map<std::string,std::string>& params, DQMStore * bei);
 
   const char * findOrDefault(const std::map<std::string, std::string> &,

@@ -4,6 +4,7 @@
 #ifndef __l1t_EMTFTrack_h__
 #define __l1t_EMTFTrack_h__
 
+#include <utility>
 #include <vector>
 #include <boost/cstdint.hpp>
  
@@ -31,12 +32,12 @@ namespace l1t {
 
     // float pi = 3.141592653589793238;
 
-    void ImportSP( const emtf::SP _SP, int _sector );
+    void ImportSP( const emtf::SP& _SP, int _sector );
     void ImportPtLUT( int _mode, unsigned long _address );
 
-    void set_Hits(EMTFHitCollection bits)       { _Hits = bits;                numHits = _Hits.size(); }
-    void push_Hit(EMTFHit bits)                 { _Hits.push_back(bits);       numHits = _Hits.size(); }
-    void set_HitIndices(std::vector<uint> bits) { _HitIndices = bits;          numHits = _HitIndices.size(); }
+    void set_Hits(EMTFHitCollection bits)       { _Hits = std::move(bits);                numHits = _Hits.size(); }
+    void push_Hit(const EMTFHit& bits)                 { _Hits.push_back(bits);       numHits = _Hits.size(); }
+    void set_HitIndices(std::vector<uint> bits) { _HitIndices = std::move(bits);          numHits = _HitIndices.size(); }
     void push_HitIndex(uint bits)               { _HitIndices.push_back(bits); numHits = _HitIndices.size(); }
 
     int NumHits()            const { return numHits; }

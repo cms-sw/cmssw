@@ -73,8 +73,8 @@ private:
   edm::ParameterSet parameters;
 
   // Fill a set of histograms for a given L
-  void fillHistos(DTLayerId lId, int firstWire, int lastWire, int numWire);
-  void fillHistos(DTLayerId lId, int firstWire, int lastWire, int missingWire, bool UnassHit);
+  void fillHistos(const DTLayerId& lId, int firstWire, int lastWire, int numWire);
+  void fillHistos(const DTLayerId& lId, int firstWire, int lastWire, int missingWire, bool UnassHit);
 
   std::map<DTLayerId, std::vector<MonitorElement*> > histosPerL;
 

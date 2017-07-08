@@ -62,8 +62,8 @@ private:
 		       const edm::EventSetup &) override;
   virtual void endRun(const edm::Run &,
 		      const edm::EventSetup &) override;
-  bool isMonitoredTriggerAccepted(const edm::TriggerNames,
-				  const edm::Handle<edm::TriggerResults>); 
+  bool isMonitoredTriggerAccepted(const edm::TriggerNames&,
+				  const edm::Handle<edm::TriggerResults>&); 
 
   // Input from Configuration File
   edm::ParameterSet pset_;
@@ -333,8 +333,8 @@ HigPhotonJetHLTOfflineSource::endRun(const edm::Run & iRun,
 }
 
 bool
-HigPhotonJetHLTOfflineSource::isMonitoredTriggerAccepted(const edm::TriggerNames triggerNames,
-							 const edm::Handle<edm::TriggerResults> triggerResults )
+HigPhotonJetHLTOfflineSource::isMonitoredTriggerAccepted(const edm::TriggerNames& triggerNames,
+							 const edm::Handle<edm::TriggerResults>& triggerResults )
 {
   for (unsigned int itrig = 0; itrig < triggerResults->size(); itrig++){
     // Only consider the triggered case.

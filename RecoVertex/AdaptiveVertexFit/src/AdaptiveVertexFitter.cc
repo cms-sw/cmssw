@@ -61,7 +61,7 @@ namespace {
 
 
   void
-  sortByDistanceToRefPoint (std::vector<RefCountedVertexTrack> & cont, const GlobalPoint  ref ) {
+  sortByDistanceToRefPoint (std::vector<RefCountedVertexTrack> & cont, const GlobalPoint&  ref ) {
       auto s = cont.size();
       float d2[s]; int ind[s]; int i=0;
       for (auto const & tk : cont) { ind[i]=i; d2[i++] = (tk->linearizedTrack()->track().initialFreeState().position() - ref ).mag2();}

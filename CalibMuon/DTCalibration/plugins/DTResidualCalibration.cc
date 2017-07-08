@@ -190,7 +190,7 @@ void DTResidualCalibration::endJob(){
 
 }
 
-void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
+void DTResidualCalibration::bookHistos(const DTSuperLayerId& slId) {
   TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
@@ -246,7 +246,7 @@ void DTResidualCalibration::bookHistos(DTSuperLayerId slId) {
   histoMapTH2F_[slId] = histosTH2F;
 }
 
-void DTResidualCalibration::bookHistos(DTLayerId layerId) {
+void DTResidualCalibration::bookHistos(const DTLayerId& layerId) {
   TH1AddDirectorySentry addDir;
   rootFile_->cd();
 
@@ -301,7 +301,7 @@ void DTResidualCalibration::bookHistos(DTLayerId layerId) {
 }
 
 // Fill a set of histograms for a given SL 
-void DTResidualCalibration::fillHistos(DTSuperLayerId slId,
+void DTResidualCalibration::fillHistos(const DTSuperLayerId& slId,
 				       float distance,
 				       float residualOnDistance) {
   std::vector<TH1F*> const& histosTH1F = histoMapTH1F_[slId];
@@ -311,7 +311,7 @@ void DTResidualCalibration::fillHistos(DTSuperLayerId slId,
 }
 
 // Fill a set of histograms for a given layer 
-void DTResidualCalibration::fillHistos(DTLayerId layerId,
+void DTResidualCalibration::fillHistos(const DTLayerId& layerId,
 				       float distance,
 				       float residualOnDistance) {
   std::vector<TH1F*> const& histosTH1F = histoMapPerLayerTH1F_[layerId];

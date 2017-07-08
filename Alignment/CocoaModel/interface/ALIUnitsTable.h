@@ -53,8 +53,8 @@ class ALIUnitDefinition
 {
 public:  // with description
 
-    ALIUnitDefinition(ALIstring name, ALIstring symbol,
-                     ALIstring category, ALIdouble value);
+    ALIUnitDefinition(const ALIstring& name, const ALIstring& symbol,
+                     const ALIstring& category, ALIdouble value);
 	    
 public:  // without description
 	    
@@ -80,8 +80,8 @@ public:  // with description
     
     static ALIUnitsTable& GetUnitsTable() {return theUnitsTable;}
 
-    static ALIdouble GetValueOf (ALIstring);
-    static ALIstring GetCategory(ALIstring);
+    static ALIdouble GetValueOf (const ALIstring&);
+    static ALIstring GetCategory(const ALIstring&);
 
 private:
 
@@ -138,8 +138,8 @@ class ALIBestUnit
 {
 public:  // with description
 
-    ALIBestUnit(ALIdouble internalValue, ALIstring category);
-    ALIBestUnit(const CLHEP::Hep3Vector& internalValue, ALIstring category);    
+    ALIBestUnit(ALIdouble internalValue, const ALIstring& category);
+    ALIBestUnit(const CLHEP::Hep3Vector& internalValue, const ALIstring& category);    
       // These constructors convert a physical quantity from its internalValue
       // into the most appropriate unit of the same category.
       // In practice it builds an object VU = (newValue, newUnit)

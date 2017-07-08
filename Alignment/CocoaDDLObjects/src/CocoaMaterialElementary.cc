@@ -7,14 +7,15 @@
 #include <map>
 #include <fstream>
 #include <cmath>		// include floating-point std::abs functions
+#include <utility>
 
 #include "Alignment/CocoaDDLObjects/interface/CocoaMaterialElementary.h"
 
 
 CocoaMaterialElementary::CocoaMaterialElementary( ALIstring name, float density, ALIstring symbol, float A, ALIint Z ) :
-  theName(name),
+  theName(std::move(name)),
   theDensity(density),
-  theSymbol(symbol),
+  theSymbol(std::move(symbol)),
   theA(A),
   theZ(Z)
 {

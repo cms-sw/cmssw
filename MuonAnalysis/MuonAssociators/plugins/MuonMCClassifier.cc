@@ -108,7 +108,7 @@ class MuonMCClassifier : public edm::EDProducer {
                 const std::vector<T> & values,
                 const std::string    & label) const ;
 
-        TrackingParticleRef getTpMother(TrackingParticleRef tp) {
+        TrackingParticleRef getTpMother(const TrackingParticleRef& tp) {
             if (tp.isNonnull() && tp->parentVertex().isNonnull() && !tp->parentVertex()->sourceTracks().empty()) {
                 return tp->parentVertex()->sourceTracks()[0];
             } else {

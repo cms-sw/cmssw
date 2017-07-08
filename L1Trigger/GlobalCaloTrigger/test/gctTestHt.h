@@ -42,7 +42,7 @@ public:
 
     rawJetData() :
       jets(), httSum(0), htxSum(0), htySum(0), httOverFlow(false), htmOverFlow(false) {}
-    rawJetData(const RawJetsVector jv, const unsigned htt, const int htx, const int hty, const bool httof, const bool htmof) : 
+    rawJetData(const RawJetsVector& jv, const unsigned htt, const int htx, const int hty, const bool httof, const bool htmof) : 
       jets(jv), httSum(htt), htxSum(htx), htySum(hty), httOverFlow(httof), htmOverFlow(htmof) {}
   };
 

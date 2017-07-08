@@ -112,8 +112,8 @@ void BremRecoveryClusterAlgo::makeIslandSuperClusters(reco::CaloClusterPtrVector
 }
 
 
-bool BremRecoveryClusterAlgo::match(reco::CaloClusterPtr seed_p, 
-				    reco::CaloClusterPtr cluster_p,
+bool BremRecoveryClusterAlgo::match(const reco::CaloClusterPtr& seed_p, 
+				    const reco::CaloClusterPtr& cluster_p,
 				    double dEtaMax, double dPhiMax)
 {
   math::XYZPoint clusterPosition = cluster_p->position();

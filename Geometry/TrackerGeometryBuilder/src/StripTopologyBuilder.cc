@@ -9,7 +9,7 @@ StripTopologyBuilder::StripTopologyBuilder( void )
 {}
 
 StripTopology*
-StripTopologyBuilder::build( const Bounds* bs, double apvnumb, std::string part )
+StripTopologyBuilder::build( const Bounds* bs, double apvnumb, const std::string& part )
 {
   theAPVNumb = apvnumb;
 

@@ -3,7 +3,7 @@
 #include "G4ParticleTable.hh"
 #include "G4PhysicalConstants.hh"
 
-G4Monopole::G4Monopole(const G4String aName, G4int pdgEncoding, G4double mass,
+G4Monopole::G4Monopole(const G4String& aName, G4int pdgEncoding, G4double mass,
 		       G4int mCharge, G4int eCharge) : 
   G4ParticleDefinition(aName, mass,  0.0*MeV, eplus*eCharge, 0, 0, 0, 
 		       0, 0, 0, "boson", 0, 0, pdgEncoding, true, -1.0, 0) {

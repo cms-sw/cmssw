@@ -37,7 +37,7 @@ int HcalChannelIterator::clearChannelList(void){
 }
 
 
-int HcalChannelIterator::addListFromLmapAscii(std::string filename){
+int HcalChannelIterator::addListFromLmapAscii(const std::string& filename){
   RooGKCounter lines;
   int _current_size = size();
   std::string _row;

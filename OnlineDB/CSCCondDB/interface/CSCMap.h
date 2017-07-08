@@ -57,7 +57,7 @@ class cscmap
 |   'crate0' - logical crate number.
 |   -100 returned means that 'chamber_id' format is incorrect.
 */
-  void chamber_crate (std::string chamber_id, int *crate, int *dmb,
+  void chamber_crate (const std::string& chamber_id, int *crate, int *dmb,
 		      int *sector, int *chamber_num, int *crate0,
                       int *first_strip_index, int *strips_per_layer,
                       int *chamber_index);

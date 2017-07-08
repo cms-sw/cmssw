@@ -15,7 +15,7 @@ using namespace CLHEP;
 
 G4ThreadLocal ParametrisedPhysics::ThreadPrivate* ParametrisedPhysics::tpdata = nullptr;
 
-ParametrisedPhysics::ParametrisedPhysics(std::string name, const edm::ParameterSet & p) :
+ParametrisedPhysics::ParametrisedPhysics(const std::string& name, const edm::ParameterSet & p) :
   G4VPhysicsConstructor(name), theParSet(p) 
 {}
 

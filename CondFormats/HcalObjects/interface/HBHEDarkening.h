@@ -1,6 +1,7 @@
 #ifndef CondFormats_HcalObjects_HBHEDarkening_h
 #define CondFormats_HcalObjects_HBHEDarkening_h
 
+#include <utility>
 #include <vector>
 #include <string>
 #include <map>
@@ -22,7 +23,7 @@ class HBHEDarkening {
 			LumiYear() : 
 				year_(""), intlumi_(0.), lumirate_(0.), energy_(0), sumlumi_(0.) {}
 			LumiYear(std::string year, float intlumi, float lumirate, int energy) : 
-				year_(year), intlumi_(intlumi), lumirate_(lumirate), energy_(energy), sumlumi_(0.) {}
+				year_(std::move(year)), intlumi_(intlumi), lumirate_(lumirate), energy_(energy), sumlumi_(0.) {}
 			
 			//sorting
 			bool operator<(const LumiYear& yr) const {

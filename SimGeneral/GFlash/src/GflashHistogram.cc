@@ -14,7 +14,7 @@ GflashHistogram::GflashHistogram() :
 {
 }
 
-void GflashHistogram::bookHistogram(std::string histFileName) 
+void GflashHistogram::bookHistogram(const std::string& histFileName) 
 {
   histFile_ = new TFile(histFileName.c_str(),"RECREATE");
 

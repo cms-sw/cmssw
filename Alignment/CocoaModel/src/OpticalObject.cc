@@ -540,7 +540,7 @@ void OpticalObject::createComponentOptOs( ALIFileIn& filein )
 }
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-OpticalObject* OpticalObject::createNewOptO( OpticalObject* parent, ALIstring optoType, ALIstring optoName, ALIbool fcopyComponents )
+OpticalObject* OpticalObject::createNewOptO( OpticalObject* parent, const ALIstring& optoType, const ALIstring& optoName, ALIbool fcopyComponents )
 {
   if ( ALIUtils::debug >= 3 ) std::cout << " OpticalObject::createNewOptO optoType " << optoType << " optoName " << optoName << " parent " << parent->name() << std::endl;
   OpticalObject* OptOcomponent;

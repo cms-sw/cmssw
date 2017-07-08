@@ -190,7 +190,7 @@ class Combo {
 	  std::cout << " jet Lepb: px = " << Lepb_.Px() << " py = " <<  Lepb_.Py() <<" pz = " << Lepb_.Pz() <<" e = "<< Lepb_.E() << std::endl;
 	  std::cout << " chi-squared = " << chi2_ << " sumEt = " << SumEt_ << std::endl;
 	}
-	double getPdfValue(std::string flavor, double disc) {
+	double getPdfValue(const std::string& flavor, double disc) {
 	  double pdf= 0;
 	  TH1F *hpdf;
 	  if ( flavor == "b" ) hpdf = hdisc_b_;

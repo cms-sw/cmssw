@@ -88,7 +88,7 @@ class DQMPFCandidateAnalyzer : public DQMEDAnalyzer {
 
  private:
   // ----------member data ---------------------------
-  static bool jetSortingRule(reco::Jet x, reco::Jet y) {return x.pt() > y.pt();}
+  static bool jetSortingRule(const reco::Jet& x, const reco::Jet& y) {return x.pt() > y.pt();}
 
   //try to put one collection as start
 

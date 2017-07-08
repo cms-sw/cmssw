@@ -53,7 +53,7 @@ private:
     virtual bool newHit(G4Step *);
     virtual bool closeHit(G4Step *);
     virtual void createHit(G4Step *);
-    void checkExitPoint(Local3DPoint);
+    void checkExitPoint(const Local3DPoint&);
     void update(const BeginOfEvent *);
     void update(const BeginOfTrack *);
     void update(const BeginOfJob *);

@@ -7,7 +7,7 @@
 #include "G4eIonisation.hh"
 #include "G4MuIonisation.hh"
 
-DummyEMPhysics::DummyEMPhysics(const std::string name) 
+DummyEMPhysics::DummyEMPhysics(const std::string& name) 
   : G4VPhysicsConstructor(name) {}
 
 DummyEMPhysics::~DummyEMPhysics() {}

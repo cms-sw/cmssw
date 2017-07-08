@@ -22,6 +22,7 @@
 
 // system include files
 #include <memory>
+#include <utility>
 
 // user include files
 
@@ -67,7 +68,7 @@ namespace edm {
       
     private:
       ServiceToken(std::shared_ptr<edm::serviceregistry::ServicesManager>  iManager):
-      manager_(iManager) {}
+      manager_(std::move(iManager)) {}
       
       //ServiceToken(const ServiceToken&); // stop default
 

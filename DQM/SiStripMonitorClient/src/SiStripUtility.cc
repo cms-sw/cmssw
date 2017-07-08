@@ -8,7 +8,7 @@
 //
 // Get a list of MEs in a folder
 //
-int SiStripUtility::getMEList(std::string name, std::vector<std::string>& values) {
+int SiStripUtility::getMEList(const std::string& name, std::vector<std::string>& values) {
   values.clear();
   std::string prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
@@ -21,7 +21,7 @@ int SiStripUtility::getMEList(std::string name, std::vector<std::string>& values
 //
 // Get a list of MEs in a folder and the path name
 //
-int SiStripUtility::getMEList(std::string name, std::string& dir_path, std::vector<std::string>& values) {
+int SiStripUtility::getMEList(const std::string& name, std::string& dir_path, std::vector<std::string>& values) {
   values.clear();
   dir_path = name.substr(0,(name.find(":")));
   dir_path += "/"; 
@@ -31,7 +31,7 @@ int SiStripUtility::getMEList(std::string name, std::string& dir_path, std::vect
 }
 
 // Check if the requested ME exists in a folder
-bool SiStripUtility::checkME(std::string name, std::string me_name, std::string& full_path) {
+bool SiStripUtility::checkME(const std::string& name, const std::string& me_name, std::string& full_path) {
   if (name.find(name) == std::string::npos) return false;
   std::string prefix_str = name.substr(0,(name.find(":")));
   prefix_str += "/"; 
@@ -212,7 +212,7 @@ void SiStripUtility::getMEValue(MonitorElement* me, std::string & val){
 //
 // -- go to a given Directory
 //
-bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
+bool SiStripUtility::goToDir(DQMStore * dqm_store, const std::string& name) {
   std::string currDir = dqm_store->pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/")+1);
   if (dirName.find(name) == 0) {
@@ -302,7 +302,7 @@ void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
 //
 // -- Set Event Info Folder
 //
-void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, std::string top_dir, std::string& path) {
+void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, const std::string& top_dir, std::string& path) {
 
   path = ""; 
   dqm_store->cd();

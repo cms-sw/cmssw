@@ -104,13 +104,13 @@ private:
     return phi;
   }
 
-  void findSeedsFromCluster(edm::Ref<reco::SuperClusterCollection>, edm::Handle<reco::BeamSpot>,
+  void findSeedsFromCluster(const edm::Ref<reco::SuperClusterCollection>&, const edm::Handle<reco::BeamSpot>&,
                             const MeasurementTrackerEvent &trackerData,
 			    reco::ElectronSeedCollection&);
 
   int whichSubdetector(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit);
 
-  bool preselection(GlobalPoint position,GlobalPoint superCluster,double phiVsRSlope, int hitLayer);
+  bool preselection(const GlobalPoint& position,const GlobalPoint& superCluster,double phiVsRSlope, int hitLayer);
   //hitLayer: 1 = TIB, 2 = TID, 3 = TEC, 4 = Mono
 
   bool checkHitsAndTSOS(std::vector<const SiStripMatchedRecHit2D*>::const_iterator hit1,
@@ -121,8 +121,8 @@ private:
 			   std::vector<const SiStripRecHit2D*>::const_iterator hit2,
 			   double scr,double scz,double pT,double scEta);
 
-  const SiStripMatchedRecHit2D* matchedHitConverter(ConstRecHitPointer crhp);
-  const SiStripRecHit2D* backupHitConverter(ConstRecHitPointer crhp);
+  const SiStripMatchedRecHit2D* matchedHitConverter(const ConstRecHitPointer& crhp);
+  const SiStripRecHit2D* backupHitConverter(const ConstRecHitPointer& crhp);
 
   std::vector<bool> useDetLayer(double scEta);
 

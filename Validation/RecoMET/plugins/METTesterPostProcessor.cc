@@ -45,7 +45,7 @@ METTesterPostProcessor::dqmEndJob(DQMStore::IBooker& ibook_, DQMStore::IGetter& 
 }
 
 
-void METTesterPostProcessor::FillMETRes(std::string metdir, DQMStore::IGetter & iget)
+void METTesterPostProcessor::FillMETRes(const std::string& metdir, DQMStore::IGetter & iget)
 {
 
   mMETDifference_GenMETTrue_MET0to20=0;

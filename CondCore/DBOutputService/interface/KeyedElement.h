@@ -21,7 +21,7 @@ namespace cond{
    }
 
     // constructor from ascii key
-   KeyedElement(BaseKeyed * obj, std::string key) : 
+   KeyedElement(BaseKeyed * obj, const std::string& key) : 
       m_obj(obj), 
       m_skey(key),
       m_key(convert(key)) {

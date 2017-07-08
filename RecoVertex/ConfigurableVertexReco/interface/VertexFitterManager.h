@@ -16,7 +16,7 @@ class VertexFitterManager {
 
 public:
   static VertexFitterManager & Instance();
-  void registerFitter ( const std::string & name, std::function<AbstractConfFitter* ()> o,
+  void registerFitter ( const std::string & name, const std::function<AbstractConfFitter* ()>& o,
                           const std::string & description );
   std::string describe ( const std::string & ) const;
 

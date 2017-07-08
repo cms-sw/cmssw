@@ -146,7 +146,7 @@ void DTVDriftSegmentCalibration::endJob() {
 }
 
 // Book a set of histograms for a given Chamber
-void DTVDriftSegmentCalibration::bookHistos(DTChamberId chId) {
+void DTVDriftSegmentCalibration::bookHistos(const DTChamberId& chId) {
 
   // Compose the chamber name
   stringstream wheel; wheel << chId.wheel();

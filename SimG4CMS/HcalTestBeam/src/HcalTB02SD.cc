@@ -33,7 +33,7 @@
 // constructors and destructor
 //
 
-HcalTB02SD::HcalTB02SD(G4String name, const DDCompactView & cpv,
+HcalTB02SD::HcalTB02SD(const G4String& name, const DDCompactView & cpv,
 		       const SensitiveDetectorCatalog & clg,
 		       edm::ParameterSet const & p, 
 		       const SimTrackManager* manager) : 
@@ -117,7 +117,7 @@ void HcalTB02SD::setNumberingScheme(HcalTB02NumberingScheme* scheme) {
   }
 }
 
-void HcalTB02SD::initMap(G4String sd, const DDCompactView & cpv) {
+void HcalTB02SD::initMap(const G4String& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
@@ -173,7 +173,7 @@ double HcalTB02SD::curve_LY(G4String& nameVolume, G4StepPoint* stepPoint) {
   return weight;
 }
 
-double HcalTB02SD::crystalLength(G4String name) {
+double HcalTB02SD::crystalLength(const G4String& name) {
 
   double length = 230.;
   std::map<G4String,double>::const_iterator it = lengthMap.find(name);

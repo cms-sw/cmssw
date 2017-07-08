@@ -8,12 +8,12 @@ EcalLogicID::EcalLogicID()
 {
 }
 
-EcalLogicID::EcalLogicID( std::string name,
+EcalLogicID::EcalLogicID( const std::string& name,
 			  int logicID,
 			  int id1,
 			  int id2,
 			  int id3,
-			  std::string mapsTo )
+			  const std::string& mapsTo )
 {
   this->name = name;
   this->logicID = logicID;

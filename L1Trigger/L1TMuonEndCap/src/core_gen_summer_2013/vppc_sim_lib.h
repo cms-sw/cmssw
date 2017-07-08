@@ -147,8 +147,8 @@ signal_& const_l_p(size_t sz, size_t count, ... ); // for longer permanent const
 signal_& const_l(size_t sz, size_t count, ... ); // for longer constants
 void Sfwrite(signal_& fd, std::string format, ... );
 int Ssscanf (signal_& line, std::string format, ... );
-void Sreadmemh(std::string fname, signal_& dest, size_t adr = 0);
-signal_ Sfopen(std::string fname, std::string mode = "w");
+void Sreadmemh(const std::string& fname, signal_& dest, size_t adr = 0);
+signal_ Sfopen(const std::string& fname, const std::string& mode = "w");
 void Sfclose (signal_& fd);
 int Sfgets (signal_& line, signal_& fd);
 int Sfeof(signal_& fd);

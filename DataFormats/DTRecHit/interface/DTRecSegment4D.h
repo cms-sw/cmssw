@@ -103,10 +103,10 @@ class DTRecSegment4D : public RecSegment {
   }
     
   /// Set position
-  void setPosition(LocalPoint pos) { thePosition = pos; }
+  void setPosition(const LocalPoint& pos) { thePosition = pos; }
 
   /// Set direction
-  void setDirection(LocalVector dir) { theDirection = dir; }
+  void setDirection(const LocalVector& dir) { theDirection = dir; }
 
   /// Set covariance matrix
   void setCovMatrix(const AlgebraicSymMatrix& mat) { theCovMatrix = mat; }

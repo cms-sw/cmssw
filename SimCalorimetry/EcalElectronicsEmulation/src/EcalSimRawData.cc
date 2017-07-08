@@ -181,7 +181,7 @@ string EcalSimRawData::getExt() const{
   }  
 }
 
-void EcalSimRawData::genFeData(string basename, int iEvent,
+void EcalSimRawData::genFeData(const string& basename, int iEvent,
 			       const vector<uint16_t> adcCount[nEbEta][nEbPhi]
 			       ) const{
   int smf = 0;
@@ -271,7 +271,7 @@ void EcalSimRawData::genFeData(string basename, int iEvent,
   } //next half-barrel
 }
 
-void EcalSimRawData::genSrData(string basename, int iEvent,
+void EcalSimRawData::genSrData(const string& basename, int iEvent,
 			       int srf[nEbTtEta][nTtPhi]) const{
   for(int iZ0 = 0; iZ0<2; ++iZ0){
     for(int iDccPhi0 = 0; iDccPhi0<nDccInPhi; ++iDccPhi0){
@@ -337,7 +337,7 @@ void EcalSimRawData::genSrData(string basename, int iEvent,
 }
 
 
-void EcalSimRawData::genTccIn(string basename, int iEvent,
+void EcalSimRawData::genTccIn(const string& basename, int iEvent,
 			      const int tcp[nTtEta][nTtPhi]) const{
   for(int iZ0 = 0; iZ0<2; ++iZ0){
     for(int iTccPhi0 = 0; iTccPhi0<nTccInPhi; ++iTccPhi0){
@@ -395,7 +395,7 @@ void EcalSimRawData::genTccIn(string basename, int iEvent,
 }
 
 
-void EcalSimRawData::genTccOut(string basename, int iEvent,
+void EcalSimRawData::genTccOut(const string& basename, int iEvent,
 			       const int tps[nTtEta][nTtPhi]) const{
   int iDccWord = 0;
 

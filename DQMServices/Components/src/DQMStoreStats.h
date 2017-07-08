@@ -117,7 +117,7 @@ static unsigned int getId(void)
 
 class Folder {
 public:
-  Folder(const std::string name):totalHistos_(0),totalBins_(0),
+  Folder(const std::string& name):totalHistos_(0),totalBins_(0),
                                  totalEmptyBins_(0),totalMemory_(0),
                                  id_(10),level_(0),folderName_(name),
                                  father_(0){;}

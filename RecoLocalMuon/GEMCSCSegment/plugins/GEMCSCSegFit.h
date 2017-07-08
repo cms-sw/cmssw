@@ -42,6 +42,7 @@
 #include <Math/SVector.h>
 #include <Math/SMatrix.h>
 
+#include <utility>
 #include <vector>
 
 class GEMCSCSegFit {
@@ -70,8 +71,8 @@ public:
   // PUBLIC FUNCTIONS
 
   //@@ WANT OBJECT TO CACHE THE SET OF HITS SO CANNOT PASS BY REF
- GEMCSCSegFit(std::map<uint32_t, const CSCLayer*> csclayermap, std::map<uint32_t, const GEMEtaPartition*> gemrollmap, const std::vector<const TrackingRecHit*> hits) : 
-  csclayermap_( csclayermap ), gemetapartmap_( gemrollmap ), hits_( hits ), scaleXError_( 1.0 ), refid_( csclayermap_.begin()->first ), fitdone_( false ) 
+ GEMCSCSegFit(std::map<uint32_t, const CSCLayer*> csclayermap, std::map<uint32_t, const GEMEtaPartition*> gemrollmap, const std::vector<const TrackingRecHit*>& hits) : 
+  csclayermap_( std::move(csclayermap) ), gemetapartmap_( std::move(gemrollmap) ), hits_( hits ), scaleXError_( 1.0 ), refid_( csclayermap_.begin()->first ), fitdone_( false ) 
     {
       // --- LogDebug info about reading of CSC Layer map and GEM Eta Partition map -----------------------
       edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::ctor] cached the csclayermap and the gemrollmap";

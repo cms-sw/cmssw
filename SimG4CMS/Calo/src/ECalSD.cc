@@ -35,7 +35,7 @@ bool any(const std::vector<T> & v, const T &what) {
   return std::find(v.begin(), v.end(), what) != v.end();
 }
 
-ECalSD::ECalSD(G4String name, const DDCompactView & cpv,
+ECalSD::ECalSD(const G4String& name, const DDCompactView & cpv,
 	       const SensitiveDetectorCatalog & clg,
 	       edm::ParameterSet const & p, const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager, 
@@ -337,7 +337,7 @@ void ECalSD::setNumberingScheme(EcalNumberingScheme* scheme) {
 }
 
 
-void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
+void ECalSD::initMap(const G4String& sd, const DDCompactView & cpv) {
 
   G4String attribute = "ReadOutName";
   DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};

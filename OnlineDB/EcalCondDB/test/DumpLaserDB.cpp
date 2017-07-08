@@ -13,6 +13,7 @@
 #include <iomanip>
 #include <string>
 #include <sstream>
+#include <utility>
 #include <vector>
 #include <time.h>
 #include <cstdlib>
@@ -97,13 +98,13 @@ public:
   /**
    *   App constructor; Makes the database connection
    */
-  CondDBApp(std::string sid, std::string user, std::string pass, run_t r1, 
+  CondDBApp(const std::string& sid, const std::string& user, std::string pass, run_t r1, 
 	    run_t r2)
   {
     try {
       std::cout << "Making connection to " << sid << " using username "
 		<< user << std::flush;
-      econn = new EcalCondDBInterface( sid, user, pass );
+      econn = new EcalCondDBInterface( sid, user, std::move(pass) );
       std::cout << "Done." << std::endl;
       std::cout << "Getting data for run" << std::flush; 
       if (r2 <= 0) {

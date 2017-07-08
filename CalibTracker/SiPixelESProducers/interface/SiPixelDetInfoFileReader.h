@@ -29,7 +29,7 @@ class SiPixelDetInfoFileReader  {
 
 public:
 
-  explicit SiPixelDetInfoFileReader(std::string filePath);
+  explicit SiPixelDetInfoFileReader(const std::string& filePath);
   ~SiPixelDetInfoFileReader();
 
   const std::vector<uint32_t> & getAllDetIds() const;

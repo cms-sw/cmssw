@@ -103,7 +103,7 @@ class L1TSync : public DQMEDAnalyzer {
 
     void getBeamConfOMDS();
     void doFractionInSync(bool iForce=false, bool iBad=false);
-    void certifyLSBlock  (std::string iTrigger, int iInitLs, int iEndLs ,float iValue);
+    void certifyLSBlock  (const std::string& iTrigger, int iInitLs, int iEndLs ,float iValue);
 
   // Variables
   private:

@@ -32,6 +32,7 @@
 //C++ headers
 #include <iostream>
 #include <sstream>
+#include <utility>
 
 using namespace edm;
 using namespace std;
@@ -192,20 +193,20 @@ void DTTriggerEfficiencyTest::makeEfficiencyME(TH2F* numerator, TH2F* denominato
 
 }    
 
-string DTTriggerEfficiencyTest::getMEName(string histoTag, string folder, int wh) {
+string DTTriggerEfficiencyTest::getMEName(string histoTag, const string& folder, int wh) {
 
   stringstream wheel; wheel << wh;
 
   string folderName =  topFolder(hwSource=="TM") + folder + "/";
 
   string histoname = sourceFolder + folderName 
-    + fullName(histoTag) + "_W" + wheel.str();
+    + fullName(std::move(histoTag)) + "_W" + wheel.str();
 
   return histoname;
 
 }
 
-void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag,string folder) {
+void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag,const string& folder) {
 
   string basedir;  
   bool isTM = hwSource=="TM" ;  
@@ -217,7 +218,7 @@ void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag
 
   ibooker.setCurrentFolder(basedir);
 
-  string fullTag = fullName(hTag);
+  string fullTag = fullName(std::move(hTag));
   string hname = fullTag + "_All";
 
   globalEffDistr[fullTag] = ibooker.book1D(hname.c_str(),hname.c_str(),51,0.,1.02);
@@ -225,7 +226,7 @@ void DTTriggerEfficiencyTest::bookHistos(DQMStore::IBooker & ibooker,string hTag
 
 }
 
-void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wheel,string hTag,string folder) {
+void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wheel,const string& hTag,const string& folder) {
 
   stringstream wh; wh << wheel;
   string basedir;  
@@ -283,8 +284,8 @@ void DTTriggerEfficiencyTest::bookWheelHistos(DQMStore::IBooker & ibooker,int wh
 
 }
 
-void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,DTChamberId chambId, 
-                                                                      string htype, string folder) {
+void DTTriggerEfficiencyTest::bookChambHistos(DQMStore::IBooker & ibooker,const DTChamberId& chambId, 
+                                                                      const string& htype, const string& folder) {
 
   stringstream wheel; wheel << chambId.wheel();
   stringstream station; station << chambId.station();	

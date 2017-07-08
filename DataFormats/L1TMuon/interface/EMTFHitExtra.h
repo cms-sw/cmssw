@@ -5,6 +5,7 @@
 #ifndef __l1t_EMTFHitExtra_h__
 #define __l1t_EMTFHitExtra_h__
 
+#include <utility>
 #include <vector>
 #include <boost/cstdint.hpp> 
 #include <cmath>
@@ -47,7 +48,7 @@ namespace l1t {
       ht.set_eta(Eta()); 
       return ht;
     }
-    void SetZoneContribution (std::vector<int> vect_ints)  { zone_contribution = vect_ints; }
+    void SetZoneContribution (std::vector<int> vect_ints)  { zone_contribution = std::move(vect_ints); }
     std::vector<int> Zone_contribution          () const { return zone_contribution; }
 
     void set_bx0            (int  bits) { bx0           = bits; }

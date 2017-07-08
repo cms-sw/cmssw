@@ -61,8 +61,8 @@ class TrackAlgoCompareUtil : public edm::global::EDProducer<>
   
   virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const;
-  void SetTrackingParticleD0Dz(TrackingParticleRef tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const;
+  void SetTrackingParticleD0Dz(const TrackingParticleRef& tp, const reco::BeamSpot &bs, const MagneticField *bf, TPtoRecoTrack& TPRT) const;
+  void SetTrackingParticleD0Dz(const TrackingParticleRef& tp, const reco::BeamSpot &bs, const MagneticField *bf, RecoTracktoTP& RTTP) const;
       
   // ----------member data ---------------------------
   edm::EDGetTokenT<edm::View<reco::Track>> trackLabel_algoA;

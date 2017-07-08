@@ -39,9 +39,9 @@ using namespace edm;
 using namespace std;
 
 inline void L1TMuonTPPproducer(
-                                edm::Handle<L1MuDTChambPhContainer> phiDigis,
-                                edm::Handle<L1MuDTChambThContainer> thetaDigis,
-                                edm::Handle<RPCDigiCollection> rpcDigis,
+                                const edm::Handle<L1MuDTChambPhContainer>& phiDigis,
+                                const edm::Handle<L1MuDTChambThContainer>& thetaDigis,
+                                const edm::Handle<RPCDigiCollection>& rpcDigis,
                                 TriggerPrimitiveCollection *master_out,
                                 const edm::EventSetup& es) {
 

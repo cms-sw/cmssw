@@ -7,6 +7,8 @@
  *
  */
 
+#include <utility>
+
 #include "DQMOffline/L1Trigger/interface/L1TEfficiencyMuons_Offline.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCandFwd.h"
 #include "DataFormats/L1Trigger/interface/Muon.h"
@@ -43,9 +45,9 @@ double MuonGmtPair::dR() {
 void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
                 ESHandle<Propagator> propagatorAlong,
                 ESHandle<Propagator> propagatorOpposite) {
-    m_BField = bField;
-    m_propagatorAlong = propagatorAlong;
-    m_propagatorOpposite = propagatorOpposite;
+    m_BField = std::move(bField);
+    m_propagatorAlong = std::move(propagatorAlong);
+    m_propagatorOpposite = std::move(propagatorOpposite);
     TrackRef standaloneMuon = m_muon->outerTrack();
     TrajectoryStateOnSurface trajectory;
     trajectory = cylExtrapTrkSam(standaloneMuon, 500);  // track at MB2 radius - extrapolation
@@ -65,7 +67,7 @@ void MuonGmtPair::propagate(ESHandle<MagneticField> bField,
     }
 }
 
-TrajectoryStateOnSurface MuonGmtPair::cylExtrapTrkSam(TrackRef track, double rho)
+TrajectoryStateOnSurface MuonGmtPair::cylExtrapTrkSam(const TrackRef& track, double rho)
 {
     Cylinder::PositionType pos(0, 0, 0);
     Cylinder::RotationType rot;
@@ -80,7 +82,7 @@ TrajectoryStateOnSurface MuonGmtPair::cylExtrapTrkSam(TrackRef track, double rho
     return recoProp;
 }
 
-TrajectoryStateOnSurface MuonGmtPair::surfExtrapTrkSam(TrackRef track, double z)
+TrajectoryStateOnSurface MuonGmtPair::surfExtrapTrkSam(const TrackRef& track, double z)
 {
     Plane::PositionType pos(0, 0, z);
     Plane::RotationType rot;
@@ -95,7 +97,7 @@ TrajectoryStateOnSurface MuonGmtPair::surfExtrapTrkSam(TrackRef track, double z)
     return recoProp;
 }
 
-FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(TrackRef track)
+FreeTrajectoryState MuonGmtPair::freeTrajStateMuon(const TrackRef& track)
 {
     GlobalPoint  innerPoint(track->innerPosition().x(), track->innerPosition().y(),  track->innerPosition().z());
     GlobalVector innerVec  (track->innerMomentum().x(),  track->innerMomentum().y(),  track->innerMomentum().z());

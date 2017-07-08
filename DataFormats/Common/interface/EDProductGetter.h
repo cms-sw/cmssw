@@ -85,6 +85,6 @@ private:
    };
 
    EDProductGetter const*
-   mustBeNonZero(EDProductGetter const* prodGetter, std::string refType, ProductID const& productID);
+   mustBeNonZero(EDProductGetter const* prodGetter, const std::string& refType, ProductID const& productID);
 }
 #endif

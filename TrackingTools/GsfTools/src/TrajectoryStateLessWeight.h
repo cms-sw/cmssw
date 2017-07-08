@@ -11,8 +11,8 @@ class TrajectoryStateLessWeight {
   
 public:
   TrajectoryStateLessWeight() {}
-  bool operator()(const TrajectoryStateOnSurface a, 
-		  const TrajectoryStateOnSurface b) const
+  bool operator()(const TrajectoryStateOnSurface& a, 
+		  const TrajectoryStateOnSurface& b) const
   {
     if ( !a.isValid() || !b.isValid() )  return false;
     return a.weight()>b.weight();

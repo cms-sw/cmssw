@@ -47,7 +47,7 @@ class DTBtiTrigData : public DTTrigData {
   ~DTBtiTrigData() {}
 
   //! Set the parent BTI identifier
-  inline void setParent(DTBtiId btiid) {
+  inline void setParent(const DTBtiId& btiid) {
     _btiid = btiid; 
   }  
 

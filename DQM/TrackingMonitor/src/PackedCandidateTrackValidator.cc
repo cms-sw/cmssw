@@ -25,6 +25,7 @@
 #include "boost/math/special_functions/sign.hpp"
 
 #include <iomanip>
+#include <utility>
 
 namespace {
   template<typename T> void fillNoFlow(MonitorElement* me, T val){
@@ -160,7 +161,7 @@ namespace {
 
     class UnderOverflow {
     public:
-      UnderOverflow(double largestValue, double smallestValue, std::function<double(double)> modifyUnpack):
+      UnderOverflow(double largestValue, double smallestValue, const std::function<double(double)>& modifyUnpack):
         unpackedLargestValue_(modifyUnpack ? modifyUnpack(largestValue) : largestValue),
         unpackedSmallestValue_(modifyUnpack ? modifyUnpack(smallestValue) : smallestValue)
       {}
@@ -191,7 +192,7 @@ namespace {
     static std::string minName() { return "min"; }
 
     UnderOverflow underOverflowHelper(double value, std::function<double(double)> modifyUnpack) const {
-      return UnderOverflow(largestValue(), value >= 0 ? smallestPositiveValue() : std::abs(smallestNegativeValue()), modifyUnpack);
+      return UnderOverflow(largestValue(), value >= 0 ? smallestPositiveValue() : std::abs(smallestNegativeValue()), std::move(modifyUnpack));
     }
 
     double largestValue() const {
@@ -243,7 +244,7 @@ namespace {
     static std::string maxName() { return "inf"; }
     static std::string minName() { return "0"; }
 
-    static UnderOverflow underOverflowHelper(double value, std::function<double(double)>) {
+    static UnderOverflow underOverflowHelper(double value, const std::function<double(double)>&) {
       return UnderOverflow();
     }
 
@@ -365,7 +366,7 @@ namespace {
     }
 
     PackedValueCheckResult<T> fill(double pcvalue, double trackvalue,
-                std::function<double(double)> modifyPack=std::function<double(double)>(),
+                const std::function<double(double)>& modifyPack=std::function<double(double)>(),
                 std::function<double(double)> modifyUnpack=std::function<double(double)>()) {
       const auto diff = diffRelative(pcvalue, trackvalue);
 

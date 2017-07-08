@@ -15,6 +15,7 @@
 #include <iostream>
 #include <memory>
 #include <stdexcept>
+#include <utility>
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TStopwatch.h"
@@ -199,7 +200,7 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
         int cnt;
         const FWConfiguration* cfg;
 
-        CMatch(std::string f):file(f), cnt(0), cfg(0) {}
+        CMatch(std::string f):file(std::move(f)), cnt(0), cfg(0) {}
         bool operator < (const CMatch& x) const { return cnt < x.cnt; }
     };
 

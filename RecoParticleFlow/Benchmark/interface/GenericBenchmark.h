@@ -46,7 +46,7 @@ class GenericBenchmark{
 	    double deltaR_cut = -1.);
 
 
-  void write(std::string Filename);
+  void write(const std::string& Filename);
 
   void setfile(TFile *file);
 

@@ -4,6 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <set>
+#include <utility>
 #include <vector>
 #include <algorithm>
 #include <boost/cstdint.hpp>
@@ -27,7 +28,7 @@ public:
    public:
     PrecisionItem () {mId = mRM = 0; mRBX = "";}
     PrecisionItem (uint32_t fId, int fRM, std::string fRBX) 
-      : mId (fId), mRM (fRM), mRBX (fRBX) {}
+      : mId (fId), mRM (fRM), mRBX (std::move(fRBX)) {}
     uint32_t    mId;
     int         mRM;
     std::string mRBX;
@@ -91,7 +92,7 @@ namespace HcalFrontEndMapAddons {
    public:
     Helper();
     /// load a new entry
-    bool loadObject(DetId fId, int rm, std::string rbx);
+    bool loadObject(DetId fId, int rm, const std::string& rbx);
     
     std::set<HcalFrontEndMap::PrecisionItem,LessById> mPItems;
   };

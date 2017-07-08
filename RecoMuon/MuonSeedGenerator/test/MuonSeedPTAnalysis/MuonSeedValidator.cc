@@ -615,7 +615,7 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
 // number of csc segments in one chamber for each station
 // cscseg_stat[0] = total segments in all stations
 // cscseg_stat[5] = the number of stations which have segments
-void MuonSeedValidator::CSCsegment_stat( Handle<CSCSegmentCollection> cscSeg , ESHandle<CSCGeometry> cscGeom, double trkTheta, double trkPhi) {
+void MuonSeedValidator::CSCsegment_stat( const Handle<CSCSegmentCollection>& cscSeg , const ESHandle<CSCGeometry>& cscGeom, double trkTheta, double trkPhi) {
 
      for (int i=0; i<6; i++) {
          cscseg_stat[i]=0;
@@ -646,7 +646,7 @@ void MuonSeedValidator::CSCsegment_stat( Handle<CSCSegmentCollection> cscSeg , E
      
 }
 // number of dt segments in one chamber for each station
-void MuonSeedValidator::DTsegment_stat( Handle<DTRecSegment4DCollection> dtSeg, ESHandle<DTGeometry> dtGeom, double trkTheta, double trkPhi)  {
+void MuonSeedValidator::DTsegment_stat( const Handle<DTRecSegment4DCollection>& dtSeg, const ESHandle<DTGeometry>& dtGeom, double trkTheta, double trkPhi)  {
 
      for (int i=0; i<6; i++) {
          dtseg_stat[i]=0;
@@ -726,7 +726,7 @@ void MuonSeedValidator::Simsegment_stat( std::vector<SimSegment> sCSC, std::vect
      else { simseg_eta = (eta_sim1 + eta_sim2)/2.0 ; }
 }
 
-void MuonSeedValidator::CSCRecHit_Stat(Handle<CSCRecHit2DCollection> cscrechit, ESHandle<CSCGeometry> cscGeom, double trkEta, double trkPhi){
+void MuonSeedValidator::CSCRecHit_Stat(const Handle<CSCRecHit2DCollection>& cscrechit, const ESHandle<CSCGeometry>& cscGeom, double trkEta, double trkPhi){
      for (int i=0; i <6; i++) {
          cscrh_sum[i]=0;
      }
@@ -747,7 +747,7 @@ void MuonSeedValidator::CSCRecHit_Stat(Handle<CSCRecHit2DCollection> cscrechit, 
      }
 }
 
-void MuonSeedValidator::DTRecHit_Stat(Handle<DTRecHitCollection> dtrechit, ESHandle<DTGeometry> dtGeom, double trkEta, double trkPhi){
+void MuonSeedValidator::DTRecHit_Stat(const Handle<DTRecHitCollection>& dtrechit, const ESHandle<DTGeometry>& dtGeom, double trkEta, double trkPhi){
 
      //double phi[4]={999.0};
      for (int i=0; i <6; i++) {
@@ -777,7 +777,7 @@ void MuonSeedValidator::DTRecHit_Stat(Handle<DTRecHitCollection> dtrechit, ESHan
      }
 }
 
-int MuonSeedValidator::ChargeAssignment(GlobalVector Va, GlobalVector Vb){
+int MuonSeedValidator::ChargeAssignment(const GlobalVector& Va, const GlobalVector& Vb){
      int charge = 0;
      float axb = ( Va.x()*Vb.y() ) - ( Vb.x()*Va.y() );
      if (axb != 0.0) {
@@ -786,7 +786,7 @@ int MuonSeedValidator::ChargeAssignment(GlobalVector Va, GlobalVector Vb){
      return charge;
 }
 
-void MuonSeedValidator::RecSeedReader( Handle<TrajectorySeedCollection> rec_seeds ){
+void MuonSeedValidator::RecSeedReader( const Handle<TrajectorySeedCollection>& rec_seeds ){
 
      nu_seed = 0;
      seed_gp.clear();
@@ -860,7 +860,7 @@ void MuonSeedValidator::RecSeedReader( Handle<TrajectorySeedCollection> rec_seed
 
  
 // read the segments associated with the seed and compare with seed
-void MuonSeedValidator::SegOfRecSeed( Handle<TrajectorySeedCollection> rec_seeds, int seed_idx){
+void MuonSeedValidator::SegOfRecSeed( const Handle<TrajectorySeedCollection>& rec_seeds, int seed_idx){
  
      int idx = 0;
      d_h.clear();
@@ -900,7 +900,7 @@ void MuonSeedValidator::SegOfRecSeed( Handle<TrajectorySeedCollection> rec_seeds
 }
 
 // read the segments associated with the seed and compare with sim-segment
-void MuonSeedValidator::SegOfRecSeed( Handle<TrajectorySeedCollection> rec_seeds, int seed_idx,
+void MuonSeedValidator::SegOfRecSeed( const Handle<TrajectorySeedCollection>& rec_seeds, int seed_idx,
                                   std::vector<SimSegment> sCSC, std::vector<SimSegment> sDT ){
      int idx = 0;
      d_h.clear();
@@ -1030,7 +1030,7 @@ void MuonSeedValidator::SegOfRecSeed( Handle<TrajectorySeedCollection> rec_seeds
      }
 }
 
-void MuonSeedValidator::StaTrackReader( Handle<reco::TrackCollection> sta_trk, int sta_glb){
+void MuonSeedValidator::StaTrackReader( const Handle<reco::TrackCollection>& sta_trk, int sta_glb){
 
      // look at the inner most momentum and position
      nu_sta=0;
@@ -1083,9 +1083,9 @@ void MuonSeedValidator::StaTrackReader( Handle<reco::TrackCollection> sta_trk, i
 }
 
 
-void MuonSeedValidator::SimInfo(Handle<edm::SimTrackContainer> simTracks,
-                            Handle<edm::PSimHitContainer> dsimHits, Handle<edm::PSimHitContainer> csimHits,
-                            ESHandle<DTGeometry> dtGeom, ESHandle<CSCGeometry> cscGeom){
+void MuonSeedValidator::SimInfo(const Handle<edm::SimTrackContainer>& simTracks,
+                            const Handle<edm::PSimHitContainer>& dsimHits, const Handle<edm::PSimHitContainer>& csimHits,
+                            const ESHandle<DTGeometry>& dtGeom, const ESHandle<CSCGeometry>& cscGeom){
 
   // theta and phi at inner-most layer of Muon System
   theta_p.clear();
@@ -1189,7 +1189,7 @@ void MuonSeedValidator::SimInfo(Handle<edm::SimTrackContainer> simTracks,
 }
 
 // Look up what segments we have in a event
-int MuonSeedValidator::RecSegReader( Handle<CSCSegmentCollection> cscSeg, Handle<DTRecSegment4DCollection> dtSeg                                , ESHandle<CSCGeometry> cscGeom, ESHandle<DTGeometry> dtGeom, double trkTheta, double trkPhi) {
+int MuonSeedValidator::RecSegReader( const Handle<CSCSegmentCollection>& cscSeg, const Handle<DTRecSegment4DCollection>& dtSeg                                , const ESHandle<CSCGeometry>& cscGeom, const ESHandle<DTGeometry>& dtGeom, double trkTheta, double trkPhi) {
 
      // Calculate the ave. eta & phi
      ave_phi = 0.0;
@@ -1293,8 +1293,8 @@ double MuonSeedValidator::getEta(double theta ) {
       return eta;
 }
 
-std::vector<int> MuonSeedValidator::IdentifyShowering(Handle<CSCSegmentCollection> cscSeg, ESHandle<CSCGeometry> cscGeom,
-                                           Handle<DTRecSegment4DCollection> dtSeg, ESHandle<DTGeometry> dtGeom, 
+std::vector<int> MuonSeedValidator::IdentifyShowering(const Handle<CSCSegmentCollection>& cscSeg, const ESHandle<CSCGeometry>& cscGeom,
+                                           const Handle<DTRecSegment4DCollection>& dtSeg, const ESHandle<DTGeometry>& dtGeom, 
                                            double trkTheta, double trkPhi) {
    muCone.clear();
 

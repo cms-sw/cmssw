@@ -902,7 +902,7 @@ void DQMGenericClient::limitedFit(MonitorElement * srcME, MonitorElement * meanM
 
 //=================================
 
-void DQMGenericClient::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, std::string dir, std::set<std::string> * myList,
+void DQMGenericClient::findAllSubdirectories (DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, const std::string& dir, std::set<std::string> * myList,
 					      const TString& _pattern = TString("")) {
   TString pattern = _pattern;
   if (!igetter.dirExists(dir)) {

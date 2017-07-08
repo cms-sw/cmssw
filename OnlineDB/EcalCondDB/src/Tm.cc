@@ -190,7 +190,7 @@ void Tm::setToGMTime(time_t t)
   m_tm = *gmtime( &t );
 }
 
-void Tm::setToString(const string s)
+void Tm::setToString(const string& s)
   noexcept(false)
 {
   sscanf(s.c_str(), "%04d-%02d-%02d %02d:%02d:%02d", 

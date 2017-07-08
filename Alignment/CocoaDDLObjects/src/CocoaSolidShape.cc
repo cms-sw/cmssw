@@ -6,6 +6,7 @@
 //   Pedro Arce
 #include <map>
 #include <fstream>
+#include <utility>
 
 #include "Alignment/CocoaDDLObjects/interface/CocoaSolidShape.h"
 
@@ -13,5 +14,5 @@
 CocoaSolidShape::CocoaSolidShape( ALIstring type )
 { 
 
-  theType = type;
+  theType = std::move(type);
 }

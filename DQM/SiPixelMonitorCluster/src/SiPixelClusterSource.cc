@@ -472,7 +472,7 @@ void SiPixelClusterSource::getrococcupancy(DetId detId,const edm::DetSetVector<P
 
 
 void SiPixelClusterSource::getrococcupancye(DetId detId, const edmNew::DetSetVector<SiPixelCluster> & clustColl, 
-					    const TrackerTopology* const pTT, edm::ESHandle<TrackerGeometry> pDD,MonitorElement* meinput) {
+					    const TrackerTopology* const pTT, const edm::ESHandle<TrackerGeometry>& pDD,MonitorElement* meinput) {
   
   edmNew::DetSetVector<SiPixelCluster>::const_iterator ipxsearch = clustColl.find(detId);
   if( ipxsearch != clustColl.end() ) {

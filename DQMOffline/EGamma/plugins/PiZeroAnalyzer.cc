@@ -107,7 +107,7 @@ void PiZeroAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& esup)
   if (validEcalRecHits) makePizero(esup,  barrelHitHandle, endcapHitHandle);
 }
 
-void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection> rhEB,  const edm::Handle<EcalRecHitCollection> rhEE ) {
+void PiZeroAnalyzer::makePizero(const edm::EventSetup& es, const edm::Handle<EcalRecHitCollection>& rhEB,  const edm::Handle<EcalRecHitCollection>& rhEE ) {
   const EcalRecHitCollection *hitCollection_p = rhEB.product();
 
   edm::ESHandle<CaloGeometry> geoHandle;

@@ -65,9 +65,9 @@ class KinematicTree : public ReferenceCounted
  * edges to the graph representation 
  * of the Kinematic Tree
  */   
- void addParticle(RefCountedKinematicVertex prodVtx, 
-                  RefCountedKinematicVertex  decVtx, 
-	          RefCountedKinematicParticle part);
+ void addParticle(const RefCountedKinematicVertex& prodVtx, 
+                  const RefCountedKinematicVertex&  decVtx, 
+	          const RefCountedKinematicParticle& part);
 
 /**
  * Kinematic Tree  navigation methods
@@ -154,7 +154,7 @@ class KinematicTree : public ReferenceCounted
  * to the top of the tree if not 
  * found (false)
  */
- bool findParticle(const RefCountedKinematicParticle part) const;
+ bool findParticle(const RefCountedKinematicParticle& part) const;
  
 /**
  * Pointer goes to the particle
@@ -163,7 +163,7 @@ class KinematicTree : public ReferenceCounted
  * Or pointer stays at the top of teh tree
  * if search is unsuccessfull (false case). 
  */
- bool findDecayVertex(const RefCountedKinematicVertex vert) const;
+ bool findDecayVertex(const RefCountedKinematicVertex& vert) const;
  bool findDecayVertex(KinematicVertex * vert) const;
 
 /**
@@ -175,14 +175,14 @@ class KinematicTree : public ReferenceCounted
  * WARNING: replace methods are not available
  * at this version of KinematicFitPrimitives.
  */ 
- void replaceCurrentParticle(RefCountedKinematicParticle newPart) const;
+ void replaceCurrentParticle(const RefCountedKinematicParticle& newPart) const;
    
  
 /**
  * Replaces _decay_ vertex of the 
  * current particle with the given value
  */   
- void replaceCurrentVertex(RefCountedKinematicVertex newVert)     const; 
+ void replaceCurrentVertex(const RefCountedKinematicVertex& newVert)     const; 
  
 /**
  * Method adding a tree _tr_ to the vertex vtx
@@ -193,7 +193,7 @@ class KinematicTree : public ReferenceCounted
  * and contains no mathematics. To be used by
  * KinematicParticleVertexFitter after the corresponding fit.
  */ 
- void addTree(RefCountedKinematicVertex vtx, KinematicTree * tr);
+ void addTree(const RefCountedKinematicVertex& vtx, KinematicTree * tr);
 private:
  
 /**
@@ -202,13 +202,13 @@ private:
  * particle search.
  */ 
  
- bool leftBranchSearch(RefCountedKinematicParticle part) const;
+ bool leftBranchSearch(const RefCountedKinematicParticle& part) const;
  
- bool leftBranchVertexSearch(RefCountedKinematicVertex vtx) const; 
+ bool leftBranchVertexSearch(const RefCountedKinematicVertex& vtx) const; 
  
  bool leftFinalParticle() const;
  
- void leftBranchAdd(KinematicTree * otherTree, RefCountedKinematicVertex vtx);
+ void leftBranchAdd(KinematicTree * otherTree, const RefCountedKinematicVertex& vtx);
 
  mutable bool empt;
  

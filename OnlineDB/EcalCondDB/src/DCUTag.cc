@@ -32,7 +32,7 @@ string DCUTag::getGeneralTag() const
 
 
 
-void DCUTag::setGeneralTag(string genTag)
+void DCUTag::setGeneralTag(const string& genTag)
 {
   if (genTag != m_genTag) {
     m_ID = 0;

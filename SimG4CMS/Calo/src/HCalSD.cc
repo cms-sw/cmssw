@@ -722,7 +722,7 @@ bool HCalSD::isItHF(G4Step * aStep) {
   return false;
 }
 
-bool HCalSD::isItHF (G4String name) {
+bool HCalSD::isItHF (const G4String& name) {
   std::vector<G4String>::const_iterator it = hfNames.begin();
   for (; it != hfNames.end(); ++it) if (name == *it) return true;
   return false;
@@ -734,7 +734,7 @@ bool HCalSD::isItFibre (G4LogicalVolume* lv) {
   return false;
 }
 
-bool HCalSD::isItFibre (G4String name) {
+bool HCalSD::isItFibre (const G4String& name) {
   std::vector<G4String>::const_iterator it = fibreNames.begin();
   for (; it != fibreNames.end(); ++it) if (name == *it) return true;
   return false;
@@ -1085,7 +1085,7 @@ int HCalSD::setTrackID (G4Step* aStep) {
   return primaryID;
 }
 
-void HCalSD::readWeightFromFile(std::string fName) {
+void HCalSD::readWeightFromFile(const std::string& fName) {
 
   std::ifstream infile;
   int entry=0;

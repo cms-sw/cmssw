@@ -44,7 +44,7 @@ public:
   void analyze(const edm::Event& event, const edm::EventSetup& setup) {}
 
 private:
-  void bookHistos(DTLayerId lId, int firstWire, int lastWire);
+  void bookHistos(const DTLayerId& lId, int firstWire, int lastWire);
   void bookHistos(int wheel);
 
   DQMStore* dbe_;

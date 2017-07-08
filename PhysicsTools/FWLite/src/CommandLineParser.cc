@@ -155,7 +155,7 @@ CommandLineParser::help()
 
 
 void 
-CommandLineParser::split (SVec &retval, string line, string match, 
+CommandLineParser::split (SVec &retval, string line, const string& match, 
                     bool ignoreComments)
 {
    if (ignoreComments)

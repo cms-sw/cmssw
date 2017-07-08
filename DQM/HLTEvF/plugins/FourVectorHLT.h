@@ -40,6 +40,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <iostream>
 #include <fstream>
+#include <utility>
 #include <vector>
 
 //
@@ -113,7 +114,7 @@ class FourVectorHLT : public edm::EDAnalyzer {
 	~PathInfo() {};
 	PathInfo(std::string pathName, size_t type, float ptmin, 
 		 float ptmax):
-	  pathName_(pathName), objectType_(type),
+	  pathName_(std::move(pathName)), objectType_(type),
 	  et_(0), eta_(0), phi_(0), etavsphi_(0),
 	  ptmin_(ptmin), ptmax_(ptmax)
 	  {
@@ -125,11 +126,11 @@ class FourVectorHLT : public edm::EDAnalyzer {
 		   MonitorElement *etavsphi,
 		   float ptmin, float ptmax
 		   ):
-	    pathName_(pathName), objectType_(type),
+	    pathName_(std::move(pathName)), objectType_(type),
 	    et_(et), eta_(eta), phi_(phi), etavsphi_(etavsphi),
 	    ptmin_(ptmin), ptmax_(ptmax)
 	    {};
-	    bool operator==(const std::string v) 
+	    bool operator==(const std::string& v) 
 	    {
 	      return v==pathName_;
 	    }
@@ -159,7 +160,7 @@ class FourVectorHLT : public edm::EDAnalyzer {
       public:
 	PathInfoCollection(): std::vector<PathInfo>() 
 	  {};
-	  std::vector<PathInfo>::iterator find(std::string pathName) {
+	  std::vector<PathInfo>::iterator find(const std::string& pathName) {
 	    return std::find(begin(), end(), pathName);
 	  }
       };

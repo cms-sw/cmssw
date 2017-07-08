@@ -195,7 +195,7 @@ DTCalibValidation::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4D
 template  <typename type>
 const type*
 DTCalibValidation::findBestRecHit(const DTLayer* layer,
-                                DTWireId wireId,
+                                const DTWireId& wireId,
                                 const vector<type>& recHits,
                                 const float segmDist) {
   float res = 99999;

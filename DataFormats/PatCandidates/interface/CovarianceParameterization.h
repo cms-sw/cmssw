@@ -5,13 +5,14 @@
 #include <iostream>
 #include <unordered_map>
 #include <array>
+#include <utility>
 #include <TKey.h>
 class CompressionElement {
     public:
       enum Method {float16=0,reduceMantissa=1,logPack=2,tanLogPack=3,zero=4,one=5};
       enum Target {realValue=0,ratioToRef=1,differenceToRef=2};
       CompressionElement():method(zero),target(realValue){}
-      CompressionElement(Method m, Target t, int bitsUsed, std::vector<float> p): method(m),target(t),bits(bitsUsed),params(p){}
+      CompressionElement(Method m, Target t, int bitsUsed, std::vector<float> p): method(m),target(t),bits(bitsUsed),params(std::move(p)){}
       Method method;
       Target target;
       int bits;
@@ -42,7 +43,7 @@ class CovarianceParameterization {
         float  unpack(uint16_t packed,int schema, int i,int j,float pt, float eta, int nHits,int pixelHits,  float cii=1.,float cjj=1.) const;
     private:
         void readFile( TFile &);
-        void  addTheHistogram(std::vector<TH3D *> * HistoVector, std::string StringToAddInTheName, int i, int j, TFile & fileToRead);
+        void  addTheHistogram(std::vector<TH3D *> * HistoVector, const std::string& StringToAddInTheName, int i, int j, TFile & fileToRead);
         int loadedVersion_;
 	TFile * fileToRead_;
         std::unordered_map<uint16_t,CompressionSchema> schemas; 

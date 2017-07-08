@@ -1,7 +1,7 @@
 
 #include "DataFormats/L1TCalorimeter/interface/CaloCluster.h"
 
-l1t::CaloCluster::CaloCluster( const LorentzVector p4, 
+l1t::CaloCluster::CaloCluster( const LorentzVector& p4, 
 			     int pt,
 			     int eta,
 			     int phi)

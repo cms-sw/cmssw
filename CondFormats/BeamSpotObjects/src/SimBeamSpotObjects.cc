@@ -7,7 +7,7 @@ void SimBeamSpotObjects::print(std::stringstream& ss) const {
 	     <<fX0<<std::endl;
 }
 
-std::ostream& operator<< ( std::ostream& os, SimBeamSpotObjects beam ) {
+std::ostream& operator<< ( std::ostream& os, const SimBeamSpotObjects& beam ) {
   std::stringstream ss;
   beam.print(ss);
   os << ss.str();

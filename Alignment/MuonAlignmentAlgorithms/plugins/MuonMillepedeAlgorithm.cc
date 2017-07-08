@@ -494,7 +494,7 @@
 	void MuonMillepedeAlgorithm::updateInfo(const AlgebraicMatrix& m_invCov,
 						 const AlgebraicMatrix& m_weightRes,
 						 const AlgebraicMatrix& m_res,
-						 std::string id)
+						 const std::string& id)
 	{
 
 	  

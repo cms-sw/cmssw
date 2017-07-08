@@ -237,7 +237,7 @@ namespace HLTOfflineDQMTopSingleLepton {
     }
 
   void 
-    MonitorSingleLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string> triggerPaths)
+    MonitorSingleLepton::fill(const edm::Event& event, const edm::EventSetup& setup, const HLTConfigProvider& hltConfig, const std::vector<std::string>& triggerPaths)
     {
       // fetch trigger event if configured such 
       edm::Handle<edm::TriggerResults> triggerTable;

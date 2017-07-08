@@ -7,7 +7,7 @@ using namespace sistrip;
 
 // -----------------------------------------------------------------------------
 // 
-SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string partition ) {
+SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( const std::string& partition ) {
 
   // Check
   if ( ( !dbParams_.usingDbCache() && !deviceFactory(__func__) ) ||
@@ -105,7 +105,7 @@ SiStripConfigDb::DcuDetIdsRange SiStripConfigDb::getDcuDetIds( std::string parti
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::addDcuDetIds( std::string partition, DcuDetIdsV& dcus ) {
+void SiStripConfigDb::addDcuDetIds( const std::string& partition, DcuDetIdsV& dcus ) {
 
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -180,7 +180,7 @@ void SiStripConfigDb::addDcuDetIds( std::string partition, DcuDetIdsV& dcus ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::uploadDcuDetIds( std::string partition ) {
+void SiStripConfigDb::uploadDcuDetIds( const std::string& partition ) {
 
   stringstream ss; 
   ss << "[SiStripConfigDb::" << __func__ << "]" 
@@ -269,7 +269,7 @@ void SiStripConfigDb::uploadDcuDetIds( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
+void SiStripConfigDb::clearDcuDetIds( const std::string& partition ) {
   LogTrace(mlConfigDb_) << "[SiStripConfigDb::" << __func__ << "]";
   
   if ( dcuDetIds_.empty() ) { 
@@ -335,7 +335,7 @@ void SiStripConfigDb::clearDcuDetIds( std::string partition ) {
 
 // -----------------------------------------------------------------------------
 // 
-void SiStripConfigDb::printDcuDetIds( std::string partition ) {
+void SiStripConfigDb::printDcuDetIds( const std::string& partition ) {
 
   std::stringstream ss;
   ss << "[SiStripConfigDb::" << __func__ << "]"

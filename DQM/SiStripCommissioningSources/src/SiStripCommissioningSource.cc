@@ -94,7 +94,7 @@ SiStripCommissioningSource::~SiStripCommissioningSource() {
 
 // -----------------------------------------------------------------------------
 //
-DQMStore* const SiStripCommissioningSource::dqm( std::string method ) const {
+DQMStore* const SiStripCommissioningSource::dqm( const std::string& method ) const {
   if ( !dqm_ ) { 
     std::stringstream ss;
     if ( method != "" ) { ss << "[SiStripCommissioningSource::" << method << "]" << std::endl; }

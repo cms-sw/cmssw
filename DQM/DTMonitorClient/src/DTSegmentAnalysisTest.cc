@@ -293,7 +293,7 @@ void DTSegmentAnalysisTest::performClientDiagnostic(DQMStore::IGetter & igetter)
 }
 
 
-string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, string histoTag) {
+string DTSegmentAnalysisTest::getMEName(const DTChamberId & chID, const string& histoTag) {
   
   stringstream wheel; wheel << chID.wheel();	
   stringstream station; station << chID.station();	

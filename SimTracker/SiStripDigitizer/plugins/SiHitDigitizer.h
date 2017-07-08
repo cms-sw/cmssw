@@ -64,7 +64,7 @@ class SiHitDigitizer {
 
   typedef GloballyPositioned<double> Frame;
   
-  LocalVector DriftDirection(const StripGeomDetUnit* _detp, GlobalVector _bfield, float langle) {
+  LocalVector DriftDirection(const StripGeomDetUnit* _detp, const GlobalVector& _bfield, float langle) {
     LocalVector Bfield=Frame(_detp->surface().position(),_detp->surface().rotation()).toLocal(_bfield);
     return LocalVector(-langle * Bfield.y(),langle * Bfield.x(),1.);
   }

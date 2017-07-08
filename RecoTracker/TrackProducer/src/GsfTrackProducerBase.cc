@@ -238,7 +238,7 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 }
 
 void
-GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
+GsfTrackProducerBase::fillStates (const TrajectoryStateOnSurface& tsos,
 				  std::vector<reco::GsfComponent5D>& states) const
 {
   reco::GsfComponent5D::ParameterVector pLocS;
@@ -251,7 +251,7 @@ GsfTrackProducerBase::fillStates (TrajectoryStateOnSurface tsos,
 }
 
 void
-GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface innertsos,
+GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSurface& innertsos,
 				const Propagator& gsfProp,
 				const TransverseImpactPointExtrapolator& tipExtrapolator,
 				TrajectoryStateClosestToBeamLineBuilder& tscblBuilder,
@@ -320,7 +320,7 @@ GsfTrackProducerBase::fillMode (reco::GsfTrack& track, const TrajectoryStateOnSu
 }
 
 void
-GsfTrackProducerBase::localParametersFromQpMode (const TrajectoryStateOnSurface tsos,
+GsfTrackProducerBase::localParametersFromQpMode (const TrajectoryStateOnSurface& tsos,
 						 AlgebraicVector5& parameters,
 						 AlgebraicSymMatrix55& covariance) const
 {

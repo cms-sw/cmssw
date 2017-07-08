@@ -250,7 +250,7 @@ void L1MuGMTConfig::clearLUTsRegs() {
   delete m_PhiLUT;
 }
 
-void L1MuGMTConfig::dumpLUTs(std::string dir) {
+void L1MuGMTConfig::dumpLUTs(const std::string& dir) {
   std::vector<L1MuGMTLUT*> theLUTs;
 
   theLUTs.push_back( m_LFSortRankEtaQLUT );  
@@ -295,7 +295,7 @@ void L1MuGMTConfig::dumpLUTs(std::string dir) {
 
 }
 
-void L1MuGMTConfig::dumpRegs(std::string dir) {
+void L1MuGMTConfig::dumpRegs(const std::string& dir) {
   std::vector<L1MuGMTReg*> theRegs;
 
   theRegs.push_back( m_RegCDLConfig );

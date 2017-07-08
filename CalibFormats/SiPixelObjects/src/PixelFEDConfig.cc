@@ -134,7 +134,7 @@ PixelFEDConfig::PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat 
 
 
 
-PixelFEDConfig::PixelFEDConfig(std::string filename):
+PixelFEDConfig::PixelFEDConfig(const std::string& filename):
   PixelConfigBase(" "," "," "){
 
     std::string mthn = "[PixelFEDConfig::PixelFEDConfig()]\t\t\t    " ;

@@ -147,7 +147,7 @@ uint32_t SiStripBadComponentsDQMService::getRunNumber() const {
   return iConfig_.getParameter<uint32_t>("RunNb");
 }
 
-bool SiStripBadComponentsDQMService::goToDir(DQMStore * dqm_store, std::string name)
+bool SiStripBadComponentsDQMService::goToDir(DQMStore * dqm_store, const std::string& name)
 {
   std::string currDir = dqm_store->pwd();
   std::string dirName = currDir.substr(currDir.find_last_of("/")+1);

@@ -36,7 +36,7 @@ private:
   void update(const EndOfEvent * );
   void update(const G4Step * );
   void findTouch(G4VPhysicalVolume * , int );
-  int  findName(std::string);
+  int  findName(const std::string&);
 private:
   int                          level;
   std::string                  outFile;

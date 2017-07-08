@@ -169,7 +169,7 @@ FastTSGFromL2Muon::produce(edm::Event& ev, const edm::EventSetup& es)
 }
 
 bool
-FastTSGFromL2Muon::clean(reco::TrackRef muRef,
+FastTSGFromL2Muon::clean(const reco::TrackRef& muRef,
 			 RectangularEtaPhiTrackingRegion* region,
 			 const BasicTrajectorySeed* aSeed, 
 			 const SimTrack& theSimTrack) { 

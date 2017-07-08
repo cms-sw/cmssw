@@ -1,6 +1,7 @@
 #include "include/HistoData.h"
 
 #include <iostream>
+#include <utility>
 
 #include <TFile.h>
 #include <TLine.h>
@@ -11,9 +12,9 @@
  
 using namespace std;
 
-HistoData::HistoData(std::string Name, int Type, int Bin, string NewPath, TFile *NewFile, string RefPath, TFile *RefFile) {
+HistoData::HistoData(std::string Name, int Type, int Bin, const string& NewPath, TFile *NewFile, const string& RefPath, TFile *RefFile) {
 
-  name = Name;
+  name = std::move(Name);
   type = Type;
   bin = Bin;
 
@@ -26,7 +27,7 @@ HistoData::HistoData(std::string Name, int Type, int Bin, string NewPath, TFile 
 
 HistoData::HistoData(std::string Name, int Type, int Bin, TH1 *NewHisto, TH1 *RefHisto) { 
   
-  name = Name;
+  name = std::move(Name);
   type = Type;
   bin = Bin;
   newHisto = NewHisto;

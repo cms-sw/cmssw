@@ -88,19 +88,19 @@ public:
 
   // Functions
   /// return the sim segments sCSC_v and sDT_v
-  std::vector<SimSegment> Sim_CSCSegments(int trkId, const edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<CSCGeometry> cscGeom);
-  std::vector<SimSegment> Sim_DTSegments(int trkId, const edm::Handle<edm::PSimHitContainer> simHits, edm::ESHandle<DTGeometry> dtGeom);
+  std::vector<SimSegment> Sim_CSCSegments(int trkId, const edm::Handle<edm::PSimHitContainer>& simHits, const edm::ESHandle<CSCGeometry>& cscGeom);
+  std::vector<SimSegment> Sim_DTSegments(int trkId, const edm::Handle<edm::PSimHitContainer>& simHits, const edm::ESHandle<DTGeometry>& dtGeom);
   /// return the reco segments cscseg_V and dtseg_V which map to the sim segment
-  std::vector<CSCSegment> Select_CSCSeg(edm::Handle<CSCSegmentCollection> cscSeg, edm::ESHandle<CSCGeometry> cscGeom, std::vector<SimSegment> simseg );
-  std::vector<DTRecSegment4D> Select_DTSeg(edm::Handle<DTRecSegment4DCollection> dtSeg, edm::ESHandle<DTGeometry> dtGeom, std::vector<SimSegment> simseg );
+  std::vector<CSCSegment> Select_CSCSeg(const edm::Handle<CSCSegmentCollection>& cscSeg, const edm::ESHandle<CSCGeometry>& cscGeom, std::vector<SimSegment> simseg );
+  std::vector<DTRecSegment4D> Select_DTSeg(const edm::Handle<DTRecSegment4DCollection>& dtSeg, const edm::ESHandle<DTGeometry>& dtGeom, std::vector<SimSegment> simseg );
 
 protected:
 
 private: 
 
   // Utility functions
-  void CSCSimHitFit(edm::ESHandle<CSCGeometry> cscGeom);
-  void DTSimHitFit(edm::ESHandle<DTGeometry> dtGeom);
+  void CSCSimHitFit(const edm::ESHandle<CSCGeometry>& cscGeom);
+  void DTSimHitFit(const edm::ESHandle<DTGeometry>& dtGeom);
 
   void LongCSCSegment(std::vector<CSCSegment> cscsegs);
   void LongDTSegment(std::vector<DTRecSegment4D> dtsegs);

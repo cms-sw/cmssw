@@ -20,7 +20,7 @@ ParametrizedMagneticFieldFactory::ParametrizedMagneticFieldFactory(){}
 
 // Legacy interface, deprecated
 std::auto_ptr<MagneticField>
-ParametrizedMagneticFieldFactory::get(string version, const ParameterSet& parameters) {
+ParametrizedMagneticFieldFactory::get(const string& version, const ParameterSet& parameters) {
 
   if (version=="OAE_1103l_071212") {
     // V. Karimaki's off-axis expansion fitted to v1103l TOSCA computation
@@ -48,7 +48,7 @@ ParametrizedMagneticFieldFactory::get(string version, const ParameterSet& parame
 
 // New interface
 std::auto_ptr<MagneticField>
-ParametrizedMagneticFieldFactory::get(string version, vector<double> parameters) {
+ParametrizedMagneticFieldFactory::get(const string& version, vector<double> parameters) {
 
   if (version=="Uniform") {
     if (parameters.size()!=1) throw cms::Exception("InvalidParameter") << "Incorrect parameters (" << parameters.size()<< ")`for " << version ;

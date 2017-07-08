@@ -41,12 +41,12 @@ class SiStripRecHitConverterAlgorithm
   
   SiStripRecHitConverterAlgorithm(const edm::ParameterSet&);
   void initialize(const edm::EventSetup&);  
-  void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output);
-  void run(edm::Handle<edmNew::DetSetVector<SiStripCluster> > input, products& output, LocalVector trackdirection);
+  void run(const edm::Handle<edmNew::DetSetVector<SiStripCluster> >& input, products& output);
+  void run(const edm::Handle<edmNew::DetSetVector<SiStripCluster> >& input, products& output, LocalVector trackdirection);
   
  private:
   
-  void match(products& output, LocalVector trackdirection) const;
+  void match(products& output, const LocalVector& trackdirection) const;
   void fillBad128StripBlocks(const uint32_t detid, bool bad128StripBlocks[6]) const;
   bool isMasked(const SiStripCluster &cluster, bool bad128StripBlocks[6]) const;
   bool useModule(const uint32_t id) const;

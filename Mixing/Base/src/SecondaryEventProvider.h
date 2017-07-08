@@ -15,7 +15,7 @@ namespace edm {
   public:
     SecondaryEventProvider(std::vector<ParameterSet>& psets,
              ProductRegistry& pregistry,
-             std::shared_ptr<ProcessConfiguration> processConfiguration);
+             const std::shared_ptr<ProcessConfiguration>& processConfiguration);
 
     void beginRun(RunPrincipal& run, const edm::EventSetup& setup, ModuleCallingContext const*, StreamContext& sContext);
     void beginLuminosityBlock(LuminosityBlockPrincipal& lumi, const edm::EventSetup& setup, ModuleCallingContext const*, StreamContext& sContext);

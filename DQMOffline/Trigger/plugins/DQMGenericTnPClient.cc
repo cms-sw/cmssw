@@ -27,8 +27,8 @@ class DQMGenericTnPClient : public edm::EDAnalyzer{
     virtual ~DQMGenericTnPClient();
     virtual void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) override {};
     virtual void endRun(const edm::Run &run, const edm::EventSetup &setup) override;
-  void calculateEfficiency(std::string dirName, const ParameterSet& pset);
-    void findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern);
+  void calculateEfficiency(const std::string& dirName, const ParameterSet& pset);
+    void findAllSubdirectories (const std::string& dir, std::set<std::string> * myList, TString pattern);
   private:
     DQMStore * dqmStore;
     TFile * plots;
@@ -95,7 +95,7 @@ void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &set
 
 }
   
-void DQMGenericTnPClient::calculateEfficiency(std::string dirName, const ParameterSet& pset){
+void DQMGenericTnPClient::calculateEfficiency(const std::string& dirName, const ParameterSet& pset){
   //get hold of numerator and denominator histograms
   string allMEname = dirName+"/"+pset.getUntrackedParameter<string>("DenominatorMEname");
   string passMEname = dirName+"/"+pset.getUntrackedParameter<string>("NumeratorMEname");
@@ -184,7 +184,7 @@ DQMGenericTnPClient::~DQMGenericTnPClient(){
   }
 }
 
-void DQMGenericTnPClient::findAllSubdirectories (std::string dir, std::set<std::string> * myList, TString pattern = "") {
+void DQMGenericTnPClient::findAllSubdirectories (const std::string& dir, std::set<std::string> * myList, TString pattern = "") {
   if (!dqmStore->dirExists(dir)) {
     LogError("DQMGenericTnPClient") << " DQMGenericTnPClient::findAllSubdirectories ==> Missing folder " << dir << " !!!";
     return;

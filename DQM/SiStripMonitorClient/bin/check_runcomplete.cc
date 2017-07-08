@@ -44,7 +44,7 @@ int main(int argc , char *argv[]) {
 
 }
 
-int check_runcomplete (std::string filename )
+int check_runcomplete (const std::string& filename )
 {
   int runflag = read_runflag ( filename );
   if ( runflag == 1 )
@@ -74,7 +74,7 @@ int check_runcomplete (std::string filename )
   return runflag;
 }
 
-int read_runflag (std::string filename )
+int read_runflag (const std::string& filename )
 {
   std::string nrun = filename.substr ( filename.find( "_R000" ) + 5 , 6 );
 

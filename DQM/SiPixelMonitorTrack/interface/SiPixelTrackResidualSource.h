@@ -185,7 +185,7 @@ class SiPixelTrackResidualSource : public DQMEDAnalyzer {
     MonitorElement* meRocBladevsDiskEndcapOnTrk;
     MonitorElement* meRocBladevsDiskEndcapOffTrk;
     
-    void getepixrococcupancyontrk(const TrackerTopology* const tTopo, TransientTrackingRecHit::ConstRecHitPointer hit, 
+    void getepixrococcupancyontrk(const TrackerTopology* const tTopo, const TransientTrackingRecHit::ConstRecHitPointer& hit, 
 				  float xclust, float yclust, float z, MonitorElement* meinput);
     void getepixrococcupancyofftrk(DetId detId, const TrackerTopology* const tTopo, 
 				   float xclust, float yclust, float z, MonitorElement* meinput);

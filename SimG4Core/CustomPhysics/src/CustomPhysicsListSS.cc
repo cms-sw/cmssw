@@ -22,7 +22,7 @@ using namespace CLHEP;
 G4ThreadLocal G4Decay* CustomPhysicsListSS::fDecayProcess = nullptr;
 G4ThreadLocal G4ProcessHelper* CustomPhysicsListSS::myHelper = nullptr;
  
-CustomPhysicsListSS::CustomPhysicsListSS(std::string name, const edm::ParameterSet& p)
+CustomPhysicsListSS::CustomPhysicsListSS(const std::string& name, const edm::ParameterSet& p)
   :  G4VPhysicsConstructor(name) 
 {  
   myConfig = p;

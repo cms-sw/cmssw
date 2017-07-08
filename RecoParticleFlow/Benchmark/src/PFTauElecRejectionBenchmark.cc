@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "RecoParticleFlow/Benchmark/interface/PFTauElecRejectionBenchmark.h"
 
 // preprocessor macro for booking 1d histos with DQMStore -or- bare Root
@@ -45,7 +47,7 @@ void PFTauElecRejectionBenchmark::write() {
 } 
 
 void PFTauElecRejectionBenchmark::setup(
-					string Filename,
+					const string& Filename,
 					string benchmarkLabel,
 					double maxDeltaR, 
 					double minRecoPt, 
@@ -56,13 +58,13 @@ void PFTauElecRejectionBenchmark::setup(
 					bool applyEcalCrackCut,
 					DQMStore * db_store) {
   maxDeltaR_ = maxDeltaR;
-  benchmarkLabel_ = benchmarkLabel;
+  benchmarkLabel_ = std::move(benchmarkLabel);
   outputFile_=Filename;
   minRecoPt_ = minRecoPt;
   maxRecoAbsEta_= maxRecoAbsEta;
   minMCPt_ = minMCPt;
   maxMCAbsEta_= maxMCAbsEta;
-  sGenMatchObjectLabel_ = sGenMatchObjectLabel;
+  sGenMatchObjectLabel_ = std::move(sGenMatchObjectLabel);
   applyEcalCrackCut_= applyEcalCrackCut;
 
   file_ = NULL;
@@ -213,9 +215,9 @@ void PFTauElecRejectionBenchmark::setup(
 }
 
 
-void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, edm::Handle<reco::PFTauCollection> pfTaus, 
-					  edm::Handle<reco::PFTauDiscriminator> pfTauIsoDiscr, 
-					  edm::Handle<reco::PFTauDiscriminator> pfTauElecDiscr) {
+void PFTauElecRejectionBenchmark::process(const edm::Handle<edm::HepMCProduct>& mcevt, const edm::Handle<reco::PFTauCollection>& pfTaus, 
+					  const edm::Handle<reco::PFTauDiscriminator>& pfTauIsoDiscr, 
+					  const edm::Handle<reco::PFTauDiscriminator>& pfTauElecDiscr) {
 
 
   // Find Gen Objects to be matched with

@@ -46,7 +46,7 @@ namespace DeDxTools  {
   bool shapeSelection    (const SiStripCluster  & ampls);
   int  getCharge         (const SiStripCluster* cluster, int& nSatStrip, const GeomDetUnit& detUnit, const std::vector< std::vector< float > >& calibGains, const unsigned int& m_off );
   void makeCalibrationMap(const std::string& m_calibrationPath, const TrackerGeometry& tkGeom, std::vector< std::vector< float > >& calibGains, const unsigned int& m_off);
-  void buildDiscrimMap   (edm::Run const& run, const edm::EventSetup& iSetup, std::string Reccord, std::string ProbabilityMode, TH3F*& Prob_ChargePath);
+  void buildDiscrimMap   (edm::Run const& run, const edm::EventSetup& iSetup, const std::string& Reccord, const std::string& ProbabilityMode, TH3F*& Prob_ChargePath);
   bool IsSpanningOver2APV(unsigned int FirstStrip, unsigned int ClusterSize);
   bool IsFarFromBorder   (const TrajectoryStateOnSurface& trajState, const GeomDetUnit* it);
 }

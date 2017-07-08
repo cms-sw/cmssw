@@ -25,7 +25,7 @@ std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Trac
 }
 
 
-std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track *  const tr, const reco::TrackCollection* isoTracks, GlobalPoint zvtx)
+std::pair<int,float> EgammaHLTTrackIsolation::electronIsolation(const reco::Track *  const tr, const reco::TrackCollection* isoTracks, const GlobalPoint& zvtx)
 { 
   // Just to insure consistency with no-vertex-code
   GlobalPoint vtx(0,0,zvtx.z());
@@ -56,7 +56,7 @@ std::pair<int,float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCa
 
 }
 
-std::pair<int,float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate * const recocandidate, const reco::TrackCollection* isoTracks, GlobalPoint zvtx)
+std::pair<int,float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCandidate * const recocandidate, const reco::TrackCollection* isoTracks, const GlobalPoint& zvtx)
 {
 
   // to insure consistency with no-free-vertex-code
@@ -79,7 +79,7 @@ std::pair<int,float> EgammaHLTTrackIsolation::photonIsolation(const reco::RecoCa
 
 }
 
-std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracks(GlobalVector mom, GlobalPoint vtx,  const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex)
+std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracks(const GlobalVector& mom, const GlobalPoint& vtx,  const reco::TrackCollection* isoTracks, bool isElectron, bool useVertex)
 {
 
   // Check that reconstructed tracks fit within cone boundaries,
@@ -149,7 +149,7 @@ std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracks(GlobalVector mom, Gl
 
 }
 
-std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(GlobalVector mom, GlobalPoint vtx, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
+std::pair<int,float> EgammaHLTTrackIsolation::findIsoTracksWithoutEle(const GlobalVector& mom, const GlobalPoint& vtx, const reco::ElectronCollection* allEle, const reco::TrackCollection* isoTracks)
 {
 
   // Check that reconstructed tracks fit within cone boundaries,

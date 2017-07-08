@@ -106,8 +106,8 @@ L1GtLogicParser::L1GtLogicParser(std::string& logicalExpressionVal)
 }
 
 //   from a logical and a numerical expression
-L1GtLogicParser::L1GtLogicParser(const std::string logicalExpressionVal,
-    const std::string numericalExpressionVal) {
+L1GtLogicParser::L1GtLogicParser(const std::string& logicalExpressionVal,
+    const std::string& numericalExpressionVal) {
     // checks also for correctness
 
     if ( !setLogicalExpression(logicalExpressionVal) ) {

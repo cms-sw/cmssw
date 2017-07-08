@@ -185,7 +185,7 @@ TCanvas * DTTimeBoxPlotter::newCanvas(TString name, TString title,
   return c;
 }
 
-TCanvas * DTTimeBoxPlotter::newCanvas(TString name, int xdiv, int ydiv, int form, int w) {
+TCanvas * DTTimeBoxPlotter::newCanvas(const TString& name, int xdiv, int ydiv, int form, int w) {
   return newCanvas(name, name,xdiv,ydiv,form,w);
 }
 TCanvas * DTTimeBoxPlotter::newCanvas(int xdiv, int ydiv, int form) {
@@ -196,7 +196,7 @@ TCanvas * DTTimeBoxPlotter::newCanvas(int form)
   return newCanvas(0,0,form);
 }
 
-TCanvas * DTTimeBoxPlotter::newCanvas(TString name, int form, int w)
+TCanvas * DTTimeBoxPlotter::newCanvas(const TString& name, int form, int w)
 {
   return newCanvas(name, name, 0,0,form,w);
 }

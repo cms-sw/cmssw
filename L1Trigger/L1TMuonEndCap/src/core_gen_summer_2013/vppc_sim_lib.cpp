@@ -707,7 +707,7 @@ void Sfwrite(signal_& fd, string format, ... )
 	fputs(ostr.str().c_str(), ff);
 }
 
-void Sreadmemh(string fname, signal_& dest, size_t adr)
+void Sreadmemh(const string& fname, signal_& dest, size_t adr)
 {
 	ull val;
 	ifstream ifs(fname.c_str());
@@ -727,7 +727,7 @@ void Sreadmemh(string fname, signal_& dest, size_t adr)
 	}
 }
 
-signal_ Sfopen(string fname, string mode)
+signal_ Sfopen(const string& fname, const string& mode)
 {
 	FILE* fp = fopen(fname.c_str(), mode.c_str());
 	if (fp == NULL)

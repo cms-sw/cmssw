@@ -191,7 +191,7 @@ void FieldStepWatcher::findTouch(G4VPhysicalVolume * pv, int leafDepth) {
   if (leafDepth > 0) fHistory.BackLevel();
 }
 
-int FieldStepWatcher::findName(std::string name) { 
+int FieldStepWatcher::findName(const std::string& name) { 
 
   for (unsigned int i=0; i<lvnames.size(); i++) 
     if (name == lvnames[i]) return i;

@@ -137,7 +137,7 @@ void HSCPDeDxInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
   iEvent.put(std::move(trackDeDxAssociation));
 }
 
-void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, susybsm::HSCPDeDxInfo& hscpDeDxInfo,  LocalPoint HitLocalPos){
+void HSCPDeDxInfoProducer::processHit(const TrackingRecHit* recHit, float trackMomentum, float& cosine, susybsm::HSCPDeDxInfo& hscpDeDxInfo,  const LocalPoint& HitLocalPos){
       auto const & thit = static_cast<BaseTrackerRecHit const&>(*recHit);
       if(!thit.isValid())return;
 

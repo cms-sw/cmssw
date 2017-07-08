@@ -1,6 +1,7 @@
 #ifndef TtFullHadKinFitter_h
 #define TtFullHadKinFitter_h
 
+#include <utility>
 #include <vector>
 
 #include "TLorentzVector.h"
@@ -148,7 +149,7 @@ class TtFullHadKinFitter : public TopKinFitter {
     void setBTagging(bool useBTagging, unsigned int bTags, std::string bTagAlgo, double minBTagValueBJet, double maxBTagValueNonBJet){
       useBTagging_         = useBTagging;
       bTags_               = bTags;
-      bTagAlgo_            = bTagAlgo;
+      bTagAlgo_            = std::move(bTagAlgo);
       minBTagValueBJet_    = minBTagValueBJet;
       maxBTagValueNonBJet_ = maxBTagValueNonBJet;
     }
@@ -174,7 +175,7 @@ class TtFullHadKinFitter : public TopKinFitter {
     }
     /// set jec level
     void setJEC(std::string jetCorrectionLevel){
-      jetCorrectionLevel_ = jetCorrectionLevel;
+      jetCorrectionLevel_ = std::move(jetCorrectionLevel);
     }
     /// set useOnlyMatch
     void setUseOnlyMatch(bool useOnlyMatch){

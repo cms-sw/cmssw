@@ -16,6 +16,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
 
 #include <string>
+#include <utility>
 #include <vector>
 
 class DTSuperLayer;
@@ -36,8 +37,8 @@ class DTTMax {
   typedef dttmaxenums::SigmaFactor SigmaFactor;
   
   /// Constructor
-  DTTMax(const std::vector<DTRecHit1D> & hits, const DTSuperLayer & isl, GlobalVector dir, 
-	 GlobalPoint pos, DTTTrigBaseSync* sync);
+  DTTMax(const std::vector<DTRecHit1D> & hits, const DTSuperLayer & isl, const GlobalVector& dir, 
+	 const GlobalPoint& pos, DTTTrigBaseSync* sync);
   
   /// Destructor
   virtual ~DTTMax();
@@ -46,7 +47,7 @@ class DTTMax {
   struct TMax{
     TMax(float t_, TMaxCells cells_, std::string type_, SigmaFactor sigma_, 
 	 unsigned t0Factor_,unsigned hSubGroup_) :
-    t(t_), cells(cells_), type(type_), sigma(sigma_), t0Factor(t0Factor_), hSubGroup(hSubGroup_) {}
+    t(t_), cells(cells_), type(std::move(type_)), sigma(sigma_), t0Factor(t0Factor_), hSubGroup(hSubGroup_) {}
     
     float t;
     TMaxCells cells;
@@ -59,8 +60,8 @@ class DTTMax {
 
   // All information on one of the layers crossed by the segment
   struct InfoLayer {
-    InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, GlobalVector dir, 
-	      GlobalPoint pos, DTTTrigBaseSync* sync);
+    InfoLayer(const DTRecHit1D& rh_, const DTSuperLayer & isl, const GlobalVector& dir, 
+	      const GlobalPoint& pos, DTTTrigBaseSync* sync);
     DTRecHit1D rh;
     DTWireId idWire;
     DTEnums::DTCellSide lr;

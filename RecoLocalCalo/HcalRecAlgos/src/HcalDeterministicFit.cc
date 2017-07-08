@@ -17,7 +17,7 @@ HcalDeterministicFit::HcalDeterministicFit() {
 HcalDeterministicFit::~HcalDeterministicFit() { 
 }
 
-void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, PedestalSub pedSubFxn_, std::vector<double> pars, double respCorr) {
+void HcalDeterministicFit::init(HcalTimeSlew::ParaSource tsParam, HcalTimeSlew::BiasSetting bias, bool iApplyTimeSlew, const PedestalSub& pedSubFxn_, std::vector<double> pars, double respCorr) {
   for(int fi=0; fi<9; fi++){
 	fpars[fi] = pars.at(fi);
   }

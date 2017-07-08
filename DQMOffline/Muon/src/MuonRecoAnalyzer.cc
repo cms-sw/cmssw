@@ -294,7 +294,7 @@ void MuonRecoAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
   
 }
 
-void MuonRecoAnalyzer::GetRes( reco::TrackRef t1, reco::TrackRef t2, string par, float &res, float &pull){
+void MuonRecoAnalyzer::GetRes( const reco::TrackRef& t1, const reco::TrackRef& t2, const string& par, float &res, float &pull){
   
   float p1=0, p2=0, p1e=1, p2e=1;
 

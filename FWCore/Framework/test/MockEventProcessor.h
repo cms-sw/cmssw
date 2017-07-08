@@ -68,7 +68,7 @@ namespace edm {
 
     InputSource::ItemType readAndProcessEvents();
 
-    bool setDeferredException(std::exception_ptr);
+    bool setDeferredException(const std::exception_ptr&);
 
   private:
     void readAndProcessEvent();

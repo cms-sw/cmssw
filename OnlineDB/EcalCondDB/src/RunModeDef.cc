@@ -30,7 +30,7 @@ string RunModeDef::getRunMode() const
 
 
 
-void RunModeDef::setRunMode(string runmode)
+void RunModeDef::setRunMode(const string& runmode)
 {
   if (runmode != m_runMode) {
     m_ID = 0;

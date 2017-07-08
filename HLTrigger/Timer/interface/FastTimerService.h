@@ -102,8 +102,8 @@ public:
   double queryHighlightTime(edm::StreamID sid, std::string const& label) const;
 
 private:
-  void ignoredSignal(std::string signal) const;
-  void unsupportedSignal(std::string signal) const;
+  void ignoredSignal(const std::string& signal) const;
+  void unsupportedSignal(const std::string& signal) const;
 
   // these signal pairs are not guaranteed to happen in the same thread
 

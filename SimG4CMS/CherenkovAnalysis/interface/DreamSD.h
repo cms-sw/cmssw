@@ -20,7 +20,7 @@ class DreamSD : public CaloSD {
 
 public:    
 
-  DreamSD(G4String, const DDCompactView &, const SensitiveDetectorCatalog &,
+  DreamSD(const G4String&, const DDCompactView &, const SensitiveDetectorCatalog &,
 	  edm::ParameterSet const &, const SimTrackManager*);
   virtual ~DreamSD() {}
   virtual bool   ProcessHits(G4Step * step,G4TouchableHistory * tHistory);
@@ -36,7 +36,7 @@ private:
   typedef std::pair<double,double> Doubles;
   typedef std::map<G4LogicalVolume*,Doubles> DimensionMap;
 
-  void           initMap(G4String, const DDCompactView &);
+  void           initMap(const G4String&, const DDCompactView &);
   double         curve_LY(G4Step*, int); 
   const double   crystalLength(G4LogicalVolume*) const;
   const double   crystalWidth(G4LogicalVolume*) const;

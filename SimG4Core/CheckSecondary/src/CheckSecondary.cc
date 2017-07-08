@@ -72,7 +72,7 @@ CheckSecondary::~CheckSecondary() {
   if (treatSecondary) delete treatSecondary;
 }
 
-TTree* CheckSecondary::bookTree(std::string fileName) {
+TTree* CheckSecondary::bookTree(const std::string& fileName) {
 
   file = new TFile (fileName.c_str(), "RECREATE");
   file->cd();

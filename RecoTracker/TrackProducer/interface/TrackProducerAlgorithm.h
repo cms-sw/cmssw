@@ -134,7 +134,7 @@ public:
 		  const TrajectorySeed&,		  
 		  float,
 		  const reco::BeamSpot&,
-		  SeedRef seedRef = SeedRef(),
+		  const SeedRef& seedRef = SeedRef(),
 		  int qualityMask=0,
 		  signed char nLoops=0);
 
@@ -167,7 +167,7 @@ TrackProducerAlgorithm<reco::Track>::buildTrack(const TrajectoryFitter *,
 						const TrajectorySeed&,
 						float,
 						const reco::BeamSpot&,
-						SeedRef seedRef,
+						const SeedRef& seedRef,
 						int qualityMask,
 						signed char nLoops);
 
@@ -181,7 +181,7 @@ TrackProducerAlgorithm<reco::GsfTrack>::buildTrack(const TrajectoryFitter *,
 						   const TrajectorySeed&,
 						   float,
 						   const reco::BeamSpot&,
-						   SeedRef seedRef,
+						   const SeedRef& seedRef,
 						   int qualityMask,
 						   signed char nLoops);
 

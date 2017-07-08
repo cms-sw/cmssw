@@ -29,6 +29,7 @@
 #define SEP "/"
 
 #include <cstring>
+#include <utility>
 
 SiStripFolderOrganizer::SiStripFolderOrganizer()
 {
@@ -43,7 +44,7 @@ SiStripFolderOrganizer::~SiStripFolderOrganizer()
 }
 
 void SiStripFolderOrganizer::setSiStripFolderName(std::string name){
-  TopFolderName = name;
+  TopFolderName = std::move(name);
 }
 
 std::string SiStripFolderOrganizer::getSiStripFolder(){

@@ -79,7 +79,7 @@ TrackProducerFP420::TrackProducerFP420(int asn0, int apn0, int arn0, int axytype
 
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(edm::Handle<ClusterCollectionFP420> input, int det){
+std::vector<TrackFP420> TrackProducerFP420::trackFinderSophisticated(const edm::Handle<ClusterCollectionFP420>& input, int det){
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   
   std::vector<TrackFP420> rhits;

@@ -29,6 +29,8 @@
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
+#include <utility>
+
 
 namespace edm {
   class ParameterSet;
@@ -69,11 +71,11 @@ protected:
 private:
   bool isInTheAcceptance(double eta);
   
-  std::map<DetId, const PSimHit*> mapMuSimHitsPerId(edm::Handle<edm::PSimHitContainer> dtSimhits,
-						    edm::Handle<edm::PSimHitContainer> cscSimhits,
-						    edm::Handle<edm::PSimHitContainer> rpcSimhits);
+  std::map<DetId, const PSimHit*> mapMuSimHitsPerId(const edm::Handle<edm::PSimHitContainer>& dtSimhits,
+						    const edm::Handle<edm::PSimHitContainer>& cscSimhits,
+						    const edm::Handle<edm::PSimHitContainer>& rpcSimhits);
   
-  void mapMuSimHitsPerId(edm::Handle<edm::PSimHitContainer> simhits, 
+  void mapMuSimHitsPerId(const edm::Handle<edm::PSimHitContainer>& simhits, 
 			 std::map<DetId,const PSimHit*> &hitIdMap);
   
   void computeResolution(Trajectory &trajectory, 
@@ -130,7 +132,7 @@ private:
 
   struct RadiusComparatorInOut{
 
-    RadiusComparatorInOut(edm::ESHandle<GlobalTrackingGeometry> tg):theTG(tg){}
+    RadiusComparatorInOut(edm::ESHandle<GlobalTrackingGeometry> tg):theTG(std::move(tg)){}
     
     bool operator()(const PSimHit *a,
 		    const PSimHit *b) const{ 

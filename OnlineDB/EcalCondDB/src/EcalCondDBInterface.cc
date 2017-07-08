@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <string>
+#include <utility>
 #include <vector>
 #include <sstream>
 #include <stdlib.h>
@@ -137,7 +138,7 @@ std::list<ODDelaysDat> EcalCondDBInterface::fetchFEDelaysForRun(RunIOV *iov)
   return ret;
 }
 
-EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
+EcalLogicID EcalCondDBInterface::getEcalLogicID( const string& name,
 						 int id1,
 						 int id2,
 						 int id3,
@@ -330,7 +331,7 @@ std::map<int, int> EcalCondDBInterface::getEcalLogicID2LmrMap() {
   return ret;
 }
 
-std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_logic_id, std::string maps_to) {
+std::vector<EcalLogicID> EcalCondDBInterface::getEcalLogicIDMappedTo(int lmr_logic_id, const std::string& maps_to) {
   std::string name = "EB_crystal_angle";
   std::string sql = "SELECT LOGIC_ID, ID1, ID2, ID3 "
     "FROM CHANNELVIEW WHERE NAME = 'EB_crystal_angle' AND LOGIC_ID IN "
@@ -679,7 +680,7 @@ RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, run_t run)
 {  
   RunIOV iov;
   iov.setConnection(env, conn);
-  iov.setByRun(location, run);
+  iov.setByRun(std::move(location), run);
   return iov;
 }
 
@@ -688,7 +689,7 @@ RunIOV EcalCondDBInterface::fetchRunIOV(std::string location, const Tm &t)
 {
   RunIOV iov;
   iov.setConnection(env, conn);
-  iov.setByTime(location, t);
+  iov.setByTime(std::move(location), t);
   return iov;
 }
 

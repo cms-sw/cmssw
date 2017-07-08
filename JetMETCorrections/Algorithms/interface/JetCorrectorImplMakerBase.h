@@ -49,7 +49,7 @@ class JetCorrectorImplMakerBase
 
  protected:
   std::shared_ptr<FactorizedJetCorrectorCalculator const> getCalculator(edm::EventSetup const&,
-									std::function<void(std::string const&)> levelCheck);
+									const std::function<void(std::string const&)>& levelCheck);
   
  private:
   JetCorrectorImplMakerBase(const JetCorrectorImplMakerBase&); // stop default

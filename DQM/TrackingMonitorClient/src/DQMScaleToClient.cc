@@ -15,7 +15,7 @@ DQMScaleToClient::DQMScaleToClient(const edm::ParameterSet& iConfig) :
 
 }
 
-MEPSet DQMScaleToClient::getHistoPSet(edm::ParameterSet pset)
+MEPSet DQMScaleToClient::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEPSet{
     pset.getParameter<std::string>("name"),
@@ -23,7 +23,7 @@ MEPSet DQMScaleToClient::getHistoPSet(edm::ParameterSet pset)
   };
 }
 
-OutputMEPSet DQMScaleToClient::getOutputHistoPSet(edm::ParameterSet pset)
+OutputMEPSet DQMScaleToClient::getOutputHistoPSet(const edm::ParameterSet& pset)
 {
   return OutputMEPSet{
     pset.getParameter<std::string>("name"),

@@ -518,7 +518,7 @@ bool HcalHaloAlgo::HEClusterShapeandTimeStudy( HaloClusterCandidateHCAL hcand, b
 }
 
 
-math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, reco::Vertex::Point vtx){
+math::XYZPoint HcalHaloAlgo::getPosition(const DetId &id, const reco::Vertex::Point& vtx){
 
   const GlobalPoint& pos=geo->getPosition(id);
   math::XYZPoint posV(pos.x() - vtx.x(),pos.y() - vtx.y(),pos.z() - vtx.z());

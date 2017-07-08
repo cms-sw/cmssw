@@ -107,8 +107,8 @@ class L1MuonRecoTreeProducer : public edm::EDAnalyzer {
 public:
   explicit L1MuonRecoTreeProducer(const edm::ParameterSet&);
   ~L1MuonRecoTreeProducer();
-  TrajectoryStateOnSurface  cylExtrapTrkSam  (reco::TrackRef track, double rho);
-  TrajectoryStateOnSurface  surfExtrapTrkSam (reco::TrackRef track, double z);
+  TrajectoryStateOnSurface  cylExtrapTrkSam  (const reco::TrackRef& track, double rho);
+  TrajectoryStateOnSurface  surfExtrapTrkSam (const reco::TrackRef& track, double z);
   void empty_global();
   void empty_tracker();
   void empty_standalone();
@@ -181,7 +181,7 @@ private:
   edm::ESHandle<Propagator> propagatorAlong;
   edm::ESHandle<Propagator> propagatorOpposite;
   
-  FreeTrajectoryState freeTrajStateMuon(reco::TrackRef track);
+  FreeTrajectoryState freeTrajStateMuon(const reco::TrackRef& track);
   
   // output file
   edm::Service<TFileService> fs_;
@@ -1296,7 +1296,7 @@ L1MuonRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
 // to get the track position info at a particular rho
 TrajectoryStateOnSurface 
-L1MuonRecoTreeProducer::cylExtrapTrkSam(reco::TrackRef track, double rho)
+L1MuonRecoTreeProducer::cylExtrapTrkSam(const reco::TrackRef& track, double rho)
 {
   Cylinder::PositionType pos(0, 0, 0);
   Cylinder::RotationType rot;
@@ -1313,7 +1313,7 @@ L1MuonRecoTreeProducer::cylExtrapTrkSam(reco::TrackRef track, double rho)
 
 // to get track position at a particular (xy) plane given its z
 TrajectoryStateOnSurface
-L1MuonRecoTreeProducer::surfExtrapTrkSam(reco::TrackRef track, double z)
+L1MuonRecoTreeProducer::surfExtrapTrkSam(const reco::TrackRef& track, double z)
 {
   Plane::PositionType pos(0, 0, z);
   Plane::RotationType rot;
@@ -1330,7 +1330,7 @@ L1MuonRecoTreeProducer::surfExtrapTrkSam(reco::TrackRef track, double z)
 
 
 
-FreeTrajectoryState L1MuonRecoTreeProducer::freeTrajStateMuon(reco::TrackRef track)
+FreeTrajectoryState L1MuonRecoTreeProducer::freeTrajStateMuon(const reco::TrackRef& track)
 {
   GlobalPoint  innerPoint(track->innerPosition().x(), track->innerPosition().y(),  track->innerPosition().z());
   GlobalVector innerVec  (track->innerMomentum().x(),  track->innerMomentum().y(),  track->innerMomentum().z());  

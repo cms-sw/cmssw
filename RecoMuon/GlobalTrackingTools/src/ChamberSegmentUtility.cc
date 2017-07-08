@@ -55,7 +55,7 @@ vector<CSCSegment> ChamberSegmentUtility::getCSCSegmentsInChamber(CSCDetId sel)
 }
 
 
-vector<DTRecSegment4D> ChamberSegmentUtility::getDTSegmentsInChamber(DTChamberId sel)
+vector<DTRecSegment4D> ChamberSegmentUtility::getDTSegmentsInChamber(const DTChamberId& sel)
 {
   dtseg.clear();
   DTRecSegment4DCollection::range  range = all4DSegments->get(sel);

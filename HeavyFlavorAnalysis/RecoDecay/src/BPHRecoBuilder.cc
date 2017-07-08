@@ -350,7 +350,7 @@ bool BPHRecoBuilder::contained( ComponentSet& compSet,
 
 
 bool BPHRecoBuilder::contained( ComponentSet& compSet,
-                                BPHRecoConstCandPtr cCand ) const {
+                                const BPHRecoConstCandPtr& cCand ) const {
 
   map<string,BPHRecoConstCandPtr>::const_iterator c_iter;
   map<string,BPHRecoConstCandPtr>::const_iterator c_iend = compMap.end();

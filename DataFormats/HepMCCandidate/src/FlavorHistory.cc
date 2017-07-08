@@ -26,7 +26,7 @@ FlavorHistory::FlavorHistory( FLAVOR_T flavorSource,
 }
 
 FlavorHistory::FlavorHistory( FLAVOR_T flavorSource,
-			      Handle<View<Candidate> > h_partons,
+			      const Handle<View<Candidate> >& h_partons,
 			      int parton,
 			      int progenitor,
 			      int sister,
@@ -43,7 +43,7 @@ FlavorHistory::FlavorHistory( FLAVOR_T flavorSource,
 }
 
 FlavorHistory::FlavorHistory( FLAVOR_T flavorSource,
-			      Handle<CandidateCollection> h_partons,
+			      const Handle<CandidateCollection>& h_partons,
 			      int parton,
 			      int progenitor,
 			      int sister,

@@ -1,5 +1,7 @@
 #include "EgammaAnalysis/ElectronTools/interface/PhotonEnergyCalibratorRun2.h"
 #include <CLHEP/Random/RandGaussQ.h>
+
+#include <utility>
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -9,7 +11,7 @@ PhotonEnergyCalibratorRun2::PhotonEnergyCalibratorRun2(bool isMC, bool synchroni
 						       ) :
   isMC_(isMC), synchronization_(synchronization),
   rng_(0),
-  _correctionRetriever(correctionFile) // here is opening the files and reading thecorrections
+  _correctionRetriever(std::move(correctionFile)) // here is opening the files and reading thecorrections
 {
   if(isMC_) {
     _correctionRetriever.doScale = false; 

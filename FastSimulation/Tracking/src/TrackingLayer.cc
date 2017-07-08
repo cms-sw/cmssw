@@ -101,7 +101,7 @@ TrackingLayer TrackingLayer::createFromDetId(
     return trackingLayer;
 }
 
-TrackingLayer TrackingLayer::createFromString(std::string layerSpecification)
+TrackingLayer TrackingLayer::createFromString(const std::string& layerSpecification)
 {
     TrackingLayer trackingLayer;
     if (layerSpecification.substr(0,4)=="BPix" ) 

@@ -2,6 +2,7 @@
 #include <assert.h>
 #include <iostream>
 #include <algorithm>
+#include <utility>
 #include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"
@@ -128,7 +129,7 @@ RequestManager::RequestManager(const std::string &filename, XrdCl::OpenFlags::Fl
 void
 RequestManager::initialize(std::weak_ptr<RequestManager> self)
 {
-  m_open_handler = OpenHandler::getInstance(self);
+  m_open_handler = OpenHandler::getInstance(std::move(self));
 
   XrdCl::Env *env = XrdCl::DefaultEnv::GetEnv();
   if (env) {env->GetInt("StreamErrorWindow", m_timeout);}
@@ -302,7 +303,7 @@ namespace  {
 void
 RequestManager::reportSiteChange(std::vector<std::shared_ptr<Source> > const& iOld,
                                std::vector<std::shared_ptr<Source> > const& iNew,
-                               std::string orig_site) const
+                               const std::string& orig_site) const
 {
   auto siteList = formatSites(iNew);
   if (orig_site.size() && (orig_site != siteList))
@@ -562,7 +563,7 @@ RequestManager::pickSingleSource()
 }
 
 std::future<IOSize>
-RequestManager::handle(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr)
+RequestManager::handle(const std::shared_ptr<XrdAdaptor::ClientRequest>& c_ptr)
 {
   assert(c_ptr.get());
   timespec now;
@@ -780,7 +781,7 @@ XrdAdaptor::RequestManager::handle(std::shared_ptr<std::vector<IOPosBuffer> > io
 }
 
 void
-RequestManager::requestFailure(std::shared_ptr<XrdAdaptor::ClientRequest> c_ptr, XrdCl::Status &c_status)
+RequestManager::requestFailure(const std::shared_ptr<XrdAdaptor::ClientRequest>& c_ptr, XrdCl::Status &c_status)
 {
     std::shared_ptr<Source> source_ptr = c_ptr->getCurrentSource();
 
@@ -1054,7 +1055,7 @@ XrdAdaptor::RequestManager::splitClientRequest(const std::vector<IOPosBuffer> &i
 }
 
 XrdAdaptor::RequestManager::OpenHandler::OpenHandler(std::weak_ptr<RequestManager> manager)
-  : m_manager(manager)
+  : m_manager(std::move(manager))
 {
 }
 

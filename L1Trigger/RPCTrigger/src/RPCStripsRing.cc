@@ -14,6 +14,8 @@
 
 // user include files
 //#include "L1TriggerConfig/RPCConeBuilder/interface/RPCStripsRing.h"
+#include <utility>
+
 #include "L1Trigger/RPCTrigger/interface/RPCStripsRing.h"
 #include "Geometry/RPCGeometry/interface/RPCGeomServ.h"
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
@@ -35,7 +37,7 @@ RPCStripsRing::RPCStripsRing(const RPCRoll * roll,
                              std::shared_ptr<L1RPCConeBuilder::TConMap > cmap) :
     m_didVirtuals(false),
     m_didFiltering(false),
-    m_connectionsMap(cmap)
+    m_connectionsMap(std::move(cmap))
 {
   
   RPCDetId detId = roll->id();

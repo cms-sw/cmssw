@@ -28,7 +28,7 @@ namespace pos{
 
   public:
 
-    PixelFEDConfig(std::string filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
+    PixelFEDConfig(const std::string& filename);  //  <---- Modified for the conversion from parallel vectors to object that contain the configuration
    
     PixelFEDConfig(std::vector<std::vector<std::string> >& tableMat ); 
 

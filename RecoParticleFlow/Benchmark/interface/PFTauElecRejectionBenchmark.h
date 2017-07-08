@@ -39,7 +39,7 @@ class PFTauElecRejectionBenchmark {
   virtual ~PFTauElecRejectionBenchmark();
   
   void setup(
-	     std::string Filename,
+	     const std::string& Filename,
 	     std::string benchmarkLabel,
 	     double maxDeltaR, 
 	     double minRecoPt, 
@@ -49,9 +49,9 @@ class PFTauElecRejectionBenchmark {
 	     std::string sGenMatchObjectLabel,
 	     bool applyEcalCrackCut,
 	     DQMStore * db_store);
-  void process(edm::Handle<edm::HepMCProduct> mcevt, edm::Handle<reco::PFTauCollection> pfTaus, 
-	       edm::Handle<reco::PFTauDiscriminator> pfTauIsoDiscr, 
-	       edm::Handle<reco::PFTauDiscriminator> pfTauElecDiscr);
+  void process(const edm::Handle<edm::HepMCProduct>& mcevt, const edm::Handle<reco::PFTauCollection>& pfTaus, 
+	       const edm::Handle<reco::PFTauDiscriminator>& pfTauIsoDiscr, 
+	       const edm::Handle<reco::PFTauDiscriminator>& pfTauElecDiscr);
   void write();
 	
  private:

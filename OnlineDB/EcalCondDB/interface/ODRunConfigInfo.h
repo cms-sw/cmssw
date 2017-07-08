@@ -3,6 +3,7 @@
 
 #include <stdexcept>
 #include <iostream>
+#include <utility>
 
 #include "OnlineDB/EcalCondDB/interface/IODConfig.h"
 #include "OnlineDB/EcalCondDB/interface/Tm.h"
@@ -25,10 +26,10 @@ class ODRunConfigInfo : public IODConfig {
   void setDBTime(const Tm& x) { m_db_time=x; }
 inline Tm getDBTime() const{  return m_db_time;}
 //
-inline void setTag(std::string x) { m_tag = x; }
+inline void setTag(std::string x) { m_tag = std::move(x); }
 std::string getTag() const{  return m_tag;}
 //
-void setDescription(std::string x) { m_description = x;}
+void setDescription(std::string x) { m_description = std::move(x);}
 std::string getDescription() const{  return m_description;}
 //
 void setVersion(int x){ m_version = x;  }
@@ -40,13 +41,13 @@ int getNumberOfSequences()const {return m_num_seq;  }
 void setDefaults(int x) { m_defaults = x;}
 int getDefaults() const{  return m_defaults;}
 //
-void setTriggerMode(std::string x) { m_trigger_mode = x;}
+void setTriggerMode(std::string x) { m_trigger_mode = std::move(x);}
 std::string getTriggerMode() const{  return m_trigger_mode;}
 //
 void setNumberOfEvents(int x) { m_num_events = x ;}
 int getNumberOfEvents() const{  return m_num_events ;}
 //
-void setUsageStatus(std::string x) { m_usage_status = x;}
+void setUsageStatus(std::string x) { m_usage_status = std::move(x);}
 std::string getUsageStatus() const{  return m_usage_status;}
 //
 

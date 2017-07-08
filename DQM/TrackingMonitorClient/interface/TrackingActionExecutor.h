@@ -40,7 +40,7 @@ class TrackingActionExecutor {
 
  void createDummyShiftReport();
  void createShiftReport(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter);
- void printReportSummary(MonitorElement* me, std::ostringstream& str_val, std::string name);
+ void printReportSummary(MonitorElement* me, std::ostringstream& str_val, const std::string& name);
  void printShiftHistoParameters(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter,
 				std::map<std::string, std::vector<std::string> >&layout_map,std::ostringstream& str_val);
 

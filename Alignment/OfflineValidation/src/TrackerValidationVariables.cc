@@ -447,7 +447,7 @@ TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
 void
 TrackerValidationVariables::fillTrackQuantities(const edm::Event& event,
                                                 const edm::EventSetup& eventSetup,
-                                                std::function<bool(const reco::Track&)> trackFilter, 
+                                                const std::function<bool(const reco::Track&)>& trackFilter, 
                                                 std::vector<AVTrackStruct> & v_avtrackout)
 {
   edm::ESHandle<MagneticField> magneticField;

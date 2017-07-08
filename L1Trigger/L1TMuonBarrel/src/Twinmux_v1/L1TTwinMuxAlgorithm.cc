@@ -30,9 +30,9 @@ public:
   L1TTwinMuxAlgortithm();
   ~L1TTwinMuxAlgortithm() {}
 
-  inline std::unique_ptr<L1MuDTChambPhContainer> produce( edm::Handle<L1MuDTChambPhContainer> phiDigis,
-                                                        edm::Handle<L1MuDTChambThContainer> thetaDigis,
-                                                        edm::Handle<RPCDigiCollection> rpcDigis,
+  inline std::unique_ptr<L1MuDTChambPhContainer> produce( const edm::Handle<L1MuDTChambPhContainer>& phiDigis,
+                                                        const edm::Handle<L1MuDTChambThContainer>& thetaDigis,
+                                                        const edm::Handle<RPCDigiCollection>& rpcDigis,
                                                         const edm::EventSetup& c);
 
 };
@@ -43,9 +43,9 @@ L1TTwinMuxAlgortithm::L1TTwinMuxAlgortithm() {
 
 
 inline std::unique_ptr<L1MuDTChambPhContainer> L1TTwinMuxAlgortithm::produce(
-                                                            edm::Handle<L1MuDTChambPhContainer> phiDigis,
-                                                            edm::Handle<L1MuDTChambThContainer> thetaDigis,
-                                                            edm::Handle<RPCDigiCollection> rpcDigis,
+                                                            const edm::Handle<L1MuDTChambPhContainer>& phiDigis,
+                                                            const edm::Handle<L1MuDTChambThContainer>& thetaDigis,
+                                                            const edm::Handle<RPCDigiCollection>& rpcDigis,
                                                             const edm::EventSetup& c) {
 
 

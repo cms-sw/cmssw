@@ -67,7 +67,7 @@ protected:
   void bookHistos(DQMStore::IBooker &,int wh);
 
   /// Get the ME name
-  std::string getMEName(std::string histoTag, const DTLayerId & lID);
+  std::string getMEName(const std::string& histoTag, const DTLayerId & lID);
 
   
   /// DQM Client Diagnostic

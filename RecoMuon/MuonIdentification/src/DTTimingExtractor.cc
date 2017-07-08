@@ -101,7 +101,7 @@ DTTimingExtractor::~DTTimingExtractor()
 
 // ------------ method called to produce the data  ------------
 void
-DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackRef muonTrack,
+DTTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, const reco::TrackRef& muonTrack,
                               const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   if (debug) 

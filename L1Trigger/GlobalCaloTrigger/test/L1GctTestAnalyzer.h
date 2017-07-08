@@ -39,11 +39,11 @@ public:
   
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   
-  void doRctEM(const edm::Event&, edm::InputTag label);
-  void doInternEM(const edm::Event&, edm::InputTag label);
-  void doEM(const edm::Event&, edm::InputTag label);
-  void doJets(const edm::Event&, edm::InputTag label);
-  void doEnergySums(const edm::Event&, edm::InputTag label);
+  void doRctEM(const edm::Event&, const edm::InputTag& label);
+  void doInternEM(const edm::Event&, const edm::InputTag& label);
+  void doEM(const edm::Event&, const edm::InputTag& label);
+  void doJets(const edm::Event&, const edm::InputTag& label);
+  void doEnergySums(const edm::Event&, const edm::InputTag& label);
   
 private:
   // ----------member data ---------------------------

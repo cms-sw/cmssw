@@ -21,6 +21,7 @@ a set of related EDProducts. This is the storage unit of such information.
 #include <atomic>
 
 #include <string>
+#include <utility>
 
 namespace edm {
   class ProductProvenanceRetriever;
@@ -43,7 +44,7 @@ namespace edm {
     };
 
     DataManagingProductResolver(std::shared_ptr<BranchDescription const> bd,ProductStatus iDefaultStatus): ProductResolverBase(),
-    productData_(bd),
+    productData_(std::move(bd)),
     theStatus_(iDefaultStatus),
     defaultStatus_(iDefaultStatus){}
 
@@ -96,7 +97,7 @@ namespace edm {
   class InputProductResolver : public DataManagingProductResolver {
     public:
     explicit InputProductResolver(std::shared_ptr<BranchDescription const> bd) :
-      DataManagingProductResolver(bd, ProductStatus::ResolveNotRun),
+      DataManagingProductResolver(std::move(bd), ProductStatus::ResolveNotRun),
       m_prefetchRequested{ false },
       aux_{nullptr} {}
 
@@ -132,7 +133,7 @@ namespace edm {
 
   class ProducedProductResolver : public DataManagingProductResolver {
     public:
-      ProducedProductResolver(std::shared_ptr<BranchDescription const> bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
+      ProducedProductResolver(const std::shared_ptr<BranchDescription const>& bd, ProductStatus iDefaultStatus) : DataManagingProductResolver(bd, iDefaultStatus) {assert(bd->produced());}
 
       virtual void resetFailedFromThisProcess() override;
 
@@ -145,7 +146,7 @@ namespace edm {
 
   class PuttableProductResolver : public ProducedProductResolver {
   public:
-    explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd) : ProducedProductResolver(bd, ProductStatus::NotPut), worker_(nullptr), prefetchRequested_(false) {}
+    explicit PuttableProductResolver(std::shared_ptr<BranchDescription const> bd) : ProducedProductResolver(std::move(bd), ProductStatus::NotPut), worker_(nullptr), prefetchRequested_(false) {}
 
     virtual void setupUnscheduled(UnscheduledConfigurator const&) override final;
 
@@ -173,7 +174,7 @@ namespace edm {
   class UnscheduledProductResolver : public ProducedProductResolver {
     public:
       explicit UnscheduledProductResolver(std::shared_ptr<BranchDescription const> bd) :
-       ProducedProductResolver(bd,ProductStatus::ResolveNotRun),
+       ProducedProductResolver(std::move(bd),ProductStatus::ResolveNotRun),
        aux_(nullptr),
        prefetchRequested_(false){}
 
@@ -202,7 +203,7 @@ namespace edm {
   class AliasProductResolver : public ProductResolverBase {
     public:
       typedef ProducedProductResolver::ProductStatus ProductStatus;
-      explicit AliasProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct) : ProductResolverBase(), realProduct_(realProduct), bd_(bd) {}
+      explicit AliasProductResolver(std::shared_ptr<BranchDescription const> bd, ProducedProductResolver& realProduct) : ProductResolverBase(), realProduct_(realProduct), bd_(std::move(bd)) {}
 
       virtual void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) override final {
         realProduct_.connectTo(iOther, iParentPrincipal );
@@ -250,7 +251,7 @@ namespace edm {
   class ParentProcessProductResolver : public ProductResolverBase {
   public:
     typedef ProducedProductResolver::ProductStatus ProductStatus;
-    explicit ParentProcessProductResolver(std::shared_ptr<BranchDescription const> bd) : ProductResolverBase(), realProduct_(nullptr), bd_(bd), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
+    explicit ParentProcessProductResolver(std::shared_ptr<BranchDescription const> bd) : ProductResolverBase(), realProduct_(nullptr), bd_(std::move(bd)), provRetriever_(nullptr), parentPrincipal_(nullptr) {}
 
     virtual void connectTo(ProductResolverBase const& iOther, Principal const* iParentPrincipal) override final {
       realProduct_ = &iOther;
@@ -319,7 +320,7 @@ namespace edm {
                                   bool skipCurrentProcess,
                                   SharedResourcesAcquirer* sra,
                                   ModuleCallingContext const* mcc,
-                                  ServiceToken token) const;
+                                  const ServiceToken& token) const;
 
     bool dataValidFromResolver(unsigned int iProcessingIndex,
                                Principal const& principal,
@@ -365,7 +366,7 @@ namespace edm {
                              SharedResourcesAcquirer* sra,
                              ModuleCallingContext const* mcc) const;
 
-      void setCache(bool skipCurrentProcess, ProductResolverIndex index, std::exception_ptr exceptionPtr) const;
+      void setCache(bool skipCurrentProcess, ProductResolverIndex index, const std::exception_ptr& exceptionPtr) const;
 
       std::vector<ProductResolverIndex> matchingHolders_;
       std::vector<bool> ambiguous_;

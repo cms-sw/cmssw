@@ -85,16 +85,16 @@ class EcalDisplaysByEvent : public edm::EDAnalyzer {
 	 EEP_FINE	= 4,
 	 EEP_COARSE	= 5
       };
-      TH2F* init2DEcalHist(std::string histTypeName, int subDet);
-      TH3F* init3DEcalHist(std::string histTypeName, int dubDet);
-      TCanvas* init2DEcalCanvas(std::string canvasName);
-      void selectHits(edm::Handle<EcalRecHitCollection> hits,
-          int ievt, edm::ESHandle<CaloTopology> caloTopo);
+      TH2F* init2DEcalHist(const std::string& histTypeName, int subDet);
+      TH3F* init3DEcalHist(const std::string& histTypeName, int dubDet);
+      TCanvas* init2DEcalCanvas(const std::string& canvasName);
+      void selectHits(const edm::Handle<EcalRecHitCollection>& hits,
+          int ievt, const edm::ESHandle<CaloTopology>& caloTopo);
       TGraph* selectDigi(DetId det, int ievt);
       int getEEIndex(EcalElectronicsId elecId);
-      void makeHistos(edm::Handle<EBDigiCollection> ebDigis);
-      void makeHistos(edm::Handle<EEDigiCollection> eeDigis);
-      void makeHistos(edm::Handle<EcalRecHitCollection> hits);
+      void makeHistos(const edm::Handle<EBDigiCollection>& ebDigis);
+      void makeHistos(const edm::Handle<EEDigiCollection>& eeDigis);
+      void makeHistos(const edm::Handle<EcalRecHitCollection>& hits);
       void drawHistos();
       void drawCanvas(TCanvas* canvas, TH1F* hist1, TH1F* hist2, TH1F* hist3);
       void drawCanvas(TCanvas* canvas, TH2F* hist1, TH2F* hist2, TH2F* hist3);

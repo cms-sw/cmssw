@@ -1615,7 +1615,7 @@ void GammaJetAnalysis::beginRun(const edm::Run &iRun,
 
 // helper function
 
-float GammaJetAnalysis::pfEcalIso(const reco::Photon* localPho1, edm::Handle<reco::PFCandidateCollection> pfHandle, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse) {
+float GammaJetAnalysis::pfEcalIso(const reco::Photon* localPho1, const edm::Handle<reco::PFCandidateCollection>& pfHandle, float dRmax, float dRVetoBarrel, float dRVetoEndcap, float etaStripBarrel, float etaStripEndcap, float energyBarrel, float energyEndcap, reco::PFCandidate::ParticleType pfToUse) {
   if (debug_>1) edm::LogInfo("GammaJetAnalysis") << "Inside pfEcalIso";
   reco::Photon* localPho = localPho1->clone();
   float dRVeto;
@@ -1670,7 +1670,7 @@ float GammaJetAnalysis::pfEcalIso(const reco::Photon* localPho1, edm::Handle<rec
 
 // ---------------------------------------------------------------------
 
-float GammaJetAnalysis::pfHcalIso(const reco::Photon* localPho,edm::Handle<reco::PFCandidateCollection> pfHandle,float dRmax, float dRveto,reco::PFCandidate::ParticleType pfToUse) {
+float GammaJetAnalysis::pfHcalIso(const reco::Photon* localPho,const edm::Handle<reco::PFCandidateCollection>& pfHandle,float dRmax, float dRveto,reco::PFCandidate::ParticleType pfToUse) {
   if (debug_>1) edm::LogInfo("GammaJetAnalysis") << "Inside pfHcalIso";
   return pfEcalIso(localPho, pfHandle, dRmax, dRveto, dRveto, 0.0, 0.0, 0.0, 0.0, pfToUse);
 
@@ -1678,7 +1678,7 @@ float GammaJetAnalysis::pfHcalIso(const reco::Photon* localPho,edm::Handle<reco:
 
 // ---------------------------------------------------------------------
 
-std::vector<float> GammaJetAnalysis::pfTkIsoWithVertex(const reco::Photon* localPho1, edm::Handle<reco::PFCandidateCollection> pfHandle, edm::Handle<reco::VertexCollection> vtxHandle, float dRmax, float dRvetoBarrel, float dRvetoEndcap, float ptMin, float dzMax, float dxyMax, reco::PFCandidate::ParticleType pfToUse) {
+std::vector<float> GammaJetAnalysis::pfTkIsoWithVertex(const reco::Photon* localPho1, const edm::Handle<reco::PFCandidateCollection>& pfHandle, const edm::Handle<reco::VertexCollection>& vtxHandle, float dRmax, float dRvetoBarrel, float dRvetoEndcap, float ptMin, float dzMax, float dxyMax, reco::PFCandidate::ParticleType pfToUse) {
 
   if (debug_>1) edm::LogInfo("GammaJetAnalysis") << "Inside pfTkIsoWithVertex()";
   reco::Photon* localPho = localPho1->clone();

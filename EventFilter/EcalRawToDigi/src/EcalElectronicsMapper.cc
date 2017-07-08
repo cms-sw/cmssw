@@ -224,7 +224,7 @@ bool EcalElectronicsMapper::setActiveDCC(unsigned int dccId){
  } 
  
  
-bool EcalElectronicsMapper::setDCCMapFilePath(std::string aPath_){
+bool EcalElectronicsMapper::setDCCMapFilePath(const std::string& aPath_){
 
   
   //try to open a dccMapFile in the given path

@@ -626,7 +626,7 @@ int Vx3DHLTAnalyzer::MyFit (vector<double>* vals)
 }
 
 
-void Vx3DHLTAnalyzer::reset (string ResetType)
+void Vx3DHLTAnalyzer::reset (const string& ResetType)
 {
   if ((debugMode == true) && (outputDebugFile.is_open() == true))
     {

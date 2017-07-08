@@ -62,9 +62,9 @@ void classTest(L1GctHardwareJetFinder *myJetFinder, std::vector< L1GctJetFinderB
 /// Loads test input regions and also the known results from a text file.
 void loadTestData(RegionsVector &inputRegions, RawJetsVector &trueJets, ULong &trueHt, ULong &stripSum0, ULong &stripSum1);
 /// Function to safely open input files of any name, using a referenced return ifstream
-void safeOpenInputFile(ifstream &fin, const string name);
+void safeOpenInputFile(ifstream &fin, const string& name);
 /// Function to safely open output files of any name, using a referenced return ofstream
-void safeOpenOutputFile(ofstream &fout, const string name);
+void safeOpenOutputFile(ofstream &fout, const string& name);
 /// Reads regions from file and pushes the specified number into a vector of regions
 void putRegionsInVector(ifstream &fin, RegionsVector &regions, const int numRegions);
 /// Gets the data of a single region from the testDataFile (reasonably safely). 
@@ -74,13 +74,13 @@ void putJetsInVector(ifstream &fin, RawJetsVector &jets, const int numJets);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
 L1GctJet readSingleJet(ifstream &fin);
 /// Compares RegionsVectors, prints a message about the comparison, returns true if identical, else false.
-bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string description);
+bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string& description);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
-bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const string description);
+bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const string& description);
 /// Writes out the entire contents of a RegionsVector to the given file output stream
-void outputRegionsVector(ofstream &fout, RegionsVector &regions, string description = "Regions");
+void outputRegionsVector(ofstream &fout, RegionsVector &regions, const string& description = "Regions");
 /// Writes out the entire contents of a JetsVector to the given file output stream
-void outputJetsVector(ofstream &fout, RawJetsVector &jets, string description = "Jets");
+void outputJetsVector(ofstream &fout, RawJetsVector &jets, const string& description = "Jets");
 
 
 /// Entrypoint of unit test code + error handling
@@ -347,7 +347,7 @@ void loadTestData(RegionsVector &inputRegions, RawJetsVector &trueJets, ULong &t
 }
 
 // Function to safely open input files of any name, using a referenced return ifstream
-void safeOpenInputFile(ifstream &fin, const string name)
+void safeOpenInputFile(ifstream &fin, const string& name)
 {
   //Opens the file
   fin.open(name.c_str(), ios::in);
@@ -362,7 +362,7 @@ void safeOpenInputFile(ifstream &fin, const string name)
 }
 
 // Function to safely open output files of any name, using a referenced return ofstream
-void safeOpenOutputFile(ofstream &fout, const string name)
+void safeOpenOutputFile(ofstream &fout, const string& name)
 {
   //Opens the file
   fout.open(name.c_str(), ios::trunc);
@@ -472,7 +472,7 @@ L1GctJet readSingleJet(ifstream &fin)
 }
 
 // Compares RegionsVectors, prints a message about the comparison, returns true if identical, else false.
-bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string description)
+bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const string& description)
 {
   bool testPass = true;
   
@@ -512,7 +512,7 @@ bool compareRegionsVectors(RegionsVector &vector1, RegionsVector &vector2, const
 }
 
 // Compares RawJetsVectors, prints a message about the comparison, returns true if identical, else false.
-bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const string description)
+bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const string& description)
 {
   bool testPass = true;
   
@@ -552,7 +552,7 @@ bool compareJetsVectors(RawJetsVector &vector1, RawJetsVector &vector2, const st
 }
 
 // Writes out the entire contents of a RegionsVector to the given file output stream
-void outputRegionsVector(ofstream &fout, RegionsVector &regions, string description)
+void outputRegionsVector(ofstream &fout, RegionsVector &regions, const string& description)
 {
   fout << description << endl; //brief description of the RegionsVector content
   
@@ -573,7 +573,7 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
 }
 
 // Writes out the entire contents of a JetsVector to the given file output stream
-void outputJetsVector(ofstream &fout, RawJetsVector &jets, string description)
+void outputJetsVector(ofstream &fout, RawJetsVector &jets, const string& description)
 {
   fout << description << endl; //brief description for each JetsVector content
   

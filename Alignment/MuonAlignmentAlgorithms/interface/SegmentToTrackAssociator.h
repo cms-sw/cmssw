@@ -34,7 +34,7 @@ public:
   virtual ~SegmentToTrackAssociator();
 
   //Associate
-  MuonTransientTrackingRecHit::MuonRecHitContainer associate( const edm::Event&, const edm::EventSetup&, const reco::Track&, std::string  );
+  MuonTransientTrackingRecHit::MuonRecHitContainer associate( const edm::Event&, const edm::EventSetup&, const reco::Track&, const std::string&  );
   
   //Clear the vector
   void clear();

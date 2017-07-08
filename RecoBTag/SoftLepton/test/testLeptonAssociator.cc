@@ -49,7 +49,7 @@ private:
 };
 
 
-std::ostream& operator<< (std::ostream& out, edm::RefToBase<reco::Track> ref) {
+std::ostream& operator<< (std::ostream& out, const edm::RefToBase<reco::Track>& ref) {
   out << " {"     << std::setw(2) << ref->found() << "}    "
       << " ["     << std::setw(4) << ref.key() << "]"
       << "            "
@@ -59,7 +59,7 @@ std::ostream& operator<< (std::ostream& out, edm::RefToBase<reco::Track> ref) {
   return out;
 }
 
-std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
+std::ostream& operator<< (std::ostream& out, const reco::MuonRef& ref) {
   if (ref->isGlobalMuon()) {
     out << " {"     << std::setw(2) << ref->track()->found() << "+" << std::setw(2) << ref->standAloneMuon()->found() << "} "
         << " ["     << std::setw(4) << ref.key() << "]"
@@ -87,7 +87,7 @@ std::ostream& operator<< (std::ostream& out, reco::MuonRef ref) {
   return out;
 }
 
-std::ostream& operator<< (std::ostream& out, TrackingParticleRef ref) {
+std::ostream& operator<< (std::ostream& out, const TrackingParticleRef& ref) {
   out << " ["     << std::setw(4) << ref.key() << "]"
       << " type:" << std::setw(6) << ref->pdgId()
       << " pT: "  << std::setw(6) << std::setprecision(3) << ref->pt()
@@ -96,7 +96,7 @@ std::ostream& operator<< (std::ostream& out, TrackingParticleRef ref) {
   return out;
 }
 
-void printAssociations(const char* label, TrackingParticleRef tp, const reco::SimToRecoCollection& byhits, const reco::SimToRecoCollection& bychi2) {
+void printAssociations(const char* label, const TrackingParticleRef& tp, const reco::SimToRecoCollection& byhits, const reco::SimToRecoCollection& bychi2) {
   reco::SimToRecoCollection::result_type found_byhits;
   if (byhits.find(tp) != byhits.end()) found_byhits = byhits[tp];
   reco::SimToRecoCollection::result_type found_bychi2;
@@ -124,7 +124,7 @@ void printAssociations(const char* label, TrackingParticleRef tp, const reco::Si
   }
 }
 
-void printAssociations(const char* label, edm::RefToBase<reco::Track> tp, const reco::RecoToSimCollection& byhits, const reco::RecoToSimCollection& bychi2) {
+void printAssociations(const char* label, const edm::RefToBase<reco::Track>& tp, const reco::RecoToSimCollection& byhits, const reco::RecoToSimCollection& bychi2) {
   reco::RecoToSimCollection::result_type found_byhits;
   if (byhits.find(tp) != byhits.end()) found_byhits = byhits[tp];
   reco::RecoToSimCollection::result_type found_bychi2;
@@ -152,7 +152,7 @@ void printAssociations(const char* label, edm::RefToBase<reco::Track> tp, const 
   }
 }
 
-void printAssociations(const char* label, reco::TrackRef tp, const reco::RecoToSimCollection& byhits, const reco::RecoToSimCollection& bychi2) {
+void printAssociations(const char* label, const reco::TrackRef& tp, const reco::RecoToSimCollection& byhits, const reco::RecoToSimCollection& bychi2) {
   printAssociations(label, edm::RefToBase<reco::Track>(tp), byhits, bychi2);
 }
 

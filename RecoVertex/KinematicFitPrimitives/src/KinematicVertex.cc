@@ -8,7 +8,7 @@
 KinematicVertex::KinematicVertex()
 {vl = false;}
 
-KinematicVertex::KinematicVertex(const VertexState state, float totalChiSq, 
+KinematicVertex::KinematicVertex(const VertexState& state, float totalChiSq, 
                                                              float degreesOfFr):
 		  theState(state),theChiSquared(totalChiSq),theNDF(degreesOfFr)                
 					                           
@@ -30,8 +30,8 @@ KinematicVertex::KinematicVertex(const CachingVertex<6>& vertex)
  pVertex = 0;
 }		 
 
-KinematicVertex::KinematicVertex(const VertexState state, 
-                         const ReferenceCountingPointer<KinematicVertex> prVertex,
+KinematicVertex::KinematicVertex(const VertexState& state, 
+                         const ReferenceCountingPointer<KinematicVertex>& prVertex,
                                     float totalChiSq, float degreesOfFr):
 				    theState(state) ,
 				    theChiSquared(totalChiSq),theNDF(degreesOfFr) , pVertex(prVertex)
@@ -60,7 +60,7 @@ bool KinematicVertex::operator==(const KinematicVertex& other)const
  return res;
 }
 
-bool KinematicVertex::operator==(const ReferenceCountingPointer<KinematicVertex> other)const
+bool KinematicVertex::operator==(const ReferenceCountingPointer<KinematicVertex>& other)const
 {
  bool res = false;
  if(*this == *other) res = true;

@@ -63,7 +63,7 @@ void TrackHistory::newEvent (
 }
 
 
-bool TrackHistory::evaluate ( reco::TrackBaseRef tr )
+bool TrackHistory::evaluate ( const reco::TrackBaseRef& tr )
 {
     if ( !enableRecoToSim_ ) return false;
 

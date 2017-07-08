@@ -151,7 +151,7 @@ unsigned int DQMFileIterator::lastLumiFound() {
   return 1;
 }
 
-void DQMFileIterator::advanceToLumi(unsigned int lumi, std::string reason) {
+void DQMFileIterator::advanceToLumi(unsigned int lumi, const std::string& reason) {
   using boost::property_tree::ptree;
   using boost::str;
 

@@ -83,7 +83,7 @@ int SherpackFetcher::Fetch()
   return 0;
 }
 
-int SherpackFetcher::CopyFile(std::string pathstring)
+int SherpackFetcher::CopyFile(const std::string& pathstring)
 {
   //No need to backwards compatibility with the FnFileGet method, throw exception if only the relative path is given
   if (  (pathstring.find("slc6_amd64_gcc")==0) || (pathstring.find("slc5_amd64_gcc")==0) ){

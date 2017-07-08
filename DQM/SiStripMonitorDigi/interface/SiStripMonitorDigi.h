@@ -108,8 +108,8 @@ class SiStripMonitorDigi : public DQMEDAnalyzer {
   bool AllDigis( const edm::EventSetup& es);
 
   void createModuleMEs( DQMStore::IBooker & ibooker , ModMEs& mod_single, uint32_t detid);
-  void createLayerMEs( DQMStore::IBooker & ibooker , std::string label, int ndet);
-  void createSubDetMEs( DQMStore::IBooker & ibooker , std::string label);
+  void createLayerMEs( DQMStore::IBooker & ibooker , const std::string& label, int ndet);
+  void createSubDetMEs( DQMStore::IBooker & ibooker , const std::string& label);
   void createSubDetTH2( DQMStore::IBooker & ibooker , std::string label);
   int getDigiSourceIndex(uint32_t id);
   void AddApvShotsToSubDet(const std::vector<APVShot> &, std::vector<APVShot> &);

@@ -66,7 +66,7 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   template <class T, class U>
   float computeWorstPFChargedIsolation(const T& photon,
 				       const U& pfCandidates,
-				       const edm::Handle<reco::VertexCollection> vertices,
+				       const edm::Handle<reco::VertexCollection>& vertices,
 				       bool isAOD,
 				       float dRmax, float dxyMax, float dzMax,
 				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
@@ -74,9 +74,9 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   // Some helper functions that are needed to access info in
   // AOD vs miniAOD
   reco::PFCandidate::ParticleType
-  candidatePdgId(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
+  candidatePdgId(const edm::Ptr<reco::Candidate>& candidate, bool isAOD);
 
-  const reco::Track* getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
+  const reco::Track* getTrackPointer(const edm::Ptr<reco::Candidate>& candidate, bool isAOD);
 
 
   // The object that will compute 5x5 quantities  
@@ -470,7 +470,7 @@ void PhotonIDValueMapProducer::fillDescriptions(edm::ConfigurationDescriptions& 
 template <class T, class U>
 float PhotonIDValueMapProducer
 ::computeWorstPFChargedIsolation(const T& photon, const U& pfCandidates,
-				 const edm::Handle<reco::VertexCollection> vertices,
+				 const edm::Handle<reco::VertexCollection>& vertices,
 				 bool isAOD,
 				 float dRmax, float dxyMax, float dzMax,
 				 float dRvetoBarrel, float dRvetoEndcap, float ptMin){
@@ -532,7 +532,7 @@ float PhotonIDValueMapProducer
 }
 
 reco::PFCandidate::ParticleType
-PhotonIDValueMapProducer::candidatePdgId(const edm::Ptr<reco::Candidate> candidate, 
+PhotonIDValueMapProducer::candidatePdgId(const edm::Ptr<reco::Candidate>& candidate, 
 					 bool isAOD){
   
   reco::PFCandidate::ParticleType thisCandidateType = reco::PFCandidate::X;
@@ -553,7 +553,7 @@ PhotonIDValueMapProducer::candidatePdgId(const edm::Ptr<reco::Candidate> candida
 }
 
 const reco::Track* 
-PhotonIDValueMapProducer::getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD){
+PhotonIDValueMapProducer::getTrackPointer(const edm::Ptr<reco::Candidate>& candidate, bool isAOD){
 
   const reco::Track* theTrack = nullptr;
   if( isAOD )

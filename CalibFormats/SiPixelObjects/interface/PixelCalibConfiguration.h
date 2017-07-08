@@ -6,6 +6,7 @@
 *   A longer explanation will be placed here later
 */
 
+#include <utility>
 #include <vector>
 #include <set>
 #include <map>
@@ -68,7 +69,7 @@ namespace pos{
 
   public:
 
-    PixelCalibConfiguration(std::string filename="");
+    PixelCalibConfiguration(const std::string& filename="");
     PixelCalibConfiguration(std::vector<std::vector<std::string> > &);
 
     virtual ~PixelCalibConfiguration();
@@ -101,7 +102,7 @@ namespace pos{
     unsigned int nROC() const { assert(rocAndModuleListsBuilt_); return nROC_; }
     unsigned int nPixelPatterns() const { return rows_.size()*cols_.size(); }
     unsigned int nTriggersPerPattern() const { return ntrigger_; }
-    unsigned int nScanPoints(std::string dac) const { return nScanPoints(iScan(dac)); }    
+    unsigned int nScanPoints(std::string dac) const { return nScanPoints(iScan(std::move(dac))); }    
 
     unsigned int nScanPoints() const {unsigned int points=1;
       for(unsigned int i=0;i<dacs_.size();i++) {
@@ -123,32 +124,32 @@ namespace pos{
     bool scanningROCForState(PixelROCName roc, unsigned int state) const;
 
     unsigned int scanCounter(std::string dac, unsigned int state) const{
-      return scanCounter(iScan(dac),state);
+      return scanCounter(iScan(std::move(dac)),state);
     }
 
     unsigned int scanValue(std::string dac, unsigned int state, PixelROCName roc) const {
-      return scanValue(iScan(dac), state, roc);
+      return scanValue(iScan(std::move(dac)), state, roc);
     }
 
     // This function should not be used -- provided for backwards compatibility only.  It asserts if the scan values for this dac are mixed across different ROCs.
-    unsigned int scanValue(std::string dac, unsigned int state) const {
+    unsigned int scanValue(const std::string& dac, unsigned int state) const {
       assert( !(dacs_[iScan(dac)].mixValuesAcrossROCs()) );
       return scanValue(iScan(dac), state, 0, 1);
     }
 
     unsigned int numberOfScanVariables() const {return dacs_.size();}
 
-    bool containsScan(std::string name) const;
+    bool containsScan(const std::string& name) const;
 
     std::string scanName(unsigned int iscan) const {return dacs_[iscan].name();}
-    std::vector<unsigned int> scanValues(std::string dac) const {return scanValues(iScan(dac));}
+    std::vector<unsigned int> scanValues(std::string dac) const {return scanValues(iScan(std::move(dac)));}
 
-    double scanValueMin(std::string dac) const {return scanValueMin(iScan(dac));}
-    double scanValueMax(std::string dac) const {return scanValueMax(iScan(dac));}
-    double scanValueStep(std::string dac) const {return scanValueStep(iScan(dac));}
-    bool scanValuesMixedAcrossROCs(std::string dac) const {return scanValuesMixedAcrossROCs(iScan(dac));}
+    double scanValueMin(std::string dac) const {return scanValueMin(iScan(std::move(dac)));}
+    double scanValueMax(std::string dac) const {return scanValueMax(iScan(std::move(dac)));}
+    double scanValueStep(std::string dac) const {return scanValueStep(iScan(std::move(dac)));}
+    bool scanValuesMixedAcrossROCs(std::string dac) const {return scanValuesMixedAcrossROCs(iScan(std::move(dac)));}
 
-    unsigned int iScan(std::string dac) const;
+    unsigned int iScan(const std::string& dac) const;
 
     const std::vector<std::vector<unsigned int> > &columnList() const {return cols_;}
     const std::vector<std::vector<unsigned int> > &rowList() const {return rows_;}
@@ -165,7 +166,7 @@ namespace pos{
     // Added by Dario Apr 24th, 2008
     std::map<std::string, std::string> parametersList() const {return parameters_;}
     // get the value of parameter parameterName, or "" if parameterName is not in the list
-    std::string parameterValue(std::string parameterName) const;
+    std::string parameterValue(const std::string& parameterName) const;
 
     // Added by Dario May 8th, 2008
     std::string getStreamedContent(void) const {return calibFileContent_;} ;

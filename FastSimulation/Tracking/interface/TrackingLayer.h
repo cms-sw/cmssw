@@ -60,7 +60,7 @@ class TrackingLayer
             const TrackerTopology& trackerTopology
         );
         
-        static TrackingLayer createFromString(std::string layerSpecification);
+        static TrackingLayer createFromString(const std::string& layerSpecification);
         
         inline TrackingLayer::Det getSubDet() const
         {

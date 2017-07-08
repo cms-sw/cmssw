@@ -182,7 +182,7 @@ void regressionTest_first( ) {
 }
 
 
-void output(string filename) 
+void output(const string& filename) 
 {
   ostream & os(cout);
 

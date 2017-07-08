@@ -26,13 +26,13 @@ namespace combiner {
      
     struct ShallowClone {
       typedef reco::CandidateBaseRef CandPtr;
-      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string name = "") {
+      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidateBaseRef & c, const std::string& name = "") {
         cmp.addDaughter(reco::ShallowCloneCandidate(c), name);
       }
     };
     struct ShallowClonePtr {
       typedef reco::CandidatePtr CandPtr;
-      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string name = "") {
+      static void addDaughter(reco::CompositeCandidate & cmp, const reco::CandidatePtr & c, const std::string& name = "") {
 	cmp.addDaughter(reco::ShallowClonePtrCandidate(c), name);
       }
     };

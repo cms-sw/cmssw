@@ -10,6 +10,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <utility>
 
 namespace edm {
   Path::Path(int bitpos, std::string const& path_name,
@@ -26,8 +27,8 @@ namespace edm {
     timesExcept_(),
     state_(hlt::Ready),
     bitpos_(bitpos),
-    trptr_(trptr),
-    actReg_(areg),
+    trptr_(std::move(trptr)),
+    actReg_(std::move(areg)),
     act_table_(&actions),
     workers_(workers),
     pathContext_(path_name, streamContext, bitpos, pathType),

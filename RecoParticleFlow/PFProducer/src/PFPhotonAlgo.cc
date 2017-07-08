@@ -27,10 +27,10 @@ using namespace std;
 using namespace reco;
 
 
-PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,  
+PFPhotonAlgo::PFPhotonAlgo(const std::string& mvaweightfile,  
 			   double mvaConvCut, 
 			   bool useReg,
-			   std::string X0_Map,
+			   const std::string& X0_Map,
 			   const reco::Vertex& primary,
 			   const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
                            double sumPtTrackIsoForPhoton,
@@ -1188,7 +1188,7 @@ double PFPhotonAlgo::ClustersPhiRMS(const std::vector<reco::CaloCluster>& PFClus
   return PFClustPhiRMS;
 }
 
-float PFPhotonAlgo::EvaluateLCorrMVA(reco::PFClusterRef clusterRef ){
+float PFPhotonAlgo::EvaluateLCorrMVA(const reco::PFClusterRef& clusterRef ){
   float BDTG=1;
   PFPhotonClusters ClusterVar(clusterRef);
   std::pair<double, double>ClusCoor=ClusterVar.GetCrysCoor();

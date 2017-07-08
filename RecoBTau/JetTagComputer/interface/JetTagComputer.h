@@ -60,7 +60,7 @@ class JetTagComputer {
 		}
 
 		template<class T>
-		const T &get(std::string label) const
+		const T &get(const std::string& label) const
 		{
 			size_t idx=0;
 			for(; idx <= m_labels.size(); idx++){

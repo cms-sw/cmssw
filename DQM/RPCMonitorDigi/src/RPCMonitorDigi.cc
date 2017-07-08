@@ -217,7 +217,7 @@ void RPCMonitorDigi::analyze(const edm::Event& event,const edm::EventSetup& setu
 }
 
 
-void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RPCRecHit> > & recHitMap, std::string recHittype){
+void RPCMonitorDigi::performSourceOperation(  std::map<RPCDetId , std::vector<RPCRecHit> > & recHitMap, const std::string& recHittype){
 
   edm::LogInfo ("rpcmonitordigi") <<"[RPCMonitorDigi]: Performing DQM source operations for "; 
   

@@ -77,7 +77,7 @@ class KinematicParticleFactoryFromTransientTrack
  * othereise, initial state will be taken from previous particle.
  */ 
   RefCountedKinematicParticle particle(const KinematicState& kineState, float& chiSquared,
-                 float& ndf, ReferenceCountingPointer<KinematicParticle> previousParticle,
+                 float& ndf, const ReferenceCountingPointer<KinematicParticle>& previousParticle,
 				         KinematicConstraint * lastConstraint = 0) const;
 
 private:

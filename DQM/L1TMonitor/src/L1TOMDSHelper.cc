@@ -1,3 +1,5 @@
+#include <utility>
+
 #include "DQM/L1TMonitor/interface/L1TOMDSHelper.h"
 
 #include "DataFormats/Common/interface/Handle.h"
@@ -23,8 +25,8 @@ L1TOMDSHelper::~L1TOMDSHelper(){
 bool L1TOMDSHelper::connect(string iOracleDB,string iPathCondDB,int &error){
 
   // Handeling inputs
-  m_oracleDB   = iOracleDB;
-  m_pathCondDB = iPathCondDB;
+  m_oracleDB   = std::move(iOracleDB);
+  m_pathCondDB = std::move(iPathCondDB);
   error        = NO_ERROR;
 
   // Initializing variables 
@@ -47,7 +49,7 @@ bool L1TOMDSHelper::connect(string iOracleDB,string iPathCondDB,int &error){
 
 
 //_____________________________________________________________________
-map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(string iTable,int &error){
+map<string,WbMTriggerXSecFit> L1TOMDSHelper::getWbMTriggerXsecFits(const string& iTable,int &error){
   
   map<string,WbMTriggerXSecFit>       out;
   const l1t::OMDSReader::QueryResults qresults;

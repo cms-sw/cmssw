@@ -116,10 +116,10 @@ class L1RPCConeBuilder
       virtual ~L1RPCConeBuilder();
 
             
-      void setConeConnectionMap(const std::shared_ptr< TConMap > connMap) 
+      void setConeConnectionMap(const std::shared_ptr< TConMap >& connMap) 
                       { m_coneConnectionMap = connMap;};
                       
-      void setCompressedConeConnectionMap(const std::shared_ptr< TCompressedConMap >
+      void setCompressedConeConnectionMap(const std::shared_ptr< TCompressedConMap >&
                                               cmpConnMap) 
       {  
             m_compressedConeConnectionMap = cmpConnMap;

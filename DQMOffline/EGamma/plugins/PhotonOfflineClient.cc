@@ -331,7 +331,7 @@ void  PhotonOfflineClient::dividePlots(MonitorElement* dividend, MonitorElement*
 
 }
 
-MonitorElement* PhotonOfflineClient::bookHisto(DQMStore::IBooker& iBooker, string histoName, string title, int bin, double min, double max)
+MonitorElement* PhotonOfflineClient::bookHisto(DQMStore::IBooker& iBooker, const string& histoName, string title, int bin, double min, double max)
 {
 
   int histo_index = 0;
@@ -358,7 +358,7 @@ MonitorElement* PhotonOfflineClient::bookHisto(DQMStore::IBooker& iBooker, strin
 
 
 void PhotonOfflineClient::book2DHistoVector(DQMStore::IBooker& iBooker, std::vector<vector<MonitorElement*> >& temp2DVector, 
-					    std::string histoType, std::string histoName, std::string title,
+					    const std::string& histoType, const std::string& histoName, const std::string& title,
 					    int xbin, double xmin,double xmax,
 					    int ybin, double ymin, double ymax)
 {
@@ -419,7 +419,7 @@ void PhotonOfflineClient::book2DHistoVector(DQMStore::IBooker& iBooker, std::vec
 
 
 void PhotonOfflineClient::book3DHistoVector(DQMStore::IBooker& iBooker, std::vector<vector<vector<MonitorElement*> > >& temp3DVector,
-					    std::string histoType, std::string histoName, std::string title,
+					    const std::string& histoType, const std::string& histoName, const std::string& title,
 					    int xbin, double xmin,double xmax,
 					    int ybin, double ymin, double ymax)
 {
@@ -484,7 +484,7 @@ void PhotonOfflineClient::book3DHistoVector(DQMStore::IBooker& iBooker, std::vec
 }
 
 
-MonitorElement* PhotonOfflineClient::retrieveHisto(DQMStore::IGetter& iGetter,string dir, string name){
+MonitorElement* PhotonOfflineClient::retrieveHisto(DQMStore::IGetter& iGetter,string dir, const string& name){
   //cout << "dir = " << dir << endl;
   //cout << "name = " << name << endl;
   vector<MonitorElement*> histoVector;

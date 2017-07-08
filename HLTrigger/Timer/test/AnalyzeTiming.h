@@ -84,7 +84,7 @@ class AnalyzeTiming
 
 
  private:
-  TH1F * createHistogram(std::string name)
+  TH1F * createHistogram(const std::string& name)
   {
     std::cout << " Creating histogram for newly added module \"" << name 
 	      << "\"" << std::endl;

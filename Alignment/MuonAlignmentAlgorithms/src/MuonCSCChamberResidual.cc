@@ -2,6 +2,8 @@
  * $Id: $
  */
 
+#include <utility>
+
 #include "Alignment/MuonAlignmentAlgorithms/interface/MuonCSCChamberResidual.h"
 #include "Geometry/CSCGeometry/interface/CSCGeometry.h"
 
@@ -9,8 +11,8 @@
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
 
 MuonCSCChamberResidual::MuonCSCChamberResidual(edm::ESHandle<GlobalTrackingGeometry> globalGeometry, AlignableNavigator *navigator,
-        DetId chamberId, AlignableDetOrUnitPtr chamberAlignable)
-: MuonHitsChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable)
+        DetId chamberId, const AlignableDetOrUnitPtr& chamberAlignable)
+: MuonHitsChamberResidual(std::move(globalGeometry), navigator, chamberId, chamberAlignable)
 {
     m_type = MuonChamberResidual::kCSC;
     align::GlobalVector zDirection(0., 0., 1.);

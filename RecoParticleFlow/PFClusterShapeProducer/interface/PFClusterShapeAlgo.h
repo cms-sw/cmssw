@@ -47,7 +47,7 @@ class PFClusterShapeAlgo
 
   ~PFClusterShapeAlgo();
 
-  reco::ClusterShapeCollection * makeClusterShapes(edm::Handle<reco::PFClusterCollection> clusterHandle, 
+  reco::ClusterShapeCollection * makeClusterShapes(const edm::Handle<reco::PFClusterCollection>& clusterHandle, 
 						   edm::Handle<reco::PFRecHitCollection>   rechitHandle,
 						   const CaloSubdetectorGeometry * barrelGeo_p,
 						   const CaloSubdetectorTopology * barrelTop_p,
