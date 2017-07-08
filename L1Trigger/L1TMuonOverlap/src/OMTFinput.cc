@@ -54,6 +54,8 @@ bool OMTFinput::addLayerHit(unsigned int iLayer,
   if(iPhi>=(int)myOmtfConfig->nPhiBins()) return true;
 //  unsigned int origInput = iInput;
 
+  if (measurementsPhi[iLayer][iInput]==iPhi && measurementsEta[iLayer][iInput]==iEta) return true;
+
   if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) ++iInput;
   if(measurementsPhi[iLayer][iInput]!=(int)myOmtfConfig->nPhiBins()) overwrite = true;
 
