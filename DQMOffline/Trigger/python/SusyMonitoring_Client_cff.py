@@ -40,6 +40,7 @@ double_soft_muon_mll_efficiency = DQMEDHarvester("DQMGenericClient",
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
       "effic_Mll       'efficiency vs inv.mass; Mll [GeV]; efficiency' invMass_numerator       invMass_denominator",
+     "effic_Mll_variableBinning       'efficiency vs inv.mass; Mll [GeV]; efficiency' invMass_variable_numerator       invMass_variable_denominator",
 
         ),
 )
@@ -50,14 +51,61 @@ double_soft_muon_mhtpt_efficiency = DQMEDHarvester("DQMGenericClient",
     resolution     = cms.vstring(),
     efficiency     = cms.vstring(
       "effic_MHT       'efficiency vs MHT; met [GeV]; efficiency' eventMHT_numerator       eventMHT_denominator",
+    "effic_MHT_variableBinning       'efficiency vs MHT; met [GeV]; efficiency' eventMHT_variable_numerator       eventMHT_variable_denominator",
 
         ),
 )
+#backup1
+double_soft_muon_backup_70_metpt_efficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/backup70/MET/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+      "effic_MET       'efficiency vs met pt; met [GeV]; efficiency' met_numerator       met_denominator",
+
+        ),
+)
+double_soft_muon_backup_70_mhtpt_efficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/backup70/MHT/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+      "effic_MHT       'efficiency vs MHT; met [GeV]; efficiency' eventMHT_numerator       eventMHT_denominator",
+    "effic_MHT_variableBinning       'efficiency vs MHT; met [GeV]; efficiency' eventMHT_variable_numerator       eventMHT_variable_denominator",
+
+        ),
+)
+
+#backup1
+double_soft_muon_backup_90_metpt_efficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/backup90/MET/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+      "effic_MET       'efficiency vs met pt; met [GeV]; efficiency' met_numerator       met_denominator",
+
+        ),
+)
+double_soft_muon_backup_90_mhtpt_efficiency = DQMEDHarvester("DQMGenericClient",
+    subDirs        = cms.untracked.vstring("HLT/SUSY/SOS/backup90/MHT/*"),
+    verbose        = cms.untracked.uint32(0), # Set to 2 for all messages 
+    resolution     = cms.vstring(),
+    efficiency     = cms.vstring(
+      "effic_MHT       'efficiency vs MHT; met [GeV]; efficiency' eventMHT_numerator       eventMHT_denominator",
+    "effic_MHT_variableBinning       'efficiency vs MHT; met [GeV]; efficiency' eventMHT_variable_numerator       eventMHT_variable_denominator",
+
+        ),
+)
+
+
 
 susyClient = cms.Sequence(
 double_soft_muon_muonpt_efficiency
 +double_soft_muon_metpt_efficiency
 +double_soft_muon_mll_efficiency
 +double_soft_muon_mhtpt_efficiency
-
++double_soft_muon_backup_70_metpt_efficiency
++double_soft_muon_backup_70_mhtpt_efficiency
++double_soft_muon_backup_90_metpt_efficiency
++double_soft_muon_backup_90_mhtpt_efficiency
 )
