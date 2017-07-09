@@ -245,7 +245,7 @@ HcalCalibrator::endJob() {
 
   fChain->Process(calibrator);
 
-  if (fChain) delete fChain;
+  delete fChain;
   delete calibrator;
 
   return;

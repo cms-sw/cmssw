@@ -242,7 +242,7 @@ void buildDiscrimMap(edm::Run const& run, const edm::EventSetup& iSetup, std::st
    float zmin = deDxMapHandle->rangeZ().min;
    float zmax = deDxMapHandle->rangeZ().max;
 
-   if(Prob_ChargePath)delete Prob_ChargePath;
+   delete Prob_ChargePath;
    Prob_ChargePath  = new TH3F ("Prob_ChargePath"     , "Prob_ChargePath" , deDxMapHandle->numberOfBinsX(), xmin, xmax, deDxMapHandle->numberOfBinsY() , ymin, ymax, deDxMapHandle->numberOfBinsZ(), zmin, zmax);
 
    if(strcmp(ProbabilityMode.c_str(),"Accumulation")==0){

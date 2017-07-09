@@ -248,7 +248,7 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
 	}
 	chan++;
       }
-    if (buffer) delete buffer;
+    delete buffer;
   } // fed loop
   
   // constructing SiStripFEDBuffers

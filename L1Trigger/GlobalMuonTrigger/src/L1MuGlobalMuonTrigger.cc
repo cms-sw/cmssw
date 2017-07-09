@@ -131,7 +131,7 @@ L1MuGlobalMuonTrigger::L1MuGlobalMuonTrigger(const edm::ParameterSet& ps) {
 //--------------
 L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
 
-  if(m_db) delete m_db;
+  delete m_db;
   m_db = 0;
 
   delete m_Sorter;
@@ -147,7 +147,7 @@ L1MuGlobalMuonTrigger::~L1MuGlobalMuonTrigger() {
   delete m_Matcher[0];       // barrel matcher
   delete m_PSB;
 
-  if(m_config) delete m_config;
+  delete m_config;
   m_config = 0;
 
   // copied from produce() by Jim B, 7 Aug 2007

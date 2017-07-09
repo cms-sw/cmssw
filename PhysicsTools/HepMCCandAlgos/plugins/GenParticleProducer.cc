@@ -289,7 +289,7 @@ void GenParticleProducer::produce( StreamID, Event& evt, const EventSetup& es ) 
   
   evt.put(std::move(candsPtr));
   if(saveBarCodes_) evt.put(std::move(barCodeVector));
-  if(cfhepmcprod) delete cfhepmcprod;
+  delete cfhepmcprod;
   evt.put(std::move(xyz0Ptr),"xyz0");
   evt.put(std::move(t0Ptr),"t0");
 }

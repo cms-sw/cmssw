@@ -734,7 +734,7 @@ void HLTMuonMatchAndPlot::book1D(DQMStore::IBooker & iBooker, string name,
     if (hists_[name]->getTH1F()->GetSumw2N())
       hists_[name]->getTH1F()->Sumw2();
 
-  if (edges)
+  
     delete [] edges;
 
 }
@@ -767,9 +767,9 @@ HLTMuonMatchAndPlot::book2D(DQMStore::IBooker & iBooker, string name,
     if (hists_[name]->getTH2F()->GetSumw2N())
       hists_[name]->getTH2F()->Sumw2();
 
-  if (edgesX)
+  
     delete [] edgesX;
-  if (edgesY)
+  
     delete [] edgesY;
 
 }

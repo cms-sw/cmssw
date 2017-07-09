@@ -101,7 +101,7 @@ TF1 *langaufit(TH1F *his, Double_t *fitrange, Double_t *startvalues, Double_t *p
    sprintf(FunName,"Fitfcn_%s",his->GetName());
 
    TF1 *ffitold = (TF1*)gROOT->GetListOfFunctions()->FindObject(FunName);
-   if (ffitold) delete ffitold;
+   delete ffitold;
 
    TF1 *ffit = new TF1(FunName,langaufun,fitrange[0],fitrange[1],4);
    ffit->SetParameters(startvalues);

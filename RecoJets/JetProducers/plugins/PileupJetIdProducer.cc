@@ -188,7 +188,7 @@ PileupJetIdProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		}
 		
 		// cleanup
-		if( corrJet ) { delete corrJet; }
+		) delete corrJet; 
 	}
 	
 	// Produce the output value maps

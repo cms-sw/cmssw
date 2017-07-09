@@ -59,7 +59,7 @@ rz_harm_poly::~rz_harm_poly()
          MaxM = GetMaxM();
       }
    } else { //last instance -> memory cleanup
-      if (TrigArr) delete [] TrigArr;
+      delete [] TrigArr;
       TrigArr = 0;
       TASize = 0;
       MaxM = 0;
@@ -102,7 +102,7 @@ void rz_harm_poly::SetTrigArrSize(const unsigned N)
 //Increase TrigArr size if neccessary
 //
    if (N <= TASize) return;
-   if (TrigArr) delete [] TrigArr;
+   delete [] TrigArr;
    TrigArr = new trig_pair [N];
    (*TrigArr) = trig_pair(1., 0.);
    TASize = N;

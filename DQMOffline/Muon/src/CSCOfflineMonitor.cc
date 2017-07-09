@@ -1745,7 +1745,7 @@ void CSCOfflineMonitor::doBXMonitor(edm::Handle<CSCALCTDigiCollection> alcts, ed
 	  }// end loop CSCData
 	}// end loop DDU
 	  }// end if good event
-	  if (examiner!=NULL) delete examiner;
+	  delete examiner;
 	}// end if non-zero fed data
   }// end DCC loop for NON-REFERENCE
 

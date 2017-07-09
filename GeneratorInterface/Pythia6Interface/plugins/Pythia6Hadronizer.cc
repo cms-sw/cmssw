@@ -251,7 +251,7 @@ Pythia6Hadronizer::Pythia6Hadronizer(edm::ParameterSet const& ps)
 Pythia6Hadronizer::~Pythia6Hadronizer()
 {
    if ( fPy6Service != 0 ) delete fPy6Service;
-   if ( fJetMatching != 0 ) delete fJetMatching;
+   ) delete fJetMatching;
 }
 
 void Pythia6Hadronizer::doSetRandomEngine(CLHEP::HepRandomEngine* v)

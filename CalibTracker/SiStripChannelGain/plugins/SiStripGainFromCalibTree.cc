@@ -1605,7 +1605,7 @@ SiStripApvGain* SiStripGainFromCalibTree::getNewObject()
 		if ( !obj->put(PreviousDetId,range) )  printf("Bug to put detId = %i\n",PreviousDetId);
 	}
 
-        if (theSiStripVector!=NULL) delete theSiStripVector;
+        delete theSiStripVector;
 
 	return obj;
 }
@@ -1616,7 +1616,7 @@ SiStripGainFromCalibTree::~SiStripGainFromCalibTree()
     APVsColl.clear();
     for(unsigned int a=0;a<APVsCollOrdered.size();a++) {
         stAPVGain* APV = APVsCollOrdered[a];
-        if(APV!=NULL) delete APV;
+        delete APV;
     }
     APVsCollOrdered.clear();
 }

@@ -97,7 +97,7 @@ L1MuDTTrackFinder::~L1MuDTTrackFinder() {
 
   delete m_ms;
 
-  if ( m_config ) delete m_config;
+  ) delete m_config;
   m_config = 0;
 
 }

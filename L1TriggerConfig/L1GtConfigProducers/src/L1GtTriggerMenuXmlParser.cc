@@ -901,9 +901,9 @@ void L1GtTriggerMenuXmlParser::cleanupXML(XERCES_CPP_NAMESPACE::XercesDOMParser*
 
     XERCES_CPP_NAMESPACE_USE
 
-    if (parser != 0) {
+    
         delete parser;
-    }
+    
 
     if (m_xmlErrHandler != 0) {
         delete m_xmlErrHandler;
