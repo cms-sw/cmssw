@@ -7,7 +7,7 @@ ClusterShapeHitFilterESProducer = cms.ESProducer("ClusterShapeHitFilterESProduce
                                                         )
 from Configuration.Eras.Modifier_phase1Pixel_cff import phase1Pixel
 phase1Pixel.toModify(ClusterShapeHitFilterESProducer,
-    PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_Phase1TkNewFPix.par'
+    PixelShapeFile = 'RecoPixelVertexing/PixelLowPtUtilities/data/pixelShape_phase1_WP99p5.par'
 )
 from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
 phase2_tracker.toModify(ClusterShapeHitFilterESProducer,
