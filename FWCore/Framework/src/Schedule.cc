@@ -983,11 +983,6 @@ namespace edm {
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::closeFile, _1));
   }
 
-  void Schedule::openNewOutputFilesIfNeeded() {
-    using std::placeholders::_1;
-    for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openNewFileIfNeeded, _1));
-  }
-
   void Schedule::openOutputFiles(FileBlock& fb) {
     using std::placeholders::_1;
     for_all(all_output_communicators_, std::bind(&OutputModuleCommunicator::openFile, _1, std::cref(fb)));
