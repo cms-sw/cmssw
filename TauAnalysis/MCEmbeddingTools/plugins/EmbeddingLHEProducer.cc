@@ -99,9 +99,11 @@ class EmbeddingLHEProducer : public edm::one::EDProducer<edm::BeginRunProducer,
       
       edm::EDGetTokenT<edm::View<pat::Muon>> muonsCollection_;
       edm::EDGetTokenT<reco::VertexCollection> vertexCollection_;
-      bool switchToMuonEmbedding_;
+      int particleToEmbed_;
       bool mirror_,rotate180_;
       const double tauMass_ = 1.77682;
+      const double elMass_ = 0.00051;
+      const int embeddingParticles[3] {11,13,15};
       
       std::ofstream file;
       bool write_lheout;
@@ -124,7 +126,7 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet& iConfig)
 
    muonsCollection_ = consumes<edm::View<pat::Muon>>(iConfig.getParameter<edm::InputTag>("src"));
    vertexCollection_ = consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
-   switchToMuonEmbedding_ = iConfig.getParameter<bool>("switchToMuonEmbedding");
+   particleToEmbed_ = iConfig.getParameter<int>("particleToEmbed");
    mirror_ = iConfig.getParameter<bool>("mirror");
    rotate180_ = iConfig.getParameter<bool>("rotate180");
    studyFSRmode_ = iConfig.getUntrackedParameter<std::string>("studyFSRmode","");
@@ -136,6 +138,11 @@ EmbeddingLHEProducer::EmbeddingLHEProducer(const edm::ParameterSet& iConfig)
      file.open(lhe_ouputfile, std::fstream::out | std::fstream::trunc);
    }
    
+   //check if particle can be embedded
+    if (std::find(std::begin(embeddingParticles), std::end(embeddingParticles), particleToEmbed_) == std::end(embeddingParticles)) {
+      throw cms::Exception("Configuration")
+        << "The given particle to embed is not in the list of allowed particles.";
+    }
    
    edm::Service<edm::RandomNumberGenerator> rng;
    if ( ! rng.isAvailable()) {
@@ -292,7 +299,7 @@ EmbeddingLHEProducer::fill_lhe_from_mumu(TLorentzVector &positiveLepton, TLorent
 {
     
     TLorentzVector Z = positiveLepton + negativeLepton;
-    int leptonPDGID = switchToMuonEmbedding_ ? 13 : 15;
+    int leptonPDGID = particleToEmbed_;
     
    // double tau_ctau = 0.00871100; //cm  
     double tau_ctau0 = 8.71100e-02; // mm (for Pythia)
@@ -337,7 +344,7 @@ void EmbeddingLHEProducer::fill_lhe_with_particle(lhef::HEPEUP &outlhe, TLorentz
       
     }
     
-    if (std::abs(pdgid) == 15){ 
+    if (std::find(std::begin(embeddingParticles), std::end(embeddingParticles), std::abs(pdgid)) != std::end(embeddingParticles)) {
      outlhe.MOTHUP[particleindex].first = 1;  // Mother is the Z (first partile)
      outlhe.MOTHUP[particleindex].second = 1; // Mother is the Z (first partile)
      
@@ -356,7 +363,14 @@ void EmbeddingLHEProducer::fill_lhe_with_particle(lhef::HEPEUP &outlhe, TLorentz
 void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLepton, TLorentzVector &negativeLepton)
 {
     // No corrections applied for muon embedding
-    if (switchToMuonEmbedding_) return;
+    double lep_mass;
+    if (particleToEmbed_ == 11) {
+      lep_mass = elMass_;
+    } else if (particleToEmbed_ == 15) {
+      lep_mass = tauMass_;
+    } else {
+      return;
+    }
 
     TLorentzVector Z = positiveLepton + negativeLepton;
 
@@ -368,19 +382,19 @@ void EmbeddingLHEProducer::transform_mumu_to_tautau(TLorentzVector &positiveLept
     negativeLepton.Boost(boost_from_LAB_to_Z);
 
     // Energy of tau = 0.5*Z-mass
-    double tau_mass_squared = tauMass_*tauMass_;
-    double tau_energy_squared = 0.25*Z.M2();
-    double tau_3momentum_squared = tau_energy_squared - tau_mass_squared;
-    if (tau_3momentum_squared < 0)
+    double lep_mass_squared = lep_mass*lep_mass;
+    double lep_energy_squared = 0.25*Z.M2();
+    double lep_3momentum_squared = lep_energy_squared - lep_mass_squared;
+    if (lep_3momentum_squared < 0)
     {
         edm::LogWarning("TauEmbedding") << "3-Momentum squared is negative";
         return;
     }
     
     //Computing scale, applying it on the 3-momenta and building new 4 momenta of the taus
-    double scale = std::sqrt(tau_3momentum_squared/positiveLepton.Vect().Mag2());
-    positiveLepton.SetPxPyPzE(scale*positiveLepton.Px(),scale*positiveLepton.Py(),scale*positiveLepton.Pz(),std::sqrt(tau_energy_squared));
-    negativeLepton.SetPxPyPzE(scale*negativeLepton.Px(),scale*negativeLepton.Py(),scale*negativeLepton.Pz(),std::sqrt(tau_energy_squared));
+    double scale = std::sqrt(lep_3momentum_squared/positiveLepton.Vect().Mag2());
+    positiveLepton.SetPxPyPzE(scale*positiveLepton.Px(),scale*positiveLepton.Py(),scale*positiveLepton.Pz(),std::sqrt(lep_energy_squared));
+    negativeLepton.SetPxPyPzE(scale*negativeLepton.Px(),scale*negativeLepton.Py(),scale*negativeLepton.Pz(),std::sqrt(lep_energy_squared));
 
     //Boosting the new taus back to LAB frame
     positiveLepton.Boost(boost_from_Z_to_LAB);
