@@ -115,6 +115,14 @@ namespace edm {
     }
 
     template< typename T>
+    void
+    ProducingModuleAdaptorBase<T>::convertCurrentProcessAlias(std::string const& processName) {
+      for(auto mod: m_streamModules) {
+        mod->convertCurrentProcessAlias(processName);
+      }
+    }
+
+    template< typename T>
     std::vector<edm::ConsumesInfo>
     ProducingModuleAdaptorBase<T>::consumesInfo() const {
       assert(not m_streamModules.empty());

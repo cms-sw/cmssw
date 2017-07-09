@@ -123,6 +123,13 @@ EDAnalyzerAdaptorBase::modulesWhoseProductsAreConsumed(std::vector<ModuleDescrip
   return m_streamModules[0]->modulesWhoseProductsAreConsumed(modules, preg, labelsToDesc, processName);
 }
 
+void
+EDAnalyzerAdaptorBase::convertCurrentProcessAlias(std::string const& processName) {
+  for(auto mod: m_streamModules) {
+    mod->convertCurrentProcessAlias(processName);
+  }
+}
+
 std::vector<edm::ConsumesInfo>
 EDAnalyzerAdaptorBase::consumesInfo() const {
   assert(not m_streamModules.empty());
