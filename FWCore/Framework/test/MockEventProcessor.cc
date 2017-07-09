@@ -5,6 +5,7 @@
 #include "FWCore/Framework/interface/InputSource.h"
 #include <cassert>
 #include <sstream>
+#include <exception>
 
 namespace {
   // As each data item is read from the mock data it is
@@ -42,7 +43,8 @@ namespace edm {
     shouldWeEndLoop_(true),
     shouldWeStop_(false),
     eventProcessed_(false),
-    reachedEndOfInput_(false)
+    reachedEndOfInput_(false),
+    shouldThrow_(false)
   {
   }
 
@@ -92,6 +94,10 @@ namespace edm {
       output_ << "    *** nextItemType: Restart " << t.value << " ***\n";
       shouldWeEndLoop_ = t.value;
       return InputSource::IsStop;
+    } else if(ch == 't') {
+      output_ << "    *** nextItemType: Throw " << t.value << " ***\n";
+      shouldThrow_ = true;
+      return nextTransitionType();
     }
     return InputSource::IsInvalid;
   }
@@ -150,6 +156,7 @@ namespace edm {
   
   void MockEventProcessor::readFile() {
     output_ << " \treadFile\n";
+    throwIfNeeded();
   }
 
   void MockEventProcessor::closeInputFile(bool /*cleaningUpAfterException*/) {
@@ -200,6 +207,7 @@ namespace edm {
 
   void MockEventProcessor::beginRun(ProcessHistoryID const& phid, RunNumber_t run) {
     output_ << "\tbeginRun " << run << "\n";
+    throwIfNeeded();
   }
 
   void MockEventProcessor::endRun(ProcessHistoryID const& phid, RunNumber_t run, bool /*cleaningUpAfterException*/ ) {
@@ -208,6 +216,7 @@ namespace edm {
 
   void MockEventProcessor::beginLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi) {
     output_ << "\tbeginLumi " << run << "/" << lumi << "\n";
+    throwIfNeeded();
   }
 
   void MockEventProcessor::endLumi(ProcessHistoryID const&, RunNumber_t run, LuminosityBlockNumber_t lumi, bool /*cleaningUpAfterException*/) {
@@ -254,6 +263,7 @@ namespace edm {
     output_ << "\treadEvent\n";
     output_ << "\tprocessEvent\n";
     eventProcessed_ = true;
+    throwIfNeeded();
   }
 
   bool MockEventProcessor::shouldWeStop() const {
@@ -261,6 +271,14 @@ namespace edm {
     return eventProcessed_ and shouldWeStop_;
   }
 
+  void MockEventProcessor::throwIfNeeded() {
+    if(shouldThrow_) {
+      shouldThrow_ = false;
+      output_ <<"\tthrowing\n";
+      throw TestException();
+    }
+  }
+  
   void MockEventProcessor::setExceptionMessageFiles(std::string&) {}
   void MockEventProcessor::setExceptionMessageRuns(std::string&) {}
   void MockEventProcessor::setExceptionMessageLumis(std::string&) {}
