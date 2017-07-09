@@ -48,7 +48,7 @@ ExpressionEvaluatorCut(const edm::ParameterSet& c) :
                                    valExpr                  );
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
                                  "CutApplicatorBase",
-                                 total_expr.c_str());
+                                 total_expr);
   cut_ = eval.expr<CutApplicatorBase>();
 }
 

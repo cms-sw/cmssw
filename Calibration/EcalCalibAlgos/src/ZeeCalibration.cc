@@ -862,7 +862,7 @@ ZeeCalibration::duringLoop( const edm::Event& iEvent, const edm::EventSetup& iSe
       //DUMP GENERATED Z MASS - BEGIN
       Handle< HepMCProduct > hepProd ;
       //   iEvent.getByLabel( "source", hepProd ) ;
-      iEvent.getByLabel( mcProducer_.c_str(), hepProd ) ;
+      iEvent.getByLabel( mcProducer_, hepProd ) ;
                                                                                                                              
       const HepMC::GenEvent * myGenEvent = hepProd->GetEvent();
       

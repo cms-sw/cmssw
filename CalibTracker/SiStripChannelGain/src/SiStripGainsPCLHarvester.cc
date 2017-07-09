@@ -121,7 +121,7 @@ void SiStripGainsPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
   std::string cvi      = DQM_dir + std::string("/Charge_Vs_Index") + stag;
      
-  MonitorElement* Charge_Vs_Index           = igetter_.get(cvi.c_str());
+  MonitorElement* Charge_Vs_Index           = igetter_.get(cvi);
   
   if (Charge_Vs_Index==0) {
     edm::LogError("SiStripGainsPCLHarvester") << "Harvesting: could not retrieve " << cvi.c_str()

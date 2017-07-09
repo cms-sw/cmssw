@@ -276,7 +276,7 @@ void L1MuGMTLUT::Load(const char* path) {
 	break;
       }	
 
-      istringstream is(tok1[1].c_str());
+      istringstream is(tok1[1]);
       int newindex; 
       is >> newindex;
       if (newindex != current_index+1)
@@ -295,7 +295,7 @@ void L1MuGMTLUT::Load(const char* path) {
 	  edm::LogWarning("LUTParsingProblem") << "L1MuGMTLUT::Load: warning: LUT file only contains part of LUT contents.";
 	row = 0;
       }
-      istringstream is1(tok[1].c_str());
+      istringstream is1(tok[1]);
       unsigned value;
       if (is1 >> value) {
 	if (current_index!=-1)
@@ -303,7 +303,7 @@ void L1MuGMTLUT::Load(const char* path) {
       }
     }
     else {
-      istringstream is1(line.c_str());
+      istringstream is1(line);
       unsigned value;
       if (is1 >> value) {
 	if (row < maxrows) {

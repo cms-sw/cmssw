@@ -618,7 +618,7 @@ StripValidationPlots::endJob() {
     }
 
   dqmStore_->cd();
-  dqmStore_->save(outfilename.c_str(),"ChannelStatusPlots");
+  dqmStore_->save(outfilename,"ChannelStatusPlots");
 
 }
 

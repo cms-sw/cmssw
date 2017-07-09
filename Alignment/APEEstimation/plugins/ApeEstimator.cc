@@ -600,7 +600,7 @@ ApeEstimator::bookSectorHistsForAnalyzerMode(){
     }
     
     std::stringstream sector; sector << "Sector_" << (*i_sector).first;
-    TFileDirectory secDir = fileService->mkdir(sector.str().c_str());
+    TFileDirectory secDir = fileService->mkdir(sector.str());
     
     // Dummy histo containing the sector name as title
     (*i_sector).second.Name = secDir.make<TH1F>("z_name",(*i_sector).second.name.c_str(),1,0,1);
@@ -799,7 +799,7 @@ ApeEstimator::bookSectorHistsForApeCalculation(){
     }
     
     std::stringstream sector; sector << "Sector_" << (*i_sector).first;
-    TFileDirectory secDir = fileService->mkdir(sector.str().c_str());
+    TFileDirectory secDir = fileService->mkdir(sector.str());
     
     // Dummy histo containing the sector name as title
     (*i_sector).second.Name = secDir.make<TH1F>("z_name",(*i_sector).second.name.c_str(),1,0,1);
@@ -815,7 +815,7 @@ ApeEstimator::bookSectorHistsForApeCalculation(){
     for(std::map<unsigned int,std::pair<double,double> >::const_iterator i_errBins = m_resErrBins_.begin();
          i_errBins != m_resErrBins_.end(); ++i_errBins){
       std::stringstream interval; interval << "Interval_" << (*i_errBins).first;
-      TFileDirectory intDir = secDir.mkdir(interval.str().c_str());
+      TFileDirectory intDir = secDir.mkdir(interval.str());
       (*i_sector).second.m_binnedHists[(*i_errBins).first]["sigmaX"]  = intDir.make<TH1F>("h_sigmaX","residual resolution #sigma_{x};#sigma_{x}  [cm];# hits",100,0.,0.01);
       (*i_sector).second.m_binnedHists[(*i_errBins).first]["norResX"] = intDir.make<TH1F>("h_norResX","normalized residual r_{x}/#sigma_{r,x};(x_{trk}-x_{hit})/#sigma_{r,x};# hits",100,-10,10);
       if((*i_sector).second.isPixel){

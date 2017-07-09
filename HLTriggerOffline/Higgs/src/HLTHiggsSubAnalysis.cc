@@ -735,8 +735,8 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
             _elements[SummaryName]->Fill(refOfThePath);
             if (ispassTrigger) {
                 _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,1);
-                if( (! _useNminOneCuts) || it->first == RECO ) _elements[nameVtxPlot+"_"+fillShortPath.c_str()]->Fill(nbMCvtx);
-                if( _bookHtPlots ) _elements[nameHtPlot+"_"+fillShortPath.c_str()]->Fill(Htmap[it->first]);
+                if( (! _useNminOneCuts) || it->first == RECO ) _elements[nameVtxPlot+"_"+fillShortPath]->Fill(nbMCvtx);
+                if( _bookHtPlots ) _elements[nameHtPlot+"_"+fillShortPath]->Fill(Htmap[it->first]);
             }
             else {
                 _elements[SummaryName+"_passingHLT"]->Fill(refOfThePath,0);

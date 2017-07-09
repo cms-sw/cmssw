@@ -67,7 +67,7 @@ ExpressionEvaluatorCutWithEventContent(const edm::ParameterSet& c) :
                                    getEventContentExpr             );
   reco::ExpressionEvaluator eval("PhysicsTools/SelectorUtils",
                                  "CutApplicatorWithEventContentBase",
-                                 total_expr.c_str());
+                                 total_expr);
   cut_ = eval.expr<CutApplicatorWithEventContentBase>();
 
 }

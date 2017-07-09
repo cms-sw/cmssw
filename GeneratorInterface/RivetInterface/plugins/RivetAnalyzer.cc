@@ -181,7 +181,7 @@ void RivetAnalyzer::normalizeTree()    {
   //tree.mkdir(tmpdir);
   foreach (const string& analysis, analyses) {
     if (_produceDQM){
-      dbe->setCurrentFolder(("Rivet/"+analysis).c_str());
+      dbe->setCurrentFolder("Rivet/"+analysis);
       //global variables that are always present
       //sumOfWeights
       TH1F nevent("nEvt", "n analyzed Events", 1, 0., 1.);

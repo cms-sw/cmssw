@@ -68,7 +68,7 @@ void FlatEGunASCIIWriter::beginRun(const edm::Run &r, const EventSetup& es)
 
 void FlatEGunASCIIWriter::beginJob()
 { 
-  fOutStream = new HepMC::IO_GenEvent( fOutFileName.c_str() ); 
+  fOutStream = new HepMC::IO_GenEvent( fOutFileName ); 
   if ( fOutStream->rdstate() == std::ios::failbit ) {
     throw cms::Exception("FileNotOpen", "FlatEGunASCIIWriter::beginJob()")
       << "File " << fOutFileName << " was not open.\n";

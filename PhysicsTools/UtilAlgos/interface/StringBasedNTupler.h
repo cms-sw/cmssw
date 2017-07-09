@@ -65,7 +65,7 @@ class TreeBranch {
   const std::string branchName()const{
 	std::string name(branchAlias_);
 	std::replace(name.begin(), name.end(), '_','0');
-	return std::string(name.c_str());}
+	return std::string(name);}
   const std::string & branchAlias()const{ return branchAlias_;}
   const std::string & branchTitle()const{ return branchTitle_;}
   typedef std::unique_ptr<std::vector<float> > value;

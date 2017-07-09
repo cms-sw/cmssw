@@ -104,7 +104,7 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
    {
 
      MonitorElement *me
-         = igetter.get( (input_dir_+"/RPCTF_muons_eta_phi_bx0").c_str() );
+         = igetter.get( input_dir_+"/RPCTF_muons_eta_phi_bx0" );
 
      if (me){
        const QReport *qreport;

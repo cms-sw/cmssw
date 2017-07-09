@@ -153,7 +153,7 @@ void MVAJetPuId::bookReader()
 		}
 		reader_->AddSpectator( *it, variables_[ tmvaNames_[*it] ].first );
 	}
-	reco::details::loadTMVAWeights(reader_,  tmvaMethod_.c_str(), tmvaWeights_.c_str() ); 
+	reco::details::loadTMVAWeights(reader_,  tmvaMethod_, tmvaWeights_ ); 
 }
 
 

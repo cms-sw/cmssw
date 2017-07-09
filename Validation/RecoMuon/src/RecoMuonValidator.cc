@@ -86,7 +86,7 @@ struct RecoMuonValidator::MuonME {
 
   {
     ibooker.cd();
-    ibooker.setCurrentFolder(dirName.c_str());
+    ibooker.setCurrentFolder(dirName);
 
     doAbsEta_ = hDim.doAbsEta;
     usePFMuon_ = hDim.usePFMuon;

@@ -137,7 +137,7 @@ void NoBPTXMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   bool bookDen;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   histname = "jetE"; histtitle = "jetE";
   bookDen = true;

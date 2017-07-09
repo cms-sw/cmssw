@@ -58,7 +58,7 @@ RegressionEnergyPatElectronProducer::RegressionEnergyPatElectronProducer( const 
 
   //load weights and initialize
   regressionEvaluator_ = new ElectronEnergyRegressionEvaluate();
-  regressionEvaluator_->initialize(regressionInputFile_.c_str(),type);
+  regressionEvaluator_->initialize(regressionInputFile_,type);
 
   if(produceValueMaps_) {
     produces<edm::ValueMap<double> >(nameEnergyReg_);

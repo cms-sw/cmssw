@@ -70,48 +70,48 @@ DQMDaqInfo::beginJob()
   
   subsystFolder="Pixel";  
   curentFolder= subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[Pixel]   = dbe_->bookFloat("PixelDaqFraction");
   
 
   subsystFolder="SiStrip";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[SiStrip]    = dbe_->bookFloat("SiStripDaqFraction");
   
   subsystFolder="RPC";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[RPC]        = dbe_->bookFloat("RPCDaqFraction");
   
   subsystFolder="CSC";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[CSC]       = dbe_->bookFloat("CSCDaqFraction");
 
   subsystFolder="DT";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[DT]         = dbe_->bookFloat("DTDaqFraction");
 
   subsystFolder="Hcal";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[Hcal]       = dbe_->bookFloat("HcalDaqFraction");
 
   subsystFolder="EcalBarrel";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[EcalBarrel]       = dbe_->bookFloat("EcalBarrDaqFraction");
 
   subsystFolder="EcalEndcap";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[EcalEndcap]       = dbe_->bookFloat("EcalEndDaqFraction");
 
   subsystFolder="L1T";  
   curentFolder=subsystFolder+commonFolder;
-  dbe_->setCurrentFolder(curentFolder.c_str());
+  dbe_->setCurrentFolder(curentFolder);
   DaqFraction[L1T]       = dbe_->bookFloat("L1TDaqFraction");
 
 

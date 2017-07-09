@@ -925,7 +925,7 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker &ibooker, 
   title = string("Trigger primitive TT E_{T};E_{T} ")
     + tpUnit + string(";Event Count");
   meTp_ = bookProfile(ibooker, "hTp", //"EcalTriggerPrimitiveEt",
-		 title.c_str(),
+		 title,
 		 (tpInGeV_?100:40), 0., (tpInGeV_?10.:40.));
 
   meTtf_ = bookProfile(ibooker, "hTtf", //"EcalTriggerTowerFlag",
@@ -935,7 +935,7 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker &ibooker, 
   title = string("Trigger tower flag vs TP;E_{T}(TT) (")
     + tpUnit + string(");Flag number");
   meTtfVsTp_ = book2D(ibooker, "h2TtfVsTp",
-		      title.c_str(),
+		      title,
 		      100, 0., (tpInGeV_?10.:40.),
 		      8, -.5, 7.5);
 
@@ -950,7 +950,7 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker &ibooker, 
 		 "E_{T} (TP) (") + tpUnit + string (")");
 
   meTpVsEtSum_ = book2D(ibooker, "h2TpVsEtSum",
-			title.c_str(),
+			title,
 			100, 0., 10.,
 			100, 0., (tpInGeV_?10.:40.));
 
@@ -959,7 +959,7 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker &ibooker, 
                  "iPhi;"
                  "E_{T} (TP) (") + tpUnit + string (")");
   meTpMap_ = bookProfile2D(ibooker, "h2Tp",
-                           title.c_str(),
+                           title,
                            57, -28.5, 28.5,
 			   72, .5, 72.5);
 
@@ -1221,14 +1221,14 @@ void EcalSelectiveReadoutValidation::bookHistograms(DQMStore::IBooker &ibooker, 
   buf << "Number of LI EB channels below the " << ebZsThr_/4. << " ADC count ZS threshold;"
     "Channel count;Event count",
   meEbZsErrCnt_ = book1D(ibooker, "hEbZsErrCnt",
-                         buf.str().c_str(),
+                         buf.str(),
                          200, -.5, 199.5);
 
   buf.str("");
   buf << "Number of LI EE channels below the " << eeZsThr_/4. << " ADC count ZS theshold;"
     "Channel count;Event count",
   meEeZsErrCnt_ = book1D(ibooker, "hEeZsErrCnt",
-                         buf.str().c_str(),
+                         buf.str(),
                          200, -.5, 199.5);
 
   meZsErrCnt_ = book1D(ibooker, "hZsErrCnt",

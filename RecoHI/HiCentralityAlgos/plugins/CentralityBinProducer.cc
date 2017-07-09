@@ -118,7 +118,7 @@ CentralityBinProducer::CentralityBinProducer(const edm::ParameterSet& iConfig):
    }
    centralityLabel_ = centralityVariable_+centralityMC_;
 
-   produces<int>(centralityVariable_.data());
+   produces<int>(centralityVariable_);
 }
 
 
@@ -171,7 +171,7 @@ CentralityBinProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   }
 
-  iEvent.put(std::make_unique<int>(bin),centralityVariable_.data());
+  iEvent.put(std::make_unique<int>(bin),centralityVariable_);
 
 }
 

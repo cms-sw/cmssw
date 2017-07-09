@@ -1019,7 +1019,7 @@ namespace evf {
  
   std::string EvFDaqDirector::getStreamMergeType(std::string const& stream, MergeType defaultType)
   {
-    auto mergeTypeItr = mergeTypeMap_.find(stream.c_str());
+    auto mergeTypeItr = mergeTypeMap_.find(stream);
     if (mergeTypeItr == mergeTypeMap_.end()) {
            edm::LogInfo("EvFDaqDirector") << " No merging type specified for stream " << stream << ". Using default value";
            assert(defaultType<MergeTypeNames_.size());

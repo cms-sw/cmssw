@@ -952,7 +952,7 @@ void SiPixelActionExecutor::fillGrandBarrelSummaryHistos(DQMStore::IBooker & iBo
 	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
 	     (*im).find("Track_")!=string::npos) continue;
 	  string full_path = (*it) + "/" +(*im);
-	  MonitorElement * me = iGetter.get(full_path.c_str());
+	  MonitorElement * me = iGetter.get(full_path);
 	  if (!me) continue; 
 	  if(source_type_==5||source_type_==6){
 	    if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||
@@ -1200,7 +1200,7 @@ void SiPixelActionExecutor::fillGrandEndcapSummaryHistos(DQMStore::IBooker& iBoo
 	  if((var=="_charge_" || var=="_nclusters_" || var=="_size_" || var=="_sizeX_" || var=="_sizeY_") && 
 	     (*im).find("Track_")!=string::npos) continue;
 	  string full_path = (*it) + "/" +(*im);
-	  MonitorElement * me = iGetter.get(full_path.c_str());
+	  MonitorElement * me = iGetter.get(full_path);
 	  if (!me) continue; 
 	  if(source_type_==5||source_type_==6){
 	    if((*iv)=="errorType"||(*iv)=="NErrors"||(*iv)=="fullType"||(*iv)=="chanNmbr"||

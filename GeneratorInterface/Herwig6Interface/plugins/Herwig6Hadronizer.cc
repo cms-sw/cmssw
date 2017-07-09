@@ -421,7 +421,7 @@ bool Herwig6Hadronizer:: readSettings( int key )
 
 	//Lars: lower EFFMIN threshold, to continue execution of IPROC=4000, lambda'_211=0.01 at LM7,10
 	if( readParticleSpecFile ) {
-	  openParticleSpecFile(particleSpecFileName.c_str());
+	  openParticleSpecFile(particleSpecFileName);
 	  hwpram.EFFMIN = 1e-5;
 	}
 	
@@ -590,7 +590,7 @@ bool Herwig6Hadronizer::initialize(const lhef::HEPRUP *heprup)
 
 	//Lars: lower EFFMIN threshold, to continue execution of IPROC=4000, lambda'_211=0.01 at LM7,10
 	if( readParticleSpecFile ) {
-	  openParticleSpecFile(particleSpecFileName.c_str());
+	  openParticleSpecFile(particleSpecFileName);
 	  hwpram.EFFMIN = 1e-5;
 	}
 	

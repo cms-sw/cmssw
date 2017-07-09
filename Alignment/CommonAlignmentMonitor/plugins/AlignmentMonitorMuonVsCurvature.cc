@@ -135,9 +135,9 @@ void AlignmentMonitorMuonVsCurvature::book()
       }
 
       th2f_wheel_st_sector[wheel+2][station-1][sector-1][component] =
-          book2D("/iterN/", th2f_name.str().c_str(), "", 30, -xminmax, xminmax, ynbins, -yminmax, yminmax);
+          book2D("/iterN/", th2f_name.str(), "", 30, -xminmax, xminmax, ynbins, -yminmax, yminmax);
       tprofile_wheel_st_sector[wheel+2][station-1][sector-1][component] =
-          bookProfile("/iterN/", tprofile_name.str().c_str(), "", 30,  -xminmax, xminmax);
+          bookProfile("/iterN/", tprofile_name.str(), "", 30,  -xminmax, xminmax);
     }
   }
 
@@ -176,9 +176,9 @@ void AlignmentMonitorMuonVsCurvature::book()
       tprofile_name << "tprofile_" << stname[station] << ringname << chname << componentname.str();
 
       th2f_st_ring_chamber[station][ring-1][chamber-1][component] =
-          book2D("/iterN/", th2f_name.str().c_str(), "", 30, -xminmax, xminmax, 100, -yminmax, yminmax);
+          book2D("/iterN/", th2f_name.str(), "", 30, -xminmax, xminmax, 100, -yminmax, yminmax);
       tprofile_st_ring_chamber[station][ring-1][chamber-1][component] =
-          bookProfile("/iterN/", tprofile_name.str().c_str(), "", 30, -xminmax, xminmax);
+          bookProfile("/iterN/", tprofile_name.str(), "", 30, -xminmax, xminmax);
     }
   }
 

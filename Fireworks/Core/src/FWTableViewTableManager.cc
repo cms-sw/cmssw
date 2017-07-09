@@ -300,7 +300,7 @@ FWTableCellRendererBase* FWTableViewTableManager::rowHeader(int iSortedRowNumber
       
       std::ostringstream s;
       s<<realRowNumber;
-      m_rowRenderer->setData(s.str().c_str());
+      m_rowRenderer->setData(s.str());
    } else {
       m_rowRenderer->setData("");
    }

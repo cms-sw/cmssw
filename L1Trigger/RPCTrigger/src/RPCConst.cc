@@ -15,7 +15,7 @@ int RPCConst::iptFromPt(const double pt) {
     std::ostringstream ostr;
     ostr<<pt;
     msg += ostr.str();
-    throw RPCException(msg.c_str());
+    throw RPCException(msg);
     return 0;
   }
  int ipt=RPCConst::IPT_MAX;
@@ -33,7 +33,7 @@ double RPCConst::ptFromIpt(const int ipt) {
     std::ostringstream ostr;
     ostr<<ipt;
     msg += ostr.str();
-    throw RPCException(msg.c_str());
+    throw RPCException(msg);
     return 0.;
   }
   else return m_pts[ipt];
@@ -51,7 +51,7 @@ double RPCConst::etaFromTowerNum(const int atower){
     std::ostringstream ostr;
     ostr<<atower;
     msg += ostr.str();
-    throw RPCException(msg.c_str());
+    throw RPCException(msg);
     return 0.;
   }
   double eta = (m_etas[iabsitow]+m_etas[iabsitow+1])/2.;

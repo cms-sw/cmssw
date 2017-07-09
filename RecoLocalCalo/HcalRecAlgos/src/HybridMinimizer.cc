@@ -180,12 +180,12 @@ bool HybridMinimizer::SetVariable(unsigned int ivar, const std::string & name, d
    if (step <= 0) { 
       std::string txtmsg = "Parameter " + name + "  has zero or invalid step size - consider it as constant ";
       MN_INFO_MSG2("HybridMinimizer::SetVariable",txtmsg);
-      fState.Add(name.c_str(), val);
+      fState.Add(name, val);
    }
    else 
-      fState.Add(name.c_str(), val, step); 
+      fState.Add(name, val, step); 
 
-   unsigned int minuit2Index = fState.Index(name.c_str() ); 
+   unsigned int minuit2Index = fState.Index(name ); 
    if ( minuit2Index != ivar) {
       std::string txtmsg("Wrong index used for the variable " + name);
       MN_INFO_MSG2("HybridMinimizer::SetVariable",txtmsg);  
@@ -227,7 +227,7 @@ bool HybridMinimizer::SetFixedVariable(unsigned int ivar , const std::string & n
    // use 10% 
    double step = ( val != 0) ? 0.1 * std::abs(val) : 0.1;
    if (!SetVariable(ivar, name, val, step ) ) { 
-      ivar = fState.Index(name.c_str() );      
+      ivar = fState.Index(name );      
    }
    fState.Fix(ivar);
    return true;

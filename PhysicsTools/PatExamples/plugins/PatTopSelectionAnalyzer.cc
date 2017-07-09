@@ -32,9 +32,9 @@ private:
   virtual void endJob() override ;
 
   /// check if histogram was booked
-  bool booked(const std::string histName) const { return hists_.find(histName.c_str())!=hists_.end(); };
+  bool booked(const std::string histName) const { return hists_.find(histName)!=hists_.end(); };
   /// fill histogram if it had been booked before
-  void fill(const std::string histName, double value) const { if(booked(histName.c_str())) hists_.find(histName.c_str())->second->Fill(value); };
+  void fill(const std::string histName, double value) const { if(booked(histName)) hists_.find(histName)->second->Fill(value); };
 
   // simple map to contain all histograms;
   // histograms are booked in the beginJob()

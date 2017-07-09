@@ -524,7 +524,7 @@ namespace HLTOfflineDQMTopDiLepton {
         // loop over trigger paths 
 	for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
           // consider only path from triggerPaths
-          string name = triggerNames.triggerNames()[i].c_str();
+          string name = triggerNames.triggerNames()[i];
           bool isInteresting = false;
           for (unsigned int j=0; j<triggerPaths.size(); j++) {
             if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 

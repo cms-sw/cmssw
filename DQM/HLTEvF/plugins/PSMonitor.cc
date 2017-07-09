@@ -45,7 +45,7 @@ void PSMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   std::string histname, histtitle;
 
   std::string currentFolder = folderName_ ;
-  ibooker.setCurrentFolder(currentFolder.c_str());
+  ibooker.setCurrentFolder(currentFolder);
 
   std::vector<std::string> psLabels = psService_->getLvl1Labels();
   int nbins   = ( psLabels.size() ? psLabels.size()         : ps_binning_.nbins );
@@ -61,7 +61,7 @@ void PSMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
   
   int ibin = 1;
   for ( auto l : psLabels ) {
-    psColumnIndexVsLS_->setBinLabel(ibin,l.c_str(),2);
+    psColumnIndexVsLS_->setBinLabel(ibin,l,2);
     ibin++;
   }
 

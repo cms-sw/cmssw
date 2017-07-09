@@ -24,7 +24,7 @@ popcon::EcalLaserHandler::EcalLaserHandler(const edm::ParameterSet & ps)
   m_debug=ps.getParameter<bool>("debug");
   m_fake=ps.getParameter<bool>("fake");
   m_sequences=static_cast<unsigned int>(atoi( ps.getParameter<std::string>("sequences").c_str()));
-  m_maxtime=ps.getParameter<std::string>("maxtime").c_str();
+  m_maxtime=ps.getParameter<std::string>("maxtime");
   std::cout << "Starting O2O process on DB: " << m_sid
 	    << " User: "<< m_user << std::endl;
   if (m_fake) {

@@ -279,7 +279,7 @@ APVValidationPlots::endJob() {
     }
 
   dqmStore->cd();
-  dqmStore->save(outfilename.c_str(),"ChannelStatusPlots");
+  dqmStore->save(outfilename,"ChannelStatusPlots");
 
 }
 

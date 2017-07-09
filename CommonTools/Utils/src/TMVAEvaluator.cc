@@ -35,7 +35,7 @@ void TMVAEvaluator::initialize(const std::string & options, const std::string & 
   }
 
   // load the TMVA weights
-  reco::details::loadTMVAWeights(mReader.get(), mMethod.c_str(), weightFile.c_str());
+  reco::details::loadTMVAWeights(mReader.get(), mMethod, weightFile);
 
   if (useGBRForest)
   {

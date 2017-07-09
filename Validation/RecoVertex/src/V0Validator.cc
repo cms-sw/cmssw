@@ -64,7 +64,7 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
 
   ibooker.cd();
   std::string subDirName = V0Validator::dirName + "/K0";
-  ibooker.setCurrentFolder(subDirName.c_str());
+  ibooker.setCurrentFolder(subDirName);
 
   candidateEffVsR_num_[V0Validator::KSHORT] = ibooker.book1D(
       "K0sEffVsR_num", "K^{0}_{S} Efficiency vs #rho", 80, 0., 40.);
@@ -128,7 +128,7 @@ void V0Validator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&,
   // Lambda Plots follow
 
   subDirName = V0Validator::dirName + "/Lambda";
-  ibooker.setCurrentFolder(subDirName.c_str());
+  ibooker.setCurrentFolder(subDirName);
 
   candidateEffVsR_num_[V0Validator::LAMBDA] = ibooker.book1D(
       "LamEffVsR_num", "#Lambda^{0} Efficiency vs #rho", 80, 0., 40.);

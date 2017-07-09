@@ -354,7 +354,7 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 		  std::string unknown_id_string="Detid "+std::to_string(int(did))+", ieta "+std::to_string(did.ieta());
 		  unknown_id_string+=", iphi "+std::to_string(did.iphi())+", depth "+std::to_string(did.depth());
 		  unknown_id_string+=", is not in emap. Skipping.";
-		  _logger.warn(unknown_id_string.c_str());
+		  _logger.warn(unknown_id_string);
 		  continue;
 		}
 		HcalElectronicsId const& eid(rawid);

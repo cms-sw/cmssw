@@ -69,7 +69,7 @@ PiZeroDiscriminatorProducer::PiZeroDiscriminatorProducer(const ParameterSet& ps)
 
   string tmpPath = ps.getUntrackedParameter<string>("pathToWeightFiles","RecoEcal/EgammaClusterProducers/data/");
 
-  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath.c_str());
+  presh_pi0_algo = new EndcapPiZeroDiscriminatorAlgo(preshStripECut_, preshNst_, tmpPath);
 
   produces< PhotonPi0DiscriminatorAssociationMap >(PhotonPi0DiscriminatorAssociationMap_);
 

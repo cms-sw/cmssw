@@ -305,7 +305,7 @@ void IsoTrackCalibration::analyze(const edm::Event& iEvent,
 	  int hlt    = triggerResults->accept(iHLT);
 	  if (hlt > 0) {
 	    for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	      if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos) {
 		triggerOK = true;
 #ifdef DebugLog
 		if (verbosity_%10 > 0)

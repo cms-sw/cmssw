@@ -14,7 +14,7 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig) :
       std::ostringstream ecfN_str;
       ecfN_str << "ecf" << *n;
       variables_.push_back(ecfN_str.str());
-      produces<edm::ValueMap<float> >(ecfN_str.str().c_str());
+      produces<edm::ValueMap<float> >(ecfN_str.str());
       routine_.push_back(std::auto_ptr<fastjet::contrib::EnergyCorrelator> ( new fastjet::contrib::EnergyCorrelator( *n, beta_, fastjet::contrib::EnergyCorrelator::pt_R ) ));
     }  
 }
@@ -45,7 +45,7 @@ void ECFAdder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
       fillerT.insert(jets, ecfN.begin(), ecfN.end());
       fillerT.fill();
 
-      iEvent.put(std::move(outT),variables_[i].c_str());
+      iEvent.put(std::move(outT),variables_[i]);
       ++i;
     }
 }

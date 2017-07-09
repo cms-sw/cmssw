@@ -511,7 +511,7 @@ void SiStripMonitorDigi::createMEs(DQMStore::IBooker & ibooker , const edm::Even
     std::stringstream ss;
 
     folder_organizer.getLayerFolderName(ss, 0, tTopo);
-    ibooker.setCurrentFolder(ss.str().c_str());
+    ibooker.setCurrentFolder(ss.str());
     
     if (subdetswitchtotdigifailureon) {
       const char* HistoName = "NumberOfDigisInLastLS";

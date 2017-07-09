@@ -214,7 +214,7 @@ void CaloTowerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	      //Change the default value since HLT requirement has been issued by the user
 	      if( index == 0 ) EventPasses = false; 
 	      //Get the HLT bit and check to make sure it is valid
-	      unsigned int bit = TheTriggerNames.triggerIndex( HLTBitLabel_[index].label().c_str());
+	      unsigned int bit = TheTriggerNames.triggerIndex( HLTBitLabel_[index].label());
 	      if( bit < TheHLTResults->size() )
 		{
 		  //If any of the HLT names given by the user accept, then the event passes

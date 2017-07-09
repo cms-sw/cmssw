@@ -775,7 +775,7 @@ FWGUIManager::createShortcutPopup ()
    if (m_shortcutPopup == 0)
    {
       m_shortcutPopup = new CmsShowHelpPopup("shortcuts.html",
-                                             getAction(cmsshow::sKeyboardShort)->getName().c_str(),
+                                             getAction(cmsshow::sKeyboardShort)->getName(),
                                               m_cmsShowMainFrame, 800, 600);
 
       m_shortcutPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);
@@ -788,7 +788,7 @@ void FWGUIManager::createHelpGLPopup ()
    if (m_helpGLPopup == 0)
    {
       m_helpGLPopup = new CmsShowHelpPopup("helpGL.html",
-                                            getAction(cmsshow::sHelpGL)->getName().c_str(),
+                                            getAction(cmsshow::sHelpGL)->getName(),
                                             m_cmsShowMainFrame, 800, 600);
 
       m_helpGLPopup->CenterOnParent(kTRUE,TGTransientFrame::kBottomRight);

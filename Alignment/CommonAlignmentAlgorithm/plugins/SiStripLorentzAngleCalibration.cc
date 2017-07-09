@@ -365,7 +365,7 @@ void SiStripLorentzAngleCalibration::endOfJob()
     if (saveToDB_) { // If requested, write out to DB 
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if (dbService.isAvailable()) {
-	dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_.c_str());
+	dbService->writeOne(output, firstRunOfIOV, recordNameDBwrite_);
 	// no 'delete output;': writeOne(..) took over ownership
       } else {
 	delete output;

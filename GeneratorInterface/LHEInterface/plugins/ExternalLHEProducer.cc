@@ -125,7 +125,7 @@ private:
 // constructors and destructor
 //
 ExternalLHEProducer::ExternalLHEProducer(const edm::ParameterSet& iConfig) :
-  scriptName_((iConfig.getParameter<edm::FileInPath>("scriptName")).fullPath().c_str()),
+  scriptName_((iConfig.getParameter<edm::FileInPath>("scriptName")).fullPath()),
   outputFile_(iConfig.getParameter<std::string>("outputFile")),
   args_(iConfig.getParameter<std::vector<std::string> >("args")),
   npars_(iConfig.getParameter<uint32_t>("numberOfParameters")),

@@ -229,14 +229,14 @@ EmDQMReco::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm:
   totalreco = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
   totalreco->setBinLabel(numOfHLTCollectionLabels+1,"Total");
   totalreco->setBinLabel(numOfHLTCollectionLabels+2,"Reco");
-  for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalreco->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
+  for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalreco->setBinLabel(u+1,theHLTCollectionLabels[u].label());}
 
   histName="total_eff_RECO_matched";
   histTitle="total events passing (Reco matched)";
   totalmatchreco = iBooker.book1D(histName.c_str(),histTitle.c_str(),numOfHLTCollectionLabels+2,0,numOfHLTCollectionLabels+2);
   totalmatchreco->setBinLabel(numOfHLTCollectionLabels+1,"Total");
   totalmatchreco->setBinLabel(numOfHLTCollectionLabels+2,"Reco");
-  for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalmatchreco->setBinLabel(u+1,theHLTCollectionLabels[u].label().c_str());}
+  for (unsigned int u=0; u<numOfHLTCollectionLabels; u++){totalmatchreco->setBinLabel(u+1,theHLTCollectionLabels[u].label());}
 
   // MonitorElement* tmphisto;
   MonitorElement* tmpiso;

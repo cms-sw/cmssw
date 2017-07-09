@@ -31,7 +31,7 @@ FWGUIEventSelector::FWGUIEventSelector(TGCompositeFrame* p, FWEventSelector* sel
       int id = -1;
       for ( std::vector<std::string>::iterator i = triggerProcessList.begin(); i!=triggerProcessList.end(); ++i)
       {
-         if ((*i).c_str() == sel->m_triggerProcess) id = cnt;
+         if (*i == sel->m_triggerProcess) id = cnt;
          m_combo->AddEntry((*i).c_str(), cnt++);
       }
 

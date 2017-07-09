@@ -92,7 +92,7 @@ class VariableNTupler : public NTupler{
 	nLeaves++;
 	std::string lName(i->first);
 	std::replace(lName.begin(), lName.end(), '_','0');
-	producer->produces<double>(lName.c_str()).setBranchAlias(i->first);
+	producer->produces<double>(lName).setBranchAlias(i->first);
       }
     }
     return nLeaves;
@@ -119,7 +119,7 @@ class VariableNTupler : public NTupler{
 	auto leafValue = std::make_unique<double>((*i->second)(iEvent));
 	std::string lName(i->first); 
 	std::replace(lName.begin(), lName.end(),'_','0');
-	iEvent.put(std::move(leafValue), lName.c_str());
+	iEvent.put(std::move(leafValue), lName);
       }
     }
   }

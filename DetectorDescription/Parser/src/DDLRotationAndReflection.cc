@@ -181,8 +181,8 @@ DDLRotationAndReflection::makeX(std::string nmspace)
   if (atts.find("thetaX") != atts.end())
   {
     ClhepEvaluator & ev = myRegistry_->evaluator(); 
-    double thetaX = ev.eval(nmspace, atts.find("thetaX")->second.c_str());
-    double phiX = ev.eval(nmspace, atts.find("phiX")->second.c_str());
+    double thetaX = ev.eval(nmspace, atts.find("thetaX")->second);
+    double phiX = ev.eval(nmspace, atts.find("phiX")->second);
     // colx
     x.SetX(sin(thetaX) * cos(phiX));
     x.SetY(sin(thetaX) * sin(phiX));
@@ -199,8 +199,8 @@ DDLRotationAndReflection::makeY(std::string nmspace)
   if (atts.find("thetaY") != atts.end())
   {
     ClhepEvaluator & ev = myRegistry_->evaluator(); 
-    double thetaY = ev.eval(nmspace, atts.find("thetaY")->second.c_str());
-    double phiY = ev.eval(nmspace, atts.find("phiY")->second.c_str());
+    double thetaY = ev.eval(nmspace, atts.find("thetaY")->second);
+    double phiY = ev.eval(nmspace, atts.find("phiY")->second);
       
     // coly
     y.SetX(sin(thetaY) * cos(phiY));
@@ -217,8 +217,8 @@ DD3Vector DDLRotationAndReflection::makeZ(std::string nmspace)
   if (atts.find("thetaZ") != atts.end())
   {
     ClhepEvaluator & ev = myRegistry_->evaluator(); 
-    double thetaZ = ev.eval(nmspace, atts.find("thetaZ")->second.c_str());
-    double phiZ = ev.eval(nmspace, atts.find("phiZ")->second.c_str());
+    double thetaZ = ev.eval(nmspace, atts.find("thetaZ")->second);
+    double phiZ = ev.eval(nmspace, atts.find("phiZ")->second);
       
     // colz
     z.SetX(sin(thetaZ) * cos(phiZ));

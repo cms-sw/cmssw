@@ -145,73 +145,73 @@ void sp_wrap::run
 				); 
 
 			// fill th LUTs
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_1_st_1_ch_1.lut").fullPath().c_str(), uut.pcs.genblk.station11[0].csc11[0].pc11.th_corr_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_1_st_1_ch_2.lut").fullPath().c_str(), uut.pcs.genblk.station11[0].csc11[1].pc11.th_corr_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_1_st_1_ch_3.lut").fullPath().c_str(), uut.pcs.genblk.station11[0].csc11[2].pc11.th_corr_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_2_st_1_ch_1.lut").fullPath().c_str(), uut.pcs.genblk.station11[1].csc11[0].pc11.th_corr_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_2_st_1_ch_2.lut").fullPath().c_str(), uut.pcs.genblk.station11[1].csc11[1].pc11.th_corr_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_2_st_1_ch_3.lut").fullPath().c_str(), uut.pcs.genblk.station11[1].csc11[2].pc11.th_corr_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_1_st_1_ch_1.lut").fullPath(), uut.pcs.genblk.station11[0].csc11[0].pc11.th_corr_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_1_st_1_ch_2.lut").fullPath(), uut.pcs.genblk.station11[0].csc11[1].pc11.th_corr_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_1_st_1_ch_3.lut").fullPath(), uut.pcs.genblk.station11[0].csc11[2].pc11.th_corr_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_2_st_1_ch_1.lut").fullPath(), uut.pcs.genblk.station11[1].csc11[0].pc11.th_corr_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_2_st_1_ch_2.lut").fullPath(), uut.pcs.genblk.station11[1].csc11[1].pc11.th_corr_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_corr_lut_endcap_1_sec_1_sub_2_st_1_ch_3.lut").fullPath(), uut.pcs.genblk.station11[1].csc11[2].pc11.th_corr_mem);
 
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_1.lut").fullPath().c_str(), uut.pcs.genblk.station11[0].csc11[0].pc11.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_2.lut").fullPath().c_str(), uut.pcs.genblk.station11[0].csc11[1].pc11.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_3.lut").fullPath().c_str(), uut.pcs.genblk.station11[0].csc11[2].pc11.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_4.lut").fullPath().c_str(), uut.pcs.genblk.station12[0].csc12[3].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_5.lut").fullPath().c_str(), uut.pcs.genblk.station12[0].csc12[4].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_6.lut").fullPath().c_str(), uut.pcs.genblk.station12[0].csc12[5].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_7.lut").fullPath().c_str(), uut.pcs.genblk.station12[0].csc12[6].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_8.lut").fullPath().c_str(), uut.pcs.genblk.station12[0].csc12[7].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_9.lut").fullPath().c_str(), uut.pcs.genblk.station12[0].csc12[8].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_1.lut").fullPath(), uut.pcs.genblk.station11[0].csc11[0].pc11.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_2.lut").fullPath(), uut.pcs.genblk.station11[0].csc11[1].pc11.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_3.lut").fullPath(), uut.pcs.genblk.station11[0].csc11[2].pc11.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_4.lut").fullPath(), uut.pcs.genblk.station12[0].csc12[3].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_5.lut").fullPath(), uut.pcs.genblk.station12[0].csc12[4].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_6.lut").fullPath(), uut.pcs.genblk.station12[0].csc12[5].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_7.lut").fullPath(), uut.pcs.genblk.station12[0].csc12[6].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_8.lut").fullPath(), uut.pcs.genblk.station12[0].csc12[7].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_1_st_1_ch_9.lut").fullPath(), uut.pcs.genblk.station12[0].csc12[8].pc12.th_mem);
 			
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_1.lut").fullPath().c_str(), uut.pcs.genblk.station11[1].csc11[0].pc11.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_2.lut").fullPath().c_str(), uut.pcs.genblk.station11[1].csc11[1].pc11.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_3.lut").fullPath().c_str(), uut.pcs.genblk.station11[1].csc11[2].pc11.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_4.lut").fullPath().c_str(), uut.pcs.genblk.station12[1].csc12[3].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_5.lut").fullPath().c_str(), uut.pcs.genblk.station12[1].csc12[4].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_6.lut").fullPath().c_str(), uut.pcs.genblk.station12[1].csc12[5].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_7.lut").fullPath().c_str(), uut.pcs.genblk.station12[1].csc12[6].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_8.lut").fullPath().c_str(), uut.pcs.genblk.station12[1].csc12[7].pc12.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_9.lut").fullPath().c_str(), uut.pcs.genblk.station12[1].csc12[8].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_1.lut").fullPath(), uut.pcs.genblk.station11[1].csc11[0].pc11.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_2.lut").fullPath(), uut.pcs.genblk.station11[1].csc11[1].pc11.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_3.lut").fullPath(), uut.pcs.genblk.station11[1].csc11[2].pc11.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_4.lut").fullPath(), uut.pcs.genblk.station12[1].csc12[3].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_5.lut").fullPath(), uut.pcs.genblk.station12[1].csc12[4].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_6.lut").fullPath(), uut.pcs.genblk.station12[1].csc12[5].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_7.lut").fullPath(), uut.pcs.genblk.station12[1].csc12[6].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_8.lut").fullPath(), uut.pcs.genblk.station12[1].csc12[7].pc12.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_sub_2_st_1_ch_9.lut").fullPath(), uut.pcs.genblk.station12[1].csc12[8].pc12.th_mem);
 
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_1.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[0].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_2.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[1].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_3.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[2].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_4.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[3].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_5.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[4].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_6.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[5].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_7.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[6].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_8.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[7].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_9.lut").fullPath().c_str(), uut.pcs.genblk.station[2].csc[8].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_1.lut").fullPath(), uut.pcs.genblk.station[2].csc[0].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_2.lut").fullPath(), uut.pcs.genblk.station[2].csc[1].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_3.lut").fullPath(), uut.pcs.genblk.station[2].csc[2].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_4.lut").fullPath(), uut.pcs.genblk.station[2].csc[3].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_5.lut").fullPath(), uut.pcs.genblk.station[2].csc[4].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_6.lut").fullPath(), uut.pcs.genblk.station[2].csc[5].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_7.lut").fullPath(), uut.pcs.genblk.station[2].csc[6].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_8.lut").fullPath(), uut.pcs.genblk.station[2].csc[7].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_2_ch_9.lut").fullPath(), uut.pcs.genblk.station[2].csc[8].pc.th_mem);
 			
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_1.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[0].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_2.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[1].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_3.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[2].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_4.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[3].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_5.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[4].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_6.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[5].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_7.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[6].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_8.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[7].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_9.lut").fullPath().c_str(), uut.pcs.genblk.station[3].csc[8].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_1.lut").fullPath(), uut.pcs.genblk.station[3].csc[0].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_2.lut").fullPath(), uut.pcs.genblk.station[3].csc[1].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_3.lut").fullPath(), uut.pcs.genblk.station[3].csc[2].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_4.lut").fullPath(), uut.pcs.genblk.station[3].csc[3].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_5.lut").fullPath(), uut.pcs.genblk.station[3].csc[4].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_6.lut").fullPath(), uut.pcs.genblk.station[3].csc[5].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_7.lut").fullPath(), uut.pcs.genblk.station[3].csc[6].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_8.lut").fullPath(), uut.pcs.genblk.station[3].csc[7].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_3_ch_9.lut").fullPath(), uut.pcs.genblk.station[3].csc[8].pc.th_mem);
 			
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_1.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[0].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_2.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[1].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_3.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[2].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_4.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[3].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_5.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[4].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_6.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[5].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_7.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[6].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_8.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[7].pc.th_mem);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_9.lut").fullPath().c_str(), uut.pcs.genblk.station[4].csc[8].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_1.lut").fullPath(), uut.pcs.genblk.station[4].csc[0].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_2.lut").fullPath(), uut.pcs.genblk.station[4].csc[1].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_3.lut").fullPath(), uut.pcs.genblk.station[4].csc[2].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_4.lut").fullPath(), uut.pcs.genblk.station[4].csc[3].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_5.lut").fullPath(), uut.pcs.genblk.station[4].csc[4].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_6.lut").fullPath(), uut.pcs.genblk.station[4].csc[5].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_7.lut").fullPath(), uut.pcs.genblk.station[4].csc[6].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_8.lut").fullPath(), uut.pcs.genblk.station[4].csc[7].pc.th_mem);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/vl_th_lut_endcap_1_sec_1_st_4_ch_9.lut").fullPath(), uut.pcs.genblk.station[4].csc[8].pc.th_mem);
 
 			//Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_endcap_1_sect_1.lut").fullPath().c_str(), ph_init);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/th_init_endcap_1_sect_1.lut").fullPath().c_str(), th_init);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_disp_endcap_1_sect_1.lut").fullPath().c_str(), ph_disp);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/th_disp_endcap_1_sect_1.lut").fullPath().c_str(), th_disp);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/th_init_endcap_1_sect_1.lut").fullPath(), th_init);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_disp_endcap_1_sect_1.lut").fullPath(), ph_disp);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/th_disp_endcap_1_sect_1.lut").fullPath(), th_disp);
 
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_0.lut").fullPath().c_str(), ph_init[0]);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_1.lut").fullPath().c_str(), ph_init[1]);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_2.lut").fullPath().c_str(), ph_init[2]);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_3.lut").fullPath().c_str(), ph_init[3]);
-			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_4.lut").fullPath().c_str(), ph_init[4]);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_0.lut").fullPath(), ph_init[0]);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_1.lut").fullPath(), ph_init[1]);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_2.lut").fullPath(), ph_init[2]);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_3.lut").fullPath(), ph_init[3]);
+			Sreadmemh(edm::FileInPath("L1Trigger/CSCTrackFinder/data/core_upgrade/vl_lut/ph_init_full_endcap_1_sect_1_st_4.lut").fullPath(), ph_init[4]);
 
 		for (i = 0; i < 180; i = i+1)
 		{

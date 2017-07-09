@@ -115,7 +115,7 @@ void MuonGEMRecHitsHarvestor::ProcessBooking( DQMStore::IBooker& ibooker, DQMSto
 void 
 MuonGEMRecHitsHarvestor::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGetter& ig)
 {
-  ig.setCurrentFolder(dbe_path_.c_str());
+  ig.setCurrentFolder(dbe_path_);
  
   const char* l_suffix[4] = {"_l1","_l2","_l1or2","_l1and2"};
   const char* s_suffix[2] = {"_st1","_st2"};   

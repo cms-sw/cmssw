@@ -165,7 +165,7 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
             vvars.clear();
             for( unsigned int l=0; l<vars.size(); l++ ) {
               if( !vars[l].empty() ) {
-        	vvars.push_back( row[vars[l].c_str()].data<float>() );
+        	vvars.push_back( row[vars[l]].data<float>() );
               }
             }
             if( vvars.size() == 2 ) {

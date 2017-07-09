@@ -311,7 +311,7 @@ namespace cscdqm {
       }
 
       const std::string processTitle(const std::string& p_title) const {
-        return processName(p_title.c_str(), getFEDId());
+        return processName(p_title, getFEDId());
       }
         
   };      
@@ -362,7 +362,7 @@ namespace cscdqm {
       }
 
       const std::string processTitle(const std::string& p_title) const {
-        return processName(p_title.c_str(), getDDUId());
+        return processName(p_title, getDDUId());
       }
 
   };
@@ -429,7 +429,7 @@ namespace cscdqm {
       }
 
       const std::string processTitle(const std::string& p_title) const {
-        return processName(p_title.c_str(), getAddId());
+        return processName(p_title, getAddId());
       }
 
 

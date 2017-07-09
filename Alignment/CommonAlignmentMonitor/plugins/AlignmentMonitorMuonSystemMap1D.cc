@@ -509,16 +509,16 @@ AlignmentMonitorMuonSystemMap1D::MuonSystemMapPlot1D::MuonSystemMapPlot1D(std::s
   const int nbins = 200;
   const double window = 100.;
 
-  m_x_2d = module->book2D("/iterN/", name_x_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
-  if (m_xy) m_y_2d = module->book2D("/iterN/", name_y_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
-  m_dxdz_2d = module->book2D("/iterN/", name_dxdz_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
-  if (m_xy) m_dydz_2d = module->book2D("/iterN/", name_dydz_2d.str().c_str(), "", m_bins, low, high, nbins, -window, window);
+  m_x_2d = module->book2D("/iterN/", name_x_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  if (m_xy) m_y_2d = module->book2D("/iterN/", name_y_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  m_dxdz_2d = module->book2D("/iterN/", name_dxdz_2d.str(), "", m_bins, low, high, nbins, -window, window);
+  if (m_xy) m_dydz_2d = module->book2D("/iterN/", name_dydz_2d.str(), "", m_bins, low, high, nbins, -window, window);
 
   m_x_1d = NULL;
   if (m_1d) {
     std::stringstream name_x_1d;//, name_y_1d, name_dxdz_1d, name_dydz_1d;
     name_x_1d << m_name << "_x_1d";
-    m_x_1d = module->book1D("/iterN/", name_x_1d.str().c_str(), "", nbins, -window, window);
+    m_x_1d = module->book1D("/iterN/", name_x_1d.str(), "", nbins, -window, window);
   }
 }
 

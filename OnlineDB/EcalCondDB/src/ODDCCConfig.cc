@@ -119,7 +119,7 @@ void ODDCCConfig::setParameters(const std::map<string,string>& my_keys_map){
     if(ci->first==  "TESTPATTERN_FILE_URL")   setTestPatternFileUrl(ci->second );
     if(ci->first==  "N_TESTPATTERNS_TO_LOAD") setNTestPatternsToLoad(atoi(ci->second.c_str() ));
     if(ci->first==  "SM_HALF")                setSMHalf(atoi(ci->second.c_str() ));
-    if(ci->first==  "WEIGHTSMODE")           setDCCWeightsMode(ci->second.c_str() );
+    if(ci->first==  "WEIGHTSMODE")           setDCCWeightsMode(ci->second );
     if(ci->first==  "DCC_CONFIGURATION_URL") {
       std::string fname=ci->second ;
       setDCCConfigurationUrl(fname );

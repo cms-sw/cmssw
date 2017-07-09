@@ -63,7 +63,7 @@ void PixelVTXMonitor::bookHistograms() {
 
 
   std::string currentFolder = moduleName_ + "/" + folderName_ ;
-  dbe_->setCurrentFolder(currentFolder.c_str());
+  dbe_->setCurrentFolder(currentFolder);
 
   PixelMEs local_MEs;
   for (std::vector<std::string> ::iterator it = selectedPaths.begin();

@@ -25,7 +25,7 @@ L1TMP7ZeroSupp::L1TMP7ZeroSupp(const edm::ParameterSet& ps)
     std::string maskCapIdStr{"maskCapId"+std::to_string(i)};
     masks_.push_back(ps.getUntrackedParameter<std::vector<int>>(maskCapIdStr.c_str(), zeroMask));
     // which masks are defined?
-    if (ps.exists(maskCapIdStr.c_str())) {
+    if (ps.exists(maskCapIdStr)) {
       definedMaskCapIds_.push_back(i);
     }
   }
@@ -81,7 +81,7 @@ void L1TMP7ZeroSupp::bookHistograms(DQMStore::IBooker& ibooker, const edm::Run&,
   for (const auto &id: definedMaskCapIds_) {
     ss.str("");
     ss << monitorDir_ << "/CapId" << id;
-    ibooker.setCurrentFolder(ss.str().c_str());
+    ibooker.setCurrentFolder(ss.str());
     bookCapIdHistograms(ibooker, id);
   }
 }

@@ -964,7 +964,7 @@ SiStripGainFromData::algoEndJob() {
    }
 
    dqmStore_->cd();
-   dqmStore_->save(OutputHistos.c_str());
+   dqmStore_->save(OutputHistos);
 
 }
 

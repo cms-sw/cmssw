@@ -720,7 +720,7 @@ CLHEP::HepRotation OpticalObject::buildRmFromEntryValuesOriginalOriginal()
   if(ALIUtils::debug >= 55) std::cout << "rotate with parent: before Z " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(ZCoor) <<std::endl;
   rm.rotateZ( cel[5]->valueOriginalOriginal() );
   //-  rm.rotateZ( getEntryRMangle(ZCoor) );
-  if(ALIUtils::debug >= 54) ALIUtils::dumprm( theRmGlob, ("SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName()).c_str() );
+  if(ALIUtils::debug >= 54) ALIUtils::dumprm( theRmGlob, "SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName() );
 
   return rm;
 }
@@ -791,7 +791,7 @@ void OpticalObject::SetCentreGlobFromCentreLocal()
 
   if(ALIUtils::debug >= 5) ALIUtils::dump3v( theCentreGlob, "SetCentreGlobFromCentreLocal: CENTRE GLOBAL ");
   if(ALIUtils::debug >= 5) {
-    ALIUtils::dump3v( parent()->centreGlob(), ( " parent centreGlob" + parent()->name() ).c_str() );
+    ALIUtils::dump3v( parent()->centreGlob(), " parent centreGlob" + parent()->name() );
     ALIUtils::dumprm( parent()->rmGlob(), " parent rmGlob ");
   }
 
@@ -821,7 +821,7 @@ void OpticalObject::SetRMGlobFromRMLocal()
       theRmGlob.rotateY( parent()->getEntryRMangle(YCoor) );
       if(ALIUtils::debug >= 5) std::cout << "rotate with parent: before Z " << opto_par->parent()->name() <<" " <<  parent()->getEntryRMangle(ZCoor) <<std::endl;
       theRmGlob.rotateZ( parent()->getEntryRMangle(ZCoor) );
-      if(ALIUtils::debug >= 4) ALIUtils::dumprm( theRmGlob, ("SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName()).c_str() );
+      if(ALIUtils::debug >= 4) ALIUtils::dumprm( theRmGlob, "SetRMGlobFromRMLocal: RM GLOB after " +  opto_par->parent()->longName() );
       opto_par = opto_par->parent();
     }
   }else {
@@ -1368,7 +1368,7 @@ void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated,
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if(gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
     //-------------------- Rotate rotation matrix
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginal, (name() + ALIstring(" theRmGlobOriginal before displaced ")).c_str() );
+    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginal, name() + ALIstring(" theRmGlobOriginal before displaced ") );
     switch( coor ) {
     case 0:
       theRmGlobOriginal.rotateX( disp );
@@ -1410,7 +1410,7 @@ void OpticalObject::displaceRmGlobOriginal(const  OpticalObject* opto1stRotated,
       if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlobOriginal(), "         centre_globOriginal()" );
     }
 
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginal, (name() + ALIstring(" theRmGlobOriginal displaced ")).c_str() );
+    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginal, name() + ALIstring(" theRmGlobOriginal displaced ") );
 
     //----------- Displace every OptO component
     std::vector<OpticalObject*> vopto;
@@ -1446,7 +1446,7 @@ void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1st
   GlobalOptionMgr* gomgr = GlobalOptionMgr::getInstance();
   if(gomgr->GlobalOptions()["rotateAroundLocal"] == 0) {
     //-------------------- Rotate rotation matrix
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, (name() + ALIstring(" theRmGlobOriginalOriginal before displaced ")).c_str() );
+    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal before displaced ") );
     switch( coor ) {
     case 0:
       theRmGlobOriginalOriginal.rotateX( disp );
@@ -1488,7 +1488,7 @@ void OpticalObject::displaceRmGlobOriginalOriginal(const  OpticalObject* opto1st
       if(ALIUtils::debug>=98)ALIUtils::dump3v( centreGlobOriginalOriginal(), "         centre_globOriginalOriginal()" );
     }
 
-    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, (name() + ALIstring(" theRmGlobOriginalOriginal displaced ")).c_str() );
+    if( ALIUtils::debug >= 5 ) ALIUtils::dumprm(theRmGlobOriginalOriginal, name() + ALIstring(" theRmGlobOriginalOriginal displaced ") );
 
     //----------- Displace every OptO component
     std::vector<OpticalObject*> vopto;

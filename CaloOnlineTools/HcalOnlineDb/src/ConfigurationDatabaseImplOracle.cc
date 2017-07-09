@@ -101,7 +101,7 @@ void ConfigurationDatabaseImplOracle::getLUTChecksums(const std::string& tag,
         //query+=toolbox::toString(" WHERE TAG_NAME='%s' CRATE=-1", tag.c_str());
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
         while (rs->next()) {
                 oracle::occi::Clob clob = rs->getClob (1);
@@ -171,7 +171,7 @@ void ConfigurationDatabaseImplOracle::getLUTs_real(const std::string& tag, int c
 	query+=toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE=%d", tag.c_str(), crate);
 
 	//SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
   	LUTs.clear();
 
@@ -252,7 +252,7 @@ void ConfigurationDatabaseImplOracle::getPatterns_real(const std::string& tag, i
         query+=toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE=%d", tag.c_str(), crate);
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
         patterns.clear();
 
@@ -364,7 +364,7 @@ void ConfigurationDatabaseImplOracle::getRBXdata(const std::string& tag, const s
 
    try {
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
         while (rs->next()) {
 
                 if (dtype==ConfigurationDatabase::eRBXledData) {
@@ -420,7 +420,7 @@ void ConfigurationDatabaseImplOracle::getZSThresholds(const std::string& tag, in
         query+=toolbox::toString(" AND LHWM_VERSION='%s'", lhwm_version.c_str());
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
 
         thresholds.clear();
 
@@ -475,7 +475,7 @@ void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, i
         query += toolbox::toString(" WHERE TAG_NAME='%s' AND CRATE_NUMBER=%d ", tag.c_str(), crate);
 
         //SELECT
-        ResultSet *rs = stmt->executeQuery(query.c_str());
+        ResultSet *rs = stmt->executeQuery(query);
         masks.clear();
         while (rs->next()) {
                 int islot = rs->getInt(1);

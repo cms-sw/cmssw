@@ -236,7 +236,7 @@ bool AlCaIsoTracksFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSet
 	for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
 	  int hlt    = triggerResults->accept(iHLT);
 	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	    if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
+	    if (triggerNames_[iHLT].find(trigNames_[i])!=std::string::npos) {
 	      if (hlt > 0) triggerSatisfied = true;
 	      LogDebug("HcalIsoTrack") << triggerNames_[iHLT] 
 				       << " has got HLT flag " << hlt 

@@ -50,20 +50,20 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
         dirName+="_TkAsso";
       }
       std::replace(dirName.begin(), dirName.end(), ':', '_');
-      ibooker.setCurrentFolder(dirName.c_str());
+      ibooker.setCurrentFolder(dirName);
 
       setUpVectors();
 
       ibooker.goUp();
       string subDirName = dirName + "/simulation";
-      ibooker.setCurrentFolder(subDirName.c_str());
+      ibooker.setCurrentFolder(subDirName);
       h_ptSIM.push_back( ibooker.book1D("ptSIM", "generated p_{t}", 5500, 0, 110 ) );
       h_etaSIM.push_back( ibooker.book1D("etaSIM", "generated pseudorapidity", 500, -2.5, 2.5 ) );
       h_tracksSIM.push_back( ibooker.book1D("tracksSIM","number of simulated tracks",200,-0.5,99.5) );
       h_vertposSIM.push_back( ibooker.book1D("vertposSIM","Transverse position of sim vertices",100,0.,120.) );
       
       ibooker.cd();
-      ibooker.setCurrentFolder(dirName.c_str());
+      ibooker.setCurrentFolder(dirName);
       h_tracks.push_back( ibooker.book1D("tracks","number of reconstructed tracks",200,-0.5,19.5) );
       h_fakes.push_back( ibooker.book1D("fakes","number of fake reco tracks",20,-0.5,19.5) );
       h_charge.push_back( ibooker.book1D("charge","charge",3,-1.5,1.5) );

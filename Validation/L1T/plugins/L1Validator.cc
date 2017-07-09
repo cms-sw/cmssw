@@ -70,7 +70,7 @@ L1Validator::~L1Validator(){
 }
 
 void L1Validator::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &, edm::EventSetup const &) {
-  iBooker.setCurrentFolder(_dirName.c_str());
+  iBooker.setCurrentFolder(_dirName);
   _Hists.Book(iBooker);
 };
 

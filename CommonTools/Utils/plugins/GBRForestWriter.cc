@@ -60,7 +60,7 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	  dummyVariables.push_back(0.);
 	  mvaReader->AddSpectator(spectatorVariable->data(), &dummyVariables.back());
 	}
-	reco::details::loadTMVAWeights(mvaReader, (*category)->methodName_.data(), (*category)->inputFileName_.data());
+	reco::details::loadTMVAWeights(mvaReader, (*category)->methodName_, (*category)->inputFileName_);
 	TMVA::MethodBDT* bdt = dynamic_cast<TMVA::MethodBDT*>(mvaReader->FindMVA((*category)->methodName_.data()));
 	if ( !bdt )
 	  throw cms::Exception("GBRForestWriter") 
