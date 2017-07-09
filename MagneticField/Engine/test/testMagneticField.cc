@@ -70,7 +70,7 @@ class testMagneticField : public edm::EDAnalyzer {
     //    half length of test cylinder
     OuterRadius = pset.getUntrackedParameter<double>("OuterRadius",900);
     //    half length of test cylinder
-    HalfLength = pset.getUntrackedParameter<double>("HalfLength",1600);
+    HalfLength = pset.getUntrackedParameter<double>("HalfLength",2400);
     
   }
 
