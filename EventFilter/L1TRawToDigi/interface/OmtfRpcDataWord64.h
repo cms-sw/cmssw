@@ -18,6 +18,7 @@ public:
   unsigned int bxNum() const { return bxNum_; }
   unsigned int type() const { return type_;}
   friend class OmtfPacker;
+  friend class RpcPacker;
   friend std::ostream & operator<< (std::ostream &out, const RpcDataWord64 &o);
 
 private:

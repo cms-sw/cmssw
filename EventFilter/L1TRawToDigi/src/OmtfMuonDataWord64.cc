@@ -4,7 +4,7 @@
 
 namespace Omtf {
   std::ostream & operator<< (std::ostream &out, const MuonDataWord64 &o) {
-    out << "OmtfDataWord64: "
+    out << "MuonDataWord64: "
         <<" type: "<< DataWord64::type(o.type())
         << " bx: "<<o.bxNum()
         << " pT: "<<o.pT()

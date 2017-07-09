@@ -1,5 +1,6 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/FEDRawData"/>
+<use name="EventFilter/RPCRawToDigi"/>
 <export>
   <lib name="1"/>
 </export>

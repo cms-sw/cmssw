@@ -1,6 +1,10 @@
 #ifndef EventFilter_L1TRawToDigi_Omtf_EleIndex_H
 #define EventFilter_L1TRawToDigi_Omtf_EleIndex_H
 
+#include <cstdint>
+#include <string>
+#include <ostream>
+
 namespace Omtf {
 class EleIndex {
 public:
