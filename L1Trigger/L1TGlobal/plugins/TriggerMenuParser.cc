@@ -367,8 +367,8 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	  } else if(condition.getType() == esConditionType::Externals      )
 	  {
              parseExternal(condition,chipNr);
-	     	    
-          }      
+
+          }
           else if(condition.getType() == esConditionType::SingleEgammaOvRm  ||
 		  condition.getType() == esConditionType::DoubleEgammaOvRm  ||
 		  condition.getType() == esConditionType::TripleEgammaOvRm  ||
@@ -397,7 +397,7 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 	        << "QuadJetOvRm" << std::endl
                 << "The above conditions types OvRm are not implemented yet in the parser. Please remove alogrithms that use this type of condtion from L1T Menu!" << std::endl;
 
-          } 
+          }
           //parse CorrelationWithOverlapRemoval
           else if(condition.getType() == esConditionType::CaloCaloCorrelationOvRm  ||
                   condition.getType() == esConditionType::InvariantMassOvRm  ||
@@ -782,6 +782,9 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     parsePt_LUTS(scaleMap, "Mass" ,"MU",  precisions["PRECISION-EG-MU-MassPt"] );
     parsePt_LUTS(scaleMap, "Mass" ,"JET", precisions["PRECISION-EG-JET-MassPt"] );
     parsePt_LUTS(scaleMap, "Mass" ,"TAU", precisions["PRECISION-EG-TAU-MassPt"] );
+    parsePt_LUTS(scaleMap, "Mass" ,"ETM", precisions["PRECISION-EG-ETM-MassPt"] );
+    parsePt_LUTS(scaleMap, "Mass" ,"ETMHF", precisions["PRECISION-EG-ETMHF-MassPt"] );
+    parsePt_LUTS(scaleMap, "Mass" ,"HTM", precisions["PRECISION-EG-HTM-MassPt"] );
 
     // Now the Pt LUTs  for TBPT calculation (??? CCLA following what was done for MASS pt LUTs for now ??)
     // ---------------
@@ -789,6 +792,9 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
     parsePt_LUTS(scaleMap,"TwoBody" ,"MU",  precisions["PRECISION-EG-MU-TwoBodyPt"] );
     parsePt_LUTS(scaleMap,"TwoBody" ,"JET", precisions["PRECISION-EG-JET-TwoBodyPt"] );
     parsePt_LUTS(scaleMap,"TwoBody" ,"TAU", precisions["PRECISION-EG-TAU-TwoBodyPt"] );
+    parsePt_LUTS(scaleMap,"TwoBody" ,"ETM", precisions["PRECISION-EG-ETM-TwoBodyPt"] );
+    parsePt_LUTS(scaleMap,"TwoBody" ,"ETMHF", precisions["PRECISION-EG-ETMHF-TwoBodyPt"] );
+    parsePt_LUTS(scaleMap,"TwoBody" ,"HTM", precisions["PRECISION-EG-HTM-TwoBodyPt"] );
 
 
 
