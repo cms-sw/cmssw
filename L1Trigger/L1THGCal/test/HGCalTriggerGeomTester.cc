@@ -485,20 +485,20 @@ void HGCalTriggerGeomTester::checkNeighborConsistency(const HGCalTriggerGeometry
         const auto neighbors = triggerGeometry_->getNeighborsFromTriggerCell(triggercell_id);
         for(const auto neighbor : neighbors)
         {
-           const auto neighbors_of_neighbor = triggerGeometry_->getNeighborsFromTriggerCell(neighbor);
-           // check if the original cell is included in the neigbors of neighbor
-           if(neighbors_of_neighbor.find(triggercell_id)==neighbors_of_neighbor.end())
-           {
-              edm::LogProblem("BadNeighbor")<<"Error: \n Trigger cell "<< HGCalDetId(neighbor) << "\n is a neighbor of \n" << HGCalDetId(triggercell_id);
-              edm::LogProblem("BadNeighbor")<<" But the opposite is not true";
-              std::stringstream output;
-              output<<" List of neighbors of neighbor = \n";
-              for(const auto neighbor_of_neighbor : neighbors_of_neighbor)
-              {
-                  output<<"  "<< HGCalDetId(neighbor_of_neighbor)<<"\n";
-              }
-              edm::LogProblem("BadNeighbor")<<output.str();
-           }
+            const auto neighbors_of_neighbor = triggerGeometry_->getNeighborsFromTriggerCell(neighbor);
+            // check if the original cell is included in the neigbors of neighbor
+            if(neighbors_of_neighbor.find(triggercell_id)==neighbors_of_neighbor.end())
+            {
+                edm::LogProblem("BadNeighbor")<<"Error: \n Trigger cell "<< HGCalDetId(neighbor) << "\n is a neighbor of \n" << HGCalDetId(triggercell_id);
+                edm::LogProblem("BadNeighbor")<<" But the opposite is not true";
+                std::stringstream output;
+                output<<" List of neighbors of neighbor = \n";
+                for(const auto neighbor_of_neighbor : neighbors_of_neighbor)
+                {
+                    output<<"  "<< HGCalDetId(neighbor_of_neighbor)<<"\n";
+                }
+                edm::LogProblem("BadNeighbor")<<output.str();
+            }
         }
     }
 }
