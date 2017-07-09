@@ -3,10 +3,14 @@
 
 #include<cstdint>
 #include<iostream>
+#include<vector>
+#include<map>
 
 namespace Omtf {
 
 typedef uint64_t Word64;
+
+typedef std::map< std::pair<unsigned int, unsigned int>, std::vector<Word64> > FedAmcRawsMap;
 
 namespace DataWord64 {
   enum Type { csc=0xC, dt= 0xD, rpc=0xE, omtf=0xF };

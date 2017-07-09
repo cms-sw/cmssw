@@ -6,9 +6,14 @@
 
 #include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESTransientHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+
 
 #include "DataFormats/FEDRawData/interface/FEDHeader.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
@@ -26,15 +31,26 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfDtDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfRpcDataWord64.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfMuonDataWord64.h"
-#include "EventFilter/L1TRawToDigi/interface/OmtfEleIndex.h"
 
-#include "EventFilter/L1TRawToDigi/interface/OmtfRpcLinkMap.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfEleIndex.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingRpc.h"
+#include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingCsc.h"
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigiCollection.h"
 
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h"
 #include "DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h"
+
+#include "CondFormats/RPCObjects/interface/RPCReadOutMapping.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCRecordFormatter.h"
+#include "EventFilter/RPCRawToDigi/interface/RPCPackingModule.h"
+#include "EventFilter/RPCRawToDigi/interface/DebugDigisPrintout.h"
+#include "CondFormats/RPCObjects/interface/RPCEMap.h"
+#include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
+
+#include "EventFilter/L1TRawToDigi/interface/OmtfRpcPacker.h"
+
 
 
 using namespace Omtf;
@@ -58,22 +74,22 @@ private:
 
   edm::ParameterSet theConfig;
   edm::InputTag dataLabel_;
-  unsigned long eventCounter_;
+  unsigned long theEventCounter;
 
   edm::EDGetTokenT<RPCDigiCollection> rpcToken_;
   edm::EDGetTokenT<CSCCorrelatedLCTDigiCollection> cscToken_;
   edm::EDGetTokenT<L1MuDTChambThContainer> dtThToken_;
   edm::EDGetTokenT<L1MuDTChambPhContainer> dtPhToken_;
 
-  std::map<EleIndex, LinkBoardElectronicIndex> omtf2rpc_;
-  std::map<EleIndex, CSCDetId> omtf2csc_;
+  MapCscDet2EleIndex       theCsc2Omtf;
+  MapLBIndex2EleIndex      thePact2Omtf;
+  const RPCReadOutMapping* thePactCabling;
 
-  const RPCReadOutMapping* theCabling;
-
+  RpcPacker theRpcPacker;
 
 };
 
-OmtfPacker::OmtfPacker(const edm::ParameterSet& pset) : theConfig(pset), eventCounter_(0) {
+OmtfPacker::OmtfPacker(const edm::ParameterSet& pset) : theConfig(pset), theEventCounter(0) {
 
   produces<FEDRawDataCollection>("OmtfPacker");
 
@@ -84,109 +100,41 @@ OmtfPacker::OmtfPacker(const edm::ParameterSet& pset) : theConfig(pset), eventCo
 }
 
 void OmtfPacker::beginRun(const edm::Run &run, const edm::EventSetup& es) {
+
+  //
+  // initialise RPC packer
+  //
+  if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
+    theRpcPacker.init(es, edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
+  } else {
+    theRpcPacker.init(es); 
+  } 
+
+/*
+  //
+  // initialise PACT cabling
+  //
   edm::ESTransientHandle<RPCEMap> readoutMapping;
   es.get<RPCEMapRcd>().get(readoutMapping);
-  const RPCReadOutMapping * cabling= readoutMapping->convert();
-  theCabling = cabling;
-  std::cout << "HERE !!!! " << std::endl;
-  LogDebug("OmtfPacker") <<" Has readout map, VERSION: " << cabling->version() << std::endl;
+  thePactCabling = readoutMapping->convert();
+  LogDebug("OmtfPacker") <<" Has PACT readout map, VERSION: " << thePactCabling->version() << std::endl;
 
+  //
+  // PACT <--> OMTF translation
+  //
   RpcLinkMap omtfLink2Ele;
-
-//  if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
-//    edm::FileInPath fip(theConfig.getParameter<string>("rpcConnectionFile"));
-//    omtfLink2Ele.init(fip.fullPath());
-//  } else {
-    edm::ESHandle<RPCAMCLinkMap> amcMapping;
-    es.get<RPCOMTFLinkMapRcd>().get(amcMapping);
-    omtfLink2Ele.init(amcMapping->getMap());
-//  }
-
-  std::vector<const DccSpec*> dccs = cabling->dccList();
-  for (std::vector<const DccSpec*>::const_iterator it1= dccs.begin(); it1!= dccs.end(); ++it1) {
-    const std::vector<TriggerBoardSpec> & rmbs = (*it1)->triggerBoards();
-    for (std::vector<TriggerBoardSpec>::const_iterator it2 = rmbs.begin(); it2 != rmbs.end(); ++it2) {
-      const  std::vector<LinkConnSpec> & links = it2->linkConns();
-      for (std::vector<LinkConnSpec>::const_iterator it3 = links.begin(); it3 != links.end(); ++it3) {
-        const  std::vector<LinkBoardSpec> & lbs = it3->linkBoards();
-        for (std::vector<LinkBoardSpec>::const_iterator it4=lbs.begin(); it4 != lbs.end(); ++it4) {
-
-          try {
-            std::string lbNameCH = it4->linkBoardName();
-            std::string lbName = lbNameCH.substr(0,lbNameCH.size()-4);
-            const std::vector<EleIndex> & omtfEles = omtfLink2Ele.omtfEleIndex(lbName);
-//          std::cout <<"  isOK ! " <<  it4->linkBoardName() <<" has: " << omtfEles.size() << " first: "<< omtfEles[0] << std::endl;
-            LinkBoardElectronicIndex rpcEle = { (*it1)->id(), it2->dccInputChannelNum(), it3->triggerBoardInputNumber(), it4->linkBoardNumInLink()};
-            for ( const auto & omtfEle : omtfEles ) omtf2rpc_[omtfEle]= rpcEle;
-          }
-          catch(...) { ; } // std::cout << "exception! "<<it4->linkBoardName()<< std::endl; }
-        }
-      }
-    }
-  }
-  LogTrace(" ") << " SIZE OF OMTF to RPC map  is: " << omtf2rpc_.size() << std::endl;
+  if (theConfig.getParameter<bool>("useRpcConnectionFile")) {
+    omtfLink2Ele.init( edm::FileInPath(theConfig.getParameter<std::string>("rpcConnectionFile")).fullPath());
+  } else {
+    omtfLink2Ele.init(es); 
+  } 
+  thePact2Omtf = translatePact2Omtf(omtfLink2Ele,thePactCabling);
+*/
 
   //
   // init CSC Link map
   //
-  omtf2csc_.clear();
-  for (unsigned int fed=1380; fed<=1381; fed++) {
-    //Endcap label. 1=forward (+Z); 2=backward (-Z)
-    unsigned int endcap = (fed==1380) ? 2 : 1;
-    for (unsigned int amc=1;    amc<=6; amc++) {
-      for (unsigned int link=0; link <=34; link++) {
-        unsigned int stat=0;
-        unsigned int ring=0;
-        unsigned int cham=0;
-        switch (link) {
-          case ( 0) : { stat=1; ring=2; cham=3; break;} //  (0,  9, 2, 3 ), --channel_0  OV1A_4 chamber_ME1/2/3  layer_9 input 2, 3
-          case ( 1) : { stat=1; ring=2; cham=4; break;} //  (1,  9, 4, 5 ), --channel_1  OV1A_5 chamber_ME1/2/4  layer_9 input 4, 5
-          case ( 2) : { stat=1; ring=2; cham=5; break;} //  (2,  9, 6, 7 ), --channel_2  OV1A_6 chamber_ME1/2/5  layer_9 input 6, 7
-          case ( 3) : { stat=1; ring=3; cham=3; break;} //  (3,  6, 2, 3 ), --channel_3  OV1A_7 chamber_ME1/3/3  layer_6 input 2, 3
-          case ( 4) : { stat=1; ring=3; cham=4; break;} //  (4,  6, 4, 5 ), --channel_4  OV1A_8 chamber_ME1/3/4  layer_6 input 4, 5
-          case ( 5) : { stat=1; ring=3; cham=5; break;} //  (5,  6, 6, 7 ), --channel_5  OV1A_9 chamber_ME1/3/5  layer_6 input 6, 7
-          case ( 6) : { stat=1; ring=2; cham=6; break;} //  (6,  9, 8, 9 ), --channel_6  OV1B_4 chamber_ME1/2/6  layer_9 input 8, 9
-          case ( 7) : { stat=1; ring=2; cham=7; break;} //  (7,  9, 10,11), --channel_7  OV1B_5 chamber_ME1/2/7  layer_9 input 10,11
-          case ( 8) : { stat=1; ring=2; cham=8; break;} //  (8,  9, 12,13), --channel_8  OV1B_6 chamber_ME1/2/8  layer_9 input 12,13
-          case ( 9) : { stat=1; ring=3; cham=6; break;} //  (9,  6, 8, 9 ), --channel_9  OV1B_7 chamber_ME1/3/6  layer_6 input 8, 9
-          case (10) : { stat=1; ring=3; cham=7; break;} //  (10, 6, 10,11), --channel_10 OV1B_8 chamber_ME1/3/7  layer_6 input 10,11
-          case (11) : { stat=1; ring=3; cham=8; break;} //  (11, 6, 12,13), --channel_11 OV1B_9 chamber_ME1/3/8  layer_6 input 12,13
-          case (12) : { stat=2; ring=2; cham=3; break;} //  (12, 7, 2, 3 ), --channel_0  OV2_4  chamber_ME2/2/3  layer_7 input 2, 3
-          case (13) : { stat=2; ring=2; cham=4; break;} //  (13, 7, 4, 5 ), --channel_1  OV2_5  chamber_ME2/2/4  layer_7 input 4, 5
-          case (14) : { stat=2; ring=2; cham=5; break;} //  (14, 7, 6, 7 ), --channel_2  OV2_6  chamber_ME2/2/5  layer_7 input 6, 7
-          case (15) : { stat=2; ring=2; cham=6; break;} //  (15, 7, 8, 9 ), --channel_3  OV2_7  chamber_ME2/2/6  layer_7 input 8, 9
-          case (16) : { stat=2; ring=2; cham=7; break;} //  (16, 7, 10,11), --channel_4  OV2_8  chamber_ME2/2/7  layer_7 input 10,11
-          case (17) : { stat=2; ring=2; cham=8; break;} //  (17, 7, 12,13), --channel_5  OV2_9  chamber_ME2/2/8  layer_7 input 12,13
-          case (18) : { stat=3; ring=2; cham=3; break;} //  (18, 8, 2, 3 ), --channel_6  OV3_4  chamber_ME3/2/3  layer_8 input 2, 3
-          case (19) : { stat=3; ring=2; cham=4; break;} //  (19, 8, 4, 5 ), --channel_7  OV3_5  chamber_ME3/2/4  layer_8 input 4, 5
-          case (20) : { stat=3; ring=2; cham=5; break;} //  (20, 8, 6, 7 ), --channel_8  OV3_6  chamber_ME3/2/5  layer_8 input 6, 7
-          case (21) : { stat=3; ring=2; cham=6; break;} //  (21, 8, 8, 9 ), --channel_9  OV3_7  chamber_ME3/2/6  layer_8 input 8, 9
-          case (22) : { stat=3; ring=2; cham=7; break;} //  (22, 8, 10,11), --channel_10 OV3_8  chamber_ME3/2/7  layer_8 input 10,11
-          case (23) : { stat=3; ring=2; cham=8; break;} //  (23, 8, 12,13), --channel_11 OV3_9  chamber_ME3/2/8  layer_8 input 12,13
-          case (24) : { stat=4; ring=2; cham=3; break;} //--(24,  ,      ), --channel_3  OV4_4  chamber_ME4/2/3  layer   input
-          case (25) : { stat=4; ring=2; cham=4; break;} //--(25,  ,      ), --channel_4  OV4_5  chamber_ME4/2/4  layer   input
-          case (26) : { stat=4; ring=2; cham=5; break;} //--(26,  ,      ), --channel_5  OV4_6  chamber_ME4/2/5  layer   input
-          case (27) : { stat=4; ring=2; cham=6; break;} //--(27,  ,      ), --channel_7  OV4_7  chamber_ME4/2/6  layer   input
-          case (28) : { stat=4; ring=2; cham=7; break;} //--(28,  ,      ), --channel_8  OV4_8  chamber_ME4/2/7  layer   input
-          case (29) : { stat=4; ring=2; cham=8; break;} //--(29,  ,      ), --channel_9  OV4_9  chamber_ME4/2/8  layer   input
-          case (30) : { stat=1; ring=2; cham=2; break;} //  (30, 9, 0, 1 ), --channel_0  OV1B_6 chamber_ME1/2/2  layer_9 input 0, 1
-          case (31) : { stat=1; ring=3; cham=2; break;} //  (31, 6, 0, 1 ), --channel_1  OV1B_9 chamber_ME1/3/2  layer_6 input 0, 1
-          case (32) : { stat=2; ring=2; cham=2; break;} //  (32, 7, 0, 1 ), --channel_2  OV2_9  chamber_ME2/2/2  layer_7 input 0, 1
-          case (33) : { stat=3; ring=2; cham=2; break;} //  (33, 8, 0, 1 ), --channel_3  ON3_9  chamber_ME3/2/2  layer_8 input 0, 1
-          case (34) : { stat=4; ring=2; cham=2; break;} //--(34,  ,      ), --channel_4  ON4_9  chamber_ME4/2/2  layer   input
-          default   : { stat=0; ring=0; cham=0; break;}
-        }
-        if (ring !=0) {
-          int chamber = cham+(amc-1)*6;
-          if (chamber > 36) chamber -= 36;
-          CSCDetId cscDetId(endcap, stat, ring, chamber);
-//          std::cout <<" INIT CSC DET ID: "<< cscDetId << std::endl;
-         EleIndex omtfEle(fed, amc, link);
-          omtf2csc_[omtfEle]=cscDetId;
-        }
-      }
-    }
-  }
+  theCsc2Omtf = mapCscDet2EleIndex();
 }
 
 
@@ -196,16 +144,16 @@ void OmtfPacker::fillDescriptions(edm::ConfigurationDescriptions& descriptions) 
   desc.add<edm::InputTag>("cscInputLabel",edm::InputTag(""));
   desc.add<edm::InputTag>("dtPhInputLabel",edm::InputTag(""));
   desc.add<edm::InputTag>("dtThInputLabel",edm::InputTag(""));
-  desc.add<bool>("useRpcConnectionFile",bool(false));
-  desc.add<std::string>("rpcConnectionFile",std::string("EventFilter/L1TRawToDigi/data/OmtfRpcLinksMap.txt"));
+  desc.add<bool>("useRpcConnectionFile",false);
+  desc.add<std::string>("rpcConnectionFile","");
   descriptions.add("omtfPacker",desc);
 }
 
 void OmtfPacker::produce(edm::Event& ev, const edm::EventSetup& es)
 {
   bool debug = edm::MessageDrop::instance()->debugEnabled;
-  eventCounter_++;
-  if (debug) LogDebug ("OmtfPacker::produce") <<"Beginning To Pack Event: "<<eventCounter_;
+  theEventCounter++;
+  if (debug) LogDebug ("OmtfPacker::produce") <<"Beginning To Pack Event: "<<theEventCounter;
 
   std::map< std::pair<unsigned int, unsigned int>, std::vector<Word64> > raws;
   std::list<unsigned int> amcIds = { 1, 3, 5, 7, 9, 11};
@@ -323,14 +271,8 @@ void OmtfPacker::produce(edm::Event& ev, const edm::EventSetup& es)
   ev.getByToken(cscToken_,digiCollectionCSC);
   const CSCCorrelatedLCTDigiCollection & cscDigis = *digiCollectionCSC.product();
   for (const auto & chDigis : cscDigis) {
-    auto rawId = chDigis.first;
-    CSCDetId cscDetId(rawId);
-    unsigned int fed = (cscDetId.zendcap()==-1)? 1380: 1381;
- //   std::cout <<"--------------"<< std::endl;
- //   std::cout <<"CSC DET ID: "<< cscDetId << std::endl;
-    unsigned int amc = 0;
+    CSCDetId chamberId = CSCDetId(chDigis.first).chamberId();
     for (auto digi = chDigis.second.first; digi != chDigis.second.second; digi++) {
- //     std::cout << *digi << std::endl;
       CscDataWord64 data;
       data.hitNum_ = digi->getTrknmb();
       data.vp_ = digi->isValid();
@@ -340,13 +282,16 @@ void OmtfPacker::produce(edm::Event& ev, const edm::EventSetup& es)
       data.keyWG_ = digi->getKeyWG();
       data.lr_ = digi->getBend();
       data.quality_ = digi->getQuality();
-      for (const auto & im : omtf2csc_) {
-        if (im.second == rawId) {
-  //        LogTrace("")<<" FOUND ELE INDEX " << im.first;
-          data.station_ = cscDetId.station()-1;
-          data.linkNum_ = im.first.link();
-          data.cscID_ = cscDetId.chamber()-(im.first.amc()-1)*6;
-          amc =  im.first.amc()*2-1;
+      auto im = theCsc2Omtf.find(chamberId);
+      if (im != theCsc2Omtf.end()) {
+        std::vector<EleIndex> links = {im->second.first, im->second.second};
+        for (const auto & link : links) {
+          unsigned int fed = link.fed();
+          if (fed == 0) continue; 
+          data.station_ = chamberId.station()-1;
+          data.linkNum_ = link.link();
+          data.cscID_ = chamberId.chamber()-(link.amc()-1)*6;
+          unsigned int amc =  link.amc()*2-1;
           raws[std::make_pair(fed,amc)].push_back(data.rawData);
           LogTrace("") <<"ADDED RAW: fed: "<< fed <<" amc: "<<amc <<" CSC DATA: " << data<< std::endl;
         }
@@ -356,33 +301,33 @@ void OmtfPacker::produce(edm::Event& ev, const edm::EventSetup& es)
 
   //
   // rpc raws
-  //
+  // 
+  edm::Handle< RPCDigiCollection > digiCollectionRPC;
+  ev.getByToken(rpcToken_,digiCollectionRPC);
+  theRpcPacker.pack( digiCollectionRPC.product(), raws);
+/*
   edm::Handle< RPCDigiCollection > digiCollectionRPC;
   ev.getByToken(rpcToken_,digiCollectionRPC);
   LogTrace("")<<" HERE HERE !!! RPC PACKER" << rpcrawtodigi::DebugDigisPrintout()(digiCollectionRPC.product());
   for (int dcc=790; dcc <= 792; dcc++) {
-    RPCRecordFormatter formatter(dcc, theCabling);
+    RPCRecordFormatter formatter(dcc, thePactCabling);
     std::vector<rpcrawtodigi::EventRecords> merged = RPCPackingModule::eventRecords(dcc,200, digiCollectionRPC.product(),formatter);
     LogTrace("") << " SIZE OF MERGED, for DCC="<<dcc<<" is: "<<merged.size()<<std::endl;
     for (const auto & rpcEvent : merged) {
       RpcDataWord64 data;
-//
       data.bxNum_ =  rpcEvent.dataToTriggerDelay();
       data.frame1_ = rpcEvent.recordCD().data();
       LinkBoardElectronicIndex rpcEle = { dcc, rpcEvent.recordSLD().rmb(),  rpcEvent.recordSLD().tbLinkInputNumber(), rpcEvent.recordCD().lbInLink() };
-      for ( const auto & omtf2rpc : omtf2rpc_) {
-        if (   omtf2rpc.second.dccId                == rpcEle.dccId
-            && omtf2rpc.second.dccInputChannelNum == rpcEle.dccInputChannelNum
-            && omtf2rpc.second.tbLinkInputNum     == rpcEle.tbLinkInputNum) {
-          data.linkNum_ = omtf2rpc.first.link();
-          std::cout << "KUKUK " << std::endl;
-          raws[std::make_pair(omtf2rpc.first.fed(), omtf2rpc.first.amc()*2-1)].push_back(data.rawData);
-        }
+      auto it = thePact2Omtf.find(rpcEle);
+      if (it != thePact2Omtf.end()) {
+        const EleIndex & omtfEle1 = it->second.first; 
+        const EleIndex & omtfEle2 = it->second.second; 
+        if(omtfEle1.fed()) { data.linkNum_ = omtfEle1.link(); raws[std::make_pair(omtfEle1.fed(), omtfEle1.amc()*2-1)].push_back(data.rawData); }
+        if(omtfEle2.fed()) { data.linkNum_ = omtfEle2.link(); raws[std::make_pair(omtfEle2.fed(), omtfEle2.amc()*2-1)].push_back(data.rawData); }
       }
-      if (data.linkNum_==0) LogTrace("")<< " could not find omtfIndex for rpcEle : "<<rpcEle.print();
     }
-
   }
+*/
 
 
   auto bxId  = ev.bunchCrossing();
