@@ -14,7 +14,7 @@ struct AlignableObjectId::entry {
 
 namespace {
 
-  static constexpr AlignableObjectId::entry entries_RunI[] {
+  constexpr AlignableObjectId::entry entries_RunI[] {
     {align::invalid         , "invalid"},
     {align::AlignableDetUnit, "DetUnit"},
     {align::AlignableDet    , "Det"},
@@ -80,7 +80,7 @@ namespace {
     {align::notfound, 0}
   };
 
-  static constexpr AlignableObjectId::entry entries_PhaseI[] {
+  constexpr AlignableObjectId::entry entries_PhaseI[] {
     {align::invalid         , "invalid"},
     {align::AlignableDetUnit, "DetUnit"},
     {align::AlignableDet    , "Det"},
@@ -146,7 +146,7 @@ namespace {
     {align::notfound, 0}
   };
 
-  static constexpr AlignableObjectId::entry entries_PhaseII[] {
+  constexpr AlignableObjectId::entry entries_PhaseII[] {
     {align::invalid         , "invalid"},
     {align::AlignableDetUnit, "DetUnit"},
     {align::AlignableDet    , "Det"},

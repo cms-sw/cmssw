@@ -77,7 +77,7 @@ class ProcNormalize : public TrainProcessor {
 	unsigned int		nCategories;
 };
 
-static ProcNormalize::Registry registry("ProcNormalize");
+ProcNormalize::Registry registry("ProcNormalize");
 
 ProcNormalize::ProcNormalize(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :
@@ -260,7 +260,7 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 	}
 }
 
-static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
+void smoothArray(unsigned int n, double *values, unsigned int nTimes)
 {
 	for(unsigned int iter = 0; iter < nTimes; iter++) {
 		double hold = n > 0 ? values[0] : 0.0;

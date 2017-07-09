@@ -22,7 +22,7 @@ namespace {
 
 	typedef SVector<double, 3> Vector3;
 
-	static inline Vector3 conv(const GlobalVector &vec)
+	inline Vector3 conv(const GlobalVector &vec)
 	{
 		Vector3 result;
 		result[0] = vec.x();

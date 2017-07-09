@@ -104,7 +104,7 @@ class ProcTMVA : public TrainProcessor {
 	std::string			setupOptions;	// training/test tree TMVA setup options
 };
 
-static ProcTMVA::Registry registry("ProcTMVA");
+ProcTMVA::Registry registry("ProcTMVA");
 
 ProcTMVA::ProcTMVA(const char *name, const AtomicId *id,
                    MVATrainer *trainer) :
@@ -215,7 +215,7 @@ bool ProcTMVA::load()
 	return true;
 }
 
-static std::size_t getStreamSize(std::ifstream &in)
+std::size_t getStreamSize(std::ifstream &in)
 {
 	std::ifstream::pos_type begin = in.tellg();
 	in.seekg(0, std::ios::end);

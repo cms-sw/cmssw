@@ -29,7 +29,7 @@ namespace {
     const CaloTowerCollection* oldTowers=nullptr;;
     uint32_t id15=0;
   };
-  thread_local static TLS tls;
+  thread_local TLS tls;
 }
 
 EgammaTowerIsolation::EgammaTowerIsolation (float extRadiusI,

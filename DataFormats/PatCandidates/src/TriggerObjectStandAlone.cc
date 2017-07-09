@@ -393,7 +393,7 @@ namespace {
           }
        };
   typedef tbb::concurrent_unordered_map<edm::ParameterSetID, std::vector<std::string>, key_hash> AllLabelsMap;
-  [[cms::thread_safe]] static AllLabelsMap allLabelsMap;
+  [[cms::thread_safe]] AllLabelsMap allLabelsMap;
 }
 
 std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::ParameterSetID const& psetid, const edm::EventBase &event,const edm::TriggerResults &res) const {

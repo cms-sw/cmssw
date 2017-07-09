@@ -40,7 +40,7 @@ class ProcMultiply : public TrainProcessor {
 	std::vector<Config>			config;
 };
 
-static ProcMultiply::Registry registry("ProcMultiply");
+ProcMultiply::Registry registry("ProcMultiply");
 
 ProcMultiply::ProcMultiply(const char *name, const AtomicId *id,
                            MVATrainer *trainer) :

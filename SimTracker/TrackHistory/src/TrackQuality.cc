@@ -37,7 +37,7 @@
 
 namespace
 {
-static const uint32_t NonMatchedTrackId = (uint32_t)-1;
+const uint32_t NonMatchedTrackId = (uint32_t)-1;
 
 struct MatchedHit
 {
