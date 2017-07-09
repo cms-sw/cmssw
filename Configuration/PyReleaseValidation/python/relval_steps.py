@@ -1514,7 +1514,7 @@ step4Up2015Defaults = {
 
 steps['RERECOPU']=steps['RERECOPU1']
 
-steps['ALCATT']=merge([{'--filein':'file:step3.root'},step4Defaults])
+steps['ALCATT']=merge([{'--filein':'file:step3.root','-s':'ALCA:TkAlMuonIsolated+TkAlMinBias+MuAlCalIsolatedMu+MuAlZMuMu+MuAlOverlaps'},step4Defaults])
 steps['ALCATTUP15']=merge([{'--filein':'file:step3.root'},step4Up2015Defaults])
 steps['ALCAMIN']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},stCond,step4Defaults])
 steps['ALCAMINUP15']=merge([{'-s':'ALCA:TkAlMinBias','--filein':'file:step3.root'},step4Up2015Defaults])
