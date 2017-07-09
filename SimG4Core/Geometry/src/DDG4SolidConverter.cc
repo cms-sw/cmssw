@@ -265,7 +265,7 @@ G4VSolid * DDG4SolidConverter::torus(const DDSolid & solid) {
 #include "G4ReflectedSolid.hh"
 
 namespace {
-  static const HepGeom::ReflectZ3D z_reflection;
+  const HepGeom::ReflectZ3D z_reflection;
 }
 
 G4VSolid * DDG4SolidConverter::reflected(const DDSolid & solid) {

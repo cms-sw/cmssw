@@ -60,7 +60,7 @@ class ProcForeach : public VarProcessor {
 	unsigned int		count;
 };
 
-static ProcForeach::Registry registry("ProcForeach");
+ProcForeach::Registry registry("ProcForeach");
 
 ProcForeach::ProcForeach(const char *name,
                          const Calibration::ProcForeach *calib,

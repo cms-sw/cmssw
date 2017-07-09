@@ -37,7 +37,7 @@ class ProcOptional : public TrainProcessor {
 	std::vector<double>	neutrals;
 };
 
-static ProcOptional::Registry registry("ProcOptional");
+ProcOptional::Registry registry("ProcOptional");
 
 ProcOptional::ProcOptional(const char *name, const AtomicId *id,
                              MVATrainer *trainer) :

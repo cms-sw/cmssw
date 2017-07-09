@@ -38,7 +38,7 @@ class ProcClassed : public VarProcessor {
 	unsigned int	nClasses;
 };
 
-static ProcClassed::Registry registry("ProcClassed");
+ProcClassed::Registry registry("ProcClassed");
 
 ProcClassed::ProcClassed(const char *name,
                          const Calibration::ProcClassed *calib,

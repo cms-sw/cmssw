@@ -34,7 +34,7 @@ class ProcCount : public VarProcessor {
 	virtual void eval(ValueIterator iter, unsigned int n) const override;
 };
 
-static ProcCount::Registry registry("ProcCount");
+ProcCount::Registry registry("ProcCount");
 
 ProcCount::ProcCount(const char *name,
                           const Calibration::ProcCount *calib,

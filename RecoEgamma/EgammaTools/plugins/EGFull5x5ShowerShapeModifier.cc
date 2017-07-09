@@ -9,7 +9,7 @@
 
 namespace {
   const edm::EDGetTokenT<edm::ValueMap<float> > empty_token;
-  const static edm::InputTag empty_tag("");
+  const edm::InputTag empty_tag("");
 }
 
 #include <unordered_map>
