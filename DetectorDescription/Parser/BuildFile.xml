@@ -1,4 +1,3 @@
-<use   name="DetectorDescription/Algorithm"/>
 <use   name="DetectorDescription/Core"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/PluginManager"/>
