@@ -363,7 +363,7 @@ fillNeighborMaps(const es_info& esInfo)
         // Match patterns (X,Y) 
         // where X is a number with less than 4 digis
         // and Y is a number with less than 4 digits
-        std::regex key_regex("\\(\\s*d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
+        std::regex key_regex("\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
         std::vector<std::string> key_tokens {
             std::sregex_token_iterator(line.begin(), line.end(), key_regex), {}
         };
@@ -386,7 +386,7 @@ fillNeighborMaps(const es_info& esInfo)
         // Match patterns (X,Y) 
         // where X is a number with less than 4 digits
         // and Y is a number with less than 4 digits
-        std::regex neighbors_regex("\\(\\s*d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
+        std::regex neighbors_regex("\\(\\s*\\d{1,3}\\s*,\\s*\\d{1,3}\\s*\\)");
         std::vector<std::string> neighbors_tokens {
             std::sregex_token_iterator(line.begin(), line.end(), neighbors_regex), {}
         };
