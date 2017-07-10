@@ -218,14 +218,14 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
 void HTMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
+  pset.add<unsigned>   ( "nbins");
   pset.add<double>( "xmin" );
   pset.add<double>( "xmax" );
 }
 
 void HTMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned>   ( "nbins", 2500);
 }
 
 void HTMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
