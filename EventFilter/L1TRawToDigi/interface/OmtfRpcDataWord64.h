@@ -4,7 +4,7 @@
 #include<iostream>
 #include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
 
-namespace Omtf {
+namespace omtf {
 
 class RpcDataWord64 {
 public:
@@ -36,6 +36,6 @@ private:
   };
 };
 
-}; //namespace Omtf
+} //namespace omtf
 
 #endif

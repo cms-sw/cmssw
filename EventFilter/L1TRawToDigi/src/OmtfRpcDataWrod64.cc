@@ -2,10 +2,10 @@
 
 #include <bitset>
 
-namespace Omtf {
+namespace omtf {
   std::ostream & operator<< (std::ostream &out, const RpcDataWord64 &o) {
     out << "RpcDataWord64: "
-        <<" type: "<< std::bitset<4>(o.type_)
+        <<" type: "<< DataWord64::type(o.type())
         << " bx: "<<o.bxNum_
         << " lnk: "<< o.linkNum_;
     out << std::hex;

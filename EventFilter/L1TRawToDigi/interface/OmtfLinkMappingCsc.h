@@ -8,12 +8,12 @@
 #include "DataFormats/MuonDetId/interface/CSCDetId.h"
 
 
-namespace Omtf {
+namespace omtf {
   typedef std::map<EleIndex, CSCDetId> MapEleIndex2CscDet;
   typedef std::map<uint32_t, std::pair<EleIndex,EleIndex> > MapCscDet2EleIndex; 
 
   MapEleIndex2CscDet mapEleIndex2CscDet();
   MapCscDet2EleIndex mapCscDet2EleIndex();
 
-};
+}
 #endif

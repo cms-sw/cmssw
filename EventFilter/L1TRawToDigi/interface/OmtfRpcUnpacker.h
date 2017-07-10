@@ -8,9 +8,9 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingRpc.h"
 
 namespace edm { class EventSetup; }
-namespace Omtf { class RpcDataWord64; }
+namespace omtf { class RpcDataWord64; }
 
-namespace Omtf {
+namespace omtf {
 
 class RpcUnpacker {
 
@@ -27,6 +27,6 @@ private:
   MapEleIndex2LBIndex      theOmtf2Pact;
   const RPCReadOutMapping* thePactCabling;
 };
-};
+}
 #endif
 

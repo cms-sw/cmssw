@@ -9,7 +9,7 @@
 
 namespace edm { class EventSetup; }
 
-namespace Omtf {
+namespace omtf {
 
 class RpcPacker {
 
@@ -26,5 +26,5 @@ private:
   MapLBIndex2EleIndex      thePact2Omtf;
   const RPCReadOutMapping* thePactCabling;
 };
-};
+}
 #endif

@@ -6,7 +6,7 @@
 #include<vector>
 #include<map>
 
-namespace Omtf {
+namespace omtf {
 
 typedef uint64_t Word64;
 
@@ -20,5 +20,5 @@ namespace DataWord64 {
   std::ostream & operator<< (std::ostream &out, const Type &o);
 };
 
-}; //namespace Omtf
+} //namespace Omtf
 #endif

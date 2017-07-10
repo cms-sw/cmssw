@@ -1,8 +1,8 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfDtDataWord64.h"
 
-namespace Omtf {
+namespace omtf {
   std::ostream & operator<< (std::ostream &out, const DtDataWord64 &o) {
-    out << "DtDataWord64: "
+    out << "DtDataWord64:  "
         <<" type: "<< DataWord64::type(o.type())
         << " bx: "<<o.bxNum()
         << " station: " << o.station()
