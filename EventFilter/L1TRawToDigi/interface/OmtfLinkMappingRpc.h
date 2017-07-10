@@ -13,7 +13,7 @@
 class RPCReadOutMapping;
 namespace edm { class EventSetup; }
 
-namespace Omtf {
+namespace omtf {
 
   class RpcLinkMap;
 
@@ -46,5 +46,5 @@ private:
 
 };
 
-}; // namespace Omtf
+} // namespace omtf
 #endif

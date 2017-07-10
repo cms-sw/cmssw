@@ -2,7 +2,7 @@
 
 #include <bitset>
 
-namespace Omtf {
+namespace omtf {
   std::ostream & operator<< (std::ostream &out, const MuonDataWord64 &o) {
     out << "MuonDataWord64: "
         <<" type: "<< DataWord64::type(o.type())

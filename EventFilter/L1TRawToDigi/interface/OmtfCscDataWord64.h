@@ -4,7 +4,7 @@
 #include<iostream>
 #include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
 
-namespace Omtf {
+namespace omtf {
 
 class CscDataWord64 {
 public:
@@ -25,6 +25,7 @@ public:
   unsigned int valid() const { return vp_; }
 
   friend class OmtfPacker;
+  friend class CscPacker;
   friend std::ostream & operator<< (std::ostream &out, const CscDataWord64 &o);
 
 private:
@@ -59,6 +60,6 @@ private:
   };
 };
 
-}; //namespace Omtf
+} //namespace Omtf
 #endif
 

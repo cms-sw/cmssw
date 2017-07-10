@@ -5,7 +5,7 @@
 #include <string>
 #include <ostream>
 
-namespace Omtf {
+namespace omtf {
 class EleIndex {
 public:
   EleIndex() : packed_(0) {}
@@ -34,6 +34,6 @@ private:
 
 };
 
-}; //namespace Omtf
+} //namespace imtf
 #endif
 

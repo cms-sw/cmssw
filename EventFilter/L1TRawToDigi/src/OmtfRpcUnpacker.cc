@@ -17,7 +17,7 @@
 #include "DataFormats/RPCDigi/interface/RecordSLD.h"
 #include "DataFormats/RPCDigi/interface/RecordCD.h"
 
-namespace Omtf {
+namespace omtf {
 
 void RpcUnpacker::initCabling(const edm::EventSetup & es) {
   edm::ESTransientHandle<RPCEMap> readoutMapping;

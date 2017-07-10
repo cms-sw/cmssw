@@ -4,7 +4,7 @@
 #include <iostream>
 #include "EventFilter/L1TRawToDigi/interface/OmtfDataWord64.h"
 
-namespace Omtf {
+namespace omtf {
 class MuonDataWord64 {
 public:
   MuonDataWord64(Word64 data=0) : rawData(data) {}
@@ -40,6 +40,6 @@ private:
   };
 };
 
-}; //namespace Omtf
+} //namespace omtf
 #endif
 

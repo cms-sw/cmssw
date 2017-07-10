@@ -18,7 +18,7 @@
 #include "CondFormats/DataRecord/interface/RPCOMTFLinkMapRcd.h"
 #include "CondFormats/RPCObjects/interface/RPCAMCLinkMap.h"
 
-namespace Omtf {
+namespace omtf {
 
 bool lessLinkBoardElectronicIndex::operator() (const LinkBoardElectronicIndex & o1, const LinkBoardElectronicIndex & o2) {
   if (o1.dccId < o2.dccId) return true;
@@ -124,4 +124,4 @@ void RpcLinkMap::init(const std::string& fName) {
   }
   inFile.close();
 }
-};
+}

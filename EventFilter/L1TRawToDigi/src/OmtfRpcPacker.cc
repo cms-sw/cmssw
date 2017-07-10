@@ -12,7 +12,7 @@
 #include "CondFormats/DataRecord/interface/RPCEMapRcd.h"
 #include "EventFilter/L1TRawToDigi/interface/OmtfRpcDataWord64.h"
 
-namespace Omtf {
+namespace omtf {
 
 void RpcPacker::initCabling(const edm::EventSetup & es) {
   edm::ESTransientHandle<RPCEMap> readoutMapping;

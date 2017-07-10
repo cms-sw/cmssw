@@ -1,6 +1,6 @@
 #include "EventFilter/L1TRawToDigi/interface/OmtfLinkMappingCsc.h"
 
-namespace Omtf {
+namespace omtf {
 
 MapEleIndex2CscDet mapEleIndex2CscDet() {
 
@@ -82,4 +82,4 @@ MapCscDet2EleIndex mapCscDet2EleIndex() {
   return result;
 }
 
-};
+}
