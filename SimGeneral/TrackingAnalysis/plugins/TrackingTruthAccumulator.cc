@@ -255,6 +255,7 @@ TrackingTruthAccumulator::TrackingTruthAccumulator( const edm::ParameterSet & co
 	{
 		edm::ParameterSet param=config.getParameter<edm::ParameterSet>("select");
 		selector_=TrackingParticleSelector( param.getParameter<double>( "ptMinTP" ),
+				param.getParameter<double>( "ptMaxTP" ),
 				param.getParameter<double>( "minRapidityTP" ),
 				param.getParameter<double>( "maxRapidityTP" ),
 				param.getParameter<double>( "tipTP" ),
