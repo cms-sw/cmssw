@@ -36,16 +36,18 @@ void DtPacker::pack(const L1MuDTChambPhContainer* phCont, const L1MuDTChambThCon
       data.sector_ = 0;
       amc2 = (chDigi.scNum()+11)%12; // in this case data.sector_ should be 2, fixed later
     }
-//    LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT PH DATA: " << data << std::endl;
+    LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT PH DATA: " << data << std::endl;
     raws[std::make_pair(fed,amc)].push_back(data.rawData);
     if (amc2 != 0) {
       data.sector_ = 2;
-//      LogTrace("")<<" fed: "<< fed <<" amc: "<<amc2<<" DT PH DATA: " << data << std::endl;
+      LogTrace("")<<" fed: "<< fed <<" amc: "<<amc2<<" DT PH DATA: " << data << std::endl;
       raws[std::make_pair(fed,amc2)].push_back(data.rawData);
     }
   }
 
-
+  //
+  //
+  //
   for (const auto &  chDigi : *dtthDigisBMTF.getContainer() ) {
     if (abs(chDigi.whNum()) != 2) continue;
     if (chDigi.stNum() ==4) continue;
@@ -68,7 +70,7 @@ void DtPacker::pack(const L1MuDTChambPhContainer* phCont, const L1MuDTChambThCon
     unsigned int eta = 0;
     unsigned int etaQ = 0;
     for (unsigned int ipos=0; ipos <7; ipos++) {
-      if (chDigi.position(ipos) >1 ) std::cout <<"DT TH position to ETA,  PROBLEM !!!!" << std::endl;
+      if (chDigi.position(ipos) >1 ) edm::LogError("OmtfDtPacker")<<"DT TH position to ETA,  PROBLEM !!!!";
       if (chDigi.position(ipos)==1) eta |= (1 <<ipos);
       if (chDigi.quality(ipos)==1) etaQ |= (1 <<ipos);
     }
@@ -77,26 +79,30 @@ void DtPacker::pack(const L1MuDTChambPhContainer* phCont, const L1MuDTChambThCon
     bool foundDigi = false;
     for (auto & raw : raws) {
       if (raw.first.first != fed) continue;
-      if (raw.first.second != amc &&  raw.first.second != amc2) continue;
+      unsigned int amcPh = raw.first.second;
+      if (amc != amcPh &&  amc2 != amcPh) continue;
       auto & words = raw.second;
       for (auto & word : words) {
         if (DataWord64::dt != DataWord64::type(word)) continue;
         DtDataWord64 dataRaw(word);
         if (dataRaw.bxNum_ != data.bxNum_) continue;
         if (dataRaw.st_    != data.st_) continue;
-        foundDigi = true;
-        dataRaw.eta_qbit_ =  data.eta_qbit_;
-        dataRaw.eta_hit_ =  data.eta_hit_;
-        word = dataRaw.rawData;
-//        LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT TH DATA: " << dataRaw << std::endl;
+        if (   ( amcPh == amc && dataRaw.sector_==data.sector_ )
+            || ( amcPh == amc2 && 2==dataRaw.sector_           )  ) {
+          foundDigi = true;
+          dataRaw.eta_qbit_ =  data.eta_qbit_;
+          dataRaw.eta_hit_ =  data.eta_hit_;
+          word = dataRaw.rawData;
+          LogTrace("")<<"AP fed: "<< fed <<" amc: "<<amc<<" DT TH DATA: " << dataRaw << std::endl;
+        }
       }
     }
     if (!foundDigi) {
-//      LogTrace("")<<" fed: "<< fed <<" amc: "<<amc<<" DT TH DATA: " << data<< std::endl;
+      LogTrace("")<<"NFD fed: "<< fed <<" amc:  "<<amc<<" DT TH DATA: " << data<< std::endl;
       raws[std::make_pair(fed,amc)].push_back(data.rawData);
       if (amc2 != 0) {
         data.sector_ = 2;
-//        LogTrace("")<<" fed: "<< fed <<" amc: "<<amc2<<" DT TH DATA: " << data<< std::endl;
+        LogTrace("")<<"NFD fed: "<< fed <<" amc2: "<<amc2<<" DT TH DATA: " << data<< std::endl;
         raws[std::make_pair(fed,amc2)].push_back(data.rawData);
       }
     }
