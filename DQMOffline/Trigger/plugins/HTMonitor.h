@@ -1,5 +1,5 @@
-#ifndef HTMONITOR_H
-#define HTMONITOR_H
+#ifndef DQMOffline_Trigger_HTMonitor_h
+#define DQMOffline_Trigger_HTMonitor_h
 
 #include <string>
 #include <vector>
@@ -52,14 +52,14 @@ public:
 
 
   struct MEHTbinning {
-    int nbins;
+    unsigned nbins;
     double xmin;
     double xmax;
   };
 
   struct HTME {
-    MonitorElement* numerator;
-    MonitorElement* denominator;
+    MonitorElement* numerator = nullptr; 
+    MonitorElement* denominator = nullptr;
   };
 
 
