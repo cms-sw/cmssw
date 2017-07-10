@@ -139,9 +139,9 @@ def setupVIDMuonSelection(process,cutflow,patProducer=None):
 
 #turns on the VID photon ID producer, possibly with extra options
 # for PAT and/or MINIAOD
-from RecoEgamma.PhotonIdentification.egmPhotonIDs_cff import  LoadEgmIdSequence
 def switchOnVIDPhotonIdProducer(process, dataFormat):
     # Set up the ID sequence appropriate for this data format
+    from RecoEgamma.PhotonIdentification.egmPhotonIDs_cff import  LoadEgmIdSequence
     LoadEgmIdSequence(process,dataFormat)
     #*always* reset to an empty configuration
     if( len(process.egmPhotonIDs.physicsObjectIDs) > 0 ):
