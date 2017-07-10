@@ -1285,13 +1285,13 @@ void PrimaryVertexValidation::beginJob()
 
   // initialize the residuals histograms 
 
-  float dxymax_phi = 2000; 
-  float dzmax_phi  = 2000; 
-  float dxymax_eta = 3000; 
-  float dzmax_eta  = 3000;
+  const float dxymax_phi = 2000; 
+  const float dzmax_phi  = 2000; 
+  const float dxymax_eta = 3000; 
+  const float dzmax_eta  = 3000;
 
-  float d3Dmax_phi = hypot(dxymax_phi,dzmax_phi);
-  float d3Dmax_eta = hypot(dxymax_eta,dzmax_eta);
+  const float d3Dmax_phi = hypot(dxymax_phi,dzmax_phi);
+  const float d3Dmax_eta = hypot(dxymax_eta,dzmax_eta);
 
   const int mybins_ = 500;
 

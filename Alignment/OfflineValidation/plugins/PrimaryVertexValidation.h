@@ -596,6 +596,21 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   std::vector<TH1F*> h_norm_dxy_Central_pT_;
   std::vector<TH1F*> h_norm_dz_Central_pT_;   
 
+  // histograms for the plots as function of module ladder and number
+
+  std::vector<TH1F*> h_dxy_modZ_;
+  std::vector<TH1F*> h_dz_modZ_;
+  std::vector<TH1F*> h_norm_dxy_modZ_;
+  std::vector<TH1F*> h_norm_dz_modZ_;
+
+  std::vector<TH1F*> h_dxy_ladderOverlap_;
+  std::vector<TH1F*> h_dxy_ladderNoOverlap_;
+
+  std::vector<TH1F*> h_dxy_ladder_;
+  std::vector<TH1F*> h_dz_ladder_;
+  std::vector<TH1F*> h_norm_dxy_ladder_;
+  std::vector<TH1F*> h_norm_dz_ladder_;   
+
 };
 
 #endif
