@@ -154,24 +154,27 @@ namespace edm {
 
   void
   ConfigurationDescriptions::writeCfis(std::string const& baseType,
-                                       std::string const& pluginName) const {
+                                       std::string const& pluginName,
+                                       std::set<std::string>& usedCfiFileNames) const {
 
     for_all(descriptions_, std::bind(&ConfigurationDescriptions::writeCfiForLabel,
                                        std::placeholders::_1,
                                        std::cref(baseType),
-                                       std::cref(pluginName)));
+                                       std::cref(pluginName),
+                                       std::ref(usedCfiFileNames)));
   }
 
 
   void
   ConfigurationDescriptions::writeCfiForLabel(std::pair<std::string, ParameterSetDescription> const& labelAndDesc,
                                               std::string const& baseType,
-                                              std::string const& pluginName)
+                                              std::string const& pluginName,
+                                              std::set<std::string>& usedCfiFileNames)
   {
     if (0 == strcmp(baseType.c_str(),kService) && labelAndDesc.first != pluginName) {
       throw edm::Exception(edm::errors::LogicError,
         "ConfigurationDescriptions::writeCfiForLabel\nFor a service the label and the plugin name must be the same.\n")
-        << "This error probably is caused by an incorrect label being passed\nto the ConfigurationDescriptions::add function earlier.\n"
+        << "This error is probably caused by an incorrect label being passed\nto the ConfigurationDescriptions::add function earlier.\n"
         << "plugin name = \"" << pluginName << "\"  label name = \"" << labelAndDesc.first << "\"\n";
     }
 
@@ -182,8 +185,14 @@ namespace edm {
     else {
       cfi_filename = labelAndDesc.first + "_cfi.py";
     }
+    if (!usedCfiFileNames.insert(cfi_filename).second) {
+      throw edm::Exception(edm::errors::LogicError,
+        "While in function ConfigurationDescriptions::writeCfiForLabel\nTwo cfi files are being generated with the same name in the same directory\n")
+        << "The cfi file name is '" << cfi_filename << "'\n"
+        << "This error is probably caused by duplicate labels being passed to the\nConfigurationDescriptions::add function for one module or two different modules.\n"
+        << "module label = \"" << labelAndDesc.first << "\"\n";
+    }
     std::ofstream outFile(cfi_filename.c_str());
-
 
     outFile << "import FWCore.ParameterSet.Config as cms\n\n";
     outFile << labelAndDesc.first << " = cms." << baseType << "('" << pluginName << "'";
