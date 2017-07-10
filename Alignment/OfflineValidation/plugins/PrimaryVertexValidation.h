@@ -87,6 +87,7 @@ namespace pvparams{
       norm_resz = 14,
       norm_IP3D = 15,
       norm_d3D  = 16,
+      END_OF_TYPES = 17,
     };
     
   enum plotVariable
@@ -96,7 +97,15 @@ namespace pvparams{
       pTCentral = 4,
       ladder = 5,
       modZ   = 6,
+      END_OF_PLOTS = 7,
     };
+
+  struct histodetails
+  {
+    std::map<std::pair<residualType,plotVariable>,float> range;
+    int histobins;
+  };
+
 }
 
 //
@@ -160,6 +169,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   bool storeNtuple_;
   bool lightNtupleSwitch_;   // switch to keep only info for daily validation     
   bool useTracksFromRecoVtx_; 
+  
+  // histogram details
+  pvparams::histodetails theDetails_;
   
   // requirements on the vertex
   double vertexZMax_;
