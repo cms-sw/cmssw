@@ -1,4 +1,5 @@
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalMulticlusteringImpl.h"
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
 #include "DataFormats/Math/interface/deltaR.h"
 
 
@@ -82,3 +83,65 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
     }
     
 }
+
+
+void HGCalMulticlusteringImpl::showerShape3D(const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs){
+
+    Nlayers_=0;
+    EMax_=0; //Maximum energy deposited in a layer
+    SeeTot_=0; //SigmaEtaEta considering all TC in 3DC
+    SeeMax_=0; //Maximum SigmaEtaEta in a layer
+    SppTot_=0; //same but for SigmaPhiPhi
+    SppMax_=0;
+
+    std::vector<int> layer ; // Size : ncl2D
+    std::vector<int> subdetID ;
+    std::vector<float> cl2D_energy ;
+    std::vector<int> nTC ;
+    std::vector<float> tc_energy ; // Size : ncl2D*nTCi
+    std::vector<float> tc_eta ;
+    std::vector<float> tc_phi ;
+
+    for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
+        
+        	layer.emplace_back((*clu)->layer());
+        	subdetID.emplace_back((*clu)->subdetId());
+        	cl2D_energy.emplace_back((*clu)->energy());
+
+		const edm::PtrVector<l1t::HGCalTriggerCell> triggerCells = (*clu)->constituents();
+    		unsigned int ncells = triggerCells.size();
+		nTC.emplace_back(ncells);
+		for(unsigned int itc=0; itc<ncells;itc++){
+
+    			l1t::HGCalTriggerCell thistc = *triggerCells[itc];
+
+        		tc_energy.emplace_back(thistc.energy());
+        		tc_eta.emplace_back(thistc.eta());
+        		tc_phi.emplace_back(thistc.phi());
+
+		}
+    }
+
+    HGCalShowerShape *shape=new HGCalShowerShape();
+    shape->Init3D(layer, subdetID, cl2D_energy, nTC,tc_energy,tc_eta,tc_phi);
+    shape->makeHGCalProfile();
+    Nlayers_=shape->nLayers();
+    SeeTot_=shape->SigmaEtaEta();
+    SppTot_=shape->SigmaPhiPhi();
+    std::vector<float> Energy=shape->EnergyVector();
+    std::vector<float> See=shape->SigmaEtaEtaVector();
+    std::vector<float> Spp=shape->SigmaPhiPhiVector();
+
+
+    for(int ilayer=0;ilayer<Nlayers_;ilayer++){
+    	if(Energy[ilayer]>EMax_) EMax_= Energy[ilayer];
+    	if(See[ilayer]>SeeMax_) SeeMax_= See[ilayer];
+    	if(Spp[ilayer]>SppMax_) SppMax_= Spp[ilayer];
+
+    }
+
+
+}
+
+
+
