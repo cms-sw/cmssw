@@ -116,9 +116,24 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     // provide the vectorized version of the clusterizer, if supported by the build
   } else if(clusteringAlgorithm=="DA_vect") {
     theTrackClusterizer_ = new DAClusterizerInZ_vect(iConfig.getParameter<edm::ParameterSet>("TkClusParameters").getParameter<edm::ParameterSet>("TkDAClusParameters"));
-  }else{
+  } else {
     throw VertexException("PrimaryVertexProducerAlgorithm: unknown clustering algorithm: " + clusteringAlgorithm);  
   }
+
+  theDetails_.histobins = 500;
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::phi)]       = 2000.; 
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::eta)]       = 3000.;
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::pT)]        = 1000.;
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::pTCentral)] = 1000.;
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::ladder)]    = 1000.;
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::modZ)]      = 1000.;
+
+  for (int plot_index = pvparams::phi; plot_index < pvparams::END_OF_PLOTS; plot_index++ ){
+    for (int res_index = pvparams::dx; res_index < pvparams::END_OF_TYPES; res_index++ ){
+      theDetails_.range[std::make_pair(static_cast<pvparams::residualType>(res_index),static_cast<pvparams::plotVariable>(plot_index))] = theDetails_.range[std::make_pair(pvparams::dxy,static_cast<pvparams::plotVariable>(plot_index))];
+    }
+  }
+
 }
    
 // Destructor
@@ -2789,13 +2804,13 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDi
 
   TH1F::SetDefaultSumw2(kTRUE);
   
-  double up   =  1000;
-  double down = -1000.;
+  double up   =  theDetails_.range[std::make_pair(resType,varType)];
+  double down =  up*-1;
   
 
   if(isNormalized){
-    up   =  10.;
-    down = -10.;
+    up   =  up/100.;
+    down = down/100.;
   }
   
   std::vector<TH1F*> h;
@@ -2816,7 +2831,7 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDi
   for(unsigned int i=0; i<theNOfBins;i++){
     TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",s_resType.c_str(),s_varType.c_str(),i),
 				 Form("%s vs %s - bin %i;%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i,t_resType.c_str(),units.c_str()),
-				 500,down,up); 
+				 theDetails_.histobins,down,up); 
     h.push_back(htemp);
   }
   
