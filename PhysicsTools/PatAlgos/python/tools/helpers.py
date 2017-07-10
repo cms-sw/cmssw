@@ -337,7 +337,7 @@ def listDependencyChain(process, module, sources, verbose=False):
         for j,m2 in enumerate(modulelist):
             if j <= i: continue
             if m2 in flatdeps and m1 in flatdeps[m2]:
-                raise RuntimeError, "BAD ORDER %s BEFORE %s" % (m1,m2)
+                raise RuntimeError("BAD ORDER %s BEFORE %s" % (m1,m2))
     modules = [ getattr(process,p) for p in modulelist ]
     #return cms.Sequence(sum(modules[1:],modules[0]))
     task = cms.Task()
