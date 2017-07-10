@@ -440,7 +440,43 @@ egammaStdFiltersToMonitor= cms.VPSet(
         histTitle = cms.string(""),
         tagExtraFilter = cms.string(""),
         ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele20_WPLoose_Gsf"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("25:99999")),),
+        filterName = cms.string("hltEle20WPLoose1GsfTrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ),
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele20_eta2p1_WPLoose_Gsf"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("25:99999")),),
+        filterName = cms.string("hltEle20erWPLoose1GsfTrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_Ele20_WPTight_Gsf"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("25:99999")),),
+        filterName = cms.string("hltEle20WPTightGsfTrackIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_DiEle27_WPTightCaloOnly_L1DoubleEG"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("30:99999")),),
+        filterName = cms.string("hltEle27L1DoubleEGWPTightEcalIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string(""),
+        ), 
+    cms.PSet(
+        folderName = cms.string("HLT/EGTagAndProbeEffs/HLT_DiEle27_WPTightCaloOnly_L1DoubleEG"),
+        rangeCuts = cms.VPSet(etRangeCut.clone(allowedRanges=cms.vstring("30:99999")),),
+        filterName = cms.string("hltDiEle27L1DoubleEGWPTightEcalIsoFilter"),
+        histTitle = cms.string(""),
+        tagExtraFilter = cms.string("hltEle27L1DoubleEGWPTightEcalIsoFilter"),
+        ),
      )
+
   
 egammaPhoFiltersToMonitor= cms.VPSet(
     cms.PSet(
@@ -461,6 +497,7 @@ egammaPhoFiltersToMonitor= cms.VPSet(
         histTitle = cms.string(""),
         tagExtraFilter = cms.string("hltEle28HighEtaSC20TrackIsoFilter"),
         ),
+  
 ) 
 
 egHLTDQMOfflineTnPSource = cms.EDAnalyzer("HLTEleTagAndProbeOfflineSource",
