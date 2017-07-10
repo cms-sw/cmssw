@@ -106,6 +106,7 @@ class HGCalTriggerGeomTester : public edm::EDAnalyzer
         std::shared_ptr<int>   triggerCellNeighbor_layer_ ;
         std::shared_ptr<int>   triggerCellNeighbor_wafer_;
         std::shared_ptr<int>   triggerCellNeighbor_cell_  ;
+        std::shared_ptr<float>   triggerCellNeighbor_distance_  ;
         int   triggerCellCell_N_ ;
         std::shared_ptr<int>   triggerCellCell_id_    ;
         std::shared_ptr<int>   triggerCellCell_zside_ ;
@@ -213,12 +214,14 @@ HGCalTriggerGeomTester::HGCalTriggerGeomTester(const edm::ParameterSet& conf):
     triggerCellNeighbor_layer_ .reset(new int[1],   array_deleter<int>());
     triggerCellNeighbor_wafer_ .reset(new int[1],   array_deleter<int>());
     triggerCellNeighbor_cell_  .reset(new int[1],   array_deleter<int>());
+    triggerCellNeighbor_distance_  .reset(new float[1],   array_deleter<float>());
     treeTriggerCells_->Branch("neighbor_id", triggerCellNeighbor_id_.get(), "neighbor_id[neighbor_n]/I");
     treeTriggerCells_->Branch("neighbor_zside", triggerCellNeighbor_zside_.get()  , "neighbor_zside[neighbor_n]/I");
     treeTriggerCells_->Branch("neighbor_subdet", triggerCellNeighbor_subdet_.get() , "neighbor_subdet[neighbor_n]/I");
     treeTriggerCells_->Branch("neighbor_layer", triggerCellNeighbor_layer_.get()  , "neighbor_layer[neighbor_n]/I");
     treeTriggerCells_->Branch("neighbor_wafer", triggerCellNeighbor_wafer_.get()  , "neighbor_wafer[neighbor_n]/I");
     treeTriggerCells_->Branch("neighbor_cell", triggerCellNeighbor_cell_.get()   , "neighbor_cell[neighbor_n]/I");
+    treeTriggerCells_->Branch("neighbor_distance", triggerCellNeighbor_distance_.get()   , "neighbor_distance[neighbor_n]/F");
     treeTriggerCells_->Branch("c_n"            , &triggerCellCell_N_        , "c_n/I");
     triggerCellCell_id_    .reset(new int[1],   array_deleter<int>());
     triggerCellCell_zside_ .reset(new int[1],   array_deleter<int>());
@@ -632,16 +635,16 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
         for(const auto& c : triggercell_cells.second)
         {
             HGCalDetId cId(c);
-            GlobalPoint position = (cId.subdetId()==ForwardSubdetector::HGCEE ? info.geom_ee->getPosition(cId) :  info.geom_fh->getPosition(cId));
+            GlobalPoint cell_position = (cId.subdetId()==ForwardSubdetector::HGCEE ? info.geom_ee->getPosition(cId) :  info.geom_fh->getPosition(cId));
             triggerCellCell_id_    .get()[ic] = c;
             triggerCellCell_zside_ .get()[ic] = cId.zside();
             triggerCellCell_subdet_.get()[ic] = cId.subdetId();
             triggerCellCell_layer_ .get()[ic] = cId.layer();
             triggerCellCell_wafer_ .get()[ic] = cId.wafer();
             triggerCellCell_cell_  .get()[ic] = cId.cell();
-            triggerCellCell_x_     .get()[ic] = position.x();
-            triggerCellCell_y_     .get()[ic] = position.y();
-            triggerCellCell_z_     .get()[ic] = position.z();
+            triggerCellCell_x_     .get()[ic] = cell_position.x();
+            triggerCellCell_y_     .get()[ic] = cell_position.y();
+            triggerCellCell_z_     .get()[ic] = cell_position.z();
             ic++;
         }
         // Get neighbors
@@ -653,6 +656,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
             size_t in = 0;
             for(const auto neighbor : neighbors)
             {
+                GlobalPoint neighbor_position = triggerGeometry_->getTriggerCellPosition(neighbor);
                 HGCalDetId nId(neighbor);
                 triggerCellNeighbor_id_.get()[in] = neighbor;
                 triggerCellNeighbor_zside_ .get()[in] = nId.zside();
@@ -660,6 +664,7 @@ void HGCalTriggerGeomTester::fillTriggerGeometry(const HGCalTriggerGeometryBase:
                 triggerCellNeighbor_layer_ .get()[in] = nId.layer();
                 triggerCellNeighbor_wafer_ .get()[in] = nId.wafer();
                 triggerCellNeighbor_cell_  .get()[in] = nId.cell();
+                triggerCellNeighbor_distance_.get()[in] = (neighbor_position - position).mag();
                 in++;
             }
         }
@@ -826,12 +831,14 @@ void HGCalTriggerGeomTester::setTreeTriggerCellNeighborSize(const size_t n)
     triggerCellNeighbor_layer_ .reset(new int[n],   array_deleter<int>());
     triggerCellNeighbor_wafer_ .reset(new int[n],   array_deleter<int>());
     triggerCellNeighbor_cell_  .reset(new int[n],   array_deleter<int>());
+    triggerCellNeighbor_distance_  .reset(new float[n],   array_deleter<float>());
     treeTriggerCells_->GetBranch("neighbor_id")->SetAddress(triggerCellNeighbor_id_.get());
     treeTriggerCells_->GetBranch("neighbor_zside")  ->SetAddress(triggerCellNeighbor_zside_ .get());
     treeTriggerCells_->GetBranch("neighbor_subdet") ->SetAddress(triggerCellNeighbor_subdet_.get());
     treeTriggerCells_->GetBranch("neighbor_layer")  ->SetAddress(triggerCellNeighbor_layer_ .get());
     treeTriggerCells_->GetBranch("neighbor_wafer")  ->SetAddress(triggerCellNeighbor_wafer_ .get());
     treeTriggerCells_->GetBranch("neighbor_cell")   ->SetAddress(triggerCellNeighbor_cell_  .get());
+    treeTriggerCells_->GetBranch("neighbor_distance")   ->SetAddress(triggerCellNeighbor_distance_  .get());
 }
 
 //define this as a plug-in
