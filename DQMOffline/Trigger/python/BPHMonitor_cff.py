@@ -339,12 +339,12 @@ Dimuon20_masscut1.tnp = cms.int32(0)
 Dimuon20_masscut1.Upsilon = cms.int32(1)
 Dimuon20_masscut1.nofset = cms.int32(5)
 Dimuon20_masscut1.seagull = cms.int32(1)
-Dimuon20_masscut1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon20_Upsilon_Barrel_Seagulls_v*")
+Dimuon20_masscut1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon10_Upsilon_Barrel_Seagulls_v*")
 Dimuon20_masscut1.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_DoubleMu4p5er2p0_SQ_OS_Mass_7to18")
 Dimuon20_masscut1.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon0_Upsilon_L1_4p5er2p0_v*")
 Dimuon20_masscut1.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_DoubleMu4p5er2p0_SQ_OS")
 Dimuon20_masscut1.muoSelection_ref = cms.string("pt>5 && abs(eta)<2.0 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
-Dimuon20_masscut1.DMSelection_ref = cms.string("M<18 & M>7 & Pt>21 & abs(Eta)<1.2")
+Dimuon20_masscut1.DMSelection_ref = cms.string("M<18 & M>7 & Pt>11 & abs(Eta)<1.2")
 
 
 
@@ -628,6 +628,33 @@ Dimuon0_addTrackMu_Onia.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("L
 Dimuon0_addTrackMu_Onia.muoSelection_ref = cms.string("pt>32 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
 Dimuon0_addTrackMu_Onia.DMSelection_ref = cms.string("abs(Eta)<2.4")
 
+Dimuon0_addTrackMu_Phi1 = hltBPHmonitoring.clone()
+Dimuon0_addTrackMu_Phi1.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Phi1/')
+Dimuon0_addTrackMu_Phi.tnp = cms.int32(0)
+Dimuon0_addTrackMu_Phi1.minmassJpsiTk= cms.double(0.920)
+Dimuon0_addTrackMu_Phi1.maxmassJpsiTk= cms.double(1.120)
+Dimuon0_addTrackMu_Phi1.nofset = cms.int32(10)
+Dimuon0_addTrackMu_Phi1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu25_TkMu0_Phi_v*")
+Dimuon0_addTrackMu_Phi1.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_SingleMu18")
+Dimuon0_addTrackMu_Phi1.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu20_v*")
+Dimuon0_addTrackMu_Phi1.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_SingleMu18")
+Dimuon0_addTrackMu_Phi1.muoSelection_ref = cms.string("pt>26 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon0_addTrackMu_Phi1.DMSelection_ref = cms.string("abs(Eta)<2.4")
+
+
+
+Dimuon0_addTrackMu_Onia1 = hltBPHmonitoring.clone()
+Dimuon0_addTrackMu_Onia1.FolderName = cms.string('HLT/BPH/DiMu0_L1_addTrackMu_Onia1/')
+Dimuon0_addTrackMu_Onia1.tnp = cms.int32(0)
+Dimuon0_addTrackMu_Onia1.minmassJpsiTk= cms.double(3)
+Dimuon0_addTrackMu_Onia1.maxmassJpsiTk= cms.double(3.2)
+Dimuon0_addTrackMu_Onia1.nofset = cms.int32(10)
+Dimuon0_addTrackMu_Onia1.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu25_TkMu0_Onia_v*")
+Dimuon0_addTrackMu_Onia1.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_SingleMu22 OR L1_SingleMu25")
+Dimuon0_addTrackMu_Onia1.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu27_v*")
+Dimuon0_addTrackMu_Onia1.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_SingleMu22 OR L1_SingleMu25")
+Dimuon0_addTrackMu_Onia1.muoSelection_ref = cms.string("pt>26 && abs(eta)<2.4 &  isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon0_addTrackMu_Onia1.DMSelection_ref = cms.string("abs(Eta)<2.4")
 
 ###
 
@@ -680,6 +707,8 @@ bphHLTmonitoring = cms.Sequence(
     #+ Dimuon0_addTrackTrack_Jpsi
     + Dimuon0_addTrackMu_Onia
     + Dimuon0_addTrackMu_Phi
+    + Dimuon0_addTrackMu_Onia1
+    + Dimuon0_addTrackMu_Phi1
 )
 
 
