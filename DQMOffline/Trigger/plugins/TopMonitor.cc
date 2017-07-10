@@ -642,14 +642,14 @@ void TopMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
   if (bjets.size() < nbjets_ ) return;  
 
   if (nbjets_ > 1){
-      double deltaEta = abs(bjets.begin()->first->eta()-(++bjets.begin())->first->eta());
+      double deltaEta = std::abs(bjets.begin()->first->eta()-(++bjets.begin())->first->eta());
       if (deltaEta > bJetDeltaEtaMax_) return;
   }
 
   if ( (nbjets_>0) && (nmuons_>0)){
       bool foundMuonInsideJet = false;
-      for (auto & bjet : bjets){
-          for (auto & mu : muons){
+      for (const auto & bjet : bjets){
+          for (const auto & mu : muons){
               double dR = deltaR(*bjet.first,mu);
               if (dR < bJetMuDeltaRmax_){
                   foundMuonInsideJet = true;
