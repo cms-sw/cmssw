@@ -1,6 +1,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalClusteringImpl.h"
+#include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
 #include "DataFormats/Common/interface/PtrVector.h"
 #include "DataFormats/Common/interface/OrphanHandle.h"
 
@@ -269,4 +270,33 @@ void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCe
     }
 
 }
+
+
+void HGCalClusteringImpl::showerShape2D( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs){
+
+    sigmaEtaEta_=0;
+    sigmaPhiPhi_=0;
+
+    std::vector<float> tc_energy ; 
+    std::vector<float> tc_eta ;
+    std::vector<float> tc_phi ;
+
+    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc){
+   
+	tc_energy.emplace_back((*tc)->energy());
+	tc_eta.emplace_back((*tc)->eta());
+	tc_phi.emplace_back((*tc)->phi());
+
+    }
+
+    HGCalShowerShape *shape=new HGCalShowerShape();
+    shape->Init2D(tc_energy,tc_eta,tc_phi);
+    shape->make2DshowerShape();
+    sigmaEtaEta_=shape->SigmaEtaEta();
+    sigmaPhiPhi_=shape->SigmaPhiPhi();
+
+
+}
+
+
 
