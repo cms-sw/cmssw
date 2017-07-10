@@ -1,5 +1,5 @@
-#ifndef METMONITOR_H
-#define METMONITOR_H
+#ifndef DQMOffline_Trigger_METMonitor_h
+#define DQMOffline_Trigger_METMonitor_h
 
 #include <string>
 #include <vector>
@@ -51,14 +51,14 @@ class METMonitor : public DQMEDAnalyzer
  public:
 
   struct MEbinning {
-    int nbins;
+    unsigned nbins;
     double xmin;
     double xmax;
   };
   
   struct METME {
-    MonitorElement* numerator;
-    MonitorElement* denominator;
+    MonitorElement* numerator = nullptr;
+    MonitorElement* denominator = nullptr;
   };
   
 

@@ -29,16 +29,6 @@ HTMonitor::HTMonitor( const edm::ParameterSet& iConfig ) :
   , nelectrons_ ( iConfig.getParameter<unsigned>("nelectrons" ) )
   , nmuons_     ( iConfig.getParameter<unsigned>("nmuons" )     )
 {
-
-  htME_variableBinning_.numerator   = nullptr;
-  htME_variableBinning_.denominator = nullptr;
-  htVsLS_.numerator   = nullptr;
-  htVsLS_.denominator = nullptr;
-  deltaphimetj1ME_.numerator   = nullptr;
-  deltaphimetj1ME_.denominator = nullptr;
-  deltaphij1j2ME_.numerator   = nullptr;
-  deltaphij1j2ME_.denominator = nullptr;
-
 }
 
 HTMonitor::~HTMonitor()
@@ -48,7 +38,7 @@ HTMonitor::~HTMonitor()
 HTMonitor::MEHTbinning HTMonitor::getHistoPSet(edm::ParameterSet pset)
 {
   return HTMonitor::MEHTbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned>("nbins"),
       pset.getParameter<double>("xmin"),
       pset.getParameter<double>("xmax"),
       };
@@ -57,9 +47,9 @@ HTMonitor::MEHTbinning HTMonitor::getHistoPSet(edm::ParameterSet pset)
 HTMonitor::MEHTbinning HTMonitor::getHistoLSPSet(edm::ParameterSet pset)
 {
   return HTMonitor::MEHTbinning{
-    pset.getParameter<int32_t>("nbins"),
+    pset.getParameter<unsigned>("nbins"),
       0.,
-      double(pset.getParameter<int32_t>("nbins"))
+      double(pset.getParameter<unsigned>("nbins"))
       };
 }
 
@@ -159,12 +149,10 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   edm::Handle<reco::PFJetCollection> jetHandle; //add a configurable jet collection & jet pt selection
   iEvent.getByToken( jetToken_, jetHandle );
   std::vector<reco::PFJet> jets;
-  jets.clear();
   if ( jetHandle->size() < njets_ ) return;
   for ( auto const & j : *jetHandle ) {
     if ( jetSelection_( j ) ) {
       jets.push_back(j);
-      if ( jetSelection_HT_(j)) ht += j.pt();
     }
   }
   for ( auto const & j : *jetHandle ) {
@@ -181,7 +169,6 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   edm::Handle<reco::GsfElectronCollection> eleHandle;
   iEvent.getByToken( eleToken_, eleHandle );
   std::vector<reco::GsfElectron> electrons;
-  electrons.clear();
   if ( eleHandle->size() < nelectrons_ ) return;
   for ( auto const & e : *eleHandle ) {
     if ( eleSelection_( e ) ) electrons.push_back(e);
@@ -192,12 +179,10 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   iEvent.getByToken(vtxToken_, vtxHandle);
 
   reco::Vertex vtx;
-  math::XYZPoint pv(0, 0, 0);
   for (vector<reco::Vertex>::const_iterator v = vtxHandle->begin(); v != vtxHandle->end(); ++v) {
     bool isFake =  v->isFake() ;
     
     if (!isFake) {
-      pv.SetXYZ(v->x(), v->y(), v->z());
       vtx = *v;
       break;
     }
@@ -207,9 +192,8 @@ void HTMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
   iEvent.getByToken( muoToken_, muoHandle );
   if ( muoHandle->size() < nmuons_ ) return;
   std::vector<reco::Muon> muons;
-  muons.clear();
   for ( auto const & m : *muoHandle ) {
-    if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(pv)) < 0.2 && fabs(m.muonBestTrack()->dz(pv)) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
+    if ( muoSelection_( m ) && m.isGlobalMuon() && m.isPFMuon() && m.globalTrack()->normalizedChi2() < 10. && m.globalTrack()->hitPattern().numberOfValidMuonHits() > 0 && m.numberOfMatchedStations() > 1 && fabs(m.muonBestTrack()->dxy(vtx.position())) < 0.2 && fabs(m.muonBestTrack()->dz(vtx.position())) < 0.5 && m.innerTrack()->hitPattern().numberOfValidPixelHits() > 0 && m.innerTrack()->hitPattern().trackerLayersWithMeasurement() > 5 )  muons.push_back(m);
   }
   if ( muons.size() < nmuons_ ) return;
 
