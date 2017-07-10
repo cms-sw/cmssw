@@ -40,6 +40,7 @@ namespace {
   TrackingParticleSelector makeSelector(const edm::ParameterSet& param) {
     return TrackingParticleSelector(
                     param.getParameter<double>("ptMinTP"),
+                    param.getParameter<double>("ptMaxTP"),
                     param.getParameter<double>("minRapidityTP"),
                     param.getParameter<double>("maxRapidityTP"),
                     param.getParameter<double>("tipTP"),
@@ -91,6 +92,7 @@ void VertexAssociatorByTracksProducer::fillDescriptions(edm::ConfigurationDescri
   descTp.add<double>("minRapidityTP", -2.4);
   descTp.add<int>("minHitTP", 0);
   descTp.add<double>("ptMinTP", 0.9);
+  descTp.add<double>("ptMaxTP", 1e100);
   descTp.add<double>("maxRapidityTP", 2.4);
   descTp.add<double>("tipTP", 3.5);
   desc.add<edm::ParameterSetDescription>("trackingParticleSelector", descTp);

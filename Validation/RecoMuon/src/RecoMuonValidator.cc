@@ -518,6 +518,7 @@ RecoMuonValidator::RecoMuonValidator(const edm::ParameterSet& pset):
 
   ParameterSet tpset = pset.getParameter<ParameterSet>("tpSelector");
   tpSelector_ = TrackingParticleSelector(tpset.getParameter<double>("ptMin"),
+                                         tpset.getParameter<double>("ptMax"),
                                          tpset.getParameter<double>("minRapidity"),
                                          tpset.getParameter<double>("maxRapidity"),
                                          tpset.getParameter<double>("tip"),
