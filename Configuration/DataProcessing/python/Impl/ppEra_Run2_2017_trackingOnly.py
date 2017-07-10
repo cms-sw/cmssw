@@ -17,7 +17,7 @@ from   Configuration.DataProcessing.Impl.pp import pp
 
 class ppEra_Run2_2017_trackingOnly(trackingOnly):
     def __init__(self):
-        pp.__init__(self)
+        trackingOnly.__init__(self)
         # tracking only RECO is sufficient, to run high performance BS at PCL;
         # some dedicated customization are required, though: customisePostEra_Run2_2017_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'

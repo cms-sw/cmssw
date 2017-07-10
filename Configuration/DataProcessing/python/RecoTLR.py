@@ -49,13 +49,13 @@ def customisePostEra_Run2_2017(process):
 
 def customisePostEra_Run2_2017_express_trackingOnly(process):
     customisePostEra_Run2_2017(process)
-    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot
-    customise_HPbeamspot(process)
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
     return process
 
 def customisePostEra_Run2_2017_harvesting_trackingOnly(process):
-    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot
-    customise_HPbeamspot(process)
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
     return process
 
 
