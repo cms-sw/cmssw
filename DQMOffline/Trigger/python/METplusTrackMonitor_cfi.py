@@ -51,7 +51,7 @@ hltMETplusTrackMonitoring.numGenericTriggerEventPSet.andOr          = cms.bool( 
 #hltMETplusTrackMonitoring.numGenericTriggerEventPSet.dbLabel        = cms.string("ExoDQMTrigger") # it does not exist yet, we should consider the possibility of using the DB, but as it is now it will need a label per path !
 hltMETplusTrackMonitoring.numGenericTriggerEventPSet.andOrHlt       = cms.bool(True)# True:=OR; False:=AND
 hltMETplusTrackMonitoring.numGenericTriggerEventPSet.hltInputTag    = cms.InputTag( "TriggerResults::HLT" )
-hltMETplusTrackMonitoring.numGenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_MET105_IsoTrk50_v") # HLT_ZeroBias_v
+hltMETplusTrackMonitoring.numGenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_MET105_IsoTrk50_v*") # HLT_ZeroBias_v
 #hltMETplusTrackMonitoring.numGenericTriggerEventPSet.hltDBKey       = cms.string("EXO_HLT_MET")
 hltMETplusTrackMonitoring.numGenericTriggerEventPSet.errorReplyHlt  = cms.bool( False )
 hltMETplusTrackMonitoring.numGenericTriggerEventPSet.verbosityLevel = cms.uint32(0)
@@ -62,4 +62,5 @@ hltMETplusTrackMonitoring.denGenericTriggerEventPSet.dcsPartitions  = cms.vint32
 hltMETplusTrackMonitoring.denGenericTriggerEventPSet.andOrDcs       = cms.bool( False )
 hltMETplusTrackMonitoring.denGenericTriggerEventPSet.errorReplyDcs  = cms.bool( True )
 hltMETplusTrackMonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
-hltMETplusTrackMonitoring.denGenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_IsoMu27_v", "HLT_IsoTkMu27_v")
+hltMETplusTrackMonitoring.denGenericTriggerEventPSet.hltPaths       = cms.vstring("HLT_IsoMu27_v*", "HLT_IsoTkMu27_v*")
+

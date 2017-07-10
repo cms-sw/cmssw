@@ -16,12 +16,12 @@
 METplusTrackMonitor::METplusTrackMonitor( const edm::ParameterSet& iConfig ) :
   folderName_             ( iConfig.getParameter<std::string>("FolderName") )
   , metToken_             ( consumes<reco::CaloMETCollection>      (iConfig.getParameter<edm::InputTag>("met")            ) )
-  , hltMetToken_          ( consumes<reco::CaloMETCollection>      (iConfig.getParameter<edm::InputTag>("onlineMet")      ) )
-  , hltMetCleanToken_     ( consumes<reco::CaloMETCollection>      (iConfig.getParameter<edm::InputTag>("onlineMetClean") ) )
   , muonToken_            ( consumes<reco::MuonCollection>         (iConfig.getParameter<edm::InputTag>("muons")          ) )
   , jetToken_             ( consumes<reco::PFJetCollection>        (iConfig.getParameter<edm::InputTag>("jets")           ) )
   , vtxToken_             ( consumes<reco::VertexCollection>       (iConfig.getParameter<edm::InputTag>("vertices")       ) )
   , theTrigSummary_       ( consumes<trigger::TriggerEvent>        (iConfig.getParameter<edm::InputTag>("trigSummary")    ) )
+  , hltMetTag_               ( iConfig.getParameter<edm::InputTag>("hltMetFilter")         )
+  , hltMetCleanTag_          ( iConfig.getParameter<edm::InputTag>("hltMetCleanFilter")    )
   , trackLegFilterTag_       ( iConfig.getParameter<edm::InputTag>("trackLegFilter") )
   , met_variable_binning_    ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("metBinning") )
   , muonPt_variable_binning_ ( iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<std::vector<double> >("ptBinning")  )
@@ -33,16 +33,12 @@ METplusTrackMonitor::METplusTrackMonitor( const edm::ParameterSet& iConfig ) :
   , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this))
   , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this))
   , metSelection_         ( iConfig.getParameter<std::string>("metSelection")         )
-  , hltMetSelection_      ( iConfig.getParameter<std::string>("hltMetSelection")      )
-  , hltMetCleanSelection_ ( iConfig.getParameter<std::string>("hltMetCleanSelection") )
   , muonSelection_        ( iConfig.getParameter<std::string>("muonSelection")        )
   , jetSelection_         ( iConfig.getParameter<std::string>("jetSelection")         )
   , vtxSelection_         ( iConfig.getParameter<std::string>("vtxSelection")         )
   , nmuons_          ( iConfig.getParameter<unsigned>("nmuons") )
   , njets_           ( iConfig.getParameter<unsigned>("njets") )
   , leadJetEtaCut_   ( iConfig.getParameter<double>("leadJetEtaCut") )
-  , hltMetCut_       ( iConfig.getParameter<double>("hltMetCut") )
-  , hltMetCleanCut_  ( iConfig.getParameter<double>("hltMetCleanCut") )
 {
 
   metME_variableBinning_.numerator   = nullptr;
@@ -53,8 +49,8 @@ METplusTrackMonitor::METplusTrackMonitor( const edm::ParameterSet& iConfig ) :
   metPhiME_.denominator = nullptr;
   deltaphimetj1ME_.numerator   = nullptr;
   deltaphimetj1ME_.denominator = nullptr;
-  metVsHltMet_.denominator = nullptr;
-  metVsHltMetClean_.denominator = nullptr;
+  metVsHltMet_.numerator = nullptr;      // numerator only, only available from passed filter
+  metVsHltMetClean_.numerator = nullptr; // numerator only, only available from passed filter
 
   muonPtME_variableBinning_.numerator   = nullptr;
   muonPtME_variableBinning_.denominator = nullptr;
@@ -65,78 +61,6 @@ METplusTrackMonitor::METplusTrackMonitor( const edm::ParameterSet& iConfig ) :
   muonEtaVsPhi_.numerator = nullptr;
   muonEtaVsPhi_.denominator = nullptr;
 
-}
-
-METplusTrackMonitor::~METplusTrackMonitor()
-{
-}
-
-METplusTrackMonitor::MEbinning METplusTrackMonitor::getHistoPSet(edm::ParameterSet pset)
-{
-  return METplusTrackMonitor::MEbinning {
-    pset.getParameter<unsigned int>("nbins"),
-    pset.getParameter<double>("xmin"),
-    pset.getParameter<double>("xmax")
-  };
-}
-
-METplusTrackMonitor::MEbinning METplusTrackMonitor::getHistoLSPSet(edm::ParameterSet pset)
-{
-  return METplusTrackMonitor::MEbinning {
-    pset.getParameter<unsigned int>("nbins"),
-    0.0,
-    double(pset.getParameter<unsigned int>("nbins"))
-  };
-}
-
-void METplusTrackMonitor::setMETitle(METplusTrackME& me, std::string titleX, std::string titleY, bool bookNumerator = true)
-{
-  if(bookNumerator) {
-    me.numerator->setAxisTitle(titleX, 1);
-    me.numerator->setAxisTitle(titleY, 2);
-  }
-  me.denominator->setAxisTitle(titleX, 1);
-  me.denominator->setAxisTitle(titleY, 2);
-}
-
-void METplusTrackMonitor::bookME(DQMStore::IBooker &ibooker, METplusTrackME& me, const std::string& histname, const std::string& histtitle, int nbins, double min, double max)
-{
-  me.numerator   = ibooker.book1D(histname + "_numerator",   histtitle + " (numerator)",   nbins, min, max);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, min, max);
-}
-
-void METplusTrackMonitor::bookME(DQMStore::IBooker &ibooker, METplusTrackME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binning)
-{
-  int nbins = binning.size() - 1;
-  std::vector<float> fbinning(binning.begin(), binning.end());
-  float * arr = &fbinning[0];
-  me.numerator   = ibooker.book1D(histname + "_numerator",   histtitle + " (numerator)",   nbins, arr);
-  me.denominator = ibooker.book1D(histname + "_denominator", histtitle + " (denominator)", nbins, arr);
-}
-
-void METplusTrackMonitor::bookME(DQMStore::IBooker &ibooker, METplusTrackME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, double ymin, double ymax)
-{
-  me.numerator   = ibooker.bookProfile(histname + "_numerator",   histtitle + " (numerator)",   nbinsX, xmin, xmax, ymin, ymax);
-  me.denominator = ibooker.bookProfile(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, ymin, ymax);
-}
-
-void METplusTrackMonitor::bookME(DQMStore::IBooker &ibooker, METplusTrackME& me, const std::string& histname, const std::string& histtitle, int nbinsX, double xmin, double xmax, int nbinsY, double ymin, double ymax, bool bookNumerator = true)
-{
-  if(bookNumerator) me.numerator   = ibooker.book2D(histname + "_numerator",   histtitle + " (numerator)",   nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-  me.denominator = ibooker.book2D(histname + "_denominator", histtitle + " (denominator)", nbinsX, xmin, xmax, nbinsY, ymin, ymax);
-}
-
-void METplusTrackMonitor::bookME(DQMStore::IBooker &ibooker, METplusTrackME& me, const std::string& histname, const std::string& histtitle, const std::vector<double>& binningX, const std::vector<double>& binningY)
-{
-  int nbinsX = binningX.size() - 1;
-  std::vector<float> fbinningX(binningX.begin(), binningX.end());
-  float * arrX = &fbinningX[0];
-  int nbinsY = binningY.size() - 1;
-  std::vector<float> fbinningY(binningY.begin(), binningY.end());
-  float * arrY = &fbinningY[0];
-
-  me.numerator   = ibooker.book2D(histname+"_numerator",   histtitle+" (numerator)",   nbinsX, arrX, nbinsY, arrY);
-  me.denominator = ibooker.book2D(histname+"_denominator", histtitle+" (denominator)", nbinsX, arrX, nbinsY, arrY);
 }
 
 void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
@@ -163,18 +87,16 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
    setMETitle(metPhiME_, "CaloMET #phi","events / 0.2 rad");
 
    histname = "deltaphi_metjet1"; histtitle = "dPhi(CaloMET, jet1)";
-   bookME(ibooker, deltaphimetj1ME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-   setMETitle(deltaphimetj1ME_, "#Delta#phi (CaloMET, j1)", "events / 0.2 rad");
+   bookME(ibooker, deltaphimetj1ME_, histname, histtitle, phi_binning_.nbins, 0, phi_binning_.xmax);
+   setMETitle(deltaphimetj1ME_, "#Delta#phi (CaloMET, j1)", "events / 0.1 rad");
 
    histname = "metVsHltMet"; histtitle = "CaloMET vs hltMet";
-   bool bookNumerator = false;
-   bookME(ibooker, metVsHltMet_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, bookNumerator);
-   setMETitle(metVsHltMet_, "hltMet (online) [GeV]", "CaloMET (offline) [GeV]", bookNumerator);
+   bookME(ibooker, metVsHltMet_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax);
+   setMETitle(metVsHltMet_, "hltMet (online) [GeV]", "CaloMET (offline) [GeV]");
 
    histname = "metVsHltMetClean"; histtitle = "CaloMET vs hltMetClean";
-   bookNumerator = false;
-   bookME(ibooker, metVsHltMetClean_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, bookNumerator);
-   setMETitle(metVsHltMetClean_, "hltMetClean (online) [GeV]", "CaloMET (offline) [GeV]", bookNumerator);
+   bookME(ibooker, metVsHltMetClean_, histname, histtitle, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax, met_binning_.nbins, met_binning_.xmin, met_binning_.xmax);
+   setMETitle(metVsHltMetClean_, "hltMetClean (online) [GeV]", "CaloMET (offline) [GeV]");
 
    // Track leg histograms
 
@@ -187,8 +109,8 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
    setMETitle(muonEtaME_, "Muon #eta", "events / 0.2");
 
    histname = "deltaphi_muonmet"; histtitle = "dPhi(Muon, CaloMET)";
-   bookME(ibooker, deltaphimetmuonME_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-   setMETitle(deltaphimetmuonME_, "#Delta#phi (Muon, CaloMET)", "events / 0.2 rad");
+   bookME(ibooker, deltaphimetmuonME_, histname, histtitle, phi_binning_.nbins, 0, phi_binning_.xmax);
+   setMETitle(deltaphimetmuonME_, "#Delta#phi (Muon, CaloMET)", "events / 0.1 rad");
 
    histname = "muonEtaVsPhi"; histtitle = "Muon eta vs phi";
    bookME(ibooker, muonEtaVsPhi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
@@ -248,46 +170,41 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   muons.clear();
   for(auto const & m : *muonHandle) {
     bool passTightID = muon::isTightMuon(m, *pv) &&
-		       m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) == 0 &&
+                       m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::MISSING_INNER_HITS) == 0 &&
                        m.innerTrack()->hitPattern().trackerLayersWithoutMeasurement(reco::HitPattern::TRACK_HITS) == 0;
     if(muonSelection_(m) && passTightID) muons.push_back(m);
   }
   if(muons.size() < nmuons_) return;
 
-  edm::Handle<reco::CaloMETCollection> hltMetHandle;
-  iEvent.getByToken(hltMetToken_, hltMetHandle);
-  if(!hltMetHandle.isValid()) {
-    edm::LogError("METplusTrackMonitor") << "Invalid collection: hltMet" << "\n";
-    return;
-  }
-  reco::CaloMET hltMet = hltMetHandle->front();
-
-  edm::Handle<reco::CaloMETCollection> hltMetCleanHandle;
-  iEvent.getByToken(hltMetCleanToken_, hltMetCleanHandle);
-  if(!hltMetCleanHandle.isValid()) {
-    edm::LogError("METplusTrackMonitor") << "Invalid collection: hltMetClean" << "\n";
-    return;
-  }
-  reco::CaloMET hltMetClean = hltMetCleanHandle->front();
-
   // Filling MET leg histograms (denominator)
   metME_variableBinning_.denominator->Fill(met);
   metPhiME_.denominator->Fill(metPhi);
   deltaphimetj1ME_.denominator->Fill(deltaphi_metjet1);
-  metVsHltMet_.denominator->Fill(hltMet.pt(), met);
-  metVsHltMetClean_.denominator->Fill(hltMetClean.pt(), met);
 
   int ls = iEvent.id().luminosityBlock();
   metVsLS_.denominator->Fill(ls, met);
 
   // Apply the selection for the MET leg numerator
-  if(hltMet.pt() <= hltMetCut_ || hltMetClean.pt() <= hltMetCleanCut_) return;
+  edm::Handle<trigger::TriggerEvent> triggerSummary;
+  iEvent.getByToken(theTrigSummary_, triggerSummary);
+  if(!triggerSummary.isValid()) {
+    edm::LogError("METplusTrackMonitor") << "Invalid collection: TriggerSummary" << "\n";
+    return;
+  }
+
+  trigger::TriggerObject hltMet, hltMetClean;
+  bool passesHltMetFilter = getHLTObj(triggerSummary, hltMetTag_, hltMet);
+  bool passesHltMetCleanFilter = getHLTObj(triggerSummary, hltMetCleanTag_, hltMetClean);
+
+  if(!passesHltMetFilter || !passesHltMetCleanFilter) return;
 
   // Filling MET leg histograms (numerator)
   metME_variableBinning_.numerator->Fill(met);
   metPhiME_.numerator->Fill(metPhi);
   deltaphimetj1ME_.numerator->Fill(deltaphi_metjet1);
   metVsLS_.numerator->Fill(ls, met);
+  metVsHltMet_.numerator->Fill(hltMet.pt(), met);
+  metVsHltMetClean_.numerator->Fill(hltMetClean.pt(), met);
 
   // Filling track leg histograms (denominator)
   double leadMuonPt = muons.size() ? muons[0].pt() : -1.0;
@@ -302,12 +219,6 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   muonEtaVsPhi_.denominator->Fill(leadMuonPhi, leadMuonEta);
 
   // Apply the selection for the track leg numerator
-  edm::Handle<trigger::TriggerEvent> triggerSummary;
-  iEvent.getByToken(theTrigSummary_, triggerSummary);
-  if(!triggerSummary.isValid()) {
-    edm::LogError("METplusTrackMonitor") << "Invalid collection: TriggerSummary" << "\n";
-    return;
-  }
   trigger::TriggerObject isoTrk;
   bool passesTrackLegFilter = getHLTObj(triggerSummary, trackLegFilterTag_, isoTrk);
 
@@ -327,44 +238,28 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
 
 }
 
-void METplusTrackMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<unsigned int>   ("nbins");
-  pset.add<double>         ("xmin");
-  pset.add<double>         ("xmax");
-}
-
-void METplusTrackMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
-{
-  pset.add<unsigned int>("nbins", 2500);
-}
-
 void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 {
   edm::ParameterSetDescription desc;
   desc.add<std::string>  ( "FolderName", "HLT/MET" );
 
-  desc.add<edm::InputTag>( "met",            edm::InputTag("caloMet") );
-  desc.add<edm::InputTag>( "jets",           edm::InputTag("ak4PFJetsCHS") );
-  desc.add<edm::InputTag>( "electrons",      edm::InputTag("gedGsfElectrons") );
-  desc.add<edm::InputTag>( "muons",          edm::InputTag("muons") );
-  desc.add<edm::InputTag>( "vertices",       edm::InputTag("offlinePrimaryVertices") );
-  desc.add<edm::InputTag>( "trigSummary",    edm::InputTag("hltTriggerSummaryAOD") );
-  desc.add<edm::InputTag>( "onlineMet",      edm::InputTag("hltMet", "", "HLT") );
-  desc.add<edm::InputTag>( "onlineMetClean", edm::InputTag("hltMetClean", "", "HLT") );
-  desc.add<edm::InputTag>( "trackLegFilter", edm::InputTag("hltTrk50Filter", "", "HLT") );
+  desc.add<edm::InputTag>( "met",               edm::InputTag("caloMet") );
+  desc.add<edm::InputTag>( "jets",              edm::InputTag("ak4PFJetsCHS") );
+  desc.add<edm::InputTag>( "electrons",         edm::InputTag("gedGsfElectrons") );
+  desc.add<edm::InputTag>( "muons",             edm::InputTag("muons") );
+  desc.add<edm::InputTag>( "vertices",          edm::InputTag("offlinePrimaryVertices") );
+  desc.add<edm::InputTag>( "trigSummary",       edm::InputTag("hltTriggerSummaryAOD") );
+  desc.add<edm::InputTag>( "hltMetFilter",      edm::InputTag("hltMET105", "", "HLT") );
+  desc.add<edm::InputTag>( "hltMetCleanFilter", edm::InputTag("hltMETClean65", "", "HLT") );
+  desc.add<edm::InputTag>( "trackLegFilter",    edm::InputTag("hltTrk50Filter", "", "HLT") );
 
   desc.add<std::string>("metSelection", "pt > 0");
-  desc.add<std::string>("hltMetSelection", "pt > 0");
-  desc.add<std::string>("hltMetCleanSelection", "pt > 0");
   desc.add<std::string>("jetSelection", "pt > 0");
   desc.add<std::string>("muonSelection", "pt > 0");
   desc.add<std::string>("vtxSelection",  "!isFake");
   desc.add<unsigned>("njets",  0);
   desc.add<unsigned>("nmuons", 0);
   desc.add<double>("leadJetEtaCut", 2.4);
-  desc.add<double>("hltMetCut", 105.0);
-  desc.add<double>("hltMetCleanCut", 65.0);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");
@@ -423,7 +318,7 @@ bool METplusTrackMonitor::getHLTObj(const edm::Handle<trigger::TriggerEvent> &tr
 
  if( !(filterIndex >= trigSummary->sizeFilters()) ) {
    const trigger::Keys& keys = trigSummary->filterKeys( filterIndex );
-   for(size_t j = 0; j < keys.size(); ++j) {
+   for(size_t j = 0; j < keys.size(); j++) {
      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
      if(foundObject.pt() > leadingPt) {
        obj = foundObject;
