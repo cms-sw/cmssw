@@ -224,14 +224,14 @@ void METMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
 
 void METMonitor::fillHistoPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins");
+  pset.add<unsigned>   ( "nbins");
   pset.add<double>( "xmin" );
   pset.add<double>( "xmax" );
 }
 
 void METMonitor::fillHistoLSPSetDescription(edm::ParameterSetDescription & pset)
 {
-  pset.add<int>   ( "nbins", 2500);
+  pset.add<unsigned>   ( "nbins", 2500);
 }
 
 void METMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
