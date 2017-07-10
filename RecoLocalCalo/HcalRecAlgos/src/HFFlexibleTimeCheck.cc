@@ -25,12 +25,14 @@ unsigned HFFlexibleTimeCheck::determineAnodeStatus(
         return HFAnodeStatus::OK;
     }
 
-    // Special handling of under/overshoot TDC values
+    // Special handling of under/overshoot TDC values, as well
+    // as of DLL failures
     float trise = anode.timeRising();
     if ((trise == HcalSpecialTimes::UNKNOWN_T_UNDERSHOOT &&
          charge < minChargeForUndershoot()) ||
         (trise == HcalSpecialTimes::UNKNOWN_T_OVERSHOOT &&
-         charge < minChargeForOvershoot()))
+         charge < minChargeForOvershoot()) ||
+        trise == HcalSpecialTimes::UNKNOWN_T_DLL_FAILURE)
     {
         *isTimingReliable = false;
         return HFAnodeStatus::OK;
