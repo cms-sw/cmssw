@@ -42,6 +42,7 @@
 #include <boost/filesystem/path.hpp>
 #include <boost/filesystem/operations.hpp>
 
+#include <set>
 #include <string>
 #include <iostream>
 #include <vector>
@@ -78,7 +79,8 @@ namespace {
   }
 
   void writeCfisForPlugin(std::string const& pluginName,
-                          edm::ParameterSetDescriptionFillerPluginFactory* factory) {
+                          edm::ParameterSetDescriptionFillerPluginFactory* factory,
+                          std::set<std::string>& usedCfiFileNames) {
     std::unique_ptr<edm::ParameterSetDescriptionFillerBase> filler(factory->create(pluginName));
 
     std::string baseType = filler->baseType();
@@ -99,7 +101,7 @@ namespace {
 
     try {
       edm::convertException::wrap([&]() {
-        descriptions.writeCfis(baseType, pluginName);
+        descriptions.writeCfis(baseType, pluginName, usedCfiFileNames);
       });
     }
     catch(cms::Exception& e) {
@@ -280,9 +282,11 @@ try {
                                                          std::cref(factory->category())));
       }
 
+      std::set<std::string> usedCfiFileNames;
       edm::for_all(pluginNames, std::bind(&writeCfisForPlugin,
                                             _1,
-                                            factory));
+                                            factory,
+                                            std::ref(usedCfiFileNames)));
     });
   }
   catch (cms::Exception & iException) {

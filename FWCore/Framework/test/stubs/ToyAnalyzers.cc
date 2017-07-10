@@ -85,7 +85,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
-      descriptions.add("consumeInt", desc);
+      descriptions.addDefault(desc);
 
     }
 
@@ -105,7 +105,7 @@ namespace edmtest {
     static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
       edm::ParameterSetDescription desc;
       desc.addUntracked<edm::InputTag>("getFromModule");
-      descriptions.add("consumeInt", desc);
+      descriptions.addDefault(desc);
       
     }
     
