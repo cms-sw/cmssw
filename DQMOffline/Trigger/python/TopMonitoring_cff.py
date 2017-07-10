@@ -273,6 +273,19 @@ topElecMuonHLTMonitor_Mu23Ele12 = topElecMuonHLTMonitor.clone()
 topElecMuonHLTMonitor_Mu23Ele12.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu23Ele12/')
 topElecMuonHLTMonitor_Mu23Ele12.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_DZ_v*')
 
+#reference paths
+topElecMuonHLTMonitor_Mu12Ele23_ref = topElecMuonHLTMonitor.clone()
+topElecMuonHLTMonitor_Mu12Ele23_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu12Ele23_Ref/')
+topElecMuonHLTMonitor_Mu12Ele23_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu12_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
+
+topElecMuonHLTMonitor_Mu8Ele23_ref = topElecMuonHLTMonitor.clone()
+topElecMuonHLTMonitor_Mu8Ele23_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu8Ele23_Ref/')
+topElecMuonHLTMonitor_Mu8Ele23_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_v*')
+
+topElecMuonHLTMonitor_Mu23Ele12_ref = topElecMuonHLTMonitor.clone()
+topElecMuonHLTMonitor_Mu23Ele12_ref.FolderName = cms.string('HLT/TopHLTOffline/TopMonitor/DiLepton/ElecMuon/Mu23Ele12_Ref/')
+topElecMuonHLTMonitor_Mu23Ele12_ref.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_Mu23_TrkIsoVVL_Ele12_CaloIdL_TrackIdL_IsoVL_v*')
+
 
 # Marina
 
@@ -568,6 +581,9 @@ topMonitorHLT = cms.Sequence(
     + topElecMuonHLTMonitor_Mu12Ele23
     + topElecMuonHLTMonitor_Mu8Ele23
     + topElecMuonHLTMonitor_Mu23Ele12
+    + topElecMuonHLTMonitor_Mu12Ele23_ref
+    + topElecMuonHLTMonitor_Mu8Ele23_ref
+    + topElecMuonHLTMonitor_Mu23Ele12_ref
     + topDiMuonHLTMonitor_Dz_Mu17_Mu8
     + topDiMuonHLTMonitor_Dz_Mu17_TkMu8
     + topDiMuonHLTMonitor_Dz_TkMu17_TkMu8
