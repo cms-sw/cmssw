@@ -39,11 +39,11 @@ def customise(process):
 	# output
     	outputModule = None
     	outdict = process.outputModules_()
-    	if outdict.has_key("AODSIMoutput"):
+    	if "AODSIMoutput" in outdict:
 	    process.AODSIMoutput.outputCommands.extend(cms.untracked.vstring('keep *_CTPPSSimHits_*_*','keep *_CTPPSFastRecHits_*_*'
 ,'keep *_CTPPSFastTracks_*_*'))
 	    process.reconstruction_step.replace(process.reconstruction,process.reconstruction*process.CTPPSFastRecHits*process.CTPPSFastTracks) 	
-    	elif outdict.has_key("FASTPUoutput"):
+    	elif "FASTPUoutput" in outdict:
 	    process.FASTPUoutput.outputCommands.extend(cms.untracked.vstring('keep *_CTPPSSimHits_*_*')) 	
 			
 	
