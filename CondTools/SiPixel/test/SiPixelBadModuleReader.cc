@@ -69,11 +69,9 @@ void SiPixelBadModuleReader::analyze( const edm::Event& e, const edm::EventSetup
   if (printdebug_) {
     std::ofstream debugout("BadModuleDebug.txt");
     debugout<< "Values stored in DB, in human readable form: "<<std::endl;
-    for (size_t id=0;id<disabledModules.size();id++)
+    for (auto badmodule : disabledModules)
       {
-	SiPixelQuality::disabledModuleType badmodule = disabledModules[id];
-
-      //////////////////////////////////////
+	//////////////////////////////////////
       //  errortype "whole" = int 0 in DB //
       //  errortype "tbmA" = int 1 in DB  //
       //  errortype "tbmB" = int 2 in DB  //

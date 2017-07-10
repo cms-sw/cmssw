@@ -264,8 +264,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       LogTrace("TestOutliers") << "now track out with id=" << outtest[0] << " seed ref=" << trackOut->seedRef().get() << " pt=" << trackOut->pt();	
       outused.push_back(outtest[0]);
     } else if (outtest.size()>1) {//if > 1 take the one that shares all the hits with the old track
-      for(unsigned int p=0; p<outtest.size(); ++p) {
-	edm::RefToBase<reco::Track> tmpOut = edm::RefToBase<reco::Track>(tracksOut, outtest[p]);	
+      for(unsigned int p : outtest) {
+	edm::RefToBase<reco::Track> tmpOut = edm::RefToBase<reco::Track>(tracksOut, p);	
 	bool allhits = true;
 	for (trackingRecHit_iterator itOut = tmpOut->recHitsBegin(); itOut!=tmpOut->recHitsEnd(); itOut++) {
 	  if ((*itOut)->isValid()) { 
@@ -283,9 +283,9 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  }
 	}
 	if (allhits) {
-	  trackOut = edm::RefToBase<reco::Track>(tracksOut, outtest[p]);
-	  LogTrace("TestOutliers") << "now track out with id=" << outtest[p] << " seed ref=" << trackOut->seedRef().get() << " pt=" << trackOut->pt();	
-	  outused.push_back(outtest[p]);	  
+	  trackOut = edm::RefToBase<reco::Track>(tracksOut, p);
+	  LogTrace("TestOutliers") << "now track out with id=" << p << " seed ref=" << trackOut->seedRef().get() << " pt=" << trackOut->pt();	
+	  outused.push_back(p);	  
 	}
       }
     } 
@@ -521,15 +521,15 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	  else if (outlier) gainedlostoutliers.push_back(pair<int, trackingRecHit_iterator>(3,itOld));
 	}
 
-	for (std::vector<pair<int, trackingRecHit_iterator> >::iterator it = gainedlostoutliers.begin(); it!=gainedlostoutliers.end();++it) {
-	  LogTrace("TestOutliers") << "type of processed hit:" <<it->first;
-	  trackingRecHit_iterator itHit = it->second;
+	for (auto & gainedlostoutlier : gainedlostoutliers) {
+	  LogTrace("TestOutliers") << "type of processed hit:" <<gainedlostoutlier.first;
+	  trackingRecHit_iterator itHit = gainedlostoutlier.second;
 	  bool gained = false;
 	  bool lost = false;
 	  bool outlier = false;
-	  if (it->first==1) gained = true;
-	  else if (it->first==2) lost = true;
-	  else if (it->first==3) outlier = true;
+	  if (gainedlostoutlier.first==1) gained = true;
+	  else if (gainedlostoutlier.first==2) lost = true;
+	  else if (gainedlostoutlier.first==3) outlier = true;
 
 	  if (outlier||lost||gained) {
 	  //if (1) {
@@ -549,9 +549,9 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    //look if the hit comes from a correct sim track
 	    std::vector<SimHitIdpr> simTrackIds = hitAssociator.associateHitId(**itHit);
 	    bool goodhit = false;
-	    for(size_t j=0; j<simTrackIds.size(); j++){
-	      for (size_t jj=0; jj<tpids.size(); jj++){
-		if (simTrackIds[j].first == tpids[jj]) goodhit = true;
+	    for(auto & simTrackId : simTrackIds){
+	      for (unsigned int tpid : tpids){
+		if (simTrackId.first == tpid) goodhit = true;
 		break;
 	      }
 	    }
@@ -654,8 +654,8 @@ TestOutliers::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	    bool shared = true;
 	    bool ioniOnly = true;
 	    unsigned int idc = 0;
-	    for (size_t jj=0; jj<tpids.size(); jj++){
-	      idc += std::count(trackIds.begin(),trackIds.end(),tpids[jj]);
+	    for (unsigned int tpid : tpids){
+	      idc += std::count(trackIds.begin(),trackIds.end(),tpid);
 	    }
 	    if (idc==trackIds.size()) {
 	      shared = false;

@@ -481,7 +481,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     a_mipR[4] = 9.0;  // = from standard analyzer
 
     std::vector<double> v_eDR;
-    for (int i = 0 ; i < a_size ; i++){
+    for (double i : a_neutIsoR){
       int nRH_eDR = 0;
 
       // Cone in ecal
@@ -489,19 +489,19 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
 				   barrelRecHitsHandle, 
 				   endcapRecHitsHandle, 
 				   hpoint1, point1, 
-				   a_neutIsoR[i],  
+				   i,  
 				   trackMomAtEcal, nRH_eDR);
       v_eDR.push_back(eDR);
       
     }
 
     std::vector<double> v_eMipDR;
-    for (int i = 0 ; i < a_mip_size ; i++){
+    for (double i : a_mipR){
       int nRH_eMipDR = 0;
       double eMipDR = spr::eCone_ecal(geo, barrelRecHitsHandle, 
 				      endcapRecHitsHandle, 
 				      hpoint1, point1, 
-				      a_mipR[i], trackMomAtEcal, nRH_eMipDR);
+				      i, trackMomAtEcal, nRH_eMipDR);
       
       v_eMipDR.push_back(eMipDR);
     }
@@ -524,7 +524,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     std::vector<int>    v_cone_hnLayers_maxNearP;
     std::vector<int>    v_cone_htrkQual_maxNearP;
 
-    for (int i = 0 ; i < a_size ; i++){
+    for (double i : a_charIsoR){
 
       double hmaxNearP         = -999.0;
       int    hnNearTRKs        =  0;
@@ -546,7 +546,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
 					       conehtrkQual_maxNearP, 
 					       conehmaxNearP_goodTrk, 
 					       hpoint1, trackMomAtHcal, 
-					       a_charIsoR[i]); 
+					       i); 
 
       v_hmaxNearP_goodTrk.push_back(hmaxNearP_goodTrk);
       v_hmaxNearP        .push_back(hmaxNearP        );
@@ -663,7 +663,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
     
     
 	
-    for (int i = 0 ; i < a_size ; i++){
+    for (double i : a_coneR){
 
       
       std::map<std::string, double> hsimInfoCone;
@@ -680,25 +680,25 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       std::vector<DetId> coneRecHitDetIds;
       if (doMC) 
 	hsimCone = spr::eCone_hcal(geo, pcalohh, hpoint1, point1, 
-				   a_coneR[i], trackMomAtHcal, nSimHitsCone);
+				   i, trackMomAtHcal, nSimHitsCone);
       
       // If needed, get ieta and iphi of rechits for cones of 23.25
       // and for hitmap for debugging
       bool makeHitmaps = false;
-      if (a_coneR[i] == 26.23 && makeHitmaps)
+      if (i == 26.23 && makeHitmaps)
       {
 	
 	hCone = spr::eCone_hcal(geo, hbhe, hpoint1, point1, 
-				a_coneR[i], trackMomAtHcal,nRecHitsCone,
+				i, trackMomAtHcal,nRecHitsCone,
 				v_RH_r26_ieta, v_RH_r26_iphi,  v_RH_r26_ene, 
 				coneRecHitDetIds, distFromHotCell, 
 				ietaHotCell, iphiHotCell, gposHotCell);
       } 
-      else if (a_coneR[i] == 43.72 && makeHitmaps)
+      else if (i == 43.72 && makeHitmaps)
       {
 	
 	hCone = spr::eCone_hcal(geo, hbhe, hpoint1, point1, 
-				a_coneR[i], trackMomAtHcal,nRecHitsCone,
+				i, trackMomAtHcal,nRecHitsCone,
 				v_RH_r44_ieta, v_RH_r44_iphi,  v_RH_r44_ene, 
 				coneRecHitDetIds, distFromHotCell, 
 				ietaHotCell, iphiHotCell, gposHotCell);
@@ -707,7 +707,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       {
 	
 	hCone = spr::eCone_hcal(geo, hbhe, hpoint1, point1, 
-				a_coneR[i], trackMomAtHcal, nRecHitsCone, 
+				i, trackMomAtHcal, nRecHitsCone, 
 				coneRecHitDetIds, distFromHotCell, 
 				ietaHotCell, iphiHotCell, gposHotCell);
       }
@@ -721,7 +721,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
       
       // SimHits NOT matched to RecHits
       if (doMC) {
-	hsimInfoCone = spr::eHCALSimInfoCone(iEvent,pcalohh, SimTk, SimVtx, pTrack, *associate, geo, hpoint1, point1, a_coneR[i], trackMomAtHcal, multiplicityCone);      
+	hsimInfoCone = spr::eHCALSimInfoCone(iEvent,pcalohh, SimTk, SimVtx, pTrack, *associate, geo, hpoint1, point1, i, trackMomAtHcal, multiplicityCone);      
       
       
 	  

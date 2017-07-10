@@ -110,8 +110,8 @@ AlpgenExtractor::writeHeader(std::vector<LHERunInfoProduct::Header>::const_itera
 {
   std::ofstream outfile;
   outfile.open(filename.c_str());
-  for(LHERunInfoProduct::Header::const_iterator i = header->begin(); i != header->end(); ++i) {
-    outfile << *i;
+  for(const auto & i : *header) {
+    outfile << i;
   }
   outfile.close();
 }

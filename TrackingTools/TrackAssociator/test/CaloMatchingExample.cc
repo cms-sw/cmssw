@@ -217,22 +217,21 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
    LogTrace("TrackAssociator") << "Number of reco tracks found in the event: " << recoTracks->size() ;
    // for(SimTrackContainer::const_iterator tracksCI = simTracks->begin();
    //    tracksCI != simTracks->end(); tracksCI++){
-   for(reco::TrackCollection::const_iterator recoTrack = recoTracks->begin();
-       recoTrack != recoTracks->end(); ++recoTrack){
+   for(const auto & recoTrack : *recoTracks){
        
       // skip low Pt tracks
-      if (recoTrack->pt() < 2) {
-	 LogTrace("TrackAssociator") << "Skipped low Pt track (Pt: " << recoTrack->pt() << ")" ;
+      if (recoTrack.pt() < 2) {
+	 LogTrace("TrackAssociator") << "Skipped low Pt track (Pt: " << recoTrack.pt() << ")" ;
 	 continue;
       }
       
       LogTrace("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << 
-	recoTrack->pt() << " , " << recoTrack->eta() << " , " << recoTrack->phi() ;
+	recoTrack.pt() << " , " << recoTrack.eta() << " , " << recoTrack.phi() ;
       
       // Get track matching info
 
       LogTrace("TrackAssociator") << "===========================================================================\nDetails:\n" ;
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, parameters_);
+      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, recoTrack, parameters_);
       // get some noise info (random direction)
       ROOT::Math::RhoEtaPhiVector randomVector(10,(CLHEP::HepRandom::getTheEngine()->flat()-0.5)*6,(CLHEP::HepRandom::getTheEngine()->flat()-0.5)*2*M_PI);
       TrackDetMatchInfo infoRandom = trackAssociator_.associate(iEvent, iSetup,      
@@ -249,7 +248,7 @@ void CaloMatchingExample::analyze( const edm::Event& iEvent, const edm::EventSet
       DetId centerId;
       DetId centerIdRandom;
       
-      trackPt_[nTracks_] = recoTrack->pt();
+      trackPt_[nTracks_] = recoTrack.pt();
       ecalCrossedEnergy_[nTracks_] = info.crossedEnergy(TrackDetMatchInfo::EcalRecHits);
       centerId                     = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
       ecal3x3Energy_[nTracks_]     = info.nXnEnergy(TrackDetMatchInfo::EcalRecHits, 1);

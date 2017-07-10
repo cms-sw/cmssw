@@ -81,13 +81,12 @@ void MultShiftMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSet
   }
   int ngoodVertices = goodVertices.size();
 
-  for (unsigned i=0;i<counts_.size();i++) counts_[i]=0;
-  for (unsigned i=0;i<sumPt_.size();i++) sumPt_[i]=0.;
+  for (int & count : counts_) count=0;
+  for (double & i : sumPt_) i=0.;
 
   edm::Handle<edm::View<reco::Candidate> > particleFlow;
   evt.getByToken(pflow_, particleFlow);
-  for (unsigned i = 0; i < particleFlow->size(); ++i) {
-    const reco::Candidate& c = particleFlow->at(i);
+  for (const auto & c : *particleFlow) {
     for (unsigned j=0; j<type_.size(); j++) {
 
       if (abs(c.pdgId())== translateTypeToAbsPdgId(reco::PFCandidate::ParticleType(type_[j]))) {

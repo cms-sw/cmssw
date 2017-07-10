@@ -40,13 +40,13 @@ void FWPCaloHitProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pr
 
    TEveBoxSet* boxSet = addBoxSetToProduct(product);
    int index = 0;
-   for (std::vector<PCaloHit>::const_iterator it = collection->begin() ; it != collection->end(); ++it)
+   for (const auto & it : *collection)
    {  
-      const float* corners = item()->getGeom()->getCorners((*it).id());
+      const float* corners = item()->getGeom()->getCorners(it.id());
 
       std::vector<float> scaledCorners(24);
       if (corners)
-         fireworks::energyTower3DCorners(corners, (*it).energy() * 10, scaledCorners);
+         fireworks::energyTower3DCorners(corners, it.energy() * 10, scaledCorners);
 
       addBox(boxSet, &scaledCorners[0], iItem->modelInfo(index++).displayProperties());
    }

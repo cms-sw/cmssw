@@ -145,10 +145,10 @@ void CSCMotherboardME21GEM::clear()
 {
   CSCMotherboard::clear();
   
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (auto & allLCT : allLCTs)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<2;i++)
-        allLCTs[bx][mbx][i].clear();
+        allLCT[mbx][i].clear();
 
   gemRollToEtaLimits_.clear();
   cscWgToGemRoll_.clear();
@@ -277,7 +277,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
   }
 
   int used_clct_mask[20];
-  for (int c=0;c<20;++c) used_clct_mask[c]=0;
+  for (int & c : used_clct_mask) c=0;
 
   const bool hasPads(pads_.size()!=0);
   const bool hasCoPads(hasPads and coPads_.size()!=0);

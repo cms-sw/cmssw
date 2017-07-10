@@ -209,44 +209,44 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     CHits[SectIndex] = ConvHits;
 
     l1t::EMTFHitExtraCollection tmp_hits_rpc = primConvRPC_.convert(tester_rpc, SectIndex, _geom_rpc); 
-    for (uint iHit = 0; iHit < tmp_hits_rpc.size(); iHit++) 
-      OutputHitsRPC->push_back( tmp_hits_rpc.at(iHit) );
+    for (const auto & iHit : tmp_hits_rpc) 
+      OutputHitsRPC->push_back( iHit );
     std::vector<ConvertedHit> ConvHitsRPC = primConvRPC_.fillConvHits(tmp_hits_rpc);
     
     // Fill OutputHits with ConvertedHit information
-    for (uint iCHit = 0; iCHit < ConvHits.size(); iCHit++) {
+    for (auto & ConvHit : ConvHits) {
       // bool isMatched = false;
       
-      for (uint iHit = 0; iHit < OutputHits->size(); iHit++) {
-	if ( ConvHits.at(iCHit).Station()   == OutputHits->at(iHit).Station() &&
-	     ( ConvHits.at(iCHit).Id()      == OutputHits->at(iHit).CSC_ID()  ||
-	       ConvHits.at(iCHit).Id()      == ( (OutputHits->at(iHit).Ring() != 4) // Account for either ME1/1a 
-						 ? OutputHits->at(iHit).CSC_ID()    // CSC ID numbering convention
-						 : OutputHits->at(iHit).CSC_ID() + 9 ) ) &&
-	     ConvHits.at(iCHit).Wire()       == OutputHits->at(iHit).Wire()    &&
-	     ConvHits.at(iCHit).Strip()      == OutputHits->at(iHit).Strip()   &&
-	     ConvHits.at(iCHit).BX() - 6     == OutputHits->at(iHit).BX()      &&
-	     ConvHits.at(iCHit).IsNeighbor() == OutputHits->at(iHit).Neighbor() ) {
+      for (auto & iHit : *OutputHits) {
+	if ( ConvHit.Station()   == iHit.Station() &&
+	     ( ConvHit.Id()      == iHit.CSC_ID()  ||
+	       ConvHit.Id()      == ( (iHit.Ring() != 4) // Account for either ME1/1a 
+						 ? iHit.CSC_ID()    // CSC ID numbering convention
+						 : iHit.CSC_ID() + 9 ) ) &&
+	     ConvHit.Wire()       == iHit.Wire()    &&
+	     ConvHit.Strip()      == iHit.Strip()   &&
+	     ConvHit.BX() - 6     == iHit.BX()      &&
+	     ConvHit.IsNeighbor() == iHit.Neighbor() ) {
 	  // isMatched = true;
-	  OutputHits->at(iHit).set_neighbor    ( ConvHits.at(iCHit).IsNeighbor());
-	  OutputHits->at(iHit).set_sector_index( ConvHits.at(iCHit).SectorIndex() );
-	  OutputHits->at(iHit).set_phi_zone    ( ConvHits.at(iCHit).Zhit()   );
-	  OutputHits->at(iHit).set_phi_hit     ( ConvHits.at(iCHit).Ph_hit() );
-	  OutputHits->at(iHit).set_zone        ( ConvHits.at(iCHit).Phzvl()  );
-	  OutputHits->at(iHit).set_phi_loc_int ( ConvHits.at(iCHit).Phi()    );
-	  OutputHits->at(iHit).set_theta_int   ( ConvHits.at(iCHit).Theta()  );
+	  iHit.set_neighbor    ( ConvHit.IsNeighbor());
+	  iHit.set_sector_index( ConvHit.SectorIndex() );
+	  iHit.set_phi_zone    ( ConvHit.Zhit()   );
+	  iHit.set_phi_hit     ( ConvHit.Ph_hit() );
+	  iHit.set_zone        ( ConvHit.Phzvl()  );
+	  iHit.set_phi_loc_int ( ConvHit.Phi()    );
+	  iHit.set_theta_int   ( ConvHit.Theta()  );
 
 	  // // Replace with ZoneWord - AWB 04.09.16
 	  // OutputHits->at(iHit).SetZoneContribution ( ConvHits.at(iCHit).ZoneContribution() );
-	  OutputHits->at(iHit).set_phi_loc_deg  ( l1t::calc_phi_loc_deg( OutputHits->at(iHit).Phi_loc_int() ) );
-	  OutputHits->at(iHit).set_phi_loc_rad  ( l1t::calc_phi_loc_rad( OutputHits->at(iHit).Phi_loc_int() ) );
-	  OutputHits->at(iHit).set_phi_glob_deg ( l1t::calc_phi_glob_deg_hit( OutputHits->at(iHit).Phi_loc_deg(), OutputHits->at(iHit).Sector_index() ) );
-	  OutputHits->at(iHit).set_phi_glob_rad ( l1t::calc_phi_glob_rad_hit( OutputHits->at(iHit).Phi_loc_rad(), OutputHits->at(iHit).Sector_index() ) );
-	  OutputHits->at(iHit).set_theta_deg    ( l1t::calc_theta_deg_from_int( OutputHits->at(iHit).Theta_int() ) );
-	  OutputHits->at(iHit).set_theta_rad    ( l1t::calc_theta_rad_from_int( OutputHits->at(iHit).Theta_int() ) );
-	  OutputHits->at(iHit).set_eta( l1t::calc_eta_from_theta_rad( OutputHits->at(iHit).Theta_rad() ) * OutputHits->at(iHit).Endcap() );
+	  iHit.set_phi_loc_deg  ( l1t::calc_phi_loc_deg( iHit.Phi_loc_int() ) );
+	  iHit.set_phi_loc_rad  ( l1t::calc_phi_loc_rad( iHit.Phi_loc_int() ) );
+	  iHit.set_phi_glob_deg ( l1t::calc_phi_glob_deg_hit( iHit.Phi_loc_deg(), iHit.Sector_index() ) );
+	  iHit.set_phi_glob_rad ( l1t::calc_phi_glob_rad_hit( iHit.Phi_loc_rad(), iHit.Sector_index() ) );
+	  iHit.set_theta_deg    ( l1t::calc_theta_deg_from_int( iHit.Theta_int() ) );
+	  iHit.set_theta_rad    ( l1t::calc_theta_rad_from_int( iHit.Theta_int() ) );
+	  iHit.set_eta( l1t::calc_eta_from_theta_rad( iHit.Theta_rad() ) * iHit.Endcap() );
 	  
-	  OutHits->push_back( OutputHits->at(iHit).CreateEMTFHit() );
+	  OutHits->push_back( iHit.CreateEMTFHit() );
 	}
       } // End loop: for (uint iHit = 0; iHit < OutputHits->size(); iHit++)
 
@@ -420,24 +420,24 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   std::vector<l1t::RegionalMuonCand> tester1;
   std::vector<std::pair<int,l1t::RegionalMuonCand>> holder, holder2;
   
-  for(unsigned int fbest=0;fbest<AllTracks.size();fbest++){
+  for(auto & AllTrack : AllTracks){
     
-    if(AllTracks[fbest].phi){
+    if(AllTrack.phi){
       
       InternalTrack tempTrack;
       tempTrack.setType(2);
-      tempTrack.phi = AllTracks[fbest].phi;
-      tempTrack.theta = AllTracks[fbest].theta;
-      tempTrack.rank = AllTracks[fbest].winner.Rank();
-      tempTrack.deltas = AllTracks[fbest].deltas;
+      tempTrack.phi = AllTrack.phi;
+      tempTrack.theta = AllTrack.theta;
+      tempTrack.rank = AllTrack.winner.Rank();
+      tempTrack.deltas = AllTrack.deltas;
       std::vector<int> ps, ts;
 
       if (tempTrack.theta == 0) LogTrace("L1TMuonEndCapTrackProducer") << "Track has theta 0" << std::endl;
       
       l1t::EMTFTrackExtra thisTrack;
-      thisTrack.set_phi_loc_int ( AllTracks[fbest].phi           );
-      thisTrack.set_theta_int   ( AllTracks[fbest].theta         );
-      thisTrack.set_rank        ( AllTracks[fbest].winner.Rank() );
+      thisTrack.set_phi_loc_int ( AllTrack.phi           );
+      thisTrack.set_theta_int   ( AllTrack.theta         );
+      thisTrack.set_rank        ( AllTrack.winner.Rank() );
       // thisTrack.set_deltas        ( AllTracks[fbest].deltas        );
       int tempStraightness = 0;
       int tempRank = thisTrack.Rank();
@@ -467,7 +467,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       
       int cHits_in_station[4] = {0,0,0,0};
       int eHits_in_station[4] = {0,0,0,0};
-      for(std::vector<ConvertedHit>::iterator A = AllTracks[fbest].AHits.begin();A != AllTracks[fbest].AHits.end();A++){
+      for(std::vector<ConvertedHit>::iterator A = AllTrack.AHits.begin();A != AllTrack.AHits.end();A++){
 	
 	if(A->Phi() != -999){
 	  cHits_in_station[A->TP().detId<CSCDetId>().station() - 1] += 1;
@@ -598,7 +598,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       
       tempTrack.phis = ps;
       tempTrack.thetas = ts;
-      tempTrack.deltas = AllTracks[fbest].deltas;
+      tempTrack.deltas = AllTrack.deltas;
       
       // // Before Mulhearn cleanup, May 11
       // unsigned long xmlpt_address = 0;
@@ -615,10 +615,10 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
       
       int charge = getCharge(phis[0],phis[1],phis[2],phis[3],mode);
       
-      l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTracks[fbest].phi,AllTracks[fbest].theta,
+      l1t::RegionalMuonCand outCand = MakeRegionalCand(xmlpt*1.4,AllTrack.phi,AllTrack.theta,
 						       charge,mode,CombAddress,sector);
       
-      float theta_angle = l1t::calc_theta_rad_from_int( AllTracks[fbest].theta ); 
+      float theta_angle = l1t::calc_theta_rad_from_int( AllTrack.theta ); 
       float eta = l1t::calc_eta_from_theta_rad( theta_angle );
       
       thisTrack.set_phi_loc_deg  ( l1t::calc_phi_loc_deg( thisTrack.Phi_loc_int() ) );
@@ -675,15 +675,15 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
   
   for(int sect=0;sect<12;sect++){
     
-    for(unsigned int h=0;h<holder.size();h++){
+    for(auto & h : holder){
       
-      int bx = holder[h].first - 6;
-      int sector = holder[h].second.processor();
-      if(holder[h].second.trackFinderType() == 3)
+      int bx = h.first - 6;
+      int sector = h.second.processor();
+      if(h.second.trackFinderType() == 3)
 	sector += 6;
       
       if(sector == sect){
-	OutputCands->push_back(bx,holder[h].second);
+	OutputCands->push_back(bx,h.second);
       }
       
     }

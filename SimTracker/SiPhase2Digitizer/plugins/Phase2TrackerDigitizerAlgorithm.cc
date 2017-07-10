@@ -849,10 +849,10 @@ void Phase2TrackerDigitizerAlgorithm::module_killing_DB(uint32_t detID) {
   std::vector<SiPixelQuality::disabledModuleType>disabledModules = SiPixelBadModule_->getBadComponentList();
   
   SiPixelQuality::disabledModuleType badmodule;
-  for (size_t id = 0;id < disabledModules.size(); id++) {
-    if (detID == disabledModules[id].DetID) {
+  for (auto & disabledModule : disabledModules) {
+    if (detID == disabledModule.DetID) {
       isbad = true;
-      badmodule = disabledModules[id];
+      badmodule = disabledModule;
       break;
     }
   }

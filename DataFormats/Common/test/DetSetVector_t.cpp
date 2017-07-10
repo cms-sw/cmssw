@@ -130,21 +130,18 @@ void printDetSet(detset const& ds, std::ostream& os) {
 
 void sanity_check(coll_type const& c) {
   check_outer_collection_order(c);
-  for(coll_type::const_iterator i = c.begin(), e = c.end(); i!=e; ++i) {
+  for(const auto & i : c) {
 //       printDetSet(*i, std::cerr);
 //       std::cerr << '\n';
-      check_inner_collection_order(*i);
+      check_inner_collection_order(i);
     }
 }
 
 void check_ids(coll_type const& c) {
   // Long way to get all ids...
   std::vector<det_id_type> all_ids;
-  for(coll_type::const_iterator i = c.begin(),
-       e = c.end();
-       i !=  e;
-       ++i) {
-      all_ids.push_back(i->id);
+  for(const auto & i : c) {
+      all_ids.push_back(i.id);
     }
   assert(c.size() == all_ids.size());
 

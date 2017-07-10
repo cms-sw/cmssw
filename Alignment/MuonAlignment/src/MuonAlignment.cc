@@ -107,30 +107,30 @@ void MuonAlignment::moveAlignableGlobalCoord( DetId& detid, align::Scalars& disp
 //____________________________________________________________________________________
 //
 void MuonAlignment::recursiveList(const align::Alignables& alignables, align::Alignables &theList) {
-   for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      recursiveList((*alignable)->components(), theList);
-      theList.push_back(*alignable);
+   for (auto alignable : alignables) {
+      recursiveList(alignable->components(), theList);
+      theList.push_back(alignable);
    }
 }
 
 //____________________________________________________________________________________
 //
 void MuonAlignment::recursiveMap(const align::Alignables& alignables, std::map<align::ID, Alignable*> &theMap) {
-   for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      unsigned int rawId = (*alignable)->geomDetId().rawId();
+   for (auto alignable : alignables) {
+      unsigned int rawId = alignable->geomDetId().rawId();
       if (rawId != 0) {
-	 theMap[rawId] = *alignable;
+	 theMap[rawId] = alignable;
       }
-      recursiveMap((*alignable)->components(), theMap);
+      recursiveMap(alignable->components(), theMap);
    }
 }
 
 //____________________________________________________________________________________
 //
 void MuonAlignment::recursiveStructureMap(const align::Alignables& alignables, std::map<std::pair<align::StructureType, align::ID>, Alignable*> &theMap) {
-   for (align::Alignables::const_iterator alignable = alignables.begin();  alignable != alignables.end();  ++alignable) {
-      theMap[std::pair<align::StructureType, align::ID>((*alignable)->alignableObjectId(), (*alignable)->id())] = *alignable;
-      recursiveStructureMap((*alignable)->components(), theMap);
+   for (auto alignable : alignables) {
+      theMap[std::pair<align::StructureType, align::ID>(alignable->alignableObjectId(), alignable->id())] = alignable;
+      recursiveStructureMap(alignable->components(), theMap);
    }
 }
 

@@ -890,9 +890,9 @@ bool Pythia6Hadronizer::initializeForInternalPartons()
 bool Pythia6Hadronizer::declareStableParticles( const std::vector<int>& pdg )
 {
    
-   for ( unsigned int i=0; i<pdg.size(); i++ )
+   for (int i : pdg)
    {
-      int PyID = HepPID::translatePDTtoPythia( pdg[i] );
+      int PyID = HepPID::translatePDTtoPythia( i );
       // int PyID = pdg[i]; 
       int pyCode = pycomp_( PyID );
       if ( pyCode > 0 )
@@ -912,13 +912,13 @@ bool Pythia6Hadronizer::declareStableParticles( const std::vector<int>& pdg )
 bool Pythia6Hadronizer::declareSpecialSettings( const std::vector<std::string>& settings )
 {
    
-   for ( unsigned int iss=0; iss<settings.size(); iss++ )
+   for (const auto & setting : settings)
    {
-      if ( settings[iss].find("QED-brem-off") == std::string::npos ) continue;
-      size_t fnd1 = settings[iss].find(":");
+      if ( setting.find("QED-brem-off") == std::string::npos ) continue;
+      size_t fnd1 = setting.find(":");
       if ( fnd1 == std::string::npos ) continue;
       
-      std::string value = settings[iss].substr (fnd1+1);
+      std::string value = setting.substr (fnd1+1);
       
       if ( value == "all" ) 
       {

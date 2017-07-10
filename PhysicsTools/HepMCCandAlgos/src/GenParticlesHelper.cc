@@ -35,17 +35,16 @@ namespace GenParticlesHelper {
 
     const GenParticleRefVector& daughterRefs = base->daughterRefVector();
   
-    for(IGR idr = daughterRefs.begin(); 
-	idr!= daughterRefs.end(); ++idr ) {
+    for(auto && daughterRef : daughterRefs) {
     
-      if( (*idr)->status() == status && 
-	  (!pdgId || std::abs((*idr)->pdgId()) == pdgId) ) {
+      if( (daughterRef)->status() == status && 
+	  (!pdgId || std::abs((daughterRef)->pdgId()) == pdgId) ) {
       
 	// cout<<"adding "<<(*idr)<<endl;
-	descendents.push_back(*idr);
+	descendents.push_back(daughterRef);
       }
       else 
-	findDescendents( *idr, descendents, status, pdgId );
+	findDescendents( daughterRef, descendents, status, pdgId );
     }
   }
 
@@ -65,15 +64,13 @@ namespace GenParticlesHelper {
       = mothers[0]->daughterRefVector();
   
     typedef GenParticleRefVector::const_iterator IT;
-    for(IT id = allRefs.begin();
-	id != allRefs.end();
-	++id ) {
+    for(auto && allRef : allRefs) {
     
-      if( *id == baseSister ) { 
+      if( allRef == baseSister ) { 
 	continue; // this is myself
       }
       else 
-	sisterRefs.push_back( *id );
+	sisterRefs.push_back( allRef );
     }
   }
 
@@ -104,8 +101,8 @@ namespace GenParticlesHelper {
 
     const GenParticleRefVector& mothers = particle->motherRefVector();
     
-    for( IGR im = mothers.begin(); im!=mothers.end(); ++im) {
-      const GenParticle& part = **im;
+    for(auto && mother : mothers) {
+      const GenParticle& part = *mother;
       if( hasAncestor( &part, pdgId, status) )
 	return true;
     } 

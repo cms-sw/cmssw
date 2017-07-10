@@ -137,9 +137,7 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
       const int siStripFedIdMax = FEDNumbering::MAXSiStripFEDID;
       
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
-      for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-        int fedID = FedsInIds[it];     
-        
+      for(int fedID : FedsInIds) {
         if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDs;
       }
     }
@@ -214,9 +212,9 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
       if (actionExecutor_->readTkMapConfiguration(eSetup)) {
         std::vector<std::string> map_names;
         
-        for(std::vector<edm::ParameterSet>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
-          edm::ParameterSet tkMapPSet = *it;
-          std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
+        for(auto & tkMapOption : tkMapOptions) {
+          edm::ParameterSet tkMapPSet = tkMapOption;
+          std::string map_type = tkMapOption.getUntrackedParameter<std::string>("mapName","");
           map_names.push_back(map_type);
           tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
           edm::LogInfo("TkMapParameters") << tkMapPSet;

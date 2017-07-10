@@ -142,12 +142,10 @@ InvRingCalib::beginOfJob ()
 void InvRingCalib::startingNewLoop (unsigned int ciclo) 
 {
     edm::LogInfo ("IML") << "[InvMatrixCalibLooper][Start] entering loop " << ciclo;
-    for (std::vector<VEcalCalibBlock *>::iterator calibBlock = m_IMACalibBlocks.begin () ;
-         calibBlock != m_IMACalibBlocks.end () ;
-         ++calibBlock)
+    for (auto & m_IMACalibBlock : m_IMACalibBlocks)
       {
         //LP empties the energies vector, to fill DuringLoop.
-        (*calibBlock)->reset () ;
+        m_IMACalibBlock->reset () ;
       }
    for (std::map<int,int>::const_iterator ring=m_xtalRing.begin();
         ring!=m_xtalRing.end();
@@ -307,23 +305,21 @@ InvRingCalib::duringLoop (const edm::Event& iEvent,
    }
 
   //loops over the electrons in the event
-  for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin();
-       eleIt != pElectrons->end();
-       ++eleIt )
+  for (const auto & eleIt : *pElectrons)
     {
       pSubtract =0;
-      pTk=eleIt->trackMomentumAtVtx().R();
+      pTk=eleIt.trackMomentumAtVtx().R();
       std::map<int , double> xtlMap;
       DetId Max=0; 
-      if (std::abs(eleIt->eta())<1.49)
-	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),barrelHitsCollection).first;
+      if (std::abs(eleIt.eta())<1.49)
+	     Max = EcalClusterTools::getMaximum(eleIt.superCluster()->hitsAndFractions(),barrelHitsCollection).first;
       else 
-	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),endcapHitsCollection).first;
+	     Max = EcalClusterTools::getMaximum(eleIt.superCluster()->hitsAndFractions(),endcapHitsCollection).first;
       if (Max.det()==0) continue;
-       m_MapFiller->fillMap(eleIt->superCluster ()->hitsAndFractions (),Max, 
+       m_MapFiller->fillMap(eleIt.superCluster ()->hitsAndFractions (),Max, 
                            barrelHitsCollection,endcapHitsCollection, xtlMap,pSubtract);
       if (m_xtalRegionId[Max.rawId()]==-1) continue;
-      pSubtract += eleIt->superCluster()->preshowerEnergy() ;
+      pSubtract += eleIt.superCluster()->preshowerEnergy() ;
       ++m_RingNumOfHits[m_xtalRing[Max.rawId()]];
       //fills the calibBlock 
       m_IMACalibBlocks.at(m_xtalRegionId[Max.rawId()])->Fill (
@@ -345,10 +341,8 @@ InvRingCalib::endOfLoop (const edm::EventSetup& dumb,
    std::map<int,double> InterRings;
   edm::LogInfo ("IML") << "[InvMatrixCalibLooper][endOfLoop] Start to invert the matrixes" ;
   //call the autoexplaining "solve" method for every calibBlock
-  for (std::vector<VEcalCalibBlock *>::iterator calibBlock=m_IMACalibBlocks.begin();
-       calibBlock!=m_IMACalibBlocks.end();
-       ++calibBlock)
-    (*calibBlock)->solve(m_usingBlockSolver,m_minCoeff,m_maxCoeff);
+  for (auto & m_IMACalibBlock : m_IMACalibBlocks)
+    m_IMACalibBlock->solve(m_usingBlockSolver,m_minCoeff,m_maxCoeff);
 
   edm::LogInfo("IML") << "[InvRingLooper][endOfLoop] Starting to write the coeffs";
   TH1F *coeffDistr = new TH1F("coeffdistr","coeffdistr",100 ,0.7,1.4);

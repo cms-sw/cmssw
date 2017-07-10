@@ -68,11 +68,9 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   cout << "-------------------- Jet Flavour by Ref From Partons--------------" << endl;
-  for ( JetMatchedPartonsCollection::const_iterator j  = theTagByRef->begin();
-                                     j != theTagByRef->end();
-                                     j ++ ) {
-    const Jet *aJet       = (*j).first.get();
-    const MatchedPartons aMatch = (*j).second;
+  for (const auto & j : *theTagByRef) {
+    const Jet *aJet       = j.first.get();
+    const MatchedPartons aMatch = j.second;
     printf("[printJetFlavour] (pt,eta,phi) jet = %7.2f %6.3f %6.3f \n",
              aJet->et(),
              aJet->eta(),
@@ -128,11 +126,9 @@ void printJetFlavour::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
   cout << "-------------------- Jet Flavour by Value ------------------------" << endl;
-  for ( JetFlavourMatchingCollection::const_iterator j  = theTagByValue->begin();
-                                                     j != theTagByValue->end();
-                                                     j ++ ) {
-    RefToBase<Jet> aJet  = (*j).first;
-    const JetFlavour aFlav = (*j).second;
+  for (const auto & j : *theTagByValue) {
+    RefToBase<Jet> aJet  = j.first;
+    const JetFlavour aFlav = j.second;
 
     printf("[printJetFlavour] (pt,eta,phi) jet = %7.2f %6.3f %6.3f | parton = %7.2f %6.3f %6.3f | %4d\n",
              aJet.get()->et(),

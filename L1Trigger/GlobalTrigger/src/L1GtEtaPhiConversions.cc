@@ -466,10 +466,9 @@ const unsigned int L1GtEtaPhiConversions::gtObjectPairIndex(
     //        << (l1GtObjectEnumToString(obj1)) << "]\n" << std::endl;
 
     unsigned int iPair = 0;
-    for (std::vector<std::pair<L1GtObject, L1GtObject> >::const_iterator cIter =
-            m_gtObjectPairVec.begin(); cIter != m_gtObjectPairVec.end(); ++cIter) {
+    for (const auto & cIter : m_gtObjectPairVec) {
 
-        if (*cIter == gtObjPair) {
+        if (cIter == gtObjPair) {
             LogTrace("L1GlobalTrigger") << "\n  Index for pair ["
                     << l1GtObjectEnumToString(obj0) << ", "
                     << l1GtObjectEnumToString(obj1) << "] = "
@@ -911,10 +910,9 @@ const unsigned int L1GtEtaPhiConversions::gtObjectNrBinsPhi(
     //        << (l1GtObjectEnumToString(obj1)) << "]\n" << std::endl;
 
     int iPair = 0;
-    for (std::vector<std::pair<L1GtObject, L1GtObject> >::const_iterator cIter =
-            m_gtObjectPairVec.begin(); cIter != m_gtObjectPairVec.end(); ++cIter) {
+    for (const auto & cIter : m_gtObjectPairVec) {
 
-        if (*cIter == gtObjPair) {
+        if (cIter == gtObjPair) {
             LogTrace("L1GlobalTrigger") << "\n  gtObjectNrBinsPhi ["
                     << l1GtObjectEnumToString(obj0) << ", "
                     << l1GtObjectEnumToString(obj1) << "] = "

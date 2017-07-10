@@ -75,9 +75,8 @@ public:
     // Check that sum of collection sizes in 'partition' 
     // amounts to number of elements in 'data' 
     int nElts = 0;
-    for (PartitionGenerator::Partition::const_iterator iSize 
-	   = partition.begin(); iSize != partition.end(); iSize++) {
-      nElts += *iSize;
+    for (int iSize : partition) {
+      nElts += iSize;
     }
     if (nElts != data.size()) return combinations;
 

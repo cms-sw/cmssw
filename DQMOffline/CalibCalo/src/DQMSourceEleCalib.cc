@@ -109,11 +109,10 @@ void DQMSourceEleCalib::analyze(const Event& iEvent,
   if (pElectrons.isValid()){
     ElectronsNumber_->Fill(pElectrons->size()+0.1);
     numberOfElectrons = pElectrons->size();
-    for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin();
-    	eleIt!= pElectrons->end(); ++eleIt){
-    ESCoP_->Fill(eleIt->eSuperClusterOverP());
-    numberOfAssociatedHits+= eleIt->superCluster()->size();
-    DetId Max = findMaxHit (eleIt->superCluster ()->hitsAndFractions (), 
+    for (const auto & eleIt : *pElectrons){
+    ESCoP_->Fill(eleIt.eSuperClusterOverP());
+    numberOfAssociatedHits+= eleIt.superCluster()->size();
+    DetId Max = findMaxHit (eleIt.superCluster ()->hitsAndFractions (), 
                              rhEB.product(),  rhEE.product()) ;
     if (!Max.det()) continue;
     if (Max.subdetId()==EcalBarrel) {
@@ -173,14 +172,13 @@ DQMSourceEleCalib::findMaxHit (const std::vector<std::pair<DetId,float> > & v1,
 
   double currEnergy = 0. ;
   DetId maxHit ;
-  for (std::vector<std::pair<DetId,float> >::const_iterator idsIt = v1.begin () ; 
-       idsIt != v1.end () ; ++idsIt)
+  for (const auto & idsIt : v1)
     {
             
-     if (idsIt->first.subdetId () == EcalBarrel) 
+     if (idsIt.first.subdetId () == EcalBarrel) 
        {              
          EcalRecHitCollection::const_iterator itrechit ;
-         itrechit = EBhits->find ((*idsIt).first) ;
+         itrechit = EBhits->find (idsIt.first) ;
          if (itrechit == EBhits->end () )
            {
              edm::LogInfo ("reading")
@@ -191,13 +189,13 @@ DQMSourceEleCalib::findMaxHit (const std::vector<std::pair<DetId,float> > & v1,
          if (itrechit->energy () > currEnergy)
            {
              currEnergy = itrechit->energy () ;
-             maxHit= (*idsIt).first ;
+             maxHit= idsIt.first ;
            }
        }
      else 
        {     
          EcalRecHitCollection::const_iterator itrechit ;
-         itrechit = EEhits->find ((*idsIt).first) ;
+         itrechit = EEhits->find (idsIt.first) ;
          if (itrechit == EEhits->end () )
            {
              edm::LogInfo ("reading")
@@ -209,7 +207,7 @@ DQMSourceEleCalib::findMaxHit (const std::vector<std::pair<DetId,float> > & v1,
          if (itrechit->energy () > currEnergy)
            {
             currEnergy=itrechit->energy () ;
-            maxHit= (*idsIt).first ;
+            maxHit= idsIt.first ;
            }
        }
     }
@@ -221,15 +219,13 @@ void
 DQMSourceEleCalib::fillAroundBarrel (const EcalRecHitCollection * recHits, int eta, int phi)
 {
 
-  for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
-       elem != recHits->end () ;
-       ++elem)
+  for (const auto & recHit : *recHits)
     {
-      EBDetId elementId = elem->id () ; 
+      EBDetId elementId = recHit.id () ; 
       LocalOccupancyEB_->Fill (
         elementId.ieta () - eta ,
         elementId.iphi () - phi ,
-        elem->energy ()
+        recHit.energy ()
       ) ;
     }   
   return ;
@@ -242,15 +238,13 @@ DQMSourceEleCalib::fillAroundBarrel (const EcalRecHitCollection * recHits, int e
 void
 DQMSourceEleCalib::fillAroundEndcap (const EcalRecHitCollection * recHits, int ics, int ips)
 {
-  for (EcalRecHitCollection::const_iterator elem = recHits->begin () ;
-       elem != recHits->end () ;
-       ++elem)
+  for (const auto & recHit : *recHits)
     {
-      EEDetId elementId = elem->id () ; 
+      EEDetId elementId = recHit.id () ; 
       LocalOccupancyEE_->Fill (
         elementId.ix () - ics ,
         elementId.iy () - ips ,
-        elem->energy ()
+        recHit.energy ()
       ) ;
     }   
   return ;

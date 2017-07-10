@@ -108,8 +108,8 @@ PedeSteerer::PedeSteerer(AlignableTracker *aliTracker, AlignableMuon *aliMuon, A
     if (aliMuon) theCoordMaster->addComponent(aliMuon); // tracker is already added if existing
     if (aliExtras) { // tracker and/or muon are already added if existing
       align::Alignables allExtras = aliExtras->components();
-      for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
-	theCoordMaster->addComponent(*it);
+      for (auto & allExtra : allExtras) {
+	theCoordMaster->addComponent(allExtra);
       }
     }
 
@@ -162,8 +162,8 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const std::vector<Alignable
 {
   myNoHieraCollection.clear();  // just in case of re-use...
 
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
-    AlignmentParameters *params = (*iAli)->alignmentParameters();
+  for (auto ali : alis) {
+    AlignmentParameters *params = ali->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
     if (!selVar) continue;
     // Now check whether taking out of hierarchy is selected - must be consistent!
@@ -185,12 +185,12 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const std::vector<Alignable
 	  << " taken out of the hierarchy must be marked with capital letters 'C', 'F' or 'H'!";
       }
       bool isInHiera = false; // Check whether Alignable is really part of hierarchy:
-      Alignable *mother = *iAli;
+      Alignable *mother = ali;
       while ((mother = mother->mother())) {
 	if (mother->alignmentParameters()) isInHiera = true; // could 'break;', but loop is short
       }
       // Complain, but keep collection short if not in hierarchy:
-      if (isInHiera) myNoHieraCollection.insert(*iAli);
+      if (isInHiera) myNoHieraCollection.insert(ali);
       else edm::LogWarning("Alignment") << "@SUB=PedeSteerer::buildNoHierarchyCollection"
 					<< "Alignable not in hierarchy, no need to remove it!";
     }
@@ -202,8 +202,8 @@ unsigned int PedeSteerer::buildNoHierarchyCollection(const std::vector<Alignable
 //_________________________________________________________________________
 bool PedeSteerer::checkParameterChoices(const std::vector<Alignable*> &alis) const
 {
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
-    AlignmentParameters *paras = (*iAli)->alignmentParameters();
+  for (auto ali : alis) {
+    AlignmentParameters *paras = ali->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(paras->userVariables());
     if (!selVar) continue;
     for (unsigned int iParam = 0; static_cast<int>(iParam) < paras->size(); ++iParam) {
@@ -235,16 +235,16 @@ PedeSteerer::fixParameters(const std::vector<Alignable*> &alis, const std::strin
 
   std::ofstream *filePtr = 0;
 
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
+  for (auto ali : alis) {
 
-    AlignmentParameters *params = (*iAli)->alignmentParameters();
+    AlignmentParameters *params = ali->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
     if (!selVar) continue;
     
     for (unsigned int iParam = 0; static_cast<int>(iParam) < params->size(); ++iParam) {
-      const unsigned int nInstances = myLabels->numberOfParameterInstances(*iAli, iParam);
+      const unsigned int nInstances = myLabels->numberOfParameterInstances(ali, iParam);
       for (unsigned int iInstance=0;iInstance<nInstances;++iInstance) {
-	int whichFix = this->fixParameter(*iAli, iInstance, iParam,
+	int whichFix = this->fixParameter(ali, iInstance, iParam,
 					  selVar->fullSelection()[iParam], filePtr,
 					  fileName);
 	if (whichFix == 1) {
@@ -305,8 +305,8 @@ std::vector<Alignable*> PedeSteerer::selectCoordinateAlis(const std::vector<Alig
 {
   std::vector<Alignable*> coordAlis;
 
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin() ; iAli != alis.end(); ++iAli) {
-    AlignmentParameters *params = (*iAli)->alignmentParameters();
+  for (auto ali : alis) {
+    AlignmentParameters *params = ali->alignmentParameters();
     SelectionUserVariables *selVar = dynamic_cast<SelectionUserVariables*>(params->userVariables());
     if (!selVar) continue;
     unsigned int refParam = 0;
@@ -326,7 +326,7 @@ std::vector<Alignable*> PedeSteerer::selectCoordinateAlis(const std::vector<Alig
 	  << "[PedeSteerer::selectCoordinateAlis] All active parameters of alignables defining "
 	  << "the coordinate system must be marked with 'r/s' (or fixed, 'f')!";
       } else {
-	Alignable *mother = *iAli;
+	Alignable *mother = ali;
 	while ((mother = mother->mother())) {
 	  if (mother->alignmentParameters()) {
 	    throw cms::Exception("BadConfig") << "[PedeSteerer::selectCoordinateAlis] "
@@ -334,7 +334,7 @@ std::vector<Alignable*> PedeSteerer::selectCoordinateAlis(const std::vector<Alig
 					      << "be highest level!";
 	  }
 	}
-	coordAlis.push_back(*iAli);
+	coordAlis.push_back(ali);
       }
     }
   } // end loop on alignables
@@ -370,16 +370,15 @@ bool PedeSteerer::isCorrectToRefSystem(const std::vector<Alignable*> &coordDefin
 {
   bool doCorrect = false;
   bool doNotCorrect = false;
-  for (std::vector<Alignable*>::const_iterator it = coordDefiners.begin(), iE=coordDefiners.end();
-       it != iE; ++it) {
+  for (auto coordDefiner : coordDefiners) {
     SelectionUserVariables *selVar = 
-      ((*it)->alignmentParameters() ? 
-       dynamic_cast<SelectionUserVariables*>((*it)->alignmentParameters()->userVariables()) : 0);
+      (coordDefiner->alignmentParameters() ? 
+       dynamic_cast<SelectionUserVariables*>(coordDefiner->alignmentParameters()->userVariables()) : 0);
     if (!selVar) continue;  // is an error!?
 
-    for (unsigned int i = 0; i < selVar->fullSelection().size(); ++i) {
-      if (selVar->fullSelection()[i] == 'r') doNotCorrect = true;
-      else if (selVar->fullSelection()[i] == 's') doCorrect = true;
+    for (char i : selVar->fullSelection()) {
+      if (i == 'r') doNotCorrect = true;
+      else if (i == 's') doCorrect = true;
     }
   }
 
@@ -398,17 +397,15 @@ void PedeSteerer::correctToReferenceSystem()
   if (!theCoordMaster || theCoordDefiners.empty()) return; // nothing was defined
 
   std::vector<Alignable*> definerDets; // or ...DetUnits
-  for (std::vector<Alignable*>::iterator it = theCoordDefiners.begin(), iE = theCoordDefiners.end();
-       it != iE; ++it) {// find lowest level objects of alignables that define the coordinate system
-    const std::vector<Alignable*> &comp = (*it)->deepComponents();
+  for (auto & theCoordDefiner : theCoordDefiners) {// find lowest level objects of alignables that define the coordinate system
+    const std::vector<Alignable*> &comp = theCoordDefiner->deepComponents();
     definerDets.insert(definerDets.end(), comp.begin(), comp.end());
   }
 
   for (unsigned int iLoop = 0; ; ++iLoop) { // iterate: shifts and rotations are not independent
     AlgebraicVector meanPars(RbPars::N_PARAM);
-    for (std::vector<Alignable*>::iterator it = definerDets.begin(), iE = definerDets.end();
-	 it != iE; ++it) { // sum up mean displacements/misrotations:
-      meanPars += RbPars(*it, true).globalParameters();// requires theCoordMaster has global frame
+    for (auto & definerDet : definerDets) { // sum up mean displacements/misrotations:
+      meanPars += RbPars(definerDet, true).globalParameters();// requires theCoordMaster has global frame
     }
     meanPars /= definerDets.size();
     const align::Scalar squareSum = meanPars.normsq();
@@ -447,13 +444,12 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
 
   unsigned int nConstraints = 0;
   std::vector<Alignable*> aliDaughts;
-  for (std::vector<Alignable*>::const_iterator iA = alis.begin(), iEnd = alis.end();
-       iA != iEnd; ++iA) {
+  for (auto ali : alis) {
     aliDaughts.clear();
-    if (!(*iA)->firstCompsWithParams(aliDaughts)) {
+    if (!ali->firstCompsWithParams(aliDaughts)) {
       edm::LogWarning("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
 				   << "Some but not all daughters of "
-				   << alignableObjectId_.idToString((*iA)->alignableObjectId())
+				   << alignableObjectId_.idToString(ali->alignableObjectId())
 				   << " with params!";
     }
     //     edm::LogInfo("Alignment") << "@SUB=PedeSteerer::hierarchyConstraints"
@@ -468,7 +464,7 @@ unsigned int PedeSteerer::hierarchyConstraints(const std::vector<Alignable*> &al
     // 			      << ", r = " << (*iA)->globalPosition().perp();
     if (!filePtr) filePtr = this->createSteerFile(fileName, true);
     ++nConstraints;
-    this->hierarchyConstraint(*iA, aliDaughts, *filePtr);
+    this->hierarchyConstraint(ali, aliDaughts, *filePtr);
   }
 
   delete filePtr; // automatically flushes, no problem if NULL ptr.   
@@ -557,13 +553,12 @@ unsigned int PedeSteerer::presigmas(const std::vector<edm::ParameterSet> &cffPre
 
   AlignmentParameterSelector selector(aliTracker, aliMuon, aliExtras);
   AlignablePresigmasMap aliPresiMap; // map to store alis with presigmas of their parameters 
-  for (std::vector<edm::ParameterSet>::const_iterator iSet = cffPresi.begin(), iE = cffPresi.end();
-       iSet != iE; ++iSet) { // loop on individual PSets defining ali-params with their presigma
+  for (const auto & iSet : cffPresi) { // loop on individual PSets defining ali-params with their presigma
     selector.clear();
-    selector.addSelections((*iSet).getParameter<edm::ParameterSet>("Selector"));
+    selector.addSelections(iSet.getParameter<edm::ParameterSet>("Selector"));
     const std::vector<Alignable*> &alis = selector.selectedAlignables();
     const std::vector<std::vector<char> > &sels =  selector.selectedParameters();
-    const float presigma = (*iSet).getParameter<double>("presigma");
+    const float presigma = iSet.getParameter<double>("presigma");
     if (presigma <= 0.) { // given presigma > 0., 0. later used if not (yet) chosen for parameter
       throw cms::Exception("BadConfig")
         << "[PedeSteerer::presigmas]: Pre-sigma must be > 0., but is " << presigma << ".";
@@ -600,10 +595,9 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
   std::ofstream *filePtr = 0;
 
   unsigned int nPresiParam = 0;
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(), iAliE = alis.end();
-       iAli != iAliE; ++iAli) {
+  for (auto ali : alis) {
     // Any presigma chosen for alignable?
-    AlignablePresigmasMap::const_iterator presigmasIt = aliPresiMap.find(*iAli);
+    AlignablePresigmasMap::const_iterator presigmasIt = aliPresiMap.find(ali);
     if (presigmasIt == aliPresiMap.end()) continue; // no presigma chosen for alignable
 
     // Why does the following not work? It does with CMSSW_1_3_X on SLC3...
@@ -613,9 +607,9 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
       // Now check whether a presigma value > 0. chosen: 
       if (presigmas[iParam] <= 0.) continue; // must be positive, '<' checked above
       // Do not apply presigma to inactive or fixed values.
-      if (!(*iAli)->alignmentParameters()->selector()[iParam]) continue;
+      if (!ali->alignmentParameters()->selector()[iParam]) continue;
       SelectionUserVariables *selVar 
-        = dynamic_cast<SelectionUserVariables*>((*iAli)->alignmentParameters()->userVariables());
+        = dynamic_cast<SelectionUserVariables*>(ali->alignmentParameters()->userVariables());
       const char selChar = (selVar ? selVar->fullSelection()[iParam] : '1');
       if (selChar == 'f' || selChar == 'F' || selChar == 'c' || selChar == 'C') continue;
       // Finally create and write steering file:
@@ -623,11 +617,11 @@ unsigned int PedeSteerer::presigmasFile(const std::string &fileName,
         filePtr = this->createSteerFile(fileName, true);
         (*filePtr) << "* Presigma values for active parameters: \nParameter\n";
       }
-      const unsigned int aliLabel = myLabels->alignableLabel(*iAli);
+      const unsigned int aliLabel = myLabels->alignableLabel(ali);
       (*filePtr) << myLabels->parameterLabel(aliLabel, iParam) << "   0.   " 
                  << presigmas[iParam] * fabs(this->cmsToPedeFactor(iParam));
       if (myIsSteerFileDebug) {
-	(*filePtr) << "  ! for a " << alignableObjectId_.idToString((*iAli)->alignableObjectId());
+	(*filePtr) << "  ! for a " << alignableObjectId_.idToString(ali->alignableObjectId());
       }
       (*filePtr) << '\n';
 
@@ -762,14 +756,14 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
 
   // add steering files to master steering file
   std::ofstream &mainSteerRef = *mainSteerPtr;
-  for (unsigned int iFile = 0; iFile < mySteeringFiles.size(); ++iFile) {
-    mainSteerRef << mySteeringFiles[iFile] << "\n";
+  for (const auto & mySteeringFile : mySteeringFiles) {
+    mainSteerRef << mySteeringFile << "\n";
   }
 
   // add binary files to master steering file
   mainSteerRef << "\nCfiles\n";
-  for (unsigned int iFile = 0; iFile < binaryFiles.size(); ++iFile) {
-    mainSteerRef << binaryFiles[iFile] << "\n";
+  for (const auto & binaryFile : binaryFiles) {
+    mainSteerRef << binaryFile << "\n";
   }
 
   // add method
@@ -778,8 +772,8 @@ std::string PedeSteerer::buildMasterSteer(const std::vector<std::string> &binary
   // add further options
   const std::vector<std::string> opt(myConfig.getParameter<std::vector<std::string> >("options"));
   mainSteerRef << "\n* Outlier treatment and other options \n";
-  for (unsigned int i = 0; i < opt.size(); ++i) {
-    mainSteerRef << opt[i] << "\n";
+  for (const auto & i : opt) {
+    mainSteerRef << i << "\n";
   }
 
   delete mainSteerPtr;  // close (and flush) again

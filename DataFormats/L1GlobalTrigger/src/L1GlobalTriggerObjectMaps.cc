@@ -75,9 +75,8 @@ updateOperandTokenVector(int algorithmBitNumber,
 void L1GlobalTriggerObjectMaps::
 getAlgorithmBitNumbers(std::vector<int>& algorithmBitNumbers) const {
   algorithmBitNumbers.clear();
-  for (std::vector<AlgorithmResult>::const_iterator i = m_algorithmResults.begin(),
-       iEnd = m_algorithmResults.end(); i != iEnd; ++i) {
-    algorithmBitNumbers.push_back(i->algorithmBitNumber());
+  for (auto m_algorithmResult : m_algorithmResults) {
+    algorithmBitNumbers.push_back(m_algorithmResult.algorithmBitNumber());
   }
 }
 

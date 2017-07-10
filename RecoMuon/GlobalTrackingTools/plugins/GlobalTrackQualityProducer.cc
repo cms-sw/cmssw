@@ -115,20 +115,19 @@ GlobalTrackQualityProducer::produce(edm::Event& iEvent, const edm::EventSetup& i
     bool passTight = false;
     typedef MuonTrajectoryBuilder::TrackCand TrackCand;
     if ( linkCollectionHandle.isValid() ) {
-      for ( reco::MuonTrackLinksCollection::const_iterator links = linkCollectionHandle->begin();
-	    links != linkCollectionHandle->end(); ++links )
+      for (const auto & links : *linkCollectionHandle)
 	{
-	  if ( links->trackerTrack().isNull() ||
-	       links->standAloneTrack().isNull() ||
-	       links->globalTrack().isNull() ) 
+	  if ( links.trackerTrack().isNull() ||
+	       links.standAloneTrack().isNull() ||
+	       links.globalTrack().isNull() ) 
 	    {
 	      edm::LogWarning(theCategory) << "Global muon links to constituent tracks are invalid. There should be no such object. Muon is skipped.";
 	      continue;
 	    }
-	  if (links->globalTrack() == glbRef) {
-	    staTrack = !links->standAloneTrack().isNull() ? links->standAloneTrack() : reco::TrackRef();
-	    TrackCand staCand = TrackCand((Trajectory*)(0),links->standAloneTrack());
-	    TrackCand tkCand = TrackCand((Trajectory*)(0),links->trackerTrack());
+	  if (links.globalTrack() == glbRef) {
+	    staTrack = !links.standAloneTrack().isNull() ? links.standAloneTrack() : reco::TrackRef();
+	    TrackCand staCand = TrackCand((Trajectory*)(0),links.standAloneTrack());
+	    TrackCand tkCand = TrackCand((Trajectory*)(0),links.trackerTrack());
 	    chi2 = theGlbMatcher->match(staCand,tkCand,0,0);
 	    d    = theGlbMatcher->match(staCand,tkCand,1,0);
 	    Rpos = theGlbMatcher->match(staCand,tkCand,2,0);

@@ -101,9 +101,8 @@ DTTrig::createTUs(const edm::EventSetup& iSetup ){
   
   edm::ESHandle<DTGeometry>dtGeom;
   iSetup.get<MuonGeometryRecord>().get(dtGeom);
-  for (std::vector<const DTChamber*>::const_iterator ich=dtGeom->chambers().begin(); ich!=dtGeom->chambers().end();ich++){
+  for (auto chamb : dtGeom->chambers()){
        
-    const DTChamber* chamb = (*ich);
     DTChamberId chid = chamb->id();
     TU_iterator it = _cache.find(chid);
     if ( it != _cache.end()) {
@@ -179,8 +178,8 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   }
   
   //Run reconstruct for single trigger subsystem (Bti, Traco TS)
-  for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-    DTSCTrigUnit* thisTU=(*it).second;
+  for (auto & it : _cache){
+    DTSCTrigUnit* thisTU=it.second;
     if (thisTU->BtiTrigs()->size()>0){
       thisTU->BtiTrigs()->clearCache();
       thisTU->TSThTrigs()->clearCache();
@@ -200,9 +199,9 @@ DTTrig::triggerReco(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     }
   }
   //Run reconstruct for Sector Collector
-  for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
-    DTSectColl* sectcoll = (*it).second;
-    DTSectCollId scid = (*it).first;
+  for (auto & it : _cache1){
+    DTSectColl* sectcoll = it.second;
+    DTSectCollId scid = it.first;
     if (sectcoll->sizePh()>0 || sectcoll->sizeTh()>0)
       sectcoll->clearCache();
     bool mustreco = false;
@@ -243,11 +242,11 @@ DTTrig::updateES(const edm::EventSetup& iSetup){
     _configid = iSetup.get<DTConfigManagerRcd>().cacheIdentifier();
     iSetup.get<DTConfigManagerRcd>().get(confHandle);
     _conf_manager = confHandle.product();
-    for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-      (*it).second->setConfig(_conf_manager);
+    for (auto & it : _cache){
+      it.second->setConfig(_conf_manager);
     }
-    for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
-      (*it).second->setConfig(_conf_manager);
+    for (auto & it : _cache1){
+      it.second->setConfig(_conf_manager);
     }
 
   }
@@ -259,8 +258,8 @@ DTTrig::updateES(const edm::EventSetup& iSetup){
 
     _geomid = iSetup.get<MuonGeometryRecord>().cacheIdentifier();
     iSetup.get<MuonGeometryRecord>().get(geomHandle);
-    for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
-      (*it).second->setGeom(geomHandle->chamber((*it).second->statId()));
+    for (auto & it : _cache){
+      it.second->setGeom(geomHandle->chamber(it.second->statId()));
     }
 
   }
@@ -271,15 +270,15 @@ DTTrig::updateES(const edm::EventSetup& iSetup){
 void
 DTTrig::clear() {
   // Delete the map
-  for (TU_iterator it=_cache.begin();it!=_cache.end();it++){
+  for (auto & it : _cache){
     // Delete all the trigger units 
-    delete (*it).second;
+    delete it.second;
   }
   _cache.clear(); 
 
-  for (SC_iterator it=_cache1.begin();it!=_cache1.end();it++){
+  for (auto & it : _cache1){
     // Delete all the Sector Collectors
-    delete (*it).second;
+    delete it.second;
   }
   _cache1.clear();
 

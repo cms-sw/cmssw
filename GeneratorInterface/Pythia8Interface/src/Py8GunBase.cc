@@ -54,8 +54,8 @@ bool Py8GunBase::initializeForInternalPartons()
 
     evtgenDecays.reset(new EvtGenDecays(fMasterGen.get(), evtgenDecFile.c_str(), evtgenPdlFile.c_str()));
 
-    for (unsigned int i=0; i<evtgenUserFiles.size(); i++) {
-      edm::FileInPath evtgenUserFile(evtgenUserFiles.at(i));
+    for (const auto & i : evtgenUserFiles) {
+      edm::FileInPath evtgenUserFile(i);
       evtgenDecays->readDecayFile(evtgenUserFile.fullPath().c_str());
     }
   }

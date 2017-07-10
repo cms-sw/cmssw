@@ -1129,8 +1129,8 @@ TrackerInteractionGeometry::~TrackerInteractionGeometry()
     
   }
   else {
-    for(unsigned int i = 0; i < _mediumProperties.size(); i++){
-      delete _mediumProperties[i];
+    for(auto & _mediumPropertie : _mediumProperties){
+      delete _mediumPropertie;
     }
   }
 

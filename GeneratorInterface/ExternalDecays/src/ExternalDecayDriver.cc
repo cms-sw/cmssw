@@ -32,8 +32,7 @@ ExternalDecayDriver::ExternalDecayDriver( const ParameterSet& pset )
   std::vector<std::string> extGenNames =
     pset.getParameter< std::vector<std::string> >("parameterSets");
   
-  for (unsigned int ip=0; ip<extGenNames.size(); ++ip ) {
-    std::string curSet = extGenNames[ip];
+  for (auto curSet : extGenNames) {
     if ( curSet == "EvtGen") {
       fEvtGenInterface = (EvtGenInterfaceBase*)(EvtGenFactory::get()->create("EvtGen", pset.getUntrackedParameter< ParameterSet >(curSet)));
       exSharedResources.emplace_back(edm::SharedResourceNames::kEvtGen);
@@ -115,18 +114,16 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
    
   if ( fTauolaInterface ) {
     fTauolaInterface->init( es );
-    for ( std::vector<int>::const_iterator i=fTauolaInterface->operatesOnParticles().begin();
-          i!=fTauolaInterface->operatesOnParticles().end(); i++ ) 
-      fPDGs.push_back( *i );
+    for (int i : fTauolaInterface->operatesOnParticles()) 
+      fPDGs.push_back( i );
   }
    
   if ( fEvtGenInterface ) {
     fEvtGenInterface->init();
-    for ( std::vector<int>::const_iterator i=fEvtGenInterface->operatesOnParticles().begin();
-	  i!=fEvtGenInterface->operatesOnParticles().end(); i++ )
-      fPDGs.push_back( *i );
-    for ( unsigned int iss=0; iss<fEvtGenInterface->specialSettings().size(); iss++ ) {
-      fSpecialSettings.push_back( fEvtGenInterface->specialSettings()[iss] );
+    for (int i : fEvtGenInterface->operatesOnParticles())
+      fPDGs.push_back( i );
+    for (const auto & iss : fEvtGenInterface->specialSettings()) {
+      fSpecialSettings.push_back( iss );
     }
 
   }
@@ -135,8 +132,8 @@ void ExternalDecayDriver::init( const edm::EventSetup& es )
     fPhotosInterface->init();
     //   for tauola++ 
     if ( fPhotosInterface ) {
-      for ( unsigned int iss=0; iss<fPhotosInterface->specialSettings().size(); iss++ ){
-        fSpecialSettings.push_back( fPhotosInterface->specialSettings()[iss] );
+      for (const auto & iss : fPhotosInterface->specialSettings()){
+        fSpecialSettings.push_back( iss );
       }
     }
   }

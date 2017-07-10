@@ -45,19 +45,18 @@ public:
 
     // try making a noisifier and using it
     const CSCGeometry::LayerContainer& layers = pGeom->layers();
-    for(auto layerItr = layers.begin();
-        layerItr != layers.end(); ++layerItr)
+    for(auto layer : layers)
     {
-      unsigned nstrips = (**layerItr).geometry()->numberOfStrips();
+      unsigned nstrips = (*layer).geometry()->numberOfStrips();
       for(unsigned istrip = 1; istrip != nstrips; ++istrip)
       {
         CSCAnalogSignal signal(istrip, scaBinSize, binValues, 0., 0.);
         //theDbConditions.fetchNoisifier((**layerItr).id(),istrip); 
         try {       
-          theDbConditions.noisify((**layerItr).id(), signal, engine);
+          theDbConditions.noisify((*layer).id(), signal, engine);
         }
         catch(cms::Exception & e) {
-           std::cerr << "Bad Noise Matrix for " << (**layerItr).id()  
+           std::cerr << "Bad Noise Matrix for " << (*layer).id()  
                      << "strip " << istrip << "\n";
            std::cerr << e.what() << std::endl;
         }

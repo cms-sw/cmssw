@@ -317,14 +317,14 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
   const reco::PhotonCollection* photons = pPhotons.product();
   std::vector<reco::Photon> photonsMCMatched;
 
-  for(reco::PhotonCollection::const_iterator aClus = photons->begin(); aClus != photons->end(); aClus++)
+  for(const auto & photon : *photons)
   {
-    if(aClus->et() >= EtCut)
+    if(photon.et() >= EtCut)
     {
-      hist_Et_->Fill(aClus->et());
-      hist_E_->Fill(aClus->energy());
-      hist_Eta_->Fill(aClus->eta());
-      hist_Phi_->Fill(aClus->phi());
+      hist_Et_->Fill(photon.et());
+      hist_E_->Fill(photon.energy());
+      hist_Eta_->Fill(photon.eta());
+      hist_Phi_->Fill(photon.phi());
      }
   }
 
@@ -382,14 +382,14 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
 
       double closestParticleDistance = 999;
 
-      for(reco::PhotonCollection::const_iterator aClus = photons->begin(); aClus != photons->end(); aClus++)
+      for(const auto & photon : *photons)
       {
-        if(aClus->et() > EtCut)
+        if(photon.et() > EtCut)
         {
-          etaCurrent = aClus->eta();
-          phiCurrent = aClus->phi();
-          etCurrent  = aClus->et();
-          eCurrent  = aClus->energy();
+          etaCurrent = photon.eta();
+          phiCurrent = photon.phi();
+          etCurrent  = photon.et();
+          eCurrent  = photon.energy();
 
           double deltaPhi = phiCurrent-phiTrue;
           if(deltaPhi > Geom::pi()) deltaPhi -= 2.*Geom::pi();
@@ -403,7 +403,7 @@ void EgammaObjects::analyzePhotons( const edm::Event& evt, const edm::EventSetup
             etaFound = etaCurrent;
             phiFound = phiCurrent;
             closestParticleDistance = deltaR;
-            bestMatchPhoton = *aClus;
+            bestMatchPhoton = photon;
           }
         }
       }
@@ -487,14 +487,14 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
   const reco::GsfElectronCollection* electrons = pElectrons.product();
   std::vector<reco::GsfElectron> electronsMCMatched;
 
-  for(reco::GsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++)
+  for(const auto & electron : *electrons)
   {
-    if(aClus->et() >= EtCut)
+    if(electron.et() >= EtCut)
     {
-      hist_Et_->Fill(aClus->et());
-      hist_E_->Fill(aClus->energy());
-      hist_Eta_->Fill(aClus->eta());
-      hist_Phi_->Fill(aClus->phi());
+      hist_Et_->Fill(electron.et());
+      hist_E_->Fill(electron.energy());
+      hist_Eta_->Fill(electron.eta());
+      hist_Phi_->Fill(electron.phi());
      }
   }
 
@@ -549,14 +549,14 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
 
       double closestParticleDistance = 999;
 
-      for(reco::GsfElectronCollection::const_iterator aClus = electrons->begin(); aClus != electrons->end(); aClus++)
+      for(const auto & electron : *electrons)
       {
-        if(aClus->et() > EtCut)
+        if(electron.et() > EtCut)
         {
-          etaCurrent = aClus->eta();
-          phiCurrent = aClus->phi();
-          etCurrent  = aClus->et();
-          eCurrent  = aClus->energy();
+          etaCurrent = electron.eta();
+          phiCurrent = electron.phi();
+          etCurrent  = electron.et();
+          eCurrent  = electron.energy();
 
           double deltaPhi = phiCurrent-phiTrue;
           if(deltaPhi > Geom::pi()) deltaPhi -= 2.*Geom::pi();
@@ -570,7 +570,7 @@ void EgammaObjects::analyzeElectrons( const edm::Event& evt, const edm::EventSet
             etaFound = etaCurrent;
             phiFound = phiCurrent;
             closestParticleDistance = deltaR;
-            bestMatchElectron = *aClus;
+            bestMatchElectron = electron;
           }
         }
       }

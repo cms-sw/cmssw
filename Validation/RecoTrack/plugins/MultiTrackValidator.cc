@@ -200,7 +200,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
     ibook.setCurrentFolder(dirName_);
   }
 
-  for (unsigned int ww=0;ww<associators.size();ww++){
+  for (auto & associator : associators){
     ibook.cd();
     // FIXME: these need to be moved to a subdirectory whose name depends on the associator
     ibook.setCurrentFolder(dirName_);
@@ -235,7 +235,7 @@ void MultiTrackValidator::bookHistograms(DQMStore::IBooker& ibook, edm::Run cons
       if (dirName.find("Tracks")<dirName.length()){
         dirName.replace(dirName.find("Tracks"),6,"");
       }
-      string assoc= associators[ww].label();
+      string assoc= associator.label();
       if (assoc.find("Track")<assoc.length()){
         assoc.replace(assoc.find("Track"),5,"");
       }
@@ -547,9 +547,9 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
   event.getByToken(label_pileupinfo,puinfoH);
   PileupSummaryInfo puinfo;
 
-  for (unsigned int puinfo_ite=0;puinfo_ite<(*puinfoH).size();++puinfo_ite){
-    if ((*puinfoH)[puinfo_ite].getBunchCrossing()==0){
-      puinfo=(*puinfoH)[puinfo_ite];
+  for (const auto & puinfo_ite : (*puinfoH)){
+    if (puinfo_ite.getBunchCrossing()==0){
+      puinfo=puinfo_ite;
       break;
     }
   }
@@ -897,8 +897,8 @@ void MultiTrackValidator::analyze(const edm::Event& event, const edm::EventSetup
             if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
             if(simRecColl.find(tp[0].first) != simRecColl.end()) numAssocRecoTracks = simRecColl[tp[0].first].size();
 	    at++;
-	    for (unsigned int tp_ite=0;tp_ite<tp.size();++tp_ite){
-              TrackingParticle trackpart = *(tp[tp_ite].first);
+	    for (const auto & tp_ite : tp){
+              TrackingParticle trackpart = *(tp_ite.first);
 	      if ((trackpart.eventId().event() == 0) && (trackpart.eventId().bunchCrossing() == 0)){
 	      	isSigSimMatched = true;
 		sat++;

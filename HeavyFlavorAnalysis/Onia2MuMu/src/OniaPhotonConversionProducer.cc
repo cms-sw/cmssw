@@ -101,19 +101,19 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
 
   StringCutObjectSelector<reco::Conversion> *convSelection_ = new StringCutObjectSelector<reco::Conversion>(convSelectionCuts_);
 
-  for(reco::ConversionCollection::const_iterator conv = pConv->begin(); conv != pConv->end(); ++conv){
+  for(const auto & conv : *pConv){
 
-    if (! ( *convSelection_)(*conv)){
+    if (! ( *convSelection_)(conv)){
 	continue; // selection string
     }
-    if (convAlgo_ != 0 && conv->algo()!= convAlgo_){
+    if (convAlgo_ != 0 && conv.algo()!= convAlgo_){
 	continue; // select algorithm
     }
     if(convQuality_.size() > 0){
 	bool flagsok=true;
 	for (std::vector<int>::const_iterator flag = convQuality_.begin(); flag!=convQuality_.end(); ++flag){
 	reco::Conversion::ConversionQuality q = (reco::Conversion::ConversionQuality)(*flag);
-           if (!conv->quality(q)) {
+           if (!conv.quality(q)) {
 	      flagsok=false;
 	      break;
            }
@@ -122,7 +122,7 @@ void OniaPhotonConversionProducer::produce(edm::Event& event, const edm::EventSe
 	   continue;
         }
     }
-    outCollection->push_back(*conv);
+    outCollection->push_back(conv);
   }
     
   removeDuplicates(*outCollection);
@@ -320,8 +320,8 @@ pat::CompositeCandidate *OniaPhotonConversionProducer::makePhotonCandidate(const
 // create a collection of PF photons
 const reco::PFCandidateCollection  OniaPhotonConversionProducer::selectPFPhotons(const reco::PFCandidateCollection& pfcandidates) {
   reco::PFCandidateCollection pfphotons;
-  for (reco::PFCandidateCollection::const_iterator cand =   pfcandidates.begin(); cand != pfcandidates.end(); ++cand){
-    if (cand->particleId() == reco::PFCandidate::gamma) pfphotons.push_back(*cand);
+  for (const auto & pfcandidate : pfcandidates){
+    if (pfcandidate.particleId() == reco::PFCandidate::gamma) pfphotons.push_back(pfcandidate);
   }
   return  pfphotons;
 }
@@ -338,8 +338,8 @@ bool OniaPhotonConversionProducer::CheckPi0( const reco::Conversion& conv, const
   float small2 = pi0SmallWindow_[1];
   float large1 = pi0LargeWindow_[0];
   float large2 = pi0LargeWindow_[1];
-  for (reco::PFCandidateCollection::const_iterator photon = photons.begin(); photon!=photons.end(); ++photon) {
-    float inv = (conv.refittedPair4Momentum() + photon->p4()).M(); 
+  for (const auto & photon : photons) {
+    float inv = (conv.refittedPair4Momentum() + photon.p4()).M(); 
     if (inv > large1 && inv < large2) {
       check_large = true;
       if (inv > small1 && inv < small2) { 

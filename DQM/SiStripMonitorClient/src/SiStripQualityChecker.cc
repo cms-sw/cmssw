@@ -403,9 +403,9 @@ void SiStripQualityChecker::getModuleStatus(DQMStore* dqm_store, std::vector<Mon
       lname = lname.substr(lname.find("_T")+1);
 
     }
-    for (std::vector<DQMChannel>::iterator it = bad_channels_me.begin(); it != bad_channels_me.end(); it++){
-      int xval = (*it).getBinX();
-      int yval = (*it).getBinY();
+    for (auto & it : bad_channels_me){
+      int xval = it.getBinX();
+      int yval = it.getBinY();
       uint32_t detId = tkDetMap_->getDetFromBin(lname, xval, yval);       
       std::map<uint32_t,uint16_t>::iterator iPos = bad_modules.find(detId);
       uint16_t flag;
@@ -507,8 +507,8 @@ void SiStripQualityChecker::fillFaultyModuleStatus(DQMStore* dqm_store, const ed
 // -- Initialise Bad Module List
 //
 void SiStripQualityChecker::initialiseBadModuleList() {
-  for (std::map<uint32_t,uint16_t>::iterator it=badModuleList.begin(); it!=badModuleList.end(); it++) {
-    it->second = 0;
+  for (auto & it : badModuleList) {
+    it.second = 0;
   }
 }
 //

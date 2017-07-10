@@ -136,10 +136,10 @@ FEDBadModuleFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    unsigned int nbad = 0;
    if(m_printlist || m_modules.size()!=0 || m_modsel.isValid() ) {
-     for(DetIdCollection::const_iterator mod = badmodules->begin(); mod!=badmodules->end(); ++mod) {
-       if((m_modules.size() == 0 || m_modules.find(*mod) != m_modules.end() ) && (!m_modsel.isValid() || m_modsel.isSelected(*mod))) {
+     for(auto mod : *badmodules) {
+       if((m_modules.size() == 0 || m_modules.find(mod) != m_modules.end() ) && (!m_modsel.isValid() || m_modsel.isSelected(mod))) {
 	 ++nbad;
-	 if(m_printlist) edm::LogInfo("FEDBadModule") << *mod;
+	 if(m_printlist) edm::LogInfo("FEDBadModule") << mod;
        }
      }
    }

@@ -197,10 +197,9 @@ void DQMClientExample::performClient(){
                                       <<"--- message ="<< theQReport->getMessage() << "\n";
 
    vector<dqm::me_util::Channel> badChannels = theQReport->getBadChannels();
-    for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	 channel != badChannels.end(); channel++) {
+    for (auto & badChannel : badChannels) {
         if(counterClientOperation<1) 
-        edm::LogError ("DQMClientExample") <<" Bad channels: "<<(*channel).getBin()<<" "<<(*channel).getContents();
+        edm::LogError ("DQMClientExample") <<" Bad channels: "<<badChannel.getBin()<<" "<<badChannel.getContents();
     }
   } 
   else { 

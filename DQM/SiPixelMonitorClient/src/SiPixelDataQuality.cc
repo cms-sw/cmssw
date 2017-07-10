@@ -706,7 +706,7 @@ void SiPixelDataQuality::fillGlobalQualityPlot(DQMStore::IBooker & iBooker, DQMS
 	}
 	//Filling done. Now modification.
 	float SFLay[3], TotLay[3];
-	for (int ll = 0; ll < 3; ++ll) TotLay[ll] = 0.0;
+	for (float & ll : TotLay) ll = 0.0;
 	for (int bin = 1; bin < (meFinal->getNbinsX()+1);++bin){
           int layer     =   int((bin%48)/16);
 	  TotLay[layer] += meFinal->getBinContent(bin);

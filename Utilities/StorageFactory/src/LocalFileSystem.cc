@@ -340,7 +340,7 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
   FSInfo *best = 0;
   size_t bestlen = 0;
   size_t len = strlen(path);
-  for (size_t i = 0; i < fs_.size(); ++i)
+  for (auto f : fs_)
   {
     // First match simply against the file system path.  We don't
     // touch the file system until the path prefix matches.
@@ -350,14 +350,14 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
     //   this match is the same length and the previous best isn't local
     // The final condition handles cases such as '/' that can appear twice
     // in the file system list, once as 'rootfs' and once as local fs.
-    size_t fslen = strlen(fs_[i]->dir);
-    if (! strncmp(fs_[i]->dir, path, fslen)
-	&& ((fslen == 1 && fs_[i]->dir[0] == '/')
+    size_t fslen = strlen(f->dir);
+    if (! strncmp(f->dir, path, fslen)
+	&& ((fslen == 1 && f->dir[0] == '/')
 	    || len == fslen || path[fslen] == '/')
 	&& (! best || fslen > bestlen || (fslen == bestlen && !best->local)))
     {
       // Get the file system device and file system ids.
-      if (statFSInfo(fs_[i]) < 0)
+      if (statFSInfo(f) < 0)
 	return 0;
 
       // Check the path is on the same device / file system.  If this
@@ -365,14 +365,14 @@ LocalFileSystem::findMount(const char *path, struct statfs *sfs, struct stat *s,
       // wrong device, so reset our idea of the best match: it can't
       // be the outer mount any more.  Not sure this is the right
       // thing to do with e.g. loop-back or union mounts.
-      if (fs_[i]->dev != s->st_dev || fs_[i]->fstype != sfs->f_type)
+      if (f->dev != s->st_dev || f->fstype != sfs->f_type)
       {
 	best = 0;
 	continue;
       }
 
       // OK this is better than anything else we found so far.
-      best = fs_[i];
+      best = f;
       bestlen = fslen;
     }
   }
@@ -491,10 +491,10 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
   std::ostringstream warningst;
   warningst << "Cannot use lazy-download because:\n";
 
-  for (size_t i = 0, e = paths.size(); i < e; ++i)
+  for (const auto & i : paths)
   {
     char *fullpath;
-    const char *inpath = paths[i].c_str();
+    const char *inpath = i.c_str();
     const char *path = inpath;
 
     if (*path == '$')
@@ -601,6 +601,6 @@ LocalFileSystem::LocalFileSystem(void)
 /** Free local file system status resources. */
 LocalFileSystem::~LocalFileSystem(void)
 {
-  for (size_t i = 0, e = fs_.size(); i < e; ++i)
-    free(fs_[i]);
+  for (auto & f : fs_)
+    free(f);
 }

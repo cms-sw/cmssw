@@ -47,8 +47,8 @@ void GEDGsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSe
   auto electrons = std::make_unique<GsfElectronCoreCollection>();
 
   const PFCandidateCollection * pfCandidateCollection = gedEMUnbiasedH_.product();
-  for ( unsigned int i=0 ; i<pfCandidateCollection->size() ; ++i )
-           produceElectronCore((*pfCandidateCollection)[i],electrons.get()) ;
+  for (const auto & i : *pfCandidateCollection)
+           produceElectronCore(i,electrons.get()) ;
     
   event.put(std::move(electrons));
  }

@@ -23,7 +23,7 @@ using namespace std;
     bh2hits_(),
     bh3hits_(),
     bh4hits_() {
-    for (int i=0;i<32;i++)V775_[i]=-1;
+    for (int & i : V775_)i=-1;
   }
 
   void HcalTBTiming::setTimes (const double trigger_time,

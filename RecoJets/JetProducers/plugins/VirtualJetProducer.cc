@@ -462,8 +462,8 @@ bool VirtualJetProducer::isAnomalousTower(reco::CandidatePtr input)
 void VirtualJetProducer::copyConstituents(const vector<fastjet::PseudoJet>& fjConstituents,
                                           reco::Jet* jet)
 {
-  for (unsigned int i=0;i<fjConstituents.size();++i) { 
-    int index = fjConstituents[i].user_index();
+  for (const auto & fjConstituent : fjConstituents) { 
+    int index = fjConstituent.user_index();
     if ( index >= 0 && static_cast<unsigned int>(index) < inputs_.size() )
       jet->addDaughter(inputs_[index]);
   }
@@ -475,8 +475,8 @@ vector<reco::CandidatePtr>
 VirtualJetProducer::getConstituents(const vector<fastjet::PseudoJet>&fjConstituents)
 {
   vector<reco::CandidatePtr> result; result.reserve(fjConstituents.size()/2);
-  for (unsigned int i=0;i<fjConstituents.size();i++) {
-    auto index = fjConstituents[i].user_index();
+  for (const auto & fjConstituent : fjConstituents) {
+    auto index = fjConstituent.user_index();
     if ( index >= 0 && static_cast<unsigned int>(index) < inputs_.size() ) {
       result.emplace_back(inputs_[index]);
     }

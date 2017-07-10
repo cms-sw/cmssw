@@ -107,40 +107,40 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   myParameters myLevels = iConfig.getParameter<myParameters>((std::string)"SeverityLevels");
 
   // now run through the parameter set vector:
-  for ( myParameters::iterator itLevels = myLevels.begin(); itLevels != myLevels.end(); ++itLevels)
+  for (auto & myLevel : myLevels)
     {
       // create the basic object
       HcalSeverityDefinition mydef;
 
       // get the level:
-      mydef.sevLevel = itLevels->getParameter<int>("Level");
+      mydef.sevLevel = myLevel.getParameter<int>("Level");
 
       // get the RecHitFlags:
       std::vector<std::string> myRecHitFlags = 
-	itLevels->getParameter<std::vector <std::string> > ("RecHitFlags");
+	myLevel.getParameter<std::vector <std::string> > ("RecHitFlags");
 
       // get channel statuses:
       std::vector<std::string> myChStatuses = 
-	itLevels->getParameter<std::vector <std::string> > ("ChannelStatus");
+	myLevel.getParameter<std::vector <std::string> > ("ChannelStatus");
 
       // now translate the RecHitFlags and the ChannelStatuses into a mask each:
       // create counters for invalid flags to be able to catch cases where a definition consists only of invalid bit names:
       unsigned int bvalid = 0;
       unsigned int bnonempty = 0;      
       // channel status:
-      for (unsigned k=0; k < myChStatuses.size(); k++)
+      for (auto & myChStatuse : myChStatuses)
 	{
-	  if (myChStatuses[k].empty()) break; // empty string
+	  if (myChStatuse.empty()) break; // empty string
 	  bnonempty++;
-	  bvalid+=getChStBit(mydef, myChStatuses[k]);
+	  bvalid+=getChStBit(mydef, myChStatuse);
 	}
       // RecHitFlag:
       //      HBHEStatusFlag, HOStatusFlag, HFStatusFlag, ZDCStatusFlag, CalibrationFlag
-      for (unsigned k=0; k < myRecHitFlags.size(); k++)
+      for (auto & myRecHitFlag : myRecHitFlags)
 	{
-	  if (myRecHitFlags[k].empty()) break; // empty string
+	  if (myRecHitFlag.empty()) break; // empty string
 	  bnonempty++;
-	  bvalid+=getRecHitFlag(mydef, myRecHitFlags[k]);
+	  bvalid+=getRecHitFlag(mydef, myRecHitFlag);
 	}
 
       //      std::cout << "Made Severity Level:" << std::endl;
@@ -187,11 +187,11 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 
   edm::LogInfo("HcalSeverityLevelComputer") 
     << "HcalSeverityLevelComputer - Summary of Severity Levels:" << std::endl;
-  for (std::vector<HcalSeverityDefinition>::iterator it = SevDef.begin(); it !=SevDef.end(); it++)
+  for (auto & it : SevDef)
     {
       // debug: write the levels definitions on screen:
       edm::LogInfo("HcalSeverityLevelComputer") 
-	<< (*it) << std::endl;
+	<< it << std::endl;
     }
 
   //
@@ -200,10 +200,10 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   std::vector<std::string> myRecovered = 
 	iConfig.getParameter<std::vector <std::string> > ("RecoveredRecHitBits");
   RecoveredRecHit_ = new HcalSeverityDefinition();
-  for (unsigned k=0; k < myRecovered.size(); k++)
+  for (auto & k : myRecovered)
     {
-      if (myRecovered[k].empty()) break;
-      getRecHitFlag( (*RecoveredRecHit_), myRecovered[k]);
+      if (k.empty()) break;
+      getRecHitFlag( (*RecoveredRecHit_), k);
     }
 
   //
@@ -212,10 +212,10 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
   std::vector<std::string> myDrop = 
 	iConfig.getParameter<std::vector <std::string> > ("DropChannelStatusBits");
   DropChannel_ = new HcalSeverityDefinition();
-  for (unsigned k=0; k < myDrop.size(); k++)
+  for (auto & k : myDrop)
     {
-      if (myDrop[k].empty()) break;
-      getChStBit( (*DropChannel_), myDrop[k]);
+      if (k.empty()) break;
+      getChStBit( (*DropChannel_), k);
     }
 
   edm::LogInfo("HcalSeverityLevelComputer")

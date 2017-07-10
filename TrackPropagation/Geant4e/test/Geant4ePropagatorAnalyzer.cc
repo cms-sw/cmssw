@@ -263,8 +263,8 @@ void Geant4ePropagatorAnalyzer::beginJob() {
 void Geant4ePropagatorAnalyzer::endJob() {
   fDistanceSHLayer->Write();
   fDistance->Write();
-  for (unsigned int i = 0; i < 4; i++)
-    fDistanceSt[i]->Write();
+  for (auto & i : fDistanceSt)
+    i->Write();
 
   fHitR->Write();
   fHitRho->Write();
@@ -417,19 +417,17 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
   //DEBUG
   unsigned int counter = 0;
   //DEBUG
-  for(SimTrackContainer::const_iterator simTracksIt = simTracks->begin(); 
-      simTracksIt != simTracks->end(); 
-      simTracksIt++){
+  for(const auto & simTracksIt : *simTracks){
 
     //DEBUG
     counter++;
     LogDebug("Geant4e") << "G4e -- Iterating over " << counter 
 			<< "rd track. Number: " 
-			<< simTracksIt->genpartIndex() 
+			<< simTracksIt.genpartIndex() 
 			<< "------------------";
     //DEBUG
 
-    int simTrackPDG = simTracksIt->type();
+    int simTrackPDG = simTracksIt.type();
     if (abs(simTrackPDG) != 13 ) {
       continue;
     }
@@ -439,7 +437,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 //    TimeMe tProp("Geant4ePropagatorAnalyzer::analyze::propagate");
    
     //- Check if the track corresponds to a muon
-    int trkPDG = simTracksIt->type();
+    int trkPDG = simTracksIt.type();
     if (abs(trkPDG) != 13 ) {
       LogDebug("Geant4e") << "Track is not a muon: " << trkPDG;
       continue;
@@ -450,9 +448,9 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
     
     //- Get momentum, but only use tracks with P > 2 GeV
     GlobalVector p3T = 
-      TrackPropagation::hep3VectorToGlobalVector(CLHEP::Hep3Vector(simTracksIt->momentum().x(),
-                                                            simTracksIt->momentum().y(),
-                                                            simTracksIt->momentum().z()));
+      TrackPropagation::hep3VectorToGlobalVector(CLHEP::Hep3Vector(simTracksIt.momentum().x(),
+                                                            simTracksIt.momentum().y(),
+                                                            simTracksIt.momentum().z()));
     if (p3T.perp() < 2.) {
       LogDebug("Geant4e") << "Track PT is too low: " << p3T.perp();
       continue;
@@ -471,7 +469,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
       
 
     //- Vertex fixes the starting point
-    int vtxInd = simTracksIt->vertIndex();
+    int vtxInd = simTracksIt.vertIndex();
     GlobalPoint r3T(0.,0.,0.);
     if (vtxInd < 0)
       LogDebug("Geant4e") << "Track with no vertex, defaulting to (0,0,0)";
@@ -500,7 +498,7 @@ void Geant4ePropagatorAnalyzer::analyze(const edm::Event& iEvent,
 
 
     //- Get index of generated particle. Used further down
-    unsigned int trkInd = simTracksIt->genpartIndex();
+    unsigned int trkInd = simTracksIt.genpartIndex();
 
     ////////////////////////////////////////////////
     //- Iterate over Sim Hits in DT and check propagation
@@ -533,14 +531,12 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
   else if (muonChamberType == CSC)
     LogDebug("Geant4e") << "G4e -- Iterating over CSC hits...";
   
-  for (PSimHitContainer::const_iterator simHitIt = simHits->begin(); 
-       simHitIt != simHits->end(); 
-       simHitIt++){
+  for (const auto & simHitIt : *simHits){
 
     ///////////////
     // Skip if this hit does not belong to the track
-    if (simHitIt->trackId() != trkIndex ) {
-      LogDebug("Geant4e") << "Hit (in tr " << simHitIt->trackId()
+    if (simHitIt.trackId() != trkIndex ) {
+      LogDebug("Geant4e") << "Hit (in tr " << simHitIt.trackId()
 			  << ") does not belong to track "<< trkIndex;
       continue;
     }
@@ -549,7 +545,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     
     //////////////
     // Skip if it is not a muon (this is checked before also)
-    int trkPDG = simHitIt->particleType();
+    int trkPDG = simHitIt.particleType();
     if (abs(trkPDG) != 13) {
       LogDebug("Geant4e") << "Associated track is not a muon: " << trkPDG;
       continue;
@@ -563,7 +559,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     // * DT
     DTWireId* wIdDT = 0; //For DT holds the information about the chamber
     if (muonChamberType == DT) {
-      wIdDT = new DTWireId(simHitIt->detUnitId());
+      wIdDT = new DTWireId(simHitIt.detUnitId());
       int station =  wIdDT->station();
       LogDebug("Geant4e") << "G4e -- DT Chamber. Station: " << station
 			  << ". DetId: " << wIdDT->layerId();
@@ -580,7 +576,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     }
     // * RPC
     else if (muonChamberType == RPC) {
-      RPCDetId rpcId(simHitIt->detUnitId());
+      RPCDetId rpcId(simHitIt.detUnitId());
       layer = theRPCGeomESH->idToDet(rpcId);
       if (layer == 0){
 	LogDebug("Geant4e") << "Failed to get detector unit";
@@ -590,7 +586,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
 
     // * CSC
     else if (muonChamberType ==CSC) {
-      CSCDetId cscId(simHitIt->detUnitId());
+      CSCDetId cscId(simHitIt.detUnitId());
       layer = theCSCGeomESH->idToDet(cscId);
       if (layer == 0){
 	LogDebug("Geant4e") << "Failed to get detector unit";
@@ -600,7 +596,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     }
 
     const Surface& surf = layer->surface();
-    if (layer->geographicalId()!=DTLayerId(simHitIt->detUnitId()))
+    if (layer->geographicalId()!=DTLayerId(simHitIt.detUnitId()))
       LogError("Geant4e") << "ERROR: wrong DetId";
 
     
@@ -614,10 +610,10 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
     
     ////////////
     // Discard hits with very low momentum ???
-    GlobalVector p3Hit = surf.toGlobal(simHitIt->momentumAtEntry());
+    GlobalVector p3Hit = surf.toGlobal(simHitIt.momentumAtEntry());
     if (p3Hit.perp() < 0.5 ) 
       continue;
-    GlobalPoint posHit = surf.toGlobal(simHitIt->localPosition());
+    GlobalPoint posHit = surf.toGlobal(simHitIt.localPosition());
     Point3DBase< float, GlobalTag > surfpos = surf.position();
     LogDebug("Geant4e") << "G4e -- Layer position: " << surfpos << " cm"
 			<< "\nG4e --                   Ro=" << surfpos.perp()
@@ -627,7 +623,7 @@ Geant4ePropagatorAnalyzer::iterateOverHits(edm::Handle<edm::PSimHitContainer> si
 			<< "\nG4e --                   Ro=" << posHit.perp()
 			<< "\tEta=" << posHit.eta()
 			<< "\tPhi=" << posHit.phi().degrees() << "deg"
-			<< "\t localpos=" << simHitIt->localPosition();
+			<< "\t localpos=" << simHitIt.localPosition();
 
 
     const Plane* bp = dynamic_cast<const Plane*>(&surf);

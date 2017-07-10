@@ -38,18 +38,17 @@ void testSelectIterator::checkAll() {
   PtMinSelector select( 3.5 );
   Selection<vector<A>, PtMinSelector> sel( v, select );
   CPPUNIT_ASSERT( sel.size() == 7 );
-  for( size_t i = 0; i < sel.size(); ++ i ) {
-    CPPUNIT_ASSERT( select( sel[i]) );
+  for(auto i : sel) {
+    CPPUNIT_ASSERT( select( i) );
   }
-  for( Selection<vector<A>, PtMinSelector>::const_iterator i = sel.begin(); 
-       i != sel.end(); ++ i ) {
-    CPPUNIT_ASSERT( select( * i ) );
+  for(auto i : sel) {
+    CPPUNIT_ASSERT( select( i ) );
   }
   vector<A> selected;
   copy( sel.begin(), sel.end(), back_inserter( selected ) );
   CPPUNIT_ASSERT( sel.size() == selected.size() );
-  for( size_t i = 0; i < selected.size(); ++ i ) {
-    CPPUNIT_ASSERT( select( selected[i]) );
+  for(auto i : selected) {
+    CPPUNIT_ASSERT( select( i) );
   }
 }  
 

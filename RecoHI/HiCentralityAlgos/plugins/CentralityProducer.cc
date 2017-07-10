@@ -301,11 +301,10 @@ CentralityProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         DetId detId = DetId(hits.detId());
         SiPixelRecHitCollection::const_iterator recHitMatch = rechits->find(detId);
         const SiPixelRecHitCollection::DetSet recHitRange = *recHitMatch;
-        for ( SiPixelRecHitCollection::DetSet::const_iterator recHitIterator = recHitRange.begin(); 
-	      recHitIterator != recHitRange.end(); ++recHitIterator) {
+        for (const auto & recHitIterator : recHitRange) {
 	  // add selection if needed, now all hits.
 	  if(doPixelCut_){
-	    const SiPixelRecHit * recHit = &(*recHitIterator);
+	    const SiPixelRecHit * recHit = &recHitIterator;
 	    const PixelGeomDetUnit* pixelLayer = dynamic_cast<const PixelGeomDetUnit*> (tGeo->idToDet(recHit->geographicalId()));
 	    GlobalPoint gpos = pixelLayer->toGlobal(recHit->localPosition());
 	    math::XYZVector rechitPos(gpos.x(),gpos.y(),gpos.z());

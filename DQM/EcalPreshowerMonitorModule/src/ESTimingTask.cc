@@ -48,9 +48,9 @@ ESTimingTask::ESTimingTask(const edm::ParameterSet& ps) {
   fit_->SetParameters(50, 10, 0, 0);
   
   //Histogram init  
-  for (int i = 0; i < 2; ++i)
+  for (auto & i : hTiming_)
     for (int j = 0; j < 2; ++j) 
-      hTiming_[i][j] = 0;
+      i[j] = 0;
 
   htESP_ = new TH1F("htESP", "Timing ES+", 81, -20.5, 20.5);
   htESM_ = new TH1F("htESM", "Timing ES-", 81, -20.5, 20.5);

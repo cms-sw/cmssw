@@ -101,8 +101,8 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
   const TrackerTopology* tTopo = tTopoHandle_.product();
   const TrackerGeometry* tGeom = gHandle.product();  
 
-  for (typename edm::DetSetVector<PixelDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
-    unsigned int rawid = DSViter->id; 
+  for (const auto & digi : *digis) {
+    unsigned int rawid = digi.id; 
     edm::LogInfo("Phase2TrackerMonitorDigi")<< " Det Id = " << rawid;    
     int layer = tTopo->getITPixelLayerNumber(rawid);
     if (layer < 0) continue;
@@ -131,7 +131,7 @@ void Phase2TrackerMonitorDigi::fillITPixelDigiHistos(const edm::Handle<edm::DetS
     int nclus = 0;
     int width = 1;
     int position = 0; 
-    for (typename edm::DetSet< PixelDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
+    for (typename edm::DetSet< PixelDigi >::const_iterator di = digi.begin(); di != digi.end(); di++) {
       int col = di->column(); // column
       int row = di->row();    // row
       int adc = di->adc();    // digi charge 
@@ -194,8 +194,8 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
   const TrackerTopology* tTopo = tTopoHandle_.product();
   const TrackerGeometry* tGeom = gHandle.product();  
 
-  for (typename edm::DetSetVector<Phase2TrackerDigi>::const_iterator DSViter = digis->begin(); DSViter != digis->end(); DSViter++) {
-    unsigned int rawid = DSViter->id; 
+  for (const auto & digi : *digis) {
+    unsigned int rawid = digi.id; 
     DetId detId(rawid);
     edm::LogInfo("Phase2TrackerMonitorDigi")<< " Det Id = " << rawid;    
     int layer = tTopo->getOTLayerNumber(rawid);
@@ -222,7 +222,7 @@ void Phase2TrackerMonitorDigi::fillOTDigiHistos(const edm::Handle<edm::DetSetVec
     int width = 1;
     int position = 0; 
     float frac_ot = 0.;
-    for (typename edm::DetSet< Phase2TrackerDigi >::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
+    for (typename edm::DetSet< Phase2TrackerDigi >::const_iterator di = digi.begin(); di != digi.end(); di++) {
       int col = di->column(); // column
       int row = di->row();    // row
       const DetId detId(rawid);

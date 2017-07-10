@@ -208,9 +208,8 @@ OMDSReader::~OMDSReader()
     coral::IQuery* query = schema.newQuery(); ;
 
     // Construct query
-    for (std::vector<std::string>::const_iterator constIt = columnNames.begin(); constIt
-            != columnNames.end(); ++constIt) {
-        query->addToOutputList(*constIt);
+    for (const auto & columnName : columnNames) {
+        query->addToOutputList(columnName);
     }
 
     query->addToTableList(viewName);

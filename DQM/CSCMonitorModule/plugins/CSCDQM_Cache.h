@@ -145,7 +145,7 @@ namespace cscdqm {
       Cache() {
         
         /** Initialize EMU and PAR static array with zero's */
-        for (unsigned int i = 0; i < h::namesSize; i++) data[i] = 0;
+        for (auto & i : data) i = 0;
 
 	/** Initialize FED cached pointers */
         fedPointer = fedData.end();

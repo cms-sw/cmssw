@@ -51,8 +51,8 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
   if ( enableRPC ) barrel = muonLayout->allBarrelLayers();
   else barrel = muonLayout->allDTLayers();
 
-  for ( auto i = barrel.begin(); i != barrel.end(); i++ ) {
-    const BarrelDetLayer* mbp = dynamic_cast<const BarrelDetLayer*>(*i);
+  for (auto & i : barrel) {
+    const BarrelDetLayer* mbp = dynamic_cast<const BarrelDetLayer*>(i);
     if ( mbp == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad BarrelDetLayer");
     addBarrelLayer(mbp);
   }
@@ -70,8 +70,8 @@ MuonNavigationSchool::MuonNavigationSchool(const MuonDetLayerGeometry * muonLayo
   //Trying allEndcaplayers in all other cases, as in the GEM PR
   else endcap = muonLayout->allEndcapLayers();
 
-  for ( auto i = endcap.begin(); i != endcap.end(); i++ ) {
-    const ForwardDetLayer* mep = dynamic_cast<const ForwardDetLayer*>(*i);
+  for (auto & i : endcap) {
+    const ForwardDetLayer* mep = dynamic_cast<const ForwardDetLayer*>(i);
     if ( mep == 0 ) throw cms::Exception("MuonNavigationSchool", "Bad ForwardDetLayer");
     addEndcapLayer(mep);
   }

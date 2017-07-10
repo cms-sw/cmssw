@@ -226,11 +226,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     totnumrechitrphi[det_lay_pair.first] = totnumrechitrphi[det_lay_pair.first] + detsetIter->size();
     //loop over rechits-rphi in the same subdetector
     if(iLayerME != LayerMEsMap.end()){
-      for(auto iterrphi= detsetIter->begin(), iterEnd = detsetIter->end(); iterrphi != iterEnd; ++iterrphi){	
+      for(auto rechit : *detsetIter){	
         const GeomDetUnit *  det = tracker.idToDetUnit(detid);
         const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
         const StripTopology &topol=(StripTopology&)stripdet->topology();
-        SiStripRecHit2D const rechit=*iterrphi;
         //analyze RecHits 
         rechitanalysis(rechit,topol,associate);
         // fill the result in a histogram
@@ -268,11 +267,10 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     totnumrechitstereo[det_lay_pair.first] = totnumrechitstereo[det_lay_pair.first] + detsetIter->size();
     //loop over rechits-stereo in the same subdetector
     if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-      for(auto iterstereo=detsetIter->begin(), iterEnd = detsetIter->end(); iterstereo!=iterEnd; ++iterstereo){
+      for(auto rechit : *detsetIter){
         const GeomDetUnit *  det = tracker.idToDetUnit(detid);
         const StripGeomDetUnit * stripdet=(const StripGeomDetUnit*)(det);
         const StripTopology &topol=(StripTopology&)stripdet->topology();
-        SiStripRecHit2D const rechit=*iterstereo;
         //analyze RecHits
         rechitanalysis(rechit,topol,associate);
         // fill the result in a histogram
@@ -310,8 +308,7 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
     totnumrechitmatched[det_lay_pair.first] = totnumrechitmatched[det_lay_pair.first] + detsetIter->size();
     //loop over rechits-matched in the same subdetector
     if(iStereoAndMatchedME != StereoAndMatchedMEsMap.end()){
-      for(auto itermatched=detsetIter->begin(), iterEnd = detsetIter->end(); itermatched!=iterEnd; ++itermatched){
-        SiStripMatchedRecHit2D const rechit=*itermatched;
+      for(auto rechit : *detsetIter){
         const GluedGeomDet* gluedDet = (const GluedGeomDet*)tracker.idToDet(rechit.geographicalId());
         //analyze RecHits 
         rechitanalysis_matched(rechit, gluedDet, associate);
@@ -336,11 +333,11 @@ void SiStripRecHitsValid::analyze(const edm::Event& e, const edm::EventSetup& es
   }//End of loops over detectors
   
   //now fill the cumulative histograms of the hits
-  for (std::vector<std::string>::iterator iSubdet  = SubDetList_.begin(); iSubdet != SubDetList_.end(); ++iSubdet){
-    std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find((*iSubdet));
-    fillME(iSubDetME->second.meNumrphi,totnumrechitrphi[(*iSubdet)]);
-    fillME(iSubDetME->second.meNumStereo,totnumrechitstereo[(*iSubdet)]);
-    fillME(iSubDetME->second.meNumMatched,totnumrechitmatched[(*iSubdet)]);
+  for (auto & iSubdet : SubDetList_){
+    std::map<std::string, SubDetMEs>::iterator iSubDetME  = SubDetMEsMap.find(iSubdet);
+    fillME(iSubDetME->second.meNumrphi,totnumrechitrphi[iSubdet]);
+    fillME(iSubDetME->second.meNumStereo,totnumrechitstereo[iSubdet]);
+    fillME(iSubDetME->second.meNumMatched,totnumrechitmatched[iSubdet]);
   }
 
   fillME(totalMEs.meNumTotrphi,totrechitrphi);
@@ -391,8 +388,8 @@ void SiStripRecHitsValid::rechitanalysis(SiStripRecHit2D const rechit,const Stri
   MeasurementError Merror = topol.measurementError(position,error);
   const auto & amplitudes=(rechit.cluster())->amplitudes();
   int totcharge=0;
-  for(size_t ia=0; ia<amplitudes.size();++ia){
-    totcharge+=amplitudes[ia];
+  for(unsigned char amplitude : amplitudes){
+    totcharge+=amplitude;
   }
   rechitpro.x = position.x();
   rechitpro.y = position.y();

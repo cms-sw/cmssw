@@ -12,8 +12,8 @@ std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingTree::pathToD
       uint32_t rawDetId) const
 {
   std::vector<sipixelobjects::CablingPathToDetUnit> result;
-  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
-    const PixelFEDCabling & aFed = im->second;
+  for (const auto & theFedCabling : theFedCablings) {
+    const PixelFEDCabling & aFed = theFedCabling.second;
     for (unsigned int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
       const PixelFEDLink * link = aFed.link(idxLink);
       if (!link) continue;
@@ -32,8 +32,8 @@ std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingTree::pathToD
 
 std::unordered_map<uint32_t, unsigned int> SiPixelFedCablingTree::det2fedMap() const {
   std::unordered_map<uint32_t, unsigned int> result;
-  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
-    auto const & aFed = im->second;
+  for (const auto & theFedCabling : theFedCablings) {
+    auto const & aFed = theFedCabling.second;
     for (unsigned int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
       auto link = aFed.link(idxLink);
       if (!link) continue;
@@ -49,8 +49,8 @@ std::unordered_map<uint32_t, unsigned int> SiPixelFedCablingTree::det2fedMap() c
 
 std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > SiPixelFedCablingTree::det2PathMap() const {
   std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > result;
-  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
-    auto const & aFed = im->second;
+  for (const auto & theFedCabling : theFedCablings) {
+    auto const & aFed = theFedCabling.second;
     for (unsigned int idxLink = 1; idxLink <= aFed.numberOfLinks(); idxLink++) {
       auto link = aFed.link(idxLink);
       if (!link) continue;
@@ -82,8 +82,8 @@ string SiPixelFedCablingTree::print(int depth) const
   ostringstream out;
   if ( depth-- >=0 ) {
     out << theVersion << endl;
-    for(IMAP it=theFedCablings.begin(); it != theFedCablings.end(); it++) {
-      out << (*it).second.print(depth);
+    for(const auto & theFedCabling : theFedCablings) {
+      out << theFedCabling.second.print(depth);
     }
   }
   out << endl;
@@ -93,8 +93,8 @@ string SiPixelFedCablingTree::print(int depth) const
 std::vector<const PixelFEDCabling *> SiPixelFedCablingTree::fedList() const
 {
   std::vector<const PixelFEDCabling *> result;
-  for (IMAP im = theFedCablings.begin(); im != theFedCablings.end(); im++) {
-    result.push_back( &(im->second) );
+  for (const auto & theFedCabling : theFedCablings) {
+    result.push_back( &(theFedCabling.second) );
   }
   std::sort(result.begin(),result.end(),[](const PixelFEDCabling * a,const PixelFEDCabling * b){return a->id()<b->id();});
   return result;
@@ -135,12 +135,12 @@ const sipixelobjects::PixelROC* SiPixelFedCablingTree::findItemInFed(
 int SiPixelFedCablingTree::checkNumbering() const
 {
   int status = 0;
-  for (auto im = theFedCablings.begin(); im != theFedCablings.end(); ++im) {
-    if (im->first != static_cast<int>( im->second.id())) {
+  for (const auto & theFedCabling : theFedCablings) {
+    if (theFedCabling.first != static_cast<int>( theFedCabling.second.id())) {
       status = 1;
-      std::cout <<  "PROBLEM WITH FED ID!!" << im->first <<" vs: "<< im->second.id() << std::endl; 
+      std::cout <<  "PROBLEM WITH FED ID!!" << theFedCabling.first <<" vs: "<< theFedCabling.second.id() << std::endl; 
     }
-    im->second.checkLinkNumbering();
+    theFedCabling.second.checkLinkNumbering();
   }
   return status;
 }

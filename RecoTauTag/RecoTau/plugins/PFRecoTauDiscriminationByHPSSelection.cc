@@ -119,9 +119,8 @@ PFRecoTauDiscriminationByHPSSelection::PFRecoTauDiscriminationByHPSSelection(con
 
 PFRecoTauDiscriminationByHPSSelection::~PFRecoTauDiscriminationByHPSSelection()
 {
-  for ( DecayModeCutMap::iterator it = decayModeCuts_.begin();
-	it != decayModeCuts_.end(); ++it ) {
-    delete it->second.maxMass_;
+  for (auto & decayModeCut : decayModeCuts_) {
+    delete decayModeCut.second.maxMass_;
   }
 }
 
@@ -158,9 +157,8 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   if ( massWindow.nTracksMin_ > 0 ) {
     unsigned int nTracks = 0;
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons = tau->signalTauChargedHadronCandidates();
-    for ( std::vector<reco::PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-      if ( chargedHadron->algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron->algoIs(reco::PFRecoTauChargedHadron::kTrack) ) {
+    for (const auto & chargedHadron : chargedHadrons) {
+      if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kTrack) ) {
 	++nTracks;
       }
     }
@@ -177,9 +175,8 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   if ( massWindow.nChargedPFCandsMin_ > 0 ) {
     unsigned int nChargedPFCands = 0;
     const std::vector<reco::PFRecoTauChargedHadron>& chargedHadrons = tau->signalTauChargedHadronCandidates();
-    for ( std::vector<reco::PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-      if ( chargedHadron->algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) ) {
+    for (const auto & chargedHadron : chargedHadrons) {
+      if ( chargedHadron.algoIs(reco::PFRecoTauChargedHadron::kChargedPFCandidate) ) {
 	++nChargedPFCands;
       }
     }
@@ -235,9 +232,8 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   //     irrespective of bendCorrection_mass
   reco::Candidate::LorentzVector tauP4_charged;
   const std::vector<reco::PFRecoTauChargedHadron>& signalChargedHadrons = tau->signalTauChargedHadronCandidates();
-  for ( std::vector<reco::PFRecoTauChargedHadron>::const_iterator signalChargedHadron = signalChargedHadrons.begin();
-	signalChargedHadron != signalChargedHadrons.end(); ++signalChargedHadron ) {
-    tauP4_charged += signalChargedHadron->p4();
+  for (const auto & signalChargedHadron : signalChargedHadrons) {
+    tauP4_charged += signalChargedHadron.p4();
   }
   if ( !(tauP4_charged.mass() < maxMass_value) ) {
     if ( verbosity_ ) {
@@ -318,11 +314,10 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   if ( minPixelHits_ > 0 ) {
     int numPixelHits = 0;
     const std::vector<reco::PFCandidatePtr>& chargedHadrCands = tau->signalPFChargedHadrCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator chargedHadrCand = chargedHadrCands.begin();
-	  chargedHadrCand != chargedHadrCands.end(); ++chargedHadrCand ) {
+    for (const auto & chargedHadrCand : chargedHadrCands) {
       const reco::Track* track = 0;
-      if ( (*chargedHadrCand)->trackRef().isNonnull() ) track = (*chargedHadrCand)->trackRef().get();
-      else if ( (*chargedHadrCand)->gsfTrackRef().isNonnull() ) track = (*chargedHadrCand)->gsfTrackRef().get();
+      if ( chargedHadrCand->trackRef().isNonnull() ) track = chargedHadrCand->trackRef().get();
+      else if ( chargedHadrCand->gsfTrackRef().isNonnull() ) track = chargedHadrCand->gsfTrackRef().get();
       if ( track ) {
 	numPixelHits += track->hitPattern().numberOfValidPixelHits();
       }

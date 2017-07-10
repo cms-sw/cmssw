@@ -64,9 +64,8 @@ HIMultiTrackSelector::HIMultiTrackSelector()
 void HIMultiTrackSelector::ParseForestVars()
 {
   mvavars_indices.clear();
-  for (unsigned i=0;i<forestVars_.size();i++)
+  for (auto v : forestVars_)
     {
-      std::string v = forestVars_[i];
       int ind = -1;
       if (v=="chi2perdofperlayer") ind=chi2perdofperlayer; 
       if (v=="dxyperdxyerror") ind=dxyperdxyerror;
@@ -521,11 +520,11 @@ void HIMultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) con
   }
 
   int iv=0;
-  for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
-    LogTrace("TrackSelection") << "Test track w.r.t. vertex with z position " << point->z();
+  for (const auto & point : points) {
+    LogTrace("TrackSelection") << "Test track w.r.t. vertex with z position " << point.z();
     if(primaryVertexZCompatibility && primaryVertexD0Compatibility) break;
-    float dzPV = tk.dz(*point); //re-evaluate the dz with respect to the vertex position
-    float d0PV = tk.dxy(*point); //re-evaluate the dxy with respect to the vertex position
+    float dzPV = tk.dz(point); //re-evaluate the dz with respect to the vertex position
+    float d0PV = tk.dxy(point); //re-evaluate the dxy with respect to the vertex position
     if(useVtxError_){
        float dzErrPV = std::sqrt(dzE*dzE+vzerr[iv]*vzerr[iv]); // include vertex error in z
        float d0ErrPV = std::sqrt(d0E*d0E+vterr[iv]*vterr[iv]); // include vertex error in xy
@@ -574,17 +573,17 @@ void HIMultiTrackSelector::run( edm::Event& evt, const edm::EventSetup& es ) con
   // Select good primary vertices
   using namespace reco;
   int32_t toTake = vtxNumber_[tsNum]; 
-  for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
+  for (const auto & it : vtxs) {
 
-    LogDebug("SelectVertex") << " select vertex with z position " << it->z() << " " 
-			     << it->chi2() << " " << it->ndof() << " " << TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()));
-    Vertex vtx = *it;
+    LogDebug("SelectVertex") << " select vertex with z position " << it.z() << " " 
+			     << it.chi2() << " " << it.ndof() << " " << TMath::Prob(it.chi2(), static_cast<int32_t>(it.ndof()));
+    Vertex vtx = it;
     bool pass = vertexCut_[tsNum]( vtx );
     if( pass ) { 
-      points.push_back(it->position()); 
-      vterr.push_back(sqrt(it->yError()*it->xError()));
-      vzerr.push_back(it->zError());
-      LogTrace("SelectVertex") << " SELECTED vertex with z position " << it->z();
+      points.push_back(it.position()); 
+      vterr.push_back(sqrt(it.yError()*it.xError()));
+      vzerr.push_back(it.zError());
+      LogTrace("SelectVertex") << " SELECTED vertex with z position " << it.z();
       toTake--; if (toTake == 0) break;
     }
   }
@@ -680,8 +679,8 @@ void HIMultiTrackSelector::processMVA(edm::Event& evt, const edm::EventSetup& es
     std::vector<float> gbrValues;
 
     //fill in the gbrValues vector with the necessary variables
-    for (unsigned i=0;i<mvavars_indices.size();i++) {
-      gbrValues.push_back(mvavalues[mvavars_indices[i]]);
+    for (int mvavars_indice : mvavars_indices) {
+      gbrValues.push_back(mvavalues[mvavars_indice]);
     }
 
 

@@ -142,9 +142,8 @@ void DTEffAnalyzer::effSegments(const Event & event,
   event.getByLabel(theRecHits4DLabel, segs);
   if (debug) {
     cout << "4d " << segs->size() << endl;
-    for (DTRecSegment4DCollection::const_iterator seg=segs->begin() ;
-         seg!=segs->end() ; ++seg ) 
-      cout << *seg << endl;
+    for (const auto & seg : *segs) 
+      cout << seg << endl;
   }
 
   // Get events with 3 segments in different station and look what happen on

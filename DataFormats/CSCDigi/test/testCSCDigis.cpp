@@ -446,7 +446,7 @@ void testCSCDigis::readCSCWireDigi(CSCWireDigiCollection & collection){
                (*digiIt).getWireGroup(),(*digiIt).getTimeBin());
             std::cout << " CSC Wire Time Bins On ";
             std::vector<int> tbins=(*digiIt).getTimeBinsOn();
-            for(unsigned int i=0; i<tbins.size();++i) std::cout<<tbins[i]<<" ";
+            for(int tbin : tbins) std::cout<<tbin<<" ";
             std::cout<<std::endl; 
             std::cout << " CSC Wire Word with Time Bins Bits On "
                       <<(*digiIt).getTimeBinWord()<<std::endl;
@@ -475,7 +475,7 @@ void testCSCDigis::readCSCComparatorDigi(CSCComparatorDigiCollection & collectio
 	     (*digiIt).getStrip(), (*digiIt).getComparator(), (*digiIt).getTimeBin());
       std::cout << " CSCComparatorDigi - time bins ON: ";
       std::vector<int> tbins=(*digiIt).getTimeBinsOn();
-      for(unsigned int i=0; i<tbins.size();++i) std::cout<<tbins[i]<<" ";
+      for(int tbin : tbins) std::cout<<tbin<<" ";
       std::cout<<std::endl; 
 
     }// for digis in layer

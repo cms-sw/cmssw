@@ -449,14 +449,13 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 	double ehem = 0; double ehep = 0;
 	int nChsHB = 0; int nChsHE = 0;
 	int nChsHBCut = 0; int nChsHECut = 0;
-	for (HBHERecHitCollection::const_iterator it=chbhe->begin();
-		it!=chbhe->end(); ++it)
+	for (const auto & it : *chbhe)
 	{
-		double energy = it->energy();
-		double timing = it->time();
+		double energy = it.energy();
+		double timing = it.time();
 
 		//	Explicit check on the DetIds present in the Collection
-		HcalDetId did = it->id();
+		HcalDetId did = it.id();
 		uint32_t rawid = _ehashmap.lookup(did);
         /*
          * Needs to be removed as DetIds that belong to the HEP17 after combination
@@ -607,14 +606,13 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 	int nChsHO = 0; int nChsHOCut = 0;
 	double ehop = 0; double ehom = 0;
-	for (HORecHitCollection::const_iterator it=cho->begin();
-		it!=cho->end(); ++it)
+	for (const auto & it : *cho)
 	{
-		double energy = it->energy();
-		double timing = it->time();
+		double energy = it.energy();
+		double timing = it.time();
 		
 		//	Explicit check on the DetIds present in the Collection
-		HcalDetId did = it->id();
+		HcalDetId did = it.id();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0)
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
@@ -715,14 +713,13 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 	int nChsHF = 0; int nChsHFCut = 0;
 	double ehfp = 0; double ehfm = 0;
-	for (HFRecHitCollection::const_iterator it=chf->begin();
-		it!=chf->end(); ++it)
+	for (const auto & it : *chf)
 	{
-		double energy = it->energy();
-		double timing = it->time();
+		double energy = it.energy();
+		double timing = it.time();
 
 		//	Explicit check on the DetIds present in the Collection
-		HcalDetId did = it->id();
+		HcalDetId did = it.id();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0)
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
@@ -824,18 +821,17 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 
 	// Loop over HFPreRecHits to get charge and charge asymmetry
 	if (_hfPreRecHitsAvailable) {
-		for (HFPreRecHitCollection::const_iterator it=cprehf->begin();
-			it!=cprehf->end(); ++it)
+		for (const auto & it : *cprehf)
 		{
-			HcalDetId did = it->id();
+			HcalDetId did = it.id();
 			if (_filter_HF.filter(did)) {
 				continue;
 			}
-			std::pair<float, bool> chargeAsymmetry = it->chargeAsymmetry(0.);
-			std::pair<float, bool> chargeAsymmetryCut = it->chargeAsymmetry(20.);
+			std::pair<float, bool> chargeAsymmetry = it.chargeAsymmetry(0.);
+			std::pair<float, bool> chargeAsymmetryCut = it.chargeAsymmetry(20.);
 
 			if (chargeAsymmetry.second) {
-				_cDAAsymmetryVsCharge_SubdetPM.fill(did, chargeAsymmetry.first, it->charge());
+				_cDAAsymmetryVsCharge_SubdetPM.fill(did, chargeAsymmetry.first, it.charge());
 			}
 			if (chargeAsymmetryCut.second) {
 				_cDAAsymmetryMean_cut_depth.fill(did, chargeAsymmetryCut.first);
@@ -918,16 +914,15 @@ RecHitTask::RecHitTask(edm::ParameterSet const& ps):
 				_vflags[fUnknownIds]._state = flag::fGOOD;
 
 			int iflag=0;
-			for (std::vector<flag::Flag>::iterator ft=_vflags.begin();
-				ft!=_vflags.end(); ++ft)
+			for (auto & _vflag : _vflags)
 			{
 				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
-					int(ft->_state));
-				fSum+=(*ft);
+					int(_vflag._state));
+				fSum+=_vflag;
 				iflag++;
 
 				//	reset after using
-				ft->reset();
+				_vflag.reset();
 			}
 			_cSummaryvsLS.setBinContent(eid, _currentLS, fSum._state);
 		}

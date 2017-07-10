@@ -453,12 +453,12 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
         // const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_; // trajTrackPairs_ now private
         const ConstTrajTrackPairCollection trajtracks = eventInfo.trajTrackPairs();
 
-        for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
+        for (const auto & trajtrack : trajtracks)
         {
             m_counter_tracks++;
 
-            const Trajectory* traj = (*trajtrack).first;
-            const reco::Track* track = (*trajtrack).second;
+            const Trajectory* traj = trajtrack.first;
+            const reco::Track* track = trajtrack.second;
 
             if (m_minTrackPt < track->pt()  &&  track->pt() < m_maxTrackPt && m_minTrackP < track->p()  &&  track->p() < m_maxTrackP)
             {

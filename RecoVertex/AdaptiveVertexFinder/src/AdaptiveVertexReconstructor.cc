@@ -73,13 +73,12 @@ void AdaptiveVertexReconstructor::erase (
    * But erase only if trackweight > w
    */
   const vector < reco::TransientTrack > & origtrks = newvtx.originalTracks();
-  for ( vector< reco::TransientTrack >::const_iterator i=origtrks.begin();
-        i!=origtrks.end(); ++i )
+  for (const auto & origtrk : origtrks)
   {
-    double weight = newvtx.trackWeight ( *i );
+    double weight = newvtx.trackWeight ( origtrk );
     if ( weight > w )
     {
-      remainingtrks.erase ( *i );
+      remainingtrks.erase ( origtrk );
     };
   };
 }
@@ -267,23 +266,23 @@ vector<TransientVertex> AdaptiveVertexReconstructor::cleanUpVertices (
     const vector < TransientVertex > & old ) const
 {
   vector < TransientVertex > ret;
-  for ( vector< TransientVertex >::const_iterator i=old.begin(); i!=old.end() ; ++i )
+  for (const auto & i : old)
   {
-    if (!(i->hasTrackWeight()))
+    if (!(i.hasTrackWeight()))
     { // if we dont have track weights, we take the vtx
-      ret.push_back ( *i );
+      ret.push_back ( i );
       continue;
     }
 
     // maybe this should be replaced with asking for the ndf ...
     // e.g. if ( ndf > - 1. )
     int nsig=0; // number of significant tracks. 
-    TransientVertex::TransientTrackToFloatMap wm = i->weightMap();
+    TransientVertex::TransientTrackToFloatMap wm = i.weightMap();
     for ( TransientVertex::TransientTrackToFloatMap::const_iterator w=wm.begin(); w!=wm.end() ; ++w )
     {
       if (w->second > theWeightThreshold) nsig++;
     }
-    if ( nsig > 1 ) ret.push_back ( *i );
+    if ( nsig > 1 ) ret.push_back ( i );
   }
 
   return ret;

@@ -2,7 +2,7 @@
 #include "L1Trigger/L1TMuonEndCap/interface/PhiMemoryImage.h"
 
 PhiMemoryImage::PhiMemoryImage():_keyStationOffset(0){
-  for (int i = 0; i < PhiMemoryImage::TOTAL_UNITS; i++) _buffer[i] = 0;
+  for (unsigned long & i : _buffer) i = 0;
 }
 
 PhiMemoryImage::PhiMemoryImage(PhiMemoryImage::value_ptr buffer, int offset):_keyStationOffset(offset){

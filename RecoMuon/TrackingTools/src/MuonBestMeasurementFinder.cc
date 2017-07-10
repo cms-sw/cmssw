@@ -47,12 +47,11 @@ MuonBestMeasurementFinder::findBestMeasurement(std::vector<TrajectoryMeasurement
 
   // consider only valid TM
   int NumValidMeas=0;
-  for ( vector<TrajectoryMeasurement>::iterator measurement = measC.begin(); 
-	measurement!= measC.end(); ++measurement ) {
-    if ((*measurement).recHit()->isValid()) {
+  for (auto & measurement : measC) {
+    if (measurement.recHit()->isValid()) {
       ++NumValidMeas;
-      bestMeasurement = &(*measurement);
-      validMeasurements.push_back( &(*measurement) );
+      bestMeasurement = &measurement;
+      validMeasurements.push_back( &measurement );
     }
   }
 

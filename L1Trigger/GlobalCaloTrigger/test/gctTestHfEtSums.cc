@@ -93,18 +93,18 @@ void gctTestHfEtSums::fillExpectedHfSums(const std::vector<RegionsVector>& input
     std::vector<unsigned> bcNegativeEta(NUMBER_OF_INNER_RINGS,0);
     std::vector<unsigned> bcPositiveEta(NUMBER_OF_INNER_RINGS,0);
     // Loop over regions, selecting those in the outer ring(s) of the Hf
-    for (RegionsVector::const_iterator region=inputRegions.at(bx).begin(); region!=inputRegions.at(bx).end(); region++) {
-      if (region->id().rctEta() >= MIN_ETA_HF_SUMS) {
-	unsigned ring = NUMBER_OF_RINGS_PER_WHEEL - region->id().rctEta() - 1;
+    for (const auto & region : inputRegions.at(bx)) {
+      if (region.id().rctEta() >= MIN_ETA_HF_SUMS) {
+	unsigned ring = NUMBER_OF_RINGS_PER_WHEEL - region.id().rctEta() - 1;
 	// Split into positive and negative eta
-	if (region->id().ieta() < NUMBER_OF_RINGS_PER_WHEEL) {
-	  etNegativeEta.at(ring) += region->et();
-	  ofNegativeEta.at(ring) = ofNegativeEta.at(ring) || region->overFlow();
-	  if (region->fineGrain()) ++bcNegativeEta.at(ring);
+	if (region.id().ieta() < NUMBER_OF_RINGS_PER_WHEEL) {
+	  etNegativeEta.at(ring) += region.et();
+	  ofNegativeEta.at(ring) = ofNegativeEta.at(ring) || region.overFlow();
+	  if (region.fineGrain()) ++bcNegativeEta.at(ring);
 	} else {
-	  etPositiveEta.at(ring) += region->et();
-	  ofPositiveEta.at(ring) = ofPositiveEta.at(ring) || region->overFlow();
-	  if (region->fineGrain()) ++bcPositiveEta.at(ring);
+	  etPositiveEta.at(ring) += region.et();
+	  ofPositiveEta.at(ring) = ofPositiveEta.at(ring) || region.overFlow();
+	  if (region.fineGrain()) ++bcPositiveEta.at(ring);
 	}
       }
     }

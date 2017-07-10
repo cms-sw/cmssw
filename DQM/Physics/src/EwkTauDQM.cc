@@ -392,10 +392,8 @@ void EwkElecTauHistManager::fillHistograms(const edm::Event& evt,
 
   //--- fill electron multiplicity histogram
   unsigned numIdElectrons = 0;
-  for (reco::GsfElectronCollection::const_iterator electron =
-           electrons->begin();
-       electron != electrons->end(); ++electron) {
-    if (passesElectronId(*electron)) {
+  for (const auto & electron : *electrons) {
+    if (passesElectronId(electron)) {
       ++numIdElectrons;
     }
   }
@@ -855,9 +853,8 @@ void EwkMuTauHistManager::fillHistograms(const edm::Event& evt,
 
   //--- fill muon multiplicity histogram
   unsigned numGlobalMuons = 0;
-  for (reco::MuonCollection::const_iterator muon = muons->begin();
-       muon != muons->end(); ++muon) {
-    if (muon->isGlobalMuon()) {
+  for (const auto & muon : *muons) {
+    if (muon.isGlobalMuon()) {
       ++numGlobalMuons;
     }
   }
@@ -1106,12 +1103,11 @@ const reco::GsfElectron* getTheElectron(
     double electronPtCut) {
   const reco::GsfElectron* theElectron = 0;
 
-  for (reco::GsfElectronCollection::const_iterator electron = electrons.begin();
-       electron != electrons.end(); ++electron) {
-    if (TMath::Abs(electron->eta()) < electronEtaCut &&
-        electron->pt() > electronPtCut && passesElectronPreId(*electron)) {
-      if (theElectron == 0 || electron->pt() > theElectron->pt())
-        theElectron = &(*electron);
+  for (const auto & electron : electrons) {
+    if (TMath::Abs(electron.eta()) < electronEtaCut &&
+        electron.pt() > electronPtCut && passesElectronPreId(electron)) {
+      if (theElectron == 0 || electron.pt() > theElectron->pt())
+        theElectron = &electron;
     }
   }
 
@@ -1122,10 +1118,9 @@ const reco::Muon* getTheMuon(const reco::MuonCollection& muons,
                              double muonEtaCut, double muonPtCut) {
   const reco::Muon* theMuon = 0;
 
-  for (reco::MuonCollection::const_iterator muon = muons.begin();
-       muon != muons.end(); ++muon) {
-    if (TMath::Abs(muon->eta()) < muonEtaCut && muon->pt() > muonPtCut) {
-      if (theMuon == 0 || muon->pt() > theMuon->pt()) theMuon = &(*muon);
+  for (const auto & muon : muons) {
+    if (TMath::Abs(muon.eta()) < muonEtaCut && muon.pt() > muonPtCut) {
+      if (theMuon == 0 || muon.pt() > theMuon->pt()) theMuon = &muon;
     }
   }
 

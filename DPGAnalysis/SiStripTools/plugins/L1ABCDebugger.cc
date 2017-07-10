@@ -121,15 +121,15 @@ L1ABCDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByToken(m_l1abccollectionToken,pIn);
 
    // offset computation
-       for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
-	 if(l1abc->l1AcceptOffset()==0) {
+       for(const auto & l1abc : *pIn) {
+	 if(l1abc.l1AcceptOffset()==0) {
 	   if(m_hoffsets && *m_hoffsets) 
-	     (*m_hoffsets)->Fill((int)l1abc->bunchCrossing()-(int)iEvent.bunchCrossing(),
-				 (long long)l1abc->orbitNumber()-(long long)iEvent.orbitNumber());
+	     (*m_hoffsets)->Fill((int)l1abc.bunchCrossing()-(int)iEvent.bunchCrossing(),
+				 (long long)l1abc.orbitNumber()-(long long)iEvent.orbitNumber());
 	   if(m_horboffvsorb && *m_horboffvsorb) 
-	     (*m_horboffvsorb)->Fill(iEvent.orbitNumber(),(long long)l1abc->orbitNumber()-(long long)iEvent.orbitNumber());
+	     (*m_horboffvsorb)->Fill(iEvent.orbitNumber(),(long long)l1abc.orbitNumber()-(long long)iEvent.orbitNumber());
 	   if(m_hbxoffvsorb && *m_hbxoffvsorb) 
-	     (*m_hbxoffvsorb)->Fill(iEvent.orbitNumber(),(int)l1abc->bunchCrossing()-(int)iEvent.bunchCrossing());
+	     (*m_hbxoffvsorb)->Fill(iEvent.orbitNumber(),(int)l1abc.bunchCrossing()-(int)iEvent.bunchCrossing());
 	 }
        }
 
@@ -139,8 +139,8 @@ L1ABCDebugger::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    edm::LogInfo("L1ABCDebug") << "Dump of L1AcceptBunchCrossing Collection for event in orbit " 
 			      << iEvent.orbitNumber() << " and BX " << iEvent.bunchCrossing();
 
-   for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
-     edm::LogVerbatim("L1ABCDebug") << *l1abc;
+   for(const auto & l1abc : *pIn) {
+     edm::LogVerbatim("L1ABCDebug") << l1abc;
    }
 
 }

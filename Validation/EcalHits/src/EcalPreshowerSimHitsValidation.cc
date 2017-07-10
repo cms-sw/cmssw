@@ -159,10 +159,10 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   // endcap
   double EEetzp_ = 0.;
   double EEetzm_ = 0.;
-  for (std::vector<PCaloHit>::iterator isim = theEECaloHits.begin(); isim != theEECaloHits.end(); ++isim){
-    EEDetId eeid (isim->id()) ;
-    if (eeid.zside() > 0 ) EEetzp_ += isim->energy();
-    if (eeid.zside() < 0 ) EEetzm_ += isim->energy();
+  for (auto & theEECaloHit : theEECaloHits){
+    EEDetId eeid (theEECaloHit.id()) ;
+    if (eeid.zside() > 0 ) EEetzp_ += theEECaloHit.energy();
+    if (eeid.zside() < 0 ) EEetzm_ += theEECaloHit.energy();
   }
   
   
@@ -176,48 +176,47 @@ void EcalPreshowerSimHitsValidation::analyze(const edm::Event& e, const edm::Eve
   double ESet2zm_ = 0.;
   std::vector<double> econtr(140, 0. );
   
-  for (std::vector<PCaloHit>::iterator isim = theESCaloHits.begin();
-       isim != theESCaloHits.end(); ++isim){
+  for (auto & theESCaloHit : theESCaloHits){
     //CaloHitMap[(*isim).id()].push_back((*isim));
     
-    ESDetId esid (isim->id()) ;
+    ESDetId esid (theESCaloHit.id()) ;
     
     LogDebug("HitInfo")
-      << " CaloHit " << isim->getName() << "\n" 
-      << " DetID = "<<isim->id()<< " ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
-      << " Time = " << isim->time() << "\n"
-      << " Track Id = " << isim->geantTrackId() << "\n"
-      << " Energy = " << isim->energy();
+      << " CaloHit " << theESCaloHit.getName() << "\n" 
+      << " DetID = "<<theESCaloHit.id()<< " ESDetId: z side " << esid.zside() << "  plane " << esid.plane() << esid.six() << ',' << esid.siy() << ':' << esid.strip() << "\n"
+      << " Time = " << theESCaloHit.time() << "\n"
+      << " Track Id = " << theESCaloHit.geantTrackId() << "\n"
+      << " Energy = " << theESCaloHit.energy();
     
-    ESEnergy_ += isim->energy();
-    if( isim->energy() > 0 ) {
-      meEShitLog10Energy_->Fill(log10(isim->energy()));
-      int log10i = int( ( log10(isim->energy()) + 10. ) * 10. );
-      if( log10i >=0 && log10i < 140 ) econtr[log10i] += isim->energy();
+    ESEnergy_ += theESCaloHit.energy();
+    if( theESCaloHit.energy() > 0 ) {
+      meEShitLog10Energy_->Fill(log10(theESCaloHit.energy()));
+      int log10i = int( ( log10(theESCaloHit.energy()) + 10. ) * 10. );
+      if( log10i >=0 && log10i < 140 ) econtr[log10i] += theESCaloHit.energy();
     }
 
     if (esid.plane() == 1 ) { 
       if (esid.zside() > 0 ) {
 	nESHits1zp++ ;
-	ESet1zp_ += isim->energy();
-	if (meESEnergyHits1zp_) meESEnergyHits1zp_->Fill(isim->energy()) ; 
+	ESet1zp_ += theESCaloHit.energy();
+	if (meESEnergyHits1zp_) meESEnergyHits1zp_->Fill(theESCaloHit.energy()) ; 
       }
       else if (esid.zside() < 0 ) {
 	nESHits1zm++ ; 
-	ESet1zm_ += isim->energy();
-	if (meESEnergyHits1zm_) meESEnergyHits1zm_->Fill(isim->energy()) ; 
+	ESet1zm_ += theESCaloHit.energy();
+	if (meESEnergyHits1zm_) meESEnergyHits1zm_->Fill(theESCaloHit.energy()) ; 
       }
     }
     else if (esid.plane() == 2 ) {
       if (esid.zside() > 0 ) {
 	nESHits2zp++ ; 
-	ESet2zp_ += isim->energy();
-	if (meESEnergyHits2zp_) meESEnergyHits2zp_->Fill(isim->energy()) ; 
+	ESet2zp_ += theESCaloHit.energy();
+	if (meESEnergyHits2zp_) meESEnergyHits2zp_->Fill(theESCaloHit.energy()) ; 
       }
       else if (esid.zside() < 0 ) {
 	nESHits2zm++ ; 
-	ESet2zm_ += isim->energy();
-	if (meESEnergyHits2zm_) meESEnergyHits2zm_->Fill(isim->energy()) ; 
+	ESet2zm_ += theESCaloHit.energy();
+	if (meESEnergyHits2zm_) meESEnergyHits2zm_->Fill(theESCaloHit.energy()) ; 
       }
     }
     

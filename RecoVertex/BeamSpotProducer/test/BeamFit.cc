@@ -320,19 +320,19 @@ Double_t cutOnChi2(const TMatrixD& x, Double_t chi2cut)
 	double sigmabeam2 = 0.002 * 0.002;
   TMatrixD g(1,4);
   Double_t weightsum = 0;
-  for(zDataIter i = zdata.begin() ; i != zdata.end() ; ++i) {
-    g(0,0) = sin(i->Phi);
-    g(0,1) = - cos(i->Phi);
-    g(0,2) = i->Z * g(0,0);
-    g(0,3) = i->Z * g(0,1);
+  for(auto & i : zdata) {
+    g(0,0) = sin(i.Phi);
+    g(0,1) = - cos(i.Phi);
+    g(0,2) = i.Z * g(0,0);
+    g(0,3) = i.Z * g(0,1);
     TMatrixD dcor = g * x;
     //std::cout << dcor.GetNrows() << " , " << dcor.GetNcols() << "\n";
-    Double_t chi2 = (i->D -  dcor(0,0))* (i->D -  dcor(0,0)) / 
-      (sigmabeam2 +  (i->SigD)*(i->SigD));
+    Double_t chi2 = (i.D -  dcor(0,0))* (i.D -  dcor(0,0)) / 
+      (sigmabeam2 +  (i.SigD)*(i.SigD));
     if(chi2 > chi2cut) {
-      i->weight2 = 0; 
+      i.weight2 = 0; 
     } else {
-      i->weight2 = 1;
+      i.weight2 = 1;
       weightsum += 1;
     }
   }

@@ -78,23 +78,21 @@ public:
 	if (digiIt->strip() < 1 || digiIt->strip() > roll->nstrips() ){
 	  std::cout <<" XXXXXXXXXXXXX Problemt with "<<id<<std::endl;
 	} 
-	for(std::vector<PSimHit>::const_iterator simHit = 
-	      simHits->begin();
-	    simHit != simHits->end(); simHit++){
-	  RPCDetId rpcId((*simHit).detUnitId());
-	    if (rpcId==id && abs((*simHit).particleType())==13){
-	      std::cout<<"entry: "<<(*simHit).entryPoint()<<std::endl
-		       <<"exit: "<<(*simHit).exitPoint()<<std::endl
-		       <<"TOF: "<<(*simHit).timeOfFlight()<<std::endl;
+	for(const auto & simHit : *simHits){
+	  RPCDetId rpcId(simHit.detUnitId());
+	    if (rpcId==id && abs(simHit.particleType())==13){
+	      std::cout<<"entry: "<<simHit.entryPoint()<<std::endl
+		       <<"exit: "<<simHit.exitPoint()<<std::endl
+		       <<"TOF: "<<simHit.timeOfFlight()<<std::endl;
 	    }
 	}
       }// for digis in layer
     }// for layers
 
-   for (edm::DetSetVector<RPCDigiSimLink>::const_iterator itlink = thelinkDigis->begin(); itlink != thelinkDigis->end(); itlink++)
+   for (const auto & itlink : *thelinkDigis)
      {
 
-       for(edm::DetSet<RPCDigiSimLink>::const_iterator digi_iter=itlink->data.begin();digi_iter != itlink->data.end();++digi_iter){
+       for(edm::DetSet<RPCDigiSimLink>::const_iterator digi_iter=itlink.data.begin();digi_iter != itlink.data.end();++digi_iter){
 	 
 	  int ev = digi_iter->getEventId().event();
 	  int detid = digi_iter->getDetUnitId();

@@ -101,10 +101,9 @@ void MatchJet::matchCollections(
 	const std::vector<Match>& matches =
 		matching.match(std::less<double>(),
 		               std::bind2nd(std::less<double>(), maxChi2));
-	for(std::vector<Match>::const_iterator iter = matches.begin();
-	    iter != matches.end(); ++iter) {
-		refToRec[iter->index1] = iter->index2;
-		recToRef[iter->index2] = iter->index1;
+	for(auto matche : matches) {
+		refToRec[matche.index1] = matche.index2;
+		recToRef[matche.index2] = matche.index1;
 	}
 }
 

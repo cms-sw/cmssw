@@ -135,8 +135,7 @@ void DTTTrigOffsetCalibration::endJob() {
   LogVerbatim("Calibration") << "[DTTTrigOffsetCalibration] Writing histos to file!" << endl;
 
   for(ChamberHistosMap::const_iterator itChHistos = theT0SegHistoMap_.begin(); itChHistos != theT0SegHistoMap_.end(); ++itChHistos){
-    for(vector<TH1F*>::const_iterator itHist = (*itChHistos).second.begin();
-                                      itHist != (*itChHistos).second.end(); ++itHist) (*itHist)->Write();
+    for(auto itHist : (*itChHistos).second) itHist->Write();
   }
 
   if(doTTrigCorrection_){

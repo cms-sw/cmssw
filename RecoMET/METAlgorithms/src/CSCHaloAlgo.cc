@@ -356,12 +356,11 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	       if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon()&&trkmuunvetoisdefault) continue;
 	       if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3) lowpttrackmu=true;
 	       const std::vector<MuonChamberMatch> chambers = mu->matches();
-	       for(std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin();
-		   kChamber != chambers.end(); kChamber ++ )
+	       for(const auto & chamber : chambers)
 		 {
-		   if( kChamber->detector() != MuonSubdetId::CSC ) continue;
-		   for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
-			kSegment != kChamber->segmentMatches.end(); kSegment++ )
+		   if( chamber.detector() != MuonSubdetId::CSC ) continue;
+		   for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = chamber.segmentMatches.begin();
+			kSegment != chamber.segmentMatches.end(); kSegment++ )
 		     {
 		       edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
 		       CSCDetId kCscDetID = cscSegRef->cscDetId();
@@ -437,11 +436,10 @@ reco::CSCHaloData CSCHaloAlgo::Calculate(const CSCGeometry& TheCSCGeometry,
 	       if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
 	       if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3) lowpttrackmu= true;
 	       const std::vector<MuonChamberMatch> chambers = mu->matches();
-	       for(std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin();
-		   kChamber != chambers.end(); kChamber ++ ) {
-		 if( kChamber->detector() != MuonSubdetId::CSC ) continue;
-		 for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
-		      kSegment != kChamber->segmentMatches.end(); kSegment++ ) {
+	       for(const auto & chamber : chambers) {
+		 if( chamber.detector() != MuonSubdetId::CSC ) continue;
+		 for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = chamber.segmentMatches.begin();
+		      kSegment != chamber.segmentMatches.end(); kSegment++ ) {
 		   edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
 		   CSCDetId kCscDetID = cscSegRef->cscDetId();
 		   

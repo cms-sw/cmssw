@@ -117,11 +117,11 @@ MuonRPCDetLayerGeometryBuilder::buildLayer(int endcap,const std::vector<int>& ri
 
 
   for (std::vector<int>::const_iterator ring=rings.begin(); ring<rings.end();++ring){ 
-    for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); ++roll) {    
+    for (int & roll : rolls) {    
       vector<const GeomDet*> frontDets, backDets;
       for(int sector = RPCDetId::minSectorForwardId; sector <= RPCDetId::maxSectorForwardId; ++sector) {
 	for(int subsector = RPCDetId::minSubSectorForwardId; subsector <= RPCDetId::maxSectorForwardId; ++subsector) {
-          RPCDetId rpcId(endcap,*ring, station,sector,layer,subsector, (*roll));
+          RPCDetId rpcId(endcap,*ring, station,sector,layer,subsector, roll);
           bool isInFront = isFront(rpcId);
 	  const GeomDet* geomDet = geo.idToDet(rpcId);
 	  if (geomDet) {

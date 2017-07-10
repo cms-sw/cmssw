@@ -113,8 +113,8 @@ uint16_t SiStripLatency::singleMode() const
 
 void SiStripLatency::allModes(std::vector<uint16_t> & allModesVector) const
 {
-  for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
-    allModesVector.push_back(it->mode);
+  for(auto latencie : latencies_) {
+    allModesVector.push_back(latencie.mode);
   }
   // The Latencies are sorted by DetIdAndApv, we need to sort the modes again and then remove duplicates
   sort( allModesVector.begin(), allModesVector.end() );
@@ -153,8 +153,8 @@ int16_t SiStripLatency::singleReadOutMode() const
 void SiStripLatency::allLatencies(std::vector<uint16_t> & allLatenciesVector) const
 {
 
-  for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
-    allLatenciesVector.push_back(it->latency);
+  for(auto latencie : latencies_) {
+    allLatenciesVector.push_back(latencie.latency);
   }
   // The Latencies are sorted by DetIdAndApv, we need to sort the latencies again and then remove duplicates
   sort( allLatenciesVector.begin(), allLatenciesVector.end() );
@@ -202,10 +202,10 @@ void SiStripLatency::printSummary(std::stringstream & ss) const
 void SiStripLatency::printDebug(std::stringstream & ss) const
 {
   ss << "List of all the latencies and modes for the " << latencies_.size() << " ranges in the object:" << std::endl;
-  for( latConstIt it = latencies_.begin(); it != latencies_.end(); ++it ) {
-    int detId = it->detIdAndApv >> 3;
-    int apv = it->detIdAndApv & 7; // 7 is 0...0111
-    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(it->latency) << " and mode = " << int(it->mode) << std::endl;
+  for(auto latencie : latencies_) {
+    int detId = latencie.detIdAndApv >> 3;
+    int apv = latencie.detIdAndApv & 7; // 7 is 0...0111
+    ss << "for detId = " << detId << " and apv pair = " << apv << " latency = " << int(latencie.latency) << " and mode = " << int(latencie.mode) << std::endl;
   }
 }
 

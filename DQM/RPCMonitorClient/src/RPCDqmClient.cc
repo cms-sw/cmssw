@@ -60,8 +60,8 @@ void RPCDqmClient::beginJob(){
   edm::LogVerbatim ("rpcdqmclient") << "[RPCDqmClient]: Begin Job";
 
     //Do whatever the begin jobs of all client modules do
-  for(std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-    (*it)->beginJob( globalFolder_ );
+  for(auto & clientModule : clientModules_){
+    clientModule->beginJob( globalFolder_ );
   }
 
 }
@@ -80,8 +80,8 @@ void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::
     this->getRPCdetId( c);
    
     //...book summary histograms
-    for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-      (*it)->myBooker( ibooker);
+    for (auto & clientModule : clientModules_){
+      clientModule->myBooker( ibooker);
     }
   }
   
@@ -102,8 +102,8 @@ void RPCDqmClient::dqmEndLuminosityBlock(DQMStore::IBooker & ibooker, DQMStore::
     if( rpcevents < minimumEvents_) {return;}
     
     edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: Client operations";
-    for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-      (*it)->clientOperation();
+    for (auto & clientModule : clientModules_){
+      clientModule->clientOperation();
     }
   }//end of online operations
 
@@ -128,8 +128,8 @@ void  RPCDqmClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & i
   if(rpcevents < minimumEvents_) {return;}
 
   edm::LogVerbatim ("rpcdqmclient") <<"[RPCDqmClient]: Client operations";
-  for (std::vector<RPCClient*>::iterator it = clientModules_.begin(); it!=clientModules_.end(); it++ ){
-    (*it)->clientOperation();
+  for (auto & clientModule : clientModules_){
+    clientModule->clientOperation();
   }
   
 }
@@ -198,25 +198,25 @@ void RPCDqmClient::getRPCdetId( const edm::EventSetup& eventSetup){
 
 void RPCDqmClient::makeClientMap(const edm::ParameterSet& parameters_) {
 
-  for(unsigned int i = 0; i<clientList_.size(); i++){
+  for(const auto & i : clientList_){
     
-    if( clientList_[i] == "RPCMultiplicityTest" ) {
+    if( i == "RPCMultiplicityTest" ) {
       clientHisto_.push_back("Multiplicity");
       // clientTag_.push_back(rpcdqm::MULTIPLICITY);
       clientModules_.push_back( new RPCMultiplicityTest(parameters_));
-    } else if ( clientList_[i] == "RPCDeadChannelTest" ){
+    } else if ( i == "RPCDeadChannelTest" ){
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back( new RPCDeadChannelTest(parameters_));
       // clientTag_.push_back(rpcdqm::OCCUPANCY);
-    } else if ( clientList_[i] == "RPCClusterSizeTest" ){
+    } else if ( i == "RPCClusterSizeTest" ){
       clientHisto_.push_back("ClusterSize");
       clientModules_.push_back( new RPCClusterSizeTest(parameters_));
       // clientTag_.push_back(rpcdqm::CLUSTERSIZE);
-    } else if ( clientList_[i] == "RPCOccupancyTest" ){
+    } else if ( i == "RPCOccupancyTest" ){
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back( new RPCOccupancyTest(parameters_));
       // clientTag_.push_back(rpcdqm::OCCUPANCY);
-    } else if ( clientList_[i] == "RPCNoisyStripTest" ){
+    } else if ( i == "RPCNoisyStripTest" ){
       clientHisto_.push_back("Occupancy");
       clientModules_.push_back( new RPCNoisyStripTest(parameters_));
       //clientTag_.push_back(rpcdqm::OCCUPANCY);

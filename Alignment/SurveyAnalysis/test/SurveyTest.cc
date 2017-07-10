@@ -22,9 +22,9 @@ SurveyTest::SurveyTest(const edm::ParameterSet& cfg):
   //        - check this, when resurrecting this code in the future
   AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
 
-  for (unsigned int l = 0; l < hierarchy.size(); ++l)
+  for (const auto & l : hierarchy)
   {
-    theHierarchy.push_back(alignableObjectId.stringToId(hierarchy[l]) );
+    theHierarchy.push_back(alignableObjectId.stringToId(l) );
   }
 }
 
@@ -43,8 +43,7 @@ void SurveyTest::beginJob()
 
   algos[theAlgorithm]->iterate(theIterations, theOutputFile, theBiasFlag);
 
-  for (std::map<std::string, SurveyAlignment*>::iterator i = algos.begin();
-       i != algos.end(); ++i) delete i->second;
+  for (auto & algo : algos) delete algo.second;
 }
 
 void SurveyTest::getTerminals(std::vector<Alignable*>& terminals,

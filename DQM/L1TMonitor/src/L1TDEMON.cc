@@ -319,8 +319,8 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
     deRecord->get_status(deMatch);
     if (verbose()) {
         std::cout << "[L1TDEMON] verbose sys match?: ";
-        for (int i = 0; i < DEnsys; i++)
-            std::cout << deMatch[i] << " ";
+        for (bool i : deMatch)
+            std::cout << i << " ";
         std::cout << std::endl;
     }
 
@@ -329,8 +329,8 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
         isComp[i] = deRecord->get_isComp(i);
     if (verbose()) {
         std::cout << "[L1TDEMON] verbose dosys?: ";
-        for (int i = 0; i < DEnsys; i++)
-            std::cout << isComp[i];
+        for (bool i : isComp)
+            std::cout << i;
         std::cout << std::endl;
     }
 
@@ -341,11 +341,11 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
 
     if (verbose()) {
         std::cout << "[L1TDEMON] ncands d: ";
-        for (int i = 0; i < DEnsys; i++)
-            std::cout << DEncand[i][0] << " ";
+        for (auto & i : DEncand)
+            std::cout << i[0] << " ";
         std::cout << "\n[L1TDEMON] ncands e: ";
-        for (int i = 0; i < DEnsys; i++)
-            std::cout << DEncand[i][1] << " ";
+        for (auto & i : DEncand)
+            std::cout << i[1] << " ";
         std::cout << std::endl;
     }
 
@@ -418,9 +418,9 @@ void L1TDEMON::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) 
   // container for subsystem's leading candidate
     const int ncorr = 3;
     float LeadCandVal[DEnsys][ncorr] = { { (float) nullVal } };
-    for (int i = 0; i < DEnsys; i++)
+    for (auto & i : LeadCandVal)
         for (int j = 0; j < ncorr; j++)
-            LeadCandVal[i][j] = nullVal;
+            i[j] = nullVal;
 
     // d|e candidate loop
     for (L1DEDigiCollection::const_iterator it = deColl.begin(); it

@@ -149,13 +149,12 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
 
   // loop through all vertices
   Int_t nvertices = 0;
-  for (reco::VertexCollection::const_iterator inV = inVertices.begin();
-       inV != inVertices.end(); ++inV) {
+  for (const auto & inVertice : inVertices) {
 
     // pass these vertex cuts
-    if (inV->ndof() >= 4
-        && inV->position().Rho() <= 2.0
-        && fabs(inV->z()) <= 24.0
+    if (inVertice.ndof() >= 4
+        && inVertice.position().Rho() <= 2.0
+        && fabs(inVertice.z()) <= 24.0
       ) {
       nvertices++;
     }
@@ -170,23 +169,22 @@ bool ElectronRegressionEnergyProducer::filter(edm::Event& iEvent, const edm::Eve
   rho = (*hRhoKt6PFJets);
 
 
-  for ( reco::GsfElectronCollection::const_iterator egIter = egCandidates.begin();
-        egIter != egCandidates.end(); ++egIter) {
+  for (const auto & egCandidate : egCandidates) {
 
     const EcalRecHitCollection * recHits=0;
-    if(egIter->isEB())
+    if(egCandidate.isEB())
         recHits = pEBRecHits.product();
     else
         recHits = pEERecHits.product();
 
-    SuperClusterHelper mySCHelper(&(*egIter),recHits,ecalTopology_,caloGeometry_);
+    SuperClusterHelper mySCHelper(&egCandidate,recHits,ecalTopology_,caloGeometry_);
 
-    double energy=regressionEvaluator->calculateRegressionEnergy(&(*egIter),
+    double energy=regressionEvaluator->calculateRegressionEnergy(&egCandidate,
                                                           mySCHelper,
                                                           rho,nvertices,
                                                           printDebug_);
 
-    double error=regressionEvaluator->calculateRegressionEnergyUncertainty(&(*egIter),
+    double error=regressionEvaluator->calculateRegressionEnergyUncertainty(&egCandidate,
                                                                     mySCHelper,
                                                                     rho,nvertices,
                                                                     printDebug_);

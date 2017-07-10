@@ -44,8 +44,7 @@ void DTT0Analyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetup) 
 
 void DTT0Analyzer::endJob() {
   // Loop over DB entries
-  for(DTT0::const_iterator tzero = tZeroMap->begin();
-      tzero != tZeroMap->end(); ++tzero) {
+  for(const auto & tzero : *tZeroMap) {
 // @@@ NEW DTT0 FORMAT
 //    DTWireId wireId((*tzero).first.wheelId,
 //		    (*tzero).first.stationId,
@@ -53,7 +52,7 @@ void DTT0Analyzer::endJob() {
 //		    (*tzero).first.slId,
 //		    (*tzero).first.layerId,
 //		    (*tzero).first.cellId);
-    int channelId = tzero->channelId;
+    int channelId = tzero.channelId;
     if ( channelId == 0 ) continue;
     DTWireId wireId( channelId );
 // @@@ NEW DTT0 END

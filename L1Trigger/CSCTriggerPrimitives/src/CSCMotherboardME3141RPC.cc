@@ -166,10 +166,10 @@ void CSCMotherboardME3141RPC::clear()
 {
   CSCMotherboard::clear();
 
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (auto & allLCT : allLCTs)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<2;i++)
-        allLCTs[bx][mbx][i].clear();
+        allLCT[mbx][i].clear();
 
   rpcRollToEtaLimits_.clear();
   cscWgToRpcRoll_.clear();
@@ -310,7 +310,7 @@ CSCMotherboardME3141RPC::run(const CSCWireDigiCollection* wiredc,
   const bool hasRPCDigis(rpcDigis_.size()!=0);
   
   int used_clct_mask[20];
-  for (int c=0;c<20;++c) used_clct_mask[c]=0;
+  for (int & c : used_clct_mask) c=0;
    
   // ALCT centric matching
   for (int bx_alct = 0; bx_alct < CSCAnodeLCTProcessor::MAX_ALCT_BINS; bx_alct++)

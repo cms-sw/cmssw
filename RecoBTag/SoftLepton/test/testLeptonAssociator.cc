@@ -209,10 +209,10 @@ void testLeptonAssociator::analyze(const edm::Event& iEvent, const edm::EventSet
   std::cout << std::endl;
   std::cout << "Found " << std::setw(6) << trackingParticleCollection.size() << " TrackingParticles" << std::flush;
   unsigned int count = 0;
-  for (TrackingParticleCollection::size_type i = 0; i < trackingParticleCollection.size(); ++i)
+  for (const auto & i : trackingParticleCollection)
     if (
-      (std::abs(trackingParticleCollection[i].pdgId()) == (int)m_flavour) and
-      (trackingParticleCollection[i].pt() >= m_ptcut)
+      (std::abs(i.pdgId()) == (int)m_flavour) and
+      (i.pt() >= m_ptcut)
     )
       ++count;
 

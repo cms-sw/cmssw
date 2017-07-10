@@ -41,9 +41,8 @@ cond::XMLAuthenticationService::DataSourceEntry::DataSourceEntry( const std::str
 cond::XMLAuthenticationService::DataSourceEntry::~DataSourceEntry()
 {
   delete m_default;
-  for ( std::map< std::string, coral::AuthenticationCredentials* >::iterator iData = m_data.begin();
-        iData != m_data.end(); ++iData )
-    delete iData->second;
+  for (auto & iData : m_data)
+    delete iData.second;
 }
 
 void
@@ -104,8 +103,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::XMLAuthenticationServi
 
 cond::XMLAuthenticationService::XMLAuthenticationService::~XMLAuthenticationService()
 {
-  for ( std::map< std::string, cond::XMLAuthenticationService::DataSourceEntry* >::iterator iConnection = m_data.begin();
-        iConnection != m_data.end(); ++iConnection ) delete iConnection->second;
+  for (auto & iConnection : m_data) delete iConnection.second;
 }
 
 void
@@ -373,8 +371,7 @@ cond::XMLAuthenticationService::XMLAuthenticationService::initialize()
 }
 
 void cond::XMLAuthenticationService::XMLAuthenticationService::reset(){
-  for ( std::map< std::string, cond::XMLAuthenticationService::DataSourceEntry* >::iterator iConnection = m_data.begin();
-        iConnection != m_data.end(); ++iConnection ) delete iConnection->second;
+  for (auto & iConnection : m_data) delete iConnection.second;
   m_data.clear();
   m_isInitialized = false;  
 }

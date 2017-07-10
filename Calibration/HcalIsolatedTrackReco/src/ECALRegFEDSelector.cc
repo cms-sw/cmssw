@@ -16,9 +16,9 @@ ECALRegFEDSelector::ECALRegFEDSelector(const edm::ParameterSet& iConfig)
   produces<FEDRawDataCollection>();
   produces<EcalListOfFEDS>();
 
-  for (int p=0; p<1200; p++)
+  for (bool & p : fedSaved)
     {
-      fedSaved[p]=false;
+      p=false;
     }
 }
 
@@ -30,9 +30,9 @@ ECALRegFEDSelector::~ECALRegFEDSelector()
 
 void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  for (int p=0; p<1200; p++)
+  for (bool & p : fedSaved)
     {
-      fedSaved[p]=false;
+      p=false;
     }
 
   auto producedData = std::make_unique<FEDRawDataCollection>();
@@ -50,10 +50,10 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
   //  std::vector<int> EC_FED_IDs;
   
-  for (uint32_t p=0; p<isoPixTrackRefs.size(); p++)
+  for (auto & isoPixTrackRef : isoPixTrackRefs)
     {
-      double etaObj_=isoPixTrackRefs[p]->track()->eta();
-      double phiObj_=isoPixTrackRefs[p]->track()->phi();
+      double etaObj_=isoPixTrackRef->track()->eta();
+      double phiObj_=isoPixTrackRef->track()->phi();
 
       EcalEtaPhiRegion ecEtaPhi(etaObj_-delta_,etaObj_+delta_,phiObj_-delta_,phiObj_+delta_);
       
@@ -64,9 +64,9 @@ void ECALRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSet
       for ( int j=0; j< FEDNumbering::MAXFEDID; j++ ) 
 	{
 	  bool rightFED=false;
-	  for (uint32_t k=0; k<EC_FED_IDs.size(); k++)
+	  for (int EC_FED_ID : EC_FED_IDs)
 	    {
-	      if (j==EcalRegionCabling::fedIndex(EC_FED_IDs[k])) 
+	      if (j==EcalRegionCabling::fedIndex(EC_FED_ID)) 
 		{
 		  if (!fedSaved[j]) 
 		    {

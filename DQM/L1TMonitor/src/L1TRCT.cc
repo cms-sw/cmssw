@@ -198,35 +198,34 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
   if ( doHd ) {
     // Fill the RCT histograms
 
-    for (L1CaloRegionCollection::const_iterator ireg = rgn->begin();
-       ireg != rgn->end(); ireg++) {
+    for (const auto & ireg : *rgn) {
 
-      if(ireg->et()>0)
+      if(ireg.et()>0)
       {
-      rctRegionBx_->Fill(ireg->bx());
+      rctRegionBx_->Fill(ireg.bx());
       } 
 
-      if(selectBX_==-1 || selectBX_==ireg->bx()) {
+      if(selectBX_==-1 || selectBX_==ireg.bx()) {
 
-      if(ireg->et()>0){
+      if(ireg.et()>0){
 
-      rctRegionRank_->Fill(ireg->et());
-      if(ireg->et()>5){
-	rctRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
+      rctRegionRank_->Fill(ireg.et());
+      if(ireg.et()>5){
+	rctRegionsOccEtaPhi_->Fill(ireg.gctEta(), ireg.gctPhi());
       }
-      rctRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
+      rctRegionsEtEtaPhi_->Fill(ireg.gctEta(), ireg.gctPhi(), ireg.et());
       }
 
-    if(ireg->overFlow())  rctOverFlowEtaPhi_ ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->tauVeto())   rctTauVetoEtaPhi_  ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->mip())       rctMipEtaPhi_      ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->quiet())     rctQuietEtaPhi_    ->Fill(ireg->gctEta(), ireg->gctPhi());
-    if(ireg->fineGrain()) rctHfPlusTauEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi()); 
+    if(ireg.overFlow())  rctOverFlowEtaPhi_ ->Fill(ireg.gctEta(), ireg.gctPhi());
+    if(ireg.tauVeto())   rctTauVetoEtaPhi_  ->Fill(ireg.gctEta(), ireg.gctPhi());
+    if(ireg.mip())       rctMipEtaPhi_      ->Fill(ireg.gctEta(), ireg.gctPhi());
+    if(ireg.quiet())     rctQuietEtaPhi_    ->Fill(ireg.gctEta(), ireg.gctPhi());
+    if(ireg.fineGrain()) rctHfPlusTauEtaPhi_->Fill(ireg.gctEta(), ireg.gctPhi()); 
     
     }
-    else if (selectBX_!=-1 && selectBX_!=ireg->bx()){
-      if(ireg->et()>5) rctNotCentralRegionsOccEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi());
-      rctNotCentralRegionsEtEtaPhi_->Fill(ireg->gctEta(), ireg->gctPhi(), ireg->et());
+    else if (selectBX_!=-1 && selectBX_!=ireg.bx()){
+      if(ireg.et()>5) rctNotCentralRegionsOccEtaPhi_->Fill(ireg.gctEta(), ireg.gctPhi());
+      rctNotCentralRegionsEtEtaPhi_->Fill(ireg.gctEta(), ireg.gctPhi(), ireg.et());
     } 
 
 
@@ -236,47 +235,46 @@ void L1TRCT::analyze(const Event & e, const EventSetup & c)
 
   if (doEm){
   // Isolated and non-isolated EM
-  for (L1CaloEmCollection::const_iterator iem = em->begin();
-       iem != em->end(); iem++) {
+  for (const auto & iem : *em) {
 
-      if(iem->rank()==0) continue;
-      rctEmBx_->Fill(iem->bx());
-      if(selectBX_==-1 || selectBX_==iem->bx()) {
+      if(iem.rank()==0) continue;
+      rctEmBx_->Fill(iem.bx());
+      if(selectBX_==-1 || selectBX_==iem.bx()) {
 
-    if (iem->isolated()) {
-      rctIsoEmRank_->Fill(iem->rank());
-      rctIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
-			      iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-	rctIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-				 iem->regionId().iphi());
+    if (iem.isolated()) {
+      rctIsoEmRank_->Fill(iem.rank());
+      rctIsoEmEtEtaPhi_->Fill(iem.regionId().ieta(),
+			      iem.regionId().iphi(), iem.rank());
+      if(iem.rank()>10){
+	rctIsoEmOccEtaPhi_->Fill(iem.regionId().ieta(),
+				 iem.regionId().iphi());
       }
     }
     else {
-      rctNonIsoEmRank_->Fill(iem->rank());
-      rctNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
-				 iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-	rctNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-				    iem->regionId().iphi());
+      rctNonIsoEmRank_->Fill(iem.rank());
+      rctNonIsoEmEtEtaPhi_->Fill(iem.regionId().ieta(),
+				 iem.regionId().iphi(), iem.rank());
+      if(iem.rank()>10){
+	rctNonIsoEmOccEtaPhi_->Fill(iem.regionId().ieta(),
+				    iem.regionId().iphi());
       }
     }
     }
-    else if (selectBX_!=-1 && selectBX_!=iem->bx()) {
-    if (iem->isolated()) {
-      rctNotCentralIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
-                        iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-      rctNotCentralIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-                         iem->regionId().iphi());
+    else if (selectBX_!=-1 && selectBX_!=iem.bx()) {
+    if (iem.isolated()) {
+      rctNotCentralIsoEmEtEtaPhi_->Fill(iem.regionId().ieta(),
+                        iem.regionId().iphi(), iem.rank());
+      if(iem.rank()>10){
+      rctNotCentralIsoEmOccEtaPhi_->Fill(iem.regionId().ieta(),
+                         iem.regionId().iphi());
       }
     }
     else {
-      rctNotCentralNonIsoEmEtEtaPhi_->Fill(iem->regionId().ieta(),
-                         iem->regionId().iphi(), iem->rank());
-      if(iem->rank()>10){
-      rctNotCentralNonIsoEmOccEtaPhi_->Fill(iem->regionId().ieta(),
-                            iem->regionId().iphi());
+      rctNotCentralNonIsoEmEtEtaPhi_->Fill(iem.regionId().ieta(),
+                         iem.regionId().iphi(), iem.rank());
+      if(iem.rank()>10){
+      rctNotCentralNonIsoEmOccEtaPhi_->Fill(iem.regionId().ieta(),
+                            iem.regionId().iphi());
       }
       }
     }

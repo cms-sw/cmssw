@@ -85,15 +85,14 @@ void GEMCSCSegmentBuilder::LinkGEMRollsToCSCChamberIndex(const GEMGeometry* gemG
     }
 
   // edm::LogVerbatim to print details of std::map< CSCIndex, std::set<GEMRolls> >
-  for(std::map<CSCStationIndex,std::set<GEMDetId> >::iterator mapit = rollstoreCSC.begin();
-      mapit != rollstoreCSC.end(); ++mapit) 
+  for(auto & mapit : rollstoreCSC) 
     {
-      CSCStationIndex    map_first = mapit->first;
-      std::set<GEMDetId> map_secnd = mapit->second;
+      CSCStationIndex    map_first = mapit.first;
+      std::set<GEMDetId> map_secnd = mapit.second;
       std::stringstream GEMRollsstream;
-      for(std::set<GEMDetId>::iterator setit=map_secnd.begin(); setit!=map_secnd.end(); ++setit) 
+      for(auto setit : map_secnd) 
 	{ 
-	  GEMRollsstream<<"[ GEM Id: "<<setit->rawId()<<" ("<<*setit<<")"<<"],"<<std::endl; 
+	  GEMRollsstream<<"[ GEM Id: "<<setit.rawId()<<" ("<<setit<<")"<<"],"<<std::endl; 
 	}
       std::string GEMRollsstr = GEMRollsstream.str();
       edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: LinkGEMRollsToCSCChamberIndex] CSC Station Index :: ["
@@ -131,9 +130,9 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 
   // === Loop over CSC Segment Collection ===
   // ========================================
-  for(CSCSegmentCollection::const_iterator segmIt = cscsegments->begin(); segmIt != cscsegments->end(); ++segmIt) 
+  for(const auto & cscsegment : *cscsegments) 
     {   
-      CSCDetId CSCId = segmIt->cscDetId();
+      CSCDetId CSCId = cscsegment.cscDetId();
     
       // Search for Matches between GEM Roll and CSC Chamber
       //   - only matches between ME1/1(a&b) and GE1/1
@@ -154,7 +153,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 	  // then add the segment to the vector
 	  // and assign the vector again to the CSCDetId
 	  std::vector<const CSCSegment* > cscsegmentvector = cscSegColl_GEM11[CSCId.rawId()];
-	  cscsegmentvector.push_back(segmIt->clone());
+	  cscsegmentvector.push_back(cscsegment.clone());
 	  cscSegColl_GEM11[CSCId.rawId()]=cscsegmentvector;
 	  
 	  // 2) Make a vector of GEM DetIds associated to this CSC chamber of the segment
@@ -185,12 +184,12 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 	  // indexvector.push_back(index21); indexvector.push_back(index22); 
 	  // indexvector.push_back(index31); indexvector.push_back(index32); 
 	  
-	  for(std::vector<CSCStationIndex>::iterator cscIndexIt=indexvector.begin(); cscIndexIt!=indexvector.end(); ++cscIndexIt) 
+	  for(auto & cscIndexIt : indexvector) 
 	    {
-	      std::set<GEMDetId> rollsForThisCSC = rollstoreCSC[*cscIndexIt]; 
-	      for (std::set<GEMDetId>::iterator gemRollIt = rollsForThisCSC.begin(); gemRollIt != rollsForThisCSC.end(); ++gemRollIt)
+	      std::set<GEMDetId> rollsForThisCSC = rollstoreCSC[cscIndexIt]; 
+	      for (auto gemRollIt : rollsForThisCSC)
 		{
-		  rollsForThisCSCvector.push_back(*gemRollIt);
+		  rollsForThisCSCvector.push_back(gemRollIt);
 		}
 	    }
 
@@ -199,15 +198,14 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 	  // ------------------------
 	  edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: build] Start Loop over GEM Rechits :: size = "<<recHits->size()
 						  <<" and number of Rolls for this CSC :: "<<rollsForThisCSCvector.size()<<std::endl;
-	  for(GEMRecHitCollection::const_iterator hitIt = recHits->begin(); hitIt != recHits->end(); ++hitIt) 
+	  for(const auto & recHit : *recHits) 
 	    {
-	      GEMDetId gemIdfromHit = hitIt->gemId();
+	      GEMDetId gemIdfromHit = recHit.gemId();
 	      
 	      // Loop over GEM rolls being pointed by a CSC segment and look for a match
-	      for (std::vector<GEMDetId>::iterator gemRollIt = rollsForThisCSCvector.begin(); gemRollIt != rollsForThisCSCvector.end(); ++gemRollIt) 
+	      for (auto gemIdfromCSC : rollsForThisCSCvector) 
 		{
 		
-		  GEMDetId gemIdfromCSC(*gemRollIt);
 		  if(gemIdfromHit == gemIdfromCSC.rawId()) 
 		    {
 		      // get GEM RecHit vector associated to this CSC DetId
@@ -219,11 +217,11 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 		      bool hitfound = false;
 		      for(std::vector<GEMRecHit*>::const_iterator it=gemrechitvector.begin(); it!=gemrechitvector.end(); ++it) 
 			{
-			  if(hitIt->gemId()==(*it)->gemId() && hitIt->localPosition()==(*it)->localPosition()) hitfound=true;
+			  if(recHit.gemId()==(*it)->gemId() && recHit.localPosition()==(*it)->localPosition()) hitfound=true;
 			}
-		      if(!hitfound) gemrechitvector.push_back(hitIt->clone());
+		      if(!hitfound) gemrechitvector.push_back(recHit.clone());
 		      gemRecHitCollection[CSCId.rawId()]=gemrechitvector;
-		      edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: build] GEM Rechit in "<<hitIt->gemId()<< "["<<hitIt->gemId().rawId()
+		      edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: build] GEM Rechit in "<<recHit.gemId()<< "["<<recHit.gemId().rawId()
 							      <<"] added to CSC segment found in "<<CSCId<<" ["<<CSCId.rawId()<<"]"<<std::endl;	      
 		    }
 		} // end Loop over GEM Rolls 
@@ -243,7 +241,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 	  // then add the segment to the vector
 	  // and assign the vector again to the CSCDetId
 	  std::vector<const CSCSegment* > cscsegmentvector_noGEM = cscSegColl_noGEM[CSCId.rawId()];
-	  cscsegmentvector_noGEM.push_back(segmIt->clone());
+	  cscsegmentvector_noGEM.push_back(cscsegment.clone());
 	  cscSegColl_noGEM[CSCId.rawId()]=cscsegmentvector_noGEM;  
 	}
 
@@ -276,10 +274,10 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
   // case A :: Look for GEM Rechits associated to CSC Segments
   // =========================================================
   edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: build] Run over the gemRecHitCollection (size = "<<gemRecHitCollection.size()<<") and build GEMCSC Segments";
-  for(auto gemHitIt=gemRecHitCollection.begin(); gemHitIt != gemRecHitCollection.end(); ++gemHitIt) 
+  for(auto & gemHitIt : gemRecHitCollection) 
     {
 
-      CSCDetId cscId(gemHitIt->first);
+      CSCDetId cscId(gemHitIt.first);
       
       // hits    
       std::vector<const CSCSegment*> cscSegments = cscSegColl_GEM11[cscId.rawId()];
@@ -296,7 +294,7 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
 	}
 
       // fill dets & hits for GEM
-      for(auto rechit = gemHitIt->second.begin(); rechit != gemHitIt->second.end(); ++rechit) 
+      for(auto rechit = gemHitIt.second.begin(); rechit != gemHitIt.second.end(); ++rechit) 
 	{
 	  GEMDetId gemid = (*rechit)->gemId();
 	  gemRecHits.push_back(*rechit);
@@ -351,10 +349,10 @@ void GEMCSCSegmentBuilder::build(const GEMRecHitCollection* recHits, const CSCSe
      
       edm::LogVerbatim("GEMCSCSegmentBuilder")<<"[GEMCSCSegmentBuilder :: build] |--> Run over the CSC Segment vector without GEM (size = "<<cscSegments_noGEM.size()
 					      <<" CSC segments) and wrap GEMCSC Segments"; 
-      for (std::vector<const CSCSegment*>::iterator it=cscSegments_noGEM.begin(); it!=cscSegments_noGEM.end(); ++it) 
+      for (auto & it : cscSegments_noGEM) 
 	{
 	  // wrap the CSC segment in the GEMCSC segment class
-	  GEMCSCSegment tmp(*it, gemRecHits_noGEM, (*it)->localPosition(), (*it)->localDirection(), (*it)->parametersError(), (*it)->chi2());
+	  GEMCSCSegment tmp(it, gemRecHits_noGEM, it->localPosition(), it->localDirection(), it->parametersError(), it->chi2());
 	  segmentvector.push_back(tmp);
 	}
       

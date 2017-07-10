@@ -213,12 +213,11 @@ void ODTTCFConfig::setParameters(const std::map<string,string>& my_keys_map){
   // parses the result of the XML parser that is a map of
   // string string with variable name variable value
 
-  for( std::map<std::string, std::string >::const_iterator ci=
-         my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+  for(const auto & ci : my_keys_map) {
 
-    if(ci->first==  "TTCF_CONFIGURATION_ID") setConfigTag(ci->second);
-    if(ci->first==  "Configuration") {
-      std::string fname=ci->second ;
+    if(ci.first==  "TTCF_CONFIGURATION_ID") setConfigTag(ci.second);
+    if(ci.first==  "Configuration") {
+      std::string fname=ci.second ;
       string  str3;
       size_t pos, pose;
 
@@ -247,10 +246,10 @@ void ODTTCFConfig::setParameters(const std::map<string,string>& my_keys_map){
       inpFile.close();
       m_size=bufsize;
 
-    } else if ( ci->first == "RXBC0_DELAY" ) {
-      setRxBC0Delay( atoi( ci->second.c_str() ) );
-    } else if ( ci->first == "REG_30" ) {
-      setReg30( atoi( ci->second.c_str() ) );
+    } else if ( ci.first == "RXBC0_DELAY" ) {
+      setRxBC0Delay( atoi( ci.second.c_str() ) );
+    } else if ( ci.first == "REG_30" ) {
+      setReg30( atoi( ci.second.c_str() ) );
     } 
   }
 

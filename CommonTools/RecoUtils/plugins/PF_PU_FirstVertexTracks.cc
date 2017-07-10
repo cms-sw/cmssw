@@ -142,13 +142,13 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 	  const TrackQualityPairVector trckcoll = t2vAM->begin()->val;
 
 	  //get the tracks associated to the first vertex and store them in a track collection
-	  for (unsigned int trckcoll_ite = 0; trckcoll_ite < trckcoll.size(); trckcoll_ite++){
+	  for (const auto & trckcoll_ite : trckcoll){
 
-	    float quality = trckcoll[trckcoll_ite].second;
+	    float quality = trckcoll_ite.second;
 
 	    if ( quality>=input_MinQuality_ ) {
 
- 	      TrackRef AMtrkref = trckcoll[trckcoll_ite].first;
+ 	      TrackRef AMtrkref = trckcoll_ite.first;
 
   	      for(unsigned int index_input_trck=0; index_input_trck<input_trckcollH->size(); index_input_trck++){
 
@@ -191,10 +191,10 @@ PF_PU_FirstVertexTracks::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    	      if(TrackMatch(*AMtrkref,*input_trackref)){
 
-    	        for(unsigned v_ite = 0; v_ite<(v2t_ite->val).size(); v_ite++){
+    	        for(const auto & v_ite : (v2t_ite->val)){
 
-      		  VertexRef vtxref = (v2t_ite->val)[v_ite].first;
-      		  float quality = (v2t_ite->val)[v_ite].second;
+      		  VertexRef vtxref = v_ite.first;
+      		  float quality = v_ite.second;
 
 	          if ( (vtxref==firstVertexRef) && (quality>=input_MinQuality_) ){
 	            v2t_firstvertextracks->push_back(*AMtrkref);

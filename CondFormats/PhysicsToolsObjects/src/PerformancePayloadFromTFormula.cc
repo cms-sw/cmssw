@@ -14,10 +14,10 @@ using namespace std;
 void PerformancePayloadFromTFormula::initialize() {
   boost::uuids::random_generator gen;
 
-  for( std::vector<std::string>::const_iterator formula = pl.formulas().begin(); formula != pl.formulas().end(); ++formula ) {
+  for(const auto & formula : pl.formulas()) {
     boost::uuids::uuid uniqueFormulaId = gen();
     const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
-    boost::shared_ptr<TFormula> temp(new TFormula(formulaUniqueName.c_str(),formula->c_str()));
+    boost::shared_ptr<TFormula> temp(new TFormula(formulaUniqueName.c_str(),formula.c_str()));
     temp->Compile();
     compiledFormulas_.push_back(temp);
   }

@@ -234,7 +234,7 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
   
   std::string newNames[5]={"HLT","PixelTracks_Multiplicity","HLT_Physics_","HLT_JetE","HLT_ZeroBias"};
   int         newAccept[5];
-  for (int i=0; i<5; ++i) newAccept[i] = 0;
+  for (int & i : newAccept) i = 0;
   float mybxlumi=-1;
   /*
   edm::Handle<LumiDetails> Lumid;
@@ -298,8 +298,8 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	if (trigNames_.size() < 1) {
 	  ok = true;
 	} else {
-	  for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	    if (newtriggerName.find(trigNames_[i].c_str())!=std::string::npos) {
+	  for (auto & trigName : trigNames_) {
+	    if (newtriggerName.find(trigName.c_str())!=std::string::npos) {
 	      if (verbosity_%10 > 0)  
 		edm::LogInfo("IsoTrack") << newtriggerName;
 	      if (hlt > 0) {
@@ -319,8 +319,8 @@ void StudyHLT::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup) 
 	}
       }
       int iflg(0), indx(1);
-      for (int i=0; i<5; ++i) {
-	iflg += (indx*newAccept[i]); indx *= 2;
+      for (int i : newAccept) {
+	iflg += (indx*i); indx *= 2;
       }
       h_HLTCorr->Fill(iflg);
     }

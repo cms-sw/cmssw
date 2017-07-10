@@ -122,10 +122,9 @@ OscarMTProducer::OscarMTProducer(edm::ParameterSet const & p, const OscarMTMaste
   //register any products
   m_producers = m_runManagerWorker->producers();
 
-  for(Producers::iterator itProd = m_producers.begin();
-      itProd != m_producers.end(); ++itProd) {
+  for(auto & m_producer : m_producers) {
 
-    (*itProd)->registerProducts(*this);
+    m_producer->registerProducts(*this);
   }
 }
 
@@ -187,38 +186,33 @@ void OscarMTProducer::produce(edm::Event & e, const edm::EventSetup & es)
     e.put(std::move(p1));
     e.put(std::move(p2));
 
-    for (std::vector<SensitiveTkDetector*>::iterator it = sTk.begin();
-	 it != sTk.end(); ++it) {
+    for (auto & it : sTk) {
 
-      std::vector<std::string> v = (*it)->getNames();
-      for (std::vector<std::string>::iterator in = v.begin();
-	   in!= v.end(); ++in) {
+      std::vector<std::string> v = it->getNames();
+      for (auto & in : v) {
 
 	std::unique_ptr<edm::PSimHitContainer>
 	  product(new edm::PSimHitContainer);
-	(*it)->fillHits(*product,*in);
-	e.put(std::move(product),*in);
+	it->fillHits(*product,in);
+	e.put(std::move(product),in);
       }
     }
-    for (std::vector<SensitiveCaloDetector*>::iterator it = sCalo.begin();
-	 it != sCalo.end(); ++it) {
+    for (auto & it : sCalo) {
 
-      std::vector<std::string>  v = (*it)->getNames();
+      std::vector<std::string>  v = it->getNames();
 
-      for (std::vector<std::string>::iterator in = v.begin();
-	   in!= v.end(); in++) {
+      for (auto & in : v) {
 
 	std::unique_ptr<edm::PCaloHitContainer>
 	  product(new edm::PCaloHitContainer);
-	(*it)->fillHits(*product,*in);
-	e.put(std::move(product),*in);
+	it->fillHits(*product,in);
+	e.put(std::move(product),in);
       }
     }
 
-    for(Producers::iterator itProd = m_producers.begin();
-	itProd != m_producers.end(); ++itProd) {
+    for(auto & m_producer : m_producers) {
 
-      (*itProd)->produce(e,es);
+      m_producer->produce(e,es);
     }
   } catch ( const SimG4Exception& simg4ex ) {
        

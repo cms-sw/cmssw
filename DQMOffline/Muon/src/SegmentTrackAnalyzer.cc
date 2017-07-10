@@ -113,8 +113,8 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   Handle<reco::TrackCollection> glbTracks;
   iEvent.getByToken(theMuTrackCollectionLabel_,glbTracks);
   
-  for (reco::TrackCollection::const_iterator recoTrack = glbTracks->begin(); recoTrack!=glbTracks->end(); ++recoTrack){
-    MuonTransientTrackingRecHit::MuonRecHitContainer segments = theSegmentsAssociator->associate(iEvent, iSetup, *recoTrack );
+  for (const auto & recoTrack : *glbTracks){
+    MuonTransientTrackingRecHit::MuonRecHitContainer segments = theSegmentsAssociator->associate(iEvent, iSetup, recoTrack );
   
 #ifdef DEBUG
     cout << "[SegmentTrackAnalyzer] # of segments associated to the track: "<<(segments).size() <<endl;
@@ -158,7 +158,7 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
 
     // hits from track
-    for(trackingRecHit_iterator recHit =  recoTrack->recHitsBegin(); recHit != recoTrack->recHitsEnd(); ++recHit){
+    for(trackingRecHit_iterator recHit =  recoTrack.recHitsBegin(); recHit != recoTrack.recHitsEnd(); ++recHit){
 
       hitsFromTrack++;
       DetId id = (*recHit)->geographicalId();
@@ -210,21 +210,21 @@ void SegmentTrackAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
     if(hitsFromDt!=0 && hitsFromCsc!=0 && hitsFromRpc!=0) hitStaProvenance->Fill(7);
 
     if(hitsFromSegmDt+hitsFromSegmCsc !=0){
-      trackHitPercentualVsEta->Fill(recoTrack->eta(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
-      trackHitPercentualVsPhi->Fill(recoTrack->phi(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
-      trackHitPercentualVsPt->Fill(recoTrack->pt(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
+      trackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
+      trackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
+      trackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromDt+hitsFromCsc)/(hitsFromSegmDt+hitsFromSegmCsc));
     }
 
     if(hitsFromSegmDt!=0){
-      dtTrackHitPercentualVsEta->Fill(recoTrack->eta(), double(hitsFromDt)/hitsFromSegmDt);
-      dtTrackHitPercentualVsPhi->Fill(recoTrack->phi(), double(hitsFromDt)/hitsFromSegmDt);
-      dtTrackHitPercentualVsPt->Fill(recoTrack->pt(), double(hitsFromDt)/hitsFromSegmDt);
+      dtTrackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromDt)/hitsFromSegmDt);
+      dtTrackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromDt)/hitsFromSegmDt);
+      dtTrackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromDt)/hitsFromSegmDt);
     }
 
     if(hitsFromSegmCsc!=0){
-      cscTrackHitPercentualVsEta->Fill(recoTrack->eta(), double(hitsFromCsc)/hitsFromSegmCsc);
-      cscTrackHitPercentualVsPhi->Fill(recoTrack->phi(), double(hitsFromCsc)/hitsFromSegmCsc);
-      cscTrackHitPercentualVsPt->Fill(recoTrack->pt(), double(hitsFromCsc)/hitsFromSegmCsc);
+      cscTrackHitPercentualVsEta->Fill(recoTrack.eta(), double(hitsFromCsc)/hitsFromSegmCsc);
+      cscTrackHitPercentualVsPhi->Fill(recoTrack.phi(), double(hitsFromCsc)/hitsFromSegmCsc);
+      cscTrackHitPercentualVsPt->Fill(recoTrack.pt(), double(hitsFromCsc)/hitsFromSegmCsc);
     }
   }
 

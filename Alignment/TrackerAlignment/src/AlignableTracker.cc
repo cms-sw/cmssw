@@ -55,9 +55,9 @@ Alignments* AlignableTracker::alignments( void ) const
   align::Alignables comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for ( align::Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for (auto & i : comp)
     {
-      Alignments* tmpAlignments = (*i)->alignments();
+      Alignments* tmpAlignments = i->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
 				 std::back_inserter(m_alignments->m_align) );
 	  delete tmpAlignments;
@@ -78,9 +78,9 @@ AlignmentErrorsExtended* AlignableTracker::alignmentErrors( void ) const
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for ( align::Alignables::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for (auto & i : comp)
     {
-	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = i->alignmentErrors();
       std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
 				 std::back_inserter(m_alignmentErrors->m_alignError) );
 	  delete tmpAlignmentErrorsExtended;

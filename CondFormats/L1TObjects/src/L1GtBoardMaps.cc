@@ -53,10 +53,9 @@ void L1GtBoardMaps::print(std::ostream& myCout) const
 
     myCout <<  "  Size: " << m_gtBoardMaps.size() << " boards in L1 GT." << std::endl;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        cIt->print(myCout);
+        m_gtBoardMap.print(myCout);
         myCout << std::endl;
     }
 
@@ -74,12 +73,11 @@ void L1GtBoardMaps::printGtDaqRecordMap(std::ostream& myCout) const
     boost::uint16_t boardId = 0;
     std::string boardName;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        posRec = cIt->gtPositionDaqRecord();
-        boardId = cIt->gtBoardId();
-        boardName = cIt->gtBoardName();
+        posRec = m_gtBoardMap.gtPositionDaqRecord();
+        boardId = m_gtBoardMap.gtBoardId();
+        boardName = m_gtBoardMap.gtBoardName();
 
         if (posRec >=0) {
             myCout
@@ -109,12 +107,11 @@ void L1GtBoardMaps::printGtEvmRecordMap(std::ostream& myCout) const
     boost::uint16_t boardId = 0;
     std::string boardName;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        posRec = cIt->gtPositionEvmRecord();
-        boardId = cIt->gtBoardId();
-        boardName = cIt->gtBoardName();
+        posRec = m_gtBoardMap.gtPositionEvmRecord();
+        boardId = m_gtBoardMap.gtBoardId();
+        boardName = m_gtBoardMap.gtBoardName();
 
         if (posRec >=0) {
             myCout
@@ -144,12 +141,11 @@ void L1GtBoardMaps::printGtDaqActiveBoardsMap(std::ostream& myCout) const
     boost::uint16_t boardId = 0;
     std::string boardName;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        posRec = cIt->gtBitDaqActiveBoards();
-        boardId = cIt->gtBoardId();
-        boardName = cIt->gtBoardName();
+        posRec = m_gtBoardMap.gtBitDaqActiveBoards();
+        boardId = m_gtBoardMap.gtBoardId();
+        boardName = m_gtBoardMap.gtBoardName();
 
         if (posRec >=0) {
             myCout
@@ -178,12 +174,11 @@ void L1GtBoardMaps::printGtEvmActiveBoardsMap(std::ostream& myCout) const
     boost::uint16_t boardId = 0;
     std::string boardName;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        posRec = cIt->gtBitEvmActiveBoards();
-        boardId = cIt->gtBoardId();
-        boardName = cIt->gtBoardName();
+        posRec = m_gtBoardMap.gtBitEvmActiveBoards();
+        boardId = m_gtBoardMap.gtBoardId();
+        boardName = m_gtBoardMap.gtBoardName();
 
         if (posRec >=0) {
             myCout
@@ -213,12 +208,11 @@ void L1GtBoardMaps::printGtBoardSlotMap(std::ostream& myCout) const
     boost::uint16_t boardId = 0;
     std::string boardName;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        posRec = cIt->gtBoardSlot();
-        boardId = cIt->gtBoardId();
-        boardName = cIt->gtBoardName();
+        posRec = m_gtBoardMap.gtBoardSlot();
+        boardId = m_gtBoardMap.gtBoardId();
+        boardName = m_gtBoardMap.gtBoardName();
 
         if (posRec >=0) {
             myCout
@@ -247,12 +241,11 @@ void L1GtBoardMaps::printGtBoardHexNameMap(std::ostream& myCout) const
     boost::uint16_t boardId = 0;
     std::string boardName;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        posRec = cIt->gtBoardHexName();
-        boardId = cIt->gtBoardId();
-        boardName = cIt->gtBoardName();
+        posRec = m_gtBoardMap.gtBoardHexName();
+        boardId = m_gtBoardMap.gtBoardId();
+        boardName = m_gtBoardMap.gtBoardName();
 
         if (posRec >=0) {
             myCout
@@ -280,16 +273,15 @@ void L1GtBoardMaps::printGtQuadToPsbMap(std::ostream& myCout) const
     int nrBoards = 0;
     int nrCable = 0;
 
-    for (std::vector<L1GtBoard>::const_iterator
-            cIt = m_gtBoardMaps.begin(); cIt != m_gtBoardMaps.end(); ++cIt) {
+    for (const auto & m_gtBoardMap : m_gtBoardMaps) {
 
-        if (cIt->gtBoardType() == PSB) {
+        if (m_gtBoardMap.gtBoardType() == PSB) {
 
-            myCout << "\n  PSB_" << cIt->gtBoardIndex() << "\n      ";
+            myCout << "\n  PSB_" << m_gtBoardMap.gtBoardIndex() << "\n      ";
 
             nrBoards++;
 
-            std::vector<L1GtPsbQuad> quadInPsb = cIt->gtQuadInPsb();
+            std::vector<L1GtPsbQuad> quadInPsb = m_gtBoardMap.gtQuadInPsb();
             std::string objType;
 
             for (std::vector<L1GtPsbQuad>::const_iterator

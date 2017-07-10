@@ -141,9 +141,9 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 	    std::cout <<" GOT the logic ID for the EE trigger strips "<< std::endl;
 
 
-	  for(size_t kr=0; kr<run_vec.size(); kr++){
+	  for(auto & kr : run_vec){
 
-	    irun=static_cast<unsigned int>(run_vec[kr].getRunNumber());
+	    irun=static_cast<unsigned int>(kr.getRunNumber());
 	    
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" **************** "<<std::endl;
@@ -151,7 +151,7 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 
 	    // retrieve the data :
 	    std::map<EcalLogicID, RunTPGConfigDat> dataset;
-	    econn->fetchDataSet(&dataset, &run_vec[kr]);
+	    econn->fetchDataSet(&dataset, &kr);
 	    
 	    std::string the_config_tag="";
 	    int the_config_version=0;
@@ -240,15 +240,15 @@ void popcon::EcalTPGSlidingWindowHandler::getNewObjects()
 		
 		      bool set_the_strip=false;
 		      int stripid;
-		      for (size_t istrip=0; istrip<my_StripEcalLogicId_EE.size(); istrip++) {
+		      for (auto & istrip : my_StripEcalLogicId_EE) {
 
 			if(!set_the_strip){
 			  
-			  if(my_StripEcalLogicId_EE[istrip].getID1()==id1 
-			     && my_StripEcalLogicId_EE[istrip].getID2()==id2
-			     && my_StripEcalLogicId_EE[istrip].getID3()==id3 
+			  if(istrip.getID1()==id1 
+			     && istrip.getID2()==id2
+			     && istrip.getID3()==id3 
 			     ){
-			    stripid =my_StripEcalLogicId_EE[istrip].getLogicID();
+			    stripid =istrip.getLogicID();
 			    set_the_strip=true;
 			    break;
 			  }

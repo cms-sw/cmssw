@@ -232,14 +232,14 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
                                 m_omdsReader.singleAttribute( objectKey))  ;
 			       
      int crateNum = 0;
-     for( std::vector<std::string>::iterator crate = crateIDStrings.begin(); crate !=crateIDStrings.end() ; ++crate) {
+     for(auto & crateIDString : crateIDStrings) {
        //       std::cout << "crate conf " << *crate <<std::endl;
        l1t::OMDSReader::QueryResults cardConfResults =
 	 m_omdsReader.basicQuery(cardMaskStrings,
 				 rctSchema,
 				 "CRATE_CONF_DUMMY",
 				 "CRATE_CONF_DUMMY.CRATE_CONF",
-				 m_omdsReader.basicQuery( *crate,
+				 m_omdsReader.basicQuery( crateIDString,
 							  rctSchema,
 							  "RCT_CRATE_CONF",
 							  "RCT_CRATE_CONF.RCT_KEY",
@@ -247,8 +247,8 @@ L1RCTChannelMaskOnlineProd::newObject( const std::string& objectKey )
 				 ));
        bool extantCard[8];
        int cardNum =0 ;
-       for(std::vector<std::string>::iterator card = cardMaskStrings.begin(); card!=cardMaskStrings.end(); ++card){
-	 cardConfResults.fillVariable(*card,extantCard[cardNum]);
+       for(auto & cardMaskString : cardMaskStrings){
+	 cardConfResults.fillVariable(cardMaskString,extantCard[cardNum]);
 
 	 if(!extantCard[cardNum]){
 	   switch(cardNum){

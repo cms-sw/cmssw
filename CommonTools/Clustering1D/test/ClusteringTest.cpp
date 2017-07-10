@@ -26,10 +26,9 @@ namespace
   {
       cout << "   Cluster1D ";
       vector < const string * > names = obj.tracks();
-      for ( vector< const string * >::iterator nm=names.begin();
-              nm!=names.end() ; ++nm )
+      for (auto & name : names)
       {
-          cout << **nm;
+          cout << *name;
       };
       cout << " at " << obj.position().value() << " +/- "
            << obj.position().error() << " weight " << obj.weight();
@@ -38,10 +37,9 @@ namespace
     
   void print ( const vector < Cluster1D<string> > & obj )
   {
-      for ( vector< Cluster1D<string> >::const_iterator i=obj.begin();
-              i!=obj.end() ; ++i )
+      for (const auto & i : obj)
       {
-        print ( *i );
+        print ( i );
       }
   }
 
@@ -54,10 +52,9 @@ namespace
       {
           cout << "   Cluster1D: ";
           vector < const string * > names = i->tracks();
-          for ( vector< const string * >::iterator nm=names.begin();
-                  nm!=names.end() ; ++nm )
+          for (auto & name : names)
           {
-              cout << **nm;
+              cout << *name;
           };
           cout << " at " << i->position().value() << " +/- "
           << i->position().error() << " weight " << i->weight() << endl;

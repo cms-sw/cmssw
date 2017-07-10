@@ -99,9 +99,9 @@ EcalURecHitHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   iEvent.getByLabel(EEUncalibratedRecHitCollection_, EEhits);
   LogDebug("EcalURecHitHists") << "event " << ievt << " hits collection size " << EEhits->size();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EBhits->begin(); hitItr != EBhits->end(); ++hitItr)
+  for (const auto & hitItr : *EBhits)
   {
-    EcalUncalibratedRecHit hit = (*hitItr);
+    EcalUncalibratedRecHit hit = hitItr;
     EBDetId ebDet = hit.id();
     int ic = ebDet.ic();
     int hashedIndex = ebDet.hashedIndex();
@@ -141,9 +141,9 @@ EcalURecHitHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   }
   
   // Again for the endcap
-  for (EcalUncalibratedRecHitCollection::const_iterator hitItr = EEhits->begin(); hitItr != EEhits->end(); ++hitItr)
+  for (const auto & hitItr : *EEhits)
   {
-    EcalUncalibratedRecHit hit = (*hitItr);
+    EcalUncalibratedRecHit hit = hitItr;
     EEDetId eeDet = hit.id();
     int ic = eeDet.ic();
     int hashedIndex = eeDet.hashedIndex();

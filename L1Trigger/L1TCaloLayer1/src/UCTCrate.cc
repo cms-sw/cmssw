@@ -18,17 +18,17 @@ UCTCrate::UCTCrate(uint32_t crt, int fwv) :
 }
 
 UCTCrate::~UCTCrate() {
-  for(uint32_t i = 0; i < cards.size(); i++) {
-    if(cards[i] != 0) delete cards[i];
+  for(auto & card : cards) {
+    if(card != 0) delete card;
   }
 }
 
 bool UCTCrate::process() {
   crateSummary = 0;
-  for(uint32_t i = 0; i < cards.size(); i++) {
-    if(cards[i] != 0) {
-      cards[i]->process();
-      crateSummary += cards[i]->et();
+  for(auto & card : cards) {
+    if(card != 0) {
+      card->process();
+      crateSummary += card->et();
     }
   }
   return true;
@@ -36,8 +36,8 @@ bool UCTCrate::process() {
 
 bool UCTCrate::clearEvent() {
   crateSummary = 0;
-  for(uint32_t i = 0; i < cards.size(); i++) {
-    if(!cards[i]->clearEvent()) return false;
+  for(auto & card : cards) {
+    if(!card->clearEvent()) return false;
   }
   return true;
 }

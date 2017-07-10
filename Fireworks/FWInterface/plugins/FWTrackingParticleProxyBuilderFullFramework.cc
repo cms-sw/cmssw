@@ -127,10 +127,8 @@ FWTrackingParticleProxyBuilderFullFramework::build( const TrackingParticle& iDat
          phits.push_back(ri->second.get());
 
       std::sort(phits.begin(), phits.end(), [](const PSimHit* a, const PSimHit* b){ return a->tof() < b->tof(); });
-      for (auto phi = phits.begin(); phi != phits.end(); ++phi)
+      for (auto phit : phits)
       {
-         const PSimHit* phit = *phi;
-
          local[0] = phit->localPosition().x();
          local[1] = phit->localPosition().y();
          local[2] = phit->localPosition().z();

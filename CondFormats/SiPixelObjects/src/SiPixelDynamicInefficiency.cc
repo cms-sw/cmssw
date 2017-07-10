@@ -81,7 +81,7 @@ std::vector<double> SiPixelDynamicInefficiency::getPUFactor (const uint32_t& det
 }
 
 bool SiPixelDynamicInefficiency::putDetIdmask(uint32_t& mask){
-  for (unsigned int i=0;i<v_DetIdmasks.size();i++) if (mask == v_DetIdmasks.at(i)) return false;
+  for (unsigned int v_DetIdmask : v_DetIdmasks) if (mask == v_DetIdmask) return false;
   v_DetIdmasks.push_back(mask);
   return true;
 }

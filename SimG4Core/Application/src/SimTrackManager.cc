@@ -55,8 +55,8 @@ void SimTrackManager::reset()
   if (m_trksForThisEvent==0) { m_trksForThisEvent = new TrackContainer(); }
   else
     {
-      for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) {
-        delete (*m_trksForThisEvent)[i];
+      for (auto & i : *m_trksForThisEvent) {
+        delete i;
       }
       delete m_trksForThisEvent;
       m_trksForThisEvent = new TrackContainer();
@@ -71,8 +71,8 @@ void SimTrackManager::reset()
 
 void SimTrackManager::deleteTracks()
 {
-  for (unsigned int i = 0; i < m_trksForThisEvent->size(); i++) {
-    delete (*m_trksForThisEvent)[i];
+  for (auto & i : *m_trksForThisEvent) {
+    delete i;
   }
   delete m_trksForThisEvent;
   m_trksForThisEvent = 0;
@@ -131,9 +131,8 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
     << m_trksForThisEvent->size();
 #endif 
  
-  for (unsigned int it = 0; it < m_trksForThisEvent->size(); it++)
+  for (auto trkH : *m_trksForThisEvent)
     {
-      TrackWithHistory * trkH = (*m_trksForThisEvent)[it];
       // at this stage there is one vertex per track, 
       // so the vertex id of track N is also N
       int ivertex = -1;
@@ -141,10 +140,10 @@ void SimTrackManager::reallyStoreTracks(G4SimEvent * simEvent)
       
       math::XYZVectorD pm(0.,0.,0.);
       unsigned int iParentID = trkH->parentID();
-      for(unsigned int iit = 0; iit < m_trksForThisEvent->size(); ++iit)
+      for(auto & iit : *m_trksForThisEvent)
         {
-          if((*m_trksForThisEvent)[iit]->trackID()==iParentID){
-            pm = (*m_trksForThisEvent)[iit]->momentum();
+          if(iit->trackID()==iParentID){
+            pm = iit->momentum();
             break;
           }
         }
@@ -183,9 +182,9 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
   if (iterator != m_vertexMap.end()) {
 
     // loop over saved vertices
-    for(unsigned int k=0; k<m_vertexMap[parent].size(); k++){
-      if(sqrt((trkH->vertexPosition()-(((m_vertexMap[parent])[k]).second)).Mag2())<0.001)
-	{ return (((m_vertexMap[parent])[k]).first); }
+    for(auto & k : m_vertexMap[parent]){
+      if(sqrt((trkH->vertexPosition()-(k.second)).Mag2())<0.001)
+	{ return (k.first); }
     }
   }
 
@@ -351,9 +350,9 @@ void SimTrackManager::cleanTracksWithHistory(){
         {
           if (it>num) (*m_trksForThisEvent)[num] = t;
           num++;
-	  for (unsigned int itr=0; itr<idsave.size(); itr++) { 
-	    if ((idsave[itr]).first == g4ID) { 
-	      (idsave[itr]).second = g4ID; 
+	  for (auto & itr : idsave) { 
+	    if (itr.first == g4ID) { 
+	      itr.second = g4ID; 
 	      break; 
 	    } 
 	  }
@@ -390,15 +389,14 @@ void SimTrackManager::resetGenID()
 {
   if ( theLHCTlink == 0 ) return;
 
-  for  (unsigned int it = 0; it < m_trksForThisEvent->size(); it++)
+  for  (auto trkH : *m_trksForThisEvent)
     {
-      TrackWithHistory * trkH = (*m_trksForThisEvent)[it];
       int genParticleID_ = trkH->genParticleID();
       if ( genParticleID_ == -1 ) { continue; }
       else {
-        for ( unsigned int itrlink = 0; itrlink < (*theLHCTlink).size(); itrlink++ ) {
-          if ( (*theLHCTlink)[itrlink].afterHector() == genParticleID_ ) {
-            trkH->setGenParticleID( (*theLHCTlink)[itrlink].beforeHector() );
+        for (auto itrlink : (*theLHCTlink)) {
+          if ( itrlink.afterHector() == genParticleID_ ) {
+            trkH->setGenParticleID( itrlink.beforeHector() );
             continue;
           }
         }

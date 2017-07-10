@@ -13,8 +13,8 @@ PFPhotonClusters::PFPhotonClusters(PFClusterRef PFClusterRef):
   else isEB_=false;
   SetSeed();
   PFCrystalCoor();
-  for(int i=0; i<5; ++i)
-    for(int j=0; j<5; ++j)e5x5_[i][j]=0;
+  for(auto & i : e5x5_)
+    for(int j=0; j<5; ++j)i[j]=0;
   FillClusterShape();
   FillClusterWidth();
 }
@@ -27,10 +27,9 @@ void PFPhotonClusters::SetSeed(){
   const auto & PFRecHits=
     PFClusterRef_->recHitFractions();
   
-  for(auto it = PFRecHits.begin();
-      it != PFRecHits.end(); ++it){
-    const auto & RefPFRecHit = it->recHitRef();
-    auto frac=it->fraction();
+  for(const auto & PFRecHit : PFRecHits){
+    const auto & RefPFRecHit = PFRecHit.recHitRef();
+    auto frac=PFRecHit.fraction();
     float E= RefPFRecHit->energy()* frac;
     if(E>PFSeedE){
       PFSeedE=E;
@@ -145,10 +144,10 @@ void PFPhotonClusters::PFCrystalCoor(){
 
 void PFPhotonClusters::FillClusterShape(){
   const std::vector< reco::PFRecHitFraction >& PFRecHits=PFClusterRef_->recHitFractions();  
-  for(std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); it != PFRecHits.end(); ++it){
-    const PFRecHitRef& RefPFRecHit = it->recHitRef();
+  for(const auto & PFRecHit : PFRecHits){
+    const PFRecHitRef& RefPFRecHit = PFRecHit.recHitRef();
     DetId id=RefPFRecHit->detId();
-    double frac=it->fraction();
+    double frac=PFRecHit.fraction();
     float E=RefPFRecHit->energy()*frac;
     if(isEB_){	
       int deta=EBDetId::distanceEta(id,idseed_);
@@ -220,9 +219,9 @@ void PFPhotonClusters::FillClusterWidth(){
   double ClustEta=PFClusterRef_->eta();
   double ClustPhi=PFClusterRef_->phi();
   const std::vector< reco::PFRecHitFraction >& PFRecHits=PFClusterRef_->recHitFractions();  
-  for(std::vector< reco::PFRecHitFraction >::const_iterator it = PFRecHits.begin(); it != PFRecHits.end(); ++it){
-    const PFRecHitRef& RefPFRecHit = it->recHitRef();  
-    float E=RefPFRecHit->energy() * it->fraction();
+  for(const auto & PFRecHit : PFRecHits){
+    const PFRecHitRef& RefPFRecHit = PFRecHit.recHitRef();  
+    float E=RefPFRecHit->energy() * PFRecHit.fraction();
     double dEta = RefPFRecHit->position().eta() - ClustEta;	
     double dPhi = RefPFRecHit->position().phi() - ClustPhi;
     if (dPhi > + TMath::Pi()) { dPhi = TMath::TwoPi() - dPhi; }

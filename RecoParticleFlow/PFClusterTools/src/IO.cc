@@ -21,8 +21,8 @@ IO::IO(const char* filepattern) :  fCurline(0) {
     throw err;
   }
 
-  for(unsigned i=0; i<files.size(); i++) {
-    ParseFile(files[i].c_str());
+  for(auto & file : files) {
+    ParseFile(file.c_str());
   }
   cout<<"------ Reading User Parameters : DONE ---------"<<endl;
   cout<<endl;
@@ -75,8 +75,8 @@ bool IO::ParseFile(const char* filename) {
 }
 
 void IO::Dump(ostream& out) const {
-  for (unsigned i=0; i<fAllLines.size(); i++) {
-    out<<fAllLines[i].first<< "\t" << fAllLines[i].second << endl; 
+  for (const auto & fAllLine : fAllLines) {
+    out<<fAllLine.first<< "\t" << fAllLine.second << endl; 
   } 
 }
 
@@ -93,9 +93,9 @@ string IO::GetLineData(const char* tag, const char* key) const {
 
   char data[sLinesize];
   bool found = false;
-  for(unsigned i=0; i<fAllLines.size(); i++) {
-    if( !fnmatch(fAllLines[i].first.c_str(), tag, 0) ) { 
-      istringstream in(fAllLines[i].second.c_str());
+  for(const auto & fAllLine : fAllLines) {
+    if( !fnmatch(fAllLine.first.c_str(), tag, 0) ) { 
+      istringstream in(fAllLine.second.c_str());
       string readkey; in>>readkey;
       
       if(readkey == key) {

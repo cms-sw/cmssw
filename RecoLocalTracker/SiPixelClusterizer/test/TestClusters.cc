@@ -228,21 +228,21 @@ int getBX::find(int bx) {
   //cout<<bx<<endl;
 
   // Check collisions
-  for(int i=0;i<coll_num;++i) {    
-    if(bx == coll[i]) return (3);  // collision
-    else if(bx == (coll[i]+1)) return (4); // collision+1
+  for(int i : coll) {    
+    if(bx == i) return (3);  // collision
+    else if(bx == (i+1)) return (4); // collision+1
   }
     
   // Check beam1
-  for(int i=0;i<beam1_num;++i) {    
-    if(bx == beam1[i]) return (1);  // collision
-    else if(bx == (beam1[i]+1)) return (5); // collision+1
+  for(int i : beam1) {    
+    if(bx == i) return (1);  // collision
+    else if(bx == (i+1)) return (5); // collision+1
   }
     
   // Check beam1
-  for(int i=0;i<beam2_num;++i) {    
-    if(bx == beam2[i]) return (2);  // collision
-    else if(bx == (beam2[i]+1)) return (6); // collision+1
+  for(int i : beam2) {    
+    if(bx == i) return (2);  // collision
+    else if(bx == (i+1)) return (6); // collision+1
   }
 
   return 0; // return no collision 
@@ -2009,20 +2009,19 @@ void TestClusters::analyze(const edm::Event& e,
     
     //int numPVs = vertices->size(); // unused 
     if( !vertices.failedToGet() && vertices.isValid() ) {
-      for( reco::VertexCollection::const_iterator iVertex = vertices->begin();
-	   iVertex != vertices->end(); ++iVertex ) {
+      for(const auto & iVertex : *vertices) {
 	
-	if(! iVertex->isValid() ) continue;
-	if( iVertex->isFake() ) continue; 
+	if(! iVertex.isValid() ) continue;
+	if( iVertex.isFake() ) continue; 
 	numPVsGood++;
 	
 	if( PRINT ){
 	  cout << "vertex";
-	  cout << ": x " << iVertex->x();
-	  cout << ", y " << iVertex->y();
-	  cout << ", z " << iVertex->z();
-	  cout << ", ndof " << iVertex->ndof();
-	  cout << ", sumpt " << iVertex->p4().pt();
+	  cout << ": x " << iVertex.x();
+	  cout << ", y " << iVertex.y();
+	  cout << ", z " << iVertex.z();
+	  cout << ", ndof " << iVertex.ndof();
+	  cout << ", sumpt " << iVertex.p4().pt();
 	  cout << endl;
 	} // print 
       } // for loop
@@ -2155,7 +2154,7 @@ void TestClusters::analyze(const edm::Event& e,
   // Analyse HLT
   //bool passHLT1=false,passHLT2=false,passHLT3=false,passHLT4=false,passHLT5=false;
   bool hlt[256];
-  for(int i=0;i<256;++i) hlt[i]=false;
+  for(bool & i : hlt) i=false;
 
 #ifdef HLT
 

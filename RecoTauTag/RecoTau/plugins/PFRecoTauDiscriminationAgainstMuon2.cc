@@ -138,11 +138,10 @@ namespace
   void countMatches(const reco::Muon& muon, std::vector<int>& numMatchesDT, std::vector<int>& numMatchesCSC, std::vector<int>& numMatchesRPC)
   {
     const std::vector<reco::MuonChamberMatch>& muonSegments = muon.matches();
-    for ( std::vector<reco::MuonChamberMatch>::const_iterator muonSegment = muonSegments.begin();
-	  muonSegment != muonSegments.end(); ++muonSegment ) {
-      if ( muonSegment->segmentMatches.empty() ) continue;
-      int muonDetector = muonSegment->detector();
-      int muonStation = muonSegment->station() - 1;
+    for (const auto & muonSegment : muonSegments) {
+      if ( muonSegment.segmentMatches.empty() ) continue;
+      int muonDetector = muonSegment.detector();
+      int muonStation = muonSegment.station() - 1;
       assert(muonStation >= 0 && muonStation <= 3);
       if      ( muonDetector == MuonSubdetId::DT  ) ++numMatchesDT[muonStation];
       else if ( muonDetector == MuonSubdetId::CSC ) ++numMatchesCSC[muonStation];

@@ -95,9 +95,8 @@ DTCombinatorialExtendedPatternReco::initHits(const DTSuperLayer* sl,
                                      const std::vector<DTRecHit1DPair>& hits){  
   
   vector<std::shared_ptr<DTHitPairForFit>> result;
-  for (vector<DTRecHit1DPair>::const_iterator hit=hits.begin();
-       hit!=hits.end(); ++hit) {
-    result.push_back(std::make_shared<DTHitPairForFit>(*hit, *sl, theDTGeometry));
+  for (const auto & hit : hits) {
+    result.push_back(std::make_shared<DTHitPairForFit>(hit, *sl, theDTGeometry));
   }
   return result;
 }
@@ -112,8 +111,7 @@ DTCombinatorialExtendedPatternReco::buildSegments(const DTSuperLayer* sl,
   
   if(debug) {
     cout << "DTCombinatorialExtendedPatternReco::buildSegments: " << sl->id() << " nHits " << hits.size() << endl;
-    for (vector<std::shared_ptr<DTHitPairForFit>>::const_iterator hit=hits.begin();
-         hit!=hits.end(); ++hit) cout << **hit<< endl;
+    for (const auto & hit : hits) cout << *hit<< endl;
   }
 
   // 10-Mar-2004 SL
@@ -150,12 +148,12 @@ DTCombinatorialExtendedPatternReco::buildSegments(const DTSuperLayer* sl,
         DAlphaMax=theAlphaMaxPhi;
 
       DTEnums::DTCellSide codes[2]={DTEnums::Right, DTEnums::Left};
-      for (int firstLR=0; firstLR<2; ++firstLR) {
-        for (int lastLR=0; lastLR<2; ++lastLR) {
+      for (auto & code : codes) {
+        for (auto & lastLR : codes) {
           // TODO move the global transformation in the DTHitPairForFit class
           // when it will be moved I will able to remove the sl from the input parameter
-          GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(codes[firstLR]) );
-          GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(codes[lastLR]) );
+          GlobalPoint gposFirst=sl->toGlobal( (*firstHit)->localPosition(code) );
+          GlobalPoint gposLast= sl->toGlobal( (*lastHit)->localPosition(lastLR) );
 
           GlobalVector gvec=gposLast-gposFirst;
           GlobalVector gvecIP=gposLast-IP;
@@ -168,9 +166,9 @@ DTCombinatorialExtendedPatternReco::buildSegments(const DTSuperLayer* sl,
 
             // create a segment hypotesis
             // I don't need a true segment, just direction and position
-            LocalPoint posIni = (*firstHit)->localPosition(codes[firstLR]);
+            LocalPoint posIni = (*firstHit)->localPosition(code);
             LocalVector dirIni = 
-              ((*lastHit)->localPosition(codes[lastLR])-posIni).unit();
+              ((*lastHit)->localPosition(lastLR)-posIni).unit();
 
             // search for other compatible hits, with or without the L/R solved
             vector<DTSegmentCand::AssPoint> assHits = findCompatibleHits(posIni, dirIni, hits);
@@ -244,8 +242,8 @@ DTCombinatorialExtendedPatternReco::findCompatibleHits(const LocalPoint& posIni,
 
   typedef vector<std::shared_ptr<DTHitPairForFit>> hitCont;
   typedef hitCont::const_iterator  hitIter;
-  for (hitIter hit=hits.begin(); hit!=hits.end(); ++hit) {
-    pair<bool,bool> isCompatible = (*hit)->isCompatible(posIni, dirIni);
+  for (const auto & hit : hits) {
+    pair<bool,bool> isCompatible = hit->isCompatible(posIni, dirIni);
     if (debug) 
       cout << "isCompatible " << isCompatible.first << " " <<
         isCompatible.second << endl;
@@ -273,7 +271,7 @@ DTCombinatorialExtendedPatternReco::findCompatibleHits(const LocalPoint& posIni,
       tried.push_back(0);
       continue; // neither is compatible
     }
-    result.push_back(DTSegmentCand::AssPoint(*hit, lrcode));
+    result.push_back(DTSegmentCand::AssPoint(hit, lrcode));
   }
   
 
@@ -427,9 +425,8 @@ DTCombinatorialExtendedPatternReco::buildPointsCollection(vector<DTSegmentCand::
 bool
 DTCombinatorialExtendedPatternReco::checkDoubleCandidates(vector<DTSegmentCand*>& cands,
                                                   DTSegmentCand* seg) {
-  for (vector<DTSegmentCand*>::iterator cand=cands.begin();
-       cand!=cands.end(); ++cand) 
-    if (*(*cand)==*seg) return false;
+  for (auto & cand : cands) 
+    if (*cand==*seg) return false;
   return true;
 }
 

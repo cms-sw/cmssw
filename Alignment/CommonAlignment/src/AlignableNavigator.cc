@@ -44,8 +44,8 @@ AlignableNavigator::AlignableNavigator(AlignableExtras* extras, Alignable* track
 
   if (extras) {
     align::Alignables allExtras = extras->components();
-    for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
-      numNonDets += this->recursiveGetId(*it);
+    for (auto & allExtra : allExtras) {
+      numNonDets += this->recursiveGetId(allExtra);
     }
   }
 
@@ -69,8 +69,8 @@ AlignableNavigator::AlignableNavigator( const std::vector<Alignable*>& alignable
   theMap.clear();
 
   unsigned int numNonDets = 0;
-  for ( std::vector<Alignable*>::const_iterator it = alignables.begin(); it != alignables.end(); ++it ) {
-    numNonDets += this->recursiveGetId(*it);
+  for (auto alignable : alignables) {
+    numNonDets += this->recursiveGetId(alignable);
   }
   if (numNonDets) {
     edm::LogWarning("Alignment") <<"@SUB=AlignableNavigator" << "Created with map of size "
@@ -152,8 +152,8 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
   std::vector<Alignable*> comp = alignable->components();
   if ( alignable->alignableObjectId() != align::AlignableDet
        || comp.size() > 1 ) { // Non-glued AlignableDets contain themselves
-    for ( std::vector<Alignable*>::iterator it = comp.begin(); it != comp.end(); ++it ) {
-      nProblem += this->recursiveGetId(*it);
+    for (auto & it : comp) {
+      nProblem += this->recursiveGetId(it);
     }
   }
   return nProblem;
@@ -166,9 +166,8 @@ AlignableNavigator::alignablesFromHits( const std::vector<const TransientTrackin
   std::vector<AlignableDetOrUnitPtr> result;
   result.reserve(hitvec.size());
 
-  for(std::vector<const TransientTrackingRecHit*>::const_iterator ih
-        = hitvec.begin(), iEnd = hitvec.end(); ih != iEnd; ++ih) {
-    result.push_back(this->alignableFromDetId((*ih)->geographicalId()));
+  for(auto ih : hitvec) {
+    result.push_back(this->alignableFromDetId(ih->geographicalId()));
   }
 
   return result;
@@ -183,9 +182,8 @@ AlignableNavigator::alignablesFromHits
   std::vector<AlignableDetOrUnitPtr> result;
   result.reserve(hitVec.size());
   
-  for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator it
-         = hitVec.begin(), iEnd = hitVec.end(); it != iEnd; ++it) {
-    result.push_back(this->alignableFromDetId((*it)->geographicalId()));
+  for (const auto & it : hitVec) {
+    result.push_back(this->alignableFromDetId(it->geographicalId()));
   }
 
   return result;
@@ -209,8 +207,8 @@ bool AlignableNavigator::detAndSubdetInMap( const DetId& detid ) const
 {
    int det = detid.det();
    int subdet = detid.subdetId();
-   for (std::vector<std::pair<int, int> >::const_iterator i = theDetAndSubdet.begin();  i != theDetAndSubdet.end();  ++i) {
-      if (det == i->first  &&  subdet == i->second) return true;
+   for (const auto & i : theDetAndSubdet) {
+      if (det == i.first  &&  subdet == i.second) return true;
    }
    return false;
 }

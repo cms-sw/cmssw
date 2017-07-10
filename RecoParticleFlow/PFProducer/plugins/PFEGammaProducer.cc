@@ -572,11 +572,11 @@ PFEGammaProducer::setPFVertexParameters(bool useVertex,
 //     pfpho_->setnPU(nVtx);
 //   }
   primaryVertex_ = primaryVertices->front();
-  for (unsigned short i=0 ;i<primaryVertices->size();++i)
+  for (const auto & primaryVertice : *primaryVertices)
     {
-      if(primaryVertices->at(i).isValid()&&(!primaryVertices->at(i).isFake()))
+      if(primaryVertice.isValid()&&(!primaryVertice.isFake()))
         {
-          primaryVertex_ = primaryVertices->at(i);
+          primaryVertex_ = primaryVertice;
           //primaryVertexFound = true;
           break;
         }

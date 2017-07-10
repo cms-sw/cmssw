@@ -19,18 +19,17 @@ void AnnealingGhostTrackFitter::postFit(
 			const GhostTrackPrediction &pred,
 			std::vector<GhostTrackState> &states)
 {
-	for(std::vector<GhostTrackState>::iterator state = 
-		states.begin(); state != states.end(); ++state) {
+	for(auto & state : states) {
 
-		if (!state->isValid())
+		if (!state.isValid())
 			continue;
 
 		double ndof, chi2;
-		updater.contribution(pred, *state, ndof, chi2);
+		updater.contribution(pred, state, ndof, chi2);
 		if (ndof == 0. || firstStep)
 			continue;
 
-		state->setWeight(annealing->weight(chi2));
+		state.setWeight(annealing->weight(chi2));
 	}
 
 	if (firstStep)

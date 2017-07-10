@@ -223,9 +223,9 @@ void TrajectorySeedProducer::produce(edm::Event& e, const edm::EventSetup& es)
 
                 // copy the hits 
                 edm::OwnVector<FastTrackerRecHit> seedHits;
-                for(unsigned iIndex = 0;iIndex < seedHitNumbers.size();++iIndex)
+                for(unsigned int seedHitNumber : seedHitNumbers)
                 {
-                    seedHits.push_back(seedHitCandidates[seedHitNumbers[iIndex]]->clone());
+                    seedHits.push_back(seedHitCandidates[seedHitNumber]->clone());
                 }
 		// make them aware of the combination they originate from
                 fastTrackingUtilities::setRecHitCombinationIndex(seedHits,icomb);

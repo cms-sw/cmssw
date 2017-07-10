@@ -510,10 +510,10 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	      }
 	
 	      // loop over clustered SVs and assign them to different subjets based on smallest dR
-	      for(size_t sv=0; sv<svIndices.size(); ++sv)
+	      for(int & svIndice : svIndices)
 	      {
 		const reco::Vertex &pv = *(trackIPTagInfos->front().primaryVertex());
-		const VTX &extSV = (*extSecVertex)[ svIndices.at(sv) ];
+		const VTX &extSV = (*extSecVertex)[ svIndice ];
 		GlobalVector dir = flightDirection(pv, extSV);
 		dir = dir.unit();
 		fastjet::PseudoJet p(dir.x(),dir.y(),dir.z(),dir.mag()); // using SV flight direction so treating SV as massless
@@ -522,13 +522,13 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		
 		std::vector<double> dR2toSubjets;
 		
-		for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-		  dR2toSubjets.push_back( Geom::deltaR2( p.rapidity(), p.phi_std(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->phi() ) );
+		for(int & sj : subjetIndices.at(i))
+		  dR2toSubjets.push_back( Geom::deltaR2( p.rapidity(), p.phi_std(), trackIPTagInfos->at(sj).jet()->rapidity(), trackIPTagInfos->at(sj).jet()->phi() ) );
 
 		// find the closest subjet
 		int closestSubjetIdx = std::distance( dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()) );
 
-		clusteredSVs.at(subjetIndices.at(i).at(closestSubjetIdx)).push_back( svIndices.at(sv) );
+		clusteredSVs.at(subjetIndices.at(i).at(closestSubjetIdx)).push_back( svIndice );
 	      }
 	    }
 	  }
@@ -628,8 +628,8 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 	
 	      std::vector<double> dR2toSubjets;
 	
-	      for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
-		dR2toSubjets.push_back( Geom::deltaR2( p.rapidity(), p.phi_std(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->rapidity(), trackIPTagInfos->at(subjetIndices.at(i).at(sj)).jet()->phi() ) );
+	      for(int & sj : subjetIndices.at(i))
+		dR2toSubjets.push_back( Geom::deltaR2( p.rapidity(), p.phi_std(), trackIPTagInfos->at(sj).jet()->rapidity(), trackIPTagInfos->at(sj).jet()->phi() ) );
 
 	      // find the closest subjet
 	      int closestSubjetIdx = std::distance( dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()) );
@@ -850,8 +850,8 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		  if( useSVClustering || useFatJets ) {
 		      size_t jetIdx = ( iterJets - trackIPTagInfos->begin() );
 		
-		      for(size_t iExtSv = 0; iExtSv < clusteredSVs.at(jetIdx).size(); iExtSv++){
-			 const VTX & extVertex = (*extSecVertex)[ clusteredSVs.at(jetIdx).at(iExtSv) ];
+		      for(int & iExtSv : clusteredSVs.at(jetIdx)){
+			 const VTX & extVertex = (*extSecVertex)[ iExtSv ];
 			 if( extVertex.p4().M() < 0.3 )
 			   continue;
 			 extAssoCollection.push_back( extVertex );
@@ -940,10 +940,10 @@ void  TemplatedSecondaryVertexProducer<TrackIPTagInfo,reco::Vertex>::markUsedTra
 template <>
 void  TemplatedSecondaryVertexProducer<CandIPTagInfo,reco::VertexCompositePtrCandidate>::markUsedTracks(TrackDataVector & trackData, const input_container & trackRefs, const SecondaryVertex & sv,size_t idx)
 {
-	for(typename input_container::const_iterator iter = sv.daughterPtrVector().begin(); iter != sv.daughterPtrVector().end(); ++iter)
+	for(const auto & iter : sv.daughterPtrVector())
 	{
 		typename input_container::const_iterator pos =
-			std::find(trackRefs.begin(), trackRefs.end(), *iter);
+			std::find(trackRefs.begin(), trackRefs.end(), iter);
 
 		if (pos != trackRefs.end() )
 		{
@@ -1117,15 +1117,15 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::matchSubjets(const std::vector<
                                                               const edm::Handle<std::vector<IPTI> >& subjets,
                                                               std::vector<std::vector<int> >& matchedIndices)
 {
-   for(size_t g=0; g<groomedIndices.size(); ++g)
+   for(int groomedIndice : groomedIndices)
    {
      std::vector<int> subjetIndices;
 
-     if( groomedIndices.at(g)>=0 )
+     if( groomedIndice>=0 )
      {
-       for(size_t s=0; s<groomedJets->at(groomedIndices.at(g)).numberOfDaughters(); ++s)
+       for(size_t s=0; s<groomedJets->at(groomedIndice).numberOfDaughters(); ++s)
        {
-         const edm::Ptr<reco::Candidate> & subjet = groomedJets->at(groomedIndices.at(g)).daughterPtr(s);
+         const edm::Ptr<reco::Candidate> & subjet = groomedJets->at(groomedIndice).daughterPtr(s);
 
          for(size_t sj=0; sj<subjets->size(); ++sj)
          {

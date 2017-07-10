@@ -37,8 +37,8 @@ void OptoScanTask::book() {
 
   // Resize "histo sets"
   opto_.resize( gains );
-  for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) {
-    opto_[igain].resize(3);
+  for (auto & igain : opto_) {
+    igain.resize(3);
   }
 
   for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) {
@@ -142,9 +142,9 @@ void OptoScanTask::fill( const SiStripEventSummary & summary,
 //
 void OptoScanTask::update() {
 
-  for ( uint16_t igain = 0; igain < opto_.size(); igain++ ) { 
-    for ( uint16_t ihisto = 0; ihisto < opto_[igain].size(); ihisto++ ) { 
-      updateHistoSet( opto_[igain][ihisto] );
+  for (auto & igain : opto_) { 
+    for ( uint16_t ihisto = 0; ihisto < igain.size(); ihisto++ ) { 
+      updateHistoSet( igain[ihisto] );
     }
   }
 

@@ -883,9 +883,9 @@ void METAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
   const L1GtTriggerMenu* menu = menuRcd.product();
-  for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end(); ++techTrig) {
-    if ((techTrig->second).algoName() == m_l1algoname_) {
-      m_bitAlgTechTrig_=(techTrig->second).algoBitNumber();
+  for (const auto & techTrig : menu->gtTechnicalTriggerMap()) {
+    if ((techTrig.second).algoName() == m_l1algoname_) {
+      m_bitAlgTechTrig_=(techTrig.second).algoBitNumber();
       break;
     }
   }
@@ -1942,8 +1942,7 @@ void METAnalyzer::fillMonitorElement(const edm::Event& iEvent, std::string DirNa
 	float py_HFEGammasPlus=0;
 	float px_HFEGammasMinus=0;
 	float py_HFEGammasMinus=0;
-	for (unsigned int i = 0; i < particleFlow->size(); i++) {
-	  const reco::PFCandidate& c = particleFlow->at(i);
+	for (const auto & c : *particleFlow) {
 	  if(c.particleId()==1){//charged hadrons
 	    //endcap minus
 	    if(c.eta()>(-3.0)&& c.eta()<(-1.392)){

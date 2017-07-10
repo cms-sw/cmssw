@@ -41,9 +41,9 @@ namespace l1t
 
 			unsigned int ownLinks[] = {4,5,12,13,20,21,22,23,28,29};
 			bool ownFlag(false);
-			for (int i = 0; i < 10; i++)
+			for (unsigned int ownLink : ownLinks)
 			{
-				if (block.header().getID()/2 == ownLinks[i])
+				if (block.header().getID()/2 == ownLink)
 					ownFlag = true;
 			}
 			if ( !ownFlag )

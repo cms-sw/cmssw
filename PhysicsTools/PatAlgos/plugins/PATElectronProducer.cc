@@ -810,13 +810,13 @@ void PATElectronProducer::fillElectron(Electron& anElectron,
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
-    for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
+    for(const auto & genMatche : genMatches) {
       if(useParticleFlow_) {
-	reco::GenParticleRef genElectron = (*genMatches[i])[anElectron.pfCandidateRef()];
+	reco::GenParticleRef genElectron = (*genMatche)[anElectron.pfCandidateRef()];
 	anElectron.addGenParticleRef(genElectron);
       }
       else {
-	reco::GenParticleRef genElectron = (*genMatches[i])[elecRef];
+	reco::GenParticleRef genElectron = (*genMatche)[elecRef];
 	anElectron.addGenParticleRef(genElectron);
       }
     }
@@ -896,8 +896,8 @@ void PATElectronProducer::fillElectron2( Electron& anElectron,
   // store the match to the generated final state muons
 
   if (addGenMatch_) {
-    for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-      reco::GenParticleRef genElectron = (*genMatches[i])[candPtrForGenMatch];
+    for(const auto & genMatche : genMatches) {
+      reco::GenParticleRef genElectron = (*genMatche)[candPtrForGenMatch];
       anElectron.addGenParticleRef(genElectron);
     }
     if (embedGenMatch_) anElectron.embedGenParticle();

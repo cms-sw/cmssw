@@ -353,9 +353,9 @@ void MonElemFuncs::addTightLooseTrigHist(std::vector<MonElemContainer<OffPho>*>&
 //we transfer ownership of eleCut to the monitor elements
 void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(const auto & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -367,9 +367,9 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
 //we transfer ownership of phoCut to the monitor elements
 void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(const auto & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -382,9 +382,9 @@ void MonElemFuncs::initTightLooseTrigHistsTrigCuts(std::vector<MonElemContainer<
 //we transfer ownership of eleCut to the monitor elements
 void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(const auto & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -397,9 +397,9 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 //we transfer ownership of phoCut to the monitor elements
 void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string>& tightLooseTrigs,const BinData& bins)
 {
-  for(size_t trigNr=0;trigNr<tightLooseTrigs.size();trigNr++){
+  for(const auto & tightLooseTrig : tightLooseTrigs){
     std::vector<std::string> splitString;
-    boost::split(splitString,tightLooseTrigs[trigNr],boost::is_any_of(std::string(":")));
+    boost::split(splitString,tightLooseTrig,boost::is_any_of(std::string(":")));
     if(splitString.size()!=2) continue; //format incorrect
     const std::string& tightTrig = splitString[0];
     const std::string& looseTrig = splitString[1];
@@ -415,9 +415,8 @@ void MonElemFuncs::initTightLooseDiObjTrigHistsTrigCuts(std::vector<MonElemConta
 //using a tag and probe technique (note: this will be different to the trigger efficiency normally calculated) 
 void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffEle>*>& eleMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
 {
-  for(size_t filterNr=0;filterNr<filterNames.size();filterNr++){ 
+  for(auto trigName : filterNames){ 
     
-    std::string trigName(filterNames[filterNr]);
     //  float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;
@@ -490,9 +489,8 @@ void MonElemFuncs::initTrigTagProbeHist_2Leg(std::vector<MonElemContainer<OffEle
 //Now same for photons
 void MonElemFuncs::initTrigTagProbeHists(std::vector<MonElemContainer<OffPho>*>& phoMonElems,const std::vector<std::string> filterNames,int cutMask,const BinData& bins)
 {
-  for(size_t filterNr=0;filterNr<filterNames.size();filterNr++){ 
+  for(auto trigName : filterNames){ 
     
-    std::string trigName(filterNames[filterNr]);
     //float etCutValue = trigTools::getSecondEtThresFromName(trigName);
     float etCutValue = 0.;
     //std::cout<<"TrigName= "<<trigName<<"   etCutValue= "<<etCutValue<<std::endl;

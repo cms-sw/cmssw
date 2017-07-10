@@ -324,19 +324,18 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
    if(DEBUG) cout<<"Loop over SimHits LowTof"<<endl;
    //for(vector<PSimHit>::const_iterator isim = PixelHitsLowTof->begin();
    // isim != PixelHitsLowTof->end(); ++isim) {
-   for(vector<PSimHit>::const_iterator isim = PixelHits->begin();
-       isim != PixelHits->end(); ++isim) {
+   for(const auto & isim : *PixelHits) {
 
      totalNumOfSimHits++;
      // Det id
-     DetId detId=DetId((*isim).detUnitId());
+     DetId detId=DetId(isim.detUnitId());
      unsigned int dettype=detId.det(); // for pixel=1
      unsigned int subid=detId.subdetId();// barrel=1
      unsigned int detid=detId.rawId(); // raw det id
      
      if(dettype!=1 && subid!=1) cout<<" error in det id "<<dettype<<" "<<subid<<endl;
      if(PRINT) cout<<totalNumOfSimHits<<" det id "<<detid<<" "<<dettype<<" "<<subid<<endl;
-     if(DEBUG) cout<<" det unit "<<(*isim).detUnitId()<<detId.null()<<endl;
+     if(DEBUG) cout<<" det unit "<<isim.detUnitId()<<detId.null()<<endl;
 
      // Global variables 
      const PixelGeomDetUnit * theGeomDet = 
@@ -442,23 +441,23 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 #endif
 
      // SimHit information 
-     float eloss = (*isim).energyLoss() * 1000000/3.7;//convert GeV to ke 
-     float tof = (*isim).timeOfFlight();
-     float p = (*isim).pabs();
-     float pt= (*isim).momentumAtEntry().perp();
-     float theta = (*isim).thetaAtEntry();
-     float phi = (*isim).phiAtEntry();
-     int pid = ((*isim).particleType()); 
-     int tid = (*isim).trackId();
-     int procType = (*isim).processType();
+     float eloss = isim.energyLoss() * 1000000/3.7;//convert GeV to ke 
+     float tof = isim.timeOfFlight();
+     float p = isim.pabs();
+     float pt= isim.momentumAtEntry().perp();
+     float theta = isim.thetaAtEntry();
+     float phi = isim.phiAtEntry();
+     int pid = (isim.particleType()); 
+     int tid = isim.trackId();
+     int procType = isim.processType();
      
-     float x = (*isim).entryPoint().x(); // width (row index, in col direction)
-     float y = (*isim).entryPoint().y(); // length (col index, in row direction) 
-     float z = (*isim).entryPoint().z(); // thick
+     float x = isim.entryPoint().x(); // width (row index, in col direction)
+     float y = isim.entryPoint().y(); // length (col index, in row direction) 
+     float z = isim.entryPoint().z(); // thick
      
-     float x2 = (*isim).exitPoint().x();
-     float y2 = (*isim).exitPoint().y();
-     float z2 = (*isim).exitPoint().z();
+     float x2 = isim.exitPoint().x();
+     float y2 = isim.exitPoint().y();
+     float z2 = isim.exitPoint().z();
 
      float dz = abs(z-z2);
      bool moduleDirectionUp = ( z < z2 ); // for positive direction z2>z
@@ -562,7 +561,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 //        } else {
 	 //        }
 	 
-	 SimHitMap1[detId.rawId()].push_back((*isim));
+	 SimHitMap1[detId.rawId()].push_back(isim);
 	 htheta1->Fill(theta);
 	 hglobr1->Fill(gloR);
 	 hglobz1->Fill(gloZ);
@@ -597,7 +596,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 //        } else {
 	 //        }
 	 
-	 SimHitMap2[detId.rawId()].push_back((*isim));
+	 SimHitMap2[detId.rawId()].push_back(isim);
 	 hglobr2->Fill(gloR);
 	 hglobz2->Fill(gloZ);
 	 hdetphi2->Fill(detPhi);
@@ -626,7 +625,7 @@ void PixelSimHitsTest::analyze(const edm::Event& iEvent,
 	 //        } else {
 	 //        }
 	 
-	 SimHitMap3[detId.rawId()].push_back((*isim));
+	 SimHitMap3[detId.rawId()].push_back(isim);
 	 hglobr3->Fill(gloR);
 	 hglobz3->Fill(gloZ);
 	 hdetphi3->Fill(detPhi);

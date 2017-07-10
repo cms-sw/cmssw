@@ -27,14 +27,14 @@ void TTTrackAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, c
   int ncont1=0;
 
   /// Loop over InputTags to handle multiple collections
-  for ( auto iTag =  TTTracksTokens.begin(); iTag!=  TTTracksTokens.end(); iTag++ )
+  for (auto & TTTracksToken : TTTracksTokens)
   {
     /// Prepare output
     auto associationMapForOutput = std::make_unique<TTTrackAssociationMap<Ref_Phase2TrackerDigi_>>();
 
     /// Get the Tracks already stored away
     edm::Handle< std::vector< TTTrack< Ref_Phase2TrackerDigi_ > > > TTTrackHandle;
-    iEvent.getByToken( *iTag, TTTrackHandle );
+    iEvent.getByToken( TTTracksToken, TTTrackHandle );
 
     /// Prepare the necessary maps
     std::map< edm::Ptr< TTTrack< Ref_Phase2TrackerDigi_ > >, edm::Ptr< TrackingParticle > >                trackToTrackingParticleMap;
@@ -63,16 +63,14 @@ void TTTrackAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, c
       int mayCombinUnknown = 0;
 
       /// Fill the inclusive map which is careless of the stub classification
-      for ( unsigned int is = 0; is < theseStubs.size(); is++ )
+      for (auto & theseStub : theseStubs)
       {
 	//        std::vector< edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > > theseClusters = theseStubs.at(is)->getClusterRefs();
         for ( unsigned int ic = 0; ic < 2; ic++ )
         {
-          std::vector< edm::Ptr< TrackingParticle > > tempTPs = TTClusterAssociationMapHandle->findTrackingParticlePtrs( theseStubs.at(is)->getClusterRef(ic) );
-          for ( unsigned int itp = 0; itp < tempTPs.size(); itp++ ) // List of TPs linked to stub clusters
+          std::vector< edm::Ptr< TrackingParticle > > tempTPs = TTClusterAssociationMapHandle->findTrackingParticlePtrs( theseStub->getClusterRef(ic) );
+          for (auto testTP : tempTPs) // List of TPs linked to stub clusters
           {
-            edm::Ptr< TrackingParticle > testTP = tempTPs.at(itp);
-
             if ( testTP.isNull() ) // No TP linked to this cluster
               continue;
 
@@ -95,7 +93,7 @@ void TTTrackAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, c
         } /// End of loop over the clusters
 
         /// Check if the stub is unknown
-	if ( TTStubAssociationMapHandle->isUnknown( theseStubs.at(is) ) )
+	if ( TTStubAssociationMapHandle->isUnknown( theseStub ) )
 	  ++mayCombinUnknown;
 
       } /// End of loop over the stubs
@@ -124,13 +122,13 @@ void TTTrackAssociator< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, c
         //bool allFound = true;
         /// Loop over the stubs
 	//        for ( unsigned int js = 0; js < theseStubs.size() && allFound; js++ )
-        for ( unsigned int js = 0; js < theseStubs.size(); js++ )
+        for (const auto & theseStub : theseStubs)
         {
           /// We want that all the stubs of the track are included in the container of
           /// all the stubs produced by this particular TrackingParticle which we
           /// already know is one of the TrackingParticles that released hits
           /// in this track we are evaluating right now
-          if ( std::find( tempStubs.begin(), tempStubs.end(), theseStubs.at(js) ) == tempStubs.end() )
+          if ( std::find( tempStubs.begin(), tempStubs.end(), theseStub ) == tempStubs.end() )
           {
 	    //  allFound = false;
 	    ++nnotfound;

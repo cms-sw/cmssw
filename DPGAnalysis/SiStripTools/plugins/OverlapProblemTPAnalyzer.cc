@@ -237,8 +237,8 @@ OverlapProblemTPAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
     
     LogDebug("RecHitDetId") << "List of " << rechits.size() << " rechits detid from muon with p = " << tp->p() 
 			    << "and eta = " << tp->eta();
-    for(unsigned int i=0;i<rechits.size();++i) {
-      LogTrace("RecHitDetId") << rechits[i].rawId();
+    for(auto & rechit : rechits) {
+      LogTrace("RecHitDetId") << rechit.rawId();
     }
     
     

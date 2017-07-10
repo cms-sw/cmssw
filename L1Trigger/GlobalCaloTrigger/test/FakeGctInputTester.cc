@@ -150,22 +150,22 @@ FakeGctInputTester::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
      unsigned int gctEta=999;
      unsigned int gctPhi=999;
      
-     for (unsigned i=0; i<gctCJets->size(); i++) {
-       if (gctCJets->at(i).rank() > 0) {
-	 gctEta = gctCJets->at(i).regionId().ieta();
-	 gctPhi = gctCJets->at(i).regionId().iphi();
+     for (const auto & i : *gctCJets) {
+       if (i.rank() > 0) {
+	 gctEta = i.regionId().ieta();
+	 gctPhi = i.regionId().iphi();
        }
      }
-     for (unsigned i=0; i<gctTJets->size(); i++) {
-       if (gctTJets->at(i).rank() > 0) {
-	 gctEta = gctTJets->at(i).regionId().ieta();
-	 gctPhi = gctTJets->at(i).regionId().iphi();
+     for (const auto & i : *gctTJets) {
+       if (i.rank() > 0) {
+	 gctEta = i.regionId().ieta();
+	 gctPhi = i.regionId().iphi();
        }
      }
-     for (unsigned i=0; i<gctFJets->size(); i++) {
-       if (gctFJets->at(i).rank() > 0) {
-	 gctEta = gctFJets->at(i).regionId().ieta();
-	 gctPhi = gctFJets->at(i).regionId().iphi();
+     for (const auto & i : *gctFJets) {
+       if (i.rank() > 0) {
+	 gctEta = i.regionId().ieta();
+	 gctPhi = i.regionId().iphi();
        }	 
      }
      

@@ -77,8 +77,8 @@ public:
 
   void add(const std::vector<PCaloHit> & hits, int bunchCrossing, CLHEP::HepRandomEngine* engine) {
     if(theHitResponse->withinBunchRange(bunchCrossing)) {
-      for(std::vector<PCaloHit>::const_iterator it = hits.begin(), itEnd = hits.end(); it != itEnd; ++it) {
-        theHitResponse->add(*it, engine);
+      for(const auto & hit : hits) {
+        theHitResponse->add(hit, engine);
       }
     }
   }

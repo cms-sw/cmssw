@@ -112,8 +112,8 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     edm::LogError("GEMStripDigiValidation") << "Cannot get strips by Token stripToken.\n";
     return ;
   }
-  for (GEMDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
-    GEMDetId id = (*cItr).first;
+  for (auto && cItr : *gem_digis) {
+    GEMDetId id = cItr.first;
 
     const GeomDet* gdet = GEMGeometry_->idToDet(id);
     if ( gdet == nullptr) { 
@@ -130,7 +130,7 @@ void GEMStripDigiValidation::analyze(const edm::Event& e,
     Short_t nroll = (Short_t) id.roll();
 
     GEMDigiCollection::const_iterator digiItr;
-    for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
+    for (digiItr = cItr.second.first; digiItr != cItr.second.second; ++digiItr)
     {
       Short_t strip = (Short_t) digiItr->strip();
       Short_t bx = (Short_t) digiItr->bx();

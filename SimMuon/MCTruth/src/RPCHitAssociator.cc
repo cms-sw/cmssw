@@ -62,10 +62,9 @@ void RPCHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
     LogTrace("RPCHitAssociator") <<"... size = "<<RPCsimhits->size();
     
     // arrange the hits by detUnit
-    for(edm::PSimHitContainer::const_iterator hitItr = RPCsimhits->begin();
-	hitItr != RPCsimhits->end(); ++hitItr)
+    for(const auto & hitItr : *RPCsimhits)
       {
-	_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+	_SimHitMap[hitItr.detUnitId()].push_back(hitItr);
       }
   }
 
@@ -96,8 +95,8 @@ std::vector<RPCHitAssociator::SimHitIdpr> RPCHitAssociator::associateRecHit(cons
       if (links.empty()) edm::LogInfo("RPCHitAssociator")
 	<<"*** WARNING in RPCHitAssociator::associateRecHit, RPCRecHit "<<*rpcrechit<<", strip "<<i<<" has no associated RPCDigiSimLink !"<<endl;
       
-      for(std::set<RPCDigiSimLink>::iterator itlink = links.begin(); itlink != links.end(); ++itlink) {
-	SimHitIdpr currentId(itlink->getTrackId(),itlink->getEventId());
+      for(const auto & link : links) {
+	SimHitIdpr currentId(link.getTrackId(),link.getEventId());
 	if(find(matched.begin(),matched.end(),currentId ) == matched.end())
 	  matched.push_back(currentId);
       }
@@ -112,8 +111,8 @@ std::set<RPCDigiSimLink>  RPCHitAssociator::findRPCDigiSimLink(uint32_t rpcDetId
 
   std::set<RPCDigiSimLink> links;
 
-  for (edm::DetSetVector<RPCDigiSimLink>::const_iterator itlink = _thelinkDigis->begin(); itlink != _thelinkDigis->end(); itlink++){
-    for(edm::DetSet<RPCDigiSimLink>::const_iterator digi_iter=itlink->data.begin();digi_iter != itlink->data.end();++digi_iter){
+  for (const auto & itlink : *_thelinkDigis){
+    for(edm::DetSet<RPCDigiSimLink>::const_iterator digi_iter=itlink.data.begin();digi_iter != itlink.data.end();++digi_iter){
 
       uint32_t detid = digi_iter->getDetUnitId();
       int str = digi_iter->getStrip();

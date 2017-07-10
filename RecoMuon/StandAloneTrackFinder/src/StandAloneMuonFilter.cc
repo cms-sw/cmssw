@@ -374,14 +374,14 @@ void StandAloneMuonFilter::createDefaultTrajectory(const Trajectory & oldTraj, T
   Trajectory::DataContainer const & oldMeas = oldTraj.measurements();
   defTraj.reserve(oldMeas.size());
 
-  for (Trajectory::DataContainer::const_iterator itm = oldMeas.begin(); itm != oldMeas.end(); itm++) {
-    if( !(*itm).recHit()->isValid() )
-      defTraj.push( *itm, (*itm).estimate() );
+  for (const auto & oldMea : oldMeas) {
+    if( !oldMea.recHit()->isValid() )
+      defTraj.push( oldMea, oldMea.estimate() );
     else {
-      MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr = MuonTransientTrackingRecHit::specificBuild( (*itm).recHit()->det(), (*itm).recHit()->hit() );
+      MuonTransientTrackingRecHit::MuonRecHitPointer invRhPtr = MuonTransientTrackingRecHit::specificBuild( oldMea.recHit()->det(), oldMea.recHit()->hit() );
       invRhPtr->invalidateHit();
-      TrajectoryMeasurement invRhMeas( (*itm).forwardPredictedState(), (*itm).updatedState(), invRhPtr, (*itm).estimate(), (*itm).layer() );
-      defTraj.push( std::move(invRhMeas), (*itm).estimate() );	  
+      TrajectoryMeasurement invRhMeas( oldMea.forwardPredictedState(), oldMea.updatedState(), invRhPtr, oldMea.estimate(), oldMea.layer() );
+      defTraj.push( std::move(invRhMeas), oldMea.estimate() );	  
     }
 
   } // end for

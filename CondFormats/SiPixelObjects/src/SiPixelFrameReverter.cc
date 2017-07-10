@@ -39,11 +39,11 @@ void SiPixelFrameReverter::buildStructure(const edm::EventSetup& iSetup)
   edm::ESHandle<TrackerGeometry> pDD;
   iSetup.get<TrackerDigiGeometryRecord>().get( pDD );
 
-  for(auto it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it : pDD->dets()){
     
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
+    if(dynamic_cast<PixelGeomDetUnit const *>(it)!=0){
 
-      DetId detId = (*it)->geographicalId();
+      DetId detId = it->geographicalId();
       uint32_t id = detId();
       std::vector<CablingPathToDetUnit> paths = map_->pathToDetUnit(id);
       DetToFedMap.insert(pair< uint32_t,std::vector<CablingPathToDetUnit> > (id,paths));

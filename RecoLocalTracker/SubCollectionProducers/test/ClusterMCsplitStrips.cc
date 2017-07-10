@@ -60,21 +60,21 @@ ClusterMCsplitStrips(const edm::ParameterSet& conf)
   inputToken = consumes< edmNew::DetSetVector<SiStripCluster> >(inputTag);
   stripdigisimlinkToken = consumes< edm::DetSetVector<StripDigiSimLink> >(edm::InputTag("simSiStripDigis"));
   moduleTypeStrings_ = confClusterRefiner_.getParameter<std::vector<std::string> >("moduleTypes");
-  for (auto mod = moduleTypeStrings_.begin(); mod != moduleTypeStrings_.end(); ++mod) {
-    if (*mod == "IB1") moduleTypeCodes_.push_back(SiStripDetId::IB1);
-    if (*mod == "IB2") moduleTypeCodes_.push_back(SiStripDetId::IB2);
-    if (*mod == "OB1") moduleTypeCodes_.push_back(SiStripDetId::OB1);
-    if (*mod == "OB2") moduleTypeCodes_.push_back(SiStripDetId::OB2);
-    if (*mod == "W1A") moduleTypeCodes_.push_back(SiStripDetId::W1A);
-    if (*mod == "W2A") moduleTypeCodes_.push_back(SiStripDetId::W2A);
-    if (*mod == "W3A") moduleTypeCodes_.push_back(SiStripDetId::W3A);
-    if (*mod == "W1B") moduleTypeCodes_.push_back(SiStripDetId::W1B);
-    if (*mod == "W2B") moduleTypeCodes_.push_back(SiStripDetId::W2B);
-    if (*mod == "W3B") moduleTypeCodes_.push_back(SiStripDetId::W3B);
-    if (*mod == "W4") moduleTypeCodes_.push_back(SiStripDetId::W4);
-    if (*mod == "W5") moduleTypeCodes_.push_back(SiStripDetId::W5);
-    if (*mod == "W6") moduleTypeCodes_.push_back(SiStripDetId::W6);
-    if (*mod == "W7") moduleTypeCodes_.push_back(SiStripDetId::W7);
+  for (auto & moduleTypeString : moduleTypeStrings_) {
+    if (moduleTypeString == "IB1") moduleTypeCodes_.push_back(SiStripDetId::IB1);
+    if (moduleTypeString == "IB2") moduleTypeCodes_.push_back(SiStripDetId::IB2);
+    if (moduleTypeString == "OB1") moduleTypeCodes_.push_back(SiStripDetId::OB1);
+    if (moduleTypeString == "OB2") moduleTypeCodes_.push_back(SiStripDetId::OB2);
+    if (moduleTypeString == "W1A") moduleTypeCodes_.push_back(SiStripDetId::W1A);
+    if (moduleTypeString == "W2A") moduleTypeCodes_.push_back(SiStripDetId::W2A);
+    if (moduleTypeString == "W3A") moduleTypeCodes_.push_back(SiStripDetId::W3A);
+    if (moduleTypeString == "W1B") moduleTypeCodes_.push_back(SiStripDetId::W1B);
+    if (moduleTypeString == "W2B") moduleTypeCodes_.push_back(SiStripDetId::W2B);
+    if (moduleTypeString == "W3B") moduleTypeCodes_.push_back(SiStripDetId::W3B);
+    if (moduleTypeString == "W4") moduleTypeCodes_.push_back(SiStripDetId::W4);
+    if (moduleTypeString == "W5") moduleTypeCodes_.push_back(SiStripDetId::W5);
+    if (moduleTypeString == "W6") moduleTypeCodes_.push_back(SiStripDetId::W6);
+    if (moduleTypeString == "W7") moduleTypeCodes_.push_back(SiStripDetId::W7);
   }
 }
 
@@ -120,14 +120,14 @@ refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
 
     // Consider clusters of selected module types for splitting; else just push original cluster to output.
     if (std::find(moduleTypeCodes_.begin(), moduleTypeCodes_.end(), tTopo->moduleGeometry(theDet)) == moduleTypeCodes_.end()) {
-      for (auto clust = det->begin(); clust != det->end(); clust++)
-	outFill.push_back(*clust);
+      for (auto & clust : *det)
+	outFill.push_back(clust);
       continue;  // On to the next sensor.
     }
     // Traverse the clusters for this sensor.
-    for (edmNew::DetSet<SiStripCluster>::iterator clust = det->begin(); clust != det->end(); clust++) {
-      int clusiz = clust->amplitudes().size();
-      int first  = clust->firstStrip();
+    for (auto & clust : *det) {
+      int clusiz = clust.amplitudes().size();
+      int first  = clust.firstStrip();
       int last   = first + clusiz;
       edm::DetSet<StripDigiSimLink> link_detset = (*isearch);
 
@@ -157,7 +157,7 @@ refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
 
       size_t NsimTrk = trackID.size();
       if (NsimTrk < 2) {
-	if (NsimTrk == 1) outFill.push_back(*clust);  // Unmerged cluster:  push it to the output.
+	if (NsimTrk == 1) outFill.push_back(clust);  // Unmerged cluster:  push it to the output.
 
 	//  (If NsimTrk = 0, cluster has no matched simlinks; abandon it.)
 	continue;  // On to the next cluster
@@ -168,7 +168,7 @@ refineCluster(const edm::Handle< edmNew::DetSetVector<SiStripCluster> >& input,
       // std::cout << std::endl;
 
       //  This cluster matches more than one simTrack, so we proceed to split it.
-      auto const& amp = clust->amplitudes();
+      auto const& amp = clust.amplitudes();
       std::vector<int> TKfirstStrip(NsimTrk, -1);
       std::vector< std::vector<uint16_t> > TKampl(NsimTrk);
       std::vector<int> prevStrip(NsimTrk,-1);

@@ -140,15 +140,15 @@ void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::Event
   std::vector<EcalEtaPhiRegion> endcapRegions;
 
   if(doIsolated_) {
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin(); emItr != emIsolColl->end() ;++emItr ){
+    for(const auto & emItr : *emIsolColl){
 
-      if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+      if (emItr.et() > l1LowerThr_ && emItr.et() < l1UpperThr_) {
 	
 	// Access the GCT hardware object corresponding to the L1Extra EM object.
-	int etaIndex = emItr->gctEmCand()->etaIndex() ;
+	int etaIndex = emItr.gctEmCand()->etaIndex() ;
 	
 	
-	int phiIndex = emItr->gctEmCand()->phiIndex() ;
+	int phiIndex = emItr.gctEmCand()->phiIndex() ;
 	// Use the L1CaloGeometry to find the eta, phi bin boundaries.
 	double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
 	double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
@@ -190,17 +190,17 @@ void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::Event
 
 
   if(!doIsolated_||l1LowerThrIgnoreIsolation_<64) {
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin(); emItr != emNonIsolColl->end() ;++emItr ){
+    for(const auto & emItr : *emNonIsolColl){
 
-      if(doIsolated_&&emItr->et()<l1LowerThrIgnoreIsolation_) continue;
+      if(doIsolated_&&emItr.et()<l1LowerThrIgnoreIsolation_) continue;
 
-      if (emItr->et() > l1LowerThr_ && emItr->et() < l1UpperThr_) {
+      if (emItr.et() > l1LowerThr_ && emItr.et() < l1UpperThr_) {
 	
 	// Access the GCT hardware object corresponding to the L1Extra EM object.
-	int etaIndex = emItr->gctEmCand()->etaIndex() ;
+	int etaIndex = emItr.gctEmCand()->etaIndex() ;
 	
 	
-	int phiIndex = emItr->gctEmCand()->phiIndex() ;
+	int phiIndex = emItr.gctEmCand()->phiIndex() ;
 	// Use the L1CaloGeometry to find the eta, phi bin boundaries.
 	double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
 	double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;

@@ -102,7 +102,7 @@ typename MinL3AlgoUniv<IDdet>::IDmap MinL3AlgoUniv<IDdet>::iterate(const std::ve
 	  for (i=0; i<Nevents; i++)
 	    {
 	      sumOverEnergy = 0.;
-	      for (unsigned j=0; j<myEventMatrix[i].size(); j++) {sumOverEnergy += myEventMatrix[i][j];}
+	      for (float j : myEventMatrix[i]) {sumOverEnergy += j;}
 	      sumOverEnergy /= myEnergyVector[i];
 	      scale += sumOverEnergy;
 	    }
@@ -156,7 +156,7 @@ void MinL3AlgoUniv<IDdet>::addEvent(const std::vector<float>& myCluster, const s
   // Loop over the crystal matrix to find the sum
   float sumXmatrix=0.;
       
-  for (unsigned i=0; i<myCluster.size(); i++) { sumXmatrix += myCluster[i]; }
+  for (float i : myCluster) { sumXmatrix += i; }
       
   // event weighting
   eventw = 1 - fabs(1 - sumXmatrix/energy);

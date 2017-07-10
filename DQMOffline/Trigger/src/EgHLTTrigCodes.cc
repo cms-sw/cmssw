@@ -76,10 +76,10 @@ bool TrigCodes::keyComp(const std::pair<std::string,TrigBitSet>& lhs,const std::
 void TrigCodes::getCodeName(TrigBitSet code,std::string& id)const
 {
   id.clear();
-  for(size_t i=0;i<codeDefs_.size();i++){ 
-    if((code&codeDefs_[i].second)==codeDefs_[i].second){
+  for(const auto & codeDef : codeDefs_){ 
+    if((code&codeDef.second)==codeDef.second){
       if(!id.empty()) id+=":";//seperating entries by a ':'
-      id+=codeDefs_[i].first;
+      id+=codeDef.first;
     }
     
   }
@@ -90,7 +90,7 @@ void TrigCodes::printCodes()
 {
   std::ostringstream msg;
   msg <<" trig bits defined: "<<std::endl;
-  for(size_t i=0;i<codeDefs_.size();i++) msg <<" key : "<<codeDefs_[i].first<<" bit "<<codeDefs_[i].second<<std::endl;
+  for(auto & codeDef : codeDefs_) msg <<" key : "<<codeDef.first<<" bit "<<codeDef.second<<std::endl;
   edm::LogInfo("TrigCodes") << msg.str();
  
 }

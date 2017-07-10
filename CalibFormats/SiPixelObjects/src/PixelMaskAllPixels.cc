@@ -54,20 +54,20 @@ PixelMaskAllPixels::PixelMaskAllPixels(std::vector< std::vector<std::string> >& 
   
  for(unsigned int c = 0 ; c < ins.size() ; c++)
    {
-     for(unsigned int n=0; n<colNames.size(); n++)
+     for(const auto & colName : colNames)
        {
-	 if(tableMat[0][c] == colNames[n])
+	 if(tableMat[0][c] == colName)
 	   {
-	     colM[colNames[n]] = c;
+	     colM[colName] = c;
 	     break;
 	   }
        }
    }//end for
- for(unsigned int n=0; n<colNames.size(); n++)
+ for(const auto & colName : colNames)
    {
-     if(colM.find(colNames[n]) == colM.end())
+     if(colM.find(colName) == colM.end())
        {
-	 std::cerr << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+	 std::cerr << mthn << "Couldn't find in the database the column with name " << colName << std::endl;
 	 assert(0);
        }
    }
@@ -209,8 +209,8 @@ const PixelROCMaskBits& PixelMaskAllPixels::getMaskBits(int ROCId) const {
 //================================================================================================================
 PixelROCMaskBits* PixelMaskAllPixels::getMaskBits(PixelROCName name) {
 
-  for(unsigned int i=0;i<maskbits_.size();i++){
-    if (maskbits_[i].name()==name) return &(maskbits_[i]);
+  for(auto & maskbit : maskbits_){
+    if (maskbit.name()==name) return &maskbit;
   }
 
   return 0;
@@ -223,8 +223,8 @@ void PixelMaskAllPixels::writeBinary(std::string filename) const{
   
     std::ofstream out(filename.c_str(),std::ios::binary);
 
-    for(unsigned int i=0;i<maskbits_.size();i++){
-	maskbits_[i].writeBinary(out);
+    for(const auto & maskbit : maskbits_){
+	maskbit.writeBinary(out);
     }
 
 
@@ -239,8 +239,8 @@ void PixelMaskAllPixels::writeASCII(std::string dir) const{
   
     std::ofstream out(filename.c_str());
 
-    for(unsigned int i=0;i<maskbits_.size();i++){
-	maskbits_[i].writeASCII(out);
+    for(const auto & maskbit : maskbits_){
+	maskbit.writeASCII(out);
     }
 
 
@@ -298,8 +298,8 @@ void PixelMaskAllPixels::writeXML( std::ofstream *outstream,
 {
   std::string mthn = "[PixelMaskAllPixels::writeXML()]\t\t\t    " ;
 
-  for(unsigned int i=0;i<maskbits_.size();i++){
-      maskbits_[i].writeXML(outstream);
+  for(const auto & maskbit : maskbits_){
+      maskbit.writeXML(outstream);
   }
 }
 //=============================================================================================

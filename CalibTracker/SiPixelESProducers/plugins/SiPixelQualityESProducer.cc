@@ -78,9 +78,9 @@ std::unique_ptr<SiPixelQuality> SiPixelQualityESProducer::produce(const SiPixelQ
   edm::ESHandle<SiStripDetVOff> Voff;
   edm::ESHandle<SiPixelQuality> dbobject;
   
-  for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
+  for(auto & itToGet : toGet) {
 
-    recordName = itToGet->getParameter<std::string>("record");
+    recordName = itToGet.getParameter<std::string>("record");
     
     if (recordName=="SiPixelDetVOffRcd")
       iRecord.getRecord<SiPixelDetVOffRcd>().get(Voff); 

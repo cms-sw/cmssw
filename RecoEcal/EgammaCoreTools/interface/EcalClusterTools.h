@@ -260,9 +260,9 @@ float EcalClusterToolsT<noZS>::getFraction( const std::vector< std::pair<DetId, 
 			  ){
   if(noZS) return 1.0;
   float frac = 0.0;
-  for ( size_t i = 0; i < v_id.size(); ++i ) {
-    if(v_id[i].first.rawId()==id.rawId()){
-      frac= v_id[i].second;
+  for (const auto & i : v_id) {
+    if(i.first.rawId()==id.rawId()){
+      frac= i.second;
       break;
     }
   }
@@ -274,11 +274,11 @@ std::pair<DetId, float> EcalClusterToolsT<noZS>::getMaximum( const std::vector< 
 {
     float max = 0;
     DetId id(0);
-    for ( size_t i = 0; i < v_id.size(); ++i ) {
-      float energy = recHitEnergy( v_id[i].first, recHits ) * (noZS ? 1.0 : v_id[i].second);
+    for (const auto & i : v_id) {
+      float energy = recHitEnergy( i.first, recHits ) * (noZS ? 1.0 : i.second);
         if ( energy > max ) {
             max = energy;
-            id = v_id[i].first;
+            id = i.first;
         }
     }
     return std::pair<DetId, float>(id, max);
@@ -460,8 +460,8 @@ float EcalClusterToolsT<noZS>::e2nd( const reco::BasicCluster &cluster, const Ec
     const std::vector< std::pair<DetId, float> >& v_id = cluster.hitsAndFractions();
     energies.reserve( v_id.size() );
     if ( v_id.size() < 2 ) return 0;
-    for ( size_t i = 0; i < v_id.size(); ++i ) {
-      energies.push_back( recHitEnergy( v_id[i].first, recHits ) * (noZS ? 1.0 : v_id[i].second) );
+    for (const auto & i : v_id) {
+      energies.push_back( recHitEnergy( i.first, recHits ) * (noZS ? 1.0 : i.second) );
     }
     std::partial_sort( energies.begin(), energies.begin()+2, energies.end(), std::greater<float>() );
     return energies[1];
@@ -581,8 +581,8 @@ std::vector<float> EcalClusterToolsT<noZS>::energyBasketFractionEta( const reco:
         edm::LogWarning("EcalClusterToolsT<noZS>::energyBasketFractionEta") << "Trying to get basket fraction for endcap basic-clusters. Basket fractions can be obtained ONLY for barrel basic-clusters. Returning empty vector.";
         return basketFraction;
     }
-    for ( size_t i = 0; i < v_id.size(); ++i ) {
-        basketFraction[ EBDetId(v_id[i].first).im()-1 + EBDetId(v_id[i].first).positiveZ()*EBDetId::kModulesPerSM ] += recHitEnergy( v_id[i].first, recHits ) * v_id[i].second / clusterEnergy;
+    for (const auto & i : v_id) {
+        basketFraction[ EBDetId(i.first).im()-1 + EBDetId(i.first).positiveZ()*EBDetId::kModulesPerSM ] += recHitEnergy( i.first, recHits ) * i.second / clusterEnergy;
     }
     std::sort( basketFraction.rbegin(), basketFraction.rend() );
     return basketFraction;
@@ -598,8 +598,8 @@ std::vector<float> EcalClusterToolsT<noZS>::energyBasketFractionPhi( const reco:
         edm::LogWarning("EcalClusterToolsT<noZS>::energyBasketFractionPhi") << "Trying to get basket fraction for endcap basic-clusters. Basket fractions can be obtained ONLY for barrel basic-clusters. Returning empty vector.";
         return basketFraction;
     }
-    for ( size_t i = 0; i < v_id.size(); ++i ) {
-      basketFraction[ (EBDetId(v_id[i].first).iphi()-1)/EBDetId::kCrystalsInPhi + EBDetId(v_id[i].first).positiveZ()*EBDetId::kTowersInPhi] += recHitEnergy( v_id[i].first, recHits ) * (noZS ? 1.0 : v_id[i].second) / clusterEnergy;
+    for (const auto & i : v_id) {
+      basketFraction[ (EBDetId(i.first).iphi()-1)/EBDetId::kCrystalsInPhi + EBDetId(i.first).positiveZ()*EBDetId::kTowersInPhi] += recHitEnergy( i.first, recHits ) * (noZS ? 1.0 : i.second) / clusterEnergy;
     }
     std::sort( basketFraction.rbegin(), basketFraction.rend() );
     return basketFraction;
@@ -1274,10 +1274,10 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const reco::BasicC
   
   const std::vector< std::pair<DetId, float> >& myHitsPair = basicCluster.hitsAndFractions();
   
-  for(unsigned int i=0; i<myHitsPair.size(); i++){
+  for(const auto & i : myHitsPair){
     //get pointer to recHit object
-    EcalRecHitCollection::const_iterator myRH = recHits.find(myHitsPair[i].first);
-    RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , myHitsPair[i].second)  );
+    EcalRecHitCollection::const_iterator myRH = recHits.find(i.first);
+    RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , i.second)  );
   }
   
   return EcalClusterToolsT<noZS>::cluster2ndMoments(RH_ptrs_fracs, phiCorrectionFactor, w0, useLogWeights);
@@ -1323,8 +1323,8 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const std::vector<
   bool isBarrel(1);
 
   // loop over rechits and compute weights:
-  for(std::vector<std::pair<const EcalRecHit*, float> >::const_iterator rhf_ptr = RH_ptrs_fracs.begin(); rhf_ptr != RH_ptrs_fracs.end(); rhf_ptr++){
-    const EcalRecHit* rh_ptr = rhf_ptr->first;
+  for(const auto & RH_ptrs_frac : RH_ptrs_fracs){
+    const EcalRecHit* rh_ptr = RH_ptrs_frac.first;
 
 
     //get iEta, iPhi
@@ -1341,7 +1341,7 @@ Cluster2ndMoments EcalClusterToolsT<noZS>::cluster2ndMoments( const std::vector<
       temp_y =  getNormedIY(rh_ptr->detid());
     }	  
 
-    double temp_ene=rh_ptr->energy() * (noZS ? 1.0 : rhf_ptr->second);
+    double temp_ene=rh_ptr->energy() * (noZS ? 1.0 : RH_ptrs_frac.second);
     
     double temp_wi=((useLogWeights) ?
                     std::max(0.0, w0 + std::log( std::abs(temp_ene)/Etot ))
@@ -1438,12 +1438,12 @@ template<bool noZS>
 std::vector<float> EcalClusterToolsT<noZS>::roundnessBarrelSuperClusters( const reco::SuperCluster &superCluster ,const EcalRecHitCollection &recHits, int weightedPositionMethod, float energyThreshold){//int positionWeightingMethod=0){
   std::vector<std::pair<const EcalRecHit*, float> > RH_ptrs_fracs;
     const std::vector< std::pair<DetId, float> >& myHitsPair = superCluster.hitsAndFractions();    
-    for(unsigned int i=0; i< myHitsPair.size(); ++i){
+    for(const auto & i : myHitsPair){
         //get pointer to recHit object
-        EcalRecHitCollection::const_iterator myRH = recHits.find(myHitsPair[i].first);
-        if( myRH != recHits.end() && myRH->energy()*(noZS ? 1.0 : myHitsPair[i].second) > energyThreshold){ 
+        EcalRecHitCollection::const_iterator myRH = recHits.find(i.first);
+        if( myRH != recHits.end() && myRH->energy()*(noZS ? 1.0 : i.second) > energyThreshold){ 
 	  //require rec hit to have positive energy
-	  RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , myHitsPair[i].second)  );
+	  RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , i.second)  );
         }
     }
     std::vector<float> temp = EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits(RH_ptrs_fracs,weightedPositionMethod); 
@@ -1459,11 +1459,11 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessBarrelSuperClustersUserExte
 
   std::vector<std::pair<const EcalRecHit*, float> > RH_ptrs_fracs;
     const std::vector< std::pair<DetId, float> >& myHitsPair = superCluster.hitsAndFractions();
-    for(unsigned int i=0; i<myHitsPair.size(); ++i){
+    for(const auto & i : myHitsPair){
         //get pointer to recHit object
-        EcalRecHitCollection::const_iterator myRH = recHits.find(myHitsPair[i].first);
-        if(myRH != recHits.end() && myRH->energy()*(noZS ? 1.0 : myHitsPair[i].second) > energyRHThresh)
-	  RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , myHitsPair[i].second) );
+        EcalRecHitCollection::const_iterator myRH = recHits.find(i.first);
+        if(myRH != recHits.end() && myRH->energy()*(noZS ? 1.0 : i.second) > energyRHThresh)
+	  RH_ptrs_fracs.push_back(  std::make_pair(&(*myRH) , i.second) );
     }
 
 
@@ -1480,10 +1480,10 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessBarrelSuperClustersUserExte
 
         // figure out if the rechit considered now is already inside the SC
         bool is_SCrh_inside_recHits = false;
-        for(unsigned int i=0; i<myHitsPair.size(); i++){
-            EcalRecHitCollection::const_iterator SCrh = recHits.find(myHitsPair[i].first);
+        for(const auto & i : myHitsPair){
+            EcalRecHitCollection::const_iterator SCrh = recHits.find(i.first);
             if(SCrh != recHits.end()){
-	      the_fraction = myHitsPair[i].second;
+	      the_fraction = i.second;
                 is_SCrh_inside_recHits = true;
                 if( rh->detid() == SCrh->detid()  ) alreadyCounted = true;
             }
@@ -1524,8 +1524,8 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits( cons
     float centerIPhi = 0.;
     float denominator = 0.;
 
-    for(std::vector<std::pair<const EcalRecHit*,float> >::const_iterator rhf_ptr = RH_ptrs_fracs.begin(); rhf_ptr != RH_ptrs_fracs.end(); rhf_ptr++){
-      const EcalRecHit* rh_ptr = rhf_ptr->first;
+    for(const auto & RH_ptrs_frac : RH_ptrs_fracs){
+      const EcalRecHit* rh_ptr = RH_ptrs_frac.first;
         //get iEta, iPhi
         EBDetId EBdetIdi( rh_ptr->detid() );
         if(fabs(energyTotal) < 0.0001){
@@ -1534,7 +1534,7 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits( cons
             shapes.push_back( -2 );
             return shapes;
         }
-	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : rhf_ptr->second);
+	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : RH_ptrs_frac.second);
         float weight = 0;
         if(std::abs(weightedPositionMethod)<0.0001){ //linear
             weight = rh_energy/energyTotal;
@@ -1561,8 +1561,8 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits( cons
     double inertia01 = 0.;// = inertia10 b/c matrix should be symmetric
     double inertia11 = 0.;
     int i = 0;
-    for(std::vector<std::pair<const EcalRecHit*,float> >::const_iterator rhf_ptr = RH_ptrs_fracs.begin(); rhf_ptr != RH_ptrs_fracs.end(); rhf_ptr++){
-      const EcalRecHit* rh_ptr = rhf_ptr->first;
+    for(const auto & RH_ptrs_frac : RH_ptrs_fracs){
+      const EcalRecHit* rh_ptr = RH_ptrs_frac.first;
         //get iEta, iPhi
         EBDetId EBdetIdi( rh_ptr->detid() );
 
@@ -1572,7 +1572,7 @@ std::vector<float> EcalClusterToolsT<noZS>::roundnessSelectedBarrelRecHits( cons
             shapes.push_back( -2 );
             return shapes;
         }
-	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : rhf_ptr->second);
+	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : RH_ptrs_frac.second);
         float weight = 0;
         if(std::abs(weightedPositionMethod) < 0.0001){ //linear
             weight = rh_energy/energyTotal;
@@ -1688,11 +1688,11 @@ std::vector<int> EcalClusterToolsT<noZS>::getSeedPosition(const std::vector<std:
     int iEtaSeedRH = 0;
     int iPhiSeedRH = 0;
 
-    for(std::vector<std::pair<const EcalRecHit*,float> >::const_iterator rhf_ptr = RH_ptrs_fracs.begin(); rhf_ptr != RH_ptrs_fracs.end(); rhf_ptr++){
-      const EcalRecHit* rh_ptr = rhf_ptr->first;
+    for(const auto & RH_ptrs_frac : RH_ptrs_fracs){
+      const EcalRecHit* rh_ptr = RH_ptrs_frac.first;
         //get iEta, iPhi
         EBDetId EBdetIdi( rh_ptr->detid() );
-	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : rhf_ptr->second);
+	float rh_energy = rh_ptr->energy() * (noZS ? 1.0 : RH_ptrs_frac.second);
 
         if(eSeedRH < rh_energy){
             eSeedRH = rh_energy;

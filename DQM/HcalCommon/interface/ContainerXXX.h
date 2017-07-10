@@ -339,9 +339,8 @@ namespace hcaldqm
 			STDTYPE &x = p.second;
 			uint32_t hash = p.first;
 
-			for (std::vector<Container1D*>::const_iterator it=vc.begin();
-				it!=vc.end(); ++it)
-					(*it)->fill(hash, (double)x);
+			for (auto it : vc)
+					it->fill(hash, (double)x);
 		}
 	}
 

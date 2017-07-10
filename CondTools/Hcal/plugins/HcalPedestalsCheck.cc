@@ -50,10 +50,9 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
     bool failflag = false;
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+    for (auto mydetid : listRefChan)
       {
-	DetId mydetid = *it;
-	cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
+		cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
 	if (cell == listNewChan.end()) // not present in new list, take old pedestals
 	  {
             throw cms::Exception("DataDoesNotMatch") << "Channel missing";
@@ -82,9 +81,8 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
     bool failflag = false;
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+    for (auto mydetid : listRefChan)
       {
-        DetId mydetid = *it;
         cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
         if (cell == listNewChan.end())
           {
@@ -115,9 +113,8 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
     HcalPedestals *resultPeds = new HcalPedestals(myRefPeds->topo(), myRefPeds->isADC() );
     std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
     std::vector<DetId>::iterator cell;
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+    for (auto mydetid : listRefChan)
       {
-        DetId mydetid = *it;
         cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
         if (cell == listNewChan.end()) // not present in new list, take old pedestals
           {
@@ -137,10 +134,9 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
       }
 
 
-    for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
+    for (auto mydetid : listNewChan)  // fix 25.02.08
       {
-	DetId mydetid = *it;
-	const HcalPedestal* item = myNewPeds->getValues(mydetid);
+		const HcalPedestal* item = myNewPeds->getValues(mydetid);
 	std::cout << "N";
 	resultPeds->addValues(*item);
       }

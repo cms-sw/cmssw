@@ -125,11 +125,8 @@ std::set<EventSetupRecordKey>
 DataProxyProvider::usingRecords() const
 {
    std::set<EventSetupRecordKey> returnValue;
-   for(RecordProxies::const_iterator itRecProxies = recordProxies_.begin(),
-        itRecProxiesEnd = recordProxies_.end();
-        itRecProxies != itRecProxiesEnd;
-        ++itRecProxies) {
-      returnValue.insert(returnValue.end(), itRecProxies->first);
+   for(const auto & recordProxie : recordProxies_) {
+      returnValue.insert(returnValue.end(), recordProxie.first);
    }
    //copy_all(keys_, std::inserter(returnValue, returnValue.end()));
    return returnValue;
@@ -148,18 +145,16 @@ DataProxyProvider::keyedProxies(const EventSetupRecordKey& iRecordKey) const
                                                             proxies);
 
       bool mustChangeLabels = (0 != appendToDataLabel_.size());
-      for(KeyedProxies::iterator itProxy = proxies.begin(), itProxyEnd = proxies.end();
-          itProxy != itProxyEnd;
-          ++itProxy) {
-        itProxy->second->setProviderDescription(&description());
+      for(auto & proxie : proxies) {
+        proxie.second->setProviderDescription(&description());
         if( mustChangeLabels ) {
           //Using swap is fine since
           // 1) the data structure is not a map and so we have not sorted on the keys
           // 2) this is the first time filling this so no outside agency has yet seen
           //   the label and therefore can not be dependent upon its value
-          std::string temp(std::string(itProxy->first.name().value())+appendToDataLabel_);
-          DataKey newKey(itProxy->first.type(),temp.c_str());
-          swap(itProxy->first,newKey);
+          std::string temp(std::string(proxie.first.name().value())+appendToDataLabel_);
+          DataKey newKey(proxie.first.type(),temp.c_str());
+          swap(proxie.first,newKey);
         }
       }
    }

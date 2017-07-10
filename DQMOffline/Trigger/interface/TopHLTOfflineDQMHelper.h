@@ -44,8 +44,8 @@ inline bool
 acceptHLT(const edm::Event& event, const edm::TriggerResults& triggerTable, const std::vector<std::string>& triggerPaths)
 {
   bool passed=false;
-  for(unsigned int j=0; j<triggerPaths.size(); ++j){
-    if(acceptHLT(event, triggerTable, triggerPaths[j])){
+  for(const auto & triggerPath : triggerPaths){
+    if(acceptHLT(event, triggerTable, triggerPath)){
       passed=true;
       break;
     }

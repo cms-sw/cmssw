@@ -435,10 +435,10 @@ LinkByRecHit::testECALAndPSByRecHit( const reco::PFCluster& clusterECAL,
   const std::vector< reco::PFRecHitFraction >&  fracs = clusterECAL.recHitFractions();
   bool linkedbyrechit = false;
   //loop rechits
-  for(unsigned int rhit = 0; rhit < fracs.size(); ++rhit){
+  for(const auto & frac : fracs){
 
-    const auto & rh = fracs[rhit].recHitRef();
-    double fraction = fracs[rhit].fraction();
+    const auto & rh = frac.recHitRef();
+    double fraction = frac.fraction();
     if(fraction < 1E-4) continue;
     if(rh.isNull()) continue;
 

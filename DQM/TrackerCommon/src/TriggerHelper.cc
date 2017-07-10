@@ -261,8 +261,8 @@ bool TriggerHelper::acceptGtLogicalExpression( const edm::Handle< L1GlobalTrigge
   // Parse logical expression and determine GT status bit decision
   L1GtLogicParser gtAlgoLogicParser( gtLogicalExpression );
   // Loop over status bits
-  for ( size_t iStatusBit = 0; iStatusBit < gtAlgoLogicParser.operandTokenVector().size(); ++iStatusBit ) {
-    const std::string gtStatusBit( gtAlgoLogicParser.operandTokenVector().at( iStatusBit ).tokenName );
+  for (auto & iStatusBit : gtAlgoLogicParser.operandTokenVector()) {
+    const std::string gtStatusBit( iStatusBit.tokenName );
     // Manipulate status bit decision as stored in the parser
     bool decision;
     // Hard-coded status bits!!!
@@ -272,7 +272,7 @@ bool TriggerHelper::acceptGtLogicalExpression( const edm::Handle< L1GlobalTrigge
       edm::LogError( "TriggerHelper" ) << "GT status bit \"" << gtStatusBit << "\" is not defined ==> decision: " << errorReplyGt_;
       decision = errorReplyDcs_;
     }
-    gtAlgoLogicParser.operandTokenVector().at( iStatusBit ).tokenResult = decision;
+    iStatusBit.tokenResult = decision;
   }
 
   // Determine decision
@@ -327,19 +327,19 @@ bool TriggerHelper::acceptL1LogicalExpression( const edm::Event & event, std::st
   // Parse logical expression and determine L1 decision
   L1GtLogicParser l1AlgoLogicParser( l1LogicalExpression );
   // Loop over algorithms
-  for ( size_t iAlgorithm = 0; iAlgorithm < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgorithm ) {
-    const std::string l1AlgoName( l1AlgoLogicParser.operandTokenVector().at( iAlgorithm ).tokenName );
+  for (auto & iAlgorithm : l1AlgoLogicParser.operandTokenVector()) {
+    const std::string l1AlgoName( iAlgorithm.tokenName );
     int error( -1 );
     const bool decision( l1Gt_->decision( event, l1AlgoName, error ) );
     // Error checks
     if ( error != 0 ) {
       if ( error == 1 ) edm::LogError( "TriggerHelper" ) << "L1 algorithm \"" << l1AlgoName << "\" does not exist in the L1 menu ==> decision: "                                          << errorReplyL1_;
       else              edm::LogError( "TriggerHelper" )  << "L1 algorithm \"" << l1AlgoName << "\" received error code " << error << " from L1GtUtils::decisionBeforeMask ==> decision: " << errorReplyL1_;
-      l1AlgoLogicParser.operandTokenVector().at( iAlgorithm ).tokenResult = errorReplyL1_;
+      iAlgorithm.tokenResult = errorReplyL1_;
       continue;
     }
     // Manipulate algo decision as stored in the parser
-    l1AlgoLogicParser.operandTokenVector().at( iAlgorithm ).tokenResult = decision;
+    iAlgorithm.tokenResult = decision;
   }
 
   // Return decision
@@ -405,23 +405,23 @@ bool TriggerHelper::acceptHltLogicalExpression( const edm::Handle< edm::TriggerR
   // Parse logical expression and determine HLT decision
   L1GtLogicParser hltAlgoLogicParser( hltLogicalExpression );
   // Loop over paths
-  for ( size_t iPath = 0; iPath < hltAlgoLogicParser.operandTokenVector().size(); ++iPath ) {
-    const std::string hltPathName( hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenName );
+  for (auto & iPath : hltAlgoLogicParser.operandTokenVector()) {
+    const std::string hltPathName( iPath.tokenName );
     const unsigned indexPath( hltConfig_.triggerIndex( hltPathName ) );
     // Further error checks
     if ( indexPath == hltConfig_.size() ) {
       edm::LogError( "TriggerHelper" ) << "HLT path \"" << hltPathName << "\" is not found in process " << hltInputTag_.process() << " ==> decision: " << errorReplyHlt_;
-      hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenResult = errorReplyHlt_;
+      iPath.tokenResult = errorReplyHlt_;
       continue;
     }
     if ( hltTriggerResults->error( indexPath ) ) {
       edm::LogError( "TriggerHelper" ) << "HLT path \"" << hltPathName << "\" in error ==> decision: " << errorReplyHlt_;
-      hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenResult = errorReplyHlt_;
+      iPath.tokenResult = errorReplyHlt_;
       continue;
     }
     // Manipulate algo decision as stored in the parser
     const bool decision( hltTriggerResults->accept( indexPath ) );
-    hltAlgoLogicParser.operandTokenVector().at( iPath ).tokenResult = decision;
+    iPath.tokenResult = decision;
   }
 
   // Determine decision

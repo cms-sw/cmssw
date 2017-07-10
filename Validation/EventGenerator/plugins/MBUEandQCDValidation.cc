@@ -240,7 +240,7 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   
   hepmcGPCollection.clear();
   hepmcCharge.clear();
-  for (unsigned int i = 0; i < eneInCell.size(); i++) { eneInCell[i] = 0.; }
+  for (double & i : eneInCell) { i = 0.; }
 
   nEvt->Fill(0.5,weight);
   
@@ -690,18 +690,18 @@ void MBUEandQCDValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
           sumChPt->Fill(sumChPartPt,weight);
 
           unsigned int nSelJets = 0;
-          for (reco::GenJetCollection::const_iterator iter=genJets->begin();iter!=genJets->end();++iter){
-            double pt = (*iter).pt();
-            double eta = (*iter).eta();
+          for (const auto & iter : *genJets){
+            double pt = iter.pt();
+            double eta = iter.eta();
             if ( std::fabs(eta) < 5. ) { 
               nSelJets++; 
               binW = dNjdeta->getTH1()->GetBinWidth(1);
               dNjdeta->Fill(eta,1./binW*weight);
               binW = dNjdpt->getTH1()->GetBinWidth(1);
               dNjdpt->Fill(pt,1./binW*weight);
-              sumJetEt += (*iter).pt();
-              jpx += (*iter).px();
-              jpy += (*iter).py();
+              sumJetEt += iter.pt();
+              jpx += iter.px();
+              jpy += iter.py();
             }
           }
 

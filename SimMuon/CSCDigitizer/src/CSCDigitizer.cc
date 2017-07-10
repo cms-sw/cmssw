@@ -154,12 +154,11 @@ std::list<int> CSCDigitizer::layersMissing(const CSCStripDigiCollection & stripD
   std::list<int> result;
 
   std::map<int, std::list<int> > layersInChamberWithDigi;
-  for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); 
-       j!=stripDigis.end(); j++) 
+  for (auto && stripDigi : stripDigis) 
   {
-    CSCDetId layerId((*j).first);
+    CSCDetId layerId(stripDigi.first);
     // make sure the vector of digis isn't empty
-    if((*j).second.first != (*j).second.second)
+    if(stripDigi.second.first != stripDigi.second.second)
     {
       int chamberId = layerId.chamberId();
       layersInChamberWithDigi[chamberId].push_back(layerId.layer());
@@ -170,10 +169,9 @@ std::list<int> CSCDigitizer::layersMissing(const CSCStripDigiCollection & stripD
   for(int i = 1; i <=6; ++i)
     oneThruSix.push_back(i);
 
-  for(std::map<int, std::list<int> >::iterator layersInChamberWithDigiItr = layersInChamberWithDigi.begin();
-      layersInChamberWithDigiItr != layersInChamberWithDigi.end(); ++ layersInChamberWithDigiItr)
+  for(auto & layersInChamberWithDigiItr : layersInChamberWithDigi)
   {
-    std::list<int> & layersHit = layersInChamberWithDigiItr->second;
+    std::list<int> & layersHit = layersInChamberWithDigiItr.second;
     if (layersHit.size() < 6 && layersHit.size() >= theLayersNeeded) 
     {
       layersHit.sort();
@@ -181,7 +179,7 @@ std::list<int> CSCDigitizer::layersMissing(const CSCStripDigiCollection & stripD
       std::list<int>::iterator lastLayerMissing =
         set_difference(oneThruSix.begin(), oneThruSix.end(),
                        layersHit.begin(), layersHit.end(), missingLayers.begin());
-      int chamberId = layersInChamberWithDigiItr->first;
+      int chamberId = layersInChamberWithDigiItr.first;
       for(std::list<int>::iterator layerMissingItr = missingLayers.begin();
           layerMissingItr != lastLayerMissing; ++layerMissingItr)
       {

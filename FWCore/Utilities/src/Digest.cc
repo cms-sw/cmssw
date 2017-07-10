@@ -88,8 +88,8 @@ namespace cms
   {
     char buf[16*2];
     char* pBuf=buf;
-    for(unsigned int i=0; i<sizeof(bytes);++i){
-      const char* p = s_hexValues+2*bytes[i];
+    for(unsigned char byte : bytes){
+      const char* p = s_hexValues+2*byte;
       *pBuf = *p;
       ++pBuf;
       ++p;

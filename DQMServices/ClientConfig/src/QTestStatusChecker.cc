@@ -52,10 +52,10 @@ std::map< std::string, std::vector<std::string> > QTestStatusChecker::checkDetai
 		
 void QTestStatusChecker::processAlarms(const std::vector<std::string>& allPathNames, DQMStore * bei){	
   
- for(std::vector<std::string>::const_iterator fullMePath=allPathNames.begin();fullMePath!=allPathNames.end(); ++fullMePath ){		
+ for(const auto & allPathName : allPathNames){		
         
         MonitorElement * me=0;	
-        me= bei->get(*fullMePath);
+        me= bei->get(allPathName);
 
 	if(me){
 		std::vector<QReport *> report;
@@ -73,8 +73,8 @@ void QTestStatusChecker::processAlarms(const std::vector<std::string>& allPathNa
 			 colour="black";
  			 report= me->getQOthers();
  		 }
-		 for(std::vector<QReport *>::iterator itr=report.begin(); itr!=report.end();++itr ){
-			 std::string text= (*fullMePath) + (*itr)->getMessage();
+		 for(auto & itr : report){
+			 std::string text= allPathName + itr->getMessage();
  			 std::vector<std::string> messageList;
 
  			 if( detailedWarnings.find(colour) == detailedWarnings.end()){
@@ -103,13 +103,12 @@ std::vector<std::string> QTestStatusChecker::fullPathNames(DQMStore * bei){
   std::vector<std::string> contents;
   std::vector<std::string> contentVec;
   bei->getContents(contentVec);
-  for (std::vector<std::string>::iterator it = contentVec.begin();
-       it != contentVec.end(); it++) {
+  for (auto & it : contentVec) {
         
-	std::string::size_type dirCharNumber = it->find( ":", 0 );
-	std::string dirName=it->substr(0 , dirCharNumber);
+	std::string::size_type dirCharNumber = it.find( ":", 0 );
+	std::string dirName=it.substr(0 , dirCharNumber);
 	dirName+= "/"; 
-	std::string meCollectionName=it->substr(dirCharNumber+1);
+	std::string meCollectionName=it.substr(dirCharNumber+1);
     
 	std::string reminingNames=meCollectionName;
 	bool anotherME=true;

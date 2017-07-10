@@ -13,9 +13,9 @@ reco::SuperClusterCollection BremRecoveryClusterAlgo::makeSuperClusters(reco::Ca
   reco::CaloClusterPtrVector islandClustersEndCap_v;
 
   // ...and populate them:
-  for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
+  for (auto && it : clustersCollection)
     {
-      reco::CaloClusterPtr cluster_p = *it;
+      reco::CaloClusterPtr cluster_p = it;
       if (cluster_p->algo() == reco::CaloCluster::island) 
       {
 	  if (fabs(cluster_p->position().eta()) < etaBorder)

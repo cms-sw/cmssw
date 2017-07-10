@@ -106,65 +106,65 @@ void EgHLTOfflineClient::runClient_(DQMStore::IBooker& ibooker, DQMStore::IGette
   regions.push_back("eb");
   regions.push_back("ee");
 
-  for (size_t filterNr = 0; filterNr < eleHLTFilterNames_.size(); filterNr++) {
+  for (const auto & eleHLTFilterName : eleHLTFilterNames_) {
     //std::cout<<"FilterName: "<<eleHLTFilterNames_[filterNr]<<std::endl;
-    for (size_t regionNr = 0; regionNr < regions.size(); regionNr++) {
-      for (size_t effNr = 0; effNr < eleEffTags_.size(); effNr++) {
+    for (const auto & region : regions) {
+      for (const auto & eleEffTag : eleEffTags_) {
         //----Morse----
-        ibooker.setCurrentFolder(dirName_+"/Client_Histos/"+eleHLTFilterNames_[filterNr]);
+        ibooker.setCurrentFolder(dirName_+"/Client_Histos/"+eleHLTFilterName);
         //--------------
-	      createN1EffHists(eleHLTFilterNames_[filterNr], 
-            eleHLTFilterNames_[filterNr] + "_gsfEle_" + eleEffTags_[effNr], regions[regionNr],
+	      createN1EffHists(eleHLTFilterName, 
+            eleHLTFilterName + "_gsfEle_" + eleEffTag, region,
             eleN1EffVars_, ibooker, igetter);
 
-        createSingleEffHists(eleHLTFilterNames_[filterNr],
-            eleHLTFilterNames_[filterNr] + "_gsfEle_" + eleEffTags_[effNr], regions[regionNr],
+        createSingleEffHists(eleHLTFilterName,
+            eleHLTFilterName + "_gsfEle_" + eleEffTag, region,
             eleSingleEffVars_, ibooker, igetter);
 
-        createTrigTagProbeEffHistsNewAlgo(eleHLTFilterNames_[filterNr], regions[regionNr],
+        createTrigTagProbeEffHistsNewAlgo(eleHLTFilterName, region,
             eleTrigTPEffVsVars_, "gsfEle", ibooker, igetter);
 
-        createHLTvsOfflineHists(eleHLTFilterNames_[filterNr],
-            eleHLTFilterNames_[filterNr] + "_gsfEle_passFilter", regions[regionNr],
+        createHLTvsOfflineHists(eleHLTFilterName,
+            eleHLTFilterName + "_gsfEle_passFilter", region,
             eleHLTvOfflineVars_, ibooker, igetter);
 
       }
     }
   }
-  for (size_t filterNr = 0; filterNr < eleHLTFilterNames2Leg_.size(); filterNr++) {
-    for (size_t regionNr = 0; regionNr < regions.size(); regionNr++) {
+  for (auto & filterNr : eleHLTFilterNames2Leg_) {
+    for (const auto & region : regions) {
       for (size_t effNr = 0; effNr < eleEffTags_.size(); effNr++) {
-        std::string trigNameLeg1 = eleHLTFilterNames2Leg_[filterNr].substr(
-            0, eleHLTFilterNames2Leg_[filterNr].find("::"));
+        std::string trigNameLeg1 = filterNr.substr(
+            0, filterNr.find("::"));
 
-        std::string trigNameLeg2 = eleHLTFilterNames2Leg_[filterNr].substr(
-            eleHLTFilterNames2Leg_[filterNr].find("::") + 2);
+        std::string trigNameLeg2 = filterNr.substr(
+            filterNr.find("::") + 2);
 
 	      ibooker.setCurrentFolder(dirName_+"/Client_Histos/"+trigNameLeg2);
-        createTrigTagProbeEffHists2Leg(trigNameLeg1, trigNameLeg2, regions[regionNr],
+        createTrigTagProbeEffHists2Leg(trigNameLeg1, trigNameLeg2, region,
             eleTrigTPEffVsVars_, "gsfEle", ibooker, igetter);
       }
     }
   }
 
-  for (size_t filterNr = 0; filterNr < phoHLTFilterNames_.size(); filterNr++) {
-    for (size_t regionNr = 0; regionNr < regions.size(); regionNr++) {
-      for (size_t effNr = 0; effNr < phoEffTags_.size(); effNr++) {
+  for (const auto & phoHLTFilterName : phoHLTFilterNames_) {
+    for (const auto & region : regions) {
+      for (const auto & phoEffTag : phoEffTags_) {
         //----Morse----
-        ibooker.setCurrentFolder(dirName_+"/Client_Histos/"+phoHLTFilterNames_[filterNr]);
-        createN1EffHists(phoHLTFilterNames_[filterNr], 
-            phoHLTFilterNames_[filterNr] + "_pho_" + phoEffTags_[effNr], regions[regionNr],
+        ibooker.setCurrentFolder(dirName_+"/Client_Histos/"+phoHLTFilterName);
+        createN1EffHists(phoHLTFilterName, 
+            phoHLTFilterName + "_pho_" + phoEffTag, region,
             phoN1EffVars_, ibooker, igetter);
 
-        createSingleEffHists(phoHLTFilterNames_[filterNr],
-            phoHLTFilterNames_[filterNr] + "_pho_" + phoEffTags_[effNr], regions[regionNr],
+        createSingleEffHists(phoHLTFilterName,
+            phoHLTFilterName + "_pho_" + phoEffTag, region,
             phoSingleEffVars_, ibooker, igetter);
 
-        createTrigTagProbeEffHistsNewAlgo(phoHLTFilterNames_[filterNr], regions[regionNr],
+        createTrigTagProbeEffHistsNewAlgo(phoHLTFilterName, region,
             phoTrigTPEffVsVars_, "pho", ibooker, igetter);
 
-        createHLTvsOfflineHists(phoHLTFilterNames_[filterNr],
-            phoHLTFilterNames_[filterNr] + "_pho_passFilter", regions[regionNr],
+        createHLTvsOfflineHists(phoHLTFilterName,
+            phoHLTFilterName + "_pho_passFilter", region,
             phoHLTvOfflineVars_, ibooker, igetter);
 
         //--------------
@@ -172,17 +172,17 @@ void EgHLTOfflineClient::runClient_(DQMStore::IBooker& ibooker, DQMStore::IGette
     }
   }
 
-  for (size_t regionNr = 0; regionNr < regions.size(); regionNr++) {
-    createLooseTightTrigEff(eleTightLooseTrigNames_, regions[regionNr],
+  for (const auto & region : regions) {
+    createLooseTightTrigEff(eleTightLooseTrigNames_, region,
         eleLooseTightTrigEffVsVars_, "gsfEle", ibooker, igetter);
 
-    createLooseTightTrigEff(eleTightLooseTrigNames_, regions[regionNr],
+    createLooseTightTrigEff(eleTightLooseTrigNames_, region,
         eleLooseTightTrigEffVsVars_, "gsfEle_trigCuts", ibooker, igetter);
 
-    createLooseTightTrigEff(phoTightLooseTrigNames_, regions[regionNr],
+    createLooseTightTrigEff(phoTightLooseTrigNames_, region,
         phoLooseTightTrigEffVsVars_, "pho", ibooker, igetter);
 
-    createLooseTightTrigEff(phoTightLooseTrigNames_, regions[regionNr],
+    createLooseTightTrigEff(phoTightLooseTrigNames_, region,
         phoLooseTightTrigEffVsVars_, "pho_trigCuts", ibooker, igetter);
 
   }
@@ -213,15 +213,15 @@ void EgHLTOfflineClient::createHLTvsOfflineHists(const std::string& filterName,
   */
 
   //now eta, phi automatically
-  for (size_t varNr = 0; varNr < varNames.size(); varNr++) {
-    MonitorElement* numer = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLT"+varNames[varNr]+"_"+region);
-    MonitorElement* denom = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_"+varNames[varNr]+"_"+region);
+  for (const auto & varName : varNames) {
+    MonitorElement* numer = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_HLT"+varName+"_"+region);
+    MonitorElement* denom = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_"+varName+"_"+region);
     if (numer != NULL && denom != NULL) {
-      std::string effHistName(baseName + "_HLToverOffline_" + varNames[varNr] + "_" + region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
+      std::string effHistName(baseName + "_HLToverOffline_" + varName + "_" + region);//std::cout<<"hltVSoffline:  "<<effHistName<<std::endl;
       std::string effHistTitle(effHistName);
       if (region == "eb" || region == "ee") {
-        if (region == "eb") effHistTitle = "Barrel " + baseName + " HLToverOffline " + varNames[varNr];
-        if (region == "ee") effHistTitle = "Endcap " + baseName + " HLToverOffline " + varNames[varNr];
+        if (region == "eb") effHistTitle = "Barrel " + baseName + " HLToverOffline " + varName;
+        if (region == "ee") effHistTitle = "Endcap " + baseName + " HLToverOffline " + varName;
           FillHLTvsOfflineHist(filterName, effHistName, effHistTitle, numer, denom, ibooker, igetter);
       }
     }
@@ -258,16 +258,16 @@ void EgHLTOfflineClient::createN1EffHists(const std::string& filterName,
 
   MonitorElement* numer = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_allCuts_"+region);
 
-  for (size_t varNr = 0; varNr < varNames.size(); varNr++) {
-    MonitorElement* denom = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_n1_"+varNames[varNr]+"_"+region);
+  for (const auto & varName : varNames) {
+    MonitorElement* denom = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_n1_"+varName+"_"+region);
     if (numer != NULL && denom != NULL) {
-      std::string effHistName(baseName+"_n1Eff_"+varNames[varNr]+"_"+region);//std::cout<<"N1:  "<<effHistName<<std::endl;
+      std::string effHistName(baseName+"_n1Eff_"+varName+"_"+region);//std::cout<<"N1:  "<<effHistName<<std::endl;
       //std::cout<<region<<"  ";
       //----Morse-----------
       std::string effHistTitle(effHistName);//std::cout<<effHistTitle<<std::endl;
       if ( region == "eb" || region == "ee"){
-        if (region == "eb") effHistTitle = "Barrel "+baseName+" N1eff "+varNames[varNr];
-        if (region == "ee") effHistTitle = "Endcap "+baseName+" N1eff "+varNames[varNr];
+        if (region == "eb") effHistTitle = "Barrel "+baseName+" N1eff "+varName;
+        if (region == "ee") effHistTitle = "Endcap "+baseName+" N1eff "+varName;
       }//std::cout<<effHistTitle<<std::endl;
       makeEffMonElemFromPassAndAll(filterName, effHistName, effHistTitle, numer, denom, ibooker,
           igetter);
@@ -283,15 +283,15 @@ void EgHLTOfflineClient::createSingleEffHists(const std::string& filterName,
 
   MonitorElement* denom = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_noCuts_"+region);
 
-  for (size_t varNr = 0; varNr < varNames.size(); varNr++) {
-    MonitorElement* numer = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_single_"+varNames[varNr]+"_"+region);
+  for (const auto & varName : varNames) {
+    MonitorElement* numer = igetter.get(dirName_+"/Source_Histos/"+filterName+"/"+baseName+"_single_"+varName+"_"+region);
     if (numer != NULL && denom != NULL) {
-      std::string effHistName(baseName + "_singleEff_" + varNames[varNr] + "_" + region);//std::cout<<"Si:  "<<effHistName<<std::endl;
+      std::string effHistName(baseName + "_singleEff_" + varName + "_" + region);//std::cout<<"Si:  "<<effHistName<<std::endl;
       //----Morse-----------
       std::string effHistTitle(effHistName);//std::cout<<effHistTitle<<std::endl;
       if (region == "eb" || region == "ee") {
-        if (region == "eb") effHistTitle = "Barrel " + baseName + " SingleEff " + varNames[varNr];
-        if (region == "ee") effHistTitle = "Endcap " + baseName + " SingleEff " + varNames[varNr];
+        if (region == "eb") effHistTitle = "Barrel " + baseName + " SingleEff " + varName;
+        if (region == "ee") effHistTitle = "Endcap " + baseName + " SingleEff " + varName;
       }//std::cout<<effHistTitle<<std::endl;
       makeEffMonElemFromPassAndAll(filterName, effHistName, effHistTitle, numer, denom, ibooker,
           igetter);
@@ -304,26 +304,26 @@ void EgHLTOfflineClient::createTrigTagProbeEffHists(const std::string& filterNam
     const std::string& region, const std::vector<std::string>& vsVarNames,
     const std::string& objName, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
 
-  for (size_t varNr = 0; varNr < vsVarNames.size(); varNr++) {
-    std::string allName(dirName_ + "/Source_Histos/" + filterName + "/" + filterName + "_trigTagProbe_" + objName + "_all_" + vsVarNames[varNr] + "_" + region);
+  for (const auto & vsVarName : vsVarNames) {
+    std::string allName(dirName_ + "/Source_Histos/" + filterName + "/" + filterName + "_trigTagProbe_" + objName + "_all_" + vsVarName + "_" + region);
     MonitorElement* all = igetter.get(allName);
     if (all == NULL) {
       continue;
     }
-    std::string passName(dirName_ + "/Source_Histos/" + filterName + "/" + filterName + "_trigTagProbe_" + objName + "_pass_" + vsVarNames[varNr] + "_" + region);
+    std::string passName(dirName_ + "/Source_Histos/" + filterName + "/" + filterName + "_trigTagProbe_" + objName + "_pass_" + vsVarName + "_" + region);
     MonitorElement* pass = igetter.get(passName);
     if (pass == NULL) {
       continue;
     }
     //----Morse-----
-    std::string effHistTitle(filterName + "_trigTagProbeEff_" + objName + "_vs_" + vsVarNames[varNr] + "_" + region);//std::cout<<effHistTitle<<std::endl;
+    std::string effHistTitle(filterName + "_trigTagProbeEff_" + objName + "_vs_" + vsVarName + "_" + region);//std::cout<<effHistTitle<<std::endl;
     if (region == "eb" || region == "ee") {
-      if (region == "eb") effHistTitle = "Barrel " + filterName + "_" + objName + " TrigTagProbeEff vs " + vsVarNames[varNr];
-      if (region == "ee") effHistTitle = "Endcap " + filterName + "_" + objName + " TrigTagProbeEff vs " + vsVarNames[varNr];
+      if (region == "eb") effHistTitle = "Barrel " + filterName + "_" + objName + " TrigTagProbeEff vs " + vsVarName;
+      if (region == "ee") effHistTitle = "Endcap " + filterName + "_" + objName + " TrigTagProbeEff vs " + vsVarName;
     }
     //------------
     makeEffMonElemFromPassAndAll(filterName,
-        filterName + "_trigTagProbeEff_" + objName + "_vs_" + vsVarNames[varNr] + "_" + region,
+        filterName + "_trigTagProbeEff_" + objName + "_vs_" + vsVarName + "_" + region,
         effHistTitle, pass, all, ibooker, igetter);
 
   }//end loop over vsVarNames
@@ -333,7 +333,7 @@ void EgHLTOfflineClient::createTrigTagProbeEffHistsNewAlgo(const std::string& fi
     const std::string& region, const std::vector<std::string>& vsVarNames,
     const std::string& objName, DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
 
-  for (size_t varNr = 0; varNr < vsVarNames.size(); varNr++) {
+  for (const auto & vsVarName : vsVarNames) {
     /* 
        std::string allName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_all_"+vsVarNames[varNr]+"_"+region);
        MonitorElement* all = dbe_->get(allName); 
@@ -341,33 +341,33 @@ void EgHLTOfflineClient::createTrigTagProbeEffHistsNewAlgo(const std::string& fi
        //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<allName;
        continue;
        }*/
-    std::string passName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_passNotTag_"+vsVarNames[varNr]+"_"+region);
+    std::string passName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_passNotTag_"+vsVarName+"_"+region);
     MonitorElement* passNotTag = igetter.get(passName);
     if (passNotTag == NULL) {
       //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<passName;
       continue;
     }
-    std::string passTagTagName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_passTagTag_"+vsVarNames[varNr]+"_"+region);
+    std::string passTagTagName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_passTagTag_"+vsVarName+"_"+region);
     MonitorElement* passTagTag = igetter.get(passTagTagName);
     if (passTagTag == NULL) {
       //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<passTagTagName;
       continue;
     }
-    std::string failName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_fail_"+vsVarNames[varNr]+"_"+region);
+    std::string failName(dirName_+"/Source_Histos/"+filterName+"/"+filterName+"_trigTagProbe_"+objName+"_fail_"+vsVarName+"_"+region);
     MonitorElement* fail = igetter.get(failName);
     if (fail == NULL) {
       //edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<failName;
       continue;
     }
     //----Morse-----
-    std::string effHistTitle(filterName+"_trigTagProbeEff_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region);//std::cout<<effHistTitle<<std::endl;
+    std::string effHistTitle(filterName+"_trigTagProbeEff_"+objName+"_vs_"+vsVarName+"_"+region);//std::cout<<effHistTitle<<std::endl;
     if (region == "eb" || region == "ee") {
-      if (region == "eb") effHistTitle = "Barrel " + filterName + "_"+objName + " TrigTagProbeEff vs " + vsVarNames[varNr];
-      if (region == "ee") effHistTitle = "Endcap " + filterName + "_"+objName + " TrigTagProbeEff vs " + vsVarNames[varNr];
+      if (region == "eb") effHistTitle = "Barrel " + filterName + "_"+objName + " TrigTagProbeEff vs " + vsVarName;
+      if (region == "ee") effHistTitle = "Endcap " + filterName + "_"+objName + " TrigTagProbeEff vs " + vsVarName;
     }//std::cout<<effHistTitle<<std::endl;
     //------------
     makeEffMonElemFromPassAndFailAndTagTag(filterName,
-        filterName + "_trigTagProbeEff_" + objName + "_vs_" + vsVarNames[varNr] + "_" + region,
+        filterName + "_trigTagProbeEff_" + objName + "_vs_" + vsVarName + "_" + region,
         effHistTitle, passNotTag, fail, passTagTag, ibooker, igetter);
   }//end loop over vsVarNames
 }
@@ -377,36 +377,36 @@ void EgHLTOfflineClient::createTrigTagProbeEffHists2Leg(const std::string& filte
     const std::vector<std::string>& vsVarNames, const std::string& objName,
     DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
 
-  for (size_t varNr = 0; varNr < vsVarNames.size(); varNr++) {
+  for (const auto & vsVarName : vsVarNames) {
 
-    std::string allName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_all_"+vsVarNames[varNr]+"_"+region);
+    std::string allName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_all_"+vsVarName+"_"+region);
     MonitorElement* all = igetter.get(allName);
     if (all == NULL) {
       edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<allName;
       continue;
     }
 
-    std::string Leg2NotLeg1SourceName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_passLeg2failLeg1_"+vsVarNames[varNr]+"_"+region);
+    std::string Leg2NotLeg1SourceName(dirName_+"/Source_Histos/"+filterNameLeg2+"/"+filterNameLeg2+"_trigTagProbe_"+objName+"_passLeg2failLeg1_"+vsVarName+"_"+region);
     MonitorElement* Leg2NotLeg1Source = igetter.get(Leg2NotLeg1SourceName);
     if (Leg2NotLeg1Source == NULL) {
       edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<Leg2NotLeg1SourceName;
       continue;
     }
 
-    std::string Leg1EffName(dirName_+"/Client_Histos/"+filterNameLeg1+"/"+filterNameLeg1+"_trigTagProbeEff_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region);
+    std::string Leg1EffName(dirName_+"/Client_Histos/"+filterNameLeg1+"/"+filterNameLeg1+"_trigTagProbeEff_"+objName+"_vs_"+vsVarName+"_"+region);
     MonitorElement *Leg1Eff = igetter.get(Leg1EffName);
     if (Leg1Eff == NULL) {
       edm::LogInfo("EgHLTOfflineClient") <<" couldnt get hist "<<Leg1EffName;
       continue;
     }
 
-    std::string effHistTitle(filterNameLeg2+"_trigTagProbeEff2Leg_"+objName+"_vs_"+vsVarNames[varNr]+"_"+region);//std::cout<<effHistTitle<<std::endl;
+    std::string effHistTitle(filterNameLeg2+"_trigTagProbeEff2Leg_"+objName+"_vs_"+vsVarName+"_"+region);//std::cout<<effHistTitle<<std::endl;
     if (region == "eb" || region == "ee") {
-      if (region == "eb") effHistTitle = "Barrel " + filterNameLeg2 + "_" + objName + " TrigTagProbeEff2Leg vs " + vsVarNames[varNr];
-      if (region == "ee") effHistTitle = "Endcap " + filterNameLeg2 + "_" + objName + " TrigTagProbeEff2Leg vs " + vsVarNames[varNr];
+      if (region == "eb") effHistTitle = "Barrel " + filterNameLeg2 + "_" + objName + " TrigTagProbeEff2Leg vs " + vsVarName;
+      if (region == "ee") effHistTitle = "Endcap " + filterNameLeg2 + "_" + objName + " TrigTagProbeEff2Leg vs " + vsVarName;
     }//std::cout<<effHistTitle<<std::endl;
     makeEffMonElem2Leg(filterNameLeg2,
-        filterNameLeg2 + "_trigTagProbeEff2Leg_" + objName + "_vs_" + vsVarNames[varNr] + "_" + region,
+        filterNameLeg2 + "_trigTagProbeEff2Leg_" + objName + "_vs_" + vsVarName + "_" + region,
         effHistTitle, Leg1Eff, Leg2NotLeg1Source, all, ibooker, igetter);
   }//end loop over vsVarNames
 }
@@ -417,32 +417,32 @@ void EgHLTOfflineClient::createLooseTightTrigEff(
     const std::vector<std::string>& vsVarNames, const std::string& objName,
     DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter) {
 
-  for (size_t varNr = 0; varNr < vsVarNames.size(); varNr++) {
-    for (size_t trigNr = 0; trigNr < tightLooseTrigNames.size(); trigNr++) {
+  for (const auto & vsVarName : vsVarNames) {
+    for (const auto & tightLooseTrigName : tightLooseTrigNames) {
       std::vector<std::string> splitString;
-      boost::split(splitString, tightLooseTrigNames[trigNr], boost::is_any_of(std::string(":")));
+      boost::split(splitString, tightLooseTrigName, boost::is_any_of(std::string(":")));
       if (splitString.size() != 2) {
         continue; //format incorrect 
       }
 
       const std::string& tightTrig = splitString[0];
       const std::string& looseTrig = splitString[1];
-      MonitorElement* fail = igetter.get(dirName_ + "/Source_Histos/" + tightTrig + "_" + looseTrig + "_" + objName + "_failTrig_" + vsVarNames[varNr] + "_" + region);
+      MonitorElement* fail = igetter.get(dirName_ + "/Source_Histos/" + tightTrig + "_" + looseTrig + "_" + objName + "_failTrig_" + vsVarName + "_" + region);
       if (fail == NULL) {
         continue;
       }
 
-      MonitorElement* pass = igetter.get(dirName_ + "/Source_Histos/" + tightTrig + "_" + looseTrig + "_" + objName + "_passTrig_" + vsVarNames[varNr] + "_" + region);
+      MonitorElement* pass = igetter.get(dirName_ + "/Source_Histos/" + tightTrig + "_" + looseTrig + "_" + objName + "_passTrig_" + vsVarName + "_" + region);
       if (pass == NULL) {
         continue;
       }
 
-      const std::string newHistName(tightTrig + "_trigEffTo_" + looseTrig + "_" + objName + "_vs_" + vsVarNames[varNr] + "_" + region);
+      const std::string newHistName(tightTrig + "_trigEffTo_" + looseTrig + "_" + objName + "_vs_" + vsVarName + "_" + region);
       //----Morse-----
       std::string effHistTitle(newHistName);//std::cout<<effHistTitle<<std::endl;
       if (region == "eb" || region == "ee") {
-        if (region == "eb") effHistTitle = "Barrel " + tightTrig + "_TrigEffTo_" + looseTrig + "_" + objName + " vs " + vsVarNames[varNr];
-        if (region == "ee") effHistTitle = "Endcap " + tightTrig + "_TrigEffTo_" + looseTrig + "_" + objName + " vs " + vsVarNames[varNr];
+        if (region == "eb") effHistTitle = "Barrel " + tightTrig + "_TrigEffTo_" + looseTrig + "_" + objName + " vs " + vsVarName;
+        if (region == "ee") effHistTitle = "Endcap " + tightTrig + "_TrigEffTo_" + looseTrig + "_" + objName + " vs " + vsVarName;
       }
       //------------
       makeEffMonElemFromPassAndFail("LooseTight", newHistName, effHistTitle, pass, fail,

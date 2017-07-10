@@ -57,9 +57,8 @@ void SiStripHistoPlotter::createPlots(DQMStore* dqm_store) {
   if (plotList_.size() == 0) return;
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
-  for (std::vector<PlotParameter>::iterator it = plotList_.begin(); 
-       it != plotList_.end(); it++) {
-    makePlot(dqm_store, (*it));
+  for (auto & it : plotList_) {
+    makePlot(dqm_store, it);
   }
   plotList_.clear();
 }
@@ -328,9 +327,8 @@ void SiStripHistoPlotter::createCondDBPlots(DQMStore* dqm_store) {
   std::string name = "Dummy";
   if (!hasNamedImage(name)) createDummyImage(name);
 
-  for (std::vector<PlotParameter>::iterator it = condDBPlotList_.begin(); 
-       it != condDBPlotList_.end(); it++) {
-    makeCondDBPlots(dqm_store, (*it));
+  for (auto & it : condDBPlotList_) {
+    makeCondDBPlots(dqm_store, it);
   }
   condDBPlotList_.clear();
 }

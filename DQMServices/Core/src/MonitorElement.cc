@@ -1429,8 +1429,8 @@ void
 MonitorElement::updateQReportStats(void)
 {
   data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
-  for (size_t i = 0, e = data_.qreports.size(); i < e; ++i)
-    switch (data_.qreports[i].code)
+  for (auto & qreport : data_.qreports)
+    switch (qreport.code)
     {
     case dqm::qstatus::STATUS_OK:
       break;

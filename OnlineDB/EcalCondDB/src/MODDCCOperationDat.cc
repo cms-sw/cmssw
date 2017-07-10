@@ -135,14 +135,14 @@ void MODDCCOperationDat::writeArrayDB(const std::map< EcalLogicID, MODDCCOperati
   const MODDCCOperationDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, MODDCCOperationDat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-        channel = &(p->first);
+  for (const auto & p : *data) {
+        channel = &(p.first);
 	int logicID = channel->getLogicID();
 	if (!logicID) { throw(std::runtime_error("MODDCCOperationDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
-	dataitem = &(p->second);
+	dataitem = &(p.second);
 	// dataIface.writeDB( channel, dataitem, iov);
 	std::string x=dataitem->getOperation();
 

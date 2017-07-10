@@ -51,8 +51,8 @@ ElectronMVAEstimator::ElectronMVAEstimator(std::string fileName):
 ElectronMVAEstimator::ElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
   std::vector<std::string> weightsfiles;
   std::string path_mvaWeightFileEleID;
-  for(unsigned ifile=0 ; ifile < cfg_.vweightsfiles.size() ; ++ifile) {
-    path_mvaWeightFileEleID = edm::FileInPath ( cfg_.vweightsfiles[ifile].c_str() ).fullPath();
+  for(const auto & vweightsfile : cfg_.vweightsfiles) {
+    path_mvaWeightFileEleID = edm::FileInPath ( vweightsfile.c_str() ).fullPath();
     weightsfiles.push_back(path_mvaWeightFileEleID);
   }
   for( const auto& wgtfile : weightsfiles ) {

@@ -166,8 +166,7 @@ int getCharge(const SiStripCluster* cluster, int& nSatStrip, const GeomDetUnit& 
    int charge = 0;
 
    if ( calibGains.empty() ) {
-     for(unsigned int i=0;i<Ampls.size();i++){
-       int calibratedCharge = Ampls[i];
+     for(int calibratedCharge : Ampls){
        charge+=calibratedCharge;
        if(calibratedCharge>=254)nSatStrip++;
      }

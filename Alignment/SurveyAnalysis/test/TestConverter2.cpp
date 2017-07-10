@@ -142,23 +142,20 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey
   
-   for ( auto iGeomDet = alignments->m_align.begin();
-		iGeomDet != alignments->m_align.end(); iGeomDet++ )
+   for (const auto & iGeomDet : alignments->m_align)
 	{
 	  
-	  for ( auto iDet = trackerGeometry->dets().begin();
-		iDet != trackerGeometry->dets().end(); iDet++ )
+	  for (auto iDet : trackerGeometry->dets())
 	    {
               
 	      // std::cout << (*iDet)->geographicalId().rawId() << " " << (*iGeomDet).rawId() << std::endl;
-              if ((*iDet)->geographicalId().rawId() == (*iGeomDet).rawId()) {
+              if (iDet->geographicalId().rawId() == iGeomDet.rawId()) {
                 
-		for ( auto it = alignErrors.begin();
-		      it != alignErrors.end(); it++ ) {
+		for (auto & alignError : alignErrors) {
 		  
-		  if ((*it).rawId() == (*iGeomDet).rawId()) {
+		  if (alignError.rawId() == iGeomDet.rawId()) {
 		  
-		    DetId thisId((*iGeomDet).rawId());
+		    DetId thisId(iGeomDet.rawId());
 		    
 		    if (thisId.subdetId() == int(StripSubdetector::TIB) ) {
 		      
@@ -210,45 +207,45 @@ TestConverter2::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 		    }
 
 		    // CLHEP::HepRotation fromAngles( (*iGeomDet).eulerAngles()  );
-                    CLHEP::HepRotation fromAngles( (*iGeomDet).rotation()  );
+                    CLHEP::HepRotation fromAngles( iGeomDet.rotation()  );
 		    align::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
 						    fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
 						    fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
 		    
-		    dx_      = (*iGeomDet).translation().x() - (*iDet)->position().x(); 
-		    dy_      = (*iGeomDet).translation().y() - (*iDet)->position().y();
-		    dz_      = (*iGeomDet).translation().z() - (*iDet)->position().z();
-		    dtx_     = rotation.xx() - (*iDet)->rotation().xx();
-		    dty_     = rotation.xy() - (*iDet)->rotation().xy();
-		    dtz_     = rotation.xz() - (*iDet)->rotation().xz();
-		    dkx_     = rotation.yx() - (*iDet)->rotation().yx();
-		    dky_     = rotation.yy() - (*iDet)->rotation().yy();
-		    dkz_     = rotation.yz() - (*iDet)->rotation().yz();
-		    dnx_     = rotation.zx() - (*iDet)->rotation().zx();
-		    dny_     = rotation.zy() - (*iDet)->rotation().zy();
-		    dnz_     = rotation.zz() - (*iDet)->rotation().zz();
-                    CLHEP::HepSymMatrix errMat = (*it).matrix();
+		    dx_      = iGeomDet.translation().x() - iDet->position().x(); 
+		    dy_      = iGeomDet.translation().y() - iDet->position().y();
+		    dz_      = iGeomDet.translation().z() - iDet->position().z();
+		    dtx_     = rotation.xx() - iDet->rotation().xx();
+		    dty_     = rotation.xy() - iDet->rotation().xy();
+		    dtz_     = rotation.xz() - iDet->rotation().xz();
+		    dkx_     = rotation.yx() - iDet->rotation().yx();
+		    dky_     = rotation.yy() - iDet->rotation().yy();
+		    dkz_     = rotation.yz() - iDet->rotation().yz();
+		    dnx_     = rotation.zx() - iDet->rotation().zx();
+		    dny_     = rotation.zy() - iDet->rotation().zy();
+		    dnz_     = rotation.zz() - iDet->rotation().zz();
+                    CLHEP::HepSymMatrix errMat = alignError.matrix();
                     errx_    = sqrt(errMat[0][0]); 
 		    erry_    = sqrt(errMat[1][1]);
 		    errz_    = sqrt(errMat[2][2]); 
 		    
 		    theTree->Fill();
 		    
-		    cout << "DetId = " << (*iGeomDet).rawId() << " " << endl;
+		    cout << "DetId = " << iGeomDet.rawId() << " " << endl;
 		    cout << "DetId decodified = " << subdid_ << " " << fwbw_ << " " << frontback_ << " " << layerdisk_ << " " << stringrod_ << " " << petal_ << " " << module_ << endl;
-		    cout << "X pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().x() << " / TRACKER_ORIGINAL = " << (*iDet)->position().x() << endl;
-		    cout << "Y pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().y() << " / TRACKER_ORIGINAL = " << (*iDet)->position().y() << endl;
-		    cout << "Z pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().z() << " / TRACKER_ORIGINAL = " << (*iDet)->position().z() << endl;
+		    cout << "X pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << iGeomDet.translation().x() << " / TRACKER_ORIGINAL = " << iDet->position().x() << endl;
+		    cout << "Y pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << iGeomDet.translation().y() << " / TRACKER_ORIGINAL = " << iDet->position().y() << endl;
+		    cout << "Z pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << iGeomDet.translation().z() << " / TRACKER_ORIGINAL = " << iDet->position().z() << endl;
 		    cout << "SPATIAL DISTANCE = " << std::fixed << std::setprecision(3) << sqrt(pow(dx_,2)+pow(dy_,2)+pow(dz_,2)) << endl;
-		    cout << "Trans vect X : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xx() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().xx() << endl;
-		    cout << "Trans vect Y : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xy() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().xy() << endl;
-		    cout << "Trans vect Z : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xz() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().xz() << endl; 
-		    cout << "Long vect X : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.yx() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().yx() << endl;	
-		    cout << "Long vect Y : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.yy() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().yy() << endl;  
-		    cout << "Long vect Z : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.yz() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().yz() << endl;
-		    cout << "Norm vect X : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.zx() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().zx() << endl;
-		    cout << "Norm vect Y : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.zy() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().zy() << endl; 
-		    cout << "Norm vect Z : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.zz() << " / TRACKER_ORIGINAL = " << (*iDet)->rotation().zz() << endl; 
+		    cout << "Trans vect X : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xx() << " / TRACKER_ORIGINAL = " << iDet->rotation().xx() << endl;
+		    cout << "Trans vect Y : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xy() << " / TRACKER_ORIGINAL = " << iDet->rotation().xy() << endl;
+		    cout << "Trans vect Z : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xz() << " / TRACKER_ORIGINAL = " << iDet->rotation().xz() << endl; 
+		    cout << "Long vect X : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.yx() << " / TRACKER_ORIGINAL = " << iDet->rotation().yx() << endl;	
+		    cout << "Long vect Y : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.yy() << " / TRACKER_ORIGINAL = " << iDet->rotation().yy() << endl;  
+		    cout << "Long vect Z : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.yz() << " / TRACKER_ORIGINAL = " << iDet->rotation().yz() << endl;
+		    cout << "Norm vect X : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.zx() << " / TRACKER_ORIGINAL = " << iDet->rotation().zx() << endl;
+		    cout << "Norm vect Y : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.zy() << " / TRACKER_ORIGINAL = " << iDet->rotation().zy() << endl; 
+		    cout << "Norm vect Z : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.zz() << " / TRACKER_ORIGINAL = " << iDet->rotation().zz() << endl; 
 		  }
 		}
 	      }

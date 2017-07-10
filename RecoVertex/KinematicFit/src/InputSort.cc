@@ -11,15 +11,15 @@ std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectorySt
 
 //checking that only top particles of the tree are passed by user
 //correcting them for the top ones otherwise 
- for(std::vector<RefCountedKinematicParticle>::const_iterator i = particles.begin(); i != particles.end(); i++)
+ for(const auto & particle : particles)
  {
-  if((*i)->correspondingTree() != 0)
+  if(particle->correspondingTree() != 0)
   {
-   sortedParticles.push_back((*i)->correspondingTree()->topParticle());
-   sortedStates.push_back((*i)->correspondingTree()->topParticle()->currentState().freeTrajectoryState());
+   sortedParticles.push_back(particle->correspondingTree()->topParticle());
+   sortedStates.push_back(particle->correspondingTree()->topParticle()->currentState().freeTrajectoryState());
   }else{
-   sortedParticles.push_back(*i);
-   sortedStates.push_back((*i)->currentState().freeTrajectoryState());
+   sortedParticles.push_back(particle);
+   sortedStates.push_back(particle->currentState().freeTrajectoryState());
   }
  }
  return std::pair<std::vector<RefCountedKinematicParticle>, std::vector<FreeTrajectoryState> >(sortedParticles, sortedStates);
@@ -29,10 +29,10 @@ std::vector<RefCountedKinematicParticle> InputSort::sort(const std::vector<RefCo
 {
  if(trees.size() ==0) throw VertexException("Input Sort::Zero vector of trees passed"); 
  std::vector<RefCountedKinematicParticle> res;
- for(std::vector<RefCountedKinematicTree>::const_iterator i = trees.begin(); i!=trees.end(); i++)
+ for(const auto & tree : trees)
  {
-  (*i)->movePointerToTheTop();
-  res.push_back((*i)->currentParticle());
+  tree->movePointerToTheTop();
+  res.push_back(tree->currentParticle());
  }
  return res;
 }

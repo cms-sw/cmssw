@@ -163,26 +163,22 @@ namespace edm {
          RetrievedDataMap::value_type& retrievedData = *itRetrievedData;
          if(itRetrievedData->second.first != r->cacheIdentifier()) {
             itRetrievedData->second.first = r->cacheIdentifier();
-            for(std::map<eventsetup::DataKey,bool>::iterator itDatum = retrievedData.second.second.begin(), itDatumEnd = retrievedData.second.second.end();
-                itDatum != itDatumEnd;
-                ++itDatum) {
-               itDatum->second = false;
+            for(auto & itDatum : retrievedData.second.second) {
+               itDatum.second = false;
             }
          }
          
-         for(std::map<eventsetup::DataKey,bool>::iterator itDatum = retrievedData.second.second.begin(), itDatumEnd = retrievedData.second.second.end();
-            itDatum != itDatumEnd;
-            ++itDatum) {
-            bool wasGotten = r->wasGotten(itDatum->first);
-            if (wasGotten != itDatum->second) {
+         for(auto & itDatum : retrievedData.second.second) {
+            bool wasGotten = r->wasGotten(itDatum.first);
+            if (wasGotten != itDatum.second) {
                if (not msg)
                   msg.reset(new LogSystem("ESContent"));
                else
                   *msg << "\n";
-               itDatum->second = wasGotten;
-               *msg << "Retrieved> record:" << it->name() << " data:" << itDatum->first.type().name() << " '" << itDatum->first.name().value() << "'";
+               itDatum.second = wasGotten;
+               *msg << "Retrieved> record:" << it->name() << " data:" << itDatum.first.type().name() << " '" << itDatum.first.name().value() << "'";
                if (m_printProviders) {
-                  const edm::eventsetup::ComponentDescription* d = r->providerDescription(itDatum->first);
+                  const edm::eventsetup::ComponentDescription* d = r->providerDescription(itDatum.first);
                   assert(nullptr != d);
                   *msg << " provider:" << d->type_ << " '" << d->label_ << "'";
                }

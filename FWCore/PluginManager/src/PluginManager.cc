@@ -73,9 +73,9 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
     // When building a single big executable the plugins are already registered in the 
     // PluginFactoryManager, we therefore only need to populate the categoryToInfos_ map
     // with the relevant information.
-    for (PluginFactoryManager::const_iterator i = pfm->begin(), e = pfm->end(); i != e; ++i)
+    for (auto i : *pfm)
     {
-    	categoryToInfos_[(*i)->category()] = (*i)->available();
+    	categoryToInfos_[i->category()] = i->available();
     }
 
     //read in the files

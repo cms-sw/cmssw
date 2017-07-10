@@ -16,11 +16,11 @@ void VertexKinematicConstraintT::init(const std::vector<KinematicState>& states,
   double mfz = fieldValue.z();
   
   int j=0;
-  for(std::vector<KinematicState>::const_iterator i = states.begin(); i != states.end(); i++)
+  for(const auto & state : states)
     {
-      mom[j] = i->globalMomentum();
-      dpos[j] = ipoint - i->globalPosition();
-      a_i[j] = - i->particleCharge() * mfz;
+      mom[j] = state.globalMomentum();
+      dpos[j] = ipoint - state.globalPosition();
+      a_i[j] = - state.particleCharge() * mfz;
 
       double pvx = mom[j].x() - a_i[j]*dpos[j].y();
       double pvy = mom[j].y() + a_i[j]*dpos[j].x();

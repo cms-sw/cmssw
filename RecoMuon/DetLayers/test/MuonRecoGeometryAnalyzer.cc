@@ -183,8 +183,8 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
 
   const vector<const DetLayer*>& layers = geo->allDTLayers();
 
-  for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
-    const MuRodBarrelLayer* layer = (const MuRodBarrelLayer*) (*ilay);
+  for (auto ilay : layers) {
+    const MuRodBarrelLayer* layer = (const MuRodBarrelLayer*) ilay;
   
     const BoundCylinder& cyl = layer->specificSurface();  
 
@@ -240,8 +240,8 @@ void MuonRecoGeometryAnalyzer::testDTLayers(const MuonDetLayerGeometry* geo,cons
 void MuonRecoGeometryAnalyzer::testCSCLayers(const MuonDetLayerGeometry* geo,const MagneticField* field) {
   const vector<const DetLayer*>& layers = geo->allCSCLayers();
 
-  for (auto ilay = layers.begin(); ilay!=layers.end(); ++ilay) {
-    const MuRingForwardDoubleLayer* layer = (const MuRingForwardDoubleLayer*) (*ilay);
+  for (auto ilay : layers) {
+    const MuRingForwardDoubleLayer* layer = (const MuRingForwardDoubleLayer*) ilay;
   
     const BoundDisk& disk = layer->specificSurface();
 

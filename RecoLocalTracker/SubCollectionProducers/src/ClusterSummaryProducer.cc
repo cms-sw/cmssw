@@ -74,8 +74,8 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
      edmNew::DetSetVector<SiStripCluster>::const_iterator itClusters=stripClusters->begin();
      for(;itClusters!=stripClusters->end();++itClusters){
        getSelections(itClusters->id());
-       for(edmNew::DetSet<SiStripCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
-         const ClusterVariables Summaryinfo(*cluster);
+       for(const auto & cluster : *itClusters){
+         const ClusterVariables Summaryinfo(cluster);
          fillSelections(Summaryinfo.clusterSize(),Summaryinfo.charge());
        }
      }
@@ -90,8 +90,8 @@ ClusterSummaryProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
      edmNew::DetSetVector<SiPixelCluster>::const_iterator itClusters=pixelClusters->begin();
      for(;itClusters!=pixelClusters->end();++itClusters){
        getSelections(itClusters->id());
-       for(edmNew::DetSet<SiPixelCluster>::const_iterator cluster=itClusters->begin(); cluster!=itClusters->end();++cluster){
-         fillSelections(cluster->size(),float(cluster->charge())/1000.);
+       for(const auto & cluster : *itClusters){
+         fillSelections(cluster.size(),float(cluster.charge())/1000.);
        }
      }
    }

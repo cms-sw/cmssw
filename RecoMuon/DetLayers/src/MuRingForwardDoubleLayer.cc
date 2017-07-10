@@ -155,9 +155,8 @@ MuRingForwardDoubleLayer::compatibleDets(const TrajectoryStateOnSurface& startin
   vector<DetGroup> vectorGroups = groupedCompatibleDets(tsos,prop,est);
   for(vector<DetGroup>::const_iterator itDG=vectorGroups.begin();
       itDG!=vectorGroups.end();itDG++){
-    for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
-        itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+    for(const auto & itDGE : *itDG){
+      result.push_back(DetWithState(itDGE.det(),itDGE.trajectoryState()));
     }
   }
   return result;  

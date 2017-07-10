@@ -182,12 +182,11 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c)
 //    when calling recursive function dqmCopyRecursively
   for ( std::map<std::string, cfgEntryFileSet>::const_iterator fileSet = fileSets_.begin();
 	fileSet != fileSets_.end(); ++fileSet ) {
-    for ( vstring::const_iterator inputFileName = fileSet->second.inputFileNames_.begin();
-	  inputFileName != fileSet->second.inputFileNames_.end(); ++inputFileName ) {
+    for (const auto & inputFileName : fileSet->second.inputFileNames_) {
       //std::cout << " checking inputFile = " << (*inputFileName) << std::endl;
-      TFile inputFile(inputFileName->data());
+      TFile inputFile(inputFileName.data());
       if ( inputFile.IsZombie() ) {
-	edm::LogError ("endJob") << " Failed to open inputFile = " << (*inputFileName) 
+	edm::LogError ("endJob") << " Failed to open inputFile = " << inputFileName 
 				 << "--> histograms will NOT be loaded !!";
 	return;
       }
@@ -195,9 +194,9 @@ void TauDQMFileLoader::endRun(const edm::Run& r, const edm::EventSetup& c)
       TObject* obj = inputFile.Get(dqmRootDirectory_inTFile.data());
       //std::cout << " obj = " << obj << std::endl;
       if ( TDirectory* directory = dynamic_cast<TDirectory*>(obj) ) {
-	mapSubDirectoryStructure(directory, dqmRootDirectory, subDirectoryMap_[*inputFileName]);
+	mapSubDirectoryStructure(directory, dqmRootDirectory, subDirectoryMap_[inputFileName]);
       } else {
-	edm::LogError ("endJob") << " Failed to access " << dqmRootDirectory_inTFile << " in inputFile = " << (*inputFileName) 
+	edm::LogError ("endJob") << " Failed to access " << dqmRootDirectory_inTFile << " in inputFile = " << inputFileName 
 				 << "--> histograms will NOT be loaded !!";
 	return;
       }

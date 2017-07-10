@@ -498,7 +498,7 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::merging(const std::vector<l1t::C
                 taus.push_back (tau);
 
                 // delete all sec clusters that were allocated with new
-                for (unsigned int isec = 0; isec < secClusters.size(); isec++) delete secClusters.at(isec);
+                for (auto & secCluster : secClusters) delete secCluster;
             }
         }
     } // end loop on clusters
@@ -514,10 +514,10 @@ void l1t::Stage2Layer2TauAlgorithmFirmwareImp1::dosorting (std::vector<l1t::Tau>
     l1t::Tau tempTau (emptyP4, 0, 0, 0, 0);
     std::vector< std::vector<l1t::Tau> > tauEtaPos( params_->isoTauEtaMax() , std::vector<l1t::Tau>(18, tempTau));
     std::vector< std::vector<l1t::Tau> > tauEtaNeg( params_->isoTauEtaMax() , std::vector<l1t::Tau>(18, tempTau));
-    for (unsigned int iTau = 0; iTau < taus.size(); iTau++)
+    for (auto & tau : taus)
     {
-        if (taus.at(iTau).hwEta() > 0) tauEtaPos.at( taus.at(iTau).hwEta()-1).at((taus.at(iTau).hwPhi()-1)/4) = taus.at(iTau);
-        else                           tauEtaNeg.at( -(taus.at(iTau).hwEta()+1)).at((taus.at(iTau).hwPhi()-1)/4) = taus.at(iTau);
+        if (tau.hwEta() > 0) tauEtaPos.at( tau.hwEta()-1).at((tau.hwPhi()-1)/4) = tau;
+        else                           tauEtaNeg.at( -(tau.hwEta()+1)).at((tau.hwPhi()-1)/4) = tau;
     }
 
     AccumulatingSort <l1t::Tau> etaPosSorter(6);
@@ -664,10 +664,9 @@ std::vector<l1t::CaloCluster*> l1t::Stage2Layer2TauAlgorithmFirmwareImp1::makeSe
     int iPhimain = mainCluster.hwPhi();
 
     std::vector<CaloCluster*> secClusters;
-    for (unsigned int isite = 0; isite < sites.size(); isite++)
+    for (int siteNumber : sites)
     {
         // build full cluster at this site
-        const int siteNumber = sites.at(isite);
         int iSecEta = caloNav.offsetIEta(iEtamain, neigEta[siteNumber]);
         int iSecPhi = caloNav.offsetIPhi(iPhimain, neigPhi[siteNumber]);
         

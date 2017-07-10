@@ -106,9 +106,9 @@ void GEMSimTrackMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       track_.eta = t.momentum().eta();
       std::fill( std::begin(track_.hitOdd), std::end(track_.hitOdd),false);
       std::fill( std::begin(track_.hitEven), std::end(track_.hitEven),false);
-      for( int i=0 ; i<3 ; i++) {
+      for(auto & i : track_.gem_sh) {
         for (int j=0 ; j<2 ; j++) {
-          track_.gem_sh[i][j] = false;
+          i[j] = false;
         }
       }
 

@@ -103,17 +103,15 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
    }
    
    
-   for(std::set<std::string>::iterator it = builders.begin(), itEnd=builders.end();
-       it!=itEnd;
-       ++it) {
-      std::string::size_type first = it->find_first_of('@')+1;
-      std::string purpose = it->substr(first,it->find_last_of('@')-first);
+   for(const auto & builder : builders) {
+      std::string::size_type first = builder.find_first_of('@')+1;
+      std::string purpose = builder.substr(first,builder.find_last_of('@')-first);
       
-      first = it->find_last_of('@')+1;
-      std::string view_str =  it->substr(first,it->find_last_of('#')-first);
+      first = builder.find_last_of('@')+1;
+      std::string view_str =  builder.substr(first,builder.find_last_of('#')-first);
       int viewTypes = atoi(view_str.c_str());
-      std::string fullName = *it;
-      m_typeToBuilder[purpose].push_back(BuilderInfo(*it, viewTypes));
+      std::string fullName = builder;
+      m_typeToBuilder[purpose].push_back(BuilderInfo(builder, viewTypes));
    }
    
    m_views.resize(FWViewType::kTypeSize); 
@@ -357,40 +355,40 @@ FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view)
    int viewerBit = 1 << view->typeId();   
    if (m_views[view->typeId()].size() == 1)
    {
-      for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+      for (auto & m_builder : m_builders)
       {
-         int builderViewBit = i->first;
-         BuilderVec& bv =  i->second;
+         int builderViewBit = m_builder.first;
+         BuilderVec& bv =  m_builder.second;
          if (viewerBit == (builderViewBit & viewerBit))
          {
-            for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
+            for(auto & bIt : bv)
             {
-               (*bIt)->setHaveWindow(true);
+               bIt->setHaveWindow(true);
             }
          }
       }
    }
     
    FWRPZView* rpzView = dynamic_cast<FWRPZView*>(view.get());
-   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!=  m_builders.end(); ++i)
+   for (auto & m_builder : m_builders)
    {
-      int builderViewBit = i->first;
-      BuilderVec& bv =  i->second;
+      int builderViewBit = m_builder.first;
+      BuilderVec& bv =  m_builder.second;
       if (viewerBit == (builderViewBit & viewerBit))
       { 
-         for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
+         for(auto & bIt : bv)
          {
             // it is ok to call create even for shared productsm since
             // builder map key garanties that
-            TEveElementList* product = (*bIt)->createProduct(view->typeId(), view->viewContext());
+            TEveElementList* product = bIt->createProduct(view->typeId(), view->viewContext());
 
-            if ((*bIt)->havePerViewProduct((FWViewType::EType)view->typeId()))
+            if (bIt->havePerViewProduct((FWViewType::EType)view->typeId()))
             {
                // view owned
-               (*bIt)->build();
+               bIt->build();
                if (rpzView)
                {
-                  rpzView->importElements(product, (*bIt)->item()->layer(), rpzView->ownedProducts());
+                  rpzView->importElements(product, bIt->item()->layer(), rpzView->ownedProducts());
                }
                else
                {
@@ -402,7 +400,7 @@ FWEveViewManager::finishViewCreate(std::shared_ptr<FWEveView> view)
                // shared
                if (rpzView)
                {
-                  rpzView->importElements(product, (*bIt)->item()->layer(), rpzView->eventScene());
+                  rpzView->importElements(product, bIt->item()->layer(), rpzView->eventScene());
                }
                else
                {
@@ -433,18 +431,18 @@ FWEveViewManager::beingDestroyed(const FWViewBase* vb)
   
    int viewerBit = 1 << typeId;
    int nviews = m_views[typeId].size(); 
-   for ( std::map<int, BuilderVec>::iterator i = m_builders.begin(); i!= m_builders.end(); ++i)
+   for (auto & m_builder : m_builders)
    {
-      int builderBit = i->first;
+      int builderBit = m_builder.first;
       if (viewerBit == (builderBit & viewerBit)) // check only in case if connected
       {
-         BuilderVec& bv =  i->second;
+         BuilderVec& bv =  m_builder.second;
 
          // remove view-owned product
          if (viewerBit == (builderBit & viewerBit))
          {
-            for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
-               (*bIt)->removePerViewProduct(view->typeId(), view->viewContext());
+            for(auto & bIt : bv)
+               bIt->removePerViewProduct(view->typeId(), view->viewContext());
          }
 
          // and setup proxy builders have-a-window flag
@@ -454,8 +452,8 @@ FWEveViewManager::beingDestroyed(const FWViewBase* vb)
             {
                if (viewerBit == (builderBit & viewerBit))
                {
-                  for(BuilderVec_it bIt = bv.begin(); bIt != bv.end(); ++bIt)
-                     (*bIt)->setHaveWindow(false);
+                  for(auto & bIt : bv)
+                     bIt->setHaveWindow(false);
                }
             }
          }
@@ -495,12 +493,11 @@ FWEveViewManager::modelChanges(const FWModelIds& iIds)
    // in standard case new elements can be build in case of change of visibility
    // and in non-standard case (e.g. calo towers) PB's modelChages handles all changes
    bool itemHaveWindow = false;
-   for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); 
-        i != m_builders.end(); ++i)
+   for (auto & m_builder : m_builders)
    {
-      for (size_t bi = 0, be = i->second.size(); bi != be; ++bi)
+      for (size_t bi = 0, be = m_builder.second.size(); bi != be; ++bi)
       {
-         FWProxyBuilderBase *builder = i->second[bi].get();
+         FWProxyBuilderBase *builder = m_builder.second[bi].get();
          if (builder->getHaveWindow() && builder->item() == item)
          {
             builder->modelChanges(iIds);
@@ -535,12 +532,11 @@ FWEveViewManager::itemChanged(const FWEventItem* item)
 
    bool itemHaveWindow = false;
 
-   for (std::map<int, BuilderVec>::iterator i = m_builders.begin(); 
-        i != m_builders.end(); ++i)
+   for (auto & m_builder : m_builders)
    {
-      for(size_t bi = 0, be = i->second.size(); bi != be; ++bi)
+      for(size_t bi = 0, be = m_builder.second.size(); bi != be; ++bi)
       {
-         FWProxyBuilderBase *builder = i->second[bi].get();
+         FWProxyBuilderBase *builder = m_builder.second[bi].get();
          
          if (builder->item() != item)
             continue;
@@ -575,17 +571,16 @@ FWEveViewManager::removeItem(const FWEventItem* item)
       m_interactionLists.erase(it);
    }
   
-   for (std::map<int, BuilderVec>::iterator i = m_builders.begin();
-        i != m_builders.end(); ++i)
+   for (auto & m_builder : m_builders)
    {
-      BuilderVec_it bIt = i->second.begin();
-      while( bIt != i->second.end() )
+      BuilderVec_it bIt = m_builder.second.begin();
+      while( bIt != m_builder.second.end() )
       {
          if ((*bIt)->item() == item)
          { 
             // TODO caching of proxy builders
             (*bIt)->itemBeingDestroyed(item);
-            bIt = i->second.erase(bIt);
+            bIt = m_builder.second.erase(bIt);
          }
          else
          {
@@ -608,11 +603,11 @@ FWEveViewManager::globalEnergyScaleChanged()
 {
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
-      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
+      for(auto & i : m_views[t]) 
       {
-         if ((*i)->isEnergyScaleGlobal())
+         if (i->isEnergyScaleGlobal())
          {
-            (*i)->setupEnergyScale();
+            i->setupEnergyScale();
          }
       }
 
@@ -624,8 +619,8 @@ FWEveViewManager::colorsChanged()
 {
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
-      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i) 
-         (*i)->setBackgroundColor(colorManager().background());
+      for(auto & i : m_views[t]) 
+         i->setBackgroundColor(colorManager().background());
    }
 }
 
@@ -642,8 +637,8 @@ FWEveViewManager::eventBegin()
 
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
-      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
-         (*i)->eventBegin();
+      for(auto & i : m_views[t])   
+         i->eventBegin();
    }
 }
 
@@ -652,8 +647,8 @@ FWEveViewManager::eventEnd()
 {
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
-      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
-         (*i)->eventEnd();
+      for(auto & i : m_views[t])   
+         i->eventEnd();
    }
 
    // What follows is a copy of TEveManager::DoRedraw3D() with the difference that
@@ -688,8 +683,8 @@ FWEveViewManager::eventEnd()
    // Loop over viewers, swap buffers if swap_on_render is true.
    for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
    {
-      for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
-         (*i)->fwViewerGL()->DrawHiLod(swap_on_render);
+      for(auto & i : m_views[t])   
+         i->fwViewerGL()->DrawHiLod(swap_on_render);
    }
 
    // Swap buffers if they were not swapped before.
@@ -697,8 +692,8 @@ FWEveViewManager::eventEnd()
    {
       for (int t = 0 ; t < FWViewType::kTypeSize; ++t)
       {
-         for(EveViewVec_it i = m_views[t].begin(); i != m_views[t].end(); ++i)   
-            (*i)->fwViewerGL()->JustSwap();
+         for(auto & i : m_views[t])   
+            i->fwViewerGL()->JustSwap();
       }
    }
 
@@ -779,11 +774,9 @@ FWEveViewManager::supportedTypesAndRepresentations() const
    // needed for add collection GUI
    FWTypeToRepresentations returnValue;
    const static std::string kFullFrameWorkPBExtension = "FullFramework";
-   for(TypeToBuilder::const_iterator it = m_typeToBuilder.begin(), itEnd = m_typeToBuilder.end();
-       it != itEnd;
-       ++it) 
+   for(const auto & it : m_typeToBuilder) 
    {
-      std::vector<BuilderInfo> blist = it->second;
+      std::vector<BuilderInfo> blist = it.second;
       for (size_t bii = 0, bie = blist.size(); bii != bie; ++bii)
       {
          BuilderInfo &info = blist[bii];
@@ -804,11 +797,11 @@ FWEveViewManager::supportedTypesAndRepresentations() const
          info.classType(name, isSimple);
          if(isSimple) 
          {
-            returnValue.add(std::make_shared<FWSimpleRepresentationChecker>(name, it->first,bitPackedViews,representsSubPart, FFOnly) );
+            returnValue.add(std::make_shared<FWSimpleRepresentationChecker>(name, it.first,bitPackedViews,representsSubPart, FFOnly) );
          }
          else
          {
-            returnValue.add(std::make_shared<FWEDProductRepresentationChecker>(name, it->first,bitPackedViews,representsSubPart, FFOnly) );
+            returnValue.add(std::make_shared<FWEDProductRepresentationChecker>(name, it.first,bitPackedViews,representsSubPart, FFOnly) );
          }
       }
    }
@@ -872,46 +865,46 @@ FWEveViewManager::highlightAdded(TEveElement* iElement)
       TAxis* etaAxis = hist->GetXaxis();
       int nBinsX = etaAxis->GetNbins() + 2;
 
-      for (TEveCaloData::vCellId_i i = hlist.begin(); i != hlist.end(); ++i)
+      for (auto & i : hlist)
       {
-         hist->GetBinXYZ((*i).fTower, etaBin, phiBin, w);
+         hist->GetBinXYZ(i.fTower, etaBin, phiBin, w);
          if (TMath::Abs(etaAxis->GetBinCenter(etaBin)) > 4.71475)
          {
             newPhiBin = ((phiBin + 1) / 4) * 4 - 1;
             if (newPhiBin <= 0) newPhiBin = 71;
                
             tower = etaBin + newPhiBin*nBinsX;
-            hset.insert(TEveCaloData::CellId_t( tower, (*i).fSlice, (*i).fFraction));
+            hset.insert(TEveCaloData::CellId_t( tower, i.fSlice, i.fFraction));
             tower += nBinsX;
-            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+            hset.insert(TEveCaloData::CellId_t(tower, i.fSlice, i.fFraction));
             tower += nBinsX;
 
             if (newPhiBin == 71)
                tower = etaBin + 1*nBinsX;
 
-            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+            hset.insert(TEveCaloData::CellId_t(tower, i.fSlice, i.fFraction));
             tower += nBinsX;
-            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+            hset.insert(TEveCaloData::CellId_t(tower, i.fSlice, i.fFraction));
          }
          else if (TMath::Abs(etaAxis->GetBinCenter(etaBin)) > 1.747650)
          {  
             newPhiBin =  ((phiBin + 1)/2)*2 - 1;
             tower = etaBin + newPhiBin*nBinsX;
-            hset.insert(TEveCaloData::CellId_t( tower, (*i).fSlice, (*i).fFraction));
+            hset.insert(TEveCaloData::CellId_t( tower, i.fSlice, i.fFraction));
             tower += nBinsX;
-            hset.insert(TEveCaloData::CellId_t(tower, (*i).fSlice, (*i).fFraction));
+            hset.insert(TEveCaloData::CellId_t(tower, i.fSlice, i.fFraction));
          }
          else
          {
-            hset.insert(*i);
+            hset.insert(i);
          }
       }
  
       // edit calo data list
       hlist.clear();
-      for(std::set<TEveCaloData::CellId_t>::iterator it = hset.begin(); it != hset.end(); ++it)
+      for(auto it : hset)
       {
-         hlist.push_back(*it);
+         hlist.push_back(it);
       }    
       context().getCaloData()->CellSelectionChanged();
 

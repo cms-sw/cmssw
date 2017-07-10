@@ -304,9 +304,8 @@ void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L
   SourceCardRouting::EmuToSfpData emuToSfpData[18];
 
   // Fill in the input arrays with the data from the digi  
-  for(unsigned i=0, size=rctEm->size(); i < size ; ++i)
+  for(const auto & cand : *rctEm)
   {
-    const L1CaloEmCand &cand = rctEm->at(i);
     if(cand.bx() != 0) { continue; }  // Only interested in bunch crossing zero for now!
     unsigned crateNum = cand.rctCrate();
     unsigned index = cand.index();
@@ -334,18 +333,18 @@ void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L
   }
 
   // Now run the conversion
-  for(unsigned c = 0 ; c < 18 ; ++c)
+  for(auto & c : emuToSfpData)
   {
-    srcCardRouting().EMUtoSFP(emuToSfpData[c].eIsoRank, emuToSfpData[c].eIsoCardId, emuToSfpData[c].eIsoRegionId,
-                              emuToSfpData[c].eNonIsoRank, emuToSfpData[c].eNonIsoCardId, emuToSfpData[c].eNonIsoRegionId,
-                              emuToSfpData[c].mipBits, emuToSfpData[c].qBits, emuToSfpData[c].sfp);
+    srcCardRouting().EMUtoSFP(c.eIsoRank, c.eIsoCardId, c.eIsoRegionId,
+                              c.eNonIsoRank, c.eNonIsoCardId, c.eNonIsoRegionId,
+                              c.mipBits, c.qBits, c.sfp);
   }
   
   // Now pack up the data into the RAW format.
-  for(auto blockStartCrateIter = rctEmCrateMap().begin() ; blockStartCrateIter != rctEmCrateMap().end() ; ++blockStartCrateIter)
+  for(const auto & blockStartCrateIter : rctEmCrateMap())
   {
-    unsigned blockId = blockStartCrateIter->first;
-    unsigned startCrate = blockStartCrateIter->second;
+    unsigned blockId = blockStartCrateIter.first;
+    unsigned startCrate = blockStartCrateIter.second;
     auto found = blockLengthMap().find(blockId);
     //assert(found != blockLengthMap().end());
     unsigned blockLength_32bit = found->second;
@@ -361,9 +360,9 @@ void GctFormatTranslateMCLegacy::writeRctEmCandBlocks(unsigned char * d, const L
     {
       for(unsigned iOutput = 1 ; iOutput < 4 ; ++iOutput)  // skipping output 0 as that is Q-bit/MIP-bit data.
       {
-        for(unsigned iCycle = 0 ; iCycle < 2 ; ++iCycle)
+        for(auto & iCycle : emuToSfpData[iCrate].sfp)
         {
-          *p16 = emuToSfpData[iCrate].sfp[iCycle][iOutput];
+          *p16 = iCycle[iOutput];
           ++p16;
         }
       } 
@@ -391,9 +390,8 @@ void GctFormatTranslateMCLegacy::writeAllRctCaloRegionBlock(unsigned char * d, c
   // Want a 16 bit pointer to push the 16 bit data in.
   uint16_t * p16 = reinterpret_cast<uint16_t *>(const_cast<unsigned char *>(d));
  
-  for(unsigned i=0, size=rctCalo->size(); i < size ; ++i)
+  for(const auto & reg : *rctCalo)
   {
-    const L1CaloRegion &reg = rctCalo->at(i);
     if(reg.bx() != 0) { continue; }  // Only interested in bunch crossing zero for now!
     const unsigned crateNum = reg.rctCrate();
     const unsigned regionIndex = reg.rctRegionIndex();
@@ -596,10 +594,10 @@ void GctFormatTranslateMCLegacy::blockToRctEmCand(const unsigned char * d, const
 
     // read SC SFP words
     for (unsigned short iSfp=0 ; iSfp<4 ; ++iSfp) {
-      for (unsigned short cyc=0 ; cyc<2 ; ++cyc) {
-        if (iSfp==0) { sfp[cyc][iSfp] = 0; } // muon bits
+      for (auto & cyc : sfp) {
+        if (iSfp==0) { cyc[iSfp] = 0; } // muon bits
         else {                               // EM candidate
-          sfp[cyc][iSfp] = *p;
+          cyc[iSfp] = *p;
           ++p;
         }
       }

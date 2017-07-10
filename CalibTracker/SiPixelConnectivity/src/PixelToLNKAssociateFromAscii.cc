@@ -24,9 +24,9 @@ const PixelToLNKAssociateFromAscii::CablingRocId * PixelToLNKAssociateFromAscii:
     const PixelToLNKAssociateFromAscii::DetectorRocId& roc) const {
 
   typedef std::vector< std::pair<DetectorRocId,CablingRocId> >::const_iterator IM;
-  for (IM im = theConnection.begin(); im != theConnection.end(); im++) {
-    if( ( *(im->first.module) == *roc.module ) && (im->first.rocDetId == roc.rocDetId)) {
-      return &(im->second);  
+  for (const auto & im : theConnection) {
+    if( ( *(im.first.module) == *roc.module ) && (im.first.rocDetId == roc.rocDetId)) {
+      return &(im.second);  
     }
   }
   return 0;

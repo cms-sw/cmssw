@@ -131,8 +131,8 @@ void NuclearInteractionFinder::definePrimaryHelix(std::vector<TrajectoryMeasurem
     // This method uses the 3 last TM after the interaction point to calculate the helix parameters
 
     GlobalPoint pt[3];
-    for(int i=0; i<3; i++) {
-       pt[i] = (it_meas->updatedState()).globalParameters().position();
+    for(auto & i : pt) {
+       i = (it_meas->updatedState()).globalParameters().position();
        it_meas++;
     }
     delete thePrimaryHelix;
@@ -171,10 +171,9 @@ NuclearInteractionFinder::findMeasurementsFromTSOS(const TSOS& currentState, Det
       return result;
   }
 
-  for (vector<const DetLayer*>::iterator il = nl.begin();
-       il != nl.end(); il++) {
+  for (auto & il : nl) {
     vector<TM> tmp =
-      layerMeasurements.measurements((**il),currentState, *thePropagator, *theEstimator);
+      layerMeasurements.measurements((*il),currentState, *thePropagator, *theEstimator);
     if ( !tmp.empty()) {
       if ( result.empty()) result = tmp;
       else {
@@ -200,9 +199,9 @@ void NuclearInteractionFinder::fillSeeds( const std::pair<TrajectoryMeasurement,
             const std::vector<TM>& outerTMs = tmPairs.second;
 
             // Loop on all outer TM
-            for(std::vector<TM>::const_iterator outtm = outerTMs.begin(); outtm!=outerTMs.end(); outtm++) {
-               if((innerTM.recHit())->isValid() && (outtm->recHit())->isValid()) {
-                     currentSeed->setMeasurements(innerTM.updatedState(), innerTM.recHit(), outtm->recHit());
+            for(const auto & outerTM : outerTMs) {
+               if((innerTM.recHit())->isValid() && (outerTM.recHit())->isValid()) {
+                     currentSeed->setMeasurements(innerTM.updatedState(), innerTM.recHit(), outerTM.recHit());
                      allSeeds.push_back(*currentSeed);
                 }
                 else  LogDebug("NuclearSeedGenerator") << "The initial hits for seeding are invalid" << "\n";

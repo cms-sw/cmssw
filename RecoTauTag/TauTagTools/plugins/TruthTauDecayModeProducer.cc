@@ -126,10 +126,10 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
     * ********************************************** */
       edm::Handle<GenJetCollection> genJets;
       iEvent.getByLabel(inputTag_, genJets);
-      for(GenJetCollection::const_iterator aGenJet = genJets->begin(); aGenJet != genJets->end(); ++aGenJet)
+      for(const auto & aGenJet : *genJets)
       {
          // get all constituents
-         std::vector<const GenParticle*> theJetConstituents = aGenJet->getGenConstituents();
+         std::vector<const GenParticle*> theJetConstituents = aGenJet.getGenConstituents();
 
          tauObjectsHolder tempTauHolder;
          // filter the constituents
@@ -167,16 +167,14 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
       double leadTrackEta = 0.;
       VertexCompositeCandidate chargedObjectsToAdd;
       const std::vector<const Candidate*>* chargedObjects = &(iTempTau->chargedObjects);
-      for(std::vector<const Candidate*>::const_iterator iCharged  = chargedObjects->begin();
-                                                   iCharged != chargedObjects->end();
-                                                 ++iCharged)
+      for(auto chargedObject : *chargedObjects)
       {
-         chargedObjectsToAdd.addDaughter(**iCharged);
-         double trackPt = (*iCharged)->pt();
+         chargedObjectsToAdd.addDaughter(*chargedObject);
+         double trackPt = chargedObject->pt();
          if (trackPt > leadTrackPt)
          {
             leadTrackPt  = trackPt;
-            leadTrackEta = (*iCharged)->eta();
+            leadTrackEta = chargedObject->eta();
          }
       }
       //update the composite four vector
@@ -184,11 +182,9 @@ TruthTauDecayModeProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       CompositeCandidate neutralPionsToAdd;
       const std::vector<const Candidate*>* neutralObjects = &(iTempTau->neutralObjects);
-      for(std::vector<const Candidate*>::const_iterator iNeutral  = neutralObjects->begin();
-                                                   iNeutral != neutralObjects->end();
-                                                 ++iNeutral)
+      for(auto neutralObject : *neutralObjects)
       {
-         neutralPionsToAdd.addDaughter(**iNeutral);
+         neutralPionsToAdd.addDaughter(*neutralObject);
       }
       addP4.set(neutralPionsToAdd);
 

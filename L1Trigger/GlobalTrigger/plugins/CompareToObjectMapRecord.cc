@@ -70,13 +70,11 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
   std::vector<int> algoBitNumbers1;
   std::vector<L1GlobalTriggerObjectMap> const& vectorInRecord = gtObjectMapRecord->gtObjectMap();
   algoBitNumbers1.reserve(vectorInRecord.size());
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator i = vectorInRecord.begin(),
-                                                          iEnd = vectorInRecord.end();
-       i != iEnd; ++i) {
-    algoBitNumbers1.push_back(i->algoBitNumber());
+  for (const auto & i : vectorInRecord) {
+    algoBitNumbers1.push_back(i.algoBitNumber());
     if (verbose_) {
       // This will print out all the data from the L1GlobalTriggerObjectMapRecord
-      i->print(std::cout);
+      i.print(std::cout);
     }
   }
   edm::sort_all(algoBitNumbers1);

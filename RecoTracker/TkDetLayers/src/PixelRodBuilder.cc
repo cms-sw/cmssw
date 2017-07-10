@@ -10,9 +10,8 @@ PixelRod* PixelRodBuilder::build(const GeometricDet* aRod,
   vector<const GeometricDet*> allGeometricDets = aRod->components();  
 
   vector<const GeomDet*> theGeomDets;
-  for(vector<const GeometricDet*>::iterator it=allGeometricDets.begin();
-	it!=allGeometricDets.end();it++){
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
+  for(auto & allGeometricDet : allGeometricDets){
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( allGeometricDet->geographicalID() );
     theGeomDets.push_back(theGeomDet);
   }
   

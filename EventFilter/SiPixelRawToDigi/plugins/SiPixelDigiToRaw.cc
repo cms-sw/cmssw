@@ -86,9 +86,9 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
   typedef vector< edm::DetSet<PixelDigi> >::const_iterator DI;
 
   int digiCounter = 0; 
-  for (DI di=digiCollection->begin(); di != digiCollection->end(); di++) {
-    digiCounter += (di->data).size(); 
-    digis[ di->id] = di->data;
+  for (const auto & di : *digiCollection) {
+    digiCounter += (di.data).size(); 
+    digis[ di.id] = di.data;
   }
   allDigiCounter += digiCounter;
 
@@ -120,10 +120,10 @@ void SiPixelDigiToRaw::produce( edm::Event& ev,
 
   // pack raw data into collection
   typedef vector<const PixelFEDCabling *>::const_iterator FI;
-  for (FI it = fedList.begin(); it != fedList.end(); it++) {
-    LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (**it).id();
-    FEDRawData& fedRawData = buffers->FEDData( (**it).id() );
-    PixelDataFormatter::RawData::iterator fedbuffer = rawdata.find( (**it).id() );
+  for (auto it : fedList) {
+    LogDebug("SiPixelDigiToRaw")<<" PRODUCE DATA FOR FED_id: " << (*it).id();
+    FEDRawData& fedRawData = buffers->FEDData( (*it).id() );
+    PixelDataFormatter::RawData::iterator fedbuffer = rawdata.find( (*it).id() );
     if( fedbuffer != rawdata.end() ) fedRawData = fedbuffer->second;
     LogDebug("SiPixelDigiToRaw")<<"size of data in fedRawData: "<<fedRawData.size();
   }

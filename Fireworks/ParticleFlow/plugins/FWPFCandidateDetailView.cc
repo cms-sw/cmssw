@@ -263,10 +263,10 @@ void FWPFCandidateDetailView::voteMaxEtEVal( const std::vector<reco::PFRecHit> *
 
    // FIXME: require access to geometry while reading from reco file
    if ( (!hits->empty()) && hits->front().hasCaloCell())
-   for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it)
+   for (const auto & hit : *hits)
    {
-      TEveVector centre(it->position().x(), it->position().y(), it->position().z());
-      float E = it->energy();
+      TEveVector centre(hit.position().x(), hit.position().y(), hit.position().z());
+      float E = hit.energy();
       float Et  = FWPFMaths::calculateEt( centre, E );
       item()->context().voteMaxEtAndEnergy(Et , E );
    }
@@ -318,12 +318,12 @@ void FWPFCandidateDetailView::addClusters( const std::vector<reco::PFCluster> *c
    ps->SetMarkerSize(0.005);
    m_eventList->AddElement(ps);
   
-   for (std::vector<reco::PFCluster>::const_iterator it = cluster->begin(); it != cluster->end(); ++it)
+   for (const auto & it : *cluster)
    {
-      if (!isPntInRng(it->position().Eta(), it->position().Phi()))
+      if (!isPntInRng(it.position().Eta(), it.position().Phi()))
          continue;
 
-      ps->SetNextPoint(it->position().Eta(), it->position().Phi(), 0);
+      ps->SetNextPoint(it.position().Eta(), it.position().Phi(), 0);
 
       /*
       const std::vector< reco::PFRecHitFraction >& fractions = it->recHitFractions();
@@ -384,9 +384,9 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
 
       // FIXME, requires access to geometry
    if ( (!hits->empty()) && hits->front().hasCaloCell()) 
-   for (std::vector<reco::PFRecHit>::const_iterator it = hits->begin(); it != hits->end(); ++it)
+   for (const auto & hit : *hits)
    {
-      const auto & corners = it->getCornersXYZ();
+      const auto & corners = hit.getCornersXYZ();
       if (!isPntInRng(corners[0].eta(), corners[0].phi()))
          continue;
      
@@ -414,11 +414,11 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
 
       float factor = 1;
       if (m_plotEt) {
-         float Et  = FWPFMaths::calculateEt( TEveVector(corners[0].x(), corners[0].y(), corners[0].z()), it->energy());
+         float Et  = FWPFMaths::calculateEt( TEveVector(corners[0].x(), corners[0].y(), corners[0].z()), hit.energy());
          factor = Et/context().getMaxEnergyInEvent(m_plotEt); 
       }
       else
-         factor = it->energy()/context().getMaxEnergyInEvent(false);
+         factor = hit.energy()/context().getMaxEnergyInEvent(false);
 
 
       std::vector<TEveVector> scaledCorners;
@@ -427,7 +427,7 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
          scaledCorners.push_back(TEveVector(radialVectors[k] + centerOfGravity));
       }
 
-      TEveStraightLineSet* ls = ( TEveStraightLineSet*)m_eventList->FindChild(Form("%d_rechit", it->depth() ));
+      TEveStraightLineSet* ls = ( TEveStraightLineSet*)m_eventList->FindChild(Form("%d_rechit", hit.depth() ));
       AddLineToLineSet(ls, scaledCorners, 0, 1);
       AddLineToLineSet(ls, scaledCorners, 1, 2);
       AddLineToLineSet(ls, scaledCorners, 2, 3);

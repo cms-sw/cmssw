@@ -162,14 +162,13 @@ void IsolatedGenParticles::analyze(const edm::Event& iEvent, const edm::EventSet
 
     // get ObjectMaps from ObjectMapRecord
     const std::vector<L1GlobalTriggerObjectMap>& objMapVec =  gtOMRec->gtObjectMap();
-    for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
-	 itMap != objMapVec.end(); ++itMap) {
+    for (const auto & itMap : objMapVec) {
 
       // Get trigger bits
-      int itrig = (*itMap).algoBitNumber();
+      int itrig = itMap.algoBitNumber();
 
       // Get trigger names
-      algoBitToName[itrig] = (*itMap).algoName();
+      algoBitToName[itrig] = itMap.algoName();
 
       std::cout  << "\t" << itrig << "\t" << algoBitToName[itrig] << std::endl;      
 

@@ -153,11 +153,10 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
     unsigned i(0);
 #endif
     std::map<unsigned int,double> map_try;
-    for (edm::PCaloHitContainer::const_iterator it = hitsHcal->begin();
-	 it != hitsHcal->end(); ++it) {
-      double energy    = it->energy();
-      double time      = it->time();
-      unsigned int id  = it->id();
+    for (const auto & it : *hitsHcal) {
+      double energy    = it.energy();
+      double time      = it.time();
+      unsigned int id  = it.id();
       int subdet, z, depth, eta, phi, lay;
       HcalTestNumbering::unpackHcalIndex(id, subdet, z, depth, eta, phi, lay);
       if (z==0) eta = -eta;
@@ -183,9 +182,8 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
 #endif
       }
     }
-    for (std::map<unsigned int,double>::iterator itr=map_try.begin();
-	 itr != map_try.end(); ++itr) {
-      hsimE2_->Fill((*itr).second);
+    for (auto & itr : map_try) {
+      hsimE2_->Fill(itr.second);
     }
   }
 
@@ -223,10 +221,8 @@ void HGCalBHValidation::analyze(const edm::Event& e, const edm::EventSetup& ) {
       std::cout << "HGCalBHValidation: HGCBHDigit buffer " << hbhecoll->size()
 		<< std::endl;
 #endif
-      for (HGCBHDigiCollection::const_iterator it=hbhecoll->begin(); 
-	   it != hbhecoll->end(); ++it) {
-	HGCBHDataFrame df(*it);
-	HcalDetId cell(df.id());
+      for (auto df : *hbhecoll) {
+		HcalDetId cell(df.id());
 	double energy = df[iSample_].data();
 	analyzeDigi(cell, energy, kount);
       }

@@ -24,11 +24,11 @@ HLTTauDQMPlotter::~HLTTauDQMPlotter() {
 std::pair<bool,LV> HLTTauDQMPlotter::match( const LV& jet, const LVColl& McInfo, double dr ) {
     bool matched = false;
     LV out;
-    for ( std::vector<LV>::const_iterator it = McInfo.begin(); it != McInfo.end(); ++it ) {
-        double delta = ROOT::Math::VectorUtil::DeltaR(jet,*it);
+    for (const auto & it : McInfo) {
+        double delta = ROOT::Math::VectorUtil::DeltaR(jet,it);
         if ( delta < dr ) {
             matched = true;
-            out = *it;
+            out = it;
             break;
         }
     }

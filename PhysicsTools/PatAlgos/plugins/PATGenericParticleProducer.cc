@@ -151,8 +151,8 @@ void PATGenericParticleProducer::produce(edm::Event & iEvent, const edm::EventSe
 
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genGenericParticle = (*genMatches[i])[candRef];
+      for(auto & genMatche : genMatches) {
+          reco::GenParticleRef genGenericParticle = (*genMatche)[candRef];
           aGenericParticle.addGenParticleRef(genGenericParticle);
       }
       if (embedGenMatch_) aGenericParticle.embedGenParticle();

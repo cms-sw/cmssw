@@ -147,9 +147,9 @@ void L1TdeGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
       sysncand[1]->setBinLabel(i+1,cLabel[i]);
     }
 
-    for(int i=0; i<nGctColl_; i++) {
+    for(auto & i : errortype) {
       for(int j=0; j<nerr; j++) {
-        errortype[i]->setBinLabel(j+1,errLabel[j]);
+        i->setBinLabel(j+1,errLabel[j]);
       }
     }
   
@@ -289,9 +289,9 @@ void L1TdeGCT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::
       sysncand[1]->setBinLabel(i+1,sLabel[i]);
     }
 
-    for(int i=0; i<nStage1Layer2Coll_; i++) {
+    for(auto & i : errortype_stage1layer2) {
       for(int j=0; j<nerr; j++) {
-        errortype_stage1layer2[i]->setBinLabel(j+1,errLabel[j]);
+        i->setBinLabel(j+1,errLabel[j]);
       }
     }
   

@@ -118,15 +118,13 @@ void HLTMuonMatchAndPlot::beginRun(DQMStore::IBooker & iBooker,
   book1D(iBooker, "resolutionPt", "resolutionRel", 
          ";(p_{T}^{reco}-p_{T}^{HLT})/|p_{T}^{reco}|;");
 
-  for (size_t i = 0; i < 2; i++) {
+  for (auto suffix : EFFICIENCY_SUFFIXES) {
 
     if (isLastFilter_) 
       iBooker.setCurrentFolder(baseDir + pathSansSuffix);
     else 
       iBooker.setCurrentFolder(baseDir + pathSansSuffix + "/" + moduleLabel_);
 
-
-    string suffix = EFFICIENCY_SUFFIXES[i];
 
     book1D(iBooker, "efficiencyEta_" + suffix, "eta", ";#eta;");
     book1D(iBooker, "efficiencyPhi_" + suffix, "phi", ";#phi;");
@@ -281,10 +279,10 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     selectedTriggerObjects(allTriggerObjects, * triggerSummary, hasTriggerCuts_,triggerSelector_);
   // Fill plots for HLT muons.
   if (isLastFilter_){
-    for (size_t i = 0; i < hltMuons.size(); i++) {
-      hists_["hltPt"]->Fill(hltMuons[i].pt());
-      hists_["hltEta"]->Fill(hltMuons[i].eta());
-      hists_["hltPhi"]->Fill(hltMuons[i].phi());
+    for (auto & hltMuon : hltMuons) {
+      hists_["hltPt"]->Fill(hltMuon.pt());
+      hists_["hltEta"]->Fill(hltMuon.eta());
+      hists_["hltPhi"]->Fill(hltMuon.phi());
     }
   }
   // Find the best trigger object matches for the targetMuons.
@@ -312,9 +310,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
     }
 
     // Fill numerators and denominators for efficiency plots.
-    for (size_t j = 0; j < 2; j++) {
-
-      string suffix = EFFICIENCY_SUFFIXES[j];
+    for (auto suffix : EFFICIENCY_SUFFIXES) {
 
       // If no match was found, then the numerator plots don't get filled.
       if (suffix == "numer" && matches[i] >= targetMuons.size()) continue;
@@ -422,16 +418,16 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   unsigned int numTriggers = trigNames.size();
   bool passTrigger = false;
   if (requiredTriggers_.size() == 0) passTrigger = true;
-  for (size_t i = 0; i < requiredTriggers_.size(); i++) {
+  for (const auto & requiredTrigger : requiredTriggers_) {
     for ( unsigned int hltIndex = 0; hltIndex < numTriggers; ++hltIndex){
-      passTrigger = (trigNames.triggerName(hltIndex).find(requiredTriggers_[i]) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
+      passTrigger = (trigNames.triggerName(hltIndex).find(requiredTrigger) != std::string::npos && triggerResults->wasrun(hltIndex) && triggerResults->accept(hltIndex));
       if (passTrigger) break;
     }
   }
 
   int nMatched = 0;
-  for (size_t i = 0; i < matches.size(); ++i){
-    if (matches[i] < targetMuons.size()) nMatched++;
+  for (unsigned long matche : matches){
+    if (matche < targetMuons.size()) nMatched++;
   }
   if (requiredTriggers_.size() > 0 && targetMuons.size() > 1 && passTrigger){
     // denominator: 
@@ -531,8 +527,7 @@ void HLTMuonMatchAndPlot::analyze(Handle<MuonCollection>   & allMuons,
   for (size_t i = 0; i < hltMuons.size(); i++) {
     TriggerObject & hltMuon = hltMuons[i];
     bool isFake = hltMatches[i] > hltMuons.size();
-    for (size_t j = 0; j < 2; j++) {
-      string suffix = EFFICIENCY_SUFFIXES[j];
+    for (auto suffix : EFFICIENCY_SUFFIXES) {
       // If match is found, then numerator plots should not get filled
       if (suffix == "numer" && ! isFake) continue;
       hists_["fakerateVertex_" + suffix]->Fill(vertices->size());
@@ -703,8 +698,8 @@ HLTMuonMatchAndPlot::selectedTriggerObjects(
 
   if (filterIndex < triggerSummary.sizeFilters()) {
     const Keys &keys = triggerSummary.filterKeys(filterIndex);
-    for (size_t j = 0; j < keys.size(); j++ ){
-      TriggerObject foundObject = triggerObjects[keys[j]];
+    for (unsigned short key : keys){
+      TriggerObject foundObject = triggerObjects[key];
       if (triggerSelector(foundObject))
         selectedObjects.push_back(foundObject);
     }

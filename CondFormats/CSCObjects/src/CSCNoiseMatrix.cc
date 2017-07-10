@@ -33,11 +33,11 @@ std::string CSCNoiseMatrix::Item::print() const
 std::string CSCNoiseMatrix::print() const
 {
   std::ostringstream os;
-  for(NoiseMatrixMap::const_iterator mapItr = matrix.begin(); mapItr != matrix.end(); ++mapItr)
+  for(const auto & mapItr : matrix)
   {
-    os << mapItr->first<< " ";
-    for(std::vector<Item>::const_iterator itemItr = mapItr->second.begin(); 
-        itemItr != mapItr->second.end(); ++itemItr)
+    os << mapItr.first<< " ";
+    for(std::vector<Item>::const_iterator itemItr = mapItr.second.begin(); 
+        itemItr != mapItr.second.end(); ++itemItr)
     {
       os << itemItr->print();
     }

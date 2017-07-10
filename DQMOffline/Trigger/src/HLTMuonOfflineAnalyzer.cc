@@ -143,10 +143,10 @@ HLTMuonOfflineAnalyzer::dqmBeginRun(const edm::Run & iRun,
 
   // Get the set of trigger paths we want to make plots for
   set<string> hltPaths;
-  for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-    for (size_t j = 0; j < hltConfig_.triggerNames().size(); j++){
-      if (hltConfig_.triggerNames()[j].find(hltPathsToCheck_[i]) != std::string::npos){
-        hltPaths.insert(hltConfig_.triggerNames()[j]);
+  for (const auto & i : hltPathsToCheck_) {
+    for (const auto & j : hltConfig_.triggerNames()){
+      if (j.find(i) != std::string::npos){
+        hltPaths.insert(j);
       }
     }
   }

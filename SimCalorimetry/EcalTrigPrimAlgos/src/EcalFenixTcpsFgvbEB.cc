@@ -12,8 +12,8 @@ void EcalFenixTcpsFgvbEB::process(std::vector<std::vector<int> > & bypasslin_out
 {
   //  std::vector<int> indexLut(output.size());
   
-  for (unsigned int i=0;i<output.size();i++) {
-    output[i]=0;
+  for (int & i : output) {
+    i=0;
   }
     
   for (unsigned int i=0;i<output.size();i++) {

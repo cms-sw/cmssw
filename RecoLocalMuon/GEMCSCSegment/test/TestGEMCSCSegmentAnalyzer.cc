@@ -907,11 +907,11 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   // edm::Handle<CSCSegmentCollection> cscSegment;
   // iEvent.getByLabel("cscSegments","",cscSegment);
 
-  for (auto cscs = cscSegment->begin(); cscs != cscSegment->end(); cscs++) {
-    CSCDetId CSCId = cscs->cscDetId();
+  for (const auto & cscs : *cscSegment) {
+    CSCDetId CSCId = cscs.cscDetId();
     if(!(CSCId.station() == 1 && (CSCId.ring() == 1 || CSCId.ring() == 4))) continue;
 
-    auto cscrhs = cscs->specificRecHits();
+    auto cscrhs = cscs.specificRecHits();
   }
 
 
@@ -927,32 +927,32 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
   if(gemcscSegment->size()!=0)GEMCSC_NumGEMCSCSeg->Fill(gemcscSegment->size());
 
-    for (auto gemcscs = gemcscSegment->begin(); gemcscs != gemcscSegment->end(); gemcscs++) {
+    for (const auto & gemcscs : *gemcscSegment) {
 
-      auto gemrhs_if = gemcscs->gemRecHits();
+      auto gemrhs_if = gemcscs.gemRecHits();
       if(debug) 
 	{ 	
-	  std::cout<<"GEM-CSC Segment with "<<gemcscs->gemRecHits().size()<<" GEM rechits and "<<gemcscs->cscSegment().specificRecHits().size()<<" CSC rechits"<<std::endl;
+	  std::cout<<"GEM-CSC Segment with "<<gemcscs.gemRecHits().size()<<" GEM rechits and "<<gemcscs.cscSegment().specificRecHits().size()<<" CSC rechits"<<std::endl;
 	}
       if(gemrhs_if.size()==0) continue;
       // if(gemrhs_if.size()!=0) continue;
 
       // --- some printout for debug -----------------------------------------------------------------------------------------------------------------------------------
       if(debug) {
-	std::cout<<"GEM-CSC Segment with "<<gemcscs->gemRecHits().size()<<" GEM rechits and "<<gemcscs->cscSegment().specificRecHits().size()<<" CSC rechits"<<std::endl;
-	auto gemrhs = gemcscs->gemRecHits();
-	for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
-	  GEMDetId gemId((*rh).geographicalId());
+	std::cout<<"GEM-CSC Segment with "<<gemcscs.gemRecHits().size()<<" GEM rechits and "<<gemcscs.cscSegment().specificRecHits().size()<<" CSC rechits"<<std::endl;
+	auto gemrhs = gemcscs.gemRecHits();
+	for (auto & gemrh : gemrhs){
+	  GEMDetId gemId(gemrh.geographicalId());
 	  const GEMEtaPartition* id_etapart = gemGeom->etaPartition(gemId);
 	  const BoundPlane & GEMSurface = id_etapart->surface();
-	  GlobalPoint GEMGlobalPoint = GEMSurface.toGlobal((*rh).localPosition());
+	  GlobalPoint GEMGlobalPoint = GEMSurface.toGlobal(gemrh.localPosition());
 	  std::cout<<"GEM Rechit in "<<gemId<<" = "<<gemId.rawId()<<" at X = "<<GEMGlobalPoint.x()<<" Y = "<<GEMGlobalPoint.y()<<" Z = "<<GEMGlobalPoint.z()<<std::endl;
 	}
-	CSCSegment cscSeg = gemcscs->cscSegment();
+	CSCSegment cscSeg = gemcscs.cscSegment();
 	auto cscrhs = cscSeg.specificRecHits();
-	for (auto rh = cscrhs.begin(); rh!= cscrhs.end(); rh++){
-	  CSCDetId cscId = (CSCDetId)(*rh).cscDetId();
-	  GlobalPoint CSCGlobalPoint = cscGeom->idToDet(cscId)->toGlobal((*rh).localPosition());
+	for (auto & cscrh : cscrhs){
+	  CSCDetId cscId = (CSCDetId)cscrh.cscDetId();
+	  GlobalPoint CSCGlobalPoint = cscGeom->idToDet(cscId)->toGlobal(cscrh.localPosition());
 	  std::cout<<"CSC Rechit in "<<cscId<<" = "<<cscId.rawId()<<" at X = "<<CSCGlobalPoint.x()<<" Y = "<<CSCGlobalPoint.y()<<" Z = "<<CSCGlobalPoint.z()<<std::endl;
 	}
       }
@@ -962,13 +962,13 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 
         
         ///////// GEMCSC seg //////////////////////////////////////
-        CSCDetId gemcscId = gemcscs->cscDetId();
+        CSCDetId gemcscId = gemcscs.cscDetId();
         const CSCChamber* cscChamber = cscGeom_->chamber(gemcscId);
 
-        auto gemcscsegLP = gemcscs->localPosition();
-        auto gemcscsegLD = gemcscs->localDirection();
-        auto gemcscsegLEP = gemcscs->localPositionError();
-        auto gemcscsegLED = gemcscs->localDirectionError();
+        auto gemcscsegLP = gemcscs.localPosition();
+        auto gemcscsegLD = gemcscs.localDirection();
+        auto gemcscsegLEP = gemcscs.localPositionError();
+        auto gemcscsegLED = gemcscs.localDirectionError();
         GEMCSC_SSegm_LPx->Fill(gemcscsegLP.x());
         GEMCSC_SSegm_LPy->Fill(gemcscsegLP.y());
         GEMCSC_SSegm_LPEx->Fill(sqrt(gemcscsegLEP.xx()));
@@ -979,21 +979,21 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         GEMCSC_SSegm_LDEx->Fill(sqrt(gemcscsegLED.xx()));
         GEMCSC_SSegm_LDEy->Fill(sqrt(gemcscsegLED.yy()));
         //GEMCSC_SSegm_LDEz->Fill(gemcscsegLED.zz());
-        GEMCSC_SSegm_LPEy_vs_ndof->Fill(gemcscsegLEP.yy(),gemcscs->degreesOfFreedom());
-        GEMCSC_SSegm_LDEy_vs_ndof->Fill(gemcscsegLED.yy(),gemcscs->degreesOfFreedom());
+        GEMCSC_SSegm_LPEy_vs_ndof->Fill(gemcscsegLEP.yy(),gemcscs.degreesOfFreedom());
+        GEMCSC_SSegm_LDEy_vs_ndof->Fill(gemcscsegLED.yy(),gemcscs.degreesOfFreedom());
         
-        GEMCSC_fitchi2->Fill(gemcscs->chi2()/gemcscs->degreesOfFreedom());
+        GEMCSC_fitchi2->Fill(gemcscs.chi2()/gemcscs.degreesOfFreedom());
         
-        CSCDetId id((*gemcscs).geographicalId());
+        CSCDetId id(gemcscs.geographicalId());
         int chamber = id.chamber();
         if(chamber%2!=0){
-        GEMCSC_fitchi2_odd->Fill(gemcscs->chi2()/gemcscs->degreesOfFreedom());}
-        else{GEMCSC_fitchi2_even->Fill(gemcscs->chi2()/gemcscs->degreesOfFreedom());}
+        GEMCSC_fitchi2_odd->Fill(gemcscs.chi2()/gemcscs.degreesOfFreedom());}
+        else{GEMCSC_fitchi2_even->Fill(gemcscs.chi2()/gemcscs.degreesOfFreedom());}
       
-        GEMCSC_NumGEMCSCRH->Fill(gemcscs->cscSegment().specificRecHits().size()+gemcscs->gemRecHits().size());
+        GEMCSC_NumGEMCSCRH->Fill(gemcscs.cscSegment().specificRecHits().size()+gemcscs.gemRecHits().size());
       
         ///////// CSC seg /////////////////////////////////////
-        CSCSegment cscSeg = gemcscs->cscSegment();
+        CSCSegment cscSeg = gemcscs.cscSegment();
         //CSCDetId CSCId_new = cscSeg.cscDetId();
         //if(!(CSCId_new.station() == 1 && CSCId_new.ring() == 1)) continue;
         auto cscrhs = cscSeg.specificRecHits();
@@ -1020,13 +1020,13 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         CSC_fitchi2->Fill(cscSeg.chi2()/cscSeg.degreesOfFreedom());
       
         //////////////////////// CSC RH
-        for (auto rh = cscrhs.begin(); rh!= cscrhs.end(); rh++){
+        for (auto & cscrh : cscrhs){
             //CSCDetId cscrhId = rh.cscDetId();
-            CSCDetId cscrhId = (CSCDetId)(*rh).cscDetId();
+            CSCDetId cscrhId = (CSCDetId)cscrh.cscDetId();
             const CSCLayer* cscrhRef = cscGeom_->layer( cscrhId );
           
-            auto cscrhLP = rh->localPosition();
-            auto cscrhLEP = rh->localPositionError();
+            auto cscrhLP = cscrh.localPosition();
+            auto cscrhLEP = cscrh.localPositionError();
             auto cscrhGP = cscrhRef->toGlobal(cscrhLP);
             auto cscrhLP_inSegmRef = cscChamber->toLocal(cscrhGP);
             float xe  = gemcscsegLP.x()+gemcscsegLD.x()*cscrhLP_inSegmRef.z()/gemcscsegLD.z();
@@ -1046,7 +1046,7 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
             GEMCSC_Pool_csc_x->Fill((cscrhLP.x()-extSegm.x())/sqrt(cscrhLEP.xx()));
             GEMCSC_Pool_csc_y->Fill((cscrhLP.y()-extSegm.y())/sqrt(cscrhLEP.yy()));
 
-            CSCDetId id((*rh).geographicalId());
+            CSCDetId id(cscrh.geographicalId());
             int chamber = id.chamber();
             if(chamber%2!=0){
               //std::cout<<"camera dispari"<<chamber<<std::endl;
@@ -1108,7 +1108,7 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         //////////////////
       
         //////// GEM recHits ////////////////////
-        auto gemrhs = gemcscs->gemRecHits();
+        auto gemrhs = gemcscs.gemRecHits();
         GEMCSC_NumGEMRH->Fill(gemrhs.size());
         for (auto rh = gemrhs.begin(); rh!= gemrhs.end(); rh++){
             GEMDetId id((*rh).geographicalId());
@@ -1452,11 +1452,11 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         
         
         /////////////////////////////////////////////
-        auto gemcscrhs = gemcscs->recHits();
-        for (auto rh = gemcscrhs.begin(); rh!= gemcscrhs.end(); rh++){
+        auto gemcscrhs = gemcscs.recHits();
+        for (auto & gemcscrh : gemcscrhs){
 	  
 	  // if (rh->geographicalId().subdetId() == MuonSubdetId::CSC){
-	  DetId d = DetId((*rh)->rawId());
+	  DetId d = DetId(gemcscrh->rawId());
 	  if (d.subdetId() == MuonSubdetId::CSC) {
 	    
 	    std::cout<<"CSC found"<<std::endl;
@@ -1493,7 +1493,7 @@ TestGEMCSCSegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
         }
 
       
-        auto gemcscsegGD = cscChamber->toGlobal(gemcscs->localPosition());
+        auto gemcscsegGD = cscChamber->toGlobal(gemcscs.localPosition());
         for (simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
             double simEta = (*simTrack).momentum().eta();
             double simPhi = (*simTrack).momentum().phi();
@@ -1539,16 +1539,16 @@ edm::PSimHitContainer TestGEMCSCSegmentAnalyzer::SimHitMatched(std::vector<GEMRe
     // edm::Handle<edm::PSimHitContainer> GEMHits;
     // iEvent.getByLabel(edm::InputTag("g4SimHits","MuonGEMHits"), GEMHits);
 
-    for(edm::PSimHitContainer::const_iterator itHit = GEMHits->begin(); itHit != GEMHits->end(); ++itHit){
-        if (!(abs(itHit->particleType()) == 13)) continue;
-      	GEMDetId idGem = GEMDetId(itHit->detUnitId());
+    for(const auto & itHit : *GEMHits){
+        if (!(abs(itHit.particleType()) == 13)) continue;
+      	GEMDetId idGem = GEMDetId(itHit.detUnitId());
       	int region_sim = idGem.region();
       	int layer_sim = idGem.layer();
       	int station_sim = idGem.station();
       	int chamber_sim = idGem.chamber();
       	int roll_sim = idGem.roll();
         
-      	LocalPoint lp = itHit->entryPoint();
+      	LocalPoint lp = itHit.entryPoint();
         // GlobalPoint hitGP_sim(gemGeom->idToDet(itHit->detUnitId())->surface().toGlobal(lp));
       	float strip_sim = gemGeom->etaPartition(idGem)->strip(lp);
       	if(region != region_sim) continue;
@@ -1557,7 +1557,7 @@ edm::PSimHitContainer TestGEMCSCSegmentAnalyzer::SimHitMatched(std::vector<GEMRe
       	if(chamber != chamber_sim) continue;
       	if(roll != roll_sim) continue;
         for(int i = firstStrip; i < (firstStrip + cls); i++ ){
-            if(abs(strip_sim-i)<1) {selectedGEMHits.push_back(*itHit);}
+            if(abs(strip_sim-i)<1) {selectedGEMHits.push_back(itHit);}
         }
 
         

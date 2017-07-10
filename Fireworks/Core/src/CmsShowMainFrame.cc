@@ -834,10 +834,10 @@ CmsShowMainFrame::showFWorksInfo()
 void
 CmsShowMainFrame::bindCSGActionKeys(const TGMainFrame* f) const
 {
-   for (std::vector<CSGAction*>::const_iterator i = m_actionList.begin(); i != m_actionList.end(); ++i)
+   for (auto i : m_actionList)
    {
-      if ((*i)-> getKeycode())
-         f->BindKey(this, (*i)->getKeycode(), (*i)->getModcode()); 
+      if (i-> getKeycode())
+         f->BindKey(this, i->getKeycode(), i->getModcode()); 
    }
 }
 

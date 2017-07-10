@@ -33,17 +33,15 @@ NoPileUpMEtUtilities::cleanJets(const reco::PUSubMETCandInfoCollection& jets,
 				const std::vector<reco::Candidate::LorentzVector>& leptons,
 				double dRoverlap, bool invert) {
   reco::PUSubMETCandInfoCollection retVal;
-  for ( reco::PUSubMETCandInfoCollection::const_iterator jet = jets.begin();
-	jet != jets.end(); ++jet ) {
+  for (const auto & jet : jets) {
     bool isOverlap = false;
-    for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
-	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR2(jet->p4(), *lepton) < dRoverlap*dRoverlap ) {
+    for (const auto & lepton : leptons) {
+      if ( deltaR2(jet.p4(), lepton) < dRoverlap*dRoverlap ) {
 	isOverlap = true;
 	break;
       }
     }
-    if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(*jet);
+    if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(jet);
   }
   return retVal;
 }
@@ -60,17 +58,16 @@ NoPileUpMEtUtilities::computeCandidateSum(const reco::PUSubMETCandInfoCollection
   double retVal_sumAbsPx = 0.;
   double retVal_sumAbsPy = 0.;
   double pFrac=1;
-  for ( reco::PUSubMETCandInfoCollection::const_iterator cand = cands.begin();
-	cand != cands.end(); ++cand ) {
+  for (const auto & cand : cands) {
  
     pFrac=1;
-    if(neutralFracOnly) pFrac = (1-cand->chargedEnFrac() );
+    if(neutralFracOnly) pFrac = (1-cand.chargedEnFrac() );
       
-    retVal.mex   += cand->p4().px()*pFrac;
-    retVal.mey   += cand->p4().py()*pFrac;
-    retVal.sumet += cand->p4().pt()*pFrac;
-    retVal_sumAbsPx += std::abs(cand->p4().px());
-    retVal_sumAbsPy += std::abs(cand->p4().py());
+    retVal.mex   += cand.p4().px()*pFrac;
+    retVal.mey   += cand.p4().py()*pFrac;
+    retVal.sumet += cand.p4().pt()*pFrac;
+    retVal_sumAbsPx += std::abs(cand.p4().px());
+    retVal_sumAbsPy += std::abs(cand.p4().py());
   }
   finalizeMEtData(retVal);
   sumAbsPx = retVal_sumAbsPx;
@@ -90,17 +87,15 @@ NoPileUpMEtUtilities::cleanPFCandidates(const reco::PUSubMETCandInfoCollection& 
 //         true  = PFCandidates are required to overlap with leptons
   
   reco::PUSubMETCandInfoCollection retVal;
-  for ( reco::PUSubMETCandInfoCollection::const_iterator pfCandidate = pfCandidates.begin();
-	pfCandidate != pfCandidates.end(); ++pfCandidate ) {
+  for (const auto & pfCandidate : pfCandidates) {
     bool isOverlap = false;
-    for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
-	  lepton != leptons.end(); ++lepton ) {
-      if ( deltaR2(pfCandidate->p4(), *lepton) < dRoverlap*dRoverlap ) {
+    for (const auto & lepton : leptons) {
+      if ( deltaR2(pfCandidate.p4(), lepton) < dRoverlap*dRoverlap ) {
 	isOverlap = true;
 	break;
       }
     }
-    if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(*pfCandidate);
+    if ( (!isOverlap && !invert) || (isOverlap && invert) ) retVal.push_back(pfCandidate);
   }
   return retVal;
 }
@@ -111,18 +106,17 @@ NoPileUpMEtUtilities::selectCandidates(const reco::PUSubMETCandInfoCollection& c
 				       double minPt, double maxPt, int type, 
 				       bool isCharged, int isWithinJet) {
   reco::PUSubMETCandInfoCollection retVal;
-  for ( reco::PUSubMETCandInfoCollection::const_iterator cand = cands.begin();
-	cand != cands.end(); ++cand ) {
+  for (const auto & cand : cands) {
       
-    if( isCharged && cand->charge()==0) continue;
-    double jetPt = cand->p4().pt();      
+    if( isCharged && cand.charge()==0) continue;
+    double jetPt = cand.p4().pt();      
     if(  jetPt < minPt || jetPt > maxPt ) continue;
-    if(type != reco::PUSubMETCandInfo::kUndefined && cand->type() != type) continue; 
+    if(type != reco::PUSubMETCandInfo::kUndefined && cand.type() != type) continue; 
       
     //for pf candidates
-    if( isWithinJet!=NoPileUpMEtUtilities::kAll && ( cand->isWithinJet()!=isWithinJet ) ) continue;
+    if( isWithinJet!=NoPileUpMEtUtilities::kAll && ( cand.isWithinJet()!=isWithinJet ) ) continue;
       
-    retVal.push_back(*cand);
+    retVal.push_back(cand);
   }
   return retVal;
 }

@@ -33,11 +33,8 @@ const std::vector<Deposition>& ParticleDeposit::getRecDepositions() const {
 
 double ParticleDeposit::getRecEnergy(const DetectorElementPtr de) const {
 	double energy(0);
-	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
-			!= myRecDepositions.end(); ++cit) {
-		Deposition d = *cit;
-
-		if (d.getDetectorElement()->getType() == de->getType()) {
+	for (auto d : myRecDepositions) {
+			if (d.getDetectorElement()->getType() == de->getType()) {
 			energy += de->getCalib(d.getEta(), d.getPhi()) * d.getEnergy();
 		}
 
@@ -59,10 +56,8 @@ void ParticleDeposit::setRecEnergy(const DetectorElementPtr de, double energy) {
 
 double ParticleDeposit::getTruthEnergy(const DetectorElementPtr de) const {
 	double energy(0);
-	for (std::vector<Deposition>::const_iterator
-			cit = myTruthDepositions.begin(); cit!= myTruthDepositions.end(); ++cit) {
-		Deposition d = *cit;
-		if (d.getDetectorElement() == de) {
+	for (auto d : myTruthDepositions) {
+			if (d.getDetectorElement() == de) {
 			energy += d.getEnergy();
 		}
 	}
@@ -73,9 +68,8 @@ double ParticleDeposit::getTruthEnergy(const DetectorElementPtr de) const {
 
 double ParticleDeposit::getRecEnergy() const {
 	double energy(0);
-	for (std::vector<Deposition>::const_iterator cit = myRecDepositions.begin(); cit
-			!= myRecDepositions.end(); ++cit) {
-		Deposition d = *cit;
+	for (auto d : myRecDepositions) {
+		
 //		if (d.getDetectorElement()->getType() == OFFSET && d.getDetectorElement()->getCalib() == 1.0) {
 //			//don't add a tiny amount!
 //		} else {
@@ -102,10 +96,8 @@ std::ostream& pftools::operator<<(std::ostream& s, const pftools::ParticleDeposi
 	s << "Particle id:\t" << p.getId() << ", \t trueEnergy: " << p.getTruthEnergy() << "\n";
 	s.width(3);
 	s << "\tEta:\t" << p.getEta() << ",\tphi:\t" << p.getPhi() << "\n";
-	for (std::vector<Deposition>::const_iterator cit = p.getRecDepositions().begin(); cit
-			!= p.getRecDepositions().end(); ++cit) {
-		Deposition d = *cit;
-		DetectorElementPtr de(d.getDetectorElement());
+	for (auto d : p.getRecDepositions()) {
+			DetectorElementPtr de(d.getDetectorElement());
 		s << "\t" << *de << ": \t=> E_contrib = ";
 		s << de->getCalib(d.getEta(), d.getPhi()) * d.getEnergy() << "\n";
 	}

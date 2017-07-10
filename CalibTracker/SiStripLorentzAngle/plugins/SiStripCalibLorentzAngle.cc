@@ -771,10 +771,10 @@ SiStripLorentzAngle* SiStripCalibLorentzAngle::getNewObject(){
   SiStripLorentzAngle* LorentzAngle = new SiStripLorentzAngle();
   
   if(!LayerDB){
-  for(std::map<uint32_t, float>::iterator it = detid_la.begin(); it != detid_la.end(); it++){
+  for(auto & it : detid_la){
     
-    float langle=it->second;
-    if ( ! LorentzAngle->putLorentzAngle(it->first,langle) )
+    float langle=it.second;
+    if ( ! LorentzAngle->putLorentzAngle(it.first,langle) )
       edm::LogError("SiStripCalibLorentzAngle")<<"[SiStripCalibLorentzAngle::analyze] detid already exists"<<std::endl;
   }
   }

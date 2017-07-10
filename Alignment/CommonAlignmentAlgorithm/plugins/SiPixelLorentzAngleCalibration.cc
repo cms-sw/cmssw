@@ -309,14 +309,13 @@ void SiPixelLorentzAngleCalibration::endOfJob()
     cond::Time_t firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
     SiPixelLorentzAngle *output = new SiPixelLorentzAngle;
     // Loop on map of values from input and add (possible) parameter results
-    for (auto iterIdValue = input->getLorentzAngles().begin();
-	 iterIdValue != input->getLorentzAngles().end(); ++iterIdValue) {
+    for (const auto & iterIdValue : input->getLorentzAngles()) {
       // type of (*iterIdValue) is pair<unsigned int, float>
-      const unsigned int detId = iterIdValue->first; // key of map is DetId
+      const unsigned int detId = iterIdValue.first; // key of map is DetId
       const double param = this->getParameterForDetId(detId, firstRunOfIOV);
       // put result in output, i.e. sum of input and determined parameter, but the nasty
       // putLorentzAngle(..) takes float by reference - not even const reference:
-      float value = iterIdValue->second + param;
+      float value = iterIdValue.second + param;
       output->putLorentzAngle(detId, value);
       const int paramIndex = moduleGroupSelector_->getParameterIndexFromDetId(detId,firstRunOfIOV);
       treeInfo[detId] = TreeStruct(param, this->getParameterError(paramIndex), paramIndex);
@@ -378,8 +377,8 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
   // If this job has run on data, still check that LA is identical to the ones
   // from mergeFileNames_.
   const std::string treeName(this->name() + "_input");
-  for (auto iFile = mergeFileNames_.begin(); iFile != mergeFileNames_.end(); ++iFile) {
-    SiPixelLorentzAngle* la = this->createFromTree(iFile->c_str(), treeName.c_str());
+  for (const auto & mergeFileName : mergeFileNames_) {
+    SiPixelLorentzAngle* la = this->createFromTree(mergeFileName.c_str(), treeName.c_str());
     // siPixelLorentzAngleInput_ could be non-null from previous file of this loop
     // or from checkLorentzAngleInput(..) when running on data in this job as well
     if (!siPixelLorentzAngleInput_ || siPixelLorentzAngleInput_->getLorentzAngles().empty()) {
@@ -392,7 +391,7 @@ const SiPixelLorentzAngle* SiPixelLorentzAngleCalibration::getLorentzAnglesInput
         // Throw exception instead of error?
         edm::LogError("NoInput") << "@SUB=SiPixelLorentzAngleCalibration::getLorentzAnglesInput"
                                  << "Different input values from tree " << treeName
-                                 << " in file " << *iFile << ".";
+                                 << " in file " << mergeFileName << ".";
         
       }
       delete la;
@@ -441,11 +440,10 @@ void SiPixelLorentzAngleCalibration::writeTree(const SiPixelLorentzAngle *lorent
   tree->Branch("value", &value, "value/F");
   tree->Branch("treeStruct", &treeStruct, TreeStruct::LeafList());
 
-  for (auto iterIdValue = lorentzAngle->getLorentzAngles().begin();
-       iterIdValue != lorentzAngle->getLorentzAngles().end(); ++iterIdValue) {
+  for (const auto & iterIdValue : lorentzAngle->getLorentzAngles()) {
     // type of (*iterIdValue) is pair<unsigned int, float>
-    id = iterIdValue->first; // key of map is DetId
-    value = iterIdValue->second;
+    id = iterIdValue.first; // key of map is DetId
+    value = iterIdValue.second;
     // type of (*treeStructIter) is pair<unsigned int, TreeStruct>
     auto treeStructIter = treeInfo.find(id); // find info for this id
     if (treeStructIter != treeInfo.end()) {

@@ -772,15 +772,13 @@ EvaluateSingleLegMVA(const pfEGHelpers::HeavyObjectCache* hoc,
 			    reco::PFBlockElement::HCAL,  
 			    reco::PFBlock::LINKTEST_ALL );  
   if(ecalAssoTrack.size() > 0) {  
-    for(std::multimap<double, unsigned int>::iterator itecal = ecalAssoTrack.begin();  
-	itecal != ecalAssoTrack.end(); ++itecal) {  
-      linked_e=linked_e+elements[itecal->second].clusterRef()->energy();  
+    for(auto & itecal : ecalAssoTrack) {  
+      linked_e=linked_e+elements[itecal.second].clusterRef()->energy();  
     }  
   }  
   if(hcalAssoTrack.size() > 0) {  
-    for(std::multimap<double, unsigned int>::iterator ithcal = hcalAssoTrack.begin();  
-	ithcal != hcalAssoTrack.end(); ++ithcal) {  
-      linked_h=linked_h+elements[ithcal->second].clusterRef()->energy();  
+    for(auto & ithcal : hcalAssoTrack) {  
+      linked_h=linked_h+elements[ithcal.second].clusterRef()->energy();  
     }  
   }  
   EoverPt=linked_e/elements[track_index].trackRef()->pt();  
@@ -2309,8 +2307,8 @@ buildRefinedSuperCluster(const PFEGammaAlgo::ProtoEGObject& RO) {
 
       const auto& psclusters = RO.ecal2ps.at(clus.first);
       
-      for( auto i_ps = psclusters.begin(); i_ps != psclusters.end(); ++i_ps) {
-	const PFClusterRef&  psclus = i_ps->first->clusterRef();
+      for(const auto & pscluster : psclusters) {
+	const PFClusterRef&  psclus = pscluster.first->clusterRef();
 	
 	auto const& recH_Frac = psclus->recHitFractions();	
 	

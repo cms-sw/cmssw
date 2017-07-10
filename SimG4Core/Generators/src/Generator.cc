@@ -60,13 +60,13 @@ Generator::Generator(const ParameterSet & p) :
                     getParameter<std::vector< int > >("PDGfilter");
     if(0 < pdgFilter.size()) { 
       fPDGFilter = true; 
-      for ( unsigned int ii = 0; ii < pdgFilter.size(); ++ii) {
+      for (int ii : pdgFilter) {
 	if (pdgFilterSel) {
 	  edm::LogWarning("SimG4CoreGenerator") 
-	    << " *** Selecting only PDG ID = " << pdgFilter[ii];
+	    << " *** Selecting only PDG ID = " << ii;
 	} else {
 	  edm::LogWarning("SimG4CoreGenerator") 
-	    << " *** Filtering out PDG ID = " << pdgFilter[ii];
+	    << " *** Filtering out PDG ID = " << ii;
 	}
       }
     }

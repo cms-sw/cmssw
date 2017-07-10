@@ -18,8 +18,8 @@ CTPPSDiamondRecHitProducerAlgorithm::CTPPSDiamondRecHitProducerAlgorithm( const 
 void
 CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const edm::DetSetVector<CTPPSDiamondDigi>& input, edm::DetSetVector<CTPPSDiamondRecHit>& output )
 {
-  for ( edm::DetSetVector<CTPPSDiamondDigi>::const_iterator vec = input.begin(); vec != input.end(); ++vec ) {
-    const CTPPSDiamondDetId detid( vec->detId() );
+  for (const auto & vec : input) {
+    const CTPPSDiamondDetId detid( vec.detId() );
 
     if ( detid.channel() > 20 ) continue;              // VFAT-like information, to be ignored by CTPPSDiamondRecHitProducer
 
@@ -31,7 +31,7 @@ CTPPSDiamondRecHitProducerAlgorithm::build( const TotemRPGeometry* geom, const e
 
     edm::DetSet<CTPPSDiamondRecHit>& rec_hits = output.find_or_insert( detid );
 
-    for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec->begin(); digi != vec->end(); ++digi ) {
+    for ( edm::DetSet<CTPPSDiamondDigi>::const_iterator digi = vec.begin(); digi != vec.end(); ++digi ) {
       if ( digi->getLeadingEdge()==0 and digi->getTrailingEdge()==0 ) { continue; }
 
       const int t = digi->getLeadingEdge();

@@ -49,9 +49,8 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const & lb_map
     }
 
     // merge records, set correct bcn and delay, and EOD if necessary
-    for (std::map<RPCLBLink, std::vector<RPCLBRecord> >::iterator mlb_lbrecords_it = mlb_lbrecords.begin()
-             ; mlb_lbrecords_it != mlb_lbrecords.end() ; ++mlb_lbrecords_it) {
-        std::vector<RPCLBRecord> & input(mlb_lbrecords_it->second);
+    for (auto & mlb_lbrecord : mlb_lbrecords) {
+        std::vector<RPCLBRecord> & input(mlb_lbrecord.second);
         std::sort(input.begin(), input.end());
 
         std::vector<std::pair<int, RPCLBRecord> > bx_lbrecord;
@@ -94,7 +93,7 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const & lb_map
         }
 
         mlb_bx_lbrecord.insert(std::map<RPCLBLink
-                               , std::vector<std::pair<int, RPCLBRecord> > >::value_type(mlb_lbrecords_it->first
+                               , std::vector<std::pair<int, RPCLBRecord> > >::value_type(mlb_lbrecord.first
                                                                                          , bx_lbrecord));
     }
 }

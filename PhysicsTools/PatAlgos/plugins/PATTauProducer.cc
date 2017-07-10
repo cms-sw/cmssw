@@ -174,9 +174,9 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // read in the jet correction factors ValueMap
   std::vector<edm::ValueMap<TauJetCorrFactors> > tauJetCorrs;
   if (addTauJetCorrFactors_) {
-    for ( size_t i = 0; i < tauJetCorrFactorsTokens_.size(); ++i ) {
+    for (auto tauJetCorrFactorsToken : tauJetCorrFactorsTokens_) {
       edm::Handle<edm::ValueMap<TauJetCorrFactors> > tauJetCorr;
-      iEvent.getByToken(tauJetCorrFactorsTokens_[i], tauJetCorr);
+      iEvent.getByToken(tauJetCorrFactorsToken, tauJetCorr);
       tauJetCorrs.push_back( *tauJetCorr );
     }
   }
@@ -261,8 +261,8 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     if (addTauJetCorrFactors_) {
       // add additional JetCorrs to the jet
-      for ( unsigned int i=0; i<tauJetCorrs.size(); ++i ) {
-	const TauJetCorrFactors& tauJetCorr = tauJetCorrs[i][tausRef];
+      for (auto & i : tauJetCorrs) {
+	const TauJetCorrFactors& tauJetCorr = i[tausRef];
 	// uncomment for debugging
 	// tauJetCorr.print();
 	aTau.addJECFactors(tauJetCorr);
@@ -288,8 +288,8 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genTau = (*genMatches[i])[tausRef];
+      for(auto & genMatche : genMatches) {
+          reco::GenParticleRef genTau = (*genMatche)[tausRef];
           aTau.addGenParticleRef(genTau);
       }
       if (embedGenMatch_) aTau.embedGenParticle();
@@ -360,8 +360,7 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       float leadChargedCandPt = -99;
       float leadChargedCandEtaAtEcalEntrance = -99;	
       const std::vector<reco::PFCandidatePtr>& signalCands = pfTauRef->signalPFCands();
-      for(std::vector<reco::PFCandidatePtr>::const_iterator it = signalCands.begin(); it != signalCands.end(); ++it) {
-        const reco::PFCandidatePtr& icand = *it;
+      for(const auto & icand : signalCands) {
         ecalEnergy += icand->ecalEnergy();
         hcalEnergy += icand->hcalEnergy();
 	sumPhiTimesEnergy += icand->positionAtECALEntrance().phi()*icand->energy();		
@@ -405,13 +404,13 @@ void PATTauProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
         reco::TrackRef trackRef = leadingPFCharged->trackRef();
         if( trackRef.isNonnull() ) {
           leadingTrackNormChi2 = trackRef->normalizedChi2();			
-	  for( std::vector<reco::PFCandidatePtr>::const_iterator tauIt = pfTauRef->isolationPFCands().begin(); tauIt!=pfTauRef->isolationPFCands().end(); ++tauIt ){
-	    myHCALenergy += (*tauIt)->hcalEnergy();
-	    myECALenergy += (*tauIt)->ecalEnergy();
+	  for(const auto & tauIt : pfTauRef->isolationPFCands()){
+	    myHCALenergy += tauIt->hcalEnergy();
+	    myECALenergy += tauIt->ecalEnergy();
 	  }
-	  for( std::vector<reco::PFCandidatePtr>::const_iterator tauIt = pfTauRef->signalPFCands().begin(); tauIt!=pfTauRef->signalPFCands().end(); ++tauIt ){
-	    myHCALenergy += (*tauIt)->hcalEnergy();
-	    myECALenergy += (*tauIt)->ecalEnergy();
+	  for(const auto & tauIt : pfTauRef->signalPFCands()){
+	    myHCALenergy += tauIt->hcalEnergy();
+	    myECALenergy += tauIt->ecalEnergy();
 	  }	  
 	  if( myHCALenergy + myECALenergy != 0. ) {
             emFraction = myECALenergy/( myHCALenergy + myECALenergy);    

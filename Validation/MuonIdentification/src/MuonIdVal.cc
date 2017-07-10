@@ -312,39 +312,38 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<GlobalTrackingGeometryRecord>().get(geometry_);
 
    unsigned int muonIdx = 0;
-   for(MuonCollection::const_iterator muon = muonCollectionH_->begin();
-         muon != muonCollectionH_->end(); ++muon)
+   for(const auto & muon : *muonCollectionH_)
    {
       // trackerMuon == 0; globalMuon == 1; trackerMuon && !globalMuon == 2; globalMuon && !trackerMuon == 3
       for (unsigned int i = 0; i < 4; i++) {
-         if (i == 0 && (! useTrackerMuons_ || ! muon->isTrackerMuon())) continue;
-         if (i == 1 && (! useGlobalMuons_ || ! muon->isGlobalMuon())) continue;
-         if (i == 2 && (! useTrackerMuonsNotGlobalMuons_ || (! (muon->isTrackerMuon() && ! muon->isGlobalMuon())))) continue;
-         if (i == 3 && (! useGlobalMuonsNotTrackerMuons_ || (! (muon->isGlobalMuon() && ! muon->isTrackerMuon())))) continue;
+         if (i == 0 && (! useTrackerMuons_ || ! muon.isTrackerMuon())) continue;
+         if (i == 1 && (! useGlobalMuons_ || ! muon.isGlobalMuon())) continue;
+         if (i == 2 && (! useTrackerMuonsNotGlobalMuons_ || (! (muon.isTrackerMuon() && ! muon.isGlobalMuon())))) continue;
+         if (i == 3 && (! useGlobalMuonsNotTrackerMuons_ || (! (muon.isGlobalMuon() && ! muon.isTrackerMuon())))) continue;
 
-         if (makeEnergyPlots_ && muon->isEnergyValid()) {
+         if (makeEnergyPlots_ && muon.isEnergyValid()) {
             // EM
-            if (fabs(muon->eta()) > 1.479)
-               hEnergyEMEndcap[i]->Fill(muon->calEnergy().em); 
+            if (fabs(muon.eta()) > 1.479)
+               hEnergyEMEndcap[i]->Fill(muon.calEnergy().em); 
             else
-               hEnergyEMBarrel[i]->Fill(muon->calEnergy().em);
+               hEnergyEMBarrel[i]->Fill(muon.calEnergy().em);
             // HAD
-            if (fabs(muon->eta()) > 1.4)
-               hEnergyHAEndcap[i]->Fill(muon->calEnergy().had);
+            if (fabs(muon.eta()) > 1.4)
+               hEnergyHAEndcap[i]->Fill(muon.calEnergy().had);
             else
-               hEnergyHABarrel[i]->Fill(muon->calEnergy().had);
+               hEnergyHABarrel[i]->Fill(muon.calEnergy().had);
             // HO
-            if (fabs(muon->eta()) < 1.26)
-               hEnergyHO[i]->Fill(muon->calEnergy().ho);
+            if (fabs(muon.eta()) < 1.26)
+               hEnergyHO[i]->Fill(muon.calEnergy().ho);
          }
 
          if (makeTimePlots_) {
-            if (muon->isTimeValid()) {
-               hMuonTimeNDOF[i]->Fill(muon->time().nDof);
-               hMuonTimeTimeAtIpInOut[i]->Fill(muon->time().timeAtIpInOut);
-               hMuonTimeTimeAtIpInOutErr[i]->Fill(muon->time().timeAtIpInOutErr);
-               hMuonTimeTimeAtIpOutIn[i]->Fill(muon->time().timeAtIpOutIn);
-               hMuonTimeTimeAtIpOutInErr[i]->Fill(muon->time().timeAtIpOutInErr);
+            if (muon.isTimeValid()) {
+               hMuonTimeNDOF[i]->Fill(muon.time().nDof);
+               hMuonTimeTimeAtIpInOut[i]->Fill(muon.time().timeAtIpInOut);
+               hMuonTimeTimeAtIpInOutErr[i]->Fill(muon.time().timeAtIpInOutErr);
+               hMuonTimeTimeAtIpOutIn[i]->Fill(muon.time().timeAtIpOutIn);
+               hMuonTimeTimeAtIpOutInErr[i]->Fill(muon.time().timeAtIpOutInErr);
             }
 
             MuonRef muonRef(muonCollectionH_, muonIdx);
@@ -369,34 +368,34 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             hMuonTimeExtraDTTimeAtIpOutInErr[i]->Fill(dtMuonTimeExtra.timeAtIpOutInErr());
          }
 
-         if (muon->isCaloCompatibilityValid())
-            hCaloCompat[i]->Fill(muon->caloCompatibility());
-         hSegmentCompat[i]->Fill(muon::segmentCompatibility(*muon));
-         if (make2DPlots_ && muon->isCaloCompatibilityValid())
-            hCaloSegmentCompat[i]->Fill(muon->caloCompatibility(), muon::segmentCompatibility(*muon));
-         if (muon->isQualityValid()) {
-            hMuonQualityTrkRelChi2[i]->Fill(muon->combinedQuality().trkRelChi2);
-            hMuonQualityStaRelChi2[i]->Fill(muon->combinedQuality().staRelChi2);
-            hMuonQualityTrkKink[i]->Fill(muon->combinedQuality().trkKink);
+         if (muon.isCaloCompatibilityValid())
+            hCaloCompat[i]->Fill(muon.caloCompatibility());
+         hSegmentCompat[i]->Fill(muon::segmentCompatibility(muon));
+         if (make2DPlots_ && muon.isCaloCompatibilityValid())
+            hCaloSegmentCompat[i]->Fill(muon.caloCompatibility(), muon::segmentCompatibility(muon));
+         if (muon.isQualityValid()) {
+            hMuonQualityTrkRelChi2[i]->Fill(muon.combinedQuality().trkRelChi2);
+            hMuonQualityStaRelChi2[i]->Fill(muon.combinedQuality().staRelChi2);
+            hMuonQualityTrkKink[i]->Fill(muon.combinedQuality().trkKink);
          }
-         hGlobalMuonPromptTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::GlobalMuonPromptTight));
-         hTMLastStationLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationLoose));
-         hTMLastStationTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationTight));
-         hTM2DCompatibilityLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TM2DCompatibilityLoose));
-         hTM2DCompatibilityTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TM2DCompatibilityTight));
-         hTMOneStationLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationLoose));
-         hTMOneStationTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationTight));
-         hTMLastStationOptimizedLowPtLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtLoose));
-         hTMLastStationOptimizedLowPtTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedLowPtTight));
-         hGMTkChiCompatibilityBool[i]->Fill(muon::isGoodMuon(*muon, muon::GMTkChiCompatibility));
-         hGMStaChiCompatibilityBool[i]->Fill(muon::isGoodMuon(*muon, muon::GMStaChiCompatibility));
-         hGMTkKinkTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::GMTkKinkTight));
-         hTMLastStationAngLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationAngLoose));
-         hTMLastStationAngTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationAngTight));
-         hTMOneStationAngLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationAngLoose));
-         hTMOneStationAngTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMOneStationAngTight));
-         hTMLastStationOptimizedBarrelLowPtLooseBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedBarrelLowPtLoose));
-         hTMLastStationOptimizedBarrelLowPtTightBool[i]->Fill(muon::isGoodMuon(*muon, muon::TMLastStationOptimizedBarrelLowPtTight));
+         hGlobalMuonPromptTightBool[i]->Fill(muon::isGoodMuon(muon, muon::GlobalMuonPromptTight));
+         hTMLastStationLooseBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationLoose));
+         hTMLastStationTightBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationTight));
+         hTM2DCompatibilityLooseBool[i]->Fill(muon::isGoodMuon(muon, muon::TM2DCompatibilityLoose));
+         hTM2DCompatibilityTightBool[i]->Fill(muon::isGoodMuon(muon, muon::TM2DCompatibilityTight));
+         hTMOneStationLooseBool[i]->Fill(muon::isGoodMuon(muon, muon::TMOneStationLoose));
+         hTMOneStationTightBool[i]->Fill(muon::isGoodMuon(muon, muon::TMOneStationTight));
+         hTMLastStationOptimizedLowPtLooseBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationOptimizedLowPtLoose));
+         hTMLastStationOptimizedLowPtTightBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationOptimizedLowPtTight));
+         hGMTkChiCompatibilityBool[i]->Fill(muon::isGoodMuon(muon, muon::GMTkChiCompatibility));
+         hGMStaChiCompatibilityBool[i]->Fill(muon::isGoodMuon(muon, muon::GMStaChiCompatibility));
+         hGMTkKinkTightBool[i]->Fill(muon::isGoodMuon(muon, muon::GMTkKinkTight));
+         hTMLastStationAngLooseBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationAngLoose));
+         hTMLastStationAngTightBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationAngTight));
+         hTMOneStationAngLooseBool[i]->Fill(muon::isGoodMuon(muon, muon::TMOneStationAngLoose));
+         hTMOneStationAngTightBool[i]->Fill(muon::isGoodMuon(muon, muon::TMOneStationAngTight));
+         hTMLastStationOptimizedBarrelLowPtLooseBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationOptimizedBarrelLowPtLoose));
+         hTMLastStationOptimizedBarrelLowPtTightBool[i]->Fill(muon::isGoodMuon(muon, muon::TMLastStationOptimizedBarrelLowPtTight));
 
          if (makeCosmicCompatibilityPlots_) {
 	   MuonRef muonRef(muonCollectionH_, muonIdx);
@@ -423,19 +422,19 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
             }
 
 
-            Fill(hDTPullxPropErr[i][station], muon->pullX(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
-            Fill(hDTPulldXdZPropErr[i][station], muon->pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
+            Fill(hDTPullxPropErr[i][station], muon.pullX(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
+            Fill(hDTPulldXdZPropErr[i][station], muon.pullDxDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
 
             if (station < 3) {
-               Fill(hDTPullyPropErr[i][station], muon->pullY(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
-               Fill(hDTPulldYdZPropErr[i][station], muon->pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
+               Fill(hDTPullyPropErr[i][station], muon.pullY(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
+               Fill(hDTPulldYdZPropErr[i][station], muon.pullDyDz(station+1, MuonSubdetId::DT, Muon::SegmentAndTrackArbitration, false));
             }
 
-            float distance = muon->trackDist(station+1, MuonSubdetId::DT);
-            float error    = muon->trackDistErr(station+1, MuonSubdetId::DT);
+            float distance = muon.trackDist(station+1, MuonSubdetId::DT);
+            float error    = muon.trackDistErr(station+1, MuonSubdetId::DT);
             if (error == 0) error = 0.000001;
 
-            if (muon->numberOfSegments(station+1, MuonSubdetId::DT, Muon::NoArbitration) > 0) {
+            if (muon.numberOfSegments(station+1, MuonSubdetId::DT, Muon::NoArbitration) > 0) {
                Fill(hDTDistWithSegment[i][station], distance);
                Fill(hDTPullDistWithSegment[i][station], distance/error);
             } else {
@@ -443,16 +442,16 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
                Fill(hDTPullDistWithNoSegment[i][station], distance/error);
             }
 
-            Fill(hCSCPullxPropErr[i][station], muon->pullX(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
-            Fill(hCSCPulldXdZPropErr[i][station], muon->pullDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
-            Fill(hCSCPullyPropErr[i][station], muon->pullY(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
-            Fill(hCSCPulldYdZPropErr[i][station], muon->pullDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
+            Fill(hCSCPullxPropErr[i][station], muon.pullX(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
+            Fill(hCSCPulldXdZPropErr[i][station], muon.pullDxDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
+            Fill(hCSCPullyPropErr[i][station], muon.pullY(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
+            Fill(hCSCPulldYdZPropErr[i][station], muon.pullDyDz(station+1, MuonSubdetId::CSC, Muon::SegmentAndTrackArbitration, false));
 
-            distance = muon->trackDist(station+1, MuonSubdetId::CSC);
-            error    = muon->trackDistErr(station+1, MuonSubdetId::CSC);
+            distance = muon.trackDist(station+1, MuonSubdetId::CSC);
+            error    = muon.trackDistErr(station+1, MuonSubdetId::CSC);
             if (error == 0) error = 0.000001;
 
-            if (muon->numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration) > 0) {
+            if (muon.numberOfSegments(station+1, MuonSubdetId::CSC, Muon::NoArbitration) > 0) {
                Fill(hCSCDistWithSegment[i][station], distance);
                Fill(hCSCPullDistWithSegment[i][station], distance/error);
             } else {
@@ -462,11 +461,11 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
          }// station
       }
 
-      if (! useTrackerMuons_ || ! muon->isTrackerMuon()) continue;
+      if (! useTrackerMuons_ || ! muon.isTrackerMuon()) continue;
       if (makeAllChamberPlots_) {
          // by chamber
-         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-               chamberMatch != muon->matches().end(); ++chamberMatch)
+         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
+               chamberMatch != muon.matches().end(); ++chamberMatch)
          {
             int station = chamberMatch->station();
 
@@ -527,40 +526,37 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    if (! make2DPlots_) return;
 
-   for(DTRecSegment4DCollection::const_iterator segment = dtSegmentCollectionH_->begin();
-         segment != dtSegmentCollectionH_->end(); ++segment)
+   for(const auto & segment : *dtSegmentCollectionH_)
    {
-      LocalPoint  segmentLocalPosition       = segment->localPosition();
-      LocalVector segmentLocalDirection      = segment->localDirection();
-      LocalError  segmentLocalPositionError  = segment->localPositionError();
-      LocalError  segmentLocalDirectionError = segment->localDirectionError();
-      const GeomDet* segmentGeomDet = geometry_->idToDet(segment->geographicalId());
-      GlobalPoint segmentGlobalPosition = segmentGeomDet->toGlobal(segment->localPosition());
+      LocalPoint  segmentLocalPosition       = segment.localPosition();
+      LocalVector segmentLocalDirection      = segment.localDirection();
+      LocalError  segmentLocalPositionError  = segment.localPositionError();
+      LocalError  segmentLocalDirectionError = segment.localDirectionError();
+      const GeomDet* segmentGeomDet = geometry_->idToDet(segment.geographicalId());
+      GlobalPoint segmentGlobalPosition = segmentGeomDet->toGlobal(segment.localPosition());
       bool segmentFound = false;
       bool segmentBestDrFound = false;
 
-      for(MuonCollection::const_iterator muon = muonCollectionH_->begin();
-            muon != muonCollectionH_->end(); ++muon)
+      for(const auto & muon : *muonCollectionH_)
       {
-         if (! muon->isMatchesValid())
+         if (! muon.isMatchesValid())
             continue;
 
-         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-               chamberMatch != muon->matches().end(); ++chamberMatch) {
-            for(std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-                  segmentMatch != chamberMatch->segmentMatches.end(); ++segmentMatch)
+         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
+               chamberMatch != muon.matches().end(); ++chamberMatch) {
+            for(const auto & segmentMatche : chamberMatch->segmentMatches)
             {
-               if (fabs(segmentMatch->x       - segmentLocalPosition.x()                           ) < 1E-6 &&
-                   fabs(segmentMatch->y       - segmentLocalPosition.y()                           ) < 1E-6 &&
-                   fabs(segmentMatch->dXdZ    - segmentLocalDirection.x()/segmentLocalDirection.z()) < 1E-6 &&
-                   fabs(segmentMatch->dYdZ    - segmentLocalDirection.y()/segmentLocalDirection.z()) < 1E-6 &&
-                   fabs(segmentMatch->xErr    - sqrt(segmentLocalPositionError.xx())               ) < 1E-6 &&
-                   fabs(segmentMatch->yErr    - sqrt(segmentLocalPositionError.yy())               ) < 1E-6 &&
-                   fabs(segmentMatch->dXdZErr - sqrt(segmentLocalDirectionError.xx())              ) < 1E-6 &&
-                   fabs(segmentMatch->dYdZErr - sqrt(segmentLocalDirectionError.yy())              ) < 1E-6)
+               if (fabs(segmentMatche.x       - segmentLocalPosition.x()                           ) < 1E-6 &&
+                   fabs(segmentMatche.y       - segmentLocalPosition.y()                           ) < 1E-6 &&
+                   fabs(segmentMatche.dXdZ    - segmentLocalDirection.x()/segmentLocalDirection.z()) < 1E-6 &&
+                   fabs(segmentMatche.dYdZ    - segmentLocalDirection.y()/segmentLocalDirection.z()) < 1E-6 &&
+                   fabs(segmentMatche.xErr    - sqrt(segmentLocalPositionError.xx())               ) < 1E-6 &&
+                   fabs(segmentMatche.yErr    - sqrt(segmentLocalPositionError.yy())               ) < 1E-6 &&
+                   fabs(segmentMatche.dXdZErr - sqrt(segmentLocalDirectionError.xx())              ) < 1E-6 &&
+                   fabs(segmentMatche.dYdZErr - sqrt(segmentLocalDirectionError.yy())              ) < 1E-6)
                {
                   segmentFound = true;
-                  if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR)) segmentBestDrFound = true;
+                  if (segmentMatche.isMask(reco::MuonSegmentMatch::BestInStationByDR)) segmentBestDrFound = true;
                   break;
                }
             }// segmentMatch
@@ -585,40 +581,37 @@ MuonIdVal::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       }
    }// dt segment
 
-   for(CSCSegmentCollection::const_iterator segment = cscSegmentCollectionH_->begin();
-         segment != cscSegmentCollectionH_->end(); ++segment)
+   for(const auto & segment : *cscSegmentCollectionH_)
    {
-      LocalPoint  segmentLocalPosition       = segment->localPosition();
-      LocalVector segmentLocalDirection      = segment->localDirection();
-      LocalError  segmentLocalPositionError  = segment->localPositionError();
-      LocalError  segmentLocalDirectionError = segment->localDirectionError();
-      const GeomDet* segmentGeomDet = geometry_->idToDet(segment->geographicalId());
-      GlobalPoint segmentGlobalPosition = segmentGeomDet->toGlobal(segment->localPosition());
+      LocalPoint  segmentLocalPosition       = segment.localPosition();
+      LocalVector segmentLocalDirection      = segment.localDirection();
+      LocalError  segmentLocalPositionError  = segment.localPositionError();
+      LocalError  segmentLocalDirectionError = segment.localDirectionError();
+      const GeomDet* segmentGeomDet = geometry_->idToDet(segment.geographicalId());
+      GlobalPoint segmentGlobalPosition = segmentGeomDet->toGlobal(segment.localPosition());
       bool segmentFound = false;
       bool segmentBestDrFound = false;
 
-      for(MuonCollection::const_iterator muon = muonCollectionH_->begin();
-            muon != muonCollectionH_->end(); ++muon)
+      for(const auto & muon : *muonCollectionH_)
       {
-         if (! muon->isMatchesValid())
+         if (! muon.isMatchesValid())
             continue;
 
-         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon->matches().begin();
-               chamberMatch != muon->matches().end(); ++chamberMatch) {
-            for(std::vector<MuonSegmentMatch>::const_iterator segmentMatch = chamberMatch->segmentMatches.begin();
-                  segmentMatch != chamberMatch->segmentMatches.end(); ++segmentMatch)
+         for(std::vector<MuonChamberMatch>::const_iterator chamberMatch = muon.matches().begin();
+               chamberMatch != muon.matches().end(); ++chamberMatch) {
+            for(const auto & segmentMatche : chamberMatch->segmentMatches)
             {
-               if (fabs(segmentMatch->x       - segmentLocalPosition.x()                           ) < 1E-6 &&
-                   fabs(segmentMatch->y       - segmentLocalPosition.y()                           ) < 1E-6 &&
-                   fabs(segmentMatch->dXdZ    - segmentLocalDirection.x()/segmentLocalDirection.z()) < 1E-6 &&
-                   fabs(segmentMatch->dYdZ    - segmentLocalDirection.y()/segmentLocalDirection.z()) < 1E-6 &&
-                   fabs(segmentMatch->xErr    - sqrt(segmentLocalPositionError.xx())               ) < 1E-6 &&
-                   fabs(segmentMatch->yErr    - sqrt(segmentLocalPositionError.yy())               ) < 1E-6 &&
-                   fabs(segmentMatch->dXdZErr - sqrt(segmentLocalDirectionError.xx())              ) < 1E-6 &&
-                   fabs(segmentMatch->dYdZErr - sqrt(segmentLocalDirectionError.yy())              ) < 1E-6)
+               if (fabs(segmentMatche.x       - segmentLocalPosition.x()                           ) < 1E-6 &&
+                   fabs(segmentMatche.y       - segmentLocalPosition.y()                           ) < 1E-6 &&
+                   fabs(segmentMatche.dXdZ    - segmentLocalDirection.x()/segmentLocalDirection.z()) < 1E-6 &&
+                   fabs(segmentMatche.dYdZ    - segmentLocalDirection.y()/segmentLocalDirection.z()) < 1E-6 &&
+                   fabs(segmentMatche.xErr    - sqrt(segmentLocalPositionError.xx())               ) < 1E-6 &&
+                   fabs(segmentMatche.yErr    - sqrt(segmentLocalPositionError.yy())               ) < 1E-6 &&
+                   fabs(segmentMatche.dXdZErr - sqrt(segmentLocalDirectionError.xx())              ) < 1E-6 &&
+                   fabs(segmentMatche.dYdZErr - sqrt(segmentLocalDirectionError.yy())              ) < 1E-6)
                {
                   segmentFound = true;
-                  if (segmentMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR)) segmentBestDrFound = true;
+                  if (segmentMatche.isMask(reco::MuonSegmentMatch::BestInStationByDR)) segmentBestDrFound = true;
                   break;
                }
             }// segmentMatch

@@ -672,9 +672,8 @@ static void
   bool
   edm::encode(std::string& to, std::vector<InputTag> const& from) {
     std::vector<std::string> strings;
-    for(std::vector<InputTag>::const_iterator tagItr = from.begin(), tagItrEnd = from.end();
-         tagItr != tagItrEnd; ++tagItr) {
-      strings.push_back(tagItr->encode());
+    for(const auto & tagItr : from) {
+      strings.push_back(tagItr.encode());
     }
     encode(to, strings);
     return true;
@@ -722,9 +721,8 @@ static void
   bool
   edm::encode(std::string& to, std::vector<ESInputTag> const& from) {
      std::vector<std::string> strings;
-     for(std::vector<ESInputTag>::const_iterator tagItr = from.begin(), tagItrEnd = from.end();
-         tagItr != tagItrEnd; ++tagItr) {
-        strings.push_back(tagItr->encode());
+     for(const auto & tagItr : from) {
+        strings.push_back(tagItr.encode());
      }
      encode(to, strings);
      return true;
@@ -785,10 +783,9 @@ static void
   bool
   edm::encode(std::string& to, std::vector<edm::EventID> const& from) {
       std::vector<std::string> strings;
-      for(std::vector<edm::EventID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
-          idItr != idItrEnd; ++idItr) {
+      for(auto idItr : from) {
         std::string encodedEventID;
-        encode(encodedEventID, *idItr);
+        encode(encodedEventID, idItr);
         strings.push_back(encodedEventID);
       }
       encode(to, strings);
@@ -843,10 +840,9 @@ static void
   bool
   edm::encode(std::string& to, std::vector<edm::LuminosityBlockID> const& from) {
     std::vector<std::string> strings;
-    for(std::vector<edm::LuminosityBlockID>::const_iterator idItr = from.begin(), idItrEnd = from.end();
-        idItr != idItrEnd; ++idItr) {
+    for(auto idItr : from) {
       std::string encodedLuminosityBlockID;
-      encode(encodedLuminosityBlockID, *idItr);
+      encode(encodedLuminosityBlockID, idItr);
       strings.push_back(encodedLuminosityBlockID);
     }
     encode(to, strings);
@@ -901,10 +897,9 @@ static void
   bool
   edm::encode(std::string& to, std::vector<edm::LuminosityBlockRange> const& from) {
     std::vector<std::string> strings;
-    for(std::vector<edm::LuminosityBlockRange>::const_iterator idItr = from.begin(), idItrEnd = from.end();
-        idItr != idItrEnd; ++idItr) {
+    for(auto idItr : from) {
       std::string encodedLuminosityBlockRange;
-      encode(encodedLuminosityBlockRange, *idItr);
+      encode(encodedLuminosityBlockRange, idItr);
       strings.push_back(encodedLuminosityBlockRange);
     }
     encode(to, strings);
@@ -966,10 +961,9 @@ static void
   bool
   edm::encode(std::string& to, std::vector<edm::EventRange> const& from) {
     std::vector<std::string> strings;
-    for(std::vector<edm::EventRange>::const_iterator idItr = from.begin(), idItrEnd = from.end();
-        idItr != idItrEnd; ++idItr) {
+    for(const auto & idItr : from) {
       std::string encodedEventRange;
-      encode(encodedEventRange, *idItr);
+      encode(encodedEventRange, idItr);
       strings.push_back(encodedEventRange);
     }
     encode(to, strings);

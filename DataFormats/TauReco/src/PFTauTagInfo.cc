@@ -7,9 +7,9 @@ PFTauTagInfo* PFTauTagInfo::clone()const{return new PFTauTagInfo(*this);}
 
 std::vector<reco::PFCandidatePtr> PFTauTagInfo::PFCands()const{
   std::vector<reco::PFCandidatePtr> thePFCands;
-  for (std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=PFChargedHadrCands_.begin();iPFCand!=PFChargedHadrCands_.end();iPFCand++) thePFCands.push_back(*iPFCand);
-  for (std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=PFNeutrHadrCands_.begin();iPFCand!=PFNeutrHadrCands_.end();iPFCand++) thePFCands.push_back(*iPFCand);
-  for (std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=PFGammaCands_.begin();iPFCand!=PFGammaCands_.end();iPFCand++) thePFCands.push_back(*iPFCand);
+  for (const auto & PFChargedHadrCand : PFChargedHadrCands_) thePFCands.push_back(PFChargedHadrCand);
+  for (const auto & PFNeutrHadrCand : PFNeutrHadrCands_) thePFCands.push_back(PFNeutrHadrCand);
+  for (const auto & PFGammaCand : PFGammaCands_) thePFCands.push_back(PFGammaCand);
   return thePFCands;
 }
 const std::vector<reco::PFCandidatePtr>& PFTauTagInfo::PFChargedHadrCands() const {return PFChargedHadrCands_;}

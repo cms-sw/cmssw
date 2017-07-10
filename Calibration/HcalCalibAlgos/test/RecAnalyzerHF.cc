@@ -279,11 +279,10 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
-           itMap != objMapVec.end(); ++itMap) {
-        bool resultGt = (*itMap).algoGtlResult();
+      for (const auto & itMap : objMapVec) {
+        bool resultGt = itMap.algoGtlResult();
         if (resultGt) {
-          int algoBit = (*itMap).algoBitNumber();
+          int algoBit = itMap.algoBitNumber();
           if (std::find(trigbit_.begin(),trigbit_.end(),algoBit) != 
 	      trigbit_.end()) {
             select = true;
@@ -304,11 +303,10 @@ void RecAnalyzerHF::analyze(const edm::Event& iEvent, const edm::EventSetup&) {
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
-	   itMap != objMapVec.end(); ++itMap) {
-	bool resultGt = (*itMap).algoGtlResult();
+      for (const auto & itMap : objMapVec) {
+	bool resultGt = itMap.algoGtlResult();
 	if (resultGt) {
-	  int algoBit = (*itMap).algoBitNumber();
+	  int algoBit = itMap.algoBitNumber();
 	  analyzeHcal(Hithf, algoBit, (!ok));
 	  ok          = true;
 	} 

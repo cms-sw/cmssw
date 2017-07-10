@@ -360,10 +360,7 @@ void DQMGenericClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
     }
   }
 
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-
+  for(const auto & dirName : subDirSet) {
     // First normalize, then make cumulative, and only then efficiency
     // This allows to use the cumulative distributions for efficiency calculation
     for ( vector<NormOption>::const_iterator normOption = normOptions_.begin();

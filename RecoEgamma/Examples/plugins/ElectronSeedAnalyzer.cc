@@ -217,11 +217,11 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   float dphi1=0., dphi2=0., drz1=0., drz2=0.;
   float phi1=0., phi2=0., rz1=0., rz2=0.;
 
-  for( ElectronSeedCollection::const_iterator MyS= (*elSeeds).begin(); MyS != (*elSeeds).end(); ++MyS) {
+  for(const auto & MyS : (*elSeeds)) {
 
     LogDebug("") <<"\nSeed nr "<<is<<": ";
-    range r=(*MyS).recHits();
-     LogDebug("")<<" Number of RecHits= "<<(*MyS).nHits();
+    range r=MyS.recHits();
+     LogDebug("")<<" Number of RecHits= "<<MyS.nHits();
     const GeomDet *det1=0;const GeomDet *det2=0;
 
     TrajectorySeed::const_iterator it=r.first;
@@ -242,13 +242,13 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     // state on last det
     const GeomDet *det=0;
     for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-    TrajectoryStateOnSurface t=  trajectoryStateTransform::transientState((*MyS).startingState(), &(det->surface()), &(*theMagField));
+    TrajectoryStateOnSurface t=  trajectoryStateTransform::transientState(MyS.startingState(), &(det->surface()), &(*theMagField));
 
     // debug
 
     LogDebug("")<<" ElectronSeed outermost state position: "<<t.globalPosition();
     LogDebug("")<<" ElectronSeed outermost state momentum: "<<t.globalMomentum();
-    edm::RefToBase<CaloCluster> caloCluster = (*MyS).caloCluster() ;
+    edm::RefToBase<CaloCluster> caloCluster = MyS.caloCluster() ;
     if (caloCluster.isNull()) continue;
     edm::Ref<SuperClusterCollection> theClus = caloCluster.castTo<SuperClusterRef>() ;
     LogDebug("")<<" ElectronSeed superCluster energy: "<<theClus->energy()<<", position: "<<theClus->position();
@@ -256,14 +256,14 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     LogDebug("")<<" ElectronSeed supercluster Et: "<<theClus->energy()*sin(2.*atan(exp(-theClus->position().eta())));
     LogDebug("")<<" ElectronSeed outermost momentum direction eta: "<<t.globalMomentum().eta();
     LogDebug("")<<" ElectronSeed supercluster eta: "<<theClus->position().eta();
-    LogDebug("")<<" ElectronSeed seed charge: "<<(*MyS).getCharge();
+    LogDebug("")<<" ElectronSeed seed charge: "<<MyS.getCharge();
     LogDebug("")<<" ElectronSeed E/p: "<<theClus->energy()/t.globalMomentum().mag();
 
     // retreive SC and compute distances between hit position and prediction the same
     // way as in the PixelHitMatcher
     
     // inputs are charge, cluster position, vertex position, cluster energy and B field
-    int charge = int((*MyS).getCharge());
+    int charge = int(MyS.getCharge());
     GlobalPoint xmeas(theClus->position().x(),theClus->position().y(),theClus->position().z());
     GlobalPoint vprim(theBeamSpot->position().x(),theBeamSpot->position().y(),theBeamSpot->position().z());
     float energy = theClus->energy();
@@ -350,7 +350,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
     histetclu_->Fill(theClus->energy()*sin(2.*atan(exp(-theClus->position().eta()))));
     histeta_->Fill(t.globalMomentum().eta());
     histetaclu_->Fill(theClus->position().eta());
-    histq_->Fill((*MyS).getCharge());
+    histq_->Fill(MyS.getCharge());
     histeoverp_->Fill(theClus->energy()/t.globalMomentum().mag());
 
     if (is<10) {
@@ -362,7 +362,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       seedEta[is] = t.globalMomentum().eta();
       seedPhi[is] = t.globalMomentum().phi();
       seedPt[is] = t.globalMomentum().perp();
-      seedQ[is] = (*MyS).getCharge();
+      seedQ[is] = MyS.getCharge();
       seedSubdet1[is] = id1.subdetId();
       seedLayer1[is]=tTopo->layer(id1);
       seedSide1[is]=tTopo->side(id1);
@@ -450,12 +450,12 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 
       // find best matched seed
       reco::ElectronSeed bestElectronSeed;
-      for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
+      for(const auto & gsfIter : (*elSeeds)) {
 
-        range r=gsfIter->recHits();
+        range r=gsfIter.recHits();
         const GeomDet *det=0;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter.startingState(), &(det->surface()), &(*theMagField));
 
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
@@ -471,7 +471,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	  double tmpSeedRatio = p/pAssSim.t();
 	  if ( std::abs(tmpSeedRatio-1) < std::abs(seedOkRatio-1) ) {
 	    seedOkRatio = tmpSeedRatio;
-	    bestElectronSeed=*gsfIter;
+	    bestElectronSeed=gsfIter;
 	    okSeedFound = true;
 	  }
 	//}
@@ -498,12 +498,12 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       seedOkRatio = 999999.;
 
       // find best matched seed
-      for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
+      for(const auto & gsfIter : (*elSeeds)) {
 
-        range r=gsfIter->recHits();
+        range r=gsfIter.recHits();
         const GeomDet *det=0;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter.startingState(), &(det->surface()), &(*theMagField));
 
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
@@ -512,7 +512,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
 	double deltaR = sqrt(std::pow((eta-pAssSim.eta()),2) + std::pow(dphi,2));
-	if (gsfIter->isEcalDriven()) {
+	if (gsfIter.isEcalDriven()) {
 	if ( deltaR < 0.15 ){
 //	if ( deltaR < 0.3 ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
@@ -520,7 +520,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	  double tmpSeedRatio = p/pAssSim.t();
 	  if ( std::abs(tmpSeedRatio-1) < std::abs(seedOkRatio-1) ) {
 	    seedOkRatio = tmpSeedRatio;
-	    bestElectronSeed=*gsfIter;
+	    bestElectronSeed=gsfIter;
 	    okSeedFound = true;
 	  }
 	//}
@@ -541,12 +541,12 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
       seedOkRatio = 999999.;
 
       // find best matched seed
-      for( ElectronSeedCollection::const_iterator gsfIter= (*elSeeds).begin(); gsfIter != (*elSeeds).end(); ++gsfIter) {
+      for(const auto & gsfIter : (*elSeeds)) {
 
-        range r=gsfIter->recHits();
+        range r=gsfIter.recHits();
         const GeomDet *det=0;
         for (TrackingRecHitCollection::const_iterator rhits=r.first; rhits!=r.second; rhits++) det = pDD->idToDet(((*rhits)).geographicalId());
-         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter->startingState(), &(det->surface()), &(*theMagField));
+         TrajectoryStateOnSurface t= trajectoryStateTransform::transientState(gsfIter.startingState(), &(det->surface()), &(*theMagField));
 
 	float eta = t.globalMomentum().eta();
 	float phi = t.globalMomentum().phi();
@@ -555,7 +555,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
         if (std::abs(dphi)>CLHEP::pi)
          dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
 	double deltaR = sqrt(std::pow((eta-pAssSim.eta()),2) + std::pow(dphi,2));
-	if (gsfIter->isTrackerDriven()) {
+	if (gsfIter.isTrackerDriven()) {
 	if ( deltaR < 0.15 ){
 //	if ( deltaR < 0.3 ){
 	//if ( (genPc->pdg_id() == 11) && (gsfIter->charge() < 0.) || (genPc->pdg_id() == -11) &&
@@ -563,7 +563,7 @@ void ElectronSeedAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
 	  double tmpSeedRatio = p/pAssSim.t();
 	  if ( std::abs(tmpSeedRatio-1) < std::abs(seedOkRatio-1) ) {
 	    seedOkRatio = tmpSeedRatio;
-	    bestElectronSeed=*gsfIter;
+	    bestElectronSeed=gsfIter;
 	    okSeedFound = true;
 	  }
 	//}

@@ -97,9 +97,9 @@ EcalBasicUncalibRecHitFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
    
    bool thereIsSignal = false;  
    // loop on crude rechits
-   for ( EcalUncalibratedRecHitCollection::const_iterator hitItr = crudeHits->begin(); hitItr != crudeHits->end(); ++hitItr ) {
+   for (const auto & hitItr : *crudeHits) {
      
-     EcalUncalibratedRecHit hit = (*hitItr);
+     EcalUncalibratedRecHit hit = hitItr;
      
      // masking noisy channels
      std::vector<int>::iterator result;

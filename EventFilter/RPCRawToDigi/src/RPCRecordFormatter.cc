@@ -127,10 +127,10 @@ int RPCRecordFormatter::recordUnpack(
     return error.type();
   }
 
-  for(std::vector<int>::iterator is = packStrips.begin(); is != packStrips.end(); ++is) {
+  for(int & packStrip : packStrips) {
 
     RPCReadOutMapping::StripInDetUnit duFrame = 
-        readoutMapping->detUnitFrame(*linkBoard, LinkBoardPackedStrip(*is) );
+        readoutMapping->detUnitFrame(*linkBoard, LinkBoardPackedStrip(packStrip) );
 
     uint32_t rawDetId = duFrame.first;
     int geomStrip = duFrame.second;

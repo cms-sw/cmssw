@@ -49,9 +49,9 @@ MagFieldConfig::MagFieldConfig(const edm::ParameterSet& pset, bool debug) {
 	cout << endl;
       }
 	
-      for (vector<unsigned>::iterator i = volumes.begin(); i!=volumes.end(); ++i){
-	for (vector<unsigned>::iterator j = sectors.begin(); j!=sectors.end(); ++j){
-	  unsigned vpacked = (*i)*100+(*j);
+      for (unsigned int & volume : volumes){
+	for (unsigned int & sector : sectors){
+	  unsigned vpacked = volume*100+sector;
 	  if (gridFiles.find(vpacked)==gridFiles.end()) {
 	    gridFiles[vpacked] = make_pair(path, master);
 	  } else {

@@ -52,16 +52,16 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
   findParticles( *genParticles,
 		 allStatus2Taus, 15, 2);
 
-  for ( IGR iTau=allStatus2Taus.begin(); iTau!=allStatus2Taus.end(); ++iTau ) {
+  for (auto && allStatus2Tau : allStatus2Taus) {
 
     // look for all status 1 (stable) descendents
     GenParticleRefVector descendents;
-    findDescendents( *iTau, descendents, 1);
+    findDescendents( allStatus2Tau, descendents, 1);
 
     // CV: skip status 2 taus that radiate-off a photon
     //    --> have a status 2 tau lepton in the list of descendents
     GenParticleRefVector status2TauDaughters;
-    findDescendents( *iTau, status2TauDaughters, 2, 15 );
+    findDescendents( allStatus2Tau, status2TauDaughters, 2, 15 );
     if ( status2TauDaughters.size() > 0 ) continue;
 
     // loop on descendents, and take all except neutrinos
@@ -70,12 +70,11 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
     Jet::Constituents constituents;
 
     if(verbose_)
-      cout<<"tau "<<(*iTau)<<endl;
+      cout<<"tau "<<(allStatus2Tau)<<endl;
 
-    for(IGR igr = descendents.begin();
-	igr!= descendents.end(); ++igr ) {
+    for(auto && descendent : descendents) {
 
-      int absPdgId = abs((*igr)->pdgId());
+      int absPdgId = abs((descendent)->pdgId());
 
       // neutrinos
       if(!includeNeutrinos_ ) {
@@ -86,14 +85,14 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
       }
 
       if(verbose_)
-	cout<<"\t"<<(*igr)<<endl;
+	cout<<"\t"<<(descendent)<<endl;
 
-      charge += (*igr)->charge();
-      sumVisMom += (*igr)->p4();
+      charge += (descendent)->charge();
+      sumVisMom += (descendent)->p4();
 
       // need to convert the vector of reference to the constituents
       // to a vector of pointers to build the genjet
-      constituents.push_back( refToPtr( *igr) );
+      constituents.push_back( refToPtr( descendent) );
     }
 
     math::XYZPoint vertex;
@@ -101,8 +100,8 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
 
     GenJet jet( sumVisMom, vertex, specific, constituents);
 
-    if (charge != (*iTau)->charge() )
-      std::cout<<" charge of Tau: " << (*iTau) << " not equal to charge of sum of charge of all descendents. " << std::endl;
+    if (charge != (allStatus2Tau)->charge() )
+      std::cout<<" charge of Tau: " << (allStatus2Tau) << " not equal to charge of sum of charge of all descendents. " << std::endl;
 
     jet.setCharge(charge);
     pOutVisTaus->push_back( jet );

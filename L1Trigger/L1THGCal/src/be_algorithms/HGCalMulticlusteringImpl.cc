@@ -69,15 +69,15 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
     }
 
     /* making the collection of multiclusters */
-    for( unsigned i(0); i<multiclustersTmp.size(); ++i ){
-        math::PtEtaPhiMLorentzVector calibP4(  multiclustersTmp.at(i).pt() * calibSF_, 
-                                               multiclustersTmp.at(i).eta(), 
-                                               multiclustersTmp.at(i).phi(), 
+    for(auto & i : multiclustersTmp){
+        math::PtEtaPhiMLorentzVector calibP4(  i.pt() * calibSF_, 
+                                               i.eta(), 
+                                               i.phi(), 
                                                0. );
         // overwriting the 4p with the calibrated 4p     
-        multiclustersTmp.at(i).setP4( calibP4 );
-        if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
-            multiclusters.push_back( 0, multiclustersTmp.at(i));  
+        i.setP4( calibP4 );
+        if( i.pt() > ptC3dThreshold_ ){
+            multiclusters.push_back( 0, i);  
         }
     }
     

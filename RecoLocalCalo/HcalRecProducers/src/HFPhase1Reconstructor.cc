@@ -195,8 +195,7 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
     rec->reserve(preRecHits->size());
 
     // Iterate over the input and fill the output collection
-    for (HFPreRecHitCollection::const_iterator it = preRecHits->begin();
-         it != preRecHits->end(); ++it)
+    for (const auto & it : *preRecHits)
     {
         // The check whether this PMT is single-anode one should go here.
         // Fix this piece of code if/when mixed-anode readout configurations
@@ -210,7 +209,7 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
             if (checkChannelQualityForDepth3and4_ && !thisIsSingleAnodePMT)
             {
                 HcalDetId anodeIds[2];
-                anodeIds[0] = it->id();
+                anodeIds[0] = it.id();
                 anodeIds[1] = anodeIds[0].secondAnodeId();
                 for (unsigned i=0; i<2; ++i)
                 {
@@ -220,7 +219,7 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
             }
             else
             {
-                const HcalChannelStatus* mydigistatus = myqual->getValues(it->id().rawId());
+                const HcalChannelStatus* mydigistatus = myqual->getValues(it.id().rawId());
                 const bool b = mySeverity->dropChannel(mydigistatus->getValue());
                 taggedBadByDb[0] = b;
                 taggedBadByDb[1] = b;
@@ -229,7 +228,7 @@ HFPhase1Reconstructor::produce(edm::Event& e, const edm::EventSetup& eventSetup)
 
         // Reconstruct the rechit
         const HFRecHit& rh = reco_->reconstruct(
-            *it, conditions->getHcalCalibrations(it->id()),
+            it, conditions->getHcalCalibrations(it.id()),
             taggedBadByDb, thisIsSingleAnodePMT);
 
         // The rechit will have the id of 0 if the algorithm

@@ -41,9 +41,9 @@ void MixCollectionValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::R
 
   std::vector<std::string> names = mixObjextsSet_.getParameterNames();
 
-  for (std::vector<std::string>::iterator it = names.begin();it!= names.end();++it)
+  for (auto & it : names)
   {
-    ParameterSet pset = mixObjextsSet_.getParameter<ParameterSet>((*it));
+    ParameterSet pset = mixObjextsSet_.getParameter<ParameterSet>(it);
     if (!pset.exists("type"))  continue; //to allow replacement by empty pset
     std::string object = pset.getParameter<std::string>("type");
     std::vector<InputTag> tags = pset.getParameter<std::vector<InputTag> >("input");
@@ -86,15 +86,15 @@ void MixCollectionValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::R
     }
     else if ( object == "PSimHit" ) {
       std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
-      for (unsigned int ii=0;ii<subdets.size();ii++) {
+      for (const auto & subdet : subdets) {
 
-        std::string title = "Log10 Number of " + subdets[ii];
-        std::string name = "NumberOf" + subdets[ii];
-        SimHitNrmap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+        std::string title = "Log10 Number of " + subdet;
+        std::string name = "NumberOf" + subdet;
+        SimHitNrmap_[subdet] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
-        title = "Time of " + subdets[ii];
-        name = "TimeOf" + subdets[ii];
-        SimHitTimemap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+        title = "Time of " + subdet;
+        name = "TimeOf" + subdet;
+        SimHitTimemap_[subdet] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
 
       }
 
@@ -105,15 +105,15 @@ void MixCollectionValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::R
     }
     else if ( object == "PCaloHit" ) {
       std::vector<std::string> subdets=pset.getParameter<std::vector<std::string> >("subdets");
-      for (unsigned int ii=0;ii<subdets.size();ii++) {
+      for (const auto & subdet : subdets) {
 
-        std::string title = "Log10 Number of " + subdets[ii];
-        std::string name = "NumberOf" + subdets[ii];
-        CaloHitNrmap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
+        std::string title = "Log10 Number of " + subdet;
+        std::string name = "NumberOf" + subdet;
+        CaloHitNrmap_[subdet] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,0.,40.);
 
-        title = "Time of " + subdets[ii];
-        name = "TimeOf" + subdets[ii];
-        CaloHitTimemap_[subdets[ii]] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
+        title = "Time of " + subdet;
+        name = "TimeOf" + subdet;
+        CaloHitTimemap_[subdet] = iBooker.bookProfile(name,title,nbin_,minbunch_,maxbunch_+1,40,-125.,375.);
 
       }
 

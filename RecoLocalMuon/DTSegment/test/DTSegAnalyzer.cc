@@ -188,17 +188,16 @@ void DTSegAnalyzer::analyzeDTHits(const Event & event,
   histo("hnHitDT")->Fill(nHitDT);
 
   //float ttrigg = 1895.; // should get this from CondDB...
-  for (DTRecHitCollection::const_iterator hit = dtRecHits->begin();
-       hit!=dtRecHits->end();  ++hit) {
+  for (const auto & hit : *dtRecHits) {
     // Get the wireId of the rechit
-    DTWireId wireId = (*hit).wireId();
+    DTWireId wireId = hit.wireId();
 
     float ttrig = theSync->offset(wireId);
     //cout << "TTrig " << ttrig << endl;
 
-    float time = (*hit).digiTime()  - ttrig ;
-    double xLeft = (*hit).localPosition(DTEnums::Left).x();
-    double xRight = (*hit).localPosition(DTEnums::Right).x();
+    float time = hit.digiTime()  - ttrig ;
+    double xLeft = hit.localPosition(DTEnums::Left).x();
+    double xRight = hit.localPosition(DTEnums::Right).x();
 
     histo("hDigiTime")->Fill(time);
     histo("hPosLeft")->Fill(xLeft);
@@ -209,9 +208,8 @@ void DTSegAnalyzer::analyzeDTHits(const Event & event,
   // loop on SL
   //cout << "MeanTimer analysis" << endl;
   const std::vector<const DTSuperLayer*> & sls = dtGeom->superLayers();
-  for (auto sl = sls.begin();
-       sl!=sls.end() ; ++sl) {
-    DTSuperLayerId slid = (*sl)->id();
+  for (auto sl : sls) {
+    DTSuperLayerId slid = sl->id();
 
     DTMeanTimer meanTimer(dtGeom->superLayer(slid), dtRecHits, eventSetup,
                           theSync);
@@ -251,9 +249,8 @@ void DTSegAnalyzer::analyzeDTSegments(const Event & event,
   histo("hnSegDT")->Fill(nsegs);
   const std::vector<const DTChamber*> & chs = dtGeom->chambers();
 
-  for (auto ch = chs.begin();
-       ch!=chs.end() ; ++ch) {
-    DTChamberId chid((*ch)->id());
+  for (auto ch : chs) {
+    DTChamberId chid(ch->id());
     // Segment 4d in this chamber
     DTRecSegment4DCollection::range segsch= segs->get(chid);
     int nSegsCh=segsch.second-segsch.first;
@@ -368,7 +365,7 @@ void DTSegAnalyzer::analyzeDTSegments(const Event & event,
 
       // residual analysis
       if (phiSeg) {
-        DTSegmentResidual res(phiSeg, *ch);
+        DTSegmentResidual res(phiSeg, ch);
         res.run();
         vector<DTSegmentResidual::DTResidual> deltas=res.residuals();
         for (vector<DTSegmentResidual::DTResidual>::const_iterator delta=deltas.begin();
@@ -392,7 +389,7 @@ void DTSegAnalyzer::analyzeDTSegments(const Event & event,
       }
 
       if (zedSeg) {
-        const DTSuperLayer* sl= (*ch)->superLayer(2);
+        const DTSuperLayer* sl= ch->superLayer(2);
         DTSegmentResidual res(zedSeg, sl);
         res.run();
         vector<DTSegmentResidual::DTResidual> deltas=res.residuals();

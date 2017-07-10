@@ -84,10 +84,10 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
        }
      
        
-       for (unsigned int ii=0;ii<(*detId).size();ii++)
+       for (auto ii : (*detId))
 	 {
-	   if (std::find(xtalsToStore.begin(),xtalsToStore.end(),(*detId)[ii]) == xtalsToStore.end())
-	     xtalsToStore.push_back((*detId)[ii]);
+	   if (std::find(xtalsToStore.begin(),xtalsToStore.end(),ii) == xtalsToStore.end())
+	     xtalsToStore.push_back(ii);
 	 }
      }
    
@@ -102,10 +102,10 @@ ReducedRecHitCollectionProducer::produce (edm::Event& iEvent,
    //Create empty output collections
    auto miniRecHitCollection  = std::make_unique<EcalRecHitCollection>();
    
-   for (unsigned int iCry=0;iCry<xtalsToStore.size();iCry++)
+   for (auto iCry : xtalsToStore)
      {
-       EcalRecHitCollection::const_iterator iRecHit = recHitsHandle->find(xtalsToStore[iCry]);
-       if ( (iRecHit != recHitsHandle->end()) && (miniRecHitCollection->find(xtalsToStore[iCry]) == miniRecHitCollection->end()) )
+       EcalRecHitCollection::const_iterator iRecHit = recHitsHandle->find(iCry);
+       if ( (iRecHit != recHitsHandle->end()) && (miniRecHitCollection->find(iCry) == miniRecHitCollection->end()) )
 	 miniRecHitCollection->push_back(*iRecHit);
      }  
 

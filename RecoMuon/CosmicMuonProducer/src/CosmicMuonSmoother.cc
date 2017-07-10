@@ -256,8 +256,8 @@ vector<Trajectory> CosmicMuonSmoother::smooth(const vector<Trajectory>& tc) cons
 
   vector<Trajectory> result; 
 
-  for ( vector<Trajectory>::const_iterator it = tc.begin(); it != tc.end(); ++it ) {
-    vector<Trajectory> smoothed = smooth(*it);
+  for (const auto & it : tc) {
+    vector<Trajectory> smoothed = smooth(it);
     result.insert(result.end(), smoothed.begin(), smoothed.end());
   }
 

@@ -218,21 +218,17 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 
 		switch(iter->iteration) {
 		    case ITER_EMPTY:
-			for(std::vector<double>::const_iterator value =
-							values->begin();
-				value != values->end(); value++) {
-				iter->range.min = iter->range.max = *value;
+			for(double value : *values) {
+				iter->range.min = iter->range.max = value;
 				iter->iteration = ITER_RANGE;
 				break;
 			}
 		    case ITER_RANGE:
-			for(std::vector<double>::const_iterator value =
-							values->begin();
-				value != values->end(); value++) {
+			for(double value : *values) {
 				iter->range.min = std::min(iter->range.min,
-				                           *value);
+				                           value);
 				iter->range.max = std::max(iter->range.max,
-				                           *value);
+				                           value);
 			}
 			continue;
 		    case ITER_FILL:
@@ -247,9 +243,8 @@ void ProcNormalize::trainData(const std::vector<double> *values,
 		unsigned int n = iter->distr.size() - 1;
 		double mult = 1.0 / iter->range.width();
 
-		for(std::vector<double>::const_iterator value =
-			values->begin(); value != values->end(); value++) {
-			double x = (*value - iter->range.min) * mult;
+		for(double value : *values) {
+			double x = (value - iter->range.min) * mult;
 			if (x < 0.0)
 				x = 0.0;
 			else if (x >= 1.0)
@@ -284,22 +279,21 @@ static void smoothArray(unsigned int n, double *values, unsigned int nTimes)
 void ProcNormalize::trainEnd()
 {
 	bool done = true;
-	for(std::vector<PDF>::iterator iter = pdfs.begin();
-	    iter != pdfs.end(); iter++) {
-		switch(iter->iteration) {
+	for(auto & pdf : pdfs) {
+		switch(pdf.iteration) {
 		    case ITER_EMPTY:
 		    case ITER_RANGE:
-			iter->iteration = ITER_FILL;
+			pdf.iteration = ITER_FILL;
 			done = false;
 			break;
 		    case ITER_FILL:
-			iter->distr.front() *= 2;
-			iter->distr.back() *= 2;
-			smoothArray(iter->distr.size(),
-			            &iter->distr.front(),
-			            iter->smooth);
+			pdf.distr.front() *= 2;
+			pdf.distr.back() *= 2;
+			smoothArray(pdf.distr.size(),
+			            &pdf.distr.front(),
+			            pdf.smooth);
 
-			iter->iteration = ITER_DONE;
+			pdf.iteration = ITER_DONE;
 			break;
 		    default:
 			/* shut up */;
@@ -519,13 +513,12 @@ void ProcNormalize::save()
 		XMLDocument::writeAttribute(elem, "lower", iter->range.min);
 		XMLDocument::writeAttribute(elem, "upper", iter->range.max);
 
-		for(std::vector<double>::const_iterator iter2 =
-		    iter->distr.begin(); iter2 != iter->distr.end(); iter2++) {
+		for(double iter2 : iter->distr) {
 			DOMElement *value =
 					doc->createElement(XMLUniStr("value"));
 			elem->appendChild(value);
 
-			XMLDocument::writeContent<double>(value, doc, *iter2);
+			XMLDocument::writeContent<double>(value, doc, iter2);
 		}
 	}
 }

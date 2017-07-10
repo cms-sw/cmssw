@@ -231,15 +231,14 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 				      Trackscheck,  
 				      reco::PFBlockElement::TRACK,  
 				      reco::PFBlock::LINKTEST_ALL);  
-	for(std::multimap<double, unsigned int>::iterator track = Trackscheck.begin();  
-	    track != Trackscheck.end(); ++track) {  
+	for(auto & track : Trackscheck) {  
 	   
 	  // first check if is it's still active  
-	  if( ! (active[track->second]) ) continue;  
-	  hasSingleleg=EvaluateSingleLegMVA(blockRef,  *primaryVertex_, track->second);  
+	  if( ! (active[track.second]) ) continue;  
+	  hasSingleleg=EvaluateSingleLegMVA(blockRef,  *primaryVertex_, track.second);  
 	  //check if it is the closest linked track  
 	  std::multimap<double, unsigned int> closecheck;  
-	  blockRef->associatedElements(track->second,  
+	  blockRef->associatedElements(track.second,  
 				       linkData,  
 				       closecheck,  
 				       reco::PFBlockElement::ECAL,  
@@ -274,48 +273,46 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 				    reco::PFBlock::LINKTEST_ALL );
       
       // loop over all PS1 and compute energy
-      for(std::multimap<double, unsigned int>::iterator iteps = PS1Elems.begin();
-	  iteps != PS1Elems.end(); ++iteps) {
+      for(auto & PS1Elem : PS1Elems) {
 
 	// first chekc if it's still active
-	if( !(active[iteps->second]) ) continue;
+	if( !(active[PS1Elem.second]) ) continue;
 	
 	//Check if this PS1 is not closer to another ECAL cluster in this Block          
 	std::multimap<double, unsigned int> ECALPS1check;  
-	blockRef->associatedElements( iteps->second,  
+	blockRef->associatedElements( PS1Elem.second,  
 				      linkData,  
 				      ECALPS1check,  
 				      reco::PFBlockElement::ECAL,  
 				      reco::PFBlock::LINKTEST_ALL );  
 	if(itecal->second==ECALPS1check.begin()->second)//then it is closest linked  
 	  {
-	    reco::PFClusterRef ps1ClusterRef = elements[iteps->second].clusterRef();
+	    reco::PFClusterRef ps1ClusterRef = elements[PS1Elem.second].clusterRef();
 	    ps1Ene.push_back( ps1ClusterRef->energy() );
 	    ps1=ps1+ps1ClusterRef->energy(); //add to total PS1
 	    // incativate this PS1 Element
-	    elemsToLock.push_back(iteps->second);
+	    elemsToLock.push_back(PS1Elem.second);
 	  }
       }
-      for(std::multimap<double, unsigned int>::iterator iteps = PS2Elems.begin();
-	  iteps != PS2Elems.end(); ++iteps) {
+      for(auto & PS2Elem : PS2Elems) {
 
 	// first chekc if it's still active
-	if( !(active[iteps->second]) ) continue;
+	if( !(active[PS2Elem.second]) ) continue;
 	
 	// Check if this PS2 is not closer to another ECAL cluster in this Block:
 	std::multimap<double, unsigned int> ECALPS2check;  
-	blockRef->associatedElements( iteps->second,  
+	blockRef->associatedElements( PS2Elem.second,  
 				      linkData,  
 				      ECALPS2check,  
 				      reco::PFBlockElement::ECAL,  
 				      reco::PFBlock::LINKTEST_ALL );  
 	if(itecal->second==ECALPS2check.begin()->second)//is closest linked  
 	  {
-	    reco::PFClusterRef ps2ClusterRef = elements[iteps->second].clusterRef();
+	    reco::PFClusterRef ps2ClusterRef = elements[PS2Elem.second].clusterRef();
 	    ps2Ene.push_back( ps2ClusterRef->energy() );
 	    ps2=ps2ClusterRef->energy()+ps2; //add to total PS2
 	    // incativate this PS2 Element
-	    elemsToLock.push_back(iteps->second);
+	    elemsToLock.push_back(PS2Elem.second);
 	  }
       }
             
@@ -326,10 +323,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 				    reco::PFBlockElement::HCAL,
 				    reco::PFBlock::LINKTEST_ALL );
 
-      for(std::multimap<double, unsigned int>::iterator ithcal = hcalElems.begin();
-	  ithcal != hcalElems.end(); ++ithcal) {
+      for(auto & hcalElem : hcalElems) {
 
-	if ( ! (active[ithcal->second] ) ) continue; // HCAL Cluster already used....
+	if ( ! (active[hcalElem.second] ) ) continue; // HCAL Cluster already used....
 	
 	// TODO: Decide if this HCAL cluster is to be used
 	// .... based on some Physics
@@ -350,18 +346,17 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 				    convTracks,
 				    reco::PFBlockElement::TRACK,
 				    reco::PFBlock::LINKTEST_ALL);
-      for(std::multimap<double, unsigned int>::iterator track = convTracks.begin();
-	  track != convTracks.end(); ++track) {
+      for(auto & convTrack : convTracks) {
 
 	// first check if is it's still active
-	if( ! (active[track->second]) ) continue;
+	if( ! (active[convTrack.second]) ) continue;
 	
 	// check if it's a CONV track
-	const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[track->second])); 	
+	const reco::PFBlockElementTrack * trackRef = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[convTrack.second])); 	
 	
 	//Check if track is a Single leg from a Conversion  
 	mvaValue=-999;  
-	hasSingleleg=EvaluateSingleLegMVA(blockRef,  *primaryVertex_, track->second);  
+	hasSingleleg=EvaluateSingleLegMVA(blockRef,  *primaryVertex_, convTrack.second);  
 
 	// Daniele; example for mvaValues, do the same for single leg trackRef and convRef
 	//          
@@ -373,19 +368,19 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	  {  
 	    bool included=false;  
 	    //check if this track is already included in the vector so it is linked to an ECAL cluster that is already examined  
-	    for(unsigned int i=0; i<IsoTracks.size(); i++)  
-	      {if(IsoTracks[i]==track->second)included=true;}  
-	    if(!included)IsoTracks.push_back(track->second);  
+	    for(unsigned int IsoTrack : IsoTracks)  
+	      {if(IsoTrack==convTrack.second)included=true;}  
+	    if(!included)IsoTracks.push_back(convTrack.second);  
 	  }  
 	//For now only Pre-ID tracks that are not already identified as Conversions  
 	if(hasSingleleg &&!(trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV)))  
 	  {  
-	    elemsToLock.push_back(track->second);
+	    elemsToLock.push_back(convTrack.second);
 	    
-	    reco::TrackRef t_ref=elements[track->second].trackRef();
+	    reco::TrackRef t_ref=elements[convTrack.second].trackRef();
 	    bool matched=false;
-	    for(unsigned int ic=0; ic<singleLegRef.size(); ic++)
-	      if(singleLegRef[ic]==t_ref)matched=true;
+	    for(const auto & ic : singleLegRef)
+	      if(ic==t_ref)matched=true;
 	    
 	    if(!matched){
 	      singleLegRef.push_back(t_ref);
@@ -393,32 +388,30 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	    }
 	    //find all the clusters linked to this track  
 	    std::multimap<double, unsigned int> moreClusters;  
-	    blockRef->associatedElements( track->second,  
+	    blockRef->associatedElements( convTrack.second,  
 					  linkData,  
 					  moreClusters,  
 					  reco::PFBlockElement::ECAL,  
 					  reco::PFBlock::LINKTEST_ALL);  
 	     
-	    float p_in=sqrt(elements[track->second].trackRef()->innerMomentum().x() * elements[track->second].trackRef()->innerMomentum().x() +  
-			    elements[track->second].trackRef()->innerMomentum().y()*elements[track->second].trackRef()->innerMomentum().y()+  
-			    elements[track->second].trackRef()->innerMomentum().z()*elements[track->second].trackRef()->innerMomentum().z());  
+	    float p_in=sqrt(elements[convTrack.second].trackRef()->innerMomentum().x() * elements[convTrack.second].trackRef()->innerMomentum().x() +  
+			    elements[convTrack.second].trackRef()->innerMomentum().y()*elements[convTrack.second].trackRef()->innerMomentum().y()+  
+			    elements[convTrack.second].trackRef()->innerMomentum().z()*elements[convTrack.second].trackRef()->innerMomentum().z());  
 	    float linked_E=0;  
-	    for(std::multimap<double, unsigned int>::iterator clust = moreClusters.begin();  
-		clust != moreClusters.end(); ++clust)  
+	    for(auto & moreCluster : moreClusters)  
 	      {  
-		if(!active[clust->second])continue;  
+		if(!active[moreCluster.second])continue;  
 		//running sum of linked energy  
-		linked_E=linked_E+elements[clust->second].clusterRef()->energy();  
+		linked_E=linked_E+elements[moreCluster.second].clusterRef()->energy();  
 		//prevent too much energy from being added  
 		if(linked_E/p_in>1.5)break;  
 		bool included=false;  
 		//check if these ecal clusters are already included with the supercluster  
-		for(std::multimap<double, unsigned int>::iterator cluscheck = ecalAssoPFClusters.begin();  
-		    cluscheck != ecalAssoPFClusters.end(); ++cluscheck)  
+		for(auto & ecalAssoPFCluster : ecalAssoPFClusters)  
 		  {  
-		    if(cluscheck->second==clust->second)included=true;  
+		    if(ecalAssoPFCluster.second==moreCluster.second)included=true;  
 		  }  
-		if(!included)AddClusters.push_back(clust->second);//Add to a container of clusters to be Added to the Photon candidate  
+		if(!included)AddClusters.push_back(moreCluster.second);//Add to a container of clusters to be Added to the Photon candidate  
 	      }  
 	  }
 
@@ -426,86 +419,81 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	// .... for now we simply skip non id'ed tracks
 	if( ! (trackRef->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) ) ) continue;  
 	hasConvTrack=true;  
-	elemsToLock.push_back(track->second);
+	elemsToLock.push_back(convTrack.second);
 	//again look at the clusters linked to this track  
 	//if(elements[track->second].convRef().isNonnull())
 	//{	    
 	//  ConversionsRef_.push_back(elements[track->second].convRef());
 	//}
 	std::multimap<double, unsigned int> moreClusters;  
-	blockRef->associatedElements( track->second,  
+	blockRef->associatedElements( convTrack.second,  
 				      linkData,  
 				      moreClusters,  
 				      reco::PFBlockElement::ECAL,  
 				      reco::PFBlock::LINKTEST_ALL);
 	
-	float p_in=sqrt(elements[track->second].trackRef()->innerMomentum().x() * elements[track->second].trackRef()->innerMomentum().x() +  
-			elements[track->second].trackRef()->innerMomentum().y()*elements[track->second].trackRef()->innerMomentum().y()+  
-			elements[track->second].trackRef()->innerMomentum().z()*elements[track->second].trackRef()->innerMomentum().z());  
+	float p_in=sqrt(elements[convTrack.second].trackRef()->innerMomentum().x() * elements[convTrack.second].trackRef()->innerMomentum().x() +  
+			elements[convTrack.second].trackRef()->innerMomentum().y()*elements[convTrack.second].trackRef()->innerMomentum().y()+  
+			elements[convTrack.second].trackRef()->innerMomentum().z()*elements[convTrack.second].trackRef()->innerMomentum().z());  
 	float linked_E=0;  
-	for(std::multimap<double, unsigned int>::iterator clust = moreClusters.begin();  
-	    clust != moreClusters.end(); ++clust)  
+	for(auto & moreCluster : moreClusters)  
 	  {  
-	    if(!active[clust->second])continue;  
-	    linked_E=linked_E+elements[clust->second].clusterRef()->energy();  
+	    if(!active[moreCluster.second])continue;  
+	    linked_E=linked_E+elements[moreCluster.second].clusterRef()->energy();  
 	    if(linked_E/p_in>1.5)break;  
 	    bool included=false;  
-	    for(std::multimap<double, unsigned int>::iterator cluscheck = ecalAssoPFClusters.begin();  
-		cluscheck != ecalAssoPFClusters.end(); ++cluscheck)  
+	    for(auto & ecalAssoPFCluster : ecalAssoPFClusters)  
 	      {  
-		if(cluscheck->second==clust->second)included=true;  
+		if(ecalAssoPFCluster.second==moreCluster.second)included=true;  
 	      }  
-	    if(!included)AddClusters.push_back(clust->second);//again only add if it is not already included with the supercluster  
+	    if(!included)AddClusters.push_back(moreCluster.second);//again only add if it is not already included with the supercluster  
 	  }
 	
 	// we need to check for other TRACKS linked to this conversion track, that point possibly no an ECAL cluster not included in the SC
 	// .... This is basically CASE 4.
 	
 	std::multimap<double, unsigned int> moreTracks;
-	blockRef->associatedElements( track->second,
+	blockRef->associatedElements( convTrack.second,
 				      linkData,
 				      moreTracks,
 				      reco::PFBlockElement::TRACK,
 				      reco::PFBlock::LINKTEST_ALL);
 	
-	for(std::multimap<double, unsigned int>::iterator track2 = moreTracks.begin();
-	    track2 != moreTracks.end(); ++track2) {
+	for(auto & moreTrack : moreTracks) {
 	  
 	  // first check if is it's still active
-	  if( ! (active[track2->second]) ) continue;
+	  if( ! (active[moreTrack.second]) ) continue;
 	  //skip over the 1st leg already found above  
-	  if(track->second==track2->second)continue;	  
+	  if(convTrack.second==moreTrack.second)continue;	  
 	  // check if it's a CONV track
-	  const reco::PFBlockElementTrack * track2Ref = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[track2->second])); 	
+	  const reco::PFBlockElementTrack * track2Ref = dynamic_cast<const reco::PFBlockElementTrack*>((&elements[moreTrack.second])); 	
 	  if( ! (track2Ref->trackType(reco::PFBlockElement::T_FROM_GAMMACONV) ) ) continue;  // Possibly need to be more smart about them (CASE 5)
-	  elemsToLock.push_back(track2->second);
+	  elemsToLock.push_back(moreTrack.second);
 	  // so it's another active conversion track, that is in the Block and linked to the conversion track we already found
 	  // find the ECAL cluster linked to it...
 	  std::multimap<double, unsigned int> convEcal;
-	  blockRef->associatedElements( track2->second,
+	  blockRef->associatedElements( moreTrack.second,
 					linkData,
 					convEcal,
 					reco::PFBlockElement::ECAL,
 					reco::PFBlock::LINKTEST_ALL);
-	  float p_in=sqrt(elements[track->second].trackRef()->innerMomentum().x()*elements[track->second].trackRef()->innerMomentum().x()+
-			  elements[track->second].trackRef()->innerMomentum().y()*elements[track->second].trackRef()->innerMomentum().y()+  
-			  elements[track->second].trackRef()->innerMomentum().z()*elements[track->second].trackRef()->innerMomentum().z());  
+	  float p_in=sqrt(elements[convTrack.second].trackRef()->innerMomentum().x()*elements[convTrack.second].trackRef()->innerMomentum().x()+
+			  elements[convTrack.second].trackRef()->innerMomentum().y()*elements[convTrack.second].trackRef()->innerMomentum().y()+  
+			  elements[convTrack.second].trackRef()->innerMomentum().z()*elements[convTrack.second].trackRef()->innerMomentum().z());  
 	  
 	  
 	  float linked_E=0;
-	  for(std::multimap<double, unsigned int>::iterator itConvEcal = convEcal.begin();
-	      itConvEcal != convEcal.end(); ++itConvEcal) {
+	  for(auto & itConvEcal : convEcal) {
 	    
-	    if( ! (active[itConvEcal->second]) ) continue;
+	    if( ! (active[itConvEcal.second]) ) continue;
 	    bool included=false;  
-	    for(std::multimap<double, unsigned int>::iterator cluscheck = ecalAssoPFClusters.begin();  
-		cluscheck != ecalAssoPFClusters.end(); ++cluscheck)  
+	    for(auto & ecalAssoPFCluster : ecalAssoPFClusters)  
 	      {  
-		if(cluscheck->second==itConvEcal->second)included=true;  
+		if(ecalAssoPFCluster.second==itConvEcal.second)included=true;  
 	      }
-	    linked_E=linked_E+elements[itConvEcal->second].clusterRef()->energy();
+	    linked_E=linked_E+elements[itConvEcal.second].clusterRef()->energy();
 	    if(linked_E/p_in>1.5)break;
-	    if(!included){AddClusters.push_back(itConvEcal->second);
+	    if(!included){AddClusters.push_back(itConvEcal.second);
 	    }
 	    
 	    // it's still active, so we have to add it.
@@ -518,10 +506,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 					  reco::PFBlockElement::HCAL,
 					  reco::PFBlock::LINKTEST_ALL );
 	    
-	    for(std::multimap<double, unsigned int>::iterator ithcal2 = hcalElems_conv.begin();
-		ithcal2 != hcalElems_conv.end(); ++ithcal2) {
+	    for(auto & ithcal2 : hcalElems_conv) {
 	      
-	      if ( ! (active[ithcal2->second] ) ) continue; // HCAL Cluster already used....
+	      if ( ! (active[ithcal2.second] ) ) continue; // HCAL Cluster already used....
 	      
 	      // TODO: Decide if this HCAL cluster is to be used
 	      // .... based on some Physics
@@ -550,65 +537,63 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
       std::vector<double>AddedPS2(0);  
       double addedps1=0;  
       double addedps2=0;  
-      for(unsigned int i=0; i<AddClusters.size(); i++)  
+      for(unsigned int AddCluster : AddClusters)  
 	{  
 	  std::multimap<double, unsigned int> PS1Elems_conv;  
 	  std::multimap<double, unsigned int> PS2Elems_conv;  
-	  blockRef->associatedElements(AddClusters[i],  
+	  blockRef->associatedElements(AddCluster,  
 				       linkData,  
 				       PS1Elems_conv,  
 				       reco::PFBlockElement::PS1,  
 				       reco::PFBlock::LINKTEST_ALL );  
-	  blockRef->associatedElements( AddClusters[i],  
+	  blockRef->associatedElements( AddCluster,  
 					linkData,  
 					PS2Elems_conv,  
 					reco::PFBlockElement::PS2,  
 					reco::PFBlock::LINKTEST_ALL );  
 	   
-	  for(std::multimap<double, unsigned int>::iterator iteps = PS1Elems_conv.begin();  
-	      iteps != PS1Elems_conv.end(); ++iteps)  
+	  for(auto & iteps : PS1Elems_conv)  
 	    {  
-	      if(!active[iteps->second])continue;  
+	      if(!active[iteps.second])continue;  
 	      std::multimap<double, unsigned int> PS1Elems_check;  
-	      blockRef->associatedElements(iteps->second,  
+	      blockRef->associatedElements(iteps.second,  
 					   linkData,  
 					   PS1Elems_check,  
 					   reco::PFBlockElement::ECAL,  
 					   reco::PFBlock::LINKTEST_ALL );  
-	      if(PS1Elems_check.begin()->second==AddClusters[i])  
+	      if(PS1Elems_check.begin()->second==AddCluster)  
 		{  
 		   
-		  reco::PFClusterRef ps1ClusterRef = elements[iteps->second].clusterRef();  
+		  reco::PFClusterRef ps1ClusterRef = elements[iteps.second].clusterRef();  
 		  AddedPS1.push_back(ps1ClusterRef->energy());  
 		  addedps1=addedps1+ps1ClusterRef->energy();  
-		  elemsToLock.push_back(iteps->second);  
+		  elemsToLock.push_back(iteps.second);  
 		}  
 	    }  
 	   
-	  for(std::multimap<double, unsigned int>::iterator iteps = PS2Elems_conv.begin();  
-	      iteps != PS2Elems_conv.end(); ++iteps) {  
-	    if(!active[iteps->second])continue;  
+	  for(auto & iteps : PS2Elems_conv) {  
+	    if(!active[iteps.second])continue;  
 	    std::multimap<double, unsigned int> PS2Elems_check;  
-	    blockRef->associatedElements(iteps->second,  
+	    blockRef->associatedElements(iteps.second,  
 					 linkData,  
 					 PS2Elems_check,  
 					 reco::PFBlockElement::ECAL,  
 					 reco::PFBlock::LINKTEST_ALL );  
 	     
-	    if(PS2Elems_check.begin()->second==AddClusters[i])  
+	    if(PS2Elems_check.begin()->second==AddCluster)  
 	      {  
-		reco::PFClusterRef ps2ClusterRef = elements[iteps->second].clusterRef();  
+		reco::PFClusterRef ps2ClusterRef = elements[iteps.second].clusterRef();  
 		AddedPS2.push_back(ps2ClusterRef->energy());  
 		addedps2=addedps2+ps2ClusterRef->energy();  
-		elemsToLock.push_back(iteps->second);  
+		elemsToLock.push_back(iteps.second);  
 	      }  
 	  }  
-	  reco::PFClusterRef AddclusterRef = elements[AddClusters[i]].clusterRef();  
+	  reco::PFClusterRef AddclusterRef = elements[AddCluster].clusterRef();  
 	  addedRawEne = AddclusterRef->energy()+addedRawEne;  
 	  addedCalibEne = thePFEnergyCalibration_->energyEm(*AddclusterRef,AddedPS1,AddedPS2,false)+addedCalibEne;  
 	  AddedPS2.clear(); 
 	  AddedPS1.clear();  
-	  elemsToLock.push_back(AddClusters[i]);  
+	  elemsToLock.push_back(AddCluster);  
 	}  
       AddClusters.clear();
       float EE=thePFEnergyCalibration_->energyEm(*clusterRef,ps1Ene,ps2Ene,false)+addedCalibEne;
@@ -682,33 +667,29 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 					      reco::PFBlock::LINKTEST_ALL );
 		
 		
-		for(std::multimap<double, unsigned int>::iterator iteps = 
-		      PS1Elems.begin();  
-		    iteps != PS1Elems.end(); ++iteps) 
+		for(auto & PS1Elem : PS1Elems) 
 		  {  
-		    std::multimap<double, unsigned int> Clustcheck;  		    	    blockRef->associatedElements( iteps->second,  								   linkData,  
+		    std::multimap<double, unsigned int> Clustcheck;  		    	    blockRef->associatedElements( PS1Elem.second,  								   linkData,  
 															  Clustcheck,  
 															  reco::PFBlockElement::ECAL,  
 															  reco::PFBlock::LINKTEST_ALL );
 		    if(Clustcheck.begin()->second==index)
 		      {
-			AddedPS1.push_back(elements[iteps->second].clusterRef()->energy());
-			Elec_totPs1=Elec_totPs1+elements[iteps->second].clusterRef()->energy();
+			AddedPS1.push_back(elements[PS1Elem.second].clusterRef()->energy());
+			Elec_totPs1=Elec_totPs1+elements[PS1Elem.second].clusterRef()->energy();
 		      }
 		  }
 		
-		for(std::multimap<double, unsigned int>::iterator iteps = 
-		      PS2Elems.begin();  
-		    iteps != PS2Elems.end(); ++iteps) 
+		for(auto & PS2Elem : PS2Elems) 
 		  {  
-		    std::multimap<double, unsigned int> Clustcheck;  		    	    blockRef->associatedElements( iteps->second,  								   linkData,  
+		    std::multimap<double, unsigned int> Clustcheck;  		    	    blockRef->associatedElements( PS2Elem.second,  								   linkData,  
 															  Clustcheck,  
 															  reco::PFBlockElement::ECAL,  
 															  reco::PFBlock::LINKTEST_ALL );
 		    if(Clustcheck.begin()->second==index)
 		      {
-			AddedPS2.push_back(elements[iteps->second].clusterRef()->energy());
-			Elec_totPs2=Elec_totPs2+elements[iteps->second].clusterRef()->energy();
+			AddedPS2.push_back(elements[PS2Elem.second].clusterRef()->energy());
+			Elec_totPs2=Elec_totPs2+elements[PS2Elem.second].clusterRef()->energy();
 		      }
 		  }
 		
@@ -756,7 +737,7 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     if( ! (photonEnergy_ > 0.) ) continue;    // This SC is not a Photon Candidate
     float sum_track_pt=0;
     //Now check if there are tracks failing isolation outside of the Jurassic isolation region  
-    for(unsigned int i=0; i<IsoTracks.size(); i++)sum_track_pt=sum_track_pt+elements[IsoTracks[i]].trackRef()->pt();  
+    for(unsigned int IsoTrack : IsoTracks)sum_track_pt=sum_track_pt+elements[IsoTrack].trackRef()->pt();  
     
 
 
@@ -836,9 +817,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 		    {
 		      //make sure it is not stored already as the partner track
 		      bool matched=false;
-		      for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
+		      for(const auto & ic : ConversionsRef_)
 			{
-			  if(ConversionsRef_[ic]==convref)matched=true;
+			  if(ic==convref)matched=true;
 			}
 		      if(!matched)ConversionsRef_.push_back(convref);
 		    }
@@ -851,10 +832,10 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
     // here add the extra information
     PFCandidatePhotonExtra myExtra(sc->superClusterRef());
     //Store Locally Contained PF Cluster regressed energy
-    for(unsigned int l=0; l<MVALCorr.size(); ++l)
+    for(float l : MVALCorr)
       {
-	myExtra.addLCorrClusEnergy(MVALCorr[l]);
-	PFPhoECorr_=PFPhoECorr_+MVALCorr[l];//total Locally corrected energy
+	myExtra.addLCorrClusEnergy(l);
+	PFPhoECorr_=PFPhoECorr_+l;//total Locally corrected energy
       }
     TotPS1_=ps1TotEne;
     TotPS2_=ps2TotEne;
@@ -902,9 +883,9 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	myExtra.addSingleLegConvTrackRef(singleLegRef[ic]);
 	//cout<<"Single Leg Tracks "<<singleLegRef[ic]->pt()<<" MVA "<<MVA_values[ic]<<endl;
       }
-    for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
+    for(const auto & ic : ConversionsRef_)
       {
-	myExtra.addConversionRef(ConversionsRef_[ic]);
+	myExtra.addConversionRef(ic);
 	//cout<<"Conversion Pairs "<<ConversionsRef_[ic]->pairMomentum()<<endl;
       }
     pfPhotonExtraCandidates.push_back(myExtra);
@@ -941,8 +922,7 @@ float PFPhotonAlgo::EvaluateResMVA(const reco::PFCandidate& photon, const std::v
   LowClusE_=Must.LowestMustClust();
   PFPhoR9Corr_=E3x3_/MustE_;
   Must.MustacheClust(PFClusters,insideMust, outsideMust );
-  for(unsigned int i=0; i<insideMust.size(); ++i){
-    int index=insideMust[i];
+  for(int index : insideMust){
     OrderedClust.insert(make_pair(PFClusters[index].energy(),index));
   }
   std::multimap<float, unsigned int>::iterator it;
@@ -964,15 +944,13 @@ float PFPhotonAlgo::EvaluateResMVA(const reco::PFCandidate& photon, const std::v
   RMSAll_=ClustersPhiRMS(PFClusters, PFPhoPhi_);
   std::vector<reco::CaloCluster>PFMustClusters;
   if(insideMust.size()>2){
-    for(unsigned int i=0; i<insideMust.size(); ++i){
-      unsigned int index=insideMust[i];
+    for(unsigned int index : insideMust){
       if(index==lowEindex)continue;
       PFMustClusters.push_back(PFClusters[index]);
     }
   }
   else{
-    for(unsigned int i=0; i<insideMust.size(); ++i){
-      unsigned int index=insideMust[i];
+    for(unsigned int index : insideMust){
       PFMustClusters.push_back(PFClusters[index]);
     }    
   }
@@ -980,11 +958,11 @@ float PFPhotonAlgo::EvaluateResMVA(const reco::PFCandidate& photon, const std::v
   //then use cluster Width for just one PFCluster
   RConv_=310;
   PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
-  for(unsigned i=0; i<eleInBlocks.size(); i++)
+  for(auto & eleInBlock : eleInBlocks)
     {
-      PFBlockRef blockRef = eleInBlocks[i].first;
-      unsigned indexInBlock = eleInBlocks[i].second;
-      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
+      PFBlockRef blockRef = eleInBlock.first;
+      unsigned indexInBlock = eleInBlock.second;
+      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlock.first->elements();
       const reco::PFBlockElement& element = elements[indexInBlock];
       if(element.type()==reco::PFBlockElement::TRACK){
 	float R=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X()+element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
@@ -1046,8 +1024,7 @@ float PFPhotonAlgo::EvaluateGCorrMVA(const reco::PFCandidate& photon, const std:
   LowClusE_=Must.LowestMustClust();
   PFPhoR9Corr_=E3x3_/MustE_;
   Must.MustacheClust(PFClusters,insideMust, outsideMust );
-  for(unsigned int i=0; i<insideMust.size(); ++i){
-    int index=insideMust[i];
+  for(int index : insideMust){
     OrderedClust.insert(make_pair(PFClusters[index].energy(),index));
   }
   std::multimap<float, unsigned int>::iterator it;
@@ -1069,15 +1046,13 @@ float PFPhotonAlgo::EvaluateGCorrMVA(const reco::PFCandidate& photon, const std:
   RMSAll_=ClustersPhiRMS(PFClusters, PFPhoPhi_);
   std::vector<reco::CaloCluster>PFMustClusters;
   if(insideMust.size()>2){
-    for(unsigned int i=0; i<insideMust.size(); ++i){
-      unsigned int index=insideMust[i];
+    for(unsigned int index : insideMust){
       if(index==lowEindex)continue;
       PFMustClusters.push_back(PFClusters[index]);
     }
   }
   else{
-    for(unsigned int i=0; i<insideMust.size(); ++i){
-      unsigned int index=insideMust[i];
+    for(unsigned int index : insideMust){
       PFMustClusters.push_back(PFClusters[index]);
     }    
   }
@@ -1085,11 +1060,11 @@ float PFPhotonAlgo::EvaluateGCorrMVA(const reco::PFCandidate& photon, const std:
   //then use cluster Width for just one PFCluster
   RConv_=310;
   PFCandidate::ElementsInBlocks eleInBlocks = photon.elementsInBlocks();
-  for(unsigned i=0; i<eleInBlocks.size(); i++)
+  for(auto & eleInBlock : eleInBlocks)
     {
-      PFBlockRef blockRef = eleInBlocks[i].first;
-      unsigned indexInBlock = eleInBlocks[i].second;
-      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
+      PFBlockRef blockRef = eleInBlock.first;
+      unsigned indexInBlock = eleInBlock.second;
+      const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlock.first->elements();
       const reco::PFBlockElement& element = elements[indexInBlock];
       if(element.type()==reco::PFBlockElement::TRACK){
 	float R=sqrt(element.trackRef()->innerPosition().X()*element.trackRef()->innerPosition().X()+element.trackRef()->innerPosition().Y()*element.trackRef()->innerPosition().Y());
@@ -1177,10 +1152,10 @@ double PFPhotonAlgo::ClustersPhiRMS(const std::vector<reco::CaloCluster>& PFClus
   double delPhi2=0;
   double delPhiSum=0;
   double ClusSum=0;
-  for(unsigned int c=0; c<PFClusters.size(); ++c){
-    delPhi2=(acos(cos(PFPhoPhi-PFClusters[c].phi()))* acos(cos(PFPhoPhi-PFClusters[c].phi())) )+delPhi2;
-    delPhiSum=delPhiSum+ acos(cos(PFPhoPhi-PFClusters[c].phi()))*PFClusters[c].energy();
-    ClusSum=ClusSum+PFClusters[c].energy();
+  for(const auto & PFCluster : PFClusters){
+    delPhi2=(acos(cos(PFPhoPhi-PFCluster.phi()))* acos(cos(PFPhoPhi-PFCluster.phi())) )+delPhi2;
+    delPhiSum=delPhiSum+ acos(cos(PFPhoPhi-PFCluster.phi()))*PFCluster.energy();
+    ClusSum=ClusSum+PFCluster.energy();
   }
   double meandPhi=delPhiSum/ClusSum;
   PFClustPhiRMS=sqrt(fabs(delPhi2/ClusSum - (meandPhi*meandPhi)));
@@ -1344,15 +1319,13 @@ bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
 			    reco::PFBlockElement::HCAL,  
 			    reco::PFBlock::LINKTEST_ALL );  
   if(ecalAssoTrack.size() > 0) {  
-    for(std::multimap<double, unsigned int>::iterator itecal = ecalAssoTrack.begin();  
-	itecal != ecalAssoTrack.end(); ++itecal) {  
-      linked_e=linked_e+elements[itecal->second].clusterRef()->energy();  
+    for(auto & itecal : ecalAssoTrack) {  
+      linked_e=linked_e+elements[itecal.second].clusterRef()->energy();  
     }  
   }  
   if(hcalAssoTrack.size() > 0) {  
-    for(std::multimap<double, unsigned int>::iterator ithcal = hcalAssoTrack.begin();  
-	ithcal != hcalAssoTrack.end(); ++ithcal) {  
-      linked_h=linked_h+elements[ithcal->second].clusterRef()->energy();  
+    for(auto & ithcal : hcalAssoTrack) {  
+      linked_h=linked_h+elements[ithcal.second].clusterRef()->energy();  
     }  
   }  
   EoverPt=linked_e/elements[track_index].trackRef()->pt();  
@@ -1405,10 +1378,10 @@ void PFPhotonAlgo::EarlyConversion(
 		    //cout<<"Matched Electron with Index "<<count<<" This is the electron "<<*ec<<endl;
 		    //find that they have the same SC footprint start to collect Clusters and tracks and these will be passed to PFPhoton
 		    reco::PFCandidate::ElementsInBlocks eleInBlocks = ec->elementsInBlocks();
-		    for(unsigned i=0; i<eleInBlocks.size(); i++) 
+		    for(auto & eleInBlock : eleInBlocks) 
 		      {
-			reco::PFBlockRef blockRef = eleInBlocks[i].first;
-			unsigned indexInBlock = eleInBlocks[i].second;	 
+			reco::PFBlockRef blockRef = eleInBlock.first;
+			unsigned indexInBlock = eleInBlock.second;	 
 			//const edm::OwnVector< reco::PFBlockElement >&  elements=eleInBlocks[i].first->elements();
 			//const reco::PFBlockElement& element = elements[indexInBlock];  		
 			

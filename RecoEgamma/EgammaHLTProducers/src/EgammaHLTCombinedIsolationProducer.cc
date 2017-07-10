@@ -21,8 +21,8 @@ EgammaHLTCombinedIsolationProducer::EgammaHLTCombinedIsolationProducer(const edm
   recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
   
   std::vector<edm::InputTag> tempIsolTag = conf_.getParameter< std::vector<edm::InputTag> > ("IsolationMapTags");
-  for (unsigned int i=0; i<tempIsolTag.size(); i++)
-    IsolTag_.push_back(consumes<reco::RecoEcalCandidateIsolationMap>(tempIsolTag[i]));
+  for (const auto & i : tempIsolTag)
+    IsolTag_.push_back(consumes<reco::RecoEcalCandidateIsolationMap>(i));
 		       
   IsolWeight_ = conf_.getParameter< std::vector<double> > ("IsolationWeight");
 

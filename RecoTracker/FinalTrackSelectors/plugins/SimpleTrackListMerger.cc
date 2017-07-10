@@ -278,24 +278,24 @@ namespace {
 
    if ( 0<tC1.size() ){
       i=-1;
-      for (reco::TrackCollection::const_iterator track=tC1.begin(); track!=tC1.end(); track++){
+      for (const auto & track : tC1){
         i++;
-        if ((short unsigned)track->ndof() < 1){
+        if ((short unsigned)track.ndof() < 1){
           selected1[i]=0;
           //std::cout << "L1Track "<< i << " rejected in SimpleTrackListMerger; ndof() < 1" << std::endl ;
           continue;
         }
-        if (track->normalizedChi2() > maxNormalizedChisq){
+        if (track.normalizedChi2() > maxNormalizedChisq){
           selected1[i]=0;
           //std::cout << "L1Track "<< i << " rejected in SimpleTrackListMerger; normalizedChi2() > maxNormalizedChisq " << track->normalizedChi2() << " " << maxNormalizedChisq << std::endl ;
           continue;
         }
-        if (track->found() < minFound){
+        if (track.found() < minFound){
           selected1[i]=0;
           //std::cout << "L1Track "<< i << " rejected in SimpleTrackListMerger; found() < minFound " << track->found() << " " << minFound << std::endl ;
           continue;
         }
-        if (track->pt() < minPT){
+        if (track.pt() < minPT){
           selected1[i]=0;
           //std::cout << "L1Track "<< i << " rejected in SimpleTrackListMerger; pt() < minPT " << track->pt() << " " << minPT << std::endl ;
           continue;
@@ -308,24 +308,24 @@ namespace {
 
    if ( 0<tC2.size() ){
       i=-1;
-      for (reco::TrackCollection::const_iterator track=tC2.begin(); track!=tC2.end(); track++){
+      for (const auto & track : tC2){
         i++;
-        if ((short unsigned)track->ndof() < 1){
+        if ((short unsigned)track.ndof() < 1){
           selected2[i]=0;
           //std::cout << "L2Track "<< i << " rejected in SimpleTrackListMerger; ndof() < 1" << std::endl ;
           continue;
         }
-        if (track->normalizedChi2() > maxNormalizedChisq){
+        if (track.normalizedChi2() > maxNormalizedChisq){
           selected2[i]=0;
           //std::cout << "L2Track "<< i << " rejected in SimpleTrackListMerger; normalizedChi2() > maxNormalizedChisq " << track->normalizedChi2() << " " << maxNormalizedChisq << std::endl ;
           continue;
         }
-        if (track->found() < minFound){
+        if (track.found() < minFound){
           selected2[i]=0;
           //std::cout << "L2Track "<< i << " rejected in SimpleTrackListMerger; found() < minFound " << track->found() << " " << minFound << std::endl ;
           continue;
         }
-        if (track->pt() < minPT){
+        if (track.pt() < minPT){
           selected2[i]=0;
           //std::cout << "L2Track "<< i << " rejected in SimpleTrackListMerger; pt() < minPT " << track->pt() << " " << minPT << std::endl ;
           continue;

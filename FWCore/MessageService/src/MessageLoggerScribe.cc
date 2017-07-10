@@ -408,8 +408,8 @@ void
 void MessageLoggerScribe::log ( ErrorObj *  errorobj_p ) {
   std::vector<std::string> categories;
   parseCategories(errorobj_p->xid().id, categories);
-  for (unsigned int icat = 0; icat < categories.size(); ++icat) {
-    errorobj_p->setID(categories[icat]);
+  for (const auto & categorie : categories) {
+    errorobj_p->setID(categorie);
     admin_p->log( *errorobj_p );  // route the message text
   } 
 }
@@ -629,12 +629,8 @@ void
   }  // for
 
   // establish this destination's limit for each severity:
-  for( vString::const_iterator sev_it = severities.begin()
-     ; sev_it != severities.end()
-     ; ++sev_it
-     )
+  for(auto sevID : severities)
   {
-    String  sevID = *sev_it;
     ELseverityLevel  severity(sevID);
     PSet  default_sev_pset 
     	= getAparameter<PSet>(default_pset, sevID, empty_PSet);

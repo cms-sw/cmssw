@@ -109,9 +109,9 @@ L1TCSCTF::~L1TCSCTF()
 {
 
   for(unsigned int j=0; j<2; j++)
-    for(unsigned int i=0; i<5; i++)
+    for(auto & srLUT : srLUTs_)
       for(unsigned int s=0; s<6; s++)
-        delete srLUTs_[i][j][s]; //free the array of pointers
+        delete srLUT[j][s]; //free the array of pointers
 
 }
 
@@ -759,21 +759,21 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
       bool integrity=status->first, se=false, sm=false, bx=false, af=false, fmm=false;
       int nStat = 0;
 
-      for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin(); stat!=status->second.end(); stat++)
+      for(const auto & stat : status->second)
         {
-          se |= stat->SEs()&0xFFF;
-          sm |= stat->SMs()&0xFFF;
-          bx |= stat->BXs()&0xFFF;
-          af |= stat->AFs()&0xFFF;
-          fmm|= stat->FMM()!=8;
+          se |= stat.SEs()&0xFFF;
+          sm |= stat.SMs()&0xFFF;
+          bx |= stat.BXs()&0xFFF;
+          af |= stat.AFs()&0xFFF;
+          fmm|= stat.FMM()!=8;
 
 
-            int ise = stat->SEs()&0xFFF;
-            int ism = stat->SMs()&0xFFF;
-            int ibx = stat->BXs()&0xFFF;
-            int iaf = stat->AFs()&0xFFF;
-            int ifmm= stat->FMM();
-            int slot= stat->slot();
+            int ise = stat.SEs()&0xFFF;
+            int ism = stat.SMs()&0xFFF;
+            int ibx = stat.BXs()&0xFFF;
+            int iaf = stat.AFs()&0xFFF;
+            int ifmm= stat.FMM();
+            int slot= stat.slot();
 
 
             for(int j=0; j<15; j++) {
@@ -885,9 +885,9 @@ void L1TCSCTF::analyze(const Event& e, const EventSetup& c)
 
 
 
-          if(stat->VPs() != 0)
+          if(stat.VPs() != 0)
             {
-              L1ABXN += stat->BXN();
+              L1ABXN += stat.BXN();
               nStat++;
             }
         }

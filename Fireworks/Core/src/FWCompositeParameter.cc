@@ -73,10 +73,8 @@ FWCompositeParameter::setFrom(const FWConfiguration& iFrom)
    assert(mine->version()==m_version);
    assert(0 != keyVals);
 
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->setFrom(*mine);
+   for(auto it : *this) {
+      it->setFrom(*mine);
    }
 }
 
@@ -88,10 +86,8 @@ FWCompositeParameter::addTo(FWConfiguration& oTo) const
 {
    FWConfiguration conf(m_version);
 
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-      (*it)->addTo(conf);
+   for(auto it : *this) {
+      it->addTo(conf);
    }
 //   std::for_each(begin(), end(),
 //                 boost::bind(&FWParameterBase::addTo,_1,conf));

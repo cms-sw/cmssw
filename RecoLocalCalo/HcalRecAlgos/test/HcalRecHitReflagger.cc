@@ -205,9 +205,9 @@ HcalRecHitReflagger::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    auto pOut = std::make_unique<HFRecHitCollection>();
    
    // loop over rechits, and set the new bit you wish to use
-   for (HFRecHitCollection::const_iterator recHit=hfRecHits->begin(); recHit!=hfRecHits->end(); ++recHit) {
+   for (const auto & recHit : *hfRecHits) {
 
-     HFRecHit newhit = (HFRecHit)(*recHit);
+     HFRecHit newhit = (HFRecHit)recHit;
      // Set bit to be on for all hits
      if (hfBitAlwaysOn_)
        newhit.setFlagField(1,hfFlagBit_);

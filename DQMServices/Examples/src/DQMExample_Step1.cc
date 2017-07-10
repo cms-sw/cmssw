@@ -132,22 +132,22 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   int posEle=0, negEle=0;
   const reco::GsfElectron* ele1 = NULL;
   const reco::GsfElectron* ele2 = NULL;
-  for (reco::GsfElectronCollection::const_iterator recoElectron=electronCollection->begin(); recoElectron!=electronCollection->end(); ++recoElectron)
+  for (const auto & recoElectron : *electronCollection)
     {
       //decreasing pT
-      if( MediumEle(e,eSetup,*recoElectron) )
+      if( MediumEle(e,eSetup,recoElectron) )
 	{
-	  if(!ele1 && recoElectron->pt() > ptThrL1_)
-	    ele1 = &(*recoElectron);
+	  if(!ele1 && recoElectron.pt() > ptThrL1_)
+	    ele1 = &recoElectron;
 	  
-	  else if(!ele2 && recoElectron->pt() > ptThrL2_)
-	    ele2 = &(*recoElectron);
+	  else if(!ele2 && recoElectron.pt() > ptThrL2_)
+	    ele2 = &recoElectron;
 
 	}
       
-      if(recoElectron->charge()==1)
+      if(recoElectron.charge()==1)
 	posEle++;
-      else if(recoElectron->charge()==-1)
+      else if(recoElectron.charge()==-1)
 	negEle++;
 
     } // end of loop over electrons
@@ -169,24 +169,24 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
   const reco::CaloJet* jet1 = NULL;
   const reco::CaloJet* jet2 = NULL;
   
-  for (reco::CaloJetCollection::const_iterator i_calojet = caloJetCollection->begin(); i_calojet != caloJetCollection->end(); ++i_calojet) 
+  for (const auto & i_calojet : *caloJetCollection) 
     {
       //remove jet-ele matching
       if(ele1)
-	if (Distance(*i_calojet,*ele1) < 0.3) continue;
+	if (Distance(i_calojet,*ele1) < 0.3) continue;
       
       if(ele2)
-	if (Distance(*i_calojet,*ele2) < 0.3) continue;
+	if (Distance(i_calojet,*ele2) < 0.3) continue;
       
-      if (i_calojet->pt() < ptThrJet_) continue;
+      if (i_calojet.pt() < ptThrJet_) continue;
 
       nJet++;
       
       if (!jet1) 
-	jet1 = &(*i_calojet);
+	jet1 = &i_calojet;
       
       else if (!jet2)
-	jet2 = &(*i_calojet);
+	jet2 = &i_calojet;
     }
   
   // ---------------------------
@@ -235,9 +235,9 @@ void DQMExample_Step1::analyze(edm::Event const& e, edm::EventSetup const& eSetu
       const trigger::Keys& keys = triggerEvent->filterKeys( filterIndex );
       std::vector<reco::Particle> triggeredEle;
       
-      for( size_t j = 0; j < keys.size(); ++j ) 
+      for(unsigned short key : keys) 
 	{
-	  trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+	  trigger::TriggerObject foundObject = triggerObjects[key];
 	  if( abs( foundObject.particle().pdgId() ) != 11 )  continue; //make sure that it is an electron
 	  
 	  triggeredEle.push_back( foundObject.particle() );

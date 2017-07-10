@@ -23,24 +23,24 @@ UCTCard::UCTCard(uint32_t crt, uint32_t crd, int fwv) :
 }
 
 UCTCard::~UCTCard() {
-  for(uint32_t i = 0; i < regions.size(); i++) {
-    if(regions[i] != 0) delete regions[i];
+  for(auto & region : regions) {
+    if(region != 0) delete region;
   }
 }
 
 bool UCTCard::process() {
   cardSummary = 0;
-  for(uint32_t i = 0; i < regions.size(); i++) {
-    if(regions[i] != 0) regions[i]->process();
-    cardSummary += regions[i]->et();
+  for(auto & region : regions) {
+    if(region != 0) region->process();
+    cardSummary += region->et();
   }
   return true;
 }
 
 bool UCTCard::clearEvent() {
   cardSummary = 0;
-  for(uint32_t i = 0; i < regions.size(); i++) {
-    if(!regions[i]->clearEvent()) return false;
+  for(auto & region : regions) {
+    if(!region->clearEvent()) return false;
   }
   return true;
 }

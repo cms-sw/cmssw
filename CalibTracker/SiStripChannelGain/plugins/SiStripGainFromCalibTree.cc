@@ -492,42 +492,42 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
 
     //Book Charge monitoring histograms
     std::vector<std::pair<std::string,std::string>> hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"");
-    for (unsigned int i=0;i<hnames.size();i++){
-        std::string htag = (hnames[i]).first + stag;
-        MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first);
-        int side  = APVGain::subdetectorSide((hnames[i]).first);
-        int plane = APVGain::subdetectorPlane((hnames[i]).first);
+    for (auto & hname : hnames){
+        std::string htag = hname.first + stag;
+        MonitorElement* monitor = dbe->book1DD( htag.c_str(), hname.second.c_str(), 100   , 0. , 1000. );
+        int id    = APVGain::subdetectorId(hname.first);
+        int side  = APVGain::subdetectorSide(hname.first);
+        int plane = APVGain::subdetectorPlane(hname.first);
         Charge_1[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
     hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG2");
-    for (unsigned int i=0;i<hnames.size();i++){
-        std::string htag = (hnames[i]).first + stag;
-        MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first);
-        int side  = APVGain::subdetectorSide((hnames[i]).first);
-        int plane = APVGain::subdetectorPlane((hnames[i]).first);
+    for (auto & hname : hnames){
+        std::string htag = hname.first + stag;
+        MonitorElement* monitor = dbe->book1DD( htag.c_str(), hname.second.c_str(), 100   , 0. , 1000. );
+        int id    = APVGain::subdetectorId(hname.first);
+        int side  = APVGain::subdetectorSide(hname.first);
+        int plane = APVGain::subdetectorPlane(hname.first);
         Charge_2[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
     hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1");
-    for (unsigned int i=0;i<hnames.size();i++){
-        std::string htag = (hnames[i]).first + stag;
-        MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first);
-        int side  = APVGain::subdetectorSide((hnames[i]).first);
-        int plane = APVGain::subdetectorPlane((hnames[i]).first);
+    for (auto & hname : hnames){
+        std::string htag = hname.first + stag;
+        MonitorElement* monitor = dbe->book1DD( htag.c_str(), hname.second.c_str(), 100   , 0. , 1000. );
+        int id    = APVGain::subdetectorId(hname.first);
+        int side  = APVGain::subdetectorSide(hname.first);
+        int plane = APVGain::subdetectorPlane(hname.first);
         Charge_3[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
     hnames = APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"woG1G2");
-    for (unsigned int i=0;i<hnames.size();i++){
-        std::string htag = (hnames[i]).first + stag;
-        MonitorElement* monitor = dbe->book1DD( htag.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-        int id    = APVGain::subdetectorId((hnames[i]).first);
-        int side  = APVGain::subdetectorSide((hnames[i]).first);
-        int plane = APVGain::subdetectorPlane((hnames[i]).first);
+    for (auto & hname : hnames){
+        std::string htag = hname.first + stag;
+        MonitorElement* monitor = dbe->book1DD( htag.c_str(), hname.second.c_str(), 100   , 0. , 1000. );
+        int id    = APVGain::subdetectorId(hname.first);
+        int side  = APVGain::subdetectorSide(hname.first);
+        int plane = APVGain::subdetectorPlane(hname.first);
         Charge_4[elepos].push_back( APVGain::APVmon(id,side,plane,monitor) );
     }
 
@@ -589,11 +589,11 @@ void SiStripGainFromCalibTree::bookDQMHistos(const char* dqm_dir, const char* ta
         GainVsPrevGainTEC  = dbe->book2DD("GainVsPrevGainTEC"  ,"Gain vs PrevGain TEC"  , 100, 0,2, 100, 0,2);
 
         std::vector<std::pair<std::string,std::string>> hnames=APVGain::monHnames(VChargeHisto,doChargeMonitorPerPlane,"newG2");
-        for (unsigned int i=0;i<hnames.size();i++){
-            MonitorElement* monitor = dbe->book1DD( (hnames[i]).first.c_str(), (hnames[i]).second.c_str(), 100   , 0. , 1000. );
-            int id    = APVGain::subdetectorId((hnames[i]).first);
-            int side  = APVGain::subdetectorSide((hnames[i]).first);
-            int plane = APVGain::subdetectorPlane((hnames[i]).first);
+        for (auto & hname : hnames){
+            MonitorElement* monitor = dbe->book1DD( hname.first.c_str(), hname.second.c_str(), 100   , 0. , 1000. );
+            int id    = APVGain::subdetectorId(hname.first);
+            int side  = APVGain::subdetectorSide(hname.first);
+            int plane = APVGain::subdetectorPlane(hname.first);
             newCharge.push_back( APVGain::APVmon(id,side,plane,monitor) );
         }
 
@@ -634,14 +634,14 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 	NPixelDets = 0;
 	NStripAPVs = 0;
 	unsigned int Index=0;
-	for(unsigned int i=0;i<Det.size();i++){
-		DetId  Detid  = Det[i]->geographicalId(); 
+	for(auto i : Det){
+		DetId  Detid  = i->geographicalId(); 
 		int    SubDet = Detid.subdetId();
 
 		if( SubDet == StripSubdetector::TIB ||  SubDet == StripSubdetector::TID ||
 				SubDet == StripSubdetector::TOB ||  SubDet == StripSubdetector::TEC  ){
 
-			auto DetUnit     = dynamic_cast<const StripGeomDetUnit*> (Det[i]);
+			auto DetUnit     = dynamic_cast<const StripGeomDetUnit*> (i);
 			if(!DetUnit)continue;
 
 			const StripTopology& Topo     = DetUnit->specificTopology();	
@@ -681,11 +681,11 @@ void SiStripGainFromCalibTree::algoBeginJob(const edm::EventSetup& iSetup)
 		}
 	}
 
-	for(unsigned int i=0;i<Det.size();i++){  //Make two loop such that the Pixel information is added at the end --> make transition simpler
-		DetId  Detid  = Det[i]->geographicalId();
+	for(auto i : Det){  //Make two loop such that the Pixel information is added at the end --> make transition simpler
+		DetId  Detid  = i->geographicalId();
 		int    SubDet = Detid.subdetId();
 		if( SubDet == PixelSubdetector::PixelBarrel || SubDet == PixelSubdetector::PixelEndcap ){
-			auto DetUnit     = dynamic_cast<const PixelGeomDetUnit*> (Det[i]);
+			auto DetUnit     = dynamic_cast<const PixelGeomDetUnit*> (i);
 			if(!DetUnit) continue;
        
 			const PixelTopology& Topo     = DetUnit->specificTopology();
@@ -779,9 +779,7 @@ void SiStripGainFromCalibTree::algoBeginRun(const edm::Run& run, const edm::Even
 	edm::ESHandle<SiStripQuality> SiStripQuality_;
 	iSetup.get<SiStripQualityRcd>().get(SiStripQuality_);
 
-	for(unsigned int a=0;a<APVsCollOrdered.size();a++){
-
-	  stAPVGain* APV = APVsCollOrdered[a];
+	for(auto APV : APVsCollOrdered){
 
 	  // MM. 03/03/2017 all of this makes sense only for SiStrip (i.e. get me out of here if I am on a pixel ROC)
 	  if(APV->SubDet==PixelSubdetector::PixelBarrel || APV->SubDet==PixelSubdetector::PixelEndcap) continue;
@@ -1147,19 +1145,19 @@ void SiStripGainFromCalibTree::processEvent() {
                 }
                 std::vector<APVGain::APVmon>& v1 = Charge_1[elepos];
                 std::vector<MonitorElement*> cmon1 = APVGain::FetchMonitor(v1, (*rawid)[i], tTopo_);
-                for(unsigned int m=0; m<cmon1.size(); m++) cmon1[m]->Fill(( (double) mCharge1 )/(*path)[i]);
+                for(auto & m : cmon1) m->Fill(( (double) mCharge1 )/(*path)[i]);
 
                 std::vector<APVGain::APVmon>& v2 = Charge_2[elepos];
                 std::vector<MonitorElement*> cmon2 = APVGain::FetchMonitor(v2, (*rawid)[i], tTopo_);
-                for(unsigned int m=0; m<cmon2.size(); m++) cmon2[m]->Fill(( (double) mCharge2 )/(*path)[i]);
+                for(auto & m : cmon2) m->Fill(( (double) mCharge2 )/(*path)[i]);
 
                 std::vector<APVGain::APVmon>& v3 = Charge_3[elepos];
                 std::vector<MonitorElement*> cmon3 = APVGain::FetchMonitor(v3, (*rawid)[i], tTopo_);
-                for(unsigned int m=0; m<cmon3.size(); m++) cmon3[m]->Fill(( (double) mCharge3 )/(*path)[i]);
+                for(auto & m : cmon3) m->Fill(( (double) mCharge3 )/(*path)[i]);
 
                 std::vector<APVGain::APVmon>& v4 = Charge_4[elepos];
                 std::vector<MonitorElement*> cmon4 = APVGain::FetchMonitor(v4, (*rawid)[i], tTopo_);
-                for(unsigned int m=0; m<cmon4.size(); m++) cmon4[m]->Fill(( (double) mCharge4 )/(*path)[i]);
+                for(auto & m : cmon4) m->Fill(( (double) mCharge4 )/(*path)[i]);
 
 
 
@@ -1321,8 +1319,7 @@ void SiStripGainFromCalibTree::qualityMonitor() {
 
     int elepos = (AlgoMode == "PCL")? Harvest : statCollectionFromMode(m_calibrationMode.c_str());
 
-    for(unsigned int a=0;a<APVsCollOrdered.size();a++) {
-        stAPVGain* APV = APVsCollOrdered[a];
+    for(auto APV : APVsCollOrdered) {
         if(APV==NULL)continue;
 
         unsigned int  Index        = APV->Index;
@@ -1349,8 +1346,8 @@ void SiStripGainFromCalibTree::qualityMonitor() {
             for (int binId=0; binId<Proj->GetXaxis()->GetNbins();binId++) {
                 double new_charge = Proj->GetXaxis()->GetBinCenter(binId) / Gain;
                 if (Proj->GetBinContent(binId)!=0.) {
-                    for (unsigned int h=0;h<charge_histos.size();h++) {
-                        TH1D* chisto = (charge_histos[h])->getTH1D();
+                    for (auto & charge_histo : charge_histos) {
+                        TH1D* chisto = charge_histo->getTH1D();
                         for (int e=0;e<Proj->GetBinContent(binId);e++) chisto->Fill(new_charge);
                     }
                 }
@@ -1499,9 +1496,8 @@ void SiStripGainFromCalibTree::storeOnTree(TFileService* tfs)
 
         int elepos = statCollectionFromMode(m_calibrationMode.c_str());
 
-	for(unsigned int a=0;a<APVsCollOrdered.size();a++){
-		stAPVGain* APV = APVsCollOrdered[a];
-		if(APV==NULL)continue;
+	for(auto APV : APVsCollOrdered){
+			if(APV==NULL)continue;
 //     printf(      "%i | %i | PreviousGain = %7.5f NewGain = %7.5f (#clusters=%8.0f)\n", APV->DetId,APV->APVId,APV->PreviousGain,APV->Gain, APV->NEntries);
 		fprintf(Gains,"%i | %i | PreviousGain = %7.5f(tick) x %7.5f(particle) NewGain (particle) = %7.5f (#clusters=%8.0f)\n", APV->DetId,APV->APVId,APV->PreviousGainTick, APV->PreviousGain,APV->Gain, APV->NEntries);
 
@@ -1586,9 +1582,8 @@ SiStripApvGain* SiStripGainFromCalibTree::getNewObject()
 
 	std::vector<float>* theSiStripVector = NULL;
 	unsigned int PreviousDetId = 0; 
-	for(unsigned int a=0;a<APVsCollOrdered.size();a++){
-		stAPVGain* APV = APVsCollOrdered[a];
-		if(APV==NULL){ printf("Bug\n"); continue; }
+	for(auto APV : APVsCollOrdered){
+			if(APV==NULL){ printf("Bug\n"); continue; }
 		if(APV->SubDet<=2)continue;
 		if(APV->DetId != PreviousDetId){
 			if(theSiStripVector!=NULL){
@@ -1614,8 +1609,7 @@ SiStripApvGain* SiStripGainFromCalibTree::getNewObject()
 SiStripGainFromCalibTree::~SiStripGainFromCalibTree()
 { 
     APVsColl.clear();
-    for(unsigned int a=0;a<APVsCollOrdered.size();a++) {
-        stAPVGain* APV = APVsCollOrdered[a];
+    for(auto APV : APVsCollOrdered) {
         if(APV!=NULL) delete APV;
     }
     APVsCollOrdered.clear();

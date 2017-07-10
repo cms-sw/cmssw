@@ -58,10 +58,8 @@ produce(edm::Event& event, const edm::EventSetup& es) {
   std::vector<int> algoBitNumbers;
   std::vector<L1GlobalTriggerObjectMap> const& vectorInRecord = gtObjectMapRecord->gtObjectMap();
   algoBitNumbers.reserve(vectorInRecord.size());
-  for (std::vector<L1GlobalTriggerObjectMap>::const_iterator i = vectorInRecord.begin(),
-                                                          iEnd = vectorInRecord.end();
-       i != iEnd; ++i) {
-    algoBitNumbers.push_back(i->algoBitNumber());
+  for (const auto & i : vectorInRecord) {
+    algoBitNumbers.push_back(i.algoBitNumber());
   }
   edm::sort_all(algoBitNumbers);
 
@@ -115,11 +113,9 @@ produce(edm::Event& event, const edm::EventSetup& es) {
       }
 
       CombinationsInCond const* combos = objMap->getCombinationsInCond(iToken->tokenNumber);
-      for (CombinationsInCond::const_iterator iCombo = combos->begin(),
-                                           endCombos = combos->end();
-           iCombo != endCombos; ++iCombo) {
-        for (std::vector<int>::const_iterator iIndex = iCombo->begin(),
-                                          endIndexes = iCombo->end();
+      for (const auto & combo : *combos) {
+        for (std::vector<int>::const_iterator iIndex = combo.begin(),
+                                          endIndexes = combo.end();
              iIndex != endIndexes; ++iIndex) {
           ++nIndexes;
         }
@@ -147,31 +143,27 @@ produce(edm::Event& event, const edm::EventSetup& es) {
        savedNames.reserve(operandTokens.size());
      }
 
-     for (std::vector<L1GtLogicParser::OperandToken>::const_iterator iToken = operandTokens.begin(),
-                                                                  endTokens = operandTokens.end();
-          iToken != endTokens; ++iToken) {
+     for (const auto & operandToken : operandTokens) {
 
-       savedNames.push_back(iToken->tokenName);
+       savedNames.push_back(operandToken.tokenName);
 
        unsigned short nObjectsPerCombination = 0;
        bool first = true;
        unsigned nIndexesInCombination = 0;
 
-       CombinationsInCond const* combos = objMap->getCombinationsInCond(iToken->tokenNumber);
-       for (CombinationsInCond::const_iterator iCombo = combos->begin(),
-                                            endCombos = combos->end();
-            iCombo != endCombos; ++iCombo) {
+       CombinationsInCond const* combos = objMap->getCombinationsInCond(operandToken.tokenNumber);
+       for (const auto & combo : *combos) {
          if (first) {
-           if (iCombo->size() > std::numeric_limits<unsigned short>::max()) {
+           if (combo.size() > std::numeric_limits<unsigned short>::max()) {
              cms::Exception ex("L1GlobalTrigger");
              ex << "Number of objects per combination out of range";
              ex.addContext("Calling ConvertObjectMapRecord::produce");
              throw ex;
            }
-           nObjectsPerCombination = iCombo->size();
+           nObjectsPerCombination = combo.size();
            first = false;
          } else {
-           if (nObjectsPerCombination != iCombo->size()) {
+           if (nObjectsPerCombination != combo.size()) {
              cms::Exception ex("L1GlobalTrigger");
              ex << "inconsistent number of objects per condition";
              ex.addContext("Calling ConvertObjectMapRecord::produce");
@@ -179,8 +171,8 @@ produce(edm::Event& event, const edm::EventSetup& es) {
            }
          }
 
-         for (std::vector<int>::const_iterator iIndex = iCombo->begin(),
-                                           endIndexes = iCombo->end();
+         for (std::vector<int>::const_iterator iIndex = combo.begin(),
+                                           endIndexes = combo.end();
               iIndex != endIndexes; ++iIndex) {
 
            if (*iIndex < 0 || *iIndex > std::numeric_limits<unsigned char>::max()) {
@@ -195,7 +187,7 @@ produce(edm::Event& event, const edm::EventSetup& es) {
        }
        gtObjectMaps->pushBackCondition(startIndexOfCombinations,
                                        nObjectsPerCombination,
-                                       iToken->tokenResult);
+                                       operandToken.tokenResult);
        startIndexOfCombinations += nIndexesInCombination;
      }
      namesPset.addParameter<std::vector<std::string> >(objMap->algoName(), savedNames);

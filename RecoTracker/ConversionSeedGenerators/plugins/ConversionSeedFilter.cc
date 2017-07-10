@@ -123,10 +123,9 @@ void ConversionSeedFilter::produce(edm::Event& iEvent, const edm::EventSetup& iS
        
        if(trajTrackAssociations.isValid()){
 	 edm::LogInfo("ConversionSeedFilter") << "Reconstructed tracks " << trajTrackAssociations->size() << std::endl;
-	 for( TrajTrackAssociationCollection::const_iterator association = trajTrackAssociations->begin(); 
-	      association != trajTrackAssociations->end(); association++) {
-	   const Trajectory*  traj  = association->key.get();
-	   const reco::Track* track = association->val.get();
+	 for(const auto & association : *trajTrackAssociations) {
+	   const Trajectory*  traj  = association.key.get();
+	   const reco::Track* track = association.val.get();
 	   
 	   //edm::LogInfo("ConversionSeedFilter") << "Traj charge " << track->charge() << std::endl;
 	   
@@ -188,10 +187,10 @@ SearchAmongTracks(const TrajectorySeedCollection* pInSeed,const reco::TrackColle
     double vars1[4];
     getKine(getTSOS(*iS1),vars1);
     
-    for (reco::TrackCollection::const_iterator iS2=pInTk->begin(); iS2!=pInTk->end(); ++iS2){
+    for (const auto & iS2 : *pInTk){
       
       double vars2[4];
-      getKine(getTSOS(*iS2),vars2);
+      getKine(getTSOS(iS2),vars2);
       
       if(isCompatible(vars1,vars2)){
 	edm::LogInfo("ConversionSeedFilter") << "[SearchAmongTracks] match in pos " << iS1-pInSeed->begin() << std::endl;

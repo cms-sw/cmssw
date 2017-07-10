@@ -312,24 +312,22 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 
     // actually should do a loop over all the tracks in the event here
 
-    for (vector<Trajectory>::const_iterator itraj = TrajectoryCollectionCKF.product()->begin();
-	 itraj != TrajectoryCollectionCKF.product()->end();
-	 itraj++) {
+    for (const auto & itraj : *TrajectoryCollectionCKF.product()) {
 
       // for each track, fill some variables such as number of hits and momentum
-      nHits = itraj->foundHits();
-      nLostHits = itraj->lostHits();
-      chi2 = (itraj->chiSquared()/itraj->ndof());
-      pT = sqrt( ( itraj->lastMeasurement().updatedState().globalMomentum().x() *
-		   itraj->lastMeasurement().updatedState().globalMomentum().x()) +
-		 ( itraj->lastMeasurement().updatedState().globalMomentum().y() *
-		   itraj->lastMeasurement().updatedState().globalMomentum().y()) );
-      p = itraj->lastMeasurement().updatedState().globalMomentum().mag();
+      nHits = itraj.foundHits();
+      nLostHits = itraj.lostHits();
+      chi2 = (itraj.chiSquared()/itraj.ndof());
+      pT = sqrt( ( itraj.lastMeasurement().updatedState().globalMomentum().x() *
+		   itraj.lastMeasurement().updatedState().globalMomentum().x()) +
+		 ( itraj.lastMeasurement().updatedState().globalMomentum().y() *
+		   itraj.lastMeasurement().updatedState().globalMomentum().y()) );
+      p = itraj.lastMeasurement().updatedState().globalMomentum().mag();
       
       //Put in code to check track quality
       
       
-      std::vector<TrajectoryMeasurement> TMeas=itraj->measurements();
+      std::vector<TrajectoryMeasurement> TMeas=itraj.measurements();
       vector<TrajectoryMeasurement>::iterator itm;
       double xloc = 0.;
       double yloc = 0.;
@@ -561,9 +559,9 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
 		  }
 
 
-		  for(edmNew::DetSet<SiStripCluster>::const_iterator iter=DSViter->begin();iter!=DSViter->end();++iter) {
+		  for(const auto & iter : *DSViter) {
 		    //iter is a single SiStripCluster
-		    StripClusterParameterEstimator::LocalValues parameters=stripcpe.localParameters(*iter,*stripdet);
+		    StripClusterParameterEstimator::LocalValues parameters=stripcpe.localParameters(iter,*stripdet);
 		    float res = (parameters.first.x() - xloc);
 		    float sigma = checkConsistency(parameters , xloc, xErr);
 		    // The consistency is probably more accurately measured with the Chi2MeasurementEstimator. To use it
@@ -577,7 +575,7 @@ void HitEff::analyze(const edm::Event& e, const edm::EventSetup& es){
                        sigma = abs(res) / sqrt(parameters.second.xx() + xErr*xErr/uxlden/uxlden + yErr*yErr*xloc*xloc*uylfac*uylfac/uxlden/uxlden/uxlden/uxlden);
                     }
 		    
-		    SiStripClusterInfo clusterInfo = SiStripClusterInfo(*iter, es, ClusterId);  
+		    SiStripClusterInfo clusterInfo = SiStripClusterInfo(iter, es, ClusterId);  
 		    // signal to noise from SiStripClusterInfo not working in 225. I'll fix this after the interface
 		    // redesign in 300 -ku
 		    //float cluster_info[7] = {res, sigma, parameters.first.x(), sqrt(parameters.second.xx()), parameters.first.y(), sqrt(parameters.second.yy()), signal_to_noise};
@@ -802,8 +800,8 @@ bool HitEff::check2DPartner(unsigned int iidd, const std::vector<TrajectoryMeasu
   if ((iidd & 0x3)==2) partner_iidd = iidd-1;
   // next look in the trajectory measurements for a measurement from that detector
   // loop through trajectory measurements to find the partner_iidd
-  for (std::vector<TrajectoryMeasurement>::const_iterator iTM=traj.begin(); iTM!=traj.end(); ++iTM) {
-    if (iTM->recHit()->geographicalId().rawId()==partner_iidd) {
+  for (const auto & iTM : traj) {
+    if (iTM.recHit()->geographicalId().rawId()==partner_iidd) {
       found2DPartner = true;
     }
   }

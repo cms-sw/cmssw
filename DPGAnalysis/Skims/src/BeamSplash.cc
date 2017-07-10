@@ -119,26 +119,26 @@ bool BeamSplash::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   // now sum over them
   if (EBRecHits) 
     {
-      for(EBRecHitCollection::const_iterator it  = EBRecHits->begin(); it != EBRecHits->end(); ++it) 
+      for(const auto & EBRecHit : *EBRecHits) 
 	{
-	  totene+=it->energy();
-	  ecalene+=it->energy();
+	  totene+=EBRecHit.energy();
+	  ecalene+=EBRecHit.energy();
 	}
     }
   if (EERecHits) 
     {
-      for(EERecHitCollection::const_iterator it  = EERecHits->begin(); it != EERecHits->end(); ++it) 
+      for(const auto & EERecHit : *EERecHits) 
 	{
-	  totene+=it->energy();
-	  ecalene+=it->energy();
+	  totene+=EERecHit.energy();
+	  ecalene+=EERecHit.energy();
 	}
     }
   if (HBHERecHits) 
     {
-      for(HBHERecHitCollection::const_iterator it  = HBHERecHits->begin(); it != HBHERecHits->end(); ++it) 
+      for(const auto & HBHERecHit : *HBHERecHits) 
 	{
-	  totene+=it->energy();
-	  hcalene+=it->energy();
+	  totene+=HBHERecHit.energy();
+	  hcalene+=HBHERecHit.energy();
 	}
     }
 

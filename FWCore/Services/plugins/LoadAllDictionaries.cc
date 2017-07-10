@@ -81,15 +81,13 @@ edm::service::LoadAllDictionaries::LoadAllDictionaries(const edm::ParameterSet& 
      std::string lastClass;
      const std::string mystring("edm::Wrapper");
 
-     for (edmplugin::PluginManager::Infos::const_iterator itInfo = itFound->second.begin(),
-          itInfoEnd = itFound->second.end(); 
-          itInfo != itInfoEnd; ++itInfo)
+     for (const auto & itInfo : itFound->second)
      {
-       if (lastClass == itInfo->name_) {
+       if (lastClass == itInfo.name_) {
          continue;
        }
        
-       lastClass = itInfo->name_;
+       lastClass = itInfo.name_;
        if (lastClass.find(mystring) != std::string::npos) { 
          edmplugin::PluginCapabilities::get()->load(lastClass);
        }

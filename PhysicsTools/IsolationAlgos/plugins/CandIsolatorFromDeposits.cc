@@ -76,8 +76,8 @@ CandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet &
   //std::cout << "CandIsolatorFromDeposits::SingleDeposit::SingleDeposit: Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
-    for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
-        delete *it;
+    for (auto & veto : vetos_) {
+        delete veto;
     }
     vetos_.clear();
     // NOTE: we DON'T have to delete the evdepVetos_, they have already been deleted above. We just clear the vectors
@@ -85,8 +85,8 @@ void CandIsolatorFromDeposits::SingleDeposit::cleanup() {
 }
 void CandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     iEvent.getByToken(srcToken_, hDeps_);
-    for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
-        (*it)->setEvent(iEvent,iSetup);
+    for (auto & evdepVeto : evdepVetos_) {
+        evdepVeto->setEvent(iEvent,iSetup);
     }
 }
 
@@ -94,8 +94,8 @@ double CandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateBas
     const IsoDeposit &dep = (*hDeps_)[cand];
     double eta = dep.eta(), phi = dep.phi(); // better to center on the deposit direction
                                              // that could be, e.g., the impact point at calo
-    for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
-        (*it)->centerOn(eta, phi);
+    for (auto & veto : vetos_) {
+        veto->centerOn(eta, phi);
     }
     double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
     switch (mode_) {

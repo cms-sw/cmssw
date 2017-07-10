@@ -286,19 +286,18 @@ void PixelDataFormatter::formatRawData(unsigned int lvl1_ID, RawData & fedRawDat
   std::map<int, vector<Word32> > words;
 
   // translate digis into 32-bit raw words and store in map indexed by Fed
-  for (Digis::const_iterator im = digis.begin(); im != digis.end(); im++) {
+  for (const auto & im : digis) {
     allDetDigis++;
-    cms_uint32_t rawId = im->first;
+    cms_uint32_t rawId = im.first;
     int layer=0;
     bool barrel = PixelModuleName::isBarrel(rawId);
     if(barrel) layer = PixelROC::bpixLayerPhase1(rawId);
     //if(DANEK) cout<<" layer "<<layer<<" "<<phase1<<endl;
 
     hasDetDigis++;
-    const DetDigis & detDigis = im->second;
-    for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); it++) {
+    const DetDigis & detDigis = im.second;
+    for (auto digi : detDigis) {
       theDigiCounter++;
-      const PixelDigi & digi = (*it);
       int status=0;
 
       if(layer==1 && phase1) status = digi2wordPhase1Layer1( rawId, digi, words);

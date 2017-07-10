@@ -117,9 +117,8 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 
     bool isSignalPFCand = false;
     const std::vector<reco::PFCandidatePtr>& signalPFCands = tau.signalPFCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator signalPFCand = signalPFCands.begin();
-	  signalPFCand != signalPFCands.end(); ++signalPFCand ) {
-      if ( (*jetConstituent) == (*signalPFCand) ) isSignalPFCand = true;
+    for (const auto & signalPFCand : signalPFCands) {
+      if ( (*jetConstituent) == signalPFCand ) isSignalPFCand = true;
     }
     if ( isSignalPFCand ) continue;
     
@@ -140,11 +139,10 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
   double nonPFCandTracksSumP = 0.;
   double nonPFCandTracksSumPerr2 = 0.;
   const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau.signalTauChargedHadronCandidatesRestricted();
-  for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-	chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-    if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
+  for (const auto & chargedHadron : chargedHadrons) {
+    if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
       ++numNonPFCandTracks;
-      const edm::Ptr<Track>& chargedHadronTrack = chargedHadron->getTrack();
+      const edm::Ptr<Track>& chargedHadronTrack = chargedHadron.getTrack();
       nonPFCandTracksSumP += chargedHadronTrack->p();
       nonPFCandTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
     }
@@ -189,14 +187,12 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
     // and have been merged into ChargedHadrons
     std::vector<reco::PFCandidatePtr> mergedNeutrals;
     reco::Candidate::LorentzVector mergedNeutralsSumP4;
-    for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-      if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
-	const std::vector<reco::PFCandidatePtr>& neutralPFCands = chargedHadron->getNeutralPFCandidates();
-	for ( std::vector<reco::PFCandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
-	      neutralPFCand != neutralPFCands.end(); ++neutralPFCand ) {
-	  mergedNeutrals.push_back(*neutralPFCand);
-	  mergedNeutralsSumP4 += (*neutralPFCand)->p4();
+    for (const auto & chargedHadron : chargedHadrons) {
+      if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
+	const std::vector<reco::PFCandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
+	for (const auto & neutralPFCand : neutralPFCands) {
+	  mergedNeutrals.push_back(neutralPFCand);
+	  mergedNeutralsSumP4 += neutralPFCand->p4();
 	}
       }
     }
@@ -236,12 +232,11 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
     unsigned numChargedHadronNeutrals = 0;
     std::vector<reco::PFCandidatePtr> chargedHadronNeutrals;
     reco::Candidate::LorentzVector chargedHadronNeutralsSumP4;
-    for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-      if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kPFNeutralHadron) ) {
+    for (const auto & chargedHadron : chargedHadrons) {
+      if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kPFNeutralHadron) ) {
 	++numChargedHadronNeutrals;
-	chargedHadronNeutrals.push_back(chargedHadron->getChargedPFCandidate());
-	chargedHadronNeutralsSumP4 += chargedHadron->getChargedPFCandidate()->p4();
+	chargedHadronNeutrals.push_back(chargedHadron.getChargedPFCandidate());
+	chargedHadronNeutralsSumP4 += chargedHadron.getChargedPFCandidate()->p4();
       }
     }
     if ( verbosity_ ) {
@@ -285,10 +280,9 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       double allTracksSumP = 0.;
       double allTracksSumPerr2 = 0.;
       const std::vector<PFRecoTauChargedHadron> chargedHadrons = tau.signalTauChargedHadronCandidatesRestricted();
-      for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-	    chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-	if ( chargedHadron->algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron->algoIs(PFRecoTauChargedHadron::kTrack) ) {
-          const edm::Ptr<Track>& chargedHadronTrack = chargedHadron->getTrack();
+      for (const auto & chargedHadron : chargedHadrons) {
+	if ( chargedHadron.algoIs(PFRecoTauChargedHadron::kChargedPFCandidate) || chargedHadron.algoIs(PFRecoTauChargedHadron::kTrack) ) {
+          const edm::Ptr<Track>& chargedHadronTrack = chargedHadron.getTrack();
 	  if ( chargedHadronTrack.isNonnull() ) { 
 	    allTracksSumP += chargedHadronTrack->p();
 	    allTracksSumPerr2 += getTrackPerr2(*chargedHadronTrack);
@@ -296,7 +290,7 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
 	    edm::LogWarning("PFRecoTauEnergyAlgorithmPlugin::operator()") 
 	      << "PFRecoTauChargedHadron has no associated reco::Track !!" << std::endl;
 	    if ( verbosity_ ) {
-	      chargedHadron->print();
+	      chargedHadron.print();
 	    }
 	  }
 	}
@@ -306,19 +300,18 @@ void PFRecoTauEnergyAlgorithmPlugin::operator()(PFTau& tau) const
       }
       double allNeutralsSumEn = 0.;
       const std::vector<reco::PFCandidatePtr>& signalPFCands = tau.signalPFCands();
-      for ( std::vector<reco::PFCandidatePtr>::const_iterator signalPFCand = signalPFCands.begin();
-	    signalPFCand != signalPFCands.end(); ++signalPFCand ) {
+      for (const auto & signalPFCand : signalPFCands) {
 	if ( verbosity_ ) {
-	  std::cout << "PFCandidate #" << signalPFCand->id() << ":" << signalPFCand->key() << ":" 
-		    << " Pt = " << (*signalPFCand)->pt() << ", eta = " << (*signalPFCand)->eta() << ", phi = " << (*signalPFCand)->phi() << std::endl;
+	  std::cout << "PFCandidate #" << signalPFCand.id() << ":" << signalPFCand.key() << ":" 
+		    << " Pt = " << signalPFCand->pt() << ", eta = " << signalPFCand->eta() << ", phi = " << signalPFCand->phi() << std::endl;
 	  std::cout << "calorimeter energy:" 
-		    << " ECAL = " << (*signalPFCand)->ecalEnergy() << "," 
-		    << " HCAL = " << (*signalPFCand)->hcalEnergy() << ","
-		    << " HO = " << (*signalPFCand)->hoEnergy() << std::endl;
+		    << " ECAL = " << signalPFCand->ecalEnergy() << "," 
+		    << " HCAL = " << signalPFCand->hcalEnergy() << ","
+		    << " HO = " << signalPFCand->hoEnergy() << std::endl;
 	}
-	if ( edm::isFinite((*signalPFCand)->ecalEnergy()) ) allNeutralsSumEn += (*signalPFCand)->ecalEnergy();
-	if ( edm::isFinite((*signalPFCand)->hcalEnergy()) ) allNeutralsSumEn += (*signalPFCand)->hcalEnergy();
-	if ( edm::isFinite((*signalPFCand)->hoEnergy())   ) allNeutralsSumEn += (*signalPFCand)->hoEnergy();
+	if ( edm::isFinite(signalPFCand->ecalEnergy()) ) allNeutralsSumEn += signalPFCand->ecalEnergy();
+	if ( edm::isFinite(signalPFCand->hcalEnergy()) ) allNeutralsSumEn += signalPFCand->hcalEnergy();
+	if ( edm::isFinite(signalPFCand->hoEnergy())   ) allNeutralsSumEn += signalPFCand->hoEnergy();
       }
       allNeutralsSumEn += addNeutralsSumP4.energy();
       if ( allNeutralsSumEn < 0. ) allNeutralsSumEn = 0.;

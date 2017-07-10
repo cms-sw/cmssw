@@ -656,16 +656,16 @@ void L1GtHwValidation::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
     
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (const auto & itAlgo : algorithmMap) {
 
-        const int algBitNumber = (itAlgo->second).algoBitNumber();
+        const int algBitNumber = (itAlgo.second).algoBitNumber();
 
         std::stringstream ss;
         std::string algBitString;
         ss << std::uppercase << algBitNumber;
         ss >> algBitString;
 
-        const std::string& aName = algBitString + " " + itAlgo->first;
+        const std::string& aName = algBitString + " " + itAlgo.first;
         const char* algName = aName.c_str();
 
         for (int iRec = 0; iRec < NumberOfGtRecords; ++iRec) {
@@ -2310,10 +2310,9 @@ bool L1GtHwValidation::matchCondL1GtObject(
 
     } else {
 
-        for (std::vector<L1GtObject>::const_iterator itCondObj =
-                condObjects.begin(); itCondObj != condObjects.end(); ++itCondObj) {
+        for (auto condObject : condObjects) {
 
-            if ((*itCondObj) == excludedObject) {
+            if (condObject == excludedObject) {
 
                 matchValue = true;
 
@@ -2331,17 +2330,17 @@ void L1GtHwValidation::excludedAlgoList() {
 
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (const auto & itAlgo : algorithmMap) {
 
-        const std::string& algName = itAlgo->first;
-        const int algBitNumber = (itAlgo->second).algoBitNumber();
-        const int chipNr = (itAlgo->second).algoChipNumber();
+        const std::string& algName = itAlgo.first;
+        const int algBitNumber = (itAlgo.second).algoBitNumber();
+        const int chipNr = (itAlgo.second).algoChipNumber();
 
         const ConditionMap& conditionMap = (m_l1GtMenu->gtConditionMap()).at(
                 chipNr);
 
         const std::vector<L1GtLogicParser::TokenRPN>& aRpnVector =
-                (itAlgo->second).algoRpnVector();
+                (itAlgo.second).algoRpnVector();
         size_t aRpnVectorSize = aRpnVector.size();
 
         bool algWithExcludedCondition = false;
@@ -2483,10 +2482,9 @@ void L1GtHwValidation::excludedAlgoList() {
 
 bool L1GtHwValidation::excludedAlgo(const int& iBit) const {
 
-    for (std::vector<int>::const_iterator itAlgo = m_excludedAlgoList.begin(); itAlgo
-            != m_excludedAlgoList.end(); ++itAlgo) {
+    for (int itAlgo : m_excludedAlgoList) {
 
-        if (iBit == *itAlgo) {
+        if (iBit == itAlgo) {
             return true;
         }
     }

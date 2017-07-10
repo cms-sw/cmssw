@@ -44,12 +44,12 @@ TrackAssociatorByChi2Impl::compareTracksParam(const TrackCollection& rtColl,
   
   RecoToSimPairAssociation outputVec;
 
-  for (TrackCollection::const_iterator track=rtColl.begin(); track!=rtColl.end(); track++){
+  for (const auto & track : rtColl){
      Chi2SimMap outMap;
 
-    TrackBase::ParameterVector rParameters = track->parameters();
+    TrackBase::ParameterVector rParameters = track.parameters();
 
-    TrackBase::CovarianceMatrix recoTrackCovMatrix = track->covariance();
+    TrackBase::CovarianceMatrix recoTrackCovMatrix = track.covariance();
     if (onlyDiagonal){
       for (unsigned int i=0;i<5;i++){
 	for (unsigned int j=0;j<5;j++){
@@ -59,12 +59,12 @@ TrackAssociatorByChi2Impl::compareTracksParam(const TrackCollection& rtColl,
     }
     recoTrackCovMatrix.Invert();
 
-    for (SimTrackContainer::const_iterator st=stColl.begin(); st!=stColl.end(); st++){
+    for (const auto & st : stColl){
 
-      Basic3DVector<double> momAtVtx(st->momentum().x(),st->momentum().y(),st->momentum().z());
-      Basic3DVector<double> vert = (Basic3DVector<double>)  svColl[st->vertIndex()].position();
+      Basic3DVector<double> momAtVtx(st.momentum().x(),st.momentum().y(),st.momentum().z());
+      Basic3DVector<double> vert = (Basic3DVector<double>)  svColl[st.vertIndex()].position();
 
-      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st->charge(), bs);
+      std::pair<bool,reco::TrackBase::ParameterVector> params = parametersAtClosestApproach(vert, momAtVtx, st.charge(), bs);
       if (params.first){
 	TrackBase::ParameterVector sParameters = params.second;
       
@@ -72,10 +72,10 @@ TrackAssociatorByChi2Impl::compareTracksParam(const TrackCollection& rtColl,
         diffParameters[2] = reco::deltaPhi(diffParameters[2],0.f);
 	double chi2 = ROOT::Math::Dot(diffParameters * recoTrackCovMatrix, diffParameters);
 	chi2/=5;
-	if (chi2<chi2cut) outMap[chi2]=*st;
+	if (chi2<chi2cut) outMap[chi2]=st;
       }
     }
-    outputVec.push_back(RecoToSimPair(*track,outMap));
+    outputVec.push_back(RecoToSimPair(track,outMap));
   }
   return outputVec;
 }

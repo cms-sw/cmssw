@@ -40,8 +40,8 @@ CastorRawToDigi::CastorRawToDigi(edm::ParameterSet const& conf):
 
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);  
   std::ostringstream ss;
-  for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
-    ss << fedUnpackList_[i] << " ";
+  for (int i : fedUnpackList_) 
+    ss << i << " ";
   edm::LogInfo("CASTOR") << "CastorRawToDigi will unpack FEDs ( " << ss.str() << ")";
     
   // products produced...

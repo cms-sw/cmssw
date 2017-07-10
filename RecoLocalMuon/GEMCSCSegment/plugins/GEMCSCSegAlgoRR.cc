@@ -113,25 +113,25 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::run( const std::map<uint32_t, const 
   // empty the temporary gemcsc segments vector
   // segmentvectortmp.clear();
 
-  for(std::vector<const CSCSegment*>::const_iterator cscSegIt = cscsegments.begin(); cscSegIt != cscsegments.end(); ++cscSegIt)
+  for(auto cscsegment : cscsegments)
     {
 
       // chain hits :: make a vector of TrackingRecHits
       //               that contains the CSC and GEM rechits
       //               and that can be given to the fitter
-      chainedRecHits = this->chainHitsToSegm(*cscSegIt, gemrechits);
+      chainedRecHits = this->chainHitsToSegm(cscsegment, gemrechits);
   
       // if gemrechits are associated, run the buildSegments step
-      if(chainedRecHits.size() > (*cscSegIt)->specificRecHits().size()) 
+      if(chainedRecHits.size() > cscsegment->specificRecHits().size()) 
 	{
-	  segmentvectorfromfit = this->buildSegments(*cscSegIt, chainedRecHits);
+	  segmentvectorfromfit = this->buildSegments(cscsegment, chainedRecHits);
 	}
   
       // if no gemrechits are associated, wrap the existing CSCSegment in a GEMCSCSegment class
       else 
 	{
 	  std::vector<const GEMRecHit*> gemRecHits_noGEMrh; // empty GEMRecHit vector
-	  GEMCSCSegment tmp(*cscSegIt, gemRecHits_noGEMrh, (*cscSegIt)->localPosition(), (*cscSegIt)->localDirection(), (*cscSegIt)->parametersError(), (*cscSegIt)->chi2());
+	  GEMCSCSegment tmp(cscsegment, gemRecHits_noGEMrh, cscsegment->localPosition(), cscsegment->localDirection(), cscsegment->parametersError(), cscsegment->chi2());
 	  segmentvectorfromfit.push_back(tmp);
 	}
 
@@ -169,9 +169,9 @@ std::vector<const TrackingRecHit*> GEMCSCSegAlgoRR::chainHitsToSegm(const CSCSeg
 
   // Loop over the CSC Segment rechits 
   // and save a copy in the chainedRecHits vector
-  for (auto crh = cscrhs.begin(); crh!= cscrhs.end(); crh++)
+  for (auto & cscrh : cscrhs)
     {
-      chainedRecHits.push_back(crh->clone());
+      chainedRecHits.push_back(cscrh.clone());
     }
 
   // now ask the layer id of the first CSC rechit
@@ -303,9 +303,9 @@ std::vector<GEMCSCSegment> GEMCSCSegAlgoRR::buildSegments(const CSCSegment* cscs
     }
 
   // Extract the GEMRecHits from the TrackingRecHit vector
-  for(std::vector<const TrackingRecHit*>::const_iterator trhIt = rechits.begin(); trhIt!=rechits.end(); ++trhIt) 
+  for(auto rechit : rechits) 
     {
-      if (DetId((*trhIt)->rawId()).subdetId() == MuonSubdetId::GEM) { gemrechits.push_back( ((GEMRecHit*)*trhIt) ); }
+      if (DetId(rechit->rawId()).subdetId() == MuonSubdetId::GEM) { gemrechits.push_back( ((GEMRecHit*)rechit) ); }
     }
 
   // The actual fit on all hits of the vector of the selected Tracking RecHits:

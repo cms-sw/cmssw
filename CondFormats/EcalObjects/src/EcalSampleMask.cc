@@ -43,10 +43,10 @@ void EcalSampleMask::setEcalSampleMaskRecordEB( const std::vector<unsigned int> 
   }
 
   // check that values of vector are allowed
-  for (unsigned int s=0; s<ebmask.size(); s++ ) {
-    if    ( ebmask.at(s)==0 || ebmask.at(s)==1  ) {;}
+  for (unsigned int s : ebmask) {
+    if    ( s==0 || s==1  ) {;}
     else {
-      std::cout << "in EcalSampleMask::setEcalSampleMaskRecordEB ebmask can only have values 0 or 1, while " << ebmask.at(s) << " was found. Bailing out. " << std::endl;
+      std::cout << "in EcalSampleMask::setEcalSampleMaskRecordEB ebmask can only have values 0 or 1, while " << s << " was found. Bailing out. " << std::endl;
       assert(0);
     }
   }
@@ -71,10 +71,10 @@ void EcalSampleMask::setEcalSampleMaskRecordEE( const std::vector<unsigned int> 
   }
 
   // check that values of vector are allowed
-  for (unsigned int s=0; s<eemask.size(); s++ ) {
-    if    ( eemask.at(s)==0 || eemask.at(s)==1  ) {;}
+  for (unsigned int s : eemask) {
+    if    ( s==0 || s==1  ) {;}
     else {
-      std::cout << "in EcalSampleMask::setEcalSampleMaskRecordEE eemask can only have values 0 or 1, while " << eemask.at(s) << " was found. Bailing out. " << std::endl;
+      std::cout << "in EcalSampleMask::setEcalSampleMaskRecordEE eemask can only have values 0 or 1, while " << s << " was found. Bailing out. " << std::endl;
       assert(0);
     }
   }

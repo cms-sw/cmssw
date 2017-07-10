@@ -188,9 +188,9 @@ SubdetFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) 
     {
       bool rightFED=false;
-      for (uint32_t k=0; k<selFEDs.size(); k++)
+      for (int selFED : selFEDs)
 	{
-	  if (j==selFEDs[k])
+	  if (j==selFED)
 	   {
 	     rightFED=true;
 	   }

@@ -58,8 +58,8 @@ void testCompositeCandidate::checkAll() {
     int idx = 0;
     const reco::CompositeCandidate & cand = c;
     CPPUNIT_ASSERT(c.numberOfDaughters()==2);
-    for( reco::Candidate::const_iterator i = cand.begin(); i != cand.end(); ++ i ) {
-      d[ idx ++ ] = & * i;
+    for(const auto & i : cand) {
+      d[ idx ++ ] = & i;
     }
     CPPUNIT_ASSERT( d[ 0 ]->charge() == q1 );
     CPPUNIT_ASSERT( (d[ 0 ]->p4() - p1).M2() < 1.e-4 );

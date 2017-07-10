@@ -151,14 +151,14 @@ void CaliTempDat::writeArrayDB(const std::map< EcalLogicID, CaliTempDat >* data,
   const CaliTempDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, CaliTempDat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-    channel = &(p->first);
+  for (const auto & p : *data) {
+    channel = &(p.first);
     int logicID = channel->getLogicID();
     if (!logicID) { throw(std::runtime_error("CaliTempDat::writeArrayDB:  Bad EcalLogicID")); }
     ids[count]=logicID;
     iovid_vec[count]=iovID;
 
-    dataitem = &(p->second);
+    dataitem = &(p.second);
     // dataIface.writeDB( channel, dataitem, iov);
     float x=dataitem->getBeta();
     float y=dataitem->getR25();

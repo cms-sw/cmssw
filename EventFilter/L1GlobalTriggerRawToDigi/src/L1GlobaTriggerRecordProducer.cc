@@ -145,8 +145,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
     
     int iBit = -1; // bit counter
 
-    for (std::vector<bool>::iterator 
-            itBit = algoDecisionWord.begin(); itBit != algoDecisionWord.end(); ++itBit) {
+    for (auto && itBit : algoDecisionWord) {
         
         iBit++;
         
@@ -158,7 +157,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
         //<< std::endl;
 
         if (triggerMaskAlgoTrigBit) {
-            *itBit = false;
+            itBit = false;
 
             //LogTrace("L1GlobalTriggerFDL")
             //<< "\nMasked algorithm trigger: " << iBit << ". Result set to false"
@@ -170,8 +169,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
 
     iBit = -1; // bit counter
 
-    for (std::vector<bool>::iterator 
-            itBit = techDecisionWord.begin(); itBit != techDecisionWord.end(); ++itBit) {
+    for (auto && itBit : techDecisionWord) {
         
         iBit++;
         
@@ -183,7 +181,7 @@ void L1GlobalTriggerRecordProducer::produce(edm::Event& iEvent, const edm::Event
         //<< std::endl;
 
         if (triggerMaskTechTrigBit) {
-            *itBit = false;
+            itBit = false;
 
             //LogTrace("L1GlobalTriggerFDL")
             //<< "\nMasked technical trigger: " << iBit << ". Result set to false"

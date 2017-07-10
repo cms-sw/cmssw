@@ -69,11 +69,9 @@ void printGenJetRatio::analyze(const edm::Event& iEvent, const edm::EventSetup& 
                                                    itB ++) {
     const Jet &jetB = *(itB->first);
     float cR = 0;
-    for ( JetBCEnergyRatioCollection::const_iterator itC  = theCratioValue->begin();
-                                                     itC != theCratioValue->end();
-                                                     itC ++) {
+    for (const auto & itC : *theCratioValue) {
 
-      if( itB->first == itC->first ) cR=itC->second;
+      if( itB->first == itC.first ) cR=itC.second;
     }
     printf("printGenJetRatio] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | bcRatio = %7.5f - %7.5f \n",
              jetB.et(),

@@ -360,9 +360,9 @@ boost::dynamic_bitset<> CSCDDUEventData::pack()
   //std::cout <<"printing out ddu header words via bitset"<<std::endl;
   //bitset_utilities::printWords(result);
  
-  for(unsigned int i = 0; i < theData.size(); ++i) 
+  for(auto & i : theData) 
     {
-      result = bitset_utilities::append(result,theData[i].pack());
+      result = bitset_utilities::append(result,i.pack());
     }
   theSizeInWords = result.size()/16 + theDDUTrailer.sizeInWords();
   // 64-bit word count

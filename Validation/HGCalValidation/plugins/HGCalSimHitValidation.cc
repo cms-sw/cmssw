@@ -110,10 +110,10 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
     edm::LogInfo("HGCalValidation") << nameDetector_ << " with " << hits.size()
 				    << " PcaloHit elements\n";
   unsigned int nused(0);
-  for (unsigned int i=0; i<hits.size(); i++) {
-    double energy      = hits[i].energy();
-    double time        = hits[i].time();
-    uint32_t id_       = hits[i].id();
+  for (auto & hit : hits) {
+    double energy      = hit.energy();
+    double time        = hit.time();
+    uint32_t id_       = hit.id();
     int    cell, sector, subsector, layer, zside;
     int    subdet(0);
     if (heRebuild_) {
@@ -141,8 +141,8 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 				      << " layer = "     << layer
 				      << " cell = "      << cell
 				      << " energy = "    << energy
-				      << " energyem = "  << hits[i].energyEM()
-				      << " energyhad = " << hits[i].energyHad()
+				      << " energyem = "  << hit.energyEM()
+				      << " energyhad = " << hit.energyHad()
 				      << " time = "      << time << "\n";
 
     HepGeom::Point3D<float> gcoord;
@@ -226,14 +226,14 @@ void HGCalSimHitValidation::analyzeHits (std::vector<PCaloHit>& hits) {
 				  << "|" << nused << "|" << map_hits.size()
 				  << " hits\n";
 
-  for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
-    int layer     = (*itr).first;
-    int occupancy = (*itr).second;
+  for (auto & OccupancyMap_plu : OccupancyMap_plus) {
+    int layer     = OccupancyMap_plu.first;
+    int occupancy = OccupancyMap_plu.second;
     HitOccupancy_Plus_.at(layer)->Fill(occupancy);
   }
-  for (auto itr = OccupancyMap_minus.begin() ; itr != OccupancyMap_minus.end(); ++itr) {
-    int layer     = (*itr).first;
-    int occupancy = (*itr).second;
+  for (auto & OccupancyMap_minu : OccupancyMap_minus) {
+    int layer     = OccupancyMap_minu.first;
+    int occupancy = OccupancyMap_minu.second;
     HitOccupancy_Minus_.at(layer)->Fill(occupancy);
   }
 }

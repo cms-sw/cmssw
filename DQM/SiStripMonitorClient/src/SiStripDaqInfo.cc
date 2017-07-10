@@ -79,8 +79,8 @@ void SiStripDaqInfo::bookStatus() {
     det_type.push_back("TECF");
     det_type.push_back("TECB");
       
-    for ( std::vector<std::string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
-      std::string det = (*it);
+    for (auto & it : det_type) {
+      std::string det = it;
       
       SubDetMEs local_mes;	
       std::string me_name;
@@ -99,9 +99,9 @@ void SiStripDaqInfo::bookStatus() {
 void SiStripDaqInfo::fillDummyStatus() {
   if (!bookedStatus_) bookStatus();
   if (bookedStatus_) {
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      it->second.DaqFractionME->Reset();
-      it->second.DaqFractionME->Fill(-1.0);
+    for (auto & it : SubDetMEsMap) {
+      it.second.DaqFractionME->Reset();
+      it.second.DaqFractionME->Fill(-1.0);
     }
     DaqFraction_->Reset();
     DaqFraction_->Fill(-1.0);
@@ -141,10 +141,8 @@ void SiStripDaqInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
     
     if ( sumFED.isValid() ) {
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
-      for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-	int fedID = FedsInIds[it];     
-	
-	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
+      for(int fedID : FedsInIds) {
+		if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
       }
       edm::LogInfo ("SiStripDaqInfo") <<" SiStripDaqInfo::Total # of FEDs " << nFedTotal 
                                       << " Connected FEDs " << nFEDConnected;
@@ -187,15 +185,15 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
   auto feds = fedCabling_->fedIds(); 
 
   nFedTotal = feds.size();
-  for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++){
-    auto fedChannels = fedCabling_->fedConnections( *ifed );
+  for(unsigned short fed : feds){
+    auto fedChannels = fedCabling_->fedConnections( fed );
     for (auto iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
       if (!iconn->isConnected()) continue;
       uint32_t detId = iconn->detId();
       if (detId == 0 || detId == 0xFFFFFFFF)  continue;
       std::string subdet_tag;
       SiStripUtility::getSubDetectorTag(detId,subdet_tag,tTopo);
-      subDetFedMap[subdet_tag].push_back(*ifed); 
+      subDetFedMap[subdet_tag].push_back(fed); 
       break;
     }
   }  
@@ -231,19 +229,17 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::Even
     std::map<std::string, SubDetMEs>::iterator iPos = SubDetMEsMap.find(name);
     if (iPos == SubDetMEsMap.end()) continue;
     iPos->second.ConnectedFeds = 0;
-    for (std::vector<unsigned short>::iterator iv = subdetIds.begin();
-	 iv != subdetIds.end(); iv++) {
+    for (unsigned short & subdetId : subdetIds) {
       bool fedid_found = false;
-      for(unsigned int it = 0; it < fed_ids.size(); ++it) {
-	unsigned short fedID = fed_ids[it];     
-        if(fedID < siStripFedIdMin ||  fedID > siStripFedIdMax) continue;
-	if ((*iv) == fedID) {
+      for(unsigned short fedID : fed_ids) {
+	if(fedID < siStripFedIdMin ||  fedID > siStripFedIdMax) continue;
+	if (subdetId == fedID) {
 	  fedid_found = true;
           iPos->second.ConnectedFeds++;
 	  break;
 	}
       }
-      if (!fedid_found) findExcludedModule((*iv),tTopo);   
+      if (!fedid_found) findExcludedModule(subdetId,tTopo);   
     }
     int nFedsConnected   = iPos->second.ConnectedFeds;
     int nFedSubDet       = subdetIds.size();

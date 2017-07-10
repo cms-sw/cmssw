@@ -161,11 +161,10 @@ namespace edm {
       if(previousParentage) {
         itPrevious = previousParentage->begin();
       }
-      for(BranchIDSet::const_iterator it = gotBranchIDs_.begin(), itEnd = gotBranchIDs_.end();
-          it != itEnd; ++it) {
-        gotBranchIDVector.push_back(*it);
+      for(auto gotBranchID : gotBranchIDs_) {
+        gotBranchIDVector.push_back(gotBranchID);
         if(sameAsPrevious) {
-          if(*it != *itPrevious) {
+          if(gotBranchID != *itPrevious) {
             sameAsPrevious = false;
           } else {
             ++itPrevious;

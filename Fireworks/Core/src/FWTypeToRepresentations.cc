@@ -63,13 +63,11 @@ FWTypeToRepresentations::add( std::shared_ptr<FWRepresentationCheckerBase> iChec
    m_checkers.push_back(iChecker);
    if(m_typeToReps.size()) {
       //see if this works with types we already know about
-      for(TypeToReps::iterator it = m_typeToReps.begin(), itEnd = m_typeToReps.end();
-          it != itEnd;
-          ++it) {
-         FWRepresentationInfo info = iChecker->infoFor(it->first);
+      for(auto & m_typeToRep : m_typeToReps) {
+         FWRepresentationInfo info = iChecker->infoFor(m_typeToRep.first);
          if(info.isValid()) {
             //NOTE TO SELF: should probably sort by proximity
-            it->second.push_back(info);
+            m_typeToRep.second.push_back(info);
          }
       }
    }
@@ -78,11 +76,8 @@ void
 FWTypeToRepresentations::insert( const FWTypeToRepresentations& iOther)
 {
    m_typeToReps.clear();
-   for(std::vector<std::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it =iOther.m_checkers.begin(),
-                                                                                    itEnd = iOther.m_checkers.end();
-       it != itEnd;
-       ++it) {
-      m_checkers.push_back(*it);
+   for(const auto & m_checker : iOther.m_checkers) {
+      m_checkers.push_back(m_checker);
    }
 }
 
@@ -96,12 +91,9 @@ FWTypeToRepresentations::representationsForType(const std::string& iTypeName) co
    if(itFound == m_typeToReps.end()) {
       std::vector<FWRepresentationInfo> reps;
       //check all reps
-      for(std::vector<std::shared_ptr<FWRepresentationCheckerBase> >::const_iterator it = m_checkers.begin(),
-             itEnd = m_checkers.end();
-          it != itEnd;
-          ++it) {
+      for(const auto & m_checker : m_checkers) {
 
-         FWRepresentationInfo info = (*it)->infoFor(iTypeName);         
+         FWRepresentationInfo info = m_checker->infoFor(iTypeName);         
          if(info.isValid()) 
             reps.push_back(info);
       }

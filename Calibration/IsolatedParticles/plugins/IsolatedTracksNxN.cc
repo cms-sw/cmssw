@@ -162,9 +162,9 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     if (!initL1) {
       initL1=true;
       std::cout << "menuName " << menuName << std::endl;
-      for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-	std::string algName = itAlgo->first;
-	int algBitNumber = ( itAlgo->second ).algoBitNumber();
+      for (const auto & itAlgo : algorithmMap) {
+	std::string algName = itAlgo.first;
+	int algBitNumber = ( itAlgo.second ).algoBitNumber();
 	l1AlgoMap.insert( std::pair<std::pair<unsigned int,std::string>,int>( std::pair<unsigned int,std::string>(algBitNumber, algName) , 0) ) ;
       }
       std::map< std::pair<unsigned int,std::string>, int>::iterator itr;
@@ -174,17 +174,17 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
 
     std::vector<int> algbits;
-    for (CItAlgo itAlgo        = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-      std::string algName      = itAlgo->first;
-      int algBitNumber         = ( itAlgo->second ).algoBitNumber();
-      bool decision            = m_l1GtUtils.decision          (iEvent, itAlgo->first, iErrorCode);
-      int  preScale            = m_l1GtUtils.prescaleFactor    (iEvent, itAlgo->first, iErrorCode);
+    for (const auto & itAlgo : algorithmMap) {
+      std::string algName      = itAlgo.first;
+      int algBitNumber         = ( itAlgo.second ).algoBitNumber();
+      bool decision            = m_l1GtUtils.decision          (iEvent, itAlgo.first, iErrorCode);
+      int  preScale            = m_l1GtUtils.prescaleFactor    (iEvent, itAlgo.first, iErrorCode);
     
       // save the algo names which fired
       if( decision ){
 	l1AlgoMap[std::pair<unsigned int,std::string>(algBitNumber, algName)] += 1;
 	h_L1AlgoNames->Fill( algBitNumber );
-	t_L1AlgoNames->push_back(itAlgo->first); 
+	t_L1AlgoNames->push_back(itAlgo.first); 
 	t_L1PreScale->push_back(preScale);
 	t_L1Decision[algBitNumber] = 1;
 	algbits.push_back(algBitNumber);
@@ -391,10 +391,10 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
   //  edm::Handle<reco::JetExtendedAssociation::Container> jetExtender;
   //  iEvent.getByLabel(JetExtender_,jetExtender);
 
-  for(unsigned int ijet=0;ijet<(*jets).size();ijet++) {
-    t_jetPt       ->push_back( (*jets)[ijet].pt()     );
-    t_jetEta      ->push_back( (*jets)[ijet].eta()    );
-    t_jetPhi      ->push_back( (*jets)[ijet].phi()    );
+  for(const auto & ijet : (*jets)) {
+    t_jetPt       ->push_back( ijet.pt()     );
+    t_jetEta      ->push_back( ijet.eta()    );
+    t_jetPhi      ->push_back( ijet.phi()    );
     t_nTrksJetVtx ->push_back( -1.0);
     t_nTrksJetCalo->push_back( -1.0);
   }
@@ -750,8 +750,8 @@ void IsolatedTracksNxN::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	    std::vector<std::pair<DetId,double> > v7x7 = spr::eHCALmatrixCell(theHBHETopology, ClosestCell, hbhe,3,3, false, false);
 	    double sumv=0.0;
 	    
-	    for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
-	      sumv += v7x7[iv].second;
+	    for(auto & iv : v7x7) { 
+	      sumv += iv.second;
 	    }
 	    std::cout<<"h7x7 "<<h7x7<<" v7x7 "<<sumv << " in " << v7x7.size() <<std::endl;
 	    for(unsigned int iv=0; iv<v7x7.size(); iv++) { 
@@ -1000,7 +1000,7 @@ void IsolatedTracksNxN::clearTreeVectors() {
   t_PVTracksSumPtHP   ->clear();
   t_PVTracksSumPtHPWt ->clear();
 
-  for(int i=0; i<128; i++) t_L1Decision[i]=0;
+  for(int & i : t_L1Decision) i=0;
   t_L1AlgoNames       ->clear();
   t_L1PreScale        ->clear();
 
@@ -1308,7 +1308,7 @@ void IsolatedTracksNxN::BookHistograms(){
   tree->Branch("t_PVTracksSumPtHPWt"  ,"vector<double>"      ,&t_PVTracksSumPtHPWt);
 
   //----- L1Trigger information
-  for(int i=0; i<128; i++) t_L1Decision[i]=0;
+  for(int & i : t_L1Decision) i=0;
   t_L1AlgoNames       = new std::vector<std::string>();
   t_L1PreScale        = new std::vector<int>();
   t_L1CenJetPt        = new std::vector<double>();

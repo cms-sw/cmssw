@@ -26,10 +26,9 @@ void l1t::Stage1Layer2DiTauAlgorithm::processEvent(const std::vector<l1t::CaloRe
 						   l1t::CaloSpare * spares) {
 
   std::vector<l1t::Tau> *isoTaus = new std::vector<l1t::Tau>();
-  for(std::vector<l1t::Tau>::const_iterator itTau = taus->begin();
-      itTau != taus->end(); ++itTau){
-    if( !itTau->hwIso() ) continue;
-    isoTaus->push_back( *itTau );
+  for(const auto & tau : *taus){
+    if( !tau.hwIso() ) continue;
+    isoTaus->push_back( tau );
   }
 
   int isoPtMax=0;

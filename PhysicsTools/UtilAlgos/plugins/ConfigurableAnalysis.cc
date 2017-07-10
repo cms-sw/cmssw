@@ -134,18 +134,18 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   bool filledOnce=false;
 
   // loop the requested selections
-  for (FilterSelections::iterator selection=selections_->begin(); selection!=selections_->end();++selection){
+  for (auto & selection : *selections_){
     //was this flow of filter actually asked for
     bool skip=true;
     unsigned int iFlow=0;
-    for (;iFlow!=flows_.size();++iFlow){if (flows_[iFlow]==selection->name()){skip=false; break;}}
+    for (;iFlow!=flows_.size();++iFlow){if (flows_[iFlow]==selection.name()){skip=false; break;}}
     if (skip) continue;
 
     //make a specific direction in the plotter
-    if (plotter_)     plotter_->setDir(selection->name());
+    if (plotter_)     plotter_->setDir(selection.name());
 
     // apply individual filters on the event
-    std::map<std::string, bool> accept=selection->acceptMap(iEvent);
+    std::map<std::string, bool> accept=selection.acceptMap(iEvent);
 
     bool globalAccept=true;
     std::string separator="";
@@ -154,11 +154,11 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     std::string fullAccept="fullAccept";
     std::string fullContent="fullContent";
 
-    if (selection->makeContentPlots() && plotter_)
+    if (selection.makeContentPlots() && plotter_)
       plotter_->fill(fullContent,iEvent);
 
     //loop the filters to make cumulative and allButOne job
-    for (FilterSelection::iterator filterIt=selection->begin(); filterIt!=selection->end();++filterIt){
+    for (FilterSelection::iterator filterIt=selection.begin(); filterIt!=selection.end();++filterIt){
       SFilter & filter = (*filterIt);
       //      bool lastCut=((filterIt+1)==selection->end());
 
@@ -170,20 +170,20 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 
       if (accept[filter->name()]){
 	//	if (globalAccept && selection->makeCumulativePlots() && !lastCut)
-	if (globalAccept && selection->makeCumulativePlots() && plotter_)
+	if (globalAccept && selection.makeCumulativePlots() && plotter_)
 	  plotter_->fill(cumulative,iEvent);
       }
       else{
 	globalAccept=false;
 	// did all the others filter fire
 	bool goodForAllButThisOne=true;
-	for (std::map<std::string,bool>::iterator decision=accept.begin(); decision!=accept.end();++decision){
-	  if (decision->first==filter->name()) continue;
-	  if (!decision->second) {
+	for (auto & decision : accept){
+	  if (decision.first==filter->name()) continue;
+	  if (!decision.second) {
 	    goodForAllButThisOne=false;
 	    break;}
 	}
-	if (goodForAllButThisOne && selection->makeAllButOnePlots() && plotter_){
+	if (goodForAllButThisOne && selection.makeAllButOnePlots() && plotter_){
 	  plotter_->fill(allButOne+filter->name(),iEvent);
 	}
       }
@@ -194,11 +194,11 @@ bool ConfigurableAnalysis::filter(edm::Event& iEvent, const edm::EventSetup& iSe
       (*passedProduct)[iFlow]=true;
       majorGlobalAccept=true;
       //make final plots only if no cumulative plots
-      if (selection->makeFinalPlots() && !selection->makeCumulativePlots() && plotter_)
+      if (selection.makeFinalPlots() && !selection.makeCumulativePlots() && plotter_)
 	plotter_->fill(fullAccept,iEvent);
 
       //make the ntuple and put it in the event
-      if (selection->ntuplize() && !filledOnce && ntupler_){
+      if (selection.ntuplize() && !filledOnce && ntupler_){
 	ntupler_->fill(iEvent);
 	filledOnce=true;}
     }

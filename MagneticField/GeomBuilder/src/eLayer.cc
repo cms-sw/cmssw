@@ -51,11 +51,10 @@ MagELayer * MagGeoBuilderFromDDD::eLayer::buildMagELayer() const {
     double zmin = 1e19;
     double zmax = -1e19;
     vector<MagVolume*> mVols;
-    for (handles::const_iterator vol = theVolumes.begin();
-	 vol!=theVolumes.end(); ++vol) {
-      mVols.push_back((*vol)->magVolume);
-      zmin = min(zmin, (*vol)->minZ());
-      zmax = max(zmax, (*vol)->maxZ());
+    for (auto theVolume : theVolumes) {
+      mVols.push_back(theVolume->magVolume);
+      zmin = min(zmin, theVolume->minZ());
+      zmax = max(zmax, theVolume->maxZ());
     }
     mlayer = new MagELayer(mVols, zmin, zmax);
   }

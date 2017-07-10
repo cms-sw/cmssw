@@ -299,11 +299,9 @@ DummyTestReadDQMStore::endRun(edm::Run const& iRun, edm::EventSetup const&)
 {
   if(iRun.run() != runToCheck_) return;
 
-  for(std::vector<boost::shared_ptr<ReaderBase> >::iterator it = m_runReaders.begin(), itEnd = m_runReaders.end();
-      it != itEnd;
-      ++it) 
+  for(auto & m_runReader : m_runReaders) 
     {
-      (*it)->read();
+      m_runReader->read();
     }
   m_runReaders.erase(m_runReaders.begin(), m_runReaders.end());
   m_lumiReaders.erase(m_lumiReaders.begin(), m_lumiReaders.end());
@@ -327,10 +325,8 @@ DummyTestReadDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::Ev
 void 
 DummyTestReadDQMStore::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  for(std::vector<boost::shared_ptr<ReaderBase> >::iterator it = m_lumiReaders.begin(), itEnd = m_lumiReaders.end();
-      it != itEnd;
-      ++it) {
-    (*it)->read();
+  for(auto & m_lumiReader : m_lumiReaders) {
+    m_lumiReader->read();
   }
 }
 

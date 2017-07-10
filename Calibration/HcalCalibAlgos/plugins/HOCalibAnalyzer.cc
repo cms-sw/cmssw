@@ -174,8 +174,8 @@ Double_t totalfunc(Double_t* x, Double_t* par){
 void fcnbg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
   
   double fval = -par[0];
-  for (unsigned ij=0; ij<cro_ssg[ietafit][iphifit].size(); ij++) {
-    double xval = (double)cro_ssg[ietafit][iphifit][ij];
+  for (float ij : cro_ssg[ietafit][iphifit]) {
+    double xval = (double)ij;
     fval +=std::log(std::max(1.e-30,par[0]*TMath::Gaus(xval, par[1], par[2], 1)));
     //    fval +=std::log(par[0]*TMath::Gaus(xval, par[1], par[2], 1));
   }
@@ -186,8 +186,8 @@ void fcnsg(Int_t &npar, Double_t* gin, Double_t &f, Double_t* par, Int_t flag) {
 
   double xval[2];
   double fval = -(par[0]+par[5]);
-  for (unsigned ij=0; ij<sig_reg[ietafit][iphifit].size(); ij++) {
-    xval[0] = (double)sig_reg[ietafit][iphifit][ij];
+  for (float ij : sig_reg[ietafit][iphifit]) {
+    xval[0] = (double)ij;
     fval +=std::log(totalfunc(xval, par));
   }
   f = -fval;
@@ -906,14 +906,14 @@ HOCalibAnalyzer::HOCalibAnalyzer(const edm::ParameterSet& iConfig)
     statmn_eta[ij] =  fs->make<TH1F>(title, title, nphimx, 0.5, nphimx+0.5);
   }
 
-  for (int jk=0; jk<netamx; jk++) {
+  for (auto & jk : invang) {
     for (int ij=0; ij<nphimx; ij++) {	       
-      invang[jk][ij] = 0.0;
+      jk[ij] = 0.0;
     }
   }
-  for (int jk=0; jk<ringmx; jk++) {
+  for (auto & jk : com_invang) {
     for (int ij=0; ij<routmx+1; ij++) {	       
-      com_invang[jk][ij] = 0.0;
+      jk[ij] = 0.0;
     }
   }
 
@@ -1027,11 +1027,11 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     iEvent.getByToken(tok_allho_,hoht); 
     if (hoht.isValid() && (*hoht).size()>0) {
       ho_entry->Fill(-1., -1.); //Count of total number of entries
-      for (HORecHitCollection::const_iterator ij=(*hoht).begin(); ij!=(*hoht).end(); ij++){
-	HcalDetId id =(*ij).id();
+      for (const auto & ij : (*hoht)){
+	HcalDetId id =ij.id();
 	int tmpeta= id.ieta();
 	int tmpphi= id.iphi(); 
-	float signal = (*ij).energy();
+	float signal = ij.energy();
 	ho_entry->Fill(tmpeta, tmpphi);
 	ho_energy->Fill(tmpeta, tmpphi, signal);
 	ho_energy2->Fill(tmpeta, tmpphi, signal*signal);
@@ -1056,50 +1056,50 @@ HOCalibAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
 
   if (isCosMu && (*HOCalib).size() >0 ) { 
     nmuon = (*HOCalib).size();
-    for (HOCalibVariableCollection::const_iterator hoC=(*HOCalib).begin(); hoC!=(*HOCalib).end(); hoC++){
+    for (const auto & hoC : (*HOCalib)){
       //      itrg1 = (*hoC).trig1;
       //      itrg2 = (*hoC).trig2;
-      trkdr = (*hoC).trkdr;
-      trkdz = (*hoC).trkdz;
+      trkdr = hoC.trkdr;
+      trkdz = hoC.trkdz;
 
-      trkvx = (*hoC).trkvx;
-      trkvy = (*hoC).trkvy;
-      trkvz = (*hoC).trkvz;
+      trkvx = hoC.trkvx;
+      trkvy = hoC.trkvy;
+      trkvz = hoC.trkvz;
       
-      trkmm = (*hoC).trkmm;
-      trkth = (*hoC).trkth;
-      trkph = (*hoC).trkph;
+      trkmm = hoC.trkmm;
+      trkth = hoC.trkth;
+      trkph = hoC.trkph;
 
-      ndof   = (int)(*hoC).ndof;
+      ndof   = (int)hoC.ndof;
       //      nrecht = (int)(*hoC).nrecht;
-      chisq = (*hoC).chisq;
-      momatho = (*hoC).momatho;
+      chisq = hoC.chisq;
+      momatho = hoC.momatho;
 
-      therr = (*hoC).therr;
-      pherr = (*hoC).pherr;
-      trkph = (*hoC).trkph;
+      therr = hoC.therr;
+      pherr = hoC.pherr;
+      trkph = hoC.trkph;
 
       if (!m_cosmic) {
-	nprim = (*hoC).nprim;
-	inslumi = (*hoC).inslumi;
-	tkpt03 = (*hoC).tkpt03;
-	ecal03 = (*hoC).ecal03;
-	hcal03 = (*hoC).hcal03;
+	nprim = hoC.nprim;
+	inslumi = hoC.inslumi;
+	tkpt03 = hoC.tkpt03;
+	ecal03 = hoC.ecal03;
+	hcal03 = hoC.hcal03;
       }
 	
-      isect = (*hoC).isect;
-      isect2 = (*hoC).isect2;
-      hodx  = (*hoC).hodx;
-      hody  = (*hoC).hody;
-      hoang = (*hoC).hoang;
-      htime = (*hoC).htime;
-      hoflag = (*hoC).hoflag;
-      for (int ij=0; ij<9; ij++) { hosig[ij] = (*hoC).hosig[ij];} //edm::LogInfo("HOCalib")<<"hosig "<<i<<" "<<hosig[ij];}
-      for (int ij=0; ij<18; ij++) { hocorsig[ij] = (*hoC).hocorsig[ij];} // edm::LogInfo("HOCalib")<<"hocorsig "<<i<<" "<<hocorsig[ij];}    
-      hocro = (*hoC).hocro;
-      for (int ij=0; ij<3; ij++) { caloen[ij] = (*hoC).caloen[ij];}
+      isect = hoC.isect;
+      isect2 = hoC.isect2;
+      hodx  = hoC.hodx;
+      hody  = hoC.hody;
+      hoang = hoC.hoang;
+      htime = hoC.htime;
+      hoflag = hoC.hoflag;
+      for (int ij=0; ij<9; ij++) { hosig[ij] = hoC.hosig[ij];} //edm::LogInfo("HOCalib")<<"hosig "<<i<<" "<<hosig[ij];}
+      for (int ij=0; ij<18; ij++) { hocorsig[ij] = hoC.hocorsig[ij];} // edm::LogInfo("HOCalib")<<"hocorsig "<<i<<" "<<hocorsig[ij];}    
+      hocro = hoC.hocro;
+      for (int ij=0; ij<3; ij++) { caloen[ij] = hoC.caloen[ij];}
 
-      if (m_hbinfo) { for (int ij=0; ij<9; ij++) { hbhesig[ij] = (*hoC).hbhesig[ij];}} // edm::LogInfo("HOCalib")<<"hbhesig "<<ij<<" "<<hbhesig[ij];}}
+      if (m_hbinfo) { for (int ij=0; ij<9; ij++) { hbhesig[ij] = hoC.hbhesig[ij];}} // edm::LogInfo("HOCalib")<<"hbhesig "<<ij<<" "<<hbhesig[ij];}}
       
       T1->Fill();      
 

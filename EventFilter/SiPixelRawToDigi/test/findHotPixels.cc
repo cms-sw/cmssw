@@ -437,7 +437,7 @@ private:
 void findHotPixels::endJob() {
   if(countEvents>0) {
     sumPixels /= float(countEvents);
-    for(int i=0;i<40;++i) sumFedPixels[i] /= float(countEvents);
+    for(float & sumFedPixel : sumFedPixels) sumFedPixel /= float(countEvents);
   }
   
   cout<<" Total/non-empty events " <<countAllEvents<<" / "<<countEvents<<" average number of pixels "<<sumPixels<<endl;
@@ -457,7 +457,7 @@ void findHotPixels::beginJob() {
   countEvents=0;
   countAllEvents=0;
   sumPixels=0.;
-  for(int i=0;i<40;++i) sumFedPixels[i]=0;
+  for(float & sumFedPixel : sumFedPixels) sumFedPixel=0;
 }
 
 void findHotPixels::analyze(const  edm::Event& ev, const edm::EventSetup& es) {

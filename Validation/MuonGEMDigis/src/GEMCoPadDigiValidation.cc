@@ -108,15 +108,15 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
     return ;
   }
 
-  for (GEMCoPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
-    GEMDetId id = (*cItr).first;
+  for (auto && cItr : *gem_digis) {
+    GEMDetId id = cItr.first;
     int re = id.region();
     int st = id.station();
     int la = id.layer();
     Short_t chamber = (Short_t) id.chamber();
     GEMCoPadDigiCollection::const_iterator digiItr;
     //loop over digis of given roll
-    for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
+    for (digiItr = cItr.second.first; digiItr != cItr.second.second; ++digiItr)
     {
       // GEM copads are stored per super chamber!
       GEMDetId schId = GEMDetId(re, id.ring(), st, 0, chamber, 0);

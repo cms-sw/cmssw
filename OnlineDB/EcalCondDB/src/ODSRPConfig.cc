@@ -68,23 +68,22 @@ void ODSRPConfig::setParameters(const std::map<string,string>& my_keys_map){
   // string string with variable name variable value
 
 
-  for( std::map<std::string, std::string >::const_iterator ci=
-         my_keys_map.begin(); ci!=my_keys_map.end(); ci++ ) {
+  for(const auto & ci : my_keys_map) {
 
-      std::string name = ci->first;
+      std::string name = ci.first;
       std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))std::toupper);
 
-    if( name ==  "SRP_CONFIGURATION_ID") setConfigTag(ci->second);
-    if( name ==  "DEBUGMODE") setDebugMode(atoi(ci->second.c_str()));
-    if( name ==  "DUMMYMODE") setDummyMode(atoi(ci->second.c_str()));
-    if( name ==  "PATTERNDIRECTORY") setPatternDirectory(ci->second);
-    if( name ==  "PATTERN_DIRECTORY") setPatternDirectory(ci->second);
-    if( name ==  "AUTOMATICMASKS") setAutomaticMasks(atoi(ci->second.c_str()));
-    if( name ==  "AUTOMATIC_MASKS") setAutomaticMasks(atoi(ci->second.c_str()));
-    if( name ==  "AUTOMATICSRPSELECT") setAutomaticSrpSelect(atoi(ci->second.c_str()));
-    if( name ==  "SRP0BUNCHADJUSTPOSITION") setSRP0BunchAdjustPosition(atoi(ci->second.c_str()));
+    if( name ==  "SRP_CONFIGURATION_ID") setConfigTag(ci.second);
+    if( name ==  "DEBUGMODE") setDebugMode(atoi(ci.second.c_str()));
+    if( name ==  "DUMMYMODE") setDummyMode(atoi(ci.second.c_str()));
+    if( name ==  "PATTERNDIRECTORY") setPatternDirectory(ci.second);
+    if( name ==  "PATTERN_DIRECTORY") setPatternDirectory(ci.second);
+    if( name ==  "AUTOMATICMASKS") setAutomaticMasks(atoi(ci.second.c_str()));
+    if( name ==  "AUTOMATIC_MASKS") setAutomaticMasks(atoi(ci.second.c_str()));
+    if( name ==  "AUTOMATICSRPSELECT") setAutomaticSrpSelect(atoi(ci.second.c_str()));
+    if( name ==  "SRP0BUNCHADJUSTPOSITION") setSRP0BunchAdjustPosition(atoi(ci.second.c_str()));
     if( name ==  "SRP_CONFIG_FILE") {
-      std::string fname=ci->second ;
+      std::string fname=ci.second ;
     
       cout << "fname="<<fname << endl;
       setConfigFile(fname);

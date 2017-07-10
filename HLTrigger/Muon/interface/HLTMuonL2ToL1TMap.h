@@ -42,8 +42,8 @@ class HLTMuonL2ToL1TMap{
     bool isTriggeredByL1(reco::TrackRef& l2muon){
       bool isTriggered = false;
       const edm::RefVector<L2MuonTrajectorySeedCollection>& seeds = (*seedMapHandle_)[l2muon->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >()];
-      for(size_t i=0; i<seeds.size(); i++){
-        if(find(firedL1Muons_.begin(), firedL1Muons_.end(), seeds[i]->l1tParticle()) != firedL1Muons_.end()){
+      for(const auto & seed : seeds){
+        if(find(firedL1Muons_.begin(), firedL1Muons_.end(), seed->l1tParticle()) != firedL1Muons_.end()){
           isTriggered = true;
           break;
         }
@@ -55,8 +55,8 @@ class HLTMuonL2ToL1TMap{
     std::string getL1Keys(reco::TrackRef& l2muon){
       std::ostringstream ss;
       const edm::RefVector<L2MuonTrajectorySeedCollection>& seeds = (*seedMapHandle_)[l2muon->seedRef().castTo<edm::Ref<L2MuonTrajectorySeedCollection> >()];
-      for(size_t i=0; i<seeds.size(); i++){
-        ss<<seeds[i]->l1tParticle().key()<<" ";
+      for(const auto & seed : seeds){
+        ss<<seed->l1tParticle().key()<<" ";
       }
       return ss.str();
     }

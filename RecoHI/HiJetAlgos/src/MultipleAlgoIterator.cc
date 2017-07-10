@@ -6,9 +6,8 @@
 using namespace std;
 
 void MultipleAlgoIterator::rescaleRMS(double s){
-   for ( std::map<int, double>::iterator iter = esigma_.begin();
-	 iter != esigma_.end(); ++iter ){
-      iter->second = s*(iter->second);
+   for (auto & iter : esigma_){
+      iter.second = s*(iter.second);
    }
 }
 
@@ -71,11 +70,9 @@ void MultipleAlgoIterator::subtractPedestal(vector<fastjet::PseudoJet> & coll)
 
    vector<fastjet::PseudoJet> newcoll;
 
-   for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin (),
-	   fjInputsEnd = coll.end(); 
-	input_object != fjInputsEnd; ++input_object) {
+   for (auto & input_object : coll) {
     
-      reco::CandidatePtr const & itow =  (*inputs_)[ input_object->user_index() ];
+      reco::CandidatePtr const & itow =  (*inputs_)[ input_object.user_index() ];
     
       it = ieta( itow );
       iphi( itow );
@@ -86,20 +83,20 @@ void MultipleAlgoIterator::subtractPedestal(vector<fastjet::PseudoJet> & coll)
       }
 
       double etnew = Original_Et - (*(emean_.find(it))).second - (*(esigma_.find(it))).second;
-      float mScale = etnew/input_object->Et(); 
+      float mScale = etnew/input_object.Et(); 
       if(etnew < 0.) mScale = 0.;
     
-      math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
-				     input_object->pz()*mScale, input_object->e()*mScale);
+      math::XYZTLorentzVectorD towP4(input_object.px()*mScale, input_object.py()*mScale,
+				     input_object.pz()*mScale, input_object.e()*mScale);
     
-      int index = input_object->user_index();
-      input_object->reset_momentum ( towP4.px(),
+      int index = input_object.user_index();
+      input_object.reset_momentum ( towP4.px(),
 				     towP4.py(),
 				     towP4.pz(),
 				     towP4.energy() );
-      input_object->set_user_index(index);
+      input_object.set_user_index(index);
 
-      if(etnew > 0. && dropZeroTowers_) newcoll.push_back(*input_object);
+      if(etnew > 0. && dropZeroTowers_) newcoll.push_back(input_object);
    }
 
    if(dropZeroTowers_) coll = newcoll;
@@ -126,11 +123,9 @@ void MultipleAlgoIterator::calculatePedestal( vector<fastjet::PseudoJet> const &
 	 ntowers[i] = 0;
       }
     
-   for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin (),
-	   fjInputsEnd = coll.end();  
-	input_object != fjInputsEnd; ++input_object) {
+   for (const auto & input_object : coll) {
 
-      const reco::CandidatePtr & originalTower=(*inputs_)[ input_object->user_index()];
+      const reco::CandidatePtr & originalTower=(*inputs_)[ input_object.user_index()];
       ieta0 = ieta( originalTower );
       double Original_Et = originalTower->et();
       if(sumRecHits_){

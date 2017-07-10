@@ -14,8 +14,8 @@ const FebConnectorSpec * LinkBoardSpec::feb(int febInputNum) const
 {
   //FIXME - temporary implementaion, to be replace by LUT (in preparation)
   typedef std::vector<FebConnectorSpec>::const_iterator IT;
-  for (IT it=theFebs.begin(); it != theFebs.end(); it++) {
-    if(febInputNum==it->linkBoardInputNum()) return &(*it);
+  for (const auto & theFeb : theFebs) {
+    if(febInputNum==theFeb.linkBoardInputNum()) return &theFeb;
   }
   return 0;
 }
@@ -49,7 +49,7 @@ std::string LinkBoardSpec::print(int depth ) const
   depth--;
   if (depth >=0) {
     typedef std::vector<FebConnectorSpec>::const_iterator IT;
-    for (IT it=theFebs.begin(); it != theFebs.end(); it++) str << (*it).print(depth);
+    for (const auto & theFeb : theFebs) str << theFeb.print(depth);
   }
   return str.str();
 }

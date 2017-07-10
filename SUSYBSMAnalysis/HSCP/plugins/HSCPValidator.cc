@@ -518,10 +518,10 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   int numMatchedDigisEventEB = 0;
   const PCaloHitContainer* phitsEB=0;
   phitsEB = ebSimHits.product();
-  for(SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
+  for(const auto & simTrack : *simTracks)
   {
     // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),simTrack->type());
+    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),simTrack.type());
     if(partIdItr==particleIds_.end())
       continue;
 
@@ -529,7 +529,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
     std::vector<EBDataFrame> myDigisEB;
 
     //int particleId = simTrack->type();
-    int trackId = simTrack->trackId();
+    int trackId = simTrack.trackId();
     PCaloHitContainer::const_iterator simHitItr = phitsEB->begin();
     while(simHitItr != phitsEB->end())
     {
@@ -550,7 +550,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
       simHitsEcalTimeHistEB_->Fill(simHitItr->time());
       simHitsEcalEnergyVsTimeHistEB_->Fill(simHitItr->time(),simHitItr->energy());
       EBDetId simHitId = EBDetId(simHitItr->id());
-      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack->type() << std::endl;
+      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack.type() << std::endl;
       //std::cout << "SimHit hashedIndex: " << simHitId.hashedIndex() << std::endl;
       std::cout << "SimHit energy: " << simHitItr->energy() << " time: " << simHitItr->time() << std::endl;
       ++numMatchedSimHitsEventEB;
@@ -599,10 +599,10 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
   int numMatchedDigisEventEE = 0;
   const PCaloHitContainer* phitsEE=0;
   phitsEE = eeSimHits.product();
-  for(SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack)
+  for(const auto & simTrack : *simTracks)
   {
     // Check if the particleId is in our list
-    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),simTrack->type());
+    std::vector<int>::const_iterator partIdItr = find(particleIds_.begin(),particleIds_.end(),simTrack.type());
     if(partIdItr==particleIds_.end())
       continue;
 
@@ -610,7 +610,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
     std::vector<EEDataFrame> myDigisEE;
 
     //int particleId = simTrack->type();
-    int trackId = simTrack->trackId();
+    int trackId = simTrack.trackId();
     PCaloHitContainer::const_iterator simHitItr = phitsEE->begin();
     while(simHitItr != phitsEE->end())
     {
@@ -631,7 +631,7 @@ void HSCPValidator::makeSimDigiPlotsECAL(const edm::Event& iEvent)
       simHitsEcalTimeHistEE_->Fill(simHitItr->time());
       simHitsEcalEnergyVsTimeHistEE_->Fill(simHitItr->time(),simHitItr->energy());
       EEDetId simHitId = EEDetId(simHitItr->id());
-      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack->type() << std::endl;
+      std::cout << "SimHit DetId found: " << simHitId << " for PDGid: " << simTrack.type() << std::endl;
       //std::cout << "SimHit hashedIndex: " << simHitId.hashedIndex() << std::endl;
       std::cout << "SimHit energy: " << simHitItr->energy() << " time: " << simHitItr->time() << std::endl;
       ++numMatchedSimHitsEventEE;
@@ -749,8 +749,8 @@ void HSCPValidator::makeSimDigiPlotsRPC(const edm::Event& iEvent)
   //SimTrack Stuff
   std::vector<PSimHit> theSimHits;
 
-  for (int i = 0; i < int(theSimHitContainers.size()); i++){
-    theSimHits.insert(theSimHits.end(),theSimHitContainers.at(i)->begin(),theSimHitContainers.at(i)->end());
+  for (auto & theSimHitContainer : theSimHitContainers){
+    theSimHits.insert(theSimHits.end(),theSimHitContainer->begin(),theSimHitContainer->end());
   }
 
 

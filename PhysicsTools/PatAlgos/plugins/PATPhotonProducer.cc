@@ -280,8 +280,8 @@ void PATPhotonProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSe
     
     // store the match to the generated final state muons
     if (addGenMatch_) {
-      for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-          reco::GenParticleRef genPhoton = (*genMatches[i])[photonRef];
+      for(auto & genMatche : genMatches) {
+          reco::GenParticleRef genPhoton = (*genMatche)[photonRef];
           aPhoton.addGenParticleRef(genPhoton);
       }
       if (embedGenMatch_) aPhoton.embedGenParticle();

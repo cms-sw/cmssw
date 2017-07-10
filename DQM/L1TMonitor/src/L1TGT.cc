@@ -267,8 +267,8 @@ void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Eve
     h_L1AlgoBX4 = ibooker.book2D("h_L1AlgoBX4", "L1 Algo Trigger BX (algo bit 96 to 127)", 32, 95.5, 127.5, 5, -2.5, 2.5);
     h_L1TechBX = ibooker.book2D("h_L1TechBX", "L1 Tech Trigger BX", 64, -0.5, 63.5, 5, -2.5, 2.5);
     
-    for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo) {
-      int itrig = (algo->second).algoBitNumber();
+    for (const auto & algo : menu->gtAlgorithmMap()) {
+      int itrig = (algo.second).algoBitNumber();
       //algoBitToName[itrig] = TString( (algo->second).algoName() );
       //const char* trigName =  (algo->second).algoName().c_str();
       if (itrig < 32) {
@@ -295,8 +295,8 @@ void L1TGT::bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::Eve
     }
     
     // technical trigger bits
-    for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end(); ++techTrig) {
-      int itrig = (techTrig->second).algoBitNumber();
+    for (const auto & techTrig : menu->gtTechnicalTriggerMap()) {
+      int itrig = (techTrig.second).algoBitNumber();
       //techBitToName[itrig] = TString( (techTrig->second).algoName() );
       //const char* trigName =  (techTrig->second).algoName().c_str();
       h_L1TechBX->setBinLabel(itrig+1,std::to_string(itrig));
@@ -550,9 +550,9 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
         }
 
 	int ibx=0;
-        for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin(); itBx != m_gtFdlWord.end(); ++itBx) {
+        for (const auto & itBx : m_gtFdlWord) {
 	  
-          const DecisionWord dWordBX = (*itBx).gtDecisionWord();  
+          const DecisionWord dWordBX = itBx.gtDecisionWord();  
           bool accept = dWordBX[iBit];
           if (accept) {
 	    if (iBit < 32)
@@ -580,10 +580,9 @@ void L1TGT::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup) {
         
 
        int ibx=0;
-       for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-	 itBx != m_gtFdlWord.end(); ++itBx) {
+       for (const auto & itBx : m_gtFdlWord) {
          
-         const DecisionWord dWordBX = (*itBx).gtTechnicalTriggerWord();  
+         const DecisionWord dWordBX = itBx.gtTechnicalTriggerWord();  
          bool accept = dWordBX[iBit];
          if (accept) h_L1TechBX->Fill(iBit,minBxInEvent+ibx);
          ibx++;			   

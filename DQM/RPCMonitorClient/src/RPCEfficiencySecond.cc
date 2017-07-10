@@ -178,16 +178,16 @@ void  RPCEfficiencySecond::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
   }
   binLabel.str("");
   int indexWheel[5];
-  for(int j=0;j<5;j++){
-    indexWheel[j]=0;
+  for(int & j : indexWheel){
+    j=0;
   }
   int indexDisk[10];
-  for(int j=0;j<10;j++){
-    indexDisk[j]=0;
+  for(int & j : indexDisk){
+    j=0;
   }
-  for(TrackingGeometry::DetContainer::const_iterator it=rpcGeo_->dets().begin(); it!=rpcGeo_->dets().end();it++){
-    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it );
+  for(auto it : rpcGeo_->dets()){
+    if(dynamic_cast< const RPCChamber* >( it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it );
       std::vector< const RPCRoll*> roles = (ch->rolls());
       for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
 	RPCDetId rpcId = (*r)->id();

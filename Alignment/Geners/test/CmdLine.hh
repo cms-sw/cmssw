@@ -320,11 +320,10 @@ public:
 
     inline void optend() const
     {
-        for (Optlist::const_iterator it = args_.begin();
-             it != args_.end(); ++it)
-            if (it->second == 1 || it->second == 2)
+        for (const auto & arg : args_)
+            if (arg.second == 1 || arg.second == 2)
                 throw CmdLineError("invalid command line option \"")
-                    << it->first << '"';
+                    << arg.first << '"';
     }
 
     inline operator void*() const

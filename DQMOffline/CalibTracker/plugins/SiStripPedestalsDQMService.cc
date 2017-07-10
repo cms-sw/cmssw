@@ -54,7 +54,7 @@ void SiStripPedestalsDQMService::readPedestals()
 
   // The histograms are one per DetId, loop on all the DetIds and extract the corresponding histogram
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo> DetInfos  = reader.getAllData();
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo>::const_iterator it = DetInfos.begin(); it != DetInfos.end(); ++it) {
+  for(const auto & it : DetInfos) {
 
 
     SiStripPedestals::InputVector theSiStripVector;
@@ -66,7 +66,7 @@ void SiStripPedestalsDQMService::readPedestals()
 
 
     MonitorElement * mE = 0;
-    std::string MEname("PedsPerStrip__det__"+boost::lexical_cast<string>(it->first));
+    std::string MEname("PedsPerStrip__det__"+boost::lexical_cast<string>(it.first));
     for( std::vector<MonitorElement*>::const_iterator MEit = MEs.begin();
          MEit != MEs.end(); ++MEit ) {
       if( (*MEit)->getName() == MEname ) {
@@ -86,8 +86,8 @@ void SiStripPedestalsDQMService::readPedestals()
         // Read the pedestals from the histograms
         uint32_t nBinsX = histo->GetXaxis()->GetNbins();
 
-        if( nBinsX != stripsPerApv*(it->second.nApvs) ) {
-          std::cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(it->second.nApvs) << std::endl;
+        if( nBinsX != stripsPerApv*(it.second.nApvs) ) {
+          std::cout << "ERROR: number of bin = " << nBinsX << " != number of strips = " << stripsPerApv*(it.second.nApvs) << std::endl;
         }
 
         // std::cout << "Bin 0 = " << histo->GetBinContent(0) << std::endl;
@@ -107,12 +107,12 @@ void SiStripPedestalsDQMService::readPedestals()
     }
     // If the ME was absent fill the vector with 0
     if( theSiStripVector.empty() ) {
-      for(unsigned short j=0; j<128*it->second.nApvs; ++j){
+      for(unsigned short j=0; j<128*it.second.nApvs; ++j){
         obj_->setData(0, theSiStripVector);
       }
     }
 
-    if ( ! obj_->put(it->first, theSiStripVector) )
+    if ( ! obj_->put(it.first, theSiStripVector) )
       edm::LogError("SiStripPedestalsFakeESSource::produce ")<<" detid already exists"<<std::endl;
   }
   dqmStore_->cd();

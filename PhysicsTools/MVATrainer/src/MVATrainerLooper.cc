@@ -81,11 +81,8 @@ void MVATrainerLooper::startingNewLoop(unsigned int iteration)
 {
         dataProcessedInLoop = false; 
 
-	for(TrainerContainer::const_iterator iter = trainers.begin();
-	    iter != trainers.end(); iter++) {
-		Trainer *trainer = *iter;
-
-		trainer->trainCalib =
+	for(auto trainer : trainers) {
+			trainer->trainCalib =
 			TrainObject(trainer->trainer->getTrainCalibration());
 	}
 }
@@ -99,9 +96,8 @@ MVATrainerLooper::duringLoop(const edm::Event &event,
 	if (trainers.empty())
 		return kStop;
 
-	for(TrainerContainer::const_iterator iter = trainers.begin();
-	    iter != trainers.end(); iter++)
-		if ((*iter)->getCalibration())
+	for(auto trainer : trainers)
+		if (trainer->getCalibration())
 			return kContinue;
 
 	trainers.clear();
@@ -121,11 +117,8 @@ edm::EDLooper::Status MVATrainerLooper::endOfLoop(const edm::EventSetup &es,
 	if (trainers.empty())
 		return kStop;
 
-	for(TrainerContainer::const_iterator iter = trainers.begin();
-	    iter != trainers.end(); iter++) {
-		Trainer *trainer = *iter;
-
-		if (trainer->trainCalib)
+	for(auto trainer : trainers) {
+			if (trainer->trainCalib)
 			trainer->trainer->doneTraining(
 						trainer->trainCalib.get());
 

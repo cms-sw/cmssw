@@ -147,11 +147,9 @@ bool TTClusterAssociationMap< T >::isGenuine( edm::Ref< edmNew::DetSetVector< TT
   std::vector< const TrackingParticle* > tpAddressVector;
 
   /// Loop over the TrackingParticles
-  for ( unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++ )
+  for (auto curTP : theseTrackingParticles)
   {
     /// Get the TrackingParticle
-    edm::Ptr< TrackingParticle > curTP = theseTrackingParticles.at(itp);
-
     /// Count the NULL TrackingParticles
     if ( curTP.isNull() )
     {
@@ -189,11 +187,9 @@ bool TTClusterAssociationMap< T >::isUnknown( edm::Ref< edmNew::DetSetVector< TT
   std::vector< const TrackingParticle* > tpAddressVector;
 
   /// Loop over the TrackingParticles
-  for ( unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++ )
+  for (auto curTP : theseTrackingParticles)
   {
     /// Get the TrackingParticle
-    edm::Ptr< TrackingParticle > curTP = theseTrackingParticles.at(itp);
-
     /// Count the non-NULL TrackingParticles
     if ( !curTP.isNull() )
     {
@@ -228,11 +224,9 @@ bool TTClusterAssociationMap< T >::isCombinatoric( edm::Ref< edmNew::DetSetVecto
   std::vector< const TrackingParticle* > tpAddressVector;
   
   /// Loop over the TrackingParticles 
-  for ( unsigned int itp = 0; itp < theseTrackingParticles.size(); itp++ )
+  for (auto curTP : theseTrackingParticles)
   {
     /// Get the TrackingParticle 
-    edm::Ptr< TrackingParticle > curTP = theseTrackingParticles.at(itp);
-
     /// Count the NULL TrackingParticles
     if ( curTP.isNull() )
     {

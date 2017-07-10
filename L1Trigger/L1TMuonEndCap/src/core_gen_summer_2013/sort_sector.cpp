@@ -151,8 +151,8 @@ void sort_sector::init ()
 }
 void sort_sector::gb__class::init()
 {
-	for (map <ull, ph_zone__class>::iterator mit = ph_zone.begin(); mit != ph_zone.end(); mit++)
-		mit->second.init();
+	for (auto & mit : ph_zone)
+		mit.second.init();
 }
 void sort_sector::gb__class::ph_zone__class::init()
 {

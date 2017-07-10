@@ -286,8 +286,8 @@ int main (int argc, char **argv) try
 	break;
     }
     else
-      for (size_t i = 0; i < os.size(); i++)
-        os[i]->write(&outbuf[0],n);
+      for (auto & o : os)
+        o->write(&outbuf[0],n);
   }
 
   std::cout << "main end reading" << std::endl;

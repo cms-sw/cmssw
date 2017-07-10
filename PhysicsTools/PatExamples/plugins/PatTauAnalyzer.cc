@@ -158,11 +158,10 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 
   hNumTauJets_->Fill(patTaus->size());
 
-  for ( pat::TauCollection::const_iterator patTau = patTaus->begin();
-	patTau != patTaus->end(); ++patTau ) {
+  for (const auto & patTau : *patTaus) {
 
 //--- skip fake taus in case configuration parameters set to do so...
-    const reco::GenParticle* genTau = getGenTau(*patTau);
+    const reco::GenParticle* genTau = getGenTau(patTau);
     if ( requireGenTauMatch_ && !genTau ) continue;
 
 //--- fill generator level histograms
@@ -175,8 +174,8 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 
 //--- fill reconstruction level histograms
 //    for Pt of highest Pt track within signal cone tau-jet...
-    hTauJetEnergy_->Fill(patTau->energy());
-    hTauJetPt_->Fill(patTau->pt());
+    hTauJetEnergy_->Fill(patTau.energy());
+    hTauJetPt_->Fill(patTau.pt());
 //
 // TO-DO:
 //  1.) fill histograms
@@ -206,16 +205,16 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //  if ( patTau->leadTrack().isAvailable() ) hTauLeadTrackPt_->Fill(patTau->leadTrack()->pt());
 
 //... for total number of tracks within signal/isolation cones
-    hTauNumSigConeTracks_->Fill(patTau->signalTracks().size());
-    hTauNumIsoConeTracks_->Fill(patTau->isolationTracks().size());
+    hTauNumSigConeTracks_->Fill(patTau.signalTracks().size());
+    hTauNumIsoConeTracks_->Fill(patTau.isolationTracks().size());
 
 //... for values of tau id. discriminators based on track isolation cut/
 //    neural network-based tau id.
 //    (combine with requirement of at least one "leading" track of Pt > 5. GeV
 //     within the signal cone of the tau-jet)
-    float discrByIso = ( patTau->tauID(discrByLeadTrack_.data()) > 0.5 ) ? patTau->tauID(discrByIso_.data()) : 0.;
+    float discrByIso = ( patTau.tauID(discrByLeadTrack_.data()) > 0.5 ) ? patTau.tauID(discrByIso_.data()) : 0.;
     hTauDiscrByIso_->Fill(discrByIso);
-    float discrByTaNC = ( patTau->tauID(discrByLeadTrack_.data()) > 0.5 ) ? patTau->tauID(discrByTaNC_.data()) : 0.;
+    float discrByTaNC = ( patTau.tauID(discrByLeadTrack_.data()) > 0.5 ) ? patTau.tauID(discrByTaNC_.data()) : 0.;
     hTauDiscrByTaNC_->Fill(discrByTaNC);
 
 //... for values of tau id. discriminators against (unidentified) electrons and muons
@@ -235,22 +234,22 @@ void PatTauAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& es)
 //      of the pat::Tau::tauID method
 //
 //  hTauDiscrAgainstElectrons_->Fill...
-    hTauDiscrAgainstMuons_->Fill(patTau->tauID("againstMuonLoose"));
+    hTauDiscrAgainstMuons_->Fill(patTau.tauID("againstMuonLoose"));
 
 //... for Energy, Pt, Eta, Phi of tau-jets passing the discriminatorByIsolation selection
     if ( discrByIso > 0.5 ) {
-      hTauJetEnergyIsoPassed_->Fill(patTau->energy());
-      hTauJetPtIsoPassed_->Fill(patTau->pt());
-      hTauJetEtaIsoPassed_->Fill(patTau->eta());
-      hTauJetPhiIsoPassed_->Fill(patTau->phi());
+      hTauJetEnergyIsoPassed_->Fill(patTau.energy());
+      hTauJetPtIsoPassed_->Fill(patTau.pt());
+      hTauJetEtaIsoPassed_->Fill(patTau.eta());
+      hTauJetPhiIsoPassed_->Fill(patTau.phi());
     }
 
 //... for Energy, Pt, Eta, Phi of tau-jets passing the discriminatorByTaNC ("Tau Neural Classifier") selection
     if ( discrByTaNC > 0.5 ) {
-      hTauJetEnergyTaNCpassed_->Fill(patTau->energy());
-      hTauJetPtTaNCpassed_->Fill(patTau->pt());
-      hTauJetEtaTaNCpassed_->Fill(patTau->eta());
-      hTauJetPhiTaNCpassed_->Fill(patTau->phi());
+      hTauJetEnergyTaNCpassed_->Fill(patTau.energy());
+      hTauJetPtTaNCpassed_->Fill(patTau.pt());
+      hTauJetEtaTaNCpassed_->Fill(patTau.eta());
+      hTauJetPhiTaNCpassed_->Fill(patTau.phi());
     }
   }
 }

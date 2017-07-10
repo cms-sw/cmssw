@@ -333,10 +333,9 @@ namespace reco {
 	int i = 0;
 	for( std::vector<MuonChamberMatch>::const_iterator chamber = muMatches_.begin();
 	     chamber != muMatches_.end(); ++chamber )
-	  for ( std::vector<reco::MuonSegmentMatch>::const_iterator segment = chamber->segmentMatches.begin();
-		segment != chamber->segmentMatches.end(); ++segment )
+	  for (const auto & segmentMatche : chamber->segmentMatches)
 	    {
-	       if (i==n) return segment->t0;
+	       if (i==n) return segmentMatche.t0;
 	       ++i;
 	    }
 	return 0;

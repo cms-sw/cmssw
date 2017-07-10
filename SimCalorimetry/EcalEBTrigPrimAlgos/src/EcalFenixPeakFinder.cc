@@ -42,7 +42,7 @@ std::vector<int> EcalFenixPeakFinder::process(std::vector<int> &filtout, std::ve
   
   // FIXME: 3
   inputsAlreadyIn_=0;
-  for (unsigned int i =0;i<3;i++) buffer_[i]=0;
+  for (int & i : buffer_) i=0;
 
   //  std::vector<int> output;
 

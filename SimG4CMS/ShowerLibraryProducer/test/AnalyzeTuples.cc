@@ -80,15 +80,15 @@ void AnalyzeTuples::analyze(const edm::Event & iEvent, const edm::EventSetup & i
       int npe_long = 0;
       int npe_short = 0;
       std::cout<<"phptons size"<<photon.size()<<std::endl;
-      for(int j = 0; j < int(photon.size());++j){
+      for(auto & j : photon){
 	//int depth = 0;
-	if(photon[j].z() < 0){
+	if(j.z() < 0){
 	  //depth = 2; 
 	  ++npe_short;
 	}else{
 	  //depth = 1; 
 	  ++npe_long;
-	  std::cout<<photon[j].z()<<std::endl;
+	  std::cout<<j.z()<<std::endl;
 	}
       }
       hNPELongElec[ibin]->Fill(npe_long);
@@ -103,9 +103,9 @@ void AnalyzeTuples::analyze(const edm::Event & iEvent, const edm::EventSetup & i
       getRecord(1,i);
       int npe_long = 0;
       int npe_short = 0;
-      for(int j = 0; j < int(photon.size());++j){
+      for(auto & j : photon){
 	//int depth = 0;
-	if(photon[j].z() < 0){
+	if(j.z() < 0){
 	  //depth = 2; 
 	  ++npe_short;
 	}else{

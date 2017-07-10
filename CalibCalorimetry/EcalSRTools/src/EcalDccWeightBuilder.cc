@@ -466,8 +466,8 @@ void EcalDccWeightBuilder::writeWeightToAsciiFile(){
     file << delim << setw(2) << ruId;
     file << delim << setw(2) << xtalId;
       
-    for(unsigned i=0; i<weights.size(); ++i){
-      file << delim << setw(5) << weights[i];
+    for(int weight : weights){
+      file << delim << setw(5) << weight;
     }
     if(sqlMode_) file << ");";
     file << "\n";

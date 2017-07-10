@@ -25,8 +25,8 @@ GsfPFRecTrack::addBrem(const reco::PFBrem& brem){
 
 void 
 GsfPFRecTrack::calculateBremPositionREP() { 
-  for ( unsigned j=0; j<pfBremVec_.size(); ++j ) 
-    pfBremVec_[j].calculatePositionREP();
+  for (auto & j : pfBremVec_) 
+    j.calculatePositionREP();
 }
 
 void 

@@ -39,8 +39,8 @@ bool ConversionTools::isGoodConversion(const Conversion &conv, const math::XYZPo
     return false;
     
   //loop through daughters to check nhitsbeforevtx
-  for (std::vector<uint8_t>::const_iterator it = conv.nHitsBeforeVtx().begin(); it!=conv.nHitsBeforeVtx().end(); ++it) {
-    if ( (*it)>nHitsBeforeVtxMax ) return false;
+  for (unsigned char it : conv.nHitsBeforeVtx()) {
+    if ( it>nHitsBeforeVtxMax ) return false;
   }
   
   return true;
@@ -55,12 +55,12 @@ bool ConversionTools::matchesConversion(const reco::GsfElectron &ele, const reco
   //closest ctf track ref
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
-    if ( ele.reco::GsfElectron::gsfTrack().isNonnull() && ele.reco::GsfElectron::gsfTrack().id()==it->id() && ele.reco::GsfElectron::gsfTrack().key()==it->key()) return true;
-    else if ( allowCkfMatch && ele.reco::GsfElectron::closestCtfTrackRef().isNonnull() && ele.reco::GsfElectron::closestCtfTrackRef().id()==it->id() && ele.reco::GsfElectron::closestCtfTrackRef().key()==it->key() ) return true;
+  for (const auto & convTrack : convTracks) {
+    if ( ele.reco::GsfElectron::gsfTrack().isNonnull() && ele.reco::GsfElectron::gsfTrack().id()==convTrack.id() && ele.reco::GsfElectron::gsfTrack().key()==convTrack.key()) return true;
+    else if ( allowCkfMatch && ele.reco::GsfElectron::closestCtfTrackRef().isNonnull() && ele.reco::GsfElectron::closestCtfTrackRef().id()==convTrack.id() && ele.reco::GsfElectron::closestCtfTrackRef().key()==convTrack.key() ) return true;
     if (allowAmbiguousGsfMatch) {
       for (reco::GsfTrackRefVector::const_iterator tk = ele.ambiguousGsfTracksBegin(); tk!=ele.ambiguousGsfTracksEnd(); ++tk) {
-        if (tk->isNonnull() && tk->id()==it->id() && tk->key()==it->key()) return true;
+        if (tk->isNonnull() && tk->id()==convTrack.id() && tk->key()==convTrack.key()) return true;
       }
     }
   }
@@ -105,8 +105,8 @@ bool ConversionTools::matchesConversion(const edm::RefToBase<reco::Track> &trk, 
   if (trk.isNull()) return false;
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
-    if (trk.id()==it->id() && trk.key()==it->key()) return true;
+  for (const auto & convTrack : convTracks) {
+    if (trk.id()==convTrack.id() && trk.key()==convTrack.key()) return true;
   }
 
   return false;
@@ -121,8 +121,8 @@ bool ConversionTools::matchesConversion(const reco::TrackRef &trk, const reco::C
   if (trk.isNull()) return false;
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
-    if (trk.id()==it->id() && trk.key()==it->key()) return true;
+  for (const auto & convTrack : convTracks) {
+    if (trk.id()==convTrack.id() && trk.key()==convTrack.key()) return true;
   }
 
   return false;
@@ -137,8 +137,8 @@ bool ConversionTools::matchesConversion(const reco::GsfTrackRef &trk, const reco
   if (trk.isNull()) return false;
 
   const std::vector<edm::RefToBase<reco::Track> > &convTracks = conv.tracks();
-  for (std::vector<edm::RefToBase<reco::Track> >::const_iterator it=convTracks.begin(); it!=convTracks.end(); ++it) {
-    if (trk.id()==it->id() && trk.key()==it->key()) return true;
+  for (const auto & convTrack : convTracks) {
+    if (trk.id()==convTrack.id() && trk.key()==convTrack.key()) return true;
   }
 
   return false;
@@ -154,9 +154,9 @@ bool ConversionTools::hasMatchedConversion(const reco::GsfElectron &ele,
   //collection which also passes the selection cuts, optionally match with the closestckf track in
   //in addition to just the gsf track (enabled in default arguments)
   
-  for (ConversionCollection::const_iterator it = convCol->begin(); it!=convCol->end(); ++it) {
-    if (!matchesConversion(ele, *it, allowCkfMatch)) continue;
-    if (!isGoodConversion(*it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
+  for (const auto & it : *convCol) {
+    if (!matchesConversion(ele, it, allowCkfMatch)) continue;
+    if (!isGoodConversion(it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
    
     return true;
   }
@@ -175,9 +175,9 @@ bool ConversionTools::hasMatchedConversion(const reco::TrackRef &trk,
   
   if (trk.isNull()) return false;
   
-  for (ConversionCollection::const_iterator it = convCol->begin(); it!=convCol->end(); ++it) {
-    if (!matchesConversion(trk, *it)) continue;
-    if (!isGoodConversion(*it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
+  for (const auto & it : *convCol) {
+    if (!matchesConversion(trk, it)) continue;
+    if (!isGoodConversion(it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
    
     return true;
   }
@@ -195,9 +195,9 @@ bool ConversionTools::hasMatchedConversion(const reco::SuperCluster &sc,
   //check if a given SuperCluster matches to at least one conversion candidate in the
   //collection which also passes the selection cuts
 
-  for (ConversionCollection::const_iterator it = convCol->begin(); it!=convCol->end(); ++it) {
-    if (!matchesConversion(sc, *it)) continue;
-    if (!isGoodConversion(*it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
+  for (const auto & it : *convCol) {
+    if (!matchesConversion(sc, it)) continue;
+    if (!isGoodConversion(it,beamspot,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
    
     return true;
   }
@@ -302,15 +302,15 @@ bool ConversionTools::hasMatchedPromptElectron(const reco::SuperClusterRef &sc, 
 
   if (sc.isNull()) return false;
   
-  for (GsfElectronCollection::const_iterator it = eleCol->begin(); it!=eleCol->end(); ++it) {
+  for (const auto & it : *eleCol) {
     //match electron to supercluster
-    if (it->reco::GsfElectron::superCluster()!=sc) continue;
+    if (it.reco::GsfElectron::superCluster()!=sc) continue;
 
     //check expected inner hits
-    if (it->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > 0) continue;
+    if (it.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > 0) continue;
 
     //check if electron is matching to a conversion
-    if (hasMatchedConversion(*it,convCol,beamspot,allowCkfMatch,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
+    if (hasMatchedConversion(it,convCol,beamspot,allowCkfMatch,lxyMin,probMin,nHitsBeforeVtxMax)) continue;
    
    
     return true;

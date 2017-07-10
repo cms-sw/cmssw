@@ -125,8 +125,8 @@ HcalCalibTypeFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
                                              << calibType ; 
   LogDebug("HcalCalibTypeFilter") << "Calibration type is: " << calibType ; 
   eventsByType.at(calibType)++ ;
-  for (unsigned int i=0; i<CalibTypes_.size(); i++) 
-      if ( calibType == CalibTypes_.at(i) ) return true ;
+  for (int CalibType : CalibTypes_) 
+      if ( calibType == CalibType ) return true ;
   return false ; 
 }
 

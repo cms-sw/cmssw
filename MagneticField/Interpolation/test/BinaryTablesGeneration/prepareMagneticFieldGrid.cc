@@ -299,8 +299,8 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
   if (!KnownStructure){
     // analyze structure of missing coordinates
     int nEasy = 0;
-    for (int i=0; i<3; ++i){
-      if (EasyCoordinate[i]) ++nEasy;
+    for (bool i : EasyCoordinate){
+      if (i) ++nEasy;
     }
     std::vector<double> misValX[3];
 
@@ -348,8 +348,8 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
 	    }
 	    XBVector.putI3(index[0], index[1], index[2]);
 	    XBArray.push_back(XBVector);
-	    for (int i=0; i<3; ++i){
-	      if (!misValX[i].empty()) misValX[i].clear();
+	    for (auto & i : misValX){
+	      if (!i.empty()) i.clear();
 	    }
 	  }
 	}
@@ -405,16 +405,16 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
 	    }
 	    XBVector.putI3(index[0], index[1], index[2]);
 	    XBArray.push_back(XBVector);
-	    for (int i=0; i<3; ++i){
-	      if (!misValX[i].empty()) misValX[i].clear();
+	    for (auto & i : misValX){
+	      if (!i.empty()) i.clear();
 	    }
 	  }
 	}
       }
     }
     int nGoodInd = 0;
-    for (int i=0; i<3; ++i){
-      if (goodIndex[i]) ++nGoodInd;
+    for (bool i : goodIndex){
+      if (i) ++nGoodInd;
     }
     // try to recover info of last missing coordiates
     if (nGoodInd < 3){
@@ -787,8 +787,8 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
   if (!KnownStructure){
     // analyze structure of missing coordinates
     int nEasy = 0;
-    for (int i=0; i<3; ++i){
-      if (EasyCoordinate[i]) ++nEasy;
+    for (bool i : EasyCoordinate){
+      if (i) ++nEasy;
     }
     std::vector<double> misValX[3];
 
@@ -836,8 +836,8 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
 	    }
 	    XBVector.putI3(index[0], index[1], index[2]);
 	    XBArray.push_back(XBVector);
-	    for (int i=0; i<3; ++i){
-	      if (!misValX[i].empty()) misValX[i].clear();
+	    for (auto & i : misValX){
+	      if (!i.empty()) i.clear();
 	    }
 	  }
 	}
@@ -893,16 +893,16 @@ void prepareMagneticFieldGrid::fillFromFileSpecial(const std::string& name){
 	    }
 	    XBVector.putI3(index[0], index[1], index[2]);
 	    XBArray.push_back(XBVector);
-	    for (int i=0; i<3; ++i){
-	      if (!misValX[i].empty()) misValX[i].clear();
+	    for (auto & i : misValX){
+	      if (!i.empty()) i.clear();
 	    }
 	  }
 	}
       }
     }
     int nGoodInd = 0;
-    for (int i=0; i<3; ++i){
-      if (goodIndex[i]) ++nGoodInd;
+    for (bool i : goodIndex){
+      if (i) ++nGoodInd;
     }
     // common part of missing coordiate(s) recovery (1 or 2 missing)
     if (nEasy > 0){
@@ -1231,11 +1231,11 @@ void prepareMagneticFieldGrid::saveGridToFile(const std::string& outName){
 void  prepareMagneticFieldGrid::convertUnits(){
   double cm = 100.; // m->cm (just multiply all lengths with 100)
   if (XyzCoordinates){
-    for (int i=0;i<3; ++i) {ReferencePoint[i] *= cm;};
-    for (int i=0;i<3; ++i) {BasicDistance0[i] *= cm;};
-    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance1[i][j] *= cm;};};
-    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance2[i][j] *= cm;};};
-    for (int i=0;i<4; ++i) {RParAsFunOfPhi[i] *= cm;};
+    for (double & i : ReferencePoint) {i *= cm;};
+    for (double & i : BasicDistance0) {i *= cm;};
+    for (auto & i : BasicDistance1) {for (int j=0;j<3; ++j) {i[j] *= cm;};};
+    for (auto & i : BasicDistance2) {for (int j=0;j<3; ++j) {i[j] *= cm;};};
+    for (double & i : RParAsFunOfPhi) {i *= cm;};
   }
   double du[3] = {100.,1.,100.}; // m->cm ; rad->rad (unchanged)
   if (RpzCoordinates){
@@ -1243,7 +1243,7 @@ void  prepareMagneticFieldGrid::convertUnits(){
     for (int i=0;i<3; ++i) {BasicDistance0[i] *= du[i];};
     for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance1[i][j] *= du[i];};};
     for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance2[i][j] *= du[i];};};
-    for (int i=0;i<4; ++i) {RParAsFunOfPhi[i] *= cm;};
+    for (double & i : RParAsFunOfPhi) {i *= cm;};
   }
   return;
 }

@@ -316,12 +316,11 @@ AdaptiveVertexFitter::linearizeTracks(const vector<reco::TransientTrack> & track
 {
   const GlobalPoint & linP ( seed.position() );
   vector<RefCountedLinearizedTrackState> lTracks;
-  for(vector<reco::TransientTrack>::const_iterator i = tracks.begin();
-      i != tracks.end(); ++i )
+  for(const auto & track : tracks)
   {
     try {
       RefCountedLinearizedTrackState lTrData
-        = theLinTrkFactory->linearizedTrackState(linP, *i);
+        = theLinTrkFactory->linearizedTrackState(linP, track);
       lTracks.push_back(lTrData);
     } catch ( exception & e ) {
       LogInfo("RecoVertex/AdaptiveVertexFitter") 
@@ -345,12 +344,11 @@ AdaptiveVertexFitter::reLinearizeTracks(
   VertexState seed = vertex.vertexState();
   GlobalPoint linP = seed.position();
   vector<RefCountedLinearizedTrackState> lTracks;
-  for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
-    i != tracks.end(); i++)
+  for(const auto & track : tracks)
   {
     try {
       RefCountedLinearizedTrackState lTrData
-        = theLinTrkFactory->linearizedTrackState( linP, (**i).linearizedTrack()->track() );
+        = theLinTrkFactory->linearizedTrackState( linP, (*track).linearizedTrack()->track() );
       /*
       RefCountedLinearizedTrackState lTrData =
               (**i).linearizedTrack()->stateWithNewLinearizationPoint(linP);
@@ -360,7 +358,7 @@ AdaptiveVertexFitter::reLinearizeTracks(
       LogInfo("RecoVertex/AdaptiveVertexFitter") 
         << "Exception " << e.what() << " in ::relinearizeTracks. "
         << "Will not relinearize this track.";
-      lTracks.push_back ( (**i).linearizedTrack() );
+      lTracks.push_back ( (*track).linearizedTrack() );
     };
   };
   return reWeightTracks(lTracks, vertex );
@@ -500,10 +498,9 @@ AdaptiveVertexFitter::reWeightTracks(
                             const CachingVertex<5> & seed) const
 {
   vector<RefCountedLinearizedTrackState> lTracks;
-  for(vector<RefCountedVertexTrack>::const_iterator i = tracks.begin();
-    i != tracks.end(); i++)
+  for(const auto & track : tracks)
   {
-    lTracks.push_back((**i).linearizedTrack());
+    lTracks.push_back((*track).linearizedTrack());
   }
 
   return reWeightTracks(lTracks, seed);

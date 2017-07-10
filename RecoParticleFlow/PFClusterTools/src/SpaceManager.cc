@@ -20,10 +20,9 @@ SpaceManager::~SpaceManager() {
 }
 
 void SpaceManager::clear() {
-	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator it =
-			myAddressBook.begin(); it!= myAddressBook.end(); ++it) {
-		SpaceVoxelPtr s = (*it).first;
-		CalibratorPtr c = (*it).second;
+	for (auto & it : myAddressBook) {
+		SpaceVoxelPtr s = it.first;
+		CalibratorPtr c = it.second;
 	}
 }
 
@@ -143,20 +142,17 @@ void SpaceManager::createCalibrators(const Calibrator& toClone) {
 	//	SpaceVoxelPtr sve13(new SpaceVoxel(barrelLimit_, endcapLimit_, -3.2, 3.2, 200.0, 400.0));
 	//	endcapPosRegion_.push_back(sve13);
 
-	for (std::vector<SpaceVoxelPtr>::iterator it = barrelPosRegion_.begin(); it
-			!= barrelPosRegion_.end(); ++it) {
-		myKnownSpaceVoxels.push_back(*it);
+	for (auto & it : barrelPosRegion_) {
+		myKnownSpaceVoxels.push_back(it);
 	}
 
-	for (std::vector<SpaceVoxelPtr>::iterator it = endcapPosRegion_.begin(); it
-			!= endcapPosRegion_.end(); ++it) {
-		myKnownSpaceVoxels.push_back(*it);
+	for (auto & it : endcapPosRegion_) {
+		myKnownSpaceVoxels.push_back(it);
 	}
 
-	for (std::vector<SpaceVoxelPtr>::iterator it = myKnownSpaceVoxels.begin(); it
-			!= myKnownSpaceVoxels.end(); ++it) {
+	for (auto & myKnownSpaceVoxel : myKnownSpaceVoxels) {
 		CalibratorPtr c(toClone.clone());
-		myAddressBook[*it] = c;
+		myAddressBook[myKnownSpaceVoxel] = c;
 	}
 	std::cout << "Address book size: \t\t"<< myAddressBook.size() << "\n";
 	std::cout << "Known space voxels size: \t"<< myKnownSpaceVoxels.size()
@@ -277,10 +273,8 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1,
 	TH2F hDist(name.c_str(), name.c_str(), 100, 0, 300, 50, 0.0, 2.5);
 	//	TH3F hSurf(nameSurf.c_str(), nameSurf.c_str(), 30, 0, 50, 10, 0.0, 3.0, 30,
 	//			0.0, 2.5);
-	for (std::vector<SpaceVoxelPtr>::iterator i = region.begin(); i
-			!= region.end(); ++i) {
-		SpaceVoxelPtr s = *i;
-		//double midE = (s->maxEnergy() + s->minEnergy()) / 2.0;
+	for (auto s : region) {
+			//double midE = (s->maxEnergy() + s->minEnergy()) / 2.0;
 		if (s->maxEnergy() > maxE)
 			maxE = s->maxEnergy();
 		if (s->minEnergy() < minE)
@@ -289,12 +283,11 @@ TH1* SpaceManager::extractEvolution(DetectorElementPtr det, Region r, TF1& f1,
 		double coeff = calibrationCoeffs_[c][det];
 		if (coeff != 0.0) {
 			std::vector<ParticleDepositPtr> particles = c->getParticles();
-			for (std::vector<ParticleDepositPtr>::iterator it =
-					particles.begin(); it != particles.end(); ++it) {
+			for (auto & particle : particles) {
 				if (useTruth)
-					hDist.Fill((*it)->getTruthEnergy(), coeff);
+					hDist.Fill(particle->getTruthEnergy(), coeff);
 				else
-					hDist.Fill((*it)->getRecEnergy(), coeff);
+					hDist.Fill(particle->getRecEnergy(), coeff);
 			}
 		}
 	}
@@ -370,18 +363,15 @@ std::ostream& SpaceManager::printCalibrations(std::ostream& stream) {
 	//	std::sort(myKnownSpaceVoxels.begin(), myKnownSpaceVoxels.end(),
 	//			SpaceVoxel());
 	stream << "WARNING! Haven't sorted space voxels properly!\n";
-	for (std::vector<SpaceVoxelPtr>::iterator it = myKnownSpaceVoxels.begin(); it
-			!= myKnownSpaceVoxels.end(); ++it) {
-		SpaceVoxelPtr s = *it;
-		CalibratorPtr c = myAddressBook[s];
+	for (auto s : myKnownSpaceVoxels) {
+			CalibratorPtr c = myAddressBook[s];
 		stream << *s << "\n";
 		stream << "\t[";
 		std::map<DetectorElementPtr, double> result = calibrationCoeffs_[c];
-		for (std::map<DetectorElementPtr, double>::iterator b = result.begin(); b
-				!= result.end(); ++b) {
-			DetectorElementPtr d = (*b).first;
+		for (auto & b : result) {
+			DetectorElementPtr d = b.first;
 			stream << *d << ": ";
-			double ans = (*b).second;
+			double ans = b.second;
 			stream << ans << ", ";
 		}
 		stream << "]\n";
@@ -392,10 +382,9 @@ std::ostream& SpaceManager::printCalibrations(std::ostream& stream) {
 
 void SpaceManager::makeInverseAddressBook() {
 	inverseAddressBook_.clear();
-	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator it =
-			myAddressBook.begin(); it != myAddressBook.end(); ++it) {
-		SpaceVoxelPtr s = (*it).first;
-		CalibratorPtr c = (*it).second;
+	for (auto & it : myAddressBook) {
+		SpaceVoxelPtr s = it.first;
+		CalibratorPtr c = it.second;
 		inverseAddressBook_[c] = s;
 	}
 }

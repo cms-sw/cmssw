@@ -241,9 +241,9 @@ int CMSCGEN::initialize(double pmin_in, double pmax_in, double thetamin_in, doub
   //
   ce = 0.5/ce;
 
-  for (int k=0; k<9; k++)
+  for (double & k : pe)
     {
-      pe[k] = pe[k]*ce;
+      k = k*ce;
     }
 
   cemax = cemax0*corr[50];      

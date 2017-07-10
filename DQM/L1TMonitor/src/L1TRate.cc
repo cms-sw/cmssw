@@ -113,8 +113,8 @@ void L1TRate::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const 
   if     (srcAlgoXSecFit == 0){getXSexFitsOMDS  (m_parameters);}
   else if(srcAlgoXSecFit == 1){getXSexFitsPython(m_parameters);}
 
-  for (CItAlgo algo = menu->gtAlgorithmMap().begin(); algo!=menu->gtAlgorithmMap().end(); ++algo){
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();    
+  for (const auto & algo : menu->gtAlgorithmMap()){
+    m_algoBit[(algo.second).algoAlias()] = (algo.second).algoBitNumber();    
   }
 
   double minInstantLuminosity = m_parameters.getParameter<double>("minInstantLuminosity");
@@ -231,10 +231,10 @@ void L1TRate::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
     m_xSecVsInstLumi        [tTrigger]->getTH1()->Reset("ICE");
   }
     
-  for(map<int,map<TString,double> >::iterator i=m_lsRates.begin() ; i!=m_lsRates.end() ; i++){
+  for(auto & m_lsRate : m_lsRates){
 
-    unsigned int ls =  (*i).first;
-    rates   = &(*i).second;
+    unsigned int ls =  m_lsRate.first;
+    rates   = &m_lsRate.second;
     isDefRate=true;
 
     if(m_lsLuminosity.find(ls)==m_lsLuminosity.end()){isDefLumi=false;}
@@ -490,13 +490,13 @@ bool L1TRate::getXSexFitsPython(const edm::ParameterSet& ps){
 
       bool foundFit = false;
 
-      for(unsigned int b=0 ; b<m_fitParameters.size() ; b++){
+      for(auto & m_fitParameter : m_fitParameters){
 	
-        if(tTrigger == m_fitParameters[b].getParameter<string>("AlgoName")){
+        if(tTrigger == m_fitParameter.getParameter<string>("AlgoName")){
 	  
-          TString        tAlgoName          = m_fitParameters[b].getParameter< string >        ("AlgoName");
-          TString        tTemplateFunction  = m_fitParameters[b].getParameter< string >        ("TemplateFunction");
-          vector<double> tParameters        = m_fitParameters[b].getParameter< vector<double> >("Parameters");
+          TString        tAlgoName          = m_fitParameter.getParameter< string >        ("AlgoName");
+          TString        tTemplateFunction  = m_fitParameter.getParameter< string >        ("TemplateFunction");
+          vector<double> tParameters        = m_fitParameter.getParameter< vector<double> >("Parameters");
 	  
           // Retriving and populating the m_templateFunctions array
           m_templateFunctions[tTrigger] = new TF1("FitParametrization_"+tAlgoName,tTemplateFunction,

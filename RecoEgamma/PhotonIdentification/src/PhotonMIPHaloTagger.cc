@@ -202,9 +202,9 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
   int delt_iphi    =0;
 
 
- for(EcalRecHitCollection::const_iterator it = ecalhitsCollEB->begin();it!=ecalhitsCollEB->end();++it)
+ for(const auto & it : *ecalhitsCollEB)
     {
-       EBDetId dit = it->detid();
+       EBDetId dit = it.detid();
 
 
         iphicell = dit.iphi();
@@ -213,7 +213,7 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
         if(ietacell < 0)ietacell++;
 
         //Exclude all cells within +/- 5 ieta of seed cell 
-       if(TMath::Abs(ietacell - seedIEta) >= 5  &&  it->energy() > 0.)
+       if(TMath::Abs(ietacell - seedIEta) >= 5  &&  it.energy() > 0.)
         {
 
           delt_ieta = ietacell - seedIEta;
@@ -230,8 +230,8 @@ std::vector<double> PhotonMIPHaloTagger::GetMipTrailFit(const reco::Photon* phot
             {
               ieta_cell.push_back(delt_ieta);
               iphi_cell.push_back(delt_iphi);
-              energy_cell.push_back(it->energy());
-              energy_total += it->energy();
+              energy_cell.push_back(it.energy());
+              energy_total += it.energy();
               kArray++;
             }
 

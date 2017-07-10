@@ -110,9 +110,8 @@ int findBestMatchingLepton(const std::vector<reco::Candidate::LorentzVector>& le
   int leptonIdx_dR2min = -1;
   double dR2min = 1.e+3;
   int leptonIdx = 0;
-  for ( std::vector<reco::Candidate::LorentzVector>::const_iterator lepton = leptons.begin();
-	lepton != leptons.end(); ++lepton ) {
-    double dR2 = deltaR2(*lepton, p4_ref);
+  for (const auto & lepton : leptons) {
+    double dR2 = deltaR2(lepton, p4_ref);
     if ( leptonIdx_dR2min == -1 || dR2 < dR2min ) {
       leptonIdx_dR2min = leptonIdx;
       dR2min = dR2;
@@ -129,15 +128,14 @@ void scaleAndAddPFMEtSignObjects(std::vector<metsig::SigInputObj>& metSignObject
   double sf_value = sf;
   if ( sf_value > sfMax ) sf_value = sfMax;
   if ( sf_value < sfMin ) sf_value = sfMin;
-  for ( std::vector<metsig::SigInputObj>::const_iterator metSignObject = metSignObjects.begin();
-	metSignObject != metSignObjects.end(); ++metSignObject ) {
+  for (const auto & metSignObject : metSignObjects) {
     metsig::SigInputObj metSignObject_scaled;
     metSignObject_scaled.set(
-      metSignObject->get_type(), 
-      sf_value*metSignObject->get_energy(), 
-      metSignObject->get_phi(),
-      sf_value*metSignObject->get_sigma_e(), 
-      metSignObject->get_sigma_tan());
+      metSignObject.get_type(), 
+      sf_value*metSignObject.get_energy(), 
+      metSignObject.get_phi(),
+      sf_value*metSignObject.get_sigma_e(), 
+      metSignObject.get_sigma_tan());
     metSignObjects_scaled.push_back(metSignObject_scaled);
   }
 }
@@ -264,9 +262,8 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::PUSubMETCandInfoCollection jets_leptons = utils_.cleanJets(*jetsLeptonMatch, leptons, 0.5, true);
   reco::PUSubMETCandInfoCollection pfCandidates_leptons = utils_.cleanPFCandidates(*pfCandidatesLeptonMatch, leptons, 0.3, true);
   std::vector<CommonMETData> sumJetsPlusPFCandidates_leptons(leptons.size());
-  for ( std::vector<CommonMETData>::iterator sumJetsPlusPFCandidates = sumJetsPlusPFCandidates_leptons.begin();
-	sumJetsPlusPFCandidates != sumJetsPlusPFCandidates_leptons.end(); ++sumJetsPlusPFCandidates ) {
-    initializeCommonMETData(*sumJetsPlusPFCandidates);
+  for (auto & sumJetsPlusPFCandidates_lepton : sumJetsPlusPFCandidates_leptons) {
+    initializeCommonMETData(sumJetsPlusPFCandidates_lepton);
   }
   for ( reco::PUSubMETCandInfoCollection::const_iterator jet = jets_leptons.begin();
 	jet != jets_leptons.end(); ++jet ) {
@@ -313,23 +310,22 @@ void NoPileUpPFMEtProducer::produce(edm::Event& evt, const edm::EventSetup& es)
   auto sumLeptonIsoCones = std::make_unique<CommonMETData>();
   initializeCommonMETData(*sumLeptonIsoCones);
   int leptonIdx = 0;
-  for ( std::vector<CommonMETData>::iterator sumJetsPlusPFCandidates = sumJetsPlusPFCandidates_leptons.begin();
-	sumJetsPlusPFCandidates != sumJetsPlusPFCandidates_leptons.end(); ++sumJetsPlusPFCandidates ) {
-    if ( sumJetsPlusPFCandidates->sumet > leptons[leptonIdx].pt() ) {
-      double leptonEnFrac = leptons[leptonIdx].pt()/sumJetsPlusPFCandidates->sumet;
+  for (auto & sumJetsPlusPFCandidates_lepton : sumJetsPlusPFCandidates_leptons) {
+    if ( sumJetsPlusPFCandidates_lepton.sumet > leptons[leptonIdx].pt() ) {
+      double leptonEnFrac = leptons[leptonIdx].pt()/sumJetsPlusPFCandidates_lepton.sumet;
       assert(leptonEnFrac >= 0.0 && leptonEnFrac <= 1.0);
-      sumLeptons->mex += (leptonEnFrac*sumJetsPlusPFCandidates->mex);
-      sumLeptons->mey += (leptonEnFrac*sumJetsPlusPFCandidates->mey);
-      sumLeptons->sumet += (leptonEnFrac*sumJetsPlusPFCandidates->sumet);
+      sumLeptons->mex += (leptonEnFrac*sumJetsPlusPFCandidates_lepton.mex);
+      sumLeptons->mey += (leptonEnFrac*sumJetsPlusPFCandidates_lepton.mey);
+      sumLeptons->sumet += (leptonEnFrac*sumJetsPlusPFCandidates_lepton.sumet);
       double leptonIsoConeEnFrac = 1.0 - leptonEnFrac;
       assert(leptonIsoConeEnFrac >= 0.0 && leptonIsoConeEnFrac <= 1.0);
-      sumLeptonIsoCones->mex += (leptonIsoConeEnFrac*sumJetsPlusPFCandidates->mex);
-      sumLeptonIsoCones->mey += (leptonIsoConeEnFrac*sumJetsPlusPFCandidates->mey);
-      sumLeptonIsoCones->sumet += (leptonIsoConeEnFrac*sumJetsPlusPFCandidates->sumet);      
+      sumLeptonIsoCones->mex += (leptonIsoConeEnFrac*sumJetsPlusPFCandidates_lepton.mex);
+      sumLeptonIsoCones->mey += (leptonIsoConeEnFrac*sumJetsPlusPFCandidates_lepton.mey);
+      sumLeptonIsoCones->sumet += (leptonIsoConeEnFrac*sumJetsPlusPFCandidates_lepton.sumet);      
     } else {
-      sumLeptons->mex += sumJetsPlusPFCandidates->mex;
-      sumLeptons->mey += sumJetsPlusPFCandidates->mey;
-      sumLeptons->sumet += sumJetsPlusPFCandidates->sumet;
+      sumLeptons->mex += sumJetsPlusPFCandidates_lepton.mex;
+      sumLeptons->mey += sumJetsPlusPFCandidates_lepton.mey;
+      sumLeptons->sumet += sumJetsPlusPFCandidates_lepton.sumet;
     }
     ++leptonIdx;
   }

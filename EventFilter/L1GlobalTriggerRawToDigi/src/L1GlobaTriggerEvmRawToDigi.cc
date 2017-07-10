@@ -154,10 +154,10 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     gtRecordMap.reserve(boardMapsSize);
 
     for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
-        for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+        for (const auto & boardMap : boardMaps) {
 
-            if (itBoard->gtPositionEvmRecord() == iPos) {
-                gtRecordMap.push_back(*itBoard);
+            if (boardMap.gtPositionEvmRecord() == iPos) {
+                gtRecordMap.push_back(boardMap);
                 break;
             }
 
@@ -255,12 +255,12 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                 << bstLengthBytes << "\n" << std::endl;
     }
 
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+    for (const auto & boardMap : boardMaps) {
 
-        if (itBoard->gtBoardType() == GTFE) {
+        if (boardMap.gtBoardType() == GTFE) {
 
             // unpack GTFE
-            if (itBoard->gtPositionEvmRecord() == 1) {
+            if (boardMap.gtPositionEvmRecord() == 1) {
 
                 // resize to the right size before unapacking
                 m_gtfeWord->resize(bstLengthBytes);
@@ -342,9 +342,9 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
     int numberTcsBoards = 0;
     int numberTimBoards = 0;
 
-    for (CItBoardMaps itBoard = boardMaps.begin(); itBoard != boardMaps.end(); ++itBoard) {
+    for (const auto & boardMap : boardMaps) {
 
-        int iActiveBit = itBoard->gtBitEvmActiveBoards();
+        int iActiveBit = boardMap.gtBitEvmActiveBoards();
         bool activeBoardToUnpack = false;
 
         if (iActiveBit >= 0) {
@@ -356,7 +356,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
 
         if (activeBoardToUnpack) {
 
-            switch (itBoard->gtBoardType()) {
+            switch (boardMap.gtBoardType()) {
                 case GTFE: {
                     numberGtfeBoards++;
                 }
@@ -391,7 +391,7 @@ void L1GlobalTriggerEvmRawToDigi::produce(edm::Event& iEvent, const edm::EventSe
                     // do nothing, all blocks are given in GtBoardType enum
                     if (m_verbosity) {
                         LogDebug("L1GlobalTriggerEvmRawToDigi") << "\nBoard of type "
-                                << itBoard->gtBoardType() << " not expected  in record.\n"
+                                << boardMap.gtBoardType() << " not expected  in record.\n"
                                 << std::endl;
                     }
 

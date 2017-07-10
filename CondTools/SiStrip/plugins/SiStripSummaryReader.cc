@@ -25,15 +25,15 @@ void SiStripSummaryReader::analyze( const edm::Event& e, const edm::EventSetup& 
   
   std::vector<std::string> userDB=SiStripSummary_->getUserDBContent();
   std::stringstream ss;
-  for(size_t i=0;i<userDB.size();++i)
-    ss<< userDB[i] << " \n";   
+  for(const auto & i : userDB)
+    ss<< i << " \n";   
 
  
   if (printdebug_)
-    for (size_t id=0;id<detid.size();id++)
+    for (unsigned int id : detid)
       {
-	ss<< "\n\tdetid " << detid[id];
-	SiStripSummary::Range range=SiStripSummary_->getRange(detid[id]);
+	ss<< "\n\tdetid " << id;
+	SiStripSummary::Range range=SiStripSummary_->getRange(id);
 	
 	size_t c=0;
 	for(SiStripSummary::ContainerIterator it =range.first;it!=range.second;++it){

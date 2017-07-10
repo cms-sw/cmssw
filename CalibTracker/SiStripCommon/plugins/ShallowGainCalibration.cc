@@ -55,9 +55,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   edm::Handle<edm::View<reco::Track> > tracks;	             iEvent.getByToken(tracks_token_, tracks);	  
   edm::Handle<TrajTrackAssociationCollection> associations;  iEvent.getByToken(association_token_, associations);
 
-  for( TrajTrackAssociationCollection::const_iterator association = associations->begin(); association != associations->end(); association++) {
-       const Trajectory*  traj  = association->key.get();
-       const reco::Track* track = association->val.get();
+  for(const auto & association : *associations) {
+       const Trajectory*  traj  = association.key.get();
+       const reco::Track* track = association.val.get();
 
        vector<TrajectoryMeasurement> measurements = traj->measurements();
        for(vector<TrajectoryMeasurement>::const_iterator measurement_it = measurements.begin(); measurement_it!=measurements.end(); measurement_it++){
@@ -119,10 +119,10 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
                   PrevGainTick =  gainHandle->getApvGain(APVId,gainHandle->getRange(DetId, 0),1);           
                }
 
-               for(unsigned int a=0;a<Ampls.size();a++){               
-                  Charge+=Ampls[a];
-                  if(Ampls[a] >=254)Saturation =true;
-                  amplitude->push_back( Ampls[a] );
+               for(unsigned char Ampl : Ampls){               
+                  Charge+=Ampl;
+                  if(Ampl >=254)Saturation =true;
+                  amplitude->push_back( Ampl );
                }
 
                if(FirstStrip==0                                  )Overlapping=true;
@@ -153,9 +153,9 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
                Saturation                             = false;
                Overlapping                            = false;
 
-               for(unsigned int a=0;a<Ampls.size();a++){
-                  Charge+=Ampls[a];
-                  if(Ampls[a] >=254)Saturation =true;
+               for(unsigned short Ampl : Ampls){
+                  Charge+=Ampl;
+                  if(Ampl >=254)Saturation =true;
                }
             }
             double                   ChargeOverPath = (double)Charge / Path ;

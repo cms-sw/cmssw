@@ -69,9 +69,9 @@ class BaseHandler {
               std::vector<std::string> strs;
               std::string triggerSelection = iConfig.getParameter<std::string>("triggerSelection");
               boost::split(strs, triggerSelection, boost::is_any_of("\t ,`!@#$%^&*()~/\\"));
-              for (size_t iToken = 0; iToken < strs.size();++iToken ){
-                    if (strs.at(iToken).find("HLT_")==0){
-                        m_usedPaths.insert(strs.at(iToken));
+              for (auto & str : strs){
+                    if (str.find("HLT_")==0){
+                        m_usedPaths.insert(str);
                     }
               }
 
@@ -265,11 +265,11 @@ class HandlerTemplate: public BaseHandler {
                 //pathIndex = i;
                 ++numPathMatches;
                 std::vector<std::string > moduleLabels = hltConfig.moduleLabels(i);
-                for (size_t iMod = 0; iMod <moduleLabels.size(); ++iMod){
-                    if ("EDFilter" ==  hltConfig.moduleEDMType(moduleLabels.at(iMod))) {
-                        filtersForThisPath.push_back(moduleLabels.at(iMod));
-                        if ( moduleLabels.at(iMod).find(m_filterPartialName)!= std::string::npos  ){
-                            filterFullName = moduleLabels.at(iMod);
+                for (auto & moduleLabel : moduleLabels){
+                    if ("EDFilter" ==  hltConfig.moduleEDMType(moduleLabel)) {
+                        filtersForThisPath.push_back(moduleLabel);
+                        if ( moduleLabel.find(m_filterPartialName)!= std::string::npos  ){
+                            filterFullName = moduleLabel;
                             ++numFilterMatches;
                         }
                     }
@@ -450,11 +450,11 @@ void HandlerTemplate<reco::Candidate::LorentzVector, reco::Candidate::LorentzVec
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
-   for (size_t i = 0; i<hIn->size(); ++i) {
-        bool preselection = m_singleObjectSelection(hIn->at(i).p4());
+   for (const auto & i : *hIn) {
+        bool preselection = m_singleObjectSelection(i.p4());
         if (preselection){
-            fillSingleObjectPlots(hIn->at(i).p4(), weight);
-            cands.push_back(hIn->at(i).p4());
+            fillSingleObjectPlots(i.p4(), weight);
+            cands.push_back(i.p4());
         }
    }
 }
@@ -561,13 +561,13 @@ void HandlerTemplate<reco::Track, int, BestVertexMatching>::getFilteredCands(
       return;
    }
 
-   for (size_t i = 0; i<hIn->size(); ++i) {
-        if (!m_singleObjectSelection(hIn->at(i))) continue;
+   for (const auto & i : *hIn) {
+        if (!m_singleObjectSelection(i)) continue;
         dxy=0.0, dz=0.0, dxysigma=0.0, dzsigma=0.0;
-        dxy = -1.*hIn->at(i).dxy(vtxPoint);
-        dz = hIn->at(i).dz(vtxPoint);
-        dxysigma = sqrt(hIn->at(i).dxyError()*hIn->at(i).dxyError()+vxErr*vyErr);
-        dzsigma = sqrt(hIn->at(i).dzError()*hIn->at(i).dzError()+vzErr*vzErr);
+        dxy = -1.*i.dxy(vtxPoint);
+        dz = i.dz(vtxPoint);
+        dxysigma = sqrt(i.dxyError()*i.dxyError()+vxErr*vyErr);
+        dzsigma = sqrt(i.dzError()*i.dzError()+vzErr*vzErr);
         
         if(fabs(dz)>lMaxDZ)continue; // TODO...
         if(fabs(dz/dzsigma)>lMaxDZ2dzsigma)continue;
@@ -617,10 +617,10 @@ void HandlerTemplate<reco::PFJet, reco::PFJet, ApplyJEC>::getFilteredCands(
       return;  
     }
 
-    for (size_t i = 0; i<hIn->size(); ++i) {
-         double scale = pfcorrector->correction(hIn->at(i));
-         reco::PFJet newPFJet(scale*hIn->at(i).p4(), hIn->at(i).vertex(), 
-                              hIn->at(i).getSpecific(),  hIn->at(i).getJetConstituents());
+    for (const auto & i : *hIn) {
+         double scale = pfcorrector->correction(i);
+         reco::PFJet newPFJet(scale*i.p4(), i.vertex(), 
+                              i.getSpecific(),  i.getJetConstituents());
          
          bool preselection = m_singleObjectSelection(newPFJet);
          if (preselection){
@@ -661,10 +661,10 @@ void HandlerTemplate<reco::Candidate::LorentzVector, int >::getFilteredCands(
       edm::LogError("FSQDiJetAve") << "product not found: "<<  m_input.encode();
       return;
    }
-   for (size_t i = 0; i<hIn->size(); ++i) {
-        bool preselection = m_singleObjectSelection(hIn->at(i).p4());
+   for (const auto & i : *hIn) {
+        bool preselection = m_singleObjectSelection(i.p4());
         if (preselection){
-            fillSingleObjectPlots(hIn->at(i).p4(), weight);
+            fillSingleObjectPlots(i.p4(), weight);
             cands.at(0)+=1;
         }
    }
@@ -751,8 +751,7 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
   triggerResultsFUToken= consumes <edm::TriggerResults>   (edm::InputTag(triggerResultsLabel_.label(),triggerResultsLabel_.instance(),std::string("FU")));
 
   std::vector< edm::ParameterSet > todo  = iConfig.getParameter<  std::vector< edm::ParameterSet > >("todo");
-  for (size_t i = 0; i < todo.size(); ++i) {
-        edm::ParameterSet pset = todo.at(i);
+  for (auto pset : todo) {
         std::string type = pset.getParameter<std::string>("handlerType");
         if (type == "FromHLT") {
             m_handlers.push_back(std::shared_ptr<FSQ::HLTHandler>(new FSQ::HLTHandler(pset, m_eventCache)));
@@ -795,8 +794,8 @@ FSQDiJetAve::FSQDiJetAve(const edm::ParameterSet& iConfig):
             throw cms::Exception("FSQ DQM handler not know: "+ type);
         }
   }
-  for (size_t i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->getAndStoreTokens(consumesCollector());
+  for (auto & m_handler : m_handlers) {
+        m_handler->getAndStoreTokens(consumesCollector());
   }
 
 }
@@ -847,8 +846,8 @@ FSQDiJetAve::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     weight = hGW->weight();
   }
 
-  for (size_t i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), *m_triggerResults.product(), m_triggerNames, weight);
+  for (auto & m_handler : m_handlers) {
+        m_handler->analyze(iEvent, iSetup, m_hltConfig, *m_trgEvent.product(), *m_triggerResults.product(), m_triggerNames, weight);
   }
 
 }
@@ -865,8 +864,8 @@ FSQDiJetAve::dqmBeginRun(edm::Run const& run, edm::EventSetup const& c)
 
 }
 void FSQDiJetAve::bookHistograms(DQMStore::IBooker & booker, edm::Run const & run, edm::EventSetup const & c){
-    for (size_t i = 0; i < m_handlers.size(); ++i) {
-        m_handlers.at(i)->book(booker);
+    for (auto & m_handler : m_handlers) {
+        m_handler->book(booker);
     }
 }
 //*/

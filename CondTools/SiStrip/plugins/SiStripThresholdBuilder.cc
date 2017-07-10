@@ -22,12 +22,12 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = reader.getAllData();
 
   int count=-1;
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
+  for(const auto & it : DetInfos){    
     count++;
     //Generate Pedestal for det detid
     SiStripThreshold::Container theSiStripVector;   
     uint16_t strip=0;
-    while(strip<128*it->second.nApvs){
+    while(strip<128*it.second.nApvs){
       
       float lTh = (CLHEP::RandFlat::shoot(1.) * 64)/5;
       float hTh = (CLHEP::RandFlat::shoot(1.) * 64)/5;
@@ -42,7 +42,7 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
       if (count<(int)printdebug_){
 	std::stringstream ss;
 	theSiStripVector.back().print(ss);	
-	edm::LogInfo("SiStripThresholdBuilder") <<"detid: "  << it->first << " \n"
+	edm::LogInfo("SiStripThresholdBuilder") <<"detid: "  << it.first << " \n"
 						<< "firstStrip: " << strip << " \t"
 						<< "lTh: " << lTh       << " \t" 
 						<< "hTh: " << hTh       << " \t" 
@@ -52,9 +52,9 @@ void SiStripThresholdBuilder::analyze(const edm::Event& evt, const edm::EventSet
 						<< std::endl; 
       }	    
       obj->setData(strip+1,lTh,hTh,theSiStripVector);
-      strip=(uint16_t) (CLHEP::RandFlat::shoot(strip+2,128*it->second.nApvs));
+      strip=(uint16_t) (CLHEP::RandFlat::shoot(strip+2,128*it.second.nApvs));
     }      
-    if ( ! obj->put(it->first,theSiStripVector) )
+    if ( ! obj->put(it.first,theSiStripVector) )
       edm::LogError("SiStripThresholdBuilder")<<"[SiStripThresholdBuilder::analyze] detid already exists"<<std::endl;
   }
   

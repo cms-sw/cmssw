@@ -256,18 +256,18 @@ void PFClient::createProfilePlots(DQMStore::IBooker& ibooker, DQMStore::IGetter&
     static const Int_t NUM_STAT = 7;
     Double_t stats[NUM_STAT] = {0}; th->GetStats(stats);
 
-    for (Int_t i = 0; i<2; i++) {
-      if (me_profile[i]) {
+    for (auto & i : me_profile) {
+      if (i) {
 	for (size_t ix = 0; ix <= nbinx+1; ++ix) {
-	  me_profile[i]->setBinContent( ix, profileX->GetBinContent(ix)*profileX->GetBinEntries(ix) ) ;
+	  i->setBinContent( ix, profileX->GetBinContent(ix)*profileX->GetBinEntries(ix) ) ;
 	  //me_profile[i]->Fill( profileX->GetBinCenter(ix), profileX->GetBinContent(ix)*profileX->GetBinEntries(ix) ) ;
-	  me_profile[i]->setBinEntries( ix, profileX->GetBinEntries(ix) );
-	  me_profile[i]->getTProfile()->GetSumw2()->fArray[ix] = profileX->GetSumw2()->fArray[ix];
+	  i->setBinEntries( ix, profileX->GetBinEntries(ix) );
+	  i->getTProfile()->GetSumw2()->fArray[ix] = profileX->GetSumw2()->fArray[ix];
 	  //me_profile[i]->getTProfile()->GetBinSumw2()->fArray[ix] = profileX->GetBinSumw2()->fArray[ix]; // segmentation violation
 	}
       }
-      me_profile[i]->getTProfile()->PutStats(stats);
-      me_profile[i]->setEntries( profileX->GetEntries() ) ;
+      i->getTProfile()->PutStats(stats);
+      i->setEntries( profileX->GetEntries() ) ;
     }
 
     delete [] xbins;

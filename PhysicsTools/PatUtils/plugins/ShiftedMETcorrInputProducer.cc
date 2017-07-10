@@ -55,13 +55,12 @@ void ShiftedMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
   unsigned countToken(0);
   for ( vInputTag::const_iterator src_i = src_.begin();
 	src_i != src_.end(); ++src_i ) {
-    for ( std::vector<binningEntryType*>::iterator binningEntry = binning_.begin();
-	  binningEntry != binning_.end(); ++binningEntry ) {
+    for (auto & binningEntry : binning_) {
       edm::Handle<CorrMETData> originalObject;
       evt.getByToken(srcTokens_.at(countToken), originalObject);
       ++countToken;
 
-      double shift = shiftBy_*(*binningEntry)->binUncertainty_;
+      double shift = shiftBy_*binningEntry->binUncertainty_;
 
       auto shiftedObject = std::make_unique<CorrMETData>(*originalObject);
 //--- MET balances momentum of reconstructed particles,
@@ -70,7 +69,7 @@ void ShiftedMETcorrInputProducer::produce(edm::Event& evt, const edm::EventSetup
       shiftedObject->mey   = -shift*originalObject->mey;
       shiftedObject->sumet = shift*originalObject->sumet;
 
-      evt.put(std::move(shiftedObject), (*binningEntry)->getInstanceLabel_full(src_i->instance()));
+      evt.put(std::move(shiftedObject), binningEntry->getInstanceLabel_full(src_i->instance()));
     }
   }
 }

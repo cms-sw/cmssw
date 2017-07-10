@@ -318,8 +318,8 @@ inline bool  TrackMultiSelector::testVtx ( const reco::Track &tk, const reco::Be
         double dz = abs(tk.dz(spot)), d0 = abs(tk.dxy(spot));
         return ( dz < beamspotDZsigmas_*beamSpot.sigmaZ() ) && ( d0 < beamspotD0_ );
     }
-    for (std::vector<Point>::const_iterator point = points.begin(), end = points.end(); point != end; ++point) {
-        double dz = abs(tk.dz(*point)), d0 = abs(tk.dxy(*point));
+    for (const auto & point : points) {
+        double dz = abs(tk.dz(point)), d0 = abs(tk.dxy(point));
         if ((dz < cut.dz) && (d0 < cut.d0)
 	    && fabs(dz/std::max(dzErr,1e-9)) < cut.dzRel && (d0/std::max(d0Err,1e-8) < cut.d0Rel )) return true;
     }
@@ -346,10 +346,10 @@ void TrackMultiSelector::selectVertices(const reco::VertexCollection &vtxs, std:
     using namespace reco;
 
     int32_t toTake = vtxNumber_;
-    for (VertexCollection::const_iterator it = vtxs.begin(), ed = vtxs.end(); it != ed; ++it) {
-        if ((it->tracksSize() >= vtxTracks_)  &&
-                ( (it->chi2() == 0.0) || (TMath::Prob(it->chi2(), static_cast<int32_t>(it->ndof()) ) >= vtxChi2Prob_) ) ) {
-            points.push_back(it->position());
+    for (const auto & vtx : vtxs) {
+        if ((vtx.tracksSize() >= vtxTracks_)  &&
+                ( (vtx.chi2() == 0.0) || (TMath::Prob(vtx.chi2(), static_cast<int32_t>(vtx.ndof()) ) >= vtxChi2Prob_) ) ) {
+            points.push_back(vtx.position());
             toTake--; if (toTake == 0) break;
         }
     }

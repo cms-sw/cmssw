@@ -78,12 +78,11 @@ EventWithHistoryEDFilter::EventWithHistoryEDFilter(const edm::ParameterSet& iCon
   std::vector<edm::ParameterSet> filterconfigs(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >
 					       ("filterConfigurations",std::vector<edm::ParameterSet>()));
 
-  for(std::vector<edm::ParameterSet>::iterator ps=filterconfigs.begin();
-      ps!=filterconfigs.end();++ps) {
+  for(auto & filterconfig : filterconfigs) {
 
-    ps->augment(iConfig.getUntrackedParameter<edm::ParameterSet>("commonConfiguration",edm::ParameterSet()));
+    filterconfig.augment(iConfig.getUntrackedParameter<edm::ParameterSet>("commonConfiguration",edm::ParameterSet()));
 
-    const EventWithHistoryFilter filter(*ps, consumesCollector());
+    const EventWithHistoryFilter filter(filterconfig, consumesCollector());
     _ehfilters.push_back(filter);
 
   }

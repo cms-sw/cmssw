@@ -82,13 +82,10 @@ void
 FWConfigurationManager::setFrom(const FWConfiguration& iConfig) const
 {
    assert(0!=iConfig.keyValues());
-   for(FWConfiguration::KeyValues::const_iterator it = iConfig.keyValues()->begin(),
-                                                  itEnd = iConfig.keyValues()->end();
-       it != itEnd;
-       ++it) {
-      std::map<std::string,FWConfigurable*>::const_iterator itFound = m_configurables.find(it->first);
+   for(const auto & it : *iConfig.keyValues()) {
+      std::map<std::string,FWConfigurable*>::const_iterator itFound = m_configurables.find(it.first);
       assert(itFound != m_configurables.end());
-      itFound->second->setFrom(it->second);
+      itFound->second->setFrom(it.second);
    }
 }
 
@@ -96,12 +93,9 @@ void
 FWConfigurationManager::to(FWConfiguration& oConfig) const
 {
    FWConfiguration config;
-   for(std::map<std::string,FWConfigurable*>::const_iterator it = m_configurables.begin(),
-                                                             itEnd = m_configurables.end();
-       it != itEnd;
-       ++it) {
-      it->second->addTo(config);
-      oConfig.addKeyValue(it->first, config, true);
+   for(const auto & m_configurable : m_configurables) {
+      m_configurable.second->addTo(config);
+      oConfig.addKeyValue(m_configurable.first, config, true);
    }
 }
 
@@ -209,8 +203,8 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
     clist.push_back(CMatch("aod.fwc"));
     std::vector<FWJobMetadataManager::Data> & sdata = dataMng->usableData();
 
-    for (std::vector<CMatch>::iterator c = clist.begin(); c != clist.end(); ++c ) {
-        std::string iName = gSystem->Which(TROOT::GetMacroPath(), c->file.c_str(), kReadPermission);
+    for (auto & c : clist) {
+        std::string iName = gSystem->Which(TROOT::GetMacroPath(), c.file.c_str(), kReadPermission);
         std::ifstream f(iName.c_str());
         if (f.peek() != (int) '<') {
             fwLog(fwlog::kWarning) << "FWConfigurationManager::guessAndReadFromFile can't open "<<  iName << std::endl ;        
@@ -222,25 +216,25 @@ FWConfigurationManager::guessAndReadFromFile( FWJobMetadataManager* dataMng) con
         FWXMLConfigParser* parser = new FWXMLConfigParser(g);
         parser->parse();
 
-        c->cfg = parser->config();
+        c.cfg = parser->config();
         const FWConfiguration::KeyValues* keyValues = 0;
-        for(FWConfiguration::KeyValues::const_iterator it = c->cfg->keyValues()->begin(),
-                itEnd = c->cfg->keyValues()->end();  it != itEnd; ++it) {
+        for(FWConfiguration::KeyValues::const_iterator it = c.cfg->keyValues()->begin(),
+                itEnd = c.cfg->keyValues()->end();  it != itEnd; ++it) {
             if (it->first == "EventItems" )  {
                 keyValues = it->second.keyValues();
                 break;
             }
         }
   
-        for (FWConfiguration::KeyValues::const_iterator it = keyValues->begin(); it != keyValues->end(); ++it)
+        for (const auto & keyValue : *keyValues)
         {
-            const FWConfiguration& conf = it->second;
+            const FWConfiguration& conf = keyValue.second;
             const FWConfiguration::KeyValues* keyValues =  conf.keyValues();
             const std::string& type = (*keyValues)[0].second.value();
-            for(std::vector<FWJobMetadataManager::Data>::iterator di = sdata.begin(); di != sdata.end(); ++di)
+            for(auto & di : sdata)
             {
-                if (di->type_ == type) {
-                    c->cnt++;
+                if (di.type_ == type) {
+                    c.cnt++;
                     break;
                 }
             } 

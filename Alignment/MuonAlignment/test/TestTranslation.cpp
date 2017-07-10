@@ -137,16 +137,14 @@ TestTranslation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<Alignable*> theCSCAlignables = theAlignableMuon->CSCEndcaps();
 
 
-  for ( std::vector<Alignable*>::iterator iter = theDTAlignables.begin();
-		                          iter != theDTAlignables.end(); iter++ ){ 
-    apply( *iter ); 
+  for (auto & theDTAlignable : theDTAlignables){ 
+    apply( theDTAlignable ); 
   }
 
   theDTAlignables.clear();
 
-  for ( std::vector<Alignable*>::iterator iter = theCSCAlignables.begin();
-		                          iter != theCSCAlignables.end(); iter++ ){ 
-    apply( *iter ); 
+  for (auto & theCSCAlignable : theCSCAlignables){ 
+    apply( theCSCAlignable ); 
   }
 
   theCSCAlignables.clear();

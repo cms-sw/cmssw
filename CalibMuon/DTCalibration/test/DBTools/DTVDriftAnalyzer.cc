@@ -40,12 +40,11 @@ void DTVDriftAnalyzer::beginRun(const edm::Run& run, const edm::EventSetup& even
 
 void DTVDriftAnalyzer::endJob() {
    // Loop over DB entries
-   for(DTMtime::const_iterator mtime = mTimeMap->begin();
-       mtime != mTimeMap->end(); ++mtime) {
-     DTWireId wireId((*mtime).first.wheelId,
-		     (*mtime).first.stationId,
-		     (*mtime).first.sectorId,
-		     (*mtime).first.slId, 0, 0);
+   for(const auto & mtime : *mTimeMap) {
+     DTWireId wireId(mtime.first.wheelId,
+		     mtime.first.stationId,
+		     mtime.first.sectorId,
+		     mtime.first.slId, 0, 0);
     float vdrift;
     float reso;
     DetId detId( wireId.rawId() );

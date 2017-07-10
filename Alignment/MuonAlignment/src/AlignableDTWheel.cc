@@ -26,9 +26,8 @@ AlignableDTWheel::AlignableDTWheel( const std::vector<AlignableDTStation*>& dtSt
 /// Clean delete of the vector and its elements
 AlignableDTWheel::~AlignableDTWheel() 
 {
-  for ( std::vector<AlignableDTStation*>::iterator iter = theDTStations.begin(); 
-	iter != theDTStations.end(); iter++)
-    delete *iter;
+  for (auto & theDTStation : theDTStations)
+    delete theDTStation;
 
 }
 
@@ -61,9 +60,8 @@ AlignableDTWheel::PositionType AlignableDTWheel::computePosition()
 
   float zz = 0.;
 
-  for ( std::vector<AlignableDTStation*>::iterator ilayer = theDTStations.begin();
-		ilayer != theDTStations.end(); ilayer++ )
-    zz += (*ilayer)->globalPosition().z();
+  for (auto & theDTStation : theDTStations)
+    zz += theDTStation->globalPosition().z();
 
   zz /= static_cast<float>(theDTStations.size());
 
@@ -97,8 +95,7 @@ void AlignableDTWheel::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTStation*>::const_iterator iStation = theDTStations.begin();
-		iStation != theDTStations.end(); iStation++ )
-	(*iStation)->dump();
+  for (auto theDTStation : theDTStations)
+	theDTStation->dump();
 
 }

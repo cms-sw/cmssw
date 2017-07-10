@@ -154,8 +154,8 @@ void DQMSourceExampleConfig::analyze(const edm::Event& iEvent,
      {
 	 typedef std::vector <MonitorElement*>::iterator meIt;
       
-	 for(meIt it = meContainer.begin(); it != meContainer.end(); ++it)
-	     (*it)->Fill (gRandom->Gaus(30, 3), 1.0);
+	 for(auto & it : meContainer)
+	     it->Fill (gRandom->Gaus(30, 3), 1.0);
      }	
      usleep(1000000);
       

@@ -79,11 +79,11 @@ std::vector<GEMSegment> GEMSegmentAlgorithm::run(const GEMEnsemble& ensemble, co
     }
     // loop over the found clusters:
       edm::LogVerbatim("GEMSegmentAlgorithm") << "[GEMSegmentAlgorithm::run] Loop over clusters and build segments";
-    for(auto sub_rechits = rechits_clusters.begin(); sub_rechits !=  rechits_clusters.end(); ++sub_rechits ) {
+    for(auto & rechits_cluster : rechits_clusters) {
       // clear the buffer for the subset of segments:
       segments_temp.clear();
       // build the subset of segments:
-      this->buildSegments(ensemble, (*sub_rechits), segments_temp);
+      this->buildSegments(ensemble, rechits_cluster, segments_temp);
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
@@ -122,14 +122,14 @@ GEMSegmentAlgorithm::clusterHits(const GEMEnsemble& ensemble, const EnsembleHitC
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits 
   // Create one seed per hit
-  for(unsigned int i = 0; i < rechits.size(); ++i) {
-    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
+  for(auto rechit : rechits) {
+    seeds.push_back(EnsembleHitContainer(1,rechit));
 
-    GEMDetId rhID                  = rechits[i]->gemId();
+    GEMDetId rhID                  = rechit->gemId();
     const GEMEtaPartition * rhEP   = (ensemble.second.find(rhID.rawId()))->second;
     if(!rhEP) throw cms::Exception("GEMEtaPartition not found") << "Corresponding GEMEtaPartition to GEMDetId: "<<rhID<<" not found in the GEMEnsemble";
     const GEMSuperChamber * rhCH   = ensemble.first;
-    LocalPoint rhLP_inEtaPartFrame = rechits[i]->localPosition();
+    LocalPoint rhLP_inEtaPartFrame = rechit->localPosition();
     GlobalPoint rhGP_inCMSFrame    = rhEP->toGlobal(rhLP_inEtaPartFrame);
     LocalPoint rhLP_inChamberFrame = rhCH->toLocal(rhGP_inCMSFrame);
 
@@ -215,8 +215,8 @@ GEMSegmentAlgorithm::chainHits(const GEMEnsemble& ensemble, const EnsembleHitCon
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits
   // Create one seed per hit
-  for ( unsigned int i=0; i<rechits.size(); ++i)
-    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
+  for (auto rechit : rechits)
+    seeds.push_back(EnsembleHitContainer(1,rechit));
   
   // merge chains that are too close ("touch" each other)
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {
@@ -272,19 +272,19 @@ bool GEMSegmentAlgorithm::isGoodToMerge(const GEMEnsemble& ensemble, const Ensem
   bool etaRequirementOK   = false; // once it is true in the loop, it is ok to merge
   bool bxRequirementOK    = false; // once it is true in the loop, it is ok to merge
   
-  for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
-    int layer_new = (newChain[iRH_new]->gemId().station() - 1)*2 + newChain[iRH_new]->gemId().layer();
+  for(auto iRH_new : newChain){
+    int layer_new = (iRH_new->gemId().station() - 1)*2 + iRH_new->gemId().layer();
 
-    const GEMEtaPartition * rhEP   = (ensemble.second.find(newChain[iRH_new]->gemId().rawId()))->second;
-    GlobalPoint pos_new = rhEP->toGlobal(newChain[iRH_new]->localPosition());
+    const GEMEtaPartition * rhEP   = (ensemble.second.find(iRH_new->gemId().rawId()))->second;
+    GlobalPoint pos_new = rhEP->toGlobal(iRH_new->localPosition());
     
-    for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){
-      int layer_old = (oldChain[iRH_old]->gemId().station() - 1)*2 + oldChain[iRH_old]->gemId().layer();
+    for(auto iRH_old : oldChain){
+      int layer_old = (iRH_old->gemId().station() - 1)*2 + iRH_old->gemId().layer();
       // Layers - hits on the same layer should not be allowed ==> if abs(layer_new - layer_old) > 0 is ok. if = 0 is false
       if ( layer_new == layer_old ) return false;
 
-      const GEMEtaPartition * oldrhEP   = (ensemble.second.find(oldChain[iRH_old]->gemId().rawId()))->second;
-      GlobalPoint pos_old = oldrhEP->toGlobal(oldChain[iRH_old]->localPosition());
+      const GEMEtaPartition * oldrhEP   = (ensemble.second.find(iRH_old->gemId().rawId()))->second;
+      GlobalPoint pos_old = oldrhEP->toGlobal(iRH_old->localPosition());
       
       // Eta & Phi- to be chained, two hits need also to be "close" in phi and eta      
       if(phiRequirementOK==false) phiRequirementOK = std::abs(reco::deltaPhi( float(pos_new.phi()), float(pos_old.phi()) )) < dPhiChainBoxMax;
@@ -296,7 +296,7 @@ bool GEMSegmentAlgorithm::isGoodToMerge(const GEMEnsemble& ensemble, const Ensem
 	  bxRequirementOK = true;
 	}
 	else {
-	  if (newChain[iRH_new]->BunchX() == oldChain[iRH_old]->BunchX()) bxRequirementOK = true;
+	  if (iRH_new->BunchX() == iRH_old->BunchX()) bxRequirementOK = true;
 	}
       }
       
@@ -315,15 +315,15 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
   
   // select hits from the ensemble and sort it
   const GEMSuperChamber * suCh   = ensemble.first;
-  for (auto rh=rechits.begin(); rh!=rechits.end();rh++){
-    proto_segment.push_back(*rh);
+  for (auto rechit : rechits){
+    proto_segment.push_back(rechit);
     
     // for segFit - using local point in chamber frame
-    const GEMEtaPartition * thePartition   = (ensemble.second.find((*rh)->gemId()))->second;
-    GlobalPoint gp = thePartition->toGlobal((*rh)->localPosition());
+    const GEMEtaPartition * thePartition   = (ensemble.second.find(rechit->gemId()))->second;
+    GlobalPoint gp = thePartition->toGlobal(rechit->localPosition());
     const LocalPoint lp = suCh->toLocal(gp);
     
-    GEMRecHit *newRH = (*rh)->clone();
+    GEMRecHit *newRH = rechit->clone();
     newRH->setPosition(lp);
     MuonSegFit::MuonRecHitPtr trkRecHit(newRH);
     muonRecHits.push_back(trkRecHit);
@@ -357,8 +357,8 @@ void GEMSegmentAlgorithm::buildSegments(const GEMEnsemble& ensemble, const Ensem
 
   // Calculate the bunch crossing of the GEM Segment
   float bx = 0.0;
-  for (auto rh=rechits.begin(); rh!=rechits.end(); ++rh){
-    bx += (*rh)->BunchX();
+  for (auto rechit : rechits){
+    bx += rechit->BunchX();
   }
   if(rechits.size() != 0) bx=bx*1.0/(rechits.size());
 

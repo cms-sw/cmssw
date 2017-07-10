@@ -51,18 +51,18 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
    iItem->get( pfTaus );
    if( pfTaus == 0 ) return;
 
-   for( reco::PFTauCollection::const_iterator it = pfTaus->begin(), itEnd = pfTaus->end(); it != itEnd; ++it)
+   for(const auto & pfTau : *pfTaus)
    { 
       TEveCompound* comp = createCompound();
       if (viewType == FWViewType::kLego)
       {
-         fireworks::addCircle( (*it).eta(), (*it).phi(), 0.5, 20, comp, this );
+         fireworks::addCircle( pfTau.eta(), pfTau.phi(), 0.5, 20, comp, this );
       }
       else
       {
          // prepare phi-list and theta range
          try {
-            const reco::PFTauTagInfo *tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>( (*it).pfTauTagInfoRef().get() );
+            const reco::PFTauTagInfo *tauTagInfo = dynamic_cast<const reco::PFTauTagInfo*>( pfTau.pfTauTagInfoRef().get() );
             const reco::PFJet *jet = dynamic_cast<const reco::PFJet*>( tauTagInfo->pfjetRef().get() );
             m_minTheta =  100;
             m_maxTheta = -100;
@@ -82,13 +82,13 @@ FWPFTauProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* p
                m_maxTheta = 0;
             }
 
-            buildBaseTau(*it, jet, comp, viewType, vc);
+            buildBaseTau(pfTau, jet, comp, viewType, vc);
             m_phis.clear();
          }
          catch (std::exception&  e)
          { 
             fwLog(fwlog::kInfo) << "FWPFTauProxyBuilder missing PFTauTagInfo. Skip drawing of jets.\n";
-            buildBaseTau(*it, 0, comp, viewType, vc);         
+            buildBaseTau(pfTau, 0, comp, viewType, vc);         
          }
       }
       setupAddElement( comp, product );

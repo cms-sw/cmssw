@@ -188,8 +188,7 @@ std::vector<CSCSegment> CSCSegAlgoTC::buildSegments(const ChamberHitContainer& u
   pruneTheSegments(rechits);
   
   // Create CSCSegments for the surviving candidates
-  for(unsigned int i = 0; i < candidates.size(); ++i ) {
-    CSCSegFit*sfit = candidates[i];
+  for(auto sfit : candidates) {
     //    edm::LogVerbatim("CSCSegment") << "candidate fit " << i+1 << " of " << candidates.size() << " is at " << sfit;
     //    if ( !sfit ) {
     //      edm::LogVerbatim("CSCSegment") << "stored a null pointer for element " << i+1 << " of " << candidates.size();
@@ -511,9 +510,9 @@ void CSCSegAlgoTC::flagHitsAsUsed(std::vector<CSCSegFit*>::iterator seg,
   ChamberHitContainerCIt ib = rechitsInChamber.begin();
   ChamberHitContainer hits = (*seg)->hits();
    
-  for(size_t ish = 0; ish < hits.size(); ++ish) {
+  for(auto & hit : hits) {
     for(ChamberHitContainerCIt iu = ib; iu != rechitsInChamber.end(); ++iu)
-      if( hits[ish] == (*iu)) 
+      if( hit == (*iu)) 
 	used[iu-ib] = true;
   }
 }

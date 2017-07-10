@@ -311,10 +311,9 @@ void ZdcTestAnalysis::update(const EndOfEvent * evt) {
 	    zdceventntuple->Fill(zdceventarray);
       }
       
-      for (std::map<int,float,std::less<int> >::iterator is = energyInFibers.begin();
-	   is!= energyInFibers.end(); is++)
+      for (auto & energyInFiber : energyInFibers)
 	{
-	  ETot = (*is).second;
+	  ETot = energyInFiber.second;
 	  SEnergy += ETot;
 	}
 

@@ -11,7 +11,7 @@ DCCSRPBlock::DCCSRPBlock(
   // Todo : include data integrity collections
   blockLength_    = SRP_BLOCKLENGTH;
   // Set SR flags to zero
-  for(unsigned int i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
+  for(unsigned short & srFlag : srFlags_){ srFlag=0; }
 
 }
 
@@ -19,7 +19,7 @@ DCCSRPBlock::DCCSRPBlock(
 int DCCSRPBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned int numbFlags ){    
 
   // Set SR flags to zero
-  for(unsigned int i=0; i<SRP_NUMBFLAGS; i++){ srFlags_[i]=0; }
+  for(unsigned short & srFlag : srFlags_){ srFlag=0; }
   
 
   expNumbSrFlags_ = numbFlags;
@@ -85,7 +85,7 @@ int DCCSRPBlock::unpack(const uint64_t ** data, unsigned int * dwToEnd, unsigned
   } 
 
   // initialize array, protecting in case of inconsistently formatted data
-  for(int dccCh=0; dccCh<SRP_NUMBFLAGS; dccCh++) srFlags_[dccCh] =0;
+  for(unsigned short & srFlag : srFlags_) srFlag =0;
   
   //display(cout); 
   addSRFlagToCollection();

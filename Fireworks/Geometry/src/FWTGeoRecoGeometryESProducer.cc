@@ -614,11 +614,9 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
    {
       TGeoVolume *assembly = GetDaughter(assemblyTop, "DTChamber", kMuonDT);
       auto const & dtChamberGeom = m_geomRecord->slaveGeometry( DTChamberId())->dets();
-      for( auto it = dtChamberGeom.begin(),
-              end = dtChamberGeom.end(); 
-           it != end; ++it )
+      for(auto it : dtChamberGeom)
       {
-         if( auto chamber = dynamic_cast< const DTChamber *>(*it))
+         if( auto chamber = dynamic_cast< const DTChamber *>(it))
          {      
             DTChamberId detid = chamber->geographicalId();
             std::stringstream s;
@@ -639,11 +637,9 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
    {
       TGeoVolume *assembly = GetDaughter(assemblyTop, "DTSuperLayer", kMuonDT);
       auto const & dtSuperLayerGeom = m_geomRecord->slaveGeometry( DTSuperLayerId())->dets();
-      for( auto it = dtSuperLayerGeom.begin(),
-              end = dtSuperLayerGeom.end(); 
-           it != end; ++it )
+      for(auto it : dtSuperLayerGeom)
       {
-         if( auto * superlayer = dynamic_cast<const DTSuperLayer*>(*it))
+         if( auto * superlayer = dynamic_cast<const DTSuperLayer*>(it))
          {
             DTSuperLayerId detid( DetId(superlayer->geographicalId()));
             std::stringstream s;
@@ -664,11 +660,9 @@ FWTGeoRecoGeometryESProducer::addDTGeometry(  )
    {
       TGeoVolume *assembly = GetDaughter(assemblyTop, "DTLayer", kMuonDT);
       auto const & dtLayerGeom = m_geomRecord->slaveGeometry( DTLayerId())->dets();
-      for( auto it = dtLayerGeom.begin(),
-              end = dtLayerGeom.end(); 
-           it != end; ++it )
+      for(auto it : dtLayerGeom)
       {
-         if(auto layer = dynamic_cast<const DTLayer*>(*it))
+         if(auto layer = dynamic_cast<const DTLayer*>(it))
          {
 
             DTLayerId detid( DetId(layer->geographicalId()));
@@ -702,9 +696,9 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
    TGeoVolume *assembly = GetDaughter(tv, "CSC", kMuonCSC);
 
    auto const & cscGeom = m_geomRecord->slaveGeometry( CSCDetId())->dets();
-   for( auto  it = cscGeom.begin(), itEnd = cscGeom.end(); it != itEnd; ++it )
+   for(auto it : cscGeom)
    {    
-      unsigned int rawid = (*it)->geographicalId();
+      unsigned int rawid = it->geographicalId();
       CSCDetId detId(rawid);
       std::stringstream s;
       s << "CSC" << detId;
@@ -712,9 +706,9 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
       
       TGeoVolume* child = 0;
 
-      if( auto chamber = dynamic_cast<const CSCChamber*>(*it))
+      if( auto chamber = dynamic_cast<const CSCChamber*>(it))
          child = createVolume( name, chamber, kMuonCSC );
-      else if( auto * layer = dynamic_cast<const CSCLayer*>(*it))
+      else if( auto * layer = dynamic_cast<const CSCLayer*>(it))
          child = createVolume( name, layer, kMuonCSC );
 
 
@@ -726,7 +720,7 @@ FWTGeoRecoGeometryESProducer::addCSCGeometry()
          holder = GetDaughter(holder, "Chamber", kMuonCSC , detId.chamber());
       
          //   holder->AddNode(child, 1,  createPlacement( *it ));
-         AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+         AddLeafNode(holder, child, name.c_str(),  createPlacement(it));
       }
    }
 
@@ -746,11 +740,9 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
       
       {
 	TGeoVolume *assembly = GetDaughter(assemblyTop, "GEMSuperChambers", kMuonGEM);      
-	for( auto it = gemGeom->superChambers().begin(),
-	       end = gemGeom->superChambers().end(); 
-	     it != end; ++it )
+	for(auto it : gemGeom->superChambers())
 	  {
-	    const GEMSuperChamber* sc = (*it);
+	    const GEMSuperChamber* sc = it;
 	    if( sc )
 	      {
 		GEMDetId detid = sc->geographicalId();
@@ -765,18 +757,16 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
 		holder = GetDaughter(holder, "Station", kMuonGEM , detid.station()); 
 		holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
 
-		AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+		AddLeafNode(holder, child, name.c_str(),  createPlacement(it));
 	      }
 	  }
       }
       
       {
 	TGeoVolume *assembly = GetDaughter(assemblyTop, "GEMetaPartitions", kMuonGEM);      
-	for( auto it = gemGeom->etaPartitions().begin(),
-	       end = gemGeom->etaPartitions().end(); 
-	     it != end; ++it )
+	for(auto it : gemGeom->etaPartitions())
 	  {
-	    const GEMEtaPartition* roll = (*it);
+	    const GEMEtaPartition* roll = it;
 	    if( roll )
 	      {
 		GEMDetId detid = roll->geographicalId();
@@ -792,7 +782,7 @@ FWTGeoRecoGeometryESProducer::addGEMGeometry()
 		holder = GetDaughter(holder, "Layer", kMuonGEM , detid.layer()); 
 		holder = GetDaughter(holder, "Chamber", kMuonGEM , detid.chamber()); 
 
-		AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+		AddLeafNode(holder, child, name.c_str(),  createPlacement(it));
 	      }
 	  }
       }
@@ -813,11 +803,9 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
 
    DetId detId( DetId::Muon, MuonSubdetId::RPC );
    const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-   for( auto it = rpcGeom->rolls().begin(),
-           end = rpcGeom->rolls().end(); 
-        it != end; ++it )
+   for(auto it : rpcGeom->rolls())
    {
-      RPCRoll const* roll = (*it);
+      RPCRoll const* roll = it;
       if( roll )
       {
          RPCDetId detid = roll->geographicalId();
@@ -834,7 +822,7 @@ FWTGeoRecoGeometryESProducer::addRPCGeometry( )
          holder = GetDaughter(holder, "Layer", kMuonRPC, detid.layer()); 
          holder = GetDaughter(holder, "Subsector", kMuonRPC, detid.subsector()); 
  
-         AddLeafNode(holder, child, name.c_str(),  createPlacement(*it));
+         AddLeafNode(holder, child, name.c_str(),  createPlacement(it));
       }
    };
 }

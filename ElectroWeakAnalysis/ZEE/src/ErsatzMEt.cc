@@ -315,18 +315,18 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 		edm::LogDebug_("","",289)<<"Analysing MC properties.";
 		const reco::GenParticleCollection *McCand = pGenPart.product();
 		math::XYZTLorentzVector Zboson, RescZboson, McElec1, McElec2;
-		for(reco::GenParticleCollection::const_iterator McP = McCand->begin(); McP != McCand->end(); ++McP)
+		for(const auto & McP : *McCand)
 		{
-			const reco::Candidate* mum = McP->mother();
-			if(std::abs(McP->pdgId())==11 && abs(mum->pdgId()) == 23)
+			const reco::Candidate* mum = McP.mother();
+			if(std::abs(McP.pdgId())==11 && abs(mum->pdgId()) == 23)
 			{
-				McElecs.push_back(McP->p4());
+				McElecs.push_back(McP.p4());
 				if(std::abs(mum->pdgId()) == 23) Zboson = mum->p4();
 
-				std::cout <<"Found electron, ID = "<< McP->pdgId() <<"\t status = "<< McP->status()<<std::endl;
-				if(McP->status() != 1)
+				std::cout <<"Found electron, ID = "<< McP.pdgId() <<"\t status = "<< McP.status()<<std::endl;
+				if(McP.status() != 1)
 				{
-					const reco::Candidate* McPD = McP->daughter(0);
+					const reco::Candidate* McPD = McP.daughter(0);
 					McPD = McPD->mother();
 					while(McPD->status() != 1)
 					{
@@ -346,7 +346,7 @@ void ErsatzMEt::analyze(const edm::Event& evt, const edm::EventSetup& es)
 					}
 					std::cout<< McPD->pdgId() << " : status = "<<McPD->status()<<"\tAdding to vector!"<<std::endl;
 					McElecsFinalState.push_back(McPD->p4());
-				}else McElecsFinalState.push_back(McP->p4());
+				}else McElecsFinalState.push_back(McP.p4());
 			}
 		}
 		McZ_m_ = Zboson.M(); McZ_pt_ = Zboson.Pt(); McZ_phi_ = Zboson.Phi(); McZ_eta_ = Zboson.Eta(); McZ_y_ = Zboson.Rapidity();
@@ -620,10 +620,9 @@ std::map<reco::GsfElectronRef, reco::GsfElectronRef> ErsatzMEt::probeFinder(cons
 {
 	const reco::GsfElectronCollection *probeCands = pElectrons.product();
 	std::map<reco::GsfElectronRef, reco::GsfElectronRef> TagProbes;
-	for(std::vector<reco::GsfElectronRef>::const_iterator tagelec = tags.begin(); tagelec != tags.end(); ++tagelec)
+	for(auto tag : tags)
 	{
-		reco::GsfElectronRef tag = *tagelec;
-		std::pair<reco::GsfElectronRef, reco::GsfElectronRef> TagProbePair;
+			std::pair<reco::GsfElectronRef, reco::GsfElectronRef> TagProbePair;
 		int nProbesPerTag = 0;
 		int index = 0;
 		for(reco::GsfElectronCollection::const_iterator probeelec = probeCands->begin(); probeelec != probeCands->end(); ++probeelec)

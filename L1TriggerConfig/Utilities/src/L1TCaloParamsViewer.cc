@@ -308,7 +308,7 @@ void L1TCaloParamsViewer::analyze(const edm::Event& iEvent, const edm::EventSetu
     cout<<"  centralityLUT=          ["; for(unsigned int i=0; i<ptr1->centralityLUT()->maxSize(); i++) cout<<(i==0?"":",")<<ptr1->centralityLUT()->data(i); cout<<"]"<<endl;
 
     std::vector<int> mbt = ptr1->minimumBiasThresholds();
-    cout<<"  minimumBiasThresholds=  ["; for(unsigned int i=0; i<mbt.size(); i++) cout<<mbt[i]; cout<<"]"<<endl; 
+    cout<<"  minimumBiasThresholds=  ["; for(int i : mbt) cout<<i; cout<<"]"<<endl; 
 
     cout<<endl<<"centralityRegionMask() = "<<ptr1->centralityRegionMask()<<endl;
     cout<<endl<<"jetRegionMask() = "<<ptr1->jetRegionMask()<<endl;

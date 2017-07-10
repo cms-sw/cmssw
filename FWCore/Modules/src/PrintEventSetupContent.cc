@@ -126,23 +126,22 @@ namespace edm {
     iSetup.fillAvailableRecordKeys(records);
     std::unique_ptr<LogSystem> msg;
 
-    for(Records::iterator itrecords = records.begin(), itrecordsend = records.end();
-       itrecords != itrecordsend; ++itrecords ) {
+    for(auto & record : records) {
 
-      eventsetup::EventSetupRecord const* rec = iSetup.find(*itrecords);
+      eventsetup::EventSetupRecord const* rec = iSetup.find(record);
 
-      if (0 != rec && cacheIdentifiers_[*itrecords] != rec->cacheIdentifier()) {
-        cacheIdentifiers_[*itrecords] = rec->cacheIdentifier();
+      if (0 != rec && cacheIdentifiers_[record] != rec->cacheIdentifier()) {
+        cacheIdentifiers_[record] = rec->cacheIdentifier();
         rec->fillRegisteredDataKeys(data);
         if (compact_) {
-          for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
+          for (auto & itdata : data) {
             if (not msg)
               msg.reset(new LogSystem("ESContent"));
             else
               *msg << '\n';
-            *msg << "ESContent> " << "record:" << itrecords->name() << " data:" << itdata->type().name() << " '" << itdata->name().value() << "'";
+            *msg << "ESContent> " << "record:" << record.name() << " data:" << itdata.type().name() << " '" << itdata.name().value() << "'";
             if (printProviders_) {
-              edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(*itdata);
+              edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(itdata);
               *msg << " provider:" << cd->type_ << " '" << cd->label_ << "'";
             }
           }
@@ -151,13 +150,13 @@ namespace edm {
             msg.reset(new LogSystem("ESContent"));
             *msg << "Changed Record" << "\n  " << "<datatype>" << " " << "'label' provider: 'provider label' <provider module type>";
           }
-          *msg << "\n" << itrecords->name();
+          *msg << "\n" << record.name();
           *msg << "\n start: " << rec->validityInterval().first().eventID() << " time: " << rec->validityInterval().first().time().value();
           *msg << "\n end:   " << rec->validityInterval().last().eventID() << " time: " << rec->validityInterval().last().time().value();
-          for (Data::iterator itdata = data.begin(), itdataend = data.end(); itdata != itdataend; ++itdata) {
-            *msg << "\n  " << itdata->type().name() << " '" << itdata->name().value() << "'";
+          for (auto & itdata : data) {
+            *msg << "\n  " << itdata.type().name() << " '" << itdata.name().value() << "'";
             if (printProviders_) {
-              edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(*itdata);
+              edm::eventsetup::ComponentDescription const* cd = rec->providerDescription(itdata);
               *msg << " provider:" << cd->type_ << " '" << cd->label_ << "'";
             }
           }

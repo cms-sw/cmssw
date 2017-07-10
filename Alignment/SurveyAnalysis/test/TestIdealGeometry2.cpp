@@ -155,14 +155,13 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey
   
-   for ( std::vector<AlignTransform>::const_iterator iGeomDet = alignments->m_align.begin();
-		iGeomDet != alignments->m_align.end(); iGeomDet++ )
+   for (const auto & iGeomDet : alignments->m_align)
 	{
           
           if (countDet == 0) countDet = countDet + 3;
 	  unsigned int comparisonVect[6] = {0,0,0,0,0,0};
 	  
-	  DetId thisId( (*iGeomDet).rawId() );
+	  DetId thisId( iGeomDet.rawId() );
 	  if (thisId.subdetId() == int(StripSubdetector::TIB)) {
 	    
 	    comparisonVect[0] = int(StripSubdetector::TIB);
@@ -191,9 +190,9 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 	  
 	  if (countDet == 0) { // Store only r-phi for double-sided modules
 
-	    for ( MapTypeOr::const_iterator it = theSurveyMap.begin(); it != theSurveyMap.end(); it++ ) {
-	      const std::vector<int>& locPos = (it)->first;
-	      const align::Scalars& align_params = (it)->second;
+	    for (const auto & it : theSurveyMap) {
+	      const std::vector<int>& locPos = it.->first;
+	      const align::Scalars& align_params = it.->second;
 	      
 	      if (locPos[0] == int(comparisonVect[0]) &&
 		  locPos[1] == int(comparisonVect[1]) &&
@@ -202,19 +201,19 @@ TestIdealGeometry2::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 		  locPos[4] == int(comparisonVect[4]) &&
 		  locPos[5] == int(comparisonVect[5]) ) {
 	      
-		const CLHEP::HepRotation& rot = (*iGeomDet).rotation();
+		const CLHEP::HepRotation& rot = iGeomDet.rotation();
 		align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
 					      rot.yx(), rot.yy(), rot.yz(),
 					      rot.zx(), rot.zy(), rot.zz() );
 		
-		Id_     = (*iGeomDet).rawId();
+		Id_     = iGeomDet.rawId();
 		// cout << "DetId = " << Id_ << " " << endl;
 		// cout << "DetId decodified = " << comparisonVect[0] << " " << comparisonVect[1] << " " << comparisonVect[2] << " " << comparisonVect[3] << " " << comparisonVect[4] << " " << comparisonVect[5] << endl;	      
-		dx_      = (*iGeomDet).translation().x() - align_params[0];
+		dx_      = iGeomDet.translation().x() - align_params[0];
 		// cout << "X pos : TRACKER_ALIGN = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().x() << " / IDEAL RICCARDO = " << align_params[0] << endl; 
-		dy_      = (*iGeomDet).translation().y() - align_params[1];
+		dy_      = iGeomDet.translation().y() - align_params[1];
 		// cout << "Y pos : TRACKER_ALIGN = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().y() << " / IDEAL RICCARDO = " << align_params[1] << endl;
-		dz_      = (*iGeomDet).translation().z() - align_params[2];
+		dz_      = iGeomDet.translation().z() - align_params[2];
 		// cout << "Z pos : TRACKER_ALIGN = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().z() << " / IDEAL RICCARDO = " << align_params[2] << endl;
 		// cout << "SPATIAL DISTANCE = " << std::fixed << std::setprecision(3) << sqrt(pow(dx_,2)+pow(dy_,2)+pow(dz_,2)) << endl;
 		dtx_     = rotation.xx() - align_params[6];

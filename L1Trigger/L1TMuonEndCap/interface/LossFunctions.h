@@ -51,10 +51,9 @@ class LeastSquares : public L1TLossFunction
     // The average of the residuals minmizes the Loss Function for LS.
     
     Double_t SUM = 0;
-    for(unsigned int i=0; i<v.size(); i++)
+    for(auto e : v)
       {
-        emtf::Event* e = v[i];
-	SUM += e->trueValue - e->predictedValue;
+        	SUM += e->trueValue - e->predictedValue;
       }
     
     return SUM/v.size();
@@ -151,10 +150,9 @@ class Huber : public L1TLossFunction
     residual_median = calculateQuantile(v, 0.5); 
     
     double x = 0;
-    for(unsigned int i=0; i<v.size(); i++)
+    for(auto e : v)
       {
-        emtf::Event* e = v[i];
-	double residual = e->trueValue - e->predictedValue;
+        	double residual = e->trueValue - e->predictedValue;
 	double diff = residual - residual_median; 
 	x += ((diff > 0)?1.0:-1.0)*std::min(quantile, TMath::Abs(diff));
       }
@@ -208,10 +206,9 @@ class PercentErrorSquared : public L1TLossFunction
     Double_t SUMtop = 0;
     Double_t SUMbottom = 0;
     
-    for(unsigned int i=0; i<v.size(); i++)
+    for(auto e : v)
       {   
-        emtf::Event* e = v[i];
-	SUMtop += (e->trueValue - e->predictedValue)/(e->trueValue*e->trueValue); 
+        	SUMtop += (e->trueValue - e->predictedValue)/(e->trueValue*e->trueValue); 
 	SUMbottom += 1/(e->trueValue*e->trueValue);
       }   
     

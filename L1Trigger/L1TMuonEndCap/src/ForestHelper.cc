@@ -53,9 +53,8 @@ void ForestHelper::print(std::ostream& myStr) const {
       const DForest & dforest = read_->forest_coll_[it->second];
       
       int count = 0;
-      for (auto itree = dforest.begin(); itree != dforest.end(); itree++){
-	const DTree & tree = *itree;
-	cout << "DUMP: ***** Tree " << count << " with size " << tree.size() << "\n";
+      for (const auto & tree : dforest){
+		cout << "DUMP: ***** Tree " << count << " with size " << tree.size() << "\n";
 	for (unsigned index=0; index<tree.size(); index++){
 	  const DTreeNode & node = tree[index];
 	  cout << "node " << index << " l: " << node.ileft << " r: " << node.iright << "svar: " << node.splitVar << " sval: " << node.splitVal << " fit: " << node.fitVal << "\n";
@@ -133,8 +132,8 @@ double ForestHelper::evaluate(int mode, const std::vector<double> & data) const 
   const DForest & dforest = read_->forest_coll_[it->second];
   
   double sum = 0;
-  for (auto itree = dforest.begin(); itree != dforest.end(); itree++){
-    double x = evalTreeRecursive(data, *itree, 0);
+  for (const auto & itree : dforest){
+    double x = evalTreeRecursive(data, itree, 0);
     //cout << "forest eval to " << x << "\n";
     sum += x;
   }

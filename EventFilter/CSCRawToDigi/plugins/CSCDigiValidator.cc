@@ -871,10 +871,9 @@ CSCDigiValidator::sanitizeWireDigis(std::vector<CSCWireDigi>::const_iterator b,
       int wire = i->first;
       unsigned tbin = 0x0;
 
-      for(std::vector<CSCWireDigi>::const_iterator d = i->second.begin();
-	  d != i->second.end(); ++d)
+      for(auto d : i->second)
 	{
-	  std::vector<int> binson = d->getTimeBinsOn();
+	  std::vector<int> binson = d.getTimeBinsOn();
 	  for(std::vector<int>::const_iterator t = binson.begin(); 
 	      t != binson.end(); ++t)
 	    tbin |= 1<<(*t);

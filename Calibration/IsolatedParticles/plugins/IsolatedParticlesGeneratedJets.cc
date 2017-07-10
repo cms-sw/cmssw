@@ -65,20 +65,20 @@ void IsolatedParticlesGeneratedJets::analyze(const edm::Event& iEvent, const edm
       std::vector<double> v_trkP, v_trkPt, v_trkEta, v_trkPhi, v_trkPdg, v_trkCharge;
     
       if(debug) std::cout<<"Jet(pt,Eta,Phi) "<<genJetPt<<" "<<genJetEta<<" "<<genJetPhi <<std::endl;
-      for(unsigned int ic=0; ic<genJetConstituents.size(); ic++) {
+      for(auto & genJetConstituent : genJetConstituents) {
 
 	if(debug) {
-	  std::cout << "p,pt,eta,phi "<<genJetConstituents[ic]->p()<<" "<<genJetConstituents[ic]->pt()
-		    <<" "<<genJetConstituents[ic]->eta()<<" "<<genJetConstituents[ic]->phi()
+	  std::cout << "p,pt,eta,phi "<<genJetConstituent->p()<<" "<<genJetConstituent->pt()
+		    <<" "<<genJetConstituent->eta()<<" "<<genJetConstituent->phi()
 		    <<std::endl;
 	}
 
-	v_trkP.push_back(genJetConstituents[ic]->p());
-	v_trkPt.push_back(genJetConstituents[ic]->pt());
-	v_trkEta.push_back(genJetConstituents[ic]->eta());
-	v_trkPhi.push_back(genJetConstituents[ic]->phi());
-	v_trkPdg.push_back(genJetConstituents[ic]->pdgId());
-	v_trkCharge.push_back(genJetConstituents[ic]->charge());
+	v_trkP.push_back(genJetConstituent->p());
+	v_trkPt.push_back(genJetConstituent->pt());
+	v_trkEta.push_back(genJetConstituent->eta());
+	v_trkPhi.push_back(genJetConstituent->phi());
+	v_trkPdg.push_back(genJetConstituent->pdgId());
+	v_trkCharge.push_back(genJetConstituent->charge());
 
       } //loop over genjet constituents
 

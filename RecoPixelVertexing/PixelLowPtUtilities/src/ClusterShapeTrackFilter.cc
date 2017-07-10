@@ -63,9 +63,8 @@ vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs
 {
   // Get 2d points
   vector<Global2DVector> p;
-  for(vector<GlobalPoint>::const_iterator ig = g.begin();
-                                          ig!= g.end(); ig++)
-     p.push_back( Global2DVector(ig->x(), ig->y()) );
+  for(const auto & ig : g)
+     p.push_back( Global2DVector(ig.x(), ig.y()) );
 
   //
   vector<GlobalVector> globalDirs;
@@ -113,14 +112,12 @@ vector<GlobalPoint> ClusterShapeTrackFilter::getGlobalPoss
 {
   vector<GlobalPoint> globalPoss;
 
-  for(vector<const TrackingRecHit *>::const_iterator recHit = recHits.begin();
-                                                     recHit!= recHits.end();
-                                                     recHit++)
+  for(auto recHit : recHits)
   {
-    DetId detId = (*recHit)->geographicalId();
+    DetId detId = recHit->geographicalId();
 
     GlobalPoint gpos = 
-      theTracker->idToDet(detId)->toGlobal((*recHit)->localPosition());
+      theTracker->idToDet(detId)->toGlobal(recHit->localPosition());
 
     globalPoss.push_back(gpos);
   }

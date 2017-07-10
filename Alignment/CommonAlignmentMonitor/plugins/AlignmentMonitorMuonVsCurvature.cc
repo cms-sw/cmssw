@@ -206,10 +206,10 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent, const edm:
 
   if (m_muonCollectionTag.label().empty()) // use trajectories
   {
-    for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
+    for (const auto & trajtrack : trajtracks)
     {
-      const Trajectory* traj = (*trajtrack).first;
-      const reco::Track* track = (*trajtrack).second;
+      const Trajectory* traj = trajtrack.first;
+      const reco::Track* track = trajtrack.second;
 
       if (track->pt() > m_minTrackPt  && track->p() > m_minTrackP  &&  fabs(track->dxy(beamSpot->position())) < m_maxDxy )
       {
@@ -223,13 +223,13 @@ void AlignmentMonitorMuonVsCurvature::event(const edm::Event &iEvent, const edm:
     edm::Handle<reco::MuonCollection> muons;
     iEvent.getByLabel(m_muonCollectionTag, muons);
 
-    for (reco::MuonCollection::const_iterator muon = muons->begin();  muon != muons->end();  ++muon)
+    for (const auto & muon : *muons)
     {
-      if ( !(muon->isTrackerMuon() && muon->innerTrack().isNonnull() ) ) continue;
+      if ( !(muon.isTrackerMuon() && muon.innerTrack().isNonnull() ) ) continue;
 
-      if (m_minTrackPt < muon->pt()  &&  m_minTrackP < muon->p()  &&  fabs(muon->innerTrack()->dxy(beamSpot->position())) < m_maxDxy)
+      if (m_minTrackPt < muon.pt()  &&  m_minTrackP < muon.p()  &&  fabs(muon.innerTrack()->dxy(beamSpot->position())) < m_maxDxy)
       {
-        MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, &(*muon), pNavigator(), 100.);
+        MuonResidualsFromTrack muonResidualsFromTrack(globalGeometry, &muon, pNavigator(), 100.);
         processMuonResidualsFromTrack(muonResidualsFromTrack);
       }
     }
@@ -244,7 +244,7 @@ void AlignmentMonitorMuonVsCurvature::processMuonResidualsFromTrack(MuonResidual
   
   int nMuChambers = 0;
   std::vector<DetId> chamberIds = mrft.chamberIds();
-  for (unsigned ch=0; ch < chamberIds.size(); ch++)  if (chamberIds[ch].det() == DetId::Muon)  nMuChambers++;
+  for (auto & chamberId : chamberIds)  if (chamberId.det() == DetId::Muon)  nMuChambers++;
   if (nMuChambers < m_minNCrossedChambers ) return;
   
   th1f_trackerRedChi2->Fill(mrft.trackerRedChi2());

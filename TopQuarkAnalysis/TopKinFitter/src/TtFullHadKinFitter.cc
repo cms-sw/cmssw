@@ -80,8 +80,8 @@ TtFullHadKinFitter::~TtFullHadKinFitter()
   delete lightP_; 
   delete lightPBar_;
   delete covM_;
-  for(std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
-    delete it->second;
+  for(auto & it : massConstr_)
+    delete it.second;
 }
 
 /// print fitter setup
@@ -89,8 +89,8 @@ void
 TtFullHadKinFitter::printSetup() const
 {
   std::stringstream constr;
-  for(unsigned int i=0; i<constraints_.size(); ++i){
-    switch(constraints_[i]){
+  for(auto constraint : constraints_){
+    switch(constraint){
     case kWPlusMass      : constr << "    * W+-mass   (" << mW_   << " GeV) \n"; break;
     case kWMinusMass     : constr << "    * W--mass   (" << mW_   << " GeV) \n"; break;
     case kTopMass        : constr << "    * t-mass    (" << mTop_ << " GeV) \n"; break;
@@ -181,8 +181,8 @@ TtFullHadKinFitter::setupFitter()
   fitter_->addMeasParticle(lightPBar_);
 
   // add constraints
-  for(unsigned int i=0; i<constraints_.size(); i++){
-    fitter_->addConstraint(massConstr_[constraints_[i]]);
+  for(auto constraint : constraints_){
+    fitter_->addConstraint(massConstr_[constraint]);
   }
 
   // initialize helper class used to bring the resolutions into covariance matrices
@@ -639,8 +639,8 @@ std::vector<TtFullHadKinFitter::Constraint>
 TtFullHadKinFitter::KinFit::constraints(const std::vector<unsigned>& configParameters)
 {
   std::vector<TtFullHadKinFitter::Constraint> result;
-  for(unsigned i=0; i<configParameters.size(); ++i){
-    result.push_back(constraint(configParameters[i]));
+  for(unsigned int configParameter : configParameters){
+    result.push_back(constraint(configParameter));
   }
   return result; 
 }

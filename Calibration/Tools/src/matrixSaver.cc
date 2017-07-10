@@ -96,11 +96,9 @@ matrixSaver::saveMatrixVector (std::string filename,
                 << '\n' ;
 
      // loop over the vector
-     for (const_iterator it = saveMe.begin () ;
-	       it != saveMe.end () ;
-	       ++it)
+     for (auto it : saveMe)
        {
-	       outputFile << (*it) ;
+	       outputFile << it ;
        } // loop over the vecor
 
      return 0 ;

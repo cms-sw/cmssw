@@ -84,17 +84,16 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
   // put in the Event:
   auto redCollection = std::make_unique<EcalRecHitCollection>();
 
-  for (EcalRecHitCollection::const_iterator it = hit_collection->begin();
-       it != hit_collection->end(); ++it) {
+  for (const auto & it : *hit_collection) {
 
-    double NewEnergy = it->energy();
+    double NewEnergy = it.energy();
     bool ItIsDead = false;
 
     //Dead Cells are read from text files
     typename std::vector<DetIdT>::const_iterator DeadCell;
     for (DeadCell = ChannelsDeadID.begin(); DeadCell != ChannelsDeadID.end();
          ++DeadCell) {
-      if (it->detid() == *DeadCell) {
+      if (it.detid() == *DeadCell) {
         ItIsDead = true;
         NewEnergy = 0.;
         nRed++;
@@ -102,7 +101,7 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
         // energy.
         //  It perserves the total number of recHits and simulates the true
         // "dead" cell situation.
-        EcalRecHit NewDeadHit(it->id(), NewEnergy, it->time());
+        EcalRecHit NewDeadHit(it.id(), NewEnergy, it.time());
         redCollection->push_back(NewDeadHit);
       }
     }  //End looping on vector of Dead Cells
@@ -113,7 +112,7 @@ void EcalChannelKiller<DetIdT>::produce(edm::Event& iEvent,
     // Could we use it for "correction" identification?
     //
     if (!ItIsDead) {
-      redCollection->push_back(*it);
+      redCollection->push_back(it);
     }
   }
 

@@ -235,11 +235,8 @@ namespace edm {
                           insertIter);
     if (!duplicateLabels.empty()) {
       std::stringstream ss;
-      for (std::set<std::string>::const_iterator iter = duplicateLabels.begin(),
-	                                         iEnd = duplicateLabels.end();
-           iter != iEnd;
-           ++iter) {
-        ss << " \"" << *iter <<  "\"\n";
+      for (const auto & duplicateLabel : duplicateLabels) {
+        ss << " \"" << duplicateLabel <<  "\"\n";
       }
       throw edm::Exception(errors::LogicError)
         << "Labels used in a node of a ParameterSetDescription\n"
@@ -264,11 +261,8 @@ namespace edm {
                             insertIter);
       if (!duplicateTypes.empty()) {
         std::stringstream ss;
-        for (std::set<ParameterTypes>::const_iterator iter = duplicateTypes.begin(),
-	                                              iEnd = duplicateTypes.end();
-             iter != iEnd;
-             ++iter) {
-          ss << " \"" << parameterTypeEnumToString(*iter) <<  "\"\n";
+        for (auto duplicateType : duplicateTypes) {
+          ss << " \"" << parameterTypeEnumToString(duplicateType) <<  "\"\n";
         }
         throw edm::Exception(errors::LogicError)
           << "Types used for wildcards in a node of a ParameterSetDescription\n"

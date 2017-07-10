@@ -313,12 +313,9 @@ FWEventItem::moveToFront()
 {
    assert(0!=m_context->eventItemsManager());
    int largest = layer();
-   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-          itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-      if ((*it) && (*it != this) && (*it)->layer() > largest) {
-         largest= (*it)->layer();
+   for(auto it : *m_context->eventItemsManager()) {
+      if (it && (it != this) && it->layer() > largest) {
+         largest= it->layer();
       }
    }
 
@@ -336,12 +333,9 @@ FWEventItem::moveToBack()
 {
    assert(0!=m_context->eventItemsManager());
    int smallest = layer();
-   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-      if((*it) && (*it != this) && (*it)->layer() < smallest) {
-         smallest= (*it)->layer();
+   for(auto it : *m_context->eventItemsManager()) {
+      if(it && (it != this) && it->layer() < smallest) {
+         smallest= it->layer();
       }
    }
 
@@ -465,11 +459,8 @@ bool
 FWEventItem::isInFront() const
 {
    assert(0!=m_context->eventItemsManager());
-   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-      if((*it) && (*it != this) && (*it)->layer() >= layer()) {
+   for(auto it : *m_context->eventItemsManager()) {
+      if(it && (it != this) && it->layer() >= layer()) {
          return false;
       }
    }
@@ -480,11 +471,8 @@ bool
 FWEventItem::isInBack() const
 {
    assert(0!=m_context->eventItemsManager());
-   for(FWEventItemsManager::const_iterator it = m_context->eventItemsManager()->begin(),
-                                           itEnd = m_context->eventItemsManager()->end();
-       it != itEnd;
-       ++it) {
-      if((*it) && (*it != this) && (*it)->layer() <= layer()) {
+   for(auto it : *m_context->eventItemsManager()) {
+      if(it && (it != this) && it->layer() <= layer()) {
          return false;
       }
    }

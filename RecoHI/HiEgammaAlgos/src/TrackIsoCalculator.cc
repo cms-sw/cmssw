@@ -26,14 +26,13 @@ double TrackIsoCalculator::getTrackIso(const reco::Photon cluster, const double 
 {
   double TotalPt = 0;
 
-  for(reco::TrackCollection::const_iterator
-	recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
+  for(const auto & recTrack : *recCollection)
   {
-    bool goodtrack = recTrack->quality(reco::TrackBase::qualityByName(trackQuality_));
+    bool goodtrack = recTrack.quality(reco::TrackBase::qualityByName(trackQuality_));
     if(!goodtrack) continue;
 
-    double pt = recTrack->pt();
-    double dR2 = reco::deltaR2(cluster, *recTrack);
+    double pt = recTrack.pt();
+    double dR2 = reco::deltaR2(cluster, recTrack);
     if(dR2 >= (0.01 * x*x))
       continue;
     if(dR2 < innerDR*innerDR)
@@ -52,16 +51,15 @@ double TrackIsoCalculator::getBkgSubTrackIso(const reco::Photon cluster, const d
 
   TotalPt = 0;
 
-  for(reco::TrackCollection::const_iterator
-	recTrack = recCollection->begin(); recTrack!= recCollection->end(); recTrack++)
+  for(const auto & recTrack : *recCollection)
   {
-    bool goodtrack = recTrack->quality(reco::TrackBase::qualityByName(trackQuality_));
+    bool goodtrack = recTrack.quality(reco::TrackBase::qualityByName(trackQuality_));
     if(!goodtrack) continue;
 
-    double pt = recTrack->pt();
-    double eta2 = recTrack->eta();
+    double pt = recTrack.pt();
+    double eta2 = recTrack.eta();
     double dEta = fabs(eta2-SClusterEta);
-    double dR2 = reco::deltaR2(cluster, *recTrack);
+    double dR2 = reco::deltaR2(cluster, recTrack);
     if(dEta >= 0.1 * x)
       continue;
     if(dR2 < innerDR*innerDR)

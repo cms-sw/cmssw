@@ -184,11 +184,11 @@ namespace gbl {
     externalMeasurements(), externalPrecisions()
   {
 
-    for (unsigned int iTraj = 0; iTraj < aPointsAndTransList.size(); ++iTraj) {
-      thePoints.push_back(aPointsAndTransList[iTraj].first);
+    for (const auto & iTraj : aPointsAndTransList) {
+      thePoints.push_back(iTraj.first);
       numPoints.push_back(thePoints.back().size());
       numAllPoints += numPoints.back();
-      innerTransformations.push_back(aPointsAndTransList[iTraj].second);
+      innerTransformations.push_back(iTraj.second);
     }
     theDimension.push_back(0);
     theDimension.push_back(1);
@@ -1294,9 +1294,9 @@ namespace gbl {
       theMatrix.solveAndInvertBorderedBand(theVector, theVector);
       predict();
 
-      for (unsigned int i = 0; i < optionList.size(); ++i) // down weighting iterations
+      for (char i : optionList) // down weighting iterations
         {
-          size_t aPosition = methodList.find(optionList[i]);
+          size_t aPosition = methodList.find(i);
           if (aPosition != std::string::npos) {
             aMethod = aPosition / 2 + 1;
             lostWeight = downWeight(aMethod);
@@ -1307,12 +1307,12 @@ namespace gbl {
         }
       Ndf = -numParameters;
       Chi2 = 0.;
-      for (unsigned int i = 0; i < theData.size(); ++i) {
+      for (auto & i : theData) {
         // skipped (internal) measurement ?
-        if (theData[i].getLabel() == skippedMeasLabel
-            && theData[i].getType() == InternalMeasurement)
+        if (i.getLabel() == skippedMeasLabel
+            && i.getType() == InternalMeasurement)
           continue;
-        Chi2 += theData[i].getChi2();
+        Chi2 += i.getChi2();
         Ndf++;
       }
       Chi2 /= normChi2[aMethod];

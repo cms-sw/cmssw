@@ -173,27 +173,21 @@ void DQMRivetClient::endRun(const edm::Run& r, const edm::EventSetup& c) {
     subDirSet.insert(subDir);
   }
 
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
+  for(const auto & dirName : subDirSet) {
     for ( vector<DQMGenericClient::NormOption>::const_iterator normOption = normOptions_.begin();
           normOption != normOptions_.end(); ++normOption ){
       normalizeToIntegral(dirName, normOption->name, normOption->normHistName);
     }
   }
 
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
+  for(const auto & dirName : subDirSet) {
     for ( vector<LumiOption>::const_iterator lumiOption = lumiOptions_.begin();
           lumiOption != lumiOptions_.end(); ++lumiOption ){
       normalizeToLumi(dirName, lumiOption->name, lumiOption->normHistName, lumiOption->xsection);
     }
   }
 
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
+  for(const auto & dirName : subDirSet) {
     for ( vector<ScaleFactorOption>::const_iterator scaleOption = scaleOptions_.begin();
           scaleOption != scaleOptions_.end(); ++scaleOption ){
       scaleByFactor(dirName, scaleOption->name, scaleOption->scale);

@@ -140,16 +140,16 @@ void EcalPedHists::endJob(void)
 
     TFile root_file_(fileName_.c_str() , "RECREATE");
     //Loop over FEDs first
-    for(set<int>::const_iterator FEDitr = theRealFedSet_.begin(); FEDitr != theRealFedSet_.end(); ++FEDitr)
+    for(int FEDitr : theRealFedSet_)
     {
       if(!histsFilled_)
         break;
-      string dir = fedMap_->getSliceFromFed(*FEDitr);
+      string dir = fedMap_->getSliceFromFed(FEDitr);
       TDirectory* FEDdir = gDirectory->mkdir(dir.c_str());
       FEDdir->cd();
       //root_file_.mkdir(dir.c_str());
       //root_file_.cd(dir.c_str());
-      map<string,TH1F*> mapHistos = FEDsAndHistMaps_[*FEDitr];
+      map<string,TH1F*> mapHistos = FEDsAndHistMaps_[FEDitr];
       
       //Loop over channels; write histos and directory structure
       for (vector<int>::const_iterator itr = listChannels_.begin(); itr!=listChannels_.end(); itr++)
@@ -214,20 +214,18 @@ void EcalPedHists::analyze(const edm::Event& e, const edm::EventSetup& c)
       return;
     }
 
-    for (EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();
-        headerItr != DCCHeaders->end (); 
-        ++headerItr) 
+    for (const auto & headerItr : *DCCHeaders) 
     {
-      int FEDid = 600+headerItr->id();
+      int FEDid = 600+headerItr.id();
       theRealFedSet_.insert(FEDid);
     }
   }
 
   // loop over fed list and make sure that there are histo maps
-  for(set<int>::const_iterator fedItr = theRealFedSet_.begin(); fedItr != theRealFedSet_.end(); ++fedItr)
+  for(int fedItr : theRealFedSet_)
   {
-    if(FEDsAndHistMaps_.find(*fedItr)==FEDsAndHistMaps_.end())
-      initHists(*fedItr);
+    if(FEDsAndHistMaps_.find(fedItr)==FEDsAndHistMaps_.end())
+      initHists(fedItr);
   }
   
   //debug
@@ -339,7 +337,7 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis)
 
     // Get the adc counts from the selected samples and fill the corresponding histogram
     // Must subtract 1 from user-given sample list (e.g., user's sample 1 -> sample 0)
-    for (vector<int>::iterator itr = listSamples_.begin(); itr!=listSamples_.end(); itr++)
+    for (int & listSample : listSamples_)
     {
       histsFilled_ = true;
       map<string,TH1F*> mapHistos = FEDsAndHistMaps_[FEDid];
@@ -351,14 +349,14 @@ void EcalPedHists::readEBdigis(edm::Handle<EBDigiCollection> digis)
       string name3 = "Cry";
       name3.append(chnl+"Gain12");
       TH1F* hist = 0;
-      if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==3)
+      if(((EBDataFrame)(*digiItr)).sample(listSample-1).gainId()==3)
         hist = mapHistos[name1];
-      if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==2)
+      if(((EBDataFrame)(*digiItr)).sample(listSample-1).gainId()==2)
         hist = mapHistos[name2];
-      if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==1)
+      if(((EBDataFrame)(*digiItr)).sample(listSample-1).gainId()==1)
         hist = mapHistos[name3];
       if(hist!=0)
-        hist->Fill(((EBDataFrame)(*digiItr)).sample(*itr-1).adc());
+        hist->Fill(((EBDataFrame)(*digiItr)).sample(listSample-1).adc());
       else
         cerr << "EcalPedHistDumper: Error: This shouldn't happen!" << endl;
     }
@@ -394,7 +392,7 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis)
 
     // Get the adc counts from the selected samples and fill the corresponding histogram
     // Must subtract 1 from user-given sample list (e.g., user's sample 1 -> sample 0)
-    for (vector<int>::iterator itr = listSamples_.begin(); itr!=listSamples_.end(); itr++)
+    for (int & listSample : listSamples_)
     {
       histsFilled_ = true;
       map<string,TH1F*> mapHistos = FEDsAndHistMaps_[FEDid];
@@ -406,14 +404,14 @@ void EcalPedHists::readEEdigis(edm::Handle<EEDigiCollection> digis)
       string name3 = "Cry";
       name3.append(chnl+"Gain12");
       TH1F* hist = 0;
-      if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==3)
+      if(((EBDataFrame)(*digiItr)).sample(listSample-1).gainId()==3)
         hist = mapHistos[name1];
-      if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==2)
+      if(((EBDataFrame)(*digiItr)).sample(listSample-1).gainId()==2)
         hist = mapHistos[name2];
-      if(((EBDataFrame)(*digiItr)).sample(*itr-1).gainId()==1)
+      if(((EBDataFrame)(*digiItr)).sample(listSample-1).gainId()==1)
         hist = mapHistos[name3];
       if(hist!=0)
-        hist->Fill(((EBDataFrame)(*digiItr)).sample(*itr-1).adc());
+        hist->Fill(((EBDataFrame)(*digiItr)).sample(listSample-1).adc());
       else
         cerr << "EcalPedHistDumper: Error: This shouldn't happen!" << endl;
     }

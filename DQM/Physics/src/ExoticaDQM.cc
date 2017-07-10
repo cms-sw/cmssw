@@ -114,9 +114,9 @@ void ExoticaDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
   bei.cd();
 
   //--- DiJet
-  for (unsigned int icoll = 0; icoll < DiJetPFJetCollection_.size(); ++icoll) {
+  for (auto & icoll : DiJetPFJetCollection_) {
     std::stringstream ss;
-    ss << "Physics/Exotica/Dijets/" << DiJetPFJetCollection_[icoll].label();
+    ss << "Physics/Exotica/Dijets/" << icoll.label();
     bei.setCurrentFolder(ss.str().c_str());
     //bei.setCurrentFolder("Physics/Exotica/Dijets");
     dijet_PFJet_pt.push_back(bei.book1D("dijet_PFJet_pt",  "Pt of PFJet (GeV)", 50, 30.0 , 5000));

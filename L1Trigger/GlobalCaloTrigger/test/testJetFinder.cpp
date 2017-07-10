@@ -393,7 +393,7 @@ L1GctRegion readSingleRegion(ifstream &fin)
   
   ULong regionComponents[numRegionComponents];
   
-  for(int i=0; i < numRegionComponents; ++i)
+  for(unsigned long & regionComponent : regionComponents)
   {
     //check to see if the input stream is still ok first
     if(fin.eof() || fin.bad())
@@ -403,7 +403,7 @@ L1GctRegion readSingleRegion(ifstream &fin)
     }
     else
     {
-      fin >> regionComponents[i];  //read in the components.
+      fin >> regionComponent;  //read in the components.
     }
   }
   
@@ -448,7 +448,7 @@ L1GctJet readSingleJet(ifstream &fin)
   ULong jetComponents[numJetComponents];
 
   //read in the data from the file
-  for(int i=0; i < numJetComponents; ++i)
+  for(unsigned long & jetComponent : jetComponents)
   {
     //check to see if the input stream is still ok first
     if(fin.eof() || fin.bad())
@@ -458,7 +458,7 @@ L1GctJet readSingleJet(ifstream &fin)
     }
     else
     {
-      fin >> jetComponents[i];  //read in the components.
+      fin >> jetComponent;  //read in the components.
     }
   }
  
@@ -558,15 +558,15 @@ void outputRegionsVector(ofstream &fout, RegionsVector &regions, string descript
   
   if(!regions.empty())  //check it isn't an empty vector
   {
-    for (unsigned int i=0; i < regions.size(); ++i)
+    for (auto & region : regions)
     {
-      fout << regions[i].et() << "\t"
-           << regions[i].gctEta() << "\t"
- 	    << regions[i].gctPhi() << "\t"
-           << regions[i].overFlow() << "\t"
-           << regions[i].tauVeto() << "\t"
-           << regions[i].mip() << "\t"
-           << regions[i].quiet() << endl;
+      fout << region.et() << "\t"
+           << region.gctEta() << "\t"
+ 	    << region.gctPhi() << "\t"
+           << region.overFlow() << "\t"
+           << region.tauVeto() << "\t"
+           << region.mip() << "\t"
+           << region.quiet() << endl;
     }
   }
   fout << endl;  //write a blank line to separate data
@@ -579,12 +579,12 @@ void outputJetsVector(ofstream &fout, RawJetsVector &jets, string description)
   
   if(!jets.empty())  //check it isn't an empty vector
   {
-    for(unsigned int i=0; i < jets.size(); ++i)
+    for(auto & jet : jets)
     {
-      fout << jets[i].rawsum() << "\t" 
-           << jets[i].globalEta()  << "\t"
-           << jets[i].globalPhi()  << "\t"
-           << jets[i].tauVeto() << endl;
+      fout << jet.rawsum() << "\t" 
+           << jet.globalEta()  << "\t"
+           << jet.globalPhi()  << "\t"
+           << jet.tauVeto() << endl;
     }
   }
   fout << endl;  //write a blank line to separate data

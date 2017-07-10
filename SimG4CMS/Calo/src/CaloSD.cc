@@ -89,8 +89,8 @@ CaloSD::CaloSD(G4String name, const DDCompactView & cpv,
   //
   const std::vector<std::string>& lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin(); it !=lvNames.end(); ++it) {
-    this->AssignSD(*it);
+  for (const auto & lvName : lvNames) {
+    this->AssignSD(lvName);
 #ifdef DebugLog
     LogDebug("CaloSim") << "CaloSD : Assigns SD to LV " << (*it);
 #endif
@@ -555,7 +555,7 @@ void CaloSD::update(const ::EndOfEvent * ) {
 
 void CaloSD::clearHits() {  
   if (useMap) hitMap.erase (hitMap.begin(), hitMap.end());
-  for (unsigned int i = 0; i<reusehit.size(); ++i) delete reusehit[i];
+  for (auto & i : reusehit) delete i;
   std::vector<CaloG4Hit*>().swap(reusehit);
   cleanIndex  = 0;
   previousID.reset();

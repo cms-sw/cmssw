@@ -153,16 +153,16 @@ void TTUTrackingAlg::runSeedBuster( const TTUInput & inmap )
   int idx(0);
   int idy(0);
 
-  for(int i=0; i < 12; ++i) 
+  for(int i : m_SEscanorder) 
   {
-    idx = (m_SEscanorder[i] - 1);
+    idx = (i - 1);
     std::bitset<6> station = inmap.input_sec[idx];
     
     if ( ! station.any() ) continue;
     
-    for(int k=0; k < 6; ++k ) {
+    for(int k : m_STscanorder) {
       
-      idy = (m_STscanorder[k] - 1);
+      idy = (k - 1);
       bool _hit = station[idy];
       
       if ( _hit ) {

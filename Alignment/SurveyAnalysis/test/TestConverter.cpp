@@ -162,8 +162,7 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey
   
-   for ( std::vector<AlignTransform>::const_iterator iGeomDet = alignments->m_align.begin();
-		iGeomDet != alignments->m_align.end(); iGeomDet++ )
+   for (const auto & iGeomDet : alignments->m_align)
 	{
           
           /* if (countDet == 0) countDet = countDet + 3;
@@ -197,9 +196,9 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 	  if (countDet == 0) { // Store only r-phi for double-sided modules
           */
 
-	  for ( MapTypeOr::const_iterator it = theSurveyMap.begin(); it != theSurveyMap.end(); it++ ) {
-	      const std::vector<int>& locPos = (it)->first;
-	      const align::Scalars& align_params = (it)->second;
+	  for (const auto & it : theSurveyMap) {
+	      const std::vector<int>& locPos = it.->first;
+	      const align::Scalars& align_params = it.->second;
 	      
 	      /* if (locPos[0] == int(comparisonVect[0]) &&
 		  locPos[2] == int(comparisonVect[1]) &&
@@ -208,23 +207,23 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 		  locPos[5] == int(comparisonVect[4]) &&
 		  locPos[6] == int(comparisonVect[5]) ) { */
                 
-              int thecomparison = (int)locPos[1] - (int)(*iGeomDet).rawId();
+              int thecomparison = (int)locPos[1] - (int)iGeomDet.rawId();
 	      if (thecomparison == 0) {
                 
 		for ( std::vector<AlignTransformErrorExtended>::const_iterator it = alignErrors.begin();
 		      it != alignErrors.end(); it++ ) {
 		  
-		  if ((*it).rawId() == (*iGeomDet).rawId()) {
+		  if ((*it).rawId() == iGeomDet.rawId()) {
 		  
-		    CLHEP::HepRotation fromAngles = (*iGeomDet).rotation() ;
+		    CLHEP::HepRotation fromAngles = iGeomDet.rotation() ;
 		    align::RotationType rotation( fromAngles.xx(), fromAngles.xy(), fromAngles.xz(),
 						  fromAngles.yx(), fromAngles.yy(), fromAngles.yz(),
 						  fromAngles.zx(), fromAngles.zy(), fromAngles.zz() );
 		    
-		    Id_     = (*iGeomDet).rawId();    
-		    dx_      = (*iGeomDet).translation().x() - align_params[15]; 
-		    dy_      = (*iGeomDet).translation().y() - align_params[16];
-		    dz_      = (*iGeomDet).translation().z() - align_params[17];
+		    Id_     = iGeomDet.rawId();    
+		    dx_      = iGeomDet.translation().x() - align_params[15]; 
+		    dy_      = iGeomDet.translation().y() - align_params[16];
+		    dz_      = iGeomDet.translation().z() - align_params[17];
 		    dtx_     = rotation.xx() - align_params[21];
 		    dty_     = rotation.xy() - align_params[22];
 		    dtz_     = rotation.xz() - align_params[23];
@@ -244,9 +243,9 @@ TestConverter::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup 
 		    // if (dkx_ > 0.04) {
 		    edm::LogInfo("TrackerAlignment") << "DetId = " << Id_ << "\n"
 		     << "DetId decodified = " << locPos[0] << " " << locPos[2] << " " << locPos[3] << " " << locPos[4] << " " << locPos[5] << " " << locPos[6] << "\n"
-		     << "X pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().x() << " / SURVEY RICCARDO = " << align_params[15] << "\n"
-		     << "Y pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().y() << " / SURVEY RICCARDO = " << align_params[16] << "\n"
-		     << "Z pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << (*iGeomDet).translation().z() << " / SURVEY RICCARDO = " << align_params[17] << "\n"
+		     << "X pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << iGeomDet.translation().x() << " / SURVEY RICCARDO = " << align_params[15] << "\n"
+		     << "Y pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << iGeomDet.translation().y() << " / SURVEY RICCARDO = " << align_params[16] << "\n"
+		     << "Z pos : TRACKER_MOVED = " << std::fixed << std::setprecision(2) << iGeomDet.translation().z() << " / SURVEY RICCARDO = " << align_params[17] << "\n"
 		     << "SPATIAL DISTANCE = " << std::fixed << std::setprecision(3) << sqrt(pow(dx_,2)+pow(dy_,2)+pow(dz_,2)) << "\n"
 		     << "Trans vect X : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xx() << " / SURVEY RICCARDO = " << align_params[21] << "\n"
 		     << "Trans vect Y : TRACKER_MOVED = " << std::fixed << std::setprecision(5) << rotation.xy() << " / SURVEY RICCARDO = " << align_params[22] << "\n"

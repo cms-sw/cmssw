@@ -59,24 +59,24 @@ std::vector<SimSegment> SegSelector::Sim_DTSegments(int trkId, Handle<edm::PSimH
      hit_V1.clear();
      sDT_v.clear();
      int d1=0;
-     for (PSimHitContainer::const_iterator sh_i = dsimHits->begin(); sh_i != dsimHits->end(); ++sh_i)
+     for (const auto & sh_i : *dsimHits)
      {
-         if ( static_cast<int>((*sh_i).trackId())!= trkId ) continue; 
-         if ( abs((*sh_i).particleType())!= 13 ) continue;
+         if ( static_cast<int>(sh_i.trackId())!= trkId ) continue; 
+         if ( abs(sh_i.particleType())!= 13 ) continue;
          
-         DTLayerId detId = DTLayerId( (*sh_i).detUnitId() );
+         DTLayerId detId = DTLayerId( sh_i.detUnitId() );
 
          int d2=(100000*detId.station())+(1000*detId.sector())+(100+detId.wheel());
 
          if ( d1 == 0 ) {
             d1 = d2;
             hit_V1.clear();
-            hit_V1.push_back(*sh_i);
+            hit_V1.push_back(sh_i);
          }   
          else if ( d1==d2 ) {
             DTLayerId detId1 = DTLayerId( hit_V1[hit_V1.size()-1].detUnitId() ); 
             if (detId1.layer()!=detId.layer()) {
-               hit_V1.push_back(*sh_i);
+               hit_V1.push_back(sh_i);
             }
             if ((hit_V1.size()==12 ) || ((hit_V1.size()==8)&&(d2/100000==4)) ) {
                DTSimHitFit(dtGeom);
@@ -107,7 +107,7 @@ std::vector<SimSegment> SegSelector::Sim_DTSegments(int trkId, Handle<edm::PSimH
             }
             d1 = d2;
             hit_V1.clear();
-            hit_V1.push_back(*sh_i);
+            hit_V1.push_back(sh_i);
          }
      }
      return sDT_v;
@@ -122,21 +122,21 @@ std::vector<SimSegment> SegSelector::Sim_CSCSegments(int trkId, Handle<edm::PSim
      hit_V.clear();
      sCSC_v.clear();
      int d1=0;
-     for (PSimHitContainer::const_iterator sh_i = csimHits->begin(); sh_i != csimHits->end(); ++sh_i)
+     for (const auto & sh_i : *csimHits)
      {
-         if ( static_cast<int>((*sh_i).trackId())!= trkId ) continue; 
-         if ( abs((*sh_i).particleType())!= 13 ) continue;     
+         if ( static_cast<int>(sh_i.trackId())!= trkId ) continue; 
+         if ( abs(sh_i.particleType())!= 13 ) continue;     
          //if ( (*sh_i).particleType()!= -13 ) continue;
-         CSCDetId detId = CSCDetId((*sh_i).detUnitId());
+         CSCDetId detId = CSCDetId(sh_i.detUnitId());
 
          int d2=(1000*detId.station()) + (100*detId.ring()) + detId.chamber();
          if ( d1 == 0 ) {
             d1 = d2;
             hit_V.clear();
-            hit_V.push_back(*sh_i);
+            hit_V.push_back(sh_i);
          }   
          else if ( d1==d2 ) {
-            hit_V.push_back(*sh_i);
+            hit_V.push_back(sh_i);
             if (hit_V.size()==6 ) {
                CSCSimHitFit(cscGeom);
                int old_st = d1/1000 ;
@@ -166,7 +166,7 @@ std::vector<SimSegment> SegSelector::Sim_CSCSegments(int trkId, Handle<edm::PSim
             }
             d1 = d2;
             hit_V.clear();
-            hit_V.push_back(*sh_i);
+            hit_V.push_back(sh_i);
          }
      }
      return sCSC_v;
@@ -181,15 +181,15 @@ std::vector<DTRecSegment4D> SegSelector::Select_DTSeg( Handle<DTRecSegment4DColl
          // pick up the segment which are alone in chamber
          std::vector<DTRecSegment4D> segtemp;
          segtemp.clear();
-         for(DTRecSegment4DCollection::const_iterator it2 = dtSeg->begin(); it2 != dtSeg->end(); it2++)
+         for(const auto & it2 : *dtSeg)
          {
             //if ( (*it2).dimension() != 4 ) continue;
-            if ( !(*it2).hasPhi()  )  continue;
-            if ( (*it2).chamberId().station() < 4 && !(*it2).hasZed() ) continue; 
+            if ( !it2.hasPhi()  )  continue;
+            if ( it2.chamberId().station() < 4 && !it2.hasZed() ) continue; 
 
-            if( (*it1).dt_DetId != (*it2).chamberId()  ) continue;
+            if( (*it1).dt_DetId != it2.chamberId()  ) continue;
 
-            segtemp.push_back(*it2);
+            segtemp.push_back(it2);
          }
          if (segtemp.size() ==1){
             dtseg_V.push_back(segtemp[0]);
@@ -250,11 +250,11 @@ std::vector<CSCSegment> SegSelector::Select_CSCSeg(Handle<CSCSegmentCollection> 
          // pick up the segment which are alone in chamber
          std::vector<CSCSegment> segtemp;
          segtemp.clear();
-         for(CSCSegmentCollection::const_iterator seg_i = cscSeg->begin(); seg_i != cscSeg->end(); seg_i++)
+         for(const auto & seg_i : *cscSeg)
          {
-            CSCDetId rDetId = (CSCDetId)(*seg_i).cscDetId();
+            CSCDetId rDetId = (CSCDetId)seg_i.cscDetId();
             if( (*it1).csc_DetId == rDetId ) { 
-              segtemp.push_back(*seg_i);
+              segtemp.push_back(seg_i);
             }
          }
          if (segtemp.size() ==1){

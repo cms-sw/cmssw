@@ -281,10 +281,9 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
    //must find correct OptionNode
    const Options* nodes = &m_options;
    const char* begin = iBegin;
-   for(std::vector<const char*>::iterator it = delimeters.begin(), itEnd = delimeters.end();
-       it != itEnd; ++it) {
-      OptionNode temp(std::string(begin,*it),
-                      *it-begin,
+   for(auto & delimeter : delimeters) {
+      OptionNode temp(std::string(begin,delimeter),
+                      delimeter-begin,
                       edm::TypeWithDict());
 
       std::shared_ptr<OptionNode> comp(&temp, dummyDelete);
@@ -298,18 +297,16 @@ FWExpressionValidator::fillOptions(const char* iBegin, const char* iEnd,
          return;
       }
       nodes = &((*itFind)->options());
-      begin = (*it)+1;
+      begin = delimeter+1;
    }
 
    //only use add items which begin with the part of the member we are trying to match
    std::string part(begin,iEnd);
    unsigned int part_size = part.size();
-   for(Options::const_iterator it = nodes->begin(), itEnd = nodes->end();
-       it != itEnd;
-       ++it) {
-      if(part == (*it)->description().substr(0,part_size) ) {
-         oOptions.push_back(std::make_pair(std::shared_ptr<std::string>(const_cast<std::string*>(&((*it)->description())), dummyDelete),
-                                           (*it)->description().substr(part_size,(*it)->substitutionEnd()-part_size)));
+   for(const auto & node : *nodes) {
+      if(part == node->description().substr(0,part_size) ) {
+         oOptions.push_back(std::make_pair(std::shared_ptr<std::string>(const_cast<std::string*>(&(node->description())), dummyDelete),
+                                           node->description().substr(part_size,node->substitutionEnd()-part_size)));
       }
    }
 }

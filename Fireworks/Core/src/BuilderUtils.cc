@@ -23,10 +23,8 @@ namespace fireworks
       double min =  100;
       double max = -100;
 
-      for( std::vector<double>::const_iterator i = phis.begin();
-           i != phis.end(); ++i )
+      for(double aphi : phis)
       {
-         double aphi = *i;
          // make phi continuous around jet phi
          if( aphi - phi > M_PI ) aphi -= 2*M_PI;
          if( phi - aphi > M_PI ) aphi += 2*M_PI;

@@ -96,8 +96,8 @@ std::vector<ME0Segment> ME0SegAlgoRU::run(const ME0Chamber * chamber, const HitA
 	theChamber = chamber;
 
 	std::vector<unsigned int> recHits_per_layer(6,0);
-	for(unsigned int iH = 0; iH < rechits.size(); ++iH) {
-		recHits_per_layer[rechits[iH].layer-1]++;
+	for(const auto & rechit : rechits) {
+		recHits_per_layer[rechit.layer-1]++;
 	}
 
 	BoolContainer used(rechits.size(),false);
@@ -245,14 +245,14 @@ void ME0SegAlgoRU::addUniqueSegments(SegmentByMetricContainer& proto_segments, s
 
 	//Now add to the collect based on minChi2 marking the hits as used after
 	std::vector<unsigned int> usedHits;
-	for(unsigned int iS = 0; iS < proto_segments.size(); ++iS){
-		HitAndPositionPtrContainer currentProtoSegment = proto_segments[iS].second;
+	for(auto & proto_segment : proto_segments){
+		HitAndPositionPtrContainer currentProtoSegment = proto_segment.second;
 
 		//check to see if we already used thes hits this round
 		bool alreadyFilled=false;
-		for(unsigned int iH = 0; iH < currentProtoSegment.size(); ++iH){
-			for(unsigned int iOH = 0; iOH < usedHits.size(); ++iOH){
-				if(usedHits[iOH]!=currentProtoSegment[iH]->idx) continue;
+		for(auto & iH : currentProtoSegment){
+			for(unsigned int usedHit : usedHits){
+				if(usedHit!=iH->idx) continue;
 				alreadyFilled = true;
 				break;
 			}

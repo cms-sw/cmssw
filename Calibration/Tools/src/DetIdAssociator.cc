@@ -30,15 +30,14 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
    TrajectoryStateOnSurface tSOSDest;
    FreeTrajectoryState ftsCurrent = ftsStart;
 
-   for(std::vector<GlobalPoint>::const_iterator surface_iter = surfaces.begin(); 
-       surface_iter != surfaces.end(); surface_iter++) {
+   for(const auto & surface : surfaces) {
       // this stuff is some weird pointer, which destroy itself
-      Cylinder *cylinder = new Cylinder(surface_iter->perp(), 
+      Cylinder *cylinder = new Cylinder(surface.perp(), 
                                         Surface::PositionType(0,0,0),
 					Surface::RotationType() ); 
-      Plane *forwardEndcap = new Plane(Surface::PositionType(0,0,surface_iter->z()),
+      Plane *forwardEndcap = new Plane(Surface::PositionType(0,0,surface.z()),
 				       Surface::RotationType());
-      Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface_iter->z()),
+      Plane *backwardEndcap = new Plane(Surface::PositionType(0,0,-surface.z()),
 					Surface::RotationType());
 
       
@@ -51,7 +50,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
 	<< "\tmomentum: " << ftsStart.momentum().mag()<< "\n";
      
          float tanTheta = ftsCurrent.momentum().perp()/ftsCurrent.momentum().z();
-         float corner = surface_iter->perp()/surface_iter->z();
+         float corner = surface.perp()/surface.z();
 /*
       std::cout<<"Propagate from "<< "\n"
         << "\tx: " << ftsCurrent.position().x()<< "\n"
@@ -94,7 +93,7 @@ std::vector<GlobalPoint> HDetIdAssociator::getTrajectory( const FreeTrajectorySt
 // missed target
             if(abs(ibar) > 0)
             {
-              if(tSOSDest.globalPosition().perp() > surface_iter->perp())
+              if(tSOSDest.globalPosition().perp() > surface.perp())
               {
                 tSOSDest = ivProp_->propagate(ftsCurrent, *cylinder);
               }           
@@ -256,9 +255,9 @@ void HDetIdAssociator::buildMap()
    int numberOfDetIdsOutsideEtaRange = 0;
    int numberOfDetIdsActive = 0;
    std::set<DetId> validIds = getASetOfValidDetIds();
-   for (std::set<DetId>::const_iterator id_itr = validIds.begin(); id_itr!=validIds.end(); id_itr++) {	 
+   for (auto validId : validIds) {	 
 //      std::vector<GlobalPoint> points = getDetIdPoints(*id_itr);
-      GlobalPoint point = getPosition(*id_itr);
+      GlobalPoint point = getPosition(validId);
 // reject fake DetIds (eta=0 - what are they anyway???)
       if(point.eta()==0)continue;
 
@@ -279,10 +278,10 @@ void HDetIdAssociator::buildMap()
       if ((ieta>54||ieta<15) && iphi%2==1) phiMin--;
 
       if (etaMax<0||phiMax<0||etaMin>=nEta_||phiMin>=nPhi_) {
-	 LogTrace("HDetIdAssociator")<<"Out of range: DetId:" << id_itr->rawId() <<
+	 LogTrace("HDetIdAssociator")<<"Out of range: DetId:" << validId.rawId() <<
 	   "\n\teta (min,max): " << etaMin << "," << etaMax <<
 	   "\n\tphi (min,max): " << phiMin << "," << phiMax <<
-	   "\nTower id: " << id_itr->rawId() << "\n";
+	   "\nTower id: " << validId.rawId() << "\n";
 	 numberOfDetIdsOutsideEtaRange++;
 	 continue;
       }
@@ -293,7 +292,7 @@ void HDetIdAssociator::buildMap()
       }
       for(int ieta = etaMin; ieta <= etaMax; ieta++)
 	for(int iphi = phiMin; iphi <= phiMax; iphi++)
-	  (*theMap_)[ieta][iphi%nPhi_].insert(*id_itr);
+	  (*theMap_)[ieta][iphi%nPhi_].insert(validId);
       numberOfDetIdsActive++;
    }
    LogTrace("HDetIdAssociator") << "Number of elements outside the allowed range ( |eta|>"<<
@@ -312,9 +311,9 @@ std::set<DetId> HDetIdAssociator::getDetIdsInACone(const std::set<DetId>& inset,
    std::set<DetId> outset;
   
    if(dR>=0) {
-     for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
-       for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
-         if (nearElement(*point_iter,*id_iter,dR)) outset.insert(*id_iter);
+     for(auto id_iter : inset)
+       for(const auto & point_iter : trajectory)
+         if (nearElement(point_iter,id_iter,dR)) outset.insert(id_iter);
    }
    else {
      if (inset.size()!=1) return outset;
@@ -353,9 +352,9 @@ std::set<DetId> HDetIdAssociator::getCrossedDetIds(const std::set<DetId>& inset,
 {
    check_setup();
    std::set<DetId> outset;
-   for(std::set<DetId>::const_iterator id_iter = inset.begin(); id_iter != inset.end(); id_iter++)
-     for(std::vector<GlobalPoint>::const_iterator point_iter = trajectory.begin(); point_iter != trajectory.end(); point_iter++)
-       if (insideElement(*point_iter, *id_iter))  outset.insert(*id_iter);
+   for(auto id_iter : inset)
+     for(const auto & point_iter : trajectory)
+       if (insideElement(point_iter, id_iter))  outset.insert(id_iter);
    return outset;
 }
 

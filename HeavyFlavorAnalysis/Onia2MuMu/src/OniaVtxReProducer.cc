@@ -75,8 +75,8 @@ OniaVtxReProducer::makeVertices(const reco::TrackCollection &tracks,
     iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder",theB);
 
     std::vector<reco::TransientTrack> t_tks; t_tks.reserve(tracks.size());
-    for (reco::TrackCollection::const_iterator it = tracks.begin(), ed = tracks.end(); it != ed; ++it) {
-        t_tks.push_back((*theB).build(*it));
+    for (const auto & track : tracks) {
+        t_tks.push_back((*theB).build(track));
         t_tks.back().setBeamSpot(bs);
     }
 

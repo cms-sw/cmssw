@@ -27,14 +27,14 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
       float sumWeights=0;
       std::pair<bool,Measurement1D> ipSeed = IPTools::absoluteImpactParameter3D(seed,primaryVertex);
       float pvDistance = ipSeed.second.value();
-      for(std::vector<reco::TransientTrack>::const_iterator tt = tracks.begin();tt!=tracks.end(); ++tt )   {
+      for(const auto & track : tracks)   {
 
-       if(*tt==seed) continue;
+       if(track==seed) continue;
 
-       if(dist.calculate(tt->impactPointState(),seed.impactPointState()))
+       if(dist.calculate(track.impactPointState(),seed.impactPointState()))
             {
 		 GlobalPoint ttPoint          = dist.points().first;
-		 GlobalError ttPointErr       = tt->impactPointState().cartesianError().position();
+		 GlobalError ttPointErr       = track.impactPointState().cartesianError().position();
 	         GlobalPoint seedPosition     = dist.points().second;
 	         GlobalError seedPositionErr  = seed.impactPointState().cartesianError().position();
                  Measurement1D m = distanceComputer.distance(VertexState(seedPosition,seedPositionErr), VertexState(ttPoint, ttPointErr));
@@ -43,11 +43,11 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
 
                  float distanceFromPV =  (dist.points().second-pv).mag();
                  float distance = dist.distance();
-		 GlobalVector trackDir2D(tt->impactPointState().globalDirection().x(),tt->impactPointState().globalDirection().y(),0.); 
+		 GlobalVector trackDir2D(track.impactPointState().globalDirection().x(),track.impactPointState().globalDirection().y(),0.); 
 		 GlobalVector seedDir2D(seed.impactPointState().globalDirection().x(),seed.impactPointState().globalDirection().y(),0.); 
 		 //SK:UNUSED//    float dotprodTrackSeed2D = trackDir2D.unit().dot(seedDir2D.unit());
 
-                 float dotprodTrack = (dist.points().first-pv).unit().dot(tt->impactPointState().globalDirection().unit());
+                 float dotprodTrack = (dist.points().first-pv).unit().dot(track.impactPointState().globalDirection().unit());
                  float dotprodSeed = (dist.points().second-pv).unit().dot(seed.impactPointState().globalDirection().unit());
 
                  float w = distanceFromPV*distanceFromPV/(pvDistance*distance);
@@ -68,7 +68,7 @@ std::pair<std::vector<reco::TransientTrack>,GlobalPoint> TracksClusteringFromDis
 #endif           
                  if(selected)
                  {
-                     result.push_back(*tt);
+                     result.push_back(track);
                      seedingPoint = GlobalPoint(cp.x()*w+seedingPoint.x(),cp.y()*w+seedingPoint.y(),cp.z()*w+seedingPoint.z());  
                      sumWeights+=w; 
                  }
@@ -91,14 +91,14 @@ std::vector<TracksClusteringFromDisplacedSeed::Cluster> TracksClusteringFromDisp
 {
 	using namespace reco;
 	std::vector<TransientTrack> seeds;
-	for(std::vector<TransientTrack>::const_iterator it = selectedTracks.begin(); it != selectedTracks.end(); it++){
-                std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(*it,pv);
+	for(const auto & selectedTrack : selectedTracks){
+                std::pair<bool,Measurement1D> ip = IPTools::absoluteImpactParameter3D(selectedTrack,pv);
                 if(ip.first && ip.second.value() >= min3DIPValue && ip.second.significance() >= min3DIPSignificance && ip.second.value() <= max3DIPValue && ip.second.significance() <= max3DIPSignificance)
                   { 
 #ifdef VTXDEBUG
                     std::cout << "new seed " <<  it-selectedTracks.begin() << " ref " << it->trackBaseRef().key()  << " " << ip.second.value() << " " << ip.second.significance() << " " << it->track().hitPattern().trackerLayersWithMeasurement() << " " << it->track().pt() << " " << it->track().eta() << std::endl;
 #endif
-                    seeds.push_back(*it);  
+                    seeds.push_back(selectedTrack);  
                   }
  
 	}

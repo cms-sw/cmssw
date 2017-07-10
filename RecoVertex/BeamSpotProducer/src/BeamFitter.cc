@@ -72,10 +72,10 @@ BeamFitter::BeamFitter(const edm::ParameterSet& iConfig,
   convergence_       = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("FractionOfFittedTrks");
   inputBeamWidth_    = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<double>("InputBeamWidth",-1.);
 
-  for (unsigned int j=0;j<trk_Algorithm_.size();j++)
-    algorithm_.push_back(reco::TrackBase::algoByName(trk_Algorithm_[j]));
-  for (unsigned int j=0;j<trk_Quality_.size();j++)
-    quality_.push_back(reco::TrackBase::qualityByName(trk_Quality_[j]));
+  for (const auto & j : trk_Algorithm_)
+    algorithm_.push_back(reco::TrackBase::algoByName(j));
+  for (const auto & j : trk_Quality_)
+    quality_.push_back(reco::TrackBase::qualityByName(j));
 
   if (saveNtuple_ || saveBeamFit_ || savePVVertices_) {
     outputfilename_ = iConfig.getParameter<edm::ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("OutputFileName");
@@ -256,11 +256,10 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
   double eventZ = 0;
   double averageZ = 0;
 
-  for (reco::TrackCollection::const_iterator track = tracks->begin();
-          track != tracks->end(); ++track){
+  for (const auto & track : *tracks){
 
     if (!isMuon_) {
-      const reco::HitPattern &trkHP = track->hitPattern();
+      const reco::HitPattern &trkHP = track.hitPattern();
 
       fnPixelLayerMeas = trkHP.pixelLayersWithMeasurement();
       fnStripLayerMeas = trkHP.stripLayersWithMeasurement();
@@ -272,28 +271,28 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       fnTOBLayerMeas = trkHP.stripTOBLayersWithMeasurement();
       fnTECLayerMeas = trkHP.stripTECLayersWithMeasurement();
     } else {
-      fnTotLayerMeas = track->numberOfValidHits();
+      fnTotLayerMeas = track.numberOfValidHits();
     }
 
-    fpt = track->pt();
-    feta = track->eta();
-    fphi0 = track->phi();
-    fcharge = track->charge();
-    fnormchi2 = track->normalizedChi2();
-    fd0 = track->d0();
-    if (refBS) fd0bs = -1*track->dxy(refBS->position());
+    fpt = track.pt();
+    feta = track.eta();
+    fphi0 = track.phi();
+    fcharge = track.charge();
+    fnormchi2 = track.normalizedChi2();
+    fd0 = track.d0();
+    if (refBS) fd0bs = -1*track.dxy(refBS->position());
     else fd0bs = 0.;
 
-    fsigmad0 = track->d0Error();
-    fz0 = track->dz();
-    fsigmaz0 = track->dzError();
-    ftheta = track->theta();
-    fvx = track->vx();
-    fvy = track->vy();
+    fsigmad0 = track.d0Error();
+    fz0 = track.dz();
+    fsigmaz0 = track.dzError();
+    ftheta = track.theta();
+    fvx = track.vx();
+    fvy = track.vy();
 
     for (int i=0; i<5; ++i) {
       for (int j=0; j<5; ++j) {
-	fcov[i][j] = track->covariance(i,j);
+	fcov[i][j] = track.covariance(i,j);
       }
     }
 
@@ -304,8 +303,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       if (quality_.size()!=0) {
           fquality = false;
           for (unsigned int i = 0; i<quality_.size();++i) {
-              if(debug_) edm::LogInfo("BeamFitter") << "quality_[" << i << "] = " << track->qualityName(quality_[i]) << std::endl;
-              if (track->quality(quality_[i])) {
+              if(debug_) edm::LogInfo("BeamFitter") << "quality_[" << i << "] = " << track.qualityName(quality_[i]) << std::endl;
+              if (track.quality(quality_[i])) {
                   fquality = true;
                   break;
               }
@@ -316,7 +315,7 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
       // Track algorithm
 
       if (algorithm_.size()!=0) {
-	if (std::find(algorithm_.begin(),algorithm_.end(),track->algo())==algorithm_.end())
+	if (std::find(algorithm_.begin(),algorithm_.end(),track.algo())==algorithm_.end())
 	  falgo = false;
       }
 
@@ -357,8 +356,8 @@ void BeamFitter::readEvent(const edm::Event& iEvent)
 			//&& fpvValid
 			) {
 		      if (debug_) {
-                  edm::LogInfo("BeamFitter") << "Selected track quality = " << track->qualityMask()
-                                             << "; track algorithm = " << track->algoName() << "= TrackAlgorithm: " << track->algo() << std::endl;
+                  edm::LogInfo("BeamFitter") << "Selected track quality = " << track.qualityMask()
+                                             << "; track algorithm = " << track.algoName() << "= TrackAlgorithm: " << track.algo() << std::endl;
 		      }
 		      BSTrkParameters BSTrk(fz0,fsigmaz0,fd0,fsigmad0,fphi0,fpt,0.,0.);
 		      BSTrk.setVx(fvx);

@@ -27,9 +27,9 @@ HLTTauRelvalQTester::analyze(const edm::Event& e, const edm::EventSetup& c)
     for(unsigned int i=0;i<refMothers->size();++i)
       {
 	int mother = (*refMothers)[i];
-	for(unsigned int j=0;j<mothers_.size();++j)
+	for(int j : mothers_)
 	  {
-	    if(mothers_[j]==mother)
+	    if(j==mother)
 	      runQTests = true;
 	  }
 

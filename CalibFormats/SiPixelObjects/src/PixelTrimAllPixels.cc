@@ -52,20 +52,20 @@ PixelTrimAllPixels::PixelTrimAllPixels( std::vector <std::vector<std::string> >&
 
     for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
       {
-	for(unsigned int n=0; n<colNames.size(); n++)
+	for(const auto & colName : colNames)
 	  {
-	    if(tableMat[0][c] == colNames[n])
+	    if(tableMat[0][c] == colName)
 	      {
-		colM[colNames[n]] = c;
+		colM[colName] = c;
 		break;
 	      }
 	  }
       }//end for
-    for(unsigned int n=0; n<colNames.size(); n++)
+    for(const auto & colName : colNames)
       {
-      if(colM.find(colNames[n]) == colM.end())
+      if(colM.find(colName) == colM.end())
 	{
-	  std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << __LINE__ << mthn << "Couldn't find in the database the column with name " << colName << std::endl;
 	  assert(0);
 	}
       }
@@ -207,8 +207,8 @@ PixelROCTrimBits PixelTrimAllPixels::getTrimBits(int ROCId) const {
 
 PixelROCTrimBits* PixelTrimAllPixels::getTrimBits(PixelROCName name){
 
-  for(unsigned int i=0;i<trimbits_.size();i++){
-    if (trimbits_[i].name()==name) return &(trimbits_[i]);
+  for(auto & trimbit : trimbits_){
+    if (trimbit.name()==name) return &trimbit;
   }
 
   return 0;
@@ -253,8 +253,8 @@ void PixelTrimAllPixels::writeBinary(std::string filename) const{
   
   std::ofstream out(filename.c_str(),std::ios::binary);
 
-  for(unsigned int i=0;i<trimbits_.size();i++){
-    trimbits_[i].writeBinary(out);
+  for(const auto & trimbit : trimbits_){
+    trimbit.writeBinary(out);
   }
 
 
@@ -270,8 +270,8 @@ void PixelTrimAllPixels::writeASCII(std::string dir) const{
 
   std::ofstream out(filename.c_str());
 
-  for(unsigned int i=0;i<trimbits_.size();i++){
-    trimbits_[i].writeASCII(out);
+  for(const auto & trimbit : trimbits_){
+    trimbit.writeASCII(out);
   }
 
 
@@ -329,8 +329,8 @@ void PixelTrimAllPixels::writeXML( std::ofstream *outstream,
 {
   std::string mthn = "[PixelTrimAllPixels::writeXML()]\t\t\t    " ;
 
-  for(unsigned int i=0;i<trimbits_.size();i++){
-      trimbits_[i].writeXML(outstream);
+  for(const auto & trimbit : trimbits_){
+      trimbit.writeXML(outstream);
   }
 }
 

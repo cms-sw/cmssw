@@ -52,9 +52,9 @@ void CSCStripDigiValidation::analyze(const edm::Event& e,
 
  unsigned nDigisPerEvent = 0;
 
- for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+ for (auto && j : *strips) {
+    std::vector<CSCStripDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCStripDigi>::const_iterator last = j.second.second;
     int nDigis = last-digiItr;
     nDigisPerEvent += nDigis;
     theNDigisPerLayerPlot->Fill(nDigis);

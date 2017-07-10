@@ -137,11 +137,10 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     gtRecordMap.reserve(boardMapsSize);
 
     for (int iPos = 0; iPos < boardMapsSize; ++iPos) {
-        for (CItBoardMaps itBoard = boardMaps.begin(); itBoard
-                != boardMaps.end(); ++itBoard) {
+        for (const auto & boardMap : boardMaps) {
 
-            if (itBoard->gtPositionDaqRecord() == iPos) {
-                gtRecordMap.push_back(*itBoard);
+            if (boardMap.gtPositionDaqRecord() == iPos) {
+                gtRecordMap.push_back(boardMap);
                 break;
             }
 
@@ -214,17 +213,15 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
     unsigned int headerSize = 8;
     gtDataSize += headerSize;
 
-    for (CItBoardMaps
-            itBoard = boardMaps.begin();
-            itBoard != boardMaps.end(); ++itBoard) {
+    for (const auto & boardMap : boardMaps) {
 
-        if (itBoard->gtBoardType() == GTFE) {
+        if (boardMap.gtBoardType() == GTFE) {
             gtDataSize += gtfeBlock.getSize();
             continue;
         }
 
 
-        int iActiveBit = itBoard->gtBitDaqActiveBoards();
+        int iActiveBit = boardMap.gtBitDaqActiveBoards();
         bool activeBoardToPack = false;
 
         int altNrBxBoardVal = -1;
@@ -242,7 +239,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
                 if (m_verbosity) {
                     edm::LogWarning("L1GTDigiToRaw")
                     << "\n\nWARNING: Wrong value altNrBxBoardVal = " << altNrBxBoardVal
-                    << " for board " << std::hex << ( itBoard->gtBoardId() ) << std::dec
+                    << " for board " << std::hex << ( boardMap.gtBoardId() ) << std::dec
                     << "\n  iActiveBit =            " << iActiveBit
                     << "\n  altNrBxBoardInitial = 0x" << std::hex << altNrBxBoardInitial <<  std::dec
                     << "\n  activeBoardsGt =      0x" << std::hex << activeBoardsGt <<  std::dec
@@ -263,7 +260,7 @@ void L1GTDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetup)
 
         if (activeBoardToPack) {
 
-            switch (itBoard->gtBoardType()) {
+            switch (boardMap.gtBoardType()) {
                 case GTFE: {
                         // size already added;
                     }

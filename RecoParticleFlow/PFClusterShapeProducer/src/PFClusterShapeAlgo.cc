@@ -100,11 +100,11 @@ void PFClusterShapeAlgo::find_eMax_e2nd()
   // First get the RecHitFractions:
   const std::vector<reco::PFRecHitFraction> & fraction_v = currentCluster_p->recHitFractions();
   // For every one of them...
-  for (std::vector<reco::PFRecHitFraction>::const_iterator it = fraction_v.begin(); it != fraction_v.end(); ++it)
+  for (const auto & it : fraction_v)
     {
       // ...find the corresponding rechit:
       // const reco::PFRecHit & rechit = (*currentRecHit_v_p)[it->recHitIndex()];
-      const reco::PFRecHitRef rechit = it->recHitRef();
+      const reco::PFRecHitRef rechit = it.recHitRef();
       // ...and DetId:
       const DetId rechitDetId = DetId(rechit->detId());
       // Make the new Pair and put it in the map:
@@ -137,15 +137,15 @@ int PFClusterShapeAlgo::findPFRHIndexFromDetId(unsigned int id)
 const reco::PFRecHitFraction * PFClusterShapeAlgo::getFractionFromDetId(const DetId & id)
 {
   const std::vector< reco::PFRecHitFraction > & fraction_v = currentCluster_p->recHitFractions();
-  for (std::vector<reco::PFRecHitFraction>::const_iterator it = fraction_v.begin(); it != fraction_v.end(); ++it)
+  for (const auto & it : fraction_v)
     {
       //const unsigned int rhIndex = it->recHitIndex();
       //reco::PFRecHitRef rh_p(currentRecHit_v_p, rhIndex);
-      const reco::PFRecHitRef rh_p = it->recHitRef();
+      const reco::PFRecHitRef rh_p = it.recHitRef();
       const DetId rhDetId = DetId(rh_p->detId());
       if (rhDetId == id) 
 	{ 
-	  return &(*it); 
+	  return &it; 
 	}
     }
   return 0;
@@ -303,11 +303,11 @@ void PFClusterShapeAlgo::covariances()
   double numeratorPhiPhi = 0;
   double denominator     = 0;
 
-  for (int i = 0; i < 5; ++i)
+  for (auto & i : map5x5)
     {
       for (int j = 0; j < 5; ++j)
 	{
-	  const math::XYZVector & crystalPosition(map5x5[i][j].position);
+	  const math::XYZVector & crystalPosition(i[j].position);
 	  
 	  double dPhi = crystalPosition.phi() - meanPosition_.phi();
 	  if (dPhi > + Geom::pi()) { dPhi = Geom::twoPi() - dPhi; }
@@ -315,7 +315,7 @@ void PFClusterShapeAlgo::covariances()
 
 	  const double dEta = crystalPosition.eta() - meanPosition_.eta();
 	  
-	  const double w = std::max(0.0, w0_ + log(map5x5[i][j].energy / totalE_));
+	  const double w = std::max(0.0, w0_ + log(i[j].energy / totalE_));
 	  
 	  denominator += w;
 	  numeratorEtaEta += w * dEta * dEta;

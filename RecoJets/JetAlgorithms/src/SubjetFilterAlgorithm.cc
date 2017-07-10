@@ -197,8 +197,8 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
 	  vector<fastjet::PseudoJet> fjConstituents=
 	    cs->constituents(fjSubJets[iSub]);
 	  vector<int> constituents;
-	  for (size_t iConst=0;iConst<fjConstituents.size();iConst++) {
-	    int userIndex = fjConstituents[iConst].user_index();
+	  for (auto & fjConstituent : fjConstituents) {
+	    int userIndex = fjConstituent.user_index();
 	    if (userIndex>=0)  constituents.push_back(userIndex);
 	  }
 

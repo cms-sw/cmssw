@@ -165,8 +165,8 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
   TauToGtEtaScales(params_, sortedIsoTaus, isoTaus);
 
   // set all filler taus to have isolation bit set
-  for(std::vector<l1t::Tau>::iterator iTau = isoTaus->begin(); iTau != isoTaus->end(); ++iTau)
-    iTau->setHwIso(1);
+  for(auto & isoTau : *isoTaus)
+    isoTau.setHwIso(1);
 
   delete subRegions;
   delete unCorrJets;
@@ -183,12 +183,11 @@ void l1t::Stage1Layer2TauAlgorithmImpHW::processEvent(const std::vector<l1t::Cal
 double l1t::Stage1Layer2TauAlgorithmImpHW::JetIsolation(int et, int ieta, int iphi,
 							const std::vector<l1t::Jet> & jets) const {
 
-  for(JetBxCollection::const_iterator jet = jets.begin();
-      jet != jets.end(); jet++) {
+  for(const auto & jet : jets) {
 
-    if (ieta==jet->hwEta() && iphi==jet->hwPhi()){
+    if (ieta==jet.hwEta() && iphi==jet.hwPhi()){
 
-      double isolation = (double) (jet->hwPt() - et);
+      double isolation = (double) (jet.hwPt() - et);
       return isolation/et;
     }
   }
@@ -234,13 +233,12 @@ int l1t::Stage1Layer2TauAlgorithmImpHW::AssociatedJetPt(int ieta, int iphi,
   int pt = -1;
 
 
-  for(JetBxCollection::const_iterator itJet = jets->begin();
-      itJet != jets->end(); ++itJet){
+  for(const auto & jet : *jets){
 
-    int jetEta = itJet->hwEta();
-    int jetPhi = itJet->hwPhi();
+    int jetEta = jet.hwEta();
+    int jetPhi = jet.hwPhi();
     if ((jetEta == ieta) && (jetPhi == iphi)){
-      pt = itJet->hwPt();
+      pt = jet.hwPt();
       break;
     }
   }

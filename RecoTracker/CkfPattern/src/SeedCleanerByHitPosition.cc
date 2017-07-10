@@ -16,11 +16,9 @@ bool SeedCleanerByHitPosition::good(const TrajectorySeed *seed) {
     TrajectorySeed::range range = seed->recHits();
     SI first = range.first, curr = range.first, last = range.second;
     //calls_++;
-    for (std::vector<Trajectory>::const_iterator trj = trajectories->begin(),
-            trjEnd =trajectories->end();
-            trj != trjEnd; ++trj) {
+    for (const auto & trajectorie : *trajectories) {
         //tracks_++;
-        Trajectory::RecHitContainer hits = trj->recHits();
+        Trajectory::RecHitContainer hits = trajectorie.recHits();
         TI ts = hits.begin(), tc = ts, te = hits.end();
         for (curr = first; curr < last; ++curr) {
             bool found = false;

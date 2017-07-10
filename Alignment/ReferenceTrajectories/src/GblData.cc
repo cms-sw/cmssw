@@ -132,16 +132,16 @@ namespace gbl {
               << " from row " << theRow << ": " << theValue << ", "
               << thePrecision << std::endl;
     std::cout << "  param " << moreParameters.size() + theNumLocal << ":";
-    for (unsigned int i = 0; i < moreParameters.size(); ++i) {
-      std::cout << " " << moreParameters[i];
+    for (unsigned int moreParameter : moreParameters) {
+      std::cout << " " << moreParameter;
     }
     for (unsigned int i = 0; i < theNumLocal; ++i) {
       std::cout << " " << theParameters[i];
     }
     std::cout << std::endl;
     std::cout << "  deriv " << moreDerivatives.size() + theNumLocal << ":";
-    for (unsigned int i = 0; i < moreDerivatives.size(); ++i) {
-      std::cout << " " << moreDerivatives[i];
+    for (double moreDerivative : moreDerivatives) {
+      std::cout << " " << moreDerivative;
     }
     for (unsigned int i = 0; i < theNumLocal; ++i) {
       std::cout << " " << theDerivatives[i];

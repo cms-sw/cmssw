@@ -32,12 +32,11 @@
 const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(
     const std::string& algoNameVal) const {
 
-    for (std::vector<GlobalObjectMap>::const_iterator 
-        itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
+    for (const auto & itObj : m_gtObjectMap) {
 
-        if (itObj->algoName() == algoNameVal) {
+        if (itObj.algoName() == algoNameVal) {
 
-            return &((*itObj));
+            return &(itObj);
         }
 
     }
@@ -56,12 +55,11 @@ const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(
 const GlobalObjectMap* GlobalObjectMapRecord::getObjectMap(
     const int algoBitNumberVal) const {
  
-    for (std::vector<GlobalObjectMap>::const_iterator 
-        itObj = m_gtObjectMap.begin(); itObj != m_gtObjectMap.end(); ++itObj) {
+    for (const auto & itObj : m_gtObjectMap) {
 
-        if (itObj->algoBitNumber() == algoBitNumberVal) {
+        if (itObj.algoBitNumber() == algoBitNumberVal) {
 
-            return &((*itObj));
+            return &(itObj);
         }
 
     }
@@ -82,12 +80,11 @@ const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(
     const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-            itObj != m_gtObjectMap.end(); ++itObj) {
+    for (const auto & itObj : m_gtObjectMap) {
 
-        if ( itObj->algoName() == algoNameVal ) {
+        if ( itObj.algoName() == algoNameVal ) {
 
-            return itObj->getCombinationsInCond(condNameVal);
+            return itObj.getCombinationsInCond(condNameVal);
             
         }
     }
@@ -110,11 +107,10 @@ const CombinationsInCond* GlobalObjectMapRecord::getCombinationsInCond(
     const int algoBitNumberVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-            itObj != m_gtObjectMap.end(); ++itObj) {
+    for (const auto & itObj : m_gtObjectMap) {
 
-        if ( itObj->algoBitNumber() == algoBitNumberVal ) {
-            return itObj->getCombinationsInCond(condNameVal);
+        if ( itObj.algoBitNumber() == algoBitNumberVal ) {
+            return itObj.getCombinationsInCond(condNameVal);
         }
     }
 
@@ -136,11 +132,10 @@ bool GlobalObjectMapRecord::getConditionResult(
     const std::string& algoNameVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-            itObj != m_gtObjectMap.end(); ++itObj) {
+    for (const auto & itObj : m_gtObjectMap) {
 
-        if ( itObj->algoName() == algoNameVal ) {
-            return itObj->getConditionResult(condNameVal);
+        if ( itObj.algoName() == algoNameVal ) {
+            return itObj.getConditionResult(condNameVal);
         }
     }
 
@@ -162,11 +157,10 @@ bool GlobalObjectMapRecord::getConditionResult(
     const int algoBitNumberVal, const std::string& condNameVal) const
 {
 
-    for (std::vector<GlobalObjectMap>::const_iterator itObj = m_gtObjectMap.begin();
-            itObj != m_gtObjectMap.end(); ++itObj) {
+    for (const auto & itObj : m_gtObjectMap) {
 
-        if ( itObj->algoBitNumber() == algoBitNumberVal ) {
-            return itObj->getConditionResult(condNameVal);
+        if ( itObj.algoBitNumber() == algoBitNumberVal ) {
+            return itObj.getConditionResult(condNameVal);
         }
     }
 

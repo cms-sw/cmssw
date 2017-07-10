@@ -188,12 +188,12 @@ namespace popcon{
 	  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = reader.getAllData();
 	  
 	  int count=-1;
-	  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    
+	  for(const auto & it : DetInfos){    
 
 	  count++;
 	  //Generate Gains for det detid
 	  SiStripApvGain::InputVector inputApvGain;
-	  for(int apv=0; apv<it->second.nApvs; ++apv){
+	  for(int apv=0; apv<it.second.nApvs; ++apv){
 	    
 	    float MeanTick = 555.;
 	    float RmsTick  = 55.;
@@ -204,7 +204,7 @@ namespace popcon{
 	  
 	    
 	    if (count<6)
-	      edm::LogInfo("SiStripGainBuilder") << "detid " << it->first << " \t"
+	      edm::LogInfo("SiStripGainBuilder") << "detid " << it.first << " \t"
 						   << " APV " << apv << " \t"
 						   << tick     << " \t" 
 						   << std::endl; 	    
@@ -215,7 +215,7 @@ namespace popcon{
 	  
 	  
 	  SiStripApvGain::Range gain_range( inputApvGain.begin(), inputApvGain.end() );
-	  if ( ! obj->put(it->first,gain_range) )
+	  if ( ! obj->put(it.first,gain_range) )
 	    edm::LogError("SiStripGainBuilder")<<"[SiStripGainBuilder::analyze] detid already exists"<<std::endl;
 	}
 

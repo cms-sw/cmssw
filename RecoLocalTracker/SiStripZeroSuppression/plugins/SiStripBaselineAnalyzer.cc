@@ -183,12 +183,12 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
       std::vector<uint32_t> detIdV;
       pedestalsHandle->getDetIds(detIdV);
       
-      for(uint32_t i=0; i < detIdV.size(); ++i){
+      for(unsigned int i : detIdV){
         pedestals.clear();
-        SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(detIdV[i]);
+        SiStripPedestals::Range pedestalsRange = pedestalsHandle->getRange(i);
         pedestals.resize((pedestalsRange.second- pedestalsRange.first)*8/10);
 	pedestalsHandle->allPeds(pedestals, pedestalsRange);
-	for(uint32_t it=0; it < pedestals.size(); ++it) h1Pedestals_->Fill(pedestals[it]);
+	for(int pedestal : pedestals) h1Pedestals_->Fill(pedestal);
       }
    }
 
@@ -354,8 +354,8 @@ SiStripBaselineAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& es)
 		    int firststrip = clus->firstStrip();
 	            //std::cout << "Found cluster in detId " << detId << " " << firststrip << " " << clus->amplitudes().size() << " -----------------------------------------------" << std::endl;		
      		    strip=0;
-		    for( auto itAmpl = clus->amplitudes().begin(); itAmpl != clus->amplitudes().end(); ++itAmpl){
-		      h1Clusters_->Fill(firststrip+strip, *itAmpl);
+		    for(unsigned char itAmpl : clus->amplitudes()){
+		      h1Clusters_->Fill(firststrip+strip, itAmpl);
 		      ++strip;
 		    }
 		  }              

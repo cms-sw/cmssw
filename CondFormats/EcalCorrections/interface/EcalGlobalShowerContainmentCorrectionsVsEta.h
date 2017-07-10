@@ -45,7 +45,7 @@ class EcalGlobalShowerContainmentCorrectionsVsEta {
 
   struct Coefficients{
 
-    Coefficients(){for(unsigned int i=0; i<Coefficients::kSize; ++i) data[i]=0;}
+    Coefficients(){for(double & i : data) i=0;}
     Coefficients(const Coefficients& coeff){
       std::copy(coeff.data,
 		coeff.data+Coefficients::kSize,

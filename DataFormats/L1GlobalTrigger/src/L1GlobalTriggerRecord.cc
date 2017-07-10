@@ -268,29 +268,25 @@ void L1GlobalTriggerRecord::reset()
 
     m_gtGlobalDecision = false;
 
-    for (std::vector<bool>::iterator itBit = m_gtDecisionWord.begin(); 
-        itBit != m_gtDecisionWord.end(); ++itBit) {
+    for (auto && itBit : m_gtDecisionWord) {
         
-        *itBit = false;
-        
-    }
-    for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWord.begin(); 
-        itBit != m_gtTechnicalTriggerWord.end(); ++itBit) {
-        
-        *itBit = false;
+        itBit = false;
         
     }
-    for (std::vector<bool>::iterator itBit = m_gtDecisionWordBeforeMask.begin(); 
-        itBit != m_gtDecisionWordBeforeMask.end(); ++itBit) {
+    for (auto && itBit : m_gtTechnicalTriggerWord) {
         
-        *itBit = false;
+        itBit = false;
+        
+    }
+    for (auto && itBit : m_gtDecisionWordBeforeMask) {
+        
+        itBit = false;
         
     }
 
-    for (std::vector<bool>::iterator itBit = m_gtTechnicalTriggerWordBeforeMask.begin(); 
-        itBit != m_gtTechnicalTriggerWordBeforeMask.end(); ++itBit) {
+    for (auto && itBit : m_gtTechnicalTriggerWordBeforeMask) {
         
-        *itBit = false;
+        itBit = false;
         
     }
  

@@ -161,7 +161,7 @@ void ApvAnalysisFactory::updatePair(uint32_t detId, size_t pairNumber, const edm
     {
       size_t iter=0;
 
-      for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
+      for(auto apvIt : (apvAnalysisIt->second))
   {
 
     if (iter==pairNumber*2 || iter==(2*pairNumber+1)){
@@ -181,8 +181,8 @@ void ApvAnalysisFactory::updatePair(uint32_t detId, size_t pairNumber, const edm
         else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
       }
       
-      (*apvIt)->newEvent();
-      (*apvIt)->updateCalibration(tmpRawDigi);
+      apvIt->newEvent();
+      apvIt->updateCalibration(tmpRawDigi);
       
     }
 
@@ -202,7 +202,7 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
   if(apvAnalysisIt != apvMap_.end())
     {
       size_t i=0;
-       for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)
+       for(auto apvIt : (apvAnalysisIt->second))
    {
      edm::DetSet<SiStripRawDigi> tmpRawDigi;
      //it is missing the detId ...
@@ -216,8 +216,8 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
        else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
      }
 
-     (*apvIt)->newEvent();
-     (*apvIt)->updateCalibration(tmpRawDigi);
+     apvIt->newEvent();
+     apvIt->updateCalibration(tmpRawDigi);
      i++;
    }
     }
@@ -373,12 +373,12 @@ void ApvAnalysisFactory::getCommonMode(uint32_t detId,ApvAnalysis::PedestalType&
   if(apvAnalysisIt != apvMap_.end())
   {
     vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
-    for( unsigned int i=0; i< theApvs.size(); i++)
+    for(auto & theApv : theApvs)
     {
       //To be fixed. We return only the first one in the vector.
-      vector<float> tmp_cm = theApvs[i]->commonModeCalculator().commonMode()->returnAsVector();
-      for( unsigned int it = 0; it < tmp_cm.size(); it++)
-        tmp.push_back( tmp_cm[it]);
+      vector<float> tmp_cm = theApv->commonModeCalculator().commonMode()->returnAsVector();
+      for(float it : tmp_cm)
+        tmp.push_back( it);
     }
   }
 }
@@ -389,14 +389,14 @@ void ApvAnalysisFactory::getMask(uint32_t det_id, TkApvMask::MaskType& tmp)
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(det_id);
   if(apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
-    for( unsigned int i=0; i< theApvs.size(); i++)
+    for(auto & theApv : theApvs)
     {
-      TkApvMask::MaskType theMaskType = ( theApvs[i]->mask()).mask();
+      TkApvMask::MaskType theMaskType = ( theApv->mask()).mask();
       //cout <<"theMaskType size "<<theMaskType.size()<<endl;
           
-      for( unsigned int ii=0;ii<theMaskType.size();ii++)
+      for(auto ii : theMaskType)
       {
-        tmp.push_back(theMaskType[ii]);
+        tmp.push_back(ii);
         //cout <<"The Value "<<theMaskType[ii]<<" "<<ii<<endl;
       }
     }
@@ -408,9 +408,9 @@ bool ApvAnalysisFactory::isUpdating(uint32_t detId)
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
   if(apvAnalysisIt != apvMap_.end())
     {
-      for(vector<ApvAnalysis*>::const_iterator apvIt = (apvAnalysisIt->second).begin(); apvIt != (apvAnalysisIt->second).end(); apvIt++)  
+      for(auto apvIt : (apvAnalysisIt->second))  
   { 
-    if(!( (*apvIt)->pedestalCalculator().status()->isUpdating() ))
+    if(!( apvIt->pedestalCalculator().status()->isUpdating() ))
       updating = false;
   }
     }
@@ -447,8 +447,8 @@ void ApvAnalysisFactory::getCommonModeSlope(uint32_t detId,ApvAnalysis::Pedestal
   map<uint32_t, vector<ApvAnalysis*> >::const_iterator apvAnalysisIt = apvMap_.find(detId);
   if(apvAnalysisIt != apvMap_.end()) {
     vector<ApvAnalysis* > theApvs = apvAnalysisIt->second;
-    for( unsigned int i=0; i< theApvs.size(); i++) {
-      tmp.push_back(theApvs[i]->commonModeCalculator().getCMSlope());
+    for(auto & theApv : theApvs) {
+      tmp.push_back(theApv->commonModeCalculator().getCMSlope());
     }
   }
 }

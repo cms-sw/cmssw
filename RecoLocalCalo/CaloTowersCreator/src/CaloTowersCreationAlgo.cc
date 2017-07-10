@@ -378,27 +378,23 @@ void CaloTowersCreationAlgo::begin() {
 }
 
 void CaloTowersCreationAlgo::process(const HBHERecHitCollection& hbhe) { 
-  for(HBHERecHitCollection::const_iterator hbheItr = hbhe.begin();
-      hbheItr != hbhe.end(); ++hbheItr)
-    assignHitHcal(&(*hbheItr));
+  for(const auto & hbheItr : hbhe)
+    assignHitHcal(&hbheItr);
 }
 
 void CaloTowersCreationAlgo::process(const HORecHitCollection& ho) { 
-  for(HORecHitCollection::const_iterator hoItr = ho.begin();
-      hoItr != ho.end(); ++hoItr)
-    assignHitHcal(&(*hoItr));
+  for(const auto & hoItr : ho)
+    assignHitHcal(&hoItr);
 }  
 
 void CaloTowersCreationAlgo::process(const HFRecHitCollection& hf) { 
-  for(HFRecHitCollection::const_iterator hfItr = hf.begin();
-      hfItr != hf.end(); ++hfItr)  
-    assignHitHcal(&(*hfItr));
+  for(const auto & hfItr : hf)  
+    assignHitHcal(&hfItr);
 }
 
 void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) { 
-  for(EcalRecHitCollection::const_iterator ecItr = ec.begin();
-      ecItr != ec.end(); ++ecItr)  
-    assignHitEcal(&(*ecItr));
+  for(const auto & ecItr : ec)  
+    assignHitEcal(&ecItr);
 }
 
 // this method should not be used any more as the towers in the changed format
@@ -406,9 +402,8 @@ void CaloTowersCreationAlgo::process(const EcalRecHitCollection& ec) {
 // "rescale was replaced by "rescaleTowers"
 // 
 void CaloTowersCreationAlgo::process(const CaloTowerCollection& ctc) {
-  for(CaloTowerCollection::const_iterator ctcItr = ctc.begin();
-      ctcItr != ctc.end(); ++ctcItr) { 
-    rescale(&(*ctcItr));
+  for(const auto & ctcItr : ctc) { 
+    rescale(&ctcItr);
     }
 }
 
@@ -437,19 +432,18 @@ void CaloTowersCreationAlgo::finish(CaloTowerCollection& result) {
 
 void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloTowerCollection& ctcResult) {
 
-    for (CaloTowerCollection::const_iterator ctcItr = ctc.begin();
-      ctcItr != ctc.end(); ++ctcItr) { 
+    for (const auto & ctcItr : ctc) { 
       
-      CaloTowerDetId  twrId = ctcItr->id(); 
-      double newE_em    = ctcItr->emEnergy();
-      double newE_had   = ctcItr->hadEnergy();
-      double newE_outer = ctcItr->outerEnergy(); 
+      CaloTowerDetId  twrId = ctcItr.id(); 
+      double newE_em    = ctcItr.emEnergy();
+      double newE_had   = ctcItr.hadEnergy();
+      double newE_outer = ctcItr.outerEnergy(); 
 
       double threshold = 0.0; // not used: we do not change thresholds
       double weight    = 1.0;
 
       // HF
-      if (ctcItr->ietaAbs()>=theTowerTopology->firstHFRing()) {
+      if (ctcItr.ietaAbs()>=theTowerTopology->firstHFRing()) {
         double E_short = 0.5 * newE_had;             // from the definitions for HF
         double E_long  = newE_em + 0.5 * newE_had;   //
         // scale
@@ -463,16 +457,16 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
       else {   // barrel/endcap
 
         // find if its in EB, or EE; determine from first ecal constituent found
-        for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-          DetId constId = ctcItr->constituent(iConst);
+        for (unsigned int iConst = 0; iConst < ctcItr.constituentsSize(); ++iConst) {
+          DetId constId = ctcItr.constituent(iConst);
           if (constId.det()!=DetId::Ecal) continue;
           getThresholdAndWeight(constId, threshold, weight);
           newE_em *= weight;
           break;
         }
         // HO
-        for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-          DetId constId = ctcItr->constituent(iConst);
+        for (unsigned int iConst = 0; iConst < ctcItr.constituentsSize(); ++iConst) {
+          DetId constId = ctcItr.constituent(iConst);
           if (constId.det()!=DetId::Hcal) continue;
           if (HcalDetId(constId).subdet()!=HcalOuter) continue;
           getThresholdAndWeight(constId, threshold, weight);
@@ -480,13 +474,13 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
           break;
         }
         // HB/HE
-        for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-          DetId constId = ctcItr->constituent(iConst);
+        for (unsigned int iConst = 0; iConst < ctcItr.constituentsSize(); ++iConst) {
+          DetId constId = ctcItr.constituent(iConst);
           if (constId.det()!=DetId::Hcal) continue;
           if (HcalDetId(constId).subdet()==HcalOuter) continue;
           getThresholdAndWeight(constId, threshold, weight);
           newE_had *= weight;
-          if (ctcItr->ietaAbs()>theTowerTopology->firstHERing()) newE_outer *= weight;
+          if (ctcItr.ietaAbs()>theTowerTopology->firstHERing()) newE_outer *= weight;
           break;
         }
         
@@ -496,15 +490,15 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 
     double newE_hadTot = (theHOIsUsed &&  twrId.ietaAbs()<=theTowerTopology->lastHORing())? newE_had+newE_outer : newE_had;
 
-    GlobalPoint  emPoint = ctcItr->emPosition(); 
-    GlobalPoint hadPoint = ctcItr->emPosition(); 
+    GlobalPoint  emPoint = ctcItr.emPosition(); 
+    GlobalPoint hadPoint = ctcItr.emPosition(); 
 
     double f_em  = 1.0/cosh(emPoint.eta());
     double f_had = 1.0/cosh(hadPoint.eta());
 
     CaloTower::PolarLorentzVector towerP4;
 
-    if (ctcItr->ietaAbs()<theTowerTopology->firstHFRing()) {
+    if (ctcItr.ietaAbs()<theTowerTopology->firstHFRing()) {
       if (newE_em>0)     towerP4 += CaloTower::PolarLorentzVector(newE_em*f_em,   emPoint.eta(),  emPoint.phi(),  0); 
       if (newE_hadTot>0) towerP4 += CaloTower::PolarLorentzVector(newE_hadTot*f_had, hadPoint.eta(), hadPoint.phi(), 0); 
     }
@@ -518,8 +512,8 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
 
     CaloTower rescaledTower(twrId, newE_em, newE_had, newE_outer, -1, -1, towerP4, emPoint, hadPoint);
     // copy the timings, have to convert back to int, 1 unit = 0.01 ns
-    rescaledTower.setEcalTime( int(ctcItr->ecalTime()*100.0 + 0.5) );
-    rescaledTower.setHcalTime( int(ctcItr->hcalTime()*100.0 + 0.5) );
+    rescaledTower.setEcalTime( int(ctcItr.ecalTime()*100.0 + 0.5) );
+    rescaledTower.setHcalTime( int(ctcItr.hcalTime()*100.0 + 0.5) );
     //add topology info
     rescaledTower.setHcalSubdet(theTowerTopology->lastHBRing(),
                                 theTowerTopology->lastHERing(),
@@ -527,12 +521,12 @@ void CaloTowersCreationAlgo::rescaleTowers(const CaloTowerCollection& ctc, CaloT
                                 theTowerTopology->lastHORing() );
 
     std::vector<DetId> contains;
-    for (unsigned int iConst = 0; iConst < ctcItr->constituentsSize(); ++iConst) {
-      contains.push_back(ctcItr->constituent(iConst));
+    for (unsigned int iConst = 0; iConst < ctcItr.constituentsSize(); ++iConst) {
+      contains.push_back(ctcItr.constituent(iConst));
     }
     rescaledTower.addConstituents(contains);
 
-    rescaledTower.setCaloTowerStatus(ctcItr->towerStatusWord());
+    rescaledTower.setCaloTowerStatus(ctcItr.towerStatusWord());
 
     ctcResult.push_back(rescaledTower);
 
@@ -966,8 +960,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       E_em=0;
       std::vector<std::pair<DetId,float> > metaContains_noecal;
 
-    for (std::vector<std::pair<DetId,float> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
-	        if (i->first.det()!=DetId::Ecal) metaContains_noecal.push_back(*i);
+    for (auto & metaContain : metaContains) 
+	        if (metaContain.first.det()!=DetId::Ecal) metaContains_noecal.push_back(metaContain);
       metaContains.swap(metaContains_noecal);
     }
     if (id.ietaAbs()<theTowerTopology->firstHFRing() && E_had<theHcalThreshold) {
@@ -979,8 +973,8 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
       E_outer=0;
       std::vector<std::pair<DetId,float> > metaContains_nohcal;
 
-      for (std::vector<std::pair<DetId,float> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) 
-        if (i->first.det()!=DetId::Hcal) metaContains_nohcal.push_back(*i);
+      for (auto & metaContain : metaContains) 
+        if (metaContain.first.det()!=DetId::Hcal) metaContains_nohcal.push_back(metaContain);
       metaContains.swap(metaContains_nohcal);
     }
 
@@ -1219,24 +1213,24 @@ void CaloTowersCreationAlgo::convert(const CaloTowerDetId& id, const MetaTower& 
 
     std::vector<DetId> contains;
     contains.reserve(metaContains.size());
-    for (std::vector<std::pair<DetId,float> >::iterator i=metaContains.begin(); i!=metaContains.end(); ++i) {
+    for (auto & metaContain : metaContains) {
 
-      contains.push_back(i->first);
+      contains.push_back(metaContain.first);
 
-      if (maxCellE < i->second) {
+      if (maxCellE < metaContain.second) {
 	// need an extra check because of the funny towers that are empty except for the presence of an HO
 	// hit in the constituents (JetMET wanted them saved)
 	// This constituent is only used for storing the tower, but should not be concidered as a hot cell canditate for
 	// configurations with useHO = false
 
 
-	if (i->first.det()==DetId::Ecal) {  // ECAL
-	  maxCellE = i->second;
+	if (metaContain.first.det()==DetId::Ecal) {  // ECAL
+	  maxCellE = metaContain.second;
 	}	
 	else {  // HCAL
-	  if (HcalDetId(i->first).subdet() != HcalOuter) 
-	    maxCellE = i->second;
-	  else if (theHOIsUsed) maxCellE = i->second;
+	  if (HcalDetId(metaContain.first).subdet() != HcalOuter) 
+	    maxCellE = metaContain.second;
+	  else if (theHOIsUsed) maxCellE = metaContain.second;
 	}
 
       } // found higher E cell
@@ -1478,9 +1472,9 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
     std::vector<DetId> items = theTowerConstituentsMap->constituentsOf(towerId);
     int frontDepth = 1000;
     int backDepth = -1000;
-    for(unsigned i = 0; i < items.size(); i++){
-      if(items[i].det()!=DetId::Hcal) continue;
-      HcalDetId hid(items[i]);
+    for(auto & item : items){
+      if(item.det()!=DetId::Hcal) continue;
+      HcalDetId hid(item);
       if(hid.subdet() == HcalOuter) continue;
       if(!theHcalTopology->validHcal(hid,2)) continue;
 	  
@@ -1507,9 +1501,9 @@ GlobalPoint CaloTowersCreationAlgo::hadShwrPos(CaloTowerDetId towerId, float fra
 	if (items28[k].det()==DetId::Hcal) std::cout << " " << HcalDetId(items28[k]);
       std::cout << std::endl;
 #endif
-      for(unsigned i = 0; i < items28.size(); i++){
-        if(items28[i].det()!=DetId::Hcal) continue;
-        HcalDetId hid(items28[i]);
+      for(auto & i : items28){
+        if(i.det()!=DetId::Hcal) continue;
+        HcalDetId hid(i);
 	if(hid.subdet() == HcalOuter) continue;
 		
         if(theHcalTopology->idBack(hid).depth()>backDepth) { 
@@ -1656,17 +1650,17 @@ void CaloTowersCreationAlgo::makeHcalDropChMap() {
   std::cout << "DropChMap with " << allChanInStatusCont.size() << " channels"
 	    << std::endl;
 #endif
-  for (std::vector<DetId>::iterator it = allChanInStatusCont.begin(); it!=allChanInStatusCont.end(); ++it) {
-    const uint32_t dbStatusFlag = theHcalChStatus->getValues(*it)->getValue();
+  for (auto & it : allChanInStatusCont) {
+    const uint32_t dbStatusFlag = theHcalChStatus->getValues(it)->getValue();
     if (theHcalSevLvlComputer->dropChannel(dbStatusFlag)) {
 
-      DetId id = theHcalTopology->mergedDepthDetId(HcalDetId(*it));
+      DetId id = theHcalTopology->mergedDepthDetId(HcalDetId(it));
       
       CaloTowerDetId twrId = theTowerConstituentsMap->towerOf(id);
       
       hcalDropChMap[twrId] +=1;
       
-      HcalDetId hid(*it);
+      HcalDetId hid(it);
 	  
       // special case for tower 29: if HCAL hit is in depth 3 add to twr 29 as well
       if (hid.subdet()==HcalEndcap &&
@@ -1706,12 +1700,11 @@ void CaloTowersCreationAlgo::makeEcalBadChs() {
     // get all possible constituents of the tower
     std::vector<DetId> allConstituents = theTowerConstituentsMap->constituentsOf(id);
     
-    for (std::vector<DetId>::iterator ac_it=allConstituents.begin(); 
-	 ac_it!=allConstituents.end(); ++ac_it) {
+    for (auto & allConstituent : allConstituents) {
       
-      if (ac_it->det()!=DetId::Ecal) continue;
+      if (allConstituent.det()!=DetId::Ecal) continue;
       
-      auto thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( *ac_it);
+      auto thisEcalSevLvl = theEcalSevLvlAlgo->severityLevel( allConstituent);
       
       // check if the Ecal severity is ok to keep
       std::vector<int>::const_iterator sevit = std::find(theEcalSeveritiesToBeExcluded.begin(),

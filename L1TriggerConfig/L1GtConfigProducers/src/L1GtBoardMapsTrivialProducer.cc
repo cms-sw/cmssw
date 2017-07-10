@@ -41,60 +41,59 @@ std::vector<L1GtObject> chInputObjects(
 
     L1GtObject obj;
 
-    for (std::vector<std::string>::const_iterator itObj =
-            chInputStrings.begin(); itObj != chInputStrings.end(); ++itObj) {
+    for (const auto & chInputString : chInputStrings) {
 
-        if ((*itObj) == "Mu") {
+        if (chInputString == "Mu") {
             obj = Mu;
         }
-        else if ((*itObj) == "NoIsoEG") {
+        else if (chInputString == "NoIsoEG") {
             obj = NoIsoEG;
         }
-        else if ((*itObj) == "IsoEG") {
+        else if (chInputString == "IsoEG") {
             obj = IsoEG;
         }
-        else if ((*itObj) == "CenJet") {
+        else if (chInputString == "CenJet") {
             obj = CenJet;
         }
-        else if ((*itObj) == "ForJet") {
+        else if (chInputString == "ForJet") {
             obj = ForJet;
         }
-        else if ((*itObj) == "TauJet") {
+        else if (chInputString == "TauJet") {
             obj = TauJet;
         }
-        else if ((*itObj) == "ETM") {
+        else if (chInputString == "ETM") {
             obj = ETM;
         }
-        else if ((*itObj) == "ETT") {
+        else if (chInputString == "ETT") {
             obj = ETT;
         }
-        else if ((*itObj) == "HTT") {
+        else if (chInputString == "HTT") {
             obj = HTT;
         }
-        else if ((*itObj) == "HTM") {
+        else if (chInputString == "HTM") {
             obj = HTM;
         }
-        else if ((*itObj) == "JetCounts") {
+        else if (chInputString == "JetCounts") {
             obj = JetCounts;
         }
-        else if ((*itObj) == "HfBitCounts") {
+        else if (chInputString == "HfBitCounts") {
             obj = HfBitCounts;
         }
-        else if ((*itObj) == "HfRingEtSums") {
+        else if (chInputString == "HfRingEtSums") {
             obj = HfRingEtSums;
         }
-        else if ((*itObj) == "TechTrig") {
+        else if (chInputString == "TechTrig") {
             obj = TechTrig;
         }
-        else if ((*itObj) == "BPTX") {
+        else if (chInputString == "BPTX") {
             obj = BPTX;
         }
-        else if ((*itObj) == "GtExternal") {
+        else if (chInputString == "GtExternal") {
             obj = GtExternal;
         }
         else {
             throw cms::Exception("Configuration")
-                    << "\nError: no such L1 GT object: " << (*itObj) << "\n"
+                    << "\nError: no such L1 GT object: " << chInputString << "\n"
                     << "\n       Can not define the mapping of the L1 GT boards.     \n"
                     << std::endl;
 

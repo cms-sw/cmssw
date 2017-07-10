@@ -16,8 +16,8 @@ using namespace std;
 
 void TMatacq::init()
 {
-  for(int k=0;k<NMAXSAMP;k++)
-       bong[k]=0.;
+  for(double & k : bong)
+       k=0.;
 
   for(int k=0;k<=100;k++)
        bing[k]=0;

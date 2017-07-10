@@ -54,9 +54,9 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
       /// Use the FastFiller with edmNew::DetSetVector                                                                                                       
       { 
 	edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller lowerOutputFiller( *ttClusterDSVForOutput, lowerDetid ); 
-      for ( unsigned int i = 0; i < lowerHits.size(); i++ )
+      for (const auto & lowerHit : lowerHits)
 	{
-	  TTCluster< Ref_Phase2TrackerDigi_ > temp( lowerHits.at(i), lowerDetid, 0, storeLocalCoord );
+	  TTCluster< Ref_Phase2TrackerDigi_ > temp( lowerHit, lowerDetid, 0, storeLocalCoord );
 	  lowerOutputFiller.push_back( temp );
 	}
       if ( lowerOutputFiller.empty() )
@@ -64,9 +64,9 @@ void TTClusterBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, co
      }
      {  
        edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >::FastFiller upperOutputFiller( *ttClusterDSVForOutput, upperDetid );
-     for ( unsigned int i = 0; i < upperHits.size(); i++ )
+     for (const auto & upperHit : upperHits)
        {
-	 TTCluster< Ref_Phase2TrackerDigi_ > temp( upperHits.at(i), upperDetid, 1, storeLocalCoord );
+	 TTCluster< Ref_Phase2TrackerDigi_ > temp( upperHit, upperDetid, 1, storeLocalCoord );
 	 upperOutputFiller.push_back( temp );
        }
      if ( upperOutputFiller.empty() )

@@ -120,28 +120,28 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 	  cout << "[Vx3DHLTAnalyzer]::\tIn this event there are " << Vx3DCollection->size() << " vertex cadidates" << endl;
 	}
 
-      for (vector<Vertex>::const_iterator it3DVx = Vx3DCollection->begin(); it3DVx != Vx3DCollection->end(); it3DVx++)
+      for (const auto & it3DVx : *Vx3DCollection)
 	{
 	  if (internalDebug == true)
 	    {
 	      cout << "[Vx3DHLTAnalyzer]::\tVertex selections:" << endl;
-	      cout << "[Vx3DHLTAnalyzer]::\tisValid = " << it3DVx->isValid() << endl;
-	      cout << "[Vx3DHLTAnalyzer]::\tisFake = " << it3DVx->isFake() << endl;
-	      cout << "[Vx3DHLTAnalyzer]::\tnodof = " << it3DVx->ndof() << endl;
-	      cout << "[Vx3DHLTAnalyzer]::\ttracksSize = " << it3DVx->tracksSize() << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\tisValid = " << it3DVx.isValid() << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\tisFake = " << it3DVx.isFake() << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\tnodof = " << it3DVx.ndof() << endl;
+	      cout << "[Vx3DHLTAnalyzer]::\ttracksSize = " << it3DVx.tracksSize() << endl;
 	    }
 
-	  if ((it3DVx->isValid() == true)  &&
-	      (it3DVx->isFake() == false)  &&
-	      (it3DVx->ndof() >= minVxDoF) &&
-	      (it3DVx->tracksSize() > 0)   &&
-	      ((it3DVx->ndof()+3.) / ((double)it3DVx->tracksSize()) >= 2.*minVxWgt))
+	  if ((it3DVx.isValid() == true)  &&
+	      (it3DVx.isFake() == false)  &&
+	      (it3DVx.ndof() >= minVxDoF) &&
+	      (it3DVx.tracksSize() > 0)   &&
+	      ((it3DVx.ndof()+3.) / ((double)it3DVx.tracksSize()) >= 2.*minVxWgt))
 	    {
 	      for (i = 0; i < DIM; i++)
 		{
 		  for (j = 0; j < DIM; j++)
 		    {
-		      MyVertex.Covariance[i][j] = it3DVx->covariance(i,j);
+		      MyVertex.Covariance[i][j] = it3DVx.covariance(i,j);
 		      if (isNotFinite(MyVertex.Covariance[i][j]) == true) break;
 		    }
 		  
@@ -157,26 +157,26 @@ void Vx3DHLTAnalyzer::analyze (const Event& iEvent, const EventSetup& iSetup)
 		{
 		  if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tVertex accepted !" << endl;
 
-		  MyVertex.x = it3DVx->x();
-		  MyVertex.y = it3DVx->y();
-		  MyVertex.z = it3DVx->z();
+		  MyVertex.x = it3DVx.x();
+		  MyVertex.y = it3DVx.y();
+		  MyVertex.z = it3DVx.z();
 		  Vertices.push_back(MyVertex);
 
-		  Vx_X->Fill(it3DVx->x());
-		  Vx_Y->Fill(it3DVx->y());
-		  Vx_Z->Fill(it3DVx->z());
+		  Vx_X->Fill(it3DVx.x());
+		  Vx_Y->Fill(it3DVx.y());
+		  Vx_Z->Fill(it3DVx.z());
 		  
-		  Vx_ZX->Fill(it3DVx->z(), it3DVx->x());
-		  Vx_ZY->Fill(it3DVx->z(), it3DVx->y());
-		  Vx_XY->Fill(it3DVx->x(), it3DVx->y());
+		  Vx_ZX->Fill(it3DVx.z(), it3DVx.x());
+		  Vx_ZY->Fill(it3DVx.z(), it3DVx.y());
+		  Vx_XY->Fill(it3DVx.x(), it3DVx.y());
 
-		  Vx_X_Cum->Fill(it3DVx->x());
-		  Vx_Y_Cum->Fill(it3DVx->y());
-		  Vx_Z_Cum->Fill(it3DVx->z());
+		  Vx_X_Cum->Fill(it3DVx.x());
+		  Vx_Y_Cum->Fill(it3DVx.y());
+		  Vx_Z_Cum->Fill(it3DVx.z());
 		  
-		  Vx_ZX_Cum->Fill(it3DVx->z(), it3DVx->x());
-		  Vx_ZY_Cum->Fill(it3DVx->z(), it3DVx->y());
-		  Vx_XY_Cum->Fill(it3DVx->x(), it3DVx->y());
+		  Vx_ZX_Cum->Fill(it3DVx.z(), it3DVx.x());
+		  Vx_ZY_Cum->Fill(it3DVx.z(), it3DVx.y());
+		  Vx_XY_Cum->Fill(it3DVx.x(), it3DVx.y());
 		}
 	      else if (internalDebug == true)
 		{
@@ -201,7 +201,7 @@ unsigned int Vx3DHLTAnalyzer::HitCounter (const Event& iEvent)
   unsigned int counter = 0;
   
   for (SiPixelRecHitCollection::const_iterator j = rechitspixel->begin(); j != rechitspixel->end(); j++)
-    for (edmNew::DetSet<SiPixelRecHit>::const_iterator h = j->begin(); h != j->end(); h++) counter += h->cluster()->size();	  
+    for (const auto & h : *j) counter += h.cluster()->size();	  
   
   return counter;
 }
@@ -236,19 +236,19 @@ double Vx3DHLTAnalyzer::Gauss3DFunc (const double* par)
 //  par[8] = mean z
 
   counterVx = 0;
-  for (unsigned int i = 0; i < Vertices.size(); i++)
+  for (auto & Vertice : Vertices)
     {
-      if ((std::sqrt((Vertices[i].x-xPos)*(Vertices[i].x-xPos) + (Vertices[i].y-yPos)*(Vertices[i].y-yPos)) <= maxTransRadius) &&
-	  (std::fabs(Vertices[i].z-zPos) <= maxLongLength))
+      if ((std::sqrt((Vertice.x-xPos)*(Vertice.x-xPos) + (Vertice.y-yPos)*(Vertice.y-yPos)) <= maxTransRadius) &&
+	  (std::fabs(Vertice.z-zPos) <= maxLongLength))
 	{
 	  if (considerVxCovariance == true)
 	    {
-	      K[0][0] = std::fabs(par[0]) + VxErrCorr*VxErrCorr * std::fabs(Vertices[i].Covariance[0][0]);
-	      K[1][1] = std::fabs(par[1]) + VxErrCorr*VxErrCorr * std::fabs(Vertices[i].Covariance[1][1]);
-	      K[2][2] = std::fabs(par[2]) + VxErrCorr*VxErrCorr * std::fabs(Vertices[i].Covariance[2][2]);
-	      K[0][1] = K[1][0] = par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][1];
-	      K[1][2] = K[2][1] = par[4]*(std::fabs(par[2])-std::fabs(par[1])) - par[5]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[1][2];
-	      K[0][2] = K[2][0] = par[5]*(std::fabs(par[2])-std::fabs(par[0])) - par[4]*par[3] + VxErrCorr*VxErrCorr * Vertices[i].Covariance[0][2];
+	      K[0][0] = std::fabs(par[0]) + VxErrCorr*VxErrCorr * std::fabs(Vertice.Covariance[0][0]);
+	      K[1][1] = std::fabs(par[1]) + VxErrCorr*VxErrCorr * std::fabs(Vertice.Covariance[1][1]);
+	      K[2][2] = std::fabs(par[2]) + VxErrCorr*VxErrCorr * std::fabs(Vertice.Covariance[2][2]);
+	      K[0][1] = K[1][0] = par[3] + VxErrCorr*VxErrCorr * Vertice.Covariance[0][1];
+	      K[1][2] = K[2][1] = par[4]*(std::fabs(par[2])-std::fabs(par[1])) - par[5]*par[3] + VxErrCorr*VxErrCorr * Vertice.Covariance[1][2];
+	      K[0][2] = K[2][0] = par[5]*(std::fabs(par[2])-std::fabs(par[0])) - par[4]*par[3] + VxErrCorr*VxErrCorr * Vertice.Covariance[0][2];
 	    }
 	  else
 	    {
@@ -272,12 +272,12 @@ double Vx3DHLTAnalyzer::Gauss3DFunc (const double* par)
 	  M[0][2] = M[2][0] = (K[0][1]*K[1][2] - K[0][2]*K[1][1]) / det;
 	  
 	  sumlog += double(DIM)*std::log(2.*pi) + std::log(std::fabs(det)) +
-	    (M[0][0]*(Vertices[i].x-par[6])*(Vertices[i].x-par[6]) +
-	     M[1][1]*(Vertices[i].y-par[7])*(Vertices[i].y-par[7]) +
-	     M[2][2]*(Vertices[i].z-par[8])*(Vertices[i].z-par[8]) +
-	     2.*M[0][1]*(Vertices[i].x-par[6])*(Vertices[i].y-par[7]) +
-	     2.*M[1][2]*(Vertices[i].y-par[7])*(Vertices[i].z-par[8]) +
-	     2.*M[0][2]*(Vertices[i].x-par[6])*(Vertices[i].z-par[8]));
+	    (M[0][0]*(Vertice.x-par[6])*(Vertice.x-par[6]) +
+	     M[1][1]*(Vertice.y-par[7])*(Vertice.y-par[7]) +
+	     M[2][2]*(Vertice.z-par[8])*(Vertice.z-par[8]) +
+	     2.*M[0][1]*(Vertice.x-par[6])*(Vertice.y-par[7]) +
+	     2.*M[1][2]*(Vertice.y-par[7])*(Vertice.z-par[8]) +
+	     2.*M[0][2]*(Vertice.x-par[6])*(Vertice.z-par[8]));
 	  
 	  counterVx++;
 	}

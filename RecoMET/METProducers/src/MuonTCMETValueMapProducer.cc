@@ -347,18 +347,18 @@ bool MuonTCMETValueMapProducer::isGoodTrack( const reco::Muon* muon )
   if( fabs( siTrack->eta() ) > 2.0 && siTrack->pt() > maxpt_eta20_ )    return false;
 
   int cut = 0;
-  for( unsigned int i = 0; i < trkQuality_.size(); i++ )
+  for(int i : trkQuality_)
     {
-      cut |= (1 << trkQuality_.at(i));
+      cut |= (1 << i);
     }
 
   if( !( (siTrack->qualityMask() & cut) == cut ) ) return false;
 	  
   bool isGoodAlgo = false;
   if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
-  for( unsigned int i = 0; i < trkAlgos_.size(); i++ )
+  for(auto & trkAlgo : trkAlgos_)
     {
-      if( siTrack->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;
+      if( siTrack->algo() == trkAlgo ) isGoodAlgo = true;
     }
 
   if( !isGoodAlgo ) return false;

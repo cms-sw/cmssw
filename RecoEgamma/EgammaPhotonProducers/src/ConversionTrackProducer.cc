@@ -79,11 +79,9 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
         if (dynamic_cast<const reco::GsfTrack*>(&hTrks->at(0))) {
           //fill map for gsf tracks
           e.getByToken(gsfTrajectories, hTTAssGsf);     
-          for ( TrajGsfTrackAssociationCollection::const_iterator iPair = 
-		  hTTAssGsf->begin();
-		iPair != hTTAssGsf->end(); ++iPair) {
+          for (const auto & iPair : *hTTAssGsf) {
         
-            gsftracktrajmap[iPair->val] = iPair->key;
+            gsftracktrajmap[iPair.val] = iPair.key;
 
           }
                 
@@ -91,11 +89,9 @@ ConversionTrackProducer::ConversionTrackProducer(edm::ParameterSet const& conf) 
         else {
           //fill map for standard tracks
           e.getByToken(kfTrajectories, hTTAss);
-          for ( TrajTrackAssociationCollection::const_iterator iPair = hTTAss->begin();
-            iPair != hTTAss->end();
-            ++iPair) {
+          for (const auto & iPair : *hTTAss) {
         
-            tracktrajmap[iPair->val] = iPair->key;
+            tracktrajmap[iPair.val] = iPair.key;
 
           }
         }

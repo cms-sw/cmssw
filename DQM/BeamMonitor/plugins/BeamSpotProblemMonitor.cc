@@ -97,9 +97,9 @@ void BeamSpotProblemMonitor::beginJob() {
 
   for (int i = 0; i < 1; i++) {
     dbe_->setCurrentFolder(monitorName_+"FitFromScalars");
-    for (int ic=0; ic<nvar_; ++ic) {
-      TString histName(coord[ic]);
-      TString histTitle(coord[ic]);
+    for (const auto & ic : coord) {
+      TString histName(ic);
+      TString histTitle(ic);
       string ytitle("Problem (-1)  /  OK (1)");
       string xtitle("");
       string options("E1");
@@ -195,15 +195,14 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
     // Checking TK status
     Handle<DcsStatusCollection> dcsStatus;
     iEvent.getByToken(dcsStatus_, dcsStatus);
-    for (int i=0;i<6;i++) dcsTk[i]=true;
-    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin(); 
-         dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
-      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcsTk[0]=false;
-      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcsTk[1]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcsTk[2]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcsTk[3]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcsTk[4]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcsTk[5]=false;
+    for (bool & i : dcsTk) i=true;
+    for (const auto & dcsStatusItr : *dcsStatus) {
+      if (!dcsStatusItr.ready(DcsStatus::BPIX))   dcsTk[0]=false;
+      if (!dcsStatusItr.ready(DcsStatus::FPIX))   dcsTk[1]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TIBTID)) dcsTk[2]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TOB))    dcsTk[3]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TECp))   dcsTk[4]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TECm))   dcsTk[5]=false;
     }  
 
      bool AllTkOn = true;
@@ -220,9 +219,9 @@ void BeamSpotProblemMonitor::analyze(const Event& iEvent,
      edm::Handle<reco::TrackCollection> TrackCollection;
      iEvent.getByToken(trkSrc_, TrackCollection);
      const reco::TrackCollection *tracks = TrackCollection.product();
-     for ( reco::TrackCollection::const_iterator track = tracks->begin();track != tracks->end();++track ) 
+     for (const auto & track : *tracks) 
       {
-         if(track->pt() > 1.0)Ntracks_++;
+         if(track.pt() > 1.0)Ntracks_++;
           if(Ntracks_> 200) break;
       }
 

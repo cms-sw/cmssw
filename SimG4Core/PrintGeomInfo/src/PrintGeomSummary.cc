@@ -81,9 +81,8 @@ void PrintGeomSummary::update(const BeginOfJob * job) {
     ++i;
     if (git->size()) {
       // ask for children of ddLP  
-      for (DDCompactView::graph_type::edge_list::const_iterator cit  = git->begin();
-	   cit != git->end(); ++cit) {
-	const DDLogicalPart & ddcurLP = gra.nodeData(cit->first);
+      for (const auto & cit : *git) {
+	const DDLogicalPart & ddcurLP = gra.nodeData(cit.first);
 	addSolid(ddcurLP);
       }
     }
@@ -109,14 +108,14 @@ void PrintGeomSummary::update(const BeginOfRun * run) {
     std::string name = theTopPV_->GetName();
     dumpSummary(G4cout,name);
 
-    for (unsigned int k=0; k<nodeNames_.size(); ++k) {
+    for (auto & nodeName : nodeNames_) {
       const G4LogicalVolumeStore * lvs = G4LogicalVolumeStore::GetInstance();
       std::vector<G4LogicalVolume *>::const_iterator lvcite;
       for (lvcite = lvs->begin(); lvcite != lvs->end(); lvcite++) {
-	if ((*lvcite)->GetName() == (G4String)(nodeNames_[k])) {
+	if ((*lvcite)->GetName() == (G4String)nodeName) {
 	  lvs_.clear(); sls_.clear(); touch_.clear();
 	  fillLV(*lvcite); 
-	  dumpSummary(G4cout,nodeNames_[k]);
+	  dumpSummary(G4cout,nodeName);
 	}
       }
     }
@@ -144,8 +143,8 @@ void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
   //First the solids
   out << G4endl << "Occurence of each type of shape among Solids" << G4endl;
   kount_.clear();
-  for (std::vector<G4VSolid*>::iterator it=sls_.begin(); it!=sls_.end(); ++it) {
-    std::string name = (*it)->GetName();
+  for (auto & sl : sls_) {
+    std::string name = sl->GetName();
     addName(name);
   }
   printSummary(out);
@@ -153,9 +152,8 @@ void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
   out << G4endl << "Occurence of each type of shape among Logical Volumes" 
       << G4endl;
   kount_.clear();
-  for (std::vector<G4LogicalVolume*>::iterator it = lvs_.begin(); 
-       it != lvs_.end(); ++it) {
-    std::string name = ((*it)->GetSolid())->GetName();
+  for (auto & lv : lvs_) {
+    std::string name = (lv->GetSolid())->GetName();
     addName(name);
   }
   printSummary(out);
@@ -163,9 +161,8 @@ void PrintGeomSummary::dumpSummary(std::ostream & out, std::string name) {
   out << G4endl << "Occurence of each type of shape among Touchables" 
       << G4endl;
   kount_.clear();
-  for (std::vector<G4LogicalVolume*>::iterator it = touch_.begin(); 
-       it != touch_.end(); ++it) {
-    std::string name = ((*it)->GetSolid())->GetName();
+  for (auto & it : touch_) {
+    std::string name = (it->GetSolid())->GetName();
     addName(name);
   }
   printSummary(out);

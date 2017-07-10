@@ -51,10 +51,10 @@ Bcm1fSD::Bcm1fSD(std::string name,
   // Now attach the right detectors (LogicalVolumes) to me
   std::vector<std::string>  lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::iterator it = lvNames.begin(); it != lvNames.end(); it++)
+  for (auto & lvName : lvNames)
   {
-     edm::LogInfo("Bcm1fSD")<< name << " attaching LV " << *it;
-     this->AssignSD(*it);
+     edm::LogInfo("Bcm1fSD")<< name << " attaching LV " << lvName;
+     this->AssignSD(lvName);
   }
 
   theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;

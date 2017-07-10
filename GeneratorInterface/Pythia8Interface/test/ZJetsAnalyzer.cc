@@ -91,7 +91,7 @@ void ZJetsAnalyzer::beginJob()
   jetDef = new fastjet::JetDefinition(fastjet::antikt_algorithm, Rparam,
                                       recombScheme, strategy);
 
-  for (int ind=0; ind < 6; ind++) {icategories[ind]=0;}
+  for (int & icategorie : icategories) {icategorie=0;}
 
   return ;
   

@@ -135,14 +135,14 @@ void DYTTuner::endJob()
     DetId id = (*it).first;
     std::vector<double> estValCh = (*it).second;
     if ((*it).first.subdetId() == MuonSubdetId::DT) 
-      for (unsigned int b = 0; b < estValCh.size(); b++) {
+      for (double b : estValCh) {
 	int station = DTChamberId(id).station();
-	estBarrel[station].push_back(estValCh[b]);
+	estBarrel[station].push_back(b);
       }
     if ((*it).first.subdetId() == MuonSubdetId::CSC) 
-      for (unsigned int e = 0; e < estValCh.size(); e++) {
+      for (double e : estValCh) {
 	int station = CSCDetId(id).station();
-	estEndcap[station].push_back(estValCh[e]);
+	estEndcap[station].push_back(e);
       }
   }
   DetId empty = DetId();
@@ -188,8 +188,8 @@ double DYTTuner::doIntegral(std::vector<double>& estValues, DetId& id) {
   double cutOnE = -1;
   int nPosVal = 0;
   sort( estValues.begin(), estValues.end() );
-  for (unsigned int j = 0; j < estValues.size(); j++) 
-    if (estValues[j] > 0 && estValues[j] < MaxEstVal) nPosVal++;
+  for (double estValue : estValues) 
+    if (estValue > 0 && estValue < MaxEstVal) nPosVal++;
   double limit = nPosVal * IntegralCut;
   int nVal = 0; 
   for (unsigned int j = 0; j < estValues.size(); j++) {
@@ -214,8 +214,8 @@ void DYTTuner::writePlots() {
     char plotName[200];
     sprintf(plotName, "%i", id.rawId());
     TH1F* tmpPlot = new TH1F(plotName, plotName, NBinsPlots, 0., MaxValPlots);
-    for (unsigned int i = 0; i < estValCh.size(); i++) 
-      tmpPlot->Fill(estValCh[i]);
+    for (double i : estValCh) 
+      tmpPlot->Fill(i);
     EstPlots[id] = fs->make<TH1F>(*tmpPlot);
     delete tmpPlot;
   }

@@ -128,8 +128,7 @@ void MultShiftMETcorrDBInputProducer::produce(edm::Event& evt, const edm::EventS
     counts_ = 0;
     sumPt_  = 0;
 
-    for (unsigned i = 0; i < particleFlow->size(); ++i) {
-      const reco::Candidate& c = particleFlow->at(i);
+    for (const auto & c : *particleFlow) {
       if (abs(c.pdgId())== translateTypeToAbsPdgId(reco::PFCandidate::ParticleType( MEtXYcorParams.definitions().PtclType() ))) {
         if ((c.eta()>MEtXYcorParams.record(0).xMin(0)) and (c.eta()<MEtXYcorParams.record(0).xMax(0))) {
           counts_ +=1;

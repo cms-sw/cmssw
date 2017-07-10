@@ -34,16 +34,15 @@ AttachSD::create(const DDDWorld & w,
   LogDebug("SimG4CoreSensitiveDetector") << " AttachSD: Initializing" ;
 //#endif
   const std::vector<std::string>& rouNames = clg.readoutNames();
-  for (std::vector<std::string>::const_iterator it = rouNames.begin();
-       it != rouNames.end(); it++) {
-    std::string className = clg.className(*it);
+  for (const auto & rouName : rouNames) {
+    std::string className = clg.className(rouName);
     //std::cout<<" trying to find something for "<<className<<" " <<*it<<std::endl;
-    edm::LogInfo("SimG4CoreSensitiveDetector") << " AttachSD: trying to find something for " << className << " "  << *it ;
+    edm::LogInfo("SimG4CoreSensitiveDetector") << " AttachSD: trying to find something for " << className << " "  << rouName ;
     std::auto_ptr<SensitiveDetectorMakerBase> temp(
 						   SensitiveDetectorPluginFactory::get()->create(className) );
     std::auto_ptr<SensitiveTkDetector> tkDet;
     std::auto_ptr<SensitiveCaloDetector> caloDet;
-    temp->make(*it,cpv,clg,p,m,reg,tkDet,caloDet);
+    temp->make(rouName,cpv,clg,p,m,reg,tkDet,caloDet);
     if(tkDet.get()){
       detList.first.push_back(tkDet.get());
       tkDet.release();
@@ -54,7 +53,7 @@ AttachSD::create(const DDDWorld & w,
     }
 //#ifdef DEBUG
     // cout << " AttachSD: created a " << className << " with name " << *it << endl;
-    LogDebug("SimG4CoreSensitiveDetector") << " AttachSD: created a " << className << " with name " << *it ;
+    LogDebug("SimG4CoreSensitiveDetector") << " AttachSD: created a " << className << " with name " << rouName ;
     //#endif
   }      
   return detList;

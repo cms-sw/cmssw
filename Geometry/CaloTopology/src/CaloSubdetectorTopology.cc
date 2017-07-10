@@ -28,9 +28,9 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
       // check all four neighbours
       const CaloDirection directions[4] = { NORTH, SOUTH, EAST, WEST };
       
-      for (unsigned dirnum = 0; dirnum < 4; ++dirnum)
+      for (auto direction : directions)
         {
-          Coordinate neighbour = getNeighbourIndex(cur.first,directions[dirnum]);
+          Coordinate neighbour = getNeighbourIndex(cur.first,direction);
 	  //If outside the window range
 	  if ( neighbour.first < -halfWestEast ||
 	       neighbour.first > halfWestEast ||
@@ -52,7 +52,7 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
           // a new cell, get the DetId of the neighbour, mark it
           // as visited and add it to the fringe
           visited_cells[int_index].visited = true;
-	  std::vector<DetId> neighbourCells = getNeighbours(cur.second,directions[dirnum]);
+	  std::vector<DetId> neighbourCells = getNeighbours(cur.second,direction);
 
 	  if ( neighbourCells.size() == 1 )
 	    visited_cells[int_index].cell = neighbourCells[0];
@@ -68,9 +68,9 @@ std::vector<DetId> CaloSubdetectorTopology::getWindow(const DetId& id, const int
     } // while some cells are left on the fringe
   
   
-  for (unsigned int i=0; i<visited_cells.size(); i++)
-    if (!visited_cells[i].cell.null())
-      cellsInWindow.push_back(visited_cells[i].cell);
+  for (auto & visited_cell : visited_cells)
+    if (!visited_cell.cell.null())
+      cellsInWindow.push_back(visited_cell.cell);
   
   return cellsInWindow;
 }

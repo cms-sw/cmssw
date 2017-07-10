@@ -64,9 +64,8 @@ private:
     }
     if( evt->weights().size() ) {
       std::cout << "weights:" << std::endl;
-      for ( size_t iwgt = 0; iwgt < evt->weights().size(); ++iwgt ) {
-	const LHEEventProduct::WGT& wgt = evt->weights().at(iwgt);
-	std::cout << "\t" << wgt.id << ' ' 
+      for (const auto & wgt : evt->weights()) {
+		std::cout << "\t" << wgt.id << ' ' 
 		  << std::scientific << wgt.wgt << std::endl;
       }
     }

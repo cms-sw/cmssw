@@ -157,13 +157,12 @@ namespace hcaldqm
 
 			//	combine
 			int iflag=0;
-			for (std::vector<flag::Flag>::iterator ft=vflags.begin();
-				ft!=vflags.end(); ++ft)
+			for (auto & vflag : vflags)
 			{
-				cSummary.setBinContent(eid, iflag, ft->_state);
-				fSum+=(*ft);
+				cSummary.setBinContent(eid, iflag, vflag._state);
+				fSum+=vflag;
 				iflag++;
-				ft->reset();
+				vflag.reset();
 			}
 			sumflags.push_back(fSum);
 		}

@@ -6,10 +6,9 @@ using namespace std;
 TIBRing* TIBRingBuilder::build(const vector<const GeometricDet*>& detsInRing,
 			       const TrackerGeometry* theGeomDetGeometry){
   vector<const GeomDet*> theGeomDets;
-  for(vector<const GeometricDet*>::const_iterator it=detsInRing.begin();
-      it!=detsInRing.end();it++){
+  for(auto it : detsInRing){
 
-    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( (*it)->geographicalID() );
+    const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( it->geographicalID() );
     theGeomDets.push_back(theGeomDet);    
   }
   

@@ -51,11 +51,10 @@ FWCSCStripDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
 
    int thresholdOffset = 9;       
 
-   for ( CSCStripDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-         dri != driEnd; ++dri )
+   for (auto && digi : *digis)
    {    
-      unsigned int rawid = (*dri).first.rawId();
-      const CSCStripDigiCollection::Range& range = (*dri).second;
+      unsigned int rawid = digi.first.rawId();
+      const CSCStripDigiCollection::Range& range = digi.second;
 
       if( ! geom->contains( rawid ))
       {

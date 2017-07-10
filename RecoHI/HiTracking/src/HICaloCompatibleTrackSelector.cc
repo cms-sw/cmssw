@@ -283,9 +283,7 @@ HICaloCompatibleTrackSelector::matchPFCandToTrack( const edm::Handle<reco::PFCan
 
   // loop over the PFCandidates until you find the one whose trackRef points to the track
 
-  for( CI ci  = pfCandidates->begin(); ci!=pfCandidates->end(); ++ci)  {
-
-    const reco::PFCandidate& cand = *ci;
+  for(const auto & cand : *pfCandidates)  {
 
     int type = cand.particleId();
     
@@ -314,11 +312,11 @@ HICaloCompatibleTrackSelector::matchPFCandToTrack( const edm::Handle<reco::PFCan
   if(candType>0){
     
     // Now that we found the matched PF candidate, loop over the elements in the block summing the calo Et
-    for(unsigned ib=0; ib<matchedCand.elementsInBlocks().size(); ib++) {
+    for(const auto & ib : matchedCand.elementsInBlocks()) {
       
-      PFBlockRef blockRef = matchedCand.elementsInBlocks()[ib].first;
+      PFBlockRef blockRef = ib.first;
             
-      unsigned indexInBlock = matchedCand.elementsInBlocks()[ib].second;
+      unsigned indexInBlock = ib.second;
       const edm::OwnVector<  reco::PFBlockElement>&  elements = (*blockRef).elements();
       
       //This tells you what type of element it is:

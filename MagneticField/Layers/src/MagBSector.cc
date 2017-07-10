@@ -32,12 +32,11 @@ const MagVolume * MagBSector::findVolume(const GlobalPoint & gp, double toleranc
   Geom::Phi<float> phi = gp.phi();
 
   // FIXME : use a binfinder
-  for(vector<MagBRod*>::const_iterator irod = theRods.begin();
-	irod != theRods.end(); ++irod) {
+  for(auto theRod : theRods) {
     // TOFIX
-    if (verbose::debugOut) cout << "     Trying rod at phi " << (*irod)->minPhi()
+    if (verbose::debugOut) cout << "     Trying rod at phi " << theRod->minPhi()
 				<< " " << phi << endl ;
-    result = (*irod)->findVolume(gp, tolerance);
+    result = theRod->findVolume(gp, tolerance);
     if (result!=0) return result;
   }
 

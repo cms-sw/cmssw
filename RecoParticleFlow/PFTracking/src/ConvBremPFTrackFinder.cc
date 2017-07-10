@@ -108,17 +108,17 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	  if(primaryTrackBaseRef == newTrackBaseRef) continue;
 	}
 	bool notFound = true;
- 	for(unsigned iPF = 0; iPF < AllPFRecTracks.size(); iPF++) {
-	  reco::TrackBaseRef selTrackBaseRef(AllPFRecTracks[iPF]->trackRef());
+ 	for(auto & AllPFRecTrack : AllPFRecTracks) {
+	  reco::TrackBaseRef selTrackBaseRef(AllPFRecTrack->trackRef());
 
 	  if(debugRef) 
-	    cout << "## Track 1 HP pt " << AllPFRecTracks[iPF]->trackRef()->pt() << " eta, phi " << AllPFRecTracks[iPF]->trackRef()->eta() << ", " << AllPFRecTracks[iPF]->trackRef()->phi() 
-		 << " Memory Address Ref  " << &(*AllPFRecTracks[iPF]->trackRef()) << " Memory Address BaseRef  " << &*selTrackBaseRef << endl;
+	    cout << "## Track 1 HP pt " << AllPFRecTrack->trackRef()->pt() << " eta, phi " << AllPFRecTrack->trackRef()->eta() << ", " << AllPFRecTrack->trackRef()->phi() 
+		 << " Memory Address Ref  " << &(*AllPFRecTrack->trackRef()) << " Memory Address BaseRef  " << &*selTrackBaseRef << endl;
 	  if(debugRef) 
 	    cout << "** Track 2 CONV pt " << compPFTkRef->trackRef()->pt() << " eta, phi " <<  compPFTkRef->trackRef()->eta() << ", " << compPFTkRef->trackRef()->phi() 
 		 << " Memory Address Ref " << &*compPFTkRef->trackRef() <<  " Memory Address BaseRef " << &*newTrackBaseRef << endl;
 	  //if(selTrackBaseRef == newTrackBaseRef ||  AllPFRecTracks[iPF]->trackRef()== compPFTkRef->trackRef()) {
-	  if(AllPFRecTracks[iPF]->trackRef()== compPFTkRef->trackRef()) {
+	  if(AllPFRecTrack->trackRef()== compPFTkRef->trackRef()) {
 	    if(debugRef) 
 	      cout << "  SAME BREM REF " << endl;
 	    notFound = false;
@@ -148,8 +148,8 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	  if(primaryTrackBaseRef == newTrackBaseRef) continue;
 	}
 	bool notFound = true;
-	for(unsigned iPF = 0; iPF < AllPFRecTracks.size(); iPF++) {
-	  reco::TrackBaseRef selTrackBaseRef(AllPFRecTracks[iPF]->trackRef());
+	for(auto & AllPFRecTrack : AllPFRecTracks) {
+	  reco::TrackBaseRef selTrackBaseRef(AllPFRecTrack->trackRef());
 	  if(selTrackBaseRef == newTrackBaseRef) notFound = false;
 	}
 	if(notFound) {
@@ -176,8 +176,8 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	  if(primaryTrackBaseRef == newTrackBaseRef) continue;
 	}
 	bool notFound = true;
-	for(unsigned iPF = 0; iPF < AllPFRecTracks.size(); iPF++) {
-	  reco::TrackBaseRef selTrackBaseRef(AllPFRecTracks[iPF]->trackRef());
+	for(auto & AllPFRecTrack : AllPFRecTracks) {
+	  reco::TrackBaseRef selTrackBaseRef(AllPFRecTrack->trackRef());
 	  if(selTrackBaseRef == newTrackBaseRef) notFound = false;
 	}
 	if(notFound) {
@@ -195,12 +195,12 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
   pfRecTrRef_vec_.clear();
 
 
-  for(unsigned iPF = 0; iPF < AllPFRecTracks.size(); iPF++) {
+  for(auto & AllPFRecTrack : AllPFRecTracks) {
   
  
-    double dphi= fabs(AllPFRecTracks[iPF]->trackRef()->phi()-refGsf->phi()); 
+    double dphi= fabs(AllPFRecTrack->trackRef()->phi()-refGsf->phi()); 
     if (dphi>TMath::Pi()) dphi-= TMath::TwoPi();
-    double deta=fabs(AllPFRecTracks[iPF]->trackRef()->eta()-refGsf->eta());
+    double deta=fabs(AllPFRecTrack->trackRef()->eta()-refGsf->eta());
      
     // limiting the phase space (just for saving cpu-time)
     if( fabs(dphi)> 1.0  || fabs(deta) > 0.4) continue;
@@ -212,15 +212,15 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
     double minDEtaBremKFPos = 1000.;
     double minDPhiBremKFPos = 1000.;
     double minDRBremKFPos = 1000.;
-    reco:: TrackRef  trkRef = AllPFRecTracks[iPF]->trackRef();
+    reco:: TrackRef  trkRef = AllPFRecTrack->trackRef();
  
     double secEta = trkRef->innerMomentum().eta();
     double secPhi = trkRef->innerMomentum().phi();
     
-    for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-      if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
+    for(auto & ipbrem : primPFBrem) {
+      if(ipbrem.indTrajPoint() == 99) continue;
       const reco::PFTrajectoryPoint& atPrimECAL 
-	= primPFBrem[ipbrem].extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+	= ipbrem.extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
       if( ! atPrimECAL.isValid() ) continue;
       double bremEta = atPrimECAL.momentum().Eta();
       double bremPhi = atPrimECAL.momentum().Phi();
@@ -279,16 +279,14 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 
       float MinDist = 100000.;
       float EE_calib = 0.; 
-      PFRecTrack pfrectrack = *AllPFRecTracks[iPF];
+      PFRecTrack pfrectrack = *AllPFRecTrack;
       pfrectrack.calculatePositionREP();
       // Find and ECAL associated cluster
-      for (PFClusterCollection::const_iterator clus = theEClus.begin();
-	   clus != theEClus.end();
-	   clus++ ) {
+      for (const auto & theEClu : theEClus) {
 	// Removed unusd variable, left this in case it has side effects
-	clus->position();
+	theEClu.position();
 	double dist = -1.;
-	PFCluster clust = *clus;
+	PFCluster clust = theEClu;
 	clust.calculatePositionREP();
 	dist =  pfrectrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 	  LinkByRecHit::testTrackAndClusterByRecHit(pfrectrack , clust ) : -1.;
@@ -301,7 +299,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	  ps1=ps2=0.;
 	  if(dist < MinDist) {
 	    MinDist = dist;
-	    EE_calib = cache->pfcalib_->energyEm(*clus,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
+	    EE_calib = cache->pfcalib_->energyEm(theEClu,ps1Ene,ps2Ene,ps1,ps2,applyCrackCorrections);
 	  }
 	}
       }
@@ -424,7 +422,7 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
 	
 	if(mvaValue > cutvalue) {
 	  found_ = true;
-	  pfRecTrRef_vec_.push_back(AllPFRecTracks[iPF]);
+	  pfRecTrRef_vec_.push_back(AllPFRecTrack);
 	  
 	}
       } // end MinDIST

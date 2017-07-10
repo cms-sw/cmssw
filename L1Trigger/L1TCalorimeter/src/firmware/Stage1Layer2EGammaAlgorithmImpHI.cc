@@ -36,13 +36,12 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHI::processEvent(const std::vector<l1t::
   std::vector<l1t::EGamma> *preGtEGammas = new std::vector<l1t::EGamma>();
   std::vector<l1t::EGamma> *dumpEGammas = new std::vector<l1t::EGamma>();
 
-  for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
-      egCand != EMCands.end(); egCand++) {
+  for(const auto & EMCand : EMCands) {
 
-    int eg_et = egCand->hwPt();
-    int eg_eta = egCand->hwEta();
-    int eg_phi = egCand->hwPhi();
-    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
+    int eg_et = EMCand.hwPt();
+    int eg_eta = EMCand.hwEta();
+    int eg_phi = EMCand.hwPhi();
+    int index = (EMCand.hwIso()*4 + EMCand.hwQual()) ;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 

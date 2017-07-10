@@ -103,27 +103,25 @@ MagGeometry::findVolume1(const GlobalPoint & gp, double tolerance) const {
   MagVolume6Faces const* found = 0;
 
   if (inBarrel(gp)) { // Barrel
-    for (vector<MagVolume6Faces const*>::const_iterator v = theBVolumes.begin();
-	 v!=theBVolumes.end(); ++v){
-      if ((*v)==0) { //FIXME: remove this check
+    for (auto theBVolume : theBVolumes){
+      if (theBVolume==0) { //FIXME: remove this check
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
       }
-      if ((*v)->inside(gp,tolerance)) {
-	found = (*v);
+      if (theBVolume->inside(gp,tolerance)) {
+	found = theBVolume;
 	break;
       }
     }
 
   } else { // Endcaps
-    for (vector<MagVolume6Faces const*>::const_iterator v = theEVolumes.begin();
-	 v!=theEVolumes.end(); ++v){
-      if ((*v)==0) {  //FIXME: remove this check
+    for (auto theEVolume : theEVolumes){
+      if (theEVolume==0) {  //FIXME: remove this check
 	cout << endl << "***ERROR: MagGeometry::findVolume: MagVolume not set" << endl;
 	continue;
       }
-      if ((*v)->inside(gp,tolerance)) {
-	found = (*v);
+      if (theEVolume->inside(gp,tolerance)) {
+	found = theEVolume;
 	break;
       }
     }

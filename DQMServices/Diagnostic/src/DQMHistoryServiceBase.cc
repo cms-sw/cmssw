@@ -60,16 +60,16 @@ void DQMHistoryServiceBase::createSummary(){
   for(; ithistoList != ithistoListEnd; ++ithistoList ) {    
     std::string keyName = ithistoList->getUntrackedParameter<std::string>("keyName");
     std::vector<std::string> Quantities = ithistoList->getUntrackedParameter<std::vector<std::string> >("quantitiesToExtract"); 
-    for (size_t i=0;i<Quantities.size();++i){
+    for (auto & Quantitie : Quantities){
       
-      if  ( Quantities[i] == "landau" )
+      if  ( Quantitie == "landau" )
 	setDBLabelsForLandau(keyName, userDBContent);
-      else if  ( Quantities[i] == "gauss" )
+      else if  ( Quantitie == "gauss" )
 	setDBLabelsForGauss(keyName, userDBContent);
-      else if  ( Quantities[i] == "stat" )
+      else if  ( Quantitie == "stat" )
 	setDBLabelsForStat(keyName, userDBContent);
       else 
-	setDBLabelsForUser(keyName, userDBContent, Quantities[i]);
+	setDBLabelsForUser(keyName, userDBContent, Quantitie);
     }
   }
   obj_->setUserDBContent(userDBContent);
@@ -77,8 +77,8 @@ void DQMHistoryServiceBase::createSummary(){
   std::stringstream ss;
   ss << "[DQMHistoryServiceBase::scanTreeAndFillSummary] QUANTITIES TO BE INSERTED IN DB :" << std::endl;  
   std::vector<std::string> userDBContentA = obj_->getUserDBContent();
-  for (size_t i=0;i<userDBContentA.size();++i){
-    ss << userDBContentA[i]<< std::endl;
+  for (const auto & i : userDBContentA){
+    ss << i<< std::endl;
   }
   edm::LogInfo("HDQMSummary") << ss.str();
 
@@ -157,23 +157,23 @@ void DQMHistoryServiceBase::scanTreeAndFillSummary(const std::vector<MonitorElem
 
       ss << "\nFound compatible ME " << me_name << " for key " << keyName << std::endl;
 
-      for(size_t i=0;i<Quantities.size();++i) {
+      for(auto & Quantitie : Quantities) {
 
-        if(Quantities[i]  == "landau"){
+        if(Quantitie  == "landau"){
           setDBLabelsForLandau(keyName, userDBContent);
           setDBValuesForLandau(iterMes,values);
         }
-        else if(Quantities[i]  == "gauss"){
+        else if(Quantitie  == "gauss"){
           setDBLabelsForGauss(keyName, userDBContent);
           setDBValuesForGauss(iterMes,values);
         }
-        else if(Quantities[i]  == "stat"){
+        else if(Quantitie  == "stat"){
           setDBLabelsForStat(keyName, userDBContent);
           setDBValuesForStat(iterMes,values);
         }
         else{
-          setDBLabelsForUser(keyName, userDBContent,Quantities[i]);
-          setDBValuesForUser(iterMes,values,Quantities[i]);
+          setDBLabelsForUser(keyName, userDBContent,Quantitie);
+          setDBValuesForUser(iterMes,values,Quantitie);
         }
       }
       uint32_t detid=returnDetComponent(*iterMes);

@@ -98,8 +98,8 @@ class L1RPCHwConfig
 
       int size() const {return m_disabledDevices.size(); } ;
       void dump() const {
-         for(std::set<L1RPCDevCoords>::const_iterator it=m_disabledDevices.begin(); it!=m_disabledDevices.end();++it){
-           std::cout << it->toString() << std::endl;
+         for(auto m_disabledDevice : m_disabledDevices){
+           std::cout << m_disabledDevice.toString() << std::endl;
          }
       };
 

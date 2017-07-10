@@ -175,9 +175,9 @@ CSCEventData & CSCDigiToRaw::findEventData(const CSCDetId & cscDetId)
 void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
                        const CSCCLCTPreTriggerCollection & preTriggers)
 {  //iterate over chambers with strip digis in them
-  for (CSCStripDigiCollection::DigiRangeIterator j=stripDigis.begin(); j!=stripDigis.end(); ++j)
+  for (auto && stripDigi : stripDigis)
     {
-      CSCDetId cscDetId=(*j).first;
+      CSCDetId cscDetId=stripDigi.first;
       // only digitize if there are pre-triggers
       
       bool me1abCheck = formatVersion_ == 2013;
@@ -191,8 +191,8 @@ void CSCDigiToRaw::add(const CSCStripDigiCollection& stripDigis,
 
           CSCEventData & cscData = findEventData(cscDetId);
 
-          std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-          std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+          std::vector<CSCStripDigi>::const_iterator digiItr = stripDigi.second.first;
+          std::vector<CSCStripDigi>::const_iterator last = stripDigi.second.second;
           for ( ; digiItr != last; ++digiItr)
             {
               CSCStripDigi digi = *digiItr;
@@ -241,15 +241,15 @@ void CSCDigiToRaw::add(const CSCWireDigiCollection& wireDigis,
                        const CSCALCTDigiCollection & alctDigis)
 {
   add(alctDigis);
-  for (CSCWireDigiCollection::DigiRangeIterator j=wireDigis.begin(); j!=wireDigis.end(); ++j)
+  for (auto && wireDigi : wireDigis)
     {
-      CSCDetId cscDetId=(*j).first;
+      CSCDetId cscDetId=wireDigi.first;
       bool me1abCheck = formatVersion_ == 2013;
       if (packEverything_ || cscd2r::accept(cscDetId, alctDigis, alctWindowMin_, alctWindowMax_, me1abCheck))
         {
           CSCEventData & cscData = findEventData(cscDetId);
-          std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-          std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+          std::vector<CSCWireDigi>::const_iterator digiItr = wireDigi.second.first;
+          std::vector<CSCWireDigi>::const_iterator last = wireDigi.second.second;
           for ( ; digiItr != last; ++digiItr)
             {
               cscData.add(*digiItr, cscDetId.layer() );
@@ -263,9 +263,9 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
                        const CSCCLCTDigiCollection & clctDigis)
 {
   add(clctDigis);
-  for (CSCComparatorDigiCollection::DigiRangeIterator j=comparatorDigis.begin(); j!=comparatorDigis.end(); ++j)
+  for (auto && comparatorDigi : comparatorDigis)
     {
-      CSCDetId cscDetId=(*j).first;
+      CSCDetId cscDetId=comparatorDigi.first;
       CSCEventData & cscData = findEventData(cscDetId);
       bool me1abCheck = formatVersion_ == 2013;
       if (packEverything_ || cscd2r::accept(cscDetId, clctDigis, clctWindowMin_, clctWindowMax_, me1abCheck))
@@ -273,7 +273,7 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
           bool me1a = (cscDetId.station()==1) && (cscDetId.ring()==4);
 	  
 
-	  BOOST_FOREACH(CSCComparatorDigi digi, (*j).second)
+	  BOOST_FOREACH(CSCComparatorDigi digi, comparatorDigi.second)
           {
             if (formatVersion_ == 2013)
               {
@@ -316,20 +316,20 @@ void CSCDigiToRaw::add(const CSCComparatorDigiCollection & comparatorDigis,
 
 void CSCDigiToRaw::add(const CSCALCTDigiCollection & alctDigis)
 {
-  for (CSCALCTDigiCollection::DigiRangeIterator j=alctDigis.begin(); j!=alctDigis.end(); ++j)
+  for (auto && alctDigi : alctDigis)
     {
-      CSCDetId cscDetId=(*j).first;
+      CSCDetId cscDetId=alctDigi.first;
       CSCEventData & cscData = findEventData(cscDetId);
 
-      cscData.add(std::vector<CSCALCTDigi>((*j).second.first, (*j).second.second));
+      cscData.add(std::vector<CSCALCTDigi>(alctDigi.second.first, alctDigi.second.second));
     }
 }
 
 void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
 {
-  for (CSCCLCTDigiCollection::DigiRangeIterator j=clctDigis.begin(); j!=clctDigis.end(); ++j)
+  for (auto && clctDigi : clctDigis)
     {
-      CSCDetId cscDetId=(*j).first;
+      CSCDetId cscDetId=clctDigi.first;
       CSCEventData & cscData = findEventData(cscDetId);
 
       bool me11a = cscDetId.station() == 1 && cscDetId.ring() == 4;
@@ -337,26 +337,26 @@ void CSCDigiToRaw::add(const CSCCLCTDigiCollection & clctDigis)
       //me11a appears only in simulation with SLHC algorithm settings
       //without the shift, it's impossible to distinguish A and B parts
       if (me11a && formatVersion_ == 2013){
-	std::vector<CSCCLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
-	for (std::vector<CSCCLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-	  if (iC->getCFEB() >= 0 && iC->getCFEB() < 3){//sanity check, mostly
-	    (*iC) = CSCCLCTDigi(iC->isValid(), iC->getQuality(), iC->getPattern(), iC->getStripType(),
-			     iC->getBend(), iC->getStrip(), iC->getCFEB()+4, iC->getBX(), 
-			     iC->getTrknmb(), iC->getFullBX());
+	std::vector<CSCCLCTDigi> shiftedDigis(clctDigi.second.first, clctDigi.second.second);
+	for (auto & shiftedDigi : shiftedDigis) {
+	  if (shiftedDigi.getCFEB() >= 0 && shiftedDigi.getCFEB() < 3){//sanity check, mostly
+	    shiftedDigi = CSCCLCTDigi(shiftedDigi.isValid(), shiftedDigi.getQuality(), shiftedDigi.getPattern(), shiftedDigi.getStripType(),
+			     shiftedDigi.getBend(), shiftedDigi.getStrip(), shiftedDigi.getCFEB()+4, shiftedDigi.getBX(), 
+			     shiftedDigi.getTrknmb(), shiftedDigi.getFullBX());
 	  }
 	}
 	cscData.add(shiftedDigis);
       } else {
-	cscData.add(std::vector<CSCCLCTDigi>((*j).second.first, (*j).second.second));
+	cscData.add(std::vector<CSCCLCTDigi>(clctDigi.second.first, clctDigi.second.second));
       }
     }
 }
 
 void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
 {
-  for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=corrLCTDigis.begin(); j!=corrLCTDigis.end(); ++j)
+  for (auto && corrLCTDigi : corrLCTDigis)
     {
-      CSCDetId cscDetId=(*j).first;
+      CSCDetId cscDetId=corrLCTDigi.first;
       CSCEventData & cscData = findEventData(cscDetId);
 
       bool me11a = cscDetId.station() == 1 && cscDetId.ring() == 4;
@@ -364,18 +364,18 @@ void CSCDigiToRaw::add(const CSCCorrelatedLCTDigiCollection & corrLCTDigis)
       //me11a appears only in simulation with SLHC algorithm settings
       //without the shift, it's impossible to distinguish A and B parts
       if (me11a && formatVersion_ == 2013){
-	std::vector<CSCCorrelatedLCTDigi> shiftedDigis((*j).second.first, (*j).second.second);
-        for (std::vector<CSCCorrelatedLCTDigi>::iterator iC = shiftedDigis.begin(); iC != shiftedDigis.end(); ++iC) {
-          if (iC->getStrip() >= 0 && iC->getStrip() < 96){//sanity check, mostly
-            (*iC) = CSCCorrelatedLCTDigi(iC->getTrknmb(), iC->isValid(), iC->getQuality(), 
-					 iC->getKeyWG(), iC->getStrip() + 128, iC->getPattern(),
-					 iC->getBend(), iC->getBX(), iC->getMPCLink(), 
-					 iC->getBX0(), iC->getSyncErr(), iC->getCSCID());
+	std::vector<CSCCorrelatedLCTDigi> shiftedDigis(corrLCTDigi.second.first, corrLCTDigi.second.second);
+        for (auto & shiftedDigi : shiftedDigis) {
+          if (shiftedDigi.getStrip() >= 0 && shiftedDigi.getStrip() < 96){//sanity check, mostly
+            shiftedDigi = CSCCorrelatedLCTDigi(shiftedDigi.getTrknmb(), shiftedDigi.isValid(), shiftedDigi.getQuality(), 
+					 shiftedDigi.getKeyWG(), shiftedDigi.getStrip() + 128, shiftedDigi.getPattern(),
+					 shiftedDigi.getBend(), shiftedDigi.getBX(), shiftedDigi.getMPCLink(), 
+					 shiftedDigi.getBX0(), shiftedDigi.getSyncErr(), shiftedDigi.getCSCID());
           }
         }
         cscData.add(shiftedDigis);
       } else {
-	cscData.add(std::vector<CSCCorrelatedLCTDigi>((*j).second.first, (*j).second.second));
+	cscData.add(std::vector<CSCCorrelatedLCTDigi>(corrLCTDigi.second.first, corrLCTDigi.second.second));
       }
     }
 
@@ -433,10 +433,9 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
         {
 
           // for every chamber with data, add to a DDU in this DCC Event
-          for (map<CSCDetId, CSCEventData>::iterator chamberItr = theChamberDataMap.begin();
-               chamberItr != theChamberDataMap.end(); ++chamberItr)
+          for (auto & chamberItr : theChamberDataMap)
             {
-              int indexDCC = mapping->slink(chamberItr->first);
+              int indexDCC = mapping->slink(chamberItr.first);
               if (indexDCC == idcc)
                 {
                   //FIXME (What does this mean? Is something wrong?)
@@ -447,21 +446,20 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                     }
                   // get id's based on ChamberId from mapping
 
-                  int dduId    = mapping->ddu(chamberItr->first);
-                  int dduSlot  = mapping->dduSlot(chamberItr->first);
-                  int dduInput = mapping->dduInput(chamberItr->first);
-                  int dmbId    = mapping->dmb(chamberItr->first);
-                  dccMapItr->second.addChamber(chamberItr->second, dduId, dduSlot, dduInput, dmbId, formatVersion_);
+                  int dduId    = mapping->ddu(chamberItr.first);
+                  int dduSlot  = mapping->dduSlot(chamberItr.first);
+                  int dduInput = mapping->dduInput(chamberItr.first);
+                  int dmbId    = mapping->dmb(chamberItr.first);
+                  dccMapItr->second.addChamber(chamberItr.second, dduId, dduSlot, dduInput, dmbId, formatVersion_);
                 }
             }
         }
 
       // FIXME: FEDRawData size set to 2*64 to add FED header and trailer
-      for (std::map<int, CSCDCCEventData>::iterator dccMapItr = dccMap.begin();
-           dccMapItr != dccMap.end(); ++dccMapItr)
+      for (auto & dccMapItr : dccMap)
         {
-          boost::dynamic_bitset<> dccBits = dccMapItr->second.pack();
-          FEDRawData & fedRawData = fed_buffers.FEDData(dccMapItr->first);
+          boost::dynamic_bitset<> dccBits = dccMapItr.second.pack();
+          FEDRawData & fedRawData = fed_buffers.FEDData(dccMapItr.first);
           fedRawData.resize(dccBits.size());
           //fill data with dccEvent
           bitset_utilities::bitsetToChar(dccBits, fedRawData.data());
@@ -484,10 +482,9 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 
 
       /// Create dummy DDU buffers
-      for (unsigned int i = 0; i < 36; i++)
+      for (unsigned int iddu : postLS1_map)
         {
-	  unsigned int iddu = postLS1_map[i];
-          // make a new one
+	  // make a new one
           CSCDDUHeader newDDUHeader(bx,l1a, iddu, ddu_fmt_version);
 
           dduMap.insert(std::pair<int, CSCDDUEventData>(iddu, CSCDDUEventData(newDDUHeader) ) );
@@ -495,20 +492,18 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
 
 
       /// Loop over post-LS1 DDU FEDs
-      for (unsigned int i = 0; i < 36; i++)
+      for (unsigned int iddu : postLS1_map)
         {
-	  unsigned int iddu = postLS1_map[i];
-          // for every chamber with data, add to a DDU in this DCC Event
-          for (map<CSCDetId, CSCEventData>::iterator chamberItr = theChamberDataMap.begin();
-               chamberItr != theChamberDataMap.end(); ++chamberItr)
+	  // for every chamber with data, add to a DDU in this DCC Event
+          for (auto & chamberItr : theChamberDataMap)
             {
-              unsigned int indexDDU = mapping->slink(chamberItr->first);
+              unsigned int indexDDU = mapping->slink(chamberItr.first);
 
               /// Lets handle possible mapping issues
               if ( (indexDDU >= FEDNumbering::MINCSCFEDID) && (indexDDU <= FEDNumbering::MAXCSCFEDID) ) // Still preLS1 DCC FEDs mapping
                 {
 
-                  int dduID    = mapping->ddu(chamberItr->first); // try to switch to DDU ID mapping
+                  int dduID    = mapping->ddu(chamberItr.first); // try to switch to DDU ID mapping
                   if ((dduID >= FEDNumbering::MINCSCDDUFEDID) && (dduID <= FEDNumbering::MAXCSCDDUFEDID) ) // DDU ID is in expectedi post-LS1 FED ID range
                     {
                       indexDDU = dduID;
@@ -531,20 +526,19 @@ void CSCDigiToRaw::createFedBuffers(const CSCStripDigiCollection& stripDigis,
                     }
                   // get id's based on ChamberId from mapping
 
-                  int dduInput = mapping->dduInput(chamberItr->first);
-                  int dmbId    = mapping->dmb(chamberItr->first);
+                  int dduInput = mapping->dduInput(chamberItr.first);
+                  int dmbId    = mapping->dmb(chamberItr.first);
 		  // int crateId  = mapping->crate(chamberItr->first);
-                  dduMapItr->second.add( chamberItr->second, dmbId, dduInput, formatVersion_ );
+                  dduMapItr->second.add( chamberItr.second, dmbId, dduInput, formatVersion_ );
                 }
             }
         }
 
       // FIXME: FEDRawData size set to 2*64 to add FED header and trailer
-      for (std::map<int, CSCDDUEventData>::iterator dduMapItr = dduMap.begin();
-           dduMapItr != dduMap.end(); ++dduMapItr)
+      for (auto & dduMapItr : dduMap)
         {
-          boost::dynamic_bitset<> dduBits = dduMapItr->second.pack();
-          FEDRawData & fedRawData = fed_buffers.FEDData(dduMapItr->first);
+          boost::dynamic_bitset<> dduBits = dduMapItr.second.pack();
+          FEDRawData & fedRawData = fed_buffers.FEDData(dduMapItr.first);
           fedRawData.resize(dduBits.size()/8);
           //fill data with dduEvent
           bitset_utilities::bitsetToChar(dduBits, fedRawData.data());

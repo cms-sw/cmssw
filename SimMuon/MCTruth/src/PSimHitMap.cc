@@ -38,12 +38,9 @@ std::vector<int> PSimHitMap::detsWithHits() const
 {
   std::vector<int> result;
   result.reserve(theMap.size());
-  for(std::map<int, edm::PSimHitContainer>::const_iterator mapItr = theMap.begin(),
-	mapEnd = theMap.end();
-      mapItr != mapEnd;
-      ++mapItr)
+  for(const auto & mapItr : theMap)
     {
-      result.push_back(mapItr->first);
+      result.push_back(mapItr.first);
     }
   return result;
 } 

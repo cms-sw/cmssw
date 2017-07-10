@@ -96,10 +96,10 @@ bool ProbClustersFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
   const EcalSeverityLevelAlgo * sevLv= sevlvh.product();
 
   //        std::cout << "========== BARREL ==========" << std::endl;
-  for (reco::SuperClusterCollection::const_iterator it = ebClusters->begin(); it != ebClusters->end(); ++it ) 
+  for (const auto & ebCluster : *ebClusters) 
     {
-      float goodFraction=EcalClusterSeverityLevelAlgo::goodFraction( *it, *ebRecHits,*sevLv);
-      std::pair<int,int> distance=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits,topology,*sevLv);
+      float goodFraction=EcalClusterSeverityLevelAlgo::goodFraction( ebCluster, *ebRecHits,*sevLv);
+      std::pair<int,int> distance=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( ebCluster, *ebRecHits,topology,*sevLv);
       if ( distance.first == -1 && distance.second==-1)
 	{
 	  distance.first=999;

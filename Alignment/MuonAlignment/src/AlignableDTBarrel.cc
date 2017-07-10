@@ -28,9 +28,8 @@ AlignableDTBarrel::AlignableDTBarrel( const std::vector<AlignableDTWheel*>& dtWh
 /// Clean delete of the vector and its elements
 AlignableDTBarrel::~AlignableDTBarrel() 
 {
-  for ( std::vector<AlignableDTWheel*>::iterator iter = theDTWheels.begin(); 
-	iter != theDTWheels.end(); iter++)
-    delete *iter;
+  for (auto & theDTWheel : theDTWheels)
+    delete theDTWheel;
 
 }
 
@@ -63,9 +62,8 @@ AlignableDTBarrel::PositionType AlignableDTBarrel::computePosition()
 
   float zz = 0.;
 
-  for ( std::vector<AlignableDTWheel*>::iterator ilayer = theDTWheels.begin();
-		ilayer != theDTWheels.end(); ilayer++ )
-    zz += (*ilayer)->globalPosition().z();
+  for (auto & theDTWheel : theDTWheels)
+    zz += theDTWheel->globalPosition().z();
 
   zz /= static_cast<float>(theDTWheels.size());
 
@@ -100,9 +98,8 @@ void AlignableDTBarrel::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTWheel*>::const_iterator iWheel = theDTWheels.begin();
-		iWheel != theDTWheels.end(); iWheel++ )
-	(*iWheel)->dump();
+  for (auto theDTWheel : theDTWheels)
+	theDTWheel->dump();
 
 }
 
@@ -113,9 +110,9 @@ Alignments* AlignableDTBarrel::alignments( void ) const
   std::vector<Alignable*> comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for (auto & i : comp)
     {
-      Alignments* tmpAlignments = (*i)->alignments();
+      Alignments* tmpAlignments = i->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
 				 std::back_inserter(m_alignments->m_align) );
 	  delete tmpAlignments;
@@ -136,9 +133,9 @@ AlignmentErrorsExtended* AlignableDTBarrel::alignmentErrors( void ) const
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for (auto & i : comp)
     {
-	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = i->alignmentErrors();
       std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
 				 std::back_inserter(m_alignmentErrors->m_alignError) );
 	  delete tmpAlignmentErrorsExtended;

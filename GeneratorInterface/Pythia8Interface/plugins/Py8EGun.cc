@@ -53,10 +53,10 @@ bool Py8EGun::generatePartonsAndHadronize()
 
    fMasterGen->event.reset();
    
-   for ( size_t i=0; i<fPartIDs.size(); i++ )
+   for (int particleID : fPartIDs)
    {
 
-      int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
+      // this is PDG - need to convert to Py8 ???
 
       double phi = (fMaxPhi-fMinPhi) * randomEngine().flat() + fMinPhi;
       double ee   = (fMaxE-fMinE) * randomEngine().flat() + fMinE;

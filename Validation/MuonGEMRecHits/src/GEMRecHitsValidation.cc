@@ -108,9 +108,9 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     return ;
   }
 
-  for (edm::PSimHitContainer::const_iterator hits = gemSimHits->begin(); hits!=gemSimHits->end(); ++hits) {
+  for (const auto & hits : *gemSimHits) {
 
-    const GEMDetId id(hits->detUnitId());
+    const GEMDetId id(hits.detUnitId());
 
     Int_t sh_region = id.region();
     //Int_t sh_ring = id.ring();
@@ -119,19 +119,19 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     Int_t sh_layer = id.layer();
     Int_t sh_chamber = id.chamber();
 
-    if ( GEMGeometry_->idToDet(hits->detUnitId()) == nullptr) {
+    if ( GEMGeometry_->idToDet(hits.detUnitId()) == nullptr) {
       std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
       continue;
     }
 
-    if (!(abs(hits-> particleType()) == 13)) continue;
+    if (!(abs(hits. particleType()) == 13)) continue;
 
     //const LocalPoint p0(0., 0., 0.);
     //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
-    const LocalPoint hitLP(hits->localPosition());
+    const LocalPoint hitLP(hits.localPosition());
 
-    const LocalPoint hitEP(hits->entryPoint());
-    Int_t sh_strip = GEMGeometry_->etaPartition(hits->detUnitId())->strip(hitEP);
+    const LocalPoint hitEP(hits.entryPoint());
+    Int_t sh_strip = GEMGeometry_->etaPartition(hits.detUnitId())->strip(hitEP);
 
     //const GlobalPoint hitGP(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
     //Float_t sh_l_r = hitLP.perp();
@@ -140,17 +140,17 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
     //Float_t sh_l_z = hitLP.z();
 
 
-    for (GEMRecHitCollection::const_iterator recHit = gemRecHits->begin(); recHit != gemRecHits->end(); ++recHit){
-      Float_t  rh_l_x = recHit->localPosition().x();
-      Float_t  rh_l_xErr = recHit->localPositionError().xx();
-      Float_t  rh_l_y = recHit->localPosition().y();
-      Float_t  rh_l_yErr = recHit->localPositionError().yy();
+    for (const auto & recHit : *gemRecHits){
+      Float_t  rh_l_x = recHit.localPosition().x();
+      Float_t  rh_l_xErr = recHit.localPositionError().xx();
+      Float_t  rh_l_y = recHit.localPosition().y();
+      Float_t  rh_l_yErr = recHit.localPositionError().yy();
       //Int_t  detId = (Short_t) (*recHit).gemId();
       //Int_t  bx = recHit->BunchX();
-      Int_t  clusterSize = recHit->clusterSize();
-      Int_t  firstClusterStrip = recHit->firstClusterStrip();
+      Int_t  clusterSize = recHit.clusterSize();
+      Int_t  firstClusterStrip = recHit.firstClusterStrip();
 
-      GEMDetId id((*recHit).gemId());
+      GEMDetId id(recHit.gemId());
 
       Short_t rh_region = (Short_t) id.region();
       //Int_t rh_ring = (Short_t) id.ring();
@@ -159,12 +159,12 @@ void GEMRecHitsValidation::analyze(const edm::Event& e,
       Short_t rh_chamber = (Short_t) id.chamber();
       Short_t rh_roll = (Short_t) id.roll();
 
-      LocalPoint recHitLP = recHit->localPosition();
-      if ( GEMGeometry_->idToDet((*recHit).gemId()) == nullptr) {
+      LocalPoint recHitLP = recHit.localPosition();
+      if ( GEMGeometry_->idToDet(recHit.gemId()) == nullptr) {
         std::cout<<"This gem recHit did not matched with GEMGeometry."<<std::endl;
         continue;
       }
-      GlobalPoint recHitGP = GEMGeometry_->idToDet((*recHit).gemId())->surface().toGlobal(recHitLP);
+      GlobalPoint recHitGP = GEMGeometry_->idToDet(recHit.gemId())->surface().toGlobal(recHitLP);
 
       Float_t     rh_g_R = recHitGP.perp();
       //Float_t rh_g_Eta = recHitGP.eta();

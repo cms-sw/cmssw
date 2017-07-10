@@ -140,10 +140,9 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
   }
 
 //loop over the detectors which have digitized simhits
-  for (edm::DetSetVector<ME0DigiSimLink>::const_iterator itsimlink = theSimlinkDigis->begin();
-      itsimlink != theSimlinkDigis->end(); itsimlink++)
+  for (const auto & itsimlink : *theSimlinkDigis)
   {
-    int detid = itsimlink->detId();
+    int detid = itsimlink.detId();
     if(debug_)
       LogDebug("ME0DigiSimLinkReader") << "detid\t" << detid << std::endl;
     const ME0EtaPartition* roll = pDD->etaPartition(detid);
@@ -157,8 +156,8 @@ void ME0DigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     GlobalVector gvMu(0., 0., 0.);
 
 //loop over ME0DigiSimLinks
-    for (edm::DetSet<ME0DigiSimLink>::const_iterator link_iter = itsimlink->data.begin();
-        link_iter != itsimlink->data.end(); ++link_iter)
+    for (edm::DetSet<ME0DigiSimLink>::const_iterator link_iter = itsimlink.data.begin();
+        link_iter != itsimlink.data.end(); ++link_iter)
     {
       int strip = link_iter->getStrip();
       int processtype = link_iter->getProcessType();

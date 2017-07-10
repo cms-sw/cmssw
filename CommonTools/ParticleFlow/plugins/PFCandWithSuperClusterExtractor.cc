@@ -52,16 +52,16 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & even
 
     double eta = cand.eta(), phi = cand.phi();
     reco::Particle::Point vtx = cand.vertex();
-    for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
-      double dR = deltaR(it->eta(), it->phi(), eta, phi);
+    for (const auto & it : *PFCandH) {
+      double dR = deltaR(it.eta(), it.phi(), eta, phi);
       // veto SC
-      if (theVetoSuperClusterMatch && cand.superCluster().isNonnull() && it->superClusterRef().isNonnull() && cand.superCluster() == it->superClusterRef()) continue;
+      if (theVetoSuperClusterMatch && cand.superCluster().isNonnull() && it.superClusterRef().isNonnull() && cand.superCluster() == it.superClusterRef()) continue;
       if ( (dR < theDR_Max) && (dR > theDR_Veto) &&
-	   (std::abs(it->vz() - cand.vz()) < theDiff_z) &&
-	   ((it->vertex() - vtx).Rho() < theDiff_r)) {
+	   (std::abs(it.vz() - cand.vz()) < theDiff_z) &&
+	   ((it.vertex() - vtx).Rho() < theDiff_r)) {
 	// ok
-	reco::isodeposit::Direction dirTrk(it->eta(), it->phi());
-	deposit.addDeposit(dirTrk, it->pt());
+	reco::isodeposit::Direction dirTrk(it.eta(), it.phi());
+	deposit.addDeposit(dirTrk, it.pt());
       }
     }
 
@@ -81,21 +81,21 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & even
 
     double eta = cand.eta(), phi = cand.phi();
     reco::Particle::Point vtx = cand.vertex();
-    for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
-        double dR = deltaR(it->eta(), it->phi(), eta, phi);
+    for (const auto & it : *PFCandH) {
+        double dR = deltaR(it.eta(), it.phi(), eta, phi);
         // If MissHits>0 (possibly reconstructed as a photon in the PF in this case, kill the the photon if sharing the same SC)
         if (cand.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > 0 
-                && theMissHitVetoSuperClusterMatch && it->mva_nothing_gamma() > 0.99 
-                && cand.superCluster().isNonnull() && it->superClusterRef().isNonnull() 
-                && cand.superCluster() == it->superClusterRef()){
+                && theMissHitVetoSuperClusterMatch && it.mva_nothing_gamma() > 0.99 
+                && cand.superCluster().isNonnull() && it.superClusterRef().isNonnull() 
+                && cand.superCluster() == it.superClusterRef()){
             continue;
         }
         if ((dR < theDR_Max) && (dR > theDR_Veto) 
-                && (std::abs(it->vz() - cand.vz()) < theDiff_z) 
-                && ((it->vertex() - vtx).Rho() < theDiff_r)) {
+                && (std::abs(it.vz() - cand.vz()) < theDiff_z) 
+                && ((it.vertex() - vtx).Rho() < theDiff_r)) {
             // ok
-            reco::isodeposit::Direction dirTrk(it->eta(), it->phi());
-            deposit.addDeposit(dirTrk, it->pt());
+            reco::isodeposit::Direction dirTrk(it.eta(), it.phi());
+            deposit.addDeposit(dirTrk, it.pt());
         }
     }
 
@@ -115,15 +115,15 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & even
 
     double eta = cand.eta(), phi = cand.phi();
     reco::Particle::Point vtx = cand.vertex();
-    for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
-        double dR = deltaR(it->eta(), it->phi(), eta, phi);
+    for (const auto & it : *PFCandH) {
+        double dR = deltaR(it.eta(), it.phi(), eta, phi);
 
         if ( (dR < theDR_Max) && (dR > theDR_Veto) &&
-                (std::abs(it->vz() - cand.vz()) < theDiff_z) &&
-                ((it->vertex() - vtx).Rho() < theDiff_r)) {
+                (std::abs(it.vz() - cand.vz()) < theDiff_z) &&
+                ((it.vertex() - vtx).Rho() < theDiff_r)) {
             // ok
-            reco::isodeposit::Direction dirTrk(it->eta(), it->phi());
-            deposit.addDeposit(dirTrk, it->pt());
+            reco::isodeposit::Direction dirTrk(it.eta(), it.phi());
+            deposit.addDeposit(dirTrk, it.pt());
         }
     }
 
@@ -142,17 +142,17 @@ IsoDeposit PFCandWithSuperClusterExtractor::depositFromObject(const Event & even
 
     double eta = cand.eta(), phi = cand.phi();
     reco::Particle::Point vtx = cand.vertex();
-    for (PFCandidateCollection::const_iterator it = PFCandH->begin(), ed = PFCandH->end(); it != ed; ++it) {
+    for (const auto & it : *PFCandH) {
       // veto SC
-      if (theVetoSuperClusterMatch && cand.superClusterRef().isNonnull() && it->superClusterRef().isNonnull() && cand.superClusterRef() == it->superClusterRef()) continue;
-      double dR = deltaR(it->eta(), it->phi(), eta, phi);
+      if (theVetoSuperClusterMatch && cand.superClusterRef().isNonnull() && it.superClusterRef().isNonnull() && cand.superClusterRef() == it.superClusterRef()) continue;
+      double dR = deltaR(it.eta(), it.phi(), eta, phi);
 
       if ( (dR < theDR_Max) && (dR > theDR_Veto) &&
-	   (std::abs(it->vz() - cand.vz()) < theDiff_z) &&
-	   ((it->vertex() - vtx).Rho() < theDiff_r)) {
+	   (std::abs(it.vz() - cand.vz()) < theDiff_z) &&
+	   ((it.vertex() - vtx).Rho() < theDiff_r)) {
 	// ok
-	reco::isodeposit::Direction dirTrk(it->eta(), it->phi());
-	deposit.addDeposit(dirTrk, it->pt());
+	reco::isodeposit::Direction dirTrk(it.eta(), it.phi());
+	deposit.addDeposit(dirTrk, it.pt());
       }
     }
 

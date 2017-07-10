@@ -118,29 +118,29 @@ void NavigationSchoolAnalyzer::print(std::ostream& os,const DetLayer* dl){
 }
 
 void NavigationSchoolAnalyzer::print(std::ostream&os, const NavigationSchool::StateType & layers){
-  for (NavigationSchool::StateType::const_iterator l = layers.begin(); l!=layers.end();++l)
+  for (auto layer : layers)
     {
       std::vector<const DetLayer*> displayThose;
 
       os<<"####################\n"	 
 	<<"Layer: \n";
-      print(os,(*l)->detLayer());
+      print(os,layer->detLayer());
       
-      displayThose= (*l)->nextLayers(insideOut);
+      displayThose= layer->nextLayers(insideOut);
       if (displayThose.empty())
         {os<<"*** no INsideOUT connection ***\n";}
       else{
 	os<<"*** INsideOUT CONNECTED TO ***\n";
-	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {print(os,*nl); os<<"-----------------\n";}}
+	for(auto & nl : displayThose)
+	  {print(os,nl); os<<"-----------------\n";}}
 
-      displayThose = (*l)->nextLayers(outsideIn);
+      displayThose = layer->nextLayers(outsideIn);
       if (displayThose.empty())
 	{os<<"*** no OUTsideIN connection ***\n";}
       else{
 	os<<"*** OUTsideIN CONNECTED TO ***\n";
-	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-	  {print(os,*nl); os<<"-----------------\n";}}
+	for(auto & nl : displayThose)
+	  {print(os,nl); os<<"-----------------\n";}}
     }
   os<<"\n";
   return;
@@ -167,16 +167,16 @@ void NavigationSchoolAnalyzer::printUsingGeom(std::ostream&os, const NavigationS
         {os<<"*** no INsideOUT connection ***\n";}
       else{
 	os<<"*** INsideOUT CONNECTED TO ***\n";
-	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-          {print(os,*nl); os<<"-----------------\n";}}
+	for(auto & nl : displayThose)
+          {print(os,nl); os<<"-----------------\n";}}
 
       displayThose = nav.nextLayers(*dl,outsideIn);
       if (displayThose.empty())
 	{os<<"*** no OUTsideIN connection ***\n";}
       else{
 	os<<"*** OUTsideIN CONNECTED TO ***\n";
-	for(std::vector<const DetLayer*>::iterator nl =displayThose.begin();nl!=displayThose.end();++nl)
-          {print(os,*nl); os<<"-----------------\n";}}
+	for(auto & nl : displayThose)
+          {print(os,nl); os<<"-----------------\n";}}
   }
   os<<"\n";
 

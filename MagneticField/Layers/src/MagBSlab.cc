@@ -29,13 +29,12 @@ MagBSlab::~MagBSlab(){
 
 
 const MagVolume* MagBSlab::findVolume(const GlobalPoint & gp, double tolerance) const {
-  for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
-	ivol != theVolumes.end(); ++ivol) {
+  for(auto theVolume : theVolumes) {
     // FIXME : use a binfinder
     // TOFIX
     if (verbose::debugOut) cout << "        Trying volume "
-			       << (static_cast<MagVolume6Faces*>(*ivol))->volumeNo << endl;
-    if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
+			       << (static_cast<MagVolume6Faces*>(theVolume))->volumeNo << endl;
+    if ( theVolume->inside(gp,tolerance) ) return theVolume;
   }
 
   return 0;

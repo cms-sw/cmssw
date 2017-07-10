@@ -203,23 +203,23 @@ std::cout<<" ncalo "<<ncalotowers<<" deta2 "<<deta2<<" dphi2 "<<dphi2<<" deta1 "
 
       const reco::TrackRefVector pioninin = (*jet).getPionsInVertexInCalo();
       
-      for(reco::TrackRefVector::const_iterator it = pioninin.begin(); it != pioninin.end(); it++) {      
-            if ((*it)->pt() > 0.5 && ((*it)->ptError()/(*it)->pt()) < 0.05 )
+      for(auto && it : pioninin) {      
+            if ((it)->pt() > 0.5 && ((it)->ptError()/(it)->pt()) < 0.05 )
               {              
                  ntracks++;
-		 sumpttr = sumpttr + (*it)->pt();	
-		 double  deta=(*jet).eta()-(*it)->eta();
-	         double  dphi=(*jet).phi()-(*it)->phi();
+		 sumpttr = sumpttr + (it)->pt();	
+		 double  deta=(*jet).eta()-(it)->eta();
+	         double  dphi=(*jet).phi()-(it)->phi();
 
 	         if(dphi > M_PI ) dphi = dphi-2.*M_PI;
 	         if(dphi < -1.*M_PI ) dphi = dphi+2.*M_PI;
 
-	         dphitr2 = dphitr2 + dphi*dphi*(*it)->pt();
-	         detatr2 = detatr2 + deta*deta*(*it)->pt();	
-	         dphitr1 = dphitr1 + dphi*(*it)->pt();
-                 detatr1 = detatr1 + deta*(*it)->pt();	
-                 dphidetatr = dphidetatr + dphi*deta*(*it)->pt();
-        if(verbosity>0) std::cout<<" Tracks-in-in "<<(*it)->pt()<<" "<<(*it)->eta()<<" "<<(*it)->phi()<<" in jet "<<(*jet).eta()<<" "<<
+	         dphitr2 = dphitr2 + dphi*dphi*(it)->pt();
+	         detatr2 = detatr2 + deta*deta*(it)->pt();	
+	         dphitr1 = dphitr1 + dphi*(it)->pt();
+                 detatr1 = detatr1 + deta*(it)->pt();	
+                 dphidetatr = dphidetatr + dphi*deta*(it)->pt();
+        if(verbosity>0) std::cout<<" Tracks-in-in "<<(it)->pt()<<" "<<(it)->eta()<<" "<<(it)->phi()<<" in jet "<<(*jet).eta()<<" "<<
          (*jet).phi()<<" jet pt "<<(*jet).pt()<<std::endl;	
               }
       }// pioninin
@@ -227,23 +227,23 @@ std::cout<<" ncalo "<<ncalotowers<<" deta2 "<<deta2<<" dphi2 "<<dphi2<<" deta1 "
       
        const reco::TrackRefVector pioninout = (*jet).getPionsInVertexOutCalo();
       
-      for(reco::TrackRefVector::const_iterator it = pioninout.begin(); it != pioninout.end(); it++) {      
-            if ((*it)->pt() > 0.5 && ((*it)->ptError()/(*it)->pt()) < 0.05 )
+      for(auto && it : pioninout) {      
+            if ((it)->pt() > 0.5 && ((it)->ptError()/(it)->pt()) < 0.05 )
               {              
                  ntracks++;
-		 sumpttr = sumpttr + (*it)->pt();	
-		 double  deta=(*jet).eta()-(*it)->eta();
-	         double  dphi=(*jet).phi()-(*it)->phi();
+		 sumpttr = sumpttr + (it)->pt();	
+		 double  deta=(*jet).eta()-(it)->eta();
+	         double  dphi=(*jet).phi()-(it)->phi();
 
 	         if(dphi > M_PI ) dphi = dphi-2.*M_PI;
 	         if(dphi < -1.*M_PI ) dphi = dphi+2.*M_PI;
 
-	         dphitr2 = dphitr2 + dphi*dphi*(*it)->pt();
-	         detatr2 = detatr2 + deta*deta*(*it)->pt();	
-	         dphitr1 = dphitr1 + dphi*(*it)->pt();
-                 detatr1 = detatr1 + deta*(*it)->pt();	
-                 dphidetatr = dphidetatr + dphi*deta*(*it)->pt();	
-        if(verbosity>0) std::cout<<" Tracks-in-in "<<(*it)->pt()<<" "<<(*it)->eta()<<" "<<(*it)->phi()<<" in jet "<<(*jet).eta()<<" "<< 
+	         dphitr2 = dphitr2 + dphi*dphi*(it)->pt();
+	         detatr2 = detatr2 + deta*deta*(it)->pt();	
+	         dphitr1 = dphitr1 + dphi*(it)->pt();
+                 detatr1 = detatr1 + deta*(it)->pt();	
+                 dphidetatr = dphidetatr + dphi*deta*(it)->pt();	
+        if(verbosity>0) std::cout<<" Tracks-in-in "<<(it)->pt()<<" "<<(it)->eta()<<" "<<(it)->phi()<<" in jet "<<(*jet).eta()<<" "<< 
          (*jet).phi()<<" jet pt "<<(*jet).pt()<<std::endl;
               }
       }// pioninout

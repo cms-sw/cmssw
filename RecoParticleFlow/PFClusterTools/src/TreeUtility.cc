@@ -250,10 +250,8 @@ unsigned TreeUtility::convertCalibratablesToParticleDeposits(
 	if (target == UNDEFINED || target == PFELEMENT)
 		return 0;
 	unsigned count(0);
-	for (std::vector<Calibratable>::const_iterator cit = input.begin(); cit
-			!= input.end(); ++cit) {
-		Calibratable c = *cit;
-		ParticleDepositPtr pd(new ParticleDeposit());
+	for (auto c : input) {
+			ParticleDepositPtr pd(new ParticleDeposit());
 		bool veto(false);
 		if (c.sim_isMC_) {
 			pd->setTruthEnergy(c.sim_energyEvent_);

@@ -241,8 +241,8 @@ const double RPCConst::m_etas[RPCConst::ITOW_MAX+2]=
 //------- imported fucntions
 
 int RPCConst::stringToInt(std::string str) {
-  for(unsigned int i = 0; i < str.size(); i++)
-    if(str[i] < '0' || str[i] > '9')
+  for(char i : str)
+    if(i < '0' || i > '9')
       throw RPCException("Error in stringToInt(): the string cannot be converted to a number");
       //edm::LogError("RPCTrigger")<< "Error in stringToInt(): the string cannot be converted to a number";
   return atoi(str.c_str());

@@ -106,11 +106,11 @@ void GEMDigiReader::analyze(const edm::Event & event, const edm::EventSetup& eve
     }// for digis in layer
   }// for layers
 
-  for (edm::DetSetVector<StripDigiSimLink>::const_iterator itlink = thelinkDigis->begin(); itlink != thelinkDigis->end(); itlink++)
+  for (const auto & itlink : *thelinkDigis)
   {
-    for(edm::DetSet<StripDigiSimLink>::const_iterator link_iter=itlink->data.begin();link_iter != itlink->data.end();++link_iter)
+    for(edm::DetSet<StripDigiSimLink>::const_iterator link_iter=itlink.data.begin();link_iter != itlink.data.end();++link_iter)
     {
-      int detid = itlink->detId();
+      int detid = itlink.detId();
       int ev = link_iter->eventId().event();
       float frac =  link_iter->fraction();
       int strip = link_iter->channel();

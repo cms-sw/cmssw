@@ -93,8 +93,8 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
 
     // fill only layers in layers list
     bool empty=true;
-    for(unsigned int j=0; j<layers.size(); j++) {
-      if(i+1==(unsigned int)layers[j]) {
+    for(double layer : layers) {
+      if(i+1==(unsigned int)layer) {
 	empty=false;
       }
     }
@@ -185,8 +185,8 @@ void DDTIBRadCableAlgo_MTCC::execute(DDCompactView& cpv) {
     
     // fill only layers in layers list
     empty=true;
-    for(unsigned int j=0; j<layers.size(); j++) {
-      if(i+1==(unsigned int)layers[j]) {
+    for(double layer : layers) {
+      if(i+1==(unsigned int)layer) {
 	empty=false;
       }
     }

@@ -140,8 +140,8 @@ std::vector<CSCSegment> CSCSegAlgoRU::buildSegments(const CSCChamber* aChamber, 
     for(unsigned int n_seg_min = 6u; n_seg_min > 2u + iadd; --n_seg_min){
       BoolContainer common_used(rechits.size(),false);
       std::array<BoolContainer, 120> common_used_it = {};
-      for (unsigned int i = 0; i < common_used_it.size(); i++) {
-	common_used_it[i] = common_used;
+      for (auto & i : common_used_it) {
+	i = common_used;
       }
       ChamberHitContainer best_proto_segment[120];
       float min_chi[120] = {9999};

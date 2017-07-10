@@ -572,11 +572,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	int numChsCut = 0;
 	int numChsHE = 0;
 	int numChsCutHE = 0;
-	for (HBHEDigiCollection::const_iterator it=chbhe->begin(); it!=chbhe->end();
-		++it)
+	for (const auto & it : *chbhe)
 	{
 		//	Explicit check on the DetIds present in the Collection
-		HcalDetId const& did = it->id();
+		HcalDetId const& did = it.id();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
@@ -587,8 +586,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			rawidHEValid = did.rawId();
 
 		//double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, *it);
-		double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HBHEDataFrame>(_dbService, did, it);
+		double sumQ = hcaldqm::utilities::sumQDB<HBHEDataFrame>(_dbService, digi_fC, did, it, 0, it.size()-1);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -608,15 +607,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		}
 		if (_ptype==fOnline)
 		{
-			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
-			it->size()!=constants::DIGISIZE[did.subdet()-1]?
+			_cDigiSizevsLS_FED.fill(eid, _currentLS, it.size());
+			it.size()!=constants::DIGISIZE[did.subdet()-1]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
-		_cDigiSize_Crate.fill(eid, it->size());
+		_cDigiSize_Crate.fill(eid, it.size());
 		if (_ptype != fOffline) { // hidefed2crate
-			_cDigiSize_FED.fill(eid, it->size());
+			_cDigiSize_FED.fill(eid, it.size());
 			if (eid.isVMEid())
 			{
 				_cOccupancy_FEDVME.fill(eid);
@@ -635,14 +634,14 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			}
 		}
 
-		for (int i=0; i<it->size(); i++)
+		for (int i=0; i<it.size(); i++)
 		{
-			_cADC_SubdetPM.fill(did, it->sample(i).adc());
-			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
+			_cADC_SubdetPM.fill(did, it.sample(i).adc());
+			_cfC_SubdetPM.fill(did, it.sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
+				_cADCvsTS_SubdetPM.fill(did, i, it.sample(i).nominal_fC());
 				if (sumQ>_cutSumQ_HBHE) {
-					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
+					_cShapeCut_FED.fill(eid, i, it.sample(i).nominal_fC());
 				}
 			}
 		}
@@ -650,7 +649,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (sumQ>_cutSumQ_HBHE)
 		{
 			//double timing = hcaldqm::utilities::aveTS<HBHEDataFrame>(*it, 2.5, 0, it->size()-1);
-			double timing = hcaldqm::utilities::aveTSDB<HBHEDataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+			double timing = hcaldqm::utilities::aveTSDB<HBHEDataFrame>(_dbService, digi_fC, did, it, 0, it.size()-1);
 			_cTimingCut_SubdetPM.fill(did, timing);
 			_cTimingCut_depth.fill(did, timing);
 			_cOccupancyCut_depth.fill(did);
@@ -817,11 +816,10 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 
 
 	//	HO collection
-	for (HODigiCollection::const_iterator it=cho->begin(); it!=cho->end();
-		++it)
+	for (const auto & it : *cho)
 	{		
 		//	Explicit check on the DetIds present in the Collection
-		HcalDetId const& did = it->id();
+		HcalDetId const& did = it.id();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
@@ -830,8 +828,8 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			rawidValid = did.rawId();
 
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
-		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, *it);
-		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+		CaloSamples digi_fC = hcaldqm::utilities::loadADC2fCDB<HODataFrame>(_dbService, did, it);
+		double sumQ = hcaldqm::utilities::sumQDB<HODataFrame>(_dbService, digi_fC, did, it, 0, it.size()-1);
 
 		//	filter out channels that are masked out
 		if (_xQuality.exists(did)) 
@@ -847,15 +845,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cOccupancy_depth.fill(did);
 		if (_ptype==fOnline)
 		{
-			_cDigiSizevsLS_FED.fill(eid, _currentLS, it->size());
-			it->size()!=constants::DIGISIZE[did.subdet()-1]?
+			_cDigiSizevsLS_FED.fill(eid, _currentLS, it.size());
+			it.size()!=constants::DIGISIZE[did.subdet()-1]?
 				_xDigiSize.get(eid)++:_xDigiSize.get(eid)+=0;
 			_cOccupancyvsiphi_SubdetPM.fill(did);
 			_cOccupancyvsieta_Subdet.fill(did);
 		}
-		_cDigiSize_Crate.fill(eid, it->size());
+		_cDigiSize_Crate.fill(eid, it.size());
 		if (_ptype != fOffline) { // hidefed2crate
-			_cDigiSize_FED.fill(eid, it->size());
+			_cDigiSize_FED.fill(eid, it.size());
 			if (eid.isVMEid())
 			{
 				_cOccupancy_FEDVME.fill(eid);
@@ -875,21 +873,21 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 			}
 		}
 
-		for (int i=0; i<it->size(); i++)
+		for (int i=0; i<it.size(); i++)
 		{
-			_cADC_SubdetPM.fill(did, it->sample(i).adc());
-			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
+			_cADC_SubdetPM.fill(did, it.sample(i).adc());
+			_cfC_SubdetPM.fill(did, it.sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
-				_cADCvsTS_SubdetPM.fill(did, i, it->sample(i).nominal_fC());
+				_cADCvsTS_SubdetPM.fill(did, i, it.sample(i).nominal_fC());
 				if (sumQ>_cutSumQ_HO)
-					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
+					_cShapeCut_FED.fill(eid, i, it.sample(i).nominal_fC());
 			}
 		}
 
 		if (sumQ>_cutSumQ_HO)
 		{
 			//double timing = hcaldqm::utilities::aveTS<HODataFrame>(*it, 8.5, 0,it->size()-1);
-			double timing = hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, *it, 0, it->size()-1);
+			double timing = hcaldqm::utilities::aveTSDB<HODataFrame>(_dbService, digi_fC, did, it, 0, it.size()-1);
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cOccupancyCut_depth.fill(did);
@@ -1196,16 +1194,15 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 				_vflags[fUnknownIds]._state = hcaldqm::flag::fGOOD;
 
 			int iflag=0;
-			for (std::vector<hcaldqm::flag::Flag>::iterator ft=_vflags.begin();
-				ft!=_vflags.end(); ++ft)
+			for (auto & _vflag : _vflags)
 			{
 				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, iflag,
-					int(ft->_state));
-				fSum+=(*ft);
+					int(_vflag._state));
+				fSum+=_vflag;
 				iflag++;
 
 				//	reset!
-				ft->reset();
+				_vflag.reset();
 			}
 			_cSummaryvsLS.setBinContent(eid, _currentLS, fSum._state);
 		}

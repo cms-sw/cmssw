@@ -120,17 +120,16 @@ void EcalPerEvtMatacqAnalyzer:: analyze( const edm::Event & e, const  edm::Event
   // Decode Basic DCCHeader Information 
   // ====================================
 
-  for ( EcalRawDataCollection::const_iterator headerItr= DCCHeader->begin();headerItr != DCCHeader->end(); 
-    ++headerItr ) {
-    event=headerItr->getLV1();
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings(); 
+  for (const auto & headerItr : *DCCHeader) {
+    event=headerItr.getLV1();
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings(); 
 
     laser_color = (int) settings.wavelength;
     
     // Get run type and run number 
 
-    runType=headerItr->getRunType();
-    runNum=headerItr->getRunNumber();
+    runType=headerItr.getRunType();
+    runNum=headerItr.getRunNumber();
     
     // Cut on runType
     
@@ -166,11 +165,9 @@ void EcalPerEvtMatacqAnalyzer:: analyze( const edm::Event & e, const  edm::Event
   int iCh=0;
   double max=0;
 
-  for(EcalMatacqDigiCollection::const_iterator it = matacqDigi->begin(); it!=matacqDigi->end(); ++it){ // Loop on matacq channel 
+  for(const auto & digis : *matacqDigi){ // Loop on matacq channel 
     
     // 
-    const EcalMatacqDigi& digis = *it;
-    
     if(digis.size()==0 || iCh>=N_channels) continue; 
 
     max=0;

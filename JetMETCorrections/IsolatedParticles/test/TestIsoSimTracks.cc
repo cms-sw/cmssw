@@ -162,17 +162,16 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
    // loop over simulated tracks
    std::cout << "Number of simulated tracks found in the event: " << simTracks->size() << std::endl;
-   for(SimTrackContainer::const_iterator tracksCI = simTracks->begin();
-       tracksCI != simTracks->end(); tracksCI++){
+   for(const auto & tracksCI : *simTracks){
 
       // skip low Pt tracks
-      if (tracksCI->momentum().Pt() < 0.7) {
+      if (tracksCI.momentum().Pt() < 0.7) {
 //	 std::cout << "Skipped low Pt track (Pt: " << tracksCI->momentum().perp() << ")" <<std::endl;
 	 continue;
       }
 
       // get vertex
-      int vertexIndex = tracksCI->vertIndex();
+      int vertexIndex = tracksCI.vertIndex();
       // uint trackIndex = tracksCI->genpartIndex();
 
       SimVertex vertex(math::XYZVectorD(0.,0.,0.),0);
@@ -184,8 +183,8 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 //	 continue;
 //      }
 
-      std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI->momentum().Pt() << " , " <<
-	tracksCI->momentum().eta() << " , " << tracksCI->momentum().phi() << std::endl;
+      std::cout << "\n-------------------------------------------------------\n Track (pt,eta,phi): " << tracksCI.momentum().Pt() << " , " <<
+	tracksCI.momentum().eta() << " , " << tracksCI.momentum().phi() << std::endl;
 
       // Simply get ECAL energy of the crossed crystals
 //      std::cout << "ECAL energy of crossed crystals: " <<
@@ -195,7 +194,7 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
 //      std::cout << "Details:\n" <<std::endl;
       TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup,
-							  trackAssociator_.getFreeTrajectoryState(iSetup, *tracksCI, vertex),
+							  trackAssociator_.getFreeTrajectoryState(iSetup, tracksCI, vertex),
 							  trackAssociatorParameters_);
 //      std::cout << "ECAL, if track reach ECAL:     " << info.isGoodEcal << std::endl;
 //      std::cout << "ECAL, number of crossed cells: " << info.crossedEcalRecHits.size() << std::endl;
@@ -211,13 +210,13 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 	  double rfa =     sqrt (info.trkGlobPosAtEcal.x()*info.trkGlobPosAtEcal.x() +
 	                         info.trkGlobPosAtEcal.y()*info.trkGlobPosAtEcal.y() +
 				 info.trkGlobPosAtEcal.z()*info.trkGlobPosAtEcal.z()) /
-		           sqrt ( tracksCI->momentum().x()*tracksCI->momentum().x() +
-			          tracksCI->momentum().y()*tracksCI->momentum().y() +
-				  tracksCI->momentum().z()*tracksCI->momentum().z());
+		           sqrt ( tracksCI.momentum().x()*tracksCI.momentum().x() +
+			          tracksCI.momentum().y()*tracksCI.momentum().y() +
+				  tracksCI.momentum().z()*tracksCI.momentum().z());
 
           if (info.isGoodEcal==1 && fabs(info.trkGlobPosAtEcal.eta()) < 2.6){
  	   AllTracks.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
-	    if (tracksCI->momentum().Pt() > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1)
+	    if (tracksCI.momentum().Pt() > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1)
 	     {
 	     AllTracks1.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
 	     }
@@ -242,16 +241,16 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
   double imult=0.;
 
-  for (unsigned int ia1=0; ia1<AllTracks1.size(); ia1++)
+  for (auto & ia1 : AllTracks1)
   {
 
     double delta_min=3.141592;
 
-   for (unsigned int ia=0; ia<AllTracks.size(); ia++)
+   for (auto & AllTrack : AllTracks)
    {
-     double delta_phi = fabs(AllTracks1[ia1].phi() - AllTracks[ia].phi());
+     double delta_phi = fabs(ia1.phi() - AllTrack.phi());
      if (delta_phi > 3.141592) delta_phi = 6.283184 - delta_phi;
-     double delta_eta = fabs(AllTracks1[ia1].eta() - AllTracks[ia].eta());
+     double delta_eta = fabs(ia1.eta() - AllTrack.eta());
      double delta_actual = sqrt( delta_phi*delta_phi + delta_eta*delta_eta );
 
      if (delta_actual < delta_min && delta_actual != 0.) delta_min = delta_actual;
@@ -260,12 +259,12 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
     if (delta_min > 0.5) {
 
-    std::cout << "FIND ISOLATED TRACK " << AllTracks1[ia1].mag() << "  " << AllTracks1[ia1].eta()<< "  "<< AllTracks1[ia1].phi()<< std::endl;
+    std::cout << "FIND ISOLATED TRACK " << ia1.mag() << "  " << ia1.eta()<< "  "<< ia1.phi()<< std::endl;
 
-    IsoHists.eta->Fill(AllTracks1[ia1].eta());
-    IsoHists.phi->Fill(AllTracks1[ia1].phi());
-    IsoHists.p->Fill(AllTracks1[ia1].mag());
-    IsoHists.pt->Fill(AllTracks1[ia1].perp());
+    IsoHists.eta->Fill(ia1.eta());
+    IsoHists.phi->Fill(ia1.phi());
+    IsoHists.p->Fill(ia1.mag());
+    IsoHists.pt->Fill(ia1.perp());
     imult = imult+1.;
 
     }

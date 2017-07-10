@@ -45,9 +45,8 @@ ExpressionVar::ExpressionVar(const ExpressionVar& rhs)
 
 ExpressionVar::~ExpressionVar()
 {
-  for (std::vector<edm::ObjectWithDict>::iterator I = objects_.begin(),
-      E = objects_.end(); I != E; ++I) {
-    delStorage(*I);
+  for (auto & object : objects_) {
+    delStorage(object);
   }
   objects_.clear();
 }

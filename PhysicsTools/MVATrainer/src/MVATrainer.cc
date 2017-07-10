@@ -327,9 +327,8 @@ MVATrainerComputer::MVATrainerComputer(const std::vector<Interceptor>
 	interceptors(interceptors), nConfigured(0), doAutoSave(autoSave),
 	random(seed), split(split)
 {
-	for(std::vector<Interceptor>::const_iterator iter =
-		interceptors.begin(); iter != interceptors.end(); ++iter)
-		iter->second->setCalibration(this);
+	for(const auto & interceptor : interceptors)
+		interceptor.second->setCalibration(this);
 }
 
 MVATrainerComputer::~MVATrainerComputer()
@@ -347,11 +346,10 @@ MVATrainerComputer::getProcessors() const
 	std::vector<Calibration::VarProcessor*> processors =
 			Calibration::MVAComputer::getProcessors();
 
-	for(std::vector<Interceptor>::const_iterator iter =
-		interceptors.begin(); iter != interceptors.end(); ++iter)
+	for(const auto & interceptor : interceptors)
 
-		processors.insert(processors.begin() + iter->first,
-		                  1, iter->second);
+		processors.insert(processors.begin() + interceptor.first,
+		                  1, interceptor.second);
 
 	return processors;
 }
@@ -366,10 +364,8 @@ void MVATrainerComputer::configured(BaseInterceptor *interceptor) const
 {
 	nConfigured++;
 	if (isConfigured())
-		for(std::vector<Interceptor>::const_iterator iter =
-						interceptors.begin();
-		    iter != interceptors.end(); ++iter)
-			iter->second->init();
+		for(const auto & interceptor : interceptors)
+			interceptor.second->init();
 }
 
 void MVATrainerComputer::next()
@@ -405,14 +401,13 @@ static bool isMagic(AtomicId id)
 static std::string escape(const std::string &in)
 {
 	std::string result("'");
-	for(std::string::const_iterator iter = in.begin();
-	    iter != in.end(); ++iter) {
-		switch(*iter) {
+	for(char iter : in) {
+		switch(iter) {
 		    case '\'':
 			result += "'\\''";
 			break;
 		    default:
-			result += *iter;
+			result += iter;
 		}
 	}
 	result += '\'';
@@ -907,17 +902,16 @@ MVATrainer::connectProcessors(Calibration::MVAComputer *calib,
 			trainCalib->addFlag(var->getFlags());
 	}
 
-	for(std::vector<CalibratedProcessor>::const_iterator iter =
-				procs.begin(); iter != procs.end(); iter++) {
+	for(auto proc : procs) {
 		bool isInterceptor = dynamic_cast<BaseInterceptor*>(
-							iter->calib) != 0;
+							proc.calib) != 0;
 
 		BitSet inputSet(size);
 
 		unsigned int last = 0;
 		std::vector<SourceVariable*> inoutVars;
-		if (iter->processor)
-			inoutVars = iter->processor->getInputs().get(
+		if (proc.processor)
+			inoutVars = proc.processor->getInputs().get(
 								isInterceptor);
 		for(std::vector<SourceVariable*>::const_iterator iter2 =
 			inoutVars.begin(); iter2 != inoutVars.end(); iter2++) {
@@ -931,7 +925,7 @@ MVATrainer::connectProcessors(Calibration::MVAComputer *calib,
 				throw cms::Exception("MVATrainer")
 					<< "Input variables not declared "
 					   "in order of appearance in \""
-					<< (const char*)iter->processor->getName()
+					<< (const char*)proc.processor->getName()
 					<< "\"." << std::endl;
 
 			inputSet[last = pos->second] = true;
@@ -939,7 +933,7 @@ MVATrainer::connectProcessors(Calibration::MVAComputer *calib,
 
 		assert(!isInterceptor || withTarget);
 
-		iter->calib->inputVars = Calibration::convert(inputSet);
+		proc.calib->inputVars = Calibration::convert(inputSet);
 
 		calib->output = size;
 
@@ -948,9 +942,9 @@ MVATrainer::connectProcessors(Calibration::MVAComputer *calib,
 			continue;
 		}
 
-		calib->addProcessor(iter->calib);
+		calib->addProcessor(proc.calib);
 
-		inoutVars = iter->processor->getOutputs().get();
+		inoutVars = proc.processor->getOutputs().get();
 		for(std::vector<SourceVariable*>::const_iterator iter =
 			inoutVars.begin(); iter != inoutVars.end(); iter++) {
 
@@ -1132,12 +1126,11 @@ std::vector<AtomicId> MVATrainer::findFinalProcessors() const
 	}
 
 	std::vector<AtomicId> result;
-	for(std::vector<AtomicId>::const_iterator iter = processors.begin();
-	    iter != processors.end(); ++iter) {
+	for(const auto & processor : processors) {
 		std::map<AtomicId, Source*>::const_iterator pos =
-							sources.find(*iter);
+							sources.find(processor);
 		if (pos != sources.end() && done.count(pos->second))
-			result.push_back(*iter);
+			result.push_back(processor);
 	}
 
 	return result;
@@ -1201,10 +1194,9 @@ void MVATrainer::findUntrainedComputers(std::vector<AtomicId> &compute,
 	std::set<Source*> trainedSources;
 	trainedSources.insert(input);
 
-	for(std::vector<AtomicId>::const_iterator iter =
-		processors.begin(); iter != processors.end(); iter++) {
+	for(const auto & processor : processors) {
 		std::map<AtomicId, Source*>::const_iterator pos =
-							sources.find(*iter);
+							sources.find(processor);
 		assert(pos != sources.end());
 		TrainProcessor *proc =
 				dynamic_cast<TrainProcessor*>(pos->second);

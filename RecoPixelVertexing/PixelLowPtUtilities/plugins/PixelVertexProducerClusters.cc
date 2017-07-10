@@ -43,15 +43,14 @@ int getContainedHits
   int n = 0;
   chi = 0.;
 
-  for(vector<VertexHit>::const_iterator hit = hits.begin();
-                                        hit!= hits.end(); hit++)
+  for(auto hit : hits)
   {
     // Predicted cluster width in y direction
-    float p = 2 * fabs(hit->z - z0)/hit->r + 0.5; // FIXME
+    float p = 2 * fabs(hit.z - z0)/hit.r + 0.5; // FIXME
 
-    if(fabs(p - hit->w) <= 1.)
+    if(fabs(p - hit.w) <= 1.)
     { 
-      chi += fabs(p - hit->w);
+      chi += fabs(p - hit.w);
       n++;
     }
   }
@@ -100,19 +99,16 @@ void PixelVertexProducerClusters::produce
   {
     vector<VertexHit> hits;
 
-    for(SiPixelRecHitCollection::DataContainer::const_iterator
-           recHit = thePixelHits->data().begin(),
-           recHitEnd = thePixelHits->data().end();
-           recHit != recHitEnd; ++recHit)
+    for(const auto & recHit : thePixelHits->data())
     {
-      if(recHit->isValid())
+      if(recHit.isValid())
       {
 //      if(!(recHit->isOnEdge() || recHit->hasBadPixels()))
-        DetId id = recHit->geographicalId();
+        DetId id = recHit.geographicalId();
         const PixelGeomDetUnit* pgdu =
           dynamic_cast<const PixelGeomDetUnit*>(theTracker->idToDetUnit(id));
         const PixelTopology* theTopol = ( &(pgdu->specificTopology()) );
-        vector<SiPixelCluster::Pixel> pixels = recHit->cluster()->pixels();
+        vector<SiPixelCluster::Pixel> pixels = recHit.cluster()->pixels();
 
         bool pixelOnEdge = false;
         for(vector<SiPixelCluster::Pixel>::const_iterator
@@ -131,16 +127,16 @@ void PixelVertexProducerClusters::produce
         {
           
  
-          LocalPoint lpos = LocalPoint(recHit->localPosition().x(),
-                                       recHit->localPosition().y(),
-                                       recHit->localPosition().z());
+          LocalPoint lpos = LocalPoint(recHit.localPosition().x(),
+                                       recHit.localPosition().y(),
+                                       recHit.localPosition().z());
 
           GlobalPoint gpos = theTracker->idToDet(id)->toGlobal(lpos);
 
           VertexHit hit;
           hit.z = gpos.z(); 
           hit.r = gpos.perp(); 
-          hit.w = recHit->cluster()->sizeY();
+          hit.w = recHit.cluster()->sizeY();
 
           hits.push_back(hit);
         }

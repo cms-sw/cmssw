@@ -148,9 +148,9 @@ boost::dynamic_bitset<> CSCDCCEventData::pack()
   //  if (((i+1)%32)==0) std::cout<<std::endl;
   //}
   
-  for(size_t i = 0; i < theDDUData.size(); ++i) 
+  for(auto & i : theDDUData) 
     {
-      result = bitset_utilities::append(result,theDDUData[i].pack());
+      result = bitset_utilities::append(result,i.pack());
       //std::cout <<"SANDRIK here is ddu data check ";
       //theDDUData[i].header().check();
       //std::cout <<std::endl;

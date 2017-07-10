@@ -133,19 +133,19 @@ L1GtTrigReport::L1GtTrigReport(const edm::ParameterSet& pSet) :
 // destructor
 L1GtTrigReport::~L1GtTrigReport() {
 
-    for (ItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
-        if (*itEntry != 0) {
-            delete *itEntry;
-            *itEntry = 0;
+    for (auto & itEntry : m_entryList) {
+        if (itEntry != 0) {
+            delete itEntry;
+            itEntry = 0;
         }
     }
 
     m_entryList.clear();
 
-    for (ItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
-        if (*itEntry != 0) {
-            delete *itEntry;
-            *itEntry = 0;
+    for (auto & itEntry : m_entryListTechTrig) {
+        if (itEntry != 0) {
+            delete itEntry;
+            itEntry = 0;
         }
     }
 
@@ -467,10 +467,10 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
     if (validRecord) {
 
         // loop over algorithms and increase the corresponding counters
-        for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+        for (const auto & itAlgo : algorithmMap) {
 
-            std::string algName = itAlgo->first;
-            int algBitNumber = ( itAlgo->second ).algoBitNumber();
+            std::string algName = itAlgo.first;
+            int algBitNumber = ( itAlgo.second ).algoBitNumber();
 
             // the result before applying the trigger masks is available
             // in both L1GlobalTriggerReadoutRecord or L1GlobalTriggerRecord
@@ -532,11 +532,11 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
         }
 
         // loop over technical triggers and increase the corresponding counters
-        for (CItAlgo itAlgo = technicalTriggerMap.begin(); itAlgo != technicalTriggerMap.end(); itAlgo++) {
+        for (const auto & itAlgo : technicalTriggerMap) {
         //for (unsigned int iTechTrig = 0; iTechTrig < m_numberTechnicalTriggers; ++iTechTrig) {
 
-            std::string ttName = itAlgo->first;
-            int ttBitNumber = ( itAlgo->second ).algoBitNumber();
+            std::string ttName = itAlgo.first;
+            int ttBitNumber = ( itAlgo.second ).algoBitNumber();
             // std::string ttName = boost::lexical_cast<std::string>(iTechTrig);
             // int ttBitNumber = iTechTrig;
 
@@ -603,10 +603,10 @@ void L1GtTrigReport::analyze(const edm::Event& iEvent, const edm::EventSetup& ev
     } else {
 
         // loop over algorithms and increase the error counters
-        for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+        for (const auto & itAlgo : algorithmMap) {
 
-            std::string algName = itAlgo->first;
-            int algBitNumber = ( itAlgo->second ).algoBitNumber();
+            std::string algName = itAlgo.first;
+            int algBitNumber = ( itAlgo.second ).algoBitNumber();
 
             int prescaleFactor = prescaleFactorsAlgoTrig.at(algBitNumber);
 
@@ -741,8 +741,8 @@ void L1GtTrigReport::endJob() {
 
     myCout
             << "\nThe following L1 menus were used for this sample: " << std::endl;
-    for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
-        myCout << "  " << ( *itMenu ) << std::endl;
+    for (const auto & itMenu : menuList) {
+        myCout << "  " << itMenu << std::endl;
     }
     myCout << "\n" << std::endl;
 
@@ -757,9 +757,9 @@ void L1GtTrigReport::endJob() {
                 << "\n\n Number of events written after applying L1 prescale factors"
                 << " and trigger masks\n" << " if not explicitly mentioned.\n\n";
 
-            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+            for (const auto & itMenu : menuList) {
 
-                myCout << "\nReport for L1 menu:  " << (*itMenu) << "\n"
+                myCout << "\nReport for L1 menu:  " << itMenu << "\n"
                         << std::endl;
 
                 myCout
@@ -773,7 +773,7 @@ void L1GtTrigReport::endJob() {
                         != m_entryList.end(); itEntry++) {
 
                     if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition)
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
 
                         myCout
                             << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " "
@@ -797,7 +797,7 @@ void L1GtTrigReport::endJob() {
                         != m_entryListTechTrig.end(); itEntry++) {
 
                     if (((*itEntry)->gtDaqPartition() == m_physicsDaqPartition)
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
 
                         myCout
                             << std::right << std::setw(45) << (*itEntry)->gtAlgoName() << " "
@@ -821,9 +821,9 @@ void L1GtTrigReport::endJob() {
             myCout << "\n\n Number of events written after applying L1 prescale factors"
                     << " and trigger masks\n" << " if not explicitly mentioned.\n\n";
 
-            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+            for (const auto & itMenu : menuList) {
 
-                myCout << "\nReport for L1 menu:  " << (*itMenu) << "\n"
+                myCout << "\nReport for L1 menu:  " << itMenu << "\n"
                         << std::endl;
                 myCout
                     << std::right << std::setw(45) << "Algorithm Key" << " "
@@ -837,7 +837,7 @@ void L1GtTrigReport::endJob() {
                 for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
 
                     if ( (( *itEntry )->gtDaqPartition() == m_physicsDaqPartition)
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
                         myCout
                             << std::right << std::setw(45) << ( *itEntry )->gtAlgoName() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << "    "
@@ -864,7 +864,7 @@ void L1GtTrigReport::endJob() {
                 for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
 
                     if ( (( *itEntry )->gtDaqPartition() == m_physicsDaqPartition)
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
                         myCout
                             << std::right << std::setw(45) << ( *itEntry )->gtAlgoName() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << "    "
@@ -885,9 +885,9 @@ void L1GtTrigReport::endJob() {
         case 2: {
 
 
-            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+            for (const auto & itMenu : menuList) {
 
-                myCout << "\nReport for L1 menu:  " << ( *itMenu ) << "\n"
+                myCout << "\nReport for L1 menu:  " << itMenu << "\n"
                         << std::endl;
 
                 myCout
@@ -899,7 +899,7 @@ void L1GtTrigReport::endJob() {
                 for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
 
                     if ( ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition )
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
 
                         int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
                         int nrEventsReject = ( *itEntry )->gtNrEventsReject();
@@ -924,7 +924,7 @@ void L1GtTrigReport::endJob() {
                 for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
 
                     if ( ( ( *itEntry )->gtDaqPartition() == 0 )
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
 
                         int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
                         int nrEventsReject = ( *itEntry )->gtNrEventsReject();
@@ -967,7 +967,7 @@ void L1GtTrigReport::endJob() {
                         != m_entryListTechTrig.end(); itEntry++) {
 
                     if ( ( ( *itEntry )->gtDaqPartition() == m_physicsDaqPartition )
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
 
                         int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
                         int nrEventsReject = ( *itEntry )->gtNrEventsReject();
@@ -993,7 +993,7 @@ void L1GtTrigReport::endJob() {
                         != m_entryListTechTrig.end(); itEntry++) {
 
                     if ( ( ( *itEntry )->gtDaqPartition() == 0 )
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
 
                         int nrEventsAccept = ( *itEntry )->gtNrEventsAccept();
                         int nrEventsReject = ( *itEntry )->gtNrEventsReject();
@@ -1036,9 +1036,9 @@ void L1GtTrigReport::endJob() {
             myCout << "\nL1T-Report " << "---------- L1 Trigger Global Summary - DAQ Partition "
                     << m_physicsDaqPartition << "----------\n\n";
 
-            for (CItL1Menu itMenu = menuList.begin(); itMenu != menuList.end(); itMenu++) {
+            for (const auto & itMenu : menuList) {
 
-                myCout << "\nReport for L1 menu:  " << ( *itMenu ) << "\n"
+                myCout << "\nReport for L1 menu:  " << itMenu << "\n"
                         << std::endl;
                 myCout
                     << std::right << std::setw(45) << "Algorithm Key" << " "
@@ -1057,7 +1057,7 @@ void L1GtTrigReport::endJob() {
                 for (CItEntry itEntry = m_entryList.begin(); itEntry != m_entryList.end(); itEntry++) {
 
                     if ( (( *itEntry )->gtDaqPartition() == m_physicsDaqPartition)
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
                         myCout
                             << std::right << std::setw(45) << ( *itEntry )->gtAlgoName() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << " "
@@ -1089,7 +1089,7 @@ void L1GtTrigReport::endJob() {
                 for (CItEntry itEntry = m_entryListTechTrig.begin(); itEntry != m_entryListTechTrig.end(); itEntry++) {
 
                     if ( (( *itEntry )->gtDaqPartition() == m_physicsDaqPartition)
-                            && ( ( *itEntry )->gtTriggerMenuName() == *itMenu )) {
+                            && ( ( *itEntry )->gtTriggerMenuName() == itMenu )) {
                         myCout
                             << std::right << std::setw(45) << ( *itEntry )->gtAlgoName() << " "
                             << std::right << std::setw(10) << ( *itEntry )->gtPrescaleFactor() << " "

@@ -204,12 +204,12 @@ void JetValidation::endJob()
   if (m_file !=0) 
     {
       m_file->cd();
-      for (std::map<TString, TH1*>::iterator hid = m_HistNames1D.begin(); hid != m_HistNames1D.end(); hid++)
-        hid->second->Write();
-      for (std::map<TString, TH2*>::iterator hid = m_HistNames2D.begin(); hid != m_HistNames2D.end(); hid++)
-        hid->second->Write();
-      for (std::map<TString, TProfile*>::iterator hid = m_HistNamesProfile.begin(); hid != m_HistNamesProfile.end(); hid++)
-        hid->second->Write(); 
+      for (auto & hid : m_HistNames1D)
+        hid.second->Write();
+      for (auto & hid : m_HistNames2D)
+        hid.second->Write();
+      for (auto & hid : m_HistNamesProfile)
+        hid.second->Write(); 
       delete m_file;
       m_file = 0;      
     }

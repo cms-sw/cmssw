@@ -24,14 +24,14 @@ PuppiAlgo::PuppiAlgo(edm::ParameterSet &iConfig) {
     std::vector<double> tmprms;
     std::vector<double> tmpmed;
 
-    for(unsigned int i0 = 0; i0 < lAlgos.size(); i0++)  {
-        int    pAlgoId      = lAlgos[i0].getParameter<int >  ("algoId");
-        bool   pCharged     = lAlgos[i0].getParameter<bool>  ("useCharged");
-        bool   pWeight0     = lAlgos[i0].getParameter<bool>  ("applyLowPUCorr");
-        int    pComb        = lAlgos[i0].getParameter<int>   ("combOpt");           // 0=> add in chi2/1=>Multiply p-values
-        double pConeSize    = lAlgos[i0].getParameter<double>("cone");              // Min Pt when computing pt and rms
-        double pRMSPtMin    = lAlgos[i0].getParameter<double>("rmsPtMin");          // Min Pt when computing pt and rms
-        double pRMSSF       = lAlgos[i0].getParameter<double>("rmsScaleFactor");    // Additional Tuning parameter for Jokers
+    for(auto & lAlgo : lAlgos)  {
+        int    pAlgoId      = lAlgo.getParameter<int >  ("algoId");
+        bool   pCharged     = lAlgo.getParameter<bool>  ("useCharged");
+        bool   pWeight0     = lAlgo.getParameter<bool>  ("applyLowPUCorr");
+        int    pComb        = lAlgo.getParameter<int>   ("combOpt");           // 0=> add in chi2/1=>Multiply p-values
+        double pConeSize    = lAlgo.getParameter<double>("cone");              // Min Pt when computing pt and rms
+        double pRMSPtMin    = lAlgo.getParameter<double>("rmsPtMin");          // Min Pt when computing pt and rms
+        double pRMSSF       = lAlgo.getParameter<double>("rmsScaleFactor");    // Additional Tuning parameter for Jokers
         fAlgoId        .push_back(pAlgoId);
         fCharged       .push_back(pCharged);
         fAdjust        .push_back(pWeight0);
@@ -171,7 +171,7 @@ void PuppiAlgo::computeMedRMS(const unsigned int &iAlgo,const double &iPVFrac) {
         //Adjust the p-value to correspond to the median
         std::sort(fPupsPV.begin(),fPupsPV.end());
         int lNPV = 0; 
-        for(unsigned int i0 = 0; i0 < fPupsPV.size(); i0++) if(fPupsPV[i0] <= lMed ) lNPV++;
+        for(float i0 : fPupsPV) if(i0 <= lMed ) lNPV++;
         double lAdjust = double(lNPV)/double(lNPV+0.5*fNCount[iAlgo]);
         if(lAdjust > 0) {
           fMedian[iAlgo] -= sqrt(ROOT::Math::chisquared_quantile(lAdjust,1.)*fRMS[iAlgo]);

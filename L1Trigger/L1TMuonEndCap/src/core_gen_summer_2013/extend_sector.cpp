@@ -151,13 +151,13 @@ void extend_sector::init ()
 }
 void extend_sector::genblk__class::init()
 {
-	for (map <ull, ph_zone_blk__class>::iterator mit = ph_zone_blk.begin(); mit != ph_zone_blk.end(); mit++)
-		mit->second.init();
+	for (auto & mit : ph_zone_blk)
+		mit.second.init();
 }
 void extend_sector::genblk__class::ph_zone_blk__class::init()
 {
-	for (map <ull, station__class>::iterator mit = station.begin(); mit != station.end(); mit++)
-		mit->second.init();
+	for (auto & mit : station)
+		mit.second.init();
 }
 void extend_sector::genblk__class::ph_zone_blk__class::station__class::init()
 {

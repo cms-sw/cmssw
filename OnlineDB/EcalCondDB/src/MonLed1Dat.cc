@@ -158,14 +158,14 @@ void MonLed1Dat::writeArrayDB(const std::map< EcalLogicID, MonLed1Dat >* data, M
   const MonLed1Dat* dataitem;
   int count=0;
   typedef map< EcalLogicID, MonLed1Dat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-        channel = &(p->first);
+  for (const auto & p : *data) {
+        channel = &(p.first);
 	int logicID = channel->getLogicID();
 	if (!logicID) { throw(std::runtime_error("MonLed1Dat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
-	dataitem = &(p->second);
+	dataitem = &(p.second);
 	// dataIface.writeDB( channel, dataitem, iov);
 	float x=dataitem->getVPTMean();
 	float y=dataitem->getVPTRMS();

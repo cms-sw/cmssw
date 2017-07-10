@@ -98,9 +98,9 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
          HiggsChildren.push_back(*H0in);
       }
       cout << " Number of Higgs (immediate) children = " << HiggsChildren.size() << endl ;
-      for (unsigned int ic=0; ic<HiggsChildren.size(); ic++ )
+      for (auto & ic : HiggsChildren)
       {
-          HiggsChildren[ic]->print() ;
+          ic->print() ;
       }
   }
 
@@ -172,12 +172,12 @@ void HZZ4muAnalyzer::analyze( const Event& e, const EventSetup& )
    px4=py4=pz4=e4=0. ;
    if ( StableHiggsDesc.size() == 4 )
    {
-       for ( unsigned int i=0; i<StableHiggsDesc.size(); i++ )
+       for (auto & i : StableHiggsDesc)
        {
-          px4 += StableHiggsDesc[i]->momentum().px();
-          py4 += StableHiggsDesc[i]->momentum().py();
-          pz4 += StableHiggsDesc[i]->momentum().pz();
-          e4  += StableHiggsDesc[i]->momentum().e();
+          px4 += i->momentum().px();
+          py4 += i->momentum().py();
+          pz4 += i->momentum().pz();
+          e4  += i->momentum().e();
        }
        XMass4part = HepMC::FourVector(px4,py4,pz4,e4).m() ;
        fHist4muMass->Fill( XMass4part ) ;

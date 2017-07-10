@@ -46,12 +46,11 @@ MVAComputerESSourceBase::produce() const
 {
 	ReturnType container(new Calibration::MVAComputerContainer);
 
-	for(LabelFileMap::const_iterator iter = mvaCalibrations.begin();
-	    iter != mvaCalibrations.end(); iter++) {
+	for(const auto & mvaCalibration : mvaCalibrations) {
 		std::auto_ptr<Calibration::MVAComputer> calibration(
-			MVAComputer::readCalibration(iter->second.c_str()));
+			MVAComputer::readCalibration(mvaCalibration.second.c_str()));
 
-		container->add(iter->first) = *calibration;
+		container->add(mvaCalibration.first) = *calibration;
 	}
 
 	return container;

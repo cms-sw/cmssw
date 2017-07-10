@@ -164,11 +164,10 @@ void EcalPnGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSe
     }
   
   // loop over all the available PN digis and make graphs for those which have been chosen by the user
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNs->begin(); pnItr != PNs->end();
-        ++pnItr )  {
+  for (const auto & pnItr : *PNs)  {
     {
-      int ipn = (*pnItr).id().iPnId();    
-      int ieb    = EcalPnDiodeDetId((*pnItr).id()).iDCCId();
+      int ipn = pnItr.id().iPnId();    
+      int ieb    = EcalPnDiodeDetId(pnItr.id()).iDCCId();
 
       // selecting based on DCCId
       if (ieb != ieb_id) return;
@@ -179,8 +178,8 @@ void EcalPnGraphDumperModule::analyze( const edm::Event & e, const  edm::EventSe
       if (iPnIter == listAllPns.end()) { continue; }
 	    
 
-      for ( int i=0; i< (*pnItr).size() && i<50 ; ++i ) {
-	ordinate[i] = (*pnItr).sample(i).adc();
+      for ( int i=0; i< pnItr.size() && i<50 ; ++i ) {
+	ordinate[i] = pnItr.sample(i).adc();
       }
 	    
       TGraph oneGraph(50, abscissa,ordinate);

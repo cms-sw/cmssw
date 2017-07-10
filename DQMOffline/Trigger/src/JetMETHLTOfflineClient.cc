@@ -40,12 +40,12 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 
   // Look at all folders, go to the subfolder which includes the string "Eff"
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
-  for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
+  for(auto & fullPathHLTFolder : fullPathHLTFolders) {
     
     // Move on only if the folder name contains "Eff" Or "Trigger Summary"
-    if (debug_) std::cout << fullPathHLTFolders[i] << std::endl;
-    if ((fullPathHLTFolders[i].find("Eff")!=std::string::npos)) {
-      ibooker.setCurrentFolder(fullPathHLTFolders[i]);
+    if (debug_) std::cout << fullPathHLTFolder << std::endl;
+    if ((fullPathHLTFolder.find("Eff")!=std::string::npos)) {
+      ibooker.setCurrentFolder(fullPathHLTFolder);
     } 
     else {
       continue;
@@ -53,13 +53,13 @@ void JetMETHLTOfflineClient::dqmEndJob(DQMStore::IBooker& ibooker, DQMStore::IGe
 
     // Look at all subfolders, go to the subfolder which includes the string "Eff"
     std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
-    for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
+    for(auto & fullSubPathHLTFolder : fullSubPathHLTFolders) {
 
-      if (debug_) std::cout << fullSubPathHLTFolders[j] << std::endl;      
-      ibooker.setCurrentFolder(fullSubPathHLTFolders[j]);
+      if (debug_) std::cout << fullSubPathHLTFolder << std::endl;      
+      ibooker.setCurrentFolder(fullSubPathHLTFolder);
       
       // Look at all MonitorElements in this folder
-      hltMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+      hltMEs = igetter.getContents(fullSubPathHLTFolder);
       LogDebug("JetMETHLTOfflineClient")<< "Number of MEs for this HLT path = " << hltMEs.size() << std::endl;
       
       for(unsigned int k=0;k<hltMEs.size();k++) {

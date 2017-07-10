@@ -280,21 +280,20 @@ void EcalABAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& c){
   // =============================
   
 
-  for ( EcalRawDataCollection::const_iterator headerItr= DCCHeader->begin();headerItr != DCCHeader->end(); 
-	++headerItr ) {
+  for (const auto & headerItr : *DCCHeader) {
     
     // Get run type and run number 
 
-    int fed = headerItr->fedId();  
+    int fed = headerItr.fedId();  
     if(fed!=_fedid && _fedid!=-999) continue; 
     
-    runType=headerItr->getRunType();
-    runNum=headerItr->getRunNumber();
-    event=headerItr->getLV1();
+    runType=headerItr.getRunType();
+    runNum=headerItr.getRunNumber();
+    event=headerItr.getLV1();
 
-    dccID=headerItr->getDccInTCCCommand();
-    fedID=headerItr->fedId();  
-    lightside=headerItr->getRtHalf();
+    dccID=headerItr.getDccInTCCCommand();
+    fedID=headerItr.fedId();  
+    lightside=headerItr.getRtHalf();
 
     // Check fed corresponds to the DCC in TCC
     
@@ -309,7 +308,7 @@ void EcalABAnalyzer:: analyze( const edm::Event & e, const  edm::EventSetup& c){
     
     // Retrieve laser color and event number
     
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings();
     color = settings.wavelength;
     if( color <0 ) return;
 

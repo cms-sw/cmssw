@@ -173,17 +173,15 @@ bool AlCaGammaJetSelector::select (const reco::PhotonCollection &photons,
   // Check the requirement for minimum pT
   if (photons.size() == 0) return false;
   bool ok(false);
-  for (reco::PFJetCollection::const_iterator itr=jets.begin();
-       itr!=jets.end(); ++itr) {
-    if (itr->pt() >= minPtJet_) {
+  for (const auto & jet : jets) {
+    if (jet.pt() >= minPtJet_) {
       ok = true;
       break;
     }
   }
   if (!ok) return ok;
-  for (reco::PhotonCollection::const_iterator itr=photons.begin();
-       itr!=photons.end(); ++itr) {
-    if (itr->pt() >= minPtPhoton_) return ok;
+  for (const auto & photon : photons) {
+    if (photon.pt() >= minPtPhoton_) return ok;
   }
   return false;
 }

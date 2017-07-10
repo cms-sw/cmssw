@@ -112,12 +112,10 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
        qreport = me->getQReport("DeadChannels_RPCTF_2D");
        if (qreport) {
          vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
-         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
-              channel != badChannels.end();
-              ++channel)
+         for (auto & badChannel : badChannels)
          {
-           m_deadChannels->setBinContent((*channel).getBinX(),
-                                         (*channel).getBinY(),
+           m_deadChannels->setBinContent(badChannel.getBinX(),
+                                         badChannel.getBinY(),
                                          100);
          } // for(badchannels)
        } //if (qreport)
@@ -125,12 +123,10 @@ void L1TRPCTFClient::processHistograms(DQMStore::IGetter &igetter) {
        qreport = me->getQReport("HotChannels_RPCTF_2D");
        if (qreport) {
          vector<dqm::me_util::Channel> badChannels = qreport->getBadChannels();
-         for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin();
-              channel != badChannels.end();
-              ++channel)
+         for (auto & badChannel : badChannels)
          {
            // (*channel).getBinY() == 0 for NoisyChannels QTEST
-           m_noisyChannels->setBinContent((*channel).getBinX(), 100);
+           m_noisyChannels->setBinContent(badChannel.getBinX(), 100);
          } // for(badchannels)
        } //if (qreport)
  //      else std::cout << "dupa" << std::endl;

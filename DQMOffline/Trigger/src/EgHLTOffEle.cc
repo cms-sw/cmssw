@@ -24,7 +24,7 @@ int OffEle::trigCutsCutCode(const TrigCodes::TrigBitSet& trigger)const
   //if(it!=trigCutsCodes_.end()) return it->second;
   //else return 0; //defaults to passing
 
-  for(size_t i=0;i<trigCutsCutCodes_.size();i++) if(trigger==trigCutsCutCodes_[i].first) return trigCutsCutCodes_[i].second;
+  for(const auto & trigCutsCutCode : trigCutsCutCodes_) if(trigger==trigCutsCutCode.first) return trigCutsCutCode.second;
   return 0; //defaults to passing
 }
 

@@ -537,17 +537,17 @@ namespace cms{
 
 
 
-    for(HBHERecHitCollection::const_iterator hbheItr=HithbheNS.begin(); hbheItr!=HithbheNS.end(); hbheItr++)  {
+    for(const auto & hbheItr : HithbheNS)  {
       // Recalibration of energy
       float icalconst=1.;	 
-      DetId mydetid = hbheItr->id().rawId();
+      DetId mydetid = hbheItr.id().rawId();
       if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
     
-      HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
+      HBHERecHit aHit(hbheItr.id(),hbheItr.energy()*icalconst,hbheItr.time());
 	 
       double energyhit = aHit.energy();
 	 
-      DetId id = (*hbheItr).detid(); 
+      DetId id = hbheItr.detid(); 
       HcalDetId hid=HcalDetId(id);
  
  
@@ -595,17 +595,17 @@ namespace cms{
     // Signal part for HB HE
      
 
-    for(HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); hbheItr!=HithbheMB.end(); hbheItr++)  {
+    for(const auto & hbheItr : HithbheMB)  {
       // Recalibration of energy
       float icalconst=1.;	 
-      DetId mydetid = hbheItr->id().rawId();
+      DetId mydetid = hbheItr.id().rawId();
       if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
       
-      HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
+      HBHERecHit aHit(hbheItr.id(),hbheItr.energy()*icalconst,hbheItr.time());
 	 
       double energyhit = aHit.energy();
       
-      DetId id = (*hbheItr).detid(); 
+      DetId id = hbheItr.detid(); 
       HcalDetId hid=HcalDetId(id);
  
       int mysu = ((hid).rawId()>>25)&0x7;
@@ -651,19 +651,19 @@ namespace cms{
 	
     // HF
  
-    for(HFRecHitCollection::const_iterator hbheItr=HithfNS.begin(); hbheItr!=HithfNS.end(); hbheItr++) {
+    for(const auto & hbheItr : HithfNS) {
       // Recalibration of energy
       float icalconst=1.;	 
-      DetId mydetid = hbheItr->id().rawId();
+      DetId mydetid = hbheItr.id().rawId();
       if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
     
-      HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
+      HFRecHit aHit(hbheItr.id(),hbheItr.energy()*icalconst,hbheItr.time());
 	 
       double energyhit = aHit.energy();
       //
       // Remove PMT hits
       //	
-      DetId id = (*hbheItr).detid();
+      DetId id = hbheItr.detid();
       HcalDetId hid=HcalDetId(id);
       // theGeometry->getGeometry(detId)->getPosition()).eta()
 
@@ -711,13 +711,13 @@ namespace cms{
 
     // Signal part for HB HE
 
-    for(HFRecHitCollection::const_iterator hbheItr=HithfMB.begin(); hbheItr!=HithfMB.end(); hbheItr++) {
+    for(const auto & hbheItr : HithfMB) {
       // Recalibration of energy
       float icalconst=1.;	 
-      DetId mydetid = hbheItr->id().rawId();
+      DetId mydetid = hbheItr.id().rawId();
       if( theRecalib ) icalconst=myRecalib->getValues(mydetid)->getValue();
     
-      HFRecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
+      HFRecHit aHit(hbheItr.id(),hbheItr.energy()*icalconst,hbheItr.time());
 	 
       double energyhit = aHit.energy();
       //
@@ -725,7 +725,7 @@ namespace cms{
       //	 
       if(fabs(energyhit) > 40. ) continue;
 	 
-      DetId id = (*hbheItr).detid(); 
+      DetId id = hbheItr.detid(); 
       HcalDetId hid=HcalDetId(id);
  
       int mysu = ((hid).rawId()>>25)&0x7;

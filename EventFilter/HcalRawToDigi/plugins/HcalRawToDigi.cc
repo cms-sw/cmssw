@@ -44,8 +44,8 @@ HcalRawToDigi::HcalRawToDigi(edm::ParameterSet const& conf):
   unpacker_.setExpectedOrbitMessageTime(expectedOrbitMessageTime_);
   unpacker_.setMode(unpackerMode_);
   std::ostringstream ss;
-  for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
-    ss << fedUnpackList_[i] << " ";
+  for (int i : fedUnpackList_) 
+    ss << i << " ";
   edm::LogInfo("HCAL") << "HcalRawToDigi will unpack FEDs ( " << ss.str() << ")";
     
   // products produced...

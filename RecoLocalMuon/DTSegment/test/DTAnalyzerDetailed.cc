@@ -303,35 +303,34 @@ void DTAnalyzerDetailed::analyzeDTHits(const Event & event,
   histo("hnHitDT")->Fill(nHitDT);
 
   //float ttrigg = 1895.; // should get this from CondDB...
-  for (DTRecHitCollection::const_iterator hit = dtRecHits->begin();
-       hit!=dtRecHits->end();  ++hit) {
+  for (const auto & hit : *dtRecHits) {
     // Get the wireId of the rechit
-    DTWireId wireId = (*hit).wireId();
+    DTWireId wireId = hit.wireId();
 
     float ttrig = theSync->offset(wireId);
     //cout << "TTrig " << ttrig << endl;
 
-    float time = (*hit).digiTime()  - ttrig ;
-    double xLeft = (*hit).localPosition(DTEnums::Left).x();
-    double xRight = (*hit).localPosition(DTEnums::Right).x();
+    float time = hit.digiTime()  - ttrig ;
+    double xLeft = hit.localPosition(DTEnums::Left).x();
+    double xRight = hit.localPosition(DTEnums::Right).x();
 
     histo("hDigiTime")->Fill(time);
     { // per layer
-      const DTLayerId& id((*hit).wireId().layerId());
+      const DTLayerId& id(hit.wireId().layerId());
       histo(hName("hDigiTime",id))->Fill(time);
       histo(hName("hPosLeft",id))->Fill(xLeft);
       histo(hName("hPosRight",id))->Fill(xRight);
     }
 
     { // per SL
-      const DTSuperLayerId& id((*hit).wireId().superlayerId());
+      const DTSuperLayerId& id(hit.wireId().superlayerId());
       histo(hName("hDigiTime", id))->Fill(time);
       histo(hName("hPosLeft",id))->Fill(xLeft);
       histo(hName("hPosRight",id))->Fill(xRight);
     }
 
     { // per Chamber
-      const DTChamberId& id((*hit).wireId().chamberId());
+      const DTChamberId& id(hit.wireId().chamberId());
       histo(hName("hDigiTime",id))->Fill(time);
       histo(hName("hPosLeft",id))->Fill(xLeft);
       histo(hName("hPosRight",id))->Fill(xRight);
@@ -342,9 +341,8 @@ void DTAnalyzerDetailed::analyzeDTHits(const Event & event,
   // loop on SL
   //cout << "MeanTimer analysis" << endl;
   const std::vector<const DTSuperLayer*> & sls = dtGeom->superLayers();
-  for (auto sl = sls.begin();
-       sl!=sls.end() ; ++sl) {
-    DTSuperLayerId slid = (*sl)->id();
+  for (auto sl : sls) {
+    DTSuperLayerId slid = sl->id();
 
     DTMeanTimer meanTimer(dtGeom->superLayer(slid), dtRecHits, eventSetup,
                           theSync);
@@ -384,9 +382,8 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event & event,
   histo("hnSegDT")->Fill(nsegs);
   const std::vector<const DTChamber*> & chs = dtGeom->chambers();
 
-  for (auto ch = chs.begin();
-       ch!=chs.end() ; ++ch) {
-    DTChamberId chid((*ch)->id());
+  for (auto ch : chs) {
+    DTChamberId chid(ch->id());
     //cout << "chid " << chid << endl;
     //int w= chid.wheel();
     //int se= chid.sector();
@@ -525,36 +522,36 @@ void DTAnalyzerDetailed::analyzeDTSegments(const Event & event,
 
       // residual analysis
       if (phiSeg) {
-        DTSegmentResidual res(phiSeg, *ch);
+        DTSegmentResidual res(phiSeg, ch);
         res.run();
         vector<DTSegmentResidual::DTResidual> deltas=res.residuals();
         for (vector<DTSegmentResidual::DTResidual>::const_iterator delta=deltas.begin();
              delta!=deltas.end(); ++delta) {
-          histo(hName("hHitResidualSeg", (*ch)->id()))->Fill((*delta).value);
+          histo(hName("hHitResidualSeg", ch->id()))->Fill((*delta).value);
           if ((*delta).side == DTEnums::Right ) 
-            histo(hName("hHitResidualSegCellDX", (*ch)->id()))->Fill((*delta).value);
+            histo(hName("hHitResidualSegCellDX", ch->id()))->Fill((*delta).value);
           else if ((*delta).side == DTEnums::Left )
-            histo(hName("hHitResidualSegCellSX", (*ch)->id()))->Fill((*delta).value);
+            histo(hName("hHitResidualSegCellSX", ch->id()))->Fill((*delta).value);
 
           histo2d(hName("hHitResidualSegVsWireDis",
-                        (*ch)->id()))->Fill((*delta).wireDistance,(*delta).value);
+                        ch->id()))->Fill((*delta).wireDistance,(*delta).value);
 
           histo2d(hName("hHitResidualSegVsAngle",
-                        (*ch)->id()))->Fill((*delta).angle,(*delta).value);
+                        ch->id()))->Fill((*delta).angle,(*delta).value);
           histo2d(hName("hHitResidualSegVsNHits",
-                        (*ch)->id()))->Fill(phiSeg->recHits().size(),(*delta).value);
+                        ch->id()))->Fill(phiSeg->recHits().size(),(*delta).value);
           histo2d(hName("hHitResidualSegVsChi2",
-                        (*ch)->id()))->Fill(phiSeg->chi2(),(*delta).value);
+                        ch->id()))->Fill(phiSeg->chi2(),(*delta).value);
 
           if ( (*seg).hasPhi() ) 
             histo2d(hName("hHitResidualSegAlongWire",
-                          (*ch)->id()))->Fill((*seg).localPosition().x(),
+                          ch->id()))->Fill((*seg).localPosition().x(),
                                               (*delta).value);
         }
       }
 
       if (zedSeg) {
-        const DTSuperLayer* sl= (*ch)->superLayer(2);
+        const DTSuperLayer* sl= ch->superLayer(2);
         DTSegmentResidual res(zedSeg, sl);
         res.run();
         vector<DTSegmentResidual::DTResidual> deltas=res.residuals();

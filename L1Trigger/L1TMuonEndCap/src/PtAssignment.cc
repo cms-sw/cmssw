@@ -22,8 +22,7 @@ using namespace emtf;
 EmtfPtAssignment::EmtfPtAssignment(const char * tree_dir):
   allowedModes_({3,5,9,6,10,12,7,11,13,14,15}){
   
-  for (unsigned i=0;i<allowedModes_.size();i++){
-    int mode_inv = allowedModes_[i];
+  for (int mode_inv : allowedModes_){
     stringstream ss;
     ss << tree_dir << "/" << mode_inv;
     forest_[mode_inv].loadL1TForestFromXML(ss.str().c_str(),64);    
@@ -819,8 +818,8 @@ float EmtfPtAssignment::calculatePt(unsigned long Address)
 
   int goodMode = false;
   int allowedModes[11] = {3,5,9,6,10,12,7,11,13,14,15};
-  for (int i=0;i<11;i++)
-    if (allowedModes[i] == mode_inv)
+  for (int allowedMode : allowedModes)
+    if (allowedMode == mode_inv)
       {
         goodMode = true;
         break;
@@ -932,9 +931,9 @@ unsigned long EmtfPtAssignment::calculateAddress( InternalTrack track, const edm
 			
 	int FR_ = 0;
 	int coord[5] = {586,686,815,924,1013};
-	for(int i=0;i<5;i++){
+	for(int i : coord){
 
-	  if((fabs(glc.z()) < (coord[i] + 7)) && (fabs(glc.z()) > (coord[i] - 7)))
+	  if((fabs(glc.z()) < (i + 7)) && (fabs(glc.z()) > (i - 7)))
 	    FR_ = 1;
                 
 	  FR[s-8] = FR_;

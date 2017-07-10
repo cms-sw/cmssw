@@ -59,8 +59,7 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
   LogTrace("HLTSeedL1LogicScalers")
       << "size of vector of paths to monitor = " << fMonitorPaths.size()
       << endl;
-  for (unsigned int iPath = 0; iPath < fMonitorPaths.size(); iPath++) {
-    string monPath = fMonitorPaths[iPath];
+  for (auto monPath : fMonitorPaths) {
     LogTrace("HLTSeedL1LogicScalers") << "monPath = " << monPath << endl;
 
     string folderName = fDQMFolder + "/" + monPath;
@@ -111,8 +110,8 @@ void HLTSeedL1LogicScalers::bookHistograms(DQMStore::IBooker& iBooker,
       }
       int nBins = 1 << nL1Algo;
 
-      for (unsigned int k = 0; k < l1Algos.size(); k++) {
-        LogTrace("HLTSeedL1LogicScalers") << "  l1 Algo = " << l1Algos[k]
+      for (const auto & l1Algo : l1Algos) {
+        LogTrace("HLTSeedL1LogicScalers") << "  l1 Algo = " << l1Algo
                                           << endl;
       }  // end for k
 
@@ -152,11 +151,11 @@ void HLTSeedL1LogicScalers::analyze(const edm::Event& iEvent,
   m_l1GtUtils.retrieveL1EventSetup(iSetup);
 
   // loop over maps of ME-L1Algos
-  for (unsigned int i = 0; i < fMapMEL1Algos.size(); i++) {
-    MonitorElement* me = fMapMEL1Algos[i].first;
+  for (auto & fMapMEL1Algo : fMapMEL1Algos) {
+    MonitorElement* me = fMapMEL1Algo.first;
     LogTrace("HLTSeedL1LogicScalers") << "ME = " << me->getName() << endl;
 
-    const vector<string>& l1Algos = fMapMEL1Algos[i].second;
+    const vector<string>& l1Algos = fMapMEL1Algo.second;
 
     // word to bit-pack decisions of l1Algos
     unsigned int myL1Word = 0;

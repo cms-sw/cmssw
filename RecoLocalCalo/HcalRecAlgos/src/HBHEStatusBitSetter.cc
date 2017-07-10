@@ -98,11 +98,11 @@ void HBHEStatusBitSetter::SetFlagsFromDigi(HBHERecHit& hbhe,
   if ((4+slice_max3)>size) return;
   charge_late3=digi[slice_max3+1].nominal_fC() + digi[slice_max3+2].nominal_fC() + digi[slice_max3+3].nominal_fC() - 3*nominalPedestal_;
 
-  for (unsigned int iCut=0;iCut<pulseShapeParameters_.size();iCut++) {
-    if (pulseShapeParameters_[iCut].size()!=6) continue;
-    if (nominal_charge_total<pulseShapeParameters_[iCut].at(0) || nominal_charge_total>=pulseShapeParameters_[iCut].at(1)) continue;
-    if ( charge_late3< (pulseShapeParameters_[iCut].at(2)+nominal_charge_total*pulseShapeParameters_[iCut].at(3)) ) continue;
-    if ( charge_late3>=(pulseShapeParameters_[iCut].at(4)+nominal_charge_total*pulseShapeParameters_[iCut].at(5)) ) continue;
+  for (auto & pulseShapeParameter : pulseShapeParameters_) {
+    if (pulseShapeParameter.size()!=6) continue;
+    if (nominal_charge_total<pulseShapeParameter.at(0) || nominal_charge_total>=pulseShapeParameter.at(1)) continue;
+    if ( charge_late3< (pulseShapeParameter.at(2)+nominal_charge_total*pulseShapeParameter.at(3)) ) continue;
+    if ( charge_late3>=(pulseShapeParameter.at(4)+nominal_charge_total*pulseShapeParameter.at(5)) ) continue;
     hbhe.setFlagField(1,HcalCaloFlagLabels::HBHEPulseShape);
     return;
   }
@@ -117,9 +117,9 @@ void HBHEStatusBitSetter::SetFlagsFromRecHits(HBHERecHitCollection& rec) {
     return;
   }
 
-  for (HBHERecHitCollection::iterator iHBHE=rec.begin();iHBHE!=rec.end();++iHBHE) {
-    const int index=frontEndMap_->lookupRMIndex(iHBHE->detid());
+  for (auto & iHBHE : rec) {
+    const int index=frontEndMap_->lookupRMIndex(iHBHE.detid());
     if (hpdMultiplicity_.at(index)<hitMultiplicityThreshold_) continue;
-    iHBHE->setFlagField(1,HcalCaloFlagLabels::HBHEHpdHitMultiplicity);
+    iHBHE.setFlagField(1,HcalCaloFlagLabels::HBHEHpdHitMultiplicity);
   }
 }

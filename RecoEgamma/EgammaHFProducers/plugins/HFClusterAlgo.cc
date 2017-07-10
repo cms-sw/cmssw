@@ -122,10 +122,10 @@ void HFClusterAlgo::clusterize(const HFRecHitCollection& hf,
       m_cutByEta[iz]=m_seedThreshold*cosh(eta); // convert ET to E for this ring
       const CaloCellGeometry* ccg=geom.getGeometry(j->id()); 
       const CaloCellGeometry::CornersVec& CellCorners=ccg->getCorners();
-      for(size_t sc=0;sc<CellCorners.size();sc++){
-	if(fabs(CellCorners[sc].z())<1200){
-	  if(fabs(CellCorners[sc].eta())<m_seedmnEta[iz])m_seedmnEta[iz]=fabs(CellCorners[sc].eta());
-	  if(fabs(CellCorners[sc].eta())>m_seedMXeta[iz])m_seedMXeta[iz]=fabs(CellCorners[sc].eta());
+      for(const auto & CellCorner : CellCorners){
+	if(fabs(CellCorner.z())<1200){
+	  if(fabs(CellCorner.eta())<m_seedmnEta[iz])m_seedmnEta[iz]=fabs(CellCorner.eta());
+	  if(fabs(CellCorner.eta())>m_seedMXeta[iz])m_seedMXeta[iz]=fabs(CellCorner.eta());
 	}
       }
     }

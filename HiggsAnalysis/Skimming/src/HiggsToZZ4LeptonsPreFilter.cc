@@ -76,23 +76,23 @@ bool HiggsToZZ4LeptonsPreFilter::filter(edm::Event& event, const edm::EventSetup
   int nElec = 0;
   int nMuon = 0;
 
-  for (GenParticleCollection::const_iterator mcIter=genParticles->begin(); mcIter!=genParticles->end(); ++mcIter) {
+  for (const auto & mcIter : *genParticles) {
     // Muons:
-    if ( mcIter->pdgId() == 13 || mcIter->pdgId() == -13) {
+    if ( mcIter.pdgId() == 13 || mcIter.pdgId() == -13) {
       // Mother is a Z
-      if ( mcIter->mother()->pdgId() == 23 ) {
+      if ( mcIter.mother()->pdgId() == 23 ) {
        // In fiducial volume:
-        if ( mcIter->pt() < 3 ) continue;
-        if ( mcIter->eta() > -2.4 && mcIter->eta() < 2.4 ) nMuon++;
+        if ( mcIter.pt() < 3 ) continue;
+        if ( mcIter.eta() > -2.4 && mcIter.eta() < 2.4 ) nMuon++;
       }
     }
     // Electrons:
-    if ( mcIter->pdgId() == 11 || mcIter->pdgId() == -11)
+    if ( mcIter.pdgId() == 11 || mcIter.pdgId() == -11)
       // Mother is a Z
-      if ( mcIter->mother()->pdgId() == 23 ) {
+      if ( mcIter.mother()->pdgId() == 23 ) {
         // In fiducial volume:
-        if ( mcIter->pt() < 3 ) continue;
-        if ( mcIter->eta() > -2.5 && mcIter->eta() < 2.5 ) nElec++;
+        if ( mcIter.pt() < 3 ) continue;
+        if ( mcIter.eta() > -2.5 && mcIter.eta() < 2.5 ) nElec++;
       }
     }
 

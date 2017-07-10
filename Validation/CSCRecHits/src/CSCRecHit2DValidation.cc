@@ -59,21 +59,20 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
 
   unsigned nPerEvent = 0;
 
-  for(CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin(); 
-      recHitItr != cscRecHits->end(); recHitItr++) 
+  for(const auto & cscRecHit : *cscRecHits) 
   {
     ++nPerEvent;
-    int detId = (*recHitItr).cscDetId().rawId();
+    int detId = cscRecHit.cscDetId().rawId();
     edm::PSimHitContainer simHits = theSimHitMap->hits(detId);
     const CSCLayer * layer = findLayer(detId);
     int chamberType = layer->chamber()->specs()->chamberType();
-    theTPeaks[chamberType-1]->Fill(recHitItr->tpeak());
+    theTPeaks[chamberType-1]->Fill(cscRecHit.tpeak());
     if(simHits.size() == 1)
     {
-      plotResolution(simHits[0], *recHitItr, layer, chamberType);
+      plotResolution(simHits[0], cscRecHit, layer, chamberType);
     }
-    float localX = recHitItr->localPosition().x();
-    float localY = recHitItr->localPosition().y();
+    float localX = cscRecHit.localPosition().x();
+    float localY = cscRecHit.localPosition().y();
     //theYPlots[chamberType-1]->Fill(localY);
     // find a local phi
     float globalR = layer->toGlobal(LocalPoint(0.,0.,0.)).perp();
@@ -86,12 +85,12 @@ void CSCRecHit2DValidation::analyze(const edm::Event&e, const edm::EventSetup& e
 return;
   // fill sim hits
   std::vector<int> layersWithSimHits = theSimHitMap->detsWithHits();
-  for(unsigned i = 0; i < layersWithSimHits.size(); ++i)
+  for(int layersWithSimHit : layersWithSimHits)
    {
-    edm::PSimHitContainer simHits = theSimHitMap->hits(layersWithSimHits[i]);
+    edm::PSimHitContainer simHits = theSimHitMap->hits(layersWithSimHit);
     for(edm::PSimHitContainer::const_iterator hitItr = simHits.begin(); hitItr != simHits.end(); ++hitItr)
     {
-    const CSCLayer * layer = findLayer(layersWithSimHits[i]);
+    const CSCLayer * layer = findLayer(layersWithSimHit);
     int chamberType = layer->chamber()->specs()->chamberType();
       float localX = hitItr->localPosition().x();
       float localY = hitItr->localPosition().y();

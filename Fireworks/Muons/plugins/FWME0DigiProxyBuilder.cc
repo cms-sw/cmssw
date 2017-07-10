@@ -39,11 +39,10 @@ void FWME0DigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* pro
   }
   const FWGeometry *geom = iItem->getGeom();
 
-  for ( ME0DigiPreRecoCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
+  for (auto && digi : *digis)
   {
-    unsigned int rawid = (*dri).first.rawId();
-    const ME0DigiPreRecoCollection::Range& range = (*dri).second;
+    unsigned int rawid = digi.first.rawId();
+    const ME0DigiPreRecoCollection::Range& range = digi.second;
 
     if( ! geom->contains( rawid ))
     {

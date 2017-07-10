@@ -37,10 +37,9 @@ HFChamberSD::HFChamberSD(std::string name, const DDCompactView & cpv,
   //
   const std::vector<std::string>& lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "HFChamberSD : Assigns SD to LV " << (*it);
+  for (const auto & lvName : lvNames){
+    this->AssignSD(lvName);
+    LogDebug("FiberSim") << "HFChamberSD : Assigns SD to LV " << lvName;
   }
 }
 

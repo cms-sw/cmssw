@@ -34,13 +34,13 @@ public:
   // constructor
   MagneticFieldGrid(){
     GridType = 0;
-    for (int i=0;i<3; ++i) {NumberOfPoints[i] = 0;};
-    for (int i=0;i<3; ++i) {ReferencePoint[i] = 0.;};
-    for (int i=0;i<3; ++i) {BasicDistance0[i] = 0.;};
-    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance1[i][j] = 0.;};};
-    for (int i=0;i<3; ++i) {for (int j=0;j<3; ++j) {BasicDistance2[i][j] = 0.;};};
-    for (int i=0;i<4; ++i) {RParAsFunOfPhi[i] = 0.;};
-    for (int i=0;i<3; ++i) {EasyCoordinate[i] = false;};
+    for (int & NumberOfPoint : NumberOfPoints) {NumberOfPoint = 0;};
+    for (double & i : ReferencePoint) {i = 0.;};
+    for (double & i : BasicDistance0) {i = 0.;};
+    for (auto & i : BasicDistance1) {for (int j=0;j<3; ++j) {i[j] = 0.;};};
+    for (auto & i : BasicDistance2) {for (int j=0;j<3; ++j) {i[j] = 0.;};};
+    for (double & i : RParAsFunOfPhi) {i = 0.;};
+    for (bool & i : EasyCoordinate) {i = false;};
   }
   // destructor
   ~MagneticFieldGrid(){}

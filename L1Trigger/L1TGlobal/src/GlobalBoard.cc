@@ -511,8 +511,7 @@ void l1t::GlobalBoard::runGTL(
     
     int iChip = -1;
 
-    for (std::vector<ConditionMap>::const_iterator
-    		itCondOnChip = conditionMap.begin(); itCondOnChip != conditionMap.end(); itCondOnChip++) {
+    for (const auto & itCondOnChip : conditionMap) {
 
         iChip++;
 
@@ -521,7 +520,7 @@ void l1t::GlobalBoard::runGTL(
 
 
 
-        for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+        for (CItCond itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
 
             // evaluate condition
             switch ((itCond->second)->condCategory()) {
@@ -824,14 +823,14 @@ void l1t::GlobalBoard::runGTL(
     std::vector<GlobalObjectMap> objMapVec;
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
 
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
-        AlgorithmEvaluation gtAlg(itAlgo->second);
-        gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
+    for (const auto & itAlgo : algorithmMap) {
+        AlgorithmEvaluation gtAlg(itAlgo.second);
+        gtAlg.evaluateAlgorithm((itAlgo.second).algoChipNumber(), m_conditionResultMaps);
 
-        int algBitNumber = (itAlgo->second).algoBitNumber();
+        int algBitNumber = (itAlgo.second).algoBitNumber();
         bool algResult = gtAlg.gtAlgoResult();
 
-	LogDebug("L1TGlobal") << " ===> for iBxInEvent = " << iBxInEvent << ":\t algBitName = " << itAlgo->first << ",\t algBitNumber = " << algBitNumber << ",\t algResult = " << algResult << std::endl;
+	LogDebug("L1TGlobal") << " ===> for iBxInEvent = " << iBxInEvent << ":\t algBitName = " << itAlgo.first << ",\t algBitNumber = " << algBitNumber << ",\t algResult = " << algResult << std::endl;
 
         if (algResult) {
 //            m_gtlAlgorithmOR.set(algBitNumber);
@@ -841,7 +840,7 @@ void l1t::GlobalBoard::runGTL(
 
         if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            ( itAlgo->second ).print(myCout);
+            ( itAlgo.second ).print(myCout);
             gtAlg.print(myCout);
 
             LogTrace("L1TGlobal") << myCout.str() << std::endl;
@@ -852,16 +851,16 @@ void l1t::GlobalBoard::runGTL(
         if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) {
 
 	  std::vector<L1TObjectTypeInCond> otypes;	  
-	  for (auto iop = gtAlg.operandTokenVector().begin(); iop != gtAlg.operandTokenVector().end(); ++iop){
+	  for (auto & iop : gtAlg.operandTokenVector()){
 	    //cout << "INFO:  operand name:  " << iop->tokenName << "\n";
 	    int myChip = -1;
 	    int found =0;
 	    L1TObjectTypeInCond otype;	      
-	    for (auto imap = conditionMap.begin(); imap != conditionMap.end(); imap++) {
+	    for (const auto & imap : conditionMap) {
 	      myChip++;
-	      auto match = imap->find(iop->tokenName);
+	      auto match = imap.find(iop.tokenName);
 	      
-	      if (match != imap->end()){
+	      if (match != imap.end()){
 		found = 1;
 		//cout << "DEBUG: found match for " << iop->tokenName << " at " << match->first << "\n";
 				
@@ -873,7 +872,7 @@ void l1t::GlobalBoard::runGTL(
 	      }	      
 	    }
 	    if (!found){
-	      edm::LogWarning("L1TGlobal") << "\n Failed to find match for operand token " << iop->tokenName << "\n";
+	      edm::LogWarning("L1TGlobal") << "\n Failed to find match for operand token " << iop.tokenName << "\n";
 	    } else {
 	      otypes.push_back(otype);
 	    }
@@ -882,7 +881,7 @@ void l1t::GlobalBoard::runGTL(
 	  // set object map 
 	  GlobalObjectMap objMap;
 	  
-	  objMap.setAlgoName(itAlgo->first);
+	  objMap.setAlgoName(itAlgo.first);
 	  objMap.setAlgoBitNumber(algBitNumber);
 	  objMap.setAlgoGtlResult(algResult);
 	  objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
@@ -912,13 +911,11 @@ void l1t::GlobalBoard::runGTL(
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // delete the conditions created with new, zero pointer, do not clear map, keep the vector as is...
-    for (std::vector<AlgorithmEvaluation::ConditionEvaluationMap>::iterator
-            itCondOnChip  = m_conditionResultMaps.begin();
-            itCondOnChip != m_conditionResultMaps.end(); itCondOnChip++) {
+    for (auto & m_conditionResultMap : m_conditionResultMaps) {
 
         for (AlgorithmEvaluation::ItEvalMap
-                itCond  = itCondOnChip->begin();
-                itCond != itCondOnChip->end(); itCond++) {
+                itCond  = m_conditionResultMap.begin();
+                itCond != m_conditionResultMap.end(); itCond++) {
 
             delete itCond->second;
             itCond->second = 0;

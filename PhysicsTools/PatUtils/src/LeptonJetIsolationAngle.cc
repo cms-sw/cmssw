@@ -47,19 +47,19 @@ float LeptonJetIsolationAngle::calculate(const CLHEP::HepLorentzVector & aLepton
   std::vector<reco::GsfElectron> electrons = *electronsHandle;
   // determine the set of isolated electrons
   std::vector<Electron> isoElectrons;
-  for (size_t ie=0; ie<electrons.size(); ie++) {
-    Electron anElectron(electrons[ie]);
+  for (const auto & electron : electrons) {
+    Electron anElectron(electron);
     if (anElectron.pt() > 10 &&
         trkIsolator_.calculate(anElectron, *trackHandle) < 3.0) {
-      isoElectrons.push_back(electrons[ie]);
+      isoElectrons.push_back(electron);
     }
   }
   // determine the collections of jets, cleaned from electrons
   std::vector<reco::CaloJet> theJets;
   for (reco::CaloJetCollection::const_iterator itJet = jetColl.begin(); itJet != jetColl.end(); itJet++) {
     float mindr2 = 9999.;
-    for (size_t ie = 0; ie < isoElectrons.size(); ie++) {
-      float dr2 = ::deltaR2(*itJet, isoElectrons[ie]);
+    for (const auto & isoElectron : isoElectrons) {
+      float dr2 = ::deltaR2(*itJet, isoElectron);
       if (dr2 < mindr2) mindr2 = dr2;
     }
     float mindr = std::sqrt(mindr2);

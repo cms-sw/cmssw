@@ -267,10 +267,10 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 	    } else {
 
 	      // Match with gen object
-	      for (unsigned int i = 0; i<_GenObjects.size();i++) {
-		if (_GenObjects[i].Et() >= minMCPt_ && std::abs(_GenObjects[i].Eta()) < maxMCAbsEta_ ) {
+	      for (auto & _GenObject : _GenObjects) {
+		if (_GenObject.Et() >= minMCPt_ && std::abs(_GenObject.Eta()) < maxMCAbsEta_ ) {
 		  TLorentzVector pftau((*thePFTau).px(),(*thePFTau).py(),(*thePFTau).pz(),(*thePFTau).energy());
-		  double GenDeltaR = pftau.DeltaR(_GenObjects[i]);
+		  double GenDeltaR = pftau.DeltaR(_GenObject);
 		  if (GenDeltaR<maxDeltaR_) {
 		    
 		    hleadTk_pt->Fill((float)myleadTk->pt());
@@ -322,23 +322,23 @@ void PFTauElecRejectionBenchmark::process(edm::Handle<edm::HepMCProduct> mcevt, 
 
 		// Loop over all PFCands for cluster plots  
 		std::vector<PFCandidatePtr> myPFCands=(*thePFTau).pfTauTagInfoRef()->PFCands();
-		for(int i=0;i<(int)myPFCands.size();i++){
+		for(auto & myPFCand : myPFCands){
 
 		  math::XYZPointF candPos;
-		  if (myPFCands[i]->particleId()==1 || myPFCands[i]->particleId()==2) // if charged hadron or electron
-		    candPos = myPFCands[i]->positionAtECALEntrance();
+		  if (myPFCand->particleId()==1 || myPFCand->particleId()==2) // if charged hadron or electron
+		    candPos = myPFCand->positionAtECALEntrance();
 		  else
-		    candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+		    candPos = math::XYZPointF(myPFCand->px(),myPFCand->py(),myPFCand->pz());
 
 		  //double deltaR   = ROOT::Math::VectorUtil::DeltaR(myleadTkEcalPos,candPos);
 		  double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myleadTkEcalPos,candPos);
-		  double deltaEta = std::abs(myleadTkEcalPos.eta()-myPFCands[i]->eta());
+		  double deltaEta = std::abs(myleadTkEcalPos.eta()-myPFCand->eta());
 		  double deltaPhiOverQ = deltaPhi/(double)myleadTk->charge();
 		  
 		  hpfcand_deltaEta->Fill(deltaEta);
-		  hpfcand_deltaEta_weightE->Fill(deltaEta*myPFCands[i]->ecalEnergy());
+		  hpfcand_deltaEta_weightE->Fill(deltaEta*myPFCand->ecalEnergy());
 		  hpfcand_deltaPhiOverQ->Fill(deltaPhiOverQ);
-		  hpfcand_deltaPhiOverQ_weightE->Fill(deltaPhiOverQ*myPFCands[i]->ecalEnergy());	
+		  hpfcand_deltaPhiOverQ_weightE->Fill(deltaPhiOverQ*myPFCand->ecalEnergy());	
 		  
 		}
 

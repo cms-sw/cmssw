@@ -54,20 +54,20 @@ HLTJetMETValidation::dqmBeginRun(edm::Run const& iRun, edm::EventSetup const& iS
   }
   
   std::vector<std::string> validTriggerNames = hltConfig_.triggerNames();
-  for (size_t j = 0; j < validTriggerNames.size(); j++) {
+  for (auto & validTriggerName : validTriggerNames) {
     //---find the muon path
-    if (TString(validTriggerNames[j]).Contains(patternMu)) {
+    if (TString(validTriggerName).Contains(patternMu)) {
       //std::cout <<validTriggerNames[j].c_str()<<std::endl;
-      if (!foundMuTrg) trgMuNm = validTriggerNames[j].c_str();
+      if (!foundMuTrg) trgMuNm = validTriggerName.c_str();
       foundMuTrg = true;
     }
     //---find the jet paths
-    if (TString(validTriggerNames[j]).Contains(patternJet)) {
-      hltTrgJet.push_back(validTriggerNames[j]);
+    if (TString(validTriggerName).Contains(patternJet)) {
+      hltTrgJet.push_back(validTriggerName);
     }
     //---find the met paths
-    if (TString(validTriggerNames[j]).Contains(patternMet)) {
-      hltTrgMet.push_back(validTriggerNames[j]);
+    if (TString(validTriggerName).Contains(patternMet)) {
+      hltTrgMet.push_back(validTriggerName);
     }
   }
   
@@ -127,9 +127,9 @@ HLTJetMETValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
 {
 
   //----define DQM folders and elements
-  for (size_t it=0;it<hltTrgJet.size();it++) {
+  for (auto & it : hltTrgJet) {
     //std::cout<<hltTrgJet[it].c_str()<<" "<<hltTrgJetLow[it].c_str()<<std::endl;
-    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgJet[it].c_str());
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+it.c_str());
     //std::cout << "str = " << triggerTag_+hltTrgJet[it].c_str() << std::endl;
     //std::cout << "trgPathName = " << trgPathName << std::endl;
     iBooker.setCurrentFolder(trgPathName);
@@ -164,9 +164,9 @@ HLTJetMETValidation::bookHistograms(DQMStore::IBooker & iBooker, edm::Run const 
     _meGenJetPhiTrgLow.push_back(iBooker.book1D("_meGenJetPhiTrgLow","Single Generated Jet Phi - HLT Triggered Low",100,-4.,4.));
     
   }
-  for (size_t it=0;it<hltTrgMet.size();it++) {
+  for (auto & it : hltTrgMet) {
     //std::cout<<hltTrgMet[it].c_str()<<" "<<hltTrgMetLow[it].c_str()<<std::endl;
-    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+hltTrgMet[it].c_str());
+    std::string trgPathName = HLTConfigProvider::removeVersion(triggerTag_+it.c_str());
     iBooker.setCurrentFolder(trgPathName);
     _meHLTMET.push_back(iBooker.book1D("_meHLTMET","HLT Missing ET",100,0,500));
     _meHLTMETTrgMC.push_back(iBooker.book1D("_meHLTMETTrgMC","HLT Missing ET - HLT Triggered",100,0,500));
@@ -275,12 +275,12 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (pfJets.isValid()) { 
     //Loop over the PFJets and fill some histograms
     int jetInd = 0;
-    for( PFJetCollection::const_iterator pf = pfJets->begin(); pf != pfJets->end(); ++ pf ) {
+    for(const auto & pf : *pfJets) {
       //std::cout << "PF JET #" << jetInd << std::endl << pf->print() << std::endl;
       if (jetInd == 0){
-	pfJetPt=pf->pt();
-	pfJetEta=pf->eta();
-	pfJetPhi=pf->phi();
+	pfJetPt=pf.pt();
+	pfJetEta=pf.eta();
+	pfJetPhi=pf.phi();
 	for (size_t it=0;it<hltTrgJet.size();it++) {
 	  _meHLTJetPt[it]->Fill( pfJetPt );
 	  _meHLTJetEta[it]->Fill( pfJetEta );
@@ -314,11 +314,11 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (genJets.isValid()) { 
     //Loop over the GenJets and fill some histograms
     int jetInd = 0;
-    for( GenJetCollection::const_iterator gen = genJets->begin(); gen != genJets->end(); ++ gen ) {
+    for(const auto & gen : *genJets) {
       if (jetInd == 0){
-	genJetPt=gen->pt();
-	genJetEta=gen->eta();
-	genJetPhi=gen->phi();
+	genJetPt=gen.pt();
+	genJetEta=gen.eta();
+	genJetPhi=gen.phi();
 	for (size_t it=0;it<hltTrgJet.size();it++) {
 	  _meGenJetPt[it]->Fill( genJetPt );
 	  _meGenJetEta[it]->Fill( genJetEta );
@@ -351,8 +351,8 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   if (recmet.isValid()) { 
     typedef CaloMETCollection::const_iterator cmiter;
     //std::cout << "Size of MET collection" <<  recmet.size() << std::endl;
-    for ( cmiter i=recmet->begin(); i!=recmet->end(); i++) {
-      calMet = i->pt();
+    for (const auto & i : *recmet) {
+      calMet = i.pt();
       for (size_t it=0;it<hltTrgMet.size();it++) {
 	_meHLTMET[it] -> Fill(calMet);
 	if (myTrigM.size() > it && myTrigM[it]) _meHLTMETTrgMC[it] -> Fill(calMet);
@@ -372,8 +372,8 @@ HLTJetMETValidation::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
   double genMet=-1;
   if (genmet.isValid()) { 
     typedef GenMETCollection::const_iterator cmiter;
-    for ( cmiter i=genmet->begin(); i!=genmet->end(); i++) {
-      genMet = i->pt();
+    for (const auto & i : *genmet) {
+      genMet = i.pt();
       for (size_t it=0;it<hltTrgMet.size();it++) {
 	_meGenMET[it] -> Fill(genMet);
 	if (myTrigM.size() > it && myTrigM[it]) _meGenMETTrgMC[it] -> Fill(genMet);

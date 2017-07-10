@@ -1,7 +1,7 @@
 #include "DataFormats/HcalDigi/interface/HcalLaserDigi.h"
 
 HcalLaserDigi::HcalLaserDigi() {
-  for (int i=0; i<32; ++i) qadcraw_[i]=0;
+  for (unsigned short & i : qadcraw_) i=0;
   attenuator1_=0;
   attenuator2_=0;
   selector_=0;

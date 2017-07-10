@@ -31,8 +31,8 @@ using namespace std;
       for (i=prods.begin(); i!=prods.end(); i++) {
 	const CaloTowerCollection& c=*(*i);
 	
-	for (CaloTowerCollection::const_iterator j=c.begin(); j!=c.end(); j++) {
-	  cout << *j << std::endl;
+	for (const auto & j : c) {
+	  cout << j << std::endl;
 	}
       }
     } catch (...) {

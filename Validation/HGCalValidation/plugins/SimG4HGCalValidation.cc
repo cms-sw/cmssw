@@ -120,8 +120,8 @@ SimG4HGCalValidation::SimG4HGCalValidation(const edm::ParameterSet &p):
    
 SimG4HGCalValidation::~SimG4HGCalValidation() {
   if (numberingFromDDD_) delete numberingFromDDD_;
-  for (unsigned int k=0; k<hgcNumbering_.size(); ++k)
-    if (hgcNumbering_[k]) delete hgcNumbering_[k];
+  for (auto & k : hgcNumbering_)
+    if (k) delete k;
 }
 
 void SimG4HGCalValidation::produce(edm::Event& e, const edm::EventSetup&) {
@@ -201,9 +201,9 @@ void SimG4HGCalValidation::update(const BeginOfEvent * evt) {
   edepEE_ = edepHEF_ = edepHEB_ = 0.;
 
   //HGCal variables 
-  for (unsigned int i = 0; i<hgcEEedep_.size();  i++) hgcEEedep_[i]  = 0.;
-  for (unsigned int i = 0; i<hgcHEFedep_.size(); i++) hgcHEFedep_[i] = 0.; 
-  for (unsigned int i = 0; i<hgcHEBedep_.size(); i++) hgcHEBedep_[i] = 0.; 
+  for (double & i : hgcEEedep_) i  = 0.;
+  for (double & i : hgcHEFedep_) i = 0.; 
+  for (double & i : hgcHEBedep_) i = 0.; 
 
   //Cache reset  
   clear();

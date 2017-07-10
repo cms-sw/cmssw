@@ -115,10 +115,9 @@ void SiPixelInformationExtractor::getItemList(const multimap<string, string>& re
                                               string item_name,
 					      vector<string>& items) {
   items.clear();
-  for (multimap<string, string>::const_iterator it = req_map.begin();
-       it != req_map.end(); it++) {
-    if (it->first == item_name) {
-      items.push_back(it->second);
+  for (const auto & it : req_map) {
+    if (it.first == item_name) {
+      items.push_back(it.second);
     }
   }
 }

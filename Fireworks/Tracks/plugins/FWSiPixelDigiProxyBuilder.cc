@@ -49,10 +49,8 @@ void FWSiPixelDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList
   }
   const FWGeometry *geom = iItem->getGeom();
   
-  for( edm::DetSetVector<PixelDigi>::const_iterator it = digis->begin(), end = digis->end();
-        it != end; ++it )
+  for(auto ds : *digis)
   {
-    edm::DetSet<PixelDigi> ds = *it;
     unsigned int id = ds.id;
 
     const float* pars = geom->getParameters( id );

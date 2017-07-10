@@ -167,25 +167,25 @@ SinglePhotonJetPlusHOFilter::filter(edm::Event& iEvent, const edm::EventSetup& i
   iEvent.getByToken(tok_hoht_,hoht);
   if (hoht.isValid()) {
     if ((*hoht).size()>0) {
-      for (unsigned ijet = 0; ijet< jetdirection.size(); ijet++) {
+      for (auto & ijet : jetdirection) {
 	
 	bool matched=false;
-	for (unsigned iph=0; iph<phodirection.size(); iph++) { 
-	  if(abs(deltaPhi(phodirection[iph].second, jetdirection[ijet].second))>2.0) {
+	for (auto & iph : phodirection) { 
+	  if(abs(deltaPhi(iph.second, ijet.second))>2.0) {
 	    matched=true; break;
 	  }
 	}
 	if (matched) { 
-	  for (PFClusterCollection::const_iterator ij=(*hoht).begin(); ij!=(*hoht).end(); ij++){
-	    double hoenr = (*ij).energy();
+	  for (const auto & ij : (*hoht)){
+	    double hoenr = ij.energy();
 	    if (hoenr <hothres) continue;
 	    
-	    const math::XYZPoint&  cluster_pos = ij->position();
+	    const math::XYZPoint&  cluster_pos = ij.position();
 	    
 	    double hoeta = cluster_pos.eta() ;
 	    double hophi = cluster_pos.phi() ;
 	    
-	    double delta = deltaR2(jetdirection[ijet].first, jetdirection[ijet].second, hoeta, hophi);
+	    double delta = deltaR2(ijet.first, ijet.second, hoeta, hophi);
 	    if (delta <0.5) { 
 	      isJetDir=true;  break;
 	    }

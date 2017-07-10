@@ -354,8 +354,8 @@ iterate( const std::vector < std::vector<float> > & eventMatrix,
             for (i=0; i<Nevents; i++)
               {
                 sumOverEnergy = 0.;
-                for (unsigned j=0 ; j < myEventMatrix[i].size() ; j++)
-                                       {sumOverEnergy += myEventMatrix[i][j];}
+                for (float j : myEventMatrix[i])
+                                       {sumOverEnergy += j;}
                 sumOverEnergy /= myEnergyVector[i];
                 scale += sumOverEnergy;
               }
@@ -434,7 +434,7 @@ addEvent( const std::vector<float> & myCluster,
 
   // Loop over the crystal matrix to find the sum
   float sumXmatrix=0.;
-  for (unsigned i=0; i<myCluster.size(); i++) { sumXmatrix += myCluster[i]; }
+  for (float i : myCluster) { sumXmatrix += i; }
       
   // event weighting
   eventw = 1 - fabs(1 - sumXmatrix/energy);

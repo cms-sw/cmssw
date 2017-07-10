@@ -239,16 +239,16 @@ CommonModeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    std::vector<int> nmodules(m_selections.size(),0);
    std::vector<int> napvs(m_selections.size(),0);
 
-   for(edm::DetSetVector<SiStripRawDigi>::const_iterator mod = digis->begin();mod!=digis->end();mod++) {
+   for(const auto & mod : *digis) {
 
-     std::vector<const FedChannelConnection*> conns = m_detCabling->getConnections(mod->detId());
+     std::vector<const FedChannelConnection*> conns = m_detCabling->getConnections(mod.detId());
 
-     if(!m_ignorebadfedmod || std::find(badmodules->begin(),badmodules->end(),mod->detId())==badmodules->end()) {
+     if(!m_ignorebadfedmod || std::find(badmodules->begin(),badmodules->end(),mod.detId())==badmodules->end()) {
        for(unsigned int isel=0;isel< m_selections.size(); ++isel) {
-	 if(m_selections[isel].isSelected(mod->detId())) {
+	 if(m_selections[isel].isSelected(mod.detId())) {
 	   unsigned int strip = 0;
 	   ++nmodules[isel];
-	   for(edm::DetSet<SiStripRawDigi>::const_iterator digi=mod->begin();digi!=mod->end();digi++,strip++) {
+	   for(edm::DetSet<SiStripRawDigi>::const_iterator digi=mod.begin();digi!=mod.end();digi++,strip++) {
 	     LogDebug("StripNumber") << "Strip number " << strip;
 	     if(!m_ignorenotconnected || 
 		((conns.size() > strip/2) && conns[strip/2] && conns[strip/2]->isConnected())) {
@@ -260,7 +260,7 @@ CommonModeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	     }
 	     else if(digi->adc()>0) {
 	       edm::LogWarning("NonZeroCMWhenDisconnected") << " Non zero CM in " 
-							    << mod->detId() << " APV " << strip 
+							    << mod.detId() << " APV " << strip 
 							    << " with " << conns.size() 
 							    << " connections and connection pointer" << conns[strip/2];
 	     }

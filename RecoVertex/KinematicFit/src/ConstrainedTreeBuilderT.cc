@@ -17,18 +17,18 @@ RefCountedKinematicTree ConstrainedTreeBuilderT::buildRealTree(const RefCountedK
  resTree->addParticle(fVertex, vtx, virtualParticle);
 
 //adding final state
- for(std::vector<RefCountedKinematicParticle>::const_iterator il = particles.begin(); il != particles.end(); il++)
+ for(const auto & particle : particles)
  {
-  if((*il)->previousParticle()->correspondingTree() != 0)
+  if(particle->previousParticle()->correspondingTree() != 0)
   {
-   KinematicTree * tree = (*il)->previousParticle()->correspondingTree();
+   KinematicTree * tree = particle->previousParticle()->correspondingTree();
    tree->movePointerToTheTop();
-   tree->replaceCurrentParticle(*il);
+   tree->replaceCurrentParticle(particle);
    RefCountedKinematicVertex cdVertex = resTree->currentDecayVertex();
    resTree->addTree(cdVertex, tree);
   }else{
    RefCountedKinematicVertex ffVertex = vFactory.vertex();
-   resTree->addParticle(vtx,ffVertex,*il);
+   resTree->addParticle(vtx,ffVertex,particle);
   }
  }
  return resTree;

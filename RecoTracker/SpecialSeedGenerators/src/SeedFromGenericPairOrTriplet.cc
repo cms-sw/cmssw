@@ -263,8 +263,8 @@ TrajectorySeed* SeedFromGenericPairOrTriplet::buildSeed(const GlobalVector& mome
 		trajectoryStateTransform::persistentState(seedTSOS, trHits[1]->geographicalId().rawId());
 	edm::OwnVector<TrackingRecHit> seed_hits;
 	//build the transientTrackingRecHit for the starting hit, then call the method clone to rematch if needed
-	for (auto ihits = trHits.begin(); ihits != trHits.end(); ihits++){
-		seed_hits.push_back((*ihits)->clone());
+	for (auto & trHit : trHits){
+		seed_hits.push_back(trHit->clone());
 	}
 	TrajectorySeed* seed = new TrajectorySeed(PTraj,seed_hits,dir);
 	return seed;

@@ -107,10 +107,9 @@ HFRaddamTask::HFRaddamTask(edm::ParameterSet const& ps):
 		_logger.dqmthrow("Collection HFDigiCollection isn't avalaible"
 			+ _tagHF.label() + " " + _tagHF.instance());
 
-	for (HFDigiCollection::const_iterator it=chf->begin(); 
-		it!=chf->end(); ++it)
+	for (const auto & it : *chf)
 	{
-		const HFDataFrame digi = (const HFDataFrame)(*it);
+		const HFDataFrame digi = (const HFDataFrame)it;
 		for (unsigned int i=0; i<_vDetIds.size(); i++)
 			if (digi.id()==_vDetIds[i])
 			{

@@ -56,9 +56,8 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
     std::vector<DetId>::iterator cell;
 
     if(validateflag){
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+    for (auto mydetid : listRefChan)
       {
-        DetId mydetid = *it;
         cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
         if (cell == listNewChan.end()) // not present in new list, take old pedestals
           {
@@ -83,9 +82,8 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 
 
   if(epsilon!=0){
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+    for (auto mydetid : listRefChan)
       {
-        DetId mydetid = *it;
         cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
         if (cell == listNewChan.end()) // not present in new list, take old pedestals
           {
@@ -106,10 +104,9 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
       std::cout << "These are identical" << std::endl;
     }
    if(outfile.compare("null")!=0){
-   for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+   for (auto mydetid : listRefChan)
       {
-	DetId mydetid = *it;
-	cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
+		cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
 	if (cell == listNewChan.end()) // not present in new list, take old pedestals
 	  {
 	    const HcalPedestalWidth* mywidth = myRefPeds->getValues( mydetid );
@@ -126,10 +123,9 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 	  }
       }
 
-    for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
+    for (auto mydetid : listNewChan)  // fix 25.02.08
       {
-	DetId mydetid = *it;
-	const HcalPedestalWidth* mywidth = myNewPeds->getValues( mydetid );
+		const HcalPedestalWidth* mywidth = myNewPeds->getValues( mydetid );
 	std::cout << "N";
 	resultPeds->addValues( *mywidth );
       }

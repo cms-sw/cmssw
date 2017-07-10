@@ -61,8 +61,8 @@ EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchC
 	}
 	else {
 	  edm::LogWarning("L1AcceptBunchCrossingNoType") << "L1AcceptBunchCrossing with no type found: ";
-	  for(L1AcceptBunchCrossingCollection::const_iterator debu=l1abcc.begin();debu!=l1abcc.end();++debu) {
-	    edm::LogPrint("L1AcceptBunchCrossingNoType") << *debu;
+	  for(const auto & debu : l1abcc) {
+	    edm::LogPrint("L1AcceptBunchCrossingNoType") << debu;
 	  }
 	}
       }
@@ -74,8 +74,8 @@ EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchC
     }
     else {
       edm::LogInfo("L1AcceptBunchCrossingNegativeEvent") << "L1AcceptBunchCrossing with negative event: ";
-      for(L1AcceptBunchCrossingCollection::const_iterator debu=l1abcc.begin();debu!=l1abcc.end();++debu) {
-	edm::LogVerbatim("L1AcceptBunchCrossingNegativeEvent") << *debu;
+      for(const auto & debu : l1abcc) {
+	edm::LogVerbatim("L1AcceptBunchCrossingNegativeEvent") << debu;
       }
     }
   }
@@ -98,8 +98,8 @@ EventWithHistory::EventWithHistory(const edm::Event& event, const L1AcceptBunchC
 	edm::LogWarning("L1AcceptBunchCrossingNotInOrder") << "L1AcceptBunchCrossing not in order: orbit " 
 							   << event.orbitNumber() << " BX " << event.bunchCrossing()
 							   << " orbit offset " << orbitoffset << " bx offset " << bxoffset << " :";
-	for(L1AcceptBunchCrossingCollection::const_iterator debu=l1abcc.begin();debu!=l1abcc.end();++debu) {
-	  edm::LogPrint("L1AcceptBunchCrossingNotInOrder") << *debu;
+	for(const auto & debu : l1abcc) {
+	  edm::LogPrint("L1AcceptBunchCrossingNotInOrder") << debu;
 	}
 	break;
       }
@@ -147,8 +147,8 @@ int EventWithHistory::add(const EventWithHistory& he, const int idepth) {
 
   if(!add((const TinyEvent&) he,idepth)) return 0;
 
-  for(std::vector<TinyEvent>::const_iterator ev=he._prevse.begin();ev!=he._prevse.end();ev++) {
-    if(!add(*ev,idepth)) return 0;
+  for(const auto & ev : he._prevse) {
+    if(!add(ev,idepth)) return 0;
   }
   return 1;
 }

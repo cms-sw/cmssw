@@ -84,15 +84,15 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::
   bool goodCalib = true;
 
   // check EE RecHits
-  for (EcalRecHitCollection::const_iterator eerh = eeRHs->begin(); eerh != eeRHs->end(); ++eerh) {
+  for (const auto & eerh : *eeRHs) {
 
-    EcalRecHit hit    = (*eerh);
+    EcalRecHit hit    = eerh;
     EEDetId    eeDet  = hit.id();
-    double     energy = eerh->energy();
-    double     time   = eerh->time();
-    int        jx     = EEDetId((*eerh).id()).ix();
-    int        jy     = EEDetId((*eerh).id()).iy();
-    int        jz     = EEDetId((*eerh).id()).zside();
+    double     energy = eerh.energy();
+    double     time   = eerh.time();
+    int        jx     = EEDetId(eerh.id()).ix();
+    int        jy     = EEDetId(eerh.id()).iy();
+    int        jz     = EEDetId(eerh.id()).zside();
 
     // get laser coefficient
     float lasercalib = laser->getLaserCorrection( EEDetId(eeDet), iEvent.time());
@@ -112,15 +112,15 @@ bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::
   }
 
   // check EB RecHits
-  for (EcalRecHitCollection::const_iterator ebrh = ebRHs->begin(); ebrh != ebRHs->end(); ++ebrh) {
+  for (const auto & ebrh : *ebRHs) {
 
-    EcalRecHit hit    = (*ebrh);
+    EcalRecHit hit    = ebrh;
     EBDetId    ebDet  = hit.id();
-    double     energy = ebrh->energy();
-    double     time   = ebrh->time();
-    int etarec        = EBDetId((*ebrh).id()).ieta();
-    int phirec        = EBDetId((*ebrh).id()).iphi();
-    int zrec          = EBDetId((*ebrh).id()).zside();
+    double     energy = ebrh.energy();
+    double     time   = ebrh.time();
+    int etarec        = EBDetId(ebrh.id()).ieta();
+    int phirec        = EBDetId(ebrh.id()).iphi();
+    int zrec          = EBDetId(ebrh.id()).zside();
 
 
     // get laser coefficient

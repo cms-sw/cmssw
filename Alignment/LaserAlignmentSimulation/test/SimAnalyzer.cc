@@ -280,9 +280,9 @@ void SimAnalyzer::trackerStatistics(edm::Event const& theEvent, edm::EventSetup 
 
 	// theSimHits contains all the sim hits in this event
 	std::vector<PSimHit> theSimHits;
-	for (int i = 0; i < int(theSimHitContainers.size()); i++)
+	for (auto & theSimHitContainer : theSimHitContainers)
 	{
-		theSimHits.insert(theSimHits.end(),theSimHitContainers.at(i)->begin(),theSimHitContainers.at(i)->end());
+		theSimHits.insert(theSimHits.end(),theSimHitContainer->begin(),theSimHitContainer->end());
 	}
 
 	// loop over the SimHits and fill the histograms

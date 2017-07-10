@@ -351,15 +351,15 @@ void deltas_sector::init ()
 }
 void deltas_sector::gb__class::init()
 {
-	for (map <ull, zl11__class>::iterator mit = zl11.begin(); mit != zl11.end(); mit++)
-		mit->second.init();
-	for (map <ull, zl__class>::iterator mit = zl.begin(); mit != zl.end(); mit++)
-		mit->second.init();
+	for (auto & mit : zl11)
+		mit.second.init();
+	for (auto & mit : zl)
+		mit.second.init();
 }
 void deltas_sector::gb__class::zl11__class::init()
 {
-	for (map <ull, pl__class>::iterator mit = pl.begin(); mit != pl.end(); mit++)
-		mit->second.init();
+	for (auto & mit : pl)
+		mit.second.init();
 }
 void deltas_sector::gb__class::zl11__class::pl__class::init()
 {
@@ -367,8 +367,8 @@ void deltas_sector::gb__class::zl11__class::pl__class::init()
 }
 void deltas_sector::gb__class::zl__class::init()
 {
-	for (map <ull, pl__class>::iterator mit = pl.begin(); mit != pl.end(); mit++)
-		mit->second.init();
+	for (auto & mit : pl)
+		mit.second.init();
 }
 void deltas_sector::gb__class::zl__class::pl__class::init()
 {

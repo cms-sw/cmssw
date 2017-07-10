@@ -122,8 +122,8 @@ void ESRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
 	module_label != EtaSourceES_.label() ) continue;
 
    if (instance == InputRecHitES_) {
-     for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {
-       ESMergedRecHits -> push_back(*it);
+     for (const auto & it : *EcalRecHits_done[i]) {
+       ESMergedRecHits -> push_back(it);
      }
    }
    

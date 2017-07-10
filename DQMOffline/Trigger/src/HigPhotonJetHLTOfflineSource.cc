@@ -254,15 +254,14 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   iEvent.getByToken(photonsToken_, photons);
   if(!photons.isValid()) return;
   int nphotons = 0; 
-  for(reco::PhotonCollection::const_iterator phoIter=photons->begin();
-      phoIter!=photons->end();++phoIter){
-    if (phoIter->pt() < photonMinPt_ )  continue;
+  for(const auto & phoIter : *photons){
+    if (phoIter.pt() < photonMinPt_ )  continue;
     nphotons++;
-    photonpt_reco_->Fill(phoIter->pt());
-    photonrapidity_reco_->Fill(phoIter->rapidity()); 
-    if (triggered) photonpt_->Fill(phoIter->pt()); 
-    if (triggered) photonrapidity_->Fill(phoIter->rapidity()); 
-    double tmp_delphiphomet = fabs(deltaPhi(phoIter->phi(), pfmet.phi())); 
+    photonpt_reco_->Fill(phoIter.pt());
+    photonrapidity_reco_->Fill(phoIter.rapidity()); 
+    if (triggered) photonpt_->Fill(phoIter.pt()); 
+    if (triggered) photonrapidity_->Fill(phoIter.rapidity()); 
+    double tmp_delphiphomet = fabs(deltaPhi(phoIter.phi(), pfmet.phi())); 
     delphiphomet_reco_->Fill(tmp_delphiphomet); 
     if (triggered) delphiphomet_->Fill(tmp_delphiphomet); 
   }
@@ -281,22 +280,21 @@ HigPhotonJetHLTOfflineSource::analyze(const edm::Event& iEvent,
   // Two leading jets eta
   double etajet1(0), etajet2(0);
   int njet = 0;  
-  for(reco::PFJetCollection::const_iterator jetIter=pfjets->begin();
-      jetIter!=pfjets->end();++jetIter){
-    if (jetIter->pt() < pfjetMinPt_ ) continue; 
+  for(const auto & jetIter : *pfjets){
+    if (jetIter.pt() < pfjetMinPt_ ) continue; 
     njet++;
 
-    double tmp_delphijetmet = fabs(deltaPhi(jetIter->phi(), pfmet.phi())); 
+    double tmp_delphijetmet = fabs(deltaPhi(jetIter.phi(), pfmet.phi())); 
     if (tmp_delphijetmet < min_delphijetmet)
       min_delphijetmet = tmp_delphijetmet;
 
     if (njet == 1) {
-      p4jet1.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
-      etajet1 = jetIter->eta(); 
+      p4jet1.SetXYZM(jetIter.px(), jetIter.py(), jetIter.pz(), jetIter.mass()); 
+      etajet1 = jetIter.eta(); 
     }
     if (njet == 2){
-      p4jet2.SetXYZM(jetIter->px(), jetIter->py(), jetIter->pz(), jetIter->mass()); 
-      etajet2 = jetIter->eta(); 
+      p4jet2.SetXYZM(jetIter.px(), jetIter.py(), jetIter.pz(), jetIter.mass()); 
+      etajet2 = jetIter.eta(); 
     }
   }
   npfjets_reco_->Fill(njet);   
@@ -340,8 +338,8 @@ HigPhotonJetHLTOfflineSource::isMonitoredTriggerAccepted(const edm::TriggerNames
     // Only consider the triggered case.
     if ( triggerAccept_ && ( (*triggerResults)[itrig].accept() != 1) ) continue; 
     std::string triggername = triggerNames.triggerName(itrig);
-    for (size_t i = 0; i < hltPathsToCheck_.size(); i++) {
-      if ( triggername.find(hltPathsToCheck_[i]) != std::string::npos) {
+    for (const auto & i : hltPathsToCheck_) {
+      if ( triggername.find(i) != std::string::npos) {
   	return true;
       }
     }

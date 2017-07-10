@@ -97,28 +97,28 @@ DAClusterizerInZ_vect::fill(const vector<reco::TransientTrack> & tracks) const {
 
   // prepare track data for clustering
   track_t tks;
-  for (auto it = tracks.begin(); it!= tracks.end(); it++){
-    if (!(*it).isValid()) continue;
+  for (const auto & track : tracks){
+    if (!track.isValid()) continue;
     double t_pi=1.;
-    double t_z = ((*it).stateAtBeamLine().trackStateAtPCA()).position().z();
+    double t_z = (track.stateAtBeamLine().trackStateAtPCA()).position().z();
     if (std::fabs(t_z) > 1000.) continue;
-    auto const & t_mom = (*it).stateAtBeamLine().trackStateAtPCA().momentum();
+    auto const & t_mom = track.stateAtBeamLine().trackStateAtPCA().momentum();
     //  get the beam-spot
-    reco::BeamSpot beamspot = (it->stateAtBeamLine()).beamSpot();
+    reco::BeamSpot beamspot = (track.stateAtBeamLine()).beamSpot();
     double t_dz2 = 
-      std::pow((*it).track().dzError(), 2) // track errror
+      std::pow(track.track().dzError(), 2) // track errror
       + (std::pow(beamspot.BeamWidthX()*t_mom.x(),2)+std::pow(beamspot.BeamWidthY()*t_mom.y(),2))*std::pow(t_mom.z(),2)/std::pow(t_mom.perp2(),2) // beam spot width
       + std::pow(vertexSize_, 2); // intrinsic vertex size, safer for outliers and short lived decays
     t_dz2 = 1./ t_dz2;
     if (edm::isNotFinite(t_dz2) || t_dz2 < std::numeric_limits<double>::min() ) continue;
     if (d0CutOff_ > 0) {
       Measurement1D atIP =
-	(*it).stateAtBeamLine().transverseImpactParameter();// error contains beamspot
+	track.stateAtBeamLine().transverseImpactParameter();// error contains beamspot
       t_pi = 1. / (1. + local_exp(std::pow(atIP.value() / atIP.error(), 2) - std::pow(d0CutOff_, 2))); // reduce weight for high ip tracks
       if (edm::isNotFinite(t_pi) ||  t_pi < std::numeric_limits<double>::epsilon())  continue; // usually is > 0.99
     }
     LogTrace("DAClusterizerinZ_vectorized") << t_z <<' '<< t_dz2 <<' '<< t_pi;
-    tks.AddItem(t_z, t_dz2, &(*it), t_pi);
+    tks.AddItem(t_z, t_dz2, &track, t_pi);
   }
   tks.ExtractRaw();
   
@@ -290,8 +290,8 @@ bool DAClusterizerInZ_vect::merge(vertex_t & y, double & beta)const{
   std::stable_sort(critical.begin(), critical.end(), std::less<std::pair<double, unsigned int> >() );
 
 
-  for (unsigned int ik=0; ik < critical.size(); ik++){
-    unsigned int k = critical[ik].second;
+  for (auto & ik : critical){
+    unsigned int k = ik.second;
     double rho = y._pk[k]+y._pk[k+1];
     double swE = y._swE[k]+y._swE[k+1]-y._pk[k]*y._pk[k+1] / rho*std::pow(y._z[k+1]-y._z[k],2);
     double Tc = 2*swE / (y._sw[k]+y._sw[k+1]);
@@ -778,8 +778,8 @@ vector<vector<reco::TransientTrack> > DAClusterizerInZ_vect::clusterize(
       }
       aCluster.clear();
     }
-    for (unsigned int i = 0; i < k->originalTracks().size(); i++) {
-      aCluster.push_back(k->originalTracks()[i]);
+    for (const auto & i : k->originalTracks()) {
+      aCluster.push_back(i);
     }
     
   }

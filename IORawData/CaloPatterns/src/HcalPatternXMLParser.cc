@@ -118,12 +118,12 @@ HcalPatternXMLParser::~HcalPatternXMLParser() {
     } else if (m_mode==md_Data) {
       // parse the text
       std::string entry;
-      for (std::string::iterator q=m_text.begin(); q!=m_text.end(); q++) {
-	if (isspace(*q)) {
+      for (char & q : m_text) {
+	if (isspace(q)) {
 	  if (entry.empty()) continue;
 	  m_items.push_back(entry);
 	  entry="";
-	} else entry+=*q;
+	} else entry+=q;
       }
     }
 

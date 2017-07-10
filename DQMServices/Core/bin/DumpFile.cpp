@@ -202,9 +202,9 @@ int main(int argc, char **argv)
 
       // Dump info about the monitor elements.
       std::vector<MonitorElement *> mes = store.getAllContents("");
-      for (size_t m = 0, e = mes.size(); m < e; ++m)
+      for (auto & m : mes)
       {
-        MonitorElement &me = *mes[m];
+        MonitorElement &me = *m;
         getMEInfo(store, me, info);
         std::cout << "ME STYLE=" << info.style
 		  << " RUN=" << info.runnr

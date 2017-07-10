@@ -125,14 +125,13 @@ TestRotation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   std::vector<Alignable*> theDTWheels = theAlignableMuon->DTWheels();
   std::cout << "Number of wheels=" << theDTWheels.size() << std::endl;
 
-  for ( std::vector<Alignable*>::iterator iter = theDTWheels.begin();
-		iter != theDTWheels.end(); iter++ )
+  for (auto & theDTWheel : theDTWheels)
   {
     std::cout << "------------------------" << std::endl
               << " BEFORE ROTATION " << std::endl;
 
-    align::GlobalPoint  pos_i  = (*iter)->globalPosition() ;
-    align::RotationType dir_i  = (*iter)->globalRotation();
+    align::GlobalPoint  pos_i  = theDTWheel->globalPosition() ;
+    align::RotationType dir_i  = theDTWheel->globalRotation();
 
     std::cout << "x=" << pos_i.x() << ",  y=" << pos_i.y() << ",  z=" << pos_i.z() << std::endl;
     std::cout << "xx=" << dir_i.xx() << ",  yx=" << dir_i.yx() << ",  zx=" << dir_i.zx()  << std::endl;
@@ -146,13 +145,13 @@ TestRotation::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 
     double deltaPhi = 3.1415926/180*45;
 
-    (*iter)->rotateAroundGlobalZ( deltaPhi );
+    theDTWheel->rotateAroundGlobalZ( deltaPhi );
 
     std::cout << "------------------------" << std::endl
 	      << " AFTER ROTATION " << std::endl;
 
-    align::GlobalPoint  pos_f  = (*iter)->globalPosition() ;
-    align::RotationType dir_f = (*iter)->globalRotation();
+    align::GlobalPoint  pos_f  = theDTWheel->globalPosition() ;
+    align::RotationType dir_f = theDTWheel->globalRotation();
 
     std::cout << "x=" << pos_f.x() << ",  y=" << pos_f.y() << ",  z=" << pos_f.z()  << std::endl ;
     std::cout << "xx=" << dir_f.xx() << ",  yx=" << dir_f.yx() << ",  zx=" << dir_f.zx()   << std::endl ;

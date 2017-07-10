@@ -74,13 +74,13 @@ MVAValueMapProducer<ParticleType>::MVAValueMapProducer(const edm::ParameterSet& 
   // Loop over the list of MVA configurations passed here from python and
   // construct all requested MVA esimtators.  
   const auto& all_mvas = mva_cache->allMVAs();
-  for( auto mvaItr = all_mvas.begin(); mvaItr != all_mvas.end(); ++mvaItr ) {
+  for(const auto & all_mva : all_mvas) {
     // set the consumes
-    mvaItr->second->setConsumes(consumesCollector());
+    all_mva.second->setConsumes(consumesCollector());
     //
     // Compose and save the names of the value maps to be produced
     //
-    const auto& currentEstimator = mvaItr->second;
+    const auto& currentEstimator = all_mva.second;
     const std::string full_name = ( currentEstimator->getName() + 
                                     currentEstimator->getTag()    );
     std::string thisValueMapName = full_name + "Values";

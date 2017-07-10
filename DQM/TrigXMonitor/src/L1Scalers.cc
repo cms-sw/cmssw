@@ -111,9 +111,9 @@ void L1Scalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
   algoBxDiff_.clear();
   algoBxDiffLumi_.clear();
   techBxDiffLumi_.clear();
-  for (uint ibit = 0; ibit < algoSelected_.size(); ibit++) {
+  for (unsigned int ibit : algoSelected_) {
     std::stringstream ss;
-    ss << algoSelected_[ibit] << "_" << sdenom.str() << denomBit_;
+    ss << ibit << "_" << sdenom.str() << denomBit_;
     algoBxDiff_.push_back(iBooker.book1D("BX_diff_algo" + ss.str(),
                                        "BX_diff_algo" + ss.str(), 9, -4, 5));
     algoBxDiffLumi_.push_back(
@@ -121,9 +121,9 @@ void L1Scalers::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&,
                      MAX_LUMI_BIN, -0.5, double(MAX_LUMI_SEG) - 0.5, 9, -4, 5));
     // algoBxDiffLumi_[ibit]->setAxisTitle("Lumi Section", 1);
   }
-  for (uint ibit = 0; ibit < techSelected_.size(); ibit++) {
+  for (unsigned int ibit : techSelected_) {
     std::stringstream ss;
-    ss << techSelected_[ibit] << "_" << sdenom.str() << denomBit_;
+    ss << ibit << "_" << sdenom.str() << denomBit_;
     techBxDiff_.push_back(iBooker.book1D("BX_diff_tech" + ss.str(),
                                        "BX_diff_tech" + ss.str(), 9, -4, 5));
     techBxDiffLumi_.push_back(
@@ -185,8 +185,8 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
       //    DecisionWord gtDecisionWord = gtRecord->decisionWord();
       if (!gtDecisionWord.empty()) {  // if board not there this is zero
         // loop over dec. bit to get total rate (no overlap)
-        for (uint i = 0; i < gtDecisionWord.size(); ++i) {
-          if (gtDecisionWord[i]) {
+        for (auto && i : gtDecisionWord) {
+          if (i) {
             rateAlgoCounter_++;
             l1AlgoCounter_->Fill(rateAlgoCounter_);
             break;
@@ -213,8 +213,8 @@ void L1Scalers::analyze(const edm::Event& e, const edm::EventSetup& iSetup) {
       //    TechnicalTriggerWord tw = gtRecord->technicalTriggerWord();
       if (!tw.empty()) {
         // loop over dec. bit to get total rate (no overlap)
-        for (uint i = 0; i < tw.size(); ++i) {
-          if (tw[i]) {
+        for (auto && i : tw) {
+          if (i) {
             rateTtCounter_++;
             l1TtCounter_->Fill(rateTtCounter_);
             break;

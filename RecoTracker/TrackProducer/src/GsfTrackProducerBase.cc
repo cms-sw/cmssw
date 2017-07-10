@@ -226,12 +226,11 @@ GsfTrackProducerBase::putInEvt(edm::Event& evt,
 
     // Now Create traj<->tracks association map
     std::unique_ptr<TrajGsfTrackAssociationCollection> trajTrackMap( new TrajGsfTrackAssociationCollection(rTrajs, rTracks_) );
-    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
-	  i != tjTkMap.end(); i++ ) {
-      edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
-      edm::Ref<reco::GsfTrackCollection>    tkRef( rTracks_, (*i).second );
-      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
-			    edm::Ref<reco::GsfTrackCollection>( rTracks_, (*i).second ) );
+    for (auto & i : tjTkMap) {
+      edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, i.first );
+      edm::Ref<reco::GsfTrackCollection>    tkRef( rTracks_, i.second );
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, i.first ),
+			    edm::Ref<reco::GsfTrackCollection>( rTracks_, i.second ) );
     }
     evt.put( std::move(trajTrackMap) );
   }

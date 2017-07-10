@@ -297,18 +297,17 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
     bool me11 = (layerId.station() == 1) && (layerId.ring() == 1);
 
     // Get simHits in this layer.
-    for (edm::PSimHitContainer::const_iterator simHitIt = allSimHits->begin();
-	 simHitIt != allSimHits->end(); simHitIt++) {
+    for (const auto & allSimHit : *allSimHits) {
 
       // Find detId where simHit is located.
-      CSCDetId hitId = (CSCDetId)(*simHitIt).detUnitId();
+      CSCDetId hitId = (CSCDetId)allSimHit.detUnitId();
       if (hitId == layerId)
-	simHits.push_back(*simHitIt);
+	simHits.push_back(allSimHit);
       if (me11) {
 	CSCDetId layerId_me1a(layerId.endcap(), layerId.station(), 4,
 			      layerId.chamber(), layerId.layer());
 	if (hitId == layerId_me1a)
-	  simHits.push_back(*simHitIt);
+	  simHits.push_back(allSimHit);
       }
     }
 
@@ -320,20 +319,18 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
       }
 
       // Get the strip number for every digi and convert to phi.
-      for (vector<CSCComparatorDigi>::iterator prd = thisLayerDigis.begin();
-	   prd != thisLayerDigis.end(); prd++) {
+      for (auto & thisLayerDigi : thisLayerDigis) {
 	double deltaPhiMin = 999.;
 	double bestHitPhi  = 999.;
 	PSimHit* bestHit   = 0;
 
-	int strip = prd->getStrip();
+	int strip = thisLayerDigi.getStrip();
 	double digiPhi = getStripPhi(layerId, strip-0.5);
 
 	const CSCLayer* csclayer = geom_->layer(layerId);
-	for (vector <PSimHit>::iterator psh = simHits.begin();
-	     psh != simHits.end(); psh++) {
+	for (auto & simHit : simHits) {
 	  // Get the local phi for the simHit.
-	  LocalPoint hitLP = psh->localPosition();
+	  LocalPoint hitLP = simHit.localPosition();
 	  GlobalPoint hitGP = csclayer->toGlobal(hitLP);
 	  double hitPhi = hitGP.phi();
 	  if (debug)
@@ -352,7 +349,7 @@ void CSCCathodeLCTAnalyzer::digiSimHitAssociator(CSCCathodeLayerInfo& info,
 	  }
 	  if (deltaPhi < deltaPhiMin) {
 	    deltaPhiMin = deltaPhi;
-	    bestHit     = &(*psh);
+	    bestHit     = &simHit;
 	    bestHitPhi  = hitPhi;
 	  }
 	}

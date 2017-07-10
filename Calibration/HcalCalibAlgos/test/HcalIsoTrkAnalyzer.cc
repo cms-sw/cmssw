@@ -458,8 +458,8 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 	      std::vector<int> Keys;
 	      std::string label = triggerEvent.filterTag(ifilter).label();
 	      //loop over keys to objects passing this filter
-	      for (unsigned int imodule=0; imodule<moduleLabels.size(); imodule++) {
-		if (label.find(moduleLabels[imodule]) != std::string::npos) {
+	      for (const auto & moduleLabel : moduleLabels) {
+		if (label.find(moduleLabel) != std::string::npos) {
 #ifdef EDM_ML_DEBUG
 		  edm::LogInfo("HcalIsoTrack") << "FilterName " << label;
 #endif
@@ -491,14 +491,14 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 	    //// deta, dphi and dR for leading L1 object with L2 objects
 	    math::XYZTLorentzVector mindRvec1;
 	    double mindR1(999);
-	    for (unsigned int i=0; i<vecL2.size(); i++) {
-	      double dr   = dR(vecL1[0],vecL2[i]);
+	    for (auto & i : vecL2) {
+	      double dr   = dR(vecL1[0],i);
 #ifdef EDM_ML_DEBUG
 	      edm::LogInfo("HcalIsoTrack") << "lvl2[" << i << "] dR " << dr;
 #endif
 	      if (dr<mindR1) {
 		mindR1    = dr;
-		mindRvec1 = vecL2[i];
+		mindRvec1 = i;
 	      }
 	    }
 #ifdef EDM_ML_DEBUG
@@ -619,10 +619,10 @@ void HcalIsoTrkAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const& i
     edm::LogInfo("HcalIsoTrack") << "New trigger menu found !!!";
 #endif
     const unsigned int n(hltConfig_.size());
-    for (unsigned itrig=0; itrig<trigNames_.size(); itrig++) {
-      unsigned int triggerindx = hltConfig_.triggerIndex(trigNames_[itrig]);
+    for (const auto & trigName : trigNames_) {
+      unsigned int triggerindx = hltConfig_.triggerIndex(trigName);
       if (triggerindx >= n) {
-	edm::LogWarning("HcalIsoTrack") << trigNames_[itrig] << " " 
+	edm::LogWarning("HcalIsoTrack") << trigName << " " 
 					<< triggerindx << " does not exist in "
 					<< "the current menu";
 #ifdef EDM_ML_DEBUG
@@ -732,8 +732,8 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 				 << pTrack->phi() << "|" <<pTrack->p();
 #endif
     t_mindR2 = 999;
-    for (unsigned int k=0; k<vecL3.size(); ++k) {
-      double dr   = dR(vecL3[k],v4); 
+    for (auto & k : vecL3) {
+      double dr   = dR(k,v4); 
       if (dr<t_mindR2) {
 	t_mindR2  = dr;
       }
@@ -815,8 +815,8 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 				    ids1, *t_HitEnergies1);
 	t_eHcal10    *= hcalScale_;
 	t_DetIds1->reserve(ids1.size());
-	for (unsigned int k = 0; k < ids1.size(); ++k) {
-	  t_DetIds1->push_back(ids1[k].rawId());
+	for (auto & k : ids1) {
+	  t_DetIds1->push_back(k.rawId());
 	}
 	//----- hcal energy in the extended cone 3 (a_coneR+30) --------------
 	t_eHcal30 = spr::eCone_hcal(geo, hbhe, trkDetItr->pointHCAL,
@@ -825,8 +825,8 @@ int HcalIsoTrkAnalyzer::fillTree(std::vector< math::XYZTLorentzVector>& vecL1,
 				    ids3, *t_HitEnergies3);
 	t_eHcal30    *= hcalScale_;
 	t_DetIds3->reserve(ids3.size());
-	for (unsigned int k = 0; k < ids3.size(); ++k) {
-	  t_DetIds3->push_back(ids3[k].rawId());
+	for (auto & k : ids3) {
+	  t_DetIds3->push_back(k.rawId());
 	}
 	t_p           = pTrack->p();
 	t_pt          = pTrack->pt();
@@ -907,11 +907,10 @@ double HcalIsoTrkAnalyzer::rhoh(const edm::Handle<CaloTowerCollection>& tower) {
   for (auto eta : etabins_) {
     for (auto phi : phibins_) {
       double hadder = 0;
-      for (CaloTowerCollection::const_iterator pf_it = tower->begin(); 
-	   pf_it != tower->end(); pf_it++) {
-	if (fabs(eta-pf_it->eta())>etahalfdist_)                 continue;
-	if (fabs(reco::deltaPhi(phi,pf_it->phi()))>phihalfdist_) continue;
-	hadder+=pf_it->hadEt();
+      for (const auto & pf_it : *tower) {
+	if (fabs(eta-pf_it.eta())>etahalfdist_)                 continue;
+	if (fabs(reco::deltaPhi(phi,pf_it.phi()))>phihalfdist_) continue;
+	hadder+=pf_it.hadEt();
       }
       sumPFNallSMDQH2.push_back(hadder);
     }

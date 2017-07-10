@@ -91,11 +91,10 @@ vector<const BarrelDetLayer*> LayerCollector::barrelLayers(const FTS& aFts) cons
   vector<const BarrelDetLayer*> barrelLayers;
 
 
-  for(vector<const DetLayer*>::iterator ilay = all.begin();
-      ilay != all.end(); ilay++) {
+  for(auto & ilay : all) {
 
     if(const BarrelDetLayer* myBarrel = 
-       dynamic_cast<const BarrelDetLayer*>(*ilay))
+       dynamic_cast<const BarrelDetLayer*>(ilay))
       barrelLayers.push_back(myBarrel);
   }
 
@@ -109,11 +108,10 @@ vector<const ForwardDetLayer*> LayerCollector::forwardLayers(const FTS& aFts) co
   vector<const ForwardDetLayer*> fwdLayers;
 
 
-  for(vector<const DetLayer*>::iterator ilay = all.begin();
-      ilay != all.end(); ilay++) {
+  for(auto & ilay : all) {
     
     if(const ForwardDetLayer* myFwd = 
-       dynamic_cast<const ForwardDetLayer*>(*ilay))
+       dynamic_cast<const ForwardDetLayer*>(ilay))
       fwdLayers.push_back(myFwd);
   }
 

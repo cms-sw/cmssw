@@ -25,9 +25,9 @@ void HLTTauCertifier::dqmEndJob(DQMStore::IBooker &iBooker, DQMStore::IGetter &i
   int errors=0;
   double response=1.0;
   
-  for(unsigned int i=0;i<inputMEs_.size();++i)
+  for(const auto & inputME : inputMEs_)
     {
-      MonitorElement *monElement = iGetter.get(inputMEs_.at(i));
+      MonitorElement *monElement = iGetter.get(inputME);
       if(monElement)
         {
           warnings+=monElement->getQWarnings().size();

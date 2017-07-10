@@ -578,8 +578,8 @@ namespace gbl {
       }
       if (globalDerivatives.cols()) {
         std::cout << "  Global Labels:";
-        for (unsigned int i = 0; i < globalLabels.size(); ++i) {
-          std::cout << " " << globalLabels[i];
+        for (int globalLabel : globalLabels) {
+          std::cout << " " << globalLabel;
         }
         std::cout << std::endl;
         std::cout << "  Global Derivatives:"

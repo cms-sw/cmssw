@@ -313,15 +313,15 @@ void SiStripMonitorPedestals::analyze(const edm::Event& iEvent, const edm::Event
       }
       std::vector<const FedChannelConnection *> fed_conns = detcabling->getConnections(detid);
       bool firstchannel(true);
-      for (unsigned int  k = 0; k < fed_conns.size() ; k++) {
-	if(fed_conns[k] && fed_conns[k]->isConnected()) {
+      for (auto & fed_conn : fed_conns) {
+	if(fed_conn && fed_conn->isConnected()) {
 	  if (firstchannel) {
 	    edm::LogError("SiStripMonitorPedestals") <<" SiStripMonitorPedestals::analyze: Fed Id " <<
-	      fed_conns[k]->fedId() << " Channel " << fed_conns[k]->fedCh();
+	      fed_conn->fedId() << " Channel " << fed_conn->fedCh();
 	    firstchannel=false;
 	  }
 	  else  edm::LogError("SiStripMonitorPedestals")  <<"  SiStripMonitorPedestals::analyze: Channel " <<
-		  fed_conns[k]->fedCh();
+		  fed_conn->fedCh();
 	}
       }
       std::cout << std::endl;

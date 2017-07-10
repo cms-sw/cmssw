@@ -82,9 +82,8 @@ MagGeoBuilderFromDDD::eSector::~eSector(){}
 MagESector* MagGeoBuilderFromDDD::eSector::buildMagESector() const{
   if (msector==0) {
     vector<MagELayer*> mLayers;
-    for (vector<eLayer>::const_iterator lay = layers.begin();
-	 lay!=layers.end(); ++lay) {
-      mLayers.push_back((*lay).buildMagELayer());
+    for (const auto & layer : layers) {
+      mLayers.push_back(layer.buildMagELayer());
     }
     msector = new MagESector(mLayers, theVolumes.front()->minPhi()); //FIXME
   }

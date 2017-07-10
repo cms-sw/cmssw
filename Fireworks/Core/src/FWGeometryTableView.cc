@@ -290,10 +290,10 @@ void FWGeometryTableView::updateFilter(std::string& exp)
    if (exp.empty())
    {
       // std::cout << "FITLER OFF \n";
-      for (FWGeometryTableManagerBase::Entries_i i = m_tableManager->refEntries().begin(); i !=  m_tableManager->refEntries().end(); ++i)
+      for (auto & i : m_tableManager->refEntries())
       {
-         m_tableManager->setVisibility(*i, true);
-         m_tableManager->setVisibilityChld(*i, true);
+         m_tableManager->setVisibility(i, true);
+         m_tableManager->setVisibilityChld(i, true);
       }
 
       // NOTE: entry should be cleared automatically
@@ -404,13 +404,13 @@ void FWGeometryTableView::checkRegionOfInterest()
 void FWGeometryTableView::setFrom(const FWConfiguration& iFrom)
 { 
    m_enableRedraw = false;
-   for (const_iterator it =begin(), itEnd = end(); it != itEnd; ++it)
+   for (auto it : *this)
    {
       // printf("set from %s \n",(*it)->name().c_str() );
-      if ((*it)->name() == m_topNodeIdx.name()  )
+      if (it->name() == m_topNodeIdx.name()  )
          setTopNodePathFromConfig(iFrom);
       else 
-         (*it)->setFrom(iFrom);
+         it->setFrom(iFrom);
    }  
    
    

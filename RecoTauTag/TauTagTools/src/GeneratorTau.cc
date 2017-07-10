@@ -299,9 +299,8 @@ std::vector<LorentzVector> GeneratorTau::getVisibleFourVectors() const {
 LorentzVector GeneratorTau::getVisibleFourVector() const {
   LorentzVector output;
   std::vector<LorentzVector> tempForSum = getVisibleFourVectors();
-  for (std::vector<LorentzVector>::iterator iter = tempForSum.begin();
-      iter != tempForSum.end(); ++iter)
-    output += (*iter);
+  for (auto & iter : tempForSum)
+    output += iter;
   return output;
 }
 

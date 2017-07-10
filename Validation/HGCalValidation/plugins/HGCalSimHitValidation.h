@@ -57,7 +57,7 @@ class HGCalSimHitValidation : public DQMEDAnalyzer {
 public:
   
   struct energysum{
-    energysum() {etotal=0; for (int i=0; i<6; ++i) eTime[i] = 0.;}
+    energysum() {etotal=0; for (double & i : eTime) i = 0.;}
     double eTime[6], etotal;
   };
   

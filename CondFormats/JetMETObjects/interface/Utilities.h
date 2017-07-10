@@ -190,9 +190,8 @@ namespace
   {
     std::vector<std::string> tokens;
     std::string currentToken;
-    for (unsigned ipos = 0; ipos < fLine.length (); ++ipos)
+    for (char c : fLine)
       {
-        char c = fLine[ipos];
         if (c == '#') break; // ignore comments
         else if (c == ' ')
           { // flush current token if any

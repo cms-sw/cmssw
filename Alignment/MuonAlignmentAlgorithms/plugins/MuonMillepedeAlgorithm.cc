@@ -241,11 +241,10 @@
 	  // loop over tracks  
 	  //int t_counter = 0;
 	  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
-	  for( ConstTrajTrackPairCollection::const_iterator it=tracks.begin();
-	       it!=tracks.end();it++) {
+	  for(const auto & it : tracks) {
 
-	    const Trajectory* traj = (*it).first;
-	    const reco::Track* track = (*it).second;
+	    const Trajectory* traj = it.first;
+	    const reco::Track* track = it.second;
 
 	    float pt    = track->pt();
 	    float eta   = track->eta();
@@ -269,11 +268,9 @@
 	      std::vector<TrajectoryMeasurement> measurements = traj->measurements();
 	     
 	      //In this loop the measurements and hits are extracted and put on two vectors 
-	      for (std::vector<TrajectoryMeasurement>::iterator im=measurements.begin();
-			 im!=measurements.end(); im++)
+	      for (auto meas : measurements)
 	      {
-		TrajectoryMeasurement meas = *im;
-		const TransientTrackingRecHit* hit = &(*meas.recHit());
+			const TransientTrackingRecHit* hit = &(*meas.recHit());
 		//We are not very strict at this point
 		if (hit->isValid()  && theAlignableDetAccessor->detAndSubdetInMap( hit->geographicalId() ))
 		{

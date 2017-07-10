@@ -67,10 +67,10 @@ bool RecoDiMuon::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // at least one muons above a pt threshold singleMuonPtMin 
   // or at least 2 muons above a pt threshold diMuonPtMin
   int nMuonOver2ndCut = 0;
-  for(reco::TrackCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++ muon ) {
+  for(const auto & muon : *muons) {
 
-    if ( muon->pt() > singleMuonPtMin_ ) accepted = true;
-    if ( muon->pt() > diMuonPtMin_ )  nMuonOver2ndCut++;
+    if ( muon.pt() > singleMuonPtMin_ ) accepted = true;
+    if ( muon.pt() > diMuonPtMin_ )  nMuonOver2ndCut++;
   }
   if ( nMuonOver2ndCut >= 2 ) accepted = true;
 

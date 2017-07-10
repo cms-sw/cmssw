@@ -184,9 +184,8 @@ namespace hcaldqm
 			
 			//	reset all the tmp flags to fNA
 			//	MUST DO IT NOW! AS NCDAQ MIGHT OVERWRITE IT!
-			for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
-				ft!=vtmpflags.end(); ++ft)
-				ft->reset();
+			for (auto & vtmpflag : vtmpflags)
+				vtmpflag.reset();
 			
 			//	check if this FED was @cDAQ
 			std::vector<uint32_t>::const_iterator cit=std::find(
@@ -194,9 +193,8 @@ namespace hcaldqm
 			if (cit==_vcdaqEids.end())
 			{
 				//	was not @cDAQ, set all the flags for this FED as fNCDAQ
-				for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
-					ft!=vtmpflags.end(); ++ft)
-					ft->_state = flag::fNCDAQ;
+				for (auto & vtmpflag : vtmpflags)
+					vtmpflag._state = flag::fNCDAQ;
 
 				// push all the flags for this FED
 				// IMPORTANT!!!

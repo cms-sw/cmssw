@@ -449,47 +449,46 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   double maxSumPt = 0;
   Vertex bestPvx;
 
-  for( VertexCollection::const_iterator iVertex = vertices->begin();
-      iVertex != vertices->end(); ++iVertex ) {
+  for(const auto & iVertex : *vertices) {
 
-    if( ! iVertex->isValid() ) h011->Fill( iVertex->z() );
+    if( ! iVertex.isValid() ) h011->Fill( iVertex.z() );
     else{
-      if( iVertex->isFake() ) 
-	h012->Fill( iVertex->z() );
+      if( iVertex.isFake() ) 
+	h012->Fill( iVertex.z() );
 
       else{
-	h013->Fill( iVertex->z() );
-	h014->Fill( iVertex->x() );
-	h015->Fill( iVertex->y() );
-	h016->Fill( iVertex->ndof() );
-	h017->Fill( iVertex->ndof() );
+	h013->Fill( iVertex.z() );
+	h014->Fill( iVertex.x() );
+	h015->Fill( iVertex.y() );
+	h016->Fill( iVertex.ndof() );
+	h017->Fill( iVertex.ndof() );
 
 	if( idbg ){
 	  cout << "vertex";
-	  cout << ": x " << iVertex->x();
-	  cout << ", y " << iVertex->y();
-	  cout << ", z " << iVertex->z();
-	  cout << ", ndof " << iVertex->ndof();
-	  cout << ", sumpt " << iVertex->p4().pt();
+	  cout << ": x " << iVertex.x();
+	  cout << ", y " << iVertex.y();
+	  cout << ", z " << iVertex.z();
+	  cout << ", ndof " << iVertex.ndof();
+	  cout << ", sumpt " << iVertex.p4().pt();
 	  cout << endl;
 	}
 
-	if( iVertex->hasRefittedTracks() )
-	  h018->Fill( iVertex->z() ); // empty in Zmumu sample
+	if( iVertex.hasRefittedTracks() )
+	  h018->Fill( iVertex.z() ); // empty in Zmumu sample
 	else
-	  h019->Fill( iVertex->z() ); // all here: why?
+	  h019->Fill( iVertex.z() ); // all here: why?
 
-	if( iVertex->ndof() > bestNdof ) {
-	  bestNdof = iVertex->ndof();
-	  vtxN = XYZPoint( iVertex->x(), iVertex->y(), iVertex->z() );
+	if( iVertex.ndof() > bestNdof ) {
+	  bestNdof = iVertex.ndof();
+	  vtxN = XYZPoint( iVertex.x(), iVertex.y(), iVertex.z() );
 	}
 
-	h021->Fill( iVertex->p4().pt() );
+	h021->Fill( iVertex.p4().pt() );
 
-	if( iVertex->p4().pt() > maxSumPt ) {
-	  maxSumPt = iVertex->p4().pt();
-	  vtxP = XYZPoint( iVertex->x(), iVertex->y(), iVertex->z() );
-	  bestPvx = *iVertex;
+	if( iVertex.p4().pt() > maxSumPt ) {
+	  maxSumPt = iVertex.p4().pt();
+	  vtxP = XYZPoint( iVertex.x(), iVertex.y(), iVertex.z() );
+	  bestPvx = iVertex;
 	}
       }// non-fake
     }//valid
@@ -561,10 +560,9 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   //
   // loop over tracker detectors:
   //
-  for( TrackerGeometry::DetContainer::const_iterator idet = pDD->dets().begin();
-       idet != pDD->dets().end(); ++idet ) {
+  for(auto idet : pDD->dets()) {
     
-    DetId mydetId = (*idet)->geographicalId();
+    DetId mydetId = idet->geographicalId();
     uint32_t mysubDet = mydetId.subdetId();
 
     if( idbg ){
@@ -577,34 +575,34 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	cout << ": PXB layer " << tTopo->pxbLayer(mydetId);
 	cout << ", ladder " << tTopo->pxbLadder(mydetId);
 	cout << ", module " << tTopo->pxbModule(mydetId);
-	cout << ", at R " << (*idet)->position().perp();
-	cout << ", F " << (*idet)->position().barePhi()*wt;
-	cout << ", z " << (*idet)->position().z();
+	cout << ", at R " << idet->position().perp();
+	cout << ", F " << idet->position().barePhi()*wt;
+	cout << ", z " << idet->position().z();
 	cout << endl;
 	cout << "rot x";
-	cout << "\t" << (*idet)->rotation().xx();
-	cout << "\t" << (*idet)->rotation().xy();
-	cout << "\t" << (*idet)->rotation().xz();
+	cout << "\t" << idet->rotation().xx();
+	cout << "\t" << idet->rotation().xy();
+	cout << "\t" << idet->rotation().xz();
 	cout << endl;
 	cout << "rot y";
-	cout << "\t" << (*idet)->rotation().yx();
-	cout << "\t" << (*idet)->rotation().yy();
-	cout << "\t" << (*idet)->rotation().yz();
+	cout << "\t" << idet->rotation().yx();
+	cout << "\t" << idet->rotation().yy();
+	cout << "\t" << idet->rotation().yz();
 	cout << endl;
 	cout << "rot z";
-	cout << "\t" << (*idet)->rotation().zx();
-	cout << "\t" << (*idet)->rotation().zy();
-	cout << "\t" << (*idet)->rotation().zz();
+	cout << "\t" << idet->rotation().zx();
+	cout << "\t" << idet->rotation().zy();
+	cout << "\t" << idet->rotation().zz();
 	cout << endl;
 	//
 	// normal vector: includes alignment (varies from module to module along z on one ladder)
 	// neighbouring ladders alternate with inward/outward orientation
 	//
 	cout << "normal";
-	cout << ": x " << (*idet)->surface().normalVector().x();
-	cout << ", y " << (*idet)->surface().normalVector().y();
-	cout << ", z " << (*idet)->surface().normalVector().z();
-	cout << ", f " << (*idet)->surface().normalVector().barePhi()*wt;
+	cout << ": x " << idet->surface().normalVector().x();
+	cout << ", y " << idet->surface().normalVector().y();
+	cout << ", z " << idet->surface().normalVector().z();
+	cout << ", f " << idet->surface().normalVector().barePhi()*wt;
 
       }//PXB
 
@@ -615,30 +613,30 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	cout << ", blade " << tTopo->pxfBlade(mydetId);
 	cout << ", panel " << tTopo->pxfPanel(mydetId);
 	cout << ", module " << tTopo->pxfModule(mydetId);
-	cout << ", at R " << (*idet)->position().perp();
-	cout << ", F " << (*idet)->position().barePhi()*wt;
-	cout << ", z " << (*idet)->position().z();
+	cout << ", at R " << idet->position().perp();
+	cout << ", F " << idet->position().barePhi()*wt;
+	cout << ", z " << idet->position().z();
 	cout << endl;
 	cout << "rot x";
-	cout << "\t" << (*idet)->rotation().xx();
-	cout << "\t" << (*idet)->rotation().xy();
-	cout << "\t" << (*idet)->rotation().xz();
+	cout << "\t" << idet->rotation().xx();
+	cout << "\t" << idet->rotation().xy();
+	cout << "\t" << idet->rotation().xz();
 	cout << endl;
 	cout << "rot y";
-	cout << "\t" << (*idet)->rotation().yx();
-	cout << "\t" << (*idet)->rotation().yy();
-	cout << "\t" << (*idet)->rotation().yz();
+	cout << "\t" << idet->rotation().yx();
+	cout << "\t" << idet->rotation().yy();
+	cout << "\t" << idet->rotation().yz();
 	cout << endl;
 	cout << "rot z";
-	cout << "\t" << (*idet)->rotation().zx();
-	cout << "\t" << (*idet)->rotation().zy();
-	cout << "\t" << (*idet)->rotation().zz();
+	cout << "\t" << idet->rotation().zx();
+	cout << "\t" << idet->rotation().zy();
+	cout << "\t" << idet->rotation().zz();
 	cout << endl;
 	cout << "normal";
-	cout << ": x " << (*idet)->surface().normalVector().x();
-	cout << ", y " << (*idet)->surface().normalVector().y();
-	cout << ", z " << (*idet)->surface().normalVector().z();
-	cout << ", f " << (*idet)->surface().normalVector().barePhi()*wt;
+	cout << ": x " << idet->surface().normalVector().x();
+	cout << ", y " << idet->surface().normalVector().y();
+	cout << ", z " << idet->surface().normalVector().z();
+	cout << ", f " << idet->surface().normalVector().barePhi()*wt;
 
       }//PXD
 
@@ -670,8 +668,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
   //----------------------------------------------------------------------------
   // Tracks:
   //  
-  for( TrackCollection::const_iterator iTrack = tracks->begin();
-      iTrack != tracks->end(); ++iTrack ) {
+  for(const auto & iTrack : *tracks) {
     
     kk++;
     
@@ -679,47 +676,47 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     // D = 2R = 2*pt/1.14
     // calo: D = 1.3 m => pt = 0.74 GeV/c
 
-    double pt = iTrack->pt();
+    double pt = iTrack.pt();
 
     if( pt < 0.75 ) continue;// curls up 
     //if( pt < 1.75 ) continue;// want sharper image
     
-    if( abs( iTrack->dxy(vtxP) ) > 5*iTrack->dxyError() ) continue; // not prompt
+    if( abs( iTrack.dxy(vtxP) ) > 5*iTrack.dxyError() ) continue; // not prompt
 
     double logpt = log(pt) / log(10);
-    double charge = iTrack->charge();
+    double charge = iTrack.charge();
     h041->Fill( charge );
     h042->Fill( pt );
     h043->Fill( pt );
 
     if( idbg ) {
       cout << "Track " << kk;
-      cout << ": pt " << iTrack->pt();
-      cout << ", eta " << iTrack->eta();
-      cout << ", phi " << iTrack->phi()*wt;
-      cout << ", dxyv " << iTrack->dxy(vtxP);
-      cout << ", dzv " << iTrack->dz(vtxP);
+      cout << ": pt " << iTrack.pt();
+      cout << ", eta " << iTrack.eta();
+      cout << ", phi " << iTrack.phi()*wt;
+      cout << ", dxyv " << iTrack.dxy(vtxP);
+      cout << ", dzv " << iTrack.dz(vtxP);
       cout << endl;
     }
     
-    const reco::HitPattern& hp = iTrack->hitPattern();
+    const reco::HitPattern& hp = iTrack.hitPattern();
     
     h045->Fill( hp.numberOfValidTrackerHits() );
     h046->Fill( hp.numberOfValidPixelBarrelHits() );
     h047->Fill( hp.trackerLayersWithMeasurement() );
     h048->Fill( hp.pixelBarrelLayersWithMeasurement() );
     
-    double phi = iTrack->phi();
-    double dca = iTrack->d0(); // w.r.t. origin                               
+    double phi = iTrack.phi();
+    double dca = iTrack.d0(); // w.r.t. origin                               
     //double dca = -iTrack->dxy(); // dxy = -d0                               
-    double dip = iTrack->lambda();
-    double z0  = iTrack->dz();
+    double dip = iTrack.lambda();
+    double z0  = iTrack.dz();
     double tet = pihalf - dip;
     //double eta = iTrack->eta();
     //
     // transient track:
     //
-    TransientTrack tTrack = theB->build(*iTrack);
+    TransientTrack tTrack = theB->build(iTrack);
 
     double kap = tTrack.initialFreeState().transverseCurvature();
 
@@ -740,10 +737,10 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       dip = pihalf - tet;
 
       h051->Fill( kap - tTrack.initialFreeState().transverseCurvature() );
-      h052->Fill( phi - iTrack->phi() );
-      h053->Fill( dca - iTrack->d0() );
-      h054->Fill( dip - iTrack->lambda() );
-      h055->Fill( z0  - iTrack->dz() );
+      h052->Fill( phi - iTrack.phi() );
+      h053->Fill( dca - iTrack.d0() );
+      h054->Fill( dip - iTrack.lambda() );
+      h055->Fill( z0  - iTrack.dz() );
 
     }
 
@@ -827,10 +824,9 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     double zcrss[99];
     int ncrss = 0;
 
-    for( TrackerGeometry::DetContainer::const_iterator idet = pDD->dets().begin();
-	 idet != pDD->dets().end(); ++idet ) {
+    for(auto idet : pDD->dets()) {
 
-      DetId mydetId = (*idet)->geographicalId();
+      DetId mydetId = idet->geographicalId();
       uint32_t mysubDet = mydetId.subdetId();
 
       if( mysubDet != PixelSubdetector::PixelBarrel ) continue;
@@ -846,11 +842,11 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
       if( tTopo->pxbLayer(mydetId) == 1 ) {
 
-	double dz = zR1 - (*idet)->position().z();
+	double dz = zR1 - idet->position().z();
 
 	if( abs(dz) > 4.0 ) continue;
 
-	double df = fpos1 - (*idet)->position().barePhi();
+	double df = fpos1 - idet->position().barePhi();
 
 	if( df > pi ) df -= twopi;
 	else if( df < -pi ) df += twopi;
@@ -869,13 +865,13 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 	  cout << endl;
 	*/
 
-	double phiN = (*idet)->surface().normalVector().barePhi();//normal vector
+	double phiN = idet->surface().normalVector().barePhi();//normal vector
 
 	double phidet = phiN - pihalf;// orientation of sensor plane in x-y
 	double ux = cos(phidet);// vector in sensor plane
 	double uy = sin(phidet);
-	double x = (*idet)->position().x();
-	double y = (*idet)->position().y();
+	double x = idet->position().x();
+	double y = idet->position().y();
 	//
 	// intersect helix with line: FUNRXY (in FUNPHI) from V. Blobel
 	// factor f for intersect point (x + f*ux, y + f*uy)
@@ -937,7 +933,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
     //--------------------------------------------------------------------------
     // rec hits from track extra:
     //
-    if( iTrack->extra().isNonnull() &&iTrack->extra().isAvailable() ){
+    if( iTrack.extra().isNonnull() &&iTrack.extra().isAvailable() ){
 
       h044->Fill( tTrack.recHitsSize() ); // tTrack
 
@@ -955,8 +951,8 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
       int n3 = 0;
       //double phiN2 = 0;
 
-      for( trackingRecHit_iterator irecHit = iTrack->recHitsBegin();
-      	   irecHit != iTrack->recHitsEnd(); ++irecHit){
+      for( trackingRecHit_iterator irecHit = iTrack.recHitsBegin();
+      	   irecHit != iTrack.recHitsEnd(); ++irecHit){
 
 	if( (*irecHit)->isValid() ){
 
@@ -1165,7 +1161,7 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
 	h416->Fill( logpt, dca2*1E4 );
 	h417->Fill( logpt, dz2*1E4 );
-	if( iTrack->charge() > 0 ) h418->Fill( logpt, dca2*1E4 );
+	if( iTrack.charge() > 0 ) h418->Fill( logpt, dca2*1E4 );
 	else                       h419->Fill( logpt, dca2*1E4 );
 
 	// profile of abs(dca) gives mean abs(dca):
@@ -1198,8 +1194,8 @@ void Triplet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
     }//extra
 
-    sumpt += iTrack->pt();
-    sumq += iTrack->charge();
+    sumpt += iTrack.pt();
+    sumq += iTrack.charge();
 
   }// loop over tracks
 

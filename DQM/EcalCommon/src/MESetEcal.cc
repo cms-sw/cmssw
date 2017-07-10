@@ -168,13 +168,13 @@ namespace ecaldqm
       case MonitorElement::DQM_KIND_TH2F :
         if(xaxis.edges || yaxis.edges) {
           binning::AxisSpecs* specs[] = {&xaxis, &yaxis};
-          for(int iSpec(0); iSpec < 2; iSpec++){
-            if(!specs[iSpec]->edges){
-              specs[iSpec]->edges = new float[specs[iSpec]->nbins + 1];
-              int nbins(specs[iSpec]->nbins);
-              double low(specs[iSpec]->low), high(specs[iSpec]->high);
+          for(auto & spec : specs){
+            if(!spec->edges){
+              spec->edges = new float[spec->nbins + 1];
+              int nbins(spec->nbins);
+              double low(spec->low), high(spec->high);
               for(int i(0); i < nbins + 1; i++)
-                specs[iSpec]->edges[i] = low + (high - low) / nbins * i;
+                spec->edges[i] = low + (high - low) / nbins * i;
             }
           }
           me = _ibooker.book2D(name, name, xaxis.nbins, xaxis.edges, yaxis.nbins, yaxis.edges);
@@ -246,8 +246,7 @@ namespace ecaldqm
       return false;
     }
 
-    for(unsigned iME(0); iME < mePaths.size(); iME++){
-      std::string& path(mePaths[iME]);
+    for(auto & path : mePaths){
       if(path.find('%') != std::string::npos)
         throw_("retrieve() called with incompletely formed path [" + path + "]");
 

@@ -491,8 +491,8 @@ template<class EcalDetId> BoundaryInformation EcalBoundaryInfoCalculator<EcalDet
         edm::LogInfo("EcalBoundaryInfoCalculator") << "boundary ET: " << boundaryET;
         edm::LogInfo("EcalBoundaryInfoCalculator") << "no of cells contributing to boundary energy: " << beCellCounter;
         edm::LogInfo("EcalBoundaryInfoCalculator") << "Channel stati: ";
-        for (std::vector<int>::iterator it = stati.begin(); it != stati.end(); ++it) {
-            edm::LogInfo("EcalBoundaryInfoCalculator") << *it << " ";
+        for (int & it : stati) {
+            edm::LogInfo("EcalBoundaryInfoCalculator") << it << " ";
         }
         edm::LogInfo("EcalBoundaryInfoCalculator");
     }

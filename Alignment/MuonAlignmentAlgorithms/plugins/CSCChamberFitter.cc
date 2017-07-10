@@ -94,8 +94,8 @@ CSCChamberFitter::CSCChamberFitter(const edm::ParameterSet &iConfig, std::vector
 
 int CSCChamberFitter::index(std::string alignable) const {
   int i = 0;
-  for (std::vector<std::string>::const_iterator a = m_alignables.begin();  a != m_alignables.end();  ++a) {
-    if (*a == alignable) return i;
+  for (const auto & m_alignable : m_alignables) {
+    if (m_alignable == alignable) return i;
     i++;
   }
   return -1;
@@ -104,10 +104,10 @@ int CSCChamberFitter::index(std::string alignable) const {
 void CSCChamberFitter::walk(std::map<int,bool> &touched, int alignable) const {
   touched[alignable] = true;
 
-  for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
-    if (alignable == (*constraint)->i()  ||  alignable == (*constraint)->j()) {
-      if (!touched[(*constraint)->i()]) walk(touched, (*constraint)->i());
-      if (!touched[(*constraint)->j()]) walk(touched, (*constraint)->j());
+  for (auto m_constraint : m_constraints) {
+    if (alignable == m_constraint->i()  ||  alignable == m_constraint->j()) {
+      if (!touched[m_constraint->i()]) walk(touched, m_constraint->i());
+      if (!touched[m_constraint->j()]) walk(touched, m_constraint->j());
     }
   }
 }
@@ -188,8 +188,8 @@ long CSCChamberFitter::alignableId(std::string alignable) const {
 }
 
 bool CSCChamberFitter::isFrame(int i) const {
-  for (std::vector<int>::const_iterator frame = m_frames.begin();  frame != m_frames.end();  ++frame) {
-    if (i == *frame) return true;
+  for (int m_frame : m_frames) {
+    if (i == m_frame) return true;
   }
   return false;
 }
@@ -209,9 +209,9 @@ double CSCChamberFitter::chi2(const AlgebraicVector& A, double lambda) const {
   }
 
   double s = lambda * sumFixed*sumFixed;
-  for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
-     if ((*constraint)->valid()) {
-	s += pow((*constraint)->value() - A[(*constraint)->i()] + A[(*constraint)->j()], 2)/(*constraint)->error()/(*constraint)->error();
+  for (auto m_constraint : m_constraints) {
+     if (m_constraint->valid()) {
+	s += pow(m_constraint->value() - A[m_constraint->i()] + A[m_constraint->j()], 2)/m_constraint->error()/m_constraint->error();
      }
   }
   return s;
@@ -219,11 +219,11 @@ double CSCChamberFitter::chi2(const AlgebraicVector& A, double lambda) const {
 
 double CSCChamberFitter::lhsVector(int k) const {
   double s = 0.;
-  for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
-     if ((*constraint)->valid()) {
-	double d = 2.*(*constraint)->value()/(*constraint)->error()/(*constraint)->error();
-	if ((*constraint)->i() == k) s += d;
-	if ((*constraint)->j() == k) s -= d;
+  for (auto m_constraint : m_constraints) {
+     if (m_constraint->valid()) {
+	double d = 2.*m_constraint->value()/m_constraint->error()/m_constraint->error();
+	if (m_constraint->i() == k) s += d;
+	if (m_constraint->j() == k) s -= d;
      }
   }
   return s;
@@ -239,14 +239,14 @@ double CSCChamberFitter::hessian(int k, int l, double lambda) const {
     if (k == l  &&  l == m_fixed) s += 2.*lambda;
   }
 
-  for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
+  for (auto m_constraint : m_constraints) {
      double d = 2./infinity/infinity;
-     if ((*constraint)->valid()) {
-	d = 2./(*constraint)->error()/(*constraint)->error();
+     if (m_constraint->valid()) {
+	d = 2./m_constraint->error()/m_constraint->error();
      }
 
-     if (k == l  &&  ((*constraint)->i() == k  ||  (*constraint)->j() == k)) s += d;
-     if (((*constraint)->i() == k  &&  (*constraint)->j() == l)  ||  ((*constraint)->j() == k  &&  (*constraint)->i() == l)) s -= d;
+     if (k == l  &&  (m_constraint->i() == k  ||  m_constraint->j() == k)) s += d;
+     if ((m_constraint->i() == k  &&  m_constraint->j() == l)  ||  (m_constraint->j() == k  &&  m_constraint->i() == l)) s -= d;
   }
   return s;
 }
@@ -314,10 +314,10 @@ bool CSCChamberFitter::fit(std::vector<CSCAlignmentCorrections*> &corrections) c
     correction->insertMode(coefficient, modename, modeid, sqrt(2. * fabs(diagonalized[i][i])) * (diagonalized[i][i] >= 0. ? 1. : -1.));
   }
 
-  for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
-     if ((*constraint)->valid()) {
-	double residual = (*constraint)->value() - A[(*constraint)->i()] + A[(*constraint)->j()];
-	correction->insertResidual(m_alignables[(*constraint)->i()], m_alignables[(*constraint)->j()], (*constraint)->value(), (*constraint)->error(), residual, residual/(*constraint)->error());
+  for (auto m_constraint : m_constraints) {
+     if (m_constraint->valid()) {
+	double residual = m_constraint->value() - A[m_constraint->i()] + A[m_constraint->j()];
+	correction->insertResidual(m_alignables[m_constraint->i()], m_alignables[m_constraint->j()], m_constraint->value(), m_constraint->error(), residual, residual/m_constraint->error());
      }
   }
 
@@ -330,8 +330,8 @@ void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, 
    double num_valid = 0.;
    double sum_radius = 0.;
    double num_total = 0.;
-   for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
-      CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(*constraint);
+   for (auto m_constraint : m_constraints) {
+      CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(m_constraint);
       if (residualsConstraint != NULL) {
 
 	 if (residualsConstraint->valid()) {
@@ -349,8 +349,8 @@ void CSCChamberFitter::radiusCorrection(AlignableNavigator *alignableNavigator, 
 
    double radial_correction = average_phi_residual * average_radius * num_total / (2.*M_PI);
 
-   for (std::vector<CSCPairConstraint*>::const_iterator constraint = m_constraints.begin();  constraint != m_constraints.end();  ++constraint) {
-      CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(*constraint);
+   for (auto m_constraint : m_constraints) {
+      CSCPairResidualsConstraint *residualsConstraint = dynamic_cast<CSCPairResidualsConstraint*>(m_constraint);
       if (residualsConstraint != NULL) {
 
 	 const DetId id(residualsConstraint->id_i());

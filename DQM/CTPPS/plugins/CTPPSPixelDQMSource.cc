@@ -169,7 +169,7 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
    StationStatus[stn]=stns;
  }
  
- for(int ind=0; ind<2*3*NRPotsMAX; ind++) RPindexValid[ind] = 0;
+ for(int & ind : RPindexValid) ind = 0;
 
  multHits = multClus = cluSizeMaxData = -1;
 }
@@ -338,19 +338,19 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
 {
   ++nEvents;
   int RPactivity[2][NRPotsMAX];
-  for(int arm = 0; arm <2; arm++) { 
+  for(auto & arm : RPactivity) { 
     for(int rp=0; rp<NRPotsMAX; rp++) {
-      RPactivity[arm][rp] = 0;
+      arm[rp] = 0;
     }
   }
-  for(int ind=0; ind<2*3*NRPotsMAX; ind++) { 
+  for(auto & ind : HitsMultPlane) { 
     for(int p=0; p<NplaneMAX; p++) {
-      HitsMultPlane[ind][p] = 0;
+      ind[p] = 0;
     }
   }
-  for(int ind=0; ind<2*3*NRPotsMAX*NplaneMAX; ind++)  {
+  for(auto & ind : HitsMultROC)  {
     for(int rp=0; rp<NROCsMAX; rp++) {
-      HitsMultROC[ind][rp] = 0;
+      ind[rp] = 0;
     }
   }
   Handle< DetSetVector<CTPPSPixelDigi> > pixDigi;
@@ -395,11 +395,10 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
         }
         int rocHistIndex = getPlaneIndex(arm,station,rpot,plane);
         
-        for(DetSet<CTPPSPixelDigi>::const_iterator dit = ds_digi.begin();
-            dit != ds_digi.end(); ++dit) {
-          int row = dit->row();
-          int col = dit->column();
-          int adc = dit->adc();
+        for(auto dit : ds_digi) {
+          int row = dit.row();
+          int col = dit.column();
+          int adc = dit.adc();
           
           if(RPindexValid[index]) {
             h2xyHits[index][plane]->Fill(col,row);
@@ -436,7 +435,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
         if(np>5) { hRPotActivBX[index]->Fill(event.bunchCrossing());}
         
         int rocf[NplaneMAX];
-        for(int r=0; r<NROCsMAX; r++) { rocf[r]=0; }
+        for(int & r : rocf) { r=0; }
         for(int p=0; p<NplaneMAX; p++) {
           int indp = getPlaneIndex(arm,stn,rp,p);
           for(int r=0; r<NROCsMAX; r++) {
@@ -447,8 +446,8 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
           }
         }
         int max = 0;
-        for(int r=0; r<NROCsMAX; r++) {
-          if(max < rocf[r]) { max = rocf[r]; }
+        for(int r : rocf) {
+          if(max < r) { max = r; }
         }
         for(int r=0; r<NROCsMAX; r++) {
           hRPotActivROCs[index]->Fill(r,rocf[r]); 

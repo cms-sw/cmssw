@@ -47,9 +47,8 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
     std::vector<DetId>::iterator cell;
 
     if(validateflag){
-    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+    for (auto mydetid : listRefChan)
       {
-        DetId mydetid = *it;
         cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
         if (cell == listNewChan.end()) // not present in new list
           {
@@ -109,10 +108,9 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
   //  }
 
    if(outfile.compare("null")!=0){
-   for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+   for (auto mydetid : listRefChan)
       {
-	DetId mydetid = *it;
-	cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
+		cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
 	if (cell == listNewChan.end()) // not present in new list
 	  {
 	    const HcalQIECoder* myCoder = myRefQIEs->getCoder( mydetid );
@@ -127,10 +125,9 @@ void HcalQIEDataCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 	    listNewChan.erase(cell);  // fix 25.02.08
 	  }
       }
-    for (std::vector<DetId>::iterator it = listNewChan.begin(); it != listNewChan.end(); it++)  // fix 25.02.08
+    for (auto mydetid : listNewChan)  // fix 25.02.08
       {
-	DetId mydetid = *it;
-	const HcalQIECoder* myCoder = myNewQIEs->getCoder( mydetid );
+		const HcalQIECoder* myCoder = myNewQIEs->getCoder( mydetid );
 	std::cout << "N";
 	resultQIEs->addCoder( *myCoder );
       }

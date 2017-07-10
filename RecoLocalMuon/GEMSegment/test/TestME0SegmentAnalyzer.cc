@@ -261,20 +261,20 @@ TestME0SegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   float plmax = 999999.;
   int lmin = 100;
   int lmax = 0;
-  for (auto recHit = me0RecHit->begin(); recHit != me0RecHit->end(); recHit++) {
-    ME0DetId id = recHit->me0Id();
+  for (const auto & recHit : *me0RecHit) {
+    ME0DetId id = recHit.me0Id();
     auto roll = me0Geom->etaPartition(id);
-    std::cout <<"   Original ME0DetID "<<id<<" Timing "<<recHit->tof()<<std::endl;    
+    std::cout <<"   Original ME0DetID "<<id<<" Timing "<<recHit.tof()<<std::endl;    
     int layer = id.layer();
     if (layer < lmin){
       lmin = layer;
-      rlmin = (roll->toGlobal(recHit->localPosition())).perp();
-      plmin = (roll->toGlobal(recHit->localPosition())).barePhi();
+      rlmin = (roll->toGlobal(recHit.localPosition())).perp();
+      plmin = (roll->toGlobal(recHit.localPosition())).barePhi();
     }
     if (layer > lmax){
       lmax = layer;
-      rlmax = (roll->toGlobal(recHit->localPosition())).perp();
-      plmax = (roll->toGlobal(recHit->localPosition())).barePhi();
+      rlmax = (roll->toGlobal(recHit.localPosition())).perp();
+      plmax = (roll->toGlobal(recHit.localPosition())).barePhi();
     }
   }
   std::cout <<" Radius  max min  and delta "<<rlmax<<"  "<<rlmin <<" " <<rlmax-rlmin<<std::endl;
@@ -285,34 +285,34 @@ TestME0SegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   std::cout <<"Number of Segments "<<me0Segment->size()<<std::endl;
   ME0_sgmult->Fill(me0Segment->size());
   float hmax = 0;
-  for (auto me0s = me0Segment->begin(); me0s != me0Segment->end(); me0s++) {
+  for (const auto & me0s : *me0Segment) {
     // The ME0 Ensemble DetId refers to layer = 1   and roll = 1
-    ME0DetId id = me0s->me0DetId();
+    ME0DetId id = me0s.me0DetId();
  
-    ME0_sgtime->Fill(me0s->time());
-    ME0_sgterr->Fill(me0s->timeErr());
+    ME0_sgtime->Fill(me0s.time());
+    ME0_sgterr->Fill(me0s.timeErr());
     std::cout <<"   Original ME0DetID "<<id<<std::endl;
     auto roll = me0Geom->etaPartition(id); 
-    std::cout <<"   Global Segment Position "<<  roll->toGlobal(me0s->localPosition())<<std::endl;
-    auto segLP = me0s->localPosition();
-    auto segLD = me0s->localDirection();
+    std::cout <<"   Global Segment Position "<<  roll->toGlobal(me0s.localPosition())<<std::endl;
+    auto segLP = me0s.localPosition();
+    auto segLD = me0s.localDirection();
     std::cout <<"   Local Direction theta = "<<segLD.theta()<<" phi="<<segLD.phi()<<std::endl;
-    ME0_fitchi2->Fill(me0s->chi2()*1.0/me0s->degreesOfFreedom());
-    std::cout <<"   Chi2 = "<<me0s->chi2()<<" ndof = "<<me0s->degreesOfFreedom()<<" ==> chi2/ndof = "<<me0s->chi2()*1.0/me0s->degreesOfFreedom()
-	      <<" Timing "<<me0s->time()<<" +- "<<me0s->timeErr()
+    ME0_fitchi2->Fill(me0s.chi2()*1.0/me0s.degreesOfFreedom());
+    std::cout <<"   Chi2 = "<<me0s.chi2()<<" ndof = "<<me0s.degreesOfFreedom()<<" ==> chi2/ndof = "<<me0s.chi2()*1.0/me0s.degreesOfFreedom()
+	      <<" Timing "<<me0s.time()<<" +- "<<me0s.timeErr()
 	      <<std::endl;
 
-    auto me0rhs = me0s->specificRecHits();
+    auto me0rhs = me0s.specificRecHits();
     std::cout <<"   ME0 Ensemble Det Id "<<id<<"  Number of RecHits "<<me0rhs.size()<<std::endl;
     ME0_rhmult->Fill(me0rhs.size());
     if (me0rhs.size()>hmax) hmax = me0rhs.size();
     //loop on rechits.... take layer local position -> global -> ensemble local position same frame as segment
-    for (auto rh = me0rhs.begin(); rh!= me0rhs.end(); rh++){
-      auto me0id = rh->me0Id();
-      ME0_rhtime->Fill(rh->tof());
+    for (auto & me0rh : me0rhs){
+      auto me0id = me0rh.me0Id();
+      ME0_rhtime->Fill(me0rh.tof());
       auto rhr = me0Geom->etaPartition(me0id);
-      auto rhLP = rh->localPosition();
-      auto erhLEP = rh->localPositionError();
+      auto rhLP = me0rh.localPosition();
+      auto erhLEP = me0rh.localPositionError();
       auto rhGP = rhr->toGlobal(rhLP); 
       auto rhLPSegm = roll->toLocal(rhGP);
       float xe  = segLP.x()+segLD.x()*(rhLPSegm.z()-segLP.z())/segLD.z();
@@ -320,11 +320,11 @@ TestME0SegmentAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
       float ze = rhLPSegm.z();
       LocalPoint extrPoint(xe,ye,ze); // in segment rest frame
       auto extSegm = rhr->toLocal(roll->toGlobal(extrPoint)); // in layer restframe
-      std::cout <<"      ME0 Layer Id "<<rh->me0Id()<<"  error on the local point "<<  erhLEP
+      std::cout <<"      ME0 Layer Id "<<me0rh.me0Id()<<"  error on the local point "<<  erhLEP
                 <<"\n-> Ensemble Rest Frame  RH local  position "<<rhLPSegm<<"  Segment extrapolation "<<extrPoint
 		<<"\n-> Layer Rest Frame  RH local  position "<<rhLP<<"  Segment extrapolation "<<extSegm
                 <<"\n-> Global Position rechit " << rhGP <<" Segm Extrapolation "<<roll->toGlobal(extrPoint)
-		<<"\n-> Timing "<<rh->tof()
+		<<"\n-> Timing "<<me0rh.tof()
 		<<std::endl;
       ME0_Residuals_x->Fill(rhLP.x()-extSegm.x());
       ME0_Residuals_y->Fill(rhLP.y()-extSegm.y());

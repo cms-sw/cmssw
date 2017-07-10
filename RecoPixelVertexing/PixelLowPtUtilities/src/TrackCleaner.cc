@@ -141,13 +141,11 @@ bool TrackCleaner::canBeMerged
 {
  bool ok = true;
 
- for(vector<const TrackingRecHit *>::const_iterator
-     recHitA = recHitsA.begin(); recHitA!= recHitsA.end(); recHitA++)
- for(vector<const TrackingRecHit *>::const_iterator
-     recHitB = recHitsB.begin(); recHitB!= recHitsB.end(); recHitB++)
-   if(!areSame(*recHitA,*recHitB))
-     if(!isCompatible((*recHitA)->geographicalId(),
-                      (*recHitB)->geographicalId()))
+ for(auto recHitA : recHitsA)
+ for(auto recHitB : recHitsB)
+   if(!areSame(recHitA,recHitB))
+     if(!isCompatible(recHitA->geographicalId(),
+                      recHitB->geographicalId()))
         ok = false;
 
   return ok;
@@ -219,22 +217,20 @@ TracksWithRecHits TrackCleaner::cleanTracks
       // Get tracks sharing this rechit
       vector<unsigned int> sharing = recHitMap[*recHit];
 
-      for(vector<unsigned int>::iterator j = sharing.begin();
-                                         j!= sharing.end(); j++)
-        if(i < *j)
-           trackMap[*j]++;
+      for(unsigned int & j : sharing)
+        if(i < j)
+           trackMap[j]++;
     }
 
     // Check for tracks with shared rechits
-    for(TrackMap::iterator sharing = trackMap.begin();
-                           sharing!= trackMap.end(); sharing++)
+    for(auto & sharing : trackMap)
     {
-      unsigned int j = (*sharing).first;
+      unsigned int j = sharing.first;
       if(!keep[i] || !keep[j]) continue;
 
       if(tracks[i].second.size() >=3) 
       { // triplet tracks
-        if((*sharing).second > min(int(tracks[i].second.size()),
+        if(sharing.second > min(int(tracks[i].second.size()),
                                    int(tracks[j].second.size()))/2)
         { // more than min(hits1,hits2)/2 rechits are shared
           if(canBeMerged(tracks[i].second,tracks[j].second))
@@ -291,7 +287,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
         }
         else
         { // note more than 50%, but at least two are shared
-          if((*sharing).second > 1)
+          if(sharing.second > 1)
           {
             if(tracks[i].second.size() != tracks[j].second.size())
             { // keep longer
@@ -300,7 +296,7 @@ TracksWithRecHits TrackCleaner::cleanTracks
               changes++;
 
               LogTrace("TrackCleaner")
-                << "   Sharing " << (*sharing).second << " remove by size";
+                << "   Sharing " << sharing.second << " remove by size";
             }
             else
             { // keep smaller impact
@@ -310,14 +306,14 @@ TracksWithRecHits TrackCleaner::cleanTracks
               changes++;
 
               LogTrace("TrackCleaner")
-                << "   Sharing " << (*sharing).second << " remove by d0";
+                << "   Sharing " << sharing.second << " remove by d0";
             } 
           }
         }
       }
       else
       { // pair tracks
-        if((*sharing).second > 0)
+        if(sharing.second > 0)
         {
           // Remove second track
           keep[j] = false;

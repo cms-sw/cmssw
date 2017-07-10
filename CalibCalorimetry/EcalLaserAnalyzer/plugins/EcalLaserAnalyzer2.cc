@@ -338,21 +338,20 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
   // ====================================
   
 
-  for ( EcalRawDataCollection::const_iterator headerItr= DCCHeader->begin();headerItr != DCCHeader->end(); 
-	++headerItr ) {
+  for (const auto & headerItr : *DCCHeader) {
     
     // Get run type and run number 
 
-    int fed = headerItr->fedId();  
+    int fed = headerItr.fedId();  
     if(fed!=_fedid && _fedid!=-999) continue; 
     
-    runType=headerItr->getRunType();
-    runNum=headerItr->getRunNumber();
-    event=headerItr->getLV1();
+    runType=headerItr.getRunType();
+    runNum=headerItr.getRunNumber();
+    event=headerItr.getLV1();
 
-    dccID=headerItr->getDccInTCCCommand();
-    fedID=headerItr->fedId();  
-    lightside=headerItr->getRtHalf();
+    dccID=headerItr.getDccInTCCCommand();
+    fedID=headerItr.fedId();  
+    lightside=headerItr.getRtHalf();
 
     // Check fed corresponds to the DCC in TCC
 
@@ -367,7 +366,7 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
     
     // Retrieve laser color and event number
     
-    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings();
+    EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings();
     color = settings.wavelength;
     if( color<0 ) return;
 
@@ -409,9 +408,9 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
 
   // Loop on PNs digis
   
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = PNDigi->begin(); pnItr != PNDigi->end(); ++pnItr ) { 
+  for (const auto & pnItr : *PNDigi) { 
     
-    EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId((*pnItr).id());
+    EcalPnDiodeDetId pnDetId = EcalPnDiodeDetId(pnItr.id());
     
     if (_debug==1) cout <<"-- debug test -- Inside PNDigi - pnID=" << 
 		     pnDetId.iPnId()<<", dccID="<< pnDetId.iDCCId()<< endl;
@@ -423,9 +422,9 @@ void EcalLaserAnalyzer2:: analyze( const edm::Event & e, const  edm::EventSetup&
 
     // Loop on PN samples
     
-    for ( int samId=0; samId < (*pnItr).size() ; samId++ ) {
-      pn[samId]=(*pnItr).sample(samId).adc();  
-      pnG[samId]=(*pnItr).sample(samId).gainId(); 
+    for ( int samId=0; samId < pnItr.size() ; samId++ ) {
+      pn[samId]=pnItr.sample(samId).adc();  
+      pnG[samId]=pnItr.sample(samId).gainId(); 
       if (samId==0) pnGain=pnG[samId];
       if (samId>0) pnGain=int(TMath::Max(pnG[samId],pnGain));     
     }

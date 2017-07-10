@@ -71,27 +71,27 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
   Service<cond::service::PoolDBOutputService> poolDbService;
 //  cond::ExportIOVUtilities utilities;
   if(poolDbService.isAvailable() ) {
-    for(AlcaBeamSpotManager::bsMap_iterator it=beamSpotMap.begin(); it!=beamSpotMap.end();it++){
+    for(auto & it : beamSpotMap){
       BeamSpotObjects *aBeamSpot = new BeamSpotObjects();
-      aBeamSpot->SetType(it->second.type());
-      aBeamSpot->SetPosition(it->second.x0(),it->second.y0(),it->second.z0());
+      aBeamSpot->SetType(it.second.type());
+      aBeamSpot->SetPosition(it.second.x0(),it.second.y0(),it.second.z0());
       if(sigmaZValue_ == -1){
-        aBeamSpot->SetSigmaZ(it->second.sigmaZ());
+        aBeamSpot->SetSigmaZ(it.second.sigmaZ());
       }
       else{
         aBeamSpot->SetSigmaZ(sigmaZValue_);
       }
-      aBeamSpot->Setdxdz(it->second.dxdz());
-      aBeamSpot->Setdydz(it->second.dydz());
-      aBeamSpot->SetBeamWidthX(it->second.BeamWidthX());
-      aBeamSpot->SetBeamWidthY(it->second.BeamWidthY());
-      aBeamSpot->SetEmittanceX(it->second.emittanceX());
-      aBeamSpot->SetEmittanceY(it->second.emittanceY());
-      aBeamSpot->SetBetaStar(it->second.betaStar() );
+      aBeamSpot->Setdxdz(it.second.dxdz());
+      aBeamSpot->Setdydz(it.second.dydz());
+      aBeamSpot->SetBeamWidthX(it.second.BeamWidthX());
+      aBeamSpot->SetBeamWidthY(it.second.BeamWidthY());
+      aBeamSpot->SetEmittanceX(it.second.emittanceX());
+      aBeamSpot->SetEmittanceY(it.second.emittanceY());
+      aBeamSpot->SetBetaStar(it.second.betaStar() );
 	
       for (int i=0; i<7; ++i) {
 	for (int j=0; j<7; ++j) {
-	  aBeamSpot->SetCovariance(i,j,it->second.covariance(i,j));
+	  aBeamSpot->SetCovariance(i,j,it.second.covariance(i,j));
 	}
       }
 
@@ -109,7 +109,7 @@ void AlcaBeamSpotHarvester::endRun(const edm::Run& iRun, const edm::EventSetup&)
       }
       // lumi based
       else if (beamSpotOutputBase_ == "lumibased" ) {
-	edm::LuminosityBlockID lu(iRun.id().run(),it->first);
+	edm::LuminosityBlockID lu(iRun.id().run(),it.first);
 	thisIOV = (cond::Time_t)(lu.value()); 
       }
       if (poolDbService->isNewTagRequest(outputrecordName_) ) {

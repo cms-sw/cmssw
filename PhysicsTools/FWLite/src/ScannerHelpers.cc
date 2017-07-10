@@ -136,12 +136,12 @@ void
 helper::ScannerBase::print(const void *ptr) const {
     edm::ObjectWithDict obj(objType_, const_cast<void *>(ptr));
     if ((cuts_[0].get() == 0) || (*cuts_[0])(obj)) {
-        for (std::vector<reco::parser::ExpressionPtr>::const_iterator it = exprs_.begin(), ed = exprs_.end(); it != ed; ++it) {
-            if (ptr == 0 || it->get() == 0) {
+        for (const auto & expr : exprs_) {
+            if (ptr == 0 || expr.get() == 0) {
                 printf(" : %8s", "#ERR");
             } else {  
                 try {
-                    double val = (*it)->value(obj);
+                    double val = expr->value(obj);
                     // I found no easy ways to enforce a fixed width from printf that works also with leading zeroes or large exponents (e.g. 1e15 or 1e101)
                     // So we have to go the ugly way
                     char buff[255];

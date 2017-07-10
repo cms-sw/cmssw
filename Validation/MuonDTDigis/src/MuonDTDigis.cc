@@ -189,18 +189,17 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
   num_musimhits = 0;
   DTWireIdMap wireMap;
 
-  for(vector<PSimHit>::const_iterator hit = simHits->begin();
-      hit != simHits->end(); hit++){
+  for(const auto & hit : *simHits){
     // Create the id of the wire, the simHits in the DT known also the wireId
-    DTWireId wireId(hit->detUnitId());
+    DTWireId wireId(hit.detUnitId());
     //   cout << " PSimHits wire id " << wireId << " part type " << hit->particleType() << endl;
 
     // Fill the map
-    wireMap[wireId].push_back(&(*hit));
+    wireMap[wireId].push_back(&hit);
 
-    LocalPoint entryP = hit->entryPoint();
-    LocalPoint exitP = hit->exitPoint();
-    int partType = hit->particleType();
+    LocalPoint entryP = hit.entryPoint();
+    LocalPoint exitP = hit.exitPoint();
+    int partType = hit.particleType();
     if ( abs(partType) == 13 ) num_musimhits++;
 
     if ( wireId.station() == 1 && abs(partType) == 13 ) meMB1_sim_occup_->Fill(wireId.wire());
@@ -216,8 +215,8 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
 		   entryP.y(),exitP.y(),
 		   entryP.z(),exitP.z(),
 		   path , path_x,
-		   partType, hit->processType(),
-                   hit->pabs());
+		   partType, hit.processType(),
+                   hit.pabs());
 
   }
 
@@ -279,10 +278,9 @@ void  MuonDTDigis::analyze(const Event & event, const EventSetup& eventSetup){
       int mu=0;
       float theta = 0;
 
-      for(vector<const PSimHit*>::iterator hit = wireMap[wireId].begin();
-	  hit != wireMap[wireId].end(); hit++)
-	if( abs((*hit)->particleType()) == 13){
-	  theta = atan( (*hit)->momentumAtEntry().x()/ (-(*hit)->momentumAtEntry().z()) )*180/M_PI;
+      for(auto & hit : wireMap[wireId])
+	if( abs(hit->particleType()) == 13){
+	  theta = atan( hit->momentumAtEntry().x()/ (-hit->momentumAtEntry().z()) )*180/M_PI;
           //	  cout<<"momentum x: "<<(*hit)->momentumAtEntry().x()<<endl
           //	      <<"momentum z: "<<(*hit)->momentumAtEntry().z()<<endl
           //	      <<"atan: "<<theta<<endl;

@@ -48,10 +48,10 @@ PixelFECConfig::PixelFECConfig(std::vector<std::vector<std::string> >& tableMat 
 
  for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
    {
-     for(unsigned int n=0; n<colNames.size(); n++)
+     for(const auto & colName : colNames)
        {
-	 if(tableMat[0][c] == colNames[n]){
-	   colM[colNames[n]] = c;
+	 if(tableMat[0][c] == colName){
+	   colM[colName] = c;
 	   break;
 	 }
        }
@@ -185,8 +185,8 @@ unsigned int PixelFECConfig::getVMEBaseAddress(unsigned int i) const{
 unsigned int PixelFECConfig::crateFromFECNumber(unsigned int fecnumber) const{
 
     std::string mthn = "[PixelFECConfig::crateFromFECNumber()]\t\t\t    " ;
-    for(unsigned int i=0;i<fecconfig_.size();i++){
-	if (fecconfig_[i].getFECNumber()==fecnumber) return fecconfig_[i].getCrate();
+    for(const auto & i : fecconfig_){
+	if (i.getFECNumber()==fecnumber) return i.getCrate();
     }
 
     std::cout << __LINE__ << "]\t" << mthn << "Could not find FEC number: " << fecnumber << std::endl;
@@ -200,8 +200,8 @@ unsigned int PixelFECConfig::crateFromFECNumber(unsigned int fecnumber) const{
 unsigned int PixelFECConfig::VMEBaseAddressFromFECNumber(unsigned int fecnumber) const{
 
     std::string mthn = "[PixelFECConfig::VMEBaseAddressFromFECNumber()]\t\t    " ;
-    for(unsigned int i=0;i<fecconfig_.size();i++){
-	if (fecconfig_[i].getFECNumber()==fecnumber) return fecconfig_[i].getVMEBaseAddress();
+    for(const auto & i : fecconfig_){
+	if (i.getFECNumber()==fecnumber) return i.getVMEBaseAddress();
     }
 
     std::cout << __LINE__ << "]\t" << mthn << "Could not find FEC number: " << fecnumber << std::endl;

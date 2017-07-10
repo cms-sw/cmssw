@@ -41,8 +41,7 @@ namespace pat {
   ObjectModifier<T>::ObjectModifier(const edm::ParameterSet& conf) {
     const std::vector<edm::ParameterSet>& mods = 
       conf.getParameterSetVector("modifications");
-    for(unsigned i = 0; i < mods.size(); ++i ) {
-      const edm::ParameterSet& iconf = mods[i];
+    for(const auto & iconf : mods) {
       const std::string& mname = iconf.getParameter<std::string>("modifierName");
       ModifyObjectValueBase* plugin = 
         ModifyObjectValueFactory::get()->create(mname,iconf);

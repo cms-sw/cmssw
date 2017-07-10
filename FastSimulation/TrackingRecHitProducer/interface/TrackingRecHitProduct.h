@@ -42,9 +42,9 @@ class TrackingRecHitProduct
         virtual void addRecHit(const FastSingleTrackerRecHit& recHit, std::vector<SimHitIdPair> simHitIdPairs={})
         {
             _recHits.push_back(std::make_pair(recHit,simHitIdPairs));
-            for (unsigned int isimhit = 0; isimhit < simHitIdPairs.size(); ++isimhit)
+            for (auto & simHitIdPair : simHitIdPairs)
             {
-                _recHits.back().first.addSimTrackId(simHitIdPairs[isimhit].second->trackId());
+                _recHits.back().first.addSimTrackId(simHitIdPair.second->trackId());
             }
         }
         

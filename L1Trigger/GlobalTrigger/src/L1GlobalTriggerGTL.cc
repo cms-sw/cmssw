@@ -280,8 +280,7 @@ void L1GlobalTriggerGTL::run(
     
     int iChip = -1;
 
-    for (std::vector<ConditionMap>::const_iterator
-    		itCondOnChip = conditionMap.begin(); itCondOnChip != conditionMap.end(); itCondOnChip++) {
+    for (const auto & itCondOnChip : conditionMap) {
 
         iChip++;
 
@@ -290,7 +289,7 @@ void L1GlobalTriggerGTL::run(
         L1GtAlgorithmEvaluation::ConditionEvaluationMap& cMapResults =
                 m_conditionResultMaps[iChip];
 
-        for (CItCond itCond = itCondOnChip->begin(); itCond != itCondOnChip->end(); itCond++) {
+        for (CItCond itCond = itCondOnChip.begin(); itCond != itCondOnChip.end(); itCond++) {
 
             // evaluate condition
             switch ((itCond->second)->condCategory()) {
@@ -659,12 +658,12 @@ void L1GlobalTriggerGTL::run(
     std::vector<L1GlobalTriggerObjectMap> objMapVec;
     if (produceL1GtObjectMapRecord && (iBxInEvent == 0)) objMapVec.reserve(numberPhysTriggers);
 
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (const auto & itAlgo : algorithmMap) {
 
-        L1GtAlgorithmEvaluation gtAlg(itAlgo->second);
-        gtAlg.evaluateAlgorithm((itAlgo->second).algoChipNumber(), m_conditionResultMaps);
+        L1GtAlgorithmEvaluation gtAlg(itAlgo.second);
+        gtAlg.evaluateAlgorithm((itAlgo.second).algoChipNumber(), m_conditionResultMaps);
 
-        int algBitNumber = (itAlgo->second).algoBitNumber();
+        int algBitNumber = (itAlgo.second).algoBitNumber();
         bool algResult = gtAlg.gtAlgoResult();
 
         if (algResult) {
@@ -673,7 +672,7 @@ void L1GlobalTriggerGTL::run(
 
         if (m_verbosity && m_isDebugEnabled) {
             std::ostringstream myCout;
-            ( itAlgo->second ).print(myCout);
+            ( itAlgo.second ).print(myCout);
             gtAlg.print(myCout);
 
             LogTrace("L1GlobalTrigger") << myCout.str() << std::endl;
@@ -686,7 +685,7 @@ void L1GlobalTriggerGTL::run(
             // set object map
             L1GlobalTriggerObjectMap objMap;
 
-            objMap.setAlgoName(itAlgo->first);
+            objMap.setAlgoName(itAlgo.first);
             objMap.setAlgoBitNumber(algBitNumber);
             objMap.setAlgoGtlResult(algResult);
             objMap.swapOperandTokenVector(gtAlg.operandTokenVector());
@@ -715,13 +714,11 @@ void L1GlobalTriggerGTL::run(
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
     // delete the conditions created with new, zero pointer, do not clear map, keep the vector as is...
-    for (std::vector<L1GtAlgorithmEvaluation::ConditionEvaluationMap>::iterator
-            itCondOnChip  = m_conditionResultMaps.begin();
-            itCondOnChip != m_conditionResultMaps.end(); itCondOnChip++) {
+    for (auto & m_conditionResultMap : m_conditionResultMaps) {
 
         for (L1GtAlgorithmEvaluation::ItEvalMap
-                itCond  = itCondOnChip->begin();
-                itCond != itCondOnChip->end(); itCond++) {
+                itCond  = m_conditionResultMap.begin();
+                itCond != m_conditionResultMap.end(); itCond++) {
 
             delete itCond->second;
             itCond->second = 0;

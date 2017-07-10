@@ -60,13 +60,11 @@ void printTrackJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
               f->eta(),
               f->phi()  );
 
-     for( Candidate::const_iterator c  = f->begin();
-                                    c != f->end();
-                                    c ++) {
+     for(const auto & c : *f) {
        printf("        [Constituents] (pt,eta,phi) = %6.2f %5.2f %5.2f|\n",
-               c->et(),
-               c->eta(),
-               c->phi() );
+               c.et(),
+               c.eta(),
+               c.phi() );
      }
   }
 }

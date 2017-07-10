@@ -58,9 +58,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
    std::set<reco::CandidatePtr> footprint;
 
    // subtract leptons out of sumPt
-   for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
-         lep_i != leptons.end(); ++lep_i ) {
-     for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
+   for (const auto & lepton : leptons) {
+     for( reco::CandidateView::const_iterator lep = lepton->begin(); lep != lepton->end(); lep++ ){
        if( lep->pt() > 10 ){
 	 for( unsigned int n=0; n < lep->numberOfSourceCandidatePtrs(); n++ ){
 	   if( lep->sourceCandidatePtr(n).isNonnull() and lep->sourceCandidatePtr(n).isAvailable() ){
@@ -93,8 +92,8 @@ metsig::METSignificance::getCovariance(const edm::View<reco::Jet>& jets,
      if(footprint.find( pfCandidates->ptrAt(i) )==footprint.end()) {
 
        //dP4 recovery
-       for( std::set<reco::CandidatePtr>::const_iterator it=footprint.begin();it!=footprint.end();it++) {
-	 if( ((*it)->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
+       for(const auto & it : footprint) {
+	 if( (it->p4()-(*pfCandidates)[i].p4()).Et2()<0.000025 ){
 	   cleancand = false;
 	   break;
 	 }
@@ -192,9 +191,8 @@ bool
 metsig::METSignificance::cleanJet(const reco::Jet& jet, 
       const std::vector< edm::Handle<reco::CandidateView> >& leptons ){
 
-  for ( std::vector< edm::Handle<reco::CandidateView> >::const_iterator lep_i = leptons.begin();
-        lep_i != leptons.end(); ++lep_i ) {
-     for( reco::CandidateView::const_iterator lep = (*lep_i)->begin(); lep != (*lep_i)->end(); lep++ ){
+  for (const auto & lepton : leptons) {
+     for( reco::CandidateView::const_iterator lep = lepton->begin(); lep != lepton->end(); lep++ ){
         if ( reco::deltaR2(*lep, jet) < dR2match_ ) {
            return false;
         }

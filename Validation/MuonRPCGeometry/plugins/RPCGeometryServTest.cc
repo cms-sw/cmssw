@@ -68,33 +68,31 @@ RPCGeometryServTest::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 
   int iRPCCHcount = 0;
   LocalPoint a(0.,0.,0.);
-  for(TrackingGeometry::DetContainer::const_iterator it = 
-	pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it : pDD->dets()){
     
     //----------------------- RPCCHAMBER TEST ---------------------------
 
-    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+    if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
       ++iRPCCHcount;
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
       
       std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
-      for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
-	  r != rollsRaf.end(); ++r){
+      for(auto & r : rollsRaf){
 	std::cout << dashedLine_ << " NEW ROLL" << std::endl;
-	std::cout<<"Region = "<<(*r)->id().region()
-		 <<"  Ring = "<<(*r)->id().ring()
-		 <<"  Station = "<<(*r)->id().station()
-		 <<"  Sector = "<<(*r)->id().sector()
-		 <<"  Layer = "<<(*r)->id().layer()
-		 <<"  Subsector = "<<(*r)->id().subsector()
-		 <<"  Roll = "<<(*r)->id().roll()<<std::endl;
-	RPCGeomServ s( (*r)->id());
-	GlobalPoint g= (*r)->toGlobal(a);
+	std::cout<<"Region = "<<r->id().region()
+		 <<"  Ring = "<<r->id().ring()
+		 <<"  Station = "<<r->id().station()
+		 <<"  Sector = "<<r->id().sector()
+		 <<"  Layer = "<<r->id().layer()
+		 <<"  Subsector = "<<r->id().subsector()
+		 <<"  Roll = "<<r->id().roll()<<std::endl;
+	RPCGeomServ s( r->id());
+	GlobalPoint g= r->toGlobal(a);
 	std::cout <<s.name()<<" eta partition "<<s.eta_partition()<< " nroll="<<ch->nrolls()
 		  <<" z="<<g.z()<<" phi="<<g.phi()<<" R="<<g.perp()
 		  <<std::endl;
 
-	if((*r)->id().region() ==  0 ){
+	if(r->id().region() ==  0 ){
 	  if (barzranges.find(s.eta_partition()) != barzranges.end()){
 	    std::pair<double, double> cic=barzranges.find(s.eta_partition())->second;
 	    double cmin = cic.first;
@@ -110,7 +108,7 @@ RPCGeometryServTest::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	    barzranges[s.eta_partition()]=cic;
 	  }
 	}
-	else if((*r)->id().region() ==  +1 ){
+	else if(r->id().region() ==  +1 ){
 	  if (forRranges.find(s.eta_partition()) != forRranges.end()){
 	    std::pair<double, double> cic=forRranges.find(s.eta_partition())->second;
 	    double cmin = cic.first;
@@ -126,7 +124,7 @@ RPCGeometryServTest::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	    forRranges[s.eta_partition()]=cic;
 	  }
 	}
-	else if((*r)->id().region() ==  -1 ){
+	else if(r->id().region() ==  -1 ){
  	  if (bacRranges.find(s.eta_partition()) != bacRranges.end()){
 	    std::pair<double, double> cic=bacRranges.find(s.eta_partition())->second;
 	    double cmin = cic.first;

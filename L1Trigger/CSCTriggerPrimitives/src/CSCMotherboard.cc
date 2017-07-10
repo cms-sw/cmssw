@@ -353,7 +353,7 @@ CSCMotherboard::run(const CSCWireDigiCollection* wiredc,
     }
 
     int used_alct_mask[20];
-    for (int a=0;a<20;++a) used_alct_mask[a]=0;
+    for (int & a : used_alct_mask) a=0;
 
     int bx_alct_matched = 0; // bx of last matched ALCT
     for (int bx_clct = 0; bx_clct < CSCCathodeLCTProcessor::MAX_CLCT_BINS;

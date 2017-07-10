@@ -92,16 +92,16 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
   DynamicInefficiency->putDetIdmask(mask);
   
   //Put PixelGeomFactors
-  for(Parameters::iterator it = thePixelGeomFactors_.begin(); it != thePixelGeomFactors_.end(); ++it) {
-    string det = it->getParameter<string>("det");
-    it->exists("layer") ? layer = it->getParameter<unsigned int>("layer") : layer = LAYER;
-    it->exists("ladder") ? ladder = it->getParameter<unsigned int>("ladder") : ladder = LADDER;
-    it->exists("module") ? module = it->getParameter<unsigned int>("module") : module = MODULE;
-    it->exists("side") ? side = it->getParameter<unsigned int>("side") : side = SIDE;
-    it->exists("disk") ? disk = it->getParameter<unsigned int>("disk") : disk = DISK;
-    it->exists("blade") ? blade = it->getParameter<unsigned int>("blade") : blade = BLADE;
-    it->exists("panel") ? panel = it->getParameter<unsigned int>("panel") : panel = PANEL;
-    double factor = it->getParameter<double>("factor");
+  for(auto & thePixelGeomFactor : thePixelGeomFactors_) {
+    string det = thePixelGeomFactor.getParameter<string>("det");
+    thePixelGeomFactor.exists("layer") ? layer = thePixelGeomFactor.getParameter<unsigned int>("layer") : layer = LAYER;
+    thePixelGeomFactor.exists("ladder") ? ladder = thePixelGeomFactor.getParameter<unsigned int>("ladder") : ladder = LADDER;
+    thePixelGeomFactor.exists("module") ? module = thePixelGeomFactor.getParameter<unsigned int>("module") : module = MODULE;
+    thePixelGeomFactor.exists("side") ? side = thePixelGeomFactor.getParameter<unsigned int>("side") : side = SIDE;
+    thePixelGeomFactor.exists("disk") ? disk = thePixelGeomFactor.getParameter<unsigned int>("disk") : disk = DISK;
+    thePixelGeomFactor.exists("blade") ? blade = thePixelGeomFactor.getParameter<unsigned int>("blade") : blade = BLADE;
+    thePixelGeomFactor.exists("panel") ? panel = thePixelGeomFactor.getParameter<unsigned int>("panel") : panel = PANEL;
+    double factor = thePixelGeomFactor.getParameter<double>("factor");
     if (det == "bpix") {
       DetId detID=tTopo->pxbDetId(layer,ladder,module);
       std::cout<<"Putting Pixel geom BPix layer "<<layer<<" ladder "<<ladder<<" module "<<module<<" factor "<<factor<<std::endl;
@@ -116,16 +116,16 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
   }
 
   //Put ColumnGeomFactors
-  for(Parameters::iterator it = theColGeomFactors_.begin(); it != theColGeomFactors_.end(); ++it) {
-    string det = it->getParameter<string>("det");
-    it->exists("layer") ? layer = it->getParameter<unsigned int>("layer") : layer = LAYER;
-    it->exists("ladder") ? ladder = it->getParameter<unsigned int>("ladder") : ladder = LADDER;
-    it->exists("module") ? module = it->getParameter<unsigned int>("module") : module = MODULE;
-    it->exists("side") ? side = it->getParameter<unsigned int>("side") : side = SIDE;
-    it->exists("disk") ? disk = it->getParameter<unsigned int>("disk") : disk = DISK;
-    it->exists("blade") ? blade = it->getParameter<unsigned int>("blade") : blade = BLADE;
-    it->exists("panel") ? panel = it->getParameter<unsigned int>("panel") : panel = PANEL;
-    double factor = it->getParameter<double>("factor");
+  for(auto & theColGeomFactor : theColGeomFactors_) {
+    string det = theColGeomFactor.getParameter<string>("det");
+    theColGeomFactor.exists("layer") ? layer = theColGeomFactor.getParameter<unsigned int>("layer") : layer = LAYER;
+    theColGeomFactor.exists("ladder") ? ladder = theColGeomFactor.getParameter<unsigned int>("ladder") : ladder = LADDER;
+    theColGeomFactor.exists("module") ? module = theColGeomFactor.getParameter<unsigned int>("module") : module = MODULE;
+    theColGeomFactor.exists("side") ? side = theColGeomFactor.getParameter<unsigned int>("side") : side = SIDE;
+    theColGeomFactor.exists("disk") ? disk = theColGeomFactor.getParameter<unsigned int>("disk") : disk = DISK;
+    theColGeomFactor.exists("blade") ? blade = theColGeomFactor.getParameter<unsigned int>("blade") : blade = BLADE;
+    theColGeomFactor.exists("panel") ? panel = theColGeomFactor.getParameter<unsigned int>("panel") : panel = PANEL;
+    double factor = theColGeomFactor.getParameter<double>("factor");
     if (det == "bpix") {
       DetId detID=tTopo->pxbDetId(layer,ladder,module);
       std::cout<<"Putting Column geom BPix layer "<<layer<<" ladder "<<ladder<<" module "<<module<<" factor "<<factor<<std::endl;
@@ -140,16 +140,16 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
   }
 
   //Put ChipGeomFactors
-  for(Parameters::iterator it = theChipGeomFactors_.begin(); it != theChipGeomFactors_.end(); ++it) {
-    string det = it->getParameter<string>("det");
-    it->exists("layer") ? layer = it->getParameter<unsigned int>("layer") : layer = LAYER;
-    it->exists("ladder") ? ladder = it->getParameter<unsigned int>("ladder") : ladder = LADDER;
-    it->exists("module") ? module = it->getParameter<unsigned int>("module") : module = MODULE;
-    it->exists("side") ? side = it->getParameter<unsigned int>("side") : side = SIDE;
-    it->exists("disk") ? disk = it->getParameter<unsigned int>("disk") : disk = DISK;
-    it->exists("blade") ? blade = it->getParameter<unsigned int>("blade") : blade = BLADE;
-    it->exists("panel") ? panel = it->getParameter<unsigned int>("panel") : panel = PANEL;
-    double factor = it->getParameter<double>("factor");
+  for(auto & theChipGeomFactor : theChipGeomFactors_) {
+    string det = theChipGeomFactor.getParameter<string>("det");
+    theChipGeomFactor.exists("layer") ? layer = theChipGeomFactor.getParameter<unsigned int>("layer") : layer = LAYER;
+    theChipGeomFactor.exists("ladder") ? ladder = theChipGeomFactor.getParameter<unsigned int>("ladder") : ladder = LADDER;
+    theChipGeomFactor.exists("module") ? module = theChipGeomFactor.getParameter<unsigned int>("module") : module = MODULE;
+    theChipGeomFactor.exists("side") ? side = theChipGeomFactor.getParameter<unsigned int>("side") : side = SIDE;
+    theChipGeomFactor.exists("disk") ? disk = theChipGeomFactor.getParameter<unsigned int>("disk") : disk = DISK;
+    theChipGeomFactor.exists("blade") ? blade = theChipGeomFactor.getParameter<unsigned int>("blade") : blade = BLADE;
+    theChipGeomFactor.exists("panel") ? panel = theChipGeomFactor.getParameter<unsigned int>("panel") : panel = PANEL;
+    double factor = theChipGeomFactor.getParameter<double>("factor");
     if (det == "bpix") {
       DetId detID=tTopo->pxbDetId(layer,ladder,module);
       std::cout<<"Putting Chip geom BPix layer "<<layer<<" ladder "<<ladder<<" module "<<module<<" factor "<<factor<<std::endl;
@@ -164,16 +164,16 @@ void SiPixelDynamicInefficiencyDB::analyze(const edm::Event& e, const edm::Event
   }
 
   //Put PUFactors
-  for(Parameters::iterator it = thePUEfficiency_.begin(); it != thePUEfficiency_.end(); ++it) {
-    string det = it->getParameter<string>("det");
-    it->exists("layer") ? layer = it->getParameter<unsigned int>("layer") : layer = LAYER;
-    it->exists("ladder") ? ladder = it->getParameter<unsigned int>("ladder") : ladder = LADDER;
-    it->exists("module") ? module = it->getParameter<unsigned int>("module") : module = MODULE;
-    it->exists("side") ? side = it->getParameter<unsigned int>("side") : side = SIDE;
-    it->exists("disk") ? disk = it->getParameter<unsigned int>("disk") : disk = DISK;
-    it->exists("blade") ? blade = it->getParameter<unsigned int>("blade") : blade = BLADE;
-    it->exists("panel") ? panel = it->getParameter<unsigned int>("panel") : panel = PANEL;
-    std::vector<double> factor = it->getParameter<std::vector<double> >("factor");
+  for(auto & it : thePUEfficiency_) {
+    string det = it.getParameter<string>("det");
+    it.exists("layer") ? layer = it.getParameter<unsigned int>("layer") : layer = LAYER;
+    it.exists("ladder") ? ladder = it.getParameter<unsigned int>("ladder") : ladder = LADDER;
+    it.exists("module") ? module = it.getParameter<unsigned int>("module") : module = MODULE;
+    it.exists("side") ? side = it.getParameter<unsigned int>("side") : side = SIDE;
+    it.exists("disk") ? disk = it.getParameter<unsigned int>("disk") : disk = DISK;
+    it.exists("blade") ? blade = it.getParameter<unsigned int>("blade") : blade = BLADE;
+    it.exists("panel") ? panel = it.getParameter<unsigned int>("panel") : panel = PANEL;
+    std::vector<double> factor = it.getParameter<std::vector<double> >("factor");
     if (det == "bpix") {
       DetId detID=tTopo->pxbDetId(layer,ladder,module);
       std::cout<<"Putting PU efficiency BPix layer "<<layer<<" ladder "<<ladder<<" module "<<module<<" factor size "<<factor.size()<<std::endl;

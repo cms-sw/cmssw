@@ -328,9 +328,8 @@ namespace edmtest {
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.
-      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
-           it != reg->productList().end(); ++it) {
-        edm::BranchDescription const& desc = it->second;
+      for (const auto & it : reg->productList()) {
+        edm::BranchDescription const& desc = it.second;
         if (desc.branchID() == originalBranchID) {
           foundOriginalInRegistry = true;
           break;
@@ -407,9 +406,8 @@ namespace edmtest {
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.
-      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
-           it != reg->productList().end(); ++it) {
-        edm::BranchDescription const& desc = it->second;
+      for (const auto & it : reg->productList()) {
+        edm::BranchDescription const& desc = it.second;
         if (desc.branchID() == originalBranchID) {
           foundOriginalInRegistry = true;
           break;
@@ -476,9 +474,8 @@ namespace edmtest {
       bool foundOriginalInRegistry = false;
       edm::Service<edm::ConstProductRegistry> reg;
       // Loop over provenance of products in registry.
-      for (edm::ProductRegistry::ProductList::const_iterator it =  reg->productList().begin();
-           it != reg->productList().end(); ++it) {
-        edm::BranchDescription const& desc = it->second;
+      for (const auto & it : reg->productList()) {
+        edm::BranchDescription const& desc = it.second;
         if (desc.branchID() == originalBranchID) {
           foundOriginalInRegistry = true;
           break;

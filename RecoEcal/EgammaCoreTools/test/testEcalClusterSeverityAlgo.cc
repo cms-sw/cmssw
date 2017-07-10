@@ -215,10 +215,10 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 	
 	//        std::cout << "========== BARREL ==========" << std::endl;
 	int problematicSC=0;
-        for (reco::SuperClusterCollection::const_iterator it = ebClusters->begin(); it != ebClusters->end(); ++it ) 
+        for (const auto & ebCluster : *ebClusters) 
 	  {
 	    //apply an et Cut
-	    if ((*it).energy()/cosh((*it).eta())<15.)
+	    if (ebCluster.energy()/cosh(ebCluster.eta())<15.)
 	      continue;
 	    //  	    if ( fabs(EcalClusterSeverityLevelAlgo::goodFraction( *it, *ebRecHits, *theEcalChStatus) - 1. ) < 1e-6 && EcalClusterSeverityLevelAlgo::closestProblematic( *it, *ebRecHits, *theEcalChStatus,topology).null() ) 
 	    //  	      continue;
@@ -260,14 +260,14 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 		    
 		    
 		    
-		    double dphi = (*it).phi()-pAssSim.phi();
+		    double dphi = ebCluster.phi()-pAssSim.phi();
 		    if (fabs(dphi)>CLHEP::pi)
 		      dphi = dphi < 0? (CLHEP::twopi) + dphi : dphi - CLHEP::twopi;
-		    double deltaR = sqrt(pow(((*it).eta()-pAssSim.eta()),2) + pow(dphi,2));
+		    double deltaR = sqrt(pow((ebCluster.eta()-pAssSim.eta()),2) + pow(dphi,2));
 		    if ( deltaR < 0.15 )
 		      {
 			
-			double tmpScRatio = (*it).energy()/pAssSim.t();
+			double tmpScRatio = ebCluster.energy()/pAssSim.t();
 			if ( fabs(tmpScRatio-1) < fabs(ScOkRatio-1) ) {
 			  ScOkRatio = tmpScRatio;
 			  bestMcMatch=genPc;
@@ -282,12 +282,12 @@ void testEcalClusterSeverityAlgo::analyze(const edm::Event& ev, const edm::Event
 	    if (!bestMcMatch)
 	      continue;
 	    
-	    myTreeVariables_.scE[problematicSC]=(*it).energy();
-	    myTreeVariables_.scEta[problematicSC]=(*it).eta();
-	    myTreeVariables_.scPhi[problematicSC]=(*it).phi();
-	    myTreeVariables_.scGoodFraction[problematicSC]=EcalClusterSeverityLevelAlgo::goodFraction( *it, *ebRecHits, *sevLv);
-	    myTreeVariables_.scFracAroundClosProb[problematicSC]=EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic( *it, *ebRecHits,topology,*sevLv);
-	    std::pair<int,int> distanceClosestProblematic=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( *it, *ebRecHits,topology,*sevLv);
+	    myTreeVariables_.scE[problematicSC]=ebCluster.energy();
+	    myTreeVariables_.scEta[problematicSC]=ebCluster.eta();
+	    myTreeVariables_.scPhi[problematicSC]=ebCluster.phi();
+	    myTreeVariables_.scGoodFraction[problematicSC]=EcalClusterSeverityLevelAlgo::goodFraction( ebCluster, *ebRecHits, *sevLv);
+	    myTreeVariables_.scFracAroundClosProb[problematicSC]=EcalClusterSeverityLevelAlgo::fractionAroundClosestProblematic( ebCluster, *ebRecHits,topology,*sevLv);
+	    std::pair<int,int> distanceClosestProblematic=EcalClusterSeverityLevelAlgo::etaphiDistanceClosestProblematic( ebCluster, *ebRecHits,topology,*sevLv);
 	    myTreeVariables_.scClosProbEta[problematicSC]=distanceClosestProblematic.first;
 	    myTreeVariables_.scClosProbPhi[problematicSC]=distanceClosestProblematic.second;
 	    myTreeVariables_.mcE[problematicSC]=bestMcMatch->momentum().t();

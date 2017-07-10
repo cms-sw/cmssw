@@ -41,10 +41,9 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
   //
   const std::vector<std::string>& lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++){
-    this->AssignSD(*it);
-    LogDebug("FiberSim") << "FiberSD : Assigns SD to LV " << (*it);
+  for (const auto & lvName : lvNames){
+    this->AssignSD(lvName);
+    LogDebug("FiberSim") << "FiberSD : Assigns SD to LV " << lvName;
   }
 }
 
@@ -73,12 +72,12 @@ G4bool FiberSD::ProcessHits(G4Step * aStep, G4TouchableHistory*) {
   
   if (hits.size() > 0) {
     std::vector<HFShowerPhoton> thePE;
-    for (unsigned int i=0; i<hits.size(); i++) {
+    for (auto & hit : hits) {
       //std::cout<<"hit position z "<<hits[i].position.z()<<std::endl;
-      HFShowerPhoton pe = HFShowerPhoton(hits[i].position.x(), 
-					 hits[i].position.y(), 
-					 hits[i].position.z(), 
-					 hits[i].wavelength, hits[i].time);
+      HFShowerPhoton pe = HFShowerPhoton(hit.position.x(), 
+					 hit.position.y(), 
+					 hit.position.z(), 
+					 hit.wavelength, hit.time);
       thePE.push_back(pe);
     }
     int trackID = aStep->GetTrack()->GetTrackID();

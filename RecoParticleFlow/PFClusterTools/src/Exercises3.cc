@@ -72,10 +72,8 @@ Exercises3::Exercises3(IO* options) :
 	clusterCalibration_.setMaxEToCorrect(maxEToCorrect);
 
 	std::vector<std::string>* names = clusterCalibration_.getKnownSectorNames();
-	for (std::vector<std::string>::iterator i = names->begin(); i
-			!= names->end(); ++i) {
-		std::string sector = *i;
-		std::vector<double> params;
+	for (auto sector : *names) {
+			std::vector<double> params;
 		options_->GetOpt("evolution", sector.c_str(), params);
 		clusterCalibration_.setEvolutionParameters(sector, params);
 	}
@@ -220,10 +218,9 @@ void Exercises3::calibrateCalibratables(TChain& sourceTree,
 	exercises->mkdir("ecalAndHcal");
 	exercises->cd("/ecalAndHcal");
 	evaluateSpaceManager(sm, elements_);
-	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator it =
-			smCalibrators->begin(); it != smCalibrators->end(); ++it) {
-		SpaceVoxelPtr sv = (*it).first;
-		CalibratorPtr c = (*it).second;
+	for (auto & smCalibrator : *smCalibrators) {
+		SpaceVoxelPtr sv = smCalibrator.first;
+		CalibratorPtr c = smCalibrator.second;
 		std::for_each(elements_.begin(), elements_.end(), resetElement3);
 		evaluateCalibrator(sm, c, tree, calibrated, ecal, hcal, offset, LINEAR,
 				LINEARCORR);
@@ -249,9 +246,8 @@ void Exercises3::getCalibrations(SpaceManagerPtr s) {
 
 	std::map<SpaceVoxelPtr, CalibratorPtr>* smCalibrators = s->getCalibrators();
 
-	for (std::map<SpaceVoxelPtr, CalibratorPtr>::iterator it =
-			smCalibrators->begin(); it != smCalibrators->end(); ++it) {
-		CalibratorPtr c= (*it).second;
+	for (auto & smCalibrator : *smCalibrators) {
+		CalibratorPtr c= smCalibrator.second;
 		std::for_each(elements_.begin(), elements_.end(), resetElement3);
 		if (c->hasParticles() > static_cast<int>(threshold_)) {
 			std::map<DetectorElementPtr, double> calibs =
@@ -296,10 +292,8 @@ void Exercises3::evaluateSpaceManager(SpaceManagerPtr s,
 		assert(ecalBarrel.size() == 6 && ecalEndcap.size() == 6);
 		assert(hcalBarrel.size() == 6 && hcalEndcap.size() == 6);
 
-		for (std::vector<DetectorElementPtr>::const_iterator i = detEls.begin(); i
-				!= detEls.end(); ++i) {
-			DetectorElementPtr d = *i;
-			std::cout << "Fixing evolution for "<< *d << "\n";
+		for (auto d : detEls) {
+				std::cout << "Fixing evolution for "<< *d << "\n";
 			int mode(0);
 			options_->GetOpt("spaceManager", "interpolationMode", mode);
 
@@ -406,18 +400,15 @@ void Exercises3::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 			std::cout << "Using interpolation mode " << mode << "\n";
 		}
 
-		for (std::vector<ParticleDepositPtr>::iterator zit = csParticles.begin(); zit
-				!= csParticles.end(); ++zit) {
-			ParticleDepositPtr pd = *zit;
-			calibrated->reset();
+		for (auto pd : csParticles) {
+				calibrated->reset();
 			calibrated->rechits_meanEcal_.energy_ = pd->getRecEnergy(ecal);
 			calibrated->rechits_meanHcal_.energy_ = pd->getRecEnergy(hcal);
 			calibrated->sim_energyEvent_ = pd->getTruthEnergy();
 			calibrated->sim_etaEcal_ = pd->getEta();
 
-			for (std::map<DetectorElementPtr, double>::iterator deit =
-					calibs.begin(); deit != calibs.end(); ++deit) {
-				DetectorElementPtr de = (*deit).first;
+			for (auto & calib : calibs) {
+				DetectorElementPtr de = calib.first;
 				de->setCalib(1.0);
 			}
 
@@ -434,9 +425,8 @@ void Exercises3::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 
 			double tempEnergy = pd->getRecEnergy();
 			//evaluate calibration
-			for (std::map<DetectorElementPtr, double>::iterator deit =
-					calibs.begin(); deit != calibs.end(); ++deit) {
-				DetectorElementPtr de = (*deit).first;
+			for (auto & calib : calibs) {
+				DetectorElementPtr de = calib.first;
 
 				if (mode == 1)
 					de->setCalib(s->interpolateCoefficient(de,
@@ -445,7 +435,7 @@ void Exercises3::evaluateCalibrator(SpaceManagerPtr s, CalibratorPtr c,
 					de->setCalib(s->evolveCoefficient(de, tempEnergy,
 							pd->getEta(), pd->getPhi()));
 				else
-					de->setCalib((*deit).second);
+					de->setCalib(calib.second);
 			}
 			if (debug_ > 8) {
 				std::cout << "POST ECAL HCAL coeff: " << ecal->getCalib() << ", " << hcal->getCalib() << "\n";

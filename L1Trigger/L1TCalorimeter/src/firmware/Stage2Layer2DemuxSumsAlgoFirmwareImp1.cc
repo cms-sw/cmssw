@@ -37,76 +37,76 @@ void l1t::Stage2Layer2DemuxSumsAlgoFirmwareImp1::processEvent(const std::vector<
   bool metSat(0);
 
   // Add up the x, y and scalar components
-  for (std::vector<l1t::EtSum>::const_iterator eSum = inputSums.begin() ; eSum != inputSums.end() ; ++eSum )
+  for (const auto & inputSum : inputSums)
     {
-      switch (eSum->getType()) {
+      switch (inputSum.getType()) {
 
       case l1t::EtSum::EtSumType::kTotalEt:
-        et += eSum->hwPt();
+        et += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalEtEm:
-        etem += eSum->hwPt();
+        etem += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalEtx:
-	if(eSum->hwPt()==0x7fffffff) metSat=true;
-        else metx += eSum->hwPt();
+	if(inputSum.hwPt()==0x7fffffff) metSat=true;
+        else metx += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalEty:
-	if(eSum->hwPt()==0x7fffffff) metSat=true;
-        else mety += eSum->hwPt();
+	if(inputSum.hwPt()==0x7fffffff) metSat=true;
+        else mety += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalHt:
-        ht += eSum->hwPt();
+        ht += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalHtx:
-        mhtx += eSum->hwPt();
+        mhtx += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalHty:
-        mhty += eSum->hwPt();
+        mhty += inputSum.hwPt();
         break;
 	
       case l1t::EtSum::EtSumType::kTotalEtxHF:
-	if(eSum->hwPt()==0x7fffffff) metSat=true;
-        else metxHF += eSum->hwPt();
+	if(inputSum.hwPt()==0x7fffffff) metSat=true;
+        else metxHF += inputSum.hwPt();
         break;
 	
       case l1t::EtSum::EtSumType::kTotalEtyHF:
-	if(eSum->hwPt()==0x7fffffff) metSat=true;
-        else metyHF += eSum->hwPt();
+	if(inputSum.hwPt()==0x7fffffff) metSat=true;
+        else metyHF += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kTotalHtxHF:
-        mhtxHF += eSum->hwPt();
+        mhtxHF += inputSum.hwPt();
         break;
 	
       case l1t::EtSum::EtSumType::kTotalHtyHF:
-        mhtyHF += eSum->hwPt();
+        mhtyHF += inputSum.hwPt();
         break;
 
       case l1t::EtSum::EtSumType::kMinBiasHFP0:
-	mbp0 = eSum->hwPt();
+	mbp0 = inputSum.hwPt();
 	break;
 
       case l1t::EtSum::EtSumType::kMinBiasHFM0:
-	mbm0 = eSum->hwPt();
+	mbm0 = inputSum.hwPt();
 	break;
 
       case l1t::EtSum::EtSumType::kMinBiasHFP1:
-	mbp1 = eSum->hwPt();
+	mbp1 = inputSum.hwPt();
 	break;
 
       case l1t::EtSum::EtSumType::kMinBiasHFM1:
-	mbm1 = eSum->hwPt();
+	mbm1 = inputSum.hwPt();
 	break;
 
       case l1t::EtSum::EtSumType::kTowerCount:
-	ntow = eSum->hwPt();
+	ntow = inputSum.hwPt();
 	break;
 
       default:

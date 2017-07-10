@@ -35,10 +35,9 @@ void APVShotFinder::computeShots(const edm::DetSetVector<SiStripDigi>& digicoll)
 
   _shots.clear();
 
-   for(edm::DetSetVector<SiStripDigi>::const_iterator it = digicoll.begin();
-       it!=digicoll.end();++it) {
+   for(const auto & it : digicoll) {
 
-     addShots(*it);
+     addShots(it);
    }
 
 }
@@ -51,13 +50,13 @@ void APVShotFinder::addShots(const edm::DetSet<SiStripDigi>& digis) {
   int apv = -1;
   std::vector<SiStripDigi> temp;
 
-  for(edm::DetSet<SiStripDigi>::const_iterator digi=digis.begin();digi!=digis.end();digi++) {
+  for(const auto & digi : digis) {
 
-    if(!_zs || digi->adc()>0) {
-      if(laststrip >= digi->strip()) edm::LogWarning("StripNotInOrder") << "Strips not in order in DetSet<SiStripDigi>";
-      laststrip = digi->strip();
+    if(!_zs || digi.adc()>0) {
+      if(laststrip >= digi.strip()) edm::LogWarning("StripNotInOrder") << "Strips not in order in DetSet<SiStripDigi>";
+      laststrip = digi.strip();
       
-      int newapv = digi->strip()/128;
+      int newapv = digi.strip()/128;
       if( newapv!=apv) {
 	if(apv>=0) {
 	  if(temp.size() > 64) {
@@ -69,7 +68,7 @@ void APVShotFinder::addShots(const edm::DetSet<SiStripDigi>& digis) {
 	apv = newapv;
       }
       
-      temp.push_back(*digi);
+      temp.push_back(digi);
     }
   }
   // last strip

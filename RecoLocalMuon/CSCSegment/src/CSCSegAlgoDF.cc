@@ -81,9 +81,9 @@ std::vector<CSCSegment> CSCSegAlgoDF::run(const CSCChamber* aChamber, const Cham
     std::vector<CSCSegment> testSegments;
     std::vector<ChamberHitContainer> clusteredHits = preCluster_->clusterHits(theChamber, rechits);
     // loop over the found clusters:
-    for (std::vector<ChamberHitContainer>::iterator subrechits = clusteredHits.begin(); subrechits != clusteredHits.end(); ++subrechits ) {
+    for (auto & clusteredHit : clusteredHits) {
       // build the subset of segments:
-      std::vector<CSCSegment> segs = buildSegments( (*subrechits) );
+      std::vector<CSCSegment> segs = buildSegments( clusteredHit );
       // add the found subset of segments to the collection of all segments in this chamber:
       segments_temp.insert( segments_temp.end(), segs.begin(), segs.end() );
     }
@@ -465,8 +465,8 @@ bool CSCSegAlgoDF::hasHitOnLayer(int layer) const {
 
 
   // Is there already a hit on this layer?
-  for ( ChamberHitContainerCIt it = protoSegment.begin(); it != protoSegment.end(); it++ )
-    if ( (*it)->cscDetId().layer() == layer ) return true;
+  for (auto it : protoSegment)
+    if ( it->cscDetId().layer() == layer ) return true;
   
   return false;
 }

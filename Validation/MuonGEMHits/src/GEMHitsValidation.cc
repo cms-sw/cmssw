@@ -157,9 +157,9 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     return ;
   }
 
-  for (auto hits=GEMHits->begin(); hits!=GEMHits->end(); hits++) {
+  for (const auto & hits : *GEMHits) {
 
-    const GEMDetId id(hits->detUnitId());
+    const GEMDetId id(hits.detUnitId());
     Int_t region = (Int_t) id.region();
     Int_t station = (Int_t) id.station();
     Int_t layer = (Int_t) id.layer();
@@ -167,21 +167,21 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     Int_t nroll = (Int_t) id.roll();
 
     //Int_t even_odd = id.chamber()%2;
-    if ( GEMGeometry_->idToDet(hits->detUnitId()) == nullptr) {
+    if ( GEMGeometry_->idToDet(hits.detUnitId()) == nullptr) {
       std::cout<<"simHit did not matched with GEMGeometry."<<std::endl;
       continue;
     }
     //const LocalPoint p0(0., 0., 0.);
     //const GlobalPoint Gp0(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(p0));
-    const LocalPoint hitLP(hits->localPosition());
+    const LocalPoint hitLP(hits.localPosition());
     
-    const GlobalPoint hitGP(GEMGeometry_->idToDet(hits->detUnitId())->surface().toGlobal(hitLP));
+    const GlobalPoint hitGP(GEMGeometry_->idToDet(hits.detUnitId())->surface().toGlobal(hitLP));
     Float_t g_r = hitGP.perp();
     Float_t g_x = hitGP.x();
     Float_t g_y = hitGP.y();
     Float_t g_z = hitGP.z();
-    Float_t energyLoss = hits->energyLoss();
-    Float_t timeOfFlight = hits->timeOfFlight();
+    Float_t energyLoss = hits.energyLoss();
+    Float_t timeOfFlight = hits.timeOfFlight();
 
     int layer_num = layer-1;
     int binX = (chamber-1)*2+layer_num;
@@ -202,7 +202,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
     TString tofMu = TString::Format("gem_sh_simple_tofMuon_st%s",getStationLabel(station).c_str());
     TString elossMu = TString::Format("gem_sh_simple_energylossMuon_st%s",getStationLabel(station).c_str());
 
-    if (abs(hits-> particleType()) == 13){
+    if (abs(hits. particleType()) == 13){
       LogDebug("GEMHitsValidation")<<tofMu<<std::endl;
       gem_sh_simple_tofMu[ tofMu.Hash() ]->Fill( timeOfFlight );
       LogDebug("GEMHitsValidation")<<elossMu<<std::endl;
@@ -217,7 +217,7 @@ void GEMHitsValidation::analyze(const edm::Event& e,
       gem_sh_xy[(int)(region/2.+0.5)][station-1][layer_num]->Fill(g_x,g_y);
       gem_sh_tof[(int)(region/2.+0.5)][station-1][layer_num]->Fill(timeOfFlight);
       gem_sh_eloss[(int)(region/2.+0.5)][station-1][layer_num]->Fill(energyLoss*1.e9);
-      if (abs(hits-> particleType()) == 13) {
+      if (abs(hits. particleType()) == 13) {
         gem_sh_tofMu[(int)(region/2.+0.5)][station-1][layer_num]->Fill(timeOfFlight);
         gem_sh_elossMu[(int)(region/2.+0.5)][station-1][layer_num]->Fill(energyLoss*1.e9);
       }

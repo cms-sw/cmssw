@@ -513,21 +513,21 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
       
       //Loop over compatible hits
       int mea=0;
-      for(std::vector<TrajectoryMeasurement>::iterator tmItr = theFirstMeasurements_.begin(); tmItr !=theFirstMeasurements_.end();  ++tmItr) {
+      for(auto & theFirstMeasurement : theFirstMeasurements_) {
 	
 	mea++;
 	
 	
-	if (tmItr->recHit()->isValid() ) {
+	if (theFirstMeasurement.recHit()->isValid() ) {
 	  // Make a new helix as in fillClusterSeeds() but using the hit position
 	  //std::cout << "InOutConversionSeedFinder::findSeeds hit  R " << tmItr->recHit()->globalPosition().perp() << " Z " <<  tmItr->recHit()->globalPosition().z() << " " <<  tmItr->recHit()->globalPosition() << "\n";
 	  GlobalPoint bcPos((theSecondBC_.position()).x(),(theSecondBC_.position()).y(),(theSecondBC_.position()).z());
 	  GlobalVector dir = startingState.globalDirection();
-	  GlobalPoint back1mm = tmItr->recHit()->globalPosition();
+	  GlobalPoint back1mm = theFirstMeasurement.recHit()->globalPosition();
 	  
 	  back1mm -= dir.unit()*0.1;
 	  //std::cout << " InOutConversionSeedFinder:::findSeeds going to make the helix using back1mm " << back1mm << "\n";
-	  ConversionFastHelix helix(bcPos,  tmItr->recHit()->globalPosition(), back1mm, &(*theMF_));
+	  ConversionFastHelix helix(bcPos,  theFirstMeasurement.recHit()->globalPosition(), back1mm, &(*theMF_));
 	  
 	  helix.stateAtVertex();
 	  //std::cout << " InOutConversionSeedFinder:::findSeeds helix status " <<helix.isValid() << std::endl; 
@@ -542,7 +542,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	  
 	  // Make a new FTS
 	  FreeTrajectoryState newfts(GlobalTrajectoryParameters(
-								tmItr->recHit()->globalPosition(), startingState.globalDirection(),
+								theFirstMeasurement.recHit()->globalPosition(), startingState.globalDirection(),
 								helix.stateAtVertex().transverseCurvature(), 0, &(*theMF_)), 
 				     CurvilinearTrajectoryError(m));
 	  
@@ -570,8 +570,8 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
 	  */
 	  
 	  
-	  completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_, ilayer+1);
-	  completeSeed(*tmItr, newfts,  thePropagatorAlongMomentum_, ilayer+2);
+	  completeSeed(theFirstMeasurement, newfts,  thePropagatorAlongMomentum_, ilayer+1);
+	  completeSeed(theFirstMeasurement, newfts,  thePropagatorAlongMomentum_, ilayer+2);
 	  
 	  
 	}
@@ -650,9 +650,9 @@ void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
  //std::cout << "InOutConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " <<  "\n"; 
   delete newEstimator;
   
-  for(unsigned int i = 0; i < measurements.size(); ++i) {
-    if( measurements[i].recHit()->isValid()  ) {
-      createSeed(m1, measurements[i]);
+  for(auto & measurement : measurements) {
+    if( measurement.recHit()->isValid()  ) {
+      createSeed(m1, measurement);
     }
   }
   

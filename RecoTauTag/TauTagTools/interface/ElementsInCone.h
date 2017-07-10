@@ -36,9 +36,9 @@ class ElementsInCone<T, M, std::pair<math::XYZPoint,float> >{
     ~ElementsInCone() {}  
     const std::vector<std::pair<math::XYZPoint,float> > operator()(const T& coneAxis,const M& coneMetric,double coneSize,const std::vector<std::pair<math::XYZPoint,float> >& elements)const{
       std::vector<std::pair<math::XYZPoint,float> > elementsInCone;
-      for(typename std::vector<std::pair<math::XYZPoint,float> >::const_iterator element=elements.begin();element!=elements.end();++element) {
-	double distance = coneMetric(coneAxis,(*element).first);
-	if (distance<=coneSize)elementsInCone.push_back(*element);
+      for(const auto & element : elements) {
+	double distance = coneMetric(coneAxis,element.first);
+	if (distance<=coneSize)elementsInCone.push_back(element);
       }
       return elementsInCone;      
     }

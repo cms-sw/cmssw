@@ -108,23 +108,23 @@ void PuppiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       const reco::PFCandidate *pPF = dynamic_cast<const reco::PFCandidate*>(&(*itPF));
       double curdz = 9999;
       int closestVtxForUnassociateds = -9999;
-      for(reco::VertexCollection::const_iterator iV = pvCol->begin(); iV!=pvCol->end(); ++iV) {
+      for(const auto & iV : *pvCol) {
         if(lFirst) {
-          if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(iV->position());
-          else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(iV->position());
+          if      ( pPF->trackRef().isNonnull()    ) pDZ = pPF->trackRef()   ->dz(iV.position());
+          else if ( pPF->gsfTrackRef().isNonnull() ) pDZ = pPF->gsfTrackRef()->dz(iV.position());
           if      ( pPF->trackRef().isNonnull()    ) pD0 = pPF->trackRef()   ->d0();
           else if ( pPF->gsfTrackRef().isNonnull() ) pD0 = pPF->gsfTrackRef()->d0();
           lFirst = false;
           if(pDZ > -9999) pVtxId = 0;
         }
-        if(iV->trackWeight(pPF->trackRef())>0) {
-            closestVtx  = &(*iV);
+        if(iV.trackWeight(pPF->trackRef())>0) {
+            closestVtx  = &iV;
             break;
           }        
         // in case it's unassocciated, keep more info
         double tmpdz = 99999;
-        if      ( pPF->trackRef().isNonnull()    ) tmpdz = pPF->trackRef()   ->dz(iV->position());
-        else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(iV->position());
+        if      ( pPF->trackRef().isNonnull()    ) tmpdz = pPF->trackRef()   ->dz(iV.position());
+        else if ( pPF->gsfTrackRef().isNonnull() ) tmpdz = pPF->gsfTrackRef()->dz(iV.position());
         if (std::abs(tmpdz) < curdz){
           curdz = std::abs(tmpdz);
           closestVtxForUnassociateds = pVtxId;

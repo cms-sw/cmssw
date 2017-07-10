@@ -106,9 +106,9 @@ SiPixelQualityHistory::SiPixelQualityHistory(const edm::ParameterSet& iConfig):
 
   edm::Service<TFileService> tfserv;
 
-  for(std::vector<edm::ParameterSet>::const_iterator ps=m_monitoredspq.begin();ps!=m_monitoredspq.end();++ps) {
+  for(const auto & ps : m_monitoredspq) {
 
-    std::string name = ps->getParameter<std::string>("name");
+    std::string name = ps.getParameter<std::string>("name");
 
     if(m_run) m_history[name] = tfserv->make<TH1F>(name.c_str(),name.c_str(),10,0,10);
 
@@ -141,10 +141,10 @@ SiPixelQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   //  edm::LogInfo("EventProcessing") << "event being processed";
 
-  for(std::vector<edm::ParameterSet>::const_iterator ps=m_monitoredspq.begin();ps!=m_monitoredspq.end();++ps) {
+  for(const auto & ps : m_monitoredspq) {
 
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("spqLabel");
+    std::string name = ps.getParameter<std::string>("name");
+    std::string label = ps.getParameter<std::string>("spqLabel");
 
 
 
@@ -192,10 +192,10 @@ SiPixelQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
 
   // loop on all the SiPixelQuality objects to be monitored
 
-  for(std::vector<edm::ParameterSet>::const_iterator ps=m_monitoredspq.begin();ps!=m_monitoredspq.end();++ps) {
+  for(const auto & ps : m_monitoredspq) {
 
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("spqLabel");
+    std::string name = ps.getParameter<std::string>("name");
+    std::string label = ps.getParameter<std::string>("spqLabel");
 
     if(m_badmodrun.find(name)!=m_badmodrun.end()) {
       if(m_badmodrun[name] && *m_badmodrun[name]) {

@@ -167,8 +167,8 @@ Jet::Jet (const LorentzVector& fP4,
      mPileupEnergy (0),
      mPassNumber (0)
 {
-  for (unsigned i = 0; i < fConstituents.size (); i++) {
-    addDaughter (fConstituents [i]);
+  for (const auto & fConstituent : fConstituents) {
+    addDaughter (fConstituent);
   }
 }
 
@@ -293,7 +293,7 @@ int Jet::nCarrying (float fFraction) const {
   std::vector<const Candidate*> towers = getJetConstituentsQuick ();
   if (fFraction >= 1) return towers.size();
   double totalEt = 0;
-  for (unsigned i = 0; i < towers.size(); ++i) totalEt += towers[i]->et();
+  for (auto & tower : towers) totalEt += tower->et();
   double fractionEnergy = totalEt * fFraction;
   unsigned result = 0;
   for (; result < towers.size(); ++result) {
@@ -307,8 +307,8 @@ int Jet::nCarrying (float fFraction) const {
 float Jet::maxDistance () const {
   float result = 0;
   std::vector<const Candidate*> towers = getJetConstituentsQuick ();
-  for (unsigned i = 0; i < towers.size(); ++i) {
-    float dR = deltaR (*(towers[i]), *this);
+  for (auto & tower : towers) {
+    float dR = deltaR (*tower, *this);
     if (dR > result)  result = dR;
   }
   return result;
@@ -379,9 +379,9 @@ float Jet::constituentPtDistribution() const {
   float sum_pt2 = 0.;
   float sum_pt  = 0.;
 
-  for( unsigned iConst=0; iConst<constituents.size(); ++iConst ) {
+  for(auto & constituent : constituents) {
 
-    float pt = constituents[iConst]->p4().Pt();
+    float pt = constituent->p4().Pt();
     float pt2 = pt*pt;
 
     sum_pt += pt;
@@ -405,13 +405,13 @@ float Jet::constituentEtaPhiSpread() const {
   float sum_pt2 = 0.;
   float sum_pt2deltaR2 = 0.;
 
-  for( unsigned iConst=0; iConst<constituents.size(); ++iConst ) {
+  for(auto & constituent : constituents) {
 
-    LorentzVector thisConstituent = constituents[iConst]->p4();
+    LorentzVector thisConstituent = constituent->p4();
 
     float pt = thisConstituent.Pt();
     float pt2 = pt*pt;
-    double dR = deltaR (*this, *(constituents[iConst]));
+    double dR = deltaR (*this, *constituent);
     float pt2deltaR2 = pt*pt*dR*dR;
 
     sum_pt2 += pt2;

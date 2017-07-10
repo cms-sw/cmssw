@@ -278,12 +278,12 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   int i=0;
   int yy=0;
   int yyy=0;
-  for(std::vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
+  for(const auto & it : *trajCollectionHandle){
     
     LogTrace("TestTrackHits") << "\n*****************new trajectory********************" ;
     double tchi2 = 0;
 
-    std::vector<TrajectoryMeasurement> tmColl = it->measurements();
+    std::vector<TrajectoryMeasurement> tmColl = it.measurements();
 
     edm::Ref<std::vector<Trajectory> >  traj(trajCollectionHandle, i);
     reco::TrackRef tmptrack = (*trajTrackAssociationCollectionHandle.product())[traj];
@@ -328,15 +328,15 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     //LogTrace("TestTrackHits") << "Analyzing hits of track number " << ++yyy << " good track number " << ++yy;
     int pp = 0;
-    for (std::vector<TrajectoryMeasurement>::iterator tm=tmColl.begin();tm!=tmColl.end();++tm){
+    for (auto & tm : tmColl){
       
-      tchi2+=tm->estimate();
+      tchi2+=tm.estimate();
 
       LogTrace("TestTrackHits") << "+++++++++++++++++new hit+++++++++++++++++" ;
-      CTTRHp rhit = tm->recHit();
+      CTTRHp rhit = tm.recHit();
       //TSOS state = tm->backwardPredictedState();
       //TSOS state = tm->forwardPredictedState();
-      TSOS state = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
+      TSOS state = combiner(tm.backwardPredictedState(), tm.forwardPredictedState());
 
       if (rhit->isValid()==0 && rhit->det()!=0) continue;
       evtHits++;
@@ -395,8 +395,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       //}
 
       //plot chi2 increment
-      double chi2increment = tm->estimate();
-      LogTrace("TestTrackHits") << "tm->estimate()=" << tm->estimate();
+      double chi2increment = tm.estimate();
+      LogTrace("TestTrackHits") << "tm->estimate()=" << tm.estimate();
       title.str("");
       title << "Chi2Increment_" << subdetId << "-" << layerId;
       hChi2Increment[title.str()]->Fill( chi2increment );
@@ -450,10 +450,10 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
       std::vector<SimHitIdpr> simTrackIds = hitAssociator.associateHitId(*(rhit)->hit());
       bool goodhit = false;
-      for(size_t j=0; j<simTrackIds.size(); j++){
-	LogTrace("TestTrackHits") << "hit id=" << simTrackIds[j].first;
-	for (size_t jj=0; jj<tpids.size(); jj++){
-	  if (simTrackIds[j].first == tpids[jj]) goodhit = true;
+      for(auto & simTrackId : simTrackIds){
+	LogTrace("TestTrackHits") << "hit id=" << simTrackId.first;
+	for (unsigned int tpid : tpids){
+	  if (simTrackId.first == tpid) goodhit = true;
 	  break;
 	}
       }
@@ -480,8 +480,8 @@ void TestTrackHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	  //not optimized for matched hits
 	  LogVerbatim("TestTrackHits") << "MERGED HIT" << std::endl;
 	  unsigned int idc = 0;
-	  for (size_t jj=0; jj<tpids.size(); jj++){
-	    idc += std::count(trackIds.begin(),trackIds.end(),tpids[jj]);
+	  for (unsigned int tpid : tpids){
+	    idc += std::count(trackIds.begin(),trackIds.end(),tpid);
 	  }
 	  if (idc==trackIds.size()) {
 	    shared = false;

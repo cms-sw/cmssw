@@ -25,8 +25,8 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
     {
       float w_ring[EcalRingCalibrationTools::N_RING_TOTAL];
 
-      for (int i=0;i<EcalRingCalibrationTools::N_RING_TOTAL;++i)
-	w_ring[i]=0.;
+      for (float & i : w_ring)
+	i=0.;
       
       std::vector<std::pair<DetId,float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 
@@ -55,8 +55,8 @@ std::vector< std::pair<int,float> > CalibElectron::getCalibModulesWeights(TStrin
 
       float w_ring[EcalRingCalibrationTools::N_MODULES_BARREL];
 
-      for (int i=0;i<EcalRingCalibrationTools::N_MODULES_BARREL;++i)
-        w_ring[i]=0.;
+      for (float & i : w_ring)
+        i=0.;
 
       std::vector<std::pair<DetId,float> > scDetIds = theElectron_->superCluster()->hitsAndFractions();
 

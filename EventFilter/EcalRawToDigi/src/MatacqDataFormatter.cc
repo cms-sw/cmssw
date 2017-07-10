@@ -53,12 +53,12 @@ MatacqDataFormatter::interpretRawData(const MatacqRawEvent& matacq, EcalMatacqDi
   //instead of an EcalMatacqDigi because Matacq channels are several.
   //In the meamtime copy only the first channel appearing in data:
   const vector<MatacqRawEvent::ChannelData>& chData = matacq.getChannelData();
-  for(unsigned iCh=0; iCh < chData.size(); ++iCh){
+  for(auto iCh : chData){
     //copy time samples into a vector:
-    samples.resize(chData[iCh].nSamples);
-    copy(chData[iCh].samples, chData[iCh].samples+chData[iCh].nSamples,
+    samples.resize(iCh.nSamples);
+    copy(iCh.samples, iCh.samples+iCh.nSamples,
 	 samples.begin());
-    int chId = chData[iCh].chId;
+    int chId = iCh.chId;
     vector<int16_t> empty;
     EcalMatacqDigi matacqDigi(empty, chId, ts, version, tTrig);
 #if (defined(ECAL_MATACQ_DIGI_VERS) && (ECAL_MATACQ_DIGI_VERS >= 2))
@@ -109,14 +109,14 @@ void MatacqDataFormatter::printData(ostream& out, const MatacqRawEvent& matacq) 
   cout << "Data acquired on : " << ctime(&timeStamp);
 
   const vector<MatacqRawEvent::ChannelData>& channels = matacq.getChannelData();
-  for(unsigned i=0; i< channels.size(); ++i){
+  for(auto channel : channels){
     cout << "-------------------------------------- Channel "
-	 << channels[i].chId
-	 << ": " << setw(4) << channels[i].nSamples
+	 << channel.chId
+	 << ": " << setw(4) << channel.nSamples
 	 << " samples --------------------------------------\n";
     
-    for(int iSample = 0; iSample<channels[i].nSamples; ++iSample){
-      MatacqRawEvent::int16le_t adc = (channels[i].samples)[iSample];
+    for(int iSample = 0; iSample<channel.nSamples; ++iSample){
+      MatacqRawEvent::int16le_t adc = (channel.samples)[iSample];
       cout << setw(4) << adc
 	   << ((iSample%20==19)?"\n":" ");
     }

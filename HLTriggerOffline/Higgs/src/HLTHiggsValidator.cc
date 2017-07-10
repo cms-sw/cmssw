@@ -29,9 +29,9 @@ HLTHiggsValidator::HLTHiggsValidator(const edm::ParameterSet& pset) :
     _collections = new EVTColContainer;
 
     //pass consumes list to the helper classes
-    for(size_t i = 0; i < _analysisnames.size() ; ++i)
+    for(const auto & _analysisname : _analysisnames)
     {
-        HLTHiggsSubAnalysis analyzer(_pset, _analysisnames.at(i), consumesCollector());
+        HLTHiggsSubAnalysis analyzer(_pset, _analysisname, consumesCollector());
         _analyzers.push_back(analyzer);
     }
 
@@ -49,19 +49,17 @@ HLTHiggsValidator::~HLTHiggsValidator()
 void HLTHiggsValidator::dqmBeginRun(const edm::Run & iRun, const edm::EventSetup & iSetup)
 {
     // Call the Plotter beginRun (which stores the triggers paths..:)
-    for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); 
-        iter != _analyzers.end(); ++iter) 
+    for(auto & _analyzer : _analyzers) 
     {
-        iter->beginRun(iRun, iSetup);
+        _analyzer.beginRun(iRun, iSetup);
     }
 }
     
 void HLTHiggsValidator::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run &iRun, const edm::EventSetup &iSetup){
     // Call the Plotter bookHistograms (which stores the triggers paths..:)
-    for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin();
-        iter != _analyzers.end(); ++iter)
+    for(auto & _analyzer : _analyzers)
     {
-        iter->bookHistograms(ibooker);
+        _analyzer.bookHistograms(ibooker);
     }
     
 }
@@ -71,10 +69,9 @@ void HLTHiggsValidator::analyze(const edm::Event& iEvent, const edm::EventSetup&
     // Initialize the event collections
     this->_collections->reset();
 
-    for(std::vector<HLTHiggsSubAnalysis>::iterator iter = _analyzers.begin(); 
-        iter != _analyzers.end(); ++iter) 
+    for(auto & _analyzer : _analyzers) 
     {
-        iter->analyze(iEvent, iSetup, this->_collections);
+        _analyzer.analyze(iEvent, iSetup, this->_collections);
     }
 }
 

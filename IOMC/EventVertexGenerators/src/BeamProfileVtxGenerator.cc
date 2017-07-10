@@ -48,10 +48,10 @@ BeamProfileVtxGenerator::BeamProfileVtxGenerator(const edm::ParameterSet & p) :
       }
       if (((int)(fdistn.size())) >= nBinx*nBiny) {
 	double last = 0;
-	for (unsigned int i=0; i<fdistn.size(); i++) {
-	  fdistn[i] /= sum;
-	  fdistn[i] += last;
-	  last       = fdistn[i];
+	for (double & i : fdistn) {
+	  i /= sum;
+	  i += last;
+	  last       = i;
 	}
 	setType(false);
       } else {

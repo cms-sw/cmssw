@@ -151,9 +151,9 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
   // get the trigger objects corresponding to the used matching (HLT muons)
   const TriggerObjectRefVector trigRefs( triggerEvent->objects( trigger::TriggerMuon ) );
   // loop over selected trigger objects
-  for ( TriggerObjectRefVector::const_iterator iTrig = trigRefs.begin(); iTrig != trigRefs.end(); ++iTrig ) {
+  for (auto && trigRef : trigRefs) {
     // get all matched candidates for the trigger object
-    const reco::CandidateBaseRefVector candRefs( matchHelper.triggerMatchCandidates( ( *iTrig ), muonMatch_, iEvent, *triggerEvent ) );
+    const reco::CandidateBaseRefVector candRefs( matchHelper.triggerMatchCandidates( ( trigRef ), muonMatch_, iEvent, *triggerEvent ) );
     if ( candRefs.empty() ) continue;
     // fill the histogram...
     // (only for the first match, since we resolved ambiguities in the matching configuration,
@@ -177,8 +177,8 @@ void PatTriggerAnalyzer::analyze( const edm::Event & iEvent, const edm::EventSet
     // buffer the number of objects
     sumN_[ id ] += objRefs.size();
     // iterate the objects and buffer the pt of the objects
-    for ( TriggerObjectRefVector::const_iterator iRef = objRefs.begin(); iRef != objRefs.end(); ++iRef ) {
-      sumPt_[ id ] += ( *iRef )->pt();
+    for (auto && objRef : objRefs) {
+      sumPt_[ id ] += ( objRef )->pt();
     }
   }
 }

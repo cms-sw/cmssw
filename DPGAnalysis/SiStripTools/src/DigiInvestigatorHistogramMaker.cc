@@ -28,9 +28,9 @@ DigiInvestigatorHistogramMaker::DigiInvestigatorHistogramMaker(const edm::Parame
   std::vector<edm::ParameterSet>
     wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets",std::vector<edm::ParameterSet>()));
 
-  for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
-    _labels[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    _binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for(auto & wantedsubd : wantedsubds) {
+    _labels[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    _binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
 
 
@@ -167,19 +167,19 @@ void DigiInvestigatorHistogramMaker::beginRun(const edm::Run& iRun) {
 
 void DigiInvestigatorHistogramMaker::fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi) {
   
-  for(std::map<unsigned int,int>::const_iterator digi=ndigi.begin();digi!=ndigi.end();digi++) {
+  for(const auto & digi : ndigi) {
 
-    if(_labels.find(digi->first) != _labels.end()) {
+    if(_labels.find(digi.first) != _labels.end()) {
 
-      const unsigned int i=digi->first;
+      const unsigned int i=digi.first;
 
-      _nmult[i]->Fill(digi->second);
+      _nmult[i]->Fill(digi.second);
       if(_runHisto) {
-	if(_nmultvsorbrun[i] && *_nmultvsorbrun[i]) (*_nmultvsorbrun[i])->Fill(iEvent.orbitNumber(),digi->second);
-	if(_nmultvsbxrun[i] && *_nmultvsbxrun[i]) (*_nmultvsbxrun[i])->Fill(iEvent.bunchCrossing()%3564,digi->second);
+	if(_nmultvsorbrun[i] && *_nmultvsorbrun[i]) (*_nmultvsorbrun[i])->Fill(iEvent.orbitNumber(),digi.second);
+	if(_nmultvsbxrun[i] && *_nmultvsbxrun[i]) (*_nmultvsbxrun[i])->Fill(iEvent.bunchCrossing()%3564,digi.second);
       }
       if(_fillHisto) {
-	if(_nmultvsbxfill[i] && *_nmultvsbxfill[i]) (*_nmultvsbxfill[i])->Fill(iEvent.bunchCrossing()%3564,digi->second);
+	if(_nmultvsbxfill[i] && *_nmultvsbxfill[i]) (*_nmultvsbxfill[i])->Fill(iEvent.bunchCrossing()%3564,digi.second);
       }
     }
 

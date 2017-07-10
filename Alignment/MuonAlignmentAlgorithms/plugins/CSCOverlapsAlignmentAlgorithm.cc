@@ -244,9 +244,9 @@ void CSCOverlapsAlignmentAlgorithm::run(const edm::EventSetup& iSetup, const Eve
   if (m_trackTransformer != NULL) m_trackTransformer->setServices(iSetup);
 
   const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs();
-  for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack) {
-    const Trajectory* traj = (*trajtrack).first;
-    const reco::Track* track = (*trajtrack).second;
+  for (const auto & trajtrack : trajtracks) {
+    const Trajectory* traj = trajtrack.first;
+    const reco::Track* track = trajtrack.second;
 
     if (m_makeHistograms) {
       m_histP10->Fill(track->p());
@@ -376,11 +376,11 @@ void CSCOverlapsAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup) {
 	fitter->fit(corrections);
 	 
 	// corrections only exist if the fit was successful
-	for (std::vector<CSCAlignmentCorrections*>::iterator correction = corrections.begin();  correction != corrections.end();  ++correction) {
+	for (auto & correction : corrections) {
 	   
-	   (*correction)->applyAlignment(m_alignableNavigator, m_alignmentParameterStore, m_mode, m_combineME11);
-	   if (m_makeHistograms) (*correction)->plot();
-	   if (writeReport) (*correction)->report(report);
+	   correction->applyAlignment(m_alignableNavigator, m_alignmentParameterStore, m_mode, m_combineME11);
+	   if (m_makeHistograms) correction->plot();
+	   if (writeReport) correction->report(report);
 	}
       }
     }

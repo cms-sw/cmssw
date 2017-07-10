@@ -85,10 +85,7 @@ FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request)
       if (purposes.empty())
          purposes.insert("Table");
 
-      for (Purposes::const_iterator itPurpose = purposes.begin(),
-                                    itEnd = purposes.end();
-                                    itPurpose != itEnd;
-                                    ++itPurpose) 
+      for (const auto & purpose : purposes) 
       {
          // Determine whether or not the class can be iterated
          // either by using a TVirtualCollectionProxy (of the class 
@@ -110,7 +107,7 @@ FWFFMetadataManager::doUpdate(FWJobMetadataUpdateRequest* request)
               continue;
          }
          d.type_ = desc.fullClassName();
-         d.purpose_ = *itPurpose;
+         d.purpose_ = purpose;
          d.moduleLabel_ = desc.moduleLabel();
          d.productInstanceLabel_ = desc.productInstanceName();
          d.processName_ = desc.processName();

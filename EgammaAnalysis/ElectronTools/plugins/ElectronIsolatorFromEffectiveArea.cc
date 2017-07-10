@@ -67,8 +67,8 @@ filter(edm::Event& event, const edm::EventSetup& )
     edm::Handle<reco::GsfElectronCollection> gsfElectrons; event.getByToken(gsfElectronToken,gsfElectrons);
     std::vector<double> gsfCorrectionsEA;
     if(gsfElectrons.isValid()) {
-      for ( reco::GsfElectronCollection::const_iterator it = gsfElectrons->begin(); it != gsfElectrons->end(); ++it)
-        gsfCorrectionsEA.push_back( (*rho) * EEA::GetElectronEffectiveArea( modeEEA, it->superCluster()->eta(), targetEEA ) );
+      for (const auto & it : *gsfElectrons)
+        gsfCorrectionsEA.push_back( (*rho) * EEA::GetElectronEffectiveArea( modeEEA, it.superCluster()->eta(), targetEEA ) );
       filler.insert(gsfElectrons, gsfCorrectionsEA.begin(), gsfCorrectionsEA.end() );
     }
   }
@@ -77,8 +77,8 @@ filter(edm::Event& event, const edm::EventSetup& )
     edm::Handle<reco::PFCandidateCollection>  pfElectrons; event.getByToken( pfElectronToken, pfElectrons);
     std::vector<double> pfCorrectionsEA;
     if(pfElectrons.isValid()) {
-      for ( reco::PFCandidateCollection::const_iterator it = pfElectrons->begin(); it != pfElectrons->end(); ++it)
-        pfCorrectionsEA.push_back( (*rho) * EEA::GetElectronEffectiveArea( modeEEA, it->gsfElectronRef()->superCluster()->eta(), targetEEA ) );
+      for (const auto & it : *pfElectrons)
+        pfCorrectionsEA.push_back( (*rho) * EEA::GetElectronEffectiveArea( modeEEA, it.gsfElectronRef()->superCluster()->eta(), targetEEA ) );
       filler.insert( pfElectrons,  pfCorrectionsEA.begin(),  pfCorrectionsEA.end() );
     }
   }
@@ -87,8 +87,8 @@ filter(edm::Event& event, const edm::EventSetup& )
     edm::Handle<pat::ElectronCollection>  patElectrons; event.getByToken( patElectronToken, patElectrons);
     std::vector<double> patCorrectionsEA;
     if(patElectrons.isValid()) {
-      for ( pat::ElectronCollection::const_iterator it = patElectrons->begin(); it != patElectrons->end(); ++it)
-        patCorrectionsEA.push_back( (*rho) * EEA::GetElectronEffectiveArea( modeEEA, it->superCluster()->eta(), targetEEA ) );
+      for (const auto & it : *patElectrons)
+        patCorrectionsEA.push_back( (*rho) * EEA::GetElectronEffectiveArea( modeEEA, it.superCluster()->eta(), targetEEA ) );
       filler.insert( patElectrons,  patCorrectionsEA.begin(),  patCorrectionsEA.end() );
     }
   }

@@ -368,9 +368,9 @@ int EcalDeadCellDeltaRFilter::etaToBoundary(const std::vector<reco::Jet> &jetTVe
   int isClose = 0;
 
   int cntOrder10 = 0;
-  for(unsigned int ij=0; ij<jetTVec.size(); ij++){
+  for(const auto & ij : jetTVec){
 
-     double recoJetEta = jetTVec[ij].eta();
+     double recoJetEta = ij.eta();
 
      if( std::abs(recoJetEta)>cracksHBHEdef_[0] && std::abs(recoJetEta)<cracksHBHEdef_[1] ) isClose += (cntOrder10*10 + 1);
      if( std::abs(recoJetEta)>cracksHEHFdef_[0] && std::abs(recoJetEta)<cracksHEHFdef_[1] ) isClose += (cntOrder10*10 + 2);
@@ -417,9 +417,7 @@ int EcalDeadCellDeltaRFilter::dRtoMaskedChnsEvtFilterFunc(const std::vector<reco
 
   int isClose = 0;
 
-  for(unsigned int ii=0; ii<jetTVec.size(); ii++){
-
-     const reco::Jet& jet = jetTVec[ii];
+  for(const auto & jet : jetTVec){
 
      std::map<double, DetId> dummy;
      int isPerJetClose = isCloseToBadEcalChannel(jet, dRCutVal, chnStatus, dummy);

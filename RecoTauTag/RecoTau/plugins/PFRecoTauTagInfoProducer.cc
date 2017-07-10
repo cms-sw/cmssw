@@ -97,8 +97,8 @@ else{
   }
   
   auto resultExt = std::make_unique<PFTauTagInfoCollection>();  
-  for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
-    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCandsInTheEvent,(*iAssoc).second,thePV);
+  for(const auto & iAssoc : *thePFJetTracksAssociatorCollection){
+    PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo(iAssoc.first.castTo<PFJetRef>(),thePFCandsInTheEvent,iAssoc.second,thePV);
     resultExt->push_back(myPFTauTagInfo);
   }
   

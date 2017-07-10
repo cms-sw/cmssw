@@ -134,8 +134,8 @@ bool QTestConfigurationParser::checkParameters(std::string qtestName, std::strin
 	
 	std::map<std::string, std::string> namesMap=testsRequested[qtestName];
 	
-	for(std::vector<std::string>::iterator namesItr=paramNames.begin(); namesItr!=paramNames.end(); ++namesItr){
-		if(namesMap.find(*namesItr)==namesMap.end()){
+	for(auto & paramName : paramNames){
+		if(namesMap.find(paramName)==namesMap.end()){
 			return true;
 		}
 	}

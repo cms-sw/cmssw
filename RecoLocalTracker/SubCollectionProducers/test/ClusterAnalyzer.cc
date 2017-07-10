@@ -108,8 +108,8 @@ ClusterAnalyzer::ClusterAnalyzer(const edm::ParameterSet& iConfig)
    cout << i.second <<" ";
   cout << endl;
 
-  for( auto i = allModules_.begin(); i != allModules_.end(); ++i){
-    std::string tmpstr = i->second;
+  for(auto & allModule : allModules_){
+    std::string tmpstr = allModule.second;
     histos1D_[ (tmpstr + "nclusters").c_str() ] = fs->make< TH1D >( (tmpstr + "nclusters").c_str() , (tmpstr + "nclusters").c_str() , 1000 , 0 , 3000   );
     histos1D_[ (tmpstr + "nclusters").c_str() ]->SetXTitle( ("number of Clusters in " + tmpstr).c_str() );
 

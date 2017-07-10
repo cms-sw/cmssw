@@ -85,8 +85,8 @@ TopBottomClusterInfoProducer::produce(edm::StreamID, Event& iEvent, const EventS
     for (edmNew::DetSetVector<SiStripCluster>::const_iterator itdetNew = stripClustersNew->begin(); itdetNew != stripClustersNew->end(); ++itdetNew) {
       edmNew::DetSet<SiStripCluster> oldDSstripNew = *itdetNew;
       if (oldDSstripNew.empty()) continue; // skip empty detsets 
-      for (edmNew::DetSet<SiStripCluster>::const_iterator clNew = oldDSstripNew.begin(); clNew != oldDSstripNew.end(); ++clNew) {
-	uint16_t firstStripNew = clNew->firstStrip();
+      for (const auto & clNew : oldDSstripNew) {
+	uint16_t firstStripNew = clNew.firstStrip();
 	uint32_t idStripNew = itdetNew->id();
 	//uint32_t keyNew = ((&*clNew) - firstOffsetStripNew);
 	//cout << "new strip index=" << keyNew << endl;
@@ -97,11 +97,11 @@ TopBottomClusterInfoProducer::produce(edm::StreamID, Event& iEvent, const EventS
         if (itdetOld != stripClustersOld->end()) {
 	  edmNew::DetSet<SiStripCluster> oldDSstripOld = *itdetOld;
 	  if (oldDSstripOld.empty()) continue; // skip empty detsets 
-	  for (edmNew::DetSet<SiStripCluster>::const_iterator clOld = oldDSstripOld.begin(); clOld != oldDSstripOld.end(); ++clOld) {
-	    uint16_t firstStripOld = clOld->firstStrip();
+	  for (const auto & clOld : oldDSstripOld) {
+	    uint16_t firstStripOld = clOld.firstStrip();
 	    uint32_t idStripOld = itdetOld->id();
 	    if (idStripNew==idStripOld && firstStripNew==firstStripOld) {
-	      keyOld = ((&*clOld) - firstOffsetStripOld);
+	      keyOld = ((&clOld) - firstOffsetStripOld);
 	      //cout << "old strip index=" << keyOld << endl;
 	      break;
 	    }
@@ -129,10 +129,10 @@ TopBottomClusterInfoProducer::produce(edm::StreamID, Event& iEvent, const EventS
         if (itdetOld != pixelClustersOld->end()) {
 	  edmNew::DetSet<SiPixelCluster> oldDSpixelOld = *itdetOld;
 	  if (oldDSpixelOld.empty()) continue; // skip empty detsets 
-	  for (edmNew::DetSet<SiPixelCluster>::const_iterator clOld = oldDSpixelOld.begin(); clOld != oldDSpixelOld.end(); ++clOld) {
-	    int minPixelRowOld = clOld->minPixelRow();
+	  for (const auto & clOld : oldDSpixelOld) {
+	    int minPixelRowOld = clOld.minPixelRow();
 	    if (minPixelRowNew==minPixelRowOld) {
-	      keyOld = ((&*clOld) - firstOffsetPixelOld);
+	      keyOld = ((&clOld) - firstOffsetPixelOld);
 	      //cout << "old pixel index=" << keyOld << endl;
 	      break;
 	    }

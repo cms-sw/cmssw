@@ -21,9 +21,8 @@ namespace
   std::vector<PFCandidatePtr> deleteFrom(const PFCandidatePtr& ptr, const std::vector<PFCandidatePtr>& collection) 
   {
     std::vector<PFCandidatePtr> output;
-    for ( std::vector<PFCandidatePtr>::const_iterator cand = collection.begin();
-	  cand != collection.end(); ++cand ) {
-      if ( (*cand) != ptr) output.push_back(*cand);
+    for (const auto & cand : collection) {
+      if ( cand != ptr) output.push_back(cand);
     }
     return output;
   }

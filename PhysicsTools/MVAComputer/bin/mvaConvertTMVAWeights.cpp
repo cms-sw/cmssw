@@ -64,9 +64,8 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 	TString methodName = fullname(0, idxtit);
 
 	std::size_t size = getStreamSize(in) + methodName.Length();
-	for(std::vector<std::string>::const_iterator iter = names.begin();
-	    iter != names.end(); ++iter)
-		size += iter->size() + 1;
+	for(const auto & name : names)
+		size += name.size() + 1;
 	size += (size / 32) + 128;
 
 	char *buffer = 0;
@@ -77,10 +76,8 @@ getCalibration(const std::string &file, const std::vector<std::string> &names)
 			ext::ozstream ozs(&os);
 			ozs << methodName << "\n";
 			ozs << names.size() << "\n";
-			for(std::vector<std::string>::const_iterator iter =
-								names.begin();
-			    iter != names.end(); ++iter)
-				ozs << *iter << "\n";
+			for(const auto & name : names)
+				ozs << name << "\n";
 			ozs << in.rdbuf();
 			ozs.flush();
 		}

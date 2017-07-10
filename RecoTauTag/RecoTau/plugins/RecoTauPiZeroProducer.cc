@@ -88,24 +88,22 @@ RecoTauPiZeroProducer::RecoTauPiZeroProducer(const edm::ParameterSet& pset)
   // Get each of our PiZero builders
   const VPSet& builders = pset.getParameter<VPSet>("builders");
 
-  for (VPSet::const_iterator builderPSet = builders.begin();
-      builderPSet != builders.end(); ++builderPSet) {
+  for (const auto & builder : builders) {
     // Get plugin name
     const std::string& pluginType =
-      builderPSet->getParameter<std::string>("plugin");
+      builder.getParameter<std::string>("plugin");
     // Build the plugin
     builders_.push_back(RecoTauPiZeroBuilderPluginFactory::get()->create(
-          pluginType, *builderPSet, consumesCollector()));
+          pluginType, builder, consumesCollector()));
   }
 
   // Get each of our quality rankers
   const VPSet& rankers = pset.getParameter<VPSet>("ranking");
-  for (VPSet::const_iterator rankerPSet = rankers.begin();
-      rankerPSet != rankers.end(); ++rankerPSet) {
+  for (const auto & ranker : rankers) {
     const std::string& pluginType =
-      rankerPSet->getParameter<std::string>("plugin");
+      ranker.getParameter<std::string>("plugin");
     rankers_.push_back(RecoTauPiZeroQualityPluginFactory::get()->create(
-          pluginType, *rankerPSet));
+          pluginType, ranker));
   }
 
   // Build the sorting predicate

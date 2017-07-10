@@ -34,10 +34,8 @@ map<DTWireId, PSimHitContainer >
 DTHitQualityUtils::mapSimHitsPerWire(const PSimHitContainer& simhits) {
   map<DTWireId, PSimHitContainer > hitWireMapResult;
    
-  for(PSimHitContainer::const_iterator simhit = simhits.begin();
-      simhit != simhits.end();
-      simhit++) {
-    hitWireMapResult[DTWireId((*simhit).detUnitId())].push_back(*simhit);
+  for(const auto & simhit : simhits) {
+    hitWireMapResult[DTWireId(simhit.detUnitId())].push_back(simhit);
   }
    
   return hitWireMapResult;
@@ -49,13 +47,11 @@ DTHitQualityUtils::mapMuSimHitsPerWire(const map<DTWireId, PSimHitContainer>& si
 
   map<DTWireId, const PSimHit*> ret;
   
-  for(map<DTWireId, PSimHitContainer>::const_iterator wireAndSimHit = simHitWireMap.begin();
-      wireAndSimHit != simHitWireMap.end();
-      wireAndSimHit++) {
+  for(const auto & wireAndSimHit : simHitWireMap) {
 
-    const PSimHit* muHit = findMuSimHit((*wireAndSimHit).second);
+    const PSimHit* muHit = findMuSimHit(wireAndSimHit.second);
     if(muHit != 0) {
-      ret[(*wireAndSimHit).first]=(muHit);
+      ret[wireAndSimHit.first]=(muHit);
     }
   }
   return ret;
@@ -69,9 +65,8 @@ const PSimHit* DTHitQualityUtils::findMuSimHit(const PSimHitContainer& hits) {
   vector<const PSimHit*> muHits;
  
    // Loop over simhits
-  for (PSimHitContainer::const_iterator hit=hits.begin();
-       hit != hits.end(); hit++) {
-    if (abs((*hit).particleType())==13) muHits.push_back(&(*hit));
+  for (const auto & hit : hits) {
+    if (abs(hit.particleType())==13) muHits.push_back(&hit);
   }
 
   if (muHits.size()==0)
@@ -95,12 +90,10 @@ DTHitQualityUtils::findMuSimSegment(const map<DTWireId, const PSimHit*>& mapWire
   const PSimHit *inSimHit = 0;
   const PSimHit *outSimHit = 0;
 
-  for(map<DTWireId, const PSimHit*>::const_iterator wireAndMuSimHit = mapWireAndMuSimHit.begin();
-      wireAndMuSimHit != mapWireAndMuSimHit.end();
-      wireAndMuSimHit++) {
+  for(const auto & wireAndMuSimHit : mapWireAndMuSimHit) {
     
-    const DTWireId wireId = (*wireAndMuSimHit).first;
-    const PSimHit *theMuHit = (*wireAndMuSimHit).second;
+    const DTWireId wireId = wireAndMuSimHit.first;
+    const PSimHit *theMuHit = wireAndMuSimHit.second;
 
     int sl = ((wireId.layerId()).superlayerId()).superLayer();
     int layer = (wireId.layerId()).layer();

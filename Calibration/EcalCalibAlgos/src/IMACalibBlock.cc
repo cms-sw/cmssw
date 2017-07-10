@@ -193,18 +193,14 @@ void
 IMACalibBlock::reset () 
 {
 
-  for (std::vector<double>::iterator vecIt = m_kaliVector.begin () ;
-       vecIt != m_kaliVector.end ();
-       ++vecIt)
+  for (double & vecIt : m_kaliVector)
     {
-      *vecIt = 0. ;
+      vecIt = 0. ;
     }  
 
-  for (std::vector<double>::iterator vecIt = m_kaliMatrix.begin () ;
-       vecIt != m_kaliMatrix.end ();
-       ++vecIt)
+  for (double & vecIt : m_kaliMatrix)
     {
-      *vecIt = 0. ;
+      vecIt = 0. ;
     }  
 
 }

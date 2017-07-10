@@ -221,9 +221,9 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
     //    edm::LogInfo("TopInfo") << tcc << "\n"; 
     ss << tcc;
-    for(unsigned int ieb=0; ieb<vec_delays_eb.size(); ++ieb)
+    for(int ieb : vec_delays_eb)
       //      edm::LogInfo("TopInfo") << vec_delays_eb[ieb] << "\n";
-      ss << " " << vec_delays_eb[ieb];
+      ss << " " << ieb;
     delay_eb.getline(buf,sizeof(buf),'\n');
     ss << "\n";
   }//loop delay file EB
@@ -252,9 +252,9 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
     //    edm::LogInfo("TopInfo") << tcc << "\n"; 
     ss << tcc;
-    for(unsigned int ieb=0; ieb<vec_phases_eb.size(); ++ieb)
+    for(int ieb : vec_phases_eb)
       //      edm::LogInfo("TopInfo") << vec_phases_eb[ieb] << "\n";
-      ss << " " << vec_phases_eb[ieb];
+      ss << " " << ieb;
     phase_eb.getline(buf,sizeof(buf),'\n');
     ss << "\n";
   }//loop phase file EB
@@ -283,9 +283,9 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
 
     //    edm::LogInfo("TopInfo") << tcc << "\n"; 
     ss << tcc;
-    for(unsigned int iee=0; iee<vec_delays_ee.size(); ++iee)
+    for(int iee : vec_delays_ee)
       //      edm::LogInfo("TopInfo") << vec_delays_ee[iee] << "\n";
-      ss << " " << vec_delays_ee[iee];
+      ss << " " << iee;
     ss << "\n";
     delay_ee.getline(buf,sizeof(buf),'\n');
   }//loop delay file EE
@@ -313,9 +313,9 @@ EcalTPGParamBuilder::EcalTPGParamBuilder(edm::ParameterSet const& pSet)
       phases_EE_.insert(make_pair(tcc,vec_phases_ee));
     //    edm::LogInfo("TopInfo") << tcc << "\n";
     ss << tcc;
-    for(unsigned int iee = 0; iee < vec_phases_ee.size(); ++iee)
+    for(int iee : vec_phases_ee)
       //      edm::LogInfo("TopInfo") << vec_phases_ee[iee] << "\n";
-      ss << " " << vec_phases_ee[iee];
+      ss << " " << iee;
     ss << "\n";
     phase_ee.getline(buf,sizeof(buf),'\n');
   }//loop phase file EE
@@ -872,13 +872,13 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
   // count number of strip per tower
   int NbOfStripPerTCC[108][68] ; 
-  for (int i=0 ; i<108 ; i++)
+  for (auto & i : NbOfStripPerTCC)
     for (int j=0 ; j<68 ; j++) 
-      NbOfStripPerTCC[i][j] = 0 ;
+      i[j] = 0 ;
   const std::vector<DetId> & ebCells = theBarrelGeometry_->getValidDetIds(DetId::Ecal, EcalBarrel);
   const std::vector<DetId> & eeCells = theEndcapGeometry_->getValidDetIds(DetId::Ecal, EcalEndcap);
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
+  for (auto ebCell : ebCells) {
+    EBDetId id(ebCell) ;
     const EcalTrigTowerDetId towid= id.tower();
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     int tccNb = theMapping_->TCCid(towid) ;
@@ -886,8 +886,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     int stripInTower = elId.pseudoStripId() ;  
     if (stripInTower>NbOfStripPerTCC[tccNb-1][towerInTCC-1]) NbOfStripPerTCC[tccNb-1][towerInTCC-1] = stripInTower ;
   }
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it) ;
+  for (auto eeCell : eeCells) {
+    EEDetId id(eeCell) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
     const EcalTriggerElectronicsId elId = theMapping_->getTriggerElectronicsId(id) ;
     int tccNb = theMapping_->TCCid(towid) ;
@@ -902,8 +902,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== barrel crystals ====== "<<std::endl ;
 
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
+  for (auto ebCell : ebCells) {
+    EBDetId id(ebCell) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= id.tower();
@@ -976,8 +976,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // general case
-  for (vector<DetId>::const_iterator it = ebCells.begin(); it != ebCells.end(); ++it) {
-    EBDetId id(*it) ;
+  for (auto ebCell : ebCells) {
+    EBDetId id(ebCell) ;
     double theta = theBarrelGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= id.tower();
@@ -1167,8 +1167,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) (*out_file_)<<"COMMENT ====== endcap crystals ====== "<<std::endl ;
   
   // special case of eta slices
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it) ;
+  for (auto eeCell : eeCells) {
+    EEDetId id(eeCell) ;
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
@@ -1207,11 +1207,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     EcalLogicID logicId ;
     int iz = id.positiveZ() ;
     if (iz ==0) iz = -1 ;
-    for (int k=0; k<(int)my_CrystalEcalLogicId_EE.size(); k++) {
-      int z= my_CrystalEcalLogicId_EE[k].getID1() ;
-      int x= my_CrystalEcalLogicId_EE[k].getID2() ;
-      int y= my_CrystalEcalLogicId_EE[k].getID3() ;
-      if (id.ix()==x && id.iy()==y && iz==z) logicId=my_CrystalEcalLogicId_EE[k];
+    for (auto & k : my_CrystalEcalLogicId_EE) {
+      int z= k.getID1() ;
+      int x= k.getID2() ;
+      int y= k.getID3() ;
+      if (id.ix()==x && id.iy()==y && iz==z) logicId=k;
     }
     int dbId = logicId.getLogicID() ;
     
@@ -1257,8 +1257,8 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   }
 
   // general case
-  for (vector<DetId>::const_iterator it = eeCells.begin(); it != eeCells.end(); ++it) {
-    EEDetId id(*it);
+  for (auto eeCell : eeCells) {
+    EEDetId id(eeCell);
     double theta = theEndcapGeometry_->getGeometry(id)->getPosition().theta() ;
     if (!useTransverseEnergy_) theta = acos(0.) ;
     const EcalTrigTowerDetId towid= (*eTTmap_).towerOf(id) ;
@@ -1289,11 +1289,11 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     if (writeToDB_ && DBEE_) {
       int iz = id.positiveZ() ;
       if (iz ==0) iz = -1 ;      
-      for (int k=0; k<(int)my_CrystalEcalLogicId_EE.size(); k++) {
-	int z= my_CrystalEcalLogicId_EE[k].getID1() ;
-	int x= my_CrystalEcalLogicId_EE[k].getID2() ;
-	int y= my_CrystalEcalLogicId_EE[k].getID3() ;	
-	if (id.ix()==x && id.iy()==y && iz==z) logicId=my_CrystalEcalLogicId_EE[k];
+      for (auto & k : my_CrystalEcalLogicId_EE) {
+	int z= k.getID1() ;
+	int x= k.getID2() ;
+	int y= k.getID3() ;	
+	if (id.ix()==x && id.iy()==y && iz==z) logicId=k;
       }
     }
     
@@ -1491,28 +1491,28 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     map<EcalLogicID, FEConfigWeightDat> dataset2;
 
     // EB loop
-    for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
+    for (const auto & ich : my_StripEcalLogicId){
       FEConfigWeightDat wut;
       int igroup = 0; // this group is for EB
       wut.setWeightGroupId(igroup);
-      dataset2[my_StripEcalLogicId[ich]] = wut;
+      dataset2[ich] = wut;
     }
 	
     // EE loop
-    for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
+    for (const auto & ich : my_StripEcalLogicId1_EE){
       FEConfigWeightDat wut;
       int igroup = 1; // this group is for EE
       wut.setWeightGroupId(igroup);
       // Fill the dataset
-      dataset2[my_StripEcalLogicId1_EE[ich]] = wut;
+      dataset2[ich] = wut;
     }
     // EE loop 2 (we had to split the ids of EE in 2 vectors to avoid crash!)
-    for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
+    for (const auto & ich : my_StripEcalLogicId2_EE){
       FEConfigWeightDat wut;
       int igroup = 1; // this group is for EE
       wut.setWeightGroupId(igroup);
       // Fill the dataset
-      dataset2[my_StripEcalLogicId2_EE[ich]] = wut;
+      dataset2[ich] = wut;
     }
 
     // Insert the datasets
@@ -1569,18 +1569,18 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
       // now we store in the DB the correspondence btw channels and groups 
       map<EcalLogicID, FEConfigFgrDat> dataset2;
       // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
+      for (const auto & ich : my_TTEcalLogicId){
 	FEConfigFgrDat wut;
 	int igroup=0;
 	wut.setFgrGroupId(igroup);
 	// Fill the dataset
 	// the logic ids are ordered by SM (1,...36) and TT (1,...68)  
 	// you have to calculate the right index here 
-	dataset2[my_TTEcalLogicId[ich]] = wut;
+	dataset2[ich] = wut;
       }
 
       // endcap loop
-      for (int ich=0; ich<(int)my_RTEcalLogicId_EE.size() ; ich++){
+      for (const auto & ich : my_RTEcalLogicId_EE){
 	//	std::cout << " endcap FGR " << std::endl;
 	FEConfigFgrDat wut;
 	int igroup=0;
@@ -1588,32 +1588,32 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 	// Fill the dataset
 	// the logic ids are ordered by .... ?  
 	// you have to calculate the right index here 
-	dataset2[my_RTEcalLogicId_EE[ich]] = wut;
+	dataset2[ich] = wut;
       }
 
       // endcap TT loop for the FEfgr EE Tower
       map<EcalLogicID, FEConfigFgrEETowerDat> dataset3;
-      for (int ich=0; ich<(int)my_TTEcalLogicId_EE.size() ; ich++){
+      for (const auto & ich : my_TTEcalLogicId_EE){
 	FEConfigFgrEETowerDat fgreett;
 	fgreett.setLutValue(lut_tower);
-	dataset3[my_TTEcalLogicId_EE[ich]]=fgreett;
+	dataset3[ich]=fgreett;
       }
 
       // endcap strip loop for the FEfgr EE strip
       // and barrel strip loop for the spike parameters (same structure than EE FGr)
       map<EcalLogicID, FEConfigFgrEEStripDat> dataset4;
-      for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
+      for (const auto & ich : my_StripEcalLogicId1_EE){
 	FEConfigFgrEEStripDat zut;
 	zut.setThreshold(threshold);
 	zut.setLutFgr(lut_strip);
-	dataset4[my_StripEcalLogicId1_EE[ich]] = zut;
+	dataset4[ich] = zut;
       }
-      for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
+      for (const auto & ich : my_StripEcalLogicId2_EE){
 	FEConfigFgrEEStripDat zut;
 	zut.setThreshold(threshold);
 	zut.setLutFgr(lut_strip);
 	// Fill the dataset
-	dataset4[my_StripEcalLogicId2_EE[ich]] = zut;
+	dataset4[ich] = zut;
       }
       for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
 	// EB
@@ -1641,10 +1641,10 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
 
       //modif-alex 21/01/11
       map<EcalLogicID, FEConfigSpikeDat> datasetspike; //loob EB TT
-      for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
+      for (const auto & ich : my_TTEcalLogicId){
         FEConfigSpikeDat spiketh;
         spiketh.setSpikeThreshold(SFGVB_SpikeKillingThreshold_);
-        datasetspike[my_TTEcalLogicId[ich]] = spiketh;
+        datasetspike[ich] = spiketh;
       }//loop EB TT towers    
 
       //modif-alex 21/01/11
@@ -1772,31 +1772,31 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     ss <<"going to write the sliding "<< "\n";
     map<EcalLogicID, FEConfigSlidingDat> dataset;
       // in this case I decide in a stupid way which channel belongs to which group 
-      for (int ich=0; ich<(int)my_StripEcalLogicId.size() ; ich++){
+      for (const auto & ich : my_StripEcalLogicId){
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
 	// the logic ids are ordered by SM (1,...36) , TT (1,...68) and strip (1..5) 
 	// you have to calculate the right index here 
-	dataset[my_StripEcalLogicId[ich]] = wut;
+	dataset[ich] = wut;
       }
 
       // endcap loop
-      for (int ich=0; ich<(int)my_StripEcalLogicId1_EE.size() ; ich++){
+      for (const auto & ich : my_StripEcalLogicId1_EE){
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
 	// the logic ids are ordered by fed tower strip
 	// you have to calculate the right index here 
-	dataset[my_StripEcalLogicId1_EE[ich]] = wut;
+	dataset[ich] = wut;
       }
-      for (int ich=0; ich<(int)my_StripEcalLogicId2_EE.size() ; ich++){
+      for (const auto & ich : my_StripEcalLogicId2_EE){
 	FEConfigSlidingDat wut;
 	wut.setSliding(sliding_);
 	// Fill the dataset
 	// the logic ids are ordered by ... ? 
 	// you have to calculate the right index here 
-	dataset[my_StripEcalLogicId2_EE[ich]] = wut;
+	dataset[ich] = wut;
       }
       
 
@@ -1824,7 +1824,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (writeToFiles_) {
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 0"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EB[i]<<endl ;
+    for (int i : lut_EB) (*out_file_)<<"0x"<<hex<<i<<endl ;
     (*out_file_)<<endl ;
   }
   
@@ -1836,7 +1836,7 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
   if (newLUT && writeToFiles_) { 
     (*out_file_) <<std::endl ;
     (*out_file_) <<"LUT 1"<<std::endl ;
-    for (int i=0 ; i<1024 ; i++) (*out_file_)<<"0x"<<hex<<lut_EE[i]<<endl ;
+    for (int i : lut_EE) (*out_file_)<<"0x"<<hex<<i<<endl ;
     (*out_file_)<<endl ;
   }
 
@@ -1877,23 +1877,23 @@ void EcalTPGParamBuilder::analyze(const edm::Event& evt, const edm::EventSetup& 
     // now we store in the DB the correspondence btw channels and LUT groups 
     map<EcalLogicID, FEConfigLUTDat> dataset2;
     // in this case I decide in a stupid way which channel belongs to which group 
-    for (int ich=0; ich<(int)my_TTEcalLogicId.size() ; ich++){
+    for (const auto & ich : my_TTEcalLogicId){
       FEConfigLUTDat lut;
       int igroup=0;
       lut.setLUTGroupId(igroup);
       // calculate the right TT - in the vector they are ordered by SM and by TT 
       // Fill the dataset
-      dataset2[my_TTEcalLogicId[ich]] = lut;
+      dataset2[ich] = lut;
     }
 
     // endcap loop 
-    for (int ich=0; ich<(int)my_TTEcalLogicId_EE.size() ; ich++){
+    for (const auto & ich : my_TTEcalLogicId_EE){
       FEConfigLUTDat lut;
       int igroup=1;
       lut.setLUTGroupId(igroup);
       // calculate the right TT  
       // Fill the dataset
-      dataset2[my_TTEcalLogicId_EE[ich]] = lut;
+      dataset2[ich] = lut;
     }    
 
     // Insert the dataset

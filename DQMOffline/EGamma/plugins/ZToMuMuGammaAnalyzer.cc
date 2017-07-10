@@ -492,8 +492,8 @@ void ZToMuMuGammaAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& 
   for(uint filterIndex=0;filterIndex<triggerEvent.sizeFilters();++filterIndex){  //loop over all trigger filters in event (i.e. filters passed)
     string label = triggerEvent.filterTag(filterIndex).label();
     if(label.find( "Photon" ) != string::npos ) {  //get photon-related filters
-      for(uint filterKeyIndex=0;filterKeyIndex<triggerEvent.filterKeys(filterIndex).size();++filterKeyIndex){  //loop over keys to objects passing this filter
-        Keys.push_back(triggerEvent.filterKeys(filterIndex)[filterKeyIndex]);  //add keys to a vector for later reference
+      for(unsigned short filterKeyIndex : triggerEvent.filterKeys(filterIndex)){  //loop over keys to objects passing this filter
+        Keys.push_back(filterKeyIndex);  //add keys to a vector for later reference
       }
     }
   }

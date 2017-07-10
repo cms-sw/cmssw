@@ -105,27 +105,26 @@ struct TrigResults {
 
 std::ostream& operator<<(std::ostream& ost, const Strings& s)
 {
-  for(Strings::const_iterator i(s.begin()),e(s.end());i!=e;++i)
+  for(const auto & i : s)
     {
-      ost << *i << " ";
+      ost << i << " ";
     }
   return ost;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Bools& b)
 {
-  for(unsigned int i=0;i<b.size();++i)
+  for(bool i : b)
     {
-      ost << b[i] << " ";
+      ost << i << " ";
     }
   return ost;
 }
 
 std::ostream& operator<<(std::ostream& ost, const TrigResults &tr)
 {
-  for(unsigned int i=0;i<tr.bit.size();++i)
+  for(auto b : tr.bit)
     {
-      HLTPathStatus b = tr.bit[i];
       if (b.state() == edm::hlt::Ready) ost << "ready ";
       if (b.state() == edm::hlt::Pass) ost << "pass  ";
       if (b.state() == edm::hlt::Fail) ost << "fail  ";

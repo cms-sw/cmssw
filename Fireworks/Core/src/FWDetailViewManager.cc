@@ -83,11 +83,11 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
 
    //see if one of the names matches iViewName
    std::string match;
-   for(std::vector<std::string>::iterator it = viewerNames.begin(), itEnd = viewerNames.end(); it != itEnd; ++it) {
-      std::string t = viewNameFrom(*it);
+   for(auto & viewerName : viewerNames) {
+      std::string t = viewNameFrom(viewerName);
       //std::cout <<"'"<<iViewName<< "' '"<<t<<"'"<<std::endl;
       if(t == iViewName) {
-         match = *it;
+         match = viewerName;
          break;
       }
    }
@@ -149,17 +149,15 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
    unsigned int closestMatch= 0xFFFFFFFF;
 
 
-   for(std::set<std::string>::iterator it = detailViews.begin(), itEnd=detailViews.end();
-       it!=itEnd;
-       ++it) {
+   for(const auto & detailView : detailViews) {
 
       if (m_context->getHidePFBuilders()) {
-         std::size_t found = it->find("PF ");
+         std::size_t found = detailView.find("PF ");
          if (found != std::string::npos)
             continue;
       }
-      std::string::size_type first = it->find_first_of('@');
-      std::string type = it->substr(0,first);
+      std::string::size_type first = detailView.find_first_of('@');
+      std::string type = detailView.substr(0,first);
 
       //see if we match via inheritance
       FWSimpleRepresentationChecker checker(type,"",0,false);
@@ -167,24 +165,24 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
       bool pass = false;
       if(closestMatch > info.proximity()) {
          pass = true;
-         std::string::size_type firstD = it->find_first_of('&')+1;
+         std::string::size_type firstD = detailView.find_first_of('&')+1;
          if(firstD != std::string::npos) {
-          std::stringstream ss(it->substr(firstD));
+          std::stringstream ss(detailView.substr(firstD));
           std::string ml;
           while(std::getline(ss, ml, '&')) {
              if (!m_context->metadataManager()->hasModuleLabel(ml)) {
-                fwLog(fwlog::kDebug) << "DetailView "<< *it << " requires module label " <<  ml << std::endl;
+                fwLog(fwlog::kDebug) << "DetailView "<< detailView << " requires module label " <<  ml << std::endl;
                 pass = false;
                 break;
              }
           }
          }
          if (pass)  {
-            returnValue.push_back(*it);
+            returnValue.push_back(detailView);
          }
          else {
-            std::string::size_type first = (*it).find_first_of('@');
-            std::string vn = *it;
+            std::string::size_type first = detailView.find_first_of('@');
+            std::string vn = detailView;
             vn.insert(++first, "!");
             returnValue.push_back(vn);
          }
@@ -202,8 +200,8 @@ FWDetailViewManager::findViewersFor(const std::string& iType) const
 void
 FWDetailViewManager::colorsChanged()
 {
-   for (vViews_i i = m_views.begin(); i !=  m_views.end(); ++i)
-      (*i).m_detailView->setBackgroundColor(m_context->colorManager()->background());
+   for (auto & m_view : m_views)
+      m_view.m_detailView->setBackgroundColor(m_context->colorManager()->background());
 }
 
 

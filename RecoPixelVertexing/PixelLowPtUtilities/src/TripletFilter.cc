@@ -39,12 +39,10 @@ bool TripletFilter::checkTrack
   bool ok = true;
 
   vector<LocalVector>::const_iterator localDir = localDirs.begin();
-  for(vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin();
-                                                    recHit!= recHits.end();
-                                                    recHit++)
+  for(auto recHit : recHits)
   {
     const SiPixelRecHit* pixelRecHit =
-      dynamic_cast<const SiPixelRecHit *>(*recHit);
+      dynamic_cast<const SiPixelRecHit *>(recHit);
 
     if(! pixelRecHit->isValid())
     {  ok = false; break; }
@@ -53,7 +51,7 @@ bool TripletFilter::checkTrack
     {
       LogTrace("MinBiasTracking")
        << "  [TripletFilter] clusShape problem"
-       << HitInfo::getInfo(**recHit,tTopo);
+       << HitInfo::getInfo(*recHit,tTopo);
 
       ok = false; break;
     }
@@ -71,12 +69,10 @@ bool TripletFilter::checkTrack
   bool ok = true;
 
   vector<GlobalVector>::const_iterator globalDir = globalDirs.begin();
-  for(vector<const TrackingRecHit*>::const_iterator recHit = recHits.begin();
-                                                    recHit!= recHits.end();
-                                                    recHit++)
+  for(auto recHit : recHits)
   {
     const SiPixelRecHit* pixelRecHit =
-      dynamic_cast<const SiPixelRecHit *>(*recHit);
+      dynamic_cast<const SiPixelRecHit *>(recHit);
 
     if(! pixelRecHit->isValid())
     {  ok = false; break; }
@@ -85,7 +81,7 @@ bool TripletFilter::checkTrack
     {
       LogTrace("MinBiasTracking")
        << "  [TripletFilter] clusShape problem"
-       << HitInfo::getInfo(**recHit,tTopo);
+       << HitInfo::getInfo(*recHit,tTopo);
 
       ok = false; break;
     }

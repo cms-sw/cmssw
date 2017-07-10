@@ -158,18 +158,18 @@ void PedsFullNoiseSummaryFactory::extract( Iterator iter ) {
   } 
   else {
 
-    for ( uint16_t istr = 0; istr < value[0].size(); istr++ ) {
+    for (float istr : value[0]) {
       SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
 						   SummaryPlotFactoryBase::gran_, 
 						   iter->first, 
-						   value[0][istr] );
+						   istr );
     }
     
-    for ( uint16_t istr = 0; istr < value[1].size(); istr++ ) {
+    for (float istr : value[1]) {
       SummaryPlotFactoryBase::generator_->fillMap( SummaryPlotFactoryBase::level_, 
 						   SummaryPlotFactoryBase::gran_, 
 						   iter->first, 
-						   value[1][istr] );
+						   istr );
     }
   }
 }

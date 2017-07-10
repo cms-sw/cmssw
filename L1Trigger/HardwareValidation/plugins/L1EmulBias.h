@@ -74,19 +74,19 @@ L1EmulBias::ModifyCollection(std::unique_ptr<EcalTrigPrimDigiCollection>& data,
                              const edm::Handle<EcalTrigPrimDigiCollection> emul,
                              CLHEP::HepRandomEngine*) {
   typedef EcalTrigPrimDigiCollection::const_iterator col_cit;
-  for(col_cit it = emul->begin(); it!=emul->end(); it++) {
-    EcalTriggerPrimitiveDigi col(*it);    
-    int iphi = it->id().iphi();
+  for(const auto & it : *emul) {
+    EcalTriggerPrimitiveDigi col(it);    
+    int iphi = it.id().iphi();
     bool reset = (iphi>18 && iphi<39);//remove few supermodules
     for(int s=0; s<5; s++) {
-      uint16_t sample = it->sample(s).raw(); 
+      uint16_t sample = it.sample(s).raw(); 
       if(sample==0) continue;
       uint16_t tmp = reset?0:sample; 
       if(reset)
 	tmp = sample>>1; 
       col.setSampleValue(s,tmp);
       if(verbose() && sample!=0)
-	std::cout << "[emulbias] etp " << *it << "\t sample: " << s << "  "
+	std::cout << "[emulbias] etp " << it << "\t sample: " << s << "  "
 		  << std::hex << sample << " -> " << col.sample(s).raw()
 		  << std::dec << std::endl;
     }
@@ -99,12 +99,12 @@ L1EmulBias::ModifyCollection(std::unique_ptr<HcalTrigPrimDigiCollection>& data,
                              const edm::Handle<HcalTrigPrimDigiCollection> emul,
                              CLHEP::HepRandomEngine*) {
   typedef HcalTrigPrimDigiCollection::const_iterator col_cit;
-  for(col_cit it = emul->begin(); it!=emul->end(); it++) {
-    HcalTriggerPrimitiveDigi col(*it);    
-    int iphi = it->id().iphi();
+  for(const auto & it : *emul) {
+    HcalTriggerPrimitiveDigi col(it);    
+    int iphi = it.id().iphi();
     bool reset = (iphi>18 && iphi<27);//remove few supermodules
     for(int s=0; s<5; s++) {
-      uint16_t sample = it->sample(s).raw(); 
+      uint16_t sample = it.sample(s).raw(); 
       if(sample==0) continue;
       uint16_t tmp = reset?0:sample; 
       if(reset)
@@ -120,14 +120,14 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1CaloEmCollection>& data,
                              const edm::Handle<L1CaloEmCollection> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1CaloEmCollection::const_iterator col_cit;
-  for(col_cit it = emul->begin(); it!=emul->end(); it++) {
-    unsigned crate = it->rctCrate();
-    unsigned raw   = it->raw();
-    bool     iso   = it->isolated();  
+  for(const auto & it : *emul) {
+    unsigned crate = it.rctCrate();
+    unsigned raw   = it.raw();
+    bool     iso   = it.isolated();  
     unsigned rdata = raw;
     if(crate<4*engine->flat())
       rdata = raw>>1;
-    L1CaloEmCand cand(rdata,crate,iso,it->index(),it->bx(),false);    
+    L1CaloEmCand cand(rdata,crate,iso,it.index(),it.bx(),false);    
     data->push_back(cand);
   }  
   //L1CaloEmCand(uint16_t data, unsigned crate, bool iso);
@@ -140,13 +140,13 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1CaloRegionCollection>& data,
                              const edm::Handle<L1CaloRegionCollection> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1CaloRegionCollection::const_iterator col_cit;
-  for(col_cit it = emul->begin(); it!=emul->end(); it++) {
-    unsigned crate = it->rctCrate();
-    unsigned raw = it->et();
+  for(const auto & it : *emul) {
+    unsigned crate = it.rctCrate();
+    unsigned raw = it.et();
     uint16_t rdata = raw;
     if(crate<4*engine->flat())
       rdata = raw>>1;
-    L1CaloRegion cand(rdata,it->gctEta(),it->gctPhi(),it->bx());    
+    L1CaloRegion cand(rdata,it.gctEta(),it.gctPhi(),it.bx());    
     data->push_back(cand);
   }  
   //L1CaloRegion(uint16_t data, unsigned ieta, unsigned iphi, int16_t bx);
@@ -158,12 +158,12 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1GctEmCandCollection>& data,
                              const edm::Handle<L1GctEmCandCollection>emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1GctEmCandCollection::const_iterator col_cit;
-  for(col_cit it = emul->begin(); it!=emul->end(); it++) {
-    unsigned raw = it->raw();
+  for(const auto & it : *emul) {
+    unsigned raw = it.raw();
     uint16_t rdata = raw;
-    if(it->phiIndex()<4*engine->flat()) //0-17
+    if(it.phiIndex()<4*engine->flat()) //0-17
       rdata = raw>>1;
-    L1GctEmCand cand(rdata,it->isolated());
+    L1GctEmCand cand(rdata,it.isolated());
     data->push_back(cand);
   }  
   //etaIndex(), etaSign() : -6 to -0, +0 to +6
@@ -175,12 +175,12 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1GctJetCandCollection>& data,
 			     const edm::Handle<L1GctJetCandCollection> emul,
                              CLHEP::HepRandomEngine* engine) {
   typedef L1GctJetCandCollection::const_iterator col_cit;
-  for(col_cit it = emul->begin(); it!=emul->end(); it++) {
-    unsigned raw = it->raw();
+  for(const auto & it : *emul) {
+    unsigned raw = it.raw();
     uint16_t rdata = raw;
-    if(it->phiIndex()<4*engine->flat()) //0-17
+    if(it.phiIndex()<4*engine->flat()) //0-17
       rdata = raw>>1;
-    L1GctJetCand cand(rdata,it->isTau(),it->isForward());
+    L1GctJetCand cand(rdata,it.isTau(),it.isForward());
     data->push_back(cand);
   }
   //L1GctJetCand(uint16_t data, bool isTau, bool isFor);
@@ -191,12 +191,12 @@ L1EmulBias::ModifyCollection ( std::unique_ptr<L1MuRegionalCandCollection>& data
                                const edm::Handle<L1MuRegionalCandCollection> emul,
                                CLHEP::HepRandomEngine* engine) {
   typedef L1MuRegionalCandCollection::const_iterator col_cit;
-  for(col_cit it = emul->begin(); it!=emul->end(); it++) {
-    L1MuRegionalCand cand(*it);    
+  for(const auto & it : *emul) {
+    L1MuRegionalCand cand(it);    
     //unsigned raw = it->getDataWord();
-    unsigned phi = it->phi_packed();
+    unsigned phi = it.phi_packed();
     if(phi>90 && phi<110)
-      cand.setPtPacked( (it->pt_packed())>>1 );
+      cand.setPtPacked( (it.pt_packed())>>1 );
       //raw = (raw>>2);
       //L1MuRegionalCand cand(raw); 
       //cand.setType(it->type_idx());
@@ -232,11 +232,11 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1MuDTTrackContainer>& data,
   typedef TrackContainer::const_iterator col_cit;
   TrackContainer const* tracks_in = emul->getContainer();
   TrackContainer tracks;
-  for(col_cit it = tracks_in->begin(); it!=tracks_in->end(); it++) {
-    L1MuDTTrackCand cand(*it);    
-    cand.setType(it->type_idx());
-    unsigned pt = it->pt_packed(); //0..31
-    unsigned qua = it->quality(); //0..7
+  for(const auto & it : *tracks_in) {
+    L1MuDTTrackCand cand(it);    
+    cand.setType(it.type_idx());
+    unsigned pt = it.pt_packed(); //0..31
+    unsigned qua = it.quality(); //0..7
     if(qua<4) {
       cand.setPtPacked((pt>>2)&0x1f);
       cand.setQualityPacked((qua<<1)&0x07);
@@ -264,12 +264,12 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1MuDTChambPhContainer>& data,
   Phi_Container const* tracks_in = emul->getContainer(); 
   Phi_Container tracks(tracks_in->size());
   int uqua;
-  for(col_it it=tracks_in->begin(); it!=tracks_in->end(); it++) {
-    uqua = it->code(); // (int)(10*engine->flat());
+  for(const auto & it : *tracks_in) {
+    uqua = it.code(); // (int)(10*engine->flat());
     uqua = (uqua<2?uqua+1:uqua);
     L1MuDTChambPhDigi 
-      cand(it->bxNum(),it->whNum(),it->scNum(),it->stNum(),
-	   it->phi(),it->phiB(),uqua,it->Ts2Tag(),it->BxCnt() );
+      cand(it.bxNum(),it.whNum(),it.scNum(),it.stNum(),
+	   it.phi(),it.phiB(),uqua,it.Ts2Tag(),it.BxCnt() );
     tracks.push_back(cand);
   }
   data->setContainer(tracks);
@@ -284,15 +284,15 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1MuDTChambThContainer>& data,
   Thi_Container const* tracks_in = emul->getContainer(); 
   Thi_Container tracks(tracks_in->size());
   int uos[7],uqa[7];
-  for(col_cit it=tracks_in->begin(); it!=tracks_in->end(); it++) {
+  for(const auto & it : *tracks_in) {
     for(int j=0; j<7; j++) {
-      uos[j]=(it->position(j)?0:1);
-      uqa[j]=(it->quality (j)?0:1);
+      uos[j]=(it.position(j)?0:1);
+      uqa[j]=(it.quality (j)?0:1);
     }
-    int stnum = it->stNum();
+    int stnum = it.stNum();
     stnum = (stnum>2?stnum-1:stnum);
     L1MuDTChambThDigi 
-      cand(it->bxNum(),it->whNum(),it->scNum(),stnum,uos,uqa);
+      cand(it.bxNum(),it.whNum(),it.scNum(),stnum,uos,uqa);
     tracks.push_back(cand);
   }
   data->setContainer(tracks);
@@ -303,8 +303,8 @@ L1EmulBias::ModifyCollection(std::unique_ptr<LTCDigiCollection>& data,
                              const edm::Handle<LTCDigiCollection> emul,
                              CLHEP::HepRandomEngine*) {
   typedef std::vector<LTCDigi>::const_iterator col_cit;
-  for(col_cit it=emul->begin(); it!=emul->end(); it++) {
-    data->push_back(*it);
+  for(const auto & it : *emul) {
+    data->push_back(it);
     //note: raw data accessor missing in dataformats!
     //data->push_back(LTCDigi(it->data()>>1));
   }
@@ -316,12 +316,12 @@ L1EmulBias::ModifyCollection(std::unique_ptr<L1MuGMTCandCollection>& data,
                              CLHEP::HepRandomEngine*) {
   //typedef std::vector<L1MuGMTCand>          L1MuGMTCandCollection;
   typedef std::vector<L1MuGMTCand>::const_iterator col_cit;
-  for(col_cit it=emul->begin(); it!=emul->end(); it++) {
-    float phiv = it->phiValue();
-    unsigned dword = it->getDataWord();
+  for(const auto & it : *emul) {
+    float phiv = it.phiValue();
+    unsigned dword = it.getDataWord();
     if(phiv>2. && phiv<4.) 
       dword = dword>>2;
-    L1MuGMTCand cand(dword,it->bx());
+    L1MuGMTCand cand(dword,it.bx());
     data->push_back(cand);
     //cand.setPtPacked(cand.ptIndex()>>1);
     //data->push_back(L1MuGMTCand((it->getDataWord()>>1),it->bx()));
@@ -437,14 +437,14 @@ template <> inline void L1EmulBias::ModifyCollection(std::unique_ptr<L1CSCTrackC
   typedef CSCCorrelatedLCTDigiCollection::const_iterator    vecIt;//vec iterator
   CSCCorrelatedLCTDigiCollection_ ctf_trk_data_v, ctf_trk_emul_v; //vector
   //loop over csc-tracks (ie pairs<l1track,digi_vec>)
-  for(col_cit tcit=emul->begin(); tcit!=emul->end(); tcit++) {
-    csc::L1Track l1trk = tcit->first;
+  for(const auto & tcit : *emul) {
+    csc::L1Track l1trk = tcit.first;
     if(l1trk.quality()<4)
       l1trk.setPtPacked((l1trk.pt_packed()>>2)&0x1f);
     l1trk.setType(l1trk.type_idx());
     //L1MuRegionalCand reg(tcit->first.getDataWord(), tcit->first.bx());
     std::unique_ptr<CSCCorrelatedLCTDigiCollection> dgcoll(new CSCCorrelatedLCTDigiCollection);
-    CSCCorrelatedLCTDigiCollection ldc = tcit->second; //muondigicollection=map
+    CSCCorrelatedLCTDigiCollection ldc = tcit.second; //muondigicollection=map
     //get the lct-digi-collection (ie muon-digi-collection)
     //loop over data (map<idx,vec_digi>)
     for (mapIt mit = ldc.begin(); mit != ldc.end(); mit++) {

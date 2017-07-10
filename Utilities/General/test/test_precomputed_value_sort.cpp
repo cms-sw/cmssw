@@ -96,8 +96,8 @@ int main() {
 
   // A vector of pointer to Points
   vector<Point*> v2;
-  for (vector<Point>::iterator i = v1.begin(); i!= v1.end(); ++i) {
-    v2.push_back(&(*i));
+  for (auto & i : v1) {
+    v2.push_back(&i);
   }
 
   // Copy it

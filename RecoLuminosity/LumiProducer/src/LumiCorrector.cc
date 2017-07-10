@@ -51,9 +51,9 @@ LumiCorrector::getCoefficient(const std::string& name)const{
 float 
 LumiCorrector::AfterglowFactor(int nBXs){
   float Afterglow = 1.;
-  for(std::map<int,float>::iterator it = AfterglowMap_.begin(); it != AfterglowMap_.end(); ++it){
-    if (nBXs >= it->first){
-      Afterglow = it->second;
+  for(auto & it : AfterglowMap_){
+    if (nBXs >= it.first){
+      Afterglow = it.second;
     }
   }  
   return Afterglow;

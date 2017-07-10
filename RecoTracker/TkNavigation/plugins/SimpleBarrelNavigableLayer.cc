@@ -38,14 +38,14 @@ SimpleBarrelNavigableLayer( const BarrelDetLayer* detLayer,
   theNegOuterLayers.reserve( outerBLC.size() + outerLeftFL.size());
   thePosOuterLayers.reserve( outerBLC.size() + outerRightFL.size());
 
-  for (ConstBDLI bl=outerBLC.begin(); bl!=outerBLC.end(); bl++) 
-    theNegOuterLayers.push_back( *bl);
+  for (auto bl : outerBLC) 
+    theNegOuterLayers.push_back( bl);
   thePosOuterLayers = theNegOuterLayers; // barrel part the same
 
-  for (ConstFDLI fl=outerLeftFL.begin(); fl!=outerLeftFL.end(); fl++) 
-    theNegOuterLayers.push_back( *fl);
-  for (ConstFDLI fl=outerRightFL.begin(); fl!=outerRightFL.end(); fl++) 
-    thePosOuterLayers.push_back( *fl);
+  for (auto fl : outerLeftFL) 
+    theNegOuterLayers.push_back( fl);
+  for (auto fl : outerRightFL) 
+    thePosOuterLayers.push_back( fl);
 
   // sort the outer layers 
   sort( theNegOuterLayers.begin(), theNegOuterLayers.end(), TkLayerLess());
@@ -67,18 +67,16 @@ SimpleBarrelNavigableLayer::nextLayers( NavigationDirection dir) const
 
   if ( dir == insideOut) {
     result = theNegOuterLayers;
-    for ( DLC::const_iterator i=thePosOuterLayers.begin();
-	  i!=thePosOuterLayers.end(); i++) {
+    for (auto thePosOuterLayer : thePosOuterLayers) {
       // avoid duplication of barrel layers
-      if ((**i).location() == GeomDetEnumerators::endcap) result.push_back(*i);
+      if ((*thePosOuterLayer).location() == GeomDetEnumerators::endcap) result.push_back(thePosOuterLayer);
     }
   }
   else {
     result = theNegInnerLayers;
-    for ( DLC::const_iterator i=thePosInnerLayers.begin();
-	  i!=thePosInnerLayers.end(); i++) {
+    for (auto thePosInnerLayer : thePosInnerLayers) {
       // avoid duplication of barrel layers
-      if ((**i).location() == GeomDetEnumerators::endcap) result.push_back(*i);
+      if ((*thePosInnerLayer).location() == GeomDetEnumerators::endcap) result.push_back(thePosInnerLayer);
     }
   }
   return result;

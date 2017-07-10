@@ -1108,13 +1108,13 @@ int HcalLutManager::createAllLutXmlFilesLinAsciiCompCoder( std::string _tag, std
 
 void HcalLutManager::addLutMap(std::map<int, boost::shared_ptr<LutXml> > & result, const std::map<int, boost::shared_ptr<LutXml> > & other)
 {
-  for ( std::map<int, boost::shared_ptr<LutXml> >::const_iterator lut=other.begin(); lut!=other.end(); lut++ ){
-    edm::LogInfo("HcalLutManager") << "Added LUTs for crate " << lut->first;
-    if ( result.count(lut->first)==0 ){
-      result . insert( *lut );
+  for (const auto & lut : other){
+    edm::LogInfo("HcalLutManager") << "Added LUTs for crate " << lut.first;
+    if ( result.count(lut.first)==0 ){
+      result . insert( lut );
     }
     else{
-      *(result[lut->first]) += *(lut->second);
+      *(result[lut.first]) += *(lut.second);
     }
   }
 }

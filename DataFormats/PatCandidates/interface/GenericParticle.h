@@ -215,10 +215,9 @@ namespace pat {
       //============ BEGIN ISODEPOSIT BLOCK =====
       /// Returns the IsoDeposit associated with some key, or a null pointer if it is not available
       const IsoDeposit * isoDeposit(IsolationKeys key) const {
-          for (IsoDepositPairs::const_iterator it = isoDeposits_.begin(), ed = isoDeposits_.end(); 
-                  it != ed; ++it) 
+          for (const auto & isoDeposit : isoDeposits_) 
           {
-              if (it->first == key) return & it->second;
+              if (isoDeposit.first == key) return & isoDeposit.second;
           }
           return 0;
       } 

@@ -382,11 +382,11 @@ void L1GtDataEmulAnalyzer::compareFDL(const edm::Event& iEvent,
     //       otherwise the labels are wrong
     const AlgorithmMap& algorithmMap = m_l1GtMenu->gtAlgorithmMap();
 
-    for (CItAlgo itAlgo = algorithmMap.begin(); itAlgo != algorithmMap.end(); itAlgo++) {
+    for (const auto & itAlgo : algorithmMap) {
 
-        std::string aName = itAlgo->first;
+        std::string aName = itAlgo.first;
         const char* algName = aName.c_str();
-        int algBitNumber = (itAlgo->second).algoBitNumber();
+        int algBitNumber = (itAlgo.second).algoBitNumber();
 
         (m_fdlDataAlgoDecision[histIndex][iRec])->GetXaxis()->SetBinLabel(algBitNumber + 1, algName);
         m_fdlDataAlgoDecision_Err[iRec]->GetXaxis()->SetBinLabel(algBitNumber + 1, algName);

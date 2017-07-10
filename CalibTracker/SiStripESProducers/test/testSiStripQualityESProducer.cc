@@ -110,8 +110,8 @@ void testSiStripQualityESProducer::printObject(const SiStripQuality* SiStripQual
   std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();
   ss << "\n\t detid \t IsModuleBad \t BadFibers \t BadApvs";
     
-  for (size_t i=0;i<BC.size();++i)
-    ss << "\n\t" << BC[i].detid << "\t " << BC[i].BadModule << "\t "<< BC[i].BadFibers << "\t " << BC[i].BadApvs << "\t ";
+  for (auto & i : BC)
+    ss << "\n\t" << i.detid << "\t " << i.BadModule << "\t "<< i.BadFibers << "\t " << i.BadApvs << "\t ";
   ss<< std::endl;
 
   edm::LogInfo("testSiStripQualityESProducer") << ss.str();

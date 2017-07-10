@@ -105,9 +105,8 @@ void ProduceDropBoxMetadata::beginRun(const edm::Run& run, const edm::EventSetup
       cout << "\n--- record: " << *name << endl;
       if(metadata->knowsRecord(*name)) {
 	const map<string, string>  & params = metadata->getRecordParameters(*name).getParameterMap();
-	for(map<string, string>::const_iterator par = params.begin();
-	    par != params.end(); ++ par) {
-	  cout << "           key: " << par->first << " value: " << par->second << endl;
+	for(const auto & param : params) {
+	  cout << "           key: " << param.first << " value: " << param.second << endl;
 	}
       } else {
 	cout << "     not in the payload!" << endl;

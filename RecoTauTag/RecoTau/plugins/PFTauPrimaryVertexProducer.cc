@@ -210,9 +210,9 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	    ///////////////////////////////////////////////////////////////////////////////////////////////
 	    // Get tracks from PFTau daugthers
 	    const std::vector<edm::Ptr<reco::PFCandidate> > cands = RefPFTau->signalPFChargedHadrCands(); 
-	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
-	      if(iter->get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(iter->get()->trackRef()));
-	      else if(iter->get()->gsfTrackRef().isNonnull()){SignalTracks.push_back(reco::TrackBaseRef(((iter)->get()->gsfTrackRef())));}
+	    for (const auto & cand : cands){
+	      if(cand.get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(cand.get()->trackRef()));
+	      else if(cand.get()->gsfTrackRef().isNonnull()){SignalTracks.push_back(reco::TrackBaseRef((cand.->get()->gsfTrackRef())));}
 	    }
 	  }
 	}
@@ -255,8 +255,8 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	
 	for(std::vector<reco::TrackBaseRef>::const_iterator vtxTrkRef=thePV.tracks_begin();vtxTrkRef<thePV.tracks_end();vtxTrkRef++){
 	  bool matched = false;
-	  for (unsigned int sigTrk = 0; sigTrk < SignalTracks.size(); sigTrk++) {
-	    if ( (*vtxTrkRef) == SignalTracks[sigTrk] ) {
+	  for (const auto & SignalTrack : SignalTracks) {
+	    if ( (*vtxTrkRef) == SignalTrack ) {
 	      matched = true;
 	    }
 	  }
@@ -266,8 +266,8 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	// Refit the vertex
 	TransientVertex transVtx;
 	std::vector<reco::TransientTrack> transTracks;
-	for (reco::TrackCollection::iterator iter=nonTauTracks.begin(); iter!=nonTauTracks.end(); ++iter){
-	  transTracks.push_back(transTrackBuilder->build(*iter));
+	for (auto & nonTauTrack : nonTauTracks){
+	  transTracks.push_back(transTrackBuilder->build(nonTauTrack));
 	}
 	bool FitOk(true);
 	if ( transTracks.size() >= 2 ) {

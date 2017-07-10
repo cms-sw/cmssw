@@ -93,9 +93,9 @@ using namespace edm;
     TrackerHitAssociator  associate(e,trackerHitAssociatorConfig_);
 
     // loop over detunits
-    for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-      uint32_t myid=((*it)->geographicalId()).rawId();       
-      DetId detid = ((*it)->geographicalId());
+    for(auto it : pDD->dets()){
+      uint32_t myid=(it->geographicalId()).rawId();       
+      DetId detid = (it->geographicalId());
       
       if(myid!=999999999){ //if is valid detector
 

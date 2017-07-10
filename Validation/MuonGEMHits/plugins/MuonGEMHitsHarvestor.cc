@@ -119,8 +119,8 @@ MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &
     string suffix = s_suffix[i];
     string track_eta_name = dbe_path_+"track_eta"+suffix;
     if ( ig.get(track_eta_name.c_str()) != nullptr) track_eta[i] = (TH1F*)ig.get(track_eta_name.c_str())->getTH1F()->Clone();
-    for (unsigned int j = 0; j < l_suffix.size(); j++) {
-      suffix = s_suffix[i]+l_suffix[j];
+    for (const auto & j : l_suffix) {
+      suffix = s_suffix[i]+j;
       ProcessBooking( ibooker, ig, "sh_eta"+suffix,track_eta[i]);
     }
   }
@@ -129,8 +129,8 @@ MuonGEMHitsHarvestor::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter &
       string suffix = s_suffix[i]+c_suffix[j];
       string track_phi_name = dbe_path_+"track_phi"+suffix;
       if ( ig.get(track_phi_name.c_str()) != nullptr) track_phi[i][j] = (TH1F*)ig.get(track_phi_name.c_str())->getTH1F()->Clone();
-      for (unsigned int k = 0; k < l_suffix.size(); k++) {
-        suffix = s_suffix[i]+l_suffix[k]+c_suffix[j];
+      for (const auto & k : l_suffix) {
+        suffix = s_suffix[i]+k+c_suffix[j];
         ProcessBooking( ibooker, ig, "sh_phi"+suffix,track_phi[i][j]);
       }
     }

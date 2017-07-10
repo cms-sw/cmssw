@@ -388,10 +388,10 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   std::vector<TrackingRecHit *> hits;
 
   if(useTrajectories_){
-    for (TrajTrackAssociationCollection::const_iterator itass = assoMap->begin();  itass != assoMap->end(); ++itass){
+    for (const auto & itass : *assoMap){
 
-      const edm::Ref<std::vector<Trajectory> >traj = itass->key;//trajectory in the collection
-      const reco::TrackRef tkref = itass->val;//associated track track in the collection
+      const edm::Ref<std::vector<Trajectory> >traj = itass.key;//trajectory in the collection
+      const reco::TrackRef tkref = itass.val;//associated track track in the collection
       //std::cout<<"The hit collection has size "<<hits.size()<<" (should be 0) while the track contains initially "<< tkref->recHitsEnd() - tkref->recHitsBegin()<<std::endl;
 
       const Track *trk = &(*tkref);
@@ -446,11 +446,11 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
   else{ //use plain tracks
 
     // loop on tracks
-    for (std::vector<reco::Track>::const_iterator ittrk = tracks->begin(), edtrk = tracks->end(); ittrk != edtrk; ++ittrk) {
+    for (const auto & ittrk : *tracks) {
 
       //    std::cout<<"The hit collection has size "<<hits.size()<<" (should be 0) while the track contains initially "<< ittrk->recHitsEnd() - ittrk->recHitsBegin()<<std::endl;
 
-      const Track *trk = &(*ittrk);
+      const Track *trk = &ittrk;
 
       produceFromTrack(iSetup,trk,hits);
       //-----------------------
@@ -496,13 +496,13 @@ TrackerTrackHitFilter::produce(edm::Event &iEvent, const edm::EventSetup &iSetup
 	  if( (*ithit)->isValid())nvalidhits++;
 	}
 	if(nvalidhits >= int(minimumHits_)){
-	  output->push_back( makeCandidate ( *ittrk, begin, end ) );
+	  output->push_back( makeCandidate ( ittrk, begin, end ) );
 	}
 
       }
       else{//all invalid hits have been already kicked out
 	if ((end - begin) >= int(minimumHits_)) {
-	  output->push_back( makeCandidate ( *ittrk, begin, end ) );
+	  output->push_back( makeCandidate ( ittrk, begin, end ) );
 	}
       }
 

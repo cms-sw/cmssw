@@ -748,8 +748,7 @@ int PFPhotonIsolationCalculator::matchPFObject(const reco::Photon* photon, const
   Int_t iMatch = -1;
 
   int i=0;
-  for(reco::PFCandidateCollection::const_iterator iPF=Candidates->begin();iPF !=Candidates->end();iPF++){
-    const reco::PFCandidate& pfParticle = (*iPF);
+  for(const auto & pfParticle : *Candidates){
     if((((pfParticle.pdgId()==22 ) || std::abs(pfParticle.pdgId())==11) )){
      
       if(pfParticle.superClusterRef()==photon->superCluster())
@@ -793,8 +792,7 @@ int PFPhotonIsolationCalculator::matchPFObject(const reco::GsfElectron* electron
   Int_t iMatch = -1;
 
   int i=0;
-  for(reco::PFCandidateCollection::const_iterator iPF=Candidates->begin();iPF !=Candidates->end();iPF++){
-    const reco::PFCandidate& pfParticle = (*iPF);
+  for(const auto & pfParticle : *Candidates){
     if((((pfParticle.pdgId()==22 ) || std::abs(pfParticle.pdgId())==11) )){
      
       if(pfParticle.superClusterRef()==electron->superCluster())
@@ -808,8 +806,7 @@ int PFPhotonIsolationCalculator::matchPFObject(const reco::GsfElectron* electron
   if(iMatch == -1){
     i=0;
     float fPt = -1;
-    for(reco::PFCandidateCollection::const_iterator iPF=Candidates->begin();iPF !=Candidates->end();iPF++){
-      const reco::PFCandidate& pfParticle = (*iPF);
+    for(const auto & pfParticle : *Candidates){
       if((((pfParticle.pdgId()==22 ) || std::abs(pfParticle.pdgId())==11) )){
         if(pfParticle.pt()>fPt){
          float fDeltaR = deltaR(pfParticle.eta(),pfParticle.phi(),electron->eta(),electron->phi());

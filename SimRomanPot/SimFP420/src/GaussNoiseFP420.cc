@@ -29,22 +29,21 @@ GaussNoiseFP420::addNoise(const PileUpFP420::signal_map_type& in){
   // noise for channels with signal:
   // ----------------------------
   
-  for (PileUpFP420::signal_map_type::const_iterator si  = in.begin();
-       si != in.end()  ; si++){
+  for (const auto & si : in){
     
     if(verbosi>0) {
       std::cout << " ***GaussNoiseFP420:  before noise:" << std::endl;
-      std::cout << " for si->first=  " << si->first  << "    _signal[si->first]=  " << _signal[si->first] << "        si->second=      " << si->second  << std::endl;
+      std::cout << " for si->first=  " << si.first  << "    _signal[si->first]=  " << _signal[si.first] << "        si->second=      " << si.second  << std::endl;
     }
     // define Gaussian noise centered at 0. with sigma = noiseRMS:
     float noise( CLHEP::RandGauss::shoot(0.,noiseRMS) );           
     //    float noise  = CLHEP::RandGaussQ::shoot(0.,theNoiseInElectrons) ;
     // add noise to each channel with signal:
-    _signal[si->first] = si->second + noise;
+    _signal[si.first] = si.second + noise;
     
     if(verbosi>0) {
       std::cout << " ***GaussNoiseFP420: after noise added  = " << noise  << std::endl;
-      std::cout << "after noise added the _signal[si->first]=  " << _signal[si->first] << std::endl;
+      std::cout << "after noise added the _signal[si->first]=  " << _signal[si.first] << std::endl;
     }
   }
   
@@ -52,9 +51,9 @@ GaussNoiseFP420::addNoise(const PileUpFP420::signal_map_type& in){
   if(addNoisyPixels){  // Option to skip noise in non-hit pixels
     // Noise on the other channels:
     typedef std::map<int,float,std::less<int> >::iterator MI;
-    for(MI p = generatedNoise.begin(); p != generatedNoise.end(); p++){
-      if(_signal[(*p).first] == 0) {
-	_signal[(*p).first] += (*p).second;
+    for(auto & p : generatedNoise){
+      if(_signal[p.first] == 0) {
+	_signal[p.first] += p.second;
       }
     }//for(MI
   }

@@ -63,15 +63,15 @@ namespace ecaldqm
 
   MESetMulti::~MESetMulti()
   {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      delete sets_[iS];
+    for(auto & set : sets_)
+      delete set;
   }
 
   MESet&
   MESetMulti::operator=(MESet const& _rhs)
   {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      delete sets_[iS];
+    for(auto & set : sets_)
+      delete set;
     sets_.clear();
     current_ = 0;
 
@@ -103,8 +103,8 @@ namespace ecaldqm
   void
   MESetMulti::book(DQMStore::IBooker& _ibooker)
   {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      sets_[iS]->book(_ibooker);
+    for(auto & set : sets_)
+      set->book(_ibooker);
 
     active_ = true;
   }
@@ -112,8 +112,8 @@ namespace ecaldqm
   bool
   MESetMulti::retrieve(DQMStore::IGetter& _igetter, std::string* _failedPath/* = 0*/) const
   {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      if(!sets_[iS]->retrieve(_igetter, _failedPath)) return false;
+    for(auto set : sets_)
+      if(!set->retrieve(_igetter, _failedPath)) return false;
 
     active_ = true;
     return true;
@@ -122,8 +122,8 @@ namespace ecaldqm
   void
   MESetMulti::clear() const
   {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      sets_[iS]->clear();
+    for(auto set : sets_)
+      set->clear();
 
     active_ = false;
   }
@@ -131,15 +131,15 @@ namespace ecaldqm
   void
   MESetMulti::reset(double _content/* = 0*/, double _error/* = 0.*/, double _entries/* = 0.*/)
   {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      sets_[iS]->reset(_content, _error, _entries);
+    for(auto & set : sets_)
+      set->reset(_content, _error, _entries);
   }
 
   void
   MESetMulti::resetAll(double _content/* = 0*/, double _error/* = 0.*/, double _entries/* = 0.*/)
   {
-    for(unsigned iS(0); iS < sets_.size(); ++iS)
-      sets_[iS]->resetAll(_content, _error, _entries);
+    for(auto & set : sets_)
+      set->resetAll(_content, _error, _entries);
   }
 
   void

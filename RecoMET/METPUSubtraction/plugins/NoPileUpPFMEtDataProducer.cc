@@ -213,10 +213,9 @@ void NoPileUpPFMEtDataProducer::produce(edm::Event& evt, const edm::EventSetup& 
   }
   LogDebug ("produce")  << "#jetInfos = " << jetInfos->size() << std::endl;
  
-  for ( reco::PFJetCollection::const_iterator jet = jets->begin();
-	jet != jets->end(); ++jet ) {
-    if ( jet->pt() > minJetPtForMEtCov_ ) {
-      setPFCandidateFlag(*jet, *pfCandidates, pfCandidateFlags, flag_isWithinJetForMEtCov, numWarnings_, maxWarnings_, &pfCandidateToJetAssociations);
+  for (const auto & jet : *jets) {
+    if ( jet.pt() > minJetPtForMEtCov_ ) {
+      setPFCandidateFlag(jet, *pfCandidates, pfCandidateFlags, flag_isWithinJetForMEtCov, numWarnings_, maxWarnings_, &pfCandidateToJetAssociations);
     }
   }
  

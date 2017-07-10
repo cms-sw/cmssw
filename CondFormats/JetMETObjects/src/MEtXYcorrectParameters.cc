@@ -20,12 +20,12 @@
 MEtXYcorrectParameters::Definitions::Definitions(const std::vector<std::string>& fBinVar, const std::vector<std::string>& fParVar, const std::string& fFormula )
 {
   mBinVar.reserve(fBinVar.size());
-  for(unsigned i=0;i<fBinVar.size();i++)
-    mBinVar.push_back(fBinVar[i]);
+  for(const auto & i : fBinVar)
+    mBinVar.push_back(i);
 
   mParVar.reserve(fParVar.size());
-  for(unsigned i=0;i<fParVar.size();i++)
-    mParVar.push_back(getUnsigned(fParVar[i]));
+  for(const auto & i : fParVar)
+    mParVar.push_back(getUnsigned(i));
 
   mFormula    = fFormula;
 }

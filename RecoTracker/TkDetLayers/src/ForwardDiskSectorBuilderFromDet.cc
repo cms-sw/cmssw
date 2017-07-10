@@ -15,12 +15,12 @@ ForwardDiskSectorBuilderFromDet::operator()( const vector<const GeomDet*>& dets)
   // check that the dets are all at about the same radius and z 
   float rcheck = dets.front()->surface().position().perp();
   float zcheck = dets.front()->surface().position().z();
-  for ( vector<const GeomDet*>::const_iterator i = dets.begin(); i != dets.end(); i++){
-    float rdiff = (**i).surface().position().perp()-rcheck;
+  for (auto det : dets){
+    float rdiff = (*det).surface().position().perp()-rcheck;
     if ( std::abs(rdiff) > 1.) 
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
 				   << "Dets at different radii !! Delta_r = " << rdiff ;
-    float zdiff = zcheck - (**i).surface().position().z();
+    float zdiff = zcheck - (*det).surface().position().z();
     if ( std::abs(zdiff) > 0.8) 
       edm::LogError("TkDetLayers") << " ForwardDiskSectorBuilderFromDet: Trying to build Petal Wedge from " 
 				   << "Dets at different z positions !! Delta_z = " << zdiff ;
@@ -45,9 +45,8 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
   float phimax(phimin);
 
 
-  for (vector<const GeomDet*>::const_iterator idet=dets.begin();
-       idet != dets.end(); idet++) {
-    vector<const GeomDet*> detUnits = (**idet).components();
+  for (auto det : dets) {
+    vector<const GeomDet*> detUnits = (*det).components();
     if( detUnits.size() ){
       for (vector<const GeomDet*>::const_iterator detu=detUnits.begin();
 	   detu!=detUnits.end(); detu++) {
@@ -88,7 +87,7 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
 	}     
       }
     }else{
-      vector<GlobalPoint> corners = computeTrapezoidalCorners(*idet) ;
+      vector<GlobalPoint> corners = computeTrapezoidalCorners(det) ;
       for (vector<GlobalPoint>::const_iterator i=corners.begin();
 	   i!=corners.end(); i++) {
 	float r = i->perp();
@@ -105,13 +104,13 @@ ForwardDiskSectorBuilderFromDet::computeBounds( const vector<const GeomDet*>& de
       // det +/- length/2, since the min (max) radius for typical fw
       // dets is reached there
 
-      float rdet  = (**idet).position().perp();
-      float len   = (**idet).surface().bounds().length();
-      float width = (**idet).surface().bounds().width();
+      float rdet  = (*det).position().perp();
+      float len   = (*det).surface().bounds().length();
+      float width = (*det).surface().bounds().width();
 
-      GlobalVector xAxis = (**idet).toGlobal(LocalVector(1,0,0));
-      GlobalVector yAxis = (**idet).toGlobal(LocalVector(0,1,0));
-      GlobalVector perpDir = GlobalVector( (**idet).position() - GlobalPoint(0,0,(**idet).position().z()) );
+      GlobalVector xAxis = (*det).toGlobal(LocalVector(1,0,0));
+      GlobalVector yAxis = (*det).toGlobal(LocalVector(0,1,0));
+      GlobalVector perpDir = GlobalVector( (*det).position() - GlobalPoint(0,0,(*det).position().z()) );
 
       double xAxisCos = xAxis.unit().dot(perpDir.unit());
       double yAxisCos = yAxis.unit().dot(perpDir.unit());

@@ -363,10 +363,9 @@ bool TrackTransformerForCosmicMuons::SlopeSum(const TransientTrackingRecHit::Con
 	float sumdy = 0;
 	float sumdz = 0;
 
-  	for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin();
-      hit !=tkHits.end(); ++hit){
+  	for(const auto & tkHit : tkHits){
 
-     	DetId hitId = (*hit)->geographicalId();
+     	DetId hitId = tkHit->geographicalId();
     	GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
       	if ( hitId.det() != DetId::Muon || hitId.subdetId() == 3 )continue;
 
@@ -425,10 +424,9 @@ float TrackTransformerForCosmicMuons::SumDy(const TransientTrackingRecHit::Const
 
 
 
-  	for(TransientTrackingRecHit::ConstRecHitContainer::const_iterator hit = tkHits.begin();
-      hit !=tkHits.end(); ++hit){
+  	for(const auto & tkHit : tkHits){
 
-     	DetId hitId = (*hit)->geographicalId();
+     	DetId hitId = tkHit->geographicalId();
     	GlobalPoint glbpoint = trackingGeometry()->idToDet(hitId)->position();
       	if ( hitId.det() != DetId::Muon || hitId.subdetId() == 3 )continue;
 

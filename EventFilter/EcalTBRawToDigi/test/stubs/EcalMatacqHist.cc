@@ -34,10 +34,8 @@ EcalMatacqHist::~EcalMatacqHist(){
   if(!outFile->IsZombie()){
     TDirectory* dsave = gDirectory;
     outFile->cd();
-    for(std::vector<TProfile>::iterator it = profiles.begin();
-       it != profiles.end();
-       ++it){
-      it->Write();
+    for(auto & profile : profiles){
+      profile.Write();
     }
     if(hTTrig!=0) hTTrig->Write();
     dsave->cd();

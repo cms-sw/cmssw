@@ -564,11 +564,11 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
 
 DQMStore::~DQMStore(void)
 {
-  for (QCMap::iterator i = qtests_.begin(), e = qtests_.end(); i != e; ++i)
-    delete i->second;
+  for (auto & qtest : qtests_)
+    delete qtest.second;
 
-  for (QTestSpecs::iterator i = qtestspecs_.begin(), e = qtestspecs_.end(); i != e; ++i)
-    delete i->first;
+  for (auto & qtestspec : qtestspecs_)
+    delete qtestspec.first;
 
   if (stream_)
     stream_->close();
@@ -1803,9 +1803,8 @@ DQMStore::get(unsigned int tag) const
 {
   // FIXME: Use reverse map [tag -> path] / [tag -> dir]?
   std::vector<MonitorElement *> result;
-  for (MEMap::const_iterator i = data_.begin(), e = data_.end(); i != e; ++i)
+  for (const auto & me : data_)
   {
-    const MonitorElement &me = *i;
     if ((me.data_.flags & DQMNet::DQM_PROP_TAGGED) && me.data_.tag == tag)
       result.push_back(const_cast<MonitorElement *>(&me));
   }

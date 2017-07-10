@@ -1052,9 +1052,9 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
       else {
 	fout << " entry "<< entry -1 << " run " << runold << " nb of events " << RunEntry;
 	firsttimeFED = time[0];
-	for(int ifed = 0; ifed < 54; ifed++) {
-	  fout << " " << time[ifed];
-	  if(firsttimeFED < time[ifed]) firsttimeFED = time[ifed];
+	for(int ifed : time) {
+	  fout << " " << ifed;
+	  if(firsttimeFED < ifed) firsttimeFED = ifed;
 	}
 	fout << std::endl;
 
@@ -1193,8 +1193,8 @@ void popcon::EcalPedestalsHandler::readPedestalTree() {
   // write also the last run
   fout << " last entry fill " << fill_num << " run " << runold << " nb of events " << RunEntry
        << " time " << run_time << " " << run_time_stablebeam << " " << time[0] << " run type " << run_type << std::endl;
-  for(int ifed = 0; ifed < 54; ifed++) 
-    fout << " " << time[ifed];
+  for(int ifed : time) 
+    fout << " " << ifed;
   fout << std::endl;
   EcalPedestals* pedestal = new EcalPedestals();
   EcalPedestals::Item item;
@@ -1346,15 +1346,15 @@ void popcon::EcalPedestalsHandler::readPedestalTimestamp() {
     fout << " entry "<< entry << " run " << run << " sequence " << seq_id;
     if(run_type == 1) fout << " stable " << run_time_stablebeam;
     firsttimeFED = time[0];
-    for(int ifed = 0; ifed < 54; ifed++) {
+    for(int ifed : time) {
       //      fout << " " << time[ifed];
-      if(time[ifed] > firsttimeFEDold && firsttimeFED < time[ifed]) firsttimeFED = time[ifed];  // take the first AFTER the previous sequence one!...
+      if(ifed > firsttimeFEDold && firsttimeFED < ifed) firsttimeFED = ifed;  // take the first AFTER the previous sequence one!...
     }
     fout << " time " << firsttimeFED << std::endl;
     if(firsttimeFED <= firsttimeFEDold) {
       std::cout << " Problem finding the IOV : old one " <<  firsttimeFEDold << " new one " << firsttimeFED  << std::endl;
-      for(int ifed = 0; ifed < 54; ifed++)
-	std::cout << " " << time[ifed];
+      for(int ifed : time)
+	std::cout << " " << ifed;
       std::cout << std::endl << " ignore this entry " << std::endl;
       continue;
     }

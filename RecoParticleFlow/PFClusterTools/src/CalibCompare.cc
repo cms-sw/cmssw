@@ -66,10 +66,8 @@ CalibCompare::CalibCompare(IO* options) :
 	clusterCalibration_.setMaxEToCorrect(maxEToCorrect);
 
 	std::vector<std::string>* names = clusterCalibration_.getKnownSectorNames();
-	for (std::vector<std::string>::iterator i = names->begin(); i
-			!= names->end(); ++i) {
-		std::string sector = *i;
-		std::vector<double> params;
+	for (auto sector : *names) {
+			std::vector<double> params;
 		options_->GetOpt("evolution", sector.c_str(), params);
 		clusterCalibration_.setEvolutionParameters(sector, params);
 	}
@@ -126,12 +124,9 @@ void CalibCompare::evaluateCalibrations(TTree& tree, Calibratable* calibrated,
 		const std::vector<Calibratable>& calibVec) {
 
 	unsigned count(0);
-	for (std::vector<Calibratable>::const_iterator zit = calibVec.begin(); zit
-			!= calibVec.end(); ++zit) {
+	for (const auto & calib : calibVec) {
 
-		const Calibratable& calib = *zit;
-
-		calibrated->reset();
+			calibrated->reset();
 
 		CalibrationResultWrapper crwPre;
 		crwPre.ecalEnergy_ = calib.cluster_energyEcal_;

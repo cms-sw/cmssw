@@ -153,11 +153,10 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
       edm::Handle<reco::VertexCollection> vertexCollection;
       ev.getByToken(vertexCollToken,vertexCollection);
 
-      for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); 
-	  iV != vertexCollection->end() ; iV++) {
-          if (iV->isFake() || !iV->isValid()) continue;
-	  origin     = GlobalPoint(bs.x0(),bs.y0(),iV->z());
-	  halflength = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
+      for(const auto & iV : *vertexCollection) {
+          if (iV.isFake() || !iV.isValid()) continue;
+	  origin     = GlobalPoint(bs.x0(),bs.y0(),iV.z());
+	  halflength = (theUseFixedError ? theFixedError : (iV.zError())*theSigmaZVertex); 
       }
     }
 

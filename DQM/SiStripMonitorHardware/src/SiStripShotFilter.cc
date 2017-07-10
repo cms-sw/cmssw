@@ -141,17 +141,17 @@ SiStripShotFilter::filter(edm::Event& iEvent,
       uint32_t lDetId = lConnection.detId();
       short lAPVPair = lConnection.apvPairNumber();
 
-      for(std::vector<APVShot>::const_iterator shot=shots.begin();shot!=shots.end();++shot) {//loop on shots
+      for(const auto & shot : shots) {//loop on shots
 
-	if (shot->detId() == lDetId && 
-	    static_cast<short>(shot->apvNumber()/2.) == lAPVPair)
+	if (shot.detId() == lDetId && 
+	    static_cast<short>(shot.apvNumber()/2.) == lAPVPair)
 	  {
-	    if(shot->isGenuine()) {//genuine shot
+	    if(shot.isGenuine()) {//genuine shot
   
-	      fOut_ << fedId << " " << iCh << " " << shot->detId() << " " << shot->apvNumber() << std::endl;
+	      fOut_ << fedId << " " << iCh << " " << shot.detId() << " " << shot.apvNumber() << std::endl;
 	      lShots++;
 	    }//genuine shot
-	    if (shot->apvNumber()%2==1) break;
+	    if (shot.apvNumber()%2==1) break;
 	  }
       }//loop on shots
     }//loop on channels

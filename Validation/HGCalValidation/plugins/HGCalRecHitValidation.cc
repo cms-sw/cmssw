@@ -185,15 +185,15 @@ void HGCalRecHitValidation::fillOccupancyMap(std::map<int, int>& OccupancyMap, i
 
 void HGCalRecHitValidation::fillHitsInfo() { 
 
-  for (auto itr = OccupancyMap_plus.begin() ; itr != OccupancyMap_plus.end(); ++itr) {
-    int layer      = (*itr).first;
-    int occupancy  = (*itr).second;
+  for (auto & OccupancyMap_plu : OccupancyMap_plus) {
+    int layer      = OccupancyMap_plu.first;
+    int occupancy  = OccupancyMap_plu.second;
     HitOccupancy_Plus_.at(layer)->Fill(occupancy);
   }
 
-  for (auto itr = OccupancyMap_minus.begin() ; itr != OccupancyMap_minus.end(); ++itr) {
-    int layer      = (*itr).first;
-    int occupancy  = (*itr).second;
+  for (auto & OccupancyMap_minu : OccupancyMap_minus) {
+    int layer      = OccupancyMap_minu.first;
+    int occupancy  = OccupancyMap_minu.second;
     HitOccupancy_Minus_.at(layer)->Fill(occupancy);
   }
   

@@ -757,8 +757,8 @@ testMaterialEffects::analyze( const edm::Event& iEvent, const edm::EventSetup& i
       }
 
       // Loop over all stored brems
-      for(unsigned ig=0;ig<myGammas.size();++ig) {
-	FSimTrack theGamma=mySimEvent[ievt]->track(myGammas[ig]);
+      for(int myGamma : myGammas) {
+	FSimTrack theGamma=mySimEvent[ievt]->track(myGamma);
 	float radius = theGamma.vertex().position().pt();
 	float zed    = fabs(theGamma.vertex().position().z());
 	float eta    = fabs(theGamma.vertex().position().eta());

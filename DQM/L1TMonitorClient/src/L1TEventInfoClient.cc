@@ -389,10 +389,9 @@ void L1TEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
         const std::vector<std::string>& sysQtName =
                 m_systemQualityTestName[iMon];
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                sysQtName.begin(); itQtName != sysQtName.end(); ++itQtName) {
+        for (const auto & itQtName : sysQtName) {
 
-            const std::string hStr = m_monitorDir + "_L1Sys_" +m_systemLabel[iMon] + "_" + (*itQtName);
+            const std::string hStr = m_monitorDir + "_L1Sys_" +m_systemLabel[iMon] + "_" + itQtName;
 
             m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
@@ -411,10 +410,9 @@ void L1TEventInfoClient::book(DQMStore::IBooker &ibooker, DQMStore::IGetter &ige
         const std::vector<std::string>& objQtName =
                 m_objectQualityTestName[iMon];
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
+        for (const auto & itQtName : objQtName) {
 
-            const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_" + (*itQtName);
+            const std::string hStr = m_monitorDir + "_L1Obj_" + m_objectLabel[iMon] + "_" + itQtName;
 
             m_meReportSummaryContent.push_back(ibooker.bookFloat(hStr));
             m_meReportSummaryContent[iAllQTest]->Fill(0.);
@@ -469,20 +467,17 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
     // initialize summary content, summary sum and ReportSummaryContent float histograms
     // for all L1 systems and L1 objects
 
-    for (std::vector<int>::iterator it = m_summaryContent.begin(); it
-            != m_summaryContent.end(); ++it) {
+    for (int & it : m_summaryContent) {
 
-        (*it) = dqm::qstatus::DISABLED;
+        it = dqm::qstatus::DISABLED;
 
     }
 
     m_summarySum = 0.;
 
-    for (std::vector<MonitorElement*>::iterator itME =
-            m_meReportSummaryContent.begin(); itME
-            != m_meReportSummaryContent.end(); ++itME) {
+    for (auto & itME : m_meReportSummaryContent) {
 
-        (*itME)->Fill(0.);
+        itME->Fill(0.);
 
     }
 
@@ -510,8 +505,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
         // pro system counter for quality tests
         int iSysQTest = 0;
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                sysQtName.begin(); itQtName != sysQtName.end(); ++itQtName) {
+        for (const auto & itQtName : sysQtName) {
 
             // get results, status and message
 
@@ -528,14 +522,14 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
                             << ": " << qtVec.size() << "\n" << std::endl;
                 }
 
-                const QReport* sysQReport = qHist->getQReport(*itQtName);
+                const QReport* sysQReport = qHist->getQReport(itQtName);
                 if (sysQReport) {
                     const float sysQtResult = sysQReport->getQTresult();
                     const int sysQtStatus = sysQReport->getStatus();
                     const std::string& sysQtMessage = sysQReport->getMessage();
 
                     if (m_verbose) {
-                        std::cout << "\n" << (*itQtName) << " quality test:"
+                        std::cout << "\n" << itQtName << " quality test:"
                                 << "\n  result:  " << sysQtResult
                                 << "\n  status:  " << sysQtStatus
                                 << "\n  message: " << sysQtMessage << "\n"
@@ -576,7 +570,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
 
                     if (m_verbose) {
 
-                        std::cout << "\n" << (*itQtName)
+                        std::cout << "\n" << itQtName
                                 << " quality test not found\n" << std::endl;
                     }
                 }
@@ -630,8 +624,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
         // pro object counter for quality tests
         int iObjQTest = 0;
 
-        for (std::vector<std::string>::const_iterator itQtName =
-                objQtName.begin(); itQtName != objQtName.end(); ++itQtName) {
+        for (const auto & itQtName : objQtName) {
 
             // get results, status and message
 
@@ -648,14 +641,14 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
                             << ": " << qtVec.size() << "\n" << std::endl;
                 }
 
-                const QReport* objQReport = qHist->getQReport(*itQtName);
+                const QReport* objQReport = qHist->getQReport(itQtName);
                 if (objQReport) {
                     const float objQtResult = objQReport->getQTresult();
                     const int objQtStatus = objQReport->getStatus();
                     const std::string& objQtMessage = objQReport->getMessage();
 
                     if (m_verbose) {
-                        std::cout << "\n" << (*itQtName) << " quality test:"
+                        std::cout << "\n" << itQtName << " quality test:"
                                 << "\n  result:  " << objQtResult
                                 << "\n  status:  " << objQtStatus
                                 << "\n  message: " << objQtMessage << "\n"
@@ -695,7 +688,7 @@ void L1TEventInfoClient::readQtResults(DQMStore::IBooker &ibooker, DQMStore::IGe
 
                     if (m_verbose) {
 
-                        std::cout << "\n" << (*itQtName)
+                        std::cout << "\n" << itQtName
                                 << " quality test not found\n" << std::endl;
                     }
 

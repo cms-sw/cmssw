@@ -225,15 +225,14 @@ void TriggerCandProducer<object>::produce(edm::Event &event, const edm::EventSet
      std::vector<std::string> filters;
      try { filters = hltConfig.moduleLabels( theRightHLTTag_.label() ); }
      catch (std::exception ex) { cout << "bad trigger\n"; }
-     for(std::vector<std::string>::iterator filter =
-	   filters.begin(); filter!= filters.end(); ++filter ) {
+     for(auto & filter : filters) {
 
-       edm::InputTag testTag(*filter,"", theRightHLTTag_.process() );
+       edm::InputTag testTag(filter,"", theRightHLTTag_.process() );
 
        int testindex = trgEvent->filterIndex(testTag);
        if ( !(testindex >= trgEvent->sizeFilters()) ) {
 
-	 filterName_ = *filter;
+	 filterName_ = filter;
 	 filterTag=testTag;
        }
      }

@@ -398,16 +398,15 @@ void L1Analysis::L1AnalysisCSCTF::SetLCTs(const edm::Handle<CSCCorrelatedLCTDigi
 void L1Analysis::L1AnalysisCSCTF::SetStatus(const edm::Handle<L1CSCStatusDigiCollection> status)
 {
    int nStat=0;
-   for(std::vector<L1CSCSPStatusDigi>::const_iterator stat=status->second.begin();
-      stat!=status->second.end(); stat++){
+   for(const auto & stat : status->second){
 
     // fill the Ntuple
-    if (stat->VPs() != 0) {
+    if (stat.VPs() != 0) {
       
-      csctf_.stSPslot.push_back(stat->slot());   
-      csctf_.stL1A_BXN.push_back(stat->BXN());
-      csctf_.stTrkCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&(*stat)))->track_counter());
-      csctf_.stOrbCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&(*stat)))->orbit_counter());
+      csctf_.stSPslot.push_back(stat.slot());   
+      csctf_.stL1A_BXN.push_back(stat.BXN());
+      csctf_.stTrkCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&stat))->track_counter());
+      csctf_.stOrbCounter.push_back((const_cast<L1CSCSPStatusDigi*>(&stat))->orbit_counter());
       
       nStat++;
     }

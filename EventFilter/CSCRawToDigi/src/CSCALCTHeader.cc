@@ -198,7 +198,7 @@ std::vector<CSCALCTDigi> CSCALCTHeader::ALCTDigis() const
       <<"Empty Digis: ALCT firmware version is bad/not defined!" << firmwareVersion; 
     break;
   }
-  for(unsigned i = 0; i < result.size(); ++i) {result[i].setFullBX(BXNCount());}
+  for(auto & i : result) {i.setFullBX(BXNCount());}
   return result;
 
 }
@@ -214,10 +214,9 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
     {
       theALCTs.resize(header2007.lctBins*2);
     }
-    for(std::vector<CSCALCTDigi>::const_iterator digi = digis.begin();
-        digi != digis.end(); ++digi)
+    for(auto digi : digis)
     {
-      int bx = digi->getBX();
+      int bx = digi.getBX();
       if(bx < (int)header2007.lctBins) 
       {
         // 2 ALCTs per bx
@@ -227,18 +226,18 @@ void CSCALCTHeader::add(const std::vector<CSCALCTDigi> & digis)
         // see if it's non=blank
         if(!theALCTs[i].valid)
         {
-          theALCTs[i] = CSCALCT(*digi);
+          theALCTs[i] = CSCALCT(digi);
         }
         // new best LCT
-        else if(digi->getQuality() > q1)
+        else if(digi.getQuality() > q1)
         {
           theALCTs[i+1] = theALCTs[i];
-          theALCTs[i] = CSCALCT(*digi);
+          theALCTs[i] = CSCALCT(digi);
         }
         // new second best
-        else if(!theALCTs[i+1].valid || (digi->getQuality() > q2))
+        else if(!theALCTs[i+1].valid || (digi.getQuality() > q2))
         {
-          theALCTs[i+1] = CSCALCT(*digi);
+          theALCTs[i+1] = CSCALCT(digi);
         }
       }
     }
@@ -267,11 +266,11 @@ boost::dynamic_bitset<> CSCALCTHeader::pack()
     result = bitset_utilities::ushortToBitset(header2007.sizeInWords()*16,
                                           (unsigned short *) &header2007);
 
-    for (unsigned i = 0; i < theALCTs.size(); ++i)
+    for (auto & theALCT : theALCTs)
     {
        boost::dynamic_bitset<> alct
-         = bitset_utilities::ushortToBitset(theALCTs[i].sizeInWords()*16,
-                                          (unsigned short *) &theALCTs[i]);
+         = bitset_utilities::ushortToBitset(theALCT.sizeInWords()*16,
+                                          (unsigned short *) &theALCT);
        result = bitset_utilities::append(result, alct);
     }
 

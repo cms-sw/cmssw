@@ -472,8 +472,8 @@ void PATMuonProducer::fillMuon( Muon& aMuon, const MuonBaseRef& muonRef, const r
 
   // store the match to the generated final state muons
   if (addGenMatch_) {
-    for(size_t i = 0, n = genMatches.size(); i < n; ++i) {
-      reco::GenParticleRef genMuon = (*genMatches[i])[baseRef];
+    for(const auto & genMatche : genMatches) {
+      reco::GenParticleRef genMuon = (*genMatche)[baseRef];
       aMuon.addGenParticleRef(genMuon);
     }
     if (embedGenMatch_) aMuon.embedGenParticle();

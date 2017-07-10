@@ -105,57 +105,57 @@ void SiStripQualityStatistics::analyze( const edm::Event& e, const edm::EventSet
 
   std::vector<SiStripQuality::BadComponent> BC = SiStripQuality_->getBadComponentList();
   
-  for (size_t i=0;i<BC.size();++i){
+  for (auto & i : BC){
     
     //&&&&&&&&&&&&&
     //Full Tk
     //&&&&&&&&&&&&&
 
-    if (BC[i].BadModule) 
+    if (i.BadModule) 
       NTkBadComponent[0]++;
-    if (BC[i].BadFibers) 
-      NTkBadComponent[1]+= ( (BC[i].BadFibers>>2)&0x1 )+ ( (BC[i].BadFibers>>1)&0x1 ) + ( (BC[i].BadFibers)&0x1 );
-    if (BC[i].BadApvs)
-      NTkBadComponent[2]+= ( (BC[i].BadApvs>>5)&0x1 )+ ( (BC[i].BadApvs>>4)&0x1 ) + ( (BC[i].BadApvs>>3)&0x1 ) + 
-	( (BC[i].BadApvs>>2)&0x1 )+ ( (BC[i].BadApvs>>1)&0x1 ) + ( (BC[i].BadApvs)&0x1 );
+    if (i.BadFibers) 
+      NTkBadComponent[1]+= ( (i.BadFibers>>2)&0x1 )+ ( (i.BadFibers>>1)&0x1 ) + ( (i.BadFibers)&0x1 );
+    if (i.BadApvs)
+      NTkBadComponent[2]+= ( (i.BadApvs>>5)&0x1 )+ ( (i.BadApvs>>4)&0x1 ) + ( (i.BadApvs>>3)&0x1 ) + 
+	( (i.BadApvs>>2)&0x1 )+ ( (i.BadApvs>>1)&0x1 ) + ( (i.BadApvs)&0x1 );
 
     //&&&&&&&&&&&&&&&&&
     //Single SubSyste
     //&&&&&&&&&&&&&&&&&
     int component;
-    DetId detectorId=DetId(BC[i].detid);
+    DetId detectorId=DetId(i.detid);
     int subDet = detectorId.subdetId();
     if ( subDet == StripSubdetector::TIB ){
       //&&&&&&&&&&&&&&&&&
       //TIB
       //&&&&&&&&&&&&&&&&&
       
-      component=tTopo->tibLayer(BC[i].detid);
-      SetBadComponents(0, component, BC[i]);         
+      component=tTopo->tibLayer(i.detid);
+      SetBadComponents(0, component, i);         
 
     } else if ( subDet == StripSubdetector::TID ) {
       //&&&&&&&&&&&&&&&&&
       //TID
       //&&&&&&&&&&&&&&&&&
 
-      component=tTopo->tidSide(BC[i].detid)==2?tTopo->tidWheel(BC[i].detid):tTopo->tidWheel(BC[i].detid)+3;
-      SetBadComponents(1, component, BC[i]);         
+      component=tTopo->tidSide(i.detid)==2?tTopo->tidWheel(i.detid):tTopo->tidWheel(i.detid)+3;
+      SetBadComponents(1, component, i);         
 
     } else if ( subDet == StripSubdetector::TOB ) {
       //&&&&&&&&&&&&&&&&&
       //TOB
       //&&&&&&&&&&&&&&&&&
 
-      component=tTopo->tobLayer(BC[i].detid);
-      SetBadComponents(2, component, BC[i]);         
+      component=tTopo->tobLayer(i.detid);
+      SetBadComponents(2, component, i);         
 
     } else if ( subDet == StripSubdetector::TEC ) {
       //&&&&&&&&&&&&&&&&&
       //TEC
       //&&&&&&&&&&&&&&&&&
 
-      component=tTopo->tecSide(BC[i].detid)==2?tTopo->tecWheel(BC[i].detid):tTopo->tecWheel(BC[i].detid)+9;
-      SetBadComponents(3, component, BC[i]);         
+      component=tTopo->tecSide(i.detid)==2?tTopo->tecWheel(i.detid):tTopo->tecWheel(i.detid)+9;
+      SetBadComponents(3, component, i);         
 
     }    
   }

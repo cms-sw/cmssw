@@ -105,10 +105,8 @@ EventSetup::fillAvailableRecordKeys(std::vector<eventsetup::EventSetupRecordKey>
   oToFill.reserve(recordMap_.size());
   
   typedef std::map<eventsetup::EventSetupRecordKey, eventsetup::EventSetupRecord const *> KeyToRecordMap;
-  for(KeyToRecordMap::const_iterator it = recordMap_.begin(), itEnd=recordMap_.end();
-      it != itEnd;
-      ++it) {
-    oToFill.push_back(it->first);
+  for(const auto & it : recordMap_) {
+    oToFill.push_back(it.first);
   }
 }
 

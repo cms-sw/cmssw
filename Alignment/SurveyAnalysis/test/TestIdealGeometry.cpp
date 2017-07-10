@@ -158,8 +158,7 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   int countDet = 0; 
 
   // Now loop on detector units, and store difference position and orientation w.r.t. survey
-  for ( auto iGeomDet = trackerGeometry->dets().begin();
-  		iGeomDet != trackerGeometry->dets().end(); iGeomDet++ )
+  for (auto iGeomDet : trackerGeometry->dets())
     // for (auto iGeomDet = alignments->m_align.begin();
     //	iGeomDet != alignments->m_align.end(); iGeomDet++ )
 	{
@@ -169,35 +168,35 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
             countDet++;
 	    unsigned int comparisonVect[6] = {0,0,0,0,0,0};
 	    
-	    if (((*iGeomDet)->geographicalId()).subdetId() == int(StripSubdetector::TIB)) {
+	    if ((iGeomDet->geographicalId()).subdetId() == int(StripSubdetector::TIB)) {
 	      
 	      comparisonVect[0] = int(StripSubdetector::TIB);
 	      
-	      comparisonVect[1] = tTopo->tibLayer((*iGeomDet)->geographicalId());
+	      comparisonVect[1] = tTopo->tibLayer(iGeomDet->geographicalId());
               if (comparisonVect[1] < 3) countDet = countDet + 2;  
-	      std::vector<unsigned int> theString = tTopo->tibStringInfo((*iGeomDet)->geographicalId());
+	      std::vector<unsigned int> theString = tTopo->tibStringInfo(iGeomDet->geographicalId());
 	      comparisonVect[2] = theString[0];
 	      comparisonVect[3] = theString[1];
 	      comparisonVect[4] = theString[2];
-	      comparisonVect[5] = tTopo->tibModule((*iGeomDet)->geographicalId());
+	      comparisonVect[5] = tTopo->tibModule(iGeomDet->geographicalId());
 	      
-	    } else if (((*iGeomDet)->geographicalId()).subdetId() == int(StripSubdetector::TID)) {
+	    } else if ((iGeomDet->geographicalId()).subdetId() == int(StripSubdetector::TID)) {
 	      
 	      comparisonVect[0] = int(StripSubdetector::TID);
 	      
-	      comparisonVect[1] = tTopo->tidSide((*iGeomDet)->geographicalId());
-	      comparisonVect[2] = tTopo->tidWheel((*iGeomDet)->geographicalId());
-	      comparisonVect[3] = tTopo->tidRing((*iGeomDet)->geographicalId());
+	      comparisonVect[1] = tTopo->tidSide(iGeomDet->geographicalId());
+	      comparisonVect[2] = tTopo->tidWheel(iGeomDet->geographicalId());
+	      comparisonVect[3] = tTopo->tidRing(iGeomDet->geographicalId());
               if (comparisonVect[3] < 3) countDet = countDet + 2; 
-	      std::vector<unsigned int> theModule = tTopo->tidModuleInfo((*iGeomDet)->geographicalId());
+	      std::vector<unsigned int> theModule = tTopo->tidModuleInfo(iGeomDet->geographicalId());
 	      comparisonVect[4] = theModule[0];
 	      comparisonVect[5] = theModule[1];
 	      
 	    }
 
-	    for ( MapTypeOr::const_iterator it = theSurveyMap.begin(); it != theSurveyMap.end(); it++ ) {
-	      std::vector<int> locPos = (it)->first;
-	      align::Scalars align_params = (it)->second;
+	    for (const auto & it : theSurveyMap) {
+	      std::vector<int> locPos = it.->first;
+	      align::Scalars align_params = it.->second;
 	      
 	      if (locPos[0] == int(comparisonVect[0]) &&
 		  locPos[1] == int(comparisonVect[1]) &&
@@ -206,33 +205,33 @@ TestIdealGeometry::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
 		  locPos[4] == int(comparisonVect[4]) &&
 		  locPos[5] == int(comparisonVect[5]) ) {
 		
-		Id_     = (*iGeomDet)->geographicalId().rawId();
+		Id_     = iGeomDet->geographicalId().rawId();
 		cout << "DetId = " << Id_ << " " << endl;
 		cout << "DetId decodified = " << comparisonVect[0] << " " << comparisonVect[1] << " " << comparisonVect[2] << " " << comparisonVect[3] << " " << comparisonVect[4] << " " << comparisonVect[5] << endl;	      
-		dx_      = (*iGeomDet)->position().x() - align_params[0];
-		cout << "X pos : TRACKER_GEOM = " << std::fixed << std::setprecision(2) << (*iGeomDet)->position().x() << " / IDEAL RICCARDO = " << align_params[0] << endl; 
-		dy_      = (*iGeomDet)->position().y() - align_params[1];
-		cout << "Y pos : TRACKER_GEOM = " << std::fixed << std::setprecision(2) << (*iGeomDet)->position().y() << " / IDEAL RICCARDO = " << align_params[1] << endl;
-		dz_      = (*iGeomDet)->position().z() - align_params[2];
-		cout << "Z pos : TRACKER_GEOM = " << std::fixed << std::setprecision(2) << (*iGeomDet)->position().z() << " / IDEAL RICCARDO = " << align_params[2] << endl;
-		dtx_     = (*iGeomDet)->rotation().xx() - align_params[6];
-		cout << "Trans vect X : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().xx() << " / IDEAL RICCARDO = " << align_params[6] << endl;
-		dty_     = (*iGeomDet)->rotation().xy() - align_params[7];
-		cout << "Trans vect Y : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().xy() << " / IDEAL RICCARDO = " << align_params[7] << endl;
-		dtz_     = (*iGeomDet)->rotation().xz() - align_params[8];
-		cout << "Trans vect Z : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().xz() << " / IDEAL RICCARDO = " << align_params[8] << endl; 	
-		dkx_     = (*iGeomDet)->rotation().yx() - align_params[9];
-		cout << "Long vect X : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().yx() << " / IDEAL RICCARDO = " << align_params[9] << endl;
-		dky_     = (*iGeomDet)->rotation().yy() - align_params[10];
-		cout << "Long vect Y : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().yy() << " / IDEAL RICCARDO = " << align_params[10] << endl;
-		dkz_     = (*iGeomDet)->rotation().yz() - align_params[11];
-		cout << "Long vect Z : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().yz() << " / IDEAL RICCARDO = " << align_params[11] << endl;
-		dnx_     = (*iGeomDet)->rotation().zx() - align_params[3];
-		cout << "Norm vect X : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().zx() << " / IDEAL RICCARDO = " << align_params[3] << endl;
-		dny_     = (*iGeomDet)->rotation().zy() - align_params[4];
-		cout << "Norm vect Y : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().zy() << " / IDEAL RICCARDO = " << align_params[4] << endl;
-		dnz_     = (*iGeomDet)->rotation().zz() - align_params[5];
-		cout << "Norm vect Z : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << (*iGeomDet)->rotation().zz() << " / IDEAL RICCARDO = " << align_params[5] << endl; 
+		dx_      = iGeomDet->position().x() - align_params[0];
+		cout << "X pos : TRACKER_GEOM = " << std::fixed << std::setprecision(2) << iGeomDet->position().x() << " / IDEAL RICCARDO = " << align_params[0] << endl; 
+		dy_      = iGeomDet->position().y() - align_params[1];
+		cout << "Y pos : TRACKER_GEOM = " << std::fixed << std::setprecision(2) << iGeomDet->position().y() << " / IDEAL RICCARDO = " << align_params[1] << endl;
+		dz_      = iGeomDet->position().z() - align_params[2];
+		cout << "Z pos : TRACKER_GEOM = " << std::fixed << std::setprecision(2) << iGeomDet->position().z() << " / IDEAL RICCARDO = " << align_params[2] << endl;
+		dtx_     = iGeomDet->rotation().xx() - align_params[6];
+		cout << "Trans vect X : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().xx() << " / IDEAL RICCARDO = " << align_params[6] << endl;
+		dty_     = iGeomDet->rotation().xy() - align_params[7];
+		cout << "Trans vect Y : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().xy() << " / IDEAL RICCARDO = " << align_params[7] << endl;
+		dtz_     = iGeomDet->rotation().xz() - align_params[8];
+		cout << "Trans vect Z : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().xz() << " / IDEAL RICCARDO = " << align_params[8] << endl; 	
+		dkx_     = iGeomDet->rotation().yx() - align_params[9];
+		cout << "Long vect X : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().yx() << " / IDEAL RICCARDO = " << align_params[9] << endl;
+		dky_     = iGeomDet->rotation().yy() - align_params[10];
+		cout << "Long vect Y : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().yy() << " / IDEAL RICCARDO = " << align_params[10] << endl;
+		dkz_     = iGeomDet->rotation().yz() - align_params[11];
+		cout << "Long vect Z : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().yz() << " / IDEAL RICCARDO = " << align_params[11] << endl;
+		dnx_     = iGeomDet->rotation().zx() - align_params[3];
+		cout << "Norm vect X : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().zx() << " / IDEAL RICCARDO = " << align_params[3] << endl;
+		dny_     = iGeomDet->rotation().zy() - align_params[4];
+		cout << "Norm vect Y : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().zy() << " / IDEAL RICCARDO = " << align_params[4] << endl;
+		dnz_     = iGeomDet->rotation().zz() - align_params[5];
+		cout << "Norm vect Z : TRACKER_GEOM = " << std::fixed << std::setprecision(3) << iGeomDet->rotation().zz() << " / IDEAL RICCARDO = " << align_params[5] << endl; 
 		theTree->Fill();
 	      }
 	    }	  

@@ -51,8 +51,8 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
   // get the firstBx_ and lastBx_ from the input datatypes (assume bx for em same as rgn)
   int firstBx = 0;
   int lastBx = 0;
-  for (std::vector<L1CaloEmCand>::const_iterator em=ems->begin(); em!=ems->end(); ++em) {
-    int bx = em->bx();
+  for (const auto & em : *ems) {
+    int bx = em.bx();
     if (bx < firstBx) firstBx = bx;
     if (bx > lastBx) lastBx = bx;
   }
@@ -61,7 +61,7 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
   regions->setBXRange(firstBx, lastBx);
 
   // loop over EM
-  for (std::vector<L1CaloEmCand>::const_iterator em=ems->begin(); em!=ems->end(); ++em) {
+  for (const auto & em : *ems) {
 
     // get physical units
     // double pt = 0.;
@@ -72,21 +72,21 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
 
     //CaloStage1Cluster cluster;
     CaloEmCand EmCand(*&p4,
-			   (int) em->rank(),
-			   (int) em->regionId().ieta(),
-			   (int) em->regionId().iphi(),
-			   (int) em->index());
+			   (int) em.rank(),
+			   (int) em.regionId().ieta(),
+			   (int) em.regionId().iphi(),
+			   (int) em.index());
 
-    EmCand.setHwIso((int) em->isolated());
+    EmCand.setHwIso((int) em.isolated());
     //std::cout<<"ISO:    "<<EmCand.hwIso()<<"    "<<em->isolated()<<std::endl;
 
     // create new format
-    emcands->push_back( em->bx(), EmCand );
+    emcands->push_back( em.bx(), EmCand );
 
   }
 
   // loop over regions
-  for (std::vector<L1CaloRegion>::const_iterator rgn=rgns->begin(); rgn!=rgns->end(); ++rgn) {
+  for (const auto & rgn : *rgns) {
 
     // get physical units
     // double pt = 0.;
@@ -94,7 +94,7 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
     // double phi = 0.;
     //math::PtEtaPhiMLorentzVector p4( pt+1.e-6, eta, phi, 0 );
 
-    bool tauVeto = rgn->fineGrain(); //equivalent to tauVeto for HB/HE, includes extra info for HF
+    bool tauVeto = rgn.fineGrain(); //equivalent to tauVeto for HB/HE, includes extra info for HF
     int hwQual = (int) tauVeto;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > p4(0,0,0,0);
@@ -105,15 +105,15 @@ L1TCaloRCTToUpgradeConverter::produce(edm::Event& iEvent, const edm::EventSetup&
     CaloRegion region(*&p4,           //  LorentzVector& p4,
       0.,                          //  etEm,
       0.,                          //  etHad,
-      (int) rgn->et(),             //  pt,
-      (int) rgn->id().ieta(),      //  eta,
-      (int) rgn->id().iphi(),      //  phi,
+      (int) rgn.et(),             //  pt,
+      (int) rgn.id().ieta(),      //  eta,
+      (int) rgn.id().iphi(),      //  phi,
       hwQual,                      //  qual,
       0,                           //  hwEtEm,
       0);                          //  hwEtHad
 
     // add to output
-    regions->push_back( rgn->bx(), region );
+    regions->push_back( rgn.bx(), region );
 
   }
 

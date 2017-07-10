@@ -59,9 +59,9 @@ class HDQMInspectorConfigBase
     // Return the error name for a quantity name given.  This is designed to be used for the
     // "user" input quantities
 
-    for (std::map<std::string, std::string>::const_iterator It = fErrorMap.begin(); It != fErrorMap.end(); ++It) {
-      if (QuantityName.find( It->first ) != std::string::npos) {
-        return It->second;
+    for (const auto & It : fErrorMap) {
+      if (QuantityName.find( It.first ) != std::string::npos) {
+        return It.second;
       }
     }
 

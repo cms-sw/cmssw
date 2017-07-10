@@ -120,8 +120,8 @@ SeedClusterRemoverPhase2::~SeedClusterRemoverPhase2()
 void SeedClusterRemoverPhase2::mergeOld(ClusterRemovalInfo::Indices &refs,
                                             const ClusterRemovalInfo::Indices &oldRefs) 
 {
-        for (size_t i = 0, n = refs.size(); i < n; ++i) {
-            refs[i] = oldRefs[refs[i]];
+        for (unsigned int & ref : refs) {
+            ref = oldRefs[ref];
        }
 }
 

@@ -73,11 +73,9 @@ struct CaloTauSelectorDefinition {
       reco::CaloTauRef calotauRef(hc, key);
 
       //iterate over all discriminators, check the cuts
-      for (TDiscCutPairVec::iterator discIt = discriminators_.begin();
-           discIt!=discriminators_.end();
-           ++discIt)
+      for (auto & discriminator : discriminators_)
       {
-        if ( (*(discIt->m_discHandle))[calotauRef] <= discIt->m_cut)
+        if ( (*(discriminator.m_discHandle))[calotauRef] <= discriminator.m_cut)
           passedAllCuts = false;
       }
 

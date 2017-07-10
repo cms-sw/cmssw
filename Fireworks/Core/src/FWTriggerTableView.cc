@@ -116,8 +116,8 @@ FWTriggerTableView::saveImageTo( const std::string& iName ) const
 
 void FWTriggerTableView::dataChanged ()
 {
-   for(std::vector<Column>::iterator i = m_columns.begin(); i!= m_columns.end(); ++i)
-      (*i).values.clear();
+   for(auto & m_column : m_columns)
+      m_column.values.clear();
 
    edm::EventBase *base = const_cast<edm::EventBase*>(FWGUIManager::getGUIManager()->getCurrentEvent());
    if (fwlite::Event* event = dynamic_cast<fwlite::Event*>(base))
@@ -192,11 +192,11 @@ FWTriggerTableView::resetCombo() const
       m_combo->RemoveAll();
       int cnt = 0;
       int id = -1;    
-      for (std::vector<std::string>::iterator i = m_processList->begin(); i != m_processList->end(); ++i)
+      for (auto & i : *m_processList)
       {
-         if (m_process.value() == *i ) id = cnt;
+         if (m_process.value() == i ) id = cnt;
 
-         m_combo->AddEntry((*i).c_str(), cnt);
+         m_combo->AddEntry(i.c_str(), cnt);
          cnt++;
       }
 
@@ -222,9 +222,9 @@ FWTriggerTableView::processChanged(const char* x)
 bool
 FWTriggerTableView::isProcessValid() const
 {
-   for (std::vector<std::string>::iterator i = m_processList->begin(); i!= m_processList->end(); ++i)
+   for (auto & i : *m_processList)
    {
-      if (*i == m_process.value())
+      if (i == m_process.value())
          return true;
    }
    return false;

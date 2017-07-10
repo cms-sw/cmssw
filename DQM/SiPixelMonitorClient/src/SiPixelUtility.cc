@@ -14,8 +14,7 @@ int SiPixelUtility::getMEList(string name, vector<string>& values) {
   prefix_str += "/"; 
   string temp_str = name.substr(name.find(":")+1);
   split(temp_str, values, ",");
-  for (vector<string>::iterator it = values.begin();
-       it != values.end(); it++) (*it).insert(0,prefix_str);
+  for (auto & value : values) value.insert(0,prefix_str);
   return values.size();
 }
 //
@@ -38,10 +37,9 @@ bool SiPixelUtility::checkME(string name, string me_name, string& full_path) {
   string temp_str = name.substr(name.find(":")+1);
   vector<string> values;
   split(temp_str, values, ",");
-  for (vector<string>::iterator it = values.begin();
-       it != values.end(); it++) {
-    if ((*it).find(me_name) != string::npos) {
-      full_path = prefix_str + (*it);
+  for (auto & value : values) {
+    if (value.find(me_name) != string::npos) {
+      full_path = prefix_str + value;
       return true;
     }
   }
@@ -284,12 +282,10 @@ void SiPixelUtility::fillPaveText(TPaveText                 * pave,
 				  const map<string,pair<int,double> >&  messages){
 
   TText* sourceCodeOnCanvas;
-  for(map<string, pair<int,double> >::const_iterator it =  messages.begin();
-                                            it != messages.end();
-                                            it++){
-    string message = it->first;
-    int    color   = (it->second).first;
-    double size    = (it->second).second;
+  for(const auto & it : messages){
+    string message = it.first;
+    int    color   = (it.second).first;
+    double size    = (it.second).second;
     sourceCodeOnCanvas = pave->AddText(message.c_str());
     sourceCodeOnCanvas->SetTextColor(color);
     sourceCodeOnCanvas->SetTextSize(size);

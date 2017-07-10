@@ -31,16 +31,16 @@ HLTBTagPerformanceAnalyzer::HLTBTagPerformanceAnalyzer(const edm::ParameterSet& 
 	EDConsumerBase::labelsForToken(m_mcPartons,label);
 	m_mcPartons_Label = label.module;
 	
-	for(unsigned int i=0; i<JetTagCollection_.size() ; i++){
-		EDConsumerBase::labelsForToken(JetTagCollection_[i],label);
+	for(auto i : JetTagCollection_){
+		EDConsumerBase::labelsForToken(i,label);
 		JetTagCollection_Label.push_back(label.module);
 	}
 
 	EDConsumerBase::labelsForToken(hlTriggerResults_,label);
 	hlTriggerResults_Label = label.module;
 	
-	for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
-		m_mcFlavours.push_back( mc.getParameter<std::vector<unsigned int> >(m_mcLabels[i]) );
+	for (const auto & m_mcLabel : m_mcLabels)
+		m_mcFlavours.push_back( mc.getParameter<std::vector<unsigned int> >(m_mcLabel) );
 	m_mcMatching = m_mcPartons_Label != "none" ;
 
 	m_mcRadius=0.3;
@@ -66,12 +66,12 @@ void HLTBTagPerformanceAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::Ev
 	const std::vector< std::string > & allHltPathNames = hltConfigProvider_.triggerNames();
 
 	//fill hltPathIndexs_ with the trigger number of each hltPathNames_
-	for ( size_t trgs=0; trgs<hltPathNames_.size(); trgs++) {
+	for (const auto & hltPathName : hltPathNames_) {
 		unsigned int found = 1;
 		int it_mem = -1;
 		for (size_t it=0 ; it < allHltPathNames.size() ; ++it )
 		{
-			found = allHltPathNames.at(it).find(hltPathNames_[trgs]);
+			found = allHltPathNames.at(it).find(hltPathName);
 			if ( found == 0 )
 			{
 				it_mem= (int) it;
@@ -134,9 +134,9 @@ void HLTBTagPerformanceAnalyzer::analyze(const edm::Event& iEvent, const edm::Ev
 		}
 		
 		//fill JetTag map
-		if (BtagOK) for ( auto  iter = JetTagHandler->begin(); iter != JetTagHandler->end(); iter++ )
+		if (BtagOK) for (const auto & iter : *JetTagHandler)
 		{
-			JetTag.insert(JetTagMap::value_type(iter->first, iter->second));
+			JetTag.insert(JetTagMap::value_type(iter.first, iter.second));
 		}
 		else {
 		    edm::LogInfo("NoCollection") << "Collection " << JetTagCollection_Label[ind] <<  " ==> not found"; return;
@@ -233,9 +233,9 @@ void HLTBTagPerformanceAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm
 		double etamin=-2.4;
 		double etaMax=2.4;
 
-		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
+		for (auto & m_mcLabel : m_mcLabels)
 		{
-			TString flavour= m_mcLabels[i].c_str();
+			TString flavour= m_mcLabel.c_str();
 			TString label;
 			std::string labelEta;
 			std::string labelPhi;

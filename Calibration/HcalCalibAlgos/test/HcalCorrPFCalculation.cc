@@ -208,10 +208,10 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
   
   // temporary collection of EB+EE recHits
   auto tmpEcalRecHitCollection = std::make_unique<EcalRecHitCollection>();
-  for(EcalRecHitCollection::const_iterator recHit = (*ecalEB).begin(); recHit != (*ecalEB).end(); ++recHit)
-    {tmpEcalRecHitCollection->push_back(*recHit);}
-  for(EcalRecHitCollection::const_iterator recHit = (*ecalEE).begin(); recHit != (*ecalEE).end(); ++recHit)
-    {tmpEcalRecHitCollection->push_back(*recHit);}
+  for(const auto & recHit : (*ecalEB))
+    {tmpEcalRecHitCollection->push_back(recHit);}
+  for(const auto & recHit : (*ecalEE))
+    {tmpEcalRecHitCollection->push_back(recHit);}
   const EcalRecHitCollection Hitecal = *tmpEcalRecHitCollection;
 
 
@@ -489,13 +489,13 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  if(distAtHcal < clusterConeSize_) 
 	    {
-	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
+	      for (const auto & hhit2 : Hithbhe) 
 		//for (HcalRecHitCollection::const_iterator hhit2=Hithcal.begin(); hhit2!=Hithcal.end(); hhit2++) 
 		{
-		  int iphihit2  = (hhit2->id()).iphi();
-		  int ietahit2  = (hhit2->id()).ieta();
-		  int depthhit2 = (hhit2->id()).depth();
-		  float enehit2 = hhit2->energy() * recal;
+		  int iphihit2  = (hhit2.id()).iphi();
+		  int ietahit2  = (hhit2.id()).ieta();
+		  int depthhit2 = (hhit2.id()).depth();
+		  float enehit2 = hhit2.energy() * recal;
 		  
 		  if (iphihit==iphihit2 && ietahit==ietahit2  && depthhit!=depthhit2)  enehit = enehit+enehit2;
 		
@@ -531,12 +531,12 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	  
 	  if(distAtHcal < associationConeSize_) 	  
 	    {
-	      for (HFRecHitCollection::const_iterator hhit2=Hithf.begin(); hhit2!=Hithf.end(); hhit2++) 
+	      for (const auto & hhit2 : Hithf) 
 		{
-		  int iphihit2  = (hhit2->id()).iphi();
-		  int ietahit2  = (hhit2->id()).ieta();
-		  int depthhit2 = (hhit2->id()).depth();
-		  float enehit2 = hhit2->energy() * recal;
+		  int iphihit2  = (hhit2.id()).iphi();
+		  int ietahit2  = (hhit2.id()).ieta();
+		  int depthhit2 = (hhit2.id()).depth();
+		  float enehit2 = hhit2.energy() * recal;
 		  
 		  if (iphihit==iphihit2 && ietahit==ietahit2  && depthhit!=depthhit2)  enehit = enehit+enehit2;
 		  
@@ -602,17 +602,17 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	      
 	      // cout<<"track: ieta "<<ietahit<<" iphi: "<<iphihit<<" depth: "<<depthhit<<" energydepos: "<<enehit<<endl;
 	      
-	      for (HBHERecHitCollection::const_iterator hhit2=Hithbhe.begin(); hhit2!=Hithbhe.end(); hhit2++) 
+	      for (const auto & hhit2 : Hithbhe) 
 		{
-		  recal = RecalibFactor(hhit2->detid());
-		  int iphihit2 = (hhit2->id()).iphi();
-		  int ietahit2 = (hhit2->id()).ieta();
-		  int depthhit2 = (hhit2->id()).depth();
-		  float enehit2 = hhit2->energy()* recal;	
+		  recal = RecalibFactor(hhit2.detid());
+		  int iphihit2 = (hhit2.id()).iphi();
+		  int ietahit2 = (hhit2.id()).ieta();
+		  int depthhit2 = (hhit2.id()).depth();
+		  float enehit2 = hhit2.energy()* recal;	
 		  
 		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2>0.)
 		    {
-		      eHcalConeNoise += hhit2->energy()*recal;
+		      eHcalConeNoise += hhit2.energy()*recal;
 		      UsedCellsNoise++;
 		      //cout<<"Noise: ieta "<<ietahit2<<" iphi: "<<iphihit2<<" depth: "<<depthhit2<<" energydepos: "<<enehit2<<endl;
 		    }
@@ -663,18 +663,18 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
 	      if (abs(DIETA)<=1 && (abs(DIPHI)<=1 || ((abs(MaxHit.ietahitm)>20 && abs(DIPHI)<=2) && !(abs(MaxHit.ietahitm)==21 && abs((hhit->id()).ieta())<=20 && abs(DIPHI)>1) )) )
 		{e3x3  += hhit->energy();}
 	      
-	      for (HFRecHitCollection::const_iterator hhit2=Hithf.begin(); hhit2!=Hithf.end(); hhit2++) 
+	      for (const auto & hhit2 : Hithf) 
 		{
-		  recal = RecalibFactor(hhit2->detid());
+		  recal = RecalibFactor(hhit2.detid());
 		  
-		  int iphihit2 = (hhit2->id()).iphi();
-		  int ietahit2 = (hhit2->id()).ieta();
-		  int depthhit2 = (hhit2->id()).depth();
-		  float enehit2 = hhit2->energy()* recal;	
+		  int iphihit2 = (hhit2.id()).iphi();
+		  int ietahit2 = (hhit2.id()).ieta();
+		  int depthhit2 = (hhit2.id()).depth();
+		  float enehit2 = hhit2.energy()* recal;	
 		  
 		  if (iphihitNoise == iphihit2 && ietahitNoise == ietahit2 && depthhitNoise == depthhit2 && enehit2>0.01)
 		    {
-		      eHcalConeNoise += hhit2->energy()*recal;
+		      eHcalConeNoise += hhit2.energy()*recal;
 		      UsedCellsNoise++;
 		    }
 		}
@@ -693,19 +693,19 @@ void HcalCorrPFCalculation::analyze(edm::Event const& ev, edm::EventSetup const&
       
       float delR_track_particle = 100;
       
-      for (reco::TrackCollection::const_iterator track1=generalTracks->begin(); track1!=generalTracks->end(); track1++)
+      for (const auto & track1 : *generalTracks)
 	{
-	  delR_track_particle = deltaR(etaParticle, phiParticle, track1->eta(), track1->phi());
+	  delR_track_particle = deltaR(etaParticle, phiParticle, track1.eta(), track1.phi());
 	  
-	  trackEta[nTracks] = track1 -> eta();
-	  trackPhi[nTracks] = track1 -> phi();
-	  trackP[nTracks]   = sqrt(track1->px()*track1->px() + track1->py()*track1->py() + track1->pz()*track1->pz());
+	  trackEta[nTracks] = track1. -> eta();
+	  trackPhi[nTracks] = track1. -> phi();
+	  trackP[nTracks]   = sqrt(track1.px()*track1.px() + track1.py()*track1.py() + track1.pz()*track1.pz());
 	  
 	  delRmc[nTracks]            = delR_track_particle;
-	  numValidTrkHits[nTracks]   = track1->hitPattern().numberOfValidHits();
-	  numValidTrkStrips[nTracks] = track1->hitPattern().numberOfValidStripTECHits();
-	  numLayers[nTracks]         = track1->hitPattern().trackerLayersWithMeasurement(); //layers crossed
-	  trkQual[nTracks]           = track1->quality(reco::TrackBase::highPurity);
+	  numValidTrkHits[nTracks]   = track1.hitPattern().numberOfValidHits();
+	  numValidTrkStrips[nTracks] = track1.hitPattern().numberOfValidStripTECHits();
+	  numLayers[nTracks]         = track1.hitPattern().trackerLayersWithMeasurement(); //layers crossed
+	  trkQual[nTracks]           = track1.quality(reco::TrackBase::highPurity);
 	  
 	  nTracks++;
 	}

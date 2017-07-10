@@ -179,10 +179,10 @@ void EmbeddingHepMCFilter::fill_cuts(std::string  cut_string, EmbeddingHepMCFilt
   boost::trim_fill(cut_string, "");
   std::vector<std::string> cut_paths;
   boost::split(cut_paths, cut_string, boost::is_any_of("||"), boost::token_compress_on);
-  for(unsigned int i=0; i<cut_paths.size(); ++i){
+  for(const auto & cut_path : cut_paths){
     // Translating the cuts of a path into a struct which is later accessed to apply them on a event.
       CutsContainer cut;
-      fill_cut(cut_paths[i], dc, cut);
+      fill_cut(cut_path, dc, cut);
       cuts_.push_back(cut);
   }
 }
@@ -198,7 +198,7 @@ EmbeddingHepMCFilter::fill_cut(std::string cut_string, EmbeddingHepMCFilter::Dec
             boost::replace_all(cut_string,")","");
             std::vector<std::string> single_cuts;
             boost::split(single_cuts, cut_string, boost::is_any_of("&&"), boost::token_compress_on);
-            for (unsigned int i=0; i<single_cuts.size(); ++i)
+            for (auto & single_cut : single_cuts)
             {
                 std::string pt1_str, pt2_str, eta1_str, eta2_str;
                 if (dc.first == dc.second)
@@ -216,25 +216,25 @@ EmbeddingHepMCFilter::fill_cut(std::string cut_string, EmbeddingHepMCFilter::Dec
                     eta2_str = return_mode(dc.second)+".Eta"+"<";
                 }
                 
-                if(boost::find_first(single_cuts[i], pt1_str))
+                if(boost::find_first(single_cut, pt1_str))
                 {
-                    boost::erase_first(single_cuts[i], pt1_str);
-                    cut.pt1 = std::stod(single_cuts[i]);
+                    boost::erase_first(single_cut, pt1_str);
+                    cut.pt1 = std::stod(single_cut);
                 }
-                else if (boost::find_first(single_cuts[i], pt2_str))
+                else if (boost::find_first(single_cut, pt2_str))
                 {
-                    boost::erase_first(single_cuts[i], pt2_str);
-                    cut.pt2 = std::stod(single_cuts[i]);
+                    boost::erase_first(single_cut, pt2_str);
+                    cut.pt2 = std::stod(single_cut);
                 }
-                else if (boost::find_first(single_cuts[i], eta1_str))
+                else if (boost::find_first(single_cut, eta1_str))
                 {
-                    boost::erase_first(single_cuts[i], eta1_str);
-                    cut.eta1 = std::stod(single_cuts[i]);
+                    boost::erase_first(single_cut, eta1_str);
+                    cut.eta1 = std::stod(single_cut);
                 }
-                else if (boost::find_first(single_cuts[i], eta2_str))
+                else if (boost::find_first(single_cut, eta2_str))
                 {
-                    boost::erase_first(single_cuts[i], eta2_str);
-                    cut.eta2 = std::stod(single_cuts[i]);
+                    boost::erase_first(single_cut, eta2_str);
+                    cut.eta2 = std::stod(single_cut);
                 }
             }
 }

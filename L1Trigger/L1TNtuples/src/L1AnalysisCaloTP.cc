@@ -23,23 +23,23 @@ void L1Analysis::L1AnalysisCaloTP::SetHCAL( const HcalTrigPrimDigiCollection& hc
 
   if (verbose_) edm::LogInfo("L1Ntuple") << "HCAL TPs : " << hcalTPs.size() << std::endl;
 
-  for (unsigned i=0; i<hcalTPs.size(); ++i) {
+  for (const auto & hcalTP : hcalTPs) {
 
-    short ieta = (short) hcalTPs[i].id().ieta(); 
+    short ieta = (short) hcalTP.id().ieta(); 
     unsigned short absIeta = (unsigned short) abs(ieta);
     short sign = ieta/absIeta;
 
-    unsigned short cal_iphi = (unsigned short) hcalTPs[i].id().iphi();
+    unsigned short cal_iphi = (unsigned short) hcalTP.id().iphi();
     unsigned short iphi = (72 + 18 - cal_iphi) % 72;
     if (absIeta >= 29) {  // special treatment for HF
       iphi = iphi/4;
     }
 
-    unsigned short compEt = hcalTPs[i].SOI_compressedEt();
+    unsigned short compEt = hcalTP.SOI_compressedEt();
     double et = 0.;
     if (hcalScale_!=0) et = hcalScale_->et( compEt, absIeta, sign );
 
-    unsigned short fineGrain = (unsigned short) hcalTPs[i].SOI_fineGrain();
+    unsigned short fineGrain = (unsigned short) hcalTP.SOI_fineGrain();
 
     tp_.hcalTPieta.push_back( ieta );
     tp_.hcalTPCaliphi.push_back( cal_iphi );
@@ -57,20 +57,20 @@ void L1Analysis::L1AnalysisCaloTP::SetECAL( const EcalTrigPrimDigiCollection& ec
   
   if (verbose_) edm::LogInfo("L1Ntuple") << "ECAL TPs : " << ecalTPs.size() << std::endl;
 
-  for (unsigned i=0; i<ecalTPs.size(); ++i) {
+  for (const auto & ecalTP : ecalTPs) {
 
-    short ieta = (short) ecalTPs[i].id().ieta(); 
+    short ieta = (short) ecalTP.id().ieta(); 
     unsigned short absIeta = (unsigned short) abs(ieta);
     short sign = ieta/absIeta;
     
-    unsigned short cal_iphi = (unsigned short) ecalTPs[i].id().iphi(); 
+    unsigned short cal_iphi = (unsigned short) ecalTP.id().iphi(); 
     unsigned short iphi = (72 + 18 - cal_iphi) % 72; // transform TOWERS (not regions) into local rct (intuitive) phi bins
     
-    unsigned short compEt = ecalTPs[i].compressedEt();
+    unsigned short compEt = ecalTP.compressedEt();
     double et = 0.;
     if (ecalScale_!=0) et = ecalScale_->et( compEt, absIeta, sign );
     
-    unsigned short fineGrain = (unsigned short) ecalTPs[i].fineGrain();  // 0 or 1
+    unsigned short fineGrain = (unsigned short) ecalTP.fineGrain();  // 0 or 1
     
     tp_.ecalTPieta.push_back( ieta );
     tp_.ecalTPCaliphi.push_back( cal_iphi );

@@ -158,8 +158,8 @@ const std::string DQMFileSaverOnline::fillOrigin(
   MD5((unsigned char*)fp.data(), fp.size(), md5);
 
   std::ostringstream hash;
-  for (int i = 0; i < MD5_DIGEST_LENGTH; ++i) {
-    hash << std::hex << std::setfill('0') << std::setw(2) << (int)(md5[i]);
+  for (unsigned char & i : md5) {
+    hash << std::hex << std::setfill('0') << std::setw(2) << (int)i;
   }
 
   std::ostringstream out;

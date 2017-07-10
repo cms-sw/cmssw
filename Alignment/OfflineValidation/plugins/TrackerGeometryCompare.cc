@@ -174,9 +174,9 @@ TrackerGeometryCompare::TrackerGeometryCompare(const edm::ParameterSet& cfg) :
 	_alignTree->Branch("type", &_type, "type/I");
         _alignTree->Branch("surfDeform", &_surfDeform, "surfDeform[13]/D"); 
 
-	for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
-          it->setPalette(1) ;
-	  it->addPixel(true) ;
+	for (auto & it : m_vtkmap) {
+          it.setPalette(1) ;
+	  it.addPixel(true) ;
 	}
 
         edm::Service<TFileService> fs;
@@ -206,14 +206,14 @@ void TrackerGeometryCompare::beginJob(){
 void TrackerGeometryCompare::endJob(){
 
   int iname(0) ;
-  for (std::vector<TrackerMap>::iterator it = m_vtkmap.begin(); it != m_vtkmap.end(); ++it) {
+  for (auto & it : m_vtkmap) {
     std::stringstream mapname ;
     mapname << "TkMap_SurfDeform" << iname << ".png" ; 
-    it->save(true,0,0,mapname.str());
+    it.save(true,0,0,mapname.str());
     mapname.str( std::string() ); 
     mapname.clear() ; 
     mapname << "TkMap_SurfDeform" << iname << ".pdf" ; 
-    it->save(true,0,0,mapname.str());
+    it.save(true,0,0,mapname.str());
     ++iname ; 
   }
 
@@ -498,7 +498,7 @@ void TrackerGeometryCompare::compareSurfaceDeformations(TTree* refTree, TTree* c
     for (unsigned int iEntry = 0; iEntry < nEntries12; ++iEntry) {
       refTree->GetEntry(iEntry) ;
       curTree->GetEntry(iEntry) ;
-      for (int ii = 0; ii < 13; ++ii) { _surfDeform[ii] = -1.0 ; } 
+      for (double & ii : _surfDeform) { ii = -1.0 ; } 
       for (int npar = 0; npar < int(inputDpar2.size()); ++npar ) {
   	    if (inputRawid1 == inputRawid2) {
         _surfDeform[npar] = inputDpar2.at(npar) - inputDpar1.at(npar) ; 
@@ -615,8 +615,8 @@ void TrackerGeometryCompare::compareGeometries(Alignable* refAli, Alignable* cur
 	unsigned int nComp = refComp.size();
 	//only perform for designate levels
 	bool useLevel = false;
-	for (unsigned int i = 0; i < m_theLevels.size(); ++i){
-		if (refAli->alignableObjectId() == m_theLevels[i]) useLevel = true;
+	for (auto & m_theLevel : m_theLevels){
+		if (refAli->alignableObjectId() == m_theLevel) useLevel = true;
 	}
 	
 	//another added level for difference between det and detunit
@@ -797,8 +797,8 @@ void TrackerGeometryCompare::fillTree(Alignable *refAli, const AlgebraicVector& 
 	
 	//check if module is in a given list of bad/untouched etc. modules
 	_inModuleList = 0;
-	for (unsigned int i = 0 ; i< _moduleList.size(); i++){
-		if ( _moduleList[i] == _id)
+	for (int i : _moduleList){
+		if ( i == _id)
 		{
 			_inModuleList = 1;
 			break;
@@ -903,29 +903,29 @@ void TrackerGeometryCompare::surveyToTracker(AlignableTracker* ali, Alignments* 
 	std::copy(detTEC.begin(), detTEC.end(), std::back_inserter(allGeomDets));
 	
 	std::vector<Alignable*> rcdAlis;
-	for (std::vector<Alignable*>::iterator i = allGeomDets.begin(); i!= allGeomDets.end(); i++){
-		if ((*i)->components().size() == 1){
-			rcdAlis.push_back((*i));
+	for (auto & allGeomDet : allGeomDets){
+		if (allGeomDet->components().size() == 1){
+			rcdAlis.push_back(allGeomDet);
 		}
-		else if ((*i)->components().size() > 1){
-			rcdAlis.push_back((*i));
-			std::vector<Alignable*> comp = (*i)->components();
-			for (std::vector<Alignable*>::iterator j = comp.begin(); j != comp.end(); j++){
-				rcdAlis.push_back((*j));
+		else if (allGeomDet->components().size() > 1){
+			rcdAlis.push_back(allGeomDet);
+			std::vector<Alignable*> comp = allGeomDet->components();
+			for (auto & j : comp){
+				rcdAlis.push_back(j);
 			}
 		}
 	}
 	
 	//turning them into alignments
-	for(std::vector<Alignable*>::iterator k = rcdAlis.begin(); k != rcdAlis.end(); k++){
+	for(auto & rcdAli : rcdAlis){
 		
-		const SurveyDet* surveyInfo = (*k)->survey();
+		const SurveyDet* surveyInfo = rcdAli->survey();
 		align::PositionType pos(surveyInfo->position());
 		align::RotationType rot(surveyInfo->rotation());
 		CLHEP::Hep3Vector clhepVector(pos.x(),pos.y(),pos.z());
 		CLHEP::HepRotation clhepRotation( CLHEP::HepRep3x3(rot.xx(),rot.xy(),rot.xz(),rot.yx(),rot.yy(),rot.yz(),rot.zx(),rot.zy(),rot.zz()));
-		AlignTransform transform(clhepVector, clhepRotation, (*k)->id());
-		AlignTransformErrorExtended transformError(CLHEP::HepSymMatrix(3,1), (*k)->id());
+		AlignTransform transform(clhepVector, clhepRotation, rcdAli->id());
+		AlignTransformErrorExtended transformError(CLHEP::HepSymMatrix(3,1), rcdAli->id());
 		alignVals->m_align.push_back(transform);
 		alignErrors->m_alignError.push_back(transformError);
 	}

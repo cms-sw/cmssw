@@ -82,12 +82,12 @@ void AlignmentParameterBuilder::addAllSelections(const edm::ParameterSet &pSet)
   AlignmentParameterSelector selector(0);
   std::vector<std::string> selsTypes(pSet.getParameter<std::vector<std::string> >("parameterTypes"));
   
-  for (unsigned int i = 0; i < selsTypes.size(); ++i) {
-    std::vector<std::string> selSetType(selector.decompose(selsTypes[i], ','));
+  for (const auto & selsType : selsTypes) {
+    std::vector<std::string> selSetType(selector.decompose(selsType, ','));
     if (selSetType.size() != 2) {
       throw cms::Exception("BadConfig") << "AlignmentParameterBuilder"
 					<< "parameterTypes should contain 2 comma separated strings"
-					<< ", but found '" << selsTypes[i] << "'.";
+					<< ", but found '" << selsType << "'.";
     }
     this->addSelections(pSet.getParameter<edm::ParameterSet>(selSetType[0]),
 			AlignmentParametersFactory::parametersType(selSetType[1]));
@@ -154,9 +154,8 @@ unsigned int AlignmentParameterBuilder::add(const align::Alignables &alignables,
 
   unsigned int nHigherLevel = 0;
 
-  for (align::Alignables::const_iterator iAli = alignables.begin();
-       iAli != alignables.end(); ++iAli) {
-    if (this->add(*iAli, parType, sel)) ++nHigherLevel;
+  for (auto alignable : alignables) {
+    if (this->add(alignable, parType, sel)) ++nHigherLevel;
   }
 
   return nHigherLevel;
@@ -205,9 +204,9 @@ bool AlignmentParameterBuilder::decodeParamSel(std::vector<char> &paramSelChar,
 
   bool anyNon01 = false;
 
-  for (unsigned int pos = 0; pos < paramSelChar.size(); ++pos) {
+  for (char pos : paramSelChar) {
 
-    switch (paramSelChar[pos]) {
+    switch (pos) {
     default:
       anyNon01 = true;
       // no break;

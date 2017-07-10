@@ -119,9 +119,9 @@ EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    auto_ptr<EcalElectronicsMapping> ecalElectronicsMap(new EcalElectronicsMapping);
 
    // Loop over the hits
-   for(EcalUncalibratedRecHitCollection::const_iterator hitItr = EBHits->begin(); hitItr != EBHits->end(); ++hitItr)
+   for(const auto & hitItr : *EBHits)
    {
-     EcalUncalibratedRecHit hit = (*hitItr);
+     EcalUncalibratedRecHit hit = hitItr;
      float amplitude = hit.amplitude();
      EBDetId hitDetId = hit.id();
 
@@ -146,7 +146,7 @@ EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
      numHitsWithActivity++;
      EBDigiCollection::const_iterator digiItr= EBdigis->begin();
-     while(digiItr != EBdigis->end() && digiItr->id() != hitItr->id())
+     while(digiItr != EBdigis->end() && digiItr->id() != hitItr.id())
      {
        digiItr++;
      }
@@ -188,9 +188,9 @@ EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    }
 
    // Now do the same for the EE hits
-   for(EcalUncalibratedRecHitCollection::const_iterator hitItr = EEHits->begin(); hitItr != EEHits->end(); ++hitItr)
+   for(const auto & hitItr : *EEHits)
    {
-     EcalUncalibratedRecHit hit = (*hitItr);
+     EcalUncalibratedRecHit hit = hitItr;
      float amplitude = hit.amplitude();
      EEDetId hitDetId = hit.id();
 
@@ -215,7 +215,7 @@ EcalPulseShapeGrapher::analyze(const edm::Event& iEvent, const edm::EventSetup& 
      cutAmpHistMap_[hitDetId.hashedIndex()]->Fill(amplitude);
      numHitsWithActivity++;
      EEDigiCollection::const_iterator digiItr= EEdigis->begin();
-     while(digiItr != EEdigis->end() && digiItr->id() != hitItr->id())
+     while(digiItr != EEdigis->end() && digiItr->id() != hitItr.id())
      {
        digiItr++;
      }

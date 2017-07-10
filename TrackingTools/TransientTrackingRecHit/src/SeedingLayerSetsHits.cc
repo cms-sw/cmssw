@@ -45,8 +45,8 @@ void SeedingLayerSetsHits::print() const {
   for(LayerSetIndex iLayers=0; iLayers<size(); ++iLayers) {
     ss << " " << iLayers << ": ";
     SeedingLayerSet layers = operator[](iLayers);
-    for(unsigned iLayer=0; iLayer<layers.size(); ++iLayer) {
-      SeedingLayer layer = layers[iLayer];
+    for(auto iLayer : layers) {
+      SeedingLayer layer = iLayer;
       ss << layer.name() << " (" << layer.index() << ", nhits " << layer.hits().size() << ") ";
     }
     ss << "\n";

@@ -158,9 +158,9 @@ void MuonSeedOrcaPatternRecognition::produce(const edm::Event& event, const edm:
   
   unsigned int counter = 0;
   if ( list9.size() < 100 ) {   // +v
-    for (MuonRecHitContainer::iterator iter=list9.begin(); iter!=list9.end(); iter++ ){
+    for (auto & iter : list9){
       MuonRecHitContainer seedSegments;
-      seedSegments.push_back(*iter);
+      seedSegments.push_back(iter);
       complete(seedSegments, list6, MB3);
       complete(seedSegments, list7, MB2);
       complete(seedSegments, list8, MB1);
@@ -402,11 +402,11 @@ void MuonSeedOrcaPatternRecognition::endcapPatterns(
   bool* ME5 = zero(list5.size());
 
   // creates list of compatible track segments
-  for (MuonRecHitContainer::iterator iter = list1.begin(); iter!=list1.end(); iter++ ){
-    if ( (*iter)->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
+  for (auto & iter : list1){
+    if ( iter->recHits().size() < 4 && list3.size() > 0 ) continue; // 3p.tr-seg. are not so good for starting
     
     MuonRecHitContainer seedSegments;
-    seedSegments.push_back(*iter);
+    seedSegments.push_back(iter);
     complete(seedSegments, list2, ME2);
     complete(seedSegments, list3, ME3);
     complete(seedSegments, list4, ME4);
@@ -531,14 +531,13 @@ MuonSeedOrcaPatternRecognition::bestMatch(const ConstMuonRecHitPointer & first,
   MuonRecHitPointer best = 0;
   if(good_rhit.size() == 1) return good_rhit[0];
   double bestDiscrim = 10000.;
-  for (MuonRecHitContainer::iterator iter=good_rhit.begin(); 
-       iter!=good_rhit.end(); iter++)
+  for (auto & iter : good_rhit)
   {
-    double discrim = discriminator(first, *iter);
+    double discrim = discriminator(first, iter);
     if(discrim < bestDiscrim)
     {
       bestDiscrim = discrim;
-      best = *iter;
+      best = iter;
     }
   }
   return best;
@@ -619,10 +618,9 @@ bool MuonSeedOrcaPatternRecognition::isCrack(const ConstMuonRecHitPointer & segm
 {
   bool result = false;
   double absEta = fabs(segment->globalPosition().eta());
-  for(std::vector<double>::const_iterator crackItr = theCrackEtas.begin();
-      crackItr != theCrackEtas.end(); ++crackItr)
+  for(double theCrackEta : theCrackEtas)
   {
-    if(fabs(absEta-*crackItr) < theCrackWindow) {
+    if(fabs(absEta-theCrackEta) < theCrackWindow) {
       result = true;
     }
   }
@@ -633,16 +631,15 @@ bool MuonSeedOrcaPatternRecognition::isCrack(const ConstMuonRecHitPointer & segm
 void MuonSeedOrcaPatternRecognition::rememberCrackSegments(const MuonRecHitContainer & segments,
                                                            MuonRecHitContainer & crackSegments) const
 {
-  for(MuonRecHitContainer::const_iterator segmentItr = segments.begin(); 
-      segmentItr != segments.end(); ++segmentItr)
+  for(const auto & segment : segments)
   {
-    if((**segmentItr).hit()->dimension() == 4 && isCrack(*segmentItr)) 
+    if((*segment).hit()->dimension() == 4 && isCrack(segment)) 
     {
-       crackSegments.push_back(*segmentItr);
+       crackSegments.push_back(segment);
     }
     // save ME0 segments if eta > 2.4, no other detectors
-    if ((*segmentItr)->isME0() && std::abs((*segmentItr)->globalPosition().eta()) > 2.4){      
-      crackSegments.push_back(*segmentItr);      
+    if (segment->isME0() && std::abs(segment->globalPosition().eta()) > 2.4){      
+      crackSegments.push_back(segment);      
     }
   }
 }
@@ -654,10 +651,9 @@ void MuonSeedOrcaPatternRecognition::dumpLayer(const char * name, const MuonRecH
   MuonPatternRecoDumper theDumper;
 
   LogTrace(metname) << name << std::endl;
-  for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
-      segmentItr != segments.end(); ++segmentItr)
+  for(const auto & segment : segments)
   {
-    LogTrace(metname) << theDumper.dumpMuonId((**segmentItr).geographicalId());
+    LogTrace(metname) << theDumper.dumpMuonId((*segment).geographicalId());
   }
 }
 
@@ -667,44 +663,43 @@ MuonSeedOrcaPatternRecognition::filterSegments(const MuonRecHitContainer & segme
 {
 MuonPatternRecoDumper theDumper;
   MuonRecHitContainer result;
-  for(MuonRecHitContainer::const_iterator segmentItr = segments.begin();
-      segmentItr != segments.end(); ++segmentItr)
+  for(const auto & segment : segments)
   {
 
-    double dtheta = (*segmentItr)->globalDirection().theta() -  (*segmentItr)->globalPosition().theta();
-    if((*segmentItr)->isDT())
+    double dtheta = segment->globalDirection().theta() -  segment->globalPosition().theta();
+    if(segment->isDT())
     {
       // only apply the cut to 4D segments
-      if((*segmentItr)->dimension() == 2 || fabs(dtheta) < dThetaCut)
+      if(segment->dimension() == 2 || fabs(dtheta) < dThetaCut)
       {
-        result.push_back(*segmentItr);
+        result.push_back(segment);
       }
       else 
       {
-        LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+        LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((*segment).geographicalId()) << " because dtheta = " << dtheta;
       }
 
     }
-    else if((*segmentItr)->isCSC()) 
+    else if(segment->isCSC()) 
     {
       if(fabs(dtheta) < dThetaCut)
       {
-        result.push_back(*segmentItr);
+        result.push_back(segment);
       }
       else 
       {
-         LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+         LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((*segment).geographicalId()) << " because dtheta = " << dtheta;
       }
     }
-    else if((*segmentItr)->isME0())
+    else if(segment->isME0())
     {
       if(fabs(dtheta) < dThetaCut)
       {
-	result.push_back(*segmentItr);
+	result.push_back(segment);
       }
       else
       {
-       	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((**segmentItr).geographicalId()) << " because dtheta = " << dtheta;
+       	LogTrace(metname) << "Cutting segment " << theDumper.dumpMuonId((*segment).geographicalId()) << " because dtheta = " << dtheta;
       }
     }
   }

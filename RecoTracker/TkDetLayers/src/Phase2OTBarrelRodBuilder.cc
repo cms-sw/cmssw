@@ -35,8 +35,8 @@ Phase2OTBarrelRod* Phase2OTBarrelRodBuilder::build(const GeometricDet* thePhase2
   LogDebug("TkDetLayers") << " meanR Lower " << meanR << std::endl;
   LogDebug("TkDetLayers") << " meanR Upper " << meanRBrothers << std::endl;
 
-  for(vector<const GeometricDet*>::iterator it=allGeometricDets.begin(); it!=allGeometricDets.end(); it++){
-    compGeometricDets = (*it)->components(); 
+  for(auto & allGeometricDet : allGeometricDets){
+    compGeometricDets = allGeometricDet->components(); 
     const GeomDet* theGeomDet = theGeomDetGeometry->idToDet( compGeometricDets[0]->geographicalID() );
     LogTrace("TkDetLayers") << " inserisco " << compGeometricDets[0]->geographicalID().rawId() << std::endl;
 

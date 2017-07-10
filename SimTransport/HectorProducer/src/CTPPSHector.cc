@@ -98,8 +98,8 @@ CTPPSHector::CTPPSHector(const edm::ParameterSet & param, bool verbosity,bool CT
 
 CTPPSHector::~CTPPSHector(){
 
-    for (std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-        delete (*it).second;
+    for (auto & it : m_beamPart) {
+        delete it.second;
     }
 
 }
@@ -109,8 +109,8 @@ void CTPPSHector::clearApertureFlags(){
 }
 
 void CTPPSHector::clear(){
-    for ( std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-        delete (*it).second;
+    for (auto & it : m_beamPart) {
+        delete it.second;
     };
     m_beamPart.clear();
     m_direct.clear();
@@ -273,8 +273,8 @@ int  CTPPSHector::getDirect( unsigned int part_n ) const {
 }
 
 void CTPPSHector::print() const {
-    for (std::map<unsigned int,H_BeamParticle*>::const_iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-        (*it).second->printProperties();
+    for (const auto & it : m_beamPart) {
+        it.second->printProperties();
     };
 }
 

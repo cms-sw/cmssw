@@ -258,9 +258,9 @@ DOMElement * LutXml::addData( std::string _elements, std::string _encoding, cons
 
   std::stringstream buf;
 
-  for (std::vector<unsigned int>::const_iterator iter = _lut.begin();iter!=_lut.end();++iter){
+  for (unsigned int iter : _lut){
     char buf2[8];
-    sprintf(buf2,"%x",(*iter));
+    sprintf(buf2,"%x",iter);
     buf << buf2 << " ";
     //buf << (*iter) << " ";
   }
@@ -363,7 +363,7 @@ std::string LutXml::get_checksum( std::vector<unsigned int> & lut )
     exit(-1);
   }
   md5_finish(&md5er,digest);
-  for (int i=0; i<16; i++) result << std::hex << (((int)(digest[i]))&0xFF);
+  for (unsigned char & i : digest) result << std::hex << (((int)i)&0xFF);
 
   //std::cout << "CHECKSUM: ";
   //std::cout << result . str();

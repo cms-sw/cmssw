@@ -80,8 +80,8 @@ void testEcalContainer::testContainer() {
   }
 
   float i = 0.;
-  for ( EcalContainer<EBDetId, float>::const_iterator citer = ec.begin(); citer != ec.end(); citer++) {
-	    CPPUNIT_ASSERT( (*citer) == i);
+  for (float citer : ec) {
+	    CPPUNIT_ASSERT( citer == i);
             ++i;
   }
   

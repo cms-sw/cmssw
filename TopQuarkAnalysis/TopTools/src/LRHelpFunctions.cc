@@ -80,11 +80,11 @@ void LRHelpFunctions::initLRHistsAndFits(int nrLRbins, double LRmin, double LRma
 
 // member function to set initial values to the observable fit function
 void LRHelpFunctions::setObsFitParameters(int obs,const std::vector<double>& fitPars){
-  for(size_t fit=0; fit<fObsSoverSplusB.size(); fit++){
+  for(auto & fit : fObsSoverSplusB){
     TString fn = "_Obs"; fn += obs;
-    if(((TString)fObsSoverSplusB[fit]->GetName()).Contains(fn)){
+    if(((TString)fit->GetName()).Contains(fn)){
       for(size_t p=0; p<fitPars.size(); p++){
-        fObsSoverSplusB[fit]->SetParameter(p,fitPars[p]);
+        fit->SetParameter(p,fitPars[p]);
       }
     }
   }
@@ -109,9 +109,9 @@ void LRHelpFunctions::fillToSignalHists(const std::vector<double>& obsVals, doub
 // member function to add observable values to the signal histograms
 void LRHelpFunctions::fillToSignalHists(int obsNbr, double obsVal, double weight){
   TString obs = "Obs"; obs += obsNbr; obs += "_";
-  for(size_t f = 0; f<hObsS.size(); f++){
-    if(((TString)(hObsS[f]->GetName())).Contains(obs)) {
-      hObsS[f]->Fill(obsVal, weight);
+  for(auto & f : hObsS){
+    if(((TString)(f->GetName())).Contains(obs)) {
+      f->Fill(obsVal, weight);
       return;
     }
   }
@@ -121,12 +121,12 @@ void LRHelpFunctions::fillToSignalHists(int obsNbr, double obsVal, double weight
 void LRHelpFunctions::fillToSignalCorrelation(int obsNbr1, double obsVal1, int obsNbr2,
 	double obsVal2, double weight){
   TString hcorr  = "Corr_Obs"; hcorr  += std::min(obsNbr1,obsNbr2) ; hcorr += "_Obs";  hcorr  += std::max(obsNbr1, obsNbr2);
-  for(size_t i=0; i<hObsCorr.size(); i++) {
-    if(((TString)(hObsCorr[i]->GetName())) == hcorr) {
+  for(auto & i : hObsCorr) {
+    if(((TString)(i->GetName())) == hcorr) {
       if (obsNbr1 < obsNbr2) {
-	hObsCorr[i] -> Fill(obsVal1,obsVal2, weight);
+	i -> Fill(obsVal1,obsVal2, weight);
       } else {
-	hObsCorr[i] -> Fill(obsVal2,obsVal1, weight);
+	i -> Fill(obsVal2,obsVal1, weight);
       }
       return;
     }
@@ -142,9 +142,9 @@ void LRHelpFunctions::fillToBackgroundHists(const std::vector<double>& obsVals, 
 // member function to add observable values to the signal histograms
 void LRHelpFunctions::fillToBackgroundHists(int obsNbr, double obsVal, double weight){
   TString obs = "Obs"; obs += obsNbr; obs += "_";
-  for(size_t f = 0; f<hObsB.size(); f++){
-    if(((TString)(hObsB[f]->GetName())).Contains(obs)) {
-      hObsB[f]->Fill(obsVal, weight);
+  for(auto & f : hObsB){
+    if(((TString)(f->GetName())).Contains(obs)) {
+      f->Fill(obsVal, weight);
       return;
     }
   }
@@ -383,9 +383,9 @@ double LRHelpFunctions::calcPtdrLRval(const std::vector<double>& vals, bool useC
         if (o==j) ++corr;
 	else {
 	  TString hcorr  = "Corr_Obs"; hcorr  += std::min(obsNumbers[o],obsNumbers[j]) ; hcorr += "_Obs";  hcorr  += std::max(obsNumbers[o],obsNumbers[j]);
-	  for(size_t i=0; i<hObsCorr.size(); i++) {
-	    if(((TString)(hObsCorr[i]->GetName())) == hcorr)
-	      corr += fabs(hObsCorr[i]->GetCorrelationFactor());
+	  for(auto & i : hObsCorr) {
+	    if(((TString)(i->GetName())) == hcorr)
+	      corr += fabs(i->GetCorrelationFactor());
 	  }
 	}
       }
@@ -480,8 +480,8 @@ double  LRHelpFunctions::calcProb(double logLR){
 bool 	LRHelpFunctions::obsFitIncluded(int o){
   bool included = false;
   TString obs = "_Obs"; obs += o; obs += "_";
-  for(size_t f = 0; f<fObsSoverSplusB.size(); f++){    
-    if(((TString)(fObsSoverSplusB[f]->GetName())).Contains(obs)) included = true;
+  for(auto & f : fObsSoverSplusB){    
+    if(((TString)(f->GetName())).Contains(obs)) included = true;
   }
   return included;
 }

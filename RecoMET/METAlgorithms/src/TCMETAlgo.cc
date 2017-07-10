@@ -212,10 +212,10 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event)
      
   edm::Handle< reco::PFClusterCollection > clustersECAL;
   event.getByToken(clustersECALToken_, clustersECAL);
-  for (reco::PFClusterCollection::const_iterator it = clustersECAL->begin(); it != clustersECAL->end(); it++)
+  for (const auto & it : *clustersECAL)
     {
-      const math::XYZPoint&  cluster_pos = it->position();
-      double et = it->energy() / cosh( cluster_pos.eta() );
+      const math::XYZPoint&  cluster_pos = it.position();
+      double et = it.energy() / cosh( cluster_pos.eta() );
       pfcmet_x -= et*cos(cluster_pos.phi());
       pfcmet_y -= et*sin(cluster_pos.phi());
       pfcsumet += et;
@@ -223,12 +223,12 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event)
        
   edm::Handle< reco::PFClusterCollection > clustersHCAL;
   event.getByToken(clustersHCALToken_, clustersHCAL);
-  for (reco::PFClusterCollection::const_iterator it = clustersHCAL->begin(); it != clustersHCAL->end(); it++)
+  for (const auto & it : *clustersHCAL)
     {
-      if (it->layer() == PFLayer::HCAL_BARREL2) continue; //skip HO
+      if (it.layer() == PFLayer::HCAL_BARREL2) continue; //skip HO
 
-      const math::XYZPoint&  cluster_pos = it->position();
-      double et = it->energy()/cosh(cluster_pos.eta());
+      const math::XYZPoint&  cluster_pos = it.position();
+      double et = it.energy()/cosh(cluster_pos.eta());
       pfcmet_x -= et*cos(cluster_pos.phi());
       pfcmet_y -= et*sin(cluster_pos.phi());
       pfcsumet += et;
@@ -236,10 +236,10 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event)
 
   edm::Handle< reco::PFClusterCollection > clustersHF;
   event.getByToken(clustersHFToken_, clustersHF);
-  for (reco::PFClusterCollection::const_iterator it = clustersHF->begin(); it != clustersHF->end(); it++)
+  for (const auto & it : *clustersHF)
     {
-      const math::XYZPoint& cluster_pos = it->position();
-      double et = it->energy()/cosh(cluster_pos.eta());
+      const math::XYZPoint& cluster_pos = it.position();
+      double et = it.energy()/cosh(cluster_pos.eta());
       pfcmet_x -= et*cos(cluster_pos.phi());
       pfcmet_y -= et*sin(cluster_pos.phi());
       pfcsumet += et;
@@ -481,13 +481,12 @@ bool TCMETAlgo::closeToElectron( const reco::TrackRef track )
   float trk_phi   = track->phi();
   LorentzVector tk_p4(track->px(), track->py(),track->pz(), track->p());
 
-  for(reco::GsfElectronCollection::const_iterator electron_it = electronHandle_->begin();
-      electron_it != electronHandle_->end(); ++electron_it)
+  for(const auto & electron_it : *electronHandle_)
     {
     
-      if( electron_it->hadronicOverEm() > hOverECut_ ) continue;
+      if( electron_it.hadronicOverEm() > hOverECut_ ) continue;
 
-      reco::TrackRef el_track = electron_it->closestCtfTrackRef();
+      reco::TrackRef el_track = electron_it.closestCtfTrackRef();
 
       if(!el_track.isNonnull()) continue;
  
@@ -572,9 +571,9 @@ int TCMETAlgo::nLayers(const reco::TrackRef track)
 //____________________________________________________________________________||
 bool TCMETAlgo::isMuon(const reco::TrackRef& trackRef)
 {
-  for(reco::MuonCollection::const_iterator muon_it = muonHandle_->begin(); muon_it != muonHandle_->end(); ++muon_it) 
+  for(const auto & muon_it : *muonHandle_) 
     {
-      reco::TrackRef mu_track = muon_it->innerTrack();
+      reco::TrackRef mu_track = muon_it.innerTrack();
       unsigned int idxMuon = mu_track.isNonnull() ? mu_track.key() : 99999;
       if(idxMuon == trackRef.key()) return true;
     }
@@ -584,15 +583,15 @@ bool TCMETAlgo::isMuon(const reco::TrackRef& trackRef)
 //____________________________________________________________________________||
 bool TCMETAlgo::isElectron(const reco::TrackRef& trackRef)
 {
-  for(reco::GsfElectronCollection::const_iterator electron_it = electronHandle_->begin(); electron_it != electronHandle_->end(); ++electron_it) 
+  for(const auto & electron_it : *electronHandle_) 
     {
-      reco::TrackRef el_track = electron_it->closestCtfTrackRef();
+      reco::TrackRef el_track = electron_it.closestCtfTrackRef();
 
       unsigned int ele_idx = el_track.isNonnull() ? el_track.key() : 99999;
 
       if( ele_idx == trackRef.key() )
 	{
-	  if(electron_it->hadronicOverEm() < hOverECut_) return true;
+	  if(electron_it.hadronicOverEm() < hOverECut_) return true;
 	}
     }
 
@@ -667,27 +666,27 @@ bool TCMETAlgo::isGoodTrack(const reco::TrackRef track)
   if(fabs( track->eta() ) > 2.0 && track->pt() > maxpt_eta20_ )    return false;
 
   int cut = 0;
-  for( unsigned int i = 0; i < trkQuality_.size(); i++ )
+  for(int i : trkQuality_)
     {
-      cut |= (1 << trkQuality_.at(i));
+      cut |= (1 << i);
     }
 
   if( !( ( track->qualityMask() & cut ) == cut ) ) return false;
 
   bool isGoodAlgo = false;
   if( trkAlgos_.size() == 0 ) isGoodAlgo = true;
-  for( unsigned int i = 0; i < trkAlgos_.size(); i++ )
+  for(auto & trkAlgo : trkAlgos_)
     {
-      if( track->algo() == trkAlgos_.at(i) ) isGoodAlgo = true;
+      if( track->algo() == trkAlgo ) isGoodAlgo = true;
     }
 
   if( !isGoodAlgo ) return false;
          
   if( vetoDuplicates_ )
     {
-      for( unsigned int iDup = 0; iDup < duplicateTracks_.size(); ++iDup)
+      for(int duplicateTrack : duplicateTracks_)
 	{
-	  if((int)track.key() == duplicateTracks_.at(iDup)) return false;
+	  if((int)track.key() == duplicateTrack) return false;
 	}
     }
 

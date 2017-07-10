@@ -105,9 +105,9 @@ SiStripQualityHistory::SiStripQualityHistory(const edm::ParameterSet& iConfig):
 
   edm::Service<TFileService> tfserv;
 
-  for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
+  for(const auto & ps : _monitoredssq) {
 
-    std::string name = ps->getParameter<std::string>("name");
+    std::string name = ps.getParameter<std::string>("name");
     //    _history[name] = tfserv->make<TGraph>();
     //    _history[name]->SetName(name.c_str());     _history[name]->SetTitle(name.c_str());
 
@@ -142,10 +142,10 @@ SiStripQualityHistory::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 {
   //  edm::LogInfo("EventProcessing") << "event being processed";
 
-  for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
+  for(const auto & ps : _monitoredssq) {
 
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("ssqLabel");
+    std::string name = ps.getParameter<std::string>("name");
+    std::string label = ps.getParameter<std::string>("ssqLabel");
 
 
 
@@ -200,10 +200,10 @@ SiStripQualityHistory::beginRun(const edm::Run& iRun, const edm::EventSetup& iSe
 
   // loop on all the SiStripQuality objects to be monitored
 
-  for(std::vector<edm::ParameterSet>::const_iterator ps=_monitoredssq.begin();ps!=_monitoredssq.end();++ps) {
+  for(const auto & ps : _monitoredssq) {
 
-    std::string name = ps->getParameter<std::string>("name");
-    std::string label = ps->getParameter<std::string>("ssqLabel");
+    std::string name = ps.getParameter<std::string>("name");
+    std::string label = ps.getParameter<std::string>("ssqLabel");
 
     if(m_badmodrun.find(name)!=m_badmodrun.end()) {
       if(m_badmodrun[name] && *m_badmodrun[name]) {

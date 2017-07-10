@@ -127,10 +127,9 @@ void PFClusterCalibration::setEtaCorrectionParameters(const std::vector<double>&
 	}
 	//	std::cout << "Fixing eta correction:\n\t";
 	unsigned count(0);
-	for (std::vector<double>::const_iterator dit = params.begin(); dit
-			!= params.end(); ++dit) {
+	for (double param : params) {
 	  //std::cout << *dit << "\t";
-		etaCorrection_->FixParameter(count, *dit);
+		etaCorrection_->FixParameter(count, param);
 		++count;
 	}
 	//	std::cout << std::endl;
@@ -144,9 +143,8 @@ void PFClusterCalibration::setEvolutionParameters(const std::string& sector,
 	TF1* func = &(namesAndFunctions_.find(sector)->second);
 	unsigned count(0);
 	//std::cout << "Fixing for "<< sector << "\n";
-	for (std::vector<double>::const_iterator dit = params.begin(); dit
-			!= params.end(); ++dit) {
-		func->FixParameter(count, *dit);
+	for (double param : params) {
+		func->FixParameter(count, param);
 		//std::cout << "\t"<< count << ": "<< *dit;
 		++count;
 	}

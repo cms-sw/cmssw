@@ -219,20 +219,20 @@ PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput)
 	VertexPtsumVector vertexptsumvector;
 
 	//loop over all vertices in the association map
-        for(TrackToVertexAssMap::const_iterator assomap_ite=trackvertexassInput->begin(); assomap_ite!=trackvertexassInput->end(); assomap_ite++){
+        for(const auto & assomap_ite : *trackvertexassInput){
 
-	  const VertexRef assomap_vertexref = assomap_ite->key;
-  	  const TrackQualityPairVector trckcoll = assomap_ite->val;
+	  const VertexRef assomap_vertexref = assomap_ite.key;
+  	  const TrackQualityPairVector trckcoll = assomap_ite.val;
 
 	  float ptsum = 0;
 
 	  TrackRef trackref;
 
 	  //get the tracks associated to the vertex and calculate the manipulated pT**2
-	  for(unsigned int trckcoll_ite=0; trckcoll_ite<trckcoll.size(); trckcoll_ite++){
+	  for(const auto & trckcoll_ite : trckcoll){
 
-	    trackref = trckcoll[trckcoll_ite].first;
-	    int quality = trckcoll[trckcoll_ite].second;
+	    trackref = trckcoll_ite.first;
+	    int quality = trckcoll_ite.second;
 
 	    if ( quality<=2 ) continue;
 
@@ -264,16 +264,16 @@ PF_PU_AssoMapAlgos::SortAssociationMap(TrackToVertexAssMap* trackvertexassInput)
 	  }
 
 	  //loop over all vertices in the association map
-          for(TrackToVertexAssMap::const_iterator assomap_ite=trackvertexassInput->begin(); assomap_ite!=trackvertexassInput->end(); assomap_ite++){
+          for(const auto & assomap_ite : *trackvertexassInput){
 
-	    const VertexRef assomap_vertexref = assomap_ite->key;
-  	    const TrackQualityPairVector trckcoll = assomap_ite->val;
+	    const VertexRef assomap_vertexref = assomap_ite.key;
+  	    const TrackQualityPairVector trckcoll = assomap_ite.val;
 
 	    //if the vertex from the association map the vertex with the highest manipulated pT
 	    //insert all associated tracks in the output Association Map
 	    if(assomap_vertexref==vertexref_highestpT)
-	      for(unsigned int trckcoll_ite=0; trckcoll_ite<trckcoll.size(); trckcoll_ite++)
-	        trackvertexassOutput->insert(assomap_vertexref,trckcoll[trckcoll_ite]);
+	      for(const auto & trckcoll_ite : trckcoll)
+	        trackvertexassOutput->insert(assomap_vertexref,trckcoll_ite);
 
 	  }
 
@@ -350,11 +350,9 @@ PF_PU_AssoMapAlgos::FindClosestZ(const reco::TrackRef trkref, std::vector<reco::
 	double dzmin = 1e5;
 
 	//loop over all vertices with a good quality in the vertex collection
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV->size(); ++index_vtx){
+  	for(auto vertexref : *vtxcollV){
 
-          VertexRef vertexref = vtxcollV->at(index_vtx);
-
-	  double nTracks = sqrt(vertexref->tracksSize());
+          double nTracks = sqrt(vertexref->tracksSize());
 
           double z_distance = fabs(ztrack - vertexref->z());
 
@@ -384,11 +382,9 @@ PF_PU_AssoMapAlgos::FindClosest3D(TransientTrack transtrk, std::vector<reco::Ver
 	double d3min = 1e5;
 
 	//loop over all vertices with a good quality in the vertex collection
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV->size(); ++index_vtx){
+  	for(auto vertexref : *vtxcollV){
 
-          VertexRef vertexref = vtxcollV->at(index_vtx);
-
-	  double nTracks = sqrt(vertexref->tracksSize());
+          double nTracks = sqrt(vertexref->tracksSize());
 
           double distance = 1e5;
           pair<bool,Measurement1D> IpPair = IPTools::absoluteImpactParameter3D(transtrk, *vertexref);
@@ -474,11 +470,11 @@ bool
 PF_PU_AssoMapAlgos::ComesFromConversion(const TrackRef trackref, const ConversionCollection& cleanedConvColl, Conversion* gamma)
 {
 
-	for(unsigned int convcoll_ite=0; convcoll_ite<cleanedConvColl.size(); convcoll_ite++){
+	for(const auto & convcoll_ite : cleanedConvColl){
 
-	  if(ConversionTools::matchesConversion(trackref,cleanedConvColl.at(convcoll_ite))){
+	  if(ConversionTools::matchesConversion(trackref,convcoll_ite)){
 
-	    *gamma = cleanedConvColl.at(convcoll_ite);
+	    *gamma = convcoll_ite;
 	    return true;
 
   	  }
@@ -620,16 +616,16 @@ PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref, const VertexCompos
 {
 
 	//the part for the reassociation of particles from Kshort decays
-	for(VertexCompositeCandidateCollection::const_iterator iKS=cleanedKshort.begin(); iKS!=cleanedKshort.end(); iKS++){
+	for(const auto & iKS : cleanedKshort){
 
-	  const RecoChargedCandidate *dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iKS->daughter(0));
+	  const RecoChargedCandidate *dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iKS.daughter(0));
  	  TrackRef dauTk1 = dauCand1->track();
-	  const RecoChargedCandidate *dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iKS->daughter(1));
+	  const RecoChargedCandidate *dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iKS.daughter(1));
  	  TrackRef dauTk2 = dauCand2->track();
 
 	  if((trackref==dauTk1) || (trackref==dauTk2)){
 
-	    *V0 = *iKS;
+	    *V0 = iKS;
 	    return true;
 
 	  }
@@ -637,16 +633,16 @@ PF_PU_AssoMapAlgos::ComesFromV0Decay(const TrackRef trackref, const VertexCompos
 	}
 
 	//the part for the reassociation of particles from Lambda decays
-	for(VertexCompositeCandidateCollection::const_iterator iLambda=cleanedLambda.begin(); iLambda!=cleanedLambda.end(); iLambda++){
+	for(const auto & iLambda : cleanedLambda){
 
-	  const RecoChargedCandidate *dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iLambda->daughter(0));
+	  const RecoChargedCandidate *dauCand1 = dynamic_cast<const RecoChargedCandidate*>(iLambda.daughter(0));
  	  TrackRef dauTk1 = dauCand1->track();
-	  const RecoChargedCandidate *dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iLambda->daughter(1));
+	  const RecoChargedCandidate *dauCand2 = dynamic_cast<const RecoChargedCandidate*>(iLambda.daughter(1));
  	  TrackRef dauTk2 = dauCand2->track();
 
    	  if((trackref==dauTk1) || (trackref==dauTk2)){
 
-	    *V0 = *iLambda;
+	    *V0 = iLambda;
 	    return true;
 
 	  }
@@ -692,35 +688,35 @@ PF_PU_AssoMapAlgos::GetCleanedNI(Handle<PFDisplacedVertexCollection> NuclIntH, H
 
      	auto_ptr<PFDisplacedVertexCollection> cleanedNIColl(new PFDisplacedVertexCollection() );
 
-	for (PFDisplacedVertexCollection::const_iterator niref=NuclIntH->begin(); niref!=NuclIntH->end(); niref++){
+	for (const auto & niref : *NuclIntH){
 
 
-	  if( (niref->isFake()) || !(niref->isNucl()) ) continue;
+	  if( (niref.isFake()) || !(niref.isNucl()) ) continue;
 
 	  if(!cleanedColl){
-	    cleanedNIColl->push_back(*niref);
+	    cleanedNIColl->push_back(niref);
 	    continue;
           }
 
   	  VertexDistance3D distanceComputer;
 
-      	  GlobalPoint ni_pos = RecoVertex::convertPos(niref->position());
-      	  GlobalError interactionVertexError = RecoVertex::convertError(niref->error());
+      	  GlobalPoint ni_pos = RecoVertex::convertPos(niref.position());
+      	  GlobalError interactionVertexError = RecoVertex::convertError(niref.error());
 
-      	  math::XYZVector ni_mom(niref->primaryMomentum().x(),
-	                         niref->primaryMomentum().y(),
-	                         niref->primaryMomentum().z());
+      	  math::XYZVector ni_mom(niref.primaryMomentum().x(),
+	                         niref.primaryMomentum().y(),
+	                         niref.primaryMomentum().z());
 
       	  GlobalPoint bsPosition = RecoVertex::convertPos(bsH->position());
       	  GlobalError bsError = RecoVertex::convertError(bsH->covariance3D());
 
    	  double nuclint_significance = (distanceComputer.distance(VertexState(bsPosition,bsError), VertexState(ni_pos, interactionVertexError))).significance();
 
-	  if ((niref->position().rho()>=3.) &&
+	  if ((niref.position().rho()>=3.) &&
               (nuclint_significance>15.) &&
-              (PF_PU_AssoMapAlgos::dR(niref->position(),ni_mom,bsH)<=0.3) ){
+              (PF_PU_AssoMapAlgos::dR(niref.position(),ni_mom,bsH)<=0.3) ){
 
-            cleanedNIColl->push_back(*niref);
+            cleanedNIColl->push_back(niref);
 
 	  }
 
@@ -738,11 +734,11 @@ PF_PU_AssoMapAlgos::ComesFromNI(const TrackRef trackref, const PFDisplacedVertex
 {
 
 	//the part for the reassociation of particles from nuclear interactions
-	for(PFDisplacedVertexCollection::const_iterator iDisplV=cleanedNI.begin(); iDisplV!=cleanedNI.end(); iDisplV++){
+	for(const auto & iDisplV : cleanedNI){
 
-	  if(iDisplV->trackWeight(trackref)>1.e-5){
+	  if(iDisplV.trackWeight(trackref)>1.e-5){
 
-	    *displVtx = *iDisplV;
+	    *displVtx = iDisplV;
 	    return true;
 
 	  }
@@ -817,11 +813,9 @@ PF_PU_AssoMapAlgos::TrackWeightAssociation(const TrackBaseRef& trackbaseRef, std
  	float bestweight = 0.;
 
 	//loop over all vertices in the vertex collection
-  	for(unsigned int index_vtx=0;  index_vtx<vtxcollV->size(); ++index_vtx){
+  	for(auto vertexref : *vtxcollV){
 
-          VertexRef vertexref = vtxcollV->at(index_vtx);
-
-     	  //get the most probable vertex for the track
+          //get the most probable vertex for the track
 	  float weight = vertexref->trackWeight(trackbaseRef);
 	  if(weight>bestweight){
   	    bestweight = weight;

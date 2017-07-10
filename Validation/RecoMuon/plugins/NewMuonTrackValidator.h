@@ -55,8 +55,8 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
     tp_effic_Token = consumes<TrackingParticleCollection>(label_tp_effic);
     tp_fake_Token = consumes<TrackingParticleCollection>(label_tp_fake);
     pileupinfo_Token = consumes<std::vector<PileupSummaryInfo> >(label_pileupinfo);
-    for (unsigned int www=0;www<label.size();www++){
-      track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(label[www]));
+    for (const auto & www : label){
+      track_Collection_Token.push_back(consumes<edm::View<reco::Track> >(www));
     }
     simToRecoCollection_Token = consumes<reco::SimToRecoCollection>(associatormap);
     recoToSimCollection_Token = consumes<reco::RecoToSimCollection>(associatormap);
@@ -88,9 +88,9 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
       <<" usemuon = FALSE : Muon SimHits WILL NOT be counted"<<std::endl;
     
     // loop over the reco::Track collections to validate: check for inconsistent input settings
-    for (unsigned int www=0;www<label.size();www++) {
-      std::string recoTracksLabel = label[www].label();
-      std::string recoTracksInstance = label[www].instance();
+    for (auto & www : label) {
+      std::string recoTracksLabel = www.label();
+      std::string recoTracksInstance = www.instance();
       
       // tracks with hits only on tracker
       if (recoTracksLabel=="generalTracks" ||
@@ -101,12 +101,12 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
 	{
 	  if (usemuon) {
 	    edm::LogWarning("NewMuonTrackValidator")
-	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<www
 	      <<"\n with usemuon == true"<<"\n ---> please change to usemuon == false ";
 	  }
 	  if (!usetracker) {
 	    edm::LogWarning("NewMuonTrackValidator")
-	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<www
 	      <<"\n with usetracker == false"<<"\n ---> please change to usetracker == true ";
 	  }	
 	}
@@ -119,12 +119,12 @@ class NewMuonTrackValidator : public DQMEDAnalyzer, protected NewMuonTrackValida
 	{
 	  if (usetracker) {
 	    edm::LogWarning("NewMuonTrackValidator")
-	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<www
 	      <<"\n with usetracker == true"<<"\n ---> please change to usetracker == false ";
 	  }
 	  if (!usemuon) {
 	    edm::LogWarning("NewMuonTrackValidator")
-	      <<"\n*** WARNING : inconsistent input tracksTag = "<<label[www]
+	      <<"\n*** WARNING : inconsistent input tracksTag = "<<www
 	      <<"\n with usemuon == false"<<"\n ---> please change to usemuon == true ";
 	  }
 	}

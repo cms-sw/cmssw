@@ -569,9 +569,9 @@ CSCAnodeLCTProcessor::run(const CSCWireDigiCollection* wiredc) {
         );
 
     unsigned int layersHit = 0;
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++) {
+    for (auto & i_layer : wire) {
       for (int i_wire = 0; i_wire < numWireGroups; i_wire++) {
-        if (!wire[i_layer][i_wire].empty()) {layersHit++; break;}
+        if (!i_layer[i_wire].empty()) {layersHit++; break;}
       }
     }
     if (layersHit >= min_layers) run(wire);
@@ -656,9 +656,8 @@ bool CSCAnodeLCTProcessor::getDigis(const CSCWireDigiCollection* wiredc) {
           << ((theEndcap == 1) ? "+" : "-") << theStation << "/" << theRing
           << "/" << theChamber << " (trig. sector " << theSector
           << " subsector " << theSubsector << " id " << theTrigChamber << ")";
-        for (std::vector<CSCWireDigi>::iterator pld = digiV[i_layer].begin();
-             pld != digiV[i_layer].end(); pld++) {
-          LogTrace("CSCAnodeLCTProcessor") << "   " << (*pld);
+        for (auto & pld : digiV[i_layer]) {
+          LogTrace("CSCAnodeLCTProcessor") << "   " << pld;
         }
       }
     }
@@ -760,12 +759,12 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
     for (i_wire = 0; i_wire < numWireGroups; i_wire++) {
       if (wire[i_layer][i_wire].size() > 0) {
         std::vector<int> bx_times = wire[i_layer][i_wire];
-        for (unsigned int i = 0; i < bx_times.size(); i++) {
+        for (int bx_time : bx_times) {
           // Check that min and max times are within the allowed range.
-          if (bx_times[i] < 0 || bx_times[i] + hit_persist >= bits_in_pulse) {
+          if (bx_time < 0 || bx_time + hit_persist >= bits_in_pulse) {
             if (infoV > 0) edm::LogWarning("L1CSCTPEmulatorOutOfTimeDigi")
               << "+++ BX time of wire digi (wire = " << i_wire
-              << " layer = " << i_layer << ") bx = " << bx_times[i]
+              << " layer = " << i_layer << ") bx = " << bx_time
               << " is not within the range (0-" << bits_in_pulse
               << "] allowed for pulse extension.  Skip this digi! +++\n";
             continue;
@@ -775,8 +774,8 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
           if (chamber_empty) chamber_empty = false;
 
           // make the pulse
-          for (unsigned int bx = bx_times[i];
-               bx < (bx_times[i] + hit_persist); bx++)
+          for (unsigned int bx = bx_time;
+               bx < (bx_time + hit_persist); bx++)
           pulse[i_layer][i_wire] = pulse[i_layer][i_wire] | (1 << bx);
 
           // Debug information.
@@ -784,7 +783,7 @@ bool CSCAnodeLCTProcessor::pulseExtension(const std::vector<int> wire[CSCConstan
             LogTrace("CSCAnodeLCTProcessor")
               << "Wire digi: layer " << i_layer
               << " digi #" << ++digi_num << " wire group " << i_wire
-              << " time " << bx_times[i];
+              << " time " << bx_time;
             if (infoV > 2) {
               std::ostringstream strstrm;
               for (int i = 1; i <= 32; i++) {
@@ -829,8 +828,8 @@ bool CSCAnodeLCTProcessor::preTrigger(const int key_wire, const int start_bx) {
   unsigned int stop_bx = fifo_tbins - drift_delay;
   for (unsigned int bx_time = start_bx; bx_time < stop_bx; bx_time++) {
     for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++) {
-      for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
-        hit_layer[i_layer] = false;
+      for (bool & i_layer : hit_layer)
+        i_layer = false;
       layers_hit = 0;
 
       for (int i_wire = 0; i_wire < NUM_PATTERN_WIRES; i_wire++){
@@ -889,8 +888,8 @@ bool CSCAnodeLCTProcessor::patternDetection(const int key_wire) {
 
   for (int i_pattern = 0; i_pattern < CSCConstants::NUM_ALCT_PATTERNS; i_pattern++){
     temp_quality = 0;
-    for (int i_layer = 0; i_layer < CSCConstants::NUM_LAYERS; i_layer++)
-      hit_layer[i_layer] = false;
+    for (bool & i_layer : hit_layer)
+      i_layer = false;
 
     double num_pattern_hits=0., times_sum=0.;
     std::multiset<int> mset_for_median;
@@ -1352,17 +1351,15 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
   if (infoV > 1) {
     LogTrace("CSCAnodeLCTProcessor") << all_alcts.size() <<
       " ALCTs at the input of best-track selector: ";
-    for (std::vector <CSCALCTDigi>::const_iterator plct = all_alcts.begin();
-         plct != all_alcts.end(); plct++) {
-      if (!plct->isValid()) continue;
-      LogTrace("CSCAnodeLCTProcessor") << (*plct);
+    for (auto all_alct : all_alcts) {
+      if (!all_alct.isValid()) continue;
+      LogTrace("CSCAnodeLCTProcessor") << all_alct;
     }
   }
 
   CSCALCTDigi tA[MAX_ALCT_BINS][2], tB[MAX_ALCT_BINS][2];
-  for (std::vector <CSCALCTDigi>::const_iterator plct = all_alcts.begin();
-       plct != all_alcts.end(); plct++) {
-    if (!plct->isValid()) continue;
+  for (auto all_alct : all_alcts) {
+    if (!all_alct.isValid()) continue;
 
     // Select two collision and two accelerator ALCTs with the highest
     // quality at every bx.  The search for best ALCTs is done in parallel
@@ -1371,10 +1368,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     // the priority is given to the ALCT with larger wiregroup number
     // in the search for tA (collision and accelerator), and to the ALCT
     // with smaller wiregroup number in the search for tB.
-    int bx    = (*plct).getBX();
-    int accel = (*plct).getAccelerator();
-    int qual  = (*plct).getQuality();
-    int wire  = (*plct).getKeyWG();
+    int bx    = all_alct.getBX();
+    int accel = all_alct.getAccelerator();
+    int qual  = all_alct.getQuality();
+    int wire  = all_alct.getKeyWG();
     bool vA = tA[bx][accel].isValid();
     bool vB = tB[bx][accel].isValid();
     int qA  = tA[bx][accel].getQuality();
@@ -1382,10 +1379,10 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
     int wA  = tA[bx][accel].getKeyWG();
     int wB  = tB[bx][accel].getKeyWG();
     if (!vA || qual > qA || (qual == qA && wire > wA)) {
-      tA[bx][accel] = *plct;
+      tA[bx][accel] = all_alct;
     }
     if (!vB || qual > qB || (qual == qB && wire < wB)) {
-      tB[bx][accel] = *plct;
+      tB[bx][accel] = all_alct;
     }
   }
 
@@ -1409,14 +1406,13 @@ std::vector<CSCALCTDigi> CSCAnodeLCTProcessor::bestTrackSelector(
           // is inferior to the quality of tA, the second best ALCT is
           // not tB.  Instead it is the largest-wiregroup ALCT among those
           // ALCT whose qualities are lower than the quality of the best one.
-          for (std::vector <CSCALCTDigi>::const_iterator plct =
-                 all_alcts.begin(); plct != all_alcts.end(); plct++) {
-            if ((*plct).isValid() && 
-                (*plct).getAccelerator() == accel && (*plct).getBX() == bx &&
-                (*plct).getQuality() <  bestALCTs[bx][accel].getQuality() && 
-                (*plct).getQuality() >= secondALCTs[bx][accel].getQuality() &&
-                (*plct).getKeyWG()   >= secondALCTs[bx][accel].getKeyWG()) {
-              secondALCTs[bx][accel] = *plct;
+          for (auto all_alct : all_alcts) {
+            if (all_alct.isValid() && 
+                all_alct.getAccelerator() == accel && all_alct.getBX() == bx &&
+                all_alct.getQuality() <  bestALCTs[bx][accel].getQuality() && 
+                all_alct.getQuality() >= secondALCTs[bx][accel].getQuality() &&
+                all_alct.getKeyWG()   >= secondALCTs[bx][accel].getKeyWG()) {
+              secondALCTs[bx][accel] = all_alct;
             }
           }
         }

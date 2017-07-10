@@ -48,13 +48,13 @@ SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   const SiStripRegionCabling::ElementCabling elcabling;
   
   bool fedSaved[1000];
-  for (int i=0; i<1000; i++) fedSaved[i]=false;
+  for (bool & i : fedSaved) i=false;
   
   //cycle on seeds
-  for (uint32_t p=0; p<isoPixTrackRefs.size(); p++)
+  for (auto & isoPixTrackRef : isoPixTrackRefs)
     {
-      double etaObj_=isoPixTrackRefs[p]->track()->eta();
-      double phiObj_=isoPixTrackRefs[p]->track()->phi();
+      double etaObj_=isoPixTrackRef->track()->eta();
+      double phiObj_=isoPixTrackRef->track()->phi();
       
       //cycle on regions
       for (uint32_t i=0; i<ccab.size(); i++)
@@ -78,10 +78,10 @@ SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 		  SiStripRegionCabling::ElementCabling::const_iterator it=fedVectorMap.begin();
 		  for( ; it!=fedVectorMap.end(); it++)
 		    {
-		      for (uint32_t op=0; op<(it->second).size(); op++)
+		      for (const auto & op : (it->second))
 			{
 			  //get fed id 
-			  int fediid=(it->second)[op].fedId(); 
+			  int fediid=op.fedId(); 
 			  if (!fedSaved[fediid]) 
 			    {
 			      stripFEDVec.push_back(fediid);
@@ -108,9 +108,9 @@ SiStripRegFEDSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) 
     {
       bool rightFED=false;
-      for (uint32_t k=0; k<stripFEDVec.size(); k++) 
+      for (int k : stripFEDVec) 
 	{
-	  if (j==stripFEDVec[k])
+	  if (j==k)
 	    {
 	      rightFED=true;
 	    }

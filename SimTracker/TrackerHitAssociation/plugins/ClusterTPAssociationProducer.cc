@@ -154,9 +154,8 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 	    simTkIds.insert(trkid.begin(),trkid.end());
 	  }
 	}
-	for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin(); 
-	     iset != simTkIds.end(); iset++) {
-	  auto ipos = mapping.find(*iset);
+	for (const auto & simTkId : simTkIds) {
+	  auto ipos = mapping.find(simTkId);
 	  if (ipos != mapping.end()) {
 	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
 	    clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
@@ -189,9 +188,8 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
 	  if (trkid.size()==0) continue; 
 	  simTkIds.insert(trkid.begin(),trkid.end());
 	}
-	for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin(); 
-	     iset != simTkIds.end(); iset++) {
-	  auto ipos = mapping.find(*iset);
+	for (const auto & simTkId : simTkIds) {
+	  auto ipos = mapping.find(simTkId);
 	  if (ipos != mapping.end()) {
 	    //std::cout << "cluster in detid: " << detid << " from tp: " << ipos->second.key() << " " << iset->first << std::endl;
 	    clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
@@ -226,9 +224,8 @@ void ClusterTPAssociationProducer::produce(edm::StreamID, edm::Event& iEvent, co
             simTkIds.insert(trkid.begin(),trkid.end());
           }
     
-          for (std::set<std::pair<uint32_t, EncodedEventId> >::const_iterator iset  = simTkIds.begin();
-                                                                              iset != simTkIds.end(); iset++) {
-            auto ipos = mapping.find(*iset);
+          for (const auto & simTkId : simTkIds) {
+            auto ipos = mapping.find(simTkId);
             if (ipos != mapping.end()) {
               clusterTPList->emplace_back(OmniClusterRef(c_ref), ipos->second);
             }

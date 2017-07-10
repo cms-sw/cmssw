@@ -231,11 +231,11 @@ namespace gbl {
     externalPrecisions.resize(extMeasurements.size());
     externalPrecisions = extEigen.eigenvalues();
 
-    for (unsigned int iTraj = 0; iTraj < aPointsAndTransList.size(); ++iTraj) {
-      thePoints.push_back(aPointsAndTransList[iTraj].first);
+    for (const auto & iTraj : aPointsAndTransList) {
+      thePoints.push_back(iTraj.first);
       numPoints.push_back(thePoints.back().size());
       numAllPoints += numPoints.back();
-      innerTransformations.push_back(aPointsAndTransList[iTraj].second);
+      innerTransformations.push_back(iTraj.second);
     }
     theDimension.push_back(0);
     theDimension.push_back(1);
@@ -270,11 +270,11 @@ namespace gbl {
     externalMeasurements = extMeasurements;
     externalPrecisions = extPrecisions;
 
-    for (unsigned int iTraj = 0; iTraj < aPointsAndTransList.size(); ++iTraj) {
-      thePoints.push_back(aPointsAndTransList[iTraj].first);
+    for (const auto & iTraj : aPointsAndTransList) {
+      thePoints.push_back(iTraj.first);
       numPoints.push_back(thePoints.back().size());
       numAllPoints += numPoints.back();
-      innerTransformations.push_back(aPointsAndTransList[iTraj].second);
+      innerTransformations.push_back(iTraj.second);
     }
     theDimension.push_back(0);
     theDimension.push_back(1);

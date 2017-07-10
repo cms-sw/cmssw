@@ -76,11 +76,10 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
   if(scHandle.isValid()){
     const reco::SuperClusterCollection & SCs = *(scHandle.product());
 
-    for(reco::SuperClusterCollection::const_iterator scIt = SCs.begin();
-	scIt!= SCs.end(); scIt++){
+    for(const auto & SC : SCs){
 
-      double scEt   = scIt->energy() * TMath::Sin(scIt->position().theta());
-      double _eta = scIt->position().eta();
+      double scEt   = SC.energy() * TMath::Sin(SC.position().theta());
+      double _eta = SC.position().eta();
       if(scEt  > scEtMin && _eta > scEtaMin && _eta < scEtaMax)	nSC++;
     }
   }
@@ -91,11 +90,10 @@ bool EgammaProbeSelector::filter(edm::Event& iEvent, const edm::EventSetup& iSet
 
   if(scEEHandle.isValid()){
     const reco::SuperClusterCollection & SCs = *(scEEHandle.product());
-    for(reco::SuperClusterCollection::const_iterator scIt = SCs.begin();
-	scIt!= SCs.end(); scIt++){
+    for(const auto & SC : SCs){
 
-      double scEt   = scIt->energy() * TMath::Sin(scIt->position().theta());
-      double _eta = scIt->position().eta();
+      double scEt   = SC.energy() * TMath::Sin(SC.position().theta());
+      double _eta = SC.position().eta();
       if(scEt  > scEtMin && _eta > scEtaMin && _eta < scEtaMax) nSC++;
     }
   }

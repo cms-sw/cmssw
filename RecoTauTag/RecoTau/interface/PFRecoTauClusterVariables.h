@@ -37,8 +37,7 @@ class TauIdMVAAuxiliaries {
       float EcalEnInSignalPFCands = 0;
       float HcalEnInSignalPFCands = 0;
       typedef std::vector <reco::PFCandidatePtr>::iterator constituents_iterator;
-      for(constituents_iterator it=constsignal.begin(); it != constsignal.end(); ++it) {
-        reco::PFCandidatePtr & icand = *it;
+      for(auto & icand : constsignal) {
         EcalEnInSignalPFCands += icand -> ecalEnergy();
         HcalEnInSignalPFCands += icand -> hcalEnergy();
       }

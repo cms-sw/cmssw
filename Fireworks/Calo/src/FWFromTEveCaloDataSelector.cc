@@ -44,9 +44,9 @@ m_changeManager(0)
 
 FWFromTEveCaloDataSelector::~FWFromTEveCaloDataSelector()
 {
-   for (std::vector<FWFromSliceSelector*>::iterator i = m_sliceSelectors.begin(); i != m_sliceSelectors.end(); ++i)
+   for (auto & m_sliceSelector : m_sliceSelectors)
    {
-      delete *i;
+      delete m_sliceSelector;
    }
    m_sliceSelectors.clear();
 }

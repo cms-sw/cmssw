@@ -187,12 +187,12 @@ namespace cms
     // FIX THIS! We only need to clear and (re)fill this map when the geometry type IOV changes.  Use ESWatcher to determine this.
     if(true) { // Replace with ESWatcher 
       detectorUnits.clear();
-      for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
-        unsigned int detId = (*iu)->geographicalId().rawId();
-	if((*iu)->type().isTrackerPixel()) {
-          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
+      for(auto iu : pDD->detUnits()) {
+        unsigned int detId = iu->geographicalId().rawId();
+	if(iu->type().isTrackerPixel()) {
+          auto pixdet = dynamic_cast<const PixelGeomDetUnit*>(iu);
           assert(pixdet != 0);
-	  if ((*iu)->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
+	  if (iu->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap) { // true ONLY for the phase 0 pixel deetctor
 	    unsigned int disk = tTopo->layer(detId); // using the generic layer method
 	    //if using pilot blades, then allowing it for current detector only
 	    if ((disk == 3)&&((!pilotBlades)&&(NumberOfEndcapDisks == 2))) continue;
@@ -206,13 +206,13 @@ namespace cms
   void
   SiPixelDigitizer::accumulate(edm::Event const& iEvent, edm::EventSetup const& iSetup) {
     // Step A: Get Inputs
-    for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for(const auto & trackerContainer : trackerContainers) {
       edm::Handle<std::vector<PSimHit> > simHits;
-      edm::InputTag tag(hitsProducer, *i);
+      edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
-      if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
+      if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
       accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(iEvent.streamID()), iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
@@ -226,13 +226,13 @@ namespace cms
   void
   SiPixelDigitizer::accumulate(PileUpEventPrincipal const& iEvent, edm::EventSetup const& iSetup, edm::StreamID const& streamID) {
     // Step A: Get Inputs
-    for(vstring::const_iterator i = trackerContainers.begin(), iEnd = trackerContainers.end(); i != iEnd; ++i) {
+    for(const auto & trackerContainer : trackerContainers) {
       edm::Handle<std::vector<PSimHit> > simHits;
-      edm::InputTag tag(hitsProducer, *i);
+      edm::InputTag tag(hitsProducer, trackerContainer);
 
       iEvent.getByLabel(tag, simHits);
       unsigned int tofBin = PixelDigiSimLink::LowTof;
-      if ((*i).find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
+      if (trackerContainer.find(std::string("HighTof")) != std::string::npos) tofBin = PixelDigiSimLink::HighTof;
       accumulatePixelHits(simHits, crossingSimHitIndexOffset_[tag.encode()], tofBin, randomEngine(streamID), iSetup);
       // Now that the hits have been processed, I'll add the amount of hits in this crossing on to
       // the global counter. Next time accumulateStripHits() is called it will count the sim hits
@@ -265,17 +265,17 @@ namespace cms
     }
     _pixeldigialgo->calculateInstlumiFactor(PileupInfo_);   
 
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    for(auto iu : pDD->detUnits()){
       
-      if((*iu)->type().isTrackerPixel()) {
+      if(iu->type().isTrackerPixel()) {
 
 	//
 
-        edm::DetSet<PixelDigi> collector((*iu)->geographicalId().rawId());
-        edm::DetSet<PixelDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
+        edm::DetSet<PixelDigi> collector(iu->geographicalId().rawId());
+        edm::DetSet<PixelDigiSimLink> linkcollector(iu->geographicalId().rawId());
         
         
-        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>((*iu)),
+        _pixeldigialgo->digitize(dynamic_cast<const PixelGeomDetUnit*>(iu),
                                  collector.data,
                                  linkcollector.data,
 				 tTopo,

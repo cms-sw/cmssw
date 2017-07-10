@@ -261,8 +261,8 @@ void MuScleFitBase::readProbabilityDistributionsFromFile()
   }
   // Free all the memory for the probability histograms.
   if(MuScleFitUtils::resfind[0] && theMuonType_!=2) {
-    for ( int i=0; i<6; i++ ) {
-      delete GLZ[i];
+    for (auto & i : GLZ) {
+      delete i;
     }
   }
   if(MuScleFitUtils::resfind[0] && theMuonType_==2)

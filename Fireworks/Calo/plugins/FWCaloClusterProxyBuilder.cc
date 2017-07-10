@@ -31,15 +31,14 @@ FWCaloClusterProxyBuilder::build( const reco::CaloCluster& iData, unsigned int i
    boxset->UseSingleColor();
    boxset->SetPickable(1);
 
-   for( std::vector<std::pair<DetId, float> >::iterator it = clusterDetIds.begin(), itEnd = clusterDetIds.end();
-        it != itEnd; ++it )
+   for(auto & clusterDetId : clusterDetIds)
    {
-      const float* corners = item()->getGeom()->getCorners( (*it).first );
+      const float* corners = item()->getGeom()->getCorners( clusterDetId.first );
       if( corners == 0 ) {
          continue;
       }
       std::vector<float> pnts(24);    
-      fireworks::energyTower3DCorners(corners, (*it).second, pnts);
+      fireworks::energyTower3DCorners(corners, clusterDetId.second, pnts);
       boxset->AddBox( &pnts[0]);
    }
 

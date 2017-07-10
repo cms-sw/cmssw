@@ -48,27 +48,27 @@ double poissonRandom(double mean) {
 
 void print(UCTLayer1& uct) {
   vector<UCTCrate*> crates = uct.getCrates();
-  for(uint32_t crt = 0; crt < crates.size(); crt++) {
-    vector<UCTCard*> cards = crates[crt]->getCards();
-    for(uint32_t crd = 0; crd < cards.size(); crd++) {
-      vector<UCTRegion*> regions = cards[crd]->getRegions();
-      for(uint32_t rgn = 0; rgn < regions.size(); rgn++) {
-	if(regions[rgn]->et() > 0) {
-	  int hitEta = regions[rgn]->hitCaloEta();
-	  int hitPhi = regions[rgn]->hitCaloPhi();
-	  vector<UCTTower*> towers = regions[rgn]->getTowers();
-	  for(uint32_t twr = 0; twr < towers.size(); twr++) {
-	    if(towers[twr]->caloPhi() == hitPhi && towers[twr]->caloEta() == hitEta) {
+  for(auto & crate : crates) {
+    vector<UCTCard*> cards = crate->getCards();
+    for(auto & card : cards) {
+      vector<UCTRegion*> regions = card->getRegions();
+      for(auto & region : regions) {
+	if(region->et() > 0) {
+	  int hitEta = region->hitCaloEta();
+	  int hitPhi = region->hitCaloPhi();
+	  vector<UCTTower*> towers = region->getTowers();
+	  for(auto & tower : towers) {
+	    if(tower->caloPhi() == hitPhi && tower->caloEta() == hitEta) {
 	      std::cout << "*";
 	    }
-	    std::cout << towers[twr];
+	    std::cout << tower;
 	  }
-	  std::cout << regions[rgn];
+	  std::cout << region;
 	}
       }
-      std::cout << cards[crd];
+      std::cout << card;
     }
-    std::cout << crates[crt];
+    std::cout << crate;
   }
   std::cout << uct;
 }

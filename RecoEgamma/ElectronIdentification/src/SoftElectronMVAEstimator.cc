@@ -10,8 +10,8 @@
 SoftElectronMVAEstimator::SoftElectronMVAEstimator(const Configuration & cfg):cfg_(cfg){
   std::vector<std::string> weightsfiles;
   std::string path_mvaWeightFileEleID;
-  for(unsigned ifile=0 ; ifile < cfg_.vweightsfiles.size() ; ++ifile) {
-    path_mvaWeightFileEleID = edm::FileInPath ( cfg_.vweightsfiles[ifile].c_str() ).fullPath();
+  for(const auto & vweightsfile : cfg_.vweightsfiles) {
+    path_mvaWeightFileEleID = edm::FileInPath ( vweightsfile.c_str() ).fullPath();
     weightsfiles.push_back(path_mvaWeightFileEleID);
   }
   
@@ -87,10 +87,10 @@ UInt_t SoftElectronMVAEstimator::GetMVABin(int pu, double eta, double pt) const 
         purange[1]=nPV>20;
 
         int index=0;
-        for(int kPU=0;kPU<2;kPU++)
-        for(int kETA=0;kETA<3;kETA++)
-        for(int kPT=0;kPT<3;kPT++){
-                if (purange[kPU] && ptrange[kPT] && etarange[kETA]) bin=index;
+        for(bool kPU : purange)
+        for(bool kETA : etarange)
+        for(bool kPT : ptrange){
+                if (kPU && kPT && kETA) bin=index;
                 index++;
         } 
   return bin;

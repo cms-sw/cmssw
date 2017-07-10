@@ -268,15 +268,14 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
       DZtoTrack dzComputer(track);
       // Find the vertex that has the lowest dZ to the track
       int idxVertex = 0;
-      for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
-	    selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	double dZ = dzComputer(*selectedVertex);
+      for (const auto & selectedVertice : selectedVertices_) {
+	double dZ = dzComputer(selectedVertice);
 	if ( verbosity_ ) {
-	  std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
+	  std::cout << "vertex #" << idxVertex << ": x = " << selectedVertice->position().x() << ", y = " << selectedVertice->position().y() << ", z = " << selectedVertice->position().z() 
 		    << " --> dZ = " << dZ << std::endl;
 	}
 	if ( dZ < closestDistance ) {
-	  trkVertex = (*selectedVertex);
+	  trkVertex = selectedVertice;
 	  closestDistance = dZ;
 	}
 	++idxVertex;
@@ -288,15 +287,14 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
       // Find the vertex that has the highest association probability to the track
       TrackWeightInVertex weightComputer(track);
       int idxVertex = 0;
-      for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
-	    selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	double weight = weightComputer(*selectedVertex);
+      for (const auto & selectedVertice : selectedVertices_) {
+	double weight = weightComputer(selectedVertice);
 	if ( verbosity_ ) {
-	  std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
+	  std::cout << "vertex #" << idxVertex << ": x = " << selectedVertice->position().x() << ", y = " << selectedVertice->position().y() << ", z = " << selectedVertice->position().z() 
 		    << " --> weight = " << weight << std::endl;
 	}
 	if ( weight > largestWeight ) {
-	  trkVertex = (*selectedVertex);
+	  trkVertex = selectedVertice;
 	  largestWeight = weight;
 	}
 	++idxVertex;
@@ -310,15 +308,14 @@ RecoTauVertexAssociator::associatedVertex(const TrackBaseRef& track) const
 	DZtoTrack dzComputer(track);
 	// Find the vertex that has the lowest dZ to the leading track
 	int idxVertex = 0;
-	for ( std::vector<reco::VertexRef>::const_iterator selectedVertex = selectedVertices_.begin();
-	      selectedVertex != selectedVertices_.end(); ++selectedVertex ) {
-	  double dZ = dzComputer(*selectedVertex);
+	for (const auto & selectedVertice : selectedVertices_) {
+	  double dZ = dzComputer(selectedVertice);
 	  if ( verbosity_ ) {
-	    std::cout << "vertex #" << idxVertex << ": x = " << (*selectedVertex)->position().x() << ", y = " << (*selectedVertex)->position().y() << ", z = " << (*selectedVertex)->position().z() 
+	    std::cout << "vertex #" << idxVertex << ": x = " << selectedVertice->position().x() << ", y = " << selectedVertice->position().y() << ", z = " << selectedVertice->position().z() 
 		      << " --> dZ = " << dZ << std::endl;
 	  }
 	  if ( dZ < closestDistance ) {
-	    trkVertex = (*selectedVertex);
+	    trkVertex = selectedVertice;
 	    closestDistance = dZ;
 	  }
 	  ++idxVertex;

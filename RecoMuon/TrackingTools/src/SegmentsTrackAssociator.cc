@@ -115,18 +115,18 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 	  segm2D++) {
 
 	  vector <const TrackingRecHit*> rHits1D = (*segm2D)->recHits();
-	  for (int hit=0; hit<int(rHits1D.size()); hit++){
-	    dtRecHits.push_back(rHits1D[hit]);
+	  for (auto hit : rHits1D){
+	    dtRecHits.push_back(hit);
 	  }
 
 	}
 	
 	// loop over the recHit checking if there's the recHit of the track
-	for (unsigned int hit = 0; hit < dtRecHits.size(); hit++) { 	  
+	for (auto & dtRecHit : dtRecHits) { 	  
 	  
-	  DetId idRivHitSeg = (*dtRecHits[hit]).geographicalId();
+	  DetId idRivHitSeg = (*dtRecHit).geographicalId();
 	  LocalPoint posDTSegment=  segment->localPosition();
-	  LocalPoint posSegDTRecHit = (*dtRecHits[hit]).localPosition(); 
+	  LocalPoint posSegDTRecHit = (*dtRecHit).localPosition(); 
 	  	    
 	  double rDT=sqrt(pow((posSegDTRecHit.x()-posTrackRecHit.x()),2) +pow((posSegDTRecHit.y()-posTrackRecHit.y()),2) + pow((posSegDTRecHit.z()-posTrackRecHit.z()),2));
 	  
@@ -138,8 +138,8 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 	    }
 	    else{
 	      int check=0;
-	      for(int segm=0; segm < int(selectedDtSegments.size()); ++segm) {
-		double dist=sqrt(pow((((*(selectedDtSegments[segm])).localPosition()).x()-posDTSegment.x()),2) +pow((((*(selectedDtSegments[segm])).localPosition()).y()-posDTSegment.y()),2) + pow((((*(selectedDtSegments[segm])).localPosition()).z()-posDTSegment.z()),2));
+	      for(auto & selectedDtSegment : selectedDtSegments) {
+		double dist=sqrt(pow((((*selectedDtSegment).localPosition()).x()-posDTSegment.x()),2) +pow((((*selectedDtSegment).localPosition()).y()-posDTSegment.y()),2) + pow((((*selectedDtSegment).localPosition()).z()-posDTSegment.z()),2));
 		if(dist>30) check++;
 	      }     
 		
@@ -186,10 +186,10 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 	vector<const TrackingRecHit*> cscRecHits = (&(*segment2))->recHits();
 	
 	// loop over the recHit checking if there's the recHit of the track	
-	for (unsigned int hit = 0; hit < cscRecHits.size(); hit++) { 
+	for (auto & cscRecHit : cscRecHits) { 
   
-	  DetId idRivHitSeg = (*cscRecHits[hit]).geographicalId();
-	  LocalPoint posSegCSCRecHit = (*cscRecHits[hit]).localPosition(); 
+	  DetId idRivHitSeg = (*cscRecHit).geographicalId();
+	  LocalPoint posSegCSCRecHit = (*cscRecHit).localPosition(); 
 	  LocalPoint posCSCSegment=  segment2->localPosition();
 	    	  
 	  double rCSC=sqrt(pow((posSegCSCRecHit.x()-posTrackRecHit.x()),2) +pow((posSegCSCRecHit.y()-posTrackRecHit.y()),2) + pow((posSegCSCRecHit.z()-posTrackRecHit.z()),2));
@@ -202,8 +202,8 @@ MuonTransientTrackingRecHit::MuonRecHitContainer SegmentsTrackAssociator::associ
 	    }
 	    else{
 	      int check=0;
-	      for(int n=0; n< int(selectedCscSegments.size()); n++){
-		double dist = sqrt(pow(((*(selectedCscSegments[n])).localPosition().x()-posCSCSegment.x()),2) +pow(((*(selectedCscSegments[n])).localPosition().y()-posCSCSegment.y()),2) + pow(((*(selectedCscSegments[n])).localPosition().z()-posCSCSegment.z()),2));
+	      for(auto & selectedCscSegment : selectedCscSegments){
+		double dist = sqrt(pow(((*selectedCscSegment).localPosition().x()-posCSCSegment.x()),2) +pow(((*selectedCscSegment).localPosition().y()-posCSCSegment.y()),2) + pow(((*selectedCscSegment).localPosition().z()-posCSCSegment.z()),2));
 		if(dist>30) check++;
 	      }
 	      if(check==int(selectedCscSegments.size())){  

@@ -174,12 +174,11 @@ void TrackingCertificationInfo::bookTrackingCertificationMEs(DQMStore::IBooker &
     if (tracking_dir.size() > 0 ) ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
     else ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
 
-    for (std::map<std::string, TrackingMEs>::iterator it = TrackingMEsMap.begin();
-	 it != TrackingMEsMap.end(); it++) {
-      std::string meQTname = it->first;
+    for (auto & it : TrackingMEsMap) {
+      std::string meQTname = it.first;
       if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
-      it->second.TrackingFlag = ibooker_.bookFloat("Track"+meQTname);
-      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
+      it.second.TrackingFlag = ibooker_.bookFloat("Track"+meQTname);
+      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] " << it.first << " exists ? " << it.second.TrackingFlag << std::endl;      
     }
 
     trackingCertificationBooked_ = true;
@@ -210,12 +209,11 @@ void TrackingCertificationInfo::bookTrackingCertificationMEsAtLumi(DQMStore::IBo
     if (tracking_dir.size() > 0 ) ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
     else ibooker_.setCurrentFolder(TopFolderName_+"/EventInfo/CertificationContents");
 
-    for (std::map<std::string, TrackingLSMEs>::iterator it = TrackingLSMEsMap.begin();
-	 it != TrackingLSMEsMap.end(); it++) {
-      std::string meQTname = it->first;
+    for (auto & it : TrackingLSMEsMap) {
+      std::string meQTname = it.first;
       if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] meQTname: " << meQTname << std::endl;
-      it->second.TrackingFlag = ibooker_.bookFloat("Track"+meQTname);
-      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] " << it->first << " exists ? " << it->second.TrackingFlag << std::endl;      
+      it.second.TrackingFlag = ibooker_.bookFloat("Track"+meQTname);
+      if (verbose_) std::cout << "[TrackingCertificationInfo::bookStatus] " << it.first << " exists ? " << it.second.TrackingFlag << std::endl;      
     }
 
     trackingLSCertificationBooked_ = true;

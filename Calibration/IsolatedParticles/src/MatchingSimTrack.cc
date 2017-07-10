@@ -31,8 +31,8 @@ namespace spr{
     for (trackingRecHit_iterator iTrkHit = pTrack->recHitsBegin(); iTrkHit != pTrack->recHitsEnd(); ++iTrkHit, ++i) {
     
       std::vector<PSimHit> matchedSimIds = associate.associateHit((**iTrkHit));
-      for (unsigned int isim=0; isim<matchedSimIds.size(); isim++) {
-	unsigned tkId = matchedSimIds[isim].trackId();
+      for (auto & matchedSimId : matchedSimIds) {
+	unsigned tkId = matchedSimId.trackId();
 	bool found = false;
 	for (unsigned int j=0; j<trkId.size(); j++) {
 	  if ( tkId == trkId[j] ) {

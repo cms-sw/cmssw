@@ -102,7 +102,7 @@ void FieldStepWatcher::update(const BeginOfRun * ) {
 
 
 void FieldStepWatcher::update(const BeginOfEvent * ) {
-  for (unsigned int i=0; i<steps.size(); i++) steps[i]=0;
+  for (int & step : steps) step=0;
 }
 
 void FieldStepWatcher::update(const EndOfEvent * ) {

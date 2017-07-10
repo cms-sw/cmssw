@@ -176,26 +176,25 @@ PFRecoTauChargedHadronFromPFCandidatePlugin::return_type PFRecoTauChargedHadronF
   qcuts_->setPV(vertexAssociator_.associatedVertex(jet));
   PFCandPtrs candsVector = qcuts_->filterCandRefs(pfCandidates(jet, inputPdgIds_));
 
-  for ( PFCandPtrs::iterator cand = candsVector.begin();
-	cand != candsVector.end(); ++cand ) {
+  for (auto & cand : candsVector) {
     if ( verbosity_ ) {
-      edm::LogPrint("TauChHadronFromPF") << "processing PFCandidate: Pt = " << (*cand)->pt() << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi() 
-		<< " (type = " << getPFCandidateType((*cand)->particleId()) << ", charge = " << (*cand)->charge() << ")" ;
+      edm::LogPrint("TauChHadronFromPF") << "processing PFCandidate: Pt = " << cand->pt() << ", eta = " << cand->eta() << ", phi = " << cand->phi() 
+		<< " (type = " << getPFCandidateType(cand->particleId()) << ", charge = " << cand->charge() << ")" ;
     }
     
     PFRecoTauChargedHadron::PFRecoTauChargedHadronAlgorithm algo = PFRecoTauChargedHadron::kUndefined;
-    if ( std::abs((*cand)->charge()) > 0.5 ) algo = PFRecoTauChargedHadron::kChargedPFCandidate;
+    if ( std::abs(cand->charge()) > 0.5 ) algo = PFRecoTauChargedHadron::kChargedPFCandidate;
     else algo = PFRecoTauChargedHadron::kPFNeutralHadron;
-    std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(**cand, algo));
-    if ( (*cand)->trackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->trackRef());
-    else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->innerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->innerTrack());
-    else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->globalTrack().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->globalTrack());
-    else if ( (*cand)->muonRef().isNonnull() && (*cand)->muonRef()->outerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr((*cand)->muonRef()->outerTrack());
-    else if ( (*cand)->gsfTrackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr((*cand)->gsfTrackRef());
-    chargedHadron->chargedPFCandidate_ = (*cand);
-    chargedHadron->addDaughter(*cand);
+    std::auto_ptr<PFRecoTauChargedHadron> chargedHadron(new PFRecoTauChargedHadron(*cand, algo));
+    if ( cand->trackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr(cand->trackRef());
+    else if ( cand->muonRef().isNonnull() && cand->muonRef()->innerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr(cand->muonRef()->innerTrack());
+    else if ( cand->muonRef().isNonnull() && cand->muonRef()->globalTrack().isNonnull() ) chargedHadron->track_ = edm::refToPtr(cand->muonRef()->globalTrack());
+    else if ( cand->muonRef().isNonnull() && cand->muonRef()->outerTrack().isNonnull()  ) chargedHadron->track_ = edm::refToPtr(cand->muonRef()->outerTrack());
+    else if ( cand->gsfTrackRef().isNonnull() ) chargedHadron->track_ = edm::refToPtr(cand->gsfTrackRef());
+    chargedHadron->chargedPFCandidate_ = cand;
+    chargedHadron->addDaughter(cand);
 
-    chargedHadron->positionAtECALEntrance_ = (*cand)->positionAtECALEntrance();
+    chargedHadron->positionAtECALEntrance_ = cand->positionAtECALEntrance();
 
     reco::PFCandidate::ParticleType chargedPFCandidateType = chargedHadron->chargedPFCandidate_->particleId();
 

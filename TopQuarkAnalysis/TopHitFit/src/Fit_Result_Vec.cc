@@ -73,8 +73,8 @@ Fit_Result_Vec::Fit_Result_Vec (const Fit_Result_Vec& vec)
     _max_len (vec._max_len)
 {
   // Gotta increase the reference count on the contents.
-  for (std::vector<Fit_Result*>::size_type i=0; i < _v.size(); i++)
-    _v[i]->incref ();
+  for (auto & i : _v)
+    i->incref ();
 }
 
 
@@ -83,8 +83,8 @@ Fit_Result_Vec::~Fit_Result_Vec ()
 // Purpose: Destructor.
 //
 {
-  for (std::vector<Fit_Result*>::size_type i=0; i < _v.size(); i++)
-    _v[i]->decref ();
+  for (auto & i : _v)
+    i->decref ();
 }
 
 
@@ -99,12 +99,12 @@ Fit_Result_Vec& Fit_Result_Vec::operator= (const Fit_Result_Vec& vec)
 //   This object.
 //
 {
-  for (std::vector<Fit_Result*>::size_type i=0; i < _v.size(); i++)
-    _v[i]->decref ();
+  for (auto & i : _v)
+    i->decref ();
   _v = vec._v;
   _max_len = vec._max_len;
-  for (std::vector<Fit_Result*>::size_type i=0; i < _v.size(); i++)
-    _v[i]->incref ();
+  for (auto & i : _v)
+    i->incref ();
   return *this;
 }
 

@@ -105,74 +105,74 @@ void testEcalClusterTools::analyze(const edm::Event& ev, const edm::EventSetup& 
         const CaloTopology *topology = pTopology.product();
 
         std::cout << "========== BARREL ==========" << std::endl;
-        for (reco::BasicClusterCollection::const_iterator it = ebClusters->begin(); it != ebClusters->end(); ++it ) {
+        for (const auto & ebCluster : *ebClusters) {
                 std::cout << "----- new cluster -----" << std::endl;
-                std::cout << "----------------- size: " << (*it).size() << " energy: " << (*it).energy() << std::endl;
+                std::cout << "----------------- size: " << ebCluster.size() << " energy: " << ebCluster.energy() << std::endl;
 
-                std::cout << "e1x3..................... " << EcalClusterTools::e1x3( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e3x1..................... " << EcalClusterTools::e3x1( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e1x5..................... " << EcalClusterTools::e1x5( *it, ebRecHits, topology ) << std::endl;
+                std::cout << "e1x3..................... " << EcalClusterTools::e1x3( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e3x1..................... " << EcalClusterTools::e3x1( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e1x5..................... " << EcalClusterTools::e1x5( ebCluster, ebRecHits, topology ) << std::endl;
                 //std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e2x2..................... " << EcalClusterTools::e2x2( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e3x3..................... " << EcalClusterTools::e3x3( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e4x4..................... " << EcalClusterTools::e4x4( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e5x5..................... " << EcalClusterTools::e5x5( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e2x5Right................ " << EcalClusterTools::e2x5Right( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "e2x5Bottom............... " << EcalClusterTools::e2x5Bottom( *it, ebRecHits, topology ) << std::endl;
-		std::cout << "e2x5Max.................. " << EcalClusterTools::e2x5Max( *it, ebRecHits, topology ) << std::endl;
-                std::cout << "eMax..................... " << EcalClusterTools::eMax( *it, ebRecHits ) << std::endl;
-                std::cout << "e2nd..................... " << EcalClusterTools::e2nd( *it, ebRecHits ) << std::endl;
-                std::vector<float> vEta = EcalClusterTools::energyBasketFractionEta( *it, ebRecHits );
+                std::cout << "e2x2..................... " << EcalClusterTools::e2x2( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e3x3..................... " << EcalClusterTools::e3x3( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e4x4..................... " << EcalClusterTools::e4x4( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e5x5..................... " << EcalClusterTools::e5x5( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e2x5Right................ " << EcalClusterTools::e2x5Right( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "e2x5Bottom............... " << EcalClusterTools::e2x5Bottom( ebCluster, ebRecHits, topology ) << std::endl;
+		std::cout << "e2x5Max.................. " << EcalClusterTools::e2x5Max( ebCluster, ebRecHits, topology ) << std::endl;
+                std::cout << "eMax..................... " << EcalClusterTools::eMax( ebCluster, ebRecHits ) << std::endl;
+                std::cout << "e2nd..................... " << EcalClusterTools::e2nd( ebCluster, ebRecHits ) << std::endl;
+                std::vector<float> vEta = EcalClusterTools::energyBasketFractionEta( ebCluster, ebRecHits );
                 std::cout << "energyBasketFractionEta..";
-                for (size_t i = 0; i < vEta.size(); ++i ) {
-                        std::cout << " " << vEta[i];
+                for (float i : vEta) {
+                        std::cout << " " << i;
                 }
                 std::cout << std::endl;
-                std::vector<float> vPhi = EcalClusterTools::energyBasketFractionPhi( *it, ebRecHits );
+                std::vector<float> vPhi = EcalClusterTools::energyBasketFractionPhi( ebCluster, ebRecHits );
                 std::cout << "energyBasketFractionPhi..";
-                for (size_t i = 0; i < vPhi.size(); ++i ) {
-                        std::cout << " " << vPhi[i];
+                for (float i : vPhi) {
+                        std::cout << " " << i;
                 }
                 std::cout << std::endl;
-                std::vector<float> vLat = EcalClusterTools::lat( *it, ebRecHits, geometry );
+                std::vector<float> vLat = EcalClusterTools::lat( ebCluster, ebRecHits, geometry );
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-                std::vector<float> vCov = EcalClusterTools::covariances( *it, ebRecHits, topology, geometry );
+                std::vector<float> vCov = EcalClusterTools::covariances( ebCluster, ebRecHits, topology, geometry );
                 std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-		std::vector<float> vLocCov = EcalClusterTools::localCovariances( *it, ebRecHits, topology );
+		std::vector<float> vLocCov = EcalClusterTools::localCovariances( ebCluster, ebRecHits, topology );
                 std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
-                std::cout << "zernike20................ " << EcalClusterTools::zernike20( *it, ebRecHits, geometry ) << std::endl;
-                std::cout << "zernike42................ " << EcalClusterTools::zernike42( *it, ebRecHits, geometry ) << std::endl;
+                std::cout << "zernike20................ " << EcalClusterTools::zernike20( ebCluster, ebRecHits, geometry ) << std::endl;
+                std::cout << "zernike42................ " << EcalClusterTools::zernike42( ebCluster, ebRecHits, geometry ) << std::endl;
         }
 
         std::cout << "========== ENDCAPS ==========" << std::endl;
-        for (reco::BasicClusterCollection::const_iterator it = eeClusters->begin(); it != eeClusters->end(); ++it ) {
+        for (const auto & eeCluster : *eeClusters) {
                 std::cout << "----- new cluster -----" << std::endl;
-                std::cout << "----------------- size: " << (*it).size() << " energy: " << (*it).energy() << std::endl;
+                std::cout << "----------------- size: " << eeCluster.size() << " energy: " << eeCluster.energy() << std::endl;
                 
-                std::cout << "e1x3..................... " << EcalClusterTools::e1x3( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e3x1..................... " << EcalClusterTools::e3x1( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e1x5..................... " << EcalClusterTools::e1x5( *it, eeRecHits, topology ) << std::endl;
+                std::cout << "e1x3..................... " << EcalClusterTools::e1x3( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e3x1..................... " << EcalClusterTools::e3x1( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e1x5..................... " << EcalClusterTools::e1x5( eeCluster, eeRecHits, topology ) << std::endl;
                 //std::cout << "e5x1..................... " << EcalClusterTools::e5x1( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e2x2..................... " << EcalClusterTools::e2x2( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e3x3..................... " << EcalClusterTools::e3x3( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e4x4..................... " << EcalClusterTools::e4x4( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e5x5..................... " << EcalClusterTools::e5x5( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e2x5Right................ " << EcalClusterTools::e2x5Right( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "e2x5Bottom............... " << EcalClusterTools::e2x5Bottom( *it, eeRecHits, topology ) << std::endl;
-                std::cout << "eMax..................... " << EcalClusterTools::eMax( *it, eeRecHits ) << std::endl;
-                std::cout << "e2nd..................... " << EcalClusterTools::e2nd( *it, eeRecHits ) << std::endl;
-                std::vector<float> vLat = EcalClusterTools::lat( *it, eeRecHits, geometry );
+                std::cout << "e2x2..................... " << EcalClusterTools::e2x2( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e3x3..................... " << EcalClusterTools::e3x3( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e4x4..................... " << EcalClusterTools::e4x4( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e5x5..................... " << EcalClusterTools::e5x5( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e2x5Right................ " << EcalClusterTools::e2x5Right( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e2x5Left................. " << EcalClusterTools::e2x5Left( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e2x5Top.................. " << EcalClusterTools::e2x5Top( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "e2x5Bottom............... " << EcalClusterTools::e2x5Bottom( eeCluster, eeRecHits, topology ) << std::endl;
+                std::cout << "eMax..................... " << EcalClusterTools::eMax( eeCluster, eeRecHits ) << std::endl;
+                std::cout << "e2nd..................... " << EcalClusterTools::e2nd( eeCluster, eeRecHits ) << std::endl;
+                std::vector<float> vLat = EcalClusterTools::lat( eeCluster, eeRecHits, geometry );
                 std::cout << "lat...................... " << vLat[0] << " " << vLat[1] << " " << vLat[2] << std::endl;
-                std::vector<float> vCov = EcalClusterTools::covariances( *it, eeRecHits, topology, geometry );
+                std::vector<float> vCov = EcalClusterTools::covariances( eeCluster, eeRecHits, topology, geometry );
                 std::cout << "covariances.............. " << vCov[0] << " " << vCov[1] << " " << vCov[2] << std::endl;
-		std::vector<float> vLocCov = EcalClusterTools::localCovariances( *it, eeRecHits, topology );
+		std::vector<float> vLocCov = EcalClusterTools::localCovariances( eeCluster, eeRecHits, topology );
                 std::cout << "local covariances........ " << vLocCov[0] << " " << vLocCov[1] << " " << vLocCov[2] << std::endl;
-                std::cout << "zernike20................ " << EcalClusterTools::zernike20( *it, eeRecHits, geometry ) << std::endl;
-                std::cout << "zernike42................ " << EcalClusterTools::zernike42( *it, eeRecHits, geometry ) << std::endl;
+                std::cout << "zernike20................ " << EcalClusterTools::zernike20( eeCluster, eeRecHits, geometry ) << std::endl;
+                std::cout << "zernike42................ " << EcalClusterTools::zernike42( eeCluster, eeRecHits, geometry ) << std::endl;
         }
 }
 

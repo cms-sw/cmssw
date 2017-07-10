@@ -31,10 +31,9 @@ namespace { // anonymous
 
 IdCache::~IdCache()
 {
-	for(std::multiset<const char*, StringLess>::iterator iter =
-	    idSet.begin(); iter != idSet.end(); iter++)
-		stringAllocator.deallocate(const_cast<char*>(*iter),
-		                           std::strlen(*iter));
+	for(auto iter : idSet)
+		stringAllocator.deallocate(const_cast<char*>(iter),
+		                           std::strlen(iter));
 }
 
 const char *IdCache::findOrInsert(const char *string) throw()

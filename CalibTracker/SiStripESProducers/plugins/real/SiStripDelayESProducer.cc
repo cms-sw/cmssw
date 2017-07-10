@@ -46,10 +46,10 @@ std::shared_ptr<SiStripDelay> SiStripDelayESProducer::produce(const SiStripDelay
   std::string recordName;
   int sumSign = 0;
 
-  for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
-    recordName = itToGet->getParameter<std::string>("Record");
-    label = itToGet->getParameter<std::string>("Label");
-    sumSign = itToGet->getParameter<int>("SumSign");
+  for(auto & itToGet : toGet) {
+    recordName = itToGet.getParameter<std::string>("Record");
+    label = itToGet.getParameter<std::string>("Label");
+    sumSign = itToGet.getParameter<int>("SumSign");
     
     edm::LogInfo("SiStripDelayESProducer") << "[SiStripDelayESProducer::produce] Getting data from record " << recordName << " with label " << label << std::endl;
 

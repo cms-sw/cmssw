@@ -126,10 +126,10 @@ TtSemiLepJetCombMaxSumPtWMass::produce(edm::Event& evt, const edm::EventSetup& s
     }
   }
   int hadB=-1;
-  for(unsigned idx=0; idx<maxPtIndices.size(); ++idx){
+  for(int maxPtIndice : maxPtIndices){
     // if this idx is not yet contained in the list of W mass candidates...
-    if( std::find( closestToWMassIndices.begin(), closestToWMassIndices.end(), maxPtIndices[idx]) == closestToWMassIndices.end() ){
-      hadB = maxPtIndices[idx];
+    if( std::find( closestToWMassIndices.begin(), closestToWMassIndices.end(), maxPtIndice) == closestToWMassIndices.end() ){
+      hadB = maxPtIndice;
       break; // there should be no other cadidates!
     }
   }

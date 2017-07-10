@@ -212,17 +212,15 @@ std::map<std::string, unsigned int> l1t::TriggerMenuParser::getExternalSignals(c
   std::map<std::string, unsigned int> extBitMap;
 
   //loop over the algorithms
-  for (std::map<std::string, esCondition>::const_iterator cit = condMap.begin();
-       cit != condMap.end(); cit++)
+  for (const auto & cit : condMap)
   {
-      const esCondition& condition = cit->second;
+      const esCondition& condition = cit.second;
       if(condition.getType() == esConditionType::Externals ) {
 
              // Get object for External conditions
              const std::vector<esObject>& objects = condition.getObjects();
-             for (size_t jj = 0; jj < objects.size(); jj++) {
+             for (auto object : objects) {
 
-                 const esObject object = objects.at(jj);
                  if(object.getType() == esObjectType::EXT) {
 
                    unsigned int channelID = object.getExternalChannelId();
@@ -287,23 +285,21 @@ void l1t::TriggerMenuParser::parseCondFormats(const L1TUtmTriggerMenu* utmMenu) 
 
 
   //loop over the algorithms
-  for (std::map<std::string, esAlgorithm>::const_iterator cit = algoMap.begin();
-       cit != algoMap.end(); cit++)
+  for (const auto & cit : algoMap)
   {
     //condition chip (artifact)  TO DO: Update
     int chipNr = 0;
 
     //get algorithm
-    const esAlgorithm& algo = cit->second;
+    const esAlgorithm& algo = cit.second;
 
     //parse the algorithm
     parseAlgorithm(algo,chipNr); //blw
 
     //get conditions for this algorithm
     const std::vector<std::string>& rpn_vec = algo.getRpnVector();
-    for (size_t ii = 0; ii < rpn_vec.size(); ii++)
+    for (const auto & token : rpn_vec)
     {
-      const std::string& token = rpn_vec.at(ii);
       if (isGate(token)) continue;
 //      long hash = getHash(token);
       const esCondition& condition = condMap.find(token)->second;
@@ -473,12 +469,11 @@ void l1t::TriggerMenuParser::clearMaps() {
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
-    for (std::vector<ConditionMap>::iterator itCondOnChip = m_conditionMap.begin(); itCondOnChip
-        != m_conditionMap.end(); itCondOnChip++) {
+    for (auto & itCondOnChip : m_conditionMap) {
 
         // the conditions in the maps are deleted in L1uGtTriggerMenu, not here
 
-        itCondOnChip->clear();
+        itCondOnChip.clear();
 
     }
 
@@ -672,8 +667,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 
 		//Get bin edges
 		const std::vector<esBin> binsV = scale.getBins();
-		for(unsigned int i=0; i<binsV.size(); i++) {
-		   const esBin& bin = binsV.at(i);
+		for(const auto & bin : binsV) {
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
 		   scaleParam->etBins.push_back(binLimits);
 		}
@@ -704,8 +698,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 		//Get bin edges
 		const std::vector<esBin> binsV = scale.getBins();
 		scaleParam->etaBins.resize(pow(2,scale.getNbits()));
-		for(unsigned int i=0; i<binsV.size(); i++) {
-		   const esBin& bin = binsV.at(i);
+		for(const auto & bin : binsV) {
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
 		   scaleParam->etaBins.at(bin.hw_index) = binLimits;
 		}
@@ -719,8 +712,7 @@ bool l1t::TriggerMenuParser::parseScales(std::map<std::string, tmeventsetup::esS
 		//Get bin edges
 		const std::vector<esBin> binsV = scale.getBins();
 		scaleParam->phiBins.resize(pow(2,scale.getNbits()));
-		for(unsigned int i=0; i<binsV.size(); i++) {
-		   const esBin& bin = binsV.at(i);
+		for(const auto & bin : binsV) {
 		   std::pair<double, double> binLimits(bin.minimum, bin.maximum);
 		   scaleParam->phiBins.at(bin.hw_index) = binLimits;
 		}
@@ -1138,10 +1130,9 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
 //  Look for cuts on the objects in the condition
      unsigned int chargeCorrelation = 1;
      const std::vector<esCut>& cuts = condMu.getCuts();
-     for (size_t jj = 0; jj < cuts.size(); jj++)
+     for (auto cut : cuts)
       {
-        const esCut cut = cuts.at(jj);
-	if(cut.getCutType() == esCutType::ChargeCorrelation) {
+        	if(cut.getCutType() == esCutType::ChargeCorrelation) {
 	   if( cut.getData()=="ls" )      chargeCorrelation = 2;
 	   else if( cut.getData()=="os" ) chargeCorrelation = 4;
 	   else chargeCorrelation = 1; //ignore correlation
@@ -1161,9 +1152,8 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
 
 // Loop over objects and extract the cuts on the objects
     const std::vector<esObject>& objects = condMu.getObjects();
-    for (size_t jj = 0; jj < objects.size(); jj++) {
+    for (auto object : objects) {
 
-       const esObject object = objects.at(jj);
        gEq =  (object.getComparisonOperator() == esComparisonOperator::GE);
 
 //  BLW TO DO: This needs to be added to the Object Parameters
@@ -1183,11 +1173,9 @@ bool l1t::TriggerMenuParser::parseMuon(tmeventsetup::esCondition condMu,
 	int qualityLUT = 0xFFFF; //default is to ignore unless specified.
 
         const std::vector<esCut>& cuts = object.getCuts();
-        for (size_t kk = 0; kk < cuts.size(); kk++)
+        for (auto cut : cuts)
         {
-          const esCut cut = cuts.at(kk);
-
-	  switch(cut.getCutType()){
+          switch(cut.getCutType()){
 	     case esCutType::Threshold:
 	       lowerThresholdInd = cut.getMinimum().index;
 	       upperThresholdInd = cut.getMaximum().index;
@@ -1418,10 +1406,8 @@ bool l1t::TriggerMenuParser::parseMuonCorr(const tmeventsetup::esObject* corrMu,
     int qualityLUT = 0xFFFF; //default is to ignore unless specified.
 
     const std::vector<esCut>& cuts = corrMu->getCuts();
-    for (size_t kk = 0; kk < cuts.size(); kk++)
+    for (auto cut : cuts)
     {
-      const esCut cut = cuts.at(kk);
-
       switch(cut.getCutType()){
 	 case esCutType::Threshold:
 	   lowerThresholdInd = cut.getMinimum().index;
@@ -1705,9 +1691,8 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
 
 // Loop over objects and extract the cuts on the objects
     const std::vector<esObject>& objects = condCalo.getObjects();
-    for (size_t jj = 0; jj < objects.size(); jj++) {
+    for (auto object : objects) {
 
-       const esObject object = objects.at(jj);
        gEq =  (object.getComparisonOperator() == esComparisonOperator::GE);
 
 //  BLW TO DO: This needs to be added to the Object Parameters
@@ -1727,11 +1712,9 @@ bool l1t::TriggerMenuParser::parseCalo(tmeventsetup::esCondition condCalo,
 
 
         const std::vector<esCut>& cuts = object.getCuts();
-        for (size_t kk = 0; kk < cuts.size(); kk++)
+        for (auto cut : cuts)
         {
-          const esCut cut = cuts.at(kk);
-
-	  switch(cut.getCutType()){
+          switch(cut.getCutType()){
 	     case esCutType::Threshold:
 	       lowerThresholdInd = cut.getMinimum().index;
 	       upperThresholdInd = cut.getMaximum().index;
@@ -1995,10 +1978,8 @@ bool l1t::TriggerMenuParser::parseCaloCorr(const tmeventsetup::esObject* corrCal
 
 
      const std::vector<esCut>& cuts = corrCalo->getCuts();
-     for (size_t kk = 0; kk < cuts.size(); kk++)
+     for (auto cut : cuts)
      {
-       const esCut cut = cuts.at(kk);
-
        switch(cut.getCutType()){
 	  case esCutType::Threshold:
 	    lowerThresholdInd = cut.getMinimum().index;
@@ -2266,9 +2247,8 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 
 // Loop over objects and extract the cuts on the objects
     const std::vector<esObject>& objects = condEnergySum.getObjects();
-    for (size_t jj = 0; jj < objects.size(); jj++) {
+    for (auto object : objects) {
 
-       const esObject object = objects.at(jj);
        gEq =  (object.getComparisonOperator() == esComparisonOperator::GE);
 
 //  BLW TO DO: This needs to be added to the Object Parameters
@@ -2282,11 +2262,9 @@ bool l1t::TriggerMenuParser::parseEnergySum(tmeventsetup::esCondition condEnergy
 
 
         const std::vector<esCut>& cuts = object.getCuts();
-        for (size_t kk = 0; kk < cuts.size(); kk++)
+        for (auto cut : cuts)
         {
-          const esCut cut = cuts.at(kk);
-
-	  switch(cut.getCutType()){
+          switch(cut.getCutType()){
 	     case esCutType::Threshold:
 	       lowerThresholdInd = cut.getMinimum().index;
 	       upperThresholdInd = cut.getMaximum().index;
@@ -2495,10 +2473,8 @@ bool l1t::TriggerMenuParser::parseEnergySumCorr(const tmeventsetup::esObject* co
 
 
     const std::vector<esCut>& cuts = corrESum->getCuts();
-    for (size_t kk = 0; kk < cuts.size(); kk++)
+    for (auto cut : cuts)
     {
-      const esCut cut = cuts.at(kk);
-
       switch(cut.getCutType()){
 	 case esCutType::Threshold:
 	   lowerThresholdInd = cut.getMinimum().index;
@@ -2648,9 +2624,8 @@ bool l1t::TriggerMenuParser::parseExternal(tmeventsetup::esCondition condExt,
 
     // Get object for External conditions
     const std::vector<esObject>& objects = condExt.getObjects();
-    for (size_t jj = 0; jj < objects.size(); jj++) {
+    for (auto object : objects) {
 
-       const esObject object = objects.at(jj);
        if(object.getType() == esObjectType::EXT) {
           relativeBx = object.getBxOffset();
           channelID = object.getExternalChannelId();
@@ -2767,11 +2742,9 @@ bool l1t::TriggerMenuParser::parseCorrelation(
 // Get the correlation Cuts on the legs
       int cutType = 0;
       const std::vector<esCut>& cuts = corrCond.getCuts();
-      for (size_t jj = 0; jj < cuts.size(); jj++)
+      for (auto cut : cuts)
       {
-        const esCut cut = cuts.at(jj);
-
-	if(cut.getCutType() == esCutType::ChargeCorrelation) {
+        	if(cut.getCutType() == esCutType::ChargeCorrelation) {
 	   if( cut.getData()=="ls" )      corrParameter.chargeCorrelation = 2;
 	   else if( cut.getData()=="os" ) corrParameter.chargeCorrelation = 4;
 	   else corrParameter.chargeCorrelation = 1; //ignore charge correlation
@@ -3089,10 +3062,8 @@ bool l1t::TriggerMenuParser::parseCorrelationWithOverlapRemoval(
 // Get the correlation Cuts on the legs
       int cutType = 0;
       const std::vector<esCut>& cuts = corrCond.getCuts();
-      for (size_t jj = 0; jj < cuts.size(); jj++)
+      for (auto cut : cuts)
       {
-        const esCut cut = cuts.at(jj);
-
         if(cut.getCutType() == esCutType::ChargeCorrelation) {
           if( cut.getData()=="ls" )      corrParameter.chargeCorrelation = 2;
           else if( cut.getData()=="os" ) corrParameter.chargeCorrelation = 4;

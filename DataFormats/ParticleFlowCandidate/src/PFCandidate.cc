@@ -327,9 +327,9 @@ ostream& reco::operator<<(ostream& out,
   out<<", blocks/iele: ";
   
   PFCandidate::ElementsInBlocks eleInBlocks = c.elementsInBlocks();
-  for(unsigned i=0; i<eleInBlocks.size(); i++) {
-    PFBlockRef blockRef = eleInBlocks[i].first;
-    unsigned indexInBlock = eleInBlocks[i].second;
+  for(auto & eleInBlock : eleInBlocks) {
+    PFBlockRef blockRef = eleInBlock.first;
+    unsigned indexInBlock = eleInBlock.second;
     
     out<<"("<<blockRef.key()<<"|"<<indexInBlock<<"), ";
   }

@@ -96,11 +96,11 @@ TrajectoryAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
    iEvent.getByToken(trajTag,trajCollectionHandle);
    
    COUT("TrajectoryAnalyzer") << "trajColl->size(): " << trajCollectionHandle->size() << std::endl;
-   for(auto it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end();it++){
-     COUT("TrajectoryAnalyzer") << "this traj has " << it->foundHits() << " valid hits"  << " , "
-					    << "isValid: " << it->isValid() << std::endl;
+   for(const auto & it : *trajCollectionHandle){
+     COUT("TrajectoryAnalyzer") << "this traj has " << it.foundHits() << " valid hits"  << " , "
+					    << "isValid: " << it.isValid() << std::endl;
 
-     auto const & tmColl = it->measurements();
+     auto const & tmColl = it.measurements();
      for(auto itTraj = tmColl.begin(); itTraj!=tmColl.end(); itTraj++){
        if(! itTraj->updatedState().isValid()) continue;
        COUT("TrajectoryAnalyzer") << "tm number: " << (itTraj - tmColl.begin()) + 1<< " , "

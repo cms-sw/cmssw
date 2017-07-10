@@ -180,9 +180,9 @@ void TBeamTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	int width = 1;
 	int position = 0; 
 	float dPhi = 9999.9;      
-	for (DetSet<Phase2TrackerDigi>::const_iterator di = DSViter->begin(); di != DSViter->end(); di++) {
-	  int col     = di->column(); // column
-	  int row     = di->row();    // row
+	for (auto di : *DSViter) {
+	  int col     = di.column(); // column
+	  int row     = di.row();    // row
 	  MeasurementPoint mp(row+0.5, col+0.5 );
 	  unsigned int channel = Phase2TrackerDigi::pixelToChannel(row, col);
 	  int tkIndx  = matchedSimTrackIndex(digiSimLinkHandle, simTrackHandle, detId, channel);        

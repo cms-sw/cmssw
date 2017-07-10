@@ -152,9 +152,9 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	DetId detcell=(DetId)rechit.id();
 	std::vector<DetId> channels = myqual->getAllChannels();
 	//std::cout << "number of specified quality flags = " << channels.size() << std::endl;
-	for (std::vector<DetId>::iterator channel = channels.begin();channel !=  channels.end();channel++) {	
-		if (channel->rawId() == detcell.rawId()) {
-			const CastorChannelStatus* mydigistatus=myqual->getValues(*channel);
+	for (auto & channel : channels) {	
+		if (channel.rawId() == detcell.rawId()) {
+			const CastorChannelStatus* mydigistatus=myqual->getValues(channel);
 			//std::cout << "CastorChannelStatus = " << mydigistatus->getValue() << std::endl;
 			if (mydigistatus->getValue() == 2989) ok = false; // 2989 = BAD
 		}

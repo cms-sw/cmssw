@@ -148,8 +148,8 @@ TEveCaloLego* FWECALDetailViewBuilder::build()
 
 void FWECALDetailViewBuilder::setColor(Color_t color, const std::vector<DetId> &detIds)
 {
-   for (size_t i = 0; i < detIds.size(); ++i)
-      m_detIdsToColor[detIds[i]] = color;
+   for (auto detId : detIds)
+      m_detIdsToColor[detId] = color;
 }
 
 void
@@ -157,9 +157,9 @@ FWECALDetailViewBuilder::showSuperCluster( const reco::SuperCluster &cluster, Co
 {
    std::vector<DetId> clusterDetIds;
    const std::vector<std::pair<DetId, float> > &hitsAndFractions = cluster.hitsAndFractions();
-   for (size_t j = 0; j < hitsAndFractions.size(); ++j)
+   for (const auto & hitsAndFraction : hitsAndFractions)
    {
-      clusterDetIds.push_back(hitsAndFractions[j].first);
+      clusterDetIds.push_back(hitsAndFraction.first);
    }
 
    setColor( color, clusterDetIds );
@@ -194,16 +194,16 @@ FWECALDetailViewBuilder::showSuperClusters( Color_t color1, Color_t color2 )
       // sort clusters in eta so neighboring clusters have distinct colors
       reco::SuperClusterCollection sorted = *collection.product();
       std::sort( sorted.begin(), sorted.end(), superClusterEtaLess );
-      for( size_t i = 0; i < sorted.size(); ++i )
+      for(auto & i : sorted)
       {
-	 if( !(fabs(sorted[i].eta() - m_eta) < sizeRad()
-	       && fabs(sorted[i].phi() - m_phi) < sizeRad()) )
+	 if( !(fabs(i.eta() - m_eta) < sizeRad()
+	       && fabs(i.phi() - m_phi) < sizeRad()) )
 	   continue;
 
 	 if( colorIndex %2 == 0 )
-	    showSuperCluster( sorted[i], color1 );
+	    showSuperCluster( i, color1 );
 	 else
-	    showSuperCluster( sorted[i], color2 );
+	    showSuperCluster( i, color2 );
 	 ++colorIndex;
       }
    }
@@ -239,9 +239,9 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
 
 
    std::vector<FWBoxRecHit*>  boxes;
-   for( EcalRecHitCollection::const_iterator hitIt = hits->begin(); hitIt != hits->end(); ++hitIt)
+   for(const auto & hit : *hits)
    {    
-       const float *corners = m_geom->getCorners( hitIt->detid() );
+       const float *corners = m_geom->getCorners( hit.detid() );
        float energy, et;
        std::vector<TEveVector> etaphiCorners(8);
 
@@ -290,10 +290,10 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
 
 
 
-       energy = hitIt->energy();
+       energy = hit.energy();
        et = calculateEt( center, energy );
        Color_t bcolor = m_defaultColor;
-       std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(hitIt->id());
+       std::map<DetId, int>::const_iterator itr = m_detIdsToColor.find(hit.id());
        if (itr != m_detIdsToColor.end()) bcolor = itr->second;
 
        m_boxes.push_back(new FWBoxRecHit( etaphiCorners, m_towerList, energy, et ));
@@ -301,7 +301,7 @@ FWECALDetailViewBuilder::fillEtaPhi( const EcalRecHitCollection *hits,TEveCaloDa
        TEveCompound* comp = dynamic_cast<TEveCompound*>(*pIt);
        comp->SetMainColor(bcolor);
        m_boxes.back()->getTower()->SetPickable(true);
-       m_boxes.back()->getTower()->SetElementTitle(Form("rawId = %d, et = %f", hitIt->id().rawId(), et));
+       m_boxes.back()->getTower()->SetElementTitle(Form("rawId = %d, et = %f", hit.id().rawId(), et));
    } // loop hits
 
 }

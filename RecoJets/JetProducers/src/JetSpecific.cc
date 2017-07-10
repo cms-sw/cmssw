@@ -99,10 +99,8 @@ void reco::writeSpecific(reco::PFJet  & jet,
   makeSpecific (constituents, &specific);
   // now make jet charge
   int charge = 0.;
-  for ( std::vector<reco::CandidatePtr>::const_iterator ic = constituents.begin(),
-	  icend = constituents.end();
-	ic != icend; ++ic ) {
-    charge += (*ic)->charge();
+  for (const auto & constituent : constituents) {
+    charge += constituent->charge();
   }
   jet = reco::PFJet( p4, point, specific, constituents);  
   jet.setCharge( charge );

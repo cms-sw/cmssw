@@ -272,12 +272,12 @@ namespace egHLT {
       const OffEle* tagEle=NULL;
       const std::vector<OffEle>& eles = evt.eles();
       //we are looking for an *additional* tag
-      for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-	if( ((eles[eleNr].*tagCutCodeFunc_)() & tagCutCode_)==0x0){
+      for(const auto & ele : eles){
+	if( ((ele.*tagCutCodeFunc_)() & tagCutCode_)==0x0){
 	  //now a check that the tag is not the same as the probe
-	  if(reco::deltaR2(obj.eta(),obj.phi(),eles[eleNr].eta(),eles[eleNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe object
+	  if(reco::deltaR2(obj.eta(),obj.phi(),ele.eta(),ele.phi())>0.1*0.1){//not in a cone of 0.1 of probe object
 	    nrTags++;
-	    tagEle = &eles[eleNr];
+	    tagEle = &ele;
 	  }
 	}
       }
@@ -310,16 +310,16 @@ namespace egHLT {
     {
       int nrProbes=0;
       const std::vector<OffEle>& eles = evt.eles();
-      for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-	if( ((eles[eleNr].*probeCutCodeFunc_)() & probeCutCode_)==0x0){
+      for(const auto & ele : eles){
+	if( ((ele.*probeCutCodeFunc_)() & probeCutCode_)==0x0){
 	  nrProbes++;
 	}
       }
       bool b2bJet=false;
       const std::vector<reco::CaloJet>& jets =evt.jets();
-      for(size_t jetNr=0;jetNr<jets.size();jetNr++){
-	if(reco::deltaR2(obj.eta(),obj.phi(),jets[jetNr].eta(),jets[jetNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe object
-	  float dPhi = reco::deltaPhi(obj.phi(),jets[jetNr].phi());
+      for(const auto & jet : jets){
+	if(reco::deltaR2(obj.eta(),obj.phi(),jet.eta(),jet.phi())>0.1*0.1){//not in a cone of 0.1 of probe object
+	  float dPhi = reco::deltaPhi(obj.phi(),jet.phi());
 	  if(dPhi>minDPhi_ && dPhi<maxDPhi_) b2bJet=true;
 	}
       }
@@ -350,10 +350,10 @@ namespace egHLT {
     
       bool b2bJet=false;
       const std::vector<reco::CaloJet>& jets =evt.jets();
-      for(size_t jetNr=0;jetNr<jets.size();jetNr++){
-	if(reco::deltaR2(obj.eta(),obj.phi(),jets[jetNr].eta(),jets[jetNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe object
-	  float dPhi = reco::deltaPhi(obj.phi(),jets[jetNr].phi());
-	  if(dPhi>minDPhi_ && dPhi<maxDPhi_ && fabs(1-jets[jetNr].pt()/obj.pt()) < ptRelDiff_) b2bJet=true;
+      for(const auto & jet : jets){
+	if(reco::deltaR2(obj.eta(),obj.phi(),jet.eta(),jet.phi())>0.1*0.1){//not in a cone of 0.1 of probe object
+	  float dPhi = reco::deltaPhi(obj.phi(),jet.phi());
+	  if(dPhi>minDPhi_ && dPhi<maxDPhi_ && fabs(1-jet.pt()/obj.pt()) < ptRelDiff_) b2bJet=true;
 	}
       }
       return b2bJet;
@@ -391,9 +391,9 @@ namespace egHLT {
   template<class Key> bool EgDiEleUserCut<Key>::pass(const OffEle& obj,const OffEvt& evt)const
     { 
       const std::vector<OffEle>& eles = evt.eles();
-      for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-	if(&eles[eleNr]!=&obj){ //different electrons
-	  int diEleCutCode = (obj.*cutCodeFunc_)(key_) | (eles[eleNr].*cutCodeFunc_)(key_);  
+      for(const auto & ele : eles){
+	if(&ele!=&obj){ //different electrons
+	  int diEleCutCode = (obj.*cutCodeFunc_)(key_) | (ele.*cutCodeFunc_)(key_);  
 	  if( (diEleCutCode & cutsNotToMask_)==0x0) return true;
 	}
       }
@@ -432,10 +432,10 @@ namespace egHLT {
   template<class Key> bool EgDiPhoUserCut<Key>::pass(const OffPho& obj,const OffEvt& evt)const
     { 
       const std::vector<OffPho>& phos = evt.phos();
-      for(size_t phoNr=0;phoNr<phos.size();phoNr++){
-	if(&phos[phoNr]!=&obj){ //different phoctrons
+      for(const auto & pho : phos){
+	if(&pho!=&obj){ //different phoctrons
 	
-	  int diPhoCutCode = (obj.*cutCodeFunc_)(key_) | (phos[phoNr].*cutCodeFunc_)(key_);
+	  int diPhoCutCode = (obj.*cutCodeFunc_)(key_) | (pho.*cutCodeFunc_)(key_);
 	  if( (diPhoCutCode & cutsNotToMask_)==0x0) return true;
 	}
       }

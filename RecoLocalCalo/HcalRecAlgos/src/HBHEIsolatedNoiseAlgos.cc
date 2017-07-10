@@ -150,8 +150,8 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
   const CaloSubdetectorGeometry* gEE = geo->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
 
   // do the HCAL hits
-  for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {
-    const HBHERecHit* hit=&(*it);
+  for(const auto & it : *hbhehitcoll_h) {
+    const HBHERecHit* hit=&it;
       
     // check that the hit is valid
     if(!objectvalidator.validHit(*hit)) continue;
@@ -162,8 +162,8 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
   }
 
   // do the EB hits
-  for(EcalRecHitCollection::const_iterator it=ebhitcoll_h->begin(); it!=ebhitcoll_h->end(); ++it) {
-    const EcalRecHit* hit=&(*it);
+  for(const auto & it : *ebhitcoll_h) {
+    const EcalRecHit* hit=&it;
       
     if(!objectvalidator.validHit(*hit)) continue;
     CaloTowerDetId tid = ctcm.towerOf(hit->id());
@@ -171,8 +171,8 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
   }
 
   // do the EE hits
-  for(EcalRecHitCollection::const_iterator it=eehitcoll_h->begin(); it!=eehitcoll_h->end(); ++it) {
-    const EcalRecHit* hit=&(*it);
+  for(const auto & it : *eehitcoll_h) {
+    const EcalRecHit* hit=&it;
     
     if(!objectvalidator.validHit(*hit)) continue;
     CaloTowerDetId tid = ctcm.towerOf(hit->id());
@@ -180,8 +180,8 @@ PhysicsTowerOrganizer::PhysicsTowerOrganizer(const edm::Event& iEvent,
   }
   
   // do the tracks
-  for(std::vector<reco::TrackExtrapolation>::const_iterator it=trackextrapcoll_h->begin(); it!=trackextrapcoll_h->end(); ++it) {
-    const reco::TrackExtrapolation* extrap=&(*it);
+  for(const auto & it : *trackextrapcoll_h) {
+    const reco::TrackExtrapolation* extrap=&it;
     const reco::Track* track = &(*(extrap->track()));
 
     // validate track
@@ -493,8 +493,7 @@ void HBHEHitMap::hcalHitsSameTowers(std::set<const HBHERecHit*>& v) const
 {
   v.clear();
   for(hitmap_const_iterator it1=beginHits(); it1!=endHits(); ++it1) {
-    for(std::set<const HBHERecHit*>::const_iterator it2=it1->second->hcalhits.begin(); it2!=it1->second->hcalhits.end(); ++it2) {
-      const HBHERecHit* hit=(*it2);
+    for(auto hit : it1->second->hcalhits) {
       // if the hit in the tower is already in the hitmap, don't include it
       if(findHit(hit)==endHits()) v.insert(hit);
     }
@@ -614,8 +613,8 @@ void HBHEHitMap::calcHits_(void) const
   hitEnergy_=0;
   nHits_=0;
   hitEnergyTrkFid_=0;
-  for(hitmap_const_iterator it=hits_.begin(); it!=hits_.end(); ++it) {
-    const HBHERecHit* hit=it->first;
+  for(const auto & it : hits_) {
+    const HBHERecHit* hit=it.first;
     if(hit->id().ietaAbs()<=26) hitEnergyTrkFid_+=hit->energy();
     hitEnergy_+=hit->energy();
     ++nHits_;
@@ -629,8 +628,7 @@ void HBHEHitMap::calcHcalSameTowers_(void) const
   nHcalHitsSameTowers_=0;
   std::set<const HBHERecHit*> v;
   hcalHitsSameTowers(v);
-  for(std::set<const HBHERecHit*>::const_iterator it=v.begin(); it!=v.end(); ++it) {
-    const HBHERecHit* hit=(*it);
+  for(auto hit : v) {
     hcalEnergySameTowers_+=hit->energy();
     ++nHcalHitsSameTowers_;
   }
@@ -643,8 +641,7 @@ void HBHEHitMap::calcEcalSameTowers_(void) const
   nEcalHitsSameTowers_=0;
   std::set<const EcalRecHit*> v;
   ecalHitsSameTowers(v);
-  for(std::set<const EcalRecHit*>::const_iterator it=v.begin(); it!=v.end(); ++it) {
-    const EcalRecHit* hit=(*it);
+  for(auto hit : v) {
     ecalEnergySameTowers_+=hit->energy();
     ++nEcalHitsSameTowers_;
   }
@@ -657,8 +654,7 @@ void HBHEHitMap::calcTracksSameTowers_(void) const
   nTracksSameTowers_=0;
   std::set<const reco::Track*> v;
   tracksSameTowers(v);
-  for(std::set<const reco::Track*>::const_iterator it=v.begin(); it!=v.end(); ++it) {
-    const reco::Track* trk=(*it);
+  for(auto trk : v) {
     trackEnergySameTowers_+=trk->p();
     ++nTracksSameTowers_;
   }
@@ -671,8 +667,7 @@ void HBHEHitMap::calcHcalNeighborTowers_(void) const
   nHcalHitsNeighborTowers_=0;
   std::set<const HBHERecHit*> v;
   hcalHitsNeighborTowers(v);
-  for(std::set<const HBHERecHit*>::const_iterator it=v.begin(); it!=v.end(); ++it) {
-    const HBHERecHit* hit=(*it);
+  for(auto hit : v) {
     hcalEnergyNeighborTowers_+=hit->energy();
     ++nHcalHitsNeighborTowers_;
   }
@@ -685,8 +680,7 @@ void HBHEHitMap::calcEcalNeighborTowers_(void) const
   nEcalHitsNeighborTowers_=0;
   std::set<const EcalRecHit*> v;
   ecalHitsNeighborTowers(v);
-  for(std::set<const EcalRecHit*>::const_iterator it=v.begin(); it!=v.end(); ++it) {
-    const EcalRecHit* hit=(*it);
+  for(auto hit : v) {
     ecalEnergyNeighborTowers_+=hit->energy();
     ++nEcalHitsNeighborTowers_;
   }
@@ -699,8 +693,7 @@ void HBHEHitMap::calcTracksNeighborTowers_(void) const
   nTracksNeighborTowers_=0;
   std::set<const reco::Track*> v;
   tracksNeighborTowers(v);
-  for(std::set<const reco::Track*>::const_iterator it=v.begin(); it!=v.end(); ++it) {
-    const reco::Track* trk=(*it);
+  for(auto trk : v) {
     trackEnergyNeighborTowers_+=trk->p();
     ++nTracksNeighborTowers_;
   }
@@ -721,8 +714,8 @@ HBHEHitMapOrganizer::HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>
   : hfemap_(hfemap)
 {
   // loop over the hits
-  for(HBHERecHitCollection::const_iterator it=hbhehitcoll_h->begin(); it!=hbhehitcoll_h->end(); ++it) {
-    const HBHERecHit *hit=&(*it);
+  for(const auto & it : *hbhehitcoll_h) {
+    const HBHERecHit *hit=&it;
     if(!objvalidator.validHit(*hit)) continue;
     
     // get the Physics Tower and the neighbors
@@ -776,8 +769,8 @@ HBHEHitMapOrganizer::HBHEHitMapOrganizer(const edm::Handle<HBHERecHitCollection>
 
 void HBHEHitMapOrganizer::getRBXs(std::vector<HBHEHitMap>& v, double energy) const
 {
-  for(std::map<int, HBHEHitMap>::const_iterator it=rbxs_.begin(); it!=rbxs_.end(); ++it) {
-    const HBHEHitMap &map=it->second;
+  for(const auto & rbx : rbxs_) {
+    const HBHEHitMap &map=rbx.second;
     if(map.hitEnergy()>energy) v.push_back(map);
   }
   return;
@@ -785,8 +778,8 @@ void HBHEHitMapOrganizer::getRBXs(std::vector<HBHEHitMap>& v, double energy) con
 
 void HBHEHitMapOrganizer::getHPDs(std::vector<HBHEHitMap>& v, double energy) const
 {
-  for(std::map<int, HBHEHitMap>::const_iterator it=hpds_.begin(); it!=hpds_.end(); ++it) {
-    const HBHEHitMap &map=it->second;
+  for(const auto & hpd : hpds_) {
+    const HBHEHitMap &map=hpd.second;
     if(map.hitEnergy()>energy) v.push_back(map);
   }
   return;
@@ -794,16 +787,16 @@ void HBHEHitMapOrganizer::getHPDs(std::vector<HBHEHitMap>& v, double energy) con
 
 void HBHEHitMapOrganizer::getDiHits(std::vector<HBHEHitMap>& v, double energy) const
 {
-  for(std::vector<HBHEHitMap>::const_iterator it=dihits_.begin(); it!=dihits_.end(); ++it) {
-    if(it->hitEnergy()>energy) v.push_back(*it);
+  for(const auto & dihit : dihits_) {
+    if(dihit.hitEnergy()>energy) v.push_back(dihit);
   }
   return;
 }
 
 void HBHEHitMapOrganizer::getMonoHits(std::vector<HBHEHitMap>& v, double energy) const
 {
-  for(std::vector<HBHEHitMap>::const_iterator it=monohits_.begin(); it!=monohits_.end(); ++it) {
-    if(it->hitEnergy()>energy) v.push_back(*it);
+  for(const auto & monohit : monohits_) {
+    if(monohit.hitEnergy()>energy) v.push_back(monohit);
   }
   return;
 }
@@ -819,8 +812,8 @@ void HBHEHitMapOrganizer::getHPDNeighbors(const HBHERecHit* hit, std::vector<con
   temp.insert(pto.findTower(hit->id().ieta(), hit->id().iphi()));
 
   // loop over the rechits in the temp neighbors
-  for(std::set<const PhysicsTower*>::const_iterator it1=temp.begin(); it1!=temp.end(); ++it1) {
-    for(std::set<const HBHERecHit*>::const_iterator it2=(*it1)->hcalhits.begin(); it2!=(*it1)->hcalhits.end(); ++it2) {
+  for(auto it1 : temp) {
+    for(std::set<const HBHERecHit*>::const_iterator it2=it1->hcalhits.begin(); it2!=it1->hcalhits.end(); ++it2) {
       const HBHERecHit* hit2(*it2);
       if(hit!=hit2 && hfemap_->lookupRMIndex(hit->id())==hfemap_->lookupRMIndex(hit2->id())) {
 	neighbors.push_back(hit2);

@@ -183,32 +183,32 @@ void RealCosmicDataAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 
    if (muons->empty())  return;
 
-   for(reco::TrackCollection::const_iterator muon = muons->begin(); muon != muons->end(); ++ muon ) {
+   for(const auto & muon : *muons) {
      cout << "cosmic Muon Track: " 
-          << " mom: (" << muon->px() << "," << muon->py() << "," << muon->pz()
+          << " mom: (" << muon.px() << "," << muon.py() << "," << muon.pz()
           << ")"<<endl;
-     if ( fabs(muon->p()) < 1e-5 ) return; //prevent those failed to extrapolation to vertex
+     if ( fabs(muon.p()) < 1e-5 ) return; //prevent those failed to extrapolation to vertex
 
-     math::XYZVector innerMo = muon->innerMomentum();
+     math::XYZVector innerMo = muon.innerMomentum();
 
-     float ptreco = muon->pt();
+     float ptreco = muon.pt();
 
      h_pt_rec->Fill(ptreco);
 
-     hnhit->Fill(muon->recHitsSize());
+     hnhit->Fill(muon.recHitsSize());
 
      GlobalVector im(innerMo.x(),innerMo.y(),innerMo.z());
 
      h_theta->Fill(im.theta());
      h_phi->Fill(im.phi());
 
-     math::XYZPoint innerPo = muon->innerPosition();
+     math::XYZPoint innerPo = muon.innerPosition();
      GlobalPoint ip(innerPo.x(), innerPo.y(),innerPo.z());
 
      h_innerPosXY->Fill(ip.x(), ip.y());
      h_innerPosEP->Fill(ip.eta(), Geom::Phi<float>(ip.phi()));
 
-     math::XYZPoint outerPo = muon->outerPosition();
+     math::XYZPoint outerPo = muon.outerPosition();
      GlobalPoint op(outerPo.x(), outerPo.y(),outerPo.z());
 
      h_outerPosXY->Fill(op.x(), op.y());
@@ -403,8 +403,8 @@ void RealCosmicDataAnalyzer::endJob() {
 
     const int NUM_PAGES = 7;
     TPad *pad[NUM_PAGES];
-    for (int i_page=0; i_page<NUM_PAGES; i_page++)
-      pad[i_page] = new TPad("","", .05, .05, .95, .93);
+    for (auto & i_page : pad)
+      i_page = new TPad("","", .05, .05, .95, .93);
 
     ostringstream page_print;
     int page = 0;

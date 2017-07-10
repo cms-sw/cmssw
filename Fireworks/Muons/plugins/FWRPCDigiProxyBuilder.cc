@@ -50,11 +50,10 @@ FWRPCDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
   }
   const FWGeometry *geom = iItem->getGeom();
 
-  for ( RPCDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
+  for (auto && digi : *digis)
   {
-    unsigned int rawid = (*dri).first.rawId();
-    const RPCDigiCollection::Range& range = (*dri).second;
+    unsigned int rawid = digi.first.rawId();
+    const RPCDigiCollection::Range& range = digi.second;
 
     if( ! geom->contains( rawid ))
     {

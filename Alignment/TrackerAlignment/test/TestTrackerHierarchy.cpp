@@ -106,8 +106,8 @@ void TestTrackerHierarchy::dumpAlignable( const Alignable* alignable,
   const align::Alignables& comps = alignable->components();
   if ( unsigned int ndau = comps.size() ) {
     unsigned int idau = 0;
-    for ( align::Alignables::const_iterator iter = comps.begin(); iter != comps.end(); ++iter )
-      dumpAlignable( *iter, ++idau, ndau );
+    for (auto comp : comps)
+      dumpAlignable( comp, ++idau, ndau );
   }
 
   leaders_ = leaders_.substr( 0, leaders_.length()-blank_.length() );
@@ -156,11 +156,10 @@ void TestTrackerHierarchy::dumpAlignments(const edm::EventSetup& setup,
     edm::LogInfo("TrackerAlignment") << "@SUB=dumpAlignments"
 				     << "Start dumping alignments.";
     unsigned int nProblems = 0;
-    for (std::vector<AlignTransform>::const_iterator iAlign = alignments->m_align.begin(),
-	   iEnd = alignments->m_align.end(); iAlign != iEnd; ++iAlign) {
-      const align::ID id = (*iAlign).rawId();
-      const AlignTransform::Translation pos((*iAlign).translation());
-      edm::LogVerbatim("DumpAlignable") << (*iAlign).rawId() << "  |  " << pos;
+    for (const auto & iAlign : alignments->m_align) {
+      const align::ID id = iAlign.rawId();
+      const AlignTransform::Translation pos(iAlign.translation());
+      edm::LogVerbatim("DumpAlignable") << iAlign.rawId() << "  |  " << pos;
 
       AlignableDetOrUnitPtr aliPtr = navi.alignableFromDetId(id);
       if (!aliPtr.isNull()) {

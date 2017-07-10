@@ -241,13 +241,13 @@ FWGUIManager::evePreTerminate()
    gEve->GetHighlight()->RemoveElements();
     
    m_cmsShowMainFrame->UnmapWindow();
-   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
+   for(auto & wIt : m_viewMap)
    {
-     TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>((*wIt).first->GetEveFrame());
+     TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(wIt.first->GetEveFrame());
      //  main frames not to watch dying
       if (mainFrame) mainFrame->UnmapWindow();
      // destroy
-      (*wIt).second->destroy();
+      wIt.second->destroy();
    }
 }
 
@@ -497,12 +497,12 @@ FWGUIManager::checkSubviewAreaIconState(TEveWindow* /*ew*/)
    bool checkInfoBtn    = m_viewPopup ? m_viewPopup->mapped() : 0;
    TEveWindow* selected = m_viewPopup ? m_viewPopup->getEveWindow() : 0;
 
-   for (ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); it++)
+   for (auto & it : m_viewMap)
    {
-      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(it->first);
-      ar->setSwapIcon(current != it->first);
+      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(it.first);
+      ar->setSwapIcon(current != it.first);
       if (checkInfoBtn && selected)
-         ar->setInfoButton(selected == it->first);
+         ar->setInfoButton(selected == it.first);
    }
 }
 
@@ -531,17 +531,17 @@ void
 FWGUIManager::subviewDestroyAll()
 {
    std::vector<FWGUISubviewArea*> sd;
-   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
+   for(auto & wIt : m_viewMap)
    {
-      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(wIt->first);
+      FWGUISubviewArea* ar = FWGUISubviewArea::getToolBarFromWindow(wIt.first);
       sd.push_back(ar);
    }
 
-   for (std::vector<FWGUISubviewArea*>::iterator i= sd.begin(); i !=sd.end(); ++i)
+   for (auto & i : sd)
    {
-      if ((*i)->isSelected())
+      if (i->isSelected())
          setViewPopup(0);
-      subviewDestroy(*i);
+      subviewDestroy(i);
    }
 
    gSystem->ProcessEvents();
@@ -566,10 +566,10 @@ FWGUIManager::subviewInfoSelected(FWGUISubviewArea* sva)
 {
    // release button on previously selected
    TEveWindow* ew = sva->getEveWindow();
-   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
+   for(auto & wIt : m_viewMap)
    {
-      if (wIt->first != ew)
-         FWGUISubviewArea::getToolBarFromWindow(wIt->first)->setInfoButton(kFALSE);
+      if (wIt.first != ew)
+         FWGUISubviewArea::getToolBarFromWindow(wIt.first)->setInfoButton(kFALSE);
    }
    setViewPopup(sva->getEveWindow());
 }
@@ -980,9 +980,9 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
 
    name_map_t vls;
 
-   for (ViewMap_i i = m_viewMap.begin(); i != m_viewMap.end(); ++i)
+   for (auto & i : m_viewMap)
    {
-      FWTEveViewer *ev = dynamic_cast<FWTEveViewer*>(i->first);
+      FWTEveViewer *ev = dynamic_cast<FWTEveViewer*>(i.first);
       if (ev)
       {
          TString name(ev->GetElementName());
@@ -998,13 +998,13 @@ FWGUIManager::exportAllViews(const std::string& format, int height)
    std::vector<std::future<int>> futures;
    
    const edm::EventBase *event = getCurrentEvent();
-   for (name_map_i i = vls.begin(); i != vls.end(); ++i)
+   for (auto & vl : vls)
    {
-      bool multi_p    = (i->second.size() > 1);
+      bool multi_p    = (vl.second.size() > 1);
       int  view_count = 1;
-      for (viewer_list_i j = i->second.begin(); j != i->second.end(); ++j, ++view_count)
+      for (viewer_list_i j = vl.second.begin(); j != vl.second.end(); ++j, ++view_count)
       {
-         TString view_name(i->first);
+         TString view_name(vl.first);
          if (multi_p)
          {
             view_name += "_";
@@ -1195,18 +1195,18 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
 
    //  undocked info
    
-   for(ViewMap_i wIt = m_viewMap.begin(); wIt != m_viewMap.end(); ++wIt)
+   for(auto & wIt : m_viewMap)
    {
-      TEveWindow* ew = wIt->first;
+      TEveWindow* ew = wIt.first;
       TEveCompositeFrameInMainFrame* mainFrame = dynamic_cast<TEveCompositeFrameInMainFrame*>(ew->GetEveFrame());
       if (mainFrame)
       {
-         for(std::vector<areaInfo>::iterator pIt = wpacked.begin(); pIt != wpacked.end(); ++pIt)
+         for(auto & pIt : wpacked)
          {
-            if ((*pIt).originalSlot && mainFrame->GetOriginalSlot() == (*pIt).originalSlot)
+            if (pIt.originalSlot && mainFrame->GetOriginalSlot() == pIt.originalSlot)
             {
-               (*pIt).eveWindow = wIt->first;
-               (*pIt).undockedMainFrame = (TGMainFrame*)mainFrame;
+               pIt.eveWindow = wIt.first;
+               pIt.undockedMainFrame = (TGMainFrame*)mainFrame;
                // printf("found original slot for docked view %s\n", pInfo->viewBase->typeName().c_str());
                break;
             }// found match
@@ -1218,16 +1218,16 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    // add sorted list in view area and FW-views configuration
    FWConfiguration views(1);
    FWConfiguration viewArea(cfgVersion);
-   for(std::vector<areaInfo>::iterator it = wpacked.begin(); it != wpacked.end(); ++it)
+   for(auto & it : wpacked)
    {
-      TEveWindow* ew = (*it).eveWindow;
+      TEveWindow* ew = it.eveWindow;
       if (ew) {
          FWViewBase* wb = m_viewMap[ew];
          FWConfiguration tempWiew(wb->version());
          wb->addTo(tempWiew);
          views.addKeyValue(wb->typeName(), tempWiew, true);
          FWConfiguration tempArea(cfgVersion);
-         addAreaInfoTo((*it), tempArea);
+         addAreaInfoTo(it, tempArea);
          viewArea.addKeyValue(wb->typeName(), tempArea, true);
       }
    }
@@ -1316,13 +1316,13 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       const FWConfiguration::KeyValues* akv = viewArea->keyValues();
       FWConfiguration::KeyValuesIt areaIt = akv->begin();
 
-      for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it)
+      for(const auto & keyVal : *keyVals)
       {
          float weight = atof((areaIt->second).valueForKey("weight")->value().c_str());
          TEveWindowSlot* slot = ( m_viewMap.size() || (primSlot == 0) ) ? m_viewSecPack->NewSlotWithWeight(weight) : primSlot;
-         std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());
+         std::string name = FWViewType::checkNameWithViewVersion(keyVal.first, keyVal.second.version());
          ViewMap_i lastViewIt = createView(name, slot);
-         lastViewIt->second->setFrom(it->second);
+         lastViewIt->second->setFrom(keyVal.second);
 
          bool  undocked = atof((areaIt->second).valueForKey("undocked")->value().c_str());
          if (undocked)
@@ -1345,12 +1345,12 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    }
    else
    {  // create views with same weight in old version
-      for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
-         std::string name = FWViewType::checkNameWithViewVersion(it->first, it->second.version());       
+      for(const auto & keyVal : *keyVals) {
+         std::string name = FWViewType::checkNameWithViewVersion(keyVal.first, keyVal.second.version());       
          createView(name, m_viewMap.size() ? m_viewSecPack->NewSlot() : primSlot); 	 
 
          ViewMap_i lastViewIt = m_viewMap.end(); lastViewIt--;
-         lastViewIt->second->setFrom(it->second);
+         lastViewIt->second->setFrom(keyVal.second);
       }
       // handle undocked windows in old version
       const FWConfiguration* undocked = iFrom.valueForKey(kUndocked);
@@ -1367,33 +1367,33 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       if (0 != keyVals)
       {
          //we have open controllers
-         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it != keyVals->end(); ++it)
+         for(const auto & keyVal : *keyVals)
          {
-            const std::string& controllerName = it->first;
+            const std::string& controllerName = keyVal.first;
             // std::cout <<"found controller "<<controllerName<<std::endl;
             if (controllerName == kCollectionController) {
                showEDIFrame();
-               setWindowInfoFrom(it->second,m_ediFrame);
+               setWindowInfoFrom(keyVal.second,m_ediFrame);
             } else if (controllerName == kViewController) {
                setViewPopup(0);
-               setWindowInfoFrom(it->second, m_viewPopup);
+               setWindowInfoFrom(keyVal.second, m_viewPopup);
             } else if (controllerName == kObjectController) {
                showModelPopup();
-               setWindowInfoFrom(it->second, m_modelPopup);
+               setWindowInfoFrom(keyVal.second, m_modelPopup);
             } else if (controllerName == kCommonController) {
                showCommonPopup();
-               setWindowInfoFrom(it->second, m_commonPopup);
+               setWindowInfoFrom(keyVal.second, m_commonPopup);
             }
          }
       }
    }
 
 
-   for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+   for(auto & it : m_viewMap)
    {
-      if (it->second->typeId() >= FWViewType::kGeometryTable)
+      if (it.second->typeId() >= FWViewType::kGeometryTable)
       {
-         FWGeometryTableViewBase* gv = ( FWGeometryTableViewBase*)it->second;
+         FWGeometryTableViewBase* gv = ( FWGeometryTableViewBase*)it.second;
          gv->populate3DViewsFromConfig();
       }
    }

@@ -174,17 +174,17 @@ KinematicConstrainedVertexUpdatorT< nTrk, nConstraint >::update(const ROOT::Math
   //making refitted states of Kinematic Particles
   AlgebraicVector7 newPar; 
   int i_int = 0;
-  for(std::vector<KinematicState>::iterator i_st=lStates.begin(); i_st != lStates.end(); i_st++)
+  for(auto & lState : lStates)
     {
       for(int i =0; i<7; i++)
 	{newPar(i) = finPar(3 + i_int*7 + i);}
       
    nCovariance = inCov.template Sub<ROOT::Math::SMatrix<double, 7,7,ROOT::Math::MatRepSym<double,7> > >(3 + i_int*7, 3 + i_int*7);
-   TrackCharge chl = i_st->particleCharge();
+   TrackCharge chl = lState.particleCharge();
    KinematicParameters nrPar(newPar);
    KinematicParametersError nrEr(nCovariance);
    KinematicState newState(nrPar,nrEr,chl, field);
-   (*i_st) = newState;
+   lState = newState;
    i_int++;
   }
   return rVtx;	

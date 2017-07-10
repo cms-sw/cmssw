@@ -58,33 +58,33 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   event.getByToken(dtToken, dtRecHits);
   std::vector<DTChamberId> chambers_DT;
   std::vector<DTChamberId>::const_iterator chIt_DT;
-  for (DTRecSegment4DCollection::const_iterator rechit = dtRecHits->begin(); rechit!=dtRecHits->end();++rechit) {
+  for (const auto & rechit : *dtRecHits) {
     bool insert = true;
     for(chIt_DT=chambers_DT.begin(); chIt_DT != chambers_DT.end(); ++chIt_DT){
       if (
-	  ((*rechit).chamberId().wheel()) == ((*chIt_DT).wheel()) &&
-	  ((*rechit).chamberId().station() == (*chIt_DT).station()) &&
-	  ((*rechit).chamberId().sector() == (*chIt_DT).sector())){
+	  (rechit.chamberId().wheel()) == ((*chIt_DT).wheel()) &&
+	  (rechit.chamberId().station() == (*chIt_DT).station()) &&
+	  (rechit.chamberId().sector() == (*chIt_DT).sector())){
 	insert = false;
       }
     }
     if (insert){
-      chambers_DT.push_back((*rechit).chamberId());
+      chambers_DT.push_back(rechit.chamberId());
     }
-    if(segmentCleaning((*rechit).geographicalId(), 
-		       rechit->localPosition(), rechit->localPositionError(),
-		       rechit->localDirection(), rechit->localDirectionError(),
-		       rechit->chi2(), rechit->degreesOfFreedom())){
+    if(segmentCleaning(rechit.geographicalId(), 
+		       rechit.localPosition(), rechit.localPositionError(),
+		       rechit.localDirection(), rechit.localDirectionError(),
+		       rechit.chi2(), rechit.degreesOfFreedom())){
       continue;
     }
-    if( (rechit->hasZed() && rechit->hasPhi()) ) {
-    muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
+    if( (rechit.hasZed() && rechit.hasPhi()) ) {
+    muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet(rechit.geographicalId()),&rechit));
     }
-    else if(rechit->hasZed()) {
-    muonRecHits_DT2D_hasZed.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
+    else if(rechit.hasZed()) {
+    muonRecHits_DT2D_hasZed.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet(rechit.geographicalId()),&rechit));
     }
-    else if(rechit->hasPhi()) { // safeguard
-    muonRecHits_DT2D_hasPhi.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
+    else if(rechit.hasPhi()) { // safeguard
+    muonRecHits_DT2D_hasPhi.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet(rechit.geographicalId()),&rechit));
     }
     else {
       //std::cout<<"Warning in "<<metname<<": DT segment which claims to have neither phi nor Z."<<std::endl;
@@ -100,26 +100,26 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   event.getByToken(cscToken, cscSegments);
   std::vector<CSCDetId> chambers_CSC;
   std::vector<CSCDetId>::const_iterator chIt_CSC;
-  for(CSCSegmentCollection::const_iterator rechit=cscSegments->begin(); rechit != cscSegments->end(); ++rechit) {
+  for(const auto & rechit : *cscSegments) {
     bool insert = true;
     for(chIt_CSC=chambers_CSC.begin(); chIt_CSC != chambers_CSC.end(); ++chIt_CSC){
-      if (((*rechit).cscDetId().chamber() == (*chIt_CSC).chamber()) &&
-	  ((*rechit).cscDetId().station() == (*chIt_CSC).station()) &&
-	  ((*rechit).cscDetId().ring() == (*chIt_CSC).ring()) &&
-	  ((*rechit).cscDetId().endcap() == (*chIt_CSC).endcap())){
+      if ((rechit.cscDetId().chamber() == (*chIt_CSC).chamber()) &&
+	  (rechit.cscDetId().station() == (*chIt_CSC).station()) &&
+	  (rechit.cscDetId().ring() == (*chIt_CSC).ring()) &&
+	  (rechit.cscDetId().endcap() == (*chIt_CSC).endcap())){
 	insert = false;
       }
     }
     if (insert){
-      chambers_CSC.push_back((*rechit).cscDetId().chamberId());
+      chambers_CSC.push_back(rechit.cscDetId().chamberId());
     }
-    if(segmentCleaning((*rechit).geographicalId(), 
-		       rechit->localPosition(), rechit->localPositionError(),
-		       rechit->localDirection(), rechit->localDirectionError(),
-		       rechit->chi2(), rechit->degreesOfFreedom())){
+    if(segmentCleaning(rechit.geographicalId(), 
+		       rechit.localPosition(), rechit.localPositionError(),
+		       rechit.localDirection(), rechit.localDirectionError(),
+		       rechit.chi2(), rechit.degreesOfFreedom())){
       continue;
     }
-    muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
+    muonRecHits.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet(rechit.geographicalId()),&rechit));
   }
   //std::cout<<"CSC done"<<std::endl;
 
@@ -130,19 +130,19 @@ void SETPatternRecognition::produce(const edm::Event& event, const edm::EventSet
   edm::Handle<RPCRecHitCollection> rpcRecHits;
   event.getByToken(rpcToken, rpcRecHits);
   if(useRPCs){
-    for(RPCRecHitCollection::const_iterator rechit=rpcRecHits->begin(); rechit != rpcRecHits->end(); ++rechit) {
+    for(const auto & rechit : *rpcRecHits) {
       // RPCs are special
       const LocalVector  localDirection(0.,0.,1.);
       const LocalError localDirectionError (0.,0.,0.); 
       const double chi2 = 1.;
       const int ndf = 1;
-      if(segmentCleaning((*rechit).geographicalId(), 
-			 rechit->localPosition(), rechit->localPositionError(),
+      if(segmentCleaning(rechit.geographicalId(), 
+			 rechit.localPosition(), rechit.localPositionError(),
 			 localDirection, localDirectionError,
 			 chi2, ndf)){
 	continue;
       }
-      muonRecHits_RPC.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet((*rechit).geographicalId()),&*rechit));
+      muonRecHits_RPC.push_back(MuonTransientTrackingRecHit::specificBuild(theService->trackingGeometry()->idToDet(rechit.geographicalId()),&rechit));
     }
   }
   //std::cout<<"RPC done"<<std::endl;

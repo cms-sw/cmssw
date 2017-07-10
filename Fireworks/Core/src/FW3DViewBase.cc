@@ -281,9 +281,9 @@ float getBBoxLineLength(TEveScene* scene, TEveVector in)
     inn *= 10000;
     TGLLine3 line(TGLVertex3(), TGLVertex3(inn.fX, inn.fY, inn.fZ));
     std::vector<float> res;
-    for (TGLPlaneSet_i i = ps.begin(); i!= ps.end(); ++i)
+    for (auto & p : ps)
     {
-        std::pair<Bool_t, TGLVertex3> r = Intersection(*i, line, false);
+        std::pair<Bool_t, TGLVertex3> r = Intersection(p, line, false);
         if(r.first) {
             TGLVector3 vr(r.second.X(), r.second.Y(), r.second.Z());
             res.push_back(vr.Mag());
@@ -350,8 +350,8 @@ FW3DViewBase::updateClipPlanes(bool resetCamera)
       c[1] -= b0; c[1] += b1;  
       c[2] -= b0; c[2] -= b1;  
       c[3] += b0; c[3] -= b1; 
-      for (int i = 0; i < 4; ++i)
-          c[i] += in;
+      for (auto & i : c)
+          i += in;
 
       TEveVector aOff = in; aOff.NegateXYZ();
       aOff.Normalize(); aOff *= m_clipAppexOffset.value();
@@ -483,8 +483,8 @@ void  FW3DViewBase::showEcalBarrel(bool x) {
         const FWGeometry* geom = context().getGeom();
         std::vector<unsigned int> ids = geom->getMatchedIds(FWGeometry::Detector::Ecal, FWGeometry::SubDetector::PixelBarrel);
         m_ecalBarrel->Reset(TEveBoxSet::kBT_FreeBox, true, ids.size() );
-        for (std::vector<unsigned int>::iterator it = ids.begin(); it != ids.end(); ++it) {
-            const float* cor = context().getGeom()->getCorners(*it);
+        for (unsigned int & id : ids) {
+            const float* cor = context().getGeom()->getCorners(id);
             m_ecalBarrel->AddBox(cor);
         }
         m_ecalBarrel->RefitPlex();

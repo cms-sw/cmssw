@@ -505,12 +505,10 @@ edm::EDLooperBase::Status
 FWFFLooper::endOfLoop(const edm::EventSetup&, unsigned int)
 {
    // Looks like the module changer is availble only here.
-   for (ModuleChanges::iterator i = m_scheduledChanges.begin(),
-                                e = m_scheduledChanges.end();
-        i != e; ++i)
+   for (auto & m_scheduledChange : m_scheduledChanges)
    {
       try {
-         moduleChanger()->changeModule(i->first, i->second);
+         moduleChanger()->changeModule(m_scheduledChange.first, m_scheduledChange.second);
       }
       catch (cms::Exception const& e)
       { 

@@ -49,11 +49,11 @@ double PFRecoTauDiscriminationByDeltaE::discriminate(const PFTauRef& tau) const{
 double PFRecoTauDiscriminationByDeltaE::DeltaE(const PFTauRef& tau) const {
 	double tracksE = 0;
 	const std::vector<PFCandidatePtr>& signalTracks = tau->signalPFChargedHadrCands();
-	for(size_t i = 0; i < signalTracks.size(); ++i){
+	for(const auto & signalTrack : signalTracks){
 		TLorentzVector p4;
-		p4.SetXYZM(signalTracks[i]->px(),
-                           signalTracks[i]->py(),
-                           signalTracks[i]->pz(),
+		p4.SetXYZM(signalTrack->px(),
+                           signalTrack->py(),
+                           signalTrack->pz(),
                            chargedPionMass);
 		tracksE += p4.E();
 	}

@@ -114,23 +114,23 @@ void SiStripElectronAlgo::prepareEvent(const edm::ESHandle<TrackerGeometry>& tra
   matchedHitUsed_.clear();
 
   unsigned int counter = 0;
-  for (SiStripRecHit2DCollection::DataContainer::const_iterator it = rphiHits_p_->data().begin();  it != rphiHits_p_->data().end();  ++it) {
-    rphiKey_[&(*it)] = counter;
-    hitUsed_[&(*it)] = false;
+  for (const auto & it : rphiHits_p_->data()) {
+    rphiKey_[&it] = counter;
+    hitUsed_[&it] = false;
     counter++;
   }
 
   counter = 0;
-  for (SiStripRecHit2DCollection::DataContainer::const_iterator it = stereoHits_p_->data().begin();  it != stereoHits_p_->data().end();  ++it) {
-    stereoKey_[&(*it)] = counter;
-    hitUsed_[&(*it)] = false;
+  for (const auto & it : stereoHits_p_->data()) {
+    stereoKey_[&it] = counter;
+    hitUsed_[&it] = false;
     counter++;
   }
 
   counter = 0;
-  for (SiStripMatchedRecHit2DCollection::DataContainer::const_iterator it = matchedHits_p_->data().begin();  it != matchedHits_p_->data().end();  ++it) {
-    matchedKey_[&(*it)] = counter;
-    matchedHitUsed_[&(*it)] = false;
+  for (const auto & it : matchedHits_p_->data()) {
+    matchedKey_[&it] = counter;
+    matchedHitUsed_[&it] = false;
     counter++;
   }
   
@@ -210,15 +210,13 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;
-    for(std::vector<const TrackingRecHit*>::iterator itHit =outputHits_neg_.begin();
-	itHit != outputHits_neg_.end();
-	++itHit) {
-      hits.push_back( (*itHit)->clone());
-      if( !(hitUsed_.find(*itHit) != hitUsed_.end()) ) {
+    for(auto & itHit : outputHits_neg_) {
+      hits.push_back( itHit->clone());
+      if( !(hitUsed_.find(itHit) != hitUsed_.end()) ) {
 	LogDebug("") << " Assert failure " ;
-	assert(hitUsed_.find(*itHit) != hitUsed_.end());
+	assert(hitUsed_.find(itHit) != hitUsed_.end());
       }
-      hitUsed_[*itHit] = true;
+      hitUsed_[itHit] = true;
     }
     
     TrajectoryStateOnSurface state(
@@ -307,12 +305,10 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 
     //create an OwnVector needed by the classes which will be stored to the Event
     edm::OwnVector<TrackingRecHit> hits;
-    for(std::vector<const TrackingRecHit*>::iterator itHit =outputHits_pos_.begin();
-	itHit != outputHits_pos_.end();
-	++itHit) {
-      hits.push_back( (*itHit)->clone());
-      assert(hitUsed_.find(*itHit) != hitUsed_.end());
-      hitUsed_[*itHit] = true;
+    for(auto & outputHits_po : outputHits_pos_) {
+      hits.push_back( outputHits_po->clone());
+      assert(hitUsed_.find(outputHits_po) != hitUsed_.end());
+      hitUsed_[outputHits_po] = true;
     }
     
     TrajectoryStateOnSurface state(
@@ -378,28 +374,27 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
     // (Would it be better to loop only once, fill a temporary list,
     // and copy that if numberOfHits <= maxHitsOnDetId_?)
     if (numberOfHits <= maxHitsOnDetId_) {
-      for (SiStripRecHit2DCollection::DetSet::const_iterator hit = hits.begin();  
-           hit != hits.end();  ++hit) {
+      for (const auto & hit : hits) {
         // check that hit is valid first !
-	if(!(*hit).isValid()) {
+	if(!hit.isValid()) {
 	  LogDebug("") << " InValid hit skipped in coarseHitSelection " << std::endl ;
 	  continue ;
 	}
         std::string theDet = "null";
         bool isStereoDet = false ;
-        if(tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
+        if(tracker_p_->idToDetUnit(hit.geographicalId())->type().subDetector() == GeomDetEnumerators::TIB) { 
           theDet = "TIB" ;
           if(tTopo->tibStereo(id)==1) { isStereoDet = true ; }
         } else if
-          (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TOB) { 
+          (tracker_p_->idToDetUnit(hit.geographicalId())->type().subDetector() == GeomDetEnumerators::TOB) { 
           theDet = "TOB" ;
           if(tTopo->tobStereo(id)==1) { isStereoDet = true ; }
         }else if
-          (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TID) { 
+          (tracker_p_->idToDetUnit(hit.geographicalId())->type().subDetector() == GeomDetEnumerators::TID) { 
           theDet = "TID" ;
           if(tTopo->tidStereo(id)==1) { isStereoDet = true ; }
         }else if
-          (tracker_p_->idToDetUnit(hit->geographicalId())->type().subDetector() == GeomDetEnumerators::TEC) { 
+          (tracker_p_->idToDetUnit(hit.geographicalId())->type().subDetector() == GeomDetEnumerators::TEC) { 
           theDet = "TEC" ;
           if(tTopo->tecStereo(id)==1) { isStereoDet = true ; }
         } else {
@@ -415,7 +410,7 @@ void SiStripElectronAlgo::coarseHitSelection(std::vector<const SiStripRecHit2D*>
             ) {  
               
 
-	  hitPointersOut.push_back(&(*hit));
+	  hitPointersOut.push_back(&hit);
 
 	} // end if this is the right subdetector
       } // end loop over hits
@@ -437,24 +432,24 @@ void SiStripElectronAlgo::coarseMatchedHitSelection(std::vector<const SiStripMat
     
     // Count the number of hits on this detector id
     unsigned int numberOfHits = 0;
-    for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = hits.begin();  hit != hits.end();  ++hit) {
-      if ( !((hit->geographicalId()).subdetId() == StripSubdetector::TIB) &&
-           !( (hit->geographicalId()).subdetId() == StripSubdetector::TOB )) { break;}
+    for (const auto & hit : hits) {
+      if ( !((hit.geographicalId()).subdetId() == StripSubdetector::TIB) &&
+           !( (hit.geographicalId()).subdetId() == StripSubdetector::TOB )) { break;}
       numberOfHits++;
       if (numberOfHits > maxHitsOnDetId_) { break; }
     }
     
     // Only take the hits if there aren't too many
     if (numberOfHits <= maxHitsOnDetId_) {
-      for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = hits.begin();  hit != hits.end();  ++hit) {
-	if(!(*hit).isValid()) {
+      for (const auto & hit : hits) {
+	if(!hit.isValid()) {
 	  LogDebug("") << " InValid hit skipped in coarseMatchedHitSelection " << std::endl ;
 	  continue ;
 	}
-        if ( !((hit->geographicalId()).subdetId() == StripSubdetector::TIB) &&
-             !( (hit->geographicalId()).subdetId() == StripSubdetector::TOB )) { break;}
+        if ( !((hit.geographicalId()).subdetId() == StripSubdetector::TIB) &&
+             !( (hit.geographicalId()).subdetId() == StripSubdetector::TOB )) { break;}
         
-        coarseMatchedHitPointersOut.push_back(&(*hit));
+        coarseMatchedHitPointersOut.push_back(&hit);
       } // end loop over hits
       
     } // end if this detector id doesn't have too many hits on it
@@ -867,7 +862,7 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
   debugstr5 << " Looping over detectors to choose best hit " << " \n";
 #endif
   // Loop over detectors ID and hits to create list of hits on same DetId
-  for (unsigned int idet = 0 ; idet < detIdList.size() ; idet++ ) {
+  for (unsigned int idet : detIdList) {
     for (unsigned int i = 0;  i+1 < uselist.size();  i++) {
       if (uselist[i]) {
 	// Get Chi2 of this hit relative to predicted hit
@@ -877,11 +872,11 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 	double w2_hit1 = w2list[i] ;
 	double phi_pred1 = (r_hit1-scr)*phiVsRSlope ; 
 	double chi1 = (phi_hit1-phi_pred1)*(phi_hit1-phi_pred1)*w2_hit1;
-	if(detIdList[idet]== ((hit1)->geographicalId()).rawId()) {
+	if(idet== ((hit1)->geographicalId()).rawId()) {
 	  for (unsigned int j = i+1;  j < uselist.size();  j++) {
 	    if (uselist[j]) {
 	      const SiStripRecHit2D* hit2 = hitlist[j];
-	      if(detIdList[idet]== ((hit2)->geographicalId()).rawId()) {
+	      if(idet== ((hit2)->geographicalId()).rawId()) {
 #ifdef EDM_ML_DEBUG 
 		debugstr5 << " Found 2 hits on same Si Detector " 
 			  << ((hit2)->geographicalId()).rawId() << "\n";
@@ -954,8 +949,8 @@ bool SiStripElectronAlgo::projectPhiBand(float chargeHypothesis, const reco::Sup
 
   // need to check that there are more than 2 hits left here!
   unsigned int nHitsLeft =0;
-  for (unsigned int i = 0;  i < uselist.size();  i++) {
-    if ( uselist[i] ) {
+  for (auto && i : uselist) {
+    if ( i ) {
       nHitsLeft++;
     }
   }

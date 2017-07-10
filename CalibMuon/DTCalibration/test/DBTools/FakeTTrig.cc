@@ -89,25 +89,24 @@ void FakeTTrig::beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::Even
     // Create the object to be written to DB
     DTTtrig* tTrigMap = new DTTtrig();
 
-    for (auto sl = dtSupLylist.begin();
-         sl != dtSupLylist.end(); sl++) {
+    for (auto & sl : dtSupLylist) {
 
       // get the time of fly
-      double timeOfFly = tofComputation(*sl);
+      double timeOfFly = tofComputation(sl);
       // get the time of wire propagation
-      double timeOfWirePropagation = wirePropComputation(*sl);
+      double timeOfWirePropagation = wirePropComputation(sl);
       // get the gaussian smearing
       double gaussianSmearing = CLHEP::RandGaussQ::shoot(engine, 0., smearing);
       // get the fake tTrig pedestal
       double pedestral = ps.getUntrackedParameter<double>("fakeTTrigPedestal", 500);
 
       if ( ps.getUntrackedParameter<bool>("readDB", true) ){
-        tTrigMapRef->get((*sl)->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns );
+        tTrigMapRef->get(sl->id(), tTrigRef, tTrigRMSRef, kFactorRef, DTTimeUnits::ns );
         // pedestral = tTrigRef;
         pedestral = tTrigRef +  kFactorRef*tTrigRMSRef ;
       }
 
-      DTSuperLayerId slId = (*sl)->id();
+      DTSuperLayerId slId = sl->id();
       // if the FakeTtrig has to be smeared with a Gaussian
       double fakeTTrig = pedestral + timeOfFly + timeOfWirePropagation + gaussianSmearing;
       // if the FakeTtrig is scaled of a number of bunch crossing

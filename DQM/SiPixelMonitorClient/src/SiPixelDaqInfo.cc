@@ -52,8 +52,7 @@ void SiPixelDaqInfo::dqmEndLuminosityBlock(DQMStore::IBooker & iBooker, DQMStore
     int FedCountEndcap=0;
 
     //loop on all active feds
-    for(unsigned int fedItr=0;fedItr<FedsInIds.size(); ++fedItr) {
-      int fedID=FedsInIds[fedItr];
+    for(int fedID : FedsInIds) {
       //make sure fed id is in allowed range  
       if(fedID>=FEDRange_.first && fedID<=FEDRange_.second){
         ++FedCount;

@@ -21,8 +21,8 @@ EventShapeVariables::EventShapeVariables(const std::vector<math::XYZVector>& inp
 EventShapeVariables::EventShapeVariables(const std::vector<math::RhoEtaPhiVector>& inputVectors)
 {
   inputVectors_.reserve( inputVectors.size() );
-  for ( std::vector<math::RhoEtaPhiVector>::const_iterator vec = inputVectors.begin(); vec != inputVectors.end(); ++vec ){
-    inputVectors_.push_back(math::XYZVector(vec->x(), vec->y(), vec->z()));
+  for (const auto & inputVector : inputVectors){
+    inputVectors_.push_back(math::XYZVector(inputVector.x(), inputVector.y(), inputVector.z()));
   }
 }
 
@@ -30,8 +30,8 @@ EventShapeVariables::EventShapeVariables(const std::vector<math::RhoEtaPhiVector
 EventShapeVariables::EventShapeVariables(const std::vector<math::RThetaPhiVector>& inputVectors)
 {
   inputVectors_.reserve( inputVectors.size() );
-  for(std::vector<math::RThetaPhiVector>::const_iterator vec = inputVectors.begin(); vec != inputVectors.end(); ++vec ){
-    inputVectors_.push_back(math::XYZVector(vec->x(), vec->y(), vec->z()));
+  for(const auto & inputVector : inputVectors){
+    inputVectors_.push_back(math::XYZVector(inputVector.x(), inputVector.y(), inputVector.z()));
   }
 }
   
@@ -46,9 +46,9 @@ EventShapeVariables::isotropy(const unsigned int& numberOfSteps) const
   for(unsigned int i=0; i<numberOfSteps; ++i){
     phi+=deltaPhi;
     double sum=0;
-    for(unsigned int j=0; j<inputVectors_.size(); ++j){
+    for(const auto & inputVector : inputVectors_){
       // sum over inner product of unit vectors and momenta
-      sum+=TMath::Abs(TMath::Cos(phi)*inputVectors_[j].x()+TMath::Sin(phi)*inputVectors_[j].y());
+      sum+=TMath::Abs(TMath::Cos(phi)*inputVector.x()+TMath::Sin(phi)*inputVector.y());
     }
     if( eOut<0. || sum<eOut ) eOut=sum;
     if( eIn <0. || sum>eIn  ) eIn =sum;
@@ -63,14 +63,14 @@ EventShapeVariables::circularity(const unsigned int& numberOfSteps) const
 {
   const double deltaPhi=2*TMath::Pi()/numberOfSteps;
   double circularity=-1, phi=0, area = 0;
-  for(unsigned int i=0;i<inputVectors_.size();i++) {
-    area+=TMath::Sqrt(inputVectors_[i].x()*inputVectors_[i].x()+inputVectors_[i].y()*inputVectors_[i].y());
+  for(const auto & inputVector : inputVectors_) {
+    area+=TMath::Sqrt(inputVector.x()*inputVector.x()+inputVector.y()*inputVector.y());
   }
   for(unsigned int i=0; i<numberOfSteps; ++i){
     phi+=deltaPhi;
     double sum=0, tmp=0.;
-    for(unsigned int j=0; j<inputVectors_.size(); ++j){
-      sum+=TMath::Abs(TMath::Cos(phi)*inputVectors_[j].x()+TMath::Sin(phi)*inputVectors_[j].y());
+    for(const auto & inputVector : inputVectors_){
+      sum+=TMath::Abs(TMath::Cos(phi)*inputVector.x()+TMath::Sin(phi)*inputVector.y());
     }
     tmp=TMath::Pi()/2*sum/area;
     if( circularity<0 || tmp<circularity ){
@@ -93,20 +93,20 @@ EventShapeVariables::compMomentumTensor(double r) const
 
   // fill momentumTensor from inputVectors
   double norm = 0.;
-  for ( int i = 0; i < (int)inputVectors_.size(); ++i ){
-    double p2 = inputVectors_[i].Dot(inputVectors_[i]);
+  for (const auto & inputVector : inputVectors_){
+    double p2 = inputVector.Dot(inputVector);
     double pR = ( r == 2. ) ? p2 : TMath::Power(p2, 0.5*r);
     norm += pR;
     double pRminus2 = ( r == 2. ) ? 1. : TMath::Power(p2, 0.5*r - 1.);
-    momentumTensor(0,0) += pRminus2*inputVectors_[i].x()*inputVectors_[i].x();
-    momentumTensor(0,1) += pRminus2*inputVectors_[i].x()*inputVectors_[i].y();
-    momentumTensor(0,2) += pRminus2*inputVectors_[i].x()*inputVectors_[i].z();
-    momentumTensor(1,0) += pRminus2*inputVectors_[i].y()*inputVectors_[i].x();
-    momentumTensor(1,1) += pRminus2*inputVectors_[i].y()*inputVectors_[i].y();
-    momentumTensor(1,2) += pRminus2*inputVectors_[i].y()*inputVectors_[i].z();
-    momentumTensor(2,0) += pRminus2*inputVectors_[i].z()*inputVectors_[i].x();
-    momentumTensor(2,1) += pRminus2*inputVectors_[i].z()*inputVectors_[i].y();
-    momentumTensor(2,2) += pRminus2*inputVectors_[i].z()*inputVectors_[i].z();
+    momentumTensor(0,0) += pRminus2*inputVector.x()*inputVector.x();
+    momentumTensor(0,1) += pRminus2*inputVector.x()*inputVector.y();
+    momentumTensor(0,2) += pRminus2*inputVector.x()*inputVector.z();
+    momentumTensor(1,0) += pRminus2*inputVector.y()*inputVector.x();
+    momentumTensor(1,1) += pRminus2*inputVector.y()*inputVector.y();
+    momentumTensor(1,2) += pRminus2*inputVector.y()*inputVector.z();
+    momentumTensor(2,0) += pRminus2*inputVector.z()*inputVector.x();
+    momentumTensor(2,1) += pRminus2*inputVector.z()*inputVector.y();
+    momentumTensor(2,2) += pRminus2*inputVector.z()*inputVector.z();
   }
 
   //std::cout << "momentumTensor:" << std::endl;

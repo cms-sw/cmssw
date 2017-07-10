@@ -100,9 +100,8 @@ class PFRecoTauDiscriminationAgainstMuonMVA final : public PFTauDiscriminationPr
   {
     if ( !loadMVAfromDB_ ) delete mvaReader_;
     delete[] mvaInput_;
-    for ( std::vector<TFile*>::iterator it = inputFilesToDelete_.begin();
-	  it != inputFilesToDelete_.end(); ++it ) {
-      delete (*it);
+    for (auto & it : inputFilesToDelete_) {
+      delete it;
     }
   }
 
@@ -185,10 +184,9 @@ double PFRecoTauDiscriminationAgainstMuonMVA::discriminate(const PFTauRef& tau) 
   double tauCaloEnECAL = 0.;
   double tauCaloEnHCAL = 0.;
   const std::vector<reco::PFCandidatePtr>& tauSignalPFCands = tau->signalPFCands();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator tauSignalPFCand = tauSignalPFCands.begin();
-	tauSignalPFCand != tauSignalPFCands.end(); ++tauSignalPFCand ) {
-    tauCaloEnECAL += (*tauSignalPFCand)->ecalEnergy();
-    tauCaloEnHCAL += (*tauSignalPFCand)->hcalEnergy();
+  for (const auto & tauSignalPFCand : tauSignalPFCands) {
+    tauCaloEnECAL += tauSignalPFCand->ecalEnergy();
+    tauCaloEnHCAL += tauSignalPFCand->hcalEnergy();
   }
   mvaInput_[1]  = TMath::Sqrt(TMath::Max(0., tauCaloEnECAL));
   mvaInput_[2]  = TMath::Sqrt(TMath::Max(0., tauCaloEnHCAL));

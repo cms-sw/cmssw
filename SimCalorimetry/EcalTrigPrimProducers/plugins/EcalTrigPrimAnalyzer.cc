@@ -208,8 +208,7 @@ EcalTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup &
 
   EcalTPGScale ecalScale ;
   ecalScale.setEventSetup(iSetup) ;
-  for (unsigned int i=0;i<tp.product()->size();i++) {
-    EcalTriggerPrimitiveDigi d=(*(tp.product()))[i];
+  for (auto d : *tp.product()) {
     const EcalTrigTowerDetId TPtowid= d.id();
     map<EcalTrigTowerDetId, float>::iterator it=  mapTow_Et.find(TPtowid);
     float Et = ecalScale.getTPGInGeV(d.compressedEt(), TPtowid) ; 

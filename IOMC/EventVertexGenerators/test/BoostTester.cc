@@ -105,12 +105,12 @@ void BoostTester::analyze( const Event& e, const EventSetup& )
 
    //std::cout << "evthandles= " << EvtHandles.size() << std::endl;
    
-   for ( unsigned int i=0; i<EvtHandles.size(); i++ ) {
+   for (auto & EvtHandle : EvtHandles) {
      //std::cout << " i=" << i <<  " name: "<< EvtHandles[i].provenance()->moduleLabel() << std::endl;
 	   
-     if ( EvtHandles[i].isValid() ) {
+     if ( EvtHandle.isValid() ) {
    
-       const HepMC::GenEvent* Evt = EvtHandles[i]->GetEvent() ;
+       const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
    
        // take only 1st vertex for now - it's been tested only of PGuns...
        //

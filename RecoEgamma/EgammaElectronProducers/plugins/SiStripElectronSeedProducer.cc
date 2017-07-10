@@ -83,11 +83,11 @@ void SiStripElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& 
   std::unique_ptr<ElectronSeedCollection> pSeeds;
 
   // do both barrel and endcap instances
-  for (unsigned int i=0; i<2; i++) {
+  for (auto superCluster : superClusters_) {
 
     // get the superclusters
     edm::Handle<SuperClusterCollection> clusters;
-    if(e.getByToken(superClusters_[i],clusters)) {
+    if(e.getByToken(superCluster,clusters)) {
       // run the seed generator and put the ElectronSeeds into a collection
       matcher_->run(e,iSetup,clusters,*seeds);
     }

@@ -13,8 +13,8 @@ RodPlaneBuilderFromDet::operator()( const vector<const Det*>& dets) const
   // find mean position
   typedef Surface::PositionType::BasicVectorType Vector;
   Vector posSum(0,0,0);
-  for (vector<const Det*>::const_iterator i=dets.begin(); i!=dets.end(); i++) {
-    posSum += (**i).surface().position().basicVector();
+  for (auto det : dets) {
+    posSum += (*det).surface().position().basicVector();
   }
   Surface::PositionType meanPos( posSum/float(dets.size()));
   
@@ -38,8 +38,7 @@ RodPlaneBuilderFromDet::computeBounds( const vector<const Det*>& dets,
 {
   // go over all corners and compute maximum deviations from mean pos.
   vector<GlobalPoint> corners;
-  for (vector<const Det*>::const_iterator idet=dets.begin();
-       idet != dets.end(); idet++) {
+  for (auto det : dets) {
 
     /* ---- original implementation. Is it obsolete?
     vector<const DetUnit*> detUnits = (**idet).basicComponents();
@@ -53,7 +52,7 @@ RodPlaneBuilderFromDet::computeBounds( const vector<const Det*>& dets,
 
     // temporary implementation (May be the final one if the GluedDet surface
     // really contains both the mono and the stereo surfaces
-    vector<GlobalPoint> dc = BoundingBox().corners((**idet).specificSurface());
+    vector<GlobalPoint> dc = BoundingBox().corners((*det).specificSurface());
     corners.insert( corners.end(),dc.begin(), dc.end() );
   }
   

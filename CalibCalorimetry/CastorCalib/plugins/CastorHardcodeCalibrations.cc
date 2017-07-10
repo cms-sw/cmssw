@@ -75,41 +75,41 @@ CastorHardcodeCalibrations::CastorHardcodeCalibrations ( const edm::ParameterSet
   //parsing record parameters
   h2mode_=iConfig.getUntrackedParameter<bool>("H2Mode",false);
   std::vector <std::string> toGet = iConfig.getUntrackedParameter <std::vector <std::string> > ("toGet");
-  for(std::vector <std::string>::iterator objectName = toGet.begin(); objectName != toGet.end(); ++objectName ) {
-    bool all = *objectName == "all";
-    if ((*objectName == "Pedestals") || all) {
+  for(auto & objectName : toGet) {
+    bool all = objectName == "all";
+    if ((objectName == "Pedestals") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::producePedestals);
       findingRecord <CastorPedestalsRcd> ();
     }
-    if ((*objectName == "PedestalWidths") || all) {
+    if ((objectName == "PedestalWidths") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::producePedestalWidths);
       findingRecord <CastorPedestalWidthsRcd> ();
     }
-    if ((*objectName == "Gains") || all) {
+    if ((objectName == "Gains") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceGains);
       findingRecord <CastorGainsRcd> ();
     }
-    if ((*objectName == "GainWidths") || all) {
+    if ((objectName == "GainWidths") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceGainWidths);
       findingRecord <CastorGainWidthsRcd> ();
     }
-    if ((*objectName == "QIEData") || all) {
+    if ((objectName == "QIEData") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceQIEData);
       findingRecord <CastorQIEDataRcd> ();
     }
-    if ((*objectName == "ChannelQuality") || (*objectName == "channelQuality") || all) {
+    if ((objectName == "ChannelQuality") || (objectName == "channelQuality") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceChannelQuality);
       findingRecord <CastorChannelQualityRcd> ();
     }
-    if ((*objectName == "ElectronicsMap") || (*objectName == "electronicsMap") || all) {
+    if ((objectName == "ElectronicsMap") || (objectName == "electronicsMap") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceElectronicsMap);
       findingRecord <CastorElectronicsMapRcd> ();
     }
-    if ((*objectName == "RecoParams") || all) {
+    if ((objectName == "RecoParams") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceRecoParams);
       findingRecord <CastorRecoParamsRcd> ();
     }
-    if ((*objectName == "SaturationCorrs") || all) {
+    if ((objectName == "SaturationCorrs") || all) {
       setWhatProduced (this, &CastorHardcodeCalibrations::produceSaturationCorrs);
       findingRecord <CastorSaturationCorrsRcd> ();
     }

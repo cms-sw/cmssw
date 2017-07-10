@@ -104,16 +104,16 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    substructure.getTOBDetectors(activeDets, SelectedDetIds, 0, 0, 0);    // this adds rawDetIds to SelectedDetIds
    // get tracker geometry and find nr. of apv pairs for each active detector 
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
-   for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules
-     if( dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
-       uint32_t detid= ((*it)->geographicalId()).rawId();
+   for(auto it : tkGeom->dets()){ // loop over detector modules
+     if( dynamic_cast<const StripGeomDetUnit*>(it)!=0){
+       uint32_t detid= (it->geographicalId()).rawId();
        // get thickness for all detector modules, not just for active, this is strange 
-       double module_thickness = (*it)->surface().bounds().thickness(); // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
+       double module_thickness = it->surface().bounds().thickness(); // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
        thickness_map.insert(std::make_pair(detid,module_thickness));
        //
        bool is_active_detector = false;
-       for(std::vector<uint32_t>::iterator iactive = SelectedDetIds.begin(); iactive != SelectedDetIds.end(); iactive++){
-         if( *iactive == detid ){
+       for(unsigned int & SelectedDetId : SelectedDetIds){
+         if( SelectedDetId == detid ){
            is_active_detector = true;
            break; // leave for loop if found matching detid
          }
@@ -126,7 +126,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
        }
        //
        if(is_active_detector && (!exclude_this_detid)){ // check whether is active detector and that should not be excluded
-	 const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>((*it))->specificTopology();
+	 const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>(it)->specificTopology();
 	 unsigned short NAPVPairs = p.nstrips()/256;
          if( NAPVPairs<2 || NAPVPairs>3 ) {
            edm::LogError("SiStripGainCosmicCalculator")<<"Problem with Number of strips in detector: "<<p.nstrips()<<" Exiting program";
@@ -191,8 +191,8 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
         TH1F* histopointer = (TH1F*) HlistAPVPairs->FindObject(Form("ChargeAPVPair_%i_%i",thedetid,theapvpairid));
         if( histopointer ){
           short cCharge = 0;
-          for(unsigned int iampl = 0; iampl<ampls.size(); iampl++){
-          cCharge += ampls[iampl];
+          for(unsigned char ampl : ampls){
+          cCharge += ampl;
           }
           double cluster_charge_over_path = ((double)cCharge) * fabs(cos(local_angle)) / ( 10. * module_thickness);
           histopointer->Fill(cluster_charge_over_path);

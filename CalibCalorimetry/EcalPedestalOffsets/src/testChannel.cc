@@ -69,12 +69,10 @@ void testChannel::analyze (edm::Event const& event,
    std::map <int,int> DACvalues ;
    
    // loop over the headers
-   for ( EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin () ;
-         headerItr != DCCHeaders->end () ; 
-	     ++headerItr ) 
+   for (const auto & headerItr : *DCCHeaders) 
      {
-       EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr->getEventSettings () ;
-       DACvalues[getHeaderSMId (headerItr->id ())] = settings.ped_offset ;
+       EcalDCCHeaderBlock::EcalDCCEventSettings settings = headerItr.getEventSettings () ;
+       DACvalues[getHeaderSMId (headerItr.id ())] = settings.ped_offset ;
 //       std::cout << "DCCid: " << headerItr->id () << "" ;
 //       std::cout << "Ped offset DAC: " << settings.ped_offset << "" ;
      } //! loop over the headers

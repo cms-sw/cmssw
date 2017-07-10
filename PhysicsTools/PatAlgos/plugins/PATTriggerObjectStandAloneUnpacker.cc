@@ -66,8 +66,7 @@ void PATTriggerObjectStandAloneUnpacker::produce( edm::StreamID, edm::Event & iE
 
   auto patTriggerObjectsStandAloneUnpacked = std::make_unique<TriggerObjectStandAloneCollection>();
 
-  for ( size_t iTrigObj = 0; iTrigObj < patTriggerObjectsStandAlone->size(); ++iTrigObj ) {
-    TriggerObjectStandAlone patTriggerObjectStandAloneUnpacked( patTriggerObjectsStandAlone->at( iTrigObj ) );
+  for (auto patTriggerObjectStandAloneUnpacked : *patTriggerObjectsStandAlone) {
     const edm::TriggerNames & names = iEvent.triggerNames( *triggerResults );
     patTriggerObjectStandAloneUnpacked.unpackPathNames( names );
     if (unpackFilterLabels_) patTriggerObjectStandAloneUnpacked.unpackFilterLabels(iEvent,*triggerResults );

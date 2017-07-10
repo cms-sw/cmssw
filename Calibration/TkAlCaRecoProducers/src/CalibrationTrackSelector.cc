@@ -138,8 +138,7 @@ CalibrationTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt)
 {
   Tracks result;
 
-  for (Tracks::const_iterator it=tracks.begin(); it != tracks.end(); ++it) {
-    const reco::Track* trackp=*it;
+  for (auto trackp : tracks) {
     float pt=trackp->pt();
     float eta=trackp->eta();
     float phi=trackp->phi();
@@ -263,14 +262,14 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit* therechit) const
     const SiStripCluster & monocluster = matchedhit->monoCluster();
     const std::vector<uint16_t> amplitudesmono( monocluster.amplitudes().begin(),
 						monocluster.amplitudes().end());
-    for(size_t ia=0; ia<amplitudesmono.size();++ia)
-      { charge1+=amplitudesmono[ia];} 
+    for(unsigned short ia : amplitudesmono)
+      { charge1+=ia;} 
     
     const SiStripCluster & stereocluster = matchedhit->stereoCluster();
     const std::vector<uint16_t> amplitudesstereo( stereocluster.amplitudes().begin(),
 						  stereocluster.amplitudes().end());
-    for(size_t ia=0; ia<amplitudesstereo.size();++ia)
-      {charge2+=amplitudesstereo[ia];}
+    for(unsigned short ia : amplitudesstereo)
+      {charge2+=ia;}
     // std::cout << "charge1 = " << charge1 << "\n";
     // std::cout << "charge2 = " << charge2 << "\n";
     if (charge1 < minHitChargeStrip_ || charge2 < minHitChargeStrip_) return false;
@@ -280,8 +279,8 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit* therechit) const
     const SiStripCluster* cluster = &*(hit->cluster());
     const std::vector<uint16_t> amplitudes( cluster->amplitudes().begin(),
 					    cluster->amplitudes().end());
-    for(size_t ia=0; ia<amplitudes.size();++ia)
-      {charge1+=amplitudes[ia];}
+    for(unsigned short amplitude : amplitudes)
+      {charge1+=amplitude;}
     // std::cout << "charge1 = " << charge1 << "\n";
     if (charge1 < minHitChargeStrip_) return false;
   }
@@ -291,8 +290,8 @@ bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit* therechit) const
     const SiStripCluster* origcluster = &*(orighit.cluster());
     const std::vector<uint16_t> amplitudes( origcluster->amplitudes().begin(),
 					    origcluster->amplitudes().end());
-    for(size_t ia=0; ia<amplitudes.size();++ia)
-      {charge1+=amplitudes[ia];}
+    for(unsigned short amplitude : amplitudes)
+      {charge1+=amplitude;}
     // std::cout << "charge1 = " << charge1 << "\n";
     if (charge1 < minHitChargeStrip_) return false;
   } 

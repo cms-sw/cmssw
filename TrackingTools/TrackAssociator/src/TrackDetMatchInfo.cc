@@ -24,9 +24,8 @@ std::string TrackDetMatchInfo::dumpGeometry( const DetId& id )
    std::ostringstream oss;
 
    const CaloCellGeometry::CornersVec& points = caloGeometry->getSubdetectorGeometry(id)->getGeometry(id)->getCorners();
-   for( CaloCellGeometry::CornersVec::const_iterator point = points.begin();
-       point != points.end(); ++point)
-     oss << "(" << point->z() << ", " << point->perp() << ", " << point->eta() << ", " << point->phi() << "), \t";
+   for(const auto & point : points)
+     oss << "(" << point.z() << ", " << point.perp() << ", " << point.eta() << ", " << point.phi() << "), \t";
    return oss.str();
 }
 
@@ -611,28 +610,28 @@ double TrackDetMatchInfo::hoCrossedEnergy()
       
 int TrackDetMatchInfo::numberOfSegments() const {
    int numSegments = 0;
-   for(std::vector<TAMuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
-     numSegments += chamber->segments.size();
+   for(const auto & chamber : chambers)
+     numSegments += chamber.segments.size();
    return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInStation(int station) const {
    int numSegments = 0;
-   for(std::vector<TAMuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
-     if(chamber->station()==station) numSegments += chamber->segments.size();
+   for(const auto & chamber : chambers)
+     if(chamber.station()==station) numSegments += chamber.segments.size();
    return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInStation(int station, int detector) const {
    int numSegments = 0;
-   for(std::vector<TAMuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
-     if(chamber->station()==station&&chamber->detector()==detector) numSegments += chamber->segments.size();
+   for(const auto & chamber : chambers)
+     if(chamber.station()==station&&chamber.detector()==detector) numSegments += chamber.segments.size();
    return numSegments;
 }
 
 int TrackDetMatchInfo::numberOfSegmentsInDetector(int detector) const {
    int numSegments = 0;
-   for(std::vector<TAMuonChamberMatch>::const_iterator chamber=chambers.begin(); chamber!=chambers.end(); chamber++)
-     if(chamber->detector()==detector) numSegments += chamber->segments.size();
+   for(const auto & chamber : chambers)
+     if(chamber.detector()==detector) numSegments += chamber.segments.size();
    return numSegments;
 }

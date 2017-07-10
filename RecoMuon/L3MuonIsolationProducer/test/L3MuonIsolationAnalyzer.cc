@@ -118,20 +118,20 @@ void L3MuonIsolationAnalyzer::endJob(){
   }
   hEffVsPt->Write();
 
-  for (unsigned int j=0; j<hEffVsPtArray.size(); j++) {
-      overflow_bin = hEffVsPtArray[j]->GetNbinsX()+1;
-      norm = hEffVsPtArray[j]->GetBinContent(overflow_bin);
+  for (auto & j : hEffVsPtArray) {
+      overflow_bin = j->GetNbinsX()+1;
+      norm = j->GetBinContent(overflow_bin);
       if (norm<=0.) norm = 1.;
-      fprintf(theTxtFile, "%s\n", hEffVsPtArray[j]->GetTitle());
+      fprintf(theTxtFile, "%s\n", j->GetTitle());
       fprintf(theTxtFile, "%s\n", "PT threshold(GeV), efficiency(%): ");
       for (unsigned int k=1; k<overflow_bin; k++) {
-            float aux = hEffVsPtArray[j]->GetBinContent(k);
+            float aux = j->GetBinContent(k);
             float eff = 100*aux/norm;
-            hEffVsPtArray[j]->SetBinContent(k,eff);
-            float ptthr = hEffVsPtArray[j]->GetXaxis()->GetBinCenter(k);
+            j->SetBinContent(k,eff);
+            float ptthr = j->GetXaxis()->GetBinCenter(k);
             fprintf(theTxtFile, "%6.2f %8.3f\n", ptthr, eff);
       }
-      hEffVsPtArray[j]->Write();
+      j->Write();
   }
 
   theRootFile->Close();

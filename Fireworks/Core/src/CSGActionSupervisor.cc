@@ -24,10 +24,8 @@ CSGActionSupervisor::CSGActionSupervisor():
 
 CSGActionSupervisor::~CSGActionSupervisor()
 {
-   for(std::vector<CSGAction*>::iterator it= m_actionList.begin(),itEnd = m_actionList.end();
-       it != itEnd;
-       ++it) {
-      delete *it;
+   for(auto & it : m_actionList) {
+      delete it;
    }
 }
 

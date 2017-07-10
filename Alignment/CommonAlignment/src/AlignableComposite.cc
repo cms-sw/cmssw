@@ -31,7 +31,7 @@ AlignableComposite::AlignableComposite(align::ID id,
 //__________________________________________________________________________________________________
 AlignableComposite::~AlignableComposite()
 {
-  for (unsigned int i = 0; i < theComponents.size(); ++i) delete theComponents[i];
+  for (auto & theComponent : theComponents) delete theComponent;
 }
 
 //__________________________________________________________________________________________________
@@ -97,8 +97,8 @@ void AlignableComposite::move( const GlobalVector& displacement )
   
   // Move components
   Alignables comp = this->components();
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
-    (**i).move( displacement);
+  for (auto & i : comp)
+    (*i).move( displacement);
 
   // Move surface
   this->addDisplacement( displacement );
@@ -141,7 +141,7 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
   
   PositionType myPosition = this->globalPosition();
   
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
+  for (auto & i : comp)
     {
       
       // It is much simpler to calculate the local position given in coordinates 
@@ -159,7 +159,7 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
     
     
       // Local Position given in coordinates of the GLOBAL Frame
-      const GlobalVector localPositionVector = (**i).globalPosition() - myPosition;
+      const GlobalVector localPositionVector = (*i).globalPosition() - myPosition;
       GlobalVector::BasicVectorType lpvgf = localPositionVector.basicVector();
 
       // rotate with GLOBAL rotation matrix  and subtract => moveVector in 
@@ -169,8 +169,8 @@ void AlignableComposite::rotateInGlobalFrame( const RotationType& rotation )
       GlobalVector moveVector( rotation.multiplyInverse(lpvgf) - lpvgf );
     
     
-      (**i).move( moveVector );
-      (**i).rotateInGlobalFrame( rotation );
+      (*i).move( moveVector );
+      (*i).rotateInGlobalFrame( rotation );
 
     }
 
@@ -311,8 +311,8 @@ void AlignableComposite::dump( void ) const
     << this->globalRotation();
 
   // Dump components
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
-    (*i)->dump();
+  for (auto & i : comp)
+    i->dump();
 
 }
 
@@ -328,9 +328,9 @@ Alignments* AlignableComposite::alignments( void ) const
   Alignments* m_alignments = new Alignments();
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
+  for (auto & i : comp)
     {
-      Alignments* tmpAlignments = (*i)->alignments();
+      Alignments* tmpAlignments = i->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
 		 std::back_inserter(m_alignments->m_align) );
 	  delete tmpAlignments;
@@ -352,9 +352,9 @@ AlignmentErrorsExtended* AlignableComposite::alignmentErrors( void ) const
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i )
+  for (auto & i : comp)
     {
-      AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+      AlignmentErrorsExtended* tmpAlignmentErrorsExtended = i->alignmentErrors();
       std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
 		 std::back_inserter(m_alignmentErrors->m_alignError) );
 	  delete tmpAlignmentErrorsExtended;
@@ -375,8 +375,8 @@ int AlignableComposite::surfaceDeformationIdPairs(std::vector<std::pair<int,Surf
   int count = 0;
 
   // Add components recursively
-  for ( Alignables::iterator i=comp.begin(); i!=comp.end(); ++i) {
-    count += (*i)->surfaceDeformationIdPairs(result);
+  for (auto & i : comp) {
+    count += i->surfaceDeformationIdPairs(result);
   }
   
   return count;

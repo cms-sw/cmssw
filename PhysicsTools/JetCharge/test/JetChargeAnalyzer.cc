@@ -83,10 +83,9 @@ void JetChargeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
   FlavourMap flavours;
 
   iEvent.getByToken(jetMCSrcToken_, jetMC);
-  for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin();
-       iter != jetMC->end(); iter++) {
-    unsigned int fl = abs(iter->second.getFlavour());
-    flavours.insert(FlavourMap::value_type(iter->first, fl));
+  for (const auto & iter : *jetMC) {
+    unsigned int fl = abs(iter.second.getFlavour());
+    flavours.insert(FlavourMap::value_type(iter.first, fl));
   }
   //          for (JetChargeCollection::const_iterator it = hJC->begin(), ed = hJC->end(); it != ed; ++it) {
   for (unsigned int i =0; i< hJC->size(); ++i){

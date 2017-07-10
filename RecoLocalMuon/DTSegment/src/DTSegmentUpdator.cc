@@ -234,16 +234,16 @@ bool DTSegmentUpdator::fit(DTSegmentCand* seg, bool allow3par, const bool fitdeb
   lfit.reserve(8);
   dist.reserve(8);
 
-  for (DTSegmentCand::AssPointCont::const_iterator iter=seg->hits().begin(); iter!=seg->hits().end(); ++iter) {
-    LocalPoint pos = (*iter).first->localPosition((*iter).second);
-    float xwire = (((*iter).first)->localPosition(DTEnums::Left).x() + ((*iter).first)->localPosition(DTEnums::Right).x()) /2.;
+  for (const auto & iter : seg->hits()) {
+    LocalPoint pos = iter.first->localPosition(iter.second);
+    float xwire = ((iter.first)->localPosition(DTEnums::Left).x() + (iter.first)->localPosition(DTEnums::Right).x()) /2.;
     float distance = pos.x() - xwire;
 
-    if ((*iter).second==DTEnums::Left) lfit.push_back(1);
+    if (iter.second==DTEnums::Left) lfit.push_back(1);
       else lfit.push_back(-1);
 
     dist.push_back(distance);
-    sigy.push_back(sqrt((*iter).first->localPositionError().xx()));
+    sigy.push_back(sqrt(iter.first->localPositionError().xx()));
     x.push_back(pos.z()); 
     y.push_back(pos.x());
     i++;
@@ -369,8 +369,8 @@ void DTSegmentUpdator::fit(const vector<float>& x,
   vminf=0;
 
   int leftHits=0, rightHits=0;
-  for (unsigned int i=0; i<lfit.size(); i++)
-    if (lfit[i]==1) leftHits++; else rightHits++;
+  for (int i : lfit)
+    if (i==1) leftHits++; else rightHits++;
 
   theFitter->fit(x,y,x.size(),sigy,slope,intercept,chi2,covss,covii,covsi);
 
@@ -414,10 +414,9 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
   vector<DTRecHit1D> toBeUpdatedRecHits = seg->specificRecHits();
   vector<DTRecHit1D> updatedRecHits;
 
-  for (vector<DTRecHit1D>::iterator hit= toBeUpdatedRecHits.begin(); 
-       hit!=toBeUpdatedRecHits.end(); ++hit) {
+  for (auto & toBeUpdatedRecHit : toBeUpdatedRecHits) {
 
-    const DTLayer* layer = theGeom->layer( hit->wireId().layerId() );
+    const DTLayer* layer = theGeom->layer( toBeUpdatedRecHit.wireId().layerId() );
 
     LocalPoint segPos=layer->toLocal(gpos);
     LocalVector segDir=layer->toLocal(gdir);
@@ -428,18 +427,18 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
     // define the local position (extr.) of the segment. Needed by the third step 
     LocalPoint segPosAtLayer=segPos+segDir*(-segPos.z())/cos(segDir.theta());
 
-    DTRecHit1D newHit1D = (*hit);
+    DTRecHit1D newHit1D = toBeUpdatedRecHit;
     bool ok = true;
 
     if (step == 2) {
-      ok = theAlgo->compute(layer,*hit,angle,newHit1D);
+      ok = theAlgo->compute(layer,toBeUpdatedRecHit,angle,newHit1D);
 
     } else if (step == 3) {
 
-      LocalPoint hitPos(hit->localPosition().x(),+segPosAtLayer.y(),0.);
-      GlobalPoint glbpos= theGeom->layer( hit->wireId().layerId() )->toGlobal(hitPos);
+      LocalPoint hitPos(toBeUpdatedRecHit.localPosition().x(),+segPosAtLayer.y(),0.);
+      GlobalPoint glbpos= theGeom->layer( toBeUpdatedRecHit.wireId().layerId() )->toGlobal(hitPos);
       newHit1D.setPosition(hitPos);
-      ok = theAlgo->compute(layer,*hit,angle,glbpos,newHit1D);
+      ok = theAlgo->compute(layer,toBeUpdatedRecHit,angle,glbpos,newHit1D);
 
     } else if (step == 4) {
 
@@ -454,12 +453,12 @@ void DTSegmentUpdator::updateHits(DTRecSegment2D* seg, GlobalPoint &gpos,
       //cout << "In updateHits: vminf = " << vminf << endl;
       //cout << "In updateHits: cminf = " << cminf << endl;
 
-      const float xwire = layer->specificTopology().wirePosition(hit->wireId().wire());
-      const float distance = fabs(hit->localPosition().x() - xwire);
-      const int ilc = ( hit->lrSide() == DTEnums::Left ) ? 1 : -1;
+      const float xwire = layer->specificTopology().wirePosition(toBeUpdatedRecHit.wireId().wire());
+      const float distance = fabs(toBeUpdatedRecHit.localPosition().x() - xwire);
+      const int ilc = ( toBeUpdatedRecHit.lrSide() == DTEnums::Left ) ? 1 : -1;
       const double dy_corr = (vminf*ilc*distance-cminf*ilc ); 
 
-      LocalPoint point(hit->localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);
+      LocalPoint point(toBeUpdatedRecHit.localPosition().x() + dy_corr, +segPosAtLayer.y(), 0.);
 
       //double final_hit_resol = T0_hit_resolution;
       //if(newHit1D.wireId().layerId().superlayerId().superLayer() != 2) final_hit_resol = final_hit_resol * 0.8;

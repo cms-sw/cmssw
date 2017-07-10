@@ -135,8 +135,8 @@ namespace pat {
   JetCorrFactorsProducer::numberOf(const edm::Handle<std::vector<reco::Vertex> >& primaryVertices)
   {
     int npv=0;
-    for(std::vector<reco::Vertex>::const_iterator pv=primaryVertices->begin(); pv!=primaryVertices->end(); ++pv){
-      if(pv->ndof()>=4) ++npv;
+    for(const auto & pv : *primaryVertices){
+      if(pv.ndof()>=4) ++npv;
     }
     return npv;
   }

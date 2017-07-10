@@ -49,13 +49,12 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertices(
   analyseInputTracks(tracks);
 
   std::vector<TransientTrack> filtered;
-  for (std::vector<TransientTrack>::const_iterator it = tracks.begin();
-       it != tracks.end(); it++) {
-    if (theFilter(*it)) { 
-      filtered.push_back(*it);
+  for (const auto & track : tracks) {
+    if (theFilter(track)) { 
+      filtered.push_back(track);
     }
     else {
-      unused.push_back(*it);
+      unused.push_back(track);
     }
   }
 
@@ -111,10 +110,8 @@ std::vector<TransientVertex> ConfigurableTrimmedVertexFinder::vertexCandidates(
       } 
       else {
         // candidate has too few tracks - get them back into the vector
-        for ( std::vector< TransientTrack >::const_iterator trk
-		= iv->originalTracks().begin();
-              trk != iv->originalTracks().end(); ++trk ) {
-          unused.push_back ( *trk );
+        for (const auto & trk : iv->originalTracks()) {
+          unused.push_back ( trk );
         }
       }
     }
@@ -138,11 +135,10 @@ std::vector<TransientVertex>
 ConfigurableTrimmedVertexFinder::clean(const std::vector<TransientVertex> & candidates) const
 {
   std::vector<TransientVertex> sel;
-  for (std::vector<TransientVertex>::const_iterator i = candidates.begin(); 
-       i != candidates.end(); i++) {
+  for (const auto & candidate : candidates) {
 
-    if (ChiSquaredProbability((*i).totalChiSquared(), (*i).degreesOfFreedom())
-	> theVtxFitProbCut) { sel.push_back(*i); }
+    if (ChiSquaredProbability(candidate.totalChiSquared(), candidate.degreesOfFreedom())
+	> theVtxFitProbCut) { sel.push_back(candidate); }
   }
 
   return sel;

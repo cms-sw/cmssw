@@ -244,8 +244,8 @@ void zone_best3::init ()
 }
 void zone_best3::gb__class::init()
 {
-	for (map <ull, zone_best_loop__class>::iterator mit = zone_best_loop.begin(); mit != zone_best_loop.end(); mit++)
-		mit->second.init();
+	for (auto & mit : zone_best_loop)
+		mit.second.init();
 }
 void zone_best3::gb__class::zone_best_loop__class::init()
 {

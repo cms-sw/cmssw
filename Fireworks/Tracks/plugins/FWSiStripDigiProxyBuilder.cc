@@ -48,10 +48,8 @@ FWSiStripDigiProxyBuilder::build( const FWEventItem* iItem, TEveElementList* pro
   }
   const FWGeometry* geom = iItem->getGeom();
    
-  for( edm::DetSetVector<SiStripDigi>::const_iterator it = digis->begin(), end = digis->end();
-       it != end; ++it )     
+  for(auto ds : *digis)     
   { 
-    edm::DetSet<SiStripDigi> ds = *it;
     const uint32_t& id = ds.id;
 
     const float* pars = geom->getParameters( id );

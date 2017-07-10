@@ -138,8 +138,8 @@ namespace edm
 
     if (vtxs.isValid()) {
 
-      for (std::vector<TrackingVertex>::const_iterator vtx = vtxs->begin();  vtx != vtxs->end();  ++vtx) {
-	TempVertexList_.push_back(*vtx);
+      for (const auto & vtx : *vtxs) {
+	TempVertexList_.push_back(vtx);
       }
     }
 
@@ -149,10 +149,10 @@ namespace edm
     e.getByToken(TrackSigToken_, tracks);
 
     if (tracks.isValid()) {
-      for (std::vector<TrackingParticle>::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
-	auto oldRef=track->parentVertex();
+      for (const auto & track : *tracks) {
+	auto oldRef=track.parentVertex();
 	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV );
-	NewTrackList_->push_back(*track);
+	NewTrackList_->push_back(track);
 
 	auto & Ntrack = NewTrackList_->back();  //modify copy
 
@@ -161,7 +161,7 @@ namespace edm
 
 	// next, loop over daughter vertices, same strategy
 
-	for( auto const& vertexRef : track->decayVertices() ) {
+	for( auto const& vertexRef : track.decayVertices() ) {
 	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV );
 	  Ntrack.addDecayVertex(newRef);
 	}
@@ -231,9 +231,9 @@ namespace edm
     edm::Handle< DTDigiSimLinkCollection > DTLinks;
     e.getByToken(DTLinkSigToken_, DTLinks);
     if(DTLinks.isValid()) {
-      for (DTDigiSimLinkCollection::DigiRangeIterator detUnit=DTLinks->begin(); detUnit !=DTLinks->end(); ++detUnit) {
-	const DTLayerId& layerid = (*detUnit).first;
-	const DTDigiSimLinkCollection::Range& range = (*detUnit).second;
+      for (auto && detUnit : *DTLinks) {
+	const DTLayerId& layerid = detUnit.first;
+	const DTDigiSimLinkCollection::Range& range = detUnit.second;
 	NewDTLinkList_->put(range,layerid);
       }
     }
@@ -259,8 +259,8 @@ namespace edm
 
       // grab vertices, store copy
 
-      for (std::vector<TrackingVertex>::const_iterator vtx = vtxs->begin();  vtx != vtxs->end();  ++vtx) {
-	TempVertexList_.push_back(*vtx);
+      for (const auto & vtx : *vtxs) {
+	TempVertexList_.push_back(vtx);
       }
     }
 
@@ -273,10 +273,10 @@ namespace edm
       const std::vector<TrackingParticle>  *tracks = const_cast< std::vector<TrackingParticle> * >(inputPTR->product());
 
       // grab tracks, store copy
-      for (std::vector<TrackingParticle>::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
-	auto oldRef=track->parentVertex();
+      for (const auto & track : *tracks) {
+	auto oldRef=track.parentVertex();
 	auto newRef=TrackingVertexRef( VertexListRef_, oldRef.index()+StartingIndexV );
-	NewTrackList_->push_back(*track);
+	NewTrackList_->push_back(track);
 
 	auto & Ntrack = NewTrackList_->back();  //modify copy
 
@@ -285,7 +285,7 @@ namespace edm
 
 	// next, loop over daughter vertices, same strategy
 
-	for( auto const& vertexRef : track->decayVertices() ) {
+	for( auto const& vertexRef : track.decayVertices() ) {
 	  auto newRef=TrackingVertexRef( VertexListRef_, vertexRef.index()+StartingIndexV );
 	  Ntrack.addDecayVertex(newRef);
 	}
@@ -359,9 +359,9 @@ namespace edm
       getProductByTag< DTDigiSimLinkCollection >(*ep, DTLinkPileInputTag_, mcc);
     if(inputDTPtr) {      
       const DTDigiSimLinkCollection*  DTLinks = const_cast< DTDigiSimLinkCollection * >(inputDTPtr->product());
-      for (DTDigiSimLinkCollection::DigiRangeIterator detUnit=DTLinks->begin(); detUnit !=DTLinks->end(); ++detUnit) {
-	const DTLayerId& layerid = (*detUnit).first;
-	const DTDigiSimLinkCollection::Range& range = (*detUnit).second;
+      for (auto && DTLink : *DTLinks) {
+	const DTLayerId& layerid = DTLink.first;
+	const DTDigiSimLinkCollection::Range& range = DTLink.second;
 	NewDTLinkList_->put(range,layerid);
       }
     }

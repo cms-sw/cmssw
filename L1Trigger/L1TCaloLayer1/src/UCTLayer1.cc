@@ -24,14 +24,14 @@ UCTLayer1::UCTLayer1(int fwv) : uctSummary(0), fwVersion(fwv) {
 }
 
 UCTLayer1::~UCTLayer1() {
-  for(uint32_t i = 0; i < crates.size(); i++) {
-    if(crates[i] != 0) delete crates[i];
+  for(auto & crate : crates) {
+    if(crate != 0) delete crate;
   }
 }
 
 bool UCTLayer1::clearEvent() {
-  for(uint32_t i = 0; i < crates.size(); i++) {
-    if(crates[i] != 0) crates[i]->clearEvent();
+  for(auto & crate : crates) {
+    if(crate != 0) crate->clearEvent();
   }
   return true;
 }
@@ -103,10 +103,10 @@ bool UCTLayer1::setHCALData(UCTTowerIndex t, uint32_t hcalFB, uint32_t hcalET) {
 
 bool UCTLayer1::process() {
   uctSummary = 0;
-  for(uint32_t i = 0; i < crates.size(); i++) {
-    if(crates[i] != 0) {
-      crates[i]->process();
-      uctSummary += crates[i]->et();
+  for(auto & crate : crates) {
+    if(crate != 0) {
+      crate->process();
+      uctSummary += crate->et();
     }
   }
 

@@ -53,12 +53,12 @@ std::unique_ptr<SiPixelLorentzAngle> SiPixelFakeLorentzAngleESSource::produce(co
 	const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 	
 	// Loop over detectors
-	for(std::vector<uint32_t>::const_iterator detit = DetIds.begin(); detit!=DetIds.end(); detit++) {
+	for(unsigned int DetId : DetIds) {
 		nmodules++;
 		float langle =  0.106;	 
 		//std::cout << "detid " << (*detit) << std::endl;
 	
-		if( !obj->putLorentzAngle(*detit,langle) ) edm::LogError("SiPixelFakeLorentzAngleESSource")<<"[SiPixelFakeLorentzAngleESSource::produce] detid already exists"<<std::endl;
+		if( !obj->putLorentzAngle(DetId,langle) ) edm::LogError("SiPixelFakeLorentzAngleESSource")<<"[SiPixelFakeLorentzAngleESSource::produce] detid already exists"<<std::endl;
 	}
 	
 	//std::cout << "Modules = " << nmodules << std::endl;

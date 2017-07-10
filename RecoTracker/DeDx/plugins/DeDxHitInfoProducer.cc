@@ -73,9 +73,7 @@ void DeDxHitInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   std::vector<int> indices;
 
-  for(unsigned int j=0;j<trackCollection.size();j++){            
-     const reco::Track& track = trackCollection[j];
-
+  for(const auto & track : trackCollection){            
      //track selection
      if(track.pt()<minTrackPt ||  std::abs(track.eta())>maxTrackEta ||track.numberOfValidHits()<minTrackHits){
         indices.push_back(-1);

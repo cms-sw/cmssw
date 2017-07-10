@@ -114,15 +114,15 @@ namespace ecaldqm
 
     unsigned iME(-1);
 
-    for(EcalPnDiodeDigiCollection::const_iterator digiItr(_digis.begin()); digiItr != _digis.end(); ++digiItr){
-      EcalPnDiodeDetId id(digiItr->id());
+    for(const auto & _digi : _digis){
+      EcalPnDiodeDetId id(_digi.id());
 
       int iDCC(dccId(id) - 1);
 
       if(!enable_[iDCC]) continue;
 
       int gain(0);
-      switch(digiItr->sample(0).gainId()){
+      switch(_digi.sample(0).gainId()){
       case 0: gain = 1; break;
       case 1: gain = 16; break;
       default: continue;
@@ -136,7 +136,7 @@ namespace ecaldqm
       }
 
       for(int iSample(0); iSample < 50; iSample++)
-        mePNPedestal.fill(id, double(digiItr->sample(iSample).adc()));
+        mePNPedestal.fill(id, double(_digi.sample(iSample).adc()));
     }
   }
 

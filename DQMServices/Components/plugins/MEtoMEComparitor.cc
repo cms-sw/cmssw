@@ -267,10 +267,9 @@ void MEtoMEComparitor::compare(const W& where,const std::string & instance){
 	   <<"\n bad diff : "<<nBadDiff
 	   <<"\n godd diff : "<<nGoodDiff;
     bool tell=false;
-    for (Subs::iterator iSub=subSystems.begin();
-	 iSub!=subSystems.end();++iSub){
-      double fraction = 1-(iSub->second.second / (double)iSub->second.first);
-      summary<<std::endl<<"Subsytem: "<<iSub->first<<" has "<< fraction*100<<" % goodness";
+    for (auto & subSystem : subSystems){
+      double fraction = 1-(subSystem.second.second / (double)subSystem.second.first);
+      summary<<std::endl<<"Subsytem: "<<subSystem.first<<" has "<< fraction*100<<" % goodness";
       if (fraction < _overallgoodness)
 	tell=true;
     }

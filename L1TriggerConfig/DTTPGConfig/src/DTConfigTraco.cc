@@ -124,8 +124,8 @@ DTConfigTraco::DTConfigTraco(int debugTRACO, unsigned short int * buffer) {
               << " prgdel=" <<  prgdel
               << " snapcor=" <<  snapcor
 	      << " trgenb="; 
-		for(int t=0; t<16; t++)
-              		std::cout << trgenb[t] << " ";
+		for(int t : trgenb)
+              		std::cout << t << " ";
               std::cout << " trgadel=" <<  trgadel
               << " ibtioff=" <<  ibtioff
               << " kprgcom=" <<  kprgcom

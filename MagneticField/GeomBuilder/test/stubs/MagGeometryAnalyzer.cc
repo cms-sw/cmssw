@@ -77,20 +77,19 @@ void testMagGeometryAnalyzer::analyze(const edm::Event & event, const edm::Event
 void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bvol) {
   static map<string,int> nameCalls;
 
-  for (vector<MagVolume6Faces const*>::const_iterator i=bvol.begin();
-       i!=bvol.end(); i++) {
-    if ((*i)->copyno != 1) {
+  for (auto i : bvol) {
+    if (i->copyno != 1) {
       continue;
     }
 
-    const MagProviderInterpol* prov = (**i).provider();
+    const MagProviderInterpol* prov = (*i).provider();
     if (prov == 0) {
-      cout << (*i)->volumeNo << " No interpolator; skipping " <<  endl;
+      cout << i->volumeNo << " No interpolator; skipping " <<  endl;
       continue;
     }
-    VolumeGridTester tester(*i, prov);
-    if (tester.testInside()) cout << "testGrids: success: " << (**i).volumeNo << endl;
-    else cout << "testGrids: ERROR: " << (**i).volumeNo << endl;
+    VolumeGridTester tester(i, prov);
+    if (tester.testInside()) cout << "testGrids: success: " << (*i).volumeNo << endl;
+    else cout << "testGrids: ERROR: " << (*i).volumeNo << endl;
   }
 }
 

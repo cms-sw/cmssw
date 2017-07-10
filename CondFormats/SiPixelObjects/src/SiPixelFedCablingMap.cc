@@ -101,10 +101,10 @@ SiPixelFedCablingMap::SiPixelFedCablingMap(const SiPixelFedCablingTree *cab)
 std::unique_ptr<SiPixelFedCablingTree>  SiPixelFedCablingMap::cablingTree() const {
 
   std::unique_ptr<SiPixelFedCablingTree>  tree(new SiPixelFedCablingTree(theVersion)); 
-  for (Map::const_iterator im = theMap.begin(); im != theMap.end(); im++) {
-    const sipixelobjects::PixelROC & roc = im->second;
-    unsigned int fedId = im->first.fed;
-    unsigned int linkId = im->first.link;
+  for (const auto & im : theMap) {
+    const sipixelobjects::PixelROC & roc = im.second;
+    unsigned int fedId = im.first.fed;
+    unsigned int linkId = im.first.link;
     tree->addItem(fedId, linkId,  roc);
   }
   return tree;
@@ -112,8 +112,8 @@ std::unique_ptr<SiPixelFedCablingTree>  SiPixelFedCablingMap::cablingTree() cons
 
 std::vector<unsigned int> SiPixelFedCablingMap::fedIds() const {
   std::vector<unsigned int> result;
-  for (Map::const_iterator im = theMap.begin(); im != theMap.end(); im++) {
-    unsigned int fedId = im->first.fed;
+  for (const auto & im : theMap) {
+    unsigned int fedId = im.first.fed;
     if (find(result.begin(),result.end(),fedId) == result.end()) result.push_back(fedId);
   }
   return result;
@@ -131,17 +131,17 @@ const sipixelobjects::PixelROC* SiPixelFedCablingMap::findItem(
 
 std::unordered_map<uint32_t, unsigned int>  SiPixelFedCablingMap::det2fedMap() const {
   std::unordered_map<uint32_t, unsigned int> result;
-  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
-    result[im->second.rawId()] = im->first.fed;  // we know: a det is in only one fed!
+  for (const auto & im : theMap) {
+    result[im.second.rawId()] = im.first.fed;  // we know: a det is in only one fed!
   }
   return result;
 }
 
 std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > SiPixelFedCablingMap::det2PathMap() const {
   std::map< uint32_t,std::vector<sipixelobjects::CablingPathToDetUnit> > result;
-  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
-    CablingPathToDetUnit path = {im->first.fed, im->first.link, im->first.roc};
-    result[im->second.rawId()].push_back(path);
+  for (const auto & im : theMap) {
+    CablingPathToDetUnit path = {im.first.fed, im.first.link, im.first.roc};
+    result[im.second.rawId()].push_back(path);
   }
   return result;
 }
@@ -151,9 +151,9 @@ std::vector<sipixelobjects::CablingPathToDetUnit> SiPixelFedCablingMap::pathToDe
       uint32_t rawDetId) const {
 
   std::vector<sipixelobjects::CablingPathToDetUnit> result;
-  for (auto im = theMap.begin(); im != theMap.end(); ++im) {
-    if(im->second.rawId()==rawDetId ) {
-      CablingPathToDetUnit path = {im->first.fed, im->first.link, im->first.roc};
+  for (const auto & im : theMap) {
+    if(im.second.rawId()==rawDetId ) {
+      CablingPathToDetUnit path = {im.first.fed, im.first.link, im.first.roc};
       result.push_back(path);
     }
   }

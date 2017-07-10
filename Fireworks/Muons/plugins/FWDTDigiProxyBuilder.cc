@@ -82,11 +82,11 @@ FWDTDigiProxyBuilder::buildViewType( const FWEventItem* iItem, TEveElementList* 
    }
    const FWGeometry *geom = iItem->getGeom();
 	
-   for( DTDigiCollection::DigiRangeIterator dri = digis->begin(), dre = digis->end(); dri != dre; ++dri )
+   for(auto && digi : *digis)
    {
-      const DTLayerId& layerId = (*dri).first;
+      const DTLayerId& layerId = digi.first;
       unsigned int rawid = layerId.rawId();
-      const DTDigiCollection::Range &range = (*dri).second;
+      const DTDigiCollection::Range &range = digi.second;
 
       if( ! geom->contains( rawid ))
       {

@@ -190,9 +190,9 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
   std::cout<<std::setprecision(3)<<std::fixed;
   //std::cout<<" lens : "<<ideal_me_chambers.size()<<" "<<cscAlignments->m_align.size()<<std::endl;
 
-  for ( std::vector<AlignTransform>::const_iterator it = cscAlignments->m_align.begin(); it != cscAlignments->m_align.end(); it++ )
+  for (const auto & it : cscAlignments->m_align)
   {
-    CSCDetId id((*it).rawId());
+    CSCDetId id(it.rawId());
     if (id.layer()>0) continue; // look at chambers only, skip layers
 
     if (id.station()==1 && id.ring()==4) continue; // not interested in duplicated ME1/4 
@@ -206,7 +206,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     // find this chamber in ideal geometry
     const Alignable* ideal=0;
     for (std::vector<Alignable*>::const_iterator cideal = ideal_me_chambers.begin(); cideal != ideal_me_chambers.end(); cideal++)
-      if ((*cideal)->geomDetId().rawId() == (*it).rawId()) { ideal = *cideal; break; }
+      if ((*cideal)->geomDetId().rawId() == it.rawId()) { ideal = *cideal; break; }
     if (ideal==0) {
       std::cout<<" no ideal chamber for "<<id<<std::endl;
       continue;
@@ -214,9 +214,9 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
 
     //if (ideal->geomDetId().rawId() != (*it).rawId()) std::cout<<" badid : "<<(*csc_ideal)->geomDetId().rawId()<<" "<<(*it).rawId()<<std::endl;
 
-    align::PositionType position((*it).translation().x(), (*it).translation().y(), (*it).translation().z());
+    align::PositionType position(it.translation().x(), it.translation().y(), it.translation().z());
 
-    CLHEP::HepRotation rot( (*it).rotation() );
+    CLHEP::HepRotation rot( it.rotation() );
     align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
                                   rot.yx(), rot.yy(), rot.yz(),
                                   rot.zx(), rot.zy(), rot.zz() );
@@ -237,7 +237,7 @@ TestMuonReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup
     //  std::cout << me <<" large angle diff = "<<fabs(rabg[0]-rxyz[0])*1000.<<" "<<fabs(rabg[1]-rxyz[1])*1000.<<" "<<fabs(rabg[2]-rxyz[2])*1000.<<" = "
     //        << 1000.*rabg[0] <<" "<< 1000.*rabg[1] <<" "<< 1000.*rabg[2] <<" - " << 1000.*rxyz[0] <<" "<< 1000.*rxyz[1] <<" "<< 1000.*rxyz[2]<<std::endl;
 
-    std::cout << me <<" "<< (*it).rawId()
+    std::cout << me <<" "<< it.rawId()
       //<< "  " << (*it).translation().x() << " " << (*it).translation().y() << " " << (*it).translation().z()
       //<< "  " << abg[0] << " " << abg[1] << " " << abg[2] 
       //<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()

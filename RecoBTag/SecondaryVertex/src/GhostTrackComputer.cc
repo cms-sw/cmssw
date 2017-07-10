@@ -169,9 +169,8 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 		bool hasRefittedTracks = vertex.hasRefittedTracks();
 		TrackRefVector tracks = svInfo.vertexTracks(i);
 		unsigned int n = 0;
-		for(TrackRefVector::const_iterator track = tracks.begin();
-		    track != tracks.end(); track++)
-			if (svInfo.trackWeight(i, *track) >= minTrackWeight)
+		for(auto && track : tracks)
+			if (svInfo.trackWeight(i, track) >= minTrackWeight)
 				n++;
 
 		if (n < 1)
@@ -186,21 +185,20 @@ GhostTrackComputer::operator () (const TrackIPTagInfo &ipInfo,
 
 		TrackKinematics &kin = isTrackVertex ? trackKinematics
 		                                     : vertexKinematics;
-		for(TrackRefVector::const_iterator track = tracks.begin();
-		    track != tracks.end(); track++) {
-			float w = svInfo.trackWeight(i, *track);
+		for(auto && track : tracks) {
+			float w = svInfo.trackWeight(i, track);
 			if (w < minTrackWeight)
 				continue;
 			if (hasRefittedTracks) {
 				Track actualTrack =
-						vertex.refittedTrack(*track);
+						vertex.refittedTrack(track);
 				kin.add(actualTrack, w);
 				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
 						actualTrack.momentum()), true);
 			} else {
-				kin.add(**track, w);
+				kin.add(*track, w);
 				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir,
-						(*track)->momentum()), true);
+						(track)->momentum()), true);
 			}
 			if (!isTrackVertex)
 				nVertexTracks++;
@@ -405,9 +403,9 @@ GhostTrackComputer::operator () (const CandIPTagInfo &ipInfo,
 
 		TrackKinematics &kin = isTrackVertex ? trackKinematics : vertexKinematics;
 
-		for(std::vector<CandidatePtr>::const_iterator track = tracks.begin(); track != tracks.end(); ++track) {
-			kin.add(*track);
-				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, (*track)->momentum()), true);
+		for(const auto & track : tracks) {
+			kin.add(track);
+				vars.insert(btau::trackEtaRel, reco::btau::etaRel(jetDir, track->momentum()), true);
 			if (!isTrackVertex)
 				nVertexTracks++;
 		}

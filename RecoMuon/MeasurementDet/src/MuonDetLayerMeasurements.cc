@@ -434,11 +434,10 @@ MuonDetLayerMeasurements::groupedMeasurements(const DetLayer* layer,
   for (std::vector<DetGroup>::const_iterator grp=groups.begin(); grp!=groups.end(); ++grp) {
     
     std::vector<TrajectoryMeasurement> groupMeasurements;
-    for (DetGroup::const_iterator detAndStateItr=grp->begin();
-         detAndStateItr !=grp->end(); ++detAndStateItr) {
+    for (const auto & detAndStateItr : *grp) {
 
       std::vector<TrajectoryMeasurement> detMeasurements 
-        = measurements(layer, detAndStateItr->det(), detAndStateItr->trajectoryState(), est, iEvent);
+        = measurements(layer, detAndStateItr.det(), detAndStateItr.trajectoryState(), est, iEvent);
       groupMeasurements.insert(groupMeasurements.end(), detMeasurements.begin(), detMeasurements.end());
     }
     

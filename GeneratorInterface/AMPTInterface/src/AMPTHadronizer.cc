@@ -243,8 +243,8 @@ bool AMPTHadronizer::get_particles(HepMC::GenEvent *evt )
       }
 
       // cleanup vertices not assigned to evt                                                                                                            
-      for (unsigned int i = 0; i<prods.size(); i++) {
-         if(prods[i]) delete prods[i];
+      for (auto & prod : prods) {
+         if(prod) delete prod;
       }
 
    return true;

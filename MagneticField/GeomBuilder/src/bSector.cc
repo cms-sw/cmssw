@@ -135,9 +135,8 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 MagBSector* MagGeoBuilderFromDDD::bSector::buildMagBSector() const{
   if (msector==0) {
     vector<MagBRod*> mRods;
-    for (vector<bRod>::const_iterator rod = rods.begin();
-	 rod!=rods.end(); ++rod) {
-      mRods.push_back((*rod).buildMagBRod());
+    for (const auto & rod : rods) {
+      mRods.push_back(rod.buildMagBRod());
     }
     msector = new MagBSector(mRods, volumes.front()->minPhi()); //FIXME
   }

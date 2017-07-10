@@ -140,7 +140,7 @@ bool PythiaDauVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       accepted = true;
       if (fVerbose > 0) {
 	cout << "  accepted this decay: ";
-	for (unsigned int iv = 0; iv < vparticles.size(); ++iv) cout << vparticles[iv] << " "; 
+	for (int vparticle : vparticles) cout << vparticle << " "; 
 	cout << " from mother = " << motherID << endl;
       }
       break;
@@ -216,7 +216,7 @@ bool PythiaDauVFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	accepted = true;
 	if (fVerbose > 0) {
 	  cout << "  accepted this anti-decay: ";
-	  for (unsigned int iv = 0; iv < vparticles.size(); ++iv) cout << vparticles[iv] << " "; 
+	  for (int vparticle : vparticles) cout << vparticle << " "; 
 	  cout << " from mother = " << motherID << endl;
 	}
 	break;

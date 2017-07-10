@@ -188,9 +188,9 @@ public:
       }
 
 vector< int >::const_iterator p2;
-    for (unsigned int i =0 ; i < v_.size(); ++i )
+    for (double i : v_)
       {
-	cout<<" delta R Mu Sta == "<< v_[i]<<endl;
+	cout<<" delta R Mu Sta == "<< i<<endl;
         }
   }
 

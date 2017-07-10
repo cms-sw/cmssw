@@ -418,10 +418,10 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByToken( tTrajectory, trajCollectionHandle);
   //e.getByLabel( "generalTracks", trajCollectionHandle);
 
-  for ( vector<Trajectory>::const_iterator it = trajCollectionHandle->begin(); it!=trajCollectionHandle->end(); ++it )
+  for (const auto & it : *trajCollectionHandle)
     {
       
-      vector<TrajectoryMeasurement> tmColl = it->measurements();
+      vector<TrajectoryMeasurement> tmColl = it.measurements();
       for ( vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin(); itTraj!=tmColl.end(); ++itTraj )
 	{
 	  
@@ -699,9 +699,9 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      // Get cluster total charge
 	      const auto & stripCharges = cluster->amplitudes();
 	      uint16_t charge = 0;
-	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
+	      for (unsigned char stripCharge : stripCharges) 
 		{
-		  charge += stripCharges[i];
+		  charge += stripCharge;
 		}
 	      
 	      strip_charge = (float)charge;
@@ -835,9 +835,9 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
 	      // Get cluster total charge
 	      auto & stripCharges = cluster->amplitudes();
 	      uint16_t charge = 0;
-	      for (unsigned int i = 0; i < stripCharges.size(); ++i) 
+	      for (unsigned char stripCharge : stripCharges) 
 		{
-		  charge += stripCharges[i];
+		  charge += stripCharge;
 		}
 	      
 	      strip_charge = (float)charge;
@@ -923,9 +923,9 @@ SiPixelErrorEstimation::analyze(const edm::Event& e, const edm::EventSetup& es)
   e.getByToken(tSimTrackContainer, simtracks);
 
   //-----Iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
+  for (auto it : pDD->dets()) 
     {
-      DetId detId = ((*it)->geographicalId());
+      DetId detId = (it->geographicalId());
       
       SiPixelRecHitCollection::const_iterator dsmatch = recHitColl->find(detId);
       if (dsmatch == recHitColl->end()) continue;

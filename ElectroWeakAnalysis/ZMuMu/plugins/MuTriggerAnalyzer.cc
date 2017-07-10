@@ -183,9 +183,9 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
 	}
 	if ( toc.size() != 0 ) {
 	  const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
-	  for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+	  for (unsigned short ki : k) {
 	    if (name == L3FilterName_  ) {
-	      HLTMuMatched.push_back(toc[*ki].particle());
+	      HLTMuMatched.push_back(toc[ki].particle());
 	      nMuHLT++;
 	    }
 	  }
@@ -201,9 +201,8 @@ void MuTriggerAnalyzer::analyze (const Event & ev, const EventSetup &) {
       //saving only muons with pt> ptMuCut and eta<etaMuCut
       std::vector<reco::Muon>  highPtGlbMuons;
 
-      for (unsigned int i=0; i<muons->size(); i++ ){
-        const reco::Muon & mu = muons->at(i);
-	double pt = mu.pt();
+      for (const auto & mu : *muons){
+        	double pt = mu.pt();
 	double eta = mu.eta();
 	if (pt> ptMuCut_ && fabs(eta)< etaMuCut_) {
 	  if (mu.isGlobalMuon()) highPtGlbMuons.push_back(mu);

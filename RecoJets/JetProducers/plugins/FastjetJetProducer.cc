@@ -295,16 +295,16 @@ void FastjetJetProducer::produceTrackJets( edm::Event & iEvent, const edm::Event
       LogDebug("FastjetTrackJetProducer") << "Ran algorithm\n";
 
       // convert our jets and add to the overall jet vector
-      for (unsigned int ijet=0;ijet<fjJets_.size();++ijet) {
+      for (auto & fjJet : fjJets_) {
         // get the constituents from fastjet
-        std::vector<fastjet::PseudoJet> fjConstituents = sorted_by_pt(fjClusterSeq_->constituents(fjJets_[ijet]));
+        std::vector<fastjet::PseudoJet> fjConstituents = sorted_by_pt(fjClusterSeq_->constituents(fjJet));
         // convert them to CandidatePtr vector
         std::vector<reco::CandidatePtr> constituents = getConstituents(fjConstituents);
         // fill the trackjet
         reco::TrackJet jet;
         // write the specifics to the jet (simultaneously sets 4-vector, vertex).
         writeSpecific( jet,
-                       reco::Particle::LorentzVector(fjJets_[ijet].px(), fjJets_[ijet].py(), fjJets_[ijet].pz(), fjJets_[ijet].E()),
+                       reco::Particle::LorentzVector(fjJet.px(), fjJet.py(), fjJet.pz(), fjJet.E()),
                        vertex_, constituents, iSetup);
         jet.setJetArea(0);
         jet.setPileup(0);

@@ -300,11 +300,10 @@ void L1GtTriggerMenuLite::print(std::ostream& myCout, int& printVerbosity) const
             myCout << std::endl;
 
 
-            for (CItL1Trig itTrig = m_algorithmMap.begin(); itTrig
-                    != m_algorithmMap.end(); itTrig++) {
+            for (const auto & itTrig : m_algorithmMap) {
 
-                const unsigned int bitNumber = itTrig->first;
-                const std::string& aName = itTrig->second;
+                const unsigned int bitNumber = itTrig.first;
+                const std::string& aName = itTrig.second;
 
                 std::string aAlias;
                 CItL1Trig itAlias = m_algorithmAliasMap.find(bitNumber);
@@ -316,8 +315,8 @@ void L1GtTriggerMenuLite::print(std::ostream& myCout, int& printVerbosity) const
                     << std::right << std::setw(35) << aName << "  "
                     << std::right << std::setw(35) << aAlias << "  "
                     << std::right << std::setw(12) << m_triggerMaskAlgoTrig[bitNumber];
-                for (unsigned iSet = 0; iSet < m_prescaleFactorsAlgoTrig.size(); iSet++) {
-                    myCout << std::right << std::setw(12) << m_prescaleFactorsAlgoTrig[iSet][bitNumber];
+                for (const auto & iSet : m_prescaleFactorsAlgoTrig) {
+                    myCout << std::right << std::setw(12) << iSet[bitNumber];
                 }
 
                 myCout << std::endl;
@@ -338,17 +337,16 @@ void L1GtTriggerMenuLite::print(std::ostream& myCout, int& printVerbosity) const
                 myCout << std::endl;
             }
 
-            for (CItL1Trig itTrig = m_technicalTriggerMap.begin(); itTrig
-                    != m_technicalTriggerMap.end(); itTrig++) {
+            for (const auto & itTrig : m_technicalTriggerMap) {
 
-                unsigned int bitNumber = itTrig->first;
-                std::string aName = itTrig->second;
+                unsigned int bitNumber = itTrig.first;
+                std::string aName = itTrig.second;
 
                 myCout << std::setw(6) << bitNumber << "       "
                 << std::right << std::setw(45) << aName
                 << std::right << std::setw(12) << m_triggerMaskTechTrig[bitNumber];
-                for (unsigned iSet = 0; iSet < m_prescaleFactorsTechTrig.size(); iSet++) {
-                    myCout << std::right << std::setw(12) << m_prescaleFactorsTechTrig[iSet][bitNumber];
+                for (const auto & iSet : m_prescaleFactorsTechTrig) {
+                    myCout << std::right << std::setw(12) << iSet[bitNumber];
                 }
 
                 myCout << std::endl;
@@ -385,12 +383,11 @@ const std::string* L1GtTriggerMenuLite::gtAlgorithmAlias(
 
     const std::string* gtAlgorithmAlias = 0;
 
-    for (CItL1Trig itTrig = m_algorithmAliasMap.begin(); itTrig
-            != m_algorithmAliasMap.end(); itTrig++) {
+    for (const auto & itTrig : m_algorithmAliasMap) {
 
-        if (itTrig->first == bitNumber) {
+        if (itTrig.first == bitNumber) {
 
-            gtAlgorithmAlias = &(itTrig->second);
+            gtAlgorithmAlias = &(itTrig.second);
 
             errorCode = 0;
             return gtAlgorithmAlias;
@@ -409,12 +406,11 @@ const std::string* L1GtTriggerMenuLite::gtAlgorithmName(
 
     const std::string* gtAlgorithmName = 0;
 
-    for (CItL1Trig itTrig = m_algorithmMap.begin(); itTrig
-            != m_algorithmMap.end(); itTrig++) {
+    for (const auto & itTrig : m_algorithmMap) {
 
-        if (itTrig->first == bitNumber) {
+        if (itTrig.first == bitNumber) {
 
-            gtAlgorithmName = &(itTrig->second);
+            gtAlgorithmName = &(itTrig.second);
 
             errorCode = 0;
             return gtAlgorithmName;
@@ -431,12 +427,11 @@ const std::string* L1GtTriggerMenuLite::gtTechTrigName(
 
     const std::string* gtTechTrigName = 0;
 
-    for (CItL1Trig itTrig = m_technicalTriggerMap.begin(); itTrig
-            != m_technicalTriggerMap.end(); itTrig++) {
+    for (const auto & itTrig : m_technicalTriggerMap) {
 
-        if (itTrig->first == bitNumber) {
+        if (itTrig.first == bitNumber) {
 
-            gtTechTrigName = &(itTrig->second);
+            gtTechTrigName = &(itTrig.second);
 
             errorCode = 0;
             return gtTechTrigName;
@@ -456,12 +451,11 @@ const unsigned int L1GtTriggerMenuLite::gtBitNumber(
     unsigned int bitNr = 999;
 
     //
-    for (CItL1Trig itTrig = m_algorithmAliasMap.begin(); itTrig
-            != m_algorithmAliasMap.end(); itTrig++) {
+    for (const auto & itTrig : m_algorithmAliasMap) {
 
-        if (itTrig->second == trigName) {
+        if (itTrig.second == trigName) {
 
-            bitNr = itTrig->first;
+            bitNr = itTrig.first;
 
             errorCode = 0;
             return bitNr;
@@ -469,24 +463,22 @@ const unsigned int L1GtTriggerMenuLite::gtBitNumber(
     }
 
     //
-    for (CItL1Trig itTrig = m_algorithmMap.begin(); itTrig
-            != m_algorithmMap.end(); itTrig++) {
+    for (const auto & itTrig : m_algorithmMap) {
 
-        if (itTrig->second == trigName) {
+        if (itTrig.second == trigName) {
 
-            bitNr = itTrig->first;
+            bitNr = itTrig.first;
             errorCode = 0;
             return bitNr;
         }
     }
 
     //
-    for (CItL1Trig itTrig = m_technicalTriggerMap.begin(); itTrig
-            != m_technicalTriggerMap.end(); itTrig++) {
+    for (const auto & itTrig : m_technicalTriggerMap) {
 
-        if (itTrig->second == trigName) {
+        if (itTrig.second == trigName) {
 
-            bitNr = itTrig->first;
+            bitNr = itTrig.first;
             errorCode = 0;
             return bitNr;
         }
@@ -506,11 +498,10 @@ const bool L1GtTriggerMenuLite::gtTriggerResult(const std::string& trigName,
 
     // try first physics algorithm aliases
 
-    for (CItL1Trig itTrig = m_algorithmAliasMap.begin(); itTrig
-            != m_algorithmAliasMap.end(); itTrig++) {
+    for (const auto & itTrig : m_algorithmAliasMap) {
 
-        if (itTrig->second == trigName) {
-            unsigned int bitNumber = itTrig->first;
+        if (itTrig.second == trigName) {
+            unsigned int bitNumber = itTrig.first;
 
             if ((bitNumber >= decWord.size())) {
                 trigResult = false;
@@ -526,11 +517,10 @@ const bool L1GtTriggerMenuLite::gtTriggerResult(const std::string& trigName,
 
     // ... then physics algorithm names
 
-    for (CItL1Trig itTrig = m_algorithmMap.begin(); itTrig
-            != m_algorithmMap.end(); itTrig++) {
+    for (const auto & itTrig : m_algorithmMap) {
 
-        if (itTrig->second == trigName) {
-            unsigned int bitNumber = itTrig->first;
+        if (itTrig.second == trigName) {
+            unsigned int bitNumber = itTrig.first;
 
             if ((bitNumber >= decWord.size())) {
                 trigResult = false;
@@ -546,11 +536,10 @@ const bool L1GtTriggerMenuLite::gtTriggerResult(const std::string& trigName,
 
     // ... then technical trigger names
 
-    for (CItL1Trig itTrig = m_technicalTriggerMap.begin(); itTrig
-            != m_technicalTriggerMap.end(); itTrig++) {
+    for (const auto & itTrig : m_technicalTriggerMap) {
 
-        if (itTrig->second == trigName) {
-            unsigned int bitNumber = itTrig->first;
+        if (itTrig.second == trigName) {
+            unsigned int bitNumber = itTrig.first;
 
             if ((bitNumber >= decWord.size())) {
                 trigResult = false;

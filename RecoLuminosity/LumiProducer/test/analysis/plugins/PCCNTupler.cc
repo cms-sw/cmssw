@@ -249,21 +249,21 @@ void PCCNTupler::analyze(const edm::Event& iEvent,
         if(recVtxs.isValid()){
             //nVtx=recVtxs->size();
             int ivtx=0;
-            for(reco::VertexCollection::const_iterator v=recVtxs->begin(); v!=recVtxs->end(); ++v){
-                if(v->isFake()) continue;
+            for(const auto & v : *recVtxs){
+                if(v.isFake()) continue;
                 vtx_isGood[ivtx] = false;
-                vtx_nTrk[ivtx] = v->tracksSize();
-                vtx_ndof[ivtx] = (int)v->ndof();
-                vtx_x[ivtx] = v->x();
-                vtx_y[ivtx] = v->y();
-                vtx_z[ivtx] = v->z();
-                vtx_xError[ivtx] = v->xError();
-                vtx_yError[ivtx] = v->yError();
-                vtx_zError[ivtx] = v->zError();
-                vtx_chi2[ivtx] = v->chi2();
-                vtx_normchi2[ivtx] = v->normalizedChi2();
-                vtx_isValid[ivtx] = v->isValid();
-                vtx_isFake[ivtx] = v->isFake();
+                vtx_nTrk[ivtx] = v.tracksSize();
+                vtx_ndof[ivtx] = (int)v.ndof();
+                vtx_x[ivtx] = v.x();
+                vtx_y[ivtx] = v.y();
+                vtx_z[ivtx] = v.z();
+                vtx_xError[ivtx] = v.xError();
+                vtx_yError[ivtx] = v.yError();
+                vtx_zError[ivtx] = v.zError();
+                vtx_chi2[ivtx] = v.chi2();
+                vtx_normchi2[ivtx] = v.normalizedChi2();
+                vtx_isValid[ivtx] = v.isValid();
+                vtx_isFake[ivtx] = v.isFake();
                 if(vtx_isValid[ivtx] && (vtx_isFake[ivtx] == 0)){
                     nValidVtx[bunchCrossing]=nValidVtx[bunchCrossing]+1;
                 }

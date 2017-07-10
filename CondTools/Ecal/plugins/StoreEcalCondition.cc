@@ -27,12 +27,12 @@ StoreEcalCondition::StoreEcalCondition(const edm::ParameterSet& iConfig) {
 
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
-  for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut) 
+  for(auto & itToPut : toPut) 
     {
-      inpFileName_.push_back(itToPut->getUntrackedParameter<std::string>("inputFile"));
-      inpFileNameEE_.push_back(itToPut->getUntrackedParameter<std::string>("inputFileEE"));
-      objectName_.push_back(itToPut->getUntrackedParameter<std::string>("conditionType"));
-      since_.push_back(itToPut->getUntrackedParameter<unsigned int>("since"));
+      inpFileName_.push_back(itToPut.getUntrackedParameter<std::string>("inputFile"));
+      inpFileNameEE_.push_back(itToPut.getUntrackedParameter<std::string>("inputFileEE"));
+      objectName_.push_back(itToPut.getUntrackedParameter<std::string>("conditionType"));
+      since_.push_back(itToPut.getUntrackedParameter<unsigned int>("since"));
     }
 
   sm_constr_ = -1;

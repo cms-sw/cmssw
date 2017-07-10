@@ -263,36 +263,36 @@ void HTrackAssociator::fillEcal( const edm::Event& iEvent,
    std::set<DetId> crossedEcalIds =  ecalDetIdAssociator_.getCrossedDetIds(ecalIdsInRegion, ecalTrajectory);
    
    // add EcalRecHits
-   for(std::set<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++) {
-     std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(*itr);
+   for(auto crossedEcalId : crossedEcalIds) {
+     std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(crossedEcalId);
      if(hit != (*EBRecHits).end()) 
        info.crossedEcalRecHits.push_back(*hit);
      else  
-       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << crossedEcalId.rawId() <<"\n";
    }
-   for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++) {
-     std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(*itr);
+   for(auto itr : ecalIdsInACone) {
+     std::vector<EcalRecHit>::const_iterator hit = (*EBRecHits).find(itr);
      if(hit != (*EBRecHits).end()) {
        info.coneEcalRecHits.push_back(*hit);
      }
      else 
-       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr.rawId() <<"\n";
    }
    if (EERecHitCollectionLabels[1]==EBRecHitCollectionLabels[1])return;
-   for(std::set<DetId>::const_iterator itr=crossedEcalIds.begin(); itr!=crossedEcalIds.end();itr++) {
-     std::vector<EcalRecHit>::const_iterator hit = (*EERecHits).find(*itr);
+   for(auto crossedEcalId : crossedEcalIds) {
+     std::vector<EcalRecHit>::const_iterator hit = (*EERecHits).find(crossedEcalId);
      if(hit != (*EERecHits).end()) 
        info.crossedEcalRecHits.push_back(*hit);
      else  
-       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << crossedEcalId.rawId() <<"\n";
    }
-   for(std::set<DetId>::const_iterator itr=ecalIdsInACone.begin(); itr!=ecalIdsInACone.end();itr++) {
-     std::vector<EcalRecHit>::const_iterator hit = (*EERecHits).find(*itr);
+   for(auto itr : ecalIdsInACone) {
+     std::vector<EcalRecHit>::const_iterator hit = (*EERecHits).find(itr);
      if(hit != (*EERecHits).end()) {
        info.coneEcalRecHits.push_back(*hit);
      }
      else 
-       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+       LogTrace("HTrackAssociator::fillEcal") << "EcalRecHit is not found for DetId: " << itr.rawId() <<"\n";
    }
 }
 
@@ -380,20 +380,18 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 //   std::cout<<" Number of towers in the region "<<caloTowerIdsInRegion.size()<<" idR= "<<idR<<std::endl;
    
    // add CaloTowers
-   for(std::set<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
+   for(auto id : crossedCaloTowerIds)
      {
-	DetId id(*itr);
-	CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
+		CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
 	else
 	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
-   for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
+   for(auto id : caloTowerIdsInACone)
      {
-	DetId id(*itr);
-	CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
+		CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
 	if(tower != (*caloTowers).end()) {
 	  info.coneTowers.push_back(*tower);
         }
@@ -401,9 +399,8 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
 	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
-   for(std::set<DetId>::const_iterator itr=caloTowerIdsInBox.begin(); itr!=caloTowerIdsInBox.end();itr++)
+   for(auto id : caloTowerIdsInBox)
      {
-        DetId id(*itr);
         CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
         if(tower != (*caloTowers).end()) {
           info.boxTowers.push_back(*tower);
@@ -412,10 +409,9 @@ void HTrackAssociator::fillCaloTowers( const edm::Event& iEvent,
           LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
    
-   for(std::set<DetId>::const_iterator itr=caloTowerIdsInRegion.begin(); itr!=caloTowerIdsInRegion.end();itr++)
+   for(auto id : caloTowerIdsInRegion)
      {
-	DetId id(*itr);
-	CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
+		CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
 	if(tower != (*caloTowers).end()) {
 	  info.regionTowers.push_back(*tower);
         }
@@ -475,33 +471,33 @@ void HTrackAssociator::fillHcal( const edm::Event& iEvent,
   hcalIdsInBox = hcalDetIdAssociator_.getDetIdsInACone(crossedHcalIds, hcalTrajectory, -1.);
 
 // add HcalRecHits
-  for(std::set<DetId>::const_iterator itr=crossedHcalIds.begin(); itr!=crossedHcalIds.end();itr++) {
-    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
+  for(auto crossedHcalId : crossedHcalIds) {
+    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(crossedHcalId);
     if(hit != (*HBHERecHits).end())
       info.crossedHcalRecHits.push_back(*hit);
     else
-      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << crossedHcalId.rawId() <<"\n";
   }
-  for(std::set<DetId>::const_iterator itr=hcalIdsInACone.begin(); itr!=hcalIdsInACone.end();itr++) {
-    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
+  for(auto itr : hcalIdsInACone) {
+    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(itr);
     if(hit != (*HBHERecHits).end())
       info.coneHcalRecHits.push_back(*hit);
     else
-      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr.rawId() <<"\n";
   }
-  for(std::set<DetId>::const_iterator itr=hcalIdsInBox.begin(); itr!=hcalIdsInBox.end();itr++) {
-    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
+  for(auto itr : hcalIdsInBox) {
+    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(itr);
     if(hit != (*HBHERecHits).end())
       info.boxHcalRecHits.push_back(*hit);
     else
-      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr.rawId() <<"\n";
   }
-  for(std::set<DetId>::const_iterator itr=hcalIdsInRegion.begin(); itr!=hcalIdsInRegion.end();itr++) {
-    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(*itr);
+  for(auto itr : hcalIdsInRegion) {
+    std::vector<HBHERecHit>::const_iterator hit = (*HBHERecHits).find(itr);
     if(hit != (*HBHERecHits).end())
       info.regionHcalRecHits.push_back(*hit);
     else
-      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr->rawId() <<"\n";
+      LogTrace("HTrackAssociator::fillHcal") << "HcalRecHit is not found for DetId: " << itr.rawId() <<"\n";
   }
 }
 
@@ -560,20 +556,18 @@ void HTrackAssociator::fillHcalTowers( const edm::Event& iEvent,
    caloTowerIdsInBox = caloDetIdAssociator_.getDetIdsInACone(crossedCaloTowerIds, hcalTrajectory, -1.);
    
    // add CaloTowers
-   for(std::set<DetId>::const_iterator itr=crossedCaloTowerIds.begin(); itr!=crossedCaloTowerIds.end();itr++)
+   for(auto id : crossedCaloTowerIds)
      {
-	DetId id(*itr);
-	CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
+		CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
 	if(tower != (*caloTowers).end()) 
 	  info.crossedTowers.push_back(*tower);
 	else
 	  LogTrace("HTrackAssociator::fillEcal") << "CaloTower is not found for DetId: " << id.rawId() << "\n";
      }
 
-   for(std::set<DetId>::const_iterator itr=caloTowerIdsInACone.begin(); itr!=caloTowerIdsInACone.end();itr++)
+   for(auto id : caloTowerIdsInACone)
      {
-	DetId id(*itr);
-	CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
+		CaloTowerCollection::const_iterator tower = (*caloTowers).find(id);
 	if(tower != (*caloTowers).end()) 
 	  info.coneTowers.push_back(*tower);
 	else 

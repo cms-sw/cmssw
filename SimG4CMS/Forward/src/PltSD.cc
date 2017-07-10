@@ -53,10 +53,9 @@ oldVolume(0), lastId(0), lastTrack(0), eventno(0) {
     // Now attach the right detectors (LogicalVolumes) to me
     const std::vector<std::string>&  lvNames = clg.logicalNames(name);
     this->Register();
-    for (std::vector<std::string>::const_iterator it = lvNames.begin();
-         it != lvNames.end(); it++)  {
-        edm::LogInfo("PltSD")<< name << " attaching LV " << *it;
-        this->AssignSD(*it);
+    for (const auto & lvName : lvNames)  {
+        edm::LogInfo("PltSD")<< name << " attaching LV " << lvName;
+        this->AssignSD(lvName);
     }
     
     theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;

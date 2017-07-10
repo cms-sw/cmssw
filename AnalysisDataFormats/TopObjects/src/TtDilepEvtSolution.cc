@@ -136,8 +136,8 @@ reco::Particle TtDilepEvtSolution::getLeptNeg() const
 double TtDilepEvtSolution::getLRSignalEvtObsVal(unsigned int selObs) const 
 {
   double val = -999.;
-  for(size_t i=0; i<lrSignalEvtVarVal_.size(); i++){
-    if(lrSignalEvtVarVal_[i].first == selObs) val = lrSignalEvtVarVal_[i].second;
+  for(const auto & i : lrSignalEvtVarVal_){
+    if(i.first == selObs) val = i.second;
   }
   return val;
 }
@@ -159,5 +159,5 @@ void TtDilepEvtSolution::setGenEvt(const edm::Handle<TtGenEvent>& aGenEvt) {
 void TtDilepEvtSolution::setLRSignalEvtObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrSignalEvtVarVal_.clear();
-  for(size_t ise = 0; ise<varval.size(); ise++) lrSignalEvtVarVal_.push_back(varval[ise]);
+  for(const auto & ise : varval) lrSignalEvtVarVal_.push_back(ise);
 }

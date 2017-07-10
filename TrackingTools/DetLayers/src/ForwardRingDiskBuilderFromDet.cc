@@ -38,8 +38,7 @@ ForwardRingDiskBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets
   float rmax(rmin); 
   float zmin((**(dets.begin())).surface().position().z());
   float zmax(zmin);
-  for (vector<const GeomDet*>::const_iterator idet=dets.begin();
-       idet != dets.end(); idet++) {
+  for (auto det : dets) {
     
     /* ---- original implementation. Is it obsolete?
     vector<DetUnit*> detUnits = (**idet).detUnits();
@@ -49,7 +48,7 @@ ForwardRingDiskBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets
     dynamic_cast<const Plane&>((**detu).surface()));
     }
     ----- */
-    vector<GlobalPoint> corners = BoundingBox().corners( (**idet).specificSurface() );
+    vector<GlobalPoint> corners = BoundingBox().corners( (*det).specificSurface() );
     for (vector<GlobalPoint>::const_iterator i=corners.begin();
 	 i!=corners.end(); i++) {
       float r = i->perp();
@@ -63,13 +62,13 @@ ForwardRingDiskBuilderFromDet::computeBounds( const vector<const GeomDet*>& dets
     // det +/- length/2, since the min (max) radius for typical fw
     // dets is reached there
 
-    float rdet  = (**idet).position().perp();
-    float len   = (**idet).surface().bounds().length();
-    float width = (**idet).surface().bounds().width();
+    float rdet  = (*det).position().perp();
+    float len   = (*det).surface().bounds().length();
+    float width = (*det).surface().bounds().width();
 
-    GlobalVector xAxis = (**idet).toGlobal(LocalVector(1,0,0));
-    GlobalVector yAxis = (**idet).toGlobal(LocalVector(0,1,0));
-    GlobalVector perpDir = GlobalVector( (**idet).position() - GlobalPoint(0,0,(**idet).position().z()) );
+    GlobalVector xAxis = (*det).toGlobal(LocalVector(1,0,0));
+    GlobalVector yAxis = (*det).toGlobal(LocalVector(0,1,0));
+    GlobalVector perpDir = GlobalVector( (*det).position() - GlobalPoint(0,0,(*det).position().z()) );
 
     double xAxisCos = xAxis.unit().dot(perpDir.unit());
     double yAxisCos = yAxis.unit().dot(perpDir.unit());

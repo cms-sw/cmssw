@@ -204,9 +204,8 @@ public:
   ConstRecHitContainer recHits() const {
     ConstRecHitContainer hits;
     hits.reserve(theData.size());
-    for (Trajectory::DataContainer::const_iterator itm
-           = theData.begin(); itm != theData.end(); itm++){
-      hits.push_back((*itm).recHit());
+    for (const auto & itm : theData){
+      hits.push_back(itm.recHit());
     }
     return hits;
   }

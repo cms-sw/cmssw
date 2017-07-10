@@ -14,9 +14,9 @@ signal_ stdout_sig; // signal for printing into stdout, should contain 0s in fir
 void sim_lib_init()
 {
 	// reserve storage for temp signals
-	for (int i = 0; i < max_temp_sig; i++)
+	for (auto & i : stemp)
 	{
-		stemp[i].r = stemp[i].rc = stemp[i].rt = new ull[max_bits/sull];
+		i.r = i.rc = i.rt = new ull[max_bits/sull];
 	}
 	// initialize stdout_sig
 	stdout_sig.r = stdout_sig.rc = stdout_sig.rt = new ull[3];

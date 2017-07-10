@@ -87,8 +87,8 @@ TBPLayer::~TBPLayer(){}
 BoundCylinder* TBPLayer::cylinder( const vector<const GeometricSearchDet*>& rods) const 
 {
   vector<const GeomDet*> tmp;
-  for (vector<const GeometricSearchDet*>::const_iterator it=rods.begin(); it!=rods.end(); it++) {    
-    tmp.insert(tmp.end(),(*it)->basicComponents().begin(),(*it)->basicComponents().end());
+  for (auto rod : rods) {    
+    tmp.insert(tmp.end(),rod->basicComponents().begin(),rod->basicComponents().end());
   }
   return CylinderBuilderFromDet()( tmp.begin(), tmp.end());
 }

@@ -114,33 +114,32 @@ void TestTrackAssociator::analyze( const edm::Event& iEvent, const edm::EventSet
       
    // loop 
    LogVerbatim("TrackAssociator") << "Number of muons found in the event: " << muons->size() ;
-   for(reco::MuonCollection::const_iterator muon = muons->begin(); 
-       muon != muons->end(); ++muon){
+   for(const auto & muon : *muons){
       
       // skip low Pt tracks
-      if (muon->pt() < 2) {
-	 LogVerbatim("TrackAssociator") << "Skipped low Pt muon (Pt: " << muon->pt() << ")" ;
+      if (muon.pt() < 2) {
+	 LogVerbatim("TrackAssociator") << "Skipped low Pt muon (Pt: " << muon.pt() << ")" ;
 	 continue;
       }
       
       // skip tracks originated away from the IP
-      if (fabs(muon->vertex().rho()) > 50) {
-	 LogVerbatim("TrackAssociator") << "Skipped track with large impact parameter: " <<muon->vertex().rho();
+      if (fabs(muon.vertex().rho()) > 50) {
+	 LogVerbatim("TrackAssociator") << "Skipped track with large impact parameter: " <<muon.vertex().rho();
 	 continue;
       }
       
       LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " 
-	<< muon->pt() << " , " << muon->eta() << " , " << muon->phi() ;
+	<< muon.pt() << " , " << muon.eta() << " , " << muon.phi() ;
       
       TrackDetMatchInfo info;
-      if (muon->innerTrack().isAvailable()) 
-	info = trackAssociator_.associate(iEvent, iSetup, *muon->innerTrack(), parameters_);
+      if (muon.innerTrack().isAvailable()) 
+	info = trackAssociator_.associate(iEvent, iSetup, *muon.innerTrack(), parameters_);
       else {
-	 if (!muon->outerTrack().isAvailable()) {
+	 if (!muon.outerTrack().isAvailable()) {
 	    LogVerbatim("TrackAssociator") << "No refernced tracks are available, skim the muon";
 	    continue;
 	 }
-	 info = trackAssociator_.associate(iEvent, iSetup, *muon->outerTrack(), parameters_);
+	 info = trackAssociator_.associate(iEvent, iSetup, *muon.outerTrack(), parameters_);
       }
 	   
       LogVerbatim("TrackAssociator") << "===========================================================================" ;

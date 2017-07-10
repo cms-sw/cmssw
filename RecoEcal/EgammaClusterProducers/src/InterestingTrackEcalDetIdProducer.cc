@@ -124,13 +124,13 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
    iEvent.getByToken(trackCollectionToken_,tracks);
 
    // Loop over tracks
-   for(reco::TrackCollection::const_iterator tkItr = tracks->begin(); tkItr != tracks->end(); ++tkItr)
+   for(const auto & tkItr : *tracks)
    {
-     if(tkItr->pt() < minTrackPt_)
+     if(tkItr.pt() < minTrackPt_)
        continue;
 
      TrackDetMatchInfo info = trackAssociator_.associate( iEvent, iSetup, 
-         trackAssociator_.getFreeTrajectoryState(iSetup, *tkItr),
+         trackAssociator_.getFreeTrajectoryState(iSetup, tkItr),
          trackAssociatorParameters_ );
 
      DetId centerId = info.findMaxDeposition(TrackDetMatchInfo::EcalRecHits);
@@ -141,11 +141,11 @@ InterestingTrackEcalDetIdProducer::produce(edm::Event& iEvent, const edm::EventS
      // Find 5x5 around max
      const CaloSubdetectorTopology* topology = caloTopology_->getSubdetectorTopology(DetId::Ecal,centerId.subdetId());
      const std::vector<DetId>& ids = topology->getWindow(centerId, 5, 5);
-     for(std::vector<DetId>::const_iterator idItr = ids.begin(); idItr != ids.end(); ++idItr)
+     for(auto id : ids)
      {
-       if(std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), *idItr)
+       if(std::find(interestingDetIdCollection->begin(), interestingDetIdCollection->end(), id)
            == interestingDetIdCollection->end())
-         interestingDetIdCollection->push_back(*idItr);
+         interestingDetIdCollection->push_back(id);
      }
 
    }

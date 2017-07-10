@@ -56,23 +56,23 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
 
   unsigned int count = 0;
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos = reader.getAllData();
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++) {
+  for(const auto & it : DetInfos) {
 
     // Find if this DetId is in the input tag and if so how many are the Apvs for which it contains information
-    SiStripApvGain::Range inputRange(inputApvGain->getRange(it->first));
+    SiStripApvGain::Range inputRange(inputApvGain->getRange(it.first));
 
     //Generate Noises for det detid
     SiStripNoises::InputVector theSiStripVector;
     float noise = 0.;
-    uint32_t detId = it->first;
+    uint32_t detId = it.first;
     SiStripFakeAPVParameters::index sl =  SiStripFakeAPVParameters::getIndex(tTopo, detId);
-    unsigned short nApvs = it->second.nApvs;
+    unsigned short nApvs = it.second.nApvs;
 
     if(stripLengthMode_) {
       // Use strip length
       double linearSlope = noiseStripLengthLinearSlope.get(sl);
       double linearQuote = noiseStripLengthLinearQuote.get(sl);
-      double stripLength = it->second.stripLength;
+      double stripLength = it.second.stripLength;
       for( unsigned short j=0; j<nApvs; ++j ) {
 
         double gain = inputApvGain->getApvGain(j, inputRange);
@@ -102,7 +102,7 @@ void SiStripNoiseNormalizedWithApvGainBuilder::analyze(const edm::Event& evt, co
     }
     ++count;
     
-    if ( ! obj->put(it->first,theSiStripVector) ) {
+    if ( ! obj->put(it.first,theSiStripVector) ) {
       edm::LogError("SiStripNoisesFakeESSource::produce ")<<" detid already exists"<<std::endl;
     }
   }

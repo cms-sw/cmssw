@@ -30,10 +30,10 @@ void SiStripBadFiberBuilder::algoAnalyze(const edm::Event & event, const edm::Ev
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
 
   std::stringstream ss;
-  for(Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end(); ++iBadComponent ) {
+  for(auto & iBadComponent : BadComponentList_) {
     
-    uint32_t BadModule_ = iBadComponent->getParameter<uint32_t>("BadModule");
-    std::vector<uint32_t> BadApvList_ = iBadComponent->getParameter<std::vector<uint32_t> >("BadApvList");
+    uint32_t BadModule_ = iBadComponent.getParameter<uint32_t>("BadModule");
+    std::vector<uint32_t> BadApvList_ = iBadComponent.getParameter<std::vector<uint32_t> >("BadApvList");
 
     std::vector<unsigned int> theSiStripVector;
     

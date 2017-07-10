@@ -348,8 +348,8 @@ void ECalSD::initMap(G4String sd, const DDCompactView & cpv) {
   const G4LogicalVolumeStore *  lvs = G4LogicalVolumeStore::GetInstance();
   std::vector<G4LogicalVolume *>::const_iterator lvcite;
   std::map<std::string, G4LogicalVolume *> nameMap;
-  for (auto lvi = lvs->begin(), lve = lvs->end(); lvi != lve; ++lvi)
-    nameMap.insert(std::make_pair((*lvi)->GetName(), *lvi));
+  for (auto lv : *lvs)
+    nameMap.insert(std::make_pair(lv->GetName(), lv));
 
   bool dodet=true;
   while (dodet) {

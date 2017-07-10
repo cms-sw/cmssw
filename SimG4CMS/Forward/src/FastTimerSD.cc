@@ -72,10 +72,9 @@ FastTimerSD::FastTimerSD(std::string name, const DDCompactView & cpv,
 
   this->Register();
 
-  for (std::vector<std::string>::iterator it=lvNames.begin();  
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("FastTimerSim") << "FastTimerSD : Assigns SD to LV " << (*it);
+  for (auto & lvName : lvNames) {
+    this->AssignSD(lvName);
+    edm::LogInfo("FastTimerSim") << "FastTimerSD : Assigns SD to LV " << lvName;
   }
     
   std::string attribute = "ReadOutName";

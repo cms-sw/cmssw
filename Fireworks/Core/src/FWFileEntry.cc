@@ -30,8 +30,8 @@ FWFileEntry::FWFileEntry(const std::string& name, bool checkVersion) :
 
 FWFileEntry::~FWFileEntry()
 {
-   for(std::list<Filter*>::iterator i = m_filterEntries.begin(); i != m_filterEntries.end(); ++i)
-      delete (*i)->m_eventList;
+   for(auto & m_filterEntrie : m_filterEntries)
+      delete m_filterEntrie->m_eventList;
 
    delete m_globalEventList;
 }
@@ -201,9 +201,9 @@ int FWFileEntry::previousSelectedEvent(int tree_entry)
 //______________________________________________________________________________
 bool FWFileEntry::hasActiveFilters()
 {
-   for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it)
+   for (auto & m_filterEntrie : m_filterEntries)
    {
-      if ((*it)->m_selector->m_enabled)
+      if (m_filterEntrie->m_selector->m_enabled)
          return true;
    }
 
@@ -221,25 +221,25 @@ void FWFileEntry::updateFilters(const FWEventItemsManager* eiMng, bool globalOR)
    else
       m_globalEventList = new FWTEventList;
 
-   for (std::list<Filter*>::iterator it = m_filterEntries.begin(); it != m_filterEntries.end(); ++it)
+   for (auto & m_filterEntrie : m_filterEntries)
    {
-      if ((*it)->m_selector->m_enabled && (*it)->m_needsUpdate)
+      if (m_filterEntrie->m_selector->m_enabled && m_filterEntrie->m_needsUpdate)
       {
-         runFilter(*it, eiMng);
+         runFilter(m_filterEntrie, eiMng);
       }
       // Need to re-check if enabled after filtering as it can be set to false
       // in runFilter().
-      if ((*it)->m_selector->m_enabled)
+      if (m_filterEntrie->m_selector->m_enabled)
       {
-         if ((*it)->hasSelectedEvents())
+         if (m_filterEntrie->hasSelectedEvents())
          {
             if (globalOR || m_globalEventList->GetN() == 0)
             {
-               m_globalEventList->Add((*it)->m_eventList);
+               m_globalEventList->Add(m_filterEntrie->m_eventList);
             }
             else
             {
-               m_globalEventList->Intersect((*it)->m_eventList);
+               m_globalEventList->Intersect(m_filterEntrie->m_eventList);
             }
          }
          else if (!globalOR)
@@ -267,10 +267,9 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
    // parse selection for known Fireworks expressions
    std::string interpretedSelection = filter->m_selector->m_expression;
 
-   for (FWEventItemsManager::const_iterator i = eiMng->begin(),
-           end = eiMng->end(); i != end; ++i)
+   for (auto i : *eiMng)
    {
-      FWEventItem *item = *i;
+      FWEventItem *item = i;
       if (item == nullptr)
          continue;
       // FIXME: hack to get full branch name filled
@@ -281,7 +280,7 @@ void FWFileEntry::runFilter(Filter* filter, const FWEventItemsManager* eiMng)
          item->setEvent(nullptr);
       }
 
-      boost::regex re(std::string("\\$") + (*i)->name());
+      boost::regex re(std::string("\\$") + i->name());
 
       if (boost::regex_search(interpretedSelection, re))
       {
