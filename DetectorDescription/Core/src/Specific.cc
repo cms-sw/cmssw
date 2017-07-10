@@ -66,7 +66,7 @@ namespace DDI {
                                     std::vector<DDPartSelection> & selv)
    {
       if (!selv.size()) { // create one, no entry yet!
-         selv.push_back(DDPartSelection());
+         selv.emplace_back();
       }
       typedef std::vector<DDLogicalPart>::size_type lpv_sizetype;
       typedef std::vector<DDPartSelection>::size_type ps_sizetype;

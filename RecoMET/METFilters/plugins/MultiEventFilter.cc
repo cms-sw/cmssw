@@ -52,7 +52,7 @@ MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig)
       throw edm::Exception(edm::errors::Configuration) << "Incorrect event specification";
       continue;
     }
-    events_.push_back(Event(atoi(tokens[0].c_str()), atoi(tokens[1].c_str()), atoi(tokens[2].c_str())));
+    events_.emplace_back(atoi(tokens[0].c_str()), atoi(tokens[1].c_str()), atoi(tokens[2].c_str()));
   }
 
   std::string line;
@@ -62,7 +62,7 @@ MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig)
       throw edm::Exception(edm::errors::Configuration) << "Incorrect event specification";
       continue;
     }
-    events_.push_back(Event(atoi(tokens[0].c_str()), atoi(tokens[1].c_str()), atoi(tokens[2].c_str())));
+    events_.emplace_back(atoi(tokens[0].c_str()), atoi(tokens[1].c_str()), atoi(tokens[2].c_str()));
   }
 
   produces<bool>();

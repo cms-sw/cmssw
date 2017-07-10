@@ -58,7 +58,7 @@ void JetTracksAssociationDR::createTrackRefs( TrackRefs& output,
   output.reserve( input->size() );
   for ( unsigned ii = 0; ii < input->size(); ++ii ) { 
     if ( (*input)[ii].quality( quality ) ) { 
-      output.push_back( reco::TrackRef( input, ii ) );
+      output.emplace_back( input, ii );
     }
   }
 

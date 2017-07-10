@@ -89,7 +89,7 @@ bool SiStripFEDErrorsDQM::readBadAPVs(){
   std::vector<std::pair<std::string,unsigned int> > lFedsFolder;
   //for FED errors, use summary folder and fedId=0
   //do not put a slash or "goToDir" won't work...
-  lFedsFolder.push_back(std::pair<std::string,unsigned int>("FedMonitoringSummary",0));
+  lFedsFolder.emplace_back("FedMonitoringSummary",0);
 
   //for FE/channel/APV errors, they are written in a folder per FED, 
   //if there was at least one error.
@@ -104,7 +104,7 @@ bool SiStripFEDErrorsDQM::readBadAPVs(){
     //if (!dqmStore_->dirExists(lFedDir.str())) continue;
     else {
       if (debug_) LogTrace("SiStripFEDErrorsDQM") << "[SiStripFEDErrorsDQM::readBadAPVs] - Errors detected for FED " << ifed << std::endl;
-      lFedsFolder.push_back(std::pair<std::string,unsigned int>(lFedDir.str(),ifed));
+      lFedsFolder.emplace_back(lFedDir.str(),ifed);
     }
     dqmStore_->goUp();
   }

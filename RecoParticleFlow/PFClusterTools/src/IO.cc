@@ -61,7 +61,7 @@ bool IO::ParseFile(const char* filename) {
 
     lin.get(data,sLinesize);
     
-    fAllLines.push_back(pair<string, string>(tag, data));
+    fAllLines.emplace_back(tag, data);
   } while(in.good());
   
   if(in.eof()) {

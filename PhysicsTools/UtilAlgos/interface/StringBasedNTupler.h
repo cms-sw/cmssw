@@ -232,7 +232,7 @@ class StringBasedNTupler : public NTupler {
 	std::string branchAlias=branches[b]+"_"+leaves[l];
 
 	//add a branch manager for this expression on this collection
-	branches_[maxName].push_back(TreeBranch(className, src, leave_expr, order, selection, maxName, branchAlias));
+	branches_[maxName].emplace_back(className, src, leave_expr, order, selection, maxName, branchAlias);
       }//loop the provided leaves
 
       //do it once with configuration [vstring vars = { "x:x" ,... } ] where ":"=separator
@@ -253,7 +253,7 @@ class StringBasedNTupler : public NTupler {
 	  std::string branchAlias=branches[b]+"_"+name;
 
 	  //add a branch manager for this expression on this collection
-	  branches_[maxName].push_back(TreeBranch(className, src, expr, order, selection, maxName, branchAlias));
+	  branches_[maxName].emplace_back(className, src, expr, order, selection, maxName, branchAlias);
 	}
       }
 

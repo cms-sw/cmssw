@@ -392,7 +392,7 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
      
       std::vector<TEveVector> hc;
       for (int k = 0; k < 4; ++k) {
-         hc.push_back(TEveVector(corners[k].eta(), corners[k].phi(), 0));
+         hc.emplace_back(corners[k].eta(), corners[k].phi(), 0);
          // ps->SetNextPoint(corners[k].eta(),corners[k].phi(),0 ); //debug
       }
 
@@ -410,7 +410,7 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
 
       std::vector<TEveVector> radialVectors;
       for (int k = 0; k < 4; ++k) 
-         radialVectors.push_back(TEveVector(hc[k] - centerOfGravity));
+         radialVectors.emplace_back(hc[k] - centerOfGravity);
 
       float factor = 1;
       if (m_plotEt) {
@@ -424,7 +424,7 @@ void FWPFCandidateDetailView::addHits( const std::vector<reco::PFRecHit> *hits)
       std::vector<TEveVector> scaledCorners;
       for (int k = 0; k < 4; ++k) {
          radialVectors[k] *= factor;
-         scaledCorners.push_back(TEveVector(radialVectors[k] + centerOfGravity));
+         scaledCorners.emplace_back(radialVectors[k] + centerOfGravity);
       }
 
       TEveStraightLineSet* ls = ( TEveStraightLineSet*)m_eventList->FindChild(Form("%d_rechit", it->depth() ));

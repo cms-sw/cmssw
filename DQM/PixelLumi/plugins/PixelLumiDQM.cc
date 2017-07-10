@@ -391,8 +391,8 @@ PixelLumiDQM::bookHistograms(DQMStore::IBooker & ibooker,
     
     // Pixel cluster positions in the endcaps (x, y).
     std::vector<std::string> sides;
-    sides.push_back("M");
-    sides.push_back("P");
+    sides.emplace_back("M");
+    sides.emplace_back("P");
     for (std::vector<std::string>::const_iterator side = sides.begin();
          side != sides.end(); ++side) {
       for (size_t i = 1; i <= kNumDisks; ++i) {

@@ -116,7 +116,7 @@ seedPFClustersFromTopo(const reco::PFCluster& topo,
   const auto& recHitFractions = topo.recHitFractions();
   for( const auto& rhf : recHitFractions ) {
     if( !seedable[rhf.recHitRef().key()] ) continue;
-    initialPFClusters.push_back(reco::PFCluster());
+    initialPFClusters.emplace_back();
     reco::PFCluster& current = initialPFClusters.back();
     current.addRecHitFraction(rhf);
     current.setSeed(rhf.recHitRef()->detId());   

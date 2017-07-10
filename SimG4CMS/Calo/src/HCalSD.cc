@@ -704,7 +704,7 @@ std::vector<G4String> HCalSD::getNames(DDFilteredView& fv) {
         break;
       }
     }
-    if (ok) tmp.push_back(log.name().name());
+    if (ok) tmp.emplace_back(log.name().name());
     dodet = fv.next();
   }
   return tmp;

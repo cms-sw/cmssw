@@ -1215,7 +1215,7 @@ Value::getMemberNames() const
    ObjectValues::const_iterator it = value_.map_->begin();
    ObjectValues::const_iterator itEnd = value_.map_->end();
    for ( ; it != itEnd; ++it )
-      members.push_back( std::string( (*it).first.c_str() ) );
+      members.emplace_back( (*it).first.c_str() );
 #else
    ValueInternalMap::IteratorState it;
    ValueInternalMap::IteratorState itEnd;
@@ -1576,7 +1576,7 @@ Path::makePath( const std::string &path,
             Value::UInt index = 0;
             for ( ; current != end && *current >= '0'  &&  *current <= '9'; ++current )
                index = index * 10 + Value::UInt(*current - '0');
-            args_.push_back( index );
+            args_.emplace_back(index );
          }
          if ( current == end  ||  *current++ != ']' )
             invalidPath( path, int(current - path.c_str()) );
@@ -1595,7 +1595,7 @@ Path::makePath( const std::string &path,
          const char *beginName = current;
          while ( current != end  &&  !strchr( "[.", *current ) )
             ++current;
-         args_.push_back( std::string( beginName, current ) );
+         args_.emplace_back(std::string( beginName, current ) );
       }
    }
 }

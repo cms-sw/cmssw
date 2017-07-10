@@ -120,7 +120,7 @@ L1TEfficiencyHarvesting::L1TEfficiencyHarvesting(const ParameterSet & ps) :
   for (auto plotConfig : ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")) {
     vector < string > plots = plotConfig.getUntrackedParameter < vector < string >> ("plots");
     for (auto plot : plots) {
-      plotHandlers_.push_back(L1TEfficiencyPlotHandler(plotConfig, plot));
+      plotHandlers_.emplace_back(plotConfig, plot);
     }
   }
 }

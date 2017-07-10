@@ -327,9 +327,9 @@ OMTFinput OMTFinputMaker::processRPC(const RPCDigiCollection *rpcDigis,
     typedef std::pair<unsigned int, unsigned int> Cluster;
     std::vector<Cluster> clusters;
     for(auto & digi: digisCopy) {
-      if(clusters.empty()) clusters.push_back(Cluster(digi.strip(),digi.strip()));
+      if(clusters.empty()) clusters.emplace_back(digi.strip(),digi.strip());
       else if (digi.strip() - clusters.back().second == 1) clusters.back().second = digi.strip();
-      else if (digi.strip() - clusters.back().second  > 1) clusters.push_back(Cluster(digi.strip(),digi.strip()));
+      else if (digi.strip() - clusters.back().second  > 1) clusters.emplace_back(digi.strip(),digi.strip());
     }
 
     for (auto & cluster: clusters) {

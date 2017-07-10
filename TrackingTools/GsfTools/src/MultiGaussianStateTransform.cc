@@ -77,9 +77,9 @@ MultiGaussianStateTransform::multiState1D (const std::vector<MultiGaussianState<
   MultiGaussianState1D::SingleState1dContainer components;
   components.reserve(nc);
   for ( unsigned int i=0; i<nc; ++i ) {
-    components.push_back(SingleGaussianState1D(parameters[i](index),
+    components.emplace_back(parameters[i](index),
 					       covariances[i](index,index),
-					       weights[i]));
+					       weights[i]);
   }
   return MultiGaussianState1D(components);
 }
@@ -114,9 +114,9 @@ MultiGaussianStateTransform::multiState1D (const TrajectoryStateOnSurface tsos,
   components.reserve(tsosComponents.size());
   for (auto i=tsosComponents.begin();
 	i!=tsosComponents.end(); ++i ) {
-    components.push_back(SingleGaussianState1D(i->localParameters().vector()(index),
+    components.emplace_back(i->localParameters().vector()(index),
 					       i->localError().matrix()(index,index),
-					       i->weight()));
+					       i->weight());
   }
   return MultiGaussianState1D(components);
 }

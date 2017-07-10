@@ -68,7 +68,7 @@ void MatchJet::matchCollections(
 		if (jet.energy() < threshold)
 			continue;
 
-		corrRefJets.push_back(Vector(jet.px(), jet.py(), jet.pz()));
+		corrRefJets.emplace_back(jet.px(), jet.py(), jet.pz());
 		refJets.push_back(jetRef);
 	}
 
@@ -81,7 +81,7 @@ void MatchJet::matchCollections(
 		if (jet.energy() < threshold)
 			continue;
 
-		corrRecJets.push_back(Vector(jet.px(), jet.py(), jet.pz()));
+		corrRecJets.emplace_back(jet.px(), jet.py(), jet.pz());
 		recJets.push_back(jetRec);
 	}
 

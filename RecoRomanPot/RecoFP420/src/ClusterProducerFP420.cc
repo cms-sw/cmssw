@@ -117,7 +117,7 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnit( HDigiFP420Ite
       if (i!=ibeg && i->channel()-(i-1)->channel()!=1){
 	//digits: *(i-1) and *i   are not consecutive(we asked !=1-> it means 2...),so  create an equivalent number of Digis with zero amp
 	for (int j=(i-1)->channel()+1;j<i->channel();++j){
-	  cluster_digis.push_back(HDigiFP420(j,0)); //if electrode bad or under threshold set HDigiFP420.adc_=0  
+	  cluster_digis.emplace_back(j,0); //if electrode bad or under threshold set HDigiFP420.adc_=0  
 	}
       }
       //
@@ -129,7 +129,7 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnit( HDigiFP420Ite
         sigmaNoise2 += channelNoise*channelNoise; // 
         cluster_digis.push_back(*i);// put into cluster_digis good i info
       } else {
-	cluster_digis.push_back(HDigiFP420(i->channel(),0)); //if electrode bad or under threshold set HDigiFP420.adc_=0
+	cluster_digis.emplace_back(i->channel(),0); //if electrode bad or under threshold set HDigiFP420.adc_=0
       }
       //
     }//for i++
@@ -139,9 +139,9 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnit( HDigiFP420Ite
     float err;
     unsigned int xytype=2;// it can be even =1,although we are working with =2(Xtypes of planes)
     if (charge >= static_cast<int>( clusterThresholdInNoiseSigma()*sigmaNoise)) {
-      rhits.push_back( ClusterFP420( detid, xytype, ClusterFP420::HDigiFP420Range( cluster_digis.begin(),
+      rhits.emplace_back( detid, xytype, ClusterFP420::HDigiFP420Range( cluster_digis.begin(),
 									   cluster_digis.end()), 
-				     cog, err));
+				     cog, err);
       //      std::cout << "Looking at cog and err  : cog " << cog << " err " << err  << std::endl;
     }
     ibeg = iend+1;
@@ -325,7 +325,7 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
 	  if(verb>2){
 	    std::cout << "not consecutive digis: set HDigiFP420.adc_=0 : j = " << j  << std::endl;
 	  }
-	  cluster_digis.push_back(HDigiFP420(j,0)); //if not consecutive digis set HDigiFP420.adc_=0  
+	  cluster_digis.emplace_back(j,0); //if not consecutive digis set HDigiFP420.adc_=0  
 	}//for
       }//if
       
@@ -338,7 +338,7 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
 	  std::cout << "put into cluster_digis good i info: i->channel() = " << i->channel()  << std::endl;
 	}
       } else {
-	cluster_digis.push_back(HDigiFP420(i->channel(),0)); //if electrode bad or under threshold set HDigiFP420.adc_=0
+	cluster_digis.emplace_back(i->channel(),0); //if electrode bad or under threshold set HDigiFP420.adc_=0
 	if(verb>2){
 	  std::cout << "else if electrode bad or under threshold set HDigiFP420.adc_=0: i->channel() = " << i->channel()  << std::endl;
 	}
@@ -353,9 +353,9 @@ std::vector<ClusterFP420> ClusterProducerFP420::clusterizeDetUnitPixels( HDigiFP
     float cog;
     float err;
     if (charge >= static_cast<int>( clusterThresholdInNoiseSigma()*sigmaNoise)) {
-      rhits.push_back( ClusterFP420( detid, xytype, ClusterFP420::HDigiFP420Range( cluster_digis.begin(),
+      rhits.emplace_back( detid, xytype, ClusterFP420::HDigiFP420Range( cluster_digis.begin(),
 										  cluster_digis.end()), 
-				     cog, err));
+				     cog, err);
       if(verb>2){
 	std::cout << "Looking at cog and err  : cog " << cog << " err " << err  << std::endl;
 	std::cout << "=========================================================================== " << std::endl;

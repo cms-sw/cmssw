@@ -518,7 +518,7 @@ TauDQMHistPlotter::cfgEntryDrawJob::cfgEntryDrawJob(const std::string& name,
 
   for ( plotDefList::const_iterator it = plotDefList.begin();
 	it != plotDefList.end(); ++it ) {
-    plots_.push_back(plotDefEntry(*it));
+    plots_.emplace_back(*it);
   }
   
   title_ = title;
@@ -530,7 +530,7 @@ TauDQMHistPlotter::cfgEntryDrawJob::cfgEntryDrawJob(const std::string& name,
 
   for ( vstring::const_iterator it = labels.begin();
 	it != labels.end(); ++it ) {
-    labels_.push_back(std::string(*it));
+    labels_.emplace_back(*it);
   }
 
   if ( verbosity ) print();
@@ -670,7 +670,7 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
 	      dqmMonitorElement != dqmMonitorElements.end(); ++dqmMonitorElement ) {
 	  bool stack_dqmMonitorElement = find_vstring(stack, *process);
 	  std::string drawOptionEntry = std::string(drawOptionSet).append(drawOptionSeparator).append(*process);
-	  plotDefMap[index].push_back(plotDefEntry(*dqmMonitorElement, drawOptionEntry, "", "", *process, stack_dqmMonitorElement));
+	  plotDefMap[index].emplace_back(*dqmMonitorElement, drawOptionEntry, "", "", *process, stack_dqmMonitorElement);
 	  ++index;
 	}
       }
@@ -705,7 +705,7 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
 	int index = 0;
 	for ( vstring::const_iterator dqmMonitorElement = dqmMonitorElements.begin();
 	      dqmMonitorElement != dqmMonitorElements.end(); ++dqmMonitorElement ) {
-	  plotDefMap[index].push_back(plotDefEntry(*dqmMonitorElement, drawOptionEntry, legendEntry, legendEntryErrorBand, process, false));
+	  plotDefMap[index].emplace_back(*dqmMonitorElement, drawOptionEntry, legendEntry, legendEntryErrorBand, process, false);
 	  ++index;
 	}
       }
@@ -788,8 +788,8 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
 	    std::string dqmMonitorElement_expanded = replace_string(dqmMonitorElement, parKeyword, *parameter, 1, 1, errorFlag);
 	    //std::cout << " dqmMonitorElement_expanded = " << dqmMonitorElement_expanded << std::endl;
 	    if ( !errorFlag ) {
-	      plot_expanded.push_back(plotDefEntry(dqmMonitorElement_expanded, entry->drawOptionEntry_, 
-						   entry->legendEntry_, entry->legendEntryErrorBand_, entry->process_, entry->doStack_));
+	      plot_expanded.emplace_back(dqmMonitorElement_expanded, entry->drawOptionEntry_, 
+						   entry->legendEntry_, entry->legendEntryErrorBand_, entry->process_, entry->doStack_);
 	    } else {
 	      cfgError_ = 1;
 	    }
@@ -804,12 +804,12 @@ TauDQMHistPlotter::TauDQMHistPlotter(const edm::ParameterSet& cfg)
 	  //std::cout << " yAxis_expanded = " << yAxis_expanded << std::endl;
 	  if ( errorFlag ) cfgError_ = 1;
 
-	  drawJobs_.push_back(cfgEntryDrawJob(std::string(*drawJobName).append(*parameter),
-					      plot_expanded, title_expanded, xAxis_expanded, yAxis_expanded, legend, labels));
+	  drawJobs_.emplace_back(std::string(*drawJobName).append(*parameter),
+					      plot_expanded, title_expanded, xAxis_expanded, yAxis_expanded, legend, labels);
 	}
       } else {
-	drawJobs_.push_back(cfgEntryDrawJob(*drawJobName, 
-					    plot->second, title, xAxis, yAxis, legend, labels));
+	drawJobs_.emplace_back(*drawJobName, 
+					    plot->second, title, xAxis, yAxis, legend, labels);
       }
     }
   }
@@ -991,7 +991,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 				    (drawOptionName_centralValue, cfgEntryDrawOption(drawOptionName_centralValue, drawOptionConfig_centralValue)));
 	plotDefEntry* plot_centralValue = new plotDefEntry(*plot);
 	plot_centralValue->drawOptionEntry_ = drawOptionName_centralValue;
-        allHistograms.push_back(histogram_drawOption_pair(histogram_centralValue, plot_centralValue));
+        allHistograms.emplace_back(histogram_centralValue, plot_centralValue);
 	histogramsToDelete.push_back(histogram_centralValue);
 	drawOptionsToDelete.push_back(plot_centralValue);
 
@@ -1014,7 +1014,7 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 	plotDefEntry* plot_ErrorBand = new plotDefEntry(*plot);
 	plot_ErrorBand->drawOptionEntry_ = drawOptionName_ErrorBand;
 	plot_ErrorBand->isErrorBand_ = true;
-        allHistograms.push_back(histogram_drawOption_pair(histogram_ErrorBand, plot_ErrorBand));
+        allHistograms.emplace_back(histogram_ErrorBand, plot_ErrorBand);
 	histogramsToDelete.push_back(histogram_ErrorBand);
 	drawOptionsToDelete.push_back(plot_ErrorBand);
       } else if ( plot->doStack_ ) {
@@ -1022,9 +1022,9 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
 	if ( stackedHistogram_sum ) stackedHistogram->Add(stackedHistogram_sum);
 	stackedHistogram_sum = stackedHistogram;
 	histogramsToDelete.push_back(stackedHistogram);
-	allHistograms.push_back(histogram_drawOption_pair(stackedHistogram, &(*plot)));
+	allHistograms.emplace_back(stackedHistogram, &(*plot));
       } else {	
-	allHistograms.push_back(histogram_drawOption_pair(histogram, &(*plot)));
+	allHistograms.emplace_back(histogram, &(*plot));
       }
     }
 
@@ -1087,16 +1087,16 @@ void TauDQMHistPlotter::endRun(const edm::Run& r, const edm::EventSetup& c)
       histogram->SetStats(false);
 
       if ( drawOption->isErrorBand_ ) {
-	smSumUncertaintyHistogramList.push_back(histoDrawEntry(histogram, drawOptionConfig->drawOption_.data()));
+	smSumUncertaintyHistogramList.emplace_back(histogram, drawOptionConfig->drawOption_.data());
       } else {
 	if ( processConfig->type_ == type_smMC ) {
-	  smProcessHistogramList.push_back(histoDrawEntry(histogram, drawOptionConfig->drawOption_.data()));
+	  smProcessHistogramList.emplace_back(histogram, drawOptionConfig->drawOption_.data());
 	} else if ( processConfig->type_ == type_bsmMC ) {
-	  bsmProcessHistogramList.push_back(histoDrawEntry(histogram, drawOptionConfig->drawOption_.data()));
+	  bsmProcessHistogramList.emplace_back(histogram, drawOptionConfig->drawOption_.data());
 	} else if ( processConfig->type_ == type_smSumMC ) {
-	  smSumHistogramList.push_back(histoDrawEntry(histogram, drawOptionConfig->drawOption_.data()));
+	  smSumHistogramList.emplace_back(histogram, drawOptionConfig->drawOption_.data());
 	} else if ( processConfig->type_ == type_Data ) {
-	  dataHistogramList.push_back(histoDrawEntry(histogram, drawOptionConfig->drawOption_.data()));
+	  dataHistogramList.emplace_back(histogram, drawOptionConfig->drawOption_.data());
 	} 
       }
 

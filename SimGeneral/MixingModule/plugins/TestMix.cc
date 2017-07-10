@@ -39,11 +39,11 @@ TestMix::TestMix(const edm::ParameterSet& iConfig):
 {
   std::cout << "Constructed testMix , level "<<level_<<std::endl;
 
-  track_containers_.push_back("g4SimHitsTrackerHitsTECHighTof");
-  track_containers_.push_back("g4SimHitsTrackerHitsTECLowTof");
+  track_containers_.emplace_back("g4SimHitsTrackerHitsTECHighTof");
+  track_containers_.emplace_back("g4SimHitsTrackerHitsTECLowTof");
 
-  track_containers2_.push_back("g4SimHitsTrackerHitsTECLowTof");
-  track_containers2_.push_back("g4SimHitsTrackerHitsTECHighTof");
+  track_containers2_.emplace_back("g4SimHitsTrackerHitsTECLowTof");
+  track_containers2_.emplace_back("g4SimHitsTrackerHitsTECHighTof");
 
   edm::InputTag tag = edm::InputTag("mix","g4SimHits");
   

@@ -1385,7 +1385,7 @@ MonitorElement::getQReport(bool create, const std::string &qtname, QReport *&qr,
     return;
   else if (pos == end)
   {
-    data_.qreports.push_back(DQMNet::QValue());
+    data_.qreports.emplace_back();
     qreports_.push_back(QReport(0, 0));
 
     DQMNet::QValue &q = data_.qreports.back();

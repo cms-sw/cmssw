@@ -346,7 +346,7 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
     GenLumiInfoProduct::ProcessInfo proc = iLumiInfo.getProcessInfos()[ip];          
     double hepxsec_value = proc.lheXSec().value();
     double hepxsec_error = proc.lheXSec().error() <= 0? 0:proc.lheXSec().error();
-    tempVector_before.push_back(GenLumiInfoProduct::XSec(hepxsec_value,hepxsec_error));
+    tempVector_before.emplace_back(hepxsec_value,hepxsec_error);
 
     sigSelSum += hepxsec_value;
     err2SelSum += hepxsec_error*hepxsec_error;
@@ -354,7 +354,7 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
     // skips computation if jet matching efficiency=0
     if (proc.killed().n()<1)
       {
-        tempVector_after.push_back(GenLumiInfoProduct::XSec(0.0,0.0));
+        tempVector_after.emplace_back(0.0,0.0);
         continue;
       }
 
@@ -373,7 +373,7 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
     
     if(fracAcc<=0)
       {
-        tempVector_after.push_back(GenLumiInfoProduct::XSec(0.0,0.0));
+        tempVector_after.emplace_back(0.0,0.0);
         continue;
       }
     
@@ -432,7 +432,7 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
               std::sqrt(delta2Sum) : 0.0);
     double deltaFin = sigmaFin * relErr;
 
-    tempVector_after.push_back(GenLumiInfoProduct::XSec(sigmaFin,deltaFin));
+    tempVector_after.emplace_back(sigmaFin,deltaFin);
 
     // sum of cross sections and errors over different processes
     sigSum += sigmaFin;
@@ -441,7 +441,7 @@ GenXSecAnalyzer::compute(const GenLumiInfoProduct& iLumiInfo)
         
 
   } // end of loop over different processes
-  tempVector_before.push_back(GenLumiInfoProduct::XSec(sigSelSum, sqrt(err2SelSum)));
+  tempVector_before.emplace_back(sigSelSum, sqrt(err2SelSum));
 
   double total_matcheff = jetMatchEffStat_[10000].filterEfficiency(hepidwtup_);
   double total_matcherr = jetMatchEffStat_[10000].filterEfficiencyError(hepidwtup_);

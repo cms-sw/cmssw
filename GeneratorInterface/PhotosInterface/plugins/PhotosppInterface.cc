@@ -34,7 +34,7 @@ PhotosppInterface::PhotosppInterface( const edm::ParameterSet& pset)
     // Physics settings
     if(curSet=="UseHadronizerQEDBrem") UseHadronizerQEDBrem=true;
   }
-  if(!UseHadronizerQEDBrem)fSpecialSettings.push_back("QED-brem-off:all");
+  if(!UseHadronizerQEDBrem)fSpecialSettings.emplace_back("QED-brem-off:all");
 }
 
 void PhotosppInterface::setRandomEngine(CLHEP::HepRandomEngine* decayRandomEngine){fRandomEngine=decayRandomEngine;}

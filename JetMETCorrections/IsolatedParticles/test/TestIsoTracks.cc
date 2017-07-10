@@ -242,11 +242,11 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 				  tracksCI->momentum().z()*tracksCI->momentum().z());
 
           if (info.isGoodEcal==1 && fabs(info.trkGlobPosAtEcal.eta()) < 2.6){
- 	   AllTracks.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
+ 	   AllTracks.emplace_back(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa);
 	    if (mome_pt > 2. && fabs(info.trkGlobPosAtEcal.eta()) < 2.1)
 	    if (fabs(info.trkGlobPosAtEcal.eta()) < 2.1)
 	     {
-	     AllTracks1.push_back(GlobalPoint(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa));
+	     AllTracks1.emplace_back(info.trkGlobPosAtEcal.x()/rfa, info.trkGlobPosAtEcal.y()/rfa, info.trkGlobPosAtEcal.z()/rfa);
 	     }
 	  }
 

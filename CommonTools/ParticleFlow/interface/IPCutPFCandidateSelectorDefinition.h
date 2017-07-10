@@ -59,7 +59,7 @@ namespace pf2pat {
 	}
 
 	if( passing ) {
-	  selected_.push_back( reco::PFCandidate(*pfc) );
+	  selected_.emplace_back(*pfc );
 	  reco::PFCandidatePtr ptrToMother( hc, key );
 
 	  if ( pfc->numberOfSourceCandidatePtrs() > 0 ) {

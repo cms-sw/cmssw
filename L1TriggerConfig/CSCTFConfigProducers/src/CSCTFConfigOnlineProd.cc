@@ -22,9 +22,9 @@ CSCTFConfigOnlineProd::newObject( const std::string& objectKey )
 
     //  SELECT Multiple columns  FROM TABLE with correct key: 
     std::vector< std::string > columns ;
-    columns.push_back( "STATIC_CONFIG" ) ;
-    columns.push_back( "ETA_CONFIG" ) ;
-    columns.push_back( "FIRMWARE" ) ;
+    columns.emplace_back("STATIC_CONFIG" ) ;
+    columns.emplace_back("ETA_CONFIG" ) ;
+    columns.emplace_back("FIRMWARE" ) ;
      
     //SELECT * FROM CMS_CSC_TF.CSCTF_SP_CONF WHERE CSCTF_SP_CONF.SP_KEY = spkey
     l1t::OMDSReader::QueryResults results = m_omdsReader.basicQuery(

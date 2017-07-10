@@ -94,12 +94,12 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
      edm::Ref<reco::RecoEcalCandidateCollection> ref1 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand1) );
        for (auto recoecalcand2= recoIsolecalcands->begin(); recoecalcand2!=recoIsolecalcands->end(); recoecalcand2++) {
 	 edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand2) );
-	 if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
+	 if( &(*ref1) != &(*ref2) ) {thePairs.emplace_back(ref1,ref2 );}
        }
        if (AlsoNonIsolatedSecond_){
 	 for (auto recoecalcand2= recoNonIsolecalcands->begin(); recoecalcand2!=recoNonIsolecalcands->end(); recoecalcand2++) {
 	   edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand2) );
-	   if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
+	   if( &(*ref1) != &(*ref2) ) {thePairs.emplace_back(ref1,ref2 );}
 	 }
        }
    }
@@ -111,12 +111,12 @@ HLTEgammaL1MatchFilterPairs::hltFilter(edm::Event& iEvent, const edm::EventSetup
        edm::Ref<reco::RecoEcalCandidateCollection> ref1 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand1) );
        for (auto recoecalcand2= recoIsolecalcands->begin(); recoecalcand2!=recoIsolecalcands->end(); recoecalcand2++) {
 	 edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoIsolecalcands, distance(recoIsolecalcands->begin(),recoecalcand2) );
-	 if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
+	 if( &(*ref1) != &(*ref2) ) {thePairs.emplace_back(ref1,ref2 );}
        }
        if (AlsoNonIsolatedSecond_){
 	 for (auto recoecalcand2= recoNonIsolecalcands->begin(); recoecalcand2!=recoNonIsolecalcands->end(); recoecalcand2++) {
 	   edm::Ref<reco::RecoEcalCandidateCollection> ref2 =  edm::Ref<reco::RecoEcalCandidateCollection>(recoNonIsolecalcands, distance(recoNonIsolecalcands->begin(),recoecalcand2) );
-	   if( &(*ref1) != &(*ref2) ) {thePairs.push_back(std::pair< edm::Ref<reco::RecoEcalCandidateCollection>, edm::Ref<reco::RecoEcalCandidateCollection> > (ref1,ref2) );}
+	   if( &(*ref1) != &(*ref2) ) {thePairs.emplace_back(ref1,ref2 );}
 	 }
        }
      }

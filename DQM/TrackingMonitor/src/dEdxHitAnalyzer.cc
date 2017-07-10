@@ -83,7 +83,7 @@ void dEdxHitAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
     if ( doDeDxPlots_ || doAllPlots_ ){
       for(unsigned int i=0;i<dEdxInputList_.size();i++){
          ibooker.setCurrentFolder(MEFolderName+"/"+ dEdxInputList_[i]);
-         dEdxMEsVector.push_back(dEdxMEs() );
+         dEdxMEsVector.emplace_back( );
 
          histname = "Strip_dEdxPerCluster_"; 
          dEdxMEsVector[i].ME_StripHitDeDx = ibooker.book1D(histname, histname, dEdxStripBin, dEdxStripMin, dEdxStripMax);

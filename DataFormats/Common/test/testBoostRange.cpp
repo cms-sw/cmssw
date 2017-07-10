@@ -174,7 +174,7 @@ DISABLE_SORT_BARE(edm::RefVector<Coll>)
 
 int main(int, char**) try {
    dummies_.clear();
-   for(int i = 0; i < 12; ++i) dummies_.push_back(Dummy(i));
+   for(int i = 0; i < 12; ++i) dummies_.emplace_back(i);
    test(vector<Dummy>());
    test(RefVector<Coll>());
    test(PtrVector<Dummy>());

@@ -45,7 +45,7 @@ void HLTMuonMatchAndPlotContainer::addPlotter(const edm::ParameterSet &pset , st
 					      std::string label, bool islastfilter)
 {
 
-  plotters_.push_back(HLTMuonMatchAndPlot(pset,path,label,islastfilter));
+  plotters_.emplace_back(pset,path,label,islastfilter);
 
 }
 

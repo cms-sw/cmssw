@@ -110,7 +110,7 @@ class PFRecoTauDiscriminationAgainstElectronDeadECAL : public PFTauDiscriminatio
     for ( std::map<uint32_t, unsigned>::const_iterator it = nBadCrystals.begin(); 
 	  it != nBadCrystals.end(); ++it ) {
       uint32_t key = it->first;
-      badTowers_.push_back(towerInfo(key, it->second, maxStatus[key], sumEta[key]/it->second, sumPhi[key]/it->second));
+      badTowers_.emplace_back(key, it->second, maxStatus[key], sumEta[key]/it->second, sumPhi[key]/it->second);
     }
 
     isFirstEvent_ = false;

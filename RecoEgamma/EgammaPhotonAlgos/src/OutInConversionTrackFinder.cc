@@ -242,7 +242,7 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
 
     LogDebug("OutInConversionTrackFinder")<< "OutInConversionTrackFinder  Number of hits for the track candidate " << recHits.size() << " TSOS charge " << initState.first.charge() << "\n";  
 
-    output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
+    output_p.emplace_back(recHits, it->seed(),state );
   }    
   
   //  std::cout << "  Returning " << result.size() << "Out In Trajectories  " << "\n";      

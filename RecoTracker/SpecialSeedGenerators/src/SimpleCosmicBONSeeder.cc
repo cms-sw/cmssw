@@ -595,8 +595,8 @@ bool SimpleCosmicBONSeeder::seeds(TrajectorySeedCollection &output, const edm::E
             
             PTrajectoryStateOnDet const &  PTraj = trajectoryStateTransform::persistentState(updated, 
                                                             (*(seedOnMiddle_ ? trip.middle() : trip.inner())).geographicalId().rawId());
-            output.push_back(TrajectorySeed(PTraj,hits,
-                                                ( (outer.y()-inner.y()>0) ? alongMomentum : oppositeToMomentum) ));
+            output.emplace_back(PTraj,hits,
+                                                ( (outer.y()-inner.y()>0) ? alongMomentum : oppositeToMomentum) );
             if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) { 
                 output.clear(); 
                 edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";

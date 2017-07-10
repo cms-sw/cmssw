@@ -186,7 +186,7 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
      << state.parameters().position() << " momentum " << state.parameters().momentum() << " charge " <<   state.parameters().charge () << "\n";
     
     result.push_back(*it);
-    output_p.push_back(TrackCandidate(recHits, it->seed(),state ) );
+    output_p.emplace_back(recHits, it->seed(),state );
   }
   // assert(result.size()==output_p.size());
   LogDebug("InOutConversionTrackFinder") << "  InOutConversionTrackFinder::track Returning " << result.size() << " valid In Out Trajectories " << "\n";

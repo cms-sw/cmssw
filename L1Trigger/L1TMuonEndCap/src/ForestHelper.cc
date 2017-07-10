@@ -80,7 +80,7 @@ void ForestHelper::initializeFromXML(const char * dirname, const std::vector<int
     //cout << "DEBUG: initializing Decision Forest for mode=" << mode << "\n";
 
     //DForest tmp;
-    write_->forest_coll_.push_back(DForest());
+    write_->forest_coll_.emplace_back();
     DForest & dforest = write_->forest_coll_[i];
     write_->forest_map_[mode]=i;
 
@@ -97,9 +97,9 @@ void ForestHelper::initializeFromXML(const char * dirname, const std::vector<int
       //cout << "DEBUG: loading tree " << filename << "\n";	 
 
       
-      dforest.push_back(DTree());
+      dforest.emplace_back();
       DTree & dtree = dforest[j];
-      dtree.push_back(DTreeNode());
+      dtree.emplace_back();
 
 
       // First create the engine.
@@ -199,8 +199,8 @@ void ForestHelper::loadTreeFromXMLRecursive(TXMLEngine* xml, XMLNodePointer_t xn
   // append two more nodes at end of tree and update this indices in this node:
   tree[index].ileft  = tree.size();
   tree[index].iright = tree[index].ileft + 1;
-  tree.push_back(DTreeNode());
-  tree.push_back(DTreeNode());
+  tree.emplace_back();
+  tree.emplace_back();
 
   // recursively handle the next two nodes:
   loadTreeFromXMLRecursive(xml, xleft, tree, tree[index].ileft);

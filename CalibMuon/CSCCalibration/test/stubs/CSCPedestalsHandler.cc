@@ -33,7 +33,7 @@ void popcon::CSCDBPedestalsImpl::getNewObjects()
   std::cout << "getNewObjects : enter till ? \n";
   
    
-  m_to_transfer.push_back(std::make_pair(cnpedestals,snc));
+  m_to_transfer.emplace_back(std::make_pair(cnpedestals,snc));
    
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
   std::cout << "CSCPedestalsHandler - time before writing into DB:"<< std::endl;

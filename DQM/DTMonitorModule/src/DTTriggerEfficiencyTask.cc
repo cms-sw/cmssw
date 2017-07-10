@@ -68,8 +68,8 @@ DTTriggerEfficiencyTask::DTTriggerEfficiencyTask(const edm::ParameterSet& ps) : 
   nMinHitsPhi = parameters.getUntrackedParameter<int>("nMinHitsPhi");
   phiAccRange = parameters.getUntrackedParameter<double>("phiAccRange");
 
-  if (processTM) processTags.push_back("TM");
-  if (processDDU) processTags.push_back("DDU");
+  if (processTM) processTags.emplace_back("TM");
+  if (processDDU) processTags.emplace_back("DDU");
 
 }
 

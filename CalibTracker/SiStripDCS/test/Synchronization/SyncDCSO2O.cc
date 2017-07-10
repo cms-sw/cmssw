@@ -123,7 +123,7 @@ void SyncDCSO2O::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
       }
     }
     std::cout << "digis = " << totDigis << std::endl;
-    timeInfo_.push_back( TimeInfo(iEvent.time().value(), totDigis, totDigisWithMasking, detVOff->getHVoffCounts()) );
+    timeInfo_.emplace_back(iEvent.time().value(), totDigis, totDigisWithMasking, detVOff->getHVoffCounts() );
   }
 }
 

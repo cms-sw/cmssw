@@ -202,7 +202,7 @@ HiMixingModule::HiMixingModule(const edm::ParameterSet& pset)
 	 for(size_t input = 0; input < simtags.size(); ++input){
 	    if (object=="HepMCProduct") signal = gentags[input];
 	    else signal = simtags[input];
-	    inputs.push_back(InputTag(signal,tag.instance()));
+	    inputs.emplace_back(signal,tag.instance());
 	 }
 
 	 std::string label=tag.label()+tag.instance();

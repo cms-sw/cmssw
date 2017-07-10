@@ -76,8 +76,8 @@ void test()
 	}
 
 	std::vector<Variable::Value> test;
-	test.push_back(Variable::Value("x", 0));
-	test.push_back(Variable::Value("y", 0));
+	test.emplace_back("x", 0);
+	test.emplace_back("y", 0);
 
 	Calibration::MVAComputer *calib = trainer.getCalibration();
 

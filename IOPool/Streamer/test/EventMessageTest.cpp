@@ -35,18 +35,18 @@ int main() try {
   Strings hlt_names;
   Strings l1_names;
 
-  hlt_names.push_back("a");  hlt_names.push_back("b");
-  hlt_names.push_back("c");  hlt_names.push_back("d");
-  hlt_names.push_back("e");  hlt_names.push_back("f");
-  hlt_names.push_back("g");  hlt_names.push_back("h");
-  hlt_names.push_back("i");
+  hlt_names.emplace_back("a");  hlt_names.emplace_back("b");
+  hlt_names.emplace_back("c");  hlt_names.emplace_back("d");
+  hlt_names.emplace_back("e");  hlt_names.emplace_back("f");
+  hlt_names.emplace_back("g");  hlt_names.emplace_back("h");
+  hlt_names.emplace_back("i");
     
-  l1_names.push_back("t10");  l1_names.push_back("t11");
-  l1_names.push_back("t12");  l1_names.push_back("t13");
-  l1_names.push_back("t14");  l1_names.push_back("t15");
-  l1_names.push_back("t16");  l1_names.push_back("t17");
-  l1_names.push_back("t18");  l1_names.push_back("t19");
-  l1_names.push_back("t20");
+  l1_names.emplace_back("t10");  l1_names.emplace_back("t11");
+  l1_names.emplace_back("t12");  l1_names.emplace_back("t13");
+  l1_names.emplace_back("t14");  l1_names.emplace_back("t15");
+  l1_names.emplace_back("t16");  l1_names.emplace_back("t17");
+  l1_names.emplace_back("t18");  l1_names.emplace_back("t19");
+  l1_names.emplace_back("t20");
 
   char reltag[]="CMSSW_0_8_0_pre7";
   std::string processName = "HLT";

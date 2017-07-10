@@ -39,10 +39,10 @@ HarmBasis3DCyl::HarmBasis3DCyl(const unsigned N)
       harm_poly_vec Bz_vec;   Bz_vec.reserve(vLen);
       harm_poly_vec Bphi_vec; Bphi_vec.reserve(vLen);
 
-      Pt_vec.push_back  (rz_harm_poly(L));
+      Pt_vec.emplace_back(L);
       Br_vec.push_back  (Pt_vec[0].GetDiff(0));
       Bz_vec.push_back  (Pt_vec[0].GetDiff(1));
-      Bphi_vec.push_back(rz_harm_poly());
+      Bphi_vec.emplace_back();
       Bphi_vec[0].CheatL(L);
       
       L_k[k] = L; M_k[k] = 0; ++k;

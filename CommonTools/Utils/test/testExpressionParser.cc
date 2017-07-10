@@ -100,7 +100,7 @@ void testExpressionParser::testStringToEnum() {
     CPPUNIT_ASSERT_EQUAL(StringToEnumValue<reco::Muon::ArbitrationType>("SegmentArbitration"),  int(reco::Muon::SegmentArbitration));
     std::cout << "Testing reco::TrackBase::TrackQuality (tight, highPurity)"  << std::endl;
     std::vector<std::string> algos;
-    algos.push_back("tight"); algos.push_back("highPurity");
+    algos.emplace_back("tight"); algos.emplace_back("highPurity");
     std::vector<int> algoValues = StringToEnumValue<reco::TrackBase::TrackQuality>(algos);
     CPPUNIT_ASSERT(algoValues.size() == 2);
     CPPUNIT_ASSERT_EQUAL(algoValues[0], int(reco::TrackBase::tight));
@@ -194,8 +194,8 @@ void testExpressionParser::checkAll() {
   cands.push_back(c1);  cands.push_back(c2); 
   edm::TestHandle<std::vector<reco::LeafCandidate> > constituentsHandle(&cands, edm::ProductID(42));
   reco::Jet::Constituents constituents;
-  constituents.push_back( reco::Jet::Constituent(constituentsHandle, 0) );
-  constituents.push_back( reco::Jet::Constituent(constituentsHandle, 1) );
+  constituents.emplace_back(constituentsHandle, 0 );
+  constituents.emplace_back(constituentsHandle, 1 );
   reco::CaloJet::Specific caloSpecific; caloSpecific.mMaxEInEmTowers = 0.5;
   jet = pat::Jet(reco::CaloJet(p1+p2, reco::Jet::Point(), caloSpecific, constituents));
   CPPUNIT_ASSERT(jet.nConstituents() == 2);

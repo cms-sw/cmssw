@@ -113,7 +113,7 @@ FWEveViewManager::FWEveViewManager(FWGUIManager* iGUIMgr) :
       std::string view_str =  it->substr(first,it->find_last_of('#')-first);
       int viewTypes = atoi(view_str.c_str());
       std::string fullName = *it;
-      m_typeToBuilder[purpose].push_back(BuilderInfo(*it, viewTypes));
+      m_typeToBuilder[purpose].emplace_back(*it, viewTypes);
    }
    
    m_views.resize(FWViewType::kTypeSize); 

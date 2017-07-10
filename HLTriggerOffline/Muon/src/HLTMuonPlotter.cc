@@ -156,8 +156,8 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
   iEvent.getByToken(genParticleLabel_, genParticles );
 
   vector<string> sources;
-  if (genParticles.isValid()) sources.push_back("gen");
-  if (    recMuons.isValid()) sources.push_back("rec");
+  if (genParticles.isValid()) sources.emplace_back("gen");
+  if (    recMuons.isValid()) sources.emplace_back("rec");
 
   for (size_t sourceNo = 0; sourceNo < sources.size(); sourceNo++) {
 
@@ -174,11 +174,11 @@ HLTMuonPlotter::analyze(const Event & iEvent, const EventSetup & iSetup)
     if (source == "gen" && genParticles.isValid())
       for (size_t i = 0; i < genParticles->size(); i++)
         if ((*genMuonSelector_)(genParticles->at(i)))
-          matches.push_back(MatchStruct(& genParticles->at(i)));
+          matches.emplace_back(& genParticles->at(i));
     if (source == "rec" && recMuons.isValid())
       for (size_t i = 0; i < recMuons->size(); i++)
         if ((*recMuonSelector_)(recMuons->at(i)))
-          matches.push_back(MatchStruct(& recMuons->at(i)));
+          matches.emplace_back(& recMuons->at(i));
     
     // Sort the MatchStructs by pT for later filling of turn-on curve
     sort(matches.begin(), matches.end(), matchesByDescendingPt());

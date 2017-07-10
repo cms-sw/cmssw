@@ -201,7 +201,7 @@ AlignmentProducerBase::processEvent(const edm::Event& event,
     for (auto iter  = handleTrajTracksCollection->begin();
               iter != handleTrajTracksCollection->end();
             ++iter) {
-      trajTracks.push_back(ConstTrajTrackPair(&(*(*iter).key), &(*(*iter).val)));
+      trajTracks.emplace_back(&(*(*iter).key), &(*(*iter).val));
     }
 
     // Run the alignment algorithm with its input

@@ -64,7 +64,7 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
 	  for ( size_t ida = 0; ida < jjet.numberOfDaughters(); ++ida ) {
 
 	    reco::CandidatePtr candPtr =  jjet.daughterPtr( ida);
-	    nextSubjets.push_back( edm::Ptr<pat::Jet> ( candPtr ) );
+	    nextSubjets.emplace_back( candPtr );
 	  }
 	  break;
 	}
@@ -96,7 +96,7 @@ JetSubstructurePacker::produce(edm::Event& iEvent, const edm::EventSetup&)
             if (skipSubjet) continue;
 
             daughtersInSubjets.insert(daughtersInSubjets.end(), sjdaus.begin(), sjdaus.end());
-            daughtersNew.push_back( reco::CandidatePtr(subjet) );
+            daughtersNew.emplace_back(subjet );
             //std::cout << "     found  " << subjet->numberOfDaughters() << " daughters in a subjet" << std::endl;
         }
         //if (!daughtersInSubjets.empty()) std::cout << "     subjet daughters are from collection " << daughtersInSubjets.front().id() << std::endl;

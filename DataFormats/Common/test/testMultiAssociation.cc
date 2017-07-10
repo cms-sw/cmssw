@@ -198,7 +198,7 @@ testMultiAssociation::testMultiAssociation() {
   ProductID const pidK2(3);
   handleK2 = edm::TestHandle<CKey2>(&v2, pidK2);
 
-  for(size_t j = 0; j < 10; ++j) der1s.push_back(DummyDer1());
+  for(size_t j = 0; j < 10; ++j) der1s.emplace_back();
   for(size_t j = 0; j < 10; ++j) {
         if(j % 3 == 0) bases.push_back(std::make_unique<DummyBase>());
         if(j % 3 == 1) bases.push_back(std::make_unique<DummyDer1>());

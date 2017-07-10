@@ -77,7 +77,7 @@ namespace edm {
         boost::trim(*lt);
         findFile(*it, *ft, *lt, useLFNasPFNifLFNnotFound);
       }
-      fileCatalogItems_.push_back(FileCatalogItem(*it, *lt, *ft));
+      fileCatalogItems_.emplace_back(*it, *lt, *ft);
     }
   }
 

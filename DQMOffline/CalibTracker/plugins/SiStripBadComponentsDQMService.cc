@@ -63,12 +63,12 @@ void SiStripBadComponentsDQMService::readBadComponents()
     std::string mechanicalview_dir = dqmStore_->pwd();
 
     std::vector<std::string> subdet_folder;
-    subdet_folder.push_back("TIB");
-    subdet_folder.push_back("TOB");
-    subdet_folder.push_back("TEC/side_1");
-    subdet_folder.push_back("TEC/side_2");
-    subdet_folder.push_back("TID/side_1");
-    subdet_folder.push_back("TID/side_2");
+    subdet_folder.emplace_back("TIB");
+    subdet_folder.emplace_back("TOB");
+    subdet_folder.emplace_back("TEC/side_1");
+    subdet_folder.emplace_back("TEC/side_2");
+    subdet_folder.emplace_back("TID/side_1");
+    subdet_folder.emplace_back("TID/side_2");
 
     int nDetsTotal = 0;
     int nDetsWithErrorTotal = 0;

@@ -169,9 +169,9 @@ namespace edm {
 
     //L1 stays dummy as of today
     Strings l1_names;  //3
-    l1_names.push_back("t1");
-    l1_names.push_back("t10");
-    l1_names.push_back("t2");
+    l1_names.emplace_back("t1");
+    l1_names.emplace_back("t10");
+    l1_names.emplace_back("t2");
 
     //Setting the process name to HLT
     std::string processName = OutputModule::processName();

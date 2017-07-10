@@ -140,24 +140,24 @@ void FWCaloDataHistProxyBuilder::addEntryToTEveCaloData(float eta, float phi, fl
       if (m_sliceSelector->aggregatePhiCells()) {
          if (Abs(eta) > fw3dlego::xbins[80])
          {
-            selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi -3*d)),m_sliceIndex));
-            selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi -d))  ,m_sliceIndex));
-            selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi +d))  ,m_sliceIndex));
-            selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi +3*d)),m_sliceIndex));
+            selected.emplace_back(m_hist->FindBin(eta, wrapPi(phi -3*d)),m_sliceIndex);
+            selected.emplace_back(m_hist->FindBin(eta, wrapPi(phi -d))  ,m_sliceIndex);
+            selected.emplace_back(m_hist->FindBin(eta, wrapPi(phi +d))  ,m_sliceIndex);
+            selected.emplace_back(m_hist->FindBin(eta, wrapPi(phi +3*d)),m_sliceIndex);
          }
          if (Abs(eta) > fw3dlego::xbins[60])
          {
-            selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi -d)), m_sliceIndex));
-            selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta, wrapPi(phi +d)), m_sliceIndex));
+            selected.emplace_back(m_hist->FindBin(eta, wrapPi(phi -d)), m_sliceIndex);
+            selected.emplace_back(m_hist->FindBin(eta, wrapPi(phi +d)), m_sliceIndex);
          }
          else
          {
-            selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta,phi),m_sliceIndex));
+            selected.emplace_back(m_hist->FindBin(eta,phi),m_sliceIndex);
          }
       }
    else 
    {
-      selected.push_back(TEveCaloData::CellId_t(m_hist->FindBin(eta,phi),m_sliceIndex));
+      selected.emplace_back(m_hist->FindBin(eta,phi),m_sliceIndex);
    }
    }
 }

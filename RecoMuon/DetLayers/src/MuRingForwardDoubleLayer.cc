@@ -157,7 +157,7 @@ MuRingForwardDoubleLayer::compatibleDets(const TrajectoryStateOnSurface& startin
       itDG!=vectorGroups.end();itDG++){
     for(vector<DetGroupElement>::const_iterator itDGE=itDG->begin();
         itDGE!=itDG->end();itDGE++){
-      result.push_back(DetWithState(itDGE->det(),itDGE->trajectoryState()));
+      result.emplace_back(itDGE->det(),itDGE->trajectoryState());
     }
   }
   return result;  
@@ -181,8 +181,8 @@ MuRingForwardDoubleLayer::groupedCompatibleDets( const TrajectoryStateOnSurface&
   detWithStates2 = theBackLayer.compatibleDets(startingState, prop, est);    
   
   vector<DetGroup> result;
-  if(!detWithStates1.empty()) result.push_back( DetGroup(detWithStates1) );
-  if(!detWithStates2.empty()) result.push_back( DetGroup(detWithStates2) );
+  if(!detWithStates1.empty()) result.emplace_back(detWithStates1 );
+  if(!detWithStates2.empty()) result.emplace_back(detWithStates2 );
   LogTrace(metname) << "DoubleLayer Compatible dets: " << result.size();
   return result;
 }

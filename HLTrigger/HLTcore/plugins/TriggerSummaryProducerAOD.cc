@@ -441,16 +441,16 @@ void TriggerSummaryProducerAOD::fillTriggerObject(const l1extra::L1HFRings& obje
   using namespace l1extra;
   using namespace trigger;
 
-  toc_.push_back(TriggerObject(TriggerL1HfRingEtSums,
+  toc_.emplace_back(TriggerL1HfRingEtSums,
        object.hfEtSum(L1HFRings::kRing1PosEta),
        object.hfEtSum(L1HFRings::kRing1NegEta),
        object.hfEtSum(L1HFRings::kRing2PosEta),
-       object.hfEtSum(L1HFRings::kRing2NegEta) ) );
-  toc_.push_back(TriggerObject(TriggerL1HfBitCounts,
+       object.hfEtSum(L1HFRings::kRing2NegEta) );
+  toc_.emplace_back(TriggerL1HfBitCounts,
        object.hfBitCount(L1HFRings::kRing1PosEta),
        object.hfBitCount(L1HFRings::kRing1NegEta),
        object.hfBitCount(L1HFRings::kRing2PosEta),
-       object.hfBitCount(L1HFRings::kRing2NegEta) ) );
+       object.hfBitCount(L1HFRings::kRing2NegEta) );
 
   return;
 }
@@ -460,13 +460,13 @@ void TriggerSummaryProducerAOD::fillTriggerObject(const l1extra::L1EtMissParticl
   using namespace l1extra;
   using namespace trigger;
 
-  toc_.push_back( TriggerObject(object) );
+  toc_.emplace_back(object );
   if (object.type()==L1EtMissParticle::kMET) {
-    toc_.push_back(TriggerObject(TriggerL1ETT,object.etTotal(),0.0,0.0,0.0));
+    toc_.emplace_back(TriggerL1ETT,object.etTotal(),0.0,0.0,0.0);
   } else if (object.type()==L1EtMissParticle::kMHT) {
-    toc_.push_back(TriggerObject(TriggerL1HTT,object.etTotal(),0.0,0.0,0.0));
+    toc_.emplace_back(TriggerL1HTT,object.etTotal(),0.0,0.0,0.0);
   } else {
-    toc_.push_back(TriggerObject(0,           object.etTotal(),0.0,0.0,0.0));
+    toc_.emplace_back(0,           object.etTotal(),0.0,0.0,0.0);
   }
 
   return;
@@ -477,10 +477,10 @@ void TriggerSummaryProducerAOD::fillTriggerObject(const reco::PFMET& object) {
   using namespace reco;
   using namespace trigger;
 
-  toc_.push_back( TriggerObject(object) );
-  toc_.push_back(TriggerObject(TriggerTET    ,object.sumEt()         ,0.0,0.0,0.0));
-  toc_.push_back(TriggerObject(TriggerMETSig ,object.mEtSig()        ,0.0,0.0,0.0));
-  toc_.push_back(TriggerObject(TriggerELongit,object.e_longitudinal(),0.0,0.0,0.0));
+  toc_.emplace_back(object );
+  toc_.emplace_back(TriggerTET    ,object.sumEt()         ,0.0,0.0,0.0);
+  toc_.emplace_back(TriggerMETSig ,object.mEtSig()        ,0.0,0.0,0.0);
+  toc_.emplace_back(TriggerELongit,object.e_longitudinal(),0.0,0.0,0.0);
 
   return;
 }
@@ -490,10 +490,10 @@ void TriggerSummaryProducerAOD::fillTriggerObject(const reco::CaloMET& object) {
   using namespace reco;
   using namespace trigger;
 
-  toc_.push_back( TriggerObject(object) );
-  toc_.push_back(TriggerObject(TriggerTET    ,object.sumEt()         ,0.0,0.0,0.0));
-  toc_.push_back(TriggerObject(TriggerMETSig ,object.mEtSig()        ,0.0,0.0,0.0));
-  toc_.push_back(TriggerObject(TriggerELongit,object.e_longitudinal(),0.0,0.0,0.0));
+  toc_.emplace_back(object );
+  toc_.emplace_back(TriggerTET    ,object.sumEt()         ,0.0,0.0,0.0);
+  toc_.emplace_back(TriggerMETSig ,object.mEtSig()        ,0.0,0.0,0.0);
+  toc_.emplace_back(TriggerELongit,object.e_longitudinal(),0.0,0.0,0.0);
 
   return;
 }
@@ -503,10 +503,10 @@ void TriggerSummaryProducerAOD::fillTriggerObject(const reco::MET& object) {
   using namespace reco;
   using namespace trigger;
 
-  toc_.push_back( TriggerObject(object) );
-  toc_.push_back(TriggerObject(TriggerTHT    ,object.sumEt()         ,0.0,0.0,0.0));
-  toc_.push_back(TriggerObject(TriggerMHTSig ,object.mEtSig()        ,0.0,0.0,0.0));
-  toc_.push_back(TriggerObject(TriggerHLongit,object.e_longitudinal(),0.0,0.0,0.0));
+  toc_.emplace_back(object );
+  toc_.emplace_back(TriggerTHT    ,object.sumEt()         ,0.0,0.0,0.0);
+  toc_.emplace_back(TriggerMHTSig ,object.mEtSig()        ,0.0,0.0,0.0);
+  toc_.emplace_back(TriggerHLongit,object.e_longitudinal(),0.0,0.0,0.0);
 
   return;
 }

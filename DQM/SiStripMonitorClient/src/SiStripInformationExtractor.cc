@@ -54,12 +54,12 @@ void SiStripInformationExtractor::readConfiguration() {
           " Problem in reading Layout " << "\n" ;
   if (layoutParser_) delete layoutParser_;
 
-  subdetVec.push_back("SiStrip/MechanicalView/TIB");
-  subdetVec.push_back("SiStrip/MechanicalView/TOB");
-  subdetVec.push_back("SiStrip/MechanicalView/TID/PLUS");
-  subdetVec.push_back("SiStrip/MechanicalView/TID/MINUS");
-  subdetVec.push_back("SiStrip/MechanicalView/TEC/PLUS");
-  subdetVec.push_back("SiStrip/MechanicalView/TEC/MINUS");
+  subdetVec.emplace_back("SiStrip/MechanicalView/TIB");
+  subdetVec.emplace_back("SiStrip/MechanicalView/TOB");
+  subdetVec.emplace_back("SiStrip/MechanicalView/TID/PLUS");
+  subdetVec.emplace_back("SiStrip/MechanicalView/TID/MINUS");
+  subdetVec.emplace_back("SiStrip/MechanicalView/TEC/PLUS");
+  subdetVec.emplace_back("SiStrip/MechanicalView/TEC/MINUS");
 
 }
 //

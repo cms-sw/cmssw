@@ -1695,10 +1695,10 @@ void MillePedeAlignmentAlgorithm::addPxbSurvey(const edm::ParameterSet &pxbSurve
 
                 // Create the vector for the fit
                 SurveyPxbImageLocalFit::fidpoint_t fidpointvec;
-                fidpointvec.push_back(fidpoint0inSurf1frame);
-                fidpointvec.push_back(fidpoint1inSurf1frame);
-                fidpointvec.push_back(fidpoint2);
-                fidpointvec.push_back(fidpoint3);
+                fidpointvec.emplace_back(fidpoint0inSurf1frame);
+                fidpointvec.emplace_back(fidpoint1inSurf1frame);
+                fidpointvec.emplace_back(fidpoint2);
+                fidpointvec.emplace_back(fidpoint3);
 
                 // if toy survey is requested, dice the values now
                 if (pxbSurveyCfg.getParameter<bool>("doToySurvey"))

@@ -185,10 +185,10 @@ void ZJetsAnalyzer::analyze( const edm::Event& e, const edm::EventSetup& )
   jfInput.reserve(jetInput.size());
   for (JetInputHepMC::ParticleVector::const_iterator iter = jetInput.begin();
        iter != jetInput.end(); ++iter) {
-    jfInput.push_back(fastjet::PseudoJet( (*iter)->momentum().px(),
+    jfInput.emplace_back( (*iter)->momentum().px(),
                                           (*iter)->momentum().py(),
                                           (*iter)->momentum().pz(),
-                                          (*iter)->momentum().e()  )  );
+                                          (*iter)->momentum().e()   );
     jfInput.back().set_user_index(iter - jetInput.begin());
   }
 

@@ -16,7 +16,7 @@ int main() {
   for (int j=0; j!=100; ++j) {
     TV v;
     for (int i=0; i!=1000; ++i) 
-      v.push_back(TrajectorySeed(PTrajectoryStateOnDet(), c, anyDirection));
+      v.emplace_back(PTrajectoryStateOnDet(), c, anyDirection);
   }
 
   return 0;

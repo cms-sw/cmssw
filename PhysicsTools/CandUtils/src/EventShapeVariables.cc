@@ -8,7 +8,7 @@ EventShapeVariables::EventShapeVariables(const edm::View<reco::Candidate>& input
   //std::cout << "inputVectors.size = " << inputVectors.size() << std::endl;
   inputVectors_.reserve( inputVectors.size() );
   for ( edm::View<reco::Candidate>::const_iterator vec = inputVectors.begin(); vec != inputVectors.end(); ++vec){
-    inputVectors_.push_back(math::XYZVector(vec->px(), vec->py(), vec->pz()));
+    inputVectors_.emplace_back(vec->px(), vec->py(), vec->pz());
   }
 }
 
@@ -22,7 +22,7 @@ EventShapeVariables::EventShapeVariables(const std::vector<math::RhoEtaPhiVector
 {
   inputVectors_.reserve( inputVectors.size() );
   for ( std::vector<math::RhoEtaPhiVector>::const_iterator vec = inputVectors.begin(); vec != inputVectors.end(); ++vec ){
-    inputVectors_.push_back(math::XYZVector(vec->x(), vec->y(), vec->z()));
+    inputVectors_.emplace_back(vec->x(), vec->y(), vec->z());
   }
 }
 
@@ -31,7 +31,7 @@ EventShapeVariables::EventShapeVariables(const std::vector<math::RThetaPhiVector
 {
   inputVectors_.reserve( inputVectors.size() );
   for(std::vector<math::RThetaPhiVector>::const_iterator vec = inputVectors.begin(); vec != inputVectors.end(); ++vec ){
-    inputVectors_.push_back(math::XYZVector(vec->x(), vec->y(), vec->z()));
+    inputVectors_.emplace_back(vec->x(), vec->y(), vec->z());
   }
 }
   

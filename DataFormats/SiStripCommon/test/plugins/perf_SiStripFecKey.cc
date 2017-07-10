@@ -175,17 +175,17 @@ void perfSiStripFecKey::build( std::vector<Value>& values,
 		       iapv < sistrip::APV_I2C_MAX ) { continue; }
 		
 		  SiStripFecKey key( icrate, ifec, iring, iccu, ichan, illd, iapv );
-		  values.push_back( Value( key.fecCrate(),
+		  values.emplace_back( key.fecCrate(),
 					   key.fecSlot(),
 					   key.fecRing(),
 					   key.ccuAddr(),
 					   key.ccuChan(),
 					   key.lldChan(),
-					   key.i2cAddr() ) );
+					   key.i2cAddr() );
 		  keys.push_back( key.key() );
 		  paths.push_back( key.path() );
 		  derived.push_back( key );
-		  base.push_back( SiStripKey( key.key() ) );
+		  base.emplace_back( key.key() );
 		}
 	      }
 	    }

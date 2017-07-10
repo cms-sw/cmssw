@@ -733,10 +733,10 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		      //cout << "thisAmpl = " << (int)thisAmpl << endl;
 		    }
 		  
-		  newCluster.push_back( SiStripCluster( 
+		  newCluster.emplace_back( 
 							firstStrip[i],
 							trackAmp[i].begin(), 
-							trackAmp[i].end() ) );
+							trackAmp[i].end() );
 		  
 		}
 	      
@@ -1307,7 +1307,7 @@ void TrackClusterSplitter::splitCluster<SiPixelCluster> (const SiPixelClusterWit
 		  {
 		    //		std::cout << "creating a new cluster " << std::endl;
 		    simTrackIdV.push_back(linkiter->SimTrackId()); // add the track id to the vector
-		  splittedCluster.push_back(SiPixelCluster(newPixelPos,newPixelCharge)); // add the cluster to the vector
+		  splittedCluster.emplace_back(newPixelPos,newPixelCharge); // add the cluster to the vector
 		  }
 	      }
 	  }

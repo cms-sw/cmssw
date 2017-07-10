@@ -135,7 +135,7 @@ JetPlusTrackProducerAA::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector <reco::TrackRef> fTracks;
   fTracks.reserve (tracks_h->size());
   for (unsigned i = 0; i < tracks_h->size(); ++i) {
-             fTracks.push_back (reco::TrackRef (tracks_h, i));
+             fTracks.emplace_back(tracks_h, i);
   } 
 
 //=>

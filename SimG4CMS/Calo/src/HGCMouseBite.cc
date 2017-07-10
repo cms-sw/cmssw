@@ -11,7 +11,7 @@ HGCMouseBite::HGCMouseBite(const HGCalDDDConstants& hgc,
 			   bool rot) : hgcons_(hgc), cut_(maxL), rot_(rot) {
 
   for (auto ang : angle) {
-    projXY_.push_back(std::pair<double,double>(cos(ang*CLHEP::deg),sin(ang*CLHEP::deg)));
+    projXY_.emplace_back(cos(ang*CLHEP::deg),sin(ang*CLHEP::deg));
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "Creating HGCMosueBite with cut at " << cut_ << " along " 

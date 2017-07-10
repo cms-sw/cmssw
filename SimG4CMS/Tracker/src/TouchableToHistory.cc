@@ -104,10 +104,8 @@ TouchableToHistory::Nav_Story TouchableToHistory::touchableToNavStory(const G4VT
   
   for (int k=0; k<=levels; k++){
     if (v->GetVolume(k)->GetLogicalVolume()->GetName() != "TOBInactive") {
-      temp.push_back(
-		     std::pair<int,std::string>
-		     (v->GetVolume(k)->GetCopyNo(),
-		      v->GetVolume(k)->GetLogicalVolume()->GetName()));
+      temp.emplace_back(v->GetVolume(k)->GetCopyNo(),
+		      v->GetVolume(k)->GetLogicalVolume()->GetName());
 #ifdef DEBUG    
       debugint.push_back(v->GetVolume(k)->GetCopyNo());
       debugstring.push_back(v->GetVolume(k)->GetLogicalVolume()->GetName());

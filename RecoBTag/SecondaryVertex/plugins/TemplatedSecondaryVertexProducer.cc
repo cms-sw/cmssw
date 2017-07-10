@@ -408,7 +408,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		   edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
 		   continue;
 		 }
-		 fjInputs.push_back(fastjet::PseudoJet(constit->px(),constit->py(),constit->pz(),constit->energy()));
+		 fjInputs.emplace_back(constit->px(),constit->py(),constit->pz(),constit->energy());
 	      }
 	    }
 	  }
@@ -426,7 +426,7 @@ void TemplatedSecondaryVertexProducer<IPTI,VTX>::produce(edm::Event &event,
 		   edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
 		   continue;
 		 }
-		 fjInputs.push_back(fastjet::PseudoJet(constit->px(),constit->py(),constit->pz(),constit->energy()));
+		 fjInputs.emplace_back(constit->px(),constit->py(),constit->pz(),constit->energy());
 	      }
 	    }
 	  }

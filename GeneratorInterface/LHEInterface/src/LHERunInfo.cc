@@ -496,7 +496,7 @@ static void fillLines(std::vector<std::string> &lines, const char *data,
 			len += 2;
 		else if (data[len])
 			len++;
-		lines.push_back(std::string(data, len));
+		lines.emplace_back(data, len);
 		data += len;
 	}
 }

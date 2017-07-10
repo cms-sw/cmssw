@@ -542,11 +542,11 @@ EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
       double eta=point1.eta();
       // HCAL thickness in cm (assuming that the particle is coming from 000)
       double thickness= myCalorimeter->hcalProperties(onHcal)->thickness(eta);
-      cp.push_back(CaloPoint(DetId::Hcal,point1));
+      cp.emplace_back(DetId::Hcal,point1);
       XYZVector dir=myTrack_->hcalEntrance().Vect().Unit();
       XYZPoint point2=point1+dir*thickness;
 
-      cp.push_back(CaloPoint(DetId::Hcal,point2));
+      cp.emplace_back(DetId::Hcal,point2);
       
     }
   int onVFcal=myTrack_->onVFcal();
@@ -556,12 +556,12 @@ EcalHitMaker::hcalCellLine(std::vector<CaloPoint>& cp) const
       double eta=point1.eta();
       // HCAL thickness in cm (assuming that the particle is coming from 000)
       double thickness= myCalorimeter->hcalProperties(3)->thickness(eta);
-      cp.push_back(CaloPoint(DetId::Hcal,point1));
+      cp.emplace_back(DetId::Hcal,point1);
       XYZVector dir=myTrack_->vfcalEntrance().Vect().Unit();
       if(thickness>0)
 	{
 	  XYZPoint point2=point1+dir*thickness;
-	  cp.push_back(CaloPoint(DetId::Hcal,point2));
+	  cp.emplace_back(DetId::Hcal,point2);
 	}
 
     }
@@ -610,7 +610,7 @@ EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloP
 	  //	  if(pad.globalinside(xp)) 
 	  if(inside3D(corners,xp))
 	    {
-	      cp.push_back(CaloPoint(regionOfInterest_[ic].getDetId(),UP,xp));
+	      cp.emplace_back(regionOfInterest_[ic].getDetId(),UP,xp);
 	      entrancefound=true;
 	      c_entrance=regionOfInterest_[ic].getDetId();
 	      //      myHistos->fill("j12",highlim,ic);
@@ -629,7 +629,7 @@ EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloP
 	  //	  if(pad.globalinside(xp)) 
 	  if(inside3D(corners,xp))
 	    {
-	      cp.push_back(CaloPoint(regionOfInterest_[ic].getDetId(),DOWN,xp));
+	      cp.emplace_back(regionOfInterest_[ic].getDetId(),DOWN,xp);
 	      exitfound=true;
 	      c_exit=regionOfInterest_[ic].getDetId();
 	      //	      std::cout << " Crystal : " << ic << std::endl;
@@ -650,7 +650,7 @@ EcalHitMaker::ecalCellLine(const XYZPoint& a,const XYZPoint& b,std::vector<CaloP
 	  //	  if(pad.globalinside(xp)) 
 	  if(inside3D(corners,xp))
 	    {
-	      cp.push_back(CaloPoint(regionOfInterest_[ic].getDetId(),CaloDirectionOperations::Side(iside),xp)); 
+	      cp.emplace_back(regionOfInterest_[ic].getDetId(),CaloDirectionOperations::Side(iside),xp); 
 	      //	      std::cout << cp[cp.size()-1] << std::endl;
 	    }	  
 	}
@@ -1278,11 +1278,11 @@ EcalHitMaker::reorganizePads()
 	      if(neighbourstatus==1)
 		{
 		  //		  std::cout << " 1 Crack : " << thisside << " " << cellids_[iq]<< " " << cellids_[neighbourNumber] << std::endl;
-		  cracks[iq].push_back(neighbour(thisside,neighbourNumber));
+		  cracks[iq].emplace_back(thisside,neighbourNumber);
 		} // else it is a gap 
 	      else
 		{
-		  gaps.push_back(neighbour(thisside,neighbourNumber));
+		  gaps.emplace_back(thisside,neighbourNumber);
 		}
 	    }
 	}

@@ -57,7 +57,7 @@ float ECFAdder::getECF(unsigned index, const edm::Ptr<reco::Jet> & object) const
     {
       const reco::CandidatePtr & dp = object->daughterPtr(k);
       if ( dp.isNonnull() && dp.isAvailable() )
-	FJparticles.push_back( fastjet::PseudoJet( dp->px(), dp->py(), dp->pz(), dp->energy() ) );
+	FJparticles.emplace_back( dp->px(), dp->py(), dp->pz(), dp->energy() );
       else
 	edm::LogWarning("MissingJetConstituent") << "Jet constituent required for ECF computation is missing!";
     }

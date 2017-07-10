@@ -243,7 +243,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
       if (etaHigh>1.479) etaHigh=1.479;
       if (etaLow<-1.479) etaLow=-1.479;
 
-      if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+      if(isbarl) regions.emplace_back(etaLow,etaHigh,phiLow,phiHigh);
 
     }
   }
@@ -280,7 +280,7 @@ void EgammaHLTHybridClusterProducer::produce(edm::Event& evt, const edm::EventSe
        if (etaHigh>1.479) etaHigh=1.479;
        if (etaLow<-1.479) etaLow=-1.479;
        
-       if(isbarl) regions.push_back(EcalEtaPhiRegion(etaLow,etaHigh,phiLow,phiHigh));
+       if(isbarl) regions.emplace_back(etaLow,etaHigh,phiLow,phiHigh);
        
     }
     }

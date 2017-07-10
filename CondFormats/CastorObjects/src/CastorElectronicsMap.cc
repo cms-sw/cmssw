@@ -138,9 +138,9 @@ bool CastorElectronicsMap::lookup(const CastorElectronicsId pid, CastorElectroni
 std::vector <CastorElectronicsId> CastorElectronicsMap::allElectronicsId () const {
   std::vector <CastorElectronicsId> result;
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++) 
-    if (item->mElId) result.push_back(CastorElectronicsId(item->mElId));
+    if (item->mElId) result.emplace_back(item->mElId);
   for (std::vector<TriggerItem>::const_iterator item = mTItems.begin (); item != mTItems.end (); item++) 
-    if (item->mElId) result.push_back(CastorElectronicsId(item->mElId));
+    if (item->mElId) result.emplace_back(item->mElId);
 
   return result;
 }
@@ -148,14 +148,14 @@ std::vector <CastorElectronicsId> CastorElectronicsMap::allElectronicsId () cons
 std::vector <CastorElectronicsId> CastorElectronicsMap::allElectronicsIdPrecision() const {
   std::vector <CastorElectronicsId> result;
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++) 
-    if (item->mElId) result.push_back(CastorElectronicsId(item->mElId));
+    if (item->mElId) result.emplace_back(item->mElId);
   return result;
 }
 
 std::vector <CastorElectronicsId> CastorElectronicsMap::allElectronicsIdTrigger() const {
   std::vector <CastorElectronicsId> result;
   for (std::vector<TriggerItem>::const_iterator item = mTItems.begin (); item != mTItems.end (); item++) 
-    if (item->mElId) result.push_back(CastorElectronicsId(item->mElId));
+    if (item->mElId) result.emplace_back(item->mElId);
 
   return result;
 }
@@ -166,7 +166,7 @@ std::vector <HcalGenericDetId> CastorElectronicsMap::allPrecisionId () const {
   for (std::vector<PrecisionItem>::const_iterator item = mPItems.begin (); item != mPItems.end (); item++)  
     if (item->mId) allIds.insert (item->mId);
   for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++) {
-      result.push_back (HcalGenericDetId (*channel));
+      result.emplace_back(*channel);
   }
   return result;
 }
@@ -177,7 +177,7 @@ std::vector <HcalTrigTowerDetId> CastorElectronicsMap::allTriggerId () const {
   for (std::vector<TriggerItem>::const_iterator item = mTItems.begin (); item != mTItems.end (); item++)  
     if (item->mTrigId) allIds.insert (item->mTrigId);
   for (std::set <unsigned long>::const_iterator channel = allIds.begin (); channel != allIds.end (); channel++)
-    result.push_back (HcalTrigTowerDetId (*channel));
+    result.emplace_back(*channel);
   return result;
 }
 

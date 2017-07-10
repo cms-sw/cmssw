@@ -69,7 +69,7 @@ std::unique_ptr<SiStripRegionCabling> SiStripRegionConnectivity::produceRegionCa
     std::vector<const FedChannelConnection *>::iterator jconn = conns.end();
 
     //Update region cabling map
-    regioncabling[reg][subdet][layer].push_back(SiStripRegionCabling::Element());
+    regioncabling[reg][subdet][layer].emplace_back();
     auto &  elem = regioncabling[reg][subdet][layer].back();
     elem.first=idet->first; elem.second.resize(conns.size());
     for ( ; iconn != jconn; ++iconn ) {

@@ -397,7 +397,7 @@ unsigned int RunRangeDependentPedeLabeler::buildRunRangeDependencyMap(AlignableT
 	
       }
       
-      RunRanges.push_back(std::pair<cond::Time_t,cond::Time_t>(first, cond::timeTypeSpecs[cond::runnumber].endValue));
+      RunRanges.emplace_back(std::pair<cond::Time_t,cond::Time_t>(first, cond::timeTypeSpecs[cond::runnumber].endValue));
     }
     
     for (unsigned int i = 0;i<RunRanges.size()-1;++i) {

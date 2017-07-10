@@ -280,7 +280,7 @@ const RefCountedKinematicTree& BPHKinematicFit::kinematicTree(
     while ( nn-- ) nfull[nn] = name + "/" + names[nn];
   }
   else {
-    nfull.push_back( "*" );
+    nfull.emplace_back("*" );
   }
   try {
     KinematicConstrainedVertexFitter cvf;

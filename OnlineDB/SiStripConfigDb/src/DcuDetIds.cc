@@ -369,7 +369,7 @@ void SiStripConfigDb::clone( const DcuDetIdMap& input, DcuDetIdsV& output ) cons
   output.clear();
   DcuDetIdMap::const_iterator ii = input.begin();
   DcuDetIdMap::const_iterator jj = input.end();
-  for ( ; ii != jj; ++ii ) { if ( ii->second ) { output.push_back( std::make_pair( ii->first, new TkDcuInfo( *(ii->second) ) ) ); } }
+  for ( ; ii != jj; ++ii ) { if ( ii->second ) { output.emplace_back(std::make_pair( ii->first, new TkDcuInfo( *(ii->second) ) ) ); } }
 }
 
 // -----------------------------------------------------------------------------

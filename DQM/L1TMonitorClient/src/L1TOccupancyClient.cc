@@ -745,7 +745,7 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBin
       
       // If channel is masked -> set it to value -1
       if(hservice_->isMasked(iTestName,iBinStrip,i)) {
-        oChannels.push_back(pair<int,double>(iHist->GetBin(iBinStrip,i),-1.0));
+        oChannels.emplace_back(iHist->GetBin(iBinStrip,i),-1.0);
       }
       //else perform test
       else if(muup  > sigma_up || 
@@ -753,7 +753,7 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBin
 	      ((fabs(muup)  == std::numeric_limits<double>::infinity()) && (
 		fabs(mulow) == std::numeric_limits<double>::infinity()))) {
         dead++;
-        oChannels.push_back(pair<int,double>(iHist->GetBin(iBinStrip,i),abs(iHist->GetBinContent(iBinStrip,i)-iAvg)/iAvg));
+        oChannels.emplace_back(iHist->GetBin(iBinStrip,i),abs(iHist->GetBinContent(iBinStrip,i)-iAvg)/iAvg);
       }
     }
   }
@@ -804,7 +804,7 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBin
       
       //if channel is masked -> set it to value -1
       if(hservice_->isMasked(iTestName,i,iBinStrip)) {
-        oChannels.push_back(pair<int,double>(iHist->GetBin(iBinStrip,i),-1.0));
+        oChannels.emplace_back(iHist->GetBin(iBinStrip,i),-1.0);
       }
       //else perform test
       else if(muup > sigma_up ||  
@@ -812,7 +812,7 @@ int L1TOccupancyClient::compareWithStrip(TH2F* iHist, string iTestName, int iBin
             ((fabs(muup) == std::numeric_limits<double>::infinity()) && 
             (fabs(mulow) == std::numeric_limits<double>::infinity()))) {
         dead++;
-        oChannels.push_back(pair<int,double>(iHist->GetBin(i,iBinStrip),abs(iHist->GetBinContent(i,iBinStrip)-iAvg)/iAvg));
+        oChannels.emplace_back(iHist->GetBin(i,iBinStrip),abs(iHist->GetBinContent(i,iBinStrip)-iAvg)/iAvg);
       }
     }
   }

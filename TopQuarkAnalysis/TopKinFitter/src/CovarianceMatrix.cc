@@ -9,7 +9,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
 {
   for(std::vector<edm::ParameterSet>::const_iterator iSet = udscResolutions.begin(); iSet != udscResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
-    else if(udscResolutions.size()==1) binsUdsc_.push_back("");
+    else if(udscResolutions.size()==1) binsUdsc_.emplace_back("");
     else throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
     
     funcEtUdsc_.push_back(iSet->getParameter<std::string>("et"));
@@ -18,7 +18,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
   }
   for(std::vector<edm::ParameterSet>::const_iterator iSet = bResolutions.begin(); iSet != bResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsB_.push_back(iSet->getParameter<std::string>("bin"));
-    else if(bResolutions.size()==1) binsB_.push_back("");
+    else if(bResolutions.size()==1) binsB_.emplace_back("");
     else throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
     
     funcEtB_.push_back(iSet->getParameter<std::string>("et"));
@@ -40,7 +40,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
 
   for(std::vector<edm::ParameterSet>::const_iterator iSet = udscResolutions.begin(); iSet != udscResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsUdsc_.push_back(iSet->getParameter<std::string>("bin"));
-    else if(udscResolutions.size()==1) binsUdsc_.push_back("");
+    else if(udscResolutions.size()==1) binsUdsc_.emplace_back("");
     else throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
     
     funcEtUdsc_.push_back(iSet->getParameter<std::string>("et"));
@@ -49,7 +49,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
   }
   for(std::vector<edm::ParameterSet>::const_iterator iSet = bResolutions.begin(); iSet != bResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsB_.push_back(iSet->getParameter<std::string>("bin"));
-    else if(bResolutions.size()==1) binsB_.push_back("");
+    else if(bResolutions.size()==1) binsB_.emplace_back("");
     else throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
     
     funcEtB_.push_back(iSet->getParameter<std::string>("et"));
@@ -58,7 +58,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
   }
   for(std::vector<edm::ParameterSet>::const_iterator iSet = lepResolutions.begin(); iSet != lepResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsLep_.push_back(iSet->getParameter<std::string>("bin"));
-    else if(lepResolutions.size()==1) binsLep_.push_back("");
+    else if(lepResolutions.size()==1) binsLep_.emplace_back("");
     else throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
     
     funcEtLep_.push_back(iSet->getParameter<std::string>("et"));
@@ -67,7 +67,7 @@ CovarianceMatrix::CovarianceMatrix(const std::vector<edm::ParameterSet>& udscRes
   }
   for(std::vector<edm::ParameterSet>::const_iterator iSet = metResolutions.begin(); iSet != metResolutions.end(); ++iSet){
     if(iSet->exists("bin")) binsMet_.push_back(iSet->getParameter<std::string>("bin"));
-    else if(metResolutions.size()==1) binsMet_.push_back("");
+    else if(metResolutions.size()==1) binsMet_.emplace_back("");
     else throw cms::Exception("Configuration") << "Parameter 'bin' is needed if more than one PSet is specified!\n";
     
     funcEtMet_.push_back(iSet->getParameter<std::string>("et"));

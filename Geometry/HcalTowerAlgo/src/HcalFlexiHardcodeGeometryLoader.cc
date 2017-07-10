@@ -86,7 +86,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
 		  << "]: " << etabins[i].layer[k].first-1 << ":"
 		  << etabins[i].layer[k].second << std::endl;
 #endif
-	result.push_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iring, depth, etabins[i].phis[j].first, etabins[i].phis[j].second, dphi, rmin, rmax, etabins[i].etaMin, etabins[i].etaMax));
+	result.emplace_back(iring, depth, etabins[i].phis[j].first, etabins[i].phis[j].second, dphi, rmin, rmax, etabins[i].etaMin, etabins[i].etaMax);
       }
       depth++;
     }
@@ -117,7 +117,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HBHOCellParameters> HcalFlexiHardco
       for (int j=0; j < nPhi; ++j) {
 	double phi = (j+0.5)*dphi;
 	// eta, depth, phi, phi0, deltaPhi, rMin, rMax, etaMin, etaMax
-	result.push_back (HcalFlexiHardcodeGeometryLoader::HBHOCellParameters(iside*(i+1), 4, j+1, phi, dphi, rmin, HORMAX, etamin[i], etamax[i]));
+	result.emplace_back(iside*(i+1), 4, j+1, phi, dphi, rmin, HORMAX, etamin[i], etamax[i]);
       }
     }
   }
@@ -220,7 +220,7 @@ std::vector<HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcode
 		    << " layer[" << k << "]: " << etabins[i].layer[k].first-1 
 		    << ":" << etabins[i].layer[k].second-1 << std::endl;
 #endif
-	  result.push_back(HcalFlexiHardcodeGeometryLoader::HECellParameters(iring, depth, etabins[i].phis[j].first, etabins[i].phis[j].second, dphi, zmin, zmax, etabins[i].etaMin, etabins[i].etaMax));
+	  result.emplace_back(iring, depth, etabins[i].phis[j].first, etabins[i].phis[j].second, dphi, zmin, zmax, etabins[i].etaMin, etabins[i].etaMax);
 	}
 	depth++;
       }
@@ -263,7 +263,7 @@ std::vector <HcalFlexiHardcodeGeometryLoader::HECellParameters> HcalFlexiHardcod
 	double dphi = (40.0*DEGREE2RAD)/nPhis[i];
 	double phi0 = (j+0.5)*dphi;
 	// ieta, depth, iphi, phi0, deltaPhi, zMin, zMax, etaMin, etaMax
-	result.push_back (HcalFlexiHardcodeGeometryLoader::HECellParameters(ieta, depth, iphi, phi0, dphi, zval[4*i+k+1], zval[4*i+k+2], etas[i], etas[i+1]));
+	result.emplace_back(ieta, depth, iphi, phi0, dphi, zval[4*i+k+1], zval[4*i+k+2], etas[i], etas[i+1]);
       }
     }
   }

@@ -31,7 +31,7 @@ void popcon::CSCChamberIndexImpl::getNewObjects()
   std::cin >> snc;
  
   
-  m_to_transfer.push_back(std::make_pair((CSCChamberIndex*)mycham_index,snc));
+  m_to_transfer.emplace_back(std::make_pair((CSCChamberIndex*)mycham_index,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"<< std::endl;
 }

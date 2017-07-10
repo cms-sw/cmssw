@@ -20,7 +20,7 @@ ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
         subdet = ClusterSummary::CMSTracker(iN);
     if(subdet == ClusterSummary::NVALIDENUMS) throw cms::Exception( "No standard selection: ") << iS;
 
-    selectors.push_back(ModuleSelection(DetIdSelector(ClusterSummary::subDetSelections[subdet]),subdet));
+    selectors.emplace_back(DetIdSelector(ClusterSummary::subDetSelections[subdet]),subdet);
     if(subdet > maxEnum) maxEnum = subdet;
     if(verbose)moduleNames.push_back(ClusterSummary::subDetNames[subdet]);
   }
@@ -35,7 +35,7 @@ ClusterSummaryProducer::ClusterSummaryProducer(const edm::ParameterSet& iConfig)
     if(subdet <=  ClusterSummary::NVALIDENUMS) throw cms::Exception( "Already predefined selection: ") << subdet;
     if(subdet >=  ClusterSummary::NTRACKERENUMS) throw cms::Exception( "Selection is out of range: ") << subdet;
 
-    selectors.push_back(ModuleSelection(DetIdSelector(selection),subdet));
+    selectors.emplace_back(DetIdSelector(selection),subdet);
     if(subdet > maxEnum) maxEnum = subdet;
     if(verbose)moduleNames.push_back(detname);
   }

@@ -238,7 +238,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets)
   std::vector<reco::LeafCandidate> boostedJets;
 
   for(std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet){
-    boostedJets.push_back(reco::LeafCandidate(jet->charge(), CoMBoostTotal(jet->p4()), jet->vertex(), jet->pdgId(), jet->status(), true));
+    boostedJets.emplace_back(jet->charge(), CoMBoostTotal(jet->p4()), jet->vertex(), jet->pdgId(), jet->status(), true);
   }
 
   EtSin2Theta3jet_ /= ((double)(jets.size()-3));
@@ -292,7 +292,7 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets)
   std::vector< std::pair< double, unsigned short > > massDiff2W;
 
   for(std::vector< double >::const_iterator mass = dRMass_.begin(); mass != dRMass_.end(); ++mass){
-    massDiff2W.push_back(std::make_pair(std::abs((*mass)-80.4), mass - dRMass_.begin()));
+    massDiff2W.emplace_back(std::make_pair(std::abs((*mass)-80.4), mass - dRMass_.begin()));
   }
 
   std::sort(massDiff2W.begin(), massDiff2W.end());

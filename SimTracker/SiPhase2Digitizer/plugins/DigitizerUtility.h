@@ -17,8 +17,8 @@ namespace DigitizerUtility {
     Amplitude( float amp, const PSimHit* hitp, float frac=0, size_t hitIndex=0, unsigned int tofBin=0) :
       _amp(amp) {
       if (frac > 0) {
-	if (hitp != nullptr) _simInfoList.push_back({frac, std::make_unique<SimHitInfoForLinks>(hitp,hitIndex,tofBin)});
-        else _simInfoList.push_back({frac, nullptr});
+	if (hitp != nullptr) _simInfoList.emplace_back(frac, std::make_unique<SimHitInfoForLinks>(hitp,hitIndex,tofBin));
+        else _simInfoList.emplace_back(frac, nullptr);
       }
     }
 
@@ -31,7 +31,7 @@ namespace DigitizerUtility {
       _amp += other._amp;
       // in case of digi from the noise, the MC information need not be there
       for (auto const& ic : other.simInfoList()) {
-	if (ic.first > -0.5) _simInfoList.push_back({ic.first, std::make_unique<SimHitInfoForLinks>(*ic.second)});
+	if (ic.first > -0.5) _simInfoList.emplace_back(ic.first, std::make_unique<SimHitInfoForLinks>(*ic.second));
       }
     }
     void operator+= (const float& amp) {

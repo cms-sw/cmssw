@@ -31,8 +31,8 @@ NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
 {
   for (std::vector<NavVolumeSide>::const_iterator i=faces.begin();
        i != faces.end(); i++) {
-    theFaces.push_back( VolumeSide( const_cast<Surface*>(&(i->surface().surface())), 
-				    i->globalFace(), i->surfaceSide()));
+    theFaces.emplace_back( const_cast<Surface*>(&(i->surface().surface())), 
+				    i->globalFace(), i->surfaceSide());
     //  LogDebug("NavGeometry") << " or actually this is where we have side " << i->surfaceSide() << " and face " << i->globalFace() ;
   }
 
@@ -52,7 +52,7 @@ NavVolume6Faces::NavVolume6Faces( const MagVolume& magvol, bool isIron) :
   for (std::vector<VolumeSide>::const_iterator i=magSides.begin();
        i != magSides.end(); i++) {
     NavSurface* navSurface = navBuilder.build( i->surface());
-    navSides.push_back( NavVolumeSide( navSurface, i->globalFace(), i->surfaceSide()));
+    navSides.emplace_back( navSurface, i->globalFace(), i->surfaceSide());
   }
   computeBounds(navSides);
 }
@@ -103,7 +103,7 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
 // We would like to keep a pointer to the same Bounds in the NavVolume, so we have to ASK
 // the NavSurface for the Bounds* of the Bounds we just gave it!
 	//LogDebug("NavGeometry") << "Adding a Volume Side with center " << navSurf.surface().position() << " side "<< faces[i].surfaceSide() << " and face " << faces[i].globalFace();
-	theNavSurfaces.push_back( SurfaceAndBounds(&navSurf, navSurf.bounds(this), faces[i].surfaceSide(), faces[i].globalFace()));
+	theNavSurfaces.emplace_back(&navSurf, navSurf.bounds(this), faces[i].surfaceSide(), faces[i].globalFace());
     }
 }
 
@@ -164,7 +164,7 @@ Bounds* NavVolume6Faces::computeBounds( int index, const std::vector<NavVolumeSi
   SurfaceContainer crossed; crossed.reserve(4);
   for (int j = startIndex; j <  startIndex+4; j++) {
     const NavVolumeSide& face(faces[j%6]);
-    crossed.push_back( SurfaceAndSide(&(face.surface().surface()), face.surfaceSide()));
+    crossed.emplace_back(&(face.surface().surface()), face.surfaceSide());
   }
   return new GeneralNSurfaceDelimitedBounds( &(faces[index].surface().surface()), crossed);
 }

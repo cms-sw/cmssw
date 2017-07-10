@@ -1601,20 +1601,20 @@ void sptf::beginJob()
     // Allocating space for 5 events in each double vector variable
     for(int i=0; i<5; i++)
     {
-        the_primSelector.push_back(vector<int>());
-        the_inputOrder.push_back(vector<int>());
-        the_bx_jitter.push_back(vector<int>());
-        the_endcap.push_back(vector<int>());
-        the_sector.push_back(vector<int>());
-        the_subsector.push_back(vector<int>());
-        the_station.push_back(vector<int>());
-        the_valid.push_back(vector<int>());
-        the_quality.push_back(vector<int>());
-        the_pattern.push_back(vector<int>());
-        the_wiregroup.push_back(vector<int>());
-        the_cscid.push_back(vector<int>());
-        the_bend.push_back(vector<int>());
-        the_halfstrip.push_back(vector<int>());
+        the_primSelector.emplace_back();
+        the_inputOrder.emplace_back();
+        the_bx_jitter.emplace_back();
+        the_endcap.emplace_back();
+        the_sector.emplace_back();
+        the_subsector.emplace_back();
+        the_station.emplace_back();
+        the_valid.emplace_back();
+        the_quality.emplace_back();
+        the_pattern.emplace_back();
+        the_wiregroup.emplace_back();
+        the_cscid.emplace_back();
+        the_bend.emplace_back();
+        the_halfstrip.emplace_back();
     }
 
     sim_lib_init();

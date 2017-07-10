@@ -41,8 +41,8 @@ extractNoiseGainQualityForDetId(uint32_t detId, const VPSet& digiset) {
   for(iter_t digi = digiset.begin(); digi<digiset.end(); digi++) {
     uint16_t strip = digi->getParameter<unsigned>("Strip");
     if(digi->getParameter<unsigned>("ADC") != 0) {
-      detNoises.push_back(std::make_pair(strip, digi->getParameter<double>("Noise") ));
-      detGains.push_back(std::make_pair(strip, digi->getParameter<double>("Gain") ));
+      detNoises.emplace_back(std::make_pair(strip, digi->getParameter<double>("Noise") ));
+      detGains.emplace_back(std::make_pair(strip, digi->getParameter<double>("Gain") ));
     }
     if(!digi->getParameter<bool>("Quality") )
       detBadStrips.push_back(quality->encode(strip,1));

@@ -199,7 +199,7 @@ GlobalMuonTrackMatcher::match(const TrackCand& sta,
     std::pair<TrajectoryStateOnSurface, TrajectoryStateOnSurface> tsosPair = convertToTSOSMuHit(sta,*is);
     LogTrace(category) << "    Tk " << iiTk << " of " << tracks.size() << "  ConvertToMuHitSurface muon isValid " << tsosPair.first.isValid() << " tk isValid " << tsosPair.second.isValid() << endl;
     if(tsosPair.first.isValid()) muonTSOS = tsosPair.first;
-    cands.push_back(TrackCandWithTSOS(*is,tsosPair.second));
+    cands.emplace_back(*is,tsosPair.second);
   }
   
   // initialize variables

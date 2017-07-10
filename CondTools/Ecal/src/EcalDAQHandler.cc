@@ -602,7 +602,7 @@ void popcon::EcalDAQHandler::getNewObjects() {
 
 	std::cout << "Generating popcon record for run "<< irun << std::endl;
 
-	m_to_transfer.push_back(std::make_pair((EcalDAQTowerStatus*)daq_pop, irun));
+	m_to_transfer.emplace_back(std::make_pair((EcalDAQTowerStatus*)daq_pop, irun));
 
 	ss << "Run=" << irun << "_DAQchanged_"<<std::endl; 
 	m_userTextLog = ss.str()+";";

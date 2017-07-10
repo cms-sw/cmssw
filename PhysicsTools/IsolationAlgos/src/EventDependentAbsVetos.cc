@@ -19,7 +19,7 @@ reco::isodeposit::OtherCandidatesDeltaRVeto::setEvent(const edm::Event &iEvent, 
     edm::Handle<edm::View<reco::Candidate> > candidates;
     iEvent.getByToken(src_, candidates);
     for (edm::View<reco::Candidate>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
-        items_.push_back(Direction(it->eta(), it->phi()));
+        items_.emplace_back(it->eta(), it->phi());
     }
 }
 
@@ -39,7 +39,7 @@ reco::isodeposit::OtherCandVeto::setEvent(const edm::Event &iEvent, const edm::E
     edm::Handle<edm::View<reco::Candidate> > candidates;
     iEvent.getByToken(src_, candidates);
     for (edm::View<reco::Candidate>::const_iterator it = candidates->begin(), ed = candidates->end(); it != ed; ++it) {
-        items_.push_back(Direction(it->eta(), it->phi()));
+        items_.emplace_back(it->eta(), it->phi());
     }
 }
 
@@ -87,7 +87,7 @@ reco::isodeposit::OtherJetConstituentsDeltaRVeto::initialize()
       for ( edm::RefVector<reco::PFCandidateCollection>::const_iterator pfCand = pfCandsMappedToJet.begin();
 	    pfCand != pfCandsMappedToJet.end(); ++pfCand ) {
 	//std::cout << "pfCand #" << idx << ": Pt = " << (*pfCand)->pt() << ", eta = " << (*pfCand)->eta() << ", phi = " << (*pfCand)->phi() << std::endl;
-	items_.push_back(Direction((*pfCand)->eta(), (*pfCand)->phi()));
+	items_.emplace_back((*pfCand)->eta(), (*pfCand)->phi());
 	++idx;
       }
     }

@@ -209,7 +209,7 @@ void HcalCableMapper::endJob(){
 	}
       }    
       
-      s.push_back(((c_max&0x7F)));
+      s.emplace_back(((c_max&0x7F)));
 
       c_max=0;
     }//k-loop    

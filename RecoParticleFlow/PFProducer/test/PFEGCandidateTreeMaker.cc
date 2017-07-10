@@ -182,7 +182,7 @@ findBestGenMatches(const edm::Event& e,
       for(size_t i = 0; i < genp->size(); ++i) {	
 	const int pdgid = std::abs(genp->at(i).pdgId());
 	if( pdgid == 22 || pdgid == 11 ) {	     
-	  elesandphos.push_back(reco::GenParticleRef(genp,i));
+	  elesandphos.emplace_back(genp,i);
 	}
       }
       for( size_t i = 0; i < elesandphos.size(); ++i ) {

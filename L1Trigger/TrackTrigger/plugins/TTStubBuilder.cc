@@ -193,7 +193,7 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
           bendMap.reserve(is.second.size());
           for ( unsigned int i = 0; i < is.second.size(); ++i )
           {
-            bendMap.push_back( std::pair< unsigned int, double >( i, is.second[i].getTriggerBend() ) );
+            bendMap.emplace_back( i, is.second[i].getTriggerBend() );
           }
           std::sort( bendMap.begin(), bendMap.end(), TTStubBuilder< Ref_Phase2TrackerDigi_ >::SortStubBendPairs );
 

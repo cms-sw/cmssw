@@ -144,7 +144,7 @@ testEcalHitMaker::analyze( const edm::Event& iEvent, const edm::EventSetup& iSet
    SimTrack myTrack(11,theMomentum,0,-1,thePositionatEcalEntrance,theMomentum);
    mySimTracks.push_back(myTrack);
    std::vector<SimVertex> mySimVertices;
-   mySimVertices.push_back(SimVertex(thePositionatEcalEntrance,0.));
+   mySimVertices.emplace_back(thePositionatEcalEntrance,0.);
 
    mySimEvent->fill(mySimTracks,mySimVertices);
  

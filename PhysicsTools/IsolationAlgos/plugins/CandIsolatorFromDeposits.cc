@@ -119,7 +119,7 @@ CandIsolatorFromDeposits::CandIsolatorFromDeposits(const ParameterSet& par) {
   typedef std::vector<edm::ParameterSet> VPSet;
   VPSet depPSets = par.getParameter<VPSet>("deposits");
   for (VPSet::const_iterator it = depPSets.begin(), ed = depPSets.end(); it != ed; ++it) {
-    sources_.push_back(SingleDeposit(*it, consumesCollector()));
+    sources_.emplace_back(*it, consumesCollector());
   }
   if (sources_.size() == 0) throw cms::Exception("Configuration Error") << "Please specify at least one deposit!";
   produces<CandDoubleMap>();

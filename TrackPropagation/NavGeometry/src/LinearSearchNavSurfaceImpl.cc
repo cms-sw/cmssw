@@ -42,9 +42,9 @@ void LinearSearchNavSurfaceImpl::addVolume( const NavVolume* vol, const Bounds* 
 					    SurfaceOrientation::Side side)
 {
     if (side == SurfaceOrientation::positiveSide) {
-	thePosVolumes.push_back( VolumeAndBounds( vol, bounds->clone()));
+	thePosVolumes.emplace_back( vol, bounds->clone());
     }
     else {
-	theNegVolumes.push_back( VolumeAndBounds( vol, bounds->clone()));
+	theNegVolumes.emplace_back( vol, bounds->clone());
     }
 }

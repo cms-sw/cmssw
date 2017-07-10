@@ -192,12 +192,12 @@ ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
   // NOTE: it is better if you copy the MVA weight files locally
 
   std::vector<std::string> catWTrigV0;
-  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat1.weights.xml");
-  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat2.weights.xml");
-  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat3.weights.xml");
-  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat4.weights.xml");
-  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat5.weights.xml");
-  catWTrigV0.push_back("../data/Electrons_BDTG_TrigV0_Cat6.weights.xml");
+  catWTrigV0.emplace_back("../data/Electrons_BDTG_TrigV0_Cat1.weights.xml");
+  catWTrigV0.emplace_back("../data/Electrons_BDTG_TrigV0_Cat2.weights.xml");
+  catWTrigV0.emplace_back("../data/Electrons_BDTG_TrigV0_Cat3.weights.xml");
+  catWTrigV0.emplace_back("../data/Electrons_BDTG_TrigV0_Cat4.weights.xml");
+  catWTrigV0.emplace_back("../data/Electrons_BDTG_TrigV0_Cat5.weights.xml");
+  catWTrigV0.emplace_back("../data/Electrons_BDTG_TrigV0_Cat6.weights.xml");
 
   myMVATrigV0 = new EGammaMvaEleEstimator();
   myMVATrigV0->initialize("BDT",
@@ -206,12 +206,12 @@ ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
 			catWTrigV0);
 
   std::vector<std::string> catWTrigNoIPV0;
-  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat1.weights.xml");
-  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat2.weights.xml");
-  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat3.weights.xml");
-  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat4.weights.xml");
-  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat5.weights.xml");
-  catWTrigNoIPV0.push_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat6.weights.xml");
+  catWTrigNoIPV0.emplace_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat1.weights.xml");
+  catWTrigNoIPV0.emplace_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat2.weights.xml");
+  catWTrigNoIPV0.emplace_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat3.weights.xml");
+  catWTrigNoIPV0.emplace_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat4.weights.xml");
+  catWTrigNoIPV0.emplace_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat5.weights.xml");
+  catWTrigNoIPV0.emplace_back("../data/Electrons_BDTG_TrigNoIPV0_2012_Cat6.weights.xml");
 
   myMVATrigNoIPV0 = new EGammaMvaEleEstimator();
   myMVATrigNoIPV0->initialize("BDT",
@@ -220,12 +220,12 @@ ElectronTestAnalyzer::ElectronTestAnalyzer(const edm::ParameterSet& iConfig):
 			catWTrigNoIPV0);
 
   std::vector<std::string> catWNonTrigV0;
-  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml");
-  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml");
-  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml");
-  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml");
-  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml");
-  catWNonTrigV0.push_back("../data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml");
+  catWNonTrigV0.emplace_back("../data/Electrons_BDTG_NonTrigV0_Cat1.weights.xml");
+  catWNonTrigV0.emplace_back("../data/Electrons_BDTG_NonTrigV0_Cat2.weights.xml");
+  catWNonTrigV0.emplace_back("../data/Electrons_BDTG_NonTrigV0_Cat3.weights.xml");
+  catWNonTrigV0.emplace_back("../data/Electrons_BDTG_NonTrigV0_Cat4.weights.xml");
+  catWNonTrigV0.emplace_back("../data/Electrons_BDTG_NonTrigV0_Cat5.weights.xml");
+  catWNonTrigV0.emplace_back("../data/Electrons_BDTG_NonTrigV0_Cat6.weights.xml");
 
   myMVANonTrigV0 = new EGammaMvaEleEstimator();
   myMVANonTrigV0->initialize("BDT",

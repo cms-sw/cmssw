@@ -179,7 +179,7 @@ std::vector<JetMatchingTools::JetConstituent> JetMatchingTools::getConstituentHi
       }
 
       assert(hit != NULL);
-      if (hit) result.push_back(JetConstituent(*hit));
+      if (hit) result.emplace_back(*hit);
       else std::cerr << "Can not find rechit for id " << id.rawId () << std::endl;
     } else if (id.det () == DetId::Hcal) {
       const CaloRecHit* hit = NULL;
@@ -194,7 +194,7 @@ std::vector<JetMatchingTools::JetConstituent> JetMatchingTools::getConstituentHi
         hit = getHit (*getHFRecHitCollection (), id);
       }
 
-      if (hit) result.push_back(JetConstituent(*hit));
+      if (hit) result.emplace_back(*hit);
       else std::cerr << "Can not find rechit for id " << id.rawId () << std::endl;
     }
   }

@@ -50,9 +50,9 @@ void TFormulaWriter::analyze(const edm::Event&, const edm::EventSetup&)
     std::cout << " writing TFormula = " << (*job)->formulaName_ << " to SQLlite file, record = " << (*job)->outputRecord_ << "." << std::endl;
     typedef std::pair<float, float> vfloat;
     std::vector<vfloat> limits;
-    limits.push_back(vfloat(0., 1.e+6));
+    limits.emplace_back(0., 1.e+6);
     std::vector<std::string> formulas;
-    formulas.push_back((formula->GetExpFormula("p")).Data());
+    formulas.emplace_back((formula->GetExpFormula("p")).Data());
     PhysicsTFormulaPayload* formulaPayload = new PhysicsTFormulaPayload(limits, formulas);
     delete formula;
     dbService->writeOne(formulaPayload, dbService->beginOfTime(), (*job)->outputRecord_);

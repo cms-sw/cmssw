@@ -97,7 +97,7 @@ namespace spr{
           }
         }
         if (!found) {
-          dets.push_back(DetId(id1));
+          dets.emplace_back(id1);
           energies.push_back(energy);
         }
       }
@@ -149,7 +149,7 @@ namespace spr{
 	std::cout << "energyHCALCell:: Cell " << hcid << " E " << energy << " from " << hit.size() << " threshold " << eThr << std::endl;
 #endif
       if (energy>eThr && hit.size() > 0) {
-        energyCell.push_back(std::pair<double,int>(energy,i+1));
+        energyCell.emplace_back(energy,i+1);
       }
     }
 #ifdef EDM_ML_DEBUG

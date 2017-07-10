@@ -342,11 +342,10 @@ double SETFilter::findChi2(double pX, double pY, double pZ,
 	lastUpdatedTSOS.freeTrajectoryState().setCurvilinearError(cov);
       }
       */
-      trajectoryMeasurementsInTheSet.push_back( TrajectoryMeasurement
-						( lastUpdatedTSOS,
+      trajectoryMeasurementsInTheSet.emplace_back( lastUpdatedTSOS,
 						  muonRecHit,
 						  chi2_intermed,
-						  layer ) );
+						  layer );
     }
   }
   return chi2_loc;

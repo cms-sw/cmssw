@@ -119,7 +119,7 @@ ME0SegmentAlgorithm::clusterHits(const HitAndPositionContainer& rechits) {
   // Loop over rechits
   // Create one seed per hit
   for(unsigned int i = 0; i < rechits.size(); ++i) {
-    seeds.push_back(HitAndPositionPtrContainer(1,&rechits[i]));
+    seeds.emplace_back(1,&rechits[i]);
 
     // First added hit in seed defines the mean to which the next hit is compared
     // for this seed.
@@ -207,7 +207,7 @@ ME0SegmentAlgorithm::chainHits(const ME0Chamber * chamber, const HitAndPositionC
   // Create one seed per hit
   for ( unsigned int i=0; i<rechits.size(); ++i){
     if(std::abs(rechits[i].rh->tof()) > dTimeChainBoxMax) continue;
-    seeds.push_back(HitAndPositionPtrContainer(1,&rechits[i]));
+    seeds.emplace_back(1,&rechits[i]);
   }
 
   // merge chains that are too close ("touch" each other)

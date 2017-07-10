@@ -1874,7 +1874,7 @@ void CSCMotherboardME11GEM::retrieveGEMPads(const GEMPadDigiCollection* gemPads,
       for (auto pad = pads_in_det.first; pad != pads_in_det.second; ++pad) {
         const int bx_shifted(lct_central_bx + pad->bx());
         for (int bx = bx_shifted - maxDeltaBXPad_;bx <= bx_shifted + maxDeltaBXPad_; ++bx) {
-	  pads_[bx].push_back(std::make_pair(roll_id, *pad));  
+	  pads_[bx].emplace_back(std::make_pair(roll_id, *pad));  
         }
       }
     }
@@ -1885,8 +1885,8 @@ void CSCMotherboardME11GEM::retrieveGEMCoPads()
 {
   for (const auto& copad: gemCoPadV){
     if (copad.first().bx() != lct_central_bx) continue;
-    coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.first()));  
-    coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad.second()));  
+    coPads_[copad.bx(1)].emplace_back(std::make_pair(copad.roll(), copad.first()));  
+    coPads_[copad.bx(1)].emplace_back(std::make_pair(copad.roll(), copad.second()));  
   }
 }
 

@@ -20,7 +20,7 @@ void
 DDLSAX2FileHandler::init( void )
 {
   createDDConstants();
-  namesMap_.push_back("*** root ***");
+  namesMap_.emplace_back("*** root ***");
   names_.push_back(namesMap_.size() - 1);
 }
 
@@ -53,8 +53,8 @@ DDLSAX2FileHandler::startElement( const XMLCh* const uri,
 
   for (unsigned int i = 0; i < numAtts; ++i)
   {
-    attrNames.push_back(std::string(cStr(attrs.getLocalName(i)).ptr()));
-    attrValues.push_back(std::string(cStr(attrs.getValue(i)).ptr()));
+    attrNames.emplace_back(cStr(attrs.getLocalName(i)).ptr());
+    attrValues.emplace_back(cStr(attrs.getValue(i)).ptr());
   }
   
   myElement->loadAttributes(myElementName, attrNames, attrValues, nmspace_, cpv_);

@@ -1182,7 +1182,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
       TGPack* pp = m_viewPrimPack->GetPack();
       TGFrameElementPack *frameEL = (TGFrameElementPack*) pp->GetList()->At(1);
       if (frameEL->fWeight > 0)
-         wpacked.push_back(areaInfo(frameEL));
+         wpacked.emplace_back(frameEL);
    }
    TGPack* sp = m_viewSecPack->GetPack();
    TGFrameElementPack *seFE;
@@ -1190,7 +1190,7 @@ FWGUIManager::addTo(FWConfiguration& oTo) const
    while ((seFE = (TGFrameElementPack*)frame_iterator() ))
    {
       if (seFE->fWeight)
-         wpacked.push_back(areaInfo(seFE));
+         wpacked.emplace_back(seFE);
    }
 
    //  undocked info

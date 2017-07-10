@@ -29,16 +29,16 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test()
     const double minChargeAsymm = 30.0;
 
     std::vector<P> pts;
-    pts.push_back(P(minCharge0, 10.0));
-    pts.push_back(P(10.0*minCharge0, 12.0));
-    pts.push_back(P(20.0*minCharge0, 13.0));
+    pts.emplace_back(minCharge0, 10.0);
+    pts.emplace_back(10.0*minCharge0, 12.0);
+    pts.emplace_back(20.0*minCharge0, 13.0);
     cuts[HFPhase1PMTData::T_0_MIN] = boost::shared_ptr<AbsHcalFunctor>(
         new HcalPiecewiseLinearFunctor(pts, false, false));
 
     pts.clear();
-    pts.push_back(P(minCharge0, 20.0));
-    pts.push_back(P(10.0*minCharge0, 18.0));
-    pts.push_back(P(20.0*minCharge0, 17.0));
+    pts.emplace_back(minCharge0, 20.0);
+    pts.emplace_back(10.0*minCharge0, 18.0);
+    pts.emplace_back(20.0*minCharge0, 17.0);
     cuts[HFPhase1PMTData::T_0_MAX] = boost::shared_ptr<AbsHcalFunctor>(
         new HcalPiecewiseLinearFunctor(pts, false, false));
 
@@ -67,8 +67,8 @@ std::unique_ptr<HFPhase1PMTParams> make_HFPhase1PMTParams_test()
 #endif
 
     pts.clear();
-    pts.push_back(P(5.0*minChargeAsymm, 2.0));
-    pts.push_back(P(10.0*minChargeAsymm, 1.0));
+    pts.emplace_back(5.0*minChargeAsymm, 2.0);
+    pts.emplace_back(10.0*minChargeAsymm, 1.0);
     cuts[HFPhase1PMTData::ASYMM_MAX] = boost::shared_ptr<AbsHcalFunctor>(
         new HcalPiecewiseLinearFunctor(pts, false, false));
 

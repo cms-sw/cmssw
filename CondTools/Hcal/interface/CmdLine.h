@@ -259,7 +259,7 @@ public:
         {
             if (nextIsArg)
             {
-                args_.push_back(Pair(argv[i], previousIsOpt ? 0 : 3));
+                args_.emplace_back(argv[i], previousIsOpt ? 0 : 3);
                 previousIsOpt = false;
                 ++nprogargs_;
                 nextIsArg = false;
@@ -271,14 +271,14 @@ public:
                 // End of options
                 for (unsigned k=i+1; k<argc; ++k)
                 {
-                    args_.push_back(Pair(argv[k], 3));
+                    args_.emplace_back(argv[k], 3);
                     ++nprogargs_;
                 }
                 return;
             }
             else if (strncmp(argv[i], "--", 2) == 0)
             {
-                args_.push_back(Pair(argv[i], 2));
+                args_.emplace_back(argv[i], 2);
                 previousIsOpt = true;
             }
             else if (argv[i][0] == '-')
@@ -288,13 +288,13 @@ public:
                 {
                     std::string dummy("-");
                     dummy += argv[i][k];
-                    args_.push_back(Pair(dummy, 1));
+                    args_.emplace_back(dummy, 1);
                     previousIsOpt = true;
                 }
             }
             else
             {
-                args_.push_back(Pair(argv[i], previousIsOpt ? 0 : 3));
+                args_.emplace_back(argv[i], previousIsOpt ? 0 : 3);
                 previousIsOpt = false;
                 ++nprogargs_;
             }

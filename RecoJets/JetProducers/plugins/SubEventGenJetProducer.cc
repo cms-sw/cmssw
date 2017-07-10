@@ -71,8 +71,8 @@ void SubEventGenJetProducer::inputTowers( )
       LogDebug("SubEventContainers")<<"HydroTag is : "<<hydroTag_[subevent]<<endl;
       if(hydroTag_[subevent] != 0) hydroTag_[subevent] = (int)checkHydro(pref);
 
-      subInputs_[subevent].push_back(fastjet::PseudoJet(input->px(),input->py(),input->pz(),
-						input->energy()));
+      subInputs_[subevent].emplace_back(input->px(),input->py(),input->pz(),
+						input->energy());
 
       subInputs_[subevent].back().set_user_index(i - inBegin);
 

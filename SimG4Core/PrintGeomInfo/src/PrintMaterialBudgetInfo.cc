@@ -65,7 +65,7 @@ void PrintMaterialBudgetInfo::update(const BeginOfRun* run) {
     for(unsigned int iElement = 0;
 	iElement < G4Element::GetNumberOfElements();
 	iElement++) { // first element in table is 0
-      elementNames.push_back("rr");
+      elementNames.emplace_back("rr");
       elementTotalWeight.push_back(0);
       elementWeightFraction.push_back(0);
     }

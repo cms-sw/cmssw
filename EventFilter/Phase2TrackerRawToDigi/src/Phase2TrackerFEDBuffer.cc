@@ -73,12 +73,12 @@ namespace Phase2Tracker
             if((cbc_status>>i)&0x1)
             {
               // Warning: STRIPS_PADDING+STRIPS_PER_CBC should always be an entire number of bytes
-              channels_.push_back(Phase2TrackerFEDChannel(payloadPointer_,offsetBeginningOfChannel,(STRIPS_PADDING+STRIPS_PER_CBC)/8));
+              channels_.emplace_back(payloadPointer_,offsetBeginningOfChannel,(STRIPS_PADDING+STRIPS_PER_CBC)/8);
               offsetBeginningOfChannel += (STRIPS_PADDING+STRIPS_PER_CBC)/8;
             }
             else
             {
-              channels_.push_back(Phase2TrackerFEDChannel(NULL,0,0));
+              channels_.emplace_back(NULL,0,0);
             }
           }
         }
@@ -101,7 +101,7 @@ namespace Phase2Tracker
             uint8_t n_clusters = static_cast<uint8_t> (*(payloadPointer_ + offsetBeginningOfChannel));
             offsetBeginningOfChannel += 1;
             // each channel contains 2 bytes per cluster 
-            channels_.push_back(Phase2TrackerFEDChannel(payloadPointer_,offsetBeginningOfChannel,2*n_clusters));
+            channels_.emplace_back(payloadPointer_,offsetBeginningOfChannel,2*n_clusters);
             // skip clusters
             offsetBeginningOfChannel += 2*n_clusters;
           }

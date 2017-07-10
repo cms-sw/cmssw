@@ -375,9 +375,9 @@ void L1TCompare::analyze(const Event & e, const EventSetup & c)
   RctObjectCollection ecalobs;
   for (EcalTrigPrimDigiCollection::const_iterator ieTP = eTP->begin();
        ieTP != eTP->end(); ieTP++) {
-    ecalobs.push_back(RctObject(ieTP->id().ieta(),
+    ecalobs.emplace_back(ieTP->id().ieta(),
 				 ieTP->id().iphi(), 
-				 ieTP->compressedEt()));
+				 ieTP->compressedEt());
   }
   std::sort(ecalobs.begin(), ecalobs.end(), RctObjectComp());
   if ( verbose() ) {

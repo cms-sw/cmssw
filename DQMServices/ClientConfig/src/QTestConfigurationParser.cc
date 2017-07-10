@@ -129,8 +129,8 @@ bool QTestConfigurationParser::checkParameters(std::string qtestName, std::strin
 		return true;
 		}*/
 
-	paramNames.push_back("error");
-	paramNames.push_back("warning");
+	paramNames.emplace_back("error");
+	paramNames.emplace_back("warning");
 	
 	std::map<std::string, std::string> namesMap=testsRequested[qtestName];
 	

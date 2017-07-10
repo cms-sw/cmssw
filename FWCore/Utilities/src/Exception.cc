@@ -229,7 +229,7 @@ namespace cms {
   }
 
   void Exception::addContext(char const* context) {
-    context_.push_back(std::string(context));
+    context_.emplace_back(context);
   }
 
   void Exception::addAdditionalInfo(std::string const& info) {
@@ -237,7 +237,7 @@ namespace cms {
   }
 
   void Exception::addAdditionalInfo(char const* info) {
-    additionalInfo_.push_back(std::string(info));
+    additionalInfo_.emplace_back(info);
   }
 
   void Exception::setContext(std::list<std::string> const& context) {

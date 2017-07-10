@@ -74,7 +74,7 @@ void PileUpSubtractor::setupGeometryMap(edm::Event& iEvent,const edm::EventSetup
       if( (*did).det() == DetId::Hcal ){
         HcalDetId hid = HcalDetId(*did);
         if( (hid).depth() == 1 ) {
-	  allgeomid_.push_back(*did);
+	  allgeomid_.emplace_back(*did);
 
           if((hid).ieta() != ietaold){
             ietaold = (hid).ieta();
@@ -218,7 +218,7 @@ void PileUpSubtractor::calculateOrphanInput(vector<fastjet::PseudoJet> & orphanI
 	vector<pair<int,int> >::const_iterator exclude = find(excludedTowers.begin(),excludedTowers.end(),pair<int,int>(im->ieta(),im->iphi()));
 	if( dr < radiusPU_ && exclude == excludedTowers.end()) {
 	  ntowersWithJets_[(*im).ieta()]++;     
-	  excludedTowers.push_back(pair<int,int>(im->ieta(),im->iphi()));
+	  excludedTowers.emplace_back(im->ieta(),im->iphi());
 	}
       }
     vector<fastjet::PseudoJet>::const_iterator it = fjInputs_->begin(),

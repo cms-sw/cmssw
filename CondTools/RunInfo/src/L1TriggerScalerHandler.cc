@@ -75,7 +75,7 @@ void L1TriggerScalerHandler::getNewObjects() {
       r->m_run.push_back(rnfill);   
     }
   
-   m_to_transfer.push_back(std::make_pair((L1TriggerScaler*)r,snc));
+   m_to_transfer.emplace_back(std::make_pair((L1TriggerScaler*)r,snc));
    std::ostringstream ss; 
    ss << "since =" << snc;
     

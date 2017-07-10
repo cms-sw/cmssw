@@ -84,14 +84,14 @@ void RHStopTracer::update (const EndOfTrack * fTrack) {
       << " R/phi: " << track->GetPosition().perp() << '/' << track->GetPosition().phi()
       << "   4vec " << track->GetMomentum();
     if (track->GetMomentum().mag () < 0.001) {
-      mStopPoints.push_back (StopPoint (track->GetDefinition()->GetParticleName(),
+      mStopPoints.emplace_back(track->GetDefinition()->GetParticleName(),
 					track->GetPosition().x(),
 					track->GetPosition().y(),
 					track->GetPosition().z(),
 					track->GetGlobalTime(),
 					track->GetDefinition()->GetPDGEncoding(),
                                         track->GetDefinition()->GetPDGMass()/GeV,
-                                        track->GetDefinition()->GetPDGCharge() ));
+                                        track->GetDefinition()->GetPDGCharge() );
     }
   }
 }

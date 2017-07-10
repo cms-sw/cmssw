@@ -62,7 +62,7 @@ void popcon::EcalTPGSpikeThresholdfromFile::getNewObjects() {
   }   // end loop over EB towers
   fLin.close();
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGSpike*)lut, fileIOV));
+  m_to_transfer.emplace_back(std::make_pair((EcalTPGSpike*)lut, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }

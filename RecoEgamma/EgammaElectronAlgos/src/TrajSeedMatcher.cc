@@ -139,7 +139,7 @@ TrajSeedMatcher::compatibleSeeds(const TrajectorySeedCollection& seeds, const Gl
     //in that case, perhaps it should be >=
     if(matchedHitsNeg.size()==nrHitsRequired ||
        matchedHitsPos.size()==nrHitsRequired){
-      matchedSeeds.push_back({seed,matchedHitsPos,matchedHitsNeg,nrValidLayers});
+      matchedSeeds.emplace_back(seed,matchedHitsPos,matchedHitsNeg,nrValidLayers);
     }
     
 
@@ -403,7 +403,7 @@ SeedWithInfo(const TrajectorySeed& seed,
       cms::Exception("LogicError")<<" error in "<<__FILE__<<", "<<__LINE__<<" hits to be combined have different detIDs, this should not be possible and nothing good will come of it";
     }
     DetId detId = detIdPos.rawId()!=0 ? detIdPos : detIdNeg;
-    matchInfo_.push_back(MatchInfo(detId,dRZPos,dRZNeg,dPhiPos,dPhiNeg));
+    matchInfo_.emplace_back(detId,dRZPos,dRZNeg,dPhiPos,dPhiNeg);
   }
 }
 

@@ -48,7 +48,7 @@ GBRForest::GBRForest(const TMVA::MethodBDT *bdt)
   fTrees.reserve(forest.size());
   for (unsigned int itree=0; itree<forest.size(); ++itree) {
     double scale = isadaclassifier ? bdt->GetBoostWeights()[itree]/norm : 1.0;
-    fTrees.push_back(GBRTree(forest[itree],scale,useyesnoleaf,adjustboundaries));
+    fTrees.emplace_back(forest[itree],scale,useyesnoleaf,adjustboundaries);
   }
   
 }

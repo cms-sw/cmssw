@@ -155,20 +155,20 @@ namespace edm {
       if(!result.isValid()) {
         // No product with this ID was put in the event.
         // Create and write the provenance.
-        se.products().push_back(StreamedProduct(desc));
+        se.products().emplace_back(desc);
       } else {
         if (result.provenance()->productProvenance()) {
           Parentage const* parentage = ParentageRegistry::instance()->getMapped(result.provenance()->productProvenance()->parentageID());
           assert(parentage);
-          se.products().push_back(StreamedProduct(result.wrapper(),
+          se.products().emplace_back(result.wrapper(),
                                                   desc,
                                                   result.wrapper() != nullptr,
-                                                  &parentage->parents()));
+                                                  &parentage->parents());
         } else {
-          se.products().push_back(StreamedProduct(result.wrapper(),
+          se.products().emplace_back(result.wrapper(),
                                                   desc,
                                                   result.wrapper() != nullptr,
-                                                  nullptr));
+                                                  nullptr);
 	}
       }
     }

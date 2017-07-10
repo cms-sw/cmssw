@@ -133,42 +133,42 @@ int main()
     Surface::RotationType volumeRot; // unit matrix
 
     vector<NavVolumeSide> MyNavVolumeSides;
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( rMinusPlane), SurfaceOrientation::inner,
-				       rMinusPlane->side(volumePos,0)));
+    MyNavVolumeSides.emplace_back( navPlane( rMinusPlane), SurfaceOrientation::inner,
+				       rMinusPlane->side(volumePos,0));
 
     NavPlane* CommonSideP = navPlane( rPlusPlane);
 
-    MyNavVolumeSides.push_back( NavVolumeSide(CommonSideP,  SurfaceOrientation::outer,
-    				rPlusPlane->side(volumePos,0))); 
+    MyNavVolumeSides.emplace_back(CommonSideP,  SurfaceOrientation::outer,
+    				rPlusPlane->side(volumePos,0)); 
     //    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( rPlusPlane), SurfaceOrientation::outer,
     //				       rPlusPlane->side(volumePos,0)));
 
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( zMinusPlane), SurfaceOrientation::zminus,
-				       zMinusPlane->side(volumePos,0)));
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( zPlusPlane), SurfaceOrientation::zplus,
-				       zPlusPlane->side(volumePos,0)));
+    MyNavVolumeSides.emplace_back( navPlane( zMinusPlane), SurfaceOrientation::zminus,
+				       zMinusPlane->side(volumePos,0));
+    MyNavVolumeSides.emplace_back( navPlane( zPlusPlane), SurfaceOrientation::zplus,
+				       zPlusPlane->side(volumePos,0));
 
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( phiMinusPlane), SurfaceOrientation::phiminus,
-				       phiMinusPlane->side(volumePos,0)));
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
-				       phiPlusPlane->side(volumePos,0)));
+    MyNavVolumeSides.emplace_back( navPlane( phiMinusPlane), SurfaceOrientation::phiminus,
+				       phiMinusPlane->side(volumePos,0));
+    MyNavVolumeSides.emplace_back( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
+				       phiPlusPlane->side(volumePos,0));
 
 
     vector<NavVolumeSide> MyNavVolumeSides2;
-    MyNavVolumeSides2.push_back( NavVolumeSide( CommonSideP , SurfaceOrientation::inner,
-				       rPlusPlane->side(volumePos2,0)));
-    MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( rPlus2Plane), SurfaceOrientation::outer,
-				       rPlus2Plane->side(volumePos2,0)));
+    MyNavVolumeSides2.emplace_back( CommonSideP , SurfaceOrientation::inner,
+				       rPlusPlane->side(volumePos2,0));
+    MyNavVolumeSides2.emplace_back( navPlane( rPlus2Plane), SurfaceOrientation::outer,
+				       rPlus2Plane->side(volumePos2,0));
 
-    MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( zMinusPlane), SurfaceOrientation::zminus,
-				       zMinusPlane->side(volumePos2,0)));
-    MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( zPlusPlane), SurfaceOrientation::zplus,
-				       zPlusPlane->side(volumePos2,0)));
+    MyNavVolumeSides2.emplace_back( navPlane( zMinusPlane), SurfaceOrientation::zminus,
+				       zMinusPlane->side(volumePos2,0));
+    MyNavVolumeSides2.emplace_back( navPlane( zPlusPlane), SurfaceOrientation::zplus,
+				       zPlusPlane->side(volumePos2,0));
 
-    MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( phiMinusPlane), SurfaceOrientation::phiminus,
-				       phiMinusPlane->side(volumePos2,0)));
-    MyNavVolumeSides2.push_back( NavVolumeSide( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
-				       phiPlusPlane->side(volumePos2,0)));
+    MyNavVolumeSides2.emplace_back( navPlane( phiMinusPlane), SurfaceOrientation::phiminus,
+				       phiMinusPlane->side(volumePos2,0));
+    MyNavVolumeSides2.emplace_back( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
+				       phiPlusPlane->side(volumePos2,0));
 
     for (vector<NavVolumeSide>::const_iterator iv=MyNavVolumeSides.begin(); iv!=MyNavVolumeSides.end(); iv++) {
 

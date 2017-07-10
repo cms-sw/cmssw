@@ -146,7 +146,7 @@ unsigned int AlignableNavigator::recursiveGetId( Alignable* alignable )
     }
     
     if (!nProblem && !this->detAndSubdetInMap(detId)) {
-      theDetAndSubdet.push_back(std::pair<int, int>( detId.det(), detId.subdetId() ));
+      theDetAndSubdet.emplace_back( detId.det(), detId.subdetId() );
     }
   }
   std::vector<Alignable*> comp = alignable->components();

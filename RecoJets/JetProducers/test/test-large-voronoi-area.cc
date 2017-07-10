@@ -82,7 +82,7 @@ int main (int argc, char ** argv) {
     fastjet::PseudoJet j(px,py,pz,E);
     //std::cout << j.eta() << " " << j.phi() << " " << j.perp() << '\n';
     if ( fabs(j.rap()) < inputEtaMax )
-      input_particles.push_back(fastjet::PseudoJet(px,py,pz,E)); 
+      input_particles.emplace_back(px,py,pz,E); 
   }
   if (input_particles.size() == 0) break;
   iev++;

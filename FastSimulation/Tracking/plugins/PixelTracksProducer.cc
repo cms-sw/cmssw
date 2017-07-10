@@ -131,7 +131,7 @@ PixelTracksProducer::produce(edm::Event& e, const edm::EventSetup& es) {
       }
       
       // add tracks 
-      pixeltracks.push_back(TrackWithRecHits(track.release(), TripletHits));
+      pixeltracks.emplace_back(track.release(), TripletHits);
       
     }
   }

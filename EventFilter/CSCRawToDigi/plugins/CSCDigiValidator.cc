@@ -880,7 +880,7 @@ CSCDigiValidator::sanitizeWireDigis(std::vector<CSCWireDigi>::const_iterator b,
 	    tbin |= 1<<(*t);
 	}
       
-      _r.push_back(CSCWireDigi(wire,tbin));
+      _r.emplace_back(wire,tbin);
     }
 
   return _r;
@@ -905,8 +905,8 @@ CSCDigiValidator::relabelStripDigis(const CSCChamberMap* m, CSCDetId _id,
     //if(me1b&&!zplus) strip=(65-strip-1)%(m->dmb(_id)*16) + 1;
     //if(me1a) strip+=64;
     
-    _r.push_back(CSCStripDigi(strip,i->getADCCounts(),i->getADCOverflow(),
-			     i->getOverlappedSample(),i->getErrorstat()));
+    _r.emplace_back(strip,i->getADCCounts(),i->getADCOverflow(),
+			     i->getOverlappedSample(),i->getErrorstat());
   }
   return _r;
 }
@@ -930,8 +930,8 @@ CSCDigiValidator::relabelCompDigis(const CSCChamberMap* m, CSCDetId _id,
     //    if(me1b&&!zplus) strip=65-strip;
     if(me1a) strip+=64;
     
-    _r.push_back(CSCComparatorDigi(strip,i->getComparator(),
-				   i->getTimeBinWord()));
+    _r.emplace_back(strip,i->getComparator(),
+				   i->getTimeBinWord());
   }
   return _r;
 }

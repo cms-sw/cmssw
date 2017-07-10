@@ -89,7 +89,7 @@ namespace trigger
       collectionKeys_.insert(collectionKeys_.end(), collectionKeys.begin(), collectionKeys.end());
     }
 
-    void addFilter(const edm::InputTag& filterTag, const Vids& filterIds, const Keys& filterKeys) {triggerFilters_.push_back(TriggerFilterObject(filterTag, filterIds, filterKeys));}
+    void addFilter(const edm::InputTag& filterTag, const Vids& filterIds, const Keys& filterKeys) {triggerFilters_.emplace_back(filterTag, filterIds, filterKeys);}
 
     /// getters
     const std::string& usedProcessName() const {return usedProcessName_;}

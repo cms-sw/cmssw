@@ -186,11 +186,11 @@ SherpaHadronizer::SherpaHadronizer(const edm::ParameterSet &params) :
   std::string shRng  = "EXTERNAL_RNG=CMS_SHERPA_RNG";
 
   //create the command line
-  arguments.push_back(shRun.c_str());
-  arguments.push_back(shPath.c_str());
-  arguments.push_back(shPathPiece.c_str());
-  arguments.push_back(shRes.c_str());
-  arguments.push_back(shRng.c_str());
+  arguments.emplace_back(shRun.c_str());
+  arguments.emplace_back(shPath.c_str());
+  arguments.emplace_back(shPathPiece.c_str());
+  arguments.emplace_back(shRes.c_str());
+  arguments.emplace_back(shRng.c_str());
   isInitialized=false;
  //initialization of Sherpa moved to initializeForInternalPartons
 }

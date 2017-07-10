@@ -18,8 +18,8 @@ struct Quantile {
   { for(int i=0;i<N; i++) {
       const double H = h->GetBinContent(i)   + (head.size()?head.back().second:0);
       const double T = h->GetBinContent(N-i) + (tail.size()?tail.back().second:0);  
-      if(H) head.push_back( pair( h->GetBinWidth(i) + h->GetBinLowEdge(i) , H));
-      if(T) tail.push_back( pair(                     h->GetBinLowEdge(N-i),T)); 
+      if(H) head.emplace_back( h->GetBinWidth(i) + h->GetBinLowEdge(i) , H);
+      if(T) tail.emplace_back(                     h->GetBinLowEdge(N-i),T); 
     }
   }
   

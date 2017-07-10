@@ -100,20 +100,20 @@ int main()
     Surface::RotationType volumeRot; // unit matrix
 
     vector<NavVolumeSide> MyNavVolumeSides;
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( rMinusPlane), SurfaceOrientation::inner,
-				       rMinusPlane->side(volumePos,0)));
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( rPlusPlane), SurfaceOrientation::outer,
-				       rPlusPlane->side(volumePos,0)));
+    MyNavVolumeSides.emplace_back( navPlane( rMinusPlane), SurfaceOrientation::inner,
+				       rMinusPlane->side(volumePos,0));
+    MyNavVolumeSides.emplace_back( navPlane( rPlusPlane), SurfaceOrientation::outer,
+				       rPlusPlane->side(volumePos,0));
 
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( zMinusPlane), SurfaceOrientation::zminus,
-				       zMinusPlane->side(volumePos,0)));
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( zPlusPlane), SurfaceOrientation::zplus,
-				       zPlusPlane->side(volumePos,0)));
+    MyNavVolumeSides.emplace_back( navPlane( zMinusPlane), SurfaceOrientation::zminus,
+				       zMinusPlane->side(volumePos,0));
+    MyNavVolumeSides.emplace_back( navPlane( zPlusPlane), SurfaceOrientation::zplus,
+				       zPlusPlane->side(volumePos,0));
 
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( phiMinusPlane), SurfaceOrientation::phiminus,
-				       phiMinusPlane->side(volumePos,0)));
-    MyNavVolumeSides.push_back( NavVolumeSide( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
-				       phiPlusPlane->side(volumePos,0)));
+    MyNavVolumeSides.emplace_back( navPlane( phiMinusPlane), SurfaceOrientation::phiminus,
+				       phiMinusPlane->side(volumePos,0));
+    MyNavVolumeSides.emplace_back( navPlane( phiPlusPlane), SurfaceOrientation::phiplus,
+				       phiPlusPlane->side(volumePos,0));
 
 
     cout << "MIDDLE of the NavVolume: " << volumePos << endl;

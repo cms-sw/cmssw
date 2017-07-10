@@ -16,7 +16,7 @@ Megajet::Megajet(vector<float> Px_vector, vector<float> Py_vector, vector<float>
 
   if(Object_Px.size() < 2) cout << "Error in Megajet: you should provide at least two jets to form Megajets" << endl;
   for(int j=0; j<(int)jIN.size(); ++j) {
-    jIN.push_back(TLorentzVector(Object_Px[j],Object_Py[j],Object_Pz[j],Object_E[j]));
+    jIN.emplace_back(Object_Px[j],Object_Py[j],Object_Pz[j],Object_E[j]);
   }
 }
 
@@ -29,7 +29,7 @@ Megajet::Megajet(vector<float> Px_vector, vector<float> Py_vector, vector<float>
 
   if(Object_Px.size() < 2) cout << "Error in Megajet: you should provide at least two jets to form Megajets" << endl;
   for(int j=0; j<(int)jIN.size(); ++j) {
-    jIN.push_back(TLorentzVector(Object_Px[j],Object_Py[j],Object_Pz[j],Object_E[j]));
+    jIN.emplace_back(Object_Px[j],Object_Py[j],Object_Pz[j],Object_E[j]);
   }
 }
 

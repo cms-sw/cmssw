@@ -53,7 +53,7 @@ void RunInfoHandler::getNewObjects() {
   std::ostringstream ss;
   // transfer fake run for 1 to since for the first time
   if( tagInfo().size == 0 && m_since != 1 ) {
-    m_to_transfer.push_back( std::make_pair( (RunInfo*)(r->Fake_RunInfo()), 1 ) );
+    m_to_transfer.emplace_back(std::make_pair( (RunInfo*)(r->Fake_RunInfo()), 1 ) );
     ss << "fake run number: " << 1 << ", ";
   }
   if ( n_empty_run != 0 ) {

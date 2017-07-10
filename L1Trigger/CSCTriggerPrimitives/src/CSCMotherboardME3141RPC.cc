@@ -585,7 +585,7 @@ void CSCMotherboardME3141RPC::retrieveRPCDigis(const RPCDigiCollection* rpcDigis
     for (auto digi = digis_in_det.first; digi != digis_in_det.second; ++digi) {
       const int bx_shifted(lct_central_bx + digi->bx());
       for (int bx = bx_shifted - maxDeltaBXRPC_;bx <= bx_shifted + maxDeltaBXRPC_; ++bx) {
-        rpcDigis_[bx].push_back(std::make_pair(roll_id(), *digi));  
+        rpcDigis_[bx].emplace_back(std::make_pair(roll_id(), *digi));  
       }
     }
   }

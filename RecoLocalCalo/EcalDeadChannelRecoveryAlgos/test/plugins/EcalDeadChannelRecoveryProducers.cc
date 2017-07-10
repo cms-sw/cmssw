@@ -159,7 +159,7 @@ template <> void EcalDeadChannelRecoveryProducers<EEDetId>::beginJob() {
 
     if (EEDetId::validDetId(ix, iy, iz)) {
       EEDetId cell(ix, iy, iz);
-      ChannelsDeadID.push_back(cell);
+      ChannelsDeadID.emplace_back(cell);
     }
 
   }  //end while

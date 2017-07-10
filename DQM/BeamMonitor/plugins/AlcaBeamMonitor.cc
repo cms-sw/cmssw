@@ -53,12 +53,12 @@ AlcaBeamMonitor::AlcaBeamMonitor( const ParameterSet& ps ) :
   thePVFitter_ = new PVFitter(parameters_, consumesCollector());
 
 
-  varNamesV_.push_back("x");
-  varNamesV_.push_back("y");
-  varNamesV_.push_back("z");
-  varNamesV_.push_back("sigmaX");
-  varNamesV_.push_back("sigmaY");
-  varNamesV_.push_back("sigmaZ");
+  varNamesV_.emplace_back("x");
+  varNamesV_.emplace_back("y");
+  varNamesV_.emplace_back("z");
+  varNamesV_.emplace_back("sigmaX");
+  varNamesV_.emplace_back("sigmaY");
+  varNamesV_.emplace_back("sigmaZ");
 
   histoByCategoryNames_.insert( pair<string,string>("run",        "Coordinate"));
   histoByCategoryNames_.insert( pair<string,string>("run",        "PrimaryVertex fit-DataBase"));
@@ -363,13 +363,13 @@ void AlcaBeamMonitor::endLuminosityBlock(const LuminosityBlock& iLumi, const Eve
     	for(VertexCollection::const_iterator pv = itPV->begin(); pv != itPV->end(); pv++) {
     	  if (pv->isFake() || pv->tracksSize()<10)  continue;
     	  if(*itV == "x"){										      
-    	    vertexResults.push_back(pair<double,double>(pv->x(),pv->xError()));       
+    	    vertexResults.emplace_back(pv->x(),pv->xError());       
     	  }													      
     	  else if(*itV == "y"){ 									      
-    	    vertexResults.push_back(pair<double,double>(pv->y(),pv->yError()));       
+    	    vertexResults.emplace_back(pv->y(),pv->yError());       
     	  }													      
     	  else if(*itV == "z"){ 									      
-    	    vertexResults.push_back(pair<double,double>(pv->z(),pv->zError()));       
+    	    vertexResults.emplace_back(pv->z(),pv->zError());       
     	  }													      
     	  else if(*itV != "sigmaX" && *itV != "sigmaY" && *itV != "sigmaZ"){		      
     	    LogInfo("AlcaBeamMonitor")  									      

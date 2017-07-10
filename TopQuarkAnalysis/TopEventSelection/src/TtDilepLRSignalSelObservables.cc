@@ -130,16 +130,16 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
   double deltaPhi = std::abs( delta(solution.getJetB().p4().phi(),
 				    solution.getJetBbar().p4().phi()) );
 
-  evtselectVarVal.push_back(IntDblPair(7, deltaPhi));
-  evtselectVarMatch.push_back(IntBoolPair(7, matchB1&&matchB2));
+  evtselectVarVal.emplace_back(7, deltaPhi);
+  evtselectVarMatch.emplace_back(7, matchB1&&matchB2);
 
   // delta phi btw the b-jets
 
   double deltaTheta = std::abs( delta (solution.getJetBbar().p4().theta(),
 				       solution.getJetB().p4().theta() ) );
 
-  evtselectVarVal.push_back(IntDblPair(8, deltaTheta));
-  evtselectVarMatch.push_back(IntBoolPair(8, matchB1&&matchB2));
+  evtselectVarVal.emplace_back(8, deltaTheta);
+  evtselectVarMatch.emplace_back(8, matchB1&&matchB2);
 
   //  Lower / Higher of phi difference between the b and associated lepton
 
@@ -164,11 +164,11 @@ TtDilepLRSignalSelObservables::operator() (TtDilepEvtSolution &solution,
 
   math::XYZTLorentzVector pp = solution.getLeptPos().p4() + solution.getLeptNeg().p4();
   double mass = pp.mass();
-  evtselectVarVal.push_back(IntDblPair(13, mass));
-  evtselectVarMatch.push_back(IntBoolPair(13, matchLeptNeg&&matchLeptPos));
+  evtselectVarVal.emplace_back(13, mass);
+  evtselectVarMatch.emplace_back(13, matchLeptNeg&&matchLeptPos);
 
-  evtselectVarVal.push_back(IntDblPair(13, mass));
-  evtselectVarMatch.push_back(IntBoolPair(13, matchLeptNeg&&matchLeptPos));
+  evtselectVarVal.emplace_back(13, mass);
+  evtselectVarMatch.emplace_back(13, matchLeptNeg&&matchLeptPos);
 
   std::vector <pat::Jet> jet3;
   for (int i=0;i<(int)jets->size();++i) {
@@ -182,8 +182,8 @@ if  ( ((*jets)[i].et()<solution.getJetB().et()) && ((*jets)[i].et()<solution.get
   fillMinMax(jet1Ratio, jet2Ratio, 14, evtselectVarVal,
 	matchB1, matchB2, evtselectVarMatch);
 
-  evtselectVarVal.push_back(IntDblPair(16, jets->size()));
-  evtselectVarMatch.push_back(IntBoolPair(16, matchB&&matchBbar));
+  evtselectVarVal.emplace_back(16, jets->size());
+  evtselectVarMatch.emplace_back(16, matchB&&matchBbar);
 
 
   if (!matchOnly) solution.setLRSignalEvtObservables(evtselectVarVal);
@@ -195,16 +195,16 @@ void TtDilepLRSignalSelObservables::fillMinMax
 	 bool match1, bool match2, std::vector< IntBoolPair > & matchList)
 {
   if (v1<v2) {
-    varList.push_back(IntDblPair(obsNbr, v1));
-    varList.push_back(IntDblPair(obsNbr+1, v2));
-    matchList.push_back(IntBoolPair(obsNbr, match1));
-    matchList.push_back(IntBoolPair(obsNbr+1, match2));
+    varList.emplace_back(obsNbr, v1);
+    varList.emplace_back(obsNbr+1, v2);
+    matchList.emplace_back(obsNbr, match1);
+    matchList.emplace_back(obsNbr+1, match2);
 
   } else {
-    varList.push_back(IntDblPair(obsNbr, v2));
-    varList.push_back(IntDblPair(obsNbr+1, v1));
-    matchList.push_back(IntBoolPair(obsNbr, match2));
-    matchList.push_back(IntBoolPair(obsNbr+1, match1));
+    varList.emplace_back(obsNbr, v2);
+    varList.emplace_back(obsNbr+1, v1);
+    matchList.emplace_back(obsNbr, match2);
+    matchList.emplace_back(obsNbr+1, match1);
   }
 }
 

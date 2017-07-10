@@ -145,7 +145,7 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate
   const PFDisplacedVertexCandidate::DistMap r2Map = vertexCandidate.r2Map();
   bool bNeedNewCandidate = false;
 
-  tempDisplacedVertexSeeds.push_back( PFDisplacedVertexSeed() );
+  tempDisplacedVertexSeeds.emplace_back( );
 
   IDVS idvc_current;
 
@@ -176,7 +176,7 @@ PFDisplacedVertexFinder::findSeedsFromCandidate(const PFDisplacedVertexCandidate
     }
     if (bNeedNewCandidate) {    
       if (debug_) cout << "create new displaced vertex" << endl;
-      tempDisplacedVertexSeeds.push_back( PFDisplacedVertexSeed() );      
+      tempDisplacedVertexSeeds.emplace_back( );      
       idvc_current = tempDisplacedVertexSeeds.end();
       idvc_current--;
       bNeedNewCandidate = false;

@@ -63,8 +63,8 @@ int readMultipleStreams() {
   try {
     int evCount=0;
     std::vector<std::string> streamFiles;
-    streamFiles.push_back("teststreamfile0.dat");
-    streamFiles.push_back("teststreamfile1.dat");
+    streamFiles.emplace_back("teststreamfile0.dat");
+    streamFiles.emplace_back("teststreamfile1.dat");
 
     edm::StreamerInputFile stream_reader(streamFiles);
 

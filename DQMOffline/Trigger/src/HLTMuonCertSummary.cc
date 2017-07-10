@@ -181,12 +181,12 @@ HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & i
   CertificationSummaryMapTH2->GetYaxis()->SetBinLabel(1,"HLT_Mu5_allMuons");
 
 
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_All");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhiVsEta_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPt_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhi_L3Filtered");
-  histoNameVector.push_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_All");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recPhiVsRecEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhiVsEta_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPt_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffPhi_L3Filtered");
+  histoNameVector.emplace_back("HLT/Muon/Distributions/HLT_Mu5/allMuons/recEffEta_L3Filtered");
   
   // to do:  what do we want in certification contents?
   //  iBooker.setCurrentFolder("Egamma/EventInfo/CertificationContents/"); 

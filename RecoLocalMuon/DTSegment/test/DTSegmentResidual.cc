@@ -69,7 +69,7 @@ void DTSegmentResidual::run() {
       lay->specificTopology().wirePosition((*hit).wireId().wire());
     DTEnums::DTCellSide side = (*hit).lrSide();
     
-    theResiduals.push_back(DTResidual(deltaX, wireDistance, angle, side));
+    theResiduals.emplace_back(deltaX, wireDistance, angle, side);
   }
 }
 

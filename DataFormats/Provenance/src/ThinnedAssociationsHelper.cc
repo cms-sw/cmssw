@@ -56,7 +56,7 @@ namespace edm {
   void ThinnedAssociationsHelper::addAssociation(BranchID const& parent,
                                                  BranchID const& association,
                                                  BranchID const& thinned) {
-    vThinnedAssociationBranches_.push_back(ThinnedAssociationBranches(parent, association, thinned));
+    vThinnedAssociationBranches_.emplace_back(parent, association, thinned);
   }
 
   void ThinnedAssociationsHelper::addAssociation(ThinnedAssociationBranches const& branches) {

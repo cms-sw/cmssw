@@ -184,29 +184,29 @@ try {
 
   VStrings patterns;
 
-  Strings criteria_star; criteria_star.push_back("*"); 
+  Strings criteria_star; criteria_star.emplace_back("*"); 
   patterns.push_back(criteria_star);
-  Strings criteria_notstar; criteria_notstar.push_back("!*"); 
+  Strings criteria_notstar; criteria_notstar.emplace_back("!*"); 
   patterns.push_back(criteria_notstar);
-  Strings criteria0; criteria0.push_back("HLTx1"); criteria0.push_back("HLTy1"); 
+  Strings criteria0; criteria0.emplace_back("HLTx1"); criteria0.emplace_back("HLTy1"); 
   patterns.push_back(criteria0);
-  Strings criteria1; criteria1.push_back("CALIBx2"); criteria1.push_back("!HLTx2"); 
+  Strings criteria1; criteria1.emplace_back("CALIBx2"); criteria1.emplace_back("!HLTx2"); 
   patterns.push_back(criteria1);
-  Strings criteria2; criteria2.push_back("HLT*"); 
+  Strings criteria2; criteria2.emplace_back("HLT*"); 
   patterns.push_back(criteria2);
-  Strings criteria3; criteria3.push_back("!HLT*"); 
+  Strings criteria3; criteria3.emplace_back("!HLT*"); 
   patterns.push_back(criteria3);
-  Strings criteria4; criteria4.push_back("DEBUG*1"); criteria4.push_back("HLT?2"); 
+  Strings criteria4; criteria4.emplace_back("DEBUG*1"); criteria4.emplace_back("HLT?2"); 
   patterns.push_back(criteria4);
-  Strings criteria5; criteria5.push_back("D*x1"); criteria5.push_back("CALIBx*"); 
+  Strings criteria5; criteria5.emplace_back("D*x1"); criteria5.emplace_back("CALIBx*"); 
   patterns.push_back(criteria5);
-  Strings criteria6; criteria6.push_back("HL*1"); criteria6.push_back("C?LIB*2"); 
+  Strings criteria6; criteria6.emplace_back("HL*1"); criteria6.emplace_back("C?LIB*2"); 
   patterns.push_back(criteria6);
-  Strings criteria7; criteria7.push_back("H*x1");  
+  Strings criteria7; criteria7.emplace_back("H*x1");  
   patterns.push_back(criteria7);
-  Strings criteria8; criteria8.push_back("!H*x1"); 
+  Strings criteria8; criteria8.emplace_back("!H*x1"); 
   patterns.push_back(criteria8);
-  Strings criteria9; criteria9.push_back("C?LIB*2"); 
+  Strings criteria9; criteria9.emplace_back("C?LIB*2"); 
   patterns.push_back(criteria9);
 
 

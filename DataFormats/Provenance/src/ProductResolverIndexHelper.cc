@@ -384,7 +384,7 @@ namespace edm {
           if (iFirstType) {
             iFirstType = false;
           } else {
-            ranges_.push_back(Range(iBeginning, iCount));
+            ranges_.emplace_back(iBeginning, iCount);
           }
           iBeginning = iCount;
         }
@@ -426,7 +426,7 @@ namespace edm {
         previousModuleLabel = item.moduleLabel();
         previousInstance = item.instance();
       }
-      ranges_.push_back(Range(iBeginning, iCount));
+      ranges_.emplace_back(iBeginning, iCount);
     }
 
     // Some sanity checks to protect against out of bounds vector accesses

@@ -74,7 +74,7 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
         if ((unsigned)std::abs(p->bx() - co_p->bx()) > maxDeltaBX_) continue;
 	
         // make a new coincidence pad digi
-        gemCoPadV.push_back(GEMCoPadDigi(id.roll(),*p,*co_p));
+        gemCoPadV.emplace_back(id.roll(),*p,*co_p);
       }
     }
   }

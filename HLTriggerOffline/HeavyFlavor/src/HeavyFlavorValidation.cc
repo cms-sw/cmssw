@@ -169,7 +169,7 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 						level = 4;
 					if(name.Contains("Vertex") || name.Contains("Dz"))
 						level = 5;
-					filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
+					filterNamesLevels.emplace_back(moduleNames[j],level );
 					os<<" "<<moduleNames[j];
 				}
 			}
@@ -315,7 +315,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     for(MuonCollection::const_iterator p=recoMuonsHandle->begin(); p!= recoMuonsHandle->end(); ++p){
       if(p->isGlobalMuon()){
         globMuons.push_back(*p);
-        globMuons_position.push_back( LeafCandidate( p->charge(), math::XYZTLorentzVector(p->outerTrack()->innerPosition().x(), p->outerTrack()->innerPosition().y(), p->outerTrack()->innerPosition().z(), 0.) ) );
+        globMuons_position.emplace_back( p->charge(), math::XYZTLorentzVector(p->outerTrack()->innerPosition().x(), p->outerTrack()->innerPosition().y(), p->outerTrack()->innerPosition().z(), 0.) );
       }
     }
   }else{
@@ -328,8 +328,8 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   vector<vector<LeafCandidate> > muonsAtFilter;
   vector<vector<LeafCandidate> > muonPositionsAtFilter;  
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    muonsAtFilter.push_back(vector<LeafCandidate>());
-    muonPositionsAtFilter.push_back(vector<LeafCandidate>());
+    muonsAtFilter.emplace_back();
+    muonPositionsAtFilter.emplace_back();
   }
   Handle<TriggerEventWithRefs> rawTriggerEvent;
   iEvent.getByToken( triggerSummaryRAWTag, rawTriggerEvent );
@@ -349,7 +349,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
           for(size_t j=0; j<hltCands.size(); j++){
             muonsAtFilter[i].push_back(*hltCands[j]);
             if( filterNamesLevels[i].second==2 ){
-              muonPositionsAtFilter[i].push_back( LeafCandidate( hltCands[j]->charge(), math::XYZTLorentzVector(hltCands[j]->track()->innerPosition().x(), hltCands[j]->track()->innerPosition().y(), hltCands[j]->track()->innerPosition().z(), 0.) ) );
+              muonPositionsAtFilter[i].emplace_back( hltCands[j]->charge(), math::XYZTLorentzVector(hltCands[j]->track()->innerPosition().x(), hltCands[j]->track()->innerPosition().y(), hltCands[j]->track()->innerPosition().z(), 0.) );
             }
           }
         }
@@ -371,7 +371,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
      if(aodTriggerEvent->filterTag(i)==InputTag((filterNamesLevels.end()-1)->first,"",triggerProcessName)){
         Keys keys = aodTriggerEvent->filterKeys(i);
         for(size_t j=0; j<keys.size(); j++){
-          pathMuons.push_back( LeafCandidate( allObjects[keys[j]].id()>0 ? 1 : -1, math::PtEtaPhiMLorentzVector( allObjects[keys[j]].pt(), allObjects[keys[j]].eta(), allObjects[keys[j]].phi(), muonMass ) ) );
+          pathMuons.emplace_back( allObjects[keys[j]].id()>0 ? 1 : -1, math::PtEtaPhiMLorentzVector( allObjects[keys[j]].pt(), allObjects[keys[j]].eta(), allObjects[keys[j]].phi(), muonMass ) );
         }
       }
     }
@@ -409,7 +409,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   match( ME["globGen_deltaEtaDeltaPhi"], genMuons, globMuons, genGlobDeltaRMatchingCut, glob_gen );
   vector<vector<int> > filt_glob;
   for(size_t i=0; i<filterNamesLevels.size(); i++){
-    filt_glob.push_back( vector<int>(globMuons.size(),-1) );            
+    filt_glob.emplace_back(globMuons.size(),-1 );            
     if( filterNamesLevels[i].second == 1 ){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 2 ){

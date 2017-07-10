@@ -33,7 +33,7 @@ void testSelectIterator::checkAll() {
   using namespace std;
   vector<A> v;
   for( double x = 0; x < 10.1; ++ x )
-    v.push_back(A(x));
+    v.emplace_back(x);
   CPPUNIT_ASSERT( v.size() == 11 );
   PtMinSelector select( 3.5 );
   Selection<vector<A>, PtMinSelector> sel( v, select );

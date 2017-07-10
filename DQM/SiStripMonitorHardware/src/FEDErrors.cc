@@ -520,13 +520,13 @@ bool FEDErrors::fillFEErrors(const sistrip::FEDBuffer* aBuffer,
 
       if (aDoFEMaj){
 	if (lFeErr.SubDetID == 2 || lFeErr.SubDetID == 3 || lFeErr.SubDetID == 4)
-	  aFeMajFrac[0].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	  aFeMajFrac[0].emplace_back(fedID_,lFeErr.FeMaj);
 	else if (lFeErr.SubDetID == 5)
-	  aFeMajFrac[1].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	  aFeMajFrac[1].emplace_back(fedID_,lFeErr.FeMaj);
 	else if (lFeErr.SubDetID == 0)
-	  aFeMajFrac[2].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	  aFeMajFrac[2].emplace_back(fedID_,lFeErr.FeMaj);
 	else if (lFeErr.SubDetID == 1)
-	  aFeMajFrac[3].push_back(std::pair<unsigned int, unsigned int>(fedID_,lFeErr.FeMaj));
+	  aFeMajFrac[3].emplace_back(fedID_,lFeErr.FeMaj);
       }
 
 
@@ -1030,7 +1030,7 @@ void FEDErrors::addBadAPV(const FEDErrors::APVLevelErrors & aAPV, bool & aFirst)
   if (aAPV.APVStatusBit && aFirst) {
     fedErrors_.BadChannelStatusBit = true;
     lFedCounter_.nBadChannels++;
-    chErrors_.push_back(std::pair<unsigned int, bool>(aAPV.ChannelID,aAPV.IsActive));
+    chErrors_.emplace_back(aAPV.ChannelID,aAPV.IsActive);
     if (aAPV.IsActive) {
       //print(aAPV);
       fedErrors_.BadActiveChannelStatusBit = true;

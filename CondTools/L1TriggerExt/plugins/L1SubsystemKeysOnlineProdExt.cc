@@ -79,13 +79,13 @@ if( !m_forceGeneration ){
 
        // select * from CMS_TRG_L1_CONF.L1_TRG_CONF_KEYS where ID = m_tscKey
        std::vector< std::string > queryStrings ;
-       queryStrings.push_back( "UGT_KEY"    ) ;
-       queryStrings.push_back( "UGMT_KEY"   ) ;
+       queryStrings.emplace_back("UGT_KEY"    ) ;
+       queryStrings.emplace_back("UGMT_KEY"   ) ;
 //       queryStrings.push_back( "CALO_KEY"   ) ;
-       queryStrings.push_back( "BMTF_KEY"   ) ;
-       queryStrings.push_back( "OMTF_KEY"   ) ;
-       queryStrings.push_back( "EMTF_KEY"   ) ;
-       queryStrings.push_back( "TWINMUX_KEY") ;
+       queryStrings.emplace_back("BMTF_KEY"   ) ;
+       queryStrings.emplace_back("OMTF_KEY"   ) ;
+       queryStrings.emplace_back("EMTF_KEY"   ) ;
+       queryStrings.emplace_back("TWINMUX_KEY") ;
 
        l1t::OMDSReader::QueryResults subkeyResults =
 	 m_omdsReader.basicQuery( queryStrings,
@@ -114,13 +114,13 @@ if( !m_forceGeneration ){
        // For RUN II the subsystem CondFormats for ALGO and RS are merged together -> we join ALGO and RS keys
 
        queryStrings.clear();
-       queryStrings.push_back( "UGT_RS_KEY"    );
-       queryStrings.push_back( "UGMT_RS_KEY"   );
+       queryStrings.emplace_back("UGT_RS_KEY"    );
+       queryStrings.emplace_back("UGMT_RS_KEY"   );
 //       queryStrings.push_back( "CALO_RS_KEY" );
-       queryStrings.push_back( "BMTF_RS_KEY"   );
-       queryStrings.push_back( "EMTF_RS_KEY"   );
-       queryStrings.push_back( "OMTF_RS_KEY"   );
-       queryStrings.push_back( "TWINMUX_RS_KEY");
+       queryStrings.emplace_back("BMTF_RS_KEY"   );
+       queryStrings.emplace_back("EMTF_RS_KEY"   );
+       queryStrings.emplace_back("OMTF_RS_KEY"   );
+       queryStrings.emplace_back("TWINMUX_RS_KEY");
 
        subkeyResults =
 	 m_omdsReader.basicQuery( queryStrings,

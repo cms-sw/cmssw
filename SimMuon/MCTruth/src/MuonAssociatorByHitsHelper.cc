@@ -287,7 +287,7 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
 	
 	if (matchOk) {
 
-          outputCollection[tindex].push_back(IndexMatch(tpindex, global_quality));
+          outputCollection[tindex].emplace_back(tpindex, global_quality);
 	  this_track_matched = true;
 
 	  edm::LogVerbatim("MuonAssociatorByHitsHelper")
@@ -688,7 +688,7 @@ MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection
 	
 	if (matchOk) {
 	  
-          outputCollection[tpindex].push_back(IndexMatch(tindex,global_quality));
+          outputCollection[tpindex].emplace_back(tindex,global_quality);
 	  any_trackingParticle_matched = true;
 	  
 	  edm::LogVerbatim("MuonAssociatorByHitsHelper")

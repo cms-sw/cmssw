@@ -79,7 +79,7 @@ RPCPacMuon RPCPac::runTrackPatternsGroup(const RPCLogCone & cone) const
                   firedPlanes = firedPlanes | one;
                   firedPlanesCount++;
                   std::vector<int> dIVec = cone.getLogStripDigisIdxs(logPlane, bitNumber);
-                  if (!dIVec.empty()) digiIdx.push_back( RPCMuon::TDigiLink(logPlane, *dIVec.begin())  );
+                  if (!dIVec.empty()) digiIdx.emplace_back(logPlane, *dIVec.begin() );
                         	
                   break;
                 }
@@ -202,7 +202,7 @@ RPCPac::runEnergeticPatternsGroups(const RPCLogCone & cone) const
                     wasHit = wasHit || cone.getLogStripState(logPlane, bitNumber);
                     if (wasHit) { // no sense to check more
                       std::vector<int> dIVec = cone.getLogStripDigisIdxs(logPlane, bitNumber);
-                      if (!dIVec.empty()) digiIdx.push_back( RPCMuon::TDigiLink(logPlane, *dIVec.begin())  );
+                      if (!dIVec.empty()) digiIdx.emplace_back(logPlane, *dIVec.begin() );
                       break;
                     }
                   }

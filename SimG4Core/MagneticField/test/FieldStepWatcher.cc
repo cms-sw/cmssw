@@ -30,7 +30,7 @@ void FieldStepWatcher::update(const BeginOfRun * ) {
   G4VPhysicalVolume * pv = G4TransportationManager::GetTransportationManager()
     ->GetNavigatorForTracking()->GetWorldVolume();
   findTouch(pv, 0);
-  lvnames.push_back("Not Found");
+  lvnames.emplace_back("Not Found");
 
   edm::LogInfo("FieldStepWatcher") << "FieldStepWatcher: Finds " 
 				   << lvnames.size() << " different volumes"

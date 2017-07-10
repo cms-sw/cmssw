@@ -579,7 +579,7 @@ void GoodSeedProducer::fillPreIdRefValueMap( Handle<TrackCollection> tracks,
      if(itcheck==refMap_.end()) 
        {
 	 // the track has been early discarded
-	 values.push_back(reco::PreIdRef());
+	 values.emplace_back();
        }
      else
        {

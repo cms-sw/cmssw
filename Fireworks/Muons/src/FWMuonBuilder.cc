@@ -52,9 +52,9 @@ std::vector<TEveVector> getRecoTrajectoryPoints( const reco::Muon* muon,
       if( geom->contains( rawid ))
       {
 	 geom->localToGlobal( rawid, localTrajectoryPoint, globalTrajectoryPoint );
-	 points.push_back( TEveVector(globalTrajectoryPoint[0],
+	 points.emplace_back(globalTrajectoryPoint[0],
 				      globalTrajectoryPoint[1],
-				      globalTrajectoryPoint[2] ));
+				      globalTrajectoryPoint[2] );
       }
    }
    return points;
@@ -288,21 +288,21 @@ FWMuonBuilder::buildMuon( FWProxyBuilderBase* pb,
       std::vector<TEveVector> extraPoints;
       if( muon->innerTrack().isAvailable() &&  muon->innerTrack()->extra().isAvailable())
       {
-	 extraPoints.push_back( TEveVector( muon->innerTrack()->innerPosition().x(),
+	 extraPoints.emplace_back( muon->innerTrack()->innerPosition().x(),
 					    muon->innerTrack()->innerPosition().y(),
-					    muon->innerTrack()->innerPosition().z()));
-	 extraPoints.push_back( TEveVector( muon->innerTrack()->outerPosition().x(),
+					    muon->innerTrack()->innerPosition().z());
+	 extraPoints.emplace_back( muon->innerTrack()->outerPosition().x(),
 					    muon->innerTrack()->outerPosition().y(),
-					    muon->innerTrack()->outerPosition().z()));
+					    muon->innerTrack()->outerPosition().z());
       }
       if( muon->outerTrack().isAvailable() &&  muon->outerTrack()->extra().isAvailable())
       {
-	 extraPoints.push_back( TEveVector( muon->outerTrack()->innerPosition().x(),
+	 extraPoints.emplace_back( muon->outerTrack()->innerPosition().x(),
 					    muon->outerTrack()->innerPosition().y(),
-					    muon->outerTrack()->innerPosition().z()));
-	 extraPoints.push_back( TEveVector( muon->outerTrack()->outerPosition().x(),
+					    muon->outerTrack()->innerPosition().z());
+	 extraPoints.emplace_back( muon->outerTrack()->outerPosition().x(),
 					    muon->outerTrack()->outerPosition().y(),
-					    muon->outerTrack()->outerPosition().z()));
+					    muon->outerTrack()->outerPosition().z());
       }
       TEveTrack* trk = 0;
       if (extraPoints.empty())

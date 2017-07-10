@@ -108,7 +108,7 @@ void ProducePFCalibrationObject::beginRun(const edm::Run& run, const edm::EventS
 
       // write them in the containers for the storage
       limitsToWrite.push_back(limits);
-      formulasToWrite.push_back(string(function->GetExpFormula("p").Data()));
+      formulasToWrite.emplace_back(function->GetExpFormula("p").Data());
       resToWrite.push_back(functType[fType]);
 
     }

@@ -220,7 +220,7 @@ void Fourvec_Constrainer::add_constraint (std::string s)
 //   s -           The constraint to add.
 //
 {
-  _constraints.push_back (Constraint (s));
+  _constraints.emplace_back(s);
 }
 
 
@@ -237,7 +237,7 @@ void Fourvec_Constrainer::mass_constraint (std::string s)
 //
 {
   assert (_mass_constraint.size() == 0);
-  _mass_constraint.push_back (Constraint (s));
+  _mass_constraint.emplace_back(s);
 }
 
 

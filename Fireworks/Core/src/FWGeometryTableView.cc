@@ -112,7 +112,7 @@ public:
     //      std::cout << *i << " " << cnt++ << std::endl;
       if ((strlen(*i) >= part_size) && strncmp(*i, part.c_str(), part_size ) == 0)
          {
-        oOptions.push_back(std::make_pair(std::make_shared<std::string>((*i)),&((*i)[part_size]) ));
+        oOptions.emplace_back(std::make_pair(std::make_shared<std::string>((*i)),&((*i)[part_size]) ));
          }
       }
    }

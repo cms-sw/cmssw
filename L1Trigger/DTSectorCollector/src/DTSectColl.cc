@@ -348,20 +348,20 @@ DTSectColl::runSectColl() {
 	if(_tsc[istep-DTConfigSectColl::NSTEPF][istat]->nTracksPh()>0) {
 	
 	  DTSectCollPhCand *cand = _tsc[istep-DTConfigSectColl::NSTEPF][istat]->getTrackPh(1);
-	  DTSCPhCache::_cache.push_back(DTSectCollPhSegm(SectCollId(),istep+cand->CoarseSync(),cand->tsTr(),1));
+	  DTSCPhCache::_cache.emplace_back(SectCollId(),istep+cand->CoarseSync(),cand->tsTr(),1);
 	  _outcand_ph.push_back(cand);
 	  
 	  if(_tsc[istep-DTConfigSectColl::NSTEPF][istat]->nTracksPh()>1) {
 	    
 	    DTSectCollPhCand *cand = _tsc[istep-DTConfigSectColl::NSTEPF][istat]->getTrackPh(2);
-	    DTSCPhCache::_cache.push_back(DTSectCollPhSegm(SectCollId(),istep+cand->CoarseSync(),cand->tsTr(),2)); 
+	    DTSCPhCache::_cache.emplace_back(SectCollId(),istep+cand->CoarseSync(),cand->tsTr(),2); 
 	    _outcand_ph.push_back(cand);
 	  }
 	}
 	if(_tsc[istep-DTConfigSectColl::NSTEPF][istat]->nTracksTh()>0) {
 	  
 	  DTSectCollThCand *cand = _tsc[istep-DTConfigSectColl::NSTEPF][istat]->getTrackTh(1);
-	  DTSCThCache::_cache.push_back(DTSectCollThSegm(SectCollId(),istep+cand->CoarseSync(),cand->tsTr()));
+	  DTSCThCache::_cache.emplace_back(SectCollId(),istep+cand->CoarseSync(),cand->tsTr());
 	  _outcand_th.push_back(cand); // CB getTrackTh non dovrebbe prendere argomenti modificala!
 
 	}

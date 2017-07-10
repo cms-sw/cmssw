@@ -82,11 +82,11 @@ TIBLayerBuilder::constructRings(vector<const GeometricDet*>& theGeometricRods,
   LogDebug("TkDetLayers") << "outerRightRodMaxSize: " << outerRightRodMaxSize ;
 
   for(unsigned int i=0;i< (innerLeftRodMaxSize+innerRightRodMaxSize);i++){
-    innerGeometricDetRings.push_back(vector<const GeometricDet*>());
+    innerGeometricDetRings.emplace_back();
   }
 
   for(unsigned int i=0;i< (outerLeftRodMaxSize+outerRightRodMaxSize);i++){
-    outerGeometricDetRings.push_back(vector<const GeometricDet*>());
+    outerGeometricDetRings.emplace_back();
   }
   
   for(unsigned int ringN = 0; ringN < innerLeftRodMaxSize; ringN++){

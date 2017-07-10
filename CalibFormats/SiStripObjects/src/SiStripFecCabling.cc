@@ -64,7 +64,7 @@ void SiStripFecCabling::addDevices( const FedChannelConnection& conn ) {
   auto icrate = crates_.begin();
   while ( icrate != crates_.end() && (*icrate).fecCrate() != conn.fecCrate() ) { icrate++; }
   if ( icrate == crates_.end() ) { 
-    crates_.push_back( SiStripFecCrate( conn ) ); 
+    crates_.emplace_back( conn ); 
   } else { 
     icrate->addDevices( conn ); 
   }
@@ -83,7 +83,7 @@ void SiStripFecCabling::connections( std::vector<FedChannelConnection>& conns ) 
 	for ( std::vector<SiStripCcu>::const_iterator iccu = iring->ccus().begin(); iccu != iring->ccus().end(); ++iccu ) {
 	  for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); ++imod ) {
 	    for ( uint16_t ipair = 0; ipair < imod->nApvPairs(); ipair++ ) {
-	      conns.push_back( FedChannelConnection( icrate->fecCrate(), 
+	      conns.emplace_back( icrate->fecCrate(), 
 						     ifec->fecSlot(), 
 						     iring->fecRing(), 
 						     iccu->ccuAddr(), 
@@ -99,7 +99,7 @@ void SiStripFecCabling::connections( std::vector<FedChannelConnection>& conns ) 
 						     imod->dcu(), 
 						     imod->pll(), 
 						     imod->mux(), 
-						     imod->lld() ) );
+						     imod->lld() );
 	      uint16_t fed_crate = imod->fedCh(ipair).fedCrate_;
 	      uint16_t fed_slot = imod->fedCh(ipair).fedSlot_;
 	      conns.back().fedCrate( fed_crate );

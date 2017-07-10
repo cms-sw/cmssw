@@ -398,20 +398,20 @@ QualityCutsAnalyzer::LoopOverJetTracksAssociation(
 
             // Check for the different categories
             if ( classifier_.is(TrackClassifier::Fake) )
-                histogram_data_[5].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[5].emplace_back(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits);
             else if ( classifier_.is(TrackClassifier::BWeakDecay) )
-                histogram_data_[0].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[0].emplace_back(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits);
             else if ( classifier_.is(TrackClassifier::Bad) )
-                histogram_data_[4].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[4].emplace_back(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits);
             else if (
                 !classifier_.is(TrackClassifier::CWeakDecay) &&
                 !classifier_.is(TrackClassifier::PrimaryVertex)
             )
-                histogram_data_[3].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[3].emplace_back(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits);
             else if ( classifier_.is(TrackClassifier::CWeakDecay) )
-                histogram_data_[1].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[1].emplace_back(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits);
             else
-                histogram_data_[2].push_back(histogram_element_t(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits));
+                histogram_data_[2].emplace_back(sdl, dta, d0, dz, ips, pt, chi2, hits, pixelHits);
 
         }
     }

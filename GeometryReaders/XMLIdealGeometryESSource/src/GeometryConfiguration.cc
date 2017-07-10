@@ -15,7 +15,7 @@ GeometryConfiguration::GeometryConfiguration( const edm::ParameterSet& pset ) : 
       rit != ritEnd; ++rit ) {
     edm::FileInPath fp(*rit);
     files_.push_back(fp.fullPath());
-    emptyStrings_.push_back("");
+    emptyStrings_.emplace_back("");
   }
 }
 

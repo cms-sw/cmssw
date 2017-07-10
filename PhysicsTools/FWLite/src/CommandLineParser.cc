@@ -73,7 +73,7 @@ CommandLineParser::parseArguments (int argc, char** argv, bool returnArgs)
    bool callHelp = false;
    SVec argsVec;
    m_argv0 = argv[0];
-   m_fullArgVec.push_back (argv[0]);
+   m_fullArgVec.emplace_back(argv[0]);
    for (int loop = 1; loop < argc; ++loop)
    {
       string arg = argv[loop];

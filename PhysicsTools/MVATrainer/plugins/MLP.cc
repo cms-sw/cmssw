@@ -29,10 +29,10 @@ static std::vector<std::string> split(const std::string line, char delim)
 		const char *q = std::strchr(p, delim);
 
 		if (!q) {
-			tokens.push_back(std::string(p));
+			tokens.emplace_back(p);
 			p = 0;
 		} else {
-			tokens.push_back(std::string(p, q - p));
+			tokens.emplace_back(p, q - p);
 			p = q + 1;
 		}
 	}

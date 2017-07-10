@@ -421,7 +421,7 @@ void TtFullLepKinSolutionProducer::produce(edm::Event & evt, const edm::EventSet
       idcs.push_back(-1);
 
     idcsV.push_back(idcs);
-    weightsV.push_back(std::make_pair(-1,0));
+    weightsV.emplace_back(std::make_pair(-1,0));
     reco::LeafCandidate nu;
     nusV.push_back(nu);
     reco::LeafCandidate nuBar;

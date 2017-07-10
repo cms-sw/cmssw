@@ -121,7 +121,7 @@ namespace {
       iBase->newPluginAdded_.connect(std::bind(std::mem_fn(&Listener::newPlugin), this, _1, _2));
     }
     void newPlugin(std::string const& iCategory, edmplugin::PluginInfo const& iInfo) {
-      nameAndTypes_.push_back(NameAndType(iInfo.name_, iCategory));
+      nameAndTypes_.emplace_back(iInfo.name_, iCategory);
     }
     NameAndTypes nameAndTypes_;
   };

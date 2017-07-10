@@ -154,7 +154,7 @@ JetCorrectorParameters::JetCorrectorParameters(const std::string& fFile, const s
     }
   if (currentDefinitions=="")
     handleError("JetCorrectorParameters","No definitions found!!!");
-  if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
+  if (mRecords.empty() && currentSection == "") mRecords.emplace_back();
   if (mRecords.empty() && currentSection != "")
     {
       std::stringstream sserr;
@@ -484,14 +484,14 @@ void JetCorrectorParametersCollection::push_back( key_type i, value_type const &
   std::cout << "flav = " << flav << std::endl;
   if ( isL5(i) ) {
     std::cout << "This is L5, getL5Bin = " << getL5Bin(flav) << std::endl;
-    correctionsL5_.push_back( pair_type(getL5Bin(flav),j) );
+    correctionsL5_.emplace_back(getL5Bin(flav),j );
   }
   else if ( isL7(i) ) {
     std::cout << "This is L7, getL7Bin = " << getL7Bin(flav) << std::endl;
-    correctionsL7_.push_back( pair_type(getL7Bin(flav),j) );
+    correctionsL7_.emplace_back(getL7Bin(flav),j );
   }
   else if ( flav == "" ) {
-    corrections_.push_back( pair_type(i,j) );
+    corrections_.emplace_back(i,j );
   } else {
     std::cout << "***** NOT ADDING " << flav << ", corresponding position in JetCorrectorParameters is not found." << std::endl;
   }

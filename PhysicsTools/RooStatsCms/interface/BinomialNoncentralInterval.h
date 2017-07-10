@@ -37,7 +37,7 @@ class BinomialNoncentralInterval : public BinomialInterval {
     // in decreasing order, determined by the Sorter class.
     std::vector<BinomialProbHelper> probs;
     for (int i = 0; i <= ntot; ++i)
-      probs.push_back(BinomialProbHelper(rho, i, ntot));
+      probs.emplace_back(rho, i, ntot);
     std::sort(probs.begin(), probs.end(), sorter_);
 
     // Add up the probabilities until the total is 1 - alpha or

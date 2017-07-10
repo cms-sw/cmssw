@@ -72,7 +72,7 @@ void CSCGEMMotherboard::retrieveGEMCoPads()
   coPads_.clear();
   for (const auto& copad: gemCoPadV){
     if (copad.first().bx() != lct_central_bx) continue;
-    coPads_[copad.bx(1)].push_back(std::make_pair(copad.roll(), copad));  
+    coPads_[copad.bx(1)].emplace_back(std::make_pair(copad.roll(), copad));  
   }
 }
 

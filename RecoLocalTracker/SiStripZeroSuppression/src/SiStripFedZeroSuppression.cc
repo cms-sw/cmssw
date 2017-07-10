@@ -116,7 +116,7 @@ void SiStripFedZeroSuppression::suppress(const std::vector<SiStripDigi>& in, std
     }
     
     if (IsAValidDigi()){
-      selectedSignal.push_back(SiStripDigi(strip, adc));
+      selectedSignal.emplace_back(strip, adc);
     }
   }
 }
@@ -212,7 +212,7 @@ void SiStripFedZeroSuppression::suppress(const edm::DetSet<SiStripRawDigi>& in, 
     }
     //GB 23/6/08: truncation should be done at the very beginning
     if (IsAValidDigi())
-      out.data.push_back(SiStripDigi(strip, truncate(in_iter->adc())));
+      out.data.emplace_back(strip, truncate(in_iter->adc()));
   }
 }
 

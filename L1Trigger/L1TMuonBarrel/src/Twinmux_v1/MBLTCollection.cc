@@ -462,7 +462,7 @@ L1TwinMux::MBLTCollection::getUnassociatedRpcClusters( double minRpcPhi ) const
 	for ( ; itOut != itOutEnd; ++itOut )
 	  primOut.push_back( _rpcOutAssociatedStubs.at(*itOut) );
 
-	associated.push_back( std::pair< L1TwinMux::TriggerPrimitiveList, L1TwinMux::TriggerPrimitiveList >(primIn, primOut) );
+	associated.emplace_back(primIn, primOut );
 	spareInMap[in] = false;
 	spareOutMap[out] = false;
       }
@@ -479,7 +479,7 @@ L1TwinMux::MBLTCollection::getUnassociatedRpcClusters( double minRpcPhi ) const
 	primIn.push_back( _rpcInAssociatedStubs.at(*itIn) );
 
       L1TwinMux::TriggerPrimitiveList primOut;
-      associated.push_back( std::pair< L1TwinMux::TriggerPrimitiveList, L1TwinMux::TriggerPrimitiveList >(primIn, primOut) );
+      associated.emplace_back(primIn, primOut );
     }
   }
 
@@ -494,7 +494,7 @@ L1TwinMux::MBLTCollection::getUnassociatedRpcClusters( double minRpcPhi ) const
       for ( ; itOut != itOutEnd; ++itOut )
 	primOut.push_back( _rpcOutAssociatedStubs.at(*itOut) );
 
-      associated.push_back( std::pair< L1TwinMux::TriggerPrimitiveList, L1TwinMux::TriggerPrimitiveList >(primIn, primOut) );
+      associated.emplace_back(primIn, primOut );
     }
   }
 

@@ -196,9 +196,9 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
        if (previousCandIsL2_) {
            edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
            TrackRef staTrack = l3seedRef->l2Track();
-           L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+           L2toL3s[staTrack].emplace_back(mucands,i);
        } else {
-           L2toL3s[tk].push_back(RecoChargedCandidateRef(mucands,i));
+           L2toL3s[tk].emplace_back(mucands,i);
        }
      }
    }
@@ -232,7 +232,7 @@ HLTMuonDimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSet
 
 	  if (matchPreviousCand_ and dR2 < 0.02*0.02 and dPt < 0.001) {
 	      const TrackRef staTrack = link.standAloneTrack();
-	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	      L2toL3s[staTrack].emplace_back(cand);
 	      check_l1match = false;
 	  }
         } //MTL loop

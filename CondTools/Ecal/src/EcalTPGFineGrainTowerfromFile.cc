@@ -63,7 +63,7 @@ TOWER_EE                     375017/379768 : 4752 lines  1584 towers 2 lines : 0
   }   // end loop over EE towers
   fLin.close();
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainTowerEE*)fgrMap, fileIOV));
+  m_to_transfer.emplace_back(std::make_pair((EcalTPGFineGrainTowerEE*)fgrMap, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }

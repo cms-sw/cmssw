@@ -96,7 +96,7 @@ void MVAComputer::setup(const Calibration::MVAComputer *calib)
 				<< name << " rejected input variable "
 				"configuration" << std::endl;
 
-		varProcessors.push_back(Processor(processor, nOutput));
+		varProcessors.emplace_back(processor, nOutput);
 	}
 
 	for(VarProcessor::ConfigCtx::iterator iter = config.begin() + nVars;

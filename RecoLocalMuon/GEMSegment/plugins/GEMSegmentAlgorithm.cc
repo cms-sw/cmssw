@@ -123,7 +123,7 @@ GEMSegmentAlgorithm::clusterHits(const GEMEnsemble& ensemble, const EnsembleHitC
   // Loop over rechits 
   // Create one seed per hit
   for(unsigned int i = 0; i < rechits.size(); ++i) {
-    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
+    seeds.emplace_back(1,rechits[i]);
 
     GEMDetId rhID                  = rechits[i]->gemId();
     const GEMEtaPartition * rhEP   = (ensemble.second.find(rhID.rawId()))->second;
@@ -216,7 +216,7 @@ GEMSegmentAlgorithm::chainHits(const GEMEnsemble& ensemble, const EnsembleHitCon
   // Loop over rechits
   // Create one seed per hit
   for ( unsigned int i=0; i<rechits.size(); ++i)
-    seeds.push_back(EnsembleHitContainer(1,rechits[i]));
+    seeds.emplace_back(1,rechits[i]);
   
   // merge chains that are too close ("touch" each other)
   for(size_t NNN = 0; NNN < seeds.size(); ++NNN) {

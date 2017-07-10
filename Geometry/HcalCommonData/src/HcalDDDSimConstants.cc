@@ -145,11 +145,11 @@ std::vector<std::pair<double,double> > HcalDDDSimConstants::getConstHBHE(const i
   std::vector<std::pair<double,double> > gcons;
   if (type == 0) {
     for (unsigned int i=0; i<hpar->rHB.size(); ++i) {
-      gcons.push_back(std::pair<double,double>(hpar->rHB[i],hpar->drHB[i]));
+      gcons.emplace_back(hpar->rHB[i],hpar->drHB[i]);
     }
   } else {
     for (unsigned int i=0; i<hpar->zHE.size(); ++i) {
-      gcons.push_back(std::pair<double,double>(hpar->zHE[i],hpar->dzHE[i]));
+      gcons.emplace_back(hpar->zHE[i],hpar->dzHE[i]);
     }
   }
   return gcons;
@@ -485,7 +485,7 @@ HcalDDDSimConstants::getPhis(const int subdet, const int ieta) const {
   for (int ifi = 0; ifi < nphi; ++ifi) {
     double phi =-ficons.first + (ifi+0.5)*ficons.second;
     int iphi   = phiNumber(ifi+1,units);
-    phis.push_back(std::pair<int,double>(iphi,phi));
+    phis.emplace_back(iphi,phi);
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "getPhis: subdet|ieta|iphi " << subdet << "|" << ieta 
@@ -846,7 +846,7 @@ void HcalDDDSimConstants::initialize( void ) {
     int npair = hpar->noff[noffsize+4];
     int kk    = noffsize+4;
     for (int k=0; k<npair; ++k) {
-      idHF2QIE.push_back(HcalDetId(HcalForward,hpar->noff[kk+1],hpar->noff[kk+2],1));
+      idHF2QIE.emplace_back(HcalForward,hpar->noff[kk+1],hpar->noff[kk+2],1);
       kk += 2;
     }
   }

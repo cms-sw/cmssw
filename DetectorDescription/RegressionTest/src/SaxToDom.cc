@@ -10,7 +10,7 @@ using namespace std;
 XERCES_CPP_NAMESPACE_USE
 
 SaxToDom::SaxToDom() 
-{ parent_.push_back(NodeName("TinyDom")); }
+{ parent_.emplace_back("TinyDom"); }
 
 SaxToDom::~SaxToDom() 
 { }

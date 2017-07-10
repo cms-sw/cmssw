@@ -280,7 +280,7 @@ std::vector<DetId> HcalTopology::east(const DetId& id) const {
   HcalDetId neighbors[2];
   for (int i=0;i<decIEta(HcalDetId(id),neighbors);i++) {
     if (neighbors[i].oldFormat()) neighbors[i].changeForm();
-    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+    vNeighborsDetId.emplace_back(neighbors[i].rawId());
   }
   return vNeighborsDetId;
 }
@@ -290,7 +290,7 @@ std::vector<DetId> HcalTopology::west(const DetId& id) const {
   HcalDetId neighbors[2];
   for (int i=0;i<incIEta(HcalDetId(id),neighbors);i++) {
     if (neighbors[i].oldFormat()) neighbors[i].changeForm();
-    vNeighborsDetId.push_back(DetId(neighbors[i].rawId()));
+    vNeighborsDetId.emplace_back(neighbors[i].rawId());
   }
   return  vNeighborsDetId;
 }
@@ -300,7 +300,7 @@ std::vector<DetId> HcalTopology::north(const DetId& id) const {
   HcalDetId neighbor;
   if (incIPhi(HcalDetId(id),neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+    vNeighborsDetId.emplace_back(neighbor.rawId());
   }
   return  vNeighborsDetId;
 }
@@ -310,7 +310,7 @@ std::vector<DetId> HcalTopology::south(const DetId& id) const {
   HcalDetId neighbor;
   if (decIPhi(HcalDetId(id),neighbor)) {
     if (neighbor.oldFormat()) neighbor.changeForm();
-    vNeighborsDetId.push_back(DetId(neighbor.rawId()));
+    vNeighborsDetId.emplace_back(neighbor.rawId());
   }
   return  vNeighborsDetId;
 }

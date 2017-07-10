@@ -110,7 +110,7 @@ int main(int argc, char **argv)
 
 	std::vector<std::string> names;
 	for(int i = 3; i < argc; i++)
-		names.push_back(argv[i]);
+		names.emplace_back(argv[i]);
 
 	try {
 		std::auto_ptr<Calibration::VarProcessor> proc(

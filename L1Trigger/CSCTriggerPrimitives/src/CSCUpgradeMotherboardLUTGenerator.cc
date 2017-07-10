@@ -281,7 +281,7 @@ void CSCUpgradeMotherboardLUTGenerator::rpcRollToEtaLimitsLUT(const RPCChamber* 
     const LocalPoint lp_bottom(0., -half_striplength, 0.);
     const GlobalPoint gp_top(roll->toGlobal(lp_top));
     const GlobalPoint gp_bottom(roll->toGlobal(lp_bottom));
-    lut.push_back(std::make_pair(std::abs(gp_top.eta()), std::abs(gp_bottom.eta())));
+    lut.emplace_back(std::make_pair(std::abs(gp_top.eta()), std::abs(gp_bottom.eta())));
   }
 }
 

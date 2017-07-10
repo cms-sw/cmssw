@@ -155,8 +155,8 @@ void SubjetFilterJetProducer::writeCompoundJets(edm::Event& iEvent,
 
     int jetIndex = it-itBegin;
     fastjet::PseudoJet fatJet = it->hardJet();
-    p4FatJets.push_back(math::XYZTLorentzVector(fatJet.px(),fatJet.py(),
-						fatJet.pz(),fatJet.e()));
+    p4FatJets.emplace_back(fatJet.px(),fatJet.py(),
+						fatJet.pz(),fatJet.e());
     areaFatJets.push_back(it->hardJetArea());
     
     vector<CompoundPseudoSubJet>::const_iterator itSubBegin(it->subjets().begin());

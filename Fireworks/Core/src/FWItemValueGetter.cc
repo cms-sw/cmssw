@@ -120,7 +120,7 @@ bool FWItemValueGetter::addEntry(std::string iExpression, int iPrec, std::string
       {
          if(parse(temp.c_str(), grammar.use_parser<1>() >> end_p, space_p).full) 
          {
-            m_entries.push_back(Entry(tmpPtr, iExpression, iUnit, iTitle.empty() ? iExpression :iTitle , iPrec));
+            m_entries.emplace_back(tmpPtr, iExpression, iUnit, iTitle.empty() ? iExpression :iTitle , iPrec);
             m_titleWidth = TMath::Max(m_titleWidth, (int) m_entries.back().m_title.size());
             return true;
          }

@@ -168,7 +168,7 @@ void HGCalBestChoiceCodecImpl::bestChoiceSelect(data_type& data)
     sortedtriggercells.reserve(nCellsInModule_);
     for(size_t i=0; i<nCellsInModule_; i++)
     {
-        sortedtriggercells.push_back(std::make_pair(data.payload[i], i));
+        sortedtriggercells.emplace_back(std::make_pair(data.payload[i], i));
     }
     // sort, reverse order
     sort(sortedtriggercells.begin(), sortedtriggercells.end(),

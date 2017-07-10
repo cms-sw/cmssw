@@ -1271,7 +1271,7 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID,float>& hitMap, int
       //make finalized CaloHitID
       CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
       
-      EBMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
+      EBMapping_.emplace_back(current_id,energy);
     }
   }
   else if(onEcal==2) {
@@ -1285,7 +1285,7 @@ void CalorimetryManager::updateECAL(const std::map<CaloHitID,float>& hitMap, int
       //make finalized CaloHitID
       CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
       
-      EEMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
+      EEMapping_.emplace_back(current_id,energy);
     }
   }
   
@@ -1335,7 +1335,7 @@ void CalorimetryManager::updateHCAL(const std::map<CaloHitID,float>& hitMap, int
     
     //make finalized CaloHitID
     CaloHitID current_id(mapitr->first.unitID(),time,trackID);
-    HMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
+    HMapping_.emplace_back(current_id,energy);
   }
 }
 
@@ -1352,7 +1352,7 @@ void CalorimetryManager::updatePreshower(const std::map<CaloHitID,float>& hitMap
     //make finalized CaloHitID
     CaloHitID current_id(mapitr->first.unitID(),mapitr->first.timeSlice(),trackID);
     
-    ESMapping_.push_back(std::pair<CaloHitID,float>(current_id,energy));
+    ESMapping_.emplace_back(current_id,energy);
   }
 }
 
@@ -1360,7 +1360,7 @@ void CalorimetryManager::loadFromEcalBarrel(edm::PCaloHitContainer & c) const
 { 
   c.reserve(c.size()+EBMapping_.size());
   for(unsigned i=0; i<EBMapping_.size(); i++) {
-    c.push_back(PCaloHit(EBDetId::unhashIndex(EBMapping_[i].first.unitID()),EBMapping_[i].second,EBMapping_[i].first.timeSlice(),EBMapping_[i].first.trackID()));
+    c.emplace_back(EBDetId::unhashIndex(EBMapping_[i].first.unitID()),EBMapping_[i].second,EBMapping_[i].first.timeSlice(),EBMapping_[i].first.trackID());
   }
 }
 
@@ -1368,7 +1368,7 @@ void CalorimetryManager::loadFromEcalEndcap(edm::PCaloHitContainer & c) const
 {
   c.reserve(c.size()+EEMapping_.size());
   for(unsigned i=0; i<EEMapping_.size(); i++) {
-    c.push_back(PCaloHit(EEDetId::unhashIndex(EEMapping_[i].first.unitID()),EEMapping_[i].second,EEMapping_[i].first.timeSlice(),EEMapping_[i].first.trackID()));
+    c.emplace_back(EEDetId::unhashIndex(EEMapping_[i].first.unitID()),EEMapping_[i].second,EEMapping_[i].first.timeSlice(),EEMapping_[i].first.trackID());
   }
 }
 
@@ -1376,7 +1376,7 @@ void CalorimetryManager::loadFromHcal(edm::PCaloHitContainer & c) const
 {
   c.reserve(c.size()+HMapping_.size());
   for(unsigned i=0; i<HMapping_.size(); i++) {
-    c.push_back(PCaloHit(DetId(HMapping_[i].first.unitID()),HMapping_[i].second,HMapping_[i].first.timeSlice(),HMapping_[i].first.trackID()));
+    c.emplace_back(DetId(HMapping_[i].first.unitID()),HMapping_[i].second,HMapping_[i].first.timeSlice(),HMapping_[i].first.trackID());
   }
 }
 
@@ -1385,7 +1385,7 @@ void CalorimetryManager::loadFromPreshower(edm::PCaloHitContainer & c) const
 {
   c.reserve(c.size()+ESMapping_.size());
   for(unsigned i=0; i<ESMapping_.size(); i++) {
-    c.push_back(PCaloHit(ESMapping_[i].first.unitID(),ESMapping_[i].second,ESMapping_[i].first.timeSlice(),ESMapping_[i].first.trackID()));
+    c.emplace_back(ESMapping_[i].first.unitID(),ESMapping_[i].second,ESMapping_[i].first.timeSlice(),ESMapping_[i].first.trackID());
   }
 }
 

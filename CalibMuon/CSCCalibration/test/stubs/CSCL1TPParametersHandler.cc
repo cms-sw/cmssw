@@ -38,7 +38,7 @@ void popcon::CSCL1TPParametersImpl::getNewObjects() {
   std::cin >> snc;
 
   
-  m_to_transfer.push_back(std::make_pair(cnl1tp,snc));
+  m_to_transfer.emplace_back(std::make_pair(cnl1tp,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
   std::cout << "CSCL1TPParametersHandler - time before writing into DB:"<< std::endl;

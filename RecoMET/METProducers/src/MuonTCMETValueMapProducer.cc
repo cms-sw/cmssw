@@ -182,10 +182,10 @@ void MuonTCMETValueMapProducer::produce(edm::Event& iEvent, const edm::EventSetu
 
     // figure out muon flag
     if( isGoodMuon( mu ) )
-      v_muCorrData.push_back( reco::MuonMETCorrectionData(reco::MuonMETCorrectionData::MuonCandidateValuesUsed, deltax, deltay) );
+      v_muCorrData.emplace_back(reco::MuonMETCorrectionData::MuonCandidateValuesUsed, deltax, deltay );
 
     else if( useCaloMuons_ && isGoodCaloMuon( mu, iMu ) )
-      v_muCorrData.push_back( reco::MuonMETCorrectionData(reco::MuonMETCorrectionData::MuonCandidateValuesUsed, deltax, deltay) );
+      v_muCorrData.emplace_back(reco::MuonMETCorrectionData::MuonCandidateValuesUsed, deltax, deltay );
 
     else v_muCorrData.push_back( muMETCorrData );
   }

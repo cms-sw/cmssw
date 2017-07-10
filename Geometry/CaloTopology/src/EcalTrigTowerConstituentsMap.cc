@@ -181,7 +181,7 @@ std::vector<DetId> EcalTrigTowerConstituentsMap::constituentsOf(const EcalTrigTo
       if(phixtalMax<=0) phixtalMax+=360;
       for(int e=etaxtalMin;e<=etaxtalMax;e++) 
 	for(int p=phixtalMin;p<=phixtalMax;p++) 
-	  items.push_back(DetId(EBDetId(id.zside()*e,p,EBDetId::ETAPHIMODE)));
+	  items.emplace_back(EBDetId(id.zside()*e,p,EBDetId::ETAPHIMODE));
     }
   else if (id.det() == DetId::Ecal && id.subdetId() == EcalTriggerTower && id.subDet() == EcalEndcap) 
     {

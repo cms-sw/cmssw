@@ -63,7 +63,7 @@ namespace stage2 {
 
           }
 
-          res.push_back(Block(id, load));
+          res.emplace_back(id, load);
 
         }
       }

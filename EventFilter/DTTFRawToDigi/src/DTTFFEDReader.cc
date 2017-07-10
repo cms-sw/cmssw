@@ -244,9 +244,8 @@ void DTTFFEDReader::process(edm::Event& e) {
       }
 
       if(tsqual!=7 && wheelID!=-1){
-        phiSegments.push_back(
-		    L1MuDTChambPhDigi( bxID+ts2tag, wheelPh, sectorID, stationID,
-		    ra, ba, tsqual, ts2tag, 0) );
+        phiSegments.emplace_back( bxID+ts2tag, wheelPh, sectorID, stationID,
+		    ra, ba, tsqual, ts2tag, 0 );
       }
     }
     //Input
@@ -271,8 +270,7 @@ void DTTFFEDReader::process(edm::Event& e) {
 	posBTI[6] = (~(*DTTFiterator)&0x40)>>6;
 
 	if(posALL){
-	  theSegments.push_back(
-		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+	  theSegments.emplace_back( bxID, wheelTh, sectorID, 1, posBTI );
 	}
 
 	posALL    =  ~(*DTTFiterator)&0x3F80;
@@ -285,8 +283,7 @@ void DTTFFEDReader::process(edm::Event& e) {
 	posBTI[6] = (~(*DTTFiterator)&0x2000)>>13;
 
 	if(posALL){
-	  theSegments.push_back(
-		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
+	  theSegments.emplace_back( bxID, wheelTh, sectorID, 2, posBTI );
 	}
 
 	posALL    =  ~(*DTTFiterator)&0x1FC000;
@@ -299,8 +296,7 @@ void DTTFFEDReader::process(edm::Event& e) {
 	posBTI[6] = (~(*DTTFiterator)&0x100000)>>20;
 
 	if(posALL){
-	  theSegments.push_back(
-		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+	  theSegments.emplace_back( bxID, wheelTh, sectorID, 3, posBTI );
 	}
       }
 
@@ -316,8 +312,7 @@ void DTTFFEDReader::process(edm::Event& e) {
 	posBTI[0] = (~(*DTTFiterator)&0x40)>>6;
 
 	if(posALL){
-	  theSegments.push_back(
-		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 1, posBTI) );
+	  theSegments.emplace_back( bxID, wheelTh, sectorID, 1, posBTI );
 	}
 
 	posALL    =  ~(*DTTFiterator)&0x3F80;
@@ -330,8 +325,7 @@ void DTTFFEDReader::process(edm::Event& e) {
 	posBTI[0] = (~(*DTTFiterator)&0x2000)>>13;
 
 	if(posALL){
-	  theSegments.push_back(
-		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 2, posBTI) );
+	  theSegments.emplace_back( bxID, wheelTh, sectorID, 2, posBTI );
 	}
 
 	posALL    =  ~(*DTTFiterator)&0x1FC000;
@@ -344,8 +338,7 @@ void DTTFFEDReader::process(edm::Event& e) {
 	posBTI[0] = (~(*DTTFiterator)&0x100000)>>20;
 
 	if(posALL){
-	  theSegments.push_back(
-		      L1MuDTChambThDigi( bxID, wheelTh, sectorID, 3, posBTI) );
+	  theSegments.emplace_back( bxID, wheelTh, sectorID, 3, posBTI );
 	}
       }
     }
@@ -379,9 +372,8 @@ void DTTFFEDReader::process(edm::Event& e) {
       pt     = (~(*DTTFiterator)&0x1F000)>>12;
 
       if(qual!=0){
-        dtTracks.push_back(
-		    L1MuDTTrackCand( 0, phi, 0, pt, ch, 1, 0, qual, bxID, wheelID, sectorID,
-                    muonID, addr1[muonID], addr2[muonID], addr3[muonID], addr4[muonID] ) );
+        dtTracks.emplace_back( 0, phi, 0, pt, ch, 1, 0, qual, bxID, wheelID, sectorID,
+                    muonID, addr1[muonID], addr2[muonID], addr3[muonID], addr4[muonID] );
       }
     }
     //Output

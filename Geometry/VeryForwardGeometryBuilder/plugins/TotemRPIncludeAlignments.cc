@@ -99,10 +99,10 @@ RPAlignmentCorrectionsDataSequence TotemRPIncludeAlignments::Merge(const vector<
       const TimeValidityInterval &tvi = iit->first;
       const RPAlignmentCorrectionsData *corr = & iit->second;
 
-      bounds[tvi.first].push_back( pair<bool, const RPAlignmentCorrectionsData*>(true, corr) );
+      bounds[tvi.first].emplace_back(true, corr );
 
       TimeValue_t delta = (tvi.last != TimeValidityInterval::EndOfTime()) ? (1ULL << 32) : 0;  // input resolution is 1s
-      bounds[tvi.last + delta].push_back( pair<bool, const RPAlignmentCorrectionsData*>(false, corr) );
+      bounds[tvi.last + delta].emplace_back(false, corr );
     }
   }
   
@@ -156,7 +156,7 @@ void TotemRPIncludeAlignments::PrepareSequence(const string &label, RPAlignmentC
 
   vector<RPAlignmentCorrectionsDataSequence> sequences;
   for (unsigned int i = 0; i < files.size(); i++)
-    sequences.push_back(RPAlignmentCorrectionsDataSequence(files[i]));
+    sequences.emplace_back(files[i]);
 
   seq = Merge(sequences);
 }

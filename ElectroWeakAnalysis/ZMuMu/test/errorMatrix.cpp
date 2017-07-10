@@ -49,7 +49,7 @@ int main() {
       double ex = sqrt(err[i][i]), ey = sqrt(err[j][j]);
       if(ex > 0 && ey > 0) {
 	double rho = cxy / (ex * ey);
-	covs.push_back(cov(i, j, cxy, rho));
+	covs.emplace_back(i, j, cxy, rho);
       }
     }
   

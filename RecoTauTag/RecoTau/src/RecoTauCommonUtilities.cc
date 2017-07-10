@@ -20,7 +20,7 @@ flattenPiZeros(const std::vector<RecoTauPiZero>::const_iterator& piZerosBegin, c
       piZero != piZerosEnd; ++piZero) {
     for(size_t iDaughter = 0; iDaughter < piZero->numberOfDaughters();
         ++iDaughter) {
-      output.push_back(PFCandidatePtr(piZero->daughterPtr(iDaughter)));
+      output.emplace_back(piZero->daughterPtr(iDaughter));
     }
   }
   return output;

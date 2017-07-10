@@ -74,8 +74,8 @@ ESProxyFactoryProducer::registerProxies(const EventSetupRecordKey& iRecord,
 
       std::shared_ptr<DataProxy> proxy(it->second.factory_->makeProxy().release());
       if(nullptr != proxy.get()) {
-         iProxies.push_back(KeyedProxies::value_type((*it).second.key_,
-                                         proxy));
+         iProxies.emplace_back((*it).second.key_,
+                                         proxy);
       }
    }
 }

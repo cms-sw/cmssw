@@ -111,7 +111,7 @@ void PFTauSecondaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent,con
 	if(!transVtx.hasRefittedTracks()) FitOk=false;
 	if(transVtx.refittedTracks().size()!=transTrk.size()) FitOk=false;
 	if(FitOk){
-	  SV.push_back(reco::VertexRef(VertexRefProd_out, VertexCollection_out->size()));
+	  SV.emplace_back(VertexRefProd_out, VertexCollection_out->size());
 	  VertexCollection_out->push_back(transVtx);
 	}
       }

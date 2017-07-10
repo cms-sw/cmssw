@@ -669,7 +669,7 @@ void DQMStoreStats::beginLuminosityBlock(const LuminosityBlock& lumiSeg,
 void DQMStoreStats::analyze(const Event& iEvent, const EventSetup& iSetup) {
 
   //now read virtual memory size from proc folder
-  memoryHistoryVector_.push_back( readMemoryEntry() );
+  memoryHistoryVector_.emplace_back(readMemoryEntry() );
 
   if (runineventloop_) {
     calcstats( DQMStoreStats::considerAllME );

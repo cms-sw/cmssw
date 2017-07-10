@@ -19,7 +19,7 @@ void work()
 
   std::vector<std::string> inputBranches;
   for (int i = 0; i < 10; i++){
-    inputBranches.push_back("Some_Input_Branch");
+    inputBranches.emplace_back("Some_Input_Branch");
   }
   
  std::size_t inpFile = theReport->inputFileOpened("InputPFN",
@@ -34,7 +34,7 @@ void work()
  
   std::vector<std::string> outputBranches;
   for (int i=0; i < 10; i++){
-    outputBranches.push_back("Some_Output_Branch_Probably_From_HLT");
+    outputBranches.emplace_back("Some_Output_Branch_Probably_From_HLT");
 
   }
 

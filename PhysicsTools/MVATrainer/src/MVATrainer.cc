@@ -979,8 +979,8 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 	std::vector<CalibratedProcessor> processors;
 
 	BaseInterceptor *interceptor = new InitInterceptor;
-	baseInterceptors.push_back(std::make_pair(0, interceptor));
-	processors.push_back(CalibratedProcessor(0, interceptor));
+	baseInterceptors.emplace_back(std::make_pair(0, interceptor));
+	processors.emplace_back(0, interceptor);
 
 	for(const AtomicId *iter = train; *iter; iter++) {
 		TrainProcessor *source;
@@ -1017,7 +1017,7 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 			continue;
 
 		autoClean.add(proc);
-		processors.push_back(CalibratedProcessor(source, proc));
+		processors.emplace_back(source, proc);
 
 		Calibration::ProcForeach *looper =
 				dynamic_cast<Calibration::ProcForeach*>(proc);
@@ -1052,9 +1052,8 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 					proc = source->getCalibration();
 					if (proc) {
 						autoClean.add(proc);
-						processors.push_back(
-							CalibratedProcessor(
-								source, proc));
+						processors.emplace_back(
+								source, proc);
 					}
 				}
 
@@ -1062,13 +1061,11 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 						pos3 = interceptors.find(*pos2);
 				if (pos3 != interceptors.end()) {
 					n++;
-					baseInterceptors.push_back(
-						std::make_pair(processors.size(),
+					baseInterceptors.emplace_back(std::make_pair(processors.size(),
 							       pos3->second));
-					processors.push_back(
-						CalibratedProcessor(
+					processors.emplace_back(
 							pos3->second->getProcessor(),
-							pos3->second));
+							pos3->second);
 					interceptors.erase(pos3);
 				}
 			}
@@ -1085,9 +1082,9 @@ MVATrainer::makeTrainCalibration(const AtomicId *compute,
 		interceptors.begin(); iter != interceptors.end(); ++iter) {
 
 		TrainProcessor *proc = iter->second->getProcessor();
-		baseInterceptors.push_back(std::make_pair(processors.size(),
+		baseInterceptors.emplace_back(std::make_pair(processors.size(),
 		                                          iter->second));
-		processors.push_back(CalibratedProcessor(proc, iter->second));
+		processors.emplace_back(proc, iter->second);
 	}
 
 	std::unique_ptr<Calibration::MVAComputer> calib(
@@ -1184,7 +1181,7 @@ Calibration::MVAComputer *MVATrainer::getCalibration() const
 					foreach->nProcs++;
 		}
 
-		processors.push_back(CalibratedProcessor(source, proc));
+		processors.emplace_back(source, proc);
 	}
 
 	connectProcessors(calib.get(), processors, false);
@@ -1246,8 +1243,8 @@ Calibration::MVAComputer *MVATrainer::getTrainCalibration() const
 	if (train.empty())
 		return 0;
 
-	compute.push_back(0);
-	train.push_back(0);
+	compute.emplace_back(0);
+	train.emplace_back(0);
 
 	return makeTrainCalibration(&compute.front(), &train.front());
 }

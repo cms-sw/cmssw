@@ -109,7 +109,7 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
       }
     }
     // add first body
-    theGblInput.push_back(std::make_pair(trajectory1.gblInput().front().first, 
+    theGblInput.emplace_back(std::make_pair(trajectory1.gblInput().front().first, 
                                          trajectory1.gblInput().front().second*tbdToLocal1));
     // convert to Eigen::MatrixXd
     Eigen::MatrixXd tbdToLocal2{nLocal, nTbd};
@@ -119,7 +119,7 @@ bool TwoBodyDecayTrajectory::construct(const TwoBodyDecayTrajectoryState& state,
       }
     }
     // add second body
-    theGblInput.push_back(std::make_pair(trajectory2.gblInput().front().first, 
+    theGblInput.emplace_back(std::make_pair(trajectory2.gblInput().front().first, 
                                          trajectory2.gblInput().front().second*tbdToLocal2));
     // add virtual mass measurement
     theGblExtDerivatives.resize(1,nTbd);

@@ -135,7 +135,7 @@ void popcon::EcalLaser_weekly_Linearization::getNewObjects() {
     fWeek.close();
     // special tag for Stephanie
     //    m_to_transfer.push_back(std::make_pair((EcalTPGLinearizationConst*)linC, file[week]));
-    m_to_transfer.push_back(std::make_pair((EcalTPGLinearizationConst*)linC, fileIOV));
+    m_to_transfer.emplace_back(std::make_pair((EcalTPGLinearizationConst*)linC, fileIOV));
     // end special
     iIov++;
   }   // end loop over week

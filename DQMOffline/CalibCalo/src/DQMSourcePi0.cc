@@ -493,9 +493,9 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	  if(itdet == detIdEBRecHits.end()) continue; 
       
 	  int nn = int(itdet - detIdEBRecHits.begin());
-	  usedXtals.push_back(*det);
+	  usedXtals.emplace_back(*det);
 	  RecHitsInWindow.push_back(EBRecHits[nn]);
-	  clus_used.push_back(std::make_pair(*det,1));
+	  clus_used.emplace_back(std::make_pair(*det,1));
 	  simple_energy = simple_energy + EBRecHits[nn].energy();
 
 
@@ -789,9 +789,9 @@ void DQMSourcePi0::analyze(const Event& iEvent,
 	  if(itdet == detIdEBRecHits.end()) continue; 
       
 	  int nn = int(itdet - detIdEBRecHits.begin());
-	  usedXtals.push_back(*det);
+	  usedXtals.emplace_back(*det);
 	  RecHitsInWindow.push_back(EBRecHits[nn]);
-	  clus_used.push_back(std::make_pair(*det,1));
+	  clus_used.emplace_back(std::make_pair(*det,1));
 	  simple_energy = simple_energy + EBRecHits[nn].energy();
 
 
@@ -1101,9 +1101,9 @@ void DQMSourcePi0::analyze(const Event& iEvent,
       
       
 	  int nn = int(itdet - detIdEERecHits.begin());
-	  usedXtalsEndCap.push_back(*det);
+	  usedXtalsEndCap.emplace_back(*det);
 	  RecHitsInWindow.push_back(EERecHits[nn]);
-	  clus_used.push_back(std::make_pair(*det,1));
+	  clus_used.emplace_back(std::make_pair(*det,1));
 	  simple_energy = simple_energy + EERecHits[nn].energy();
       
       
@@ -1355,9 +1355,9 @@ void DQMSourcePi0::analyze(const Event& iEvent,
       
       
 	  int nn = int(itdet - detIdEERecHits.begin());
-	  usedXtalsEndCap.push_back(*det);
+	  usedXtalsEndCap.emplace_back(*det);
 	  RecHitsInWindow.push_back(EERecHits[nn]);
-	  clus_used.push_back(std::make_pair(*det,1));
+	  clus_used.emplace_back(std::make_pair(*det,1));
 	  simple_energy = simple_energy + EERecHits[nn].energy();
       
       

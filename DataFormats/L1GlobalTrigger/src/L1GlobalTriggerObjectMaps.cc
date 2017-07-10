@@ -146,9 +146,9 @@ void L1GlobalTriggerObjectMaps::
 pushBackAlgorithm(unsigned startIndexOfConditions,
                   int algorithmBitNumber,
                   bool algorithmResult) {
-  m_algorithmResults.push_back(AlgorithmResult(startIndexOfConditions,
+  m_algorithmResults.emplace_back(startIndexOfConditions,
                                                algorithmBitNumber,
-                                               algorithmResult));
+                                               algorithmResult);
 }
 
 void L1GlobalTriggerObjectMaps::consistencyCheck() const {
@@ -215,9 +215,9 @@ void L1GlobalTriggerObjectMaps::
 pushBackCondition(unsigned startIndexOfCombinations,
                   unsigned short nObjectsPerCombination,
                   bool conditionResult) {
-  m_conditionResults.push_back(ConditionResult(startIndexOfCombinations,
+  m_conditionResults.emplace_back(startIndexOfCombinations,
                                                nObjectsPerCombination,
-                                               conditionResult));
+                                               conditionResult);
 }
 
 void L1GlobalTriggerObjectMaps::

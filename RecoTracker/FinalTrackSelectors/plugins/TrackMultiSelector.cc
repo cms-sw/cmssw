@@ -145,17 +145,17 @@ TrackMultiSelector::TrackMultiSelector( const edm::ParameterSet & cfg ) :
     VPSet psets = cfg.getParameter<VPSet>("cutSets");
     blocks_.reserve(psets.size());
     for (VPSet::const_iterator it = psets.begin(), ed = psets.end(); it != ed; ++it) {
-        blocks_.push_back(TrackMultiSelector::Block(*it));
+        blocks_.emplace_back(*it);
     }
 
     if (splitOutputs_) {
         char buff[15];
         for (size_t i = 0; i < blocks_.size(); ++i) {
             sprintf(buff,"set%d", static_cast<int>(i+1));
-            labels_.push_back(std::string(buff));
+            labels_.emplace_back(buff);
         }
     } else {
-        labels_.push_back(std::string(""));
+        labels_.emplace_back("");
     }
 
     std::string alias( cfg.getParameter<std::string>( "@module_label" ) );

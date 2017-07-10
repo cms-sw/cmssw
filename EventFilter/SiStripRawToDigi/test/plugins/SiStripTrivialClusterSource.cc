@@ -82,6 +82,6 @@ bool SiStripTrivialClusterSource::available(const edm::DetSet<SiStripDigi>& dets
 void SiStripTrivialClusterSource::addcluster(edm::DetSet<SiStripDigi>& detset, const uint16_t firststrip, const uint16_t size) {
 
   for (unsigned int istrip=0;istrip<size;++istrip) { 
-    detset.data.push_back(SiStripDigi(firststrip+istrip,0xFF));
+    detset.data.emplace_back(firststrip+istrip,0xFF);
   }
 }

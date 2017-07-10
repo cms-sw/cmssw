@@ -19,7 +19,7 @@ SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal, edm::
       // convert analog amplitude to digital - special algorithm for PreMixing. 
       // Need to keep all hits, including those at very low pulse heights.
       int adc = truncate( sqrt(9.0*analogSignal[i]) );
-      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+      if ( adc > 0) _temp.emplace_back(i, adc);
     }
   }
   else if(gainHandle.isValid()) {
@@ -28,14 +28,14 @@ SiTrivialDigitalConverter::convert(const std::vector<float>& analogSignal, edm::
       if (analogSignal[i]<=0) continue;
       // convert analog amplitude to digital
       int adc = convert( (gainHandle->getStripGain(i, detGainRange))*(analogSignal[i]) );
-      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+      if ( adc > 0) _temp.emplace_back(i, adc);
     }
   } else {
     for ( size_t i=0; i<analogSignal.size(); i++) {
       if (analogSignal[i]<=0) continue;
       // convert analog amplitude to digital
       int adc = convert( analogSignal[i] );
-      if ( adc > 0) _temp.push_back(SiStripDigi(i, adc));
+      if ( adc > 0) _temp.emplace_back(i, adc);
     }
   }
   return _temp;
@@ -49,17 +49,17 @@ SiTrivialDigitalConverter::convertRaw(const std::vector<float>& analogSignal, ed
   if(gainHandle.isValid()) {
     SiStripApvGain::Range detGainRange = gainHandle->getRange(detid);
     for ( size_t i=0; i<analogSignal.size(); i++) {
-      if (analogSignal[i]<=0) { _tempRaw.push_back(SiStripRawDigi(0)); continue; }
+      if (analogSignal[i]<=0) { _tempRaw.emplace_back(0); continue; }
       // convert analog amplitude to digital
       int adc = convertRaw( (gainHandle->getStripGain(i, detGainRange))*(analogSignal[i]));
-      _tempRaw.push_back(SiStripRawDigi(adc));
+      _tempRaw.emplace_back(adc);
     }
   } else {
     for ( size_t i=0; i<analogSignal.size(); i++) {
-      if (analogSignal[i]<=0) { _tempRaw.push_back(SiStripRawDigi(0)); continue; }
+      if (analogSignal[i]<=0) { _tempRaw.emplace_back(0); continue; }
       // convert analog amplitude to digital
       int adc = convertRaw( analogSignal[i] );
-      _tempRaw.push_back(SiStripRawDigi(adc));
+      _tempRaw.emplace_back(adc);
     }
   }
   return _tempRaw;

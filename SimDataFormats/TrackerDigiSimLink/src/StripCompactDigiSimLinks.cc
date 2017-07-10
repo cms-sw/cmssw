@@ -23,7 +23,7 @@ StripCompactDigiSimLinks::StripCompactDigiSimLinks(const StripCompactDigiSimLink
     trackRecords_.reserve(filler.keySize());
     hitRecords_.reserve(filler.dataSize());
     BOOST_FOREACH( const Filler::Map::value_type &pair, filler.storage() ) {
-        trackRecords_.push_back(TrackRecord(pair.first, hitRecords_.size()));
+        trackRecords_.emplace_back(pair.first, hitRecords_.size());
         hitRecords_.insert(hitRecords_.end(), pair.second.begin(), pair.second.end());
     }
 }
@@ -55,7 +55,7 @@ StripCompactDigiSimLinks::makeReverseMap() const
     for (trk_it itt = trackRecords_.begin(), endt = trackRecords_.end(); itt != endt; ++itt) {
         hit_it edh = (itt+1 != endt ? hstart + (itt+1)->start : hitRecords_.end());
         for (; ith < edh; ++ith) {
-            ret[ith->detId].push_back(RevLink(*itt, *ith));
+            ret[ith->detId].emplace_back(*itt, *ith);
         }
     }
     return ret;

@@ -219,8 +219,8 @@ void MuonHOAcceptance::buildDeadAreas() {
   std::list<deadIdRegion> didregions;
   for (did = deadIds.begin(); did != deadIds.end(); ++did) {
     HcalDetId tmpId(*did);
-    didregions.push_back( deadIdRegion( tmpId.ieta(), tmpId.ieta(), 
-					tmpId.iphi(), tmpId.iphi() ) );
+    didregions.emplace_back( tmpId.ieta(), tmpId.ieta(), 
+					tmpId.iphi(), tmpId.iphi() );
   }
   // std::cout << "dead regions: " << didregions.size() << '\n';
 
@@ -234,8 +234,8 @@ void MuonHOAcceptance::buildSiPMAreas() {
 
   for (sid = SiPMIds.begin(); sid != SiPMIds.end(); ++sid) {
     HcalDetId tmpId(*sid);
-    idregions.push_back( deadIdRegion( tmpId.ieta(), tmpId.ieta(),
-				       tmpId.iphi(), tmpId.iphi() ) );
+    idregions.emplace_back( tmpId.ieta(), tmpId.ieta(),
+				       tmpId.iphi(), tmpId.iphi() );
   }
 
   mergeRegionLists(idregions);
@@ -333,7 +333,7 @@ void MuonHOAcceptance::convertRegions(std::list<deadIdRegion> const& idregions,
     while (pMin > mins[0]+twopi) 
       pMin -= twopi;
 
-    regions.push_back( deadRegion(eMin, eMax, pMin, pMax) );
+    regions.emplace_back(eMin, eMax, pMin, pMax );
     // std::cout << "                 : eta,phi\n"
     // 	      << "              min: " << tmp.etaMin << ',' << tmp.phiMin << '\n'
     // 	      << "              max: " << tmp.etaMax << ',' << tmp.phiMax << '\n';

@@ -46,9 +46,9 @@ std::vector<HcalGenericDetId> allCells (bool h2_mode) {
     for(int sector=1; sector<17; sector++) {
       for(int module=1; module<3; module++) {
 	cell = HcalCastorDetId(section, true, sector, module);
-    if (castortopology.valid(cell)) result.push_back(cell);
+    if (castortopology.valid(cell)) result.emplace_back(cell);
     cell = HcalCastorDetId(section, false, sector, module);
-    if (castortopology.valid(cell)) result.push_back(cell);
+    if (castortopology.valid(cell)) result.emplace_back(cell);
     }
    }
 
@@ -56,9 +56,9 @@ std::vector<HcalGenericDetId> allCells (bool h2_mode) {
     for(int sector= 1; sector < 17; sector++){
      for(int module=3; module<15; module++) {
       cell = HcalCastorDetId(section, true, sector, module);
-      if(castortopology.valid(cell)) result.push_back(cell);
+      if(castortopology.valid(cell)) result.emplace_back(cell);
       cell = HcalCastorDetId(section, false, sector, module);
-      if(castortopology.valid(cell)) result.push_back(cell);
+      if(castortopology.valid(cell)) result.emplace_back(cell);
      }
    }
 

@@ -165,7 +165,7 @@ void RecAnalyzerHF::beginJob() {
       if (i == 0) h1 = fs_->make<TH1D>(name, title, 50, xmin, xmax);
       else        h2 = fs_->make<TH1D>(name, title, 50, xmin, xmax);
     }
-    histo_.push_back(std::pair<TH1D*,TH1D*>(h1,h2));
+    histo_.emplace_back(h1,h2);
   };
 
   if (fillTree_) {

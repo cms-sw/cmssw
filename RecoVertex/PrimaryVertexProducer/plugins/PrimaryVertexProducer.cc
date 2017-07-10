@@ -290,15 +290,15 @@ PrimaryVertexProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	   (bse.czz() <= 0.) ) {
 	AlgebraicSymMatrix33 we;
 	we(0,0)=10000; we(1,1)=10000; we(2,2)=10000;
-	vColl.push_back(reco::Vertex(beamSpot.position(), we,0.,0.,0));
+	vColl.emplace_back(beamSpot.position(), we,0.,0.,0);
 	if(fVerbose){
 	  std::cout <<"RecoVertex/PrimaryVertexProducer: "
 		    << "Beamspot with invalid errors "<<bse.matrix()<<std::endl;
 	  std::cout << "Will put Vertex derived from dummy-fake BeamSpot into Event.\n";
 	}
       } else {
-	vColl.push_back(reco::Vertex(beamSpot.position(), 
-				     beamSpot.rotatedCovariance3D(),0.,0.,0));
+	vColl.emplace_back(beamSpot.position(), 
+				     beamSpot.rotatedCovariance3D(),0.,0.,0);
 	if(fVerbose){
 	  std::cout <<"RecoVertex/PrimaryVertexProducer: "
 		    << " will put Vertex derived from BeamSpot into Event.\n";

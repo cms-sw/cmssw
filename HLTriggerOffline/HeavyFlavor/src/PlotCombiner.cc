@@ -60,7 +60,7 @@ void PlotCombiner::makePlot(const ParameterSet& pset, DQMStore::IBooker & ibooke
       continue;
     }
     histos.push_back( ME->getTH1() );
-    labels.push_back( inputLabels[i] );
+    labels.emplace_back(inputLabels[i] );
   }
   if(histos.size()==0){
     return;

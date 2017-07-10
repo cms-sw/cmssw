@@ -25,7 +25,7 @@ bool CompatibleDetToGroupAdder::add( const GeometricSearchDet& det,
     if (compatDets.empty()) return false;
     
     if (result.empty())
-      result.push_back( DetGroup( 0, 1)); // empty group for insertion
+      result.emplace_back( 0, 1); // empty group for insertion
     
     if (result.size() != 1)
       edm::LogError("TkDetLayers") << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!" ;
@@ -52,7 +52,7 @@ bool CompatibleDetToGroupAdder::add( const GeomDet& det,
   if (!compat.first) return false;
 
   if (result.empty())
-    result.push_back( DetGroup( 0, 1)); // empty group for ge insertion
+    result.emplace_back( 0, 1); // empty group for ge insertion
 
   if (result.size() != 1) 
       edm::LogError("TkDetLayers") << "CompatibleDetToGroupAdder: det is not grouped but result has more than one group!" ;

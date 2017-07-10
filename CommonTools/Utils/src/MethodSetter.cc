@@ -50,7 +50,7 @@ operator()(const char* begin, const char* end) const
   //  << " args " << (lazy_ ? "(lazy)" : "(immediate)") << std::endl;
   if (lazy_) {
     // for lazy parsing we just push method name and arguments
-    lazyMethStack_.push_back(LazyInvoker(name, args));
+    lazyMethStack_.emplace_back(name, args);
   }
   else {
     // otherwise we really have to resolve the method
@@ -87,7 +87,7 @@ push(const string& name, const vector<AnyMethodArgument>& args,
       // Without fixups.
       //std::cout << "Mem.second, so book " << mem.first.name() <<
       //  " without fixups." << std::endl;
-      methStack_.push_back(MethodInvoker(mem.first));
+      methStack_.emplace_back(mem.first);
       if (!deep) {
         return false;
       }
@@ -99,7 +99,7 @@ push(const string& name, const vector<AnyMethodArgument>& args,
       // With fixups.
       //std::cout << "Not mem.second, so book " << mem.first.name()
       //  << " with #args = " << fixups.size() << std::endl;
-      methStack_.push_back(MethodInvoker(mem.first, fixups));
+      methStack_.emplace_back(mem.first, fixups);
     }
     return true;
   }
@@ -163,7 +163,7 @@ push(const string& name, const vector<AnyMethodArgument>& args,
   }
   // Ok, it was a data member.
   typeStack_.push_back(member.typeOf());
-  methStack_.push_back(MethodInvoker(member));
+  methStack_.emplace_back(member);
   return true;
 }
 

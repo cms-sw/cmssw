@@ -47,7 +47,7 @@ namespace {
     }  
     else {
       DDName ddnm(nm,ns);
-      result.push_back(DDLogicalPart(ddnm));
+      result.emplace_back(ddnm);
       return std::make_pair(true,"");
     }
     //edm::LogInfo("DDLogicalPart") << " . emptyNs=" << emptyNs << std::endl;
@@ -71,7 +71,7 @@ namespace {
       if ( doit  ) {
 	std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
 	if ( emptyNs && (sz==1) ) { // accept all logical parts in all the namespaces
-	  result.push_back(it->second[0]);
+	  result.emplace_back(it->second[0]);
 	  //std::vector<DDName>::const_iterator nsIt(it->second.begin()), nsEd(it->second.end());
 	  //for(; nsIt != nsEd; ++nsIt) {
 	  //   result.push_back(DDLogicalPart(*nsIt));
@@ -85,7 +85,7 @@ namespace {
 	    bool another_doit = !regexec(&aNsRegex, nsit->ns().c_str(), 0,0,0);
 	    if ( another_doit ) {
 	      //temp.push_back(std::make_pair(it->first,*nsit));
-	      result.push_back(DDLogicalPart(*nsit));
+	      result.emplace_back(*nsit);
 	    }
 	  }
 	}
@@ -220,7 +220,7 @@ void testDDIsValid::buildIt() {
       std::string::size_type e=line.find(" ",p);
       std::string::size_type s = e-p;
       if (e==std::string::npos) s=e;
-      v.push_back(DDName(nm,line.substr(p,s))); 
+      v.emplace_back(nm,line.substr(p,s)); 
       p=e;
     }
   }

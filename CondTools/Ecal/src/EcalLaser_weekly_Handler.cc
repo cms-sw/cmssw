@@ -143,7 +143,7 @@ void popcon::EcalLaser_weekly_Handler::getNewObjects() {
 
     std::cout << "Write IOV " << iIov << " starting from " <<  fileIOV << "... "<< std::endl;
       //      db_->writeOne(corrSet, iovStart, "EcalLaserAPDPNRatiosRcd");
-    m_to_transfer.push_back(std::make_pair(corrSet, fileIOV));
+    m_to_transfer.emplace_back(std::make_pair(corrSet, fileIOV));
     iIov++;
     //  }   // end loop over week
   std::cout << "Ecal -> end of getNewObjects -----------\n";	

@@ -216,10 +216,10 @@ void testps::stringTest()
   testbody<std::string>("123");
   testbody<std::string>("This\nis\tsilly\n");  
   std::vector<std::string> vs;
-  vs.push_back("");
-  vs.push_back("1");
-  vs.push_back("");
-  vs.push_back("three");
+  vs.emplace_back("");
+  vs.emplace_back("1");
+  vs.emplace_back("");
+  vs.emplace_back("three");
   testbody<std::vector<std::string> >(vs);
   edm::ParameterSet p1;
   p1.addParameter<std::vector<std::string> >("vs",vs);
@@ -267,8 +267,8 @@ void testps::vEventRangeTest()
 
   std::vector<edm::EventRange> er;
   er.reserve(2);
-  er.push_back(edm::EventRange(2,3,4,2,3,10));
-  er.push_back(edm::EventRange(5,1,1,10,3,10));
+  er.emplace_back(2,3,4,2,3,10);
+  er.emplace_back(5,1,1,10,3,10);
   
   testbody<std::vector<edm::EventRange> >(er);
 }

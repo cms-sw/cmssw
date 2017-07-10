@@ -62,7 +62,7 @@ DependentRecordIntervalFinder::~DependentRecordIntervalFinder()
 void 
 DependentRecordIntervalFinder::addProviderWeAreDependentOn(std::shared_ptr<EventSetupRecordProvider> iProvider)
 {
-   providers_.push_back(iProvider);
+   providers_.emplace_back(iProvider);
 }
 
 void 

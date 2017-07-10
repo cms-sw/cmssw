@@ -82,17 +82,17 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
     const FEDRawData& fed = buffers->FEDData( static_cast<int>(ifed) );
     uint8_t* data = const_cast<uint8_t*>( fed.data() ); // look for trigger fed
     FEDTrailer* fed_trailer = reinterpret_cast<FEDTrailer*>( data + fed.size() - sizeof(FEDTrailer) );
-    if ( fed.size() && fed_trailer->check() ) { trg_feds.push_back(Fed(ifed,fed.size())); }
+    if ( fed.size() && fed_trailer->check() ) { trg_feds.emplace_back(ifed,fed.size()); }
     else {
       if ( ifed < sistrip::FED_ID_MIN || ifed > sistrip::FED_ID_MAX ) {
-	if ( fed.size() ) { non_trk.push_back(Fed(ifed,fed.size())); }
+	if ( fed.size() ) { non_trk.emplace_back(ifed,fed.size()); }
       } else { 
 	bool found = find( fed_ids.begin(), fed_ids.end(), ifed ) != fed_ids.end();
 	if ( fed.size() ) {
-	  if ( found ) { trk_feds.push_back(Fed(ifed,fed.size())); }
-	  else { in_data.push_back(Fed(ifed,fed.size())); }
+	  if ( found ) { trk_feds.emplace_back(ifed,fed.size()); }
+	  else { in_data.emplace_back(ifed,fed.size()); }
 	}
-	if ( found && fed.size() == 0 ) { in_cabl.push_back(Fed(ifed,0)); }
+	if ( found && fed.size() == 0 ) { in_cabl.emplace_back(ifed,0); }
       }	
     }
   }

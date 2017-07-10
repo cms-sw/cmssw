@@ -42,7 +42,7 @@ MaterialBudgetAction::MaterialBudgetAction(const edm::ParameterSet& iPSet)
   std::cout << "TestGeometry: List of the selected volumes: " << std::endl;
   for( ite = volList.begin(); ite != volList.end(); ite++ ){
     if( (*ite) != "None" ) {
-      theVolumeList.push_back( *ite );
+      theVolumeList.emplace_back(*ite );
       std::cout << (*ite) << std::endl;
     }
   }

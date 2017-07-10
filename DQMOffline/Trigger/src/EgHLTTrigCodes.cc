@@ -35,7 +35,7 @@ void TrigCodes::setCode(const char* descript,TrigBitSet code)
   for(size_t i=0;i<codeDefs_.size() && !found;i++){
     if(codeDefs_[i].first.compare(descript)==0) found=true;
   }
-  if(!found) codeDefs_.push_back(std::pair<std::string,TrigBitSet>(descript,code));
+  if(!found) codeDefs_.emplace_back(descript,code);
   //_codeDefs[descript] = code;
 }
 

@@ -241,9 +241,9 @@ EcalShowerContainmentAnalyzer::Xtals3x3(const edm::Event& iEvent,
       
       try {
 
-          Xtals3x3.push_back(EBDetId(centerXtal.ieta()+column-1,
+          Xtals3x3.emplace_back(centerXtal.ieta()+column-1,
 				     centerXtal.iphi()+row-1,
-				     EBDetId::ETAPHIMODE));
+				     EBDetId::ETAPHIMODE);
       } catch ( cms::Exception &e ) {
 	Xtals3x3.clear();
 	return Xtals3x3;
@@ -272,9 +272,9 @@ EcalShowerContainmentAnalyzer::Xtals5x5(const edm::Event& iEvent,
       
       try {
 
-          Xtals5x5.push_back(EBDetId(centerXtal.ieta()+column-2,
+          Xtals5x5.emplace_back(centerXtal.ieta()+column-2,
 				     centerXtal.iphi()+row-2,
-				     EBDetId::ETAPHIMODE));
+				     EBDetId::ETAPHIMODE);
       } catch ( cms::Exception &e ) {
 	Xtals5x5.clear();
 	return Xtals5x5;

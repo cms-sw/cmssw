@@ -26,7 +26,7 @@ DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
     auto refsol = myRegistry_->getElement("rSolid");
     std::vector<std::string> names;
     std::vector<std::string> values;
-    names.push_back("name");
+    names.emplace_back("name");
     values.push_back(getAttributeSet().find("name")->second);
     refsol->loadAttributes("rSolid", names, values, nmspace, cpv);
   }

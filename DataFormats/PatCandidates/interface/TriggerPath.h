@@ -108,7 +108,7 @@ namespace pat {
       void addFilterIndex( const unsigned index ) { filterIndices_.push_back( index ); };
       /// Add a new L1 seed
       void addL1Seed( const L1Seed & seed )                           { l1Seeds_.push_back( seed ); };
-      void addL1Seed( bool decision, const std::string & expression ) { l1Seeds_.push_back( L1Seed( decision, expression ) ); };
+      void addL1Seed( bool decision, const std::string & expression ) { l1Seeds_.emplace_back( decision, expression ); };
       /// Get the path name
       const std::string & name() const { return name_; };
       /// Get the path index

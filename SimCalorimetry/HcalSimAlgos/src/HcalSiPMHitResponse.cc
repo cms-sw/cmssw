@@ -247,7 +247,7 @@ CaloSamples HcalSiPMHitResponse::makeSiPMSignal(DetId const& id,
 				      << " pe: " << pe 
 				      << " hitPixels: " << hitPixels ;
       if (pars.doSiPMSmearing()) {
-	pulses.push_back( std::pair<double, double>(elapsedTime, hitPixels) );
+	pulses.emplace_back(elapsedTime, hitPixels );
       } else {
 	signal[sampleBin] += hitPixels;
 	hitPixels *= invdt;

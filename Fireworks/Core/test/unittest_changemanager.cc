@@ -80,9 +80,9 @@ BOOST_AUTO_TEST_CASE( changemanager )
    
    //create an item
    reco::TrackCollection fVector;
-   fVector.push_back(reco::Track());
-   fVector.push_back(reco::Track());
-   fVector.push_back(reco::Track());
+   fVector.emplace_back();
+   fVector.emplace_back();
+   fVector.emplace_back();
    
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
    assert(0!=cls);

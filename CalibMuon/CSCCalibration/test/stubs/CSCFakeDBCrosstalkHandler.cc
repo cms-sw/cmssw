@@ -33,7 +33,7 @@ void popcon::CSCFakeDBCrosstalkImpl::getNewObjects()
   std::cin >> snc;
  
   
-  m_to_transfer.push_back(std::make_pair(cncrosstalk,snc));
+  m_to_transfer.emplace_back(std::make_pair(cncrosstalk,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"<< std::endl;
 }

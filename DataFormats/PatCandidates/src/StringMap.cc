@@ -1,7 +1,7 @@
 #include "DataFormats/PatCandidates/interface/StringMap.h"
 
 void StringMap::add(const std::string &string, int32_t value) {
-    entries_.push_back(value_type(string,value));
+    entries_.emplace_back(string,value);
 }
 
 void StringMap::sort() {

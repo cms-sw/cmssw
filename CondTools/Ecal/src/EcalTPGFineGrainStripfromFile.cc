@@ -63,7 +63,7 @@ void popcon::EcalTPGFineGrainStripfromFile::getNewObjects() {
   }   // end loop over EB + EE strips
   fLin.close();
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGFineGrainStripEE*)fgrStripEE, fileIOV));
+  m_to_transfer.emplace_back(std::make_pair((EcalTPGFineGrainStripEE*)fgrStripEE, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }

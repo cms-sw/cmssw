@@ -155,21 +155,21 @@ void EMShower::prepareSteps()
   // Preshower Layer 1
   radlen += theGrid->ps1TotalX0();
   if ( radlen > 0. ) {
-    steps.push_back(Step(0,radlen));
+    steps.emplace_back(0,radlen);
     radlen = 0.;
   }
   
   // Preshower Layer 2
   radlen += theGrid->ps2TotalX0();
   if ( radlen > 0. ) {
-    steps.push_back(Step(1,radlen));
+    steps.emplace_back(1,radlen);
     radlen = 0.;
   }
   
   // add a step between preshower and ee
   radlen += theGrid->ps2eeTotalX0();
   if ( radlen > 0.) {
-    steps.push_back(Step(5,radlen));
+    steps.emplace_back(5,radlen);
     radlen = 0.;  
   }
   

@@ -91,12 +91,12 @@ EcalMatacqHist:: analyze( const edm::Event & e, const  edm::EventSetup& c){
 		<< " profile";
       std::stringstream profileName;
       profileName << "matacq" << digis.chId();
-      profiles.push_back(TProfile(profileName.str().c_str(),
+      profiles.emplace_back(profileName.str().c_str(),
 				  profTitle.str().c_str(),
 				  digis.size(),
 				  -.5,
 				  -.5+digis.size(),
-				  "I"));
+				  "I");
       profiles.back().SetDirectory(0);//mem. management done by std::vector
       profChId.push_back(digis.chId());
     }

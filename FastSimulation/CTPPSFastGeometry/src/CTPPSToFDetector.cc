@@ -6,7 +6,7 @@ CTPPSToFDetector::CTPPSToFDetector(int ncellx,int ncelly, std::vector<double>& c
     nCellX_(ncellx),nCellY_(ncelly),cellW_(cellw),cellH_(cellh),pitchX_(pitchx),pitchY_(pitchy),fToFResolution_(res),detPosition_(pos) {
         // the vertical positions starts from the negative(bottom) to the positive(top) corner
         // vector index points to the row number from below
-        cellRow_.push_back(std::pair<double,double>(-cellH_*0.5,cellH_*0.5));
+        cellRow_.emplace_back(-cellH_*0.5,cellH_*0.5);
 	cellColumn_.reserve(nCellX_); // vector index points to the column number
         for(int i=0;i<nCellX_;i++) {
             double x1 = 0., x2 = 0.; 
@@ -14,7 +14,7 @@ CTPPSToFDetector::CTPPSToFDetector(int ncellx,int ncelly, std::vector<double>& c
             else x1 = -detPosition_+detW_; //detPosition_ - shift the limit of a column depending on the detector position
             x2 = x1-cellW_.at(i);
             detW_ += (x2-x1)-pitchX_; 
-            cellColumn_.push_back(std::pair<double,double>(x1,x2));
+            cellColumn_.emplace_back(x1,x2);
         }
         //diamond geometry
         detH_=nCellY_*cellH_;
@@ -31,14 +31,14 @@ CTPPSToFDetector::CTPPSToFDetector(int ncellx,int ncelly, double cellwq,double c
         for(int i=0;i<nCellY_;i++) {
             double y1=cellH_*(i-nCellY_*0.5)+pitchY_*(i-(nCellY_-1)*0.5);
             double y2=y1+cellH_;
-            cellRow_.push_back(std::pair<double,double>(y1,y2));
+            cellRow_.emplace_back(y1,y2);
         }
         cellColumn_.reserve(nCellX_);// vector index points to the column number
         for(int i=0;i<nCellX_;i++) {
             double x1 = -(cellWq_*i+pitchX_*i);
             x1-=detPosition_; // shift the limit of a column depending on the detector position
             double x2 = x1-cellWq_;
-            cellColumn_.push_back(std::pair<double,double>(x1,x2));
+            cellColumn_.emplace_back(x1,x2);
         }
     };
 void CTPPSToFDetector::AddHit(double x, double y, double tof) {
