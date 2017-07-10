@@ -178,10 +178,10 @@ class HipPyOptionParser:
          # Get custom track selection for TBD
          elif (key=="twobodytrackselection" or key=="twobodydecayselection" or key=="tbdselection"):
             val=val.lower()
-            if (val=="zsel" or val=="y1sel"):
+            if (val=="zsel" or val=="y1ssel"):
                self.TBDsel=val
             else:
-               raise ValueError("TBD selection can only be Zsel or Y1sel at this time.")
+               raise ValueError("TBD selection can only be Zsel or Y1Ssel at this time.")
          ## Get options common in min. bias, Zmumu and Ymumu
          # Get TBD constraint type
          elif (key=="twobodytrackconstraint" or key=="twobodydecayconstraint" or key=="tbdconstraint"):
