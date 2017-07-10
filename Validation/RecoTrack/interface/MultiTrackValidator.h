@@ -6,16 +6,30 @@
  *
  *  \author cerati
  */
+#include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+
 #include "DQMServices/Core/interface/DQMEDAnalyzer.h"
-#include "Validation/RecoTrack/interface/MultiTrackValidatorBase.h"
+
 #include "Validation/RecoTrack/interface/MTVHistoProducerAlgoForTracker.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 #include "SimDataFormats/Associations/interface/VertexToTrackingVertexAssociator.h"
+#include "CommonTools/RecoAlgos/interface/CosmicTrackingParticleSelector.h"
+#include "SimTracker/Common/interface/TrackingParticleSelector.h"
 #include "CommonTools/RecoAlgos/interface/RecoTrackSelectorBase.h"
 #include "SimTracker/TrackAssociation/interface/ParametersDefinerForTP.h"
 #include "CommonTools/Utils/interface/DynArray.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
-class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorBase {
+class PileupSummaryInfo;
+namespace reco {
+class DeDxData;
+}
+
+class MultiTrackValidator : public DQMEDAnalyzer {
  public:
   /// Constructor
   MultiTrackValidator(const edm::ParameterSet& pset);
@@ -32,8 +46,30 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
 
  protected:
   //these are used by MTVGenPs
-  bool UseAssociators;
+  // MTV-specific data members
+  std::vector<edm::InputTag> associators;
+  edm::EDGetTokenT<TrackingParticleCollection> label_tp_effic;
+  edm::EDGetTokenT<TrackingParticleCollection> label_tp_fake;
+  edm::EDGetTokenT<TrackingParticleRefVector> label_tp_effic_refvector;
+  edm::EDGetTokenT<TrackingParticleRefVector> label_tp_fake_refvector;
+  edm::EDGetTokenT<TrackingVertexCollection> label_tv;
+  edm::EDGetTokenT<std::vector<PileupSummaryInfo> > label_pileupinfo;
+
+  std::vector<edm::EDGetTokenT<std::vector<PSimHit> > > simHitTokens_;
+
+  std::vector<edm::InputTag> label;
+  std::vector<edm::EDGetTokenT<edm::View<reco::Track> > > labelToken;
+  std::vector<edm::EDGetTokenT<edm::View<TrajectorySeed> > > labelTokenSeed;
+  edm::EDGetTokenT<reco::BeamSpot>  bsSrc;
+
+  edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx1Tag;
+  edm::EDGetTokenT<edm::ValueMap<reco::DeDxData> > m_dEdx2Tag;
+
+  std::string parametersDefiner;
+
   const bool parametersDefinerIsCosmic_;
+  const bool ignoremissingtkcollection_;
+  const bool useAssociators_;
   const bool calculateDrSingleCollection_;
   const bool doPlotsOnlyForTruePV_;
   const bool doSummaryPlots_;
@@ -44,6 +80,9 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   const bool doPVAssociationPlots_;
   const bool doSeedPlots_;
   const bool doMVAPlots_;
+
+  std::vector<bool> doResolutionPlots_;
+
   std::unique_ptr<MTVHistoProducerAlgoForTracker> histoProducerAlgo_;
 
  private:
@@ -84,7 +123,6 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   TrackingParticleSelector tpSelector;				      
   CosmicTrackingParticleSelector cosmictpSelector;
   TrackingParticleSelector dRtpSelector;				      
-  TrackingParticleSelector dRtpSelectorNoPtCut;
   std::unique_ptr<RecoTrackSelectorBase> dRTrackSelector;
 
   edm::EDGetTokenT<SimHitTPAssociationProducer::SimHitTPAssociationList> _simHitTpMapTag;
@@ -93,7 +131,6 @@ class MultiTrackValidator : public DQMEDAnalyzer, protected MultiTrackValidatorB
   edm::EDGetTokenT<reco::VertexToTrackingVertexAssociator> vertexAssociatorToken_;
 
   std::vector<MonitorElement *> h_reco_coll, h_assoc_coll, h_assoc2_coll, h_simul_coll, h_looper_coll, h_pileup_coll;
-  std::vector<MonitorElement *> h_assoc_coll_allPt, h_simul_coll_allPt;
 };
 
 

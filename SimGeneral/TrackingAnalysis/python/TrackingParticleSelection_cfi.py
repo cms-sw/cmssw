@@ -51,6 +51,7 @@ mergedtruth = cms.EDProducer("TrackingTruthProducer",
         minRapidityTP = cms.double(-2.6),
         minHitTP = cms.int32(3),
         ptMinTP = cms.double(0.2),
+        ptMaxTP = cms.double(1e100),
         maxRapidityTP = cms.double(2.6),
         tipTP = cms.double(1000)
     )

@@ -42,9 +42,9 @@ class MTVHistoProducerAlgoForTracker {
   void init(const edm::Event& event, const edm::EventSetup& setup);
 
   void bookSimHistos(DQMStore::IBooker& ibook);
-  void bookSimTrackHistos(DQMStore::IBooker& ibook);
+  void bookSimTrackHistos(DQMStore::IBooker& ibook, bool doResolutionPlots);
   void bookSimTrackPVAssociationHistos(DQMStore::IBooker& ibook);
-  void bookRecoHistos(DQMStore::IBooker& ibook);
+  void bookRecoHistos(DQMStore::IBooker& ibook, bool doResolutionPlots);
   void bookRecoPVAssociationHistos(DQMStore::IBooker& ibook);
   void bookRecodEdxHistos(DQMStore::IBooker& ibook);
   void bookSeedHistos(DQMStore::IBooker& ibook);
@@ -66,6 +66,7 @@ class MTVHistoProducerAlgoForTracker {
 					   double dR,
 					   const math::XYZPoint *pvPosition,
                                            const TrackingVertex::LorentzVector *simPVPosition,
+                                           const math::XYZPoint& bsPosition,
                                            const std::vector<float>& mvas,
                                            unsigned int selectsLoose, unsigned int selectsHP);
 
@@ -76,6 +77,9 @@ class MTVHistoProducerAlgoForTracker {
 					   const reco::Track* track,
 					   int numVertices);
 
+  void fill_duplicate_histos(int count,
+                             const reco::Track& track1,
+                             const reco::Track& track2);
 
   void fill_generic_recoTrack_histos(int count,
 				     const reco::Track& track,
@@ -160,7 +164,7 @@ class MTVHistoProducerAlgoForTracker {
   double minDxy, maxDxy;  int nintDxy;
   double minDz, maxDz;  int nintDz;
   double dxyDzZoom;
-  double minVertpos, maxVertpos;  int nintVertpos;
+  double minVertpos, maxVertpos;  int nintVertpos; bool useLogVertpos;
   double minZpos, maxZpos;  int nintZpos;
   double mindr, maxdr;  int nintdr;
   double minChi2, maxChi2; int nintChi2;
@@ -232,6 +236,9 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<std::vector<MonitorElement*> > h_reco_mva_hp, h_assoc2_mva_hp;
   std::vector<std::vector<MonitorElement*> > h_reco_mvacut_hp, h_assoc_mvacut_hp, h_assoc2_mvacut_hp, h_simul2_mvacut_hp;
 
+  std::vector<std::vector<MonitorElement*> > h_assoc2_mva_vs_pt, h_fake_mva_vs_pt, h_assoc2_mva_vs_pt_hp, h_fake_mva_vs_pt_hp;
+  std::vector<std::vector<MonitorElement*> > h_assoc2_mva_vs_eta, h_fake_mva_vs_eta, h_assoc2_mva_vs_eta_hp, h_fake_mva_vs_eta_hp;
+
   // dE/dx
   // in the future these might become an array
   std::vector<std::vector<MonitorElement*>> h_dedx_estim;
@@ -242,6 +249,7 @@ class MTVHistoProducerAlgoForTracker {
   std::vector<MonitorElement*> nrec_vs_nsim;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_sim2rec;
   std::vector<MonitorElement*> nrecHit_vs_nsimHit_rec2sim;
+  std::vector<MonitorElement*> h_duplicates_oriAlgo_vs_oriAlgo;
 
   //assoc hits
   std::vector<MonitorElement*> h_assocFraction, h_assocSharedHit;
