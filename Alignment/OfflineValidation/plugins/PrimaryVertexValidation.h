@@ -137,8 +137,8 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   void fill(std::map<std::string, TH1*>& h,const std::string& s, double x, double y);
   void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x); 
   void shrinkHistVectorToFit(std::vector<TH1F*>&h,unsigned int desired_size);
-  std::string getTypeString (pvparams::residualType type);
-  std::string getVarString (pvparams::plotVariable var);
+  std::tuple<std::string,std::string,std::string> getTypeString (pvparams::residualType type);
+  std::tuple<std::string,std::string,std::string> getVarString (pvparams::plotVariable var);
 
   void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], pvparams::estimator fitPar_);
   

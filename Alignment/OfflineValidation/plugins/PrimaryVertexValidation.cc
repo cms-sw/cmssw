@@ -2789,13 +2789,13 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDi
 
   TH1F::SetDefaultSumw2(kTRUE);
   
-  double up   = 1000;
-  double down = -up;
+  double up   =  1000;
+  double down = -1000.;
   
 
   if(isNormalized){
-    up = up*(1/100);
-    down = down*(1/100);
+    up   =  10.;
+    down = -10.;
   }
   
   std::vector<TH1F*> h;
@@ -2806,12 +2806,16 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDi
     assert(false);
   }
   
-  std::string s_resType = this->getTypeString(resType);
-  std::string s_varType = this->getVarString(varType);
+  std::string s_resType = std::get<0>(this->getTypeString(resType));
+  std::string s_varType = std::get<0>(this->getVarString(varType));
       
+  std::string t_resType = std::get<1>(this->getTypeString(resType));
+  std::string t_varType = std::get<1>(this->getVarString(varType));
+  std::string units     = std::get<2>(this->getTypeString(resType));
+
   for(unsigned int i=0; i<theNOfBins;i++){
     TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",s_resType.c_str(),s_varType.c_str(),i),
-				 Form("%s vs %s - bin %i;%s;tracks",s_resType.c_str(),s_varType.c_str(),i,s_resType.c_str()),
+				 Form("%s vs %s - bin %i;%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i,t_resType.c_str(),units.c_str()),
 				 500,down,up); 
     h.push_back(htemp);
   }
@@ -2984,64 +2988,64 @@ void PrimaryVertexValidation::shrinkHistVectorToFit(std::vector<TH1F*>&h, unsign
 }
 
 //*************************************************************
-std::string PrimaryVertexValidation::getTypeString (pvparams::residualType type)
+std::tuple<std::string,std::string,std::string> PrimaryVertexValidation::getTypeString (pvparams::residualType type)
 //*************************************************************
 {
-  std::string returnType = "";
+  std::tuple<std::string,std::string,std::string> returnType;
   switch(type)
     {
     // absoulte
 
     case pvparams::dxy  :
-      returnType = "d_{xy}";
+      returnType = std::make_tuple("dxy","d_{xy}","[#mum]");
       break;
     case pvparams::dx   :
-      returnType = "d_{x}";
+      returnType = std::make_tuple("dx","d_{x}","[#mum]");
       break;
     case pvparams::dy   :
-      returnType = "d_{y}";
+      returnType = std::make_tuple("dy","d_{y}","[#mum]");
       break;
     case pvparams::dz   :
-      returnType = "d_{z}";
+      returnType =  std::make_tuple("dz","d_{z}","[#mum]");
       break;
     case pvparams::IP2D :
-      returnType = "IP_{2D}";
+      returnType =  std::make_tuple("IP2D","IP_{2D}","[#mum]");
       break;
     case pvparams::resz :
-      returnType = "z_{trk}-z_{vtx}";
+      returnType =  std::make_tuple("resz","z_{trk}-z_{vtx}","[#mum]");
       break;
     case pvparams::IP3D :
-      returnType = "IP_{3D}";
+      returnType =  std::make_tuple("IP3D","IP_{3D}","[#mum]");
       break;
     case pvparams::d3D  : 
-      returnType = "d_{3D}";
+      returnType =  std::make_tuple("d3D","d_{3D}","[#mum]");
       break;
 
     // normalized
 
     case pvparams::norm_dxy  :
-      returnType = "d_{xy}/#sigma_{d_{xy}}";
+      returnType =  std::make_tuple("norm_dxy","d_{xy}/#sigma_{d_{xy}}","");
       break;
     case pvparams::norm_dx   :
-      returnType = "d_{x}/#sigma_{d_{x}}";
+      returnType =  std::make_tuple("norm_dx","d_{x}/#sigma_{d_{x}}","");
       break;
     case pvparams::norm_dy   :
-      returnType = "d_{y}/#sigma_{d_{y}}";
+      returnType =  std::make_tuple("norm_dy","d_{y}/#sigma_{d_{y}}","");
       break;
     case pvparams::norm_dz   :
-      returnType = "d_{z}/#sigma_{d_{z}}";
+      returnType =  std::make_tuple("norm_dz","d_{z}/#sigma_{d_{z}}","");
       break;
     case pvparams::norm_IP2D :
-      returnType = "IP_{2D}/#sigma_{IP_{2D}}";
+      returnType =  std::make_tuple("norm_IP2D","IP_{2D}/#sigma_{IP_{2D}}","");
       break;
     case pvparams::norm_resz :
-      returnType = "z_{trk}-z_{vtx}/#sigma_{res_{z}}";
+      returnType =  std::make_tuple("norm_resz","z_{trk}-z_{vtx}/#sigma_{res_{z}}","");
       break;
     case pvparams::norm_IP3D :
-      returnType = "IP_{3D}/#sigma_{IP_{3D}}";
+      returnType =  std::make_tuple("norm_IP3D","IP_{3D}/#sigma_{IP_{3D}}","");
       break;
     case pvparams::norm_d3D  : 
-      returnType = "d_{3D}/#sigma_{d_{3D}}";
+      returnType =  std::make_tuple("norm_d3D","d_{3D}/#sigma_{d_{3D}}","");
       break;
 
     default:
@@ -3053,29 +3057,29 @@ std::string PrimaryVertexValidation::getTypeString (pvparams::residualType type)
 }
 
 //*************************************************************
-std::string PrimaryVertexValidation::getVarString (pvparams::plotVariable var)
+std::tuple<std::string,std::string,std::string> PrimaryVertexValidation::getVarString (pvparams::plotVariable var)
 //*************************************************************
 {
-  std::string returnVar = "";
+  std::tuple<std::string,std::string,std::string> returnVar;
   switch(var)
     {
     case pvparams::phi  :
-      returnVar = "#phi";
+      returnVar =  std::make_tuple("phi","#phi","[rad]");
       break;
     case pvparams::eta   :
-      returnVar = "#eta";
+      returnVar =  std::make_tuple("eta","#eta","");
       break;
     case pvparams::pT   :
-      returnVar = "p_{T}";
+      returnVar = std::make_tuple("pT","p_{T}","[GeV]");
       break;
     case pvparams::pTCentral :
-      returnVar = "p_{T} |#eta|<1.";
+      returnVar = std::make_tuple("pTCentral","p_{T} |#eta|<1.","[GeV]");
       break;
     case pvparams::ladder   :
-      returnVar = "ladder number";
+      returnVar = std::make_tuple("ladder","ladder number","");
       break;
     case pvparams::modZ :
-      returnVar = "module number";
+      returnVar = std::make_tuple("modZ","module number","");
       break;
     default:
       edm::LogWarning("PrimaryVertexValidation:") <<" getVarString() unknown plot variable"<<var<<std::endl;
