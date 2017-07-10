@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "Calibration/TkAlCaRecoProducers/interface/AlcaBeamSpotManager.h"
+#include "RecoVertex/BeamSpotProducer/interface/BeamSpotWrite2Txt.h"
 
 // #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -37,6 +38,8 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
   std::string 	      outputrecordName_;
   double      	      sigmaZValue_;
   double              sigmaZCut_;
+  bool                dumpTxt_;
+  std::string 	      outTxtFileName_;
   // Member Variables
   AlcaBeamSpotManager theAlcaBeamSpotManager_;
 

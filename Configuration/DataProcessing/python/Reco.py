@@ -51,7 +51,7 @@ class Reco(Scenario):
         PhysicsSkimStep = ''
         if ("PhysicsSkims" in args) :
             PhysicsSkimStep = stepSKIMPRODUCER(args['PhysicsSkims'])
-        dqmStep= dqmSeq(args,'')
+        dqmStep = dqmSeq(args,'')
         options = Options()
         options.__dict__.update(defaultOptions.__dict__)
         options.scenario = self.cbSc
@@ -79,7 +79,6 @@ class Reco(Scenario):
             eiStep=',EI'
 
         options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+PhysicsSkimStep+miniAODStep+',DQM'+dqmStep+',ENDJOB'
-
 
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
@@ -121,7 +120,8 @@ class Reco(Scenario):
         if self.cbSc == 'pp':
             eiStep=',EI'
 
-        options.step = 'RAW2DIGI,L1Reco,RECO'+eiStep+step+',DQM'+dqmStep+',ENDJOB'
+        options.step = 'RAW2DIGI,L1Reco,RECO'+self.recoSeq+eiStep+step+',DQM'+dqmStep+',ENDJOB'
+
         dictIO(options,args)
         options.conditions = gtNameAndConnect(globalTag, args)
 
