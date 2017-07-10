@@ -21,7 +21,8 @@ class ppEra_Run2_2017_trackingOnly(trackingOnly):
         # tracking only RECO is sufficient, to run high performance BS at PCL;
         # some dedicated customization are required, though: customisePostEra_Run2_2017_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'
-        self.cbSc=self.__class__.__name__
+        self.cbSc='pp'
+        self.addEI=False
         self.eras=Run2_2017
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017_express_trackingOnly' ]

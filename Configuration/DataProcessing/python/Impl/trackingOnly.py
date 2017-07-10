@@ -17,6 +17,9 @@ class trackingOnly(pp):
         # tracking only RECO is sufficient, to run high performance BS at PCL;
         # some dedicated customization are required, though: customisePostEra_Run2_2017_trackingOnly
         self.recoSeq=':reconstruction_trackingOnly'
+        self.cbSc='pp'
+        # don't run EI, because only tracking is done
+        self.addEI=False
     """
     _trackingOnly_
 
