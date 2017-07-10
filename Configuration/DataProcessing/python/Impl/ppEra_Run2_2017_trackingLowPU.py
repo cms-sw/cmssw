@@ -20,6 +20,7 @@ class ppEra_Run2_2017_trackingLowPU(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
+        self.addEI=True
         self.eras=Run2_2017_trackingLowPU
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_2017' ]
