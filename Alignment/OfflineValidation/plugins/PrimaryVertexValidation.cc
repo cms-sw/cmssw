@@ -1326,62 +1326,63 @@ void PrimaryVertexValidation::beginJob()
   // book residuals vs pT histograms
   
   TFileDirectory AbsTranspTRes  = fs->mkdir("Abs_Transv_pT_Residuals"); 
-  h_dxy_pT_      = bookResidualsHistogram(AbsTranspTRes,nPtBins_,"dxy","pT");	       
+  h_dxy_pT_      = bookResidualsHistogram(AbsTranspTRes,nPtBins_,pvparams::dxy,pvparams::pT);	       
 
   TFileDirectory AbsLongpTRes   = fs->mkdir("Abs_Long_pT_Residuals"); 
-  h_dz_pT_       = bookResidualsHistogram(AbsLongpTRes,nPtBins_,"dz","pT");		       
+  h_dz_pT_       = bookResidualsHistogram(AbsLongpTRes,nPtBins_,pvparams::dz,pvparams::pT);		       
 
   TFileDirectory NormTranspTRes = fs->mkdir("Norm_Transv_pT_Residuals"); 
-  h_norm_dxy_pT_ = bookResidualsHistogram(NormTranspTRes,nPtBins_,"norm_dxy","pT");	       
+  h_norm_dxy_pT_ = bookResidualsHistogram(NormTranspTRes,nPtBins_,pvparams::norm_dxy,pvparams::pT,true);	       
 
   TFileDirectory NormLongpTRes  = fs->mkdir("Norm_Long_pT_Residuals"); 
-  h_norm_dz_pT_  = bookResidualsHistogram(NormLongpTRes,nPtBins_,"norm_dz","pT");	       
+  h_norm_dz_pT_  = bookResidualsHistogram(NormLongpTRes,nPtBins_,pvparams::norm_dz,pvparams::pT,true);	       
 
   // book residuals vs pT histograms in central region (|eta|<1.0)
                
   TFileDirectory AbsTranspTCentralRes  = fs->mkdir("Abs_Transv_pTCentral_Residuals"); 
-  h_dxy_Central_pT_ = bookResidualsHistogram(AbsTranspTCentralRes,nPtBins_,"dxy","pTCentral");       
+  h_dxy_Central_pT_ = bookResidualsHistogram(AbsTranspTCentralRes,nPtBins_,pvparams::dxy,pvparams::pTCentral);       
 
   TFileDirectory AbsLongpTCentralRes   = fs->mkdir("Abs_Long_pTCentral_Residuals"); 
-  h_dz_Central_pT_  = bookResidualsHistogram(AbsLongpTCentralRes,nPtBins_,"dz","pTCentral");	       
+  h_dz_Central_pT_  = bookResidualsHistogram(AbsLongpTCentralRes,nPtBins_,pvparams::dz,pvparams::pTCentral);	       
 
   TFileDirectory NormTranspTCentralRes = fs->mkdir("Norm_Transv_pTCentral_Residuals"); 
-  h_norm_dxy_Central_pT_ = bookResidualsHistogram(NormTranspTCentralRes,nPtBins_,"norm_dxy","pTCentral");  
+  h_norm_dxy_Central_pT_ = bookResidualsHistogram(NormTranspTCentralRes,nPtBins_,pvparams::norm_dxy,pvparams::pTCentral,true);  
 
   TFileDirectory NormLongpTCentralRes  = fs->mkdir("Norm_Long_pTCentral_Residuals"); 
-  h_norm_dz_Central_pT_  = bookResidualsHistogram(NormLongpTCentralRes,nPtBins_,"norm_dz","pTCentral");   
+  h_norm_dz_Central_pT_  = bookResidualsHistogram(NormLongpTCentralRes,nPtBins_,pvparams::norm_dz,pvparams::pTCentral,true);   
 
   // book residuals vs module number
   
   TFileDirectory AbsTransModZRes  = fs->mkdir("Abs_Transv_modZ_Residuals"); 
-  h_dxy_modZ_      = bookResidualsHistogram(AbsTransModZRes,8,"dxy","modZ");	       
+  h_dxy_modZ_      = bookResidualsHistogram(AbsTransModZRes,8,pvparams::dxy,pvparams::modZ);	       
 
   TFileDirectory AbsLongModZRes   = fs->mkdir("Abs_Long_modZ_Residuals"); 
-  h_dz_modZ_       = bookResidualsHistogram(AbsLongModZRes,8,"dz","modZ");		       
+  h_dz_modZ_       = bookResidualsHistogram(AbsLongModZRes,8,pvparams::dz,pvparams::modZ);		       
 
   TFileDirectory NormTransModZRes = fs->mkdir("Norm_Transv_modZ_Residuals"); 
-  h_norm_dxy_modZ_ = bookResidualsHistogram(NormTransModZRes,8,"norm_dxy","modZ");	       
+  h_norm_dxy_modZ_ = bookResidualsHistogram(NormTransModZRes,8,pvparams::norm_dxy,pvparams::modZ,true);	       
 
   TFileDirectory NormLongModZRes  = fs->mkdir("Norm_Long_modZ_Residuals"); 
-  h_norm_dz_modZ_  = bookResidualsHistogram(NormLongModZRes,8,"norm_dz","modZ");	       
+  h_norm_dz_modZ_  = bookResidualsHistogram(NormLongModZRes,8,pvparams::norm_dz,pvparams::modZ,true);	       
 
   TFileDirectory AbsTransLadderRes  = fs->mkdir("Abs_Transv_ladder_Residuals"); 
-  h_dxy_ladder_ = bookResidualsHistogram(AbsTransLadderRes,nLadders_,"dxy","ladder");
+  h_dxy_ladder_ = bookResidualsHistogram(AbsTransLadderRes,nLadders_,pvparams::dxy,pvparams::ladder);
 
   TFileDirectory AbsTransLadderResOverlap  = fs->mkdir("Abs_Transv_ladderOverlap_Residuals"); 
-  h_dxy_ladderOverlap_ = bookResidualsHistogram(AbsTransLadderResOverlap,nLadders_,"dxy","ladder");       
+  h_dxy_ladderOverlap_ = bookResidualsHistogram(AbsTransLadderResOverlap,nLadders_,pvparams::dxy,pvparams::ladder);       
 
   TFileDirectory AbsTransLadderResNoOverlap  = fs->mkdir("Abs_Transv_ladderNoOverlap_Residuals"); 
-  h_dxy_ladderNoOverlap_ = bookResidualsHistogram(AbsTransLadderResNoOverlap,nLadders_,"dxy","ladder");       
+  h_dxy_ladderNoOverlap_ = bookResidualsHistogram(AbsTransLadderResNoOverlap,nLadders_,pvparams::dxy,pvparams::ladder);       
 
   TFileDirectory AbsLongLadderRes   = fs->mkdir("Abs_Long_ladder_Residuals"); 
-  h_dz_ladder_  = bookResidualsHistogram(AbsLongLadderRes,nLadders_,"dz","ladder");	       
+  h_dz_ladder_  = bookResidualsHistogram(AbsLongLadderRes,nLadders_,pvparams::dz,pvparams::ladder);	       
 
   TFileDirectory NormTransLadderRes = fs->mkdir("Norm_Transv_ladder_Residuals"); 
-  h_norm_dxy_ladder_ = bookResidualsHistogram(NormTransLadderRes,nLadders_,"norm_dxy","ladder");  
+  h_norm_dxy_ladder_ = bookResidualsHistogram(NormTransLadderRes,nLadders_,pvparams::norm_dxy,pvparams::ladder,true);  
 
   TFileDirectory NormLongLadderRes  = fs->mkdir("Norm_Long_ladder_Residuals"); 
-  h_norm_dz_ladder_  = bookResidualsHistogram(NormLongLadderRes,nLadders_,"norm_dz","ladder");   
+  h_norm_dz_ladder_  = bookResidualsHistogram(NormLongLadderRes,nLadders_,pvparams::norm_dz,pvparams::ladder,true);   
+
 
   // book residuals as function of phi and eta
 
@@ -2187,139 +2188,139 @@ void PrimaryVertexValidation::endJob()
 
   if(useTracksFromRecoVtx_){
 
-    fillTrendPlot(a_dxyPhiMeanBiasTrend ,a_dxyPhiBiasResiduals,statmode::MEAN,"phi");  
-    fillTrendPlot(a_dxyPhiWidthBiasTrend,a_dxyPhiBiasResiduals,statmode::WIDTH,"phi");
-    fillTrendPlot(a_dzPhiMeanBiasTrend  ,a_dzPhiBiasResiduals ,statmode::MEAN,"phi");   
-    fillTrendPlot(a_dzPhiWidthBiasTrend ,a_dzPhiBiasResiduals ,statmode::WIDTH,"phi");  
+    fillTrendPlot(a_dxyPhiMeanBiasTrend ,a_dxyPhiBiasResiduals,pvparams::MEAN,"phi");  
+    fillTrendPlot(a_dxyPhiWidthBiasTrend,a_dxyPhiBiasResiduals,pvparams::WIDTH,"phi");
+    fillTrendPlot(a_dzPhiMeanBiasTrend  ,a_dzPhiBiasResiduals ,pvparams::MEAN,"phi");   
+    fillTrendPlot(a_dzPhiWidthBiasTrend ,a_dzPhiBiasResiduals ,pvparams::WIDTH,"phi");  
     
-    fillTrendPlot(a_dxyEtaMeanBiasTrend ,a_dxyEtaBiasResiduals,statmode::MEAN,"eta"); 
-    fillTrendPlot(a_dxyEtaWidthBiasTrend,a_dxyEtaBiasResiduals,statmode::WIDTH,"eta");
-    fillTrendPlot(a_dzEtaMeanBiasTrend  ,a_dzEtaBiasResiduals ,statmode::MEAN,"eta"); 
-    fillTrendPlot(a_dzEtaWidthBiasTrend ,a_dzEtaBiasResiduals ,statmode::WIDTH,"eta");
+    fillTrendPlot(a_dxyEtaMeanBiasTrend ,a_dxyEtaBiasResiduals,pvparams::MEAN,"eta"); 
+    fillTrendPlot(a_dxyEtaWidthBiasTrend,a_dxyEtaBiasResiduals,pvparams::WIDTH,"eta");
+    fillTrendPlot(a_dzEtaMeanBiasTrend  ,a_dzEtaBiasResiduals ,pvparams::MEAN,"eta"); 
+    fillTrendPlot(a_dzEtaWidthBiasTrend ,a_dzEtaBiasResiduals ,pvparams::WIDTH,"eta");
     
-    fillTrendPlot(n_dxyPhiMeanBiasTrend ,n_dxyPhiBiasResiduals,statmode::MEAN,"phi"); 
-    fillTrendPlot(n_dxyPhiWidthBiasTrend,n_dxyPhiBiasResiduals,statmode::WIDTH,"phi");
-    fillTrendPlot(n_dzPhiMeanBiasTrend  ,n_dzPhiBiasResiduals ,statmode::MEAN,"phi"); 
-    fillTrendPlot(n_dzPhiWidthBiasTrend ,n_dzPhiBiasResiduals ,statmode::WIDTH,"phi");
+    fillTrendPlot(n_dxyPhiMeanBiasTrend ,n_dxyPhiBiasResiduals,pvparams::MEAN,"phi"); 
+    fillTrendPlot(n_dxyPhiWidthBiasTrend,n_dxyPhiBiasResiduals,pvparams::WIDTH,"phi");
+    fillTrendPlot(n_dzPhiMeanBiasTrend  ,n_dzPhiBiasResiduals ,pvparams::MEAN,"phi"); 
+    fillTrendPlot(n_dzPhiWidthBiasTrend ,n_dzPhiBiasResiduals ,pvparams::WIDTH,"phi");
     
-    fillTrendPlot(n_dxyEtaMeanBiasTrend ,n_dxyEtaBiasResiduals,statmode::MEAN,"eta"); 
-    fillTrendPlot(n_dxyEtaWidthBiasTrend,n_dxyEtaBiasResiduals,statmode::WIDTH,"eta");
-    fillTrendPlot(n_dzEtaMeanBiasTrend  ,n_dzEtaBiasResiduals ,statmode::MEAN,"eta"); 
-    fillTrendPlot(n_dzEtaWidthBiasTrend ,n_dzEtaBiasResiduals ,statmode::WIDTH,"eta");
+    fillTrendPlot(n_dxyEtaMeanBiasTrend ,n_dxyEtaBiasResiduals,pvparams::MEAN,"eta"); 
+    fillTrendPlot(n_dxyEtaWidthBiasTrend,n_dxyEtaBiasResiduals,pvparams::WIDTH,"eta");
+    fillTrendPlot(n_dzEtaMeanBiasTrend  ,n_dzEtaBiasResiduals ,pvparams::MEAN,"eta"); 
+    fillTrendPlot(n_dzEtaWidthBiasTrend ,n_dzEtaBiasResiduals ,pvparams::WIDTH,"eta");
     
     // medians and MADs	  
     
-    fillTrendPlot(a_dxyPhiMedianBiasTrend,a_dxyPhiBiasResiduals,statmode::MEDIAN,"phi");  
-    fillTrendPlot(a_dxyPhiMADBiasTrend   ,a_dxyPhiBiasResiduals,statmode::MAD,"phi"); 
-    fillTrendPlot(a_dzPhiMedianBiasTrend ,a_dzPhiBiasResiduals ,statmode::MEDIAN,"phi");  
-    fillTrendPlot(a_dzPhiMADBiasTrend    ,a_dzPhiBiasResiduals ,statmode::MAD,"phi"); 
+    fillTrendPlot(a_dxyPhiMedianBiasTrend,a_dxyPhiBiasResiduals,pvparams::MEDIAN,"phi");  
+    fillTrendPlot(a_dxyPhiMADBiasTrend   ,a_dxyPhiBiasResiduals,pvparams::MAD,"phi"); 
+    fillTrendPlot(a_dzPhiMedianBiasTrend ,a_dzPhiBiasResiduals ,pvparams::MEDIAN,"phi");  
+    fillTrendPlot(a_dzPhiMADBiasTrend    ,a_dzPhiBiasResiduals ,pvparams::MAD,"phi"); 
     
-    fillTrendPlot(a_dxyEtaMedianBiasTrend,a_dxyEtaBiasResiduals,statmode::MEDIAN,"eta");  
-    fillTrendPlot(a_dxyEtaMADBiasTrend   ,a_dxyEtaBiasResiduals,statmode::MAD,"eta"); 
-    fillTrendPlot(a_dzEtaMedianBiasTrend ,a_dzEtaBiasResiduals ,statmode::MEDIAN,"eta");  
-    fillTrendPlot(a_dzEtaMADBiasTrend    ,a_dzEtaBiasResiduals ,statmode::MAD,"eta"); 
+    fillTrendPlot(a_dxyEtaMedianBiasTrend,a_dxyEtaBiasResiduals,pvparams::MEDIAN,"eta");  
+    fillTrendPlot(a_dxyEtaMADBiasTrend   ,a_dxyEtaBiasResiduals,pvparams::MAD,"eta"); 
+    fillTrendPlot(a_dzEtaMedianBiasTrend ,a_dzEtaBiasResiduals ,pvparams::MEDIAN,"eta");  
+    fillTrendPlot(a_dzEtaMADBiasTrend    ,a_dzEtaBiasResiduals ,pvparams::MAD,"eta"); 
     
-    fillTrendPlot(n_dxyPhiMedianBiasTrend,n_dxyPhiBiasResiduals,statmode::MEDIAN,"phi");  
-    fillTrendPlot(n_dxyPhiMADBiasTrend   ,n_dxyPhiBiasResiduals,statmode::MAD,"phi"); 
-    fillTrendPlot(n_dzPhiMedianBiasTrend ,n_dzPhiBiasResiduals ,statmode::MEDIAN,"phi");  
-    fillTrendPlot(n_dzPhiMADBiasTrend    ,n_dzPhiBiasResiduals ,statmode::MAD,"phi"); 
+    fillTrendPlot(n_dxyPhiMedianBiasTrend,n_dxyPhiBiasResiduals,pvparams::MEDIAN,"phi");  
+    fillTrendPlot(n_dxyPhiMADBiasTrend   ,n_dxyPhiBiasResiduals,pvparams::MAD,"phi"); 
+    fillTrendPlot(n_dzPhiMedianBiasTrend ,n_dzPhiBiasResiduals ,pvparams::MEDIAN,"phi");  
+    fillTrendPlot(n_dzPhiMADBiasTrend    ,n_dzPhiBiasResiduals ,pvparams::MAD,"phi"); 
     
-    fillTrendPlot(n_dxyEtaMedianBiasTrend,n_dxyEtaBiasResiduals,statmode::MEDIAN,"eta");  
-    fillTrendPlot(n_dxyEtaMADBiasTrend   ,n_dxyEtaBiasResiduals,statmode::MAD,"eta"); 
-    fillTrendPlot(n_dzEtaMedianBiasTrend ,n_dzEtaBiasResiduals ,statmode::MEDIAN,"eta");  
-    fillTrendPlot(n_dzEtaMADBiasTrend    ,n_dzEtaBiasResiduals ,statmode::MAD,"eta"); 
+    fillTrendPlot(n_dxyEtaMedianBiasTrend,n_dxyEtaBiasResiduals,pvparams::MEDIAN,"eta");  
+    fillTrendPlot(n_dxyEtaMADBiasTrend   ,n_dxyEtaBiasResiduals,pvparams::MAD,"eta"); 
+    fillTrendPlot(n_dzEtaMedianBiasTrend ,n_dzEtaBiasResiduals ,pvparams::MEDIAN,"eta");  
+    fillTrendPlot(n_dzEtaMADBiasTrend    ,n_dzEtaBiasResiduals ,pvparams::MAD,"eta"); 
    
     // 2d Maps
 
-    fillMap(a_dxyMeanBiasMap ,a_dxyBiasResidualsMap,statmode::MEAN); 
-    fillMap(a_dxyWidthBiasMap,a_dxyBiasResidualsMap,statmode::WIDTH);
-    fillMap(a_dzMeanBiasMap  ,a_dzBiasResidualsMap,statmode::MEAN); 
-    fillMap(a_dzWidthBiasMap ,a_dzBiasResidualsMap,statmode::WIDTH);
+    fillMap(a_dxyMeanBiasMap ,a_dxyBiasResidualsMap,pvparams::MEAN); 
+    fillMap(a_dxyWidthBiasMap,a_dxyBiasResidualsMap,pvparams::WIDTH);
+    fillMap(a_dzMeanBiasMap  ,a_dzBiasResidualsMap,pvparams::MEAN); 
+    fillMap(a_dzWidthBiasMap ,a_dzBiasResidualsMap,pvparams::WIDTH);
 
-    fillMap(n_dxyMeanBiasMap ,n_dxyBiasResidualsMap,statmode::MEAN); 
-    fillMap(n_dxyWidthBiasMap,n_dxyBiasResidualsMap,statmode::WIDTH);
-    fillMap(n_dzMeanBiasMap  ,n_dzBiasResidualsMap,statmode::MEAN); 
-    fillMap(n_dzWidthBiasMap ,n_dzBiasResidualsMap,statmode::WIDTH);
+    fillMap(n_dxyMeanBiasMap ,n_dxyBiasResidualsMap,pvparams::MEAN); 
+    fillMap(n_dxyWidthBiasMap,n_dxyBiasResidualsMap,pvparams::WIDTH);
+    fillMap(n_dzMeanBiasMap  ,n_dzBiasResidualsMap,pvparams::MEAN); 
+    fillMap(n_dzWidthBiasMap ,n_dzBiasResidualsMap,pvparams::WIDTH);
    
   }
 
   // do profiles
 
-  fillTrendPlot(a_dxyPhiMeanTrend ,a_dxyPhiResiduals,statmode::MEAN,"phi");  
-  fillTrendPlot(a_dxyPhiWidthTrend,a_dxyPhiResiduals,statmode::WIDTH,"phi");
-  fillTrendPlot(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,statmode::MEAN,"phi");   
-  fillTrendPlot(a_dzPhiWidthTrend ,a_dzPhiResiduals ,statmode::WIDTH,"phi");  
+  fillTrendPlot(a_dxyPhiMeanTrend ,a_dxyPhiResiduals,pvparams::MEAN,"phi");  
+  fillTrendPlot(a_dxyPhiWidthTrend,a_dxyPhiResiduals,pvparams::WIDTH,"phi");
+  fillTrendPlot(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,pvparams::MEAN,"phi");   
+  fillTrendPlot(a_dzPhiWidthTrend ,a_dzPhiResiduals ,pvparams::WIDTH,"phi");  
   
-  fillTrendPlot(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,statmode::MEAN,"eta"); 
-  fillTrendPlot(a_dxyEtaWidthTrend,a_dxyEtaResiduals,statmode::WIDTH,"eta");
-  fillTrendPlot(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,statmode::MEAN,"eta"); 
-  fillTrendPlot(a_dzEtaWidthTrend ,a_dzEtaResiduals ,statmode::WIDTH,"eta");
+  fillTrendPlot(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,pvparams::MEAN,"eta"); 
+  fillTrendPlot(a_dxyEtaWidthTrend,a_dxyEtaResiduals,pvparams::WIDTH,"eta");
+  fillTrendPlot(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,pvparams::MEAN,"eta"); 
+  fillTrendPlot(a_dzEtaWidthTrend ,a_dzEtaResiduals ,pvparams::WIDTH,"eta");
   
-  fillTrendPlot(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,statmode::MEAN,"phi"); 
-  fillTrendPlot(n_dxyPhiWidthTrend,n_dxyPhiResiduals,statmode::WIDTH,"phi");
-  fillTrendPlot(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,statmode::MEAN,"phi"); 
-  fillTrendPlot(n_dzPhiWidthTrend ,n_dzPhiResiduals ,statmode::WIDTH,"phi");
+  fillTrendPlot(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,pvparams::MEAN,"phi"); 
+  fillTrendPlot(n_dxyPhiWidthTrend,n_dxyPhiResiduals,pvparams::WIDTH,"phi");
+  fillTrendPlot(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,pvparams::MEAN,"phi"); 
+  fillTrendPlot(n_dzPhiWidthTrend ,n_dzPhiResiduals ,pvparams::WIDTH,"phi");
   
-  fillTrendPlot(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,statmode::MEAN,"eta"); 
-  fillTrendPlot(n_dxyEtaWidthTrend,n_dxyEtaResiduals,statmode::WIDTH,"eta");
-  fillTrendPlot(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,statmode::MEAN,"eta"); 
-  fillTrendPlot(n_dzEtaWidthTrend ,n_dzEtaResiduals ,statmode::WIDTH,"eta");
+  fillTrendPlot(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,pvparams::MEAN,"eta"); 
+  fillTrendPlot(n_dxyEtaWidthTrend,n_dxyEtaResiduals,pvparams::WIDTH,"eta");
+  fillTrendPlot(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,pvparams::MEAN,"eta"); 
+  fillTrendPlot(n_dzEtaWidthTrend ,n_dzEtaResiduals ,pvparams::WIDTH,"eta");
     
   // vs transverse momentum
 
-  fillTrendPlotByIndex(a_dxypTMeanTrend ,h_dxy_pT_,statmode::MEAN );  
-  fillTrendPlotByIndex(a_dxypTWidthTrend,h_dxy_pT_,statmode::WIDTH);
-  fillTrendPlotByIndex(a_dzpTMeanTrend  ,h_dz_pT_ ,statmode::MEAN );   
-  fillTrendPlotByIndex(a_dzpTWidthTrend ,h_dz_pT_ ,statmode::WIDTH);  
+  fillTrendPlotByIndex(a_dxypTMeanTrend ,h_dxy_pT_,pvparams::MEAN );  
+  fillTrendPlotByIndex(a_dxypTWidthTrend,h_dxy_pT_,pvparams::WIDTH);
+  fillTrendPlotByIndex(a_dzpTMeanTrend  ,h_dz_pT_ ,pvparams::MEAN );   
+  fillTrendPlotByIndex(a_dzpTWidthTrend ,h_dz_pT_ ,pvparams::WIDTH);  
   
-  fillTrendPlotByIndex(a_dxypTCentralMeanTrend ,h_dxy_Central_pT_,statmode::MEAN ); 
-  fillTrendPlotByIndex(a_dxypTCentralWidthTrend,h_dxy_Central_pT_,statmode::WIDTH);
-  fillTrendPlotByIndex(a_dzpTCentralMeanTrend  ,h_dz_Central_pT_ ,statmode::MEAN ); 
-  fillTrendPlotByIndex(a_dzpTCentralWidthTrend ,h_dz_Central_pT_ ,statmode::WIDTH);
+  fillTrendPlotByIndex(a_dxypTCentralMeanTrend ,h_dxy_Central_pT_,pvparams::MEAN ); 
+  fillTrendPlotByIndex(a_dxypTCentralWidthTrend,h_dxy_Central_pT_,pvparams::WIDTH);
+  fillTrendPlotByIndex(a_dzpTCentralMeanTrend  ,h_dz_Central_pT_ ,pvparams::MEAN ); 
+  fillTrendPlotByIndex(a_dzpTCentralWidthTrend ,h_dz_Central_pT_ ,pvparams::WIDTH);
   
-  fillTrendPlotByIndex(n_dxypTMeanTrend ,h_norm_dxy_pT_,statmode::MEAN ); 
-  fillTrendPlotByIndex(n_dxypTWidthTrend,h_norm_dxy_pT_,statmode::WIDTH);
-  fillTrendPlotByIndex(n_dzpTMeanTrend  ,h_norm_dz_pT_ ,statmode::MEAN ); 
-  fillTrendPlotByIndex(n_dzpTWidthTrend ,h_norm_dz_pT_ ,statmode::WIDTH);
+  fillTrendPlotByIndex(n_dxypTMeanTrend ,h_norm_dxy_pT_,pvparams::MEAN ); 
+  fillTrendPlotByIndex(n_dxypTWidthTrend,h_norm_dxy_pT_,pvparams::WIDTH);
+  fillTrendPlotByIndex(n_dzpTMeanTrend  ,h_norm_dz_pT_ ,pvparams::MEAN ); 
+  fillTrendPlotByIndex(n_dzpTWidthTrend ,h_norm_dz_pT_ ,pvparams::WIDTH);
   
-  fillTrendPlotByIndex(n_dxypTCentralMeanTrend ,h_norm_dxy_Central_pT_,statmode::MEAN ); 
-  fillTrendPlotByIndex(n_dxypTCentralWidthTrend,h_norm_dxy_Central_pT_,statmode::WIDTH);
-  fillTrendPlotByIndex(n_dzpTCentralMeanTrend  ,h_norm_dz_Central_pT_ ,statmode::MEAN ); 
-  fillTrendPlotByIndex(n_dzpTCentralWidthTrend ,h_norm_dz_Central_pT_ ,statmode::WIDTH);
+  fillTrendPlotByIndex(n_dxypTCentralMeanTrend ,h_norm_dxy_Central_pT_,pvparams::MEAN ); 
+  fillTrendPlotByIndex(n_dxypTCentralWidthTrend,h_norm_dxy_Central_pT_,pvparams::WIDTH);
+  fillTrendPlotByIndex(n_dzpTCentralMeanTrend  ,h_norm_dz_Central_pT_ ,pvparams::MEAN ); 
+  fillTrendPlotByIndex(n_dzpTCentralWidthTrend ,h_norm_dz_Central_pT_ ,pvparams::WIDTH);
 
-  // medians and MADs	  
-  
-  fillTrendPlot(a_dxyPhiMedianTrend,a_dxyPhiResiduals,statmode::MEDIAN,"phi");  
-  fillTrendPlot(a_dxyPhiMADTrend   ,a_dxyPhiResiduals,statmode::MAD,"phi"); 
-  fillTrendPlot(a_dzPhiMedianTrend ,a_dzPhiResiduals ,statmode::MEDIAN,"phi");  
-  fillTrendPlot(a_dzPhiMADTrend    ,a_dzPhiResiduals ,statmode::MAD,"phi"); 
-  
-  fillTrendPlot(a_dxyEtaMedianTrend,a_dxyEtaResiduals,statmode::MEDIAN,"eta");  
-  fillTrendPlot(a_dxyEtaMADTrend   ,a_dxyEtaResiduals,statmode::MAD,"eta"); 
-  fillTrendPlot(a_dzEtaMedianTrend ,a_dzEtaResiduals ,statmode::MEDIAN,"eta");  
-  fillTrendPlot(a_dzEtaMADTrend    ,a_dzEtaResiduals ,statmode::MAD,"eta"); 
-  
-  fillTrendPlot(n_dxyPhiMedianTrend,n_dxyPhiResiduals,statmode::MEDIAN,"phi");  
-  fillTrendPlot(n_dxyPhiMADTrend   ,n_dxyPhiResiduals,statmode::MAD,"phi"); 
-  fillTrendPlot(n_dzPhiMedianTrend ,n_dzPhiResiduals ,statmode::MEDIAN,"phi");  
-  fillTrendPlot(n_dzPhiMADTrend    ,n_dzPhiResiduals ,statmode::MAD,"phi"); 
-  
-  fillTrendPlot(n_dxyEtaMedianTrend,n_dxyEtaResiduals,statmode::MEDIAN,"eta");  
-  fillTrendPlot(n_dxyEtaMADTrend   ,n_dxyEtaResiduals,statmode::MAD,"eta"); 
-  fillTrendPlot(n_dzEtaMedianTrend ,n_dzEtaResiduals ,statmode::MEDIAN,"eta");  
-  fillTrendPlot(n_dzEtaMADTrend    ,n_dzEtaResiduals ,statmode::MAD,"eta"); 
+  // vs ladder and module number
+
+  fillTrendPlotByIndex(a_dxymodZMeanTrend   ,h_dxy_modZ_,pvparams::MEAN);  
+  fillTrendPlotByIndex(a_dxymodZWidthTrend  ,h_dxy_modZ_,pvparams::WIDTH);
+  fillTrendPlotByIndex(a_dzmodZMeanTrend    ,h_dz_modZ_,pvparams::MEAN);   
+  fillTrendPlotByIndex(a_dzmodZWidthTrend   ,h_dz_modZ_,pvparams::WIDTH);  
+  		       		      
+  fillTrendPlotByIndex(a_dxyladderMeanTrend ,h_dxy_ladder_,pvparams::MEAN); 
+  fillTrendPlotByIndex(a_dxyladderWidthTrend,h_dxy_ladder_,pvparams::WIDTH);
+  fillTrendPlotByIndex(a_dzladderMeanTrend  ,h_dz_ladder_,pvparams::MEAN); 
+  fillTrendPlotByIndex(a_dzladderWidthTrend ,h_dz_ladder_,pvparams::WIDTH);
+  		       		      
+  fillTrendPlotByIndex(n_dxymodZMeanTrend   ,h_norm_dxy_modZ_,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dxymodZWidthTrend  ,h_norm_dxy_modZ_,pvparams::WIDTH);
+  fillTrendPlotByIndex(n_dzmodZMeanTrend    ,h_norm_dz_modZ_,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dzmodZWidthTrend   ,h_norm_dz_modZ_,pvparams::WIDTH);
+  		       		      
+  fillTrendPlotByIndex(n_dxyladderMeanTrend ,h_norm_dxy_ladder_,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dxyladderWidthTrend,h_norm_dxy_ladder_,pvparams::WIDTH);
+  fillTrendPlotByIndex(n_dzladderMeanTrend  ,h_norm_dz_ladder_,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dzladderWidthTrend ,h_norm_dz_ladder_,pvparams::WIDTH);
     
   // 2D Maps
 
-  fillMap(a_dxyMeanMap ,a_dxyResidualsMap,statmode::MEAN); 
-  fillMap(a_dxyWidthMap,a_dxyResidualsMap,statmode::WIDTH);
-  fillMap(a_dzMeanMap  ,a_dzResidualsMap,statmode::MEAN); 
-  fillMap(a_dzWidthMap ,a_dzResidualsMap,statmode::WIDTH);
+  fillMap(a_dxyMeanMap ,a_dxyResidualsMap,pvparams::MEAN); 
+  fillMap(a_dxyWidthMap,a_dxyResidualsMap,pvparams::WIDTH);
+  fillMap(a_dzMeanMap  ,a_dzResidualsMap,pvparams::MEAN); 
+  fillMap(a_dzWidthMap ,a_dzResidualsMap,pvparams::WIDTH);
   
-  fillMap(n_dxyMeanMap ,n_dxyResidualsMap,statmode::MEAN); 
-  fillMap(n_dxyWidthMap,n_dxyResidualsMap,statmode::WIDTH);
-  fillMap(n_dzMeanMap  ,n_dzResidualsMap,statmode::MEAN); 
-  fillMap(n_dzWidthMap ,n_dzResidualsMap,statmode::WIDTH);
+  fillMap(n_dxyMeanMap ,n_dxyResidualsMap,pvparams::MEAN); 
+  fillMap(n_dxyWidthMap,n_dxyResidualsMap,pvparams::WIDTH);
+  fillMap(n_dzMeanMap  ,n_dzResidualsMap,pvparams::MEAN); 
+  fillMap(n_dzWidthMap ,n_dzResidualsMap,pvparams::WIDTH);
 
 }
 
@@ -2509,6 +2510,7 @@ std::pair<Measurement1D, Measurement1D> PrimaryVertexValidation::fitResiduals(TH
 }
 
 //*************************************************************
+
 void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], statmode::estimator fitPar_,const std::string& var_)
 //*************************************************************
 {
@@ -2526,7 +2528,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
     
     switch(fitPar_)
       {
-      case statmode::MEAN:
+      case pvparams::MEAN:
 	{
 	  float mean_      = fitResiduals(residualsPlot[i]).first.value();
 	  float meanErr_   = fitResiduals(residualsPlot[i]).first.error();
@@ -2534,7 +2536,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
 	  trendPlot->SetBinError(i+1,meanErr_);
 	  break;
 	} 
-      case statmode::WIDTH:
+      case pvparams::WIDTH:
 	{
 	  float width_     = fitResiduals(residualsPlot[i]).second.value();
 	  float widthErr_  = fitResiduals(residualsPlot[i]).second.error();
@@ -2542,7 +2544,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
 	  trendPlot->SetBinError(i+1,widthErr_);
 	  break;
 	}
-      case statmode::MEDIAN:
+      case pvparams::MEDIAN:
 	{
 	  float median_    = getMedian(residualsPlot[i]).value();
 	  float medianErr_ = getMedian(residualsPlot[i]).error();
@@ -2550,7 +2552,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
 	  trendPlot->SetBinError(i+1,medianErr_);
 	  break;
 	} 
-      case statmode::MAD:
+      case pvparams::MAD:
 	{
 	  float mad_       = getMAD(residualsPlot[i]).value(); 
 	  float madErr_    = getMAD(residualsPlot[i]).error();
@@ -2574,7 +2576,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h,  statmode::estimator fitPar_)
+void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h,  pvparams::estimator fitPar_)
 //*************************************************************
 {  
 
@@ -2585,7 +2587,7 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
 
     switch(fitPar_)
       {
-      case statmode::MEAN: 
+      case pvparams::MEAN: 
 	{   
 	  float mean_      = myFit.first.value();
 	  float meanErr_   = myFit.first.error();
@@ -2593,7 +2595,7 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
 	  trendPlot->SetBinError(bin,meanErr_);
 	  break;
 	}
-      case statmode::WIDTH:
+      case pvparams::WIDTH:
 	{
 	  float width_     = myFit.second.value();
 	  float widthErr_  = myFit.second.error();
@@ -2601,7 +2603,7 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
 	  trendPlot->SetBinError(bin,widthErr_);
 	  break;
 	}
-      case statmode::MEDIAN:
+      case pvparams::MEDIAN:
 	{
 	  float median_    = getMedian(*iterator).value();
 	  float medianErr_ = getMedian(*iterator).error();
@@ -2609,7 +2611,7 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
 	  trendPlot->SetBinError(bin,medianErr_);
 	  break;
 	}
-      case statmode::MAD:
+      case pvparams::MAD:
 	{
 	  float mad_       = getMAD(*iterator).value(); 
 	  float madErr_    = getMAD(*iterator).error();
@@ -2625,7 +2627,7 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100],  statmode::estimator fitPar_)
+void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100],  pvparams::estimator fitPar_)
 //*************************************************************
 {
  
@@ -2648,7 +2650,7 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
 
       switch (fitPar_)
 	{ 
-	case statmode::MEAN:
+	case pvparams::MEAN:
 	  {
 	    float mean_      = fitResiduals(residualsMapPlot[i][j]).first.value();
 	    float meanErr_   = fitResiduals(residualsMapPlot[i][j]).first.error();
@@ -2656,7 +2658,7 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
 	    trendMap->SetBinError(j+1,i+1,meanErr_);
 	    break;
 	  }
-	case statmode::WIDTH:
+	case pvparams::WIDTH:
 	  {
 	    float width_     = fitResiduals(residualsMapPlot[i][j]).second.value();
 	    float widthErr_  = fitResiduals(residualsMapPlot[i][j]).second.error();
@@ -2664,7 +2666,7 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
 	    trendMap->SetBinError(j+1,i+1,widthErr_);
 	    break;
 	  }     
-	case statmode::MEDIAN:
+	case pvparams::MEDIAN:
 	  {
 	    float median_    = getMedian(residualsMapPlot[i][j]).value();
 	    float medianErr_ = getMedian(residualsMapPlot[i][j]).error();
@@ -2672,7 +2674,7 @@ void PrimaryVertexValidation::fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100
 	    trendMap->SetBinError(j+1,i+1,medianErr_);
 	    break;
 	  }     
-	case statmode::MAD:
+	case pvparams::MAD:
 	  {
 	    float mad_       = getMAD(residualsMapPlot[i][j]).value(); 
 	    float madErr_    = getMAD(residualsMapPlot[i][j]).error();
@@ -2781,14 +2783,17 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(const 
 //*************************************************************
 std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDirectory& dir,
 								   unsigned int theNOfBins,
-								   std::string resType,
-								   const std::string& varType){
+								   pvparams::residualType resType,
+								   pvparams::plotVariable varType,
+								   bool isNormalized){
+
   TH1F::SetDefaultSumw2(kTRUE);
   
   double up   = 1000;
   double down = -up;
   
-  if(resType.find( "norm" ) != std::string::npos){
+
+  if(isNormalized){
     up = up*(1/100);
     down = down*(1/100);
   }
@@ -2796,18 +2801,17 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDi
   std::vector<TH1F*> h;
   h.reserve(theNOfBins);
 
-  
-
-  std::string auxResType = std::regex_replace(resType, std::regex("_"), "");
-
   if (theNOfBins==0) {
     edm::LogError("PrimaryVertexValidation") <<"bookResidualsHistogram() The number of bins cannot be identically 0" << std::endl;
     assert(false);
   }
+  
+  std::string s_resType = this->getTypeString(resType);
+  std::string s_varType = this->getVarString(varType);
       
   for(unsigned int i=0; i<theNOfBins;i++){
-    TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",resType.c_str(),varType.c_str(),i),
-				 Form("%s vs %s - bin %i;%s;tracks",auxResType.c_str(),varType.c_str(),i,auxResType.c_str()),
+    TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",s_resType.c_str(),s_varType.c_str(),i),
+				 Form("%s vs %s - bin %i;%s;tracks",s_resType.c_str(),s_varType.c_str(),i,s_resType.c_str()),
 				 500,down,up); 
     h.push_back(htemp);
   }
@@ -2977,6 +2981,108 @@ void PrimaryVertexValidation::shrinkHistVectorToFit(std::vector<TH1F*>&h, unsign
 //*************************************************************
 {
   h.erase(h.begin()+desired_size,h.end()); 
+}
+
+//*************************************************************
+std::string PrimaryVertexValidation::getTypeString (pvparams::residualType type)
+//*************************************************************
+{
+  std::string returnType = "";
+  switch(type)
+    {
+    // absoulte
+
+    case pvparams::dxy  :
+      returnType = "d_{xy}";
+      break;
+    case pvparams::dx   :
+      returnType = "d_{x}";
+      break;
+    case pvparams::dy   :
+      returnType = "d_{y}";
+      break;
+    case pvparams::dz   :
+      returnType = "d_{z}";
+      break;
+    case pvparams::IP2D :
+      returnType = "IP_{2D}";
+      break;
+    case pvparams::resz :
+      returnType = "z_{trk}-z_{vtx}";
+      break;
+    case pvparams::IP3D :
+      returnType = "IP_{3D}";
+      break;
+    case pvparams::d3D  : 
+      returnType = "d_{3D}";
+      break;
+
+    // normalized
+
+    case pvparams::norm_dxy  :
+      returnType = "d_{xy}/#sigma_{d_{xy}}";
+      break;
+    case pvparams::norm_dx   :
+      returnType = "d_{x}/#sigma_{d_{x}}";
+      break;
+    case pvparams::norm_dy   :
+      returnType = "d_{y}/#sigma_{d_{y}}";
+      break;
+    case pvparams::norm_dz   :
+      returnType = "d_{z}/#sigma_{d_{z}}";
+      break;
+    case pvparams::norm_IP2D :
+      returnType = "IP_{2D}/#sigma_{IP_{2D}}";
+      break;
+    case pvparams::norm_resz :
+      returnType = "z_{trk}-z_{vtx}/#sigma_{res_{z}}";
+      break;
+    case pvparams::norm_IP3D :
+      returnType = "IP_{3D}/#sigma_{IP_{3D}}";
+      break;
+    case pvparams::norm_d3D  : 
+      returnType = "d_{3D}/#sigma_{d_{3D}}";
+      break;
+
+    default:
+      edm::LogWarning("PrimaryVertexValidation:") <<" getTypeString() unknown residual type"<<type<<std::endl;
+    }
+
+  return returnType;
+  
+}
+
+//*************************************************************
+std::string PrimaryVertexValidation::getVarString (pvparams::plotVariable var)
+//*************************************************************
+{
+  std::string returnVar = "";
+  switch(var)
+    {
+    case pvparams::phi  :
+      returnVar = "#phi";
+      break;
+    case pvparams::eta   :
+      returnVar = "#eta";
+      break;
+    case pvparams::pT   :
+      returnVar = "p_{T}";
+      break;
+    case pvparams::pTCentral :
+      returnVar = "p_{T} |#eta|<1.";
+      break;
+    case pvparams::ladder   :
+      returnVar = "ladder number";
+      break;
+    case pvparams::modZ :
+      returnVar = "module number";
+      break;
+    default:
+      edm::LogWarning("PrimaryVertexValidation:") <<" getVarString() unknown plot variable"<<var<<std::endl;
+    }
+
+  return returnVar;
+  
 }
 
 
