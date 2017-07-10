@@ -15,6 +15,7 @@ class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
 
         virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
         virtual void fill(const edm::Event&, const edm::EventSetup& ) override final;
+
         bool isStableLepton( const reco::Candidate * daughter );
         bool isElectron( const reco::Candidate * daughter );
         bool isMuon( const reco::Candidate * daughter );
@@ -321,6 +322,7 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             else if( n_pi == 3 && n_piZero == 0 ){ gen_tau_decayMode_.emplace_back(4); }
             /* 3-prongs + pi0s */
             else if( n_pi == 3 && n_piZero >= 1 ){ gen_tau_decayMode_.emplace_back(5); }
+            /* other decays */
             else{ gen_tau_decayMode_.emplace_back(-1); } 
 
         }
