@@ -8,7 +8,6 @@
 #include "CommonTools/UtilAlgos/interface/SingleElementCollectionSelector.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 
 #include <vector>
