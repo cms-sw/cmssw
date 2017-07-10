@@ -49,7 +49,7 @@ DDDividedGeometryObject::calculateWidth( double motherDim, int nDiv, double offs
 }
 
 void
-DDDividedGeometryObject::checkParametersValidity( void )
+DDDividedGeometryObject::checkParametersValidity( )
 {
   double maxPar = getMaxParameter();
   checkOffset( maxPar );
@@ -92,7 +92,7 @@ DDDividedGeometryObject::checkNDivAndWidth( double maxPar )
 }
 
 const double
-DDDividedGeometryObject::tolerance( void )
+DDDividedGeometryObject::tolerance( )
 {
   // this can come from some global tolerance if you want.
   static const double tol = 1.0/1000.00;
@@ -106,13 +106,13 @@ DDDividedGeometryObject::setType( const std::string& s)
 }
 
 const std::string&
-DDDividedGeometryObject::getType( void ) const
+DDDividedGeometryObject::getType( ) const
 {
   return ftype_;
 }
 
 void
-DDDividedGeometryObject::execute( void )
+DDDividedGeometryObject::execute( )
 {
   for( int i = theVoluFirstCopyNo_; i < compNDiv_+theVoluFirstCopyNo_; ++i )
   {
@@ -126,7 +126,7 @@ DDDividedGeometryObject::execute( void )
 }
 
 double
-DDDividedGeometryObject::getMaxParameter( void ) const
+DDDividedGeometryObject::getMaxParameter( ) const
 {
   return 0.0;
 }

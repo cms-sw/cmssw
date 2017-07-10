@@ -68,22 +68,22 @@ public:
 						 const AlgebraicSymMatrix& cov) const = 0;
  
   /// Get alignment parameter selector vector 
-  const std::vector<bool>& selector( void ) const;
+  const std::vector<bool>& selector( ) const;
 
   /// Get number of selected parameters 
-  int numSelected( void ) const;
+  int numSelected( ) const;
 
   /// Get selected parameters
-  AlgebraicVector selectedParameters( void ) const;
+  AlgebraicVector selectedParameters( ) const;
 
   /// Get covariance matrix of selected parameters
-  AlgebraicSymMatrix selectedCovariance(void) const;
+  AlgebraicSymMatrix selectedCovariance() const;
 
   /// Get alignment parameters
-  const AlgebraicVector& parameters(void) const;
+  const AlgebraicVector& parameters() const;
 
   /// Get parameter covariance matrix
-  const AlgebraicSymMatrix& covariance(void) const;
+  const AlgebraicSymMatrix& covariance() const;
 
   /// Get derivatives of selected parameters
   virtual AlgebraicMatrix derivatives(const TrajectoryStateOnSurface& tsos,
@@ -94,10 +94,10 @@ public:
   /// Set pointer to user variables
   void setUserVariables(AlignmentUserVariables* auv);
   /// Get pointer to user variables
-  AlignmentUserVariables* userVariables( void ) const;
+  AlignmentUserVariables* userVariables( ) const;
 
   /// Get pointer to corresponding alignable
-  Alignable* alignable( void ) const;
+  Alignable* alignable( ) const;
 
   /// How many levels of Alignables with parameters can be found in the 
   /// substructures of the Alignable of these parameters? E.g.
@@ -106,10 +106,10 @@ public:
   virtual unsigned int hierarchyLevel() const;
 
   /// Get number of parameters
-  int size(void) const;
+  int size() const;
 
   /// Get validity flag
-  bool isValid(void) const;
+  bool isValid() const;
   /// Set validity flag
   void setValid(bool v);
 

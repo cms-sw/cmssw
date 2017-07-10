@@ -9,12 +9,12 @@ TStorageFactorySystem::TStorageFactorySystem(const char *, Bool_t)
     fDirp(0)
 { SetName("StorageFactory"); }
 
-TStorageFactorySystem::TStorageFactorySystem(void)
+TStorageFactorySystem::TStorageFactorySystem()
   : TSystem("-StorageFactory", "Storage Factory System"),
     fDirp(0)
 { SetName("StorageFactory"); }
 
-TStorageFactorySystem::~TStorageFactorySystem(void)
+TStorageFactorySystem::~TStorageFactorySystem()
 {}
 
 //////////////////////////////////////////////////////////////////////

@@ -18,11 +18,11 @@ class testBox : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testBox::matched_g4_and_dd( void )
+testBox::matched_g4_and_dd( )
 {
   double xHalfLength( 2.*cm );
   double yHalfLength( 2.*cm );

@@ -25,7 +25,7 @@ public:
     explicit L1TMuonEndcapWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    virtual ~L1TMuonEndcapWriter(void){}
+    virtual ~L1TMuonEndcapWriter(){}
 };
 
 void L1TMuonEndcapWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

@@ -32,23 +32,23 @@ class DDLTestDoc : public DDLDocumentProvider
 {
 public:
 
-  DDLTestDoc( void );
+  DDLTestDoc( );
   virtual ~DDLTestDoc();
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >&  getFileList( void ) const;
+  virtual const std::vector < std::string >&  getFileList( ) const;
 
   /// Return a list of urls as a vector of strings.
-  virtual const std::vector < std::string >&  getURLList( void ) const;
+  virtual const std::vector < std::string >&  getURLList( ) const;
 
   /// Print out the list of files.
-  virtual void dumpFileList( void ) const;
+  virtual void dumpFileList( ) const;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  virtual bool doValidation( void ) const;
+  virtual bool doValidation( ) const;
 
   /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation( void ) const;
+  std::string getSchemaLocation( ) const;
 
   /// ReadConfig
   virtual int readConfig( const std::string& filename );
@@ -59,7 +59,7 @@ public:
 
   void setValidation( bool val );
 
-  void clear( void );
+  void clear( );
 
 private:
   std::vector < std::string > fnames_;
@@ -71,24 +71,24 @@ private:
 //--------------------------------------------------------------------------
 //  DDLTestDoc:  Default constructor and destructor.
 //--------------------------------------------------------------------------
-DDLTestDoc::~DDLTestDoc( void )
+DDLTestDoc::~DDLTestDoc( )
 { 
 }
 
-DDLTestDoc::DDLTestDoc( void )
+DDLTestDoc::DDLTestDoc( )
   : validate_(true)
 { 
   schemaLoc_ = "http://www.cern.ch/cms/DDL ../../Schema/DDLSchema.xsd";
 }
 
 const std::vector<std::string>&
-DDLTestDoc::getFileList( void ) const
+DDLTestDoc::getFileList( ) const
 {
   return fnames_;
 }
 
 const std::vector<std::string>&
-DDLTestDoc::getURLList( void ) const
+DDLTestDoc::getURLList( ) const
 {
   return urls_;
 }
@@ -105,7 +105,7 @@ DDLTestDoc::setValidation( bool val )
 { validate_= val; }
 
 bool
-DDLTestDoc::doValidation( void ) const
+DDLTestDoc::doValidation( ) const
 { return validate_; }
 
 void
@@ -113,11 +113,11 @@ DDLTestDoc::setSchemaLocation( std::string path )
 { schemaLoc_ = path; }
 
 std::string
-DDLTestDoc::getSchemaLocation( void ) const
+DDLTestDoc::getSchemaLocation( ) const
 { std::cout << schemaLoc_ << std::endl; return schemaLoc_; }
 
 void
-DDLTestDoc::dumpFileList( void ) const
+DDLTestDoc::dumpFileList( ) const
 {
   std::cout << "File List:" << std::endl;
   std::vector<std::string> vst = getFileList();
@@ -127,7 +127,7 @@ DDLTestDoc::dumpFileList( void ) const
 }
 
 void
-DDLTestDoc::clear( void )
+DDLTestDoc::clear( )
 {
   fnames_.clear();
   urls_.clear();
@@ -185,7 +185,7 @@ DDLTestDoc::readConfig( const std::string& filename )
 
 
 void
-testRotations( void )
+testRotations( )
 {
   std::cout << "--------------- Parser testing Rotations --------------" << std::endl;
   std::cout << "z30 should be a rotation of 30 degrees around the z axis:" << std::endl;
@@ -238,7 +238,7 @@ void testMaterials() {
 }
 
 void
-testSolids( void )
+testSolids( )
 { 
   std::cout << "--------------- Parser testing Solids --------------" << std::endl;
   std::cout << "trap1 is a trapezoid:" << std::endl;
@@ -359,7 +359,7 @@ testSolids( void )
 }
 
 void
-testLogicalParts( void )
+testLogicalParts( )
 { 
   std::cout << "--------------- Parser testing LogicalParts --------------" << std::endl;
   std::cout << "LogicalPart trap1:" << std::endl;

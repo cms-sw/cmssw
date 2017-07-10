@@ -62,7 +62,7 @@ IOChannel::IOChannel (IOFD fd /* = EDM_IOFD_INVALID */)
   : m_fd (fd)
 {}
 
-IOChannel::~IOChannel (void)
+IOChannel::~IOChannel ()
 {}
 
 //////////////////////////////////////////////////////////////////////
@@ -70,7 +70,7 @@ IOChannel::~IOChannel (void)
 //////////////////////////////////////////////////////////////////////
 /** Get the system file descriptor of the channel.  */
 IOFD
-IOChannel::fd (void) const
+IOChannel::fd () const
 { return m_fd; }
 
 /** Set the system file descriptor of the channel.  (FIXME: This is
@@ -89,7 +89,7 @@ IOChannel::fd (IOFD value)
 /** Close the channel.  By default closes the underlying operating
     system file descriptor.  */
 void
-IOChannel::close (void)
+IOChannel::close ()
 {
   if (fd () == EDM_IOFD_INVALID)
     return;

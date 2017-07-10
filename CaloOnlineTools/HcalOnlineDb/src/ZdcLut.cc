@@ -185,7 +185,7 @@ ZdcLut::ZdcLut()
 }
 
 
-ZdcLut::~ZdcLut( void )
+ZdcLut::~ZdcLut( )
 {    
 }
 

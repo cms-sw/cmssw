@@ -13,12 +13,12 @@ class MFProducer : public edm::EDProducer
 {
 public:
   explicit MFProducer( const edm::ParameterSet& );
-  ~MFProducer( void );
+  ~MFProducer( );
   
 private:
-  virtual void beginJob( void ) override;
+  virtual void beginJob( ) override;
   virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-  virtual void endJob( void ) override;
+  virtual void endJob( ) override;
   void 		evaluate( const double point[3], double field[3] ) const;
   unsigned	m_mapDensityX;
   unsigned      m_mapDensityY;
@@ -54,7 +54,7 @@ MFProducer::MFProducer( const edm::ParameterSet& iPset )
   m_zBaseDir = ( m_maxZ - m_minZ ) / m_mapDensityZ;
 }
 
-MFProducer::~MFProducer( void )
+MFProducer::~MFProducer( )
 {}
 
 void
@@ -91,11 +91,11 @@ MFProducer::evaluate (const double point [3], double field [3]) const
 }
 
 void 
-MFProducer::beginJob( void )
+MFProducer::beginJob( )
 {}
 
 void 
-MFProducer::endJob( void )
+MFProducer::endJob( )
 {}
 
 DEFINE_FWK_MODULE( MFProducer );

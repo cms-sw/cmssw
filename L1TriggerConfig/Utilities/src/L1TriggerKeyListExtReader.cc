@@ -16,7 +16,7 @@ public:
 
     explicit L1TriggerKeyListExtReader(const edm::ParameterSet&) : edm::EDAnalyzer(){
     }
-    virtual ~L1TriggerKeyListExtReader(void){}
+    virtual ~L1TriggerKeyListExtReader(){}
 };
 
 #include <iostream>

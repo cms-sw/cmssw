@@ -57,7 +57,7 @@ class AlignableDTStation : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTStation& );
 
   /// Recursive printout of the muon DT Station structure
-  void dump( void ) const;
+  void dump( ) const;
 
 
 private:

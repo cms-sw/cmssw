@@ -126,11 +126,11 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
   /**
    * Sort criterion for segment quality, for use in pruneTheSegments.
    */   
-  void segmentSort(void);  
+  void segmentSort();  
   
   float phiAtZ(float z) const;  
 
-  void updateParameters(void);
+  void updateParameters();
 
   void dumpSegment( const CSCSegment& seg ) const;
   

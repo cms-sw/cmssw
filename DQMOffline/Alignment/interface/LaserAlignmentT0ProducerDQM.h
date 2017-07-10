@@ -50,7 +50,7 @@ class LaserAlignmentT0ProducerDQM : public DQMEDAnalyzer {
 
   void FillFromRawDigis( const edm::DetSetVector<SiStripRawDigi>& );
   void FillFromProcessedDigis( const edm::DetSetVector<SiStripDigi>& );
-  void FillDetectorId( void );
+  void FillDetectorId( );
 
   edm::ParameterSet theConfiguration;
   std::vector<edm::ParameterSet> theDigiProducerList;

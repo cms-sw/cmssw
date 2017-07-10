@@ -103,7 +103,7 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCRing& b )
 
 
 /// Recursive printout of whole CSC Ring structure
-void AlignableCSCRing::dump( void ) const
+void AlignableCSCRing::dump( ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);

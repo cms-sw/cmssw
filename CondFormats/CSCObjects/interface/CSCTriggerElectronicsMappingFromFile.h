@@ -21,7 +21,7 @@ class CSCTriggerElectronicsMappingFromFile : public CSCTriggerElectronicsMapping
    virtual ~CSCTriggerElectronicsMappingFromFile();
 
   /// Fill mapping store
-   virtual void fill( void );
+   virtual void fill( );
 
  private: 
    std::string filename_;

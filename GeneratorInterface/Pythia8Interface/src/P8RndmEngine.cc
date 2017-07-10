@@ -4,7 +4,7 @@
 
 namespace gen {
 
-  double P8RndmEngine::flat(void) {
+  double P8RndmEngine::flat() {
     if(randomEngine_ == nullptr) {
       throwNullPtr();
     }

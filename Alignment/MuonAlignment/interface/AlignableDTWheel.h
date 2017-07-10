@@ -57,7 +57,7 @@ class AlignableDTWheel : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTWheel& );
 
   /// Recursive printout of the muon DT wheel structure
-  void dump( void ) const;
+  void dump( ) const;
 
 
 private:

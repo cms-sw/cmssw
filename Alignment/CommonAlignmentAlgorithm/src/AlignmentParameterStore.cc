@@ -254,7 +254,7 @@ void AlignmentParameterStore::updateParameters( const CompositeAlignmentParamete
 
 
 //__________________________________________________________________________________________________
-align::Alignables AlignmentParameterStore::validAlignables(void) const
+align::Alignables AlignmentParameterStore::validAlignables() const
 { 
   align::Alignables result;
   for (align::Alignables::const_iterator iali = theAlignables.begin();
@@ -281,7 +281,7 @@ Alignable* AlignmentParameterStore::alignableFromAlignableDet( const AlignableDe
 }
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::applyParameters(void)
+void AlignmentParameterStore::applyParameters()
 {
   align::Alignables::const_iterator iali;
   for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
@@ -303,7 +303,7 @@ void AlignmentParameterStore::applyParameters(Alignable* alignable)
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::resetParameters(void)
+void AlignmentParameterStore::resetParameters()
 {
   // Erase contents of correlation map
   theCorrelationsStore->resetCorrelations();
@@ -343,7 +343,7 @@ void AlignmentParameterStore::resetParameters( Alignable* ali )
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::cacheTransformations(void)
+void AlignmentParameterStore::cacheTransformations()
 {
   align::Alignables::const_iterator iali;
   for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
@@ -359,7 +359,7 @@ void AlignmentParameterStore::cacheTransformations(const align::RunNumber& run)
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::restoreCachedTransformations(void)
+void AlignmentParameterStore::restoreCachedTransformations()
 {
   align::Alignables::const_iterator iali;
   for ( iali = theAlignables.begin(); iali != theAlignables.end(); ++iali) 
@@ -375,7 +375,7 @@ void AlignmentParameterStore::restoreCachedTransformations(const align::RunNumbe
 
 
 //__________________________________________________________________________________________________
-void AlignmentParameterStore::acquireRelativeParameters(void)
+void AlignmentParameterStore::acquireRelativeParameters()
 {
 
   unsigned int nAlignables = theAlignables.size();

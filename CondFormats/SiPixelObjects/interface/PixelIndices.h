@@ -62,12 +62,12 @@ class PixelIndices {
   ~PixelIndices() {}
   //***********************************************************************
  
-  inline int numberOfROCsInX(void) {return theChipsInX;}
-  inline int numberOfROCsInY(void) {return theChipsInY;}
+  inline int numberOfROCsInX() {return theChipsInX;}
+  inline int numberOfROCsInY() {return theChipsInY;}
 
   //***********************************************************************
 
- void print(void) const {
+ void print() const {
 
     std::cout << " Pixel det with " << theChipsInX << " chips in x and "
 	 << theChipsInY << " in y " << std::endl; 

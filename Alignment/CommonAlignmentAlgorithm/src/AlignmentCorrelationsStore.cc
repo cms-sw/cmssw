@@ -5,7 +5,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-AlignmentCorrelationsStore::AlignmentCorrelationsStore( void )
+AlignmentCorrelationsStore::AlignmentCorrelationsStore( )
 {
   edm::LogInfo("Alignment") << "@SUB=AlignmentCorrelationsStore::AlignmentCorrelationsStore "
                             << "\nCreated.";
@@ -129,7 +129,7 @@ bool AlignmentCorrelationsStore::correlationsAvailable( Alignable* ap1, Alignabl
 }
 
 
-void AlignmentCorrelationsStore::resetCorrelations( void )
+void AlignmentCorrelationsStore::resetCorrelations( )
 {
   Correlations::iterator itC;
   for ( itC = theCorrelations.begin(); itC != theCorrelations.end(); ++itC ) delete (*itC).second;
@@ -142,7 +142,7 @@ void AlignmentCorrelationsStore::resetCorrelations( void )
 }
 
 
-unsigned int AlignmentCorrelationsStore::size( void ) const
+unsigned int AlignmentCorrelationsStore::size( ) const
 {
   unsigned int size = 0;
   Correlations::const_iterator itC;

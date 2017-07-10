@@ -189,7 +189,7 @@ FWFFLooper::FWFFLooper(edm::ParameterSet const&ps)
 }
 
 void
-FWFFLooper::loadDefaultGeometryFile( void )
+FWFFLooper::loadDefaultGeometryFile( )
 {
    CmsShowTaskExecutor::TaskFunctor f;
    f=boost::bind( &CmsShowMainBase::loadGeometry, this );

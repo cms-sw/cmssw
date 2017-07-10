@@ -49,7 +49,7 @@ namespace reco {
     //
     
     // accessors
-    int idnumber(void) const;
+    int idnumber() const;
     
     //
     // other accessors
@@ -57,25 +57,25 @@ namespace reco {
 
     // returns a vector of HcalNoiseHPDs
     // this is expensive and deprecated.  One should use the iterator accessor method instead (provided below)
-    const std::vector<HcalNoiseHPD> HPDs(void) const;
-    inline std::vector<HcalNoiseHPD>::const_iterator HPDsBegin(void) const { return hpds_.begin(); }
-    inline std::vector<HcalNoiseHPD>::const_iterator HPDsEnd(void) const { return hpds_.end(); }
+    const std::vector<HcalNoiseHPD> HPDs() const;
+    inline std::vector<HcalNoiseHPD>::const_iterator HPDsBegin() const { return hpds_.begin(); }
+    inline std::vector<HcalNoiseHPD>::const_iterator HPDsEnd() const { return hpds_.end(); }
 
     // return HPD with the highest rechit energy in the RBX
     // individual rechits only contribute if they have E>threshold
     std::vector<HcalNoiseHPD>::const_iterator maxHPD(double threshold=1.5) const;
 
     // pedestal subtracted fC information for all of the pixels in the RBX
-    const std::vector<float> allCharge(void) const;
-    float allChargeTotal(void) const;
+    const std::vector<float> allCharge() const;
+    float allChargeTotal() const;
     float allChargeHighest2TS(unsigned int firstts=4) const;
     float allChargeHighest3TS(unsigned int firstts=4) const;
 
     // total number of adc zeros in the RBX
-    int totalZeros(void) const;
+    int totalZeros() const;
     
     // largest number of adc zeros from a single channel in the RBX
-    int maxZeros(void) const;
+    int maxZeros() const;
     
     // sum of the energy of rechits in the RBX with E>threshold
     double recHitEnergy(double theshold=1.5) const;
@@ -90,10 +90,10 @@ namespace reco {
     int numRecHitsFailR45(double threshold=1.5) const;
     
     // calotower properties integrated over the entire RBX
-    double caloTowerHadE(void) const;
-    double caloTowerEmE(void) const;
-    double caloTowerTotalE(void) const;
-    double caloTowerEmFraction(void) const;
+    double caloTowerHadE() const;
+    double caloTowerEmE() const;
+    double caloTowerTotalE() const;
+    double caloTowerEmFraction() const;
     
     // helper function to get the unique calotowers
     struct twrcomp {

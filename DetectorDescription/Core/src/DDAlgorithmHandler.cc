@@ -5,10 +5,10 @@
 
 class DDCompactView;
 
-DDAlgorithmHandler::DDAlgorithmHandler( void )
+DDAlgorithmHandler::DDAlgorithmHandler( )
 {}
 
-DDAlgorithmHandler::~DDAlgorithmHandler( void )
+DDAlgorithmHandler::~DDAlgorithmHandler( )
 {}
 
 void

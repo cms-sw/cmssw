@@ -309,12 +309,12 @@ DOMDocument * XMLDOMBlock::getNewDocument( std::string xmlFileName )
   return document;
 }
 
-DOMDocument * XMLDOMBlock::getDocument( void )
+DOMDocument * XMLDOMBlock::getDocument( )
 {
   return document;
 }
 
-DOMDocument * XMLDOMBlock::getDocumentConst( void ) const
+DOMDocument * XMLDOMBlock::getDocumentConst( ) const
 {
   return document;
 }
@@ -456,7 +456,7 @@ string XMLDOMBlock::getTimestamp( time_t _time )
 
 
 
-std::string & XMLDOMBlock::getString( void )
+std::string & XMLDOMBlock::getString( )
 {
   return getString( this->getDocument() );
 }

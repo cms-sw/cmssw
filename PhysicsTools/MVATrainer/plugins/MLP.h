@@ -21,7 +21,7 @@ class MLP {
 	inline const int *getLayout() const { return layout; }
 
     private:
-	void		setLearn(void);
+	void		setLearn();
 	void		setNPattern(unsigned int size);
 
 	bool		initialized;

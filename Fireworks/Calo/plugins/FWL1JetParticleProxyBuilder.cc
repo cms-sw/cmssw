@@ -18,8 +18,8 @@
 class FWL1JetParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1JetParticle>
 {
 public:
-   FWL1JetParticleProxyBuilder( void ) {}
-   virtual ~FWL1JetParticleProxyBuilder( void ) {}
+   FWL1JetParticleProxyBuilder( ) {}
+   virtual ~FWL1JetParticleProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

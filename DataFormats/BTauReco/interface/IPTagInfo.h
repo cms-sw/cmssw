@@ -71,7 +71,7 @@ public:
   virtual ~IPTagInfo() {}
   
   /// clone
-  virtual IPTagInfo * clone(void) const
+  virtual IPTagInfo * clone() const
   { return new IPTagInfo(*this); }
 
  /**
@@ -128,7 +128,7 @@ public:
   Container sorted(const std::vector<size_t>& indexes) const;
   Container sortedTracks(const std::vector<size_t>& indexes) const {return sorted(indexes);}
 
-  virtual TaggingVariableList taggingVariables(void) const; 
+  virtual TaggingVariableList taggingVariables() const; 
  
   const edm::Ref<VertexCollection> & primaryVertex() const { return m_pv; }
 
@@ -155,7 +155,7 @@ private:
 //template <> const Track *IPTagInfo<TrackRefVector,JTATagInfo>::selectedTrack(size_t i) const {return &(*m_selected[i]);}
 //template <> const Track *IPTagInfo<std::vector<CandidatePtr>,BaseTagInfo>::selectedTrack(size_t i) const {return (*m_selected[i]).bestTrack();}
 
-template <class Container, class Base> TaggingVariableList IPTagInfo<Container,Base>::taggingVariables(void) const {
+template <class Container, class Base> TaggingVariableList IPTagInfo<Container,Base>::taggingVariables() const {
   TaggingVariableList vars;
 
   math::XYZVector jetDir = Base::jet()->momentum().Unit();

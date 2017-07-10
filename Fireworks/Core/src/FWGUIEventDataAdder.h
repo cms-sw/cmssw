@@ -60,7 +60,7 @@ public:
    void updateFilterString(const char *str);   
    void rowClicked(Int_t iRow,Int_t iButton,Int_t iKeyMod,Int_t,Int_t);
 
-   void metadataUpdatedSlot(void);
+   void metadataUpdatedSlot();
 
    void resetNameEntry();
 

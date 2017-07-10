@@ -469,7 +469,7 @@ DDExtrudedPolygon::DDExtrudedPolygon(const DDSolid & s)
 }
 
 auto
-DDExtrudedPolygon::xyPointsSize( void ) const -> std::size_t
+DDExtrudedPolygon::xyPointsSize( ) const -> std::size_t
 {
   // Compute the size of the X and Y coordinate vectors
   // which define the vertices of the outlined polygon
@@ -479,7 +479,7 @@ DDExtrudedPolygon::xyPointsSize( void ) const -> std::size_t
 }
 
 auto
-DDExtrudedPolygon::zSectionsSize( void ) const -> std::size_t
+DDExtrudedPolygon::zSectionsSize( ) const -> std::size_t
 {
   // The first parameters element stores a size of the four equal size vectors
   // which form the ExtrudedPolygon shape Z sections:
@@ -494,42 +494,42 @@ DDExtrudedPolygon::zSectionsSize( void ) const -> std::size_t
 }
 
 std::vector<double>
-DDExtrudedPolygon::xVec( void ) const
+DDExtrudedPolygon::xVec( ) const
 {
   return std::vector<double>( rep().parameters().begin() + 1,
 			      rep().parameters().begin() + 1 + xyPointsSize());
 }
 
 std::vector<double>
-DDExtrudedPolygon::yVec( void ) const
+DDExtrudedPolygon::yVec( ) const
 {
   return std::vector<double>( rep().parameters().begin() + 1 + xyPointsSize(),
 			      rep().parameters().begin() + 1 + 2 * xyPointsSize());
 }
 
 std::vector<double>
-DDExtrudedPolygon::zVec( void ) const
+DDExtrudedPolygon::zVec( ) const
 {
   return std::vector<double>( rep().parameters().end() - 4 * zSectionsSize(),
 			      rep().parameters().end() - 3 * zSectionsSize());
 }
 
 std::vector<double>
-DDExtrudedPolygon::zxVec( void ) const
+DDExtrudedPolygon::zxVec( ) const
 {
   return std::vector<double>( rep().parameters().end() - 3 * zSectionsSize(),
 			      rep().parameters().end() - 2 * zSectionsSize());
 }
 
 std::vector<double>
-DDExtrudedPolygon::zyVec( void ) const
+DDExtrudedPolygon::zyVec( ) const
 {
   return std::vector<double>( rep().parameters().end() - 2 * zSectionsSize(),
 			      rep().parameters().end() - zSectionsSize());
 }
 
 std::vector<double>
-DDExtrudedPolygon::zscaleVec( void ) const
+DDExtrudedPolygon::zscaleVec( ) const
 {
   return std::vector<double>( rep().parameters().end() - zSectionsSize(),
 			      rep().parameters().end());
@@ -800,12 +800,12 @@ double
 DDCutTubs::deltaPhi() const { return rep().parameters()[4]; }
 
 std::array<double, 3>
-DDCutTubs::lowNorm( void ) const {
+DDCutTubs::lowNorm( ) const {
   return std::array<double, 3>{{rep().parameters()[5],rep().parameters()[6],rep().parameters()[7]}};
 }
 
 std::array<double, 3>
-DDCutTubs::highNorm( void ) const {
+DDCutTubs::highNorm( ) const {
   return std::array<double, 3>{{rep().parameters()[8],rep().parameters()[9],rep().parameters()[10]}};
 }
     

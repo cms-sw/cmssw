@@ -8,7 +8,7 @@ CSCTriggerElectronicsMappingFromFile::CSCTriggerElectronicsMappingFromFile( std:
 
 CSCTriggerElectronicsMappingFromFile::~CSCTriggerElectronicsMappingFromFile(){}
 
-void CSCTriggerElectronicsMappingFromFile::fill( void ) {
+void CSCTriggerElectronicsMappingFromFile::fill( ) {
   std::ifstream in( filename_.c_str() );
   std::string line;
   const std::string commentFlag = "#";

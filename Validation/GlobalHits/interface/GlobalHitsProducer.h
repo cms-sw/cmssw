@@ -81,7 +81,7 @@ class GlobalHitsProducer : public edm::EDProducer
 
   explicit GlobalHitsProducer(const edm::ParameterSet&);
   virtual ~GlobalHitsProducer();
-  virtual void beginJob( void ) override;
+  virtual void beginJob( ) override;
   virtual void endJob() override;  
   virtual void produce(edm::Event&, const edm::EventSetup&) override;
   

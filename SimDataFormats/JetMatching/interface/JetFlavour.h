@@ -30,7 +30,7 @@ class JetFlavour
       Leptons() : electron(0), muon(0), tau(0) {}
     };
 
-    JetFlavour(void) { }
+    JetFlavour() { }
     JetFlavour(const LorentzVector& lv, const Point &pt, int fl, const Leptons &le)
     : m_partonMomentum(lv), m_partonVertex(pt), m_flavour(fl), m_leptons(le) {}
     JetFlavour(const LorentzVector& lv, const Point& pt, int fl)

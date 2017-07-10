@@ -214,7 +214,7 @@ int XMLProcessor::write( XMLDOMBlock * doc, std::string target )
   return 0;
 }
 
-int XMLProcessor::test( void )
+int XMLProcessor::test( )
 {
   //if ( init() != 0 ) return 1;
 
@@ -294,7 +294,7 @@ XMLCh * XMLProcessor::serializeDOM(DOMNode* node, std::string target)
   return _string;
 }
 
-int XMLProcessor::init( void )
+int XMLProcessor::init( )
 {
   std::cerr << "Intializing Xerces-c...";
   try {
@@ -313,7 +313,7 @@ int XMLProcessor::init( void )
   return 0;
 }
 
-int XMLProcessor::terminate( void )
+int XMLProcessor::terminate( )
 {
   //
   //_____ following removed as a xalan-c component_____________________

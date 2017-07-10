@@ -25,7 +25,7 @@ class  SiStripDigiValid: public DQMEDAnalyzer {
      void analyze(const edm::Event& e, const edm::EventSetup& c);
      void beginJob();
      void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
-     void endJob(void);
+     void endJob();
 
  private:
 

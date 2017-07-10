@@ -46,9 +46,9 @@ class LutXml : public XMLDOMBlock
   LutXml( std::string filename );
   virtual ~LutXml();
   
-  void init( void );
+  void init( );
   void addLut( Config & _config, XMLDOMBlock * checksums_xml = 0 );
-  std::string & getCurrentBrick( void );
+  std::string & getCurrentBrick( );
   
   std::vector<unsigned int> * getLutFast( uint32_t det_id );
   //
@@ -58,7 +58,7 @@ class LutXml : public XMLDOMBlock
 
   HcalSubdetector subdet_from_crate(int crate, int eta, int depth);
   int a_to_i(char * inbuf);
-  int create_lut_map( void );
+  int create_lut_map( );
 
   static std::string get_checksum( std::vector<unsigned int> & lut );
 

@@ -4,8 +4,8 @@
 class FWHFRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
-   FWHFRecHitProxyBuilder( void ) {invertBox(true); }
-   virtual ~FWHFRecHitProxyBuilder( void ) {}
+   FWHFRecHitProxyBuilder( ) {invertBox(true); }
+   virtual ~FWHFRecHitProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

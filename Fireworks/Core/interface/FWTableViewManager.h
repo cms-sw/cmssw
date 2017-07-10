@@ -65,7 +65,7 @@ public:
    // ---------- member functions ---------------------------
    virtual void            newItem(const FWEventItem*);
    void                    destroyItem(const FWEventItem *item);
-   void                    removeAllItems(void);
+   void                    removeAllItems();
    FWViewBase *            buildView(TEveWindowSlot *iParent, const std::string& type);
    const Items &           items() const { return m_items; }
    TableSpecs::iterator    tableFormats(const edm::TypeWithDict &key);

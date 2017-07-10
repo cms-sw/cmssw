@@ -54,7 +54,7 @@ class CaloTowersDQMClient : public DQMEDHarvester {
   explicit CaloTowersDQMClient(const edm::ParameterSet& );
   virtual ~CaloTowersDQMClient();
   
-  virtual void beginJob(void) override;
+  virtual void beginJob() override;
   virtual void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override; //performed in the endJob
   virtual void beginRun(const edm::Run& run, const edm::EventSetup& c) override;
 

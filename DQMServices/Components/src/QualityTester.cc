@@ -107,7 +107,7 @@ void QualityTester::endJob(){
   if (qtestOnEndJob) performTests();
 }
 
-void QualityTester::performTests(void)
+void QualityTester::performTests()
 {
     // done here because new ME can appear while processing data
     qtHandler->attachTests(bei,verboseQT);

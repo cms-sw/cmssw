@@ -13,11 +13,11 @@ RPCGeomServ::RPCGeomServ::RPCGeomServ( const RPCDetId& id )
     _a( true )
 {}
 
-RPCGeomServ::~RPCGeomServ( void )
+RPCGeomServ::~RPCGeomServ( )
 {}
  
 std::string 
-RPCGeomServ::name( void )
+RPCGeomServ::name( )
 {
   if( _n.size() < 1 )
   {
@@ -205,7 +205,7 @@ RPCGeomServ::chambername()
 }
 
 std::string 
-RPCGeomServ::shortname( void )
+RPCGeomServ::shortname( )
 {
   if( _sn.size() < 1 )
   {
@@ -274,7 +274,7 @@ RPCGeomServ::shortname( void )
 
 // returns a vector with number of channels for each chip in each FEB
 std::vector<int>
-RPCGeomServ::channelInChip( void )
+RPCGeomServ::channelInChip( )
 {
   std::vector<int> chipCh(4,8);//Endcap
   
@@ -466,7 +466,7 @@ RPCGeomServ::chambernr()
 }
 
 int 
-RPCGeomServ::segment( void )
+RPCGeomServ::segment( )
 {
   int nsub = 6;
   int station = _id->station();

@@ -13,7 +13,7 @@
 class HcalGeometryDetIdAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalGeometryDetIdAnalyzer( const edm::ParameterSet& );
-  ~HcalGeometryDetIdAnalyzer( void );
+  ~HcalGeometryDetIdAnalyzer( );
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -28,7 +28,7 @@ HcalGeometryDetIdAnalyzer::HcalGeometryDetIdAnalyzer(const edm::ParameterSet& iC
   useOld_ = iConfig.getParameter<bool>("UseOldLoader");
 }
 
-HcalGeometryDetIdAnalyzer::~HcalGeometryDetIdAnalyzer( void ) {}
+HcalGeometryDetIdAnalyzer::~HcalGeometryDetIdAnalyzer( ) {}
 
 void
 HcalGeometryDetIdAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup ) {

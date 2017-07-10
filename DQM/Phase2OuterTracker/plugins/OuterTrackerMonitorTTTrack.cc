@@ -346,7 +346,7 @@ OuterTrackerMonitorTTTrack::beginRun(const edm::Run& run, const edm::EventSetup&
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-OuterTrackerMonitorTTTrack::endJob(void) 
+OuterTrackerMonitorTTTrack::endJob() 
 {
 	
 }

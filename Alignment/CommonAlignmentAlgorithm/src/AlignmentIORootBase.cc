@@ -96,7 +96,7 @@ int AlignmentIORootBase::openRoot(const char* filename, int iteration, bool writ
 // ----------------------------------------------------------------------------
 // write tree and close file
 
-int AlignmentIORootBase::closeRoot(void)
+int AlignmentIORootBase::closeRoot()
 {
   if (bWrite) { //writing
     tree->Write();

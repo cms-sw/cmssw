@@ -19,7 +19,7 @@ public:
     virtual std::shared_ptr<L1TMuonEndCapParams> newObject(const std::string& objectKey, const L1TMuonEndcapParamsO2ORcd& record) override ;
 
     L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonEndcapParamsOnlineProd(void){}
+    ~L1TMuonEndcapParamsOnlineProd(){}
 };
 
 L1TMuonEndcapParamsOnlineProd::L1TMuonEndcapParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonEndcapParamsO2ORcd,L1TMuonEndCapParams>(iConfig){}

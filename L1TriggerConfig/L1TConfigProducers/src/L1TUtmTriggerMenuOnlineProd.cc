@@ -23,7 +23,7 @@ public:
     virtual std::shared_ptr<L1TUtmTriggerMenu> newObject(const std::string& objectKey, const L1TUtmTriggerMenuO2ORcd& record) override ;
 
     L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet&);
-    ~L1TUtmTriggerMenuOnlineProd(void){}
+    ~L1TUtmTriggerMenuOnlineProd(){}
 };
 
 L1TUtmTriggerMenuOnlineProd::L1TUtmTriggerMenuOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TUtmTriggerMenuO2ORcd,L1TUtmTriggerMenu>(iConfig) {}

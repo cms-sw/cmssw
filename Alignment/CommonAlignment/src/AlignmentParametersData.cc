@@ -6,7 +6,7 @@
 #include <functional>
 
 
-AlignmentParametersData::AlignmentParametersData( void ) :
+AlignmentParametersData::AlignmentParametersData( ) :
   theParameters( new AlgebraicVector() ),
   theCovariance( new AlgebraicSymMatrix() ),
   theSelector( new std::vector<bool>() ),
@@ -58,7 +58,7 @@ AlignmentParametersData::AlignmentParametersData( const AlgebraicVector& param,
 {}
 
 
-AlignmentParametersData::~AlignmentParametersData( void )
+AlignmentParametersData::~AlignmentParametersData( )
 {
   delete theParameters;
   delete theCovariance;
@@ -66,7 +66,7 @@ AlignmentParametersData::~AlignmentParametersData( void )
 }
 
 
-void AlignmentParametersData::checkConsistency( void ) const
+void AlignmentParametersData::checkConsistency( ) const
 {
   int selectorSize = static_cast<int>( theSelector->size() );
   int paramSize = theParameters->num_row();

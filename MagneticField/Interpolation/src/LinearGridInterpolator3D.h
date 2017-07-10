@@ -30,7 +30,7 @@ public:
   LinearGridInterpolator3D( const Grid3D& g) :
     grid(g), grida(g.grida()), gridb(g.gridb()), gridc(g.gridc()) {}
 
-  void throwGridInterpolator3DException(void);
+  void throwGridInterpolator3DException();
   
   ReturnType interpolate( Scalar a, Scalar b, Scalar c); 
   //  Value operator()( Scalar a, Scalar b, Scalar c) {return interpolate(a,b,c);}

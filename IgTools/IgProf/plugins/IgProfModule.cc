@@ -54,7 +54,7 @@ public:
   virtual void beginJob() override
     { makeDump(atBeginJob_); }
 
-  virtual void endJob(void) override
+  virtual void endJob() override
     { makeDump(atEndJob_); }
 
   virtual void analyze(const edm::Event &e, const edm::EventSetup &) override

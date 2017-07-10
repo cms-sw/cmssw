@@ -210,7 +210,7 @@ namespace csc {
       }
   }
 
-  unsigned L1Track::modeExtended(void) const
+  unsigned L1Track::modeExtended() const
   {
     unsigned modeExt = mode(); 
     unsigned fr = (m_ptAddress>>21)&0x1;

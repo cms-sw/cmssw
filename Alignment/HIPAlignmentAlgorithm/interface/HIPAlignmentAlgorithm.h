@@ -39,7 +39,7 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
   void terminate(const edm::EventSetup& setup);
 
   /// Called at start of new loop
-  void startNewLoop(void);
+  void startNewLoop();
 
   /// Run the algorithm
   void run(const edm::EventSetup& setup, const EventInfo& eventInfo);
@@ -62,12 +62,12 @@ class HIPAlignmentAlgorithm : public AlignmentAlgorithmBase
 
   int readIterationFile(std::string filename);
   void writeIterationFile(std::string filename, int iter);
-  void setAlignmentPositionError(void);
+  void setAlignmentPositionError();
   double calcAPE(double* par, int iter, double function);
-  void bookRoot(void);
+  void bookRoot();
   void fillRoot(const edm::EventSetup& setup);
   bool calcParameters(Alignable* ali,int setDet, double start, double step);
-  void collector(void);
+  void collector();
   int  fillEventwiseTree(const char *filename, int iter, int ierr);
   // private data members
 

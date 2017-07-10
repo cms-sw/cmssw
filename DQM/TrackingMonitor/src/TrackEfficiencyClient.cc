@@ -44,7 +44,7 @@ TrackEfficiencyClient::~TrackEfficiencyClient()
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyClient::beginJob(void) 
+void TrackEfficiencyClient::beginJob() 
 //-----------------------------------------------------------------------------------
 {  
  

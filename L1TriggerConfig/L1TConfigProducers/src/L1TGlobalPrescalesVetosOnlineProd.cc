@@ -32,7 +32,7 @@ public:
     virtual std::shared_ptr<L1TGlobalPrescalesVetos> newObject(const std::string& objectKey, const L1TGlobalPrescalesVetosO2ORcd& record) override ;
 
     L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet&);
-    ~L1TGlobalPrescalesVetosOnlineProd(void){}
+    ~L1TGlobalPrescalesVetosOnlineProd(){}
 };
 
 L1TGlobalPrescalesVetosOnlineProd::L1TGlobalPrescalesVetosOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TGlobalPrescalesVetosO2ORcd,L1TGlobalPrescalesVetos>(iConfig) {

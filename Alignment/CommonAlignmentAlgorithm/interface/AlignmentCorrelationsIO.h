@@ -17,7 +17,7 @@ class AlignmentCorrelationsIO
   virtual int open(const char* filename, int iteration, bool writemode) = 0;
 
   /// close IO 
-  virtual int close(void) = 0;
+  virtual int close() = 0;
 
   /// write correlations 
   virtual int write(const align::Correlations& cor, bool validCheck) = 0;

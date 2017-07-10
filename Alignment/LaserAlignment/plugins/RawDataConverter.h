@@ -21,8 +21,8 @@ class RawDataConverter : public edm::EDAnalyzer {
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob() ;
 
-  void fillDetectorId( void );
-  void ClearData( void );
+  void fillDetectorId( );
+  void ClearData( );
   DigiType GetValidLabels( const edm::Event& iEvent ); // Check what kind of file is being processed and get valid module and instance labels returns the type of Digis that was found
 
   template <class T>

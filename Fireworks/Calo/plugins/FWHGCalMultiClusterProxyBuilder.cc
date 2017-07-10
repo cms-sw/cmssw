@@ -8,8 +8,8 @@
 class FWHGCalMultiClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::HGCalMultiCluster>
 {
 public:
-   FWHGCalMultiClusterProxyBuilder( void ) {}
-   virtual ~FWHGCalMultiClusterProxyBuilder( void ) {}
+   FWHGCalMultiClusterProxyBuilder( ) {}
+   virtual ~FWHGCalMultiClusterProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

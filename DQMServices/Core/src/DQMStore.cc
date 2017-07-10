@@ -266,7 +266,7 @@ bool fastmatch::match(std::string const& s) const
 }
 
 //IBooker methods
-void DQMStore::IBooker::cd(void) {
+void DQMStore::IBooker::cd() {
   owner_->cd();
 }
 
@@ -278,11 +278,11 @@ void DQMStore::IBooker::setCurrentFolder(const std::string &fullpath) {
   owner_->setCurrentFolder(fullpath);
 } 
 
-void DQMStore::IBooker::goUp(void) {
+void DQMStore::IBooker::goUp() {
   owner_->goUp();
 }
 
-const std::string & DQMStore::IBooker::pwd(void) {
+const std::string & DQMStore::IBooker::pwd() {
   return owner_->pwd();
 } 
 
@@ -320,11 +320,11 @@ MonitorElement * DQMStore::IGetter::getElement(const std::string &path) {
     return ptr;
 }
 
-std::vector<std::string> DQMStore::IGetter::getSubdirs(void) {
+std::vector<std::string> DQMStore::IGetter::getSubdirs() {
   return owner_->getSubdirs();
 }
 
-std::vector<std::string> DQMStore::IGetter::getMEs(void) {
+std::vector<std::string> DQMStore::IGetter::getMEs() {
   return owner_->getMEs();
 }
 
@@ -336,7 +336,7 @@ bool DQMStore::IGetter::dirExists(const std::string &path) {
   return owner_->dirExists(path);
 }
 
-void DQMStore::IGetter::cd(void) {
+void DQMStore::IGetter::cd() {
   owner_->cd();
 }
 
@@ -562,7 +562,7 @@ DQMStore::DQMStore(const edm::ParameterSet &pset)
   initializeFrom(pset);
 }
 
-DQMStore::~DQMStore(void)
+DQMStore::~DQMStore()
 {
   for (QCMap::iterator i = qtests_.begin(), e = qtests_.end(); i != e; ++i)
     delete i->second;
@@ -710,12 +710,12 @@ DQMStore::setVerbose(unsigned /* level */)
 //////////////////////////////////////////////////////////////////////
 /// return pathname of current directory
 const std::string &
-DQMStore::pwd(void) const
+DQMStore::pwd() const
 { return pwd_; }
 
 /// go to top directory (ie. root)
 void
-DQMStore::cd(void)
+DQMStore::cd()
 { setCurrentFolder(""); }
 
 /// cd to subdirectory (if there)
@@ -749,7 +749,7 @@ DQMStore::setCurrentFolder(const std::string &fullpath)
 
 /// equivalent to "cd .."
 void
-DQMStore::goUp(void)
+DQMStore::goUp()
 {
   size_t pos = pwd_.rfind('/');
   if (pos == std::string::npos)
@@ -1737,7 +1737,7 @@ DQMStore::tagAllContents(const std::string &path, unsigned int myTag)
 //////////////////////////////////////////////////////////////////////
 /// get list of subdirectories of current directory
 std::vector<std::string>
-DQMStore::getSubdirs(void) const
+DQMStore::getSubdirs() const
 {
   std::vector<std::string> result;
   std::set<std::string>::const_iterator e = dirs_.end();
@@ -1760,7 +1760,7 @@ DQMStore::getSubdirs(void) const
 
 /// get list of (non-dir) MEs of current directory
 std::vector<std::string>
-DQMStore::getMEs(void) const
+DQMStore::getMEs() const
 {
   MonitorElement proto(&pwd_, std::string());
   std::vector<std::string> result;
@@ -2084,7 +2084,7 @@ DQMStore::getMatchingContents(const std::string &pattern, lat::Regexp::Syntax sy
     Clears updated flag on all recently updated MEs and calls their
     Reset() method for those that have resetMe = true. */
 void
-DQMStore::reset(void)
+DQMStore::reset()
 {
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
@@ -2108,7 +2108,7 @@ DQMStore::reset(void)
 /** Invoke this method after flushing all recently changed monitoring.
     Clears updated flag on all MEs and calls their Reset() method. */
 void
-DQMStore::forceReset(void)
+DQMStore::forceReset()
 {
   MEMap::iterator mi = data_.begin();
   MEMap::iterator me = data_.end();
@@ -3245,7 +3245,7 @@ DQMStore::removeContents(const std::string &dir)
 
 /// erase all monitoring elements in current directory (not including subfolders);
 void
-DQMStore::removeContents(void)
+DQMStore::removeContents()
 {
   removeContents(pwd_);
 }
@@ -3363,7 +3363,7 @@ DQMStore::useQTestByMatch(const std::string &pattern, const std::string &qtname)
 /// run quality tests (also finds updated contents in last monitoring cycle,
 /// including newly added content)
 void
-DQMStore::runQTests(void)
+DQMStore::runQTests()
 {
 
   if (verbose_ > 0)
@@ -3442,7 +3442,7 @@ DQMStore::setAccumulate(MonitorElement *me, bool flag)
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 void
-DQMStore::showDirStructure(void) const
+DQMStore::showDirStructure() const
 {
   std::vector<std::string> contents;
   getContents(contents);
@@ -3462,7 +3462,7 @@ DQMStore::showDirStructure(void) const
 //////////////////////////////////////////////////////////////////////
 // check if the collate option is active on the DQMStore
 bool
-DQMStore::isCollate(void) const
+DQMStore::isCollate() const
 {
   return collateHistograms_;
 }
@@ -3479,7 +3479,7 @@ DQMStore::isCollateME(MonitorElement *me) const
 /** Invoke this method after flushing all recently changed monitoring.
     Clears updated flag on all MEs and calls their Reset() method. */
 void
-DQMStore::scaleElements(void)
+DQMStore::scaleElements()
 {
   if (scaleFlag_ == 0.0) return;
   if (verbose_ > 0)

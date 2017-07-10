@@ -14,7 +14,7 @@ private:
   enum { kSteps = 600, kDetectors = 30 };
   
 public:
-  MaterialAccountingTrack(void) : 
+  MaterialAccountingTrack() : 
     m_total(),
     m_current_volume(0),
     m_detector(),
@@ -25,7 +25,7 @@ public:
     m_detectors.reserve(kDetectors);
   }
 
-  void reset(void) {
+  void reset() {
     m_total.clear();
     m_current_volume = 0;
     m_steps.clear();

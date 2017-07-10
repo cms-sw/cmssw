@@ -54,7 +54,7 @@ HcalQLPlotAnalAlgos::HcalQLPlotAnalAlgos(const char *outputFilename,
 // member functions
 //
 
-void HcalQLPlotAnalAlgos::end(void)
+void HcalQLPlotAnalAlgos::end()
 {
   mf_->Write();
 }

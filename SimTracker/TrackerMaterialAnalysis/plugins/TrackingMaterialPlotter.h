@@ -22,11 +22,11 @@ public:
   void plotSegmentUnassigned( const MaterialAccountingStep & step );
   void plotSegmentInLayer( const MaterialAccountingStep & step, int layer );
 
-  void normalize( void ) {
+  void normalize( ) {
     m_tracker.normalize();
   }
 
-  void draw( void );
+  void draw( );
 
 private:
   XHistogram m_tracker;

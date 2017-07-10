@@ -103,7 +103,7 @@ class TestIsoTracks : public edm::EDAnalyzer {
   void setPrimaryVertex(const reco::Vertex & a){theRecVertex = a;}
   void setTracksFromPrimaryVertex(vector<reco::Track> & a){theTrack = a;}
    virtual void analyze (const edm::Event&, const edm::EventSetup&);
-   void endJob(void);
+   void endJob();
 
  private:
   TFile* m_Hfile;
@@ -306,7 +306,7 @@ void TestIsoTracks::analyze( const edm::Event& iEvent, const edm::EventSetup& iS
 }
 
 
-void TestIsoTracks::endJob(void) {
+void TestIsoTracks::endJob() {
 
     m_Hfile->cd();
     IsoHists.eta->Write();

@@ -33,7 +33,7 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
     {return openRoot(filename,iteration,writemode);};
 
   /// Close IO 
-  int close(void);
+  int close();
 
   // helper functions
 
@@ -42,10 +42,10 @@ class AlignmentParametersIORoot : public AlignmentIORootBase, public AlignmentPa
   int findEntry(align::ID, align::StructureType);
 
   /// Create all branches and give names
-  void createBranches(void);
+  void createBranches();
 
   /// Set branch adresses
-  void setBranchAddresses(void);
+  void setBranchAddresses();
 
   // Alignment parameter tree 
   int theCovRang, theCovarRang, theHieraLevel, theParamType;

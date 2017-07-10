@@ -23,7 +23,7 @@ class AlignableDataIO
   virtual int open( const char* filename, int iteration, bool writemode ) = 0;
 
   /// Close IO handle
-  virtual int close(void) = 0;
+  virtual int close() = 0;
 
   /// Write absolute positions of one Alignable 
   int writeAbsPos(Alignable* ali, bool validCheck);

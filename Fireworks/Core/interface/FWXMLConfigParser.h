@@ -161,7 +161,7 @@ public:
    /** The parsed configuration. Notice that the parser owns it and destroys
        it when destroyed.
      */
-   FWConfiguration *config(void)
+   FWConfiguration *config()
    {
       return m_first.get();
    }

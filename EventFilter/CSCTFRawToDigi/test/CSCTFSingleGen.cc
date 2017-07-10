@@ -43,7 +43,7 @@ CSCTFSingleGen::CSCTFSingleGen(const edm::ParameterSet& pset):edm::EDProducer(),
     mapping = new CSCTriggerMappingFromFile(mappingFile);
   } else {
     LogDebug("CSCTFSingleGen|ctor") << "Generating default hw<->geometry mapping";
-    class M: public CSCTriggerSimpleMapping{ void fill(void){} };
+    class M: public CSCTriggerSimpleMapping{ void fill(){} };
     mapping = new M();
     for(int endcap=1; endcap<=2; endcap++)
       for(int station=1; station<=4; station++)

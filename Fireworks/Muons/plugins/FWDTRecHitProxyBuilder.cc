@@ -21,8 +21,8 @@ using namespace DTEnums;
 class FWDTRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecHit1DPair>
 {
 public:
-  FWDTRecHitProxyBuilder( void ) {}
-  virtual ~FWDTRecHitProxyBuilder( void ) {}
+  FWDTRecHitProxyBuilder( ) {}
+  virtual ~FWDTRecHitProxyBuilder( ) {}
 	
   virtual bool haveSingleProduct() const override { return false; }
    

@@ -8,18 +8,18 @@ namespace reco {
  
 class JetTagInfo : public BaseTagInfo {
 public:
-  JetTagInfo(void) : m_jet() { }
+  JetTagInfo() : m_jet() { }
 
   template <typename T>
   JetTagInfo(const edm::Ref<T> & jetRef) : m_jet(jetRef) { }
 
   JetTagInfo(const edm::RefToBase<Jet> & jetRef) : m_jet(jetRef) { }
 
-  virtual ~JetTagInfo(void) { }
+  virtual ~JetTagInfo() { }
   
-  virtual JetTagInfo* clone(void) const { return new JetTagInfo(*this); }
+  virtual JetTagInfo* clone() const { return new JetTagInfo(*this); }
 
-  virtual edm::RefToBase<Jet> jet(void) const { return m_jet; }
+  virtual edm::RefToBase<Jet> jet() const { return m_jet; }
   
   template <typename T>
   void setJetRef(const edm::Ref<T> & jetRef) { m_jet = edm::RefToBase<Jet>( jetRef ); } 

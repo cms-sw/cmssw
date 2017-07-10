@@ -253,7 +253,7 @@ void TrackEfficiencyMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::beginJob(void) 
+void TrackEfficiencyMonitor::beginJob() 
 //-----------------------------------------------------------------------------------
 {
   
@@ -333,7 +333,7 @@ void TrackEfficiencyMonitor::analyze(const edm::Event& iEvent, const edm::EventS
 
 
 //-----------------------------------------------------------------------------------
-void TrackEfficiencyMonitor::endJob(void) 
+void TrackEfficiencyMonitor::endJob() 
 //-----------------------------------------------------------------------------------
 { 
   bool outputMEsInRootFile = conf_.getParameter<bool>("OutputMEsInRootFile");

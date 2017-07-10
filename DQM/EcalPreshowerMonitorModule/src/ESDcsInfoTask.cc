@@ -38,7 +38,7 @@ ESDcsInfoTask::~ESDcsInfoTask() {
 
 }
 
-void ESDcsInfoTask::beginJob(void){
+void ESDcsInfoTask::beginJob(){
 
    char histo[200];
 
@@ -59,7 +59,7 @@ void ESDcsInfoTask::beginJob(void){
 
 }
 
-void ESDcsInfoTask::endJob(void) {
+void ESDcsInfoTask::endJob() {
 
    if ( enableCleanup_ ) this->cleanup();
 
@@ -79,7 +79,7 @@ void ESDcsInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, c
 
 }
 
-void ESDcsInfoTask::reset(void) {
+void ESDcsInfoTask::reset() {
 
    if ( meESDcsFraction_ ) meESDcsFraction_->Reset();
 
@@ -88,7 +88,7 @@ void ESDcsInfoTask::reset(void) {
 }
 
 
-void ESDcsInfoTask::cleanup(void){
+void ESDcsInfoTask::cleanup(){
 
    if ( dqmStore_ ) {
 

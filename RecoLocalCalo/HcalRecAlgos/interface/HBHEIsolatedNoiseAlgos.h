@@ -238,33 +238,33 @@ class HBHEHitMap {
   virtual ~HBHEHitMap() {}
 
   // energy of the hits in this collection
-  double hitEnergy(void) const;
+  double hitEnergy() const;
 
   // energy of the hits in a region fiducial to tracks
-  double hitEnergyTrackFiducial(void) const;
+  double hitEnergyTrackFiducial() const;
 
   // number of hits in this collection
-  int nHits(void) const;
+  int nHits() const;
 
   // same as above, except for the HCAL hits, ECAL hits, and tracks in the same towers as the hits
   // note that HCAL hits may be present in the same tower, but not be a part of the collection
-  double hcalEnergySameTowers(void) const;
-  double ecalEnergySameTowers(void) const;
-  double trackEnergySameTowers(void) const;
-  int nHcalHitsSameTowers(void) const;
-  int nEcalHitsSameTowers(void) const;
-  int nTracksSameTowers(void) const;
+  double hcalEnergySameTowers() const;
+  double ecalEnergySameTowers() const;
+  double trackEnergySameTowers() const;
+  int nHcalHitsSameTowers() const;
+  int nEcalHitsSameTowers() const;
+  int nTracksSameTowers() const;
   void hcalHitsSameTowers(std::set<const HBHERecHit*>& v) const;
   void ecalHitsSameTowers(std::set<const EcalRecHit*>& v) const;
   void tracksSameTowers(std::set<const reco::Track*>& v) const;
 
   // same as above except for the hits and tracks in the neighboring towers to the hits in the collection
-  double hcalEnergyNeighborTowers(void) const;
-  double ecalEnergyNeighborTowers(void) const;
-  double trackEnergyNeighborTowers(void) const;
-  int nHcalHitsNeighborTowers(void) const;
-  int nEcalHitsNeighborTowers(void) const;
-  int nTracksNeighborTowers(void) const;
+  double hcalEnergyNeighborTowers() const;
+  double ecalEnergyNeighborTowers() const;
+  double trackEnergyNeighborTowers() const;
+  int nHcalHitsNeighborTowers() const;
+  int nEcalHitsNeighborTowers() const;
+  int nTracksNeighborTowers() const;
   void hcalHitsNeighborTowers(std::set<const HBHERecHit*>& v) const;
   void ecalHitsNeighborTowers(std::set<const EcalRecHit*>& v) const;
   void tracksNeighborTowers(std::set<const reco::Track*>& v) const;
@@ -283,42 +283,42 @@ class HBHEHitMap {
   void insert(const HBHERecHit* hit, const PhysicsTower* twr, std::set<const PhysicsTower*>& neighbors);
 
   // access to the private maps and sets
-  inline hitmap_const_iterator beginHits(void) const { return hits_.begin(); }
-  inline hitmap_const_iterator endHits(void) const { return hits_.end(); }
+  inline hitmap_const_iterator beginHits() const { return hits_.begin(); }
+  inline hitmap_const_iterator endHits() const { return hits_.end(); }
 
-  inline neighbor_const_iterator beginNeighbors(void) const { return neighbors_.begin(); }
-  inline neighbor_const_iterator endNeighbors(void) const { return neighbors_.end(); }
+  inline neighbor_const_iterator beginNeighbors() const { return neighbors_.begin(); }
+  inline neighbor_const_iterator endNeighbors() const { return neighbors_.end(); }
 
  private:
   std::map<const HBHERecHit*, const PhysicsTower*> hits_;
   std::set<const PhysicsTower*> neighbors_;
 
-  void calcHits_(void) const;
+  void calcHits_() const;
   mutable double hitEnergy_;
   mutable double hitEnergyTrkFid_;
   mutable int nHits_;
 
-  void calcHcalSameTowers_(void) const;
+  void calcHcalSameTowers_() const;
   mutable double hcalEnergySameTowers_;
   mutable int nHcalHitsSameTowers_;
 
-  void calcEcalSameTowers_(void) const;
+  void calcEcalSameTowers_() const;
   mutable double ecalEnergySameTowers_;
   mutable int nEcalHitsSameTowers_;
 
-  void calcTracksSameTowers_(void) const;
+  void calcTracksSameTowers_() const;
   mutable double trackEnergySameTowers_;
   mutable int nTracksSameTowers_;
 
-  void calcHcalNeighborTowers_(void) const;
+  void calcHcalNeighborTowers_() const;
   mutable double hcalEnergyNeighborTowers_;
   mutable int nHcalHitsNeighborTowers_;
 
-  void calcEcalNeighborTowers_(void) const;
+  void calcEcalNeighborTowers_() const;
   mutable double ecalEnergyNeighborTowers_;
   mutable int nEcalHitsNeighborTowers_;
 
-  void calcTracksNeighborTowers_(void) const;
+  void calcTracksNeighborTowers_() const;
   mutable double trackEnergyNeighborTowers_;
   mutable int nTracksNeighborTowers_;
 

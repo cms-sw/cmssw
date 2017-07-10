@@ -112,7 +112,7 @@ class GlobalDigisProducer : public edm::EDProducer
 
   explicit GlobalDigisProducer(const edm::ParameterSet&);
   virtual ~GlobalDigisProducer();
-  virtual void beginJob( void );
+  virtual void beginJob( );
   virtual void endJob();  
   virtual void produce(edm::Event&, const edm::EventSetup&);
   

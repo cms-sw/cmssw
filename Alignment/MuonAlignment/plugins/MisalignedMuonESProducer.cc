@@ -157,7 +157,7 @@ MisalignedMuonESProducer::produce( const MuonGeometryRecord& iRecord )
 
 
 //__________________________________________________________________________________________________
-void MisalignedMuonESProducer::saveToDB( void )
+void MisalignedMuonESProducer::saveToDB( )
 {
 
   // Call service

@@ -20,10 +20,10 @@ class BeamSpotTreeData{
   void pvData       (const BeamSpotFitPVData &pvData)       {pvData_=pvData;}
 
   //Getters
-  const unsigned int&      getRun          (void){return run_;}
-  const unsigned int&      getLumi         (void){return lumi_;}
-  const unsigned int&      getBunchCrossing(void){return bunchCrossing_;}
-  const BeamSpotFitPVData& getPvData       (void){return pvData_;}
+  const unsigned int&      getRun          (){return run_;}
+  const unsigned int&      getLumi         (){return lumi_;}
+  const unsigned int&      getBunchCrossing(){return bunchCrossing_;}
+  const BeamSpotFitPVData& getPvData       (){return pvData_;}
   
  private:
   unsigned int      run_;

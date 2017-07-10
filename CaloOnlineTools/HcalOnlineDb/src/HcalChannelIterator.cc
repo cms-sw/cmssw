@@ -26,12 +26,12 @@ HcalChannelIterator::~HcalChannelIterator()
 
 
 
-int HcalChannelIterator::size(void){
+int HcalChannelIterator::size(){
   return channel_list.size();
 }
 
 
-int HcalChannelIterator::clearChannelList(void){
+int HcalChannelIterator::clearChannelList(){
   channel_list.clear();
   return 0;
 }
@@ -85,19 +85,19 @@ int HcalChannelIterator::addListFromLmapAscii(std::string filename){
 }
 
 
-int HcalChannelIterator::begin(void){
+int HcalChannelIterator::begin(){
   const_iterator = channel_list.begin();
   return 0;
 }
 
 
-int HcalChannelIterator::next(void){
+int HcalChannelIterator::next(){
   const_iterator++;
   return 0;
 }
 
 
-bool HcalChannelIterator::end(void){
+bool HcalChannelIterator::end(){
   if (const_iterator==channel_list.end()){
     return true;
   }
@@ -107,7 +107,7 @@ bool HcalChannelIterator::end(void){
 }
 
 
-HcalGenericDetId HcalChannelIterator::getHcalGenericDetId(void){
+HcalGenericDetId HcalChannelIterator::getHcalGenericDetId(){
   if (const_iterator!=channel_list.end()){
     return *const_iterator;
   }
@@ -117,7 +117,7 @@ HcalGenericDetId HcalChannelIterator::getHcalGenericDetId(void){
 }
 
 
-HcalSubdetector HcalChannelIterator::getHcalSubdetector(void){
+HcalSubdetector HcalChannelIterator::getHcalSubdetector(){
   if (const_iterator!=channel_list.end()){
     HcalDetId _id(*const_iterator);
     return _id.subdet();
@@ -126,7 +126,7 @@ HcalSubdetector HcalChannelIterator::getHcalSubdetector(void){
 }
  
 
-int HcalChannelIterator::getIeta(void){
+int HcalChannelIterator::getIeta(){
   if (const_iterator!=channel_list.end()){
     HcalDetId _id(*const_iterator);
     return _id.ieta();
@@ -135,7 +135,7 @@ int HcalChannelIterator::getIeta(void){
 }
 
 
-int HcalChannelIterator::getIphi(void){
+int HcalChannelIterator::getIphi(){
   if (const_iterator!=channel_list.end()){
     HcalDetId _id(*const_iterator);
     return _id.iphi();
@@ -144,7 +144,7 @@ int HcalChannelIterator::getIphi(void){
 }
 
 
-int HcalChannelIterator::getDepth(void){
+int HcalChannelIterator::getDepth(){
   if (const_iterator!=channel_list.end()){
     HcalDetId _id(*const_iterator);
     return _id.depth();
@@ -153,7 +153,7 @@ int HcalChannelIterator::getDepth(void){
 }
 
 
-int HcalChannelIterator::initHBEFListFromLmapAscii(void){
+int HcalChannelIterator::initHBEFListFromLmapAscii(){
   clearChannelList();
   addListFromLmapAscii("HCALmapHBEF_Jan.27.2009.txt");
   addListFromLmapAscii("HCALmapHO_Jan.27.2009.txt");

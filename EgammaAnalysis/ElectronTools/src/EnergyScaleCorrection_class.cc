@@ -42,7 +42,7 @@ EnergyScaleCorrection_class::EnergyScaleCorrection_class(std::string correctionF
   return;
 }
 
-EnergyScaleCorrection_class::~EnergyScaleCorrection_class(void)
+EnergyScaleCorrection_class::~EnergyScaleCorrection_class()
 {
   return;
 }

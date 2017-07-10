@@ -18,7 +18,7 @@
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
 //__________________________________________________________________________________________________
-AlignableModifier::AlignableModifier( void ) :
+AlignableModifier::AlignableModifier( ) :
   distribution_(""),
   random_(false), gaussian_(false), setError_(false),
   setRotations_(false),setTranslations_(false),
@@ -45,7 +45,7 @@ AlignableModifier::~AlignableModifier()
 }
 
 //__________________________________________________________________________________________________
-void AlignableModifier::init_( void )
+void AlignableModifier::init_( )
 {
 
   // Initialize all known parameters (according to ORCA's MisalignmentScenario.cc)

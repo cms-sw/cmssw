@@ -38,7 +38,7 @@ class ZdcLut
 		       int zdc_side,
 		       int zdc_channel);
   
-  int simple_loop(void);
+  int simple_loop();
   
  private:
   //variable

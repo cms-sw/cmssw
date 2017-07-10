@@ -11,11 +11,11 @@
 class File : public IOChannel, public Storage
 {
 public:
-  File (void);
+  File ();
   File (IOFD fd, bool autoclose = true);
   File (const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
   File (const std::string &name, int flags = IOFlags::OpenRead, int perms = 0666);
-  ~File (void);
+  ~File ();
   // implicit copy constructor
   // implicit assignment operator
 
@@ -48,14 +48,14 @@ public:
   virtual IOSize	write (const void *from, IOSize n, IOOffset pos);
   virtual IOSize	writev (const IOBuffer *from, IOSize length);
 
-  virtual IOOffset	size (void) const;
+  virtual IOOffset	size () const;
   virtual IOOffset	position (IOOffset offset, Relative whence = SET);
 
   virtual void		resize (IOOffset size);
 
-  virtual void		flush (void);
-  virtual void		close (void);
-  virtual void		abort (void);
+  virtual void		flush ();
+  virtual void		close ();
+  virtual void		abort ();
 
   virtual void		setAutoClose (bool closeit);
 

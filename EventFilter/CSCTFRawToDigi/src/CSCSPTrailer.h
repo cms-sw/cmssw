@@ -43,32 +43,32 @@ private:
 	friend class CSCTFPacker;
 
 public:
-	bool check(void) const throw() {
+	bool check() const throw() {
 		return spare_1!=0 || spare_2!=0 || zero_1!=0 || zero_2!=0 ||
 			trailer_mark_1!=0xF || trailer_mark_2!=0xF || trailer_mark_3!=0x7 || trailer_mark_4!=0xF || trailer_mark_5!=0xF || trailer_mark_6!=0xF ||
 			trailer_mark_7!=0xE || trailer_mark_8!=0xE || trailer_mark_9!=0xE || trailer_mark_10!=0xE;
 	}
 
-	unsigned int l1a_7bits     (void) const throw() { return l1a_; }
-	unsigned int l1a_queue_size(void) const throw() { return (word_count_high<<4)|word_count_low; }
-	bool         l1a_fifo_full (void) const throw() { return l1a_fifo_full_; }
+	unsigned int l1a_7bits     () const throw() { return l1a_; }
+	unsigned int l1a_queue_size() const throw() { return (word_count_high<<4)|word_count_low; }
+	bool         l1a_fifo_full () const throw() { return l1a_fifo_full_; }
 
-	unsigned int year          (void) const throw() { return 2000+16*bb_+year_; }
-	unsigned int month         (void) const throw() { return month_; }
-	unsigned int day           (void) const throw() { return day_;   }
-	unsigned int configuration (void) const throw() { return core_configuraton;  }
+	unsigned int year          () const throw() { return 2000+16*bb_+year_; }
+	unsigned int month         () const throw() { return month_; }
+	unsigned int day           () const throw() { return day_;   }
+	unsigned int configuration () const throw() { return core_configuraton;  }
 
 	//unsigned int slot    (void) const throw() { return  board_id_&0x1F;       }
 	//unsigned int sector  (void) const throw() { return (board_id_&0x700)>>8;  }
 	//unsigned int endcap  (void) const throw() { return (board_id_&0x800)>>11; }
 
-	unsigned int board_id(void) const throw() { return  board_id_;             }
+	unsigned int board_id() const throw() { return  board_id_;             }
 
-	unsigned int crc     (void) const throw() { return crc_low|(crc_high<<11); }
+	unsigned int crc     () const throw() { return crc_low|(crc_high<<11); }
 
 	bool unpack(const unsigned short *&buf) throw()  { memcpy(this, buf, 8*sizeof(short)); buf+=8; return check(); }
 
-	CSCSPTrailer(void){}
+	CSCSPTrailer(){}
 };
 
 #endif

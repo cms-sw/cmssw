@@ -43,7 +43,7 @@ class HIPUserVariables : public AlignmentUserVariables {
   //int niter;
 
  /** clone method (copy constructor) */
-  HIPUserVariables* clone(void) const { 
+  HIPUserVariables* clone() const { 
     return new HIPUserVariables(*this);
   }
 

@@ -21,7 +21,7 @@ public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     explicit L1TCaloParamsUpdater(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1TCaloParamsUpdater(void){}
+    virtual ~L1TCaloParamsUpdater(){}
 };
 
 void L1TCaloParamsUpdater::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

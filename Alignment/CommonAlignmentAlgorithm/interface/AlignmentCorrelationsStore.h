@@ -21,9 +21,9 @@ public:
   typedef std::map< Alignable*, AlgebraicMatrix > CorrelationsTable;
   typedef std::map< Alignable*, CorrelationsTable* > Correlations;
 
-  AlignmentCorrelationsStore( void );
+  AlignmentCorrelationsStore( );
 
-  virtual ~AlignmentCorrelationsStore( void ) {}
+  virtual ~AlignmentCorrelationsStore( ) {}
 
   /// Write correlations directly to the covariance matrix starting at the
   /// given position. Indices are assumed to start from 0.
@@ -42,10 +42,10 @@ public:
   virtual bool correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const;
 
   /// Reset correlations.
-  virtual void resetCorrelations( void );
+  virtual void resetCorrelations( );
 
   /// Get number of stored correlations.
-  virtual unsigned int size( void ) const;
+  virtual unsigned int size( ) const;
 
 private:
 

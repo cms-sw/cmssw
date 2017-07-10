@@ -50,7 +50,7 @@ debug_state_machine(enum SimpleSAXParser::PARSER_STATES state)
     Default implementation is in any case useful to check syntax.
   */
 void 
-SimpleSAXParser::parse(void)
+SimpleSAXParser::parse()
 {
    enum PARSER_STATES state = IN_DOCUMENT;
    // Current delimiters for strings in attributes.

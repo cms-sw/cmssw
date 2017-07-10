@@ -25,10 +25,10 @@ namespace edm {
         public:
             explicit SiteLocalConfigService(ParameterSet const& pset);
 
-            std::string const dataCatalog(void) const override;
-            std::string const fallbackDataCatalog(void) const override;
+            std::string const dataCatalog() const override;
+            std::string const fallbackDataCatalog() const override;
             std::string const lookupCalibConnect(std::string const& input) const override;
-            std::string const rfioType(void) const override;
+            std::string const rfioType() const override;
 
             std::string const* sourceCacheTempDir() const override;
             double const* sourceCacheMinFree() const override;

@@ -157,9 +157,9 @@ class XMLProcessor
   inline static XMLCh * _toXMLCh( time_t temp );
   virtual ~XMLProcessor();
   
-  int test( void );
-  int init( void );
-  int terminate( void );
+  int test( );
+  int init( );
+  int terminate( );
   
   XMLDOMBlock * createLMapHBEFXMLBase( std::string templateFileName );
   XMLDOMBlock * createLMapHOXMLBase( std::string templateFileName );

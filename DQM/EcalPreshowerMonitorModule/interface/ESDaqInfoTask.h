@@ -26,10 +26,10 @@ class ESDaqInfoTask: public edm::EDAnalyzer{
       void analyze(const edm::Event& e, const edm::EventSetup& c);
 
       /// BeginJob
-      void beginJob(void);
+      void beginJob();
 
       /// EndJob
-      void endJob(void);
+      void endJob();
 
       /// BeginLuminosityBlock
       void beginLuminosityBlock(const edm::LuminosityBlock& lumiBlock, const  edm::EventSetup& iSetup);
@@ -38,10 +38,10 @@ class ESDaqInfoTask: public edm::EDAnalyzer{
       void endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, const  edm::EventSetup& iSetup);
 
       /// Reset
-      void reset(void);
+      void reset();
 
       /// Cleanup
-      void cleanup(void);
+      void cleanup();
         
    private:
         

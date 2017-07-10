@@ -24,7 +24,7 @@ public:
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
   typedef CaloCellGeometry::Tr3D     Tr3D     ;
   
-  TruncatedPyramid( void );
+  TruncatedPyramid( );
   
   TruncatedPyramid( const TruncatedPyramid& tr ) ;
   
@@ -77,9 +77,9 @@ public:
 private:
   virtual void initCorners(CornersVec&) override;
   
-  GlobalVector makeAxis( void );
+  GlobalVector makeAxis( );
   
-  const GlobalPoint backCtr( void ) const;    
+  const GlobalPoint backCtr( ) const;    
   GlobalVector m_axis;
   Pt3D         m_corOne;
 };

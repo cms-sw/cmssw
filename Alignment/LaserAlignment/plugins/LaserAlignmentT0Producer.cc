@@ -184,7 +184,7 @@ void LaserAlignmentT0Producer::endJob() {
 /// (ugly mechanism, should later be
 /// replaced by some hash-based)
 ///
-void LaserAlignmentT0Producer::FillDetIds( void ) {
+void LaserAlignmentT0Producer::FillDetIds( ) {
 
   theLasDetIds.resize( 0 );
 

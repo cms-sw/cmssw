@@ -96,7 +96,7 @@ std::ostream &operator << (std::ostream& os, const AlignableDTBarrel& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableDTBarrel::dump( void ) const
+void AlignableDTBarrel::dump( ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
@@ -107,7 +107,7 @@ void AlignableDTBarrel::dump( void ) const
 }
 
 //__________________________________________________________________________________________________
-Alignments* AlignableDTBarrel::alignments( void ) const
+Alignments* AlignableDTBarrel::alignments( ) const
 {
 
   std::vector<Alignable*> comp = this->components();
@@ -129,7 +129,7 @@ Alignments* AlignableDTBarrel::alignments( void ) const
 }
 
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableDTBarrel::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableDTBarrel::alignmentErrors( ) const
 {
 
   std::vector<Alignable*> comp = this->components();

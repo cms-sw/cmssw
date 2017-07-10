@@ -143,7 +143,7 @@ public:
   };
   
   /// BeginJob
-  void beginJob(void);
+  void beginJob();
 
   
   /// BeginRun

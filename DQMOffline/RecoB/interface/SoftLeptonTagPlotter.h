@@ -14,7 +14,7 @@ public:
 		       const edm::ParameterSet& pSet, unsigned int mc, 
 		       bool willFinalize, DQMStore::IBooker & ibook);
   
-  ~SoftLeptonTagPlotter(void) ;
+  ~SoftLeptonTagPlotter() ;
 
   void analyzeTag(const reco::BaseTagInfo * baseTagInfo, double jec, int jetFlavour, float w/*=1*/);
 

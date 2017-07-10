@@ -12,7 +12,7 @@ public:
   typedef ReferenceCountingPointer<AlignmentParametersData> DataContainer;
 
   /// Default constructor.
-  AlignmentParametersData( void );
+  AlignmentParametersData( );
 
   /// Constructor from parameters vector, covariance matrix and selection vector.
   /// NOTE: The input data must live on the heap and must not be deleted by the user.
@@ -34,24 +34,24 @@ public:
   AlignmentParametersData( const AlgebraicVector& param,
 			   const AlgebraicSymMatrix& cov );
 
-  ~AlignmentParametersData( void );
+  ~AlignmentParametersData( );
 
   /// Access to the parameter vector.
-  const AlgebraicVector& parameters( void ) const { return *theParameters; }
+  const AlgebraicVector& parameters( ) const { return *theParameters; }
 
   /// Access to the covariance matrix
-  const AlgebraicSymMatrix& covariance( void ) const { return *theCovariance; } 
+  const AlgebraicSymMatrix& covariance( ) const { return *theCovariance; } 
 
   /// Access to the selection vector.
-  const std::vector<bool>& selector( void ) const { return *theSelector; }
+  const std::vector<bool>& selector( ) const { return *theSelector; }
 
   /// Access to the number of selected parameters.
-  int numSelected( void ) { return theNumSelected; }
+  int numSelected( ) { return theNumSelected; }
 
   /// Check if the size of the parameters vector, the size of the covariance matrix,
   /// the size of the selector and the number of selected parameters is consistent.
   /// An exception of type "LogicError" is thrown in case of any inconsistencies.
-  void checkConsistency( void ) const;
+  void checkConsistency( ) const;
 
 private:
 

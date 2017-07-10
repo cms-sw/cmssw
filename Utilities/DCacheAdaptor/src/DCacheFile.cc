@@ -8,7 +8,7 @@
 #include <fcntl.h>
 #include <dcap.h>
 
-DCacheFile::DCacheFile (void)
+DCacheFile::DCacheFile ()
   : m_fd (EDM_IOFD_INVALID),
     m_close (false)
 {}
@@ -32,7 +32,7 @@ DCacheFile::DCacheFile (const std::string &name,
     m_close (false)
 { open (name.c_str (), flags, perms); }
 
-DCacheFile::~DCacheFile (void)
+DCacheFile::~DCacheFile ()
 {
   if (m_close)
     edm::LogError("DCacheFileError")
@@ -151,7 +151,7 @@ DCacheFile::open (const char *name,
 }
 
 void
-DCacheFile::close (void)
+DCacheFile::close ()
 {
   if (m_fd == EDM_IOFD_INVALID)
   {
@@ -177,7 +177,7 @@ DCacheFile::close (void)
 }
 
 void
-DCacheFile::abort (void)
+DCacheFile::abort ()
 {
   if (m_fd != EDM_IOFD_INVALID)
     dc_close (m_fd);

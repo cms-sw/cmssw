@@ -193,7 +193,7 @@ void RawDataConverter::endJob()
 ///
 /// set all strips to zero
 ///
-void RawDataConverter::ClearData( void ) {
+void RawDataConverter::ClearData( ) {
 
   // Assign a vector filled with zeros to all module entries
   // The vector is const static to increase performance
@@ -230,7 +230,7 @@ void RawDataConverter::ClearData( void ) {
 ///
 /// all the detector ids for the LAS modules hard-coded (this should be changed...)
 ///
-void RawDataConverter::fillDetectorId( void ) {
+void RawDataConverter::fillDetectorId( ) {
   
   // TEC+
   detectorId.SetTECEntry( 0, 0, 0, 0, 470307208 );

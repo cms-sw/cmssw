@@ -35,7 +35,7 @@ public:
 			      double a2, double b2, double c2)  throw();
   virtual ~GridInterpolator3DException() throw();
   virtual const char* what() const throw();
-  double  *limits(void) {return limits_;}
+  double  *limits() {return limits_;}
 protected:
   double limits_[6];
 };

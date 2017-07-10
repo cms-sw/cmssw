@@ -22,7 +22,7 @@ class DDValue
 {
 public:
   //! create a unnamed emtpy value. One can assing a named DDValue to it.
-  DDValue( void ) : id_(0), vecPair_() { }
+  DDValue( ) : id_(0), vecPair_() { }
   
   //! create a named empty value
   explicit DDValue( const std::string & );
@@ -45,13 +45,13 @@ public:
   explicit DDValue( unsigned int );
   
   //! returns the ID of the DDValue
-  unsigned int id( void ) const { return id_; }
+  unsigned int id( ) const { return id_; }
   
   //! converts a DDValue object into its ID
-  operator unsigned int( void ) const { return id_; }
+  operator unsigned int( ) const { return id_; }
   
   //! the name of the DDValue
-  const std::string & name( void ) const { return *(names()[id_].string_); }
+  const std::string & name( ) const { return *(names()[id_].string_); }
   
   /** access to the values stored in DDValue by an index. Note, that
    the index is not checked for bounds excess! */
@@ -75,7 +75,7 @@ public:
   //! true, if values are numerical evaluated; else false. 
   /** in case of a 'true' return value, the method DDValue::doubles() and the operator
      DDValue::operator[] can be used */
-  bool isEvaluated( void ) const;
+  bool isEvaluated( ) const;
   
   //! Two DDValues are equal only if their id() is equal AND their values are equal
   /** If the DDValue::isEvalued() == true, the numerical representation is taken for comparison,

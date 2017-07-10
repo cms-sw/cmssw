@@ -35,7 +35,7 @@ class FWTGeoRecoGeometryESProducer : public edm::ESProducer
                    kHGCE, kHGCH };
 public:
    FWTGeoRecoGeometryESProducer( const edm::ParameterSet& );
-   virtual ~FWTGeoRecoGeometryESProducer( void );
+   virtual ~FWTGeoRecoGeometryESProducer( );
   
    std::shared_ptr<FWTGeoRecoGeometry> produce( const FWTGeoRecoGeometryRecord& );
 

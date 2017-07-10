@@ -17,8 +17,8 @@
 class FWSiStripClusterProxyBuilder : public FWProxyBuilderBase
 {
 public:
-    FWSiStripClusterProxyBuilder( void );
-    virtual ~FWSiStripClusterProxyBuilder( void );
+    FWSiStripClusterProxyBuilder( );
+    virtual ~FWSiStripClusterProxyBuilder( );
 
    REGISTER_PROXYBUILDER_METHODS();
 

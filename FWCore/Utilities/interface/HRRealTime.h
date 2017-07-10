@@ -29,7 +29,7 @@ namespace edm {
 #elif defined(__x86_64__)
 
 
-    static __inline__ unsigned long long rdtsc(void)
+    static __inline__ unsigned long long rdtsc()
     {
       unsigned hi, lo;
       __asm__ __volatile__ ("rdtsc" : "=a"(lo), "=d"(hi));

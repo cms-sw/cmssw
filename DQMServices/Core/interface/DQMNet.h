@@ -159,7 +159,7 @@ public:
   };
 
   DQMNet(const std::string &appname = "");
-  virtual ~DQMNet(void);
+  virtual ~DQMNet();
 
   void			debug(bool doit);
   void			delay(int delay);
@@ -168,14 +168,14 @@ public:
   void			staleObjectWaitLimit(lat::TimeSpan time);
   void			updateToCollector(const std::string &host, int port);
   void			listenToCollector(const std::string &host, int port);
-  void			shutdown(void);
-  void			lock(void);
-  void			unlock(void);
+  void			shutdown();
+  void			lock();
+  void			unlock();
 
-  void			start(void);
-  void			run(void);
+  void			start();
+  void			run();
 
-  void			sendLocalChanges(void);
+  void			sendLocalChanges();
 
   static bool setOrder(const CoreObject &a, const CoreObject &b)
     {
@@ -289,11 +289,11 @@ public:
   static void		unpackQualityData(QReports &qr, uint32_t &flags, const char *from);
 
 protected:
-  std::ostream &	logme(void);
+  std::ostream &	logme();
   static void		copydata(Bucket *b, const void *data, size_t len);
   virtual void		sendObjectToPeer(Bucket *msg, Object &o, bool data);
 
-  virtual bool		shouldStop(void);
+  virtual bool		shouldStop();
   void			waitForData(Peer *p, const std::string &name, const std::string &info, Peer *owner);
   virtual void		releaseFromWait(Bucket *msg, WaitObject &w, Object *o);
   virtual bool		onMessage(Bucket *msg, Peer *p, unsigned char *data, size_t len);
@@ -312,7 +312,7 @@ protected:
   virtual void		sendObjectListToPeers(bool all) = 0;
 
   void			updateMask(Peer *p);
-  virtual void		updatePeerMasks(void) = 0;
+  virtual void		updatePeerMasks() = 0;
   static void		discard(Bucket *&b);
 
   bool			debug_;
@@ -367,7 +367,7 @@ public:
   typedef std::map<lat::Socket *, ImplPeer> PeerMap;
   struct ImplPeer : Peer
   {
-    ImplPeer(void) {}
+    ImplPeer() {}
     ObjectMap objs;
     DirMap dirs;
   };
@@ -376,7 +376,7 @@ public:
     : DQMNet(appname)
     {}
   
-  ~DQMImplNet(void)
+  ~DQMImplNet()
     {}
 
 protected:
@@ -596,7 +596,7 @@ protected:
     }
 
   virtual void
-  updatePeerMasks(void)
+  updatePeerMasks()
     {
       typename PeerMap::iterator i, e;
       for (i = peers_.begin(), e = peers_.end(); i != e; )

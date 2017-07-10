@@ -2,7 +2,7 @@
 #include "Alignment/CommonAlignmentAlgorithm/interface/AlignmentExtendedCorrelationsEntry.h"
 
 
-AlignmentExtendedCorrelationsEntry::AlignmentExtendedCorrelationsEntry( void ) :
+AlignmentExtendedCorrelationsEntry::AlignmentExtendedCorrelationsEntry( ) :
 //   theCounter( 0 ),
   theNRows( 0 ),
   theNCols( 0 )
@@ -50,7 +50,7 @@ void AlignmentExtendedCorrelationsEntry::operator*=( const float multiply )
 }
 
 
-AlgebraicMatrix AlignmentExtendedCorrelationsEntry::matrix( void ) const
+AlgebraicMatrix AlignmentExtendedCorrelationsEntry::matrix( ) const
 {
   AlgebraicMatrix result( theNRows, theNCols );
 

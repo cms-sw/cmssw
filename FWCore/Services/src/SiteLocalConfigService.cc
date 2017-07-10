@@ -150,7 +150,7 @@ namespace edm {
     }
 
     std::string const
-    SiteLocalConfigService::dataCatalog(void) const {
+    SiteLocalConfigService::dataCatalog() const {
         if (!m_connected) {
             //throw cms::Exception("Incomplete configuration")
             //    << "Valid site-local-config not found at " << m_url;
@@ -167,7 +167,7 @@ namespace edm {
     }
 
     std::string const
-    SiteLocalConfigService::fallbackDataCatalog(void) const {
+    SiteLocalConfigService::fallbackDataCatalog() const {
         if (!m_connected) {
             //throw cms::Exception("Incomplete configuration")
             //    << "Valid site-local-config not found at " << m_url;
@@ -250,7 +250,7 @@ namespace edm {
     }
 
     std::string const
-    SiteLocalConfigService::rfioType(void) const {
+    SiteLocalConfigService::rfioType() const {
         return m_rfioType;
     }
 

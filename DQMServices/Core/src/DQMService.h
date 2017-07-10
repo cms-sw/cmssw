@@ -14,12 +14,12 @@ class DQMService
 {
 public:
   DQMService(const edm::ParameterSet &pset, edm::ActivityRegistry &ar);
-  ~DQMService(void);
+  ~DQMService();
    
 public:
   void flush(edm::StreamContext const & sc);
 private:
-  void shutdown(void);
+  void shutdown();
 
   DQMStore	*store_;
   DQMBasicNet	*net_;

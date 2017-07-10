@@ -125,7 +125,7 @@ protected:
   CaloCellGeometry( const CornersVec& cv,
 		    const CCGFloat*   par ) ;
 
-  CaloCellGeometry( void );
+  CaloCellGeometry( );
 
   // MUST be called by children constructors
   void initSpan() {

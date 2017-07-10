@@ -25,16 +25,16 @@ public:
                          const reco::BeamSpot& beamSpot,
                          const ReferenceTrajectoryBase::Config& config);
 
-  TwoBodyDecayTrajectory( void );
+  TwoBodyDecayTrajectory( );
 
-  ~TwoBodyDecayTrajectory( void ) {}
+  ~TwoBodyDecayTrajectory( ) {}
 
-  virtual TwoBodyDecayTrajectory* clone( void ) const
+  virtual TwoBodyDecayTrajectory* clone( ) const
     { return new TwoBodyDecayTrajectory( *this ); }
 
   /**Number of RecHits belonging to the first and second track.
    */
-  inline const std::pair< int, int > numberOfRecHits( void ) { return theNumberOfRecHits; }
+  inline const std::pair< int, int > numberOfRecHits( ) { return theNumberOfRecHits; }
 
 private:
 

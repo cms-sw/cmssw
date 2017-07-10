@@ -92,7 +92,7 @@ public:
    // Geometry handling
    void loadGeometry();
    void setGeometryFilename(const std::string &filename) {m_geometryFilename = filename; }
-   const std::string &geometryFilename(void) { return m_geometryFilename; }
+   const std::string &geometryFilename() { return m_geometryFilename; }
    FWGeometry& getGeom() { return m_geom; }
 
    void setSimGeometryFilename(const std::string &filename) {m_simGeometryFilename = filename; }

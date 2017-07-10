@@ -20,11 +20,11 @@ class testTruncTubs : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testTruncTubs::matched_g4_and_dd( void )
+testTruncTubs::matched_g4_and_dd( )
 {
   double zHalf = 50.0*cm;
   double rIn = 20.0*cm;

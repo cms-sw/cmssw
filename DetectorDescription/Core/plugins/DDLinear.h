@@ -13,8 +13,8 @@ class DDCompactView;
 class DDLinear : public DDAlgorithm
 {
 public:
-  DDLinear( void );
-  virtual ~DDLinear( void );
+  DDLinear( );
+  virtual ~DDLinear( );
 
   void initialize( const DDNumericArguments & nArgs,
                    const DDVectorArguments & vArgs,

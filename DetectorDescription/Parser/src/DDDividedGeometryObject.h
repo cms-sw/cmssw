@@ -28,21 +28,21 @@ public:
   
   DDDividedGeometryObject( const DDDivision& div, DDCompactView* cpv );
   
-  virtual ~DDDividedGeometryObject( void ) = default; // inline
+  virtual ~DDDividedGeometryObject( ) = default; // inline
   
   virtual DDTranslation makeDDTranslation( const int copyNo ) const;
   virtual DDRotation    makeDDRotation   ( const int copyNo ) const;
   virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const;
 
-  virtual const std::string& getType( void ) const;
+  virtual const std::string& getType( ) const;
 
   virtual void setType( const std::string& type );
 
-  int volumeFirstCopyNo( void ) const;
+  int volumeFirstCopyNo( ) const;
 
-  virtual void execute( void );
+  virtual void execute( );
 
-  static const double tolerance( void );
+  static const double tolerance( );
   
 protected:
   
@@ -52,12 +52,12 @@ protected:
   double calculateWidth( double motherDim, int nDiv,
 			 double offset ) const;
 
-  virtual void checkParametersValidity( void );
+  virtual void checkParametersValidity( );
 
   void checkOffset( double maxPar );
   void checkNDivAndWidth( double maxPar );
 
-  virtual double getMaxParameter( void ) const;
+  virtual double getMaxParameter( ) const;
 
 protected:
   DDDivision div_;

@@ -34,7 +34,7 @@ FWLayoutBuilder::FWLayoutBuilder(TGCompositeFrame *window, bool expandY)
 }
 
 FWLayoutBuilder &
-FWLayoutBuilder::newRow(void)
+FWLayoutBuilder::newRow()
 {
    m_currentFrameHints = m_currentHints = new TGLayoutHints(kLHintsExpandX);
    m_currentFrame = new TGHorizontalFrame(m_framesStack.back());
@@ -61,7 +61,7 @@ FWLayoutBuilder::indent(int left /*= 2*/, int right /* = -1*/)
 
 /** Return the last vertical frame, for more control on the layout. */
 TGVerticalFrame *
-FWLayoutBuilder::verticalFrame(void)
+FWLayoutBuilder::verticalFrame()
 {
    assert(m_framesStack.size());
    return m_framesStack.back();
@@ -69,7 +69,7 @@ FWLayoutBuilder::verticalFrame(void)
 
 /** Removes all the frames on the stack since last indent. */
 FWLayoutBuilder &
-FWLayoutBuilder::unindent(void)
+FWLayoutBuilder::unindent()
 {
    assert(!m_framesStack.empty());
    m_framesStack.pop_back();
@@ -260,7 +260,7 @@ FWDialogBuilder::indent(int left /* = 2*/, int right /* = -1*/)
 }
 
 FWDialogBuilder &
-FWDialogBuilder::unindent(void)
+FWDialogBuilder::unindent()
 {
    FWLayoutBuilder::unindent();
    return *this;
@@ -478,7 +478,7 @@ FWDialogBuilder::tabs(TGTab **out)
 }
 
 FWDialogBuilder &
-FWDialogBuilder::untabs(void)
+FWDialogBuilder::untabs()
 {
    // No untabs() without tabs().
    assert(m_tabs);
@@ -501,7 +501,7 @@ FWDialogBuilder::beginTab(const char *label)
 /** When we are done with the tab, we delete ourself and return the parent.
   */
 FWDialogBuilder &
-FWDialogBuilder::endTab(void)
+FWDialogBuilder::endTab()
 {
    FWDialogBuilder *parent = m_parent;
    delete this;

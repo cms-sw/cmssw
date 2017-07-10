@@ -51,7 +51,7 @@ public:
   
   
 private:
-  virtual void beginJob(void);
+  virtual void beginJob();
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endRun(const edm::Run&, const edm::EventSetup&) {}
@@ -125,7 +125,7 @@ L1MenuTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1MenuTreeProducer::beginJob(void)
+L1MenuTreeProducer::beginJob()
 {
 }
 

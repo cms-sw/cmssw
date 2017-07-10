@@ -42,125 +42,125 @@ class HcalNoiseSummary
   // whether or not the event passed the event filter
   // note that these methods are deprecated
   // please see the instructions here: https://twiki.cern.ch/twiki/bin/view/CMS/HcalNoiseInfoLibrary
-  bool passLooseNoiseFilter(void) const;
-  bool passTightNoiseFilter(void) const;
-  bool passHighLevelNoiseFilter(void) const;
+  bool passLooseNoiseFilter() const;
+  bool passTightNoiseFilter() const;
+  bool passHighLevelNoiseFilter() const;
 
   // the status with which the filter failed: this is a bitset
   // 0 is no failure
-  int noiseFilterStatus(void) const;
+  int noiseFilterStatus() const;
 
   // noise type: 1=HPD Ionfeedback, 2=HPD Discharge, 3=RBX Noise
   // won't work with non-noise event
-  int noiseType(void) const;
+  int noiseType() const;
 
   // quantities to calculate EM fraction and charge fraction
   // of the event (|eta|<2.0)
-  float eventEMEnergy(void) const;
-  float eventHadEnergy(void) const;
-  float eventTrackEnergy(void) const;
-  float eventEMFraction(void) const;
-  float eventChargeFraction(void) const;
+  float eventEMEnergy() const;
+  float eventHadEnergy() const;
+  float eventTrackEnergy() const;
+  float eventEMFraction() const;
+  float eventChargeFraction() const;
 
   // minimum/maximum/RMS rechit time
   // rechit energy>10 GeV or 25 GeV
-  float min10GeVHitTime(void) const;
-  float max10GeVHitTime(void) const;
-  float rms10GeVHitTime(void) const;
-  float min25GeVHitTime(void) const;
-  float max25GeVHitTime(void) const;
-  float rms25GeVHitTime(void) const;
+  float min10GeVHitTime() const;
+  float max10GeVHitTime() const;
+  float rms10GeVHitTime() const;
+  float min25GeVHitTime() const;
+  float max25GeVHitTime() const;
+  float rms25GeVHitTime() const;
 
   // # of hits with E>10 GeV or 25 GeV
-  int num10GeVHits(void) const;
-  int num25GeVHits(void) const;
+  int num10GeVHits() const;
+  int num25GeVHits() const;
   
   // E(2TS), E(10TS), and E(2TS)/E(10TS) for the minimum and maximum E(2TS)/E(10TS) found in an RBX in the event
   // the total energy in the RBX must be > 50 GeV
-  float minE2TS(void) const;
-  float minE10TS(void) const;
-  float minE2Over10TS(void) const;
-  float maxE2TS(void) const;
-  float maxE10TS(void) const;
-  float maxE2Over10TS(void) const;
+  float minE2TS() const;
+  float minE10TS() const;
+  float minE2Over10TS() const;
+  float maxE2TS() const;
+  float maxE10TS() const;
+  float maxE2Over10TS() const;
 
   // largest number of zeros found in a single RBX in the event
   // total energy in the RBX must be > 10 GeV
-  int maxZeros(void) const;
+  int maxZeros() const;
 
   // largest number of hits in a single HPD/RBX in the event
   // each hit is >= 1.5 GeV
-  int maxHPDHits(void) const;
-  int maxRBXHits(void) const;
+  int maxHPDHits() const;
+  int maxRBXHits() const;
 
   // largest number of hits in a single HPD when no other hits are present in the RBX
-  int maxHPDNoOtherHits(void) const;
+  int maxHPDNoOtherHits() const;
 
   // smallest EMF found in an HPD/RBX in the event
   // the total energy in the HPD/RBX must be >50 GeV
-  float minHPDEMF(void) const;
-  float minRBXEMF(void) const;
+  float minHPDEMF() const;
+  float minRBXEMF() const;
 
   // number of "problematic" RBXs
-  int numProblematicRBXs(void) const;
+  int numProblematicRBXs() const;
 
-  int numIsolatedNoiseChannels(void) const;
-  float isolatedNoiseSumE(void) const;
-  float isolatedNoiseSumEt(void) const;
+  int numIsolatedNoiseChannels() const;
+  float isolatedNoiseSumE() const;
+  float isolatedNoiseSumEt() const;
 
-  int numFlatNoiseChannels(void) const;
-  float flatNoiseSumE(void) const;
-  float flatNoiseSumEt(void) const;
+  int numFlatNoiseChannels() const;
+  float flatNoiseSumE() const;
+  float flatNoiseSumEt() const;
 
-  int numSpikeNoiseChannels(void) const;
-  float spikeNoiseSumE(void) const;
-  float spikeNoiseSumEt(void) const;
+  int numSpikeNoiseChannels() const;
+  float spikeNoiseSumE() const;
+  float spikeNoiseSumEt() const;
 
-  int numTriangleNoiseChannels(void) const;
-  float triangleNoiseSumE(void) const;
-  float triangleNoiseSumEt(void) const;
+  int numTriangleNoiseChannels() const;
+  float triangleNoiseSumE() const;
+  float triangleNoiseSumEt() const;
 
-  int numTS4TS5NoiseChannels(void) const;
-  float TS4TS5NoiseSumE(void) const;
-  float TS4TS5NoiseSumEt(void) const;
+  int numTS4TS5NoiseChannels() const;
+  float TS4TS5NoiseSumE() const;
+  float TS4TS5NoiseSumEt() const;
 
-  int numNegativeNoiseChannels(void) const;
-  float NegativeNoiseSumE(void) const;
-  float NegativeNoiseSumEt(void) const;
+  int numNegativeNoiseChannels() const;
+  float NegativeNoiseSumE() const;
+  float NegativeNoiseSumEt() const;
 
-  int GetRecHitCount(void) const;
-  int GetRecHitCount15(void) const;
-  double GetRecHitEnergy(void) const;
-  double GetRecHitEnergy15(void) const;
+  int GetRecHitCount() const;
+  int GetRecHitCount15() const;
+  double GetRecHitEnergy() const;
+  double GetRecHitEnergy15() const;
 
-  double GetTotalCalibCharge(void) const;
+  double GetTotalCalibCharge() const;
 
-  bool HasBadRBXTS4TS5(void) const;
-  bool HasBadRBXRechitR45Loose(void) const;
-  bool HasBadRBXRechitR45Tight(void) const;
-  bool goodJetFoundInLowBVRegion(void) const;
+  bool HasBadRBXTS4TS5() const;
+  bool HasBadRBXRechitR45Loose() const;
+  bool HasBadRBXRechitR45Tight() const;
+  bool goodJetFoundInLowBVRegion() const;
 
-  double GetCalibChargeHF(void) const;
-  int    GetCalibCountHF(void)  const;
+  double GetCalibChargeHF() const;
+  int    GetCalibCountHF()  const;
 
   // Get charge only in TS45
-  int GetCalibCountTS45(void) const;  // get number of HBHE calibration channels
-  int GetCalibgt15CountTS45(void) const; // get number of HBHE calib channels > 15 fC
-  double GetCalibChargeTS45(void) const; // get Calib charge
-  double GetCalibgt15ChargeTS45(void) const; // get charge from all channels gt 15 fC
+  int GetCalibCountTS45() const;  // get number of HBHE calibration channels
+  int GetCalibgt15CountTS45() const; // get number of HBHE calib channels > 15 fC
+  double GetCalibChargeTS45() const; // get Calib charge
+  double GetCalibgt15ChargeTS45() const; // get charge from all channels gt 15 fC
 
-  int GetHitsInNonLaserRegion(void) const; // get number of channels in HBHE regions with no laser
-  int GetHitsInLaserRegion(void) const; // get number of channels in HBHE region where laser pulses are seen
-  double GetEnergyInNonLaserRegion(void) const; // get energy in region with no laser
-  double GetEnergyInLaserRegion(void) const; // get energy in non-laser region
+  int GetHitsInNonLaserRegion() const; // get number of channels in HBHE regions with no laser
+  int GetHitsInLaserRegion() const; // get number of channels in HBHE region where laser pulses are seen
+  double GetEnergyInNonLaserRegion() const; // get energy in region with no laser
+  double GetEnergyInLaserRegion() const; // get energy in non-laser region
   
   // reference to problematic jets
-  edm::RefVector<reco::CaloJetCollection> problematicJets(void) const;
+  edm::RefVector<reco::CaloJetCollection> problematicJets() const;
 
   // reference to calotowers which fail loose, tight, and high-level noise criteria
-  edm::RefVector<CaloTowerCollection> looseNoiseTowers(void) const;
-  edm::RefVector<CaloTowerCollection> tightNoiseTowers(void) const;
-  edm::RefVector<CaloTowerCollection> highLevelNoiseTowers(void) const;
+  edm::RefVector<CaloTowerCollection> looseNoiseTowers() const;
+  edm::RefVector<CaloTowerCollection> tightNoiseTowers() const;
+  edm::RefVector<CaloTowerCollection> highLevelNoiseTowers() const;
 
  private:
 

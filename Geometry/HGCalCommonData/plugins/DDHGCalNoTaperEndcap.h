@@ -9,8 +9,8 @@
 class DDHGCalNoTaperEndcap : public DDAlgorithm {
 
 public:
-  DDHGCalNoTaperEndcap( void ); 
-  virtual ~DDHGCalNoTaperEndcap( void );
+  DDHGCalNoTaperEndcap( ); 
+  virtual ~DDHGCalNoTaperEndcap( );
   
   void initialize( const DDNumericArguments & nArgs,
 		   const DDVectorArguments & vArgs,

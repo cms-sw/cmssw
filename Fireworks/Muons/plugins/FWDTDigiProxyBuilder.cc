@@ -53,10 +53,10 @@ namespace
 class FWDTDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWDTDigiProxyBuilder( void ) {}
-  virtual ~FWDTDigiProxyBuilder( void ) {}
+  FWDTDigiProxyBuilder( ) {}
+  virtual ~FWDTDigiProxyBuilder( ) {}
 
-  virtual bool haveSingleProduct( void ) const override { return false; }
+  virtual bool haveSingleProduct( ) const override { return false; }
 	   
   REGISTER_PROXYBUILDER_METHODS();
 	

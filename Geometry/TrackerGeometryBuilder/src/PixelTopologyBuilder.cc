@@ -3,7 +3,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/RectangularPixelTopology.h"
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 
-PixelTopologyBuilder::PixelTopologyBuilder( void )
+PixelTopologyBuilder::PixelTopologyBuilder( )
 {}
 
 PixelTopology*

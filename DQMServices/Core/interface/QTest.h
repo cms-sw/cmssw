@@ -51,27 +51,27 @@ class QCriterion
 public:
 
   /// get test status (see Core/interface/DQMDefinitions.h)
-  int getStatus(void) const             { return status_; }
+  int getStatus() const             { return status_; }
   /// get message attached to test
-  std::string getMessage(void) const    { return message_; }
+  std::string getMessage() const    { return message_; }
   /// get name of quality test
-  std::string getName(void) const       { return qtname_; }
+  std::string getName() const       { return qtname_; }
   /// get algorithm name
-  std::string algoName(void) const      { return algoName_; }
+  std::string algoName() const      { return algoName_; }
   /// set probability limit for warning and error (default: 90% and 50%)
   void setWarningProb(float prob)       { warningProb_ = prob; }
   void setErrorProb(float prob)         { errorProb_ = prob; }
   /// get vector of channels that failed test
   /// (not relevant for all quality tests!)
-  virtual std::vector<DQMChannel> getBadChannels(void) const
+  virtual std::vector<DQMChannel> getBadChannels() const
                                         { return std::vector<DQMChannel>(); }
 
 protected:
   QCriterion(std::string qtname)        { qtname_ = qtname; init(); }
   /// initialize values
-  void init(void);
+  void init();
 
-  virtual ~QCriterion(void)             {}
+  virtual ~QCriterion()             {}
 
   virtual float runTest(const MonitorElement *me);
   /// set algorithm name
@@ -106,7 +106,7 @@ protected:
     }
 
   /// set message after test has run
-  virtual void setMessage(void) = 0;
+  virtual void setMessage() = 0;
 
   std::string qtname_;  /// name of quality test
   std::string algoName_;  /// name of algorithm
@@ -143,7 +143,7 @@ public:
   /// set minimum # of entries needed
   void setMinimumEntries(unsigned n) { minEntries_ = n; }
   /// get vector of channels that failed test (not always relevant!)
-  virtual std::vector<DQMChannel> getBadChannels(void) const
+  virtual std::vector<DQMChannel> getBadChannels() const
   { 
     return keepBadChannels_ ? badChannels_ : QCriterion::getBadChannels(); 
   }
@@ -151,7 +151,7 @@ public:
 protected:
 
   /// set status & message after test has run
-  virtual void setMessage(void) 
+  virtual void setMessage() 
   {
     message_.clear();
   }
@@ -175,7 +175,7 @@ public:
   { 
     setAlgoName( getAlgoName() ); 
   }
-  static std::string getAlgoName(void) { return "Comp2RefEqualH"; }
+  static std::string getAlgoName() { return "Comp2RefEqualH"; }
   float runTest(const MonitorElement*me);
 };
 
@@ -188,12 +188,12 @@ public:
   { 
     setAlgoName(getAlgoName()); 
   }
-  static std::string getAlgoName(void) { return "Comp2RefChi2"; }
+  static std::string getAlgoName() { return "Comp2RefChi2"; }
   float runTest(const MonitorElement*me);
   
 protected:
 
-  void setMessage(void) 
+  void setMessage() 
   {
     std::ostringstream message;
     message << "chi2/Ndof = " << chi2_ << "/" << Ndof_
@@ -216,12 +216,12 @@ public:
   { 
     setAlgoName(getAlgoName()); 
   }
-  static std::string getAlgoName(void) { return "Comp2Ref2DChi2"; }
+  static std::string getAlgoName() { return "Comp2Ref2DChi2"; }
   float runTest(const MonitorElement*me);
   
 protected:
 
-  void setMessage(void) 
+  void setMessage() 
   {
     std::ostringstream message;
     message << "chi2/Ndof = " << chi2_ << "/" << Ndof_
@@ -244,7 +244,7 @@ public:
   { 
     setAlgoName(getAlgoName()); 
   }
-  static std::string getAlgoName(void) { return "Comp2RefKolmogorov"; }
+  static std::string getAlgoName() { return "Comp2RefKolmogorov"; }
 
   float runTest(const MonitorElement *me);
 };
@@ -259,7 +259,7 @@ public:
     rangeInitialized_ = false;
     setAlgoName(getAlgoName());
   }
-  static std::string getAlgoName(void) { return "ContentsXRange"; }
+  static std::string getAlgoName() { return "ContentsXRange"; }
   float runTest(const MonitorElement *me) ;
 
   /// set allowed range in X-axis (default values: histogram's X-range)
@@ -284,7 +284,7 @@ public:
    rangeInitialized_ = false;
    setAlgoName(getAlgoName());
   }
-  static std::string getAlgoName(void) { return "ContentsYRange"; }
+  static std::string getAlgoName() { return "ContentsYRange"; }
   float runTest(const MonitorElement *me);
 
   void setUseEmptyBins(unsigned int useEmptyBins) { useEmptyBins_ = useEmptyBins; }
@@ -311,7 +311,7 @@ public:
    rangeInitialized_ = false;
    setAlgoName(getAlgoName());
   }
-  static std::string getAlgoName(void) { return "DeadChannel"; }
+  static std::string getAlgoName() { return "DeadChannel"; }
   float runTest(const MonitorElement *me);
 
   /// set Ymin (inclusive) threshold for "dead" channel (default: 0)
@@ -338,7 +338,7 @@ public:
     numNeighbors_ = 1;
     setAlgoName(getAlgoName());
   }
-  static std::string getAlgoName(void) { return "NoisyChannel"; }
+  static std::string getAlgoName() { return "NoisyChannel"; }
   float runTest(const MonitorElement*me);
 
   /// set # of neighboring channels for calculating average to be used
@@ -387,7 +387,7 @@ public:
     toleranceMean_ = -1.0;
     setAlgoName(getAlgoName());
   }
-  static std::string getAlgoName(void) { return "ContentsWithinExpected"; }
+  static std::string getAlgoName() { return "ContentsWithinExpected"; }
   float runTest(const MonitorElement *me);
 
   void setUseEmptyBins(unsigned int useEmptyBins) { 
@@ -426,13 +426,13 @@ public:
   {
     setAlgoName(getAlgoName());
   }
-  static std::string getAlgoName(void) { return "MeanWithinExpected"; }
+  static std::string getAlgoName() { return "MeanWithinExpected"; }
   float runTest(const MonitorElement*me);
 
   void setExpectedMean(double mean) { expMean_ = mean; }
   void useRange(double xmin, double xmax);
   void useSigma(double expectedSigma);
-  void useRMS(void) ;
+  void useRMS() ;
 
 protected:
   bool useRMS_;       //< if true, will use RMS of distribution
@@ -559,7 +559,7 @@ public:
     setAlgoName(getAlgoName());
   }
 
-  ~FixedFlatOccupancy1d(void)
+  ~FixedFlatOccupancy1d()
   {
     if( Nbins > 0 )
     {
@@ -568,7 +568,7 @@ public:
     }
   }
 
-  static std::string getAlgoName(void) { return "RuleFixedFlatOccupancy1d"; }
+  static std::string getAlgoName() { return "RuleFixedFlatOccupancy1d"; }
 
   void set_Occupancy(double level)     { b = level; }
   void set_ExclusionMask(double *mask) { ExclusionMask = mask; }
@@ -576,7 +576,7 @@ public:
   void set_epsilon_max(double epsilon) { epsilon_max = epsilon; }
   void set_S_fail(double S)            { S_fail = S; }
   void set_S_pass(double S)            { S_pass = S; }
-  double get_FailedBins(void)          { return *FailedBins[1]; } // FIXME: WRONG! OFF BY ONE!?
+  double get_FailedBins()          { return *FailedBins[1]; } // FIXME: WRONG! OFF BY ONE!?
   int get_result()                     { return result; }
 
   float runTest(const MonitorElement*me);
@@ -599,7 +599,7 @@ public:
   { 
     setAlgoName(getAlgoName()); 
   }
-  static std::string getAlgoName(void) { return "RuleCSC01"; }
+  static std::string getAlgoName() { return "RuleCSC01"; }
 
   void set_epsilon_max(double epsilon) { epsilon_max = epsilon; }
   void set_S_fail(double S)	       { S_fail = S; }
@@ -638,7 +638,7 @@ public:
 
   ~CompareToMedian(){};
 
-  static std::string getAlgoName(void) { return "CompareToMedian"; }
+  static std::string getAlgoName() { return "CompareToMedian"; }
 
   float runTest(const MonitorElement *me);
   void setMin(float min){_min = min;};
@@ -649,7 +649,7 @@ public:
   void setStatCut(float cut){_statCut = (cut > 0) ? cut : 0;};
 
 protected :
-  void setMessage(void){
+  void setMessage(){
     std::ostringstream message;
     message << "Test " << qtname_ << " (" << algoName_
             << "): Entry fraction within range = " << prob_;
@@ -686,7 +686,7 @@ public:
 
   ~CompareLastFilledBin(){};
 
-  static std::string getAlgoName(void) { return "CompareLastFilledBin"; }
+  static std::string getAlgoName() { return "CompareLastFilledBin"; }
 
   float runTest(const MonitorElement *me);
   void setAverage(float average){_average = average;};
@@ -695,7 +695,7 @@ public:
 
 
 protected :
-  void setMessage(void){
+  void setMessage(){
     std::ostringstream message;
     message << "Test " << qtname_ << " (" << algoName_
             << "): Last Bin filled with desired value = " << prob_;
@@ -748,7 +748,7 @@ class CheckVariance : public SimpleTest
       setAlgoName(getAlgoName());
     }
     /// get algorithm name
-    static std::string getAlgoName(void) { return "CheckVariance"; }
+    static std::string getAlgoName() { return "CheckVariance"; }
     float runTest(const MonitorElement *me) ;
 };
 #endif // DQMSERVICES_CORE_Q_CRITERION_H

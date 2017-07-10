@@ -34,13 +34,13 @@ namespace reco {
       // one past the "last" HPD
       // provides the same functionality as HcalNoiseRBXArray::iterator end()
       // defined already by the base class, to denote that the HPD was not found
-      std::vector<HcalNoiseHPD>::iterator endHPD(void);
-      std::vector<HcalNoiseHPD>::const_iterator endHPD(void) const;
+      std::vector<HcalNoiseHPD>::iterator endHPD();
+      std::vector<HcalNoiseHPD>::const_iterator endHPD() const;
       
       // endRBX() and end() are identical
       // added for symmetry with endHPD()
-      inline HcalNoiseRBXArray::iterator endRBX(void) { return end(); }
-      inline HcalNoiseRBXArray::const_iterator endRBX(void) const { return end(); }
+      inline HcalNoiseRBXArray::iterator endRBX() { return end(); }
+      inline HcalNoiseRBXArray::const_iterator endRBX() const { return end(); }
       
       // search tools to get the appropriate HPD/RBX in the array
       // if input is invalid, returns endHPD() or endRBX() when appropriate

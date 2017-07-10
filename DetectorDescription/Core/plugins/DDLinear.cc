@@ -16,7 +16,7 @@
 #include "Math/GenVector/Cartesian3D.h"
 #include "Math/GenVector/DisplacementVector3D.h"
 
-DDLinear::DDLinear( void )
+DDLinear::DDLinear( )
   : m_n( 1 ),
     m_startCopyNo( 1 ),
     m_incrCopyNo( 1 ),
@@ -27,7 +27,7 @@ DDLinear::DDLinear( void )
   LogDebug( "DDAlgorithm" ) << "DDLinear: Creating an instance.";
 }
 
-DDLinear::~DDLinear( void ) 
+DDLinear::~DDLinear( ) 
 {}
 
 void

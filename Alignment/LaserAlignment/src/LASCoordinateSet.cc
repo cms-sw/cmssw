@@ -80,7 +80,7 @@ void LASCoordinateSet::SetErrors( double aPhiError, double aRError, double aZErr
 ///
 ///
 ///
-void LASCoordinateSet::Dump( void ) {
+void LASCoordinateSet::Dump( ) {
 
   std::cout << " [LASCoordinateSet::Dump] -- phi: " << phi << ", phiE: " << phiError
 	    << ", r: " << r << ", rE: " << rError << ", z: " << z << ", zE: " << zError << " ." << std::endl;

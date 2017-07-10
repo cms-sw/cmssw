@@ -24,7 +24,7 @@ public:
     explicit L1TGlobalPrescalesVetosWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    virtual ~L1TGlobalPrescalesVetosWriter(void){}
+    virtual ~L1TGlobalPrescalesVetosWriter(){}
 };
 
 void L1TGlobalPrescalesVetosWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

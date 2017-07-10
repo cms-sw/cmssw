@@ -22,7 +22,7 @@ void SiPixelSCurveCalibrationAnalysis::calibrationEnd(){
     makeThresholdSummary();
 }
 
-void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(void){
+void SiPixelSCurveCalibrationAnalysis::makeThresholdSummary(){
   std::ofstream myfile;
   myfile.open (thresholdfilename_.c_str());
   for(detIDHistogramMap::iterator  thisDetIdHistoGrams= histograms_.begin();  thisDetIdHistoGrams != histograms_.end(); ++thisDetIdHistoGrams){

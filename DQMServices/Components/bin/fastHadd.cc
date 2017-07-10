@@ -553,7 +553,7 @@ int addFiles(const std::string &output_filename,
 }
 
 static int
-showusage(void)
+showusage()
 {
   static const std::string app_name("fasthadd");
 

@@ -60,7 +60,7 @@ class AlignableCSCRing : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCRing& ); 
 
   /// Recursive printout of the muon CSC Ring structure
-  void dump( void ) const;
+  void dump( ) const;
 
 
 

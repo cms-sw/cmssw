@@ -30,7 +30,7 @@ namespace hcaltb {
   */
   class HcalTBSlowDataUnpacker {
   public:
-    HcalTBSlowDataUnpacker(void) { }
+    HcalTBSlowDataUnpacker() { }
 
     void unpack(const FEDRawData&    raw,
 		HcalTBRunData&            htbrd,

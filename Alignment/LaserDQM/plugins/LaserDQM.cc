@@ -551,7 +551,7 @@ void LaserDQM::beginJob()
   initMonitors();
 }
 
-void LaserDQM::endJob(void)
+void LaserDQM::endJob()
 {
   theDaqMonitorBEI->save(theDQMFileName.c_str());
 }

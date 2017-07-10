@@ -82,7 +82,7 @@ class LMap
 
   // type = "HNEF" or "HO", matters for
   int read( std::string accessor, std::string type = "HBEF" );
-  std::map<int,LMapRow> & get_map( void );
+  std::map<int,LMapRow> & get_map( );
   
  private:
   class impl;
@@ -134,7 +134,7 @@ class EMap
 
   int read_map( std::string filename );
 
-  std::vector<EMap::EMapRow> & get_map( void );
+  std::vector<EMap::EMapRow> & get_map( );
 
  protected:
   std::vector<EMapRow> map;

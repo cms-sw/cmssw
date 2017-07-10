@@ -261,7 +261,7 @@ void Alignable::addRotation( const RotationType& rotation )
 }
 
 //__________________________________________________________________________________________________
-AlignmentSurfaceDeformations* Alignable::surfaceDeformations( void ) const
+AlignmentSurfaceDeformations* Alignable::surfaceDeformations( ) const
 {
 
   typedef std::pair<int,SurfaceDeformation*> IdSurfaceDeformationPtrPair;

@@ -4,7 +4,7 @@
 #include "MagneticField/VolumeGeometry/interface/MagExceptions.h"
 
 void
-LinearGridInterpolator3D::throwGridInterpolator3DException(void)
+LinearGridInterpolator3D::throwGridInterpolator3DException()
 {
   throw GridInterpolator3DException(grida.lower(),gridb.lower(),gridc.lower(),
                                     grida.upper(),gridb.upper(),gridc.upper());

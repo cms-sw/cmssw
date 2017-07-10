@@ -19,7 +19,7 @@ class StorageAccountProxy : public Storage
 {
 public:
   StorageAccountProxy (const std::string &storageClass, std::unique_ptr<Storage> baseStorage);
-  ~StorageAccountProxy (void);
+  ~StorageAccountProxy ();
 
   using Storage::read;
   using Storage::write;
@@ -36,8 +36,8 @@ public:
 
   virtual IOOffset	position (IOOffset offset, Relative whence = SET);
   virtual void		resize (IOOffset size);
-  virtual void		flush (void);
-  virtual void		close (void);
+  virtual void		flush ();
+  virtual void		close ();
 
 protected:
   void releaseStorage() {get_underlying_safe(m_baseStorage).release();}

@@ -40,7 +40,7 @@ TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config,
 }
 
 
-TrajectoryFactoryBase::~TrajectoryFactoryBase( void ) {}
+TrajectoryFactoryBase::~TrajectoryFactoryBase( ) {}
 
 
 const TrajectoryFactoryBase::TrajectoryInput

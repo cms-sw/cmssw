@@ -86,7 +86,7 @@ class TestIsoSimTracks : public edm::EDAnalyzer {
    virtual ~TestIsoSimTracks(){};
 
    virtual void analyze (const edm::Event&, const edm::EventSetup&);
-   void endJob(void);
+   void endJob();
 
  private:
   TFile* m_Hfile;
@@ -277,7 +277,7 @@ void TestIsoSimTracks::analyze( const edm::Event& iEvent, const edm::EventSetup&
 }
 
 
-void TestIsoSimTracks::endJob(void) {
+void TestIsoSimTracks::endJob() {
 
     m_Hfile->cd();
     IsoHists.eta->Write();

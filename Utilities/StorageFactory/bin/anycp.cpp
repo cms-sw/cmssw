@@ -91,7 +91,7 @@ public:
   }
 
   // add a writer (called by thread itself), return thread index....
-  int addWriter (void)
+  int addWriter ()
   {
     ScopedLock wl(wlock);
     m_done.push_back(true);

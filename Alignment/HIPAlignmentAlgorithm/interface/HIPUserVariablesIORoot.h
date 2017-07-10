@@ -40,13 +40,13 @@ class HIPUserVariablesIORoot : public AlignmentIORootBase,
     {newopen=true; return openRoot(filename,iteration,writemode);};
 
   /** close IO */
-  int close(void) {return closeRoot();};
+  int close() {return closeRoot();};
 
   // helper functions
 
   int findEntry(unsigned int detId,int comp);
-  void createBranches(void);
-  void setBranchAddresses(void);
+  void createBranches();
+  void setBranchAddresses();
 
   // data members
 

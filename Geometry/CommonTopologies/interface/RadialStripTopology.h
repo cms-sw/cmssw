@@ -160,7 +160,7 @@ class RadialStripTopology : public StripTopology {
   /** 
    * Phi pitch of each strip (= angular width!)
    */
-  virtual float phiPitch(void) const=0;
+  virtual float phiPitch() const=0;
 
   /** 
    * Length of long symmetry axis of plane of strips

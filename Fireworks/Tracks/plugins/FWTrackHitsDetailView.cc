@@ -257,7 +257,7 @@ FWTrackHitsDetailView::setTextInfo(const FWModelId &id, const reco::Track* track
 }
 
 void
-FWTrackHitsDetailView::makeLegend( void )
+FWTrackHitsDetailView::makeLegend( )
 {
    m_legend = new TLegend( 0.01, 0.01, 0.99, 0.99, 0, "NDC" );
    m_legend->SetFillColor(kWhite);

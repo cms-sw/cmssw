@@ -16,8 +16,8 @@
 class FWTrackingVertexProxyBuilder : public FWSimpleProxyBuilderTemplate<TrackingVertex>
 {
 public:
-   FWTrackingVertexProxyBuilder( void ) {} 
-   virtual ~FWTrackingVertexProxyBuilder( void ) {}
+   FWTrackingVertexProxyBuilder( ) {} 
+   virtual ~FWTrackingVertexProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

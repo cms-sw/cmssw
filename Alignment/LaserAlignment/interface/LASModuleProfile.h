@@ -35,7 +35,7 @@ class LASModuleProfile {
   LASModuleProfile& operator/=( const double );
 
  private:
-  void Init( void );
+  void Init( );
   std::vector<double> data;
 
 };

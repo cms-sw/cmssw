@@ -37,7 +37,7 @@ private:
    using FWDetailView<reco::PFCandidate>::build;
    void build (const FWModelId &id, const reco::PFCandidate*);
    void setTextInfo (const FWModelId &id, const reco::PFCandidate*); 
-   void makeLegend( void );
+   void makeLegend( );
 
    bool isPntInRng(float x, float y);
 

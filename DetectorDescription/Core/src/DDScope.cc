@@ -33,7 +33,7 @@ dd_scope_class DDScopeClassification::operator()( const DDGeoHistory & left,
   return result;
 }
 
-DDScope::DDScope( void )
+DDScope::DDScope( )
  : depth_( 0 )
 {}
 
@@ -43,7 +43,7 @@ DDScope::DDScope( const DDGeoHistory & h, int depth )
   subtrees_.push_back( h );
 }
 
-DDScope::~DDScope( void ) 
+DDScope::~DDScope( ) 
 {}
 
 bool
@@ -105,13 +105,13 @@ DDScope::setDepth( int d )
 }
 
 int
-DDScope::depth( void ) const
+DDScope::depth( ) const
 {
   return depth_;
 }
 
 const DDScope::scope_type &
-DDScope::scope( void ) const
+DDScope::scope( ) const
 {
   return subtrees_;
 }

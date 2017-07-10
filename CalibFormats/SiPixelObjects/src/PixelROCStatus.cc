@@ -48,7 +48,7 @@ void PixelROCStatus::clear(ROCstatus stat){
 
 //======================================================================================
 // Added by Dario (March 4th 2008)
-void PixelROCStatus::reset(void){
+void PixelROCStatus::reset(){
   bits_=0;
 }
 

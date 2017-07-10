@@ -321,7 +321,7 @@ namespace {
   };
 }
 
-void HGCalGeometry::sortDetIds( void ) {
+void HGCalGeometry::sortDetIds( ) {
   m_validIds.shrink_to_fit();
   std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
 }

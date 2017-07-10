@@ -43,7 +43,7 @@ DDDividedPolyhedraRho::DDDividedPolyhedraRho( const DDDivision& div, DDCompactVi
 }
 
 void
-DDDividedPolyhedraRho::checkParametersValidity( void )
+DDDividedPolyhedraRho::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
@@ -72,7 +72,7 @@ DDDividedPolyhedraRho::checkParametersValidity( void )
 }
 
 double
-DDDividedPolyhedraRho::getMaxParameter( void ) const
+DDDividedPolyhedraRho::getMaxParameter( ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   return msol.rMaxVec()[0] - msol.rMinVec()[0];
@@ -162,14 +162,14 @@ DDDividedPolyhedraPhi::DDDividedPolyhedraPhi( const DDDivision& div, DDCompactVi
 }
 
 double
-DDDividedPolyhedraPhi::getMaxParameter( void ) const
+DDDividedPolyhedraPhi::getMaxParameter( ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
   return msol.deltaPhi(); //msol->GetEndPhi() - msol->GetStartPhi();
 }
 
 void
-DDDividedPolyhedraPhi::checkParametersValidity( void )
+DDDividedPolyhedraPhi::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
   
@@ -285,7 +285,7 @@ DDDividedPolyhedraZ::DDDividedPolyhedraZ( const DDDivision& div, DDCompactView* 
 }
 
 double
-DDDividedPolyhedraZ::getMaxParameter( void ) const
+DDDividedPolyhedraZ::getMaxParameter( ) const
 {
   DDPolyhedra msol = (DDPolyhedra)(div_.parent().solid());
 
@@ -294,7 +294,7 @@ DDDividedPolyhedraZ::getMaxParameter( void ) const
 }
 
 void
-DDDividedPolyhedraZ::checkParametersValidity( void )
+DDDividedPolyhedraZ::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
 

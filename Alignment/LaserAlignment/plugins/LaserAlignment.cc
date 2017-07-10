@@ -1241,7 +1241,7 @@ void LaserAlignment::fillPedestalProfiles( edm::ESHandle<SiStripPedestals>& pede
 /// operates on LASGlobalData<int> LaserAlignment::isAcceptedProfile
 /// to allow for more elaborate patterns in the future
 ///
-bool LaserAlignment::isTECBeam( void ) {
+bool LaserAlignment::isTECBeam( ) {
   
   int numberOfProfiles = 0;
 
@@ -1272,7 +1272,7 @@ bool LaserAlignment::isTECBeam( void ) {
 /// to allow for more elaborate patterns in the future
 ///
 
-bool LaserAlignment::isATBeam( void ) {
+bool LaserAlignment::isATBeam( ) {
 
   int numberOfProfiles = 0;
 
@@ -1356,7 +1356,7 @@ double LaserAlignment::getTEC2TECNominalBeamOffset( unsigned int det, unsigned i
 ///
 ///
 ///
-void LaserAlignment::CalculateNominalCoordinates( void ) {
+void LaserAlignment::CalculateNominalCoordinates( ) {
 
   //
   // hard coded data yet...
@@ -1710,7 +1710,7 @@ void LaserAlignment::ApplyATMaskingCorrections( LASGlobalData<LASCoordinateSet>&
 /// this function is for debugging and testing only
 /// and will disappear..
 ///
-void LaserAlignment::testRoutine( void ) {
+void LaserAlignment::testRoutine( ) {
 
 
   // tracker geom. object for calculating the global beam positions

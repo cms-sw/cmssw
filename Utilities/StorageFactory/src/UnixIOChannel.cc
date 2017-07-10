@@ -123,7 +123,7 @@ IOChannel::setBlocking (bool value)
 }
 
 bool
-IOChannel::isBlocking (void) const
+IOChannel::isBlocking () const
 {
 #ifdef O_NONBLOCK
   int mode;

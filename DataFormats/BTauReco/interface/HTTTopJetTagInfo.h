@@ -71,11 +71,11 @@ public:
   typedef edm::RefToBase<Jet> jet_type;
   typedef HTTTopJetProperties  properties_type;
     
-    HTTTopJetTagInfo(void) {}
+    HTTTopJetTagInfo() {}
 
-    virtual ~HTTTopJetTagInfo(void) {}
+    virtual ~HTTTopJetTagInfo() {}
   
-    virtual HTTTopJetTagInfo* clone(void) const { return new HTTTopJetTagInfo(*this); }
+    virtual HTTTopJetTagInfo* clone() const { return new HTTTopJetTagInfo(*this); }
     
     const properties_type & properties() const {
       return properties_;

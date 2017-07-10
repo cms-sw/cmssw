@@ -28,7 +28,7 @@ using namespace std;
 using namespace oracle::occi;
 using namespace hcal;
 
-HCALConfigDB::HCALConfigDB( void )
+HCALConfigDB::HCALConfigDB( )
 {    
   database = 0;
   database2 = 0;
@@ -42,7 +42,7 @@ HCALConfigDB::HCALConfigDB( std::string _accessor )
 }
 
 
-HCALConfigDB::~HCALConfigDB( void )
+HCALConfigDB::~HCALConfigDB( )
 {    
   delete database;
   delete database2;
@@ -97,7 +97,7 @@ void HCALConfigDB::connect( std::string _accessor1, std::string _accessor2 )
 
 
 
-void HCALConfigDB::disconnect( void )
+void HCALConfigDB::disconnect( )
 {
   if ( database != NULL ) database -> disconnect();
   if ( database2 != NULL ) database2 -> disconnect();
@@ -285,11 +285,11 @@ std::vector<unsigned int> HCALConfigDB::getOnlineLUTFromXML( std::string tag, ui
 }
 
 
-oracle::occi::Connection * HCALConfigDB::getConnection( void ){
+oracle::occi::Connection * HCALConfigDB::getConnection( ){
   return database -> getConnection();
 }
 
-oracle::occi::Environment * HCALConfigDB::getEnvironment( void ){
+oracle::occi::Environment * HCALConfigDB::getEnvironment( ){
   return database -> getEnvironment();
 }
 

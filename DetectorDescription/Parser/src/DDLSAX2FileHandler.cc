@@ -17,14 +17,14 @@ DDLSAX2FileHandler::DDLSAX2FileHandler( DDCompactView & cpv )
 }
 
 void
-DDLSAX2FileHandler::init( void )
+DDLSAX2FileHandler::init( )
 {
   createDDConstants();
   namesMap_.push_back("*** root ***");
   names_.push_back(namesMap_.size() - 1);
 }
 
-DDLSAX2FileHandler::~DDLSAX2FileHandler( void )
+DDLSAX2FileHandler::~DDLSAX2FileHandler( )
 {}
 
 void
@@ -117,13 +117,13 @@ DDLSAX2FileHandler::comment( const XMLCh* const chars,
 {}
 
 void
-DDLSAX2FileHandler::createDDConstants( void ) const
+DDLSAX2FileHandler::createDDConstants( ) const
 {
   DDConstant::createConstantsFromEvaluator();
 }
 
 const std::string&
-DDLSAX2FileHandler::parent( void ) const
+DDLSAX2FileHandler::parent( ) const
 {
   if (names_.size() > 2)
   {
@@ -133,7 +133,7 @@ DDLSAX2FileHandler::parent( void ) const
 }
 
 const std::string&
-DDLSAX2FileHandler::self( void ) const
+DDLSAX2FileHandler::self( ) const
 {
   if (names_.size() > 1) {
     return namesMap_.at(names_.at(names_.size() - 1));

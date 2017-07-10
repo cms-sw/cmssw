@@ -16,7 +16,7 @@ public:
 
     explicit L1TriggerKeyExtReader(const edm::ParameterSet &pset) : edm::EDAnalyzer(),
         label( pset.getParameter< std::string >( "label" ) ) {}
-    virtual ~L1TriggerKeyExtReader(void){}
+    virtual ~L1TriggerKeyExtReader(){}
 };
 
 #include <iostream>

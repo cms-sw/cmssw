@@ -15,7 +15,7 @@ class DDAlgorithm
   friend class  DDAlgorithmHandler;
   
  public:
-  virtual ~DDAlgorithm( void );
+  virtual ~DDAlgorithm( );
   //! fetch the algorithm parameters 
   /** an implementation of the initialize() method should initialize the algorithm
       by processing the provided parameters. Typically, data members of the

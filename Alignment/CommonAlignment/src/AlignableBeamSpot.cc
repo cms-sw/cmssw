@@ -97,7 +97,7 @@ void AlignableBeamSpot::addSurfaceDeformation(const SurfaceDeformation*, bool)
 }
 
 //__________________________________________________________________________________________________
-void AlignableBeamSpot::dump( void ) const
+void AlignableBeamSpot::dump( ) const
 {
   // Dump this
 
@@ -134,7 +134,7 @@ Alignments* AlignableBeamSpot::alignments() const
 }
 
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableBeamSpot::alignmentErrors( ) const
 {
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 

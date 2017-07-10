@@ -23,8 +23,8 @@
 class FWSiStripDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWSiStripDigiProxyBuilder( void ) {}
-  virtual ~FWSiStripDigiProxyBuilder( void ) {}
+  FWSiStripDigiProxyBuilder( ) {}
+  virtual ~FWSiStripDigiProxyBuilder( ) {}
 
   REGISTER_PROXYBUILDER_METHODS();
 

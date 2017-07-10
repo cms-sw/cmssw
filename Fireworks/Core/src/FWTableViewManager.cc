@@ -402,7 +402,7 @@ FWTableViewManager::newItem(const FWEventItem* iItem)
 
 /** Tell the views to update their item list. */
 void
-FWTableViewManager::notifyViews(void)
+FWTableViewManager::notifyViews()
 {
    for(size_t i = 0, e = m_views.size(); i != e; ++i)
    { 
@@ -437,7 +437,7 @@ FWTableViewManager::destroyItem(const FWEventItem *iItem)
     This should watch the FWEventItemsManager::goingToClearItems_ signal.
   */
 void
-FWTableViewManager::removeAllItems(void)
+FWTableViewManager::removeAllItems()
 {
    m_items.clear();
    notifyViews();

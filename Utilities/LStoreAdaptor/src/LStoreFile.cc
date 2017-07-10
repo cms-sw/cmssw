@@ -15,7 +15,7 @@
 // dlsym isn't reentrant, need a locak around it
 pthread_mutex_t LStoreFile::m_dlopen_lock = PTHREAD_MUTEX_INITIALIZER;
 
-LStoreFile::LStoreFile (void)
+LStoreFile::LStoreFile ()
   : m_fd (0),
     m_close (false),
     m_name(),
@@ -71,7 +71,7 @@ LStoreFile::LStoreFile (const std::string &name,
 {   loadLibrary();
 	open (name.c_str (), flags, perms); }
 
-LStoreFile::~LStoreFile (void)
+LStoreFile::~LStoreFile ()
 {
   if (m_close)
     edm::LogError("LStoreFileError")
@@ -250,7 +250,7 @@ LStoreFile::open (const char *name,
 }
 
 void
-LStoreFile::close (void)
+LStoreFile::close ()
 {
   if (m_fd == NULL)
   {
@@ -275,7 +275,7 @@ LStoreFile::close (void)
 }
 
 void
-LStoreFile::abort (void)
+LStoreFile::abort ()
 {
   if (m_fd != NULL)
     (*redd_close) (m_fd);

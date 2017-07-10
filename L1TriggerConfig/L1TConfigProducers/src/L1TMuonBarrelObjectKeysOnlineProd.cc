@@ -9,7 +9,7 @@ public:
     virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TMuonBarrelObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonBarrelObjectKeysOnlineProd(void){}
+    ~L1TMuonBarrelObjectKeysOnlineProd(){}
 };
 
 L1TMuonBarrelObjectKeysOnlineProd::L1TMuonBarrelObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

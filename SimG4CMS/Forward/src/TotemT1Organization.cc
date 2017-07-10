@@ -88,7 +88,7 @@ uint32_t TotemT1Organization :: GetUnitID(const G4Step* aStep) {
   return GetCurrentUnitID();
 }
 
-int TotemT1Organization :: GetCurrentUnitID(void) const {
+int TotemT1Organization :: GetCurrentUnitID() const {
 
   _checkUnitIDUpdate();
 #ifdef SCRIVI
@@ -107,7 +107,7 @@ void TotemT1Organization :: SetCurrentUnitID(int currentUnitID) {
   _needUpdateData=true;
 }
 
-int  TotemT1Organization :: GetCurrentDetectorPosition(void) const {
+int  TotemT1Organization :: GetCurrentDetectorPosition() const {
 
   _checkDataUpdate();
 #ifdef SCRIVI
@@ -126,7 +126,7 @@ void TotemT1Organization :: SetCurrentDetectorPosition(int currentDetectorPositi
   _needUpdateUnitID=true;
 }
 
-int TotemT1Organization :: GetCurrentPlane(void) const {
+int TotemT1Organization :: GetCurrentPlane() const {
 
   _checkDataUpdate();
 
@@ -145,7 +145,7 @@ void TotemT1Organization :: SetCurrentPlane(int currentPlane) {
   _needUpdateUnitID=true;
 }
 
-int TotemT1Organization :: GetCurrentCSC(void) const {
+int TotemT1Organization :: GetCurrentCSC() const {
 
   _checkDataUpdate();
 #ifdef SCRIVI
@@ -163,7 +163,7 @@ void TotemT1Organization :: SetCurrentCSC(int currentCSC) {
   _needUpdateUnitID=true; 
 }
 
-int TotemT1Organization :: GetCurrentLayer(void) const {
+int TotemT1Organization :: GetCurrentLayer() const {
 
   _checkDataUpdate();
 #ifdef SCRIVI
@@ -181,7 +181,7 @@ void TotemT1Organization :: SetCurrentLayer(int currentLayer) {
   _needUpdateUnitID=true;
 }
 
-TotemT1Organization::ObjectType  TotemT1Organization :: GetCurrentObjectType(void) const {
+TotemT1Organization::ObjectType  TotemT1Organization :: GetCurrentObjectType() const {
   
  _checkDataUpdate();
 #ifdef SCRIVI
@@ -219,7 +219,7 @@ int TotemT1Organization :: FromObjectTypeToInt(ObjectType objectType, int layer)
 // private member functions
 //
 
-void TotemT1Organization :: _checkUnitIDUpdate(void) const {
+void TotemT1Organization :: _checkUnitIDUpdate() const {
   if (_needUpdateUnitID) {
 #ifdef SCRIVI
     LogDebug("ForwardSim") << "UnitID update needed.";
@@ -232,7 +232,7 @@ void TotemT1Organization :: _checkUnitIDUpdate(void) const {
   }
 }
 
-void TotemT1Organization :: _checkDataUpdate(void) const {
+void TotemT1Organization :: _checkDataUpdate() const {
 
   if (_needUpdateData) {
 #ifdef SCRIVI
@@ -246,7 +246,7 @@ void TotemT1Organization :: _checkDataUpdate(void) const {
   }
 }
 
-void TotemT1Organization :: _FromUnitIDToData(void) {
+void TotemT1Organization :: _FromUnitIDToData() {
 
   int currDP, currCSC, currOT, currPLA;
   unsigned long currPL, currLA;
@@ -296,7 +296,7 @@ void TotemT1Organization :: _FromUnitIDToData(void) {
   _needUpdateData=false;
 }
 
-void TotemT1Organization :: _FromDataToUnitID(void) {
+void TotemT1Organization :: _FromDataToUnitID() {
   int currDP, currPL, currCSC, currLA, currOT;
 #ifdef SCRIVI
   LogDebug("ForwardSim") << " CURRENT DETECTOR POSITION (0-3) " 

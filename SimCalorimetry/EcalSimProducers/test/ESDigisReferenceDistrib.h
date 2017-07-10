@@ -42,7 +42,7 @@ class ESDigisReferenceDistrib: public edm::EDAnalyzer{
   void beginJob();
   
   // EndJob
-  void endJob(void);
+  void endJob();
   
  private:
   

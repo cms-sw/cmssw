@@ -29,7 +29,7 @@ public:
     virtual std::shared_ptr<l1t::CaloParams> newObject(const std::string& objectKey, const L1TCaloParamsO2ORcd& record) override ;
 
     L1TCaloParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TCaloParamsOnlineProd(void){}
+    ~L1TCaloParamsOnlineProd(){}
 };
 
 bool

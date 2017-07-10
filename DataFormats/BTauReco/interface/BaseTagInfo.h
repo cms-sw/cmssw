@@ -11,32 +11,32 @@ namespace reco {
  
 class BaseTagInfo {
 public:
-  BaseTagInfo(void) { }
+  BaseTagInfo() { }
 
-  virtual ~BaseTagInfo(void) { }
+  virtual ~BaseTagInfo() { }
 
   /// clone
-  virtual BaseTagInfo * clone(void) const {
+  virtual BaseTagInfo * clone() const {
     return new BaseTagInfo(*this);
   }
   
   /// returns a polymorphic reference to the tagged jet
-  virtual edm::RefToBase<Jet> jet(void) const { 
+  virtual edm::RefToBase<Jet> jet() const { 
     return edm::RefToBase<Jet>() ; 
   }
 
   /// returns a list of tracks associated to the jet
-  virtual TrackRefVector tracks(void) const {
+  virtual TrackRefVector tracks() const {
     return TrackRefVector();
   }
 
   /// check if the algorithm is using the tracks or not
-  virtual bool hasTracks(void) const {
+  virtual bool hasTracks() const {
     return false;
   }
   
   /// returns a description of the extended informations in a TaggingVariableList
-  virtual TaggingVariableList taggingVariables(void) const {
+  virtual TaggingVariableList taggingVariables() const {
     return TaggingVariableList();
   }
 };

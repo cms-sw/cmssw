@@ -18,11 +18,11 @@ class testCons : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testCons::matched_g4_and_dd( void )
+testCons::matched_g4_and_dd( )
 {
   double rIn1 = 10.*cm;
   double rOut1 = 15.*cm;

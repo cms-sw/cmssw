@@ -27,21 +27,21 @@ private:
 
 public:
 
-	unsigned short slot(void) const throw() { return sp_slot; }
-	unsigned short BXN (void) const throw() { return l1a_bxn;  }
-	unsigned short FMM (void) const throw() { return fmm_status; }
-	unsigned short SEs (void) const throw() { return se; }
-	unsigned short SMs (void) const throw() { return sm; }
-	unsigned long  BXs (void) const throw() { return bx; }
-	unsigned long  AFs (void) const throw() { return af; }
-	unsigned long  VPs (void) const throw() { return vp; }
+	unsigned short slot() const throw() { return sp_slot; }
+	unsigned short BXN () const throw() { return l1a_bxn;  }
+	unsigned short FMM () const throw() { return fmm_status; }
+	unsigned short SEs () const throw() { return se; }
+	unsigned short SMs () const throw() { return sm; }
+	unsigned long  BXs () const throw() { return bx; }
+	unsigned long  AFs () const throw() { return af; }
+	unsigned long  VPs () const throw() { return vp; }
 	unsigned short link(int link) const throw() { return link_status[link]; }
 
-	unsigned long track_counter(void) const throw() { return track_cnt; }
-	unsigned long orbit_counter(void) const throw() { return orbit_cnt; }
+	unsigned long track_counter() const throw() { return track_cnt; }
+	unsigned long orbit_counter() const throw() { return orbit_cnt; }
 
-	L1CSCSPStatusDigi(void){ bzero(this,sizeof(L1CSCSPStatusDigi)); }
-	~L1CSCSPStatusDigi(void){}
+	L1CSCSPStatusDigi(){ bzero(this,sizeof(L1CSCSPStatusDigi)); }
+	~L1CSCSPStatusDigi(){}
 };
 
 #endif

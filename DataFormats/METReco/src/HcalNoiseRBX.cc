@@ -25,12 +25,12 @@ HcalNoiseRBX::~HcalNoiseRBX()
 }
 
 // accessors
-int HcalNoiseRBX::idnumber(void) const
+int HcalNoiseRBX::idnumber() const
 {
   return idnumber_;
 }
 
-const std::vector<HcalNoiseHPD> HcalNoiseRBX::HPDs(void) const
+const std::vector<HcalNoiseHPD> HcalNoiseRBX::HPDs() const
 {
   return hpds_;
 }
@@ -49,12 +49,12 @@ std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBX::maxHPD(double threshold)
   return maxit;
 }
 
-const std::vector<float> HcalNoiseRBX::allCharge(void) const
+const std::vector<float> HcalNoiseRBX::allCharge() const
 {
   return allCharge_;
 }
 
-float HcalNoiseRBX::allChargeTotal(void) const
+float HcalNoiseRBX::allChargeTotal() const
 {
   float total=0;
   for(unsigned int i=0; i<allCharge_.size(); i++)
@@ -79,7 +79,7 @@ float HcalNoiseRBX::allChargeHighest3TS(unsigned int firstts) const
 }
   
 
-int HcalNoiseRBX::totalZeros(void) const
+int HcalNoiseRBX::totalZeros() const
 {
   int tot=0;
   for(unsigned int i=0; i<hpds_.size(); i++)
@@ -87,7 +87,7 @@ int HcalNoiseRBX::totalZeros(void) const
   return tot;
 }
 
-int HcalNoiseRBX::maxZeros(void) const
+int HcalNoiseRBX::maxZeros() const
 {
   int max=0;
   for(unsigned int i=0; i<hpds_.size(); i++)
@@ -148,7 +148,7 @@ int HcalNoiseRBX::numRecHitsFailR45(double threshold) const
   return total;
 }
 
-double HcalNoiseRBX::caloTowerHadE(void) const
+double HcalNoiseRBX::caloTowerHadE() const
 {
   double h=0;
   towerset_t twrs;
@@ -159,7 +159,7 @@ double HcalNoiseRBX::caloTowerHadE(void) const
   return h;
 }
 
-double HcalNoiseRBX::caloTowerEmE(void) const
+double HcalNoiseRBX::caloTowerEmE() const
 {
   double e=0;
   towerset_t twrs;
@@ -170,7 +170,7 @@ double HcalNoiseRBX::caloTowerEmE(void) const
   return e;
 }
 
-double HcalNoiseRBX::caloTowerTotalE(void) const
+double HcalNoiseRBX::caloTowerTotalE() const
 {
   double e=0;
   towerset_t twrs;
@@ -181,7 +181,7 @@ double HcalNoiseRBX::caloTowerTotalE(void) const
   return e;
 }
 
-double HcalNoiseRBX::caloTowerEmFraction(void) const
+double HcalNoiseRBX::caloTowerEmFraction() const
 {
   double e=0, h=0;
   towerset_t twrs;

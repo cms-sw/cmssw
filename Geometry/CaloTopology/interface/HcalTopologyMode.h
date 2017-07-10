@@ -12,7 +12,7 @@ class StringToEnumParser
     std::map< std::string, T > enumMap;
 public:
     
-    StringToEnumParser( void );
+    StringToEnumParser( );
 
     T parseString( const std::string &value )
 	{ 

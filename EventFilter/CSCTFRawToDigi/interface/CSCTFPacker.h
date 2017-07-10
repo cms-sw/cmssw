@@ -38,7 +38,7 @@ public:
 	virtual void produce(edm::Event& e, const edm::EventSetup& c) override;
 
 	explicit CSCTFPacker(const edm::ParameterSet &conf);
-	~CSCTFPacker(void);
+	~CSCTFPacker();
 };
 
 #endif

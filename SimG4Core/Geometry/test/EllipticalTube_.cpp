@@ -18,11 +18,11 @@ class testEllipticalTube : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testEllipticalTube::matched_g4_and_dd( void )
+testEllipticalTube::matched_g4_and_dd( )
 {
   double xSemiAxis = 3.0*cm;
   double ySemiAxis = 2.0*cm;

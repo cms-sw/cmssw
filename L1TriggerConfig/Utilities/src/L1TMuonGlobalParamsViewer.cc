@@ -31,7 +31,7 @@ public:
     explicit L1TMuonGlobalParamsViewer(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
 //       printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
     }
-    virtual ~L1TMuonGlobalParamsViewer(void){}
+    virtual ~L1TMuonGlobalParamsViewer(){}
 };
 
 #include <openssl/sha.h>

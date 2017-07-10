@@ -22,8 +22,8 @@ class Storage : public virtual IOInput, public virtual IOOutput
 public:
   enum Relative { SET, CURRENT, END };
 
-  Storage (void);
-  virtual ~Storage (void);
+  Storage ();
+  virtual ~Storage ();
 
   using IOInput::read;
   using IOInput::readv;
@@ -38,17 +38,17 @@ public:
   IOSize		write (IOBuffer from, IOOffset pos);
   virtual IOSize	writev (const IOPosBuffer *from, IOSize buffers);
 
-  virtual bool		eof (void) const;
-  virtual IOOffset	size (void) const;
-  virtual IOOffset	position (void) const;
+  virtual bool		eof () const;
+  virtual IOOffset	size () const;
+  virtual IOOffset	position () const;
   virtual IOOffset	position (IOOffset offset, Relative whence = SET) = 0;
 
-  virtual void		rewind (void);
+  virtual void		rewind ();
 
   virtual void		resize (IOOffset size) = 0;
 
-  virtual void		flush (void);
-  virtual void		close (void);
+  virtual void		flush ();
+  virtual void		close ();
 
 private:
   // undefined, no semantics

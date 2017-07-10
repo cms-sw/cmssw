@@ -508,7 +508,7 @@ void LaserAlignmentT0ProducerDQM::FillFromProcessedDigis( const edm::DetSetVecto
 /// ugly code duplication but the deadline approaches..
 /// LATER must make this code somehow common to both LaserAlignment and LaserAlignmentT0ProducerDQM
 ///
-void LaserAlignmentT0ProducerDQM::FillDetectorId( void ) {
+void LaserAlignmentT0ProducerDQM::FillDetectorId( ) {
   
   // these are the detids of the TEC modules hit
   // by the AT as well as the TEC beams

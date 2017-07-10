@@ -31,7 +31,7 @@ public:
   TStorageFactoryFile(const char *name, Option_t *option = "",
                       const char *ftitle = "", Int_t compress = 1);
 
-  ~TStorageFactoryFile(void);
+  ~TStorageFactoryFile();
 
   virtual Bool_t	ReadBuffer(char *buf, Int_t len);
   virtual Bool_t	ReadBuffer(char *buf, Long64_t pos, Int_t len);
@@ -39,7 +39,7 @@ public:
   virtual Bool_t	ReadBuffers(char *buf,  Long64_t *pos, Int_t *len, Int_t nbuf);
   virtual Bool_t	WriteBuffer(const char *buf, Int_t len);
 
-  void			ResetErrno(void) const;
+  void			ResetErrno() const;
 
 protected:
   virtual Int_t		SysOpen(const char *pathname, Int_t flags, UInt_t mode);
@@ -55,7 +55,7 @@ private:
 
   void                  releaseStorage() {get_underlying_safe(storage_).release();}
 
-  TStorageFactoryFile(void);
+  TStorageFactoryFile();
 
   edm::propagate_const<std::unique_ptr<Storage>> storage_; //< Real underlying storage
 };

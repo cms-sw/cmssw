@@ -123,28 +123,28 @@ double calibrate_tsc_hz() {
 
 
 // new processors can use rdtscp;
-uint64_t serialising_rdtscp(void)
+uint64_t serialising_rdtscp()
 {
     unsigned int id;
     return rdtscp(& id);
 }
 
 // older Intel processors can use lfence; rdtsc;
-uint64_t serialising_rdtsc_lfence(void)
+uint64_t serialising_rdtsc_lfence()
 {
     _mm_lfence();
     return rdtsc();
 }
 
 // older AMD processors can use mfence; rdtsc;
-uint64_t serialising_rdtsc_mfence(void)
+uint64_t serialising_rdtsc_mfence()
 {
     _mm_mfence();
     return rdtsc();
 }
 
 // very old processors do not have a TSC
-uint64_t serialising_rdtsc_unimplemented(void)
+uint64_t serialising_rdtsc_unimplemented()
 {
     return 0;
 }
@@ -161,7 +161,7 @@ namespace {
 
 extern "C" {
 
-  static uint64_t (*serialising_rdtsc_resolver(void))(void)
+  static uint64_t (*serialising_rdtsc_resolver())()
   {
     if (not tsc_allowed())
       return serialising_rdtsc_unimplemented;
@@ -198,7 +198,7 @@ uint64_t serialising_rdtsc(void) __attribute__((ifunc("serialising_rdtsc_resolve
 
 #else
 
-uint64_t (*serialising_rdtsc)(void) = serialising_rdtsc_resolver();
+uint64_t (*serialising_rdtsc)() = serialising_rdtsc_resolver();
 
 #endif // IFUNC support
 

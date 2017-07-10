@@ -19,12 +19,12 @@
 class FWTracksModulesProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
-   FWTracksModulesProxyBuilder( void ) {}
-   virtual ~FWTracksModulesProxyBuilder( void ) {}
+   FWTracksModulesProxyBuilder( ) {}
+   virtual ~FWTracksModulesProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
   
-   static bool representsSubPart( void );
+   static bool representsSubPart( );
 private:
    using FWSimpleProxyBuilderTemplate<reco::Track>::build;
    void build( const reco::Track& iData, unsigned int iIndex, TEveElement& oItemHolder, const FWViewContext* ) override;
@@ -69,7 +69,7 @@ FWTracksModulesProxyBuilder::build( const reco::Track& track, unsigned int iInde
 }
 
 bool
-FWTracksModulesProxyBuilder::representsSubPart( void )
+FWTracksModulesProxyBuilder::representsSubPart( )
 {
    return true;
 }

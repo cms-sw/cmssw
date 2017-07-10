@@ -56,39 +56,39 @@ private:
 	unsigned int id_;   // track number (1, 2, or 3)
 
 public:
-	bool check(void) const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0||zero_5!=0; }
+	bool check() const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0||zero_5!=0; }
 
-	unsigned int phi   (void) const throw() { return phi_;    }
-	unsigned int sign  (void) const throw() { return sign_;   }
-	unsigned int f_r   (void) const throw() { return front_rear; };
-	unsigned int charge(void) const throw() { return charge_; }
-	unsigned int eta   (void) const throw() { return eta_;    }
-	unsigned int halo  (void) const throw() { return halo_;   }
-	unsigned int syncErr(void)const throw() { return se;      }
+	unsigned int phi   () const throw() { return phi_;    }
+	unsigned int sign  () const throw() { return sign_;   }
+	unsigned int f_r   () const throw() { return front_rear; };
+	unsigned int charge() const throw() { return charge_; }
+	unsigned int eta   () const throw() { return eta_;    }
+	unsigned int halo  () const throw() { return halo_;   }
+	unsigned int syncErr()const throw() { return se;      }
 
-	unsigned int deltaPhi12(void) const throw() { return deltaPhi12_; }
-	unsigned int deltaPhi23(void) const throw() { return deltaPhi23_; }
-	unsigned int bx0       (void) const throw() { return bxn0_;   }
-	unsigned int bc0       (void) const throw() { return bc0_;    }
+	unsigned int deltaPhi12() const throw() { return deltaPhi12_; }
+	unsigned int deltaPhi23() const throw() { return deltaPhi23_; }
+	unsigned int bx0       () const throw() { return bxn0_;   }
+	unsigned int bc0       () const throw() { return bc0_;    }
 
-	unsigned int ME1_id(void) const throw() { return me1_id; }
-	unsigned int ME2_id(void) const throw() { return me2_id; }
-	unsigned int ME3_id(void) const throw() { return me3_id; }
-	unsigned int ME4_id(void) const throw() { return me4_id; }
-	unsigned int MB_id (void) const throw() { return mb_id;  }
-	unsigned int MS_id (void) const throw() { return ms_id;  }
+	unsigned int ME1_id() const throw() { return me1_id; }
+	unsigned int ME2_id() const throw() { return me2_id; }
+	unsigned int ME3_id() const throw() { return me3_id; }
+	unsigned int ME4_id() const throw() { return me4_id; }
+	unsigned int MB_id () const throw() { return mb_id;  }
+	unsigned int MS_id () const throw() { return ms_id;  }
 
-	unsigned int ME1_tbin(void) const throw() { return me1_tbin; }
-	unsigned int ME2_tbin(void) const throw() { return me2_tbin; }
-	unsigned int ME3_tbin(void) const throw() { return me3_tbin; }
-	unsigned int ME4_tbin(void) const throw() { return me4_tbin; }
-	unsigned int MB_tbin (void) const throw() { return mb_tbin;  }
+	unsigned int ME1_tbin() const throw() { return me1_tbin; }
+	unsigned int ME2_tbin() const throw() { return me2_tbin; }
+	unsigned int ME3_tbin() const throw() { return me3_tbin; }
+	unsigned int ME4_tbin() const throw() { return me4_tbin; }
+	unsigned int MB_tbin () const throw() { return mb_tbin;  }
 
-	unsigned int tbin(void) const throw() { return tbin_; }
-	unsigned int id  (void) const throw() { return id_;   }
+	unsigned int tbin() const throw() { return tbin_; }
+	unsigned int id  () const throw() { return id_;   }
 
 	// vector may have up to 4 elements (one per station)
-	std::vector<CSCSP_MEblock> LCTs(void) const throw() {
+	std::vector<CSCSP_MEblock> LCTs() const throw() {
 		std::vector<CSCSP_MEblock> result;
 		for(int station=0; station<4; station++)
 			if(lctFilled[station]) result.push_back(lct_[station]);
@@ -96,18 +96,18 @@ public:
 	}
 
 	// vector either empty or has one element
-	std::vector<CSCSP_MBblock> dtStub(void) const throw() {
+	std::vector<CSCSP_MBblock> dtStub() const throw() {
 		std::vector<CSCSP_MBblock> result;
 		if(dtFilled) result.push_back(dt_);
 		return result;
 	}
 
-	unsigned int ptLUTaddress(void) const throw() { return (sign_<<20) | (mode_<<16) | ((eta_&0x1E)<<11) | (deltaPhi23_<<8) | deltaPhi12_; }
-	unsigned int mode        (void) const throw() { return mode_; }
+	unsigned int ptLUTaddress() const throw() { return (sign_<<20) | (mode_<<16) | ((eta_&0x1E)<<11) | (deltaPhi23_<<8) | deltaPhi12_; }
+	unsigned int mode        () const throw() { return mode_; }
 
 	bool unpack(const unsigned short *&buf) throw() { memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
 
-	CSCSP_SPblock(void){}
+	CSCSP_SPblock(){}
 };
 
 #endif

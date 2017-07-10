@@ -740,7 +740,7 @@ void HcalDDDRecConstants::getOneEtaBin(HcalSubdetector subdet, int ieta, int zsi
 #endif
 }
 
-void HcalDDDRecConstants::initialize(void) {
+void HcalDDDRecConstants::initialize() {
 
   //Eta grouping
   int nEta  = (int)(hpar->etagroup.size());

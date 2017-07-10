@@ -76,7 +76,7 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
   m_radlen_vs_r->SetDirectory( 0 );
 }
 
-MaterialAccountingGroup::~MaterialAccountingGroup(void)
+MaterialAccountingGroup::~MaterialAccountingGroup()
 {
   delete m_dedx_spectrum;
   delete m_dedx_vs_eta;
@@ -143,7 +143,7 @@ bool MaterialAccountingGroup::addDetector( const MaterialAccountingDetector& det
   return true;
 }
 
-void MaterialAccountingGroup::endOfTrack(void) {
+void MaterialAccountingGroup::endOfTrack() {
   // add a detector
   if (m_counted) {
     m_accounting += m_buffer;
@@ -208,7 +208,7 @@ void MaterialAccountingGroup::savePlot(TProfile * plot, float average, const std
 }
 
 /// get some infos
-std::string MaterialAccountingGroup::info(void) const
+std::string MaterialAccountingGroup::info() const
 {
   std::stringstream out;
   out << std::setw(48) << std::left << m_name << std::right << std::fixed;;
@@ -219,7 +219,7 @@ std::string MaterialAccountingGroup::info(void) const
 }
 
 
-void MaterialAccountingGroup::savePlots(void)
+void MaterialAccountingGroup::savePlots()
 {
   m_file = new TFile((m_name + ".root").c_str(), "RECREATE");
   savePlot(m_dedx_spectrum,   m_name + "_dedx_spectrum");

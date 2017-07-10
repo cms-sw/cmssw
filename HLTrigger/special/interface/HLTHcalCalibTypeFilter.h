@@ -48,7 +48,7 @@ public:
   
 private:
   virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
-  virtual void endJob(void) override;
+  virtual void endJob() override;
   
   // ----------member data ---------------------------
   const edm::EDGetTokenT<FEDRawDataCollection> DataInputToken_;

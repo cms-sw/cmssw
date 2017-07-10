@@ -111,7 +111,7 @@ DDValue::DDValue( unsigned int i )
 }
 
 DDValue::NamesToIndicies&
-DDValue::indexer( void )
+DDValue::indexer( )
 { 
   static NamesToIndicies indexer_;
   return indexer_;
@@ -127,14 +127,14 @@ DDValue::Names DDValue::initializeNames() {
 }
 
 DDValue::Names&
-DDValue::names( void )
+DDValue::names( )
 {
   static Names names_{ initializeNames() };
   return names_;
 } 
 
 const std::vector<double> &
-DDValue::doubles( void ) const 
+DDValue::doubles( ) const 
 { 
   if( vecPair_->first )
   {
@@ -198,7 +198,7 @@ DDValue::setEvalState( bool newState )
 }
 
 bool
-DDValue::isEvaluated( void ) const
+DDValue::isEvaluated( ) const
 {
   return vecPair_->first;
 }

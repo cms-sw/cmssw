@@ -105,12 +105,12 @@ class CSCReadoutMapping {
     /**
      * Status of debug printout flag
      */
-    bool debugV( void ) const { return debugV_; }
+    bool debugV( ) const { return debugV_; }
 
     /**
      * Return class name
      */
-    const std::string& myName( void ) const { return myName_; }
+    const std::string& myName( ) const { return myName_; }
 
  private: 
 

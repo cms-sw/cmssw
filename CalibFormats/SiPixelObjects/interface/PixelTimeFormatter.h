@@ -37,7 +37,7 @@ namespace pos{
 
     virtual ~PixelTimeFormatter() = default;
     
-    void stopTimer(void) 
+    void stopTimer() 
     {
      if( !USE_TIMER_ ) return ;
      endTime_ = getImSecTime() ;
@@ -54,7 +54,7 @@ namespace pos{
                                 ) const {;}
 
     //---------------------------------------------------------------------------------
-    static std::string getTime(void) 
+    static std::string getTime() 
     {
       char theDate[20] ;
       struct tm *thisTime;
@@ -76,7 +76,7 @@ namespace pos{
     }
 
     //---------------------------------------------------------------------------------
-    struct tm * getITime(void) 
+    struct tm * getITime() 
     {
       struct tm *thisTime;
       time_t aclock;
@@ -86,7 +86,7 @@ namespace pos{
     }
 
     //---------------------------------------------------------------------------------
-    static std::string getmSecTime(void) 
+    static std::string getmSecTime() 
     {
       char theDate[20] ;
       struct timeval msecTime;
@@ -100,7 +100,7 @@ namespace pos{
     }
 
     //---------------------------------------------------------------------------------
-    struct timeval getImSecTime(void) 
+    struct timeval getImSecTime() 
     {
       struct timeval msecTime;
       gettimeofday(&msecTime, (struct timezone *)0) ;

@@ -3,7 +3,7 @@
 #include <cassert>
 
 /// Destruct the stream.  A no-op.
-IOOutput::~IOOutput (void)
+IOOutput::~IOOutput ()
 {}
 
 //////////////////////////////////////////////////////////////////////

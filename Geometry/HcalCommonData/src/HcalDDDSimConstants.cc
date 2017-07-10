@@ -721,7 +721,7 @@ int HcalDDDSimConstants::unitPhi(const double dphi) const {
   return units;
 }
 
-void HcalDDDSimConstants::initialize( void ) {
+void HcalDDDSimConstants::initialize( ) {
 
   nEta      = hpar->etaTable.size();
   nR        = hpar->rTable.size();

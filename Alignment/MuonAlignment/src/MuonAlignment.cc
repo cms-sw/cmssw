@@ -241,7 +241,7 @@ void MuonAlignment::writeXML(const edm::ParameterSet &iConfig, const edm::EventS
    MuonAlignmentOutputXML(iConfig).write(theAlignableMuon, iSetup);
 }
 
-void MuonAlignment::saveDTSurveyToDB(void) {
+void MuonAlignment::saveDTSurveyToDB() {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( !poolDbService.isAvailable() ) // Die if not available
@@ -274,7 +274,7 @@ void MuonAlignment::saveDTSurveyToDB(void) {
   poolDbService->writeOne<SurveyErrors>( &(*dtSurveyErrors), poolDbService->currentTime(), theDTSurveyErrorRecordName);
 }
 
-void MuonAlignment::saveCSCSurveyToDB(void) {
+void MuonAlignment::saveCSCSurveyToDB() {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( !poolDbService.isAvailable() ) // Die if not available
@@ -307,12 +307,12 @@ void MuonAlignment::saveCSCSurveyToDB(void) {
   poolDbService->writeOne<SurveyErrors>( &(*cscSurveyErrors), poolDbService->currentTime(), theCSCSurveyErrorRecordName);
 }
 
-void MuonAlignment::saveSurveyToDB(void) {
+void MuonAlignment::saveSurveyToDB() {
    saveDTSurveyToDB();
    saveCSCSurveyToDB();
 }
 
-void MuonAlignment::saveDTtoDB(void) {
+void MuonAlignment::saveDTtoDB() {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( !poolDbService.isAvailable() ) // Die if not available
@@ -327,7 +327,7 @@ void MuonAlignment::saveDTtoDB(void) {
   poolDbService->writeOne<AlignmentErrorsExtended>( &(*dt_AlignmentErrorsExtended), poolDbService->currentTime(), theDTErrorRecordName);
 }
 
-void MuonAlignment::saveCSCtoDB(void) {
+void MuonAlignment::saveCSCtoDB() {
    // Call service
   edm::Service<cond::service::PoolDBOutputService> poolDbService;
   if( !poolDbService.isAvailable() ) // Die if not available
@@ -342,7 +342,7 @@ void MuonAlignment::saveCSCtoDB(void) {
   poolDbService->writeOne<AlignmentErrorsExtended>( &(*csc_AlignmentErrorsExtended), poolDbService->currentTime(), theCSCErrorRecordName);
 }
 
-void MuonAlignment::saveToDB(void) {
+void MuonAlignment::saveToDB() {
    saveDTtoDB();
    saveCSCtoDB();
 }

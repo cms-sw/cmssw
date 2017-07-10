@@ -54,7 +54,7 @@ public:
   
   
 private:
-  virtual void beginJob(void) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -130,7 +130,7 @@ L1EventTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1EventTreeProducer::beginJob(void)
+L1EventTreeProducer::beginJob()
 {
 }
 

@@ -14,8 +14,8 @@
 class FWMuonRhoPhiProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 {
 public:
-   FWMuonRhoPhiProxyBuilder( void ) {}
-   virtual ~FWMuonRhoPhiProxyBuilder( void ) {}
+   FWMuonRhoPhiProxyBuilder( ) {}
+   virtual ~FWMuonRhoPhiProxyBuilder( ) {}
 
    virtual void setItem(const FWEventItem* iItem) override;
 

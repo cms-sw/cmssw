@@ -19,16 +19,16 @@ class LASConstants {
   double GetAlignmentTubeBsKink( unsigned int beam ) const;
 
   double GetTecRadius( unsigned int ring ) const;
-  double GetAtRadius( void ) const;
+  double GetAtRadius( ) const;
 
   double GetTecZPosition( unsigned int det, unsigned int disk ) const;
   double GetTibZPosition( unsigned int pos ) const;
   double GetTobZPosition( unsigned int pos ) const;
   double GetTecBsZPosition( unsigned int det ) const;
-  double GetAtBsZPosition( void ) const;
+  double GetAtBsZPosition( ) const;
 
  private:
-  void InitContainers( void );
+  void InitContainers( );
   void FillBsKinks( edm::ParameterSet const& );
   void FillRadii( edm::ParameterSet const& );
   void FillZPositions( edm::ParameterSet const& );

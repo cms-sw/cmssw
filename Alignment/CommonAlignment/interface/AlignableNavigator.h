@@ -57,7 +57,7 @@ public:
   std::vector<AlignableDetOrUnitPtr> alignableDetOrUnits();
 
   /// Returns number of elements in map
-  int size( void ) { return theMap.size(); }
+  int size( ) { return theMap.size(); }
 
   /// Given a DetId, returns true if DetIds with this detector and subdetector id are in the map (not necessarily the exact DetId)
   bool detAndSubdetInMap( const DetId& detid ) const;

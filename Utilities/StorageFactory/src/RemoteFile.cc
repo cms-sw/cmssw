@@ -40,15 +40,15 @@ RemoteFile::RemoteFile (IOFD fd, const std::string &name)
 {}
 
 void
-RemoteFile::remove (void)
+RemoteFile::remove ()
 { unlink (name_.c_str()); }
 
 void
-RemoteFile::close (void)
+RemoteFile::close ()
 { remove(); File::close (); }
 
 void
-RemoteFile::abort (void)
+RemoteFile::abort ()
 { remove(); File::abort (); }
 
 int

@@ -26,13 +26,13 @@ public:
 
   
 protected:
-  virtual void beginJob(void) override;
+  virtual void beginJob() override;
   virtual std::shared_ptr<saverDetails::NoCache> globalBeginRun(const edm::Run &, const edm::EventSetup &) const override;
   virtual std::shared_ptr<saverDetails::NoCache> globalBeginLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
   virtual void analyze(edm::StreamID, const edm::Event &e, const edm::EventSetup &) const override;
   virtual void globalEndLuminosityBlock(const edm::LuminosityBlock &, const edm::EventSetup &) const override;
   virtual void globalEndRun(const edm::Run &, const edm::EventSetup &) const override;
-  virtual void endJob(void) override;
+  virtual void endJob() override;
 
 public:
   enum Convention

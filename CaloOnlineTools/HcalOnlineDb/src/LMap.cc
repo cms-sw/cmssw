@@ -36,7 +36,7 @@ public:
   ~impl(){ }
 
   int read( std::string accessor, std::string type );
-  std::map<int,LMapRow> & get_map( void ){ return _lmap; };
+  std::map<int,LMapRow> & get_map( ){ return _lmap; };
   
 private:
   std::vector<LMapRow> _table;
@@ -57,7 +57,7 @@ int LMap::read( std::string accessor, std::string type )
   return p_impl -> read( accessor, type );
 }
 
-std::map<int,LMapRow> & LMap::get_map( void )
+std::map<int,LMapRow> & LMap::get_map( )
 {
   return p_impl -> get_map();
 }
@@ -301,7 +301,7 @@ int EMap::read_map( std::string filename )
   
 
 
-std::vector<EMap::EMapRow> & EMap::get_map( void )
+std::vector<EMap::EMapRow> & EMap::get_map( )
 {
   return map;
 }

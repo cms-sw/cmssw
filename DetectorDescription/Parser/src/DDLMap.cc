@@ -156,7 +156,7 @@ DDLMap::errorOut( const char* str )
 }
 
 ReadMapType< std::map<std::string,double> > &
-DDLMap::getMapOfMaps( void ) 
+DDLMap::getMapOfMaps( ) 
 {
   return pMapMap;
 }

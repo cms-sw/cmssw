@@ -18,8 +18,8 @@
 class FWL1MuonParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1MuonParticle>
 {
 public:
-   FWL1MuonParticleProxyBuilder( void ) {}
-   virtual ~FWL1MuonParticleProxyBuilder( void ) {}
+   FWL1MuonParticleProxyBuilder( ) {}
+   virtual ~FWL1MuonParticleProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

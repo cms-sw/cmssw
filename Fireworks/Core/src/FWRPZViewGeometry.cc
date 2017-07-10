@@ -150,7 +150,7 @@ FWRPZViewGeometry::makeCaloOutlineRhoPhi()
 //______________________________________________________________________________
 
 TEveElement*
-FWRPZViewGeometry::makeMuonGeometryRhoPhi( void )
+FWRPZViewGeometry::makeMuonGeometryRhoPhi( )
 {
    Int_t iWheel = 0;
  
@@ -183,7 +183,7 @@ namespace {
 //______________________________________________________________________________
 
 TEveElement*
-FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
+FWRPZViewGeometry::makeMuonGeometryRhoZ( )
 {
    TEveElementList* container = new TEveElementList( "MuonRhoZ" );
 

@@ -105,14 +105,14 @@ class TemplatedSecondaryVertexTagInfo : public BaseTagInfo {
 			 const edm::Ref<std::vector<IPTI> >&);
 
         /// clone
-        virtual TemplatedSecondaryVertexTagInfo * clone(void) const {
+        virtual TemplatedSecondaryVertexTagInfo * clone() const {
             return new TemplatedSecondaryVertexTagInfo(*this);
         }
   
 	const edm::Ref<std::vector<IPTI> > &trackIPTagInfoRef() const
 	{ return m_trackIPTagInfoRef; }
 
-	virtual edm::RefToBase<Jet> jet(void) const
+	virtual edm::RefToBase<Jet> jet() const
 	{ return m_trackIPTagInfoRef->jet(); }
 
 //	virtual input_container ipTracks(void) const

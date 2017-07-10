@@ -64,7 +64,7 @@ HitPattern & HitPattern::operator=(const HitPattern &other)
     return *this;
 }
 
-void HitPattern::clear(void)
+void HitPattern::clear()
 {
     this->hitCount = 0;
     this->beginTrackHits = 0;

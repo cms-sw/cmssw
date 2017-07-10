@@ -38,16 +38,16 @@ class FIPConfiguration : public DDLDocumentProvider
   int readConfig(const std::string& filename, bool fullPath);
 
   /// Return a list of files as a std::vector of strings.
-  virtual const std::vector < std::string >&  getFileList(void) const;
+  virtual const std::vector < std::string >&  getFileList() const;
 
   /// Return a list of urls as a std::vector of strings.
   /**
      This implementation does not provide a meaningful url list.
    **/
-  virtual const std::vector < std::string >&  getURLList(void) const;
+  virtual const std::vector < std::string >&  getURLList() const;
 
   /// Print out the list of files.
-  virtual void dumpFileList(void) const;
+  virtual void dumpFileList() const;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
   virtual bool doValidation() const;

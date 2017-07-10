@@ -50,7 +50,7 @@ public:
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
-  virtual void endJob(void);
+  virtual void endJob();
 
 private:
   // ----------member data ---------------------------
@@ -206,7 +206,7 @@ DQMStoreQTestsExample::~DQMStoreQTestsExample()
 
 }
 
-void DQMStoreQTestsExample::endJob(void)
+void DQMStoreQTestsExample::endJob()
 {
   setReference(0);
   

@@ -238,7 +238,7 @@ namespace reco {
     void insert( TaggingVariableName tag, TaggingValue value, bool delayed = false );
     void insert( TaggingVariableName tag, const std::vector<TaggingValue> & values, bool delayed = false );
 
-    void finalize( void );
+    void finalize( );
     
     TaggingValue get( TaggingVariableName tag ) const;
     TaggingValue get( TaggingVariableName tag, TaggingValue defaultValue ) const;

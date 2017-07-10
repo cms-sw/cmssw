@@ -197,7 +197,7 @@ DummyBookFillDQMStore::DummyBookFillDQMStore(const edm::ParameterSet& iConfig)
     bookHistograms();
 }
 
-void DummyBookFillDQMStore::fillerDispose(void) {
+void DummyBookFillDQMStore::fillerDispose() {
   std::cout << "fillerDispose" << std::endl;
   m_runFillers.erase(m_runFillers.begin(), m_runFillers.end());
   m_lumiFillers.erase(m_lumiFillers.begin(), m_lumiFillers.end());

@@ -118,7 +118,7 @@ public:
     edm::Handle<trigger::TriggerEvent>  &triggerEvent, const reco::Muon &mu);
 
 private:
-  virtual void beginJob(void) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
   virtual void beginRun(const edm::Run &, const edm::EventSetup &);
@@ -1397,7 +1397,7 @@ void L1MuonRecoTreeProducer::endRun(const edm::Run &run, const edm::EventSetup &
 }
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1MuonRecoTreeProducer::beginJob(void){
+L1MuonRecoTreeProducer::beginJob(){
 }
 
 // ------------ method called once each job just after ending the event loop  ------------

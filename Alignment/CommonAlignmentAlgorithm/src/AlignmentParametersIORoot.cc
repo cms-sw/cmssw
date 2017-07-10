@@ -20,7 +20,7 @@ AlignmentParametersIORoot::AlignmentParametersIORoot()
 
 
 // ----------------------------------------------------------------------------
-void AlignmentParametersIORoot::createBranches(void) 
+void AlignmentParametersIORoot::createBranches() 
 {
   tree->Branch("parSize",   &theCovRang,   "CovRang/I");
   tree->Branch("Id",        &theId,        "Id/i");
@@ -34,7 +34,7 @@ void AlignmentParametersIORoot::createBranches(void)
 
 
 // ----------------------------------------------------------------------------
-void AlignmentParametersIORoot::setBranchAddresses(void) 
+void AlignmentParametersIORoot::setBranchAddresses() 
 {
   tree->SetBranchAddress("parSize",   &theCovRang);
   tree->SetBranchAddress("covarSize", &theCovarRang);

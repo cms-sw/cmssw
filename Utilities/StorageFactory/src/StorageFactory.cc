@@ -10,7 +10,7 @@
 
 StorageFactory StorageFactory::s_instance;
 
-StorageFactory::StorageFactory (void)
+StorageFactory::StorageFactory ()
   : m_cacheHint(CACHE_HINT_AUTO_DETECT),
     m_readHint(READ_HINT_AUTO),
     m_accounting (false),
@@ -22,16 +22,16 @@ StorageFactory::StorageFactory (void)
   setTempDir(m_temppath, m_tempfree);
 }
 
-StorageFactory::~StorageFactory (void)
+StorageFactory::~StorageFactory ()
 {
 }
 
 const StorageFactory *
-StorageFactory::get (void)
+StorageFactory::get ()
 { return &s_instance; }
 
 StorageFactory *
-StorageFactory::getToModify (void)
+StorageFactory::getToModify ()
 { return &s_instance; }
 
 bool
@@ -43,7 +43,7 @@ StorageFactory::enableAccounting (bool enabled)
 }
 
 bool
-StorageFactory::accounting(void) const
+StorageFactory::accounting() const
 { return m_accounting; }
 
 void
@@ -51,7 +51,7 @@ StorageFactory::setCacheHint(CacheHint value)
 { m_cacheHint = value; }
 
 StorageFactory::CacheHint
-StorageFactory::cacheHint(void) const
+StorageFactory::cacheHint() const
 { return m_cacheHint; }
 
 void
@@ -59,7 +59,7 @@ StorageFactory::setReadHint(ReadHint value)
 { m_readHint = value; }
 
 StorageFactory::ReadHint
-StorageFactory::readHint(void) const
+StorageFactory::readHint() const
 { return m_readHint; }
 
 void
@@ -67,7 +67,7 @@ StorageFactory::setTimeout(unsigned int timeout)
 { m_timeout = timeout; }
 
 unsigned int
-StorageFactory::timeout(void) const
+StorageFactory::timeout() const
 { return m_timeout; }
 
 void
@@ -75,7 +75,7 @@ StorageFactory::setDebugLevel(unsigned int level)
 { m_debugLevel = level; }
 
 unsigned int
-StorageFactory::debugLevel(void) const
+StorageFactory::debugLevel() const
 { return m_debugLevel; }
 
 void
@@ -119,15 +119,15 @@ StorageFactory::setTempDir(const std::string &s, double minFreeSpace)
 }
 
 std::string
-StorageFactory::tempDir(void) const
+StorageFactory::tempDir() const
 { return m_tempdir; }
 
 std::string
-StorageFactory::tempPath(void) const
+StorageFactory::tempPath() const
 { return m_temppath; }
 
 double
-StorageFactory::tempMinFree(void) const
+StorageFactory::tempMinFree() const
 { return m_tempfree; }
 
 StorageMaker *

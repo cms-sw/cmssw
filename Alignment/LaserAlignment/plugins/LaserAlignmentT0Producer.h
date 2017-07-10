@@ -41,7 +41,7 @@ private:
   virtual void beginJob() ;
   virtual void produce( edm::Event&, const edm::EventSetup& );
   virtual void endJob();
-  void FillDetIds( void );
+  void FillDetIds( );
 
   // container for cfg data
   std::vector<edm::ParameterSet> digiProducerList;

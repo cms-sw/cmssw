@@ -22,7 +22,7 @@ public:
 
   enum { dimension = 9 };
 
-  TwoBodyDecayParameters( void ) :
+  TwoBodyDecayParameters( ) :
     theParameters( AlgebraicVector() ), theCovariance( AlgebraicSymMatrix() ) {}
 
   TwoBodyDecayParameters( const AlgebraicVector & param, const AlgebraicSymMatrix & cov ) :
@@ -34,13 +34,13 @@ public:
   TwoBodyDecayParameters( const TwoBodyDecayParameters & other ) :
     theParameters( other.parameters() ), theCovariance( other.covariance() ) {}
 
-  ~TwoBodyDecayParameters( void ) {}
+  ~TwoBodyDecayParameters( ) {}
 
   /// Get decay parameters.
-  inline const AlgebraicVector & parameters( void ) const { return theParameters; }
+  inline const AlgebraicVector & parameters( ) const { return theParameters; }
 
   /// Get error matrix.
-  inline const AlgebraicSymMatrix & covariance( void ) const { return theCovariance; }
+  inline const AlgebraicSymMatrix & covariance( ) const { return theCovariance; }
 
   /// Get specified decay parameter.
   inline double operator[]( ParameterName name ) const { return theParameters[name]; }
@@ -51,7 +51,7 @@ public:
   /// Get specified range of decay parameters.
   inline const AlgebraicVector sub( ParameterName first, ParameterName last ) const { return theParameters.sub( first+1, last+1 ); }
 
-  inline bool hasError( void ) const { return ( theCovariance.num_row() != 0 ); }
+  inline bool hasError( ) const { return ( theCovariance.num_row() != 0 ); }
 
 private:
 

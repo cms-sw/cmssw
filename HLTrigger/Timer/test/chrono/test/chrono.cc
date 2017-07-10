@@ -290,7 +290,7 @@ std::string read_clock_source() {
 #endif // __linux__
 
 
-int main(void) {
+int main() {
   std::vector<BenchmarkBase *> timers;
   init_timers(timers);
 

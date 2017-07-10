@@ -112,10 +112,10 @@ CTPPSPixelIndices(const int colsInDet,  const int rowsInDet ) :
 
   ~CTPPSPixelIndices() {}
  
-  inline int numberOfROCsInX(void) {return theChipsInX;}
-  inline int numberOfROCsInY(void) {return theChipsInY;}
+  inline int numberOfROCsInX() {return theChipsInX;}
+  inline int numberOfROCsInY() {return theChipsInY;}
 
-  void print(void) const {
+  void print() const {
 
     edm::LogInfo("RPix") << " Pixel det with " << theChipsInX << " chips in x and "
 	      << theChipsInY << " in y " ; 

@@ -75,7 +75,7 @@ CombinedTrajectoryFactory::CombinedTrajectoryFactory( const edm::ParameterSet & 
 }
 
  
-CombinedTrajectoryFactory::~CombinedTrajectoryFactory( void ) {}
+CombinedTrajectoryFactory::~CombinedTrajectoryFactory( ) {}
 
 
 const CombinedTrajectoryFactory::ReferenceTrajectoryCollection

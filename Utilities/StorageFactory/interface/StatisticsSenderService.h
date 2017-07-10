@@ -41,7 +41,7 @@ namespace edm {
             time_t  m_start_time;
         };
 
-        void determineHostnames(void);
+        void determineHostnames();
         void fillUDP(const std::string&, bool, std::string &);
         std::string    m_clienthost;
         std::string    m_clientdomain;

@@ -106,7 +106,7 @@ double LASConstants::GetTecRadius( unsigned int ring ) const {
 ///
 ///
 ///
-double LASConstants::GetAtRadius( void ) const {
+double LASConstants::GetAtRadius( ) const {
 
   return atRadius;
 
@@ -184,7 +184,7 @@ double LASConstants::GetTecBsZPosition( unsigned int det ) const {
 ///
 ///
 ///
-double LASConstants::GetAtBsZPosition( void ) const {
+double LASConstants::GetAtBsZPosition( ) const {
 
   return atZPosition;
 
@@ -197,7 +197,7 @@ double LASConstants::GetAtBsZPosition( void ) const {
 ///
 ///
 ///
-void LASConstants::InitContainers( void ) {
+void LASConstants::InitContainers( ) {
 
   // beam splitter kinks
 

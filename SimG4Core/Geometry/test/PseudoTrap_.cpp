@@ -20,11 +20,11 @@ class testPseudoTrap : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testPseudoTrap::matched_g4_and_dd( void )
+testPseudoTrap::matched_g4_and_dd( )
 {
   double pDx1 = 0.293734*m; /**< Half-length along x at the surface positioned at -dz */
   double pDx2 = 1.86356*m;  /**<  Half-length along x at the surface positioned at +dz */

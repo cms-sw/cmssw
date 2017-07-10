@@ -58,7 +58,7 @@ class AlignableCSCEndcap : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCEndcap& );
 
   /// Recursive printout of the muon End Cap structure
-  void dump( void ) const;
+  void dump( ) const;
 
   // Get alignments sorted by DetId
   Alignments* alignments() const;

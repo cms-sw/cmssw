@@ -21,7 +21,7 @@ class CSCTriggerMappingFromFile : public CSCTriggerSimpleMapping {
    virtual ~CSCTriggerMappingFromFile();
 
   /// Fill mapping store
-   virtual void fill( void );
+   virtual void fill( );
 
  private: 
    std::string filename_;

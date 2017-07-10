@@ -25,17 +25,17 @@ class GeometryConfiguration: public DDLDocumentProvider {
   virtual ~GeometryConfiguration();
 
   /// Print out the list of files.
-  virtual void dumpFileList(void) const;
+  virtual void dumpFileList() const;
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >  & getFileList(void) const;
+  virtual const std::vector < std::string >  & getFileList() const;
 
   /// Return a list of urls as a vector of strings.
   /**
      The EDM should not allow URLs because of provenance.
      This vector will always be empty.
    **/
-  virtual const std::vector < std::string >  & getURLList(void) const;
+  virtual const std::vector < std::string >  & getURLList() const;
  
   /// Return a flag whether to do xml validation or not.
   virtual bool doValidation() const;

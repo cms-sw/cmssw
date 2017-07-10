@@ -108,7 +108,7 @@ class VIterator : public Iterator<Item>
       unsigned int index ;
 };
 
-static unsigned int getId(void)
+static unsigned int getId()
 {
   static unsigned int id=10;
   return ++id;
@@ -122,14 +122,14 @@ public:
                                  id_(10),level_(0),folderName_(name),
                                  father_(0){;}
 
-  ~Folder(void) {
+  ~Folder() {
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
       delete (*i);
   }	
   
   void setFather(Folder* e) {father_ = e;}
   Folder * getFather() {return father_;}
-  const std::string & name(void)  {return folderName_;}
+  const std::string & name()  {return folderName_;}
 
   Folder * cd(const std::string &name) {
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
@@ -141,9 +141,9 @@ public:
   }
 
   void setId(unsigned int id)  {id_ = id;}
-  unsigned int id(void)  {return id_;}
+  unsigned int id()  {return id_;}
   void setLevel(unsigned int value) {level_=value;}
-  unsigned int level(void) {return level_;}
+  unsigned int level() {return level_;}
   
   
   void add(Folder * f) {
@@ -153,25 +153,25 @@ public:
     f->setId(getId());
   }
 
-  unsigned int getHistos(void) {
+  unsigned int getHistos() {
     unsigned int result=totalHistos_;
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
       result += (*i)->getHistos();
     return result;
   }
-  unsigned int getBins(void) {
+  unsigned int getBins() {
     unsigned int result=totalBins_;
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
       result += (*i)->getBins();
     return result;
   }
-  unsigned int getEmptyBins(void) {
+  unsigned int getEmptyBins() {
     unsigned int result=totalEmptyBins_;
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
       result += (*i)->getEmptyBins();
     return result;
   }
-  unsigned int getMemory(void) {
+  unsigned int getMemory() {
     unsigned int result=totalMemory_;
     for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
       result += (*i)->getMemory();
@@ -325,8 +325,8 @@ private:
 
   int calcstats( int );
   void calcIgProfDump(Folder &);
-  void dumpMemoryProfile( void );
-  std::pair<unsigned int, unsigned int> readMemoryEntry( void ) const;
+  void dumpMemoryProfile( );
+  std::pair<unsigned int, unsigned int> readMemoryEntry( ) const;
   void print();
   
   DQMStore* dbe_;

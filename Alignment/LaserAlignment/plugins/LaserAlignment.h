@@ -92,7 +92,7 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
   virtual void endRunProduce(edm::Run&, const edm::EventSetup& ) override;
 
   /// for debugging & testing only, will disappear..
-  void testRoutine( void );
+  void testRoutine( );
 
 
  private:
@@ -104,8 +104,8 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
   void fillPedestalProfiles( edm::ESHandle<SiStripPedestals>&  );
 
   /// decide whether TEC or AT beams have fired
-  bool isTECBeam( void );
-  bool isATBeam( void );
+  bool isTECBeam( );
+  bool isATBeam( );
 
   /// returns the nominal beam position (strips) in TOB for the profileJudge
   double getTIBTOBNominalBeamOffset( unsigned int, unsigned int, unsigned int );
@@ -114,13 +114,13 @@ class LaserAlignment : public edm::one::EDProducer<edm::EndRunProducer> {
   double getTEC2TECNominalBeamOffset( unsigned int, unsigned int, unsigned int );
 
   /// fill hard coded detIds
-  void fillDetectorId( void );
+  void fillDetectorId( );
 
   /// convert an angle in the [-pi,pi] range to the [0,2*pi] range
   double ConvertAngle( double );
 
   /// fills a LASGlobalData<LASCoordinateSet> with nominal module positions
-  void CalculateNominalCoordinates( void );
+  void CalculateNominalCoordinates( );
   
   /// for debugging only, will disappear
   void DumpPosFileSet( LASGlobalData<LASCoordinateSet>& );

@@ -64,7 +64,7 @@ const TrackingGeometry* GlobalTrackingGeometry::slaveGeometry(DetId id) const {
 }
 
 const TrackingGeometry::DetTypeContainer&
-GlobalTrackingGeometry::detTypes( void ) const
+GlobalTrackingGeometry::detTypes( ) const
 {    
    if (!theDetTypes.load(std::memory_order_acquire)) {
        std::unique_ptr<DetTypeContainer> ptr{new DetTypeContainer()};
@@ -85,7 +85,7 @@ GlobalTrackingGeometry::detTypes( void ) const
 }
 
 const TrackingGeometry::DetUnitContainer&
-GlobalTrackingGeometry::detUnits( void ) const
+GlobalTrackingGeometry::detUnits( ) const
 {
    if (!theDetUnits.load(std::memory_order_acquire)) {
        std::unique_ptr<DetUnitContainer> ptr{new DetUnitContainer()};
@@ -106,7 +106,7 @@ GlobalTrackingGeometry::detUnits( void ) const
 }
 
 const TrackingGeometry::DetContainer&
-GlobalTrackingGeometry::dets( void ) const
+GlobalTrackingGeometry::dets( ) const
 {
    if (!theDets.load(std::memory_order_acquire)) {
        std::unique_ptr<DetContainer> ptr{new DetContainer()};
@@ -127,7 +127,7 @@ GlobalTrackingGeometry::dets( void ) const
 }
 
 const TrackingGeometry::DetIdContainer&
-GlobalTrackingGeometry::detUnitIds( void ) const
+GlobalTrackingGeometry::detUnitIds( ) const
 {
    if (!theDetUnitIds.load(std::memory_order_acquire)) {
        std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};
@@ -148,7 +148,7 @@ GlobalTrackingGeometry::detUnitIds( void ) const
 }
 
 const TrackingGeometry::DetIdContainer&
-GlobalTrackingGeometry::detIds( void ) const
+GlobalTrackingGeometry::detIds( ) const
 {
    if (!theDetIds.load(std::memory_order_acquire)) {
        std::unique_ptr<DetIdContainer> ptr{new DetIdContainer()};

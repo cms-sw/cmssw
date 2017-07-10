@@ -61,29 +61,29 @@ public:
   uint32_t         GetUnitID(const G4Step* aStep);
   uint32_t         GetUnitID(const G4Step* aStep) const;
   
-  int              GetCurrentUnitID(void) const;
+  int              GetCurrentUnitID() const;
   void             SetCurrentUnitID(int currentUnitID);
 
   // ---------- Detector position --------------------------
 
-  int              GetCurrentDetectorPosition(void) const;
+  int              GetCurrentDetectorPosition() const;
   void             SetCurrentDetectorPosition(int currentDetectorPosition);
 
   // ---------- Plane: between 0 and (nPlanes-1) (or -1 for Undefined)
-  int              GetCurrentPlane(void) const;
+  int              GetCurrentPlane() const;
   void             SetCurrentPlane(int currentPlane);
 
   // ---------- CSC: between 0 and 5 (or -1 for Undefined)
-  int              GetCurrentCSC(void) const;
+  int              GetCurrentCSC() const;
   void             SetCurrentCSC(int currentCSC);
 
   // ---------- Layer: between 0 and (nLayers-1) (or -1 for Undefined)
-  int              GetCurrentLayer(void) const;
+  int              GetCurrentLayer() const;
   void             SetCurrentLayer(int currentLayer);
 
   // ---------- Object Type --------------------------------
 
-  ObjectType       GetCurrentObjectType(void) const;
+  ObjectType       GetCurrentObjectType() const;
   inline void      SetCurrentObjectType(ObjectType currentObjectType);
 
   int              FromObjectTypeToInt(ObjectType objectType);
@@ -91,11 +91,11 @@ public:
 
 private:
   // ---------- Private methods ----------------------------
-  void             _checkUnitIDUpdate(void) const;
-  void             _checkDataUpdate(void) const;
+  void             _checkUnitIDUpdate() const;
+  void             _checkDataUpdate() const;
 
-  void             _FromUnitIDToData(void);
-  void             _FromDataToUnitID(void);
+  void             _FromUnitIDToData();
+  void             _FromDataToUnitID();
 
 
 private:

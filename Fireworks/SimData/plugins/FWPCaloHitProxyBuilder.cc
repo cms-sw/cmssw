@@ -17,8 +17,8 @@
 class FWPCaloHitProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
-   FWPCaloHitProxyBuilder( void ) {} 
-   virtual ~FWPCaloHitProxyBuilder( void ) {}
+   FWPCaloHitProxyBuilder( ) {} 
+   virtual ~FWPCaloHitProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

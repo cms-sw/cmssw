@@ -124,7 +124,7 @@ RigidBodyAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurfac
 
 
 //__________________________________________________________________________________________________
-AlgebraicVector RigidBodyAlignmentParameters::translation(void) const
+AlgebraicVector RigidBodyAlignmentParameters::translation() const
 { 
   AlgebraicVector shift(3);
   for ( int i=0;i<3;++i ) shift[i]=theData->parameters()[i];
@@ -134,7 +134,7 @@ AlgebraicVector RigidBodyAlignmentParameters::translation(void) const
 
 
 //__________________________________________________________________________________________________
-AlgebraicVector RigidBodyAlignmentParameters::rotation(void) const
+AlgebraicVector RigidBodyAlignmentParameters::rotation() const
 {
   AlgebraicVector rot(3);
   for (int i=0;i<3;++i) rot[i] = theData->parameters()[i+3];
@@ -175,7 +175,7 @@ int RigidBodyAlignmentParameters::type() const
 }
 
 //__________________________________________________________________________________________________
-AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const
+AlgebraicVector RigidBodyAlignmentParameters::globalParameters() const
 {
   AlgebraicVector m_GlobalParameters(N_PARAM, 0);
 
@@ -199,7 +199,7 @@ AlgebraicVector RigidBodyAlignmentParameters::globalParameters(void) const
 
 
 //__________________________________________________________________________________________________
-void RigidBodyAlignmentParameters::print(void) const
+void RigidBodyAlignmentParameters::print() const
 {
 
   std::cout << "Contents of RigidBodyAlignmentParameters:"

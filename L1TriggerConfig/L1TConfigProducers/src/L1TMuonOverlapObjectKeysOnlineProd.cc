@@ -9,7 +9,7 @@ public:
     virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TMuonOverlapObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonOverlapObjectKeysOnlineProd(void){}
+    ~L1TMuonOverlapObjectKeysOnlineProd(){}
 };
 
 L1TMuonOverlapObjectKeysOnlineProd::L1TMuonOverlapObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

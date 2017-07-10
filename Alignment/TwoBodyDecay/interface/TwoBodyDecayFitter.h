@@ -31,7 +31,7 @@ public:
 		      const TwoBodyDecayLinearizationPointFinder* lpf,
 		      const TwoBodyDecayEstimator* est );
 
-  virtual ~TwoBodyDecayFitter( void );
+  virtual ~TwoBodyDecayFitter( );
 
   virtual const TwoBodyDecay estimate( const std::vector< reco::TransientTrack >& tracks,
 				       const TwoBodyDecayVirtualMeasurement& vm ) const;
@@ -40,11 +40,11 @@ public:
 				       const std::vector< TrajectoryStateOnSurface >& tsos,
 				       const TwoBodyDecayVirtualMeasurement& vm ) const;
 
-  inline const TwoBodyDecayLinearizationPointFinder* linearizationPointFinder( void ) const { return theLinPointFinder.operator->(); }
-  inline const TwoBodyDecayEstimator* estimator( void ) const { return theEstimator.operator->(); }
-  inline const LinearizationPointFinder* vertexFinder( void ) const { return theVertexFinder.operator->(); }
+  inline const TwoBodyDecayLinearizationPointFinder* linearizationPointFinder( ) const { return theLinPointFinder.operator->(); }
+  inline const TwoBodyDecayEstimator* estimator( ) const { return theEstimator.operator->(); }
+  inline const LinearizationPointFinder* vertexFinder( ) const { return theVertexFinder.operator->(); }
 
-  virtual TwoBodyDecayFitter* clone( void ) const { return new TwoBodyDecayFitter( *this ); }
+  virtual TwoBodyDecayFitter* clone( ) const { return new TwoBodyDecayFitter( *this ); }
 
 private:
 

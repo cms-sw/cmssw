@@ -27,7 +27,7 @@ public:
        veto_verbosity           = pset.getUntrackedParameter<int32_t>("veto_verbosity",           0);
     }
 
-    virtual ~L1TGlobalPrescalesVetosViewer(void){}
+    virtual ~L1TGlobalPrescalesVetosViewer(){}
 };
 
 #include <openssl/sha.h>

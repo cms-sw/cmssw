@@ -11,7 +11,7 @@ namespace reco {
 
 class BoostedDoubleSVTagInfo : public BaseTagInfo {
 public:
-  BoostedDoubleSVTagInfo(void) { }
+  BoostedDoubleSVTagInfo() { }
 
   BoostedDoubleSVTagInfo(
     const TaggingVariableList & list,
@@ -19,13 +19,13 @@ public:
       m_list(list),
       m_svTagInfoRef(svTagInfoRef) { }
 
-  virtual ~BoostedDoubleSVTagInfo(void) { }
+  virtual ~BoostedDoubleSVTagInfo() { }
 
-  virtual BoostedDoubleSVTagInfo* clone(void) const { return new BoostedDoubleSVTagInfo(*this); }
+  virtual BoostedDoubleSVTagInfo* clone() const { return new BoostedDoubleSVTagInfo(*this); }
 
-  virtual edm::RefToBase<Jet> jet(void) const { return m_svTagInfoRef->jet(); }
+  virtual edm::RefToBase<Jet> jet() const { return m_svTagInfoRef->jet(); }
 
-  virtual TaggingVariableList taggingVariables(void) const { return m_list; }
+  virtual TaggingVariableList taggingVariables() const { return m_list; }
 
 protected:
   TaggingVariableList                                 m_list;

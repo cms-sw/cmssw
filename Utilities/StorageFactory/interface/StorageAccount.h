@@ -124,7 +124,7 @@ public:
   static StorageClassToken tokenForStorageClassName( std::string const& iName);
   static const std::string& nameForToken( StorageClassToken);
   
-  static const StorageStats& summary(void);
+  static const StorageStats& summary();
   static std::string         summaryText(bool banner=false);
   static void                fillSummary(std::map<std::string, std::string> &summary);
   static Counter&            counter (StorageClassToken token,

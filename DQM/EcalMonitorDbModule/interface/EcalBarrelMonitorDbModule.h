@@ -38,10 +38,10 @@ class EcalBarrelMonitorDbModule: public edm::EDAnalyzer{
   void analyze( const edm::Event& e, const edm::EventSetup& c );
 
   // BeginJob
-  void beginJob( void );
+  void beginJob( );
 
   // EndJob
-  void endJob( void );
+  void endJob( );
 
  private:
   

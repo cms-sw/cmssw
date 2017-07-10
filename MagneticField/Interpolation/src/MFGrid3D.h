@@ -20,7 +20,7 @@ public:
   explicit MFGrid3D( const GloballyPositioned<float>& vol) : MFGrid(vol) {}
 
 
-  virtual Dimensions dimensions(void) const {
+  virtual Dimensions dimensions() const {
     Dimensions tmp;
     tmp.w = grid_.grida().nodes();
     tmp.h = grid_.gridb().nodes();

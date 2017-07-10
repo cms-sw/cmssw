@@ -27,7 +27,7 @@ AlignableDataIORoot::AlignableDataIORoot(PosType p) :
 // ----------------------------------------------------------------------------
 // create root tree branches (for writing)
 
-void AlignableDataIORoot::createBranches(void) 
+void AlignableDataIORoot::createBranches() 
 {
   tree->Branch("Id",    &Id,    "Id/i");
   tree->Branch("ObjId", &ObjId, "ObjId/I");
@@ -41,7 +41,7 @@ void AlignableDataIORoot::createBranches(void)
 // ----------------------------------------------------------------------------
 // set root tree branch addresses (for reading)
 
-void AlignableDataIORoot::setBranchAddresses(void) 
+void AlignableDataIORoot::setBranchAddresses() 
 {
   tree->SetBranchAddress("Id",    &Id);
   tree->SetBranchAddress("ObjId", &ObjId);

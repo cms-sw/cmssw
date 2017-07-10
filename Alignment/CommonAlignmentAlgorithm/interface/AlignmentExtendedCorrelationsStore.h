@@ -26,7 +26,7 @@ public:
 
   AlignmentExtendedCorrelationsStore( const edm::ParameterSet& config );
 
-  virtual ~AlignmentExtendedCorrelationsStore( void ) {}
+  virtual ~AlignmentExtendedCorrelationsStore( ) {}
 
   /// Write correlations directly to the covariance matrix starting at the
   /// given position. Indices are assumed to start from 0.
@@ -49,10 +49,10 @@ public:
   virtual bool correlationsAvailable( Alignable* ap1, Alignable* ap2 ) const override;
 
   /// Reset correlations.
-  virtual void resetCorrelations( void ) override;
+  virtual void resetCorrelations( ) override;
 
   /// Get number of stored correlations.
-  virtual unsigned int size( void ) const override;
+  virtual unsigned int size( ) const override;
 
 private:
 

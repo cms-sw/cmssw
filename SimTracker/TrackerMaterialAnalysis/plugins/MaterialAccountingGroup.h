@@ -74,7 +74,7 @@ public:
   MaterialAccountingGroup( const std::string & name, const DDCompactView & geometry );
     
   /// destructor
-  ~MaterialAccountingGroup( void );
+  ~MaterialAccountingGroup( );
 
 private:
   /// stop default copy ctor
@@ -88,7 +88,7 @@ public:
   bool addDetector( const MaterialAccountingDetector& detector );
  
   /// commit the buffer and reset the "already hit by this track" flag
-  void endOfTrack( void );
+  void endOfTrack( );
   
   /// check if detector is inside any part of this layer 
   bool inside( const MaterialAccountingDetector& detector ) const;
@@ -100,70 +100,70 @@ public:
   std::pair<double, double> getBoundingZ() const {return m_boundingbox.range_z();};
 
   /// return the average normalized material accounting informations
-  MaterialAccountingStep average(void) const 
+  MaterialAccountingStep average() const 
   {
     return m_tracks ? m_accounting / m_tracks : MaterialAccountingStep();
   }
 
   /// return the average normalized layer thickness
-  double averageLength(void) const 
+  double averageLength() const 
   {
     return m_tracks ? m_accounting.length() / m_tracks : 0.;
   }
   
   /// return the average normalized number of radiation lengths
-  double averageRadiationLengths(void) const 
+  double averageRadiationLengths() const 
   {
     return m_tracks ? m_accounting.radiationLengths() / m_tracks : 0.;
   }
   
   /// return the average normalized energy loss density factor for Bethe-Bloch
-  double averageEnergyLoss(void) const 
+  double averageEnergyLoss() const 
   {
     return m_tracks ? m_accounting.energyLoss() / m_tracks : 0.;
   }
  
   /// return the sigma of the normalized layer thickness
-  double sigmaLength(void) const 
+  double sigmaLength() const 
   {
     return m_tracks ? std::sqrt(m_errors.length() / m_tracks - averageLength()*averageLength()) : 0.;
   }
   
   /// return the sigma of the normalized number of radiation lengths
-  double sigmaRadiationLengths(void) const 
+  double sigmaRadiationLengths() const 
   {
     return m_tracks ? std::sqrt(m_errors.radiationLengths() / m_tracks - averageRadiationLengths()*averageRadiationLengths()) : 0.;
   }
   
   /// return the sigma of the normalized energy loss density factor for Bethe-Bloch
-  double sigmaEnergyLoss(void) const 
+  double sigmaEnergyLoss() const 
   {
     return m_tracks ? std::sqrt(m_errors.energyLoss() / m_tracks - averageEnergyLoss()*averageEnergyLoss()) : 0.;
   }
  
   /// return the number of tracks that hit this layer 
-  unsigned int tracks(void) const 
+  unsigned int tracks() const 
   {
     return m_tracks;
   }
  
   /// get the layer name 
-  const std::string & name(void) const
+  const std::string & name() const
   {
     return m_name;
   }
 
   /// get some infos
-  std::string info(void) const;
+  std::string info() const;
 
   /// save the plots
-  void savePlots(void);
+  void savePlots();
 
   // get directly the internal vector of global points that
   // correspond, roughly, to the center of each subcomponent of this
   // group.
 
-  const std::vector<GlobalPoint> & elements(void) const {
+  const std::vector<GlobalPoint> & elements() const {
     return m_elements;
   }
 

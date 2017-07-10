@@ -167,7 +167,7 @@ bool AlignmentExtendedCorrelationsStore::correlationsAvailable( Alignable* ap1, 
 }
 
 
-void AlignmentExtendedCorrelationsStore::resetCorrelations( void )
+void AlignmentExtendedCorrelationsStore::resetCorrelations( )
 {
   ExtendedCorrelations::iterator itC;
   for ( itC = theCorrelations.begin(); itC != theCorrelations.end(); ++itC ) delete (*itC).second;
@@ -180,7 +180,7 @@ void AlignmentExtendedCorrelationsStore::resetCorrelations( void )
 }
 
 
-unsigned int AlignmentExtendedCorrelationsStore::size( void ) const
+unsigned int AlignmentExtendedCorrelationsStore::size( ) const
 {
   unsigned int size = 0;
   ExtendedCorrelations::const_iterator itC;

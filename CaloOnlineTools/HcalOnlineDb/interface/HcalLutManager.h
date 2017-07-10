@@ -50,7 +50,7 @@ class HcalLutManager{
 		 uint32_t _status_word_to_mask = 0x0000);
   ~HcalLutManager( );
 
-  void init( void );
+  void init( );
   std::string & getLutXml( std::vector<unsigned int> & _lut );
 
   // crate=-1 stands for all crates
@@ -118,7 +118,7 @@ class HcalLutManager{
   //    reading LUTs from a local XML
   int test_xml_access( std::string _tag, std::string _filename );
   int test_direct_xml_parsing( std::string _filename );
-  void test_emap(void);
+  void test_emap();
   
   // connect to local XML file with LUTs and local ASCII file with LMAP
   // connection interface through protected members db and lmap

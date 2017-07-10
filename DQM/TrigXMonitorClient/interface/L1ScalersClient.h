@@ -31,7 +31,7 @@ public:
   };
   
   /// BeginJob
-  void beginJob(void);
+  void beginJob();
 
 //   /// Endjob
 //   void endJob(void);

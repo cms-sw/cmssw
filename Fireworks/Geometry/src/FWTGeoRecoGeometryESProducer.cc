@@ -75,7 +75,7 @@ FWTGeoRecoGeometryESProducer::FWTGeoRecoGeometryESProducer( const edm::Parameter
   setWhatProduced( this );
 }
 
-FWTGeoRecoGeometryESProducer::~FWTGeoRecoGeometryESProducer( void )
+FWTGeoRecoGeometryESProducer::~FWTGeoRecoGeometryESProducer( )
 {}
 
 namespace
@@ -885,7 +885,7 @@ FWTGeoRecoGeometryESProducer::addME0Geometry( )
 
 
 void
-FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
+FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( )
 {
    TGeoVolume* tv =  GetTopHolder("HCal", kHCal); 
    TGeoVolume *assembly = GetDaughter(tv, "HCalBarrel", kHCal);
@@ -963,7 +963,7 @@ FWTGeoRecoGeometryESProducer::addHcalCaloGeometryBarrel( void )
 //______________________________________________________________________________
 
 void
-FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( void )
+FWTGeoRecoGeometryESProducer::addHcalCaloGeometryEndcap( )
 {
 
    CaloVolMap caloShapeMapP;
@@ -1312,7 +1312,7 @@ TGeoShape* makeEcalShape(const TruncatedPyramid* cell)
 
 
 void
-FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( void )
+FWTGeoRecoGeometryESProducer::addEcalCaloGeometry( )
 {
 
    TGeoVolume* tv =  GetTopHolder("ECal", kECal);

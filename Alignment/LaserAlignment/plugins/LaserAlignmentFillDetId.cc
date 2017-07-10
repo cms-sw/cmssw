@@ -5,7 +5,7 @@
 ///
 /// all the detector ids for the LAS modules hard-coded
 ///
-void LaserAlignment::fillDetectorId( void ) {
+void LaserAlignment::fillDetectorId( ) {
   
   // these are the detids of the TEC modules hit
   // by the AT as well as the TEC beams

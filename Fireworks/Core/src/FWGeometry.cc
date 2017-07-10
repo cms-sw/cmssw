@@ -16,10 +16,10 @@
 #include <stdexcept>
 #include <algorithm>
 
-FWGeometry::FWGeometry( void ):m_producerVersion(0)
+FWGeometry::FWGeometry( ):m_producerVersion(0)
 {}
 
-FWGeometry::~FWGeometry( void )
+FWGeometry::~FWGeometry( )
 {}
 
 TFile*

@@ -23,8 +23,8 @@
 class FWSimTrackProxyBuilder : public FWProxyBuilderBase
 {
 public:
-   FWSimTrackProxyBuilder( void ) {} 
-   virtual ~FWSimTrackProxyBuilder( void ) {}
+   FWSimTrackProxyBuilder( ) {} 
+   virtual ~FWSimTrackProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 
@@ -37,11 +37,11 @@ private:
    using FWProxyBuilderBase::build;
    virtual void build( const FWEventItem* iItem, TEveElementList* product, const FWViewContext* ) override;
 
-   void addParticlesToPdgDataBase( void );
+   void addParticlesToPdgDataBase( );
 };
 
 void
-FWSimTrackProxyBuilder::addParticlesToPdgDataBase( void )
+FWSimTrackProxyBuilder::addParticlesToPdgDataBase( )
 {
    static Bool_t bAdded = kFALSE;
    // Check if already called

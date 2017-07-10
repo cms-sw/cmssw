@@ -31,7 +31,7 @@ BzeroReferenceTrajectoryFactory::BzeroReferenceTrajectoryFactory(const edm::Para
                             << "\nmomentum: " << theMomentumEstimate;
 }
 
-BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory( void ) {}
+BzeroReferenceTrajectoryFactory::~BzeroReferenceTrajectoryFactory( ) {}
 
 
 /////////////////////////////////////////////////////////////////////

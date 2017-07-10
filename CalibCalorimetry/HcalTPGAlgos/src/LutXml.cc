@@ -115,7 +115,7 @@ LutXml::~LutXml()
 }
 
 
-void LutXml::init( void )
+void LutXml::init( )
 {
   root  = XMLString::transcode("CFGBrickSet");
   brick = XMLString::transcode("CFGBrick");
@@ -327,7 +327,7 @@ DOMElement * LutXml::addParameter( std::string _name, std::string _type, int _va
 
 
 
-std::string & LutXml::getCurrentBrick( void )
+std::string & LutXml::getCurrentBrick( )
 {
   return getString( brickElem );
 }
@@ -494,7 +494,7 @@ int LutXml::a_to_i(char * inbuf){
 // FIXME: uses hardcoded CRATE-to-subdetector mapping
 // FIXME: it would be better to use some official map
 //
-int LutXml::create_lut_map( void ){
+int LutXml::create_lut_map( ){
   //delete lut_map;
   lut_map.clear();
   //lut_map = new std::map<uint32_t,std::vector<unsigned int> >();

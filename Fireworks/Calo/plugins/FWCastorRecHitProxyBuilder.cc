@@ -11,8 +11,8 @@
 class FWCastorRecHitProxyBuilder : public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
-   FWCastorRecHitProxyBuilder( void ) {}  
-   virtual ~FWCastorRecHitProxyBuilder( void ) {}
+   FWCastorRecHitProxyBuilder( ) {}  
+   virtual ~FWCastorRecHitProxyBuilder( ) {}
 
 
    virtual float scaleFactor(const FWViewContext* vc) { return 10 * FWCaloRecHitDigitSetProxyBuilder::scaleFactor(vc); } 

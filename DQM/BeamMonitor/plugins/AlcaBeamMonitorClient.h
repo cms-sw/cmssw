@@ -28,7 +28,7 @@ class AlcaBeamMonitorClient : public edm::EDAnalyzer {
 
  protected:
 
-  void beginJob 	   (void) override;
+  void beginJob 	   () override;
   void beginRun 	   (const edm::Run& iRun,  	       const edm::EventSetup& iSetup) override;
   void analyze  	   (const edm::Event& iEvent, 	       const edm::EventSetup& iSetup) override;
   void beginLuminosityBlock(const edm::LuminosityBlock& iLumi, const edm::EventSetup& iSetup) override;

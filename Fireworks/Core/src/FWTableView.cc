@@ -544,7 +544,7 @@ FWTableView::toggleShowHide ()
 /** Reconstructs the combo box using the information
     coming from FWEventItemsManager.
   */
-void FWTableView::updateItems(void)
+void FWTableView::updateItems()
 {
    int selected = m_collection->GetSelected();
    m_collection->RemoveAll();

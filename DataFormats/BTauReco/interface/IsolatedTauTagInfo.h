@@ -20,7 +20,7 @@ namespace reco {
   class IsolatedTauTagInfo : public JTATagInfo {
   public:
     //default constructor
-    IsolatedTauTagInfo( void ) : 
+    IsolatedTauTagInfo( ) : 
       JTATagInfo(),
 	selectedTracks_()
 	

@@ -9,7 +9,7 @@ public:
     virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TCaloParamsObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TCaloParamsObjectKeysOnlineProd(void){}
+    ~L1TCaloParamsObjectKeysOnlineProd(){}
 };
 
 L1TCaloParamsObjectKeysOnlineProd::L1TCaloParamsObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

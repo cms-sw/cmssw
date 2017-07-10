@@ -105,7 +105,7 @@ class HLTObjectMonitor : public DQMEDAnalyzer {
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
   double dxyFinder(double, double, edm::Handle<reco::RecoChargedCandidateCollection>, edm::Handle<reco::BeamSpot>);
-  double get_wall_time(void);
+  double get_wall_time();
       // ----------member data ---------------------------
 
   bool debugPrint;

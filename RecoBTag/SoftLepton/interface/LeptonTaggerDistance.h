@@ -15,7 +15,7 @@ class LeptonTaggerDistance : public JetTagComputer {
 public:
 
   /// default ctor
-  LeptonTaggerDistance(void) : m_maxDistance(0.5) { uses("slTagInfos"); }
+  LeptonTaggerDistance() : m_maxDistance(0.5) { uses("slTagInfos"); }
 
   /// explicit ctor
   explicit LeptonTaggerDistance(const edm::ParameterSet & configuration) {

@@ -434,56 +434,56 @@ HBHEHitMap::HBHEHitMap()
 
 }
 
-double HBHEHitMap::hitEnergy(void) const
+double HBHEHitMap::hitEnergy() const
 {
   if(hitEnergy_<-900) calcHits_();
   return hitEnergy_;
 }
 
-int HBHEHitMap::nHits(void) const
+int HBHEHitMap::nHits() const
 {
   if(nHits_<-900) calcHits_();
   return nHits_;
 }
 
-double HBHEHitMap::hitEnergyTrackFiducial(void) const
+double HBHEHitMap::hitEnergyTrackFiducial() const
 {
   if(hitEnergyTrkFid_<-900) calcHits_();
   return hitEnergyTrkFid_;
 }
 
 
-double HBHEHitMap::hcalEnergySameTowers(void) const
+double HBHEHitMap::hcalEnergySameTowers() const
 {
   if(hcalEnergySameTowers_<-900) calcHcalSameTowers_();
   return hcalEnergySameTowers_;
 }
 
-int HBHEHitMap::nHcalHitsSameTowers(void) const
+int HBHEHitMap::nHcalHitsSameTowers() const
 {
   if(nHcalHitsSameTowers_<-900) calcHcalSameTowers_();
   return nHcalHitsSameTowers_;
 }
 
-double HBHEHitMap::ecalEnergySameTowers(void) const
+double HBHEHitMap::ecalEnergySameTowers() const
 {
   if(ecalEnergySameTowers_<-900) calcEcalSameTowers_();
   return ecalEnergySameTowers_;
 }
 
-int HBHEHitMap::nEcalHitsSameTowers(void) const
+int HBHEHitMap::nEcalHitsSameTowers() const
 {
   if(nEcalHitsSameTowers_<-900) calcEcalSameTowers_();
   return nEcalHitsSameTowers_;
 }
 
-double HBHEHitMap::trackEnergySameTowers(void) const
+double HBHEHitMap::trackEnergySameTowers() const
 {
   if(trackEnergySameTowers_<-900) calcTracksSameTowers_();
   return trackEnergySameTowers_;
 }
 
-int HBHEHitMap::nTracksSameTowers(void) const
+int HBHEHitMap::nTracksSameTowers() const
 {
   if(nTracksSameTowers_<-900) calcTracksSameTowers_();
   return nTracksSameTowers_;
@@ -520,37 +520,37 @@ void HBHEHitMap::tracksSameTowers(std::set<const reco::Track*>& v) const
   return;
 }
 
-double HBHEHitMap::hcalEnergyNeighborTowers(void) const
+double HBHEHitMap::hcalEnergyNeighborTowers() const
 {
   if(hcalEnergyNeighborTowers_<-900) calcHcalNeighborTowers_();
   return hcalEnergyNeighborTowers_;
 }
 
-int HBHEHitMap::nHcalHitsNeighborTowers(void) const
+int HBHEHitMap::nHcalHitsNeighborTowers() const
 {
   if(nHcalHitsNeighborTowers_<-900) calcHcalNeighborTowers_();
   return nHcalHitsNeighborTowers_;
 }
 
-double HBHEHitMap::ecalEnergyNeighborTowers(void) const
+double HBHEHitMap::ecalEnergyNeighborTowers() const
 {
   if(ecalEnergyNeighborTowers_<-900) calcEcalNeighborTowers_();
   return ecalEnergyNeighborTowers_;
 }
 
-int HBHEHitMap::nEcalHitsNeighborTowers(void) const
+int HBHEHitMap::nEcalHitsNeighborTowers() const
 {
   if(nEcalHitsNeighborTowers_<-900) calcEcalNeighborTowers_();
   return nEcalHitsNeighborTowers_;
 }
 
-double HBHEHitMap::trackEnergyNeighborTowers(void) const
+double HBHEHitMap::trackEnergyNeighborTowers() const
 {
   if(trackEnergyNeighborTowers_<-900) calcTracksNeighborTowers_();
   return trackEnergyNeighborTowers_;
 }
 
-int HBHEHitMap::nTracksNeighborTowers(void) const
+int HBHEHitMap::nTracksNeighborTowers() const
 {
   if(nTracksNeighborTowers_<-900) calcTracksNeighborTowers_();
   return nTracksNeighborTowers_;
@@ -609,7 +609,7 @@ void HBHEHitMap::insert(const HBHERecHit* hit, const PhysicsTower* twr, std::set
 }
 
 
-void HBHEHitMap::calcHits_(void) const
+void HBHEHitMap::calcHits_() const
 {
   hitEnergy_=0;
   nHits_=0;
@@ -623,7 +623,7 @@ void HBHEHitMap::calcHits_(void) const
   return;
 }
 
-void HBHEHitMap::calcHcalSameTowers_(void) const
+void HBHEHitMap::calcHcalSameTowers_() const
 {
   hcalEnergySameTowers_=0;
   nHcalHitsSameTowers_=0;
@@ -637,7 +637,7 @@ void HBHEHitMap::calcHcalSameTowers_(void) const
   return;
 }
 
-void HBHEHitMap::calcEcalSameTowers_(void) const
+void HBHEHitMap::calcEcalSameTowers_() const
 {
   ecalEnergySameTowers_=0;
   nEcalHitsSameTowers_=0;
@@ -651,7 +651,7 @@ void HBHEHitMap::calcEcalSameTowers_(void) const
   return;
 }
 
-void HBHEHitMap::calcTracksSameTowers_(void) const
+void HBHEHitMap::calcTracksSameTowers_() const
 {
   trackEnergySameTowers_=0;
   nTracksSameTowers_=0;
@@ -665,7 +665,7 @@ void HBHEHitMap::calcTracksSameTowers_(void) const
   return;
 }
 
-void HBHEHitMap::calcHcalNeighborTowers_(void) const
+void HBHEHitMap::calcHcalNeighborTowers_() const
 {
   hcalEnergyNeighborTowers_=0;
   nHcalHitsNeighborTowers_=0;
@@ -679,7 +679,7 @@ void HBHEHitMap::calcHcalNeighborTowers_(void) const
   return;
 }
 
-void HBHEHitMap::calcEcalNeighborTowers_(void) const
+void HBHEHitMap::calcEcalNeighborTowers_() const
 {
   ecalEnergyNeighborTowers_=0;
   nEcalHitsNeighborTowers_=0;
@@ -693,7 +693,7 @@ void HBHEHitMap::calcEcalNeighborTowers_(void) const
   return;
 }
 
-void HBHEHitMap::calcTracksNeighborTowers_(void) const
+void HBHEHitMap::calcTracksNeighborTowers_() const
 {
   trackEnergyNeighborTowers_=0;
   nTracksNeighborTowers_=0;

@@ -28,33 +28,33 @@ public:
     READ_HINT_AUTO
   };
 
-  static const StorageFactory *get (void);
-  static StorageFactory *getToModify (void);
+  static const StorageFactory *get ();
+  static StorageFactory *getToModify ();
 
-  ~StorageFactory (void);
+  ~StorageFactory ();
 
   // implicit copy constructor
   // implicit assignment operator
 
   void		setCacheHint(CacheHint value);
-  CacheHint	cacheHint(void) const;
+  CacheHint	cacheHint() const;
 
   void		setReadHint(ReadHint value);
-  ReadHint	readHint(void) const;
+  ReadHint	readHint() const;
 
   bool		enableAccounting (bool enabled);
-  bool		accounting (void) const;
+  bool		accounting () const;
 
   void		setTimeout(unsigned int timeout);
-  unsigned int	timeout(void) const;
+  unsigned int	timeout() const;
 
   void          setDebugLevel(unsigned int level);
-  unsigned int  debugLevel(void) const;
+  unsigned int  debugLevel() const;
 
   void		setTempDir (const std::string &s, double minFreeSpace);
-  std::string	tempDir (void) const;
-  std::string	tempPath (void) const;
-  double	tempMinFree (void) const;
+  std::string	tempDir () const;
+  std::string	tempPath () const;
+  double	tempMinFree () const;
 
   void		stagein (const std::string &url) const;
   std::unique_ptr<Storage>	open (const std::string &url,
@@ -70,7 +70,7 @@ public:
 private:
   typedef tbb::concurrent_unordered_map<std::string, std::shared_ptr<StorageMaker>> MakerTable;
 
-  StorageFactory (void);
+  StorageFactory ();
   StorageMaker *getMaker (const std::string &proto) const;
   StorageMaker *getMaker (const std::string &url,
 			  std::string &protocol,

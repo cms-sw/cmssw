@@ -52,7 +52,7 @@ DDXMLElement::loadAttributes( const std::string& elemName,
 
 // clear data.
 void
-DDXMLElement::clear( void )
+DDXMLElement::clear( )
 {
   text_.clear();
   attributes_.clear();
@@ -202,7 +202,7 @@ DDXMLElement::getText( size_t tindex ) const
 }
 
 bool
-DDXMLElement::gotText( void ) const
+DDXMLElement::gotText( ) const
 {
   if (text_.size() != 0)
     return true;
@@ -245,20 +245,20 @@ DDXMLElement::appendAttributes( std::vector<std::string> & tv,
 
 // Number of elements accumulated.
 size_t
-DDXMLElement::size( void ) const
+DDXMLElement::size( ) const
 {
   return attributes_.size();
 }
 
 std::vector<DDXMLAttribute>::const_iterator
-DDXMLElement::begin( void )
+DDXMLElement::begin( )
 {
   myIter_ = attributes_.begin();
   return attributes_.begin();
 }
 
 std::vector<DDXMLAttribute>::const_iterator
-DDXMLElement::end( void )
+DDXMLElement::end( )
 {
   myIter_ = attributes_.end();
   return attributes_.end();
@@ -272,7 +272,7 @@ DDXMLElement::operator++( int inc )
 }
 
 const std::string&
-DDXMLElement::parent( void ) const
+DDXMLElement::parent( ) const
 {
   return parentElement_;
 }
@@ -290,7 +290,7 @@ DDXMLElement::setSelf( const std::string& sename )
 }
 
 bool
-DDXMLElement::isEmpty( void ) const
+DDXMLElement::isEmpty( ) const
 {
   return (attributes_.size() == 0 ? true : false);
 }

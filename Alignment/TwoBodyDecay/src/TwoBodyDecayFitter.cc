@@ -15,7 +15,7 @@ TwoBodyDecayFitter::TwoBodyDecayFitter( const edm::ParameterSet & config,
   theEstimator( est->clone() ) {}
 
 
-TwoBodyDecayFitter::~TwoBodyDecayFitter( void ) {}
+TwoBodyDecayFitter::~TwoBodyDecayFitter( ) {}
 
 
 const TwoBodyDecay TwoBodyDecayFitter::estimate( const std::vector< reco::TransientTrack >& tracks,

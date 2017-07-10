@@ -132,29 +132,29 @@ class BTVHLTOfflineSource : public DQMEDAnalyzer {
       MonitorElement * getMEhisto_PVz_HLTMinusRECO()      { return PVz_HLTMinusRECO_;}
       MonitorElement * getMEhisto_fastPVz_HLTMinusRECO()  { return fastPVz_HLTMinusRECO_;}
      
-      const std::string getLabel(void ) const {
+      const std::string getLabel( ) const {
 	return filterName_;
       }
       void setLabel(std::string labelName){
 	filterName_ = labelName;
 	return;
       }
-      const std::string getPath(void ) const {
+      const std::string getPath( ) const {
 	return pathName_;
       }
-      const int getprescaleUsed(void) const {
+      const int getprescaleUsed() const {
 	return prescaleUsed_;
       }
-      const std::string getProcess(void ) const {
+      const std::string getProcess( ) const {
 	return processName_;
       }
-      const int getObjectType(void ) const {
+      const int getObjectType( ) const {
 	return objectType_;
       }
-      const std::string getTriggerType(void ) const {
+      const std::string getTriggerType( ) const {
 	return triggerType_;
       }
-      const edm::InputTag getTag(void) const{
+      const edm::InputTag getTag() const{
 	edm::InputTag tagName(filterName_,"",processName_);
 	return tagName;
       }

@@ -25,10 +25,10 @@ class DDLDocumentProvider {
   virtual ~DDLDocumentProvider(){}
 
   /// Return a list of files as a vector of strings.
-  virtual const std::vector < std::string >&  getFileList(void) const = 0;
+  virtual const std::vector < std::string >&  getFileList() const = 0;
 
   /// Return a list of urls as a vector of strings.
-  virtual const std::vector < std::string >&  getURLList(void) const = 0;
+  virtual const std::vector < std::string >&  getURLList() const = 0;
 
   /// Return a flag whether to do xml validation or not.
   virtual bool doValidation() const = 0;
@@ -37,7 +37,7 @@ class DDLDocumentProvider {
   virtual std::string getSchemaLocation() const = 0;
 
   /// Print out the list of files.
-  virtual void dumpFileList(void) const = 0;
+  virtual void dumpFileList() const = 0;
 
   /// (does not belong here) Read in the configuration file.
   virtual int readConfig(const std:: string& filename)=0;

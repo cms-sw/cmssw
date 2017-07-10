@@ -64,7 +64,7 @@ void SiStripMonitorCondDataOnDemandExample::beginRun(edm::Run const& run, edm::E
 //
 // ----- beginJob
 //
-void SiStripMonitorCondDataOnDemandExample::beginJob(void){} //beginJob
+void SiStripMonitorCondDataOnDemandExample::beginJob(){} //beginJob
 
 
 
@@ -110,7 +110,7 @@ void SiStripMonitorCondDataOnDemandExample::endRun(edm::Run const& run, edm::Eve
 //
 // ----- endJob
 //
-void SiStripMonitorCondDataOnDemandExample::endJob(void){} //endJob
+void SiStripMonitorCondDataOnDemandExample::endJob(){} //endJob
 
 
 #include "FWCore/Framework/interface/MakerMacros.h"

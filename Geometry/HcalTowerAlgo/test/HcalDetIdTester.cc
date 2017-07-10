@@ -14,7 +14,7 @@ class HcalDetIdTester : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalDetIdTester( const edm::ParameterSet& );
-  ~HcalDetIdTester( void );
+  ~HcalDetIdTester( );
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -29,7 +29,7 @@ HcalDetIdTester::HcalDetIdTester( const edm::ParameterSet& iConfig ) : ps0_(iCon
   geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
 }
 
-HcalDetIdTester::~HcalDetIdTester( void ) {}
+HcalDetIdTester::~HcalDetIdTester( ) {}
 
 void
 HcalDetIdTester::analyze(const edm::Event& /*iEvent*/, 

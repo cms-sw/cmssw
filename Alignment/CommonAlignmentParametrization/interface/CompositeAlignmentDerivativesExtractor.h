@@ -31,10 +31,10 @@ public:
 					  const std::vector< TrajectoryStateOnSurface > & tsos );
 
   /// destructor
-  ~CompositeAlignmentDerivativesExtractor( void ) {};
+  ~CompositeAlignmentDerivativesExtractor( ) {};
 
-  const AlgebraicMatrix & derivatives( void ) const { return theDerivatives; }
-  const AlgebraicVector & correctionTerm( void ) const { return theCorrectionTerm; }
+  const AlgebraicMatrix & derivatives( ) const { return theDerivatives; }
+  const AlgebraicVector & correctionTerm( ) const { return theCorrectionTerm; }
   
 private:
   

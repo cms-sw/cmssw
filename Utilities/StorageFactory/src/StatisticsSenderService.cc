@@ -206,7 +206,7 @@ StatisticsSenderService::filePreCloseEvent(std::string const& lfn, bool usedFall
 }
 
 void
-StatisticsSenderService::determineHostnames(void) {
+StatisticsSenderService::determineHostnames() {
   char tmpName[HOST_NAME_MAX];
   if (gethostname(tmpName, HOST_NAME_MAX) != 0) {
     // Sigh, no way to log errors from here.

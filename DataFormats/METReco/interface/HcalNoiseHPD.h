@@ -69,36 +69,36 @@ namespace reco {
     
     // unique integer specifier for the hpd [0,NUM_HPDS-1]
     // correlates roughly with the detector phi slice
-    int idnumber(void) const;
+    int idnumber() const;
     
     //
     // Digi accessors
     //
     
     // pedestal subtracted fC information for the highest energy pixel in the HPD by timeslice
-    const std::vector<float> bigCharge(void) const;
-    float bigChargeTotal(void) const;
+    const std::vector<float> bigCharge() const;
+    float bigChargeTotal() const;
     float bigChargeHighest2TS(unsigned int firstts=4) const;
     float bigChargeHighest3TS(unsigned int firstts=4) const;
     
     // same as above but the integral over the 5 highest energy pixels in the HPD
-    const std::vector<float> big5Charge(void) const;
-    float big5ChargeTotal(void) const;
+    const std::vector<float> big5Charge() const;
+    float big5ChargeTotal() const;
     float big5ChargeHighest2TS(unsigned int firstts=4) const;
     float big5ChargeHighest3TS(unsigned int firstts=4) const;
     
     // total number of adc zeros
-    int totalZeros(void) const;
+    int totalZeros() const;
     
     // largest number of adc zeros in a digi in the HPD
-    int maxZeros(void) const;
+    int maxZeros() const;
 
     //
     // RecHit accessors
     //
 
     // returns a reference to a vector of references to the rechits
-    const edm::RefVector<HBHERecHitCollection> recHits(void) const;
+    const edm::RefVector<HBHERecHitCollection> recHits() const;
     
     // integral of rechit energies in the HPD with E>threshold (default is 1.5 GeV)
     float recHitEnergy(float threshold=1.5) const;
@@ -117,13 +117,13 @@ namespace reco {
     //
     
     // returns a reference to a vector of references to the calotowers
-    const edm::RefVector<CaloTowerCollection> caloTowers(void) const;
+    const edm::RefVector<CaloTowerCollection> caloTowers() const;
 
     // calotower properties integrated over the entire HPD
-    double caloTowerHadE(void) const;
-    double caloTowerEmE(void) const;
-    double caloTowerTotalE(void) const;
-    double caloTowerEmFraction(void) const;
+    double caloTowerHadE() const;
+    double caloTowerEmE() const;
+    double caloTowerTotalE() const;
+    double caloTowerEmFraction() const;
     
     
   private:

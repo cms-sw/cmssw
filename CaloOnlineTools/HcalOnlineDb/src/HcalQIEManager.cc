@@ -19,14 +19,14 @@ using namespace std;
 using namespace oracle::occi;
 using namespace hcal;
 
-HcalQIEManager::HcalQIEManager( void )
+HcalQIEManager::HcalQIEManager( )
 {    
 
 }
 
 
 
-HcalQIEManager::~HcalQIEManager( void )
+HcalQIEManager::~HcalQIEManager( )
 {    
 
 }

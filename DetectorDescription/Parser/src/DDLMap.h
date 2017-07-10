@@ -73,7 +73,7 @@ public:
   void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
   void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 
-  ReadMapType<std::map<std::string,double> > & getMapOfMaps( void );
+  ReadMapType<std::map<std::string,double> > & getMapOfMaps( );
 
 private:
   dd_map_type pMap;

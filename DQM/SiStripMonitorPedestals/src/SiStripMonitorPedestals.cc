@@ -469,7 +469,7 @@ void SiStripMonitorPedestals::endRun(edm::Run const& run, edm::EventSetup const&
 //
 // -- End Job
 //    
-void SiStripMonitorPedestals::endJob(void){
+void SiStripMonitorPedestals::endJob(){
   edm::LogInfo("SiStripMonitorPedestals") <<"SiStripMonitorPedestals::EndJob: " 
 					  << " Finishing!! ";        
 }

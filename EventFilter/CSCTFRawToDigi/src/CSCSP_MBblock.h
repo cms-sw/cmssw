@@ -37,27 +37,27 @@ private:
 	unsigned int id_;             // stub id (1-MB1a, 2-MB1d)
 
 public:
-	bool check(void) const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0||zero_5!=0||zero_6!=0||spare_1!=0||spare_2!=0; }
+	bool check() const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0||zero_5!=0||zero_6!=0||spare_1!=0||spare_2!=0; }
 
-	unsigned int quality (void) const throw() { return quality_;  }
-	unsigned int phi_bend(void) const throw() { return phi_bend_; }
-	unsigned int flag    (void) const throw() { return flag_;     }
-	unsigned int cal     (void) const throw() { return cal_;      }
+	unsigned int quality () const throw() { return quality_;  }
+	unsigned int phi_bend() const throw() { return phi_bend_; }
+	unsigned int flag    () const throw() { return flag_;     }
+	unsigned int cal     () const throw() { return cal_;      }
 
-	unsigned int phi(void) const throw() { return phi_;    }
-	unsigned int bxn(void) const throw() { return (bxn1_<<1)|bxn0_; }
-	unsigned int bc0(void) const throw() { return bc0_;    }
-	unsigned int BXN(void) const throw() { return mb_bxn_; }
+	unsigned int phi() const throw() { return phi_;    }
+	unsigned int bxn() const throw() { return (bxn1_<<1)|bxn0_; }
+	unsigned int bc0() const throw() { return bc0_;    }
+	unsigned int BXN() const throw() { return mb_bxn_; }
 
-	unsigned int id  (void) const throw() { return id_;           }
-	unsigned int tbin(void) const throw() { return tbin_;         }
-	unsigned int vq  (void) const throw() { return valid_quality; }
-	unsigned int af  (void) const throw() { return alignment_fifo;}
-	unsigned int timingError(void) const throw() { return bxBit; }
+	unsigned int id  () const throw() { return id_;           }
+	unsigned int tbin() const throw() { return tbin_;         }
+	unsigned int vq  () const throw() { return valid_quality; }
+	unsigned int af  () const throw() { return alignment_fifo;}
+	unsigned int timingError() const throw() { return bxBit; }
 
 	bool unpack(const unsigned short *&buf) throw() { memcpy(this, buf, 4*sizeof(short)); buf+=4; return check(); }
 
-	CSCSP_MBblock(void){}
+	CSCSP_MBblock(){}
 };
 
 #endif

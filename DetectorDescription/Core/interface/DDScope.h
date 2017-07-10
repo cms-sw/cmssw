@@ -33,12 +33,12 @@ public:
   typedef std::vector<DDGeoHistory> scope_type;
   
   //! empty scope
-  DDScope( void );
+  DDScope( );
   
   //! scope with a single subtree
   DDScope( const DDGeoHistory &, int depth = 0 );
   
-  ~DDScope( void );
+  ~DDScope( );
   
   //! Adds a scope. No new scope will be added if s is already contained in one of the subtrees
   /**
@@ -50,10 +50,10 @@ public:
   void setDepth( int );  
   
   //! return the depth to wich the subtrees are restricted
-  int depth( void ) const;
+  int depth( ) const;
   
   //! returns the scope container
-  const scope_type & scope( void ) const;
+  const scope_type & scope( ) const;
   
 protected:
   scope_type subtrees_;

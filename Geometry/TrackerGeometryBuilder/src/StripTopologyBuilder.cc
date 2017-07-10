@@ -4,7 +4,7 @@
 #include "DataFormats/GeometrySurface/interface/Bounds.h"
 #include "DataFormats/GeometrySurface/interface/TrapezoidalPlaneBounds.h"
 
-StripTopologyBuilder::StripTopologyBuilder( void )
+StripTopologyBuilder::StripTopologyBuilder( )
   : theAPVNumb( 0.0 )
 {}
 

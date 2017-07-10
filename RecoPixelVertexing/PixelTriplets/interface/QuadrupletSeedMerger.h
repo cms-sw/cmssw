@@ -52,10 +52,10 @@ class SeedMergerPixelLayer {
   enum Side{ Minus=1, Plus=2, Undefined, SideError }; // Changed to correspond with PXFDetId ...
 
   SeedMergerPixelLayer( const std::string& );
-  unsigned getLayerNumber( void ) const { return layer_; }
-  Side getSide( void ) const { return side_;}
-  PixelSubdetector::SubDetector getSubdet( void ) const { return subdet_; }
-  std::string getName( void ) const { return name_; }
+  unsigned getLayerNumber( ) const { return layer_; }
+  Side getSide( ) const { return side_;}
+  PixelSubdetector::SubDetector getSubdet( ) const { return subdet_; }
+  std::string getName( ) const { return name_; }
   bool isContainsDetector( const DetId&, const TrackerTopology *tTopo ) const;
 
  private:

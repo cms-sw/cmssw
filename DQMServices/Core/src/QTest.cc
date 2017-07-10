@@ -14,7 +14,7 @@ const float QCriterion::WARNING_PROB_THRESHOLD = 0.90;
 
 // initialize values
 void
-QCriterion::init(void)
+QCriterion::init()
 {
   errorProb_ = ERROR_PROB_THRESHOLD;
   warningProb_ = WARNING_PROB_THRESHOLD;

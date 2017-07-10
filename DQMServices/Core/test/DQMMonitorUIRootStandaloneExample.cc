@@ -54,7 +54,7 @@ public:
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
-  virtual void endJob(void);
+  virtual void endJob();
 
 private:
   // ----------member data ---------------------------
@@ -82,17 +82,17 @@ private:
   vector<string> testNames;
 
   // create the monitoring structure
-  void createMonitorElements(void);
+  void createMonitorElements();
   // create the quality tests
-  void createQualityTests(void);
+  void createQualityTests();
   // tune cuts for quality tests
-  void tuneCuts(void);
+  void tuneCuts();
 
   // use <ref> as the reference for the quality tests
   void setReference(MonitorElement * ref);
   // run quality tests;
   // (see Core/interface/QTestStatus.h)
-  void runTests(void);
+  void runTests();
   // show channels that failed test
   void showBadChannels(QReport *qr);
 
@@ -101,7 +101,7 @@ private:
 };
 
 // create the monitoring structure
-void DQMStandaloneExample::createMonitorElements(void)
+void DQMStandaloneExample::createMonitorElements()
 {
   // set # of bins, range for histogram(s)
   const int NBINS = 50;
@@ -120,7 +120,7 @@ void DQMStandaloneExample::createMonitorElements(void)
 }
 
 // create the quality tests
-void DQMStandaloneExample::createQualityTests(void)
+void DQMStandaloneExample::createQualityTests()
 {
   testNames.push_back("my_chi2");
   testNames.push_back("my_kolm");
@@ -177,7 +177,7 @@ void DQMStandaloneExample::createQualityTests(void)
 }
 
 // tune cuts for quality tests
-void DQMStandaloneExample::tuneCuts(void)
+void DQMStandaloneExample::tuneCuts()
 {
   // set reference for chi2, ks tests
   setReference(href);
@@ -230,7 +230,7 @@ DQMStandaloneExample::~DQMStandaloneExample()
 {
 }
 
-void DQMStandaloneExample::endJob(void)
+void DQMStandaloneExample::endJob()
 {
   runTests();
 }

@@ -35,8 +35,8 @@ public:
    void simulate(const PSimHit&, 
                  std::vector<LocalPoint>& clusters, std::vector<int>& electrons, CLHEP::HepRandomEngine* );
 
-   bool dumpGasCollisions( void ) const { return dumpGasCollisions_; }
-   bool saveGasCollisions( void ) const { return saveGasCollisions_; }
+   bool dumpGasCollisions( ) const { return dumpGasCollisions_; }
+   bool saveGasCollisions( ) const { return saveGasCollisions_; }
 
    static const int N_GAMMA = 21;
    static const int N_ENERGY = 63;

@@ -53,7 +53,7 @@ TwoBodyDecayTrajectory::TwoBodyDecayTrajectory(const TwoBodyDecayTrajectoryState
 }
 
 
-TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( void )
+TwoBodyDecayTrajectory::TwoBodyDecayTrajectory( )
   : ReferenceTrajectoryBase( 0, 0, 0, 0),
   materialEffects_(none),
   propDir_(anyDirection),

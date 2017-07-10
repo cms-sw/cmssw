@@ -291,7 +291,7 @@ bool CSCSegAlgoTC::replaceHit(const CSCRecHit2D* h, int layer) {
 
 }
 
-void CSCSegAlgoTC::updateParameters(void) {
+void CSCSegAlgoTC::updateParameters() {
   
   //@@ DO NOT DELETE EXISTING FIT SINCE WE SAVE IT!!
   //  delete sfit_;

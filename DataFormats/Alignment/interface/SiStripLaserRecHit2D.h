@@ -21,7 +21,7 @@ public:
   virtual LocalError localPositionError() const { return error; }
   virtual SiStripLaserRecHit2D* clone() const { return new SiStripLaserRecHit2D( *this ); }
 
-  const SiStripDetId& getDetId( void ) const { return detId; }
+  const SiStripDetId& getDetId( ) const { return detId; }
 
  private:
   

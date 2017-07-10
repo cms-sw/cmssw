@@ -7,8 +7,8 @@ class HcalParameters {
 
 public:
   
-  HcalParameters( void ) { }
-  ~HcalParameters( void ) { }
+  HcalParameters( ) { }
+  ~HcalParameters( ) { }
 
   struct LayerItem {
     unsigned int layer;

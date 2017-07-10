@@ -19,14 +19,14 @@
 
 class AlcaBeamSpotManager {
  public:
-  AlcaBeamSpotManager         (void);
+  AlcaBeamSpotManager         ();
   AlcaBeamSpotManager         (const edm::ParameterSet&, edm::ConsumesCollector&&);
-  virtual ~AlcaBeamSpotManager(void);
+  virtual ~AlcaBeamSpotManager();
 
-  void reset(void);   
+  void reset();   
   void readLumi(const edm::LuminosityBlock&);   
-  void createWeightedPayloads(void);   
-  const std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot>& getPayloads(void){return beamSpotMap_;}   
+  void createWeightedPayloads();   
+  const std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot>& getPayloads(){return beamSpotMap_;}   
 
   typedef std::map<edm::LuminosityBlockNumber_t,reco::BeamSpot>::iterator bsMap_iterator;
  private:

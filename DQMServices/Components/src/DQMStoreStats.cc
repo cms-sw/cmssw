@@ -514,7 +514,7 @@ int DQMStoreStats::calcstats( int mode = DQMStoreStats::considerAllME ) {
 ///
 ///
 ///
-void DQMStoreStats::dumpMemoryProfile( void ) {
+void DQMStoreStats::dumpMemoryProfile( ) {
 
   std::cout << std::endl;
   std::cout << "------------------------------------------------------------------------------------------" << std::endl;
@@ -592,7 +592,7 @@ void DQMStoreStats::print(){
 ///
 /// read virtual memory size from /proc/<pid>/status file
 ///
-std::pair<unsigned int, unsigned int> DQMStoreStats::readMemoryEntry( void ) const {
+std::pair<unsigned int, unsigned int> DQMStoreStats::readMemoryEntry( ) const {
   
   // see if initial test reading was successful
   if( isOpenProcFileSuccessful_ ) {

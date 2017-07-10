@@ -43,15 +43,15 @@ class MonitorElementsDb{
   void analyze( const edm::Event& e, const edm::EventSetup& c, coral::ISessionProxy* s );
 
   // BeginJob
-  void beginJob( void );
+  void beginJob( );
 
   // EndJob
-  void endJob( void ); 
+  void endJob( ); 
  
   // HtmlOutput
   void htmlOutput( std::string& htmlDir );
 
-  void startSession( void );
+  void startSession( );
 
  private:
 

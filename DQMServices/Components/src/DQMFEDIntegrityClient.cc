@@ -166,7 +166,7 @@ void DQMFEDIntegrityClient::endLuminosityBlock(const edm::LuminosityBlock&  lumi
   if (fillOnEndLumi) fillHistograms();
 }
 
-void DQMFEDIntegrityClient::fillHistograms(void){
+void DQMFEDIntegrityClient::fillHistograms(){
   // FED Entries
   
   // dbe_->showDirStructure();

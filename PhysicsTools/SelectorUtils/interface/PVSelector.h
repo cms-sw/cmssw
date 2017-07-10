@@ -81,7 +81,7 @@ public:
 
 
   // get NPV from the last check
-  int GetNpv(void){return mNpv;}
+  int GetNpv(){return mNpv;}
 
 
 

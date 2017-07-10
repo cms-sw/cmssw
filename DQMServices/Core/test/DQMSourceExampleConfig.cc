@@ -52,7 +52,7 @@ public:
    
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
-  virtual void endJob(void);
+  virtual void endJob();
 
     void recursiveBuild (string, int, int, int, DQMStore * , int);
     
@@ -130,7 +130,7 @@ DQMSourceExampleConfig::~DQMSourceExampleConfig()
   
 }
 
-void DQMSourceExampleConfig::endJob(void)
+void DQMSourceExampleConfig::endJob()
 {
   dbe->save("test.root");  
 }

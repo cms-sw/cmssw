@@ -36,13 +36,13 @@ public:
     theSecondaryMass( other.theSecondaryMass ),
     theBeamSpot( other.theBeamSpot ) {}
 
-  inline const double & primaryMass( void ) const { return thePrimaryMass; }
-  inline const double & primaryWidth( void ) const { return thePrimaryWidth; }
-  inline const double & secondaryMass( void ) const { return theSecondaryMass; }
+  inline const double & primaryMass( ) const { return thePrimaryMass; }
+  inline const double & primaryWidth( ) const { return thePrimaryWidth; }
+  inline const double & secondaryMass( ) const { return theSecondaryMass; }
 
-  inline const reco::BeamSpot & beamSpot( void ) const { return theBeamSpot; }
-  inline const AlgebraicVector beamSpotPosition( void ) const { return convertXYZPoint( theBeamSpot.position() ); }
-  inline const AlgebraicSymMatrix beamSpotError( void ) const { return extractBeamSpotError(); }
+  inline const reco::BeamSpot & beamSpot( ) const { return theBeamSpot; }
+  inline const AlgebraicVector beamSpotPosition( ) const { return convertXYZPoint( theBeamSpot.position() ); }
+  inline const AlgebraicSymMatrix beamSpotError( ) const { return extractBeamSpotError(); }
 
 private:
 

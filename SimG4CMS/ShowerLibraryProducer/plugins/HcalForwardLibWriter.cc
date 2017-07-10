@@ -123,7 +123,7 @@ void HcalForwardLibWriter::endJob() {
   LibTree->Print();
 }
 
-int HcalForwardLibWriter::readUserData(void) {
+int HcalForwardLibWriter::readUserData() {
   std::ifstream input(theDataFile.c_str());
   if (input.fail()) {
     return 0;

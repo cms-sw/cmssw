@@ -103,7 +103,7 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCStation& b )
 
 
 /// Recursive printout of whole CSC Station structure
-void AlignableCSCStation::dump( void ) const
+void AlignableCSCStation::dump( ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);

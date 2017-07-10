@@ -16,7 +16,7 @@
 #include "Math/GenVector/DisplacementVector3D.h"
 #include "Math/GenVector/Rotation3D.h"
 
-DDAngular::DDAngular( void )
+DDAngular::DDAngular( )
   : m_n( 1 ),
     m_startCopyNo( 1 ),
     m_incrCopyNo( 1 ),
@@ -28,7 +28,7 @@ DDAngular::DDAngular( void )
   LogDebug( "DDAlgorithm" ) << "DDAngular: Creating an instance.";
 }
 
-DDAngular::~DDAngular( void ) 
+DDAngular::~DDAngular( ) 
 {}
 
 void

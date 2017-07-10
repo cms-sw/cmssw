@@ -79,7 +79,7 @@ public:
     void analyze(const edm::Event&, const edm::EventSetup&);
 
     /// Save the histos
-    void endJob(void);
+    void endJob();
 
 private:
     // ----------member data ---------------------------

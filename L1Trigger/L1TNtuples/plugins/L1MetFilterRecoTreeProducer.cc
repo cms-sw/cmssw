@@ -54,7 +54,7 @@ public:
 
 
 private:
-  virtual void beginJob(void) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -189,7 +189,7 @@ void L1MetFilterRecoTreeProducer::doMetFilters(edm::Handle<edm::TriggerResults> 
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1MetFilterRecoTreeProducer::beginJob(void)
+L1MetFilterRecoTreeProducer::beginJob()
 {
 }
 

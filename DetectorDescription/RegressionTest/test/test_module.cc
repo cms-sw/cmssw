@@ -11,8 +11,8 @@ class DDCompactView;
 class DDTestAlgorithm : public DDAlgorithm
 {
 public:
-  DDTestAlgorithm( void ) {}
-  virtual ~DDTestAlgorithm( void ){}
+  DDTestAlgorithm( ) {}
+  virtual ~DDTestAlgorithm( ){}
  
   void initialize( const DDNumericArguments &,
 		   const DDVectorArguments &,

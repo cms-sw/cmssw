@@ -20,8 +20,8 @@
 class FWTrackingParticleProxyBuilder : public FWSimpleProxyBuilderTemplate<TrackingParticle>
 {
 public:
-   FWTrackingParticleProxyBuilder( void ) {} 
-   virtual ~FWTrackingParticleProxyBuilder( void ) {}
+   FWTrackingParticleProxyBuilder( ) {} 
+   virtual ~FWTrackingParticleProxyBuilder( ) {}
 
    virtual void setItem(const FWEventItem* iItem) override {
       FWProxyBuilderBase::setItem(iItem);

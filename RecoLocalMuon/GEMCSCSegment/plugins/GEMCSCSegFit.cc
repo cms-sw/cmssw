@@ -17,7 +17,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-void GEMCSCSegFit::fit(void) {
+void GEMCSCSegFit::fit() {
   edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fit] - start the fitting fun :: nhits = "<<nhits();
   if ( fitdone() ) return; // don't redo fit unnecessarily
   short n = nhits();
@@ -41,7 +41,7 @@ void GEMCSCSegFit::fit(void) {
   }  
 }
 
-void GEMCSCSegFit::fit2(void) {
+void GEMCSCSegFit::fit2() {
 
   edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fit2] - start fit2()";
   // Just join the two points
@@ -135,7 +135,7 @@ void GEMCSCSegFit::fit2(void) {
 }
 
 
-void GEMCSCSegFit::fitlsq(void) {
+void GEMCSCSegFit::fitlsq() {
   
   edm::LogVerbatim("GEMCSCSegFit") << "[GEMCSCSegFit::fitlsq] - start fitlsq";
   // Linear least-squares fit to up to 6 CSC rechits, one per layer in a CSC
@@ -350,7 +350,7 @@ void GEMCSCSegFit::fitlsq(void) {
 
 
 
-void GEMCSCSegFit::setChi2(void) {
+void GEMCSCSegFit::setChi2() {
   
   double chsq = 0.;
   bool gem = false;

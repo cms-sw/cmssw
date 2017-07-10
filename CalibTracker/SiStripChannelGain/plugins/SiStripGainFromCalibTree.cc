@@ -109,7 +109,7 @@ private:
         void bookDQMHistos(const char* dqm_dir, const char* tag);
 
         bool isBFieldConsistentWithMode( const edm::EventSetup& iSetup) const;
-        void swapBFieldMode(void);
+        void swapBFieldMode();
 
 	void merge(TH2* A, TH2* B); //needed to add histograms with different number of bins
 	void algoAnalyzeTheTree();

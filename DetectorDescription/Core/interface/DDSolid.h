@@ -44,7 +44,7 @@ class DDSolid : public DDBase<DDName, DDI::Solid*>
     
 public: 
   //! Uninitialilzed solid reference-object; for further details on reference-objects see documentation of DDLogicalPart
-  DDSolid( void );
+  DDSolid( );
   
   //! Creates a reference-object to a solid named \a name
   /** If the solid was not yet created using one of the solid generating factory 
@@ -58,13 +58,13 @@ public:
   DDSolid( const DDName & name ); 
   
   //! Give the parameters of the solid
-  const std::vector<double> & parameters( void ) const;
+  const std::vector<double> & parameters( ) const;
   
   //! Returns the volume of the given solid (\b does \b not \b work \b with \b boolean \b soids \b !)        
-  double volume( void ) const;
+  double volume( ) const;
   
   //! The type of the solid
-  DDSolidShape shape( void ) const;
+  DDSolidShape shape( ) const;
   
 private:
   DDSolid( const DDName &, DDI::Solid * );    
@@ -81,30 +81,30 @@ class DDTrap : public DDSolid
 public:
   DDTrap( const DDSolid & s );
   //! half of the z-Axis
-  double halfZ( void ) const;
+  double halfZ( ) const;
   //! Polar angle of the line joining the centres of the faces at -/+pDz
-  double theta( void ) const;
+  double theta( ) const;
   //! Azimuthal angle of the line joining the centres of the faces at -/+pDz
-  double phi( void ) const;
+  double phi( ) const;
   //! Half-length along y of the face at -pDz
-  double y1( void ) const;
+  double y1( ) const;
   //! Half-length along x of the side at y=-pDy1 of the face at -pDz
-  double x1( void ) const;
+  double x1( ) const;
   //! Half-length along x of the side at y=+pDy1 of the face at -pDz
-  double x2( void ) const;
+  double x2( ) const;
   //! Angle with respect to the y axis from the centre of the side at y=-pDy1 to the centre at y=+pDy1 of the face at -pDz
-  double alpha1( void ) const;
+  double alpha1( ) const;
   //! Half-length along y of the face at +pDz
-  double y2( void ) const;
+  double y2( ) const;
   //! Half-length along x of the side at y=-pDy2 of the face at +pDz
-  double x3( void ) const;
+  double x3( ) const;
   //! Half-length along x of the side at y=+pDy2 of the face at +pDz
-  double x4( void ) const;
+  double x4( ) const;
   //! Angle with respect to the y axis from the centre of the side at y=-pDy2 to the centre at y=+pDy2 of the face at +pDz
-  double alpha2( void ) const;
+  double alpha2( ) const;
   
 private:
-  DDTrap( void );
+  DDTrap( );
 };
 
 class DDPseudoTrap : public DDSolid
@@ -112,22 +112,22 @@ class DDPseudoTrap : public DDSolid
 public:
   DDPseudoTrap( const DDSolid & s );
   //! half of the z-Axis
-  double halfZ( void ) const;
+  double halfZ( ) const;
   //! half length along x on -z
-  double x1( void ) const;
+  double x1( ) const;
   //! half length along x on +z
-  double x2( void ) const;
+  double x2( ) const;
   //! half length along y on -z
-  double y1( void ) const;
+  double y1( ) const;
   //! half length along y on +z
-  double y2( void ) const;   
+  double y2( ) const;   
   //! radius of the cut-out (neg.) or rounding (pos.)
-  double radius( void ) const;
+  double radius( ) const;
   //! true, if cut-out or rounding is on the -z side
-  bool atMinusZ( void ) const;
+  bool atMinusZ( ) const;
 
 private:
-  DDPseudoTrap( void );
+  DDPseudoTrap( );
 };
   
 /// A truncated tube section    
@@ -136,24 +136,24 @@ class DDTruncTubs : public DDSolid
 public:
   DDTruncTubs( const DDSolid & s );
   //! half of the z-Axis
-  double zHalf( void ) const;
+  double zHalf( ) const;
   //! inner radius
-  double rIn( void ) const;
+  double rIn( ) const;
   //! outer radius
-  double rOut( void ) const;
+  double rOut( ) const;
   //! angular start of the tube-section
-  double startPhi( void ) const;
+  double startPhi( ) const;
   //! angular span of the tube-section
-  double deltaPhi( void ) const;
+  double deltaPhi( ) const;
   //! truncation at begin of the tube-section
-  double cutAtStart( void ) const;
+  double cutAtStart( ) const;
   //! truncation at end of the tube-section
-  double cutAtDelta( void ) const;
+  double cutAtDelta( ) const;
   //! true, if truncation is on the inner side of the tube-section
-  bool cutInside( void ) const;
+  bool cutInside( ) const;
 
 private:
-  DDTruncTubs( void );
+  DDTruncTubs( );
 };
 
 //! Interface to a Box
@@ -165,12 +165,12 @@ class DDBox : public DDSolid
 {
 public:
   DDBox( const DDSolid & s );
-  double halfX( void ) const; 
-  double halfY( void ) const; 
-  double halfZ( void ) const; 
+  double halfX( ) const; 
+  double halfY( ) const; 
+  double halfZ( ) const; 
 
 private:
-  DDBox( void );
+  DDBox( );
 };
 
 /// This is simply a handle on the solid.
@@ -180,17 +180,17 @@ public:
   DDShapelessSolid( const DDSolid & s );
 
 private:
-  DDShapelessSolid( void );
+  DDShapelessSolid( );
 };
 
 class DDReflectionSolid : public DDSolid
 {
 public:
   DDReflectionSolid( const DDSolid & s );
-  DDSolid unreflected( void ) const;
+  DDSolid unreflected( ) const;
 
 private:
-  DDReflectionSolid( void ); 
+  DDReflectionSolid( ); 
   DDI::Reflection * reflected_; 
 }; 
 
@@ -198,13 +198,13 @@ class DDBooleanSolid : public DDSolid
 {
 public:
   DDBooleanSolid( const DDSolid & s );
-  DDSolid solidA( void ) const;
-  DDSolid solidB( void ) const;
-  DDTranslation translation( void ) const;
-  DDRotation rotation( void ) const;
+  DDSolid solidA( ) const;
+  DDSolid solidB( ) const;
+  DDTranslation translation( ) const;
+  DDRotation rotation( ) const;
 
 private:
-  DDBooleanSolid( void );
+  DDBooleanSolid( );
   DDI::BooleanSolid * boolean_;  
 };
 
@@ -212,12 +212,12 @@ class DDMultiUnionSolid : public DDSolid
 {
 public:
   DDMultiUnionSolid( const DDSolid & s );
-  const std::vector<DDSolid>& solids( void ) const;
-  const std::vector<DDTranslation>& translations( void ) const;
-  const std::vector<DDRotation>& rotations( void ) const;
+  const std::vector<DDSolid>& solids( ) const;
+  const std::vector<DDTranslation>& translations( ) const;
+  const std::vector<DDRotation>& rotations( ) const;
 
 private:
-  DDMultiUnionSolid( void );
+  DDMultiUnionSolid( );
   DDI::MultiUnion * union_;  
 };
 
@@ -230,115 +230,115 @@ public:
 protected:
   /// note defaults please.
   virtual std::vector<double> getVec( const size_t& which, const size_t& offset = 0, const size_t& nVecs = 1 ) const;
-  DDPolySolid( void );
+  DDPolySolid( );
 };
   
 class DDPolycone : public DDPolySolid
 {
 public:
   DDPolycone( const DDSolid & s );
-  double startPhi( void ) const;
-  double deltaPhi( void ) const;
-  std::vector<double> zVec( void ) const;
-  std::vector<double> rVec( void ) const;
-  std::vector<double> rMinVec( void ) const;
-  std::vector<double> rMaxVec( void ) const;
+  double startPhi( ) const;
+  double deltaPhi( ) const;
+  std::vector<double> zVec( ) const;
+  std::vector<double> rVec( ) const;
+  std::vector<double> rMinVec( ) const;
+  std::vector<double> rMaxVec( ) const;
 
 private:
-  DDPolycone( void );
+  DDPolycone( );
 };
 
 class DDPolyhedra : public DDPolySolid
 {
 public:
   DDPolyhedra( const DDSolid & s );
-  int sides( void ) const;
-  double startPhi( void ) const;
-  double deltaPhi( void ) const;
-  std::vector<double> zVec( void ) const;
-  std::vector<double> rVec( void ) const;
-  std::vector<double> rMinVec( void ) const;
-  std::vector<double> rMaxVec( void ) const;
+  int sides( ) const;
+  double startPhi( ) const;
+  double deltaPhi( ) const;
+  std::vector<double> zVec( ) const;
+  std::vector<double> rVec( ) const;
+  std::vector<double> rMinVec( ) const;
+  std::vector<double> rMaxVec( ) const;
 
 private:
-  DDPolyhedra( void );
+  DDPolyhedra( );
 };
 
 class DDExtrudedPolygon : public DDPolySolid
 {
 public:
   DDExtrudedPolygon( const DDSolid & s );
-  std::vector<double> xVec( void ) const;
-  std::vector<double> yVec( void ) const;
-  std::vector<double> zVec( void ) const;
-  std::vector<double> zxVec( void ) const;
-  std::vector<double> zyVec( void ) const;
-  std::vector<double> zscaleVec( void ) const;
+  std::vector<double> xVec( ) const;
+  std::vector<double> yVec( ) const;
+  std::vector<double> zVec( ) const;
+  std::vector<double> zxVec( ) const;
+  std::vector<double> zyVec( ) const;
+  std::vector<double> zscaleVec( ) const;
 
 private:
-  DDExtrudedPolygon( void );
-  auto xyPointsSize( void ) const -> std::size_t;
-  auto zSectionsSize( void ) const -> std::size_t;
+  DDExtrudedPolygon( );
+  auto xyPointsSize( ) const -> std::size_t;
+  auto zSectionsSize( ) const -> std::size_t;
 };
 
 class DDTubs : public DDSolid
 {
 public:
   DDTubs( const DDSolid & s );
-  double zhalf( void ) const;
-  double rIn( void ) const;
-  double rOut( void ) const;
-  double startPhi( void ) const;
-  double deltaPhi( void ) const;
+  double zhalf( ) const;
+  double rIn( ) const;
+  double rOut( ) const;
+  double startPhi( ) const;
+  double deltaPhi( ) const;
 
 private:
-  DDTubs( void );
+  DDTubs( );
 };
 
 class DDCutTubs : public DDSolid
 {
 public:
   DDCutTubs( const DDSolid & s );
-  double zhalf( void ) const;
-  double rIn( void ) const;
-  double rOut( void ) const;
-  double startPhi( void ) const;
-  double deltaPhi( void ) const;
-  std::array<double, 3> lowNorm( void ) const;
-  std::array<double, 3> highNorm( void ) const;
+  double zhalf( ) const;
+  double rIn( ) const;
+  double rOut( ) const;
+  double startPhi( ) const;
+  double deltaPhi( ) const;
+  std::array<double, 3> lowNorm( ) const;
+  std::array<double, 3> highNorm( ) const;
 
 private:
-  DDCutTubs( void );
+  DDCutTubs( );
 };
 
 class DDCons : public DDSolid
 {
 public:
   DDCons( const DDSolid & s );
-  double zhalf( void ) const;
-  double rInMinusZ( void ) const;
-  double rOutMinusZ( void ) const;
-  double rInPlusZ( void ) const;
-  double rOutPlusZ( void ) const;
-  double phiFrom( void ) const;
-  double deltaPhi( void ) const;
+  double zhalf( ) const;
+  double rInMinusZ( ) const;
+  double rOutMinusZ( ) const;
+  double rInPlusZ( ) const;
+  double rOutPlusZ( ) const;
+  double phiFrom( ) const;
+  double deltaPhi( ) const;
 
 private:
-  DDCons( void );
+  DDCons( );
 };
 
 class DDTorus : public DDSolid
 {
 public:
   DDTorus( const DDSolid & s );
-  double rMin( void ) const;
-  double rMax( void ) const;
-  double rTorus( void ) const;
-  double startPhi( void ) const;
-  double deltaPhi( void ) const;
+  double rMin( ) const;
+  double rMax( ) const;
+  double rTorus( ) const;
+  double startPhi( ) const;
+  double deltaPhi( ) const;
 
 private:
-  DDTorus( void );
+  DDTorus( );
 };
 
 class DDUnion : public DDBooleanSolid
@@ -347,7 +347,7 @@ public:
   DDUnion( const DDSolid & s );
   
 private:
-  DDUnion( void );
+  DDUnion( );
 };
 
 class DDMultiUnion : public DDMultiUnionSolid
@@ -356,7 +356,7 @@ public:
   DDMultiUnion( const DDSolid & s );
   
 private:
-  DDMultiUnion( void );
+  DDMultiUnion( );
 };
 
 class DDIntersection : public DDBooleanSolid
@@ -365,7 +365,7 @@ public:
   DDIntersection( const DDSolid & s );
 
 private:
-  DDIntersection( void );
+  DDIntersection( );
 };
 
 class DDSubtraction : public DDBooleanSolid
@@ -374,73 +374,73 @@ public:
   DDSubtraction( const DDSolid & s );
 
 private:
-  DDSubtraction( void );
+  DDSubtraction( );
 };
 
 class DDSphere : public DDSolid
 {
 public:
   DDSphere( const DDSolid & s );
-  double innerRadius( void ) const;
-  double outerRadius( void ) const;
-  double startPhi( void ) const;
-  double deltaPhi( void ) const;
-  double startTheta( void ) const;
-  double deltaTheta( void ) const;
+  double innerRadius( ) const;
+  double outerRadius( ) const;
+  double startPhi( ) const;
+  double deltaPhi( ) const;
+  double startTheta( ) const;
+  double deltaTheta( ) const;
 
 private:
-  DDSphere( void );
+  DDSphere( );
 };
 
 class DDOrb : public DDSolid
 {
 public:
   DDOrb( const DDSolid & s );
-  double radius( void ) const;
+  double radius( ) const;
 
 private:
-  DDOrb( void );
+  DDOrb( );
 };
 
 class DDEllipticalTube : public DDSolid
 {
 public:
   DDEllipticalTube( const DDSolid & s );
-  double xSemiAxis( void ) const;
-  double ySemiAxis( void ) const;
-  double zHeight( void ) const;
+  double xSemiAxis( ) const;
+  double ySemiAxis( ) const;
+  double zHeight( ) const;
   
 private:
-  DDEllipticalTube( void );
+  DDEllipticalTube( );
 };
 
 class DDEllipsoid : public DDSolid
 {
 public:
   DDEllipsoid( const DDSolid & s );
-  double xSemiAxis( void ) const;
-  double ySemiAxis( void ) const;
-  double zSemiAxis( void ) const;
-  double zBottomCut( void ) const;
-  double zTopCut( void ) const;
+  double xSemiAxis( ) const;
+  double ySemiAxis( ) const;
+  double zSemiAxis( ) const;
+  double zBottomCut( ) const;
+  double zTopCut( ) const;
 
 private:
-  DDEllipsoid( void );
+  DDEllipsoid( );
 };
 
 class DDParallelepiped : public DDSolid
 {
 public:
   DDParallelepiped( const DDSolid & s );
-  double xHalf( void ) const;
-  double yHalf( void ) const;
-  double zHalf( void ) const;
-  double alpha( void ) const;
-  double theta( void ) const;
-  double phi( void ) const;
+  double xHalf( ) const;
+  double yHalf( ) const;
+  double zHalf( ) const;
+  double alpha( ) const;
+  double theta( ) const;
+  double phi( ) const;
 
 private:
-  DDParallelepiped( void );
+  DDParallelepiped( );
 };
 
 // Solid generation functions

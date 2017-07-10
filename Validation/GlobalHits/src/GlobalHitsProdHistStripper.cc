@@ -77,7 +77,7 @@ GlobalHitsProdHistStripper::~GlobalHitsProdHistStripper()
     if (outputfile.size() != 0 && dbe) dbe->save(outputfile);
 }
 
-void GlobalHitsProdHistStripper::beginJob( void )
+void GlobalHitsProdHistStripper::beginJob( )
 {
   return;
 }

@@ -62,41 +62,41 @@ AlignmentParameters::~AlignmentParameters()
 
 
 //__________________________________________________________________________________________________
-const std::vector<bool>& AlignmentParameters::selector(void) const
+const std::vector<bool>& AlignmentParameters::selector() const
 { 
   return theData->selector();
 }
 
 //__________________________________________________________________________________________________
-int AlignmentParameters::numSelected(void) const
+int AlignmentParameters::numSelected() const
 {
   return theData->numSelected();
 }
 
 
 //__________________________________________________________________________________________________
-AlgebraicVector AlignmentParameters::selectedParameters(void) const
+AlgebraicVector AlignmentParameters::selectedParameters() const
 { 
   return collapseVector( theData->parameters(), theData->selector() );
 }
 
 
 //__________________________________________________________________________________________________
-AlgebraicSymMatrix AlignmentParameters::selectedCovariance(void) const
+AlgebraicSymMatrix AlignmentParameters::selectedCovariance() const
 { 
   return collapseSymMatrix( theData->covariance(), theData->selector() );
 }
 
 
 //__________________________________________________________________________________________________
-const AlgebraicVector& AlignmentParameters::parameters(void) const
+const AlgebraicVector& AlignmentParameters::parameters() const
 { 
   return theData->parameters();
 }
 
 
 //__________________________________________________________________________________________________
-const AlgebraicSymMatrix& AlignmentParameters::covariance(void) const
+const AlgebraicSymMatrix& AlignmentParameters::covariance() const
 { 
   return theData->covariance();
 }
@@ -136,14 +136,14 @@ void  AlignmentParameters::setUserVariables(AlignmentUserVariables* auv)
 
 
 //__________________________________________________________________________________________________
-AlignmentUserVariables*  AlignmentParameters::userVariables(void) const
+AlignmentUserVariables*  AlignmentParameters::userVariables() const
 { 
   return theUserVariables;
 }
 
 
 //__________________________________________________________________________________________________
-Alignable* AlignmentParameters::alignable(void) const
+Alignable* AlignmentParameters::alignable() const
 { 
   return theAlignable;
 }
@@ -174,14 +174,14 @@ unsigned int AlignmentParameters::hierarchyLevel() const
 
 
 //__________________________________________________________________________________________________
-int AlignmentParameters::size(void) const
+int AlignmentParameters::size() const
 { 
   return theData->parameters().num_row();
 }
 
 
 //__________________________________________________________________________________________________
-bool AlignmentParameters::isValid(void) const
+bool AlignmentParameters::isValid() const
 { 
   return bValid;
 }

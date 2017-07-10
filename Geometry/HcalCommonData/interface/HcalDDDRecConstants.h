@@ -129,7 +129,7 @@ private:
 					 std::vector<std::pair<int,double>>& phis,
 					 std::map<int,int>& layers, bool planOne,
 					 std::vector<HcalDDDRecConstants::HcalEtaBin>& bins) const;
-  void                      initialize(void);
+  void                      initialize();
   unsigned int              layerGroupSize(int eta) const;
   unsigned int              layerGroup(int eta, int i) const;
 

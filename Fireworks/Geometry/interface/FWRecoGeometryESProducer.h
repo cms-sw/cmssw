@@ -25,7 +25,7 @@ class FWRecoGeometryESProducer : public edm::ESProducer
 {
 public:
   FWRecoGeometryESProducer( const edm::ParameterSet& );
-  virtual ~FWRecoGeometryESProducer( void );
+  virtual ~FWRecoGeometryESProducer( );
   
   std::shared_ptr<FWRecoGeometry> produce( const FWRecoGeometryRecord& );
 
@@ -33,20 +33,20 @@ private:
   FWRecoGeometryESProducer( const FWRecoGeometryESProducer& );
   const FWRecoGeometryESProducer& operator=( const FWRecoGeometryESProducer& );
   
-  void addCSCGeometry( void );
-  void addDTGeometry( void );
-  void addRPCGeometry( void );
-  void addGEMGeometry( void );
-  void addME0Geometry( void );
-  void addPixelBarrelGeometry( void );
-  void addPixelForwardGeometry( void );
-  void addTIBGeometry( void );
-  void addTOBGeometry( void );
-  void addTIDGeometry( void );
-  void addTECGeometry( void );
-  void addCaloGeometry( void );
+  void addCSCGeometry( );
+  void addDTGeometry( );
+  void addRPCGeometry( );
+  void addGEMGeometry( );
+  void addME0Geometry( );
+  void addPixelBarrelGeometry( );
+  void addPixelForwardGeometry( );
+  void addTIBGeometry( );
+  void addTOBGeometry( );
+  void addTIDGeometry( );
+  void addTECGeometry( );
+  void addCaloGeometry( );
 
-  void addFTLGeometry( void );
+  void addFTLGeometry( );
   
 
    

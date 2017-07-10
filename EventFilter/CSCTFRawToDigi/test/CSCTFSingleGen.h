@@ -17,7 +17,7 @@ public:
 	void produce(edm::Event& e, const edm::EventSetup& c);
 
 	CSCTFSingleGen(const edm::ParameterSet& pset);
-	~CSCTFSingleGen(void);
+	~CSCTFSingleGen();
 };
 
 #endif

@@ -120,7 +120,7 @@ HLTScalersClient::HLTScalersClient(const edm::ParameterSet& ps):
 
 
 /// BeginJob
-void HLTScalersClient::beginJob(void)
+void HLTScalersClient::beginJob()
 {
   LogDebug("HLTScalersClient") << "beingJob" ;
   if (dbe_) {

@@ -16,7 +16,7 @@ class HcalMaterial {
 //   mCorrs (fCorrs)
 { mId=fId;mCorrs=fCorrs;}
 
-  unsigned long mmId(void){return mId;}
+  unsigned long mmId(){return mId;}
 
  private:
  unsigned long mId;

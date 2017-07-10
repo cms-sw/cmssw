@@ -31,23 +31,23 @@ class HcalChannelIterator
       HcalChannelIterator();
       virtual ~HcalChannelIterator();
 
-      int clearChannelList(void); 
-      int size(void); 
+      int clearChannelList(); 
+      int size(); 
       int addListFromLmapAscii(std::string filename); 
-      int initHBEFListFromLmapAscii(void);
+      int initHBEFListFromLmapAscii();
       int init(const std::vector<HcalGenericDetId>& map);
 
       //
       //_____iterator methods __________________________
       //
-      int begin(void);
-      int next(void);
-      bool end(void);
-      HcalGenericDetId getHcalGenericDetId(void);
-      HcalSubdetector getHcalSubdetector(void);
-      int getIeta(void);
-      int getIphi(void);
-      int getDepth(void);
+      int begin();
+      int next();
+      bool end();
+      HcalGenericDetId getHcalGenericDetId();
+      HcalSubdetector getHcalSubdetector();
+      int getIeta();
+      int getIphi();
+      int getDepth();
 
    private:
 
