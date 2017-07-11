@@ -45,7 +45,7 @@ public:
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
-  virtual void endJob(void);
+  virtual void endJob();
 
 private:
   // ----------member data ---------------------------
@@ -229,7 +229,7 @@ DQMStoreExample::~DQMStoreExample()
   dbe->rmdir("B1");
 }
 
-void DQMStoreExample::endJob(void)
+void DQMStoreExample::endJob()
 {
   // rounding error
   float epsilon = 0.0001;

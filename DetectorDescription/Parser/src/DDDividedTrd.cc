@@ -37,7 +37,7 @@ DDDividedTrdX::DDDividedTrdX( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedTrdX::getMaxParameter( void ) const
+DDDividedTrdX::getMaxParameter( ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   return 2 * mtrd.x1();
@@ -114,7 +114,7 @@ DDDividedTrdX::makeDDLogicalPart( const int copyNo ) const
 }
 
 void
-DDDividedTrdX::checkParametersValidity( void )
+DDDividedTrdX::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
   
@@ -183,7 +183,7 @@ DDDividedTrdY::DDDividedTrdY( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedTrdY::getMaxParameter( void ) const
+DDDividedTrdY::getMaxParameter( ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   return 2 * mtrd.y1(); 
@@ -260,7 +260,7 @@ DDDividedTrdY::makeDDLogicalPart( const int copyNo ) const
 }
 
 void
-DDDividedTrdY::checkParametersValidity( void )
+DDDividedTrdY::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
@@ -313,7 +313,7 @@ DDDividedTrdZ::DDDividedTrdZ( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedTrdZ::getMaxParameter( void ) const
+DDDividedTrdZ::getMaxParameter( ) const
 {
   DDTrap mtrd = (DDTrap)(div_.parent().solid());
   return 2 * mtrd.halfZ();
@@ -396,7 +396,7 @@ DDDividedTrdZ::makeDDLogicalPart ( const int copyNo ) const
 }
 
 void
-DDDividedTrdZ::checkParametersValidity( void )
+DDDividedTrdZ::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
 

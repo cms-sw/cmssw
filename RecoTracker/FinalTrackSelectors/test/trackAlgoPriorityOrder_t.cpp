@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-int main(void) {
+int main() {
   for(unsigned int ialgo = 0; ialgo < reco::TrackBase::algoSize; ++ialgo) {
     reco::TrackBase::TrackAlgorithm algo = static_cast<reco::TrackBase::TrackAlgorithm>(ialgo);
 

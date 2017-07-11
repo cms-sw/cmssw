@@ -5,7 +5,7 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-const char *dablooms_version(void);
+const char *dablooms_version();
 
 typedef struct {
     size_t bytes;

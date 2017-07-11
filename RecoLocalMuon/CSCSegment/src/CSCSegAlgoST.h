@@ -83,15 +83,15 @@ public:
 private:
 
   // Retrieve pset
-  const edm::ParameterSet& pset(void) const { return ps_;}
+  const edm::ParameterSet& pset() const { return ps_;}
 
   // Adjust covariance matrix?
-  bool adjustCovariance(void) { return adjustCovariance_;}
+  bool adjustCovariance() { return adjustCovariance_;}
 
   /// Utility functions 
   double theWeight(double coordinate_1, double coordinate_2, double coordinate_3, float layer_1, float layer_2, float layer_3);
 
-  void ChooseSegments(void);
+  void ChooseSegments();
 
   // Return the segment with the smallest weight
   void ChooseSegments2a(std::vector< ChamberHitContainer > & best_segments, int best_seg);

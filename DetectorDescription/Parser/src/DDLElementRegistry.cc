@@ -41,10 +41,10 @@
 #include "DetectorDescription/Parser/src/DDXMLElement.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-DDLElementRegistry::DDLElementRegistry( void )
+DDLElementRegistry::DDLElementRegistry( )
 {}
 
-DDLElementRegistry::~DDLElementRegistry( void ) 
+DDLElementRegistry::~DDLElementRegistry( ) 
 {
   registry_.clear();
 }

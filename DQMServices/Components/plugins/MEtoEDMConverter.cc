@@ -97,7 +97,7 @@ MEtoEDMConverter::beginJob()
 }
 
 void
-MEtoEDMConverter::endJob(void)
+MEtoEDMConverter::endJob()
 {
   std::string MsgLoggerCat = "MEtoEDMConverter_endJob";
 

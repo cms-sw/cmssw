@@ -337,7 +337,7 @@ void CSCSegAlgoShowering::compareProtoSegment(const CSCRecHit2D* h, int layer) {
 
 // Look for a hit with a large deviation from fit
 
-void CSCSegAlgoShowering::pruneFromResidual(void){
+void CSCSegAlgoShowering::pruneFromResidual(){
 
   //@@ THIS FUNCTION HAS 3 RETURNS PATHS!
 
@@ -390,7 +390,7 @@ void CSCSegAlgoShowering::pruneFromResidual(void){
   return;
 }
 
-void CSCSegAlgoShowering::updateParameters(void) {
+void CSCSegAlgoShowering::updateParameters() {
   // Create fit for the hits in the protosegment & run it
   delete sfit_;
   sfit_ = new CSCSegFit( theChamber, protoSegment );

@@ -49,7 +49,7 @@ public:
   
   
 private:
-  virtual void beginJob(void) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -188,7 +188,7 @@ L1UpgradeTfMuonTreeProducer::analyze(const edm::Event& iEvent, const edm::EventS
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1UpgradeTfMuonTreeProducer::beginJob(void)
+L1UpgradeTfMuonTreeProducer::beginJob()
 {
 }
 

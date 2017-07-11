@@ -42,7 +42,7 @@ public:
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
-  virtual void endJob(void);
+  virtual void endJob();
 
 private:
   // ----------member data ---------------------------
@@ -102,7 +102,7 @@ void DQMReadFileExample::removeAll()
   dbe->rmdir("Summary");
 }
 
-void DQMReadFileExample::endJob(void)
+void DQMReadFileExample::endJob()
 {
   dbe->showDirStructure();
   // dbe->save("test.root");  

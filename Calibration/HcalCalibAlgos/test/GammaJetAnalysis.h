@@ -77,9 +77,9 @@ public:
   }
   ~PhotonPair() {}
 
-  inline const reco::Photon* photon(void) const { return first; }
+  inline const reco::Photon* photon() const { return first; }
   inline void photon(const reco::Photon* ph) { first=ph; return; }
-  inline double pt(void) const { return second; }
+  inline double pt() const { return second; }
   inline void pt(double d) { second=d; return; }
   void idx(int set_idx) { fIdx=set_idx; };
   int idx() const { return fIdx; }
@@ -101,9 +101,9 @@ public:
   }
   ~PFJetCorretPair() {}
 
-  inline const reco::PFJet* jet(void) const { return first; }
+  inline const reco::PFJet* jet() const { return first; }
   inline void jet(const reco::PFJet* j) { first=j; return; }
-  inline double scale(void) const { return second; }
+  inline double scale() const { return second; }
   inline void scale(double d) { second=d; return; }
   double scaledEt() const { return first->et() * second; }
   bool isValid() const { return (first!=NULL) ? true:false; }

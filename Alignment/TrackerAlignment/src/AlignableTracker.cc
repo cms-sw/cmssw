@@ -49,7 +49,7 @@ align::Alignables AlignableTracker::merge( const Alignables& list1,
 }
 
 //_____________________________________________________________________________
-Alignments* AlignableTracker::alignments( void ) const
+Alignments* AlignableTracker::alignments( ) const
 {
 
   align::Alignables comp = this->components();
@@ -71,7 +71,7 @@ Alignments* AlignableTracker::alignments( void ) const
 }
 
 //_____________________________________________________________________________
-AlignmentErrorsExtended* AlignableTracker::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableTracker::alignmentErrors( ) const
 {
 
   align::Alignables comp = this->components();

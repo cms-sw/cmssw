@@ -25,7 +25,7 @@ public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     explicit L1TMuonEndcapViewer(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1TMuonEndcapViewer(void){}
+    virtual ~L1TMuonEndcapViewer(){}
 };
 
 void L1TMuonEndcapViewer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

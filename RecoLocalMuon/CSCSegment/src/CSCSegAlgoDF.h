@@ -103,11 +103,11 @@ private:
   /** 
    * Prune bad segment from the worse hit based on residuals
    */
-  void pruneFromResidual(void);
+  void pruneFromResidual();
 
   bool isHitNearSegment(const CSCRecHit2D* h) const;
   bool addHit(const CSCRecHit2D* hit, int layer);
-  void updateParameters(void);
+  void updateParameters();
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
   void dumpSegment( const CSCSegment& seg ) const;

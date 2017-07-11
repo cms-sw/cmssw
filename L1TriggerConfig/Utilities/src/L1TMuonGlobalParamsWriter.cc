@@ -24,7 +24,7 @@ public:
     explicit L1TMuonGlobalParamsWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    virtual ~L1TMuonGlobalParamsWriter(void){}
+    virtual ~L1TMuonGlobalParamsWriter(){}
 };
 
 void L1TMuonGlobalParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

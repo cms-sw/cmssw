@@ -97,7 +97,7 @@ File::write (const void *from, IOSize n, IOOffset pos)
 }
 
 IOOffset
-File::size (void) const
+File::size () const
 {
   IOFD fd = this->fd ();
   assert (fd != EDM_IOFD_INVALID);
@@ -137,7 +137,7 @@ File::resize (IOOffset size)
 }
 
 void
-File::flush (void)
+File::flush ()
 {
   IOFD fd = this->fd ();
   assert (fd != EDM_IOFD_INVALID);

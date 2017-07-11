@@ -15,7 +15,7 @@ static std::once_flag davixDebugInit;
 
 using namespace Davix;
 
-DavixFile::DavixFile(void) {}
+DavixFile::DavixFile() {}
 
 DavixFile::DavixFile(const char *name, int flags /* = IOFlags::OpenRead */, int perms /* = 066 */) {
   open(name, flags, perms);
@@ -26,12 +26,12 @@ DavixFile::DavixFile(const std::string &name, int flags /* = IOFlags::OpenRead *
   open(name.c_str(), flags, perms);
 }
 
-DavixFile::~DavixFile(void) {
+DavixFile::~DavixFile() {
   close();
   return;
 }
 
-void DavixFile::close(void) {
+void DavixFile::close() {
   if (m_davixPosix && m_fd) {
     DavixError *err = nullptr;
     m_davixPosix->close(m_fd, &err);
@@ -47,7 +47,7 @@ void DavixFile::close(void) {
   return;
 }
 
-void DavixFile::abort(void) {
+void DavixFile::abort() {
   if (m_davixPosix && m_fd) {
     DavixError *err = nullptr;
     m_davixPosix->close(m_fd, &err);

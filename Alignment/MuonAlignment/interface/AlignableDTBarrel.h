@@ -58,7 +58,7 @@ class AlignableDTBarrel : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableDTBarrel& );
 
   /// Recursive printout of the muon Barrel structure
-  void dump( void ) const;
+  void dump( ) const;
 
 
   // Get alignments sorted by DetId

@@ -2,10 +2,10 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 
-Storage::Storage (void)
+Storage::Storage ()
 {}
 
-Storage::~Storage (void)
+Storage::~Storage ()
 {}
 
 //////////////////////////////////////////////////////////////////////
@@ -92,14 +92,14 @@ Storage::writev (const IOPosBuffer *from, IOSize n)
 
 //////////////////////////////////////////////////////////////////////
 IOOffset
-Storage::position (void) const
+Storage::position () const
 {
   Storage *self = const_cast<Storage *> (this);
   return self->position (0, CURRENT);
 }
 
 IOOffset
-Storage::size (void) const
+Storage::size () const
 {
   // FIXME: use saveposition object in case exceptions are thrown?
   Storage *self = const_cast<Storage *> (this);
@@ -111,7 +111,7 @@ Storage::size (void) const
 }
 
 void
-Storage::rewind (void)
+Storage::rewind ()
 { position(0); }
 
 //////////////////////////////////////////////////////////////////////
@@ -121,14 +121,14 @@ Storage::prefetch (const IOPosBuffer * /* what */, IOSize /* n */)
 
 //////////////////////////////////////////////////////////////////////
 void
-Storage::flush (void)
+Storage::flush ()
 {}
 
 void
-Storage::close (void)
+Storage::close ()
 {}
 
 //////////////////////////////////////////////////////////////////////
 bool
-Storage::eof (void) const
+Storage::eof () const
 { return position () == size (); }

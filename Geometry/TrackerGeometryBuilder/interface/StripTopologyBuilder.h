@@ -14,7 +14,7 @@ class StripTopologyBuilder
 {
 public:
 
-  StripTopologyBuilder( void );
+  StripTopologyBuilder( );
 
   StripTopology* build( const Bounds*, double, std::string );
 

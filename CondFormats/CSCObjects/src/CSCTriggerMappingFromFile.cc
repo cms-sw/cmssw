@@ -8,7 +8,7 @@ CSCTriggerMappingFromFile::CSCTriggerMappingFromFile( std::string filename )
 
 CSCTriggerMappingFromFile::~CSCTriggerMappingFromFile(){}
 
-void CSCTriggerMappingFromFile::fill( void ) {
+void CSCTriggerMappingFromFile::fill( ) {
   std::ifstream in( filename_.c_str() );
   std::string line;
   const std::string commentFlag = "#";

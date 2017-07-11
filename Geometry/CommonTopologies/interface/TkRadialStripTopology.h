@@ -169,7 +169,7 @@ class TkRadialStripTopology final : public RadialStripTopology {
   /** 
    * Phi pitch of each strip (= angular width!)
    */
-  float phiPitch(void) const { return angularWidth(); }
+  float phiPitch() const { return angularWidth(); }
 
   /** 
    * Length of long symmetry axis of plane of strips

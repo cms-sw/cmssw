@@ -22,7 +22,7 @@ public:
   ~RECOVertex();
 
   void setup(const edm::ParameterSet& pSet, TTree* tree, std::string vertexType);
-  void clear(void);
+  void clear();
 
   /** Analyze the Data */
   void analyze(edm::Handle<reco::VertexCollection> recoVertexs, TTree* tree);

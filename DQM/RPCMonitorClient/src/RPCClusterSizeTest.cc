@@ -137,7 +137,7 @@ void RPCClusterSizeTest::clientOperation() {
 } 
 
 
-void RPCClusterSizeTest::resetMEArrays(void) {
+void RPCClusterSizeTest::resetMEArrays() {
   memset((void*) CLSWheel, 0, sizeof(MonitorElement*)*kWheels);
   memset((void*) CLSDWheel, 0, sizeof(MonitorElement*)*kWheels);
   memset((void*) MEANWheel, 0, sizeof(MonitorElement*)*kWheels);

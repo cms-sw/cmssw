@@ -28,7 +28,7 @@ class L1DEFilter : public edm::EDFilter {
   ~L1DEFilter();
   
  private:
-  virtual void beginJob(void) {};
+  virtual void beginJob() {};
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual bool filter(edm::Event&, const edm::EventSetup&);
   virtual void endJob();

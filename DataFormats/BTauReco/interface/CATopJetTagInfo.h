@@ -38,11 +38,11 @@ public:
   typedef edm::RefToBase<Jet> jet_type;
   typedef CATopJetProperties  properties_type;
     
-    CATopJetTagInfo(void) {}
+    CATopJetTagInfo() {}
 
-    virtual ~CATopJetTagInfo(void) {}
+    virtual ~CATopJetTagInfo() {}
   
-    virtual CATopJetTagInfo* clone(void) const { return new CATopJetTagInfo(*this); }
+    virtual CATopJetTagInfo* clone() const { return new CATopJetTagInfo(*this); }
     
     const properties_type & properties() const {
       return properties_;

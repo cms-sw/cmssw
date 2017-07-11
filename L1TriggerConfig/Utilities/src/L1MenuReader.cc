@@ -23,7 +23,7 @@ public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     explicit L1MenuReader(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1MenuReader(void){}
+    virtual ~L1MenuReader(){}
 };
 
 void L1MenuReader::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

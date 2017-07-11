@@ -24,8 +24,8 @@
 class FWSiPixelClusterProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWSiPixelClusterProxyBuilder( void ) {}
-  virtual ~FWSiPixelClusterProxyBuilder( void ) {}
+  FWSiPixelClusterProxyBuilder( ) {}
+  virtual ~FWSiPixelClusterProxyBuilder( ) {}
 
   REGISTER_PROXYBUILDER_METHODS();
 

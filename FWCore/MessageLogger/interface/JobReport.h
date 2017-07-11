@@ -241,7 +241,7 @@ namespace edm {
         /*
          *  Flush all open files to logger in event of a problem.
          */
-        void flushFiles(void);
+        void flushFiles();
 
         JobReportImpl(std::ostream* iOst): printedReadBranches_(false), ost_(iOst) {}
 
@@ -425,7 +425,7 @@ namespace edm {
                                       std::map<std::string, std::string> const& metrics);
 
       /// debug/test util
-      std::string dumpFiles(void);
+      std::string dumpFiles();
 
    protected:
       edm::propagate_const<std::unique_ptr<JobReportImpl>>& impl() {return impl_;}

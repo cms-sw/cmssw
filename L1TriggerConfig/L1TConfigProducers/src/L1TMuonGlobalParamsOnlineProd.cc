@@ -18,7 +18,7 @@ public:
     virtual std::shared_ptr<L1TMuonGlobalParams> newObject(const std::string& objectKey, const L1TMuonGlobalParamsO2ORcd &record) override ;
 
     L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonGlobalParamsOnlineProd(void){}
+    ~L1TMuonGlobalParamsOnlineProd(){}
 };
 
 L1TMuonGlobalParamsOnlineProd::L1TMuonGlobalParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonGlobalParamsO2ORcd,L1TMuonGlobalParams>(iConfig) {}

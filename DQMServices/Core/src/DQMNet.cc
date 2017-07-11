@@ -39,7 +39,7 @@ static const Regexp s_rxmeval("<(.*)>(i|f|s|qr)=(.*)</\\1>");
 //////////////////////////////////////////////////////////////////////
 // Generate log prefix.
 std::ostream &
-DQMNet::logme (void)
+DQMNet::logme ()
 {
   Time now = Time::current();
   return std::cout
@@ -386,7 +386,7 @@ DQMNet::reinstateObject(DQMStore *store, Object &o)
 //////////////////////////////////////////////////////////////////////
 // Check if the network layer should stop.
 bool
-DQMNet::shouldStop(void)
+DQMNet::shouldStop()
 {
   return shutdown_;
 }
@@ -1092,7 +1092,7 @@ DQMNet::DQMNet (const std::string &appname /* = "" */)
   upstream_.update = downstream_.update = false;
 }
 
-DQMNet::~DQMNet(void)
+DQMNet::~DQMNet()
 {
   // FIXME
 }
@@ -1236,7 +1236,7 @@ DQMNet::listenToCollector(const std::string &host, int port)
 
 /// Stop the network layer and wait it to finish.
 void
-DQMNet::shutdown(void)
+DQMNet::shutdown()
 {
   shutdown_ = 1;
   if (communicate_ != (pthread_t) -1)
@@ -1259,7 +1259,7 @@ static void *communicate(void *obj)
 
 /// Acquire a lock on the DQM net layer.
 void
-DQMNet::lock(void)
+DQMNet::lock()
 {
   if (communicate_ != (pthread_t) -1)
     pthread_mutex_lock(&lock_);
@@ -1267,7 +1267,7 @@ DQMNet::lock(void)
 
 /// Release the lock on the DQM net layer.
 void
-DQMNet::unlock(void)
+DQMNet::unlock()
 {
   if (communicate_ != (pthread_t) -1)
     pthread_mutex_unlock(&lock_);
@@ -1277,7 +1277,7 @@ DQMNet::unlock(void)
 /// exclusive alternative to the run() method, which runs the network
 /// layer in the caller's thread.
 void
-DQMNet::start(void)
+DQMNet::start()
 {
   if (communicate_ != (pthread_t) -1)
   {
@@ -1292,7 +1292,7 @@ DQMNet::start(void)
 
 /** Run the actual I/O processing loop. */
 void
-DQMNet::run(void)
+DQMNet::run()
 {
   Time now;
   Time nextFlush = 0;
@@ -1432,7 +1432,7 @@ DQMNet::run(void)
 // Tell the network cache that there have been local changes that
 // should be advertised to the downstream listeners.
 void
-DQMNet::sendLocalChanges(void)
+DQMNet::sendLocalChanges()
 {
   char byte = 0;
   wakeup_.sink()->write(&byte, 1);

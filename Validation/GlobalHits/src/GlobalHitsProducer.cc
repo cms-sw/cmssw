@@ -154,7 +154,7 @@ GlobalHitsProducer::~GlobalHitsProducer()
 {
 }
 
-void GlobalHitsProducer::beginJob( void )
+void GlobalHitsProducer::beginJob( )
 {
   return;
 }

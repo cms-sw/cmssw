@@ -11,7 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-bool MuonSegFit::fit(void) {
+bool MuonSegFit::fit() {
   if ( fitdone() ) return fitdone_; // don't redo fit unnecessarily
   short n = nhits();
   if (n < 2){
@@ -29,7 +29,7 @@ bool MuonSegFit::fit(void) {
   return fitdone_;
 }
 
-void MuonSegFit::fit2(void) {
+void MuonSegFit::fit2() {
   // Just join the two points
   // Equation of straight line between (x1, y1) and (x2, y2) in xy-plane is
   //       y = mx + c
@@ -77,7 +77,7 @@ void MuonSegFit::fit2(void) {
 }
 
 
-void MuonSegFit::fitlsq(void) {
+void MuonSegFit::fitlsq() {
   // Linear least-squares fit to up to 6 GEM rechits, one per layer in a GEM chamber.
   // Comments adapted from Tim Cox' comments in the original  GEMSegAlgoSK algorithm.
   
@@ -232,7 +232,7 @@ void MuonSegFit::fitlsq(void) {
 
 
 
-void MuonSegFit::setChi2(void) {
+void MuonSegFit::setChi2() {
   
   double chsq = 0.;
 

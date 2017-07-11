@@ -19,11 +19,11 @@ class testOrb : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testOrb::matched_g4_and_dd( void )
+testOrb::matched_g4_and_dd( )
 {
   double radius = 10.*cm;
   std::string name( "fred1" );

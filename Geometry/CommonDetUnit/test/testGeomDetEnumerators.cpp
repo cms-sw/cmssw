@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-int main(void) {
+int main() {
   // Test that each SubDetector is either barrel or endcap
 
   bool success = true;

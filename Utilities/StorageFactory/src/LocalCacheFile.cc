@@ -54,7 +54,7 @@ LocalCacheFile::LocalCacheFile(std::unique_ptr<Storage> base, const std::string 
   file_->resize(image_);
 }
 
-LocalCacheFile::~LocalCacheFile(void)
+LocalCacheFile::~LocalCacheFile()
 {
 }
 
@@ -187,11 +187,11 @@ LocalCacheFile::resize(IOOffset /*size*/)
 { nowrite("resize"); }
 
 void
-LocalCacheFile::flush(void)
+LocalCacheFile::flush()
 { nowrite("flush"); }
 
 void
-LocalCacheFile::close(void)
+LocalCacheFile::close()
 {
   if (!closedFile_)
   {

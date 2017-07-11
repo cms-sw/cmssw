@@ -32,7 +32,7 @@ public:
   TrajectoryFactoryBase(const edm::ParameterSet& config);
   TrajectoryFactoryBase(const edm::ParameterSet& config,
                         unsigned int tracksPerTrajectory);
-  virtual ~TrajectoryFactoryBase( void );
+  virtual ~TrajectoryFactoryBase( );
 
   virtual const ReferenceTrajectoryCollection trajectories(const edm::EventSetup &setup,
 							   const ConstTrajTrackPairCollection &tracks,
@@ -43,10 +43,10 @@ public:
 							   const ExternalPredictionCollection &external,
 							   const reco::BeamSpot &beamSpot) const = 0;
 
-  virtual TrajectoryFactoryBase* clone( void ) const = 0;
+  virtual TrajectoryFactoryBase* clone( ) const = 0;
 
-  inline MaterialEffects materialEffects( void ) const { return materialEffects_; }
-  inline PropagationDirection propagationDirection( void ) const { return propDir_; }
+  inline MaterialEffects materialEffects( ) const { return materialEffects_; }
+  inline PropagationDirection propagationDirection( ) const { return propDir_; }
   inline const edm::ParameterSet& configuration() const { return cfg_; }
   inline unsigned int tracksPerTrajectory() const { return tracksPerTrajectory_; }
 

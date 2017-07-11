@@ -18,11 +18,11 @@ class testPolycone : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testPolycone::matched_g4_and_dd( void )
+testPolycone::matched_g4_and_dd( )
 {
   double phiStart = 45.*deg;
   double phiTotal = 325.*deg;

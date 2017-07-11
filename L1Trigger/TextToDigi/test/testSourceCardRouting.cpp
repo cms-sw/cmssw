@@ -4,7 +4,7 @@
 #include <cstdlib>
 using namespace std;
 
-int main(void){
+int main(){
 
   unsigned short logicalCardID=0;
   unsigned short eventNumber=0;

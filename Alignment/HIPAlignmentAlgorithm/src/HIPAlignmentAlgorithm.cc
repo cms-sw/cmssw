@@ -230,7 +230,7 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 }
 
 // Call at new loop -------------------------------------------------------------
-void HIPAlignmentAlgorithm::startNewLoop( void )
+void HIPAlignmentAlgorithm::startNewLoop( )
 {
 	
   // iterate over all alignables and attach user variables
@@ -1003,7 +1003,7 @@ void HIPAlignmentAlgorithm::writeIterationFile(std::string filename,int iter)
 // ----------------------------------------------------------------------------
 // set alignment position error
 
-void HIPAlignmentAlgorithm::setAlignmentPositionError(void)
+void HIPAlignmentAlgorithm::setAlignmentPositionError()
 {
 	
 	
@@ -1086,7 +1086,7 @@ HIPAlignmentAlgorithm::calcAPE(double* par, int iter, double function)
 // ----------------------------------------------------------------------------
 // book root trees
 
-void HIPAlignmentAlgorithm::bookRoot(void)
+void HIPAlignmentAlgorithm::bookRoot()
 {
   TString tname="T1";
   char iterString[15];
@@ -1337,7 +1337,7 @@ bool HIPAlignmentAlgorithm::calcParameters(Alignable* ali , int setDet, double s
 
 //-----------------------------------------------------------------------------
 
-void HIPAlignmentAlgorithm::collector(void)
+void HIPAlignmentAlgorithm::collector()
 {
   edm::LogWarning("Alignment") << "[HIPAlignmentAlgorithm::collector] called for iteration "
 			       << theIteration << std::endl;

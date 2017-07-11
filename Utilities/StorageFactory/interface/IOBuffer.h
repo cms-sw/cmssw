@@ -7,12 +7,12 @@
 class IOBuffer
 {
 public:
-  IOBuffer (void);
+  IOBuffer ();
   IOBuffer (void *data, IOSize length);
   IOBuffer (const void *data, IOSize length);
 
-  void *	data (void) const;
-  IOSize	size (void) const;
+  void *	data () const;
+  IOSize	size () const;
 
 private:
   void		*m_data;	//< Data
@@ -21,7 +21,7 @@ private:
 
 /** Construct a null I/O buffer.  */
 inline
-IOBuffer::IOBuffer (void)
+IOBuffer::IOBuffer ()
   : m_data (0),
     m_length (0)
 {}
@@ -42,12 +42,12 @@ IOBuffer::IOBuffer (const void *data, IOSize length)
 
 /** Return a pointer to the beginning of the buffer's data area.  */
 inline void *
-IOBuffer::data (void) const
+IOBuffer::data () const
 { return m_data; }
 
 /** Return the buffer's size.  */
 inline IOSize
-IOBuffer::size (void) const
+IOBuffer::size () const
 { return m_length; }
 
 #endif // STORAGE_FACTORY_IO_BUFFER_H

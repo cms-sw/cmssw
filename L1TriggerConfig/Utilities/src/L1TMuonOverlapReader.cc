@@ -28,7 +28,7 @@ public:
     explicit L1TMuonOverlapReader(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        printLayerMap   = pset.getUntrackedParameter<bool>("printLayerMap",  false);
     }
-    virtual ~L1TMuonOverlapReader(void){}
+    virtual ~L1TMuonOverlapReader(){}
 };
 
 

@@ -258,7 +258,7 @@ namespace edm {
    *  Flush all open files to logger in event of a problem.
    *  Called from JobReport dtor to flush any remaining open files
    */
-  void JobReport::JobReportImpl::flushFiles(void) {
+  void JobReport::JobReportImpl::flushFiles() {
     for(auto const& inputFile : inputFiles_) {
       if(!(inputFile.fileHasBeenClosed)) {
         writeInputFile(inputFile);
@@ -722,7 +722,7 @@ namespace edm {
   }
 
   std::string
-  JobReport::dumpFiles(void) {
+  JobReport::dumpFiles() {
     std::ostringstream msg;
 
 

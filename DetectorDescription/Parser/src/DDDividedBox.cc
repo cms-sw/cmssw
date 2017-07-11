@@ -46,7 +46,7 @@ DDDividedBoxX::DDDividedBoxX( const DDDivision& div, DDCompactView* cpv)
 }
 
 double
-DDDividedBoxX::getMaxParameter( void ) const
+DDDividedBoxX::getMaxParameter( ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   return 2*msol.halfX();
@@ -124,7 +124,7 @@ DDDividedBoxY::DDDividedBoxY( const DDDivision& div, DDCompactView* cpv)
 }
 
 double
-DDDividedBoxY::getMaxParameter( void ) const
+DDDividedBoxY::getMaxParameter( ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   return 2*msol.halfY();
@@ -201,7 +201,7 @@ DDDividedBoxZ::DDDividedBoxZ( const DDDivision& div, DDCompactView* cpv)
 }
 
 double
-DDDividedBoxZ::getMaxParameter( void ) const
+DDDividedBoxZ::getMaxParameter( ) const
 {
   DDBox msol = (DDBox)(div_.parent().solid());
   return 2*msol.halfZ();

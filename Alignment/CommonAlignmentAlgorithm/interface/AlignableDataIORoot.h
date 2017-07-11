@@ -23,7 +23,7 @@ class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
   { newopen=true; return openRoot(filename,iteration,writemode); }
 
   /// close IO 
-  int close(void){ return closeRoot(); }
+  int close(){ return closeRoot(); }
 
   /// write absolute positions 
   int writeAbsRaw(const AlignableAbsData &ad);
@@ -35,8 +35,8 @@ class AlignableDataIORoot : public AlignmentIORootBase, public AlignableDataIO
   AlignableRelData readRelRaw(Alignable* ali,int& ierr);
 
   int findEntry(align::ID, align::StructureType);
-  void createBranches(void);
-  void setBranchAddresses(void);
+  void createBranches();
+  void setBranchAddresses();
 
   // data members
 

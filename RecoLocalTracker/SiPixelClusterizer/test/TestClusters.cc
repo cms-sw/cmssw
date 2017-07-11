@@ -119,19 +119,19 @@ using namespace std;
 class getBX {
 
 public:
-  getBX(void);
-  ~getBX(void);
+  getBX();
+  ~getBX();
   static int find(int bx);
 
 private:
 
 };
 
-getBX::getBX(void) {
+getBX::getBX() {
   cout<<" bx ctor "<<endl;
 }
 
-getBX::~getBX(void) {
+getBX::~getBX() {
 }
 
 int getBX::find(int bx) {

@@ -436,7 +436,7 @@ void AlignableMuon::recursiveSetMothers( Alignable* alignable )
 
 }
 //__________________________________________________________________________________________________
-Alignments* AlignableMuon::alignments( void ) const
+Alignments* AlignableMuon::alignments( ) const
 {
 
   align::Alignables comp = this->components();
@@ -457,7 +457,7 @@ Alignments* AlignableMuon::alignments( void ) const
 
 }
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableMuon::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableMuon::alignmentErrors( ) const
 {
 
   align::Alignables comp = this->components();
@@ -479,7 +479,7 @@ AlignmentErrorsExtended* AlignableMuon::alignmentErrors( void ) const
 
 }
 //__________________________________________________________________________________________________
-Alignments* AlignableMuon::dtAlignments( void )
+Alignments* AlignableMuon::dtAlignments( )
 {
   // Retrieve muon barrel alignments
   Alignments* tmpAlignments = this->DTBarrel().front()->alignments();
@@ -488,7 +488,7 @@ Alignments* AlignableMuon::dtAlignments( void )
 
 }
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableMuon::dtAlignmentErrorsExtended( void )
+AlignmentErrorsExtended* AlignableMuon::dtAlignmentErrorsExtended( )
 {
   // Retrieve muon barrel alignment errors
   AlignmentErrorsExtended* tmpAlignmentErrorsExtended = this->DTBarrel().front()->alignmentErrors();
@@ -497,7 +497,7 @@ AlignmentErrorsExtended* AlignableMuon::dtAlignmentErrorsExtended( void )
   
 }
 //__________________________________________________________________________________________________
-Alignments* AlignableMuon::cscAlignments( void )
+Alignments* AlignableMuon::cscAlignments( )
 {
 
   // Retrieve muon endcaps alignments
@@ -512,7 +512,7 @@ Alignments* AlignableMuon::cscAlignments( void )
 
 }
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableMuon::cscAlignmentErrorsExtended( void )
+AlignmentErrorsExtended* AlignableMuon::cscAlignmentErrorsExtended( )
 {
 
   // Retrieve muon endcaps alignment errors

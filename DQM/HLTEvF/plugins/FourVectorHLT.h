@@ -107,7 +107,7 @@ class FourVectorHLT : public edm::EDAnalyzer {
 	MonitorElement * getEtaVsPhiHisto() {
 	  return etavsphi_;
 	}
-	const std::string getName(void ) const {
+	const std::string getName( ) const {
 	  return pathName_;
 	}
 	~PathInfo() {};

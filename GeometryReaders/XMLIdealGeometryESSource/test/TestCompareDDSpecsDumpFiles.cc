@@ -28,7 +28,7 @@ class TestCompareDDSpecsDumpFiles
 {
 public:
   explicit TestCompareDDSpecsDumpFiles( const edm::ParameterSet& );
-  ~TestCompareDDSpecsDumpFiles( void );
+  ~TestCompareDDSpecsDumpFiles( );
   
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -62,7 +62,7 @@ TestCompareDDSpecsDumpFiles::TestCompareDDSpecsDumpFiles( const edm::ParameterSe
   }
 }
 
-TestCompareDDSpecsDumpFiles::~TestCompareDDSpecsDumpFiles( void )
+TestCompareDDSpecsDumpFiles::~TestCompareDDSpecsDumpFiles( )
 {
   f1_.close();
   f2_.close();

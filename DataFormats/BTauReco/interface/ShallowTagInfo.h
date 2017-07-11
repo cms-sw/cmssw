@@ -11,7 +11,7 @@ namespace reco {
 
 class ShallowTagInfo : public BaseTagInfo {
 public:
-  ShallowTagInfo(void) { }
+  ShallowTagInfo() { }
 
   ShallowTagInfo(
     const TaggingVariableList & list,
@@ -19,13 +19,13 @@ public:
       list_(list),
       jetRef_(jetref) { }
 
-  virtual ~ShallowTagInfo(void) { }
+  virtual ~ShallowTagInfo() { }
 
-  virtual ShallowTagInfo* clone(void) const { return new ShallowTagInfo(*this); }
+  virtual ShallowTagInfo* clone() const { return new ShallowTagInfo(*this); }
 
-  virtual edm::RefToBase<Jet> jet(void) const { return jetRef_; }
+  virtual edm::RefToBase<Jet> jet() const { return jetRef_; }
 
-  virtual TaggingVariableList taggingVariables(void) const { return list_; }
+  virtual TaggingVariableList taggingVariables() const { return list_; }
 
 protected:
   /*const*/ TaggingVariableList  list_;

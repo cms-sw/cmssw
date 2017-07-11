@@ -13,8 +13,8 @@ class TGeoManager;
 class FWTGeoRecoGeometry
 {
 public:
-  FWTGeoRecoGeometry( void );
-  virtual ~FWTGeoRecoGeometry( void );
+  FWTGeoRecoGeometry( );
+  virtual ~FWTGeoRecoGeometry( );
 
   struct Info
   {
@@ -26,12 +26,12 @@ public:
       {
 	init();
       }
-    Info( void )
+    Info( )
       {
 	init();
       }
     void
-    init( void )
+    init( )
       {
 	for( unsigned int i = 0; i < 24; ++i ) points[i] = 0;
 	for( unsigned int i = 0; i < 9; ++i ) topology[i] = 0;
@@ -54,7 +54,7 @@ public:
 
   InfoMap idToName;
   
-  TGeoManager* manager( void ) const
+  TGeoManager* manager( ) const
     {
       return m_manager;
     }

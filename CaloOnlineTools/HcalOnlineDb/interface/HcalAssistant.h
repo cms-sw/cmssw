@@ -42,9 +42,9 @@ class HcalAssistant
   virtual ~HcalAssistant();
   
   int addQuotes();
-  std::string getRandomQuote(void);
+  std::string getRandomQuote();
   
-  std::string getUserName(void);
+  std::string getUserName();
   
   HcalSubdetector getSubdetector(std::string _det);
   std::string getSubdetectorString(HcalSubdetector _det);

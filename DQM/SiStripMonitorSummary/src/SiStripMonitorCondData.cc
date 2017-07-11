@@ -156,7 +156,7 @@ void SiStripMonitorCondData::beginRun(edm::Run const& run, edm::EventSetup const
 //
 // ----- beginJob
 //
-void SiStripMonitorCondData::beginJob(void){} //beginJob
+void SiStripMonitorCondData::beginJob(){} //beginJob
 // -----
 
 
@@ -212,7 +212,7 @@ void SiStripMonitorCondData::endRun(edm::Run const& run, edm::EventSetup const& 
 //
 // ----- endJob
 //
-void SiStripMonitorCondData::endJob(void){} 
+void SiStripMonitorCondData::endJob(){} 
 //endJob
 // -----
 

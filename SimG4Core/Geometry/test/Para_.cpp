@@ -18,11 +18,11 @@ class testPara : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testPara::matched_g4_and_dd( void )
+testPara::matched_g4_and_dd( )
 {
   double xHalf =  5.*cm;
   double yHalf = 6.*cm;

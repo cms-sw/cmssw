@@ -18,11 +18,11 @@ class testTorus : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testTorus::matched_g4_and_dd( void )
+testTorus::matched_g4_and_dd( )
 {
   double rMin = 10.*cm;
   double rMax = 15.*cm;

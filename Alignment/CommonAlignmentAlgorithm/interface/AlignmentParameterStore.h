@@ -48,19 +48,19 @@ public:
   void updateParameters(const CompositeAlignmentParameters& aap, bool updateCorrelations = true);
 
   /// get all alignables 
-  const align::Alignables& alignables(void) const { return theAlignables; }
+  const align::Alignables& alignables() const { return theAlignables; }
 
   /// get all alignables with valid parameters 
-  align::Alignables validAlignables(void) const;
+  align::Alignables validAlignables() const;
 
   /// returns number of alignables 
-  int numObjects(void) const { return theAlignables.size(); }
+  int numObjects() const { return theAlignables.size(); }
 
   /// get full correlation map 
-  AlignmentCorrelationsStore* correlationsStore( void ) const { return theCorrelationsStore; }
+  AlignmentCorrelationsStore* correlationsStore( ) const { return theCorrelationsStore; }
 
   /// get number of correlations between alignables 
-  const unsigned int numCorrelations( void ) const { return theCorrelationsStore->size(); }
+  const unsigned int numCorrelations( ) const { return theCorrelationsStore->size(); }
 
   /// Obsolete: Use AlignableNavigator::alignableDetFromGeomDet and alignableFromAlignableDet
 /*   Alignable* alignableFromGeomDet( const GeomDet* geomDet ) const; */
@@ -72,32 +72,32 @@ public:
 /*   Alignable* alignableFromDetId(const unsigned int& detId) const; */
 
   /// apply all valid parameters to their alignables 
-  void applyParameters(void);
+  void applyParameters();
 
   /// apply parameters of a given alignable 
   void applyParameters(Alignable* alignable);
 
   /// reset parameters, correlations, user variables 
-  void resetParameters(void);
+  void resetParameters();
 
   /// reset parameters of a given alignable 
   void resetParameters(Alignable* ali);
 
   /// cache the current position, rotation and other parameters
-  void cacheTransformations(void);
+  void cacheTransformations();
 
   /// cache for the given run the current position, rotation and other parameters
   void cacheTransformations(const align::RunNumber&);
 
   /// restore the previously cached position, rotation and other parameters
-  void restoreCachedTransformations(void);
+  void restoreCachedTransformations();
 
   /// restore for the given run the previously cached position, rotation and other parameters
   void restoreCachedTransformations(const align::RunNumber&);
 
   /// acquire shifts/rotations from alignables of the store and copy into 
   ///  alignment parameters (local frame) 
-  void acquireRelativeParameters(void);
+  void acquireRelativeParameters();
 
   /// apply absolute positions to alignables 
   void applyAlignableAbsolutePositions( const align::Alignables& alis, 

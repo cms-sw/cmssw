@@ -19,7 +19,7 @@ DDLSAX2ConfigHandler::DDLSAX2ConfigHandler( DDCompactView& cpv)
     cpv_(cpv)
 {}
 
-DDLSAX2ConfigHandler::~DDLSAX2ConfigHandler( void )
+DDLSAX2ConfigHandler::~DDLSAX2ConfigHandler( )
 {}
 
 // ---------------------------------------------------------------------------
@@ -66,25 +66,25 @@ DDLSAX2ConfigHandler::startElement( const XMLCh* const uri,
 }
 
 const std::vector<std::string>&
-DDLSAX2ConfigHandler::getFileNames( void ) const
+DDLSAX2ConfigHandler::getFileNames( ) const
 {
   return files_;
 }
 
 const std::vector<std::string>&
-DDLSAX2ConfigHandler::getURLs( void ) const
+DDLSAX2ConfigHandler::getURLs( ) const
 {
   return urls_;
 }
 
 const std::string
-DDLSAX2ConfigHandler::getSchemaLocation( void ) const
+DDLSAX2ConfigHandler::getSchemaLocation( ) const
 {
   return schemaLocation_;
 }
 
 const bool
-DDLSAX2ConfigHandler::doValidation( void ) const
+DDLSAX2ConfigHandler::doValidation( ) const
 {
   return doValidation_;
 }

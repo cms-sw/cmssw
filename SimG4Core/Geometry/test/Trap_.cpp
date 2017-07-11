@@ -18,11 +18,11 @@ class testTrap : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testTrap::matched_g4_and_dd( void )
+testTrap::matched_g4_and_dd( )
 {
   double dz = 60.*cm;
   double pTheta = 0.*deg;

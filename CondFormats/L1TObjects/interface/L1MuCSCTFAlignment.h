@@ -17,12 +17,12 @@ public:
 
 	const std::vector<double>& operator()() { return coefficients; }
 
-	L1MuCSCTFAlignment(void){}
+	L1MuCSCTFAlignment(){}
 	L1MuCSCTFAlignment(const std::vector<double>& cff){ coefficients=cff; }
 	L1MuCSCTFAlignment(const L1MuCSCTFAlignment& conf){
 		coefficients = conf.coefficients;
 	}
-	~L1MuCSCTFAlignment(void){}
+	~L1MuCSCTFAlignment(){}
 
   COND_SERIALIZABLE;
 };

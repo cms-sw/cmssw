@@ -25,7 +25,7 @@ public:
     explicit L1MenuWriter(const edm::ParameterSet& pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    virtual ~L1MenuWriter(void){}
+    virtual ~L1MenuWriter(){}
 };
 
 void L1MenuWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

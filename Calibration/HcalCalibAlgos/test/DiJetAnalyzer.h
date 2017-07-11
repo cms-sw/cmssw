@@ -70,9 +70,9 @@ class JetCorretPair : protected std::pair<const reco::PFJet*, double> {
   }
   ~JetCorretPair() {}
 
-  inline const reco::PFJet* jet(void) const { return first; }
+  inline const reco::PFJet* jet() const { return first; }
   inline void jet(const reco::PFJet* j) { first=j; return; }
-  inline double scale(void) const { return second; }
+  inline double scale() const { return second; }
   inline void scale(double d) { second=d; return; }
 
  private:

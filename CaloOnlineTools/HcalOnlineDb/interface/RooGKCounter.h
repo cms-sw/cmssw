@@ -20,8 +20,8 @@ class RooGKCounter {
   void setPrintCount( bool _printCount );
   void setNewLine( bool newLine );
   void setMessage( const char* );
-  void count( void );
-  unsigned long int getCount( void );
+  void count( );
+  unsigned long int getCount( );
   void increment( long int _incr );
 
  private:
@@ -35,7 +35,7 @@ class RooGKCounter {
 
   time_t initTime, firstTickTime, lastPrintTime, lastTickTime;
 
-  void init( void );
+  void init( );
 
   //ClassDef(RooGKCounter,1)
 };

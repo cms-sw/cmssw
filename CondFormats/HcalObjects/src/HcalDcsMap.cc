@@ -46,25 +46,25 @@ HcalDcsMap::HcalDcsMap(HcalDcsMap&& other)
     other.swap(*this);
 }
 
-HcalDcsMap::const_iterator HcalDcsMap::beginById(void) const{
+HcalDcsMap::const_iterator HcalDcsMap::beginById() const{
   const_iterator _iter;
   _iter.fIter = mItemsById.begin();
   return _iter;
 }
 
-HcalDcsMap::const_iterator HcalDcsMap::beginByDcsId(void) const{
+HcalDcsMap::const_iterator HcalDcsMap::beginByDcsId() const{
   const_iterator _iter;
   _iter.fIter = mItemsByDcsId.begin();
   return _iter;
 }
 
-HcalDcsMap::const_iterator HcalDcsMap::endById(void) const{
+HcalDcsMap::const_iterator HcalDcsMap::endById() const{
   const_iterator _iter;
   _iter.fIter = mItemsById.end();
   return _iter;
 }
 
-HcalDcsMap::const_iterator HcalDcsMap::endByDcsId(void) const{
+HcalDcsMap::const_iterator HcalDcsMap::endByDcsId() const{
   const_iterator _iter;
   _iter.fIter = mItemsByDcsId.end();
   return _iter;
@@ -87,15 +87,15 @@ HcalDcsMap::const_iterator HcalDcsMap::const_iterator::operator++(int){
   return i;
 }
 
-void HcalDcsMap::const_iterator::next(void){
+void HcalDcsMap::const_iterator::next(){
   ++fIter;
 }
 
-HcalDcsDetId HcalDcsMap::const_iterator::getHcalDcsDetId(void){
+HcalDcsDetId HcalDcsMap::const_iterator::getHcalDcsDetId(){
   return (*fIter)->mDcsId;
 }
 
-HcalDetId HcalDcsMap::const_iterator::getHcalDetId(void){
+HcalDetId HcalDcsMap::const_iterator::getHcalDetId(){
   return (*fIter)->mId;
 }
 

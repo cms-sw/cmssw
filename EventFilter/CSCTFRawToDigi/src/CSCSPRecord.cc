@@ -66,7 +66,7 @@ bool CSCSPRecord::unpack(const unsigned short* &buf, unsigned int nonmasked_data
 	return unpackError;
 }
 
-std::vector<CSCSP_MEblock> CSCSPRecord::LCTs(void) const throw() {
+std::vector<CSCSP_MEblock> CSCSPRecord::LCTs() const throw() {
 	std::vector<CSCSP_MEblock> result;
 	for(int mpc=0; mpc<5; mpc++)
 		for(int link=0; link<3; link++)
@@ -89,7 +89,7 @@ std::vector<CSCSP_MEblock> CSCSPRecord::LCT(unsigned int mpc, unsigned int link)
 	return result;
 }
 
-std::vector<CSCSP_SPblock> CSCSPRecord::tracks(void) const throw() {
+std::vector<CSCSP_SPblock> CSCSPRecord::tracks() const throw() {
 	std::vector<CSCSP_SPblock> result;
 	if(spFilled[0]) result.push_back(sp[0]);
 	if(spFilled[1]) result.push_back(sp[1]);
@@ -97,7 +97,7 @@ std::vector<CSCSP_SPblock> CSCSPRecord::tracks(void) const throw() {
 	return result;
 }
 
-std::vector<CSCSP_MBblock> CSCSPRecord::mbStubs(void) const throw() {
+std::vector<CSCSP_MBblock> CSCSPRecord::mbStubs() const throw() {
 	std::vector<CSCSP_MBblock> result;
 	if(mbFilled[0]) result.push_back(mb[0]);
 	if(mbFilled[1]) result.push_back(mb[1]);

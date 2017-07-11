@@ -36,7 +36,7 @@ DDLParser::DDLParser( DDCompactView& cpv )
 }
 
 /// Destructor terminates the XMLPlatformUtils (as required by Xerces)
-DDLParser::~DDLParser( void )
+DDLParser::~DDLParser( )
 { 
   // clean up and leave
   delete expHandler_;
@@ -50,13 +50,13 @@ DDLParser::~DDLParser( void )
  *   reason that I 
  */ 
 SAX2XMLReader*
-DDLParser::getXMLParser( void )
+DDLParser::getXMLParser( )
 {
   return SAX2Parser_;
 }
 
 DDLSAX2FileHandler*
-DDLParser::getDDLSAX2FileHandler( void )
+DDLParser::getDDLSAX2FileHandler( )
 { 
   return fileHandler_; 
 }
@@ -236,7 +236,7 @@ DDLParser::parseFile( const int& numtoproc )
 }
 
 void
-DDLParser::clearFiles( void )
+DDLParser::clearFiles( )
 {
   fileNames_.clear();
   parsed_.clear();

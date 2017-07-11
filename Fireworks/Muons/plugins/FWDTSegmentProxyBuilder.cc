@@ -28,8 +28,8 @@
 class FWDTSegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<DTRecSegment4D>
 {
 public:
-   FWDTSegmentProxyBuilder( void ) {}
-   virtual ~FWDTSegmentProxyBuilder( void ) {}
+   FWDTSegmentProxyBuilder( ) {}
+   virtual ~FWDTSegmentProxyBuilder( ) {}
 
   virtual bool haveSingleProduct() const override { return false; }
 

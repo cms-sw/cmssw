@@ -37,7 +37,7 @@ DDDividedTubsRho::DDDividedTubsRho( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedTubsRho::getMaxParameter( void ) const
+DDDividedTubsRho::getMaxParameter( ) const
 {
   DDTubs msol = (DDTubs)(div_.parent().solid());
   return msol.rOut() - msol.rIn();
@@ -108,7 +108,7 @@ DDDividedTubsPhi::DDDividedTubsPhi( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedTubsPhi::getMaxParameter( void ) const
+DDDividedTubsPhi::getMaxParameter( ) const
 {
   DDTubs msol = (DDTubs)(div_.parent().solid());
   return msol.deltaPhi();
@@ -179,7 +179,7 @@ DDDividedTubsZ::DDDividedTubsZ( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedTubsZ::getMaxParameter( void ) const
+DDDividedTubsZ::getMaxParameter( ) const
 {
   DDTubs msol = (DDTubs)(div_.parent().solid());
   return 2*msol.zhalf();

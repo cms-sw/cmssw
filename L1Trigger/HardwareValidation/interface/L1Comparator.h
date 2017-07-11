@@ -47,7 +47,7 @@ public:
   
 private:
 
-  virtual void beginJob(void) override;
+  virtual void beginJob() override;
   virtual void beginRun(edm::Run const&, const edm::EventSetup&) override final;
    virtual void produce (edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override;

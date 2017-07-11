@@ -128,7 +128,7 @@ void EcalPedHists::beginRun(edm::Run const &, edm::EventSetup const & c)
   ecalElectronicsMap_ = elecHandle.product();
 }
 
-void EcalPedHists::endJob(void)
+void EcalPedHists::endJob()
 {
   using namespace std;
   if(inputIsOk_)

@@ -128,7 +128,7 @@ void LASModuleProfile::DumpToArray( double array[512] ) {
 
 
 
-void LASModuleProfile::Init( void ) {
+void LASModuleProfile::Init( ) {
   ///
   /// everything needed for initialization
   ///

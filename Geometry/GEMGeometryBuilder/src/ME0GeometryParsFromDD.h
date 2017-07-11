@@ -10,9 +10,9 @@ class ME0GeometryParsFromDD
 {
  public:
 
-  ME0GeometryParsFromDD( void ) {}
+  ME0GeometryParsFromDD( ) {}
 
-  ~ME0GeometryParsFromDD( void ) {}
+  ~ME0GeometryParsFromDD( ) {}
 
   void build( const DDCompactView*, 
 	      const MuonDDDConstants&,

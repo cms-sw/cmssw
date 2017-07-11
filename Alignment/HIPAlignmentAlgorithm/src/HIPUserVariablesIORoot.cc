@@ -30,7 +30,7 @@ HIPUserVariablesIORoot::HIPUserVariablesIORoot() :
 
 // ----------------------------------------------------------------------------
 
-void HIPUserVariablesIORoot::createBranches(void) 
+void HIPUserVariablesIORoot::createBranches() 
 {
   tree->Branch("Id",        &Id,        "Id/i");
   tree->Branch("ObjId",     &ObjId,     "ObjId/I");
@@ -48,7 +48,7 @@ void HIPUserVariablesIORoot::createBranches(void)
 
 // ----------------------------------------------------------------------------
 
-void HIPUserVariablesIORoot::setBranchAddresses(void) 
+void HIPUserVariablesIORoot::setBranchAddresses() 
 {
   tree->SetBranchAddress("Id",        &Id);
   tree->SetBranchAddress("ObjId",     &ObjId);

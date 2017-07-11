@@ -25,33 +25,33 @@ private:
     std::map<std::string,unsigned int> columnNameToIndex; // remember original positions of the columns
 
 public:
-    std::string getId        (void) const noexcept { return id;             }
-    std::string getProcOrRole(void) const noexcept { return procOrRole;     }
-    std::string getType      (void) const noexcept { return type;           }
-    std::string getValueAsStr(void) const noexcept { return scalarOrVector; }
+    std::string getId        () const noexcept { return id;             }
+    std::string getProcOrRole() const noexcept { return procOrRole;     }
+    std::string getType      () const noexcept { return type;           }
+    std::string getValueAsStr() const noexcept { return scalarOrVector; }
 
-    bool isScalar(void) const noexcept {
+    bool isScalar() const noexcept {
         if( type.find("vector") != std::string::npos ||
             type.find("table")  != std::string::npos )
             return false;
         return true;
     }
-    bool isVector(void) const noexcept {
+    bool isVector() const noexcept {
         if( type.find("vector") == std::string::npos ) return false;
         return true;
     }
-    bool isTable(void) const noexcept {
+    bool isTable() const noexcept {
         if( type.find("table") == std::string::npos ) return false;
         return true;
     }
 
     // cast underlying scalarOrVector string to scalar T type
-    template<class T> T getValue(void) const {
+    template<class T> T getValue() const {
         if( !isScalar() ) throw std::runtime_error("The registered type: '" + type + "' is not a scalar -> try getVector() or getTable()");
         return castTo<T>(scalarOrVector.c_str());
     }
     // cast underlying scalarOrVector string to a vector of elements of type T
-    template<class T> std::vector<T> getVector(void) const {
+    template<class T> std::vector<T> getVector() const {
         if( !isVector() ) throw std::runtime_error("The registered type: '" + type + "' is not a vector");
         // split the vector into elements
         const char *d = delim.c_str();
@@ -81,7 +81,7 @@ public:
         return retval;
     }
     // in case the order of columns in original table is important - use function below
-    std::map<std::string,unsigned int> getColumnIndices(void) const noexcept { return columnNameToIndex; }
+    std::map<std::string,unsigned int> getColumnIndices() const noexcept { return columnNameToIndex; }
 
     Parameter& operator=(const Parameter  & s) = default;
     Parameter& operator=(      Parameter && s) = default; // should be noexcept 
@@ -102,8 +102,8 @@ public:
             const char *delimeter=","
            );
 
-    Parameter(void){}
-    ~Parameter(void){}
+    Parameter(){}
+    ~Parameter(){}
 };
 
 // specializations for most of the fundamental types are provided (also covers simple typedefs)

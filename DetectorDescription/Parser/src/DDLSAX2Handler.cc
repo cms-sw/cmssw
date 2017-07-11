@@ -6,7 +6,7 @@
 
 using namespace cms::xerces;
 
-DDLSAX2Handler::DDLSAX2Handler( void )
+DDLSAX2Handler::DDLSAX2Handler( )
   : attrCount_(0),
     characterCount_(0),
     elementCount_(0),
@@ -15,7 +15,7 @@ DDLSAX2Handler::DDLSAX2Handler( void )
     userNS_(false)
 {}
 
-DDLSAX2Handler::~DDLSAX2Handler( void )
+DDLSAX2Handler::~DDLSAX2Handler( )
 {}
 
 // ---------------------------------------------------------------------------
@@ -61,7 +61,7 @@ DDLSAX2Handler::ignorableWhitespace( const XMLCh* const chars,
 }
 
 void
-DDLSAX2Handler::resetDocument( void )
+DDLSAX2Handler::resetDocument( )
 {
   attrCount_ = 0;
   characterCount_ = 0;

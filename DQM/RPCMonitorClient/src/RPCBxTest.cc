@@ -167,7 +167,7 @@ void RPCBxTest::analyze(const edm::Event& iEvent, const edm::EventSetup& c) {}
 
 void RPCBxTest::endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& iSetup) { }
 
-void  RPCBxTest::endJob(void) {
+void  RPCBxTest::endJob() {
   edm::LogVerbatim ("rpcbxtest") << "[RPCBxTest]: end job ";
 }
 

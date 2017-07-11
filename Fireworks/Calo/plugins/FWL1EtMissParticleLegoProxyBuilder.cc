@@ -14,8 +14,8 @@
 class FWL1EtMissParticleLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>
 {
 public:
-   FWL1EtMissParticleLegoProxyBuilder( void ) {}
-   virtual ~FWL1EtMissParticleLegoProxyBuilder( void ) {}
+   FWL1EtMissParticleLegoProxyBuilder( ) {}
+   virtual ~FWL1EtMissParticleLegoProxyBuilder( ) {}
    
    REGISTER_PROXYBUILDER_METHODS();
    

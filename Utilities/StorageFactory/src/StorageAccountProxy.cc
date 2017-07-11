@@ -15,7 +15,7 @@ StorageAccountProxy::StorageAccountProxy (const std::string &storageClass,
   stats.tick ();
 }
 
-StorageAccountProxy::~StorageAccountProxy (void)
+StorageAccountProxy::~StorageAccountProxy ()
 {
   StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::destruct));
   releaseStorage();
@@ -112,7 +112,7 @@ StorageAccountProxy::resize (IOOffset size)
 }
 
 void
-StorageAccountProxy::flush (void)
+StorageAccountProxy::flush ()
 {
   StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::flush));
   m_baseStorage->flush ();
@@ -120,7 +120,7 @@ StorageAccountProxy::flush (void)
 }
 
 void
-StorageAccountProxy::close (void)
+StorageAccountProxy::close ()
 {
   StorageAccount::Stamp stats (StorageAccount::counter (m_token, StorageAccount::Operation::close));
   m_baseStorage->close ();

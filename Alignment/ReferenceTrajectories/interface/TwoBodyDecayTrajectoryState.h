@@ -27,19 +27,19 @@ public:
 			       const MagneticField* magField,
 			       bool propagateErrors = false );
 
-  ~TwoBodyDecayTrajectoryState( void ) {}
+  ~TwoBodyDecayTrajectoryState( ) {}
 
-  inline bool isValid( void ) const { return theValidityFlag; }
+  inline bool isValid( ) const { return theValidityFlag; }
 
-  inline double particleMass( void ) const { return theParticleMass; }
-  inline const TwoBodyDecayParameters & decayParameters( void ) const { return theParameters; }
+  inline double particleMass( ) const { return theParticleMass; }
+  inline const TwoBodyDecayParameters & decayParameters( ) const { return theParameters; }
   inline const TsosContainer& trajectoryStates( bool useRefittedState = true ) const { return useRefittedState ? theRefittedTsos : theOriginalTsos; }
-  inline const Derivatives& derivatives( void ) const { return theDerivatives; }
+  inline const Derivatives& derivatives( ) const { return theDerivatives; }
 
   void rescaleError( double scale );
 
-  inline double primaryMass( void ) const { return thePrimaryMass; }
-  inline double primaryWidth( void ) const { return thePrimaryWidth; }
+  inline double primaryMass( ) const { return thePrimaryMass; }
+  inline double primaryWidth( ) const { return thePrimaryWidth; }
 
 private:
 

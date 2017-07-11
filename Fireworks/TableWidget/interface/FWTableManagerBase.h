@@ -102,10 +102,10 @@ class FWTableManagerBase : public TQObject
       ClassDef(FWTableManagerBase,0);
 
       /// The current sort order for the table.
-      bool sortOrder(void) { return m_sortOrder; }
+      bool sortOrder() { return m_sortOrder; }
       
       /// The current sort column
-      int sortColumn(void) { return m_sortColumn; }
+      int sortColumn() { return m_sortColumn; }
 
    protected:
       ///Called by 'sort' method to actually handle the sorting of the rows. Arguments are the same as 'sort'

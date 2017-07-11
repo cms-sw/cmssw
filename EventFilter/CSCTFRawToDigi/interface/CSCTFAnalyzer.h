@@ -35,7 +35,7 @@ public:
 	void analyze(const edm::Event& e, const edm::EventSetup& c);
 
 	explicit CSCTFAnalyzer(const edm::ParameterSet &conf);
-	~CSCTFAnalyzer(void){ file->cd(); tree->Write(); file->Close(); }
+	~CSCTFAnalyzer(){ file->cd(); tree->Write(); file->Close(); }
 };
 
 #endif

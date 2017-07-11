@@ -725,10 +725,10 @@ class JetMETHLTOfflineSource : public DQMEDAnalyzer {
       MonitorElement * getMEhisto_Pt12Pt3() {return Pt12Pt3_;}
       MonitorElement * getMEhisto_Pt12Phi12() {return Pt12Phi12_;}
 
-      const std::string getLabel(void ) const {
+      const std::string getLabel( ) const {
 	return filterName_;
       }
-      const std::string getDenomLabel(void ) const {
+      const std::string getDenomLabel( ) const {
 	return DenomfilterName_;
       }
 
@@ -740,32 +740,32 @@ class JetMETHLTOfflineSource : public DQMEDAnalyzer {
 	DenomfilterName_ = labelName;
 	return;
       }
-      const std::string getPath(void ) const {
+      const std::string getPath( ) const {
 	return pathName_;
       }
-      const std::string getl1Path(void ) const {
+      const std::string getl1Path( ) const {
 	return l1pathName_;
       }
-      const std::string getDenomPath(void ) const {
+      const std::string getDenomPath( ) const {
 	return denomPathName_;
       }
-      const int getprescaleUsed(void) const {
+      const int getprescaleUsed() const {
 	return prescaleUsed_;
       }
-      const std::string getProcess(void ) const {
+      const std::string getProcess( ) const {
 	return processName_;
       }
-      const int getObjectType(void ) const {
+      const int getObjectType( ) const {
 	return objectType_;
       }
-      const std::string getTriggerType(void ) const {
+      const std::string getTriggerType( ) const {
 	return triggerType_;
       }
-      const edm::InputTag getTag(void) const{
+      const edm::InputTag getTag() const{
 	edm::InputTag tagName(filterName_,"",processName_);
 	return tagName;
       }
-      const edm::InputTag getDenomTag(void) const{
+      const edm::InputTag getDenomTag() const{
 	edm::InputTag tagName(DenomfilterName_,"",processName_);
 	return tagName;
       }

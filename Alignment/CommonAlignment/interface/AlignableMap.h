@@ -44,7 +44,7 @@ public:
   Alignables& find( const std::string& name = "" );
 
   /// Print the name of all stored data
-  void dump( void ) const;
+  void dump( ) const;
 
 private:
   Container theStore;

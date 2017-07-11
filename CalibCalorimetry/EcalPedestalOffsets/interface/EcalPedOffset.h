@@ -43,7 +43,7 @@ class EcalPedOffset: public edm::EDAnalyzer
     void beginRun(edm::Run const &, edm::EventSetup const& eventSetup);
     
     //! EndJob
-    void endJob(void);
+    void endJob();
     
     //! write the results into xml format
     void writeXMLFiles(std::string fileName);

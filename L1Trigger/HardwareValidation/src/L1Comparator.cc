@@ -191,7 +191,7 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
 
 L1Comparator::~L1Comparator(){}
 
-void L1Comparator::beginJob(void) {}
+void L1Comparator::beginJob() {}
 
 void L1Comparator::beginRun(edm::Run const& iRun, const edm::EventSetup& iSetup) {
 

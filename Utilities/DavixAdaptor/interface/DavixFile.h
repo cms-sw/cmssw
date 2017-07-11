@@ -7,11 +7,11 @@
 
 class DavixFile : public Storage {
 public:
-  DavixFile(void);
+  DavixFile();
   DavixFile(const char *name, int flags = IOFlags::OpenRead, int perms = 0666);
   DavixFile(const std::string &name, int flags = IOFlags::OpenRead,
             int perms = 0666);
-  ~DavixFile(void);
+  ~DavixFile();
   static void configureDavixLogLevel();
 
   virtual void create(const char *name, bool exclusive = false,
@@ -34,8 +34,8 @@ public:
   virtual IOOffset position(IOOffset offset, Relative whence = SET) override;
   virtual void resize(IOOffset size) override;
 
-  virtual void close(void) override;
-  virtual void abort(void);
+  virtual void close() override;
+  virtual void abort();
 
 private:
   // Cannot use as C++ smart pointer for Davix_fd

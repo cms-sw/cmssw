@@ -17,35 +17,35 @@ FIPConfiguration::FIPConfiguration( DDCompactView& cpv )
     cpv_( cpv )
 {}
 
-FIPConfiguration::~FIPConfiguration( void )
+FIPConfiguration::~FIPConfiguration( )
 {}
 
 const std::vector<std::string>&
-FIPConfiguration::getFileList( void ) const
+FIPConfiguration::getFileList( ) const
 {
   return files_;
 }
 
 const std::vector<std::string>&
-FIPConfiguration::getURLList( void ) const
+FIPConfiguration::getURLList( ) const
 {
   return urls_;
 }
 
 bool
-FIPConfiguration::doValidation( void ) const
+FIPConfiguration::doValidation( ) const
 {
   return configHandler_.doValidation();
 }
 
 std::string
-FIPConfiguration::getSchemaLocation( void ) const
+FIPConfiguration::getSchemaLocation( ) const
 {
   return configHandler_.getSchemaLocation();
 }
 
 void
-FIPConfiguration::dumpFileList(void) const
+FIPConfiguration::dumpFileList() const
 {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;

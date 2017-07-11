@@ -3,7 +3,7 @@
 #include <cassert>
 
 /// Destruct the stream.  A no-op.
-IOInput::~IOInput (void)
+IOInput::~IOInput ()
 {}
 
 //////////////////////////////////////////////////////////////////////
@@ -51,7 +51,7 @@ IOInput::~IOInput (void)
     mode and no input is currently available (FIXME: make this
     simpler; clarify which exception).  */
 int
-IOInput::read (void)
+IOInput::read ()
 {
   unsigned char byte;
   IOSize n = read (&byte, 1);

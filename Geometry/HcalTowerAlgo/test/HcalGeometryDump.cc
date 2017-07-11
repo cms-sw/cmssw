@@ -14,7 +14,7 @@ class HcalGeometryDump : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalGeometryDump( const edm::ParameterSet& );
-  ~HcalGeometryDump( void );
+  ~HcalGeometryDump( );
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -29,7 +29,7 @@ HcalGeometryDump::HcalGeometryDump( const edm::ParameterSet& iConfig ) : ps0_(iC
   geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
 }
 
-HcalGeometryDump::~HcalGeometryDump( void ) {}
+HcalGeometryDump::~HcalGeometryDump( ) {}
 
 void
 HcalGeometryDump::analyze(const edm::Event& /*iEvent*/, 

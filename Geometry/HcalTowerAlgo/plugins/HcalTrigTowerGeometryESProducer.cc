@@ -9,7 +9,7 @@ HcalTrigTowerGeometryESProducer::HcalTrigTowerGeometryESProducer( const edm::Par
   setWhatProduced( this );
 }
 
-HcalTrigTowerGeometryESProducer::~HcalTrigTowerGeometryESProducer( void ) 
+HcalTrigTowerGeometryESProducer::~HcalTrigTowerGeometryESProducer( ) 
 {}
 
 std::shared_ptr<HcalTrigTowerGeometry>

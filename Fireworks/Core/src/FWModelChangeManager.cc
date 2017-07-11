@@ -198,7 +198,7 @@ FWModelChangeManager::newItemSlot(FWEventItem* iItem)
     clean also the associated vectors here.
   */
 void
-FWModelChangeManager::itemsGoingToBeClearedSlot(void)
+FWModelChangeManager::itemsGoingToBeClearedSlot()
 {
    m_changes.clear();
    m_changeSignals.clear();

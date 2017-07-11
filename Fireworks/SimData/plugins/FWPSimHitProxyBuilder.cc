@@ -18,8 +18,8 @@
 class FWPSimHitProxyBuilder : public FWSimpleProxyBuilderTemplate<PSimHit>
 {
 public:
-   FWPSimHitProxyBuilder( void ) {} 
-   virtual ~FWPSimHitProxyBuilder( void ) {}
+   FWPSimHitProxyBuilder( ) {} 
+   virtual ~FWPSimHitProxyBuilder( ) {}
 
    virtual bool haveSingleProduct() const override { return false; }
 

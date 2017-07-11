@@ -63,7 +63,7 @@ EcalBarrelMonitorDbModule::~EcalBarrelMonitorDbModule(){
 
 }
 
-void EcalBarrelMonitorDbModule::beginJob(void){
+void EcalBarrelMonitorDbModule::beginJob(){
 
   icycle_ = 0;
 
@@ -71,7 +71,7 @@ void EcalBarrelMonitorDbModule::beginJob(void){
 
 }
 
-void EcalBarrelMonitorDbModule::endJob(void) {
+void EcalBarrelMonitorDbModule::endJob() {
 
   if ( ME_Db_ ) ME_Db_->endJob();
 

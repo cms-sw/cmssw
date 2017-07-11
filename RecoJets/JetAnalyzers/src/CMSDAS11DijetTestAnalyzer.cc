@@ -66,7 +66,7 @@ CMSDAS11DijetTestAnalyzer::CMSDAS11DijetTestAnalyzer(edm::ParameterSet const& pa
   hOuterDijetMass = fs->make<TH1D>("hOuterDijetMass","Corrected Outer Dijet Mass",NBINS-1,BOUNDARIES);
 }
 
-void CMSDAS11DijetTestAnalyzer::endJob(void) {
+void CMSDAS11DijetTestAnalyzer::endJob() {
 }
 
 void CMSDAS11DijetTestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup)

@@ -67,16 +67,16 @@ public:
 					       const AlignableDetOrUnitPtr & ) const;
 
   /// Get translation parameters
-  AlgebraicVector translation(void) const;
+  AlgebraicVector translation() const;
 
   /// Get rotation parameters
-  AlgebraicVector rotation(void) const;
+  AlgebraicVector rotation() const;
 
   /// calculate and return parameters in global frame 
-  AlgebraicVector globalParameters(void) const;
+  AlgebraicVector globalParameters() const;
 
   /// print parameters to screen 
-  void print(void) const;
+  void print() const;
 
   /// Calculate parameter vector of misplacements (shift+rotation) from alignable.
   /// (If ali=0, return empty AlgebraicVector of proper length.)

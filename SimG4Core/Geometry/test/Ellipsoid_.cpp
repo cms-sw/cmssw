@@ -18,11 +18,11 @@ class testEllipsoid : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testEllipsoid::matched_g4_and_dd( void )
+testEllipsoid::matched_g4_and_dd( )
 {
   double xSemiAxis = 3.0*cm;
   double ySemiAxis = 2.0*cm;

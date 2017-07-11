@@ -66,7 +66,7 @@ private:
 	friend class CSCTFPacker;
 
 public:
-	bool check(void) const throw() {
+	bool check() const throw() {
 		return zero_1 !=0 || zero_2 !=0 || zero_3 !=0 || zero_4 !=0
 			|| zero_5 !=0 || zero_6 !=0 || zero_7 !=0 || zero_8 !=0 // || spare_1!=0
 			|| spare_2!=0 || spare_3!=0 || spare_4!=0 || spare_8!=0
@@ -74,24 +74,24 @@ public:
 	}
 
 	// Following functions return empty vector if no LCTs/MB_stubs/tracks are available
-	std::vector<CSCSP_MEblock> LCTs   (void) const throw();
+	std::vector<CSCSP_MEblock> LCTs   () const throw();
 	std::vector<CSCSP_MEblock> LCTs   (unsigned int mpc) const throw();
 	std::vector<CSCSP_MEblock> LCT    (unsigned int mpc, unsigned int link) const throw();
-	std::vector<CSCSP_SPblock> tracks (void) const throw();
-	std::vector<CSCSP_MBblock> mbStubs(void) const throw();
+	std::vector<CSCSP_SPblock> tracks () const throw();
+	std::vector<CSCSP_MBblock> mbStubs() const throw();
 
-	unsigned int VPs(void) const throw() { return vp_bits|(vq_a<<15)|(vq_b<<16); }
-	unsigned int SEs(void) const throw() { return se_bits; }
-	unsigned int SMs(void) const throw() { return sm_bits; }
-	unsigned int AFs(void) const throw() { return af_bits|(af_barrel_1<<15)|(af_barrel_2<<16); }
-	unsigned int BXs(void) const throw() { return bx_bits|(bx_barrel_1<<15)|(bx_barrel_2<<16); }
+	unsigned int VPs() const throw() { return vp_bits|(vq_a<<15)|(vq_b<<16); }
+	unsigned int SEs() const throw() { return se_bits; }
+	unsigned int SMs() const throw() { return sm_bits; }
+	unsigned int AFs() const throw() { return af_bits|(af_barrel_1<<15)|(af_barrel_2<<16); }
+	unsigned int BXs() const throw() { return bx_bits|(bx_barrel_1<<15)|(bx_barrel_2<<16); }
 
-	unsigned int ptSpy     (void) const throw() { return (pt_high<<8)|pt_low; }
-	unsigned int ptSpyTrack(void) const throw() { return pt_spy_point;        }
+	unsigned int ptSpy     () const throw() { return (pt_high<<8)|pt_low; }
+	unsigned int ptSpyTrack() const throw() { return pt_spy_point;        }
 
 	bool unpack(const unsigned short* &buf, unsigned int nonmasked_data_blocks, bool empty_blocks_suppressed, unsigned int tbin) throw() ;
 
-	CSCSPRecord(void){}
+	CSCSPRecord(){}
 };
 
 #endif

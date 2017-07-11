@@ -19,7 +19,7 @@ LASBarrelAlignmentParameterSet::LASBarrelAlignmentParameterSet(){
 ///
 /// whatever initialization is needed
 ///
-void LASBarrelAlignmentParameterSet::Init( void ) {
+void LASBarrelAlignmentParameterSet::Init( ) {
 
   // could use a single vector<vector<vector<pair<> > > >
   // but better split it in 6 parts
@@ -105,7 +105,7 @@ std::pair<double,double>& LASBarrelAlignmentParameterSet::GetBeamParameter( int 
 ///
 /// pretty-print all parameter and error values
 ///
-void LASBarrelAlignmentParameterSet::Print( void ) {
+void LASBarrelAlignmentParameterSet::Print( ) {
   
   std::cout << std::endl << " [LASBarrelAlignmentParameterSet::Print] -- Parameter list [rad/mm]: " << std::endl;
 

@@ -13,8 +13,8 @@
 class FWZDCRecHitProxyBuilder :  public FWCaloRecHitDigitSetProxyBuilder
 {
 public:
-   FWZDCRecHitProxyBuilder( void ) {}  
-   virtual ~FWZDCRecHitProxyBuilder( void ) {}
+   FWZDCRecHitProxyBuilder( ) {}  
+   virtual ~FWZDCRecHitProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

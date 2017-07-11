@@ -16,7 +16,7 @@ class AlignmentExtendedCorrelationsEntry
 public:
 
   /// Default constructor.
-  AlignmentExtendedCorrelationsEntry( void );
+  AlignmentExtendedCorrelationsEntry( );
 
   /// Constructor. Leaves the correlations matrix uninitialized.
   explicit AlignmentExtendedCorrelationsEntry( short unsigned int nRows, short unsigned int nCols );
@@ -28,7 +28,7 @@ public:
   explicit AlignmentExtendedCorrelationsEntry( const AlgebraicMatrix& mat );
 
   /// Destructor.
-  ~AlignmentExtendedCorrelationsEntry( void ) {}
+  ~AlignmentExtendedCorrelationsEntry( ) {}
 
   /// Read or write an element of the correlations matrix. NOTE: Indexing starts from [0,0].
   inline float& operator()( short unsigned int iRow, short unsigned int jCol ) { return theData[iRow*theNCols+jCol]; }
@@ -37,16 +37,16 @@ public:
   inline const float operator()( short unsigned int iRow, short unsigned int jCol ) const { return theData[iRow*theNCols+jCol]; }
 
   /// Get the number of rows of the correlation matrix.
-  inline const short unsigned int numRow( void ) const { return theNRows; }
+  inline const short unsigned int numRow( ) const { return theNRows; }
 
   /// Get the number of columns of the correlation matrix.
-  inline const short unsigned int numCol( void ) const { return theNCols; }
+  inline const short unsigned int numCol( ) const { return theNCols; }
 
   /// Multiply all elements of the correlations matrix with a given number.
   void operator*=( const float multiply );
 
   /// Retrieve the correlation matrix in a CLHEP matrix representation;
-  AlgebraicMatrix matrix( void ) const;
+  AlgebraicMatrix matrix( ) const;
 
 //   /// Get the counter's value.
 //   inline const int counter( void ) const { return theCounter; }

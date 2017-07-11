@@ -15,8 +15,8 @@ class DDCompactView;
 class DDAngular : public DDAlgorithm
 {
 public:
-  DDAngular( void );
-  virtual ~DDAngular( void );
+  DDAngular( );
+  virtual ~DDAngular( );
 
   void initialize( const DDNumericArguments & nArgs,
                    const DDVectorArguments & vArgs,

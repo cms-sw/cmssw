@@ -107,7 +107,7 @@ private:
 	
     /// Utility functions 	
     bool addHit(const CSCRecHit2D* hit, int layer);
-    void updateParameters(void);
+    void updateParameters();
     float phiAtZ(float z) const;
     bool hasHitOnLayer(int layer) const;
     bool replaceHit(const CSCRecHit2D* h, int layer);

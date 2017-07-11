@@ -45,9 +45,9 @@ class testChannel: public edm::EDAnalyzer
     virtual ~testChannel () ;
     
     //! Subscribe/Unsubscribe to Monitoring Elements
-    void subscribe (void) ;
-    void subscribeNew (void) ;
-    void unsubscribe (void) ;
+    void subscribe () ;
+    void subscribeNew () ;
+    void unsubscribe () ;
     
     ///! Analyze
     void analyze (edm::Event const& event, edm::EventSetup const& eventSetup) ;
@@ -56,7 +56,7 @@ class testChannel: public edm::EDAnalyzer
     void beginJob () ;
     
     //! EndJob
-    void endJob (void) ;
+    void endJob () ;
         
   private:
  

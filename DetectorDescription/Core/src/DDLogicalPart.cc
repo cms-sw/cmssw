@@ -284,13 +284,13 @@ namespace
 	}
       } 
 
-    ~Regex( void ) { if( m_ok ) regfree( &m_regex ); }
+    ~Regex( ) { if( m_ok ) regfree( &m_regex ); }
 
-    bool empty( void ) const { return me.empty(); }
+    bool empty( ) const { return me.empty(); }
 
-    bool notRegex( void ) const { return !m_ok; }
+    bool notRegex( ) const { return !m_ok; }
 
-    const std::string & value( void ) const { return me;}
+    const std::string & value( ) const { return me;}
 
     bool match( const std::string & s ) const {
       if( m_ok )
@@ -299,7 +299,7 @@ namespace
 	return me == s;
     }
 
-    const std::pair< std::string, std::string> & range( void ) const { return m_range; }
+    const std::pair< std::string, std::string> & range( ) const { return m_range; }
   private:
     bool m_ok;
     regex_t m_regex;
@@ -406,7 +406,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
 }
 
 const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & 
-DDLogicalPart::attachedSpecifics( void ) const
+DDLogicalPart::attachedSpecifics( ) const
 {
   return rep().attachedSpecifics();
 }

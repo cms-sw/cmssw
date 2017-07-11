@@ -9,7 +9,7 @@ public:
     virtual void fillObjectKeys( ReturnType pL1TriggerKey ) override ;
 
     L1TGlobalPrescalesVetosObjectKeysOnlineProd(const edm::ParameterSet&);
-    ~L1TGlobalPrescalesVetosObjectKeysOnlineProd(void){}
+    ~L1TGlobalPrescalesVetosObjectKeysOnlineProd(){}
 };
 
 L1TGlobalPrescalesVetosObjectKeysOnlineProd::L1TGlobalPrescalesVetosObjectKeysOnlineProd(const edm::ParameterSet& iConfig)

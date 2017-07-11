@@ -69,7 +69,7 @@ OuterTrackerMonitorTTStubClient::beginRun(const edm::Run& run, const edm::EventS
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-OuterTrackerMonitorTTStubClient::endJob(void) 
+OuterTrackerMonitorTTStubClient::endJob() 
 {
 
 }

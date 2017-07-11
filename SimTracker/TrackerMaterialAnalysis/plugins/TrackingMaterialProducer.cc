@@ -95,7 +95,7 @@ TrackingMaterialProducer::TrackingMaterialProducer(const edm::ParameterSet& iPSe
 }
 
 //-------------------------------------------------------------------------
-TrackingMaterialProducer::~TrackingMaterialProducer(void)
+TrackingMaterialProducer::~TrackingMaterialProducer()
 {
 }
 

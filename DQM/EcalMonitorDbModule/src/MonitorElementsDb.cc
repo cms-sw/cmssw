@@ -90,13 +90,13 @@ MonitorElementsDb::~MonitorElementsDb(){
 
 }
 
-void MonitorElementsDb::beginJob( void ){
+void MonitorElementsDb::beginJob( ){
 
   ievt_ = 0;
 
 }
 
-void MonitorElementsDb::endJob( void ){
+void MonitorElementsDb::endJob( ){
 
   std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl;
   for( unsigned int i = 0; i<MEs_.size(); i++ ) {

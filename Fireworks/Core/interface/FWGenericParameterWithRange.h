@@ -27,7 +27,7 @@ template<class T>
 class FWGenericParameterWithRange : public FWGenericParameter<T>
 {
 public:
-   FWGenericParameterWithRange(void) :
+   FWGenericParameterWithRange() :
       FWGenericParameter<T>(),
       m_min(-1),
       m_max(-1)

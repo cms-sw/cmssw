@@ -296,7 +296,7 @@ void AlignableComposite::addSurfaceDeformation(const SurfaceDeformation *deforma
 }
 
 //__________________________________________________________________________________________________
-void AlignableComposite::dump( void ) const
+void AlignableComposite::dump( ) const
 {
 
   // A simple printout method. Could be specialized in the implementation classes.
@@ -319,7 +319,7 @@ void AlignableComposite::dump( void ) const
 
 
 //__________________________________________________________________________________________________
-Alignments* AlignableComposite::alignments( void ) const
+Alignments* AlignableComposite::alignments( ) const
 {
 
   // Recursively call alignments, until we get to an AlignableDetUnit
@@ -343,7 +343,7 @@ Alignments* AlignableComposite::alignments( void ) const
 
 
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableComposite::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableComposite::alignmentErrors( ) const
 {
 
   // Recursively call alignmentsErrors, until we get to an AlignableDetUnit

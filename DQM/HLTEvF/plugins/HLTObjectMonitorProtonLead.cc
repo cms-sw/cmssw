@@ -103,7 +103,7 @@ class HLTObjectMonitorProtonLead : public DQMEDAnalyzer {
       vector<hltPlot*> plotList;
       //virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
       //virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
-  double get_wall_time(void);
+  double get_wall_time();
       // ----------member data ---------------------------
 
   bool debugPrint;

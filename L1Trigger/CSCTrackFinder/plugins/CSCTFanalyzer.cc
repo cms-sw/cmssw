@@ -66,7 +66,7 @@ CSCTFanalyzer::CSCTFanalyzer(edm::ParameterSet const& pset):edm::EDAnalyzer(){
 	ts=0;
 }
 
-void CSCTFanalyzer::endJob(void){
+void CSCTFanalyzer::endJob(){
 	tree->Write();
 	file->Write();
 	file->Close();

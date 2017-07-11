@@ -8,7 +8,7 @@
 
 using namespace cms;
 
-DDDCmsTrackerContruction::DDDCmsTrackerContruction( void )
+DDDCmsTrackerContruction::DDDCmsTrackerContruction( )
 {}
 
 const GeometricDet*

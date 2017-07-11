@@ -34,7 +34,7 @@ class LaserDQM : public edm::EDAnalyzer
   /// begin job
   virtual void beginJob();
 	/// end job
-  virtual void endJob(void);
+  virtual void endJob();
     
  private:
 	/// fill adc counts from the laser beam into a monitor histogram

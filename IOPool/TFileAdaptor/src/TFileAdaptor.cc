@@ -212,7 +212,7 @@
 
   // Write current Storage statistics on a ostream
   void
-  TFileAdaptor::termination(void) const {
+  TFileAdaptor::termination() const {
     std::map<std::string, std::string> data;
     statsXML(data);
     if (!data.empty()) {

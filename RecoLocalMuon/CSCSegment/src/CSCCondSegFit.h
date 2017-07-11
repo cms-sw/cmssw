@@ -35,7 +35,7 @@ public:
   // which passes in bool flags for up to two extra conditioning passes
   void fit( bool condpass1 = false, bool condpass2 = false ); // fill uslope_, vslope_, intercept_
 
-  int worstHit( void ) { return worstHit_; }
+  int worstHit( ) { return worstHit_; }
   
   private:  
   
@@ -47,7 +47,7 @@ public:
   // which passes in bool flags for up to two extra conditioning passes
   void setChi2( bool condpass1, bool condpass2 ); // fill chi2_ & ndof_
   void correctTheCovMatrix(CSCSegFit::SMatrixSym2& IC);
-  void correctTheCovX(void);
+  void correctTheCovX();
   
   
   // EXTRA MEMBER VARIABLES 

@@ -10,7 +10,7 @@
 // clang does not define the __rdtsc and __rdtscp intrinsic, although it does
 // define __builtin_readcyclecounter() which is a likely replacement for __rdtsc()
 
-extern inline uint64_t rdtsc(void)
+extern inline uint64_t rdtsc()
 {
     uint32_t eax, edx;
     asm("rdtsc" : "=a" (eax), "=d" (edx));
@@ -62,7 +62,7 @@ extern uint64_t serialising_rdtsc(void);
 #else
 
 // processor specific serialising access to the TSC
-extern uint64_t (*serialising_rdtsc)(void);
+extern uint64_t (*serialising_rdtsc)();
 
 #endif // IFUNC support
 

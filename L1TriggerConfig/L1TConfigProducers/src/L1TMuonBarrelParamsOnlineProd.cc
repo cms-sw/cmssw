@@ -19,7 +19,7 @@ public:
     virtual std::shared_ptr<L1TMuonBarrelParams> newObject(const std::string& objectKey, const L1TMuonBarrelParamsO2ORcd& record) override ;
 
     L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet&);
-    ~L1TMuonBarrelParamsOnlineProd(void){}
+    ~L1TMuonBarrelParamsOnlineProd(){}
 };
 
 L1TMuonBarrelParamsOnlineProd::L1TMuonBarrelParamsOnlineProd(const edm::ParameterSet& iConfig) : L1ConfigOnlineProdBaseExt<L1TMuonBarrelParamsO2ORcd,L1TMuonBarrelParams>(iConfig) {}

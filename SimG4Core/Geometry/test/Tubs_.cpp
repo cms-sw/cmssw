@@ -18,11 +18,11 @@ class testTubs : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testTubs::matched_g4_and_dd( void )
+testTubs::matched_g4_and_dd( )
 {
   double rIn = 10.*cm;
   double rOut = 15.*cm;

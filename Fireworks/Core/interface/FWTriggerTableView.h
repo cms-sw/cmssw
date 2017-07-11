@@ -47,7 +47,7 @@ public:
    };
 
    FWTriggerTableView(TEveWindowSlot *, FWViewType::EType );
-   virtual ~FWTriggerTableView( void );
+   virtual ~FWTriggerTableView( );
 
    // ---------- const member functions ---------------------
    virtual void   addTo( FWConfiguration& ) const;
@@ -60,7 +60,7 @@ public:
    virtual void setFrom( const FWConfiguration& );
    void setBackgroundColor( Color_t );
    //void resetColors( const class FWColorManager& );
-   void dataChanged( void );
+   void dataChanged( );
    void columnSelected( Int_t iCol, Int_t iButton, Int_t iKeyMod );
 
    void setProcessList( std::vector<std::string>* x) { m_processList = x; }

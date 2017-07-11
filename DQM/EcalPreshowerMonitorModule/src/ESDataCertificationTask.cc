@@ -42,7 +42,7 @@ ESDataCertificationTask::~ESDataCertificationTask() {
 
 }
 
-void ESDataCertificationTask::beginJob(void) {
+void ESDataCertificationTask::beginJob() {
 
   char histo[200];
   
@@ -63,7 +63,7 @@ void ESDataCertificationTask::beginJob(void) {
 
 }
 
-void ESDataCertificationTask::endJob(void) {
+void ESDataCertificationTask::endJob() {
 
   if ( enableCleanup_ ) this->cleanup();
 
@@ -79,7 +79,7 @@ void ESDataCertificationTask::endLuminosityBlock(const edm::LuminosityBlock&  lu
 
 }
 
-void ESDataCertificationTask::reset(void) {
+void ESDataCertificationTask::reset() {
 
   if ( meESDataCertificationSummary_ ) meESDataCertificationSummary_->Reset();
 
@@ -88,7 +88,7 @@ void ESDataCertificationTask::reset(void) {
 }
 
 
-void ESDataCertificationTask::cleanup(void){
+void ESDataCertificationTask::cleanup(){
   
   if ( dqmStore_ ) {
 

@@ -17,7 +17,7 @@ class DQMEDHarvester
 edm::EndLuminosityBlockProducer>
 {
 public:
-  DQMEDHarvester(void);
+  DQMEDHarvester();
   virtual ~DQMEDHarvester() = default;
 
   // implicit copy constructor

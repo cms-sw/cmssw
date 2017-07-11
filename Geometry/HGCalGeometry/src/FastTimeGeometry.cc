@@ -183,7 +183,7 @@ namespace {
   };
 }
 
-void FastTimeGeometry::sortDetIds( void ) {
+void FastTimeGeometry::sortDetIds( ) {
   m_validIds.shrink_to_fit();
   std::sort( m_validIds.begin(), m_validIds.end(), rawIdSort());
 }

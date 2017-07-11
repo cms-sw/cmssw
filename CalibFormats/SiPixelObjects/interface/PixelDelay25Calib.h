@@ -64,7 +64,7 @@ namespace pos{
     void closeFiles();
 
     // Added by Dario April 28th, 2010
-    std::string getStreamedContent(void) const {return calibFileContent_;} ;
+    std::string getStreamedContent() const {return calibFileContent_;} ;
 
   private:
 

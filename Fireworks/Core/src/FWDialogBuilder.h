@@ -29,8 +29,8 @@ protected:
 
    FWLayoutBuilder &indent(int left = 2, int right = -1);
    
-   FWLayoutBuilder &unindent(void);
-   TGCompositeFrame *currentFrame(void) { return m_currentFrame; }
+   FWLayoutBuilder &unindent();
+   TGCompositeFrame *currentFrame() { return m_currentFrame; }
    FWLayoutBuilder &floatLeft(size_t spacing);
    FWLayoutBuilder &spaceUp(size_t spacing);
    FWLayoutBuilder &spaceDown(size_t spacing);
@@ -98,7 +98,7 @@ public:
 
    FWDialogBuilder &newRow();
    FWDialogBuilder &indent(int left = 2, int right = -1);   
-   FWDialogBuilder &unindent(void);
+   FWDialogBuilder &unindent();
    
    FWDialogBuilder &addLabel(const char *text,
                              size_t fontSize = 12,
@@ -136,9 +136,9 @@ public:
                                   size_t verticalPadding = 3);
 
    FWDialogBuilder &tabs(TGTab **out);
-   FWDialogBuilder &untabs(void);
+   FWDialogBuilder &untabs();
    FWDialogBuilder &beginTab(const char *label);
-   FWDialogBuilder &endTab(void);
+   FWDialogBuilder &endTab();
    
    FWDialogBuilder &floatLeft(size_t spacing = 3);
 

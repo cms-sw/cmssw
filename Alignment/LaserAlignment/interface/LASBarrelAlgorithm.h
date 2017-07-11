@@ -25,7 +25,7 @@ class LASBarrelAlgorithm {
  public:
   LASBarrelAlgorithm();
   LASBarrelAlignmentParameterSet CalculateParameters( LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>& );
-  void Dump( void );
+  void Dump( );
   
  private:
   void ReadMisalignmentFromFile( const char*, LASGlobalData<LASCoordinateSet>&, LASGlobalData<LASCoordinateSet>& );

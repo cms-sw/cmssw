@@ -6,8 +6,8 @@
 class PTrackerParameters
 {
  public:
-  PTrackerParameters( void ) { } 
-  ~PTrackerParameters( void ) { }
+  PTrackerParameters( ) { } 
+  ~PTrackerParameters( ) { }
 
   struct Item
   {

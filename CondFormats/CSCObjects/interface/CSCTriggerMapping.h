@@ -80,7 +80,7 @@ class CSCTriggerMapping {
    /** 
     * Fill mapping store
     */
-    virtual void fill( void ) = 0;
+    virtual void fill( ) = 0;
 
    /**
     * Add one record of info to mapping
@@ -96,12 +96,12 @@ class CSCTriggerMapping {
     /**
      * Status of debug printout flag
      */
-    bool debugV( void ) const { return debugV_; }
+    bool debugV( ) const { return debugV_; }
 
     /**
      * Return class name
      */
-    const std::string& myName( void ) const { return myName_; }
+    const std::string& myName( ) const { return myName_; }
 
  private: 
 

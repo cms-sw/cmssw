@@ -116,7 +116,7 @@ class CSCMonitorObject : public cscdqm::MonitorObject {
       me->getTH1()->SetMaximum(d);
     }
 
-    const TObject *getRefRootObject(void) const {
+    const TObject *getRefRootObject() const {
       return me->getRefRootObject();
     }
 
@@ -131,11 +131,11 @@ class CSCMonitorObject : public cscdqm::MonitorObject {
       me->getTH1()->SetBinError(bin, error);
     }
 
-    const TH1 *getTH1(void) const {
+    const TH1 *getTH1() const {
       return me->getTH1(); 
     }
     
-    TH1 *getTH1Lock(void) { 
+    TH1 *getTH1Lock() { 
       return me->getTH1(); 
     }
     

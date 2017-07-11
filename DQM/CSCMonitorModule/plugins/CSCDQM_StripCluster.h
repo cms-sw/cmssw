@@ -28,10 +28,10 @@ class StripCluster {
 
   int rlocalMaxTime(int i){return localMax[i].Time;}
   int rlocalMaxStrip(int i){return localMax[i].Strip;}
-  int rLFTBNDTime(void){return LFTBNDTime;}
-  int rLFTBNDStrip(void){return LFTBNDStrip;}
-  int rIRTBNDTime(void){return IRTBNDTime;}
-  int rIRTBNDStrip(void){return IRTBNDStrip;}	
+  int rLFTBNDTime(){return LFTBNDTime;}
+  int rLFTBNDStrip(){return LFTBNDStrip;}
+  int rIRTBNDTime(){return IRTBNDTime;}
+  int rIRTBNDStrip(){return IRTBNDStrip;}	
   int rnlocal(){return localMax.size();}
   StripCluster();
   virtual ~StripCluster();

@@ -11,7 +11,7 @@
 
 #include "SimDataFormats/ValidationFormats/interface/MaterialAccountingStep.h"
 
-void TrackingMaterialPlotter::fill_color(void)
+void TrackingMaterialPlotter::fill_color()
 {
   m_color.push_back(kBlack);          // unassigned
   m_color.push_back(kAzure);          // PixelBarrel
@@ -140,7 +140,7 @@ void TrackingMaterialPlotter::plotSegmentInLayer( const MaterialAccountingStep &
 }
 
 
-void TrackingMaterialPlotter::draw( void )
+void TrackingMaterialPlotter::draw( )
 {
   const double scale = 10.;
   TCanvas* canvas;

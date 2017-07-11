@@ -7,12 +7,12 @@
 class IOInput
 {
 public:
-  virtual ~IOInput (void);
+  virtual ~IOInput ();
   // implicit constructor
   // implicit copy constructor
   // implicit assignment operator
 
-  int			read (void);
+  int			read ();
   IOSize		read (IOBuffer into);
   virtual IOSize	read (void *into, IOSize n) = 0;
   virtual IOSize	readv (IOBuffer *into, IOSize buffers);

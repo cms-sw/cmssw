@@ -45,8 +45,8 @@ class CSCSegAlgoShowering {
   bool addHit(const CSCRecHit2D* hit, int layer);
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
-  void pruneFromResidual(void);
-  void updateParameters(void);
+  void pruneFromResidual();
+  void updateParameters();
 
   // Member variables
   const std::string myName; 

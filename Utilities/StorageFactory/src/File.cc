@@ -54,7 +54,7 @@ using namespace IOFlags;
 //////////////////////////////////////////////////////////////////////
 //////////////////////////////////////////////////////////////////////
 /** Create a new file object without a file attached to it.  */
-File::File (void)
+File::File ()
 {
   fd (EDM_IOFD_INVALID);
   m_flags = 0;
@@ -87,7 +87,7 @@ File::File (const std::string &name, int flags /*= OpenRead*/, int perms /*= 066
 /** Release the resources held by the file object.  If the object
     holds a valid file descriptor given to it through the constructor
     or obtained by calling #open(), the descriptor will be closed.  */
-File::~File (void)
+File::~File ()
 {
   if (m_flags & InternalAutoClose)
     abort ();
@@ -274,7 +274,7 @@ File::writev (const IOBuffer *from, IOSize length)
 
 /** Close the file.  */
 void
-File::close (void)
+File::close ()
 {
   IOFD fd = this->fd ();
   assert (fd != EDM_IOFD_INVALID);
@@ -290,7 +290,7 @@ File::close (void)
 
 /** Close the file and ignore all errors.  */
 void
-File::abort (void)
+File::abort ()
 {
   IOFD fd = this->fd ();
   if (fd != EDM_IOFD_INVALID)

@@ -58,8 +58,8 @@ public:
 
     void disableProcOrRoleOrDaq(const char *procOrRoleOrDaq);
 
-    const std::map<std::string, std::string>&            getProcToRoleAssignment (void) const noexcept { return procToRole;   }
-    const std::map<std::string, std::set<std::string> >& getRoleToProcsAssignment(void) const noexcept { return roleForProcs; }
+    const std::map<std::string, std::string>&            getProcToRoleAssignment () const noexcept { return procToRole;   }
+    const std::map<std::string, std::set<std::string> >& getRoleToProcsAssignment() const noexcept { return roleForProcs; }
 
     const std::map<std::string, Parameter>& getParameters(const char *processor) const ;
     const std::map<std::string, Mask>&      getMasks     (const char *processor) const ;
@@ -67,18 +67,18 @@ public:
     bool isMasked     (const char *proccessor, const char *id) const ;
     bool isProcEnabled(const char *proccessor) const ;
 
-    std::string systemId(void) const noexcept { return sysId; }
+    std::string systemId() const noexcept { return sysId; }
     void setSystemId(const char *id) noexcept { sysId = id; }
 
     void setConfigured(bool state=true) noexcept { isConfigured = state; }
     void setLogStream(std::ostream *s) const noexcept { logs = s; }
 
-    TriggerSystem(void){
+    TriggerSystem(){
         isConfigured = false;
         logs = 0;
     }
 
-    ~TriggerSystem(void){}
+    ~TriggerSystem(){}
 };
 
 } // end of l1t namespace

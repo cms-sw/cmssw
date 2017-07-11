@@ -11,7 +11,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 
-void CSCSegFit::fit(void) {
+void CSCSegFit::fit() {
   if ( fitdone() ) return; // don't redo fit unnecessarily
   short n = nhits();
   switch ( n ) {
@@ -32,7 +32,7 @@ void CSCSegFit::fit(void) {
   }  
 }
 
-void CSCSegFit::fit2(void) {
+void CSCSegFit::fit2() {
 
   // Just join the two points
   // Equation of straight line between (x1, y1) and (x2, y2) in xy-plane is
@@ -82,7 +82,7 @@ void CSCSegFit::fit2(void) {
 }
 
 
-void CSCSegFit::fitlsq(void) {
+void CSCSegFit::fitlsq() {
   
   // Linear least-squares fit to up to 6 CSC rechits, one per layer in a CSC.
   // Comments adapted from  mine in original  CSCSegAlgoSK algorithm.
@@ -243,7 +243,7 @@ void CSCSegFit::fitlsq(void) {
 
 
 
-void CSCSegFit::setChi2(void) {
+void CSCSegFit::setChi2() {
   
   double chsq = 0.;
 

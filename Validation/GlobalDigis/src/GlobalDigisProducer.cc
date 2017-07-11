@@ -116,7 +116,7 @@ GlobalDigisProducer::~GlobalDigisProducer()
 {
 }
 
-void GlobalDigisProducer::beginJob( void )
+void GlobalDigisProducer::beginJob( )
 {
   std::string MsgLoggerCat = "GlobalDigisProducer_beginJob";
 

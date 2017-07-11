@@ -8,7 +8,7 @@
 namespace hcaltb {
   class HcalTBTriggerDataUnpacker {
   public:
-    HcalTBTriggerDataUnpacker(void) { }
+    HcalTBTriggerDataUnpacker() { }
 
     void unpack(const FEDRawData& raw, HcalTBTriggerData& htbtd) const;
     static const int STANDARD_FED_ID=1;

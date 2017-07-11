@@ -119,7 +119,7 @@ StorageAccount::fillSummary(std::map<std::string, std::string>& summary) {
 }
 
 const StorageAccount::StorageStats&
-StorageAccount::summary (void)
+StorageAccount::summary ()
 { return m_stats; }
 
 StorageAccount::Counter&

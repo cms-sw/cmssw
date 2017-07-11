@@ -62,7 +62,7 @@ public:
 
 
 private:
-  virtual void beginJob(void) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void endJob();
 
@@ -453,7 +453,7 @@ L1JetRecoTreeProducer::jetId(const reco::PFJet& jet) {
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1JetRecoTreeProducer::beginJob(void)
+L1JetRecoTreeProducer::beginJob()
 {
 }
 

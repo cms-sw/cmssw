@@ -6,10 +6,10 @@
 class FWRecoGeometry
 {
 public:
-  FWRecoGeometry( void )
+  FWRecoGeometry( )
     { idToName.reserve(260000); }
   
-  virtual ~FWRecoGeometry( void ) 
+  virtual ~FWRecoGeometry( ) 
     {}
 
   FWRecoGeom::InfoMap idToName;

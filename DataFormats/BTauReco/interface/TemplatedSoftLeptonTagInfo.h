@@ -118,13 +118,13 @@ class TemplatedSoftLeptonTagInfo : public JetTagInfo {
 public:
     typedef std::vector< std::pair< REF, SoftLeptonProperties > > LeptonMap;
     
-    TemplatedSoftLeptonTagInfo(void) : m_leptons() {}
+    TemplatedSoftLeptonTagInfo() : m_leptons() {}
 
-    virtual ~TemplatedSoftLeptonTagInfo(void) {}
+    virtual ~TemplatedSoftLeptonTagInfo() {}
   
-    virtual TemplatedSoftLeptonTagInfo* clone(void) const { return new TemplatedSoftLeptonTagInfo(*this); }
+    virtual TemplatedSoftLeptonTagInfo* clone() const { return new TemplatedSoftLeptonTagInfo(*this); }
 
-    unsigned int leptons(void) const { 
+    unsigned int leptons() const { 
         return m_leptons.size(); 
     } 
 
@@ -141,7 +141,7 @@ public:
     }
 
     /// returns a description of the extended informations in a TaggingVariableList
-    virtual TaggingVariableList taggingVariables(void) const;
+    virtual TaggingVariableList taggingVariables() const;
 
     // Used by ROOT storage
     CMS_CLASS_VERSION(2)
@@ -152,7 +152,7 @@ private:
 };
 
 template<class REF>
-TaggingVariableList TemplatedSoftLeptonTagInfo<REF>::taggingVariables(void) const {
+TaggingVariableList TemplatedSoftLeptonTagInfo<REF>::taggingVariables() const {
   TaggingVariableList list;
 
   const Jet & jet = *( this->jet() );

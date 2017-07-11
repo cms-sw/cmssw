@@ -47,7 +47,7 @@ void RooGKCounter::setMessage( const char *message ){
   _message = message;
 }
 
-void RooGKCounter::init( void ){
+void RooGKCounter::init( ){
   _count = 0;
   _firstCount = 0;
   _divider = 1;
@@ -63,7 +63,7 @@ void RooGKCounter::init( void ){
 
 }
 
-void RooGKCounter::count( void ){
+void RooGKCounter::count( ){
 
   _count++;
 
@@ -106,7 +106,7 @@ void RooGKCounter::count( void ){
   lastTickTime = time( NULL );
 }
 
-unsigned long int RooGKCounter::getCount( void ){
+unsigned long int RooGKCounter::getCount( ){
   return _count;
 }
 

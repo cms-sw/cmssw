@@ -53,7 +53,7 @@ static pthread_once_t crc32c_once_sw = PTHREAD_ONCE_INIT;
 static uint32_t crc32c_table[8][256];
 
 /* Construct table for software CRC-32C calculation. */
-static void crc32c_init_sw(void)
+static void crc32c_init_sw()
 {
     uint32_t n, crc, k;
 
@@ -222,7 +222,7 @@ static uint32_t crc32c_long[4][256];
 static uint32_t crc32c_short[4][256];
 
 /* Initialize tables for shifting crcs. */
-static void crc32c_init_hw(void)
+static void crc32c_init_hw()
 {
     crc32c_zeros(crc32c_long, LONG);
     crc32c_zeros(crc32c_short, SHORT);

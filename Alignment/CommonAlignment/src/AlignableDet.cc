@@ -191,7 +191,7 @@ Alignments* AlignableDet::alignments() const
 }
 
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableDet::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableDet::alignmentErrors( ) const
 {
 
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();

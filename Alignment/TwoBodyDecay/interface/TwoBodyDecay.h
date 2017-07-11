@@ -20,7 +20,7 @@ public:
 
   typedef TwoBodyDecayParameters::ParameterName ParameterName;
 
-  TwoBodyDecay( void ) :
+  TwoBodyDecay( ) :
     theDecayParameters(), theChi2( 0. ), theValidityFlag( false ),
     thePrimaryMass( 0. ), thePrimaryWidth( 0. )  {}
 
@@ -29,12 +29,12 @@ public:
     theDecayParameters( param ), theChi2( chi2 ), theValidityFlag( valid ),
     thePrimaryMass( vm.primaryMass() ), thePrimaryWidth( vm.primaryWidth() ) {}
 
-  ~TwoBodyDecay( void ) {}
+  ~TwoBodyDecay( ) {}
 
-  inline const TwoBodyDecayParameters & decayParameters( void ) const { return theDecayParameters; }
+  inline const TwoBodyDecayParameters & decayParameters( ) const { return theDecayParameters; }
 
-  inline const AlgebraicVector & parameters( void ) const { return theDecayParameters.parameters(); }
-  inline const AlgebraicSymMatrix & covariance( void ) const { return theDecayParameters.covariance(); }
+  inline const AlgebraicVector & parameters( ) const { return theDecayParameters.parameters(); }
+  inline const AlgebraicSymMatrix & covariance( ) const { return theDecayParameters.covariance(); }
 
   /// Get specified decay parameter.
   inline double operator[]( ParameterName name ) const { return theDecayParameters[name]; }
@@ -42,15 +42,15 @@ public:
   /// Get specified decay parameter.
   inline double operator()( ParameterName name ) const { return theDecayParameters(name); }
 
-  inline bool hasError( void ) const { return theDecayParameters.hasError(); }
+  inline bool hasError( ) const { return theDecayParameters.hasError(); }
 
-  inline double chi2( void ) const { return theChi2; }
+  inline double chi2( ) const { return theChi2; }
 
-  inline bool isValid( void ) const { return theValidityFlag; }
-  inline void setInvalid( void ) { theValidityFlag = false; }
+  inline bool isValid( ) const { return theValidityFlag; }
+  inline void setInvalid( ) { theValidityFlag = false; }
 
-  inline double primaryMass( void ) const { return thePrimaryMass; }
-  inline double primaryWidth( void ) const { return thePrimaryWidth; }
+  inline double primaryMass( ) const { return thePrimaryMass; }
+  inline double primaryWidth( ) const { return thePrimaryWidth; }
 
  private:
 

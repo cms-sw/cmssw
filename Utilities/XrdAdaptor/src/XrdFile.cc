@@ -17,7 +17,7 @@ using namespace XrdAdaptor;
 #define XRD_CL_MAX_CHUNK 512*1024
 #define XRD_CL_MAX_SIZE 1024
 
-XrdFile::XrdFile (void)
+XrdFile::XrdFile ()
   :  m_offset (0),
     m_size(-1),
     m_close (false),
@@ -50,7 +50,7 @@ XrdFile::XrdFile (const std::string &name,
   open (name.c_str (), flags, perms);
 }
 
-XrdFile::~XrdFile (void)
+XrdFile::~XrdFile ()
 {
   if (m_close)
     edm::LogError("XrdFileError")
@@ -191,7 +191,7 @@ XrdFile::open (const char *name,
 }
 
 void
-XrdFile::close (void)
+XrdFile::close ()
 {
   if (! m_requestmanager.get())
   {
@@ -211,7 +211,7 @@ XrdFile::close (void)
 }
 
 void
-XrdFile::abort (void)
+XrdFile::abort ()
 {
   m_requestmanager = nullptr; // propagate_const<T> has no reset() function
   m_close = false;
@@ -546,7 +546,7 @@ XrdFile::resize (IOOffset /* size */)
 }
 
 std::shared_ptr<XrdCl::File>
-XrdFile::getActiveFile (void) 
+XrdFile::getActiveFile () 
 { 
   if (!m_requestmanager.get())
   { 

@@ -108,7 +108,7 @@ L1uGTTreeProducer::analyze(edm::Event const & event, edm::EventSetup const & set
 
 // ------------ method called once each job just before starting event loop  ------------
 void 
-L1uGTTreeProducer::beginJob(void)
+L1uGTTreeProducer::beginJob()
 {
 }
 

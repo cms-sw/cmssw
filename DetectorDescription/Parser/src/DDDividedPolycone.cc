@@ -45,7 +45,7 @@ DDDividedPolyconeRho::DDDividedPolyconeRho( const DDDivision& div, DDCompactView
 }
 
 void
-DDDividedPolyconeRho::checkParametersValidity( void )
+DDDividedPolyconeRho::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
@@ -74,7 +74,7 @@ DDDividedPolyconeRho::checkParametersValidity( void )
 }
 
 double
-DDDividedPolyconeRho::getMaxParameter( void ) const
+DDDividedPolyconeRho::getMaxParameter( ) const
 {
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
   std::vector<double> localrMaxVec = msol.rMaxVec();
@@ -168,13 +168,13 @@ DDDividedPolyconePhi::DDDividedPolyconePhi( const DDDivision& div, DDCompactView
 }
 
 void
-DDDividedPolyconePhi::checkParametersValidity( void )
+DDDividedPolyconePhi::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
 }
 
 double
-DDDividedPolyconePhi::getMaxParameter( void ) const
+DDDividedPolyconePhi::getMaxParameter( ) const
 {
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
   return msol.deltaPhi();
@@ -259,7 +259,7 @@ DDDividedPolyconeZ::DDDividedPolyconeZ( const DDDivision& div, DDCompactView* cp
 }
 
 void
-DDDividedPolyconeZ::checkParametersValidity( void )
+DDDividedPolyconeZ::checkParametersValidity( )
 {
   DDDividedGeometryObject::checkParametersValidity();
 
@@ -286,7 +286,7 @@ DDDividedPolyconeZ::checkParametersValidity( void )
 }
 
 double
-DDDividedPolyconeZ::getMaxParameter( void ) const
+DDDividedPolyconeZ::getMaxParameter( ) const
 {
   DDPolycone msol = (DDPolycone)(div_.parent().solid());
   std::vector<double> localzVec = msol.zVec();

@@ -51,7 +51,7 @@ MessageServicePresence::MessageServicePresence()
   : Presence()
   , m_queue (new ThreadQueue)
   , m_scribeThread
-         ( ( (void) MessageLoggerQ::instance() // ensure Q's static data init'd
+         ( ( () MessageLoggerQ::instance() // ensure Q's static data init'd
             , std::bind(&runMessageLoggerScribe, queue())
 	    			// start a new thread, run rMLS(m_queue)
 				// ChangeLog 2

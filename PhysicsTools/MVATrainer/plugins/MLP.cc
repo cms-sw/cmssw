@@ -99,7 +99,7 @@ void MLP::clear()
 	free(PAT.Pond);
 }
 
-void MLP::setLearn(void)
+void MLP::setLearn()
 {
 	LEARN.Meth = 7;
 	LEARN.Nreset = 50;

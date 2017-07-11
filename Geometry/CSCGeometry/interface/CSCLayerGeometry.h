@@ -120,7 +120,7 @@ public:
    * Offset of strips from symmetrical distribution about local y axis
    * as a fraction of a strip (0 default, but usually +0.25 or -0.25)
    */
-   float stripOffset( void ) const {return theStripTopology->stripOffset();}
+   float stripOffset( ) const {return theStripTopology->stripOffset();}
 
   /**
    * Return +1 or -1 for a stripOffset of +0.25 or -0.25 respectively.

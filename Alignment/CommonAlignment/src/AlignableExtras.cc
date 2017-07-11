@@ -28,7 +28,7 @@ AlignableExtras::AlignableExtras()
 }
 
 //__________________________________________________________________________________________________
-void AlignableExtras::dump( void ) const
+void AlignableExtras::dump( ) const
 {
   Alignables comp = this->components();
 
@@ -42,7 +42,7 @@ void AlignableExtras::dump( void ) const
 }
 
 //__________________________________________________________________________________________________
-Alignments* AlignableExtras::alignments( void ) const
+Alignments* AlignableExtras::alignments( ) const
 {
   align::Alignables comp = this->components();
   Alignments* m_alignments = new Alignments();
@@ -62,7 +62,7 @@ Alignments* AlignableExtras::alignments( void ) const
 }
 
 //__________________________________________________________________________________________________
-AlignmentErrorsExtended* AlignableExtras::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableExtras::alignmentErrors( ) const
 {
   align::Alignables comp = this->components();
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();

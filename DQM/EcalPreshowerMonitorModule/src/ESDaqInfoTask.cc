@@ -64,7 +64,7 @@ ESDaqInfoTask::~ESDaqInfoTask() {
    delete es_mapping_;
 }
 
-void ESDaqInfoTask::beginJob(void) {
+void ESDaqInfoTask::beginJob() {
 
    char histo[200];
 
@@ -109,7 +109,7 @@ void ESDaqInfoTask::beginJob(void) {
 
 }
 
-void ESDaqInfoTask::endJob(void) {
+void ESDaqInfoTask::endJob() {
 
    if ( enableCleanup_ ) this->cleanup();
 
@@ -187,7 +187,7 @@ void ESDaqInfoTask::endLuminosityBlock(const edm::LuminosityBlock&  lumiBlock, c
 
 }
 
-void ESDaqInfoTask::reset(void) {
+void ESDaqInfoTask::reset() {
 
    if ( meESDaqFraction_ ) meESDaqFraction_->Reset();
 
@@ -202,7 +202,7 @@ void ESDaqInfoTask::reset(void) {
 }
 
 
-void ESDaqInfoTask::cleanup(void){
+void ESDaqInfoTask::cleanup(){
 
    if ( dqmStore_ ) {
 

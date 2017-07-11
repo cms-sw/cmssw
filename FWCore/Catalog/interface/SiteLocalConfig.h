@@ -25,10 +25,10 @@ namespace edm {
     SiteLocalConfig () {}
     virtual ~SiteLocalConfig() {}
 
-    virtual std::string const dataCatalog (void) const = 0;
-    virtual std::string const fallbackDataCatalog (void) const = 0;
+    virtual std::string const dataCatalog () const = 0;
+    virtual std::string const fallbackDataCatalog () const = 0;
     virtual std::string const lookupCalibConnect (std::string const& input) const = 0;
-    virtual std::string const rfioType (void) const = 0;
+    virtual std::string const rfioType () const = 0;
 
     virtual std::string const* sourceCacheTempDir() const = 0;
     virtual double const* sourceCacheMinFree() const = 0;
@@ -42,7 +42,7 @@ namespace edm {
     virtual std::vector<std::string> const* sourceNativeProtocols() const = 0;
     virtual struct addrinfo const * statisticsDestination() const = 0;
     virtual std::set<std::string> const* statisticsInfo() const = 0;
-    virtual std::string const& siteName (void) const = 0;
+    virtual std::string const& siteName () const = 0;
 
     // implicit copy constructor
     // implicit assignment operator

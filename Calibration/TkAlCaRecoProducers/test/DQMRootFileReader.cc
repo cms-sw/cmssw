@@ -43,7 +43,7 @@ public:
   
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
   
-  virtual void endJob(void);
+  virtual void endJob();
 
 private:
   // ----------member data ---------------------------
@@ -72,7 +72,7 @@ DQMRootFileReader::~DQMRootFileReader() {
 }
 
 
-void DQMRootFileReader::endJob(void)
+void DQMRootFileReader::endJob()
 {
   cout << "Dumping DQMStore dir structure:" << endl;
   dbe->showDirStructure();

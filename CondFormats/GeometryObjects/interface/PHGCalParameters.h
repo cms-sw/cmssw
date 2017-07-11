@@ -10,8 +10,8 @@ class PHGCalParameters {
 
 public:
 
-  PHGCalParameters( void ) {}
-  ~PHGCalParameters( void ) {}
+  PHGCalParameters( ) {}
+  ~PHGCalParameters( ) {}
 
   std::string              name_;
   std::vector<double>      cellSize_;

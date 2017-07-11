@@ -109,7 +109,7 @@ namespace pos{
 			int coladdr, int rowaddress,
 			unsigned char databyte, bool buffermode=false)=0;
 
-    virtual int qbufsend(void)=0;
+    virtual int qbufsend()=0;
 
     virtual void fecDebug(int newstate)=0;
 

@@ -12,16 +12,16 @@ class LocalFileSystem
 {
   struct FSInfo;
 public:
-  LocalFileSystem(void);
-  ~LocalFileSystem(void);
+  LocalFileSystem();
+  ~LocalFileSystem();
 
   bool		isLocalPath(const std::string &path) const;
   std::pair<std::string, std::string>	findCachePath(const std::vector<std::string> &paths, double minFreeSpace) const;
 
 private:
-  int		readFSTypes(void);
+  int		readFSTypes();
   FSInfo *	initFSInfo(void *p);
-  int		initFSList(void);
+  int		initFSList();
   int		statFSInfo(FSInfo *i) const;
   FSInfo *	findMount(const char *path, struct statfs *sfs, struct stat *s, std::vector<std::string> &) const;
 

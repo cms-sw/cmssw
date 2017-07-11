@@ -7,7 +7,7 @@
 class IOOutput
 {
 public:
-  virtual ~IOOutput (void);
+  virtual ~IOOutput ();
   // implicit constructor
   // implicit copy constructor
   // implicit assignment operator

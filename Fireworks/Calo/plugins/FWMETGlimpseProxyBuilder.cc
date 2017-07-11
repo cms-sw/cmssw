@@ -14,8 +14,8 @@
 class FWMETGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
 public:
-   FWMETGlimpseProxyBuilder( void ) {}
-   virtual ~FWMETGlimpseProxyBuilder( void ) {}
+   FWMETGlimpseProxyBuilder( ) {}
+   virtual ~FWMETGlimpseProxyBuilder( ) {}
    
    REGISTER_PROXYBUILDER_METHODS();
    

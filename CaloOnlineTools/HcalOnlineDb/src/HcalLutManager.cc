@@ -42,7 +42,7 @@ using namespace hcal;
 
 */
 
-HcalLutManager::HcalLutManager( void )
+HcalLutManager::HcalLutManager( )
 {    
   init();
 }
@@ -66,7 +66,7 @@ HcalLutManager::HcalLutManager(const HcalElectronicsMap * _emap,
 }
 
 
-void HcalLutManager::init( void )
+void HcalLutManager::init( )
 {    
   lut_xml = 0;
   lut_checksums_xml = 0;
@@ -79,7 +79,7 @@ void HcalLutManager::init( void )
 
 
 
-HcalLutManager::~HcalLutManager( void )
+HcalLutManager::~HcalLutManager( )
 {    
   delete lut_xml;
   delete lut_checksums_xml;
@@ -1471,7 +1471,7 @@ int HcalLutManager::create_lut_loader( std::string file_list, std::string _prefi
   return 0;
 }
 
-void HcalLutManager::test_emap( void ){
+void HcalLutManager::test_emap( ){
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v5_080208.txt");
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.03_080817.txt");
   //EMap _emap("../../../CondFormats/HcalObjects/data/official_emap_v6.04_080905.txt");

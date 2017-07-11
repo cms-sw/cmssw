@@ -11,7 +11,7 @@ class StringToEnumParser {
   std::map< std::string, T > enumMap;
 public:
     
-  StringToEnumParser( void );
+  StringToEnumParser( );
 
   T parseString( const std::string &value )  { 
     typename std::map<std::string, T>::const_iterator iValue = enumMap.find( value );

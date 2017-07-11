@@ -48,7 +48,7 @@ DDDividedConsRho::DDDividedConsRho( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedConsRho::getMaxParameter( void ) const
+DDDividedConsRho::getMaxParameter( ) const
 {
   DDCons msol = (DDCons)(div_.parent().solid());
   return msol.rOutMinusZ() - msol.rInMinusZ();
@@ -138,7 +138,7 @@ DDDividedConsPhi::DDDividedConsPhi( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedConsPhi::getMaxParameter( void ) const
+DDDividedConsPhi::getMaxParameter( ) const
 {
   DDCons msol = (DDCons)(div_.parent().solid());
   return msol.deltaPhi();
@@ -218,7 +218,7 @@ DDDividedConsZ::DDDividedConsZ( const DDDivision& div, DDCompactView* cpv )
 }
 
 double
-DDDividedConsZ::getMaxParameter( void ) const
+DDDividedConsZ::getMaxParameter( ) const
 {
   DDCons msol = (DDCons)(div_.parent().solid());
   return 2*msol.zhalf();

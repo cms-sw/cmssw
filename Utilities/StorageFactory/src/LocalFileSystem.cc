@@ -58,7 +58,7 @@ struct LocalFileSystem::FSInfo
     systems are forced to remote status. Everything else like NFS,
     AFS, GPFS and various cluster-based systems are already remote. */
 int
-LocalFileSystem::readFSTypes(void)
+LocalFileSystem::readFSTypes()
 {
   int ret = 0;
 
@@ -211,7 +211,7 @@ LocalFileSystem::initFSInfo(void *arg)
     not yet call statFSInfo() on them, so the device and file type ids
     are not yet complete. */
 int
-LocalFileSystem::initFSList(void)
+LocalFileSystem::initFSList()
 {
 #if BSD
   int rc;
@@ -589,7 +589,7 @@ LocalFileSystem::findCachePath(const std::vector<std::string> &paths,
 }
 
 /** Initialise local file system status.  */
-LocalFileSystem::LocalFileSystem(void)
+LocalFileSystem::LocalFileSystem()
 {
   if (readFSTypes() < 0)
     return;
@@ -599,7 +599,7 @@ LocalFileSystem::LocalFileSystem(void)
 }
 
 /** Free local file system status resources. */
-LocalFileSystem::~LocalFileSystem(void)
+LocalFileSystem::~LocalFileSystem()
 {
   for (size_t i = 0, e = fs_.size(); i < e; ++i)
     free(fs_[i]);

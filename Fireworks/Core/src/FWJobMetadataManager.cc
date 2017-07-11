@@ -2,7 +2,7 @@
 #include "Fireworks/Core/interface/FWJobMetadataUpdateRequest.h"
 #include <memory>
 
-FWJobMetadataManager::FWJobMetadataManager(void)
+FWJobMetadataManager::FWJobMetadataManager()
    : m_typeAndReps(0)
 {}
 

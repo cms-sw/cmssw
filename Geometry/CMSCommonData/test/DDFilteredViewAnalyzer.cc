@@ -11,7 +11,7 @@ class DDFilteredViewAnalyzer : public edm::one::EDAnalyzer<> {
 public:
 
   explicit DDFilteredViewAnalyzer( const edm::ParameterSet& );
-  ~DDFilteredViewAnalyzer( void ) {}
+  ~DDFilteredViewAnalyzer( ) {}
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

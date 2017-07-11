@@ -17,7 +17,7 @@ using namespace reco;
 using namespace std;
 
 //--------------------------------------------------------------------------------------------------
-AlcaBeamSpotManager::AlcaBeamSpotManager(void){
+AlcaBeamSpotManager::AlcaBeamSpotManager(){
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,11 +36,11 @@ AlcaBeamSpotManager::AlcaBeamSpotManager(const ParameterSet& iConfig, edm::Consu
 }
 
 //--------------------------------------------------------------------------------------------------
-AlcaBeamSpotManager::~AlcaBeamSpotManager(void){
+AlcaBeamSpotManager::~AlcaBeamSpotManager(){
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotManager::reset(void){
+void AlcaBeamSpotManager::reset(){
   beamSpotMap_.clear();
 }
 //--------------------------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void AlcaBeamSpotManager::readLumi(const LuminosityBlock& iLumi){
 }
 
 //--------------------------------------------------------------------------------------------------
-void AlcaBeamSpotManager::createWeightedPayloads(void){
+void AlcaBeamSpotManager::createWeightedPayloads(){
   vector<bsMap_iterator> listToErase;
   for(bsMap_iterator it=beamSpotMap_.begin(); it!=beamSpotMap_.end();it++){
     if(it->second.type() != BeamSpot::Tracker || it->second.sigmaZ()<sigmaZCut_ ) {

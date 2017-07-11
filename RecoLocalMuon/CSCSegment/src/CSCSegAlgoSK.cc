@@ -391,7 +391,7 @@ bool CSCSegAlgoSK::addHit(const CSCRecHit2D* aHit, int layer) {
   return true;
 }
 
-void CSCSegAlgoSK::updateParameters(void ) {
+void CSCSegAlgoSK::updateParameters( ) {
 
   // Delete input CSCSegFit, create a new one and make the fit
   delete sfit_;

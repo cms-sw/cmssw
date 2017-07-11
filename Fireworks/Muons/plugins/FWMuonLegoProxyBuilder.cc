@@ -14,8 +14,8 @@
 class FWMuonLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 {
 public:
-   FWMuonLegoProxyBuilder( void ) {}
-   virtual ~FWMuonLegoProxyBuilder( void ) {}
+   FWMuonLegoProxyBuilder( ) {}
+   virtual ~FWMuonLegoProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

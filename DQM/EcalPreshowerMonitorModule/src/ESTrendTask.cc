@@ -93,7 +93,7 @@ void ESTrendTask::bookHistograms(DQMStore::IBooker& iBooker, Run const&, EventSe
   hESFiberErrTrendHr_->setAxisTitle("ES Fiber Err / hour", 2);
 }
 
-void ESTrendTask::endJob(void) {
+void ESTrendTask::endJob() {
 
   LogInfo("ESTrendTask") << "analyzed " << ievt_ << " events";
 

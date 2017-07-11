@@ -24,7 +24,7 @@ class RPCClient {
  public:
   
   //RPCClient(const edm::ParameterSet& ps) {}
-  virtual ~RPCClient(void) {}
+  virtual ~RPCClient() {}
 
   virtual void clientOperation()=0;
 

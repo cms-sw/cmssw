@@ -178,7 +178,7 @@ namespace pos{
  private: 
  
     // Added by Dario (March 26th 2008)
-    void clear(void) ;
+    void clear() ;
 
   }; // end class PixelFEDCard
 }

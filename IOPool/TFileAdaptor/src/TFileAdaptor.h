@@ -26,7 +26,7 @@ public:
   friend class TFileAdaptorUI;
 private:
   // Write current Storage statistics on a ostream
-  void termination(void) const;
+  void termination() const;
   
   //Called by TFileAdaptorUI
   void stats(std::ostream &o) const;

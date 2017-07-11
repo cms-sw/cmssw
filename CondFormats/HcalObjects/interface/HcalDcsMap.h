@@ -92,18 +92,18 @@ class HcalDcsMap {
     bool operator!=(const const_iterator & other);
     const_iterator operator++();
     const_iterator operator++(int);
-    void next(void);
-    HcalDcsDetId getHcalDcsDetId(void);
-    HcalDetId getHcalDetId(void);
+    void next();
+    HcalDcsDetId getHcalDcsDetId();
+    HcalDetId getHcalDetId();
   private:
     std::vector<const Item *>::const_iterator fIter;
   };
 
   // iterators
-  const_iterator beginById(void) const;
-  const_iterator beginByDcsId(void) const;
-  const_iterator endById(void) const;
-  const_iterator endByDcsId(void) const;
+  const_iterator beginById() const;
+  const_iterator beginByDcsId() const;
+  const_iterator endById() const;
+  const_iterator endByDcsId() const;
 
   void initialize();
 

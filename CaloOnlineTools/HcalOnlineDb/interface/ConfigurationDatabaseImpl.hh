@@ -56,8 +56,8 @@ namespace hcal {
     virtual void getRBXpatterns(const std::string& tag, const std::string& rbx,	std::map<ConfigurationDatabase::RBXdatumId, ConfigurationDatabase::RBXpattern>& patterns) noexcept(false);
 
     // added by Gena Kukartsev
-    virtual oracle::occi::Connection * getConnection( void );
-    virtual oracle::occi::Environment * getEnvironment( void );
+    virtual oracle::occi::Connection * getConnection( );
+    virtual oracle::occi::Environment * getEnvironment( );
 
   protected:
     log4cplus::Logger m_logger;

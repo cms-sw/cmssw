@@ -44,7 +44,7 @@ class TrackEfficiencyClient: public DQMEDHarvester
  protected:
 
   /// BeginJob
-  void beginJob(void);
+  void beginJob();
 
   /// BeginRun
   void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);

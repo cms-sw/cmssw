@@ -43,7 +43,7 @@ namespace pos{
     bool get(ROCstatus stat) const ;
 
     // Added by Dario (March 4th 2008)
-    void reset(void) ;
+    void reset() ;
  
   };
 }

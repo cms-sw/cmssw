@@ -33,7 +33,7 @@ HcalNoiseRBXArray::~HcalNoiseRBXArray()
 {
 }
 
-std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBXArray::endHPD(void) const
+std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBXArray::endHPD() const
 {
   // the choice of which rbx to use is arbitrary,
   // as long as we're consistent
@@ -41,7 +41,7 @@ std::vector<HcalNoiseHPD>::const_iterator HcalNoiseRBXArray::endHPD(void) const
 }
 
 // code here should be same as above (modulo 'const'ness)
-std::vector<HcalNoiseHPD>::iterator HcalNoiseRBXArray::endHPD(void)
+std::vector<HcalNoiseHPD>::iterator HcalNoiseRBXArray::endHPD()
 {
   // the choice of which rbx to use is arbitrary,
   // as long as we're consistent

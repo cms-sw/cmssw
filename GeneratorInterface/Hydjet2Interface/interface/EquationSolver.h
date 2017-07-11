@@ -50,18 +50,18 @@ class NAEquationSolver {
       bool operator==(const NAEquationSolver & right) const;
       bool operator!=(const NAEquationSolver & right) const;
 		
-      int GetMaxIterations(void) const {return fMaxIter;}
+      int GetMaxIterations() const {return fMaxIter;}
       void SetMaxIterations(const int iterations) {fMaxIter=iterations;}
 	
-      double GetTolerance(void) const {return fTolerance;}
+      double GetTolerance() const {return fTolerance;}
       void SetTolerance(const double epsilon) {fTolerance = epsilon;}
   
-      double GetIntervalLowerLimit(void) const {return fA;}
-      double GetIntervalUpperLimit(void) const {return fB;}
+      double GetIntervalLowerLimit() const {return fA;}
+      double GetIntervalUpperLimit() const {return fB;}
 	
       void SetIntervalLimits(const double Limit1, const double Limit2);
 
-      double GetRoot(void) const {return fRoot;}	
+      double GetRoot() const {return fRoot;}	
 	
       // Calculates the root by the Brent's method
       bool Brent(Function& theFunction);

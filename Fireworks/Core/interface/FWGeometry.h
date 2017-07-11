@@ -35,7 +35,7 @@ public:
       double max1;
       double min2;
       double max2;
-      Range( void ) : min1( 9999 ), max1( -9999 ), min2( 9999 ), max2( -9999 ) {
+      Range( ) : min1( 9999 ), max1( -9999 ), min2( 9999 ), max2( -9999 ) {
       }
    };
 
@@ -49,9 +49,9 @@ public:
       bool haveExtraDet(const char*)const;
    };
 
-   FWGeometry( void );
+   FWGeometry( );
 
-   ~FWGeometry( void );
+   ~FWGeometry( );
 
    // load DetId to RecoGeomInfo map
    void loadMap( const char* fileName );
@@ -113,7 +113,7 @@ public:
 
    IdToInfoItr mapEnd() const {return m_idToInfo.end();}
 
-   void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
+   void clear( ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
    void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
 

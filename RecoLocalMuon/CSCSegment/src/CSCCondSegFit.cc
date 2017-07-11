@@ -183,7 +183,7 @@ void CSCCondSegFit::setChi2( bool condpass1, bool condpass2 ) {
 
 
 
-void CSCCondSegFit::correctTheCovX(void){
+void CSCCondSegFit::correctTheCovX(){
   std::vector<double> uu, vv, zz;  // Vectors of coordinates
 
   lex_.clear(); // x component of local error for each hit

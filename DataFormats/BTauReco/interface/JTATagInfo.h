@@ -10,18 +10,18 @@ namespace reco {
 class JTATagInfo : public BaseTagInfo {
 public:
   
-  JTATagInfo(void) : m_jetTracksAssociation() { }
+  JTATagInfo() : m_jetTracksAssociation() { }
   JTATagInfo(const JetTracksAssociationRef & jtaRef) : m_jetTracksAssociation(jtaRef) { }
 
-  virtual ~JTATagInfo(void) { }
+  virtual ~JTATagInfo() { }
   
-  virtual JTATagInfo* clone(void) const { return new JTATagInfo(*this); }
+  virtual JTATagInfo* clone() const { return new JTATagInfo(*this); }
 
-  virtual edm::RefToBase<Jet>     jet(void)    const { return m_jetTracksAssociation->first ; }
-  virtual TrackRefVector          tracks(void) const { return m_jetTracksAssociation->second; }
-  const JetTracksAssociationRef & jtaRef(void) const { return m_jetTracksAssociation; }
+  virtual edm::RefToBase<Jet>     jet()    const { return m_jetTracksAssociation->first ; }
+  virtual TrackRefVector          tracks() const { return m_jetTracksAssociation->second; }
+  const JetTracksAssociationRef & jtaRef() const { return m_jetTracksAssociation; }
 
-  virtual bool hasTracks(void) const { return true; }
+  virtual bool hasTracks() const { return true; }
   
   void setJTARef(const JetTracksAssociationRef & jtaRef) { m_jetTracksAssociation = jtaRef; } 
   

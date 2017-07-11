@@ -170,7 +170,7 @@ void SiStripClassToMonitorCondData::beginRun(edm::EventSetup const& eSetup) {
 //
 // ----- beginJob
 //
-void SiStripClassToMonitorCondData::beginJob(void){} //beginJob
+void SiStripClassToMonitorCondData::beginJob(){} //beginJob
 
 
 //
@@ -253,7 +253,7 @@ void SiStripClassToMonitorCondData::endRun(edm::EventSetup const& eSetup) {
 //
 // ----- endJob
 //
-void SiStripClassToMonitorCondData::endJob(void){} //endJob
+void SiStripClassToMonitorCondData::endJob(){} //endJob
 
 
   

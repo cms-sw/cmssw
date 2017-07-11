@@ -136,7 +136,7 @@ std::vector<double> MET::dsumEt() const
 
 // returns the significance matrix
 //____________________________________________________________________________||
-METCovMatrix MET::getSignificanceMatrix(void) const
+METCovMatrix MET::getSignificanceMatrix() const
 {
   METCovMatrix result;
   result(0,0)=signif_dxx;

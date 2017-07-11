@@ -14,15 +14,15 @@ private:
 	CSCSPTrailer  trailer_;
 
 public:
-	const CSCSPHeader&   header  (void) const throw() { return header_;   }
-	const CSCSPCounters& counters(void) const throw() { return counters_; }
-	const CSCSPTrailer&  trailer (void) const throw() { return trailer_;  }
+	const CSCSPHeader&   header  () const throw() { return header_;   }
+	const CSCSPCounters& counters() const throw() { return counters_; }
+	const CSCSPTrailer&  trailer () const throw() { return trailer_;  }
 
 	const CSCSPRecord& record(unsigned int tbin) const throw() { return record_[tbin]; }
 
 	bool unpack(const unsigned short *&buf) throw() ;
 
-	CSCSPEvent(void){}
+	CSCSPEvent(){}
 };
 
 #endif

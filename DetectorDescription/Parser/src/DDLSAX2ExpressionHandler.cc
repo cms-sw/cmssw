@@ -13,7 +13,7 @@ DDLSAX2ExpressionHandler::DDLSAX2ExpressionHandler( DDCompactView& cpv )
   : DDLSAX2FileHandler::DDLSAX2FileHandler( cpv )
 {}
 
-DDLSAX2ExpressionHandler::~DDLSAX2ExpressionHandler( void )
+DDLSAX2ExpressionHandler::~DDLSAX2ExpressionHandler( )
 {}
 
 // This does most of the work, it sets and determines whether it is 

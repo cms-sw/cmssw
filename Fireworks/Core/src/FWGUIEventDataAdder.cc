@@ -556,7 +556,7 @@ FWGUIEventDataAdder::createWindow()
     need to update the table.
   */
 void
-FWGUIEventDataAdder::metadataUpdatedSlot(void)
+FWGUIEventDataAdder::metadataUpdatedSlot()
 {
    m_tableManager->reset();
    m_tableManager->sort(0, true);

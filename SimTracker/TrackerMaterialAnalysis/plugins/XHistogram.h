@@ -32,7 +32,7 @@ protected:
 
 public:
   /// default CTOR 
-  XHistogram(void) :
+  XHistogram() :
     m_minDl( 0.000001 ),
     m_xRange(),
     m_yRange(),
@@ -83,7 +83,7 @@ public:
   void fill( const Range& x, const Range& y, const std::vector<double> & weight, double norm, unsigned int colour );
 
   /// normalize the histograms
-  void normalize(void);
+  void normalize();
 
   /// access one of the histograms
   Histogram * get(size_t h = 0) const
@@ -95,13 +95,13 @@ public:
   }
 
   /// access the normalization
-  Histogram * normalization(void) const
+  Histogram * normalization() const
   {
     return (Histogram *) m_normalization->Clone(0);
   }
 
   /// access the colormap
-  ColorMap * colormap(void) const
+  ColorMap * colormap() const
   {
     return (ColorMap *) m_colormap->Clone(0);
   }

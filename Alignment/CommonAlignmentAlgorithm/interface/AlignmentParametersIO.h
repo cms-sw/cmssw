@@ -22,7 +22,7 @@ class AlignmentParametersIO
   virtual int open(const char* filename, int iteration, bool writemode) =0;
 
   /// close IO 
-  virtual int close(void) =0;
+  virtual int close() =0;
 
   /// write AlignmentParameters of one Alignable 
   virtual int writeOne(Alignable* ali) = 0;

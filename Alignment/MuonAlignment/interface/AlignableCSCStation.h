@@ -60,7 +60,7 @@ class AlignableCSCStation : public AlignableComposite
   friend std::ostream& operator << ( std::ostream&, const AlignableCSCStation& ); 
 
   /// Recursive printout of the muon CSC Station structure
-  void dump( void ) const;
+  void dump( ) const;
 
 
 

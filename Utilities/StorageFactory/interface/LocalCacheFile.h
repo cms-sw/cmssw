@@ -13,7 +13,7 @@ class LocalCacheFile : public Storage
 {
 public:
   LocalCacheFile (std::unique_ptr<Storage> base, const std::string &tmpdir = "");
-  ~LocalCacheFile (void);
+  ~LocalCacheFile ();
 
   using Storage::read;
   using Storage::write;
@@ -30,8 +30,8 @@ public:
 
   virtual IOOffset	position (IOOffset offset, Relative whence = SET);
   virtual void		resize (IOOffset size);
-  virtual void		flush (void);
-  virtual void		close (void);
+  virtual void		flush ();
+  virtual void		close ();
 
 private:
   void			cache (IOOffset start, IOOffset end);

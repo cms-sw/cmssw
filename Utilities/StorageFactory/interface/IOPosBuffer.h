@@ -7,13 +7,13 @@
 struct IOPosBuffer
 {
 public:
-  IOPosBuffer (void);
+  IOPosBuffer ();
   IOPosBuffer (IOOffset offset, void *data, IOSize length);
   IOPosBuffer (IOOffset offset, const void *data, IOSize length);
 
-  IOOffset	offset (void) const;
-  void *	data (void) const;
-  IOSize	size (void) const;
+  IOOffset	offset () const;
+  void *	data () const;
+  IOSize	size () const;
 
   void          set_offset (IOOffset new_offset);
   void          set_data (void * new_buffer);
@@ -27,7 +27,7 @@ private:
 
 /** Construct a null I/O buffer.  */
 inline
-IOPosBuffer::IOPosBuffer (void)
+IOPosBuffer::IOPosBuffer ()
   : m_offset (0),
     m_data (0),
     m_length (0)
@@ -51,17 +51,17 @@ IOPosBuffer::IOPosBuffer (IOOffset offset, const void *data, IOSize length)
 
 /** Return the file offset where I/O is expected to occur.  */
 inline IOOffset
-IOPosBuffer::offset (void) const
+IOPosBuffer::offset () const
 { return m_offset; }
 
 /** Return a pointer to the beginning of the buffer's data area.  */
 inline void *
-IOPosBuffer::data (void) const
+IOPosBuffer::data () const
 { return m_data; }
 
 /** Return the buffer's size.  */
 inline IOSize
-IOPosBuffer::size (void) const
+IOPosBuffer::size () const
 { return m_length; }
 
 /** Update the file offset */

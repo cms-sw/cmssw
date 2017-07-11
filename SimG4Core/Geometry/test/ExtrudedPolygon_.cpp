@@ -18,11 +18,11 @@ class testExtrudedPgon : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testExtrudedPgon::matched_g4_and_dd( void )
+testExtrudedPgon::matched_g4_and_dd( )
 {
   std::vector<double> x = { -300, -300, 300, 300, 150, 150, -150, -150 };
   std::vector<double> y = { -300, 300, 300, -300, -300, 150, 150, -300 };

@@ -503,11 +503,11 @@ void ConfigurationDatabaseImplOracle::getHLXMasks_real(const std::string& tag, i
 }
 
 // added by Gena Kukartsev
-oracle::occi::Connection * ConfigurationDatabaseImplOracle::getConnection( void ){
+oracle::occi::Connection * ConfigurationDatabaseImplOracle::getConnection( ){
   return conn_;
 }
 
-oracle::occi::Environment * ConfigurationDatabaseImplOracle::getEnvironment( void ){
+oracle::occi::Environment * ConfigurationDatabaseImplOracle::getEnvironment( ){
   return env_;
 }
 

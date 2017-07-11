@@ -21,13 +21,13 @@ class AlignmentIORootBase
   int openRoot(const char* filename, int iteration, bool writemode);
 
   /// close IO 
-  int closeRoot(void);
+  int closeRoot();
 
   /// create root branches 
-  virtual void createBranches(void) = 0;
+  virtual void createBranches() = 0;
 
   /// set root branches 
-  virtual void setBranchAddresses(void) = 0;
+  virtual void setBranchAddresses() = 0;
 
   /// test if file is existing and if so, what the highest iteration is 
   int testFile(const char* filename, const TString &tname);

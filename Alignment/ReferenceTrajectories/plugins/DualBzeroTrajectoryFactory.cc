@@ -64,7 +64,7 @@ DualBzeroTrajectoryFactory::DualBzeroTrajectoryFactory( const edm::ParameterSet 
 }
 
  
-DualBzeroTrajectoryFactory::~DualBzeroTrajectoryFactory( void ) {}
+DualBzeroTrajectoryFactory::~DualBzeroTrajectoryFactory( ) {}
 
 
 const DualBzeroTrajectoryFactory::ReferenceTrajectoryCollection

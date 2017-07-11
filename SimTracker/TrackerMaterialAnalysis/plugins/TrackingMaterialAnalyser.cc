@@ -55,7 +55,7 @@ TrackingMaterialAnalyser::TrackingMaterialAnalyser(const edm::ParameterSet& iPSe
 }
 
 //-------------------------------------------------------------------------
-TrackingMaterialAnalyser::~TrackingMaterialAnalyser(void)
+TrackingMaterialAnalyser::~TrackingMaterialAnalyser()
 {
   if (m_plotter)
     delete m_plotter;
@@ -113,7 +113,7 @@ void TrackingMaterialAnalyser::saveLayerPlots()
 }
 
 //-------------------------------------------------------------------------
-void TrackingMaterialAnalyser::endJob(void)
+void TrackingMaterialAnalyser::endJob()
 {
   if (m_saveParameters)
     saveParameters("parameters");

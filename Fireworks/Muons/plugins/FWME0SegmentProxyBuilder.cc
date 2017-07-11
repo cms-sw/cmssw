@@ -13,8 +13,8 @@
 class FWME0SegmentProxyBuilder : public FWSimpleProxyBuilderTemplate<ME0Segment>
 {
 public:
-  FWME0SegmentProxyBuilder( void ) {}
-  virtual ~FWME0SegmentProxyBuilder( void ) {}
+  FWME0SegmentProxyBuilder( ) {}
+  virtual ~FWME0SegmentProxyBuilder( ) {}
   
   REGISTER_PROXYBUILDER_METHODS();
 

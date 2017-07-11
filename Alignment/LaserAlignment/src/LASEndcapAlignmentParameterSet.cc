@@ -20,7 +20,7 @@ LASEndcapAlignmentParameterSet::LASEndcapAlignmentParameterSet() {
 ///
 /// whatever initialization is needed
 ///
-void LASEndcapAlignmentParameterSet::Init( void ) {
+void LASEndcapAlignmentParameterSet::Init( ) {
 
   // could use a single vector<vector<vector<pair<> > > >
   // but better split it in 2 parts
@@ -170,7 +170,7 @@ std::pair<double,double>& LASEndcapAlignmentParameterSet::GetBeamParameter( int 
 ///
 /// pretty-printout of all parameter and error values
 ///
-void LASEndcapAlignmentParameterSet::Print( void ) {
+void LASEndcapAlignmentParameterSet::Print( ) {
   
   std::cout << " [LASEndcapAlignmentParameterSet::Print] -- Listing parameters:" << std::endl;
   std::cout << std::endl;

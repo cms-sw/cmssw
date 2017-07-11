@@ -24,7 +24,7 @@ public:
   typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
   typedef CaloCellGeometry::Tr3D     Tr3D     ;
   
-  FlatTrd( void );
+  FlatTrd( );
   
   FlatTrd( const FlatTrd& tr ) ;
   
@@ -75,9 +75,9 @@ private:
 
   virtual void initCorners(CornersVec& ) override;
   
-  GlobalVector makeAxis( void );
+  GlobalVector makeAxis( );
   
-  const GlobalPoint backCtr( void ) const;    
+  const GlobalPoint backCtr( ) const;    
   GlobalVector m_axis;
   Pt3D         m_corOne, m_local;
   GlobalPoint  m_global;

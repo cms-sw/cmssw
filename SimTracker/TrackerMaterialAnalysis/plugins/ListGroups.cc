@@ -138,7 +138,7 @@ ListGroups::~ListGroups() {
 
 #include "ListGroupsMaterialDifference.h"
 
-void ListGroups::fillGradient(void)
+void ListGroups::fillGradient()
 {
   m_gradient.reserve(200);
   unsigned int steps = 100;
@@ -173,7 +173,7 @@ void ListGroups::fillGradient(void)
   m_gradient.push_back(kRed); // Overflow highest bin
 }
 
-void ListGroups::fillColor(void) {
+void ListGroups::fillColor() {
   // With the introduction of the support for PhaseI and PhaseII detectors it
   // became quite difficult to maintain a list of colors that is in sync with
   // the real number of grouping used in the different scenarios. We therefore

@@ -44,7 +44,7 @@ class RPCClusterSizeTest:public RPCClient{
   MonitorElement * MEANDisk[kDisks];         // Mean ClusterSize, Roll vs Sector
   MonitorElement * MEANDDisk[kDisks];        // Mean ClusterSize, Distribution
 
-  void resetMEArrays(void);
+  void resetMEArrays();
 };
 
 #endif

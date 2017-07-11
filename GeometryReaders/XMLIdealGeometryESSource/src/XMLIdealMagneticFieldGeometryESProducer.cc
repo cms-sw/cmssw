@@ -51,7 +51,7 @@ XMLIdealMagneticFieldGeometryESProducer::XMLIdealMagneticFieldGeometryESProducer
 }
 
 
-XMLIdealMagneticFieldGeometryESProducer::~XMLIdealMagneticFieldGeometryESProducer( void )
+XMLIdealMagneticFieldGeometryESProducer::~XMLIdealMagneticFieldGeometryESProducer( )
 {}
 
 XMLIdealMagneticFieldGeometryESProducer::ReturnType

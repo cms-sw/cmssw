@@ -129,7 +129,7 @@ public:
 
    virtual ~SimpleSAXParser();
    
-   void parse(void);
+   void parse();
    
    virtual void startElement(const std::string &/*name*/, 
                              Attributes &/*attributes*/) {}
@@ -163,7 +163,7 @@ private:
          return true;
       }
    
-   int nextChar(void) { return m_nextChar; }
+   int nextChar() { return m_nextChar; }
 
    std::istream                        &m_in;
    size_t                              m_bufferSize;

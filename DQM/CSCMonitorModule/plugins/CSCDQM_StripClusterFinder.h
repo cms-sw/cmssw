@@ -25,7 +25,7 @@ class StripClusterFinder {
  public:
   StripClusterFinder(int l, int s, int cf, int st );
   void DoAction(int layerId,float *cathodes);
-  void printClusters(void);
+  void printClusters();
   std::vector<StripClusterFitData> thePulseHeightMap;
  public:
   class Sort{
@@ -41,12 +41,12 @@ class StripClusterFinder {
   uint32_t j;
   uint32_t ic1,IC1MIN,IC1MAX,JC1MIN,JC1MAX,ic2,IC2MIN,IC2MAX,JC2MIN,JC2MAX,icstart;
   int LayerNmb, TimeSliceNmb, StripNmb, AnodeGroupNmb,AFEBSliceNmb; 
-  void SearchMax(void);
-  void SearchBorders(void);
-  void Match(void);
-  bool FindAndMatch(void);
-  void KillCluster(void);
-  void RefindMax(void);
+  void SearchMax();
+  void SearchBorders();
+  void Match();
+  bool FindAndMatch();
+  void KillCluster();
+  void RefindMax();
   
 };
 

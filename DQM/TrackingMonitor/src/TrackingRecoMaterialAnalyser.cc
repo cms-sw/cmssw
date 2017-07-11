@@ -91,7 +91,7 @@ TrackingRecoMaterialAnalyser::TrackingRecoMaterialAnalyser(const edm::ParameterS
 }
 
 //-------------------------------------------------------------------------
-TrackingRecoMaterialAnalyser::~TrackingRecoMaterialAnalyser(void)
+TrackingRecoMaterialAnalyser::~TrackingRecoMaterialAnalyser()
 {
 }
 

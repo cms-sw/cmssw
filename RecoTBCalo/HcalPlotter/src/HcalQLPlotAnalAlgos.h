@@ -19,7 +19,7 @@ public:
   HcalQLPlotAnalAlgos(const char *outputFilename,
 		   const edm::ParameterSet& histoParams);
 
-  void end(void);
+  void end();
   void SetEventType(const HcalTBTriggerData& trigd) ;
   void processRH(const HBHERecHitCollection& hbherhc,
 		 const HBHEDigiCollection& hbhedgc);

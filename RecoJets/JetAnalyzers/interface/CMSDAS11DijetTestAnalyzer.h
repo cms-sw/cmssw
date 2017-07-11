@@ -23,7 +23,7 @@ class CMSDAS11DijetTestAnalyzer : public edm::EDAnalyzer {
   void analyze( const edm::Event& , const edm::EventSetup& );
   virtual ~CMSDAS11DijetTestAnalyzer() {}
   virtual void beginJob() {}
-  virtual void endJob(void);
+  virtual void endJob();
   
   static bool compare_JetPt(const reco::CaloJet& jet1, const reco::CaloJet& jet2) {
     return (jet1.pt() > jet2.pt() );

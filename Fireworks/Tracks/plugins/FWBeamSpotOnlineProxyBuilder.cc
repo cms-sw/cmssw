@@ -17,8 +17,8 @@
 class FWBeamSpotOnlineProxyBuilder : public FWSimpleProxyBuilderTemplate<BeamSpotOnline>
 {
 public:
-  FWBeamSpotOnlineProxyBuilder( void ) {}
-  virtual ~FWBeamSpotOnlineProxyBuilder( void ) {}
+  FWBeamSpotOnlineProxyBuilder( ) {}
+  virtual ~FWBeamSpotOnlineProxyBuilder( ) {}
    
   REGISTER_PROXYBUILDER_METHODS();
 

@@ -63,7 +63,7 @@ DualTrajectoryFactory::DualTrajectoryFactory( const edm::ParameterSet & config )
 }
 
  
-DualTrajectoryFactory::~DualTrajectoryFactory( void ) {}
+DualTrajectoryFactory::~DualTrajectoryFactory( ) {}
 
 
 const DualTrajectoryFactory::ReferenceTrajectoryCollection

@@ -60,7 +60,7 @@ CSCTFPacker::CSCTFPacker(const edm::ParameterSet &conf):edm::one::EDProducer<>()
 
 }
 
-CSCTFPacker::~CSCTFPacker(void){
+CSCTFPacker::~CSCTFPacker(){
 	if( file ) fclose(file);
 }
 

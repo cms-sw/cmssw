@@ -818,7 +818,7 @@ DQMFileSaver::globalEndRun(const edm::Run & iRun, const edm::EventSetup &) const
 }
 
 void
-DQMFileSaver::endJob(void)
+DQMFileSaver::endJob()
 {
   if (saveAtJobEnd_)
     {

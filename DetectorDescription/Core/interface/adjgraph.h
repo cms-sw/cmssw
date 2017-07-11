@@ -35,9 +35,9 @@ public:
 	: gr_( g ), a_( a ), e_( e ) 
 	{ }
       
-      const N & from( void ) const { return gr_.nodeData( a_ ); }
-      const N & to( void )   const { return gr_.nodeData( gr_.adjl_[a_][e_].first ); }
-      const E & edge( void ) const { return gr_.edgeData( gr_.adjl_[a_][e_].second ); }
+      const N & from( ) const { return gr_.nodeData( a_ ); }
+      const N & to( )   const { return gr_.nodeData( gr_.adjl_[a_][e_].first ); }
+      const E & edge( ) const { return gr_.edgeData( gr_.adjl_[a_][e_].second ); }
       
     private:
       const graph & gr_;
@@ -105,7 +105,7 @@ public:
     }
   };
 
-  void dump_graph( void ) const;  
+  void dump_graph( ) const;  
   // Graphtypes
   
   struct value_type {

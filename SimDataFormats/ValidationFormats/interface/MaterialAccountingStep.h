@@ -8,7 +8,7 @@
 // TODO split segment info (in, out) into separate child class
 class MaterialAccountingStep {
 public:
-  MaterialAccountingStep( void ) :
+  MaterialAccountingStep( ) :
     m_length(0.),
     m_radiationLengths(0.),
     m_energyLoss(0.),
@@ -24,7 +24,7 @@ public:
     m_out( out )
   { }
  
-  void clear( void ) {
+  void clear( ) {
     m_length           = 0.;
     m_radiationLengths = 0.;
     m_energyLoss       = 0.;
@@ -40,23 +40,23 @@ private:
   GlobalPoint m_out;
 
 public:
-  double length(void) const {
+  double length() const {
     return m_length;
   }
   
-  double radiationLengths(void) const {
+  double radiationLengths() const {
     return m_radiationLengths;
   }
   
-  double energyLoss(void) const {
+  double energyLoss() const {
     return m_energyLoss;
   }
 
-  const GlobalPoint & in(void) const {
+  const GlobalPoint & in() const {
     return m_in;
   }
   
-  const GlobalPoint & out(void) const {
+  const GlobalPoint & out() const {
     return m_out;
   }
   

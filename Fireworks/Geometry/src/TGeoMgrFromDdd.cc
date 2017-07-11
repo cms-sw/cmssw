@@ -55,7 +55,7 @@ TGeoMgrFromDdd::TGeoMgrFromDdd( const edm::ParameterSet& pset )
    setWhatProduced( this );
 }
 
-TGeoMgrFromDdd::~TGeoMgrFromDdd( void )
+TGeoMgrFromDdd::~TGeoMgrFromDdd( )
 {}
 
 //==============================================================================

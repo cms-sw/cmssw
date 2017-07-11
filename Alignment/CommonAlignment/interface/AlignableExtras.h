@@ -41,7 +41,7 @@ class AlignableExtras
   /// Return alignment errors, sorted by DetId
   AlignmentErrorsExtended* alignmentErrors() const;
 
-  void dump(void) const;
+  void dump() const;
 
   /// Initialize the alignable beam spot with the given parameters
   void initializeBeamSpot(double x, double y, double z,

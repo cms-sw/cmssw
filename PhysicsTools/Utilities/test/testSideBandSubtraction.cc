@@ -34,7 +34,7 @@ void print_plot(RooDataSet *dataSet, RooRealVar printVar, string outname,string 
   outname.replace(outname.size()-3,outname.size(),"gif");
   genericCanvas.SaveAs(outname.c_str());
 }
-int main(void)
+int main()
 {
   //variables to generate data for
   RooRealVar gfrac("gfrac","fraction of gaussian",0.5);

@@ -17,30 +17,30 @@ class CommonHcalNoiseRBXData {
   ~CommonHcalNoiseRBXData() {}
 
   // accessors to internal variables
-  inline double energy(void) const { return energy_; }
-  inline double ratio(void) const { return e2ts_/e10ts_; }
-  inline double e2ts(void) const { return e2ts_; }
-  inline double e10ts(void) const { return e10ts_; }
-  inline bool validRatio(void) const { return e10ts_!=0.0; }
-  inline int numHPDHits(void) const { return numHPDHits_; }
-  inline int numRBXHits(void) const { return numRBXHits_; }
-  inline int numHPDNoOtherHits(void) const { return numHPDNoOtherHits_; }
-  inline int numZeros(void) const { return numZeros_; }
-  inline double minLowEHitTime(void) const { return minLowEHitTime_; }
-  inline double maxLowEHitTime(void) const { return maxLowEHitTime_; }
-  inline double lowEHitTimeSqrd(void) const { return lowEHitTimeSqrd_; }
-  inline int numLowEHits(void) const { return numLowEHits_; }
-  inline double minHighEHitTime(void) const { return minHighEHitTime_; }
-  inline double maxHighEHitTime(void) const { return maxHighEHitTime_; }
-  inline double highEHitTimeSqrd(void) const { return highEHitTimeSqrd_; }
-  inline int numHighEHits(void) const { return numHighEHits_; }
-  inline double RBXEMF(void) const { return RBXEMF_; }
-  inline double HPDEMF(void) const { return HPDEMF_; }
-  inline bool PassTS4TS5(void) const { return TS4TS5Decision_; }
-  inline edm::RefVector<CaloTowerCollection> rbxTowers(void) const { return rbxtowers_; }
-  inline int r45Count(void) const { return r45Count_; }
-  inline double r45Fraction(void) const { return r45Fraction_; }
-  inline double r45EnergyFraction(void) const { return r45EnergyFraction_; }
+  inline double energy() const { return energy_; }
+  inline double ratio() const { return e2ts_/e10ts_; }
+  inline double e2ts() const { return e2ts_; }
+  inline double e10ts() const { return e10ts_; }
+  inline bool validRatio() const { return e10ts_!=0.0; }
+  inline int numHPDHits() const { return numHPDHits_; }
+  inline int numRBXHits() const { return numRBXHits_; }
+  inline int numHPDNoOtherHits() const { return numHPDNoOtherHits_; }
+  inline int numZeros() const { return numZeros_; }
+  inline double minLowEHitTime() const { return minLowEHitTime_; }
+  inline double maxLowEHitTime() const { return maxLowEHitTime_; }
+  inline double lowEHitTimeSqrd() const { return lowEHitTimeSqrd_; }
+  inline int numLowEHits() const { return numLowEHits_; }
+  inline double minHighEHitTime() const { return minHighEHitTime_; }
+  inline double maxHighEHitTime() const { return maxHighEHitTime_; }
+  inline double highEHitTimeSqrd() const { return highEHitTimeSqrd_; }
+  inline int numHighEHits() const { return numHighEHits_; }
+  inline double RBXEMF() const { return RBXEMF_; }
+  inline double HPDEMF() const { return HPDEMF_; }
+  inline bool PassTS4TS5() const { return TS4TS5Decision_; }
+  inline edm::RefVector<CaloTowerCollection> rbxTowers() const { return rbxtowers_; }
+  inline int r45Count() const { return r45Count_; }
+  inline double r45Fraction() const { return r45Fraction_; }
+  inline double r45EnergyFraction() const { return r45EnergyFraction_; }
 
   bool CheckPassFilter(double Charge, double Discriminant, std::vector<std::pair<double, double> > &Cuts, int Side);
 

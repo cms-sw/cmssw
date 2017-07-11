@@ -372,7 +372,7 @@ OuterTrackerMonitorTTCluster::beginRun(const edm::Run& run, const edm::EventSetu
 
 // ------------ method called once each job just after ending the event loop  ------------
 void 
-OuterTrackerMonitorTTCluster::endJob(void) 
+OuterTrackerMonitorTTCluster::endJob() 
 {
 	
 }

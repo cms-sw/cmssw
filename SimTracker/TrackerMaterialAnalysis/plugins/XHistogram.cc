@@ -116,7 +116,7 @@ void XHistogram::fill( const Range& x, const Range& y, const std::vector<double>
 }
 
 /// normalize the histograms
-void XHistogram::normalize(void)
+void XHistogram::normalize()
 {
   for (int i = 0; i < m_normalization->GetSize(); ++i) {
     if ((*m_normalization)[i] > 0.) {

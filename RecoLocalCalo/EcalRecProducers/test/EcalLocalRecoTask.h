@@ -58,7 +58,7 @@ class EcalLocalRecoTask: public edm::EDAnalyzer
   void beginJob();
   
   // EndJob
-  void endJob(void);
+  void endJob();
   
  private:
   typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;  

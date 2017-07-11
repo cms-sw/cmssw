@@ -54,8 +54,8 @@ class ConfigurationDatabaseImplOracle: public hcal::ConfigurationDatabaseImpl {
                                         noexcept(false);
 
   // added by Gena Kukartsev
-  virtual oracle::occi::Connection * getConnection( void );
-  virtual oracle::occi::Environment * getEnvironment( void );
+  virtual oracle::occi::Connection * getConnection( );
+  virtual oracle::occi::Environment * getEnvironment( );
 
 	private:
 		//OCCI Env, Conn     

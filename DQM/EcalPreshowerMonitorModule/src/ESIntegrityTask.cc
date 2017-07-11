@@ -199,7 +199,7 @@ void ESIntegrityTask::bookHistograms(DQMStore::IBooker& iBooker, edm::Run const&
   }
 }
 
-void ESIntegrityTask::endJob(void){
+void ESIntegrityTask::endJob(){
 
   LogInfo("ESIntegrityTask") << "analyzed " << ievt_ << " events";
 
@@ -331,7 +331,7 @@ void ESIntegrityTask::analyze(const Event& e, const EventSetup& c){
 // 
 // -- Calculate Data Integrity Fraction
 //
-void ESIntegrityTask::calculateDIFraction(void){
+void ESIntegrityTask::calculateDIFraction(){
 
   float nValidChannels=0; 
   float nGlobalErrors=0;

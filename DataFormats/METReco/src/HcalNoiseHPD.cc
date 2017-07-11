@@ -29,17 +29,17 @@ HcalNoiseHPD::~HcalNoiseHPD()
 }
   
 // accessors
-int HcalNoiseHPD::idnumber(void) const
+int HcalNoiseHPD::idnumber() const
 {
   return idnumber_;
 }
   
-const std::vector<float> HcalNoiseHPD::bigCharge(void) const
+const std::vector<float> HcalNoiseHPD::bigCharge() const
 {
   return bigCharge_;
 }
   
-float HcalNoiseHPD::bigChargeTotal(void) const
+float HcalNoiseHPD::bigChargeTotal() const
 {
   float total=0;
   for(unsigned int i=0; i<bigCharge_.size(); i++) {
@@ -65,12 +65,12 @@ float HcalNoiseHPD::bigChargeHighest3TS(unsigned int firstts) const
   return total;
 }
   
-const std::vector<float> HcalNoiseHPD::big5Charge(void) const
+const std::vector<float> HcalNoiseHPD::big5Charge() const
 {
   return big5Charge_;
 }
   
-float HcalNoiseHPD::big5ChargeTotal(void) const
+float HcalNoiseHPD::big5ChargeTotal() const
 {
   float total=0;
   for(unsigned int i=0; i<big5Charge_.size(); i++) {
@@ -95,17 +95,17 @@ float HcalNoiseHPD::big5ChargeHighest3TS(unsigned int firstts) const
   return total;
 }
   
-int HcalNoiseHPD::totalZeros(void) const
+int HcalNoiseHPD::totalZeros() const
 {
   return totalZeros_;
 }
   
-int HcalNoiseHPD::maxZeros(void) const
+int HcalNoiseHPD::maxZeros() const
 {
   return maxZeros_;
 }
 
-const edm::RefVector<HBHERecHitCollection> HcalNoiseHPD::recHits(void) const
+const edm::RefVector<HBHERecHitCollection> HcalNoiseHPD::recHits() const
 {
   return rechits_;
 }
@@ -172,12 +172,12 @@ int HcalNoiseHPD::numRecHitsFailR45(const float threshold) const
   return count;
 }
 
-const edm::RefVector<CaloTowerCollection> HcalNoiseHPD::caloTowers(void) const
+const edm::RefVector<CaloTowerCollection> HcalNoiseHPD::caloTowers() const
 {
   return calotowers_;
 }
   
-double HcalNoiseHPD::caloTowerHadE(void) const
+double HcalNoiseHPD::caloTowerHadE() const
 {
   double total=0;
   for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it)
@@ -185,7 +185,7 @@ double HcalNoiseHPD::caloTowerHadE(void) const
   return total;
 }
   
-double HcalNoiseHPD::caloTowerEmE(void) const
+double HcalNoiseHPD::caloTowerEmE() const
 {
   double total=0;
   for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it)
@@ -193,7 +193,7 @@ double HcalNoiseHPD::caloTowerEmE(void) const
   return total;
 }
 
-double HcalNoiseHPD::caloTowerTotalE(void) const
+double HcalNoiseHPD::caloTowerTotalE() const
 {
   double total=0;
   for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it)
@@ -201,7 +201,7 @@ double HcalNoiseHPD::caloTowerTotalE(void) const
   return total;
 }
   
-double HcalNoiseHPD::caloTowerEmFraction(void) const
+double HcalNoiseHPD::caloTowerEmFraction() const
 {
   double h=0, e=0;
   for(edm::RefVector<CaloTowerCollection>::const_iterator it=calotowers_.begin(); it!=calotowers_.end(); ++it) {

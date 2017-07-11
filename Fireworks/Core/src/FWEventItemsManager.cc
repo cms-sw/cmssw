@@ -125,7 +125,7 @@ FWEventItemsManager::newEvent(const edm::EventBase* iEvent)
     guess to track accessing delete items.
   */
 void
-FWEventItemsManager::clearItems(void)
+FWEventItemsManager::clearItems()
 {
    for (size_t i = 0, e = m_items.size(); i != e; ++i)
    {

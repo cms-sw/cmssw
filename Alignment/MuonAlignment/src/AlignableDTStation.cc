@@ -94,7 +94,7 @@ std::ostream &operator << (std::ostream& os, const AlignableDTStation& b )
 
 
 /// Recursive printout of whole DT Station structure
-void AlignableDTStation::dump( void ) const
+void AlignableDTStation::dump( ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);

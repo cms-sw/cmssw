@@ -8,8 +8,8 @@
 class FWCaloClusterProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::CaloCluster>
 {
 public:
-   FWCaloClusterProxyBuilder( void ) {}  
-   virtual ~FWCaloClusterProxyBuilder( void ) {}
+   FWCaloClusterProxyBuilder( ) {}  
+   virtual ~FWCaloClusterProxyBuilder( ) {}
 
    REGISTER_PROXYBUILDER_METHODS();
 

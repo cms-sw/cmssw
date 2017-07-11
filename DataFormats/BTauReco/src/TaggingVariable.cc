@@ -314,7 +314,7 @@ void TaggingVariableList::insert( const TaggingVariableList & list ) {
   inplace_merge( m_list.begin(), m_list.begin() + size, m_list.end(), TaggingVariableCompare() );
 }
 
-void TaggingVariableList::finalize( void ) {
+void TaggingVariableList::finalize( ) {
   stable_sort( m_list.begin(), m_list.end(), TaggingVariableCompare() );
 }
 

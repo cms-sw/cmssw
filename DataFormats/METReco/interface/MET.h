@@ -71,7 +71,7 @@ namespace reco
 
     //________________________________________________________________________||
     void setSignificanceMatrix(const reco::METCovMatrix& matrix);
-    reco::METCovMatrix getSignificanceMatrix(void) const;
+    reco::METCovMatrix getSignificanceMatrix() const;
 
   private:
     virtual bool overlap( const Candidate & ) const;

@@ -1132,7 +1132,7 @@ PixelFEDCard::PixelFEDCard(string fileName):
 
 //==================================================================================
 // Added by Dario (March 26th 2008)
-void PixelFEDCard::clear(void) 
+void PixelFEDCard::clear() 
 {
   FEDBASE_0 = 0 ;
   fedNumber = 999 ;

@@ -20,8 +20,8 @@
 class FWMuonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Muon>
 {
 public:
-   FWMuonProxyBuilder( void ) {}
-   virtual ~FWMuonProxyBuilder( void ) {}
+   FWMuonProxyBuilder( ) {}
+   virtual ~FWMuonProxyBuilder( ) {}
 
    virtual void setItem(const FWEventItem* iItem) override;
 

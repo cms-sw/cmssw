@@ -34,7 +34,7 @@ bool GeometryConfiguration::doValidation() const {
 }
 
 /// Return a list of files as a vector of strings.
-const std::vector < std::string >  & GeometryConfiguration::getFileList(void) const {
+const std::vector < std::string >  & GeometryConfiguration::getFileList() const {
   return files_;
 }
 
@@ -43,7 +43,7 @@ const std::vector < std::string >  & GeometryConfiguration::getFileList(void) co
    The EDM should not allow URLs because of provenance.
    This vector will always be empty.
 **/
-const std::vector < std::string >  & GeometryConfiguration::getURLList(void) const
+const std::vector < std::string >  & GeometryConfiguration::getURLList() const
 {
   LogDebug("GeometryConfiguration") << " the getURLList of this DDLDocumentProvider empty strings" << std::endl;
   //  return relFiles_;
@@ -51,7 +51,7 @@ const std::vector < std::string >  & GeometryConfiguration::getURLList(void) con
 }
 
 /// Print out the list of files.
-void GeometryConfiguration::dumpFileList(void) const {
+void GeometryConfiguration::dumpFileList() const {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
   for (std::vector<std::string>::const_iterator it = files_.begin(), itEnd = files_.end(); it != itEnd; ++it)

@@ -88,7 +88,7 @@ SoftLepton::SoftLepton(const edm::ParameterSet & iConfig) :
 }
 
 // ------------ d'tor --------------------------------------------------------------------
-SoftLepton::~SoftLepton(void) {
+SoftLepton::~SoftLepton() {
 }
 
 // ------------ method called once per event during the event loop -----------------------

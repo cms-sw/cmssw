@@ -44,7 +44,7 @@ public:
    
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 
-  virtual void endJob(void);
+  virtual void endJob();
 
 private:
   
@@ -103,7 +103,7 @@ testTkHistoMap::~testTkHistoMap()
   
 }
 
-void testTkHistoMap::endJob(void)
+void testTkHistoMap::endJob()
 {
   /*Test extraction of detid from histogram title and ix, iy*/
   size_t ilayer=1;

@@ -69,9 +69,9 @@ class MuonSegFit {
   virtual ~MuonSegFit() {}
 
   // Least-squares fit
-  bool fit( void ); // fill uslope_, vslope_, intercept_  @@ FKA fitSlopes()
+  bool fit( ); // fill uslope_, vslope_, intercept_  @@ FKA fitSlopes()
   // Calculate covariance matrix of fitted parameters
-  AlgebraicSymMatrix covarianceMatrix(void);
+  AlgebraicSymMatrix covarianceMatrix();
 
   // Change scale factor of rechit x error 
   // - expert use only!
@@ -87,11 +87,11 @@ class MuonSegFit {
   float Rdev( float x, float y, float z ) const;
 
   // Other public functions are accessors
-  MuonRecHitContainer hits(void) const { return hits_; }
-  double scaleXError(void) const { return scaleXError_; }
-  size_t nhits(void) const { return hits_.size(); }
-  double chi2(void) const { return chi2_; }
-  int ndof(void) const { return ndof_; }
+  MuonRecHitContainer hits() const { return hits_; }
+  double scaleXError() const { return scaleXError_; }
+  size_t nhits() const { return hits_.size(); }
+  double chi2() const { return chi2_; }
+  int ndof() const { return ndof_; }
   LocalPoint intercept() const { return intercept_;}
   LocalVector localdir() const { return localdir_;}
   bool fitdone() const { return fitdone_; }
@@ -100,9 +100,9 @@ class MuonSegFit {
   
   // PRIVATE FUNCTIONS
 
-  void fit2(void); // fit for 2 hits
-  void fitlsq(void); // least-squares fit for 3-6 hits  
-  void setChi2(void); // fill chi2_ & ndof_ @@ FKA fillChiSquared()
+  void fit2(); // fit for 2 hits
+  void fitlsq(); // least-squares fit for 3-6 hits  
+  void setChi2(); // fill chi2_ & ndof_ @@ FKA fillChiSquared()
 
 
  protected:
@@ -110,10 +110,10 @@ class MuonSegFit {
   // PROTECTED FUNCTIONS - derived class needs access
 
   // Set segment direction 'out' from IP
-  void setOutFromIP(void); // fill localdir_  @@ FKA fillLocalDirection()
+  void setOutFromIP(); // fill localdir_  @@ FKA fillLocalDirection()
 
-  SMatrix12by4 derivativeMatrix(void);
-  SMatrixSym12 weightMatrix(void);
+  SMatrix12by4 derivativeMatrix();
+  SMatrixSym12 weightMatrix();
   AlgebraicSymMatrix flipErrors(const SMatrixSym4&);
   
   // PROTECTED MEMBER VARIABLES - derived class needs access

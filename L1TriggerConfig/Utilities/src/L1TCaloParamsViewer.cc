@@ -34,7 +34,7 @@ public:
        printEgIsoLUT    = pset.getUntrackedParameter<bool>("printEgIsoLUT",   false);
     }
 
-    virtual ~L1TCaloParamsViewer(void){}
+    virtual ~L1TCaloParamsViewer(){}
 };
 
 #include <openssl/sha.h>

@@ -21,8 +21,8 @@ class AlcaBeamSpotHarvester : public edm::EDAnalyzer {
   virtual ~AlcaBeamSpotHarvester();
   
   // Operations
-  virtual void beginJob            (void);
-  virtual void endJob              (void);  
+  virtual void beginJob            ();
+  virtual void endJob              ();  
   virtual void analyze             (const edm::Event&          , const edm::EventSetup&);
   virtual void beginRun            (const edm::Run&            , const edm::EventSetup&);
   virtual void endRun              (const edm::Run&            , const edm::EventSetup&);

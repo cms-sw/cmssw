@@ -555,7 +555,7 @@ void fcn( int &npar, double *gin, double &f, double *par, int iflag )  {
 /// Print resulting parameters to stdout
 /// and to a file - for debugging only
 ///
-void LASBarrelAlgorithm::Dump( void ) {
+void LASBarrelAlgorithm::Dump( ) {
   
   if( !minuit ) {
     std::cerr << " [LASBarrelAlgorithm::Dump] ** WARNING: minimizer object uninitialized." << std::endl;

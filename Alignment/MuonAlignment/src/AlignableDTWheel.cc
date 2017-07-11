@@ -93,7 +93,7 @@ std::ostream &operator << (std::ostream& os, const AlignableDTWheel& b )
 
 
 /// Recursive printout of whole DT Wheel structure
-void AlignableDTWheel::dump( void ) const 
+void AlignableDTWheel::dump( ) const 
 {
 
   edm::LogInfo("AlignableDump") << (*this);

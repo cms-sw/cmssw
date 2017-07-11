@@ -40,10 +40,10 @@ class L1EmulBias : public edm::EDProducer {
   ~L1EmulBias();
   
  protected:
-  virtual void beginJob(void) {};
+  virtual void beginJob() {};
   //virtual void beginRun(edm::Run&, const edm::EventSetup&);
   virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob(void) {};
+  virtual void endJob() {};
 
  public:
   template <class T>

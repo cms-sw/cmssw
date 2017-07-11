@@ -94,7 +94,7 @@ storageCounter(StorageAccount::Counter *&c, StorageAccount::Operation operation)
   return *c;
 }
 
-TStorageFactoryFile::TStorageFactoryFile(void)
+TStorageFactoryFile::TStorageFactoryFile()
   : storage_()
 {
   StorageAccount::Stamp stats(storageCounter(s_statsCtor, StorageAccount::Operation::construct));
@@ -222,7 +222,7 @@ TStorageFactoryFile::Initialize(const char *path,
   stats.tick(0);
 }
 
-TStorageFactoryFile::~TStorageFactoryFile(void)
+TStorageFactoryFile::~TStorageFactoryFile()
 {
   Close();
 }
@@ -622,7 +622,7 @@ TStorageFactoryFile::SysStat(Int_t /* fd */, Long_t *id, Long64_t *size,
 }
 
 void
-TStorageFactoryFile::ResetErrno(void) const
+TStorageFactoryFile::ResetErrno() const
 {
   TSystem::ResetErrno();
 }

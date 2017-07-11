@@ -36,11 +36,11 @@ class HcalHPDRBXMap {
   const static int NUM_RBXS_PER_SUBDET=18;
 
   // access magic numbers by inline function
-  inline int static numHPDs(void) { return NUM_HPDS; }
-  inline int static numHPDsPerSubdet(void) { return NUM_HPDS_PER_SUBDET; }
-  inline int static numHPDsPerRBX(void) { return NUM_HPDS_PER_RBX; }
-  inline int static numRBXs(void) { return NUM_RBXS; }
-  inline int static numRBXsPerSubdet(void) { return NUM_RBXS_PER_SUBDET; }
+  inline int static numHPDs() { return NUM_HPDS; }
+  inline int static numHPDsPerSubdet() { return NUM_HPDS_PER_SUBDET; }
+  inline int static numHPDsPerRBX() { return NUM_HPDS_PER_RBX; }
+  inline int static numRBXs() { return NUM_RBXS; }
+  inline int static numRBXsPerSubdet() { return NUM_RBXS_PER_SUBDET; }
 
   // determines whether an HPD or RBX index is valid
   // HPDs run from [0,NUM_HPDS-1], and RBXs run from [0,NUM_RBXS-1]

@@ -51,8 +51,8 @@ class SiStripElectronAnalyzer : public edm::EDAnalyzer {
 
       virtual void analyze(const edm::Event&, const edm::EventSetup&);
       virtual void beginJob();
-      virtual void initNtuple ( void ) ;
-      virtual void endJob( void );
+      virtual void initNtuple ( ) ;
+      virtual void endJob( );
 
    private:
       double unwrapPhi(double phi) const {

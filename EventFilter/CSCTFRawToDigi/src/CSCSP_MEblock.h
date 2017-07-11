@@ -51,42 +51,42 @@ private:
 	unsigned int spInput_;        // Input SP link, this LCT come through [1..15] (as SP sees it)
 
 public:
-	bool check(void) const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0; }
+	bool check() const throw() { return zero_1!=0||zero_2!=0||zero_3!=0||zero_4!=0; }
 
-	unsigned int quality(void) const throw() { return quality_; }
-	unsigned int BXN    (void) const throw() { return me_bxn;   }
-	unsigned int bx0    (void) const throw() { return bx0_;     }
-	unsigned int bc0    (void) const throw() { return bc0_;     }
+	unsigned int quality() const throw() { return quality_; }
+	unsigned int BXN    () const throw() { return me_bxn;   }
+	unsigned int bx0    () const throw() { return bx0_;     }
+	unsigned int bc0    () const throw() { return bc0_;     }
 
-	unsigned int spInput(void) const throw() { return spInput_; }
-	unsigned int link   (void) const throw() { return link_id;  }
-	unsigned int mpc    (void) const throw() { return mpc_id;   }
-	unsigned int csc    (void) const throw() { return csc_id;   }
+	unsigned int spInput() const throw() { return spInput_; }
+	unsigned int link   () const throw() { return link_id;  }
+	unsigned int mpc    () const throw() { return mpc_id;   }
+	unsigned int csc    () const throw() { return csc_id;   }
 
-	unsigned int l_r    (void) const throw() { return left_right;        }
-	unsigned int wireGroup(void) const throw() { return wire_group_id;   }
-	unsigned int strip  (void) const throw() { return clct_pattern_id;      }
-	unsigned int pattern(void) const throw() { return clct_pattern_number;  }
+	unsigned int l_r    () const throw() { return left_right;        }
+	unsigned int wireGroup() const throw() { return wire_group_id;   }
+	unsigned int strip  () const throw() { return clct_pattern_id;      }
+	unsigned int pattern() const throw() { return clct_pattern_number;  }
 
 	enum AF { EMPTY=1, FULL=2 };
-	unsigned int aligment_fifo(void) const throw() { return (aligment_fifo_full<<1)|aligment_fifo_empty; }
+	unsigned int aligment_fifo() const throw() { return (aligment_fifo_full<<1)|aligment_fifo_empty; }
 
 	enum RS { IDLE_CHARs=0, CARRIER_EXTEND=1, NORMAL_DATA=2, ERROR_PROP=3 };
-	unsigned int receiver_status_frame1(void) const throw() { return (receiver_status_dv1<<1)|receiver_status_er1; }
-	unsigned int receiver_status_frame2(void) const throw() { return (receiver_status_dv2<<1)|receiver_status_er2; }
+	unsigned int receiver_status_frame1() const throw() { return (receiver_status_dv1<<1)|receiver_status_er1; }
+	unsigned int receiver_status_frame2() const throw() { return (receiver_status_dv2<<1)|receiver_status_er2; }
 
-	unsigned int errCnt(void) const throw() { return err_prop_cnt; }
+	unsigned int errCnt() const throw() { return err_prop_cnt; }
 
-	unsigned int tbin(void) const throw() { return tbin_;         }
-	unsigned int vp  (void) const throw() { return valid_pattern; }
-	unsigned int se  (void) const throw() { return sync_error;    }
-	unsigned int sm  (void) const throw() { return sync_modified; }
-	unsigned int af  (void) const throw() { return alignment_fifo;}
-	unsigned int timingError(void) const throw() { return bxBit; }
+	unsigned int tbin() const throw() { return tbin_;         }
+	unsigned int vp  () const throw() { return valid_pattern; }
+	unsigned int se  () const throw() { return sync_error;    }
+	unsigned int sm  () const throw() { return sync_modified; }
+	unsigned int af  () const throw() { return alignment_fifo;}
+	unsigned int timingError() const throw() { return bxBit; }
 
 	bool unpack(const unsigned short *&buf) throw() { memcpy((void*)this,buf,4*sizeof(short)); buf+=4; return check(); }
 
-	CSCSP_MEblock(void){}
+	CSCSP_MEblock(){}
 };
 
 #endif

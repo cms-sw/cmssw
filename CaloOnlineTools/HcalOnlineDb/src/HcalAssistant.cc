@@ -76,7 +76,7 @@ std::string HcalAssistant::getRandomQuote(){
 }
 
 
-std::string HcalAssistant::getUserName(void){
+std::string HcalAssistant::getUserName(){
   struct passwd * _pwd = getpwuid(geteuid());
   std::string _name(_pwd->pw_name);
   return _name;

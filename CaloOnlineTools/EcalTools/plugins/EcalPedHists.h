@@ -40,7 +40,7 @@ class EcalPedHists: public edm::EDAnalyzer
   protected:
     void analyze(const edm::Event & e, const  edm::EventSetup& c);
     void beginRun(edm::Run const &, edm::EventSetup const & c);
-    void endJob(void);
+    void endJob();
 
   private:
     std::string intToString(int num);

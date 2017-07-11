@@ -18,12 +18,12 @@ class LASCoordinateSet {
   LASCoordinateSet( double, double, double, double, double, double );
 
   void GetCoordinates( double&, double&, double&, double&, double&, double& ) const;
-  double GetPhi( void ) const { return phi; }
-  double GetPhiError( void ) const { return phiError; }
-  double GetR( void ) const { return r; }
-  double GetRError( void ) const { return rError; }
-  double GetZ( void ) const { return z; }
-  double GetZError( void ) const { return zError; }
+  double GetPhi( ) const { return phi; }
+  double GetPhiError( ) const { return phiError; }
+  double GetR( ) const { return r; }
+  double GetRError( ) const { return rError; }
+  double GetZ( ) const { return z; }
+  double GetZError( ) const { return zError; }
 
   void SetCoordinates( double, double, double, double, double, double );
   void SetErrors( double, double, double );
@@ -37,7 +37,7 @@ class LASCoordinateSet {
   void SetZ( double aZ, double aZError ) { z = aZ; zError = aZError; }
   void SetZError( double aZError ) { zError = aZError; }
   
-  void Dump( void );
+  void Dump( );
 
  private:
 

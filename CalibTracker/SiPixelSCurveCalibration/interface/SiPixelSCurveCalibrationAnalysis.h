@@ -108,7 +108,7 @@ class SiPixelSCurveCalibrationAnalysis : public SiPixelOfflineCalibAnalysisBase 
       virtual void calibrationSetup(const edm::EventSetup& iSetup);
       virtual bool checkCorrectCalibrationType();
       virtual void newDetID(uint32_t detid);
-      void makeThresholdSummary(void);
+      void makeThresholdSummary();
       virtual void calibrationEnd() ;
       
       // ----------member data ---------------------------

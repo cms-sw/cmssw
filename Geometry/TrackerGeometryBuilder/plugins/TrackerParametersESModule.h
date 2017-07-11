@@ -16,7 +16,7 @@ class  TrackerParametersESModule: public edm::ESProducer
 {
  public:
   TrackerParametersESModule( const edm::ParameterSet & );
-  ~TrackerParametersESModule( void );
+  ~TrackerParametersESModule( );
 
   typedef std::shared_ptr<PTrackerParameters> ReturnType;
 

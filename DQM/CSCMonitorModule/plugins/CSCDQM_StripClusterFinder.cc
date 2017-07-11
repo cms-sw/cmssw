@@ -89,7 +89,7 @@ void StripClusterFinder::DoAction(int LayerId, float *Cathodes)
   return;
 }
 
-void StripClusterFinder::SearchMax(void)
+void StripClusterFinder::SearchMax()
 {
   StripCluster tmpCluster;
   for(i=1;i<(thePulseHeightMap.size()-1);i++){
@@ -119,7 +119,7 @@ void StripClusterFinder::SearchMax(void)
   }
   return;
 }
-void StripClusterFinder::SearchBorders(void)
+void StripClusterFinder::SearchBorders()
 {
   uint32_t iS,iT,iL,jL,iR,jR;
   
@@ -178,7 +178,7 @@ void StripClusterFinder::SearchBorders(void)
   return;
 }
     
-void StripClusterFinder::Match(void)
+void StripClusterFinder::Match()
 {
   //              MATCHING THE OVERLAPING CLASTERS
   bool find2match;
@@ -190,7 +190,7 @@ void StripClusterFinder::Match(void)
   return;
 }
 
-bool StripClusterFinder::FindAndMatch(void)
+bool StripClusterFinder::FindAndMatch()
 {
   // Find clusters to match
   icstart=0; //!!!???
@@ -232,7 +232,7 @@ bool StripClusterFinder::FindAndMatch(void)
   }
   return false;
 }
-void StripClusterFinder::KillCluster(void)
+void StripClusterFinder::KillCluster()
 {
   // Match Clusters and kill one of clusters.
   if(IC1MIN<IC2MIN)
@@ -257,7 +257,7 @@ void StripClusterFinder::KillCluster(void)
 
   return;
 }
-void StripClusterFinder::RefindMax(void)
+void StripClusterFinder::RefindMax()
 {
   int iLS,iRS,iLT,iRT;
   int iS,jT;
@@ -346,7 +346,7 @@ void StripClusterFinder::RefindMax(void)
   }
   return;
 }
-void StripClusterFinder::printClusters(void)
+void StripClusterFinder::printClusters()
 {
   int iS,jT;
   std::cout << "====================================================================" << std::endl;	

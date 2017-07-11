@@ -10,7 +10,7 @@ public:
   virtual ~AlignmentUserVariables() {}
   // derived class must implement clone method
   // (should be simply copy constructor)
-  virtual AlignmentUserVariables* clone( void ) const = 0;
+  virtual AlignmentUserVariables* clone( ) const = 0;
 
 };
 

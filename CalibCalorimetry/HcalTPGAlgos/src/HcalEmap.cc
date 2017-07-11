@@ -69,7 +69,7 @@ int HcalEmap::read_map( std::string filename )
   
 
 
-std::vector<HcalEmap::HcalEmapRow> & HcalEmap::get_map( void )
+std::vector<HcalEmap::HcalEmapRow> & HcalEmap::get_map( )
 {
   return map;
 }

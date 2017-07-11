@@ -10,7 +10,7 @@
 #include <memory>
 
 static std::shared_ptr<edm::Presence> gobbleUpTheGoop;
-static void initTest(void)
+static void initTest()
 {
   // Initialise the plug-in manager.
   edmplugin::PluginManager::configure(edmplugin::standard::config());

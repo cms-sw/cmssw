@@ -17,7 +17,7 @@ class MaterialAccountingDetector {
   friend class TrackingMaterialAnalyser;
 
 public:
-  MaterialAccountingDetector( void ) :
+  MaterialAccountingDetector( ) :
     m_position         (),
     m_curvilinearIn    ( 0. ),
     m_curvilinearOut   ( 0. ),
@@ -26,7 +26,7 @@ public:
     m_accounting       ()
   { }
   
-  void clear( void ) {
+  void clear( ) {
     m_position         = GlobalPoint(),
     m_curvilinearIn    = 0.;
     m_curvilinearOut   = 0.;

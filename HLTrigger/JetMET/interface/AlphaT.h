@@ -20,7 +20,7 @@ private:
   std::vector<double> py_;
 
 public:
-  inline double value(void) const;
+  inline double value() const;
   inline double value(std::vector<bool> & jet_sign) const;
 
 private:
@@ -50,7 +50,7 @@ AlphaT::AlphaT(std::vector<T> const & p4, bool setDHtZero, bool use_et /* = true
 
 // -----------------------------------------------------------------------------
 inline
-double AlphaT::value(void) const {
+double AlphaT::value() const {
   return value_(0);
 }
 

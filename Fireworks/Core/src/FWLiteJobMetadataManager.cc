@@ -9,7 +9,7 @@
 #include "TTree.h"
 #include <set>
 
-FWLiteJobMetadataManager::FWLiteJobMetadataManager(void)
+FWLiteJobMetadataManager::FWLiteJobMetadataManager()
    : FWJobMetadataManager(),
      m_event(0)
 {}

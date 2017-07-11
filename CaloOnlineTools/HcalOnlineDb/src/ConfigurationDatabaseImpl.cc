@@ -118,11 +118,11 @@ ConfigurationDatabaseImpl::ConfigurationDatabaseImpl() : m_logger(&std::cout) {
   }
 
   // added by Gena Kukartsev
-  oracle::occi::Connection * ConfigurationDatabaseImpl::getConnection( void ){
+  oracle::occi::Connection * ConfigurationDatabaseImpl::getConnection( ){
     return NULL;
   }
   
-  oracle::occi::Environment * ConfigurationDatabaseImpl::getEnvironment( void ){
+  oracle::occi::Environment * ConfigurationDatabaseImpl::getEnvironment( ){
     return NULL;
   }
 

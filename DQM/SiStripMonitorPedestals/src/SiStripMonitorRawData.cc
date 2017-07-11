@@ -137,7 +137,7 @@ void SiStripMonitorRawData::endRun(edm::Run const& run, edm::EventSetup const& e
 //
 // -- End Job
 //
-void SiStripMonitorRawData::endJob(void){
+void SiStripMonitorRawData::endJob(){
   edm::LogInfo("SiStripMonitorRawData") <<"SiStripMonitorRawData::EndJob: " 
 					  << " Finishing!! ";        
 }

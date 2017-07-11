@@ -180,7 +180,7 @@ TrackingMonitor::~TrackingMonitor()
 }
 
 
-void TrackingMonitor::beginJob(void) 
+void TrackingMonitor::beginJob() 
 {
 
     

@@ -13,8 +13,8 @@
 class FWTrackTrackingRecHitProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Track>
 {
 public:
-   FWTrackTrackingRecHitProxyBuilder( void ) {}
-   virtual ~FWTrackTrackingRecHitProxyBuilder( void ) {}
+   FWTrackTrackingRecHitProxyBuilder( ) {}
+   virtual ~FWTrackTrackingRecHitProxyBuilder( ) {}
   
    REGISTER_PROXYBUILDER_METHODS();
   

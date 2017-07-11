@@ -23,8 +23,8 @@
 class FWSiPixelDigiProxyBuilder : public FWProxyBuilderBase
 {
 public:
-  FWSiPixelDigiProxyBuilder( void ) {}
-  virtual ~FWSiPixelDigiProxyBuilder( void ) {}
+  FWSiPixelDigiProxyBuilder( ) {}
+  virtual ~FWSiPixelDigiProxyBuilder( ) {}
 
   REGISTER_PROXYBUILDER_METHODS();
 

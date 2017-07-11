@@ -20,7 +20,7 @@ public:
     virtual void analyze(const edm::Event&, const edm::EventSetup&);
 
     explicit L1KeyListWriter(const edm::ParameterSet&) : edm::EDAnalyzer(){}
-    virtual ~L1KeyListWriter(void){}
+    virtual ~L1KeyListWriter(){}
 };
 
 void L1KeyListWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

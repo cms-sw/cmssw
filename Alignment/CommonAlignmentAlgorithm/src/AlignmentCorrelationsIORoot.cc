@@ -18,7 +18,7 @@ AlignmentCorrelationsIORoot::AlignmentCorrelationsIORoot()
 
 // ----------------------------------------------------------------------------
 
-void AlignmentCorrelationsIORoot::createBranches(void) 
+void AlignmentCorrelationsIORoot::createBranches() 
 {
   tree->Branch("Ali1Id",    &Ali1Id,    "Ali1Id/i");
   tree->Branch("Ali2Id",    &Ali2Id,    "Ali2Id/i");
@@ -30,7 +30,7 @@ void AlignmentCorrelationsIORoot::createBranches(void)
 
 // ----------------------------------------------------------------------------
 
-void AlignmentCorrelationsIORoot::setBranchAddresses(void) 
+void AlignmentCorrelationsIORoot::setBranchAddresses() 
 {
   tree->SetBranchAddress("corSize",   &corSize);
   tree->SetBranchAddress("Ali1Id",    &Ali1Id);

@@ -548,7 +548,7 @@ void CSCSegAlgoDF::flagHitsAsUsed(const ChamberHitContainer& rechitsInChamber) {
 
 
 // Try to clean up segments by quickly looking at residuals
-void CSCSegAlgoDF::pruneFromResidual(void){
+void CSCSegAlgoDF::pruneFromResidual(){
 
   // Only prune if have at least 5 hits 
   if ( protoSegment.size() < 5 ) return ;

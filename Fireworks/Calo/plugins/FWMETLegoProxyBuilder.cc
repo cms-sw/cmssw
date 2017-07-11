@@ -14,8 +14,8 @@
 class FWMETLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::MET>
 {
 public:
-   FWMETLegoProxyBuilder( void ) {}
-   virtual ~FWMETLegoProxyBuilder( void ) {}
+   FWMETLegoProxyBuilder( ) {}
+   virtual ~FWMETLegoProxyBuilder( ) {}
    
    REGISTER_PROXYBUILDER_METHODS();
    

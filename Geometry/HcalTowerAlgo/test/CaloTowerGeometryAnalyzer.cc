@@ -45,7 +45,7 @@ class CaloTowerGeometryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
   explicit CaloTowerGeometryAnalyzer( const edm::ParameterSet& );
-  ~CaloTowerGeometryAnalyzer( void );
+  ~CaloTowerGeometryAnalyzer( );
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -64,7 +64,7 @@ CaloTowerGeometryAnalyzer::CaloTowerGeometryAnalyzer( const edm::ParameterSet& i
   m_epsilon = iConfig.getParameter<double>( "Epsilon" );
 }
 
-CaloTowerGeometryAnalyzer::~CaloTowerGeometryAnalyzer( void )
+CaloTowerGeometryAnalyzer::~CaloTowerGeometryAnalyzer( )
 {
 }
 

@@ -11,7 +11,7 @@ class HGCalStringToEnumParser {
   std::map<std::string, T> enumMap;
 public:
     
-  HGCalStringToEnumParser(void);
+  HGCalStringToEnumParser();
 
   T parseString(const std::string &value)  { 
     typename std::map<std::string, T>::const_iterator itr = enumMap.find(value);

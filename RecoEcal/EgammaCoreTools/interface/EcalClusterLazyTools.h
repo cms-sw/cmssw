@@ -93,11 +93,11 @@ class EcalClusterLazyToolsBase {
   //  std::vector<int> severitiesexcl_;
 
  public:
-  inline const EcalRecHitCollection *getEcalEBRecHitCollection(void){return ebRecHits_;};
-  inline const EcalRecHitCollection *getEcalEERecHitCollection(void){return eeRecHits_;};
-  inline const EcalRecHitCollection *getEcalESRecHitCollection(void){return esRecHits_;};
-  inline const EcalIntercalibConstants& getEcalIntercalibConstants(void){return *icalMap;};
-  inline const edm::ESHandle<EcalLaserDbService>& getLaserHandle(void){return laser;};
+  inline const EcalRecHitCollection *getEcalEBRecHitCollection(){return ebRecHits_;};
+  inline const EcalRecHitCollection *getEcalEERecHitCollection(){return eeRecHits_;};
+  inline const EcalRecHitCollection *getEcalESRecHitCollection(){return esRecHits_;};
+  inline const EcalIntercalibConstants& getEcalIntercalibConstants(){return *icalMap;};
+  inline const edm::ESHandle<EcalLaserDbService>& getLaserHandle(){return laser;};
   
 }; // class EcalClusterLazyToolsBase
 

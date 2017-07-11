@@ -91,7 +91,7 @@ public:
 
 
 private:
-  virtual void beginJob(void) ;
+  virtual void beginJob() ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run &, const edm::EventSetup &);
   virtual void endJob();
@@ -322,7 +322,7 @@ void L1Muon2RecoTreeProducer::analyze(const edm::Event& iEvent, const edm::Event
 
 // ------------ method called once each job just before starting event loop  ------------
 void
-L1Muon2RecoTreeProducer::beginJob(void)
+L1Muon2RecoTreeProducer::beginJob()
 {
 }
 

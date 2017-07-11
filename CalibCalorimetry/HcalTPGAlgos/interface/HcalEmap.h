@@ -66,7 +66,7 @@ class HcalEmap
 
   int read_map( std::string filename );
 
-  std::vector<HcalEmap::HcalEmapRow> & get_map( void );
+  std::vector<HcalEmap::HcalEmapRow> & get_map( );
 
  protected:
   std::vector<HcalEmapRow> map;

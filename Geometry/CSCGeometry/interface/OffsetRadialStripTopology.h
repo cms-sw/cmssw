@@ -30,7 +30,7 @@ public:
   /** Fraction of a strip offset of layer relative to
    *  symmetry axis (local y). (This is an _angular_ value)
    */
-  virtual float stripOffset( void ) const { return theStripOffset; }
+  virtual float stripOffset( ) const { return theStripOffset; }
 
   /** LocalPoint for a given strip
    */

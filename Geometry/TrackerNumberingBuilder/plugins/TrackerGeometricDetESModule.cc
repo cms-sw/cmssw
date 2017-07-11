@@ -22,7 +22,7 @@ TrackerGeometricDetESModule::TrackerGeometricDetESModule( const edm::ParameterSe
   setWhatProduced( this );
 }
 
-TrackerGeometricDetESModule::~TrackerGeometricDetESModule( void ) {}
+TrackerGeometricDetESModule::~TrackerGeometricDetESModule( ) {}
 
 void
 TrackerGeometricDetESModule::fillDescriptions( edm::ConfigurationDescriptions & descriptions )

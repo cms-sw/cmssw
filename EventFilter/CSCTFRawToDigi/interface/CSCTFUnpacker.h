@@ -42,7 +42,7 @@ public:
 	void produce(edm::Event& e, const edm::EventSetup& c);
 
 	CSCTFUnpacker(const edm::ParameterSet& pset);
-	~CSCTFUnpacker(void);
+	~CSCTFUnpacker();
 };
 
 #endif

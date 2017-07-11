@@ -48,7 +48,7 @@ class GlobalHitsProdHistStripper : public edm::EDAnalyzer
 
   explicit GlobalHitsProdHistStripper(const edm::ParameterSet&);
   virtual ~GlobalHitsProdHistStripper();
-  virtual void beginJob( void );
+  virtual void beginJob( );
   virtual void endJob();  
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
   virtual void beginRun(const edm::Run&, const edm::EventSetup&);

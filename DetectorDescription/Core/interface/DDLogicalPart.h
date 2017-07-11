@@ -95,7 +95,7 @@ class DDLogicalPart : public DDBase<DDName,DDI::LogicalPart*>
 
 public:  
   //! The default constructor provides an uninitialzed reference object. 
-  DDLogicalPart( void ) : DDBase<DDName,DDI::LogicalPart*>(){ }   
+  DDLogicalPart( ) : DDBase<DDName,DDI::LogicalPart*>(){ }   
   
   //! Creates a reference object referring to the appropriate XML specification.
   DDLogicalPart( const DDName & name );
@@ -107,27 +107,27 @@ public:
 		 DDEnums::Category cat = DDEnums::unspecified );
   
   //! Returns the categorization of the DDLogicalPart (sensitive detector element, cable, ...)  
-  DDEnums::Category category( void ) const;
+  DDEnums::Category category( ) const;
   
   //! Returns a reference object of the material this LogicalPart is made of 
-  const DDMaterial & material( void ) const;
+  const DDMaterial & material( ) const;
   
   //! Returns a reference object of the solid being the shape of this LogicalPart 
-  const DDSolid & solid( void ) const; 
+  const DDSolid & solid( ) const; 
   
   //! Weight of the LogicalPart viewed as a component, if cached, else -1
-  double & weight( void );
+  double & weight( );
   
   //! returns the specific-data attached to the LogicalPart only (not to a DDExpandedNode)
-  std::vector<const DDsvalues_type *> specifics( void ) const;
+  std::vector<const DDsvalues_type *> specifics( ) const;
   
   //! returns the merged-specifics, i.e. the last specified specifics of this logical-part
-  DDsvalues_type mergedSpecifics( void ) const;
+  DDsvalues_type mergedSpecifics( ) const;
   
   //! \b don't \b use, internal only /todo make it private
   void addSpecifics( const std::pair<const DDPartSelection*, const DDsvalues_type*> &);
   void removeSpecifics( const std::pair<DDPartSelection*,DDsvalues_type*> &);
-  const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & attachedSpecifics( void ) const;
+  const std::vector< std::pair<const DDPartSelection*, const DDsvalues_type*> > & attachedSpecifics( ) const;
   bool hasDDValue( const DDValue & ) const;
 };
 

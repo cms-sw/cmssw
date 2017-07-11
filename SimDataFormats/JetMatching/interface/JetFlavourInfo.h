@@ -19,7 +19,7 @@ namespace reco
 class JetFlavourInfo
 {
   public:
-    JetFlavourInfo(void) :
+    JetFlavourInfo() :
       m_hadronFlavour(0),
       m_partonFlavour(0) { }
     JetFlavourInfo(const int hadronFlavour, const int partonFlavour) :

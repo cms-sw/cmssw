@@ -18,11 +18,11 @@ class testSphere : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testSphere::matched_g4_and_dd( void )
+testSphere::matched_g4_and_dd( )
 {
   double innerRadius = 10.*cm;
   double outerRadius = 15.*cm;

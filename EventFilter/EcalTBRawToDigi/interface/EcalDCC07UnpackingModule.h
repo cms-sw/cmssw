@@ -38,7 +38,7 @@ class MatacqTBDataFormatter;
     void beginJob();
 
     // EndJob
-    void endJob(void);
+    void endJob();
 
   private:
 

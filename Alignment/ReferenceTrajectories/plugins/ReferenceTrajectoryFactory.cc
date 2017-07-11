@@ -68,7 +68,7 @@ ReferenceTrajectoryFactory::ReferenceTrajectoryFactory(const ReferenceTrajectory
 {
 }
  
-ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory( void )
+ReferenceTrajectoryFactory::~ReferenceTrajectoryFactory( )
 {
   delete theBzeroFactory;
 }

@@ -13,7 +13,7 @@ class FWJobMetadataUpdateRequest;
 class FWLiteJobMetadataManager : public FWJobMetadataManager
 {
 public:
-   FWLiteJobMetadataManager(void);
+   FWLiteJobMetadataManager();
    virtual bool doUpdate(FWJobMetadataUpdateRequest *request);
 
    virtual bool  hasModuleLabel(std::string& moduleLabel);

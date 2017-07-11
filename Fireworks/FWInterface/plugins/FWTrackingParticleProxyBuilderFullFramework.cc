@@ -28,8 +28,8 @@
 class FWTrackingParticleProxyBuilderFullFramework : public FWSimpleProxyBuilderTemplate<TrackingParticle>
 {
 public:
-   FWTrackingParticleProxyBuilderFullFramework( void ):m_assocList(0) {} 
-   virtual ~FWTrackingParticleProxyBuilderFullFramework( void ) {}
+   FWTrackingParticleProxyBuilderFullFramework( ):m_assocList(0) {} 
+   virtual ~FWTrackingParticleProxyBuilderFullFramework( ) {}
 
    // virtual void setItem(const FWEventItem* iItem) override;
 

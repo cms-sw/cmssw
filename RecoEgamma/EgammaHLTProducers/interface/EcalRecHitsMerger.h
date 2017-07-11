@@ -24,8 +24,8 @@ public:
 	EcalRecHitsMerger(const edm::ParameterSet& pset);
 	virtual ~EcalRecHitsMerger();
 	void produce(edm::Event & e, const edm::EventSetup& c) override;
-	void beginJob(void) override;
-	void endJob(void) override;
+	void beginJob() override;
+	void endJob() override;
 	static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:

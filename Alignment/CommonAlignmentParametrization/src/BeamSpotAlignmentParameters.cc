@@ -129,7 +129,7 @@ BeamSpotAlignmentParameters::selectedDerivatives( const TrajectoryStateOnSurface
 }
 
 //__________________________________________________________________________________________________
-AlgebraicVector BeamSpotAlignmentParameters::translation(void) const
+AlgebraicVector BeamSpotAlignmentParameters::translation() const
 { 
   AlgebraicVector shift(3);
   for ( int i=0;i<2;++i ) shift[i] = theData->parameters()[i];
@@ -139,7 +139,7 @@ AlgebraicVector BeamSpotAlignmentParameters::translation(void) const
 }
 
 //__________________________________________________________________________________________________
-AlgebraicVector BeamSpotAlignmentParameters::rotation(void) const
+AlgebraicVector BeamSpotAlignmentParameters::rotation() const
 {
   AlgebraicVector rot(3);
 
@@ -198,7 +198,7 @@ int BeamSpotAlignmentParameters::type() const
 }
 
 //__________________________________________________________________________________________________
-AlgebraicVector BeamSpotAlignmentParameters::globalParameters(void) const
+AlgebraicVector BeamSpotAlignmentParameters::globalParameters() const
 {
   AlgebraicVector m_GlobalParameters(N_PARAM, 0);
 
@@ -222,7 +222,7 @@ AlgebraicVector BeamSpotAlignmentParameters::globalParameters(void) const
 }
 
 //__________________________________________________________________________________________________
-void BeamSpotAlignmentParameters::print(void) const
+void BeamSpotAlignmentParameters::print() const
 {
 
   std::cout << "Contents of BeamSpotAlignmentParameters:"

@@ -24,7 +24,7 @@ public:
     explicit L1TMuonBarrelParamsWriter(const edm::ParameterSet &pset) : edm::EDAnalyzer(){
        isO2Opayload = pset.getUntrackedParameter<bool>("isO2Opayload",  false);
     }
-    virtual ~L1TMuonBarrelParamsWriter(void){}
+    virtual ~L1TMuonBarrelParamsWriter(){}
 };
 
 void L1TMuonBarrelParamsWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup){

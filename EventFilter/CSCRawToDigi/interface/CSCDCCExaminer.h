@@ -164,8 +164,8 @@ public:
 	void setMask(ExaminerMaskType mask) {examinerMask=mask;}
         ExaminerMaskType getMask() const {return examinerMask;}
 
-	ExaminerStatusType errors  (void) const { return bSUM_ERROR;   }
-	ExaminerStatusType warnings(void) const { return bSUM_WARNING; }
+	ExaminerStatusType errors  () const { return bSUM_ERROR;   }
+	ExaminerStatusType warnings() const { return bSUM_WARNING; }
 
 	const char* errName(int num) const { if(num>=0&&num<nERRORS)   return sERROR[num];   else return ""; }
 	const char* wrnName(int num) const { if(num>=0&&num<nWARNINGS) return sWARNING[num]; else return ""; }
@@ -216,19 +216,19 @@ public:
 		std::map<DDUIdType,ExaminerStatusType>::const_iterator item = bDDU_WRN.find(dduSourceID);
 		if( item != bDDU_WRN.end() ) return item->second; else return 0;
 	}
-	std::vector<DDUIdType> listOfDDUs(void) const {
+	std::vector<DDUIdType> listOfDDUs() const {
 		std::vector<DDUIdType> DDUs;
 		std::map<DDUIdType,ExaminerStatusType>::const_iterator item = bDDU_ERR.begin();
 		while( item != bDDU_ERR.end() ){ DDUs.push_back(item->first); item++; }
 		return DDUs;
 	}
 
-	std::map<DDUIdType,ExaminerStatusType> errorsDetailedDDU  (void) const { return bDDU_ERR; }
+	std::map<DDUIdType,ExaminerStatusType> errorsDetailedDDU  () const { return bDDU_ERR; }
 
-	std::map<CSCIdType,ExaminerStatusType> errorsDetailed  (void) const { return bCHAMB_ERR; }
-	std::map<CSCIdType,ExaminerStatusType> warningsDetailed(void) const { return bCHAMB_WRN; }
-	std::map<CSCIdType,ExaminerStatusType> payloadDetailed (void) const { return bCHAMB_PAYLOAD; }
-	std::map<CSCIdType,ExaminerStatusType> statusDetailed  (void) const { return bCHAMB_STATUS; }
+	std::map<CSCIdType,ExaminerStatusType> errorsDetailed  () const { return bCHAMB_ERR; }
+	std::map<CSCIdType,ExaminerStatusType> warningsDetailed() const { return bCHAMB_WRN; }
+	std::map<CSCIdType,ExaminerStatusType> payloadDetailed () const { return bCHAMB_PAYLOAD; }
+	std::map<CSCIdType,ExaminerStatusType> statusDetailed  () const { return bCHAMB_STATUS; }
 
 	
 
@@ -240,19 +240,19 @@ public:
 
         bool isDDUmode() {return modeDDUonly;};
 
-	DDUIdType dduSourceID(void){ return sourceID; }
+	DDUIdType dduSourceID(){ return sourceID; }
 
-	std::map<DDUIdType,const uint16_t*>                  DDU_block(void) const { return dduBuffers; }
-	std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> > DMB_block(void) const { return dmbBuffers; }
+	std::map<DDUIdType,const uint16_t*>                  DDU_block() const { return dduBuffers; }
+	std::map<DDUIdType,std::map<CSCIdType,const uint16_t*> > DMB_block() const { return dmbBuffers; }
 
-	std::map<DDUIdType,uint32_t>                  DDU_ptrOffsets(void) const { return dduOffsets; }
-	std::map<DDUIdType,std::map<CSCIdType,uint32_t> > DMB_ptrOffsets(void) const { return dmbOffsets; }
+	std::map<DDUIdType,uint32_t>                  DDU_ptrOffsets() const { return dduOffsets; }
+	std::map<DDUIdType,std::map<CSCIdType,uint32_t> > DMB_ptrOffsets() const { return dmbOffsets; }
 
-	std::map<DDUIdType,uint32_t>                  DDU_size(void) const { return dduSize; }
-	std::map<DDUIdType,std::map<CSCIdType,uint32_t> > DMB_size(void) const { return dmbSize; }
+	std::map<DDUIdType,uint32_t>                  DDU_size() const { return dduSize; }
+	std::map<DDUIdType,std::map<CSCIdType,uint32_t> > DMB_size() const { return dmbSize; }
 
 	CSCDCCExaminer(ExaminerMaskType mask=0x1); 
-	~CSCDCCExaminer(void){}
+	~CSCDCCExaminer(){}
 };
 
 #endif

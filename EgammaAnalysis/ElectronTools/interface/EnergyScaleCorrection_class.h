@@ -36,7 +36,7 @@ public:
   float phi, phi_err;
   float Emean, Emean_err;
   
-  correctionValue_class(void)
+  correctionValue_class()
   {
     scale = 1;
     scale_err = 0;
@@ -151,7 +151,7 @@ public:
 public:
   EnergyScaleCorrection_class(std::string correctionFileName, unsigned int genSeed=0);
   EnergyScaleCorrection_class(){}; ///< dummy constructor needed in ElectronEnergyCalibratorRun2
-  ~EnergyScaleCorrection_class(void);
+  ~EnergyScaleCorrection_class();
   
 
 //------------------------------ scales

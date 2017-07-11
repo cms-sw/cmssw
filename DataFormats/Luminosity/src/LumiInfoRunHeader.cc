@@ -26,7 +26,7 @@ void LumiInfoRunHeader::setFillingScheme(const std::bitset<LumiConstants::numBX>
 // This function determines the bunch spacing from the filling scheme
 // and sets bunchSpacing_ accordingly.
 
-void LumiInfoRunHeader::setBunchSpacing(void) {
+void LumiInfoRunHeader::setBunchSpacing() {
   int lastFilledBunch = -1;
   int minimumSpacingFound = LumiConstants::numBX;
 

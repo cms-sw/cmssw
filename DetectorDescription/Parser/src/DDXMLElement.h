@@ -58,7 +58,7 @@ public:
    DDXMLElement( DDLElementRegistry* myreg, const bool& clearme );
    
    /// Destructor
-   virtual ~DDXMLElement( void ) = default; // inline
+   virtual ~DDXMLElement( ) = default; // inline
    
    /// Load the element attributes.
    /**
@@ -93,10 +93,10 @@ public:
    const std::string getText( size_t tindex = 0 ) const;
    
    /// gotText()? kind of like gotMilk?  Yes = text has already been encountered.
-   virtual bool gotText( void ) const;
+   virtual bool gotText( ) const;
    
    /// clear this element's contents.
-   virtual void clear( void );
+   virtual void clear( );
    
    /// Access to attributes by name.
    virtual const std::string & getAttribute( const std::string& name ) const;
@@ -119,11 +119,11 @@ public:
    virtual std::vector<std::string> getVectorAttribute( const std::string& name );
    
    /// Number of elements accumulated.
-   virtual size_t size( void ) const;
+   virtual size_t size( ) const;
    
-   virtual std::vector<DDXMLAttribute>::const_iterator begin( void );
+   virtual std::vector<DDXMLAttribute>::const_iterator begin( );
    
-   virtual std::vector<DDXMLAttribute>::const_iterator end( void );
+   virtual std::vector<DDXMLAttribute>::const_iterator end( );
    
    /// Set parent element name to central list of names.
    void setParent( const std::string& pename );
@@ -132,7 +132,7 @@ public:
    void setSelf( const std::string& sename );
    
    /// access to parent element name
-   const std::string& parent( void ) const;
+   const std::string& parent( ) const;
    
    /// Processing the element. 
    /** 
@@ -163,7 +163,7 @@ public:
    std::vector<DDXMLAttribute>::const_iterator& operator++( int inc );
    
    /// Have any elements of this type been encountered but not processed?
-   virtual bool isEmpty( void ) const;
+   virtual bool isEmpty( ) const;
    
    /// format std::string for throw an error.
    void throwError( const std::string& keyMessage ) const;

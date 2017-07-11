@@ -22,7 +22,7 @@ class AlignmentCorrelationsIORoot : public AlignmentIORootBase, public Alignment
   };
 
   /// close IO 
-  int close(void){ return closeRoot(); };
+  int close(){ return closeRoot(); };
 
   /// write correlations 
   int write(const align::Correlations& cor, bool validCheck);
@@ -30,8 +30,8 @@ class AlignmentCorrelationsIORoot : public AlignmentIORootBase, public Alignment
   /// read correlations 
   align::Correlations read(const align::Alignables& alivec, int& ierr);
 
-  void createBranches(void);
-  void setBranchAddresses(void);
+  void createBranches();
+  void setBranchAddresses();
 
   // data members
 

@@ -6,9 +6,9 @@
 class FWRecoGeom
 {
 public:
-  FWRecoGeom( void ) {}
+  FWRecoGeom( ) {}
   
-  virtual ~FWRecoGeom( void ) {}
+  virtual ~FWRecoGeom( ) {}
 
   struct Info
   {

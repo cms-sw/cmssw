@@ -198,7 +198,7 @@ void SiStripMonitorQuality::endRun(edm::Run const& run, edm::EventSetup const& e
 //
 // -- End Job
 //
-void SiStripMonitorQuality::endJob(void){
+void SiStripMonitorQuality::endJob(){
   edm::LogInfo("SiStripMonitorQuality") <<"SiStripMonitorQuality::EndJob: " 
 					  << " Finishing!! ";        
 }

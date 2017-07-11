@@ -95,7 +95,7 @@ std::ostream &operator << (std::ostream& os, const AlignableCSCEndcap& b )
 
 
 /// Recursive printout of whole Half Barrel structure
-void AlignableCSCEndcap::dump( void ) const
+void AlignableCSCEndcap::dump( ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
@@ -107,7 +107,7 @@ void AlignableCSCEndcap::dump( void ) const
 
 //__________________________________________________________________________________________________
 
-Alignments* AlignableCSCEndcap::alignments( void ) const
+Alignments* AlignableCSCEndcap::alignments( ) const
 {
 
   std::vector<Alignable*> comp = this->components();
@@ -130,7 +130,7 @@ Alignments* AlignableCSCEndcap::alignments( void ) const
 
 //__________________________________________________________________________________________________
 
-AlignmentErrorsExtended* AlignableCSCEndcap::alignmentErrors( void ) const
+AlignmentErrorsExtended* AlignableCSCEndcap::alignmentErrors( ) const
 {
 
   std::vector<Alignable*> comp = this->components();

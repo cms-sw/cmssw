@@ -65,45 +65,45 @@ private:
 	friend class CSCTFPacker;
 
 public:
-	bool check(void) const {
+	bool check() const {
 		return header_mark_1!=0x9 || header_mark_2!=0x9 || header_mark_3!=0x9 || header_mark_4!=0x9
 			|| header_mark_5!=0xA || header_mark_6!=0xA || header_mark_7!=0xA || header_mark_8!=0xA
 			|| zero_1!=0 || zero_2!=0 || zero_3!=0;
 	}
 
-	unsigned int BXN(void) const throw() { return  sp_bxn; }
-	unsigned int L1A(void) const throw() { return (sp_l1a_high<<12)|sp_l1a_low; }
+	unsigned int BXN() const throw() { return  sp_bxn; }
+	unsigned int L1A() const throw() { return (sp_l1a_high<<12)|sp_l1a_low; }
 
-	unsigned int slot  (void) const throw() { return sp_slot_number; }
-	unsigned int trigger_sector(void) const throw() { return sp_trigger_sector; }
+	unsigned int slot  () const throw() { return sp_slot_number; }
+	unsigned int trigger_sector() const throw() { return sp_trigger_sector; }
 	// following two functions are kept for compatibility with earlier versions of TF data format:
-	unsigned int sector(void) const throw() {
+	unsigned int sector() const throw() {
 		if(sp_ersv<2) return sp_trigger_sector&0x7;
 		else return (sp_trigger_sector<=6?sp_trigger_sector:sp_trigger_sector-6);
 	}
-	unsigned int endcap(void) const throw() {
+	unsigned int endcap() const throw() {
 		if(sp_ersv<2) return sp_trigger_sector&0x8;
 		else return (sp_trigger_sector<=6?1:0);
 	}
 
 	enum FMM {WOF=1,OSY=2,BUZY=4,READY=8,FA_OSY=16,SP_OSY=32};
-	unsigned int status(void) const throw() { return fmm_status; }
+	unsigned int status() const throw() { return fmm_status; }
 
-	unsigned int nTBINs(void) const throw() { return csr_dfc&0x7; }
+	unsigned int nTBINs() const throw() { return csr_dfc&0x7; }
 
-	bool suppression(void) const throw() { return csr_dfc&0x8; }
+	bool suppression() const throw() { return csr_dfc&0x8; }
 
 	enum ACTIVE {F1=1,F2=2,F3=4,F4=8,F5=16,DT=32,SP=64};
-	unsigned int active(void) const throw() { return csr_dfc>>4; }
+	unsigned int active() const throw() { return csr_dfc>>4; }
 
-	bool empty(void) const throw() { return skip; }
+	bool empty() const throw() { return skip; }
 
-	int  format_version(void) const throw() { return sp_ersv; }
-	bool ddu_readout   (void) const throw() { return ddm; }
+	int  format_version() const throw() { return sp_ersv; }
+	bool ddu_readout   () const throw() { return ddm; }
 
 	bool unpack(const unsigned short *&buf) throw() { memcpy((void*)this,buf,8*sizeof(short)); buf+=8; return check(); }
 
-	CSCSPHeader(void){}
+	CSCSPHeader(){}
 };
 
 #endif

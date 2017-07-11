@@ -36,7 +36,7 @@ TrackerAlignment::TrackerAlignment( const edm::EventSetup& setup ):
 
 //__________________________________________________________________
 //
-TrackerAlignment::~TrackerAlignment( void )
+TrackerAlignment::~TrackerAlignment( )
 {
 
   delete theAlignableTracker;
@@ -263,7 +263,7 @@ void TrackerAlignment::moveAlignableTIBTIDs( int rawId, const align::Scalars& gl
 
 //__________________________________________________________________
 //
-void TrackerAlignment::saveToDB(void){
+void TrackerAlignment::saveToDB(){
 	
   // Output POOL-ORA objects
   edm::Service<cond::service::PoolDBOutputService> poolDbService;

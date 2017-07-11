@@ -189,7 +189,7 @@ DummyBookFillDQMStoreMultiThread::DummyBookFillDQMStoreMultiThread(const edm::Pa
   // TODO(rovere): assert on multiple book conditions
 }
 
-void DummyBookFillDQMStoreMultiThread::fillerDispose(void) {
+void DummyBookFillDQMStoreMultiThread::fillerDispose() {
   std::cout << "fillerDispose" << std::endl;
   m_runFillers.erase(m_runFillers.begin(), m_runFillers.end());
   m_lumiFillers.erase(m_lumiFillers.begin(), m_lumiFillers.end());

@@ -11,7 +11,7 @@ typedef CaloCellGeometry::Pt3D     Pt3D     ;
 typedef CaloCellGeometry::Pt3DVec  Pt3DVec  ;
 typedef HepGeom::Plane3D<CCGFloat> Pl3D     ;
 
-EcalEndcapGeometry::EcalEndcapGeometry( void )
+EcalEndcapGeometry::EcalEndcapGeometry( )
   : _nnmods( 316 ),
     _nncrys( 25 ),
     zeP( 0. ),

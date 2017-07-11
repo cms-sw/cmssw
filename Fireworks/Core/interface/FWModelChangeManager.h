@@ -52,7 +52,7 @@ public:
    sigc::signal<void> changeSignalsAreDone_;
 
    void newItemSlot(FWEventItem*);
-   void itemsGoingToBeClearedSlot(void);
+   void itemsGoingToBeClearedSlot();
 
 private:
    FWModelChangeManager(const FWModelChangeManager&);    // stop default

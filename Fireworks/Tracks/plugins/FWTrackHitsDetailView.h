@@ -42,7 +42,7 @@ private:
    void build (const FWModelId &id, const reco::Track*);
    using FWDetailView<reco::Track>::setTextInfo;
    void setTextInfo (const FWModelId &id, const reco::Track*); 
-   void makeLegend( void );
+   void makeLegend( );
 
    void
    addTrackerHits3D( std::vector<TVector3> &points,

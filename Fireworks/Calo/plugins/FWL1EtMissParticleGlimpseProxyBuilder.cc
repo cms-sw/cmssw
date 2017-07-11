@@ -14,8 +14,8 @@
 class FWL1EtMissParticleGlimpseProxyBuilder : public FWSimpleProxyBuilderTemplate<l1extra::L1EtMissParticle>
 {
 public:
-   FWL1EtMissParticleGlimpseProxyBuilder( void ) {}
-   virtual ~FWL1EtMissParticleGlimpseProxyBuilder( void ) {}
+   FWL1EtMissParticleGlimpseProxyBuilder( ) {}
+   virtual ~FWL1EtMissParticleGlimpseProxyBuilder( ) {}
    
    REGISTER_PROXYBUILDER_METHODS();
    

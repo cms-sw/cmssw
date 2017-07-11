@@ -25,16 +25,16 @@ public:
   typedef PerigeeLinearizedTrackState::RefCountedLinearizedTrackState RefCountedLinearizedTrackState;
 
   TwoBodyDecayEstimator( const edm::ParameterSet & config );
-  virtual ~TwoBodyDecayEstimator( void ) {}
+  virtual ~TwoBodyDecayEstimator( ) {}
 
   virtual TwoBodyDecay estimate( const std::vector< RefCountedLinearizedTrackState > & linTracks,
 				 const TwoBodyDecayParameters & linearizationPoint,
 				 const TwoBodyDecayVirtualMeasurement & vm ) const;
 
-  inline int ndf( void ) const { return theNdf; }
-  inline const AlgebraicVector& pulls( void ) const { return thePulls; }
+  inline int ndf( ) const { return theNdf; }
+  inline const AlgebraicVector& pulls( ) const { return thePulls; }
 
-  virtual TwoBodyDecayEstimator* clone( void ) const { return new TwoBodyDecayEstimator( *this ); }
+  virtual TwoBodyDecayEstimator* clone( ) const { return new TwoBodyDecayEstimator( *this ); }
 
 protected:
 

@@ -69,7 +69,7 @@ namespace pos{
     void setAnalogOutputGain(unsigned char analogOutputGain) {analogOutputGain_=analogOutputGain;}
     
     // Added by Dario (Apr 2008)
-    bool getMode(void)      const {return singlemode_;}
+    bool getMode()      const {return singlemode_;}
     void setMode(bool mode) {singlemode_ = mode;}
     PixelROCName const& getROCName() const { return rocid_;}
     void setROCName(std::string rocname){

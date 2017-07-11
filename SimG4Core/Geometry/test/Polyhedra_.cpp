@@ -18,11 +18,11 @@ class testPolyhedra : public CppUnit::TestFixture
   
 public:
   
-  void matched_g4_and_dd( void );
+  void matched_g4_and_dd( );
 };
 
 void
-testPolyhedra::matched_g4_and_dd( void )
+testPolyhedra::matched_g4_and_dd( )
 {
   int sides = 3;
   double phiStart = 45.*deg;

@@ -15,7 +15,7 @@ class HcalGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalGeometryAnalyzer( const edm::ParameterSet& );
-  ~HcalGeometryAnalyzer( void );
+  ~HcalGeometryAnalyzer( );
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -32,7 +32,7 @@ HcalGeometryAnalyzer::HcalGeometryAnalyzer( const edm::ParameterSet& iConfig ) :
   geomDB_ = iConfig.getParameter<bool>("GeometryFromDB");
 }
 
-HcalGeometryAnalyzer::~HcalGeometryAnalyzer( void ) {}
+HcalGeometryAnalyzer::~HcalGeometryAnalyzer( ) {}
 
 void
 HcalGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& iSetup ) {

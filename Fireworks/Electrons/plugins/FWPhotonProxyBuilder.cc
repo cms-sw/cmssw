@@ -25,11 +25,11 @@
 class FWPhotonProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::Photon> 
 {
 public:
-   FWPhotonProxyBuilder( void ) {}
+   FWPhotonProxyBuilder( ) {}
 
-   virtual ~FWPhotonProxyBuilder( void ) {}
+   virtual ~FWPhotonProxyBuilder( ) {}
   
-   virtual bool haveSingleProduct( void ) const override { return false; }
+   virtual bool haveSingleProduct( ) const override { return false; }
   
    REGISTER_PROXYBUILDER_METHODS();
 

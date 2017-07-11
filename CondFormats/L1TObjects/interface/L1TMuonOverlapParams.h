@@ -43,7 +43,7 @@ class L1TMuonOverlapParams {
     ///I.e both layers have to fire to account a hit
     unsigned int connectedToLayer;
 
-    LayerMapNode(void):hwNumber(0),logicNumber(0),bendingLayer(0),connectedToLayer(0){}
+    LayerMapNode():hwNumber(0),logicNumber(0),bendingLayer(0),connectedToLayer(0){}
 
     COND_SERIALIZABLE;
   };
@@ -59,7 +59,7 @@ class L1TMuonOverlapParams {
     ///Corresponding logical layer number
     unsigned int logicNumber; 
 
-    RefLayerMapNode(void):refLayer(0),logicNumber(0){}
+    RefLayerMapNode():refLayer(0),logicNumber(0){}
 
     COND_SERIALIZABLE;
   };
@@ -75,7 +75,7 @@ class L1TMuonOverlapParams {
     unsigned int iRefLayer;
     unsigned int iRegion;
 
-    RefHitNode(void):iInput(0),iPhiMin(0),iPhiMax(0),iRefHit(0),iRefLayer(0),iRegion(0){}
+    RefHitNode():iInput(0),iPhiMin(0),iPhiMax(0),iRefHit(0),iRefLayer(0),iRegion(0){}
 
     COND_SERIALIZABLE;
   };
@@ -88,7 +88,7 @@ class L1TMuonOverlapParams {
     unsigned int iLayer;
     unsigned int nInputs;
 
-    LayerInputNode(void):iFirstInput(0),iLayer(0),nInputs(0){}
+    LayerInputNode():iFirstInput(0),iLayer(0),nInputs(0){}
 
     COND_SERIALIZABLE;
   };

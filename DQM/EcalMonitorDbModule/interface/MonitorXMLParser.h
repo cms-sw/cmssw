@@ -172,7 +172,7 @@ public:
 
   ~MonitorXMLParser() throw();
 
-  const std::vector< DB_ME > & getDB_ME( void ) const { return (DBMonitoringElements_ ); }
+  const std::vector< DB_ME > & getDB_ME( ) const { return (DBMonitoringElements_ ); }
 
   void load() noexcept(false);
 

@@ -1,8 +1,8 @@
 #include "Fireworks/Geometry/interface/FWTGeoRecoGeometry.h"
 
-FWTGeoRecoGeometry::FWTGeoRecoGeometry (void)
+FWTGeoRecoGeometry::FWTGeoRecoGeometry ()
   : m_manager( 0 )
 {}
 
-FWTGeoRecoGeometry::~FWTGeoRecoGeometry( void ) 
+FWTGeoRecoGeometry::~FWTGeoRecoGeometry( ) 
 {}

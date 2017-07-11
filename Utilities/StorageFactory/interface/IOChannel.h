@@ -10,7 +10,7 @@ class IOChannel : public virtual IOInput, public virtual IOOutput
 {
 public:
   IOChannel (IOFD fd = EDM_IOFD_INVALID);
-  virtual ~IOChannel (void);
+  virtual ~IOChannel ();
   // implicit copy constructor
   // implicit assignment operator
 
@@ -23,13 +23,13 @@ public:
   virtual IOSize	write (const void *from, IOSize n);
   virtual IOSize	writev (const IOBuffer *from, IOSize buffers);
 
-  virtual IOFD		fd (void) const;
+  virtual IOFD		fd () const;
   virtual void		fd (IOFD value); // FIXME: dangerous?
 
-  virtual void		close (void);
+  virtual void		close ();
 
   virtual void		setBlocking (bool value);
-  virtual bool		isBlocking (void) const;
+  virtual bool		isBlocking () const;
 
 protected:
   // System implementation

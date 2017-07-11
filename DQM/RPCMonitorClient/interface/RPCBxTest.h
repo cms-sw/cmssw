@@ -36,7 +36,7 @@ public:
   /// End Lumi Block
   void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
   
-  virtual void  endJob(void);
+  virtual void  endJob();
 
   virtual void  endRun(const edm::Run& r, const edm::EventSetup& c);
 

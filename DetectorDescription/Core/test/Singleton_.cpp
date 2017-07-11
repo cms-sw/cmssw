@@ -6,7 +6,7 @@
 class Dummy
 {
 public:
-  Dummy( void )
+  Dummy( )
     : value( 100. )
     {}
   
@@ -24,12 +24,12 @@ class testSingleton : public CppUnit::TestFixture
   
 public:
 
-  void setUp( void ) 
+  void setUp( ) 
     {
       m_s = &DDI::Singleton<Dummy>::instance();
     }
   
-  void testEquality( void );
+  void testEquality( );
 
 private:
   
@@ -38,7 +38,7 @@ private:
 };
 
 void
-testSingleton::testEquality( void )
+testSingleton::testEquality( )
 {
   m_s = &DDI::Singleton<Dummy>::instance();
   m_copy = &DDI::Singleton<Dummy>::instance();

@@ -10,7 +10,7 @@ class FWCaloRecHitDigitSetProxyBuilder : public FWDigitSetProxyBuilder
 {
 public:
    FWCaloRecHitDigitSetProxyBuilder();
-   virtual ~FWCaloRecHitDigitSetProxyBuilder( void ) {}
+   virtual ~FWCaloRecHitDigitSetProxyBuilder( ) {}
 
    virtual void    setItem(const FWEventItem* iItem);
 

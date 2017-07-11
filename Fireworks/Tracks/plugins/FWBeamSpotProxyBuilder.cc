@@ -15,8 +15,8 @@
 class FWBeamSpotProxyBuilder : public FWSimpleProxyBuilderTemplate<reco::BeamSpot>
 {
 public:
-  FWBeamSpotProxyBuilder( void ) {}
-  virtual ~FWBeamSpotProxyBuilder( void ) {}
+  FWBeamSpotProxyBuilder( ) {}
+  virtual ~FWBeamSpotProxyBuilder( ) {}
    
   REGISTER_PROXYBUILDER_METHODS();
 

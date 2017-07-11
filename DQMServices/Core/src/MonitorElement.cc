@@ -148,7 +148,7 @@ MonitorElement::initialise(Kind kind, const std::string &value)
   return this;
 }
 
-MonitorElement::MonitorElement(void)
+MonitorElement::MonitorElement()
   : object_(0),
     reference_(0),
     refvalue_(0)
@@ -217,7 +217,7 @@ MonitorElement::MonitorElement(MonitorElement &&o)
   o.refvalue_ = nullptr;
 }
 
-MonitorElement::~MonitorElement(void)
+MonitorElement::~MonitorElement()
 {
   delete object_;
   delete refvalue_;
@@ -454,7 +454,7 @@ MonitorElement::Fill(double x, double y, double z, double w)
 
 /// reset ME (ie. contents, errors, etc)
 void
-MonitorElement::Reset(void)
+MonitorElement::Reset()
 {
   update();
   if (kind() == DQM_KIND_INT)
@@ -503,7 +503,7 @@ MonitorElement::packQualityData(std::string &into) const
 /// returns value of ME in string format (eg. "f = 3.14151926" for double numbers);
 /// relevant only for scalar or string MEs
 std::string
-MonitorElement::valueString(void) const
+MonitorElement::valueString() const
 {
   std::string result;
   if (kind() == DQM_KIND_INT)
@@ -522,7 +522,7 @@ MonitorElement::valueString(void) const
 /// (eg. <name>f=3.14151926</name> for double numbers);
 /// relevant only for sending scalar or string MEs over TSocket
 std::string
-MonitorElement::tagString(void) const
+MonitorElement::tagString() const
 {
   std::string result;
   std::string val(valueString());
@@ -535,7 +535,7 @@ MonitorElement::tagString(void) const
 
 /// return label string for the monitor element tag (eg. <name>t=12345</name>)
 std::string
-MonitorElement::tagLabelString(void) const
+MonitorElement::tagLabelString() const
 {
   char buf[32];
   std::string result;
@@ -550,7 +550,7 @@ MonitorElement::tagLabelString(void) const
 
 /// return label string for the monitor element tag (eg. <name>t=12345</name>)
 std::string
-MonitorElement::effLabelString(void) const
+MonitorElement::effLabelString() const
 {
   std::string result;
 
@@ -586,7 +586,7 @@ MonitorElement::getQReport(const std::string &qtname) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQReports(void) const
+MonitorElement::getQReports() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -600,7 +600,7 @@ MonitorElement::getQReports(void) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQWarnings(void) const
+MonitorElement::getQWarnings() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -615,7 +615,7 @@ MonitorElement::getQWarnings(void) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQErrors(void) const
+MonitorElement::getQErrors() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -630,7 +630,7 @@ MonitorElement::getQErrors(void) const
 }
 
 std::vector<QReport *>
-MonitorElement::getQOthers(void) const
+MonitorElement::getQOthers() const
 {
   std::vector<QReport *> result;
   result.reserve(qreports_.size());
@@ -648,7 +648,7 @@ MonitorElement::getQOthers(void) const
 
 /// run all quality tests
 void
-MonitorElement::runQTests(void)
+MonitorElement::runQTests()
 {
   assert(qreports_.size() == data_.qreports.size());
 
@@ -726,19 +726,19 @@ MonitorElement::getRMSError(int axis /* = 1 */) const
 
 /// get # of bins in X-axis
 int
-MonitorElement::getNbinsX(void) const
+MonitorElement::getNbinsX() const
 { return accessRootObject(__PRETTY_FUNCTION__, 1)
     ->GetNbinsX(); }
 
 /// get # of bins in Y-axis
 int
-MonitorElement::getNbinsY(void) const
+MonitorElement::getNbinsY() const
 { return accessRootObject(__PRETTY_FUNCTION__, 2)
     ->GetNbinsY(); }
 
 /// get # of bins in Z-axis
 int
-MonitorElement::getNbinsZ(void) const
+MonitorElement::getNbinsZ() const
 { return accessRootObject(__PRETTY_FUNCTION__, 3)
     ->GetNbinsZ(); }
 
@@ -780,7 +780,7 @@ MonitorElement::getBinError(int binx, int biny, int binz) const
 
 /// get # of entries
 double
-MonitorElement::getEntries(void) const
+MonitorElement::getEntries() const
 { return accessRootObject(__PRETTY_FUNCTION__, 1)
     ->GetEntries(); }
 
@@ -803,7 +803,7 @@ MonitorElement::getBinEntries(int bin) const
 
 /// get min Y value (for profiles)
 double
-MonitorElement::getYmin(void) const
+MonitorElement::getYmin() const
 {
   if (kind() == DQM_KIND_TPROFILE)
     return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))
@@ -817,7 +817,7 @@ MonitorElement::getYmin(void) const
 
 /// get max Y value (for profiles)
 double
-MonitorElement::getYmax(void) const
+MonitorElement::getYmax() const
 {
   if (kind() == DQM_KIND_TPROFILE)
     return static_cast<TProfile *>(accessRootObject(__PRETTY_FUNCTION__, 1))
@@ -837,7 +837,7 @@ MonitorElement::getAxisTitle(int axis /* = 1 */) const
 
 /// get MonitorElement title
 std::string
-MonitorElement::getTitle(void) const
+MonitorElement::getTitle() const
 { return accessRootObject(__PRETTY_FUNCTION__, 1)
     ->GetTitle(); }
 
@@ -1020,7 +1020,7 @@ MonitorElement::getAxis(const char *func, int axis) const
 /// reset contents (does not erase contents permanently)
 /// (makes copy of current contents; will be subtracted from future contents)
 void
-MonitorElement::softReset(void)
+MonitorElement::softReset()
 {
   update();
 
@@ -1160,7 +1160,7 @@ MonitorElement::softReset(void)
 
 /// reverts action of softReset
 void
-MonitorElement::disableSoftReset(void)
+MonitorElement::disableSoftReset()
 {
   if (refvalue_)
   {
@@ -1426,7 +1426,7 @@ MonitorElement::addQReport(QCriterion *qc)
 
 /// Refresh QReport stats, usually after MEs were read in from a file.
 void
-MonitorElement::updateQReportStats(void)
+MonitorElement::updateQReportStats()
 {
   data_.flags &= ~DQMNet::DQM_PROP_REPORT_ALARM;
   for (size_t i = 0, e = data_.qreports.size(); i < e; ++i)
@@ -1448,21 +1448,21 @@ MonitorElement::updateQReportStats(void)
 
 // -------------------------------------------------------------------
 TObject *
-MonitorElement::getRootObject(void) const
+MonitorElement::getRootObject() const
 {
   const_cast<MonitorElement *>(this)->update();
   return object_;
 }
 
 TH1 *
-MonitorElement::getTH1(void) const
+MonitorElement::getTH1() const
 {
   const_cast<MonitorElement *>(this)->update();
   return accessRootObject(__PRETTY_FUNCTION__, 0);
 }
 
 TH1F *
-MonitorElement::getTH1F(void) const
+MonitorElement::getTH1F() const
 {
   assert(kind() == DQM_KIND_TH1F);
   const_cast<MonitorElement *>(this)->update();
@@ -1470,7 +1470,7 @@ MonitorElement::getTH1F(void) const
 }
 
 TH1S *
-MonitorElement::getTH1S(void) const
+MonitorElement::getTH1S() const
 {
   assert(kind() == DQM_KIND_TH1S);
   const_cast<MonitorElement *>(this)->update();
@@ -1478,7 +1478,7 @@ MonitorElement::getTH1S(void) const
 }
 
 TH1D *
-MonitorElement::getTH1D(void) const
+MonitorElement::getTH1D() const
 {
   assert(kind() == DQM_KIND_TH1D);
   const_cast<MonitorElement *>(this)->update();
@@ -1486,7 +1486,7 @@ MonitorElement::getTH1D(void) const
 }
 
 TH2F *
-MonitorElement::getTH2F(void) const
+MonitorElement::getTH2F() const
 {
   assert(kind() == DQM_KIND_TH2F);
   const_cast<MonitorElement *>(this)->update();
@@ -1494,7 +1494,7 @@ MonitorElement::getTH2F(void) const
 }
 
 TH2S *
-MonitorElement::getTH2S(void) const
+MonitorElement::getTH2S() const
 {
   assert(kind() == DQM_KIND_TH2S);
   const_cast<MonitorElement *>(this)->update();
@@ -1502,7 +1502,7 @@ MonitorElement::getTH2S(void) const
 }
 
 TH2D *
-MonitorElement::getTH2D(void) const
+MonitorElement::getTH2D() const
 {
   assert(kind() == DQM_KIND_TH2D);
   const_cast<MonitorElement *>(this)->update();
@@ -1510,7 +1510,7 @@ MonitorElement::getTH2D(void) const
 }
 
 TH3F *
-MonitorElement::getTH3F(void) const
+MonitorElement::getTH3F() const
 {
   assert(kind() == DQM_KIND_TH3F);
   const_cast<MonitorElement *>(this)->update();
@@ -1518,7 +1518,7 @@ MonitorElement::getTH3F(void) const
 }
 
 TProfile *
-MonitorElement::getTProfile(void) const
+MonitorElement::getTProfile() const
 {
   assert(kind() == DQM_KIND_TPROFILE);
   const_cast<MonitorElement *>(this)->update();
@@ -1526,7 +1526,7 @@ MonitorElement::getTProfile(void) const
 }
 
 TProfile2D *
-MonitorElement::getTProfile2D(void) const
+MonitorElement::getTProfile2D() const
 {
   assert(kind() == DQM_KIND_TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();
@@ -1535,21 +1535,21 @@ MonitorElement::getTProfile2D(void) const
 
 // -------------------------------------------------------------------
 TObject *
-MonitorElement::getRefRootObject(void) const
+MonitorElement::getRefRootObject() const
 {
   const_cast<MonitorElement *>(this)->update();
   return reference_;
 }
 
 TH1 *
-MonitorElement::getRefTH1(void) const
+MonitorElement::getRefTH1() const
 {
   const_cast<MonitorElement *>(this)->update();
   return checkRootObject(data_.objname, reference_, __PRETTY_FUNCTION__, 0);
 }
 
 TH1F *
-MonitorElement::getRefTH1F(void) const
+MonitorElement::getRefTH1F() const
 {
   assert(kind() == DQM_KIND_TH1F);
   const_cast<MonitorElement *>(this)->update();
@@ -1558,7 +1558,7 @@ MonitorElement::getRefTH1F(void) const
 }
 
 TH1S *
-MonitorElement::getRefTH1S(void) const
+MonitorElement::getRefTH1S() const
 {
   assert(kind() == DQM_KIND_TH1S);
   const_cast<MonitorElement *>(this)->update();
@@ -1567,7 +1567,7 @@ MonitorElement::getRefTH1S(void) const
 }
 
 TH1D *
-MonitorElement::getRefTH1D(void) const
+MonitorElement::getRefTH1D() const
 {
   assert(kind() == DQM_KIND_TH1D);
   const_cast<MonitorElement *>(this)->update();
@@ -1576,7 +1576,7 @@ MonitorElement::getRefTH1D(void) const
 }
 
 TH2F *
-MonitorElement::getRefTH2F(void) const
+MonitorElement::getRefTH2F() const
 {
   assert(kind() == DQM_KIND_TH2F);
   const_cast<MonitorElement *>(this)->update();
@@ -1585,7 +1585,7 @@ MonitorElement::getRefTH2F(void) const
 }
 
 TH2S *
-MonitorElement::getRefTH2S(void) const
+MonitorElement::getRefTH2S() const
 {
   assert(kind() == DQM_KIND_TH2S);
   const_cast<MonitorElement *>(this)->update();
@@ -1594,7 +1594,7 @@ MonitorElement::getRefTH2S(void) const
 }
 
 TH2D *
-MonitorElement::getRefTH2D(void) const
+MonitorElement::getRefTH2D() const
 {
   assert(kind() == DQM_KIND_TH2D);
   const_cast<MonitorElement *>(this)->update();
@@ -1603,7 +1603,7 @@ MonitorElement::getRefTH2D(void) const
 }
 
 TH3F *
-MonitorElement::getRefTH3F(void) const
+MonitorElement::getRefTH3F() const
 {
   assert(kind() == DQM_KIND_TH3F);
   const_cast<MonitorElement *>(this)->update();
@@ -1612,7 +1612,7 @@ MonitorElement::getRefTH3F(void) const
 }
 
 TProfile *
-MonitorElement::getRefTProfile(void) const
+MonitorElement::getRefTProfile() const
 {
   assert(kind() == DQM_KIND_TPROFILE);
   const_cast<MonitorElement *>(this)->update();
@@ -1621,7 +1621,7 @@ MonitorElement::getRefTProfile(void) const
 }
 
 TProfile2D *
-MonitorElement::getRefTProfile2D(void) const
+MonitorElement::getRefTProfile2D() const
 {
   assert(kind() == DQM_KIND_TPROFILE2D);
   const_cast<MonitorElement *>(this)->update();

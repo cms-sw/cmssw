@@ -586,7 +586,7 @@ RecHitVector MuonAlignment::doMatching(const reco::Track &staTrack, edm::Handle<
 
 
 
-void MuonAlignment::endJob(void) {
+void MuonAlignment::endJob() {
 
 
     LogTrace(metname)<<"[MuonAlignment] Saving the histos";

@@ -44,7 +44,7 @@ template <typename IndexType, typename DigiType>
     typedef typename DigiRangeIterator::difference_type     difference_type;
     typedef typename DigiRangeIterator::iterator_category   iterator_category;
 
-    DigiContainerIterator (void) {}
+    DigiContainerIterator () {}
     DigiContainerIterator (BaseIterator i) : base_ (i) {}
     // implicit copy constructor
     // implicit assignment operator
@@ -53,7 +53,7 @@ template <typename IndexType, typename DigiType>
     DigiContainerIterator operator++ (int)
     { return DigiContainerIterator (base_++); }
     
-    DigiContainerIterator &operator++ (void)
+    DigiContainerIterator &operator++ ()
     { ++base_; return *this; }
 
     bool operator== (const DigiContainerIterator &x)
@@ -62,7 +62,7 @@ template <typename IndexType, typename DigiType>
     bool operator!= (const DigiContainerIterator &x)
     { return x.base_ != base_; }
 
-    value_type operator* (void) const
+    value_type operator* () const
     {
       return std::make_pair(base_->first,
 			    std::make_pair(base_->second.begin(), 

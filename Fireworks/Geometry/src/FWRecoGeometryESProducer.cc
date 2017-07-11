@@ -93,7 +93,7 @@ FWRecoGeometryESProducer::FWRecoGeometryESProducer( const edm::ParameterSet& pse
   setWhatProduced( this );
 }
 
-FWRecoGeometryESProducer::~FWRecoGeometryESProducer( void )
+FWRecoGeometryESProducer::~FWRecoGeometryESProducer( )
 {}
 
 std::shared_ptr<FWRecoGeometry> 
@@ -146,7 +146,7 @@ FWRecoGeometryESProducer::produce( const FWRecoGeometryRecord& record )
 }
 
 void
-FWRecoGeometryESProducer::addCSCGeometry( void )
+FWRecoGeometryESProducer::addCSCGeometry( )
 {
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -194,7 +194,7 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addDTGeometry( void )
+FWRecoGeometryESProducer::addDTGeometry( )
 {
   DetId detId( DetId::Muon, 1 );
   const DTGeometry* dtGeometry = (const DTGeometry*) m_geomRecord->slaveGeometry( detId );
@@ -248,7 +248,7 @@ FWRecoGeometryESProducer::addDTGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addRPCGeometry( void )
+FWRecoGeometryESProducer::addRPCGeometry( )
 {
   //
   // RPC rolls geometry
@@ -285,7 +285,7 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addGEMGeometry( void )
+FWRecoGeometryESProducer::addGEMGeometry( )
 {
   //
   // GEM geometry
@@ -357,7 +357,7 @@ FWRecoGeometryESProducer::addGEMGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addME0Geometry( void )
+FWRecoGeometryESProducer::addME0Geometry( )
 {
   //                                                                                                                               
   // ME0 geometry                                                                                                                  
@@ -397,7 +397,7 @@ FWRecoGeometryESProducer::addME0Geometry( void )
 }  
 
 void
-FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
+FWRecoGeometryESProducer::addPixelBarrelGeometry( )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
 						    end = m_trackerGeom->detsPXB().end();
@@ -418,7 +418,7 @@ FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addPixelForwardGeometry( void )
+FWRecoGeometryESProducer::addPixelForwardGeometry( )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
 						    end = m_trackerGeom->detsPXF().end();
@@ -439,7 +439,7 @@ FWRecoGeometryESProducer::addPixelForwardGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addTIBGeometry( void )
+FWRecoGeometryESProducer::addTIBGeometry( )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
 						    end = m_trackerGeom->detsTIB().end();
@@ -460,7 +460,7 @@ FWRecoGeometryESProducer::addTIBGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addTOBGeometry( void )
+FWRecoGeometryESProducer::addTOBGeometry( )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
 						    end = m_trackerGeom->detsTOB().end();
@@ -481,7 +481,7 @@ FWRecoGeometryESProducer::addTOBGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addTIDGeometry( void )
+FWRecoGeometryESProducer::addTIDGeometry( )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
 						    end = m_trackerGeom->detsTID().end();
@@ -502,7 +502,7 @@ FWRecoGeometryESProducer::addTIDGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addTECGeometry( void )
+FWRecoGeometryESProducer::addTECGeometry( )
 {
   for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
 						    end = m_trackerGeom->detsTEC().end();
@@ -523,7 +523,7 @@ FWRecoGeometryESProducer::addTECGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addCaloGeometry( void )
+FWRecoGeometryESProducer::addCaloGeometry( )
 {
   std::vector<DetId> vid = std::move(m_caloGeom->getValidDetIds()); // Calo
   for( std::vector<DetId>::const_iterator it = vid.begin(),
@@ -542,7 +542,7 @@ FWRecoGeometryESProducer::addCaloGeometry( void )
 }
 
 void
-FWRecoGeometryESProducer::addFTLGeometry( void )
+FWRecoGeometryESProducer::addFTLGeometry( )
 {
   // do the barrel
   std::vector<DetId> vid = std::move(m_ftlBarrelGeom->getValidDetIds()); 

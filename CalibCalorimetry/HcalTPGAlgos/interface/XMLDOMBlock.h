@@ -51,10 +51,10 @@ class XMLDOMBlock
   XMLDOMBlock( XERCES_CPP_NAMESPACE::InputSource & _source );
   XMLDOMBlock( std::string _root, int rootElementName ); // create XML from scratch, second parameter is a dummy
 
-  XERCES_CPP_NAMESPACE::DOMDocument * getDocument( void );
-  XERCES_CPP_NAMESPACE::DOMDocument * getDocumentConst( void ) const;
+  XERCES_CPP_NAMESPACE::DOMDocument * getDocument( );
+  XERCES_CPP_NAMESPACE::DOMDocument * getDocumentConst( ) const;
   XERCES_CPP_NAMESPACE::DOMDocument * getNewDocument( std::string xmlFileName );
-  std::string & getString( void );
+  std::string & getString( );
   std::string & getString( XERCES_CPP_NAMESPACE::DOMNode * _node );
   int write( std::string target = "stdout" );
   virtual ~XMLDOMBlock();

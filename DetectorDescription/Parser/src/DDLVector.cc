@@ -149,13 +149,13 @@ DDLVector::processElement( const std::string& name, const std::string& nmspace, 
 }
 
 ReadMapType< std::vector<double> > &
-DDLVector::getMapOfVectors( void ) 
+DDLVector::getMapOfVectors( ) 
 {
   return pVecMap;
 }
 
 ReadMapType< std::vector<std::string> > &
-DDLVector::getMapOfStrVectors( void )
+DDLVector::getMapOfStrVectors( )
 {
   return pStrVecMap;
 }
@@ -185,7 +185,7 @@ DDLVector::errorOut( const char* str ) const
 }
 
 void
-DDLVector::clearall( void )
+DDLVector::clearall( )
 {
   DDXMLElement::clear();
   pVecMap.clear();
