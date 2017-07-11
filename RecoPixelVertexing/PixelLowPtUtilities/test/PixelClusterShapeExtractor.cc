@@ -168,8 +168,9 @@ bool PixelClusterShapeExtractor::isSuitable(const PSimHit & simHit, const GeomDe
                       GlobalPoint(0,0,0);
   LocalVector  lvec = gdu.toLocal(gvec);
   LocalVector  ldir = simHit.exitPoint() - simHit.entryPoint();
-
-  bool isOutgoing = (lvec.z()*ldir.z() > 0); 
+  
+  // cut on size as well (pixel is 285um thick...
+  bool isOutgoing = std::abs(ldir.z())>0.01f && (lvec.z()*ldir.z() > 0); 
 
     ///  ?????
   const bool isRelevant = RelevantProcesses.count(simHit.processType());
@@ -202,11 +203,11 @@ void PixelClusterShapeExtractor::processRec(const SiPixelRecHit & recHit, Cluste
                meas.front().first) * (eyMax + 1) +
                meas.front().second;
 #ifdef DO_DEBUG
+      if (meas.front().second==0 && std::abs(pred.second)>3)
       {
-       Lock(theMutex[0]);
-       int id = recHit.geographicalId();
-       if (meas.front().second==0 && std::abs(pred.second)>3)
-         std::cout << id << " bigpred " << meas.front().first << '/'<<meas.front().second 
+        Lock(theMutex[0]);
+        int id = recHit.geographicalId();
+        std::cout << id << " bigpred " << meas.front().first << '/'<<meas.front().second 
                   << ' ' << pred.first << '/' << pred.second << ' ' << ldir << ' ' << ldir.mag()<< std::endl;
       }
 #endif
