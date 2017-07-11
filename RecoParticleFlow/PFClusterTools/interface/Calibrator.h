@@ -24,7 +24,7 @@ public:
 	Calibrator();
 	virtual ~Calibrator();
 
-	void addDetectorElement(DetectorElementPtr const de);
+	void addDetectorElement(DetectorElementPtr de);
 
 	void addParticleDeposit(ParticleDepositPtr pd);
 

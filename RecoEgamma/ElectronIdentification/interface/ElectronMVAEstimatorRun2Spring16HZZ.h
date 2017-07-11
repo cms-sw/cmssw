@@ -87,7 +87,7 @@ class ElectronMVAEstimatorRun2Spring16HZZ : public AnyMVAEstimatorRun2Base{
   ElectronMVAEstimatorRun2Spring16HZZ(const edm::ParameterSet& conf);
   ElectronMVAEstimatorRun2Spring16HZZ(); // For Reflex. Not to be used in reality
   ElectronMVAEstimatorRun2Spring16HZZ(const std::string &mvaTag, const std::string &conversionsTag = "reducedEgamma:reducedConversions", const std::string &beamspotTag = "offlineBeamSpot");
-  void init(const std::vector <std::string> weightFileNames);
+  void init(std::vector <std::string> weightFileNames);
   ~ElectronMVAEstimatorRun2Spring16HZZ();
 
 
@@ -97,10 +97,10 @@ class ElectronMVAEstimatorRun2Spring16HZZ : public AnyMVAEstimatorRun2Base{
   // Calculation of the MVA value (fwlite-compatible accessor)
   float mvaValue( const reco::GsfElectron * particle, const edm::EventBase &) const ;
   // Calculation of the MVA value (bare version)
-  float mvaValue( const int iCategory, const std::vector<float> & vars) const ;
+  float mvaValue( int iCategory, const std::vector<float> & vars) const ;
 
   // Utility functions
-  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, 
+  std::unique_ptr<const GBRForest> createSingleReader(int iCategory, 
                                                       const edm::FileInPath &weightFile);
 
   virtual int getNCategories() const override { return nCategories; }
@@ -111,7 +111,7 @@ class ElectronMVAEstimatorRun2Spring16HZZ : public AnyMVAEstimatorRun2Base{
   // Functions that should work on both pat and reco electrons
   // (use the fact that pat::Electron inherits from reco::GsfElectron)
   std::vector<float> fillMVAVariables(const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
-  std::vector<float> fillMVAVariables( const reco::GsfElectron * particle, const edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *beamSpot) const ;
+  std::vector<float> fillMVAVariables( const reco::GsfElectron * particle, edm::Handle<reco::ConversionCollection> conversions, const reco::BeamSpot *beamSpot) const ;
   int findCategory( const edm::Ptr<reco::Candidate>& particle) const override;
   int findCategory( const reco::GsfElectron * particle) const ;
   // The function below ensures that the variables passed to MVA are 

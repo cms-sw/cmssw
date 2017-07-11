@@ -15,15 +15,15 @@ class CandCombinerBase {
 public:
   typedef std::vector<std::string> vstring;
   /// default construct
-  explicit CandCombinerBase(const std::string  = "");
+  explicit CandCombinerBase(std::string  = "");
   /// construct from two charge values
-  CandCombinerBase(int, int, const std::string  = "");
+  CandCombinerBase(int, int, std::string  = "");
   /// construct from three charge values
-  CandCombinerBase(int, int, int, const std::string  = "");
+  CandCombinerBase(int, int, int, std::string  = "");
   /// construct from four charge values
-  CandCombinerBase(int, int, int, int, const std::string  = "");
+  CandCombinerBase(int, int, int, int, std::string  = "");
   /// constructor from a selector, specifying optionally to check for charge
-  CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector <int> &, const std::string  = "");
+  CandCombinerBase(bool checkCharge, bool checkOverlap, const std::vector <int> &, std::string  = "");
   /// destructor
   virtual ~CandCombinerBase();
   /// return all selected candidate pairs
@@ -54,7 +54,7 @@ private:
   /// returns a composite candidate combined from two daughters
   void combine(typename OutputCollection::value_type &, 
 	       const CandPtr &, 
-	       const CandPtr &, const std::string = "", const std::string = "") const;
+	       const CandPtr &, std::string = "", std::string = "") const;
   /// temporary candidate stack
   typedef std::vector<std::pair<std::pair<CandPtr, size_t>, 
 				std::vector<edm::Handle<reco::CandidateView> >::const_iterator> > CandStack;
@@ -72,7 +72,7 @@ private:
   /// set kinematics to reconstructed composite
   virtual void setup(typename OutputCollection::value_type &) const = 0;
   /// add candidate daughter
-  virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, const std::string = "") const = 0;
+  virtual void addDaughter(typename OutputCollection::value_type & cmp, const CandPtr & c, std::string = "") const = 0;
   /// flag to specify the checking of electric charge
   bool checkCharge_;
   /// flag to specify the checking of overlaps

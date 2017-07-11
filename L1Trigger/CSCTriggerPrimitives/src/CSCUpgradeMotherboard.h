@@ -33,7 +33,7 @@ public:
   public:
     LCTContainer (unsigned int match_trig_window_size ) : match_trig_window_size(match_trig_window_size){}
     CSCCorrelatedLCTDigi& operator()(int bx, int match_bx, int lct) { return data[bx][match_bx][lct]; }
-    void getTimeMatched(const int bx, std::vector<CSCCorrelatedLCTDigi>&) const;
+    void getTimeMatched(int bx, std::vector<CSCCorrelatedLCTDigi>&) const;
     void getMatched(std::vector<CSCCorrelatedLCTDigi>&) const;
     CSCCorrelatedLCTDigi data[CSCMotherboard::MAX_LCT_BINS][15][2];
     const unsigned int match_trig_window_size;

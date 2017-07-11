@@ -66,7 +66,7 @@ protected: // Methods
   bool hasParameter_( const std::string& name, const edm::ParameterSet& pSet ) const;
 
   /// Print all parameters and values for given set
-  void printParameters_( const edm::ParameterSet& pSet, const bool showPsets = false ) const;
+  void printParameters_( const edm::ParameterSet& pSet, bool showPsets = false ) const;
 
   /// Check if given parameter is for a top-level structure
   virtual bool isTopLevel_(const std::string& parameterSetName) const;

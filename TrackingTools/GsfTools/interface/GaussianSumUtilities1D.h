@@ -44,7 +44,7 @@ public:
   /// pdf of a single component at x
   double pdf(unsigned int i, double x)  const;
   /// Quantile (i.e. x for a given value of the c.d.f.)
-  double quantile (const double) const;
+  double quantile (double) const;
   /// mode status
   bool modeIsValid () const;
   /** Mode "state": mean = mode, variance = local variance at mode,

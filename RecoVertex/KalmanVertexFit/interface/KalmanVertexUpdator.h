@@ -23,7 +23,7 @@ public:
  */
 
    CachingVertex<N> add(const CachingVertex<N> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        RefCountedVertexTrack track) const;
 
 /**
  *  Method removing already used VertexTrack from existing CachingVertex
@@ -31,7 +31,7 @@ public:
  */
 
    CachingVertex<N> remove(const CachingVertex<N> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        RefCountedVertexTrack track) const;
 
 /**
  * Clone method
@@ -47,16 +47,16 @@ public:
      * An invalid vertex is returned in case of problems during the update.
      */
   CachingVertex<N> update(const CachingVertex<N> & oldVertex,
-                         const RefCountedVertexTrack track, float weight,
+                         RefCountedVertexTrack track, float weight,
                          int sign ) const;
 
   VertexState positionUpdate (const VertexState & oldVertex,
-	 const RefCountedLinearizedTrackState linearizedTrack, 
-	 const float weight, int sign) const;
+	 RefCountedLinearizedTrackState linearizedTrack, 
+	 float weight, int sign) const;
 
   std::pair <bool, double> chi2Increment(const VertexState & oldVertex, 
 	 const VertexState & newVertexState,
-	 const RefCountedLinearizedTrackState linearizedTrack, 
+	 RefCountedLinearizedTrackState linearizedTrack, 
 	 float weight) const; 
 
 private:

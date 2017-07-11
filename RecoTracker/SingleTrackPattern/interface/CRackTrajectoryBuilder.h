@@ -209,7 +209,7 @@ class CRackTrajectoryBuilder
 					   const SiStripMatchedRecHit2DCollection &collmatched,
 					   const SiPixelRecHitCollection &collpixel,
 					   const TrajectorySeed &seed,
-					   const bool bAddSeedHits
+					   bool bAddSeedHits
 					   );
 
     

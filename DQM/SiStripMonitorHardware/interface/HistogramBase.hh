@@ -80,9 +80,9 @@ public:
   void bookHistogram(DQMStore::IBooker & , HistogramConfig & aConfig,
 		     const std::string& name, 
 		     const std::string& title,
-		     const unsigned int nBins, 
-		     const double min, 
-		     const double max,
+		     unsigned int nBins, 
+		     double min, 
+		     double max,
 		     const std::string& xAxisTitle
 		     );
 
@@ -91,9 +91,9 @@ public:
 		     MonitorElement* & aHist,
 		     const std::string& name, 
 		     const std::string& title,
-		     const unsigned int nBins, 
-		     const double min, 
-		     const double max,
+		     unsigned int nBins, 
+		     double min, 
+		     double max,
 		     const std::string& xAxisTitle
 		     );
 
@@ -101,12 +101,12 @@ public:
   void book2DHistogram(DQMStore::IBooker & , HistogramConfig & aConfig,
 		       const std::string& name, 
 		       const std::string& title,
-		       const unsigned int nBins, 
-		       const double min, 
-		       const double max,
-		       const unsigned int nBinsY, 
-		       const double minY, 
-		       const double maxY,
+		       unsigned int nBins, 
+		       double min, 
+		       double max,
+		       unsigned int nBinsY, 
+		       double minY, 
+		       double maxY,
 		       const std::string& xAxisTitle,
 		       const std::string& yAxisTitle
 		       );
@@ -116,12 +116,12 @@ public:
 		       MonitorElement* & aHist,
 		       const std::string& name, 
 		       const std::string& title,
-		       const unsigned int nBins, 
-		       const double min, 
-		       const double max,
-		       const unsigned int nBinsY, 
-		       const double minY, 
-		       const double maxY,
+		       unsigned int nBins, 
+		       double min, 
+		       double max,
+		       unsigned int nBinsY, 
+		       double minY, 
+		       double maxY,
 		       const std::string& xAxisTitle,
 		       const std::string& yAxisTitle
 		       );
@@ -136,11 +136,11 @@ public:
   void bookProfile(DQMStore::IBooker & , HistogramConfig & aConfig,
 		   const std::string& name,
 		   const std::string& title,
-		   const unsigned int nBins, 
-		   const double min, 
-		   const double max,
-		   const double minY, 
-		   const double maxY,
+		   unsigned int nBins, 
+		   double min, 
+		   double max,
+		   double minY, 
+		   double maxY,
 		   const std::string& xAxisTitle,
 		   const std::string& yAxisTitle
 		   );
@@ -148,8 +148,8 @@ public:
   void bookProfile(DQMStore::IBooker & , HistogramConfig & aConfig,
 		   const std::string& name,
 		   const std::string& title,
-		   const double minY, 
-		   const double maxY,
+		   double minY, 
+		   double maxY,
 		   const std::string& xAxisTitle,
 		   const std::string& yAxisTitle
 		   );

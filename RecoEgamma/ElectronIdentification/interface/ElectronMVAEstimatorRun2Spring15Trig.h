@@ -88,7 +88,7 @@ class ElectronMVAEstimatorRun2Spring15Trig : public AnyMVAEstimatorRun2Base{
   float mvaValue( const edm::Ptr<reco::Candidate>& particle, const edm::Event&) const override;
  
   // Utility functions
-  std::unique_ptr<const GBRForest> createSingleReader(const int iCategory, 
+  std::unique_ptr<const GBRForest> createSingleReader(int iCategory, 
                                                       const edm::FileInPath &weightFile);
 
   virtual int getNCategories() const override { return nCategories; }

@@ -68,9 +68,9 @@ public:
   static std::vector<TGraphErrors*> fitMass (TH2F* histo);
   static std::vector<TGraphErrors*> fitReso (TH2F* histo);
 
-  static lorentzVector applyScale( const lorentzVector & muon, const std::vector<double> & parval, const int charge );
-  static lorentzVector applyScale( const lorentzVector & muon, double* parval, const int charge );
-  static lorentzVector applyBias( const lorentzVector & muon, const int charge );
+  static lorentzVector applyScale( const lorentzVector & muon, const std::vector<double> & parval, int charge );
+  static lorentzVector applyScale( const lorentzVector & muon, double* parval, int charge );
+  static lorentzVector applyBias( const lorentzVector & muon, int charge );
   static lorentzVector applySmearing( const lorentzVector & muon );
   static lorentzVector fromPtEtaPhiToPxPyPz( const double* ptEtaPhiE );
 
@@ -83,12 +83,12 @@ public:
   static double massResolution( const lorentzVector & mu1, const lorentzVector & mu2, double* parval );
   static double massResolution( const lorentzVector& mu1, const lorentzVector& mu2, const ResolutionFunction & resolFunc );
 
-  static double massProb( const double & mass, const double & rapidity, const int ires, const double & massResol );
+  static double massProb( const double & mass, const double & rapidity, int ires, const double & massResol );
   /* static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow = false ); */
   /* static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow = false ); */
-  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 );
-  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, const bool doUseBkgrWindow, const double & eta1, const double & eta2 );
-  static double computeWeight( const double & mass, const int iev, const bool doUseBkgrWindow = false );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, const std::vector<double> & parval, bool doUseBkgrWindow, const double & eta1, const double & eta2 );
+  static double massProb( const double & mass, const double & resEta, const double & rapidity, const double & massResol, double * parval, bool doUseBkgrWindow, const double & eta1, const double & eta2 );
+  static double computeWeight( const double & mass, int iev, bool doUseBkgrWindow = false );
 
   static double deltaPhi( const double & phi1, const double & phi2 )
   {
@@ -271,7 +271,7 @@ public:
   /// Computes the probability given the mass, mass resolution and the arrays with the probabilities and the normalizations.
   static double probability( const double & mass, const double & massResol,
                              const double GLvalue[][1001][1001], const double GLnorm[][1001],
-                             const int iRes, const int iY );
+                             int iRes, int iY );
 
 protected:
 

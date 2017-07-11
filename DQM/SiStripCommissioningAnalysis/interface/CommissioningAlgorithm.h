@@ -32,7 +32,7 @@ class CommissioningAlgorithm {
  protected:
   
   /** Extracts FED key from histogram title. */
-  uint32_t extractFedKey( const TH1* const );
+  uint32_t extractFedKey( TH1* const );
   
   /** Extracts and organises histograms. */
   virtual void extract( const std::vector<TH1*>& ) = 0;

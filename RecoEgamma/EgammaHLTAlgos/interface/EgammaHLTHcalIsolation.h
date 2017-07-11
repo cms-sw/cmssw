@@ -77,14 +77,14 @@ class EgammaHLTHcalIsolation
 
     //this is the effective depth of the rec-hit, basically converts 3 depth towers to 2 depths and all barrel to depth 1
     //this is defined when making the calotowers
-    static int getEffectiveDepth(const HcalDetId id);
+    static int getEffectiveDepth(HcalDetId id);
 
  private:  
-    bool acceptHit_(const HcalDetId id,const GlobalPoint& pos,const float hitEnergy,
-		    const float candEta,const float candPhi)const; 
-    bool passMinE_(float energy,const HcalDetId id)const;
-    bool passMinEt_(float et,const HcalDetId id)const;
-    bool passDepth_(const HcalDetId id)const;
+    bool acceptHit_(HcalDetId id,const GlobalPoint& pos,float hitEnergy,
+		    float candEta,float candPhi)const; 
+    bool passMinE_(float energy,HcalDetId id)const;
+    bool passMinEt_(float et,HcalDetId id)const;
+    bool passDepth_(HcalDetId id)const;
     //inspired from CaloTowersCreationAlgo::hcalChanStatusForCaloTower, we dont distingush from good from recovered and prob channels
     bool passCleaning_(const CaloRecHit* hit,const HcalSeverityLevelComputer* hcalSevLvlComp,
 		       const HcalChannelQuality* hcalChanStatus)const;

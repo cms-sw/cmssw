@@ -66,13 +66,13 @@ class DTChambThSegm : public DTTrigData {
     void print() const;
 
     /// Return the code for a given set of 7 BTI
-    int code(const int i) const;
+    int code(int i) const;
 
     /// Return the position for a given set of 7 BTI
-    int position(const int i) const;
+    int position(int i) const;
 
     /// Return the quality for a given set of 7 BTI
-    int quality(const int i) const;
+    int quality(int i) const;
 
   private:
 

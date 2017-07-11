@@ -238,9 +238,9 @@ class CSCDCCFormatStatusDigi {
 
 
   /// Fill internal data structures using Examiner object 
-  void setDCCExaminerInfo(const ExaminerMaskType fDCC_MASK_,
-                         const ExaminerMaskType fCSC_MASK_,
-                         const ExaminerStatusType fDDU_SUMMARY_ERRORS_,
+  void setDCCExaminerInfo(ExaminerMaskType fDCC_MASK_,
+                         ExaminerMaskType fCSC_MASK_,
+                         ExaminerStatusType fDDU_SUMMARY_ERRORS_,
                          const std::map<DDUIdType, ExaminerStatusType>& mDDU_ERRORS_,
                          const std::map<CSCIdType, ExaminerStatusType>& mCSC_ERRORS_,
                          const std::map<CSCIdType, ExaminerStatusType>& mCSC_PAYLOADS_, 

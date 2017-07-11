@@ -120,7 +120,7 @@ public:
     const CombinationsInCond* getCombinationsInCond(const std::string& condNameVal) const;
 
     /// return all the combinations passing the requirements imposed in condition condNumberVal
-    const CombinationsInCond* getCombinationsInCond(const int condNumberVal) const;
+    const CombinationsInCond* getCombinationsInCond(int condNumberVal) const;
 
     /// return the result for the condition condNameVal
     const bool getConditionResult(const std::string& condNameVal) const;

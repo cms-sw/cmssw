@@ -14,7 +14,7 @@ public:
     ~ME0DigisValidation();
     void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     void analyze(const edm::Event& e, const edm::EventSetup&) override;
-    bool isMatched(const int, const int, const int, const int, const int, const int);
+    bool isMatched(int, int, int, int, int, int);
 private:
     
     MonitorElement* num_evts;

@@ -54,9 +54,9 @@ class HLTEgammaL1TMatchFilterRegional : public HLTFilter {
     double endcap_end_;
 
   private:
-    bool matchedToL1Cand(const std::vector<l1t::EGammaRef>& l1Cands,const float scEta,const float scPhi) const;
-    bool matchedToL1Cand(const std::vector<l1t::JetRef>& l1Cands,const float scEta,const float scPhi) const;
-    bool matchedToL1Cand(const std::vector<l1t::TauRef>& l1Cands,const float scEta,const float scPhi) const;
+    bool matchedToL1Cand(const std::vector<l1t::EGammaRef>& l1Cands,float scEta,float scPhi) const;
+    bool matchedToL1Cand(const std::vector<l1t::JetRef>& l1Cands,float scEta,float scPhi) const;
+    bool matchedToL1Cand(const std::vector<l1t::TauRef>& l1Cands,float scEta,float scPhi) const;
 };
 
 #endif //HLTEgammaL1TMatchFilterRegional_h

@@ -31,7 +31,7 @@ typedef TrackingRecHit::ConstRecHitPointer ConstRecHitPointer;
 
   ~TrackInfoProducerAlgorithm() {}
   
-  void run(const edm::Ref<std::vector<Trajectory> > traj_iterator, reco::TrackRef track, 
+  void run(edm::Ref<std::vector<Trajectory> > traj_iterator, reco::TrackRef track, 
 	   reco::TrackInfo &output,
 	   const TrackerGeometry * tracker);
   LocalPoint project(const GeomDet *det,const GeomDet* projdet,LocalPoint position,LocalVector trackdirection)const;

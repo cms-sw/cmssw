@@ -90,7 +90,7 @@ public:
 
     public:
         // constructor
-        L1ExtraMonElement(const edm::EventSetup&, const int);
+        L1ExtraMonElement(const edm::EventSetup&, int);
 
         // destructor
         virtual ~L1ExtraMonElement();
@@ -100,40 +100,40 @@ public:
 
         void bookhistograms(const edm::EventSetup& evSetup, DQMStore::IBooker &ibooker,
                 const std::string& l1ExtraObject,
-                const std::vector<L1GtObject>& l1GtObj, const bool bookPhi =
-                        true, const bool bookEta = true);
+                const std::vector<L1GtObject>& l1GtObj, bool bookPhi =
+                        true, bool bookEta = true);
 
         /// number of objects
         void fillNrObjects(const CollectionType* collType,
-                const bool validColl, const bool isL1Coll, const int bxInEvent);
+                bool validColl, bool isL1Coll, int bxInEvent);
 
         /// PT, eta, phi
-        void fillPtPhiEta(const CollectionType* collType, const bool validColl,
-                const bool bookPhi, const bool bookEta, const bool isL1Coll,
-                const int bxInEvent);
+        void fillPtPhiEta(const CollectionType* collType, bool validColl,
+                bool bookPhi, bool bookEta, bool isL1Coll,
+                int bxInEvent);
 
         /// ET, eta, phi
-        void fillEtPhiEta(const CollectionType* collType, const bool validColl,
-                const bool bookPhi, const bool bookEta, const bool isL1Coll,
-                const int bxInEvent);
+        void fillEtPhiEta(const CollectionType* collType, bool validColl,
+                bool bookPhi, bool bookEta, bool isL1Coll,
+                int bxInEvent);
 
         /// fill ET total in energy sums
-        void fillEtTotal(const CollectionType* collType, const bool validColl,
-                const bool isL1Coll, const int bxInEvent);
+        void fillEtTotal(const CollectionType* collType, bool validColl,
+                bool isL1Coll, int bxInEvent);
 
         /// fill charge
-        void fillCharge(const CollectionType* collType, const bool validColl,
-                const bool isL1Coll, const int bxInEvent);
+        void fillCharge(const CollectionType* collType, bool validColl,
+                bool isL1Coll, int bxInEvent);
 
         /// fill bit counts in HFRings collections
         void fillHfBitCounts(const CollectionType* collType,
-                const bool validColl, const int countIndex,
-                const bool isL1Coll, const int bxInEvent);
+                bool validColl, int countIndex,
+                bool isL1Coll, int bxInEvent);
 
         /// fill energy sums in HFRings collections
         void fillHfRingEtSums(const CollectionType* collType,
-                const bool validColl, const int countIndex,
-                const bool isL1Coll, const int bxInEvent);
+                bool validColl, int countIndex,
+                bool isL1Coll, int bxInEvent);
 
     private:
 

@@ -50,7 +50,7 @@ namespace l1t {
 		       const std::vector<l1t::EtSum> * input,
 		       std::vector<l1t::EtSum> *output);
 
-  const unsigned int gtEta(const unsigned int iEta);
+  const unsigned int gtEta(unsigned int iEta);
 }
 
 #endif

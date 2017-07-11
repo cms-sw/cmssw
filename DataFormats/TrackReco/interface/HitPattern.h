@@ -459,11 +459,11 @@ private:
     int countHits(HitCategory category, filterType filter) const;
     int countTypedHits(HitCategory category, filterType typeFilter, filterType filter) const;
 
-    bool insertTrackHit(const uint16_t pattern);
-    bool insertExpectedInnerHit(const uint16_t pattern);
-    bool insertExpectedOuterHit(const uint16_t pattern);
-    void insertHit(const uint16_t pattern);
-    bool appendHit(const uint16_t pattern, TrackingRecHit::Type hitType);
+    bool insertTrackHit(uint16_t pattern);
+    bool insertExpectedInnerHit(uint16_t pattern);
+    bool insertExpectedOuterHit(uint16_t pattern);
+    void insertHit(uint16_t pattern);
+    bool appendHit(uint16_t pattern, TrackingRecHit::Type hitType);
 
     uint16_t getHitPatternByAbsoluteIndex(int position) const;
 

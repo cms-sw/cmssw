@@ -23,9 +23,9 @@
 class SubsetHSMLinearizationPointFinder : public CrossingPtBasedLinearizationPointFinder
 {
 public:
-  SubsetHSMLinearizationPointFinder( const signed int n_pairs = 10 );
+  SubsetHSMLinearizationPointFinder( signed int n_pairs = 10 );
   SubsetHSMLinearizationPointFinder( const RecTracksDistanceMatrix * m,
-      const signed int n_pairs = -1 );
+      signed int n_pairs = -1 );
 
   virtual SubsetHSMLinearizationPointFinder * clone() const;
 };

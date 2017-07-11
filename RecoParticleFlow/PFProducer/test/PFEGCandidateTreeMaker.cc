@@ -123,9 +123,9 @@ private:
 			     const edm::Handle<reco::PFCandidateCollection>&);
   bool getPFCandMatch(const reco::PFCandidate&,
 		      const edm::Handle<reco::PFCandidateCollection>&,
-		      const int );
+		      int );
   // the tree  
-  void setTreeArraysForSize(const size_t N_ECAL,const size_t N_PS);
+  void setTreeArraysForSize(size_t N_ECAL,size_t N_PS);
   treeptr _tree;
   Int_t nVtx;
   Float_t scRawEnergy, scCalibratedEnergy, scPreshowerEnergy,

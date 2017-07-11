@@ -100,7 +100,7 @@ public:
     }
 
     /// evaluate an algorithm
-    void evaluateAlgorithm(const int chipNumber, const std::vector<
+    void evaluateAlgorithm(int chipNumber, const std::vector<
             ConditionEvaluationMap>&);
 
     /// get all the object combinations evaluated to true in the conditions

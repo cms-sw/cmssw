@@ -55,9 +55,9 @@ class L1MuDTChambThDigi {
   int scNum()       const;
   int stNum()       const;
 
-  int code(const int i) const;
-  int position(const int i) const;
-  int quality(const int i) const;
+  int code(int i) const;
+  int position(int i) const;
+  int quality(int i) const;
 
  private:
 

@@ -33,7 +33,7 @@ namespace l1t {
       typedef MuonCaloSum CaloInput;
       typedef MuonCaloSumBxCollection CaloInputCollection;
       // Two's complement for a given bit-length
-      static unsigned getTwosComp(const int signedInt, const int width);
+      static unsigned getTwosComp(int signedInt, int width);
 
       static int calcGlobalPhi(int locPhi, tftype t, int proc);
 

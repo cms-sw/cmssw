@@ -33,7 +33,7 @@ namespace sistrip {
   {
   public:
     //construct from buffer
-    FEDSpyBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize);
+    FEDSpyBuffer(const uint8_t* fedBuffer, size_t fedBufferSize);
     virtual ~FEDSpyBuffer();
     virtual void print(std::ostream& os) const;
       
@@ -44,14 +44,14 @@ namespace sistrip {
     //get the total frame count stored in the spy header
     uint32_t spyHeaderTotalEventCount() const;
     //get the L1 ID after reading a given delay chip
-    uint32_t delayChipL1ID(const uint8_t delayChip) const;
+    uint32_t delayChipL1ID(uint8_t delayChip) const;
     //get the total event count after reading a given delay chip
-    uint32_t delayChipTotalEventCount(const uint8_t delayChip) const;
+    uint32_t delayChipTotalEventCount(uint8_t delayChip) const;
       
     //checks that a delay chip is complete i.e. that it all came from the same event
-    bool delayChipGood(const uint8_t delayChip) const;
+    bool delayChipGood(uint8_t delayChip) const;
     //checks that a channel is usable (i.e. that the delay chip it is on is good)
-    virtual bool channelGood(const uint8_t internalFEDannelNum) const;
+    virtual bool channelGood(uint8_t internalFEDannelNum) const;
   private:
     //mapping of channel index to position in data
     static const uint8_t channelPositionsInData_[FEDCH_PER_DELAY_CHIP];

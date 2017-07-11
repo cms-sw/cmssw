@@ -42,20 +42,20 @@ namespace cscdqm {
       virtual void Fill(float x, float y, float z, float w) = 0;
       virtual const TH1 *getTH1(void) const = 0;
       virtual TH1 *getTH1Lock(void) = 0; 
-      virtual void SetEntries(const double value) = 0;
+      virtual void SetEntries(double value) = 0;
       virtual const double GetEntries() = 0;
-      virtual void SetBinContent(const int binX, const double value) = 0;
-      virtual void SetBinContent(const int binX, const int binY, const double value) = 0;
-      virtual double GetBinContent(const int binX) = 0;
-      virtual double GetBinContent(const int binX, int binY) = 0;
-      virtual void SetAxisRange(const double from, const double to, const std::string& axis) = 0;
-      virtual void setAxisTitle(const std::string title, const int axisN) = 0;
+      virtual void SetBinContent(int binX, double value) = 0;
+      virtual void SetBinContent(int binX, int binY, double value) = 0;
+      virtual double GetBinContent(int binX) = 0;
+      virtual double GetBinContent(int binX, int binY) = 0;
+      virtual void SetAxisRange(double from, double to, const std::string& axis) = 0;
+      virtual void setAxisTitle(std::string title, int axisN) = 0;
       virtual const TObject *getRefRootObject(void) const = 0;
       virtual const int GetMaximumBin() = 0;
-      virtual void SetMaximum(const double d) = 0;
-      virtual void SetNormFactor(const double factor = 1) = 0;
-      virtual const double GetBinError(const int bin) = 0;
-      virtual void SetBinError(const int bin, const double error) = 0;
+      virtual void SetMaximum(double d) = 0;
+      virtual void SetNormFactor(double factor = 1) = 0;
+      virtual const double GetBinError(int bin) = 0;
+      virtual void SetBinError(int bin, double error) = 0;
 
   };
 

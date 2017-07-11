@@ -211,7 +211,7 @@ public:
   /// get the solution at the end of the calibration as a map between
   /// DetIds and calibration constant
 
-  IDmapF getSolution( const bool resetsolution=true );
+  IDmapF getSolution( bool resetsolution=true );
 
   //----------------------------------------------
   /// reset for new iteration

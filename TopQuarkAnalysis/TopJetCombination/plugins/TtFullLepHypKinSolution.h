@@ -21,7 +21,7 @@ class TtFullLepHypKinSolution : public TtFullLepHypothesis  {
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 const edm::Handle<std::vector<pat::MET> >& mets,
 			 std::vector<int>& match,
-			 const unsigned int iComb);
+			 unsigned int iComb);
 
 //   edm::EDGetTokenT<std::vector<std::vector<int> > > particleIdcsToken_;
   edm::EDGetTokenT<std::vector<reco::LeafCandidate> > nusToken_;

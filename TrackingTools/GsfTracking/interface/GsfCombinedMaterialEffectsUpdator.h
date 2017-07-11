@@ -21,7 +21,7 @@ public:
 				     GsfMaterialEffectsUpdator& elUpdator);
 
   // here comes the actual computation of the values
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+  virtual void compute (const TrajectoryStateOnSurface&, PropagationDirection, Effect[]) const;
 
  
  private:

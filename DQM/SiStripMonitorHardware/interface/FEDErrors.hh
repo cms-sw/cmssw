@@ -130,7 +130,7 @@ public:
 
   void initialiseEvent();
 
-  void initialiseFED(const unsigned int aFedID,
+  void initialiseFED(unsigned int aFedID,
 		     const SiStripFedCabling* aCabling,
                      const TrackerTopology* tTopo,  
 		     bool initVars = true);
@@ -144,7 +144,7 @@ public:
   //return true if there were no errors at the level they are analysing
   //ie analyze FED returns true if there were no FED level errors which prevent the whole FED being unpacked
   bool fillFatalFEDErrors(const FEDRawData& aFedData,
-			  const unsigned int aPrintDebug);
+			  unsigned int aPrintDebug);
 
   //expensive check: fatal but kept separate
   bool fillCorruptBuffer(const sistrip::FEDBuffer* aBuffer);
@@ -156,33 +156,33 @@ public:
   //fill errors: define the order of importance.
   bool fillFEDErrors(const FEDRawData& aFedData,
 		     bool & aFullDebug,
-		     const unsigned int aPrintDebug,
+		     unsigned int aPrintDebug,
 		     unsigned int & aCounterMonitoring,
 		     unsigned int & aCounterUnpacker,
-		     const bool aDoMeds,
+		     bool aDoMeds,
 		     MonitorElement *aMedianHist0,
 		     MonitorElement *aMedianHist1,
-		     const bool aDoFEMaj,
+		     bool aDoFEMaj,
 		     std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac
 		     );
 
   bool fillFEErrors(const sistrip::FEDBuffer* aBuffer,
-		    const bool aDoFEMaj,
+		    bool aDoFEMaj,
 		    std::vector<std::vector<std::pair<unsigned int,unsigned int> > > & aFeMajFrac);
 
   bool fillChannelErrors(const sistrip::FEDBuffer* aBuffer,
 			 bool & aFullDebug,
-			 const unsigned int aPrintDebug,
+			 unsigned int aPrintDebug,
 			 unsigned int & aCounterMonitoring,
 			 unsigned int & aCounterUnpacker,
-			 const bool aDoMeds,
+			 bool aDoMeds,
 			 MonitorElement *aMedianHist0,
 			 MonitorElement *aMedianHist1
 			 );
 
   //1--Add all channels of a FED if anyFEDErrors or corruptBuffer
   //2--if aFillAll = true, add all channels anyway with 0 if no errors, so TkHistoMap is filled for all valid channels ...
-  void fillBadChannelList(const bool doTkHistoMap,
+  void fillBadChannelList(bool doTkHistoMap,
 			  TkHistoMap *aTkMapPointer,
 			  MonitorElement *aFedIdVsApvId,
 			  unsigned int & aNBadChannels,
@@ -248,13 +248,13 @@ protected:
   
 private:
 
-  void incrementLumiErrors(const bool hasError,
-			   const unsigned int aSubDet);
+  void incrementLumiErrors(bool hasError,
+			   unsigned int aSubDet);
 
 
-  void processDet(const uint32_t aPrevId,
-		  const uint16_t aPrevTot,
-		  const bool doTkHistoMap,
+  void processDet(uint32_t aPrevId,
+		  uint16_t aPrevTot,
+		  bool doTkHistoMap,
 		  uint16_t & nBad,
 		  TkHistoMap *aTkMapPointer);
 

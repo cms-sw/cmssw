@@ -21,31 +21,31 @@ public:
 
   HcalLayerDepthMap();
   ~HcalLayerDepthMap();
-  void initialize(const int subdet, const int ietaMax, const int dep16C, 
-		  const int dep29C, const double wtl0C,
+  void initialize(int subdet, int ietaMax, int dep16C, 
+		  int dep29C, double wtl0C,
 		  std::vector<int> const& iphi, std::vector<int> const& ieta,
 		  std::vector<int> const& layer,std::vector<int> const& depth);
   int    getSubdet() const {return subdet_;}
-  int    getDepth(const int subdet, const int ieta, const int iphi, 
-		  const int zside, const int layer) const;
-  int    getDepth16(const int subdet, const int iphi, const int zside) const;
-  int    getDepthMin(const int subdet, const int iphi, const int zside) const;
-  int    getDepthMax(const int subdet, const int iphi, const int zside) const;
-  int    getDepthMax(const int subdet, const int ieta, const int iphi, 
-		     const int zside) const;
-  std::pair<int,int> getDepths(const int eta) const;
-  int    getLayerFront(const int subdet, const int ieta, const int iphi,
-		       const int zside, const int depth) const;
-  int    getLayerBack(const int subdet, const int ieta, const int iphi,
-		      const int zside, const int depth) const;
-  void   getLayerDepth(const int subdet, const int ieta, const int iphi,
-		       const int zside, std::map<int,int>& layers) const;
-  void   getLayerDepth(const int ieta, std::map<int,int>& layers) const;
-  double getLayer0Wt(const int subdet, const int iphi, const int zside) const;
-  int    getMaxDepthLastHE(const int subdet, const int iphi,
-			   const int zside) const;
+  int    getDepth(int subdet, int ieta, int iphi, 
+		  int zside, int layer) const;
+  int    getDepth16(int subdet, int iphi, int zside) const;
+  int    getDepthMin(int subdet, int iphi, int zside) const;
+  int    getDepthMax(int subdet, int iphi, int zside) const;
+  int    getDepthMax(int subdet, int ieta, int iphi, 
+		     int zside) const;
+  std::pair<int,int> getDepths(int eta) const;
+  int    getLayerFront(int subdet, int ieta, int iphi,
+		       int zside, int depth) const;
+  int    getLayerBack(int subdet, int ieta, int iphi,
+		      int zside, int depth) const;
+  void   getLayerDepth(int subdet, int ieta, int iphi,
+		       int zside, std::map<int,int>& layers) const;
+  void   getLayerDepth(int ieta, std::map<int,int>& layers) const;
+  double getLayer0Wt(int subdet, int iphi, int zside) const;
+  int    getMaxDepthLastHE(int subdet, int iphi,
+			   int zside) const;
   const std::vector<int> & getPhis() const {return iphi_;}
-  bool   isValid(const int det, const int phi, const int zside) const;
+  bool   isValid(int det, int phi, int zside) const;
   int    validDet(std::vector<int>& phis) const;
   std::pair<int,int> validEta() const {return std::pair<int,int>(ietaMin_,ietaMax_);}
        

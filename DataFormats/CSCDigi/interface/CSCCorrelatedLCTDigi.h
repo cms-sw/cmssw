@@ -17,11 +17,11 @@ class CSCCorrelatedLCTDigi
  public:
   
   /// Constructors
-  CSCCorrelatedLCTDigi(const int trknmb, const int valid, const int quality,
-		       const int keywire, const int strip, const int pattern,
-		       const int bend, const int bx, const int mpclink = 0,
-		       const uint16_t bx0=0, const uint16_t syncErr = 0,
-		       const uint16_t cscID=0);
+  CSCCorrelatedLCTDigi(int trknmb, int valid, int quality,
+		       int keywire, int strip, int pattern,
+		       int bend, int bx, int mpclink = 0,
+		       uint16_t bx0=0, uint16_t syncErr = 0,
+		       uint16_t cscID=0);
   CSCCorrelatedLCTDigi();                               /// default
 
   /// clear this LCT

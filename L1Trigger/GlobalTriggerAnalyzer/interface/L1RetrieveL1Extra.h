@@ -180,17 +180,17 @@ public:
     /// the bxInEvent and / or objIndexInColl check
     /// the combination checkBxInEvent = false, checkObjIndexInColl = true not supported
     void printL1Extra(std::ostream& oStr, const L1GtObject& gtObject,
-            const bool checkBxInEvent, const int bxInEvent,
-            const bool checkObjIndexInColl, const int objIndexInColl) const;
+            bool checkBxInEvent, int bxInEvent,
+            bool checkObjIndexInColl, int objIndexInColl) const;
 
     /// print all L1GtObject objects from bxInEvent
-    void printL1Extra(std::ostream&, const L1GtObject&, const int bxInEvent) const;
+    void printL1Extra(std::ostream&, const L1GtObject&, int bxInEvent) const;
 
     /// print all L1GtObject objects from all bxInEvent
     void printL1Extra(std::ostream&, const L1GtObject&) const;
 
     /// print all L1Extra collections from a given BxInEvent
-    void printL1Extra(std::ostream&, const int bxInEvent) const;
+    void printL1Extra(std::ostream&, int bxInEvent) const;
 
     /// print all L1Extra collections from all BxInEvent
     void printL1Extra(std::ostream&) const;

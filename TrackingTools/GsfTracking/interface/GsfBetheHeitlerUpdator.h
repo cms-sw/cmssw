@@ -62,30 +62,30 @@ public:
   
 public:
   /// constructor with explicit filename and correction flag
-  GsfBetheHeitlerUpdator (const std::string fileName, const int correctionFlag);
+  GsfBetheHeitlerUpdator (std::string fileName, int correctionFlag);
 
 private:
   struct GSContainer {float *first, *second, *third;};
 
   /// Computation: generates vectors of weights, means and standard deviations
-  virtual void compute (const TrajectoryStateOnSurface&, const PropagationDirection, Effect[]) const;
+  virtual void compute (const TrajectoryStateOnSurface&, PropagationDirection, Effect[]) const;
 
 private:
 
   /// Read parametrization from file
-  void readParameters (const std::string);
+  void readParameters (std::string);
   /// Read coefficients of one polynomial from file
-  Polynomial readPolynomial (std::ifstream&,const int);
+  Polynomial readPolynomial (std::ifstream&,int);
 
  
   /// Filling of mixture (in terms of z=E/E0)
-  void getMixtureParameters (const float, GSContainer &) const;
+  void getMixtureParameters (float, GSContainer &) const;
   /// Correction for weight of component 1
   void correctWeights (GSContainer&) const;
   /// Correction for mean of component 1
-  float correctedFirstMean (const float, const GSContainer &) const;
+  float correctedFirstMean (float, const GSContainer &) const;
   /// Correction for variance of component 1
-  float correctedFirstVar (const float,const GSContainer &) const;
+  float correctedFirstVar (float,const GSContainer &) const;
   
 
 private:

@@ -15,8 +15,8 @@ public:
    */
   HelixForwardPlaneCrossing(const PositionType& point,
 			    const DirectionType& direction,
-			    const float curvature,
-			    const PropagationDirection propDir = alongMomentum);
+			    float curvature,
+			    PropagationDirection propDir = alongMomentum);
   // destructor
   virtual ~HelixForwardPlaneCrossing() {}
 

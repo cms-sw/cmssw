@@ -15,8 +15,8 @@ public:
    */
   HelixArbitraryPlaneCrossing2Order(const PositionType& point,
 				    const DirectionType& direction,
-				    const float curvature,
-				    const PropagationDirection propDir = alongMomentum);
+				    float curvature,
+				    PropagationDirection propDir = alongMomentum);
   /** Fast constructor (for use by HelixArbitraryPlaneCrossing).
    */
   HelixArbitraryPlaneCrossing2Order(const double& x0, const double& y0, const double& z0,
@@ -71,7 +71,7 @@ private:
 
   /** Choice of one of two solutions according to the propagation direction.
    */
-  std::pair<bool,double> solutionByDirection(const double dS1,const double dS2) const dso_internal;
+  std::pair<bool,double> solutionByDirection(double dS1,double dS2) const dso_internal;
 
 private:
   const double theX0,theY0,theZ0;

@@ -86,20 +86,20 @@ class QcdUeDQM : public DQMEDAnalyzer {
                       const reco::Vertex &vtx, int sizevtx);
   void fillHltBits(const edm::Event &iEvent, const edm::EventSetup &iSetup);
   bool fillVtxPlots(const reco::BeamSpot *bs,
-                    const edm::Handle<reco::VertexCollection> vtxColl);
+                    edm::Handle<reco::VertexCollection> vtxColl);
   void fillpTMaxRelated(const std::vector<const reco::Track *> &track);
   void fillChargedJetSpectra(
-      const edm::Handle<reco::TrackJetCollection> trackJets);
+      edm::Handle<reco::TrackJetCollection> trackJets);
   void fillUE_with_ChargedJets(
       const std::vector<const reco::Track *> &track,
       const edm::Handle<reco::TrackJetCollection> &trackJets);
   void fillUE_with_MaxpTtrack(const std::vector<const reco::Track *> &track);
 
   template <typename TYPE>
-  void getProduct(const std::string name, edm::Handle<TYPE> &prod,
+  void getProduct(std::string name, edm::Handle<TYPE> &prod,
                   const edm::Event &event) const;
   template <typename TYPE>
-  bool getProductSafe(const std::string name, edm::Handle<TYPE> &prod,
+  bool getProductSafe(std::string name, edm::Handle<TYPE> &prod,
                       const edm::Event &event) const;
 
   HLTConfigProvider hltConfig;

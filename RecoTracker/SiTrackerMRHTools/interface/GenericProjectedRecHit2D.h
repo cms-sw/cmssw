@@ -10,7 +10,7 @@ public:
 
   GenericProjectedRecHit2D( const LocalPoint& pos, const LocalError& err,
                      const GeomDet* det, const GeomDet* originaldet,
-                     const TransientTrackingRecHit::ConstRecHitPointer originalHit,
+                     TransientTrackingRecHit::ConstRecHitPointer originalHit,
                      const TrackingRecHitPropagator* propagator);
 
   virtual AlgebraicSymMatrix parametersError() const {

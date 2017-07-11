@@ -66,7 +66,7 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   template <class T, class U>
   float computeWorstPFChargedIsolation(const T& photon,
 				       const U& pfCandidates,
-				       const edm::Handle<reco::VertexCollection> vertices,
+				       edm::Handle<reco::VertexCollection> vertices,
 				       bool isAOD,
 				       float dRmax, float dxyMax, float dzMax,
 				       float dRvetoBarrel, float dRvetoEndcap, float ptMin);
@@ -74,9 +74,9 @@ class PhotonIDValueMapProducer : public edm::stream::EDProducer<> {
   // Some helper functions that are needed to access info in
   // AOD vs miniAOD
   reco::PFCandidate::ParticleType
-  candidatePdgId(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
+  candidatePdgId(edm::Ptr<reco::Candidate> candidate, bool isAOD);
 
-  const reco::Track* getTrackPointer(const edm::Ptr<reco::Candidate> candidate, bool isAOD);
+  const reco::Track* getTrackPointer(edm::Ptr<reco::Candidate> candidate, bool isAOD);
 
 
   // The object that will compute 5x5 quantities  

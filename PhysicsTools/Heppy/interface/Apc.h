@@ -19,7 +19,7 @@ struct Apc {
   static double getApcJetMetMin( const std::vector<double>& et,
                                  const std::vector<double>& px,
                                  const std::vector<double>& py,
-                                 const double metx, const double mety);
+                                 double metx, double mety);
    
 };
 

@@ -28,7 +28,7 @@ class ParametersDefinerForTP {
     typedef math::XYZTLorentzVectorD LorentzVector; ///< Lorentz vector
 
   virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, 
-	const Charge ch, const Point & vtx, const LorentzVector& lv) const;
+	Charge ch, const Point & vtx, const LorentzVector& lv) const;
 
   virtual TrackingParticle::Vector momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef& tpr) const{
     return momentum(iEvent, iSetup, tpr->charge(),tpr->vertex(),tpr->p4());
@@ -39,7 +39,7 @@ class ParametersDefinerForTP {
   }
 
   virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup,
-	const Charge ch, const Point & vtx, const LorentzVector& lv) const;
+	Charge ch, const Point & vtx, const LorentzVector& lv) const;
  
   virtual TrackingParticle::Point vertex(const edm::Event& iEvent, const edm::EventSetup& iSetup, const TrackingParticleRef& tpr) const{
     return vertex(iEvent, iSetup, tpr->charge(),tpr->vertex(),tpr->p4());

@@ -102,7 +102,7 @@ private:
   
   std::unique_ptr<TrackingRegion> 
   createTrackingRegion(const reco::SuperCluster& superCluster,const GlobalPoint& vtxPos,
-		       const double deltaZVertex,const Charge charge,
+		       double deltaZVertex,Charge charge,
 		       const MeasurementTrackerEvent* measTrackerEvent,
 		       const MagneticField& magField)const;
   

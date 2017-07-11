@@ -53,7 +53,7 @@ namespace edm {
   class OStreamColumn {
   public:
     explicit OStreamColumn(std::string const& t);
-    explicit OStreamColumn(std::string const& t, std::size_t const w);
+    explicit OStreamColumn(std::string const& t, std::size_t w);
 
     template <typename T>
     auto operator()(T const& t) const

@@ -35,7 +35,7 @@ public:
 			const MeasurementEstimator& aEstimator,
 			const MultiTrajectoryStateMerger& merger,
 			float errorRescaling,
-			const bool materialBeforeUpdate = true,
+			bool materialBeforeUpdate = true,
 			const DetLayerGeometry* detLayerGeometry=0);
 
   virtual ~GsfTrajectorySmoother();

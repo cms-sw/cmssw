@@ -65,10 +65,10 @@ public:
   virtual int rocsX() const { return specificTopology().rocsX(); } 	 
   virtual int rowsperroc() const { return specificTopology().rowsperroc(); } 	 
   virtual int colsperroc() const { return specificTopology().colsperroc(); }
-  virtual float localX( const float mpX ) const;
-  virtual float localX( const float mpX, const Topology::LocalTrackPred &trkPred ) const;
-  virtual float localY( const float mpY ) const;
-  virtual float localY( const float mpY, const Topology::LocalTrackPred &trkPred ) const;
+  virtual float localX( float mpX ) const;
+  virtual float localX( float mpX, const Topology::LocalTrackPred &trkPred ) const;
+  virtual float localY( float mpY ) const;
+  virtual float localY( float mpY, const Topology::LocalTrackPred &trkPred ) const;
 
   virtual bool isItBigPixelInX(const int ixbin) const {
     return specificTopology().isItBigPixelInX(ixbin);

@@ -73,16 +73,16 @@ private:
                                      std::vector<int> &hadFlavour, std::vector<int> &hadFromTopWeakDecay, std::vector<int> &hadBHadronId );
     int analyzeMothers( const reco::Candidate* thisParticle, int& topDaughterQId, int& topBarDaughterQId, 
                         std::vector<const reco::Candidate*> &hadMothers, std::vector<std::vector<int> > &hadMothersIndices, 
-                        std::set<const reco::Candidate*> *analyzedParticles, const int prevPartIndex );
+                        std::set<const reco::Candidate*> *analyzedParticles, int prevPartIndex );
     bool putMotherIndex( std::vector<std::vector<int> > &hadMothersIndices, int partIndex, int mothIndex );
-    bool isHadron( const int flavour, const reco::Candidate* thisParticle );
-    bool isHadronPdgId( const int flavour, const int pdgId );
-    bool isMesonPdgId( const int flavour, const int pdgId );
-    bool isBaryonPdgId( const int flavour, const int pdgId );
-    int flavourSign( const int pdgId );
-    bool hasHadronDaughter( const int flavour, const reco::Candidate* thisParticle );
+    bool isHadron( int flavour, const reco::Candidate* thisParticle );
+    bool isHadronPdgId( int flavour, int pdgId );
+    bool isMesonPdgId( int flavour, int pdgId );
+    bool isBaryonPdgId( int flavour, int pdgId );
+    int flavourSign( int pdgId );
+    bool hasHadronDaughter( int flavour, const reco::Candidate* thisParticle );
     int idInList( std::vector<const reco::Candidate*> particleList, const reco::Candidate* particle );
-    int idInList( std::vector<int> list, const int value );
+    int idInList( std::vector<int> list, int value );
     int findInMothers( int idx, std::vector<int> &mothChains, const std::vector<std::vector<int> > &hadMothersIndices,
                        const std::vector<reco::GenParticle> &hadMothers, int status, int pdgId, bool pdgAbs,
                        int stopId, int firstLast, bool verbose );
@@ -91,11 +91,11 @@ private:
     bool checkForLoop( std::vector<const reco::Candidate*> &particleChain, const reco::Candidate* particle );
     std::string getParticleName( int id ) const;
 
-    bool fixExtraSameFlavours( const unsigned int hadId, const std::vector<int> &hadIndices, 
+    bool fixExtraSameFlavours( unsigned int hadId, const std::vector<int> &hadIndices, 
                                const std::vector<reco::GenParticle> &hadMothers, const std::vector<std::vector<int> > &hadMothersIndices, 
                                const std::vector<int> &isFromTopWeakDecay, const std::vector<std::vector<int> > &LastQuarkIds, 
                                const std::vector<std::vector<int> > &LastQuarkMotherIds, std::vector<int> &lastQuarkIndices, 
-                               std::vector<int> &hadronFlavour, std::set<int> &checkedHadronIds, const int lastQuarkIndex );
+                               std::vector<int> &hadronFlavour, std::set<int> &checkedHadronIds, int lastQuarkIndex );
 
     // ----------member data ---------------------------
     edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;

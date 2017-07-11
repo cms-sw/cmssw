@@ -31,10 +31,10 @@ template<class C> class EcalUncalibRecHitRecChi2Algo
   EcalUncalibRecHitRecChi2Algo<C>() { };
   EcalUncalibRecHitRecChi2Algo<C>(
 				  const C& dataFrame,
-				  const double amplitude,
+				  double amplitude,
 				  const EcalTimeCalibConstant& timeIC,
-				  const double amplitudeOutOfTime,
-				  const double jitter,
+				  double amplitudeOutOfTime,
+				  double jitter,
 				  const double* pedestals,
 				  const double* pedestalsRMS,
 				  const double* gainRatios,

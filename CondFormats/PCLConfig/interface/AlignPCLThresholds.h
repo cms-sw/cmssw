@@ -37,8 +37,8 @@ class AlignPCLThresholds{
   std::array<float,6> getMaxMoveCut (const std::string &AlignableId) const; 
   std::array<float,6> getMaxErrorCut(const std::string &AlignableId) const;
   
-  std::array<float,4> getExtraDOFCutsForAlignable(const std::string &AlignableId,const unsigned int i) const;
-  std::string getExtraDOFLabelForAlignable(const std::string &AlignableId,const unsigned int i) const;
+  std::array<float,4> getExtraDOFCutsForAlignable(const std::string &AlignableId,unsigned int i) const;
+  std::string getExtraDOFLabelForAlignable(const std::string &AlignableId,unsigned int i) const;
 
   double size()const {return m_thresholds.size();}
   std::vector<std::string> getAlignableList() const;

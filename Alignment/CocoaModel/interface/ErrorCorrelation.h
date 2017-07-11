@@ -16,9 +16,9 @@ typedef std::pair<ALIstring, ALIstring> pss;
 class ErrorCorrelation {
 
  public:
-  ErrorCorrelation( const pss& entry1, const pss& entry2, const ALIdouble corr );
+  ErrorCorrelation( const pss& entry1, const pss& entry2, ALIdouble corr );
 
-  void update( const ALIdouble corr );
+  void update( ALIdouble corr );
 
   const pss& getEntry1() const {
     return theEntry1; }

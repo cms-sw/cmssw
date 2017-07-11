@@ -27,7 +27,7 @@ public:
 
     /// constructor
     explicit L1GtTrigReportEntry(const std::string& menuName, const std::string& algName,
-        const int prescaleFactor, const int triggerMask, const int daqPartition);
+        int prescaleFactor, int triggerMask, int daqPartition);
 
     /// destructor
     virtual ~L1GtTrigReportEntry();
@@ -100,7 +100,7 @@ public:
 public:
 
     /// increase # of events accepted/rejected for this entry
-    void addValidEntry(const bool algResultAfterMask, const bool algResultBeforeMask);
+    void addValidEntry(bool algResultAfterMask, bool algResultBeforeMask);
 
     /// increase # of events with error 
     void addErrorEntry();

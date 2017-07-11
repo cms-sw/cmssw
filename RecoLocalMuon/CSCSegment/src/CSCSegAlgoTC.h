@@ -100,8 +100,8 @@ class CSCSegAlgoTC : public CSCSegmentAlgorithm {
    * Try adding non-used hits to segment
    */
   void tryAddingHitsToSegment(const ChamberHitContainer& rechits, 
-			      const ChamberHitContainerCIt i1, 
-			      const ChamberHitContainerCIt i2);
+			      ChamberHitContainerCIt i1, 
+			      ChamberHitContainerCIt i2);
   
   /**
    * Return true if segment is good.

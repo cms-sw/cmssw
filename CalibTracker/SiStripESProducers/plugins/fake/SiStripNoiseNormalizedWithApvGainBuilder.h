@@ -45,7 +45,7 @@ class SiStripNoiseNormalizedWithApvGainBuilder : public edm::EDAnalyzer
    * The only other possibility is that the number of parameters equals the number of layers, otherwise
    * an exception of type "Configuration" will be thrown.
    */
-  void fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, const int subDet, const unsigned short layers) const;
+  void fillSubDetParameter(std::map<int, std::vector<double> > & mapToFill, const std::vector<double> & v, int subDet, unsigned short layers) const;
 
   inline void printLog(const uint32_t detId, const unsigned short strip, const double & noise) const
   {

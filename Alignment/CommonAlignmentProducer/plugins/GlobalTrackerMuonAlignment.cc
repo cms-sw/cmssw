@@ -119,11 +119,11 @@ class GlobalTrackerMuonAlignment : public edm::EDAnalyzer {
 		  TrajectoryStateOnSurface&);
   void muonFitter(reco::TrackRef, reco::TransientTrack&, PropagationDirection, 
 		  TrajectoryStateOnSurface&);
-  void debugTrackHit(const std::string, reco::TrackRef);
-  void debugTrackHit(const std::string, reco::TransientTrack&);
-  void debugTrajectorySOS(const std::string, TrajectoryStateOnSurface&);
-  void debugTrajectorySOSv(const std::string, TrajectoryStateOnSurface);
-  void debugTrajectory(const std::string, Trajectory&);
+  void debugTrackHit(std::string, reco::TrackRef);
+  void debugTrackHit(std::string, reco::TransientTrack&);
+  void debugTrajectorySOS(std::string, TrajectoryStateOnSurface&);
+  void debugTrajectorySOSv(std::string, TrajectoryStateOnSurface);
+  void debugTrajectory(std::string, Trajectory&);
 
   void gradientGlobal(GlobalVector&, GlobalVector&, GlobalVector&, GlobalVector&, 
 		      GlobalVector&, AlgebraicSymMatrix66&);

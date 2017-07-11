@@ -47,7 +47,7 @@ class SiStripPartition {
   
   void pset( const edm::ParameterSet& );
   
-  void update( const SiStripConfigDb* const );
+  void update( SiStripConfigDb* const );
   
   void print( std::stringstream&, bool using_db = false ) const; 
   

@@ -21,7 +21,7 @@ public:
   void setInput(std::vector<CaloHit> *);
   std::vector<SimG4HcalHitCluster> * getClusters(bool);
   double rDist(const SimG4HcalHitCluster* , const CaloHit*) const;
-  double rDist(const double, const double, const double, const double) const;
+  double rDist(double, double, double, double) const;
 
 private :
 

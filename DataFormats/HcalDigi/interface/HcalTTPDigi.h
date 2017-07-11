@@ -15,7 +15,7 @@ public:
     HcalTTPDigi();
     HcalTTPDigi(int identifier, int samples, int presamples, unsigned int fwVersion, int algorithm, unsigned int lPipe);
     
-    void setSample(int relativeSample,const uint16_t* triggerInputs, const uint32_t algodep, const uint8_t outputTrigger);
+    void setSample(int relativeSample,const uint16_t* triggerInputs, uint32_t algodep, uint8_t outputTrigger);
 
     /** get the input bit pattern for the given sample (relative to the SOI)
         the vector will be empty if there is no data for the requested sample

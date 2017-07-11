@@ -42,8 +42,8 @@ public:
   StripClusterParameterEstimator::LocalValues
   localParameters( const SiStripCluster&, const GeomDetUnit&, const LocalTrajectoryParameters&) const override;
   
-  float stripErrorSquared(const unsigned N, const float uProj, const SiStripDetId::SubDetector loc ) const ;
-  float legacyStripErrorSquared(const unsigned N, const float uProj) const;
+  float stripErrorSquared(unsigned N, float uProj, SiStripDetId::SubDetector loc ) const ;
+  float legacyStripErrorSquared(unsigned N, float uProj) const;
 
 
   StripCPEfromTrackAngle( edm::ParameterSet & conf,

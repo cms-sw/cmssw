@@ -21,8 +21,8 @@ public:
   // used by the JsonWritingTimedPoolOutputModule,
   // fms will be nullptr in such case
   static boost::property_tree::ptree fillJson(
-      int run, int lumi, const std::string &dataFilePathName, const std::string transferDestinationStr,
-      const std::string mergeTypeStr, evf::FastMonitoringService *fms);
+      int run, int lumi, const std::string &dataFilePathName, std::string transferDestinationStr,
+      std::string mergeTypeStr, evf::FastMonitoringService *fms);
 
   
 protected:
@@ -55,7 +55,7 @@ private:
   void saveForOnlinePB(int run, const std::string &suffix) const;
   void saveForOnline(int run, const std::string &suffix, const std::string &rewrite) const;
 
-  void saveForFilterUnit(const std::string& rewrite, int run, int lumi, const FileFormat fileFormat) const;
+  void saveForFilterUnit(const std::string& rewrite, int run, int lumi, FileFormat fileFormat) const;
   void saveJobReport(const std::string &filename) const;
 
   Convention	convention_;

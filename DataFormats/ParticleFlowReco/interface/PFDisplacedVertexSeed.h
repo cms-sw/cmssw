@@ -51,8 +51,8 @@ namespace reco {
 
     /// Add a track Ref to the Seed and recalculate the seedPoint with a new dcaPoint
     /// A weight different from 1 may be assign to the new DCA point 
-    void updateSeedPoint(const GlobalPoint& dcaPoint, const TrackBaseRef, 
-			 const TrackBaseRef, double weight = 1);
+    void updateSeedPoint(const GlobalPoint& dcaPoint, TrackBaseRef, 
+			 TrackBaseRef, double weight = 1);
 
     /// Merge two Seeds if their seed Points are close enough
     void mergeWith(const PFDisplacedVertexSeed& displacedVertex);

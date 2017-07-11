@@ -478,7 +478,7 @@ private:
   void fillTrackingParticlesForSeeds(const TrackingParticleRefVector& tpCollection,
                                      const reco::SimToRecoCollection& simRecColl,
                                      const TrackingParticleRefKeyToIndex& tpKeyToIndex,
-                                     const unsigned int seedOffset
+                                     unsigned int seedOffset
                                      );
 
   void fillVertices(const reco::VertexCollection& vertices,

@@ -20,13 +20,13 @@ public:
   virtual const std::vector < reco::TransientTrack > * tracks() const = 0;
   virtual ~RecTracksDistanceMatrix() {};
 
-  virtual double distance ( const reco::TransientTrack , const reco::TransientTrack ) const = 0;
-  virtual double weightedDistance ( const reco::TransientTrack , const reco::TransientTrack ) const = 0;
+  virtual double distance ( reco::TransientTrack , reco::TransientTrack ) const = 0;
+  virtual double weightedDistance ( reco::TransientTrack , reco::TransientTrack ) const = 0;
 
-  virtual GlobalPoint crossingPoint ( const reco::TransientTrack , const reco::TransientTrack ) const = 0;
+  virtual GlobalPoint crossingPoint ( reco::TransientTrack , reco::TransientTrack ) const = 0;
 
   virtual std::pair < GlobalPoint, GlobalPoint > pointsOfClosestApproach (
-              const reco::TransientTrack, const reco::TransientTrack ) const = 0;
+              reco::TransientTrack, reco::TransientTrack ) const = 0;
 
   virtual bool hasDistances()      const =0;
   virtual bool hasWeightedDistances()      const =0;

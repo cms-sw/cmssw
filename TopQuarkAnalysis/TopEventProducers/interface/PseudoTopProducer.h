@@ -21,7 +21,7 @@ public:
 private:
   bool isFromHadron(const reco::Candidate* p) const;
   bool isBHadron(const reco::Candidate* p) const;
-  bool isBHadron(const unsigned int pdgId) const;
+  bool isBHadron(unsigned int pdgId) const;
   void insertAllDaughters(const reco::Candidate* p, std::set<const reco::Candidate*>& list) const;
 
   const reco::Candidate* getLast(const reco::Candidate* p);

@@ -23,7 +23,7 @@ public:
   typedef PixelToFEDAssociate::CablingRocId CablingRocId;
   typedef PixelToFEDAssociate::DetectorRocId DetectorRocId;
 
-  PixelToLNKAssociateFromAscii(const std::string & fileName, const bool phase1=false);
+  PixelToLNKAssociateFromAscii(const std::string & fileName, bool phase1=false);
 
   virtual const CablingRocId * operator()(const DetectorRocId& roc) const;
 

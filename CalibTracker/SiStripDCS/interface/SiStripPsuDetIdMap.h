@@ -94,11 +94,11 @@ class SiStripPsuDetIdMap
    * Build the map from given file.
    * ATTENTION: this will only build the pgMap, not the cgMap.
    */
-  void BuildMap( const std::string & mapFile, const bool debug );
+  void BuildMap( const std::string & mapFile, bool debug );
   //Old "rawmap" (vector of pairs) method to be used by excludeddetids:
   void BuildMap( const std::string & mapFile, std::vector<std::pair<uint32_t,std::string> > & rawmap);
   /// Overloaded method that does the buidling
-  void BuildMap( const std::string & mapFile, const bool debug, std::map<std::string,std::vector<uint32_t> > & LVmap, std::map<std::string,std::vector<uint32_t> > & HVmap, std::map<std::string,std::vector<uint32_t> > & HVUnmappedmap, std::map<std::string,std::vector<uint32_t> > & HVCrosstalkingmap);
+  void BuildMap( const std::string & mapFile, bool debug, std::map<std::string,std::vector<uint32_t> > & LVmap, std::map<std::string,std::vector<uint32_t> > & HVmap, std::map<std::string,std::vector<uint32_t> > & HVUnmappedmap, std::map<std::string,std::vector<uint32_t> > & HVCrosstalkingmap);
 
   //Service function to remove duplicated from vectors of detids:
   void RemoveDuplicateDetIDs(std::vector<uint32_t> & detids);

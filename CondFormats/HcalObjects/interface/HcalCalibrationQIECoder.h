@@ -18,9 +18,9 @@ class HcalCalibrationQIECoder {
  public:
   HcalCalibrationQIECoder (unsigned long fId = 0) : mId (fId) {}
   /// ADC [0..31] -> fC conversion
-  float charge (const unsigned fAdc) const;
+  float charge (unsigned fAdc) const;
   /// fC -> ADC conversion
-  unsigned adc (const float fCharge) const;
+  unsigned adc (float fCharge) const;
 
   // following methods are not for use by consumers
   float minCharge (unsigned fBin) const;

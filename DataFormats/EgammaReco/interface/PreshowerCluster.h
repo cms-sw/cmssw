@@ -24,9 +24,9 @@ namespace reco {
     virtual ~PreshowerCluster();
 
     /// Constructor from EcalRecHits
-    PreshowerCluster(const double E, const Point& pos, 
+    PreshowerCluster(double E, const Point& pos, 
                      const std::vector< std::pair<DetId, float> >& usedHits, 
-                     const int plane);
+                     int plane);
 
     /// Constructor from cluster
     PreshowerCluster(const PreshowerCluster&);

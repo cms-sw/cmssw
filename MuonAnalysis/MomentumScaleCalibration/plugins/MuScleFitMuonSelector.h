@@ -81,7 +81,7 @@ class MuScleFitMuonSelector
 			 MuScleFitPlotter * plotter);
   // void selectGeneratedMuons(const edm::Event & event, std::vector<std::pair<lorentzVector,lorentzVector> > & genPair);
   void selectSimulatedMuons(const edm::Event & event,
-			    const bool ifHepMC, edm::Handle<edm::HepMCProduct> evtMC,
+			    bool ifHepMC, edm::Handle<edm::HepMCProduct> evtMC,
 			    std::vector<std::pair<lorentzVector,lorentzVector> > & simPair,
 			    MuScleFitPlotter * plotter);
 

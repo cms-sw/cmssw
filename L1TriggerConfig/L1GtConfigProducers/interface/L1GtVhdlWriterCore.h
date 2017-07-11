@@ -93,7 +93,7 @@ class L1GtVhdlWriterCore : public L1GtVhdlDefinitions
 
         /// calculates the integer value for jet counts conditions and furthermore counts
         /// how many jet counts of one type are in trigger menu
-        void addJetCountsToCond2IntMap(const int chip, const std::vector<ConditionMap> &conditionMap, std::map<std::string,int> &conditionToIntegerMap);
+        void addJetCountsToCond2IntMap(int chip, const std::vector<ConditionMap> &conditionMap, std::map<std::string,int> &conditionToIntegerMap);
 
         /// processes algorithm map delivered by parser, replaces condition names by types and serial numbers,
         /// splits the map in a vector two seperate ones for the two condition chips

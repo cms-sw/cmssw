@@ -43,8 +43,8 @@ public:
 
     ///     from base template condition (from event setup usually)
     L1GtMuonCondition(const L1GtCondition*, const L1GlobalTriggerGTL*,
-            const int nrL1Mu,
-            const int ifMuEtaNumberBits);
+            int nrL1Mu,
+            int ifMuEtaNumberBits);
 
     // copy constructor
     L1GtMuonCondition(const L1GtMuonCondition&);
@@ -102,10 +102,10 @@ private:
     void copy(const L1GtMuonCondition& cp);
 
     /// load muon candidates
-    const L1MuGMTCand* getCandidate(const int indexCand) const;
+    const L1MuGMTCand* getCandidate(int indexCand) const;
 
     /// function to check a single object if it matches a condition
-    const bool checkObjectParameter(const int iCondition,
+    const bool checkObjectParameter(int iCondition,
         const L1MuGMTCand& cand) const;
 
 private:

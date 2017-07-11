@@ -88,16 +88,16 @@ private:
   void findJets();  
 
   /// Returns true if region index is the centre of a jet. Set boundary = true if at edge of HCAL.
-  bool detectJet(const UShort centreIndex, const bool boundary = false) const;
+  bool detectJet(UShort centreIndex, bool boundary = false) const;
 
   /// Returns energy sum of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of HCAL.
-  ULong calcJetEnergy(const UShort centreIndex, const bool boundary = false) const;
+  ULong calcJetEnergy(UShort centreIndex, bool boundary = false) const;
 
   /// returns the encoded (eta, phi) position of the centre region
-  L1CaloRegionDetId calcJetPosition(const UShort centreIndex) const;
+  L1CaloRegionDetId calcJetPosition(UShort centreIndex) const;
 
   /// Returns combined tauVeto of the 9 regions centred (physically) about centreIndex. Set boundary = true if at edge of Endcap.
-  bool calcJetTauVeto(const UShort centreIndex, const bool boundary = false) const;
+  bool calcJetTauVeto(UShort centreIndex, bool boundary = false) const;
     
 };
 

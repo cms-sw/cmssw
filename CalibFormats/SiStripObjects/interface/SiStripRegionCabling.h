@@ -44,7 +44,7 @@ class SiStripRegionCabling {
 
   typedef uint32_t ElementIndex;
 
-  SiStripRegionCabling(const uint32_t,const uint32_t, const double);
+  SiStripRegionCabling(uint32_t,uint32_t, double);
 
   ~SiStripRegionCabling() {}
 
@@ -63,40 +63,40 @@ class SiStripRegionCabling {
 
   inline const std::pair<double,double> regionDimensions() const;
 
-  inline const Position position(const uint32_t) const;
+  inline const Position position(uint32_t) const;
 
-  inline const Position position(const PositionIndex) const;
+  inline const Position position(PositionIndex) const;
 
-  inline const PositionIndex positionIndex(const uint32_t) const;
+  inline const PositionIndex positionIndex(uint32_t) const;
 
-  const PositionIndex positionIndex(const Position) const;
+  const PositionIndex positionIndex(Position) const;
 
-  const uint32_t region(const Position) const;
+  const uint32_t region(Position) const;
   
-  inline const uint32_t region(const PositionIndex) const;
+  inline const uint32_t region(PositionIndex) const;
 
   /** Method for incrementing position index. */
 
-  PositionIndex increment(const PositionIndex, int, int) const;
+  PositionIndex increment(PositionIndex, int, int) const;
 
   /** Methods for interchanging between region-subdet-layer and the 
       corresponding element index. */
 
-  inline static const ElementIndex elementIndex(const uint32_t region, const SubDet, const uint32_t layer);
+  inline static const ElementIndex elementIndex(uint32_t region, SubDet, uint32_t layer);
 
-  inline const ElementIndex elementIndex(const PositionIndex, const SubDet, const uint32_t layer) const;
+  inline const ElementIndex elementIndex(PositionIndex, SubDet, uint32_t layer) const;
 
-  inline const ElementIndex elementIndex(const Position, const SubDet, const uint32_t layer) const;
+  inline const ElementIndex elementIndex(Position, SubDet, uint32_t layer) const;
 
-  inline static const uint32_t layer(const ElementIndex);
+  inline static const uint32_t layer(ElementIndex);
   
-  inline static const SubDet subdet(const ElementIndex);
+  inline static const SubDet subdet(ElementIndex);
   
-  inline static const uint32_t region(const ElementIndex);
+  inline static const uint32_t region(ElementIndex);
  
 //  /** Methods for extracting det-id information */
 //
-  static const SubDet subdetFromDetId(const uint32_t detid);
+  static const SubDet subdetFromDetId(uint32_t detid);
 
   /** */
   void print( std::stringstream& ) const;

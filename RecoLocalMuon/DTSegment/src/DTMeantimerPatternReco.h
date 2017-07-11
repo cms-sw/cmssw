@@ -88,10 +88,10 @@ class DTMeantimerPatternReco : public DTRecSegment2DBaseAlgo {
                std::vector<DTSegmentCand*> &result);
 
   // fit a set of left/right hits, calculate t0 and chi^2
-  DTSegmentCand* fitWithT0(DTSegmentCand* seg, const bool fitdebug);
+  DTSegmentCand* fitWithT0(DTSegmentCand* seg, bool fitdebug);
 
   // check if two hist can be considered in one segment (come from different layers, not too far away etc.)
-  bool geometryFilter( const DTWireId first, const DTWireId second ) const;
+  bool geometryFilter( DTWireId first, DTWireId second ) const;
 
   bool checkDoubleCandidates(std::vector<DTSegmentCand*>& segs, DTSegmentCand* seg);
 

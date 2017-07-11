@@ -72,7 +72,7 @@ static const unsigned int PassAll         = DETAIN | DPHIIN | SIGMAIETAIETA | HO
 
 #ifndef STANDALONEID
 
-bool PassWP(const WorkingPoint workingPoint,
+bool PassWP(WorkingPoint workingPoint,
     const reco::GsfElectronRef &ele,
     const edm::Handle<reco::ConversionCollection> &conversions,
     const reco::BeamSpot &beamspot,
@@ -84,7 +84,7 @@ bool PassWP(const WorkingPoint workingPoint,
     ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 
-bool PassWP(const WorkingPoint workingPoint,
+bool PassWP(WorkingPoint workingPoint,
     const reco::GsfElectron &ele,
     const edm::Handle<reco::ConversionCollection> &conversions,
     const reco::BeamSpot &beamspot,
@@ -96,15 +96,15 @@ bool PassWP(const WorkingPoint workingPoint,
     ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 
-bool PassTriggerCuts(const TriggerWorkingPoint triggerWorkingPoint, const reco::GsfElectronRef &ele);
+bool PassTriggerCuts(TriggerWorkingPoint triggerWorkingPoint, const reco::GsfElectronRef &ele);
 
-bool PassTriggerCuts(const TriggerWorkingPoint triggerWorkingPoint, const reco::GsfElectron &ele);
+bool PassTriggerCuts(TriggerWorkingPoint triggerWorkingPoint, const reco::GsfElectron &ele);
 
 bool PassEoverPCuts(const reco::GsfElectronRef &ele);
 
 bool PassEoverPCuts(const reco::GsfElectron &ele);
 
-unsigned int TestWP(const WorkingPoint workingPoint,
+unsigned int TestWP(WorkingPoint workingPoint,
     const reco::GsfElectronRef &ele,
     const edm::Handle<reco::ConversionCollection> &conversions,
     const reco::BeamSpot &beamspot,
@@ -115,7 +115,7 @@ unsigned int TestWP(const WorkingPoint workingPoint,
     const double &rho,
     ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
-unsigned int TestWP(const WorkingPoint workingPoint,
+unsigned int TestWP(WorkingPoint workingPoint,
     const reco::GsfElectron &ele,
     const edm::Handle<reco::ConversionCollection> &conversions,
     const reco::BeamSpot &beamspot,
@@ -134,21 +134,21 @@ unsigned int TestWP(const WorkingPoint workingPoint,
 // itself depend on CMSSW code
 //
 
-bool PassWP(WorkingPoint workingPoint, const bool isEB, const float pt, const float eta,
-    const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe,
-    const float ooemoop, const float d0vtx, const float dzvtx, const float iso_ch, const float iso_em, const float iso_nh, 
-    const bool vtxFitConversion, const unsigned int mHits, const double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
+bool PassWP(WorkingPoint workingPoint, bool isEB, float pt, float eta,
+    float dEtaIn, float dPhiIn, float sigmaIEtaIEta, float hoe,
+    float ooemoop, float d0vtx, float dzvtx, float iso_ch, float iso_em, float iso_nh, 
+    bool vtxFitConversion, unsigned int mHits, double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
-bool PassTriggerCuts(const TriggerWorkingPoint triggerWorkingPoint, const bool isEB, const float pt, 
-    const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe,
-    const float trackIso, const float ecalIso, const float hcalIso);
+bool PassTriggerCuts(TriggerWorkingPoint triggerWorkingPoint, bool isEB, float pt, 
+    float dEtaIn, float dPhiIn, float sigmaIEtaIEta, float hoe,
+    float trackIso, float ecalIso, float hcalIso);
 
-bool PassEoverPCuts(const float eta, const float eopin, const float fbrem);
+bool PassEoverPCuts(float eta, float eopin, float fbrem);
 
-unsigned int TestWP(WorkingPoint workingPoint, const bool isEB, const float pt, const float eta,
-    const float dEtaIn, const float dPhiIn, const float sigmaIEtaIEta, const float hoe,
-    const float ooemoop, const float d0vtx, const float dzvtx, const float iso_ch, const float iso_em, const float iso_nh, 
-    const bool vtxFitConversion, const unsigned int mHits, const double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
+unsigned int TestWP(WorkingPoint workingPoint, bool isEB, float pt, float eta,
+    float dEtaIn, float dPhiIn, float sigmaIEtaIEta, float hoe,
+    float ooemoop, float d0vtx, float dzvtx, float iso_ch, float iso_em, float iso_nh, 
+    bool vtxFitConversion, unsigned int mHits, double rho, ElectronEffectiveArea::ElectronEffectiveAreaTarget EAtarget);
 
 // print the bit mask
 void PrintDebug(unsigned int mask);

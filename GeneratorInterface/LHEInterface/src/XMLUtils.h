@@ -140,8 +140,8 @@ class CBInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 
 	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual XMLSize_t readBytes(XMLByte *const buf,
-				    const XMLSize_t size) override;
+	virtual XMLSize_t readBytes(XMLByte *buf,
+				    XMLSize_t size) override;
 
         virtual const XMLCh* getContentType() const override { return 0; }
 
@@ -160,8 +160,8 @@ class STLInputStream : public XERCES_CPP_NAMESPACE_QUALIFIER BinInputStream {
 
 	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual XMLSize_t readBytes(XMLByte *const buf,
-				    const XMLSize_t size) override;
+	virtual XMLSize_t readBytes(XMLByte *buf,
+				    XMLSize_t size) override;
 
         virtual const XMLCh* getContentType() const override { return 0; }
 
@@ -180,8 +180,8 @@ class StorageInputStream :
 
 	virtual XMLFilePos curPos() const override { return pos; }
 
-	virtual XMLSize_t readBytes(XMLByte *const buf,
-				    const XMLSize_t size) override;
+	virtual XMLSize_t readBytes(XMLByte *buf,
+				    XMLSize_t size) override;
 
         virtual const XMLCh* getContentType() const override { return 0; }
 

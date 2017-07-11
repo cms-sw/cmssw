@@ -55,13 +55,13 @@ class TtSemiLepKinFitter : public TopKinFitter {
   template <class LeptonType> int fit(const std::vector<pat::Jet>& jets, const pat::Lepton<LeptonType>& leps, const pat::MET& met);
   /// kinematic fit interface for plain 4-vecs
   int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
-	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, const int leptonCharge, const CovarianceMatrix::ObjectType leptonType);
+	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino, int leptonCharge, CovarianceMatrix::ObjectType leptonType);
   /// common core of the fit interface
   int fit(const TLorentzVector& p4HadP, const TLorentzVector& p4HadQ, const TLorentzVector& p4HadB, const TLorentzVector& p4LepB,
 	  const TLorentzVector& p4Lepton, const TLorentzVector& p4Neutrino,
 	  const TMatrixD& covHadP, const TMatrixD& covHadQ, const TMatrixD& covHadB, const TMatrixD& covLepB,
 	  const TMatrixD& covLepton, const TMatrixD& covNeutrino,
-	  const int leptonCharge);
+	  int leptonCharge);
   /// return hadronic b quark candidate
   const pat::Particle fittedHadB() const { return (fitter_->getStatus()==0 ? fittedHadB_ : pat::Particle()); };
   /// return hadronic light quark candidate

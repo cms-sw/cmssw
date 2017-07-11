@@ -44,12 +44,12 @@ class DDLSAX2FileHandler : public DDLSAX2Handler
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
   
-  void startElement(const XMLCh* const uri, const XMLCh* const localname,
-		    const XMLCh* const qname, const Attributes& attrs) override;
-  void endElement(const XMLCh* const uri, const XMLCh* const localname,
-		  const XMLCh* const qname) override;
-  void characters (const XMLCh *const chars, const XMLSize_t length) override;
-  void comment (const XMLCh *const chars, const XMLSize_t length ) override;
+  void startElement(const XMLCh* uri, const XMLCh* localname,
+		    const XMLCh* qname, const Attributes& attrs) override;
+  void endElement(const XMLCh* uri, const XMLCh* localname,
+		  const XMLCh* qname) override;
+  void characters (const XMLCh *chars, XMLSize_t length) override;
+  void comment (const XMLCh *chars, XMLSize_t length ) override;
   
  private:
   virtual const std::string& parent() const;

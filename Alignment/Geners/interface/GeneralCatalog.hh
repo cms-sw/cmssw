@@ -21,7 +21,7 @@ namespace gs {
             {return records_.find(id) != records_.end();}
 
         CPP11_shared_ptr<const CatalogEntry> retrieveEntry(
-            const unsigned long long id) const;
+            unsigned long long id) const;
 
         bool retrieveStreampos(
             unsigned long long id, unsigned* compressionCode,

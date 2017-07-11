@@ -20,8 +20,8 @@ class RPCCluster{
   float y() const;
   float yRMS() const;
 
-  void addTime(const float time);
-  void addY(const float y);
+  void addTime(float time);
+  void addY(float y);
   void merge(const RPCCluster& cl);
 
   bool operator<(const RPCCluster& cl) const;

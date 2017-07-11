@@ -25,9 +25,9 @@ class DigiPileupCorrHistogramMaker {
 
   ~DigiPileupCorrHistogramMaker();
 
-  void book(const std::string dirname, const std::map<unsigned int, std::string>& labels);
-  void book(const std::string dirname);
-  void beginRun(const unsigned int nrun);
+  void book(std::string dirname, const std::map<unsigned int, std::string>& labels);
+  void book(std::string dirname);
+  void beginRun(unsigned int nrun);
   void fill(const edm::Event& iEvent, const std::map<unsigned int,int>& ndigi);
 
  private:

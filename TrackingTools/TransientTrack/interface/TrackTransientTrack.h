@@ -21,16 +21,16 @@ namespace reco {
     // constructor from persistent track
     TrackTransientTrack();
     TrackTransientTrack( const Track & tk , const MagneticField* field);
-    TrackTransientTrack( const Track & tk , const double time, const double dtime, const MagneticField* field);
+    TrackTransientTrack( const Track & tk , double time, double dtime, const MagneticField* field);
 
     TrackTransientTrack( const TrackRef & tk , const MagneticField* field);
-    TrackTransientTrack( const TrackRef & tk , const double time, const double dtime, const MagneticField* field);
+    TrackTransientTrack( const TrackRef & tk , double time, double dtime, const MagneticField* field);
 
     TrackTransientTrack( const TrackRef & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    TrackTransientTrack( const TrackRef & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    TrackTransientTrack( const TrackRef & tk , double time, double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     TrackTransientTrack( const Track & tk , const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    TrackTransientTrack( const Track & tk , const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    TrackTransientTrack( const Track & tk , double time, double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     TrackTransientTrack( const TrackTransientTrack & tt );
 

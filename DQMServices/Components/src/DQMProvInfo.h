@@ -43,9 +43,9 @@ class DQMProvInfo : public DQMEDAnalyzer {
   void analyzeEventInfo(const edm::Event& e);
   void analyzeProvInfo(const edm::Event& e);
 
-  void endLuminosityBlockLhcInfo(const int currentLSNumber);
-  void endLuminosityBlockEventInfo(const int currentLSNumber);
-  void blankPreviousLumiSections(const int currentLSNumber);
+  void endLuminosityBlockLhcInfo(int currentLSNumber);
+  void endLuminosityBlockEventInfo(int currentLSNumber);
+  void blankPreviousLumiSections(int currentLSNumber);
 
   // To max amount of lumisections we foresee for the plots
   // DQM GUI renderplugins provide scaling to actual amount

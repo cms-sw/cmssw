@@ -107,7 +107,7 @@ private:
 
     // The following integration corresponds to the cubic
     // interpolation of the coordinate
-    void integrateCoordinate(const unsigned which);
+    void integrateCoordinate(unsigned which);
 
     double dt_;
     unsigned dim_;

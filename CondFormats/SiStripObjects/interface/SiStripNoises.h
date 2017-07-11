@@ -55,7 +55,7 @@ class SiStripNoises
   ~SiStripNoises(){}
 
   bool put(const uint32_t& detID,const InputVector &input);
-  const Range getRange(const uint32_t detID) const;
+  const Range getRange(uint32_t detID) const;
   Range getRangeByPos(unsigned short pos) const;
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
   

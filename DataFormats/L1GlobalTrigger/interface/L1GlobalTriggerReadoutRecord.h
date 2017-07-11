@@ -55,9 +55,9 @@ public:
     L1GlobalTriggerReadoutRecord(int NumberBxInEvent);
 
     L1GlobalTriggerReadoutRecord(
-        const int numberBxInEvent,
-        const int numberFdlBoards,
-        const int numberPsbBoards);
+        int numberBxInEvent,
+        int numberFdlBoards,
+        int numberPsbBoards);
 
 
     /// copy constructor

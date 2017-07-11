@@ -113,7 +113,7 @@ namespace l1t
 	const std::string& schemaName, // for nominal schema, use ""
 	const std::string& tableName,
 	const std::string& conditionLHS = "",
-	const QueryResults conditionRHS = QueryResults(),
+	QueryResults conditionRHS = QueryResults(),
 	                                           // must have only one row
 	const std::string& conditionRHSName = ""
 	                 // if empty, conditionRHS must have only one column
@@ -125,7 +125,7 @@ namespace l1t
 	const std::string& schemaName, // for nominal schema, use ""
 	const std::string& tableName,
 	const std::string& conditionLHS = "",
-	const QueryResults conditionRHS = QueryResults(),
+	QueryResults conditionRHS = QueryResults(),
 	                                           // must have only one row
 	const std::string& conditionRHSName = ""
 	                 // if empty, conditionRHS must have only one column
@@ -138,7 +138,7 @@ namespace l1t
     const std::string& schemaName, // for nominal schema, use ""
     const std::string& viewName,
     const std::string& conditionLHS = "",
-    const QueryResults conditionRHS = QueryResults(),
+    QueryResults conditionRHS = QueryResults(),
                                                // must have only one row
     const std::string& conditionRHSName = ""
                      // if empty, conditionRHS must have only one column
@@ -150,7 +150,7 @@ namespace l1t
     const std::string& schemaName, // for nominal schema, use ""
     const std::string& viewName,
     const std::string& conditionLHS = "",
-    const QueryResults conditionRHS = QueryResults(),
+    QueryResults conditionRHS = QueryResults(),
                                                // must have only one row
     const std::string& conditionRHSName = ""
                      // if empty, conditionRHS must have only one column
@@ -165,7 +165,7 @@ namespace l1t
 	  const std::string& schemaName, // for nominal schema, use ""
 	  const std::string& tableName,
 	  const std::string& conditionLHS = "",
-	  const QueryResults conditionRHS = QueryResults(),
+	  QueryResults conditionRHS = QueryResults(),
 	                                            // must have only one row
 	  const std::string& conditionRHSName = ""
 	                    // if empty, conditionRHS must have only one column
@@ -180,7 +180,7 @@ namespace l1t
 	  const std::string& schemaName, // for nominal schema, use ""
 	  const std::string& tableName,
 	  const std::string& conditionLHS = "",
-	  const QueryResults conditionRHS = QueryResults(),
+	  QueryResults conditionRHS = QueryResults(),
 	                                           // must have only one row
 	  const std::string& conditionRHSName = ""
 	                 // if empty, conditionRHS must have only one column

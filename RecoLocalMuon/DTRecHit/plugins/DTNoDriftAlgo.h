@@ -73,7 +73,7 @@ class DTNoDriftAlgo : public DTRecHitBaseAlgo {
   // Do the actual work.
   virtual bool compute(const DTLayer* layer,
 		       const DTWireId& wireId,
-		       const float digiTime,
+		       float digiTime,
 		       const GlobalPoint& globPos, 
 		       LocalPoint& leftPoint,
 		       LocalPoint& rightPoint,
@@ -83,7 +83,7 @@ class DTNoDriftAlgo : public DTRecHitBaseAlgo {
   // Interface to the method which does the actual work suited for 2nd and 3rd steps 
   virtual bool compute(const DTLayer* layer,
 		       const DTWireId& wireId,
-		       const float digiTime,
+		       float digiTime,
 		       const GlobalPoint& globPos, 
 		       DTRecHit1D& newHit1D,
 		       int step) const;

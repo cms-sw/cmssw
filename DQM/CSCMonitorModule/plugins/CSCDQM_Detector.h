@@ -184,35 +184,35 @@ class Detector {
 
   public:
 
-    Detector(const unsigned int p_partitions_x = 0, const unsigned int p_partitions_y = 0);
+    Detector(unsigned int p_partitions_x = 0, unsigned int p_partitions_y = 0);
 
     const bool NextAddress(unsigned int& i, const Address*& adr, const Address& mask) const;
     const bool NextAddressBox(unsigned int& i, const AddressBox*& box, const Address& mask) const;
     //const bool NextAddressBoxByPartition(unsigned int& i, unsigned int& px, unsigned int& py, const AddressBox*& box, const Address& mask, const float xmin, const float xmax, const float ymin, const float ymax);
-    const bool NextAddressBoxByPartition (unsigned int& i, const unsigned int px, const unsigned int py, AddressBox*& box);
+    const bool NextAddressBoxByPartition (unsigned int& i, unsigned int px, unsigned int py, AddressBox*& box);
 
-    const float Area(const unsigned int station) const;
+    const float Area(unsigned int station) const;
     const float Area(const Address& adr) const;
 
     void PrintAddress(const Address& adr) const;
     const bool AddressFromString(const std::string& str_address, Address& adr) const;
 
-    const unsigned int NumberOfRings(const unsigned int station) const;
-    const unsigned int NumberOfChambers(const unsigned int station, const unsigned int ring) const;
-    const unsigned int NumberOfChamberCFEBs(const unsigned int station, const unsigned int ring) const;
-    const unsigned int NumberOfChamberHVs(const unsigned int station, const unsigned int ring) const;
+    const unsigned int NumberOfRings(unsigned int station) const;
+    const unsigned int NumberOfChambers(unsigned int station, unsigned int ring) const;
+    const unsigned int NumberOfChamberCFEBs(unsigned int station, unsigned int ring) const;
+    const unsigned int NumberOfChamberHVs(unsigned int station, unsigned int ring) const;
     unsigned int GlobalChamberIndex(unsigned int side, unsigned int station, unsigned int ring, unsigned int chamber) const;
 
   private:
 
-    const float Eta(const float r, const float z) const;
-    const float EtaToX(const float eta) const;
-    const float PhiToY(const float phi) const;
-    const float Z(const int station, const int ring) const;
-    const float RMinHV(const int station, const int ring, const int n_hv) const;
-    const float RMaxHV(const int station, const int ring, const int n_hv) const;
-    const float PhiMinCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
-    const float PhiMaxCFEB(const int station, const int ring, const int chamber, const int cfeb) const;
+    const float Eta(float r, float z) const;
+    const float EtaToX(float eta) const;
+    const float PhiToY(float phi) const;
+    const float Z(int station, int ring) const;
+    const float RMinHV(int station, int ring, int n_hv) const;
+    const float RMaxHV(int station, int ring, int n_hv) const;
+    const float PhiMinCFEB(int station, int ring, int chamber, int cfeb) const;
+    const float PhiMaxCFEB(int station, int ring, int chamber, int cfeb) const;
 
     /** Address boxes in epa/phi space */
     AddressBox boxes[N_ELEMENTS];

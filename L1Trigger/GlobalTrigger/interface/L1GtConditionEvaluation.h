@@ -107,10 +107,10 @@ protected:
     /// check if a value is greater than a threshold or
     /// greater-or-equal depending on the value of the condGEqValue flag
     template<class Type1, class Type2> const bool checkThreshold(const Type1& threshold,
-        const Type2& value, const bool condGEqValue) const;
+        const Type2& value, bool condGEqValue) const;
 
     ///check if a bit with a given number is set in a mask
-    template<class Type1> const bool checkBit(const Type1& mask, const unsigned int bitNumber) const;
+    template<class Type1> const bool checkBit(const Type1& mask, unsigned int bitNumber) const;
 
 protected:
 

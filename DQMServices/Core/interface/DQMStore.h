@@ -536,19 +536,19 @@ class DQMStore
   // ---------------------- public I/O --------------------------------------
   void                          savePB(const std::string &filename,
                                        const std::string &path = "",
-				       const uint32_t run = 0,
-				       const uint32_t lumi = 0,
-				       const bool resetMEsAfterWriting = false);
+				       uint32_t run = 0,
+				       uint32_t lumi = 0,
+				       bool resetMEsAfterWriting = false);
   void                          save(const std::string &filename,
                                      const std::string &path = "",
                                      const std::string &pattern = "",
                                      const std::string &rewrite = "",
-                                     const uint32_t run = 0,
-                                     const uint32_t lumi = 0,
+                                     uint32_t run = 0,
+                                     uint32_t lumi = 0,
                                      SaveReferenceTag ref = SaveWithReference,
                                      int minStatus = dqm::qstatus::STATUS_OK,
                                      const std::string &fileupdate = "RECREATE",
-				     const bool resetMEsAfterWriting = false);
+				     bool resetMEsAfterWriting = false);
   bool                          open(const std::string &filename,
                                      bool overwrite = false,
                                      const std::string &path ="",
@@ -607,10 +607,10 @@ class DQMStore
 
   MonitorElement *              findObject(const std::string &dir,
                                            const std::string &name,
-                                           const uint32_t run = 0,
-                                           const uint32_t lumi = 0,
-                                           const uint32_t streamId = 0,
-                                           const uint32_t moduleId = 0) const;
+                                           uint32_t run = 0,
+                                           uint32_t lumi = 0,
+                                           uint32_t streamId = 0,
+                                           uint32_t moduleId = 0) const;
 
   void                          get_info(const  dqmstorepb::ROOTFilePB_Histo &,
                                          std::string & dirname,

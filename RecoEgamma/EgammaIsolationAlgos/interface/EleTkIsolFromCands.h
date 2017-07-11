@@ -38,7 +38,7 @@ public:
 
   std::pair<int,double> calIsol(const reco::TrackBase& trk,const pat::PackedCandidateCollection& cands,const edm::View<reco::GsfElectron>& eles);
   
-  std::pair<int,double> calIsol(const double eleEta,const double elePhi,const double eleVZ,
+  std::pair<int,double> calIsol(double eleEta,double elePhi,double eleVZ,
 				const pat::PackedCandidateCollection& cands,
 				const edm::View<reco::GsfElectron>& eles);
  
@@ -54,10 +54,10 @@ public:
   }
 
   static bool passTrkSel(const reco::Track& trk,
-			 const double trkPt,
+			 double trkPt,
 			 const TrkCuts& cuts,
-			 const double eleEta,const double elePhi,
-			 const double eleVZ);
+			 double eleEta,double elePhi,
+			 double eleVZ);
   
 private:
   //no qualities specified, accept all, ORed

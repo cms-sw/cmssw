@@ -27,7 +27,7 @@ public:
    * Methods giving back the compatibility estimation
    */
   virtual BDpair estimate(const CachingVertex<N> & v, 
-			  const RefCountedLinearizedTrackState track,
+			  RefCountedLinearizedTrackState track,
 			  unsigned int hint=UINT_MAX) const = 0;
 
   virtual BDpair estimate(const reco::Vertex & v, 
@@ -35,7 +35,7 @@ public:
 
   // obsolete ?
   virtual BDpair estimate(const CachingVertex<N> & v, 
-			  const RefCountedVertexTrack track, unsigned int hint=UINT_MAX) const = 0;
+			  RefCountedVertexTrack track, unsigned int hint=UINT_MAX) const = 0;
   /**
    * Clone method 
    */

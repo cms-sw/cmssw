@@ -40,7 +40,7 @@ class   PixelTripletLowPtGenerator :
 		   const HitDoublets & doublets,
 		   const RecHitsSortedInPhi ** thirdHitMap,
 		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
-		   const int nThirdLayers)override;
+		   int nThirdLayers)override;
 
  private:
   void getTracker (const edm::EventSetup& es);

@@ -60,7 +60,7 @@ public:
   virtual void moveComponentsLocal( const LocalVector& localDisplacement );
 
   /// Move a single component with respect to the local reference frame
-  virtual void moveComponentLocal( const int i, const LocalVector& localDisplacement );
+  virtual void moveComponentLocal( int i, const LocalVector& localDisplacement );
 
   /// Rotation interpreted in global reference frame
   virtual void rotateInGlobalFrame( const RotationType& rotation );

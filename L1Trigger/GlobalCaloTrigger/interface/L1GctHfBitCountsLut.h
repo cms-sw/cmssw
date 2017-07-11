@@ -49,7 +49,7 @@ public:
 protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  virtual uint16_t value (uint16_t lutAddress) const;
 
 private:
 

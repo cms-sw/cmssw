@@ -82,7 +82,7 @@ class CSCTFSPCoreLogic
 
   void loadData(const CSCTriggerContainer<csctf::TrackStub>&,
 		const unsigned& endcap, const unsigned& sector,
-		const int& minBX, const int& maxBX, const bool gangedME1a);
+		const int& minBX, const int& maxBX, bool gangedME1a);
 
   bool run(const unsigned& endcap, const unsigned& sector, const unsigned& latency,
 	   const unsigned& etamin1, const unsigned& etamin2, const unsigned& etamin3, const unsigned& etamin4,

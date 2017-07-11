@@ -29,7 +29,7 @@ class SiStripBadComponentsDQMServiceReader : public edm::EDAnalyzer {
 
   void analyze( const edm::Event&, const edm::EventSetup& );
 
-  void printError( std::stringstream & ss, const bool error, const std::string & errorText );
+  void printError( std::stringstream & ss, bool error, const std::string & errorText );
 
   std::string detIdToString(const DetId & detid, const TrackerTopology* tTopo);
 

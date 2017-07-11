@@ -34,7 +34,7 @@ class PreshowerLayer2Properties : public PreshowerProperties
 
   /// Thickness in cm (pretend it's all lead)
   /// Default : 0.506 cm at normal incidence
-  double thickness(const double eta) const ;
+  double thickness(double eta) const ;
 
     /// properties of the material between ES and EE; there is about 12 cm between the two.
   inline double pseeIntLenIncm() const {return pseeInteractionLength_;}

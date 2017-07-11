@@ -41,7 +41,7 @@ public:
   /** normalised integral from -inf to x
    *  (taking into account under- & overflows) 
    */
-  float quantile (const float) const;
+  float quantile (float) const;
   /// mode
   float mode () const;
   /// value of the pdf
@@ -74,7 +74,7 @@ private:
   /// mean value of combined state
   /// double combinedMean() const;
   /// mode from starting value
-  double findMode (const double) const;
+  double findMode (double) const;
 
 private:
   unsigned theNComp;

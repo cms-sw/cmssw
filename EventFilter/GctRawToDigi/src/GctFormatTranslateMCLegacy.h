@@ -85,10 +85,10 @@ protected:
 
   /* Other general methods */
   /// Returns a raw 32-bit header word generated from the blockId, number of time samples, bunch-crossing and event IDs.
-  virtual uint32_t generateRawHeader(const uint32_t blockId,
-                                     const uint32_t nSamples,
-                                     const uint32_t bxId,
-                                     const uint32_t eventId) const override;
+  virtual uint32_t generateRawHeader(uint32_t blockId,
+                                     uint32_t nSamples,
+                                     uint32_t bxId,
+                                     uint32_t eventId) const override;
 
 
 private:

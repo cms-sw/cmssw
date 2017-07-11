@@ -39,15 +39,15 @@ public:
    *  \param linTrack	The track as linearized
    *  \param refittedTrackState The refitted track
    */
-  BDpair trackParameterChi2(const RefCountedLinearizedTrackState linTrack,
-	const RefCountedRefittedTrackState refittedTrackState) const;
+  BDpair trackParameterChi2(RefCountedLinearizedTrackState linTrack,
+	RefCountedRefittedTrackState refittedTrackState) const;
 
   /**
    *  Methode which calculates the chi**2 between the prior and the fitted
    *   track parameters. The track must have been smoothed before calling this method.
    *   If not, an Exception will be thrown.
    */
-  BDpair trackParameterChi2(const RefCountedVertexTrack track) const;
+  BDpair trackParameterChi2(RefCountedVertexTrack track) const;
 
 };
 

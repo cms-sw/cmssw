@@ -182,18 +182,18 @@ class CSCAnodeLCTProcessor
   void checkConfigParameters();
 
   /** Clears the quality for a given wire and pattern if it is a ghost. */
-  void clear(const int wire, const int pattern);
+  void clear(int wire, int pattern);
 
   /** ALCT algorithm methods. */
   void readWireDigis(std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
   bool pulseExtension(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]);
-  bool preTrigger(const int key_wire, const int start_bx);
-  bool patternDetection(const int key_wire);
+  bool preTrigger(int key_wire, int start_bx);
+  bool patternDetection(int key_wire);
   void ghostCancellationLogic();
   void ghostCancellationLogicSLHC();
   void lctSearch();
-  void trigMode(const int key_wire);
-  void accelMode(const int key_wire);
+  void trigMode(int key_wire);
+  void accelMode(int key_wire);
 
   std::vector<CSCALCTDigi>
     bestTrackSelector(const std::vector<CSCALCTDigi>& all_alcts);
@@ -205,7 +205,7 @@ class CSCAnodeLCTProcessor
   /** Dump digis on wire groups. */
   void dumpDigis(const std::vector<int> wire[CSCConstants::NUM_LAYERS][CSCConstants::MAX_NUM_WIRES]) const;
 
-  void showPatterns(const int key_wire);
+  void showPatterns(int key_wire);
 };
 
 #endif

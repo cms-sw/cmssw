@@ -45,8 +45,8 @@ public:
 
     ///     from base template condition (from event setup usually)
     MuCondition(const GlobalCondition*, const GlobalBoard*,
-            const int nrL1Mu,
-            const int ifMuEtaNumberBits);
+            int nrL1Mu,
+            int ifMuEtaNumberBits);
 
     // copy constructor
     MuCondition(const MuCondition&);
@@ -60,7 +60,7 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition(const int bxEval) const;
+    const bool evaluateCondition(int bxEval) const;
 
     /// print condition
     void print(std::ostream& myCout) const;
@@ -104,11 +104,11 @@ private:
     void copy(const MuCondition& cp);
 
     /// load muon candidates
-    const l1t::Muon* getCandidate(const int bx, const int indexCand) const;
+    const l1t::Muon* getCandidate(int bx, int indexCand) const;
 
     /// function to check a single object if it matches a condition
-    const bool checkObjectParameter(const int iCondition,
-        const l1t::Muon& cand, const unsigned int index) const;
+    const bool checkObjectParameter(int iCondition,
+        const l1t::Muon& cand, unsigned int index) const;
 
 private:
 

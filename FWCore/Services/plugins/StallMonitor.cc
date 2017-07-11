@@ -95,7 +95,7 @@ namespace {
 
   template <typename H, typename... T>
   std::enable_if_t<std::is_integral<H>::value>
-  concatenate(std::ostream& os, H const h, T const... t)
+  concatenate(std::ostream& os, H h, T const... t)
   {
     os << ' ' << h;
     concatenate(os, t...);

@@ -77,7 +77,7 @@ namespace edm {
       virtual void addSignals(const edm::Event &e,const edm::EventSetup& c) {}
       virtual void addPileups(const int bcr, EventPrincipal *ep, unsigned int eventId,unsigned int worker, const edm::EventSetup& c) {}
       virtual void setBcrOffset ();
-      virtual void setSourceOffset (const unsigned int s);
+      virtual void setSourceOffset (unsigned int s);
       virtual void put(edm::Event &e,const edm::EventSetup& c) {}
       virtual void doPileUp(edm::Event &e, const edm::EventSetup& c);
 

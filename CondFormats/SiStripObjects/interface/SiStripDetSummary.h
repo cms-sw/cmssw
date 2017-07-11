@@ -64,7 +64,7 @@ public:
    * Method used to write the output. By default mean == true and it writes the mean value. If mean == false
    * it will write the count.
    */
-  void print(std::stringstream& ss, const bool mean = true) const;
+  void print(std::stringstream& ss, bool mean = true) const;
 
   struct Values
   {

@@ -75,7 +75,7 @@ private:
   void LedHBHEHists(const HcalDetId& detid, const HBHEDataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const HcalDbService& cond);
   void LedHOHists(const HcalDetId& detid, const HODataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const HcalDbService& cond);
   void LedHFHists(const HcalDetId& detid, const HFDataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const HcalDbService& cond);
-  void SetupLEDHists(int id, const HcalDetId detid, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT);
+  void SetupLEDHists(int id, HcalDetId detid, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT);
   void GetLedConst(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   void LedTrendings(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   void ProcessCalibEvent(int fiberChan,HcalCalibDetId calibId, const HcalCalibDataFrame& digi);

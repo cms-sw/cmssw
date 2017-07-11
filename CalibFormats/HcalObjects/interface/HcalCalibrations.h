@@ -9,7 +9,7 @@
 class HcalCalibrations {
  public:
   HcalCalibrations () {};
-  HcalCalibrations (const float fGain [4], const float fPedestal [4], const float fRespCorr, const float fTimeCorr, const float fLUTCorr);
+  HcalCalibrations (const float fGain [4], const float fPedestal [4], float fRespCorr, float fTimeCorr, float fLUTCorr);
   /// get LUT corrected and response corrected gain for capid=0..3
   double LUTrespcorrgain (int fCapId) const {return (mLUTCorr *  mRespCorrGain [fCapId]);}
   /// get response corrected gain for capid=0..3

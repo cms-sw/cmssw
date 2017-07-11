@@ -50,10 +50,10 @@ class SiStripBaseDelay
   typedef std::vector<Delay>::iterator delayIt;
   typedef std::vector<Delay>::const_iterator delayConstIt;
 
-  bool put( const uint32_t detId, const uint16_t coarseDelay, const uint16_t fineDelay );
-  uint16_t coarseDelay(const uint32_t detId);
-  uint16_t fineDelay(const uint32_t detId) const;
-  double delay(const uint32_t detId) const;
+  bool put( uint32_t detId, uint16_t coarseDelay, uint16_t fineDelay );
+  uint16_t coarseDelay(uint32_t detId);
+  uint16_t fineDelay(uint32_t detId) const;
+  double delay(uint32_t detId) const;
 
   /// Fill the input container with all the delays
   void delays(std::vector<Delay> & delays) const

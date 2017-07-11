@@ -83,14 +83,14 @@ namespace lumi{
     int lumiquality()const;
     unsigned long long startorbit()const;
     //get bunchCrossingInfo by algorithm
-    void bunchCrossingInfo(  const LumiAlgoType lumialgotype, 
+    void bunchCrossingInfo(  LumiAlgoType lumialgotype, 
 			     std::vector<BunchCrossingInfo>& result )const ;
     //random access to bunchCrossingInfo by bunchcrossing index
-    const BunchCrossingInfo bunchCrossingInfo( const int BXIndex,
-					 const LumiAlgoType lumialgotype )const;
+    const BunchCrossingInfo bunchCrossingInfo( int BXIndex,
+					 LumiAlgoType lumialgotype )const;
     //sequential access to bunchCrossingInfo
-    BunchCrossingIterator bunchCrossingBegin( const LumiAlgoType lumialgotype )const;
-    BunchCrossingIterator bunchCrossingEnd( const LumiAlgoType lumialgotype )const;
+    BunchCrossingIterator bunchCrossingBegin( LumiAlgoType lumialgotype )const;
+    BunchCrossingIterator bunchCrossingEnd( LumiAlgoType lumialgotype )const;
     //total number of HLT paths
     size_t nHLTPath()const;
     bool HLThasData()const;
@@ -114,7 +114,7 @@ namespace lumi{
     void setLumiError(float lumierr);
     void setStartOrbit(unsigned long long orbtnumber);
     void setBunchCrossingData(const std::vector<BunchCrossingInfo>& BXs,
-			      const LumiAlgoType algotype);
+			      LumiAlgoType algotype);
     void setHLTData(const std::vector<HLTInfo>& hltdetail);
     void setTriggerData(const std::vector<TriggerInfo>& triggerinfo);
     void setQualityFlag(short qualityflag);

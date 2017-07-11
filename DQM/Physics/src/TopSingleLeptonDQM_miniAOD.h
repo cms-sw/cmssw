@@ -64,10 +64,10 @@ class MonitorEnsemble {
 
   /// set configurable labels for trigger monitoring histograms
   void triggerBinLabels(std::string channel,
-                        const std::vector<std::string> labels);
+                        std::vector<std::string> labels);
   /// fill trigger monitoring histograms
   void fill(const edm::Event& event, const edm::TriggerResults& triggerTable,
-            std::string channel, const std::vector<std::string> labels) const;
+            std::string channel, std::vector<std::string> labels) const;
 
   /// check if histogram was booked
   bool booked(const std::string histName) const {

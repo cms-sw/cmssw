@@ -31,10 +31,10 @@ class L1GctRegion : public L1CaloRegion
 
   // Named constructors
   static L1GctRegion makeJfInputRegion(const L1CaloRegion&);
-  static L1GctRegion makeProtoJetRegion(const unsigned et,   const bool overFlow, const bool fineGrain, const bool tauIsolationVeto,
-                                        const unsigned ieta, const unsigned iphi, const int16_t bx);
-  static L1GctRegion makeFinalJetRegion(const unsigned et,   const bool overFlow, const bool fineGrain,
-                                        const unsigned ieta, const unsigned iphi, const int16_t bx);
+  static L1GctRegion makeProtoJetRegion(unsigned et,   bool overFlow, bool fineGrain, bool tauIsolationVeto,
+                                        unsigned ieta, unsigned iphi, int16_t bx);
+  static L1GctRegion makeFinalJetRegion(unsigned et,   bool overFlow, bool fineGrain,
+                                        unsigned ieta, unsigned iphi, int16_t bx);
 
   // Replace et() method to use 10 bits for all eta
   unsigned et() const { return overFlow() ? kGctRegionMaxValue : raw()&kGctRegionMaxValue; }
@@ -54,15 +54,15 @@ class L1GctRegion : public L1CaloRegion
  private:
 
   // constructor for internal use
-  L1GctRegion(const unsigned et,
-	      const bool overFlow, 
-	      const bool fineGrain,
-	      const unsigned ieta, 
-	      const unsigned iphi,
-	      const int16_t bx);
+  L1GctRegion(unsigned et,
+	      bool overFlow, 
+	      bool fineGrain,
+	      unsigned ieta, 
+	      unsigned iphi,
+	      int16_t bx);
 
 
-  void setBit(const unsigned bitNum, const bool onOff);
+  void setBit(unsigned bitNum, bool onOff);
 
 };
 

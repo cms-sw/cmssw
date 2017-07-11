@@ -18,7 +18,7 @@ class SiStripClusterInfo {
  
   SiStripClusterInfo(const SiStripCluster& cluster,
 		     const edm::EventSetup& es, 
-		     const int detid,
+		     int detid,
 		     const std::string & qualityLabel="");
 		     
   const SiStripCluster * cluster() const {return cluster_ptr;}

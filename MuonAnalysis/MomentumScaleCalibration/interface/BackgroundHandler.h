@@ -61,20 +61,20 @@ public:
                                const double & weight);
 
   /// Sets initial parameters for all the functions
-  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double> & parBgr, const std::vector<int> & parBgrOrder, const int muonType);
+  void setParameters(double* Start, double* Step, double* Mini, double* Maxi, int* ind, TString* parname, const std::vector<double> & parBgr, const std::vector<int> & parBgrOrder, int muonType);
 
   /// returns true if the parameter is to be unlocked
-  bool unlockParameter(const std::vector<int> & resfind, const unsigned int ipar);
+  bool unlockParameter(const std::vector<int> & resfind, unsigned int ipar);
 
   /// Returns the appropriate window borders depending on whether the background is being fitted and on the resonance
-  std::pair<double, double> windowBorders( const bool doBackgroundFit, const int ires );
+  std::pair<double, double> windowBorders( bool doBackgroundFit, int ires );
 
   /**
    * Returns the appropriate resMass value depending on whether the background is being fitted and on the resonance. <br>
    * The resMass used for the region is the mean of the mass of the corresponding resonances, so for the Z is the same Z mass,
    * for the Upsilons is the arithmetic mean of the Upsilon masses and the same for the J/Psi and Psi2S region.
    */
-  double resMass( const bool doBackgroundFit, const int ires );
+  double resMass( bool doBackgroundFit, int ires );
 
   /**
    * Computes the rescaled parameters from the regions functions to the
@@ -91,11 +91,11 @@ public:
    * the value returned by the background function. <br>
    * Depending on the value of doBackgroundFit it returns the values for the regions or the resonances.
    */
-  std::pair<double, double> backgroundFunction( const bool doBackgroundFit,
-						const double * parval, const int resTotNum, const int ires,
+  std::pair<double, double> backgroundFunction( bool doBackgroundFit,
+						const double * parval, int resTotNum, int ires,
 						const bool * resConsidered, const double * ResMass, const double ResHalfWidth[],
 						/* const int MuonType, const double & mass, const double & resEta ); */
-						const int MuonType, const double & mass, const double & eta1, const double & eta2 );
+						int MuonType, const double & mass, const double & eta1, const double & eta2 );
 private:
   /// Used to check the consistency of passed parameters
   void consistencyCheck( const std::vector<int> & identifiers,

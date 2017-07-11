@@ -16,10 +16,10 @@ class FastTrackerCluster
   
   FastTrackerCluster(const LocalPoint&, const LocalError&,
 		   const DetId&,
-		   const int simhitId, 
-		   const int simtrackId, 
-		   const uint32_t eeId, 
-		   const float charge );
+		   int simhitId, 
+		   int simtrackId, 
+		   uint32_t eeId, 
+		   float charge );
   
   
   const  LocalPoint& localPosition() const {return pos_;}

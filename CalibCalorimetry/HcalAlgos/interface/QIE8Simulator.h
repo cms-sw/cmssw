@@ -53,7 +53,7 @@ public:
     inline void setOutputGain(const double g) {outputGain_ = g; validateGain();}
 
     // Set preamp initial conditions
-    void setInitialConditions(const double* values, const unsigned len);
+    void setInitialConditions(const double* values, unsigned len);
     void zeroInitialConditions();
 
     // Set preamp model parameters

@@ -52,7 +52,7 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   void createRunNumber();
 
   /** */
-  void createTask( const SiStripEventSummary* const, const edm::EventSetup& );
+  void createTask( SiStripEventSummary* const, const edm::EventSetup& );
   
   /** */
   void createCablingTasks();
@@ -67,11 +67,11 @@ class SiStripCommissioningSource : public edm::EDAnalyzer {
   void clearTasks();
   
   /** */
-  void fillCablingHistos( const SiStripEventSummary* const,
+  void fillCablingHistos( SiStripEventSummary* const,
 			  const edm::DetSetVector<SiStripRawDigi>& );
 
   /** */
-  void fillHistos( const SiStripEventSummary* const,
+  void fillHistos( SiStripEventSummary* const,
 		   const edm::DetSetVector<SiStripRawDigi>& );
   
   /** */

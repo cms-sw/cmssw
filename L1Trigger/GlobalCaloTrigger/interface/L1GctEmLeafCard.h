@@ -38,10 +38,10 @@ class L1GctEmLeafCard : public L1GctProcessor {
   virtual void process();	
   ///
   /// define the bunch crossing range to process
-  void setBxRange(const int firstBx, const int numberOfBx);
+  void setBxRange(int firstBx, int numberOfBx);
   ///
   /// clear input data buffers and process a new bunch crossing
-  void setNextBx(const int bxnum);
+  void setNextBx(int bxnum);
   ///
   /// get ID
   int id() { return m_id; }

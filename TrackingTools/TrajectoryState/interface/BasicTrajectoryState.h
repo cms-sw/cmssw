@@ -129,7 +129,7 @@ public:
 			const LocalTrajectoryError& err,
 			const SurfaceType& aSurface,
 			const MagneticField* field,
-			const SurfaceSide side=SurfaceSideDefinition::atCenterOfSurface);
+			SurfaceSide side=SurfaceSideDefinition::atCenterOfSurface);
 
 
   /** Constructor from local parameters, errors and surface. For surfaces 
@@ -304,10 +304,10 @@ public:
   virtual void update( const LocalTrajectoryParameters& p,
                        const SurfaceType& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side ) ;
+                       SurfaceSide side ) ;
 
   // update in place and in the very same place
-  virtual void update( const LocalTrajectoryParameters& p, const SurfaceSide side ) final;
+  virtual void update( const LocalTrajectoryParameters& p, SurfaceSide side ) final;
                        
 
 
@@ -316,12 +316,12 @@ public:
                        const LocalTrajectoryError& err,
                        const SurfaceType& aSurface,
                        const MagneticField* field,
-                       const SurfaceSide side);
+                       SurfaceSide side);
 
   // update in place and in the very same place
  virtual void update( const LocalTrajectoryParameters& p,
                        const LocalTrajectoryError& err,
-                       const SurfaceSide side) final;
+                       SurfaceSide side) final;
 
  CurvilinearTrajectoryError & setCurvilinearError() {
     return theFreeState.setCurvilinearError();

@@ -55,7 +55,7 @@ protected:
 
   int* getRandomChannels(int, int, CLHEP::HepRandomEngine*);
 
-  double generate_gaussian_tail(const double,const double, CLHEP::HepRandomEngine*);
+  double generate_gaussian_tail(double,double, CLHEP::HepRandomEngine*);
 
 private:
 

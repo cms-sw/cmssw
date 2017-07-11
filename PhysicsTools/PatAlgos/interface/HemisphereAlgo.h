@@ -47,7 +47,7 @@ public:
 // then recomputed using the newly defined methods.
 //
 
-  HemisphereAlgo(const std::vector<reco::CandidatePtr>& componentRefs_, const int seed_method = 0, const int hemisphere_association_method = 0);
+  HemisphereAlgo(const std::vector<reco::CandidatePtr>& componentRefs_, int seed_method = 0, int hemisphere_association_method = 0);
 
 // Destructor
 ~HemisphereAlgo(){};

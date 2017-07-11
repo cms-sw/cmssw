@@ -47,7 +47,7 @@ class L1EmulBias : public edm::EDProducer {
 
  public:
   template <class T>
-  void ModifyCollection (std::unique_ptr<T>& data, const edm::Handle<T> emul, CLHEP::HepRandomEngine*);
+  void ModifyCollection (std::unique_ptr<T>& data, edm::Handle<T> emul, CLHEP::HepRandomEngine*);
 
  private:
   int verbose_;

@@ -49,7 +49,7 @@ public:
   MatrixMeschach& operator=( const MatrixMeschach& mat );
   void operator*=( const MatrixMeschach& mat );
   void operator+=( const MatrixMeschach& mat );
-  void operator*=( const ALIdouble num );
+  void operator*=( ALIdouble num );
   ALIdouble operator () (int i, int j) const;
  
 //ACCESS PRIVATE DATA MEMBERS
@@ -90,8 +90,8 @@ private:
 MatrixMeschach operator*( const MatrixMeschach& mat1, const MatrixMeschach& mat2 );
 MatrixMeschach operator+( const MatrixMeschach& mat1, const MatrixMeschach& mat2 );
 MatrixMeschach operator-( const MatrixMeschach& mat1, const MatrixMeschach& mat2 );
-MatrixMeschach operator*( const ALIdouble doub, const MatrixMeschach& mat );
-MatrixMeschach operator*( const MatrixMeschach& mat, const ALIdouble doub );
+MatrixMeschach operator*( ALIdouble doub, const MatrixMeschach& mat );
+MatrixMeschach operator*( const MatrixMeschach& mat, ALIdouble doub );
 
 MatrixMeschach* MatrixByMatrix( const MatrixMeschach& mat1, const MatrixMeschach& mat2 );
 typedef MatrixMeschach ALIMatrix;

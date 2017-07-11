@@ -49,25 +49,25 @@ class SiStripFEDErrorsDQM : public edm::EDAnalyzer, public SiStripBaseServiceFro
 
   void readHistogram(MonitorElement* aMe,
 		     unsigned int & aCounter, 
-		     const float aNorm,
-		     const unsigned int aFedId);
+		     float aNorm,
+		     unsigned int aFedId);
 
   void addBadAPV(const FedChannelConnection & aConnection,
-		 const unsigned short aAPVNumber,
-		 const unsigned short aFlag,
+		 unsigned short aAPVNumber,
+		 unsigned short aFlag,
 		 unsigned int & aCounter);
 
   void addBadStrips(const FedChannelConnection & aConnection,
-		    const unsigned int aDetId,
-		    const unsigned short aApvNum,
-		    const unsigned short aFlag,
+		    unsigned int aDetId,
+		    unsigned short aApvNum,
+		    unsigned short aFlag,
 		    unsigned int & aCounter);
 
   /// Writes the errors to the db
   void addErrors();
 
   //set corresponding bit to 1 in flag
-  void setFlagBit(unsigned short & aFlag, const unsigned short aBit);
+  void setFlagBit(unsigned short & aFlag, unsigned short aBit);
 
   //update the cabling if necessary
   void updateCabling(const edm::EventSetup& eventSetup);

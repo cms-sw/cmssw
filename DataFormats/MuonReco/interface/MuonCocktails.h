@@ -21,10 +21,10 @@ namespace muon {
 					     const reco::TrackRef& tpfmsTrack,
 					     const reco::TrackRef& pickyTrack,
 					     const reco::TrackRef& dytTrack,
-					     const double ptThreshold = 200.,
-					     const double tune1 = 17.,
-					     const double tune2 = 40.,
-					     const double dptcut = 0.25);
+					     double ptThreshold = 200.,
+					     double tune1 = 17.,
+					     double tune2 = 40.,
+					     double dptcut = 0.25);
 
   // Version for convenience. (NB: can be used with pat::Muon, even
   // with embedded tracks, equally conveniently!)
@@ -51,8 +51,8 @@ namespace muon {
   // assignment for the reco::Muon.
   reco::Muon::MuonTrackTypePair sigmaSwitch(const reco::TrackRef& combinedTrack,
 					    const reco::TrackRef& trackerTrack,
-					    const double nSigma = 2.,
-					    const double ptThreshold = 200.);
+					    double nSigma = 2.,
+					    double ptThreshold = 200.);
   
   // Convenience version of the above.
   inline reco::Muon::MuonTrackTypePair sigmaSwitch(const reco::Muon& muon,
@@ -68,9 +68,9 @@ namespace muon {
   // tracker-only and TPFMS. Similar to tevOptimized.
   reco::Muon::MuonTrackTypePair TMR(const reco::TrackRef& trackerTrack,
 				    const reco::TrackRef& fmsTrack,
-				    const double tune=4.);
+				    double tune=4.);
   
-  double trackProbability(const reco::TrackRef track);
+  double trackProbability(reco::TrackRef track);
 }
 
 #endif

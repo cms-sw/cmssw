@@ -41,8 +41,8 @@ class DDLSAX2ConfigHandler : public DDLSAX2Handler
   // -----------------------------------------------------------------------
   //  Handlers for the SAX ContentHandler interface
   // -----------------------------------------------------------------------
-  void startElement(const XMLCh* const uri, const XMLCh* const localname
-		    , const XMLCh* const qname, const Attributes& attrs);
+  void startElement(const XMLCh* uri, const XMLCh* localname
+		    , const XMLCh* qname, const Attributes& attrs);
 
   const std::vector<std::string>& getFileNames() const;
   const std::vector<std::string>& getURLs() const;

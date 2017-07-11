@@ -60,7 +60,7 @@ class testChannel: public edm::EDAnalyzer
         
   private:
  
-    int getHeaderSMId (const int headerId) ;
+    int getHeaderSMId (int headerId) ;
     
     std::string m_digiCollection ; //! secondary name given to collection of digis
     std::string m_digiProducer ;   //! name of module/plugin/producer making digis

@@ -30,7 +30,7 @@ public:
    *                  a value of -1 means full combinatorics.
    */
   CrossingPtBasedLinearizationPointFinder( const ModeFinder3d & algo,
-     const signed int n_pairs = 5 );
+     signed int n_pairs = 5 );
 
   /** This constructor exploits the information stored in a 
    *  RecTracksDistanceMatrix object.
@@ -40,7 +40,7 @@ public:
 
   CrossingPtBasedLinearizationPointFinder( 
       const RecTracksDistanceMatrix * m, const ModeFinder3d & algo,
-      const signed int n_pairs = -1 );
+      signed int n_pairs = -1 );
 
   CrossingPtBasedLinearizationPointFinder(
       const CrossingPtBasedLinearizationPointFinder & );

@@ -43,31 +43,31 @@ public:
 
   void fillCountersHistograms(const FEDErrors::FEDCounters & aFedLevelCounters, 
 			      const FEDErrors::ChannelCounters & aChLevelCounters,
-			      const unsigned int aMaxSize,
-			      const double aTime);
+			      unsigned int aMaxSize,
+			      double aTime);
 
   void fillFEDHistograms(FEDErrors & aFedError,
-			 const unsigned int aEvtSize,
+			 unsigned int aEvtSize,
 			 bool lFullDebug
 			 );
 
-  void fillFEHistograms(const unsigned int aFedId,
+  void fillFEHistograms(unsigned int aFedId,
 			const FEDErrors::FELevelErrors & aFeLevelErrors,
 			const FEDErrors::EventProperties & aEventProp 
 			);
 
-  void fillChannelsHistograms(const unsigned int aFedId, 
+  void fillChannelsHistograms(unsigned int aFedId, 
 			      const FEDErrors::ChannelLevelErrors & aChErr, 
 			      bool fullDebug
 			      );
 
-  void fillAPVsHistograms(const unsigned int aFedId, 
+  void fillAPVsHistograms(unsigned int aFedId, 
 			  const FEDErrors::APVLevelErrors & aAPVErr, 
 			  bool fullDebug
 			  );
 
-  void fillMajorityHistograms(const unsigned int aPart,
-			      const float aValue,
+  void fillMajorityHistograms(unsigned int aPart,
+			      float aValue,
 			      const std::vector<unsigned int> & aFedIdVec);
 
   bool feMajHistosEnabled();

@@ -22,7 +22,7 @@ public:
  EmulatedME0Segment() : theOrigin(0,0,0), theLocalDirection(0,0,0), theCovMatrix(4,0),theChi2(0.) {}
 	
     /// Constructor
-    EmulatedME0Segment(const LocalPoint& origin, const LocalVector& direction, const AlgebraicSymMatrix& errors, const double chi2);
+    EmulatedME0Segment(const LocalPoint& origin, const LocalVector& direction, const AlgebraicSymMatrix& errors, double chi2);
   
     /// Destructor
     virtual ~EmulatedME0Segment();

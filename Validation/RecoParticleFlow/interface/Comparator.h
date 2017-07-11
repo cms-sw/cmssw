@@ -64,14 +64,14 @@ public:
 		  int binxmin, int binxmax, 
 		  Mode mode );
 
-  void DrawMeanSlice(const char* key, const int rebinFactor, Mode mode);
-  void DrawSigmaSlice(const char* key, const int rebinFactor, Mode mode);
-  void DrawGaussSigmaSlice(const char* key, const int rebinFactor, Mode mode);
-  void DrawGaussSigmaSlice(const char* key, const int rebinFactor, const int binxmin,
-			   const int binxmax, const bool cst_binning, Mode mode);
-  void DrawGaussSigmaOverMeanXSlice(const char* key, const int rebinFactor, const int binxmin,
-				    const int binxmax, const bool cst_binning, Mode mode);
-  void DrawGaussSigmaOverMeanSlice(const char* key, const char* key2, const int rebinFactor, Mode mode);
+  void DrawMeanSlice(const char* key, int rebinFactor, Mode mode);
+  void DrawSigmaSlice(const char* key, int rebinFactor, Mode mode);
+  void DrawGaussSigmaSlice(const char* key, int rebinFactor, Mode mode);
+  void DrawGaussSigmaSlice(const char* key, int rebinFactor, int binxmin,
+			   int binxmax, bool cst_binning, Mode mode);
+  void DrawGaussSigmaOverMeanXSlice(const char* key, int rebinFactor, int binxmin,
+				    int binxmax, bool cst_binning, Mode mode);
+  void DrawGaussSigmaOverMeanSlice(const char* key, const char* key2, int rebinFactor, Mode mode);
 
   void Draw( const char* key, Mode mode);
   

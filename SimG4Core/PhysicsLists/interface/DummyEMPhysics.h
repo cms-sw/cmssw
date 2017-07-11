@@ -6,7 +6,7 @@
 class DummyEMPhysics : public G4VPhysicsConstructor {
 
 public: 
-  DummyEMPhysics(const std::string name = "dummyEM");
+  DummyEMPhysics(std::string name = "dummyEM");
   virtual ~DummyEMPhysics();
   virtual void ConstructParticle();
   virtual void ConstructProcess();

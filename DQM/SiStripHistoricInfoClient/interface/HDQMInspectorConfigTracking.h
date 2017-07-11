@@ -12,7 +12,7 @@ class HDQMInspectorConfigTracking : public HDQMInspectorConfigBase
     HDQMInspectorConfigTracking ();
     virtual ~HDQMInspectorConfigTracking ();
 
-    std::string translateDetId (const uint32_t) const;
+    std::string translateDetId (uint32_t) const;
 };
 
 

@@ -32,7 +32,7 @@ class HGCalTriggerCellThresholdCodecImpl
         HGCalTriggerCellThresholdCodecImpl(const edm::ParameterSet& conf);
 
         std::vector<bool> encode(const data_type&, const HGCalTriggerGeometryBase&) const ;
-        data_type         decode(const std::vector<bool>&, const uint32_t, const HGCalTriggerGeometryBase&) const;  
+        data_type         decode(const std::vector<bool>&, uint32_t, const HGCalTriggerGeometryBase&) const;  
 
         void linearize(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&,
                 std::vector<std::pair<HGCalDetId, uint32_t > >&);

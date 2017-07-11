@@ -55,7 +55,7 @@ class EgammaHLTNxNClusterProducer : public edm::stream::EDProducer<> {
 
  private:
   
-  void makeNxNClusters(edm::Event &evt, const edm::EventSetup &es,const EcalRecHitCollection *hits, const reco::CaloID::Detectors detector); 
+  void makeNxNClusters(edm::Event &evt, const edm::EventSetup &es,const EcalRecHitCollection *hits, reco::CaloID::Detectors detector); 
   
   bool checkStatusOfEcalRecHit(const EcalChannelStatus &channelStatus, const EcalRecHit &rh);
         

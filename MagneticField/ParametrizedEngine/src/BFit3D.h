@@ -24,8 +24,8 @@ private:
 
    HarmBasis3DCyl *HB;
  
-   void SetCoeff_Linear(const double B);
-   void SetCoeff_Spline(const double B);
+   void SetCoeff_Linear(double B);
+   void SetCoeff_Spline(double B);
 
 public:
 
@@ -50,7 +50,7 @@ public:
    }
 
    //BASIC FUNCTION: Return field components at the point (r,z,phi)
-   void GetField(const double r, const double z, const double phi,
+   void GetField(double r, double z, double phi,
                  double &Br, double &Bz, double &Bphi);
 
    //All the following functions are provided for diagnostic purposes

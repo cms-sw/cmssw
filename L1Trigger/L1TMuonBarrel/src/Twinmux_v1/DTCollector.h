@@ -43,12 +43,12 @@ namespace L1TwinMux {
     L1TMuon::TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
 				  const int &segment_number) const;
     L1TMuon::TriggerPrimitive processDigis(const L1MuDTChambThDigi&,
-				  const int bti_group) const;
+				  int bti_group) const;
     L1TMuon::TriggerPrimitive processDigis(const L1MuDTChambPhDigi&,
 				  const L1MuDTChambThDigi&,
-				  const int bti_group) const;
+				  int bti_group) const;
     int findBTIGroupForThetaDigi(const L1MuDTChambThDigi&,
-				 const int position) const;
+				 int position) const;
     const int bx_min = -9, bx_max = 7;
     std::unique_ptr<DTBunchCrossingCleaner> _bxc;
   };

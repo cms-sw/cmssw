@@ -25,10 +25,10 @@ public:
   /** Adds a new TrajectoryStateOnSurface to the list 
    *  of components
    */
-  void addState (const TrajectoryStateOnSurface);
+  void addState (TrajectoryStateOnSurface);
 
   /// Adds (the weight of an) invalid state to the list
-  void addInvalidState (const double);
+  void addInvalidState (double);
 
   /** Returns the resulting MultiTrajectoryState 
    *  with weight = sum of all valid components.
@@ -37,7 +37,7 @@ public:
   /** Returns the resulting MultiTrajectoryState 
    *  renormalised to specified weight.
    */
-  TrajectoryStateOnSurface combinedState (const float weight);
+  TrajectoryStateOnSurface combinedState (float weight);
 
 
 private:
@@ -58,7 +58,7 @@ private:
   /** Returns the resulting MultiTrajectoryState
    *  with user-supplied total weight.
    */
-  TrajectoryStateOnSurface reweightedCombinedState (const double) const;
+  TrajectoryStateOnSurface reweightedCombinedState (double) const;
   /** Removes states with negligible weight (no renormalisation
    * of total weight!).
    */

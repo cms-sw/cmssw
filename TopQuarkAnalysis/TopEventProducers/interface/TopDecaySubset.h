@@ -81,13 +81,13 @@ class TopDecaySubset : public edm::EDProducer {
   /// fill references for output vector
   void fillReferences(const reco::GenParticleRefProd& refProd, reco::GenParticleCollection& target);
   /// calculate lorentz vector from input (dedicated to top reconstruction)
-  reco::Particle::LorentzVector p4(const std::vector<const reco::GenParticle*>::const_iterator top, int statusFlag);
+  reco::Particle::LorentzVector p4(const std::vector<reco::GenParticle*>::const_iterator top, int statusFlag);
   /// calculate lorentz vector from input
-  reco::Particle::LorentzVector p4(const reco::GenParticle::const_iterator part, int statusFlag);
+  reco::Particle::LorentzVector p4(reco::GenParticle::const_iterator part, int statusFlag);
   /// recursively fill vector for all further decay particles of a given particle
-  void addDaughters(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive=true);
+  void addDaughters(int& idx, reco::GenParticle::const_iterator part, reco::GenParticleCollection& target, bool recursive=true);
   /// fill vector including all radiations from quarks originating from W/top
-  void addRadiation(int& idx, const reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);
+  void addRadiation(int& idx, reco::GenParticle::const_iterator part, reco::GenParticleCollection& target);
   void addRadiation(int& idx, const reco::GenParticle* part, reco::GenParticleCollection& target);
 
  private:

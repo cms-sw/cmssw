@@ -17,10 +17,10 @@ namespace sistrip {
   template<typename T, bool dsvIsSparse> class DetSetVectorFiller
   {
   public:
-    DetSetVectorFiller(const size_t registrySize, const size_t dataSize);
+    DetSetVectorFiller(size_t registrySize, size_t dataSize);
     ~DetSetVectorFiller();
     
-    void newChannel(const uint32_t key, const uint16_t firstItem = 0);
+    void newChannel(uint32_t key, uint16_t firstItem = 0);
     void addItem(const T& item);
     std::auto_ptr< edm::DetSetVector<T> > createDetSetVector();
   private:

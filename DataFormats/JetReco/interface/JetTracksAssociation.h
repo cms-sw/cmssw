@@ -33,11 +33,11 @@ namespace reco {
     typedef edm::RefVector <Container> RefVector;
 
     /// Get number of tracks associated with jet
-    int tracksNumber (const Container&, const reco::JetBaseRef);
+    int tracksNumber (const Container&, reco::JetBaseRef);
     /// Get number of tracks associated with jet
     int tracksNumber (const Container&, const reco::Jet&);
     /// Get LorentzVector as sum of all tracks associated with jet.
-    LorentzVector tracksP4 (const Container&, const reco::JetBaseRef);
+    LorentzVector tracksP4 (const Container&, reco::JetBaseRef);
     /// Get LorentzVector as sum of all tracks associated with jet.
     LorentzVector tracksP4 (const Container&, const reco::Jet&);
 

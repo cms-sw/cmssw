@@ -28,7 +28,7 @@ namespace edm { class EventSetup; }
 class SiPixelTrackResidualModule { 
   public:
     SiPixelTrackResidualModule();
-    SiPixelTrackResidualModule(const uint32_t);
+    SiPixelTrackResidualModule(uint32_t);
    ~SiPixelTrackResidualModule();
 
    void book(const edm::ParameterSet&, edm::EventSetup const&, DQMStore::IBooker &, bool reducedSet=true, int type=0, bool isUpgrade=false);

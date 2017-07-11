@@ -56,7 +56,7 @@ template <typename DetIdT> class EcalDeadChannelRecoveryNN {
                          0, -1, 1 /* RR, RU, RD */ };
 
   void setCaloTopology(const CaloTopology *topo);
-  double recover(const DetIdT id, const EcalRecHitCollection &hit_collection,
+  double recover(DetIdT id, const EcalRecHitCollection &hit_collection,
                  double Sum8Cut, bool *AcceptFlag);
 
  private:

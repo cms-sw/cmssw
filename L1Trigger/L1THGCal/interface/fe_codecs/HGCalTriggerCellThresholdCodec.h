@@ -31,7 +31,7 @@ class HGCalTriggerCellThresholdCodec : public HGCalTriggerFE::Codec<HGCalTrigger
         void setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi);
 
         std::vector<bool> encodeImpl(const data_type&) const ;
-        data_type         decodeImpl(const std::vector<bool>&, const uint32_t) const;  
+        data_type         decodeImpl(const std::vector<bool>&, uint32_t) const;  
 
     private:
         HGCalTriggerCellThresholdCodecImpl codecImpl_;

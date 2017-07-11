@@ -11,7 +11,7 @@ class TH2F;
 
 void DeadTimeAPVCycle(TH1F* hist, const std::vector<int>& bins);
 TH1F* CombinedHisto(TFile& ff, const char* module, const char* histname);
-TH1F* TimeRatio(TFile& ff, const char* modulen, const char* moduled, const int irun, const int rebin=1);
+TH1F* TimeRatio(TFile& ff, const char* modulen, const char* moduled, int irun, int rebin=1);
 TH1D* SummaryHisto(TFile& ff, const char* module);
 TH1D* SummaryHistoRatio(TFile& f1, const char* mod1, TFile& f2, const char* mod2, const char* hname);
 TGraphAsymmErrors* SummaryHistoRatioGraph(TFile& f1, const char* mod1, TFile& f2, const char* mod2, const char* hname);

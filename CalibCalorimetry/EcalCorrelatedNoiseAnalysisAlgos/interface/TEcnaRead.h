@@ -554,7 +554,7 @@ class TEcnaRead: public TObject {
   Int_t   GetNumberOfEvents(const Int_t&, const Int_t&);
   Int_t   GetNumberOfBinsSampleAsFunctionOfTime();
 
-  TString GetTypeOfQuantity(const CnaResultTyp);
+  TString GetTypeOfQuantity(CnaResultTyp);
 
   TString GetTechReadCode(const TString&, const TString&);
 

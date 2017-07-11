@@ -41,7 +41,7 @@ class CSCAnodeLCTAnalyzer
   void setGeometry(const CSCGeometry* geom);
 
   /** Returns eta position of a given wiregroup. */
-  double getWGEta(const CSCDetId& layerId, const int wiregroup);
+  double getWGEta(const CSCDetId& layerId, int wiregroup);
 
   /** Turns on the debug flag for this class. */
   static void setDebug() {debug = true;}
@@ -62,7 +62,7 @@ class CSCAnodeLCTAnalyzer
   /* Find the list of WireDigis belonging to this ALCT. */
   std::vector<CSCAnodeLayerInfo> lctDigis(const CSCALCTDigi& alct,
        const CSCDetId& alctId, const CSCWireDigiCollection* wiredc);
-  void preselectDigis(const int alct_bx, const CSCDetId& layerId,
+  void preselectDigis(int alct_bx, const CSCDetId& layerId,
 		      const CSCWireDigiCollection* wiredc,
 		      std::map<int, CSCWireDigi>& digiMap);
 

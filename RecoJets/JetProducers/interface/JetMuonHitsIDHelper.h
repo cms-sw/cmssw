@@ -30,7 +30,7 @@ namespace reco {
 
       // interface
       void calculate( const edm::Event& event, const edm::EventSetup & isetup, 
-		      const reco::Jet &jet, const int iDbg = 0 );
+		      const reco::Jet &jet, int iDbg = 0 );
 
       // access
       int numberOfHits1RPC() const { return numberOfHits1RPC_;}

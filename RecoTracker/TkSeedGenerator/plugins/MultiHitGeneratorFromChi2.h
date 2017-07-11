@@ -60,14 +60,14 @@ public:
 		   const HitDoublets & doublets,
 		   const RecHitsSortedInPhi ** thirdHitMap,
 		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
-		   const int nThirdLayers)override;
+		   int nThirdLayers)override;
 
   void hitSets(const TrackingRegion& region, OrderedMultiHits& result,
                const edm::EventSetup& es,
                const HitDoublets& doublets,
                const RecHitsSortedInPhi **thirdHitMap,
                const std::vector<const DetLayer *>& thirdLayerDetLayer,
-               const int nThirdLayers,
+               int nThirdLayers,
                cacheHits& refittedHitStorage);
 private:
   using HitOwnPtr = mayown_ptr<BaseTrackerRecHit>;

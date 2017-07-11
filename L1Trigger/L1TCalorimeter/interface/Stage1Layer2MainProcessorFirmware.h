@@ -29,7 +29,7 @@ namespace l1t {
   class Stage1Layer2MainProcessorFirmwareImp1 : public Stage1Layer2MainProcessor {
   public:
     //Stage1Layer2MainProcessorFirmwareImp1(const FirmwareVersion & fwv /*const CaloParamsHelper & dbPars*/);
-    Stage1Layer2MainProcessorFirmwareImp1(const int fwv , CaloParamsHelper* dbPars);
+    Stage1Layer2MainProcessorFirmwareImp1(int fwv , CaloParamsHelper* dbPars);
     virtual ~Stage1Layer2MainProcessorFirmwareImp1();
     virtual void processEvent(const std::vector<CaloEmCand> &,
                               const std::vector<CaloRegion> &,

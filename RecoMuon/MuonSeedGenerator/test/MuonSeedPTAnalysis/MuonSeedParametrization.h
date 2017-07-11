@@ -101,9 +101,9 @@ private:
   
   bool SameChamber(CSCDetId SimDetId, CSCDetId SegDetId);
 
-  void SimInfo(const edm::Handle<edm::SimTrackContainer> simTracks,
-               const edm::Handle<edm::PSimHitContainer> dsimHits,
-               const edm::Handle<edm::PSimHitContainer> csimHits,
+  void SimInfo(edm::Handle<edm::SimTrackContainer> simTracks,
+               edm::Handle<edm::PSimHitContainer> dsimHits,
+               edm::Handle<edm::PSimHitContainer> csimHits,
                edm::ESHandle<DTGeometry> dtGeom,edm::ESHandle<CSCGeometry> cscGeom);  
 
   void FromCSCSeg( std::vector<CSCSegment> cscSeg, edm::ESHandle<CSCGeometry> cscGeom 

@@ -150,12 +150,12 @@ class ApeEstimator : public edm::EDAnalyzer {
       bool isHit2D(const TrackingRecHit&)const;
       
       void sectorBuilder();
-      bool checkIntervalsForSectors(const unsigned int sectorCounter, const std::vector<double>&)const;
-      bool checkModuleIds(const unsigned int, const std::vector<unsigned int>&)const;
-      bool checkModuleBools(const bool, const std::vector<unsigned int>&)const;
-      bool checkModuleDirections(const int, const std::vector<int>&)const;
-      bool checkModulePositions(const float, const std::vector<double>&)const;
-      void statistics(const TrackerSectorStruct&, const Int_t)const;
+      bool checkIntervalsForSectors(unsigned int sectorCounter, const std::vector<double>&)const;
+      bool checkModuleIds(unsigned int, const std::vector<unsigned int>&)const;
+      bool checkModuleBools(bool, const std::vector<unsigned int>&)const;
+      bool checkModuleDirections(int, const std::vector<int>&)const;
+      bool checkModulePositions(float, const std::vector<double>&)const;
+      void statistics(const TrackerSectorStruct&, Int_t)const;
       
       void residualErrorBinning();
       
@@ -174,8 +174,8 @@ class ApeEstimator : public edm::EDAnalyzer {
       void setHitSelectionMap(const std::string&);
       void setHitSelectionMapUInt(const std::string&);
       bool hitSelected(TrackStruct::HitParameterStruct&)const;
-      bool inDoubleInterval(const std::vector<double>&, const float)const;
-      bool inUintInterval(const std::vector<unsigned int>&, const unsigned int, const unsigned int =999)const;
+      bool inDoubleInterval(const std::vector<double>&, float)const;
+      bool inUintInterval(const std::vector<unsigned int>&, unsigned int, unsigned int =999)const;
       
       void fillHistsForAnalyzerMode(const TrackStruct&);
       void fillHitHistsXForAnalyzerMode(const TrackStruct::HitParameterStruct&, TrackerSectorStruct&);

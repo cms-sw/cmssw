@@ -61,7 +61,7 @@ protected:
 private:
 
   /// book the summary histograms
-  void bookHistos(DQMStore::IBooker &, const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker &, int wheelId, std::string folder, std::string histoTag);
 
   /// Get the ME name
   std::string getMEName(std::string histoTag, const DTChamberId& chId);

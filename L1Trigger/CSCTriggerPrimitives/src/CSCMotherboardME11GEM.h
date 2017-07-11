@@ -145,7 +145,7 @@ class CSCMotherboardME11GEM : public CSCMotherboard
   CSCCorrelatedLCTDigi constructLCTsGEM(const CSCALCTDigi& alct, const CSCCLCTDigi& clct, 
 					bool hasPad, bool hasCoPad); 
   
-  unsigned int encodePatternGEM(const int ptn, const int highPt);
+  unsigned int encodePatternGEM(int ptn, int highPt);
   unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const GEMPadDigi& gem);
   unsigned int findQualityGEM(const CSCCLCTDigi& cLCT, const GEMPadDigi& gem);
   unsigned int findQualityGEM(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT, 

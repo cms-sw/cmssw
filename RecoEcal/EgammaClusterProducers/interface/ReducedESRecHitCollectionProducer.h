@@ -29,7 +29,7 @@ class ReducedESRecHitCollectionProducer : public edm::stream::EDProducer<> {
   virtual ~ReducedESRecHitCollectionProducer();
   virtual void beginRun (edm::Run const&, const edm::EventSetup&) override final;
   void produce(edm::Event & e, const edm::EventSetup& c) override;
-  void collectIds(const ESDetId strip1, const ESDetId strip2, const int & row=0);
+  void collectIds(ESDetId strip1, ESDetId strip2, const int & row=0);
   
  private :
 

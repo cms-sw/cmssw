@@ -188,7 +188,7 @@ class TEcnaWrite : public TObject {
 
   void RegisterFileParameters(const TString&, const Int_t&, const Int_t&, const Int_t&,
 			      const Int_t&,  const Int_t&, const Int_t&, const TString&, const TString&,
-			      const time_t,  const time_t);
+			      time_t,  time_t);
   
   void RegisterFileParameters(const TString&, const Int_t&, const Int_t&, const Int_t&,
 			      const Int_t&,  const Int_t&, const Int_t&);

@@ -58,7 +58,7 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition(const int bxEval) const;
+    const bool evaluateCondition(int bxEval) const;
 
     /// print condition
      void print(std::ostream& myCout) const;

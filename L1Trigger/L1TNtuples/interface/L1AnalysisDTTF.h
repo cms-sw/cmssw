@@ -25,9 +25,9 @@ namespace L1Analysis
     L1AnalysisDTTF();
     ~L1AnalysisDTTF();
     
-    void SetDTPH(const edm::Handle<L1MuDTChambPhContainer > L1MuDTChambPhContainer, unsigned int maxDTPH);
-    void SetDTTH(const edm::Handle<L1MuDTChambThContainer > L1MuDTChambThContainer, unsigned int maxDTTH);
-    void SetDTTR(const edm::Handle<L1MuDTTrackContainer >   L1MuDTTrackContainer,   unsigned int maxDTTR);
+    void SetDTPH(edm::Handle<L1MuDTChambPhContainer > L1MuDTChambPhContainer, unsigned int maxDTPH);
+    void SetDTTH(edm::Handle<L1MuDTChambThContainer > L1MuDTChambThContainer, unsigned int maxDTTH);
+    void SetDTTR(edm::Handle<L1MuDTTrackContainer >   L1MuDTTrackContainer,   unsigned int maxDTTR);
     void Reset() {dttf_.Reset();}
     L1AnalysisDTTFDataFormat * getData() {return &dttf_;}
 

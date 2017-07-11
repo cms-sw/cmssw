@@ -57,7 +57,7 @@ public:
   bool setupOk() const;
 
   /// Set array sizes for the number of bunch crossings
-  void setBxRange(const int bxStart, const int numOfBx);
+  void setBxRange(int bxStart, int numOfBx);
 
   /// Read the input jet data from the jetfinders (after GCT processing).
   void fillRawJetData(const L1GlobalCaloTrigger* gct);
@@ -69,7 +69,7 @@ private:
 
   //
 
-  rawJetData rawJetFinderOutput(const L1GctJetFinderBase* jf, const unsigned phiPos, const int bx) const;
+  rawJetData rawJetFinderOutput(const L1GctJetFinderBase* jf, unsigned phiPos, int bx) const;
 
   int m_bxStart;
   int m_numOfBx;
@@ -81,8 +81,8 @@ private:
   const L1CaloEtScale* m_htMissScale;
   const L1GctJetFinderParams* m_jfPars;
 
-  int htComponent(const unsigned Emag0, const unsigned fact0,
-		  const unsigned Emag1, const unsigned fact1) const;
+  int htComponent(unsigned Emag0, unsigned fact0,
+		  unsigned Emag1, unsigned fact1) const;
 
   double htComponentGeVForHtMiss(int inputComponent) const;
 };

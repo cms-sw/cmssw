@@ -98,7 +98,7 @@ private:
   void processSuperClusterFillTree(const edm::Event&,
 				   const reco::SuperClusterRef&);
   // the tree  
-  void setTreeArraysForSize(const size_t N_ECAL,const size_t N_PS);
+  void setTreeArraysForSize(size_t N_ECAL,size_t N_PS);
   treeptr _tree;
   Int_t nVtx;
   Float_t scRawEnergy, scCalibratedEnergy, scPreshowerEnergy,

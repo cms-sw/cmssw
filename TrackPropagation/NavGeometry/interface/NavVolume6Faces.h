@@ -18,7 +18,7 @@ public:
 		     const MagneticFieldProvider<float> * mfp);
 
     /// A NavVolume6Faces that corresponds exactly to a MagVolume
-    explicit NavVolume6Faces( const MagVolume& magvol, const bool isIron=false);
+    explicit NavVolume6Faces( const MagVolume& magvol, bool isIron=false);
 
     /// Give a sorted list of possible surfaces to propagate to
     virtual Container nextSurface( const NavVolume::LocalPoint& pos, 

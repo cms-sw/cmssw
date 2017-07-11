@@ -28,14 +28,14 @@ public:
    *    (momentum and covariance matrix are potentially affected.
    */
   TrajectoryStateOnSurface updateState (const TrajectoryStateOnSurface& TSoS, 
-					const PropagationDirection propDir,
+					PropagationDirection propDir,
 					const Estimate& estimate) const;
 
   /** Updates TrajectoryStateOnSurface with several material effects
    *    (momentum and covariance matrix are potentially affected.
    */
   TrajectoryStateOnSurface updateState (const TrajectoryStateOnSurface& TSoS, 
-					const PropagationDirection propDir,
+					PropagationDirection propDir,
 					const EstimateContainer& estimates) const;
   
 };

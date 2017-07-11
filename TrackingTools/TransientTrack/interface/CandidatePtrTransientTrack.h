@@ -23,10 +23,10 @@ namespace reco {
     CandidatePtrTransientTrack();
     
     CandidatePtrTransientTrack( const CandidatePtr & tk, const MagneticField* field);
-    CandidatePtrTransientTrack( const CandidatePtr & tk, const double time, const double dtime, const MagneticField* field);
+    CandidatePtrTransientTrack( const CandidatePtr & tk, double time, double dtime, const MagneticField* field);
 
     CandidatePtrTransientTrack( const CandidatePtr & tk, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
-    CandidatePtrTransientTrack( const CandidatePtr & tk, const double time, const double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
+    CandidatePtrTransientTrack( const CandidatePtr & tk, double time, double dtime, const MagneticField* field, const edm::ESHandle<GlobalTrackingGeometry>& trackingGeometry);
 
     CandidatePtrTransientTrack( const CandidatePtrTransientTrack & tt );
 

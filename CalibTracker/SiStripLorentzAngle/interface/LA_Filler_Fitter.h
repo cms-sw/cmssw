@@ -74,29 +74,29 @@ class LA_Filler_Fitter {
   void fill(TTree*, Book&) const;
   void fill_one_cluster(Book&,
 			const poly<std::string>&,
-			const unsigned,	const float, const float, const float, const float) const;
-  poly<std::string> allAndOne(const unsigned width) const;
-  poly<std::string> varWidth(const unsigned width) const;
-  poly<std::string> granularity(const SiStripDetId, const float, const Long64_t, const float, const unsigned) const;
-  static std::string subdetLabel(const SiStripDetId);
-  static std::string moduleLabel(const SiStripDetId);
-  static std::string layerLabel(const SiStripDetId);
+			unsigned,	float, float, float, float) const;
+  poly<std::string> allAndOne(unsigned width) const;
+  poly<std::string> varWidth(unsigned width) const;
+  poly<std::string> granularity(SiStripDetId, float, Long64_t, float, unsigned) const;
+  static std::string subdetLabel(SiStripDetId);
+  static std::string moduleLabel(SiStripDetId);
+  static std::string layerLabel(SiStripDetId);
   static unsigned layer_index(bool TIB, bool stereo, unsigned layer) { return  layer + (TIB?0:6) +(stereo?1:0) + ( (layer>2)?1:(layer==1)?-1:0 );}
 
   //Located in src/LA_Fitter.cc
   static void fit(Book& book) { make_and_fit_symmchi2(book); fit_width_profile(book); }
   static void make_and_fit_symmchi2(Book&);
   static void fit_width_profile(Book&);
-  static TH1* rms_profile(const std::string, const TProfile* const);
-  static TH1* subset_probability(const std::string name, const TH1* const , const TH1* const );
-  static unsigned find_rebin(const TH1* const);
+  static TH1* rms_profile(std::string, TProfile* const);
+  static TH1* subset_probability(std::string name, TH1* const , TH1* const );
+  static unsigned find_rebin(TH1* const);
 
   //Located in src/LA_Results.cc
   void summarize_ensembles(Book&) const;
-  static Result result(Method, const std::string name, const Book&);
-  static std::map< std::string,                      Result  >    layer_results(const Book&, const Method);
-  static std::map<    uint32_t,                      Result  >   module_results(const Book&, const Method);
-  static std::map< std::string,          std::vector<Result> > ensemble_results(const Book&, const Method );
+  static Result result(Method, std::string name, const Book&);
+  static std::map< std::string,                      Result  >    layer_results(const Book&, Method);
+  static std::map<    uint32_t,                      Result  >   module_results(const Book&, Method);
+  static std::map< std::string,          std::vector<Result> > ensemble_results(const Book&, Method );
   static std::map< std::string, std::vector<EnsembleSummary> > ensemble_summary(const Book& );
   static std::pair<std::pair<float,float>, std::pair<float,float> > offset_slope(const std::vector<EnsembleSummary>&);
   static float pull(const std::vector<EnsembleSummary>&);

@@ -24,7 +24,7 @@ class AlphaTVarProducer : public edm::EDProducer {
   static double CalcHT(const std::vector<TLorentzVector>&);
   static double CalcMHT(const std::vector<TLorentzVector>&);
   static double deltaHt(const std::vector<double>&);
-  static double alphaT(const double, const double, const double);
+  static double alphaT(double, double, double);
   
   
   edm::InputTag inputJetTag_; // input tag identifying product

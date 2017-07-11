@@ -22,7 +22,7 @@ class TProfile;
    virtual ~BaseHistoParams();
 
    //   virtual void beginRun(const edm::Run& iRun, TFileDirectory& subrun);
-   virtual void beginRun(const unsigned int irun, TFileDirectory& subrun, const char* fillrun) = 0;
+   virtual void beginRun(unsigned int irun, TFileDirectory& subrun, const char* fillrun) = 0;
 
  };
 
@@ -218,19 +218,19 @@ class RunHistogramManager {
 
  public:
 
-  RunHistogramManager(edm::ConsumesCollector&& iC, const bool fillHistograms=false);
-  RunHistogramManager(edm::ConsumesCollector& iC, const bool fillHistograms=false);
+  RunHistogramManager(edm::ConsumesCollector&& iC, bool fillHistograms=false);
+  RunHistogramManager(edm::ConsumesCollector& iC, bool fillHistograms=false);
   ~RunHistogramManager();
 
-  TH1F**  makeTH1F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
-  TProfile**  makeTProfile(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax);
-  TH2F**  makeTH2F(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax);
-  TProfile2D**  makeTProfile2D(const char* name, const char* title, const unsigned int nbinx, const double xmin, const double xmax, const unsigned int nbiny, const double ymin, const double ymax);
+  TH1F**  makeTH1F(const char* name, const char* title, unsigned int nbinx, double xmin, double xmax);
+  TProfile**  makeTProfile(const char* name, const char* title, unsigned int nbinx, double xmin, double xmax);
+  TH2F**  makeTH2F(const char* name, const char* title, unsigned int nbinx, double xmin, double xmax, unsigned int nbiny, double ymin, double ymax);
+  TProfile2D**  makeTProfile2D(const char* name, const char* title, unsigned int nbinx, double xmin, double xmax, unsigned int nbiny, double ymin, double ymax);
 
   void  beginRun(const edm::Run& iRun);
   void  beginRun(const edm::Run& iRun, TFileDirectory& subdir);
-  void  beginRun(const unsigned int irun);
-  void  beginRun(const unsigned int irun, TFileDirectory& subdir);
+  void  beginRun(unsigned int irun);
+  void  beginRun(unsigned int irun, TFileDirectory& subdir);
 
 
  private:

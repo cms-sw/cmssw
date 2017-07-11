@@ -53,7 +53,7 @@ public:
     // constructor
     L1GtTriggerMenu();
 
-    L1GtTriggerMenu(const std::string&, const unsigned int numberConditionChips,
+    L1GtTriggerMenu(const std::string&, unsigned int numberConditionChips,
             const std::vector<std::vector<L1GtMuonTemplate> >&,
             const std::vector<std::vector<L1GtCaloTemplate> >&,
             const std::vector<std::vector<L1GtEnergySumTemplate> >&,

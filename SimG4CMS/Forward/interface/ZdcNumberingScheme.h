@@ -16,7 +16,7 @@ public:
   ZdcNumberingScheme(int);
   virtual ~ZdcNumberingScheme();
 
-  void setVerbosity(const int);
+  void setVerbosity(int);
 
   virtual unsigned int getUnitID(const G4Step* aStep) const ;
 

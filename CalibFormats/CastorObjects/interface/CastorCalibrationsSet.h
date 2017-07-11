@@ -8,8 +8,8 @@
 class CastorCalibrationsSet {
 public:
   CastorCalibrationsSet();
-  const CastorCalibrations& getCalibrations(const DetId id) const;
-  void setCalibrations(const DetId id, const CastorCalibrations& ca);
+  const CastorCalibrations& getCalibrations(DetId id) const;
+  void setCalibrations(DetId id, const CastorCalibrations& ca);
   void sort();
   void clear();
 private:

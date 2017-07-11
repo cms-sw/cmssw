@@ -43,7 +43,7 @@ public:
 	const HitDoublets & doublets,
 	const RecHitsSortedInPhi ** thirdHitMap,
 	const std::vector<const DetLayer *> & thirdLayerDetLayer,
-	const int nThirdLayers)=0;
+	int nThirdLayers)=0;
 
 protected:
   std::unique_ptr<HitPairGeneratorFromLayerPair> thePairGenerator;

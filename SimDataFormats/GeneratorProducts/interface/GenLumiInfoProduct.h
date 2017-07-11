@@ -15,7 +15,7 @@ class GenLumiInfoProduct {
 
   // constructors, destructors
   GenLumiInfoProduct();
-  GenLumiInfoProduct(const int id);
+  GenLumiInfoProduct(int id);
   GenLumiInfoProduct(const GenLumiInfoProduct &other);
   virtual ~GenLumiInfoProduct();
 

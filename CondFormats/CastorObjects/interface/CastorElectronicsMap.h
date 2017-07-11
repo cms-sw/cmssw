@@ -59,9 +59,9 @@ class CastorElectronicsMap {
   const CastorElectronicsId lookupTrigger(DetId fId) const;
 
   /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/fiber/fiberchan) id
-  bool lookup(const CastorElectronicsId pId, CastorElectronicsId& eid, HcalGenericDetId& did) const;
+  bool lookup(CastorElectronicsId pId, CastorElectronicsId& eid, HcalGenericDetId& did) const;
   /// brief lookup the DetId and full electronics id associated with this partial (dcc/spigot/slb/slbchan) id
-  bool lookup(const CastorElectronicsId pId, CastorElectronicsId& eid, HcalTrigTowerDetId& did) const;
+  bool lookup(CastorElectronicsId pId, CastorElectronicsId& eid, HcalTrigTowerDetId& did) const;
 
   std::vector <CastorElectronicsId> allElectronicsId () const;
   std::vector <CastorElectronicsId> allElectronicsIdPrecision() const;

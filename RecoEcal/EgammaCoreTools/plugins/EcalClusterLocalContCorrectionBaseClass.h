@@ -38,7 +38,7 @@ class EcalClusterLocalContCorrectionBaseClass : public EcalClusterFunctionBaseCl
                 
                 // compute the correction
                 virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const = 0;
-                virtual float getValue( const reco::SuperCluster &, const int mode ) const = 0;
+                virtual float getValue( const reco::SuperCluster &, int mode ) const = 0;
 
                 // set parameters
                 virtual void init( const edm::EventSetup& es );

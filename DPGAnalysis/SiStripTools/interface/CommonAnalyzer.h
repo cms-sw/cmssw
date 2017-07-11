@@ -34,7 +34,7 @@ class CommonAnalyzer {
   TObject* getObject(const char* name) const;
   TNamed* getObjectWithSuffix(const char* name, const char* suffix="") const;
 
-  TH1F* getBinomialRatio(const CommonAnalyzer& denom, const char* name, const int rebin=-1) const;
+  TH1F* getBinomialRatio(const CommonAnalyzer& denom, const char* name, int rebin=-1) const;
 
  private:
 

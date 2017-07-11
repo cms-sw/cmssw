@@ -34,7 +34,7 @@ class FSimDisplacedVertex {
   FSimDisplacedVertex(const SimVertex& vertex, 
 		      unsigned id, int motherId, unsigned nCharged,
 		      const std::vector<int>& daughterIds,
-		      const FSimVertexType::VertexType vertexType
+		      FSimVertexType::VertexType vertexType
 		      );
 
   FSimDisplacedVertex(const FSimDisplacedVertex& other);

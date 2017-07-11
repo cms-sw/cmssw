@@ -190,7 +190,7 @@ namespace evf{
 
     private:
 
-      void doSnapshot(const unsigned int ls, const bool isGlobalEOL);
+      void doSnapshot(unsigned int ls, bool isGlobalEOL);
 
       void doStreamEOLSnapshot(const unsigned int ls, const unsigned int streamID) {
 	//pick up only event count here

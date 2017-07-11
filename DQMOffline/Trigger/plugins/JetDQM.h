@@ -21,7 +21,7 @@ class JetDQM : public TriggerDQMBase
   void fillHistograms(const std::vector<reco::PFJet> & jets,
 		      const reco::PFMET & pfmet,
 		      const int & ls,
-		      const bool passCond);
+		      bool passCond);
   static void fillJetDescription(edm::ParameterSetDescription & histoPSet);
 
 private:

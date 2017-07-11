@@ -10,7 +10,7 @@ namespace l1t {
       static void fillMuon(Muon&, uint64_t, int, unsigned int);
       static void generatePackedDataWords(const Muon&, uint32_t&, uint32_t&);
       static uint64_t generate64bitDataWord(const Muon&);
-      static int calcHwEta(const uint32_t&, const unsigned, const unsigned);
+      static int calcHwEta(const uint32_t&, unsigned, unsigned);
 
       static const unsigned ptMask_ = 0x1FF;
       static const unsigned ptShift_ = 10;

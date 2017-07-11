@@ -79,7 +79,7 @@ private:
 		      const edm::SimTrackContainer &simtks,
 		      const edm::SimVertexContainer &simvtxs,
 		      reco::GenParticleCollection &mergedGens,
-		      const reco::GenParticleRefProd ref,
+		      reco::GenParticleRefProd ref,
 		      std::vector<int> &genBarcodes,
 		      bool &barcodesAreSorted ) const ;
   struct LessById {

@@ -82,9 +82,9 @@ public:
     RPCAMCLink operator--(int);
 
 protected:
-    int bf_get(int const min, std::uint32_t const mask, int const pos) const;
-    RPCAMCLink & bf_set(int const min, int const max, std::uint32_t const mask, int const pos, int const value);
-    std::ostream & bf_stream(std::ostream & ostream, int const min, std::uint32_t const mask, int const pos) const;
+    int bf_get(int min, std::uint32_t mask, int pos) const;
+    RPCAMCLink & bf_set(int min, int max, std::uint32_t mask, int pos, int value);
+    std::ostream & bf_stream(std::ostream & ostream, int min, std::uint32_t mask, int pos) const;
 
 protected:
     std::uint32_t id_;

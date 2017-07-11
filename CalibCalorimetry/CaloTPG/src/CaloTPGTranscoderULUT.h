@@ -32,11 +32,11 @@ public:
 				   unsigned int& et) const override;
   virtual double hcaletValue(const int& ieta, const int& iphi, const int& version, const int& compressedValue) const override;
   virtual double hcaletValue(const HcalTrigTowerDetId& hid, const HcalTriggerPrimitiveSample& hc) const override;
-  virtual bool HTvalid(const int ieta, const int iphi, const int version) const;
+  virtual bool HTvalid(int ieta, int iphi, int version) const;
   virtual const std::vector<unsigned int> getCompressionLUT(const HcalTrigTowerDetId& id) const;
   virtual void setup(HcalLutMetadata const&, HcalTrigTowerGeometry const&, int, int);
   virtual int getOutputLUTId(const HcalTrigTowerDetId& id) const;
-  virtual int getOutputLUTId(const int ieta, const int iphi, const int version) const;
+  virtual int getOutputLUTId(int ieta, int iphi, int version) const;
 
  private:
   // Constant

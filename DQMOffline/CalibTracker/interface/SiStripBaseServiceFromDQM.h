@@ -55,7 +55,7 @@ class SiStripBaseServiceFromDQM : public SiStripCondObjBuilderBase<T>
    * must be NAME, removing all the __det__DETID part. This latter part will be built
    * and attached internally using the provided detId.
    */
-  MonitorElement * getModuleHistogram(const uint32_t detId, const std::string & name);
+  MonitorElement * getModuleHistogram(uint32_t detId, const std::string & name);
 
   DQMStore* dqmStore_;
   edm::ParameterSet iConfig_;

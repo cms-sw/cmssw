@@ -25,7 +25,7 @@ class EcalClusterEnergyCorrectionObjectSpecific : public EcalClusterEnergyCorrec
 		//float getValue( const reco::Photon &, const int mode) const;
 		//virtual float getValue( const reco::GsfElectron &, const int mode) const;
 
-                virtual float getValue( const reco::SuperCluster &, const int mode) const;
+                virtual float getValue( const reco::SuperCluster &, int mode) const;
                 virtual float getValue( const reco::BasicCluster &, const EcalRecHitCollection & ) const { return 0.;};
 
 	        float fEta  (float energy, float eta, int algorithm) const;

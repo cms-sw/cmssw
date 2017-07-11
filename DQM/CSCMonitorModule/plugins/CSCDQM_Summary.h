@@ -86,29 +86,29 @@ class Summary {
 
     const Detector getDetector() const { return detector; }
 
-    void ReadReportingChambers(const TH2*& h2, const double threshold = 1.0);
-    void ReadReportingChambersRef(const TH2*& h2, const TH2*& refh2, const double cold_coef = 0.1, const double cold_Sfail = 5.0, const double hot_coef = 2.0, const double hot_Sfail = 5.0);
-    void ReadErrorChambers(const TH2*& evs, const TH2*& err, const HWStatusBit bit, const double eps_max = 0.1, const double Sfail = 5.0);
+    void ReadReportingChambers(const TH2*& h2, double threshold = 1.0);
+    void ReadReportingChambersRef(const TH2*& h2, const TH2*& refh2, double cold_coef = 0.1, double cold_Sfail = 5.0, double hot_coef = 2.0, double hot_Sfail = 5.0);
+    void ReadErrorChambers(const TH2*& evs, const TH2*& err, HWStatusBit bit, double eps_max = 0.1, double Sfail = 5.0);
 
     const unsigned int setMaskedHWElements(std::vector<std::string>& tokens);
 
-    void Write(TH2*& h2, const unsigned int station) const;
+    void Write(TH2*& h2, unsigned int station) const;
     void WriteMap(TH2*& h2);
-    void WriteChamberState(TH2*& h2, const int mask, const int value = 1, const bool reset = true, const bool op_any = false) const;
+    void WriteChamberState(TH2*& h2, int mask, int value = 1, bool reset = true, bool op_any = false) const;
 
-    void ReSetValue(const HWStatusBit bit);
-    void ReSetValue(const Address& adr, const HWStatusBit bit);
-    void SetValue(const HWStatusBit bit, const int value = 1);
-    void SetValue(Address adr, const HWStatusBit bit, const int value = 1);
+    void ReSetValue(HWStatusBit bit);
+    void ReSetValue(const Address& adr, HWStatusBit bit);
+    void SetValue(HWStatusBit bit, int value = 1);
+    void SetValue(Address adr, HWStatusBit bit, int value = 1);
 
     const HWStatusBitSet GetValue(Address adr) const;
-    const int IsPhysicsReady(const unsigned int px, const unsigned int py);
+    const int IsPhysicsReady(unsigned int px, unsigned int py);
     //const int IsPhysicsReady(const float xmin, const float xmax, const float ymin, const float ymax) const;
 
     const double GetEfficiencyHW() const;
-    const double GetEfficiencyHW(const unsigned int station) const;
+    const double GetEfficiencyHW(unsigned int station) const;
     const double GetEfficiencyHW(Address adr) const; 
-    const double GetEfficiencyArea(const unsigned int station) const; 
+    const double GetEfficiencyArea(unsigned int station) const; 
     const double GetEfficiencyArea(const Address& adr) const; 
 
     bool isChamberStandby(unsigned int side, unsigned int station, unsigned int ring, unsigned int chamber) const;
@@ -116,7 +116,7 @@ class Summary {
 
   private:
 
-    const bool ChamberCoordsToAddress(const unsigned int x, const unsigned int y, Address& adr) const;
+    const bool ChamberCoordsToAddress(unsigned int x, unsigned int y, Address& adr) const;
     const bool ChamberAddressToCoords(const Address& adr, unsigned int& x, unsigned int& y) const;
     const double GetReportingArea(Address adr) const; 
 

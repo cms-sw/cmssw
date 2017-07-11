@@ -131,7 +131,7 @@ private:
   findBestRecHit(const DTLayer* layer,
 				  DTWireId wireId,
 				  const std::vector<type>& recHits,
-				  const float simHitDist);
+				  float simHitDist);
 
 
 

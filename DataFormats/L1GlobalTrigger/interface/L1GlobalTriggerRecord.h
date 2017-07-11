@@ -38,8 +38,8 @@ public:
     /// constructors
     L1GlobalTriggerRecord();
 
-    L1GlobalTriggerRecord(const unsigned int numberPhysTriggers,
-            const unsigned int numberTechnicalTriggers);
+    L1GlobalTriggerRecord(unsigned int numberPhysTriggers,
+            unsigned int numberTechnicalTriggers);
 
     /// copy constructor
     L1GlobalTriggerRecord(const L1GlobalTriggerRecord&);

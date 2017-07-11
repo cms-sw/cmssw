@@ -32,7 +32,7 @@ class L1DataEmulRecord {
   int getNCand(int i, int j) const {return deNCand[i][j];}
   bool get_isComp(int i) const {return deSysCompared[i];}
 
-  void set_status(const bool result);
+  void set_status(bool result);
   void set_status(const bool result[]); 
   void setColl(const L1DEDigiCollection& col) {deColl = col;}
   void setGlt(const GltDEDigi& glt) {deGlt = glt;}

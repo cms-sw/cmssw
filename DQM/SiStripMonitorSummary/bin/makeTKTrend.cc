@@ -13,7 +13,7 @@
 #include "TH1F.h"
 #include "TFile.h"
 
-void makeTKTrend(const char* inFileName, const char* outFileName, std::string subDetName, std::string partName, const unsigned int partNumber);
+void makeTKTrend(const char* inFileName, const char* outFileName, std::string subDetName, std::string partName, unsigned int partNumber);
 
 int main(int argc , char *argv[]) {
 

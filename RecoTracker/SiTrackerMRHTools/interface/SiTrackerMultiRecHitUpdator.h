@@ -31,8 +31,8 @@ public:
   typedef std::pair<LocalPoint,LocalError>  LocalParameters;
   SiTrackerMultiRecHitUpdator(const TransientTrackingRecHitBuilder* builder,
 			      const TrackingRecHitPropagator* hitpropagator,
-			      const float Chi2Cut1D,
-			      const float Chi2Cut2D,
+			      float Chi2Cut1D,
+			      float Chi2Cut2D,
 			      const std::vector<double>& anAnnealingProgram, bool debug);
   virtual ~SiTrackerMultiRecHitUpdator(){};
   

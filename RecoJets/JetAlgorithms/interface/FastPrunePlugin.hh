@@ -101,11 +101,11 @@ public:
 	///  See below for CutSetter definition.
 	FastPrunePlugin (const JetDefinition & find_definition,
 	                 const JetDefinition & prune_definition,
-	                 CutSetter* const cut_setter);
+	                 CutSetter* cut_setter);
 
 	FastPrunePlugin (const JetDefinition & find_definition,
 	                 const JetDefinition & prune_definition,
-	                 CutSetter* const cut_setter,
+	                 CutSetter* cut_setter,
 	                 const JetDefinition::Recombiner* recomb);
 
 	

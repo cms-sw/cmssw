@@ -156,7 +156,7 @@ public:
 
     /// get / set BST flag: 0 or 1 - via setup version (no private member)
     const int bstFlag() const;
-    void setBstFlag(const int);
+    void setBstFlag(int);
 
 
     /// get/set boards contributing to EVM respectively DAQ record

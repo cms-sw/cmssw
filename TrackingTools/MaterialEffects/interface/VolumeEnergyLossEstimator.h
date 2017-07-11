@@ -23,7 +23,7 @@ public:
   virtual ~VolumeEnergyLossEstimator () {}
 
   /// Creates an estimate
-  virtual VolumeMaterialEffectsEstimate estimate (const TrajectoryStateOnSurface refTSOS,
+  virtual VolumeMaterialEffectsEstimate estimate (TrajectoryStateOnSurface refTSOS,
 						  double pathLength,
 						  const VolumeMediumProperties& medium) const;
 

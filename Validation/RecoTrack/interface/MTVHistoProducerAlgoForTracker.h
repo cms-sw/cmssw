@@ -33,7 +33,7 @@ class MTVHistoProducerAlgoForTracker {
  public:
   MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector && iC) :
     MTVHistoProducerAlgoForTracker(pset, beamSpotTag, doSeedPlots, iC) {}
-  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, const bool doSeedPlots, edm::ConsumesCollector & iC) ;
+  MTVHistoProducerAlgoForTracker(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, bool doSeedPlots, edm::ConsumesCollector & iC) ;
   ~MTVHistoProducerAlgoForTracker();
 
   static std::unique_ptr<RecoTrackSelectorBase> makeRecoTrackSelectorFromTPSelectorParameters(const edm::ParameterSet& pset, const edm::InputTag& beamSpotTag, edm::ConsumesCollector& iC);

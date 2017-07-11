@@ -173,7 +173,7 @@ class CSCTriggerPrimitivesDQM : public edm::EDAnalyzer
   void drawHistosForTalks();
 
   int    getCSCType(const CSCDetId& id);
-  double getHsPerRad(const int idh);
+  double getHsPerRad(int idh);
 
   void compare(const CSCALCTDigiCollection* alcts_data,
 	       const CSCALCTDigiCollection* alcts_emul,
@@ -190,7 +190,7 @@ class CSCTriggerPrimitivesDQM : public edm::EDAnalyzer
 		   const CSCCorrelatedLCTDigiCollection* lcts_emul,
 		   const CSCALCTDigiCollection* alcts_data,
 		   const CSCCLCTDigiCollection* clcts_data);
-  int  convertBXofLCT(const int emul_bx, const CSCDetId& detid,
+  int  convertBXofLCT(int emul_bx, const CSCDetId& detid,
 		      const CSCALCTDigiCollection* alcts_data,
 		      const CSCCLCTDigiCollection* clcts_data);
   void drawCompHistos();

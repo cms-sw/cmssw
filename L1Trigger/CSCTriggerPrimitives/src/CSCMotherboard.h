@@ -143,7 +143,7 @@ class CSCMotherboard
 		     CSCCLCTDigi bestCLCT, CSCCLCTDigi secondCLCT);
   CSCCorrelatedLCTDigi constructLCTs(const CSCALCTDigi& aLCT,
 				     const CSCCLCTDigi& cLCT);
-  unsigned int encodePattern(const int ptn, const int highPt);
+  unsigned int encodePattern(int ptn, int highPt);
   unsigned int findQuality(const CSCALCTDigi& aLCT, const CSCCLCTDigi& cLCT);
 
   /** Dump TMB/MPC configuration parameters. */

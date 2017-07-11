@@ -32,7 +32,7 @@ namespace reco {
       void initValues ();
 
       // interface
-      void calculate( const edm::Event& event, const reco::CaloJet &jet, const int iDbg = 0 );
+      void calculate( const edm::Event& event, const reco::CaloJet &jet, int iDbg = 0 );
 
       // member access
       
@@ -80,7 +80,7 @@ namespace reco {
 				  std::vector< double > &Ecal_energies, std::vector< double > &Hcal_energies, 
 				  std::vector< double > &HO_energies,
 				  std::vector< double > &HPD_energies,  std::vector< double > &RBX_energies,
-				  double& LS_bad_energy, double& HF_OOT_energy, const int iDbg = 0);
+				  double& LS_bad_energy, double& HF_OOT_energy, int iDbg = 0);
 
       void classifyJetTowers( const edm::Event& event, const reco::CaloJet &jet, 
 			      std::vector< subtower > &subtowers,      
@@ -89,7 +89,7 @@ namespace reco {
 			      std::vector< subtower > &HO_subtowers,
 			      std::vector< double > &HPD_energies,  
 			      std::vector< double > &RBX_energies,
-			      const int iDbg = 0);
+			      int iDbg = 0);
 
       unsigned int nCarrying( double fraction, const std::vector< double >& descending_energies );
       unsigned int hitsInNCarrying( double fraction, const std::vector< subtower >& descending_towers );

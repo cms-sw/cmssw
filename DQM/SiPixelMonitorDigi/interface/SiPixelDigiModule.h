@@ -67,9 +67,9 @@ class SiPixelDigiModule {
 //						 int &nDigisA, int &nDigisB);
   int fill(const edm::DetSetVector<PixelDigi>& input, const edm::EventSetup& iSetup,
       MonitorElement* combBarrel, MonitorElement* chanBarrel, std::vector<MonitorElement*>& chanBarrelL, MonitorElement* combEndcap,
-	   const bool modon, const bool ladon, const bool layon, const bool phion, 
-	   const bool bladeon, const bool diskon, const bool ringon, 
-	   const bool twoD, const bool reducedSet, const bool twoDimModOn, const bool twoDimOnlyLayDisk,
+	   bool modon, bool ladon, bool layon, bool phion, 
+	   bool bladeon, bool diskon, bool ringon, 
+	   bool twoD, bool reducedSet, bool twoDimModOn, bool twoDimOnlyLayDisk,
 	   int &nDigisA, int &nDigisB, bool isUpgrade);
   void resetRocMap(); // This is to move the rocmap reset from the Source to the Module where the map is booked. Necessary for multithread safety.
   std::pair<int,int> getZeroLoEffROCs(); // Moved from Souce.cc. Gets number of zero and low eff ROCs from each module.

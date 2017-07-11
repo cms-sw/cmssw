@@ -60,7 +60,7 @@ private:
   typedef std::map<G4LogicalVolume*,std::pair<unsigned int,std::string>>::iterator volumeIterator;
   G4VPhysicalVolume * getTopPV();
   volumeIterator      findLV(G4LogicalVolume * plv);
-  void storeInfo(const volumeIterator itr, G4LogicalVolume* plv, 
+  void storeInfo(volumeIterator itr, G4LogicalVolume* plv, 
 		 unsigned int copy, double time, double energy);
 
 private:

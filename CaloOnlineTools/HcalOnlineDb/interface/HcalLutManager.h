@@ -131,9 +131,9 @@ class HcalLutManager{
   std::vector<unsigned int> getLutFromXml_old( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
   std::vector<unsigned int> getLutFromXml( std::string tag, uint32_t _rawid, hcal::ConfigurationDatabase::LUTType _lt );
 
-  std::map<int, boost::shared_ptr<LutXml> > get_brickSet_from_oracle( std::string tag, const std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
+  std::map<int, boost::shared_ptr<LutXml> > get_brickSet_from_oracle( std::string tag, std::string _accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22" );
 
-  int get_xml_files_from_db( std::string tag, const std::string db_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22", bool split_by_crate = true );
+  int get_xml_files_from_db( std::string tag, std::string db_accessor = "occi://CMS_HCL_PRTTYPE_HCAL_READER@anyhost/int2r?PASSWORD=HCAL_Reader_88,LHWM_VERSION=22", bool split_by_crate = true );
 
   int create_lut_loader( std::string file_list, std::string _prefix, std::string tag_name, std::string comment="default comment", std::string version="V00-01-01", int subversion=1 );
 

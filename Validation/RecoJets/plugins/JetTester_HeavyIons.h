@@ -85,8 +85,8 @@ class JetTester_HeavyIons : public DQMEDAnalyzer {
 
  private:
   
-  void fillMatchHists(const double GenEta,  const double GenPhi,  const double GenPt,
-		      const double RecoEta, const double RecoPhi, const double RecoPt);
+  void fillMatchHists(double GenEta,  double GenPhi,  double GenPt,
+		      double RecoEta, double RecoPhi, double RecoPt);
   
   edm::InputTag   mInputCollection;
   edm::InputTag   mInputGenCollection;

@@ -22,7 +22,7 @@ public:
   explicit AlignmentExtendedCorrelationsEntry( short unsigned int nRows, short unsigned int nCols );
 
   /// Constructor. Initializes all elements of the correlations matrix to the given value.
-  explicit AlignmentExtendedCorrelationsEntry( short unsigned int nRows, short unsigned int nCols, const float init );
+  explicit AlignmentExtendedCorrelationsEntry( short unsigned int nRows, short unsigned int nCols, float init );
 
   /// Constructor from CLHEP matrix.
   explicit AlignmentExtendedCorrelationsEntry( const AlgebraicMatrix& mat );
@@ -43,7 +43,7 @@ public:
   inline const short unsigned int numCol( void ) const { return theNCols; }
 
   /// Multiply all elements of the correlations matrix with a given number.
-  void operator*=( const float multiply );
+  void operator*=( float multiply );
 
   /// Retrieve the correlation matrix in a CLHEP matrix representation;
   AlgebraicMatrix matrix( void ) const;

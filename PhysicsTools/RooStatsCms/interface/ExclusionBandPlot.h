@@ -33,7 +33,7 @@ class ExclusionBandPlot : public StatisticalPlot {
     /// Constructor
     ExclusionBandPlot(const char* name,
                       const char* title,
-                      const int n_points,
+                      int n_points,
                       double* x_vals,
                       double* y_vals,
                       double* y_up_bars1,

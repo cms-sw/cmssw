@@ -104,8 +104,8 @@ public:
   
   /** returns a new DetId offset by nrStepsX and nrStepsY (can be negative),
    * returns DetId(0) if invalid */
-  DetId offsetBy(const DetId startId, int nrStepsX, int nrStepsY) const;
-  DetId switchZSide(const DetId startId) const;
+  DetId offsetBy(DetId startId, int nrStepsX, int nrStepsY) const;
+  DetId switchZSide(DetId startId) const;
 
   /// Use subSector in square mode as wafer type in hexagon mode
   static const int subSectors_ = 2;

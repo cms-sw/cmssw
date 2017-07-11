@@ -39,7 +39,7 @@ public:
     L1GtExternalCondition();
 
     ///     from base template condition (from event setup usually)
-    L1GtExternalCondition(const L1GtCondition*, const bool result);
+    L1GtExternalCondition(const L1GtCondition*, bool result);
 
     // copy constructor
     L1GtExternalCondition(const L1GtExternalCondition&);

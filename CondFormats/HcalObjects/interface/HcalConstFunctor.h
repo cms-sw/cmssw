@@ -16,7 +16,7 @@ public:
     HcalConstFunctor();
 
     // Normal constructor
-    explicit HcalConstFunctor(const double value);
+    explicit HcalConstFunctor(double value);
 
     inline virtual ~HcalConstFunctor() {}
 

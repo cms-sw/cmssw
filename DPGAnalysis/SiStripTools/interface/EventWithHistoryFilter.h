@@ -36,7 +36,7 @@ class EventWithHistoryFilter {
   const bool isAPVPhaseNotNeeded() const;
   const bool isAPVModeNotNeeded() const;
   const bool isCutInactive(const std::vector<int>& range) const;
-  const bool isInRange(const long long bx, const std::vector<int>& range, const bool extra) const;
+  const bool isInRange(long long bx, const std::vector<int>& range, bool extra) const;
   void printConfig(const edm::InputTag& historyTag,const edm::InputTag& apvphaseTag) const;
 
   edm::EDGetTokenT<EventWithHistory> m_historyToken;

@@ -13,8 +13,8 @@ public:
    */
   HelixArbitraryPlaneCrossing(const PositionType& point,
 				    const DirectionType& direction,
-				    const float curvature,
-			            const PropagationDirection propDir = alongMomentum);
+				    float curvature,
+			            PropagationDirection propDir = alongMomentum);
   // destructor
   virtual ~HelixArbitraryPlaneCrossing() {}
 
@@ -50,7 +50,7 @@ private:
    */
   inline bool notAtSurface (const Plane&,
   			    const PositionTypeDouble&,
-			    const float) const dso_internal;
+			    float) const dso_internal;
 
 private:
   HelixArbitraryPlaneCrossing2Order theQuadraticCrossingFromStart;

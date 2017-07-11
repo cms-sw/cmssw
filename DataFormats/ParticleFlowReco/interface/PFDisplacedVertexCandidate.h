@@ -63,23 +63,23 @@ namespace reco {
 
 
     /// add a track Reference to the current Candidate
-    void addElement(const TrackBaseRef);
+    void addElement(TrackBaseRef);
 
     /// set a link between elements of indices i1 and i2, of "distance" dist
     /// the link is set in the linkData vector provided as an argument.
     /// As indicated by the 'const' statement, 'this' is not modified.
     void setLink(unsigned i1, 
 		 unsigned i2, 
-		 const float dist, 
+		 float dist, 
 		 const GlobalPoint& dcaPoint,
-		 const VertexLinkTest test=LINKTEST_DCA );
+		 VertexLinkTest test=LINKTEST_DCA );
 
     
     /// associate 2 elements
-    void associatedElements( const unsigned i,
+    void associatedElements( unsigned i,
                              const VertexLinkData& vertexLinkData, 
                              std::multimap<float, unsigned>& sortedAssociates,
-			     const VertexLinkTest test=LINKTEST_DCA ) const; 
+			     VertexLinkTest test=LINKTEST_DCA ) const; 
 
     /// -------- Provide useful information -------- ///
 

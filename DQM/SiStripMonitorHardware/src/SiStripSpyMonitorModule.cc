@@ -68,11 +68,11 @@ class SiStripSpyMonitorModule : public DQMEDAnalyzer
 			   uint16_t aPair);
 
   bool identifyTickmarks(const edm::DetSetVector<SiStripRawDigi>::detset & channelDigis,
-			 const uint16_t threshold);
+			 uint16_t threshold);
 
   edm::DetSetVector<SiStripRawDigi>::detset::const_iterator
   findTwoConsecutive(const edm::DetSetVector<SiStripRawDigi>::detset & channelDigis,
-		     const uint16_t threshold,
+		     uint16_t threshold,
 		     uint16_t & aCounter);
 
   //tag of spydata collection

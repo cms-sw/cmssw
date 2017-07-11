@@ -28,11 +28,11 @@ class DDLSAX2ExpressionHandler : public DDLSAX2FileHandler
   DDLSAX2ExpressionHandler(DDCompactView& cpv);
   ~DDLSAX2ExpressionHandler();
 
-  void startElement(const XMLCh* const uri, const XMLCh* const localname,
-		    const XMLCh* const qname, const Attributes& attrs) override;
+  void startElement(const XMLCh* uri, const XMLCh* localname,
+		    const XMLCh* qname, const Attributes& attrs) override;
   
-  void endElement(const XMLCh* const uri, const XMLCh* const localname,
-		  const XMLCh* const qname) override;
+  void endElement(const XMLCh* uri, const XMLCh* localname,
+		  const XMLCh* qname) override;
 };
 
 #endif

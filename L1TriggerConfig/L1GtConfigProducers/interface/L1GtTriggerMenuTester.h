@@ -87,7 +87,7 @@ private:
     /// printing template for a trigger group
     void printTriggerGroup(const std::string& trigGroupName,
             const std::map<std::string, const L1GtAlgorithm*>& trigGroup,
-            const bool compactPrint, const bool printPfsRates);
+            bool compactPrint, bool printPfsRates);
 
     /// printing in Wiki format
     void printWiki();

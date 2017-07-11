@@ -42,7 +42,7 @@ private:
   //
   // private member functions
   //
-  void fillFEDs(const int, const int,
+  void fillFEDs(int, int,
 		edm::EventID& eID,
 		FEDRawDataCollection& data,
 		float meansize,

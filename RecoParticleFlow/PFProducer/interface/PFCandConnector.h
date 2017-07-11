@@ -82,7 +82,7 @@ class PFCandConnector {
        bool isSecondaryNucl( const reco::PFCandidate& pf ) const;
 
        /// Return a calibration factor for a reconstructed nuclear interaction
-       double rescaleFactor( const double pt, const double cFrac ) const;
+       double rescaleFactor( double pt, double cFrac ) const;
 
        /// Collection of primary PFCandidates to be transmitted to the Event
        std::unique_ptr<reco::PFCandidateCollection> pfC_;

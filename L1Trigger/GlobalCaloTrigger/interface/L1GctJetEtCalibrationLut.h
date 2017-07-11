@@ -36,9 +36,9 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
   virtual ~L1GctJetEtCalibrationLut();
 
   // set components
-  void setFunction(const L1GctJetFinderParams * const lutfn);
-  void setOutputEtScale(const L1CaloEtScale * const scale);
-  void setEtaBin(const unsigned eta);
+  void setFunction(const L1GctJetFinderParams * lutfn);
+  void setOutputEtScale(const L1CaloEtScale * scale);
+  void setEtaBin(unsigned eta);
 
   // get components
   const L1GctJetFinderParams* getFunction() const { return m_lutFunction; }
@@ -51,7 +51,7 @@ class L1GctJetEtCalibrationLut : public L1GctLut<JET_ET_CAL_LUT_ADD_BITS,JET_ET_
  protected:
   
 
-  virtual uint16_t value (const uint16_t lutAddress) const;
+  virtual uint16_t value (uint16_t lutAddress) const;
 
  private:
 

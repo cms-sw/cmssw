@@ -50,13 +50,13 @@ namespace Phase2Tracker {
       const uint8_t* data() const;
 
       // setters
-      void setEventType(const FEDDAQEventType evtType);
-      void setL1ID(const uint32_t l1ID);
-      void setBXID(const uint16_t bxID);
-      void setSourceID(const uint16_t sourceID);
-      FEDDAQHeader(const uint32_t l1ID, const uint16_t bxID,
-                   const uint16_t sourceID,
-                   const FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS);
+      void setEventType(FEDDAQEventType evtType);
+      void setL1ID(uint32_t l1ID);
+      void setBXID(uint16_t bxID);
+      void setSourceID(uint16_t sourceID);
+      FEDDAQHeader(uint32_t l1ID, uint16_t bxID,
+                   uint16_t sourceID,
+                   FEDDAQEventType evtType = DAQ_EVENT_TYPE_PHYSICS);
     private:
       uint8_t header_[8];
   }; // end of FEDDAQHeader class

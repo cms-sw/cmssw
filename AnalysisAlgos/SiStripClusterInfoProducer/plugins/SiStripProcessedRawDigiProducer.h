@@ -33,7 +33,7 @@ class SiStripProcessedRawDigiProducer : public edm::EDProducer {
   void vr_process(const edm::DetSetVector<SiStripRawDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
   void pr_process(const edm::DetSetVector<SiStripRawDigi>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
   void zs_process(const edm::DetSetVector<SiStripDigi>&,    edm::DetSetVector<SiStripProcessedRawDigi>&);
-  void common_process( const uint32_t, std::vector<float>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
+  void common_process( uint32_t, std::vector<float>&, edm::DetSetVector<SiStripProcessedRawDigi>&);
 
 
   std::vector<edm::InputTag> inputTags;

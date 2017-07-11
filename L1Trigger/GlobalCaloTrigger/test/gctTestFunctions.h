@@ -52,11 +52,11 @@ public:
   void reset();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, bool &endOfFile, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
-  void loadNextEvent(L1GlobalCaloTrigger* &gct, const edm::Event& iEvent, const int16_t bx);
-  void loadSingleEvent(L1GlobalCaloTrigger* &gct, const std::string fileName, const int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, bool simpleEvent, int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, std::string fileName, bool &endOfFile, int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, std::string fileName, int16_t bx);
+  void loadNextEvent(L1GlobalCaloTrigger* &gct, const edm::Event& iEvent, int16_t bx);
+  void loadSingleEvent(L1GlobalCaloTrigger* &gct, std::string fileName, int16_t bx);
 
   /// Read the input electron data (after GCT processing).
   void fillElectronData(const L1GlobalCaloTrigger* gct);
@@ -105,7 +105,7 @@ private:
   int m_bxStart;
   int m_numOfBx;
 
-  void bxRangeUpdate(const int16_t bx);
+  void bxRangeUpdate(int16_t bx);
 
 };
 

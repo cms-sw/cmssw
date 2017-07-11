@@ -22,7 +22,7 @@ class TtFullLepHypGenMatch : public TtFullLepHypothesis  {
 			 const edm::Handle<std::vector<pat::Jet> >& jets,
 			 const edm::Handle<std::vector<pat::MET> >& mets,
 			 std::vector<int>& match,
-			 const unsigned int iComb);
+			 unsigned int iComb);
 
   template <typename O>
   int findMatchingLepton(const reco::GenParticle*,

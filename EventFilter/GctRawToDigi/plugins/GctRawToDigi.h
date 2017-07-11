@@ -56,7 +56,7 @@ private: // methods
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
-  void unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollections * const colls);
+  void unpack(const FEDRawData& d, edm::Event& e, GctUnpackCollections * colls);
 
   /// Looks at the firmware version header in the S-Link packet and instantiates relevant format translator.
   /*! Returns false if it fails to instantiate a Format Translator */
@@ -66,10 +66,10 @@ private: // methods
   void checkHeaders();
 
   /// Prints out a list of blocks and the various numbers of trigger objects that have been unpacked from them.
-  void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * const colls) const;
+  void doVerboseOutput(const GctBlockHeaderCollection& bHdrs, const GctUnpackCollections * colls) const;
 
   // add an error to the error collection
-  void addError(const unsigned code);
+  void addError(unsigned code);
 
   /// method called at job end - use to print summary report
   virtual void endJob();

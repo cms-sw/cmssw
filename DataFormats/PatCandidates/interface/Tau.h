@@ -448,7 +448,7 @@ namespace pat {
       /// add more sets of energy correction factors
       void addJECFactors(const TauJetCorrFactors& jec) {jec_.push_back(jec); };
       /// initialize the jet to a given JEC level during creation starting from Uncorrected
-      void initializeJEC(unsigned int level, const unsigned int set = 0);
+      void initializeJEC(unsigned int level, unsigned int set = 0);
 
 
   private:

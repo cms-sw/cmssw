@@ -38,7 +38,7 @@ namespace pat {
       float calculate(const Muon & aMuon, const std::vector<CaloTower> & theTowers, float isoConeMuon = 0.3) const;
 
     private:
-      float calculate(const reco::Track & track, const float leptonEnergy, const std::vector<CaloTower> & theTowers, float isoCone) const;
+      float calculate(const reco::Track & track, float leptonEnergy, const std::vector<CaloTower> & theTowers, float isoCone) const;
   };
 
 }

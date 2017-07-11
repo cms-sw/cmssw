@@ -35,10 +35,10 @@ class L1CaloEtScale {
 
   /// ctor that provides backwards compatibility with fixed scale max values
   /// OK to use this with e/gamma and jet rank scales
-  L1CaloEtScale(const double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
+  L1CaloEtScale(double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
 
   /// general case ctor that sets scale max values
-  L1CaloEtScale(const unsigned linScaleMax, const unsigned rankScaleMax, const double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
+  L1CaloEtScale(unsigned linScaleMax, unsigned rankScaleMax, double linearLsbInGeV, const std::vector<double>& thresholdsInGeV);
 
   // destructor
   ~L1CaloEtScale();
@@ -53,13 +53,13 @@ class L1CaloEtScale {
   double linearLsb() const { return m_linearLsb; }
 
   /// convert from linear Et scale to rank scale
-  uint16_t rank(const uint16_t linear) const;
+  uint16_t rank(uint16_t linear) const;
 
   /// convert from physical Et in GeV to rank scale
-  uint16_t rank(const double EtInGeV) const;
+  uint16_t rank(double EtInGeV) const;
 
   /// convert from rank to physically meaningful quantity
-  double et(const uint16_t rank) const;
+  double et(uint16_t rank) const;
 
   /// get thresholds
   const std::vector<double>& getThresholds() const { return m_thresholds; }
@@ -85,6 +85,6 @@ class L1CaloEtScale {
  COND_SERIALIZABLE;
 };
 
-std::ostream& operator << (std::ostream& os, const L1CaloEtScale onj);
+std::ostream& operator << (std::ostream& os, L1CaloEtScale onj);
 
 #endif

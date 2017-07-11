@@ -67,10 +67,10 @@ public:
 	virtual void process();
 
 	/// define the bunch crossing range to process
-	void setBxRange(const int firstBx, const int numberOfBx);
+	void setBxRange(int firstBx, int numberOfBx);
 
 	/// partially clear buffers
-	void setNextBx(const int bx);
+	void setNextBx(int bx);
 
 	/// set input Ex value per wheel (0 or 1); not used in normal operation
 	void setInputWheelEx(unsigned wheel, int energy, bool overflow);
@@ -135,8 +135,8 @@ public:
 	/// return output missing Ht value
 	inline std::vector< etMissPhiType > getHtMissPhiColl() const { return m_outputHtMissPhi.contents; }
 
-	void setJetFinderParams(const L1GctJetFinderParams* const jfpars);
-	void setHtMissScale(const L1CaloEtScale* const scale);
+	void setJetFinderParams(const L1GctJetFinderParams* jfpars);
+	void setHtMissScale(const L1CaloEtScale* scale);
 
 	// get the missing Ht LUT (used by L1GctPrintLuts)
 	const L1GctHtMissLut* getHtMissLut() const { return m_mhtComponents.getHtMissLut(); }

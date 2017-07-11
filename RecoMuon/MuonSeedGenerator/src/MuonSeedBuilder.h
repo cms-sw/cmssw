@@ -68,7 +68,7 @@ class MuonSeedBuilder
   std::vector<TrajectorySeed> seedCleaner(const edm::EventSetup& eventSetup, std::vector<TrajectorySeed>& seeds );   
 
   /// calculate the eta error from global R error
-  double etaError(const GlobalPoint gp, double rErr);
+  double etaError(GlobalPoint gp, double rErr);
 
   /// identify the showering layer
   bool IdentifyShowering( SegmentContainer& segs, BoolContainer& usedSeg, float& eta_last, float& phi_last, int layer, int& NShoweringSegments  );

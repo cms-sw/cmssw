@@ -28,8 +28,8 @@ public:
   HcalTBNumberingScheme() {}
   virtual ~HcalTBNumberingScheme() {}
 	 
-  static uint32_t              getUnitID (const uint32_t id, const int mode);
-  static std::vector<uint32_t> getUnitIDs(const int type, const int mode);
+  static uint32_t              getUnitID (uint32_t id, int mode);
+  static std::vector<uint32_t> getUnitIDs(int type, int mode);
 };
 
 #endif

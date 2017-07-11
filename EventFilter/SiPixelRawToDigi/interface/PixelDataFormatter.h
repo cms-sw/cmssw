@@ -114,10 +114,10 @@ private:
   int digi2wordPhase1Layer1(  cms_uint32_t detId, const PixelDigi& digi,
                   std::map<int, std::vector<Word32> > & words) const;
 
-  int word2digi(  const int fedId,
+  int word2digi(  int fedId,
                   const SiPixelFrameConverter* converter,
-		  const bool includeError,
-		  const bool useQuality,
+		  bool includeError,
+		  bool useQuality,
 		  const Word32& word, 
                   Digis & digis) const;
 

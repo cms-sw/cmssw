@@ -19,7 +19,7 @@ namespace reco {
 
     PFBlockElementBrem() {} 
 
-    PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, const double DeltaP, const double SigmaDeltaP, const unsigned int indTrajPoint);
+    PFBlockElementBrem(const GsfPFRecTrackRef& gsfref, double DeltaP, double SigmaDeltaP, unsigned int indTrajPoint);
 
       
     PFBlockElement* clone() const { return new PFBlockElementBrem(*this); }

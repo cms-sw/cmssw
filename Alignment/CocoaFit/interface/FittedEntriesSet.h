@@ -32,7 +32,7 @@ public:
   void Fill();
   void FillEntries();
   void FillCorrelations();
-  void CreateCorrelationMatrix( const ALIuint nent );
+  void CreateCorrelationMatrix( ALIuint nent );
   void FillEntriesFromFile( const std::vector<ALIstring>& wl);
   void FillEntriesAveragingSets( const std::vector<FittedEntriesSet*>& vSets );
 

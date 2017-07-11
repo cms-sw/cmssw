@@ -57,7 +57,7 @@ namespace pat {
 			    const reco::VertexRef& pvSlimmed,
 			    const reco::VertexRefProd& pvSlimmedColl,
 			    const reco::Vertex& pvOrig,
-			    const TrkStatus trkStatus)const;
+			    TrkStatus trkStatus)const;
       
   private:
     const edm::EDGetTokenT<reco::PFCandidateCollection>    cands_;

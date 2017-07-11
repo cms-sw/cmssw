@@ -123,7 +123,7 @@ class CosmicClusterAlgo
 
   // Add the crystal with DetId det to the current
   // vector of crystals if it meets certain criteria
-  void addCrystal(const DetId &det, const bool in9);
+  void addCrystal(const DetId &det, bool in9);
   
 
   

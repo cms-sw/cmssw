@@ -12,7 +12,7 @@ public:
 
   bool canSetResonanceScale() { return true; }
 
-  double scaleResonance( const int iRes, const Pythia8::Event& event);
+  double scaleResonance( int iRes, const Pythia8::Event& event);
 
 //--------------------------------------------------------------------------
 

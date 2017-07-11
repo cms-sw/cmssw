@@ -27,7 +27,7 @@ class ESDigitizer : public EcalTDigitizer< ESDigitizerTraits >
 
       void setDetIds( const std::vector<DetId>& detIds ) ;
 
-      void setGain( const int gain ) ;
+      void setGain( int gain ) ;
 
    private:
 

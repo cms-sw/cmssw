@@ -22,14 +22,14 @@ public:
   void fillHelix (const GlobalPoint&,
 		  const GlobalVector&,
 		  const GlobalPoint&,
-		  const float,
-		  const int);
+		  float,
+		  int);
   /** Filling of values for one point along the helix:
    *    path length, generated point and momentum,
    *    plane position and normal vector,
    *    trajectory state from the two propagators.
    */
-  void addStep (const float,
+  void addStep (float,
 		const GlobalPoint&,
 		const GlobalVector&,
 		const GlobalPoint&,

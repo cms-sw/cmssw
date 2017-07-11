@@ -10,8 +10,8 @@ namespace l1t {
   class MicroGMTExtrapolationLUT : public MicroGMTLUT {
     public:
       MicroGMTExtrapolationLUT() {};
-      explicit MicroGMTExtrapolationLUT(const std::string& fname, const int outWidth, const int etaRedInWidth, const int ptRedInWidth);
-      explicit MicroGMTExtrapolationLUT(l1t::LUT* lut, const int outWidth, const int etaRedInWidth, const int ptRedInWidth);
+      explicit MicroGMTExtrapolationLUT(const std::string& fname, int outWidth, int etaRedInWidth, int ptRedInWidth);
+      explicit MicroGMTExtrapolationLUT(l1t::LUT* lut, int outWidth, int etaRedInWidth, int ptRedInWidth);
       virtual ~MicroGMTExtrapolationLUT() {};
 
       // returns the index corresponding to the calo tower sum 

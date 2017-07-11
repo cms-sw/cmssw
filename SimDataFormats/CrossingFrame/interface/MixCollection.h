@@ -16,9 +16,9 @@ class MixCollection {
   typedef std::pair<int,int> range;
   MixCollection();
   MixCollection(const CrossingFrame<T> *cf, 
-  		const range bunchRange =range(-999,999));
+  		range bunchRange =range(-999,999));
   MixCollection(const std::vector<const CrossingFrame<T> *>& cfs, 
-		const range bunchRange =range(-999,999));
+		range bunchRange =range(-999,999));
 
   range bunchrange() const {return bunchRange_;}
   int size() const {return sizeSignal() + sizePileup();}
@@ -117,7 +117,7 @@ class MixCollection {
   iterator end() const;
 
  private:
-  void init( const range bunchRange);
+  void init( range bunchRange);
 
   range bunchRange_;
   bool inRegistry_;

@@ -56,14 +56,14 @@ namespace reco {
     float discriminator( const math::XYZVector& myVector, float m_cone, float sig_cone, float iso_con, float pt_min_lt, float pt_min_tk, int nTracksIsoRing, float dz_lt) const;
     
     // return all tracks in a cone of size "size" around a direction "direction" 
-    const TrackRefVector tracksInCone(const math::XYZVector& myVector, const float size, const float pt_min ) const;
-    const TrackRefVector tracksInCone(const math::XYZVector& myVector, const float size, const float pt_min, const float z_pv, const float dz_lt ) const;
+    const TrackRefVector tracksInCone(const math::XYZVector& myVector, float size, float pt_min ) const;
+    const TrackRefVector tracksInCone(const math::XYZVector& myVector, float size, float pt_min, float z_pv, float dz_lt ) const;
     
     // return the leading track in a given cone around the jet axis or a given direction
-    void setLeadingTrack(const TrackRef) ; 
+    void setLeadingTrack(TrackRef) ; 
     const TrackRef leadingSignalTrack() const;
-    const TrackRef  leadingSignalTrack(const float rm_cone, const float pt_min) const;
-    const TrackRef  leadingSignalTrack(const math::XYZVector& myVector, const float rm_cone, const float pt_min) const;
+    const TrackRef  leadingSignalTrack(float rm_cone, float pt_min) const;
+    const TrackRef  leadingSignalTrack(const math::XYZVector& myVector, float rm_cone, float pt_min) const;
      
   private:
     double m_discriminator;

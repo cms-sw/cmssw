@@ -73,7 +73,7 @@ class GoldenPattern {
   ///Method should be thread safe
   GoldenPattern::layerResult process1Layer1RefLayer(unsigned int iRefLayer,
 						    unsigned int iLayer,
-						    const int refPhi,
+						    int refPhi,
 						    const OMTFinput::vector1D & layerHits);
 
   friend std::ostream & operator << (std::ostream &out, const GoldenPattern & aPattern);
@@ -81,7 +81,7 @@ class GoldenPattern {
   ///Add a single count to the relevant pdf bin in three dimensions
   void addCount(unsigned int iRefLayer,
 		unsigned int iLayer,
-		const int refPhi,
+		int refPhi,
 		const OMTFinput::vector1D & layerHits);
 
   ///Reset contents of all data vectors, keeping the vectors size

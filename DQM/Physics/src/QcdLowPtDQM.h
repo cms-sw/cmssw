@@ -156,7 +156,7 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
   void fillHltBits(const edm::Event &iEvent);
   void fillPixels(const edm::Event &iEvent, const edm::EventSetup &iSetup);
   void fillPixelClusterInfos(const edm::Event &iEvent, int which = 12);
-  void fillPixelClusterInfos(const double vz, const std::vector<Pixel> &pix,
+  void fillPixelClusterInfos(double vz, const std::vector<Pixel> &pix,
                              std::vector<MonitorElement *> &hClusterYSize,
                              std::vector<MonitorElement *> &hClusterADC);
   void fillTracklets(const edm::Event &iEvent, int which = 12);
@@ -171,10 +171,10 @@ class QcdLowPtDQM : public DQMEDAnalyzer {
       std::vector<MonitorElement *> &deta, std::vector<MonitorElement *> &dphi,
       std::vector<MonitorElement *> &etavsvtx);
   template <typename TYPE>
-  void getProduct(const std::string name, edm::Handle<TYPE> &prod,
+  void getProduct(std::string name, edm::Handle<TYPE> &prod,
                   const edm::Event &event) const;
   template <typename TYPE>
-  bool getProductSafe(const std::string name, edm::Handle<TYPE> &prod,
+  bool getProductSafe(std::string name, edm::Handle<TYPE> &prod,
                       const edm::Event &event) const;
   void print(int level, const char *msg);
   void print(int level, const std::string &msg) { print(level, msg.c_str()); }

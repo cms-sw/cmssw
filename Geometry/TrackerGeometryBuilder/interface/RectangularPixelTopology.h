@@ -110,8 +110,8 @@ public:
   //-------------------------------------------------------------
   // Transform measurement to local coordinates individually in each dimension
   //
-  virtual float localX( const float mpX ) const;
-  virtual float localY( const float mpY ) const;
+  virtual float localX( float mpX ) const;
+  virtual float localY( float mpY ) const;
 
   //-------------------------------------------------------------
   // Return the BIG pixel information for a given pixel

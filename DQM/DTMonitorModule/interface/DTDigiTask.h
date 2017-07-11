@@ -70,7 +70,7 @@ protected:
   /// Book the ME
   void bookHistos(DQMStore::IBooker & ibooker, const DTSuperLayerId& dtSL, std::string folder, std::string histoTag);
   void bookHistos(DQMStore::IBooker & ibooker, const DTChamberId& dtCh, std::string folder, std::string histoTag);
-  void bookHistos(DQMStore::IBooker & ibooker, const int wheelId, std::string folder, std::string histoTag);
+  void bookHistos(DQMStore::IBooker & ibooker, int wheelId, std::string folder, std::string histoTag);
 
   /// To reset the MEs
   void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context)  override;

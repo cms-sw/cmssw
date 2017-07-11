@@ -35,8 +35,8 @@ public:
 
 // Default constructor and constructor from values
     TrackingVertex();
-    TrackingVertex(const LorentzVector &position, const bool inVolume,
-                   const EncodedEventId e = EncodedEventId(0));
+    TrackingVertex(const LorentzVector &position, bool inVolume,
+                   EncodedEventId e = EncodedEventId(0));
 
 // Setters
     void setEventId(EncodedEventId e)

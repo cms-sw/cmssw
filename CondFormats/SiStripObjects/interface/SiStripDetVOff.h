@@ -51,7 +51,7 @@ class SiStripDetVOff
   void getVoff(std::vector<uint32_t>& vOff_) const { vOff_ = v_Voff; }
 
   /// Insert information for a single detId
-  bool put(const uint32_t DetId, const int HVoff, const int LVoff);
+  bool put(uint32_t DetId, int HVoff, int LVoff);
 
   /// Insert information for a vector of detIds
   bool put(std::vector<uint32_t>& DetId, std::vector<int>& HVoff, std::vector<int>& LVoff);
@@ -61,11 +61,11 @@ class SiStripDetVOff
   void getDetIds(std::vector<uint32_t>& DetIds_) const;
 
   /// Returns true if either HV or LV are off
-  bool IsModuleVOff(const uint32_t DetID) const;
+  bool IsModuleVOff(uint32_t DetID) const;
 
-  bool IsModuleHVOff(const uint32_t DetID) const;
+  bool IsModuleHVOff(uint32_t DetID) const;
 
-  bool IsModuleLVOff(const uint32_t DetID) const;
+  bool IsModuleLVOff(uint32_t DetID) const;
 
   void printDebug(std::stringstream & ss) const;
   void printSummary(std::stringstream & ss) const;
@@ -76,7 +76,7 @@ class SiStripDetVOff
   int getHVoffCounts() const;
 
   /// Changes the bits in the stored value according to on/off voltages
-  void setBits( uint32_t & enDetId, const int HVoff, const int LVoff );
+  void setBits( uint32_t & enDetId, int HVoff, int LVoff );
 
  private:
 

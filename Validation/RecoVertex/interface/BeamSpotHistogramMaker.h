@@ -26,9 +26,9 @@ class BeamSpotHistogramMaker {
 
   ~BeamSpotHistogramMaker();
 
-  void book(const std::string dirname="");
-  void beginRun(const unsigned int nrun);
-  void fill(const unsigned int orbit, const reco::BeamSpot& bs);
+  void book(std::string dirname="");
+  void beginRun(unsigned int nrun);
+  void fill(unsigned int orbit, const reco::BeamSpot& bs);
 
  private:
 

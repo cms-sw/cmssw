@@ -24,19 +24,19 @@ namespace sistrip {
     public:
       //construct from buffer
       //if allowBadBuffer is set to true then exceptions will not be thrown if the channel lengths do not make sense or the event format is not recognized
-      FEDBuffer(const uint8_t* fedBuffer, const uint16_t fedBufferSize, const bool allowBadBuffer = false);
+      FEDBuffer(const uint8_t* fedBuffer, uint16_t fedBufferSize, bool allowBadBuffer = false);
       virtual ~FEDBuffer();
       virtual void print(std::ostream& os) const;
       const FEDFEHeader* feHeader() const;
       //check that a FE unit is enabled, has a good majority address and, if in full debug mode, that it is present
-      bool feGood(const uint8_t internalFEUnitNum) const;
-      bool feGoodWithoutAPVEmulatorCheck(const uint8_t internalFEUnitNum) const;
+      bool feGood(uint8_t internalFEUnitNum) const;
+      bool feGoodWithoutAPVEmulatorCheck(uint8_t internalFEUnitNum) const;
       //check that a FE unit is present in the data.
       //The high order byte of the FEDStatus register in the tracker special header is used in APV error mode.
       //The FE length from the full debug header is used in full debug mode.
       bool fePresent(uint8_t internalFEUnitNum) const;
       //check that a channel is present in data, found, on a good FE unit and has no errors flagged in status bits
-      virtual bool channelGood(const uint8_t internalFEDannelNum, const bool doAPVeCheck=true) const;
+      virtual bool channelGood(uint8_t internalFEDannelNum, bool doAPVeCheck=true) const;
       void setLegacyMode(bool legacy) { legacyUnpacker_ = legacy;}
 
       //functions to check buffer. All return true if there is no problem.
@@ -59,8 +59,8 @@ namespace sistrip {
   
       //check that there are no errors in channel, APV or FEUnit status bits
       //these are done by channelGood(). Channels with bad status bits may be disabled so bad status bits do not usually indicate an error
-      bool checkStatusBits(const uint8_t internalFEDChannelNum) const;
-      bool checkStatusBits(const uint8_t internalFEUnitNum, const uint8_t internalChannelNum) const;
+      bool checkStatusBits(uint8_t internalFEDChannelNum) const;
+      bool checkStatusBits(uint8_t internalFEUnitNum, uint8_t internalChannelNum) const;
       //same but for all channels on enabled FE units
       bool checkAllChannelStatusBits() const;
       
@@ -73,7 +73,7 @@ namespace sistrip {
       uint8_t nFEUnitsPresent() const;
       void findChannels();
       inline uint8_t getCorrectPacketCode() const { return packetCode(legacyUnpacker_); }
-      uint16_t calculateFEUnitLength(const uint8_t internalFEUnitNumber) const;
+      uint16_t calculateFEUnitLength(uint8_t internalFEUnitNumber) const;
       std::auto_ptr<FEDFEHeader> feHeader_;
       const uint8_t* payloadPointer_;
       uint16_t payloadLength_;
@@ -98,11 +98,11 @@ namespace sistrip {
       FEDZSChannelUnpacker& operator ++ (int);
     private:
       //pointer to beginning of FED or FE data, offset of start of channel payload in data and length of channel payload
-      FEDZSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement=1);
+      FEDZSChannelUnpacker(const uint8_t* payload, uint16_t channelPayloadOffset, int16_t channelPayloadLength, uint16_t offsetIncrement=1);
       void readNewClusterInfo();
-      static void throwBadChannelLength(const uint16_t length);
+      static void throwBadChannelLength(uint16_t length);
       void throwBadClusterLength();
-      static void throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster);
+      static void throwUnorderedData(uint8_t currentStrip, uint8_t firstStripOfNewCluster);
       const uint8_t* data_;
       uint16_t currentOffset_;
       uint16_t offsetIncrement_;
@@ -126,7 +126,7 @@ namespace sistrip {
       FEDRawChannelUnpacker& operator ++ ();
       FEDRawChannelUnpacker& operator ++ (int);
     private:
-      static void throwBadChannelLength(const uint16_t length);
+      static void throwBadChannelLength(uint16_t length);
       const uint8_t* data_;
       uint16_t currentOffset_;
       uint8_t currentStrip_;
@@ -148,11 +148,11 @@ namespace sistrip {
       FEDBSChannelUnpacker& operator ++ (int);
     private:
       //pointer to beginning of FED or FE data, offset of start of channel payload in data and length of channel payload
-      FEDBSChannelUnpacker(const uint8_t* payload, const uint16_t channelPayloadOffset, const int16_t channelPayloadLength, const uint16_t offsetIncrement, bool useZS);
+      FEDBSChannelUnpacker(const uint8_t* payload, uint16_t channelPayloadOffset, int16_t channelPayloadLength, uint16_t offsetIncrement, bool useZS);
       void readNewClusterInfo();
-      static void throwBadChannelLength(const uint16_t length);
-      static void throwBadWordLength(const uint16_t word_length);
-      static void throwUnorderedData(const uint8_t currentStrip, const uint8_t firstStripOfNewCluster);
+      static void throwBadChannelLength(uint16_t length);
+      static void throwBadWordLength(uint16_t word_length);
+      static void throwUnorderedData(uint8_t currentStrip, uint8_t firstStripOfNewCluster);
       const uint8_t* data_;
       uint16_t oldWordOffset_;
       uint16_t currentWordOffset_;

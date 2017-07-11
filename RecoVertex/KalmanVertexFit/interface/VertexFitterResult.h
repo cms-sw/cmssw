@@ -28,7 +28,7 @@ public:
 //   typedef std::vector<const TkSimTrack*>	SimTrackCont;
   typedef std::vector<reco::TransientTrack>		TTrackCont;
 
-  VertexFitterResult(const int maxTracks = 100, const MagneticField* = 0);
+  VertexFitterResult(int maxTracks = 100, const MagneticField* = 0);
   ~VertexFitterResult();
 
   void fill(const TransientVertex & recv, const TrackingVertex * simv = 0, 

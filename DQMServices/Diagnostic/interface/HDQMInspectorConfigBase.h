@@ -37,7 +37,7 @@ class HDQMInspectorConfigBase
    HDQMInspectorConfigBase () {};
    virtual ~HDQMInspectorConfigBase () {};
   /// pure virtual method that convert a DetId to a string
-  virtual std::string translateDetId( const uint32_t ) const = 0;
+  virtual std::string translateDetId( uint32_t ) const = 0;
   /// fills a vector<pair<string, string> > associating values with the corresponding errors
   virtual bool valueErrorMap(std::vector<std::pair<std::string, std::string> > & valueErrorVector) const {return false;}
   /// fills the list of names of quantities for which a summation over the runs is required

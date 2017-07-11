@@ -37,7 +37,7 @@ __attribute__((visibility("hidden"))) void dummy()
 }
 
 // Added for reading in the paremeter files (orig. L. Sonnenschein)
-extern "C" void lunread_(const char filename[], const int length);
+extern "C" void lunread_(const char filename[], int length);
 
 using namespace gen;
 

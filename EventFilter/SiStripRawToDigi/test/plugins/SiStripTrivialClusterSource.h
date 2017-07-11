@@ -36,10 +36,10 @@ class SiStripTrivialClusterSource : public edm::EDProducer {
  private: 
 
   /** Check for space in module */
-  bool available(const edm::DetSet<SiStripDigi>&, const uint16_t, const uint32_t);
+  bool available(const edm::DetSet<SiStripDigi>&, uint16_t, uint32_t);
 
   /** Add cluster to module */
-  void addcluster(edm::DetSet<SiStripDigi>&, const uint16_t, const uint16_t);
+  void addcluster(edm::DetSet<SiStripDigi>&, uint16_t, uint16_t);
 
   /** Configurables */
   double minocc_;

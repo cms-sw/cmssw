@@ -91,10 +91,10 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
    */
   DDDivision(const DDName & name,
              const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double width,
-	     const double offset );
+	     DDAxes axis,
+	     int nReplicas,
+	     double width,
+	     double offset );
 
 
   //! Registers (creates) a reference object representing a Division
@@ -102,18 +102,18 @@ class DDDivision : public DDBase<DDName, DDI::Division*>
    */
   DDDivision(const DDName & name,
 	     const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double offset );
+	     DDAxes axis,
+	     int nReplicas,
+	     double offset );
 
     //! Registers (creates) a reference object representing a Division
   /** ...  Constructor with width
    */
   DDDivision(const DDName & name,
              const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const double width,
-	     const double offset );
+	     DDAxes axis,
+	     double width,
+	     double offset );
   
   //  virtual ~G4PVDivision();
 

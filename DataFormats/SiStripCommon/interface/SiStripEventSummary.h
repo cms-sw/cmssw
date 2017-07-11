@@ -139,7 +139,7 @@ class SiStripEventSummary {
   // ---------- Setter methods ----------
   
   /** Sets commissioning-related information. */
-  void commissioningInfo( const uint32_t* const buffer,
+  void commissioningInfo( const uint32_t* buffer,
 			  const uint32_t& event );
 
   /** Sets DAQ register information. */

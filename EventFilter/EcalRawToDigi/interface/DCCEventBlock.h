@@ -73,7 +73,7 @@ class DCCEventBlock {
     unsigned int eventSize_;
     unsigned int dwToEnd_;
     
-    unsigned int next_tower_search(const unsigned int current_tower_id);
+    unsigned int next_tower_search(unsigned int current_tower_id);
     
     std::vector<short> feChStatus_;
     std::vector<short> tccChStatus_;
@@ -128,11 +128,11 @@ class DCCEventBlock {
 
 enum BlockType {FE_MEM = 1, TCC_SRP = 2};
 
-bool isSynced(const unsigned int dccBx,
-              const unsigned int bx,
-              const unsigned int dccL1,
-              const unsigned int l1,
-              const BlockType type,
-              const unsigned int fov);
+bool isSynced(unsigned int dccBx,
+              unsigned int bx,
+              unsigned int dccL1,
+              unsigned int l1,
+              BlockType type,
+              unsigned int fov);
 
 #endif

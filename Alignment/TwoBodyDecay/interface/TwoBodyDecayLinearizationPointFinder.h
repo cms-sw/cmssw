@@ -26,8 +26,8 @@ public:
 
   virtual const TwoBodyDecayParameters
   getLinearizationPoint( const std::vector< RefCountedLinearizedTrackState > & tracks,
-			 const double primaryMass,
-			 const double secondaryMass ) const;
+			 double primaryMass,
+			 double secondaryMass ) const;
 
   virtual TwoBodyDecayLinearizationPointFinder* clone( void ) const { return new TwoBodyDecayLinearizationPointFinder( *this ); }
 

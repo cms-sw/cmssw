@@ -96,7 +96,7 @@ class TrackDetectorAssociator {
 					   const edm::EventSetup&,
 					   const GlobalVector&,
 					   const GlobalPoint&,
-					   const int,
+					   int,
 					   const AssociatorParameters& );
    /// trajector information
    const CachedTrajectory& getCachedTrajector() const
@@ -117,13 +117,13 @@ class TrackDetectorAssociator {
    static FreeTrajectoryState getFreeTrajectoryState( const edm::EventSetup&,
 						      const GlobalVector&,
 						      const GlobalPoint&,
-						      const int);
+						      int);
    
    static bool                crossedIP(const reco::Track& track);
 
  private:
    DetIdAssociator::MapRange getMapRange( const std::pair<float,float>& delta,
-					  const float dR ) dso_internal;
+					  float dR ) dso_internal;
 
    void fillEcal(       const edm::Event&,
 			TrackDetMatchInfo&, 

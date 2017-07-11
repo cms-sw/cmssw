@@ -44,8 +44,8 @@ private:
   /// Returns the total energy due to Cherenkov radiation
   double         cherenkovDeposit_( G4Step* aStep );
   /// Returns average number of photons created by track
-  double getAverageNumberOfPhotons_(const double charge,
-				    const double beta,
+  double getAverageNumberOfPhotons_(double charge,
+				    double beta,
 				    const G4Material* aMaterial,
 				    G4MaterialPropertyVector* rIndex );
   /// Returns energy deposit for a given photon

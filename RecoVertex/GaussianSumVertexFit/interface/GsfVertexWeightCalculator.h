@@ -24,7 +24,7 @@ public:
  */
 
    double calculate(const VertexState & oldVertex,
-        const RefCountedLinearizedTrackState track, double cov) const;
+        RefCountedLinearizedTrackState track, double cov) const;
 
 private:
   typedef LinearizedTrackState<5>::AlgebraicVectorN AlgebraicVectorN;

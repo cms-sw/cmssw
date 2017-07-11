@@ -30,7 +30,7 @@ namespace edm { class EventSetup; }
 class SiPixelHitEfficiencyModule { 
   public:
     SiPixelHitEfficiencyModule();
-    SiPixelHitEfficiencyModule(const uint32_t);
+    SiPixelHitEfficiencyModule(uint32_t);
    ~SiPixelHitEfficiencyModule();
 
    void book(const edm::ParameterSet&, edm::EventSetup const &, DQMStore::IBooker &, int type=0, bool isUpgrade=false);

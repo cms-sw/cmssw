@@ -110,22 +110,22 @@ namespace L1TMuon {
     //DT
     TriggerPrimitive(const DTChamberId&,
 		     const L1MuDTChambPhDigi&,
-		     const int segment_number);
+		     int segment_number);
     TriggerPrimitive(const DTChamberId&,
 		     const L1MuDTChambThDigi&,
-		     const int segment_number);
+		     int segment_number);
     TriggerPrimitive(const DTChamberId&,
 		     const L1MuDTChambPhDigi&,
 		     const L1MuDTChambThDigi&,
-		     const int theta_bti_group);
+		     int theta_bti_group);
     //CSC
     TriggerPrimitive(const CSCDetId&,
 		     const CSCCorrelatedLCTDigi&);
     //RPC
     TriggerPrimitive(const RPCDetId& detid,
-		     const unsigned strip,
-		     const unsigned layer,
-		     const uint16_t bx);
+		     unsigned strip,
+		     unsigned layer,
+		     uint16_t bx);
 
     //copy
     TriggerPrimitive(const TriggerPrimitive&);

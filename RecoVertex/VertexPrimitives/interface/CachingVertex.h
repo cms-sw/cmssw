@@ -53,11 +53,11 @@ public:
 		float totalChiSq);
   
   // with time (tracks must have time as well)
-  CachingVertex(const GlobalPoint & pos, const double time,
+  CachingVertex(const GlobalPoint & pos, double time,
                 const GlobalError & posTimeErr, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
-  CachingVertex(const GlobalPoint & pos, const double time, 
+  CachingVertex(const GlobalPoint & pos, double time, 
                 const GlobalWeight & posTimeWeight, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
@@ -77,16 +77,16 @@ public:
   		const GlobalPoint & pos, const GlobalError & posErr, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
-  CachingVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr, 
-  		const GlobalPoint & pos, const double time, const GlobalError & posErr, 
+  CachingVertex(const GlobalPoint & priorPos, double priorTime, const GlobalError & priorErr, 
+  		const GlobalPoint & pos, double time, const GlobalError & posErr, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
   CachingVertex(const GlobalPoint & priorPos, const GlobalError & priorErr,
   		const GlobalPoint & pos, const GlobalWeight & posWeight, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
 
-  CachingVertex(const GlobalPoint & priorPos, const double priorTime, const GlobalError & priorErr,
-  		const GlobalPoint & pos, const double time, const GlobalWeight & posWeight, 
+  CachingVertex(const GlobalPoint & priorPos, double priorTime, const GlobalError & priorErr,
+  		const GlobalPoint & pos, double time, const GlobalWeight & posWeight, 
 		const std::vector<RefCountedVertexTrack> & tks, float totalChiSq);
   
   CachingVertex(const VertexState & aVertexState, 
@@ -138,8 +138,8 @@ public:
 
   /** Track to track covariance
    */
-  AlgebraicMatrixMM tkToTkCovariance(const RefCountedVertexTrack t1, 
-				   const RefCountedVertexTrack t2) const;
+  AlgebraicMatrixMM tkToTkCovariance(RefCountedVertexTrack t1, 
+				   RefCountedVertexTrack t2) const;
   bool tkToTkCovarianceIsAvailable() const { return theCovMapAvailable; }
 
   operator TransientVertex() const;

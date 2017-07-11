@@ -52,7 +52,7 @@ namespace edm
 
       void putEcal(edm::Event &e,const edm::EventSetup& ES);
       void addEcalSignals(const edm::Event &e,const edm::EventSetup& ES); 
-      void addEcalPileups(const int bcr, const edm::EventPrincipal*,unsigned int EventId,
+      void addEcalPileups(int bcr, const edm::EventPrincipal*,unsigned int EventId,
                           const edm::EventSetup& ES, edm::ModuleCallingContext const*);
 
     // set tokens for data access

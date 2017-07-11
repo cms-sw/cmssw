@@ -39,7 +39,7 @@ class OpticalObject
  public:
   //---------- Constructors / destructor
   OpticalObject(){ };
-  OpticalObject(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data);
+  OpticalObject(OpticalObject* parent, const ALIstring& type, const ALIstring& name, ALIbool copy_data);
   virtual ~OpticalObject();
 
   //----- Steering function to read OptO data from SDF file (and also start component OptOs)
@@ -112,10 +112,10 @@ class OpticalObject
   }
 
 
-  const double getEntryCentre( const XYZcoor coor ) const;
+  const double getEntryCentre( XYZcoor coor ) const;
   const double getEntryCentre( const ALIstring& coor ) const;
 
-  const double getEntryRMangle( const XYZcoor coor ) const;
+  const double getEntryRMangle( XYZcoor coor ) const;
   const double getEntryRMangle( const ALIstring& coor ) const;
 
   const ALIuint ID() const { return theCmsswID; }
@@ -184,33 +184,33 @@ class OpticalObject
     return ZAxis;
   }
   //---------- Get one of the plates of an OptO made of two parallel plates
-  ALIPlane getPlate(const ALIbool forwardPlate, const ALIbool applyWedge);
+  ALIPlane getPlate(ALIbool forwardPlate, ALIbool applyWedge);
 
   //---------- Displacements to get the derivative of a measurement w.r.t an entry
   //----- Displace the centre coordinate 'coor'
-  void displaceCentreGlob( const XYZcoor coor, const  ALIdouble disp);
-  CLHEP::Hep3Vector getDisplacementInLocalCoordinates( const XYZcoor coor, const ALIdouble disp );
+  void displaceCentreGlob( XYZcoor coor,  ALIdouble disp);
+  CLHEP::Hep3Vector getDisplacementInLocalCoordinates( XYZcoor coor, ALIdouble disp );
    void displaceCentreGlob( const CLHEP::Hep3Vector& dispVec);
   //----- Rotate around axis 'coor' 
-  void displaceRmGlobAroundGlobal(OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
-  void displaceRmGlobAroundLocal(OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
+  void displaceRmGlobAroundGlobal(OpticalObject* opto1stRotated, XYZcoor coor, ALIdouble disp);
+  void displaceRmGlobAroundLocal(OpticalObject* opto1stRotated, XYZcoor coor, ALIdouble disp);
   //----- Displace extra entry number 'entryNo' 
-  void displaceExtraEntry( const ALIuint entryNo, const ALIdouble disp);
-  void setExtraEntryValue(const ALIuint entryNo, const ALIdouble disp);
+  void displaceExtraEntry( ALIuint entryNo, ALIdouble disp);
+  void setExtraEntryValue(ALIuint entryNo, ALIdouble disp);
 
   //----------- Displacements of original coordinates: do it to reset the original data 
   //----------- every new iteration of the non linear fit
   //----- Displace the centre coordinate 'coor'
-  void displaceCentreGlobOriginal( const XYZcoor coor, const ALIdouble disp);
+  void displaceCentreGlobOriginal( XYZcoor coor, ALIdouble disp);
   void displaceCentreGlobOriginal( const CLHEP::Hep3Vector& dispVec);
-  void displaceCentreGlobOriginalOriginal( const XYZcoor coor, const ALIdouble disp);
+  void displaceCentreGlobOriginalOriginal( XYZcoor coor, ALIdouble disp);
   void displaceCentreGlobOriginalOriginal( const CLHEP::Hep3Vector& dispVec);
   //----- Rotate around axis 'coor' 
-  void displaceRmGlobOriginal( const OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
-  void displaceRmGlobOriginalOriginal( const OpticalObject* opto1stRotated, const XYZcoor coor, const ALIdouble disp);
+  void displaceRmGlobOriginal( const OpticalObject* opto1stRotated, XYZcoor coor, ALIdouble disp);
+  void displaceRmGlobOriginalOriginal( const OpticalObject* opto1stRotated, XYZcoor coor, ALIdouble disp);
   //----- Displace extra entry number 'entryNo' 
-  void displaceExtraEntryOriginal( const ALIuint entryNo, const ALIdouble disp);
-  void displaceExtraEntryOriginalOriginal( const ALIuint entryNo, const ALIdouble disp);
+  void displaceExtraEntryOriginal( ALIuint entryNo, ALIdouble disp);
+  void displaceExtraEntryOriginalOriginal( ALIuint entryNo, ALIdouble disp);
 
   //---------- Reset the global coordinates and extra entries (after derivative is finished)
   void resetGlobalCoordinates();
@@ -307,9 +307,9 @@ private:
   void transformGlobal2Local();
 
 template<class T>
-  void rotateItAroundGlobal( T& object, const XYZcoor coor, const double disp );
+  void rotateItAroundGlobal( T& object, XYZcoor coor, double disp );
 
- CLHEP::Hep3Vector getDispVec( const XYZcoor coor, const ALIdouble disp);
+ CLHEP::Hep3Vector getDispVec( XYZcoor coor, ALIdouble disp);
 
  void SetCentreIsGlobal( ALIbool isG ) {
    centreIsGlobal = isG; }

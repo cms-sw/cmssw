@@ -24,7 +24,7 @@ public:
 private:
 
   void initialize();
-  void setProdCuts(const DDLogicalPart lpart, G4LogicalVolume * lvolume);
+  void setProdCuts(DDLogicalPart lpart, G4LogicalVolume * lvolume);
   G4Region * getRegion(const std::string & region);
   G4ProductionCuts * getProductionCuts(G4Region * region);
 

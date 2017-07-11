@@ -15,7 +15,7 @@ namespace Phase2Tracker {
   { 
     public:
       // gets data of one tracker FED to check, analyze and sort it
-      Phase2TrackerFEDBuffer(const uint8_t* fedBuffer, const size_t fedBufferSize);
+      Phase2TrackerFEDBuffer(const uint8_t* fedBuffer, size_t fedBufferSize);
       ~Phase2TrackerFEDBuffer();
 
       //dump buffer to stream

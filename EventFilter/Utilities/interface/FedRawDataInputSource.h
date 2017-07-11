@@ -58,8 +58,8 @@ protected:
 private:
   virtual void rewind_() override;
 
-  void maybeOpenNewLumiSection(const uint32_t lumiSection);
-  void createBoLSFile(const uint32_t lumiSection,bool checkIfExists);
+  void maybeOpenNewLumiSection(uint32_t lumiSection);
+  void createBoLSFile(uint32_t lumiSection,bool checkIfExists);
   evf::EvFDaqDirector::FileStatus nextEvent();
   evf::EvFDaqDirector::FileStatus getNextEvent();
   edm::Timestamp fillFEDRawDataCollection(FEDRawDataCollection&);
@@ -245,9 +245,9 @@ struct InputFile {
     //some atomics to make sure everything is cache synchronized for the main thread
     return chunks_[chunkid]!=nullptr && chunks_[chunkid]->readComplete_;
   }
-  bool advance(unsigned char* & dataPosition, const size_t size);
-  void moveToPreviousChunk(const size_t size, const size_t offset);
-  void rewindChunk(const size_t size);
+  bool advance(unsigned char* & dataPosition, size_t size);
+  void moveToPreviousChunk(size_t size, size_t offset);
+  void rewindChunk(size_t size);
 };
 
 

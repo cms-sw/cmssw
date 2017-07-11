@@ -59,8 +59,8 @@ protected:
    static std::set<poly2d_base*> poly2d_base_set;  //Set of all poly2d_base objects
 //   static std::set<poly2d_base*, less<poly2d_base*> > poly2d_base_set;  //Set of all poly2d_base objects
 
-   static void SetTabSize(const unsigned N); //Set rz-table size
-   static void FillTable (const double r, const double z);
+   static void SetTabSize(unsigned N); //Set rz-table size
+   static void FillTable (double r, double z);
 
    static void AdjustTab();
    //----------------------------------------------------------------------------
@@ -72,9 +72,9 @@ public:
    static void     IncNPwr(const unsigned N) {if (N > NPwr) NPwr = N;}
    static int      GetMaxPow();
    static unsigned Count() { return poly2d_base_set.size();}
-   static void     PrintTab(std::ostream &out = std::cout, const std::streamsize prec = 5);
+   static void     PrintTab(std::ostream &out = std::cout, std::streamsize prec = 5);
 
-   static void SetPoint(const double r, const double z);
+   static void SetPoint(double r, double z);
 
    poly2d_base() {
       max_pwr = 0;
@@ -99,14 +99,14 @@ public:
    void IncPow(int nvar); //Multiply the polynomial by variable# nvar
    void DecPow(int nvar); //Divide the polynomial by variable# nvar
 
-   void Scale(const double C);
+   void Scale(double C);
 //   poly2d_base& operator*=(const double C) { Scale(C); return *this;}
 
    double Eval(); //Evaluation with no check that rz_pow table exist
    double GetVal() {if (rz_set) return Eval(); else return 0.;}
    double GetVal(const double r, const double z) { SetPoint(r,z); return Eval();}
    
-   void Print(std::ostream &out = std::cout, const std::streamsize prec = 5);
+   void Print(std::ostream &out = std::cout, std::streamsize prec = 5);
 
 }; //Class poly2d_base
 }

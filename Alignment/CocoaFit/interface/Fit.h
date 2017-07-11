@@ -82,7 +82,7 @@ public:
 
   //----- Calculate the parameters (position, angles,...) with the chi square fit 
   //---- daFactor is the factor by which it is multiplied the matrix Da
-  static FitQuality fitParameters( const double daFactor ); 
+  static FitQuality fitParameters( double daFactor ); 
 
   static void redoMatrices();
 
@@ -114,7 +114,7 @@ public:
 
   //---------- set correlation between two entries of two OptOs
   static void setCorrelationFromParamFitted( const pss& entry1, const pss& entry2, ALIdouble correl );
-  static void setCorrelationFromParamFitted( const ALIint fit_pos1, const ALIint fit_pos2, ALIdouble correl );
+  static void setCorrelationFromParamFitted( ALIint fit_pos1, ALIint fit_pos2, ALIdouble correl );
 
   //----- multiply matrices needed for fit
   static void multiplyMatrices();
@@ -124,13 +124,13 @@ public:
 
   //----- check if the quality of the fit for this iteration is good enough
   static FitQuality getFitQuality( const ALIbool canBeGood = TRUE );
-  static void evaluateFitQuality( const FitQuality fq, const double daFactor );
+  static void evaluateFitQuality( FitQuality fq, double daFactor );
 
   //----- Correct entries with fitted values  
   static void addDaMatrixToEntries();
 
   //----- Substract Da of previous iteration (to try with a new Correct entries with fitted values  
-  static void substractLastDisplacementToEntries( const ALIdouble factor );
+  static void substractLastDisplacementToEntries( ALIdouble factor );
 
   static void deleteMatrices();
 

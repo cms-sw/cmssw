@@ -80,7 +80,7 @@ public:
     FromTrackRefSeedFilter(edm::ConsumesCollector&& iC, const edm::ParameterSet& iConfig);
     const std::string& suffix() const;
     void prepareEvent(const edm::Event& iEvent);
-    bool isSelected(const unsigned int iseed) const;
+    bool isSelected(unsigned int iseed) const;
 
   private:
 

@@ -52,7 +52,7 @@ class PFPhotonIsolationCalculator{
   
 
   void calculate(const reco::Photon*, 
-		 const edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
+		 edm::Handle<reco::PFCandidateCollection> pfCandidateHandle,
 		 edm::Handle< reco::VertexCollection >& vertices,
 		 const edm::Event& e, const edm::EventSetup& es,
 		 reco::Photon::PflowIsolationVariables& phoisol03) ;
@@ -84,15 +84,15 @@ class PFPhotonIsolationCalculator{
 
 
   //Veto implementation
-  float isPhotonParticleVetoed( const  reco::PFCandidateRef pfIsoCand );
+  float isPhotonParticleVetoed(  reco::PFCandidateRef pfIsoCand );
   float isPhotonParticleVetoed( const reco::PFCandidate* pfIsoCand );
   //
   float isNeutralParticleVetoed( const reco::PFCandidate* pfIsoCand );
-  float isNeutralParticleVetoed( const reco::PFCandidateRef pfIsoCand );
+  float isNeutralParticleVetoed( reco::PFCandidateRef pfIsoCand );
   //
   float isChargedParticleVetoed( const reco::PFCandidate* pfIsoCand, edm::Handle< reco::VertexCollection > vertices);
   float isChargedParticleVetoed( const reco::PFCandidate* pfIsoCand,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
-  float isChargedParticleVetoed( const reco::PFCandidateRef pfIsoCand,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
+  float isChargedParticleVetoed( reco::PFCandidateRef pfIsoCand,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
  
 
 
@@ -101,7 +101,7 @@ class PFPhotonIsolationCalculator{
   int matchPFObject(const reco::Photon* photon, const reco::PFCandidateCollection* pfParticlesColl );
   int matchPFObject(const reco::GsfElectron* photon, const reco::PFCandidateCollection* pfParticlesColl );
 
-  float fGetIsolation(const reco::Photon* photon, const  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle ,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
+  float fGetIsolation(const reco::Photon* photon,  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle ,reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices );
   std::vector<float > fGetIsolationInRings(const reco::Photon* photon,  edm::Handle<reco::PFCandidateCollection> pfCandidateHandle, reco::VertexRef vtx, edm::Handle< reco::VertexCollection > vertices);
     
 

@@ -71,7 +71,7 @@ private:
   } CALIBBUNCH;
   TFile* m_file;
   void LedCastorHists(const HcalDetId& detid, const CastorDataFrame& ledDigi, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT, const CastorDbService& cond);
-  void SetupLEDHists(int id, const HcalDetId detid, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT);
+  void SetupLEDHists(int id, HcalDetId detid, std::map<HcalDetId, std::map<int,LEDBUNCH> > &toolT);
   void GetLedConst(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   void LedTrendings(std::map<HcalDetId,std::map<int, LEDBUNCH > > &toolT);
   float BinsizeCorr(float time);

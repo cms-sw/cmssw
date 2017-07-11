@@ -22,12 +22,12 @@ public:
     static std::uint64_t const error_identifier_               = 0xf000000000000000;
 
 public:
-    TwinMuxRecord(std::uint64_t const record = 0x0);
+    TwinMuxRecord(std::uint64_t record = 0x0);
 
-    static unsigned int getType(std::uint64_t const record);
+    static unsigned int getType(std::uint64_t record);
     unsigned int getType() const;
 
-    void set(std::uint64_t const record);
+    void set(std::uint64_t record);
     void reset();
 
     std::uint64_t const & getRecord() const;
@@ -48,10 +48,10 @@ public:
     static unsigned int const orbit_counter_offset_ = 4;
 
 public:
-    BlockHeader(std::uint64_t const record = 0x0);
+    BlockHeader(std::uint64_t record = 0x0);
     BlockHeader(unsigned int ufov, unsigned int n_amc, unsigned int orbit_counter);
 
-    void set(std::uint64_t const record);
+    void set(std::uint64_t record);
     void reset();
 
     std::uint64_t const & getRecord() const;
@@ -82,13 +82,13 @@ public:
     static unsigned int const bx_counter_offset_    = 0;
 
 public:
-    BlockTrailer(std::uint64_t const record = 0x0);
+    BlockTrailer(std::uint64_t record = 0x0);
     BlockTrailer(std::uint32_t crc
                  , unsigned int block_number
                  , unsigned int event_counter
                  , unsigned int bx_counter);
 
-    void set(std::uint64_t const record);
+    void set(std::uint64_t record);
     void reset();
 
     std::uint64_t const & getRecord() const;
@@ -128,7 +128,7 @@ public:
     static unsigned int const board_id_offset_     = 0;
 
 public:
-    BlockAMCContent(std::uint64_t const record = 0x0);
+    BlockAMCContent(std::uint64_t record = 0x0);
     BlockAMCContent(bool length_correct
                     , bool last_block
                     , bool first_block
@@ -141,7 +141,7 @@ public:
                     , unsigned int amc_number
                     , unsigned int board_id);
 
-    void set(std::uint64_t const record);
+    void set(std::uint64_t record);
     void reset();
 
     std::uint64_t const & getRecord() const;
@@ -216,7 +216,7 @@ public:
                   , int rpc_bx_min = 10, int rpc_bx_max = 5 // values for !hasRPCBXWindows
                   , unsigned int ho_bx_window = 0x7);
 
-    void set(unsigned int nword, std::uint64_t const word);
+    void set(unsigned int nword, std::uint64_t word);
     void reset();
 
     std::uint64_t const * getRecord() const;
@@ -265,12 +265,12 @@ public:
     static unsigned int const data_length_offset_   = 0;
 
 public:
-    TwinMuxTrailer(std::uint64_t const record = 0x0);
+    TwinMuxTrailer(std::uint64_t record = 0x0);
     TwinMuxTrailer(std::uint32_t crc
                    , unsigned int event_counter
                    , unsigned int data_length);
 
-    void set(std::uint64_t const record);
+    void set(std::uint64_t record);
     void reset();
 
     std::uint64_t const & getRecord() const;
@@ -306,9 +306,9 @@ public:
     static unsigned int const partition_data_offset_ = 0;
 
 public:
-    RPCLinkRecord(std::uint32_t const record = da_mask_);
+    RPCLinkRecord(std::uint32_t record = da_mask_);
 
-    void set(std::uint32_t const record = da_mask_);
+    void set(std::uint32_t record = da_mask_);
     void reset();
 
     std::uint32_t const & getRecord() const;
@@ -343,9 +343,9 @@ public:
     static unsigned int const bcn_offset_ = 0;
 
 public:
-    RPCBXRecord(std::uint8_t const record = 0x0);
+    RPCBXRecord(std::uint8_t record = 0x0);
 
-    void set(std::uint8_t const record = 0x0);
+    void set(std::uint8_t record = 0x0);
     void reset();
 
     std::uint8_t const & getRecord() const;
@@ -379,7 +379,7 @@ public:
     RPCRecord();
     RPCRecord(std::uint64_t const record[2]);
 
-    void set(unsigned int word, std::uint64_t const record);
+    void set(unsigned int word, std::uint64_t record);
     void reset();
 
     std::uint64_t const * getRecord() const;

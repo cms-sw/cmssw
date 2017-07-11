@@ -91,19 +91,19 @@ public:
   // 2017: QIE11
   void analyze2017(IntegerCaloSamples& samples, HcalTriggerPrimitiveDigi& result, const HcalFinegrainBit& fg_algo);
   // Version 0: RCT
-  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, const int hf_lumi_shift);
+  void analyzeHF(IntegerCaloSamples & samples, HcalTriggerPrimitiveDigi & result, int hf_lumi_shift);
   // Version 1: 1x1
   void analyzeHF2016(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
-          const int HF_LUMI_SHIFT,
+          int HF_LUMI_SHIFT,
           const HcalFeatureBit* HCALFEM
           );
   // With dual anode readout
   void analyzeHF2017(
           const IntegerCaloSamples& SAMPLES,
           HcalTriggerPrimitiveDigi& result,
-          const int HF_LUMI_SHIFT,
+          int HF_LUMI_SHIFT,
           const HcalFeatureBit* HCALFEM
           );
 

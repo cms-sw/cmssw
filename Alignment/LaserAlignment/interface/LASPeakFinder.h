@@ -22,7 +22,7 @@ class LASPeakFinder {
 
  public:
   LASPeakFinder();
-  bool FindPeakIn( const LASModuleProfile&, std::pair<double,double>&, TH1D*, const double );
+  bool FindPeakIn( const LASModuleProfile&, std::pair<double,double>&, TH1D*, double );
   void SetAmplitudeThreshold( double );
 
  private:

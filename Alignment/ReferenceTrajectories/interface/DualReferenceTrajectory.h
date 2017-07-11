@@ -67,7 +67,7 @@ protected:
 					 const ConstRecHitContainer &recHits,
 					 const MagneticField *magField,
 					 const reco::BeamSpot &beamSpot,
-					 const bool revertDirection = false) const;
+					 bool revertDirection = false) const;
 
   virtual AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const;
 

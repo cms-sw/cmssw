@@ -60,7 +60,7 @@ public:
   unsigned int getLuminosityBlock() const { return luminosityBlock_; };
     
   void print() const; 
-  void print(const uint32_t detId) const; 
+  void print(uint32_t detId) const; 
   void printAll() const;  
   
   std::vector<uint32_t> getAllDetIds() const;
@@ -97,8 +97,8 @@ public:
   bool setClusterSizeOffTrack(uint32_t detId, float mean, float rms);  
 
 private:
-  std::pair<bool, std::vector<DetSummary>::iterator> initDet(const uint32_t detId); 
-  std::pair<bool, std::vector<DetSummary>::iterator>  setDet(const uint32_t detId, 
+  std::pair<bool, std::vector<DetSummary>::iterator> initDet(uint32_t detId); 
+  std::pair<bool, std::vector<DetSummary>::iterator>  setDet(uint32_t detId, 
                                                              const std::vector<float>& performanceValues); 
    bool setValue(uint32_t detId, int index, float performanceValue);
   float getValue(uint32_t detId, int index);

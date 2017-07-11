@@ -29,7 +29,7 @@ class NAStrangePotential {
   DatabasePDG* fDatabase;
   NAStrangeDensity fGc;
   //compute hadron  system strange density through strange potential
-  double CalculateStrangeDensity(const double strangePotential);
+  double CalculateStrangeDensity(double strangePotential);
   //default constructor is not accesible
   NAStrangePotential(){};
 

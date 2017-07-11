@@ -14,23 +14,23 @@ namespace DDI {
     
   public:
     Division(const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double width,
-	     const double offset );
+	     DDAxes axis,
+	     int nReplicas,
+	     double width,
+	     double offset );
       
       
     // Constructor with number of divisions 
     Division(const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const int nReplicas,
-	     const double offset );
+	     DDAxes axis,
+	     int nReplicas,
+	     double offset );
       
     // Constructor with width
     Division(const DDLogicalPart & parent,
-	     const DDAxes axis,
-	     const double width,
-	     const double offset );
+	     DDAxes axis,
+	     double width,
+	     double offset );
       
     DDAxes axis() const;
     int nReplicas() const;

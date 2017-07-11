@@ -25,7 +25,7 @@ public:
  */
 
    CachingVertex<5> add(const CachingVertex<5> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        RefCountedVertexTrack track) const;
 
 /**
  *  Method removing already used VertexTrack from existing CachingVertex
@@ -33,7 +33,7 @@ public:
  */
 
    CachingVertex<5> remove(const CachingVertex<5> & oldVertex,
-        const RefCountedVertexTrack track) const;
+        RefCountedVertexTrack track) const;
 
 /**
  * Clone method
@@ -54,7 +54,7 @@ private:
   typedef std::pair<VertexState, double> VertexChi2Pair;
 
   VertexComponent createNewComponent(const VertexState & oldVertex,
-	 const RefCountedLinearizedTrackState linTrack, float weight, int sign) const;
+	 RefCountedLinearizedTrackState linTrack, float weight, int sign) const;
 
   VertexChi2Pair assembleVertexComponents(
   	 const std::vector<VertexComponent> & newVertexComponents) const;

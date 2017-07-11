@@ -22,7 +22,7 @@ public:
    */
   StraightLineBarrelCylinderCrossing (const GlobalPoint& startingPos,
 				      const GlobalVector& startingDir,
-				      const PropagationDirection propDir);
+				      PropagationDirection propDir);
 
   /** Propagation status (true if valid) and (signed) path length 
    *  along the line from the starting point to the cylinder.
@@ -38,7 +38,7 @@ public:
 
 private:
   /// Chooses the right solution w.r.t. the propagation direction.
-  std::pair<bool,double> chooseSolution (const double s1, const double s2) const;
+  std::pair<bool,double> chooseSolution (double s1, double s2) const;
 
 private:
   //

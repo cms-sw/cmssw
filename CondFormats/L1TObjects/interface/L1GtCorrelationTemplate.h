@@ -53,7 +53,7 @@ public:
     ///   the index of second sub-condition in the cor* vector
     L1GtCorrelationTemplate(const std::string&,
             const L1GtConditionCategory&, const L1GtConditionCategory&,
-            const int, const int);
+            int, int);
 
     /// copy constructor
     L1GtCorrelationTemplate( const L1GtCorrelationTemplate& );

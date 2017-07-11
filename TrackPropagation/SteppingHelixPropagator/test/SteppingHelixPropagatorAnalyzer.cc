@@ -119,7 +119,7 @@ protected:
 		  int& charge, AlgebraicSymMatrix66& cov);
 
   void addPSimHits(const edm::Event& iEvent,
-		   const std::string instanceName, 
+		   std::string instanceName, 
 		   const edm::ESHandle<GlobalTrackingGeometry>& geom,
 		   std::vector<SteppingHelixPropagatorAnalyzer::GlobalSimHit>& hits) const;
 

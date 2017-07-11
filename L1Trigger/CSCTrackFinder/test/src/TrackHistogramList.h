@@ -22,7 +22,7 @@ namespace csctf_analysis
   class  TrackHistogramList
   {
     public:
-	TrackHistogramList(const std::string dirname, const edm::ParameterSet* parameters);
+	TrackHistogramList(std::string dirname, const edm::ParameterSet* parameters);
   	TH2F* SimPt_vs_TFPt_FWD;	
   	TH2F* SimPt_vs_TFPt_DT;
   	TH1F* matchedRefPt_FWD;

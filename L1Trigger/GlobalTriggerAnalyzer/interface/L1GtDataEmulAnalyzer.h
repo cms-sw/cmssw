@@ -62,7 +62,7 @@ private:
 
     /// compare the FDL board
     virtual void compareFDL(const edm::Event&, const edm::EventSetup&,
-            const L1GtFdlWord&, const L1GtFdlWord&, const int);
+            const L1GtFdlWord&, const L1GtFdlWord&, int);
 
     /// compare the PSB board
     virtual void comparePSB(const edm::Event&, const edm::EventSetup&,

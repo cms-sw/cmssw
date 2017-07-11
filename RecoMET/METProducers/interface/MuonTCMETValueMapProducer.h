@@ -105,10 +105,10 @@ private:
   TCMETAlgo *tcmetAlgo_;
 
   bool isGoodMuon( const reco::Muon* );
-  bool isGoodCaloMuon( const reco::Muon*, const unsigned int );
+  bool isGoodCaloMuon( const reco::Muon*, unsigned int );
   bool isGoodTrack( const reco::Muon* );
   class TVector3 propagateTrack( const reco::Muon* );
-  int nLayers(const reco::TrackRef);
+  int nLayers(reco::TrackRef);
   bool isValidVertex();
 };
 

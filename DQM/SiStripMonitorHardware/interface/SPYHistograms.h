@@ -67,22 +67,22 @@ class SPYHistograms: public HistogramBase {
   void bookTopLevelHistograms(DQMStore::IBooker &);
 
   //book individual FED histograms or book all FED level histograms at once
-  void bookFEDHistograms(DQMStore::IBooker & , const unsigned int fedId,
+  void bookFEDHistograms(DQMStore::IBooker & , unsigned int fedId,
 			 const Errors & aErr,
 			 bool doAll = false);
 
   void bookAllFEDHistograms(DQMStore::IBooker &);
 
-  void fillCountersHistograms(const ErrorCounters & aCounter, const double aTime);
+  void fillCountersHistograms(const ErrorCounters & aCounter, double aTime);
 
-  void fillGainHistograms(const Trends & aTrendElement, const double aTime);
+  void fillGainHistograms(const Trends & aTrendElement, double aTime);
 
-  void fillFEDHistograms(const Errors & aErr, const unsigned int aFedId);
+  void fillFEDHistograms(const Errors & aErr, unsigned int aFedId);
 
   void fillDetailedHistograms(const Errors & aErr,
 			      const sistrip::SpyUtilities::Frame & aFrame,
-			      const unsigned int aFedId, 
-			      const unsigned int aFedChannel);
+			      unsigned int aFedId, 
+			      unsigned int aFedChannel);
 
   bool tkHistoMapEnabled(unsigned int aIndex=0){
     return false;

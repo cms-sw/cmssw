@@ -36,7 +36,7 @@ public:
   void simulateNoise(const GEMEtaPartition*, CLHEP::HepRandomEngine*) override;
 
   std::vector<std::pair<int,int> > 
-    simulateClustering(const GEMEtaPartition*, const PSimHit*, const int, CLHEP::HepRandomEngine*) override;
+    simulateClustering(const GEMEtaPartition*, const PSimHit*, int, CLHEP::HepRandomEngine*) override;
 
 private:
 

@@ -33,12 +33,12 @@ public:
   ~gctTestEnergyAlgos();
 
   /// Load another event into the gct. Overloaded for the various ways of doing this.
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const bool simpleEvent, const int16_t bx);
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile, const int16_t bx);
-  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, bool simpleEvent, int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::string &fileName, bool &endOfFile, int16_t bx);
+  std::vector<L1CaloRegion> loadEvent(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, int16_t bx);
 
   /// Set array sizes for the number of bunch crossings
-  void setBxRange(const int bxStart, const int numOfBx);
+  void setBxRange(int bxStart, int numOfBx);
 
   /// Check the energy sums algorithms
   bool checkEnergySums(const L1GlobalCaloTrigger* gct) const;
@@ -52,22 +52,22 @@ private:
   /// Generates test data for missing Et as 2-vector (magnitude, direction)
   etmiss_vec randomMissingEtVector() const;
   /// Generates test data consisting of energies to be added together with their sum
-  std::vector<unsigned> randomTestData(const int size, const unsigned max) const;
+  std::vector<unsigned> randomTestData(int size, unsigned max) const;
   /// Loads test input regions from a text file.
-  L1CaloRegion nextRegionFromFile(const unsigned ieta, const unsigned iphi, const int16_t bx);
+  L1CaloRegion nextRegionFromFile(unsigned ieta, unsigned iphi, int16_t bx);
 
   /// Sends input regions to the gct and remembers strip sums for checking
-  void loadInputRegions(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, const int16_t bx);
+  void loadInputRegions(L1GlobalCaloTrigger* &gct, const std::vector<L1CaloRegion>& inputRegions, int16_t bx);
 
   //=========================================================================
 
   //
   // FUNCTION PROTOTYPES FOR ENERGY SUM CHECKING
   /// Integer calculation of Ex or Ey from magnitude for a given pair of phi bins
-  int etComponent(const unsigned Emag0, const unsigned fact0,
-                  const unsigned Emag1, const unsigned fact1) const;
+  int etComponent(unsigned Emag0, unsigned fact0,
+                  unsigned Emag1, unsigned fact1) const;
   /// Calculate et vector from ex and ey, using floating arithmetic and conversion back to integer
-  etmiss_vec trueMissingEt(const int ex, const int ey) const;
+  etmiss_vec trueMissingEt(int ex, int ey) const;
   //=========================================================================
 
   // Required setup information

@@ -30,9 +30,9 @@ public:
   
   virtual ~DDDividedGeometryObject( void ) = default; // inline
   
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const;
-  virtual DDRotation    makeDDRotation   ( const int copyNo ) const;
-  virtual DDLogicalPart makeDDLogicalPart( const int copyNo ) const;
+  virtual DDTranslation makeDDTranslation( int copyNo ) const;
+  virtual DDRotation    makeDDRotation   ( int copyNo ) const;
+  virtual DDLogicalPart makeDDLogicalPart( int copyNo ) const;
 
   virtual const std::string& getType( void ) const;
 

@@ -54,18 +54,18 @@ class DetIdAssociator{
    };
    typedef std::vector<GlobalPoint>::const_iterator const_iterator;
 	
-   DetIdAssociator(const int nPhi, const int nEta, const double etaBinSize);
+   DetIdAssociator(int nPhi, int nEta, double etaBinSize);
    virtual ~DetIdAssociator(){}
    
    /// Preselect DetIds close to a point on the inner surface of the detector. 
    /// "iN" is a number of the adjacent bins of the map to retrieve 
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint&,
-						  const int iN = 0) const;
+						  int iN = 0) const;
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& direction,
-						  const unsigned int iNEtaPlus,
-						  const unsigned int iNEtaMinus,
-						  const unsigned int iNPhiPlus,
-						  const unsigned int iNPhiMinus) const;
+						  unsigned int iNEtaPlus,
+						  unsigned int iNEtaMinus,
+						  unsigned int iNPhiPlus,
+						  unsigned int iNPhiMinus) const;
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& direction,
 						  const MapRange& mapRange) const;
    /// Preselect DetIds close to a point on the inner surface of the detector. 
@@ -73,14 +73,14 @@ class DetIdAssociator{
    /// - theta is in [point.theta()-d, point.theta()+d]
    /// - phi is in [point.phi()-d, point.phi()+d]
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
-						  const double d = 0) const;
+						  double d = 0) const;
    /// - theta is in [point.theta()-dThetaMinus, point.theta()+dThetaPlus]
    /// - phi is in [point.phi()-dPhiMinus, point.phi()+dPhiPlus]
    virtual std::set<DetId> getDetIdsCloseToAPoint(const GlobalPoint& point,
-						  const double dThetaPlus,
-						  const double dThetaMinus,
-						  const double dPhiPlus,
-						  const double dPhiMinus) const;
+						  double dThetaPlus,
+						  double dThetaMinus,
+						  double dPhiPlus,
+						  double dPhiMinus) const;
 
    /// helper to see if getDetIdsInACone is useful
    virtual bool selectAllInACone(const double dR) const {return dR > 2*M_PI && dR > maxEta_;}
@@ -89,7 +89,7 @@ class DetIdAssociator{
    /// - inside eta-phi cone of radius dR
    virtual std::set<DetId> getDetIdsInACone(const std::set<DetId>&,
 					    const std::vector<GlobalPoint>& trajectory,
-					    const double dR) const;
+					    double dR) const;
    /// - DetIds crossed by the track
    ///   tolerance is the radius of the trajectory used for matching
    ///   -1 is default and represent the case with no uncertainty
@@ -100,7 +100,7 @@ class DetIdAssociator{
 					       const std::vector<GlobalPoint>& trajectory) const;
    virtual std::vector<DetId> getCrossedDetIds(const std::set<DetId>&,
 					       const std::vector<SteppingHelixStateInfo>& trajectory,
-					       const double toleranceInSigmas = -1) const;
+					       double toleranceInSigmas = -1) const;
    /// look-up map eta index
    virtual int iEta (const GlobalPoint&) const;
    /// look-up map phi index
@@ -142,7 +142,7 @@ class DetIdAssociator{
 			       const SteppingHelixStateInfo* = 0 ) const { return false; }
    virtual bool nearElement(const GlobalPoint& point, 
 			    const DetId& id, 
-			    const double distance) const;
+			    double distance) const;
    
    unsigned int index(unsigned int iEta, unsigned int iPhi) const {
      return iEta*nPhi_+iPhi;

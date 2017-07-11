@@ -49,10 +49,10 @@ class PFCheckHitPattern {
 
   PFTrackHitFullInfo 
     analyze(const TrackerTopology* tkerTopo, const TrackerGeometry* tkerGeom,
-            const reco::TrackBaseRef track, const TransientVertex& vert);
+            reco::TrackBaseRef track, const TransientVertex& vert);
 
   /// Print hit pattern on track
-  void print(const reco::TrackBaseRef track) const;
+  void print(reco::TrackBaseRef track) const;
 
 
 
@@ -67,7 +67,7 @@ private:
   /// Return a bool indicating if a given subdetector is in the barrel.
   static bool barrel(uint32_t subDet);
 
-  void print(const reco::HitPattern::HitCategory, const reco::HitPattern& hp) const;
+  void print(reco::HitPattern::HitCategory, const reco::HitPattern& hp) const;
 
 private:
   /// Note if geometry info is already initialized.

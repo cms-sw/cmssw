@@ -53,13 +53,13 @@ private: // methods
   
   /// Unpacks the raw data
   /*! \param invalidDataFlag - if true, then won't attempt unpack but just output empty collecions. */
-  void unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollections * const colls);
+  void unpack(const FEDRawData& d, edm::Event& e, RctUnpackCollections * colls);
 
-  void unpackCTP7(const uint32_t *data, const unsigned block_id, const unsigned size, RctUnpackCollections * const colls);
+  void unpackCTP7(const uint32_t *data, unsigned block_id, unsigned size, RctUnpackCollections * colls);
 
-  bool decodeLinkID(const uint32_t inputValue, uint32_t &crateNumber, uint32_t &linkNumber, bool &even);
+  bool decodeLinkID(uint32_t inputValue, uint32_t &crateNumber, uint32_t &linkNumber, bool &even);
 
-  bool printAll(const unsigned char *data, const unsigned size);
+  bool printAll(const unsigned char *data, unsigned size);
   /// Looks at the firmware version header in the S-Link packet and instantiates relevant format translator.
   /// check block headers for consistency
   void checkHeaders();

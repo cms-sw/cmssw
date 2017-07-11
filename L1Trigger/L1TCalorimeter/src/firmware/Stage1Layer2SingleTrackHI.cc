@@ -20,7 +20,7 @@ l1t::Stage1Layer2SingleTrackHI::Stage1Layer2SingleTrackHI(CaloParamsHelper* para
 
 l1t::Stage1Layer2SingleTrackHI::~Stage1Layer2SingleTrackHI(){};
 
-void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t, const int etaMask);
+void findRegions(const std::vector<l1t::CaloRegion> * sr, std::vector<l1t::Tau> * t, int etaMask);
 
 void l1t::Stage1Layer2SingleTrackHI::processEvent(const std::vector<l1t::CaloEmCand> & clusters,
 						  const std::vector<l1t::CaloRegion> & regions,

@@ -46,7 +46,7 @@ namespace sistrip {
     virtual void endJob() override;
 
     //check when the current run changes
-    const bool updateRun(const uint32_t aRun);
+    const bool updateRun(uint32_t aRun);
 
     //name of the output file containing the run number
     //get it from the input file

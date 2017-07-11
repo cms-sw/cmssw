@@ -16,8 +16,8 @@
 class HcalCalibrationsSet {
 public:
   HcalCalibrationsSet();
-  const HcalCalibrations& getCalibrations(const DetId id) const;
-  void setCalibrations(const DetId id, const HcalCalibrations& ca);
+  const HcalCalibrations& getCalibrations(DetId id) const;
+  void setCalibrations(DetId id, const HcalCalibrations& ca);
   void clear();
   std::vector<DetId> getAllChannels() const;
 private:

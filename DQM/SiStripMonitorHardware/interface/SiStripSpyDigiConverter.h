@@ -38,9 +38,9 @@ namespace sistrip {
          */
         static std::unique_ptr<DSVRawDigis> extractPayloadDigis(const DSVRawDigis * inputScopeDigis,
                                                               std::vector<uint32_t> * pAPVAddresses,
-							      const bool discardDigisWithAPVAddrErr,
+							      bool discardDigisWithAPVAddrErr,
                                                               const sistrip::SpyUtilities::FrameQuality & aQuality,
-							      const uint16_t expectedPos);
+							      uint16_t expectedPos);
     
         /* \brief Reorder from readout order to physical order */
         static std::unique_ptr<DSVRawDigis> reorderDigis(const DSVRawDigis* inputPayloadDigis);
@@ -52,8 +52,8 @@ namespace sistrip {
       private:
         typedef DSVRawDigis::detset DetSetRawDigis;
 
-	static void processFED(const uint16_t aPreviousFedId,
-			       const bool discardDigisWithAPVAddrErr,
+	static void processFED(uint16_t aPreviousFedId,
+			       bool discardDigisWithAPVAddrErr,
 			       std::vector<uint32_t> * pAPVAddresses,
 			       std::vector<DetSetRawDigis> & outputData,
 			       std::vector<uint16_t> & aAddrVec,

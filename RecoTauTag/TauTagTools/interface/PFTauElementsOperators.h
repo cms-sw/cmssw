@@ -34,43 +34,43 @@ class PFTauElementsOperators : public TauElementsOperators {
   ~PFTauElementsOperators(){}   
   void setAreaMetricrecoElementsmaxabsEta( double x);
   //return the leading PFCandidate in a given cone around the jet axis or a given direction
-  reco::PFCandidatePtr leadPFCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::PFCandidatePtr leadPFCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
-  reco::PFCandidatePtr leadPFChargedHadrCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::PFCandidatePtr leadPFChargedHadrCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
-  reco::PFCandidatePtr leadPFNeutrHadrCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::PFCandidatePtr leadPFNeutrHadrCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
-  reco::PFCandidatePtr leadPFGammaCand(const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;
-  reco::PFCandidatePtr leadPFGammaCand(const math::XYZVector& myVector,const std::string matchingcone_metric,const double matchingcone_size,const double minPt)const;  
+  reco::PFCandidatePtr leadPFCand(std::string matchingcone_metric,double matchingcone_size,double minPt)const;
+  reco::PFCandidatePtr leadPFCand(const math::XYZVector& myVector,std::string matchingcone_metric,double matchingcone_size,double minPt)const;  
+  reco::PFCandidatePtr leadPFChargedHadrCand(std::string matchingcone_metric,double matchingcone_size,double minPt)const;
+  reco::PFCandidatePtr leadPFChargedHadrCand(const math::XYZVector& myVector,std::string matchingcone_metric,double matchingcone_size,double minPt)const;  
+  reco::PFCandidatePtr leadPFNeutrHadrCand(std::string matchingcone_metric,double matchingcone_size,double minPt)const;
+  reco::PFCandidatePtr leadPFNeutrHadrCand(const math::XYZVector& myVector,std::string matchingcone_metric,double matchingcone_size,double minPt)const;  
+  reco::PFCandidatePtr leadPFGammaCand(std::string matchingcone_metric,double matchingcone_size,double minPt)const;
+  reco::PFCandidatePtr leadPFGammaCand(const math::XYZVector& myVector,std::string matchingcone_metric,double matchingcone_size,double minPt)const;  
   
   // return all PFCandidates in a cone of metric* "cone_metric" and size "conesize" around a direction "myVector" 
-  std::vector<reco::PFCandidatePtr> PFCandsInCone(const std::vector<reco::PFCandidatePtr>& PFCands,const math::XYZVector& myVector,const std::string conemetric,const double conesize,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFCandsInCone(const math::XYZVector& myVector,const std::string conemetric,const double conesize,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInCone(const math::XYZVector& myVector,const std::string conemetric,const double conesize,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInCone(const math::XYZVector& myVector,const std::string conemetric,const double conesize,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &mPV)const;
-  std::vector<reco::PFCandidatePtr> PFNeutrHadrCandsInCone(const math::XYZVector& myVector,const std::string conemetric,const double conesize,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFGammaCandsInCone(const math::XYZVector& myVector,const std::string conemetric,const double conesize,const double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFCandsInCone(const std::vector<reco::PFCandidatePtr>& PFCands,const math::XYZVector& myVector,std::string conemetric,double conesize,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFCandsInCone(const math::XYZVector& myVector,std::string conemetric,double conesize,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInCone(const math::XYZVector& myVector,std::string conemetric,double conesize,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInCone(const math::XYZVector& myVector,std::string conemetric,double conesize,double minPt,double PFChargedHadrCand_tracktorefpoint_maxDZ,double refpoint_Z, const reco::Vertex &mPV)const;
+  std::vector<reco::PFCandidatePtr> PFNeutrHadrCandsInCone(const math::XYZVector& myVector,std::string conemetric,double conesize,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFGammaCandsInCone(const math::XYZVector& myVector,std::string conemetric,double conesize,double minPt)const;
   
   // return all PFCandidates in a annulus defined by inner(metric* "innercone_metric" and size "innercone_size") and outer(metric* "outercone_metric" and size "outercone_size") cones around a direction "myVector" 
-  std::vector<reco::PFCandidatePtr> PFCandsInAnnulus(const std::vector<reco::PFCandidatePtr>& PFCands,const math::XYZVector& myVector,const std::string innercone_metric,const double innercone_size,const std::string outercone_metric,const double outercone_size,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFCandsInAnnulus(const math::XYZVector& myVector,const std::string innercone_metric,const double innercone_size,const std::string outercone_metric,const double outercone_size,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,const std::string innercone_metric,const double innercone_size,const std::string outercone_metric,const double outercone_size,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,const std::string innercone_metric,const double innercone_size,const std::string outercone_metric,const double outercone_size,const double minPt,const double PFChargedHadrCand_tracktorefpoint_maxDZ,const double refpoint_Z, const reco::Vertex &myPV)const;
-  std::vector<reco::PFCandidatePtr> PFNeutrHadrCandsInAnnulus(const math::XYZVector& myVector,const std::string innercone_metric,const double innercone_size,const std::string outercone_metric,const double outercone_size,const double minPt)const;
-  std::vector<reco::PFCandidatePtr> PFGammaCandsInAnnulus(const math::XYZVector& myVector,const std::string innercone_metric,const double innercone_size,const std::string outercone_metric,const double outercone_size,const double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFCandsInAnnulus(const std::vector<reco::PFCandidatePtr>& PFCands,const math::XYZVector& myVector,std::string innercone_metric,double innercone_size,std::string outercone_metric,double outercone_size,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFCandsInAnnulus(const math::XYZVector& myVector,std::string innercone_metric,double innercone_size,std::string outercone_metric,double outercone_size,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,std::string innercone_metric,double innercone_size,std::string outercone_metric,double outercone_size,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFChargedHadrCandsInAnnulus(const math::XYZVector& myVector,std::string innercone_metric,double innercone_size,std::string outercone_metric,double outercone_size,double minPt,double PFChargedHadrCand_tracktorefpoint_maxDZ,double refpoint_Z, const reco::Vertex &myPV)const;
+  std::vector<reco::PFCandidatePtr> PFNeutrHadrCandsInAnnulus(const math::XYZVector& myVector,std::string innercone_metric,double innercone_size,std::string outercone_metric,double outercone_size,double minPt)const;
+  std::vector<reco::PFCandidatePtr> PFGammaCandsInAnnulus(const math::XYZVector& myVector,std::string innercone_metric,double innercone_size,std::string outercone_metric,double outercone_size,double minPt)const;
   //Put function to get elements inside ellipse here ... EELL
   std::pair<std::vector<reco::PFCandidatePtr>,std::vector<reco::PFCandidatePtr>> PFGammaCandsInOutEllipse(const std::vector<reco::PFCandidatePtr>&, const reco::PFCandidate&, double rPhi, double rEta, double maxPt) const;
   //EELL
 
   /// append elements of theInputCands that pass Pt requirement to the end of theOutputCands
-  void                 copyCandRefsFilteredByPt(const std::vector<reco::PFCandidatePtr>& theInputCands, std::vector<reco::PFCandidatePtr>& theOutputCands, const double minPt);
+  void                 copyCandRefsFilteredByPt(const std::vector<reco::PFCandidatePtr>& theInputCands, std::vector<reco::PFCandidatePtr>& theOutputCands, double minPt);
 
   /// compute size of cone using the Inside-Out cone (Author Evan Friis, UC Davis)
   void                 computeInsideOutContents(const std::vector<reco::PFCandidatePtr>& theChargedCands, const std::vector<reco::PFCandidatePtr>& theGammaCands, const math::XYZVector& leadTrackVector, 
                                const TFormula& coneSizeFormula, double (*ptrToMetricFunction)(const math::XYZVector&, const math::XYZVector&),  // determines grow function, and the metric to compare the opening angle to
-                               const double minChargedSize, const double maxChargedSize, const double minNeutralSize, const double maxNeutralSize,
-                               const double minChargedPt, const double minNeutralPt,
-                               const std::string& outlierCollectorConeMetric, const double outlierCollectorConeSize,
+                               double minChargedSize, double maxChargedSize, double minNeutralSize, double maxNeutralSize,
+                               double minChargedPt, double minNeutralPt,
+                               const std::string& outlierCollectorConeMetric, double outlierCollectorConeSize,
                                std::vector<reco::PFCandidatePtr>& signalChargedObjects, std::vector<reco::PFCandidatePtr>& outlierChargedObjects,
                                std::vector<reco::PFCandidatePtr>& signalGammaObjects, std::vector<reco::PFCandidatePtr>& outlierGammaObjects, bool useScanningAxis); //these last two quantities are the return values
 

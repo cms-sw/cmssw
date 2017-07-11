@@ -72,10 +72,10 @@ public:
   virtual void process();
 
   /// define the bunch crossing range to process
-  void setBxRange(const int firstBx, const int numberOfBx);
+  void setBxRange(int firstBx, int numberOfBx);
 
   /// partially clear buffers
-  void setNextBx(const int bx);
+  void setNextBx(int bx);
 
   /// get pointers to associated jetfinders
   L1GctJetFinderBase* getJetFinderA() const { return m_jetFinderA; }

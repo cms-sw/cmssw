@@ -33,7 +33,7 @@ struct LzmaFile {
   SRes DecodeBuffer();
    //SRes DecodeArray(double* data, const int length);
   SRes ReadNextNumber(double& data);
-  SRes FillArray(double* data, const int length);
+  SRes FillArray(double* data, int length);
   
   CFileSeqInStream inStream;
   int res;

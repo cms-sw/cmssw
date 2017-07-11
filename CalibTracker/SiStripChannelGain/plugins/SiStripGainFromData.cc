@@ -95,7 +95,7 @@ class SiStripGainFromData : public ConditionDBWriter<SiStripApvGain> {
       DQMStore* dqmStore_infile;
 
       double              ComputeChargeOverPath(const SiStripCluster*   Cluster,TrajectoryStateOnSurface trajState, const edm::EventSetup* iSetup, const Track* track, double trajChi2OverN);
-      bool                IsFarFromBorder(TrajectoryStateOnSurface trajState, const uint32_t detid, const edm::EventSetup* iSetup);
+      bool                IsFarFromBorder(TrajectoryStateOnSurface trajState, uint32_t detid, const edm::EventSetup* iSetup);
 
       void                getPeakOfLandau(TH1* InputHisto, double* FitResults, double LowRange=0, double HighRange=5400);
 

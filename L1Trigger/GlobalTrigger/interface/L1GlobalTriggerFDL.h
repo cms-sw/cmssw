@@ -59,32 +59,32 @@ public:
         const std::vector<unsigned int>& triggerMaskVetoAlgoTrig,
         const std::vector<unsigned int>& triggerMaskVetoTechTrig,
         const std::vector<L1GtBoard>& boardMaps,
-        const int totalBxInEvent,
-        const int iBxInEvent,
-        const unsigned int numberPhysTriggers, const unsigned int numberTechnicalTriggers,
-        const unsigned int numberDaqPartitions,
+        int totalBxInEvent,
+        int iBxInEvent,
+        unsigned int numberPhysTriggers, unsigned int numberTechnicalTriggers,
+        unsigned int numberDaqPartitions,
         const L1GlobalTriggerGTL* ptrGTL,
         const L1GlobalTriggerPSB* ptrPSB,
-        const int pfAlgoSetIndex,
-        const int pfTechSetIndex,
-        const bool algorithmTriggersUnprescaled,
-        const bool algorithmTriggersUnmasked,
-        const bool technicalTriggersUnprescaled,
-        const bool technicalTriggersUnmasked,
-        const bool technicalTriggersVetoUnmasked
+        int pfAlgoSetIndex,
+        int pfTechSetIndex,
+        bool algorithmTriggersUnprescaled,
+        bool algorithmTriggersUnmasked,
+        bool technicalTriggersUnprescaled,
+        bool technicalTriggersUnmasked,
+        bool technicalTriggersVetoUnmasked
         );
 
     /// fill the FDL block in the L1 GT DAQ record for iBxInEvent
-    void fillDaqFdlBlock(const int iBxInEvent,
-            const boost::uint16_t& activeBoardsGtDaq, const int recordLength0,
-            const int recordLength1, const unsigned int altNrBxBoardDaq,
+    void fillDaqFdlBlock(int iBxInEvent,
+            const boost::uint16_t& activeBoardsGtDaq, int recordLength0,
+            int recordLength1, unsigned int altNrBxBoardDaq,
             const std::vector<L1GtBoard>& boardMaps,
             L1GlobalTriggerReadoutRecord* gtDaqReadoutRecord);
 
     /// fill the FDL block in the L1 GT EVM record for iBxInEvent
-    void fillEvmFdlBlock(const int iBxInEvent,
-            const boost::uint16_t& activeBoardsGtEvm, const int recordLength0,
-            const int recordLength1, const unsigned int altNrBxBoardEvm,
+    void fillEvmFdlBlock(int iBxInEvent,
+            const boost::uint16_t& activeBoardsGtEvm, int recordLength0,
+            int recordLength1, unsigned int altNrBxBoardEvm,
             const std::vector<L1GtBoard>& boardMaps,
             L1GlobalTriggerEvmReadoutRecord* gtEvmReadoutRecord);
 

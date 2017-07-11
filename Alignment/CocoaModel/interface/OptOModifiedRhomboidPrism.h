@@ -35,7 +35,7 @@ public:
   virtual void detailedTraversesLightRay( LightRay& lightray );
 
   //--------- Get the up and down plates rotated by an angle 'angle_planes'
-  ALIPlane getRotatedPlate(const ALIbool forwardPlate);
+  ALIPlane getRotatedPlate(ALIbool forwardPlate);
 
 
 #ifdef COCOA_VIS

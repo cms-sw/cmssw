@@ -36,11 +36,11 @@ private:
 	//if necessary
 	class TemporaryGeometry {
 	public:
-		TemporaryGeometry(const ME0Geometry* geometry, const unsigned int numberOfStrips, const unsigned int numberOfPartitions);
+		TemporaryGeometry(const ME0Geometry* geometry, unsigned int numberOfStrips, unsigned int numberOfPartitions);
 		~TemporaryGeometry();
 		unsigned int findEtaPartition(float locY) const;
 		const TrapezoidalStripTopology * getTopo(const unsigned int partIdx) const {return stripTopos[partIdx];}
-		float getPartCenter(const unsigned int partIdx) const; //position of part. in chamber
+		float getPartCenter(unsigned int partIdx) const; //position of part. in chamber
 		float getCentralTOF(const ME0DetId& me0Id, unsigned int partIdx) const {return tofs[me0Id.layer() -1 ][partIdx];} //in detId layer numbers stat at 1
 		unsigned int numLayers() const {return tofs.size();}
 	private:

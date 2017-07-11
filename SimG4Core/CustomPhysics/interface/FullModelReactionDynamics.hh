@@ -105,8 +105,8 @@ enum{ MYGHADLISTSIZE=256};
     G4int Factorial( G4int n );
     
     G4double GenerateNBodyEvent(                // derived from PHASP
-     const G4double totalEnergy,
-     const G4bool constantCrossSection,
+     G4double totalEnergy,
+     G4bool constantCrossSection,
      G4FastVector<G4ReactionProduct,MYGHADLISTSIZE> &vec,
      G4int &vecLen );
     
@@ -125,13 +125,13 @@ enum{ MYGHADLISTSIZE=256};
      G4int &vecLen,
      const G4HadProjectile *originalIncident,
      const G4Nucleus &aNucleus,
-     const G4double theAtomicMass,
+     G4double theAtomicMass,
      const G4double *massVec );
     
  private:
     
     void Rotate(
-     const G4double numberofFinalStateNucleons,
+     G4double numberofFinalStateNucleons,
      const G4ThreeVector &temp,
      const G4ReactionProduct &modifiedOriginal, // Fermi motion & evap. effect included
      const G4HadProjectile *originalIncident,
@@ -149,13 +149,13 @@ enum{ MYGHADLISTSIZE=256};
      G4int &vecLen );
     
     void AddBlackTrackParticles(
-     const G4double epnb,
-     const G4int npnb,
-     const G4double edta,
-     const G4int ndta,
-     const G4double sprob,
-     const G4double kineticMinimum,
-     const G4double kineticFactor,
+     G4double epnb,
+     G4int npnb,
+     G4double edta,
+     G4int ndta,
+     G4double sprob,
+     G4double kineticMinimum,
+     G4double kineticFactor,
      const G4ReactionProduct &modifiedOriginal,
      G4double spall,
      const G4Nucleus &aNucleus,

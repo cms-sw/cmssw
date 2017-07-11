@@ -77,7 +77,7 @@
 				  std::vector<float> &vzerr) const;
 
 	    void processMVA(edm::Event& evt, const edm::EventSetup& es,const  reco::BeamSpot& beamspot,const reco::VertexCollection& vertices, int selIndex, std::vector<float> & mvaVals_, bool writeIt=false) const;
-	    Point getBestVertex(const reco::TrackBaseRef,const reco::VertexCollection) const;
+	    Point getBestVertex(reco::TrackBaseRef,reco::VertexCollection) const;
 
             /// source collection label
             edm::EDGetTokenT<reco::TrackCollection> src_;

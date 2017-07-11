@@ -19,7 +19,7 @@ class TtFullHadHypKinFit : public TtFullHadHypothesis  {
   /// build event hypothesis from the reco objects of a full-hadronic event
   virtual void buildHypo(edm::Event&,
 			 const edm::Handle<std::vector<pat::Jet> >&,
-			 std::vector<int>&, const unsigned int iComb);
+			 std::vector<int>&, unsigned int iComb);
 
   edm::EDGetTokenT<std::vector<int> > statusToken_;
   edm::EDGetTokenT<std::vector<pat::Particle> > lightQToken_;

@@ -12,13 +12,13 @@
 #include "TPaveText.h"
 #include "TSystem.h"
 
-void setCanvasStyle(TCanvas* c, const bool logScale);
+void setCanvasStyle(TCanvas* c, bool logScale);
 void setHistoStyle(TH1* h);
-void setHistoStackStyle(TH1* h, const unsigned int lineColor);
-void setLegendStyle(TLegend* l, const unsigned int nColumns);
-void setPaveTextStyle(TPaveText* t, const bool isHorizontal=true);
+void setHistoStackStyle(TH1* h, unsigned int lineColor);
+void setLegendStyle(TLegend* l, unsigned int nColumns);
+void setPaveTextStyle(TPaveText* t, bool isHorizontal=true);
 void fillNormFactorMaps();
-double findNormFactor(const std::string currentPlotType, const std::string currentPart, const bool stackOption);
+double findNormFactor(std::string currentPlotType, std::string currentPart, bool stackOption);
 void makePlots(std::string inputFileName, std::string outputFileName);
 
 // Map with <name of tracker part, count of channels in the part>

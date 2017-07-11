@@ -45,18 +45,18 @@ class L1GctGlobalHfSumAlgos : public L1GctProcessor
   virtual void process();
 
   /// Access to output quantities
-  std::vector<uint16_t> hfSumsOutput(const L1GctHfEtSumsLut::hfLutType type) const;
+  std::vector<uint16_t> hfSumsOutput(L1GctHfEtSumsLut::hfLutType type) const;
   std::vector<unsigned> hfSumsWord() const;
 
   /// Setup luts
   void setupLuts(const L1CaloEtScale* scale);
 
   /// Get lut pointers
-  const L1GctHfBitCountsLut* getBCLut(const L1GctHfEtSumsLut::hfLutType type) const;
-  const L1GctHfEtSumsLut* getESLut(const L1GctHfEtSumsLut::hfLutType type) const;
+  const L1GctHfBitCountsLut* getBCLut(L1GctHfEtSumsLut::hfLutType type) const;
+  const L1GctHfEtSumsLut* getESLut(L1GctHfEtSumsLut::hfLutType type) const;
 
   /// Get thresholds
-  std::vector<double> getThresholds(const L1GctHfEtSumsLut::hfLutType type) const;
+  std::vector<double> getThresholds(L1GctHfEtSumsLut::hfLutType type) const;
 
   /// provide access to input pointer, Wheel Jet Fpga 1
   L1GctWheelJetFpga* getPlusWheelJetFpga() const { return m_plusWheelJetFpga; }

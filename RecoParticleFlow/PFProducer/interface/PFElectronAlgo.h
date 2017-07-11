@@ -27,7 +27,7 @@ class PFElectronAlgo {
  public:
   
   //constructor
-  PFElectronAlgo(const double mvaEleCut,
+  PFElectronAlgo(double mvaEleCut,
 		 std::string  mvaWeightFileEleID,
 		 const boost::shared_ptr<PFSCEnergyCalibration>& thePFSCEnergyCalibration,
 		 const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
@@ -74,7 +74,7 @@ class PFElectronAlgo {
 		     std::vector<bool>& active,
 			 const reco::Vertex & primaryVertex);
 
-  unsigned int FindClosestElement(const unsigned int iele,
+  unsigned int FindClosestElement(unsigned int iele,
 			  std::multimap<double, unsigned int>& Elems, 
 			  float& chi2cut,
 			  std::vector<bool>& active,

@@ -63,7 +63,7 @@ class PFTau : public BaseTau {
 
     // functions to access the PFTauTagInfoRef used by HLT
     const PFTauTagInfoRef& pfTauTagInfoRef() const;
-    void setpfTauTagInfoRef(const PFTauTagInfoRef);
+    void setpfTauTagInfoRef(PFTauTagInfoRef);
 
     PFRecoTauChargedHadronRef leadTauChargedHadronCandidate() const;
     const PFCandidatePtr& leadPFChargedHadrCand() const;

@@ -46,10 +46,10 @@ public:
 
     ///     from base template condition (from event setup usually)
     CaloCondition(const GlobalCondition*, const GlobalBoard*,
-            const int nrL1EG,
-            const int nrL1Jet,
-            const int nrL1Tau,
-            const int ifCaloEtaNumberBits);
+            int nrL1EG,
+            int nrL1Jet,
+            int nrL1Tau,
+            int ifCaloEtaNumberBits);
 
     // copy constructor
     CaloCondition(const CaloCondition&);
@@ -63,7 +63,7 @@ public:
 public:
 
     /// the core function to check if the condition matches
-    const bool evaluateCondition(const int bxEval) const;
+    const bool evaluateCondition(int bxEval) const;
 
     /// print condition
      void print(std::ostream& myCout) const;
@@ -105,11 +105,11 @@ private:
     void copy(const CaloCondition& cp);
 
     /// load calo candidates
-    const l1t::L1Candidate* getCandidate(const int bx, const int indexCand) const;
+    const l1t::L1Candidate* getCandidate(int bx, int indexCand) const;
 
     /// function to check a single object if it matches a condition
     const bool
-    checkObjectParameter(const int iCondition, const l1t::L1Candidate& cand, const unsigned int index) const;
+    checkObjectParameter(int iCondition, const l1t::L1Candidate& cand, unsigned int index) const;
 
 private:
 

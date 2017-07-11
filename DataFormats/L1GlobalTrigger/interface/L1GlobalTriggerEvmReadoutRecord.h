@@ -43,7 +43,7 @@ public:
 
     L1GlobalTriggerEvmReadoutRecord(int NumberBxInEvent);
 
-    L1GlobalTriggerEvmReadoutRecord(const int numberBxInEvent, const int numberFdlBoards);
+    L1GlobalTriggerEvmReadoutRecord(int numberBxInEvent, int numberFdlBoards);
 
     /// copy constructor
     L1GlobalTriggerEvmReadoutRecord(const L1GlobalTriggerEvmReadoutRecord&);

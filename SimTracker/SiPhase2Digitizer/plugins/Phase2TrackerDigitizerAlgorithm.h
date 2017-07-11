@@ -53,10 +53,10 @@ class Phase2TrackerDigitizerAlgorithm  {
     _signal.clear();
   }
   // run the algorithm to digitize a single det
-  virtual void accumulateSimHits(const std::vector<PSimHit>::const_iterator inputBegin,
-				 const std::vector<PSimHit>::const_iterator inputEnd,
-				 const size_t inputBeginGlobalIndex,
-				 const unsigned int tofBin,
+  virtual void accumulateSimHits(std::vector<PSimHit>::const_iterator inputBegin,
+				 std::vector<PSimHit>::const_iterator inputEnd,
+				 size_t inputBeginGlobalIndex,
+				 unsigned int tofBin,
 				 const Phase2TrackerGeomDetUnit* pixdet,
 				 const GlobalVector& bfield) = 0;
  virtual void digitize(const Phase2TrackerGeomDetUnit* pixdet,
@@ -174,8 +174,8 @@ class Phase2TrackerDigitizerAlgorithm  {
 	     const std::vector<DigitizerUtility::EnergyDepositUnit>& ionization_points,
 	     std::vector<DigitizerUtility::SignalPoint>& collection_points) const;
   void induce_signal(const PSimHit& hit,
-		     const size_t hitIndex,
-		     const unsigned int tofBin,
+		     size_t hitIndex,
+		     unsigned int tofBin,
 		     const Phase2TrackerGeomDetUnit* pixdet,
 		     const std::vector<DigitizerUtility::SignalPoint>& collection_points);
   void fluctuateEloss(int particleId, float momentum, float eloss, 

@@ -22,7 +22,7 @@ class ClusterFillMap : public VFillMap
 
 	//!Fills the map
         void fillMap (const std::vector<std::pair<DetId,float> > &, 
-			const DetId,
+			DetId,
 			const EcalRecHitCollection *, 
 			const EcalRecHitCollection *,
 			std::map<int,double> & xtlMap,

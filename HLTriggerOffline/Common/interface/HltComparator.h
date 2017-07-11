@@ -44,7 +44,7 @@ class HltComparator : public edm::EDFilter
         void initialise(const edm::TriggerResults&, 
 			const edm::TriggerResults&,
                         edm::Event& e);
-        std::string formatResult(const unsigned int);
+        std::string formatResult(unsigned int);
 };
 
 #endif // HLTCOMPARATOR_HH

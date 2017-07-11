@@ -29,7 +29,7 @@ public:
   std::vector<ParticleFlux::flux> getFlux() const& {return fluxVector_;}
   void                            setName(const std::string nm) {detName_ = nm;}
   void                            setId(const int id) {detId_ = id;}
-  void                            addFlux(const ParticleFlux::flux f);
+  void                            addFlux(ParticleFlux::flux f);
   void                            clear();
 
 private:

@@ -42,7 +42,7 @@ public:
 
     ///     from base template condition (from event setup usually)
     L1GtCorrelationCondition(const L1GtCondition*, const L1GtCondition*,
-            const L1GtCondition*, const int, const int, const int, const int,
+            const L1GtCondition*, int, int, int, int,
             const L1GlobalTriggerGTL*, const L1GlobalTriggerPSB*,
             const L1GtEtaPhiConversions*);
 
@@ -70,7 +70,7 @@ public:
         return m_nrBinsPhi;
     }
 
-    void setGtNrBinsPhi(const unsigned int);
+    void setGtNrBinsPhi(unsigned int);
 
     ///   get / set the pointer to a L1GtCondition
     inline const L1GtCorrelationTemplate* gtCorrelationTemplate() const {

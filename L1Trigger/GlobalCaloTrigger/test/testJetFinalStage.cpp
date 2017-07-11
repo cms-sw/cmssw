@@ -56,26 +56,26 @@ const int numOutputJets = 4; //Num. Jets of each type outputted.
 
 //  FUNCTION PROTOTYPES
 /// Runs the test on the L1GctJetFinalStage instance passed into it.
-void classTest(L1GctJetFinalStage *myJetFinalStage, const lutPtrVector myLut);
+void classTest(L1GctJetFinalStage *myJetFinalStage, lutPtrVector myLut);
 /// Loads test input and also the known results from a file.
 void loadTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                   JetsVector &inputTauJets, JetsVector &trueCentralJets,
                   JetsVector &trueForwardJets, JetsVector &trueTauJets,
-                  const lutPtrVector lut);
+                  lutPtrVector lut);
 /// Sanity checks on the data read from file.
 bool checkTestData(JetsVector &inputCentralJets, JetsVector &inputForwardJets,
                    JetsVector &inputTauJets, JetsVector &trueCentralJets,
                    JetsVector &trueForwardJets, JetsVector &trueTauJets);
 /// Function to safely open input files of any name, using a referenced return ifstream
-void safeOpenInputFile(ifstream &fin, const string name);
+void safeOpenInputFile(ifstream &fin, string name);
 /// Function to safely open output files of any name, using a referenced return ofstream
-void safeOpenOutputFile(ofstream &fout, const string name);
+void safeOpenOutputFile(ofstream &fout, string name);
 /// Reads jets from file and pushes the specified number into a vector of jets
-void putJetsInVector(ifstream &fin, JetsVector &jets, const int numJets, const lutPtrVector lut);
+void putJetsInVector(ifstream &fin, JetsVector &jets, int numJets, lutPtrVector lut);
 /// Gets the data of a single jet from the testDataFile (reasonably safely).  
 L1GctJet readSingleJet(ifstream &fin);
 /// Compares JetsVectors, prints a message about the comparison, returns true if identical, else false.
-bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, const string description);
+bool compareJetsVectors(JetsVector &vector1, JetsVector &vector2, string description);
 /// Writes out the entire contents of a JetsVector to the given file output stream
 void outputJetsVector(ofstream &fout, JetsVector &jets, string description = "Jets");
 

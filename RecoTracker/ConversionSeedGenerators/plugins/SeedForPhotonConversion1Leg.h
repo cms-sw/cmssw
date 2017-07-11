@@ -53,7 +53,7 @@ public:
 						      const SeedingHitSet & hits, 
 						      const GlobalPoint & vertexPos, 
 						      const edm::EventSetup& es,
-						      const float cotTheta) const;
+						      float cotTheta) const;
   
   CurvilinearTrajectoryError initialError(
 						  const GlobalVector& vertexBounds, 

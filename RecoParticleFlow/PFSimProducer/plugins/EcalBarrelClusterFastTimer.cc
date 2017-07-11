@@ -51,7 +51,7 @@ private:
   const unsigned ecalDepth_;
   // functions  
   std::pair<float, DetId> getTimeForECALPFCluster(const EcalRecHitCollection&,const reco::PFCluster&) const;
-  float correctTimeToVertex(const float intime, const DetId& timeDet, const reco::Vertex& vtx, 
+  float correctTimeToVertex(float intime, const DetId& timeDet, const reco::Vertex& vtx, 
                             const CaloSubdetectorGeometry* ecalGeom) const;
 };
 

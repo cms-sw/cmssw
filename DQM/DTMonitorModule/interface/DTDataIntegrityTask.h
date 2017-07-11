@@ -70,7 +70,7 @@ protected:
 
 private:
 
-  void bookHistos(DQMStore::IBooker &, const int fedMin, const int fedMax);
+  void bookHistos(DQMStore::IBooker &, int fedMin, int fedMax);
   void bookHistos(DQMStore::IBooker &, std::string folder, DTROChainCoding code);
   void bookHistosROS25(DQMStore::IBooker &, DTROChainCoding code);
 

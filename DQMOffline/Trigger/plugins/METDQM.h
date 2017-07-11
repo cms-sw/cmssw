@@ -17,7 +17,7 @@ class METDQM : public TriggerDQMBase
   void fillHistograms(const double & met,
 		      const double & phi,
 		      const int & ls,
-		      const bool passCond);
+		      bool passCond);
   static void fillMetDescription(edm::ParameterSetDescription & histoPSet);
 
 

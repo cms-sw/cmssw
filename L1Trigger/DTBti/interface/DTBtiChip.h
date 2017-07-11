@@ -144,15 +144,15 @@ class DTBtiChip {
   inline int currentStep() const { return (int)(((float)(_curStep)+0.5)/2); }
   inline int currentIntStep() const { return _curStep; } // int. step (80MHz)
   void computeSums();                                 // compute sums and diffs
-  void sum(const int s, const int a, const int b);    //   "     a sum and dif
+  void sum(int s, int a, int b);    //   "     a sum and dif
   void computeEqs();                                  // compute X and K equat.
   void findTrig();                                    // find triggers
-  int keepTrig(const int eq, const int acp, const int code); // find  a trigger
-  int keepTrigPatt(int flag, const int eq, const int pattType, int hlflag);//SV
+  int keepTrig(int eq, int acp, int code); // find  a trigger
+  int keepTrigPatt(int flag, int eq, int pattType, int hlflag);//SV
   bool matchEq(float eqA, float eqB, int AC);
   void acceptMask(BitArray<80> * BitArrPtr,int k,int accep);   
   void doLTS();                                   // adjacent LTRIG suppression
-  int store(const int eq, const int code, const int K, const int X, 
+  int store(int eq, int code, int K, int X, 
              float KeqAB=0., float KeqBC=0., float KeqCD=0., 
              float KeqAC=0., float KeqBD=0., float KeqAD=0.); 
   void eraseTrigger(int step, unsigned n); // Erase the requested trigger

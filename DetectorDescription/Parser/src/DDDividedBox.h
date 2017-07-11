@@ -21,9 +21,9 @@ class DDDividedBoxX final : public DDDividedGeometryObject
   DDDividedBoxX( const DDDivision& div, DDCompactView* cpv);
   
   virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation( const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const override;
+  virtual DDTranslation makeDDTranslation( int copyNo ) const override;
+  virtual DDRotation makeDDRotation( int copyNo ) const override;
+  virtual DDLogicalPart makeDDLogicalPart(int copyNo) const override;
 };
 
 class DDDividedBoxY final : public DDDividedGeometryObject
@@ -33,9 +33,9 @@ class DDDividedBoxY final : public DDDividedGeometryObject
   DDDividedBoxY( const DDDivision& div, DDCompactView* cpv);
   
   virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation( const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const override;
+  virtual DDTranslation makeDDTranslation( int copyNo ) const override;
+  virtual DDRotation makeDDRotation( int copyNo ) const override;
+  virtual DDLogicalPart makeDDLogicalPart(int copyNo) const override;
 };
 
 class DDDividedBoxZ final : public DDDividedGeometryObject
@@ -45,8 +45,8 @@ class DDDividedBoxZ final : public DDDividedGeometryObject
   DDDividedBoxZ( const DDDivision& div, DDCompactView* cpv);
   
   virtual double getMaxParameter() const override;
-  virtual DDTranslation makeDDTranslation( const int copyNo ) const override;
-  virtual DDRotation makeDDRotation( const int copyNo ) const override;
-  virtual DDLogicalPart makeDDLogicalPart(const int copyNo) const override;
+  virtual DDTranslation makeDDTranslation( int copyNo ) const override;
+  virtual DDRotation makeDDRotation( int copyNo ) const override;
+  virtual DDLogicalPart makeDDLogicalPart(int copyNo) const override;
 };
 #endif

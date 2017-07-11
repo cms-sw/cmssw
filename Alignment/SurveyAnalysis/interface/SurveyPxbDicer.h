@@ -36,8 +36,8 @@ public:
 	//! Invoke the dicer
 	//! \param fidpointvec vector with fiducial points where values need to be diced for and transformed to the photo fram
 	//! \param idPair pair of the id values
-	std::string doDice(const fidpoint_t &fidpointvec, const idPair_t &id, const bool rotate=false);
-	void doDice(const fidpoint_t &fidpointvec, const idPair_t &id, std::ofstream &outfile, const bool rotate=false);
+	std::string doDice(const fidpoint_t &fidpointvec, const idPair_t &id, bool rotate=false);
+	void doDice(const fidpoint_t &fidpointvec, const idPair_t &id, std::ofstream &outfile, bool rotate=false);
 
 private:
 	//! invoke the RNG to geat a gaussian smeared value

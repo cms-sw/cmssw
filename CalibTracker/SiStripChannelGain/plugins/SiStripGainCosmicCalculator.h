@@ -33,8 +33,8 @@ private:
   SiStripApvGain * getNewObject();
 private:
   std::pair<double,double> getPeakOfLandau( TH1F * inputHisto );
-  double moduleWidth(const uint32_t detid, const edm::EventSetup* iSetup);
-  double moduleThickness(const uint32_t detid, const edm::EventSetup* iSetup);
+  double moduleWidth(uint32_t detid, const edm::EventSetup* iSetup);
+  double moduleThickness(uint32_t detid, const edm::EventSetup* iSetup);
 private:
   std::string TrackProducer;
   std::string TrackLabel;

@@ -42,7 +42,7 @@ class TagProbeMassProducer : public edm::EDProducer
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override;
 
-      bool isPassingProbe (const unsigned int iprobe) const;
+      bool isPassingProbe (unsigned int iprobe) const;
 
       // ----------member data ---------------------------
       

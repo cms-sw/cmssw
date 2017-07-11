@@ -62,8 +62,8 @@ private:
 		       const edm::EventSetup &) override;
   virtual void endRun(const edm::Run &,
 		      const edm::EventSetup &) override;
-  bool isMonitoredTriggerAccepted(const edm::TriggerNames,
-				  const edm::Handle<edm::TriggerResults>); 
+  bool isMonitoredTriggerAccepted(edm::TriggerNames,
+				  edm::Handle<edm::TriggerResults>); 
 
   // Input from Configuration File
   edm::ParameterSet pset_;

@@ -52,10 +52,10 @@ public:
 
 private:
 
-  static float recHitE( const DetId id, const EcalRecHitCollection &recHits );
-  static float recHitE( const DetId id, const EcalRecHitCollection & recHits, 
+  static float recHitE( DetId id, const EcalRecHitCollection &recHits );
+  static float recHitE( DetId id, const EcalRecHitCollection & recHits, 
 			int dEta, int dPhi );
-  static float recHitApproxEt( const DetId id, 
+  static float recHitApproxEt( DetId id, 
 			       const EcalRecHitCollection &recHits );
 
 

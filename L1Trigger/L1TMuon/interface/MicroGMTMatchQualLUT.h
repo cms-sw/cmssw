@@ -44,7 +44,7 @@ namespace l1t {
     class MicroGMTMatchQualSimpleLUT : public MicroGMTMatchQualLUT {
       public:
         MicroGMTMatchQualSimpleLUT() {};
-        explicit MicroGMTMatchQualSimpleLUT(const std::string&, const double maxDR, const double fEta, const double fPhi, cancel_t cancelType);
+        explicit MicroGMTMatchQualSimpleLUT(const std::string&, double maxDR, double fEta, double fPhi, cancel_t cancelType);
         explicit MicroGMTMatchQualSimpleLUT(l1t::LUT* lut, cancel_t cancelType);
         virtual ~MicroGMTMatchQualSimpleLUT() {};
 
@@ -58,7 +58,7 @@ namespace l1t {
     class MicroGMTMatchQualFineLUT : public MicroGMTMatchQualLUT {
       public:
         MicroGMTMatchQualFineLUT() {};
-        explicit MicroGMTMatchQualFineLUT(const std::string&, const double maxDR, const double fEta, const double fEtaCoarse, const double fPhi, cancel_t cancelType);
+        explicit MicroGMTMatchQualFineLUT(const std::string&, double maxDR, double fEta, double fEtaCoarse, double fPhi, cancel_t cancelType);
         explicit MicroGMTMatchQualFineLUT(l1t::LUT* lut, cancel_t cancelType);
         virtual ~MicroGMTMatchQualFineLUT() {};
 

@@ -34,7 +34,7 @@ namespace reco{
     
     //the reference to the PFJet
     const PFJetRef& pfjetRef()const;
-    void setpfjetRef(const PFJetRef);
+    void setpfjetRef(PFJetRef);
   private:
     PFJetRef PFJetRef_;
     std::vector<reco::PFCandidatePtr> PFChargedHadrCands_;

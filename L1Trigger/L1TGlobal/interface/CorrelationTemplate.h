@@ -50,7 +50,7 @@ public:
     ///   the index of second sub-condition in the cor* vector
     CorrelationTemplate(const std::string&,
             const l1t::GtConditionCategory&, const l1t::GtConditionCategory&,
-            const int, const int);
+            int, int);
 
     /// copy constructor
     CorrelationTemplate( const CorrelationTemplate& );

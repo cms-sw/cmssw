@@ -76,17 +76,17 @@ class STAnalyzer : public edm::EDAnalyzer {
                       const TrajectoryStateOnSurface& startTsos,
                       bool found=false) ;
 
-    void fillMinDist(const DTRecSegment4DCollection::range segs,
+    void fillMinDist(DTRecSegment4DCollection::range segs,
                const DTChamber* ch,
                const TrajectoryStateOnSurface& extraptsos,
                bool found=false) ;
 
-    void fillMinDist(const DTRecSegment2DCollection::range segs,
+    void fillMinDist(DTRecSegment2DCollection::range segs,
                const DTSuperLayer* ch,
                const TrajectoryStateOnSurface& extraptsos,
                bool found=false) ;
 
-    void fillMinDist(const DTRecHitCollection::range segs,
+    void fillMinDist(DTRecHitCollection::range segs,
                const DTLayer* ch,
                const TrajectoryStateOnSurface& extraptsos,
                bool found=false) ;

@@ -44,31 +44,31 @@ class ConversionFinder {
   std::vector<ConversionInfo> getConversionInfos(const reco::GsfElectronCore&,
 						const edm::Handle<reco::TrackCollection>& ctftracks_h,
 						const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
-						const double bFieldAtOrigin,
-						const double minFracSharedHits = 0.45);
+						double bFieldAtOrigin,
+						double minFracSharedHits = 0.45);
 
   //retruns the "best" Conversion Info after calling getConversionInfos
   ConversionInfo getConversionInfo(const reco::GsfElectronCore&,
 				   const edm::Handle<reco::TrackCollection>& ctftracks_h,
 				   const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
-				   const double bFieldAtOrigin,
-				   const double minFracSharedHits = 0.45);
+				   double bFieldAtOrigin,
+				   double minFracSharedHits = 0.45);
 
   //retruns the "best" Conversion Info after calling getConversionInfos
   ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron,
 				   const edm::Handle<reco::TrackCollection>& ctftracks_h,
 				   const edm::Handle<reco::GsfTrackCollection>& gsftracks_h,
-				   const double bFieldAtOrigin,
-				   const double minFracSharedHits = 0.45);
+				   double bFieldAtOrigin,
+				   double minFracSharedHits = 0.45);
 
   //used internally, so call this only if you know what you're doing.
   ConversionInfo getConversionInfo(const reco::Track *el_track,
 				   const reco::Track *candPartnerTk,
-				   const double bFieldAtOrigin);
+				   double bFieldAtOrigin);
 
-  const reco::Track* getElectronTrack(const reco::GsfElectron &, const float minFracSharedHits = 0.45);
+  const reco::Track* getElectronTrack(const reco::GsfElectron &, float minFracSharedHits = 0.45);
 
-  const reco::Track* getElectronTrack(const reco::GsfElectronCore &, const float minFracSharedHits = 0.45);
+  const reco::Track* getElectronTrack(const reco::GsfElectronCore &, float minFracSharedHits = 0.45);
 
 
   //takes in a vector of candidate conversion partners
@@ -91,8 +91,8 @@ class ConversionFinder {
   //deprecated soon
   ConversionInfo getConversionInfo(const reco::GsfElectron& gsfElectron,
 				   const edm::Handle<reco::TrackCollection>& track_h,
-				   const double bFieldAtOrigin,
-				   const double minFracSharedHits = 0.45);
+				   double bFieldAtOrigin,
+				   double minFracSharedHits = 0.45);
 
 
   // DEPRECATED

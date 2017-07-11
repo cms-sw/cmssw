@@ -394,7 +394,7 @@ private:
 
     /// insertConditionIntoMap - safe insert of condition into condition map.
     /// if the condition name already exists, do not insert it and return false
-    bool insertConditionIntoMap(L1GtCondition& cond, const int chipNr);
+    bool insertConditionIntoMap(L1GtCondition& cond, int chipNr);
 
     /// insert an algorithm into algorithm map
     bool insertAlgorithmIntoMap(const L1GtAlgorithm& alg);
@@ -424,17 +424,17 @@ private:
     /// parse a muon condition
     bool parseMuon(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0,
-            const bool corrFlag = false);
+            bool corrFlag = false);
 
     /// parse a calorimeter condition
     bool parseCalo(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0,
-            const bool corrFlag = false);
+            bool corrFlag = false);
 
     /// parse an "energy sum" condition
     bool parseEnergySum(XERCES_CPP_NAMESPACE::DOMNode* node,
             const std::string& name, unsigned int chipNr = 0,
-            const bool corrFlag = false);
+            bool corrFlag = false);
 
     /// parse a "jet counts" condition
     bool parseJetCounts(XERCES_CPP_NAMESPACE::DOMNode* node,

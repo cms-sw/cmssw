@@ -40,18 +40,18 @@ public:
 	/* 
 	 * Returns the detected energy from this detector element, including calibration.
 	 */
-	virtual double getRecEnergy(const DetectorElementPtr de) const;
+	virtual double getRecEnergy(DetectorElementPtr de) const;
 
 	virtual double getRecEnergy() const;
 	
-	virtual void setRecEnergy(const DetectorElementPtr de, double energy);
+	virtual void setRecEnergy(DetectorElementPtr de, double energy);
 
 	virtual double getEnergyResolution() const;
 
 	/*
 	 * Returns the raw MC energy input into this detector element.
 	 */
-	virtual double getTruthEnergy(const DetectorElementPtr de) const;
+	virtual double getTruthEnergy(DetectorElementPtr de) const;
 
 	virtual unsigned getId() const {
 		return myId;

@@ -35,17 +35,17 @@ public:
 	 * Initialises the internal map of calibrators and space voxels according to the
 	 * type of calibrator supplied and the specified eta, phi and energy segmentation.
 	 */
-	void createCalibrators(const Calibrator& toClone, const double etaSeg,
-			const double phiSeg, const double energySeg);
+	void createCalibrators(const Calibrator& toClone, double etaSeg,
+			double phiSeg, double energySeg);
 
 	/*
 	 * As above but only for the specified ranges. 
 	 * (Compare with ROOT TH3F histogram constructor!)
 	 */
-	void createCalibrators(const Calibrator& toClone, const unsigned nEta,
-			const double etaMin, const double etaMax, const unsigned nPhi,
-			const double phiMin, const double phiMax, const unsigned nEnergy,
-			const double energyMin, const double energyMax) noexcept(false);
+	void createCalibrators(const Calibrator& toClone, unsigned nEta,
+			double etaMin, double etaMax, unsigned nPhi,
+			double phiMin, double phiMax, unsigned nEnergy,
+			double energyMin, double energyMax) noexcept(false);
 	
 	void createCalibrators(const Calibrator& toClone);
 
@@ -65,8 +65,8 @@ public:
 	 * Returns a pointer to the calibrator you need for the specified space point.
 	 * Returns 0 if it's not found.
 	 */
-	CalibratorPtr findCalibrator(const double eta, const double phi,
-			const double energy = 0) const;
+	CalibratorPtr findCalibrator(double eta, double phi,
+			double energy = 0) const;
 	
 	void assignCalibration(const CalibratorPtr& c, const std::map<DetectorElementPtr, double>& result);
 	

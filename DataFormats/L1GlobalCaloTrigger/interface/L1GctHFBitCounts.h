@@ -30,17 +30,17 @@ class L1GctHFBitCounts {
   /// named ctor for unpacker
   /// note this expects a 32 bit word that also contains the 
   /// HF ring Et sums, which are ignored
-  static L1GctHFBitCounts fromConcHFBitCounts(const uint16_t capBlock,
-					      const uint16_t capIndex,
-					      const int16_t bx,
-					      const uint32_t data);
+  static L1GctHFBitCounts fromConcHFBitCounts(uint16_t capBlock,
+					      uint16_t capIndex,
+					      int16_t bx,
+					      uint32_t data);
   
   /// named ctor for GCT emulator
-  static L1GctHFBitCounts fromGctEmulator(const int16_t bx,
-					  const uint16_t bitCountPosEtaRing1,
-					  const uint16_t bitCountNegEtaRing1,
-					  const uint16_t bitCountPosEtaRing2,
-					  const uint16_t bitCountNegEtaRing2);
+  static L1GctHFBitCounts fromGctEmulator(int16_t bx,
+					  uint16_t bitCountPosEtaRing1,
+					  uint16_t bitCountNegEtaRing1,
+					  uint16_t bitCountPosEtaRing2,
+					  uint16_t bitCountNegEtaRing2);
   
   // optional named ctor for GT if required
   // arguments to be defined
@@ -73,7 +73,7 @@ class L1GctHFBitCounts {
   ///    1   :  Ring 1 Negative Rapidity HF bit count
   ///    2   :  Ring 2 Positive Rapidity HF bit count
   ///    3   :  Ring 2 Negative Rapidity HF bit count
-  uint16_t bitCount(unsigned const i) const;
+  uint16_t bitCount(unsigned i) const;
 
 
   // setters

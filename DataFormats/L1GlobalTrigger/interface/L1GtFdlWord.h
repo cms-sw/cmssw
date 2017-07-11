@@ -82,7 +82,7 @@ public:
 
     /// set the BoardId value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBoardIdWord64(cms_uint64_t& word64, const int iWord);
+    void setBoardIdWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -102,7 +102,7 @@ public:
 
     /// set the BxInEvent value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBxInEventWord64(cms_uint64_t& word64, const int iWord);
+    void setBxInEventWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -122,7 +122,7 @@ public:
 
     /// set the BxNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setBxNrWord64(cms_uint64_t& word64, const int iWord);
+    void setBxNrWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -142,7 +142,7 @@ public:
 
     /// set the EventNr value in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setEventNrWord64(cms_uint64_t& word64, const int iWord);
+    void setEventNrWord64(cms_uint64_t& word64, int iWord);
 
 
     /// get/set technical trigger bits
@@ -163,7 +163,7 @@ public:
 
     /// set the technical trigger bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setGtTechnicalTriggerWordWord64(cms_uint64_t& word64, const int iWord);
+    void setGtTechnicalTriggerWordWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -191,12 +191,12 @@ public:
     /// set the algorithms bits in two 64-bits word, having the first index iWord
     /// in the GTFE raw record
     /// WordA: bits 0-63
-    void setGtDecisionWordAWord64(cms_uint64_t& word64, const int iWord);
+    void setGtDecisionWordAWord64(cms_uint64_t& word64, int iWord);
 
     /// set the algorithms bits in two 64-bits word, having the first index iWord
     /// in the GTFE raw record
     /// WordB: bits 64-128
-    void setGtDecisionWordBWord64(cms_uint64_t& word64, const int iWord);
+    void setGtDecisionWordBWord64(cms_uint64_t& word64, int iWord);
 
 
     /// get/set extended algorithms bits (extended decision word)
@@ -217,7 +217,7 @@ public:
 
     /// set the extended algorithms bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setGtDecisionWordExtendedWord64(cms_uint64_t& word64, const int iWord);
+    void setGtDecisionWordExtendedWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -239,7 +239,7 @@ public:
 
     /// set the "physics declared" bit bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setPhysicsDeclaredWord64(cms_uint64_t& word64, const int iWord);
+    void setPhysicsDeclaredWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -260,7 +260,7 @@ public:
 
     /// set the GtPrescaleFactorIndexTech bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setGtPrescaleFactorIndexTechWord64(cms_uint64_t& word64, const int iWord);
+    void setGtPrescaleFactorIndexTechWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -279,7 +279,7 @@ public:
 
     /// set the GtPrescaleFactorIndexAlgo bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setGtPrescaleFactorIndexAlgoWord64(cms_uint64_t& word64, const int iWord);
+    void setGtPrescaleFactorIndexAlgoWord64(cms_uint64_t& word64, int iWord);
 
 
     /// get/set NoAlgo
@@ -298,7 +298,7 @@ public:
 
     /// set the NoAlgo bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setNoAlgoWord64(cms_uint64_t& word64, const int iWord);
+    void setNoAlgoWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -318,7 +318,7 @@ public:
 
     /// set the "Final OR" bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setFinalORWord64(cms_uint64_t& word64, const int iWord);
+    void setFinalORWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -344,7 +344,7 @@ public:
 
     /// set the orbit number bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setOrbitNrWord64(cms_uint64_t& word64, const int iWord);
+    void setOrbitNrWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -364,7 +364,7 @@ public:
 
     /// set the luminosity segment number bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setLumiSegmentNrWord64(cms_uint64_t& word64, const int iWord);
+    void setLumiSegmentNrWord64(cms_uint64_t& word64, int iWord);
 
 
 
@@ -384,7 +384,7 @@ public:
 
     /// set the local bunch cross number bits in a 64-bits word, having the index iWord
     /// in the GTFE raw record
-    void setLocalBxNrWord64(cms_uint64_t& word64, const int iWord);
+    void setLocalBxNrWord64(cms_uint64_t& word64, int iWord);
 
 
 

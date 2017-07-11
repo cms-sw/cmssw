@@ -214,9 +214,9 @@ public :
   uint16_t getChannelStatus(const DetId& id) const;
   // return low 5 bits of status word
   uint16_t getChannelValue(const DetId& id) const;
-  uint16_t getChannelValue(const int fed, const int ccu, const int strip, const int xtal) const;
+  uint16_t getChannelValue(int fed, int ccu, int strip, int xtal) const;
   // return status of given CCU
-  uint16_t getCCUValue(const int fed, const int ccu) const;
+  uint16_t getCCUValue(int fed, int ccu) const;
   
   
   /**

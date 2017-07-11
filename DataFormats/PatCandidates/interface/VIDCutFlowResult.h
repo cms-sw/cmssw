@@ -50,23 +50,23 @@ namespace vid {
     
     // get the name of a cut in the cutflow
     // indexed by order it was executed
-    const std::string& getNameAtIndex(const unsigned idx) const;
+    const std::string& getNameAtIndex(unsigned idx) const;
     
     // get the individual cut result (pass/fail) either by name or by index
-    bool getCutResultByIndex(const unsigned idx) const;
+    bool getCutResultByIndex(unsigned idx) const;
     bool getCutResultByName(const std::string& name) const;
 
     // return true if the cut as index/name is masked out
-    bool isCutMasked(const unsigned idx) const;
+    bool isCutMasked(unsigned idx) const;
     bool isCutMasked(const std::string& name) const;
 
     // get the value of variable that was cut on, either by name or by index
-    double getValueCutUpon(const unsigned idx) const;
+    double getValueCutUpon(unsigned idx) const;
     double getValueCutUpon(const std::string& name) const;
 
     // create a new copy of this cutflow masking out the listed cuts
     // can be done either by name or by index
-    CutFlowResult getCutFlowResultMasking(const unsigned idx) const;
+    CutFlowResult getCutFlowResultMasking(unsigned idx) const;
     CutFlowResult getCutFlowResultMasking(const std::string& name) const;
     
     CutFlowResult getCutFlowResultMasking(const std::vector<unsigned>& idxs) const;

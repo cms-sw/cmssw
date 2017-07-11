@@ -35,7 +35,7 @@ public:
 
   void build(const GeometricSearchTracker* theTracker,
 	     const MagneticField* field,
-	     const CosmicNavigationSchoolConfiguration conf);
+	     CosmicNavigationSchoolConfiguration conf);
  
 protected:
   CosmicNavigationSchool(){}
@@ -318,7 +318,7 @@ class SkippingLayerCosmicNavigationSchool : public CosmicNavigationSchool {
 public:
   SkippingLayerCosmicNavigationSchool(const GeometricSearchTracker* theTracker,
 				      const MagneticField* field,
-				      const CosmicNavigationSchoolConfiguration conf);
+				      CosmicNavigationSchoolConfiguration conf);
 
   ~SkippingLayerCosmicNavigationSchool(){cleanMemory();};
 };

@@ -13,8 +13,8 @@ public:
   /// Constructor using point, direction and (transverse!) curvature.
   HelixExtrapolatorToLine2Order(const PositionType& point,
 				const DirectionType& direction,
-				const float curvature,
-				const PropagationDirection propDir = alongMomentum);
+				float curvature,
+				PropagationDirection propDir = alongMomentum);
 
   /// Fast constructor (for use by IterativeHelixExtrapolatorToLine).
   HelixExtrapolatorToLine2Order(const double& x0, const double& y0, const double& z0,

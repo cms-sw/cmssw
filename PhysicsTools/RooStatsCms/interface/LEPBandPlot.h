@@ -45,7 +45,7 @@ class LEPBandPlot : public StatisticalPlot {
     /// Constructor
     LEPBandPlot(const char* name,
                 const char* title,
-                const int n_points,
+                int n_points,
                 double* x_vals,
                 double* sb_vals,
                 double* b_vals,
@@ -54,7 +54,7 @@ class LEPBandPlot : public StatisticalPlot {
     /// Constructor
     LEPBandPlot(const char* name,
                 const char* title,
-                const int n_points,
+                int n_points,
                 double* x_vals,
                 double* sb_vals,
                 double* b_vals,

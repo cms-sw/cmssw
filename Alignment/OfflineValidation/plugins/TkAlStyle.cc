@@ -58,8 +58,8 @@ static TString toTString(const Era era) {
 class TkAlStyle {
 public:
   // Adjusts the gStyle settings and store the PublicationStatus
-  static void set(const PublicationStatus status, const Era era = NONE, const TString customTitle = "", const TString customRightTitle = "");
-  static void set(const TString customTitle);
+  static void set(PublicationStatus status, Era era = NONE, TString customTitle = "", TString customRightTitle = "");
+  static void set(TString customTitle);
   static PublicationStatus status() { return publicationStatus_; }
 
   // Draws a title "<CMS label> 2015" on the current pad
@@ -208,17 +208,17 @@ private:
 
   // returns the standard-title (CMS label 2015) depending
   // on the PublicationStatus 
-  static TString header(const PublicationStatus status);
-  static TString rightheader(const Era era);
+  static TString header(PublicationStatus status);
+  static TString rightheader(Era era);
 
   // NDC coordinates for TPave, TLegend,...
-  static void setXCoordinatesL(const double relWidth, double& x0, double& x1);
-  static void setXCoordinatesR(const double relWidth, double& x0, double& x1);
-  static void setYCoordinatesT(const int nEntries, double& y0, double& y1);
-  static void setYCoordinatesB(const int nEntries, double& y0, double& y1);
+  static void setXCoordinatesL(double relWidth, double& x0, double& x1);
+  static void setXCoordinatesR(double relWidth, double& x0, double& x1);
+  static void setYCoordinatesT(int nEntries, double& y0, double& y1);
+  static void setYCoordinatesB(int nEntries, double& y0, double& y1);
 
-  static TLegend* legend(const int nEntries, const double relWidth, const bool left, const bool top);
-  static TPaveText* label(const int nEntries, const double relWidth, const bool leftt, const bool top);
+  static TLegend* legend(int nEntries, double relWidth, bool left, bool top);
+  static TPaveText* label(int nEntries, double relWidth, bool leftt, bool top);
 };
 
 PublicationStatus TkAlStyle::publicationStatus_ = NO_STATUS;

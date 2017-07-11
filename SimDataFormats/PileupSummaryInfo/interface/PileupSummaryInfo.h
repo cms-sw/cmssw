@@ -27,7 +27,7 @@ class PileupSummaryInfo {
 
   PileupSummaryInfo(){};
  
-  PileupSummaryInfo( const int num_PU_vertices,
+  PileupSummaryInfo( int num_PU_vertices,
 		     const std::vector<float>& zpositions,
 		     const std::vector<float>& times, // may be empty
 		     const std::vector<float>& sumpT_lowpT,
@@ -35,7 +35,7 @@ class PileupSummaryInfo {
 		     const std::vector<int>& ntrks_lowpT,
 		     const std::vector<int>& ntrks_highpT );
 
-  PileupSummaryInfo( const int num_PU_vertices,
+  PileupSummaryInfo( int num_PU_vertices,
 		     const std::vector<float>& zpositions,
 		     const std::vector<float>& times, // may be empty
 		     const std::vector<float>& sumpT_lowpT,
@@ -44,7 +44,7 @@ class PileupSummaryInfo {
 		     const std::vector<int>& ntrks_highpT,
 		     int bunchCrossing);
 
-  PileupSummaryInfo( const int num_PU_vertices,
+  PileupSummaryInfo( int num_PU_vertices,
 		     const std::vector<float>& zpositions,
 		     const std::vector<float>& times, // may be empty
 		     const std::vector<float>& sumpT_lowpT,
@@ -57,7 +57,7 @@ class PileupSummaryInfo {
 		     float TrueNumInteractions,
 		     int bunchSpacing);
 
-  PileupSummaryInfo( const int num_PU_vertices,
+  PileupSummaryInfo( int num_PU_vertices,
 		     const std::vector<float>& instLumi,
 		     const std::vector<edm::EventID>& eventInfo );
 

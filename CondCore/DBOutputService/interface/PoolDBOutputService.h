@@ -87,7 +87,7 @@ namespace cond{
       }
             
       void createNewIOV( const std::string& firstPayloadId,
-			 const std::string payloadType, 
+			 std::string payloadType, 
                          cond::Time_t firstSinceTime,
                          cond::Time_t firstTillTime,
                          const std::string& recordName,

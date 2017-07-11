@@ -19,9 +19,9 @@ public:
   ~HelixPropagationTestGenerator() {}
 
   /// Range of charges for helix generation (+/-1)
-  void setRangeCharge(const float, const float);
+  void setRangeCharge(float, float);
   /// Range of azimuthal angles for helix generation
-  void setRangePt(const float, const float);
+  void setRangePt(float, float);
   /// Generates a new helix.
   virtual void generateStartValues ();
   /// Returns position of center (z acc. to starting point).
@@ -41,7 +41,7 @@ private:
    *  pathlength = argument. 
    *  Return value = step size.
    */
-  virtual ExtendedDouble bidirectionalStep (const ExtendedDouble);
+  virtual ExtendedDouble bidirectionalStep (ExtendedDouble);
 
 private:
   float qMin;

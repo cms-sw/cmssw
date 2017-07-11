@@ -110,7 +110,7 @@ private:
   bool propagateWithLineCrossing(const GlobalPoint&, const GlobalVector&, 
 				 const Cylinder&, GlobalPoint&, double&) const dso_internal;
   /// helix parameter propagation to a plane using HelixPlaneCrossing
-  bool propagateWithHelixCrossing(HelixPlaneCrossing&, const Plane&, const float,
+  bool propagateWithHelixCrossing(HelixPlaneCrossing&, const Plane&, float,
 				  GlobalPoint&, GlobalVector&, double& s) const dso_internal;
 
   virtual const MagneticField* magneticField() const override {return theField;}

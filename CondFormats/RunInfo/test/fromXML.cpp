@@ -77,7 +77,7 @@ public:
   Simple() : my_i(42), my_f(42.) { /* nop */ }
 
   // COND_SERIALIZABLE;
-  template <class Archive> void serialize(Archive & ar, const unsigned int version);
+  template <class Archive> void serialize(Archive & ar, unsigned int version);
 
 private:
   int my_i;

@@ -46,7 +46,7 @@ public:
   }
 
   /// Access the look-up table contents for a given Address
-  uint16_t lutValue (const uint16_t lutAddress) const;
+  uint16_t lutValue (uint16_t lutAddress) const;
 
   /// Access the look-up table contents for a given Address
   uint16_t operator[] (const uint16_t lutAddress) const { return lutValue(lutAddress); } 
@@ -69,7 +69,7 @@ protected:
   
   L1GctLut();
 
-  virtual uint16_t value (const uint16_t lutAddress) const=0;
+  virtual uint16_t value (uint16_t lutAddress) const=0;
 
   template <int KAddressBits, int KDataBits>
   bool equalityCheck(const L1GctLut<KAddressBits, KDataBits>& c) const;
@@ -82,7 +82,7 @@ private:
   // For use by the friend function to print the lut contents
   static const int printWidth;
   std::string printHeader() const;
-  std::string printLine(const int add) const;
+  std::string printLine(int add) const;
 
 };
 

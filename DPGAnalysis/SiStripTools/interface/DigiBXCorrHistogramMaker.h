@@ -23,13 +23,13 @@ template <class T>
 class DigiBXCorrHistogramMaker {
 
  public:
-  DigiBXCorrHistogramMaker(edm::ConsumesCollector&& iC, const int ncorbins=1000);
+  DigiBXCorrHistogramMaker(edm::ConsumesCollector&& iC, int ncorbins=1000);
   DigiBXCorrHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
 
   ~DigiBXCorrHistogramMaker() { };
 
   void book(const char* dirname, const std::map<int,std::string>& labels);
-  void beginRun(const unsigned int nrun);
+  void beginRun(unsigned int nrun);
   void fill(const T& he, const std::map<int,int>& ndigi, const edm::Handle<APVCyclePhaseCollection>& phase);
   void fillcorr(const T& he1, const T& he2, const std::map<int,int>& ndigi);
 
