@@ -130,12 +130,11 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   Measurement1D getMAD(TH1F *histo);
   std::pair<Measurement1D, Measurement1D > fitResiduals(TH1 *hist);
 
-  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], statmode::estimator fitPar_,const std::string& var_);
-  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, statmode::estimator fitPar_); 
+  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], pvparams::estimator fitPar_, const std::string& var_);
+  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, pvparams::estimator fitPar_); 
 
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
   bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
-
 
   std::vector<TH1F*> bookResidualsHistogram(const TFileDirectory& dir,unsigned int theNOfBins,std::string resType,const std::string& varType); 
   std::map<std::string, TH1*> bookVertexHistograms(const TFileDirectory& dir);
@@ -315,7 +314,6 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   
   // absolute residuals
 
-  //TH1F* a_dxyPhiResiduals[nMaxBins_];
   std::vector<TH1F*> a_dxyPhiResiduals;
   std::vector<TH1F*> a_dxyEtaResiduals;
 
@@ -464,7 +462,8 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH2F* n_dxyWidthMap;
   TH2F* n_dzWidthMap;
 
-  // ---- directly histograms =================> biased residuals
+  // ---- directly histograms 
+  // biased residuals
   
   // absolute residuals
 
@@ -490,7 +489,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* n_dxyBiasResidualsMap[nMaxBins_][nMaxBins_];  				 
   TH1F* n_dzBiasResidualsMap[nMaxBins_][nMaxBins_];
 
-  // ---- trends as function of phi
+  // ---- trends as function of phi / eta
   
   TH1F* a_dxyPhiMeanBiasTrend;
   TH1F* a_dxyPhiWidthBiasTrend;

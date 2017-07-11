@@ -1640,28 +1640,28 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory BiasVsParameter = fs->mkdir("BiasVsParameter");
 
   a_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_dxy_vs_phi","d_{xy} vs track #phi;track #phi [rad];track d_{xy}(PV) [#mum]",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dxymax_phi,dxymax_phi); 
+					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dxymax_phi,dxymax_phi); 
  
   a_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_dz_vs_phi","d_{z} vs track #phi;track #phi [rad];track d_{z}(PV) [#mum]",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dzmax_phi,dzmax_phi);   
+					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dzmax_phi,dzmax_phi);   
                
   n_dxyVsPhi = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_phi","d_{xy}/#sigma_{d_{xy}} vs track #phi;track #phi [rad];track d_{xy}(PV)/#sigma_{d_{xy}}",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dxymax_phi/100.,dxymax_phi/100.); 
+					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.); 
   
   n_dzVsPhi  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_phi","d_{z}/#sigma_{d_{z}} vs track #phi;track #phi [rad];track d_{z}(PV)/#sigma_{d_{z}}",
-					  48,-TMath::Pi(),TMath::Pi(),mybins_,-dzmax_phi/100.,dzmax_phi/100.);   
+					  nBins_,-TMath::Pi(),TMath::Pi(),theDetails_.histobins,-dzmax_phi/100.,dzmax_phi/100.);   
                
   a_dxyVsEta = BiasVsParameter.make<TH2F>("h2_dxy_vs_eta","d_{xy} vs track #eta;track #eta;track d_{xy}(PV) [#mum]",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dxymax_eta,dzmax_eta);
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dxymax_eta,dzmax_eta);
   
   a_dzVsEta  = BiasVsParameter.make<TH2F>("h2_dz_vs_eta","d_{z} vs track #eta;track #eta;track d_{z}(PV) [#mum]",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dzmax_eta,dzmax_eta);   
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dzmax_eta,dzmax_eta);   
                
   n_dxyVsEta = BiasVsParameter.make<TH2F>("h2_n_dxy_vs_eta","d_{xy}/#sigma_{d_{xy}} vs track #eta;track #eta;track d_{xy}(PV)/#sigma_{d_{xy}}",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dxymax_eta/100.,dxymax_eta/100.);  
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dxymax_eta/100.,dxymax_eta/100.);  
 
   n_dzVsEta  = BiasVsParameter.make<TH2F>("h2_n_dz_vs_eta","d_{z}/#sigma_{d_{z}} vs track #eta;track #eta;track d_{z}(PV)/#sigma_{d_{z}}",
-					  48,-etaOfProbe_,etaOfProbe_,mybins_,-dzmax_eta/100.,dzmax_eta/100.);   
+					  nBins_,-etaOfProbe_,etaOfProbe_,theDetails_.histobins,-dzmax_eta/100.,dzmax_eta/100.);   
 
   MeanTrendsDir   = fs->mkdir("MeanTrends");
   WidthTrendsDir  = fs->mkdir("WidthTrends");
@@ -2591,7 +2591,6 @@ std::pair<Measurement1D, Measurement1D> PrimaryVertexValidation::fitResiduals(TH
 }
 
 //*************************************************************
-
 void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], statmode::estimator fitPar_,const std::string& var_)
 //*************************************************************
 {
@@ -3054,7 +3053,7 @@ void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h,const std::str
 void PrimaryVertexValidation::fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x,std::string tag)
 //*************************************************************
 {
-  //assert(!h.empty());
+  assert(!h.empty());
   if(index <= h.size()){
     h[index]->Fill(x);
   } else {
