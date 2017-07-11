@@ -48,7 +48,7 @@ process.raw2digi_step = cms.Path(process.RawToDigi)
 process.L1Reco_step = cms.Path(process.L1Reco)
 process.reconstruction_step = cms.Path(process.reconstruction)
 
-process.load('ClusterShapeExtractor_cfi')
+process.load('RecoPixelVertexing.PixelLowPtUtilities.ClusterShapeExtractor_cfi')
 process.clusterShapeExtractor_step = cms.Path(process.clusterShapeExtractor)
 process.schedule = cms.Schedule(process.raw2digi_step,process.L1Reco_step,process.reconstruction_step,process.clusterShapeExtractor_step)
 
