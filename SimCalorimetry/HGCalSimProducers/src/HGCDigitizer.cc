@@ -36,6 +36,20 @@ namespace {
     return geom->getGeometry(id)->getPosition().mag();
   }
 
+  int getCellThickness(const HGCalGeometry* geom, const DetId& detid ) {
+    const auto& topo     = geom->topology();
+    const auto& dddConst = topo.dddConstants();
+    uint32_t id(detid.rawId());
+    HGCalDetId hid(id);
+    int wafer = HGCalDetId(id).wafer();
+    int waferTypeL = dddConst.waferTypeL(wafer);
+    return waferTypeL;
+  }
+
+  int getCellThickness(const HcalGeometry* geom, const DetId& detid ) {
+    return 1;
+  }
+
   void getValidDetIds(const HGCalGeometry* geom, std::unordered_set<DetId>& valid) {
     const std::vector<DetId>& ids = geom->getValidDetIds();
     valid.reserve(ids.size());
@@ -296,21 +310,22 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
   
   //configuration to apply for the computation of time-of-flight
   bool weightToAbyEnergy(false);
-  float tdcOnset(0.f),keV2fC(0.f);
+  std::array<float, 3> tdcForToaOnset{ {0.f, 0.f, 0.f} };
+  float keV2fC(0.f);
   switch( mySubDet_ ) {
   case ForwardSubdetector::HGCEE:
     weightToAbyEnergy = theHGCEEDigitizer_->toaModeByEnergy();
-    tdcOnset          = theHGCEEDigitizer_->tdcOnset();
+    tdcForToaOnset    = theHGCEEDigitizer_->tdcForToaOnset();
     keV2fC            = theHGCEEDigitizer_->keV2fC();
     break;
   case ForwardSubdetector::HGCHEF:
     weightToAbyEnergy = theHGCHEfrontDigitizer_->toaModeByEnergy();
-    tdcOnset          = theHGCHEfrontDigitizer_->tdcOnset();
+    tdcForToaOnset    = theHGCHEfrontDigitizer_->tdcForToaOnset();
     keV2fC            = theHGCHEfrontDigitizer_->keV2fC();
     break;
   case ForwardSubdetector::HGCHEB:
     weightToAbyEnergy = theHGCHEbackDigitizer_->toaModeByEnergy();
-    tdcOnset          = theHGCHEbackDigitizer_->tdcOnset();
+    tdcForToaOnset    = theHGCHEbackDigitizer_->tdcForToaOnset();
     keV2fC            = theHGCHEbackDigitizer_->keV2fC();     
     break;
   default:
@@ -376,10 +391,15 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     (simHitIt->second).hit_info[0][itime] += charge;
     float accCharge=(simHitIt->second).hit_info[0][itime];
       
+
+    int waferThickness = getCellThickness(geom,id);
+
     //time-of-arrival (check how to be used)
     if(weightToAbyEnergy) (simHitIt->second).hit_info[1][itime] += charge*tof;
     else if((simHitIt->second).hit_info[1][itime]==0) {	
-      if( accCharge>tdcOnset)
+      //here for constant-fraction discrimination
+      //update in case of change towards constant-threshold discrimination
+      if( accCharge>tdcForToaOnset[waferThickness-1])
 	{
 	  //extrapolate linear using previous simhit if it concerns to the same DetId
 	  float fireTDC=tof;
@@ -391,7 +411,7 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
 		  float prev_toa    = std::get<2>(hitRefs[i-1]);
 		  float prev_tof(prev_toa-dist2center/refSpeed_+tofDelay_);
 		  //float prev_charge = std::get<3>(hitRefs[i-1]);
-		  float deltaQ2TDCOnset = tdcOnset-((simHitIt->second).hit_info[0][itime]-charge);
+		  float deltaQ2TDCOnset = tdcForToaOnset[waferThickness-1]-((simHitIt->second).hit_info[0][itime]-charge);
 		  float deltaQ          = charge;
 		  float deltaT          = (tof-prev_tof);
 		  fireTDC               = deltaT*(deltaQ2TDCOnset/deltaQ)+prev_tof;
