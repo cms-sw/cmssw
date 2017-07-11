@@ -573,14 +573,18 @@ class TrackingParticleMatchInfo(_Object):
         self._tpindex = tpindex
 
     def __getattr__(self, attr):
-        """Custom __getattr__ because of the second index needed to access the branch."""
-        val = super(TrackingParticleMatchInfo, self).__getattr__(attr)()[self._tpindex]
+        """Custom __getattr__ because of the second index needed to access the branch.
+
+        Note that when mapping the 'attr' to a branch, a 'simTrk' is
+        prepended and the first letter of 'attr' is turned to upper
+        case.
+        """
+        val = super(TrackingParticleMatchInfo, self).__getattr__("simTrk"+attr[0].upper()+attr[1:])()[self._tpindex]
         return lambda: val
 
     def trackingParticle(self):
         """Returns matched TrackingParticle."""
-        self._checkIsValid()
-        return TrackingParticle(self._tree, getattr(self._tree, self._prefix+"_simTrkIdx")[self._index][self._tpindex])
+        return TrackingParticle(self._tree, self.idx())
 
 class TrackMatchInfo(_Object):
     """Class representing a match to a Track.
@@ -600,10 +604,19 @@ class TrackMatchInfo(_Object):
         super(TrackMatchInfo, self).__init__(tree, index, prefix)
         self._trkindex = trkindex
 
+    def __getattr__(self, attr):
+        """Custom __getattr__ because of the second index needed to access the branch.
+
+        Note that when mapping the 'attr' to a branch, a 'trk' is
+        prepended and the first letter of 'attr' is turned to upper
+        case.
+        """
+        val = super(TrackMatchInfo, self).__getattr__("trk"+attr[0].upper()+attr[1:])()[self._trkindex]
+        return lambda: val
+
     def track(self):
         """Returns matched Track."""
-        self._checkIsValid()
-        return Track(self._tree, getattr(self._tree, self._prefix+"_trkIdx")[self._index][self._trkindex])
+        return Track(self._tree, self.idx())
 
 class SeedMatchInfo(_Object):
     """Class representing a match to a Seed.
