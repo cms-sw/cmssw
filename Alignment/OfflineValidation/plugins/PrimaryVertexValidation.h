@@ -102,7 +102,7 @@ namespace pvparams{
 
   struct histodetails
   {
-    std::map<std::pair<residualType,plotVariable>,float> range;
+    std::map<std::pair<residualType,plotVariable>,std::pair<float,float>> range;
     int histobins;
   };
 
@@ -142,9 +142,11 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
   void add(std::map<std::string, TH1*>& h, TH1* hist);
+
   void fill(std::map<std::string, TH1*>& h,const std::string& s, double x);
   void fill(std::map<std::string, TH1*>& h,const std::string& s, double x, double y);
-  void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x); 
+  void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x,std::string tag=""); 
+
   void shrinkHistVectorToFit(std::vector<TH1F*>&h,unsigned int desired_size);
   std::tuple<std::string,std::string,std::string> getTypeString (pvparams::residualType type);
   std::tuple<std::string,std::string,std::string> getVarString (pvparams::plotVariable var);
@@ -313,49 +315,50 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   
   // absolute residuals
 
-  TH1F* a_dxyPhiResiduals[nMaxBins_];
-  TH1F* a_dxyEtaResiduals[nMaxBins_];
+  //TH1F* a_dxyPhiResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dxyPhiResiduals;
+  std::vector<TH1F*> a_dxyEtaResiduals;
 
-  TH1F* a_dxPhiResiduals[nMaxBins_];
-  TH1F* a_dxEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dxPhiResiduals;
+  std::vector<TH1F*> a_dxEtaResiduals;
 
-  TH1F* a_dyPhiResiduals[nMaxBins_];
-  TH1F* a_dyEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dyPhiResiduals;
+  std::vector<TH1F*> a_dyEtaResiduals;
 
-  TH1F* a_dzPhiResiduals[nMaxBins_];
-  TH1F* a_dzEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dzPhiResiduals;
+  std::vector<TH1F*> a_dzEtaResiduals;
   
-  TH1F* a_IP2DPhiResiduals[nMaxBins_];
-  TH1F* a_IP2DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_IP2DPhiResiduals;
+  std::vector<TH1F*> a_IP2DEtaResiduals;
   
-  TH1F* a_IP3DPhiResiduals[nMaxBins_];
-  TH1F* a_IP3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_IP3DPhiResiduals;
+  std::vector<TH1F*> a_IP3DEtaResiduals;
 
-  TH1F* a_reszPhiResiduals[nMaxBins_];
-  TH1F* a_reszEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_reszPhiResiduals;
+  std::vector<TH1F*> a_reszEtaResiduals;
 
-  TH1F* a_d3DPhiResiduals[nMaxBins_];
-  TH1F* a_d3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> a_d3DPhiResiduals;
+  std::vector<TH1F*> a_d3DEtaResiduals;
 
   // normalized residuals
 
-  TH1F* n_dxyPhiResiduals[nMaxBins_];
-  TH1F* n_dxyEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dxyPhiResiduals;
+  std::vector<TH1F*> n_dxyEtaResiduals;
   
-  TH1F* n_dzPhiResiduals[nMaxBins_];
-  TH1F* n_dzEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dzPhiResiduals;
+  std::vector<TH1F*> n_dzEtaResiduals;
   
-  TH1F* n_IP2DPhiResiduals[nMaxBins_];
-  TH1F* n_IP2DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_IP2DPhiResiduals;
+  std::vector<TH1F*> n_IP2DEtaResiduals;
   
-  TH1F* n_IP3DPhiResiduals[nMaxBins_];
-  TH1F* n_IP3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_IP3DPhiResiduals;
+  std::vector<TH1F*> n_IP3DEtaResiduals;
 
-  TH1F* n_reszPhiResiduals[nMaxBins_];
-  TH1F* n_reszEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_reszPhiResiduals;
+  std::vector<TH1F*> n_reszEtaResiduals;
 
-  TH1F* n_d3DPhiResiduals[nMaxBins_];
-  TH1F* n_d3DEtaResiduals[nMaxBins_];
+  std::vector<TH1F*> n_d3DPhiResiduals;
+  std::vector<TH1F*> n_d3DEtaResiduals;
 
   // for the maps
 

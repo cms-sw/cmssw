@@ -121,16 +121,23 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   }
 
   theDetails_.histobins = 500;
-  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::phi)]       = 2000.; 
-  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::eta)]       = 3000.;
-  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::pT)]        = 1000.;
-  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::pTCentral)] = 1000.;
-  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::ladder)]    = 1000.;
-  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::modZ)]      = 1000.;
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::phi)]       = std::make_pair(-2000.,2000.); 
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::eta)]       = std::make_pair(-3000.,3000.);
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::pT)]        = std::make_pair(-1000.,1000.);
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::pTCentral)] = std::make_pair(-1000.,1000.);
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::ladder)]    = std::make_pair(-1000.,1000.);
+  theDetails_.range[std::make_pair(pvparams::dxy,pvparams::modZ)]      = std::make_pair(-1000.,1000.);
 
-  for (int plot_index = pvparams::phi; plot_index < pvparams::END_OF_PLOTS; plot_index++ ){
-    for (int res_index = pvparams::dx; res_index < pvparams::END_OF_TYPES; res_index++ ){
-      theDetails_.range[std::make_pair(static_cast<pvparams::residualType>(res_index),static_cast<pvparams::plotVariable>(plot_index))] = theDetails_.range[std::make_pair(pvparams::dxy,static_cast<pvparams::plotVariable>(plot_index))];
+  for (int i = pvparams::phi; i < pvparams::END_OF_PLOTS; i++ ){
+    for (int j = pvparams::dx; j < pvparams::END_OF_TYPES; j++ ){
+
+      auto res_index  = static_cast<pvparams::residualType>(i);
+      auto plot_index = static_cast<pvparams::plotVariable>(j);
+
+      if(res_index!=pvparams::d3D)
+	theDetails_.range[std::make_pair(res_index,plot_index)] = theDetails_.range[std::make_pair(pvparams::dxy,plot_index)];
+      else
+	theDetails_.range[std::make_pair(res_index,plot_index)] = std::make_pair(0.,theDetails_.range[std::make_pair(pvparams::dxy,plot_index)].second);
     }
   }
 
@@ -299,7 +306,9 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::sort( vsorted.begin(), vsorted.end(), PrimaryVertexValidation::vtxSort );
   
   // skip events with no PV, this should not happen
+
   if( vsorted.empty()) return;
+
   // skip events failing vertex cut
   if( std::abs(vsorted[0].z()) > vertexZMax_ ) return; 
   
@@ -929,38 +938,39 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		  if(tracketa >= etaF && tracketa < etaL ){
 
-		    a_dxyEtaResiduals[i]->Fill(dxyFromMyVertex*cmToum);
-		    a_dxEtaResiduals[i]->Fill(my_dx*cmToum);
-		    a_dyEtaResiduals[i]->Fill(my_dy*cmToum);
-		    a_dzEtaResiduals[i]->Fill(dzFromMyVertex*cmToum);   
-		    n_dxyEtaResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
-		    n_dzEtaResiduals[i]->Fill(dzFromMyVertex/dz_err);	    
-		    a_IP2DEtaResiduals[i]->Fill(s_ip2dpv_corr*cmToum);
-		    n_IP2DEtaResiduals[i]->Fill(s_ip2dpv_corr/s_ip2dpv_err);
-		    a_reszEtaResiduals[i]->Fill(restrkz*cmToum);
-		    n_reszEtaResiduals[i]->Fill(pulltrkz);
-		    a_d3DEtaResiduals[i]->Fill(ip3d_corr*cmToum);   
-		    n_d3DEtaResiduals[i]->Fill(ip3d_corr/ip3d_err);
-		    a_IP3DEtaResiduals[i]->Fill(s_ip3dpv_corr*cmToum);
-		    n_IP3DEtaResiduals[i]->Fill(s_ip3dpv_corr/s_ip3dpv_err);
+		    fillByIndex(a_dxyEtaResiduals,i,dxyFromMyVertex*cmToum,"1");
+		    fillByIndex(a_dxEtaResiduals,i,my_dx*cmToum,"2");
+		    fillByIndex(a_dyEtaResiduals,i,my_dy*cmToum,"3");
+		    fillByIndex(a_dzEtaResiduals,i,dzFromMyVertex*cmToum,"4");   
+		    fillByIndex(n_dxyEtaResiduals,i,dxyFromMyVertex/s_ip2dpv_err,"5");
+		    fillByIndex(n_dzEtaResiduals,i,dzFromMyVertex/dz_err,"6");	    
+		    fillByIndex(a_IP2DEtaResiduals,i,s_ip2dpv_corr*cmToum,"7");
+		    fillByIndex(n_IP2DEtaResiduals,i,s_ip2dpv_corr/s_ip2dpv_err,"8");
+		    fillByIndex(a_reszEtaResiduals,i,restrkz*cmToum,"9");
+		    fillByIndex(n_reszEtaResiduals,i,pulltrkz,"10");
+		    fillByIndex(a_d3DEtaResiduals,i,ip3d_corr*cmToum,"11");   
+		    fillByIndex(n_d3DEtaResiduals,i,ip3d_corr/ip3d_err,"12");
+		    fillByIndex(a_IP3DEtaResiduals,i,s_ip3dpv_corr*cmToum,"13");
+		    fillByIndex(n_IP3DEtaResiduals,i,s_ip3dpv_corr/s_ip3dpv_err,"14");
 
 		  }
 		  	  
 		  if(trackphi >= phiF && trackphi < phiL ){
-		    a_dxyPhiResiduals[i]->Fill(dxyFromMyVertex*cmToum);
-		    a_dxPhiResiduals[i]->Fill(my_dx*cmToum);
-		    a_dyPhiResiduals[i]->Fill(my_dy*cmToum);
-		    a_dzPhiResiduals[i]->Fill(dzFromMyVertex*cmToum); 
-		    n_dxyPhiResiduals[i]->Fill(dxyFromMyVertex/s_ip2dpv_err);
-		    n_dzPhiResiduals[i]->Fill(dzFromMyVertex/dz_err); 
-		    a_IP2DPhiResiduals[i]->Fill(s_ip2dpv_corr*cmToum);
-		    n_IP2DPhiResiduals[i]->Fill(s_ip2dpv_corr/s_ip2dpv_err); 
-		    a_reszPhiResiduals[i]->Fill(restrkz*cmToum);
-		    n_reszPhiResiduals[i]->Fill(pulltrkz);
-		    a_d3DPhiResiduals[i]->Fill(ip3d_corr*cmToum);   
-		    n_d3DPhiResiduals[i]->Fill(ip3d_corr/ip3d_err);
-		    a_IP3DPhiResiduals[i]->Fill(s_ip3dpv_corr*cmToum);
-		    n_IP3DPhiResiduals[i]->Fill(s_ip3dpv_corr/s_ip3dpv_err);
+
+		    fillByIndex(a_dxyPhiResiduals,i,dxyFromMyVertex*cmToum,"15");
+		    fillByIndex(a_dxPhiResiduals,i,my_dx*cmToum,"16");
+		    fillByIndex(a_dyPhiResiduals,i,my_dy*cmToum,"17");
+		    fillByIndex(a_dzPhiResiduals,i,dzFromMyVertex*cmToum,"18"); 
+		    fillByIndex(n_dxyPhiResiduals,i,dxyFromMyVertex/s_ip2dpv_err,"19");
+		    fillByIndex(n_dzPhiResiduals,i,dzFromMyVertex/dz_err,"20"); 
+		    fillByIndex(a_IP2DPhiResiduals,i,s_ip2dpv_corr*cmToum,"21");
+		    fillByIndex(n_IP2DPhiResiduals,i,s_ip2dpv_corr/s_ip2dpv_err,"22"); 
+		    fillByIndex(a_reszPhiResiduals,i,restrkz*cmToum,"23");
+		    fillByIndex(n_reszPhiResiduals,i,pulltrkz,"24");
+		    fillByIndex(a_d3DPhiResiduals,i,ip3d_corr*cmToum,"25");   
+		    fillByIndex(n_d3DPhiResiduals,i,ip3d_corr/ip3d_err,"26");
+		    fillByIndex(a_IP3DPhiResiduals,i,s_ip3dpv_corr*cmToum,"27");
+		    fillByIndex(n_IP3DPhiResiduals,i,s_ip3dpv_corr/s_ip3dpv_err,"28");
 
 		    for(int j=0; j<nBins_; j++){
 
@@ -1318,22 +1328,56 @@ void PrimaryVertexValidation::beginJob()
   ///////////////////////////////////////////////////////////////////
 
   TFileDirectory AbsTransPhiRes  = fs->mkdir("Abs_Transv_Phi_Residuals");
+  a_dxyPhiResiduals  = bookResidualsHistogram(AbsTransPhiRes,nBins_,pvparams::dxy,pvparams::phi);
+  a_dxPhiResiduals   = bookResidualsHistogram(AbsTransPhiRes,nBins_,pvparams::dx,pvparams::phi);
+  a_dyPhiResiduals   = bookResidualsHistogram(AbsTransPhiRes,nBins_,pvparams::dy,pvparams::phi);  
+  a_IP2DPhiResiduals = bookResidualsHistogram(AbsTransPhiRes,nBins_,pvparams::IP2D,pvparams::phi);
+
   TFileDirectory AbsTransEtaRes  = fs->mkdir("Abs_Transv_Eta_Residuals");
+  a_dxyEtaResiduals  = bookResidualsHistogram(AbsTransEtaRes,nBins_,pvparams::dxy,pvparams::eta);
+  a_dxEtaResiduals   = bookResidualsHistogram(AbsTransEtaRes,nBins_,pvparams::dx,pvparams::eta);
+  a_dyEtaResiduals   = bookResidualsHistogram(AbsTransEtaRes,nBins_,pvparams::dy,pvparams::eta);
+  a_IP2DEtaResiduals = bookResidualsHistogram(AbsTransEtaRes,nBins_,pvparams::IP2D,pvparams::eta);
 		 					  
   TFileDirectory AbsLongPhiRes   = fs->mkdir("Abs_Long_Phi_Residuals");
+  a_dzPhiResiduals   = bookResidualsHistogram(AbsLongPhiRes,nBins_,pvparams::dz,pvparams::phi);
+  a_reszPhiResiduals = bookResidualsHistogram(AbsLongPhiRes,nBins_,pvparams::resz,pvparams::phi);
+
   TFileDirectory AbsLongEtaRes   = fs->mkdir("Abs_Long_Eta_Residuals");
+  a_dzEtaResiduals   = bookResidualsHistogram(AbsLongEtaRes,nBins_,pvparams::dz,pvparams::eta);
+  a_reszEtaResiduals = bookResidualsHistogram(AbsLongEtaRes,nBins_,pvparams::resz,pvparams::eta);
 		 		  
   TFileDirectory Abs3DPhiRes     = fs->mkdir("Abs_3D_Phi_Residuals");
+  a_d3DPhiResiduals  = bookResidualsHistogram(Abs3DPhiRes,nBins_,pvparams::d3D,pvparams::phi);
+  a_IP3DPhiResiduals = bookResidualsHistogram(Abs3DPhiRes,nBins_,pvparams::IP3D,pvparams::phi);
+
   TFileDirectory Abs3DEtaRes     = fs->mkdir("Abs_3D_Eta_Residuals");
+  a_d3DEtaResiduals  = bookResidualsHistogram(Abs3DEtaRes ,nBins_,pvparams::d3D,pvparams::eta);
+  a_IP3DEtaResiduals = bookResidualsHistogram(Abs3DEtaRes ,nBins_,pvparams::IP3D,pvparams::eta);
 
   TFileDirectory NormTransPhiRes = fs->mkdir("Norm_Transv_Phi_Residuals");
+  n_dxyPhiResiduals  = bookResidualsHistogram(NormTransPhiRes,nBins_,pvparams::norm_dxy,pvparams::phi,true);
+  n_IP2DPhiResiduals = bookResidualsHistogram(NormTransPhiRes,nBins_,pvparams::norm_IP2D,pvparams::phi,true);
+
   TFileDirectory NormTransEtaRes = fs->mkdir("Norm_Transv_Eta_Residuals");
+  n_dxyEtaResiduals  = bookResidualsHistogram(NormTransEtaRes,nBins_,pvparams::norm_dxy,pvparams::eta,true);
+  n_IP2DEtaResiduals = bookResidualsHistogram(NormTransEtaRes,nBins_,pvparams::norm_IP2D,pvparams::eta,true);
 		 					  
   TFileDirectory NormLongPhiRes  = fs->mkdir("Norm_Long_Phi_Residuals");
+  n_dzPhiResiduals   = bookResidualsHistogram(NormLongPhiRes,nBins_,pvparams::norm_dz,pvparams::phi,true);
+  n_reszPhiResiduals = bookResidualsHistogram(NormLongPhiRes,nBins_,pvparams::norm_resz,pvparams::phi,true);
+
   TFileDirectory NormLongEtaRes  = fs->mkdir("Norm_Long_Eta_Residuals");
+  n_dzEtaResiduals   = bookResidualsHistogram(NormLongEtaRes,nBins_,pvparams::norm_dz,pvparams::eta,true);
+  n_reszEtaResiduals = bookResidualsHistogram(NormLongEtaRes,nBins_,pvparams::norm_resz,pvparams::eta,true);
 
   TFileDirectory Norm3DPhiRes    = fs->mkdir("Norm_3D_Phi_Residuals");
+  n_d3DPhiResiduals  = bookResidualsHistogram(Norm3DPhiRes,nBins_,pvparams::norm_d3D,pvparams::phi,true);
+  n_IP3DPhiResiduals = bookResidualsHistogram(Norm3DPhiRes,nBins_,pvparams::norm_IP3D,pvparams::phi,true);
+  
   TFileDirectory Norm3DEtaRes    = fs->mkdir("Norm_3D_Eta_Residuals");
+  n_d3DEtaResiduals  = bookResidualsHistogram(Norm3DEtaRes,nBins_,pvparams::norm_d3D,pvparams::eta,true);
+  n_IP3DEtaResiduals = bookResidualsHistogram(Norm3DEtaRes,nBins_,pvparams::norm_IP3D,pvparams::eta,true);
 
   TFileDirectory AbsDoubleDiffRes   = fs->mkdir("Abs_DoubleDiffResiduals");
   TFileDirectory NormDoubleDiffRes  = fs->mkdir("Norm_DoubleDiffResiduals");
@@ -1411,152 +1455,151 @@ void PrimaryVertexValidation::beginJob()
     
     // dxy vs phi and eta
      
-    a_dxyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dxy_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy} [#mum];tracks",phiF,phiL),
-						     mybins_,-dxymax_phi,dxymax_phi);
+    //a_dxyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dxy_phi_plot%i",i),
+    //						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy} [#mum];tracks",phiF,phiL),
+    //						     mybins_,-dxymax_phi,dxymax_phi);
     
-    a_dxyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dxy_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy} [#mum];tracks",etaF,etaL),
-						     mybins_,-dxymax_eta,dxymax_eta);
+    // a_dxyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dxy_eta_plot%i",i),
+    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy} [#mum];tracks",etaF,etaL),
+    // 						     mybins_,-dxymax_eta,dxymax_eta);
 
-
-    // dx vs phi and eta
+    // // dx vs phi and eta
      
-    a_dxPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dx_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{x} [#mum];tracks",phiF,phiL),
-						    mybins_,-dxymax_phi,dxymax_phi);
+    // a_dxPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dx_phi_plot%i",i),
+    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{x} [#mum];tracks",phiF,phiL),
+    // 						    mybins_,-dxymax_phi,dxymax_phi);
     
-    a_dxEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dx_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{x} [#mum];tracks",etaF,etaL),
-						    mybins_,-dxymax_eta,dxymax_eta);
+    // a_dxEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dx_eta_plot%i",i),
+    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{x} [#mum];tracks",etaF,etaL),
+    // 						    mybins_,-dxymax_eta,dxymax_eta);
 
 
-    // dy vs phi and eta
+    // // dy vs phi and eta
      
-    a_dyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dy_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{y} [#mum];tracks",phiF,phiL),
-						    mybins_,-dxymax_phi,dxymax_phi);
+    // a_dyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dy_phi_plot%i",i),
+    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{y} [#mum];tracks",phiF,phiL),
+    // 						    mybins_,-dxymax_phi,dxymax_phi);
     
-    a_dyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dy_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{y} [#mum];tracks",etaF,etaL),
-						    mybins_,-dxymax_eta,dxymax_eta);
+    // a_dyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dy_eta_plot%i",i),
+    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{y} [#mum];tracks",etaF,etaL),
+    // 						    mybins_,-dxymax_eta,dxymax_eta);
     
-    // IP2D vs phi and eta
+    // // IP2D vs phi and eta
 
-    a_IP2DPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_IP2D_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D} [#mum];tracks",phiF,phiL),
-						     mybins_,-dxymax_phi,dxymax_phi);
+    // a_IP2DPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_IP2D_phi_plot%i",i),
+    // 						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D} [#mum];tracks",phiF,phiL),
+    // 						     mybins_,-dxymax_phi,dxymax_phi);
     
-    a_IP2DEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_IP2D_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D} [#mum];tracks",etaF,etaL),
-						     mybins_,-dxymax_eta,dxymax_eta);
+    // a_IP2DEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_IP2D_eta_plot%i",i),
+    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D} [#mum];tracks",etaF,etaL),
+    // 						     mybins_,-dxymax_eta,dxymax_eta);
 
-    // IP3D vs phi and eta
+    // // IP3D vs phi and eta
 
-    a_IP3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_IP3D_phi_plot%i",i),
-						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D} [#mum];tracks",phiF,phiL),
-						   mybins_,-dxymax_phi,dxymax_phi);
+    // a_IP3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_IP3D_phi_plot%i",i),
+    // 						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D} [#mum];tracks",phiF,phiL),
+    // 						   mybins_,-dxymax_phi,dxymax_phi);
     
-    a_IP3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_IP3D_eta_plot%i",i),
-						   Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D} [#mum];tracks",etaF,etaL),
-						   mybins_,-dxymax_eta,dxymax_eta);
+    // a_IP3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_IP3D_eta_plot%i",i),
+    // 						   Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D} [#mum];tracks",etaF,etaL),
+    // 						   mybins_,-dxymax_eta,dxymax_eta);
 
-    // dz vs phi and eta
+    // // dz vs phi and eta
 
-    a_dzPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_dz_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z} [#mum];tracks",phiF,phiL),
-						    mybins_,-dzmax_phi,dzmax_phi);
+    // a_dzPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_dz_phi_plot%i",i),
+    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z} [#mum];tracks",phiF,phiL),
+    // 						    mybins_,-dzmax_phi,dzmax_phi);
     
-    a_dzEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_dz_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z} [#mum];tracks",etaF,etaL),
-						    mybins_,-dzmax_eta,dzmax_eta);
+    // a_dzEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_dz_eta_plot%i",i),
+    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z} [#mum];tracks",etaF,etaL),
+    // 						    mybins_,-dzmax_eta,dzmax_eta);
 
 
-    // resz vs phi and eta
+    // // resz vs phi and eta
 
-    a_reszPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_resz_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;z_{trk} - z_{vtx} [#mum];tracks",phiF,phiL),
-						    mybins_,-dzmax_phi,dzmax_phi);
+    // a_reszPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_resz_phi_plot%i",i),
+    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;z_{trk} - z_{vtx} [#mum];tracks",phiF,phiL),
+    // 						    mybins_,-dzmax_phi,dzmax_phi);
     
-    a_reszEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_resz_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;z_{trk} - z_{vtx} [#mum];tracks",etaF,etaL),
-						    mybins_,-dzmax_eta,dzmax_eta);
+    // a_reszEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_resz_eta_plot%i",i),
+    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;z_{trk} - z_{vtx} [#mum];tracks",etaF,etaL),
+    // 						    mybins_,-dzmax_eta,dzmax_eta);
 
-    // d3D vs phi and eta
+    // // d3D vs phi and eta
 
-    a_d3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_d3D_phi_plot%i",i),
-						  Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D} [#mum];tracks",phiF,phiL),
-						  mybins_,0.,d3Dmax_phi);
+    // a_d3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_d3D_phi_plot%i",i),
+    // 						  Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D} [#mum];tracks",phiF,phiL),
+    // 						  mybins_,0.,d3Dmax_phi);
     
-    a_d3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_d3D_eta_plot%i",i),
-						  Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D} [#mum];tracks",etaF,etaL),
-						  mybins_,0.,d3Dmax_eta);
+    // a_d3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_d3D_eta_plot%i",i),
+    // 						  Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D} [#mum];tracks",etaF,etaL),
+    // 						  mybins_,0.,d3Dmax_eta);
        
-    //  _  _                    _ _           _   ___        _    _           _    
-    // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
-    // | .` / _ \ '_| '  \/ _` | | |_ / -_) _` | |   / -_|_-< / _` | || / _` | (_-<
-    // |_|\_\___/_| |_|_|_\__,_|_|_/__\___\__,_| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
-    //
+    // //  _  _                    _ _           _   ___        _    _           _    
+    // // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
+    // // | .` / _ \ '_| '  \/ _` | | |_ / -_) _` | |   / -_|_-< / _` | || / _` | (_-<
+    // // |_|\_\___/_| |_|_|_\__,_|_|_/__\___\__,_| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
+    // //
                                                                              
-    // normalized dxy vs eta and phi
+    // // normalized dxy vs eta and phi
    				
-    n_dxyPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
-						      Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",phiF,phiL),
-						      mybins_,-dxymax_phi/100.,dxymax_phi/100.);
+    // n_dxyPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
+    // 						      Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",phiF,phiL),
+    // 						      mybins_,-dxymax_phi/100.,dxymax_phi/100.);
     
-    n_dxyEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i",i),
-						      Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL),
-						      mybins_,-dxymax_eta/100.,dxymax_eta/100.);
+    // n_dxyEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i",i),
+    // 						      Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL),
+    // 						      mybins_,-dxymax_eta/100.,dxymax_eta/100.);
     
-    // normalized IP2d vs eta and phi
+    // // normalized IP2d vs eta and phi
     
-    n_IP2DPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_IP2D_phi_plot%i",i),
-						       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D}/#sigma_{IP_{2D}};tracks",phiF,phiL),
-						       mybins_,-dxymax_phi/100.,dxymax_phi/100.);
+    // n_IP2DPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_IP2D_phi_plot%i",i),
+    // 						       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D}/#sigma_{IP_{2D}};tracks",phiF,phiL),
+    // 						       mybins_,-dxymax_phi/100.,dxymax_phi/100.);
     
-    n_IP2DEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_IP2D_eta_plot%i",i),
-						       Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D}/#sigma_{IP_{2D}};tracks",etaF,etaL),
-						       mybins_,-dxymax_eta/100.,dxymax_eta/100.);
+    // n_IP2DEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_IP2D_eta_plot%i",i),
+    // 						       Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D}/#sigma_{IP_{2D}};tracks",etaF,etaL),
+    // 						       mybins_,-dxymax_eta/100.,dxymax_eta/100.);
     
-    // normalized IP3d vs eta and phi
+    // // normalized IP3d vs eta and phi
     
-    n_IP3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_IP3D_phi_plot%i",i),
-						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D}/#sigma_{IP_{3D}};tracks",phiF,phiL),
-						    mybins_,-dxymax_phi/100.,dxymax_phi/100.);
+    // n_IP3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_IP3D_phi_plot%i",i),
+    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D}/#sigma_{IP_{3D}};tracks",phiF,phiL),
+    // 						    mybins_,-dxymax_phi/100.,dxymax_phi/100.);
     
-    n_IP3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_IP3D_eta_plot%i",i),
-						    Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D}/#sigma_{IP_{3D}};tracks",etaF,etaL),
-						    mybins_,-dxymax_eta/100.,dxymax_eta/100.);
+    // n_IP3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_IP3D_eta_plot%i",i),
+    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D}/#sigma_{IP_{3D}};tracks",etaF,etaL),
+    // 						    mybins_,-dxymax_eta/100.,dxymax_eta/100.);
 
-    // normalized dz vs phi and eta
+    // // normalized dz vs phi and eta
 
-    n_dzPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_dz_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",phiF,phiL),
-						     mybins_,-dzmax_phi/100.,dzmax_phi/100.);
+    // n_dzPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_dz_phi_plot%i",i),
+    // 						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",phiF,phiL),
+    // 						     mybins_,-dzmax_phi/100.,dzmax_phi/100.);
     
-    n_dzEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_dz_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL),
-						     mybins_,-dzmax_eta/100.,dzmax_eta/100.);
+    // n_dzEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_dz_eta_plot%i",i),
+    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL),
+    // 						     mybins_,-dzmax_eta/100.,dzmax_eta/100.);
 
-    // pull of resz
+    // // pull of resz
 
-    n_reszPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_resz_phi_plot%i",i),
-						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",phiF,phiL),
-						     mybins_,-dzmax_phi/100.,dzmax_phi/100.);
+    // n_reszPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_resz_phi_plot%i",i),
+    // 						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",phiF,phiL),
+    // 						     mybins_,-dzmax_phi/100.,dzmax_phi/100.);
     
-    n_reszEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_resz_eta_plot%i",i),
-						     Form("%.2f<#eta^{probe}_{tk}<%.2f;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",etaF,etaL),
-						     mybins_,-dzmax_eta/100.,dzmax_eta/100.);
+    // n_reszEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_resz_eta_plot%i",i),
+    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",etaF,etaL),
+    // 						     mybins_,-dzmax_eta/100.,dzmax_eta/100.);
 
-    // normalized d3D vs phi and eta
+    // // normalized d3D vs phi and eta
 
-    n_d3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_d3D_phi_plot%i",i),
-						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D}/#sigma_{d_{3D}};tracks",phiF,phiL),
-						   mybins_,0.,d3Dmax_phi/100.);
+    // n_d3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_d3D_phi_plot%i",i),
+    // 						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D}/#sigma_{d_{3D}};tracks",phiF,phiL),
+    // 						   mybins_,0.,d3Dmax_phi/100.);
     
-    n_d3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_d3D_eta_plot%i",i),
-						   Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL),
-						   mybins_,0.,d3Dmax_eta/100.);
+    // n_d3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_d3D_eta_plot%i",i),
+    // 						   Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL),
+    // 						   mybins_,0.,d3Dmax_eta/100.);
 
     //  ___           _    _     ___  _  __  __   ___        _    _           _    
     // |   \ ___ _  _| |__| |___|   \(_)/ _|/ _| | _ \___ __(_)__| |_  _ __ _| |___
@@ -2261,25 +2304,25 @@ void PrimaryVertexValidation::endJob()
 
   // do profiles
 
-  fillTrendPlot(a_dxyPhiMeanTrend ,a_dxyPhiResiduals,pvparams::MEAN,"phi");  
-  fillTrendPlot(a_dxyPhiWidthTrend,a_dxyPhiResiduals,pvparams::WIDTH,"phi");
-  fillTrendPlot(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,pvparams::MEAN,"phi");   
-  fillTrendPlot(a_dzPhiWidthTrend ,a_dzPhiResiduals ,pvparams::WIDTH,"phi");  
+  fillTrendPlotByIndex(a_dxyPhiMeanTrend, a_dxyPhiResiduals,pvparams::MEAN);  
+  fillTrendPlotByIndex(a_dxyPhiWidthTrend,a_dxyPhiResiduals,pvparams::WIDTH);  
+  fillTrendPlotByIndex(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,pvparams::MEAN);   
+  fillTrendPlotByIndex(a_dzPhiWidthTrend ,a_dzPhiResiduals ,pvparams::WIDTH);  
   
-  fillTrendPlot(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,pvparams::MEAN,"eta"); 
-  fillTrendPlot(a_dxyEtaWidthTrend,a_dxyEtaResiduals,pvparams::WIDTH,"eta");
-  fillTrendPlot(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,pvparams::MEAN,"eta"); 
-  fillTrendPlot(a_dzEtaWidthTrend ,a_dzEtaResiduals ,pvparams::WIDTH,"eta");
+  fillTrendPlotByIndex(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,pvparams::MEAN); 
+  fillTrendPlotByIndex(a_dxyEtaWidthTrend,a_dxyEtaResiduals,pvparams::WIDTH);
+  fillTrendPlotByIndex(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,pvparams::MEAN); 
+  fillTrendPlotByIndex(a_dzEtaWidthTrend ,a_dzEtaResiduals ,pvparams::WIDTH);
   
-  fillTrendPlot(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,pvparams::MEAN,"phi"); 
-  fillTrendPlot(n_dxyPhiWidthTrend,n_dxyPhiResiduals,pvparams::WIDTH,"phi");
-  fillTrendPlot(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,pvparams::MEAN,"phi"); 
-  fillTrendPlot(n_dzPhiWidthTrend ,n_dzPhiResiduals ,pvparams::WIDTH,"phi");
+  fillTrendPlotByIndex(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dxyPhiWidthTrend,n_dxyPhiResiduals,pvparams::WIDTH);
+  fillTrendPlotByIndex(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dzPhiWidthTrend ,n_dzPhiResiduals ,pvparams::WIDTH);
   
-  fillTrendPlot(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,pvparams::MEAN,"eta"); 
-  fillTrendPlot(n_dxyEtaWidthTrend,n_dxyEtaResiduals,pvparams::WIDTH,"eta");
-  fillTrendPlot(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,pvparams::MEAN,"eta"); 
-  fillTrendPlot(n_dzEtaWidthTrend ,n_dzEtaResiduals ,pvparams::WIDTH,"eta");
+  fillTrendPlotByIndex(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dxyEtaWidthTrend,n_dxyEtaResiduals,pvparams::WIDTH);
+  fillTrendPlotByIndex(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,pvparams::MEAN); 
+  fillTrendPlotByIndex(n_dzEtaWidthTrend ,n_dzEtaResiduals ,pvparams::WIDTH);
     
   // vs transverse momentum
 
@@ -2324,6 +2367,29 @@ void PrimaryVertexValidation::endJob()
   fillTrendPlotByIndex(n_dxyladderWidthTrend,h_norm_dxy_ladder_,pvparams::WIDTH);
   fillTrendPlotByIndex(n_dzladderMeanTrend  ,h_norm_dz_ladder_,pvparams::MEAN); 
   fillTrendPlotByIndex(n_dzladderWidthTrend ,h_norm_dz_ladder_,pvparams::WIDTH);
+
+  // medians and MADs	  
+  
+  fillTrendPlotByIndex(a_dxyPhiMedianTrend,a_dxyPhiResiduals,pvparams::MEDIAN);
+  fillTrendPlotByIndex(a_dxyPhiMADTrend   ,a_dxyPhiResiduals,pvparams::MAD);   
+  
+  fillTrendPlotByIndex(a_dzPhiMedianTrend ,a_dzPhiResiduals ,pvparams::MEDIAN);  
+  fillTrendPlotByIndex(a_dzPhiMADTrend    ,a_dzPhiResiduals ,pvparams::MAD); 
+  
+  fillTrendPlotByIndex(a_dxyEtaMedianTrend,a_dxyEtaResiduals,pvparams::MEDIAN);  
+  fillTrendPlotByIndex(a_dxyEtaMADTrend   ,a_dxyEtaResiduals,pvparams::MAD); 
+  fillTrendPlotByIndex(a_dzEtaMedianTrend ,a_dzEtaResiduals ,pvparams::MEDIAN);  
+  fillTrendPlotByIndex(a_dzEtaMADTrend    ,a_dzEtaResiduals ,pvparams::MAD); 
+  
+  fillTrendPlotByIndex(n_dxyPhiMedianTrend,n_dxyPhiResiduals,pvparams::MEDIAN);  
+  fillTrendPlotByIndex(n_dxyPhiMADTrend   ,n_dxyPhiResiduals,pvparams::MAD); 
+  fillTrendPlotByIndex(n_dzPhiMedianTrend ,n_dzPhiResiduals ,pvparams::MEDIAN);  
+  fillTrendPlotByIndex(n_dzPhiMADTrend    ,n_dzPhiResiduals ,pvparams::MAD); 
+  
+  fillTrendPlotByIndex(n_dxyEtaMedianTrend,n_dxyEtaResiduals,pvparams::MEDIAN);  
+  fillTrendPlotByIndex(n_dxyEtaMADTrend   ,n_dxyEtaResiduals,pvparams::MAD); 
+  fillTrendPlotByIndex(n_dzEtaMedianTrend ,n_dzEtaResiduals ,pvparams::MEDIAN);  
+  fillTrendPlotByIndex(n_dzEtaMADTrend    ,n_dzEtaResiduals ,pvparams::MAD); 
     
   // 2D Maps
 
@@ -2804,9 +2870,10 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDi
 
   TH1F::SetDefaultSumw2(kTRUE);
   
-  double up   =  theDetails_.range[std::make_pair(resType,varType)];
-  double down =  up*-1;
-  
+  auto hash = std::make_pair(resType,varType);
+
+  double down =  theDetails_.range[hash].first;
+  double up   =  theDetails_.range[hash].second;
 
   if(isNormalized){
     up   =  up/100.;
@@ -2984,13 +3051,14 @@ void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h,const std::str
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x)
+void PrimaryVertexValidation::fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x,std::string tag)
 //*************************************************************
 {
+  //assert(!h.empty());
   if(index <= h.size()){
     h[index]->Fill(x);
   } else {
-    edm::LogWarning("PrimaryVertexValidation") << "Trying to fill non-existing Histogram with index " << index << " for array with size: "<<h.size()<< std::endl;
+    edm::LogWarning("PrimaryVertexValidation") << "Trying to fill non-existing Histogram with index " << index << " for array with size: "<<h.size()<<" tag: "<< tag<< std::endl;
     return;
   }
 }
