@@ -605,8 +605,8 @@ void FitPVResiduals(TString namesandlabels,bool stdres,bool do2DMaps,TString the
       dxyPtResiduals[i][l]  = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Transv_pT_Residuals/histo_dxy_pT_plot%i",l));
       dzPtResiduals[i][l]   = (TH1F*)fins[i]->Get(Form("PVValidation/Abs_Long_pT_Residuals/histo_dz_pT_plot%i",l));
 
-      dxyNormPtResiduals[i][l]  = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_Transv_pT_Residuals/histo_normdxy_pT_plot%i",l));
-      dzNormPtResiduals[i][l]   = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_Long_pT_Residuals/histo_normdz_pT_plot%i",l));
+      dxyNormPtResiduals[i][l]  = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_Transv_pT_Residuals/histo_norm_dxy_pT_plot%i",l));
+      dzNormPtResiduals[i][l]   = (TH1F*)fins[i]->Get(Form("PVValidation/Norm_Long_pT_Residuals/histo_norm_dz_pT_plot%i",l));
     
     }
 
