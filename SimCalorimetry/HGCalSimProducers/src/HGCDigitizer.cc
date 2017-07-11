@@ -397,8 +397,8 @@ void HGCDigitizer::accumulate(edm::Handle<edm::PCaloHitContainer> const &hits,
     //time-of-arrival (check how to be used)
     if(weightToAbyEnergy) (simHitIt->second).hit_info[1][itime] += charge*tof;
     else if((simHitIt->second).hit_info[1][itime]==0) {	
-      //here for constant-fraction discrimination
-      //update in case of change towards constant-threshold discrimination
+      //here for constant-threshold discrimination
+      //update in case of change towards constant-fraction discrimination
       if( accCharge>tdcForToaOnset[waferThickness-1])
 	{
 	  //extrapolate linear using previous simhit if it concerns to the same DetId
