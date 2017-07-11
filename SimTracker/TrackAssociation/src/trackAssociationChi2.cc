@@ -1,16 +1,16 @@
-#include "getChi2.h"
+#include "SimTracker/TrackAssociation/interface/trackAssociationChi2.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
 #include "TrackingTools/PatternTools/interface/trackingParametersAtClosestApproachToBeamSpot.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace track_associator {
-  double getChi2(const reco::TrackBase::ParameterVector& rParameters,
-                 const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
-                 const Basic3DVector<double>& momAtVtx,
-                 const Basic3DVector<double>& vert,
-                 int charge,
-                 const MagneticField& magfield,
-                 const reco::BeamSpot& bs) {
+  double trackAssociationChi2(const reco::TrackBase::ParameterVector& rParameters,
+                              const reco::TrackBase::CovarianceMatrix& recoTrackCovMatrix,
+                              const Basic3DVector<double>& momAtVtx,
+                              const Basic3DVector<double>& vert,
+                              int charge,
+                              const MagneticField& magfield,
+                              const reco::BeamSpot& bs) {
     
     double chi2 = 10000000000.;
     
