@@ -73,6 +73,7 @@ HGCDigitizerBase<DFr>::HGCDigitizerBase(const edm::ParameterSet& ps) {
   }
   edm::ParameterSet feCfg = myCfg_.getParameter<edm::ParameterSet>("feCfg");
   myFEelectronics_        = std::unique_ptr<HGCFEElectronics<DFr> >( new HGCFEElectronics<DFr>(feCfg) );
+  myFEelectronics_->SetNoiseValues(noise_fC_); 
 }
 
 template<class DFr>
