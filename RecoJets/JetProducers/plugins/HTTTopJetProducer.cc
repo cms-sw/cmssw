@@ -34,68 +34,27 @@ HTTTopJetProducer::HTTTopJetProducer(edm::ParameterSet const& conf):
 {
   
   // Read in all the options from the configuration
-  if ( conf.exists("optimalR") ) 
-    optimalR_ = conf.getParameter<bool>("optimalR");
-
-  if ( conf.exists("qJets") ) 
-    qJets_ = conf.getParameter<bool>("qJets");
-
-  if ( conf.exists("minFatjetPt") ) 
-    minFatjetPt_ = conf.getParameter<double>("minFatjetPt");
-  
-  if ( conf.exists("minSubjetPt") ) 
-    minSubjetPt_ = conf.getParameter<double>("minSubjetPt");
-  
-  if ( conf.exists("minCandPt") ) 
-    minCandPt_ = conf.getParameter<double>("minCandPt");
-  
-  if ( conf.exists("maxFatjetAbsEta") )
-    maxFatjetAbsEta_ = conf.getParameter<double>("maxFatjetAbsEta");
-  
-  if ( conf.exists("subjetMass") )
-    subjetMass_ = conf.getParameter<double>("subjetMass");
-  
-  if ( conf.exists("muCut") )
-    muCut_ = conf.getParameter<double>("muCut");
-
-  if ( conf.exists("filtR") )
-    filtR_ = conf.getParameter<double>("filtR");
-
-  if ( conf.exists("filtN") )
-    filtN_ = conf.getParameter<int>("filtN");
-  
-  if ( conf.exists("mode") )
-    mode_ = conf.getParameter<int>("mode");
-  
-  if ( conf.exists("minCandMass") )
-    minCandMass_ = conf.getParameter<double>("minCandMass");
-  
-  if ( conf.exists("maxCandMass") )
-    maxCandMass_ = conf.getParameter<double>("maxCandMass");
-  
-  if ( conf.exists("massRatioWidth") )
-    massRatioWidth_ = conf.getParameter<double>("massRatioWidth");
-  
-  if ( conf.exists("minM23Cut") )
-    minM23Cut_ = conf.getParameter<double>("minM23Cut");
-
-  if ( conf.exists("minM13Cut") )
-    minM13Cut_ = conf.getParameter<double>("minM13Cut");
-  
-  if ( conf.exists("maxM13Cut") )
-    maxM13Cut_ = conf.getParameter<double>("maxM13Cut");
-
-  if ( conf.exists("maxR") )
-    maxR_ = conf.getParameter<double>("maxR");
-
-  if ( conf.exists("minR") )
-    minR_ = conf.getParameter<double>("minR");
-
-  if ( conf.exists("rejectMinR") )
-    rejectMinR_ = conf.getParameter<bool>("rejectMinR");
-
-  if ( conf.exists("verbose") )
-    verbose_ = conf.getParameter<bool>("verbose");
+  optimalR_ = conf.getParameter<bool>("optimalR");
+  qJets_ = conf.getParameter<bool>("qJets");
+  minFatjetPt_ = conf.getParameter<double>("minFatjetPt");
+  minSubjetPt_ = conf.getParameter<double>("minSubjetPt");
+  minCandPt_ = conf.getParameter<double>("minCandPt");
+  maxFatjetAbsEta_ = conf.getParameter<double>("maxFatjetAbsEta");
+  subjetMass_ = conf.getParameter<double>("subjetMass");
+  muCut_ = conf.getParameter<double>("muCut");
+  filtR_ = conf.getParameter<double>("filtR");
+  filtN_ = conf.getParameter<int>("filtN");
+  mode_ = conf.getParameter<int>("mode");
+  minCandMass_ = conf.getParameter<double>("minCandMass");
+  maxCandMass_ = conf.getParameter<double>("maxCandMass");
+  massRatioWidth_ = conf.getParameter<double>("massRatioWidth");
+  minM23Cut_ = conf.getParameter<double>("minM23Cut");
+  minM13Cut_ = conf.getParameter<double>("minM13Cut");
+  maxM13Cut_ = conf.getParameter<double>("maxM13Cut");
+  maxR_ = conf.getParameter<double>("maxR");
+  minR_ = conf.getParameter<double>("minR");
+  rejectMinR_ = conf.getParameter<bool>("rejectMinR");
+  verbose_ = conf.getParameter<bool>("verbose");
   
   // Create the tagger-wrapper
   produces<HTTTopJetTagInfoCollection>();
@@ -239,6 +198,42 @@ void HTTTopJetProducer::addHTTTopJetTagInfoCollection( edm::Event& iEvent,
   
 };
 
- 
+void HTTTopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+	edm::ParameterSetDescription desc;
+
+        desc.add<bool>  ("optimalR",       true);
+        desc.add<bool>  ("qJets",         false);
+        desc.add<double>("minFatjetPt",    200.);
+        desc.add<double>("minSubjetPt",      0.);
+        desc.add<double>("minCandPt",        0.);
+        desc.add<double>("maxFatjetAbsEta", 99.);
+        desc.add<double>("subjetMass",      30.);
+        desc.add<double>("filtR",           0.3);
+        desc.add<int>   ("filtN",             5);
+        desc.add<int>   ("mode",              4);
+        desc.add<double>("minCandMass",      0.);
+        desc.add<double>("maxCandMass",   999999.);
+        desc.add<double>("massRatioWidth",999999.);
+        desc.add<double>("minM23Cut",        0.);
+        desc.add<double>("minM13Cut",        0.);
+        desc.add<double>("maxM13Cut",   999999.);
+        desc.add<double>("maxR",            1.5);
+        desc.add<double>("minR",            0.5);
+        desc.add<bool>  ("rejectMinR",    false);
+        desc.add<bool>  ("verbose",       false);
+
+        desc.add<int>   ("algorithm",         1);  // where is it needed?
+
+	////// From FastjetJetProducer
+	FastjetJetProducer::fillDescriptionsFromFastJetProducer(desc);
+	///// From VirtualJetProducer
+	desc.add<std::string> ("jetCollInstanceName","SubJets");
+	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(desc);
+
+	descriptions.add("HTTTopJetProducer",desc);
+
+}
+
 //define this as a plug-in
 DEFINE_FWK_MODULE(HTTTopJetProducer);
