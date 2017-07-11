@@ -183,7 +183,7 @@ trackingPhase1QuadProp.toReplaceWith(jetCoreRegionalStep, TrackMVAClassifierProm
 
 # Final sequence
 JetCoreRegionalStep = cms.Sequence(jetsForCoreTracking*
-                                   firstStepGoodPrimaryVertices*
+                                   cms.ignore(firstStepGoodPrimaryVertices)*
                                    #jetCoreRegionalStepClusters*
                                    jetCoreRegionalStepSeedLayers*
                                    jetCoreRegionalStepTrackingRegions*
