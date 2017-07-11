@@ -29,8 +29,26 @@ process.maxEvents = cms.untracked.PSet(
 
 # Input source
 process.source = cms.Source("PoolSource",
-    fileNames = cms.untracked.vstring('file:raw_part1.root'),
-# ,'file:raw_part2.root'),
+    fileNames = cms.untracked.vstring(
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//04A76B1B-CF60-E711-BB55-0CC47A4C8EC8.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//120DA883-CF60-E711-B945-0025905A60B6.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//2076661C-CF60-E711-9A0D-0025905A60B8.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//2C06018A-D060-E711-88F4-0025905B85D8.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//34F2166D-CF60-E711-876B-0025905B85DE.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//3E937FAE-CF60-E711-A74C-0025905B855A.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//486BB49C-CF60-E711-9205-0CC47A7C35C8.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//522B4781-CF60-E711-8BF5-0025905B8560.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//56D8A4B8-CF60-E711-BDF8-003048FFCC16.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//86A1DCDC-CF60-E711-B676-0CC47A7C35D8.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//8ACD778E-D060-E711-86C1-0CC47A4D7606.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//98F51D6D-CF60-E711-9471-0CC47A7C34EE.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//A8D802D6-CF60-E711-A4DF-0CC47A78A41C.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//BCA2973A-DA60-E711-949B-0025905A611C.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//D88729CC-CE60-E711-913C-0CC47A4C8E3C.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//DC3649D5-CF60-E711-93FB-0CC47A745250.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//E011547C-D060-E711-9DDD-0CC47A4C8E3C.root',
+'/store/relval/CMSSW_9_3_0_pre1/RelValMinBias_13/GEN-SIM-DIGI-RAW/92X_upgrade2017_realistic_v7-v1/00000//F40A90CF-CF60-E711-8F1A-0CC47A7C35A8.root',
+),
     secondaryFileNames = cms.untracked.vstring()
 )
 
@@ -48,9 +66,9 @@ process.Timing = cms.Service("Timing"
 
 process.options = cms.untracked.PSet(
     allowUnscheduled = cms.untracked.bool(True),
-    numberOfThreads = cms.untracked.uint32(8),
-    numberOfStreams = cms.untracked.uint32(8),
-#    wantSummary = cms.untracked.bool(True)
+    numberOfThreads = cms.untracked.uint32(16),
+    numberOfStreams = cms.untracked.uint32(16),
+    wantSummary = cms.untracked.bool(True)
 )
 
 # Production Info
