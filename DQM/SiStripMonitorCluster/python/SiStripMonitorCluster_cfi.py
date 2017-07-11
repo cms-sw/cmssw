@@ -310,6 +310,16 @@ SiStripMonitorCluster = cms.EDAnalyzer("SiStripMonitorCluster",
         globalswitchon = cms.bool(True)
         ),
 
+     TProfNClustersFED = cms.PSet(
+         Nbinsx          = cms.int32(500),
+         xmax           = cms.double(500),
+         xmin           = cms.double(0),
+         Nbinsy = cms.int32(200),
+         ymin = cms.double(-0.5),
+         ymax = cms.double(199999.5),
+         globalswitchon = cms.bool(True)
+         ),
+
 #****************************************
     TH1StripNoise2ApvCycle = cms.PSet(
         Nbinsx = cms.int32(70),
