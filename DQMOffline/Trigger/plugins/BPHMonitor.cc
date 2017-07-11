@@ -655,7 +655,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         break;
     case 9:
         if (dimuonCL<minprob)continue;
-        if (fabs(jpsi_cos)<mincos)continue;
+        if (std::abs(jpsi_cos)<mincos)continue;
         if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
 
       if (trHandle.isValid()){
@@ -712,7 +712,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
             float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
         if (JpsiTkCL<minprob)continue;
-        if (fabs(jpsiKcos)<mincos)continue;
+        if (std::abs(jpsiKcos)<mincos)continue;
         if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
         muPhi_.denominator->Fill(t.phi());
         muEta_.denominator->Fill(t.eta());
@@ -771,7 +771,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                                                       (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
                                                   0);
             reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-            float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
         if (JpsiTkCL<minprob)continue;
         muPhi_.denominator->Fill(m1.phi());
         muEta_.denominator->Fill(m1.eta());
@@ -784,7 +783,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     case 11:
 
         if (dimuonCL<minprob)continue;
-        if (fabs(jpsi_cos)<mincos)continue;
+        if (std::abs(jpsi_cos)<mincos)continue;
         if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
 
       if (trHandle.isValid()){
@@ -851,7 +850,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
             float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
         if (JpsiTkCL<minprob)continue;
-        if (fabs(jpsiKcos)<mincos)continue;
+        if (std::abs(jpsiKcos)<mincos)continue;
         if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
         mu1Phi_.denominator->Fill(t.phi());
         mu1Eta_.denominator->Fill(t.eta());
@@ -1086,7 +1085,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
         break;
     case 9:
         if (dimuonCL<minprob)continue;
-        if (fabs(jpsi_cos)<mincos)continue;
+        if (std::abs(jpsi_cos)<mincos)continue;
         if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
 
       if (trHandle.isValid()){
@@ -1134,7 +1133,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
             float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
         if (JpsiTkCL<minprob)continue;
-        if (fabs(jpsiKcos)<mincos)continue;
+        if (std::abs(jpsiKcos)<mincos)continue;
         if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
         muPhi_.numerator->Fill(t.phi());
         muEta_.numerator->Fill(t.eta());
@@ -1194,7 +1193,6 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
                                                       (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 
                                                   0);
             reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
-            float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
         if (JpsiTkCL<minprob)continue;
         muPhi_.numerator->Fill(m1.phi());
         muEta_.numerator->Fill(m1.eta());
@@ -1206,7 +1204,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
     break;
     case 11:
         if (dimuonCL<minprob)continue;
-        if (fabs(jpsi_cos)<mincos)continue;
+        if (std::abs(jpsi_cos)<mincos)continue;
         if ((displacementFromBeamspotJpsi.perp()/sqrt(jerr.rerr(displacementFromBeamspotJpsi)))<minDS)continue;
 
       if (trHandle.isValid()){
@@ -1273,7 +1271,7 @@ void BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup
             reco::Vertex::Point vperp(displacementFromBeamspot.x(),displacementFromBeamspot.y(),0.);
             float jpsiKcos = vperp.Dot(pperp)/(vperp.R()*pperp.R());
         if (JpsiTkCL<minprob)continue;
-        if (fabs(jpsiKcos)<mincos)continue;
+        if (std::abs(jpsiKcos)<mincos)continue;
         if ((displacementFromBeamspot.perp()/sqrt(err.rerr(displacementFromBeamspot)))<minDS)continue;
         mu1Phi_.numerator->Fill(t.phi());
         mu1Eta_.numerator->Fill(t.eta());
@@ -1418,24 +1416,22 @@ void BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
    
     bool matchedToTrigger = false;
     if (handleTriggerEvent->sizeFilters() >0){
-    const trigger::TriggerObjectCollection & toc(handleTriggerEvent->getObjects());//Handle< trigger::TriggerEvent > handleTriggerEvent;
+    trigger::TriggerObjectCollection const & toc = handleTriggerEvent->getObjects();
     for ( size_t ia = 0; ia < handleTriggerEvent->sizeFilters(); ++ ia) {
         std::string fullname = handleTriggerEvent->filterTag(ia).encode();
         std::string name;
         size_t p = fullname.find_first_of(':');
         if ( p != std::string::npos) {name = fullname.substr(0, p);}
         else {name = fullname;}
-        if ( &toc !=0 ) {
-            const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
-            for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
-               reco::Particle theTriggerParticle = toc[*ki].particle();
-                 if(name.find(theTriggerName) != string::npos){
-                    if((reco::deltaR(t.eta(), t.phi(),theTriggerParticle.eta(),theTriggerParticle.phi()) <= 0.2)){
-                      matchedToTrigger = true;
-                    }
+        const trigger::Keys & k = handleTriggerEvent->filterKeys(ia);
+        for (trigger::Keys::const_iterator ki = k.begin(); ki !=k.end(); ++ki ) {
+           reco::Particle theTriggerParticle = toc[*ki].particle();
+             if(name.find(theTriggerName) != string::npos){
+                if((reco::deltaR(t.eta(), t.phi(),theTriggerParticle.eta(),theTriggerParticle.phi()) <= 0.2)){
+                  matchedToTrigger = true;
                 }
-            }    
-        }
+            }
+        }    
     }
 
     return matchedToTrigger;
