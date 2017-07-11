@@ -72,7 +72,7 @@ class PixelClusterShapeExtractor final : public edm::global::EDAnalyzer<>
 
    bool checkSimHits
     (const TrackingRecHit & recHit, TrackerHitAssociator const & theAssociator,
-     PSimHit & simHit, pair<unsigned int, float> & key) const;
+     PSimHit & simHit, pair<unsigned int, float> & key, unsigned int & ss) const;
 
    void processPixelRecHits
      (SiPixelRecHitCollection::DataContainer const & recHits, 
@@ -202,6 +202,7 @@ void PixelClusterShapeExtractor::processRec(const SiPixelRecHit & recHit, Cluste
       int i = (part * (exMax + 1) +
                meas.front().first) * (eyMax + 1) +
                meas.front().second;
+#define DO_DEBUG  
 #ifdef DO_DEBUG
       if (meas.front().second==0 && std::abs(pred.second)>3)
       {
@@ -227,7 +228,7 @@ void PixelClusterShapeExtractor::processSim(const SiPixelRecHit & recHit, Cluste
 /*****************************************************************************/
 bool PixelClusterShapeExtractor::checkSimHits
   (const TrackingRecHit & recHit, TrackerHitAssociator const & theHitAssociator,
-   PSimHit & simHit, pair<unsigned int, float> & key) const
+   PSimHit & simHit, pair<unsigned int, float> & key, unsigned int & ss) const
 {
   auto const & simHits = theHitAssociator.associateHit(recHit);
 
@@ -238,6 +239,7 @@ bool PixelClusterShapeExtractor::checkSimHits
     {
       simHit = sh; 
       key = {simHit.trackId(),simHit.timeOfFlight()};
+      ss = simHits.size();
       return true;
     }
   } 
@@ -252,29 +254,26 @@ void PixelClusterShapeExtractor::processPixelRecHits(
    ClusterShapeHitFilter const & theFilter,
    const SiPixelClusterShapeCache& clusterShapeCache) const
 {
-  std::map<pair<unsigned int, float>, std::pair<const SiPixelRecHit *,PSimHit> > simHitMap;
+  struct Elem { const SiPixelRecHit * rhit; PSimHit shit; unsigned int size;};
+  std::map<pair<unsigned int, float>, Elem> simHitMap;
 
   PSimHit simHit;
   pair<unsigned int, float> key;
-    size_t counter = 0, counter_2 = 0;
+  unsigned int ss;
 
   for(auto const & recHit : recHits) {
-    if(!checkSimHits(recHit, theHitAssociator, simHit, key)) continue;
+    if(!checkSimHits(recHit, theHitAssociator, simHit, key,ss)) continue;
           // Fill map
           if(simHitMap.count(key) == 0)
-              { simHitMap[key] = std::make_pair(&recHit,simHit); }
-          else if(        recHit.cluster()->size() >
-                   simHitMap[key].first->cluster()->size())
-                   simHitMap[key] = std::make_pair(&recHit,simHit);
-          ++counter_2;
-       
+              { simHitMap[key] = {&recHit,simHit,ss}; }
+          else if( recHit.cluster()->size() >
+                   simHitMap[key].rhit->cluster()->size())
+                   simHitMap[key] = {&recHit,simHit,std::max(ss,simHitMap[key].size)};
   }
   for (auto const & elem : simHitMap)  {
-       processSim(*elem.second.first, theFilter, elem.second.second, clusterShapeCache, hspc);
-                ++counter;
+   if (elem.second.size==1)
+       processSim(*elem.second.rhit, theFilter, elem.second.shit, clusterShapeCache, hspc);
   }
-//    std::cout << "recHits->size() = " << recHits->size() << ", counter = " << counter
-//              << ", counter_2 = " << counter_2 << std::endl;
 }
 
 
