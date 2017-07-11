@@ -1,8 +1,10 @@
 import FWCore.ParameterSet.Config as cms
-from DQMOffline.Trigger.PhotonMonitor_cff import *
-from DQMOffline.Trigger.VBFMETMonitor_cff import *
 
 from DQMOffline.Trigger.HiggsMonitoring_cfi import hltHIGmonitoring
+from DQMOffline.Trigger.PhotonMonitor_cff import *
+from DQMOffline.Trigger.VBFMETMonitor_cff import *
+from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_cff import *
+from DQMOffline.Trigger.MssmHbbMonitoring_cff import *
 
 #######for HLT_Ele23_Ele12_CaloIdL_TrackIdL_IsoVL_DZ####
 ele23Ele12CaloIdLTrackIdLIsoVL_dzmon = hltHIGmonitoring.clone()
@@ -167,4 +169,6 @@ higgsMonitorHLT = cms.Sequence(
   + diMu9Ele9CaloIdLTrackIdL_muleg
   + diMu9Ele9CaloIdLTrackIdL_eleleg
   + diMu9Ele9CaloIdLTrackIdL_dz
+  + mssmHbbBtagTriggerMonitor
+  + mssmHbbMonitorHLT
 )

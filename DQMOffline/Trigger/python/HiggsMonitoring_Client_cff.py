@@ -2,7 +2,8 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.Trigger.VBFMETMonitor_Client_cff import *
-
+from DQMOffline.Trigger.MssmHbbBtagTriggerMonitor_Client_cfi import *
+from DQMOffline.Trigger.MssmHbbMonitoring_Client_cfi import *
 
 ###############Same flavour dilepton with dz cuts#######################
 ele23Ele12CaloIdLTrackIdLIsoVL_effdz = DQMEDHarvester("DQMGenericClient",
@@ -29,8 +30,6 @@ ele23Ele12CaloIdLTrackIdLIsoVL_effdz = DQMEDHarvester("DQMGenericClient",
         "effic_ElectronPt_vs_LS 'Lead electron p_T efficiency vs LS; LS; Electron p_T efficiency' eleVsLS_numerator eleVsLS_denominator"
     ),
 )
-
-
 
 ################################MuEG cross triggers###################################
 mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele =  DQMEDHarvester("DQMGenericClient",
@@ -361,7 +360,9 @@ diphotonEfficiency = DQMEDHarvester("DQMGenericClient",
     efficiencyProfile = cms.untracked.vstring(
         "eff_photon_vs_LS 'Photon pt efficiency vs LS; LS' photonVsLS_numerator photonVsLS_denominator"
     ),
-                                    )
+)
+
+
 higgsClient = cms.Sequence(
     diphotonEfficiency
   + vbfmetClient
@@ -379,4 +380,6 @@ higgsClient = cms.Sequence(
   + mu12TrkIsoVVLEle23CaloIdLTrackIdLIsoVLDZ_effmu
   + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effele
   + mu23TrkIsoVVLEle12CaloIdLTrackIdLIsoVLDZ_effmu
+  + mssmHbbBtagTriggerEfficiency
+  + mssmHbbHLTEfficiency
 )
