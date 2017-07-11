@@ -145,6 +145,92 @@ PFHT800_PFMET85_PFMHT85_METmonitoring = hltMETmonitoring.clone()
 PFHT800_PFMET85_PFMHT85_METmonitoring.FolderName = cms.string('HLT/MET/PFHT800_PFMET85_PFMHT85/')
 PFHT800_PFMET85_PFMHT85_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFHT800_PFMET85_PFMHT85_IDTight_v")
 
+# HLT_PFMET200_NotCleaned_v
+PFMET200_NotCleaned_METmonitoring = hltMETmonitoring.clone()
+PFMET200_NotCleaned_METmonitoring.FolderName = cms.string('HLT/MET/PFMET200_NotCleaned/')
+PFMET200_NotCleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET200_NotCleaned_v*")
+
+# HLT_PFMET200_HBHECleaned_v
+PFMET200_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+PFMET200_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/PFMET200_HBHECleaned/')
+PFMET200_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET200_HBHECleaned_v*")
+
+# HLT_PFMET250_HBHECleaned_v
+PFMET250_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+PFMET250_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/PFMET250_HBHECleaned/')
+PFMET250_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET250_HBHECleaned_v*")
+
+# HLT_PFMET300_HBHECleaned_v
+PFMET300_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+PFMET300_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/PFMET300_HBHECleaned/')
+PFMET300_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET300_HBHECleaned_v*")
+
+# HLT_CaloMHT90_v
+CaloMHT90_METmonitoring = hltMETmonitoring.clone()
+CaloMHT90_METmonitoring.FolderName = cms.string('HLT/MET/CaloMHT90/')
+CaloMHT90_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMHT90_v*")
+
+# HLT_CaloMET80_NotCleaned_v*
+CaloMET80_NotCleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET80_NotCleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET80_NotCleaned/')
+CaloMET80_NotCleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET80_NotCleaned_v*")
+
+# HLT_CaloMET90_NotCleaned_v*
+CaloMET90_NotCleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET90_NotCleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET90_NotCleaned/')
+CaloMET90_NotCleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET90_NotCleaned_v*")
+
+# HLT_CaloMET100_NotCleaned_v*
+CaloMET100_NotCleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET100_NotCleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET100_NotCleaned/')
+CaloMET100_NotCleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET100_NotCleaned_v*")
+
+# HLT_CaloMET110_NotCleaned_v*
+CaloMET110_NotCleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET110_NotCleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET110_NotCleaned/')
+CaloMET110_NotCleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET110_NotCleaned_v*")
+
+# HLT_CaloMET250_NotCleaned_v*
+CaloMET250_NotCleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET250_NotCleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET250_NotCleaned/')
+CaloMET250_NotCleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET250_NotCleaned_v*")
+
+# HLT_CaloMET70_HBHECleaned_v*
+CaloMET70_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET70_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET70_HBHECleaned/')
+CaloMET70_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET70_HBHECleaned_v*")
+
+# HLT_CaloMET80_HBHECleaned_v*
+CaloMET80_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET80_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET80_HBHECleaned/')
+CaloMET80_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET80_HBHECleaned_v*")
+
+# HLT_CaloMET90_HBHECleaned_v*
+CaloMET90_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET90_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET90_HBHECleaned/')
+CaloMET90_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET90_HBHECleaned_v*")
+
+# HLT_CaloMET100_HBHECleaned_v*
+CaloMET100_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET100_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET100_HBHECleaned/')
+CaloMET100_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET100_HBHECleaned_v*")
+
+# HLT_CaloMET250_HBHECleaned_v*
+CaloMET250_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET250_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET250_HBHECleaned/')
+CaloMET250_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET250_HBHECleaned_v*")
+
+# HLT_CaloMET300_HBHECleaned_v*
+CaloMET300_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET300_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET300_HBHECleaned/')
+CaloMET300_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET300_HBHECleaned_v*")
+
+# HLT_CaloMET350_HBHECleaned_v*
+CaloMET350_HBHECleaned_METmonitoring = hltMETmonitoring.clone()
+CaloMET350_HBHECleaned_METmonitoring.FolderName = cms.string('HLT/MET/CaloMET350_HBHECleaned/')
+CaloMET350_HBHECleaned_METmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_CaloMET350_HBHECleaned_v*")
+
+
 exoHLTMETmonitoring = cms.Sequence(
     PFMET110_PFMHT110_IDTight_METmonitoring
     + PFMET120_PFMHT120_IDTight_METmonitoring
@@ -171,5 +257,23 @@ exoHLTMETmonitoring = cms.Sequence(
     + PFMETNoMu90_PFMHTNoMu90_METmonitoring
     + MET200_METmonitoring
     + MonoCentralPFJet80_PFMETNoMu90_PFMHTNoMu90_METmonitoring
+    + CaloMHT90_METmonitoring
+    + CaloMET80_NotCleaned_METmonitoring
+    + CaloMET90_NotCleaned_METmonitoring
+    + CaloMET100_NotCleaned_METmonitoring
+    + CaloMET110_NotCleaned_METmonitoring
+    + CaloMET250_NotCleaned_METmonitoring
+    + CaloMET70_HBHECleaned_METmonitoring
+    + CaloMET80_HBHECleaned_METmonitoring
+    + CaloMET90_HBHECleaned_METmonitoring
+    + CaloMET100_HBHECleaned_METmonitoring
+    + CaloMET250_HBHECleaned_METmonitoring
+    + CaloMET300_HBHECleaned_METmonitoring
+    + CaloMET350_HBHECleaned_METmonitoring
+    + PFMET200_NotCleaned_METmonitoring
+    + PFMET200_HBHECleaned_METmonitoring
+    + PFMET250_HBHECleaned_METmonitoring
+    + PFMET300_HBHECleaned_METmonitoring
+
 )
 
