@@ -736,8 +736,6 @@ HcalTriggerPrimitiveAlgo::validUpgradeFG(const HcalTrigTowerDetId& id, int depth
       return false;
    if (id.ietaAbs() > LAST_FINEGRAIN_TOWER)
       return false;
-   if (id.ietaAbs() == HBHE_OVERLAP_TOWER and not upgrade_hb_)
-      return false;
    return true;
 }
 
