@@ -18,6 +18,7 @@
 // system include files
 #include <memory>
 #include <vector>
+#include <regex>
 
 // user include files
 #include "Alignment/OfflineValidation/plugins/PrimaryVertexValidation.h"
@@ -157,10 +158,10 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   bool passesRunControl = false;
 
   if(runControl_){
-    for(const auto & j : runControlNumbers_){
-      if(iEvent.eventAuxiliary().run() == runControlNumbers_[j]){ 
+    for(const auto & runControlNumber : runControlNumbers_){
+      if(iEvent.eventAuxiliary().run() == runControlNumber){ 
 	if (debug_){
-	  edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumbers_[j];
+	  edm::LogInfo("PrimaryVertexValidation")<<" run number: "<<iEvent.eventAuxiliary().run()<<" keeping run:"<<runControlNumber;
 	}
 	passesRunControl = true;
 	break;
@@ -269,7 +270,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   std::sort( vsorted.begin(), vsorted.end(), PrimaryVertexValidation::vtxSort );
   
   // skip events with no PV, this should not happen
-  if( vsorted.size() == 0) return;
+  if( vsorted.empty()) return;
   // skip events failing vertex cut
   if( std::abs(vsorted[0].z()) > vertexZMax_ ) return; 
   
@@ -301,7 +302,7 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
   nOfflineVertices_ = nvvertex;
   h_nOfflineVertices->Fill(nvvertex);
 
-  if ( vsorted.size() && useTracksFromRecoVtx_ ) {
+  if ( !vsorted.empty() && useTracksFromRecoVtx_ ) {
    
     double sumpt    = 0;
     size_t ntracks  = 0;
@@ -595,10 +596,10 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 	      
 	      if(theFittedVertex.hasTrackWeight()){
-		for(size_t rtracks= 0; rtracks < theFinalTracks.size(); rtracks++){
-		  sumOfWeightsUnbiasedVertex_[nTracks_] += theFittedVertex.trackWeight(theFinalTracks[rtracks]);
-		  totalTrackWeights+= theFittedVertex.trackWeight(theFinalTracks[rtracks]);
-		  h_fitVtxTrackWeights_->Fill(theFittedVertex.trackWeight(theFinalTracks[rtracks]));
+		for(const auto & theFinalTrack : theFinalTracks){
+		  sumOfWeightsUnbiasedVertex_[nTracks_] += theFittedVertex.trackWeight(theFinalTrack);
+		  totalTrackWeights+= theFittedVertex.trackWeight(theFinalTrack);
+		  h_fitVtxTrackWeights_->Fill(theFittedVertex.trackWeight(theFinalTrack));
 		}
 	      }
 	      
@@ -1002,7 +1003,7 @@ bool PrimaryVertexValidation::isHit2D(const TrackingRecHit &hit) const
 
 
 // ------------ method to check the presence of pixel hits  ------------
-std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::TransientTrack track){
+std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::TransientTrack& track){
   
   bool hasBPixHits = false;
   bool hasFPixHits = false;
@@ -1020,7 +1021,7 @@ std::pair<bool,bool> PrimaryVertexValidation::pixelHitsCheck(const reco::Transie
 
 
 // ------------ method to check the presence of pixel hits  ------------
-bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack track)
+bool PrimaryVertexValidation::hasFirstLayerPixelHits(const reco::TransientTrack& track)
 {
   using namespace reco;
   const HitPattern& p = track.hitPattern();      
@@ -2294,8 +2295,8 @@ Measurement1D PrimaryVertexValidation::getMedian(TH1F *histo)
   }
   median = TMath::Median(nbins, x, y);
   
-  delete[] x; x = 0;
-  delete[] y; y = 0;  
+  delete[] x; x = nullptr;
+  delete[] y; y = nullptr;  
 
   Measurement1D result(median,median/TMath::Sqrt(histo->GetEntries()));
 
@@ -2325,8 +2326,8 @@ Measurement1D PrimaryVertexValidation::getMAD(TH1F *histo)
   
   double theMAD = (getMedian(newHisto).value())*1.4826;
   
-  delete[] residuals; residuals=0;
-  delete[] weights; weights=0;
+  delete[] residuals; residuals=nullptr;
+  delete[] weights; weights=nullptr;
   newHisto->Delete("");
   
   Measurement1D result(theMAD,theMAD/histo->GetEntries());
@@ -2375,7 +2376,7 @@ std::pair<Measurement1D, Measurement1D> PrimaryVertexValidation::fitResiduals(TH
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], statmode::estimator fitPar_, TString var_)
+void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot[100], statmode::estimator fitPar_,const std::string& var_)
 //*************************************************************
 {
    
@@ -2429,9 +2430,9 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
 	break;
       }
 
-    if(var_=="eta"){
+    if(var_.find("eta") != std::string::npos){
       trendPlot->GetXaxis()->SetBinLabel(i+1,etapositionString); 
-    } else if(var_=="phi"){
+    } else if(var_.find("phi") != std::string::npos){
       trendPlot->GetXaxis()->SetBinLabel(i+1,phipositionString); 
     } else {
       std::cout<<"PrimaryVertexValidation::fillTrendPlot() "<<var_<<" unknown track parameter!"<<std::endl;
@@ -2564,7 +2565,7 @@ bool PrimaryVertexValidation::vtxSort( const reco::Vertex & a, const reco::Verte
 }
 
 //*************************************************************
-bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_)
+bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_)
 //*************************************************************
 {
  
@@ -2591,7 +2592,7 @@ bool PrimaryVertexValidation::passesTrackCuts(const reco::Track & track, const r
 
 
 //*************************************************************
-std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileDirectory dir)
+std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(const TFileDirectory& dir)
 //*************************************************************
 {
 
@@ -2601,41 +2602,41 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileD
   
   // histograms of track quality (Data and MC)
   std::string types[] = {"all","sel"};
-  for(int t=0; t<2; t++){
-    h["pseudorapidity_"+types[t]] =dir.make <TH1F>(("rapidity_"+types[t]).c_str(),"track pseudorapidity; track #eta; tracks",100,-3., 3.);
-    h["z0_"+types[t]] = dir.make<TH1F>(("z0_"+types[t]).c_str(),"track z_{0};track z_{0} (cm);tracks",80,-40., 40.);
-    h["phi_"+types[t]] = dir.make<TH1F>(("phi_"+types[t]).c_str(),"track #phi; track #phi;tracks",80,-TMath::Pi(), TMath::Pi());
-    h["eta_"+types[t]] = dir.make<TH1F>(("eta_"+types[t]).c_str(),"track #eta; track #eta;tracks",80,-4., 4.);
-    h["pt_"+types[t]] = dir.make<TH1F>(("pt_"+types[t]).c_str(),"track p_{T}; track p_{T} [GeV];tracks",100,0., 20.);
-    h["p_"+types[t]] = dir.make<TH1F>(("p_"+types[t]).c_str(),"track p; track p [GeV];tracks",100,0., 20.);
-    h["found_"+types[t]] = dir.make<TH1F>(("found_"+types[t]).c_str(),"n. found hits;n^{found}_{hits};tracks",30, 0., 30.);
-    h["lost_"+types[t]] = dir.make<TH1F>(("lost_"+types[t]).c_str(),"n. lost hits;n^{lost}_{hits};tracks",20, 0., 20.);
-    h["nchi2_"+types[t]] = dir.make<TH1F>(("nchi2_"+types[t]).c_str(),"normalized track #chi^{2};track #chi^{2}/ndf;tracks",100, 0., 20.);
-    h["rstart_"+types[t]] = dir.make<TH1F>(("rstart_"+types[t]).c_str(),"track start radius; track innermost radius r (cm);tracks",100, 0., 20.);
-    h["expectedInner_"+types[t]] = dir.make<TH1F>(("expectedInner_"+types[t]).c_str(),"n. expected inner hits;n^{expected}_{inner};tracks",10, 0., 10.);
-    h["expectedOuter_"+types[t]] = dir.make<TH1F>(("expectedOuter_"+types[t]).c_str(),"n. expected outer hits;n^{expected}_{outer};tracks ",10, 0., 10.);
-    h["logtresxy_"+types[t]] = dir.make<TH1F>(("logtresxy_"+types[t]).c_str(),"log10(track r-#phi resolution/#mum);log10(track r-#phi resolution/#mum);tracks",100, 0., 5.);
-    h["logtresz_"+types[t]] = dir.make<TH1F>(("logtresz_"+types[t]).c_str(),"log10(track z resolution/#mum);log10(track z resolution/#mum);tracks",100, 0., 5.);
-    h["tpullxy_"+types[t]] = dir.make<TH1F>(("tpullxy_"+types[t]).c_str(),"track r-#phi pull;pull_{r-#phi};tracks",100, -10., 10.);
-    h["tpullz_"+types[t]] = dir.make<TH1F>(("tpullz_"+types[t]).c_str(),"track r-z pull;pull_{r-z};tracks",100, -50., 50.);
-    h["tlogDCAxy_"+types[t]] = dir.make<TH1F>(("tlogDCAxy_"+types[t]).c_str(),"track log_{10}(DCA_{r-#phi});track log_{10}(DCA_{r-#phi});tracks",200, -5., 3.);
-    h["tlogDCAz_"+types[t]] = dir.make<TH1F>(("tlogDCAz_"+types[t]).c_str(),"track log_{10}(DCA_{r-z});track log_{10}(DCA_{r-z});tracks",200, -5., 5.);
-    h["lvseta_"+types[t]] = dir.make<TH2F>(("lvseta_"+types[t]).c_str(),"cluster length vs #eta;track #eta;cluster length",60,-3., 3., 20, 0., 20);
-    h["lvstanlambda_"+types[t]] = dir.make<TH2F>(("lvstanlambda_"+types[t]).c_str(),"cluster length vs tan #lambda; tan#lambda;cluster length",60,-6., 6., 20, 0., 20);
-    h["restrkz_"+types[t]] = dir.make<TH1F>(("restrkz_"+types[t]).c_str(),"z-residuals (track vs vertex);res_{z} (cm);tracks", 200, -5., 5.);
-    h["restrkzvsphi_"+types[t]] = dir.make<TH2F>(("restrkzvsphi_"+types[t]).c_str(),"z-residuals (track - vertex) vs track #phi;track #phi;res_{z} (cm)", 12,-TMath::Pi(),TMath::Pi(),100, -0.5,0.5);
-    h["restrkzvseta_"+types[t]] = dir.make<TH2F>(("restrkzvseta_"+types[t]).c_str(),"z-residuals (track - vertex) vs track #eta;track #eta;res_{z} (cm)", 12,-3.,3.,200, -0.5,0.5);
-    h["pulltrkzvsphi_"+types[t]] = dir.make<TH2F>(("pulltrkzvsphi_"+types[t]).c_str(),"normalized z-residuals (track - vertex) vs track #phi;track #phi;res_{z}/#sigma_{res_{z}}", 12,-TMath::Pi(),TMath::Pi(),100, -5., 5.);
-    h["pulltrkzvseta_"+types[t]] = dir.make<TH2F>(("pulltrkzvseta_"+types[t]).c_str(),"normalized z-residuals (track - vertex) vs track #eta;track #eta;res_{z}/#sigma_{res_{z}}", 12,-3.,3.,100, -5., 5.);
-    h["pulltrkz_"+types[t]] = dir.make<TH1F>(("pulltrkz_"+types[t]).c_str(),"normalized z-residuals (track vs vertex);res_{z}/#sigma_{res_{z}};tracks", 100, -5., 5.);
-    h["sigmatrkz0_"+types[t]] = dir.make<TH1F>(("sigmatrkz0_"+types[t]).c_str(),"z-resolution (excluding beam);#sigma^{trk}_{z_{0}} (cm);tracks", 100, 0., 5.);
-    h["sigmatrkz_"+types[t]] = dir.make<TH1F>(("sigmatrkz_"+types[t]).c_str(),"z-resolution (including beam);#sigma^{trk}_{z} (cm);tracks", 100,0., 5.);
-    h["nbarrelhits_"+types[t]] = dir.make<TH1F>(("nbarrelhits_"+types[t]).c_str(),"number of pixel barrel hits;n. hits Barrel Pixel;tracks", 10, 0., 10.);
-    h["nbarrelLayers_"+types[t]] = dir.make<TH1F>(("nbarrelLayers_"+types[t]).c_str(),"number of pixel barrel layers;n. layers Barrel Pixel;tracks", 10, 0., 10.);
-    h["nPxLayers_"+types[t]] = dir.make<TH1F>(("nPxLayers_"+types[t]).c_str(),"number of pixel layers (barrel+endcap);n. Pixel layers;tracks", 10, 0., 10.);
-    h["nSiLayers_"+types[t]] = dir.make<TH1F>(("nSiLayers_"+types[t]).c_str(),"number of Tracker layers;n. Tracker layers;tracks", 20, 0., 20.);
-    h["trackAlgo_"+types[t]] = dir.make<TH1F>(("trackAlgo_"+types[t]).c_str(),"track algorithm;track algo;tracks", 30, 0., 30.);
-    h["trackQuality_"+types[t]] = dir.make<TH1F>(("trackQuality_"+types[t]).c_str(),"track quality;track quality;tracks", 7, -1., 6.);
+  for(const auto & type : types){
+    h["pseudorapidity_"+type] =dir.make <TH1F>(("rapidity_"+type).c_str(),"track pseudorapidity; track #eta; tracks",100,-3., 3.);
+    h["z0_"+type] = dir.make<TH1F>(("z0_"+type).c_str(),"track z_{0};track z_{0} (cm);tracks",80,-40., 40.);
+    h["phi_"+type] = dir.make<TH1F>(("phi_"+type).c_str(),"track #phi; track #phi;tracks",80,-TMath::Pi(), TMath::Pi());
+    h["eta_"+type] = dir.make<TH1F>(("eta_"+type).c_str(),"track #eta; track #eta;tracks",80,-4., 4.);
+    h["pt_"+type] = dir.make<TH1F>(("pt_"+type).c_str(),"track p_{T}; track p_{T} [GeV];tracks",100,0., 20.);
+    h["p_"+type] = dir.make<TH1F>(("p_"+type).c_str(),"track p; track p [GeV];tracks",100,0., 20.);
+    h["found_"+type] = dir.make<TH1F>(("found_"+type).c_str(),"n. found hits;n^{found}_{hits};tracks",30, 0., 30.);
+    h["lost_"+type] = dir.make<TH1F>(("lost_"+type).c_str(),"n. lost hits;n^{lost}_{hits};tracks",20, 0., 20.);
+    h["nchi2_"+type] = dir.make<TH1F>(("nchi2_"+type).c_str(),"normalized track #chi^{2};track #chi^{2}/ndf;tracks",100, 0., 20.);
+    h["rstart_"+type] = dir.make<TH1F>(("rstart_"+type).c_str(),"track start radius; track innermost radius r (cm);tracks",100, 0., 20.);
+    h["expectedInner_"+type] = dir.make<TH1F>(("expectedInner_"+type).c_str(),"n. expected inner hits;n^{expected}_{inner};tracks",10, 0., 10.);
+    h["expectedOuter_"+type] = dir.make<TH1F>(("expectedOuter_"+type).c_str(),"n. expected outer hits;n^{expected}_{outer};tracks ",10, 0., 10.);
+    h["logtresxy_"+type] = dir.make<TH1F>(("logtresxy_"+type).c_str(),"log10(track r-#phi resolution/#mum);log10(track r-#phi resolution/#mum);tracks",100, 0., 5.);
+    h["logtresz_"+type] = dir.make<TH1F>(("logtresz_"+type).c_str(),"log10(track z resolution/#mum);log10(track z resolution/#mum);tracks",100, 0., 5.);
+    h["tpullxy_"+type] = dir.make<TH1F>(("tpullxy_"+type).c_str(),"track r-#phi pull;pull_{r-#phi};tracks",100, -10., 10.);
+    h["tpullz_"+type] = dir.make<TH1F>(("tpullz_"+type).c_str(),"track r-z pull;pull_{r-z};tracks",100, -50., 50.);
+    h["tlogDCAxy_"+type] = dir.make<TH1F>(("tlogDCAxy_"+type).c_str(),"track log_{10}(DCA_{r-#phi});track log_{10}(DCA_{r-#phi});tracks",200, -5., 3.);
+    h["tlogDCAz_"+type] = dir.make<TH1F>(("tlogDCAz_"+type).c_str(),"track log_{10}(DCA_{r-z});track log_{10}(DCA_{r-z});tracks",200, -5., 5.);
+    h["lvseta_"+type] = dir.make<TH2F>(("lvseta_"+type).c_str(),"cluster length vs #eta;track #eta;cluster length",60,-3., 3., 20, 0., 20);
+    h["lvstanlambda_"+type] = dir.make<TH2F>(("lvstanlambda_"+type).c_str(),"cluster length vs tan #lambda; tan#lambda;cluster length",60,-6., 6., 20, 0., 20);
+    h["restrkz_"+type] = dir.make<TH1F>(("restrkz_"+type).c_str(),"z-residuals (track vs vertex);res_{z} (cm);tracks", 200, -5., 5.);
+    h["restrkzvsphi_"+type] = dir.make<TH2F>(("restrkzvsphi_"+type).c_str(),"z-residuals (track - vertex) vs track #phi;track #phi;res_{z} (cm)", 12,-TMath::Pi(),TMath::Pi(),100, -0.5,0.5);
+    h["restrkzvseta_"+type] = dir.make<TH2F>(("restrkzvseta_"+type).c_str(),"z-residuals (track - vertex) vs track #eta;track #eta;res_{z} (cm)", 12,-3.,3.,200, -0.5,0.5);
+    h["pulltrkzvsphi_"+type] = dir.make<TH2F>(("pulltrkzvsphi_"+type).c_str(),"normalized z-residuals (track - vertex) vs track #phi;track #phi;res_{z}/#sigma_{res_{z}}", 12,-TMath::Pi(),TMath::Pi(),100, -5., 5.);
+    h["pulltrkzvseta_"+type] = dir.make<TH2F>(("pulltrkzvseta_"+type).c_str(),"normalized z-residuals (track - vertex) vs track #eta;track #eta;res_{z}/#sigma_{res_{z}}", 12,-3.,3.,100, -5., 5.);
+    h["pulltrkz_"+type] = dir.make<TH1F>(("pulltrkz_"+type).c_str(),"normalized z-residuals (track vs vertex);res_{z}/#sigma_{res_{z}};tracks", 100, -5., 5.);
+    h["sigmatrkz0_"+type] = dir.make<TH1F>(("sigmatrkz0_"+type).c_str(),"z-resolution (excluding beam);#sigma^{trk}_{z_{0}} (cm);tracks", 100, 0., 5.);
+    h["sigmatrkz_"+type] = dir.make<TH1F>(("sigmatrkz_"+type).c_str(),"z-resolution (including beam);#sigma^{trk}_{z} (cm);tracks", 100,0., 5.);
+    h["nbarrelhits_"+type] = dir.make<TH1F>(("nbarrelhits_"+type).c_str(),"number of pixel barrel hits;n. hits Barrel Pixel;tracks", 10, 0., 10.);
+    h["nbarrelLayers_"+type] = dir.make<TH1F>(("nbarrelLayers_"+type).c_str(),"number of pixel barrel layers;n. layers Barrel Pixel;tracks", 10, 0., 10.);
+    h["nPxLayers_"+type] = dir.make<TH1F>(("nPxLayers_"+type).c_str(),"number of pixel layers (barrel+endcap);n. Pixel layers;tracks", 10, 0., 10.);
+    h["nSiLayers_"+type] = dir.make<TH1F>(("nSiLayers_"+type).c_str(),"number of Tracker layers;n. Tracker layers;tracks", 20, 0., 20.);
+    h["trackAlgo_"+type] = dir.make<TH1F>(("trackAlgo_"+type).c_str(),"track algorithm;track algo;tracks", 30, 0., 30.);
+    h["trackQuality_"+type] = dir.make<TH1F>(("trackQuality_"+type).c_str(),"track quality;track quality;tracks", 7, -1., 6.);
   }
 
   return h;
@@ -2645,16 +2646,16 @@ std::map<std::string, TH1*> PrimaryVertexValidation::bookVertexHistograms(TFileD
 //*************************************************************
 // Generic booker function
 //*************************************************************
-std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(TFileDirectory dir,
+std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDirectory& dir,
 								   unsigned int theNOfBins,
-								   TString resType,
-								   TString varType){
+								   std::string resType,
+								   const std::string& varType){
   TH1F::SetDefaultSumw2(kTRUE);
   
   double up   = 1000;
   double down = -up;
   
-  if(resType.Contains("norm")){
+  if(resType.find( "norm" ) != std::string::npos){
     up = up*(1/100);
     down = down*(1/100);
   }
@@ -2662,11 +2663,11 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(TFileDirector
   std::vector<TH1F*> h;
   h.reserve(theNOfBins);
   
-  const char* auxResType = (resType.ReplaceAll("_","")).Data();
+  std::string auxResType = std::regex_replace(resType, std::regex("_"), "");
   
   for(unsigned int i=0; i<theNOfBins;i++){
-    TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",resType.Data(),varType.Data(),i),
-				 Form("%s vs %s - bin %i;%s;tracks",auxResType,varType.Data(),i,auxResType),
+    TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",resType.c_str(),varType.c_str(),i),
+				 Form("%s vs %s - bin %i;%s;tracks",auxResType.c_str(),varType.c_str(),i,auxResType.c_str()),
 				 500,down,up); 
     h.push_back(htemp);
   }
@@ -2798,7 +2799,7 @@ void PrimaryVertexValidation::add(std::map<std::string, TH1*>& h, TH1* hist)
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s, double x)
+void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h,const std::string& s, double x)
 //*************************************************************
 {
   if(h.count(s)==0){
@@ -2809,7 +2810,7 @@ void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h, std::string s, double x, double y)
+void PrimaryVertexValidation::fill(std::map<std::string, TH1*>& h,const std::string& s, double x, double y)
 //*************************************************************
 {
   if(h.count(s)==0){
