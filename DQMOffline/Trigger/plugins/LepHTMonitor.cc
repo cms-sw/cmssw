@@ -24,7 +24,7 @@
 namespace{
 
   //Offline electron definition
-  bool IsGood(const reco::GsfElectron &el, const reco::Vertex::Point &pv_position,
+  bool isGood(const reco::GsfElectron &el, const reco::Vertex::Point &pv_position,
               const reco::BeamSpot::Point &bs_position,
               const edm::Handle<reco::ConversionCollection> &convs, bool pass_id,
 	      const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,  
@@ -76,7 +76,7 @@ namespace{
   }
 
   //Offline muon definition
-  bool IsGood(const reco::Muon &mu, const reco::Vertex &pv,
+  bool isGood(const reco::Muon &mu, const reco::Vertex &pv,
 	      const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,
 	      const double d0_cut, const double dz_cut, int muonIDlevel){
 
@@ -398,7 +398,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
       for(const auto &electron: *ElectronCollection){
 	const auto el = ElectronCollection->ptrAt(index);
 	bool pass_id = (*ele_id_decisions)[el];
-        if(IsGood(electron, VertexCollection->front().position(),
+        if(isGood(electron, VertexCollection->front().position(),
                   BeamSpot->position(), ConversionCollection, pass_id,
 		  lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, 
 		  lep_d0_cut_b_, lep_dz_cut_b_, lep_d0_cut_e_, lep_dz_cut_e_)){
@@ -413,7 +413,7 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
     //Try to find a reco muon
     if(MuonCollection.isValid()){
       for(const auto &muon: *MuonCollection){
-        if(IsGood(muon, VertexCollection->front(),lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, lep_d0_cut_b_, lep_dz_cut_b_, muonIDlevel_)){
+        if(isGood(muon, VertexCollection->front(),lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, lep_d0_cut_b_, lep_dz_cut_b_, muonIDlevel_)){
           if(muon.pt()>lep_max_pt) {lep_max_pt=muon.pt(); lep_eta=muon.eta();lep_phi=muon.phi();} 
           if(muon.pt()<min_mu_pt || min_mu_pt<0) {min_mu_pt=muon.pt(); trailing_mu_eta=muon.eta(); trailing_mu_phi=muon.phi();} 
 	  nmus++;
