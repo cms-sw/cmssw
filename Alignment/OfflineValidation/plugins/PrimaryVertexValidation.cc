@@ -787,18 +787,16 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		std::pair<bool,bool> pixelOcc = pixelHitsCheck((theTTrack));
 
-		/*
+		if(debug_){
 		  if(pixelOcc.first == true)
-		  std::cout<<"has BPIx hits"<<std::endl;
+		    edm::LogInfo("PrimaryVertexValidation")<<"has BPIx hits"<<std::endl;
 		  if(pixelOcc.second == true)
-		  std::cout<<"has FPix hits"<<std::endl;
-		*/		  
+		    edm::LogInfo("PrimaryVertexValidation")<<"has FPix hits"<<std::endl;
+		}		  
 
 		if(!doBPix_ && (pixelOcc.first == true))  continue;
 		if(!doFPix_ && (pixelOcc.second == true)) continue;
-	
-		//std::cout<<"track passed"<<std::endl;
-	
+		
 		fillTrackHistos(hDA,"sel",&(theTTrack),vertex,beamSpot,fBfield_);
 
 		// probe checks
@@ -1153,7 +1151,7 @@ void PrimaryVertexValidation::beginJob()
   h_nTracks           = EventFeatures.make<TH1F>("h_nTracks","number of tracks per event;n_{tracks}/event;n_{events}",300,-0.5,299.5);	     
   h_nClus             = EventFeatures.make<TH1F>("h_nClus","number of track clusters;n_{clusters}/event;n_{events}",50,-0.5,49.5);	     
   h_nOfflineVertices  = EventFeatures.make<TH1F>("h_nOfflineVertices","number of offline reconstructed vertices;n_{vertices}/event;n_{events}",50,-0.5,49.5);  
-  h_runNumber         = EventFeatures.make<TH1F>("h_runNumber","run number;run number;n_{events}",100000,150000.,250000.);	     
+  h_runNumber         = EventFeatures.make<TH1F>("h_runNumber","run number;run number;n_{events}",100000,250000.,350000.);	     
   h_xOfflineVertex    = EventFeatures.make<TH1F>("h_xOfflineVertex","x-coordinate of offline vertex;x_{vertex};n_{events}",100,-0.1,0.1);    
   h_yOfflineVertex    = EventFeatures.make<TH1F>("h_yOfflineVertex","y-coordinate of offline vertex;y_{vertex};n_{events}",100,-0.1,0.1);    
   h_zOfflineVertex    = EventFeatures.make<TH1F>("h_zOfflineVertex","z-coordinate of offline vertex;z_{vertex};n_{events}",100,-30.,30.);    
@@ -2435,7 +2433,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
     } else if(var_.find("phi") != std::string::npos){
       trendPlot->GetXaxis()->SetBinLabel(i+1,phipositionString); 
     } else {
-      std::cout<<"PrimaryVertexValidation::fillTrendPlot() "<<var_<<" unknown track parameter!"<<std::endl;
+      edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlot() "<<var_<<" unknown track parameter!"<<std::endl;
     }
   }
 }
