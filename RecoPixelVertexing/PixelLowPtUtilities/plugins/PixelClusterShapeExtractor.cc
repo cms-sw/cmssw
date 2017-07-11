@@ -202,7 +202,6 @@ void PixelClusterShapeExtractor::processRec(const SiPixelRecHit & recHit, Cluste
       int i = (part * (exMax + 1) +
                meas.front().first) * (eyMax + 1) +
                meas.front().second;
-#define DO_DEBUG  
 #ifdef DO_DEBUG
       if (meas.front().second==0 && std::abs(pred.second)>3)
       {
