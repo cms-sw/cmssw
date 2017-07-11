@@ -177,7 +177,7 @@ bool PixelClusterShapeExtractor::isSuitable(const PSimHit & simHit, const GeomDe
   //bool isRelevant = (simHit.processType() == 2 ||
   //                   simHit.processType() == 4);
 
-  constexpr float ptCut2 = 0.050*0.050;
+  constexpr float ptCut2 = 0.2*0.2; //  0.050*0.050;
   // Fast enough? pt > 50 MeV/c   FIXME (at least 200MeV....
   bool isFast = (simHit.momentumAtEntry().perp2() > ptCut2);
 
@@ -201,6 +201,15 @@ void PixelClusterShapeExtractor::processRec(const SiPixelRecHit & recHit, Cluste
       int i = (part * (exMax + 1) +
                meas.front().first) * (eyMax + 1) +
                meas.front().second;
+#ifdef DO_DEBUG
+      {
+       Lock(theMutex[0]);
+       int id = recHit.geographicalId();
+       if (meas.front().second==0 && std::abs(pred.second)>3)
+         std::cout << id << " bigpred " << meas.front().first << '/'<<meas.front().second 
+                  << ' ' << pred.first << '/' << pred.second << ' ' << ldir << ' ' << ldir.mag()<< std::endl;
+      }
+#endif
       Lock(theMutex[i]);
       histo[i]->Fill(pred.first, pred.second);
     }
@@ -210,7 +219,7 @@ void PixelClusterShapeExtractor::processRec(const SiPixelRecHit & recHit, Cluste
 void PixelClusterShapeExtractor::processSim(const SiPixelRecHit & recHit, ClusterShapeHitFilter const & theClusterFilter,
      const PSimHit & simHit, const SiPixelClusterShapeCache& clusterShapeCache, vector<TH2F *> & histo) const
 {
-  LocalVector ldir = simHit.exitPoint() - simHit.entryPoint();
+  LocalVector ldir = simHit.exitPoint() - simHit.entryPoint(); 
   processRec(recHit, theClusterFilter, ldir, clusterShapeCache, histo);
 }
 
@@ -222,14 +231,12 @@ bool PixelClusterShapeExtractor::checkSimHits
   auto const & simHits = theHitAssociator.associateHit(recHit);
 
     //std::cout << "simHits.size() = " << simHits.size() << std::endl;
-  if(simHits.size() == 1)
+  for (auto const & sh : simHits)
   {
-    simHit = simHits[0];
-
-    if(isSuitable(simHit, *recHit.detUnit()))
+    if(isSuitable(sh, *recHit.detUnit()))
     {
-      key = pair<unsigned int, float>(simHit.trackId(),
-                                      simHit.timeOfFlight());
+      simHit = sh; 
+      key = {simHit.trackId(),simHit.timeOfFlight()};
       return true;
     }
   } 
