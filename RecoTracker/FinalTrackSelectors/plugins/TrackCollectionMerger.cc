@@ -36,7 +36,8 @@ namespace {
       m_shareFrac(conf.getParameter<double>("shareFrac")),
       m_minShareHits(conf.getParameter<unsigned int>("minShareHits")),
       m_minQuality(reco::TrackBase::qualityByName(conf.getParameter<std::string>("minQuality"))),
-      m_allowFirstHitShare(conf.getParameter<bool>("allowFirstHitShare"))
+      m_allowFirstHitShare(conf.getParameter<bool>("allowFirstHitShare")),
+      m_enableMerging(conf.getParameter<bool>("enableMerging"))
 {
       for (auto const & it : conf.getParameter<std::vector<edm::InputTag> >("trackProducers") )
 	srcColls.emplace_back(it,consumesCollector());
@@ -63,6 +64,7 @@ namespace {
       desc.add<double>("lostHitPenalty",5.);
       desc.add<unsigned int>("minShareHits",2);
       desc.add<bool>("allowFirstHitShare",true);
+      desc.add<bool>("enableMerging",true);
       desc.add<std::string>("minQuality","loose");
       TrackCollectionCloner::fill(desc);
       descriptions.add("TrackCollectionMerger", desc);
@@ -91,6 +93,7 @@ namespace {
     unsigned int m_minShareHits;
     reco::TrackBase::TrackQuality m_minQuality;
     bool  m_allowFirstHitShare;
+    bool  m_enableMerging;
     
     virtual void produce(edm::StreamID, edm::Event& evt, const edm::EventSetup&) const override;
     
@@ -252,7 +255,8 @@ namespace {
     }; // end merger;
 
 
-    if (collsSize>1) merger();
+    const bool doMerging = m_enableMerging && collsSize>1;
+    if (doMerging) merger();
     
     // products
     auto pmvas = std::make_unique<MVACollection>();
@@ -279,14 +283,19 @@ namespace {
       producer(srcColls[i],selId);
       assert(producer.selTracks_->size()==nsel);
       assert(tid.size()==nsel-isel);
-      auto k=0U;
-      for (;isel<nsel;++isel) {
-	auto & otk = (*producer.selTracks_)[isel];
-	otk.setQualityMask((*pquals)[isel]);
-	otk.setOriginalAlgorithm(oriAlgo[tid[k]]);
-	otk.setAlgoMask(algoMask[tid[k++]]);
+      if(doMerging) { // override these only if the merging was run
+        auto k=0U;
+        for (;isel<nsel;++isel) {
+          auto & otk = (*producer.selTracks_)[isel];
+          otk.setQualityMask((*pquals)[isel]);
+          otk.setOriginalAlgorithm(oriAlgo[tid[k]]);
+          otk.setAlgoMask(algoMask[tid[k++]]);
+        }
+        assert(tid.size()==k);
       }
-      assert(tid.size()==k);
+      else {
+        isel = nsel; // update the internal bookkeeping
+      }
     }
 
     assert(producer.selTracks_->size()==pmvas->size());
