@@ -73,7 +73,7 @@ bool BowedSurfaceDeformation::add(const SurfaceDeformation &other)
 {
   if (other.type() == this->type()) {
     const std::vector<double> otherParams(other.parameters());
-    if (otherParams.size() == 3) { // double check!
+    if (otherParams.size() == parameterSize()) { // double check!
       theSagittaX  += otherParams[0]; // bows can simply be added up
       theSagittaXY += otherParams[1];
       theSagittaY  += otherParams[2];
@@ -88,7 +88,7 @@ bool BowedSurfaceDeformation::add(const SurfaceDeformation &other)
 //------------------------------------------------------------------------------
 std::vector<double> BowedSurfaceDeformation::parameters() const
 {
-  std::vector<double> result(3);
+  std::vector<double> result(parameterSize());
   result[0] = theSagittaX;
   result[1] = theSagittaXY;
   result[2] = theSagittaY;
