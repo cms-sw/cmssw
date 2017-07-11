@@ -53,60 +53,12 @@
 #include "TrackingTools/IPTools/interface/IPTools.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateClosestToPoint.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrackBuilder.h"
+#include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 
 //
 // ancyllary enum for 
 // residuals moments estimation 
 //
-
-namespace pvparams{
-  
-  enum estimator 
-    { MEAN   = 1,
-      WIDTH  = 2, 
-      MEDIAN = 3,
-      MAD    = 4,
-      UNKWN  = -1
-    };
-  
-  enum residualType 
-    { dxy = 1,
-      dx  = 2,
-      dy  = 3,
-      dz  = 4,
-      IP2D = 5,
-      resz = 6,
-      IP3D = 7,
-      d3D  = 8,
-      
-      norm_dxy = 9,
-      norm_dx  = 10,
-      norm_dy  = 11,
-      norm_dz  = 12,
-      norm_IP2D = 13,
-      norm_resz = 14,
-      norm_IP3D = 15,
-      norm_d3D  = 16,
-      END_OF_TYPES = 17,
-    };
-    
-  enum plotVariable
-    { phi    = 1,
-      eta    = 2,
-      pT     = 3,
-      pTCentral = 4,
-      ladder = 5,
-      modZ   = 6,
-      END_OF_PLOTS = 7,
-    };
-
-  struct histodetails
-  {
-    std::map<std::pair<residualType,plotVariable>,std::pair<float,float>> range;
-    int histobins;
-  };
-
-}
 
 //
 // class decleration
@@ -130,13 +82,13 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   Measurement1D getMAD(TH1F *histo);
   std::pair<Measurement1D, Measurement1D > fitResiduals(TH1 *hist);
 
-  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], pvparams::estimator fitPar_, const std::string& var_);
-  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, pvparams::estimator fitPar_); 
+  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], PVValHelper::estimator fitPar_, const std::string& var_);
+  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, PVValHelper::estimator fitPar_); 
 
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
   bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
 
-  std::vector<TH1F*> bookResidualsHistogram(const TFileDirectory& dir,unsigned int theNOfBins,std::string resType,const std::string& varType); 
+  std::vector<TH1F*> bookResidualsHistogram(TFileDirectory dir,unsigned int theNOfBins,PVValHelper::residualType resType,PVValHelper::plotVariable varType, bool isNormalized=false); 
   std::map<std::string, TH1*> bookVertexHistograms(const TFileDirectory& dir);
 
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
@@ -147,10 +99,10 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x,std::string tag=""); 
 
   void shrinkHistVectorToFit(std::vector<TH1F*>&h,unsigned int desired_size);
-  std::tuple<std::string,std::string,std::string> getTypeString (pvparams::residualType type);
-  std::tuple<std::string,std::string,std::string> getVarString (pvparams::plotVariable var);
+  std::tuple<std::string,std::string,std::string> getTypeString (PVValHelper::residualType type);
+  std::tuple<std::string,std::string,std::string> getVarString (PVValHelper::plotVariable var);
 
-  void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], pvparams::estimator fitPar_);
+  void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], PVValHelper::estimator fitPar_);
   
   inline double square(double x){
     return x*x;
@@ -172,7 +124,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   bool useTracksFromRecoVtx_; 
   
   // histogram details
-  pvparams::histodetails theDetails_;
+  PVValHelper::histodetails theDetails_;
   
   // requirements on the vertex
   double vertexZMax_;
@@ -461,25 +413,26 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
   TH2F* n_dxyWidthMap;
   TH2F* n_dzWidthMap;
-
+  
+  //
   // ---- directly histograms 
   // biased residuals
   
   // absolute residuals
 
-  TH1F* a_dxyPhiBiasResiduals[nMaxBins_];
-  TH1F* a_dxyEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dxyPhiBiasResiduals;
+  std::vector<TH1F*> a_dxyEtaBiasResiduals;
   
-  TH1F* a_dzPhiBiasResiduals[nMaxBins_];
-  TH1F* a_dzEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> a_dzPhiBiasResiduals;
+  std::vector<TH1F*> a_dzEtaBiasResiduals;
   
   // normalized BiasResiduals
 
-  TH1F* n_dxyPhiBiasResiduals[nMaxBins_];
-  TH1F* n_dxyEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dxyPhiBiasResiduals;
+  std::vector<TH1F*> n_dxyEtaBiasResiduals;
   
-  TH1F* n_dzPhiBiasResiduals[nMaxBins_];
-  TH1F* n_dzEtaBiasResiduals[nMaxBins_];
+  std::vector<TH1F*> n_dzPhiBiasResiduals;
+  std::vector<TH1F*> n_dzEtaBiasResiduals;
   
   // for the maps
 
