@@ -1,4 +1,4 @@
-<library file="*ClusterShapeExtractor.cc" name="ClusterShapeExtractor">
+<library file="ClusterShapeExtractor.cc" name="ClusterShapeExtractor">
 	<use name="root"/>
 	<use name="FWCore/Framework"/>
 	<use name="Geometry/CommonDetUnit"/>
