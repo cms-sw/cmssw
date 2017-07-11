@@ -1,6 +1,8 @@
 <use   name="DataFormats/VertexReco"/>
 <use   name="RecoPixelVertexing/PixelLowPtUtilities"/>
 <use   name="FWCore/Concurrency"/>
+<use name="SimDataFormats/TrackingHit"/>
+<use name="SimTracker/TrackerHitAssociation"/>
 <library   file="*.cc" name="RecoPixelVertexingPixelLowPtUtilitiesPlugins">
   <flags   EDM_PLUGIN="1"/>
 </library>
