@@ -39,6 +39,8 @@ METplusTrackMonitor::METplusTrackMonitor( const edm::ParameterSet& iConfig ) :
   , nmuons_          ( iConfig.getParameter<unsigned>("nmuons") )
   , njets_           ( iConfig.getParameter<unsigned>("njets") )
   , leadJetEtaCut_   ( iConfig.getParameter<double>("leadJetEtaCut") )
+  , requireLeadMatched_ ( iConfig.getParameter<bool>("requireLeadMatched") )
+  , maxMatchDeltaR_     ( iConfig.getParameter<double>("maxMatchDeltaR") )
 {
 
   metME_variableBinning_.numerator   = nullptr;
@@ -222,11 +224,13 @@ void METplusTrackMonitor::bookHistograms(DQMStore::IBooker     &ibooker,
   trigger::TriggerObject isoTrk;
   bool passesTrackLegFilter = getHLTObj(triggerSummary, trackLegFilterTag_, isoTrk);
 
-  bool leadMuonMatchToHLTTrack = muons.size() > 0 &&
-                                 passesTrackLegFilter &&
-                                 deltaR(muons[0], isoTrk) < 0.1;
-  if(!leadMuonMatchToHLTTrack) return;
+  // require track leg filter
+  if(!passesTrackLegFilter) return;
 
+  // if requested, require lead selected muon is matched to the track leg filter object
+  if(requireLeadMatched_ && muons.size() && deltaR(muons[0], isoTrk) < maxMatchDeltaR_) return;
+
+  // require the full HLT path is fired
   if(num_genTriggerEventFlag_->on() && !num_genTriggerEventFlag_->accept(iEvent, iSetup)) return;
 
   // Filling track leg histograms (denominator)
@@ -260,6 +264,8 @@ void METplusTrackMonitor::fillDescriptions(edm::ConfigurationDescriptions & desc
   desc.add<unsigned>("njets",  0);
   desc.add<unsigned>("nmuons", 0);
   desc.add<double>("leadJetEtaCut", 2.4);
+  desc.add<bool>("requireLeadMatched", true);
+  desc.add<double>("maxMatchDeltaR", 0.1);
 
   edm::ParameterSetDescription genericTriggerEventPSet;
   genericTriggerEventPSet.add<bool>("andOr");

@@ -112,6 +112,9 @@ private:
 
   double leadJetEtaCut_;
 
+  bool requireLeadMatched_;
+  double maxMatchDeltaR_;
+
 };
 
 #endif // DQMOFFLINE_TRIGGER_METPLUSTRACKMONITOR_H
