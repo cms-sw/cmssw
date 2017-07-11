@@ -43,7 +43,6 @@ hltMETplusTrackMonitoring.muons     = cms.InputTag("muons") # while pfIsolatedMu
 
 hltMETplusTrackMonitoring.muonSelection = cms.string('pt>26 && abs(eta)<2.1 && (pfIsolationR04.sumChargedHadronPt+pfIsolationR04.sumPhotonEt+pfIsolationR04.sumNeutralHadronEt-0.5*pfIsolationR04.sumPUPt)/pt<0.12')
 hltMETplusTrackMonitoring.vtxSelection = cms.string('ndof>=4 && abs(z)<24.0 && position.Rho<2.0')
-hltMETplusTrackMonitoring.njets = cms.uint32(1)
 hltMETplusTrackMonitoring.nmuons = cms.uint32(1)
 hltMETplusTrackMonitoring.leadJetEtaCut = cms.double(2.4)
 
