@@ -925,9 +925,11 @@ class TrackPrinter(_RecHitPrinter):
         lst.append(self._prefix+" is %s algo %s originalAlgo %s%s stopReason %s" % (hp, Algo.toString(track.algo()), Algo.toString(track.originalAlgo()), algoMaskStr, StopReason.toString(track.stopReason())))
         lst.append(self._prefix+" px %f py %f pz %f p %f" % (track.px(), track.py(), track.pz(), math.sqrt(track.px()**2+track.py()**2+track.pz()**2)))
         if self._trackingParticleMatchPrinter.bestMatchingTrackingParticle():
-            ptPull = track.ptPull()
-            if ptPull is not None:
-                lst.append(self._prefix+" pulls pt %f dxy %f dz %f" % (ptPull, track.dxyPull(), track.dzPull()))
+            bestTP = track.bestMatchingTrackingParticle()
+            if bestTP:
+                lst.append(self._prefix+" best-matching TP %d" % bestTP.index())
+                lst.append(self._prefix+"  matching chi2 %f" % track.bestMatchingTrackingParticleChi2())
+                lst.append(self._prefix+"  pulls pt %f theta %f phi %f dxy %f dz %f" % (track.ptPull(), track.thetaPull(), track.phiPull(), track.dxyPull(), track.dzPull()))
         return lst
 
     def printHits(self, track):
