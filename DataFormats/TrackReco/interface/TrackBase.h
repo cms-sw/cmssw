@@ -335,12 +335,13 @@ public:
     bool appendHitPattern(const DetId &id, TrackingRecHit::Type hitType, const TrackerTopology& ttopo);
 
     /**
-     * This is meant to be used only in cases where the an
+     * These are meant to be used only in cases where the an
      * already-packed hit information is re-interpreted in terms of
      * HitPattern (i.e. MiniAOD PackedCandidate, and the IO rule for
      * reading old versions of HitPattern)
      */
     bool appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType);
+    bool appendHitPattern(const uint16_t pattern, TrackingRecHit::Type hitType);
 
     /**
      * This is meant to be used only in cases where the an
@@ -459,6 +460,10 @@ inline bool TrackBase::appendHitPattern(const TrackingRecHit &hit, const Tracker
 
 inline bool TrackBase::appendTrackerHitPattern(uint16_t subdet, uint16_t layer, uint16_t stereo, TrackingRecHit::Type hitType) {
     return hitPattern_.appendTrackerHit(subdet, layer, stereo, hitType);
+}
+
+inline bool TrackBase::appendHitPattern(uint16_t pattern, TrackingRecHit::Type hitType) {
+    return hitPattern_.appendHit(pattern, hitType);
 }
 
 inline bool TrackBase::appendMuonHitPattern(const DetId& id, TrackingRecHit::Type hitType) {
