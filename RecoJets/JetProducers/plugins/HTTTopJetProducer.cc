@@ -209,7 +209,6 @@ void HTTTopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
         desc.add<double>("minCandPt",        0.);
         desc.add<double>("maxFatjetAbsEta", 99.);
         desc.add<double>("subjetMass",      30.);
-        desc.add<double>("muCut",           0.8);
         desc.add<double>("filtR",           0.3);
         desc.add<int>   ("filtN",             5);
         desc.add<int>   ("mode",              4);
@@ -224,6 +223,10 @@ void HTTTopJetProducer::fillDescriptions(edm::ConfigurationDescriptions& descrip
         desc.add<bool>  ("rejectMinR",    false);
         desc.add<bool>  ("verbose",       false);
 
+        desc.add<int>   ("algorithm",         1);  // where is it needed?
+
+	////// From FastjetJetProducer
+	FastjetJetProducer::fillDescriptionsFromFastJetProducer(desc);
 	///// From VirtualJetProducer
 	desc.add<std::string> ("jetCollInstanceName","SubJets");
 	VirtualJetProducer::fillDescriptionsFromVirtualJetProducer(desc);
