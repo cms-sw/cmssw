@@ -4,8 +4,11 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <cassert>
 #include <utility>
 #include "TH1.h"
+
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 namespace PVValHelper {
 
@@ -53,6 +56,37 @@ namespace PVValHelper {
   struct histodetails{
     std::map<std::pair<residualType,plotVariable>,std::pair<float,float>> range;
     int histobins;
+    void setMap(residualType type,plotVariable plot,float low,float high){
+      assert(low<high);     
+      range[std::make_pair(type,plot)] = std::make_pair(low,high);
+    }
+
+    std::pair<float,float> getRange(residualType type,plotVariable plot){
+      if (range.find(std::make_pair(type,plot)) != range.end()) {
+	return range[std::make_pair(type,plot)];
+      } else {
+	edm::LogWarning("PVValidationHelpers") << "Trying to get range for non-existent combination "<< std::endl;
+	return std::make_pair(0.,0.);
+      }
+    }
+
+    float getLow(residualType type,plotVariable plot){
+      if (range.find(std::make_pair(type,plot)) != range.end()) {
+	return range[std::make_pair(type,plot)].first;
+      } else {
+	edm::LogWarning("PVValidationHelpers") << "Trying to get low end of range for non-existent combination "<< std::endl;
+	return 0.;
+      }
+    }
+
+    float getHigh(residualType type,plotVariable plot){
+      if (range.find(std::make_pair(type,plot)) != range.end()) {
+	return range[std::make_pair(type,plot)].second;
+      } else {
+	edm::LogWarning("PVValidationHelpers") << "Trying get high end of range for non-existent combination "<< std::endl;
+	return 0.;
+      }
+    }
   };
 
   // helper methods
