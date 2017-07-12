@@ -1,5 +1,5 @@
 import FWCore.ParameterSet.Config as cms
 
-from Validation.CTPPS.ctppsParameterisation_cfi import ctppsParameterisation
+from Validation.CTPPS.paramValidation_cfi import paramValidation
 
-ctppsParameterisationValidation = cms.Sequence( ctppsParameterisation )
+ctppsParameterisationValidation = cms.Sequence( paramValidation )

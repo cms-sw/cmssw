@@ -1,21 +1,12 @@
-// -*- C++ -*-
-//
-// Package:    SimRomanPot/CTPPSOpticsParameterisation
-// Class:      CTPPSOpticsParameterisation
-// 
-/**\class CTPPSOpticsParameterisation CTPPSOpticsParameterisation.cc SimRomanPot/CTPPSOpticsParameterisation/plugins/CTPPSOpticsParameterisation.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Laurent Forthomme
-//         Created:  Wed, 24 May 2017 07:40:20 GMT
-//
-//
-
+/****************************************************************************
+ *
+ * This is a part of CTPPS offline software
+ * Authors:
+ *   Leszek Grzanka
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
 
 #include <memory>
 
@@ -35,14 +26,15 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
 
 #include "CLHEP/Random/RandGauss.h"
 
 #include <unordered_map>
 
-class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
+class CTPPSOpticsParameterisation : public edm::stream::EDProducer<>
+{
   public:
     explicit CTPPSOpticsParameterisation( const edm::ParameterSet& );
     ~CTPPSOpticsParameterisation();
@@ -51,7 +43,7 @@ class CTPPSOpticsParameterisation : public edm::stream::EDProducer<> {
 
   private:
     struct CTPPSPotInfo {
-      CTPPSPotInfo() : detid( 0 ), resolution( 0. ), approximator( 0 ) {}
+      CTPPSPotInfo() : detid( 0 ), resolution( 0.0 ), approximator( 0 ) {}
       CTPPSPotInfo( const TotemRPDetId& det_id, double resol, LHCOpticsApproximator* approx ) : detid( det_id ), resolution( resol ), approximator( approx ) {}
 
       TotemRPDetId detid;
@@ -136,6 +128,8 @@ CTPPSOpticsParameterisation::produce( edm::Event& iEvent, const edm::EventSetup&
 
   // run simulation
   for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
+    if ( ( *p )->status()!=1 || ( *p )->pdg_id()!=2212 ) continue; // only transport stable protons
+
     std::vector<CTPPSLocalTrackLite> tracks;
     transportProtonTrack( *p, tracks );
     //FIXME add an association map proton track <-> sim tracks
@@ -159,13 +153,13 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
     const HepMC::FourVector mom = in_trk->momentum();
 
     // first check the side
-    if ( rp.detid.arm()==0 && mom.z()<0. ) continue;
-    if ( rp.detid.arm()==1 && mom.z()>0. ) continue;
+    if ( rp.detid.arm()==0 && mom.z()<0.0 ) continue;
+    if ( rp.detid.arm()==1 && mom.z()>0.0 ) continue;
 
     const HepMC::GenVertex* vtx = in_trk->production_vertex();
     // convert physics kinematics to the LHC reference frame
     double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
-    if ( mom.z()<0. ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
+    if ( mom.z()<0.0 ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
     double vtx_x = vtx->position().x(), vtx_y = vtx->position().y();
     if ( rp.detid.arm()==0 ) {
       th_x += halfCrossingAngleSector45_;
@@ -177,7 +171,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
       vtx_y += yOffsetSector56_;
     }
 
-    const double xi = 1.-mom.e()/( sqrtS_*0.5 );
+    const double xi = 1.-mom.e()/sqrtS_*2.0;
 
     // transport proton to its corresponding RP
     double kin_in[5] = { vtx_x, th_x * ( 1.-xi ), vtx_y, th_y * ( 1.-xi ), -xi };
@@ -188,7 +182,7 @@ CTPPSOpticsParameterisation::transportProtonTrack( const HepMC::GenParticle* in_
     // stop if proton not transportable
     if ( !proton_transported ) return;
 
-    const double rp_resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.;
+    const double rp_resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.0;
 
     // simulate detector resolution
     kin_out[0] += CLHEP::RandGauss::shoot( rnd_ ) * rp_resol; // vtx_x

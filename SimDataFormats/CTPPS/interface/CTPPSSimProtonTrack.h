@@ -1,3 +1,13 @@
+/****************************************************************************
+ *
+ * This is a part of CTPPS offline software
+ * Authors:
+ *   Leszek Grzanka
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
+
 #ifndef SimDataFormats_CTPPS_CTPPSSimProtonTrack_h
 #define SimDataFormats_CTPPS_CTPPSSimProtonTrack_h
 

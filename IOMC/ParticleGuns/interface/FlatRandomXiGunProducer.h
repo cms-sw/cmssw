@@ -48,7 +48,7 @@ namespace edm
       edm::ParameterSet beamConditions_;
 
       double minXi_, maxXi_;
-      double minPhi_, maxPhi_;
+      //double minPhi_, maxPhi_;
 
       double thetaPhys_;
       double vertexSize_;

@@ -1,21 +1,12 @@
-// -*- C++ -*-
-//
-// Package:    SimRomanPot/CTPPSOpticsParameterisation
-// Class:      CTPPSOpticsReconstruction
-// 
-/**\class CTPPSOpticsReconstruction CTPPSOpticsReconstruction.cc SimRomanPot/CTPPSOpticsParameterisation/plugins/CTPPSOpticsReconstruction.cc
-
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Laurent Forthomme
-//         Created:  Wed, 24 May 2017 07:40:20 GMT
-//
-//
-
+/****************************************************************************
+ *
+ * This is a part of CTPPS offline software
+ * Authors:
+ *   Leszek Grzanka
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
 
 #include <memory>
 
@@ -63,18 +54,15 @@ class CTPPSOpticsReconstruction : public edm::stream::EDProducer<> {
 
 CTPPSOpticsReconstruction::CTPPSOpticsReconstruction( const edm::ParameterSet& iConfig ) :
   hitsToken_( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsHitsTag" ) ) ),
-  beamConditions_( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
-  checkApertures_( iConfig.getParameter<bool>( "checkApertures" ) ),
+  beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
+  checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
   invertBeamCoordinatesSystem_( iConfig.getParameter<bool>( "invertBeamCoordinatesSystem" ) ),
-  opticsFileBeam1_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
-  opticsFileBeam2_( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
-  detectorPackages_( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
+  opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
+  opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
+  detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
 {
   produces< std::vector<CTPPSSimProtonTrack> >( "sector45" );
   produces< std::vector<CTPPSSimProtonTrack> >( "sector56" );
-
-  auto f_in_optics_beam1 = std::make_unique<TFile>( opticsFileBeam1_.fullPath().c_str() ),
-       f_in_optics_beam2 = std::make_unique<TFile>( opticsFileBeam2_.fullPath().c_str() );
 
   // load optics and interpolators
   std::unordered_map<unsigned int,std::string> pots_45, pots_56;
@@ -96,7 +84,7 @@ CTPPSOpticsReconstruction::~CTPPSOpticsReconstruction()
 {}
 
 void
-CTPPSOpticsReconstruction::produce( edm::Event& iEvent, const edm::EventSetup& iSetup )
+CTPPSOpticsReconstruction::produce( edm::Event& iEvent, const edm::EventSetup& )
 {
   std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut45( new std::vector<CTPPSSimProtonTrack> );
   std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut56( new std::vector<CTPPSSimProtonTrack> );

@@ -1,22 +1,12 @@
-// -*- C++ -*-
-//
-// Package:    Validation/CTPPS
-// Class:      CTPPSParameterisation
-// 
-/**\class CTPPSParameterisation CTPPSParameterisation.cc Validation/CTPPS/test/CTPPSParameterisation.cc
+/****************************************************************************
+ *
+ * This is a part of CTPPS validation software
+ * Authors:
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
 
- Description: [one line class summary]
-
- Implementation:
-     [Notes on implementation]
-*/
-//
-// Original Author:  Laurent Forthomme
-//         Created:  Fri, 26 May 2017 12:42:12 GMT
-//
-//
-//
-//
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -33,10 +23,9 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
-
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -46,10 +35,10 @@
 
 #include <map>
 
-class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
   public:
-    explicit CTPPSParameterisation( const edm::ParameterSet& );
-    ~CTPPSParameterisation();
+    explicit ParamValidation( const edm::ParameterSet& );
+    ~ParamValidation();
 
     static void fillDescriptions( edm::ConfigurationDescriptions& descriptions );
 
@@ -78,7 +67,7 @@ class CTPPSParameterisation : public edm::one::EDAnalyzer<edm::one::SharedResour
     TProfile* p_de_vtx_x_vs_xi_[2], *p_de_vtx_y_vs_xi_[2], *p_de_th_x_vs_xi_[2], *p_de_th_y_vs_xi_[2], *p_de_xi_vs_xi_[2];
 };
 
-CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig ) :
+ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
   recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
   recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
@@ -135,11 +124,11 @@ CTPPSParameterisation::CTPPSParameterisation( const edm::ParameterSet& iConfig )
   }
 }
 
-CTPPSParameterisation::~CTPPSParameterisation()
+ParamValidation::~ParamValidation()
 {}
 
 void
-CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
+ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
 {
   edm::Handle< edm::View<CTPPSLocalTrackLite> > tracks;
   iEvent.getByToken( tracksToken_, tracks );
@@ -152,9 +141,9 @@ CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup&
   edm::Handle<edm::HepMCProduct> protons;
   iEvent.getByToken( genProtonsToken_, protons );
   const HepMC::GenEvent& evt = protons->getHepMCData();
-  if ( evt.particles_size()>1 ) {
-    throw cms::Exception("CTPPSParameterisation") << "Not yet supporting multiple generated protons per event";
-  }
+  /*if ( evt.particles_size()>1 ) {
+    throw cms::Exception("ParamValidation") << "Not yet supporting multiple generated protons per event";
+  }*/
 
   edm::Handle< edm::View<CTPPSSimProtonTrack> > reco_protons[2];
   iEvent.getByToken( recoProtons45Token_, reco_protons[0] );
@@ -162,9 +151,11 @@ CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup&
 
   for ( HepMC::GenEvent::particle_const_iterator p=evt.particles_begin(); p!=evt.particles_end(); ++p ) {
     const HepMC::GenParticle* gen_pro = *p;
+    if ( gen_pro->status()!=1 || gen_pro->pdg_id()!=2212 ) continue;
+
     const HepMC::FourVector& gen_pos = gen_pro->production_vertex()->position();
 
-    const double gen_xi = 1.-gen_pro->momentum().e()/( sqrtS_*0.5 );
+    const double gen_xi = 1.-gen_pro->momentum().e()/sqrtS_*2.;
     const double gen_th_x = atan2( gen_pro->momentum().px(), gen_pro->momentum().pz() );
     const double gen_th_y = atan2( gen_pro->momentum().py(), gen_pro->momentum().pz() );
     const double gen_vtx_x = gen_pos.x(), gen_vtx_y = gen_pos.y();
@@ -175,46 +166,45 @@ CTPPSParameterisation::analyze( const edm::Event& iEvent, const edm::EventSetup&
     h_gen_th_y_->Fill( gen_th_y );
     h_gen_xi_->Fill( gen_xi );
 
-    for ( unsigned short i=0; i<2; ++i ) {
-      for ( const auto& rec_pro : *reco_protons[i] ) {
-        const double rec_xi = rec_pro.xi();
+    const unsigned short side_id = ( gen_pro->momentum().pz()>0 ) ? 0 : 1;
+    for ( const auto& rec_pro : *reco_protons[side_id] ) {
+      const double rec_xi = rec_pro.xi();
 
-        //std::cout << "(" << reco_protons[i]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
+      //std::cout << "(" << reco_protons[side_id]->size() << ")--> sector " << i << ": " << gen_xi << " / " << rec_xi << std::endl;
 
-        const double de_vtx_x = rec_pro.vertex().x()-gen_vtx_x;
-        const double de_vtx_y = rec_pro.vertex().y()-gen_vtx_y;
-        const double de_th_x = rec_pro.direction().x()-gen_th_x;
-        const double de_th_y = rec_pro.direction().y()-gen_th_y;
-        const double de_xi = rec_xi-gen_xi;
+      const double de_vtx_x = rec_pro.vertex().x()-gen_vtx_x;
+      const double de_vtx_y = rec_pro.vertex().y()-gen_vtx_y;
+      const double de_th_x = rec_pro.direction().x()-gen_th_x;
+      const double de_th_y = rec_pro.direction().y()-gen_th_y;
+      const double de_xi = rec_xi-gen_xi;
 
-        h_de_vtx_x_[i]->Fill( de_vtx_x );
-        h_de_vtx_y_[i]->Fill( de_vtx_y );
-        h_de_th_x_[i]->Fill( de_th_x );
-        h_de_th_y_[i]->Fill( de_th_y );
-        h_de_xi_[i]->Fill( de_xi );
+      h_de_vtx_x_[side_id]->Fill( de_vtx_x );
+      h_de_vtx_y_[side_id]->Fill( de_vtx_y );
+      h_de_th_x_[side_id]->Fill( de_th_x );
+      h_de_th_y_[side_id]->Fill( de_th_y );
+      h_de_xi_[side_id]->Fill( de_xi );
 
-        h2_de_vtx_x_vs_de_xi_[i]->Fill( de_xi, de_vtx_x );
-        h2_de_vtx_y_vs_de_xi_[i]->Fill( de_xi, de_vtx_y );
-        h2_de_th_x_vs_de_xi_[i]->Fill( de_xi, de_th_x );
-        h2_de_th_y_vs_de_xi_[i]->Fill( de_xi, de_th_y );
-        h2_de_vtx_y_vs_de_th_y_[i]->Fill( de_th_y, de_vtx_y );
+      h2_de_vtx_x_vs_de_xi_[side_id]->Fill( de_xi, de_vtx_x );
+      h2_de_vtx_y_vs_de_xi_[side_id]->Fill( de_xi, de_vtx_y );
+      h2_de_th_x_vs_de_xi_[side_id]->Fill( de_xi, de_th_x );
+      h2_de_th_y_vs_de_xi_[side_id]->Fill( de_xi, de_th_y );
+      h2_de_vtx_y_vs_de_th_y_[side_id]->Fill( de_th_y, de_vtx_y );
 
-        p_de_vtx_x_vs_xi_[i]->Fill( gen_xi, de_vtx_x );
-        p_de_vtx_y_vs_xi_[i]->Fill( gen_xi, de_vtx_y );
-        p_de_th_x_vs_xi_[i]->Fill( gen_xi, de_th_x );
-        p_de_th_y_vs_xi_[i]->Fill( gen_xi, de_th_y );
-        p_de_xi_vs_xi_[i]->Fill( gen_xi, de_xi );
-      }
+      p_de_vtx_x_vs_xi_[side_id]->Fill( gen_xi, de_vtx_x );
+      p_de_vtx_y_vs_xi_[side_id]->Fill( gen_xi, de_vtx_y );
+      p_de_th_x_vs_xi_[side_id]->Fill( gen_xi, de_th_x );
+      p_de_th_y_vs_xi_[side_id]->Fill( gen_xi, de_th_y );
+      p_de_xi_vs_xi_[side_id]->Fill( gen_xi, de_xi );
     }
   }
 }
 
 void
-CTPPSParameterisation::beginJob()
+ParamValidation::beginJob()
 {}
 
 void
-CTPPSParameterisation::endJob()
+ParamValidation::endJob()
 {
 /*
   ProfileToRMSGraph(p_de_vtx_x_vs_xi_45, "g_rms_de_vtx_x_vs_xi_45")->Write();
@@ -232,7 +222,7 @@ CTPPSParameterisation::endJob()
 }
 
 void
-CTPPSParameterisation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
+ParamValidation::fillDescriptions( edm::ConfigurationDescriptions& descriptions ) {
   //The following says we do not know what parameters are allowed so do no validation
   // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
@@ -241,5 +231,5 @@ CTPPSParameterisation::fillDescriptions( edm::ConfigurationDescriptions& descrip
 }
 
 //define this as a plug-in
-DEFINE_FWK_MODULE( CTPPSParameterisation );
+DEFINE_FWK_MODULE( ParamValidation );
 

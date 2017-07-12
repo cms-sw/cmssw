@@ -1,3 +1,13 @@
+/****************************************************************************
+ *
+ * This is a part of CTPPS offline software
+ * Authors:
+ *   Leszek Grzanka
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
+
 #ifndef SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
 #define SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
 

@@ -9,8 +9,8 @@ namespace edm
     beamConditions_( partGunParams_.getParameter<edm::ParameterSet>( "BeamConditions" ) ),
     minXi_         ( partGunParams_.getParameter<double>( "MinXi" ) ),
     maxXi_         ( partGunParams_.getParameter<double>( "MaxXi" ) ),
-    minPhi_        ( partGunParams_.getUntrackedParameter<double>( "MinPhi", -M_PI ) ),
-    maxPhi_        ( partGunParams_.getUntrackedParameter<double>( "MaxPhi", +M_PI ) ),
+    /*minPhi_        ( partGunParams_.getUntrackedParameter<double>( "MinPhi", -M_PI ) ),
+    maxPhi_        ( partGunParams_.getUntrackedParameter<double>( "MaxPhi", +M_PI ) ),*/
     thetaPhys_     ( partGunParams_.getParameter<double>( "ScatteringAngle" ) ),
     vertexSize_    ( beamConditions_.getParameter<double>( "vertexSize" ) ),
     beamDivergence_( beamConditions_.getParameter<double>( "beamDivergence" ) ),

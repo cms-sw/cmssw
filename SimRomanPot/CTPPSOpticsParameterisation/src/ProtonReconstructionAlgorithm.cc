@@ -1,3 +1,13 @@
+/****************************************************************************
+ *
+ * This is a part of CTPPS offline software
+ * Authors:
+ *   Leszek Grzanka
+ *   Jan Kašpar
+ *   Laurent Forthomme
+ *
+ ****************************************************************************/
+
 #include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
 
 ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::ParameterSet& beam_conditions, std::unordered_map<unsigned int, std::string> objects, const std::string& optics_file, bool check_aper, bool invert_coord ) :
@@ -95,8 +105,9 @@ ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
 void
 ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<CTPPSSimProtonTrack>& out ) const
 {
-  if ( tracks.size()<2 ) return;
   out.clear();
+
+  if ( tracks.size()<2 ) return;
 
   // first loop to extract a rough estimate of xi (mean of all xi's)
   double sum_xi0 = 0.;
@@ -113,7 +124,7 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
 
   { //FIXME replace with a loop over all pots tracks to reconstruct tracks!
     // second loop to extract a rough estimate of th_y and vtx_y
-    double y[2], v_y[2], L_y[2];
+    double y[2] = { 0., 0. }, v_y[2] = { 0., 0. }, L_y[2] = { 0., 0. };
     unsigned int y_idx = 0;
     for ( const auto& trk : tracks ) {
       if ( y_idx>1 ) break;
@@ -127,9 +138,9 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
       y_idx++;
     }
 
-    const double det = v_y[0]*L_y[1] - L_y[0]*v_y[1];
-    const double vtx_y_0 = ( L_y[1]*y[0] - L_y[0]*y[1] ) / det;
-    const double th_y_0 = ( v_y[0]*y[1] - v_y[1]*y[0] ) / det;
+    const double inv_det = 1./( v_y[0]*L_y[1] - L_y[0]*v_y[1] );
+    const double vtx_y_0 = ( L_y[1]*y[0] - L_y[0]*y[1] ) * inv_det;
+    const double th_y_0 = ( v_y[0]*y[1] - v_y[1]*y[0] ) * inv_det;
 
     // minimisation
     fitter_->Config().ParSettings( 0 ).Set( "xi", xi_0, 0.005 );
@@ -157,7 +168,7 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
       << "theta_y=" << params[2] << ", "
       << "vertex_y=" << params[3] << "\n";
 
-    out.emplace_back( Local3DPoint( 0., params[3], 0. ), Local3DVector( params[1], params[2], 0. ), params[0] );
+    out.emplace_back( Local3DPoint( 0., params[3]/*vtx_y*/, 0. ), Local3DVector( params[1]/*th_x*/, params[2]/*th_y*/, 0. ), params[0]/*xi*/ );
   }
 }
 
