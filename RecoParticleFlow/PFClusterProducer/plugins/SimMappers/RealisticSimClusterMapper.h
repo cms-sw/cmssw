@@ -37,7 +37,7 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
 		     reco::PFClusterCollection&) override;
   
  private:  
-  hgcal::RecHitTools _rhtools;
+  hgcal::RecHitTools rhtools_;
   const float _invisibleFraction = 0.3f;
   const float _exclusiveFraction = 0.7f;
   const bool _useMCFractionsForExclEnergy = false;

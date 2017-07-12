@@ -32,7 +32,7 @@ void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 
 void RealisticSimClusterMapper::update(const edm::EventSetup& es)
 {
-    _rhtools.getEventSetup(es);
+    rhtools_.getEventSetup(es);
 
 }
 
@@ -53,11 +53,11 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
     {
         detIdToIndex[hits[i].detId()] = i;
         auto ref = makeRefhit(input, i);
-        const auto& hitPos = _rhtools.getPosition(ref->detId());
+        const auto& hitPos = rhtools_.getPosition(ref->detId());
 
         realisticAssociator.insertHitPosition(hitPos.x(), hitPos.y(), hitPos.z(), i);
         realisticAssociator.insertHitEnergy(ref->energy(), i);
-        realisticAssociator.insertLayerId(_rhtools.getLayerWithOffset(ref->detId()), i);
+        realisticAssociator.insertLayerId(rhtools_.getLayerWithOffset(ref->detId()), i);
 
     }
 
@@ -84,7 +84,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         }
 
     }
-    realisticAssociator.computeAssociation(_exclusiveFraction, _useMCFractionsForExclEnergy,_rhtools.lastLayerEE(), _rhtools.lastLayerFH() );
+    realisticAssociator.computeAssociation(_exclusiveFraction, _useMCFractionsForExclEnergy,rhtools_.lastLayerEE(), rhtools_.lastLayerFH() );
     realisticAssociator.findAndMergeInvisibleClusters(_invisibleFraction, _exclusiveFraction);
     const auto& realisticClusters = realisticAssociator.realisticClusters();
     unsigned int nClusters = realisticClusters.size();
