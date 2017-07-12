@@ -4,6 +4,7 @@
 #include <array>
 #include <cmath>
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/ForwardDetId/interface/ForwardSubdetector.h"
 
 class CaloGeometry;
 class DetId;
@@ -29,7 +30,7 @@ namespace hgcal {
     std::float_t getSiThickness(const DetId&) const;
     std::float_t getRadiusToSide(const DetId&) const;
 
-    unsigned int getLayer(int type) const;
+    unsigned int getLayer(ForwardSubdetector type) const;
     unsigned int getLayer(const DetId&) const;
     unsigned int getLayerWithOffset(const DetId&) const;
     unsigned int getWafer(const DetId&) const;
