@@ -6,4 +6,5 @@ from DQMOffline.Trigger.NoBPTXMonitor_cff import *
 exoticaMonitorHLT = cms.Sequence(
     exoHLTMETmonitoring
     + exoHLTNoBPTXmonitoring
+    + WprimeMonitorHLT
 )
