@@ -348,7 +348,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
     for (LPNAMES::value_type::const_iterator it=bn; it != ed; ++it)
       if(aRegex.match(it->first)) candidates.push_back(it);
   }
-  for (auto it : candidates) {
+  for (const auto & it : candidates) {
     //if (doit)  edm::LogInfo("DDLogicalPart") << "rgx: " << aName << ' ' << it->first << ' ' << doit << std::endl;
     std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
     if ( emptyNs && (sz==1) ) { // accept all logical parts in all the namespaces
