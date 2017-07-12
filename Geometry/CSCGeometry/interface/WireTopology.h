@@ -15,7 +15,7 @@
 
 class WireTopology : public Topology {
  public:
-  virtual ~WireTopology() {}
+  ~WireTopology() override {}
  
   /**
    * How many wires

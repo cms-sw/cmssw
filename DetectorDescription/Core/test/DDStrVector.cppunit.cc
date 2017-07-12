@@ -12,8 +12,8 @@ class testDDStrVector : public CppUnit::TestFixture {
   CPPUNIT_TEST(checkAgaistOld);
   CPPUNIT_TEST_SUITE_END();
 public:
-  void setUp(){}
-  void tearDown() {}
+  void setUp() override{}
+  void tearDown() override {}
   void buildIt();
   void testloading();
   void checkAgaistOld();

@@ -70,7 +70,7 @@ public:
 	      const DDsvalues_type & svalues,
 	      bool doRegex=true);
   
-  ~DDSpecifics();
+  ~DDSpecifics() override;
   
   //! Gives a reference to the collection of part-selections
   const std::vector<DDPartSelection> & selection() const;

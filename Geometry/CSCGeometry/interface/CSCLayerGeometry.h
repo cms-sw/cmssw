@@ -52,7 +52,7 @@ public:
 
   CSCLayerGeometry& operator=( const CSCLayerGeometry& );
 
-  virtual ~CSCLayerGeometry();
+  ~CSCLayerGeometry() override;
 
   /**
    * How many strips in layer
@@ -240,9 +240,9 @@ public:
    * There are three versions, to parallel those of the TrapezoidalPlaneBounds which
    * a naive user might otherwise employ.
    */
-  bool inside( const Local3DPoint&, const LocalError&, float scale=1.f ) const;
-  bool inside( const Local3DPoint& ) const;
-  bool inside( const Local2DPoint& ) const;
+  bool inside( const Local3DPoint&, const LocalError&, float scale=1.f ) const override;
+  bool inside( const Local3DPoint& ) const override;
+  bool inside( const Local2DPoint& ) const override;
 
   /**
    * Return estimate of the 2-dim point of intersection of a strip and a cluster of wires.
@@ -303,7 +303,7 @@ public:
   /**
    * Utility method to handle proper copying of the class
    */
-  virtual Bounds* clone() const { 
+  Bounds* clone() const override { 
     return new CSCLayerGeometry(*this);
   }
 

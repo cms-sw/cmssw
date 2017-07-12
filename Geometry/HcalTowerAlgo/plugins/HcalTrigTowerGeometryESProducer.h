@@ -15,7 +15,7 @@ class HcalTrigTowerGeometryESProducer : public edm::ESProducer
 {
 public:
   HcalTrigTowerGeometryESProducer( const edm::ParameterSet & conf );
-  virtual ~HcalTrigTowerGeometryESProducer( void );
+  ~HcalTrigTowerGeometryESProducer( void ) override;
 
   std::shared_ptr<HcalTrigTowerGeometry> produce( const CaloGeometryRecord & );
 

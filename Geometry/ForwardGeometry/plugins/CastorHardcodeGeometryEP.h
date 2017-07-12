@@ -19,7 +19,7 @@
 class CastorHardcodeGeometryEP : public edm::ESProducer {
    public:
       CastorHardcodeGeometryEP(const edm::ParameterSet&);
-      ~CastorHardcodeGeometryEP();
+      ~CastorHardcodeGeometryEP() override;
 
       typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
 

@@ -29,31 +29,31 @@ class FIPConfiguration : public DDLDocumentProvider
  public:
 
   FIPConfiguration( DDCompactView& cpv);
-  virtual ~FIPConfiguration();
+  ~FIPConfiguration() override;
 
   /// Read in the configuration file.
-  int readConfig(const std::string& filename);
+  int readConfig(const std::string& filename) override;
 
   /// Read in the configuration file.
   int readConfig(const std::string& filename, bool fullPath);
 
   /// Return a list of files as a std::vector of strings.
-  virtual const std::vector < std::string >&  getFileList(void) const;
+  const std::vector < std::string >&  getFileList(void) const override;
 
   /// Return a list of urls as a std::vector of strings.
   /**
      This implementation does not provide a meaningful url list.
    **/
-  virtual const std::vector < std::string >&  getURLList(void) const;
+  const std::vector < std::string >&  getURLList(void) const override;
 
   /// Print out the list of files.
-  virtual void dumpFileList(void) const;
+  void dumpFileList(void) const override;
 
   /// Return whether Validation should be on or off and where the DDL SchemaLocation is.
-  virtual bool doValidation() const;
+  bool doValidation() const override;
 
   /// Return the designation for where to look for the schema.
-  std::string getSchemaLocation() const;
+  std::string getSchemaLocation() const override;
 
  private:
   DDLSAX2ConfigHandler configHandler_;
