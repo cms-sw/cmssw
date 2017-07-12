@@ -22,6 +22,7 @@ hcalDigis.lastSample = cms.int32(9)
 # will be copied to the digi
 hcalDigis.firstSample = cms.int32(0)
 
+import EventFilter.HcalRawToDigi.HcalRawToDigiFake_cfi
 _hcalDigisFake = EventFilter.HcalRawToDigi.HcalRawToDigiFake_cfi.HcalRawToDigiFake.clone()
 from Configuration.Eras.Modifier_hcalSkipPacker_cff import hcalSkipPacker
 hcalSkipPacker.toReplaceWith(hcalDigis, _hcalDigisFake)
