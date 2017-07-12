@@ -48,7 +48,7 @@ namespace {
     GroupFilter(std::vector< DDSpecificsFilter* >& filters):
       filters_(filters) {}
 
-    bool accept(const DDExpandedView &cv ) const override final {
+    bool accept(const DDExpandedView &cv ) const final {
       bool returnValue = true;
       for(auto f: filters_) {
         returnValue = returnValue and f->accept(cv);

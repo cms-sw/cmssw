@@ -14,9 +14,9 @@ public:
   ME0NumberingScheme( const DDCompactView& cpv );
   ME0NumberingScheme( const MuonDDDConstants& muonConstants );
   
-  virtual ~ME0NumberingScheme(){};
+  ~ME0NumberingScheme() override{};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
 private:
   void initMe ( const MuonDDDConstants& muonConstants );

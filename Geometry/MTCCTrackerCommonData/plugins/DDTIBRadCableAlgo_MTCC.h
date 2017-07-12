@@ -11,15 +11,15 @@ class DDTIBRadCableAlgo_MTCC : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDTIBRadCableAlgo_MTCC(); 
-  virtual ~DDTIBRadCableAlgo_MTCC();
+  ~DDTIBRadCableAlgo_MTCC() override;
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 private:
 

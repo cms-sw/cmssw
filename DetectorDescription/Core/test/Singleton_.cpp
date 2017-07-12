@@ -24,7 +24,7 @@ class testSingleton : public CppUnit::TestFixture
   
 public:
 
-  void setUp( void ) 
+  void setUp( void ) override 
     {
       m_s = &DDI::Singleton<Dummy>::instance();
     }

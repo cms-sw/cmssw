@@ -34,7 +34,7 @@
 class TestCompareDDDumpFiles : public edm::one::EDAnalyzer<> {
 public:
   explicit TestCompareDDDumpFiles( const edm::ParameterSet& );
-  ~TestCompareDDDumpFiles();
+  ~TestCompareDDDumpFiles() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

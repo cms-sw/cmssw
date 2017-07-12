@@ -22,12 +22,12 @@ class MyDet : public GeomDet {
     GeomDet(new BoundPlane(pos,RotationType(),new RectangularPlaneBounds(0,0,0))){}
   
   virtual DetId geographicalId() const {return DetId();}
-  virtual std::vector< const GeomDet*> components() const {
+  std::vector< const GeomDet*> components() const override {
     return std::vector< const GeomDet*>();
   }
 
   /// Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::DT;}
 
 };  
 

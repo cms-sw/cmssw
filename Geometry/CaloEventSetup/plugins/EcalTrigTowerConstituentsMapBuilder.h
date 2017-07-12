@@ -36,7 +36,7 @@
 class EcalTrigTowerConstituentsMapBuilder : public edm::ESProducer {
    public:
   EcalTrigTowerConstituentsMapBuilder(const edm::ParameterSet&);
-  ~EcalTrigTowerConstituentsMapBuilder();
+  ~EcalTrigTowerConstituentsMapBuilder() override;
 
   typedef std::unique_ptr<EcalTrigTowerConstituentsMap> ReturnType;
 

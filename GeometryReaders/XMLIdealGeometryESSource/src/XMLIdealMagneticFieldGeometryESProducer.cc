@@ -26,7 +26,7 @@ class XMLIdealMagneticFieldGeometryESProducer : public edm::ESProducer
 {
 public:
   XMLIdealMagneticFieldGeometryESProducer( const edm::ParameterSet& );
-  ~XMLIdealMagneticFieldGeometryESProducer();
+  ~XMLIdealMagneticFieldGeometryESProducer() override;
   
   typedef std::unique_ptr<DDCompactView> ReturnType;
   
