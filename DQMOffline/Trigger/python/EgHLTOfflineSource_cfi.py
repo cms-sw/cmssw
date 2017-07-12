@@ -10,7 +10,7 @@ from DQMOffline.Trigger.EgHLTOffFiltersToMon_cfi import *
 egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  egHLTOffFiltersToMon,
                                  binData = cms.PSet(egHLTOffDQMBinData,),
-
+                                 doHEP =cms.bool(False),
                                  #products we need
                                  triggerSummaryLabel = cms.InputTag("hltTriggerSummaryAOD","","HLT"),
                                  hltTag = cms.string("HLT"),
@@ -29,6 +29,7 @@ egHLTOffDQMSource = cms.EDAnalyzer("EgHLTOfflineSource",
                                  HBHERecHitCollection = cms.InputTag("hbhereco"),
                                  HFRecHitCollection = cms.InputTag("hfreco"),
                                  DQMDirName=cms.string("HLT/EGM"),
+                                 subDQMDirName=cms.string("Source_Histos"),
 
                                  BeamSpotProducer = cms.InputTag("offlineBeamSpot"),
                                  CaloTowers = cms.InputTag("towerMaker"),

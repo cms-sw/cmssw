@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
-
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
+from DQMOffline.Trigger.HEP17Monitoring_Client_cff import *
 from DQMOffline.Trigger.HTMonitoring_Client_cff import *
 from DQMOffline.Trigger.METMonitoring_Client_cff import *
 
@@ -199,6 +199,7 @@ exoticaClient = cms.Sequence(
   + metClient
   + METplusTrackEfficiency
   + muonEfficiency
+  + hep17Efficiency
 )
 
 from DQMOffline.Trigger.TrackingMonitoring_Client_cff import *
