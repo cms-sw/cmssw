@@ -11,6 +11,8 @@
 #include "Pythia8/Pythia.h"
 #include "Pythia8Plugins/HepMC2.h"
 
+#include "Vincia.h"
+
 using namespace Pythia8;
 
 #include "GeneratorInterface/Pythia8Interface/interface/Py8InterfaceBase.h"
@@ -93,6 +95,8 @@ class Pythia8Hadronizer : public Py8InterfaceBase {
     GenLumiInfoHeader *getGenLumiInfoHeader() const override;
     
   private:
+
+    VinciaPlugin* vincia;
 
     virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override { p8SetRandomEngine(v); }
     virtual std::vector<std::string> const& doSharedResources() const override { return p8SharedResources; }
@@ -286,7 +290,12 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
                                EV1_maxVetoCount, EV1_pThardMode, EV1_pTempMode,
                                EV1_emittedMode, EV1_pTdefMode, EV1_MPIvetoOn, 0));
   }
-  
+
+  if( params.exists( "VinciaPlugin" ) ) {
+    fMasterGen.reset(new Pythia);
+    vincia = new VinciaPlugin(fMasterGen.get());
+  }
+
 }
 
 
