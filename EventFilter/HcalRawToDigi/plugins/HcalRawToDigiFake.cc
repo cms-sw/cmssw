@@ -109,6 +109,8 @@ void HcalRawToDigiFake::fillDescriptions(edm::ConfigurationDescriptions& descrip
   desc.add<edm::InputTag>("TTP", edm::InputTag(""));
   //not used, just for compatibility
   desc.add<edm::InputTag>("InputLabel",edm::InputTag("rawDataCollector"));
+  desc.add<int>("firstSample",0);
+  desc.add<int>("lastSample",0);
   descriptions.add("HcalRawToDigiFake",desc);
 }
 
