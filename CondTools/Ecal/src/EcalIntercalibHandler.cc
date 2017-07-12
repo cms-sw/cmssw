@@ -3,8 +3,9 @@
 #include "CondFormats/EcalObjects/interface/EcalIntercalibConstants.h"
 #include "CondTools/Ecal/interface/EcalFloatCondObjectContainerXMLTranslator.h"
 
-
 #include<iostream>
+
+const Int_t kEBChannels = 61200, kEEChannels = 14648;
 
 popcon::EcalIntercalibHandler::EcalIntercalibHandler(const edm::ParameterSet & ps)
   :    m_name(ps.getUntrackedParameter<std::string>("name","EcalIntercalibHandler")) {
@@ -175,28 +176,26 @@ void popcon::EcalIntercalibHandler::getNewObjects()
 
     if(something_to_transfer){
 	    
-	    std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
-	    std::cout << "going to open file "<<file_ << std::flush;
+      std::cout << "Generating popcon record for run " << irun << "..." << std::flush;
+      std::cout << "going to open file "<<file_ << std::flush;
 	    
 	    
-	    EcalCondHeader   header;
-	    EcalIntercalibConstants * payload = new EcalIntercalibConstants;
-	    EcalFloatCondObjectContainerXMLTranslator::readXML(file_,header,*payload);
+      //      EcalCondHeader   header;
+      EcalIntercalibConstants * payload = new EcalIntercalibConstants;
+      //	    EcalFloatCondObjectContainerXMLTranslator::readXML(file_,header,*payload);   // DBv1
+      readXML(file_,*payload);   //DBv2
 	    
-	    
-	    Time_t snc= (Time_t) irun ;
-	    
-	    popcon::PopConSourceHandler<EcalIntercalibConstants>::m_to_transfer.push_back(
-											  std::make_pair(payload,snc));
-	    
-	    ss << "Run=" << irun << "_Magnet_changed_"<<std::endl; 
-	    m_userTextLog = ss.str()+";";
+      Time_t snc= (Time_t) irun ;
+
+      popcon::PopConSourceHandler<EcalIntercalibConstants>::m_to_transfer.push_back(
+										    std::make_pair(payload,snc));
+      ss << "Run=" << irun << "_Magnet_changed_"<<std::endl; 
+      m_userTextLog = ss.str()+";";
 	    
     } else {
-	    std::cout << "Run " << irun << " nothing sent to the DB"<< std::endl;
-	  
-	    ss<< "Run=" << irun << "_Magnet_NOT_changed_"<<std::endl; 
-	    m_userTextLog = ss.str()+";";
+      std::cout << "Run " << irun << " nothing sent to the DB"<< std::endl;
+      ss<< "Run=" << irun << "_Magnet_NOT_changed_"<<std::endl; 
+      m_userTextLog = ss.str()+";";
     }
 	
     delete econn;
@@ -207,4 +206,63 @@ void popcon::EcalIntercalibHandler::getNewObjects()
 	    m_userTextLog = ss.str()+";";
   }
 	std::cout << "Ecal - > end of getNewObjects -----------\n";
+}
+
+void popcon::EcalIntercalibHandler::readXML(const std::string& file_,
+					    EcalFloatCondObjectContainer& record){
+  std::string dummyLine, bid;
+  std::ifstream fxml;
+  fxml.open(file_);
+  if(!fxml.is_open()) {
+    std::cout << "ERROR : cannot open file " << file_ << std::endl;
+    exit (1);
+  }
+  // header
+  for( int i=0; i< 6; i++) {
+    getline(fxml, dummyLine);   // skip first lines
+    //	std::cout << dummyLine << std::endl;
+  }
+  fxml >> bid;
+  //  std::cout << bid << std::endl;
+  std::string stt = bid.substr(7,5);
+  std::istringstream iEB(stt);
+  int nEB;
+  iEB >> nEB;
+  if(nEB != kEBChannels) {
+    std::cout << " strange number of EB channels " << nEB << std::endl;
+    exit(-1);
+  }
+  fxml >> bid;   // <item_version>0</item_version>
+  for (int iChannel = 0; iChannel < kEBChannels; iChannel++) {
+    EBDetId myEBDetId = EBDetId::unhashIndex(iChannel);
+    fxml >> bid;
+    std::size_t found = bid.find("</");
+    stt = bid.substr(6, found - 6);
+    float val = std::stof(stt);
+    record[myEBDetId] = val;
+  }
+  for( int i=0; i< 5; i++) {
+    getline(fxml, dummyLine);   // skip first lines
+    //	std::cout << dummyLine << std::endl;
+  }
+  fxml >> bid;
+  //    cout << bid << endl;
+  stt = bid.substr(7,5);
+  std::istringstream iEE(stt);
+  int nEE;
+  iEE >> nEE;
+  if(nEE != kEEChannels) {
+    std::cout << " strange number of EE channels " << nEE << std::endl;
+    exit(-1);
+  }
+  fxml >> bid;   // <item_version>0</item_version>
+  // now endcaps
+  for (int iChannel = 0; iChannel < kEEChannels; iChannel++) {
+    EEDetId myEEDetId = EEDetId::unhashIndex(iChannel);
+    fxml >> bid;
+    std::size_t found = bid.find("</");
+    stt = bid.substr(6, found - 6);
+    float val = std::stof(stt);
+    record[myEEDetId] = val;
+  }
 }
