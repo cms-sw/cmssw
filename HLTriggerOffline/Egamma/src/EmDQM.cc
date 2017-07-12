@@ -25,6 +25,9 @@ EmDQM::EmDQM(const edm::ParameterSet& pset_) : pset(pset_)
   etaMax_ = pset.getUntrackedParameter<double>("EtaMax", 2.7);
   phiMax_ = pset.getUntrackedParameter<double>("PhiMax", 3.15);
   nbins_ = pset.getUntrackedParameter<unsigned int>("Nbins",40);
+  eta2DMax_ = pset.getUntrackedParameter<double>("Eta2DMax", 2.8);
+  phi2DMax_ = pset.getUntrackedParameter<double>("Phi2DMax", 3.2);
+  nbins2D_ = pset.getUntrackedParameter<unsigned int>("Nbins2D",16);
   minEtForEtaEffPlot_ = pset.getUntrackedParameter<unsigned int>("minEtForEtaEffPlot", 15);
   useHumanReadableHistTitles_ = pset.getUntrackedParameter<bool>("useHumanReadableHistTitles", false);
   mcMatchedOnly_ = pset.getUntrackedParameter<bool>("mcMatchedOnly", true);
@@ -417,6 +420,9 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
       std::vector<MonitorElement*> histEtOfHltObjMatchToGen;
       std::vector<MonitorElement*> histEtaOfHltObjMatchToGen;
       std::vector<MonitorElement*> histPhiOfHltObjMatchToGen;
+      std::vector<MonitorElement*> etaphihist;
+      std::vector<MonitorElement*> etaphihistmatch;
+      std::vector<MonitorElement*> histEtaPhiOfHltObjMatchToGen; 
       // Plots of efficiency per step
       MonitorElement* total;
       MonitorElement* totalmatch;
@@ -424,7 +430,8 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
       MonitorElement* etgen;
       MonitorElement* etagen;
       MonitorElement* phigen;
-   
+      MonitorElement* etaphigen;
+ 
       std::string histName="total_eff";
       std::string histTitle = "total events passing";
       if (!mcMatchedOnly_) {
@@ -472,7 +479,9 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
       histName = "gen_phi";
       histTitle= "#phi of "+ pdgIdString +"s " ;
       if (!noPhiPlots_) phigen = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
-    
+      histName = "gen_etaphi";
+      histTitle= "#eta-#phi of "+ pdgIdString +"s " ;
+      etaphigen = iBooker.book2D(histName.c_str(),histTitle.c_str(), nbins2D_-2,-eta2DMax_, eta2DMax_,nbins2D_,-phi2DMax_, phi2DMax_); 
       ////////////////////////////////////////////////////////////
       //  Set up histograms of HLT objects                      //
       ////////////////////////////////////////////////////////////
@@ -508,7 +517,12 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
              phihist.push_back(tmphisto);
            }
     
-     
+           histName = theHLTCollectionLabels[i].label()+"etaphi_all";
+           histTitle = HltHistTitle[i]+" #eta-#phi (ALL)";
+           tmphisto =  iBooker.book2D(histName.c_str(),histTitle.c_str(),nbins2D_-2,-eta2DMax_, eta2DMax_,nbins2D_,-phi2DMax_, phi2DMax_);
+           etaphihist.push_back(tmphisto);
+
+   
            // Et distribution of HLT object that is closest delta-R match to sorted gen particle(s)
            histName  = theHLTCollectionLabels[i].label()+"et";
            histTitle = HltHistTitle[i]+" Et";
@@ -528,6 +542,11 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
              tmphisto  = iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
              histPhiOfHltObjMatchToGen.push_back(tmphisto);
            }
+
+           histName  = theHLTCollectionLabels[i].label()+"etaphi";
+           histTitle = HltHistTitle[i]+" eta-phi";
+           tmphisto  = iBooker.book2D(histName.c_str(),histTitle.c_str(),nbins2D_-2,-eta2DMax_, eta2DMax_,nbins2D_,-phi2DMax_, phi2DMax_);
+           histEtaPhiOfHltObjMatchToGen.push_back(tmphisto);
        }
     
         // Et distribution of gen object matching HLT object passing filter i
@@ -549,6 +568,11 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
           tmphisto =  iBooker.book1D(histName.c_str(),histTitle.c_str(),nbins_,-phiMax_, phiMax_);
           phihistmatch.push_back(tmphisto);
         }
+
+        histName = theHLTCollectionLabels[i].label()+"etaphi_MC_matched";
+        histTitle = HltHistTitle[i]+" #eta-#phi (MC matched)";
+        tmphisto =  iBooker.book2D(histName.c_str(),histTitle.c_str(),nbins2D_-2,-eta2DMax_, eta2DMax_,nbins2D_,-phi2DMax_, phi2DMax_);
+        etaphihistmatch.push_back(tmphisto);
       }
 
       // Et & eta distributions
@@ -561,6 +585,9 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
       histEtOfHltObjMatchToGens.push_back(histEtOfHltObjMatchToGen);
       histEtaOfHltObjMatchToGens.push_back(histEtaOfHltObjMatchToGen);
       histPhiOfHltObjMatchToGens.push_back(histPhiOfHltObjMatchToGen);
+      etaphihists.push_back(etaphihist);
+      etaphihistmatchs.push_back(etaphihistmatch);
+      histEtaPhiOfHltObjMatchToGens.push_back(histEtaPhiOfHltObjMatchToGen);
       // commented out because uses data not included in HTLDEBUG and uses
       // Isolation distributions
       //etahistisos.push_back(etahistiso);
@@ -578,6 +605,7 @@ EmDQM::bookHistograms(DQMStore::IBooker &iBooker, edm::Run const &iRun, edm::Eve
       etgens.push_back(etgen);
       etagens.push_back(etagen);
       phigens.push_back(phigen);
+     etaphigens.push_back(etaphigen);
    }
 }
 
@@ -806,6 +834,7 @@ EmDQM::analyze(const edm::Event & event , const edm::EventSetup& setup)
       if (sortedGen[i].et() > minEtForEtaEffPlot_) {
         etagens.at(vPos)->Fill( sortedGen[i].eta() );
         if (!noPhiPlots_) phigens.at(vPos)->Fill( sortedGen[i].phi() );
+         etaphigens.at(vPos)->Fill( sortedGen[i].eta(),sortedGen[i].phi() );
       }
     } // END of loop over Generated particles
     if (gencut_ >= reqNum && !mcMatchedOnly_) totals.at(vPos)->Fill(numOfHLTCollectionLabels+1.5); // this isn't really needed anymore keep for backward comp.
@@ -938,7 +967,7 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
         dqm->histEtOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->et()  );
         dqm->histEtaOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->eta() );
         if (!dqm->noPhiPlots_) dqm->histPhiOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->phi() );
-        
+       dqm->histEtaPhiOfHltObjMatchToGens.at(vPos).at(n)->Fill( recoecalcands[closestEcalCandIndex]->eta(),recoecalcands[closestEcalCandIndex]->phi());  
       } // END of if closestEcalCandIndex >= 0
     }
 
@@ -969,7 +998,7 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
       dqm->ethists.at(vPos).at(n) ->Fill(recoecalcands[i]->et() );
       dqm->etahists.at(vPos).at(n)->Fill(recoecalcands[i]->eta() );
       if (!dqm->noPhiPlots_) dqm->phihists.at(vPos).at(n)->Fill(recoecalcands[i]->phi() );
-
+      dqm->etaphihists.at(vPos).at(n)->Fill(recoecalcands[i]->eta(),recoecalcands[i]->phi() );
     }
   }
 
@@ -1007,6 +1036,7 @@ template <class T> void HistoFiller<T>::fillHistos(edm::Handle<trigger::TriggerE
     if (sortedGen[i].et() > dqm->minEtForEtaEffPlot_) {
       dqm->etahistmatchs.at(vPos).at(n)->Fill( sortedGen[i].eta() );
       if (!dqm->noPhiPlots_) dqm->phihistmatchs.at(vPos).at(n)->Fill( sortedGen[i].phi() );
+      dqm->etaphihistmatchs.at(vPos).at(n)->Fill( sortedGen[i].eta(),sortedGen[i].phi() ); 
     }
   }
   // fill total mc matched efficiency
