@@ -144,7 +144,8 @@ private:
   double                     t_mindR1, t_mindR2;
   double                     t_eMipDR, t_hmaxNearP, t_gentrackP;
   double                     t_eHcal, t_eHcal10, t_eHcal30, t_rhoh;
-  bool                       t_selectTk,t_qltyFlag,t_qltyMissFlag,t_qltyPVFlag;
+  bool                       t_selectTk, t_qltyFlag, t_qltyMissFlag;
+  bool                       t_qltyPVFlag, t_TrigPass, t_TrigPassSel;
   std::vector<unsigned int> *t_DetIds, *t_DetIds1, *t_DetIds3;
   std::vector<double>       *t_HitEnergies, *t_HitEnergies1, *t_HitEnergies3;
   std::vector<bool>         *t_trgbits; 
@@ -402,6 +403,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
   //Trigger
   t_trgbits->clear();
   t_TracksSaved = 0;
+  t_TrigPass    = false;
   for (unsigned int i=0; i<trigNames_.size(); ++i) t_trgbits->push_back(false);
   if (ignoreTrigger_) {
     t_l1pt  = t_l1eta = t_l1phi = 0;
@@ -435,7 +437,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
 	    for (unsigned int i=0; i<trigNames_.size(); ++i) {
 	      if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos) {
 		t_trgbits->at(i) = (hlt>0);
-		if (hlt > 0) ok = true;
+		if (hlt > 0) {ok = true; t_TrigPass = true;}
 #ifdef EDM_ML_DEBUG
 		edm::LogInfo("HcalIsoTrack") << "This trigger "
 					     << triggerNames_[iHLT] << " Flag " 
@@ -533,6 +535,7 @@ void HcalIsoTrkAnalyzer::analyze(edm::Event const& iEvent, edm::EventSetup const
       }
     }
   }
+  t_TrigPassSel = (t_TracksSaved > 0);
   tree2->Fill();
 }
 
@@ -597,6 +600,8 @@ void HcalIsoTrkAnalyzer::beginJob() {
   tree2->Branch("t_Tracks",      &t_Tracks,      "t_Tracks/I");
   tree2->Branch("t_TracksProp",  &t_TracksProp,  "t_TracksProp/I");
   tree2->Branch("t_TracksSaved", &t_TracksSaved, "t_TracksSaved/I");
+  tree2->Branch("t_TrigPass",    &t_TrigPass,    "t_TrigPass/O");
+  tree2->Branch("t_TrigPassSel", &t_TrigPassSel, "t_TrigPassSel/O");
   t_ietaAll     = new std::vector<int>();
   t_ietaGood    = new std::vector<int>();
   tree2->Branch("t_ietaAll",    "std::vector<int>",          &t_ietaAll);

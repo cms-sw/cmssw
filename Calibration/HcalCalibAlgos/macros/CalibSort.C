@@ -1,6 +1,6 @@
 //////////////////////////////////////////////////////////////////////////////
 // Usage:
-// .L CalibMonitor.C+g
+// .L CalibSort.C+g
 //  CalibSort(fname, dirname, prefix, flag, double mipCut=1.0);
 //  c1.Loop();
 //  findDuplicate(infile, outfile, debug)

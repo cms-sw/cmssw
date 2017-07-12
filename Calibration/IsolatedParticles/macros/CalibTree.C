@@ -40,6 +40,7 @@
 //  phimax          (int)     = maximum iphi value (72)
 //  zside           (int)     = the side of the detector if phi range chosen (1)
 //  sysmode         (int)     = systematic error study (0 if default)
+//                              -1 loose, -2 flexible, > 0 for systematic
 //  fraction        (double)  = fraction of events to be done (-1)    
 //  maxIter         (int)     = number of iterations
 //  useGen          (bool)    = use generator level momentum information (False)
@@ -177,7 +178,7 @@ public :
   int                                               phimin_, phimax_;
   int                                               zside_, sysmode_;
   bool                                              useGen_;
-  double                                            log16by24_, eHcalDelta_;
+  double                                            log2by18_, eHcalDelta_;
   std::vector<Long64_t>                             entries;
   std::vector<unsigned int>                         detIds;
   std::map<unsigned int, TH1D*>                     histos;
@@ -301,7 +302,7 @@ CalibTree::CalibTree(const char *dupFileName, bool flag, bool useMean,
     TDirectory * dir = (TDirectory*)f->Get("/afs/cern.ch/work/g/gwalia/public/QCD_5_3000_PUS14.root:/isopf");
     dir->GetObject("CalibTree",tree);
   }
-  log16by24_ = std::log(16.0)/24.0;
+  log2by18_  = std::log(2.5)/18.0;
   eHcalDelta_= 0;
   Init(tree, dupFileName);
 }
@@ -834,11 +835,12 @@ bool CalibTree::goodTrack() {
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) &&
 	  (t_eMipDR < 1.0) && (t_mindR1 > 0.5) && (pmom > 40.0) &&
 	  (pmom < 60.0));
-  } else if (sysmode_ == -1) {
-    double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
-    cut        = 2.0*exp(eta*log16by24_);
-    ok         = ((t_qltyFlag) && (t_hmaxNearP < cut) && (t_eMipDR < 1.0));
-  } else                    {
+  } else {
+    if (sysmode_ < 0) {
+      double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
+      if (sysmode_ == -2) cut = 8.0*exp(eta*log2by18_);
+      else                cut = 10.0;
+    }
     ok = ((t_selectTk) && (t_qltyMissFlag) && (t_hmaxNearP < cut) && 
 	  (t_eMipDR < 1.0) && (t_mindR1 > 1.0) && (pmom > 40.0) &&
 	  (pmom < 60.0));

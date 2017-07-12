@@ -30,16 +30,17 @@
 //                               (usually a 4 character string; default="")
 //   corrFileName (std::string)= name of the text file having the correction
 //                               factors to be used (default="", no corr.)
-//   flag (int)                = 3 digit integer (hdo) with specific control
-//                               information (h = 0/1/2 for not creating/
-//                               creating in output/creating in append mode
-//                               the output text file; d = 0/1/2/3 produces 
-//                               3 standard (0,1,2) or extended (3) set of 
-//                               histograms; o = 0/1 for loose/tight 
-//                               selection). Default = 0
+//   flag (int)                = 4 digit integer (thdo) with specific control
+//                               information (t=0/1 for doing or not the PU
+//                               correction; h = 0/1/2 for not creating/
+//                               creating in recreate mode/creating in append 
+//                               mode the output text file; d = 0/1/2/3 
+//                               produces 3 standard (0,1,2) or extended (3) 
+//                               set of histograms; o = 0/1/2 for tight/loose/
+//                               flexible selection). Default = 0
 //   numb   (int)              = number of eta bins (42 for -21:21)
 //   dataMC (bool)             = true/false for data/MC (default true)
-//   useGen (bool)             = false/true to use generator level momentum
+//   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number (def -1)
@@ -200,10 +201,10 @@ private:
   static const unsigned int npbin=5, kp50=2;
   std::string               fname_, dirnm_, prefix_, outTxtFileName_;
   int                       flag_, numb_, flexibleSelect_;
-  bool                      dataMC_, useGen_, corrE_;
+  bool                      dataMC_, useGen_, corrPU_, corrE_;
   int                       plotType_, etalo_, etahi_, runlo_, runhi_;
   int                       phimin_, phimax_, zside_;
-  double                    log2by16_;
+  double                    log2by18_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
   std::vector<int>          nvx_, ietas_;
@@ -236,13 +237,15 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
   plotType_        = ((flag_/10)%10);
   if (plotType_ < 0 || plotType_ > 3) plotType_ = 3;
   flexibleSelect_  = (((flag_/1) %10));
-  log2by16_        = std::log(2.5)/16.0;
+  corrPU_          = (((flag_/1000) %10) > 0);
+  log2by18_        = std::log(2.5)/18.0;
   TFile      *file = new TFile(fname.c_str());
   TDirectory *dir  = (TDirectory*)file->FindObjectAny(dirnm.c_str());
   std::cout << fname << " file " << file << " " << dirnm << " " << dir 
-	    << " flags " << flexibleSelect_ << "|" << plotType_ << " cons "
-	    << log2by16_ << " eta range " << etalo_ << ":" << etahi_ 
-	    << " run range " << runlo_ << ":" << runhi_ << std::endl;
+	    << " flags " << flexibleSelect_ << "|" << plotType_ << "|"
+	    << corrPU_ << " cons " << log2by18_ << " eta range " << etalo_ 
+	    << ":" << etahi_ << " run range " << runlo_ << ":" << runhi_ 
+	    << std::endl;
   TTree      *tree = (TTree*)dir->Get("CalibTree");
   std::cout << "CalibMonitor:Tree " << tree << std::endl;
   Init(tree,dupFileName);
@@ -815,24 +818,28 @@ void CalibMonitor::Loop() {
 				<< kounts[k-1] << std::endl;
 }
 
-bool CalibMonitor::GoodTrack(double& eHcal, double &cut, bool debug) {
+bool CalibMonitor::GoodTrack(double& eHcal, double &cuti, bool debug) {
 
   bool select(true);
   double pmom = (useGen_ && (t_gentrackP>0)) ? t_gentrackP : t_p;
+  double cut(cuti);
   if (debug) std::cout << "GoodTrack input " << eHcal << ":" << cut;
   if (flexibleSelect_ > 1) {
     double eta = (t_ieta > 0) ? t_ieta : -t_ieta;
-    cut        = 8.0*exp(eta*log2by16_);
-    double a1(-0.35), a2(-0.65);
-    if (std::abs(t_ieta) == 25) {
-      a2 = -0.30;
-    } else if (std::abs(t_ieta) > 25) {
-      a1 = -0.45; a2 = -0.10;
-    }
+    cut        = 8.0*exp(eta*log2by18_);
+  }
+  if (corrPU_ && pmom > 0) {
     double ediff = (t_eHcal30-t_eHcal10);
-    double fac   = (pmom > 0) ? (1.0 + a1*(t_eHcal/pmom)*(ediff/pmom)*
-				 (1+a2*(ediff/pmom))) : 1.0;
-    eHcal *= fac;
+    if (ediff >  0.02*pmom) {
+      double a1(-0.35), a2(-0.65);
+      if (std::abs(t_ieta) == 25) {
+	a2 = -0.30;
+      } else if (std::abs(t_ieta) > 25) {
+	a1 = -0.45; a2 = -0.10;
+      }
+      double fac = (1.0+a1*(t_eHcal/pmom)*(ediff/pmom)*(1+a2*(ediff/pmom)));
+      eHcal *= fac;
+    }
   }
   select = ((t_qltyFlag) && (t_selectTk) && (t_hmaxNearP < cut) &&
 	    (t_eMipDR < 1.0));
@@ -1064,6 +1071,8 @@ public :
   Int_t                      t_Tracks;
   Int_t                      t_TracksProp;
   Int_t                      t_TracksSaved;
+  Bool_t                     t_TrigPass;
+  Bool_t                     t_TrigPassSel;
   std::vector<int>          *t_ietaAll;
   std::vector<int>          *t_ietaGood;
 
@@ -1071,6 +1080,8 @@ public :
   TBranch                   *b_t_Tracks;        //!
   TBranch                   *b_t_TracksProp;    //!
   TBranch                   *b_t_TracksSaved;   //!
+  TBranch                   *b_t_TrigPass;      //!
+  TBranch                   *b_t_TrigPassSel;   //!
   TBranch                   *b_t_ietaAll;       //!
   TBranch                   *b_t_ietaGood;      //!
 
@@ -1142,6 +1153,8 @@ void GetEntries::Init(TTree *tree) {
   fChain->SetBranchAddress("t_Tracks",      &t_Tracks,      &b_t_Tracks);
   fChain->SetBranchAddress("t_TracksProp",  &t_TracksProp,  &b_t_TracksProp);
   fChain->SetBranchAddress("t_TracksSaved", &t_TracksSaved, &b_t_TracksSaved);
+  fChain->SetBranchAddress("t_TrigPass",    &t_TrigPass,    &b_t_TrigPass);
+  fChain->SetBranchAddress("t_TrigPassSel", &t_TrigPassSel, &b_t_TrigPassSel);
   if (!ifOld_) {
     fChain->SetBranchAddress("t_ietaAll",     &t_ietaAll,     &b_t_ietaAll);
     fChain->SetBranchAddress("t_ietaGood",    &t_ietaGood,    &b_t_ietaGood);
@@ -1209,6 +1222,7 @@ void GetEntries::Loop() {
   Long64_t nentries = fChain->GetEntriesFast();
   
   Long64_t nbytes = 0, nb = 0;
+  int      kount(0), selected(0);
   for (Long64_t jentry=0; jentry<nentries;jentry++) {
     Long64_t ientry = LoadTree(jentry);
     if (ientry < 0) break;
@@ -1217,6 +1231,10 @@ void GetEntries::Loop() {
     h_tk[0]->Fill(t_Tracks);
     h_tk[1]->Fill(t_TracksProp);
     h_tk[2]->Fill(t_TracksSaved);
+    if (t_TrigPass) { 
+      ++kount;
+      if (t_TrigPassSel) ++selected;
+    }
     if (!ifOld_) {
       for (unsigned int k=0; k<t_ietaAll->size(); ++k)
 	h_eta[0]->Fill((*t_ietaAll)[k]);
@@ -1238,6 +1256,8 @@ void GetEntries::Loop() {
       h_eff->SetBinError(i,drat);
     }
   }
+  std::cout << "===== " << kount << " events passed trigger of which " 
+	    << selected << " events get selected =====\n" << std::endl;
   gStyle->SetCanvasBorderMode(0); gStyle->SetCanvasColor(kWhite);
   gStyle->SetPadColor(kWhite);    gStyle->SetFillColor(kWhite);
   gStyle->SetOptStat(1110);       gStyle->SetOptTitle(0);
