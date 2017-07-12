@@ -156,7 +156,7 @@ namespace Rivet {
         _fatjets   = applyProjection<FastJets>(event, "FatJets").jetsByPt(fatjet_cut);
         _photons   = applyProjection<FinalState>(event, "Photons").particlesByPt();
         _neutrinos = applyProjection<FinalState>(event, "Neutrinos").particlesByPt();
-        _met       = -applyProjection<MissingMomentum>(event, "MET").vectorEt();
+        _met       = applyProjection<MissingMomentum>(event, "MET").missingMomentum().p3();
       };
 
       // Do nothing here
