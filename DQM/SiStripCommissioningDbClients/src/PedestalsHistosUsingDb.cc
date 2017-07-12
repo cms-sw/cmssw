@@ -121,7 +121,6 @@ void PedestalsHistosUsingDb::update( SiStripConfigDb::FedDescriptionsRange feds 
 
          // Check if analysis is valid
          if ( !iter->second->isValid() ) { 
-           //addProblemDevice( fec_key ); //@@ Remove problem device
            continue; 
          }
 
