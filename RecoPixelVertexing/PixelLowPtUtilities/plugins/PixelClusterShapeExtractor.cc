@@ -20,6 +20,9 @@
 #include "RecoTracker/Record/interface/CkfComponentsRecord.h"
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#
 
 #include "TROOT.h"
 #include "TFile.h"
@@ -270,6 +273,15 @@ void PixelClusterShapeExtractor::processPixelRecHits(
                    simHitMap[key] = {&recHit,simHit,std::max(ss,simHitMap[key].size)};
   }
   for (auto const & elem : simHitMap)  {
+   /* irrelevant
+   auto const rh = *elem.second.rhit;
+   auto const& topol = reinterpret_cast<const PixelGeomDetUnit*>(rh.detUnit())->specificTopology();
+   auto const & cl = *rh.cluster();
+   if (cl.minPixelCol()==0) continue;
+   if (cl.maxPixelCol()+1==topol.ncolumns()) continue;
+   if (cl.minPixelRow()==0) continue; 
+   if (cl.maxPixelRow()+1==topol.nrows()) continue;
+   */
    if (elem.second.size==1)
        processSim(*elem.second.rhit, theFilter, elem.second.shit, clusterShapeCache, hspc);
   }
@@ -328,6 +340,8 @@ void PixelClusterShapeExtractor::analyzeRecTracks
 
  for (auto const & track : *tracks) 
  {
+    if (!track.quality(reco::Track::highPurity)) continue;
+    if (track.numberOfValidHits()<8) continue;
     auto const & trajParams = track.extra()->trajParams();
     assert(trajParams.size()==track.recHitsSize());
     auto hb = track.recHitsBegin();

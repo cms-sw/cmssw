@@ -118,6 +118,7 @@ public:
                 std::cout << " " << subName.at(is) << " dx= " << ix << " ";
                 for(int iy = 0; iy <= args.eyMax; ++iy) {
                     std::ostringstream histName;
+//                    histName << "hrpc_" << is << "_" << ix << "_" << iy;
                     histName << "hspc_" << is << "_" << ix << "_" << iy;
                     auto histo = ReadObject<TH2F>(resFile, histName.str());
                     
