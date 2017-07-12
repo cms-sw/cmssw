@@ -15,21 +15,21 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     tools_.reset(new hgcal::RecHitTools());
     constexpr float keV2GeV = 1e-6;
     // HGCee constants
-    HGCEE_keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");
-    HGCEE_fCPerMIP_ = ps.getParameter < std::vector<double> > ("HGCEE_fCPerMIP");
-    HGCEE_isSiFE_ = ps.getParameter<bool>("HGCEE_isSiFE");
-    hgceeUncalib2GeV_ = keV2GeV / HGCEE_keV2DIGI_;
+    hgcEE_keV2DIGI_ = ps.getParameter<double>("HGCEE_keV2DIGI");
+    hgcEE_fCPerMIP_ = ps.getParameter < std::vector<double> > ("HGCEE_fCPerMIP");
+    hgcEE_isSiFE_ = ps.getParameter<bool>("HGCEE_isSiFE");
+    hgceeUncalib2GeV_ = keV2GeV / hgcEE_keV2DIGI_;
 
     // HGChef constants
-    HGCHEF_keV2DIGI_ = ps.getParameter<double>("HGCHEF_keV2DIGI");
-    HGCHEF_fCPerMIP_ = ps.getParameter < std::vector<double> > ("HGCHEF_fCPerMIP");
-    HGCHEF_isSiFE_ = ps.getParameter<bool>("HGCHEF_isSiFE");
-    hgchefUncalib2GeV_ = keV2GeV / HGCHEF_keV2DIGI_;
+    hgcHEF_keV2DIGI_ = ps.getParameter<double>("HGCHEF_keV2DIGI");
+    hgcHEF_fCPerMIP_ = ps.getParameter < std::vector<double> > ("HGCHEF_fCPerMIP");
+    hgcHEF_isSiFE_ = ps.getParameter<bool>("HGCHEF_isSiFE");
+    hgchefUncalib2GeV_ = keV2GeV / hgcHEF_keV2DIGI_;
 
     // HGCheb constants
-    HGCHEB_keV2DIGI_ = ps.getParameter<double>("HGCHEB_keV2DIGI");
-    HGCHEB_isSiFE_ = ps.getParameter<bool>("HGCHEB_isSiFE");
-    hgchebUncalib2GeV_ = keV2GeV / HGCHEB_keV2DIGI_;
+    hgcHEB_keV2DIGI_ = ps.getParameter<double>("HGCHEB_keV2DIGI");
+    hgcHEB_isSiFE_ = ps.getParameter<bool>("HGCHEB_isSiFE");
+    hgchebUncalib2GeV_ = keV2GeV / hgcHEB_keV2DIGI_;
 
     // layer weights (from Valeri/Arabella)
     const auto& dweights = ps.getParameter < std::vector<double> > ("layerWeights");
@@ -50,9 +50,9 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
     }
 
 
-    HGCEE_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCEE_noise_fC");
-    HGCHEF_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCHEF_noise_fC");
-    HGCHEB_noise_MIP_ = ps.getParameter<double>("HGCHEB_noise_MIP");
+    hgcEE_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCEE_noise_fC");
+    hgcHEF_noise_fC_ = ps.getParameter < std::vector<double> > ("HGCHEF_noise_fC");
+    hgcHEB_noise_MIP_ = ps.getParameter<double>("HGCHEB_noise_MIP");
 
 
 }
@@ -60,7 +60,7 @@ HGCalRecHitWorkerSimple::HGCalRecHitWorkerSimple(const edm::ParameterSet&ps) :
 void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es)
 {
     tools_->getEventSetup(es);
-    if (HGCEE_isSiFE_)
+    if (hgcEE_isSiFE_)
     {
         edm::ESHandle < HGCalGeometry > hgceeGeoHandle;
         es.get<IdealGeometryRecord>().get("HGCalEESensitive", hgceeGeoHandle);
@@ -70,7 +70,7 @@ void HGCalRecHitWorkerSimple::set(const edm::EventSetup& es)
     {
         ddds_[0] = nullptr;
     }
-    if (HGCHEF_isSiFE_)
+    if (hgcHEF_isSiFE_)
     {
         edm::ESHandle < HGCalGeometry > hgchefGeoHandle;
         es.get<IdealGeometryRecord>().get("HGCalHESiliconSensitive", hgchefGeoHandle);
@@ -99,20 +99,20 @@ bool HGCalRecHitWorkerSimple::run(const edm::Event & evt, const HGCUncalibratedR
         hid = detid;
         thickness = ddds_[hid.subdetId() - 3]->waferTypeL(hid.wafer());
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
-                    * HGCHEF_noise_fC_[thickness - 1] / HGCHEF_fCPerMIP_[thickness - 1];
+                    * hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
         break;
     case HGCHEF:
         rechitMaker_->setADCToGeVConstant(float(hgchefUncalib2GeV_));
         hid = detid;
         thickness = ddds_[hid.subdetId() - 3]->waferTypeL(hid.wafer());
         sigmaNoiseGeV = 1e-3 * weights_[layer] * rcorr_[thickness]
-                    * HGCHEF_noise_fC_[thickness - 1] / HGCHEF_fCPerMIP_[thickness - 1];
+                    * hgcHEF_noise_fC_[thickness - 1] / hgcHEF_fCPerMIP_[thickness - 1];
         break;
     case HcalEndcap:
     case HGCHEB:
         rechitMaker_->setADCToGeVConstant(float(hgchebUncalib2GeV_));
         hid = detid;
-        sigmaNoiseGeV = 1e-3 * HGCHEB_noise_MIP_ * weights_[layer];
+        sigmaNoiseGeV = 1e-3 * hgcHEB_noise_MIP_ * weights_[layer];
         break;
     default:
         throw cms::Exception("NonHGCRecHit") << "Rechit with detid = " << detid.rawId()

@@ -26,18 +26,18 @@ class HGCalRecHitWorkerSimple : public HGCalRecHitWorkerBaseClass {
   
  protected:
   
-  double HGCEE_keV2DIGI_,  hgceeUncalib2GeV_;
-  std::vector<double> HGCEE_fCPerMIP_;
-  double HGCHEF_keV2DIGI_, hgchefUncalib2GeV_;
-  std::vector<double> HGCHEF_fCPerMIP_;
-  double HGCHEB_keV2DIGI_, hgchebUncalib2GeV_;
-  bool HGCEE_isSiFE_, HGCHEF_isSiFE_, HGCHEB_isSiFE_;
+  double hgcEE_keV2DIGI_,  hgceeUncalib2GeV_;
+  std::vector<double> hgcEE_fCPerMIP_;
+  double hgcHEF_keV2DIGI_, hgchefUncalib2GeV_;
+  std::vector<double> hgcHEF_fCPerMIP_;
+  double hgcHEB_keV2DIGI_, hgchebUncalib2GeV_;
+  bool hgcEE_isSiFE_, hgcHEF_isSiFE_, hgcHEB_isSiFE_;
   
 
 
-  std::vector<double> HGCEE_noise_fC_;
-  std::vector<double> HGCHEF_noise_fC_;
-  double HGCHEB_noise_MIP_;
+  std::vector<double> hgcEE_noise_fC_;
+  std::vector<double> hgcHEF_noise_fC_;
+  double hgcHEB_noise_MIP_;
 
 
   std::array<const HGCalDDDConstants*, 3> ddds_;
