@@ -27,7 +27,7 @@
 
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 {
-    ev.getByToken(_simClusterToken, _simClusterH);
+    ev.getByToken(simClusterToken_, _simClusterH);
 }
 
 void RealisticSimClusterMapper::update(const edm::EventSetup& es)
@@ -84,8 +84,8 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         }
 
     }
-    realisticAssociator.computeAssociation(_exclusiveFraction, _useMCFractionsForExclEnergy,rhtools_.lastLayerEE(), rhtools_.lastLayerFH() );
-    realisticAssociator.findAndMergeInvisibleClusters(invisibleFraction_, _exclusiveFraction);
+    realisticAssociator.computeAssociation(exclusiveFraction_, useMCFractionsForExclEnergy_,rhtools_.lastLayerEE(), rhtools_.lastLayerFH() );
+    realisticAssociator.findAndMergeInvisibleClusters(invisibleFraction_, exclusiveFraction_);
     const auto& realisticClusters = realisticAssociator.realisticClusters();
     unsigned int nClusters = realisticClusters.size();
     for (unsigned ic = 0; ic < nClusters; ++ic)
