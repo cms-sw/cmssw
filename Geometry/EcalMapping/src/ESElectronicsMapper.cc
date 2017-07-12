@@ -88,12 +88,12 @@ std::vector<int> ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFE
 
 void ESElectronicsMapper::GetListofFEDs(const std::vector<int>& eeFEDs, std::vector<int> & esFEDs) const {
 
-  for (unsigned int i=0; i<eeFEDs.size(); ++i) {
-    std::map< int, std::vector<int> >::const_iterator itr = ee_es_map_.find(eeFEDs[i]);
+  for (int eeFED : eeFEDs) {
+    std::map< int, std::vector<int> >::const_iterator itr = ee_es_map_.find(eeFED);
     if(itr == ee_es_map_.end()) continue; 
     std::vector<int> fed = itr->second;
-    for (unsigned int j=0; j<fed.size(); ++j) {
-      esFEDs.push_back(fed[j]);
+    for (int j : fed) {
+      esFEDs.push_back(j);
     }
   }
   
