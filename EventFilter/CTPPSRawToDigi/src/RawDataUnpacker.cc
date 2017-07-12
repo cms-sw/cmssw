@@ -389,26 +389,30 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
   // get channel data for diamond compact mode
   if (hFlag == vmDiamondCompact)
   {
-    for (unsigned int i = 0; (buf[i+1] & 0xFFF0)!= 0xF000; i++) {
+    for (unsigned int i = 1; (buf[i+1] & 0xFFF0)!= 0xF000; i++) {
+      if ( ( buf[i] & 0xF000 ) == VFAT_HEADER_OF_EC ) {     // If Event Couter word is found
+        fd[10] = buf[i];
+        continue;
+      }
       switch ( buf[i] & 0xF800 ) {
-        case VFAT_DAIMOND_2:
-                                              fd[2] = buf[i];
-                                              fd[1] = buf[i + 1];
-                                              break;
-        case VFAT_DAIMOND_3:
-                                              fd[3] = buf[i];
-                                              fd[4] = buf[i - 1];
-                                              break;
-        case VFAT_DAIMOND_5:
-                                              fd[5] = buf[i];
-                                              fd[6] = buf[i - 1];
-                                              break;
-        case VFAT_DAIMOND_7:
-                                              fd[7] = buf[i];
-                                              fd[8] = buf[i - 1];
-                                              break;
+        case VFAT_DIAMOND_HEADER_OF_WORD_2:     // If Word 2 of the diamond VFAT frame is found
+          fd[2] = buf[i];
+          fd[1] = buf[i + 1];
+          break;
+        case VFAT_DIAMOND_HEADER_OF_WORD_3:     // If Word 2 of the diamond VFAT frame is found
+          fd[3] = buf[i];
+          fd[4] = buf[i - 1];
+          break;
+        case VFAT_DIAMOND_HEADER_OF_WORD_5:     // If Word 2 of the diamond VFAT frame is found
+          fd[5] = buf[i];
+          fd[6] = buf[i - 1];
+          break;
+        case VFAT_DIAMOND_HEADER_OF_WORD_7:     // If Word 2 of the diamond VFAT frame is found
+          fd[7] = buf[i];
+          fd[8] = buf[i - 1];
+          break;
         default:
-                                              break;
+          break;
       }
       presenceFlags |= 0x8;
     }
