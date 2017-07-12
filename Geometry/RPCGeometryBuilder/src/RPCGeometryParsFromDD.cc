@@ -59,8 +59,8 @@ void RPCGeometryParsFromDD::buildGeometry(DDFilteredView& fview,
 
     std::vector<const DDsvalues_type* > specs(fview.specifics());
     int nStrips=0;
-    for (auto is=specs.begin();is!=specs.end(); is++){
-      if (DDfetch( *is, numbOfStrips)){
+    for (auto & spec : specs){
+      if (DDfetch( spec, numbOfStrips)){
         nStrips=int(numbOfStrips.doubles()[0]);
       }
     }
