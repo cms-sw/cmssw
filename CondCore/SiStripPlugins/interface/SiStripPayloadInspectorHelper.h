@@ -6,20 +6,23 @@
 
 std::pair<float,float> getTheRange(std::map<uint32_t,float> values){
   
-  std::vector<float> v;
-  for(const auto& element : values ){
-    v.push_back(element.second);
-  }
+  float sum = std::accumulate(std::begin(values), 
+			      std::end(values), 
+			      0.0,
+			      [] (float value, const std::map<uint32_t,float>::value_type& p)
+			      { return value + p.second; }
+			      );
 
-  float sum = std::accumulate(std::begin(v), std::end(v), 0.0);
-  float m =  sum / v.size();
+  float m =  sum / values.size();
 
   float accum = 0.0;
-  std::for_each (std::begin(v), std::end(v), [&](const float d) {
-      accum += (d - m) * (d - m);
-    });
+  std::for_each (std::begin(values), 
+		 std::end(values), 
+		 [&](const std::map<uint32_t,float>::value_type& p) 
+		 {accum += (p.second - m) * (p.second - m);}
+		 );
   
-  float stdev = sqrt(accum / (v.size()-1));
+  float stdev = sqrt(accum / (values.size()-1)); 
 
   return std::make_pair(m-2*stdev,m+2*stdev);
   
