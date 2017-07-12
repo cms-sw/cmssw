@@ -10,13 +10,9 @@ ECFAdder::ECFAdder(const edm::ParameterSet& iConfig) :
   src_token_(consumes<edm::View<reco::Jet>>(src_)),
   Njets_(iConfig.getParameter<std::vector<unsigned> >("Njets")),
   ecftype_(iConfig.getParameter<std::string>("ecftype")),
+  alpha_(iConfig.getParameter<double>("alpha")),
   beta_(iConfig.getParameter<double>("beta"))
 {
-  if ( iConfig.exists("alpha") ) {
-    alpha_ = iConfig.getParameter<double>("alpha");
-  } else {
-    alpha_ = beta_;
-  }
 
     for ( std::vector<unsigned>::const_iterator n = Njets_.begin(); n != Njets_.end(); ++n )
       {
@@ -123,7 +119,7 @@ void ECFAdder::fillDescriptions(edm::ConfigurationDescriptions & descriptions)
 
   iDesc.add<edm::InputTag>("src", edm::InputTag("no default"))->setComment("input collection");
   iDesc.add<std::vector<unsigned> >("Njets", {1,2,3} )->setComment("Number of jets to emulate");
-  iDesc.addOptional<double>("alpha",1.0)->setComment("alpha factor, only valid for N2");
+  iDesc.add<double>("alpha",1.0)->setComment("alpha factor, only valid for N2");
   iDesc.add<double>("beta",1.0)->setComment("angularity factor");
   iDesc.add<std::string>("ecftype","")->setComment("ECF type: ECF or empty; C; D; N; M; U;");
 
