@@ -1,5 +1,5 @@
-#ifndef L1TTauOffline_H
-#define L1TTauOffline_H
+#ifndef DQMOFFLINE_L1TRIGGER_L1TTAUOFFLINE_H
+#define DQMOFFLINE_L1TRIGGER_L1TTAUOFFLINE_H
 
 #include "DataFormats/L1Trigger/interface/Muon.h"		 		
 #include "DataFormats/L1Trigger/interface/BXVector.h"	
@@ -150,13 +150,13 @@ protected:
   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
   void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
-  const reco::Vertex getPrimaryVertex( edm::Handle<reco::VertexCollection> & vertex, edm::Handle<reco::BeamSpot> & beamSpot );
-  bool matchHlt(edm::Handle<trigger::TriggerEvent>  & triggerEvent, const reco::Muon * muon);
+  const reco::Vertex getPrimaryVertex( edm::Handle<reco::VertexCollection> const& vertex, edm::Handle<reco::BeamSpot> const& beamSpot );
+  bool matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEvent, const reco::Muon * muon);
 
   // Cut and Matching
-  void getTauL1tPairs(edm::Handle<l1t::TauBxCollection> & l1tCands);	
-  void getTightMuons(edm::Handle<reco::MuonCollection> & muons, edm::Handle<reco::PFMETCollection> &mets, const reco::Vertex & vertex, edm::Handle<trigger::TriggerEvent> & trigEvent);
-  void getProbeTaus(const edm::Event& e, edm::Handle<reco::PFTauCollection> & taus, edm::Handle<reco::MuonCollection> & muons, const reco::Vertex & vertex);
+  void getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tCands);	
+  void getTightMuons(edm::Handle<reco::MuonCollection> const& muons, edm::Handle<reco::PFMETCollection> const& mets, const reco::Vertex & vertex, edm::Handle<trigger::TriggerEvent> const& trigEvent);
+  void getProbeTaus(const edm::Event& e, edm::Handle<reco::PFTauCollection> const& taus, edm::Handle<reco::MuonCollection> const& muons, const reco::Vertex & vertex);
 
 private:
   void bookTauHistos(DQMStore::IBooker &);
@@ -192,7 +192,7 @@ private:
   std::string histFolder_;
   std::string efficiencyFolder_;
   edm::EDGetTokenT<l1t::TauBxCollection> stage2CaloLayer2TauToken_;
-  std::vector<double> tauEfficiencyThresholds_;
+  std::vector<int> tauEfficiencyThresholds_;
   std::vector<double> tauEfficiencyBins_; 
 
   std::vector<const reco::Muon*>  m_TightMuons;
