@@ -1,0 +1,11 @@
+<lcgdict>
+  <!-- protons as simulated upstream -->
+  <class name="CTPPSSimProtonTrack" ClassVersion="11">
+    <version ClassVersion="11" checksum="2308881548"/>
+  </class>
+  <class name="std::vector<CTPPSSimProtonTrack>"/>
+  <class name="edm::View<CTPPSSimProtonTrack>"/>
+  <class name="edm::Ptr<CTPPSSimProtonTrack>"/>
+  <class name="std::vector< edm::Ptr<CTPPSSimProtonTrack> >"/>
+  <class name="edm::Wrapper< std::vector<CTPPSSimProtonTrack> >"/>
+</lcgdict>

@@ -1,9 +1,0 @@
-<use name="root"/>
-
-<use name="FWCore/Framework"/>
-<use name="RecoCTPPS/OpticsParametrization"/>
-<use name="SimDataFormats/CTPPS"/>
-
-<library name="RecoCTPPSOpticsParametrizationPlugins" file="*.cc">
-  <flags EDM_PLUGIN="1"/>
-</library>

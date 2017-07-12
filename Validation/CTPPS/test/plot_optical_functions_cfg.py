@@ -18,7 +18,7 @@ process.maxEvents = cms.untracked.PSet(
 
 # plotter for functions in sector 45
 process.ctppsPlotOpticalFunctions_45 = cms.EDAnalyzer("CTPPSPlotOpticalFunctions",
-    opticsFile = cms.string("../data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root"),
+    opticsFile = cms.string("CondFormats/CTPPSOpticsObjects/data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root"),
 
     opticsObjects = cms.vstring(
         "ip5_to_station_150_h_1_lhcb2",

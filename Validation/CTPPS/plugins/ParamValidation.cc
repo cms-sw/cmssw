@@ -35,7 +35,8 @@
 
 #include <map>
 
-class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
+class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
+{
   public:
     explicit ParamValidation( const edm::ParameterSet& );
     ~ParamValidation();
