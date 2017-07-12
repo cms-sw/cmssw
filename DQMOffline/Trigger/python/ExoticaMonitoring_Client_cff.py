@@ -3,6 +3,7 @@ import FWCore.ParameterSet.Config as cms
 from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 from DQMOffline.Trigger.HTMonitoring_Client_cff import *
 from DQMOffline.Trigger.METMonitoring_Client_cff import *
+from DQMOffline.Trigger.HEP17Monitoring_Client_cff import *
 
 photonEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/EXO/Photon/*"),
@@ -192,6 +193,7 @@ DisplacedJet_jetRatioHemHep17 = DQMEDHarvester("DQMGenericClient",
 
 exoticaClient = cms.Sequence(
     NoBPTXEfficiency
+  + hep17Efficiency
   + photonEfficiency
   + DisplacedJet_htEfficiency
   + (DisplacedJet_jetEfficiency*DisplacedJet_jetRatioHemHep17)
@@ -213,5 +215,4 @@ trackingforDisplacedJetEffFromHitPatternHLT.subDirs = cms.untracked.vstring(
 trackingForDisplacedJetMonitorClientHLT  = cms.Sequence(
     trackingforDisplacedJetEffFromHitPatternHLT
 )
-
 
