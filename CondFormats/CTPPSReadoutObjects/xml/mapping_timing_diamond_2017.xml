@@ -32,7 +32,7 @@
           <diamond_channel id="30"        hw_id="0x21F"           FEDId="583"             GOHId="4"               IdxInFiber="15"/>
         </rp_plane_diamond>
         <rp_plane_diamond id="2"> 
-          <diamond_channel id="0"         hw_id="0x206"           FEDId="583"             GOHId="1"               IdxInFiber="6"/>
+          <diamond_channel id="0"         hw_id="0x106"           FEDId="583"             GOHId="1"               IdxInFiber="6"/>
           <diamond_channel id="1"         hw_id="0x105"           FEDId="583"             GOHId="1"               IdxInFiber="5"/>
           <diamond_channel id="2"         hw_id="0x104"           FEDId="583"             GOHId="1"               IdxInFiber="4"/>
           <diamond_channel id="3"         hw_id="0x103"           FEDId="583"             GOHId="1"               IdxInFiber="3"/>     
