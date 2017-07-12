@@ -61,6 +61,7 @@ namespace popcon
 			~EcalIntercalibHandler(); 
 			
 			void getNewObjects();
+			void readXML(const std::string& filename, EcalFloatCondObjectContainer& record);
 
 			std::string id() const { return m_name;}
 			EcalCondDBInterface* econn;
