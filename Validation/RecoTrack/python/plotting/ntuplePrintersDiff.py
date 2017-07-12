@@ -928,7 +928,7 @@ class TrackPrinter(_RecHitPrinter):
             bestTP = track.bestMatchingTrackingParticle()
             if bestTP:
                 lst.append(self._prefix+" best-matching TP %d" % bestTP.index())
-                lst.append(self._prefix+"  matching chi2 %f" % track.bestMatchingTrackingParticleChi2())
+                lst.append(self._prefix+"  matching chi2/ndof %f" % track.bestMatchingTrackingParticleNormalizedChi2())
                 lst.append(self._prefix+"  pulls pt %f theta %f phi %f dxy %f dz %f" % (track.ptPull(), track.thetaPull(), track.phiPull(), track.dxyPull(), track.dzPull()))
         return lst
 

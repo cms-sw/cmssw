@@ -1071,13 +1071,13 @@ private:
   std::vector<int> trk_bestSimTrkIdx;
   std::vector<float> trk_bestSimTrkShareFrac;
   std::vector<float> trk_bestSimTrkShareFracSimDenom;
-  std::vector<float> trk_bestSimTrkChi2;
+  std::vector<float> trk_bestSimTrkNChi2;
   std::vector<int> trk_bestFromFirstHitSimTrkIdx;
   std::vector<float> trk_bestFromFirstHitSimTrkShareFrac;
   std::vector<float> trk_bestFromFirstHitSimTrkShareFracSimDenom;
-  std::vector<float> trk_bestFromFirstHitSimTrkChi2;
+  std::vector<float> trk_bestFromFirstHitSimTrkNChi2;
   std::vector<std::vector<float> > trk_simTrkShareFrac; // second index runs through matched TrackingParticles
-  std::vector<std::vector<float> > trk_simTrkChi2;      // second index runs through matched TrackingParticles
+  std::vector<std::vector<float> > trk_simTrkNChi2;     // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_simTrkIdx;         // second index runs through matched TrackingParticles
   std::vector<std::vector<int> > trk_hitIdx;            // second index runs through hits
   std::vector<std::vector<int> > trk_hitType;           // second index runs through hits
@@ -1460,7 +1460,7 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   if(includeTrackingParticles_) {
     t->Branch("trk_simTrkIdx", &trk_simTrkIdx  );
     t->Branch("trk_simTrkShareFrac", &trk_simTrkShareFrac);
-    t->Branch("trk_simTrkChi2", &trk_simTrkChi2);
+    t->Branch("trk_simTrkNChi2", &trk_simTrkNChi2);
     t->Branch("trk_bestSimTrkIdx", &trk_bestSimTrkIdx);
     t->Branch("trk_bestFromFirstHitSimTrkIdx", &trk_bestFromFirstHitSimTrkIdx);
   }
@@ -1469,10 +1469,10 @@ TrackingNtuple::TrackingNtuple(const edm::ParameterSet& iConfig):
   }
   t->Branch("trk_bestSimTrkShareFrac", &trk_bestSimTrkShareFrac);
   t->Branch("trk_bestSimTrkShareFracSimDenom", &trk_bestSimTrkShareFracSimDenom);
-  t->Branch("trk_bestSimTrkChi2", &trk_bestSimTrkChi2);
+  t->Branch("trk_bestSimTrkNChi2", &trk_bestSimTrkNChi2);
   t->Branch("trk_bestFromFirstHitSimTrkShareFrac", &trk_bestFromFirstHitSimTrkShareFrac);
   t->Branch("trk_bestFromFirstHitSimTrkShareFracSimDenom", &trk_bestFromFirstHitSimTrkShareFracSimDenom);
-  t->Branch("trk_bestFromFirstHitSimTrkChi2", &trk_bestFromFirstHitSimTrkChi2);
+  t->Branch("trk_bestFromFirstHitSimTrkNChi2", &trk_bestFromFirstHitSimTrkNChi2);
   if(includeAllHits_) {
     t->Branch("trk_hitIdx" , &trk_hitIdx);
     t->Branch("trk_hitType", &trk_hitType);
@@ -1799,14 +1799,14 @@ void TrackingNtuple::clearVariables() {
   trk_bestSimTrkIdx.clear();
   trk_bestSimTrkShareFrac.clear();
   trk_bestSimTrkShareFracSimDenom.clear();
-  trk_bestSimTrkChi2.clear();
+  trk_bestSimTrkNChi2.clear();
   trk_bestFromFirstHitSimTrkIdx.clear();
   trk_bestFromFirstHitSimTrkShareFrac.clear();
   trk_bestFromFirstHitSimTrkShareFracSimDenom.clear();
-  trk_bestFromFirstHitSimTrkChi2.clear();
+  trk_bestFromFirstHitSimTrkNChi2.clear();
   trk_simTrkIdx.clear();
   trk_simTrkShareFrac.clear();
-  trk_simTrkChi2.clear();
+  trk_simTrkNChi2.clear();
   trk_hitIdx   .clear();
   trk_hitType  .clear();
   //sim tracks
@@ -3141,7 +3141,7 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     if(includeTrackingParticles_) {
       trk_simTrkIdx.push_back(tpIdx);
       trk_simTrkShareFrac.push_back(sharedFraction);
-      trk_simTrkChi2.push_back(tpChi2);
+      trk_simTrkNChi2.push_back(tpChi2);
       trk_bestSimTrkIdx.push_back(bestKeyCount.key >= 0 ? tpKeyToIndex.at(bestKeyCount.key) : -1);
       trk_bestFromFirstHitSimTrkIdx.push_back(bestFirstHitKeyCount.key >= 0 ? tpKeyToIndex.at(bestFirstHitKeyCount.key) : -1);
     }
@@ -3150,10 +3150,10 @@ void TrackingNtuple::fillTracks(const edm::RefToBaseVector<reco::Track>& tracks,
     }
     trk_bestSimTrkShareFrac.push_back(bestShareFrac);
     trk_bestSimTrkShareFracSimDenom.push_back(bestShareFracSimDenom);
-    trk_bestSimTrkChi2.push_back(bestChi2);
+    trk_bestSimTrkNChi2.push_back(bestChi2);
     trk_bestFromFirstHitSimTrkShareFrac.push_back(bestFirstHitShareFrac);
     trk_bestFromFirstHitSimTrkShareFracSimDenom.push_back(bestFirstHitShareFracSimDenom);
-    trk_bestFromFirstHitSimTrkChi2.push_back(bestFirstHitChi2);
+    trk_bestFromFirstHitSimTrkNChi2.push_back(bestFirstHitChi2);
 
     LogTrace("TrackingNtuple") << "Track #" << itTrack.key() << " with q=" << charge
                                << ", pT=" << pt << " GeV, eta: " << eta << ", phi: " << phi
