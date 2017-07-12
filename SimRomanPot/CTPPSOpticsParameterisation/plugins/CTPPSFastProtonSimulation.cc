@@ -304,13 +304,13 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation(const ParameterSet &ps) :
   produces<DetSetVector<TotemRPRecHit>>();
 
   // load optics and beam parameters
-  string opticsFile_45 = ps.getParameter<string>("opticsFile_45");
+  string opticsFile_45 = ps.getParameter<edm::FileInPath>("opticsFile_45").fullPath();
   string opticsObject_45 = ps.getParameter<string>("opticsObject_45");
   opticsZ0_45 = ps.getParameter<double>("opticsZ0_45");
   vtx0_y_45 = ps.getParameter<double>("vtx0_y_45");
   half_crossing_angle_45 = ps.getParameter<double>("half_crossing_angle_45");
 
-  string opticsFile_56 = ps.getParameter<string>("opticsFile_56");
+  string opticsFile_56 = ps.getParameter<edm::FileInPath>("opticsFile_56").fullPath();
   string opticsObject_56 = ps.getParameter<string>("opticsObject_56");
   opticsZ0_56 = ps.getParameter<double>("opticsZ0_56");
   vtx0_y_56 = ps.getParameter<double>("vtx0_y_56");

@@ -63,11 +63,11 @@ process.ctppsFastProtonSimulation = cms.EDProducer("CTPPSFastProtonSimulation",
 
   thetaLimit = cms.double(1E-3),  # rad
 
-  opticsFile_45 = cms.string("../../../RecoCTPPS/OpticsParametrization/data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root"),
+  opticsFile_45 = cms.FileInPath("SimRomanPot/CTPPSOpticsParameterisation/data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root"),
   opticsObject_45 = cms.string("ip5_to_station_220_h_1_lhcb2"),
   opticsZ0_45 = cms.double(-215077), # mm
 
-  opticsFile_56 = cms.string("../../../RecoCTPPS/OpticsParametrization/data/2016_preTS2/version4-vale1/beam1/parametrization_6500GeV_0p4_185_reco.root"),
+  opticsFile_45 = cms.FileInPath("SimRomanPot/CTPPSOpticsParameterisation/data/2016_preTS2/version4-vale1/beam1/parametrization_6500GeV_0p4_185_reco.root"),
   opticsObject_56 = cms.string("ip5_to_station_220_h_1_lhcb1"),
   opticsZ0_56 = cms.double(+215077), # mm
 
