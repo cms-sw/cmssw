@@ -20,6 +20,7 @@ class ppEra_Run2_25ns(pp):
         pp.__init__(self)
         self.recoSeq=''
         self.cbSc='pp'
+        self.addEI=True
         self.eras=Run2_25ns
         self.promptCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
         self.expressCustoms += [ 'Configuration/DataProcessing/RecoTLR.customisePostEra_Run2_25ns' ]
