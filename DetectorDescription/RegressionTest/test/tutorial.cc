@@ -50,7 +50,7 @@ namespace {
 
     bool accept(const DDExpandedView &cv ) const override final {
       bool returnValue = true;
-      for(auto f: filters_) {
+      for(const auto & f : filters_) {
         returnValue = returnValue and f->accept(cv);
         if(not returnValue) {
           break;
@@ -504,7 +504,7 @@ void tutorial()
 	case 's':
 	  fv.print();
 	  std::cout << std::endl <<"specifics sets = " << v.size() << ":" << std::endl;
-	  for (auto & o : v) {
+	  for (const auto & o : v) {
 	    std::cout << *(o.first) 
 		      << " = " 
 		      << *(o.second) 
@@ -515,7 +515,7 @@ void tutorial()
 	  std::cout << merged << std::endl;
 	 
 	  std::cout << "specifics only at logicalPart:" << std::endl;
-	  for (auto & o : only) {
+	  for (const auto & o : only) {
 	    std::cout << *o << std::endl;
 	  }
 	  std::cout << std::endl;	 
