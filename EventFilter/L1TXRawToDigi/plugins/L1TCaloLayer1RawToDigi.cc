@@ -156,9 +156,7 @@ L1TCaloLayer1RawToDigi::produce(Event& iEvent, const EventSetup& iSetup)
   // if raw data collection is present, check the headers and do the unpacking
   if (fedRawDataCollection.isValid()) {
     
-    for(uint32_t i = 0; i < fedIDs.size(); i++) {
-
-      uint32_t fed = fedIDs[i];
+    for(uint32_t fed : fedIDs) {
 
       const FEDRawData& fedRawData = fedRawDataCollection->FEDData(fed);
       

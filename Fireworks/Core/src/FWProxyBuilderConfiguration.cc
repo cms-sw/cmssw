@@ -97,8 +97,8 @@ FWProxyBuilderConfiguration::populateFrame(TGCompositeFrame* settersFrame)
 
 template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def )
 {
-   for ( const_iterator i = begin(); i != end(); ++i) {
-      if ((*i)->name() == name) {
+   for (auto i : *this) {
+      if (i->name() == name) {
          return 0;
       }
    }
@@ -118,8 +118,8 @@ template <class T> FWGenericParameter<T>* FWProxyBuilderConfiguration::assertPar
 
 template <class T> FWGenericParameterWithRange<T>* FWProxyBuilderConfiguration::assertParam(const std::string& name, T def, T min, T max )
 {
-   for ( const_iterator i = begin(); i != end(); ++i) {
-      if ((*i)->name() == name) {
+   for (auto i : *this) {
+      if (i->name() == name) {
          return 0;
       }
    }
@@ -138,11 +138,11 @@ template <class T> T FWProxyBuilderConfiguration::value(const std::string& pname
 {
    FWGenericParameter<T>* param = 0;
 
-   for (FWConfigurableParameterizable::const_iterator i = begin(); i != end(); ++i) 
+   for (auto i : *this) 
    {
-      if ((*i)->name() == pname)
+      if (i->name() == pname)
       {
-         param = (FWGenericParameter<T>* )(*i);
+         param = (FWGenericParameter<T>* )i;
          break;
       }
    }

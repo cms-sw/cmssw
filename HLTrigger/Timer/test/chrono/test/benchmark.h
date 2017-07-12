@@ -60,8 +60,8 @@ static constexpr unsigned int SIZE = 1000000;
 
 double average(std::vector<double> const & values) {
   double sum = 0;
-  for (size_t i = 0; i < values.size(); ++i)
-    sum += values[i];
+  for (double value : values)
+    sum += value;
   return (sum / values.size());
 }
 
@@ -69,8 +69,8 @@ double sigma(std::vector<double> const & values) {
   if (values.size() > 1) {
     double sum = 0;
     double avg = average(values); 
-    for (size_t i = 0; i < values.size(); ++i)
-      sum += (values[i] - avg) * (values[i] - avg);
+    for (double value : values)
+      sum += (value - avg) * (value - avg);
     return std::sqrt( sum / (values.size()-1) );
   } else {
     return std::numeric_limits<double>::quiet_NaN();
@@ -147,8 +147,8 @@ public:
 
   // take SIZE measurements
   void sample() {
-    for (unsigned int i = 0; i < SIZE; ++i)
-      values[i] = clock_type::now();
+    for (auto & value : values)
+      value = clock_type::now();
   }
 
   // return the delta between two time_points, expressed in seconds

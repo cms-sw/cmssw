@@ -28,8 +28,8 @@ CaloCellManager::CaloCellManager(const unsigned int theVerbosity):
 
 CaloCellManager::~CaloCellManager(){
 
-  for (unsigned int i = 0; i < theCellCollection.size(); i++) {
-    delete theCellCollection[i];
+  for (auto & i : theCellCollection) {
+    delete i;
   }
 
 }

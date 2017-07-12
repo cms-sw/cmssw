@@ -94,23 +94,22 @@ void TrainProcessor::doTrainData(const std::vector<double> *values,
 		    iter != monHistos.end(); ++iter) {
 			const std::vector<double> &vals =
 					values[iter - monHistos.begin()];
-			for(std::vector<double>::const_iterator value =
-				vals.begin(); value != vals.end(); ++value) {
+			for(double val : vals) {
 
 				iter->entries[target]++;
 
-				if (*value <= iter->min) {
+				if (val <= iter->min) {
 					iter->underflow[target] += weight;
 					continue;
-				} else if (*value >= iter->max) {
+				} else if (val >= iter->max) {
 					iter->overflow[target] += weight;
 					continue;
 				}
 
-				iter->histo[target]->Fill(*value, weight);
+				iter->histo[target]->Fill(val, weight);
 
 				if (iter->sameBinning)
-					iter->histo[!target]->Fill(*value, 0);
+					iter->histo[!target]->Fill(val, 0);
 			}
 		}
 	}

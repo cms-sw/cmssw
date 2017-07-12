@@ -115,12 +115,10 @@ TestMuonAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSet
 
 
   // Now loop on detector units, and store position and orientation
-  for (auto iGeomDet = pDT->dets().begin();
-		iGeomDet != pDT->dets().end(); iGeomDet++ )
-	this->fillTree( *iGeomDet );
-  for (auto iGeomDet = pCSC->dets().begin();
-		iGeomDet != pCSC->dets().end(); iGeomDet++ )
-	this->fillTree( *iGeomDet );
+  for (auto iGeomDet : pDT->dets())
+	this->fillTree( iGeomDet );
+  for (auto iGeomDet : pCSC->dets())
+	this->fillTree( iGeomDet );
 
   edm::LogInfo("MuonAlignment") << "Done!";
 

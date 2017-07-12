@@ -126,14 +126,14 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
 
    TrajectoryStateCombiner tsoscomb;
 
-   for (TrajTrackAssociationCollection::const_iterator iPair = originalTrajTrackMap->begin();  iPair != originalTrajTrackMap->end();  ++iPair) {
+   for (const auto & iPair : *originalTrajTrackMap) {
       if (m_hists) {
-	 m_pt->Fill((*(*iPair).val).pt());
+	 m_pt->Fill((*iPair.val).pt());
       }
 
-      if ((*(*iPair).val).pt() > m_minPt) {
+      if ((*iPair.val).pt() > m_minPt) {
 
-	 std::vector<TrajectoryMeasurement> measurements = (*(*iPair).key).measurements();
+	 std::vector<TrajectoryMeasurement> measurements = (*iPair.key).measurements();
 
 	 bool has_bad_residual = false;
 
@@ -197,7 +197,7 @@ AlignmentMuonHIPTrajectorySelector::produce(edm::Event& iEvent, const edm::Event
 	 } // end if filling histograms
 
 	 if (tracker_forwardredchi2 < m_maxTrackerForwardRedChi2  &&  tracker_dof >= m_minTrackerDOF  &&  !has_bad_residual) {
-	    newTrajTrackMap->insert((*iPair).key, (*iPair).val);
+	    newTrajTrackMap->insert(iPair.key, iPair.val);
 	 } // end if passes tracker cuts
       } // end if passes pT cut
    } // end loop over original trajTrackMap

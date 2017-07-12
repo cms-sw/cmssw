@@ -192,8 +192,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
           SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = tTopo->tidRing( it->detId() );  if (!ringRange(ring)) continue;
-              for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-		result.emplace_back(*hit); 
+              for (const auto & hit : *it) {
+		result.emplace_back(hit); 
               }
           }
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,true,cleanFrom);
@@ -207,8 +207,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = tTopo->tidRing( it->detId() );  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
-              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.emplace_back(*hit);
+              for (const auto & hit : *it) {
+                  result.emplace_back(hit);
               }
           }
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
@@ -221,8 +221,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
           SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = tTopo->tidRing( it->detId() );  if (!ringRange(ring)) continue;
-              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.emplace_back(*hit);
+              for (const auto & hit : *it) {
+                  result.emplace_back(hit);
               }
           }
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
@@ -240,8 +240,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
 	auto getter = tTopo->tobDetIdLayerComparator(theIdLayer);
 	SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
 	for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
-	  for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-	    if (fabs(hit->globalPosition().z())>=minAbsZ) result.emplace_back(*hit); 
+	  for (const auto & hit : *it) {
+	    if (fabs(hit.globalPosition().z())>=minAbsZ) result.emplace_back(hit); 
 	  }
 	}
       } else {
@@ -285,8 +285,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
           SiStripMatchedRecHit2DCollection::Range range = matchedHits->equal_range(getter.first, getter.second);
           for (SiStripMatchedRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = tTopo->tecRing( it->detId() );  if (!ringRange(ring)) continue;
-              for (SiStripMatchedRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.emplace_back(*hit);
+              for (const auto & hit : *it) {
+                  result.emplace_back(hit);
               }
           }
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,true,cleanFrom);
@@ -300,8 +300,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = tTopo->tecRing( it->detId() );  if (!ringRange(ring)) continue;
               if ((SiStripDetId(it->detId()).partnerDetId() != 0) && hasSimpleRphiHitsCleaner) continue;  // this is a brutal "cleaning". Add something smarter in the future
-              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.emplace_back(*hit);
+              for (const auto & hit : *it) {
+                  result.emplace_back(hit);
               }
           }
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);
@@ -315,8 +315,8 @@ HitExtractor::Hits HitExtractorSTRP::hits(const TkTransientTrackingRecHitBuilder
           SiStripRecHit2DCollection::Range range = stereoHits->equal_range(getter.first, getter.second);
           for (SiStripRecHit2DCollection::const_iterator it = range.first; it != range.second; ++it) {
               int ring = tTopo->tecRing( it->detId() );  if (!ringRange(ring)) continue;
-              for (SiStripRecHit2DCollection::DetSet::const_iterator hit = it->begin(), end = it->end(); hit != end; ++hit) {
-                  result.emplace_back(*hit);
+              for (const auto & hit : *it) {
+                  result.emplace_back(hit);
               }
           }
 	  if (skipClusters) cleanedOfClusters(ttrhBuilder, ev,result,false,cleanFrom);

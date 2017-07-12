@@ -139,8 +139,8 @@ std::vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClu
   edm::ESHandle<MagneticField> theMF;
   theEventSetup.get<IdealMagneticFieldRecord>().get(theMF);
   const MagneticField* theMagField=theMF.product();
-  for(TrackRefVector::const_iterator i_Track=theTracks.begin();i_Track!=theTracks.end();i_Track++){
-    math::XYZPoint thepropagTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(theMagField,*i_Track);
+  for(auto && theTrack : theTracks){
+    math::XYZPoint thepropagTrackECALSurfContactPoint=TauTagTools::propagTrackECALSurfContactPoint(theMagField,theTrack);
     if(thepropagTrackECALSurfContactPoint.R()!=0.) thepropagTracksECALSurfContactPoints.push_back(thepropagTrackECALSurfContactPoint);
   }
   
@@ -167,13 +167,13 @@ std::vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClu
   
   std::vector<BasicClusterRef> theNeutralBasicClusters=theBasicClusters;  
   std::vector<BasicClusterRef>::iterator kmatchedBasicCluster;
-  for (std::vector<math::XYZPoint>::iterator ipropagTrackECALSurfContactPoint=thepropagTracksECALSurfContactPoints.begin();ipropagTrackECALSurfContactPoint!=thepropagTracksECALSurfContactPoints.end();ipropagTrackECALSurfContactPoint++) {
+  for (auto & thepropagTracksECALSurfContactPoint : thepropagTracksECALSurfContactPoints) {
     double theMatchedEcalBasicClusterpropagTrack_minDR=theECALBasicClusterpropagTrack_matchingDRConeSize;
     bool Track_matchedwithEcalBasicCluster=false;
     for (std::vector<BasicClusterRef>::iterator jBasicCluster=theNeutralBasicClusters.begin();jBasicCluster!=theNeutralBasicClusters.end();jBasicCluster++) {
-      if(ROOT::Math::VectorUtil::DeltaR((*ipropagTrackECALSurfContactPoint),(**jBasicCluster).position())<theMatchedEcalBasicClusterpropagTrack_minDR){
+      if(ROOT::Math::VectorUtil::DeltaR(thepropagTracksECALSurfContactPoint,(**jBasicCluster).position())<theMatchedEcalBasicClusterpropagTrack_minDR){
       	Track_matchedwithEcalBasicCluster=true;
-	theMatchedEcalBasicClusterpropagTrack_minDR=ROOT::Math::VectorUtil::DeltaR((*ipropagTrackECALSurfContactPoint),(**jBasicCluster).position());
+	theMatchedEcalBasicClusterpropagTrack_minDR=ROOT::Math::VectorUtil::DeltaR(thepropagTracksECALSurfContactPoint,(**jBasicCluster).position());
 	kmatchedBasicCluster=jBasicCluster;
       }
     }
@@ -185,8 +185,8 @@ std::vector<BasicClusterRef> CaloRecoTauTagInfoAlgorithm::getNeutralEcalBasicClu
 TrackRefVector CaloRecoTauTagInfoAlgorithm::filterTracksByQualityBit(const TrackRefVector& tracks, reco::TrackBase::TrackQuality quality) const
 {
   TrackRefVector filteredTracks;
-  for (TrackRefVector::const_iterator iTrack = tracks.begin(); iTrack != tracks.end(); iTrack++) {
-    if ((*iTrack)->quality(quality)) filteredTracks.push_back(*iTrack);
+  for (auto && track : tracks) {
+    if ((track)->quality(quality)) filteredTracks.push_back(track);
   }
   return filteredTracks;
 }

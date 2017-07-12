@@ -45,15 +45,15 @@ void QGLikelihoodDBReader::analyze(const edm::Event& iEvent, const edm::EventSet
 
   std::vector<QGLikelihoodObject::Entry> const& data = QGLParamsColl->data;
   edm::LogInfo("UserOutput") <<  "There are " << data.size() << " entries (categories with associated PDF):" << std::endl;
-  for(auto idata = data.begin(); idata != data.end(); ++idata){    
-    int varIndex = idata->category.VarIndex;
-    int qgBin = idata->category.QGIndex;
-    double etaMin = idata->category.EtaMin;
-    double etaMax = idata->category.EtaMax;
-    double rhoMin = idata->category.RhoMin;
-    double rhoMax = idata->category.RhoMax;
-    double ptMin = idata->category.PtMin;
-    double ptMax = idata->category.PtMax;
+  for(const auto & idata : data){    
+    int varIndex = idata.category.VarIndex;
+    int qgBin = idata.category.QGIndex;
+    double etaMin = idata.category.EtaMin;
+    double etaMax = idata.category.EtaMax;
+    double rhoMin = idata.category.RhoMin;
+    double rhoMax = idata.category.RhoMax;
+    double ptMin = idata.category.PtMin;
+    double ptMax = idata.category.PtMax;
 
     char buff[1000];
     sprintf(buff, "var=%1d, qg=%1d, ptMin=%8.2f, ptMax=%8.2f, etaMin=%3.1f, etaMax=%3.1f, rhoMin=%6.2f, rhoMax=%6.2f", varIndex, qgBin, ptMin, ptMax, etaMin, etaMax, rhoMin, rhoMax);

@@ -39,8 +39,8 @@ GBRForest::GBRForest(const TMVA::MethodBDT *bdt)
   
   double norm = 0;
   if (isadaclassifier) {
-    for (std::vector<double>::const_iterator it=bdt->GetBoostWeights().begin(); it!=bdt->GetBoostWeights().end(); ++it) {
-      norm += *it;  
+    for (double it : bdt->GetBoostWeights()) {
+      norm += it;  
     }
   }
   

@@ -31,20 +31,18 @@ GBRForestWriter::GBRForestWriter(const edm::ParameterSet& cfg)
 
 GBRForestWriter::~GBRForestWriter()
 {
-  for ( std::vector<jobEntryType*>::iterator it = jobs_.begin();
-	it != jobs_.end(); ++it ) {
-    delete (*it);
+  for (auto & job : jobs_) {
+    delete job;
   }
 }
 
 void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 {
    
-  for ( std::vector<jobEntryType*>::iterator job = jobs_.begin();
-	job != jobs_.end(); ++job ) {   
+  for (auto & job : jobs_) {   
     std::map<std::string, const GBRForest*> gbrForests; // key = name
-    for ( std::vector<categoryEntryType*>::iterator category = (*job)->categories_.begin();
-	  category != (*job)->categories_.end(); ++category ) {
+    for ( std::vector<categoryEntryType*>::iterator category = job->categories_.begin();
+	  category != job->categories_.end(); ++category ) {
       const GBRForest* gbrForest = nullptr;
       if ( (*category)->inputFileType_ == categoryEntryType::kXML ) {
 	TMVA::Tools::Instance();
@@ -79,15 +77,14 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
 	  << " Failed to load GBRForest = " << (*category)->gbrForestName_.data() << " from file = " << (*category)->inputFileName_ << " !!\n";
       gbrForests[(*category)->gbrForestName_] = gbrForest;
     }
-    if ( (*job)->outputFileType_ == jobEntryType::kGBRForest ) {
-      TFile* outputFile = new TFile((*job)->outputFileName_.data(), "RECREATE");
+    if ( job->outputFileType_ == jobEntryType::kGBRForest ) {
+      TFile* outputFile = new TFile(job->outputFileName_.data(), "RECREATE");
     
-      for ( std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
-	    gbrForest != gbrForests.end(); ++gbrForest ) {
-	outputFile->WriteObject(gbrForest->second, gbrForest->first.data());
+      for (auto & gbrForest : gbrForests) {
+	outputFile->WriteObject(gbrForest.second, gbrForest.first.data());
       }
       delete outputFile;
-    } else if ( (*job)->outputFileType_ == jobEntryType::kSQLLite ) {
+    } else if ( job->outputFileType_ == jobEntryType::kSQLLite ) {
       edm::Service<cond::service::PoolDBOutputService> dbService;
       if ( !dbService.isAvailable() ) 
 	throw cms::Exception("GBRForestWriter") 
@@ -95,16 +92,15 @@ void GBRForestWriter::analyze(const edm::Event&, const edm::EventSetup&)
       
       for ( std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
 	    gbrForest != gbrForests.end(); ++gbrForest ) {
-	std::string outputRecord = (*job)->outputRecord_;
+	std::string outputRecord = job->outputRecord_;
 	if ( gbrForests.size() > 1 ) outputRecord.append("_").append(gbrForest->first);
 	dbService->writeOne(gbrForest->second, dbService->beginOfTime(), outputRecord);
       }
     }
  
     //gbrforest deletion
-    for ( std::map<std::string, const GBRForest*>::iterator gbrForest = gbrForests.begin();
-	  gbrForest != gbrForests.end(); ++gbrForest ) {
-      delete gbrForest->second;
+    for (auto & gbrForest : gbrForests) {
+      delete gbrForest.second;
     }
 
   }

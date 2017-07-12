@@ -293,40 +293,40 @@ void EcalTrivialObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSet
    context.get<EcalClusterLocalContCorrParametersRcd>().get(pLocalCont);
    const EcalClusterLocalContCorrParameters* paramLocalCont = pLocalCont.product();
    std::cout << "LocalContCorrParameters:";
-   for ( EcalFunctionParameters::const_iterator it = paramLocalCont->params().begin(); it != paramLocalCont->params().end(); ++it ) {
-           std::cout << " " << *it;
+   for (float it : paramLocalCont->params()) {
+           std::cout << " " << it;
    }
    std::cout << "\n";
    edm::ESHandle<EcalClusterCrackCorrParameters> pCrack;
    context.get<EcalClusterCrackCorrParametersRcd>().get(pCrack);
    const EcalClusterCrackCorrParameters* paramCrack = pCrack.product();
    std::cout << "CrackCorrParameters:";
-   for ( EcalFunctionParameters::const_iterator it = paramCrack->params().begin(); it != paramCrack->params().end(); ++it ) {
-           std::cout << " " << *it;
+   for (float it : paramCrack->params()) {
+           std::cout << " " << it;
    }
    std::cout << "\n";
    edm::ESHandle<EcalClusterEnergyCorrectionParameters> pEnergyCorrection;
    context.get<EcalClusterEnergyCorrectionParametersRcd>().get(pEnergyCorrection);
    const EcalClusterEnergyCorrectionParameters* paramEnergyCorrection = pEnergyCorrection.product();
    std::cout << "EnergyCorrectionParameters:";
-   for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrection->params().begin(); it != paramEnergyCorrection->params().end(); ++it ) {
-           std::cout << " " << *it;
+   for (float it : paramEnergyCorrection->params()) {
+           std::cout << " " << it;
    }
    std::cout << "\n";
    edm::ESHandle<EcalClusterEnergyUncertaintyParameters> pEnergyUncertainty;
    context.get<EcalClusterEnergyUncertaintyParametersRcd>().get(pEnergyUncertainty);
    const EcalClusterEnergyUncertaintyParameters* paramEnergyUncertainty = pEnergyUncertainty.product();
    std::cout << "EnergyCorrectionParameters:";
-   for ( EcalFunctionParameters::const_iterator it = paramEnergyUncertainty->params().begin(); it != paramEnergyUncertainty->params().end(); ++it ) {
-           std::cout << " " << *it;
+   for (float it : paramEnergyUncertainty->params()) {
+           std::cout << " " << it;
    }
    std::cout << "\n";
    edm::ESHandle<EcalClusterEnergyCorrectionObjectSpecificParameters> pEnergyCorrectionObjectSpecific;
    context.get<EcalClusterEnergyCorrectionObjectSpecificParametersRcd>().get(pEnergyCorrectionObjectSpecific);
    const EcalClusterEnergyCorrectionObjectSpecificParameters* paramEnergyCorrectionObjectSpecific = pEnergyCorrectionObjectSpecific.product();
    std::cout << "EnergyCorrectionObjectSpecificParameters:";
-   for ( EcalFunctionParameters::const_iterator it = paramEnergyCorrectionObjectSpecific->params().begin(); it != paramEnergyCorrectionObjectSpecific->params().end(); ++it ) {
-     std::cout << " " << *it;
+   for (float it : paramEnergyCorrectionObjectSpecific->params()) {
+     std::cout << " " << it;
    }
    std::cout << "\n";
 

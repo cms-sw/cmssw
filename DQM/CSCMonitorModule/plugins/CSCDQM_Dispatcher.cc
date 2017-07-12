@@ -158,9 +158,9 @@ void Dispatcher::book() {
       parameters.push_back(h::PAR_REPORT_SUMMARY);
 
 
-      for (size_t i = 0; i < parameters.size(); i++) {
-        ParHistoDef histoD(parameters[i]);
-        HistoBookRequest req(parameters[i], config->getFOLDER_PAR(), -1.0f);
+      for (unsigned int parameter : parameters) {
+        ParHistoDef histoD(parameter);
+        HistoBookRequest req(parameter, config->getFOLDER_PAR(), -1.0f);
         MonitorObject* me = provider->bookMonitorObject(req);
         cache.put(histoD, me);
       }

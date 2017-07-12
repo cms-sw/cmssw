@@ -13,7 +13,7 @@ TKStatus::TKStatus( const ParameterSet& ps ) :
   dcsTkFileName_  = parameters_.getParameter<ParameterSet>("BeamFitter").getUntrackedParameter<std::string>("DIPFileName");
   dcsStatus_ = consumes<DcsStatusCollection>(
     parameters_.getUntrackedParameter<std::string>("DCSStatus", "scalersRawToDigi"));
-  for (int i=0;i<6;i++) dcsTk[i]=true;
+  for (bool & i : dcsTk) i=true;
   countLumi_ = lastlumi_ = 0;
   runnum = -1;
 }
@@ -47,15 +47,14 @@ void TKStatus::analyze(const Event& iEvent,
     // Checking TK status
     Handle<DcsStatusCollection> dcsStatus;
     iEvent.getByToken(dcsStatus_, dcsStatus);
-    for (int i=0;i<6;i++) dcsTk[i]=true;
-    for (DcsStatusCollection::const_iterator dcsStatusItr = dcsStatus->begin();
-	 dcsStatusItr != dcsStatus->end(); ++dcsStatusItr) {
-      if (!dcsStatusItr->ready(DcsStatus::BPIX))   dcsTk[0]=false;
-      if (!dcsStatusItr->ready(DcsStatus::FPIX))   dcsTk[1]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TIBTID)) dcsTk[2]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TOB))    dcsTk[3]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECp))   dcsTk[4]=false;
-      if (!dcsStatusItr->ready(DcsStatus::TECm))   dcsTk[5]=false;
+    for (bool & i : dcsTk) i=true;
+    for (const auto & dcsStatusItr : *dcsStatus) {
+      if (!dcsStatusItr.ready(DcsStatus::BPIX))   dcsTk[0]=false;
+      if (!dcsStatusItr.ready(DcsStatus::FPIX))   dcsTk[1]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TIBTID)) dcsTk[2]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TOB))    dcsTk[3]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TECp))   dcsTk[4]=false;
+      if (!dcsStatusItr.ready(DcsStatus::TECm))   dcsTk[5]=false;
     }
     dumpTkDcsStatus(dcsTkFileName_);
     checkStatus_ = false;

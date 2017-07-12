@@ -246,9 +246,8 @@ void PFRecoTauChargedHadronProducer::produce(edm::Event& evt, const edm::EventSe
       // discard ChargedHadron candidates without track in case they are close to neutral PFCandidates "used" by ChargedHadron candidates in the clean collection
       bool isNeutralPFCand_overlap = false;
       if ( nextChargedHadron->algoIs(reco::PFRecoTauChargedHadron::kPFNeutralHadron) ) {
-	for ( std::set<reco::PFCandidatePtr>::const_iterator neutralPFCandInCleanCollection = neutralPFCandsInCleanCollection.begin();
-	      neutralPFCandInCleanCollection != neutralPFCandsInCleanCollection.end(); ++neutralPFCandInCleanCollection ) {
-	  if ( (*neutralPFCandInCleanCollection) == nextChargedHadron->getChargedPFCandidate() ) isNeutralPFCand_overlap = true;
+	for (const auto & neutralPFCandInCleanCollection : neutralPFCandsInCleanCollection) {
+	  if ( neutralPFCandInCleanCollection == nextChargedHadron->getChargedPFCandidate() ) isNeutralPFCand_overlap = true;
 	}
       }
       if ( verbosity_ ) {

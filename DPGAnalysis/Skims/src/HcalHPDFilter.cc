@@ -87,8 +87,8 @@ HcalHPDFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    iEvent.getByLabel("hbhereco", hbhe);
    const HBHERecHitCollection Hithbhe = *(hbhe.product());
 
-   for (HBHERecHitCollection::const_iterator hhit=Hithbhe.begin(); hhit!=Hithbhe.end(); hhit++) {
-     if (hhit->energy() > 5.) return true;
+   for (const auto & hhit : Hithbhe) {
+     if (hhit.energy() > 5.) return true;
    }
    return false;
 }

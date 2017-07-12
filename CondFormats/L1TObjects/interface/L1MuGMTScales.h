@@ -116,8 +116,8 @@ class L1MuGMTScales {
 /*     m_DeltaEtaScale[4] = L1MuBinnedScale (4, true, 15, deta_min, deta_max, 7); // CSC-bRPC */
 /*     m_DeltaEtaScale[5] = L1MuBinnedScale (4, true, 15, deta_min, deta_max, 7); // DT-fRPC */
 
-    for( int i = 0 ; i < 6 ; ++i )
-      m_DeltaEtaScale[i] = L1MuBinnedScale( nbitPackingDeltaEta,
+    for(auto & i : m_DeltaEtaScale)
+      i = L1MuBinnedScale( nbitPackingDeltaEta,
 					    signedPackingDeltaEta,
 					    nbinsDeltaEta,
 					    minDeltaEta,

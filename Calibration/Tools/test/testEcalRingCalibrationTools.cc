@@ -122,8 +122,8 @@ void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector
 	  std::vector<DetId> ringIds = EcalRingCalibrationTools::getDetIdsInRing(i);
 	  std::cout << i << " " << ringIds.size() << std::endl;  
 	  assert (ringIds.size() == 360);
-	  for (unsigned int iid=0; iid<ringIds.size();++iid)
-	    f << EBDetId(ringIds[iid]) << std::endl;
+	  for (auto ringId : ringIds)
+	    f << EBDetId(ringId) << std::endl;
 	}
     }
   
@@ -165,8 +165,8 @@ void testEcalRingCalibrationTools::build(const CaloGeometry& cg, DetId::Detector
 	  std::vector<DetId> ringIds = EcalRingCalibrationTools::getDetIdsInRing(i);
 	  std::cout << i << " " << ringIds.size() << std::endl;  
 	  totalRingSize+=ringIds.size();
-	  for (unsigned int iid=0; iid<ringIds.size();++iid)
-	    f << EEDetId(ringIds[iid]) << std::endl;
+	  for (auto ringId : ringIds)
+	    f << EEDetId(ringId) << std::endl;
 	}
       assert(totalRingSize == ids.size());
     }

@@ -30,9 +30,8 @@ struct CSCBeamHaloConfigSelector {
   {
     all_.clear();
     selected_.clear();
-    for (collection::const_iterator i = c.product()->begin(), iE = c.product()->end();
-         i != iE; ++i){
-      all_.push_back(& * i );
+    for (const auto & i : *c.product()){
+      all_.push_back(& i );
     }
     selected_ = theSelector.select(all_, evt); // might add dummy...
   }

@@ -67,11 +67,11 @@ void DigiCollectionProfiler<T>::fill(edm::Handle<T> digis, const std::vector<TH1
 template <>
 void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<edm::DetSetVector<SiStripDigi> > digis, const std::vector<TH1F*>& hist, const std::vector<TProfile*>& hprof, const std::vector<TH2F*>& hist2d) const {
 
-  for(edm::DetSetVector<SiStripDigi>::const_iterator mod = digis->begin();mod!=digis->end();mod++) {
+  for(const auto & mod : *digis) {
 
     for(unsigned int isel=0;isel< m_selections.size(); ++isel) {
       
-      if(m_selections[isel].isSelected(mod->detId())) {
+      if(m_selections[isel].isSelected(mod.detId())) {
 	TH1F* tobefilled1d=0;
 	TProfile* tobefilledprof=0;
 	TH2F* tobefilled2d=0;
@@ -80,7 +80,7 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<e
 	if(m_wantProfile) tobefilledprof = hprof[isel];
 	if(m_want2dHisto) tobefilled2d = hist2d[isel];
 	
-	for(edm::DetSet<SiStripDigi>::const_iterator digi=mod->begin();digi!=mod->end();digi++) {
+	for(edm::DetSet<SiStripDigi>::const_iterator digi=mod.begin();digi!=mod.end();digi++) {
 	  
 	  if(digi->adc()>0) {
 	    unsigned int strip = digi->strip();
@@ -98,11 +98,11 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripDigi> >::fill(edm::Handle<e
 template <>
 void DigiCollectionProfiler<edm::DetSetVector<SiStripRawDigi> >::fill(edm::Handle<edm::DetSetVector<SiStripRawDigi> > digis, const std::vector<TH1F*>& hist, const std::vector<TProfile*>& hprof, const std::vector<TH2F*>& hist2d) const {
 
-  for(edm::DetSetVector<SiStripRawDigi>::const_iterator mod = digis->begin();mod!=digis->end();mod++) {
+  for(const auto & mod : *digis) {
 
     for(unsigned int isel=0;isel< m_selections.size(); ++isel) {
       
-      if(m_selections[isel].isSelected(mod->detId())) {
+      if(m_selections[isel].isSelected(mod.detId())) {
 	TH1F* tobefilled1d=0;
 	TProfile* tobefilledprof=0;
 	TH2F* tobefilled2d=0;
@@ -112,7 +112,7 @@ void DigiCollectionProfiler<edm::DetSetVector<SiStripRawDigi> >::fill(edm::Handl
 	if(m_want2dHisto) tobefilled2d = hist2d[isel];
 	
 	unsigned int istrip=0;
-	for(edm::DetSet<SiStripRawDigi>::const_iterator digi=mod->begin();digi!=mod->end();digi++,++istrip) {
+	for(edm::DetSet<SiStripRawDigi>::const_iterator digi=mod.begin();digi!=mod.end();digi++,++istrip) {
 	  
 	  if(digi->adc()>0) {
 	    unsigned int strip = istrip;
@@ -143,16 +143,16 @@ void DigiCollectionProfiler<edmNew::DetSetVector<SiStripCluster> >::fill(edm::Ha
 	if(m_wantProfile) tobefilledprof = hprof[isel];
 	if(m_want2dHisto) tobefilled2d = hist2d[isel];
 	
-	for(edmNew::DetSet<SiStripCluster>::const_iterator clus=mod->begin();clus!=mod->end();clus++) {
+	for(const auto & clus : *mod) {
 
-	  for(unsigned int digi=0; digi < clus->amplitudes().size() ; ++digi) {
+	  for(unsigned int digi=0; digi < clus.amplitudes().size() ; ++digi) {
 	  
-	    if(clus->amplitudes()[digi]>0) {
-	      unsigned int strip = clus->firstStrip()+digi;
+	    if(clus.amplitudes()[digi]>0) {
+	      unsigned int strip = clus.firstStrip()+digi;
 	      if(m_folded) strip = strip%256;
 	      if(tobefilled1d) tobefilled1d->Fill(strip);
-	      if(tobefilledprof) tobefilledprof->Fill(strip,clus->amplitudes()[digi]);
-	      if(tobefilled2d) tobefilled2d->Fill(strip,clus->amplitudes()[digi]);
+	      if(tobefilledprof) tobefilledprof->Fill(strip,clus.amplitudes()[digi]);
+	      if(tobefilled2d) tobefilled2d->Fill(strip,clus.amplitudes()[digi]);
 	    }
 	  }
 	}

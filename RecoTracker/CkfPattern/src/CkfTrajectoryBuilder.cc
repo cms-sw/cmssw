@@ -196,19 +196,19 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
   while ( !candidates.empty()) {
 
     newCand.clear();
-    for (auto traj=candidates.begin(); traj!=candidates.end(); traj++) {
+    for (auto & candidate : candidates) {
       std::vector<TM> meas;
-      findCompatibleMeasurements(*sharedSeed, *traj, meas);
+      findCompatibleMeasurements(*sharedSeed, candidate, meas);
 
       // --- method for debugging
-      if(!analyzeMeasurementsDebugger(*traj,meas,
+      if(!analyzeMeasurementsDebugger(candidate,meas,
 				      theMeasurementTracker,
 				      forwardPropagator(*sharedSeed),theEstimator,
 				      theTTRHBuilder)) return;
       // ---
 
       if ( meas.empty()) {
-	addToResult(sharedSeed, *traj, result);
+	addToResult(sharedSeed, candidate, result);
       }
       else {
 	std::vector<TM>::const_iterator last;
@@ -221,7 +221,7 @@ limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, Te
 	}
 
 	for(auto itm = meas.begin(); itm != last; itm++) {
-	  TempTrajectory newTraj = *traj;
+	  TempTrajectory newTraj = candidate;
 	  updateTrajectory( newTraj, std::move(*itm));
 
 	  if ( toBeContinued(newTraj)) {

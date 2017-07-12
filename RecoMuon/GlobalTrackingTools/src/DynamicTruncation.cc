@@ -67,8 +67,8 @@ void DynamicTruncation::update(TrajectoryStateOnSurface& tsos, ConstRecHitPointe
 void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface& tsos, DTRecSegment4D const &bestDTSeg) {
   ConstRecHitContainer tmprecHits;
   vector<const TrackingRecHit*> DTrh = bestDTSeg.recHits();
-  for (vector<const TrackingRecHit*>::iterator it = DTrh.begin(); it != DTrh.end(); it++) {
-    tmprecHits.push_back(theMuonRecHitBuilder->build(*it)); 
+  for (auto & it : DTrh) {
+    tmprecHits.push_back(theMuonRecHitBuilder->build(it)); 
   }
   sort(tmprecHits);
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
@@ -84,8 +84,8 @@ void DynamicTruncation::updateWithDThits(TrajectoryStateOnSurface& tsos, DTRecSe
 void DynamicTruncation::updateWithCSChits(TrajectoryStateOnSurface& tsos, CSCSegment const &bestCSCSeg) {
   ConstRecHitContainer tmprecHits;
   vector<CSCRecHit2D> CSCrh = bestCSCSeg.specificRecHits();
-  for (vector<CSCRecHit2D>::iterator it = CSCrh.begin(); it != CSCrh.end(); ++it) {
-    tmprecHits.push_back(theMuonRecHitBuilder->build(&*it));
+  for (auto & it : CSCrh) {
+    tmprecHits.push_back(theMuonRecHitBuilder->build(&it));
   }
   sort(tmprecHits);
   for (ConstRecHitContainer::const_iterator it = tmprecHits.begin(); it != tmprecHits.end(); ++it) {
@@ -121,8 +121,8 @@ void DynamicTruncation::setUpdateState(bool upState) {
 
 void DynamicTruncation::setThr(const vector<int>& thr) {
   if (thr.size() == 2) {
-    for (unsigned int i = 0; i < thr.size(); i++)
-      if (thr[i] >= 0) Thrs.push_back(thr[i]);
+    for (int i : thr)
+      if (i >= 0) Thrs.push_back(i);
       else Thrs.push_back(MAX_THR);
     return;
   }
@@ -188,14 +188,14 @@ void DynamicTruncation::filteringAlgo() {
   if (useDBforThr) preliminaryFit(compatibleIds, dtSegMap, cscSegMap);
 
   // Loop on compatible layers
-  for (map<int, vector<DetId> >::iterator it=compatibleIds.begin(); it!=compatibleIds.end(); ++it) {
-    int stLayer = stationfromDet(it->second.front());
+  for (auto & compatibleId : compatibleIds) {
+    int stLayer = stationfromDet(compatibleId.second.front());
     DTRecSegment4D bestDTSeg;
     CSCSegment bestCSCSeg;
     double bestDTEstimator  = MAX_THR;
     double bestCSCEstimator = MAX_THR;
-    vector<DTRecSegment4D> dtSegs   = dtSegMap[it->first];
-    vector<CSCSegment> cscSegs      = cscSegMap[it->first];
+    vector<DTRecSegment4D> dtSegs   = dtSegMap[compatibleId.first];
+    vector<CSCSegment> cscSegs      = cscSegMap[compatibleId.first];
 
     // DT case: find the most compatible segment 
     TrajectoryStateOnSurface tsosDTlayer;
@@ -259,17 +259,17 @@ void DynamicTruncation::compatibleDets(TrajectoryStateOnSurface &tsos, map<int, 
   vector<const DetLayer *> navLayers;
   navLayers = navigation->compatibleLayers(*(currentState.freeState()), alongMomentum);
   unsigned int ilayerCorrected = 0;
-  for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
+  for (auto & navLayer : navLayers) {
     // Skip RPC layers
-    if (navLayers[ilayer]->subDetector() != GeomDetEnumerators::DT &&
-	navLayers[ilayer]->subDetector() != GeomDetEnumerators::CSC) continue;
+    if (navLayer->subDetector() != GeomDetEnumerators::DT &&
+	navLayer->subDetector() != GeomDetEnumerators::CSC) continue;
     ilayerCorrected++;
-    vector<DetLayer::DetWithState> comps = navLayers[ilayer]->compatibleDets(currentState, *propagatorCompatibleDet, *theEstimator);
+    vector<DetLayer::DetWithState> comps = navLayer->compatibleDets(currentState, *propagatorCompatibleDet, *theEstimator);
     //cout << comps.size() << " compatible Dets with " << navLayers[ilayer]->subDetector() << " Layer " << ilayer << " " 
     //<< dumper.dumpLayer(navLayers[ilayer]);
     if (comps.size() > 0) {
-      for ( unsigned int icomp=0; icomp<comps.size(); icomp++ ) {
-		DetId id(comps[icomp].first->geographicalId().rawId());
+      for (auto & comp : comps) {
+		DetId id(comp.first->geographicalId().rawId());
 		detMap[ilayerCorrected].push_back(id);
       }
     }
@@ -284,16 +284,16 @@ void DynamicTruncation::fillSegmentMaps( map<int, vector<DetId> > &compatibleIds
                                          map<int, vector<CSCSegment> > &cscSegMap) {
   for (map<int, vector<DetId> >::iterator it=compatibleIds.begin(); it!=compatibleIds.end(); ++it) {
     vector<DetId> ids = compatibleIds[it->first];
-    for (unsigned j = 0; j < ids.size(); j++) {
-      if (ids[j].subdetId() == MuonSubdetId::CSC) {
-        CSCDetId ch(ids[j]);
+    for (auto & id : ids) {
+      if (id.subdetId() == MuonSubdetId::CSC) {
+        CSCDetId ch(id);
         vector<CSCSegment> tmp = getSegs->getCSCSegmentsInChamber(ch);
-        for (unsigned int k = 0; k < tmp.size(); k++) cscSegMap[it->first].push_back(tmp[k]);
+        for (const auto & k : tmp) cscSegMap[it->first].push_back(k);
       }
-      if (ids[j].subdetId() == MuonSubdetId::DT) {
-        DTChamberId ch(ids[j]);
+      if (id.subdetId() == MuonSubdetId::DT) {
+        DTChamberId ch(id);
         vector<DTRecSegment4D> tmp = getSegs->getDTSegmentsInChamber(ch);
-        for (unsigned int k = 0; k < tmp.size(); k++) dtSegMap[it->first].push_back(tmp[k]);
+        for (const auto & k : tmp) dtSegMap[it->first].push_back(k);
       }
     }
   }
@@ -304,19 +304,19 @@ void DynamicTruncation::fillSegmentMaps( map<int, vector<DetId> > &compatibleIds
 void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, vector<DTRecSegment4D> const &segments, 
 				      double &bestEstimator, DTRecSegment4D &bestSeg, TrajectoryStateOnSurface &tsosdt) {
   if (segments.size() == 0) return;
-  for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
-    DTChamberId chamber(segments[iSeg].chamberId());
+  for (const auto & segment : segments) {
+    DTChamberId chamber(segment.chamberId());
     if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;
     tsosdt = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
     //if (!tsosdt.isValid()) continue;
     LocalError apeLoc;
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(dtApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
-    StateSegmentMatcher estim(tsosdt, segments[iSeg], apeLoc);
+    StateSegmentMatcher estim(tsosdt, segment, apeLoc);
     double estimator = estim.value();      
     //cout << "estimator DT = " << estimator << endl;
     if (estimator >= bestEstimator) continue; 
     bestEstimator = estimator;
-    bestSeg = segments[iSeg];
+    bestSeg = segment;
   }
 }
 
@@ -325,19 +325,19 @@ void DynamicTruncation::testDTstation(TrajectoryStateOnSurface &startingState, v
 void DynamicTruncation::testCSCstation(TrajectoryStateOnSurface &startingState, vector<CSCSegment> const &segments, 
 				       double &bestEstimator, CSCSegment &bestSeg, TrajectoryStateOnSurface &tsoscsc) {
   if (segments.size() == 0) return;
-  for (unsigned int iSeg = 0; iSeg < segments.size(); iSeg++) {
-    CSCDetId chamber(segments[iSeg].cscDetId());
+  for (const auto & segment : segments) {
+    CSCDetId chamber(segment.cscDetId());
     if (!propagator->propagate(startingState, theG->idToDet(chamber)->surface()).isValid()) continue;
     tsoscsc = propagator->propagate(startingState, theG->idToDet(chamber)->surface());
     //if (!tsoscsc.isValid()) continue;
     LocalError apeLoc;
     if (useAPE) apeLoc = ErrorFrameTransformer().transform(cscApeMap.find(chamber)->second, theG->idToDet(chamber)->surface());
-    StateSegmentMatcher estim(tsoscsc, segments[iSeg], apeLoc);
+    StateSegmentMatcher estim(tsoscsc, segment, apeLoc);
     double estimator = estim.value();
     //cout << "estimator CSC = " << estimator << endl;
     if (estimator >= bestEstimator) continue;
     bestEstimator = estimator;
-    bestSeg = segments[iSeg]; 
+    bestSeg = segment; 
   }
 }
 
@@ -361,14 +361,14 @@ void DynamicTruncation::useSegment(CSCSegment const &bestCSCSeg, TrajectoryState
 //===> preliminaryFit
 void DynamicTruncation::preliminaryFit(map<int, vector<DetId> > compatibleIds, map<int, vector<DTRecSegment4D> > dtSegMap,
 				       map<int, vector<CSCSegment> > cscSegMap) {
-  for (map<int, vector<DetId> >::iterator it=compatibleIds.begin(); it!=compatibleIds.end(); ++it) {
+  for (auto & compatibleId : compatibleIds) {
     DTRecSegment4D bestDTSeg;
     CSCSegment bestCSCSeg;
     double bestDTEstimator  = MAX_THR;
     double bestCSCEstimator = MAX_THR;
     double initThr = MAX_THR;
-    vector<DTRecSegment4D> dtSegs = dtSegMap[it->first];
-    vector<CSCSegment> cscSegs    = cscSegMap[it->first];
+    vector<DTRecSegment4D> dtSegs = dtSegMap[compatibleId.first];
+    vector<CSCSegment> cscSegs    = cscSegMap[compatibleId.first];
 
     // DT case: find the most compatible segment
     TrajectoryStateOnSurface tsosDTlayer;

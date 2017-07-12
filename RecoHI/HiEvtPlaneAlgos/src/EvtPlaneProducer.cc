@@ -269,8 +269,8 @@ EvtPlaneProducer::~EvtPlaneProducer()
 
   // do anything here that needs to be done at desctruction time
   // (e.g. close files, deallocate resources etc.)
-  for(int i = 0; i<NumEPNames; i++) {
-    delete flat[i];
+  for(auto & i : flat) {
+    delete i;
   }
 
 }
@@ -347,7 +347,7 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   } else
     vzr_sell = -999.9;
   //
-  for(int i = 0; i<NumEPNames; i++) rp[i]->reset();
+  for(auto & i : rp) i->reset();
   if(vzr_sell<minvtx_ or vzr_sell>maxvtx_) return;
 
     //calorimetry part
@@ -358,11 +358,11 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(caloToken,caloCollection_);
 
     if(caloCollection_.isValid()){
-      for (CaloTowerCollection::const_iterator j = caloCollection_->begin();j !=caloCollection_->end(); j++) {
-	tower_eta        = j->eta();
-	tower_phi        = j->phi();
-	tower_energyet_e   = j->emEt();
-	tower_energyet_h   = j->hadEt();
+      for (const auto & j : *caloCollection_) {
+	tower_eta        = j.eta();
+	tower_phi        = j.phi();
+	tower_energyet_e   = j.emEt();
+	tower_energyet_h   = j.hadEt();
 	tower_energyet     = tower_energyet_e + tower_energyet_h;
 	double minet = minet_;
 	double maxet = maxet_;
@@ -392,10 +392,10 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     iEvent.getByToken(castorToken,castorCollection_);
 
     if(castorCollection_.isValid()){
-      for (std::vector<reco::CastorTower>::const_iterator j = castorCollection_->begin();j !=castorCollection_->end(); j++) {
-       	tower_eta        = j->eta();
-       	tower_phi        = j->phi();
-       	tower_energyet     = j->et();
+      for (const auto & j : *castorCollection_) {
+       	tower_eta        = j.eta();
+       	tower_phi        = j.phi();
+       	tower_energyet     = j.et();
 	double minet = minet_;
 	double maxet = maxet_;
        	for(int i = 0; i<NumEPNames; i++) {
@@ -433,25 +433,25 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     iEvent.getByToken(trackToken, trackCollection_);
     if(trackCollection_.isValid()){
-      for(reco::TrackCollection::const_iterator j = trackCollection_->begin(); j != trackCollection_->end(); j++){
+      for(const auto & j : *trackCollection_){
 	bool accepted = true;
 	bool isPixel = false;
 	// determine if the track is a pixel track
-	if ( j->numberOfValidHits() < 7 ) isPixel = true;
+	if ( j.numberOfValidHits() < 7 ) isPixel = true;
 
 	// determine the vertex significance 
 	double d0=0.0, dz=0.0, d0sigma=0.0, dzsigma=0.0;
-	d0 = -1.*j->dxy(vtxPoint);
-	dz = j->dz(vtxPoint);
-	d0sigma = sqrt(j->d0Error()*j->d0Error()+vxyErr);
-	dzsigma = sqrt(j->dzError()*j->dzError()+vzErr2);
+	d0 = -1.*j.dxy(vtxPoint);
+	dz = j.dz(vtxPoint);
+	d0sigma = sqrt(j.d0Error()*j.d0Error()+vxyErr);
+	dzsigma = sqrt(j.dzError()*j.dzError()+vzErr2);
 
 	// cuts for pixel tracks
 	if( isPixel ){
 	  // dz significance cut 
 	  if ( fabs(dz/dzsigma) > dzerr_ ) accepted = false;
 	  // chi2/ndof cut 
-	  if ( j->normalizedChi2() > chi2_ ) accepted = false;
+	  if ( j.normalizedChi2() > chi2_ ) accepted = false;
 	}
 	// cuts for full tracks
 	if ( ! isPixel) {
@@ -459,14 +459,14 @@ EvtPlaneProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  if ( fabs(dz/dzsigma) > 3 ) accepted = false;
 	  if ( fabs(d0/d0sigma) > 3 ) accepted = false;
 	  // pt resolution cut
-	  if ( j->ptError()/j->pt() > 0.1 ) accepted = false;
+	  if ( j.ptError()/j.pt() > 0.1 ) accepted = false;
 	  // number of valid hits cut
-	  if ( j->numberOfValidHits() < 12 ) accepted = false;
+	  if ( j.numberOfValidHits() < 12 ) accepted = false;
 	}
 	if( accepted ) {
-	  track_eta = j->eta();
-	  track_phi = j->phi();
-	  track_pt = j->pt();
+	  track_eta = j.eta();
+	  track_phi = j.phi();
+	  track_pt = j.pt();
 	  double minpt = minpt_;
 	  double maxpt = maxpt_;
 	  for(int i = 0; i<NumEPNames; i++) {

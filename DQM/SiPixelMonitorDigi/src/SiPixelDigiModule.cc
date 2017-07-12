@@ -516,9 +516,9 @@ int SiPixelDigiModule::fill(const edm::DetSetVector<PixelDigi>& input, const edm
       if(combBarrel) combBarrel->Fill((float)numberOfDigisMod);
       if(chanBarrel){ if(numberOfDigis[0]>0) chanBarrel->Fill((float)numberOfDigis[0]); if(numberOfDigis[1]>0) chanBarrel->Fill((float)numberOfDigis[1]); }
       int j = 2;
-      for (std::vector<MonitorElement*>::iterator i = chanBarrelL.begin(); i != chanBarrelL.end(); i++)
+      for (auto & i : chanBarrelL)
       {
-         if(numberOfDigis[j]>0) (*i)->Fill((float)numberOfDigis[j]);
+         if(numberOfDigis[j]>0) i->Fill((float)numberOfDigis[j]);
          j++;
       }
     }else if(endcap){

@@ -503,15 +503,12 @@ FWTableViewManager::addToImpl(FWConfiguration &iTo) const
    FWConfiguration typeNames(1);
    char prec[100];
 
-   for (TableSpecs::const_iterator 
-	iType = m_tableFormats.begin(),
-	iType_end = m_tableFormats.end();
-	iType != iType_end; ++iType) 
+   for (const auto & m_tableFormat : m_tableFormats) 
    {
-      const std::string &typeName = iType->first;
+      const std::string &typeName = m_tableFormat.first;
       typeNames.addValue(typeName);
       FWConfiguration columns(1);
-      const TableEntries &entries = iType->second;
+      const TableEntries &entries = m_tableFormat.second;
       for (size_t ei = 0, ee = entries.size(); ei != ee; ++ei)
       {
          const TableEntry &entry = entries[ei];
@@ -540,15 +537,12 @@ FWTableViewManager::setFrom(const FWConfiguration &iFrom)
       // clear it those pointers would be invalid
       // instead we will just clear the lists and fill them with their new values
       //m_tableFormats.clear();
-      for (FWConfiguration::StringValuesIt 
-	   iType = typeNames->stringValues()->begin(),
-	   iTypeEnd = typeNames->stringValues()->end(); 
-           iType != iTypeEnd; ++iType) 
+      for (const auto & iType : *typeNames->stringValues()) 
       {
          //std::cout << "reading type " << *iType << std::endl;
-	 const FWConfiguration *columns = iFrom.valueForKey(*iType);
+	 const FWConfiguration *columns = iFrom.valueForKey(iType);
 	 assert(columns != 0);
-         TableHandle handle = table(iType->c_str());
+         TableHandle handle = table(iType.c_str());
 	 for (FWConfiguration::StringValuesIt 
 	      it = columns->stringValues()->begin(),
 	      itEnd = columns->stringValues()->end(); 

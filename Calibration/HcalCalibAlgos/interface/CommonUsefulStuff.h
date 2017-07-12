@@ -223,34 +223,34 @@ inline double ecalEnergyInCone(const GlobalPoint center, double radius, const Ec
   std::vector<int> usedHitsEcal; 
   usedHitsEcal.clear();
   
-  for (std::vector<EcalRecHit>::const_iterator ehit=ecalCol.begin(); ehit!=ecalCol.end(); ehit++)
+  for (const auto & ehit : ecalCol)
     {
       //This is a precaution for the case when hitCollection contains duplicats.
       bool hitIsUsed=false;
       int hitHashedIndex=-10000;
-      if (ehit->id().subdetId()==EcalBarrel)
+      if (ehit.id().subdetId()==EcalBarrel)
 	{
-	  EBDetId did(ehit->id());
+	  EBDetId did(ehit.id());
 	  hitHashedIndex=did.hashedIndex();
 	}
-      if (ehit->id().subdetId()==EcalEndcap)
+      if (ehit.id().subdetId()==EcalEndcap)
 	{
-	  EEDetId did(ehit->id());
+	  EEDetId did(ehit.id());
 	  hitHashedIndex=did.hashedIndex();
 	}
-      for (uint32_t i=0; i<usedHitsEcal.size(); i++)
+      for (int i : usedHitsEcal)
 	{
-	  if (usedHitsEcal[i]==hitHashedIndex) hitIsUsed=true;
+	  if (i==hitHashedIndex) hitIsUsed=true;
 	}
       if (hitIsUsed) continue;
       usedHitsEcal.push_back(hitHashedIndex);
       // -----------------------------------------------
       
-      GlobalPoint pos = geo->getPosition((*ehit).detid());
+      GlobalPoint pos = geo->getPosition(ehit.detid());
   
       if (getDistInPlaneSimple(center,pos) < radius)
         {
-          eECALcone += ehit->energy();
+          eECALcone += ehit.energy();
         }
     }
   return eECALcone;
@@ -263,34 +263,34 @@ inline double ecalEnergyInCone(const GlobalVector trackMom, const GlobalPoint ce
   double eECALcone = 0;
   std::vector<int> usedHitsEcal; 
   usedHitsEcal.clear();
-  for (std::vector<EcalRecHit>::const_iterator ehit=ecalCol.begin(); ehit!=ecalCol.end(); ehit++)
+  for (const auto & ehit : ecalCol)
     {
       //This is a precaution for the case when hitCollection contains duplicats.
       bool hitIsUsed=false;
       int hitHashedIndex=-10000;
-      if (ehit->id().subdetId()==EcalBarrel)
+      if (ehit.id().subdetId()==EcalBarrel)
 	{
-	  EBDetId did(ehit->id());
+	  EBDetId did(ehit.id());
 	  hitHashedIndex=did.hashedIndex();
 	}
-      if (ehit->id().subdetId()==EcalEndcap)
+      if (ehit.id().subdetId()==EcalEndcap)
 	{
-	  EEDetId did(ehit->id());
+	  EEDetId did(ehit.id());
 	  hitHashedIndex=did.hashedIndex();
 	}
-      for (uint32_t i=0; i<usedHitsEcal.size(); i++)
+      for (int i : usedHitsEcal)
 	{
-	  if (usedHitsEcal[i]==hitHashedIndex) hitIsUsed=true;
+	  if (i==hitHashedIndex) hitIsUsed=true;
 	}
       if (hitIsUsed) continue;
       usedHitsEcal.push_back(hitHashedIndex);
       // -----------------------------------------------
 
-      GlobalPoint pos = geo->getPosition((*ehit).detid());
+      GlobalPoint pos = geo->getPosition(ehit.detid());
   
       if (getDistInPlaneTrackDir(center, trackMom ,pos) < radius)
         {
-          eECALcone += ehit->energy();
+          eECALcone += ehit.energy();
         }
       }
   return eECALcone;

@@ -717,10 +717,10 @@ void HGCalTBAnalyzer::analyzeSimHits (int type, std::vector<PCaloHit>& hits,
   std::map<int,double>                      map_hitDepth;
   std::map<int,std::pair<uint32_t,double> > map_hitLayer, map_hitCell;
   double                                    entot(0);
-  for (unsigned int i=0; i<hits.size(); i++) {
-    double energy      = hits[i].energy();
-    double time        = hits[i].time();
-    uint32_t id        = hits[i].id();
+  for (auto & hit : hits) {
+    double energy      = hit.energy();
+    double time        = hit.time();
+    uint32_t id        = hit.id();
     entot             += energy;
     int      subdet, zside, layer, sector, subsector(0), cell, depth(0), idx(0);
     if (type == 2) {

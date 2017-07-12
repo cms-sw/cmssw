@@ -231,9 +231,9 @@ std::string DetIdInfo::info(const DetId& id, const TrackerTopology *tTopo) {
    
 std::string DetIdInfo::info(const std::set<DetId>& idSet, const TrackerTopology *tTopo) {
    std::string text;
-   for(std::set<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++)
+   for(auto id : idSet)
      {
-       text += info(*id, tTopo);
+       text += info(id, tTopo);
 	text += "\n";
      }
    return text;
@@ -241,9 +241,9 @@ std::string DetIdInfo::info(const std::set<DetId>& idSet, const TrackerTopology 
 
 std::string DetIdInfo::info(const std::vector<DetId>& idSet, const TrackerTopology *tTopo) {
    std::string text;
-   for(std::vector<DetId>::const_iterator id = idSet.begin(); id != idSet.end(); id++)
+   for(auto id : idSet)
      {
-       text += info(*id, tTopo);
+       text += info(id, tTopo);
 	text += "\n";
      }
    return text;

@@ -35,7 +35,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
   std::map<uint32_t, std::vector<GEMRecHit*> > ensembleRH;
  
   // Loop on the GEM rechit and select the different GEM Ensemble
-  for(GEMRecHitCollection::const_iterator it2 = recHits->begin(); it2 != recHits->end(); ++it2) {
+  for(const auto & recHit : *recHits) {
     // GEM Ensemble is defined by assigning all the GEMDetIds of the same "superchamber" 
     // (i.e. region same, chamber same) to the DetId of the first layer
 
@@ -47,20 +47,20 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     // this reference id serves to link all GEMEtaPartitions
     // and will also be used to determine the GEMSuperChamber 
     // to which the GEMSegment is assigned (done inside GEMSegAlgoXX)
-    GEMDetId id(it2->gemId().region(),1,it2->gemId().station(),0,it2->gemId().chamber(),0);
+    GEMDetId id(recHit.gemId().region(),1,recHit.gemId().station(),0,recHit.gemId().chamber(),0);
     // save current GEMRecHit in vector associated to the reference id
-    ensembleRH[id.rawId()].push_back(it2->clone());
+    ensembleRH[id.rawId()].push_back(recHit.clone());
   }
 
   // Loop on the entire map <ref id, vector of GEMRecHits>
-  for(auto enIt=ensembleRH.begin(); enIt != ensembleRH.end(); ++enIt) {
+  for(auto & enIt : ensembleRH) {
     
     std::vector<const GEMRecHit*> gemRecHits;
     std::map<uint32_t,const GEMEtaPartition* > ens;
 
     // all detIds have been assigned to the to chamber
-    const GEMSuperChamber* chamber = geom_->superChamber(enIt->first);
-    for(auto rechit = enIt->second.begin(); rechit != enIt->second.end(); ++rechit) {
+    const GEMSuperChamber* chamber = geom_->superChamber(enIt.first);
+    for(auto rechit = enIt.second.begin(); rechit != enIt.second.end(); ++rechit) {
       gemRecHits.push_back(*rechit);
       ens[(*rechit)->gemId()]=geom_->etaPartition((*rechit)->gemId());
     }    
@@ -93,7 +93,7 @@ void GEMSegmentBuilder::build(const GEMRecHitCollection* recHits, GEMSegmentColl
     LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() ;
     #endif
 
-    GEMDetId mid(enIt->first);    
+    GEMDetId mid(enIt.first);    
 
     #ifdef EDM_ML_DEBUG // have lines below only compiled when in debug mode
     LogTrace("GEMSegmentBuilder") << "[GEMSegmentBuilder::build] found " << segv.size() << " segments in GEM Super Chamber " << mid;

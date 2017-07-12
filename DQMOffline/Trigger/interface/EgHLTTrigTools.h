@@ -53,17 +53,17 @@ namespace egHLT {
   {
     std::vector<TrigCodes::TrigBitSet> partTrigBits(particles.size());
     const double maxDeltaR=0.1;
-    for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
-      size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"",hltTag));
-      const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(filters[filterNrInVec].c_str());
+    for(const auto & filter : filters){
+      size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filter,"",hltTag));
+      const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(filter.c_str());
       
       if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, something passes it
 	const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);  //trigger::Keys is actually a vector<uint16_t> holding the position of trigger objects in the trigger collection passing the filter
 	const trigger::TriggerObjectCollection & trigObjColl(trigEvt->getObjects());
 	for(size_t partNr=0;partNr<particles.size();partNr++){
-	  for(trigger::Keys::const_iterator keyIt=trigKeys.begin();keyIt!=trigKeys.end();++keyIt){
-	    float trigObjEta = trigObjColl[*keyIt].eta();
-	    float trigObjPhi = trigObjColl[*keyIt].phi();
+	  for(unsigned short trigKey : trigKeys){
+	    float trigObjEta = trigObjColl[trigKey].eta();
+	    float trigObjPhi = trigObjColl[trigKey].phi();
 	    if (reco::deltaR(particles[partNr].eta(),particles[partNr].phi(),trigObjEta,trigObjPhi) < maxDeltaR){
 	    partTrigBits[partNr] |= filterCode;
 	    }//end dR<maxDeltaR trig obj match test
@@ -73,19 +73,19 @@ namespace egHLT {
     }//end loop over all filters
     
     //okay the first element is the key, the second is the filter that exists in trigger event
-    for(size_t l1FilterNrInVec=0;l1FilterNrInVec<l1PreAndSeedFilters.size();l1FilterNrInVec++){
-      const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(l1PreAndSeedFilters[l1FilterNrInVec].first.c_str());
+    for(const auto & l1PreAndSeedFilter : l1PreAndSeedFilters){
+      const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(l1PreAndSeedFilter.first.c_str());
       if((filterCode&evtTrigBits)==filterCode){ //check that filter has fired in the event
    
-	size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(l1PreAndSeedFilters[l1FilterNrInVec].second,"",hltTag));
+	size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(l1PreAndSeedFilter.second,"",hltTag));
 	
 	if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, something passes it
 	  const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);  //trigger::Keys is actually a vector<uint16_t> holding the position of trigger objects in the trigger collection passing the filter
 	  const trigger::TriggerObjectCollection & trigObjColl(trigEvt->getObjects());
 	  for(size_t partNr=0;partNr<particles.size();partNr++){
-	    for(trigger::Keys::const_iterator keyIt=trigKeys.begin();keyIt!=trigKeys.end();++keyIt){
-	      float trigObjEta = trigObjColl[*keyIt].eta();
-	      float trigObjPhi = trigObjColl[*keyIt].phi();
+	    for(unsigned short trigKey : trigKeys){
+	      float trigObjEta = trigObjColl[trigKey].eta();
+	      float trigObjPhi = trigObjColl[trigKey].phi();
 	      if (reco::deltaR(particles[partNr].eta(),particles[partNr].phi(),trigObjEta,trigObjPhi) < maxDeltaR){
 		partTrigBits[partNr] |= filterCode;
 	      }//end dR<maxDeltaR trig obj match test
@@ -109,16 +109,16 @@ namespace egHLT {
 {
   std::vector<TrigCodes::TrigBitSet> partTrigBits(1);
   const double maxDeltaR=0.1;
-  for(size_t filterNrInVec=0;filterNrInVec<filters.size();filterNrInVec++){
-    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filters[filterNrInVec],"",hltTag));
+  for(const auto & filter : filters){
+    size_t filterNrInEvt = trigEvt->filterIndex(edm::InputTag(filter,"",hltTag));
     //const TrigCodes::TrigBitSet filterCode = trigCodes.getCode(filters[filterNrInVec].c_str()); 
     if(filterNrInEvt<trigEvt->sizeFilters()){ //filter found in event, something passes it
       const trigger::Keys& trigKeys = trigEvt->filterKeys(filterNrInEvt);  //trigger::Keys is actually a vector<uint16_t> holding the position of trigger objects in the trigger collection passing the filter
       const trigger::TriggerObjectCollection & trigObjColl(trigEvt->getObjects());
-      for(trigger::Keys::const_iterator keyIt=trigKeys.begin();keyIt!=trigKeys.end();++keyIt){
-	float trigObjEta = trigObjColl[*keyIt].eta();
-	float trigObjPhi = trigObjColl[*keyIt].phi();
-	float trigObjE = trigObjColl[*keyIt].energy();
+      for(unsigned short trigKey : trigKeys){
+	float trigObjEta = trigObjColl[trigKey].eta();
+	float trigObjPhi = trigObjColl[trigKey].phi();
+	float trigObjE = trigObjColl[trigKey].energy();
 	if (reco::deltaR(particle.superCluster()->eta(),particle.superCluster()->phi(),trigObjEta,trigObjPhi) < maxDeltaR){
 	  hltData.HLTeta=trigObjEta;
 	  hltData.HLTphi=trigObjPhi;

@@ -442,9 +442,9 @@ void popcon::EcalChannelStatusHandler::daqOut(const RunIOV& _myRun) {
   std::vector< ODBadTTDat > badTT_dat;
   econn->fetchConfigDataSet(&badTT_dat, &mybadTT);
   
-  for(size_t iTT=0; iTT<badTT_dat.size(); iTT++){
-    int fed_id = badTT_dat[iTT].getFedId();
-    int tt_id  = badTT_dat[iTT].getTTId();
+  for(auto & iTT : badTT_dat){
+    int fed_id = iTT.getFedId();
+    int tt_id  = iTT.getTTId();
     if (tt_id<69) *daqFile << fed_id << " " << tt_id << std::endl;
     
     // taking the channel list for towers out of daq
@@ -461,9 +461,8 @@ void popcon::EcalChannelStatusHandler::daqOut(const RunIOV& _myRun) {
       std::vector<EcalLogicID> badCrystals;
       badCrystals=econn->getEcalLogicIDSet("EE_readout_tower",fed_id, fed_id, tt_id, tt_id, EcalLogicID::NULLID,EcalLogicID::NULLID, "EE_crystal_number");    
  
-      for(size_t mycrys=0; mycrys<badCrystals.size(); mycrys++){
-	EcalLogicID ecid_xt = badCrystals[mycrys];
-	int zSide = 999;
+      for(auto ecid_xt : badCrystals){
+		int zSide = 999;
 	int log_id = ecid_xt.getLogicID();
 	int yt2    = log_id%1000;                                     //  EE_crystal_number:   2010100060 -> z=-1, x=100, y=60
 	int xt2    = (log_id%1000000)/1000;   	                      //  EE_crystal_number:   2012020085 -> z=+1, x=20,  y=85
@@ -484,9 +483,8 @@ void popcon::EcalChannelStatusHandler::daqOut(const RunIOV& _myRun) {
       std::vector<EcalLogicID> badCrystals;   
       badCrystals=econn->getEcalLogicIDSet("EB_trigger_tower",db_fedId, db_fedId, tt_id, tt_id, EcalLogicID::NULLID, EcalLogicID::NULLID, "EB_crystal_number");
       
-      for(size_t mycrys=0; mycrys<badCrystals.size(); mycrys++){
-	EcalLogicID ecid_xt = badCrystals[mycrys];
-	int sm_num  = ecid_xt.getID1();
+      for(auto ecid_xt : badCrystals){
+		int sm_num  = ecid_xt.getID1();
 	int log_id  = ecid_xt.getLogicID();
 	int xt2_num = log_id%10000;
 	EBDetId ebdetid(sm_num,xt2_num,EBDetId::SMCRYSTALMODE);

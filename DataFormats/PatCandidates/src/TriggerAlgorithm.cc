@@ -82,8 +82,8 @@ TriggerAlgorithm::TriggerAlgorithm( const std::string & name, const std::string 
 // Checks, if a certain trigger condition collection index is assigned
 bool TriggerAlgorithm::hasConditionKey( unsigned conditionKey ) const
 {
-  for ( size_t iO = 0; iO < conditionKeys().size(); ++iO ) {
-    if ( conditionKeys().at( iO ) == conditionKey ) {
+  for (unsigned int iO : conditionKeys()) {
+    if ( iO == conditionKey ) {
       return true;
     }
   }

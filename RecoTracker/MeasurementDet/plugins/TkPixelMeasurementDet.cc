@@ -154,9 +154,9 @@ TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, c
     LocalPoint lp = tsos.localPosition();
     LocalError le = tsos.localError().positionError();
     double dx = 3*std::sqrt(le.xx()) + theRocWidth, dy = 3*std::sqrt(le.yy()) + theRocHeight;
-    for (std::vector<LocalPoint>::const_iterator it = badRocPositions_.begin(), ed = badRocPositions_.end(); it != ed; ++it) {
-        if ( (std::abs(it->x() - lp.x()) < dx) &&
-             (std::abs(it->y() - lp.y()) < dy) ) return true;
+    for (const auto & badRocPosition : badRocPositions_) {
+        if ( (std::abs(badRocPosition.x() - lp.x()) < dx) &&
+             (std::abs(badRocPosition.y() - lp.y()) < dy) ) return true;
     } 
     return false;
 }

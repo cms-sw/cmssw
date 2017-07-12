@@ -93,22 +93,22 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
   const EcalPedestals* myped = pPeds.product();
   // Barrel loop
   int cnt=0;
-  for( EcalPedestals::const_iterator it = myped->barrelItems().begin(); it != myped->barrelItems().end(); ++it)
+  for(const auto & it : myped->barrelItems())
     {
       std::cout << "EcalPedestal: " << " BARREL " << cnt << " " 
-		<< "  mean_x1:  " <<(*it).mean_x1 << " rms_x1: " << (*it).rms_x1
-		<< "  mean_x6:  " <<(*it).mean_x6 << " rms_x6: " << (*it).rms_x6
-		<< "  mean_x12: " <<(*it).mean_x12 << " rms_x12: " << (*it).rms_x12
+		<< "  mean_x1:  " <<it.mean_x1 << " rms_x1: " << it.rms_x1
+		<< "  mean_x6:  " <<it.mean_x6 << " rms_x6: " << it.rms_x6
+		<< "  mean_x12: " <<it.mean_x12 << " rms_x12: " << it.rms_x12
 		<< std::endl;
             ++cnt;
     } 
   // Endcap loop
-  for( EcalPedestals::const_iterator it = myped->endcapItems().begin(); it != myped->endcapItems().end(); ++it)
+  for(const auto & it : myped->endcapItems())
     {
       std::cout << "EcalPedestal: " << " ENDCAP "
-		<< "  mean_x1:  " <<(*it).mean_x1 << " rms_x1: " << (*it).rms_x1
-		<< "  mean_x6:  " <<(*it).mean_x6 << " rms_x6: " << (*it).rms_x6
-		<< "  mean_x12: " <<(*it).mean_x12 << " rms_x12: " << (*it).rms_x12
+		<< "  mean_x1:  " <<it.mean_x1 << " rms_x1: " << it.rms_x1
+		<< "  mean_x6:  " <<it.mean_x6 << " rms_x6: " << it.rms_x6
+		<< "  mean_x12: " <<it.mean_x12 << " rms_x12: " << it.rms_x12
 		<< std::endl;
     } 
 
@@ -227,10 +227,10 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
 //   // look up the correct weights for this  xtal
 //   //EcalXtalGroupId gid( git->second );
 //   EcalTBWeights::EcalTDCId tdcid(1);
-   for (EcalTBWeights::EcalTBWeightMap::const_iterator wit = wgts->getMap().begin(); wit != wgts->getMap().end() ; ++wit)
+   for (const auto & wit : wgts->getMap())
      {
-       std::cout << "EcalWeights " << wit->first.first.id() << "," << wit->first.second << std::endl;
-       wit->second.print(std::cout);
+       std::cout << "EcalWeights " << wit.first.first.id() << "," << wit.first.second << std::endl;
+       wit.second.print(std::cout);
        std::cout << std::endl;
      }
 
@@ -293,9 +293,9 @@ EcalObjectAnalyzer::analyze(const edm::Event& e, const edm::EventSetup& context)
    context.get< EcalMappingElectronicsRcd >().get(ecalmapping);
    const EcalMappingElectronics* Mapping = ecalmapping.product();
    const std::vector<EcalMappingElement>& ee = Mapping -> endcapItems();
-   for(size_t iMap=0;iMap < ee.size();iMap++)
+   for(auto iMap : ee)
      {
-       std::cout << "EcalMappingElectronics: " <<  ee[iMap].electronicsid << " " << ee[iMap].triggerid << std::endl;
+       std::cout << "EcalMappingElectronics: " <<  iMap.electronicsid << " " << iMap.triggerid << std::endl;
      }
    
    

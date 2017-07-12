@@ -130,13 +130,11 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
     iEvent.getByToken(fPixelClusterLabel, pixelClusters);
     
     // Loop over entire tracker geometry.
-    for (TrackerGeometry::DetContainer::const_iterator
-           i = trackerGeo->dets().begin();
-         i != trackerGeo->dets().end(); ++i) {
+    for (auto i : trackerGeo->dets()) {
       // See if this is a pixel unit(?).
          
-      if ( GeomDetEnumerators::isTrackerPixel((*i)->subDetector())) {
-        DetId detId = (*i)->geographicalId();
+      if ( GeomDetEnumerators::isTrackerPixel(i->subDetector())) {
+        DetId detId = i->geographicalId();
         // Find all clusters on this detector module.
         edmNew::DetSetVector<SiPixelCluster>::const_iterator iSearch =
           pixelClusters->find(detId);
@@ -145,11 +143,9 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
           // Count the number of clusters with at least a minimum
           // number of pixels per cluster and at least a minimum charge.
           size_t numClusters = 0;
-          for (edmNew::DetSet<SiPixelCluster>::const_iterator
-                 itClus = iSearch->begin();
-               itClus != iSearch->end(); ++itClus) {
-            if ((itClus->size() >= fMinPixelsPerCluster) &&
-                (itClus->charge() >= fMinClusterCharge)) {
+          for (const auto & itClus : *iSearch) {
+            if ((itClus.size() >= fMinPixelsPerCluster) &&
+                (itClus.charge() >= fMinClusterCharge)) {
               ++numClusters;
             }
           }
@@ -229,21 +225,20 @@ PixelLumiDQM::analyze(const edm::Event& iEvent,
 	
         // Loop over all clusters in this module.
         if (iSearch != pixelClusters->end()) {
-          for (edmNew::DetSet<SiPixelCluster>::const_iterator clus = iSearch->begin();
-               clus != iSearch->end(); ++clus) {
+          for (const auto & clus : *iSearch) {
 	    
-            if ((clus->size() >= fMinPixelsPerCluster) &&
-                (clus->charge() >= fMinClusterCharge)) {
+            if ((clus.size() >= fMinPixelsPerCluster) &&
+                (clus.charge() >= fMinClusterCharge)) {
 	      
               PixelGeomDetUnit const* theGeomDet =
                 dynamic_cast<PixelGeomDetUnit const*>(trackerGeo->idToDet(detId));
               PixelTopology const* topol = &(theGeomDet->specificTopology());
-              double x = clus->x();
-              double y = clus->y();
+              double x = clus.x();
+              double y = clus.y();
               LocalPoint clustLP = topol->localPosition(MeasurementPoint(x, y));
               GlobalPoint clustGP = theGeomDet->surface().toGlobal(clustLP);
-              double charge = clus->charge() / 1.e3;
-              int size = clus->size();
+              double charge = clus.charge() / 1.e3;
+              int size = clus.size();
 	      
               if (detId.subdetId() == PixelSubdetector::PixelBarrel) {
                 PixelBarrelName detName = PixelBarrelName(detId);
@@ -540,27 +535,26 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   else
     lumi_factor_per_bx = FREQ_ORBIT * SECONDS_PER_LS * fResetIntervalInLumiSections / rXSEC_PIXEL_CLUSTER  ;
   
-  for(std::map<int, PixelClusterCount>::iterator it = fNumPixelClusters.begin();
-      it != fNumPixelClusters.end(); it++) {
+  for(auto & fNumPixelCluster : fNumPixelClusters) {
     
     // Sum all clusters for this BX.
-    unsigned int total = (*it).second.numB.at(1)+
-      (*it).second.numB.at(2)+(*it).second.numFP.at(0)+(*it).second.numFP.at(1)+
-      (*it).second.numFM.at(0)+(*it).second.numFM.at(1);
-    if(useInnerBarrelLayer) total+=(*it).second.numB.at(0);
+    unsigned int total = fNumPixelCluster.second.numB.at(1)+
+      fNumPixelCluster.second.numB.at(2)+fNumPixelCluster.second.numFP.at(0)+fNumPixelCluster.second.numFP.at(1)+
+      fNumPixelCluster.second.numFM.at(0)+fNumPixelCluster.second.numFM.at(1);
+    if(useInnerBarrelLayer) total+=fNumPixelCluster.second.numB.at(0);
     totalcounts += total;
-    double etotal = (*it).second.dnumB.at(1)+
-      (*it).second.dnumB.at(2)+(*it).second.dnumFP.at(0)+(*it).second.dnumFP.at(1)+
-      (*it).second.dnumFM.at(0)+(*it).second.dnumFM.at(1);
-    if(useInnerBarrelLayer) etotal = (*it).second.dnumB.at(0);
+    double etotal = fNumPixelCluster.second.dnumB.at(1)+
+      fNumPixelCluster.second.dnumB.at(2)+fNumPixelCluster.second.dnumFP.at(0)+fNumPixelCluster.second.dnumFP.at(1)+
+      fNumPixelCluster.second.dnumFM.at(0)+fNumPixelCluster.second.dnumFM.at(1);
+    if(useInnerBarrelLayer) etotal = fNumPixelCluster.second.dnumB.at(0);
     etotalcounts += etotal;
     etotal = sqrt(etotal);
 
-    fHistClusterCountByBxLastLumi->setBinContent((*it).first,total);
-    fHistClusterCountByBxLastLumi->setBinError((*it).first,etotal);
-    fHistClusterCountByBxCumulative->setBinContent((*it).first,fHistClusterCountByBxCumulative->getBinContent((*it).first)+total);
+    fHistClusterCountByBxLastLumi->setBinContent(fNumPixelCluster.first,total);
+    fHistClusterCountByBxLastLumi->setBinError(fNumPixelCluster.first,etotal);
+    fHistClusterCountByBxCumulative->setBinContent(fNumPixelCluster.first,fHistClusterCountByBxCumulative->getBinContent(fNumPixelCluster.first)+total);
     
-    unsigned int events_per_bx = fHistBunchCrossingsLastLumi->getBinContent((*it).first);
+    unsigned int events_per_bx = fHistBunchCrossingsLastLumi->getBinContent(fNumPixelCluster.first);
     totalevents += events_per_bx;
     double average_cluster_count = events_per_bx !=0 ? double(total)/events_per_bx : 0.;
     double average_cluster_count_unc = events_per_bx!=0 ? etotal/events_per_bx : 0.;
@@ -583,11 +577,11 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
 					rXSEC_PIXEL_CLUSTER ))
 				      ) / CM2_TO_NANOBARN ;
     
-    fHistRecordedByBxLastLumi->setBinContent((*it).first,pixel_bx_lumi_per_ls);
-    fHistRecordedByBxLastLumi->setBinError((*it).first,pixel_bx_lumi_per_ls_unc);
+    fHistRecordedByBxLastLumi->setBinContent(fNumPixelCluster.first,pixel_bx_lumi_per_ls);
+    fHistRecordedByBxLastLumi->setBinError(fNumPixelCluster.first,pixel_bx_lumi_per_ls_unc);
     
-    fHistRecordedByBxCumulative->setBinContent((*it).first,
-					       fHistRecordedByBxCumulative->getBinContent((*it).first)+
+    fHistRecordedByBxCumulative->setBinContent(fNumPixelCluster.first,
+					       fHistRecordedByBxCumulative->getBinContent(fNumPixelCluster.first)+
 					       pixel_bx_lumi_per_ls);
     
     /*
@@ -597,16 +591,16 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
       fHistRecordedByBxCumulative->getBinContent((*it).first));
     */
 
-    nBClus[0] +=(*it).second.numB.at(0);
-    nBClus[1] +=(*it).second.numB.at(1);
-    nBClus[2] +=(*it).second.numB.at(2);
-    nFPClus[0] +=(*it).second.numFP.at(0);
-    nFPClus[1] +=(*it).second.numFP.at(1);
-    nFMClus[0] +=(*it).second.numFM.at(0);
-    nFMClus[1] +=(*it).second.numFM.at(1);
+    nBClus[0] +=fNumPixelCluster.second.numB.at(0);
+    nBClus[1] +=fNumPixelCluster.second.numB.at(1);
+    nBClus[2] +=fNumPixelCluster.second.numB.at(2);
+    nFPClus[0] +=fNumPixelCluster.second.numFP.at(0);
+    nFPClus[1] +=fNumPixelCluster.second.numFP.at(1);
+    nFMClus[0] +=fNumPixelCluster.second.numFM.at(0);
+    nFMClus[1] +=fNumPixelCluster.second.numFM.at(1);
     
     // Reset counters 
-    (*it).second.Reset();
+    fNumPixelCluster.second.Reset();
 
     // std::cout << "bx="<< (*it).first << " clusters=" << (*it).second.numB.at(0)) << std::endl; 
   }
@@ -634,14 +628,14 @@ PixelLumiDQM::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock,
   }
   // fill cluster counts by detector regions for sanity checks
   unsigned int all_detectors_counts = 0;
-  for(unsigned int i = 0; i < 3; i++){
-    all_detectors_counts+=nBClus[i];
+  for(unsigned int nBClu : nBClus){
+    all_detectors_counts+=nBClu;
   }
-  for(unsigned int i = 0; i < 2; i++){
-    all_detectors_counts+=nFPClus[i];
+  for(unsigned int nFPClu : nFPClus){
+    all_detectors_counts+=nFPClu;
   }
-  for(unsigned int i = 0; i < 2; i++){
-    all_detectors_counts+=nFMClus[i];
+  for(unsigned int nFMClu : nFMClus){
+    all_detectors_counts+=nFMClu;
   }
   
   fHistClusByLS->setBinContent(ls, all_detectors_counts);

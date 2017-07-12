@@ -141,14 +141,14 @@ void MonH4TablePositionDat::writeArrayDB(const std::map< EcalLogicID, MonH4Table
   const MonH4TablePositionDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, MonH4TablePositionDat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-        channel = &(p->first);
+  for (const auto & p : *data) {
+        channel = &(p.first);
 	int logicID = channel->getLogicID();
 	if (!logicID) { throw(std::runtime_error("MonH4TablePositionDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
-	dataitem = &(p->second);
+	dataitem = &(p.second);
 	// dataIface.writeDB( channel, dataitem, iov);
 	float x=dataitem->getTableX();
 	float y=dataitem->getTableY();

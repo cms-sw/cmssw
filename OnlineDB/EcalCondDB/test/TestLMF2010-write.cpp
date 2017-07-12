@@ -69,11 +69,11 @@ public:
     v.push_back(lmfconfigdat);
     v.push_back(lmflaserconfdat);
     v.push_back(lmfbluepulsedat);
-    for (unsigned int i = 0; i < v.size(); i++) {
-      v[i]->setLMFRunIOV(lmfruniov);
-      v[i]->fetch();
-      v[i]->setMaxDataToDump(10);
-      v[i]->dump();
+    for (auto & i : v) {
+      i->setLMFRunIOV(lmfruniov);
+      i->fetch();
+      i->setMaxDataToDump(10);
+      i->dump();
     }
     delete lmfrundat;
     delete lmfconfigdat;

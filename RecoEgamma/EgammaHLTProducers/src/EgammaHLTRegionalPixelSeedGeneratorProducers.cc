@@ -133,23 +133,23 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
     iEvent.getByToken(candTagEle_,electronHandle);
 
   reco::SuperClusterRef scRef;
-  for (reco::RecoEcalCandidateCollection::const_iterator recoecalcand= recoecalcands->begin(); recoecalcand!=recoecalcands->end(); recoecalcand++) {
-    scRef = recoecalcand->superCluster();
+  for (const auto & recoecalcand : *recoecalcands) {
+    scRef = recoecalcand.superCluster();
     float zvertex = 0;
     if( useZvertex_ ){
       reco::SuperClusterRef scRefEle;
-      for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
+      for(const auto & iElectron : *electronHandle){
 	//Compare electron SC with EcalCandidate SC
-	scRefEle = iElectron->superCluster();
+	scRefEle = iElectron.superCluster();
 	if(&(*scRef) == &(*scRefEle)){
-	  if(iElectron->track().isNonnull()) zvertex = iElectron->track()->vz();
-	  else  zvertex = iElectron->gsfTrack()->vz();
+	  if(iElectron.track().isNonnull()) zvertex = iElectron.track()->vz();
+	  else  zvertex = iElectron.gsfTrack()->vz();
 	  break;
 	}
       }
 
     }
-    GlobalVector dirVector((recoecalcand)->px(),(recoecalcand)->py(),(recoecalcand)->pz());
+    GlobalVector dirVector(recoecalcand.->px(),recoecalcand.->py(),recoecalcand.->pz());
     RectangularEtaPhiTrackingRegion etaphiRegion( dirVector,
 											   GlobalPoint( BSPosition.x(), BSPosition.y(), zvertex ), 
 											   ptmin_,

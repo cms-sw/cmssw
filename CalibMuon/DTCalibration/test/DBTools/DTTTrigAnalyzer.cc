@@ -44,12 +44,11 @@ void DTTTrigAnalyzer::beginRun(const edm::Run&, const edm::EventSetup& eventSetu
 void DTTTrigAnalyzer::endJob() {
 //   static const double convToNs = 25./32.;
    // Loop over DB entries
-  for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
-	  ttrig != tTrigMap->end(); ++ttrig) {
-    DTWireId wireId((*ttrig).first.wheelId,
-		    (*ttrig).first.stationId,
-		    (*ttrig).first.sectorId,
-		    (*ttrig).first.slId, 0, 0);
+  for(const auto & ttrig : *tTrigMap) {
+    DTWireId wireId(ttrig.first.wheelId,
+		    ttrig.first.stationId,
+		    ttrig.first.sectorId,
+		    ttrig.first.slId, 0, 0);
     float tmean;
     float sigma;
     float kFactor;

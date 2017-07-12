@@ -158,10 +158,10 @@ void DTChamberEfficiency::analyze(const Event & event,
   if(tracks.isValid()) { // check the validity of the collection
 
     //loop over the muons
-    for(reco::TrackCollection::const_iterator track = tracks->begin(); track!=tracks->end(); ++track) {
+    for(const auto & track : *tracks) {
 
 
-      reco::TransientTrack trans_track(*track,magfield.product(),theTrackingGeometry);
+      reco::TransientTrack trans_track(track,magfield.product(),theTrackingGeometry);
       const int recHitsize = (int)trans_track.recHitsSize();
       if(recHitsize < theMinNrec) continue;
 
@@ -196,14 +196,14 @@ void DTChamberEfficiency::analyze(const Event & event,
       set<DTChamberId> alreadyCheckedCh;
 
       //loop over the list of compatible layers
-      for(int i=0;i< (int)layer_list.size();i++) {
+      for(auto & i : layer_list) {
 
 	//propagate the track to the i-th layer
-	TrajectoryStateOnSurface tsos = propagator()->propagate(init_fs,layer_list.at(i)->surface());
+	TrajectoryStateOnSurface tsos = propagator()->propagate(init_fs,i->surface());
 	if(!tsos.isValid()) continue;
 
 	//determine the chambers kinematically compatible with the track on the i-th layer
-	vector<DetWithState> dss = layer_list.at(i)->compatibleDets(tsos, *propagator(), *theEstimator);
+	vector<DetWithState> dss = i->compatibleDets(tsos, *propagator(), *theEstimator);
 
 	if(dss.size() == 0) continue;
 
@@ -221,7 +221,7 @@ void DTChamberEfficiency::analyze(const Event & event,
 	alreadyCheckedCh.insert(DTid);
 
 	// get the compatible measurements
-	MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(layer_list.at(i),
+	MeasurementContainer detMeasurements_initial = theMeasurementExtractor->measurements(i,
 											     detWithState.first,
 											     detWithState.second,
 											     *theEstimator, event);
@@ -267,11 +267,10 @@ MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContain
 
   MeasurementContainer result;
 
-  for(MeasurementContainer::const_iterator mescont_Itr = seg_list.begin();
-      mescont_Itr != seg_list.end(); ++mescont_Itr){
+  for(const auto & mescont_Itr : seg_list){
 
     //get the rechits of the segment
-    TransientTrackingRecHit::ConstRecHitContainer recHit_list = mescont_Itr->recHit()->transientHits();
+    TransientTrackingRecHit::ConstRecHitContainer recHit_list = mescont_Itr.recHit()->transientHits();
 
     //loop over the rechits and get the number of hits
     int nhit_seg(0);
@@ -281,10 +280,10 @@ MeasurementContainer DTChamberEfficiency::segQualityCut(const MeasurementContain
       nhit_seg += (int)(*recList_Itr)->transientHits().size();
     }
 
-    DTChamberId tmpId = (DTChamberId)mescont_Itr->recHit()->hit()->geographicalId();
+    DTChamberId tmpId = (DTChamberId)mescont_Itr.recHit()->hit()->geographicalId();
 
-    if(tmpId.station() < 4 && nhit_seg >= 12) result.push_back(*mescont_Itr);
-    if(tmpId.station() == 4 && nhit_seg >= 8) result.push_back(*mescont_Itr);
+    if(tmpId.station() < 4 && nhit_seg >= 12) result.push_back(mescont_Itr);
+    if(tmpId.station() == 4 && nhit_seg >= 8) result.push_back(mescont_Itr);
   }
 
   return result;

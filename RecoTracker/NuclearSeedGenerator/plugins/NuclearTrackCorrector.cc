@@ -171,11 +171,11 @@ NuclearTrackCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
   auto Output_tracktrackmap = std::make_unique<TrackToTrackMap>(Handle_tracks, m_TrajToTrackCollection->refProd().val);
 
-  for(unsigned int i = 0 ; i < Indice_Map.size() ; i++)
+  for(auto & i : Indice_Map)
   {
-        TrajectoryRef      InTrajRef    ( temp_m_TrajectoryCollection, Indice_Map[i].second );
-        TrajectoryRef      OutTrajRef   ( Handle_traj, Indice_Map[i].first );
-        reco::TrackRef     TrackRef     ( Handle_tracks, Indice_Map[i].first );
+        TrajectoryRef      InTrajRef    ( temp_m_TrajectoryCollection, i.second );
+        TrajectoryRef      OutTrajRef   ( Handle_traj, i.first );
+        reco::TrackRef     TrackRef     ( Handle_tracks, i.first );
 
         Output_trajmap ->insert(OutTrajRef,InTrajRef);
         Output_trackmap->insert(TrackRef,InTrajRef);
@@ -242,11 +242,11 @@ bool NuclearTrackCorrector::getTrackFromTrajectory(const Trajectory& newTraj , c
         
 
 	float ndof=0;
-        for(unsigned int h=0 ; h<hits.size() ; h++)
+        for(auto & hit : hits)
         {
-            if( hits[h]->isValid() )
+            if( hit->isValid() )
             {
-                ndof = ndof + hits[h]->dimension() * hits[h]->weight();
+                ndof = ndof + hit->dimension() * hit->weight();
             }
             else {
                  LogDebug("NuclearSeedGenerator") << " HIT IS INVALID ???";

@@ -140,10 +140,8 @@ PatPhotonSimpleAnalyzer::analyze(const edm::Event& evt, const edm::EventSetup& e
 
   int photonCounter = 0;
 
-  for (int i=0; i<int(photons.size()); i++)
+  for (auto currentPhoton : photons)
   {
-
-    pat::Photon currentPhoton = photons.at(i);
 
     float photonEt       = currentPhoton.et();
     float superClusterEt = (currentPhoton.superCluster()->energy())/(cosh(currentPhoton.superCluster()->position().eta()));

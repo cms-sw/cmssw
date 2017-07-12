@@ -78,10 +78,10 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      std::cout << "Event " << iEvent.id() << std::endl;
      std::cout << std::endl;
      std::cout << "********WIRES Digis********" << std::endl;
-     for (CSCWireDigiCollection::DigiRangeIterator j=wires->begin(); j!=wires->end(); j++) {
-         std::cout << "Wire digis from "<< CSCDetId((*j).first) << std::endl;
-         std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-         std::vector<CSCWireDigi>::const_iterator last = (*j).second.second;
+     for (auto && j : *wires) {
+         std::cout << "Wire digis from "<< CSCDetId(j.first) << std::endl;
+         std::vector<CSCWireDigi>::const_iterator digiItr = j.second.first;
+         std::vector<CSCWireDigi>::const_iterator last = j.second.second;
          for( ; digiItr != last; ++digiItr) {
          digiItr->print();
          }
@@ -93,10 +93,10 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << "Event " << iEvent.id() << std::endl;
     std::cout << std::endl;
     std::cout << "********STRIPS Digis********" << std::endl;
-     for (CSCStripDigiCollection::DigiRangeIterator j=strips->begin(); j!=strips->end(); j++) {
-         std::cout << "Strip digis from "<< CSCDetId((*j).first) << std::endl;
-         std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-         std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+     for (auto && j : *strips) {
+         std::cout << "Strip digis from "<< CSCDetId(j.first) << std::endl;
+         std::vector<CSCStripDigi>::const_iterator digiItr = j.second.first;
+         std::vector<CSCStripDigi>::const_iterator last = j.second.second;
          for( ; digiItr != last; ++digiItr) {
          digiItr->print();
          }
@@ -108,10 +108,10 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << "Event " << iEvent.id() << std::endl;
     std::cout << std::endl;
     std::cout << "********COMPARATOR Digis********" << std::endl;
-     for (CSCComparatorDigiCollection::DigiRangeIterator j=comparators->begin(); j!=comparators->end(); j++) {
-         std::cout << "Comparator digis from "<< CSCDetId((*j).first) << std::endl;
-         std::vector<CSCComparatorDigi>::const_iterator digiItr = (*j).second.first;
-         std::vector<CSCComparatorDigi>::const_iterator last = (*j).second.second;
+     for (auto && j : *comparators) {
+         std::cout << "Comparator digis from "<< CSCDetId(j.first) << std::endl;
+         std::vector<CSCComparatorDigi>::const_iterator digiItr = j.second.first;
+         std::vector<CSCComparatorDigi>::const_iterator last = j.second.second;
          for( ; digiItr != last; ++digiItr) {
          digiItr->print();
          }
@@ -123,10 +123,10 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << "Event " << iEvent.id() << std::endl;
     std::cout << std::endl;
     std::cout << "********RPC Digis********" << std::endl;
-     for (CSCRPCDigiCollection::DigiRangeIterator j=rpcs->begin(); j!=rpcs->end(); j++) {
-         std::cout << "RPC digis from "<< CSCDetId((*j).first) << std::endl;
-         std::vector<CSCRPCDigi>::const_iterator digiItr = (*j).second.first;
-         std::vector<CSCRPCDigi>::const_iterator last = (*j).second.second;
+     for (auto && j : *rpcs) {
+         std::cout << "RPC digis from "<< CSCDetId(j.first) << std::endl;
+         std::vector<CSCRPCDigi>::const_iterator digiItr = j.second.first;
+         std::vector<CSCRPCDigi>::const_iterator last = j.second.second;
          for( ; digiItr != last; ++digiItr) {
          digiItr->print();
          }
@@ -138,9 +138,9 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    std::cout << "Event " << iEvent.id() << std::endl;
    std::cout << std::endl;
    std::cout << "********ALCT Digis********" << std::endl;
-    for (CSCALCTDigiCollection::DigiRangeIterator j=alcts->begin(); j!=alcts->end(); j++) {
-        std::vector<CSCALCTDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCALCTDigi>::const_iterator last = (*j).second.second;
+    for (auto && j : *alcts) {
+        std::vector<CSCALCTDigi>::const_iterator digiItr = j.second.first;
+        std::vector<CSCALCTDigi>::const_iterator last = j.second.second;
         for( ; digiItr != last; ++digiItr) {
         digiItr->print();
         }
@@ -152,9 +152,9 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << "Event " << iEvent.id() << std::endl;
     std::cout << std::endl;
     std::cout << "********CLCT Digis********" << std::endl;
-    for (CSCCLCTDigiCollection::DigiRangeIterator j=clcts->begin(); j!=clcts->end(); j++) {
-        std::vector<CSCCLCTDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCCLCTDigi>::const_iterator last = (*j).second.second;
+    for (auto && j : *clcts) {
+        std::vector<CSCCLCTDigi>::const_iterator digiItr = j.second.first;
+        std::vector<CSCCLCTDigi>::const_iterator last = j.second.second;
         for( ; digiItr != last; ++digiItr) {
         digiItr->print();
         }
@@ -166,9 +166,9 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << "Event " << iEvent.id() << std::endl;
     std::cout << std::endl;
     std::cout << "********CorrelatedLCT Digis********" << std::endl;
-    for (CSCCorrelatedLCTDigiCollection::DigiRangeIterator j=correlatedlcts->begin(); j!=correlatedlcts->end(); j++) {
-        std::vector<CSCCorrelatedLCTDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCCorrelatedLCTDigi>::const_iterator last = (*j).second.second;
+    for (auto && j : *correlatedlcts) {
+        std::vector<CSCCorrelatedLCTDigi>::const_iterator digiItr = j.second.first;
+        std::vector<CSCCorrelatedLCTDigi>::const_iterator last = j.second.second;
         for( ; digiItr != last; ++digiItr) {
         digiItr->print();
         }
@@ -180,9 +180,9 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     std::cout << "Event " << iEvent.id() << std::endl;
     std::cout << std::endl;
     std::cout << "********STATUS Digis********" << std::endl;
-    for (CSCDCCFormatStatusDigiCollection::DigiRangeIterator j=statusdigis->begin(); j!=statusdigis->end(); j++) {
-        std::vector<CSCDCCFormatStatusDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCDCCFormatStatusDigi>::const_iterator last = (*j).second.second;
+    for (auto && j : *statusdigis) {
+        std::vector<CSCDCCFormatStatusDigi>::const_iterator digiItr = j.second.first;
+        std::vector<CSCDCCFormatStatusDigi>::const_iterator last = j.second.second;
         for( ; digiItr != last; ++digiItr) {
         digiItr->print();
         }
@@ -194,9 +194,9 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      std::cout << "Event " << iEvent.id() << std::endl;
      std::cout << std::endl;
      std::cout << "********DDU STATUS Digis********" << std::endl;
-     for (CSCDDUStatusDigiCollection::DigiRangeIterator j=DDUstatusdigi->begin(); j!=DDUstatusdigi->end(); j++){
-        std::vector<CSCDDUStatusDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCDDUStatusDigi>::const_iterator last = (*j).second.second;
+     for (auto && j : *DDUstatusdigi){
+        std::vector<CSCDDUStatusDigi>::const_iterator digiItr = j.second.first;
+        std::vector<CSCDDUStatusDigi>::const_iterator last = j.second.second;
         for( ; digiItr != last; ++digiItr) {
         digiItr->print();
         }
@@ -208,9 +208,9 @@ CSCViewDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      std::cout << "Event " << iEvent.id() << std::endl;
      std::cout << std::endl;
      std::cout << "********DCC STATUS Digis********" << std::endl;
-     for (CSCDCCStatusDigiCollection::DigiRangeIterator j=DCCstatusdigi->begin(); j!=DCCstatusdigi->end(); j++){
-        std::vector<CSCDCCStatusDigi>::const_iterator digiItr = (*j).second.first;
-        std::vector<CSCDCCStatusDigi>::const_iterator last = (*j).second.second;
+     for (auto && j : *DCCstatusdigi){
+        std::vector<CSCDCCStatusDigi>::const_iterator digiItr = j.second.first;
+        std::vector<CSCDCCStatusDigi>::const_iterator last = j.second.second;
         for( ; digiItr != last; ++digiItr) {
         digiItr->print();
         }

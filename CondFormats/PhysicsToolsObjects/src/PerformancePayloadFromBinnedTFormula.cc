@@ -15,12 +15,12 @@ using namespace std;
 
 void PerformancePayloadFromBinnedTFormula::initialize() {
 	boost::uuids::random_generator gen;
-	for (unsigned int t=0; t< pls.size(); ++t){
+	for (auto & pl : pls){
 		std::vector <boost::shared_ptr<TFormula> > temp;
-		for (unsigned int i=0; i< (pls[t].formulas()).size(); ++i){
+		for (unsigned int i=0; i< (pl.formulas()).size(); ++i){
 			boost::uuids::uuid uniqueFormulaId = gen();
 			const auto formulaUniqueName = boost::lexical_cast<std::string>(uniqueFormulaId);
-			PhysicsTFormulaPayload  tmp = pls[t];
+			PhysicsTFormulaPayload  tmp = pl;
 			boost::shared_ptr<TFormula> tt(new TFormula(formulaUniqueName.c_str(),tmp.formulas()[i].c_str()));
 			tt->Compile();
 			temp.push_back(tt);

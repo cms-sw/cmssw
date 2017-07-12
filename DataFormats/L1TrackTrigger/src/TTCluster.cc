@@ -136,9 +136,9 @@ std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, 
 {
   std::vector< int > temp;
   temp.reserve(theHits.size());
-  for ( unsigned int i = 0; i < theHits.size(); i++ )
+  for (const auto & theHit : theHits)
   {
-    temp.push_back( theHits[i]->row() );
+    temp.push_back( theHit->row() );
   }
   return temp;
 }
@@ -148,9 +148,9 @@ std::vector< int > TTCluster< edm::Ref< edm::DetSetVector< Phase2TrackerDigi >, 
 {
   std::vector< int > temp;
   temp.reserve(theHits.size());
-  for ( unsigned int i = 0; i < theHits.size(); i++ )
+  for (const auto & theHit : theHits)
   {
-    temp.push_back( theHits[i]->column() );
+    temp.push_back( theHit->column() );
   }
   return temp;
 }

@@ -246,22 +246,22 @@ void DTLocalTriggerSynchTask::bookHistos(DQMStore::IBooker & ibooker, const DTCh
   float max = rangeInBX ? bxTime : nBXHigh*bxTime;
   int nbins = static_cast<int>(ceil( rangeInBX ? bxTime : (nBXHigh-nBXLow)*bxTime));
 
-  for (int iHisto=0;iHisto<5;++iHisto) {
-    string histoName = histoTag[iHisto] + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+  for (const auto & iHisto : histoTag) {
+    string histoName = iHisto + (rangeInBX ? "InBX" : "") + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
     edm::LogVerbatim ("DTLocalTriggerSynchTask") << "[DTLocalTriggerSynchTask]: booking "
 						 << baseDir() + "/Wheel" << wheel.str()
 					    << "/Sector" << sector.str()
 					    << "/Station"<< station.str()
 					    << "/" << histoName << endl;
 
-    triggerHistos[chRawId][histoTag[iHisto]] = ibooker.book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
+    triggerHistos[chRawId][iHisto] = ibooker.book1D(histoName.c_str(),"Track time distribution",nbins,min,max);
   }
 
   string floatTag[2] = { "tTrig_SL1", "tTrig_SL3" };
 
-  for (int iFloat=0;iFloat<2;++iFloat) {
-    string floatName = floatTag[iFloat] + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
-    triggerHistos[chRawId][floatTag[iFloat]] = ibooker.bookFloat(floatName);
+  for (const auto & iFloat : floatTag) {
+    string floatName = iFloat + "_W" + wheel.str() + "_Sec" + sector.str() + "_St" + station.str();
+    triggerHistos[chRawId][iFloat] = ibooker.bookFloat(floatName);
   }
 
 }

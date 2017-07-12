@@ -196,14 +196,12 @@ bool dumpHcalObject (std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const float* values = fObject.getValues (*channel)->getValues ();
+  for (auto & channel : channels) {
+    const float* values = fObject.getValues (channel)->getValues ();
     if (values) {
-      HcalDbASCIIIO::dumpId (fOutput, *channel);
+      HcalDbASCIIIO::dumpId (fOutput, channel);
       sprintf (buffer, " %10.7f %10.7f %10.7f %10.7f %10X\n",
-	       values[0], values[1], values[2], values[3], channel->rawId ());
+	       values[0], values[1], values[2], values[3], channel.rawId ());
       fOutput << buffer;
     }
   }
@@ -243,13 +241,11 @@ bool dumpHcalSingleFloatObject (std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const float value = fObject.getValues (*channel)->getValue ();
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const float value = fObject.getValues (channel)->getValue ();
+    HcalDbASCIIIO::dumpId (fOutput, channel);
     sprintf (buffer, " %8.5f %10X\n",
-	     value, channel->rawId ());
+	     value, channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -288,13 +284,11 @@ bool dumpHcalSingleIntObject (std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const int value = fObject.getValues (*channel)->getValue ();
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const int value = fObject.getValues (channel)->getValue ();
+    HcalDbASCIIIO::dumpId (fOutput, channel);
     sprintf (buffer, " %15d %10X\n",
-	     value, channel->rawId ());
+	     value, channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -332,21 +326,19 @@ bool dumpHcalMatrixObject (std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
+  for (auto & channel : channels) {
     float thisline[10];
     for(int m = 0; m != 4; m++){
        for(int i = 0; i != 10; i++){
           for(int j = 0; j != 10; j++){
 //          std::cout <<"test "<<(fObject.getValues(*channel))->getValue(0,0,0);
-            thisline[j] = fObject.getValues(*channel)->getValue(m,i,j);
+            thisline[j] = fObject.getValues(channel)->getValue(m,i,j);
 //          thisline[j] = fObject.getValues(*channel)->getValue(1,1,1);
           }
-          HcalDbASCIIIO::dumpId (fOutput, *channel);
+          HcalDbASCIIIO::dumpId (fOutput, channel);
           sprintf(buffer, " %5i %8.5f %8.5f %8.5f %8.5f  %8.5f %8.5f %8.5f %8.5f  %8.5f %8.5f %10X\n",
            m, thisline[0], thisline[1], thisline[2], thisline[3], thisline[4], thisline[5], thisline[6], thisline[7],
-            thisline[8], thisline[9], channel->rawId());
+            thisline[8], thisline[9], channel.rawId());
           fOutput << buffer;
        }
     }
@@ -474,13 +466,11 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRecoParams& fOb
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   int  myCounter=0;
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
+  for (auto & channel : channels) {
     myCounter++;
-    int param1=fObject.getValues (*channel)->param1();
-    int param2=fObject.getValues (*channel)->param2();
-    int packingScheme=fObject.getValues (*channel)->packingScheme();
+    int param1=fObject.getValues (channel)->param1();
+    int param2=fObject.getValues (channel)->param2();
+    int packingScheme=fObject.getValues (channel)->packingScheme();
 
     // std::cout<<"  Param1 "<<Param1<<"  Param2 "<<Param2<<"  packing "<<packingScheme<<std::endl;
 
@@ -489,9 +479,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRecoParams& fOb
       if(myCounter==1) {
            sprintf (buffer, "# %15s %15s %15s %15s %18s %15s %10s\n", "eta", "phi", "dep", "det", "firstSample", "samplesToAdd", "DetId");
       }
-      HcalDbASCIIIO::dumpId(fOutput, *channel);
+      HcalDbASCIIIO::dumpId(fOutput, channel);
       sprintf (buffer, " %15d %15d %16X\n",
-             fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());
+             fObject.getValues (channel)->firstSample(), fObject.getValues (channel)->samplesToAdd(), channel.rawId ());
       fOutput << buffer;
     }
    
@@ -551,29 +541,29 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalRecoParams& fOb
          fOutput << lineB;
        }
 
-       HcalDbASCIIIO::dumpIdShort(fOutput, *channel);
-       sprintf (buffer, " %11d %10d %10X", param1, param2, channel->rawId ());
+       HcalDbASCIIIO::dumpIdShort(fOutput, channel);
+       sprintf (buffer, " %11d %10d %10X", param1, param2, channel.rawId ());
        fOutput << buffer;
 
-       bool  aa0=fObject.getValues (*channel)->correctForPhaseContainment();
-       bool  aa1=fObject.getValues (*channel)->correctForLeadingEdge();
-       float aa2=fObject.getValues (*channel)->correctionPhaseNS();
-       int   aa3=fObject.getValues (*channel)->firstSample();
-       int   aa4=fObject.getValues (*channel)->samplesToAdd();
-       int   aa5=fObject.getValues (*channel)->pulseShapeID();
+       bool  aa0=fObject.getValues (channel)->correctForPhaseContainment();
+       bool  aa1=fObject.getValues (channel)->correctForLeadingEdge();
+       float aa2=fObject.getValues (channel)->correctionPhaseNS();
+       int   aa3=fObject.getValues (channel)->firstSample();
+       int   aa4=fObject.getValues (channel)->samplesToAdd();
+       int   aa5=fObject.getValues (channel)->pulseShapeID();
        sprintf (buffer, " %6d %4d %6.1f %4d %4d %4d",aa0,aa1,aa2,aa3,aa4,aa5);
        fOutput << buffer;
 
-       bool bb0=fObject.getValues (*channel)->useLeakCorrection();
-       int  bb1=fObject.getValues (*channel)->leakCorrectionID();
-       bool bb2=fObject.getValues (*channel)->correctForTimeslew();
-       int  bb3=fObject.getValues (*channel)->timeslewCorrectionID();
-       bool bb4=fObject.getValues (*channel)->correctTiming();
-       int  bb5=fObject.getValues (*channel)->firstAuxTS();
-       int  bb6=fObject.getValues (*channel)->specialCaseID();
-       int  bb7=fObject.getValues (*channel)->noiseFlaggingID();
-       int  bb8=fObject.getValues (*channel)->pileupCleaningID();
-       int  bb9=fObject.getValues (*channel)->packingScheme();
+       bool bb0=fObject.getValues (channel)->useLeakCorrection();
+       int  bb1=fObject.getValues (channel)->leakCorrectionID();
+       bool bb2=fObject.getValues (channel)->correctForTimeslew();
+       int  bb3=fObject.getValues (channel)->timeslewCorrectionID();
+       bool bb4=fObject.getValues (channel)->correctTiming();
+       int  bb5=fObject.getValues (channel)->firstAuxTS();
+       int  bb6=fObject.getValues (channel)->specialCaseID();
+       int  bb7=fObject.getValues (channel)->noiseFlaggingID();
+       int  bb8=fObject.getValues (channel)->pileupCleaningID();
+       int  bb9=fObject.getValues (channel)->packingScheme();
        sprintf(buffer," %6d %3d %3d %3d %3d %3d %3d %3d %3d %3d\n",bb0,bb1,bb2,bb3,bb4,bb5,bb6,bb7,bb8,bb9);
        fOutput << buffer;
      }   // packingScheme 1.
@@ -646,12 +636,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTimingParams& f
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    HcalDbASCIIIO::dumpId (fOutput, channel);
     sprintf (buffer, " %15d %8.5f %8.5f %16X\n",
-	     fObject.getValues (*channel)->nhits(), fObject.getValues (*channel)->phase(),fObject.getValues(*channel)->rms(),channel->rawId ());
+	     fObject.getValues (channel)->nhits(), fObject.getValues (channel)->phase(),fObject.getValues(channel)->rms(),channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -664,15 +652,13 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams&
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    HcalGenericDetId fId(*channel);
+  for (auto & channel : channels) {
+    HcalGenericDetId fId(channel);
     if (fId.isHcalZDCDetId())
       {
-	std::vector<unsigned int> vSignalTS = fObject.getValues (*channel)->signalTS();
-	std::vector<unsigned int> vNoiseTS = fObject.getValues (*channel)->noiseTS();
-	HcalDbASCIIIO::dumpId (fOutput, *channel);
+	std::vector<unsigned int> vSignalTS = fObject.getValues (channel)->signalTS();
+	std::vector<unsigned int> vNoiseTS = fObject.getValues (channel)->noiseTS();
+	HcalDbASCIIIO::dumpId (fOutput, channel);
 	sprintf (buffer, "    ");
 	fOutput << buffer;
 	for (unsigned int i=0; i<vSignalTS.size(); i++)
@@ -689,7 +675,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLongRecoParams&
 	    sprintf (buffer, "%u", vNoiseTS.at(i));
 	    fOutput << buffer;
 	  }
-	sprintf (buffer, "     %10X\n", channel->rawId ());
+	sprintf (buffer, "     %10X\n", channel.rawId ());
 	fOutput << buffer;
       }
   }
@@ -759,19 +745,17 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalMCParams& fObje
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
   int  myCounter=0;
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
+  for (auto & channel : channels) {
     myCounter++;;  
-    int packingScheme=fObject.getValues (*channel)->packingScheme();
+    int packingScheme=fObject.getValues (channel)->packingScheme();
     if(packingScheme==0) {
        if(myCounter==1) {
           sprintf (buffer, "# %15s %15s %15s %15s %14s %10s\n", "eta", "phi", "dep", "det", "signalShape", "DetId");
           fOutput << buffer;
        }
-           const int value = fObject.getValues (*channel)->signalShape();
-       HcalDbASCIIIO::dumpId (fOutput, *channel);
-       sprintf (buffer, " %10d %17X\n", value, channel->rawId ());
+           const int value = fObject.getValues (channel)->signalShape();
+       HcalDbASCIIIO::dumpId (fOutput, channel);
+       sprintf (buffer, " %10d %17X\n", value, channel.rawId ());
        fOutput << buffer;
     }  // packingScheme 0
     if(packingScheme==1) {
@@ -795,16 +779,16 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalMCParams& fObje
         sprintf (lineA, " %6s %4s %4s %6s %4s %4s\n", "a0", "a1", "a2", "a3", "a4", "a5");
         fOutput << lineA;
       }
-      int   param1 = fObject.getValues (*channel)->param1();
-      HcalDbASCIIIO::dumpIdShort (fOutput, *channel);
-      sprintf (buffer, " %11d  %10X", param1, channel->rawId ());
+      int   param1 = fObject.getValues (channel)->param1();
+      HcalDbASCIIIO::dumpIdShort (fOutput, channel);
+      sprintf (buffer, " %11d  %10X", param1, channel.rawId ());
       fOutput << buffer;
-     int   aa0 = fObject.getValues (*channel)->signalShape(); 
-     bool  aa1 = fObject.getValues (*channel)->syncPhase(); 
-     int   aa2 = fObject.getValues (*channel)->binOfMaximum();
-     float aa3 = fObject.getValues (*channel)->timePhase();
-     bool  aa4 = fObject.getValues (*channel)->timeSmearing() ;
-     int   aa5 = fObject.getValues (*channel)->packingScheme();
+     int   aa0 = fObject.getValues (channel)->signalShape(); 
+     bool  aa1 = fObject.getValues (channel)->syncPhase(); 
+     int   aa2 = fObject.getValues (channel)->binOfMaximum();
+     float aa3 = fObject.getValues (channel)->timePhase();
+     bool  aa4 = fObject.getValues (channel)->timeSmearing() ;
+     int   aa5 = fObject.getValues (channel)->packingScheme();
      sprintf (buffer, "%6d %4d %4d %6.1f %4d %4d\n",aa0,aa1,aa2,aa3,aa4,aa5);
      fOutput << buffer;
     }
@@ -889,14 +873,12 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestals& fObj
 
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const float* values = fObject.getValues (*channel)->getValues ();
+  for (auto & channel : channels) {
+    const float* values = fObject.getValues (channel)->getValues ();
     if (values) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
-	       values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], channel->rawId ());
+	       values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], channel.rawId ());
       fOutput << buffer;
     }
   }
@@ -949,13 +931,11 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalChannelQuality&
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const int value = fObject.getValues (*channel)->getValue ();
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const int value = fObject.getValues (channel)->getValue ();
+    dumpId (fOutput, channel);
     sprintf (buffer, "%6s %15X %10X\n", "(hex)",
-	     value, channel->rawId ());
+	     value, channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -1016,14 +996,12 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalL1TriggerObject
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   //  std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const HcalL1TriggerObject* item = fObject.getValues (*channel);
+  for (auto & channel : channels) {
+    const HcalL1TriggerObject* item = fObject.getValues (channel);
     if (item) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       sprintf (buffer, " %10.7f %10.7f %12d %10X\n",
-	       item->getPedestal(), item->getRespGain(), item->getFlag(), channel->rawId ());
+	       item->getPedestal(), item->getRespGain(), item->getFlag(), channel.rawId ());
       fOutput << buffer;
     }
   }
@@ -1140,17 +1118,15 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalPedestalWidths&
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const HcalPedestalWidth* item = fObject.getValues (*channel);
+  for (auto & channel : channels) {
+    const HcalPedestalWidth* item = fObject.getValues (channel);
     if (item) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
 	       item->getSigma (0,0), item->getSigma (0,1), item->getSigma (0,2), item->getSigma (0,3), 
 	       item->getSigma (1,0), item->getSigma (1,1), item->getSigma (1,2), item->getSigma (1,3),
 	       item->getSigma (2,0), item->getSigma (2,1), item->getSigma (2,2), item->getSigma (2,3),
-	       item->getSigma (3,0), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), channel->rawId ());
+	       item->getSigma (3,0), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), channel.rawId ());
       fOutput << buffer;
     }
   }
@@ -1213,11 +1189,9 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalQIEData& fObjec
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const HcalQIECoder* coder = fObject.getCoder (*channel);
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const HcalQIECoder* coder = fObject.getCoder (channel);
+    dumpId (fOutput, channel);
     for (unsigned capid = 0; capid < 4; capid++) {
       for (unsigned range = 0; range < 4; range++) {
 	sprintf (buffer, " %8.5f", coder->offset (capid, range));
@@ -1255,8 +1229,8 @@ bool HcalDbASCIIIO::getObject (std::istream& fInput, HcalCalibrationQIEData* fOb
       HcalCalibrationQIECoder coder (id.rawId ());
       int index = 4;
       float values [32];
-      for (unsigned bin = 0; bin < 32; bin++) {
-	values[bin] = atof (items [index++].c_str ());
+      for (float & value : values) {
+	value = atof (items [index++].c_str ());
       }
       coder.setMinCharges (values);
       fObject->addCoder (coder);
@@ -1274,12 +1248,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationQIED
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const HcalCalibrationQIECoder* coder = fObject.getCoder (*channel);
+  for (auto & channel : channels) {
+    const HcalCalibrationQIECoder* coder = fObject.getCoder (channel);
     if (coder) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       const float* lowEdge = coder->minCharges ();
       for (unsigned bin = 0; bin < 32; bin++) {
 	sprintf (buffer, " %8.5f", lowEdge [bin]);
@@ -1378,8 +1350,7 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalElectronicsMap&
 	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber/slb", "fibcha/slbcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
-  for (unsigned i = 0; i < eids.size (); i++) {
-    HcalElectronicsId eid = eids[i];
+  for (auto eid : eids) {
     if (eid.isTriggerChainId()) {
       DetId trigger = fObject.lookupTrigger (eid);
       if (trigger.rawId ()) {
@@ -1489,18 +1460,16 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalLutMetadata& fO
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const float   _rCalib             = fObject.getValues (*channel)->getRCalib();
-    const uint8_t _lutGranularity     = fObject.getValues (*channel)->getLutGranularity();
-    const uint8_t _outputLutThreshold = fObject.getValues (*channel)->getOutputLutThreshold();
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const float   _rCalib             = fObject.getValues (channel)->getRCalib();
+    const uint8_t _lutGranularity     = fObject.getValues (channel)->getLutGranularity();
+    const uint8_t _outputLutThreshold = fObject.getValues (channel)->getOutputLutThreshold();
+    dumpId (fOutput, channel);
     sprintf (buffer, " %8.5f %15d %19d %10X\n",
 	     _rCalib,
 	     _lutGranularity,
 	     _outputLutThreshold,
-	     channel->rawId ());
+	     channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -1579,9 +1548,8 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput,
 //     std::cout << "subd: " << subd << '\n';
     HcalDcsValues::DcsSet const & vals= 
       fObject.getAllSubdetValues(HcalDcsValues::DcsSubDet(subd));
-    for (HcalDcsValues::DcsSet::const_iterator val = vals.begin(); 
-	 val != vals.end(); ++val) {
-      HcalDcsDetId valId(val->DcsId());
+    for (const auto & val : vals) {
+      HcalDcsDetId valId(val.DcsId());
 
       switch (valId.subdet()) {
       case HcalDcsBarrel:
@@ -1608,11 +1576,11 @@ bool HcalDbASCIIIO::dumpObject(std::ostream& fOutput,
       fOutput << valId.slice() << ' ' 
 	      << valId.typeString(valId.type()) << ' '
 	      << valId.subchannel() << ' ';
-      fOutput << val->LS() << ' ' 
-	      << val->getValue() << ' '
-	      << val->getUpperLimit() << ' '
-	      << val->getLowerLimit() << ' ';
-      fOutput << std::hex << val->DcsId() << std::dec << '\n';
+      fOutput << val.LS() << ' ' 
+	      << val.getValue() << ' '
+	      << val.getUpperLimit() << ' '
+	      << val.getLowerLimit() << ' ';
+      fOutput << std::hex << val.DcsId() << std::dec << '\n';
 
 //       std::cout << valId << ' '
 // 		<< valId.subdet() << ' ' 
@@ -1759,23 +1727,21 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFlagHFDigiTimeP
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
+  for (auto & channel : channels) {
     // Dump out channel (ieta,iphi,depth,subdet) info
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
+    HcalDbASCIIIO::dumpId (fOutput, channel);
     // Dump out values for channel
     sprintf (buffer, " %15u %15u %15u %15f",
-	     fObject.getValues (*channel)->HFdigiflagFirstSample(), 
-	     fObject.getValues (*channel)->HFdigiflagSamplesToAdd(), 
-	     fObject.getValues (*channel)->HFdigiflagExpectedPeak(), 
-	     fObject.getValues (*channel)->HFdigiflagMinEThreshold() 
+	     fObject.getValues (channel)->HFdigiflagFirstSample(), 
+	     fObject.getValues (channel)->HFdigiflagSamplesToAdd(), 
+	     fObject.getValues (channel)->HFdigiflagExpectedPeak(), 
+	     fObject.getValues (channel)->HFdigiflagMinEThreshold() 
 	     );
 
     fOutput<<buffer; // dump flag reco values to buffer
     fOutput<<"               "; // simple spacer
 
-    std::vector<double> coef=fObject.getValues(*channel)->HFdigiflagCoefficients();
+    std::vector<double> coef=fObject.getValues(channel)->HFdigiflagCoefficients();
     for (std::vector<double>::size_type x=0;x<coef.size();++x)
       {
 	// dump comma-separated list of coefficients
@@ -1823,11 +1789,10 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalFrontEndMap& fO
 
   std::vector<DetId> channels = fObject.allDetIds();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end (); ++channel) {
-    const std::string rbx = fObject.lookupRBX(*channel);
-    const int         rm  = fObject.lookupRM(*channel);
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const std::string rbx = fObject.lookupRBX(channel);
+    const int         rm  = fObject.lookupRM(channel);
+    dumpId (fOutput, channel);
     sprintf (buffer, " %8s %8d \n", rbx.c_str(), rm);
     fOutput << buffer;
   }
@@ -1869,15 +1834,13 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalSiPMParameters&
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const int   type   = fObject.getValues(*channel)->getType();
-    const float fcByPE = fObject.getValues(*channel)->getFCByPE();
-    const float darkC  = fObject.getValues(*channel)->getDarkCurrent();
-    const int   auxi1  = fObject.getValues(*channel)->getauxi1();
-    const float auxi2  = fObject.getValues(*channel)->getauxi2();
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const int   type   = fObject.getValues(channel)->getType();
+    const float fcByPE = fObject.getValues(channel)->getFCByPE();
+    const float darkC  = fObject.getValues(channel)->getDarkCurrent();
+    const int   auxi1  = fObject.getValues(channel)->getauxi1();
+    const float auxi2  = fObject.getValues(channel)->getauxi2();
+    HcalDbASCIIIO::dumpId (fOutput, channel);
     sprintf (buffer, " %8d %15.6f %15.6f %8d %15.6f\n", type, fcByPE, 
 	     darkC, auxi1, auxi2);
     fOutput << buffer;
@@ -1978,14 +1941,12 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalTPChannelParame
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const uint32_t mask      = fObject.getValues(*channel)->getMask();
-    const uint32_t fgBitInfo = fObject.getValues(*channel)->getFGBitInfo();
-    const int      auxi1     = fObject.getValues(*channel)->getauxi1();
-    const int      auxi2     = fObject.getValues(*channel)->getauxi2();
-    HcalDbASCIIIO::dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const uint32_t mask      = fObject.getValues(channel)->getMask();
+    const uint32_t fgBitInfo = fObject.getValues(channel)->getFGBitInfo();
+    const int      auxi1     = fObject.getValues(channel)->getauxi1();
+    const int      auxi2     = fObject.getValues(channel)->getauxi2();
+    HcalDbASCIIIO::dumpId (fOutput, channel);
     sprintf (buffer, " %15d %15d %15d %15d \n", mask, fgBitInfo, auxi1, auxi2);
     fOutput << buffer;
   }
@@ -2050,12 +2011,12 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationsSet
 
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin (); channel != channels.end (); ++channel) {
-    dumpId (fOutput, *channel);
-    const HcalCalibrations& values = fObject.getCalibrations(*channel);
+  for (auto & channel : channels) {
+    dumpId (fOutput, channel);
+    const HcalCalibrations& values = fObject.getCalibrations(channel);
     sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
       values.pedestal(0), values.pedestal(1), values.pedestal(2), values.pedestal(3),
-      values.respcorrgain(0), values.respcorrgain(1), values.respcorrgain(2), values.respcorrgain(3), channel->rawId ());
+      values.respcorrgain(0), values.respcorrgain(1), values.respcorrgain(2), values.respcorrgain(3), channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -2069,12 +2030,12 @@ bool HcalDbASCIIIO::dumpObject (std::ostream& fOutput, const HcalCalibrationWidt
 
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin (); channel != channels.end (); ++channel) {
-    dumpId (fOutput, *channel);
-    const HcalCalibrationWidths& values = fObject.getCalibrationWidths(*channel);
+  for (auto & channel : channels) {
+    dumpId (fOutput, channel);
+    const HcalCalibrationWidths& values = fObject.getCalibrationWidths(channel);
     sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
       values.pedestal(0), values.pedestal(1), values.pedestal(2), values.pedestal(3),
-      values.gain(0), values.gain(1), values.gain(2), values.gain(3), channel->rawId ());
+      values.gain(0), values.gain(1), values.gain(2), values.gain(3), channel.rawId ());
     fOutput << buffer;
   }
   return true;

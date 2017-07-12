@@ -159,15 +159,14 @@ void DTSegment4DQuality::endJob() {
 
     //Map simHits by chamber
     map<DTChamberId, PSimHitContainer > simHitsPerCh;
-    for(PSimHitContainer::const_iterator simHit = simHits->begin();
-        simHit != simHits->end(); simHit++){
+    for(const auto & simHit : *simHits){
 
       // Consider only muon simhits; the others are not considered elsewhere in this class!
-      if (abs((*simHit).particleType())==13) { 
+      if (abs(simHit.particleType())==13) { 
 	// Create the id of the chamber (the simHits in the DT known their wireId)
-	DTChamberId chamberId = (((DTWireId(simHit->detUnitId())).layerId()).superlayerId()).chamberId();
+	DTChamberId chamberId = (((DTWireId(simHit.detUnitId())).layerId()).superlayerId()).chamberId();
 	// Fill the map
-	simHitsPerCh[chamberId].push_back(*simHit);
+	simHitsPerCh[chamberId].push_back(simHit);
       }
     }
 

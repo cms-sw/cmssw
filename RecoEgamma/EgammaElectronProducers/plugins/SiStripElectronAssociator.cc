@@ -77,8 +77,8 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    iEvent.getByToken(trackCollection_, tracks);
 
    std::map<const reco::SiStripElectron*, bool> alreadySeen;
-   for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectrons->begin();  strippyIter != siStripElectrons->end();  ++strippyIter) {
-      alreadySeen[&(*strippyIter)] = false;
+   for (const auto & strippyIter : *siStripElectrons) {
+      alreadySeen[&strippyIter] = false;
    }
 
    // Output the high-level Electrons
@@ -111,13 +111,13 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
 
       // Find the electron with that hit!
       bool foundElectron = false;
-      for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectrons->begin();  strippyIter != siStripElectrons->end();  ++strippyIter) {
-        if (!alreadySeen[&(*strippyIter)]) {
+      for (const auto & strippyIter : *siStripElectrons) {
+        if (!alreadySeen[&strippyIter]) {
           
           bool hitInCommon = false;
           LogDebug("SiStripElectronAssociator") << " Looping over Mono hits " << "\n" ;
           
-          for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->rphiRecHits().begin();  hitIter != strippyIter->rphiRecHits().end();  ++hitIter) {
+          for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter.rphiRecHits().begin();  hitIter != strippyIter.rphiRecHits().end();  ++hitIter) {
             
             LogDebug("SiStripElectronAssociator") << " SiStripCand " 
                                                   << " DetId " << hitIter->geographicalId().rawId()
@@ -137,7 +137,7 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
           if(!hitInCommon) {
             LogDebug("SiStripElectronAssociator") << " Looping over Stereo hits " << "\n" ;
 
-            for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter->stereoRecHits().begin();  hitIter != strippyIter->stereoRecHits().end();  ++hitIter) {
+            for (std::vector<SiStripRecHit2D>::const_iterator hitIter = strippyIter.stereoRecHits().begin();  hitIter != strippyIter.stereoRecHits().end();  ++hitIter) {
               
                LogDebug("SiStripElectronAssociator") << " SiStripCand " 
                                                      << " DetId " << hitIter->geographicalId().rawId()
@@ -160,7 +160,7 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
              LogDebug("SiStripElectronAssociator") << " Hit in Common Found \n" ;
              ++countSiElFit ;
              foundElectron = true;
-             alreadySeen[&(*strippyIter)] = true;
+             alreadySeen[&strippyIter] = true;
              
              reco::Electron electron((trackPtr->charge() > 0 ? 1 : -1),
                                      math::XYZTLorentzVector(trackPtr->px(),
@@ -170,7 +170,7 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
                                      math::XYZPoint(trackPtr->vx(),
                                                     trackPtr->vy(),
                                                     trackPtr->vz()));
-             electron.setSuperCluster(strippyIter->superCluster());
+             electron.setSuperCluster(strippyIter.superCluster());
              electron.setTrack(reco::TrackRef(tracks, i));
              
              output->push_back(electron);

@@ -107,11 +107,10 @@ void PFRecoTauChargedHadron::print(std::ostream& stream) const
   if ( neutralPFCandidates_.size() >= 1 ) {
     stream << std::endl;
     int idx = 0;
-    for ( std::vector<PFCandidatePtr>::const_iterator neutralPFCandidate = neutralPFCandidates_.begin();
-	  neutralPFCandidate != neutralPFCandidates_.end(); ++neutralPFCandidate ) {
-      stream << " #" << idx << " (" << neutralPFCandidate->id() << ":" << neutralPFCandidate->key() << "):"
-	     << " Pt = " << (*neutralPFCandidate)->pt() << ", eta = " << (*neutralPFCandidate)->eta() << ", phi = " << (*neutralPFCandidate)->phi() 
-	     << " (type = " << getPFCandidateType((*neutralPFCandidate)->particleId()) << ")" << std::endl;
+    for (const auto & neutralPFCandidate : neutralPFCandidates_) {
+      stream << " #" << idx << " (" << neutralPFCandidate.id() << ":" << neutralPFCandidate.key() << "):"
+	     << " Pt = " << neutralPFCandidate->pt() << ", eta = " << neutralPFCandidate->eta() << ", phi = " << neutralPFCandidate->phi() 
+	     << " (type = " << getPFCandidateType(neutralPFCandidate->particleId()) << ")" << std::endl;
       ++idx;
     }
   } else {

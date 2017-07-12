@@ -156,8 +156,8 @@ QuarkoniaTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::Ev
   //
   // filling of output collection
   //
-  for ( size_t i=0; i<selectedTrackIndices.size(); ++i ) 
-    product->push_back((*trackHandle)[selectedTrackIndices[i]]);
+  for (unsigned long selectedTrackIndice : selectedTrackIndices) 
+    product->push_back((*trackHandle)[selectedTrackIndice]);
   //
   // debug output
   //

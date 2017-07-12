@@ -72,20 +72,17 @@ void QTestHandle::attachTests(DQMStore *bei, bool verboseQT)
   bool expected = true;
   const bool firstCaller = firstTime.compare_exchange_strong(expected,false);
  
-  for (std::map<std::string, std::vector<std::string> >::iterator itr = mapMeToTests.begin();
-       itr != mapMeToTests.end();
-       ++itr)
+  for (auto & mapMeToTest : mapMeToTests)
   {
-    const std::string &meName = itr->first;
-    const std::vector<std::string> &tests = itr->second;
+    const std::string &meName = mapMeToTest.first;
+    const std::vector<std::string> &tests = mapMeToTest.second;
     
-    for (std::vector<std::string>::const_iterator testsItr = tests.begin();
-	 testsItr != tests.end(); ++testsItr){
-      int cases =  bei->useQTestByMatch(meName, *testsItr);
+    for (const auto & test : tests){
+      int cases =  bei->useQTestByMatch(meName, test);
       if (firstCaller && verboseQT && cases == 0)
        edm::LogWarning ("QTestHandle::attachTests")
        << " ==>> Invalid qtest xml: Link '"<< meName 
-       <<"', QTest '"<< *testsItr << "'  - no matching ME! <<== ";
+       <<"', QTest '"<< test << "'  - no matching ME! <<== ";
       }
   }
 }

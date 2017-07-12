@@ -29,10 +29,9 @@ NavVolume6Faces::NavVolume6Faces( const PositionType& pos,
 				  const MagneticFieldProvider<float> * mfp) :
   NavVolume(pos,rot,shape,mfp) 
 {
-  for (std::vector<NavVolumeSide>::const_iterator i=faces.begin();
-       i != faces.end(); i++) {
-    theFaces.push_back( VolumeSide( const_cast<Surface*>(&(i->surface().surface())), 
-				    i->globalFace(), i->surfaceSide()));
+  for (const auto & face : faces) {
+    theFaces.push_back( VolumeSide( const_cast<Surface*>(&(face.surface().surface())), 
+				    face.globalFace(), face.surfaceSide()));
     //  LogDebug("NavGeometry") << " or actually this is where we have side " << i->surfaceSide() << " and face " << i->globalFace() ;
   }
 
@@ -61,9 +60,9 @@ NavVolume6Faces::NavVolume6Faces( const MagVolume& magvol, bool isIron) :
 bool NavVolume6Faces::inside( const GlobalPoint& gp, double tolerance) const 
 {
   // check if the point is on the correct side of all delimiting surfaces
-  for (std::vector<VolumeSide>::const_iterator i=theFaces.begin(); i!=theFaces.end(); i++) {
-    Surface::Side side = i->surface().side( gp, tolerance);
-    if ( side != i->surfaceSide() && side != SurfaceOrientation::onSurface) return false;
+  for (const auto & theFace : theFaces) {
+    Surface::Side side = theFace.surface().side( gp, tolerance);
+    if ( side != theFace.surfaceSide() && side != SurfaceOrientation::onSurface) return false;
   }
   return true;
 }
@@ -75,8 +74,8 @@ void NavVolume6Faces::computeBounds(const std::vector<NavVolumeSide>& faces)
     bool allPlanes = true;
     // bool allPlanes = false; // for TESTS ONLY!!!
     std::vector<const Plane*> planes;
-    for (std::vector<NavVolumeSide>::const_iterator iface=faces.begin(); iface!=faces.end(); iface++) {
-	const Plane* plane = dynamic_cast<const Plane*>(&(iface->surface()));
+    for (const auto & face : faces) {
+	const Plane* plane = dynamic_cast<const Plane*>(&(face.surface()));
 	if (plane != 0) {
 	    planes.push_back(plane);
 	}
@@ -187,13 +186,13 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
 
     double epsilon = 0.01; // should epsilon be hard-coded or a variable in NavVolume?
 
-    for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
-	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
+    for (const auto & theNavSurface : theNavSurfaces) {
+	std::pair<bool,double> dist = theNavSurface.surface().distanceAlongLine( gpos, gdir);
 	if (dist.first) {
-	  if (dist.second > epsilon) sortedSurfaces[dist.second] = *i;
-	  else verycloseSurfaces.push_back(*i);
+	  if (dist.second > epsilon) sortedSurfaces[dist.second] = theNavSurface;
+	  else verycloseSurfaces.push_back(theNavSurface);
 	} 
-	else unreachableSurfaces.push_back(*i);
+	else unreachableSurfaces.push_back(theNavSurface);
     }
     NavVolume::Container result;
     for (SortedContainer::const_iterator i=sortedSurfaces.begin(); i!=sortedSurfaces.end(); ++i) {
@@ -223,18 +222,18 @@ NavVolume6Faces::nextSurface( const NavVolume::LocalPoint& pos,
     double epsilon = 0.01; // should epsilon be hard-coded or a variable in NavVolume?
     bool surfaceMatched = false;
 
-    for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
-      if (&(i->surface().surface()) == NotThisSurfaceP) surfaceMatched = true;
+    for (const auto & theNavSurface : theNavSurfaces) {
+      if (&(theNavSurface.surface().surface()) == NotThisSurfaceP) surfaceMatched = true;
     }
     
-    for (Container::const_iterator i=theNavSurfaces.begin(); i!=theNavSurfaces.end(); i++) {
-	std::pair<bool,double> dist = i->surface().distanceAlongLine( gpos, gdir);
+    for (const auto & theNavSurface : theNavSurfaces) {
+	std::pair<bool,double> dist = theNavSurface.surface().distanceAlongLine( gpos, gdir);
 	if (dist.first) { 
-	  if ( &(i->surface().surface()) == NotThisSurfaceP || (!surfaceMatched && dist.second < epsilon)) 
-	    verycloseSurfaces.push_back(*i);
-	  else sortedSurfaces[dist.second] = *i;
+	  if ( &(theNavSurface.surface().surface()) == NotThisSurfaceP || (!surfaceMatched && dist.second < epsilon)) 
+	    verycloseSurfaces.push_back(theNavSurface);
+	  else sortedSurfaces[dist.second] = theNavSurface;
 	}
-	else unreachableSurfaces.push_back(*i);
+	else unreachableSurfaces.push_back(theNavSurface);
     }
 
     NavVolume::Container result;

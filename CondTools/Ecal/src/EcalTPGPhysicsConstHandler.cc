@@ -115,9 +115,9 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	unsigned int irun;
 	if(num_runs>0){
 	
-	  for(size_t kr=0; kr<run_vec.size(); kr++){
+	  for(auto & kr : run_vec){
 
-	    irun=static_cast<unsigned int>(run_vec[kr].getRunNumber());
+	    irun=static_cast<unsigned int>(kr.getRunNumber());
 
 	    std::cout<<" **************** "<<std::endl;
 	    std::cout<<" **************** "<<std::endl;
@@ -125,7 +125,7 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
             
 	    // retrieve the data :
 	    std::map<EcalLogicID, RunTPGConfigDat> dataset;
-	    econn->fetchDataSet(&dataset, &run_vec[kr]);
+	    econn->fetchDataSet(&dataset, &kr);
 	    
 	    std::string the_config_tag="";
 	    int the_config_version=0;
@@ -313,16 +313,16 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 		      
 	      	      DetId eb(DetId::Ecal, EcalBarrel);
 		      
-		      for ( iterEB itt=temporaryMapEB.begin() ; itt != temporaryMapEB.end() ; itt++ ){
+		      for (auto & itt : temporaryMapEB){
                        			
-		        if (itt->first == (int)eb.rawId()){ 
+		        if (itt.first == (int)eb.rawId()){ 
 
-			  (itt->second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
-	                  (itt->second).FG_highThreshold=rd_physFgr.getFGhighthresh();
-	                  (itt->second).FG_lowRatio=rd_physFgr.getFGlowratio();
-	                  (itt->second).FG_highRatio= rd_physFgr.getFGhighratio();
+			  (itt.second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
+	                  (itt.second).FG_highThreshold=rd_physFgr.getFGhighthresh();
+	                  (itt.second).FG_lowRatio=rd_physFgr.getFGlowratio();
+	                  (itt.second).FG_highRatio= rd_physFgr.getFGhighratio();
 						   
-			   physC->setValue(eb.rawId(),itt->second);
+			   physC->setValue(eb.rawId(),itt.second);
 			
 			}
 		      }	  
@@ -336,17 +336,17 @@ void popcon::EcalTPGPhysicsConstHandler::getNewObjects()
 	      	      DetId ee(DetId::Ecal, EcalEndcap);
 		
 	              int countEE = 0;
-	  	      for ( iterEE itEE=temporaryMapEE.begin() ; itEE != temporaryMapEE.end() ; itEE++ ){                       
+	  	      for (auto & itEE : temporaryMapEE){                       
 
-		        if (itEE->first == (int)ee.rawId()){ 
+		        if (itEE.first == (int)ee.rawId()){ 
 			  
-			  (itEE->second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
-	                  (itEE->second).FG_highThreshold=rd_physFgr.getFGhighthresh();
+			  (itEE.second).FG_lowThreshold=rd_physFgr.getFGlowthresh();
+	                  (itEE.second).FG_highThreshold=rd_physFgr.getFGhighthresh();
 	                  // the last two is empty for the EE
-			  (itEE->second).FG_lowRatio=rd_physFgr.getFGlowratio();
-	                  (itEE->second).FG_highRatio= rd_physFgr.getFGhighratio();
+			  (itEE.second).FG_lowRatio=rd_physFgr.getFGlowratio();
+	                  (itEE.second).FG_highRatio= rd_physFgr.getFGhighratio();
 			   
-			   physC->setValue(ee.rawId(),itEE->second); 
+			   physC->setValue(ee.rawId(),itEE.second); 
 			}
 			
 			countEE++; 

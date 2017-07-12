@@ -44,10 +44,9 @@ SourceVariable *SourceVariableSet::find(AtomicId name) const
 
 SourceVariable *SourceVariableSet::find(Magic magic) const
 {
-	for(std::vector<PosVar>::const_iterator pos = vars.begin();
-	    pos != vars.end(); ++pos)
-		if (pos->magic == magic)
-			return pos->var;
+	for(const auto & var : vars)
+		if (var.magic == magic)
+			return var.var;
 
 	return 0;
 }
@@ -56,18 +55,16 @@ std::vector<SourceVariable*> SourceVariableSet::get(bool withMagic) const
 {
 	std::vector<SourceVariable*> result(vars.size());
 
-	for(std::vector<PosVar>::const_iterator iter = vars.begin();
-	    iter != vars.end(); iter++)
-		result[iter->pos] = iter->var;
+	for(const auto & var : vars)
+		result[var.pos] = var.var;
 
 	if (!withMagic) {
 		unsigned int pos = vars.size();
-		for(std::vector<PosVar>::const_iterator iter = vars.begin();
-		    iter != vars.end(); iter++)
-			if (iter->magic != kRegular) {
+		for(const auto & var : vars)
+			if (var.magic != kRegular) {
 				result.erase(result.begin() +
-				             (iter->pos - (iter->pos >= pos)));
-				pos = iter->pos;
+				             (var.pos - (var.pos >= pos)));
+				pos = var.pos;
 			}
 	}
 

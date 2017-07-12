@@ -58,9 +58,8 @@ Geom::Phi<float>  MagGeoBuilderFromDDD::bSlab::maxPhi() const {
 MagBSlab * MagGeoBuilderFromDDD::bSlab::buildMagBSlab() const {
   if (mslab==0) {
     vector<MagVolume*> mVols;
-    for (handles::const_iterator vol = volumes.begin();
-	 vol!=volumes.end(); ++vol) {
-      mVols.push_back((*vol)->magVolume);
+    for (auto volume : volumes) {
+      mVols.push_back(volume->magVolume);
     }
     mslab = new MagBSlab(mVols, volumes.front()->surface(zminus).position().z()); //FIXME
   }

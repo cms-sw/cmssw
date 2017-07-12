@@ -108,38 +108,38 @@ namespace ecaldqm {
     if(!l1A_){
       // majority vote on L1A.. is there no better implementation?
       map<int, int> l1aCounts;
-      for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr){
-        l1aCounts[dcchItr->getLV1()]++;
+      for(const auto & _dcch : _dcchs){
+        l1aCounts[_dcch.getLV1()]++;
       }
       int maxVote(0);
-      for(map<int, int>::iterator l1aItr(l1aCounts.begin()); l1aItr != l1aCounts.end(); ++l1aItr){
-        if(l1aItr->second > maxVote){
-          maxVote = l1aItr->second;
-          l1A_ = l1aItr->first;
+      for(auto & l1aCount : l1aCounts){
+        if(l1aCount.second > maxVote){
+          maxVote = l1aCount.second;
+          l1A_ = l1aCount.first;
         }
       }
     }
 
-    for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr){
-      int dccId(dcchItr->id());
+    for(const auto & _dcch : _dcchs){
+      int dccId(_dcch.id());
 
-      int dccL1A(dcchItr->getLV1());
+      int dccL1A(_dcch.getLV1());
       short dccL1AShort(dccL1A & 0xfff);
-      int dccBX(dcchItr->getBX());
+      int dccBX(_dcch.getBX());
 
-      meOrbitDiff.fill(dccId, dcchItr->getOrbit() - orbit_);
+      meOrbitDiff.fill(dccId, _dcch.getOrbit() - orbit_);
       meBXDCCDiff.fill(dccId, dccBX - bx_);
       if(dccBX == -1) meBXFEInvalid.fill(dccId, 68.5);
 
-      if(dcchItr->getRunNumber() != int(runNumber_)) meRunNumber.fill(dccId);
-      if(dcchItr->getOrbit() != orbit_) meOrbit.fill(dccId);
-      if(dcchItr->getBasicTriggerType() != triggerType_) meTriggerType.fill(dccId);
+      if(_dcch.getRunNumber() != int(runNumber_)) meRunNumber.fill(dccId);
+      if(_dcch.getOrbit() != orbit_) meOrbit.fill(dccId);
+      if(_dcch.getBasicTriggerType() != triggerType_) meTriggerType.fill(dccId);
       if(dccL1A != l1A_) meL1ADCC.fill(dccId);
       if(dccBX != bx_) meBXDCC.fill(dccId);
 
-      const vector<short> &feStatus(dcchItr->getFEStatus());
-      const vector<short> &feBxs(dcchItr->getFEBxs());
-      const vector<short> &feL1s(dcchItr->getFELv1());
+      const vector<short> &feStatus(_dcch.getFEStatus());
+      const vector<short> &feBxs(_dcch.getFEBxs());
+      const vector<short> &feL1s(_dcch.getFELv1());
 
       double feDesync(0.);
       double statusError(0.);
@@ -203,8 +203,8 @@ namespace ecaldqm {
       if(statusError > 0.)
         meFEByLumi.fill(dccId, statusError);
 
-      const vector<short> &tccBx(dcchItr->getTCCBx());
-      const vector<short> &tccL1(dcchItr->getTCCLv1());
+      const vector<short> &tccBx(_dcch.getTCCBx());
+      const vector<short> &tccL1(_dcch.getTCCLv1());
 
       if(tccBx.size() == 4){ // EB uses tccBx[0]; EE uses all
         if(dccId <= kEEmHigh + 1 || dccId >= kEEpLow + 1){
@@ -228,8 +228,8 @@ namespace ecaldqm {
         }
       }
 
-      short srpBx(dcchItr->getSRPBx());
-      short srpL1(dcchItr->getSRPLv1());
+      short srpBx(_dcch.getSRPBx());
+      short srpL1(_dcch.getSRPLv1());
 
       if(srpBx != dccBX && srpBx != -1 && dccBX != -1)
         meBXSRP.fill(dccId);
@@ -239,7 +239,7 @@ namespace ecaldqm {
 
       const int calibBX(3490);
 
-      short runType(dcchItr->getRunType() + 1);
+      short runType(_dcch.getRunType() + 1);
       if(runType < 0 || runType > 22) runType = 0;
       if(dccBX < calibBX) meEventTypePreCalib.fill(dccId, runType, 1. / 54.);
       else if(dccBX == calibBX) meEventTypeCalib.fill(dccId, runType, 1. / 54.);

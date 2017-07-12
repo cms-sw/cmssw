@@ -60,18 +60,17 @@ TestTrackerReader::analyze( const edm::Event& iEvent, const edm::EventSetup& iSe
   iSetup.get<TrackerAlignmentErrorExtendedRcd>().get( alignmentErrors );
 
   edm::LogVerbatim("DumpAlignments")  << "\n----------------------\n";
-  for ( std::vector<AlignTransform>::const_iterator it = alignments->m_align.begin();
-		it != alignments->m_align.end(); it++ )
+  for (const auto & it : alignments->m_align)
 	{
-	  CLHEP::HepRotation rot( (*it).rotation() );
+	  CLHEP::HepRotation rot( it.rotation() );
 	  align::RotationType rotation( rot.xx(), rot.xy(), rot.xz(),
 					rot.yx(), rot.yy(), rot.yz(),
 					rot.zx(), rot.zy(), rot.zz() );
 
-	  edm::LogVerbatim("DumpAlignments") << (*it).rawId()
-				<< "  " << (*it).translation().x()
-				<< " " << (*it).translation().y()
-				<< " " << (*it).translation().z()
+	  edm::LogVerbatim("DumpAlignments") << it.rawId()
+				<< "  " << it.translation().x()
+				<< " " << it.translation().y()
+				<< " " << it.translation().z()
 				<< "  " << rotation.xx() << " " << rotation.xy() << " " << rotation.xz()
 				<< " " << rotation.yx() << " " << rotation.yy() << " " << rotation.yz()
 				<< " " << rotation.zx() << " " << rotation.zy() << " " << rotation.zz();

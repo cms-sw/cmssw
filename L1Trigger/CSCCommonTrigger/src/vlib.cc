@@ -986,7 +986,7 @@ Signal& memory::operator[] (Signal i)
 
 void module::create()
 {
-	for (unsigned int i = 0; i < sizeof(outreg)/sizeof(Signal*); ++i) outreg[i] = NULL;
+	for (auto & i : outreg) i = NULL;
 	outregn = 0;
 	runperiod = NULL;
 }
@@ -998,10 +998,10 @@ module::module()
 
 module::~module()
 {
-	for (unsigned int i = 0; i < sizeof(outreg)/sizeof(Signal*); ++i)
+	for (auto & i : outreg)
 	{
-		if (outreg[i] != NULL)
-			delete outreg[i];
+		if (i != NULL)
+			delete i;
 	}
 
 }

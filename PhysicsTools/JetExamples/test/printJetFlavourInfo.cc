@@ -56,12 +56,12 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
     std::vector<bool> jetLocks(theJetFlavourInfos->size(),false);
     std::vector<int>  jetIndices;
 
-    for(size_t gj=0; gj<groomedJets->size(); ++gj)
+    for(const auto & gj : *groomedJets)
     {
       double matchedDR2 = 1e9;
       int matchedIdx = -1;
 
-      if( groomedJets->at(gj).pt()>0. ) // skips pathological cases of groomed jets with Pt=0
+      if( gj.pt()>0. ) // skips pathological cases of groomed jets with Pt=0
       {
         for(reco::JetFlavourInfoMatchingCollection::const_iterator j  = theJetFlavourInfos->begin();
                                        j != theJetFlavourInfos->end();
@@ -69,7 +69,7 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
         {
           if( jetLocks.at(j - theJetFlavourInfos->begin()) ) continue; // skip jets that have already been matched
 
-          double tempDR2 = reco::deltaR2( j->first->rapidity(), j->first->phi(), groomedJets->at(gj).rapidity(), groomedJets->at(gj).phi() );
+          double tempDR2 = reco::deltaR2( j->first->rapidity(), j->first->phi(), gj.rapidity(), gj.phi() );
           if( tempDR2 < matchedDR2 )
           {
             matchedDR2 = tempDR2;
@@ -191,13 +191,11 @@ void printJetFlavourInfo::analyze(const edm::Event& iEvent, const edm::EventSetu
       {
         const edm::Ptr<reco::Candidate> & subjet = groomedJets->at(matchedIndices.at(j - theJetFlavourInfos->begin())).daughterPtr(s);
 
-        for ( reco::JetFlavourInfoMatchingCollection::const_iterator sj  = theSubjetFlavourInfos->begin();
-                                           sj != theSubjetFlavourInfos->end();
-                                           ++sj ) {
-          if( subjet != edm::Ptr<reco::Candidate>((*sj).first.id(), (*sj).first.get(), (*sj).first.key()) ) continue;
+        for (const auto & sj : *theSubjetFlavourInfos) {
+          if( subjet != edm::Ptr<reco::Candidate>(sj.first.id(), sj.first.get(), sj.first.key()) ) continue;
 
-          const reco::Jet *aSubjet = (*sj).first.get();
-          aInfo = (*sj).second;
+          const reco::Jet *aSubjet = sj.first.get();
+          aInfo = sj.second;
           std::cout << std::setprecision(2) << std::setw(6) << std::fixed
                     << "  [printSubjetFlavourInfo] Subjet " << s << " pt, eta, rapidity, phi, dR(eta-phi), dR(rap-phi) = "
                                                                  << aSubjet->pt() << ", "

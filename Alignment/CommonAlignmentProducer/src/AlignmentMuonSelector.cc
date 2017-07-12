@@ -106,9 +106,7 @@ AlignmentMuonSelector::basicCuts(const Muons& muons) const
 {
   Muons result;
 
-  for(Muons::const_iterator it=muons.begin();
-      it!=muons.end();++it) {
-    const reco::Muon* muonp=*it;
+  for(auto muonp : muons) {
     float p=muonp->p();
     float pt=muonp->pt();
     float eta=muonp->eta();

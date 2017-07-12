@@ -105,8 +105,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " trigger FEDs";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and buffer sizes [bytes]): ";
-    for ( uint16_t ifed = 0; ifed < trg_feds.size(); ++ifed ) {
-      ss << trg_feds[ifed].first << "(" << trg_feds[ifed].second << ") ";
+    for (auto & trg_fed : trg_feds) {
+      ss << trg_fed.first << "(" << trg_fed.second << ") ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -119,8 +119,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " non-tracker FEDs from other sub-dets";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and buffer sizes [bytes]): ";
-    for ( uint16_t ifed = 0; ifed < non_trk.size(); ++ifed ) {
-      ss << non_trk[ifed].first << "(" << non_trk[ifed].second << ") ";
+    for (auto & ifed : non_trk) {
+      ss << ifed.first << "(" << ifed.second << ") ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -133,8 +133,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " strip tracker FEDs";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and buffer sizes [bytes]): ";
-    for ( uint16_t ifed = 0; ifed < trk_feds.size(); ++ifed ) {
-      ss << trk_feds[ifed].first << "(" << trk_feds[ifed].second << ") ";
+    for (auto & trk_fed : trk_feds) {
+      ss << trk_fed.first << "(" << trk_fed.second << ") ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -147,8 +147,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " FEDs in data but missing from cabling";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and buffer sizes [bytes]): ";
-    for ( uint16_t ifed = 0; ifed < in_data.size(); ++ifed ) {
-      ss << in_data[ifed].first << "(" << in_data[ifed].second << ") ";
+    for (auto & ifed : in_data) {
+      ss << ifed.first << "(" << ifed.second << ") ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -161,8 +161,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " FEDs in cabling but missing from data";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and zero buffer size): ";
-    for ( uint16_t ifed = 0; ifed < in_cabl.size(); ++ifed ) {
-      ss << in_cabl[ifed].first << " ";
+    for (auto & ifed : in_cabl) {
+      ss << ifed.first << " ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -175,8 +175,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " strip tracker FEDs";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and buffer sizes [bytes]): ";
-    for ( uint16_t ifed = 0; ifed < trk_feds.size(); ++ifed ) {
-      ss << trk_feds[ifed].first << "(" << trk_feds[ifed].second << ") ";
+    for (auto & trk_fed : trk_feds) {
+      ss << trk_fed.first << "(" << trk_fed.second << ") ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -190,8 +190,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
   ChannelsMap connected;
   
   // Analyze strip tracker FED buffers in data
-  for ( uint16_t ii = 0; ii < trk_feds.size(); ++ii ) {
-    uint16_t ifed = trk_feds[ii].first;
+  for (auto & trk_fed : trk_feds) {
+    uint16_t ifed = trk_fed.first;
 
     // record connections
     auto channels = cabling->fedConnections(ifed);
@@ -259,8 +259,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        << " FED buffers that fail on construction of a FEDBuffer";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids: ";
-    for ( ChannelsMap::iterator iter = construct.begin(); iter != construct.end(); ++iter ) {
-      ss << iter->first << " ";
+    for (auto & iter : construct) {
+      ss << iter.first << " ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -273,8 +273,8 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " FED channels that fail on FEDBuffer::channelGood()";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids: ";
-    for ( ChannelsMap::iterator iter = channel_construct.begin(); iter != channel_construct.end(); ++iter ) {
-      ss << iter->first << " ";
+    for (auto & iter : channel_construct) {
+      ss << iter.first << " ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -287,9 +287,9 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " FED buffers with data in connected channels";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and number of connected channels with data): ";
-    for ( ChannelsMap::iterator iter = channels_with_data.begin(); iter != channels_with_data.end(); ++iter ) {
-      ss << iter->first << "(" 
-	 << iter->second.size() << ") ";
+    for (auto & iter : channels_with_data) {
+      ss << iter.first << "(" 
+	 << iter.second.size() << ") ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -302,9 +302,9 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " FED buffers with connected channels and missing data";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (and number of connected channels with missing data): ";
-    for ( ChannelsMap::iterator iter = channels_missing_data.begin(); iter != channels_missing_data.end(); ++iter ) {
-      ss << iter->first << "(" 
-	 << iter->second.size() << ") ";
+    for (auto & iter : channels_missing_data) {
+      ss << iter.first << "(" 
+	 << iter.second.size() << ") ";
     }
     LogTrace(mlRawToDigi_) << ss.str();
   }
@@ -317,10 +317,10 @@ void SiStripFEDRawDataAnalyzer::analyze( const edm::Event& event, const edm::Eve
        <<  " FED buffers with data in channels that are missing from cabling";
     edm::LogVerbatim(mlRawToDigi_) << ss.str();
     ss << " with ids (number of channels containing data that are missing from cabling, channel number): ";
-    for ( ChannelsMap::iterator iter = cabling_missing_channels.begin(); iter != cabling_missing_channels.end(); ++iter ) {
-      ss << iter->first << "(" 
-	 << iter->second.size() << ":";
-      for ( Channels::iterator jter = iter->second.begin(); jter != iter->second.end(); ++jter ) {
+    for (auto & cabling_missing_channel : cabling_missing_channels) {
+      ss << cabling_missing_channel.first << "(" 
+	 << cabling_missing_channel.second.size() << ":";
+      for ( Channels::iterator jter = cabling_missing_channel.second.begin(); jter != cabling_missing_channel.second.end(); ++jter ) {
 	ss << *jter << ",";
       }
       ss << ") ";

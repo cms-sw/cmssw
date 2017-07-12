@@ -77,9 +77,9 @@ TracktoRPC::TracktoRPC(const reco::TrackCollection * alltracks, const edm::Event
 std::vector<uint32_t> rpcput;
 double MaxD=999.;
 
-for (TrackCollection::const_iterator track = alltracks->begin(); track !=alltracks->end(); track++)
+for (const auto & alltrack : *alltracks)
 {
- Trajectories trajectories = theTrackTransformer->transform(*track);
+ Trajectories trajectories = theTrackTransformer->transform(alltrack);
  if(debug) std::cout << "Building Trajectory from Track. " << std::endl;
 
  std::vector<uint32_t> rpcrolls;
@@ -87,8 +87,8 @@ for (TrackCollection::const_iterator track = alltracks->begin(); track !=alltrac
  std::map<uint32_t, int> rpcNdtcsc;
  std::map<uint32_t, int> rpcrollCounter;
 
- float tInX = track->innerPosition().X(), tInY = track->innerPosition().Y(), tInZ = track->innerPosition().Z();
- float tOuX = track->outerPosition().X(), tOuY = track->outerPosition().Y(), tOuZ = track->outerPosition().Z();
+ float tInX = alltrack.innerPosition().X(), tInY = alltrack.innerPosition().Y(), tInZ = alltrack.innerPosition().Z();
+ float tOuX = alltrack.outerPosition().X(), tOuY = alltrack.outerPosition().Y(), tOuZ = alltrack.outerPosition().Z();
  if(tInX > tOuX) { float temp=tOuX; tOuX=tInX; tInX=temp; }
  if(tInY > tOuY) { float temp=tOuY; tOuY=tInY; tInY=temp; }
  if(tInZ > tOuZ) { float temp=tOuZ; tOuZ=tInZ; tInZ=temp; }
@@ -97,7 +97,7 @@ for (TrackCollection::const_iterator track = alltracks->begin(); track !=alltrac
  if(debug) std::cout << "out (x,y,z): ("<< tOuX <<", "<< tOuY <<", "<< tOuZ << ")" << std::endl;
 
 if(debug) std::cout << "1. Search expeted RPC roll detid !!" << std::endl;
-for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(); hit++)
+for(trackingRecHit_iterator hit=alltrack.recHitsBegin(); hit != alltrack.recHitsEnd(); hit++)
  {
     if((*hit)->isValid())
     {
@@ -127,9 +127,9 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
                 if(dtS==14) dtS=10;
                 DTStationIndex theindex(0,dtW,dtS,dtT);
                 std::set<RPCDetId> rollsForThisDT = dtMap->getRolls(theindex);
-                for(std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++)
+                for(auto iteraRoll : rollsForThisDT)
                 {                                 
-	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+	            const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll);
 
                     TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
                     if(ptss.isValid()) if(ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), iSetup))
@@ -178,9 +178,9 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
 
                 CSCStationIndex theindex(En,St,Ri,rpcSegment);
                 std::set<RPCDetId> rollsForThisCSC = cscMap->getRolls(theindex);
-                for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++)
+                for (auto iteraRoll : rollsForThisCSC)
                 {
-	            const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+	            const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll);
 
                     TrajectoryStateOnSurface ptss =  thePropagator->propagate(upd2, rpcGeo->idToDet(rollasociated->id())->surface());
                     if(ptss.isValid()) if(ValidRPCSurface(rollasociated->id().rawId(), ptss.localPosition(), iSetup))
@@ -219,7 +219,7 @@ for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(
    // if(rSt ==2 && rEn==0) MaxD=100;
    // else if(rSt ==3 && rEn==0) MaxD=100;
    // else if(rSt ==4 && rEn==0) MaxD =150;
-    for(trackingRecHit_iterator hit=track->recHitsBegin(); hit != track->recHitsEnd(); hit++)
+    for(trackingRecHit_iterator hit=alltrack.recHitsBegin(); hit != alltrack.recHitsEnd(); hit++)
     {
         if((*hit)->isValid())
         {

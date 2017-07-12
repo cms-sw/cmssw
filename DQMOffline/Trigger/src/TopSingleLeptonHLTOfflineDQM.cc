@@ -529,8 +529,8 @@ namespace HLTOfflineDQMTopSingleLepton {
           // consider only path from triggerPaths
           string name = triggerNames.triggerNames()[i];
           bool isInteresting = false;
-          for (unsigned int j=0; j<triggerPaths.size(); j++) {
-            if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
+          for (const auto & triggerPath : triggerPaths) {
+            if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase)) isInteresting = true; 
           }
           if (!isInteresting) continue;
           // dump infos on the considered trigger path 
@@ -761,9 +761,9 @@ TopSingleLeptonHLTOfflineDQM::TopSingleLeptonHLTOfflineDQM(const edm::ParameterS
 
   // configure the selection
   std::vector<edm::ParameterSet> sel=cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
-  for(unsigned int i=0; i<sel.size(); ++i){
-    selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), std::make_unique<HLTOfflineDQMTopSingleLepton::MonitorSingleLepton>(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
+  for(auto & i : sel){
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
+    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(i, std::make_unique<HLTOfflineDQMTopSingleLepton::MonitorSingleLepton>(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
   }
 
   for (const std::string& s: selectionOrder_) {

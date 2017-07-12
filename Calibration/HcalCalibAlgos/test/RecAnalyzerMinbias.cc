@@ -192,8 +192,8 @@ void RecAnalyzerMinbias::beginJob() {
     h_[idet-1] = fs_->make<TH1D>(name,title,48,-6., 6.);
   }
 
-  for (unsigned int i=0; i<hcalID_.size(); i++) {
-    HcalDetId id = HcalDetId(hcalID_[i]);
+  for (unsigned int i : hcalID_) {
+    HcalDetId id = HcalDetId(i);
     int subdet   = id.subdetId();
     sprintf (name, "%s%d_%d_%d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
     sprintf (title, "Energy Distribution for %s ieta %d iphi %d depth %d", hc[subdet].c_str(), id.ieta(), id.iphi(), id.depth());
@@ -388,11 +388,10 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     iEvent.getByToken(tok_hltL1GtMap_, gtObjectMapRecord);
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
-           itMap != objMapVec.end(); ++itMap) {
-        bool resultGt = (*itMap).algoGtlResult();
+      for (const auto & itMap : objMapVec) {
+        bool resultGt = itMap.algoGtlResult();
         if (resultGt) {
-          int algoBit = (*itMap).algoBitNumber();
+          int algoBit = itMap.algoBitNumber();
           if (std::find(trigbit_.begin(),trigbit_.end(),algoBit) != 
 	      trigbit_.end()) {
             select = true;
@@ -419,11 +418,10 @@ void RecAnalyzerMinbias::analyze(const edm::Event& iEvent, const edm::EventSetup
     if (gtObjectMapRecord.isValid()) {
       const std::vector<L1GlobalTriggerObjectMap>& objMapVec = gtObjectMapRecord->gtObjectMap();
       bool ok(false);
-      for (std::vector<L1GlobalTriggerObjectMap>::const_iterator itMap = objMapVec.begin();
-	   itMap != objMapVec.end(); ++itMap) {
-	bool resultGt = (*itMap).algoGtlResult();
+      for (const auto & itMap : objMapVec) {
+	bool resultGt = itMap.algoGtlResult();
 	if (resultGt) {
-	  int algoBit = (*itMap).algoBitNumber();
+	  int algoBit = itMap.algoBitNumber();
 	  analyzeHcal(HithbheMB, HithfMB, algoBit, (!ok), eventWeight);
 	  ok          = true;
 	} 
@@ -439,18 +437,17 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
 				     const HFRecHitCollection & HithfMB,
 				     int algoBit, bool fill, double weight) {
   // Signal part for HB HE
-  for (HBHERecHitCollection::const_iterator hbheItr=HithbheMB.begin(); 
-       hbheItr!=HithbheMB.end(); hbheItr++) {
+  for (const auto & hbheItr : HithbheMB) {
     // Recalibration of energy
-    DetId mydetid = hbheItr->id().rawId();
+    DetId mydetid = hbheItr.id().rawId();
     double icalconst(1.);	 
     if (theRecalib_) {
       std::map<DetId,double>::iterator itr = corrFactor_.find(mydetid);
       if (itr != corrFactor_.end()) icalconst = itr->second;
     }
-    HBHERecHit aHit(hbheItr->id(),hbheItr->energy()*icalconst,hbheItr->time());
+    HBHERecHit aHit(hbheItr.id(),hbheItr.energy()*icalconst,hbheItr.time());
     double energyhit = aHit.energy();
-    DetId id         = (*hbheItr).detid(); 
+    DetId id         = hbheItr.detid(); 
     HcalDetId hid    = HcalDetId(id);
     double eLow      = (hid.subdet() == HcalEndcap) ? eLowHE_  : eLowHB_;
     double eHigh     = (hid.subdet() == HcalEndcap) ? eHighHE_ : eHighHB_;
@@ -486,19 +483,18 @@ void RecAnalyzerMinbias::analyzeHcal(const HBHERecHitCollection & HithbheMB,
   } // HBHE_MB
  
   // Signal part for HF
-  for (HFRecHitCollection::const_iterator hfItr=HithfMB.begin(); 
-       hfItr!=HithfMB.end(); hfItr++) {
+  for (const auto & hfItr : HithfMB) {
     // Recalibration of energy
-    DetId mydetid = hfItr->id().rawId();
+    DetId mydetid = hfItr.id().rawId();
     double icalconst(1.);	 
     if (theRecalib_) {
       std::map<DetId,double>::iterator itr = corrFactor_.find(mydetid);
       if (itr != corrFactor_.end()) icalconst = itr->second;
     }
-    HFRecHit aHit(hfItr->id(),hfItr->energy()*icalconst,hfItr->time());
+    HFRecHit aHit(hfItr.id(),hfItr.energy()*icalconst,hfItr.time());
     
     double energyhit = aHit.energy();
-    DetId id         = (*hfItr).detid(); 
+    DetId id         = hfItr.detid(); 
     HcalDetId hid    = HcalDetId(id);
     if (fill) {
       for (unsigned int i = 0; i < hcalID_.size(); i++) {

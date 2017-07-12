@@ -64,10 +64,10 @@ writeKeyed::endJob() {
   std::cout <<"# uploading master payloads..."<<std::endl;
   // populate the master payload
   int run=10;
-  for (size_t j=0;j<7; ++j) {
+  for (auto & num : nums) {
     std::vector<cond::Time_t> * kl = new std::vector<cond::Time_t>(dict.size());
     for (size_t i=0; i<dict.size(); ++i)
-      (*kl)[i]=cond::KeyedElement::convert(dict[i]+nums[j]);
+      (*kl)[i]=cond::KeyedElement::convert(dict[i]+num);
     outdb->writeOne(kl,run,confiov);
     run+=10;
   }

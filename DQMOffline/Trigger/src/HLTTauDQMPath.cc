@@ -388,8 +388,8 @@ HLTTauDQMPath::HLTTauDQMPath(const std::string& pathName, const std::string& hlt
   filterMuonN_.reserve(filterIndices_.size());
   filterMET_.reserve(filterIndices_.size());
   filterLevel_.reserve(filterIndices_.size());
-  for(size_t i=0; i<filterIndices_.size(); ++i) {
-    const std::string& filterName = std::get<kName>(filterIndices_[i]);
+  for(auto & filterIndice : filterIndices_) {
+    const std::string& filterName = std::get<kName>(filterIndice);
     const std::string& moduleType = HLTCP.moduleType(filterName);
 
     TauLeptonMultiplicity n = inferTauLeptonMultiplicity(HLTCP, filterName, moduleType, pathName_);

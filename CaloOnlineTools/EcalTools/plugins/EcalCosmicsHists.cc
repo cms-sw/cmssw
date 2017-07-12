@@ -190,13 +190,12 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   int bx = -100;
   int runType = -100;
 
-  for(EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();headerItr != DCCHeaders->end(); 
-      ++headerItr) {
-    headerItr->getEventSettings();
-    int myorbit = headerItr->getOrbit();
-    int mybx = headerItr->getBX();
-    int myRunType = headerItr->getRunType();
-    int FEDid = headerItr->fedId();
+  for(const auto & headerItr : *DCCHeaders) {
+    headerItr.getEventSettings();
+    int myorbit = headerItr.getOrbit();
+    int mybx = headerItr.getBX();
+    int myRunType = headerItr.getRunType();
+    int FEDid = headerItr.fedId();
     TH2F* dccRuntypeHist = FEDsAndDCCRuntypeVsBxHists_[FEDid];
     if(dccRuntypeHist==0)
     {
@@ -212,7 +211,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     else if (bx != mybx)
     {
       LogWarning("EcalCosmicsHists") << "This header has a conflicting bx OTHERS were " << bx << " here " << mybx;
-      dccBXErrorByFEDHist_->Fill(headerItr->fedId());
+      dccBXErrorByFEDHist_->Fill(headerItr.fedId());
       if(bx != -100)
       {
         dccErrorVsBxHist_->Fill(bx,0);
@@ -226,7 +225,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     else if (runType != myRunType)
     {
       LogWarning("EcalCosmicsHists") << "This header has a conflicting runType OTHERS were " << bx << " here " << mybx;
-      dccRuntypeErrorByFEDHist_->Fill(headerItr->fedId());
+      dccRuntypeErrorByFEDHist_->Fill(headerItr.fedId());
       if(bx != -100)
         dccErrorVsBxHist_->Fill(bx,2);
     }
@@ -239,7 +238,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     else if (orbit != myorbit)
     {
       LogWarning("EcalCosmicsHists") << "This header has a conflicting orbit; OTHERS were " << orbit << " here " << myorbit;
-      dccOrbitErrorByFEDHist_->Fill(headerItr->fedId());
+      dccOrbitErrorByFEDHist_->Fill(headerItr.fedId());
       if(bx != -100)
         dccErrorVsBxHist_->Fill(bx,1);
     }
@@ -274,11 +273,11 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   //++++++++++++++++++BEGIN LOOP OVER EB SUPERCLUSTERS+++++++++++++++++++++++++//
 
   const reco::SuperClusterCollection *clusterCollection_p = bscHandle.product();
-  for (reco::SuperClusterCollection::const_iterator clus = clusterCollection_p->begin(); clus != clusterCollection_p->end(); ++clus) 
+  for (const auto & clus : *clusterCollection_p) 
    {
-     double energy = clus->energy();
-     double phi    = clus->phi();
-     double eta    = clus->eta();
+     double energy = clus.energy();
+     double phi    = clus.phi();
+     double eta    = clus.eta();
      double time = -1000.0;
      double ampli = 0.;
      double secondMin = 0.;
@@ -288,10 +287,10 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
      EBDetId maxDet;
      EBDetId secDet;
      
-     numberofBCinSC_->Fill(clus->clustersSize());
-     numberofBCinSCphi_->Fill(phi,clus->clustersSize());     
+     numberofBCinSC_->Fill(clus.clustersSize());
+     numberofBCinSCphi_->Fill(phi,clus.clustersSize());     
      
-     for (reco::CaloCluster_iterator bclus = (clus->clustersBegin()); bclus != (clus->clustersEnd()); ++bclus) 
+     for (reco::CaloCluster_iterator bclus = (clus.clustersBegin()); bclus != (clus.clustersEnd()); ++bclus) 
        {
 	 double cphi = (*bclus)->phi();
 	 double ceta = (*bclus)->eta();     
@@ -299,7 +298,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
 	 TrueBCOccupancyCoarse_->Fill(cphi,ceta);
        }
      
-     std::vector< std::pair<DetId, float> > clusterDetIds = clus->hitsAndFractions();//get these from the cluster
+     std::vector< std::pair<DetId, float> > clusterDetIds = clus.hitsAndFractions();//get these from the cluster
      for(std::vector<std::pair<DetId, float> >::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr) 
        {
 	 //Here I use the "find" on a digi collection... I have been warned...
@@ -582,15 +581,15 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   
   if(hasEndcapClusters) {
     clusterCollection_p = escHandle.product();
-    for (reco::SuperClusterCollection::const_iterator clus = clusterCollection_p->begin(); clus != clusterCollection_p->end(); ++clus) {
-      double energy = clus->energy();
+    for (const auto & clus : *clusterCollection_p) {
+      double energy = clus.energy();
       //double phi    = clus->phi();
       //double eta    = clus->eta();
       double time = -1000.0;
       double ampli = 0.;
       double secondMin = 0.;
       double secondTime = -1000.;
-      int clusSize = clus->clustersSize();
+      int clusSize = clus.clustersSize();
       int numXtalsinCluster = 0;
       
       EEDetId maxDet;
@@ -605,7 +604,7 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
 //         //TrueBCOccupancyCoarse_->Fill(cphi,ceta);
 //       }
       
-      std::vector<std::pair<DetId, float> > clusterDetIds = clus->hitsAndFractions();//get these from the cluster
+      std::vector<std::pair<DetId, float> > clusterDetIds = clus.hitsAndFractions();//get these from the cluster
       for(std::vector<std::pair<DetId, float> >::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr) {
 	
 	//LogInfo("EcalCosmicsHists") << " Here is the DetId inside the cluster: " << (EEDetId)(*detitr);
@@ -1012,16 +1011,16 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
     //    LogWarning("EcalCosmicsHists") << "... Valid TrackAssociator recoTracks !!! " << recoTracks.product()->size();
     std::map<int,std::vector<DetId> > trackDetIdMap;
     int tracks = 0;
-    for(reco::TrackCollection::const_iterator recoTrack = recoTracks->begin(); recoTrack != recoTracks->end(); ++recoTrack){
+    for(const auto & recoTrack : *recoTracks){
       
-      if(fabs(recoTrack->d0())>70 || fabs(recoTrack->dz())>70)
+      if(fabs(recoTrack.d0())>70 || fabs(recoTrack.dz())>70)
         continue;
-      if(recoTrack->numberOfValidHits()<20)
+      if(recoTrack.numberOfValidHits()<20)
         continue;
       
       //if (recoTrack->pt() < 2) continue; // skip low Pt tracks       
       
-      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *recoTrack, trackParameters_);      
+      TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, recoTrack, trackParameters_);      
       
       //       edm::LogVerbatim("TrackAssociator") << "\n-------------------------------------------------------\n Track (pt,eta,phi): " <<
       //    recoTrack->pt() << " , " << recoTrack->eta() << " , " << recoTrack->phi() ;
@@ -1046,10 +1045,10 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
       //       std::cout << "Hcal energy in 3x3 towers based on RecHits: " <<
       //    info.nXnEnergy(TrackDetMatchInfo::HcalRecHits, 1) << std::endl;
       
-      for (unsigned int i=0; i<info.crossedEcalIds.size(); i++) {	 
+      for (auto & crossedEcalId : info.crossedEcalIds) {	 
 	// only checks for barrel
-	if (info.crossedEcalIds[i].det() == DetId::Ecal && info.crossedEcalIds[i].subdetId() == 1) {	     
-	  EBDetId ebDetId (info.crossedEcalIds[i]);	   
+	if (crossedEcalId.det() == DetId::Ecal && crossedEcalId.subdetId() == 1) {	     
+	  EBDetId ebDetId (crossedEcalId);	   
 	  trackAssoc_muonsEcal_->Fill(ebDetId.iphi(), ebDetId.ieta());
 	  //std::cout << "Crossed iphi: " << ebDetId.iphi() 
 	  //    << " ieta: " << ebDetId.ieta() << " : nCross " << info.crossedEcalIds.size() << std::endl;
@@ -1189,16 +1188,16 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
       //edm::LogWarning("EcalCosmicsHists") << "Track innermost hit: " << recoTrack->innerPosition().phi() ;
     }
     
-    for (reco::SuperClusterCollection::const_iterator clus = clusterCollection_p->begin(); clus != clusterCollection_p->end(); ++clus) {
-      double energy = clus->energy();
-      double phi    = clus->phi();
-      double eta    = clus->eta();
+    for (const auto & clus : *clusterCollection_p) {
+      double energy = clus.energy();
+      double phi    = clus.phi();
+      double eta    = clus.eta();
       
       if (recoTracksBarrel->size()==0) HighEnergy_0tracks_occu3D->Fill(phi,eta,energy);
       if (recoTracksBarrel->size()==1) HighEnergy_1tracks_occu3D->Fill(phi,eta,energy);
       if (recoTracksBarrel->size()==2) HighEnergy_2tracks_occu3D->Fill(phi,eta,energy);
       
-      std::vector<std::pair<DetId, float> > clusterDetIds = clus->hitsAndFractions();//get these from the cluster
+      std::vector<std::pair<DetId, float> > clusterDetIds = clus.hitsAndFractions();//get these from the cluster
       for(std::vector< std::pair<DetId, float> >::const_iterator detitr = clusterDetIds.begin(); detitr != clusterDetIds.end(); ++detitr)
 	{
 	  if ((*detitr).first.det() != DetId::Ecal) {continue;}
@@ -1253,9 +1252,9 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   if ( hbhe.isValid() ) {
     //    LogInfo("EcalCosmicHists") << "event " << ievt << " HBHE RecHits collection size " << hbhe->size();    
     const HBHERecHitCollection hbheHit = *(hbhe.product());
-    for (HBHERecHitCollection::const_iterator hhit=hbheHit.begin(); hhit!=hbheHit.end(); hhit++) {
+    for (const auto & hhit : hbheHit) {
       //      if (hhit->energy() > 0.6){
-      hcalEnergy_HBHE_->Fill(hhit->energy());
+      hcalEnergy_HBHE_->Fill(hhit.energy());
       //      }
     }
   } else {
@@ -1265,8 +1264,8 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   if ( hfrh.isValid() ) {
     //    LogInfo("EcalCosmicHists") << "event " << ievt << " HF RecHits collection size " << hfrh->size();
     const HFRecHitCollection hfHit = *(hfrh.product());
-    for (HFRecHitCollection::const_iterator hhit=hfHit.begin(); hhit!=hfHit.end(); hhit++) {
-      hcalEnergy_HF_->Fill(hhit->energy());
+    for (const auto & hhit : hfHit) {
+      hcalEnergy_HF_->Fill(hhit.energy());
     }
   } else {
     //    LogWarning("EcalCosmicHists") << " HF RecHits **NOT** VALID!! " << endl;
@@ -1275,9 +1274,9 @@ EcalCosmicsHists::analyze(edm::Event const & iEvent, edm::EventSetup const & iSe
   if ( horh.isValid() ) {
     //    LogInfo("EcalCosmicHists") << "event " << ievt << " HO RecHits collection size " << horh->size();
     const HORecHitCollection hoHit = *(horh.product());
-    for (HORecHitCollection::const_iterator hhit=hoHit.begin(); hhit!=hoHit.end(); hhit++) {
+    for (const auto & hhit : hoHit) {
       //     if (hhit->energy() > 0.6){
-      hcalEnergy_HO_->Fill(hhit->energy());
+      hcalEnergy_HO_->Fill(hhit.energy());
       //     }
     }
   } else {

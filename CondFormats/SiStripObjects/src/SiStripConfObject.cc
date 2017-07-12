@@ -21,8 +21,8 @@ template <>
 bool SiStripConfObject::put<std::vector<int> >( const std::string & name, const std::vector<int> & inputValue )
 {
   std::stringstream ss;
-  for(std::vector<int>::const_iterator elem=inputValue.begin();elem!=inputValue.end();++elem) {
-    ss << *elem << " ";
+  for(int elem : inputValue) {
+    ss << elem << " ";
   }
   if( parameters.insert(std::make_pair(name, ss.str())).second ) return true;
   return false;
@@ -38,8 +38,8 @@ bool SiStripConfObject::update<std::vector<int> >( const std::string & name, con
     return false;
   } else {
     std::stringstream ss;
-    for(std::vector<int>::const_iterator elem=inputValue.begin();elem!=inputValue.end();++elem) {
-      ss << *elem << " ";
+    for(int elem : inputValue) {
+      ss << elem << " ";
     }
     it->second = ss.str();
     return true;
@@ -67,8 +67,8 @@ template <>
 bool SiStripConfObject::put<std::vector<std::string> >( const std::string & name, const std::vector<std::string> & inputValue )
 {
   std::stringstream ss;
-  for(std::vector<std::string>::const_iterator elem=inputValue.begin();elem!=inputValue.end();++elem) {
-    ss << *elem << " ";
+  for(const auto & elem : inputValue) {
+    ss << elem << " ";
   }
   if( parameters.insert(std::make_pair(name, ss.str())).second ) return true;
   return false;
@@ -84,8 +84,8 @@ bool SiStripConfObject::update<std::vector<std::string> >( const std::string & n
     return false;
   } else {
     std::stringstream ss;
-    for(std::vector<std::string>::const_iterator elem=inputValue.begin();elem!=inputValue.end();++elem) {
-      ss << *elem << " ";
+    for(const auto & elem : inputValue) {
+      ss << elem << " ";
     }
     it->second = ss.str();
     return true;

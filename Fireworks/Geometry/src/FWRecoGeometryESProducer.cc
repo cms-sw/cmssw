@@ -150,12 +150,8 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
 {
   DetId detId( DetId::Muon, 2 ); 
   const CSCGeometry* cscGeometry = (const CSCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( auto it = cscGeometry->chambers().begin(),
-	   end = cscGeometry->chambers().end(); 
-       it != end; ++it )
+  for(auto chamber : cscGeometry->chambers())
   {
-    const CSCChamber *chamber = *it;
-    
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId();
@@ -164,13 +160,9 @@ FWRecoGeometryESProducer::addCSCGeometry( void )
       //
       // CSC layers geometry
       //
-      for( std::vector< const CSCLayer* >::const_iterator lit = chamber->layers().begin(),
-							 lend = chamber->layers().end(); 
-	   lit != lend; ++lit )
+      for(auto layer : chamber->layers())
       {
-	const CSCLayer* layer = *lit;
-    
-	if( layer )
+		if( layer )
 	{
 	  unsigned int rawid = layer->geographicalId();
 	  unsigned int current = insert_id( rawid );
@@ -202,12 +194,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   //
   // DT chambers geometry
   //
-  for( auto it = dtGeometry->chambers().begin(),
-	   end = dtGeometry->chambers().end(); 
-       it != end; ++it )
+  for(auto chamber : dtGeometry->chambers())
   {
-    const DTChamber *chamber = *it;
-    
     if( chamber )
     {
       unsigned int rawid = chamber->geographicalId().rawId();
@@ -217,12 +205,8 @@ FWRecoGeometryESProducer::addDTGeometry( void )
   }
 
   // Fill in DT layer parameters
-  for( auto it = dtGeometry->layers().begin(),
-	   end = dtGeometry->layers().end(); 
-       it != end; ++it )
+  for(auto layer : dtGeometry->layers())
   {
-    const DTLayer* layer = *it;
-     
     if( layer )
     {
       unsigned int rawid = layer->id().rawId();
@@ -255,11 +239,8 @@ FWRecoGeometryESProducer::addRPCGeometry( void )
   //
   DetId detId( DetId::Muon, 3 );
   const RPCGeometry* rpcGeom = (const RPCGeometry*) m_geomRecord->slaveGeometry( detId );
-  for( auto it = rpcGeom->rolls().begin(),
-	   end = rpcGeom->rolls().end(); 
-       it != end; ++it )
+  for(auto roll : rpcGeom->rolls())
   {
-    const RPCRoll* roll = (*it);
     if( roll )
     {
       unsigned int rawid = roll->geographicalId().rawId();
@@ -399,12 +380,8 @@ FWRecoGeometryESProducer::addME0Geometry( void )
 void
 FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
 {
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXB().begin(),
-						    end = m_trackerGeom->detsPXB().end();
-       it != end; ++it)
+  for(auto det : m_trackerGeom->detsPXB())
   {
-    const GeomDet *det = *it;
-
     if( det )
     {     
       DetId detid = det->geographicalId();
@@ -420,12 +397,8 @@ FWRecoGeometryESProducer::addPixelBarrelGeometry( void )
 void
 FWRecoGeometryESProducer::addPixelForwardGeometry( void )
 {
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsPXF().begin(),
-						    end = m_trackerGeom->detsPXF().end();
-       it != end; ++it )
+  for(auto det : m_trackerGeom->detsPXF())
   {
-    const GeomDet *det = *it;
-
     if( det )
     {     
       DetId detid = det->geographicalId();
@@ -441,12 +414,8 @@ FWRecoGeometryESProducer::addPixelForwardGeometry( void )
 void
 FWRecoGeometryESProducer::addTIBGeometry( void )
 {
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTIB().begin(),
-						    end = m_trackerGeom->detsTIB().end();
-       it != end; ++it )
+  for(auto det : m_trackerGeom->detsTIB())
   {
-    const GeomDet *det = *it;
-
     if( det )
     {     
       DetId detid = det->geographicalId();
@@ -462,12 +431,8 @@ FWRecoGeometryESProducer::addTIBGeometry( void )
 void
 FWRecoGeometryESProducer::addTOBGeometry( void )
 {
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTOB().begin(),
-						    end = m_trackerGeom->detsTOB().end();
-       it != end; ++it )
+  for(auto det : m_trackerGeom->detsTOB())
   {
-    const GeomDet *det = *it;
-
     if( det )
     {     
       DetId detid = det->geographicalId();
@@ -483,12 +448,8 @@ FWRecoGeometryESProducer::addTOBGeometry( void )
 void
 FWRecoGeometryESProducer::addTIDGeometry( void )
 {
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTID().begin(),
-						    end = m_trackerGeom->detsTID().end();
-       it != end; ++it)
+  for(auto det : m_trackerGeom->detsTID())
   {
-    const GeomDet *det = *it;
-
     if( det )
     {     
       DetId detid = det->geographicalId();
@@ -504,12 +465,8 @@ FWRecoGeometryESProducer::addTIDGeometry( void )
 void
 FWRecoGeometryESProducer::addTECGeometry( void )
 {
-  for( TrackerGeometry::DetContainer::const_iterator it = m_trackerGeom->detsTEC().begin(),
-						    end = m_trackerGeom->detsTEC().end();
-       it != end; ++it )
+  for(auto det : m_trackerGeom->detsTEC())
   {
-    const GeomDet *det = *it;
-
     if( det )
     {     
       DetId detid = det->geographicalId();

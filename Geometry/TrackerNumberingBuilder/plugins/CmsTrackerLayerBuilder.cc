@@ -71,21 +71,21 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
       }
     }
 
-    for(GeometricDet::GeometricDetContainer::iterator i=neg.begin();i!=neg.end();i++){
-      double rPos = (*i)->translation().Rho();
+    for(auto & i : neg){
+      double rPos = i->translation().Rho();
       if(rPos > layerRadius ){ 
-	extneg.push_back(*i);
+	extneg.push_back(i);
       }else{
-	intneg.push_back(*i);
+	intneg.push_back(i);
       }
     }
 
-    for(GeometricDet::GeometricDetContainer::iterator i=pos.begin();i!=pos.end();i++){
-      double rPos = (*i)->translation().Rho();
+    for(auto & po : pos){
+      double rPos = po->translation().Rho();
       if(rPos > layerRadius ){ 
-	extpos.push_back(*i);
+	extpos.push_back(po);
       }else{
-	intpos.push_back(*i);
+	intpos.push_back(po);
       }
     }
 

@@ -241,13 +241,13 @@ FWRPZViewGeometry::makeMuonGeometryRhoZ( void )
          ids.push_back(CSCDetId(endcap, 1, 3, 10, 0 )); // ring 3 down
          ids.push_back(CSCDetId(endcap, 1, 3, 28, 0 )); // ring 3 down
       }   
-      for (std::vector<CSCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
+      for (auto & id : ids)
       {
-         unsigned int rawid = i->rawId();
+         unsigned int rawid = id.rawId();
          TEveGeoShape* shape = m_geom->getEveShape(rawid);
          if (!shape) return cscContainer;
          addToCompound(shape, kFWMuonEndcapLineColorIndex);
-         shape->SetName(Form(" e:%d r:%d s:%d chamber %d",i->endcap(), i->ring(), i->station(), i->chamber() ));
+         shape->SetName(Form(" e:%d r:%d s:%d chamber %d",id.endcap(), id.ring(), id.station(), id.chamber() ));
          cscContainer->AddElement(shape);
       }
       container->AddElement( cscContainer );
@@ -533,9 +533,9 @@ FWRPZViewGeometry::showRpcEndcap( bool show )
            }
        }
 
-      for (std::vector<RPCDetId>::iterator i = ids.begin(); i != ids.end(); ++i)
+      for (auto & id : ids)
       {
-         TEveGeoShape* shape = m_geom->getEveShape(i->rawId());
+         TEveGeoShape* shape = m_geom->getEveShape(id.rawId());
          if (!shape) return;
          addToCompound(shape, kFWMuonEndcapLineColorIndex);
          m_rpcEndcapElements->AddElement(shape);

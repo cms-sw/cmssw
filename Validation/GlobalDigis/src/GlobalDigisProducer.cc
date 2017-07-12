@@ -216,23 +216,23 @@ void GlobalDigisProducer::produce(edm::Event& iEvent,
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");      
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto & i : AllProv) {
 	eventout += "\n       ******************************";
 	eventout += "\n       Module       : ";
 	//eventout += (AllProv[i]->product).moduleLabel();
-	eventout += AllProv[i]->moduleLabel();
+	eventout += i->moduleLabel();
 	eventout += "\n       ProductID    : ";
 	//eventout += (AllProv[i]->product).productID_.id_;
-	eventout += AllProv[i]->productID().id();
+	eventout += i->productID().id();
 	eventout += "\n       ClassName    : ";
 	//eventout += (AllProv[i]->product).fullClassName_;
-	eventout += AllProv[i]->className();
+	eventout += i->className();
 	eventout += "\n       InstanceName : ";
 	//eventout += (AllProv[i]->product).productInstanceName_;
-	eventout += AllProv[i]->productInstanceName();
+	eventout += i->productInstanceName();
 	eventout += "\n       BranchName   : ";
 	//eventout += (AllProv[i]->product).branchName_;
-	eventout += AllProv[i]->branchName();
+	eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -717,24 +717,22 @@ void GlobalDigisProducer::fillHCal(edm::Event& iEvent,
   MapType fHEEnergySimHits;
   MapType fHOEnergySimHits;
   MapType fHFEnergySimHits;
-  for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin();
-       simhits != simhitResult->end();
-       ++simhits) {
+  for (const auto & simhits : *simhitResult) {
     
-    HcalDetId detId(simhits->id());
+    HcalDetId detId(simhits.id());
     uint32_t cellid = detId.rawId();
 
     if (detId.subdet() == sdHcalBrl){  
-      fHBEnergySimHits[cellid] += simhits->energy(); 
+      fHBEnergySimHits[cellid] += simhits.energy(); 
     }
     if (detId.subdet() == sdHcalEC){  
-      fHEEnergySimHits[cellid] += simhits->energy(); 
+      fHEEnergySimHits[cellid] += simhits.energy(); 
     }    
     if (detId.subdet() == sdHcalOut){  
-      fHOEnergySimHits[cellid] += simhits->energy(); 
+      fHOEnergySimHits[cellid] += simhits.energy(); 
     }    
     if (detId.subdet() == sdHcalFwd){  
-      fHFEnergySimHits[cellid] += simhits->energy(); 
+      fHFEnergySimHits[cellid] += simhits.energy(); 
     }    
   }
 
@@ -1565,12 +1563,10 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
   }  
 
   int nStrips = 0;
-  for (CSCStripDigiCollection::DigiRangeIterator j = strips->begin();
-       j != strips->end();
-       ++j) {
+  for (auto && j : *strips) {
 
-    std::vector<CSCStripDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCStripDigi>::const_iterator last = (*j).second.second;
+    std::vector<CSCStripDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCStripDigi>::const_iterator last = j.second.second;
 
     for ( ; digiItr != last; ++digiItr) {
       ++nStrips;
@@ -1605,12 +1601,10 @@ void GlobalDigisProducer::fillMuon(edm::Event& iEvent,
   }  
 
   int nWires = 0;
-  for (CSCWireDigiCollection::DigiRangeIterator j = wires->begin();
-       j != wires->end();
-       ++j) {
+  for (auto && j : *wires) {
 
-    std::vector<CSCWireDigi>::const_iterator digiItr = (*j).second.first;
-    std::vector<CSCWireDigi>::const_iterator endDigi = (*j).second.second;
+    std::vector<CSCWireDigi>::const_iterator digiItr = j.second.first;
+    std::vector<CSCWireDigi>::const_iterator endDigi = j.second.second;
 
     for ( ; digiItr != endDigi; ++digiItr) {
       ++nWires;
@@ -1685,18 +1679,18 @@ void GlobalDigisProducer::storeMuon(PGlobalDigi& product)
     // CSC Strip
     eventout += "\n         nCSCStrip     = ";
     eventout += CSCStripADC.size();
-    for (unsigned int i = 0; i < CSCStripADC.size(); ++i) {
+    for (float i : CSCStripADC) {
       eventout += "\n      (adc) = (";
-      eventout += CSCStripADC[i];
+      eventout += i;
       eventout += ")";
     }    
 
     // CSC Wire
     eventout += "\n         nCSCWire     = ";
     eventout += CSCWireTime.size();
-    for (unsigned int i = 0; i < CSCWireTime.size(); ++i) {
+    for (float i : CSCWireTime) {
       eventout += "\n      (time) = (";
-      eventout += CSCWireTime[i];
+      eventout += i;
       eventout += ")";
     }    
 

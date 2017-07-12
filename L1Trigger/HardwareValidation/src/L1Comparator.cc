@@ -33,8 +33,8 @@ L1Comparator::L1Comparator(const edm::ParameterSet& iConfig) {
   
   if(verbose()) {
     std::cout << "[L1Comparator] do sys? ";
-    for(int i=0; i<DEnsys; i++)
-      std::cout << m_doSys[i] << " ";
+    for(bool m_doSy : m_doSys)
+      std::cout << m_doSy << " ";
     std::cout << std::endl;
 
     std::cout << "[L1Comparator] list of systems to process: ";
@@ -413,15 +413,13 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   dtf_trk_data_v.clear(); dtf_trk_emul_v.clear();
   if(dtf_trk_data_.isValid()) {
     L1MuDTTrackCandCollection const *dttc = dtf_trk_data_->getContainer();
-    for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
-	it!=dttc->end(); it++)
-      dtf_trk_data_v.push_back(L1MuRegionalCand(*it)); 
+    for(const auto & it : *dttc)
+      dtf_trk_data_v.push_back(L1MuRegionalCand(it)); 
   }
   if(dtf_trk_emul_.isValid()) {
     L1MuDTTrackCandCollection const *dttc = dtf_trk_emul_->getContainer();
-    for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
-	it!=dttc->end(); it++)
-      dtf_trk_emul_v.push_back(L1MuRegionalCand(*it)); 
+    for(const auto & it : *dttc)
+      dtf_trk_emul_v.push_back(L1MuRegionalCand(it)); 
   }  
   dtf_trk_data =&dtf_trk_data_v;
   dtf_trk_emul =&dtf_trk_emul_v;
@@ -535,7 +533,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   //check collections validity
   bool isValidDE[DEnsys][2];// = {false};
-  for(int i=0; i<DEnsys; i++) for(int j=0; j<2; j++) isValidDE[i][j]=false;
+  for(auto & i : isValidDE) for(int j=0; j<2; j++) i[j]=false;
 
   isValidDE[RCT][0] =      rct_em_data .isValid(); isValidDE[RCT][1] =     rct_em_emul .isValid();
   isValidDE[RCT][0]&=     rct_rgn_data .isValid(); isValidDE[RCT][1] =    rct_rgn_emul .isValid();
@@ -602,14 +600,14 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(verbose()) {
     std::cout << "L1Comparator sys isValid?  (evt:" << nevt_ << ") ";
     std::cout << "\n\t&: ";
-    for(int i=0; i<DEnsys; i++)
-      std::cout << isValid[i] << " ";
+    for(bool i : isValid)
+      std::cout << i << " ";
     std::cout << "\n\td: ";
-    for(int i=0; i<DEnsys; i++)
-      std::cout << isValidDE[i][0] << " ";
+    for(auto & i : isValidDE)
+      std::cout << i[0] << " ";
     std::cout << "\n\te: ";
-    for(int i=0; i<DEnsys; i++)
-      std::cout << isValidDE[i][1] << " ";
+    for(auto & i : isValidDE)
+      std::cout << i[1] << " ";
     std::cout << std::endl;
   }
   
@@ -674,8 +672,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   if(verbose()) {
     std::cout << "[L1Comparator] sys match? << evt." << nevt_ << ": ";
-    for(int i=0; i<DEnsys; i++)
-      std::cout << DEmatchEvt[i] << " ";
+    for(bool i : DEmatchEvt)
+      std::cout << i << " ";
     std::cout << std::endl;
   }
 
@@ -683,8 +681,8 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // >>---- Event match? ---- <<  
 
   bool evt_match  = true;
-  for(int i=0; i<DEnsys; i++)
-    evt_match &= DEmatchEvt[i];
+  for(bool i : DEmatchEvt)
+    evt_match &= i;
 
   
   /* char ok[10];
@@ -805,15 +803,15 @@ void L1Comparator::process(T const* data, T const* emul, const int sys, const in
   L1DEDigiCollection dg = cmp.getDEDigis();
 
   if(verbose())
-    for(L1DEDigiCollection::iterator it=dg.begin(); it!=dg.end();it++)
-      std::cout << *it << "\n";
+    for(auto & it : dg)
+      std::cout << it << "\n";
 
   ///over-write system-id: needed eg for GMT input, CSC tf reg cand, CTP&CTF
-  for(L1DEDigiCollection::iterator it=dg.begin(); it!=dg.end();it++)
-    it->setSid(sys);
+  for(auto & it : dg)
+    it.setSid(sys);
   ///over-write data type: needed eg for GCT jet types, regional muon sources
-  for(L1DEDigiCollection::iterator it=dg.begin(); it!=dg.end();it++)
-    it->setCid(cid);
+  for(auto & it : dg)
+    it.setCid(cid);
 
   ///append d|e digis to the record's collection
   m_dedigis.insert(m_dedigis.end(), dg.begin(), dg.end()); 

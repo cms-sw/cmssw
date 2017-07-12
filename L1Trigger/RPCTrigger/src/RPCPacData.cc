@@ -63,8 +63,7 @@ RPCPacData::RPCPacData(const RPCPattern::RPCPatVec &patVec,
                        const RPCPattern::TQualityVec &qualVec) :
   m_MaxQuality(0)
 {
-  for(unsigned int i = 0; i < qualVec.size(); ++i) {    
-    RPCPattern::TQuality quality = qualVec[i];
+  for(auto quality : qualVec) {    
     std::bitset<RPCConst::m_LOGPLANES_COUNT> qualBits(quality.m_FiredPlanes);
     unsigned short firedPlanes = qualBits.to_ulong();
 
@@ -83,13 +82,13 @@ RPCPacData::RPCPacData(const L1RPCConfig * rpcconf, const int tower, const int s
   m_MaxQuality(0)
 {
 
-    for (unsigned int iqual=0; iqual<rpcconf->m_quals.size(); iqual++){
+    for (auto m_qual : rpcconf->m_quals){
 
-      if (rpcconf->m_quals[iqual].m_tower != tower ||  
-          rpcconf->m_quals[iqual].m_logsector != sector ||
-          rpcconf->m_quals[iqual].m_logsegment != segment )  continue;
+      if (m_qual.m_tower != tower ||  
+          m_qual.m_logsector != sector ||
+          m_qual.m_logsegment != segment )  continue;
 
-      RPCPattern::TQuality quality =rpcconf->m_quals[iqual];
+      RPCPattern::TQuality quality =m_qual;
       std::bitset<RPCConst::m_LOGPLANES_COUNT> qualBits(quality.m_FiredPlanes);
       unsigned short firedPlanes = qualBits.to_ulong();
       insertQualityRecord(quality.m_QualityTabNumber, firedPlanes, quality.m_QualityValue);
@@ -262,8 +261,7 @@ void RPCPacData::insertPatterns(const RPCPattern::RPCPatVec& patternsVec, const 
 }
 
 void RPCPacData::init(const RPCPatternsParser& parser, const RPCConst::l1RpcConeCrdnts& coneCrdnts) {
-  for(unsigned int i = 0; i < parser.getQualityVec().size(); i++) {    
-    RPCPattern::TQuality quality = parser.getQualityVec()[i];
+  for(auto quality : parser.getQualityVec()) {    
     std::bitset<RPCConst::m_LOGPLANES_COUNT> qualBits(quality.m_FiredPlanes);
     unsigned short firedPlanes = qualBits.to_ulong();
 

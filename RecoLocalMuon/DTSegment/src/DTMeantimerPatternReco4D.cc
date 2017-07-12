@@ -246,8 +246,7 @@ DTMeantimerPatternReco4D::reconstruct(){
     }
   }
   // finally delete the candidates!
-  for (vector<DTSegmentCand*>::iterator phi=resultPhi.begin();
-       phi!=resultPhi.end(); ++phi) delete *phi;
+  for (auto & phi : resultPhi) delete phi;
 
   return result;
 }

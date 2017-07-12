@@ -143,8 +143,8 @@ void MatchCandidateBenchmark::setup(DQMStore::IBooker& b, const edm::ParameterSe
     std::vector<float> ptBins; 
     if (ptBinsPS.size() > 1) { 
       ptBins.reserve(ptBinsPS.size());
-      for (size_t i = 0; i < ptBinsPS.size(); i++) 
-	ptBins.push_back(ptBinsPS[i]); 
+      for (double i : ptBinsPS) 
+	ptBins.push_back(i); 
     } else { 
       Int_t nFixedBins = ptPS.getParameter<int32_t>("nBin");
       ptBins.reserve(nFixedBins+1);
@@ -309,8 +309,8 @@ void MatchCandidateBenchmark::fillOne(const reco::Candidate& cand,
     std::vector<float> ptBins;
     if (ptBinsPS.size() > 1) { 
       ptBins.reserve(ptBinsPS.size());
-      for (size_t i = 0; i < ptBinsPS.size(); i++) {
-        ptBins.push_back(ptBinsPS[i]);
+      for (double i : ptBinsPS) {
+        ptBins.push_back(i);
       }
     } else { 
       Int_t nFixedBins = ptPS.getParameter<int32_t>("nBin");

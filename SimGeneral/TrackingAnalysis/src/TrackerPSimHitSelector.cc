@@ -26,9 +26,9 @@ void TrackerPSimHitSelector::select(PSimHitCollection & selection, edm::Event co
     std::vector<const CrossingFrame<PSimHit> *> cfPSimHitProductPointers;
 
     // Collect the product pointers to the different psimhit collection
-    for (std::size_t i = 0; i < pSimHitCollections->second.size(); ++i)
+    for (const auto & i : pSimHitCollections->second)
     {
-      event.getByLabel(mixLabel_, pSimHitCollections->second[i], cfPSimHits);
+      event.getByLabel(mixLabel_, i, cfPSimHits);
       cfPSimHitProductPointers.push_back(cfPSimHits.product());
     }
 
@@ -45,6 +45,6 @@ void TrackerPSimHitSelector::select(PSimHitCollection & selection, edm::Event co
     std::vector<std::pair<const PSimHit*,int> > psimhits(SimHitSelectorFromDB().getSimHit(pSimHits, theDetIdList));
 
     // Add the selected psimhit to the main list
-    for (std::size_t i = 0; i < psimhits.size(); ++i)
-        selection.push_back( *(const_cast<PSimHit*>(psimhits[i].first)) );
+    for (auto & psimhit : psimhits)
+        selection.push_back( *(const_cast<PSimHit*>(psimhit.first)) );
 }

@@ -158,11 +158,11 @@ void EcalPnGraphs::analyze( const edm::Event & e, const  edm::EventSetup& c){
     }
   
   //Loop over PN digis
-  for ( EcalPnDiodeDigiCollection::const_iterator pnItr = pn_digis->begin(); pnItr != pn_digis->end(); ++pnItr )  {
+  for (const auto & pnItr : *pn_digis)  {
     //Get PNid of a digi
-    int ipn = (*pnItr).id().iPnId();
+    int ipn = pnItr.id().iPnId();
     //Get DCC id where the digi is from
-    int ieb    = EcalPnDiodeDetId((*pnItr).id()).iDCCId();
+    int ieb    = EcalPnDiodeDetId(pnItr.id()).iDCCId();
     
     //Make sure that these are PnDigis from the requested FEDid
     int FEDid = ieb + 600;
@@ -178,8 +178,8 @@ void EcalPnGraphs::analyze( const edm::Event & e, const  edm::EventSetup& c){
     iPnIter     = find( listAllPns.begin() , listAllPns.end() , ipn);
     if (iPnIter == listAllPns.end()) continue; 
     
-    for ( int i=0; i< (*pnItr).size() && i<50; ++i ) {
-      ordinate[i] = (*pnItr).sample(i).adc();
+    for ( int i=0; i< pnItr.size() && i<50; ++i ) {
+      ordinate[i] = pnItr.sample(i).adc();
     }
     //make grapn of ph digis
     TGraph oneGraph(50, abscissa,ordinate);

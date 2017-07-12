@@ -109,9 +109,8 @@ TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		       << " Tracker-, " << dtGeomLabels_.size() << " DT- and "
 		       << cscGeomLabels_.size() << " CSC-geometries.";
 
-  for (vector<string>::const_iterator iL = tkGeomLabels_.begin(), iE = tkGeomLabels_.end();
-       iL != iE; ++iL) {
-    TString label(iL->c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
+  for (const auto & tkGeomLabel : tkGeomLabels_) {
+    TString label(tkGeomLabel.c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
     edm::LogInfo("Test") << "Try access to tracker geometry with label '" << label << "'.";
     //*iL << "'.";
     edm::ESHandle<TrackerGeometry> tkGeomHandle;
@@ -119,9 +118,8 @@ TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogInfo("Test") << "TrackerGeometry pointer: " << tkGeomHandle.product();
   }
 
-  for (vector<string>::const_iterator iL = dtGeomLabels_.begin(), iE = dtGeomLabels_.end();
-       iL != iE; ++iL) {
-    TString label(iL->c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
+  for (const auto & dtGeomLabel : dtGeomLabels_) {
+    TString label(dtGeomLabel.c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
     edm::LogInfo("Test") << "Try access to DT geometry with label '" << label << "'.";
     //*iL << "'.";
     edm::ESHandle<DTGeometry> dtGeomHandle;
@@ -129,9 +127,8 @@ TestAccessGeom::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::LogInfo("Test") << "DTGeometry pointer: " << dtGeomHandle.product();
   }
 
-  for (vector<string>::const_iterator iL = cscGeomLabels_.begin(), iE = cscGeomLabels_.end();
-       iL != iE; ++iL) {
-    TString label(iL->c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
+  for (const auto & cscGeomLabel : cscGeomLabels_) {
+    TString label(cscGeomLabel.c_str()); label.ReplaceAll(" ", ""); // fix for buggy framework
     edm::LogInfo("Test") << "Try access to CSC geometry with label '" << label << "'.";
     //*iL << "'.";
     edm::ESHandle<CSCGeometry> cscGeomHandle;

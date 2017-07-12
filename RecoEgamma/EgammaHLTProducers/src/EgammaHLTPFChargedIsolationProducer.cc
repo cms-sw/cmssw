@@ -93,10 +93,8 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
       float sum = 0;
 
       // Loop over the PFCandidates
-      for(unsigned i=0; i<forIsolation->size(); i++) {
-	const reco::PFCandidate& pfc = (*forIsolation)[i];
-	
-	//require that the PFCandidate is a charged hadron
+      for(const auto & pfc : *forIsolation) {
+		//require that the PFCandidate is a charged hadron
 	if (pfc.particleId() == pfToUse_) {
 
 	  if(pfc.pt() < ptMin_) continue;
@@ -137,10 +135,8 @@ void EgammaHLTPFChargedIsolationProducer::produce(edm::Event& iEvent, const edm:
       float sum = 0;
 
       // Loop over the PFCandidates
-      for(unsigned i=0; i<forIsolation->size(); i++) {
-	const reco::PFCandidate& pfc = (*forIsolation)[i];
-	
-	//require that the PFCandidate is a charged hadron
+      for(const auto & pfc : *forIsolation) {
+		//require that the PFCandidate is a charged hadron
 	if (pfc.particleId() == pfToUse_) {
 
 	  if(pfc.pt() < ptMin_) continue;

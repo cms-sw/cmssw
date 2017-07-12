@@ -72,9 +72,9 @@ SecondaryVertexFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
  edm::Handle<reco::SecondaryVertexTagInfoCollection> pvHandle; 
  iEvent.getByLabel(vertexSrc,pvHandle);
  const reco::SecondaryVertexTagInfoCollection & vertices = *pvHandle.product();
- for(reco::SecondaryVertexTagInfoCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
+ for(const auto & vertice : vertices)
   {
-    if(it->nVertices() > 0) result = true;   
+    if(vertice.nVertices() > 0) result = true;   
 //   if(it->tracksSize() > minNumTracks && 
  //      ( (maxAbsZ <=0 ) || fabs(it->z()) <= maxAbsZ ) &&
    //    ( (maxd0 <=0 ) || fabs(it->position().rho()) <= maxd0 )

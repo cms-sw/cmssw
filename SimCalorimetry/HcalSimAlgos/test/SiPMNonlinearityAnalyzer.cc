@@ -125,9 +125,8 @@ SiPMNonlinearityAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetu
 			double elapsedTime = 0.;
 			unsigned sumPE = 0;
 			double sumHits = 0.;
-			for(unsigned tbin = 0; tbin < photonHist.size(); ++tbin){
-				unsigned pe = photonHist[tbin];
-				if(pe>0){
+			for(unsigned int pe : photonHist){
+					if(pe>0){
 					sumPE += pe;
 					sumHits += sipm.hitCells(engine, pe, 0., elapsedTime);
 				}

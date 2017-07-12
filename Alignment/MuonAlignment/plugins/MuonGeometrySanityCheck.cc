@@ -148,8 +148,8 @@ MuonGeometrySanityCheck::MuonGeometrySanityCheck(const edm::ParameterSet &iConfi
 }
 
 MuonGeometrySanityCheck::~MuonGeometrySanityCheck() {
-   for (std::map<std::string,const MuonGeometrySanityCheckCustomFrame*>::iterator iter = m_frames.begin();  iter != m_frames.end();  ++iter) {
-      delete iter->second;
+   for (auto & m_frame : m_frames) {
+      delete m_frame.second;
    }
 }
 

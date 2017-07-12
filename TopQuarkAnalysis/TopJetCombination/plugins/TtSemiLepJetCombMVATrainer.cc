@@ -29,8 +29,8 @@ TtSemiLepJetCombMVATrainer::~TtSemiLepJetCombMVATrainer()
 void
 TtSemiLepJetCombMVATrainer::beginJob()
 {
-  for(unsigned int i = 0; i < 5; i++)
-    nEvents[i] = 0;
+  for(unsigned int & nEvent : nEvents)
+    nEvent = 0;
 }
 
 void
@@ -88,9 +88,9 @@ TtSemiLepJetCombMVATrainer::analyze(const edm::Event& evt, const edm::EventSetup
     if(matching.size() < nPartons) return;
     // skip events that were affected by the outlier
     // rejection in the jet-parton matching
-    for(unsigned int i = 0; i < matching.size(); ++i) {
-      if(matching[i] == -3) continue; // -3: parton was chosen to be excluded from jet-parton matching
-      if(matching[i] < 0 || matching[i] >= (int)jets->size())
+    for(int i : matching) {
+      if(i == -3) continue; // -3: parton was chosen to be excluded from jet-parton matching
+      if(i < 0 || i >= (int)jets->size())
 	return;
     }
   }

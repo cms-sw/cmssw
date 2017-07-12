@@ -109,8 +109,8 @@ EcalCondDBWriter::EcalCondDBWriter(edm::ParameterSet const& _ps) :
   workers_[RawData] = 0;
   workers_[Occupancy] = new ecaldqm::OccupancyWriter(workerParams);
 
-  for(unsigned iC(0); iC < nTasks; ++iC)
-    if(workers_[iC]) workers_[iC]->setVerbosity(verbosity_);
+  for(auto & worker : workers_)
+    if(worker) worker->setVerbosity(verbosity_);
 }
 
 EcalCondDBWriter::~EcalCondDBWriter()
@@ -122,8 +122,8 @@ EcalCondDBWriter::~EcalCondDBWriter()
     throw cms::Exception("DBError") << e.what();
   }
 
-  for(unsigned iC(0); iC < nTasks; ++iC)
-    delete workers_[iC];
+  for(auto & worker : workers_)
+    delete worker;
 }
 
 void
@@ -140,10 +140,10 @@ EcalCondDBWriter::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& _igetter)
 
   _igetter.cd();
   std::vector<std::string> dirs(_igetter.getSubdirs());
-  for(unsigned iD(0); iD < dirs.size(); ++iD){
-    if(!_igetter.dirExists(dirs[iD] + "/EventInfo")) continue;
+  for(const auto & dir : dirs){
+    if(!_igetter.dirExists(dir + "/EventInfo")) continue;
 
-    MonitorElement* timeStampME(_igetter.get(dirs[iD] + "/EventInfo/runStartTimeStamp"));
+    MonitorElement* timeStampME(_igetter.get(dir + "/EventInfo/runStartTimeStamp"));
     if(timeStampME){
       double timeStampValue(timeStampME->getFloatValue());
       uint64_t seconds(timeStampValue);
@@ -151,7 +151,7 @@ EcalCondDBWriter::dqmEndJob(DQMStore::IBooker&, DQMStore::IGetter& _igetter)
       timeStampInFile = (seconds << 32) | microseconds;
     }
 
-    MonitorElement* eventsME(_igetter.get(dirs[iD] + "/EventInfo/processedEvents"));
+    MonitorElement* eventsME(_igetter.get(dir + "/EventInfo/processedEvents"));
     if(eventsME)
       processedEvents = eventsME->getIntValue();
 

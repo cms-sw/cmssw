@@ -45,12 +45,11 @@ void GlobalPositionRcdRead::analyze(const edm::Event& evt, const edm::EventSetup
 	    << DetId(DetId::Ecal).rawId() << " " 
 	    << DetId(DetId::Hcal).rawId() << " " 
 	    << DetId(DetId::Calo).rawId() << std::endl;
-  for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd->m_align.begin();
-       i != globalPositionRcd->m_align.end();  ++i) {
-    std::cout << "entry " << i->rawId() 
-	      << " translation " << i->translation() 
-	      << " angles " << i->rotation().eulerAngles() << std::endl;
-    std::cout << i->rotation() << std::endl;
+  for (const auto & i : globalPositionRcd->m_align) {
+    std::cout << "entry " << i.rawId() 
+	      << " translation " << i.translation() 
+	      << " angles " << i.rotation().eulerAngles() << std::endl;
+    std::cout << i.rotation() << std::endl;
   }
   
   std::cout << "done!" << std::endl;

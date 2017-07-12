@@ -213,9 +213,9 @@ void FWOverlapTableView::setFrom(const FWConfiguration& iFrom)
 {
    m_enableRedraw = false;
 
-   for (const_iterator it =begin(), itEnd = end(); it != itEnd; ++it)
+   for (auto it : *this)
    { 
-         (*it)->setFrom(iFrom);
+         it->setFrom(iFrom);
    }  
 
    m_viewersConfig = iFrom.valueForKey("Viewers");

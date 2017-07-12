@@ -749,10 +749,10 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg)
   // conifgure the selection
   sel_ = cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
   setup_ = cfg.getParameter<edm::ParameterSet>("setup");
-  for (unsigned int i = 0; i < sel_.size(); ++i) {
-    selectionOrder_.push_back(sel_.at(i).getParameter<std::string>("label"));
+  for (auto & i : sel_) {
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
     selection_[selectionStep(selectionOrder_.back())] = std::make_pair(
-        sel_.at(i),
+        i,
         std::unique_ptr<TopSingleLepton::MonitorEnsemble>(
           new TopSingleLepton::MonitorEnsemble(
             selectionStep(selectionOrder_.back()).c_str(),
@@ -796,8 +796,8 @@ TopSingleLeptonDQM::TopSingleLeptonDQM(const edm::ParameterSet& cfg)
 void TopSingleLeptonDQM::bookHistograms(DQMStore::IBooker & ibooker,
   edm::Run const &, edm::EventSetup const & ){
 
-  for (auto selIt = selection_.begin(); selIt != selection_.end(); ++selIt) {
-    selIt->second.second->book(ibooker);
+  for (auto & selIt : selection_) {
+    selIt.second.second->book(ibooker);
   }
 }
 void TopSingleLeptonDQM::analyze(const edm::Event& event,

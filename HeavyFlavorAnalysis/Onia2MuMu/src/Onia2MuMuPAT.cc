@@ -175,11 +175,11 @@ Onia2MuMuPAT::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	    float extrapZ=-9E20;
 	    if (status) extrapZ=ttmd.points().first.z();
 
-	      for(VertexCollection::const_iterator itv = priVtxs->begin(), itvend = priVtxs->end(); itv != itvend; ++itv){
-		float deltaZ = fabs(extrapZ - itv->position().z()) ;
+	      for(const auto & itv : *priVtxs){
+		float deltaZ = fabs(extrapZ - itv.position().z()) ;
 		if ( deltaZ < minDz ) {
 		  minDz = deltaZ;    
-		  thePrimaryV = Vertex(*itv);
+		  thePrimaryV = Vertex(itv);
 		}
 	      }
 	  }

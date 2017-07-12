@@ -12,8 +12,8 @@ reco::CastorCluster::CastorCluster(const double energy, const ROOT::Math::XYZPoi
   depth_ = depth;
   fhot_ = fhot;
   sigmaz_ = sigmaz;
-  for(reco::CastorTowerRefVector::const_iterator towerit  = usedTowers.begin(); towerit != usedTowers.end();++towerit) {
-    usedTowers_.push_back( (*towerit) );
+  for(auto && usedTower : usedTowers) {
+    usedTowers_.push_back( (usedTower) );
   }
 }
 

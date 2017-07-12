@@ -226,9 +226,9 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   // counter is needed later to get the reference to the ptr
   std::set<PhotonPair, PhotonPairComp> photonpairset;
   int counter=0;
-  for(reco::PhotonCollection::const_iterator it=photons->begin(); it!=photons->end(); ++it) {
+  for(const auto & it : *photons) {
     //HERE(Form("photon counter=%d",counter));
-    const reco::Photon* photon=&(*it);
+    const reco::Photon* photon=&it;
     //if(loosePhotonQual.isValid()){
     photonpairset.insert( PhotonPair(photon, photon->pt(), counter) );
     counter++;
@@ -250,8 +250,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
   PhotonPair  photon_tag;
   PhotonPair  photon_2nd;
   counter=0;
-  for(std::set<PhotonPair, PhotonPairComp>::const_iterator it=photonpairset.begin(); it!=photonpairset.end(); ++it) {
-    PhotonPair photon=(*it);
+  for(const auto & it : photonpairset) {
+    PhotonPair photon=it;
     ++counter;
     if(counter==1) photon_tag = photon;
     else if (counter==2) photon_2nd = photon;
@@ -331,9 +331,9 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     if (debugHLTTrigNames>0) {
       if (debug_>1)  edm::LogInfo("GammaJetAnalysis") << "debugHLTTrigNames is on";
       const std::vector<std::string> *trNames= & evTrigNames.triggerNames();
-      for (size_t i=0; i<trNames->size(); ++i) {
-	if (trNames->at(i).find("_Photon")!=std::string::npos) {
-	  if (debug_>1) edm::LogInfo("GammaJetAnalysis") << " - " << trNames->at(i);
+      for (const auto & trName : *trNames) {
+	if (trName.find("_Photon")!=std::string::npos) {
+	  if (debug_>1) edm::LogInfo("GammaJetAnalysis") << " - " << trName;
 	}
       }
       if (debug_>1) edm::LogInfo("GammaJetAnalysis") << " ";
@@ -341,8 +341,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     }
 
     size_t id = 0;
-    for (size_t i=0; i<photonTrigNamesV_.size(); ++i) {
-      const std::string trigName=photonTrigNamesV_.at(i);
+    for (auto trigName : photonTrigNamesV_) {
       id= helper_findTrigger(evTrigNames.triggerNames(),trigName);
       if (id==evTrigNames.size()) {
 	photonTrigFired_.push_back(0);
@@ -359,8 +358,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	photonTrigPrescale_.push_back(prescaleVals.first * prescaleVals.second);
       }
     }
-    for (size_t i=0; i<jetTrigNamesV_.size(); ++i) {
-      const std::string trigName=jetTrigNamesV_.at(i);
+    for (auto trigName : jetTrigNamesV_) {
       id= helper_findTrigger(evTrigNames.triggerNames(),trigName);
       if (id==evTrigNames.size()) {
 	jetTrigFired_.push_back(0);
@@ -531,16 +529,15 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     tagPho_genDeltaR_=0;
     if (doGenJets_) {
       tagPho_genDeltaR_=9999.;
-      for (std::vector<reco::GenParticle>::const_iterator itmc=genparticles->begin();
-	   itmc!=genparticles->end(); itmc++) {
-	if (itmc->status() == 1 && itmc->pdgId()==22) {
+      for (const auto & itmc : *genparticles) {
+	if (itmc.status() == 1 && itmc.pdgId()==22) {
 	  float dR= deltaR(tagPho_eta_,tagPho_phi_,
-			   itmc->eta(),itmc->phi());
+			   itmc.eta(),itmc.phi());
 	  if (dR < tagPho_genDeltaR_) {
-	    tagPho_genPt_     = itmc->pt();
-	    tagPho_genEnergy_ = itmc->energy();
-	    tagPho_genEta_    = itmc->eta();
-	    tagPho_genPhi_    = itmc->phi();
+	    tagPho_genPt_     = itmc.pt();
+	    tagPho_genEnergy_ = itmc.energy();
+	    tagPho_genEta_    = itmc.eta();
+	    tagPho_genPhi_    = itmc.phi();
 	    tagPho_genDeltaR_ = dR;
 	  }
 	}
@@ -595,12 +592,12 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
     int HBHE_n = 0;
     if (hbhereco.isValid()) {
-      for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith=hbhereco->begin(); ith!=hbhereco->end(); ++ith){
+      for(const auto & ith : *hbhereco){
 	HBHE_n++;
 	if(iEvent.id().event() == debugEvent){
 	  if (debug_>1) 
-	    edm::LogInfo("GammaJetAnalysis") << (*ith).id().ieta() << " " 
-					     << (*ith).id().iphi();
+	    edm::LogInfo("GammaJetAnalysis") << ith.id().ieta() << " " 
+					     << ith.id().iphi();
 	}
       }
     }
@@ -632,8 +629,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
       return;
     }
     pf_NPV_ = 0;
-    for(std::vector<reco::Vertex>::const_iterator it=pv->begin(); it!=pv->end(); ++it){
-      if(!it->isFake() && it->ndof() > 4) ++pf_NPV_;
+    for(const auto & it : *pv){
+      if(!it.isFake() && it.ndof() > 4) ++pf_NPV_;
     }
 
     HERE("get corrector");
@@ -643,11 +640,11 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     
     // sort jets by corrected et
     std::set<PFJetCorretPair, PFJetCorretPairComp> pfjetcorretpairset;
-    for(reco::PFJetCollection::const_iterator it=pfjets->begin(); it!=pfjets->end(); ++it) {
-      const reco::PFJet* jet=&(*it);
+    for(const auto & it : *pfjets) {
+      const reco::PFJet* jet=&it;
       // do not let the jet to be close to the tag photon
       if (deltaR(photon_tag,jet)<0.5) continue;
-      double jec = correctorPF->correction(*it, iEvent, evSetup);
+      double jec = correctorPF->correction(it, iEvent, evSetup);
       pfjetcorretpairset.insert( PFJetCorretPair(jet, jec));
     }
 
@@ -655,8 +652,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
     PFJetCorretPair pf_2ndjet;
     PFJetCorretPair pf_3rdjet;
     int jet_cntr=0;
-    for(std::set<PFJetCorretPair, PFJetCorretPairComp>::const_iterator it=pfjetcorretpairset.begin(); it!=pfjetcorretpairset.end(); ++it) {
-      PFJetCorretPair jet=(*it);
+    for(const auto & it : pfjetcorretpairset) {
+      PFJetCorretPair jet=it;
       ++jet_cntr;
       if(jet_cntr==1) pfjet_probe = jet;
       else if(jet_cntr==2) pf_2ndjet = jet;
@@ -794,13 +791,13 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
-		if(itmc->status() == 1 && itmc->pdgId() > 100){
-		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
+	      for(const auto & itmc : *genparticles){
+		if(itmc.status() == 1 && itmc.pdgId() > 100){
+		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc.eta(),itmc.phi());
 		  if(dr < gendr){
 		    gendr = dr;
-		    genE = itmc->energy();
-		    genpdgId = itmc->pdgId();
+		    genE = itmc.energy();
+		    genpdgId = itmc.pdgId();
 		  }
 		}
 	      }
@@ -865,13 +862,13 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
-		if(itmc->status() == 1 && itmc->pdgId() > 100){
-		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
+	      for(const auto & itmc : *genparticles){
+		if(itmc.status() == 1 && itmc.pdgId() > 100){
+		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc.eta(),itmc.phi());
 		  if(dr < gendr){
 		    gendr = dr;
-		    genE = itmc->energy();
-		    genpdgId = itmc->pdgId();
+		    genE = itmc.energy();
+		    genpdgId = itmc.pdgId();
 		  }
 		}
 	      }
@@ -898,13 +895,13 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
-		if(itmc->status() == 1 && itmc->pdgId() > 100){
-		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
+	      for(const auto & itmc : *genparticles){
+		if(itmc.status() == 1 && itmc.pdgId() > 100){
+		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc.eta(),itmc.phi());
 		  if(dr < gendr){
 		    gendr = dr;
-		    genE = itmc->energy();
-		    genpdgId = itmc->pdgId();
+		    genE = itmc.energy();
+		    genpdgId = itmc.pdgId();
 		  }
 		}
 	      }
@@ -931,13 +928,13 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
  	      float gendr = 99999;
 	      float genE = 0;
 	      int genpdgId = 0;
-	      for(std::vector<reco::GenParticle>::const_iterator itmc = genparticles->begin(); itmc != genparticles->end(); itmc++){
-		if(itmc->status() == 1 && itmc->pdgId() > 100){
-		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc->eta(),itmc->phi());
+	      for(const auto & itmc : *genparticles){
+		if(itmc.status() == 1 && itmc.pdgId() > 100){
+		  double dr = deltaR((*it)->eta(),(*it)->phi(),itmc.eta(),itmc.phi());
 		  if(dr < gendr){
 		    gendr = dr;
-		    genE = itmc->energy();
-		    genpdgId = itmc->pdgId();
+		    genE = itmc.energy();
+		    genpdgId = itmc.pdgId();
 		  }
 		}
 	      }
@@ -965,12 +962,12 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	  // Get elements from block
 	  reco::PFBlockRef blockRef = (*it)->elementsInBlocks()[e].first;
 	  const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-	  for(unsigned iEle=0; iEle<elements.size(); iEle++) {
-	    if(elements[iEle].index() == (*it)->elementsInBlocks()[e].second){
-	      if(elements[iEle].type() == reco::PFBlockElement::HCAL){ // Element is HB or HE
+	  for(const auto & element : elements) {
+	    if(element.index() == (*it)->elementsInBlocks()[e].second){
+	      if(element.type() == reco::PFBlockElement::HCAL){ // Element is HB or HE
 		HF_type_ |= 0x1;
 		// Get cluster and hits
-		reco::PFClusterRef clusterref = elements[iEle].clusterRef();
+		reco::PFClusterRef clusterref = element.clusterRef();
 		reco::PFCluster cluster = *clusterref;
 		double cluster_dR = deltaR(ppfjet_eta_,ppfjet_phi_,cluster.eta(),cluster.phi());
 		if(ppfjet_clusters.count(cluster_dR) == 0){
@@ -988,18 +985,18 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		for(int iHit=0; iHit<nHits; iHit++){
 		  int etaPhiPF = getEtaPhi(hitsAndFracs[iHit].first);
 
-		  for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith=hbhereco->begin(); ith!=hbhereco->end(); ++ith){
-		    int etaPhiRecHit = getEtaPhi((*ith).id());
+		  for(const auto & ith : *hbhereco){
+		    int etaPhiRecHit = getEtaPhi(ith.id());
 		    if(etaPhiPF == etaPhiRecHit){
 		      ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		      if(ppfjet_rechits.count((*ith).id()) == 0){
-			ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-			ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-			ppfjet_twr_depth_.push_back((*ith).id().depth());
-			ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-			ppfjet_twr_hade_.push_back((*ith).energy());
+		      if(ppfjet_rechits.count(ith.id()) == 0){
+			ppfjet_twr_ieta_.push_back(ith.id().ieta());
+			ppfjet_twr_iphi_.push_back(ith.id().iphi());
+			ppfjet_twr_depth_.push_back(ith.id().depth());
+			ppfjet_twr_subdet_.push_back(ith.id().subdet());
+			ppfjet_twr_hade_.push_back(ith.energy());
 			ppfjet_twr_frac_.push_back(hitsAndFracs[iHit].second);
-			ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+			ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 			ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 			ppfjet_twr_elmttype_.push_back(0);
 			ppfjet_twr_clusterind_.push_back(cluster_ind);
@@ -1009,10 +1006,10 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			else{
 			  ppfjet_twr_candtrackind_.push_back(-1);
 			}
-			switch((*ith).id().subdet()){
+			switch(ith.id().subdet()){
 			case HcalSubdetector::HcalBarrel:
 			  {
-			    CaloCellGeometry::CornersVec cv = HBGeom->getCorners((*ith).id());
+			    CaloCellGeometry::CornersVec cv = HBGeom->getCorners(ith.id());
 			    float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			    float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 			    if((cv[0].phi() < cv[2].phi()) && (debug_>1)) edm::LogInfo("GammaJetAnalysis") << "pHB" << cv[0].phi() << " " << cv[2].phi();
@@ -1022,7 +1019,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			  }
 			case HcalSubdetector::HcalEndcap:
 			  {
-			    CaloCellGeometry::CornersVec cv = HEGeom->getCorners((*ith).id());
+			    CaloCellGeometry::CornersVec cv = HEGeom->getCorners(ith.id());
 			    float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			    float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 			    if((cv[0].phi() < cv[2].phi()) && (debug_>1)) edm::LogInfo("GammaJetAnalysis") << "pHE" << cv[0].phi() << " " << cv[2].phi();
@@ -1034,21 +1031,21 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			  ppfjet_twr_dR_.push_back(-1);
 			  break;
 			}
-			ppfjet_rechits[(*ith).id()].first = ppfjet_ntwrs_;
+			ppfjet_rechits[ith.id()].first = ppfjet_ntwrs_;
 			++ppfjet_ntwrs_;
 		      }
-		      else if(ppfjet_rechits[(*ith).id()].second.count(hitsAndFracs[iHit].second) == 0){
-			ppfjet_twr_frac_.at(ppfjet_rechits[(*ith).id()].first) += hitsAndFracs[iHit].second;
-			if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first))){
-			  ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first) = cluster_ind;
+		      else if(ppfjet_rechits[ith.id()].second.count(hitsAndFracs[iHit].second) == 0){
+			ppfjet_twr_frac_.at(ppfjet_rechits[ith.id()].first) += hitsAndFracs[iHit].second;
+			if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first))){
+			  ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first) = cluster_ind;
 			}
-			ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+			ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		      }
 		    } // Test if ieta,iphi matches
 		  } // Loop over rechits
 		} // Loop over hits
 	      } // Test if element is from HCAL
-	      else if(elements[iEle].type() == reco::PFBlockElement::HFHAD){ // Element is HF
+	      else if(element.type() == reco::PFBlockElement::HFHAD){ // Element is HF
 		types |= 0x2;
 		ntypes++;
 		HFHAD_n_++;
@@ -1056,9 +1053,9 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		
 		////	h_etaHFHAD_->Fill((*it)->eta());
 
-		for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
-		  if((*ith).id().depth() == 1) continue; // Remove long fibers
-		  const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id());
+		for(const auto & ith : *hfreco){
+		  if(ith.id().depth() == 1) continue; // Remove long fibers
+		  const CaloCellGeometry *thisCell = HFGeom->getGeometry(ith.id());
 		  const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 		  
 		  bool passMatch = false;
@@ -1072,11 +1069,11 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  
 		  if(passMatch){
 		    ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		    ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-		    ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-		    ppfjet_twr_depth_.push_back((*ith).id().depth());
-		    ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-		    ppfjet_twr_hade_.push_back((*ith).energy());
+		    ppfjet_twr_ieta_.push_back(ith.id().ieta());
+		    ppfjet_twr_iphi_.push_back(ith.id().iphi());
+		    ppfjet_twr_depth_.push_back(ith.id().depth());
+		    ppfjet_twr_subdet_.push_back(ith.id().subdet());
+		    ppfjet_twr_hade_.push_back(ith.energy());
 		    ppfjet_twr_frac_.push_back(1.0);
 		    ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 		    ppfjet_twr_elmttype_.push_back(1);
@@ -1088,19 +1085,19 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		    if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		    ppfjet_twr_dR_.push_back(deltaR(ppfjet_eta_,ppfjet_phi_,avgeta,avgphi));
 		    ++ppfjet_ntwrs_;
-		    HFHAD_E += (*ith).energy();
+		    HFHAD_E += ith.energy();
 		  }
 		}		
 	      }
-	      else if(elements[iEle].type() == reco::PFBlockElement::HFEM){ // Element is HF
+	      else if(element.type() == reco::PFBlockElement::HFEM){ // Element is HF
 		types |= 0x4;
 		ntypes++;
 		HFEM_n_++;
 		HF_type_ |= 0x4;
 		
-		for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
-		  if((*ith).id().depth() == 2) continue; // Remove short fibers
-		  const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id());
+		for(const auto & ith : *hfreco){
+		  if(ith.id().depth() == 2) continue; // Remove short fibers
+		  const CaloCellGeometry *thisCell = HFGeom->getGeometry(ith.id());
 		  const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 		  
 		  bool passMatch = false;
@@ -1114,11 +1111,11 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		  
 		  if(passMatch){
 		    ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		    ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-		    ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-		    ppfjet_twr_depth_.push_back((*ith).id().depth());
-		    ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-		    ppfjet_twr_hade_.push_back((*ith).energy());
+		    ppfjet_twr_ieta_.push_back(ith.id().ieta());
+		    ppfjet_twr_iphi_.push_back(ith.id().iphi());
+		    ppfjet_twr_depth_.push_back(ith.id().depth());
+		    ppfjet_twr_subdet_.push_back(ith.id().subdet());
+		    ppfjet_twr_hade_.push_back(ith.energy());
 		    ppfjet_twr_frac_.push_back(1.0);
 		    ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 		    ppfjet_twr_elmttype_.push_back(2);
@@ -1130,15 +1127,15 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		    if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		    ppfjet_twr_dR_.push_back(deltaR(ppfjet_eta_,ppfjet_phi_,avgeta,avgphi));
 		    ++ppfjet_ntwrs_;
-		    HFEM_E += (*ith).energy();
+		    HFEM_E += ith.energy();
 		  }
 		}
 	      }
-	      else if(elements[iEle].type() == reco::PFBlockElement::HO){ // Element is HO
+	      else if(element.type() == reco::PFBlockElement::HO){ // Element is HO
 		types |= 0x8;
 		ntypes++;
 		HF_type_ |= 0x8;
-		reco::PFClusterRef clusterref = elements[iEle].clusterRef();
+		reco::PFClusterRef clusterref = element.clusterRef();
 		reco::PFCluster cluster = *clusterref;
 		double cluster_dR = deltaR(ppfjet_eta_,ppfjet_phi_,cluster.eta(),cluster.phi());
 		if(ppfjet_clusters.count(cluster_dR) == 0){
@@ -1155,18 +1152,18 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 		for(int iHit=0; iHit<nHits; iHit++){
 		  int etaPhiPF = getEtaPhi(hitsAndFracs[iHit].first);
 
-		  for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>::const_iterator ith=horeco->begin(); ith!=horeco->end(); ++ith){
-		    int etaPhiRecHit = getEtaPhi((*ith).id());
+		  for(const auto & ith : *horeco){
+		    int etaPhiRecHit = getEtaPhi(ith.id());
 		    if(etaPhiPF == etaPhiRecHit){
 		      ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		      if(ppfjet_rechits.count((*ith).id()) == 0){
-			ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-			ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-			ppfjet_twr_depth_.push_back((*ith).id().depth());
-			ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-			ppfjet_twr_hade_.push_back((*ith).energy());
+		      if(ppfjet_rechits.count(ith.id()) == 0){
+			ppfjet_twr_ieta_.push_back(ith.id().ieta());
+			ppfjet_twr_iphi_.push_back(ith.id().iphi());
+			ppfjet_twr_depth_.push_back(ith.id().depth());
+			ppfjet_twr_subdet_.push_back(ith.id().subdet());
+			ppfjet_twr_hade_.push_back(ith.energy());
 			ppfjet_twr_frac_.push_back(hitsAndFracs[iHit].second);
-			ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+			ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 			ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 			ppfjet_twr_elmttype_.push_back(3);
 			ppfjet_twr_clusterind_.push_back(cluster_ind);
@@ -1176,7 +1173,7 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			else{
 			  ppfjet_twr_candtrackind_.push_back(-1);
 			}
-			const CaloCellGeometry *thisCell = HOGeom->getGeometry((*ith).id());
+			const CaloCellGeometry *thisCell = HOGeom->getGeometry(ith.id());
 			const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 			float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
@@ -1184,15 +1181,15 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 			if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 
 			ppfjet_twr_dR_.push_back(deltaR(ppfjet_eta_,ppfjet_phi_,avgeta,avgphi));
-			ppfjet_rechits[(*ith).id()].first = ppfjet_ntwrs_;
+			ppfjet_rechits[ith.id()].first = ppfjet_ntwrs_;
 			++ppfjet_ntwrs_;
 		      }
-		      else if(ppfjet_rechits[(*ith).id()].second.count(hitsAndFracs[iHit].second) == 0){
-			ppfjet_twr_frac_.at(ppfjet_rechits[(*ith).id()].first) += hitsAndFracs[iHit].second;
-			if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first))){
-			  ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first) = cluster_ind;
+		      else if(ppfjet_rechits[ith.id()].second.count(hitsAndFracs[iHit].second) == 0){
+			ppfjet_twr_frac_.at(ppfjet_rechits[ith.id()].first) += hitsAndFracs[iHit].second;
+			if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first))){
+			  ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first) = cluster_ind;
 			}
-			ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+			ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		      }
 		    } // Test if ieta,iphi match
 		  } // Loop over rechits
@@ -1219,8 +1216,8 @@ void GammaJetAnalysis::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	ppfjet_gendr_ = 99999.;
 	ppfjet_genpt_ = 0;
 	ppfjet_genp_  = 0;
-	for(std::vector<reco::GenJet>::const_iterator it=genjets->begin(); it!=genjets->end(); ++it){
-	  const reco::GenJet* jet=&(*it);
+	for(const auto & it : *genjets){
+	  const reco::GenJet* jet=&it;
 	  double dr=deltaR(jet, pfjet_probe.jet());
 	  if(dr<ppfjet_gendr_) {
 	    ppfjet_gendr_ = dr;
@@ -1704,10 +1701,8 @@ std::vector<float> GammaJetAnalysis::pfTkIsoWithVertex(const reco::Photon* local
     if (debug_>1) edm::LogInfo("GammaJetAnalysis") << "pfTkIsoWithVertex :: Will Loop over the PFCandidates";
     float sum = 0;
     // Loop over the PFCandidates                                                                                                      
-    for(unsigned i=0; i<forIsolation->size(); i++) {
+    for(const auto & pfc : *forIsolation) {
       if (debug_>1) edm::LogInfo("GammaJetAnalysis") << "inside loop"; 
-      const reco::PFCandidate& pfc = (*forIsolation)[i];
-
       //require that PFCandidate is a charged hadron
       if (debug_>1) {
 	edm::LogInfo("GammaJetAnalysis") << "pfToUse=" << pfToUse;

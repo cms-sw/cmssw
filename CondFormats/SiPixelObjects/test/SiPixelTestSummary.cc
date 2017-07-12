@@ -47,9 +47,9 @@ void SiPixelTestSummary::analyze(const edm::Event& iEvent, const edm::EventSetup
   cout << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   cout << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
-      DetId detId = (*it)->geographicalId();
+  for (auto it : pDD->dets()){
+    if(dynamic_cast<PixelGeomDetUnit const *>(it)!=0){
+      DetId detId = it->geographicalId();
       a.add(detId); 
     }
   }

@@ -123,8 +123,8 @@ public:
                                  father_(0){;}
 
   ~Folder(void) {
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      delete (*i);
+    for(auto & subfolder : subfolders_)
+      delete subfolder;
   }	
   
   void setFather(Folder* e) {father_ = e;}
@@ -132,9 +132,9 @@ public:
   const std::string & name(void)  {return folderName_;}
 
   Folder * cd(const std::string &name) {
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      if ( (*i)->name()==name )
-        return (*i);
+    for(auto & subfolder : subfolders_)
+      if ( subfolder->name()==name )
+        return subfolder;
     Folder * tmp = new Folder(name);
     this->add(tmp);
     return tmp;
@@ -155,26 +155,26 @@ public:
 
   unsigned int getHistos(void) {
     unsigned int result=totalHistos_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getHistos();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getHistos();
     return result;
   }
   unsigned int getBins(void) {
     unsigned int result=totalBins_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getBins();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getBins();
     return result;
   }
   unsigned int getEmptyBins(void) {
     unsigned int result=totalEmptyBins_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getEmptyBins();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getEmptyBins();
     return result;
   }
   unsigned int getMemory(void) {
     unsigned int result=totalMemory_;
-    for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i)
-      result += (*i)->getMemory();
+    for(auto & subfolder : subfolders_)
+      result += subfolder->getMemory();
     return result;
   }
   void update(unsigned int bins, 
@@ -193,8 +193,8 @@ public:
                 << " Histo: " << getHistos() << " Bins: " << getBins()
                 << " EmptyBins: " << getEmptyBins() << " Memory: " << getMemory()  
                 << " and my children are: " << std::endl;
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->dump(indent) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->dump(indent) ;
     }
   VIterator<Folder*> CreateIterator()
     {
@@ -210,8 +210,8 @@ public:
         << getBins() - getEmptyBins() << ", " << getBins() << ", "
         << getHistos() << ", " << getHistos() << ", 0.0);\n";
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->mainrows(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->mainrows(sql_statement) ;
     }
 
   void symbols(std::string & sql_statement)
@@ -221,8 +221,8 @@ public:
       s << "INSERT INTO symbols(id, name, filename_id) VALUES (" << id_ << ",\"" << folderName_ << "\", "
         << parentid << ");\n" ;
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->symbols(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->symbols(sql_statement) ;
     }
 
   void parents(std::string & sql_statement)
@@ -233,8 +233,8 @@ public:
         << parentid << "," << id_ << "," << totalMemory_ << ","
         << totalBins_ << "," << totalHistos_ << ",0" << ");\n";
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->parents(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->parents(sql_statement) ;
     }
 
   void children(std::string & sql_statement)
@@ -246,8 +246,8 @@ public:
         << getMemory() << "," << getBins() - getEmptyBins()
         << "," << totalHistos_ << ",0" << ");\n";
       sql_statement.append(s.str());
-      for(std::vector<Folder*>::iterator i = subfolders_.begin(), e = subfolders_.end() ; i != e ; ++i )
-        (*i)->children(sql_statement) ;
+      for(auto & subfolder : subfolders_)
+        subfolder->children(sql_statement) ;
     }
 
   void mainrows_cumulative(std::string & sql_statement)

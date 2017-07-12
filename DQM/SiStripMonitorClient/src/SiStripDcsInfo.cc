@@ -115,9 +115,8 @@ void SiStripDcsInfo::beginRun(edm::Run const& run, edm::EventSetup const& eSetup
     
     if ( sumFED.isValid() ) {
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
-      for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-        int fedID = FedsInIds[it];     
-	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected_;
+      for(int fedID : FedsInIds) {
+        	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected_;
       }
       LogDebug ("SiStripDcsInfo") << " SiStripDcsInfo :: Connected FEDs " << nFEDConnected_;
     }
@@ -141,8 +140,8 @@ void SiStripDcsInfo::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, e
   if (nFEDConnected_ == 0) return;
 
   // initialise BadModule list 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-    it->second.FaultyDetectors.clear();
+  for (auto & it : SubDetMEsMap) {
+    it.second.FaultyDetectors.clear();
   }
   readStatus(eSetup);
   nLumiAnalysed_++;
@@ -166,8 +165,8 @@ void SiStripDcsInfo::endRun(edm::Run const& run, edm::EventSetup const& eSetup){
 
   if (nFEDConnected_ == 0) return;
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-    it->second.FaultyDetectors.clear();
+  for (auto & it : SubDetMEsMap) {
+    it.second.FaultyDetectors.clear();
   }
   readStatus(eSetup); 
   addBadModules();
@@ -189,12 +188,12 @@ void SiStripDcsInfo::bookStatus() {
     dqmStore_->cd();
     if (strip_dir.size() > 0)  dqmStore_->setCurrentFolder(strip_dir+"/EventInfo/DCSContents");
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DCSContents"); 
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+    for (auto & it : SubDetMEsMap) {
       SubDetMEs local_mes;	
       std::string me_name;
-      me_name = "SiStrip_" + it->first;
-      it->second.DcsFractionME = dqmStore_->bookFloat(me_name);  
-      it->second.DcsFractionME->setLumiFlag();	
+      me_name = "SiStrip_" + it.first;
+      it.second.DcsFractionME = dqmStore_->bookFloat(me_name);  
+      it.second.DcsFractionME->setLumiFlag();	
     } 
     bookedStatus_ = true;
     dqmStore_->cd();
@@ -224,8 +223,8 @@ void SiStripDcsInfo::readCabling(edm::EventSetup const& eSetup) {
     
 
     // initialise total # of detectors first
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      it->second.TotalDetectors = 0;
+    for (auto & it : SubDetMEsMap) {
+      it.second.TotalDetectors = 0;
     }
     
     for (std::vector<uint32_t>::const_iterator idetid=SelectedDetIds.begin(); idetid != SelectedDetIds.end(); ++idetid){    
@@ -279,15 +278,15 @@ void SiStripDcsInfo::fillStatus(){
     float total_det = 0.0;
     float faulty_det = 0.0;
     float fraction;
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      int total_subdet  = it->second.TotalDetectors;
-      int faulty_subdet = it->second.FaultyDetectors.size(); 
+    for (auto & it : SubDetMEsMap) {
+      int total_subdet  = it.second.TotalDetectors;
+      int faulty_subdet = it.second.FaultyDetectors.size(); 
       if  (nFEDConnected_ == 0  || total_subdet == 0) fraction = -1;
       else fraction = 1.0  - faulty_subdet*1.0/total_subdet;   
-      it->second.DcsFractionME->Reset();
-      it->second.DcsFractionME->Fill(fraction);
+      it.second.DcsFractionME->Reset();
+      it.second.DcsFractionME->Fill(fraction);
       edm::LogInfo( "SiStripDcsInfo") << " SiStripDcsInfo::fillStatus : Sub Detector "
-	<< it->first << " Total Number " << total_subdet  
+	<< it.first << " Total Number " << total_subdet  
         << " Faulty ones " << faulty_subdet;
       total_det += total_subdet;
       faulty_det += faulty_subdet;
@@ -298,10 +297,10 @@ void SiStripDcsInfo::fillStatus(){
     DcsFraction_->Fill(fraction);
     IsLumiGoodDcs_ = fraction > MinAcceptableDcsDetFrac_;
     if(IsLumiGoodDcs_) nGoodDcsLumi_++;
-    for (std::map<std::string,SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      for (std::vector<uint32_t>::iterator ifaulty = it->second.FaultyDetectors.begin(); ifaulty != it->second.FaultyDetectors.end(); ifaulty++) {
+    for (auto & it : SubDetMEsMap) {
+      for (std::vector<uint32_t>::iterator ifaulty = it.second.FaultyDetectors.begin(); ifaulty != it.second.FaultyDetectors.end(); ifaulty++) {
         uint32_t detId_faulty = (*ifaulty);
-        if(IsLumiGoodDcs_) it->second.NLumiDetectorIsFaulty[detId_faulty]++;
+        if(IsLumiGoodDcs_) it.second.NLumiDetectorIsFaulty[detId_faulty]++;
       }
     }
   } 
@@ -312,9 +311,9 @@ void SiStripDcsInfo::fillStatus(){
 void SiStripDcsInfo::fillDummyStatus() {
   if (!bookedStatus_) bookStatus();
   if (bookedStatus_) {
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
-      it->second.DcsFractionME->Reset();
-      it->second.DcsFractionME->Fill(-1.0);
+    for (auto & it : SubDetMEsMap) {
+      it.second.DcsFractionME->Reset();
+      it.second.DcsFractionME->Fill(-1.0);
     }
     DcsFraction_->Reset();
     DcsFraction_->Fill(-1.0);
@@ -333,16 +332,15 @@ void SiStripDcsInfo::addBadModules() {
   std::string mechanical_dir = dqmStore_->pwd();
   std::string tag = "DCSError";
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); it != SubDetMEsMap.end(); it++) {
+  for (auto & it : SubDetMEsMap) {
 
-    std::unordered_map<uint32_t,uint16_t> lumiCountBadModules = it->second.NLumiDetectorIsFaulty;
-    for(std::unordered_map<uint32_t,uint16_t>::iterator ilumibad = lumiCountBadModules.begin(); 
-        ilumibad != lumiCountBadModules.end(); ilumibad++) {
-      uint32_t ibad = (*ilumibad).first;
-      uint32_t nBadLumi = (*ilumibad).second;
+    std::unordered_map<uint32_t,uint16_t> lumiCountBadModules = it.second.NLumiDetectorIsFaulty;
+    for(auto & lumiCountBadModule : lumiCountBadModules) {
+      uint32_t ibad = lumiCountBadModule.first;
+      uint32_t nBadLumi = lumiCountBadModule.second;
       if(nBadLumi <= MaxAcceptableBadDcsLumi_) continue;
       std::string bad_module_folder = mechanical_dir + "/" +
-                                      it->second.folder_name + "/"     
+                                      it.second.folder_name + "/"     
                                       "BadModuleList";      
       dqmStore_->setCurrentFolder(bad_module_folder);
 

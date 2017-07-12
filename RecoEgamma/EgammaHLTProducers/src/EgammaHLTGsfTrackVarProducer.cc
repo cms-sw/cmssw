@@ -101,19 +101,19 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
     //the idea is that we can take the tracks from properly associated electrons or just take all gsf tracks with that sc as a seed
     std::vector<const reco::GsfTrack*> gsfTracks;
     if(electronHandle.isValid()){
-      for(reco::ElectronCollection::const_iterator eleIt = electronHandle->begin(); eleIt != electronHandle->end(); eleIt++){
-	if(eleIt->superCluster()==scRef){
-	  gsfTracks.push_back(&*eleIt->gsfTrack());
+      for(const auto & eleIt : *electronHandle){
+	if(eleIt.superCluster()==scRef){
+	  gsfTracks.push_back(&*eleIt.gsfTrack());
 	}
       }
     }else{ 
-      for(reco::GsfTrackCollection::const_iterator trkIt =gsfTracksHandle->begin();trkIt!=gsfTracksHandle->end();++trkIt){
-	edm::RefToBase<TrajectorySeed> seed = trkIt->extra()->seedRef() ;
+      for(const auto & trkIt : *gsfTracksHandle){
+	edm::RefToBase<TrajectorySeed> seed = trkIt.extra()->seedRef() ;
 	reco::ElectronSeedRef elseed = seed.castTo<reco::ElectronSeedRef>() ;
 	edm::RefToBase<reco::CaloCluster> caloCluster = elseed->caloCluster() ;
 	reco::SuperClusterRef scRefFromTrk = caloCluster.castTo<reco::SuperClusterRef>() ;
 	if(scRefFromTrk==scRef){
-	  gsfTracks.push_back(&*trkIt);
+	  gsfTracks.push_back(&trkIt);
 	}
       }
       
@@ -143,13 +143,13 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
       validHitsValue = 0;
       chi2Value = 0;
     }else{
-      for(size_t trkNr=0;trkNr<gsfTracks.size();trkNr++){
+      for(auto & gsfTrack : gsfTracks){
       
 	GlobalPoint scPos(scRef->x(),scRef->y(),scRef->z());
-	GlobalPoint trackExtrapToSC = trackExtrapolator_.extrapolateTrackPosToPoint(*gsfTracks[trkNr],scPos);
+	GlobalPoint trackExtrapToSC = trackExtrapolator_.extrapolateTrackPosToPoint(*gsfTrack,scPos);
 	EleRelPointPair scAtVtx(scRef->position(),trackExtrapToSC,beamSpot.position());
 	
-	float trkP = gsfTracks[trkNr]->p();
+	float trkP = gsfTrack->p();
 	if(scRef->energy()!=0 && trkP!=0){
 	  if(fabs(1/scRef->energy() - 1/trkP)<oneOverESuperMinusOneOverPValue) oneOverESuperMinusOneOverPValue =fabs(1/scRef->energy() - 1/trkP);
 	}
@@ -158,14 +158,14 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
 	}
 
 
-	if (gsfTracks[trkNr]->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) 
-	  missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+	if (gsfTrack->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) 
+	  missingHitsValue = gsfTrack->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 	
-	if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue)
-	  validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
+	if (gsfTrack->numberOfValidHits() < validHitsValue)
+	  validHitsValue = gsfTrack->numberOfValidHits();
 
-	if (gsfTracks[trkNr]->numberOfValidHits() < chi2Value)
-	  chi2Value = gsfTracks[trkNr]->normalizedChi2();
+	if (gsfTrack->numberOfValidHits() < chi2Value)
+	  chi2Value = gsfTrack->normalizedChi2();
 
 	if (fabs(scAtVtx.dEta())<dEtaInValue) 
 	  dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks

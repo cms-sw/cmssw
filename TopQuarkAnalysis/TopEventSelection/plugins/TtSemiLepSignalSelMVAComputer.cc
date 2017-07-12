@@ -52,10 +52,10 @@ TtSemiLepSignalSelMVAComputer::produce(edm::Event& evt, const edm::EventSetup& s
   const std::vector<pat::Jet> jets = *jet_handle;
   unsigned int nJets = 0;
   std::vector<pat::Jet> seljets;
-  for(std::vector<pat::Jet>::const_iterator it = jets.begin(); it != jets.end(); it++) {
-    if(!(pat::Flags::test(*it, pat::Flags::Overlap::Electrons))) continue;
-    if(it->pt()>30. && fabs(it->eta())<2.4) {
-      seljets.push_back(*it);
+  for(const auto & jet : jets) {
+    if(!(pat::Flags::test(jet, pat::Flags::Overlap::Electrons))) continue;
+    if(jet.pt()>30. && fabs(jet.eta())<2.4) {
+      seljets.push_back(jet);
       nJets++;
     }
   }

@@ -132,12 +132,12 @@ void HTMHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   double MHTPhi=0.;
   double HT=0.;
 
-  for (reco::CaloJetCollection::const_iterator calojet = jetcoll->begin(); calojet!=jetcoll->end(); ++calojet){
-    if (calojet->pt()>_ptThreshold){
+  for (const auto & calojet : *jetcoll){
+    if (calojet.pt()>_ptThreshold){
       njet++;
-      MHx += -1.*calojet->px();
-      MHy += -1.*calojet->py();
-      HT  += calojet->pt();
+      MHx += -1.*calojet.px();
+      MHy += -1.*calojet.py();
+      HT  += calojet.pt();
     }
   }
 

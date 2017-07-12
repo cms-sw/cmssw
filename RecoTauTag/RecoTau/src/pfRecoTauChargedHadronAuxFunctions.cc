@@ -31,9 +31,8 @@ void setChargedHadronP4(reco::PFRecoTauChargedHadron& chargedHadron, double scal
     chargedHadronPz     = track->pz();
   } else assert(0);
   const std::vector<reco::PFCandidatePtr>& neutralPFCands = chargedHadron.getNeutralPFCandidates();
-  for ( std::vector<reco::PFCandidatePtr>::const_iterator neutralPFCand = neutralPFCands.begin();
-	neutralPFCand != neutralPFCands.end(); ++neutralPFCand ) {
-    SumNeutrals += (*neutralPFCand)->p();
+  for (const auto & neutralPFCand : neutralPFCands) {
+    SumNeutrals += neutralPFCand->p();
   }
   double noNeutrals=chargedHadronP;
   chargedHadronP+=scaleFactor_neutralPFCands*SumNeutrals;

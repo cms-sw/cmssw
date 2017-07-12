@@ -102,11 +102,11 @@ PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit(const edm::ParameterSet
   //std::cout << "PFCandIsolatorFromDeposits::SingleDeposit::SingleDeposit: Total of " << vetos_.size() << " vetos" << std::endl;
 }
 void PFCandIsolatorFromDeposits::SingleDeposit::cleanup() {
-    for (AbsVetos::iterator it = barrelVetos_.begin(), ed = barrelVetos_.end(); it != ed; ++it) {
-        delete *it;
+    for (auto & barrelVeto : barrelVetos_) {
+        delete barrelVeto;
     }
-    for (AbsVetos::iterator it = endcapVetos_.begin(), ed = endcapVetos_.end(); it != ed; ++it) {
-        delete *it;
+    for (auto & endcapVeto : endcapVetos_) {
+        delete endcapVeto;
     }
     barrelVetos_.clear();
     endcapVetos_.clear();
@@ -115,8 +115,8 @@ void PFCandIsolatorFromDeposits::SingleDeposit::cleanup() {
 }
 void PFCandIsolatorFromDeposits::SingleDeposit::open(const edm::Event &iEvent, const edm::EventSetup &iSetup) {
     iEvent.getByToken(srcToken_, hDeps_);
-    for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
-        (*it)->setEvent(iEvent,iSetup);
+    for (auto & evdepVeto : evdepVetos_) {
+        evdepVeto->setEvent(iEvent,iSetup);
     }
 }
 
@@ -142,8 +142,8 @@ double PFCandIsolatorFromDeposits::SingleDeposit::compute(const reco::CandidateB
     // if ! usePivotForBarrelEndcaps_ only the barrel series is used, which does not prevent the vetoes do be different in barrel & endcaps
     reco::isodeposit::AbsVetos * vetos = (barrel) ? &barrelVetos_ : &endcapVetos_;
 
-    for (AbsVetos::iterator it = vetos->begin(), ed = vetos->end(); it != ed; ++it) {
-        (*it)->centerOn(eta, phi);
+    for (auto & veto : *vetos) {
+        veto->centerOn(eta, phi);
     }
     double weight = (usesFunction_ ? weightExpr_(*cand) : weight_);
     switch (mode_) {

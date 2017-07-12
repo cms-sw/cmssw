@@ -49,11 +49,10 @@ DTTMax::DTTMax(const vector<DTRecHit1D>& hits, const DTSuperLayer & isl, GlobalV
   debug = "true";
 
   // Collect all information using InfoLayer
-  for (vector<DTRecHit1D>::const_iterator hit=hits.begin(); hit!=hits.end();
-       ++hit) {
+  for (const auto & hit : hits) {
     //     cout << "Hit Pos " << (*hit).localPosition() << endl;
     
-    InfoLayer* layInfo = new InfoLayer((*hit), isl, dir, pos, sync);
+    InfoLayer* layInfo = new InfoLayer(hit, isl, dir, pos, sync);
     int ilay = layInfo->idWire.layer();
     if (getInfoLayer(ilay)==0) {
       getInfoLayer(ilay) = layInfo;

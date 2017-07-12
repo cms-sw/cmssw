@@ -62,10 +62,9 @@ void GEMHitAssociator::initEvent(const edm::Event& e, const edm::EventSetup& eve
 	    LogTrace("GEMHitAssociator") <<"... size = "<<GEMsimhits->size();
 	    
 	    // arrange the hits by detUnit
-	    for(edm::PSimHitContainer::const_iterator hitItr = GEMsimhits->begin();
-		hitItr != GEMsimhits->end(); ++hitItr)
+	    for(const auto & hitItr : *GEMsimhits)
 	      {
-		_SimHitMap[hitItr->detUnitId()].push_back(*hitItr);
+		_SimHitMap[hitItr.detUnitId()].push_back(hitItr);
 	      }
 	  }
 
@@ -97,12 +96,12 @@ std::vector<GEMHitAssociator::SimHitIdpr> GEMHitAssociator::associateRecHit(cons
 	    
 		for(int i = fstrip; i < (fstrip+cls); ++i) {
 			      
-			for(LayerLinks::const_iterator itlink = layerLinks->begin(); itlink != layerLinks->end(); ++itlink) {
+			for(const auto & itlink : *layerLinks) {
 
-		  		int ch = static_cast<int>(itlink->channel());
+		  		int ch = static_cast<int>(itlink.channel());
 				if(ch != i) continue;
 
-				SimHitIdpr currentId(itlink->SimTrackId(), itlink->eventId());
+				SimHitIdpr currentId(itlink.SimTrackId(), itlink.eventId());
 				if(find(matched.begin(),matched.end(),currentId ) == matched.end())
 					matched.push_back(currentId);
 

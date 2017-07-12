@@ -27,8 +27,8 @@ TPNCor::TPNCor(string filename)
   isFileOK=0;
 
   for(int i=0;i<iSizePar;i++){
-    for(int j=0;j<iSizeGain;j++){
-      corParams[j][i] = 0.0   ;
+    for(auto & corParam : corParams){
+      corParam[i] = 0.0   ;
     }
   }
   

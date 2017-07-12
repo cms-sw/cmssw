@@ -97,10 +97,10 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   bool willNoisyPixBeInserted;
   for(std::map <int,std::vector<std::pair<int,int> > >::const_iterator it=noisypixelkeeper.begin();it!=noisypixelkeeper.end();it++){
     willNoisyPixBeInserted = false;
-    for(TrackerGeometry::DetContainer::const_iterator mod = pDD->dets().begin(); mod != pDD->dets().end(); mod++){
+    for(auto mod : pDD->dets()){
       detid=0;
-      if( dynamic_cast<PixelGeomDetUnit const*>((*mod))!=0)
-        detid=((*mod)->geographicalId()).rawId();
+      if( dynamic_cast<PixelGeomDetUnit const*>(mod)!=0)
+        detid=(mod->geographicalId()).rawId();
       if(detid==it->first) {willNoisyPixBeInserted = true; break;}
     }
     if(!willNoisyPixBeInserted)
@@ -110,10 +110,10 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
   if(DEBUG) cout<<"=>=>=>=> Starting Loop over all modules"<<endl;
   
   //Looping over all modules
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it : pDD->dets()){
     detid=0;
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0)
-      detid=((*it)->geographicalId()).rawId();
+    if( dynamic_cast<PixelGeomDetUnit const*>(it)!=0)
+      detid=(it->geographicalId()).rawId();
     if(detid==0)
       continue;  
     NDetid++;
@@ -123,7 +123,7 @@ void SiPixelGainCalibrationRejectNoisyAndDead::fillDatabase(const edm::EventSetu
     if(DEBUG) cout<<"=>=>=>=> We are in module "<<detid<<endl;
  
     // Get the module sizes
-    const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>((*it));
+    const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(it);
     const PixelTopology & topol = pixDet->specificTopology();
     int nrows = topol.nrows();      // rows in x
     int ncols = topol.ncolumns();   // cols in y

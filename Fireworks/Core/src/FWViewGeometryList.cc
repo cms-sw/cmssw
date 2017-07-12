@@ -42,9 +42,9 @@ FWViewGeometryList::~FWViewGeometryList()
 {
    m_transpConnection.disconnect();
    m_colorConnection.disconnect();
-   for (int i = 0; i < kFWGeomColorSize; ++i)
+   for (auto & i : m_colorComp)
    {
-      if (m_colorComp[i]) m_colorComp[i]->Destroy();
+      if (i) i->Destroy();
    }
 }
 
@@ -78,10 +78,10 @@ FWViewGeometryList::updateTransparency(bool projectedType)
 
    if (projectedType == m_projected)
    { 
-      for (int i = 0; i < kFWGeomColorSize; ++i)
+      for (auto & i : m_colorComp)
       {
-         m_colorComp[i]->SetMainTransparency(m_context.colorManager()->geomTransparency(projectedType));
-         m_colorComp[i]->ElementChanged();
+         i->SetMainTransparency(m_context.colorManager()->geomTransparency(projectedType));
+         i->ElementChanged();
       }
    }
 }

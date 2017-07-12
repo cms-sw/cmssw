@@ -55,13 +55,13 @@ void VtxTester::analyze( const Event& e, const EventSetup& )
    vector< Handle< HepMCProduct > > EvtHandles ;
    e.getManyByType( EvtHandles ) ;
    
-   for ( unsigned int i=0; i<EvtHandles.size(); i++ )
+   for (auto & EvtHandle : EvtHandles)
    {
    
-      if ( EvtHandles[i].isValid() )
+      if ( EvtHandle.isValid() )
       {
    
-         const HepMC::GenEvent* Evt = EvtHandles[i]->GetEvent() ;
+         const HepMC::GenEvent* Evt = EvtHandle->GetEvent() ;
    
          // take only 1st vertex for now - it's been tested only of PGuns...
 	 //

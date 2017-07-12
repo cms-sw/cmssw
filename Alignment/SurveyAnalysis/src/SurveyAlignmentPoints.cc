@@ -22,9 +22,9 @@ void SurveyAlignmentPoints::findAlignPars(bool bias)
     AlgebraicSymMatrix sumJVJT(6, 0); // 6 by 6 symmetric matrix init to 0
     AlgebraicVector    sumJVe(6, 0);  // init to 0
 
-    for (unsigned int l = 0; l < theLevels.size(); ++l)
+    for (auto theLevel : theLevels)
     {
-      SurveyResidual res(*ali, theLevels[l], bias);
+      SurveyResidual res(*ali, theLevel, bias);
 
       if ( !res.valid() ) continue;
 

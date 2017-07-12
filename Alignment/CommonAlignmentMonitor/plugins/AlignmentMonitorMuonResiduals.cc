@@ -567,8 +567,8 @@ void AlignmentMonitorMuonResiduals::book() {
 void AlignmentMonitorMuonResiduals::event(const edm::Event &iEvent, const edm::EventSetup &iSetup, const ConstTrajTrackPairCollection& tracks) {
    TrajectoryStateCombiner tsoscomb;
 
-   for (ConstTrajTrackPairCollection::const_iterator it = tracks.begin();  it != tracks.end();  ++it) {
-      const Trajectory *traj = it->first;
+   for (const auto & track : tracks) {
+      const Trajectory *traj = track.first;
 //      const reco::Track *track = it->second;
 
       std::vector<TrajectoryMeasurement> measurements = traj->measurements();

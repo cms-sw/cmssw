@@ -89,36 +89,32 @@ ValidHitPairFilter::ValidHitPairFilter(const edm::EventSetup& es) {
   LogTrace("MinBiasTracking")
     << " [ValidHitPairFilter] initializing pixel barrel";
 
-  for(TrackerGeometry::DetContainer::const_iterator
-      det = theTracker->detsPXB().begin();
-      det!= theTracker->detsPXB().end(); det++)
+  for(auto det : theTracker->detsPXB())
   {
     
-    DetId pid=(*det)->geographicalId();
+    DetId pid=det->geographicalId();
     int il  = tTopo->pxbLayer(pid)  - 1;
     int irz = tTopo->pxbModule(pid) - 1;
     int iph = tTopo->pxbLadder(pid) - 1;
   
-    rzBounds[il][irz] = (*det)->position().z();
-    phBounds[il][iph] = spin((*det)->position().phi());
+    rzBounds[il][irz] = det->position().z();
+    phBounds[il][iph] = spin(det->position().phi());
   }
 
   LogTrace("MinBiasTracking")
     << " [ValidHitPairFilter] initializing pixel endcap";
 
-  for(TrackerGeometry::DetContainer::const_iterator
-      det = theTracker->detsPXF().begin();
-      det!= theTracker->detsPXF().end(); det++)
+  for(auto det : theTracker->detsPXF())
   {
     
 
-    DetId pid=(*det)->geographicalId();
+    DetId pid=det->geographicalId();
     int il  = BPix3 + ((tTopo->pxfSide(pid)  -1) << 1) + (tTopo->pxfDisk(pid) -1);
     int irz =         ((tTopo->pxfModule(pid)-1) << 1) + (tTopo->pxfPanel(pid)-1);
     int iph =          (tTopo->pxfBlade(pid) -1);
 
-    rzBounds[il][irz] = (*det)->position().perp();
-    phBounds[il][iph] = spin((*det)->position().phi());
+    rzBounds[il][irz] = det->position().perp();
+    phBounds[il][iph] = spin(det->position().phi());
   }
 
   for(int i = 0; i < 7; i++)

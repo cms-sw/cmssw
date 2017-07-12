@@ -53,13 +53,13 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
     }
 
   // Loop over EB RecHits
-  for(EBRecHitCollection::const_iterator hit = TheEBRecHits->begin() ; hit != TheEBRecHits->end() ; hit++ )
+  for(const auto & hit : *TheEBRecHits)
     {
       // Arbitrary threshold to kill noise (needs to be optimized with data)
-      if (hit->energy() < EBRecHitEnergyThreshold ) continue;
+      if (hit.energy() < EBRecHitEnergyThreshold ) continue;
       
       // Get Det Id of the rechit
-      DetId id = DetId(hit->id()); 
+      DetId id = DetId(hit.id()); 
       const CaloSubdetectorGeometry* TheSubGeometry = 0;                                                                         
       const CaloCellGeometry* cell = 0 ;                                                                                    
 
@@ -78,10 +78,10 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  if( iPhi < 361 )	  // just to be safe
  	    {
 	      //iPhi = (iPhi-1)/5 +1;  // convert ecal iphi to phiwedge iphi  (e.g. there are 5 crystal per phi wedge, as in calotowers )
-	      SumE[iPhi] += hit->energy();
+	      SumE[iPhi] += hit.energy();
 	      NumHits[iPhi] ++;
 
-	      float time = hit->time();
+	      float time = hit.time();
 	      MinTimeHits[iPhi] = time < MinTimeHits[iPhi] ? time : MinTimeHits[iPhi];
 	      MaxTimeHits[iPhi] = time > MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
 	    }
@@ -100,17 +100,17 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  
 	  // Loop over EB RecHits
 	  std::vector<const EcalRecHit*>  Hits;
-	  for(EBRecHitCollection::const_iterator hit = TheEBRecHits->begin() ; hit != TheEBRecHits->end() ; hit++ )
+	  for(const auto & hit : *TheEBRecHits)
 	    {
-	      if (hit->energy() < EBRecHitEnergyThreshold ) continue;
+	      if (hit.energy() < EBRecHitEnergyThreshold ) continue;
 	      
 	      // Get Det Id of the rechit
-	      DetId id = DetId(hit->id()); 
+	      DetId id = DetId(hit.id()); 
 	      EBDetId EcalID(id.rawId());
 	      int Hit_iPhi = EcalID.iphi();
 	      //Hit_iPhi = (Hit_iPhi-1)/5 +1; // convert ecal iphi to phiwedge iphi
 	      if( Hit_iPhi != iPhi ) continue;
-	      Hits.push_back( &(*hit) );
+	      Hits.push_back( &hit );
 	      
 	    }
 	  std::sort( Hits.begin() , Hits.end(), CompareTime);
@@ -155,10 +155,10 @@ EcalHaloData EcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	      bool BelongsToPhoton = false;
 	      if( ThePhotons.isValid() )
 		{
-		  for(reco::PhotonCollection::const_iterator iPhoton = ThePhotons->begin() ; iPhoton != ThePhotons->end() ; iPhoton++ )
+		  for(const auto & iPhoton : *ThePhotons)
 		    {
-		      if(iPhoton->isEB())
-			if ( TheClusterRef ==  iPhoton->superCluster() )
+		      if(iPhoton.isEB())
+			if ( TheClusterRef ==  iPhoton.superCluster() )
 			  {
 			    BelongsToPhoton = true;
 			    break;

@@ -46,8 +46,8 @@ void SUSY_HLT_DiJet_MET::dqmBeginRun(edm::Run const &run, edm::EventSetup const 
 
   bool pathFound = false;
   const std::vector<std::string> allTrigNames = fHltConfig.triggerNames();
-  for(size_t j = 0; j <allTrigNames.size(); ++j) {
-    if(allTrigNames[j].find(triggerPath_) != std::string::npos) {
+  for(const auto & allTrigName : allTrigNames) {
+    if(allTrigName.find(triggerPath_) != std::string::npos) {
       pathFound = true;
     }
   }
@@ -135,8 +135,8 @@ void SUSY_HLT_DiJet_MET::analyze(edm::Event const& e, edm::EventSetup const& eSe
 
   if( !(filterIndex >= triggerSummary->sizeFilters()) ){
     const trigger::Keys& keys = triggerSummary->filterKeys( filterIndex );
-    for( size_t j = 0; j < keys.size(); ++j ){
-      trigger::TriggerObject foundObject = triggerObjects[keys[j]];
+    for(unsigned short key : keys){
+      trigger::TriggerObject foundObject = triggerObjects[key];
       h_triggerMet->Fill(foundObject.pt());
       h_triggerMetPhi->Fill(foundObject.phi());
     }
@@ -145,8 +145,8 @@ void SUSY_HLT_DiJet_MET::analyze(edm::Event const& e, edm::EventSetup const& eSe
   std::vector<float> ptJet,  etaJet, phiJet;
   if( !(jetFilterIndex >= triggerSummary->sizeFilters()) ){
     const trigger::Keys& keys_jetfilter = triggerSummary->filterKeys( jetFilterIndex );
-    for( size_t j = 0; j < keys_jetfilter.size(); ++j ){
-      trigger::TriggerObject foundObject = triggerObjects[keys_jetfilter[j]];
+    for(unsigned short j : keys_jetfilter){
+      trigger::TriggerObject foundObject = triggerObjects[j];
       h_triggerJetPt->Fill(foundObject.pt());
       h_triggerJetEta->Fill(foundObject.eta());
       h_triggerJetPhi->Fill(foundObject.phi());
@@ -176,23 +176,23 @@ void SUSY_HLT_DiJet_MET::analyze(edm::Event const& e, edm::EventSetup const& eSe
     int offlineCentralJets = 0;
     int nMatch = 0, jet1Index = -1, jet2Index = -1;
 
-    for (reco::PFJetCollection::const_iterator i_pfjet = pfJetCollection->begin(); i_pfjet != pfJetCollection->end(); ++i_pfjet){
+    for (const auto & i_pfjet : *pfJetCollection){
 
-      if (i_pfjet->pt() > ptThrJet_ && fabs(i_pfjet->eta()) < etaThrJet_) {
+      if (i_pfjet.pt() > ptThrJet_ && fabs(i_pfjet.eta()) < etaThrJet_) {
 	offlineCentralJets++;
-	if(offlineCentralJets == 2 && pfMETCollection->begin()->et()>metCut_) h_pfJet2PtTurnOn_den->Fill(i_pfjet->pt());
+	if(offlineCentralJets == 2 && pfMETCollection->begin()->et()>metCut_) h_pfJet2PtTurnOn_den->Fill(i_pfjet.pt());
 
 	for(unsigned int itrigjet = 0; itrigjet < ptJet.size(); ++itrigjet) {
-	  if(itrigjet < 2 && (sqrt((i_pfjet->phi()-phiJet.at(itrigjet))*(i_pfjet->phi()-phiJet.at(itrigjet)) + (i_pfjet->eta()-etaJet.at(itrigjet))*(i_pfjet->eta()-etaJet.at(itrigjet))) < 0.4)) {
+	  if(itrigjet < 2 && (sqrt((i_pfjet.phi()-phiJet.at(itrigjet))*(i_pfjet.phi()-phiJet.at(itrigjet)) + (i_pfjet.eta()-etaJet.at(itrigjet))*(i_pfjet.eta()-etaJet.at(itrigjet))) < 0.4)) {
 	    nMatch++;
 	    if(nMatch == 1) jet1Index = offlineJetCounter;
 	    if(nMatch == 2) jet2Index = offlineJetCounter;
 
 	    if(hasFired) {
-	      h_pfJetPt->Fill(i_pfjet->pt());
-	      h_pfJetEta->Fill(i_pfjet->eta());
-	      h_pfJetPhi->Fill(i_pfjet->phi());
-	      if(offlineCentralJets == 2 && pfMETCollection->begin()->et()>metCut_) h_pfJet2PtTurnOn_num->Fill(i_pfjet->pt());
+	      h_pfJetPt->Fill(i_pfjet.pt());
+	      h_pfJetEta->Fill(i_pfjet.eta());
+	      h_pfJetPhi->Fill(i_pfjet.phi());
+	      if(offlineCentralJets == 2 && pfMETCollection->begin()->et()>metCut_) h_pfJet2PtTurnOn_num->Fill(i_pfjet.pt());
 	    }
 
 	    break;

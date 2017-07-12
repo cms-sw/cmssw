@@ -115,11 +115,9 @@ FWModelChangeManager::endChanges()
          FWItemChangeSignal& signal = m_itemChangeSignals[(*itChanges)->id()];
          //loop over the slots ourself so we can control the behavior in case of a failure
          FWItemChangeSignal::slot_list_type slots = signal.slots();
-         for(FWItemChangeSignal::slot_list_type::iterator itSlot=slots.begin(), itEnd = slots.end();
-             itSlot != itEnd;
-             ++itSlot) {
+         for(auto & slot : slots) {
             try {
-               (*itSlot)(*itChanges);
+               slot(*itChanges);
             } catch(const cms::Exception& iE) {
                fwLog(fwlog::kError) <<(*itChanges)->name()<<" had the failure in process FWItemChanged signals\n"<<iE.what()<<std::endl;
             } catch(const std::bad_alloc& iE) {
@@ -147,13 +145,11 @@ FWModelChangeManager::endChanges()
             }
             //loop over the slots ourself so we can control the behavior in case of a failure
             FWModelChangeSignal::slot_list_type slots = signal.slots();
-            for(FWModelChangeSignal::slot_list_type::iterator itSlot = slots.begin(), itEnd = slots.end();
-                itSlot != itEnd;
-                ++itSlot) 
+            for(auto & slot : slots) 
             {
                try 
                {
-                  (*itSlot)(changes);
+                  slot(changes);
                } 
                catch(const cms::Exception& iE) 
                {

@@ -13,10 +13,10 @@ reco::SuperClusterCollection HiBremRecoveryClusterAlgo::makeSuperClusters(reco::
   reco::CaloClusterPtrVector islandClustersEndCap_v;
 
   // ...and populate them:
-  for (reco::CaloCluster_iterator it = clustersCollection.begin(); it != clustersCollection.end(); it++)
+  for (auto && it : clustersCollection)
   {
     
-     reco::CaloClusterPtr cluster_p = *it;
+     reco::CaloClusterPtr cluster_p = it;
      if (cluster_p->algo() == reco::CaloCluster::island) 
      {
         if (verbosity <= pINFO)

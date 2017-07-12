@@ -172,9 +172,9 @@ void ZdcSD::getFromLibrary (G4Step* aStep) {
   if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
     G4TrackVector tv = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tv.size(); kk++) {
-      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
-	tv[kk]->SetTrackStatus(fStopAndKill);
+    for (auto & kk : tv) {
+      if (kk->GetVolume() == preStepPoint->GetPhysicalVolume())
+	kk->SetTrackStatus(fStopAndKill);
     }
   }
 }

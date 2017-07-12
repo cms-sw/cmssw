@@ -115,14 +115,14 @@ ESDataFormatterV4::ESDataFormatterV4(const ParameterSet& ps)
 	  optoId_[i][j][k][m] = -1;
 	}
 
-  for(int i=0;i<56;++i) { 
-    for(int j=0;j<3;++j) fedIdOptoRx_[i][j] = false ; 
+  for(auto & i : fedIdOptoRx_) { 
+    for(int j=0;j<3;++j) i[j] = false ; 
   } 
 
-  for(int i=0;i<56;++i) { 
+  for(auto & i : fedIdOptoRxFiber_) { 
     for(int j=0;j<3;++j) 
       for(int k=0;k<12;k++)
-	fedIdOptoRxFiber_[i][j][k] = false ; 
+	i[j][k] = false ; 
   }   
 
   // read in look-up table
@@ -218,9 +218,9 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
   map_data.clear();
   
   // clean optorx channel status fields:  
-  for(int i=0;i<3;++i)
+  for(auto & optorx_ch_count : optorx_ch_counts)
     for(int j=0;j<12;++j)  
-      optorx_ch_counts[i][j] = 0 ; 
+      optorx_ch_count[j] = 0 ; 
   
   const DetDigis & detDigis = digis[fedId] ;
   
@@ -229,9 +229,8 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
 	 << detDigis.size() << endl ;         
   }
   
-  for (DetDigis::const_iterator it = detDigis.begin(); it != detDigis.end(); ++it) {
+  for (auto dataframe : detDigis) {
     
-    const ESDataFrame& dataframe = (*it);
     const ESDetId& detId = dataframe.id();
     
     for (int is=0; is<dataframe.size(); ++is) ts[is] = dataframe.sample(is).adc();
@@ -315,9 +314,9 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
 	  // sort against stripid field, as hardware gives this order to strip data : 
 	  sort(data.begin(), data.end(), ltstrip());
 	  
-	  for (unsigned int id=0; id<data.size(); ++id) {
-	    if (debug_) cout<<"Data  : "<<print(data[id])<<endl;
-	    words.push_back(data[id]);
+	  for (unsigned long id : data) {
+	    if (debug_) cout<<"Data  : "<<print(id)<<endl;
+	    words.push_back(id);
 	  }      
 	}
 	++kit ; ++ikchip;      
@@ -382,15 +381,15 @@ void ESDataFormatterV4::DigiToRaw(int fedId, Digis & digis, FEDRawData& fedRawDa
   w++;
   
   // ES-DCC 
-  for (unsigned int i=0; i<DCCwords.size(); ++i) {
-    if (debug_) cout<<"DCC  : "<<print(DCCwords[i])<<endl;
-    *w = DCCwords[i];
+  for (unsigned long DCCword : DCCwords) {
+    if (debug_) cout<<"DCC  : "<<print(DCCword)<<endl;
+    *w = DCCword;
     w++;
   }
   
   // event data
-  for (unsigned int i=0; i<words.size(); ++i) {
-    *w = words[i];
+  for (unsigned long word : words) {
+    *w = word;
     w++;  
   }
   

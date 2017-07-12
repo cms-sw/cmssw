@@ -118,13 +118,13 @@ int main(int argc, char **argv)
 
     //clean up
     delete myJetFinalStage;
-    for(vector<L1GctWheelJetFpga*>::iterator it = wheelJetFpgas.begin(); it != wheelJetFpgas.end(); ++it)
+    for(auto & wheelJetFpga : wheelJetFpgas)
     {
-      delete *it;
+      delete wheelJetFpga;
     }
-    for(vector<L1GctJetLeafCard*>::iterator it = jetLeafCrds.begin(); it != jetLeafCrds.end(); ++it)
+    for(auto & jetLeafCrd : jetLeafCrds)
     {
-      delete *it;
+      delete jetLeafCrd;
     }
   }
   catch (cms::Exception& e)
@@ -359,7 +359,7 @@ L1GctJet readSingleJet(ifstream &fin)
   ULong jetComponents[numJetComponents];
 
   //read in the data from the file
-  for(int i=0; i < numJetComponents; ++i)
+  for(unsigned long & jetComponent : jetComponents)
   {
     //check to see if the input stream is still ok first
     if(fin.eof() || fin.bad())
@@ -369,7 +369,7 @@ L1GctJet readSingleJet(ifstream &fin)
     }
     else
     {
-      fin >> jetComponents[i];  //read in the components.
+      fin >> jetComponent;  //read in the components.
     }
   }
  
@@ -441,14 +441,14 @@ void outputJetsVector(ofstream &fout, JetsVector &jets, string description)
   
   if(!jets.empty())  //check it isn't an empty vector
   {
-    for(ULong i=0; i < jets.size(); ++i)
+    for(auto & jet : jets)
     {
-      fout << jets[i].rank() << "\t" 
-           << jets[i].etaIndex()  << "\t"
-           << jets[i].etaSign()  << "\t"
-           << jets[i].phiIndex()  << "\t"
-           << jets[i].isTau()  << "\t"
-           << jets[i].isForward() << endl;
+      fout << jet.rank() << "\t" 
+           << jet.etaIndex()  << "\t"
+           << jet.etaSign()  << "\t"
+           << jet.phiIndex()  << "\t"
+           << jet.isTau()  << "\t"
+           << jet.isForward() << endl;
     }
   }
   fout << endl;  //write a blank line to separate data

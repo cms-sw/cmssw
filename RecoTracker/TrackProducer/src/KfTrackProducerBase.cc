@@ -45,16 +45,16 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   selTrackExtras->reserve(algoResults.size());
   if(trajectoryInEvent_) selTrajectories->reserve(algoResults.size());
 
-  for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-    auto theTraj = (*i).trajectory;
-    (*indecesInput).push_back((*i).indexInput);
+  for(auto & algoResult : algoResults){
+    auto theTraj = algoResult.trajectory;
+    (*indecesInput).push_back(algoResult.indexInput);
     if(trajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
 
 
-    auto theTrack = (*i).track;
+    auto theTrack = algoResult.track;
     
     // Hits are going to be re-sorted along momentum few lines later. 
     // Therefore the direction stored in the TrackExtra 
@@ -150,8 +150,8 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
   // Now we can re-set refs to hits, as they have already been cloned
   if (rekeyClusterRefs_) {
       ClusterRemovalRefSetter refSetter(evt, clusterRemovalInfo_);
-      for (TrackingRecHitCollection::iterator it = selHits->begin(), ed = selHits->end(); it != ed; ++it) {
-          refSetter.reKey(&*it);
+      for (auto & it : *selHits) {
+          refSetter.reKey(&it);
       }
   }
 
@@ -193,12 +193,11 @@ void KfTrackProducerBase::putInEvt(edm::Event& evt,
 
     // Now Create traj<->tracks association map
     std::unique_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection(rTrajs, rTracks_) );
-    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
-          i != tjTkMap.end(); i++ ) {
-      edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
-      edm::Ref<reco::TrackCollection>    tkRef( rTracks_, (*i).second );
-      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
-                            edm::Ref<reco::TrackCollection>( rTracks_, (*i).second ) );
+    for (auto & i : tjTkMap) {
+      edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, i.first );
+      edm::Ref<reco::TrackCollection>    tkRef( rTracks_, i.second );
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, i.first ),
+                            edm::Ref<reco::TrackCollection>( rTracks_, i.second ) );
     }
     evt.put( std::move(trajTrackMap) );
   }

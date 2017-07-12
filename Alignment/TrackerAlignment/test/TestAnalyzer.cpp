@@ -104,30 +104,29 @@ TestAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
   iSetup.get<TrackerDigiGeometryRecord>().get( trackerGeometry );
 
   // Now loop on detector units, and store position and orientation
-  for ( auto iGeomDet = trackerGeometry->dets().begin();
-		iGeomDet != trackerGeometry->dets().end(); iGeomDet++ )
+  for (auto iGeomDet : trackerGeometry->dets())
 	{
 	  
-	  Id_     = (*iGeomDet)->geographicalId().rawId();
-	  x_      = (*iGeomDet)->position().x();
-	  y_      = (*iGeomDet)->position().y();
-	  z_      = (*iGeomDet)->position().z();
-	  phi_    = (*iGeomDet)->surface().normalVector().phi();
-	  theta_  = (*iGeomDet)->surface().normalVector().theta();
-	  length_ = (*iGeomDet)->surface().bounds().length();
-	  width_  = (*iGeomDet)->surface().bounds().width();
-	  thick_  = (*iGeomDet)->surface().bounds().thickness();
+	  Id_     = iGeomDet->geographicalId().rawId();
+	  x_      = iGeomDet->position().x();
+	  y_      = iGeomDet->position().y();
+	  z_      = iGeomDet->position().z();
+	  phi_    = iGeomDet->surface().normalVector().phi();
+	  theta_  = iGeomDet->surface().normalVector().theta();
+	  length_ = iGeomDet->surface().bounds().length();
+	  width_  = iGeomDet->surface().bounds().width();
+	  thick_  = iGeomDet->surface().bounds().thickness();
 
 	  double matrix[9] = { 
-		(*iGeomDet)->rotation().xx(),
-		(*iGeomDet)->rotation().xy(),
-		(*iGeomDet)->rotation().xz(),
-		(*iGeomDet)->rotation().yx(),
-		(*iGeomDet)->rotation().yy(),
-		(*iGeomDet)->rotation().yz(),
-		(*iGeomDet)->rotation().zx(),
-		(*iGeomDet)->rotation().zy(),
-		(*iGeomDet)->rotation().zz()
+		iGeomDet->rotation().xx(),
+		iGeomDet->rotation().xy(),
+		iGeomDet->rotation().xz(),
+		iGeomDet->rotation().yx(),
+		iGeomDet->rotation().yy(),
+		iGeomDet->rotation().yz(),
+		iGeomDet->rotation().zx(),
+		iGeomDet->rotation().zy(),
+		iGeomDet->rotation().zz()
 	  };
 	  rot_ = new TRotMatrix( "rot", "rot", matrix );
 

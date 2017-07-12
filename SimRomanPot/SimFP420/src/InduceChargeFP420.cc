@@ -30,13 +30,13 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(const CDrifterFP420::collec
   std::map<int, float, less<int> > x,y; 
   
   
-  for (CDrifterFP420::collection_type::const_iterator sp=_collection_points.begin();  sp != _collection_points.end(); sp++ ){
+  for (const auto & _collection_point : _collection_points){
     
     float chargePositionW=-1.; // charge in strip coord in Wide pixel
     float chargePosition=-1.; // charge in strip coord
     
     // define chargePosition
-    G4ThreeVector Position3D = (*sp).position(); // charge in strip coord
+    G4ThreeVector Position3D = _collection_point.position(); // charge in strip coord
     
     if(verbosity>0) {
       std::cout << " =============================*InduceChargeFP420:induce:Position3D= " << Position3D << std::endl;
@@ -87,8 +87,8 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(const CDrifterFP420::collec
       }
     }
     
-    float chargeSpread = (*sp).sigma()/localPitch ;  // sigma in strip pitches
-    float chargeSpreadW = (*sp).sigma()/localPitchW ;  // sigma in strip pitches
+    float chargeSpread = _collection_point.sigma()/localPitch ;  // sigma in strip pitches
+    float chargeSpreadW = _collection_point.sigma()/localPitchW ;  // sigma in strip pitches
     
     // Define strips intervals along x: check edge condition
     
@@ -103,8 +103,8 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(const CDrifterFP420::collec
     stripRightW = (numStripsW >stripRightW ? stripRightW : numStripsW-1);
     
     if(verbosity>1) {
-      std::cout << " Position3D =  " << Position3D << "amplitude=" << (*sp).amplitude() << std::endl;
-      std::cout << " MaxChargeSpread= " << clusterWidth*chargeSpread << " sigma= " << (*sp).sigma() << std::endl;
+      std::cout << " Position3D =  " << Position3D << "amplitude=" << _collection_point.amplitude() << std::endl;
+      std::cout << " MaxChargeSpread= " << clusterWidth*chargeSpread << " sigma= " << _collection_point.sigma() << std::endl;
       std::cout << "*** numStrips= " << numStrips << " localPitch= " << localPitch << "xytype=" << xytype << std::endl;
       std::cout << " chargePosition= " << chargePosition << " chargeSpread= " << chargeSpread << std::endl;
       std::cout << " stripLeft= " << stripLeft << " stripRight= " << stripRight << std::endl;
@@ -218,7 +218,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(const CDrifterFP420::collec
       for (int ix=stripLeft; ix<=stripRight; ix++){ // loop over x index
 	for (int k = -nSignalCoupling+1 ; k<=nSignalCoupling-1 ; k++) {
 	  if (ix+k >= 0 && ix+k < numStrips ) { 
-	    float ChargeFraction = signalCoupling[abs(k)]*(x[ix]*y[iy]/geVperElectron)*(*sp).amplitude();
+	    float ChargeFraction = signalCoupling[abs(k)]*(x[ix]*y[iy]/geVperElectron)*_collection_point.amplitude();
 	    if( ChargeFraction > 0. ) {
 	      //  int chan = PixelDigi::pixelToChannel( ix, iy);  // Get index 
 	      int chan = iy*numStrips + (ix+k) ;  // Get index 
@@ -232,7 +232,7 @@ IChargeFP420::hit_map_type InduceChargeFP420::induce(const CDrifterFP420::collec
 		  std::cout << "InduceChargeFP420:                                              chan= " << chan << std::endl;
 		  std::cout << "ix= " << ix << "iy= " << iy << "k= " << k << "ChargeFraction= " << ChargeFraction << std::endl;
 		  std::cout << "hit_signal[chan]= " << hit_signal[chan] << "geVperElectron= " << geVperElectron << std::endl;
-		  std::cout << "signalCoupling[abs(k)]= " << signalCoupling[abs(k)] << "x[ix]= " << x[ix] << "y[iy]= " << y[iy] << "(*sp).amplitude()= " << (*sp).amplitude() << std::endl;
+		  std::cout << "signalCoupling[abs(k)]= " << signalCoupling[abs(k)] << "x[ix]= " << x[ix] << "y[iy]= " << y[iy] << "(*sp).amplitude()= " << _collection_point.amplitude() << std::endl;
 		}
 	      }
 	      // Load the amplitude:

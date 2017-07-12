@@ -118,10 +118,7 @@ void HLTMuonRefMethod::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
     }
   }
   
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& subDir = *iSubDir;
-    
+  for(const auto & subDir : subDirSet) {
     for (unsigned int iEff = 0; iEff != efficiency_.size(); ++iEff){
       string eff = efficiency_[iEff];
 

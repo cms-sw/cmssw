@@ -378,10 +378,10 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
        if( useSubjets_ && subjetIndices.at(i).size()>0 )
        {
          // loop over subjets
-         for(size_t sj=0; sj<subjetIndices.at(i).size(); ++sj)
+         for(int sj : subjetIndices.at(i))
          {
            // set an empty JetFlavourInfo for this subjet
-           (*subjetFlavourInfos)[subjets->refAt(subjetIndices.at(i).at(sj))] = reco::JetFlavourInfo(reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), 0, 0);
+           (*subjetFlavourInfos)[subjets->refAt(sj)] = reco::JetFlavourInfo(reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), reco::GenParticleRefVector(), 0, 0);
          }
        }
      }
@@ -488,16 +488,16 @@ JetFlavourClustering::insertGhosts(const edm::Handle<reco::GenParticleRefVector>
                                    std::vector<fastjet::PseudoJet>& constituents)
 {
    // insert "ghost" particles in the vector of jet constituents
-   for(reco::GenParticleRefVector::const_iterator it = particles->begin(); it != particles->end(); ++it)
+   for(auto && it : *particles)
    {
-     if((*it)->pt() == 0)
+     if((it)->pt() == 0)
      {
        edm::LogInfo("NullTransverseMomentum") << "dropping input ghost candidate with pt=0";
        continue;
      }
-     fastjet::PseudoJet p((*it)->px(),(*it)->py(),(*it)->pz(),(*it)->energy());
+     fastjet::PseudoJet p((it)->px(),(it)->py(),(it)->pz(),(it)->energy());
      p*=ghostRescaling; // rescale particle momentum
-     p.set_user_info(new GhostInfo(isHadron, isbHadron, isParton, isLepton, *it));
+     p.set_user_info(new GhostInfo(isHadron, isbHadron, isParton, isLepton, it));
      constituents.push_back(p);
    }
 }
@@ -602,15 +602,15 @@ JetFlavourClustering::matchSubjets(const std::vector<int>& groomedIndices,
                                    const edm::Handle<edm::View<reco::Jet> >& subjets,
                                    std::vector<std::vector<int> >& matchedIndices)
 {
-   for(size_t g=0; g<groomedIndices.size(); ++g)
+   for(int groomedIndice : groomedIndices)
    {
      std::vector<int> subjetIndices;
 
-     if( groomedIndices.at(g)>=0 )
+     if( groomedIndice>=0 )
      {
-       for(size_t s=0; s<groomedJets->at(groomedIndices.at(g)).numberOfDaughters(); ++s)
+       for(size_t s=0; s<groomedJets->at(groomedIndice).numberOfDaughters(); ++s)
        {
-         const edm::Ptr<reco::Candidate> & subjet = groomedJets->at(groomedIndices.at(g)).daughterPtr(s);
+         const edm::Ptr<reco::Candidate> & subjet = groomedJets->at(groomedIndice).daughterPtr(s);
 
          for(size_t sj=0; sj<subjets->size(); ++sj)
          {
@@ -645,27 +645,27 @@ JetFlavourClustering::setFlavours(const reco::GenParticleRefVector& clusteredbHa
    reco::GenParticleRef flavourParton;
 
    // loop over clustered partons (already sorted by Pt)
-   for(reco::GenParticleRefVector::const_iterator it = clusteredPartons.begin(); it != clusteredPartons.end(); ++it)
+   for(auto && clusteredParton : clusteredPartons)
    {
      // hardest parton
      if( hardestParton.isNull() )
-       hardestParton = (*it);
+       hardestParton = (clusteredParton);
      // hardest light-flavour parton
      if( hardestLightParton.isNull() )
      {
-       if( CandMCTagUtils::isLightParton( *(*it) ) )
-         hardestLightParton = (*it);
+       if( CandMCTagUtils::isLightParton( *(clusteredParton) ) )
+         hardestLightParton = (clusteredParton);
      }
      // c flavour
-     if( flavourParton.isNull() && ( std::abs( (*it)->pdgId() ) == 4 ) )
-       flavourParton = (*it);
+     if( flavourParton.isNull() && ( std::abs( (clusteredParton)->pdgId() ) == 4 ) )
+       flavourParton = (clusteredParton);
      // b flavour gets priority
-     if( std::abs( (*it)->pdgId() ) == 5 )
+     if( std::abs( (clusteredParton)->pdgId() ) == 5 )
      {
        if( flavourParton.isNull() )
-         flavourParton = (*it);
+         flavourParton = (clusteredParton);
        else if( std::abs( flavourParton->pdgId() ) != 5 )
-         flavourParton = (*it);
+         flavourParton = (clusteredParton);
      }
    }
 
@@ -700,17 +700,17 @@ JetFlavourClustering::assignToSubjets(const reco::GenParticleRefVector& clustere
                                       std::vector<reco::GenParticleRefVector>& assignedParticles)
 {
    // loop over clustered particles and assign them to different subjets based on smallest dR
-   for(reco::GenParticleRefVector::const_iterator it = clusteredParticles.begin(); it != clusteredParticles.end(); ++it)
+   for(auto && clusteredParticle : clusteredParticles)
    {
      std::vector<double> dR2toSubjets;
 
-     for(size_t sj=0; sj<subjetIndices.size(); ++sj)
-       dR2toSubjets.push_back( reco::deltaR2( (*it)->rapidity(), (*it)->phi(), subjets->at(subjetIndices.at(sj)).rapidity(), subjets->at(subjetIndices.at(sj)).phi() ) );
+     for(int subjetIndice : subjetIndices)
+       dR2toSubjets.push_back( reco::deltaR2( (clusteredParticle)->rapidity(), (clusteredParticle)->phi(), subjets->at(subjetIndice).rapidity(), subjets->at(subjetIndice).phi() ) );
 
      // find the closest subjet
      int closestSubjetIdx = std::distance( dR2toSubjets.begin(), std::min_element(dR2toSubjets.begin(), dR2toSubjets.end()) );
 
-     assignedParticles.at(closestSubjetIdx).push_back( *it );
+     assignedParticles.at(closestSubjetIdx).push_back( clusteredParticle );
    }
 }
 

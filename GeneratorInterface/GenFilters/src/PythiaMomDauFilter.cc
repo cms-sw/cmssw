@@ -76,16 +76,16 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
    if ( (*p)->end_vertex() ) {	
     for ( HepMC::GenVertex::particle_iterator dau  =(*p)->end_vertex()->particles_begin(HepMC::children); dau != (*p)->end_vertex()->particles_end(HepMC::children); ++dau ) {
       ++ndau;
-      for( unsigned int i=0; i<dauIDs.size(); ++i) {
-       if( (*dau)->pdg_id() != dauIDs[i] ) continue ;
+      for(int dauID : dauIDs) {
+       if( (*dau)->pdg_id() != dauID ) continue ;
         ++ndauac;
         break;
 	 }
       if((*dau)->pdg_id() == daughterID){
        for(HepMC::GenVertex::particle_iterator des  = (*dau)->end_vertex()->particles_begin(HepMC::children); des != (*des)->end_vertex()->particles_end(HepMC::children); ++des ){
         ++ndes;        
-        for( unsigned int i=0; i<desIDs.size(); ++i) {
-         if( (*des)->pdg_id() != desIDs[i] ) continue ;
+        for(int desID : desIDs) {
+         if( (*des)->pdg_id() != desID ) continue ;
          if( (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  && (*des)->momentum().eta()  >  minetacut &&  (*des)->momentum().eta()  <  maxetacut ) {
           ++ndesac;
           break;
@@ -119,11 +119,11 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
        if ( (*p)->end_vertex() ) {
 	 for ( HepMC::GenVertex::particle_iterator dau  =(*p)->end_vertex()->particles_begin(HepMC::children); dau != (*p)->end_vertex()->particles_end(HepMC::children);  ++dau ) {
 	   ++ndau;
-	   for( unsigned int i=0; i<dauIDs.size(); ++i) {
-            int IDanti = -dauIDs[i];
-            int pythiaCode = PYCOMP(dauIDs[i]);
+	   for(int & dauID : dauIDs) {
+            int IDanti = -dauID;
+            int pythiaCode = PYCOMP(dauID);
             int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-            if( has_antipart == 0 ) IDanti = dauIDs[i];
+            if( has_antipart == 0 ) IDanti = dauID;
             if( (*dau)->pdg_id() != IDanti ) continue ;
             ++ndauac;
             break;
@@ -135,11 +135,11 @@ bool PythiaMomDauFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetu
        if((*dau)->pdg_id() == daughterIDanti) {
             for( HepMC::GenVertex::particle_iterator des  = (*dau)->end_vertex()->particles_begin(HepMC::children); des != (*des)->end_vertex()->particles_end(HepMC::children);  ++des ){
                  ++ndes;
-	    for( unsigned int i=0; i<desIDs.size(); ++i) {
-	     int IDanti = -desIDs[i];
-	     int pythiaCode = PYCOMP(desIDs[i]);
+	    for(int & desID : desIDs) {
+	     int IDanti = -desID;
+	     int pythiaCode = PYCOMP(desID);
 	     int has_antipart = pydat2.kchg[3-1][pythiaCode-1];
-	     if( has_antipart == 0 ) IDanti = desIDs[i];
+	     if( has_antipart == 0 ) IDanti = desID;
 	     if( (*des)->pdg_id() != IDanti ) continue ;
 	     if(   (*des)->momentum().perp() >  minptcut  && (*des)->momentum().perp() <  maxptcut  &&  (*des)->momentum().eta()  >  minetacut && (*des)->momentum().eta()  <  maxetacut ) {
 	       ++ndesac;

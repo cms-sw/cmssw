@@ -60,8 +60,8 @@ void PFDisplacedVertexSeed::mergeWith(const PFDisplacedVertexSeed& displacedVert
 
 
 
-  for (  set<TrackBaseRef, Compare>::const_iterator il = newElements.begin(); il != newElements.end(); il++)
-    addElement(*il);
+  for (const auto & newElement : newElements)
+    addElement(newElement);
 
 
 
@@ -80,25 +80,25 @@ void PFDisplacedVertexSeed::Dump( ostream& out ) const {
 
   // Build element label (string) : elid from type, layer and occurence number
   // use stringstream instead of sprintf to concatenate string and integer into string
-  for(IEset ie = elements_.begin(); ie !=  elements_.end(); ie++){
+  for(const auto & element : elements_){
 
-    math::XYZPoint Pi((*ie).get()->innerPosition());
-    math::XYZPoint Po((*ie).get()->outerPosition());
+    math::XYZPoint Pi(element.get()->innerPosition());
+    math::XYZPoint Po(element.get()->outerPosition());
 
     float innermost_radius = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y() + Pi.z()*Pi.z());
     float outermost_radius = sqrt(Po.x()*Po.x() + Po.y()*Po.y() + Po.z()*Po.z());
     float innermost_rho = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y());
     float outermost_rho = sqrt(Po.x()*Po.x() + Po.y()*Po.y());
     
-    double pt = (*ie)->pt();
+    double pt = element->pt();
 
 
-    out<<"ie = " << (*ie).key() << " pt = " << pt
+    out<<"ie = " << element.key() << " pt = " << pt
        <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
        <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho
        <<endl;
 
-    out<<"ie = " << (*ie).key() << " pt = " << pt
+    out<<"ie = " << element.key() << " pt = " << pt
       //       <<" inn hit pos x = " << Pi.x() << " y = " << Pi.y() << " z = " << Pi.z() 
        <<" out hit pos x = " << Po.x() << " y = " << Po.y() << " z = " << Po.z() 
        <<endl;

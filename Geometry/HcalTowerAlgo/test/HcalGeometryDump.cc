@@ -57,9 +57,8 @@ HcalGeometryDump::analyze(const edm::Event& /*iEvent*/,
 
   for (int subdet=1; subdet<= 4; ++subdet) {
     std::vector<unsigned int> detIds;
-    for (std::vector<DetId>::const_iterator i = ids.begin();  i != ids.end();
-	 ++i)  {
-      DetId hid = (*i);
+    for (auto id : ids)  {
+      DetId hid = id;
       if (hid.subdetId() == subdet) {
 	detIds.push_back(hid.rawId());
       }

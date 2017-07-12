@@ -763,9 +763,9 @@ void CastorSD::getFromLibrary (G4Step* aStep) {
 			   << " has been set to be killed" ;
 #endif
     G4TrackVector tv = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tv.size(); kk++) {
-      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume()) {
-	tv[kk]->SetTrackStatus(fStopAndKill);
+    for (auto & kk : tv) {
+      if (kk->GetVolume() == preStepPoint->GetPhysicalVolume()) {
+	kk->SetTrackStatus(fStopAndKill);
 #ifdef debugLog
 	LogDebug("ForwardSim") << "CastorSD::getFromLibrary:"
 			       << "\n tv[" << kk << "]->GetTrackID() = " 

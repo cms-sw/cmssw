@@ -45,13 +45,12 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
   TwelveByTwelveFinder(0, subRegions, unCorrJets);
 
 
-  for(CaloEmCandBxCollection::const_iterator egCand = EMCands.begin();
-      egCand != EMCands.end(); egCand++) {
+  for(const auto & EMCand : EMCands) {
 
-    int eg_et = egCand->hwPt();
-    int eg_eta = egCand->hwEta();
-    int eg_phi = egCand->hwPhi();
-    int index = (egCand->hwIso()*4 + egCand->hwQual()) ;
+    int eg_et = EMCand.hwPt();
+    int eg_eta = EMCand.hwEta();
+    int eg_phi = EMCand.hwPhi();
+    int index = (EMCand.hwIso()*4 + EMCand.hwQual()) ;
 
     ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > egLorentz(0,0,0,0);
 
@@ -66,7 +65,7 @@ void l1t::Stage1Layer2EGammaAlgorithmImpHW::processEvent(const std::vector<l1t::
     enum {LUT_RCT_OFFSET = 0x10000};
 
     unsigned int rct_offset=0;
-    if (egCand->hwIso()) rct_offset=LUT_RCT_OFFSET;
+    if (EMCand.hwIso()) rct_offset=LUT_RCT_OFFSET;
 
     if (eg_et >0){
       if (lutAddress > MAX_LUT_ADDRESS) lutAddress = MAX_LUT_ADDRESS;
@@ -111,13 +110,12 @@ int l1t::Stage1Layer2EGammaAlgorithmImpHW::AssociatedJetPt(int ieta, int iphi,
   int pt = 0;
 
 
-  for(JetBxCollection::const_iterator itJet = jets->begin();
-      itJet != jets->end(); ++itJet){
+  for(const auto & jet : *jets){
 
-    int jetEta = itJet->hwEta();
-    int jetPhi = itJet->hwPhi();
+    int jetEta = jet.hwEta();
+    int jetPhi = jet.hwPhi();
     if ((jetEta == ieta) && (jetPhi == iphi)){
-      pt = itJet->hwPt();
+      pt = jet.hwPt();
       break;
     }
   }

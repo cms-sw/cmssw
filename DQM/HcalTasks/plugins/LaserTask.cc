@@ -361,10 +361,9 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 //	int currentEvent = e.eventAuxiliary().id().event();
 	int bx = e.bunchCrossing();
 	
-	for (HBHEDigiCollection::const_iterator it=chbhe->begin();
-		it!=chbhe->end(); ++it)
+	for (const auto & it : *chbhe)
 	{
-		const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
+		const HBHEDataFrame digi = (const HBHEDataFrame)it;
 		double sumQ = hcaldqm::utilities::sumQ<HBHEDataFrame>(digi, 2.5, 0, 
 			digi.size()-1);
 		if (sumQ<_lowHBHE)
@@ -451,10 +450,9 @@ LaserTask::LaserTask(edm::ParameterSet const& ps):
 			_cSignalvsBX_SubdetPM.fill(did, bx, sumQ);
 		}
 	}
-	for (HODigiCollection::const_iterator it=cho->begin();
-		it!=cho->end(); ++it)
+	for (const auto & it : *cho)
 	{
-		const HODataFrame digi = (const HODataFrame)(*it);
+		const HODataFrame digi = (const HODataFrame)it;
 		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, 
 			digi.size()-1);
 		if (sumQ<_lowHO)

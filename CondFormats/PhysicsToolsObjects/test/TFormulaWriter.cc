@@ -23,9 +23,8 @@ TFormulaWriter::TFormulaWriter(const edm::ParameterSet& cfg)
 
 TFormulaWriter::~TFormulaWriter()
 {
-  for ( std::vector<jobEntryType*>::iterator it = jobs_.begin();
-	it != jobs_.end(); ++it ) {
-    delete (*it);
+  for (auto & job : jobs_) {
+    delete job;
   }
 }
 
@@ -33,21 +32,20 @@ void TFormulaWriter::analyze(const edm::Event&, const edm::EventSetup&)
 {
   std::cout << "<TFormulaWriter::analyze (moduleLabel = " << moduleLabel_ << ")>:" << std::endl;
   
-  for ( std::vector<jobEntryType*>::iterator job = jobs_.begin();
-	job != jobs_.end(); ++job ) {   
-    TFile* inputFile = new TFile((*job)->inputFileName_.data());
-    std::cout << "reading TFormula = " << (*job)->formulaName_ << " from ROOT file = " << (*job)->inputFileName_ << "." << std::endl;
-    const TFormula* formula = dynamic_cast<TFormula*>(inputFile->Get((*job)->formulaName_.data()));
+  for (auto & job : jobs_) {   
+    TFile* inputFile = new TFile(job->inputFileName_.data());
+    std::cout << "reading TFormula = " << job->formulaName_ << " from ROOT file = " << job->inputFileName_ << "." << std::endl;
+    const TFormula* formula = dynamic_cast<TFormula*>(inputFile->Get(job->formulaName_.data()));
     std::cout << "the formula is " << formula->GetExpFormula("p") << std::endl;
     delete inputFile;
     if ( !formula ) 
       throw cms::Exception("TFormulaWriter") 
-	<< " Failed to load TFormula = " << (*job)->formulaName_.data() << " from file = " << (*job)->inputFileName_ << " !!\n";
+	<< " Failed to load TFormula = " << job->formulaName_.data() << " from file = " << job->inputFileName_ << " !!\n";
     edm::Service<cond::service::PoolDBOutputService> dbService;
     if ( !dbService.isAvailable() ) 
       throw cms::Exception("TFormulaWriter") 
 	<< " Failed to access PoolDBOutputService !!\n";
-    std::cout << " writing TFormula = " << (*job)->formulaName_ << " to SQLlite file, record = " << (*job)->outputRecord_ << "." << std::endl;
+    std::cout << " writing TFormula = " << job->formulaName_ << " to SQLlite file, record = " << job->outputRecord_ << "." << std::endl;
     typedef std::pair<float, float> vfloat;
     std::vector<vfloat> limits;
     limits.push_back(vfloat(0., 1.e+6));
@@ -55,7 +53,7 @@ void TFormulaWriter::analyze(const edm::Event&, const edm::EventSetup&)
     formulas.push_back((formula->GetExpFormula("p")).Data());
     PhysicsTFormulaPayload* formulaPayload = new PhysicsTFormulaPayload(limits, formulas);
     delete formula;
-    dbService->writeOne(formulaPayload, dbService->beginOfTime(), (*job)->outputRecord_);
+    dbService->writeOne(formulaPayload, dbService->beginOfTime(), job->outputRecord_);
   }
   
   std::cout << "done." << std::endl;

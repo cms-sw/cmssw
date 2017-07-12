@@ -199,11 +199,11 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
       int ith_layer = 0;
       int nLayerWithSimhitsInChamber = 0; 
 
-      for (edm::PSimHitContainer::const_iterator it2 = simHits->begin(); it2 != simHits->end(); it2++) {        
+      for (const auto & it2 : *simHits) {        
 
-        if ( abs((*it2).particleType()) != 13 ) continue;
+        if ( abs(it2.particleType()) != 13 ) continue;
 
-        CSCDetId simId2 = (CSCDetId)(*it2).detUnitId();
+        CSCDetId simId2 = (CSCDetId)it2.detUnitId();
         if ((simId2.chamber() == simId.chamber()) &&
             (simId2.station() == simId.station()) &&
             (simId2.ring()    == simId.ring())    &&
@@ -221,8 +221,8 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
       int nLayerWithRechitsInChamber = 0; 
       int nRecHitChamber = 0;
       // Test if have 6 layers with rechits in chamber
-      for (CSCRecHit2DCollection::const_iterator recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
-	CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();	
+      for (const auto & recIt : *recHits) {
+	CSCDetId idrec = (CSCDetId)recIt.cscDetId();	
         if ((idrec.endcap()  == simId.endcap())  &&
             (idrec.ring()    == simId.ring())    &&
             (idrec.station() == simId.station()) &&
@@ -265,10 +265,10 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 
       int idx = -1;
 
-      for (CSCSegmentCollection::const_iterator segIt=cscSegments->begin(); segIt!=cscSegments->end(); ++segIt) {
+      for (const auto & segIt : *cscSegments) {
         idx++;
 
-        CSCDetId id = (*segIt).cscDetId();
+        CSCDetId id = segIt.cscDetId();
         if ((simId.endcap()  == id.endcap())  &&
             (simId.ring()    == id.ring())    &&
             (simId.station() == id.station()) &&
@@ -276,13 +276,13 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 
           satisfied1 = true;
 
-          if (simId.ring() < 4) hrechit->Fill((*segIt).nRecHits());        
+          if (simId.ring() < 4) hrechit->Fill(segIt.nRecHits());        
 
-          if ( (*segIt).nRecHits() >= minRechitSegment ) {
+          if ( segIt.nRecHits() >= minRechitSegment ) {
             satisfied2 = true;
 
             if (bestMatchIdx == idx && simId.ring() < 4 ) {         
-  	      hchi2->Fill(((*segIt).chi2()/(2*(*segIt).nRecHits()-4)));
+  	      hchi2->Fill((segIt.chi2()/(2*segIt.nRecHits()-4)));
 //	      hchi2->Fill((*segIt).chi2());
             }
           }
@@ -300,11 +300,11 @@ void CSCSegmentReader::recInfo(const edm::Handle<edm::PSimHitContainer> simHits,
 
 void CSCSegmentReader::simInfo(const edm::Handle<edm::SimTrackContainer> simTracks) {
 
-  for (edm::SimTrackContainer::const_iterator it = simTracks->begin(); it != simTracks->end(); it++) {
+  for (const auto & it : *simTracks) {
         
-    if (abs((*it).type()) == 13) {
-      hpt->Fill((*it).momentum().pt());
-      heta->Fill((*it).momentum().eta());
+    if (abs(it.type()) == 13) {
+      hpt->Fill(it.momentum().pt());
+      heta->Fill(it.momentum().eta());
     }    
   }    
 }
@@ -333,8 +333,8 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
       int nLayerWithRechitsInChamber = 0; 
       int nRecHitChamber = 0;
       // Test if have 6 layers with rechits in chamber
-      for (CSCRecHit2DCollection::const_iterator recIt = recHits->begin(); recIt != recHits->end(); recIt++) {
-	CSCDetId idrec = (CSCDetId)(*recIt).cscDetId();	
+      for (const auto & recIt : *recHits) {
+	CSCDetId idrec = (CSCDetId)recIt.cscDetId();	
         if ((idrec.endcap()  == recId.endcap())  &&
             (idrec.ring()    == recId.ring())    &&
             (idrec.station() == recId.station()) &&
@@ -400,11 +400,11 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
     double sim1Phi = 0.;
     double sim1Theta = 0.;
  
-    for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+    for (const auto & ith : *simHits) {
 
-      if ( abs((*ith).particleType()) != 13 ) continue;
+      if ( abs(ith.particleType()) != 13 ) continue;
         
-      CSCDetId simId = (CSCDetId)(*ith).detUnitId();
+      CSCDetId simId = (CSCDetId)ith.detUnitId();
 
       if (ch != geom->chamber(simId)) continue;
 
@@ -412,13 +412,13 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
 
         check1 = true;
        
-        LocalVector simDir1_temp = (*ith).momentumAtEntry().unit();
+        LocalVector simDir1_temp = ith.momentumAtEntry().unit();
 
         sim1Phi   += simDir1_temp.phi();
         sim1Theta += simDir1_temp.theta();
   
-        sim1X += (*ith).localPosition().x();
-        sim1Y += (*ith).localPosition().y();
+        sim1X += ith.localPosition().x();
+        sim1Y += ith.localPosition().y();
 
         counter++;
       }    
@@ -446,25 +446,25 @@ void CSCSegmentReader::resolution(const edm::Handle<edm::PSimHitContainer> simHi
     counter = 0;
          
 
-    for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+    for (const auto & ith : *simHits) {
         
-      if ( abs((*ith).particleType()) != 13 ) continue;
+      if ( abs(ith.particleType()) != 13 ) continue;
 
-      CSCDetId simId = (CSCDetId)(*ith).detUnitId();
+      CSCDetId simId = (CSCDetId)ith.detUnitId();
 
       if (ch != geom->chamber(simId)) continue;
             
-      if ((simId.layer() == lastLayer) && (simTrack = (*ith).trackId())) {
+      if ((simId.layer() == lastLayer) && (simTrack = ith.trackId())) {
 
         check6 = true;
 
-        LocalVector simDir6_temp = (*ith).momentumAtEntry().unit();
+        LocalVector simDir6_temp = ith.momentumAtEntry().unit();
 
         sim2Phi   += simDir6_temp.phi();
         sim2Theta += simDir6_temp.theta();
 
-        sim2X += (*ith).localPosition().x();
-        sim2Y += (*ith).localPosition().y();
+        sim2X += ith.localPosition().x();
+        sim2Y += ith.localPosition().y();
         counter++;
 
       }
@@ -533,19 +533,19 @@ int CSCSegmentReader::bestMatch( CSCDetId id0,
   float sim1Z = 0.;
   int counter = 0;
 
-  for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+  for (const auto & ith : *simHits) {
 
-    if ( abs((*ith).particleType()) != 13 ) continue;
+    if ( abs(ith.particleType()) != 13 ) continue;
 
-    CSCDetId simId = (CSCDetId)(*ith).detUnitId();
+    CSCDetId simId = (CSCDetId)ith.detUnitId();
 
     if ( simId.layer() == firstLayer && ch == geom->chamber(simId) ) {
 
       check1 = true;
 
-      sim1X +=(*ith).localPosition().x();
-      sim1Y +=(*ith).localPosition().y();
-      sim1Z  =(*ith).localPosition().z();
+      sim1X +=ith.localPosition().x();
+      sim1Y +=ith.localPosition().y();
+      sim1Z  =ith.localPosition().z();
 
       counter++;
     }
@@ -561,18 +561,18 @@ int CSCSegmentReader::bestMatch( CSCDetId id0,
   float sim2Z = 0.;
   counter = 0;
 
-  for (edm::PSimHitContainer::const_iterator ith = simHits->begin(); ith != simHits->end(); ith++) {
+  for (const auto & ith : *simHits) {
 
-    if ( abs((*ith).particleType()) != 13 ) continue;
+    if ( abs(ith.particleType()) != 13 ) continue;
 
-    CSCDetId simId = (CSCDetId)(*ith).detUnitId();
+    CSCDetId simId = (CSCDetId)ith.detUnitId();
     if ( simId.layer() == lastLayer && ch == geom->chamber(simId) ) {
 
       check6 = true;
 
-      sim2X +=(*ith).localPosition().x();
-      sim2Y +=(*ith).localPosition().y();
-      sim2Z  =(*ith).localPosition().z();
+      sim2X +=ith.localPosition().x();
+      sim2Y +=ith.localPosition().y();
+      sim2Z  =ith.localPosition().z();
       counter++;
     }
   }
@@ -596,8 +596,8 @@ int CSCSegmentReader::bestMatch( CSCDetId id0,
   float bestCosTheta = 0.;
 
 
-  for (CSCSegmentCollection::const_iterator its = cscSegments->begin(); its !=cscSegments->end(); its++) {
-    CSCDetId id = (*its).cscDetId();
+  for (const auto & its : *cscSegments) {
+    CSCDetId id = its.cscDetId();
 
     if ((id0.endcap()   == id.endcap())  &&
         (id0.ring()     == id.ring())    &&
@@ -609,18 +609,18 @@ int CSCSegmentReader::bestMatch( CSCDetId id0,
       continue;
     }
 
-    if (  (*its).nRecHits() < minRechitSegment ) continue;
+    if (  its.nRecHits() < minRechitSegment ) continue;
 
 
-    float xreco  = (*its).localPosition().x();
-    float yreco  = (*its).localPosition().y();
+    float xreco  = its.localPosition().x();
+    float yreco  = its.localPosition().y();
 
     float dR = (xreco - x) *  (xreco - x) + (yreco - y) *  (yreco - y);
     dR = sqrt(dR);
 
     if (dR > 10. ) continue;   // 10 centimeter radius
 
-    LocalVector segDir = (*its).localDirection();
+    LocalVector segDir = its.localDirection();
 
     float xdir = segDir.x();
     float ydir = segDir.y();

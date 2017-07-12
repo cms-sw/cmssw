@@ -196,15 +196,13 @@ TrackerValidationVariables::fillHitQuantities(const Trajectory* trajectory, std:
   TrajectoryStateCombiner tsoscomb;
 
   const std::vector<TrajectoryMeasurement> &tmColl = trajectory->measurements();
-  for(std::vector<TrajectoryMeasurement>::const_iterator itTraj = tmColl.begin();
-      itTraj != tmColl.end();
-      ++itTraj) {
+  for(const auto & itTraj : tmColl) {
     
-    if (!itTraj->updatedState().isValid()) continue;
+    if (!itTraj.updatedState().isValid()) continue;
     
-    TrajectoryStateOnSurface tsos = tsoscomb( itTraj->forwardPredictedState(), itTraj->backwardPredictedState() );
+    TrajectoryStateOnSurface tsos = tsoscomb( itTraj.forwardPredictedState(), itTraj.backwardPredictedState() );
     if(!tsos.isValid()) continue;
-    TransientTrackingRecHit::ConstRecHitPointer hit = itTraj->recHit();
+    TransientTrackingRecHit::ConstRecHitPointer hit = itTraj.recHit();
     
     if(!hit->isValid() || hit->geographicalId().det() != DetId::Tracker) continue;
     

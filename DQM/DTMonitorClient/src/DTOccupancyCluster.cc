@@ -97,9 +97,8 @@ bool DTOccupancyCluster::addPoint(const DTOccupancyPoint& anotherPoint) {
 double DTOccupancyCluster::distance(const DTOccupancyPoint& point) const {
   double dist = 99999999;
   // compute the minimum distance from a point
-  for(vector<DTOccupancyPoint>::const_iterator pt = thePoints.begin();
-      pt != thePoints.end(); ++pt) {
-    double distance = point.distance(*pt);
+  for(const auto & thePoint : thePoints) {
+    double distance = point.distance(thePoint);
     if(distance < dist) {
       dist = distance;
     }
@@ -138,9 +137,8 @@ TH2F * DTOccupancyCluster::getHisto(std::string histoName, int nBinsX, double mi
   TH2F *histo = new TH2F(histoName.c_str(),histoName.c_str(),
 			 nBinsX, minX, maxX, nBinsY, minY, maxY);
   histo->SetFillColor(fillColor);
-  for(vector<DTOccupancyPoint>::const_iterator pt = thePoints.begin();
-      pt != thePoints.end(); ++pt) {
-    histo->Fill((*pt).mean(), (*pt).rms());
+  for(const auto & thePoint : thePoints) {
+    histo->Fill(thePoint.mean(), thePoint.rms());
   }
   return histo;
 }
@@ -198,9 +196,8 @@ int DTOccupancyCluster::nPoints() const {
 
 set<DTLayerId> DTOccupancyCluster::getLayerIDs() const {
   set<DTLayerId> ret;
-  for(vector<DTOccupancyPoint>::const_iterator point = thePoints.begin();
-      point != thePoints.end(); ++point) {
-    ret.insert((*point).layerId());
+  for(const auto & thePoint : thePoints) {
+    ret.insert(thePoint.layerId());
   }
   return ret;
 }

@@ -67,50 +67,50 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 
   TrackRefVector filteredTracksByNumTrkHits(const TrackRefVector& theInitialTracks, int tkminTrackerHitsn){
     TrackRefVector filteredTracks;
-    for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
-      if ( (**iTk).numberOfValidHits() >= tkminTrackerHitsn )
-	filteredTracks.push_back(*iTk);
+    for(auto && theInitialTrack : theInitialTracks){
+      if ( (*theInitialTrack).numberOfValidHits() >= tkminTrackerHitsn )
+	filteredTracks.push_back(theInitialTrack);
     }
     return filteredTracks;
   }
 
   TrackRefVector filteredTracks(const TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2, Vertex pv){
     TrackRefVector filteredTracks;
-    for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
-      if ((**iTk).pt()>=tkminPt &&
-	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
-	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt &&
-	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
-	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn)
-	filteredTracks.push_back(*iTk);
+    for(auto && theInitialTrack : theInitialTracks){
+      if ((*theInitialTrack).pt()>=tkminPt &&
+	  (*theInitialTrack).normalizedChi2()<=tkmaxChi2 &&
+	  fabs((*theInitialTrack).dxy(pv.position()))<=tkmaxipt &&
+	  (*theInitialTrack).numberOfValidHits()>=tkminTrackerHitsn &&
+	  (*theInitialTrack).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn)
+	filteredTracks.push_back(theInitialTrack);
     }
     return filteredTracks;
   }
   TrackRefVector filteredTracks(const TrackRefVector& theInitialTracks,double tkminPt,int tkminPixelHitsn,int tkminTrackerHitsn,double tkmaxipt,double tkmaxChi2,double tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
     TrackRefVector filteredTracks;
-    for(TrackRefVector::const_iterator iTk=theInitialTracks.begin();iTk!=theInitialTracks.end();iTk++){
+    for(auto && theInitialTrack : theInitialTracks){
       if(pv.isFake()) tktorefpointmaxDZ=30.;
-      if ((**iTk).pt()>=tkminPt &&
-	  (**iTk).normalizedChi2()<=tkmaxChi2 &&
-	  fabs((**iTk).dxy(pv.position()))<=tkmaxipt &&
-	  (**iTk).numberOfValidHits()>=tkminTrackerHitsn &&
-	  (**iTk).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn &&
-	  fabs((**iTk).dz(pv.position()))<=tktorefpointmaxDZ)
-	filteredTracks.push_back(*iTk);
+      if ((*theInitialTrack).pt()>=tkminPt &&
+	  (*theInitialTrack).normalizedChi2()<=tkmaxChi2 &&
+	  fabs((*theInitialTrack).dxy(pv.position()))<=tkmaxipt &&
+	  (*theInitialTrack).numberOfValidHits()>=tkminTrackerHitsn &&
+	  (*theInitialTrack).hitPattern().numberOfValidPixelHits()>=tkminPixelHitsn &&
+	  fabs((*theInitialTrack).dz(pv.position()))<=tktorefpointmaxDZ)
+	filteredTracks.push_back(theInitialTrack);
     }
     return filteredTracks;
   }
 
   std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCandsByNumTrkHits(const std::vector<reco::PFCandidatePtr>& theInitialPFCands, int ChargedHadrCand_tkminTrackerHitsn){
     std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands;
-    for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
+    for(const auto & theInitialPFCand : theInitialPFCands){
+      if (PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::e){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
-	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
+	TrackRef PFChargedHadrCand_rectk = (*theInitialPFCand).trackRef();
 
 	if (!PFChargedHadrCand_rectk)continue;
 	if ( (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn )
-	  filteredPFChargedHadrCands.push_back(*iPFCand);
+	  filteredPFChargedHadrCands.push_back(theInitialPFCand);
       }
     }
     return filteredPFChargedHadrCands;
@@ -118,10 +118,10 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 
   std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2, Vertex pv){
     std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands;
-    for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
+    for(const auto & theInitialPFCand : theInitialPFCands){
+      if (PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::e){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
-	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
+	TrackRef PFChargedHadrCand_rectk = (*theInitialPFCand).trackRef();
 	
 
 	if (!PFChargedHadrCand_rectk)continue;
@@ -130,7 +130,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 	    fabs((*PFChargedHadrCand_rectk).dxy(pv.position()))<=ChargedHadrCand_tkmaxipt &&
 	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
 	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn) 
-	  filteredPFChargedHadrCands.push_back(*iPFCand);
+	  filteredPFChargedHadrCands.push_back(theInitialPFCand);
       }
     }
     return filteredPFChargedHadrCands;
@@ -138,10 +138,10 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
   std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double ChargedHadrCand_tkminPt,int ChargedHadrCand_tkminPixelHitsn,int ChargedHadrCand_tkminTrackerHitsn,double ChargedHadrCand_tkmaxipt,double ChargedHadrCand_tkmaxChi2,double ChargedHadrCand_tktorefpointmaxDZ,Vertex pv, double refpoint_Z){
     if(pv.isFake()) ChargedHadrCand_tktorefpointmaxDZ = 30.;
     std::vector<reco::PFCandidatePtr> filteredPFChargedHadrCands;
-    for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::e){
+    for(const auto & theInitialPFCand : theInitialPFCands){
+      if (PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::h  || PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::mu || PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::e){
 	// *** Whether the charged hadron candidate will be selected or not depends on its rec. tk properties. 
-	TrackRef PFChargedHadrCand_rectk = (**iPFCand).trackRef();
+	TrackRef PFChargedHadrCand_rectk = (*theInitialPFCand).trackRef();
 	if (!PFChargedHadrCand_rectk)continue;
 	if ((*PFChargedHadrCand_rectk).pt()>=ChargedHadrCand_tkminPt &&
 	    (*PFChargedHadrCand_rectk).normalizedChi2()<=ChargedHadrCand_tkmaxChi2 &&
@@ -149,7 +149,7 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
 	    (*PFChargedHadrCand_rectk).numberOfValidHits()>=ChargedHadrCand_tkminTrackerHitsn &&
 	    (*PFChargedHadrCand_rectk).hitPattern().numberOfValidPixelHits()>=ChargedHadrCand_tkminPixelHitsn &&
 	    fabs((*PFChargedHadrCand_rectk).dz(pv.position()))<=ChargedHadrCand_tktorefpointmaxDZ)
-	  filteredPFChargedHadrCands.push_back(*iPFCand);
+	  filteredPFChargedHadrCands.push_back(theInitialPFCand);
       }
     }
     return filteredPFChargedHadrCands;
@@ -157,11 +157,11 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
   
   std::vector<reco::PFCandidatePtr> filteredPFNeutrHadrCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double NeutrHadrCand_HcalclusMinEt){
     std::vector<reco::PFCandidatePtr> filteredPFNeutrHadrCands;
-    for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::h0){
+    for(const auto & theInitialPFCand : theInitialPFCands){
+      if (PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::h0){
 	// *** Whether the neutral hadron candidate will be selected or not depends on its rec. HCAL cluster properties. 
-	if ((**iPFCand).et()>=NeutrHadrCand_HcalclusMinEt){
-	  filteredPFNeutrHadrCands.push_back(*iPFCand);
+	if ((*theInitialPFCand).et()>=NeutrHadrCand_HcalclusMinEt){
+	  filteredPFNeutrHadrCands.push_back(theInitialPFCand);
 	}
       }
     }
@@ -170,11 +170,11 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
   
   std::vector<reco::PFCandidatePtr> filteredPFGammaCands(const std::vector<reco::PFCandidatePtr>& theInitialPFCands,double GammaCand_EcalclusMinEt){
     std::vector<reco::PFCandidatePtr> filteredPFGammaCands;
-    for(std::vector<reco::PFCandidatePtr>::const_iterator iPFCand=theInitialPFCands.begin();iPFCand!=theInitialPFCands.end();iPFCand++){
-      if (PFCandidate::ParticleType((**iPFCand).particleId())==PFCandidate::gamma){
+    for(const auto & theInitialPFCand : theInitialPFCands){
+      if (PFCandidate::ParticleType((*theInitialPFCand).particleId())==PFCandidate::gamma){
 	// *** Whether the gamma candidate will be selected or not depends on its rec. ECAL cluster properties. 
-	if ((**iPFCand).et()>=GammaCand_EcalclusMinEt){
-	  filteredPFGammaCands.push_back(*iPFCand);
+	if ((*theInitialPFCand).et()>=GammaCand_EcalclusMinEt){
+	  filteredPFGammaCands.push_back(theInitialPFCand);
 	}
       }
     }
@@ -254,8 +254,8 @@ void replaceSubStr(string& s,const string& oldSubStr,const string& newSubStr){
     std::vector<reco::PFCandidatePtr> sorted;
     sorted.reserve(vec.size());
     
-    for(unsigned int i=0;i<indices.size();++i)
-      sorted.push_back(vec.at(indices.at(i)));
+    for(unsigned long indice : indices)
+      sorted.push_back(vec.at(indice));
 
     vec = sorted;
   }

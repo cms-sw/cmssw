@@ -228,19 +228,19 @@ void MuonTransientTrackingRecHit::invalidateHit(){
     if(dimension() > 1){ // MB4s have 2D, but formatted in 4D segments 
       std::vector<TrackingRecHit*> seg2D = recHits(); // 4D --> 2D
       // load 1D hits (2D --> 1D)
-      for(std::vector<TrackingRecHit*>::iterator it = seg2D.begin(); it != seg2D.end(); ++it){
-	std::vector<TrackingRecHit*> hits1D =  (*it)->recHits();
-	(*it)->setType(bad);
-	for(std::vector<TrackingRecHit*>::iterator it2 = hits1D.begin(); it2 != hits1D.end(); ++it2)
-	  (*it2)->setType(bad);
+      for(auto & it : seg2D){
+	std::vector<TrackingRecHit*> hits1D =  it->recHits();
+	it->setType(bad);
+	for(auto & it2 : hits1D)
+	  it2->setType(bad);
       }
     }
   }
   else if(isCSC())
     if(dimension() == 4){
       std::vector<TrackingRecHit*>  hits = recHits(); // load 2D hits (4D --> 1D)
-      for(std::vector<TrackingRecHit*>::iterator it = hits.begin(); it != hits.end(); ++it)
-	(*it)->setType(bad);
+      for(auto & hit : hits)
+	hit->setType(bad);
     }
   
   

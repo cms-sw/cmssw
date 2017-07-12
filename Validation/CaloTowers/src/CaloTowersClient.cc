@@ -42,18 +42,18 @@ void CaloTowersClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter 
   // Since out folders are fixed to three, we can just go over these three folders
   // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
   std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
-  for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
+  for(const auto & fullPathHLTFolder : fullPathHLTFolders) {
 
-    if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
-    igetter.setCurrentFolder(fullPathHLTFolders[i]);
+    if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolder << std::endl;
+    igetter.setCurrentFolder(fullPathHLTFolder);
 
     std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
-    for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
+    for(auto & fullSubPathHLTFolder : fullSubPathHLTFolders) {
 
-      if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
+      if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolder << std::endl;
 
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersV/CaloTowersTask") ==0  ){
-         hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+      if( strcmp(fullSubPathHLTFolder.c_str(), "CaloTowersV/CaloTowersTask") ==0  ){
+         hcalMEs = igetter.getContents(fullSubPathHLTFolder);
          if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
          if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;
       }
@@ -72,27 +72,27 @@ int CaloTowersClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalM
    MonitorElement* Ntowers_vs_ieta =0;
    MonitorElement* mapEnergy_N =0, *mapEnergy_E =0, *mapEnergy_H =0, *mapEnergy_EH =0;
    MonitorElement* occupancy_map =0, *occupancy_vs_ieta =0;
-   for(unsigned int ih=0; ih<hcalMEs.size(); ih++){
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "Ntowers_per_event_vs_ieta") ==0  ){
-         Ntowers_vs_ieta = hcalMEs[ih];
+   for(auto hcalME : hcalMEs){
+      if( strcmp(hcalME->getName().c_str(), "Ntowers_per_event_vs_ieta") ==0  ){
+         Ntowers_vs_ieta = hcalME;
       } 
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_Nentries") ==0  ){
-         mapEnergy_N = hcalMEs[ih];
+      if( strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_Nentries") ==0  ){
+         mapEnergy_N = hcalME;
       }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_H") ==0  ){
-         useAllHistos++; mapEnergy_H = hcalMEs[ih];
+      if( strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_energy_H") ==0  ){
+         useAllHistos++; mapEnergy_H = hcalME;
       }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_E") ==0  ){
-         useAllHistos++; mapEnergy_E = hcalMEs[ih];
+      if( strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_energy_E") ==0  ){
+         useAllHistos++; mapEnergy_E = hcalME;
       }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_energy_EH") ==0  ){
-         useAllHistos++; mapEnergy_EH = hcalMEs[ih];
+      if( strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_energy_EH") ==0  ){
+         useAllHistos++; mapEnergy_EH = hcalME;
       }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_map_occupancy") ==0  ){
-         occupancy_map = hcalMEs[ih];
+      if( strcmp(hcalME->getName().c_str(), "CaloTowersTask_map_occupancy") ==0  ){
+         occupancy_map = hcalME;
       }
-      if( strcmp(hcalMEs[ih]->getName().c_str(), "CaloTowersTask_occupancy_vs_ieta") ==0  ){
-         occupancy_vs_ieta = hcalMEs[ih];
+      if( strcmp(hcalME->getName().c_str(), "CaloTowersTask_occupancy_vs_ieta") ==0  ){
+         occupancy_vs_ieta = hcalME;
       }
   
    } 

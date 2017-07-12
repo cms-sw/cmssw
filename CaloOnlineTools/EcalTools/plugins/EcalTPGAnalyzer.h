@@ -31,7 +31,7 @@ class towerEner {
     : eRec_(0), tpgADC_(0),  
       iphi_(-999), ieta_(-999), nbXtal_(0)
   { 
-    for (int i=0 ; i<5 ; i ++) tpgEmul_[i] = 0 ; 
+    for (int & i : tpgEmul_) i = 0 ; 
   }
 };
 

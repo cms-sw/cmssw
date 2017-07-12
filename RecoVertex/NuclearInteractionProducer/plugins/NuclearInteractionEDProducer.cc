@@ -132,7 +132,7 @@ NuclearInteractionEDProducer::produce(edm::Event& iEvent, const edm::EventSetup&
 // ------ method used to check whether the seed of a track belong to the vector of seeds --
 bool NuclearInteractionEDProducer::isInside( const reco::TrackRef& track, const TrajectorySeedRefVector& seeds) {
     unsigned int seedKey = track->seedRef().key();
-    for (unsigned int i=0; i< seeds.size(); i++) { if( seeds[i].key() == seedKey ) return true; }
+    for (const auto & seed : seeds) { if( seed.key() == seedKey ) return true; }
     return false;
 }
 

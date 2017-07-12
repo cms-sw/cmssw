@@ -59,8 +59,8 @@ cond::service::PoolDBOutputService::PoolDBOutputService(const edm::ParameterSet 
   
   typedef std::vector< edm::ParameterSet > Parameters;
   Parameters toPut=iConfig.getParameter<Parameters>("toPut");
-  for(Parameters::iterator itToPut = toPut.begin(); itToPut != toPut.end(); ++itToPut)
-    fillRecord( *itToPut);
+  for(auto & itToPut : toPut)
+    fillRecord( itToPut);
 
 
   iAR.watchPostEndJob(this,&cond::service::PoolDBOutputService::postEndJob);

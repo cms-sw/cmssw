@@ -213,8 +213,8 @@ void Pythia6Service::setCSAParams()
    {
       // Null pad the string should not be needed because it uses
       // read, which will look for \n, but just in case...
-      for (size_t i = 0; i < SETCSAPARBUFSIZE; ++i)
-        buf[i] = ' ';
+      for (char & i : buf)
+        i = ' ';
       // Skip empty parameters.
       if (iter->length() <= 0)
         continue;
@@ -389,11 +389,10 @@ void Pythia6Service::setSLHAFromHeader( const std::vector<std::string> &lines )
         const char *fname = fnamest.c_str();
 	std::ofstream file(fname, std::fstream::out | std::fstream::trunc);
 	std::string block;
-	for(std::vector<std::string>::const_iterator iter = lines.begin();
-	    iter != lines.end(); ++iter) {
-		file << *iter;
+	for(const auto & iter : lines) {
+		file << iter;
 
-		std::string line = *iter;
+		std::string line = iter;
 		std::transform(line.begin(), line.end(),
 		               line.begin(), (int(*)(int))std::toupper);
 		std::string::size_type pos = line.find('#');

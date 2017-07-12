@@ -538,8 +538,8 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
     try{
       if(!calib.size()) throw (int)calib.size();
       // this is effectively a loop over electronic channels
-      for (HcalCalibDigiCollection::const_iterator j=calib.begin(); j!=calib.end(); ++j){
-        const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*j);   
+      for (const auto & j : calib){
+        const HcalCalibDataFrame digi = (const HcalCalibDataFrame)j;   
         HcalElectronicsId elecId = digi.elecId();
         HcalCalibDetId calibId = digi.id();
         ProcessCalibEvent(elecId.fiberChanId(),calibId,digi);  //Shouldn't depend on anything in elecId but not sure how else to do it 
@@ -555,9 +555,9 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
   try{
     if(!hbhe.size()) throw (int)hbhe.size();
 // this is effectively a loop over electronic channels
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
-      for(int k=0; k<(int)state.size();k++) state[k]=true;
+    for (const auto & j : hbhe){
+      const HBHEDataFrame digi = (const HBHEDataFrame)j;
+      for(auto && k : state) k=true;
       // See if histos exist for this channel, and if not, create them
       _meol = hbHists.LEDTRENDS.find(digi.id());
       if (_meol==hbHists.LEDTRENDS.end()){
@@ -573,8 +573,8 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
   // HO
   try{
     if(!ho.size()) throw (int)ho.size();
-    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
-      const HODataFrame digi = (const HODataFrame)(*j);
+    for (const auto & j : ho){
+      const HODataFrame digi = (const HODataFrame)j;
       _meol = hoHists.LEDTRENDS.find(digi.id());
       if (_meol==hoHists.LEDTRENDS.end()){
         SetupLEDHists(1,digi.id(),hoHists.LEDTRENDS);
@@ -589,8 +589,8 @@ void HcalLedAnalysis::processLedEvent(const HBHEDigiCollection& hbhe,
   // HF
   try{
     if(!hf.size()) throw (int)hf.size();
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
-      const HFDataFrame digi = (const HFDataFrame)(*j);
+    for (const auto & j : hf){
+      const HFDataFrame digi = (const HFDataFrame)j;
       _meol = hfHists.LEDTRENDS.find(digi.id());
       if (_meol==hfHists.LEDTRENDS.end()){
         SetupLEDHists(2,digi.id(),hfHists.LEDTRENDS);
@@ -649,7 +649,7 @@ void HcalLedAnalysis::LedHBHEHists(const HcalDetId& detid, const HBHEDataFrame& 
 
   // Reset the histos if we're at the end of a 'bunch'
   if((evt-1)%m_nevtsample==0 && state[0]){
-    for(int k=0; k<(int)state.size();k++) state[k]=false;
+    for(auto && k : state) k=false;
     for(int i=0; i<16; i++) _mei[i].first->Reset();
   }
 
@@ -714,7 +714,7 @@ void HcalLedAnalysis::LedHOHists(const HcalDetId& detid, const HODataFrame& ledD
   _mei = _meol->second;
   // Rest the histos if we're at the end of a 'bunch'
   if((evt-1)%m_nevtsample==0 && state[0]){
-    for(int k=0; k<(int)state.size();k++) state[k]=false;
+    for(auto && k : state) k=false;
     for(int i=0; i<16; i++) _mei[i].first->Reset();
   }
 
@@ -778,7 +778,7 @@ void HcalLedAnalysis::LedHFHists(const HcalDetId& detid, const HFDataFrame& ledD
   _mei = _meol->second;
   // Rest the histos if we're at the end of a 'bunch'
   if((evt-1)%m_nevtsample==0 && state[0]){
-    for(int k=0; k<(int)state.size();k++) state[k]=false;
+    for(auto && k : state) k=false;
     for(int i=0; i<16; i++) _mei[i].first->Reset();
   }
 

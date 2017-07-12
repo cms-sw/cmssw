@@ -119,9 +119,7 @@ void JetCoreClusterSplitter::produce(edm::Event& iEvent,
                                                             detIt->id());
     const edmNew::DetSet<SiPixelCluster>& detset = *detIt;
     const GeomDet* det = geometry->idToDet(detset.id());
-    for (auto cluster = detset.begin();
-         cluster != detset.end(); cluster++) {
-      const SiPixelCluster& aCluster = *cluster;
+    for (const auto & aCluster : detset) {
       bool hasBeenSplit = false;
       bool shouldBeSplit = false;
       GlobalPoint cPos = det->surface().toGlobal(
@@ -208,8 +206,8 @@ bool JetCoreClusterSplitter::split(
                    std::floor(aCluster.charge() / expectedADC + 0.5f));
 
   // for the config with best chi2
-  for (unsigned int i = 0; i < sp.size(); i++) {
-    filler.push_back(sp[i]);
+  for (const auto & i : sp) {
+    filler.push_back(i);
     std::push_heap(filler.begin(),filler.end(),
           [](SiPixelCluster const & cl1,SiPixelCluster const & cl2) { return cl1.minPixelRow() < cl2.minPixelRow();});
   }
@@ -222,8 +220,7 @@ std::pair<float, float> JetCoreClusterSplitter::closestClusters(
     const std::vector<float>& distanceMap) {
   float minDist = std::numeric_limits<float>::max();
   float secondMinDist = std::numeric_limits<float>::max();
-  for (unsigned int i = 0; i < distanceMap.size(); i++) {
-    float dist = distanceMap[i];
+  for (float dist : distanceMap) {
     if (dist < minDist) {
       secondMinDist = minDist;
       minDist = dist;
@@ -362,11 +359,10 @@ std::vector<SiPixelCluster> JetCoreClusterSplitter::fittingSplit(
     // Iterate starting from the ones with furthest second best clusters, i.e.
     // easy choices
     std::vector<float> weightOfPixel(pixels.size());
-    for (std::multimap<float, int>::iterator it = scores.begin();
-         it != scores.end(); it++) {
-      int pixel_index = it->second;
+    for (auto & score : scores) {
+      int pixel_index = score.second;
       if (verbose)
-        std::cout << "Original Pixel " << pixel_index << " with score " << it->first << std::endl;
+        std::cout << "Original Pixel " << pixel_index << " with score " << score.first << std::endl;
       // find cluster that is both close and has some charge still to assign
       int subpixel_counter = 0;
       for (auto subpixel = pixels.begin(); subpixel != pixels.end();

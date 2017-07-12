@@ -186,11 +186,11 @@ void ESListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup
     std::cout<<int(es_feds.size())<<" feds requested, and ESunpacking have already been done "<<esnDone<<" times."<<std::endl;
   }
   
-  for(int i=0; i<int(esFEDs_Done.size());i++){
-    std::vector<int> done = esFEDs_Done[i]-> GetList();
-    for(int n=0; n<int(done.size());n++){
+  for(auto & i : esFEDs_Done){
+    std::vector<int> done = i-> GetList();
+    for(int n : done){
       for(int j=0; j<int(es_feds.size());j++){
-	std::vector<int>::iterator it = find(es_feds.begin(),es_feds.end(),done[n]);
+	std::vector<int>::iterator it = find(es_feds.begin(),es_feds.end(),n);
 	if( it != es_feds.end()){
 	  es_feds.erase(it);
 	  j--; 
@@ -201,8 +201,8 @@ void ESListOfFEDSProducer::produce(edm::Event & e, const edm::EventSetup& iSetup
   
   if (debug_ ){
     std::cout<<"ESListofFEDSProducer: new ES_list will be put into event: total "<<int(es_feds.size())<<std::endl;
-    for(int j=0; j<int(es_feds.size());j++){
-      std::cout<<es_feds[j]<<" ";
+    for(int es_fed : es_feds){
+      std::cout<<es_fed<<" ";
     }
     std::cout<<std::endl;
   }
@@ -235,15 +235,14 @@ void ESListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std:
   
   if(EMdoIsolated_) {
     
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emIsolColl->begin();
-	 emItr != emIsolColl->end() ;++emItr ){
+    for(const auto & emItr : *emIsolColl){
       
-      float pt = emItr -> pt();
+      float pt = emItr. -> pt();
       if (pt < Ptmin_iso_ ) continue;
       if (debug_) std::cout << " Here is an L1 isoEM candidate of pt " << pt << std::endl;
       // Access the GCT hardware object corresponding to the L1Extra EM object.
-      int etaIndex = emItr->gctEmCand()->etaIndex() ;
-      int phiIndex = emItr->gctEmCand()->phiIndex() ;
+      int etaIndex = emItr.gctEmCand()->etaIndex() ;
+      int phiIndex = emItr.gctEmCand()->phiIndex() ;
       // Use the L1CaloGeometry to find the eta, phi bin boundaries.
       double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
       double etaHigh = l1CaloGeom->etaBinHighEdge( etaIndex ) ;
@@ -251,24 +250,23 @@ void ESListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std:
       double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
       
       std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
-      for (int i=0; i < (int)feds.size(); i++) {
-	if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
-	     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+      for (int fed : feds) {
+	if ( std::find(FEDs.begin(), FEDs.end(), fed) == FEDs.end() &&
+	     std::find(done.begin(), done.end(), fed) == done.end() ) FEDs.push_back(fed);
       }
     } // end loop on L1EmParticleCollection
   }  // endif doIsolated_
 
   if (EMdoNonIsolated_) {
     
-    for( l1extra::L1EmParticleCollection::const_iterator emItr = emNonIsolColl->begin();
-	 emItr != emNonIsolColl->end() ;++emItr ){
+    for(const auto & emItr : *emNonIsolColl){
       
-      float pt = emItr -> pt();
+      float pt = emItr. -> pt();
       if (debug_) std::cout << " Here is an L1 nonisoEM candidate of pt " << pt << std::endl;
       if (pt < Ptmin_noniso_ ) continue;
       // Access the GCT hardware object corresponding to the L1Extra EM object.
-      int etaIndex = emItr->gctEmCand()->etaIndex() ;
-      int phiIndex = emItr->gctEmCand()->phiIndex() ;
+      int etaIndex = emItr.gctEmCand()->etaIndex() ;
+      int phiIndex = emItr.gctEmCand()->phiIndex() ;
       // std::cout << " etaIndex phiIndex " << etaIndex << " " << phiIndex << std::endl;
       // Use the L1CaloGeometry to find the eta, phi bin boundaries.
       double etaLow  = l1CaloGeom->etaBinLowEdge( etaIndex ) ;
@@ -277,9 +275,9 @@ void ESListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std:
       double phiHigh = l1CaloGeom->emJetPhiBinHighEdge( phiIndex ) ;
       
       std::vector<int> feds = ListOfFEDS(etaLow, etaHigh, phiLow, phiHigh, EMregionEtaMargin_, EMregionPhiMargin_);
-      for (int i=0; i < (int)feds.size(); i++) {
-	if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
-	     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+      for (int fed : feds) {
+	if ( std::find(FEDs.begin(), FEDs.end(), fed) == FEDs.end() &&
+	     std::find(done.begin(), done.end(), fed) == done.end() ) FEDs.push_back(fed);
 	
       }
     } // end loop on L1EmParticleCollection
@@ -287,8 +285,8 @@ void ESListOfFEDSProducer::Egamma(edm::Event& e, const edm::EventSetup& es, std:
   
   if (debug_) {
     std::cout << std::endl;
-    for (int i=0; i < (int)FEDs.size(); i++) {
-      std::cout << "Egamma: unpack FED " << FEDs[i] << std::endl;
+    for (int FED : FEDs) {
+      std::cout << "Egamma: unpack FED " << FED << std::endl;
     }
     std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
   }
@@ -305,12 +303,12 @@ void ESListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es, std::v
 
   double epsilon = 0.01;
   
-  for (L1MuonParticleCollection::const_iterator it=muColl->begin(); it != muColl->end(); it++) {
+  for (const auto & it : *muColl) {
     
-    const L1MuGMTExtendedCand muonCand = (*it).gmtMuonCand();
-    double pt    =  (*it).pt();
-    double eta   =  (*it).eta();
-    double phi   =  (*it).phi();
+    const L1MuGMTExtendedCand muonCand = it.gmtMuonCand();
+    double pt    =  it.pt();
+    double eta   =  it.eta();
+    double phi   =  it.phi();
     
     if (debug_) std::cout << " here is a L1 muon Seed  with (eta,phi) = " << 
 		  eta << " " << phi << " and pt " << pt << std::endl;
@@ -318,16 +316,16 @@ void ESListOfFEDSProducer::Muon(edm::Event& e, const edm::EventSetup& es, std::v
     
     std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, MUregionEtaMargin_, MUregionPhiMargin_);
     
-    for (int i=0; i < (int)feds.size(); i++) {
-      if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
-	   std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+    for (int fed : feds) {
+      if ( std::find(FEDs.begin(), FEDs.end(), fed) == FEDs.end() &&
+	   std::find(done.begin(), done.end(), fed) == done.end() ) FEDs.push_back(fed);
     }
   }
   
   if (debug_) {
     std::cout << std::endl;
-    for (int i=0; i < (int)FEDs.size(); i++) {
-      std::cout << "Muons: unpack FED " << FEDs[i] << std::endl;
+    for (int FED : FEDs) {
+      std::cout << "Muons: unpack FED " << FED << std::endl;
     }
     std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
   }
@@ -348,11 +346,11 @@ void ESListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::v
     edm::Handle<L1JetParticleCollection> jetColl;
     e.getByToken(CentralSource_,jetColl);
     
-    for (L1JetParticleCollection::const_iterator it=jetColl->begin(); it != jetColl->end(); it++) {
+    for (const auto & it : *jetColl) {
       
-      double pt    =  it -> pt();
-      double eta   =  it -> eta();
-      double phi   =  it -> phi();
+      double pt    =  it. -> pt();
+      double eta   =  it. -> eta();
+      double phi   =  it. -> phi();
       
       if (debug_) std::cout << " here is a L1 CentralJet Seed  with (eta,phi) = " <<
 		    eta << " " << phi << " and pt " << pt << std::endl;
@@ -360,9 +358,9 @@ void ESListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::v
       
       std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
       
-      for (int i=0; i < (int)feds.size(); i++) {
-	if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
-	     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+      for (int fed : feds) {
+	if ( std::find(FEDs.begin(), FEDs.end(), fed) == FEDs.end() &&
+	     std::find(done.begin(), done.end(), fed) == done.end() ) FEDs.push_back(fed);
       }
     }
   }
@@ -372,11 +370,11 @@ void ESListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::v
     edm::Handle<L1JetParticleCollection> jetColl;
     e.getByToken(ForwardSource_,jetColl);
 
-    for (L1JetParticleCollection::const_iterator it=jetColl->begin(); it != jetColl->end(); it++) {
+    for (const auto & it : *jetColl) {
       
-      double pt    =  it -> pt();
-      double eta   =  it -> eta();
-      double phi   =  it -> phi();
+      double pt    =  it. -> pt();
+      double eta   =  it. -> eta();
+      double phi   =  it. -> phi();
       
       if (debug_) std::cout << " here is a L1 ForwardJet Seed  with (eta,phi) = " <<
 		    eta << " " << phi << " and pt " << pt << std::endl;
@@ -384,9 +382,9 @@ void ESListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::v
       
       std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
       
-      for (int i=0; i < (int)feds.size(); i++) {
-	if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
-	     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+      for (int fed : feds) {
+	if ( std::find(FEDs.begin(), FEDs.end(), fed) == FEDs.end() &&
+	     std::find(done.begin(), done.end(), fed) == done.end() ) FEDs.push_back(fed);
       }
     }
   }
@@ -396,11 +394,11 @@ void ESListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::v
     edm::Handle<L1JetParticleCollection> jetColl;
     e.getByToken(TauSource_,jetColl);
     
-    for (L1JetParticleCollection::const_iterator it=jetColl->begin(); it != jetColl->end(); it++) {
+    for (const auto & it : *jetColl) {
       
-      double pt    =  it -> pt();
-      double eta   =  it -> eta();
-      double phi   =  it -> phi();
+      double pt    =  it. -> pt();
+      double eta   =  it. -> eta();
+      double phi   =  it. -> phi();
       
       if (debug_) std::cout << " here is a L1 TauJet Seed  with (eta,phi) = " <<
 		    eta << " " << phi << " and pt " << pt << std::endl;
@@ -408,17 +406,17 @@ void ESListOfFEDSProducer::Jets(edm::Event& e, const edm::EventSetup& es, std::v
       
       std::vector<int> feds = ListOfFEDS(eta, eta, phi-epsilon, phi+epsilon, JETSregionEtaMargin_, JETSregionPhiMargin_);
       
-      for (int i=0; i < (int)feds.size(); i++) {
-	if ( std::find(FEDs.begin(), FEDs.end(), feds[i]) == FEDs.end() &&
-	     std::find(done.begin(), done.end(), feds[i]) == done.end() ) FEDs.push_back(feds[i]);
+      for (int fed : feds) {
+	if ( std::find(FEDs.begin(), FEDs.end(), fed) == FEDs.end() &&
+	     std::find(done.begin(), done.end(), fed) == done.end() ) FEDs.push_back(fed);
       }
     }
   }
     
   if (debug_) {
     std::cout << std::endl;
-    for (int i=0; i < (int)FEDs.size(); i++) {
-      std::cout << "Jets: unpack FED " << FEDs[i] << std::endl;
+    for (int FED : FEDs) {
+      std::cout << "Jets: unpack FED " << FED << std::endl;
     }
     std::cout << "Number of FEDS is " << FEDs.size() << std::endl;
   }

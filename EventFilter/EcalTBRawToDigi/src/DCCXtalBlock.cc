@@ -77,11 +77,10 @@ int DCCTBXtalBlock::xtalID() {
 
   int result=-1;
 
-  for(  std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator 
-           it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
+  for(auto mapperField : *mapperFields_){
   
-    if ( (*it)->name() == "XTAL ID" ) 
-      result=getDataField( (*it)->name() )  ;
+    if ( mapperField->name() == "XTAL ID" ) 
+      result=getDataField( mapperField->name() )  ;
     
   }
 
@@ -94,9 +93,9 @@ int DCCTBXtalBlock::xtalID() {
 int DCCTBXtalBlock::stripID() {
   int result=-1;
 
-  for(std::set<DCCTBDataField *,DCCTBDataFieldComparator>::iterator it = mapperFields_->begin(); it!= mapperFields_->end(); it++){
-    if ( (*it)->name() == "STRIP ID" ) 
-      result=getDataField( (*it)->name() )  ;
+  for(auto mapperField : *mapperFields_){
+    if ( mapperField->name() == "STRIP ID" ) 
+      result=getDataField( mapperField->name() )  ;
     
   }
   

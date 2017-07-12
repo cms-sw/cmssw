@@ -211,17 +211,17 @@ namespace l1t {
 	  // std::cout << "\nTrack: ID = " << conv_vals_SP.at(0) << ", sector = " << conv_vals_SP.at(1) << ", sub = " << conv_vals_SP.at(2)
 	  // 	    << ", neighbor = " << conv_vals_SP.at(3) << ", station = 1"
 	  // 	    << ", stub = " << SP_.ME1_stub_num() << ", BX = " << SP_.TBIN() - 3 << std::endl;
-	for (uint iBX = 0; iBX < 5; iBX++) { // Loop over BX values nearest to the track BX
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (int iBX : dBX) { // Loop over BX values nearest to the track BX
+	  for (auto & iHit : *res_hit) {
 	    // if (abs(SP_.TBIN() - 3) < 2 && iBX == 0)
 	      // std::cout << "Hit:   ID = " << (res_hit->at(iHit)).CSC_ID() << ", sector = " << (res_hit->at(iHit)).Sector() << ", sub = " << (res_hit->at(iHit)).Subsector()
 	      // 		<< ", neighbor = " << (res_hit->at(iHit)).Neighbor() << ", station = " << (res_hit->at(iHit)).Station()
 	      // 		<< ", stub = " << (res_hit->at(iHit)).Stub_num() << ", BX = " << (res_hit->at(iHit)).BX() << std::endl;
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
-		 (res_hit->at(iHit)).Subsector() == conv_vals_SP.at(2) && (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) &&
-		 (res_hit->at(iHit)).Station() == 1 && (res_hit->at(iHit)).Stub_num() == SP_.ME1_stub_num() &&
-		 (res_hit->at(iHit)).Endcap() == Track_.Endcap() && (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[0] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
+	    if ( iHit.CSC_ID() == conv_vals_SP.at(0) && iHit.Sector() == conv_vals_SP.at(1) &&
+		 iHit.Subsector() == conv_vals_SP.at(2) && iHit.Neighbor() == conv_vals_SP.at(3) &&
+		 iHit.Station() == 1 && iHit.Stub_num() == SP_.ME1_stub_num() &&
+		 iHit.Endcap() == Track_.Endcap() && iHit.BX() - (SP_.TBIN() - 3) == iBX ) {
+	      if (St_hits[0] == 0 ) Track_.push_Hit( iHit );
 	      St_hits[0] += 1; }
 	  }
 	  if (St_hits[0] > 0) break; // If you found a hit in a BX close to the track, not need to look in other BX
@@ -232,15 +232,15 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME2_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 2 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
+	for (int iBX : dBX) { 
+	  for (auto & iHit : *res_hit) {
+	    if ( iHit.CSC_ID() == conv_vals_SP.at(0) && iHit.Sector() == conv_vals_SP.at(1) && 
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 2 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME2_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[1] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
+		 iHit.Neighbor() == conv_vals_SP.at(3) && iHit.Station() == 2 && 
+		 iHit.Stub_num() == SP_.ME2_stub_num() && iHit.Endcap() == Track_.Endcap() && 
+		 iHit.BX() - (SP_.TBIN() - 3) == iBX ) {
+	      if (St_hits[1] == 0 ) Track_.push_Hit( iHit );
 	      St_hits[1] += 1; }
 	  }
 	  if (St_hits[1] > 0) break; 
@@ -251,15 +251,15 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME3_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 3 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) &&
+	for (int iBX : dBX) { 
+	  for (auto & iHit : *res_hit) {
+	    if ( iHit.CSC_ID() == conv_vals_SP.at(0) && iHit.Sector() == conv_vals_SP.at(1) &&
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 3 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME3_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() &&
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[2] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
+		 iHit.Neighbor() == conv_vals_SP.at(3) && iHit.Station() == 3 && 
+		 iHit.Stub_num() == SP_.ME3_stub_num() && iHit.Endcap() == Track_.Endcap() &&
+		 iHit.BX() - (SP_.TBIN() - 3) == iBX ) {
+	      if (St_hits[2] == 0 ) Track_.push_Hit( iHit );
 	      St_hits[2] += 1; }
 	  }
 	  if (St_hits[2] > 0) break; 
@@ -270,15 +270,15 @@ namespace l1t {
 	conv_vals_SP = convert_SP_location( SP_.ME4_CSC_ID(), (res->at(iOut)).PtrEventHeader()->Sector(), -99, 4 );
 	if ( conv_vals_SP.at(3) == 1 and not Track_.Has_neighbor() ) Track_.set_has_neighbor(true);
 	if ( conv_vals_SP.at(3) == 0 and     Track_.All_neighbor() ) Track_.set_all_neighbor(false); 
-	for (uint iBX = 0; iBX < 5; iBX++) { 
-	  for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
-	    if ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) && (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
+	for (int iBX : dBX) { 
+	  for (auto & iHit : *res_hit) {
+	    if ( iHit.CSC_ID() == conv_vals_SP.at(0) && iHit.Sector() == conv_vals_SP.at(1) && 
 	    // if ( ( (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) || (res_hit->at(iHit)).CSC_ID() == conv_vals_SP.at(0) + 3 ) && 
 	    // 	 (res_hit->at(iHit)).Sector() == conv_vals_SP.at(1) && 
-		 (res_hit->at(iHit)).Neighbor() == conv_vals_SP.at(3) && (res_hit->at(iHit)).Station() == 4 && 
-		 (res_hit->at(iHit)).Stub_num() == SP_.ME4_stub_num() && (res_hit->at(iHit)).Endcap() == Track_.Endcap() && 
-		 (res_hit->at(iHit)).BX() - (SP_.TBIN() - 3) == dBX[iBX] ) {
-	      if (St_hits[3] == 0 ) Track_.push_Hit( res_hit->at(iHit) );
+		 iHit.Neighbor() == conv_vals_SP.at(3) && iHit.Station() == 4 && 
+		 iHit.Stub_num() == SP_.ME4_stub_num() && iHit.Endcap() == Track_.Endcap() && 
+		 iHit.BX() - (SP_.TBIN() - 3) == iBX ) {
+	      if (St_hits[3] == 0 ) Track_.push_Hit( iHit );
 	      St_hits[3] += 1; }
 	  }
 	  if (St_hits[3] > 0) break; 

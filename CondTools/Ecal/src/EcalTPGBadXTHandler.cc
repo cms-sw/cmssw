@@ -224,12 +224,12 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	      	      // get crystal id
 	      	      int xt_num=0;
 	      
-	      	      for(size_t ixt=0; ixt<my_EcalLogicId.size(); ixt++){
+	      	      for(auto & ixt : my_EcalLogicId){
 		
-		 	if(my_EcalLogicId[ixt].getID1()==fed_id && my_EcalLogicId[ixt].getID2()==tt_id 
-		   	&& my_EcalLogicId[ixt].getID3()==xt_id ) {
+		 	if(ixt.getID1()==fed_id && ixt.getID2()==tt_id 
+		   	&& ixt.getID3()==xt_id ) {
 			  //1011060504
-		  	  int ecid= my_EcalLogicId[ixt].getLogicID();
+		  	  int ecid= ixt.getLogicID();
 		  	  xt_num=(ecid)-(101100+sm_num)*10000;
 		  
 		        }
@@ -252,12 +252,12 @@ void popcon::EcalTPGBadXTHandler::getNewObjects()
 	              long y=0;
 	              long z=0; 
 
-	              for(size_t ixt=0; ixt<my_EcalLogicId_EE.size(); ixt++){
+	              for(auto & ixt : my_EcalLogicId_EE){
 		
-		        if(my_EcalLogicId_EE[ixt].getID1()==fed_id && my_EcalLogicId_EE[ixt].getID2()==tt_id 
-		          && my_EcalLogicId_EE[ixt].getID3()==xt_id ) {
+		        if(ixt.getID1()==fed_id && ixt.getID2()==tt_id 
+		          && ixt.getID3()==xt_id ) {
 		  
-		  	  long ecid=(long) my_EcalLogicId_EE[ixt].getLogicID();
+		  	  long ecid=(long) ixt.getLogicID();
 		  	  // logic_id 201Zxxxyyy Z=0 / 2 -> z= -1 / 1 , x -> 1 100,  y -> 1 100 
 		  	  y=ecid-( (long)(ecid/1000) ) *1000;
 		  	  x= ( ecid- y) /1000 ;

@@ -101,12 +101,10 @@ void jetMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cout << "**********************" << endl;
   cout << "* OneToOne Printout  *" << endl;
   cout << "**********************" << endl;
-  for( CandViewMatchMap::const_iterator f  = matchedjetsOne->begin();
-                                        f != matchedjetsOne->end();
-                                        f++) {
+  for(const auto & f : *matchedjetsOne) {
 
-      const Candidate *sourceRef = &*(f->key);
-      const Candidate *matchRef  = &*(f->val);
+      const Candidate *sourceRef = &*(f.key);
+      const Candidate *matchRef  = &*(f.val);
       dR= DeltaR( sourceRef->p4() , matchRef->p4() );
 
       printf("[GenJetTest] (pt,eta,phi) source = %6.2f %5.2f %5.2f matched = %6.2f %5.2f %5.2f dR=%5.3f\n",
@@ -128,17 +126,15 @@ void jetMatch::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   cout << "**********************" << endl;
   cout << "* OneToMany Printout *" << endl;
   cout << "**********************" << endl;
-  for( CandMatchMapMany::const_iterator f  = matchedjetsMany->begin();
-                                        f != matchedjetsMany->end();
-                                        f++) {
-    const Candidate *sourceRef = &*(f->key);
+  for(const auto & f : *matchedjetsMany) {
+    const Candidate *sourceRef = &*(f.key);
 
     printf("[GenJetTest] (pt,eta,phi) source = %6.2f %5.2f %5.2f\n",
 	   sourceRef->et(),
 	   sourceRef->eta(),
 	   sourceRef->phi()  );
 
-    const vector< pair<CandidateRef, double> > vectMatched = f->val;
+    const vector< pair<CandidateRef, double> > vectMatched = f.val;
     vector< pair<CandidateRef, double> >::const_iterator matchIT;
     for ( matchIT = vectMatched.begin(); matchIT != vectMatched.end(); matchIT++) {
       const Candidate *matchedRef = &*( (*matchIT).first );

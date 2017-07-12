@@ -261,9 +261,8 @@ void SiStripTrackerMapCreator::setTkMapFromAlarm(DQMStore* dqm_store, const edm:
   // used to avoid multiple checks on the same detid since the loop is done on the FED channels
     uint32_t detId_save = 0;
     // example of loop using SiStripDetCabling
-    for(std::map< uint32_t, std::vector<const FedChannelConnection *> >::const_iterator module = detcabling_->getDetCabling().begin(); 
-	module!=detcabling_->getDetCabling().end();++module) {
-      uint32_t detId = module->first;
+    for(const auto & module : detcabling_->getDetCabling()) {
+      uint32_t detId = module.first;
       if (detId == 0 || detId == 0xFFFFFFFF)  continue;
       if (detId_save != detId) {
 	detId_save = detId;
@@ -589,9 +588,9 @@ uint16_t SiStripTrackerMapCreator::getDetectorFlagAndComment(DQMStore* dqm_store
   //  if(detcabling_) {
   comment << " FEDCHs ";
   std::vector<const FedChannelConnection*> conns = detcabling_->getConnections(det_id);
-  for(unsigned int i=0; i< conns.size() ;++i) {
-    if(conns[i]) {
-      comment << std::setw(3) << conns[i]->fedId() << "/" << std::setw(2) << conns[i]->fedCh()<< " ";
+  for(auto & conn : conns) {
+    if(conn) {
+      comment << std::setw(3) << conn->fedId() << "/" << std::setw(2) << conn->fedCh()<< " ";
     }
     else {
       comment << "       ";

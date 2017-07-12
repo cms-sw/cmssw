@@ -28,8 +28,8 @@ CaloMeanResponse::~CaloMeanResponse() {}
 double CaloMeanResponse::getWeight(int genPID, double genP) {
   double weight = 1;
   bool   found=false;
-  for (unsigned int i=0; i<pionTypes.size(); i++) {
-    if (genPID == pionTypes[i]) {
+  for (int pionType : pionTypes) {
+    if (genPID == pionType) {
       found = true;
       break;
     }
@@ -54,8 +54,8 @@ double CaloMeanResponse::getWeight(int genPID, double genP) {
 			<< " for momentum " << genP/GeV << " GeV/c";
 #endif
   } else {
-    for (unsigned int i=0; i<protonTypes.size(); i++) {
-      if (genPID == protonTypes[i]) {
+    for (int protonType : protonTypes) {
+      if (genPID == protonType) {
 	found = true;
 	break;
       }

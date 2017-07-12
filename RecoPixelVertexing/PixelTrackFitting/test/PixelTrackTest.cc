@@ -75,11 +75,11 @@ void PixelTrackTest::analyze(
 
   float pt_gen = 0.0;
   typedef SimTrackContainer::const_iterator IP;
-  for (IP p=simTrks->begin(); p != simTrks->end(); p++) {
-    if ( (*p).noVertex() ) continue;
-    if ( (*p).type() == -99) continue;
-    if ( (*p).vertIndex() != 0) continue;
-    if ((*p).momentum().Pt() > pt_gen) pt_gen = (*p).momentum().Pt();
+  for (const auto & p : *simTrks) {
+    if ( p.noVertex() ) continue;
+    if ( p.type() == -99) continue;
+    if ( p.vertIndex() != 0) continue;
+    if (p.momentum().Pt() > pt_gen) pt_gen = p.momentum().Pt();
   }
 //  cout << "pt_gen: " << pt_gen << endl;
   if (pt_gen < 0.9) return;
@@ -90,12 +90,12 @@ void PixelTrackTest::analyze(
   ev.getByLabel(collectionLabel,trackCollection);
   const reco::TrackCollection tracks = *(trackCollection.product());
   cout << "Number of tracks: "<< tracks.size() << " tracks" << std::endl;
-  for (IT it=tracks.begin(); it!=tracks.end(); it++) {
+  for (const auto & track : tracks) {
     //math::XYZVector mom_rec = (*it).momentum();
-    float pt_rec = (*it).pt();
-    myprint(*it);
+    float pt_rec = track.pt();
+    myprint(track);
     static_cast<TH1*>(hList.FindObject("h_Pt"))->Fill((pt_gen - pt_rec)/pt_gen);
-     static_cast<TH1*>(hList.FindObject("h_tip"))->Fill((*it).d0());
+     static_cast<TH1*>(hList.FindObject("h_tip"))->Fill(track.d0());
   }
 
   cout <<"------------------------------------------------"<<endl;

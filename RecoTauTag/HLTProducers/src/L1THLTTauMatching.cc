@@ -41,11 +41,11 @@ void L1THLTTauMatching::produce(edm::StreamID iSId, edm::Event& iEvent, const ed
 
   math::XYZPoint a(0.,0.,0.);
         
-  for(unsigned int iL1Tau = 0; iL1Tau < tauCandRefVec.size(); iL1Tau++){  
+  for(auto & iL1Tau : tauCandRefVec){  
     for(unsigned int iJet = 0; iJet < tauJets->size(); iJet++){
       // Find the relative L2TauJets, to see if it has been reconstructed
       const PFTau &  myJet = (*tauJets)[iJet];
-      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (tauCandRefVec[iL1Tau]->p4()).Vect());
+      deltaR = ROOT::Math::VectorUtil::DeltaR(myJet.p4().Vect(), (iL1Tau->p4()).Vect());
       if(deltaR < matchingR ) {
         if(myJet.leadPFChargedHadrCand().isNonnull()){
           a =  myJet.leadPFChargedHadrCand()->vertex();  

@@ -1634,9 +1634,8 @@ const Value &
 Path::resolve( const Value &root ) const
 {
    const Value *node = &root;
-   for ( Args::const_iterator it = args_.begin(); it != args_.end(); ++it )
+   for (const auto & arg : args_)
    {
-      const PathArgument &arg = *it;
       if ( arg.kind_ == PathArgument::kindIndex )
       {
          if ( !node->isArray()  ||  node->isValidIndex( arg.index_ ) )
@@ -1667,9 +1666,8 @@ Path::resolve( const Value &root,
                const Value &defaultValue ) const
 {
    const Value *node = &root;
-   for ( Args::const_iterator it = args_.begin(); it != args_.end(); ++it )
+   for (const auto & arg : args_)
    {
-      const PathArgument &arg = *it;
       if ( arg.kind_ == PathArgument::kindIndex )
       {
          if ( !node->isArray()  ||  node->isValidIndex( arg.index_ ) )
@@ -1693,9 +1691,8 @@ Value &
 Path::make( Value &root ) const
 {
    Value *node = &root;
-   for ( Args::const_iterator it = args_.begin(); it != args_.end(); ++it )
+   for (const auto & arg : args_)
    {
-      const PathArgument &arg = *it;
       if ( arg.kind_ == PathArgument::kindIndex )
       {
          if ( !node->isArray() )

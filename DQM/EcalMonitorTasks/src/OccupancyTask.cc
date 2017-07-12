@@ -50,8 +50,8 @@ namespace ecaldqm
   {
     MESet& meDCC(MEs_.at("DCC"));
 
-    for(EcalRawDataCollection::const_iterator dcchItr(_dcchs.begin()); dcchItr != _dcchs.end(); ++dcchItr)
-      meDCC.fill(dcchItr->id());
+    for(const auto & _dcch : _dcchs)
+      meDCC.fill(_dcch.id());
   }
 
   template<typename DigiCollection>

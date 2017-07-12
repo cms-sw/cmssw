@@ -120,8 +120,8 @@ Hector::Hector(const edm::ParameterSet & param, bool verbosity, bool FP420Transp
 
 Hector::~Hector(){
   
-  for (std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-    delete (*it).second;
+  for (auto & it : m_beamPart) {
+    delete it.second;
   }
 
   delete m_beamlineFP4201;
@@ -140,8 +140,8 @@ void Hector::clearApertureFlags(){
 }
 
 void Hector::clear(){
-  for ( std::map<unsigned int,H_BeamParticle*>::iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-    delete (*it).second;
+  for (auto & it : m_beamPart) {
+    delete it.second;
   };
   m_beamPart.clear();
   m_direct.clear();
@@ -468,8 +468,8 @@ int  Hector::getDirect( unsigned int part_n ) const {
 }
 
 void Hector::print() const {
-  for (std::map<unsigned int,H_BeamParticle*>::const_iterator it = m_beamPart.begin(); it != m_beamPart.end(); ++it ) {
-    (*it).second->printProperties();
+  for (const auto & it : m_beamPart) {
+    it.second->printProperties();
   };
 }
 

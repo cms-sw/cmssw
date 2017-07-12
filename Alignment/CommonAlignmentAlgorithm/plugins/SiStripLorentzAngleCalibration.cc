@@ -339,10 +339,9 @@ void SiStripLorentzAngleCalibration::endOfJob()
     cond::Time_t firstRunOfIOV = moduleGroupSelector_->firstRunOfIOV(iIOV);
     SiStripLorentzAngle *output = new SiStripLorentzAngle;
     // Loop on map of values from input and add (possible) parameter results
-    for (auto iterIdValue = input->getLorentzAngles().begin();
-	 iterIdValue != input->getLorentzAngles().end(); ++iterIdValue) {
+    for (const auto & iterIdValue : input->getLorentzAngles()) {
       // type of (*iterIdValue) is pair<unsigned int, float>
-      const unsigned int detId = iterIdValue->first; // key of map is DetId
+      const unsigned int detId = iterIdValue.first; // key of map is DetId
       // Some code one could use to miscalibrate wrt input:
       // double param = 0.;
       // const DetId id(detId);
@@ -353,7 +352,7 @@ void SiStripLorentzAngleCalibration::endOfJob()
       // }
       const double param = this->getParameterForDetId(detId, firstRunOfIOV);
       // put result in output, i.e. sum of input and determined parameter:
-      output->putLorentzAngle(detId, iterIdValue->second + param);
+      output->putLorentzAngle(detId, iterIdValue.second + param);
       const int paramIndex = moduleGroupSelector_->getParameterIndexFromDetId(detId,firstRunOfIOV);
       treeInfo[detId] = TreeStruct(param, this->getParameterError(paramIndex), paramIndex);
     }
@@ -435,8 +434,8 @@ const SiStripLorentzAngle* SiStripLorentzAngleCalibration::getLorentzAnglesInput
   // If this job has run on events, still check that LA is identical to the ones
   // from mergeFileNames_.
   const std::string treeName(((this->name() + '_') += readoutModeName_) += "_input");
-  for (auto iFile = mergeFileNames_.begin(); iFile != mergeFileNames_.end(); ++iFile) {
-    SiStripLorentzAngle* la = this->createFromTree(iFile->c_str(), treeName.c_str());
+  for (const auto & mergeFileName : mergeFileNames_) {
+    SiStripLorentzAngle* la = this->createFromTree(mergeFileName.c_str(), treeName.c_str());
     // siStripLorentzAngleInput_ could be non-null from previous file of this loop
     // or from checkLorentzAngleInput(..) when running on data in this job as well
     if (!siStripLorentzAngleInput_ || siStripLorentzAngleInput_->getLorentzAngles().empty()) {
@@ -449,7 +448,7 @@ const SiStripLorentzAngle* SiStripLorentzAngleCalibration::getLorentzAnglesInput
         // Throw exception instead of error?
         edm::LogError("NoInput") << "@SUB=SiStripLorentzAngleCalibration::getLorentzAnglesInput"
                                  << "Different input values from tree " << treeName
-                                 << " in file " << *iFile << ".";
+                                 << " in file " << mergeFileName << ".";
         
       }
       delete la;
@@ -499,11 +498,10 @@ void SiStripLorentzAngleCalibration::writeTree(const SiStripLorentzAngle *lorent
   tree->Branch("value", &value, "value/F");
   tree->Branch("treeStruct", &treeStruct, TreeStruct::LeafList());
 
-  for (auto iterIdValue = lorentzAngle->getLorentzAngles().begin();
-       iterIdValue != lorentzAngle->getLorentzAngles().end(); ++iterIdValue) {
+  for (const auto & iterIdValue : lorentzAngle->getLorentzAngles()) {
     // type of (*iterIdValue) is pair<unsigned int, float>
-    id = iterIdValue->first; // key of map is DetId
-    value = iterIdValue->second;
+    id = iterIdValue.first; // key of map is DetId
+    value = iterIdValue.second;
     // type of (*treeStructIter) is pair<unsigned int, TreeStruct>
     auto treeStructIter = treeInfo.find(id); // find info for this id
     if (treeStructIter != treeInfo.end()) {

@@ -352,9 +352,9 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
        std::abs(etamc) < 2.5 ){
 
 
-      for (unsigned int j=0; j<theEGamma.size();j++) {
-	float etareco = theEGamma[j].eta();
-	float phireco = theEGamma[j].phi();
+      for (const auto & j : theEGamma) {
+	float etareco = j.eta();
+	float phireco = j.phi();
 	float deta = etamc - etareco;
 	float dphi = Utils::mpi_pi(phimc - phireco);
 	float dR = sqrt(deta*deta + dphi*dphi);
@@ -365,7 +365,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 
 
-	  myVar((theEGamma[j]),*pv,thebuilder,lazyTools,debugMyVar);
+	  myVar(j,*pv,thebuilder,lazyTools,debugMyVar);
 	  myBindVariables();
 
 	  h_fbrem->Fill(myMVAVar_fbrem);
@@ -401,7 +401,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 
 	  // ********************* Triggering electrons
 
-	  bool elePresel = trainTrigPresel(theEGamma[j]);
+	  bool elePresel = trainTrigPresel(j);
 
 	  double mvaTrigMthd1 = -11.;
 	  double mvaTrigMthd2 = -11.;
@@ -411,7 +411,7 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  double mvaNonTrigMthd1 = -11;
 	  double mvaNonTrigMthd2 = -11;
 
-	  mvaNonTrigMthd1 = myMVANonTrigV0->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass);
+	  mvaNonTrigMthd1 = myMVANonTrigV0->mvaValue(j,*pv,thebuilder,lazyTools,debugMVAclass);
 	  mvaNonTrigMthd2 = myMVANonTrigV0->mvaValue( myMVAVar_fbrem,
 							       myMVAVar_kfchi2,
 							       myMVAVar_kfhits,
@@ -442,9 +442,9 @@ ElectronTestAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	    std::cout << "Non-Triggering:: MyMVA Method-1 " << mvaNonTrigMthd1 << " MyMVA Method-2 " << mvaNonTrigMthd2 <<std::endl;
 
 	  if(elePresel) {
-	    mvaTrigNonIp = myMVATrigNoIPV0->mvaValue( (theEGamma[j]), *pv, _Rho,/*thebuilder,*/lazyTools, debugMVAclass);
+	    mvaTrigNonIp = myMVATrigNoIPV0->mvaValue( j, *pv, _Rho,/*thebuilder,*/lazyTools, debugMVAclass);
 
-	    mvaTrigMthd1 = myMVATrigV0->mvaValue((theEGamma[j]),*pv,thebuilder,lazyTools,debugMVAclass);
+	    mvaTrigMthd1 = myMVATrigV0->mvaValue(j,*pv,thebuilder,lazyTools,debugMVAclass);
 	    mvaTrigMthd2 = myMVATrigV0->mvaValue( myMVAVar_fbrem,
 						    myMVAVar_kfchi2,
 						    myMVAVar_kfhits,
@@ -722,55 +722,53 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
   reco::MuonCollection IdentifiedMuons;
   reco::GsfElectronCollection IdentifiedElectrons;
 
-  for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin();
-       iE != inElectrons.end(); ++iE) {
+  for (const auto & inElectron : inElectrons) {
 
     double electronTrackZ = 0;
-    if (iE->gsfTrack().isNonnull()) {
-      electronTrackZ = iE->gsfTrack()->dz(pvCol->at(0).position());
-    } else if (iE->closestCtfTrackRef().isNonnull()) {
-      electronTrackZ = iE->closestCtfTrackRef()->dz(pvCol->at(0).position());
+    if (inElectron.gsfTrack().isNonnull()) {
+      electronTrackZ = inElectron.gsfTrack()->dz(pvCol->at(0).position());
+    } else if (inElectron.closestCtfTrackRef().isNonnull()) {
+      electronTrackZ = inElectron.closestCtfTrackRef()->dz(pvCol->at(0).position());
     }
     if(std::abs(electronTrackZ) > 0.2)  continue;
 
 
-    if(std::abs(iE->superCluster()->eta())<1.479) {
-      if(iE->pt() > 20) {
-        if(iE->sigmaIetaIeta()       > 0.01)  continue;
-        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
-        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
-        if(iE->hadronicOverEm()       > 0.15)  continue;
+    if(std::abs(inElectron.superCluster()->eta())<1.479) {
+      if(inElectron.pt() > 20) {
+        if(inElectron.sigmaIetaIeta()       > 0.01)  continue;
+        if(std::abs(inElectron.deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+        if(std::abs(inElectron.deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(inElectron.hadronicOverEm()       > 0.15)  continue;
       } else {
-        if(iE->sigmaIetaIeta()       > 0.012)  continue;
-        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
-        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
-        if(iE->hadronicOverEm()       > 0.15) continue;
+        if(inElectron.sigmaIetaIeta()       > 0.012)  continue;
+        if(std::abs(inElectron.deltaEtaSuperClusterTrackAtVtx()) > 0.007) continue;
+        if(std::abs(inElectron.deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(inElectron.hadronicOverEm()       > 0.15) continue;
       }
     } else {
-      if(iE->pt() > 20) {
-        if(iE->sigmaIetaIeta()       > 0.03)  continue;
-        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
-        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+      if(inElectron.pt() > 20) {
+        if(inElectron.sigmaIetaIeta()       > 0.03)  continue;
+        if(std::abs(inElectron.deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+        if(std::abs(inElectron.deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
       } else {
-        if(iE->sigmaIetaIeta()       > 0.032)  continue;
-        if(std::abs(iE->deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
-        if(std::abs(iE->deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
+        if(inElectron.sigmaIetaIeta()       > 0.032)  continue;
+        if(std::abs(inElectron.deltaEtaSuperClusterTrackAtVtx()) > 0.010) continue;
+        if(std::abs(inElectron.deltaPhiSuperClusterTrackAtVtx()) > 0.8)  continue;
       }
     }
-    IdentifiedElectrons.push_back(*iE);
+    IdentifiedElectrons.push_back(inElectron);
   }
 
-  for (reco::MuonCollection::const_iterator iM = inMuons.begin();
-       iM != inMuons.end(); ++iM) {
+  for (const auto & inMuon : inMuons) {
 
-    if(!(iM->innerTrack().isNonnull())) {
+    if(!(inMuon.innerTrack().isNonnull())) {
       continue;
     }
 
-    if(!(iM->isGlobalMuon() || iM->isTrackerMuon())) continue;
-    if(iM->innerTrack()->numberOfValidHits() < 11 ) continue;
+    if(!(inMuon.isGlobalMuon() || inMuon.isTrackerMuon())) continue;
+    if(inMuon.innerTrack()->numberOfValidHits() < 11 ) continue;
 
-    IdentifiedMuons.push_back(*iM);
+    IdentifiedMuons.push_back(inMuon);
   }
 
   EcalClusterLazyTools lazyTools(iEvent, iSetup, reducedEBRecHitCollectionToken_, reducedEERecHitCollectionToken_);
@@ -779,12 +777,9 @@ ElectronTestAnalyzer::evaluate_mvas(const edm::Event& iEvent, const edm::EventSe
   iSetup.get<TransientTrackRecord>().get("TransientTrackBuilder", builder);
   TransientTrackBuilder thebuilder = *(builder.product());
 
- for (reco::GsfElectronCollection::const_iterator iE = inElectrons.begin();
-       iE != inElectrons.end(); ++iE) {
+ for (auto ele : inElectrons) {
 
-   reco::GsfElectron ele = *iE;
-
- 		double idmva = myMVATrigV0->mvaValue(ele,
+   	double idmva = myMVATrigV0->mvaValue(ele,
 					pvCol->at(0),
 					thebuilder,
 					lazyTools);

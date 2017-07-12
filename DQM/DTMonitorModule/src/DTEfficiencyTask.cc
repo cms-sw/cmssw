@@ -182,10 +182,8 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
     // Get all 1D RecHits to be used for searches of hits not associated to segments and map them by wire
     const vector<const DTSuperLayer*> SLayers = chamber->superLayers();
     map<DTWireId, int> wireAnd1DRecHits;
-    for(vector<const DTSuperLayer*>::const_iterator superlayer = SLayers.begin();
-	superlayer != SLayers.end();
-	superlayer++) {
-	DTRecHitCollection::range  range = dtRecHits->get(DTRangeMapAccessor::layersBySuperLayer((*superlayer)->id()));
+    for(auto SLayer : SLayers) {
+	DTRecHitCollection::range  range = dtRecHits->get(DTRangeMapAccessor::layersBySuperLayer(SLayer->id()));
 	// Loop over the rechits of this ChamberId
 	for (DTRecHitCollection::const_iterator rechit = range.first;
 	     rechit!=range.second;
@@ -323,23 +321,19 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
         map<DTLayerId, bool> layerMap;
 	map<DTWireId, float> wireAndPosInChamberAtLayerZ;
 	// Loop over layers and wires to fill a map
-	for(vector<const DTSuperLayer*>::const_iterator superlayer = SupLayers.begin();
-	    superlayer != SupLayers.end();
-	    superlayer++) {
-	  const vector<const DTLayer*> Layers = (*superlayer)->layers();
-	  for(vector<const DTLayer*>::const_iterator layer = Layers.begin();
-	      layer != Layers.end();
-	      layer++) {
-	    layerMap.insert(make_pair((*layer)->id(), false));
-	    const int firstWire = dtGeom->layer((*layer)->id())->specificTopology().firstChannel();
-	    const int lastWire = dtGeom->layer((*layer)->id())->specificTopology().lastChannel();
+	for(auto SupLayer : SupLayers) {
+	  const vector<const DTLayer*> Layers = SupLayer->layers();
+	  for(auto Layer : Layers) {
+	    layerMap.insert(make_pair(Layer->id(), false));
+	    const int firstWire = dtGeom->layer(Layer->id())->specificTopology().firstChannel();
+	    const int lastWire = dtGeom->layer(Layer->id())->specificTopology().lastChannel();
 	    for(int i=firstWire; i - lastWire <= 0; i++) {
-	      DTWireId wireId((*layer)->id(), i);
-	      float wireX = (*layer)->specificTopology().wirePosition(wireId.wire());
+	      DTWireId wireId(Layer->id(), i);
+	      float wireX = Layer->specificTopology().wirePosition(wireId.wire());
 	      LocalPoint wirePosInLay(wireX,0,0);
-	      GlobalPoint wirePosGlob = (*layer)->toGlobal(wirePosInLay);
+	      GlobalPoint wirePosGlob = Layer->toGlobal(wirePosInLay);
 	      LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
-	      if((*superlayer)->id().superlayer() == 1 || (*superlayer)->id().superlayer() == 3) {
+	      if(SupLayer->id().superlayer() == 1 || SupLayer->id().superlayer() == 3) {
 		wireAndPosInChamberAtLayerZ.insert(make_pair(wireId, wirePosInChamber.x()));
 	      } else {
 		wireAndPosInChamberAtLayerZ.insert(make_pair(wireId, wirePosInChamber.y()));

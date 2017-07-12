@@ -48,19 +48,19 @@ PixelGlobalDelay25::PixelGlobalDelay25(vector<vector<string> > &tableMat):PixelC
   colNames.push_back("GLOBALDELAY25") ;
   for(unsigned int c = 0 ; c < ins.size() ; c++)
     {
-      for(unsigned int n=0; n<colNames.size(); n++)
+      for(const auto & colName : colNames)
         {
-          if(tableMat[0][c] == colNames[n]){
-            colM[colNames[n]] = c;
+          if(tableMat[0][c] == colName){
+            colM[colName] = c;
             break;
           }
         }
     }//end for
-  for(unsigned int n=0; n<colNames.size(); n++)
+  for(const auto & colName : colNames)
     {
-      if(colM.find(colNames[n]) == colM.end())
+      if(colM.find(colName) == colM.end())
         {
-          std::cerr << "[PixelGlobalDelay25::PixelGlobalDelay25()]\tCouldn't find in the database the column with name " << colNames[n] << std::endl;
+          std::cerr << "[PixelGlobalDelay25::PixelGlobalDelay25()]\tCouldn't find in the database the column with name " << colName << std::endl;
           assert(0);
         }
     }

@@ -31,33 +31,33 @@ namespace spr{
    }
 #endif
     double energySum = 0.0;
-    for (unsigned int i1=0; i1<vdets.size(); i1++) {
-      if (vdets[i1] != DetId(0)) {
+    for (auto & vdet : vdets) {
+      if (vdet != DetId(0)) {
 	bool ok = true;
 	std::vector<EcalRecHitCollection::const_iterator> hit;
-        if (vdets[i1].subdetId()==EcalBarrel) {
-          spr::findHit(hitsEB,vdets[i1],hit,debug);
+        if (vdet.subdetId()==EcalBarrel) {
+          spr::findHit(hitsEB,vdet,hit,debug);
 
-	  ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevel::kWeird);
-        } else if (vdets[i1].subdetId()==EcalEndcap) {
-          spr::findHit(hitsEE,vdets[i1],hit,debug);
+	  ok  = (sevlv->severityLevel(vdet, (*recHitsEB)) != EcalSeverityLevel::kWeird);
+        } else if (vdet.subdetId()==EcalEndcap) {
+          spr::findHit(hitsEE,vdet,hit,debug);
         }
 #ifdef EDM_ML_DEBUG
         if (debug) std::cout << "Xtal 0x" <<std::hex << vdets[i1]() <<std::dec;
 #endif
         double ener=0, ethr=ebThr;
-	if (vdets[i1].subdetId() !=EcalBarrel) ethr = eeThr;
-	for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+	if (vdet.subdetId() !=EcalBarrel) ethr = eeThr;
+	for (auto & ihit : hit) {
 	  double en=0, tt=0;
-	  if (vdets[i1].subdetId()==EcalBarrel) {
-	    if (hit[ihit] != hitsEB->end()) {
-	      en = hit[ihit]->energy();
-              tt = hit[ihit]->time();
+	  if (vdet.subdetId()==EcalBarrel) {
+	    if (ihit != hitsEB->end()) {
+	      en = ihit->energy();
+              tt = ihit->time();
             }
-	  } else if (vdets[i1].subdetId()==EcalEndcap) {
-	    if (hit[ihit] != hitsEE->end()) {
-	      en = hit[ihit]->energy();
-              tt = hit[ihit]->time();
+	  } else if (vdet.subdetId()==EcalEndcap) {
+	    if (ihit != hitsEE->end()) {
+	      en = ihit->energy();
+              tt = ihit->time();
             }
 	  }
 #ifdef EDM_ML_DEBUG
@@ -108,37 +108,37 @@ namespace spr{
    }
 #endif
     double energySum = 0.0;
-    for (unsigned int i1=0; i1<vdets.size(); i1++) {
-      if (vdets[i1] != DetId(0)) {
-        double eTower = spr::energyECALTower(vdets[i1], hitsEB, hitsEE, ttMap, debug);
+    for (auto & vdet : vdets) {
+      if (vdet != DetId(0)) {
+        double eTower = spr::energyECALTower(vdet, hitsEB, hitsEE, ttMap, debug);
         bool ok = true;
-        if      (vdets[i1].subdetId()==EcalBarrel) ok = (eTower > ebThr);
-        else if (vdets[i1].subdetId()==EcalEndcap) ok = (eTower > eeThr);
+        if      (vdet.subdetId()==EcalBarrel) ok = (eTower > ebThr);
+        else if (vdet.subdetId()==EcalEndcap) ok = (eTower > eeThr);
 #ifdef EDM_ML_DEBUG
         if (debug) std::cout << "Crystal 0x" <<std::hex << vdets[i1]() 
 			     <<std::dec << " Flag " << ok;
 #endif
         if (ok) {
 	  std::vector<EcalRecHitCollection::const_iterator> hit;
-	  if (vdets[i1].subdetId()==EcalBarrel) {
-	    spr::findHit(hitsEB,vdets[i1],hit,debug);
+	  if (vdet.subdetId()==EcalBarrel) {
+	    spr::findHit(hitsEB,vdet,hit,debug);
 
-	    ok  = (sevlv->severityLevel(vdets[i1], (*recHitsEB)) != EcalSeverityLevel::kWeird);
-	  } else if (vdets[i1].subdetId()==EcalEndcap) {
-	    spr::findHit(hitsEE,vdets[i1],hit,debug);
+	    ok  = (sevlv->severityLevel(vdet, (*recHitsEB)) != EcalSeverityLevel::kWeird);
+	  } else if (vdet.subdetId()==EcalEndcap) {
+	    spr::findHit(hitsEE,vdet,hit,debug);
 	  }
 	  double ener=0;
-	  for (unsigned int ihit=0; ihit<hit.size(); ihit++) {
+	  for (auto & ihit : hit) {
 	    double en=0, tt=0;
-	    if (vdets[i1].subdetId()==EcalBarrel) {
-	      if (hit[ihit] != hitsEB->end()) {
-		en = hit[ihit]->energy();
-		tt = hit[ihit]->time();
+	    if (vdet.subdetId()==EcalBarrel) {
+	      if (ihit != hitsEB->end()) {
+		en = ihit->energy();
+		tt = ihit->time();
 	      }
-	    } else if (vdets[i1].subdetId()==EcalEndcap) {
-	      if (hit[ihit] != hitsEE->end()) {
-		en = hit[ihit]->energy();
-		tt = hit[ihit]->time();
+	    } else if (vdet.subdetId()==EcalEndcap) {
+	      if (ihit != hitsEE->end()) {
+		en = ihit->energy();
+		tt = ihit->time();
 	      }
 	    }
 #ifdef EDM_ML_DEBUG

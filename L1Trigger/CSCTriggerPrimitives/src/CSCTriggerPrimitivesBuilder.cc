@@ -225,10 +225,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
               // for 'smart' case. Some duplication occurs for WG [10,15]
               std::vector<CSCALCTDigi> tmpV(alctV);
               alctV.clear();
-              for (unsigned int al=0; al < tmpV.size(); al++)
+              for (auto & al : tmpV)
               {
-                if (tmpV[al].getKeyWG()<=15) alctV1a.push_back(tmpV[al]);
-                if (tmpV[al].getKeyWG()>=10) alctV.push_back(tmpV[al]);
+                if (al.getKeyWG()<=15) alctV1a.push_back(al);
+                if (al.getKeyWG()>=10) alctV.push_back(al);
               }
               //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder:: a="<<alctV.size()<<" c="<<clctV.size()<<" l="<<lctV.size()
               //  <<"   1a: a="<<alctV1a.size()<<" c="<<clctV1a.size()<<" l="<<lctV1a.size();
@@ -340,10 +340,10 @@ void CSCTriggerPrimitivesBuilder::build(const CSCBadChambers* badChambers,
 	      // for 'smart' case. Some duplication occurs for WG [10,15]
 	      std::vector<CSCALCTDigi> tmpV(alctV);
 	      alctV.clear();
-	      for (unsigned int al=0; al < tmpV.size(); al++)
+	      for (auto & al : tmpV)
 	      {
-		if (tmpV[al].getKeyWG()<=15) alctV1a.push_back(tmpV[al]);
-		if (tmpV[al].getKeyWG()>=10) alctV.push_back(tmpV[al]);
+		if (al.getKeyWG()<=15) alctV1a.push_back(al);
+		if (al.getKeyWG()>=10) alctV.push_back(al);
 	      }
 	      //LogTrace("CSCTriggerPrimitivesBuilder")<<"CSCTriggerPrimitivesBuilder:: a="<<alctV.size()<<" c="<<clctV.size()<<" l="<<lctV.size()
 	      //  <<"   1a: a="<<alctV1a.size()<<" c="<<clctV1a.size()<<" l="<<lctV1a.size();

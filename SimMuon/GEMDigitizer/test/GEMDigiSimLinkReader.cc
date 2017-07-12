@@ -241,11 +241,10 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
   }
 
 //loop over the detectors which have digitized simhits
-  for (edm::DetSetVector<GEMDigiSimLink>::const_iterator itsimlink = theSimlinkDigis->begin();
-      itsimlink != theSimlinkDigis->end(); itsimlink++)
+  for (const auto & itsimlink : *theSimlinkDigis)
   {
     //get the particular detector
-    int detid = itsimlink->detId();
+    int detid = itsimlink.detId();
     if(debug_)
       LogDebug("GEMDigiSimLinkReader") << "detid\t" << detid << std::endl;
     const GEMEtaPartition* roll = pDD->etaPartition(detid);
@@ -267,8 +266,8 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
     double deltaPhi = 0.;
 
 //loop over GemDigiSimLinks
-    for (edm::DetSet<GEMDigiSimLink>::const_iterator link_iter = itsimlink->data.begin();
-        link_iter != itsimlink->data.end(); ++link_iter)
+    for (edm::DetSet<GEMDigiSimLink>::const_iterator link_iter = itsimlink.data.begin();
+        link_iter != itsimlink.data.end(); ++link_iter)
     {
       int strip = link_iter->getStrip();
       int processtype = link_iter->getProcessType();
@@ -345,9 +344,9 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
 
       std::vector<int> allFired;
       std::vector<std::vector<int> > tempCluster;
-      for (std::map<int, int>::iterator it = myCluster.begin(); it != myCluster.end(); ++it)
+      for (auto & it : myCluster)
       {
-        allFired.push_back(it->first);
+        allFired.push_back(it.first);
       }
 
       int clusterInd = 0;
@@ -384,14 +383,14 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
       GlobalPoint pointDigiHit;
       allClusters_histo->Fill(tempCluster.size());
 
-      for (unsigned int j = 0; j < tempCluster.size(); j++)
+      for (auto & j : tempCluster)
       {
         bool checkMu = false;
-        unsigned int tempSize = (tempCluster[j]).size();
-        gemCLS_allClusters->Fill((tempCluster[j]).size());
-        for (unsigned int l = 0; l < (tempCluster[j]).size(); ++l)
+        unsigned int tempSize = j.size();
+        gemCLS_allClusters->Fill(j.size());
+        for (unsigned int l = 0; l < j.size(); ++l)
         {
-          std::vector<int>::iterator muIt = find(muonFired.begin(), muonFired.end(), (tempCluster[j])[l]);
+          std::vector<int>::iterator muIt = find(muonFired.begin(), muonFired.end(), j[l]);
           if (muIt != muonFired.end())
           {
             checkMu = true;
@@ -404,8 +403,8 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
             muonCluster++;
         }
 
-        firstStrip = (tempCluster[j])[0];
-        lastStrip = (tempCluster[j])[tempSize - 1];
+        firstStrip = j[0];
+        lastStrip = j[tempSize - 1];
 
         if (firstStrip == lastStrip)
           pointDigiHit = roll->toGlobal(roll->centreOfStrip(firstStrip));
@@ -421,39 +420,39 @@ void GEMDigiSimLinkReader::analyze(const edm::Event & event, const edm::EventSet
         double digiPhi = pointDigiHit.phi();
         if (checkMu)
         {
-          gemCLS_ClustersWithMuon->Fill((tempCluster[j]).size());
+          gemCLS_ClustersWithMuon->Fill(j.size());
           deltaPhi = simMuPhi - digiPhi;
           deltaPhi_allStations->Fill(deltaPhi);
-          if ((tempCluster[j]).size() == 1)
+          if (j.size() == 1)
             deltaPhi_cls1->Fill(deltaPhi);
-          else if ((tempCluster[j]).size() == 2)
+          else if (j.size() == 2)
             deltaPhi_cls2->Fill(deltaPhi);
-          else if ((tempCluster[j]).size() == 3)
+          else if (j.size() == 3)
             deltaPhi_cls3->Fill(deltaPhi);
-          else if ((tempCluster[j]).size() == 4)
+          else if (j.size() == 4)
             deltaPhi_cls4->Fill(deltaPhi);
-          else if ((tempCluster[j]).size() == 5)
+          else if (j.size() == 5)
             deltaPhi_cls5->Fill(deltaPhi);
 
           deltaPhi_allStations_normalized->Fill(deltaPhi / fullAngularStripPitch);
-          mom_cls_allStations->Fill(muMomentum, (tempCluster[j]).size());
-          deltaPhi_cls_allStations->Fill(deltaPhi, (tempCluster[j]).size());
-          deltaPhi_cls_allStations_normalized->Fill(deltaPhi / fullAngularStripPitch, (tempCluster[j]).size());
+          mom_cls_allStations->Fill(muMomentum, j.size());
+          deltaPhi_cls_allStations->Fill(deltaPhi, j.size());
+          deltaPhi_cls_allStations_normalized->Fill(deltaPhi / fullAngularStripPitch, j.size());
           if (gemId.station() == 1)
           {
             deltaPhi_GE11->Fill(deltaPhi);
-            mom_cls_GE11->Fill(muMomentum, (tempCluster[j]).size());
-            deltaPhi_cls_GE11->Fill(deltaPhi, (tempCluster[j]).size());
+            mom_cls_GE11->Fill(muMomentum, j.size());
+            deltaPhi_cls_GE11->Fill(deltaPhi, j.size());
           }
           else if (gemId.station() == 3)
           {
             deltaPhi_GE21->Fill(deltaPhi);
-            mom_cls_GE21->Fill(muMomentum, (tempCluster[j]).size());
-            deltaPhi_cls_GE21->Fill(deltaPhi, (tempCluster[j]).size());
+            mom_cls_GE21->Fill(muMomentum, j.size());
+            deltaPhi_cls_GE21->Fill(deltaPhi, j.size());
           }
         }
         else
-          gemCLS_ElectronClusters->Fill((tempCluster[j]).size());
+          gemCLS_ElectronClusters->Fill(j.size());
       }        //end tempCluster
 
       muonClusters_histo->Fill(muonCluster);

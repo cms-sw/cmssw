@@ -160,11 +160,11 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
            && CandidateEt<PionSeedThreshold_) newseed=false;
 
       if (newseed) {
-        for (GenParticleCollection::const_iterator checkGenParticles = GenParticles->begin(); checkGenParticles != GenParticles->end(); ++checkGenParticles) {
-          double GenEt = checkGenParticles->et();
-          double GenEta = checkGenParticles->eta();
-          double GenPDGID = abs(checkGenParticles->pdgId());
-          double GenPhi = checkGenParticles->phi();
+        for (const auto & checkGenParticles : *GenParticles) {
+          double GenEt = checkGenParticles.et();
+          double GenEta = checkGenParticles.eta();
+          double GenPDGID = abs(checkGenParticles.pdgId());
+          double GenPhi = checkGenParticles.phi();
           double dR = deltaR2(CandidateEta,CandidatePhi,GenEta,GenPhi);
           
           if ((((GenPDGID==22 || GenPDGID==11 || GenPDGID==310 || GenPDGID==130) && GenEt>CandidateEt)
@@ -173,7 +173,7 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
 
           if ((GenPDGID==211 || GenPDGID==321 || GenPDGID==2112 || GenPDGID==2212 || GenPDGID==3122)
               && (GenEt>SecondarySeed.et() || SecondarySeed.et()==CandidateEt)
-              && GenEt>SecondarySeedThreshold_ && GenEt<CandidateEt && dR<ClusterConeSize_) SecondarySeed=*checkGenParticles;
+              && GenEt>SecondarySeedThreshold_ && GenEt<CandidateEt && dR<ClusterConeSize_) SecondarySeed=checkGenParticles;
         }
       }
       
@@ -198,15 +198,15 @@ PhotonEnrichmentFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
     int NumSeedsInConeCounter = 0;
     int NumNonSeedsInConeCounter = 0;
 
-    for(GenParticleCollection::const_iterator itGenParticles = GenParticles->begin(); itGenParticles != GenParticles->end(); ++itGenParticles) { 
+    for(const auto & itGenParticles : *GenParticles) { 
       bool TheSecondarySeed = false;
       bool TheSeedParticle = false;
-      double GenCharge = itGenParticles->charge();
-      double GenEt = itGenParticles->et();
-      double GenEta = itGenParticles->eta();
-      double GenPDGID = abs(itGenParticles->pdgId());
-      double GenPhi = itGenParticles->phi();
-      double GenStatus = itGenParticles->status();
+      double GenCharge = itGenParticles.charge();
+      double GenEt = itGenParticles.et();
+      double GenEta = itGenParticles.eta();
+      double GenPDGID = abs(itGenParticles.pdgId());
+      double GenPhi = itGenParticles.phi();
+      double GenStatus = itGenParticles.status();
       double dR = deltaR2(GenEta,GenPhi,ClusterEta,ClusterPhi);
 
       if (ClusterEta==GenEta && ClusterPhi==GenPhi) TheSeedParticle=true;

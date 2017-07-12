@@ -321,9 +321,8 @@ void RPCMonitorDigi::bookRegionME(DQMStore::IBooker &ibooker,const std::string &
   
   std::stringstream name;
   std::stringstream title;
-  for(int r = 0; r < 3; r++){ //RPC regions are E-, B, and E+
+  for(auto regionName : RPCMonitorDigi::regionNames_){ //RPC regions are E-, B, and E+
     
-    std::string regionName = RPCMonitorDigi::regionNames_[r];
     //Cluster size
     name.str("");
     title.str("");

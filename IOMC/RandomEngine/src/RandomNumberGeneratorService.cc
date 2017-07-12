@@ -841,17 +841,15 @@ namespace edm {
     void
     RandomNumberGeneratorService::writeStates(std::vector<RandomEngineState> const& v,
                                               std::ofstream& outFile) {
-      for(std::vector<RandomEngineState>::const_iterator iter = v.begin(),
-                                                          iEnd = v.end();
-        iter != iEnd; ++iter) {
+      for(const auto & iter : v) {
 
-        std::vector<std::uint32_t> const& seedVector = iter->getSeed();
+        std::vector<std::uint32_t> const& seedVector = iter.getSeed();
         std::vector<std::uint32_t>::size_type seedVectorLength = seedVector.size();
 
-        std::vector<std::uint32_t> const& stateVector = iter->getState();
+        std::vector<std::uint32_t> const& stateVector = iter.getState();
         std::vector<std::uint32_t>::size_type stateVectorLength = stateVector.size();
 
-        outFile << "<ModuleLabel>\n" << iter->getLabel() << "\n</ModuleLabel>\n";
+        outFile << "<ModuleLabel>\n" << iter.getLabel() << "\n</ModuleLabel>\n";
 
         outFile << "<SeedLength>\n" << seedVectorLength << "\n</SeedLength>\n" ;
         outFile << "<InitialSeeds>\n";

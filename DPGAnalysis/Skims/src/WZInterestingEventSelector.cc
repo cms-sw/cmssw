@@ -235,15 +235,15 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
   std::vector<const GsfElectron*> goodElectrons;  
   float ptMax=-999.;
   const GsfElectron* ptMaxEle=0;
-  for(reco::GsfElectronCollection::const_iterator myEle=gsfElectrons->begin();myEle!=gsfElectrons->end();++myEle)
+  for(const auto & myEle : *gsfElectrons)
     {
       //Apply a minimal isolated electron selection
-      if (!electronSelection(&(*myEle),bspotPosition)) continue;
-      goodElectrons.push_back(&(*myEle));
-      if (myEle->pt() > ptMax )
+      if (!electronSelection(&myEle,bspotPosition)) continue;
+      goodElectrons.push_back(&myEle);
+      if (myEle.pt() > ptMax )
 	{
-	  ptMax =  myEle->pt();
-	  ptMaxEle = &(*myEle);
+	  ptMax =  myEle.pt();
+	  ptMaxEle = &myEle;
 	}
     }
 
@@ -253,11 +253,11 @@ WZInterestingEventSelector::filter(edm::Event& iEvent, const edm::EventSetup& iS
     v1.SetPtEtaPhiM(ptMaxEle->pt(),ptMaxEle->eta(),ptMaxEle->phi(),0);
   if (goodElectrons.size()>1)
     {
-      for (unsigned int iEle=0; iEle<goodElectrons.size(); ++iEle)
-	if (goodElectrons[iEle]!=ptMaxEle && (goodElectrons[iEle]->charge() * ptMaxEle->charge() == -1) )
+      for (auto & goodElectron : goodElectrons)
+	if (goodElectron!=ptMaxEle && (goodElectron->charge() * ptMaxEle->charge() == -1) )
 	  {
 	    TLorentzVector v2;
-	    v2.SetPtEtaPhiM(goodElectrons[iEle]->pt(),goodElectrons[iEle]->eta(),goodElectrons[iEle]->phi(),0.);
+	    v2.SetPtEtaPhiM(goodElectron->pt(),goodElectron->eta(),goodElectron->phi(),0.);
 	    if ( (v1+v2).M() > maxInv )
 	      maxInv = (v1+v2).M();
 	  }

@@ -88,10 +88,10 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
       EcalRecHitCollection::const_iterator j = caloHits_.end();
 
-      for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i != chosen.end (); ++i){ //loop selected cells
-	j = caloHits_.find(*i); // find selected cell among rechits
+      for (auto i : chosen){ //loop selected cells
+	j = caloHits_.find(i); // find selected cell among rechits
 	if(j != caloHits_.end()) { // add rechit only if available 
-	  auto const cell  = theCaloGeom_.product()->getGeometry(*i);
+	  auto const cell  = theCaloGeom_.product()->getGeometry(i);
 	  float eta = cell->etaPos();
 	  float phi = cell->phiPos();
 	  float etaDiff = eta - etaclus;
@@ -127,7 +127,7 @@ double EgammaRecHitIsolation::getSum_(const reco::Candidate* emObject,bool retur
 	    bool isClustered = false;
 	    for(reco::CaloCluster_iterator bcIt = sc->clustersBegin();bcIt != sc->clustersEnd(); ++bcIt) {
 	      for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
-		if(rhIt->first == *i)
+		if(rhIt->first == i)
 		  isClustered = true;
 		if(isClustered) 
 		  break;
@@ -204,11 +204,11 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
       if( nullptr == subdet_[subdetnr] ) continue;
       CaloSubdetectorGeometry::DetIdSet chosen = subdet_[subdetnr]->getCells(pclu,extRadius_);// select cells around cluster
       EcalRecHitCollection::const_iterator j=caloHits_.end();
-      for (CaloSubdetectorGeometry::DetIdSet::const_iterator  i = chosen.begin ();i!= chosen.end ();++i){//loop selected cells
+      for (auto i : chosen){//loop selected cells
 	
-	j=caloHits_.find(*i); // find selected cell among rechits
+	j=caloHits_.find(i); // find selected cell among rechits
 	if( j!=caloHits_.end()){ // add rechit only if available 
-	  const  GlobalPoint & position = theCaloGeom_.product()->getPosition(*i);
+	  const  GlobalPoint & position = theCaloGeom_.product()->getPosition(i);
 	  double eta = position.eta();
 	  double phi = position.phi();
 	  double etaDiff = eta - etaclus;
@@ -237,7 +237,7 @@ double EgammaRecHitIsolation::getSum_(const reco::SuperCluster* sc, bool returnE
 	    bool isClustered = false;
 	    for(reco::CaloCluster_iterator bcIt = sc->clustersBegin();bcIt != sc->clustersEnd(); ++bcIt) {
 	      for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
-		if( rhIt->first == *i ) isClustered = true;
+		if( rhIt->first == i ) isClustered = true;
 		if( isClustered ) break;
 	      }
 	      if( isClustered ) break;

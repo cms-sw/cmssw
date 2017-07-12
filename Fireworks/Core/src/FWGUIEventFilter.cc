@@ -247,8 +247,8 @@ FWGUIEventFilter::show( std::list<FWEventSelector*>* sels, int filterMode, int f
    m_triggerSelectionFrame = new TGVerticalFrame(m_triggerSelectionFrameParent);
    m_triggerSelectionFrameParent->AddFrame(m_triggerSelectionFrame,  new TGLayoutHints(kLHintsExpandX));
 
-   for(std::list<FWEventSelector*>::iterator i = sels->begin(); i != sels->end(); ++i)
-      addSelector(*i);
+   for(auto & sel : *sels)
+      addSelector(sel);
 
    updateFilterStateLabel(filterState);
 
@@ -270,8 +270,8 @@ FWGUIEventFilter::reset()
       m_triggerSelectionFrame = 0;
    }
 
-   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
-      delete *i;
+   for (auto & m_guiSelector : m_guiSelectors)
+      delete m_guiSelector;
    
    m_guiSelectors.clear();
 }
@@ -364,9 +364,9 @@ FWGUIEventFilter::CloseWindow()
    m_triggerSelectionFrame = 0;
 
    FWGUIEventSelector* gs;
-   for (std::list<FWGUIEventSelector*>::iterator i = m_guiSelectors.begin(); i != m_guiSelectors.end(); ++i)
+   for (auto & m_guiSelector : m_guiSelectors)
    {
-      gs = *i;
+      gs = m_guiSelector;
       delete gs;
    }
 

@@ -176,14 +176,14 @@ void MonPNMGPADat::writeArrayDB(const std::map< EcalLogicID, MonPNMGPADat >* dat
   const MonPNMGPADat* dataitem;
   int count=0;
   typedef map< EcalLogicID, MonPNMGPADat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-        channel = &(p->first);
+  for (const auto & p : *data) {
+        channel = &(p.first);
 	int logicID = channel->getLogicID();
 	if (!logicID) { throw(std::runtime_error("MonPNMGPADat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
-	dataitem = &(p->second);
+	dataitem = &(p.second);
 	// dataIface.writeDB( channel, dataitem, iov);
 	float x=dataitem->getADCMeanG1();
 	float y=dataitem->getADCRMSG1();

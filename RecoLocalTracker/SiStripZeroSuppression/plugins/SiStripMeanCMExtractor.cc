@@ -144,12 +144,11 @@ void SiStripMeanCMExtractor::CMExtractorFromPedestals(const edm::DetSetVector<Si
 	meancm.clear();
 	meancm.reserve(15000);    
 	
-	 for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
-	  rawDigis = input.begin(); rawDigis != input.end(); rawDigis++) {
-         SiStripPedestals::Range detPedestalRange = pedestalHandle_->getRange(rawDigis->id);
-		 edm::DetSet<SiStripProcessedRawDigi> MeanCMDetSet(rawDigis->id);
+	 for (const auto & rawDigis : input) {
+         SiStripPedestals::Range detPedestalRange = pedestalHandle_->getRange(rawDigis.id);
+		 edm::DetSet<SiStripProcessedRawDigi> MeanCMDetSet(rawDigis.id);
 		
-		for(uint16_t APV = 0; APV < rawDigis->size()/128; ++APV){
+		for(uint16_t APV = 0; APV < rawDigis.size()/128; ++APV){
 			uint16_t MinPed =0;
 			for(uint16_t strip = APV*128; strip< (APV+1)*128; ++strip){
 			  uint16_t ped =  (uint16_t)pedestalHandle_->getPed(strip,detPedestalRange);

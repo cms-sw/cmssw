@@ -26,13 +26,13 @@ std::pair<float,float> EgammaHLTHcalIsolation::getSum(const float candEta,const 
   float sumE=0.;
   float sumEt=0.;
   
-  for(HBHERecHitCollection::const_iterator hbheItr = hbhe->begin(); hbheItr != hbhe->end(); ++hbheItr){
-    if(passCleaning_(&(*hbheItr),hcalSevLvlAlgo,dbHcalChStatus)){
+  for(const auto & hbheItr : *hbhe){
+    if(passCleaning_(&hbheItr,hcalSevLvlAlgo,dbHcalChStatus)){
       //      if(hbheItr->id().ietaAbs()==29) continue;
 
-      HcalDetId id = hbheItr->id();
+      HcalDetId id = hbheItr.id();
       if(!(id.ietaAbs()==28 && id.depth()==3)){ //default normal case
-	float energy = hbheItr->energy();
+	float energy = hbheItr.energy();
 	const GlobalPoint& pos = geometry->getPosition(id);
 	if(acceptHit_(id,pos,energy,candEta,candPhi)){
 	  sumE+=energy;
@@ -40,7 +40,7 @@ std::pair<float,float> EgammaHLTHcalIsolation::getSum(const float candEta,const 
 	}
       }else{
 	//the special case, tower 28 depth 3 is split between tower 28 and 29 when using calo towers so we have to emulate it. To do this we need to divide energy by 2 and then check seperately if 28 and 29 are accepted
-	float energy = hbheItr->energy()/2.;
+	float energy = hbheItr.energy()/2.;
 	HcalDetId tower28Id(id.subdet(),28*id.zside(),id.iphi(),2);
 	const GlobalPoint& tower28Pos = geometry->getPosition(tower28Id);
 	if(acceptHit_(id,tower28Pos,energy,candEta,candPhi)){

@@ -137,9 +137,8 @@ CandidateTriggerObjectProducer::produce(edm::Event & iEvent, const edm::EventSet
 //       assert (moduleIndex<m);
 
       // Results from TriggerEvent product - Looking only on last filter since trigger is accepted
-      for (unsigned int imodule=0;imodule<moduleLabels.size();++imodule)
+      for (const auto & moduleLabel : moduleLabels)
 	{
-	  const std::string& moduleLabel(moduleLabels[imodule]);
 	  const std::string  moduleType(hltConfig.moduleType(moduleLabel));
 	  //Avoiding L1 seeds
 	  if (moduleType.find("Level1GTSeed") != std::string::npos)

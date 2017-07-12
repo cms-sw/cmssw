@@ -166,23 +166,22 @@ void MuonNavigationPrinter::printLayer(const DetLayer* layer) const {
 /// print next layers
 void MuonNavigationPrinter::printLayers(const vector<const DetLayer*>& nextLayers) const {
 
-  for ( vector<const DetLayer*>::const_iterator inext = nextLayers.begin();
-      inext != nextLayers.end(); inext++ ) {
+  for (auto nextLayer : nextLayers) {
 
      PRINT("MuonNavigationPrinter") << " --> " << std::endl; 
-     if ( (*inext)->location() == GeomDetEnumerators::barrel ) {
-      const BarrelDetLayer* l = dynamic_cast<const BarrelDetLayer*>(&(**inext));
-      PRINT("MuonNavigationPrinter") << (*inext)->location() << " "
-           << (*inext)->subDetector()
+     if ( nextLayer->location() == GeomDetEnumerators::barrel ) {
+      const BarrelDetLayer* l = dynamic_cast<const BarrelDetLayer*>(&(*nextLayer));
+      PRINT("MuonNavigationPrinter") << nextLayer->location() << " "
+           << nextLayer->subDetector()
            << " layer at R: "
            << setiosflags(ios::showpoint | ios::fixed)
            << setw(8) << setprecision(2)
            << l->specificSurface().radius() << "   " << std::endl;
     }
     else {
-      const ForwardDetLayer* l = dynamic_cast<const ForwardDetLayer*>(&(**inext));
-       PRINT("MuonNavigationPrinter") << (*inext)->location() << " "
-           << (*inext)->subDetector()
+      const ForwardDetLayer* l = dynamic_cast<const ForwardDetLayer*>(&(*nextLayer));
+       PRINT("MuonNavigationPrinter") << nextLayer->location() << " "
+           << nextLayer->subDetector()
            << " layer at z: "
            << setiosflags(ios::showpoint | ios::fixed)
            << setw(8) << setprecision(2)
@@ -190,10 +189,10 @@ void MuonNavigationPrinter::printLayers(const vector<const DetLayer*>& nextLayer
     }
     PRINT("MuonNavigationPrinter") << setiosflags(ios::showpoint | ios::fixed)
          << setprecision(1)
-         << setw(6) << (*inext)->surface().bounds().length() << ", "
-         << setw(6) << (*inext)->surface().bounds().width() << ", "
-         << setw(4) <<(*inext)->surface().bounds().thickness() << " : " 
-         << (*inext)->surface().position() << std::endl;
+         << setw(6) << nextLayer->surface().bounds().length() << ", "
+         << setw(6) << nextLayer->surface().bounds().width() << ", "
+         << setw(4) <<nextLayer->surface().bounds().thickness() << " : " 
+         << nextLayer->surface().position() << std::endl;
   }
 
 }

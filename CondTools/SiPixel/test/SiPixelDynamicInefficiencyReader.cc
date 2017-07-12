@@ -113,8 +113,8 @@ void SiPixelDynamicInefficiencyReader::analyze( const edm::Event& e, const edm::
     printf("pu detid %x\t",it_pu->first);
     std::cout  << " Size of vector "<<it_pu->second.size()<<" elements:";
     if (it_pu->second.size()>1) {
-      for (unsigned int i=0;i<it_pu->second.size();i++) {
-        std::cout<<" "<<it_pu->second.at(i);
+      for (double i : it_pu->second) {
+        std::cout<<" "<<i;
       }
       std::cout<<std::endl;
     }
@@ -123,7 +123,7 @@ void SiPixelDynamicInefficiencyReader::analyze( const edm::Event& e, const edm::
     }
   }
   std::vector<uint32_t> detIdmasks = SiPixelDynamicInefficiency_->getDetIdmasks();
-  for (unsigned int i=0;i<detIdmasks.size();i++) printf("DetId Mask: %x\t\n",detIdmasks.at(i));
+  for (unsigned int detIdmask : detIdmasks) printf("DetId Mask: %x\t\n",detIdmask);
   double theInstLumiScaleFactor = SiPixelDynamicInefficiency_->gettheInstLumiScaleFactor_();
   std::cout<<"theInstLumiScaleFactor "<<theInstLumiScaleFactor<<std::endl;
 
@@ -143,9 +143,9 @@ void SiPixelDynamicInefficiencyReader::analyze( const edm::Event& e, const edm::
   double _pu_scale_conf[pu_det];
   unsigned int match=0,mismatch=0,pu_match=0,pu_mismatch=0;
 
-  for(TrackerGeometry::DetUnitContainer::const_iterator it = pDD->detUnits().begin(); it != pDD->detUnits().end(); it++){
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it))==0) continue;
-    const DetId detid=(*it)->geographicalId();
+  for(auto it : pDD->detUnits()){
+    if( dynamic_cast<PixelGeomDetUnit const*>(it)==0) continue;
+    const DetId detid=it->geographicalId();
     double scale_db=1;
 
     //Geom DB factor calculation
@@ -178,8 +178,8 @@ void SiPixelDynamicInefficiencyReader::analyze( const edm::Event& e, const edm::
       double instlumi = 30*theInstLumiScaleFactor;
       double instlumi_pow=1.;
       _pu_scale[pu_iterator] = 0;
-      for  (size_t j=0; j<it_pu->second.size(); j++){
-        _pu_scale[pu_iterator]+=instlumi_pow*it_pu->second[j];
+      for  (double j : it_pu->second){
+        _pu_scale[pu_iterator]+=instlumi_pow*j;
         instlumi_pow*=instlumi;
       }
     }

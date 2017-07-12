@@ -330,8 +330,8 @@ MuonAssociatorByHitsHelper::associateRecoToSimIndices(const TrackHitsCollection 
   if (!tC.size()) 
     edm::LogVerbatim("MuonAssociatorByHitsHelper")<<"0 reconstructed tracks (-->> 0 associated !)";
 
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
-    std::sort(it->second.begin(), it->second.end());
+  for (auto & it : outputCollection) {
+    std::sort(it.second.begin(), it.second.end());
   }
   return outputCollection;
 }
@@ -755,8 +755,8 @@ MuonAssociatorByHitsHelper::associateSimToRecoIndices( const TrackHitsCollection
       <<"************************************************************************************************************************"<<"\n";  
   }
   
-  for (IndexAssociation::iterator it = outputCollection.begin(), ed = outputCollection.end(); it != ed; ++it) {
-    std::sort(it->second.begin(), it->second.end());
+  for (auto & it : outputCollection) {
+    std::sort(it.second.begin(), it.second.end());
   }
   return outputCollection;
 }
@@ -1223,8 +1223,8 @@ void MuonAssociatorByHitsHelper::getMatchedIds
     if (printRtS) edm::LogVerbatim("MuonAssociatorByHitsHelper") << hitlog;
     if (printRtS && dumpDT && det==DetId::Muon && subdet==MuonSubdetId::DT) {
       edm::LogVerbatim("MuonAssociatorByHitsHelper") <<wireidlog;
-      for (unsigned int j=0; j<DTSimHits.size(); j++) {
-	edm::LogVerbatim("MuonAssociatorByHitsHelper") <<DTSimHits[j];
+      for (const auto & DTSimHit : DTSimHits) {
+	edm::LogVerbatim("MuonAssociatorByHitsHelper") <<DTSimHit;
       }
     }
     
@@ -1274,10 +1274,10 @@ std::string MuonAssociatorByHitsHelper::write_matched_simtracks(const std::vecto
 
   string hitlog(" matched to SimTrack");
   
-  for(size_t j=0; j<SimTrackIds.size(); j++)
+  for(const auto & SimTrackId : SimTrackIds)
   {
     char buf[64];
-    snprintf(buf, 64, " Id:%i/Evt:(%i,%i) ", SimTrackIds[j].first, SimTrackIds[j].second.event(), SimTrackIds[j].second.bunchCrossing());
+    snprintf(buf, 64, " Id:%i/Evt:(%i,%i) ", SimTrackId.first, SimTrackId.second.event(), SimTrackId.second.bunchCrossing());
     hitlog += buf;
   }
   return hitlog;

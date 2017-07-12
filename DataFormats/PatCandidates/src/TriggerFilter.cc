@@ -63,8 +63,8 @@ bool TriggerFilter::setStatus( int status )
 std::vector< int > TriggerFilter::triggerObjectTypes() const
 {
   std::vector< int > triggerObjectTypes;
-  for ( size_t iTo = 0; iTo < triggerObjectTypes_.size(); ++iTo ) {
-    triggerObjectTypes.push_back( triggerObjectTypes_.at( iTo ) );
+  for (auto triggerObjectType : triggerObjectTypes_) {
+    triggerObjectTypes.push_back( triggerObjectType );
   }
   return triggerObjectTypes;
 }
@@ -73,8 +73,8 @@ std::vector< int > TriggerFilter::triggerObjectTypes() const
 // Checks, if a certain trigger object collection index is assigned
 bool TriggerFilter::hasObjectKey( unsigned objectKey ) const
 {
-  for ( size_t iO = 0; iO < objectKeys().size(); ++iO ) {
-    if ( objectKeys().at( iO ) == objectKey ) return true;
+  for (unsigned int iO : objectKeys()) {
+    if ( iO == objectKey ) return true;
   }
   return false;
 }

@@ -42,9 +42,9 @@ PileupJetIdProducer::PileupJetIdProducer(const edm::ParameterSet& iConfig)
 	if( produceJetIds_ ) {
 		produces<edm::ValueMap<StoredPileupJetIdentifier> > ("");
 	}
-	for(std::vector<edm::ParameterSet>::iterator it=algos.begin(); it!=algos.end(); ++it) {
-		std::string label = it->getParameter<std::string>("label");
-		algos_.emplace_back( label, std::make_unique<PileupJetIdAlgo>(*it, runMvas_));
+	for(auto & algo : algos) {
+		std::string label = algo.getParameter<std::string>("label");
+		algos_.emplace_back( label, std::make_unique<PileupJetIdAlgo>(algo, runMvas_));
 		if( runMvas_ ) {
 			produces<edm::ValueMap<float> > (label+"Discriminant");
 			produces<edm::ValueMap<int> > (label+"Id");

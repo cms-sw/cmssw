@@ -72,11 +72,11 @@ void DQMMessageLogger::bookHistograms(DQMStore::IBooker & ibooker, edm::Run cons
   stringvec const& trigpaths = tns->getTrigPaths();
   
   
-  for (stringvec::const_iterator i = trigpaths.begin(), e =trigpaths.end() ;  i != e;  ++i){
-      stringvec strings =  tns->getTrigPathModules(*i);
+  for (const auto & trigpath : trigpaths){
+      stringvec strings =  tns->getTrigPathModules(trigpath);
 
-      for(unsigned int k=0; k<strings.size(); ++k){      
-	moduleMap.insert(pair<string,int>(strings[k],moduleMap.size()+1));
+      for(auto & k : strings){      
+	moduleMap.insert(pair<string,int>(k,moduleMap.size()+1));
       }    
   }
 

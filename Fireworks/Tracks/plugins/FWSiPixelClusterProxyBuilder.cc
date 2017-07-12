@@ -62,8 +62,7 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 
       const edmNew::DetSet<SiPixelCluster> & clusters = *set;
       
-      for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clusters.begin(), edc = clusters.end(); 
-           itc != edc; ++itc ) 
+      for(const auto & cluster : clusters) 
       {
          TEveElement* itemHolder = createCompound();
          product->AddElement(itemHolder);
@@ -80,8 +79,8 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
 
          float localPoint[3] = 
             {     
-               fireworks::pixelLocalX(( *itc ).minPixelRow(), pars ),
-               fireworks::pixelLocalY(( *itc ).minPixelCol(), pars ),
+               fireworks::pixelLocalX(cluster.minPixelRow(), pars ),
+               fireworks::pixelLocalY(cluster.minPixelCol(), pars ),
                0.0
             };
 
@@ -93,7 +92,7 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
          setupAddElement( pointSet, itemHolder );
 
          TEveStraightLineSet* ls = new TEveStraightLineSet();
-         for(int j=0;j< (*itc).size(); j++ )
+         for(int j=0;j< cluster.size(); j++ )
          {
 
             //            float adc= (*itc).pixel(j).adc*0.03/5000.;
@@ -106,9 +105,9 @@ FWSiPixelClusterProxyBuilder::build( const FWEventItem* iItem, TEveElementList* 
             for(int of=0;of<8;of++) {
                float lp[3]= {
                   fireworks::pixelLocalX(
-                                         (*itc).pixel(j).x+offsetx[of%4], pars) ,
+                                         cluster.pixel(j).x+offsetx[of%4], pars) ,
                   fireworks::pixelLocalY(
-                                         (*itc).pixel(j).y+offsety[of%4], pars ),
+                                         cluster.pixel(j).y+offsety[of%4], pars ),
                   (of<4)?(0.0f):(adc)
                };
 

@@ -58,10 +58,10 @@ bool Py8JetGun::generatePartonsAndHadronize()
    double totM  = 0.;
    double phi, eta, the, ee, pp;
    
-   for ( size_t i=0; i<fPartIDs.size(); i++ )
+   for (int particleID : fPartIDs)
    {
 
-      int particleID = fPartIDs[i]; // this is PDG - need to convert to Py8 ???
+      // this is PDG - need to convert to Py8 ???
 
       phi = 2. * M_PI * randomEngine().flat() ;
       the = acos( -1. + 2.*randomEngine().flat() );

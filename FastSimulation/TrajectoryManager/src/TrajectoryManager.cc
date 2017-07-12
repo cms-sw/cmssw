@@ -828,22 +828,20 @@ TrajectoryManager::initializeLayerMap()
   const std::vector< const BarrelDetLayer*>&   barrelLayers = 
     theGeomSearchTracker->barrelLayers();
   LogDebug("FastTracking") << "Barrel DetLayer dump: ";
-  for (auto bl=barrelLayers.begin();
-       bl != barrelLayers.end(); ++bl) {
-    LogDebug("FastTracking")<< "radius " << (**bl).specificSurface().radius(); 
+  for (auto barrelLayer : barrelLayers) {
+    LogDebug("FastTracking")<< "radius " << (*barrelLayer).specificSurface().radius(); 
   }
 
   const std::vector< const ForwardDetLayer*>&  posForwardLayers = 
     theGeomSearchTracker->posForwardLayers();
   LogDebug("FastTracking") << "Positive Forward DetLayer dump: ";
-  for (auto fl=posForwardLayers.begin();
-       fl != posForwardLayers.end(); ++fl) {
+  for (auto posForwardLayer : posForwardLayers) {
     LogDebug("FastTracking") << "Z pos "
-			     << (**fl).surface().position().z()
+			     << (*posForwardLayer).surface().position().z()
 			     << " radii " 
-			     << (**fl).specificSurface().innerRadius() 
+			     << (*posForwardLayer).specificSurface().innerRadius() 
 			     << ", " 
-			     << (**fl).specificSurface().outerRadius(); 
+			     << (*posForwardLayer).specificSurface().outerRadius(); 
   }
 
   const float rTolerance = 1.5;
@@ -863,14 +861,13 @@ TrajectoryManager::initializeLayerMap()
     if (cyl != 0) {
       LogDebug("FastTracking") << " cylinder radius " << cyl->radius();
       bool found = false;
-      for (auto
-	     bl=barrelLayers.begin(); bl != barrelLayers.end(); ++bl) {
+      for (auto barrelLayer : barrelLayers) {
 
-	if (fabs( cyl->radius() - (**bl).specificSurface().radius()) < rTolerance) {
-	  theLayerMap[i->layerNumber()] = *bl;
+	if (fabs( cyl->radius() - (*barrelLayer).specificSurface().radius()) < rTolerance) {
+	  theLayerMap[i->layerNumber()] = barrelLayer;
 	  found = true;
 	  LogDebug("FastTracking")<< "Corresponding DetLayer found with radius "
-				  << (**bl).specificSurface().radius();
+				  << (*barrelLayer).specificSurface().radius();
 	  break;
 	}
       }
@@ -882,18 +879,17 @@ TrajectoryManager::initializeLayerMap()
       LogDebug("FastTracking") << " disk radii " << disk->innerRadius() 
 			       << ", " << disk->outerRadius();
       bool found = false;
-      for (auto fl=posForwardLayers.begin();
-	   fl != posForwardLayers.end(); ++fl) {
+      for (auto posForwardLayer : posForwardLayers) {
 	
-	if (fabs( disk->position().z() - (**fl).surface().position().z()) < zTolerance) {
-	  theLayerMap[i->layerNumber()] = *fl;
+	if (fabs( disk->position().z() - (*posForwardLayer).surface().position().z()) < zTolerance) {
+	  theLayerMap[i->layerNumber()] = posForwardLayer;
 	  found = true;
 	  LogDebug("FastTracking") << "Corresponding DetLayer found with Z pos "
-				   << (**fl).surface().position().z()
+				   << (*posForwardLayer).surface().position().z()
 				   << " and radii " 
-				   << (**fl).specificSurface().innerRadius() 
+				   << (*posForwardLayer).specificSurface().innerRadius() 
 				   << ", " 
-				   << (**fl).specificSurface().outerRadius(); 
+				   << (*posForwardLayer).specificSurface().outerRadius(); 
 	  break;
 	}
       }
@@ -905,12 +901,11 @@ TrajectoryManager::initializeLayerMap()
 
   // Put the negative layers in the same map but with an offset
   const  std::vector< const ForwardDetLayer*>&  negForwardLayers = theGeomSearchTracker->negForwardLayers();
-  for (auto nl=negForwardLayers.begin();
-       nl != negForwardLayers.end(); ++nl) {
+  for (auto negForwardLayer : negForwardLayers) {
     for (int i=0; i<=theNegLayerOffset; i++) {
       if (theLayerMap[i] == 0) continue;
-      if ( fabs( (**nl).surface().position().z() +theLayerMap[i]-> surface().position().z()) < zTolerance) {
-	theLayerMap[i+theNegLayerOffset] = *nl;
+      if ( fabs( (*negForwardLayer).surface().position().z() +theLayerMap[i]-> surface().position().z()) < zTolerance) {
+	theLayerMap[i+theNegLayerOffset] = negForwardLayer;
 	break;
       }
     }

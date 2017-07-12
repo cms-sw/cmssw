@@ -179,9 +179,8 @@ int main(int argc, char **argv)
 				                weights ? -1.0 : 1.0));
 		else if (nTarget == trees.size()) {
 			treeTrainer.reset(new TreeTrainer());
-			for(std::vector<TTree*>::iterator iter = trees.begin();
-			    iter != trees.end(); ++iter)
-				treeTrainer->addTree(*iter, -1,
+			for(auto & tree : trees)
+				treeTrainer->addTree(tree, -1,
 				                     weights ? -1.0 : 1.0);
 		} else
 			std::cerr << "Either all ROOT trees have to contain "

@@ -66,7 +66,7 @@ PFDisplacedVertexCandidateFinder::setInput(const edm::Handle<TrackCollection>& t
   eventTrackTrajectories_.clear();
   eventTrackTrajectories_.resize(trackh->size());
 
-  for(unsigned i=0;i<trackMask_.size(); i++) trackMask_[i] = true; 
+  for(auto && i : trackMask_) i = true; 
 
   eventTracks_.clear();
   if(trackh.isValid()) {
@@ -411,20 +411,19 @@ ostream& operator<<(std::ostream& out, const PFDisplacedVertexCandidateFinder& a
   out<<endl;
 
 
-  for(PFDisplacedVertexCandidateFinder::IEC ie = a.eventTracks_.begin(); 
-      ie != a.eventTracks_.end(); ie++) {
+  for(const auto & eventTrack : a.eventTracks_) {
 
-    double pt = (*ie).get()->pt(); 
+    double pt = eventTrack.get()->pt(); 
 
-    math::XYZPoint Pi = (*ie).get()->innerPosition(); 
-    math::XYZPoint Po = (*ie).get()->outerPosition(); 
+    math::XYZPoint Pi = eventTrack.get()->innerPosition(); 
+    math::XYZPoint Po = eventTrack.get()->outerPosition(); 
 
     double innermost_radius = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y() + Pi.z()*Pi.z());
     double outermost_radius = sqrt(Po.x()*Po.x() + Po.y()*Po.y() + Po.z()*Po.z());
     double innermost_rho = sqrt(Pi.x()*Pi.x() + Pi.y()*Pi.y());
     double outermost_rho = sqrt(Po.x()*Po.x() + Po.y()*Po.y());
     
-    out<<"ie = " << (*ie).key() 
+    out<<"ie = " << eventTrack.key() 
        <<" pt = " << pt
        <<" innermost hit radius = " << innermost_radius << " rho = " << innermost_rho
        <<" outermost hit radius = " << outermost_radius << " rho = " << outermost_rho

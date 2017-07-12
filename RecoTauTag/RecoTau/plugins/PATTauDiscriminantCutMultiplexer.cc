@@ -203,18 +203,17 @@ void PATTauDiscriminantCutMultiplexer::beginEvent(const edm::Event& evt, const e
 	mvaOutput_normalization_.reset(temp.release());
       }
     }
-    for ( DiscriminantCutMap::iterator cut = cuts_.begin();
-	  cut != cuts_.end(); ++cut ) {
-      if ( cut->second->mode_ == DiscriminantCutEntry::kVariableCut ) {
+    for (auto & cut : cuts_) {
+      if ( cut.second->mode_ == DiscriminantCutEntry::kVariableCut ) {
 	if ( !loadMVAfromDB_ ) {
 	  if(not inputFile) {
 	    inputFile = openInputFile(inputFileName_);
 	  }
 	  if(verbosity_) std::cout << "Loading from file" << inputFileName_ << std::endl;
-	  cut->second->cutFunction_ = loadObjectFromFile<TGraph>(*inputFile, cut->second->cutName_);
+	  cut.second->cutFunction_ = loadObjectFromFile<TGraph>(*inputFile, cut.second->cutName_);
 	} else {
 	  if(verbosity_) std::cout << "Loading from DB" << std::endl;
-	  cut->second->cutFunction_ = loadTGraphFromDB(es, cut->second->cutName_, verbosity_);
+	  cut.second->cutFunction_ = loadTGraphFromDB(es, cut.second->cutName_, verbosity_);
 	}
       }
     }

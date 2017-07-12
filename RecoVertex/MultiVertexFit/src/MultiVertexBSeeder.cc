@@ -23,10 +23,9 @@ namespace {
       const vector < const reco::TransientTrack * > & ptrs )
   {
     vector < reco::TransientTrack > ret;
-    for ( vector< const reco::TransientTrack * >::const_iterator i=ptrs.begin(); 
-          i!=ptrs.end() ; ++i )
+    for (auto ptr : ptrs)
     {
-      ret.push_back ( **i );
+      ret.push_back ( *ptr );
     }
     return ret;
   }
@@ -72,11 +71,10 @@ namespace {
   {
     FsmwModeFinder3d f;
     vector< ModeFinder3d::PointAndDistance> input;
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin();
-          i!=trks.end() ; ++i )
+    for (const auto & trk : trks)
     {
       input.push_back ( ModeFinder3d::PointAndDistance 
-                        ( i->impactPointState().globalPosition(), 1. )  );
+                        ( trk.impactPointState().globalPosition(), 1. )  );
     }
     return f(input);
   }
@@ -85,11 +83,10 @@ namespace {
   {
     FsmwModeFinder3d f;
     vector< ModeFinder3d::PointAndDistance> input;
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin();
-          i!=trks.end() ; ++i )
+    for (const auto & trk : trks)
     {
       input.push_back ( ModeFinder3d::PointAndDistance ( 
-            toPoint ( i->impactPointState().globalMomentum() ), 1. )  );
+            toPoint ( trk.impactPointState().globalMomentum() ), 1. )  );
     }
     GlobalPoint pt ( f(input) );
     pt/=pt.mag();
@@ -124,10 +121,9 @@ namespace {
     FreeTrajectoryState axis ( jet );
     TwoTrackMinimumDistance ttmd;
     vector < Cluster1D < reco::TransientTrack > > pts;
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
-          i!=trks.end() ; ++i )
+    for (const auto & i : trks)
     {
-      bool status = ttmd.calculate( axis,*( i->impactPointState().freeState() ) );
+      bool status = ttmd.calculate( axis,*( i.impactPointState().freeState() ) );
       if (status) {
         pair < GlobalPoint, GlobalPoint > pt = ttmd.points();
         double d = ( pt.first - pt.second ).mag();
@@ -135,7 +131,7 @@ namespace {
         double s = ( pt.first - axis.position() ).mag();
         Measurement1D ms ( s, 1.0 );
         vector < const reco::TransientTrack * > trk;
-        trk.push_back ( &(*i) );
+        trk.push_back ( &i );
         pts.push_back ( Cluster1D < reco::TransientTrack > ( ms, trk, w ) );
       }
     }

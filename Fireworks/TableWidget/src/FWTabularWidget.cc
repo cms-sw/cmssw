@@ -306,10 +306,8 @@ FWTabularWidget::DoRedraw()
    int x=xOrigin;
    gVirtualX->DrawLine(fId,m_normGC,x,0,x,y);
    x+=kSeperatorWidth;
-   for(std::vector<unsigned int>::iterator itTextWidth = m_widthOfTextInColumns.begin();
-   itTextWidth != m_widthOfTextInColumns.end();
-   ++itTextWidth) {
-      x+=2*kTextBuffer+*itTextWidth;
+   for(unsigned int & m_widthOfTextInColumn : m_widthOfTextInColumns) {
+      x+=2*kTextBuffer+m_widthOfTextInColumn;
       gVirtualX->DrawLine(fId,m_normGC,x,0,x,y);
       x+=kSeperatorWidth;
    }

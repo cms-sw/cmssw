@@ -227,10 +227,9 @@ static std::vector<RefCountedVertexTrack> relinearizeTracks(
 	std::vector<RefCountedVertexTrack> finalTracks;
 	finalTracks.reserve(tracks.size());
 
-	for(std::vector<RefCountedVertexTrack>::const_iterator iter =
-				tracks.begin(); iter != tracks.end(); ++iter)
+	for(const auto & track : tracks)
 		finalTracks.push_back(
-			relinearizeTrack(*iter, state, vertexTrackFactory));
+			relinearizeTrack(track, state, vertexTrackFactory));
 
 	return finalTracks;
 }
@@ -483,12 +482,11 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 
 		VertexState state(primaryPosition, primaryError);
 
-		for(std::vector<TransientTrack>::const_iterator iter =
-			primaries.begin(); iter != primaries.end(); ++iter) {
+		for(const auto & primarie : primaries) {
 
 			RefCountedLinearizedTrackState linState =
 				linTrackFactory.linearizedTrackState(
-						primaryPosition, *iter);
+						primaryPosition, primarie);
 
 			primaryVertexTracks.push_back(
 					vertexTrackFactory.vertexTrack(
@@ -566,12 +564,11 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 
 		VertexState state(primaryPosition, primaryError);
 
-		for(std::vector<TransientTrack>::const_iterator iter =
-			primaries.begin(); iter != primaries.end(); ++iter) {
+		for(const auto & primarie : primaries) {
 
 			RefCountedLinearizedTrackState linState =
 				linTrackFactory.linearizedTrackState(
-						primaryPosition, *iter);
+						primaryPosition, primarie);
 
 			primaryVertexTracks.push_back(
 					vertexTrackFactory.vertexTrack(
@@ -713,12 +710,11 @@ std::vector<TransientVertex> GhostTrackVertexFinder::vertices(
 		        RecoVertex::convertPos(primaryVertex.position()),
 	                RecoVertex::convertError(primaryVertex.error()));
 
-		for(std::vector<TransientTrack>::const_iterator iter =
-			primaries.begin(); iter != primaries.end(); ++iter) {
+		for(const auto & primarie : primaries) {
 
 			RefCountedLinearizedTrackState linState =
 				linTrackFactory.linearizedTrackState(
-						state.position(), *iter);
+						state.position(), primarie);
 
 			primaryVertexTracks.push_back(
 					vertexTrackFactory.vertexTrack(
@@ -781,19 +777,18 @@ static void mergeTrackHelper(const std::vector<RefCountedVertexTrack> &tracks,
                              RefCountedVertexTrack &ghostTrack,
                              const VertexTrackFactory<5> &factory)
 {
-	for(std::vector<RefCountedVertexTrack>::const_iterator iter =
-			tracks.begin(); iter != tracks.end(); ++iter) {
-		bool gt = ghostTrackFinder(*iter);
+	for(const auto & iter : tracks) {
+		bool gt = ghostTrackFinder(iter);
 		if (gt && ghostTrack)
 			continue;
 
 		RefCountedVertexTrack track =
-				relinearizeTrack(*iter, state, factory);
+				relinearizeTrack(iter, state, factory);
 
 		if (gt)
-			ghostTrack = *iter;
+			ghostTrack = iter;
 		else
-			newTracks.push_back(*iter);
+			newTracks.push_back(iter);
 	}
 }
 
@@ -1130,14 +1125,13 @@ void GhostTrackVertexFinder::refitGhostTrack(
 
 		int idx = -1;
 		bool redo = false;
-		for(std::vector<RefCountedVertexTrack>::iterator track =
-			vtxTracks.begin(); track != vtxTracks.end(); ++track) {
+		for(auto & vtxTrack : vtxTracks) {
 
-			if (isGhostTrack(*track)) {
+			if (isGhostTrack(vtxTrack)) {
 				LinearizedTrackStateFactory linTrackFactory;
 				VertexTrackFactory<5> vertexTrackFactory;
 
-				*track = vertexTrackFactory.vertexTrack(
+				vtxTrack = vertexTrackFactory.vertexTrack(
 					linTrackFactory.linearizedTrackState(
 						iter->position(), ghostTrack),
 						iter->vertexState());
@@ -1146,7 +1140,7 @@ void GhostTrackVertexFinder::refitGhostTrack(
 			}
 
 			const TransientTrack &tt =
-					(*track)->linearizedTrack()->track();
+					vtxTrack->linearizedTrack()->track();
 
 			if (idx >= 0) {
 				idx = -1;

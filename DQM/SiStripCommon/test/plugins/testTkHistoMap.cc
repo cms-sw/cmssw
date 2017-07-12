@@ -203,25 +203,25 @@ void testTkHistoMap::analyze(const edm::Event& iEvent,
   tkhisto->fillFromAscii("test.txt");
   tkhistoBis->fillFromAscii("test2.txt");
 
-  for(size_t i=0;i<TkDetIdList.size();++i){
+  for(unsigned int & i : TkDetIdList){
 
-    const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(TkDetIdList[i])));
+    const StripGeomDetUnit*_StripGeomDetUnit = dynamic_cast<const StripGeomDetUnit*>(tkgeom->idToDetUnit(DetId(i)));
     globalPos=(_StripGeomDetUnit->surface()).toGlobal(localPos);
     
-    value = TkDetIdList[i]%1000000;
+    value = i%1000000;
     
     //tkhisto->fill(TkDetIdList[i],value);
     //tkhistoBis->fill(TkDetIdList[i],value);
-    tkhistoZ->fill(TkDetIdList[i],globalPos.z());
-    tkhistoPhi->fill(TkDetIdList[i],globalPos.phi());
-    tkhistoR->fill(TkDetIdList[i],globalPos.perp());
-    tkhistoCheck->add(TkDetIdList[i],1.);
-    tkhistoCheck->add(TkDetIdList[i],1.);
+    tkhistoZ->fill(i,globalPos.z());
+    tkhistoPhi->fill(i,globalPos.phi());
+    tkhistoR->fill(i,globalPos.perp());
+    tkhistoCheck->add(i,1.);
+    tkhistoCheck->add(i,1.);
 
-    edm::LogInfo("testTkHistoMap") << "detid " << TkDetIdList[i] << " pos z " << globalPos.z() << " phi " << globalPos.phi() << " r " << globalPos.perp() << std::endl;
+    edm::LogInfo("testTkHistoMap") << "detid " << i << " pos z " << globalPos.z() << " phi " << globalPos.phi() << " r " << globalPos.perp() << std::endl;
 
-    if(value!=tkhisto->getValue(TkDetIdList[i]))
-      edm::LogError("testTkHistoMap") << " input value " << value << " differs from read value " << tkhisto->getValue(TkDetIdList[i]) << std::endl;
+    if(value!=tkhisto->getValue(i))
+      edm::LogError("testTkHistoMap") << " input value " << value << " differs from read value " << tkhisto->getValue(i) << std::endl;
 
     // For usage that reset histo content use setBinContent instead than fill
     /* 

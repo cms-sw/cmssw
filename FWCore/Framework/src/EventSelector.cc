@@ -445,10 +445,10 @@ namespace edm
     }
 
     // loop over each element in the selection list
-    for (unsigned int idx = 0; idx < pathspecs.size(); idx++)
+    for (const auto & pathspec : pathspecs)
     {
       Strings workingList;
-      workingList.push_back(pathspecs[idx]);
+      workingList.push_back(pathspec);
 
       // catch exceptions from the EventSelector constructor
       // (and anywhere else) and mark those as failures.
@@ -763,9 +763,9 @@ namespace edm
     HLTGlobalStatus mask(fullPathCount);
 
     // Deal with must_fail acceptors that would cause selection
-    for (unsigned int m = 0; m < this->all_must_fail_.size(); ++m) {
+    for (const auto & m : this->all_must_fail_) {
       std::vector<bool>
-        f = expandDecisionList(this->all_must_fail_[m],false,N);
+        f = expandDecisionList(m,false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {
 	if  ((f[ipath]) && (inputResults [ipath].state() != hlt::Fail)) {
@@ -781,9 +781,9 @@ namespace edm
 	}
       }
     }
-    for (unsigned int m = 0; m < this->all_must_fail_noex_.size(); ++m) {
+    for (const auto & m : this->all_must_fail_noex_) {
       std::vector<bool>
-        f = expandDecisionList(this->all_must_fail_noex_[m],false,N);
+        f = expandDecisionList(m,false,N);
       bool all_fail = true;
       for (unsigned int ipath = 0; ipath < N; ++ipath) {
 	if ((f[ipath]) && (inputResults [ipath].state() != hlt::Fail)) {

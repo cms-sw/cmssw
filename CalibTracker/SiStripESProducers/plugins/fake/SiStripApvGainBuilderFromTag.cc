@@ -51,18 +51,18 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
 
   uint32_t count = 0;
   const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos = reader.getAllData();
-  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++) {
+  for(const auto & it : DetInfos) {
 
     // Find if this DetId is in the input tag and if so how many are the Apvs for which it contains information
     SiStripApvGain::Range inputRange;
     size_t inputRangeSize = 0;
-    if( find( inputDetIds.begin(), inputDetIds.end(), it->first ) != inputDetIds.end() ) {
-      inputRange = inputApvGain->getRange(it->first);
+    if( find( inputDetIds.begin(), inputDetIds.end(), it.first ) != inputDetIds.end() ) {
+      inputRange = inputApvGain->getRange(it.first);
       inputRangeSize = distance(inputRange.first, inputRange.second);
     }
 
     std::vector<float> theSiStripVector;
-    for(unsigned short j=0; j<it->second.nApvs; j++){
+    for(unsigned short j=0; j<it.second.nApvs; j++){
 
       double gainValue = meanGain_;
 
@@ -76,7 +76,7 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
 
 
       // corrections at layer/disk level:
-      uint32_t detId = it->first;
+      uint32_t detId = it.first;
       SiStripFakeAPVParameters::index sl = SiStripFakeAPVParameters::getIndex(tTopo, detId);
       //unsigned short nApvs = it->second.nApvs;
       if (applyTuning) {
@@ -95,13 +95,13 @@ void SiStripApvGainBuilderFromTag::analyze(const edm::Event& evt, const edm::Eve
       }
 	
       if (count<printdebug_) {
-	edm::LogInfo("SiStripApvGainGeneratorFromTag") << "detid: " << it->first  << " Apv: " << j <<  " gain: " << gainValue  << std::endl; 	    
+	edm::LogInfo("SiStripApvGainGeneratorFromTag") << "detid: " << it.first  << " Apv: " << j <<  " gain: " << gainValue  << std::endl; 	    
       }
       theSiStripVector.push_back(gainValue);
     }
     count++;
     SiStripApvGain::Range range(theSiStripVector.begin(),theSiStripVector.end());
-    if ( ! obj->put(it->first,range) )
+    if ( ! obj->put(it.first,range) )
       edm::LogError("SiStripApvGainGeneratorFromTag")<<" detid already exists"<<std::endl;
   }
   

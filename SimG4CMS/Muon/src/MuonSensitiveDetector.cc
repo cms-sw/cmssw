@@ -81,9 +81,9 @@ MuonSensitiveDetector::MuonSensitiveDetector(std::string name,
   //
   const std::vector<std::string>&  lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++){
-    LogDebug("MuonSimDebug") << name << " MuonSensitiveDetector:: attaching SD to LV " << *it << std::endl;
-    this->AssignSD(*it);
+  for (const auto & lvName : lvNames){
+    LogDebug("MuonSimDebug") << name << " MuonSensitiveDetector:: attaching SD to LV " << lvName << std::endl;
+    this->AssignSD(lvName);
   }
 
   if (printHits) {

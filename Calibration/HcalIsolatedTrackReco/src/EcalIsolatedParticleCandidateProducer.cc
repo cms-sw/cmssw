@@ -109,22 +109,22 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 
 //  std::cout<<"find highest pT triggered obj"<<std::endl;
 
-  for (unsigned int p=0; p<l1tauobjref.size(); p++)
+  for (auto & p : l1tauobjref)
         {
-        if (l1tauobjref[p]->pt()>ptTriggered)
+        if (p->pt()>ptTriggered)
                 {
-                ptTriggered=l1tauobjref[p]->pt();
-                phiTriggered=l1tauobjref[p]->phi();
-                etaTriggered=l1tauobjref[p]->eta();
+                ptTriggered=p->pt();
+                phiTriggered=p->phi();
+                etaTriggered=p->eta();
                 }
         }
-  for (unsigned int p=0; p<l1jetobjref.size(); p++)
+  for (auto & p : l1jetobjref)
         {
-        if (l1jetobjref[p]->pt()>ptTriggered)
+        if (p->pt()>ptTriggered)
                 {
-                ptTriggered=l1jetobjref[p]->pt();
-                phiTriggered=l1jetobjref[p]->phi();
-                etaTriggered=l1jetobjref[p]->eta();
+                ptTriggered=p->pt();
+                phiTriggered=p->phi();
+                etaTriggered=p->eta();
                 }
         }
 
@@ -143,60 +143,60 @@ EcalIsolatedParticleCandidateProducer::produce(edm::Event& iEvent, const edm::Ev
 	double OutEnergy=0;
 	double InEnergy=0;
 //	std::cout<<" loops over rechits"<<std::endl;
-	for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++)
+	for (const auto & eItr : *ecalEB)
 		{
 		double phiD, R;
-                GlobalPoint pos = geo->getPosition(eItr->detid());
+                GlobalPoint pos = geo->getPosition(eItr.detid());
                 double phihit = pos.phi();
                 double etahit = pos.eta();
                 phiD=fabs(phihit-tit->phi());
                 if (phiD>3.1415926535) phiD=2*3.1415926535-phiD;
                 R=sqrt(pow(etahit-tit->eta(),2)+phiD*phiD);
                 
-		if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitCountEthr_)
+		if (R<OutConeSize_&&R>InConeSize_&&eItr.energy()>hitCountEthr_)
                 	{
                   	nhitOut++;
                 	}
-		if (R<InConeSize_&&eItr->energy()>hitCountEthr_)
+		if (R<InConeSize_&&eItr.energy()>hitCountEthr_)
                         {
                         nhitIn++;
                         }
 
-		if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitEthr_)
+		if (R<OutConeSize_&&R>InConeSize_&&eItr.energy()>hitEthr_)
                         {
-                        OutEnergy+=eItr->energy();
+                        OutEnergy+=eItr.energy();
                         }
-                if (R<InConeSize_&&eItr->energy()>hitEthr_)
+                if (R<InConeSize_&&eItr.energy()>hitEthr_)
                         {
-                        InEnergy+=eItr->energy();
+                        InEnergy+=eItr.energy();
                         }
 
                 }
 
-	for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++)
+	for (const auto & eItr : *ecalEE)
                 {
                 double phiD, R;
-                GlobalPoint pos = geo->getPosition(eItr->detid());
+                GlobalPoint pos = geo->getPosition(eItr.detid());
                 double phihit = pos.phi();
                 double etahit = pos.eta();
                 phiD=fabs(phihit-tit->phi());
                 if (phiD>3.1415926535) phiD=2*3.1415926535-phiD;
                 R=sqrt(pow(etahit-tit->eta(),2)+phiD*phiD);
-                if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitCountEthr_)
+                if (R<OutConeSize_&&R>InConeSize_&&eItr.energy()>hitCountEthr_)
                         {
                         nhitOut++;
                         }
-                if (R<InConeSize_&&eItr->energy()>hitCountEthr_)
+                if (R<InConeSize_&&eItr.energy()>hitCountEthr_)
                         {
                         nhitIn++;
                         }
-		if (R<OutConeSize_&&R>InConeSize_&&eItr->energy()>hitEthr_)
+		if (R<OutConeSize_&&R>InConeSize_&&eItr.energy()>hitEthr_)
                         {
-                        OutEnergy+=eItr->energy();
+                        OutEnergy+=eItr.energy();
                         }
-                if (R<InConeSize_&&eItr->energy()>hitEthr_)
+                if (R<InConeSize_&&eItr.energy()>hitEthr_)
                         {
-                        InEnergy+=eItr->energy();
+                        InEnergy+=eItr.energy();
                         }
 
                 }

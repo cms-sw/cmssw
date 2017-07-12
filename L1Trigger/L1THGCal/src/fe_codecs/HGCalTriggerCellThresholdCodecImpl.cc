@@ -189,8 +189,8 @@ void
 HGCalTriggerCellThresholdCodecImpl::
 thresholdSelect(data_type& data)
 {
-  for (size_t i = 0; i<data.payload.size();i++){
-    if (data.payload[i].hwPt() < TCThreshold_ADC_)  data.payload[i].setHwPt(0);
+  for (auto & i : data.payload){
+    if (i.hwPt() < TCThreshold_ADC_)  i.setHwPt(0);
   }
   
 }

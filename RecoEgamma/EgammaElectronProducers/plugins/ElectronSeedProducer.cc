@@ -207,9 +207,9 @@ void ElectronSeedProducer::produce(edm::Event& e, const edm::EventSetup& iSetup)
   ElectronSeedCollection * seeds = new ElectronSeedCollection ;
 
   // loop over barrel + endcap
-  for (unsigned int i=0; i<2; i++) {
+  for (auto superCluster : superClusters_) {
     edm::Handle<SuperClusterCollection> clusters ;
-    e.getByToken(superClusters_[i],clusters);
+    e.getByToken(superCluster,clusters);
     SuperClusterRefVector clusterRefs ;
     std::vector<float> hoe1s, hoe2s ;
     filterClusters(*theBeamSpot,clusters,/*mhbhe_,*/clusterRefs,hoe1s,hoe2s,e, iSetup);
@@ -312,9 +312,9 @@ void ElectronSeedProducer::filterSeeds
  ( edm::Event & event, const edm::EventSetup & setup,
    reco::SuperClusterRefVector & sclRefs )
  {
-  for ( unsigned int i=0 ; i<sclRefs.size() ; ++i )
+  for (const auto & sclRef : sclRefs)
    {
-    seedFilter_->seeds(event,setup,sclRefs[i],theInitialSeedColl) ;
+    seedFilter_->seeds(event,setup,sclRef,theInitialSeedColl) ;
     LogDebug("ElectronSeedProducer")<<"Number of Seeds: "<<theInitialSeedColl->size() ;
    }
  }

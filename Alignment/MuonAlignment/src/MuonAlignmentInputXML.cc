@@ -218,13 +218,13 @@ MuonAlignmentInputXML::~MuonAlignmentInputXML() {
 //
 
 void MuonAlignmentInputXML::recursiveGetId(std::map<unsigned int, Alignable*> &alignableNavigator, const align::Alignables &alignables) const {
-   for (align::Alignables::const_iterator ali = alignables.begin();  ali != alignables.end();  ++ali) {
-      if ((*ali)->alignableObjectId() == align::AlignableDetUnit  ||  (*ali)->alignableObjectId() == align::AlignableDet  ||
-	  (*ali)->alignableObjectId() == align::AlignableDTChamber  ||  (*ali)->alignableObjectId() == align::AlignableDTSuperLayer  ||  (*ali)->alignableObjectId() == align::AlignableDTLayer  ||
-	  (*ali)->alignableObjectId() == align::AlignableCSCChamber  ||  (*ali)->alignableObjectId() == align::AlignableCSCLayer) {
-	 alignableNavigator[(*ali)->geomDetId().rawId()] = *ali;
+   for (auto alignable : alignables) {
+      if (alignable->alignableObjectId() == align::AlignableDetUnit  ||  alignable->alignableObjectId() == align::AlignableDet  ||
+	  alignable->alignableObjectId() == align::AlignableDTChamber  ||  alignable->alignableObjectId() == align::AlignableDTSuperLayer  ||  alignable->alignableObjectId() == align::AlignableDTLayer  ||
+	  alignable->alignableObjectId() == align::AlignableCSCChamber  ||  alignable->alignableObjectId() == align::AlignableCSCLayer) {
+	 alignableNavigator[alignable->geomDetId().rawId()] = alignable;
       }
-      recursiveGetId(alignableNavigator, (*ali)->components());
+      recursiveGetId(alignableNavigator, alignable->components());
    }
 }
 
@@ -365,10 +365,8 @@ AlignableMuon *MuonAlignmentInputXML::newAlignableMuon(const edm::EventSetup& iS
 		  throw cms::Exception("XMLException") << "<collection name=\"" << name << "\"> hasn't been defined" << std::endl;
 	       }
 
-	       for (std::map<Alignable*, bool>::const_iterator aliiter = alicollections_iter->second.begin();
-		    aliiter != alicollections_iter->second.end();
-		    ++aliiter) {
-		  aliset[aliiter->first] = true;
+	       for (const auto & aliiter : alicollections_iter->second) {
+		  aliset[aliiter.first] = true;
 	       } // end loop over alignables in this collection
 
 	       nodesToRemove.push_back(node);

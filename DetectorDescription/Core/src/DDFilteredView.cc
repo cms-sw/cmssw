@@ -243,8 +243,8 @@ void DDFilteredView::print() {
        << "-------------------" << std::endl
        << "scope = " << epv_.scope_ << std::endl
        << "parents:" << std::endl;
-  for (unsigned int i=0; i<parents_.size(); ++i)
-    edm::LogInfo("DDFliteredView") << "  " << parents_[i] << std::endl;
+  for (const auto & parent : parents_)
+    edm::LogInfo("DDFliteredView") << "  " << parent << std::endl;
     
 }
 

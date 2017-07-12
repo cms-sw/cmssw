@@ -87,10 +87,9 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
   int numPhotons = 0;
   
   const CompositePtrCandidate::daughters& daughters = c.daughterPtrVector();
-  for ( CompositePtrCandidate::daughters::const_iterator daughter = daughters.begin();
- 	daughter != daughters.end(); ++daughter ) {
+  for (const auto & daughter : daughters) {
     
-    int pdg_id = abs((*daughter)->pdgId());
+    int pdg_id = abs(daughter->pdgId());
     
     switch ( pdg_id ) {
 
@@ -103,7 +102,7 @@ std::string JetMCTagUtils::genTauDecayMode(const CompositePtrCandidate &c) {
     case 13:
       numMuons++;
       break;
-    default : {if ((*daughter)->charge() != 0)  numChargedHadrons++; else numNeutralHadrons++;}
+    default : {if (daughter->charge() != 0)  numChargedHadrons++; else numNeutralHadrons++;}
     }
   }
   

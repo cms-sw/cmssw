@@ -24,8 +24,8 @@ produceTrivialCalibrationLut::produceTrivialCalibrationLut() :
 	450.,	475.,	500.,	525.,	550.,	575.,	600.,	625.,	650.,	675.,	
 	700.,	725.,	750.,	775.
     };
-  for (unsigned i=0; i<64; i++) {
-    m_jetEtThresholds.push_back(jetThresholds[i]);
+  for (double jetThreshold : jetThresholds) {
+    m_jetEtThresholds.push_back(jetThreshold);
   }
 
   setupJfPars();
@@ -39,11 +39,11 @@ produceTrivialCalibrationLut::~produceTrivialCalibrationLut()
 void produceTrivialCalibrationLut::setPowerSeriesCorrectionType()
 {
   m_corrFunType = 1;
-  for (unsigned i=0; i<m_jetCalibFunc.size(); i++) {
-    m_jetCalibFunc.at(i).clear();
+  for (auto & i : m_jetCalibFunc) {
+    i.clear();
   }
-  for (unsigned i=0; i<m_tauCalibFunc.size(); i++) {
-    m_tauCalibFunc.at(i).clear();
+  for (auto & i : m_tauCalibFunc) {
+    i.clear();
   }
   setupJfPars();
 }
@@ -121,11 +121,11 @@ void produceTrivialCalibrationLut::setupJfPars() {
 // in energy in an automated way here.
 void produceTrivialCalibrationLut::setOrcaStyleParams()
 {
-  for (unsigned i=0; i<m_jetCalibFunc.size(); ++i) {
-    setOrcaStyleParamsForBin(m_jetCalibFunc.at(i));
+  for (auto & i : m_jetCalibFunc) {
+    setOrcaStyleParamsForBin(i);
   }
-  for (unsigned i=0; i<m_tauCalibFunc.size(); ++i) {
-    setOrcaStyleParamsForBin(m_tauCalibFunc.at(i));
+  for (auto & i : m_tauCalibFunc) {
+    setOrcaStyleParamsForBin(i);
   }
 }
 

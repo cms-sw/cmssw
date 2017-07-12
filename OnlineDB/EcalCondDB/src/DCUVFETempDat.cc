@@ -137,14 +137,14 @@ void DCUVFETempDat::writeArrayDB(const std::map< EcalLogicID, DCUVFETempDat >* d
   const DCUVFETempDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, DCUVFETempDat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-        channel = &(p->first);
+  for (const auto & p : *data) {
+        channel = &(p.first);
 	int logicID = channel->getLogicID();
 	if (!logicID) { throw(std::runtime_error("DCUVFETempDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
-	dataitem = &(p->second);
+	dataitem = &(p.second);
 	// dataIface.writeDB( channel, dataitem, iov);
 	float x=dataitem->getVFETemp();
 

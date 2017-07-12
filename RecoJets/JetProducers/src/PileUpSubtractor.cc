@@ -117,10 +117,8 @@ void PileUpSubtractor::calculatePedestal( vector<fastjet::PseudoJet> const & col
       ntowers[i] = 0;
     }
     
-  for (vector<fastjet::PseudoJet>::const_iterator input_object = coll.begin (),
-	 fjInputsEnd = coll.end();  
-       input_object != fjInputsEnd; ++input_object) {
-     const reco::CandidatePtr & originalTower=(*inputs_)[ input_object->user_index()];
+  for (const auto & input_object : coll) {
+     const reco::CandidatePtr & originalTower=(*inputs_)[ input_object.user_index()];
     ieta0 = ieta( originalTower );
     double Original_Et = originalTower->et();
   if( ieta0-ietaold != 0 )
@@ -172,27 +170,25 @@ void PileUpSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
   LogDebug("PileUpSubtractor")<<"The subtractor subtracting pedestals...\n";
 
   int it = -100;
-  for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin (),
-	 fjInputsEnd = coll.end(); 
-       input_object != fjInputsEnd; ++input_object) {
+  for (auto & input_object : coll) {
     
-     reco::CandidatePtr const & itow =  (*inputs_)[ input_object->user_index() ];
+     reco::CandidatePtr const & itow =  (*inputs_)[ input_object.user_index() ];
     
     it = ieta( itow );
     
     double etnew = itow->et() - (*(emean_.find(it))).second - (*(esigma_.find(it))).second;
-    float mScale = etnew/input_object->Et(); 
+    float mScale = etnew/input_object.Et(); 
     if(etnew < 0.) mScale = 0.;
     
-    math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
-				   input_object->pz()*mScale, input_object->e()*mScale);
+    math::XYZTLorentzVectorD towP4(input_object.px()*mScale, input_object.py()*mScale,
+				   input_object.pz()*mScale, input_object.e()*mScale);
     
-    int index = input_object->user_index();
-    input_object->reset_momentum ( towP4.px(),
+    int index = input_object.user_index();
+    input_object.reset_momentum ( towP4.px(),
 				   towP4.py(),
 				   towP4.pz(),
 				   towP4.energy() );
-    input_object->set_user_index(index);
+    input_object.set_user_index(index);
   }
 }
 

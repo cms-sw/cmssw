@@ -163,15 +163,15 @@ void CosmicMuonValidator::analyze(const edm::Event& iEvent, const edm::EventSetu
    iEvent.getByLabel(simTrackLabel_,simTracks);
    cout << "simTracks: " <<simTracks->size() <<endl;
 
-   for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); simTrack != simTracks->end(); ++simTrack){
-    if (abs((*simTrack).type()) == 13) {
-       cout << "MC Muon: mom (" << simTrack->momentum().x() << "," << simTrack->momentum().y() << "," <<simTrack->momentum().z()
+   for (const auto & simTrack : *simTracks){
+    if (abs(simTrack.type()) == 13) {
+       cout << "MC Muon: mom (" << simTrack.momentum().x() << "," << simTrack.momentum().y() << "," <<simTrack.momentum().z()
  << ")"<<endl;
-       thetasim = simTrack->momentum().theta();
-       phisim = simTrack->momentum().phi();
+       thetasim = simTrack.momentum().theta();
+       phisim = simTrack.momentum().phi();
 
-       simC = - simTrack->type()/13.;
-       ptsim = simTrack->momentum().pt();
+       simC = - simTrack.type()/13.;
+       ptsim = simTrack.momentum().pt();
     }
   }
 
@@ -611,8 +611,8 @@ void CosmicMuonValidator::endJob() {
 
     const int NUM_PAGES = 7;
     TPad *pad[NUM_PAGES];
-    for (int i_page=0; i_page<NUM_PAGES; i_page++)
-      pad[i_page] = new TPad("","", .05, .05, .95, .93);
+    for (auto & i_page : pad)
+      i_page = new TPad("","", .05, .05, .95, .93);
 
     ostringstream page_print;
     int page = 0;
@@ -768,18 +768,17 @@ PSimHitContainer CosmicMuonValidator::matchedHit(const GlobalPoint& tp, const PS
 
       if (simHs.empty()) return result;
 
-      for (PSimHitContainer::const_iterator ish = simHs.begin();
-           ish != simHs.end(); ish++ ) {
+      for (const auto & simH : simHs) {
 
-            if (abs( (*ish).particleType() ) != 13 ) continue;
+            if (abs( simH.particleType() ) != 13 ) continue;
 
-            DetId idsim( (*ish).detUnitId() );
+            DetId idsim( simH.detUnitId() );
 
-            GlobalPoint sp = theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(ish->entryPoint()); //entryPoint or localPosition??
+            GlobalPoint sp = theService->trackingGeometry()->idToDet(idsim)->surface().toGlobal(simH.entryPoint()); //entryPoint or localPosition??
             GlobalVector dist = sp - tp;
             float d = fabs(dist.y());
             if ( d < dcut ) {
-               rs = (*ish);
+               rs = simH;
                dcut = d;
                hasMatched = true;
              }

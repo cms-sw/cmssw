@@ -282,9 +282,9 @@ DOMDocument *XMLDocument::createDocument(const std::string &root)
 
 static bool isBool(std::string value)
 {
-	for(unsigned int i = 0; i < value.size(); i++)
-		if (value[i] >= 'A' && value[i] <= 'Z')
-			value[i] += 'a' - 'A';
+	for(char & i : value)
+		if (i >= 'A' && i <= 'Z')
+			i += 'a' - 'A';
 
 	if (value == "1" || value == "y" || value == "yes" ||
 	    value == "true" || value == "ok")

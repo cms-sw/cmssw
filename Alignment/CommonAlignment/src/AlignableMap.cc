@@ -34,8 +34,7 @@ Alignables& AlignableMap::find(const std::string& name)
 void AlignableMap::dump( void ) const
 {
   edm::LogInfo("AlignableMap") << "Printing out AlignSetup: ";
-  for ( typename Container::const_iterator it = theStore.begin();
-        it != theStore.end(); ++it ) {
-    edm::LogVerbatim("AlignableMap") << it->first << std::endl;
+  for (const auto & it : theStore) {
+    edm::LogVerbatim("AlignableMap") << it.first << std::endl;
   }
 }

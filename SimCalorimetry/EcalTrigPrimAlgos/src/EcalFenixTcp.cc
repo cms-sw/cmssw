@@ -97,8 +97,8 @@ void EcalFenixTcp::process_part1(std::vector<std::vector<int> > &tpframetow, int
     if (debug_) {
       std::cout<< "output of adder is a vector of size: "<<adder_out_.size()<<std::endl; 
       std::cout<< "value : "<<std::endl;
-      for (unsigned int i =0; i<adder_out_.size();i++){
-	std::cout <<" "<<adder_out_[i];
+      for (int i : adder_out_){
+	std::cout <<" "<<i;
       }    
       std::cout<<std::endl;
     }
@@ -126,8 +126,8 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
   if (debug_) {
     std::cout<< "output of maxof2 is a vector of size: "<<maxOf2_out_.size()<<std::endl; 
     std::cout<< "value : "<<std::endl;
-    for (unsigned int i =0; i<maxOf2_out_.size();i++){
-      std::cout <<" "<<std::dec<<maxOf2_out_[i];
+    for (int i : maxOf2_out_){
+      std::cout <<" "<<std::dec<<i;
     }    
     std::cout<<std::endl;
   }
@@ -144,8 +144,8 @@ void EcalFenixTcp::process_part2_barrel(std::vector<std::vector<int> > & bypassl
   if (debug_) {
     std::cout<< "output of fgvb is a vector of size: "<<fgvb_out_.size()<<std::endl; 
     std::cout<< "value : "<<std::endl;
-    for (unsigned int i =0; i<fgvb_out_.size();i++){
-      std::cout <<" "<<std::dec<<fgvb_out_[i];
+    for (int i : fgvb_out_){
+      std::cout <<" "<<std::dec<<i;
     }    
     std::cout<<std::endl;
   }
@@ -179,9 +179,9 @@ void EcalFenixTcp::process_part2_endcap(std::vector<std::vector<int> > & bypassl
 
 {
   // Zero EB strip records
-  for(unsigned int i = 0; i < strip_fgvb_out_.size(); ++i)
+  for(int & i : strip_fgvb_out_)
   {
-    strip_fgvb_out_[i] = 0;
+    i = 0;
   }
 
   //call fgvb

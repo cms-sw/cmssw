@@ -114,11 +114,11 @@ void RPAlignmentCorrectionsData::AddSensorCorrection(unsigned int id, const RPAl
 void RPAlignmentCorrectionsData::AddCorrections(const RPAlignmentCorrectionsData &nac, bool sumErrors,
   bool addShR, bool addShZ, bool addRotZ)
 {
-  for (mapType::const_iterator it = nac.rps.begin(); it != nac.rps.end(); ++it)
-    AddRPCorrection(it->first, it->second, sumErrors, addShR, addShZ, addRotZ);
+  for (const auto & rp : nac.rps)
+    AddRPCorrection(rp.first, rp.second, sumErrors, addShR, addShZ, addRotZ);
   
-  for (mapType::const_iterator it = nac.sensors.begin(); it != nac.sensors.end(); ++it)
-    AddSensorCorrection(it->first, it->second, sumErrors, addShR, addShZ, addRotZ);
+  for (const auto & sensor : nac.sensors)
+    AddSensorCorrection(sensor.first, sensor.second, sumErrors, addShR, addShZ, addRotZ);
 }
 
 //----------------------------------------------------------------------------------------------------

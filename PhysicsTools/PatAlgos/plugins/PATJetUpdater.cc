@@ -93,9 +93,9 @@ void PATJetUpdater::produce(edm::Event & iEvent, const edm::EventSetup & iSetup)
   // read in the jet correction factors ValueMap
   std::vector<edm::ValueMap<JetCorrFactors> > jetCorrs;
   if (addJetCorrFactors_) {
-    for ( size_t i = 0; i < jetCorrFactorsTokens_.size(); ++i ) {
+    for (auto jetCorrFactorsToken : jetCorrFactorsTokens_) {
       edm::Handle<edm::ValueMap<JetCorrFactors> > jetCorr;
-      iEvent.getByToken(jetCorrFactorsTokens_[i], jetCorr);
+      iEvent.getByToken(jetCorrFactorsToken, jetCorr);
       jetCorrs.push_back( *jetCorr );
     }
   }

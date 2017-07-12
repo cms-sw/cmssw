@@ -69,9 +69,8 @@ void TrackReader::analyze(const Event & event, const EventSetup& setup){
   Handle<reco::TrackCollection> tracks;
   event.getByLabel(theInputLabel,tracks);
   
-  for (reco::TrackCollection::const_iterator track = tracks->begin(); 
-       track != tracks->end(); ++track){
-    for (trackingRecHit_iterator hit = track->recHitsBegin(); hit != track->recHitsEnd(); ++hit) {
+  for (const auto & track : *tracks){
+    for (trackingRecHit_iterator hit = track.recHitsBegin(); hit != track.recHitsEnd(); ++hit) {
 
       if((*hit)->isValid()) {
 	if ( (*hit)->geographicalId().det() == DetId::Tracker ){

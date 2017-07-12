@@ -219,10 +219,10 @@ void SimpleNavigationSchool::linkNextBarrelLayer( const ForwardDetLayer* fl,
 
   float outerRadius = fl->specificSurface().outerRadius();
   float zpos        = fl->position().z();
-  for ( BDLI bli = theBarrelLayers.begin(); bli != theBarrelLayers.end(); bli++) {
-    if ( outerRadius < (**bli).specificSurface().radius() &&
-	 zpos        < (**bli).surface().bounds().length() / 2.) {
-      reachableBL.push_back( *bli);
+  for (auto & theBarrelLayer : theBarrelLayers) {
+    if ( outerRadius < (*theBarrelLayer).specificSurface().radius() &&
+	 zpos        < (*theBarrelLayer).surface().bounds().length() / 2.) {
+      reachableBL.push_back( theBarrelLayer);
       return;
     }
   }
@@ -352,9 +352,8 @@ SimpleNavigationSchool::splitForwardLayers()
   result.push_back(current); // save last one too 
 
   // now sort subsets in Z
-  for ( vector<FDLC>::iterator ivec = result.begin();
-	ivec != result.end(); ivec++) {
-    stable_sort( ivec->begin(), ivec->end(), DetLessZ());
+  for (auto & ivec : result) {
+    stable_sort( ivec.begin(), ivec.end(), DetLessZ());
   }
 
   return result;
@@ -363,9 +362,9 @@ SimpleNavigationSchool::splitForwardLayers()
 float SimpleNavigationSchool::barrelLength() 
 {
   if ( theBarrelLength < 1.) {
-    for (BDLI i=theBarrelLayers.begin(); i!=theBarrelLayers.end(); i++) {
+    for (auto & theBarrelLayer : theBarrelLayers) {
       theBarrelLength = max( theBarrelLength,
-			     (**i).surface().bounds().length() / 2.f);
+			     (*theBarrelLayer).surface().bounds().length() / 2.f);
     }
 
     LogDebug("TkNavigation") << "The barrel length is " << theBarrelLength ;

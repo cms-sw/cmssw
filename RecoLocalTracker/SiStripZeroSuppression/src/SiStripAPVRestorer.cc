@@ -93,9 +93,9 @@ int16_t SiStripAPVRestorer::inspect( const uint32_t& detId, const uint16_t& firs
   SmoothedMaps_.erase(SmoothedMaps_.begin(),  SmoothedMaps_.end());
   BaselineMap_.erase(BaselineMap_.begin(), BaselineMap_.end()); 
     
-  for(size_t i=0; i< vmedians.size(); ++i){
-         short APV =  vmedians[i].first;
-         median_[APV]= vmedians[i].second;
+  for(const auto & vmedian : vmedians){
+         short APV =  vmedian.first;
+         median_[APV]= vmedian.second;
          badAPVs_[APV] = qualityHandle->IsApvBad(detId_, APV);
   }
 	
@@ -959,10 +959,10 @@ bool SiStripAPVRestorer::CheckBaseline(const std::vector<int16_t> &baseline) con
 			std::max(filtered_baseline_max,
 					 static_cast<double>(fabs(d)));
 	}
-	for (size_t i = 0; i < 127; i++) {
+	for (float i : filtered_baseline_derivative) {
 		filtered_baseline_derivative_sum_square +=
-			filtered_baseline_derivative[i] *
-			filtered_baseline_derivative[i];
+			i *
+			i;
 	}
 
 #if 0
@@ -1002,13 +1002,12 @@ void SiStripAPVRestorer::CreateCMMapRealPed(const edm::DetSetVector<SiStripRawDi
   	
  //std::cout<< "===============================================" << std::endl;
  
- for ( edm::DetSetVector<SiStripRawDigi>::const_iterator 
-	  rawDigis = input.begin(); rawDigis != input.end(); rawDigis++) {
-         SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(rawDigis->id);
+ for (const auto & rawDigis : input) {
+         SiStripPedestals::Range detPedestalRange = pedestalHandle->getRange(rawDigis.id);
 		 std::vector<float> MeanCMDetSet;
 		 MeanCMDetSet.clear();
 		
-		for(uint16_t APV = 0; APV < rawDigis->size()/128; ++APV){
+		for(uint16_t APV = 0; APV < rawDigis.size()/128; ++APV){
 			uint16_t MinPed =0;
 			for(uint16_t strip = APV*128; strip< (APV+1)*128; ++strip){
 			  uint16_t ped =  (uint16_t)pedestalHandle->getPed(strip,detPedestalRange);
@@ -1019,7 +1018,7 @@ void SiStripAPVRestorer::CreateCMMapRealPed(const edm::DetSetVector<SiStripRawDi
 			MeanCMDetSet.push_back(MinPed);
 		       
 		}
-		MeanCMmap_.insert(std::pair<uint32_t, std::vector<float> >(rawDigis->id,MeanCMDetSet));
+		MeanCMmap_.insert(std::pair<uint32_t, std::vector<float> >(rawDigis.id,MeanCMDetSet));
 		
  }
 }

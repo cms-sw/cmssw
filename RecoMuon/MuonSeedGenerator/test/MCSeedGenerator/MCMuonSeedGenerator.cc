@@ -96,36 +96,32 @@ void MCMuonSeedGenerator2::produce(edm::Event& event, const edm::EventSetup& set
 
   map<unsigned int, vector<const PSimHit*> > mapOfMuonSimHits;
   
-  for(PSimHitContainer::const_iterator simhit = dtSimHits->begin();
-      simhit != dtSimHits->end(); ++simhit) {
-    if (abs(simhit->particleType()) != 13) continue;
-    mapOfMuonSimHits[simhit->trackId()].push_back(&*simhit);
+  for(const auto & simhit : *dtSimHits) {
+    if (abs(simhit.particleType()) != 13) continue;
+    mapOfMuonSimHits[simhit.trackId()].push_back(&simhit);
   }
 
-  for(PSimHitContainer::const_iterator simhit = cscSimHits->begin();
-      simhit != cscSimHits->end(); ++simhit) {
-    if (abs(simhit->particleType()) != 13) continue;
-    mapOfMuonSimHits[simhit->trackId()].push_back(&*simhit);
+  for(const auto & simhit : *cscSimHits) {
+    if (abs(simhit.particleType()) != 13) continue;
+    mapOfMuonSimHits[simhit.trackId()].push_back(&simhit);
   }
 
-  for(PSimHitContainer::const_iterator simhit = rpcSimHits->begin();
-      simhit != rpcSimHits->end(); ++simhit) {
-    if (abs(simhit->particleType()) != 13) continue;
-    mapOfMuonSimHits[simhit->trackId()].push_back(&*simhit);
+  for(const auto & simhit : *rpcSimHits) {
+    if (abs(simhit.particleType()) != 13) continue;
+    mapOfMuonSimHits[simhit.trackId()].push_back(&simhit);
   }
 
 
-  for (SimTrackContainer::const_iterator simTrack = simTracks->begin(); 
-       simTrack != simTracks->end(); ++simTrack){
+  for (const auto & simTrack : *simTracks){
 
-    if (abs(simTrack->type()) != 13) continue;
+    if (abs(simTrack.type()) != 13) continue;
     
     map<unsigned int, vector<const PSimHit*> >::const_iterator mapIterator = 
-      mapOfMuonSimHits.find(simTrack->trackId());
+      mapOfMuonSimHits.find(simTrack.trackId());
     
     if (mapIterator == mapOfMuonSimHits.end() ){
       LogTrace(metname)<<"...Very strange, no sim hits associated to the sim track!"<<"\n"
-		       <<"SimTrack's eta: "<<simTrack->momentum().eta();
+		       <<"SimTrack's eta: "<<simTrack.momentum().eta();
       continue;
     }
     
@@ -151,7 +147,7 @@ void MCMuonSeedGenerator2::produce(edm::Event& event, const edm::EventSetup& set
 //     }
     
     if(theSeedType == FromTracks) 
-      seed = createSeedFromTrack(*simTrack, (*simVertices)[simTrack->vertIndex()], DetId(innerSimHit->detUnitId()));
+      seed = createSeedFromTrack(simTrack, (*simVertices)[simTrack.vertIndex()], DetId(innerSimHit->detUnitId()));
     else if(theSeedType == FromHits) 
       seed = createSeedFromHit(innerSimHit);
     else{

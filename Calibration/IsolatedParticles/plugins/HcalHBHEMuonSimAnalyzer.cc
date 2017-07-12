@@ -174,8 +174,7 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
     if (det != 4) {testN = true; break;}
   }
   if (testN) {
-    for (edm::PCaloHitContainer::const_iterator itr=pcalohh->begin(); itr != pcalohh->end(); ++itr) {
-      PCaloHit hit(*itr);
+    for (auto hit : *pcalohh) {
       DetId newid = HcalHitRelabeller::relabel(hit.id(),hcons);
       std::cout << "Old ID " << std::hex << hit.id() << std::dec << " New " << HcalDetId(newid) << std::endl;
       hit.setID(newid.rawId());
@@ -269,12 +268,12 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
 	bool            hbhe   = (std::abs(ieta) == 16);
 	std::vector<std::pair<double,int> > ehdepth;
 	spr::energyHCALCell((HcalDetId)closestCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, debug);
-	for (unsigned int i=0; i<ehdepth.size(); ++i) {
-	  eHcalDepth[ehdepth[i].second-1] = ehdepth[i].first;
-	  HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
-	  HcalDetId hcid0(subdet0,ieta,iphi,ehdepth[i].second);
+	for (auto & i : ehdepth) {
+	  eHcalDepth[i.second-1] = i.first;
+	  HcalSubdetector subdet0 = (hbhe) ? ((i.second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+	  HcalDetId hcid0(subdet0,ieta,iphi,i.second);
 	  double actL = activeLength(DetId(hcid0));
-	  activeL[ehdepth[i].second-1] = actL;
+	  activeL[i.second-1] = actL;
 	  activeLengthTot += actL;
 #ifdef EDM_ML_DEBUG
 	  if ((verbosity_%10) > 0)
@@ -303,12 +302,12 @@ void HcalHBHEMuonSimAnalyzer::analyze(const edm::Event& iEvent,
 	  hbhe   = (std::abs(ieta) == 16);
 	  std::vector<std::pair<double,int> > ehdepth;
 	  spr::energyHCALCell(hotCell, calohh, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, tMinH_, tMaxH_, debug);
-	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
-	    eHcalDepthHot[ehdepth[i].second-1] = ehdepth[i].first;
-	    HcalSubdetector subdet0 = (hbhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
-	    HcalDetId hcid0(subdet0,ieta,iphi,ehdepth[i].second);
+	  for (auto & i : ehdepth) {
+	    eHcalDepthHot[i.second-1] = i.first;
+	    HcalSubdetector subdet0 = (hbhe) ? ((i.second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+	    HcalDetId hcid0(subdet0,ieta,iphi,i.second);
 	    double actL = activeLength(DetId(hcid0));
-	    activeHotL[ehdepth[i].second-1] = actL;
+	    activeHotL[i.second-1] = actL;
 	    activeLengthHotTot += actL;
 #ifdef EDM_ML_DEBUG
 	      if ((verbosity_%10) > 0)
@@ -517,16 +516,16 @@ double HcalHBHEMuonSimAnalyzer::activeLength(const DetId& id_) {
   int depth= id.depth();
   double lx(0);
   if (id.subdet() == HcalBarrel) {
-    for (unsigned int i=0; i<actHB_.size(); ++i) {
-      if (ieta == actHB_[i].ieta && depth == actHB_[i].depth) {
-	lx = actHB_[i].thick;
+    for (auto & i : actHB_) {
+      if (ieta == i.ieta && depth == i.depth) {
+	lx = i.thick;
 	break;
       }
     }
   } else {
-    for (unsigned int i=0; i<actHE_.size(); ++i) {
-      if (ieta == actHE_[i].ieta && depth == actHE_[i].depth) {
-	lx = actHE_[i].thick;
+    for (auto & i : actHE_) {
+      if (ieta == i.ieta && depth == i.depth) {
+	lx = i.thick;
 	break;
       }
     }

@@ -40,20 +40,20 @@ PixelLTCConfig::PixelLTCConfig(vector< vector<string> > &tableMat):PixelConfigBa
 
   for(unsigned int c = 0 ; c < tableMat[0].size() ; c++)
     {
-      for(unsigned int n=0; n<colNames.size(); n++)
+      for(const auto & colName : colNames)
 	{
-	  if(tableMat[0][c] == colNames[n])
+	  if(tableMat[0][c] == colName)
 	    {
-	      colM[colNames[n]] = c;
+	      colM[colName] = c;
 	      break;
 	    }
 	}
     }//end for
-  for(unsigned int n=0; n<colNames.size(); n++)
+  for(const auto & colName : colNames)
     {
-      if(colM.find(colNames[n]) == colM.end())
+      if(colM.find(colName) == colM.end())
 	{
-	  std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colNames[n] << std::endl;
+	  std::cerr << __LINE__ << "]\t" << mthn << "Couldn't find in the database the column with name " << colName << std::endl;
 	  assert(0);
 	}
     }

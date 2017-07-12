@@ -128,20 +128,18 @@ CompositeTECPetal::CompositeTECPetal(vector<const TECWedge*>& innerWedges,
   //--------- DEBUG INFO --------------
   LogDebug("TkDetLayers") << "DEBUG INFO for CompositeTECPetal" ;
 
-  for(auto it=theFrontComps.begin(); 
-      it!=theFrontComps.end(); it++){
+  for(auto & theFrontComp : theFrontComps){
     LogDebug("TkDetLayers") << "frontWedge phi,z,r: " 
-			    << (*it)->surface().position().phi() << " , "
-			    << (*it)->surface().position().z() <<   " , "
-			    << (*it)->surface().position().perp() ;
+			    << theFrontComp->surface().position().phi() << " , "
+			    << theFrontComp->surface().position().z() <<   " , "
+			    << theFrontComp->surface().position().perp() ;
   }
 
-  for(auto it=theBackComps.begin(); 
-      it!=theBackComps.end(); it++){
+  for(auto & theBackComp : theBackComps){
     LogDebug("TkDetLayers") << "backWedge phi,z,r: " 
-			    << (*it)->surface().position().phi() << " , "
-			    << (*it)->surface().position().z() <<   " , "
-			    << (*it)->surface().position().perp() ;
+			    << theBackComp->surface().position().phi() << " , "
+			    << theBackComp->surface().position().z() <<   " , "
+			    << theBackComp->surface().position().perp() ;
   }
   //----------------------------------- 
 

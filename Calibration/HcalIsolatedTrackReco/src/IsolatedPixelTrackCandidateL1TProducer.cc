@@ -92,9 +92,9 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   //create vector of refs from input collections
   std::vector<reco::TrackRef> pixelTrackRefs;
 
-  for (unsigned int iPix=0; iPix<toks_pix_.size(); iPix++) {
+  for (auto iPix : toks_pix_) {
     edm::Handle<reco::TrackCollection> iPixCol;
-    theEvent.getByToken(toks_pix_[iPix],iPixCol);
+    theEvent.getByToken(iPix,iPixCol);
     for (reco::TrackCollection::const_iterator pit=iPixCol->begin(); pit!=iPixCol->end(); pit++) {
       pixelTrackRefs.push_back(reco::TrackRef(iPixCol,pit-iPixCol->begin()));
     }
@@ -119,18 +119,18 @@ void IsolatedPixelTrackCandidateL1TProducer::produce(edm::Event& theEvent, const
   l1trigobj->getObjects(trigger::TriggerTau, l1tauobjref);
   l1trigobj->getObjects(trigger::TriggerJet, l1jetobjref);
   
-  for (unsigned int p=0; p<l1tauobjref.size(); p++) {
-    if (l1tauobjref[p]->pt()>ptTriggered) {
-      ptTriggered  = l1tauobjref[p]->pt(); 
-      phiTriggered = l1tauobjref[p]->phi();
-      etaTriggered = l1tauobjref[p]->eta();
+  for (auto & p : l1tauobjref) {
+    if (p->pt()>ptTriggered) {
+      ptTriggered  = p->pt(); 
+      phiTriggered = p->phi();
+      etaTriggered = p->eta();
     }
   }
-  for (unsigned int p=0; p<l1jetobjref.size(); p++) {
-    if (l1jetobjref[p]->pt()>ptTriggered) {
-      ptTriggered  = l1jetobjref[p]->pt();
-      phiTriggered = l1jetobjref[p]->phi();
-      etaTriggered = l1jetobjref[p]->eta();
+  for (auto & p : l1jetobjref) {
+    if (p->pt()>ptTriggered) {
+      ptTriggered  = p->pt();
+      phiTriggered = p->phi();
+      etaTriggered = p->eta();
     }
   }
 

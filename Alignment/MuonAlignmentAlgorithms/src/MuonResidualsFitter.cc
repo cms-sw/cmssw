@@ -330,7 +330,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   int smierflg; //second MIGRAD ierflg
 
   // chi^2 errors should be 1.0, log-likelihood should be 0.5
-  for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+  for (double & i : arglist) i = 0.;
   arglist[0] = 0.5;
   ierflg = 0;
   smierflg = 0;
@@ -338,7 +338,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   if (ierflg != 0) { delete MuonResidualsFitter_TMinuit; delete fitinfo; return false; }
 
   // set strategy = 2 (more refined fits)
-  for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+  for (double & i : arglist) i = 0.;
   arglist[0] = m_strategy;
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("SET STR", arglist, 1, ierflg);
@@ -347,7 +347,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   bool try_again = false;
 
   // minimize
-  for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+  for (double & i : arglist) i = 0.;
   arglist[0] = 50000;
   ierflg = 0;
   MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, ierflg);
@@ -356,7 +356,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
   // just once more, if needed (using the final Minuit parameters from the failed fit; often works)
   if (try_again)
   {
-    for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+    for (double & i : arglist) i = 0.;
     arglist[0] = 50000;
     MuonResidualsFitter_TMinuit->mnexcm("MIGRAD", arglist, 1, smierflg);
   }
@@ -367,7 +367,7 @@ bool MuonResidualsFitter::dofit(void (*fcn)(int&,double*,double&,double*,int), s
 
   if (istat != 3)
   {
-    for (int i = 0;  i < 10;  i++) arglist[i] = 0.;
+    for (double & i : arglist) i = 0.;
     ierflg = 0;
     MuonResidualsFitter_TMinuit->mnexcm("HESSE", arglist, 0, ierflg);
   }
@@ -546,7 +546,7 @@ void MuonResidualsFitter::computeHistogramRangeAndBinning(int which, int &nbins,
   b = quantiles[5];
   nbins = (int) ( (b - a) / hbin + 3. ); // add extra safety margin of 3
 
-  std::cout<<"   quantiles: ";  for (int i=0;i<n_quantiles;i++) std::cout<<quantiles[i]<<" "; std::cout<<std::endl;
+  std::cout<<"   quantiles: ";  for (double quantile : quantiles) std::cout<<quantile<<" "; std::cout<<std::endl;
   //cout<<"n="<<select_count<<" quantiles ["<<quantiles[1]<<", "<<quantiles[2]<<"]  IQR="<<iqr
   //  <<"  full range=["<<minx<<","<<maxx<<"]"<<"  2 normal sigma quantile range = ["<<quantiles[0]<<", "<<quantiles[3]<<"]"<<endl;
   std::cout<<"   optimal h="<<hbin<<" nbins="<<nbins<<std::endl;
@@ -841,12 +841,12 @@ void MuonResidualsFitter::correctBField(int idx_momentum, int idx_q)
     if (psize > nsize)
     {
       while (idx_set.size() < psize - nsize)  idx_set.insert( gRandom->Integer(psize) );
-      for (std::set<int>::iterator it = idx_set.begin() ; it != idx_set.end(); it++ )  to_erase.push_back(pos[j][*it]);
+      for (int it : idx_set)  to_erase.push_back(pos[j][it]);
     }
     else
     {
       while (idx_set.size() < nsize - psize)  idx_set.insert( gRandom->Integer(nsize) );
-      for (std::set<int>::iterator it = idx_set.begin() ; it != idx_set.end(); it++ )  to_erase.push_back(neg[j][*it]);
+      for (int it : idx_set)  to_erase.push_back(neg[j][it]);
     }
   }
   // sort in descending order, so we safely go from higher to lower indices:

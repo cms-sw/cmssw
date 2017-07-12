@@ -167,8 +167,8 @@ PrimaryVertexProducerAlgorithm::vertices(const std::vector<reco::TransientTrack>
 
 
   // vertex fits
-  for( std::vector <algo>::const_iterator algorithm=algorithms.begin(); algorithm!=algorithms.end(); algorithm++){
-    if (  ! (algorithm->label == label) )continue;
+  for(const auto & algorithm : algorithms){
+    if (  ! (algorithm.label == label) )continue;
 
   //std::auto_ptr<reco::VertexCollection> result(new reco::VertexCollection);
   // reco::VertexCollection vColl;
@@ -180,13 +180,13 @@ PrimaryVertexProducerAlgorithm::vertices(const std::vector<reco::TransientTrack>
 
 
       TransientVertex v; 
-      if( algorithm->useBeamConstraint && validBS &&((*iclus).size()>1) ){
+      if( algorithm.useBeamConstraint && validBS &&((*iclus).size()>1) ){
 	
-	v = algorithm->fitter->vertex(*iclus, beamSpot);
+	v = algorithm.fitter->vertex(*iclus, beamSpot);
 	
-      }else if( !(algorithm->useBeamConstraint) && ((*iclus).size()>1) ) {
+      }else if( !(algorithm.useBeamConstraint) && ((*iclus).size()>1) ) {
       
-	v = algorithm->fitter->vertex(*iclus); 
+	v = algorithm.fitter->vertex(*iclus); 
 	
       }// else: no fit ==> v.isValid()=False
 
@@ -197,8 +197,8 @@ PrimaryVertexProducerAlgorithm::vertices(const std::vector<reco::TransientTrack>
       }
 
       if (v.isValid() 
-	    && (v.degreesOfFreedom()>=algorithm->minNdof) 
-	  && (!validBS || (*(algorithm->vertexSelector))(v,beamVertexState))
+	    && (v.degreesOfFreedom()>=algorithm.minNdof) 
+	  && (!validBS || (*(algorithm.vertexSelector))(v,beamVertexState))
 	  ) pvs.push_back(v);
     }// end of cluster loop
 

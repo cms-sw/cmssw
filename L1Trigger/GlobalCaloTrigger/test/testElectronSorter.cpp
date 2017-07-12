@@ -100,8 +100,8 @@ int main()
       LoadFileData(testFile, noElectrons,1);
       cout<<" Data loaded in from input file"<<endl;
       print(gctData);
-      for(unsigned int i=0;i<indata.size();i++){
-	testSort->setInputEmCand(indata[i]);
+      for(const auto & i : indata){
+	testSort->setInputEmCand(i);
       }
       inputs = testSort->getInputCands();
      

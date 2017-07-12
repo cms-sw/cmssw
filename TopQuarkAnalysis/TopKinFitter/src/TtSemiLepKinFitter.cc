@@ -49,8 +49,8 @@ TtSemiLepKinFitter::~TtSemiLepKinFitter()
   delete lepton_; 
   delete neutrino_;
   delete covM_;
-  for(std::map<Constraint, TFitConstraintM*>::iterator it = massConstr_.begin(); it != massConstr_.end(); ++it)
-    delete it->second;
+  for(auto & it : massConstr_)
+    delete it.second;
   delete sumPxConstr_;
   delete sumPyConstr_;
 }
@@ -58,8 +58,8 @@ TtSemiLepKinFitter::~TtSemiLepKinFitter()
 void TtSemiLepKinFitter::printSetup() const
 {
   std::stringstream constr;
-  for(unsigned int i=0; i<constrList_.size(); ++i){
-    switch(constrList_[i]){
+  for(auto i : constrList_){
+    switch(i){
     case kWHadMass       : constr << "    * hadronic W-mass (" << mW_   << " GeV) \n"; break;
     case kWLepMass       : constr << "    * leptonic W-mass (" << mW_   << " GeV) \n"; break;
     case kTopHadMass     : constr << "    * hadronic t-mass (" << mTop_ << " GeV) \n"; break;
@@ -168,9 +168,9 @@ void TtSemiLepKinFitter::setupFitter()
   fitter_->addMeasParticle(neutrino_);
 
   // add constraints
-  for(unsigned int i=0; i<constrList_.size(); i++){
-    if(constrList_[i]!=kSumPt)
-      fitter_->addConstraint(massConstr_[constrList_[i]]);
+  for(auto & i : constrList_){
+    if(i!=kSumPt)
+      fitter_->addConstraint(massConstr_[i]);
   }
   if(constrainSumPt_) {
     fitter_->addConstraint(sumPxConstr_);

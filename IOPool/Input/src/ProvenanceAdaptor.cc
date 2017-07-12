@@ -31,9 +31,9 @@ namespace edm {
     for (ProcessHistoryMap::const_iterator i = pHistMap.begin(), e = pHistMap.end(); i != e; ++i) {
       ProcessHistory newHist;
       ProcessHistoryID const& oldphID = i->first;
-      for (ProcessHistory::const_iterator it = i->second.begin(), et = i->second.end(); it != et; ++it) {
-	ParameterSetID const& newPsetID = convertID(it->parameterSetID());
-	newHist.emplace_back(it->processName(), newPsetID, it->releaseVersion(), it->passID());
+      for (const auto & it : i->second) {
+	ParameterSetID const& newPsetID = convertID(it.parameterSetID());
+	newHist.emplace_back(it.processName(), newPsetID, it.releaseVersion(), it.passID());
       }
       assert(newHist.size() == i->second.size());
       ProcessHistoryID newphID = newHist.id();
@@ -59,11 +59,11 @@ namespace edm {
       assert (a != b);
       if (a.first == b.first) return false;
       bool mayBeTrue = false;
-      for (Histories::const_iterator it = histories_.begin(), itEnd = histories_.end(); it != itEnd; ++it) {
-	OneHistory::const_iterator itA = find_in_all(*it, a.first);
-	if (itA == it->end()) continue;
-	OneHistory::const_iterator itB = find_in_all(*it, b.first);
-	if (itB == it->end()) continue;
+      for (const auto & historie : histories_) {
+	OneHistory::const_iterator itA = find_in_all(historie, a.first);
+	if (itA == historie.end()) continue;
+	OneHistory::const_iterator itB = find_in_all(historie, b.first);
+	if (itB == historie.end()) continue;
 	assert (itA != itB);
 	if (itB < itA) {
 	  // process b precedes process a;
@@ -107,12 +107,12 @@ namespace edm {
       assert (!orderedProducts.empty());
       Histories processHistories;
       size_t max = 0;
-      for(ProcessHistoryMap::const_iterator it = pHistMap.begin(), itEnd = pHistMap.end(); it != itEnd; ++it) {
-        ProcessHistory const& pHist = it->second;
+      for(const auto & it : pHistMap) {
+        ProcessHistory const& pHist = it.second;
         OneHistory processHistory;
-        for(ProcessHistory::const_iterator i = pHist.begin(), iEnd = pHist.end(); i != iEnd; ++i) {
-	  if (processNamesThatProduced.find(i->processName()) != processNamesThatProduced.end()) {
-	    processHistory.push_back(i->processName());
+        for(const auto & i : pHist) {
+	  if (processNamesThatProduced.find(i.processName()) != processNamesThatProduced.end()) {
+	    processHistory.push_back(i.processName());
 	  }
         }
         max = (processHistory.size() > max ? processHistory.size() : max);

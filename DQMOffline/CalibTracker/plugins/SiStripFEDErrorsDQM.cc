@@ -405,8 +405,8 @@ void SiStripFEDErrorsDQM::addErrors()
       std::map<unsigned short,unsigned short> lAPVMap;
       lAPVMap.clear();
 
-      for (uint32_t iCh(0); iCh<lList.size(); iCh++) {
-	SiStripBadStrip::data lData = obj_->decode(lList.at(iCh));
+      for (unsigned int iCh : lList) {
+	SiStripBadStrip::data lData = obj_->decode(iCh);
 	unsigned short lFlag = 0;
 	setFlagBit(lFlag,lData.flag);
       
@@ -424,11 +424,9 @@ void SiStripFEDErrorsDQM::addErrors()
       std::vector<unsigned int> lStripVector;
       unsigned short lConsecutiveBadStrips=128;
 
-      for (std::map<unsigned short,unsigned short>::iterator lIter = lAPVMap.begin();
-	   lIter != lAPVMap.end(); 
-	   lIter++)
+      for (auto & lIter : lAPVMap)
 	{
-	  lStripVector.push_back(obj_->encode(lIter->first,lConsecutiveBadStrips,lIter->second));
+	  lStripVector.push_back(obj_->encode(lIter.first,lConsecutiveBadStrips,lIter.second));
 	}
 
       SiStripBadStrip::Range lRange(lStripVector.begin(),lStripVector.end());

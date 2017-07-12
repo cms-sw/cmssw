@@ -39,8 +39,8 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const
   theTimeValue = 0.0;
   theTimeUncrt = 0.0;
   theBX = -10.0;
-  for(unsigned int i=0; i<proto_segment.size(); ++i)
-    theGEMRecHits.push_back(*proto_segment[i]);
+  for(auto i : proto_segment)
+    theGEMRecHits.push_back(*i);
 }
 
 GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
@@ -51,8 +51,8 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const
   theTimeValue = 0.0;
   theTimeUncrt = 0.0;
   theBX = bx;
-  for(unsigned int i=0; i<proto_segment.size(); ++i)
-    theGEMRecHits.push_back(*proto_segment[i]);
+  for(auto i : proto_segment)
+    theGEMRecHits.push_back(*i);
 }
 
 GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const LocalPoint& origin, 
@@ -63,16 +63,16 @@ GEMSegment::GEMSegment(const std::vector<const GEMRecHit*>& proto_segment, const
   theTimeValue = time;
   theTimeUncrt = timeErr;
   theBX = -10.0;
-  for(unsigned int i=0; i<proto_segment.size(); ++i)
-    theGEMRecHits.push_back(*proto_segment[i]);
+  for(auto i : proto_segment)
+    theGEMRecHits.push_back(*i);
 }
 
 GEMSegment::~GEMSegment() {}
 
 std::vector<const TrackingRecHit*> GEMSegment::recHits() const{
   std::vector<const TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::const_iterator irh = theGEMRecHits.begin(); irh!=theGEMRecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
+  for (const auto & theGEMRecHit : theGEMRecHits) {
+    pointersOfRecHits.push_back(&theGEMRecHit);
   }
   return pointersOfRecHits;
 }
@@ -80,8 +80,8 @@ std::vector<const TrackingRecHit*> GEMSegment::recHits() const{
 std::vector<TrackingRecHit*> GEMSegment::recHits() {
   
   std::vector<TrackingRecHit*> pointersOfRecHits;
-  for (std::vector<GEMRecHit>::iterator irh = theGEMRecHits.begin(); irh!=theGEMRecHits.end(); ++irh) {
-    pointersOfRecHits.push_back(&(*irh));
+  for (auto & theGEMRecHit : theGEMRecHits) {
+    pointersOfRecHits.push_back(&theGEMRecHit);
   }
   return pointersOfRecHits;
 }

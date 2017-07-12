@@ -21,10 +21,8 @@ std::ostream& pftools::operator<<(std::ostream& s, const Calibratable& calib_) {
 			<< "), ";
 	s << "\t[" << calib_.cand_eta_ << ", " << calib_.cand_phi_ << "], "
 			<< calib_.cands_num_ << " of them\n";
-	for (std::vector<CandidateWrapper>::const_iterator c =
-			calib_.cands_.begin(); c != calib_.cands_.end(); ++c) {
-		const CandidateWrapper& cw = *c;
-		s << "\t\t\t\tType: " << cw.type_ << ", (" << cw.energy_ << ", "
+	for (const auto & cw : calib_.cands_) {
+			s << "\t\t\t\tType: " << cw.type_ << ", (" << cw.energy_ << ", "
 				<< cw.energyEcal_ << ", " << cw.energyHcal_ << ") at [ "
 				<< cw.eta_ << ", " << cw.phi_ << "]\n";
 	}
@@ -85,10 +83,8 @@ void Calibratable::recompute() {
 	cand_eta_ = cands_mean_.eta_;
 	cand_phi_ = cands_mean_.phi_;
 
-	for (std::vector<CandidateWrapper>::iterator it = cands_.begin(); it
-			!= cands_.end(); ++it) {
-		CandidateWrapper& c = *it;
-		if (c.type_ == 4)
+	for (auto & c : cands_) {
+			if (c.type_ == 4)
 			cand_energyNeutralEM_ += c.energy_;
 		if (c.type_ == 5)
 			cand_energyNeutralHad_ += c.energy_;
@@ -114,10 +110,8 @@ CandidateWrapper Calibratable::computeMean(
 
 	if (wrappers.size() == 0)
 		return cw;
-	for (std::vector<CandidateWrapper>::const_iterator it = wrappers.begin(); it
-			!= wrappers.end(); ++it) {
-		const CandidateWrapper& c = *it;
-		cw.energy_ += c.energy_;
+	for (const auto & c : wrappers) {
+			cw.energy_ += c.energy_;
 		cw.phi_ += c.phi_;
 		cw.eta_ += c.eta_;
 		cw.energyEcal_ += c.energyEcal_;
@@ -140,10 +134,8 @@ CalibratableElement Calibratable::computeMean(const std::vector<
 	CalibratableElement dmean;
 	if (diets.size() == 0)
 		return dmean;
-	for (std::vector<CalibratableElement>::const_iterator cit = diets.begin(); cit
-			!= diets.end(); ++cit) {
-		CalibratableElement d = *cit;
-		dmean.energy_ += d.energy_;
+	for (auto d : diets) {
+			dmean.energy_ += d.energy_;
 		dmean.eta_ += d.eta_;
 		dmean.phi_ += d.phi_;
 		dmean.extent_ += d.extent_;

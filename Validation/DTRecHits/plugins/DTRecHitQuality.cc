@@ -286,9 +286,8 @@ map<DTWireId, vector<DTRecHit1DPair> >
 DTRecHitQuality::map1DRecHitsPerWire(const DTRecHitCollection* dt1DRecHitPairs) {
   map<DTWireId, vector<DTRecHit1DPair> > ret;
 
-  for(DTRecHitCollection::const_iterator rechit = dt1DRecHitPairs->begin();
-      rechit != dt1DRecHitPairs->end(); rechit++) {
-    ret[(*rechit).wireId()].push_back(*rechit);
+  for(const auto & dt1DRecHitPair : *dt1DRecHitPairs) {
+    ret[dt1DRecHitPair.wireId()].push_back(dt1DRecHitPair);
   }
 
   return ret;
@@ -301,10 +300,8 @@ DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment2DCollection* segment2Ds)
   map<DTWireId, vector<DTRecHit1D> > ret;
 
   // Loop over all 2D segments
-  for(DTRecSegment2DCollection::const_iterator segment = segment2Ds->begin();
-      segment != segment2Ds->end();
-      segment++) {
-    vector<DTRecHit1D> component1DHits= (*segment).specificRecHits();
+  for(const auto & segment2D : *segment2Ds) {
+    vector<DTRecHit1D> component1DHits= segment2D.specificRecHits();
     // Loop over all component 1D hits
     for(vector<DTRecHit1D>::const_iterator hit = component1DHits.begin();
         hit != component1DHits.end();
@@ -322,11 +319,9 @@ map<DTWireId, std::vector<DTRecHit1D> >
 DTRecHitQuality::map1DRecHitsPerWire(const DTRecSegment4DCollection* segment4Ds) {
   map<DTWireId, vector<DTRecHit1D> > ret;
   // Loop over all 4D segments
-  for(DTRecSegment4DCollection::const_iterator segment = segment4Ds->begin();
-      segment != segment4Ds->end();
-      segment++) {
+  for(const auto & segment4D : *segment4Ds) {
     // Get component 2D segments
-    vector<const TrackingRecHit*> segment2Ds = (*segment).recHits();
+    vector<const TrackingRecHit*> segment2Ds = segment4D.recHits();
     // Loop over 2D segments:
     for(vector<const TrackingRecHit*>::const_iterator segment2D = segment2Ds.begin();
         segment2D != segment2Ds.end();
@@ -429,14 +424,12 @@ void DTRecHitQuality::compute(const DTGeometry *dtGeom,
                               const std::map<DTWireId, std::vector<type> >& recHitsPerWire,
                               int step) {
   // Loop over cells with a muon SimHit
-  for(map<DTWireId, vector<PSimHit> >::const_iterator wireAndSHits = simHitsPerWire.begin();
-      wireAndSHits != simHitsPerWire.end();
-      wireAndSHits++) {
-    DTWireId wireId = (*wireAndSHits).first;
+  for(const auto & wireAndSHits : simHitsPerWire) {
+    DTWireId wireId = wireAndSHits.first;
     int wheel = wireId.wheel();
     int sl = wireId.superLayer();
 
-    vector<PSimHit> simHitsInCell = (*wireAndSHits).second;
+    vector<PSimHit> simHitsInCell = wireAndSHits.second;
 
     // Get the layer
     const DTLayer* layer = dtGeom->layer(wireId);

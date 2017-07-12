@@ -1699,9 +1699,9 @@ void JetAnalyzer::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup& iSetu
   edm::ESHandle<L1GtTriggerMenu> menuRcd;
   iSetup.get<L1GtTriggerMenuRcd>().get(menuRcd) ;
   const L1GtTriggerMenu* menu = menuRcd.product();
-  for (CItAlgo techTrig = menu->gtTechnicalTriggerMap().begin(); techTrig != menu->gtTechnicalTriggerMap().end(); ++techTrig) {
-    if ((techTrig->second).algoName() == m_l1algoname_) {
-      m_bitAlgTechTrig_=(techTrig->second).algoBitNumber();
+  for (const auto & techTrig : menu->gtTechnicalTriggerMap()) {
+    if ((techTrig.second).algoName() == m_l1algoname_) {
+      m_bitAlgTechTrig_=(techTrig.second).algoBitNumber();
       break;
     }
   }

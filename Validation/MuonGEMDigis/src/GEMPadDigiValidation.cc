@@ -106,9 +106,9 @@ void GEMPadDigiValidation::analyze(const edm::Event& e,
     edm::LogError("GEMPadDigiValidation") << "Cannot get pads by label GEMPadToken.";
   }
 
-  for (GEMPadDigiCollection::DigiRangeIterator cItr=gem_digis->begin(); cItr!=gem_digis->end(); cItr++) {
+  for (auto && cItr : *gem_digis) {
 
-    GEMDetId id = (*cItr).first;
+    GEMDetId id = cItr.first;
 
     const GeomDet* gdet = GEMGeometry_->idToDet(id);
     if ( gdet == nullptr) { 
@@ -127,7 +127,7 @@ void GEMPadDigiValidation::analyze(const edm::Event& e,
 
     //loop over digis of given roll
     //
-    for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
+    for (digiItr = cItr.second.first; digiItr != cItr.second.second; ++digiItr)
     {
       Short_t pad = (Short_t) digiItr->pad();
       Short_t bx = (Short_t) digiItr->bx();

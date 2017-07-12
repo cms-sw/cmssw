@@ -490,12 +490,12 @@ namespace cscdqm {
     }
   
     unsigned int cdata = 0, cerror = 0, cmask = 0;
-    for (unsigned int i = 0; i < N_STATIONS; i++) {
-      if (HWSTATUSANYERROR(status[i])) {
+    for (auto & statu : status) {
+      if (HWSTATUSANYERROR(statu)) {
         cerror++;
       } else {
-        if (status[i].test(MASKED)) cmask++;
-        if (status[i].test(DATA)) cdata++;
+        if (statu.test(MASKED)) cmask++;
+        if (statu.test(DATA)) cdata++;
       }
     }
   
@@ -787,8 +787,8 @@ namespace cscdqm {
   const unsigned int Summary::setMaskedHWElements(std::vector<std::string>& tokens) {
     unsigned int applied = 0;
 
-    for (unsigned int r = 0; r < tokens.size(); r++) {
-      std::string token = (std::string) tokens.at(r);
+    for (const auto & r : tokens) {
+      std::string token = (std::string) r;
       Address adr;
       if (detector.AddressFromString(token, adr)) {
         SetValue(adr, MASKED);

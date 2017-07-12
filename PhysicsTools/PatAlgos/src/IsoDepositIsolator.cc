@@ -57,16 +57,16 @@ IsoDepositIsolator::IsoDepositIsolator(const edm::ParameterSet &conf, edm::Consu
 }
 
 IsoDepositIsolator::~IsoDepositIsolator() {
-    for (AbsVetos::iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
-        delete *it;
+    for (auto & veto : vetos_) {
+        delete veto;
     }
 }
 
 void
 IsoDepositIsolator::beginEvent(const edm::Event &event, const edm::EventSetup &eventSetup) {
     event.getByToken(inputIsoDepositToken_, handle_);
-    for (EventDependentAbsVetos::iterator it = evdepVetos_.begin(), ed = evdepVetos_.end(); it != ed; ++it) {
-        (*it)->setEvent(event,eventSetup);
+    for (auto & evdepVeto : evdepVetos_) {
+        evdepVeto->setEvent(event,eventSetup);
     }
 }
 
@@ -88,8 +88,8 @@ IsoDepositIsolator::getValue(const edm::ProductID &id, size_t index) const {
     const reco::IsoDeposit &dep = handle_->get(id, index);
 
     double eta = dep.eta(), phi = dep.phi(); // better to center on the deposit direction that could be, e.g., the impact point at calo
-    for (AbsVetos::const_iterator it = vetos_.begin(), ed = vetos_.end(); it != ed; ++it) {
-        (const_cast<AbsVeto *>(*it))->centerOn(eta, phi); // I need the const_cast to be able to 'move' the veto
+    for (auto veto : vetos_) {
+        (const_cast<AbsVeto *>(veto))->centerOn(eta, phi); // I need the const_cast to be able to 'move' the veto
     }
     switch (mode_) {
         case Count:        return dep.countWithin(deltaR_, vetos_, skipDefaultVeto_);

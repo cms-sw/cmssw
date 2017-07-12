@@ -74,10 +74,9 @@ namespace cms
 
 	// leptons
 	std::vector< edm::Handle<reco::CandidateView> > leptons;
-	for ( std::vector<edm::EDGetTokenT<edm::View<reco::Candidate> > >::const_iterator srcLeptons_i = lepTokens_.begin();
-	      srcLeptons_i != lepTokens_.end(); ++srcLeptons_i ) {
+	for (auto lepToken : lepTokens_) {
 	  edm::Handle<reco::CandidateView> leptons_i;
-	  event.getByToken(*srcLeptons_i, leptons_i);
+	  event.getByToken(lepToken, leptons_i);
      leptons.push_back( leptons_i );
      /*
 	  for ( reco::CandidateView::const_iterator lepton = leptons_i->begin();

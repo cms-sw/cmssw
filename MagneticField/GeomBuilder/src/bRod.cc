@@ -84,9 +84,8 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
 MagBRod* MagGeoBuilderFromDDD::bRod::buildMagBRod() const{
   if (mrod==0) {
     std::vector<MagBSlab*> mSlabs;
-    for (std::vector<bSlab>::const_iterator slab = slabs.begin();
-	 slab!=slabs.end(); ++slab) {
-      mSlabs.push_back((*slab).buildMagBSlab());
+    for (const auto & slab : slabs) {
+      mSlabs.push_back(slab.buildMagBSlab());
     }
     mrod = new MagBRod(mSlabs,slabs.front().minPhi()); //FIXME
   }

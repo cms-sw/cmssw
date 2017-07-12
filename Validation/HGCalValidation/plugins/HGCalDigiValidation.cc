@@ -103,12 +103,11 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 					<< theHGCEEDigiContainers->size() 
 					<< " element(s)";
       
-      for (HGCEEDigiCollection::const_iterator it =theHGCEEDigiContainers->begin();
-	   it !=theHGCEEDigiContainers->end(); ++it) {
+      for (const auto & it : *theHGCEEDigiContainers) {
 	ntot++; nused++;
-	HGCEEDetId detId     = (it->id());
+	HGCEEDetId detId     = (it.id());
 	int        layer     = detId.layer();
-	HGCSample  hgcSample = it->sample(SampleIndx_);
+	HGCSample  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
 	double     charge    = adc*gain;
@@ -129,12 +128,11 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 					<< theHGCHEDigiContainers->size()
 					<< " element(s)";
       
-      for (HGCHEDigiCollection::const_iterator it =theHGCHEDigiContainers->begin();
-	   it !=theHGCHEDigiContainers->end(); ++it) {
+      for (const auto & it : *theHGCHEDigiContainers) {
 	ntot++; nused++;
-	HGCHEDetId detId     = (it->id());
+	HGCHEDetId detId     = (it.id());
 	int        layer     = detId.layer();
-	HGCSample  hgcSample = it->sample(SampleIndx_);
+	HGCSample  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
 	double     charge    = adc*gain;
@@ -154,12 +152,11 @@ void HGCalDigiValidation::analyze(const edm::Event& iEvent,
 					<< theHGCBHDigiContainers->size()
 					<< " element(s)";
       
-      for (HGCBHDigiCollection::const_iterator it =theHGCBHDigiContainers->begin();
-	   it !=theHGCBHDigiContainers->end(); ++it) {
+      for (const auto & it : *theHGCBHDigiContainers) {
 	ntot++; nused++;
-	HcalDetId  detId     = (it->id());
+	HcalDetId  detId     = (it.id());
 	int        layer     = detId.depth();
-	HGCSample  hgcSample = it->sample(SampleIndx_);
+	HGCSample  hgcSample = it.sample(SampleIndx_);
 	uint16_t   gain      = hgcSample.toa();
 	uint16_t   adc       = hgcSample.data();
 	double     charge    = adc*gain;
@@ -259,16 +256,14 @@ void HGCalDigiValidation::fillDigiInfo(digiInfo& hinfo) {
 }
 
 void HGCalDigiValidation::fillDigiInfo() {
-  for (auto itr = OccupancyMap_plus_.begin(); 
-       itr != OccupancyMap_plus_.end(); ++itr) {
-    int layer = (*itr).first;
-    int occupancy = (*itr).second;
+  for (auto & OccupancyMap_plu : OccupancyMap_plus_) {
+    int layer = OccupancyMap_plu.first;
+    int occupancy = OccupancyMap_plu.second;
     DigiOccupancy_Plus_.at(layer)->Fill(occupancy);
   }
-  for (auto itr = OccupancyMap_minus_.begin(); 
-       itr != OccupancyMap_minus_.end(); ++itr) {
-    int layer = (*itr).first;
-    int occupancy = (*itr).second;
+  for (auto & OccupancyMap_minu : OccupancyMap_minus_) {
+    int layer = OccupancyMap_minu.first;
+    int occupancy = OccupancyMap_minu.second;
     DigiOccupancy_Minus_.at(layer)->Fill(occupancy);
   }
 }

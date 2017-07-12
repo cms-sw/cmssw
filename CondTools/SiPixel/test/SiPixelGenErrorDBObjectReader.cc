@@ -66,8 +66,8 @@ SiPixelGenErrorDBObjectReader::analyze(const edm::Event& iEvent, const edm::Even
     }
     
     std::cout << "\nMap stores GenError Id(s): ";
-    for(unsigned int vindex=0; vindex < tempMapId.size(); ++ vindex)
-      std::cout << tempMapId[vindex] << " ";
+    for(short vindex : tempMapId)
+      std::cout << vindex << " ";
     std::cout << std::endl;
   }
 

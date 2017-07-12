@@ -87,8 +87,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
   setup.get<MuonGeometryRecord>().get(dtGeom_);
 
   // Loop over Ref DB entries
-  for(DTT0::const_iterator tzero = tZeroRefMap_->begin();
-                           tzero != tZeroRefMap_->end(); tzero++) {
+  for(const auto & tzero : *tZeroRefMap_) {
     // t0s and rms are TDC counts
 // @@@ NEW DTT0 FORMAT
 //    DTWireId wireId((*tzero).first.wheelId,
@@ -97,7 +96,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 //		    (*tzero).first.slId,
 //		    (*tzero).first.layerId,
 //		    (*tzero).first.cellId);
-    int channelId = tzero->channelId;
+    int channelId = tzero.channelId;
     if ( channelId == 0 ) continue;
     DTWireId wireId(channelId);
 // @@@ NEW DTT0 END
@@ -113,8 +112,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
   }
 
   // Loop over Ref DB entries
-  for(DTT0::const_iterator tzero = tZeroMap_->begin();
-                           tzero != tZeroMap_->end(); tzero++) {
+  for(const auto & tzero : *tZeroMap_) {
     // t0s and rms are TDC counts
 // @@@ NEW DTT0 FORMAT
 //    DTWireId wireId((*tzero).first.wheelId,
@@ -123,7 +121,7 @@ void DTt0DBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
 //		    (*tzero).first.slId,
 //		    (*tzero).first.layerId,
 //		    (*tzero).first.cellId);
-    int channelId = tzero->channelId;
+    int channelId = tzero.channelId;
     if ( channelId == 0 ) continue;
     DTWireId wireId(channelId);
 // @@@ NEW DTT0 END
@@ -186,11 +184,10 @@ void DTt0DBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup)
                               << " ------- " << theDiffQReport->getStatus()
                               << " ------- " << setprecision(3) << theDiffQReport->getQTresult();
         vector<dqm::me_util::Channel> badChannels = theDiffQReport->getBadChannels();
-        for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	                                           channel != badChannels.end(); channel++) {
+        for (auto & badChannel : badChannels) {
            LogVerbatim(metname_) << "layer: " << (*hDiff).first << " Bad channel: " 
-                                             << (*channel).getBin() << "  Contents : "
-                                             << (*channel).getContents();
+                                             << badChannel.getBin() << "  Contents : "
+                                             << badChannel.getContents();
 
            //wheelSummary_[(*hDiff).first.wheel()]->Fill(xBin,(*hDiff).first.sector());
         }

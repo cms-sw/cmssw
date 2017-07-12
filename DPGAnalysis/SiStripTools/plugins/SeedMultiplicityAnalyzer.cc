@@ -466,8 +466,8 @@ bool SeedMultiplicityAnalyzer::FromTrackRefSeedFilter::isSelected(const unsigned
     const reco::TrackRef trkref(m_tracks,iseed);
 
     // loop on the selected trackref to check if there is the same track
-    for(reco::TrackRefVector::const_iterator seltrkref=m_seltrackrefs->begin();seltrkref!=m_seltrackrefs->end();++seltrkref) {
-      if(trkref==*seltrkref) return true;
+    for(auto && seltrkref : *m_seltrackrefs) {
+      if(trkref==seltrkref) return true;
     }
 
   }

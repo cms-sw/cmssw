@@ -1565,12 +1565,11 @@ TrackerOfflineValidation::setUpTreeMembers(const std::map<int, TrackerOfflineVal
                                            const TrackerGeometry& tkgeom, const TrackerTopology* tTopo)
 {
 
-  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(), 
-	itEnd= moduleHist_.end(); it != itEnd;++it ) { 
-    TkOffTreeVariables &treeMem = mTreeMembers_[it->first];
+  for(const auto & it : moduleHist_) { 
+    TkOffTreeVariables &treeMem = mTreeMembers_[it.first];
 
     //variables concerning the tracker components/hierarchy levels
-    DetId detId_ = it->first;
+    DetId detId_ = it.first;
     treeMem.moduleId = detId_;
     treeMem.subDetId = detId_.subdetId();
     treeMem.isDoubleSide =0;
@@ -1680,65 +1679,64 @@ void
 TrackerOfflineValidation::fillTree(TTree& tree, TkOffTreeVariables &treeMem,
 				   const std::map<int, TrackerOfflineValidation::ModuleHistos>& moduleHist_)
 {
-  for(std::map<int, TrackerOfflineValidation::ModuleHistos>::const_iterator it = moduleHist_.begin(),
-	itEnd= moduleHist_.end(); it != itEnd;++it ) {
-    treeMem = mTreeMembers_[it->first];
+  for(const auto & it : moduleHist_) {
+    treeMem = mTreeMembers_[it.first];
 
     //mean and RMS values (extracted from histograms(Xprime on module level)
-    treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
-    treeMem.meanX = it->second.ResXprimeHisto->GetMean();
-    treeMem.rmsX  = it->second.ResXprimeHisto->GetRMS();
+    treeMem.entries = static_cast<UInt_t>(it.second.ResXprimeHisto->GetEntries());
+    treeMem.meanX = it.second.ResXprimeHisto->GetMean();
+    treeMem.rmsX  = it.second.ResXprimeHisto->GetRMS();
     //treeMem.sigmaX = Fwhm(it->second.ResXprimeHisto)/2.355;
     
     if (useFit_) {
       //call fit function which returns mean and sigma from the fit
       //for absolute residuals
-      std::pair<float,float> fitResult1 = this->fitResiduals(it->second.ResXprimeHisto);
+      std::pair<float,float> fitResult1 = this->fitResiduals(it.second.ResXprimeHisto);
       treeMem.fitMeanX = fitResult1.first;
       treeMem.fitSigmaX = fitResult1.second;
       //for normalized residuals
-      std::pair<float,float> fitResult2 = this->fitResiduals(it->second.NormResXprimeHisto);
+      std::pair<float,float> fitResult2 = this->fitResiduals(it.second.NormResXprimeHisto);
       treeMem.fitMeanNormX = fitResult2.first;
       treeMem.fitSigmaNormX = fitResult2.second;
     }
     
     //get median for absolute residuals
-    treeMem.medianX   = this->getMedian(it->second.ResXprimeHisto);
+    treeMem.medianX   = this->getMedian(it.second.ResXprimeHisto);
 
-    int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
-    treeMem.numberOfUnderflows = it->second.ResXprimeHisto->GetBinContent(0);
-    treeMem.numberOfOverflows = it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
-    treeMem.numberOfOutliers =  it->second.ResXprimeHisto->GetBinContent(0)+it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
+    int numberOfBins=it.second.ResXprimeHisto->GetNbinsX();
+    treeMem.numberOfUnderflows = it.second.ResXprimeHisto->GetBinContent(0);
+    treeMem.numberOfOverflows = it.second.ResXprimeHisto->GetBinContent(numberOfBins+1);
+    treeMem.numberOfOutliers =  it.second.ResXprimeHisto->GetBinContent(0)+it.second.ResXprimeHisto->GetBinContent(numberOfBins+1);
     
     //mean and RMS values (extracted from histograms(normalized Xprime on module level)
-    treeMem.meanNormX = it->second.NormResXprimeHisto->GetMean();
-    treeMem.rmsNormX = it->second.NormResXprimeHisto->GetRMS();
+    treeMem.meanNormX = it.second.NormResXprimeHisto->GetMean();
+    treeMem.rmsNormX = it.second.NormResXprimeHisto->GetRMS();
 
     double stats[20];
-    it->second.NormResXprimeHisto->GetStats(stats);
+    it.second.NormResXprimeHisto->GetStats(stats);
     // GF  treeMem.chi2PerDofX = stats[3]/(stats[0]-1);
     if (stats[0]) treeMem.chi2PerDofX = stats[3]/stats[0];
     
-    treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto)/2.355;
-    treeMem.histNameX = it->second.ResXprimeHisto->GetName();
-    treeMem.histNameNormX = it->second.NormResXprimeHisto->GetName();
+    treeMem.sigmaNormX = Fwhm(it.second.NormResXprimeHisto)/2.355;
+    treeMem.histNameX = it.second.ResXprimeHisto->GetName();
+    treeMem.histNameNormX = it.second.NormResXprimeHisto->GetName();
     
     // fill tree variables in local coordinates if set in cfg
     if(lCoorHistOn_) {
-      treeMem.meanLocalX = it->second.ResHisto->GetMean();
-      treeMem.rmsLocalX = it->second.ResHisto->GetRMS();
-      treeMem.meanNormLocalX = it->second.NormResHisto->GetMean();
-      treeMem.rmsNormLocalX = it->second.NormResHisto->GetRMS();
+      treeMem.meanLocalX = it.second.ResHisto->GetMean();
+      treeMem.rmsLocalX = it.second.ResHisto->GetRMS();
+      treeMem.meanNormLocalX = it.second.NormResHisto->GetMean();
+      treeMem.rmsNormLocalX = it.second.NormResHisto->GetRMS();
 
-      treeMem.histNameLocalX = it->second.ResHisto->GetName();
-      treeMem.histNameNormLocalX = it->second.NormResHisto->GetName();
-      if (it->second.ResYHisto) treeMem.histNameLocalY = it->second.ResYHisto->GetName();
+      treeMem.histNameLocalX = it.second.ResHisto->GetName();
+      treeMem.histNameNormLocalX = it.second.NormResHisto->GetName();
+      if (it.second.ResYHisto) treeMem.histNameLocalY = it.second.ResYHisto->GetName();
     }
 
     // mean and RMS values in local y (extracted from histograms(normalized Yprime on module level)
     // might exist in pixel only
-    if (it->second.ResYprimeHisto) {//(stripYResiduals_)
-      TH1 *h = it->second.ResYprimeHisto;
+    if (it.second.ResYprimeHisto) {//(stripYResiduals_)
+      TH1 *h = it.second.ResYprimeHisto;
       treeMem.meanY = h->GetMean();
       treeMem.rmsY  = h->GetRMS();
       
@@ -1753,8 +1751,8 @@ TrackerOfflineValidation::fillTree(TTree& tree, TkOffTreeVariables &treeMem,
 
       treeMem.histNameY = h->GetName();
     }
-    if (it->second.NormResYprimeHisto) {
-      TH1 *h = it->second.NormResYprimeHisto;
+    if (it.second.NormResYprimeHisto) {
+      TH1 *h = it.second.NormResYprimeHisto;
       treeMem.meanNormY = h->GetMean();
       treeMem.rmsNormY  = h->GetRMS();
       h->GetStats(stats); // stats buffer defined above
@@ -1769,26 +1767,26 @@ TrackerOfflineValidation::fillTree(TTree& tree, TkOffTreeVariables &treeMem,
     }
 
     if (moduleLevelProfiles_) {
-      if (it->second.ResXvsXProfile) {
-	TH1 *h = it->second.ResXvsXProfile;
+      if (it.second.ResXvsXProfile) {
+	TH1 *h = it.second.ResXvsXProfile;
 	treeMem.meanResXvsX = h->GetMean();
 	treeMem.rmsResXvsX  = h->GetRMS();
 	treeMem.profileNameResXvsX = h->GetName();
       } 
-      if (it->second.ResXvsYProfile) {
-	TH1 *h = it->second.ResXvsYProfile;
+      if (it.second.ResXvsYProfile) {
+	TH1 *h = it.second.ResXvsYProfile;
 	treeMem.meanResXvsY = h->GetMean();
 	treeMem.rmsResXvsY  = h->GetRMS();
 	treeMem.profileNameResXvsY = h->GetName();
       } 
-      if (it->second.ResYvsXProfile) {
-	TH1 *h = it->second.ResYvsXProfile;
+      if (it.second.ResYvsXProfile) {
+	TH1 *h = it.second.ResYvsXProfile;
 	treeMem.meanResYvsX = h->GetMean();
 	treeMem.rmsResYvsX  = h->GetRMS();
 	treeMem.profileNameResYvsX = h->GetName();
       } 
-      if (it->second.ResYvsYProfile) {
-	TH1 *h = it->second.ResYvsYProfile;
+      if (it.second.ResYvsYProfile) {
+	TH1 *h = it.second.ResYvsYProfile;
 	treeMem.meanResYvsY = h->GetMean();
 	treeMem.rmsResYvsY  = h->GetRMS();
 	treeMem.profileNameResYvsY = h->GetName();

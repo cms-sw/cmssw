@@ -51,11 +51,11 @@ TtSemiLepSignalSelMVATrainer::analyze(const edm::Event& evt, const edm::EventSet
   unsigned int nJets = 0;
   std::vector<pat::Jet> seljets;
   //std::cout<<"number of jets: "<<jets.size()<<std::endl;
-  for(std::vector<pat::Jet>::const_iterator it = jets.begin(); it != jets.end(); it++) {
+  for(const auto & jet : jets) {
     //std::cout<<"Jet Et: "<<it->et()<<" Eta: "<<fabs(it->eta())<<std::endl;
-    if(!(pat::Flags::test(*it, pat::Flags::Overlap::Electrons))) continue;
-    if(it->et()>30. && fabs(it->eta())<2.4) {
-      seljets.push_back(*it);
+    if(!(pat::Flags::test(jet, pat::Flags::Overlap::Electrons))) continue;
+    if(jet.et()>30. && fabs(jet.eta())<2.4) {
+      seljets.push_back(jet);
       nJets++;
     }
   }

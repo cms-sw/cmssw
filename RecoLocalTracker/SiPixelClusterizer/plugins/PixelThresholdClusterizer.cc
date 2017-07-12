@@ -156,15 +156,15 @@ void PixelThresholdClusterizer::clusterizeDetUnitT( const T & input,
   assert(output.empty());
   //  Loop over all seeds.  TO DO: wouldn't using iterators be faster?
   //  edm::LogError("PixelThresholdClusterizer") <<  "Starting clusterizing" << endl;
-  for (unsigned int i = 0; i < theSeeds.size(); i++) 
+  for (auto theSeed : theSeeds) 
     {
       
       // Gavril : The charge of seeds that were already inlcuded in clusters is set to 1 electron
       // so we don't want to call "make_cluster" for these cases 
-      if ( theBuffer(theSeeds[i]) >= theSeedThreshold ) 
+      if ( theBuffer(theSeed) >= theSeedThreshold ) 
 	{  // Is this seed still valid?
 	  //  Make a cluster around this seed
-	  SiPixelCluster && cluster = make_cluster( theSeeds[i] , output);
+	  SiPixelCluster && cluster = make_cluster( theSeed , output);
 	  
 	  //  Check if the cluster is above threshold  
 	  // (TO DO: one is signed, other unsigned, gcc warns...)
@@ -489,11 +489,11 @@ PixelThresholdClusterizer::make_cluster( const SiPixelCluster::PixelPos& pix,
 	  //We also want to keep the merged cluster in data and let the RecHit algorithm decide which set to keep
 	  //This loop adds the second cluster to the first.
 	  const std::vector<SiPixelCluster::Pixel>& branch_pixels = second_cluster.pixels();
-	  for ( unsigned int i = 0; i<branch_pixels.size(); i++)
+	  for (auto branch_pixel : branch_pixels)
 	    {
-	      int temp_x = branch_pixels[i].x;
-	      int temp_y = branch_pixels[i].y;
-	      int temp_adc = branch_pixels[i].adc;
+	      int temp_x = branch_pixel.x;
+	      int temp_y = branch_pixel.y;
+	      int temp_adc = branch_pixel.adc;
 	      SiPixelCluster::PixelPos newpix(temp_x, temp_y);
 	      cluster.add(newpix, temp_adc);}
 	}

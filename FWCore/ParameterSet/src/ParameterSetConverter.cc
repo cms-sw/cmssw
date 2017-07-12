@@ -68,8 +68,8 @@ namespace edm {
     replace_(),
     parameterSetIdConverter_(idConverter)
   {
-    for (ParameterSetMap::const_iterator i = psetMap.begin(), iEnd = psetMap.end(); i != iEnd; ++i) {
-      parameterSets_.push_back(std::make_pair(i->second.pset(), i->first));
+    for (const auto & i : psetMap) {
+      parameterSets_.push_back(std::make_pair(i.second.pset(), i.first));
     }
     if (alreadyByReference) {
       noConvertParameterSets();
@@ -77,20 +77,20 @@ namespace edm {
       replace_.insert(std::make_pair(std::string("=+p({})"), std::string("=+q({})")));
       convertParameterSets();
     }
-    for (std::vector<MainParameterSet>::iterator j = mainParameterSets_.begin(), jEnd = mainParameterSets_.end(); j != jEnd; ++j) {
-      for (std::vector<TriggerPath>::iterator i = triggerPaths_.begin(), iEnd = triggerPaths_.end(); i != iEnd; ++i) {
-	if (i->triggerPaths_ == j->triggerPaths_) {
-	  j->parameterSet_.addParameter("@trigger_paths", i->parameterSet_);
+    for (auto & mainParameterSet : mainParameterSets_) {
+      for (auto & triggerPath : triggerPaths_) {
+	if (triggerPath.triggerPaths_ == mainParameterSet.triggerPaths_) {
+	  mainParameterSet.parameterSet_.addParameter("@trigger_paths", triggerPath.parameterSet_);
 	  break;
         }
       }
     }
-    for (std::vector<MainParameterSet>::iterator i = mainParameterSets_.begin(), iEnd = mainParameterSets_.end(); i != iEnd; ++i) {
-      ParameterSet& pset = i->parameterSet_;
+    for (auto & mainParameterSet : mainParameterSets_) {
+      ParameterSet& pset = mainParameterSet.parameterSet_;
       pset.registerIt();
       ParameterSetID newID(pset.id());
-      if (i->oldID_ != newID && i->oldID_ != ParameterSetID()) {
-	parameterSetIdConverter_.insert(std::make_pair(i->oldID_, newID));
+      if (mainParameterSet.oldID_ != newID && mainParameterSet.oldID_ != ParameterSetID()) {
+	parameterSetIdConverter_.insert(std::make_pair(mainParameterSet.oldID_, newID));
       }
     }
   }
@@ -99,14 +99,14 @@ namespace edm {
 
   void
   ParameterSetConverter::noConvertParameterSets() {
-    for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
-      if (i->first.find("@all_sources") != std::string::npos) {
-        mainParameterSets_.push_back(MainParameterSet(i->second, i->first));
+    for (auto & parameterSet : parameterSets_) {
+      if (parameterSet.first.find("@all_sources") != std::string::npos) {
+        mainParameterSets_.push_back(MainParameterSet(parameterSet.second, parameterSet.first));
       } else {
-        ParameterSet pset(i->first);
-        pset.setID(i->second);
+        ParameterSet pset(parameterSet.first);
+        pset.setID(parameterSet.second);
 	pset::Registry::instance()->insertMapped(pset);
-	if (i->first.find("@trigger_paths") != std::string::npos) {
+	if (parameterSet.first.find("@trigger_paths") != std::string::npos) {
 	  triggerPaths_.push_back(pset);
 	}
       } 
@@ -124,9 +124,9 @@ namespace edm {
     std::string const lvparam("=+q({");
     bool doItAgain = false;
     for (StringMap::const_iterator j = replace_.begin(), jEnd = replace_.end(); j != jEnd; ++j) {
-      for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
-	for (std::string::size_type it = i->first.find(j->first); it != std::string::npos; it = i->first.find(j->first)) {
-	  i->first.replace(it, j->first.size(), j->second);
+      for (auto & parameterSet : parameterSets_) {
+	for (std::string::size_type it = parameterSet.first.find(j->first); it != std::string::npos; it = parameterSet.first.find(j->first)) {
+	  parameterSet.first.replace(it, j->first.size(), j->second);
 	  doItAgain = true;
 	}
       }
@@ -165,8 +165,8 @@ namespace edm {
       for (StringWithIDList::iterator i = parameterSets_.begin(), iEnd = parameterSets_.end(); i != iEnd; ++i) {
 	std::list<std::string> pieces;
 	split(std::back_inserter(pieces), i->first, '<', ';', '>');
-	for (std::list<std::string>::iterator i= pieces.begin(), e = pieces.end(); i != e; ++i) {
-	  std::string removeName = i->substr(i->find('+'));
+	for (auto & piece : pieces) {
+	  std::string removeName = piece.substr(piece.find('+'));
 	  if (removeName.size() >= 4) {
 	    if (removeName[1] == 'P') {
 	      std::string psetString(removeName.begin()+3, removeName.end()-1);

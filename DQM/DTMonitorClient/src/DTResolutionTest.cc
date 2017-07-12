@@ -276,26 +276,25 @@ DTResolutionTest::~DTResolutionTest(){
     // Report the channels failing the test on the mean
     if(theMeanQReport) { 
       vector<dqm::me_util::Channel> badChannels = theMeanQReport->getBadChannels();
-      for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	   channel != badChannels.end(); channel++) {
+      for (auto & badChannel : badChannels) {
 	edm::LogError("resolution") << "Bad mean channel: wh: " << wheel.str()
-				     << " st: " << stationFromBin((*channel).getBin())
+				     << " st: " << stationFromBin(badChannel.getBin())
 				     << " sect: " <<sector.str()
-				     << " sl: " << slFromBin((*channel).getBin())
-				     << " mean (cm): " << (*channel).getContents();
+				     << " sl: " << slFromBin(badChannel.getBin())
+				     << " mean (cm): " << badChannel.getContents();
 	string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
 	if(parameters.getUntrackedParameter<bool>("meanWrongHisto")){
-	  MeanHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
-	  MeanHistosSetRange2D.find(HistoName)->second->Fill((*channel).getBin(),(*channel).getContents());
+	  MeanHistosSetRange.find(HistoName)->second->Fill(badChannel.getBin());
+	  MeanHistosSetRange2D.find(HistoName)->second->Fill(badChannel.getBin(),badChannel.getContents());
 	}
 	// fill the wheel summary histos if the SL has not passed the test
-	if(abs((*channel).getContents())<parameters.getUntrackedParameter<double>("meanMaxLimit"))
-	  wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second)-1,(*channel).getBin()-1,1);
+	if(abs(badChannel.getContents())<parameters.getUntrackedParameter<double>("meanMaxLimit"))
+	  wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second)-1,badChannel.getBin()-1,1);
 	else
-	  wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second)-1,(*channel).getBin()-1,2);
+	  wheelMeanHistos[(*hMean).first.first]->Fill(((*hMean).first.second)-1,badChannel.getBin()-1,2);
 	// fill the cms summary histo if the percentual of SL which have not passed the test 
 	// is more than a predefined treshold
-	if(abs((*channel).getContents())>parameters.getUntrackedParameter<double>("meanMaxLimit")){
+	if(abs(badChannel.getContents())>parameters.getUntrackedParameter<double>("meanMaxLimit")){
 	  cmsMeanHistos[make_pair((*hMean).first.first,(*hMean).first.second)]++;
 	  if(((*hMean).first.second<13 &&
 	      double(cmsMeanHistos[make_pair((*hMean).first.first,(*hMean).first.second)])/11>double(percentual)/100 &&
@@ -322,18 +321,17 @@ DTResolutionTest::~DTResolutionTest(){
       stringstream sector; sector << (*hSigma).first.second;
       if(theSigmaQReport) {
 	vector<dqm::me_util::Channel> badChannels = theSigmaQReport->getBadChannels();
-	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
+	for (auto & badChannel : badChannels) {
 	  edm::LogError("resolution") << "Bad sigma: wh: " << wheel.str()
-				      << " st: " << stationFromBin((*channel).getBin())
+				      << " st: " << stationFromBin(badChannel.getBin())
 				      << " sect: " <<sector.str()
-				      << " sl: " << slFromBin((*channel).getBin())
-				      << " sigma (cm): " << (*channel).getContents();
+				      << " sl: " << slFromBin(badChannel.getBin())
+				      << " sigma (cm): " << badChannel.getContents();
 	  string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
-	  SigmaHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
-	  SigmaHistosSetRange2D.find(HistoName)->second->Fill((*channel).getBin(),(*channel).getContents());
+	  SigmaHistosSetRange.find(HistoName)->second->Fill(badChannel.getBin());
+	  SigmaHistosSetRange2D.find(HistoName)->second->Fill(badChannel.getBin(),badChannel.getContents());
 	  // fill the wheel summary histos if the SL has not passed the test
-	  wheelSigmaHistos[(*hSigma).first.first]->Fill(((*hSigma).first.second)-1,(*channel).getBin()-1);
+	  wheelSigmaHistos[(*hSigma).first.first]->Fill(((*hSigma).first.second)-1,badChannel.getBin()-1);
 	  // fill the cms summary histo if the percentual of SL which have not passed the test 
 	  // is more than a predefined treshold
 	  cmsSigmaHistos[make_pair((*hSigma).first.first,(*hSigma).first.second)]++;
@@ -362,18 +360,17 @@ DTResolutionTest::~DTResolutionTest(){
       stringstream sector; sector << (*hSlope).first.second;
       if(theSlopeQReport) {
 	vector<dqm::me_util::Channel> badChannels = theSlopeQReport->getBadChannels();
-	for (vector<dqm::me_util::Channel>::iterator channel = badChannels.begin(); 
-	     channel != badChannels.end(); channel++) {
+	for (auto & badChannel : badChannels) {
 	  edm::LogError("resolution") << "Bad slope: wh: " << wheel.str()
-				      << " st: " << stationFromBin((*channel).getBin())
+				      << " st: " << stationFromBin(badChannel.getBin())
 				      << " sect: " <<sector.str()
-				      << " sl: " << slFromBin((*channel).getBin())
-				      << " slope: " << (*channel).getContents();
+				      << " sl: " << slFromBin(badChannel.getBin())
+				      << " slope: " << badChannel.getContents();
 	  string HistoName = "W" + wheel.str() + "_Sec" + sector.str();
-	  SlopeHistosSetRange.find(HistoName)->second->Fill((*channel).getBin());
-	  SlopeHistosSetRange2D.find(HistoName)->second->Fill((*channel).getBin(),(*channel).getContents());
+	  SlopeHistosSetRange.find(HistoName)->second->Fill(badChannel.getBin());
+	  SlopeHistosSetRange2D.find(HistoName)->second->Fill(badChannel.getBin(),badChannel.getContents());
 	  // fill the wheel summary histos if the SL has not passed the test
-	  wheelSlopeHistos[(*hSlope).first.first]->Fill(((*hSlope).first.second)-1,(*channel).getBin()-1);
+	  wheelSlopeHistos[(*hSlope).first.first]->Fill(((*hSlope).first.second)-1,badChannel.getBin()-1);
 	  // fill the cms summary histo if the percentual of SL which have not passed the test 
 	  // is more than a predefined treshold
 	  cmsSlopeHistos[make_pair((*hSlope).first.first,(*hSlope).first.second)]++;

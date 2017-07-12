@@ -262,7 +262,7 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
       }
       
       bool indentified=false;
-      for(unsigned int i=0;i<particles.size();i++){if(particles.at(i).Fill(ptcl,weight)){indentified=true; break;}}
+      for(auto & particle : particles){if(particle.Fill(ptcl,weight)){indentified=true; break;}}
       if(!indentified){	++otherPtclNum; otherPtclMomentum->Fill(Log_p,weight);}
     }//event particles
 
@@ -285,6 +285,6 @@ void BasicHepMCValidation::analyze(const edm::Event& iEvent,const edm::EventSetu
   unknownPDTNumber->Fill(log10(unknownPDTNum+0.1),weight);
   //
   partonNumber->Fill(partonNum,weight);
-  for(unsigned int i=0;i<particles.size();i++){particles.at(i).FillCount(weight);};
+  for(auto & particle : particles){particle.FillCount(weight);};
 
 }//analyze

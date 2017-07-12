@@ -101,10 +101,10 @@ void CATopJetProducer::runAlgorithm( edm::Event& iEvent, const edm::EventSetup& 
 	if ( verbose_ ) cout << "Getting central jets" << endl;
 	// Find the transient central jets
 	vector<fastjet::PseudoJet> centralJets;
-	for (unsigned int i = 0; i < inclusiveJets.size(); i++) {
+	for (auto & inclusiveJet : inclusiveJets) {
 		
-		if (inclusiveJets[i].perp() > ptMin_ && fabs(inclusiveJets[i].rapidity()) < centralEtaCut_) {
-			centralJets.push_back(inclusiveJets[i]);
+		if (inclusiveJet.perp() > ptMin_ && fabs(inclusiveJet.rapidity()) < centralEtaCut_) {
+			centralJets.push_back(inclusiveJet);
 		}
 	}
 

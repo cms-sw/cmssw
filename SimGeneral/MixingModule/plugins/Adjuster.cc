@@ -60,9 +60,9 @@ void doTheOffset(int bunchSpace, int bcr, std::vector<PCaloHit>& calohits, unsig
 void doTheOffset(int bunchSpace, int bcr, TrackingRecHitCollection & trackingrechits, unsigned int evtNr, int vertexOffset, bool wrap) {
 
   EncodedEventId id(bcr,evtNr);
-  for (auto it = trackingrechits.begin();it!=trackingrechits.end();++it) {
-      if(trackerHitRTTI::isFast(*it)){
-	  FastTrackerRecHit * rechit = static_cast<FastTrackerRecHit*>(&(*it));
+  for (auto & trackingrechit : trackingrechits) {
+      if(trackerHitRTTI::isFast(trackingrechit)){
+	  FastTrackerRecHit * rechit = static_cast<FastTrackerRecHit*>(&trackingrechit);
 	  rechit->setEventId(id.rawId());
       }
   }

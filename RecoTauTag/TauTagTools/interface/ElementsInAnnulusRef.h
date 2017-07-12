@@ -28,10 +28,10 @@ template <typename T, typename M, typename N>
     ~ElementsInAnnulusRef() {}  
     const std::vector<std::pair<math::XYZPoint,float> > operator()(const T& coneAxis,const M& innerconeMetric,double innerconeSize,const N& outerconeMetric,double outerconeSize,const std::vector<std::pair<math::XYZPoint,float> > & elements)const{
       std::vector<std::pair<math::XYZPoint,float> > elementsInBand;
-      for(typename std::vector<std::pair<math::XYZPoint,float> >::const_iterator element=elements.begin();element!=elements.end();++element) {
-	double innerconeMetric_distance=innerconeMetric(coneAxis,(*element).first);
-	double outerconeMetric_distance=outerconeMetric(coneAxis,(*element).first);
-	if (innerconeMetric_distance>innerconeSize && outerconeMetric_distance<=outerconeSize)elementsInBand.push_back(*element);
+      for(const auto & element : elements) {
+	double innerconeMetric_distance=innerconeMetric(coneAxis,element.first);
+	double outerconeMetric_distance=outerconeMetric(coneAxis,element.first);
+	if (innerconeMetric_distance>innerconeSize && outerconeMetric_distance<=outerconeSize)elementsInBand.push_back(element);
       }
       return elementsInBand;
     }    

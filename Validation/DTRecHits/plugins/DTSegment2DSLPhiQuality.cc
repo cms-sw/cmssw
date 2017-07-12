@@ -116,12 +116,11 @@ void DTSegment2DSLPhiQuality::analyze(const Event & event, const EventSetup& eve
 
   //Map simHits by chamber
   map<DTChamberId, PSimHitContainer > simHitsPerCh;
-  for(PSimHitContainer::const_iterator simHit = simHits->begin();
-      simHit != simHits->end(); simHit++){
+  for(const auto & simHit : *simHits){
     // Create the id of the chamber (the simHits in the DT known their wireId)
-    DTChamberId chamberId = (((DTWireId(simHit->detUnitId())).layerId()).superlayerId()).chamberId();
+    DTChamberId chamberId = (((DTWireId(simHit.detUnitId())).layerId()).superlayerId()).chamberId();
     // Fill the map
-    simHitsPerCh[chamberId].push_back(*simHit);
+    simHitsPerCh[chamberId].push_back(simHit);
   }
 
   // Get the 4D rechits from the event

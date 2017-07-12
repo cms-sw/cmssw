@@ -94,14 +94,14 @@ void modulediff ( int run_2 , string repro_run2 )
   outfile << "Recovered modules in run " << run_2 << ":" << endl;
   if ( modules_recovered.size() == 0 ) 
     outfile << " -" << endl;
-  for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
-    outfile << " " << modules_recovered[ i ] << endl;
+  for (int i : modules_recovered)
+    outfile << " " << i << endl;
   
   outfile << "New bad modules that appeared in run " << run_2 << ":" << endl;
   if ( modules_malformed.size() == 0 ) 
     outfile << " -" << endl;
-  for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
-    outfile << " " << modules_malformed[ i ] << endl;
+  for (int i : modules_malformed)
+    outfile << " " << i << endl;
 
   outfile.close();
 
@@ -111,8 +111,8 @@ void modulediff ( int run_2 , string repro_run2 )
     {
       std::ofstream outfile_good;
       outfile_good.open("modulediff_good.txt");
-      for ( unsigned int i = 0; i < modules_recovered.size() ; i++ )
-	outfile_good << " " << modules_recovered[ i ] << endl;
+      for (int i : modules_recovered)
+	outfile_good << " " << i << endl;
       outfile_good.close();
     }
 
@@ -120,8 +120,8 @@ void modulediff ( int run_2 , string repro_run2 )
     {
       std::ofstream outfile_bad;
       outfile_bad.open("modulediff_bad.txt");
-      for ( unsigned int i = 0; i < modules_malformed.size() ; i++ )
-	outfile_bad << " " << modules_malformed[ i ] << endl;
+      for (int i : modules_malformed)
+	outfile_bad << " " << i << endl;
       outfile_bad.close();
     }
 }
@@ -129,17 +129,17 @@ void modulediff ( int run_2 , string repro_run2 )
 void get_difference  ( vector < int > badlist1 , vector < int > badlist2 , vector < int > &difflist )
 {
   //check if any element of badlist1 is in badlist2
-  for ( unsigned int i1 = 0; i1 < badlist1.size() ; i1++ )
+  for (int i1 : badlist1)
     {
       bool thisrecovered = true;
-      for ( unsigned int i2 = 0; i2 < badlist2.size() ; i2++ )
-	if ( badlist1[ i1 ] == badlist2[ i2 ] )
+      for (int i2 : badlist2)
+	if ( i1 == i2 )
 	  {
 	    thisrecovered = false;
 	    break;
 	  }
       if ( thisrecovered )
-	difflist.push_back ( badlist1[ i1 ] );
+	difflist.push_back ( i1 );
     }
 }
 
@@ -170,9 +170,9 @@ int read_badmodlist ( int run , string repro_type , vector < int >& badlist )
   gDirectory->cd(topdir.c_str());
   TDirectory* mec1 = gDirectory;
 
-  for ( unsigned int i=0; i < subdet.size(); i++ )
+  for (const auto & i : subdet)
     {
-      string badmodule_dir = subdet[ i ] + "/BadModuleList";
+      string badmodule_dir = i + "/BadModuleList";
       if ( gDirectory->cd ( badmodule_dir.c_str() ) ) 
 	{
 	  TIter next ( gDirectory->GetListOfKeys() );

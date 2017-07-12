@@ -103,8 +103,8 @@ CSCSegtoRPC::CSCSegtoRPC(const CSCSegmentCollection * allCSCSegments, const edm:
 	    assert(rollsForThisCSC.size()>=1);
 
 	    if(debug) std::cout<<"CSC \t \t Loop over all the rolls asociated to this CSC"<<std::endl;	    
-	    for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
-	      const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+	    for (auto iteraRoll : rollsForThisCSC){
+	      const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll);
 	      RPCDetId rpcId = rollasociated->id();
 		
 	      if(debug) std::cout<<"CSC \t \t \t We are in the roll getting the surface"<<rpcId<<std::endl;

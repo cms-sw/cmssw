@@ -480,8 +480,8 @@ void GlobalMuonRefitter::checkMuonHits(const reco::Track& muon,
 
   } // end of loop over muon rechits
 
-  for (map<DetId,int>::iterator imap=hitMap.begin(); imap!=hitMap.end(); imap++ ) 
-    LogTrace(theCategory) << " Station " << imap->first.rawId() << ": " << imap->second <<endl; 
+  for (auto & imap : hitMap) 
+    LogTrace(theCategory) << " Station " << imap.first.rawId() << ": " << imap.second <<endl; 
 
   LogTrace(theCategory) << "CheckMuonHits: "<<all.size();
 
@@ -638,21 +638,21 @@ GlobalMuonRefitter::selectMuonHits(const Trajectory& traj,
 void GlobalMuonRefitter::printHits(const ConstRecHitContainer& hits) const {
 
   LogTrace(theCategory) << "Used RecHits: " << hits.size();
-  for (ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
+  for (const auto & hit : hits) {
+    if ( !hit->isValid() ) {
       LogTrace(theCategory) << "invalid RecHit";
       continue; 
     }
     
-    const GlobalPoint& pos = (*ir)->globalPosition();
+    const GlobalPoint& pos = hit->globalPosition();
     
     LogTrace(theCategory) 
       << "r = " << sqrt(pos.x() * pos.x() + pos.y() * pos.y())
       << "  z = " << pos.z()
-      << "  dimension = " << (*ir)->dimension()
-      << "  det = " << (*ir)->det()->geographicalId().det()
-      << "  subdet = " << (*ir)->det()->subDetector()
-      << "  raw id = " << (*ir)->det()->geographicalId().rawId();
+      << "  dimension = " << hit->dimension()
+      << "  det = " << hit->det()->geographicalId().det()
+      << "  subdet = " << hit->det()->subDetector()
+      << "  raw id = " << hit->det()->geographicalId().rawId();
   }
 
 }

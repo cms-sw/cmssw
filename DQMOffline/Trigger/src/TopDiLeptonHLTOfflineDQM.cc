@@ -382,17 +382,16 @@ namespace HLTOfflineDQMTopDiLepton {
          */
       const edm::TriggerNames& triggerNames = event.triggerNames(*triggerTable);
       // loop over trigger paths 
-      for(unsigned int i=0; i<triggerNames.triggerNames().size(); ++i){
+      for(auto name : triggerNames.triggerNames()){
         bool elecmu = false;
         bool dielec = false;
         bool dimuon = false;
         // consider only path from triggerPaths
-        string name = triggerNames.triggerNames()[i];
-        for (unsigned int j=0; j<triggerPaths.size(); j++) {
-          if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("ele"), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("mu"), TString::kIgnoreCase)) elecmu = true;
+        for (const auto & triggerPath : triggerPaths) {
+          if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("ele"), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("mu"), TString::kIgnoreCase)) elecmu = true;
           else {
-            if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("ele"), TString::kIgnoreCase)) dielec = true;
-            if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("mu"), TString::kIgnoreCase)) dimuon = true;
+            if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("ele"), TString::kIgnoreCase)) dielec = true;
+            if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase) && TString(name.c_str()).Contains(TString("mu"), TString::kIgnoreCase)) dimuon = true;
           }
         }
 
@@ -526,8 +525,8 @@ namespace HLTOfflineDQMTopDiLepton {
           // consider only path from triggerPaths
           string name = triggerNames.triggerNames()[i].c_str();
           bool isInteresting = false;
-          for (unsigned int j=0; j<triggerPaths.size(); j++) {
-            if (TString(name.c_str()).Contains(TString(triggerPaths[j]), TString::kIgnoreCase)) isInteresting = true; 
+          for (const auto & triggerPath : triggerPaths) {
+            if (TString(name.c_str()).Contains(TString(triggerPath), TString::kIgnoreCase)) isInteresting = true; 
           }
           if (!isInteresting) continue;
           // dump infos on the considered trigger path 
@@ -654,8 +653,8 @@ namespace HLTOfflineDQMTopDiLepton {
             const unsigned int nMuons(muonIds_.size());
             for (unsigned int l=0; l<nMuons; l++) {
               bool isNew = true;
-              for (unsigned int ll=0; ll<myMuonRefs.size(); ll++) {
-                if (fabs((myMuonRefs[ll]->pt()-muonRefs_[l]->pt())/muonRefs_[l]->pt()) < 1e-5) isNew = false;
+              for (auto & myMuonRef : myMuonRefs) {
+                if (fabs((myMuonRef->pt()-muonRefs_[l]->pt())/muonRefs_[l]->pt()) < 1e-5) isNew = false;
               }
               if (isNew) myMuonRefs.push_back(muonRefs_[l]);
             }
@@ -814,9 +813,9 @@ TopDiLeptonHLTOfflineDQM::TopDiLeptonHLTOfflineDQM(const edm::ParameterSet& cfg)
 
   // configure the selection
   std::vector<edm::ParameterSet> sel=cfg.getParameter<std::vector<edm::ParameterSet> >("selection");
-  for(unsigned int i=0; i<sel.size(); ++i){
-    selectionOrder_.push_back(sel.at(i).getParameter<std::string>("label"));
-    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(sel.at(i), std::make_unique<HLTOfflineDQMTopDiLepton::MonitorDiLepton>(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
+  for(auto & i : sel){
+    selectionOrder_.push_back(i.getParameter<std::string>("label"));
+    selection_[selectionStep(selectionOrder_.back())] = std::make_pair(i, std::make_unique<HLTOfflineDQMTopDiLepton::MonitorDiLepton>(selectionStep(selectionOrder_.back()).c_str(), cfg.getParameter<edm::ParameterSet>("setup"), consumesCollector()));
   }
 
   for (const std::string& s: selectionOrder_) {

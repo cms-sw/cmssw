@@ -109,17 +109,15 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
     LogTrace("DumpL1RPCConfig") << "\nQuality table:" << std::endl;
 
     {
-     for (RPCPattern::TQualityVec::const_iterator it = l1RPCConfig->m_quals.begin();
-                                                  it!= l1RPCConfig->m_quals.end();
-                                                ++it)
+     for (auto m_qual : l1RPCConfig->m_quals)
      {
        LogTrace("DumpL1RPCConfig")
-               << "QTN " << (int)it->m_QualityTabNumber
-               << " fp " << (int)it->m_FiredPlanes
-               << " val " <<  (int)it->m_QualityValue
-               << " tw " <<  (int)it->m_tower
-               << " sc " <<  (int)it->m_logsector
-               << " sg " <<  (int)it->m_logsegment
+               << "QTN " << (int)m_qual.m_QualityTabNumber
+               << " fp " << (int)m_qual.m_FiredPlanes
+               << " val " <<  (int)m_qual.m_QualityValue
+               << " tw " <<  (int)m_qual.m_tower
+               << " sc " <<  (int)m_qual.m_logsector
+               << " sg " <<  (int)m_qual.m_logsegment
                << std::endl;
        
      
@@ -128,23 +126,21 @@ DumpL1RPCConfig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
    
    LogTrace("DumpL1RPCConfig")<< "\nPatterns:"<< std::endl;
    {
-     for (RPCPattern::RPCPatVec::const_iterator it =l1RPCConfig->m_pats.begin();
-                                                it!=l1RPCConfig->m_pats.end();
-                                              ++it)
+     for (const auto & m_pat : l1RPCConfig->m_pats)
      {
-       LogTrace("DumpL1RPCConfig") << "tw " <<it->getTower()
-       << " sc " << it->getLogSector()
-       << " sg " << it->getLogSegment()
-       << " pt " << it->getCode()
-       << " s " << it->getSign()
-       << " n " << it->getNumber()
-       << " t " << (int)it->getPatternType()
-       << " rg " << it->getRefGroup()
-       << " QTN " << it->getQualityTabNumber();
+       LogTrace("DumpL1RPCConfig") << "tw " <<m_pat.getTower()
+       << " sc " << m_pat.getLogSector()
+       << " sg " << m_pat.getLogSegment()
+       << " pt " << m_pat.getCode()
+       << " s " << m_pat.getSign()
+       << " n " << m_pat.getNumber()
+       << " t " << (int)m_pat.getPatternType()
+       << " rg " << m_pat.getRefGroup()
+       << " QTN " << m_pat.getQualityTabNumber();
        for (int lp=0;lp<RPCPattern::m_LOGPLANES_COUNT;++lp){
          LogTrace("DumpL1RPCConfig")<< " (LP" <<lp
-           << " " << it->getStripFrom(lp)
-           << " " << it->getStripTo(lp)
+           << " " << m_pat.getStripFrom(lp)
+           << " " << m_pat.getStripTo(lp)
            << ")";
        }
        LogTrace("DumpL1RPCConfig")<<std::endl;

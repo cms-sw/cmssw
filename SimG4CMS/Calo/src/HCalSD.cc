@@ -267,8 +267,8 @@ HCalSD::HCalSD(G4String name, const DDCompactView & cpv,
     G4String namx = log.name().name();
     if (!isItHF(namx) && !isItFibre(namx)) {
       bool notIn = true;
-      for (unsigned int i=0; i<matNames.size(); ++i) {
-        if (!strcmp(matNames[i].c_str(),log.material().name().name().c_str())){
+      for (auto & matName : matNames) {
+        if (!strcmp(matName.c_str(),log.material().name().name().c_str())){
           notIn = false;
           break;
         }
@@ -698,8 +698,8 @@ std::vector<G4String> HCalSD::getNames(DDFilteredView& fv) {
     const DDLogicalPart & log = fv.logicalPart();
     bool ok = true;
 
-    for (unsigned int i=0; i<tmp.size(); ++i) {
-      if (!strcmp(tmp[i].c_str(), log.name().name().c_str())) {
+    for (auto & i : tmp) {
+      if (!strcmp(i.c_str(), log.name().name().c_str())) {
         ok = false;
         break;
       }
@@ -810,11 +810,11 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
                           << " with " << theTrack->GetDefinition()->GetParticleName() 
                           << " of " << preStepPoint->GetKineticEnergy()/GeV << " GeV";
 #endif
-  for (unsigned int i=0; i<hits.size(); ++i) {
-    G4ThreeVector hitPoint = hits[i].position;
+  for (auto & hit : hits) {
+    G4ThreeVector hitPoint = hit.position;
     if (isItinFidVolume (hitPoint)) {
-      int depth              = hits[i].depth;
-      double time            = hits[i].time;
+      int depth              = hit.depth;
+      double time            = hit.time;
       unsigned int unitID    = setDetUnitId(det, hitPoint, depth);
       currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug
@@ -838,9 +838,9 @@ void HCalSD::getFromLibrary (G4Step* aStep, double weight) {
   if (ok) {
     theTrack->SetTrackStatus(fStopAndKill);
     G4TrackVector tv = *(aStep->GetSecondary());
-    for (unsigned int kk=0; kk<tv.size(); ++kk)
-      if (tv[kk]->GetVolume() == preStepPoint->GetPhysicalVolume())
-        tv[kk]->SetTrackStatus(fStopAndKill);
+    for (auto & kk : tv)
+      if (kk->GetVolume() == preStepPoint->GetPhysicalVolume())
+        kk->SetTrackStatus(fStopAndKill);
   }
 }
 
@@ -870,11 +870,11 @@ void HCalSD::hitForFibre (G4Step* aStep, double weight) { // if not ParamShower
 			  << " GeV in detector type " << det;
 #endif
   if (hits.size() > 0) {
-    for (unsigned int i=0; i<hits.size(); ++i) {
-      G4ThreeVector hitPoint = hits[i].position;
+    for (auto & hit : hits) {
+      G4ThreeVector hitPoint = hit.position;
       if (isItinFidVolume (hitPoint)) {
-	int depth              = hits[i].depth;
-	double time            = hits[i].time;
+	int depth              = hit.depth;
+	double time            = hit.time;
 	unsigned int unitID = setDetUnitId(det, hitPoint, depth);
 	currentID.setID(unitID, time, primaryID, 0);
 #ifdef plotDebug

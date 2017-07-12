@@ -80,10 +80,10 @@ std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::ve
 
 
   int iTrk=0;
-  for (    std::vector<reco::TransientTrack>::const_iterator iTk=tracks.begin(); iTk!=tracks.end(); ++iTk) {
+  for (const auto & track : tracks) {
 
     math::XYZPointF ecalImpactPosition(0.,0.,0.);
-    const TrajectoryStateOnSurface myTSOS=(*iTk).innermostMeasurementState();
+    const TrajectoryStateOnSurface myTSOS=track.innermostMeasurementState();
     if ( !( myTSOS.isValid() ) ) continue; 
 
     stateAtECAL_= forwardPropagator_->propagate( myTSOS, barrel() );
@@ -92,7 +92,7 @@ std::vector<math::XYZPointF> ConversionTrackEcalImpactPoint::find( const std::ve
     if (!stateAtECAL_.isValid() || ( stateAtECAL_.isValid() && fabs(stateAtECAL_.globalPosition().eta() ) >1.479 )  ) {
     
          
-      if ( (*iTk).innermostMeasurementState().globalPosition().eta() > 0.) {
+      if ( track.innermostMeasurementState().globalPosition().eta() > 0.) {
 	stateAtECAL_= forwardPropagator_->propagate( myTSOS, positiveEtaEndcap());
 
       } else {

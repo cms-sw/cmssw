@@ -89,9 +89,8 @@ prepareTrack( const reco::Track& track,
          refStates.push_back(State(TEveVector(v.x(), v.y(), v.z()), TEveVector(p.x(), p.y(), p.z())));
       }
    }
-   for( std::vector<TEveVector>::const_iterator point = extraRefPoints.begin(), pointEnd = extraRefPoints.end();
-        point != pointEnd; ++point )
-      refStates.push_back(State(*point));
+   for(auto extraRefPoint : extraRefPoints)
+      refStates.push_back(State(extraRefPoint));
    if( track.pt()>1 )
       std::sort( refStates.begin(), refStates.end(), StateOrdering(trackMomentum) );
 
@@ -415,16 +414,16 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
          {
             const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = (*allClusters)[rechit->geographicalId().rawId()];
 
-            for( edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc )
+            for(const auto & itc : clustersOnThisDet)
             {
 
                TEveStraightLineSet *scposition = new TEveStraightLineSet;
                scposition->SetDepthTest( false );
 	       scposition->SetPickable( kTRUE );
 
-	       short firststrip = itc->firstStrip();
+	       short firststrip = itc.firstStrip();
 
-	       if( &*itc == cluster )
+	       if( &itc == cluster )
 	       {
 		  scposition->SetTitle( Form( "Exact SiStripCluster from TrackingRecHit, first strip %d", firststrip ));
 		  scposition->SetLineColor( kGreen );
@@ -481,9 +480,9 @@ addSiStripClusters( const FWEventItem* iItem, const reco::Track &t, class TEveEl
             if( itds != allClusters->end())
             {
                const edmNew::DetSet<SiStripCluster> & clustersOnThisDet = *itds;
-               for( edmNew::DetSet<SiStripCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc )
+               for(const auto & itc : clustersOnThisDet)
                {
-		  short firststrip = itc->firstStrip();
+		  short firststrip = itc.firstStrip();
 
                   TEveStraightLineSet *scposition = new TEveStraightLineSet;
                   scposition->SetDepthTest( false );
@@ -567,10 +566,10 @@ pushNearbyPixelHits( std::vector<TVector3> &pixelPoints, const FWEventItem &iIte
       if( itds != allClusters->end())
       {
          const edmNew::DetSet<SiPixelCluster> & clustersOnThisDet = *itds;
-	 for( edmNew::DetSet<SiPixelCluster>::const_iterator itc = clustersOnThisDet.begin(), edc = clustersOnThisDet.end(); itc != edc; ++itc )
+	 for(const auto & itc : clustersOnThisDet)
 	 {
-	   if( &*itc != hitCluster )
-	      pushPixelCluster( pixelPoints, *geom, id, *itc, geom->getParameters( id ));
+	   if( &itc != hitCluster )
+	      pushPixelCluster( pixelPoints, *geom, id, itc, geom->getParameters( id ));
          }
       }
    }
@@ -866,9 +865,9 @@ info(const DetId& id) {
 std::string
 info(const std::set<DetId>& idSet) {
    std::string text;
-   for(std::set<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id)
+   for(auto id : idSet)
    {
-      text += info(*id);
+      text += info(id);
       text += "\n";
    }
    return text;
@@ -877,9 +876,9 @@ info(const std::set<DetId>& idSet) {
 std::string
 info(const std::vector<DetId>& idSet) {
    std::string text;
-   for(std::vector<DetId>::const_iterator id = idSet.begin(), idEnd = idSet.end(); id != idEnd; ++id)
+   for(auto id : idSet)
    {
-      text += info(*id);
+      text += info(id);
       text += "\n";
    }
    return text;

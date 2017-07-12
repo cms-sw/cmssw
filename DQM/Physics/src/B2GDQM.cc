@@ -156,9 +156,9 @@ void B2GDQM::bookHistograms(DQMStore::IBooker& bei, edm::Run const&,
 
   //--- Jets
 
-  for (unsigned int icoll = 0; icoll < jetLabels_.size(); ++icoll) {
+  for (auto & jetLabel : jetLabels_) {
     std::stringstream ss;
-    ss << "Physics/B2G/" << jetLabels_[icoll].label();
+    ss << "Physics/B2G/" << jetLabel.label();
     bei.setCurrentFolder(ss.str().c_str());
     pfJet_pt.push_back(
         bei.book1D("pfJet_pt", "Pt of PFJet (GeV)", 50, 0.0, 1000));

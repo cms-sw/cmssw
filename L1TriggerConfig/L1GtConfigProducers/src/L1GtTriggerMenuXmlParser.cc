@@ -982,12 +982,11 @@ void L1GtTriggerMenuXmlParser::clearMaps() {
 
     // loop over condition maps (one map per condition chip)
     // then loop over conditions in the map
-    for (std::vector<ConditionMap>::iterator itCondOnChip = m_conditionMap.begin(); itCondOnChip
-        != m_conditionMap.end(); itCondOnChip++) {
+    for (auto & itCondOnChip : m_conditionMap) {
 
         // the conditions in the maps are deleted in L1GtTriggerMenu, not here
 
-        itCondOnChip->clear();
+        itCondOnChip.clear();
 
     }
 

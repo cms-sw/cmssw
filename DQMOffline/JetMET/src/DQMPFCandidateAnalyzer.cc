@@ -466,17 +466,16 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
   //DCS Filter
   bool bDCSFilter = (bypassAllDCSChecks_ || DCSFilter_->filter(iEvent, iSetup));
 
-  for (unsigned int i=0;i<countsPFCand_.size();i++) {
-    countsPFCand_[i]=0;
+  for (int & i : countsPFCand_) {
+    i=0;
   }
   if(bDCSFilter && hbhenoifilterdecision && bPrimaryVertex){
     if(isMiniAOD_){
       edm::Handle<std::vector<pat::PackedCandidate> > packedParticleFlow;
       iEvent.getByToken(pflowPackedToken_, packedParticleFlow);
       //11, 13, 22 for el/mu/gamma, 211 chargedHadron, 130 neutralHadrons, 1 and 2 hadHF and EGammaHF
-      for (unsigned int i = 0; i < packedParticleFlow->size(); i++) {
-	const pat::PackedCandidate& c = packedParticleFlow->at(i);
-	for (unsigned int j=0; j<typePFCand_.size(); j++) {
+      for (const auto & c : *packedParticleFlow) {
+		for (unsigned int j=0; j<typePFCand_.size(); j++) {
 	  if (abs(c.pdgId())==typePFCand_[j]) {
 	    //second check for endcap, if inside barrel Max and Min symmetric around 0
 	    if ( ((c.eta()>etaMinPFCand_[j]) && (c.eta()<etaMaxPFCand_[j])) || ((c.eta()> (-etaMaxPFCand_[j])) && (c.eta()< (-etaMinPFCand_[j]))) ){
@@ -502,9 +501,8 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
     }else{
       edm::Handle<std::vector<reco::PFCandidate> > particleFlow;
       iEvent.getByToken(pflowToken_, particleFlow);
-       for (unsigned int i = 0; i < particleFlow->size(); i++) {
-	const reco::PFCandidate& c = particleFlow->at(i);
-	for (unsigned int j=0; j<typePFCandRECO_.size(); j++) {
+       for (const auto & c : *particleFlow) {
+		for (unsigned int j=0; j<typePFCandRECO_.size(); j++) {
 	  if (c.particleId()==typePFCandRECO_[j]) {
 	    //second check for endcap, if inside barrel Max and Min symmetric around 0
 	    if ( ((c.eta()>etaMinPFCandRECO_[j]) && (c.eta()<etaMaxPFCandRECO_[j])) || ((c.eta()> (-etaMaxPFCandRECO_[j])) && (c.eta()< (-etaMinPFCandRECO_[j]))) ){
@@ -611,8 +609,8 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 		    }     
 		  }
 		  //ECAL element
-		  for(unsigned int ii=0;ii<iECAL.size();ii++) {
-		    const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iECAL[ii] ] );
+		  for(unsigned int ii : iECAL) {
+		    const reco::PFBlockElementCluster& eecal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ ii ] );
 		    if(fabs(eecal.clusterRef()->eta())<1.479){
 		      mProfileIsoPFChHad_EcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_ECAL_profile_central"];
 		      if (mProfileIsoPFChHad_EcalOccupancyCentral  && mProfileIsoPFChHad_EcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_EcalOccupancyCentral->Fill(eecal.clusterRef()->eta(),eecal.clusterRef()->phi());
@@ -628,8 +626,8 @@ void DQMPFCandidateAnalyzer::analyze(const edm::Event& iEvent, const edm::EventS
 
 		  }	
 		  //HCAL element
-		  for(unsigned int ii=0;ii<iHCAL.size();ii++) {
-       		    const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ iHCAL[ii] ] );
+		  for(unsigned int ii : iHCAL) {
+       		    const reco::PFBlockElementCluster& ehcal = dynamic_cast<const reco::PFBlockElementCluster &>( elements[ ii ] );
 		    if(fabs(ehcal.clusterRef()->eta())<1.740){
 		      mProfileIsoPFChHad_HcalOccupancyCentral=map_of_MEs[DirName+"/"+"IsoPfChHad_HCAL_profile_central"];
 		      if (mProfileIsoPFChHad_HcalOccupancyCentral  && mProfileIsoPFChHad_HcalOccupancyCentral->getRootObject()) mProfileIsoPFChHad_HcalOccupancyCentral->Fill(ehcal.clusterRef()->eta(),ehcal.clusterRef()->phi());

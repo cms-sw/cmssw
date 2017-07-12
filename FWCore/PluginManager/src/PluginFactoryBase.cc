@@ -122,11 +122,9 @@ void
 PluginFactoryBase::fillInfo(const PMakers &makers,
               PluginInfo& iInfo,
               std::vector<PluginInfo>& iReturn ) const {
-  for(PMakers::const_iterator it = makers.begin();
-      it != makers.end();
-      ++it) {
-    while (nullptr ==it->m_ptr.load(std::memory_order_acquire)) ;
-    iInfo.loadable_ = it->m_name;
+  for(const auto & maker : makers) {
+    while (nullptr ==maker.m_ptr.load(std::memory_order_acquire)) ;
+    iInfo.loadable_ = maker.m_name;
     iReturn.push_back(iInfo);
   }
 }
@@ -134,11 +132,9 @@ PluginFactoryBase::fillInfo(const PMakers &makers,
 void 
 PluginFactoryBase::fillAvailable(std::vector<PluginInfo>& iReturn) const {
   PluginInfo info;
-  for( Plugins::const_iterator it = m_plugins.begin();
-      it != m_plugins.end();
-      ++it) {
-    info.name_ = it->first;
-    fillInfo(it->second,
+  for(auto & m_plugin : m_plugins) {
+    info.name_ = m_plugin.first;
+    fillInfo(m_plugin.second,
              info, iReturn);
   }
 }

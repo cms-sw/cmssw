@@ -174,9 +174,8 @@ namespace
 {
   void markCandsInStrip(std::vector<bool>& candFlags, const std::set<size_t>& candIds)
   {
-    for ( std::set<size_t>::const_iterator candId = candIds.begin();
-	  candId != candIds.end(); ++candId ) {
-      candFlags[*candId] = true;
+    for (unsigned long candId : candIds) {
+      candFlags[candId] = true;
     }
   }
   
@@ -207,32 +206,31 @@ RecoTauPiZeroStripPlugin2::return_type RecoTauPiZeroStripPlugin2::operator()(con
   PFCandPtrs seedCands;
   PFCandPtrs addCands;
   int idx = 0;
-  for ( PFCandPtrs::iterator cand = candsVector.begin();
-	cand != candsVector.end(); ++cand ) {
+  for (auto & cand : candsVector) {
     if ( verbosity_ >= 1 ) {
-      edm::LogPrint("RecoTauPiZeroStripPlugin2") << "PFGamma #" << idx << " (" << cand->id() << ":" << cand->key() << "): Et = " << (*cand)->et() << ", eta = " << (*cand)->eta() << ", phi = " << (*cand)->phi() ;
+      edm::LogPrint("RecoTauPiZeroStripPlugin2") << "PFGamma #" << idx << " (" << cand.id() << ":" << cand.key() << "): Et = " << cand->et() << ", eta = " << cand->eta() << ", phi = " << cand->phi() ;
     } 
-    if ( (*cand)->et() > minGammaEtStripSeed_ ) {
+    if ( cand->et() > minGammaEtStripSeed_ ) {
       if ( verbosity_ >= 2 ) {
 	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "--> assigning seedCandId = " << seedCands.size() ;
-        const reco::TrackBaseRef candTrack = getTrack(*cand);
+        const reco::TrackBaseRef candTrack = getTrack(cand);
         if ( candTrack.isNonnull() ) {
 	  edm::LogPrint("RecoTauPiZeroStripPlugin2") << "track: Pt = " << candTrack->pt() << " eta = " << candTrack->eta() << ", phi = " << candTrack->phi() << ", charge = " << candTrack->charge() ;
 	  edm::LogPrint("RecoTauPiZeroStripPlugin2") << " (dZ = " << candTrack->dz(vertexAssociator_.associatedVertex(jet)->position()) << ", dXY = " << candTrack->dxy(vertexAssociator_.associatedVertex(jet)->position()) << "," 
 		    << " numHits = " << candTrack->hitPattern().numberOfValidTrackerHits() << ", numPxlHits = " << candTrack->hitPattern().numberOfValidPixelHits() << "," 
 		    << " chi2 = " << candTrack->normalizedChi2() << ", dPt/Pt = " << (candTrack->ptError()/candTrack->pt()) << ")" ;
 	}
-	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "ECAL Et: calibrated = " << (*cand)->ecalEnergy()*sin((*cand)->theta()) << "," 
-		  << " raw = " << (*cand)->rawEcalEnergy()*sin((*cand)->theta()) ;
-	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "HCAL Et: calibrated = " << (*cand)->hcalEnergy()*sin((*cand)->theta()) << "," 
-		  << " raw = " << (*cand)->rawHcalEnergy()*sin((*cand)->theta()) ;
+	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "ECAL Et: calibrated = " << cand->ecalEnergy()*sin(cand->theta()) << "," 
+		  << " raw = " << cand->rawEcalEnergy()*sin(cand->theta()) ;
+	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "HCAL Et: calibrated = " << cand->hcalEnergy()*sin(cand->theta()) << "," 
+		  << " raw = " << cand->rawHcalEnergy()*sin(cand->theta()) ;
       }
-      seedCands.push_back(*cand);
-    } else if ( (*cand)->et() > minGammaEtStripAdd_  ) {
+      seedCands.push_back(cand);
+    } else if ( cand->et() > minGammaEtStripAdd_  ) {
       if ( verbosity_ >= 2 ) {
 	edm::LogPrint("RecoTauPiZeroStripPlugin2") << "--> assigning addCandId = " << addCands.size() ;
       }
-      addCands.push_back(*cand);
+      addCands.push_back(cand);
     }
     ++idx;
   }

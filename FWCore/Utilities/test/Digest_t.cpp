@@ -39,8 +39,8 @@ void testConversions() {
   MD5Result lookup;
   MD5Result fromHex;
   for(unsigned int i=0; i<256; ++i) {
-    for(unsigned int j=0; j<16; ++j) {
-      lookup.bytes[j]=static_cast<char>(i);
+    for(unsigned char & byte : lookup.bytes) {
+      byte=static_cast<char>(i);
       fromHex.fromHexifiedString(lookup.toString());
       assert(lookup == fromHex);
       assert(lookup.toString() == fromHex.toString());

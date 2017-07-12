@@ -203,26 +203,26 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       // Add charged objects to signal cone, and calculate charge
       if(mySignalPFChargedHadrCands.size() != 0) {
          int mySignalPFChargedHadrCands_qsum=0;
-         for(size_t i = 0; i < mySignalPFChargedHadrCands.size(); i++) {
-            mySignalPFChargedHadrCands_qsum += mySignalPFChargedHadrCands[i]->charge();
-            mySignalPFCands.push_back(mySignalPFChargedHadrCands[i]);
+         for(auto & mySignalPFChargedHadrCand : mySignalPFChargedHadrCands) {
+            mySignalPFChargedHadrCands_qsum += mySignalPFChargedHadrCand->charge();
+            mySignalPFCands.push_back(mySignalPFChargedHadrCand);
          }
          myPFTau.setCharge(mySignalPFChargedHadrCands_qsum);
       }
 
       //Add neutral objects to signal cone
-      for(size_t i = 0; i < mySignalPFNeutrHadrCands.size(); i++) {
-         mySignalPFCands.push_back(mySignalPFNeutrHadrCands[i]);
+      for(const auto & mySignalPFNeutrHadrCand : mySignalPFNeutrHadrCands) {
+         mySignalPFCands.push_back(mySignalPFNeutrHadrCand);
       }
 
       // For the signal gammas, keep track of the highest pt object
       double maxSignalGammaPt = 0.;
-      for(size_t i = 0; i < mySignalPFGammaCands.size(); i++) {
-         if(mySignalPFGammaCands[i]->pt() > maxSignalGammaPt) {
-            myleadPFNeutralCand = mySignalPFGammaCands[i];
-            maxSignalGammaPt = mySignalPFGammaCands[i]->pt();
+      for(auto & mySignalPFGammaCand : mySignalPFGammaCands) {
+         if(mySignalPFGammaCand->pt() > maxSignalGammaPt) {
+            myleadPFNeutralCand = mySignalPFGammaCand;
+            maxSignalGammaPt = mySignalPFGammaCand->pt();
          }
-         mySignalPFCands.push_back(mySignalPFGammaCands[i]);
+         mySignalPFCands.push_back(mySignalPFGammaCand);
       }
       myPFTau.setsignalPFCands(mySignalPFCands);
       // Set leading gamma
@@ -302,20 +302,20 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
       // Fill isolation collections, and calculate pt sum in isolation cone
       float myIsolPFChargedHadrCands_Ptsum = 0.;
       float myIsolPFGammaCands_Etsum       = 0.;
-      for(size_t i = 0; i < myIsolPFChargedHadrCands.size(); i++) {
-         myIsolPFChargedHadrCands_Ptsum += myIsolPFChargedHadrCands[i]->pt();
-         myIsolPFCands.push_back(myIsolPFChargedHadrCands[i]);
+      for(auto & myIsolPFChargedHadrCand : myIsolPFChargedHadrCands) {
+         myIsolPFChargedHadrCands_Ptsum += myIsolPFChargedHadrCand->pt();
+         myIsolPFCands.push_back(myIsolPFChargedHadrCand);
       }
       myPFTau.setisolationPFChargedHadrCandsPtSum(myIsolPFChargedHadrCands_Ptsum);
 
       // Put neutral hadrons into collection
-      for(size_t i = 0; i < myIsolPFNeutrHadrCands.size(); i++) {
-         myIsolPFCands.push_back(myIsolPFNeutrHadrCands[i]);
+      for(const auto & myIsolPFNeutrHadrCand : myIsolPFNeutrHadrCands) {
+         myIsolPFCands.push_back(myIsolPFNeutrHadrCand);
       }
 
-      for(size_t i = 0; i < myIsolPFGammaCands.size(); i++) {
-         myIsolPFGammaCands_Etsum += myIsolPFGammaCands[i]->et();
-         myIsolPFCands.push_back(myIsolPFGammaCands[i]);
+      for(auto & myIsolPFGammaCand : myIsolPFGammaCands) {
+         myIsolPFGammaCands_Etsum += myIsolPFGammaCand->et();
+         myIsolPFCands.push_back(myIsolPFGammaCand);
       }
       myPFTau.setisolationPFGammaCandsEtSum(myIsolPFGammaCands_Etsum);
       myPFTau.setisolationPFCands(myIsolPFCands);
@@ -400,33 +400,33 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
          //FROM AOD
          if(DataType_ == "AOD"){
             // Corrected Cluster energies
-            for(int i=0;i<(int)myPFCands.size();i++){
-               myHCALenergy += myPFCands[i]->hcalEnergy();
-               myECALenergy += myPFCands[i]->ecalEnergy();
+            for(auto & myPFCand : myPFCands){
+               myHCALenergy += myPFCand->hcalEnergy();
+               myECALenergy += myPFCand->ecalEnergy();
 
                math::XYZPointF candPos;
-               if (myPFCands[i]->particleId()==1 || myPFCands[i]->particleId()==2)//if charged hadron or electron
-                  candPos = myPFCands[i]->positionAtECALEntrance();
+               if (myPFCand->particleId()==1 || myPFCand->particleId()==2)//if charged hadron or electron
+                  candPos = myPFCand->positionAtECALEntrance();
                else
-                  candPos = math::XYZPointF(myPFCands[i]->px(),myPFCands[i]->py(),myPFCands[i]->pz());
+                  candPos = math::XYZPointF(myPFCand->px(),myPFCand->py(),myPFCand->pz());
 
                double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
                double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
                double deltaEta = std::abs(myElecTrkEcalPos.eta()-candPos.eta());
                double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
 
-               if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
+               if (myPFCand->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
                      deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_  && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
-                  myStripClusterE += myPFCands[i]->ecalEnergy();
+                  myStripClusterE += myPFCand->ecalEnergy();
                }
                if (deltaR<0.184) {
-                  myHCALenergy3x3 += myPFCands[i]->hcalEnergy();
+                  myHCALenergy3x3 += myPFCand->hcalEnergy();
                }
-               if (myPFCands[i]->hcalEnergy()>myMaximumHCALPFClusterE) {
-                  myMaximumHCALPFClusterE = myPFCands[i]->hcalEnergy();
+               if (myPFCand->hcalEnergy()>myMaximumHCALPFClusterE) {
+                  myMaximumHCALPFClusterE = myPFCand->hcalEnergy();
                }
-               if ((myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
-                  myMaximumHCALPFClusterEt = (myPFCands[i]->hcalEnergy()*fabs(sin(candPos.Theta())));
+               if ((myPFCand->hcalEnergy()*fabs(sin(candPos.Theta())))>myMaximumHCALPFClusterEt) {
+                  myMaximumHCALPFClusterEt = (myPFCand->hcalEnergy()*fabs(sin(candPos.Theta())));
                }
             }
 
@@ -434,11 +434,11 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
             // Against double counting of clusters
             std::vector<math::XYZPoint> hcalPosV; hcalPosV.clear();
             std::vector<math::XYZPoint> ecalPosV; ecalPosV.clear();
-            for(int i=0;i<(int)myPFCands.size();i++){
-               const ElementsInBlocks& elts = myPFCands[i]->elementsInBlocks();
-               for(ElementsInBlocks::const_iterator it=elts.begin(); it!=elts.end(); ++it) {
-                  const reco::PFBlock& block = *(it->first);
-                  unsigned indexOfElementInBlock = it->second;
+            for(auto & myPFCand : myPFCands){
+               const ElementsInBlocks& elts = myPFCand->elementsInBlocks();
+               for(const auto & elt : elts) {
+                  const reco::PFBlock& block = *(elt.first);
+                  unsigned indexOfElementInBlock = elt.second;
                   const edm::OwnVector< reco::PFBlockElement >& elements = block.elements();
                   assert(indexOfElementInBlock<elements.size());
 
@@ -521,8 +521,8 @@ PFTau PFRecoTauAlgorithm::buildPFTau(const PFTauTagInfoRef& myPFTauTagInfoRef, c
 bool
 PFRecoTauAlgorithm::checkPos(const std::vector<math::XYZPoint>& CalPos,const math::XYZPoint& CandPos) const{
    bool flag = false;
-   for (unsigned int i=0;i<CalPos.size();i++) {
-      if (CalPos[i] == CandPos) {
+   for (const auto & CalPo : CalPos) {
+      if (CalPo == CandPos) {
          flag = true;
          break;
       }

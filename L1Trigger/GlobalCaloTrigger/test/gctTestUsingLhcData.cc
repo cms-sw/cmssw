@@ -27,9 +27,8 @@ std::vector<L1CaloRegion> gctTestUsingLhcData::loadEvent(const edm::Event& iEven
   edm::Handle<std::vector<L1CaloRegion> > inputRegions;
   iEvent.getByLabel(inputDataTag, inputRegions);
 
-  for (std::vector<L1CaloRegion>::const_iterator reg=inputRegions->begin();
-       reg!=inputRegions->end(); reg++) {
-    if (reg->bx() == bx) result.push_back(*reg);
+  for (const auto & reg : *inputRegions) {
+    if (reg.bx() == bx) result.push_back(reg);
   }
   return result;
 }

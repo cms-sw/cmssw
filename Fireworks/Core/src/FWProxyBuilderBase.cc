@@ -117,11 +117,11 @@ FWProxyBuilderBase::itemBeingDestroyed(const FWEventItem* iItem)
 
    cleanLocal();
 
-   for (Product_it i = m_products.begin(); i!= m_products.end(); i++)
+   for (auto & m_product : m_products)
    {
 
-      (*i)->m_scaleConnection.disconnect();
-      delete (*i);
+      m_product->m_scaleConnection.disconnect();
+      delete m_product;
    }
 
    m_products.clear();
@@ -137,19 +137,19 @@ FWProxyBuilderBase::build()
          size_t itemSize = m_item->size(); //cashed
 
          clean();
-         for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
+         for (auto & m_product : m_products)
          {
              //printf("build() %s \n", m_item->name().c_str());
-            TEveElementList* elms = (*i)->m_elements;
+            TEveElementList* elms = m_product->m_elements;
             size_t oldSize = elms->NumChildren();
 
             if (haveSingleProduct())
             {
-               build(m_item, elms, (*i)->m_viewContext);
+               build(m_item, elms, m_product->m_viewContext);
             }
             else
             {
-               buildViewType(m_item, elms, (*i)->m_viewType, (*i)->m_viewContext);
+               buildViewType(m_item, elms, m_product->m_viewType, m_product->m_viewContext);
             }
 
             // Project all children of current product.
@@ -256,9 +256,9 @@ void
 FWProxyBuilderBase::modelChanges(const FWModelIds& iIds)
 {
   if(m_haveWindow) {
-    for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+    for (auto & m_product : m_products)
     {
-       modelChanges(iIds, *i);
+       modelChanges(iIds, m_product);
     }
     m_modelsChanged=false;
   } else {
@@ -304,10 +304,10 @@ FWProxyBuilderBase::createProduct(const FWViewType::EType viewType, const FWView
       }
       else
       {
-         for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+         for (auto & m_product : m_products)
          {
-            if (viewType == (*i)->m_viewType)  
-               return (*i)->m_elements;
+            if (viewType == m_product->m_viewType)  
+               return m_product->m_elements;
          }
       }
    }
@@ -379,11 +379,11 @@ FWProxyBuilderBase::localModelChanges(const FWModelId&, TEveElement*, FWViewType
 void
 FWProxyBuilderBase::scaleChanged(const FWViewContext* vc)
 {
-   for (Product_it i = m_products.begin(); i!= m_products.end(); ++i)
+   for (auto & m_product : m_products)
    {  
-      if ( havePerViewProduct((*i)->m_viewType) && (*i)->m_viewContext == vc)
+      if ( havePerViewProduct(m_product->m_viewType) && m_product->m_viewContext == vc)
       {
-         scaleProduct((*i)->m_elements, (*i)->m_viewType, (*i)->m_viewContext);
+         scaleProduct(m_product->m_elements, m_product->m_viewType, m_product->m_viewContext);
       }
    }
    gEve->Redraw3D();
@@ -393,10 +393,10 @@ void
 FWProxyBuilderBase::clean()
 {
    // Cleans local common element list.
-   for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
+   for (auto & m_product : m_products)
    {
-      if ((*i)->m_elements)
-         (*i)->m_elements->DestroyElements();
+      if (m_product->m_elements)
+         m_product->m_elements->DestroyElements();
    }
 
    cleanLocal();
@@ -425,9 +425,9 @@ void
 FWProxyBuilderBase::setProjectionLayer(float layer)
 {
    m_layer = layer;
-   for (Product_it pIt = m_products.begin(); pIt != m_products.end(); ++pIt)
+   for (auto & m_product : m_products)
    {
-      TEveProjectable* pable = static_cast<TEveProjectable*>((*pIt)->m_elements);
+      TEveProjectable* pable = static_cast<TEveProjectable*>(m_product->m_elements);
       for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
          (*i)->SetDepth(m_layer);
    }
@@ -499,9 +499,9 @@ FWProxyBuilderBase::increaseComponentTransparency(unsigned int index, TEveElemen
    Char_t transp = TMath::Min(100, transpOffset + (100 - transpOffset) * dp.transparency() / 100);
    TEveElement::List_t matches;
    holder->FindChildren(matches, name.c_str());
-   for (TEveElement::List_i m = matches.begin(); m != matches.end(); ++m)
+   for (auto & matche : matches)
    {
-      (*m)->SetMainTransparency(transp);
+      matche->SetMainTransparency(transp);
    }
 }
 

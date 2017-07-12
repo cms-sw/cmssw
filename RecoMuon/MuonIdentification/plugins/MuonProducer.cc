@@ -165,8 +165,8 @@ MuonProducer::MuonProducer(const edm::ParameterSet& pSet):debug_(pSet.getUntrack
     }
 
 
-    for(unsigned int j=0;j<pfIsoMapNames.size();++j) {
-      for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapNames.at(j).begin(); map != pfIsoMapNames.at(j).end(); ++map)
+    for(auto & pfIsoMapName : pfIsoMapNames) {
+      for(std::map<std::string,edm::InputTag>::const_iterator map = pfIsoMapName.begin(); map != pfIsoMapName.end(); ++map)
 	produces<edm::ValueMap<double> >(labelOrInstance(map->second));
 
     }

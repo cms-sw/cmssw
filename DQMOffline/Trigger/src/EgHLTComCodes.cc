@@ -52,10 +52,10 @@ bool ComCodes::keyComp(const std::pair<std::string,int>& lhs,const std::pair<std
 void ComCodes::getCodeName(int code,std::string& id)const
 {
   id.clear();
-  for(size_t i=0;i<_codeDefs.size();i++){ 
-    if((code&_codeDefs[i].second)==_codeDefs[i].second){
+  for(const auto & _codeDef : _codeDefs){ 
+    if((code&_codeDef.second)==_codeDef.second){
       if(!id.empty()) id+=":";//seperating entries by a ':'
-      id+=_codeDefs[i].first;
+      id+=_codeDef.first;
     }
     
   }

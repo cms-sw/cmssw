@@ -92,15 +92,15 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es)
   unsigned int totalFrames = 0;
 
   // finding the most frequent counter
-  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++)
+  for (auto & iter : relationMap)
   {
-    unsigned int iterSize = iter->second.size();
+    unsigned int iterSize = iter.second.size();
     totalFrames += iterSize;
 
     if (iterSize > mostFrequentSize)
     {
-      mostFrequentCounter = iter->first;
-      mostFrequentSize = iter->second.size();
+      mostFrequentCounter = iter.first;
+      mostFrequentSize = iter.second.size();
     }
   }
 
@@ -121,11 +121,11 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es)
     return;
   }
 
-  for (CounterMap::iterator iter = relationMap.begin(); iter != relationMap.end(); iter++)
+  for (auto & iter : relationMap)
   {
-    if (iter->first != mostFrequentCounter)
+    if (iter.first != mostFrequentCounter)
     {
-      for (std::vector<TotemFramePosition>::iterator fr = iter->second.begin(); fr !=  iter->second.end(); fr++)
+      for (std::vector<TotemFramePosition>::iterator fr = iter.second.begin(); fr !=  iter.second.end(); fr++)
       {
         if (error)
         {
@@ -136,7 +136,7 @@ void CounterChecker::Analyze(T &status, bool error, std::ostream &es)
         }
 
         if (verbosity > 0)
-          es << "Frame at " << *fr << ": " << name << " number " << iter->first
+          es << "Frame at " << *fr << ": " << name << " number " << iter.first
             << " is different from the most frequent one " << mostFrequentCounter << std::endl;
       }
     }

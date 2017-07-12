@@ -73,13 +73,13 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (ecal.isValid()) 
       { 
       // loop through all ecal digis
-      for (EcalTrigPrimDigiCollection::const_iterator ecal_it = ecal->begin(); ecal_it != ecal->end(); ecal_it++)
+      for (const auto & ecal_it : *ecal)
 	{
-	  short zside             = ecal_it->id().zside();
-	  unsigned short ietaAbs  = ecal_it->id().ietaAbs();
-	  short iphi              = ecal_it->id().iphi();
-	  unsigned short digiSize = ecal_it->size();
-	  unsigned short nSOI     = (unsigned short) ( ecal_it->sampleOfInterest() );
+	  short zside             = ecal_it.id().zside();
+	  unsigned short ietaAbs  = ecal_it.id().ietaAbs();
+	  short iphi              = ecal_it.id().iphi();
+	  unsigned short digiSize = ecal_it.size();
+	  unsigned short nSOI     = (unsigned short) ( ecal_it.sampleOfInterest() );
 	  if (digiSize < nSamples || nSOI < preSamples || ((int)(digiSize - nSOI) < (int)(nSamples - preSamples)))
 	    {
 	      unsigned short preLoopsZero = (unsigned short) (preSamples)- nSOI;
@@ -119,7 +119,7 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      else
 			{
 			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
-					     (ecal_it->sample(nSOI + sample - 
+					     (ecal_it.sample(nSOI + sample - 
 							      preSamples - 
 							      1).raw()));
 			}
@@ -128,7 +128,7 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if ((!useEcalCosmicTiming) || (iphi >=37 && iphi <= 72))
 		    {
 		      ecalDigi.setSample(0, EcalTriggerPrimitiveSample
-					 (ecal_it->sample(nSOI + sample - 
+					 (ecal_it.sample(nSOI + sample - 
 							  preSamples).raw()));
 		    }
 		  ecalColl[sample].push_back(ecalDigi);
@@ -152,9 +152,9 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	      for (unsigned short sample = 0; sample < nSamples; sample++)
 		{
 		  // put each time sample into its own digi
-		  short zside = ecal_it->id().zside();
-		  unsigned short ietaAbs = ecal_it->id().ietaAbs();
-		  short iphi = ecal_it->id().iphi();
+		  short zside = ecal_it.id().zside();
+		  unsigned short ietaAbs = ecal_it.id().ietaAbs();
+		  short iphi = ecal_it.id().iphi();
 		  EcalTriggerPrimitiveDigi
 		    ecalDigi(EcalTrigTowerDetId((int) zside, EcalTriggerTower,
 						(int) ietaAbs, (int) iphi));
@@ -175,8 +175,8 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      else
 			{
 			  ecalDigi.setSample(0, EcalTriggerPrimitiveSample
-					     (ecal_it->sample
-					      (ecal_it->sampleOfInterest() + 
+					     (ecal_it.sample
+					      (ecal_it.sampleOfInterest() + 
 					       sample - preSamples - 
 					       1).raw()));
 			}
@@ -185,8 +185,8 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		  if ((!useEcalCosmicTiming) || (iphi >=37 && iphi <= 72))
 		    {
 		      ecalDigi.setSample(0, EcalTriggerPrimitiveSample
-					 (ecal_it->sample
-					  (ecal_it->sampleOfInterest() + 
+					 (ecal_it.sample
+					  (ecal_it.sampleOfInterest() + 
 					   sample - preSamples).raw()));
 		    }
 		  // push back each digi into correct "time sample" of coll
@@ -200,14 +200,14 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
     if (hcal.isValid()) 
     { 
       // loop through all hcal digis
-      for (HcalTrigPrimDigiCollection::const_iterator hcal_it = hcal->begin(); hcal_it != hcal->end(); hcal_it++)
+      for (const auto & hcal_it : *hcal)
 	{
-	  short ieta = hcal_it->id().ieta();
-	  short iphi = hcal_it->id().iphi();
+	  short ieta = hcal_it.id().ieta();
+	  short iphi = hcal_it.id().iphi();
 	  // loop through time samples for each digi
-	  unsigned short digiSize = hcal_it->size();
+	  unsigned short digiSize = hcal_it.size();
 	  // (size of each digi must be no less than nSamples)
-	  unsigned short nSOI = (unsigned short) (hcal_it->presamples());
+	  unsigned short nSOI = (unsigned short) (hcal_it.presamples());
 	  if (digiSize < nSamples || nSOI < preSamples
 	      || ((int)(digiSize - nSOI) < (int)(nSamples - preSamples)))
 	    {
@@ -248,7 +248,7 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      else
 			{
 			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					     (hcal_it->sample(hcal_it->
+					     (hcal_it.sample(hcal_it.
 							      presamples() + 
 							      sample - 
 							      preSamples - 
@@ -260,7 +260,7 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    {
 
       			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-     					     (hcal_it->sample(hcal_it->
+     					     (hcal_it.sample(hcal_it.
 						     presamples() + 
 						      sample - 
 						      preSamples).raw()));
@@ -306,7 +306,7 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		      else
 			{
 			  hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					     (hcal_it->sample(hcal_it->
+					     (hcal_it.sample(hcal_it.
 							      presamples() + 
 							      sample - 
 							      preSamples - 
@@ -318,13 +318,13 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 		    {
 			  if(ieta>-29 && ieta<29) 
 			    hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					       (hcal_it->sample(hcal_it->
+					       (hcal_it.sample(hcal_it.
 							      presamples() + 
 								sample - 
 								preSamples+hbShift).raw()));
 			  if(ieta<=-29 || ieta>=29)
 			    hcalDigi.setSample(0, HcalTriggerPrimitiveSample
-					       (hcal_it->sample(hcal_it->
+					       (hcal_it.sample(hcal_it.
 							      presamples() + 
 								sample - 
 								preSamples+hfShift).raw()));
@@ -349,12 +349,12 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn(new EcalTrigPrimDigiCollection); 
       std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn(new HcalTrigPrimDigiCollection);
-	  for(unsigned int j=0;j<ecalColl[i].size();++j)
+	  for(const auto & j : ecalColl[i])
 	    {
-	      ecalIn->push_back((ecalColl[i])[j]);
+	      ecalIn->push_back(j);
 	    }
-	  for(unsigned int j=0;j<hcalColl[i].size();++j)
-	    hcalIn->push_back((hcalColl[i])[j]);
+	  for(const auto & j : hcalColl[i])
+	    hcalIn->push_back(j);
 
          iEvent.put(std::move(ecalIn),ecal_label);
          iEvent.put(std::move(hcalIn),hcal_label);
@@ -364,10 +364,10 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    std::unique_ptr<EcalTrigPrimDigiCollection> ecal0(new EcalTrigPrimDigiCollection); 
    std::unique_ptr<HcalTrigPrimDigiCollection> hcal0(new HcalTrigPrimDigiCollection);
-   for(unsigned int j=0;j<ecalColl[preSamples].size();++j)
-     ecal0->push_back((ecalColl[preSamples])[j]);
-   for(unsigned int j=0;j<hcalColl[preSamples].size();++j)
-     hcal0->push_back((hcalColl[preSamples])[j]);
+   for(const auto & j : ecalColl[preSamples])
+     ecal0->push_back(j);
+   for(const auto & j : hcalColl[preSamples])
+     hcal0->push_back(j);
 
    iEvent.put(std::move(ecal0),"ECALBx0");
    iEvent.put(std::move(hcal0),"HCALBx0");
@@ -384,11 +384,11 @@ L1RCTTPGProvider::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::unique_ptr<EcalTrigPrimDigiCollection> ecalIn2(new EcalTrigPrimDigiCollection); 
       std::unique_ptr<HcalTrigPrimDigiCollection> hcalIn2(new HcalTrigPrimDigiCollection);
 
-      for(unsigned int j=0;j<ecalColl[i].size();++j)
-	ecalIn2->push_back((ecalColl[i])[j]);
+      for(const auto & j : ecalColl[i])
+	ecalIn2->push_back(j);
 
-      for(unsigned int j=0;j<hcalColl[i].size();++j)
-	hcalIn2->push_back((hcalColl[i])[j]);
+      for(const auto & j : hcalColl[i])
+	hcalIn2->push_back(j);
 
 
          iEvent.put(std::move(ecalIn2),ecal_label);

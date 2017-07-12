@@ -16,8 +16,8 @@ FEConfigLUTGroupDat::FEConfigLUTGroupDat()
   m_readStmt = NULL;
 
   m_group_id=0;
-  for(int i=0; i<1024; i++){
-    m_lut[i] = 0;
+  for(int & i : m_lut){
+    i = 0;
   }
 
 }
@@ -205,10 +205,10 @@ void FEConfigLUTGroupDat::writeArrayDB(const std::map< EcalLogicID, FEConfigLUTG
   const FEConfigLUTGroupDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, FEConfigLUTGroupDat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
+  for (const auto & p : *data) {
 	
 	
-	dataitem = &(p->second);
+	dataitem = &(p.second);
 	int x=dataitem->getLUTGroupId();
 	
 

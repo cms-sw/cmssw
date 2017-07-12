@@ -426,7 +426,7 @@ PixelHitMatcher::compatibleHits
 				   tTopo,navigationSchool,searchInTIDTEC_);
     vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();
 
-    for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]);
+    for (const auto & prediction : predictions) pred2Meas.push_back(prediction);
 
     // we may get more than one valid second measurements here even for single electrons:
     // two hits from the same layer/disk (detector overlap) or from the loop over the

@@ -454,10 +454,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1b()
 {
   std::vector<CSCCorrelatedLCTDigi> tmpV;
 
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++) 
+  for (auto & bx : allLCTs1b) 
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++)
       for (int i=0;i<2;i++)
-        if (allLCTs1b[bx][mbx][i].isValid()) tmpV.push_back(allLCTs1b[bx][mbx][i]);
+        if (bx[mbx][i].isValid()) tmpV.push_back(bx[mbx][i]);
   return tmpV;
 }
 
@@ -470,10 +470,10 @@ std::vector<CSCCorrelatedLCTDigi> CSCMotherboardME11::getLCTs1a()
   if (mpc_block_me1a || disableME1a) return tmpV;
 
   // Report all LCTs found.
-  for (int bx = 0; bx < MAX_LCT_BINS; bx++)
+  for (auto & bx : allLCTs1a)
     for (unsigned int mbx = 0; mbx < match_trig_window_size; mbx++) 
       for (int i=0;i<2;i++)
-        if (allLCTs1a[bx][mbx][i].isValid())  tmpV.push_back(allLCTs1a[bx][mbx][i]);
+        if (bx[mbx][i].isValid())  tmpV.push_back(bx[mbx][i]);
   return tmpV;
 }
 

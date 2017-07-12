@@ -177,23 +177,23 @@ void GlobalRecHitsProducer::produce(edm::Event& iEvent,
     if (printProvenanceInfo && (verbosity >= 0)) {
       TString eventout("\nProvenance info:\n");      
 
-      for (unsigned int i = 0; i < AllProv.size(); ++i) {
+      for (auto & i : AllProv) {
 	eventout += "\n       ******************************";
 	eventout += "\n       Module       : ";
 	//eventout += (AllProv[i]->product).moduleLabel();
-	eventout += AllProv[i]->moduleLabel();
+	eventout += i->moduleLabel();
 	eventout += "\n       ProductID    : ";
 	//eventout += (AllProv[i]->product).productID_.id_;
-	eventout += AllProv[i]->productID().id();
+	eventout += i->productID().id();
 	eventout += "\n       ClassName    : ";
 	//eventout += (AllProv[i]->product).fullClassName_;
-	eventout += AllProv[i]->className();
+	eventout += i->className();
 	eventout += "\n       InstanceName : ";
 	//eventout += (AllProv[i]->product).productInstanceName_;
-	eventout += AllProv[i]->productInstanceName();
+	eventout += i->productInstanceName();
 	eventout += "\n       BranchName   : ";
 	//eventout += (AllProv[i]->product).branchName_;
-	eventout += AllProv[i]->branchName();
+	eventout += i->branchName();
       }
       eventout += "\n       ******************************\n";
       edm::LogInfo(MsgLoggerCat) << eventout << "\n";
@@ -309,12 +309,9 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
     EcalUncalibRecHitEB.product();
   const EBRecHitCollection *EBRecHit = EcalRecHitEB.product();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit =
-	 EBUncalibRecHit->begin();
-       uncalibRecHit != EBUncalibRecHit->end();
-       ++uncalibRecHit) {
+  for (const auto & uncalibRecHit : *EBUncalibRecHit) {
 
-    EBDetId EBid = EBDetId(uncalibRecHit->id());
+    EBDetId EBid = EBDetId(uncalibRecHit.id());
 
     EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
 
@@ -381,12 +378,9 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
     EcalUncalibRecHitEE.product();
   const EERecHitCollection *EERecHit = EcalRecHitEE.product();
 
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit =
-	 EEUncalibRecHit->begin();
-       uncalibRecHit != EEUncalibRecHit->end();
-       ++uncalibRecHit) {
+  for (const auto & uncalibRecHit : *EEUncalibRecHit) {
 
-    EEDetId EEid = EEDetId(uncalibRecHit->id());
+    EEDetId EEid = EEDetId(uncalibRecHit.id());
 
     EcalRecHitCollection::const_iterator myRecHit = EERecHit->find(EEid);
 
@@ -442,15 +436,12 @@ void GlobalRecHitsProducer::fillECal(edm::Event& iEvent,
   int nESRecHits = 0;
   // loop over RecHits
   const ESRecHitCollection *ESRecHit = EcalRecHitES.product();
-  for (EcalRecHitCollection::const_iterator recHit =
-	 ESRecHit->begin();
-       recHit != ESRecHit->end();
-       ++recHit) {
+  for (const auto & recHit : *ESRecHit) {
 
-    ESDetId ESid = ESDetId(recHit->id());
+    ESDetId ESid = ESDetId(recHit.id());
 
     ++nESRecHits;
-    ESRE.push_back(recHit->energy());
+    ESRE.push_back(recHit.energy());
     ESSHE.push_back(esSimMap[ESid.rawId()]);
   }
                                                                       
@@ -541,24 +532,22 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   MapType fHEEnergySimHits;
   MapType fHOEnergySimHits;
   MapType fHFEnergySimHits;
-  for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin();
-       simhits != simhitResult->end();
-       ++simhits) {
+  for (const auto & simhits : *simhitResult) {
     
-    HcalDetId detId(simhits->id());
+    HcalDetId detId(simhits.id());
     uint32_t cellid = detId.rawId();
 
     if (detId.subdet() == sdHcalBrl){  
-      fHBEnergySimHits[cellid] += simhits->energy(); 
+      fHBEnergySimHits[cellid] += simhits.energy(); 
     }
     if (detId.subdet() == sdHcalEC){  
-      fHEEnergySimHits[cellid] += simhits->energy(); 
+      fHEEnergySimHits[cellid] += simhits.energy(); 
     }    
     if (detId.subdet() == sdHcalOut){  
-      fHOEnergySimHits[cellid] += simhits->energy(); 
+      fHOEnergySimHits[cellid] += simhits.energy(); 
     }    
     if (detId.subdet() == sdHcalFwd){  
-      fHFEnergySimHits[cellid] += simhits->energy(); 
+      fHFEnergySimHits[cellid] += simhits.energy(); 
     }    
   }
 
@@ -597,10 +586,9 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   for (ihbhe = hbhe.begin(); ihbhe != hbhe.end(); ++ihbhe) {
 
     // find max values
-    for (HBHERecHitCollection::const_iterator jhbhe = (*ihbhe)->begin();
-	 jhbhe != (*ihbhe)->end(); ++jhbhe) {
+    for (const auto & jhbhe : *(*ihbhe)) {
 
-      HcalDetId cell(jhbhe->id());
+      HcalDetId cell(jhbhe.id());
       
       if (cell.subdet() == sdHcalBrl) {
 	
@@ -610,8 +598,8 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 //	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
 	double fPhi = cellGeometry->getPosition(cell).phi () ;
-	if ( (jhbhe->energy()) > maxHBEnergy ) {
-	  maxHBEnergy = jhbhe->energy();
+	if ( (jhbhe.energy()) > maxHBEnergy ) {
+	  maxHBEnergy = jhbhe.energy();
 	  maxHBPhi = fPhi;
 	  maxHOPhi = maxHBPhi;
 	  maxHBEta = fEta;
@@ -627,18 +615,17 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 //	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition(cell).eta () ;
 	double fPhi = cellGeometry->getPosition(cell).phi () ;
-	if ( (jhbhe->energy()) > maxHEEnergy ) {
-	  maxHEEnergy = jhbhe->energy();
+	if ( (jhbhe.energy()) > maxHEEnergy ) {
+	  maxHEEnergy = jhbhe.energy();
 	  maxHEPhi = fPhi;
 	  maxHEEta = fEta;
 	}	  
       }
     } // end find max values
 
-    for (HBHERecHitCollection::const_iterator jhbhe = (*ihbhe)->begin();
-	 jhbhe != (*ihbhe)->end(); ++jhbhe) {
+    for (const auto & jhbhe : *(*ihbhe)) {
 
-      HcalDetId cell(jhbhe->id());
+      HcalDetId cell(jhbhe.id());
       
       if (cell.subdet() == sdHcalBrl) {
 
@@ -657,7 +644,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	float deltaeta = fEta - maxHBEta;
 	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
 
-	HBCalREC.push_back(jhbhe->energy());
+	HBCalREC.push_back(jhbhe.energy());
 	HBCalR.push_back(r);
 	HBCalSHE.push_back(fHBEnergySimHits[cell.rawId()]);
       }
@@ -679,7 +666,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	float deltaeta = fEta - maxHEEta;
 	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
 
-	HECalREC.push_back(jhbhe->energy());
+	HECalREC.push_back(jhbhe.energy());
 	HECalR.push_back(r);
 	HECalSHE.push_back(fHEEnergySimHits[cell.rawId()]);
       }
@@ -713,10 +700,9 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   for (ihf = hf.begin(); ihf != hf.end(); ++ihf) {
 
     // find max values
-    for (HFRecHitCollection::const_iterator jhf = (*ihf)->begin();
-	 jhf != (*ihf)->end(); ++jhf) {
+    for (const auto & jhf : *(*ihf)) {
 
-      HcalDetId cell(jhf->id());
+      HcalDetId cell(jhf.id());
       
       if (cell.subdet() == sdHcalFwd) {
 	
@@ -724,18 +710,17 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	  geometry->getSubdetectorGeometry (cell)->getGeometry (cell) ;
 	double fEta = cellGeometry->getPosition().eta () ;
 	double fPhi = cellGeometry->getPosition().phi () ;
-	if ( (jhf->energy()) > maxHFEnergy ) {
-	  maxHFEnergy = jhf->energy();
+	if ( (jhf.energy()) > maxHFEnergy ) {
+	  maxHFEnergy = jhf.energy();
 	  maxHFPhi = fPhi;
 	  maxHFEta = fEta;
 	}	  
       }
     } // end find max values
 
-    for (HFRecHitCollection::const_iterator jhf = (*ihf)->begin();
-	 jhf != (*ihf)->end(); ++jhf) {
+    for (const auto & jhf : *(*ihf)) {
 
-      HcalDetId cell(jhf->id());
+      HcalDetId cell(jhf.id());
       
       if (cell.subdet() == sdHcalFwd) {
 
@@ -752,7 +737,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	float deltaeta = fEta - maxHFEta;
 	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
 
-	HFCalREC.push_back(jhf->energy());
+	HFCalREC.push_back(jhf.energy());
 	HFCalR.push_back(r);
 	HFCalSHE.push_back(fHFEnergySimHits[cell.rawId()]);
       }
@@ -779,10 +764,9 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
   int iHO = 0; 
   for (iho = ho.begin(); iho != ho.end(); ++iho) {
 
-    for (HORecHitCollection::const_iterator jho = (*iho)->begin();
-	 jho != (*iho)->end(); ++jho) {
+    for (const auto & jho : *(*iho)) {
 
-      HcalDetId cell(jho->id());
+      HcalDetId cell(jho.id());
       
       if (cell.subdet() == sdHcalOut) {
 
@@ -799,7 +783,7 @@ void GlobalRecHitsProducer::fillHCal(edm::Event& iEvent,
 	float deltaeta = fEta - maxHOEta;
 	Double_t r = sqrt(deltaeta * deltaeta + deltaphi * deltaphi);
 
-	HOCalREC.push_back(jho->energy());
+	HOCalREC.push_back(jho.energy());
 	HOCalR.push_back(r);
 	HOCalSHE.push_back(fHOEnergySimHits[cell.rawId()]);
       }
@@ -916,11 +900,10 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
   int nStripBrl = 0, nStripFwd = 0;
 
   // loop over det units
-  for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin();
-       it != pDD->dets().end(); ++it) {
+  for (auto it : pDD->dets()) {
     
-    uint32_t myid = ((*it)->geographicalId()).rawId();
-    DetId detid = ((*it)->geographicalId());
+    uint32_t myid = (it->geographicalId()).rawId();
+    DetId detid = (it->geographicalId());
 
     //loop over rechits-matched in the same subdetector
     SiStripMatchedRecHit2DCollection::const_iterator rechitmatchedMatch = rechitsmatched->find(detid);
@@ -1155,11 +1138,10 @@ void GlobalRecHitsProducer::fillTrk(edm::Event& iEvent,
 
   int nPxlBrl = 0, nPxlFwd = 0;    
   //iterate over detunits
-  for (TrackerGeometry::DetContainer::const_iterator it = geom->dets().begin();
-       it != geom->dets().end(); ++it) {
+  for (auto it : geom->dets()) {
 
-    uint32_t myid = ((*it)->geographicalId()).rawId();
-    DetId detId = ((*it)->geographicalId());
+    uint32_t myid = (it->geographicalId()).rawId();
+    DetId detId = (it->geographicalId());
     int subid = detId.subdetId();
     
     if (! ((subid == sdPxlBrl) || (subid == sdPxlFwd))) continue;
@@ -1776,10 +1758,9 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   const CSCRecHit2DCollection *cscRecHits = hRecHits.product();
 
   int nCSC = 0;
-  for (CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin();
-       recHitItr != cscRecHits->end(); ++recHitItr) {
+  for (const auto & cscRecHit : *cscRecHits) {
 
-    int detId = (*recHitItr).cscDetId().rawId();
+    int detId = cscRecHit.cscDetId().rawId();
  
     edm::PSimHitContainer simHits;   
     std::map<int, edm::PSimHitContainer>::const_iterator mapItr = 
@@ -1796,7 +1777,7 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
       const CSCLayer *layer = dynamic_cast<const CSCLayer *>(detUnit); 
 
      int chamberType = layer->chamber()->specs()->chamberType();
-      plotResolution(simHits[0], *recHitItr, layer, chamberType);
+      plotResolution(simHits[0], cscRecHit, layer, chamberType);
     }
   }
                                                 
@@ -1857,10 +1838,9 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   }
 
   int i = 0;
-  for (std::map<double,int>::iterator iter = maprec.begin();
-       iter != maprec.end(); ++iter) {
+  for (auto & iter : maprec) {
     i = i + 1;
-    nmaprec[i] = (*iter).first;
+    nmaprec[i] = iter.first;
   }
                   
   edm::PSimHitContainer::const_iterator simIt;
@@ -1877,10 +1857,9 @@ void GlobalRecHitsProducer::fillMuon(edm::Event& iEvent,
   }
 
   i = 0;
-  for (std::map<double,int>::iterator iter = mapsim.begin();
-       iter != mapsim.end(); ++iter) {
+  for (auto & iter : mapsim) {
     i = i + 1;
-    nmapsim[i] = (*iter).first;
+    nmapsim[i] = iter.first;
   }
 
   if (nsim == nrec) {
@@ -2150,9 +2129,8 @@ GlobalRecHitsProducer::map1DRecHitsPerWire(const DTRecHitCollection*
 					   dt1DRecHitPairs) {
   std::map<DTWireId, std::vector<DTRecHit1DPair> > ret;
   
-  for(DTRecHitCollection::const_iterator rechit = dt1DRecHitPairs->begin();
-      rechit != dt1DRecHitPairs->end(); rechit++) {
-    ret[(*rechit).wireId()].push_back(*rechit);
+  for(const auto & dt1DRecHitPair : *dt1DRecHitPairs) {
+    ret[dt1DRecHitPair.wireId()].push_back(dt1DRecHitPair);
   }
   
   return ret;

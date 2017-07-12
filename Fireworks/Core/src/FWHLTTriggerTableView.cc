@@ -65,8 +65,8 @@ FWHLTTriggerTableView::fillAverageAcceptFractions()
 {
    edm::EventID currentEvent = m_event->id();
    // better to keep the keys and just set to zero the values
-   for (acceptmap_t::iterator it = m_averageAccept.begin(), ed = m_averageAccept.end(); it != ed; ++it) {
-      it->second = 0;
+   for (auto & it : m_averageAccept) {
+      it.second = 0;
    }
 
    // loop over events
@@ -90,7 +90,7 @@ FWHLTTriggerTableView::fillAverageAcceptFractions()
    m_event->to(currentEvent);
 
    double denominator = 1.0/m_event->size();
-   for (acceptmap_t::iterator it = m_averageAccept.begin(), ed = m_averageAccept.end(); it != ed; ++it) {
-      it->second *= denominator;
+   for (auto & it : m_averageAccept) {
+      it.second *= denominator;
    }
 }

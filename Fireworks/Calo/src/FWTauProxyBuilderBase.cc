@@ -180,13 +180,13 @@ FWTauProxyBuilderBase::scaleProduct(TEveElementList* parent, FWViewType::EType v
       typedef std::vector<fireworks::scaleMarker> Lines_t;  
       FWViewEnergyScale* caloScale = vc->getEnergyScale();
       // printf("%p -> %f\n", this,caloScale->getValToHeight() );
-      for (Lines_t::iterator i = m_lines.begin(); i!= m_lines.end(); ++ i)
+      for (auto & m_line : m_lines)
       {
-         if (vc == (*i).m_vc)
+         if (vc == m_line.m_vc)
          { 
-            float value = caloScale->getPlotEt() ? (*i).m_et : (*i).m_energy;      
-            (*i).m_ls->SetScale(caloScale->getScaleFactor3D()*value);
-            TEveProjected* proj = *(*i).m_ls->BeginProjecteds();
+            float value = caloScale->getPlotEt() ? m_line.m_et : m_line.m_energy;      
+            m_line.m_ls->SetScale(caloScale->getScaleFactor3D()*value);
+            TEveProjected* proj = *m_line.m_ls->BeginProjecteds();
             proj->UpdateProjection();
          }
       }

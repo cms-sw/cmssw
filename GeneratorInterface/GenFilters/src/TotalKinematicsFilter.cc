@@ -24,27 +24,27 @@ bool TotalKinematicsFilter::filter(edm::Event& iEvent,const edm::EventSetup& iSe
   edm::Handle<reco::GenParticleCollection> genParticles;
   iEvent.getByLabel(src_, genParticles );
   
-  for (reco::GenParticleCollection::const_iterator iter=genParticles->begin();iter!=genParticles->end();++iter){
-    if ( nInit < 3 && (*iter).status() == 3 && (*iter).pdgId() == 2212 ) {
+  for (const auto & iter : *genParticles){
+    if ( nInit < 3 && iter.status() == 3 && iter.pdgId() == 2212 ) {
       nInit++;
-      nEcms += (*iter).energy();
+      nEcms += iter.energy();
     }
-    if ( (*iter).status() == 1) { 
+    if ( iter.status() == 1) { 
       nPart++;
       if (verbose_) {
         std::cout << "Status 1 part # " << std::setw(4) << std::fixed << nPart 
-                  << std::setw(14) << std::fixed << (*iter).pdgId() 
-                  << std::setw(14) << std::fixed << (*iter).px() 
-                  << std::setw(14) << std::fixed << (*iter).py() 
-                  << std::setw(14) << std::fixed << (*iter).pz() << std::endl;
+                  << std::setw(14) << std::fixed << iter.pdgId() 
+                  << std::setw(14) << std::fixed << iter.px() 
+                  << std::setw(14) << std::fixed << iter.py() 
+                  << std::setw(14) << std::fixed << iter.pz() << std::endl;
       }
-      p4tot[0] += (*iter).px();
-      p4tot[1] += (*iter).py();
-      p4tot[2] += (*iter).pz();
-      p4tot[3] += std::sqrt( (*iter).px()*(*iter).px() + 
-                           (*iter).py()*(*iter).py() + 
-                           (*iter).pz()*(*iter).pz() + 
-                           (*iter).mass()*(*iter).mass()) ; 
+      p4tot[0] += iter.px();
+      p4tot[1] += iter.py();
+      p4tot[2] += iter.pz();
+      p4tot[3] += std::sqrt( iter.px()*iter.px() + 
+                           iter.py()*iter.py() + 
+                           iter.pz()*iter.pz() + 
+                           iter.mass()*iter.mass()) ; 
     }
   }
 

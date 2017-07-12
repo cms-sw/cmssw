@@ -43,14 +43,14 @@ const G4LogicalVolume* GetVolume(const std::string& name) {
   const G4LogicalVolumeStore* lvs = G4LogicalVolumeStore::GetInstance();
 
 #ifdef DEBUG_G4_VOLUMES
-  for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume)
+  for (auto lv : *lvs)
     LogInfo("TrackingMaterialProducer") << "TrackingMaterialProducer: G4 registered volumes "
-                                         << (*volume)->GetName() << std::endl;
+                                         << lv->GetName() << std::endl;
 #endif
 
-  for (G4LogicalVolumeStore::const_iterator volume = lvs->begin(); volume != lvs->end(); ++volume) {
-    if ((const std::string&) (*volume)->GetName() == name)
-      return (*volume);
+  for (auto lv : *lvs) {
+    if ((const std::string&) lv->GetName() == name)
+      return lv;
   }
   return 0;
 }
@@ -291,9 +291,9 @@ void TrackingMaterialProducer::produce(edm::Event& iEvent, const edm::EventSetup
 //-------------------------------------------------------------------------
 bool TrackingMaterialProducer::isSelected( const G4VTouchable* touchable )
 {
-  for (size_t i = 0; i < m_selectedVolumes.size(); ++i)
-    if (m_selectedVolumes[i]->IsAncestor( touchable->GetVolume() )
-        or m_selectedVolumes[i] == touchable->GetVolume()->GetLogicalVolume())
+  for (auto & m_selectedVolume : m_selectedVolumes)
+    if (m_selectedVolume->IsAncestor( touchable->GetVolume() )
+        or m_selectedVolume == touchable->GetVolume()->GetLogicalVolume())
       return true;
 
   return false;

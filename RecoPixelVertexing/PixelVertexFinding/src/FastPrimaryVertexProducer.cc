@@ -168,9 +168,9 @@ FastPrimaryVertexProducer::produce(edm::StreamID, edm::Event& iEvent, const edm:
         float zmodule = modulepos.z() - ((modulepos.x()-beamSpot->x0())*px+(modulepos.y()-beamSpot->y0())*py)/pt * pz/pt;
         if ((fabs(deltaPhi(jit->momentum().Phi(),modulepos.phi()))< m_maxDeltaPhi*2)&&(fabs(zmodule)<(m_maxZ+lengthBmodule/2))){
 
-        for(size_t j = 0 ; j < detset.size() ; j ++) // Loop on pixel clusters on this module
+        for(const auto & j : detset) // Loop on pixel clusters on this module
         {
-	  const SiPixelCluster & aCluster =  detset[j];
+	  const SiPixelCluster & aCluster =  j;
           if(aCluster.sizeX() < m_maxSizeX && aCluster.sizeY() >= minSizeY && aCluster.sizeY() <= maxSizeY) {
             Point3DBase<float, GlobalTag> v = trackerGeometry->idToDet(id)->surface().toGlobal(pp->localParametersV( aCluster,( *trackerGeometry->idToDetUnit(id)))[0].first) ;
             GlobalPoint v_bs(v.x()-beamSpot->x0(),v.y()-beamSpot->y0(),v.z());

@@ -95,14 +95,11 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("std::vector<std::pair<const pat::Muon *, TLorentzVector>>","constpatMuonptrTLorentzVectorstdpairs") );
   
   
-  for(std::map<std::string, std::string>::iterator itInfo = classToFriendly.begin(),
-      itInfoEnd = classToFriendly.end();
-      itInfo != itInfoEnd;
-      ++itInfo) {
+  for(auto & itInfo : classToFriendly) {
     //std::cout <<itInfo->first<<std::endl;
-    if( itInfo->second != edm::friendlyname::friendlyName(itInfo->first) ) {
-      std::cout <<"class name: '"<<itInfo->first<<"' has wrong friendly name \n"
-      <<"expect: '"<<itInfo->second<<"' got: '"<<edm::friendlyname::friendlyName(itInfo->first)<<"'"<<std::endl;
+    if( itInfo.second != edm::friendlyname::friendlyName(itInfo.first) ) {
+      std::cout <<"class name: '"<<itInfo.first<<"' has wrong friendly name \n"
+      <<"expect: '"<<itInfo.second<<"' got: '"<<edm::friendlyname::friendlyName(itInfo.first)<<"'"<<std::endl;
       CPPUNIT_ASSERT(0 && "expected friendly name does not match actual friendly name");
     }
   }

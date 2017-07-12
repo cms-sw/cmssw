@@ -579,9 +579,8 @@ public:
 	 LMFPrimDat laser_(econn, color, "LASER");
 	 laser_.setLMFRunIOV(lmfiov);
 	 laser_.dump();
-         for( unsigned ii=0; ii<channels_.size(); ii++ )
+         for(auto ecid_prim : channels_)
            {
-	     EcalLogicID ecid_prim = channels_[ii];
 	     logic_id = ecid_prim.getLogicID();
 	     id1_ = ecid_prim.getID1();
 	     id2_ = ecid_prim.getID2();

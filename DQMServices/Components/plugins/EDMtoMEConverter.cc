@@ -381,8 +381,8 @@ EDMtoMEConverter::getData(T& iGetFrom)
   if (verbosity > 0) {
     std::vector<std::string> stags;
     dbe->getAllTags(stags);
-    for (unsigned int i = 0; i < stags.size(); ++i) {
-      std::cout << "Tags: " << stags[i] << std::endl;
+    for (const auto & stag : stags) {
+      std::cout << "Tags: " << stag << std::endl;
     }
   }
 }

@@ -14,8 +14,8 @@ int L1DataEmulDigi::reset() {
   m_null = -99;
   m_sid = m_null; 
   m_cid = m_null;
-  for(int i=0; i<3; i++) 
-    m_location[i]=m_null;
+  for(double & i : m_location) 
+    i=m_null;
   m_type = m_null; 
   std::fill(m_data,m_data+sizeof(m_data)/sizeof(m_data[0]),0);
   std::fill(m_rank,m_rank+sizeof(m_rank)/sizeof(m_rank[0]),m_null);

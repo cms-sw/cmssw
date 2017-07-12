@@ -81,16 +81,16 @@ std::pair<double,int> IsoDeposit::depositAndCountWithin(Direction dir, double co
   IV ivEnd = allVetos.end();
 
   typedef DepositsMultimap::const_iterator IM;
-  for (IM im = theDeposits.begin(); im != theDeposits.end(); ++im) {
+  for (const auto & theDeposit : theDeposits) {
     bool vetoed = false;
-    Direction dirDep = theDirection+im->first;
+    Direction dirDep = theDirection+theDeposit.first;
     Distance newDist = dirDep - dir;
     if (newDist.deltaR > coneSize) continue;
     for ( IV iv = allVetos.begin(); iv < ivEnd; ++iv) {
       if (dirDep.deltaR(iv->vetoDir) < iv->dR) vetoed = true; 
     }  
-    if (!vetoed && im->second > threshold){
-      result += im->second;
+    if (!vetoed && theDeposit.second > threshold){
+      result += theDeposit.second;
       count++;
     }
   }

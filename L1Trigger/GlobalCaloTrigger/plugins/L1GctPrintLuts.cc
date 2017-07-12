@@ -84,8 +84,8 @@ L1GctPrintLuts::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	file << " Gct lookup table printout \n"
 	     << "===========================\n\n"
 	     << "Jet Et Calibration lut contents\n" << std::endl;
-	for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
-	  file << *m_jetEtCalibLuts.at(ieta) << std::endl;
+	for (auto & m_jetEtCalibLut : m_jetEtCalibLuts) {
+	  file << *m_jetEtCalibLut << std::endl;
 	}
       } else {
 	edm::LogWarning("LutFileError") << "Error opening file " << m_jetRanksOutFileName << ". No lookup tables written." << std::endl;
@@ -196,9 +196,9 @@ int L1GctPrintLuts::configureGct(const edm::EventSetup& c)
 
     if (success==0) {
       // tell the jet Et Luts about the scales
-      for (unsigned ieta=0; ieta<m_jetEtCalibLuts.size(); ieta++) {
-	m_jetEtCalibLuts.at(ieta)->setFunction(jfPars.product());
-	m_jetEtCalibLuts.at(ieta)->setOutputEtScale(etScale.product());
+      for (auto & m_jetEtCalibLut : m_jetEtCalibLuts) {
+	m_jetEtCalibLut->setFunction(jfPars.product());
+	m_jetEtCalibLut->setOutputEtScale(etScale.product());
       }
 
 

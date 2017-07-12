@@ -102,9 +102,9 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   std::string qualities;
   if(trkQualityStrings.size()>0){
     applyTrkQualityCheck_=true;
-    for (unsigned int i = 0; i < trkQualityStrings.size(); ++i) {
-      (qualities += trkQualityStrings[i]) += ", ";
-      trkQualities_.push_back(reco::TrackBase::qualityByName(trkQualityStrings[i]));
+    for (const auto & trkQualityString : trkQualityStrings) {
+      (qualities += trkQualityString) += ", ";
+      trkQualities_.push_back(reco::TrackBase::qualityByName(trkQualityString));
     }
   }
   else applyTrkQualityCheck_=false;
@@ -113,9 +113,9 @@ AlignmentTrackSelector::AlignmentTrackSelector(const edm::ParameterSet & cfg, ed
   if(trkIterStrings.size()>0){
     applyIterStepCheck_=true;
     std::string tracksteps;
-    for (unsigned int i = 0; i < trkIterStrings.size(); ++i) {
-      (tracksteps += trkIterStrings[i]) += ", ";
-      trkSteps_.push_back(reco::TrackBase::algoByName(trkIterStrings[i]));
+    for (const auto & trkIterString : trkIterStrings) {
+      (tracksteps += trkIterString) += ", ";
+      trkSteps_.push_back(reco::TrackBase::algoByName(trkIterString));
     }
   }
   else   applyIterStepCheck_=false;
@@ -283,8 +283,7 @@ AlignmentTrackSelector::basicCuts(const Tracks& tracks, const edm::Event& evt, c
 {
   Tracks result;
 
-  for (Tracks::const_iterator it=tracks.begin(); it != tracks.end(); ++it) {
-    const reco::Track* trackp=*it;
+  for (auto trackp : tracks) {
     float pt=trackp->pt();
     float p=trackp->p();
     float eta=trackp->eta();
@@ -591,8 +590,8 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit2D & siStripR
   SiStripRecHit2D::ClusterRef cluster(siStripRecHit2D.cluster());
   const auto &amplitudes = cluster->amplitudes();
 
-  for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
-    charge += amplitudes[ia];
+  for (unsigned char amplitude : amplitudes) {
+    charge += amplitude;
   }
 
   return (charge >= minHitChargeStrip_);
@@ -607,8 +606,8 @@ bool AlignmentTrackSelector::isOkChargeStripHit(const SiStripRecHit1D & siStripR
   SiStripRecHit1D::ClusterRef cluster(siStripRecHit1D.cluster());
   const auto &amplitudes = cluster->amplitudes();
 
-  for (size_t ia = 0; ia < amplitudes.size(); ++ia) {
-    charge += amplitudes[ia];
+  for (unsigned char amplitude : amplitudes) {
+    charge += amplitude;
   }
 
   return (charge >= minHitChargeStrip_);
@@ -693,8 +692,7 @@ AlignmentTrackSelector::checkPrescaledHits(const Tracks& tracks, const edm::Even
   const AliClusterValueMap &flagMap=*fMap;
 
   //for each track loop on hits and count the number of taken hits
-  for (Tracks::const_iterator ittrk=tracks.begin(); ittrk != tracks.end(); ++ittrk) {
-    const reco::Track* trackp=*ittrk;
+  for (auto trackp : tracks) {
     int ntakenhits=0;
     //    float pt=trackp->pt();
 
@@ -762,8 +760,8 @@ bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
 
   //check iterative step
   if(applyIterStepCheck_){
-    for (unsigned int i = 0; i < trkSteps_.size(); ++i) {
-      if (track->algo()==(trkSteps_[i])) {
+    for (auto trkStep : trkSteps_) {
+      if (track->algo()==trkStep) {
 	iterStepOk=true;
       }
     }
@@ -772,8 +770,8 @@ bool AlignmentTrackSelector::isOkTrkQuality(const reco::Track* track) const
 
   //check track quality
   if(applyTrkQualityCheck_){
-    for (unsigned int i = 0; i < trkQualities_.size(); ++i) {
-      if (track->quality(trkQualities_[i])) {
+    for (auto trkQualitie : trkQualities_) {
+      if (track->quality(trkQualitie)) {
 	qualityOk=true;
       }
     }

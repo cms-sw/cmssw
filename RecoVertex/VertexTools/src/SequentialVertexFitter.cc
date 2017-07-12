@@ -211,10 +211,9 @@ SequentialVertexFitter<N>::linearizeTracks(
   GlobalPoint linP = state.position();
   std::vector<RefCountedVertexTrack> finalTracks;
   finalTracks.reserve(tracks.size());
-  for(vector<reco::TransientTrack>::const_iterator i = tracks.begin(); 
-      i != tracks.end(); i++) {
+  for(const auto & track : tracks) {
     RefCountedLinearizedTrackState lTrData 
-      = theLTrackFactory->linearizedTrackState(linP, *i);
+      = theLTrackFactory->linearizedTrackState(linP, track);
     RefCountedVertexTrack vTrData = theVTrackFactory.vertexTrack(lTrData,state);
     finalTracks.push_back(vTrData);
   }

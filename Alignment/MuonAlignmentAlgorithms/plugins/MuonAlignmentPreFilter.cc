@@ -74,14 +74,14 @@ MuonAlignmentPreFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup
   
   // check if there's at least one interesting track:
   
-  for (reco::TrackCollection::const_iterator it = trackColl->begin(); it != trackColl->end(); it++)
+  for (const auto & it : *trackColl)
   {
     int tracker_numHits = 0;
     bool contains_TIDTEC = false;
     int dt_numHits = 0;
     int csc_numHits = 0;
 
-    const reco::Track* track = &(*it);
+    const reco::Track* track = &it;
     
     if (track->pt() < m_minTrackPt || track->p() < m_minTrackP) continue;
     if (track->eta() < m_minTrackEta || track->eta() > m_maxTrackEta ) continue;

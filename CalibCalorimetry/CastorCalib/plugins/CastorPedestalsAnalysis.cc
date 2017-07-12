@@ -307,9 +307,9 @@ CastorPedestalsAnalysis::analyze(const edm::Event& e, const edm::EventSetup& iSe
 
    std::vector<NewPedBunch>::iterator bunch_it;
 
-   for(CastorDigiCollection::const_iterator j = castor->begin(); j != castor->end(); ++j)
+   for(const auto & j : *castor)
    {
-      const CastorDataFrame digi = (const CastorDataFrame)(*j);
+      const CastorDataFrame digi = (const CastorDataFrame)j;
       for(bunch_it = Bunches.begin(); bunch_it != Bunches.end(); ++bunch_it)
          if(bunch_it->detid.rawId() == digi.id().rawId()) break;
       bunch_it->usedflag = true;

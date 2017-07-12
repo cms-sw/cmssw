@@ -750,8 +750,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             // ...now check for each 64-bit integer against template requirements
             bool indResult = true;
 
-            for (size_t iDeltaPhi = 0; iDeltaPhi < deltaPhiRangeConv.size(); ++iDeltaPhi) {
-                if (!checkBit(deltaPhiRangeConv[iDeltaPhi], candDeltaPhi)) {
+            for (unsigned long long iDeltaPhi : deltaPhiRangeConv) {
+                if (!checkBit(iDeltaPhi, candDeltaPhi)) {
                     indResult = false;
                 }
             }
@@ -793,8 +793,8 @@ const bool L1GtCorrelationCondition::evaluateCondition() const {
             // ...now check for each 64-bit integer against template requirements
             indResult = true;
 
-            for (size_t iDeltaEta = 0; iDeltaEta < deltaEtaRangeConv.size(); ++iDeltaEta) {
-                if (!checkBit(deltaEtaRangeConv[iDeltaEta], candDeltaEta)) {
+            for (unsigned long long iDeltaEta : deltaEtaRangeConv) {
+                if (!checkBit(iDeltaEta, candDeltaEta)) {
                     indResult = false;
                 }
             }

@@ -87,10 +87,10 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
     
     if ( subdet != 0 && noise_ == 0) { // signal only SimHits
       
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
+      for (const auto & simhits : *simhitResult) {
 	
-	HcalDetId cell(simhits->id());
-	double en    = simhits->energy();
+	HcalDetId cell(simhits.id());
+	double en    = simhits.energy();
 	int sub      = cell.subdet();
 	int ieta     = cell.ieta();
 	if(ieta > 0) ieta--;
@@ -471,9 +471,9 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
       edm::Handle<edm::PCaloHitContainer> hcalHits ;
       iEvent.getByToken(tok_mc_,hcalHits); 
       const edm::PCaloHitContainer * simhitResult = hcalHits.product () ;
-      for (std::vector<PCaloHit>::const_iterator simhits = simhitResult->begin ();         simhits != simhitResult->end () ;  ++simhits) {
+      for (const auto & simhits : *simhitResult) {
 	
-	HcalDetId cell(simhits->id());
+	HcalDetId cell(simhits.id());
 	int ieta   = cell.ieta();
 	if(ieta > 0) ieta--;
 	int iphi   = cell.iphi()-1; 
@@ -482,7 +482,7 @@ void HcalDigiTester::reco(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	// take cell already found to be max energy in a particular subdet
 	if (sub == subdet && ieta == ieta_Sim && iphi == iphi_Sim){  
 	  int depth = cell.depth();
-	  double en = simhits->energy();
+	  double en = simhits.energy();
 	  
 	  ehits += en;
 	  if(depth == 1)  ehits1 += en; 

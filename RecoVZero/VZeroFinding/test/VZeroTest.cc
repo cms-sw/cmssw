@@ -65,20 +65,19 @@ void VZeroTest::analyze(
   ev.getByLabel("pixelVZeros",vZeroCollection);
   const reco::VZeroCollection vZeros = *(vZeroCollection.product());
 
-  for(reco::VZeroCollection::const_iterator it = vZeros.begin();
-                                            it!= vZeros.end(); it++)
+  for(const auto & vZero : vZeros)
   {
     vector<float> result; 
 
-    result.push_back(it->positiveDaughter()->d0());
-    result.push_back(it->negativeDaughter()->d0());
-    result.push_back(it->dca());
-    result.push_back(it->dca());
-    result.push_back(it->crossingPoint().Rho());
-    result.push_back(it->crossingPoint().R());
-    result.push_back(it->impactMother());
-    result.push_back(it->armenterosPt());
-    result.push_back(it->armenterosAlpha());
+    result.push_back(vZero.positiveDaughter()->d0());
+    result.push_back(vZero.negativeDaughter()->d0());
+    result.push_back(vZero.dca());
+    result.push_back(vZero.dca());
+    result.push_back(vZero.crossingPoint().Rho());
+    result.push_back(vZero.crossingPoint().R());
+    result.push_back(vZero.impactMother());
+    result.push_back(vZero.armenterosPt());
+    result.push_back(vZero.armenterosAlpha());
 
     ntuple->Fill(&result[0]);
   } 

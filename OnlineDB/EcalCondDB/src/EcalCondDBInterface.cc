@@ -172,9 +172,9 @@ EcalLogicID EcalCondDBInterface::getEcalLogicID( string name,
     int j = 1;  // parameter number counter
     stmt->setString(j, name);
     j++;
-    for (int i=0; i<3; i++) {
-      if (idarray[i] != EcalLogicID::NULLID) {
-	stmt->setInt(j, idarray[i]);
+    for (int i : idarray) {
+      if (i != EcalLogicID::NULLID) {
+	stmt->setInt(j, i);
 	j++;
       }
     }

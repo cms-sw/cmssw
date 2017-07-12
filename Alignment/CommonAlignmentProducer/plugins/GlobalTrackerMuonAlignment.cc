@@ -615,11 +615,9 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
 	      << " runN " << (int)iEvent.run() <<std::endl;
     std::cout << " N tracks s/amu gmu selmu "<<tracks->size() << " " <<muons->size()
               << " "<<gmuons->size() << " " << smuons->size() << std::endl;
-    for (MuonCollection::const_iterator itMuon = smuons->begin();
-	itMuon != smuons->end();
-	 ++itMuon) {
-      std::cout << " is isolatValid Matches " << itMuon->isIsolationValid()
-		<< " " <<itMuon->isMatchesValid() << std::endl;
+    for (const auto & itMuon : *smuons) {
+      std::cout << " is isolatValid Matches " << itMuon.isIsolationValid()
+		<< " " <<itMuon.isMatchesValid() << std::endl;
     }
   }
 
@@ -699,23 +697,22 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
   
   // ................................................ selected/global muon
   //itMuon -->  Jim's globalMuon  
-  for(MuonCollection::const_iterator itMuon = smuons->begin();
-      itMuon != smuons->end(); ++itMuon) {
+  for(const auto & itMuon : *smuons) {
     
     if(debug_){
-      std::cout<<" mu gM is GM Mu SaM tM "<<itMuon->isGlobalMuon()<<" "
-	       <<itMuon->isMuon()<<" "<<itMuon->isStandAloneMuon()
-	       <<" "<<itMuon->isTrackerMuon()<<" "
+      std::cout<<" mu gM is GM Mu SaM tM "<<itMuon.isGlobalMuon()<<" "
+	       <<itMuon.isMuon()<<" "<<itMuon.isStandAloneMuon()
+	       <<" "<<itMuon.isTrackerMuon()<<" "
 	       <<std::endl;
     }
     
     // get information about the innermost muon hit -------------------------
-    TransientTrack muTT(itMuon->outerTrack(), magneticField_, trackingGeometry_);
+    TransientTrack muTT(itMuon.outerTrack(), magneticField_, trackingGeometry_);
     TrajectoryStateOnSurface innerMuTSOS = muTT.innermostMeasurementState();
     TrajectoryStateOnSurface outerMuTSOS = muTT.outermostMeasurementState();
     
     // get information about the outermost tracker hit -----------------------
-    TransientTrack trackTT(itMuon->track(), magneticField_, trackingGeometry_);
+    TransientTrack trackTT(itMuon.track(), magneticField_, trackingGeometry_);
     TrajectoryStateOnSurface outerTrackTSOS = trackTT.outermostMeasurementState();
     TrajectoryStateOnSurface innerTrackTSOS = trackTT.innermostMeasurementState();
     
@@ -1130,12 +1127,12 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
     }
 
     // -----------------------------------------------------  fill histogram 
-    histo->Fill(itMuon->track()->pt()); 
+    histo->Fill(itMuon.track()->pt()); 
     
     //histo2->Fill(itMuon->track()->outerP()); 
     histo2->Fill(Pt.mag()); 
-    histo3->Fill((PI/2.-itMuon->track()->outerTheta())); 
-    histo4->Fill(itMuon->track()->phi()); 
+    histo3->Fill((PI/2.-itMuon.track()->outerTheta())); 
+    histo4->Fill(itMuon.track()->phi()); 
     histo5->Fill(Rmuon); 
     histo6->Fill(Zmuon); 
     histo7->Fill(RelMomResidual); 
@@ -1197,10 +1194,10 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrack
       std::cout<<" Vm   "<<Vm<<std::endl;
       std::cout<<" +-   "<<sqrt(Cm(0,0))<<" "<<sqrt(Cm(1,1))<<" "<<sqrt(Cm(2,2))<<" "
 	       <<sqrt(Cm(3,3))<<" "<<sqrt(Cm(4,4))<<" "<<sqrt(Cm(5,5))<<std::endl;
-      std::cout<<" Pmuon Ptrack dP/Ptrack "<<itMuon->outerTrack()->p()<<" "
-	       <<itMuon->track()->outerP()<<" "
-	       <<(itMuon->outerTrack()->p() - 
-		  itMuon->track()->outerP())/itMuon->track()->outerP()<<std::endl;
+      std::cout<<" Pmuon Ptrack dP/Ptrack "<<itMuon.outerTrack()->p()<<" "
+	       <<itMuon.track()->outerP()<<" "
+	       <<(itMuon.outerTrack()->p() - 
+		  itMuon.track()->outerP())/itMuon.track()->outerP()<<std::endl;
       std::cout<<" cov matrix "<<std::endl;
       std::cout<<Cm<<std::endl;
       std::cout<<" diag [ "<<Cm(0,0)<<" "<<Cm(1,1)<<" "<<Cm(2,2)<<" "<<Cm(3,3)<<" "
@@ -1292,11 +1289,9 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	      << " runN " << (int)iEvent.run() <<std::endl;
     std::cout << " N tracks s/amu gmu selmu "<<tracks->size() << " " <<muons->size()
               << " "<<gmuons->size() << " " << smuons->size() << std::endl;
-    for (MuonCollection::const_iterator itMuon = smuons->begin();
-	itMuon != smuons->end();
-	 ++itMuon) {
-      std::cout << " is isolatValid Matches " << itMuon->isIsolationValid()
-		<< " " <<itMuon->isMatchesValid() << std::endl;
+    for (const auto & itMuon : *smuons) {
+      std::cout << " is isolatValid Matches " << itMuon.isIsolationValid()
+		<< " " <<itMuon.isMatchesValid() << std::endl;
     }
   }
 
@@ -1412,23 +1407,22 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 
   // ................................................ selected/global muon
   //itMuon -->  Jim's globalMuon  
-  for(MuonCollection::const_iterator itMuon = smuons->begin();
-      itMuon != smuons->end(); ++itMuon) {
+  for(const auto & itMuon : *smuons) {
     
     if(debug_){
-      std::cout<<" mu gM is GM Mu SaM tM "<<itMuon->isGlobalMuon()<<" "
-	       <<itMuon->isMuon()<<" "<<itMuon->isStandAloneMuon()
-	       <<" "<<itMuon->isTrackerMuon()<<" "
+      std::cout<<" mu gM is GM Mu SaM tM "<<itMuon.isGlobalMuon()<<" "
+	       <<itMuon.isMuon()<<" "<<itMuon.isStandAloneMuon()
+	       <<" "<<itMuon.isTrackerMuon()<<" "
 	       <<std::endl;
     }
     
     // get information about the innermost muon hit -------------------------
-    TransientTrack muTT(itMuon->outerTrack(), magneticField_, trackingGeometry_);
+    TransientTrack muTT(itMuon.outerTrack(), magneticField_, trackingGeometry_);
     TrajectoryStateOnSurface innerMuTSOS = muTT.innermostMeasurementState();
     TrajectoryStateOnSurface outerMuTSOS = muTT.outermostMeasurementState();
     
     // get information about the outermost tracker hit -----------------------
-    TransientTrack trackTT(itMuon->track(), magneticField_, trackingGeometry_);
+    TransientTrack trackTT(itMuon.track(), magneticField_, trackingGeometry_);
     TrajectoryStateOnSurface outerTrackTSOS = trackTT.outermostMeasurementState();
     TrajectoryStateOnSurface innerTrackTSOS = trackTT.innermostMeasurementState();
     
@@ -1503,7 +1497,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       if(!refitTrack_)
 	extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
       else{
-	GlobalTrackerMuonAlignment::trackFitter(itMuon->track(),
+	GlobalTrackerMuonAlignment::trackFitter(itMuon.track(),
 						trackTT,alongMomentum,trackFittedTSOS);
 	if(trackFittedTSOS.isValid())
 	  extrapolationT = alongSmPr.propagate(trackFittedTSOS, refSurface);	   
@@ -1538,7 +1532,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       C1 = AlgebraicSymMatrix66(innerMuTSOS.cartesianError().matrix());
 
       if(refitMuon_)
-	GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS);
+	GlobalTrackerMuonAlignment::muonFitter(itMuon.outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS);
 
     }  //                    -------------------------------   end Isolated Muon -- Out - In  ---
     
@@ -1559,7 +1553,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	if(!refitTrack_)
 	  extrapolationT = alongSmPr.propagate(outerTrackTSOS, refSurface);
 	else{
-	  GlobalTrackerMuonAlignment::trackFitter(itMuon->track(),
+	  GlobalTrackerMuonAlignment::trackFitter(itMuon.track(),
 						  trackTT,alongMomentum,trackFittedTSOS);
 	  if(trackFittedTSOS.isValid())
 	    extrapolationT = alongSmPr.propagate(trackFittedTSOS, refSurface);	   
@@ -1596,7 +1590,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	C1 = AlgebraicSymMatrix66(innerMuTSOS.cartesianError().matrix());
 	
 	if(refitMuon_)
-	  GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS);
+	  GlobalTrackerMuonAlignment::muonFitter(itMuon.outerTrack(),muTT,oppositeToMomentum,muonFittedTSOS);
 
 	if(false & debug_){
 	  //std::cout<<" ->propDir "<<propagator->propagationDirection()<<std::endl;
@@ -1626,7 +1620,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	if(!refitTrack_)
 	  extrapolationT = oppositeSmPr.propagate(innerTrackTSOS, refSurface);
 	else{
-	  GlobalTrackerMuonAlignment::trackFitter(itMuon->track(),
+	  GlobalTrackerMuonAlignment::trackFitter(itMuon.track(),
 						trackTT,oppositeToMomentum,trackFittedTSOS);
 	if(trackFittedTSOS.isValid())
 	  extrapolationT = oppositeSmPr.propagate(trackFittedTSOS, refSurface);	   
@@ -1663,7 +1657,7 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
 	C1 = AlgebraicSymMatrix66(outerMuTSOS.cartesianError().matrix());
 	
 	if(refitMuon_)
-	  GlobalTrackerMuonAlignment::muonFitter(itMuon->outerTrack(),muTT,alongMomentum,muonFittedTSOS);
+	  GlobalTrackerMuonAlignment::muonFitter(itMuon.outerTrack(),muTT,alongMomentum,muonFittedTSOS);
 
 	if(false & debug_){
 	  //std::cout<<" ->propDir "<<propagator->propagationDirection()<<std::endl;
@@ -1900,12 +1894,12 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
     }
 
     // -----------------------------------------------------  fill histogram 
-    histo->Fill(itMuon->track()->pt()); 
+    histo->Fill(itMuon.track()->pt()); 
     
     //histo2->Fill(itMuon->track()->outerP()); 
     histo2->Fill(Pt.mag()); 
-    histo3->Fill((PI/2.-itMuon->track()->outerTheta())); 
-    histo4->Fill(itMuon->track()->phi()); 
+    histo3->Fill((PI/2.-itMuon.track()->outerTheta())); 
+    histo4->Fill(itMuon.track()->phi()); 
     histo5->Fill(Rmuon); 
     histo6->Fill(Zmuon); 
     histo7->Fill(RelMomResidual); 
@@ -1967,10 +1961,10 @@ void GlobalTrackerMuonAlignment::analyzeTrackTrajectory
       std::cout<<" Vm   "<<Vm<<std::endl;
       std::cout<<" +-   "<<sqrt(Cm(0,0))<<" "<<sqrt(Cm(1,1))<<" "<<sqrt(Cm(2,2))<<" "
 	       <<sqrt(Cm(3,3))<<" "<<sqrt(Cm(4,4))<<" "<<sqrt(Cm(5,5))<<std::endl;
-      std::cout<<" Pmuon Ptrack dP/Ptrack "<<itMuon->outerTrack()->p()<<" "
-	       <<itMuon->track()->outerP()<<" "
-	       <<(itMuon->outerTrack()->p() - 
-		  itMuon->track()->outerP())/itMuon->track()->outerP()<<std::endl;
+      std::cout<<" Pmuon Ptrack dP/Ptrack "<<itMuon.outerTrack()->p()<<" "
+	       <<itMuon.track()->outerP()<<" "
+	       <<(itMuon.outerTrack()->p() - 
+		  itMuon.track()->outerP())/itMuon.track()->outerP()<<std::endl;
       std::cout<<" cov matrix "<<std::endl;
       std::cout<<Cm<<std::endl;
       std::cout<<" diag [ "<<Cm(0,0)<<" "<<Cm(1,1)<<" "<<Cm(2,2)<<" "<<Cm(3,3)<<" "

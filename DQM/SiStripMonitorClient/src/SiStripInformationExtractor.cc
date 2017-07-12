@@ -281,15 +281,15 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
 
   std::ofstream image_file;
   
-  for (std::map<std::string, std::vector< std::string > >::iterator it = layoutMap.begin() ; it != layoutMap.end(); it++) {
+  for (auto & it : layoutMap) {
     unsigned int ival = 0;
-    std::string image_list = "images/" + it->first +".lis";
+    std::string image_list = "images/" + it.first +".lis";
     image_file.open(image_list.c_str(), std::ios::out);
     if (!image_file) return;
 
     image_file << "[";
-    for (std::vector<std::string>::iterator im = it->second.begin(); 
-	 im != it->second.end(); im++) {  
+    for (std::vector<std::string>::iterator im = it.second.begin(); 
+	 im != it.second.end(); im++) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
       MonitorElement* me = dqm_store->get(path_name);
@@ -299,12 +299,12 @@ void SiStripInformationExtractor::plotHistosFromLayout(DQMStore * dqm_store){
         fname << "images/EmptyPlot.png";
         ftitle << "EmptyPlot";                 
       } else {
-	fname << "images/" << it->first << "_" <<ival << ".png";
+	fname << "images/" << it.first << "_" <<ival << ".png";
         ftitle << me->getName();
         histoPlotter_->createStaticPlot(me, fname.str());
       }
       image_file << "["<< "\"" << fname.str() << "\",\"" << path_name << "\"]";
-      if (ival != it->second.size()) image_file << ","<< std::endl;
+      if (ival != it.second.size()) image_file << ","<< std::endl;
     }
     image_file << "]" << std::endl;
     image_file.close();
@@ -594,11 +594,10 @@ void SiStripInformationExtractor::readAlarmTree(DQMStore* dqm_store,
 //
 void SiStripInformationExtractor::getItemList(const std::multimap<std::string, std::string>& req_map, std::string item_name,std::vector<std::string>& items) {
   items.clear();
-  for (std::multimap<std::string, std::string>::const_iterator it = req_map.begin();
-       it != req_map.end(); it++) {
+  for (const auto & it : req_map) {
     
-    if (it->first == item_name) {
-      items.push_back(it->second);
+    if (it.first == item_name) {
+      items.push_back(it.second);
     }
   }
 }

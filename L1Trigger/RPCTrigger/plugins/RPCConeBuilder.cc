@@ -192,15 +192,13 @@ void RPCConeBuilder::buildCones(const edm::ESHandle<RPCGeometry> & rpcGeom ){
   
   
   int rolls = 0;
-  for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
-      it != rpcGeom->dets().end();
-      ++it)
+  for(auto it : rpcGeom->dets())
   {
   
-      if( dynamic_cast< RPCRoll const * >( *it ) == 0 ) continue;
+      if( dynamic_cast< RPCRoll const * >( it ) == 0 ) continue;
       
       ++rolls;
-      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
+      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( it );
       
       int ringId = RPCStripsRing::getRingId(roll);
       if ( m_ringsMap.find(ringId)  == m_ringsMap.end() ) {

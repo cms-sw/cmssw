@@ -79,10 +79,9 @@ HcalDetIdTester::analyze(const edm::Event& /*iEvent*/,
 
   int nfail1(0);
   const std::vector<DetId>& ids = caloGeom->getValidDetIds();
-  for (std::vector<DetId>::const_iterator itr = ids.begin();  itr != ids.end();
-       ++itr)  {
-    if (!topology.valid(*itr)) {
-      std::cout << HcalDetId(*itr) << " declared as invalid == ERROR\n";
+  for (auto id : ids)  {
+    if (!topology.valid(id)) {
+      std::cout << HcalDetId(id) << " declared as invalid == ERROR\n";
       ++nfail1;
     }
   }

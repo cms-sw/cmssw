@@ -74,10 +74,10 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
 
   
 
-  for( auto ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-    for(auto ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-     auto oh = static_cast<BaseTrackerRecHit const * const>(*ohh);
-     auto ih = static_cast<BaseTrackerRecHit const * const>(*ihh);
+  for(auto ohh : theOuterLayer->recHits()){
+    for(auto ihh : theInnerLayer->recHits()){
+     auto oh = static_cast<BaseTrackerRecHit const * const>(ohh);
+     auto ih = static_cast<BaseTrackerRecHit const * const>(ihh);
       
       float z_diff =ih->globalPosition().z()-oh->globalPosition().z();
       float inny=ih->globalPosition().y();

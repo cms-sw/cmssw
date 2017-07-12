@@ -80,15 +80,14 @@ RecoTauCleanerImpl<Prod>::RecoTauCleanerImpl(const edm::ParameterSet& pset)
   typedef std::vector<edm::ParameterSet> VPSet;
   // Get each of our tau builders
   const VPSet& cleaners = pset.getParameter<VPSet>("cleaners");
-  for ( VPSet::const_iterator cleanerPSet = cleaners.begin();
-	cleanerPSet != cleaners.end(); ++cleanerPSet ) {
+  for (const auto & cleaner : cleaners) {
     CleanerEntryType* cleanerEntry = new CleanerEntryType();
     // Get plugin name
-    const std::string& pluginType = cleanerPSet->getParameter<std::string>("plugin");
+    const std::string& pluginType = cleaner.getParameter<std::string>("plugin");
     // Build the plugin
-    cleanerEntry->plugin_.reset(RecoTauCleanerPluginFactory::get()->create(pluginType, *cleanerPSet, consumesCollector()));
-    cleanerEntry->tolerance_ = ( cleanerPSet->exists("tolerance") ) ?
-    cleanerPSet->getParameter<double>("tolerance") : 0.;
+    cleanerEntry->plugin_.reset(RecoTauCleanerPluginFactory::get()->create(pluginType, cleaner, consumesCollector()));
+    cleanerEntry->tolerance_ = ( cleaner.exists("tolerance") ) ?
+    cleaner.getParameter<double>("tolerance") : 0.;
     cleaners_.emplace_back(cleanerEntry);
   }
 

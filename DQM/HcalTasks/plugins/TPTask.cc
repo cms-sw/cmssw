@@ -74,9 +74,9 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fEtCorr_256),
 		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
-	for (uint8_t iii=0; iii<constants::NUM_FGBITS; iii++)
+	for (auto & iii : _cFGCorr_TTSubdet)
 	{
-		_cFGCorr_TTSubdet[iii].initialize(_name, "FGCorr", hcaldqm::hashfunctions::fTTSubdet,
+		iii.initialize(_name, "FGCorr", hcaldqm::hashfunctions::fTTSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fFG),
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN, true),0);
@@ -1057,17 +1057,16 @@ TPTask::TPTask(edm::ParameterSet const& ps):
 			_vflags[fUnknownIds]._state = flag::fGOOD;
 
 		int iflag=0;
-		for (std::vector<flag::Flag>::iterator ft=_vflags.begin();
-			ft!=_vflags.end(); ++ft)
+		for (auto & _vflag : _vflags)
 		{
 			_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
-				ft->_state);
-			fSum+=(*ft);
+				_vflag._state);
+			fSum+=_vflag;
 			iflag++;
 
 			//	this is the MUST!
 			//	reset after using this flag
-			ft->reset();
+			_vflag.reset();
 		}
 		_cSummaryvsLS.setBinContent(eid, _currentLS, int(fSum._state));
 	}

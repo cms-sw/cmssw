@@ -191,10 +191,10 @@ StripValidationPlots::beginJob()
   dqmStore_ = edm::Service<DQMStore>().operator->();
   dqmStore_->setCurrentFolder("ChannelStatusPlots");
 
-  for (int i=0; i<768; i++)
+  for (auto & nReadStrip : nReadStrips)
     {
       for (int j=0; j<5; j++)
-	nReadStrips[i][j]=0;
+	nReadStrip[j]=0;
     }
 
   // Initialize histograms

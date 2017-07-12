@@ -1228,9 +1228,8 @@ MELaserPrim::setHistoStyle( TH1* h )
   axis[0] = h->GetXaxis();
   axis[1] = h->GetYaxis();
   axis[2] = h->GetZaxis();
-  for( int ii=0; ii<3; ii++ )
+  for(auto a : axis)
     {
-      TAxis* a = axis[ii];
       if( !a ) continue;
       a->SetLabelFont(132);
       a->SetLabelOffset(_scale*0.005);

@@ -50,9 +50,9 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
       typedef std::multimap<double, unsigned>::iterator IE;
       
       float chi2GSFFinal = 1000;
-      for(IE ie = ecalElems.begin(); ie != ecalElems.end(); ++ie ) {
-	double   chi2  = ie->first;
-	unsigned index = ie->second;
+      for(auto & ecalElem : ecalElems) {
+	double   chi2  = ecalElem.first;
+	unsigned index = ecalElem.second;
 	if (chi2 <  chi2GSFFinal) {
 	  chi2GSFFinal = chi2;
 	  ECALGSF_index = index;
@@ -68,9 +68,9 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	   
       vector< pair<double, unsigned> > ecalindexforbrem;
       vector<unsigned> brem_index;
-      for(IB iee = Brems.begin(); iee != Brems.end(); ++iee ) {
+      for(auto & Brem : Brems) {
 
-	unsigned index = iee->second;
+	unsigned index = Brem.second;
 
 	std::multimap<double, unsigned> ecalBrems;
 	block.associatedElements( index,  linkData,
@@ -80,14 +80,14 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	float chi2BremFinal = 1000;
 	unsigned ECALBREM_index = 1000;
 	
-	for(IEB ieb = ecalBrems.begin(); ieb != ecalBrems.end(); ++ieb ) {
+	for(auto & ecalBrem : ecalBrems) {
 	  // Two cases: first there is a ecalGSF=brem chi2 < chi2ecalGSF ?
 	  
 	  
-	  if (ieb->second != ECALGSF_index) {
+	  if (ecalBrem.second != ECALGSF_index) {
 	    
-	    double   chi2_eb  = ieb->first;
-	    unsigned index_eb = ieb->second;
+	    double   chi2_eb  = ecalBrem.first;
+	    unsigned index_eb = ecalBrem.second;
 	    if (chi2_eb < chi2BremFinal) {
 	      chi2BremFinal = chi2_eb;
 	      ECALBREM_index = index_eb;
@@ -100,18 +100,18 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	  brem_index.push_back(index);
 	}
       }
-      for (unsigned ie=0;ie<mainecal_index.size();ie++){
+      for (unsigned int ie : mainecal_index){
 	unsigned c_brem = 0;
 	
 	double chi2best = 1000;
 	unsigned final_ecal = 1000;
 	unsigned final_brem = 1000;
-	if (mainecal_index[ie] != ECALGSF_index) {
-	  for (unsigned i2eb = 0; i2eb < ecalindexforbrem.size(); i2eb++ ) {
-	    unsigned temp_ecal_index =  (ecalindexforbrem[i2eb]).second;
-	    double temp_chi2 = (ecalindexforbrem[i2eb]).first;
+	if (ie != ECALGSF_index) {
+	  for (auto & i2eb : ecalindexforbrem) {
+	    unsigned temp_ecal_index =  i2eb.second;
+	    double temp_chi2 = i2eb.first;
 
-	    if (temp_ecal_index == mainecal_index[ie] ) {
+	    if (temp_ecal_index == ie ) {
 	      if (temp_chi2 < chi2best ){
 		chi2best = temp_chi2;
 		final_ecal = temp_ecal_index;
@@ -145,9 +145,9 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	  active[ECALGSF_index] = false;  // ECAL associated to GSF
 	  // Lock Brem and ECAL associated to brem
 	  typedef std::map<unsigned, unsigned>::iterator IT;
-	  for (map<unsigned, unsigned>::iterator it = FinalBremECALIndex.begin(); it != FinalBremECALIndex.end(); ++it ) {
-	    unsigned index_brem = it->first;
-	    unsigned index_ecalbrem = it->second;
+	  for (auto & it : FinalBremECALIndex) {
+	    unsigned index_brem = it.first;
+	    unsigned index_ecalbrem = it.second;
 	    active[index_brem]=false;
 	    active[index_ecalbrem] = false;
 	  }
@@ -174,8 +174,8 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	// push back ecal cluster associate to gsf track
 	assoel.push_back(ECALGSF_index);
 	// push back selected brems
-	for (map<unsigned, unsigned>::iterator it = FinalBremECALIndex.begin(); it != FinalBremECALIndex.end(); ++it ) {
-	  unsigned index_brem = it->first;
+	for (auto & it : FinalBremECALIndex) {
+	  unsigned index_brem = it.first;
 	  assoel.push_back(index_brem);
 	}
 	associate.push_back(make_pair(active[iEle],assoel));
@@ -188,9 +188,9 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	assoel.push_back(GSF_index);
 	
 	// push_back ecal clusters associate to the brem
-	for (map<unsigned, unsigned>::iterator it = FinalBremECALIndex.begin(); it != FinalBremECALIndex.end(); ++it ) {
-	  if (it->first == iEle) {
-	    unsigned index_ecalbrem = it->second;
+	for (auto & it : FinalBremECALIndex) {
+	  if (it.first == iEle) {
+	    unsigned index_ecalbrem = it.second;
 	    assoel.push_back(index_ecalbrem);
 	  }
 	}
@@ -207,9 +207,9 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	  assoel.push_back(GSF_index);
 	  associate.push_back(make_pair(active[iEle],assoel));
 	}
-	for (map<unsigned, unsigned>::iterator it = FinalBremECALIndex.begin(); it != FinalBremECALIndex.end(); ++it ) {
-	  unsigned index_ecalbrem = it->second;
-	  unsigned index_brem = it->first;
+	for (auto & it : FinalBremECALIndex) {
+	  unsigned index_ecalbrem = it.second;
+	  unsigned index_brem = it.first;
 	  if (iEle == index_ecalbrem) {    // push back the brems associate to ecal 
 	    vector<unsigned> assoel(0);
 	    assoel.push_back(index_brem);

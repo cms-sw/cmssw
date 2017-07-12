@@ -193,9 +193,8 @@ void CosmicMuonSeedGenerator::produce(edm::Event& event, const edm::EventSetup& 
 
   LogTrace(category)<<"Seeds built: "<<seeds.size();
 
-  for(std::vector<TrajectorySeed>::iterator seed = seeds.begin();
-      seed != seeds.end(); ++seed) {
-        output->push_back(*seed);
+  for(auto & seed : seeds) {
+        output->push_back(seed);
   }
 
   event.put(std::move(output));
@@ -234,8 +233,8 @@ MuonRecHitContainer CosmicMuonSeedGenerator::selectSegments(const MuonRecHitCont
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   //Only select good quality Segments
-  for (MuonRecHitContainer::const_iterator hit = hits.begin(); hit != hits.end(); hit++) {
-    if ( checkQuality(*hit) ) result.push_back(*hit);
+  for (const auto & hit : hits) {
+    if ( checkQuality(hit) ) result.push_back(hit);
   }
 
   if ( result.size() < 2 ) return result;
@@ -279,8 +278,8 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   if (hits.size() == 0 || results.size() >= theMaxSeeds ) return;
-  for (MuonRecHitContainer::const_iterator ihit = hits.begin(); ihit != hits.end(); ihit++) {
-    const std::vector<TrajectorySeed>& sds = createSeed((*ihit),eSetup);
+  for (const auto & hit : hits) {
+    const std::vector<TrajectorySeed>& sds = createSeed(hit,eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();
     results.insert(results.end(),sds.begin(),sds.end());
     if ( results.size() >= theMaxSeeds ) break;
@@ -295,8 +294,8 @@ void CosmicMuonSeedGenerator::createSeeds(TrajectorySeedCollection& results,
   const std::string category = "Muon|RecoMuon|CosmicMuonSeedGenerator";
 
   if (hitpairs.size() == 0 || results.size() >= theMaxSeeds ) return;
-  for (CosmicMuonSeedGenerator::MuonRecHitPairVector::const_iterator ihitpair = hitpairs.begin(); ihitpair != hitpairs.end(); ihitpair++) {
-    const std::vector<TrajectorySeed>& sds = createSeed((*ihitpair),eSetup);
+  for (const auto & hitpair : hitpairs) {
+    const std::vector<TrajectorySeed>& sds = createSeed(hitpair,eSetup);
     LogTrace(category)<<"created seeds from rechit "<<sds.size();
     results.insert(results.end(),sds.begin(),sds.end());
     if ( results.size() >= theMaxSeeds ) break;
@@ -421,21 +420,21 @@ CosmicMuonSeedGenerator::makeSegPairs(const MuonTransientTrackingRecHit::MuonRec
 
    if (hits1.empty() || hits2.empty()  )  return result;
 
-   for (MuonRecHitContainer::const_iterator ihit1 = hits1.begin(); ihit1 != hits1.end(); ihit1++) {
-     if ( !checkQuality(*ihit1) ) continue;
+   for (const auto & ihit1 : hits1) {
+     if ( !checkQuality(ihit1) ) continue;
 
-     for (MuonRecHitContainer::const_iterator ihit2 = hits2.begin(); ihit2 != hits2.end(); ihit2++) {
-        if ( !checkQuality(*ihit2) ) continue;
+     for (const auto & ihit2 : hits2) {
+        if ( !checkQuality(ihit2) ) continue;
 
-        float dphi = deltaPhi((*ihit1)->globalPosition().barePhi(), (*ihit2)->globalPosition().barePhi());
+        float dphi = deltaPhi(ihit1->globalPosition().barePhi(), ihit2->globalPosition().barePhi());
         if ( dphi < 0.5 ) {
-	   if ((*ihit1)->globalPosition().y() > 0.0 && ( (*ihit1)->globalPosition().y()  > (*ihit2)->globalPosition().y() ) ) { 
+	   if (ihit1->globalPosition().y() > 0.0 && ( ihit1->globalPosition().y()  > ihit2->globalPosition().y() ) ) { 
               std::string tag2 = "top"+tag;
 
-              result.push_back(MuonRecHitPair(*ihit1, *ihit2, tag2));
-           } else if ((*ihit1)->globalPosition().y() < 0.0 && ( (*ihit1)->globalPosition().y()  < (*ihit2)->globalPosition().y() ) ) {
+              result.push_back(MuonRecHitPair(ihit1, ihit2, tag2));
+           } else if (ihit1->globalPosition().y() < 0.0 && ( ihit1->globalPosition().y()  < ihit2->globalPosition().y() ) ) {
               std::string tag2 = "bottom"+tag;
-              result.push_back(MuonRecHitPair(*ihit2, *ihit1, tag2));
+              result.push_back(MuonRecHitPair(ihit2, ihit1, tag2));
 
            }
         }

@@ -69,19 +69,19 @@ CTPPSDiamondLocalTrackFitter::produce( edm::Event& iEvent, const edm::EventSetup
   edm::DetSet<CTPPSDiamondLocalTrack>& tracks45 = pOut->operator[]( id_45 );
 
   // feed hits to the track producers
-  for ( edm::DetSetVector<CTPPSDiamondRecHit>::const_iterator vec = recHits->begin(); vec != recHits->end(); ++vec )
+  for (const auto & vec : *recHits)
   {
-    const CTPPSDiamondDetId detid( vec->detId() );
+    const CTPPSDiamondDetId detid( vec.detId() );
 
     if (detid.arm()==0)
     {
-      for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec->begin(); hit != vec->end(); ++hit )
+      for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec.begin(); hit != vec.end(); ++hit )
       {
 	trk_algo_45_.addHit( *hit );
       }
     } else
     {
-      for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec->begin(); hit != vec->end(); ++hit )
+      for ( edm::DetSet<CTPPSDiamondRecHit>::const_iterator hit = vec.begin(); hit != vec.end(); ++hit )
       {
 	trk_algo_56_.addHit( *hit );
       }

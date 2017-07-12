@@ -174,8 +174,8 @@ TrackingMonitor::~TrackingMonitor()
   if (theTrackAnalyzer)          delete theTrackAnalyzer;
   if (theTrackBuildingAnalyzer)  delete theTrackBuildingAnalyzer;
   if ( doPUmonitoring_ )
-    for (size_t i=0; i<theVertexMonitor.size(); i++)
-      if (theVertexMonitor[i]) delete theVertexMonitor[i];
+    for (auto & i : theVertexMonitor)
+      if (i) delete i;
   if (genTriggerEventFlag_)      delete genTriggerEventFlag_;
 }
 
@@ -388,8 +388,8 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 
    if ( doPUmonitoring_ ) {
   
-     for (size_t i=0; i<theVertexMonitor.size(); i++)
-       theVertexMonitor[i]->initHisto(ibooker);
+     for (auto & i : theVertexMonitor)
+       i->initHisto(ibooker);
    }
   
      if ( doPlotsVsGoodPVtx_ ) {
@@ -856,9 +856,9 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  
 	  NumberOfTrackCandidates->Fill(theTCCollection.size());
 	  iSetup.get<TransientRecHitRecord>().get(builderName,theTTRHBuilder);
-	  for( TrackCandidateCollection::const_iterator cand = theTCCollection.begin(); cand != theTCCollection.end(); ++cand) {
+	  for(const auto & cand : theTCCollection) {
 	    
-	    theTrackBuildingAnalyzer->analyze(iEvent, iSetup, *cand, bs, theMF, theTTRHBuilder);
+	    theTrackBuildingAnalyzer->analyze(iEvent, iSetup, cand, bs, theMF, theTTRHBuilder);
 	  }
 	} else {
 	  edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
@@ -950,22 +950,21 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
       if ( doPUmonitoring_ ) {
 	
 	// do vertex monitoring
-	for (size_t i=0; i<theVertexMonitor.size(); i++)
-	  theVertexMonitor[i]->analyze(iEvent, iSetup);
+	for (auto & i : theVertexMonitor)
+	  i->analyze(iEvent, iSetup);
       }
       if ( doPlotsVsGoodPVtx_ ) {
 	  
 	  size_t totalNumGoodPV = 0;
 	  if (pvHandle.isValid()) {
 	    
-	    for (reco::VertexCollection::const_iterator pv = pvHandle->begin();
-		 pv != pvHandle->end(); ++pv) {
+	    for (const auto & pv : *pvHandle) {
 	      
 	      //--- pv fake (the pv collection should have size==1 and the pv==beam spot) 
-	      if (pv->isFake() || pv->tracksSize()==0) continue;
+	      if (pv.isFake() || pv.tracksSize()==0) continue;
 	      
 	      // definition of goodOfflinePrimaryVertex
-	      if (pv->ndof() < pvNDOF_ || pv->z() > 24.)  continue;
+	      if (pv.ndof() < pvNDOF_ || pv.z() > 24.)  continue;
 	      totalNumGoodPV++;
 	    }
 	    

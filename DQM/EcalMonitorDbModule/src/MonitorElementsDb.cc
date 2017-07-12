@@ -54,25 +54,25 @@ MonitorElementsDb::MonitorElementsDb( const edm::ParameterSet& ps, std::string& 
 
     if(parser_) MEinfo_ = parser_->getDB_ME();
 
-    for( unsigned int i=0; i< MEinfo_.size(); i++ ) {
+    for(auto & i : MEinfo_) {
 
       MonitorElement* tmp;
       tmp = 0;
-      if( strcmp(MEinfo_[i].type.c_str(), "th1d") == 0 ) {
-        tmp = dqmStore_->book1D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto );
+      if( strcmp(i.type.c_str(), "th1d") == 0 ) {
+        tmp = dqmStore_->book1D( i.title, i.title, i.xbins, i.xfrom, i.xto );
       }
-      else if( strcmp(MEinfo_[i].type.c_str(), "th2d") == 0 ) {
-        tmp = dqmStore_->book2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
-        		    MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
+      else if( strcmp(i.type.c_str(), "th2d") == 0 ) {
+        tmp = dqmStore_->book2D( i.title, i.title, i.xbins, i.xfrom, i.xto,
+        		    i.ybins, i.yfrom, i.yto );
       }
-      else if( strcmp(MEinfo_[i].type.c_str(), "tprofile") == 0 ) {
-      tmp = dqmStore_->bookProfile( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
-        		       MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto );
+      else if( strcmp(i.type.c_str(), "tprofile") == 0 ) {
+      tmp = dqmStore_->bookProfile( i.title, i.title, i.xbins, i.xfrom, i.xto,
+        		       i.ybins, i.yfrom, i.yto );
       }
-      else if( strcmp(MEinfo_[i].type.c_str(), "tprofile2d") == 0 ) {
-        tmp = dqmStore_->bookProfile2D( MEinfo_[i].title, MEinfo_[i].title, MEinfo_[i].xbins, MEinfo_[i].xfrom, MEinfo_[i].xto,
-        			   MEinfo_[i].ybins, MEinfo_[i].yfrom, MEinfo_[i].yto,
-        			   MEinfo_[i].zbins, MEinfo_[i].zfrom, MEinfo_[i].zto );
+      else if( strcmp(i.type.c_str(), "tprofile2d") == 0 ) {
+        tmp = dqmStore_->bookProfile2D( i.title, i.title, i.xbins, i.xfrom, i.xto,
+        			   i.ybins, i.yfrom, i.yto,
+        			   i.zbins, i.zfrom, i.zto );
       }
 
       MEs_.push_back( tmp );
@@ -99,8 +99,8 @@ void MonitorElementsDb::beginJob( void ){
 void MonitorElementsDb::endJob( void ){
 
   std::cout << "MonitorElementsDb: analyzed " << ievt_ << " events" << std::endl;
-  for( unsigned int i = 0; i<MEs_.size(); i++ ) {
-    if( MEs_[i] != 0 ) dqmStore_->removeElement( MEs_[i]->getName() );
+  for(auto & ME : MEs_) {
+    if( ME != 0 ) dqmStore_->removeElement( ME->getName() );
   }
 
 }
@@ -136,19 +136,19 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
           coral::IQuery* query = schema.newQuery();
 
-          for( unsigned int j=0; j<MEinfo_[i].queries.size(); j++ ) {
-            if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToTableList") == 0 ) {
-              query->addToTableList( MEinfo_[i].queries[j].arg );
+          for(auto & querie : MEinfo_[i].queries) {
+            if( strcmp(querie.query.c_str(), "addToTableList") == 0 ) {
+              query->addToTableList( querie.arg );
             }
-            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOutputList") == 0 ) {
-              query->addToOutputList( MEinfo_[i].queries[j].arg, MEinfo_[i].queries[j].alias );
-              vars.push_back( MEinfo_[i].queries[j].alias );
+            else if( strcmp(querie.query.c_str(), "addToOutputList") == 0 ) {
+              query->addToOutputList( querie.arg, querie.alias );
+              vars.push_back( querie.alias );
             }
-            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "setCondition") == 0 ) {
-              query->setCondition( MEinfo_[i].queries[j].arg, coral::AttributeList() );
+            else if( strcmp(querie.query.c_str(), "setCondition") == 0 ) {
+              query->setCondition( querie.arg, coral::AttributeList() );
             }
-            else if( strcmp(MEinfo_[i].queries[j].query.c_str(), "addToOrderList") == 0 ) {
-              query->addToOrderList( MEinfo_[i].queries[j].arg );
+            else if( strcmp(querie.query.c_str(), "addToOrderList") == 0 ) {
+              query->addToOrderList( querie.arg );
             }
           }
 
@@ -163,9 +163,9 @@ void MonitorElementsDb::analyze( const edm::Event& e, const edm::EventSetup& c, 
 
             std::vector<float> vvars;
             vvars.clear();
-            for( unsigned int l=0; l<vars.size(); l++ ) {
-              if( !vars[l].empty() ) {
-        	vvars.push_back( row[vars[l].c_str()].data<float>() );
+            for(auto & var : vars) {
+              if( !var.empty() ) {
+        	vvars.push_back( row[var.c_str()].data<float>() );
               }
             }
             if( vvars.size() == 2 ) {

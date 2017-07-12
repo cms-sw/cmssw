@@ -195,9 +195,9 @@ HLTMuonCertSummary::dqmEndJob(DQMStore::IBooker & iBooker, DQMStore::IGetter & i
   //   //looping over histograms to be tested
   if(verbose_) LogInfo ("HLTMuonVal")  << "\n>>> looping over histograms to be tested <<<\n\n";
   
-  for(std::vector<string>::iterator it=histoNameVector.begin();it!=histoNameVector.end();++it){
+  for(auto & it : histoNameVector){
 
-    string HistoName = (*it);
+    string HistoName = it;
     if(verbose_) LogInfo ("HLTMuonVal")  << ">>> " << HistoName;        
     
 

@@ -246,8 +246,7 @@ void SiStripMonitorDigi::dqmBeginRun(const edm::Run& run, const edm::EventSetup&
       
       if ( sumFED.isValid() ) {
 	std::vector<int> FedsInIds= sumFED->m_fed_in;   
-	for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-	  int fedID = FedsInIds[it];     
+	for(int fedID : FedsInIds) {
 	  //	  if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected;
 	  /* mia: but is there not a smarter way !?!?!? */
 	  if ( fedID >= 50  && fedID <= 133 ) ++nFedTIB;
@@ -579,10 +578,9 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
   }    
 
   // initialise # of clusters to zero
-  for (std::map<std::string, SubDetMEs>::iterator iSubdet  = SubDetMEsMap.begin();
-       iSubdet != SubDetMEsMap.end(); iSubdet++) {
-    iSubdet->second.totNDigis = 0;
-    iSubdet->second.SubDetApvShots.clear();
+  for (auto & iSubdet : SubDetMEsMap) {
+    iSubdet.second.totNDigis = 0;
+    iSubdet.second.SubDetApvShots.clear();
   }
 
   for (std::map<std::string, std::vector< uint32_t > >::const_iterator iterLayer = LayerDetMap.begin();
@@ -661,10 +659,9 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       // Check if these parameters are really needed
       float det_occupancy = 0.0;
       
-      for(edm::DetSet<SiStripDigi>::const_iterator digiIter = digi_detset.data.begin(); 
-	  digiIter!= digi_detset.data.end(); digiIter++ ){
+      for(const auto & digiIter : digi_detset.data){
 	
-	int this_adc = digiIter->adc();
+	int this_adc = digiIter.adc();
 	
 	if (this_adc > 0.0) det_occupancy++;
 	
@@ -672,7 +669,7 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
 	if(this_adc<smallest_adc) smallest_adc  = this_adc; 
 
 	if(Mod_On_ && moduleswitchnumdigispstripon && (local_modmes.NumberOfDigisPerStrip != NULL) && (this_adc > 0.0) )
-          (local_modmes.NumberOfDigisPerStrip)->Fill(digiIter->strip());
+          (local_modmes.NumberOfDigisPerStrip)->Fill(digiIter.strip());
 
 	if(Mod_On_ && moduleswitchdigiadcson && (local_modmes.DigiADCs != NULL) )
 	  (local_modmes.DigiADCs)->Fill(static_cast<float>(this_adc));
@@ -753,43 +750,42 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
       isStableBeams = true;
   }
 
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
-       it != SubDetMEsMap.end(); it++) {
+  for (auto & it : SubDetMEsMap) {
 
       if (subdetswitchtotdigifailureon) {
-        if (strcmp(it->first.c_str(),"TEC__MINUS")==0){
-          digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it->second.totNDigis);
-	}else if (strcmp(it->first.c_str(),"TEC__PLUS")==0){
-          digiFailureMEs.SubDetTotDigiProfLS->Fill(2, it->second.totNDigis);
-        }else if (strcmp(it->first.c_str(),"TIB")==0){
-          digiFailureMEs.SubDetTotDigiProfLS->Fill(3, it->second.totNDigis);
-	}else if (strcmp(it->first.c_str(),"TID__MINUS")==0){
-          digiFailureMEs.SubDetTotDigiProfLS->Fill(4, it->second.totNDigis);
-	}else if (strcmp(it->first.c_str(),"TID__PLUS")==0){
-          digiFailureMEs.SubDetTotDigiProfLS->Fill(5, it->second.totNDigis);
-        }else if (strcmp(it->first.c_str(),"TOB")==0){
-          digiFailureMEs.SubDetTotDigiProfLS->Fill(6, it->second.totNDigis);	  
+        if (strcmp(it.first.c_str(),"TEC__MINUS")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(1, it.second.totNDigis);
+	}else if (strcmp(it.first.c_str(),"TEC__PLUS")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(2, it.second.totNDigis);
+        }else if (strcmp(it.first.c_str(),"TIB")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(3, it.second.totNDigis);
+	}else if (strcmp(it.first.c_str(),"TID__MINUS")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(4, it.second.totNDigis);
+	}else if (strcmp(it.first.c_str(),"TID__PLUS")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(5, it.second.totNDigis);
+        }else if (strcmp(it.first.c_str(),"TOB")==0){
+          digiFailureMEs.SubDetTotDigiProfLS->Fill(6, it.second.totNDigis);	  
 	}
       }
 
       if (globalsummaryapvshotson) {
-        if (strcmp(it->first.c_str(),"TEC__MINUS")==0){
-          NApvShotsGlobalProf->Fill(1,it->second.SubDetApvShots.size());
-	}else if (strcmp(it->first.c_str(),"TEC__PLUS")==0){
-          NApvShotsGlobalProf->Fill(2,it->second.SubDetApvShots.size());
-        }else if (strcmp(it->first.c_str(),"TIB")==0){
-          NApvShotsGlobalProf->Fill(3,it->second.SubDetApvShots.size());
-	}else if (strcmp(it->first.c_str(),"TID__MINUS")==0){
-          NApvShotsGlobalProf->Fill(4,it->second.SubDetApvShots.size());
-	}else if (strcmp(it->first.c_str(),"TID__PLUS")==0){
-          NApvShotsGlobalProf->Fill(5,it->second.SubDetApvShots.size());
-        }else if (strcmp(it->first.c_str(),"TOB")==0){
-          NApvShotsGlobalProf->Fill(6,it->second.SubDetApvShots.size());
+        if (strcmp(it.first.c_str(),"TEC__MINUS")==0){
+          NApvShotsGlobalProf->Fill(1,it.second.SubDetApvShots.size());
+	}else if (strcmp(it.first.c_str(),"TEC__PLUS")==0){
+          NApvShotsGlobalProf->Fill(2,it.second.SubDetApvShots.size());
+        }else if (strcmp(it.first.c_str(),"TIB")==0){
+          NApvShotsGlobalProf->Fill(3,it.second.SubDetApvShots.size());
+	}else if (strcmp(it.first.c_str(),"TID__MINUS")==0){
+          NApvShotsGlobalProf->Fill(4,it.second.SubDetApvShots.size());
+	}else if (strcmp(it.first.c_str(),"TID__PLUS")==0){
+          NApvShotsGlobalProf->Fill(5,it.second.SubDetApvShots.size());
+        }else if (strcmp(it.first.c_str(),"TOB")==0){
+          NApvShotsGlobalProf->Fill(6,it.second.SubDetApvShots.size());
 	}
       }
 
-      SubDetMEs subdetmes= it->second;
-      std::string subdet = it->first;
+      SubDetMEs subdetmes= it.second;
+      std::string subdet = it.first;
 
       // Fill APV shots histograms for SubDet
 
@@ -836,12 +832,11 @@ void SiStripMonitorDigi::analyze(const edm::Event& iEvent, const edm::EventSetup
     long long tbx = event_history->absoluteBX();
 
 
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
-	 it != SubDetMEsMap.end(); it++) {
+    for (auto & it : SubDetMEsMap) {
 
       SubDetMEs subdetmes;
-      std::string subdet = it->first;
-      subdetmes = it->second;
+      std::string subdet = it.first;
+      subdetmes = it.second;
  
       int the_phase = APVCyclePhaseCollection::invalid;
       long long tbx_corr = tbx;
@@ -1205,16 +1200,16 @@ int SiStripMonitorDigi::getDigiSourceIndex(uint32_t id) {
 
 void SiStripMonitorDigi::AddApvShotsToSubDet(const std::vector<APVShot> & moduleShots, std::vector<APVShot>  & subdetShots){
   
-  for (uint i=0; i<moduleShots.size(); i++){
-    subdetShots.push_back(moduleShots[i]);
+  for (const auto & moduleShot : moduleShots){
+    subdetShots.push_back(moduleShot);
   }
 }
 
 void SiStripMonitorDigi::FillApvShotsMap(TkHistoMap* the_map, const std::vector<APVShot> & shots, uint32_t id ,int mode){
   
-  for (uint i=0; i<shots.size(); i++){
-    if (mode==1) the_map->fill(id,shots[i].nStrips()); //mode == 1 fill with strip multiplicity
-    if (mode==2) the_map->fill(id,shots[i].median()); // mode == 2 fill with charge median
+  for (const auto & shot : shots){
+    if (mode==1) the_map->fill(id,shot.nStrips()); //mode == 1 fill with strip multiplicity
+    if (mode==2) the_map->fill(id,shot.median()); // mode == 2 fill with charge median
   }
 }
 

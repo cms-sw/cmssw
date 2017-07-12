@@ -150,11 +150,9 @@ bool CastorDbXml::dumpObject (std::ostream& fOutput,
   std::cout << "CastorDbXml::dumpObject-> set default errors: 0.0001, 0.0001, 0.0001, 0.0001" << std::endl;
   CastorPedestalWidths widths(fObject.isADC() );
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
+  for (auto & channel : channels) {
 
-    CastorPedestalWidth item(*channel);
+    CastorPedestalWidth item(channel);
     for (int iCapId = 1; iCapId <= 4; iCapId++) {
       item.setSigma (iCapId, iCapId, dummyError*dummyError);
     }
@@ -173,10 +171,7 @@ bool CastorDbXml::dumpObject (std::ostream& fOutput,
   dumpHeader (fOutput, fRun, KIND, KIND);
 
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    DetId chId = *channel;
+  for (auto chId : channels) {
     const float* values = fObject.getValues (chId)->getValues ();
     const CastorPedestalWidth* errors = fError.getValues (chId);
     if (!values) {
@@ -206,9 +201,9 @@ bool CastorDbXml::dumpObject (std::ostream& fOutput,
 
   CastorGainWidths widths;
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin (); channel !=  channels.end (); ++channel) 
+  for (auto & channel : channels) 
     {
-      CastorGainWidth item(*channel,dummyErrors[0],dummyErrors[1],dummyErrors[2],dummyErrors[3]);
+      CastorGainWidth item(channel,dummyErrors[0],dummyErrors[1],dummyErrors[2],dummyErrors[3]);
       widths.addValues(item);
     }
 
@@ -225,10 +220,7 @@ bool CastorDbXml::dumpObject (std::ostream& fOutput,
   dumpHeader (fOutput, fRun, TABLE, KIND);
 
   std::vector<DetId> channels = fObject.getAllChannels ();
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    DetId chId = *channel;
+  for (auto chId : channels) {
     const float* values = fObject.getValues (chId)->getValues ();
     const float* errors = fError.getValues (chId)->getValues ();
     if (!values) {

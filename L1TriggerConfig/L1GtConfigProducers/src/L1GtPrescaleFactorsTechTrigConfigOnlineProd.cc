@@ -145,10 +145,9 @@ std::shared_ptr<L1GtPrescaleFactors> L1GtPrescaleFactorsTechTrigConfigOnlineProd
                     << "\nColumn names for GT_FDL_PRESCALE_FACTORS_TT"
                     << std::endl;
 
-            for (std::vector<std::string>::const_iterator iter =
-                    columns.begin(); iter != columns.end(); iter++) {
+            for (const auto & column : columns) {
                 LogTrace("L1GtPrescaleFactorsTechTrigConfigOnlineProd")
-                        << (*iter) << std::endl;
+                        << column << std::endl;
 
             }
         }

@@ -228,11 +228,11 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
   
    
   int it = 0;
-  for (reco::RecoToSimCollection::const_iterator RtSit=recSimColl.begin();RtSit!=recSimColl.end();++RtSit){
+  for (const auto & RtSit : recSimColl){
     //what am I loop over ?
     //the line below this has a problem
     //    const reco::TrackRef & track = RtSit->key;
-    const std::vector<std::pair<TrackingParticleRef,double> > & tp = RtSit->val;
+    const std::vector<std::pair<TrackingParticleRef,double> > & tp = RtSit.val;
      
     //what do I want to get from those
     FreeTrajectoryState sim_fts;

@@ -414,10 +414,10 @@ void HGCDigitizer::endRun()
 //
 void HGCDigitizer::resetSimHitDataAccumulator()
 {
-  for( HGCSimHitDataAccumulator::iterator it = simHitAccumulator_->begin(); it!=simHitAccumulator_->end(); it++)
+  for(auto & it : *simHitAccumulator_)
     {
-      it->second.hit_info[0].fill(0.);
-      it->second.hit_info[1].fill(0.);
+      it.second.hit_info[0].fill(0.);
+      it.second.hit_info[1].fill(0.);
     }
 }
 

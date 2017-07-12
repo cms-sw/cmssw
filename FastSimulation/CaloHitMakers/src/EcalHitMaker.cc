@@ -968,9 +968,9 @@ EcalHitMaker::getPads(double depth,bool inCm)
       std::cout << " EMSHOWER " << EMSHOWER << std::endl;
       std::cout << " Track " << *myTrack_ << std::endl;
       std::cout << " Segments " << segments_.size() << std::endl;
-      for(unsigned ii=0; ii<segments_.size() ; ++ii)
+      for(const auto & segment : segments_)
 	{
-	  std::cout << segments_[ii] << std::endl;
+	  std::cout << segment << std::endl;
 	}
       
       return false;

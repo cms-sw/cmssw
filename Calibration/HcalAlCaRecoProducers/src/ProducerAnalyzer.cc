@@ -117,9 +117,9 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    edm::Handle<MuonCollection> mucand;
    iEvent.getByToken(tok_muons_, mucand);
    std::cout<<" Size of muon collection "<<mucand->size()<<std::endl;
-   for(MuonCollection::const_iterator it =  mucand->begin(); it != mucand->end(); it++)
+   for(const auto & it : *mucand)
    {
-      TrackRef mu = (*it).combinedMuon();
+      TrackRef mu = it.combinedMuon();
       std::cout<<" Pt muon "<<mu->innerMomentum()<<std::endl;
    }
    

@@ -122,10 +122,8 @@ void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm:
       float sum = 0;
 
       // Loop over the PFCandidates
-      for(unsigned i=0; i<forIsolation->size(); i++) {
-	const reco::PFCandidate& pfc = (*forIsolation)[i];
-	
-	//require that the PFCandidate is a neutral hadron
+      for(const auto & pfc : *forIsolation) {
+		//require that the PFCandidate is a neutral hadron
 	if (pfc.particleId() ==  pfToUse_) {
 	  
 	  if (fabs(candRef->eta()) < 1.479) {
@@ -185,10 +183,8 @@ void EgammaHLTPFNeutralIsolationProducer::produce(edm::Event& iEvent, const edm:
       float sum = 0;
 
       // Loop over the PFCandidates
-      for(unsigned i=0; i<forIsolation->size(); i++) {
-	const reco::PFCandidate& pfc = (*forIsolation)[i];
-	
-	//require that the PFCandidate is a neutral hadron
+      for(const auto & pfc : *forIsolation) {
+		//require that the PFCandidate is a neutral hadron
 	if (pfc.particleId() ==  pfToUse_) {
 	  
 	  if (fabs(eleRef->eta()) < 1.479) {

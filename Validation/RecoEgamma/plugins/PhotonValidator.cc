@@ -1911,10 +1911,10 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   RtoSCollPtrs.push_back(&OIRecoToSim);
   RtoSCollPtrs.push_back(&IORecoToSim);
   //
-  for (int i=0; i<2; i++)
-    nSimPho_[i]=0;
-  for (int i=0; i<2; i++)
-    nSimConv_[i]=0;
+  for (int & i : nSimPho_)
+    i=0;
+  for (int & i : nSimConv_)
+    i=0;
 
 
   std::vector<reco::PhotonRef> myPhotons;
@@ -2265,9 +2265,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
 	  if ( useTP ) {
 	    if ( ! isRunCentrally_ ) {
-	      for ( edm::RefVector<TrackingParticleCollection>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
-		h_simTkPt_ -> Fill ( (*iTrk)->pt() );
-		h_simTkEta_ -> Fill ( (*iTrk)->eta() );
+	      for (auto && iTrk : theConvTP_) {
+		h_simTkPt_ -> Fill ( (iTrk)->pt() );
+		h_simTkEta_ -> Fill ( (iTrk)->eta() );
 	      }
 	    }
 
@@ -2405,9 +2405,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       for(reco::CaloCluster_iterator bcIt = matchingPho->superCluster()->clustersBegin();bcIt != matchingPho->superCluster()->clustersEnd(); ++bcIt) {
 	for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
 
-	  for(EcalRecHitCollection::const_iterator it =  ecalRecHitCollection.begin(); it !=  ecalRecHitCollection.end(); ++it) {
-	    if  (rhIt->first ==  (*it).id() ) {
-	      if (  (*it).recoFlag() == 9 ) {
+	  for(const auto & it : ecalRecHitCollection) {
+	    if  (rhIt->first ==  it.id() ) {
+	      if (  it.recoFlag() == 9 ) {
                 atLeastOneDeadChannel=true;
 		break;
 	      }
@@ -2880,8 +2880,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	////////////////// plot quantities related to conversions
 	reco::ConversionRefVector conversions = matchingPho->conversions();
         bool atLeastOneRecoTwoTrackConversion=false;
-	for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
-	  reco::ConversionRef aConv=conversions[iConv];
+	for (const auto & conversion : conversions) {
+	  reco::ConversionRef aConv=conversion;
 	  double like = aConv->MVAout();
 	  if ( like < likelihoodCut_ ) continue;
 
@@ -2916,17 +2916,17 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 	  //
 
 	  int nAssT2=0;
-	  for (unsigned int i=0; i<tracks.size(); i++) {
+	  for (const auto & track : tracks) {
 	    //	    reco::TrackRef track = tracks[i].castTo<reco::TrackRef>();
 
 	    type =0;
-	    if ( ! isRunCentrally_ ) nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits())-0.0001 );
-	    if ( ! isRunCentrally_ ) nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits())-0.0001 );
-	    p_nHitsVsEta_[type] ->Fill (mcEta_,   float(tracks[i]->numberOfValidHits()-0.0001) );
-	    p_nHitsVsR_[type] ->Fill (mcConvR_,   float(tracks[i]->numberOfValidHits()-0.0001) );
-	    h_tkChi2_[type] ->Fill (tracks[i]->normalizedChi2() );
+	    if ( ! isRunCentrally_ ) nHitsVsEta_[type] ->Fill (mcEta_,   float(track->numberOfValidHits())-0.0001 );
+	    if ( ! isRunCentrally_ ) nHitsVsR_[type] ->Fill (mcConvR_,   float(track->numberOfValidHits())-0.0001 );
+	    p_nHitsVsEta_[type] ->Fill (mcEta_,   float(track->numberOfValidHits()-0.0001) );
+	    p_nHitsVsR_[type] ->Fill (mcConvR_,   float(track->numberOfValidHits()-0.0001) );
+	    h_tkChi2_[type] ->Fill (track->normalizedChi2() );
 
-	    RefToBase<reco::Track> tfrb = tracks[i];
+	    RefToBase<reco::Track> tfrb = track;
 	    RefToBaseVector<reco::Track> tc;
             tc.push_back(tfrb);
 	    // reco::RecoToSimCollection q = trackAssociator->associateRecoToSim(tc,theConvTP_);
@@ -3323,8 +3323,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
         
 	reco::ConversionRefVector conversionsOneLeg = matchingPho->conversionsOneLeg();
 	if ( !atLeastOneRecoTwoTrackConversion  ) {
-	  for (unsigned int iConv=0; iConv<conversionsOneLeg.size(); iConv++) {
-	    reco::ConversionRef aConv=conversionsOneLeg[iConv];
+	  for (const auto & iConv : conversionsOneLeg) {
+	    reco::ConversionRef aConv=iConv;
 	    const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
 
             h_trkAlgo_->Fill (  tracks[0]->algo() );
@@ -3401,12 +3401,12 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   if ( !fastSim_) {
     ///////////////////  Measure fake rate
-    for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
-      reco::Photon aPho = reco::Photon(*iPho);
+    for(const auto & iPho : photonCollection) {
+      reco::Photon aPho = reco::Photon(iPho);
       //    float et= aPho.superCluster()->energy()/cosh( aPho.superCluster()->eta()) ;
       reco::ConversionRefVector conversions = aPho.conversions();
-      for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
-	reco::ConversionRef aConv=conversions[iConv];
+      for (const auto & conversion : conversions) {
+	reco::ConversionRef aConv=conversion;
 	double like = aConv->MVAout();
 	if ( like < likelihoodCut_ ) continue;
 	//std::vector<reco::TrackRef> tracks = aConv->tracks();
@@ -3591,8 +3591,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     bool matched=false;
 
     reco::Photon matchingPho;
-    for( reco::PhotonCollection::const_iterator  iPho = photonCollection.begin(); iPho != photonCollection.end(); iPho++) {
-      reco::Photon aPho = reco::Photon(*iPho);
+    for(const auto & iPho : photonCollection) {
+      reco::Photon aPho = reco::Photon(iPho);
       float phiPho=aPho.phi();
       float etaPho=aPho.eta();
       float deltaPhi = phiPho-mcJetPhi_;
@@ -3603,7 +3603,7 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
       deltaEta=pow(deltaEta,2);
       float delta = sqrt( deltaPhi+deltaEta);
       if ( delta<0.3 ) {
-       	matchingPho = * iPho;
+       	matchingPho = iPho;
         matched = true;
       }
     }  // end loop over reco photons
@@ -3669,9 +3669,9 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     for(reco::CaloCluster_iterator bcIt = matchingPho.superCluster()->clustersBegin();bcIt != matchingPho.superCluster()->clustersEnd(); ++bcIt) {
       for(rhIt = (*bcIt)->hitsAndFractions().begin();rhIt != (*bcIt)->hitsAndFractions().end(); ++rhIt) {
 
-        for(EcalRecHitCollection::const_iterator it =  ecalRecHitCollection.begin(); it !=  ecalRecHitCollection.end(); ++it) {
-          if  (rhIt->first ==  (*it).id() ) {
-            if (  (*it).recoFlag() == 9 ) {
+        for(const auto & it : ecalRecHitCollection) {
+          if  (rhIt->first ==  it.id() ) {
+            if (  it.recoFlag() == 9 ) {
               atLeastOneDeadChannel=true;
               break;
             }
@@ -3811,8 +3811,8 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
     if ( !fastSim_) {
       ////////////////// plot quantities related to conversions
       reco::ConversionRefVector conversions = matchingPho.conversions();
-      for (unsigned int iConv=0; iConv<conversions.size(); iConv++) {
-        reco::ConversionRef aConv=conversions[iConv];
+      for (const auto & conversion : conversions) {
+        reco::ConversionRef aConv=conversion;
         //std::vector<reco::TrackRef> tracks = aConv->tracks();
         const std::vector<edm::RefToBase<reco::Track> > tracks = aConv->tracks();
         double like = aConv->MVAout();
@@ -3868,15 +3868,15 @@ void PhotonValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
   } // end loop over sim jets
 
   /////// separate loop to compare with miniAOD
-  for ( reco::GenParticleCollection::const_iterator mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ ) {
-    if ( !(mcIter->pdgId() == 22 ) ) continue;
-    if ( mcIter->mother() != nullptr and  !(mcIter->mother()->pdgId()==25) ) continue;
-    if ( fabs(mcIter->eta()) > 2.5 ) continue;
+  for (const auto & mcIter : *genParticles) {
+    if ( !(mcIter.pdgId() == 22 ) ) continue;
+    if ( mcIter.mother() != nullptr and  !(mcIter.mother()->pdgId()==25) ) continue;
+    if ( fabs(mcIter.eta()) > 2.5 ) continue;
      
-    float mcPhi= mcIter->phi();
-    float mcEta= mcIter->eta();
+    float mcPhi= mcIter.phi();
+    float mcEta= mcIter.eta();
     //mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z() );
-    float mcEnergy=mcIter->energy();
+    float mcEnergy=mcIter.energy();
     
     
     double dR = 9999999.;

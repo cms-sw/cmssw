@@ -186,10 +186,8 @@ map<DTWireId, vector<const PSimHit*> >
 DTRecHitReader::mapSimHitsPerWire(const Handle<PSimHitContainer>& simhits) {
    map<DTWireId, vector<const PSimHit*> > hitWireMapResult;
    
-   for(PSimHitContainer::const_iterator simhit = simhits->begin();
-       simhit != simhits->end();
-       simhit++) {
-     hitWireMapResult[DTWireId((*simhit).detUnitId())].push_back(&(*simhit));
+   for(const auto & simhit : *simhits) {
+     hitWireMapResult[DTWireId(simhit.detUnitId())].push_back(&simhit);
    }
    
    return hitWireMapResult;
@@ -203,15 +201,13 @@ DTRecHitReader::findBestMuSimHit(const DTLayer* layer,
 				 float recHitDistFromWire) {
   const PSimHit* retSimHit =0;
   float tmp_distDiff = 999999;
-  for(vector<const PSimHit*>::const_iterator simhit = simhits.begin();
-      simhit != simhits.end();
-      simhit++) {
+  for(auto simhit : simhits) {
     // Select muons
-    if(abs((*simhit)->particleType()) == 13) {
+    if(abs(simhit->particleType()) == 13) {
       // Get the mu simhit closest to the rechit
-      if(findSimHitDist(layer, wireId, *simhit)-recHitDistFromWire < tmp_distDiff) {
-	tmp_distDiff = findSimHitDist(layer, wireId, *simhit)-recHitDistFromWire;
-	retSimHit = (*simhit);
+      if(findSimHitDist(layer, wireId, simhit)-recHitDistFromWire < tmp_distDiff) {
+	tmp_distDiff = findSimHitDist(layer, wireId, simhit)-recHitDistFromWire;
+	retSimHit = simhit;
       }
     }
   }

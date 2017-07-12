@@ -44,11 +44,11 @@ namespace cms
     e.getByLabel(clusterProducer,h);
     bool decision=false;               // default value, only accept if set true in this loop
     unsigned int nr_clusters_above_threshold = 0;
-    for (edm::DetSetVector<SiStripCluster>::const_iterator it=h->begin();it!=h->end();it++) 
+    for (const auto & it : *h) 
       {
-        DetId thedetId = DetId(it->detId());
+        DetId thedetId = DetId(it.detId());
 	bool exclude_this_detid = false;
-	for(vector<SiStripCluster>::const_iterator vit=(it->data).begin(); vit!=(it->data).end(); vit++) 
+	for(vector<SiStripCluster>::const_iterator vit=(it.data).begin(); vit!=(it.data).end(); vit++) 
 	  {
 	    for( std::vector<uint32_t>::const_iterator imod = ModulesToBeExcluded.begin(); imod != ModulesToBeExcluded.end(); imod++ )
 	      { if(*imod == thedetId.rawId()) exclude_this_detid = true;  } // found in exclusion list
@@ -56,8 +56,8 @@ namespace cms
 	      { // calculate sum of amplitudes
 		unsigned int amplclus=0;
 		// int amplclus=0;
-		for(auto ia=vit->amplitudes().begin(); ia!=vit->amplitudes().end(); ia++) 
-		  { if ((*ia)>0) amplclus+=(*ia); } // why should this be negative?
+		for(unsigned char ia : vit->amplitudes()) 
+		  { if (ia>0) amplclus+=ia; } // why should this be negative?
 		if(amplclus>ChargeThresholdTEC) nr_clusters_above_threshold++;
 	      }
 	  }

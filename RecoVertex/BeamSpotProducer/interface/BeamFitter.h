@@ -105,8 +105,8 @@ class BeamFitter {
   void resetCutFlow() {
     h1cutFlow->Reset();
     ftotal_tracks = 0;
-    for (unsigned int i=0; i<sizeof(countPass)/sizeof(countPass[0]); i++)
-      countPass[i]=0;
+    for (int & countPas : countPass)
+      countPas=0;
   }
 
   //ssc

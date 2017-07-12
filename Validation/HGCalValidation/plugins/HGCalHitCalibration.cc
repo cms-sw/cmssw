@@ -135,16 +135,15 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 
   // loop over caloParticles
   int mhit[3] = {0,0,0};
-  for (auto it_caloPart = caloParticles.begin();
-       it_caloPart != caloParticles.end(); ++it_caloPart) {
-    double cut = (cutOnPt_) ? it_caloPart->pt() : it_caloPart->energy();
+  for (const auto & caloParticle : caloParticles) {
+    double cut = (cutOnPt_) ? caloParticle.pt() : caloParticle.energy();
     if (cut > cutValue_) {
       int type(5);
-      if      (std::abs(it_caloPart->pdgId()) == pdgId[0]) type = 1;
-      else if (std::abs(it_caloPart->pdgId()) == pdgId[1]) type = 2;
-      else if (it_caloPart->pdgId()           == pdgId[2]) type = 3;
-      else if (it_caloPart->threeCharge()     != 0)        type = 4;
-      const SimClusterRefVector simClusterRefVector = it_caloPart->simClusters();
+      if      (std::abs(caloParticle.pdgId()) == pdgId[0]) type = 1;
+      else if (std::abs(caloParticle.pdgId()) == pdgId[1]) type = 2;
+      else if (caloParticle.pdgId()           == pdgId[2]) type = 3;
+      else if (caloParticle.threeCharge()     != 0)        type = 4;
+      const SimClusterRefVector simClusterRefVector = caloParticle.simClusters();
 
       //size should be HGC layers 52 is enough
       Energy_layer_calib.assign(60,0.);
@@ -162,10 +161,9 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 	const std::vector<std::pair<uint32_t,float> > hits_and_fractions = simCluster->hits_and_fractions();
 
 	//loop over hits      
-	for (auto it_haf = hits_and_fractions.begin(); 
-	     it_haf != hits_and_fractions.end(); ++it_haf) {
-	  unsigned int hitlayer = recHitTools.getLayerWithOffset(it_haf->first);
-	  DetId hitid = (it_haf->first); 
+	for (const auto & hits_and_fraction : hits_and_fractions) {
+	  unsigned int hitlayer = recHitTools.getLayerWithOffset(hits_and_fraction.first);
+	  DetId hitid = (hits_and_fraction.first); 
 
 	  // dump raw RecHits and match
 	  if (rawRecHits_) {
@@ -185,7 +183,7 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 #endif
 		    return;
 		  }
-		  Energy_layer_calib_fraction[layer] += it_hit->energy()*it_haf->second;
+		  Energy_layer_calib_fraction[layer] += it_hit->energy()*hits_and_fraction.second;
 		  h_LayerOccupancy_[0]->Fill(layer);
 		  h_LayerOccupancy_[type]->Fill(layer);
 		  if(seedEnergy < it_hit->energy()){
@@ -213,7 +211,7 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 #endif
 		    return;
 		  }
-		  Energy_layer_calib_fraction[layer] += it_hit->energy()*it_haf->second;
+		  Energy_layer_calib_fraction[layer] += it_hit->energy()*hits_and_fraction.second;
 		  h_LayerOccupancy_[0]->Fill(layer);
 		  h_LayerOccupancy_[type]->Fill(layer);
 		  if(seedEnergy < it_hit->energy()){
@@ -241,7 +239,7 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
 #endif
 		    return;
 		  }
-		  Energy_layer_calib_fraction[layer] += it_hit->energy()*it_haf->second;
+		  Energy_layer_calib_fraction[layer] += it_hit->energy()*hits_and_fraction.second;
 		  h_LayerOccupancy_[0]->Fill(layer);
 		  h_LayerOccupancy_[type]->Fill(layer);
 		  if (seedEnergy < it_hit->energy()){
@@ -259,11 +257,11 @@ void HGCalHitCalibration::analyze(const edm::Event& iEvent, const edm::EventSetu
       }//end simCluster
 
       float sumCalibRecHitCalib_fraction = 0;
-      for(unsigned int iL=0; iL<Energy_layer_calib_fraction.size(); ++iL){
-	sumCalibRecHitCalib_fraction += Energy_layer_calib_fraction[iL];
+      for(float iL : Energy_layer_calib_fraction){
+	sumCalibRecHitCalib_fraction += iL;
       }
     
-      double ebyp = sumCalibRecHitCalib_fraction / it_caloPart->energy();
+      double ebyp = sumCalibRecHitCalib_fraction / caloParticle.energy();
       if(seedDet == 100) {
 	h_EoP_CPene_100_calib_fraction_[0]->Fill(ebyp);
 	h_EoP_CPene_100_calib_fraction_[type]->Fill(ebyp);

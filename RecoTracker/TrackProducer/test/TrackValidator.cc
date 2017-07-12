@@ -146,25 +146,25 @@ std::cout << "In TrackValidator\n";
       //fill simulation histograms
       //
       int st=0;
-      for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-	if (abs(simTrack->momentum().eta())>max || 
-	    abs(simTrack->momentum().eta())<min) continue;
+      for (const auto & simTrack : simTC){
+	if (abs(simTrack.momentum().eta())>max || 
+	    abs(simTrack.momentum().eta())<min) continue;
 	st++;
-	h_ptSIM[w]->Fill(simTrack->momentum().pt());
-	h_etaSIM[w]->Fill(simTrack->momentum().eta());
+	h_ptSIM[w]->Fill(simTrack.momentum().pt());
+	h_etaSIM[w]->Fill(simTrack.momentum().eta());
 
-	h_vertposSIM[w]->Fill(simVC[simTrack->vertIndex()].position().pt());
+	h_vertposSIM[w]->Fill(simVC[simTrack.vertIndex()].position().pt());
 	
-	if (simTrack->type()!=partId) continue;
+	if (simTrack.type()!=partId) continue;
 	//compute number of tracks per eta interval
 	int i=0;
 	for (vector<double>::iterator h=etaintervals[w].begin(); h!=etaintervals[w].end()-1; h++){
-	  if (abs(simTrack->momentum().eta())>etaintervals[w][i]&&
-	      abs(simTrack->momentum().eta())<etaintervals[w][i+1]) {
+	  if (abs(simTrack.momentum().eta())>etaintervals[w][i]&&
+	      abs(simTrack.momentum().eta())<etaintervals[w][i+1]) {
 	    totSIM[w][i]++;
 	    bool doit=false;
-	    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
-	      if (abs(track->pt()-simTrack->momentum().pt())<(simTrack->momentum().pt()*0.1)) doit=true; 
+	    for (const auto & track : tC){
+	      if (abs(track.pt()-simTrack.momentum().pt())<(simTrack.momentum().pt()*0.1)) doit=true; 
 	    }
 	    if (doit) totREC[w][i]++;
 	  }
@@ -206,24 +206,24 @@ std::cout << "In TrackValidator\n";
 	double d0res=1000;
 	double dzres=1000;
 	double kres=1000;
-	for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-	  if (simTrack->type()!=partId) continue;
-	  double tmp=track->track().pt()-simTrack->momentum().pt();
+	for (const auto & simTrack : simTC){
+	  if (simTrack.type()!=partId) continue;
+	  double tmp=track->track().pt()-simTrack.momentum().pt();
 	  if (tC.size()>1) h_pt2[w]->Fill(tmp);
 	  if (abs(tmp)<abs(ptres)) {
 	    ptres=tmp; 
 
 
-	    etares=track->initialFreeState().momentum().eta()-simTrack->momentum().eta();
-	    thetares=(tscp.perigeeParameters().theta()-simTrack->momentum().theta())/tscp.perigeeError().thetaError();
-	    phi0res=(tscp.perigeeParameters().phi()-simTrack->momentum().phi())/tscp.perigeeError().phiError();
-	    d0res=(tscp.perigeeParameters().transverseImpactParameter()-simVC[simTrack->vertIndex()].position().pt())/tscp.perigeeError().transverseImpactParameterError();
-	    dzres=(tscp.perigeeParameters().longitudinalImpactParameter()-simVC[simTrack->vertIndex()].position().z())/tscp.perigeeError().longitudinalImpactParameterError();
+	    etares=track->initialFreeState().momentum().eta()-simTrack.momentum().eta();
+	    thetares=(tscp.perigeeParameters().theta()-simTrack.momentum().theta())/tscp.perigeeError().thetaError();
+	    phi0res=(tscp.perigeeParameters().phi()-simTrack.momentum().phi())/tscp.perigeeError().phiError();
+	    d0res=(tscp.perigeeParameters().transverseImpactParameter()-simVC[simTrack.vertIndex()].position().pt())/tscp.perigeeError().transverseImpactParameterError();
+	    dzres=(tscp.perigeeParameters().longitudinalImpactParameter()-simVC[simTrack.vertIndex()].position().z())/tscp.perigeeError().longitudinalImpactParameterError();
 
 	    
-	    const math::XYZTLorentzVectorD& vertexPosition = simVC[simTrack->vertIndex()].position();
+	    const math::XYZTLorentzVectorD& vertexPosition = simVC[simTrack.vertIndex()].position();
 	    GlobalVector magField=theMF->inTesla(GlobalPoint(vertexPosition.x(),vertexPosition.y(),vertexPosition.z()));
-	    kres=(tscp.perigeeParameters().transverseCurvature()-(-track->charge()*2.99792458e-3 * magField.z()/simTrack->momentum().pt()))/
+	    kres=(tscp.perigeeParameters().transverseCurvature()-(-track->charge()*2.99792458e-3 * magField.z()/simTrack.momentum().pt()))/
 	    tscp.perigeeError().transverseCurvatureError();
 
 // 	    cout << "track->d0(): " << track->d0() << endl;
@@ -254,12 +254,12 @@ std::cout << "In TrackValidator\n";
 	//pt residue distribution per eta interval
 	int i=0;
 	for (vector<TH1F*>::iterator h=ptdistrib[w].begin(); h!=ptdistrib[w].end(); h++){
-	  for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-	    if (simTrack->type()!=partId) continue;
+	  for (const auto & simTrack : simTC){
+	    if (simTrack.type()!=partId) continue;
 	    ptres=1000;
-	    if (abs(simTrack->momentum().eta())>etaintervals[w][i]&&
-		abs(simTrack->momentum().eta())<etaintervals[w][i+1]) {
-	      double tmp=track->track().pt()-simTrack->momentum().pt();
+	    if (abs(simTrack.momentum().eta())>etaintervals[w][i]&&
+		abs(simTrack.momentum().eta())<etaintervals[w][i+1]) {
+	      double tmp=track->track().pt()-simTrack.momentum().pt();
 	      if (abs(tmp)<abs(ptres)) ptres=tmp;
 	    }
 	  }
@@ -269,14 +269,14 @@ std::cout << "In TrackValidator\n";
 	//eta residue distribution per eta interval
 	i=0;
 	for (vector<TH1F*>::iterator h=etadistrib[w].begin(); h!=etadistrib[w].end(); h++){
-	  for (SimTrackContainer::const_iterator simTrack=simTC.begin(); simTrack!=simTC.end(); simTrack++){
-	    if (simTrack->type()!=partId) continue;
+	  for (const auto & simTrack : simTC){
+	    if (simTrack.type()!=partId) continue;
 	    etares=1000; 
 	    ptres =1000;
-	    if (abs(simTrack->momentum().eta())>etaintervals[w][i]&&
-		abs(simTrack->momentum().eta())<etaintervals[w][i+1]) {
-	      double tmp=track->track().pt()-simTrack->momentum().pt();
-	      if (abs(tmp)<abs(ptres)) etares=track->track().eta()-simTrack->momentum().eta();
+	    if (abs(simTrack.momentum().eta())>etaintervals[w][i]&&
+		abs(simTrack.momentum().eta())<etaintervals[w][i+1]) {
+	      double tmp=track->track().pt()-simTrack.momentum().pt();
+	      if (abs(tmp)<abs(ptres)) etares=track->track().eta()-simTrack.momentum().eta();
 	    }
 	  }
 	  (*h)->Fill(etares);

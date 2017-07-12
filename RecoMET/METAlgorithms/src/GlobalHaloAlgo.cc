@@ -58,7 +58,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 
   if( TheCSCSegments.isValid() )
     {
-      for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin(); iSegment != TheCSCSegments->end(); iSegment++) 
+      for(const auto & iSegment : *TheCSCSegments) 
 	{
 	  bool EcalOverlap[361];
 	  bool HcalOverlap[73];
@@ -68,15 +68,15 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 	      if( i < 73 ) HcalOverlap[i] = false;
 	    }
 	  
-	  std::vector<CSCRecHit2D> Hits = iSegment->specificRecHits() ;
-	  for(std::vector<CSCRecHit2D>::iterator iHit = Hits.begin() ; iHit != Hits.end(); iHit++ )
+	  std::vector<CSCRecHit2D> Hits = iSegment.specificRecHits() ;
+	  for(auto & Hit : Hits)
 	    {
-	      DetId TheDetUnitId(iHit->geographicalId());
+	      DetId TheDetUnitId(Hit.geographicalId());
 	      if( TheDetUnitId.det() != DetId::Muon ) continue;
 	      if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;
 
 	      const GeomDetUnit *TheUnit = TheCSCGeometry.idToDetUnit(TheDetUnitId);
-	      LocalPoint TheLocalPosition = iHit->localPosition();  
+	      LocalPoint TheLocalPosition = Hit.localPosition();  
 	      const BoundPlane& TheSurface = TheUnit->surface();
 	      const GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
 
@@ -102,15 +102,15 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
     }
   if( TheCSCRecHits.isValid() )
     {
-      for(CSCRecHit2DCollection::const_iterator iCSCRecHit = TheCSCRecHits->begin();   iCSCRecHit != TheCSCRecHits->end(); iCSCRecHit++ )
+      for(const auto & iCSCRecHit : *TheCSCRecHits)
 	{
 	  
-	  DetId TheDetUnitId(iCSCRecHit->geographicalId());
+	  DetId TheDetUnitId(iCSCRecHit.geographicalId());
 	  if( TheDetUnitId.det() != DetId::Muon ) continue;
 	  if( TheDetUnitId.subdetId() != MuonSubdetId::CSC ) continue;
 	  
 	  const GeomDetUnit *TheUnit = TheCSCGeometry.idToDetUnit(TheDetUnitId);
-	  LocalPoint TheLocalPosition = iCSCRecHit->localPosition();  
+	  LocalPoint TheLocalPosition = iCSCRecHit.localPosition();  
 	  const BoundPlane& TheSurface = TheUnit->surface();
 	  const GlobalPoint TheGlobalPosition = TheSurface.toGlobal(TheLocalPosition);
 	  
@@ -149,11 +149,11 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   // Keep track of number of calo pointing CSC halo tracks that do not match to Phi wedges
   int N_Unmatched_Tracks = 0;  
   
-  for( std::vector<GlobalPoint>::iterator Pos = TheGlobalPositions.begin() ; Pos != TheGlobalPositions.end() ; Pos ++ ) 
+  for(auto & TheGlobalPosition : TheGlobalPositions) 
     {
       // Calculate global phi coordinate for central most rechit in the track
-      float global_phi = Pos->phi();
-      float global_r = TMath::Sqrt(Pos->x()*Pos->x() + Pos->y()*Pos->y());
+      float global_phi = TheGlobalPosition.phi();
+      float global_r = TMath::Sqrt(TheGlobalPosition.x()*TheGlobalPosition.x() + TheGlobalPosition.y()*TheGlobalPosition.y());
       
       // Convert global phi to iPhi
       int global_EcaliPhi = Phi_To_EcaliPhi( global_phi );
@@ -161,39 +161,39 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       bool MATCHED = false;
       
       //Loop over Ecal Phi Wedges 
-      for( std::vector<PhiWedge>::iterator iWedge = EcalWedges.begin() ; iWedge != EcalWedges.end() ; iWedge++ )
+      for(auto & EcalWedge : EcalWedges)
 	{
-	  if( (TMath::Abs( global_EcaliPhi - iWedge->iPhi() ) <= 5 ) && (global_r >  Ecal_R_Min && global_r < Ecal_R_Max ) )
+	  if( (TMath::Abs( global_EcaliPhi - EcalWedge.iPhi() ) <= 5 ) && (global_r >  Ecal_R_Min && global_r < Ecal_R_Max ) )
 	    {
 	      bool StoreWedge = true;
-	      for( unsigned int i = 0 ; i< vEcaliPhi.size() ; i++ ) if ( vEcaliPhi[i] == iWedge->iPhi() ) StoreWedge = false;
+	      for(int i : vEcaliPhi) if ( i == EcalWedge.iPhi() ) StoreWedge = false;
 	      
 	      if( StoreWedge ) 
 		{
-		  PhiWedge NewWedge(*iWedge);
-		  NewWedge.SetOverlappingCSCSegments( EcalOverlapping_CSCSegments[iWedge->iPhi()] );
-		  NewWedge.SetOverlappingCSCRecHits( EcalOverlapping_CSCRecHits[iWedge->iPhi()] );
-		  vEcaliPhi.push_back( iWedge->iPhi() );
+		  PhiWedge NewWedge(EcalWedge);
+		  NewWedge.SetOverlappingCSCSegments( EcalOverlapping_CSCSegments[EcalWedge.iPhi()] );
+		  NewWedge.SetOverlappingCSCRecHits( EcalOverlapping_CSCRecHits[EcalWedge.iPhi()] );
+		  vEcaliPhi.push_back( EcalWedge.iPhi() );
 		  TheGlobalHaloData.GetMatchedEcalPhiWedges().push_back( NewWedge );
 		}
 	      MATCHED = true;
 	    }
 	}
       //Loop over Hcal Phi Wedges 
-      for( std::vector<PhiWedge>::iterator iWedge = HcalWedges.begin() ; iWedge != HcalWedges.end() ; iWedge++ )
+      for(auto & HcalWedge : HcalWedges)
 	{
-	  if(  (TMath::Abs( global_HcaliPhi - iWedge->iPhi() ) <=  2 ) && (global_r > Hcal_R_Min && global_r < Hcal_R_Max ) )
+	  if(  (TMath::Abs( global_HcaliPhi - HcalWedge.iPhi() ) <=  2 ) && (global_r > Hcal_R_Min && global_r < Hcal_R_Max ) )
 	    {
 	      bool StoreWedge  = true;
-	      for( unsigned int i = 0 ; i < vHcaliPhi.size() ; i++ ) if(  vHcaliPhi[i] == iWedge->iPhi() ) StoreWedge = false;
+	      for(int i : vHcaliPhi) if(  i == HcalWedge.iPhi() ) StoreWedge = false;
 	      
 	      if( StoreWedge ) 
 		{
-		  vHcaliPhi.push_back( iWedge->iPhi() ) ;
-		  PhiWedge NewWedge(*iWedge);
-		  NewWedge.SetOverlappingCSCSegments( HcalOverlapping_CSCSegments[iWedge->iPhi()] );
-		  NewWedge.SetOverlappingCSCRecHits(  HcalOverlapping_CSCRecHits[iWedge->iPhi()] );		  
-		  PhiWedge wedge(*iWedge);
+		  vHcaliPhi.push_back( HcalWedge.iPhi() ) ;
+		  PhiWedge NewWedge(HcalWedge);
+		  NewWedge.SetOverlappingCSCSegments( HcalOverlapping_CSCSegments[HcalWedge.iPhi()] );
+		  NewWedge.SetOverlappingCSCRecHits(  HcalOverlapping_CSCRecHits[HcalWedge.iPhi()] );		  
+		  PhiWedge wedge(HcalWedge);
 		  TheGlobalHaloData.GetMatchedHcalPhiWedges().push_back( NewWedge ) ; 
 		}
 	      MATCHED = true;
@@ -215,17 +215,17 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 	  if( iTower->et() < TowerEtThreshold ) continue;
 	  if( abs(iTower->ieta()) > 24 )  continue;   // not in barrel/endcap
 	  int iphi = iTower->iphi();
-	  for( unsigned int x = 0 ; x < vEcaliPhi.size() ; x++ )
+	  for(int x : vEcaliPhi)
 	    {
-	      if( iphi == vEcaliPhi[x] ) 
+	      if( iphi == x ) 
 		{
 		  dMEx += ( TMath::Cos(iTower->phi())*iTower->emEt() );
 		  dMEy += ( TMath::Sin(iTower->phi())*iTower->emEt() );
 		}
 	    }
-	  for( unsigned int x = 0 ; x < vHcaliPhi.size() ; x++ )
+	  for(int x : vHcaliPhi)
 	    {
-	      if( iphi == vHcaliPhi[x] ) 
+	      if( iphi == x ) 
 		{
 		  dMEx += ( TMath::Cos(iTower->phi() )*iTower->hadEt() ) ;
 		  dMEy += ( TMath::Sin(iTower->phi() )*iTower->hadEt() ) ;
@@ -247,11 +247,9 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
   bool ECALBmatched(false), ECALEmatched(false),HCALBmatched(false),HCALEmatched(false);
 
   if (TheCSCSegments.isValid()) {
-    for(CSCSegmentCollection::const_iterator iSegment = TheCSCSegments->begin();
-	iSegment != TheCSCSegments->end();
-	iSegment++) {
+    for(const auto & iSegment : *TheCSCSegments) {
       
-      CSCDetId iCscDetID = iSegment->cscDetId();
+      CSCDetId iCscDetID = iSegment.cscDetId();
       bool Segment1IsGood=true;
       
       
@@ -264,12 +262,11 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
 	      if( !mu->isTrackerMuon() && !mu->isGlobalMuon() && mu->isStandAloneMuon() ) continue;
 	      if( !mu->isGlobalMuon() &&  mu->isTrackerMuon() &&  mu->pt()<3) continue; 
 	      const std::vector<MuonChamberMatch> chambers = mu->matches();
-	      for(std::vector<MuonChamberMatch>::const_iterator kChamber = chambers.begin();
-		  kChamber != chambers.end(); kChamber ++ )
+	      for(const auto & chamber : chambers)
 		{
-		  if( kChamber->detector() != MuonSubdetId::CSC ) continue;
-		  for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = kChamber->segmentMatches.begin();
-		       kSegment != kChamber->segmentMatches.end(); kSegment++ )
+		  if( chamber.detector() != MuonSubdetId::CSC ) continue;
+		  for( std::vector<reco::MuonSegmentMatch>::const_iterator kSegment = chamber.segmentMatches.begin();
+		       kSegment != chamber.segmentMatches.end(); kSegment++ )
 		    {
 		      edm::Ref<CSCSegmentCollection> cscSegRef = kSegment->cscSegmentRef;
 		      CSCDetId kCscDetID = cscSegRef->cscDetId();
@@ -287,8 +284,8 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       
       // Get local direction vector; if direction runs parallel to beamline,
       // count this segment as beam halo candidate.
-      LocalPoint iLocalPosition = iSegment->localPosition();
-      LocalVector iLocalDirection = iSegment->localDirection();
+      LocalPoint iLocalPosition = iSegment.localPosition();
+      LocalVector iLocalDirection = iSegment.localDirection();
 
       GlobalPoint iGlobalPosition = TheCSCGeometry.chamber(iCscDetID)->toGlobal(iLocalPosition);
       GlobalVector iGlobalDirection = TheCSCGeometry.chamber(iCscDetID)->toGlobal(iLocalDirection);
@@ -299,7 +296,7 @@ reco::GlobalHaloData GlobalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeomet
       float iPhi = iGlobalPosition.phi();
       float iR =  sqrt(iGlobalPosition.perp2()) ; 
       float iZ = iGlobalPosition.z();
-      float iT = iSegment->time();
+      float iT = iSegment.time();
       
       //CSC-calo matching: 
       //Here, one checks if any halo cluster can be matched to a CSC segment. 
@@ -529,14 +526,14 @@ bool GlobalHaloAlgo::ApplyMatchingCuts(int subdet, bool ishlt, double rhet, doub
 
  
 void GlobalHaloAlgo::AddtoBeamHaloEBEERechits(edm::RefVector<EcalRecHitCollection>& bhtaggedrechits,reco::GlobalHaloData & thehalodata, bool isbarrel){
-  for(size_t ihit = 0; ihit<bhtaggedrechits.size(); ++ ihit){
+  for(const auto & bhtaggedrechit : bhtaggedrechits){
     bool alreadyincl = false; 
-    edm::Ref<EcalRecHitCollection> rhRef( bhtaggedrechits[ihit] ) ;
+    edm::Ref<EcalRecHitCollection> rhRef( bhtaggedrechit ) ;
     edm::RefVector<EcalRecHitCollection> refrhcoll;
     if(isbarrel) refrhcoll=thehalodata.GetEBRechits();
     else refrhcoll=thehalodata.GetEERechits();
-    for(size_t jhit =0; jhit < refrhcoll.size();jhit++){                                                                                                                                                 
-      edm::Ref<EcalRecHitCollection> rhitRef( refrhcoll[jhit] ) ;                                                                                                                                        
+    for(const auto & jhit : refrhcoll){                                                                                                                                                 
+      edm::Ref<EcalRecHitCollection> rhitRef( jhit ) ;                                                                                                                                        
       if(rhitRef->detid() == rhRef->detid()) alreadyincl=true;                                                                                                                                           
       if(rhitRef->detid() == rhRef->detid()) break;                                                                                                                                                      
     } 
@@ -547,13 +544,13 @@ void GlobalHaloAlgo::AddtoBeamHaloEBEERechits(edm::RefVector<EcalRecHitCollectio
 
 
 void GlobalHaloAlgo::AddtoBeamHaloHBHERechits(edm::RefVector<HBHERecHitCollection>& bhtaggedrechits,reco::GlobalHaloData & thehalodata){  
-  for(size_t ihit = 0; ihit<bhtaggedrechits.size(); ++ ihit){
+  for(const auto & bhtaggedrechit : bhtaggedrechits){
     bool alreadyincl = false; 
-    edm::Ref<HBHERecHitCollection> rhRef( bhtaggedrechits[ihit] ) ;
+    edm::Ref<HBHERecHitCollection> rhRef( bhtaggedrechit ) ;
     edm::RefVector<HBHERecHitCollection> refrhcoll;
     refrhcoll=thehalodata.GetHBHERechits();
-    for(size_t jhit =0; jhit < refrhcoll.size();jhit++){                                                                                                                                                 
-      edm::Ref<HBHERecHitCollection> rhitRef( refrhcoll[jhit] ) ;                                                                                                                                        
+    for(const auto & jhit : refrhcoll){                                                                                                                                                 
+      edm::Ref<HBHERecHitCollection> rhitRef( jhit ) ;                                                                                                                                        
       if(rhitRef->detid() == rhRef->detid()) alreadyincl=true;                                                                                                                                           
       if(rhitRef->detid() == rhRef->detid()) break;                                                                                                                                                      
     } 

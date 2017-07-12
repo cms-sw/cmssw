@@ -129,32 +129,32 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
 
   // ---------------------- 
   // loop over UncalibRecHits
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EEUncalibRecHit->begin(); uncalibRecHit != EEUncalibRecHit->end() ; ++uncalibRecHit)
+  for (const auto & uncalibRecHit : *EEUncalibRecHit)
     {
-      EEDetId EEid = EEDetId(uncalibRecHit->id());
+      EEDetId EEid = EEDetId(uncalibRecHit.id());
 
       int mySide = EEid.zside();      
 
       // general checks
       if (mySide > 0) { if (meEEUncalibRecHitsOccupancyPlus_)  meEEUncalibRecHitsOccupancyPlus_  ->Fill(EEid.ix(), EEid.iy()); }
       if (mySide < 0) { if (meEEUncalibRecHitsOccupancyMinus_) meEEUncalibRecHitsOccupancyMinus_ ->Fill(EEid.ix(), EEid.iy()); }
-      if (meEEUncalibRecHitsAmplitude_)  meEEUncalibRecHitsAmplitude_  -> Fill(uncalibRecHit->amplitude());
-      if (meEEUncalibRecHitsPedestal_)   meEEUncalibRecHitsPedestal_   -> Fill(uncalibRecHit->pedestal());
-      if (meEEUncalibRecHitsJitter_)     meEEUncalibRecHitsJitter_     -> Fill(uncalibRecHit->jitter());
-      if (meEEUncalibRecHitsChi2_)       meEEUncalibRecHitsChi2_       -> Fill(uncalibRecHit->chi2());
-      if (meEEUncalibRecHitsAmpFullMap_) meEEUncalibRecHitsAmpFullMap_ -> Fill(EEid.ix(), EEid.iy(), uncalibRecHit->amplitude()); 
-      if (meEEUncalibRecHitsPedFullMap_) meEEUncalibRecHitsPedFullMap_ -> Fill(EEid.ix(), EEid.iy(), uncalibRecHit->pedestal()); 
+      if (meEEUncalibRecHitsAmplitude_)  meEEUncalibRecHitsAmplitude_  -> Fill(uncalibRecHit.amplitude());
+      if (meEEUncalibRecHitsPedestal_)   meEEUncalibRecHitsPedestal_   -> Fill(uncalibRecHit.pedestal());
+      if (meEEUncalibRecHitsJitter_)     meEEUncalibRecHitsJitter_     -> Fill(uncalibRecHit.jitter());
+      if (meEEUncalibRecHitsChi2_)       meEEUncalibRecHitsChi2_       -> Fill(uncalibRecHit.chi2());
+      if (meEEUncalibRecHitsAmpFullMap_) meEEUncalibRecHitsAmpFullMap_ -> Fill(EEid.ix(), EEid.iy(), uncalibRecHit.amplitude()); 
+      if (meEEUncalibRecHitsPedFullMap_) meEEUncalibRecHitsPedFullMap_ -> Fill(EEid.ix(), EEid.iy(), uncalibRecHit.pedestal()); 
 
 
       // general checks, with threshold at 60 ADC counts
-      if ( uncalibRecHit->amplitude() > 60 ) 
+      if ( uncalibRecHit.amplitude() > 60 ) 
 	{
 	  if (mySide > 0) { if (meEEUncalibRecHitsOccupancyPlusGt60adc_)  meEEUncalibRecHitsOccupancyPlusGt60adc_ ->Fill(EEid.ix(), EEid.iy()); }
 	  if (mySide < 0) { if (meEEUncalibRecHitsOccupancyMinusGt60adc_) meEEUncalibRecHitsOccupancyMinusGt60adc_->Fill(EEid.ix(), EEid.iy()); }
-	  if (meEEUncalibRecHitsAmplitudeGt60adc_)  meEEUncalibRecHitsAmplitudeGt60adc_  -> Fill(uncalibRecHit->amplitude());
-	  if (meEEUncalibRecHitsPedestalGt60adc_)   meEEUncalibRecHitsPedestalGt60adc_   -> Fill(uncalibRecHit->pedestal());
-	  if (meEEUncalibRecHitsJitterGt60adc_)     meEEUncalibRecHitsJitterGt60adc_     -> Fill(uncalibRecHit->jitter());
-	  if (meEEUncalibRecHitsChi2Gt60adc_)       meEEUncalibRecHitsChi2Gt60adc_       -> Fill(uncalibRecHit->chi2());
+	  if (meEEUncalibRecHitsAmplitudeGt60adc_)  meEEUncalibRecHitsAmplitudeGt60adc_  -> Fill(uncalibRecHit.amplitude());
+	  if (meEEUncalibRecHitsPedestalGt60adc_)   meEEUncalibRecHitsPedestalGt60adc_   -> Fill(uncalibRecHit.pedestal());
+	  if (meEEUncalibRecHitsJitterGt60adc_)     meEEUncalibRecHitsJitterGt60adc_     -> Fill(uncalibRecHit.jitter());
+	  if (meEEUncalibRecHitsChi2Gt60adc_)       meEEUncalibRecHitsChi2Gt60adc_       -> Fill(uncalibRecHit.chi2());
 	}
 
       if ( ! skipDigis ) {
@@ -183,12 +183,12 @@ void EcalEndcapRecHitsValidation::analyze(const Event& e, const EventSetup& c){
           if (eMax > (*it).mean_x1 + 5 * (*it).rms_x1 && eMax != 0 ){ //only real signal RecHit
             
             if ( meEEUncalibRecHitMaxSampleRatio_ )
-              { meEEUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax); }
+              { meEEUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit.amplitude()+uncalibRecHit.pedestal())/eMax); }
             
-            if ( meEEUncalibRecHitMaxSampleRatioGt60adc_ && (uncalibRecHit->amplitude() > 60) ) 
-              { meEEUncalibRecHitMaxSampleRatioGt60adc_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal())/eMax); }
+            if ( meEEUncalibRecHitMaxSampleRatioGt60adc_ && (uncalibRecHit.amplitude() > 60) ) 
+              { meEEUncalibRecHitMaxSampleRatioGt60adc_->Fill( (uncalibRecHit.amplitude()+uncalibRecHit.pedestal())/eMax); }
             
-            LogDebug("EcalRecHitsTaskInfo") << "endcap, eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+            LogDebug("EcalRecHitsTaskInfo") << "endcap, eMax = " << eMax << " Amplitude = " << uncalibRecHit.amplitude()+uncalibRecHit.pedestal();  
           }
           else
             continue;

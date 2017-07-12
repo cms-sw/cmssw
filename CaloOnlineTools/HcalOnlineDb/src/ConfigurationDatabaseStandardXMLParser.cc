@@ -58,8 +58,8 @@ XERCES_CPP_NAMESPACE_USE
       XMLString::release(&xc_type);
       XMLString::release(&xc_elements);
       XMLString::release(&xc_encoding);
-      for (int i=0; i<ITEMELEMENTNAMES; i++) 
-	XMLString::release(&xc_header[i]);
+      for (auto & i : xc_header) 
+	XMLString::release(&i);
     }
     virtual void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
     virtual void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
@@ -86,8 +86,8 @@ XERCES_CPP_NAMESPACE_USE
     char m_workc[512];
     XMLCh m_workx[256];
     bool isItemElement(const XMLCh* const localname) {
-      for (int i=0; i<ITEMELEMENTNAMES; i++)
-	if (!XMLString::compareIString(localname,xc_header[i])) return true;
+      for (auto & i : xc_header)
+	if (!XMLString::compareIString(localname,i)) return true;
       return false;
     }
   };
@@ -142,12 +142,12 @@ XERCES_CPP_NAMESPACE_USE
     } else if (m_mode==md_Data) {
       // parse the text
       std::string entry;
-      for (std::string::iterator q=m_text.begin(); q!=m_text.end(); q++) {
-	if (isspace(*q)) {
+      for (char & q : m_text) {
+	if (isspace(q)) {
 	  if (entry.empty()) continue;
 	  m_workitem.items.push_back(entry);
 	  entry="";
-	} else entry+=*q;
+	} else entry+=q;
       }
       if (!entry.empty()) m_workitem.items.push_back(entry);
       m_items.push_back(m_workitem); // save it
@@ -225,7 +225,7 @@ std::vector<unsigned int> ConfigurationDatabaseStandardXMLParser::Item::convert(
   else if (encoding=="dec") strtol_base=10;
       
   // convert the data
-  for (unsigned int j=0; j<items.size(); j++) 
-    values.push_back(strtol(items[j].c_str(),0,strtol_base));
+  for (const auto & item : items) 
+    values.push_back(strtol(item.c_str(),0,strtol_base));
   return values;
 }

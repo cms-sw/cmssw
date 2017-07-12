@@ -19,25 +19,23 @@ void SimpleElectronicsSimInMIPs::run(const ftl::FTLSimHitDataAccumulator& input,
   
   FTLSimHitData chargeColl,toa;
   
-  for(FTLSimHitDataAccumulator::const_iterator it=input.begin();
-      it!=input.end();
-      it++) {
+  for(const auto & it : input) {
     
     chargeColl.fill(0.f); 
     toa.fill(0.f);
-    for(size_t i=0; i<it->second.hit_info[0].size(); i++) {
+    for(size_t i=0; i<it.second.hit_info[0].size(); i++) {
       //time of arrival
-      float finalToA = (it->second).hit_info[1][i];
+      float finalToA = (it.second).hit_info[1][i];
       while(finalToA < 0.f)  finalToA+=25.f;
       while(finalToA > 25.f) finalToA-=25.f;
       toa[i]=finalToA;
       
       // collected charge (in this case in MIPs)
-      chargeColl[i] = (it->second).hit_info[0][i];      
+      chargeColl[i] = (it.second).hit_info[0][i];      
     }
     
     //run the shaper to create a new data frame
-    FTLDataFrame rawDataFrame( it->first );    
+    FTLDataFrame rawDataFrame( it.first );    
     runTrivialShaper(rawDataFrame,chargeColl,toa);
     updateOutput(output,rawDataFrame);
     

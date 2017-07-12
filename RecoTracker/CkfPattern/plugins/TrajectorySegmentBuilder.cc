@@ -322,12 +322,11 @@ TrajectorySegmentBuilder::updateCandidates (TempTrajectory const & traj,
   //
   // generate updated candidates with all valid hits
   //
-  for ( auto im=measurements.begin();
-	im!=measurements.end(); ++im ) {
-    if ( im->recHit()->isValid() ) {
+  for (const auto & measurement : measurements) {
+    if ( measurement.recHit()->isValid() ) {
       candidates.push_back(traj);
-      updateTrajectory(candidates.back(),*im);
-      if ( theLockHits )  lockMeasurement(*im);
+      updateTrajectory(candidates.back(),measurement);
+      if ( theLockHits )  lockMeasurement(measurement);
     }
   }
 }

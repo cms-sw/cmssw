@@ -88,9 +88,9 @@ bool NJetsMC::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    Int_t count = 0;
    bool result = false;
 
-   for(GenJetCollection::const_iterator iJet = GenJets->begin(); iJet != GenJets->end(); ++iJet)
+   for(const auto & iJet : *GenJets)
      {
-       reco::GenJet myJet = reco::GenJet(*iJet);
+       reco::GenJet myJet = reco::GenJet(iJet);
 
        if(myJet.pt() > minpt_) ++count;
      }

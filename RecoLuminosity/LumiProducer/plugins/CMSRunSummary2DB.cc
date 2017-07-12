@@ -169,9 +169,9 @@ namespace lumi{
       //priority pick the one contains PHYS if not found pick the first
       //
       std::string amd;
-      for(std::vector<std::string>::iterator it=amodes.begin();it!=amodes.end();++it){
-	if(it->find("PHYS")==std::string::npos) continue;
-	amd=*it;
+      for(auto & amode : amodes){
+	if(amode.find("PHYS")==std::string::npos) continue;
+	amd=amode;
       }
       if(amd.size()==0&&amodes.size()!=0){
 	amd=*(amodes.begin());

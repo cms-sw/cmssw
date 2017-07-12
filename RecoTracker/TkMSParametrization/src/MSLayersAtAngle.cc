@@ -200,7 +200,7 @@ MSLayersAtAngle::LayerItr MSLayersAtAngle::findLayer(
 //------------------------------------------------------------------------------
 void MSLayersAtAngle::print() const 
 {
-  for (LayerItr it = theLayers.begin(); it != theLayers.end(); it++) 
-    cout <<*it<<endl;
+  for (const auto & theLayer : theLayers) 
+    cout <<theLayer<<endl;
 }
 

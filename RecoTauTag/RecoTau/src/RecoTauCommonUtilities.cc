@@ -44,9 +44,8 @@ std::vector<reco::PFCandidatePtr> pfCandidates(const reco::PFJet& jet,
   PFCandPtrs&& pfCands = jet.getPFConstituents();
   PFCandPtrs output;
   // Get each desired candidate type, unsorted for now
-  for(std::vector<int>::const_iterator particleId = particleIds.begin();
-      particleId != particleIds.end(); ++particleId) {
-    PFCandPtrs&& selectedPFCands = filterPFCandidates(pfCands.begin(), pfCands.end(), *particleId, false);
+  for(int particleId : particleIds) {
+    PFCandPtrs&& selectedPFCands = filterPFCandidates(pfCands.begin(), pfCands.end(), particleId, false);
     output.insert(output.end(), selectedPFCands.begin(), selectedPFCands.end());
   }
   if (sort) std::sort(output.begin(), output.end(), SortPFCandsDescendingPt());

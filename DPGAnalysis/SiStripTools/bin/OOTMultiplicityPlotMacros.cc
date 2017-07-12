@@ -19,12 +19,12 @@ OOTSummary* ComputeOOTFractionvsFill(TFile* ff, const char* itmodule, const char
     CommonAnalyzer ca(ff,"",itmodule);
     std::vector<unsigned int> runs = ca.getFillList();
     std::sort(runs.begin(),runs.end());
-    for(unsigned int i=0;i<runs.size();++i) {
+    for(unsigned int run : runs) {
 
       char runlabel[100];
-      sprintf(runlabel,"%d",runs[i]);
+      sprintf(runlabel,"%d",run);
 
-      OOTResult* res = ComputeOOTFraction(ff,itmodule,ootmodule,etmodule,runs[i],hname,true);
+      OOTResult* res = ComputeOOTFraction(ff,itmodule,ootmodule,etmodule,run,hname,true);
 
       if(res->ngoodbx!=res->hratio->GetEntries()) std::cout << "Inconsistency in number of good bx" << std::endl;
       ootsumm->hngoodbx->Fill(runlabel,res->ngoodbx);
@@ -50,12 +50,12 @@ OOTSummary* ComputeOOTFractionvsRun(TFile* ff, const char* itmodule, const char*
     CommonAnalyzer ca(ff,"",itmodule);
     std::vector<unsigned int> runs = ca.getRunList();
     std::sort(runs.begin(),runs.end());
-    for(unsigned int i=0;i<runs.size();++i) {
+    for(unsigned int run : runs) {
 
       char runlabel[100];
-      sprintf(runlabel,"%d",runs[i]);
+      sprintf(runlabel,"%d",run);
 
-      OOTResult* res = ComputeOOTFraction(ff,itmodule,ootmodule,etmodule,runs[i],hname);
+      OOTResult* res = ComputeOOTFraction(ff,itmodule,ootmodule,etmodule,run,hname);
 
       if(res->ngoodbx!=res->hratio->GetEntries()) std::cout << "Inconsistency in number of good bx" << std::endl;
       ootsumm->hngoodbx->Fill(runlabel,res->ngoodbx);

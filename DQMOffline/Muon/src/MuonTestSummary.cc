@@ -234,8 +234,8 @@ void MuonTestSummary::dqmEndJob(DQMStore::IBooker &ibooker, DQMStore::IGetter &i
   theCertificationContents.push_back(ibooker.bookFloat("TK_EC"));
 
 
-  for (unsigned int icert=0;icert <theCertificationContents.size();icert++){
-    theCertificationContents[icert]->Fill(-1);
+  for (auto & theCertificationContent : theCertificationContents){
+    theCertificationContent->Fill(-1);
   }
   
   // initialisation of histo bins
@@ -1063,13 +1063,13 @@ void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter, std::string muTy
   Mean_err=0;
   Sigma=0;
   Sigma_err=0;
-  for(uint name=0; name<resHistos.size(); name++){   
-    MonitorElement * resHisto = igetter.get("Muons/MuonIdDQM/" + muType + "/"+resHistos[name]);
+  for(const auto & name : resHistos){   
+    MonitorElement * resHisto = igetter.get("Muons/MuonIdDQM/" + muType + "/"+name);
     
     if(resHisto){
       TH1F * resHisto_root = resHisto->getTH1F();
       if(resHisto_root->GetEntries() < 20) {
-	LogTrace(metname) << "[MuonTestSummary]: Test of "<< muType<<" for " <<resHistos[name]<< " not performed because # entries < 20 ";
+	LogTrace(metname) << "[MuonTestSummary]: Test of "<< muType<<" for " <<name<< " not performed because # entries < 20 ";
 	continue;
       }
 
@@ -1084,7 +1084,7 @@ void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter, std::string muTy
       try {
 	resHisto_root->Fit(gfit, "Q0");
       } catch (cms::Exception& iException) {
-	edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting "<<resHistos[name];
+	edm::LogError (metname)<< "[MuonTestSummary]: Exception when fitting "<<name;
 	continue;
       }
       if(gfit){
@@ -1092,8 +1092,8 @@ void MuonTestSummary::ResidualCheck(DQMStore::IGetter &igetter, std::string muTy
 	double mean_err = gfit->GetParError(1); 
 	double sigma = gfit->GetParameter(2);
 	double sigma_err =  gfit->GetParError(2);
-	LogTrace(metname)<<"meanRes: "<<mean<<" +- "<<mean_err<<" for "<<resHistos[name]<<endl;
-	LogTrace(metname)<<"sigmaRes: "<<sigma<<" +- "<<sigma_err<<" for "<<resHistos[name]<<endl;
+	LogTrace(metname)<<"meanRes: "<<mean<<" +- "<<mean_err<<" for "<<name<<endl;
+	LogTrace(metname)<<"sigmaRes: "<<sigma<<" +- "<<sigma_err<<" for "<<name<<endl;
 	
 	Mean+=mean;
 	Mean_err +=mean_err * mean_err;

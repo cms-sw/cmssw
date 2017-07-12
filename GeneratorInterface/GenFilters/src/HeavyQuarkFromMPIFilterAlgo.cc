@@ -25,8 +25,7 @@ bool HeavyQuarkFromMPIFilterAlgo::filter(const edm::Event& iEvent)  {
   reco::GenParticleCollection genPars=*genParsHandle;
 //  std::cout<<" in the filter HQF="<<HeavyQuarkFlavour<<std::endl;
   bool fromMPI=false;
-  for (uint32_t ig=0;ig<genPars.size();ig++) {
-    reco::GenParticle gp=genPars[ig];
+  for (auto gp : genPars) {
     if (abs(gp.pdgId())==HeavyQuarkFlavour) {
         if(gp.status()>=30 && gp.status()<40){
 //		cout<<"Found a B with status of 3X (eta="<<gp.eta()<<")==>fromMPI=true"<<endl;
@@ -36,8 +35,8 @@ bool HeavyQuarkFromMPIFilterAlgo::filter(const edm::Event& iEvent)  {
 //		cout<<"Found a B with status >= 4X (eta="<<gp.eta()<<")==>Need to check ancestors!"<<endl;
 		const reco::GenParticleRefVector& mothers = gp.motherRefVector();
 //		cout<<"Note: it has "<<mothers.size()<<" mothers"<<endl;
-		for( reco::GenParticleRefVector::const_iterator im = mothers.begin(); im!=mothers.end(); ++im) {
-			const reco::GenParticle& part = **im;
+		for(auto && mother : mothers) {
+			const reco::GenParticle& part = *mother;
 //			cout<<"--->Going to a mother, having eta="<<part.eta()<<endl;
 			if( hasMPIAncestor( &part) ){
 //				cout<<"------>Found one ancestor with status of 3X (eta="<<gp.eta()<<")==>fromMPI=true"<<endl;
@@ -61,8 +60,8 @@ bool HeavyQuarkFromMPIFilterAlgo::hasMPIAncestor( const reco::GenParticle* parti
 //	cout<<"------->in hasMPIAncestor, current particle has eta="<<particle->eta()<<" and status!=3X ==> checking next mothers"<<endl;
 	const reco::GenParticleRefVector& mothers = particle->motherRefVector();
 //	 cout<<"------>Note: it has "<<mothers.size()<<" mothers"<<endl;
-	for( reco::GenParticleRefVector::const_iterator im = mothers.begin(); im!=mothers.end(); ++im) {
-		const reco::GenParticle& part = **im;
+	for(auto && mother : mothers) {
+		const reco::GenParticle& part = *mother;
 		if( hasMPIAncestor( &part )){
 //			cout<<"--------->Found one ancestor with status of 3X ==>returning true"<<endl;
 			return true;

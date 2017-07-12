@@ -155,9 +155,9 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 
 	  // Exclude PF photons which clusters are part of the candidate 
 	  bool clusterOverlap = false;
-	  for(unsigned b=0; b<pfc->elementsInBlocks().size(); b++){
-	    reco::PFBlockRef blockRef = pfc->elementsInBlocks()[b].first;
-	    unsigned elementIndex = pfc->elementsInBlocks()[b].second;
+	  for(const auto & b : pfc->elementsInBlocks()){
+	    reco::PFBlockRef blockRef = b.first;
+	    unsigned elementIndex = b.second;
 	    if(blockRef.isNull()) continue;
 	    const edm::OwnVector< reco::PFBlockElement >& elements = blockRef->elements();
 	    const reco::PFBlockElement& pfbe(elements[elementIndex]); 
@@ -236,9 +236,9 @@ void EgammaHLTPFPhotonIsolationProducer::produce(edm::Event& iEvent, const edm::
 
 	  // Exclude PF photons which clusters are part of the electron supercluster
 	  bool clusterOverlap = false;
-	  for(unsigned b=0; b<pfc->elementsInBlocks().size(); b++){
-	    reco::PFBlockRef blockRef = pfc->elementsInBlocks()[b].first;
-	    unsigned elementIndex = pfc->elementsInBlocks()[b].second;
+	  for(const auto & b : pfc->elementsInBlocks()){
+	    reco::PFBlockRef blockRef = b.first;
+	    unsigned elementIndex = b.second;
 	    if(blockRef.isNull()) continue;
 	    const edm::OwnVector< reco::PFBlockElement >& elements = blockRef->elements();
 	    const reco::PFBlockElement& pfbe(elements[elementIndex]); 

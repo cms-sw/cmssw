@@ -165,8 +165,8 @@ reco::Particle TtSemiEvtSolution::getFitLepW() const
 //-------------------------------------------
 double TtSemiEvtSolution::getLRSignalEvtObsVal(unsigned int selObs) const {
   double val = -999.;
-  for(size_t o=0; o<lrSignalEvtVarVal_.size(); o++){
-    if(lrSignalEvtVarVal_[o].first == selObs) val = lrSignalEvtVarVal_[o].second;
+  for(const auto & o : lrSignalEvtVarVal_){
+    if(o.first == selObs) val = o.second;
   }
   return val;
 }
@@ -178,8 +178,8 @@ double TtSemiEvtSolution::getLRSignalEvtObsVal(unsigned int selObs) const {
 double TtSemiEvtSolution::getLRJetCombObsVal(unsigned int selObs) const 
 {
   double val = -999.;
-  for(size_t o=0; o<lrJetCombVarVal_.size(); o++){
-    if(lrJetCombVarVal_[o].first == selObs) val = lrJetCombVarVal_[o].second;
+  for(const auto & o : lrJetCombVarVal_){
+    if(o.first == selObs) val = o.second;
   }
   return val;
 }
@@ -203,7 +203,7 @@ void TtSemiEvtSolution::setGenEvt(const edm::Handle<TtGenEvent> & aGenEvt)
 void TtSemiEvtSolution::setLRJetCombObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrJetCombVarVal_.clear();
-  for(size_t ijc = 0; ijc<varval.size(); ijc++) lrJetCombVarVal_.push_back(varval[ijc]);
+  for(const auto & ijc : varval) lrJetCombVarVal_.push_back(ijc);
 }
 
 //-------------------------------------------  
@@ -212,7 +212,7 @@ void TtSemiEvtSolution::setLRJetCombObservables(const std::vector<std::pair<unsi
 void TtSemiEvtSolution::setLRSignalEvtObservables(const std::vector<std::pair<unsigned int, double> >& varval) 
 {
   lrSignalEvtVarVal_.clear();
-  for(size_t ise = 0; ise<varval.size(); ise++) lrSignalEvtVarVal_.push_back(varval[ise]);
+  for(const auto & ise : varval) lrSignalEvtVarVal_.push_back(ise);
 }
 
 

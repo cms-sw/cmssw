@@ -187,12 +187,12 @@ void BSvsPVPlots(const char* fullname,const char* module, const char* label, con
  
     std::cout << "Found " << runs.size() << " runs" << std::endl;
 
-    for(unsigned int i=0;i<runs.size();++i) {
+    for(unsigned int run : runs) {
       
       char runlabel[100];
-      sprintf(runlabel,"%d",runs[i]);
+      sprintf(runlabel,"%d",run);
       char runpath[100];
-      sprintf(runpath,"run_%d",runs[i]);
+      sprintf(runpath,"run_%d",run);
       castat.setPath(runpath);
       std::cout << runpath << std::endl;
        

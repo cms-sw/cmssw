@@ -301,26 +301,24 @@ void ClusterShapeExtractor::processPixelRecHits
   pair<unsigned int, float> key;
     size_t counter = 0, counter_2 = 0;
 
-  for(  SiPixelRecHitCollection::DataContainer::const_iterator
-        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-      if(checkSimHits(*recHit, simHit, key))
+  for(const auto & recHit : *recHits)
+      if(checkSimHits(recHit, simHit, key))
         {
           // Fill map
           if(simHitMap.count(key) == 0)
-              { simHitMap[key] = &(*recHit); }
-          else if(        recHit->cluster()->size() >
+              { simHitMap[key] = &recHit; }
+          else if(        recHit.cluster()->size() >
                    simHitMap[key]->cluster()->size())
-                   simHitMap[key] = &(*recHit);
+                   simHitMap[key] = &recHit;
           ++counter_2;
         }
 
-  for(  SiPixelRecHitCollection::DataContainer::const_iterator
-        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-      if(checkSimHits(*recHit, simHit, key))
+  for(const auto & recHit : *recHits)
+      if(checkSimHits(recHit, simHit, key))
         {
           // Check whether the present rechit is the largest
-            if(&(*recHit) == simHitMap[key]) {
-                processSim(*recHit, simHit, clusterShapeCache, hspc);
+            if(&recHit == simHitMap[key]) {
+                processSim(recHit, simHit, clusterShapeCache, hspc);
                 ++counter;
             }
         }
@@ -337,26 +335,24 @@ void ClusterShapeExtractor::processStripRecHits
   PSimHit simHit;
   pair<unsigned int, float> key;
 
-  for(  SiStripRecHit2DCollection::DataContainer::const_iterator
-        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  if(checkSimHits(*recHit, simHit, key))
+  for(const auto & recHit : *recHits)
+  if(checkSimHits(recHit, simHit, key))
   {
     // Fill map
     if(simHitMap.count(key) == 0)
-       simHitMap[key] = &(*recHit);
+       simHitMap[key] = &recHit;
     else
-      if(        recHit->cluster()->amplitudes().size() >
+      if(        recHit.cluster()->amplitudes().size() >
          simHitMap[key]->cluster()->amplitudes().size())
-         simHitMap[key] = &(*recHit);
+         simHitMap[key] = &recHit;
   }
 
-  for(  SiStripRecHit2DCollection::DataContainer::const_iterator
-        recHit = recHits->begin(); recHit!= recHits->end(); recHit++)
-  if(checkSimHits(*recHit, simHit, key))
+  for(const auto & recHit : *recHits)
+  if(checkSimHits(recHit, simHit, key))
   {
     // Check whether the present rechit is the largest
-    if(&(*recHit) == simHitMap[key])
-      processSim(*recHit, simHit, hssc);
+    if(&recHit == simHitMap[key])
+      processSim(recHit, simHit, hssc);
   }
 }
 
@@ -373,10 +369,9 @@ void ClusterShapeExtractor::processMatchedRecHits
 
   const SiStripRecHit2D * recHit;
 
-  for(  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator
-        matched = recHits->begin(); matched!= recHits->end(); matched++)
+  for(const auto & matched : *recHits)
   {
-    cache.push_back(matched->monoHit());
+    cache.push_back(matched.monoHit());
     recHit = &cache.back();
     if(checkSimHits(*recHit, simHit, key))
     {
@@ -388,7 +383,7 @@ void ClusterShapeExtractor::processMatchedRecHits
            simHitMap[key]->cluster()->amplitudes().size()) 
            simHitMap[key] = &(*recHit);
     }
-    cache.push_back(matched->stereoHit());
+    cache.push_back(matched.stereoHit());
     recHit = &cache.back();
     if(checkSimHits(*recHit, simHit, key))
     {
@@ -403,10 +398,9 @@ void ClusterShapeExtractor::processMatchedRecHits
 
   }
   
-  for(  SiStripMatchedRecHit2DCollection::DataContainer::const_iterator 
-        matched = recHits->begin(); matched!= recHits->end(); matched++)
+  for(const auto & matched : *recHits)
   {
-    auto recHit = matched->monoHit();
+    auto recHit = matched.monoHit();
     if(checkSimHits(recHit, simHit, key))
     {
       // Check whether the present rechit is the largest
@@ -414,7 +408,7 @@ void ClusterShapeExtractor::processMatchedRecHits
         processSim(recHit, simHit, hssc);
     }
 
-    recHit = matched->stereoHit();
+    recHit = matched.stereoHit();
     if(checkSimHits(recHit, simHit, key))
     {
       // Check whether the present rechit is the largest
@@ -492,12 +486,10 @@ void ClusterShapeExtractor::analyzeRecTracks
   ev.getByToken(clusterShapeCache_token, clusterShapeCache);
 
   // Take all trajectories
-  for(vector<Trajectory>::const_iterator trajectory = trajeCollection.begin();
-                                         trajectory!= trajeCollection.end();
-                                         trajectory++)
+  for(const auto & trajectory : trajeCollection)
   for(vector<TrajectoryMeasurement>::const_iterator
-      meas = trajectory->measurements().begin();
-      meas!= trajectory->measurements().end(); meas++)
+      meas = trajectory.measurements().begin();
+      meas!= trajectory.measurements().end(); meas++)
   {
     const TrackingRecHit* recHit = meas->recHit()->hit();
     DetId id = recHit->geographicalId();

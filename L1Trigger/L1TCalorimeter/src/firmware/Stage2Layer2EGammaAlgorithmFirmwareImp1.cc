@@ -226,18 +226,18 @@ void l1t::Stage2Layer2EGammaAlgorithmFirmwareImp1::processEvent(const std::vecto
   l1t::EGamma tempEG (emptyP4, 0, 0, 0, 0);
   std::vector< std::vector<l1t::EGamma> > egEtaPos( params_->egEtaCut() , std::vector<l1t::EGamma>(18, tempEG));
   std::vector< std::vector<l1t::EGamma> > egEtaNeg( params_->egEtaCut() , std::vector<l1t::EGamma>(18, tempEG));
-  for (unsigned int iEG = 0; iEG < egammas_raw.size(); iEG++)
+  for (auto & iEG : egammas_raw)
   {
-      int fgBit     = egammas_raw.at(iEG).hwQual()    & (0x1);
-      int hOverEBit = egammas_raw.at(iEG).hwQual()>>1 & (0x1);
-      int shapeBit  = egammas_raw.at(iEG).hwQual()>>2 & (0x1);
+      int fgBit     = iEG.hwQual()    & (0x1);
+      int hOverEBit = iEG.hwQual()>>1 & (0x1);
+      int shapeBit  = iEG.hwQual()>>2 & (0x1);
 
-      bool IDcuts = (fgBit && hOverEBit && shapeBit) || (egammas_raw.at(iEG).pt()>=params_->egMaxPtHOverE()) || (params_->egBypassEGVetos());
+      bool IDcuts = (fgBit && hOverEBit && shapeBit) || (iEG.pt()>=params_->egMaxPtHOverE()) || (params_->egBypassEGVetos());
 
       if(!IDcuts) continue;
 
-      if (egammas_raw.at(iEG).hwEta() > 0) egEtaPos.at( egammas_raw.at(iEG).hwEta()-1).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
-      else                                 egEtaNeg.at( -(egammas_raw.at(iEG).hwEta()+1)).at((egammas_raw.at(iEG).hwPhi()-1)/4) = egammas_raw.at(iEG);
+      if (iEG.hwEta() > 0) egEtaPos.at( iEG.hwEta()-1).at((iEG.hwPhi()-1)/4) = iEG;
+      else                                 egEtaNeg.at( -(iEG.hwEta()+1)).at((iEG.hwPhi()-1)/4) = iEG;
   }
 
   AccumulatingSort <l1t::EGamma> etaPosSorter(6);

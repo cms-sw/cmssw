@@ -120,10 +120,9 @@ std::map<DetectorElementPtr, double> LinearCalibrator::getCalibrationCoefficient
 	//printVec(std::cout, calibsSolved);
 
 	std::map<DetectorElementPtr, double> answers;
-	for (std::map<DetectorElementPtr, unsigned>::iterator it =
-			myDetElIndex.begin(); it != myDetElIndex.end(); ++it) {
-		DetectorElementPtr de = (*it).first;
-		answers[de] = calibsSolved[(*it).second];
+	for (auto & it : myDetElIndex) {
+		DetectorElementPtr de = it.first;
+		answers[de] = calibsSolved[it.second];
 	}
 	return answers;
 }

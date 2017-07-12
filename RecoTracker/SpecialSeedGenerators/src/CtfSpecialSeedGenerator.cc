@@ -145,13 +145,13 @@ bool CtfSpecialSeedGenerator::run(const edm::EventSetup& iSetup,
 					       TrajectorySeedCollection& output){
 	std::vector<std::unique_ptr<TrackingRegion>> regions = theRegionProducer->regions(e, iSetup);
         bool ok = true;
-	for (auto iReg = regions.begin(); iReg != regions.end(); iReg++){
-		if(!theSeedBuilder->momentumFromPSet()) theSeedBuilder->setMomentumTo((*iReg)->ptMin());
+	for (auto & region : regions){
+		if(!theSeedBuilder->momentumFromPSet()) theSeedBuilder->setMomentumTo(region->ptMin());
 		int i = 0;
-		for (auto iGen = theGenerators.begin(); iGen != theGenerators.end(); iGen++){
+		for (auto & theGenerator : theGenerators){
 		  ok = buildSeeds(iSetup, 
 			     e, 
-			     (*iGen)->run(**iReg, e, iSetup),
+			     theGenerator->run(*region, e, iSetup),
 			     theNavDirs[i], 
 			     thePropDirs[i], 
 			     output);

@@ -23,22 +23,20 @@ namespace {
       const vector < TransientVertex > & vtces, const vector < reco::TransientTrack > & trks )
   {
     set < reco::TransientTrack > st;
-    for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
-          i!=trks.end() ; ++i )
+    for (const auto & trk : trks)
     {
-      st.insert ( *i );
+      st.insert ( trk );
     }
     
     vector < vector < TrackAndWeight > > bundles;
-    for ( vector< TransientVertex >::const_iterator vtx=vtces.begin();
-          vtx!=vtces.end() ; ++vtx )
+    for (const auto & vtce : vtces)
     {
-      vector < reco::TransientTrack > trks = vtx->originalTracks();
+      vector < reco::TransientTrack > trks = vtce.originalTracks();
       vector < TrackAndWeight > tnws;
       for ( vector< reco::TransientTrack >::const_iterator trk=trks.begin(); 
             trk!=trks.end() ; ++trk )
       {
-        float w = vtx->trackWeight ( *trk ); 
+        float w = vtce.trackWeight ( *trk ); 
         if ( w > 1e-5 )
         {
           TrackAndWeight tmp ( *trk, w );
@@ -56,11 +54,10 @@ namespace {
     if ( bundles.size() == 0 ) return bundles;
 
     // now add not-yet assigned tracks
-    for ( set < reco::TransientTrack >::const_iterator i=st.begin(); 
-          i!=st.end() ; ++i )
+    for (const auto & i : st)
     {
       // cout << "[MultiVertexReconstructor] recovering " << i->id() << endl;
-      TrackAndWeight tmp ( *i, 0. );
+      TrackAndWeight tmp ( i, 0. );
       bundles[0].push_back ( tmp );
     }
     return bundles;
@@ -153,19 +150,17 @@ vector < TransientVertex > MultiVertexReconstructor::vertices (
   map < reco::TransientTrack, bool > st;
   
   vector < reco::TransientTrack > total = trks;
-  for ( vector< reco::TransientTrack >::const_iterator i=trks.begin(); 
-        i!=trks.end() ; ++i )
+  for (const auto & trk : trks)
   {
-    st[(*i)]=true;
+    st[trk]=true;
   }
 
   // cout << "[MultiVertexReconstructor] FIXME dont just add up tracks. superpose" << endl;
-  for ( vector< reco::TransientTrack >::const_iterator i=primaries.begin(); 
-        i!=primaries.end() ; ++i )
+  for (const auto & primarie : primaries)
   {
-    if (!(st[(*i)]))
+    if (!(st[primarie]))
     {
-      total.push_back ( *i );
+      total.push_back ( primarie );
     }
   }
 

@@ -199,11 +199,11 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   TrajectoryStateCombiner combiner;
 
-  for (TrackCandidateCollection::const_iterator i=theTCCollection->begin(); i!=theTCCollection->end();i++){
+  for (const auto & i : *theTCCollection){
 
     LogTrace("TestHits") << "\n*****************new candidate*****************" << std::endl;
       
-    const TrackCandidate * theTC = &(*i);
+    const TrackCandidate * theTC = &i;
     PTrajectoryStateOnDet state = theTC->trajectoryStateOnDet();
     const TrackCandidate::range& recHitVec=theTC->recHits();
 
@@ -231,9 +231,9 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     double tchi2 = 0;
 
     TSOS lastState = theTSOS;
-    for (std::vector<TrajectoryMeasurement>::iterator tm=vtm.begin(); tm!=vtm.end();tm++){
+    for (auto & tm : vtm){
 
-      TransientTrackingRecHit::ConstRecHitPointer rhit = tm->recHit();
+      TransientTrackingRecHit::ConstRecHitPointer rhit = tm.recHit();
       if ((rhit)->isValid()==0&&rhit->det()!=0) continue;
       LogTrace("TestHits") << "*****************new hit*****************" ;
 
@@ -255,15 +255,15 @@ void TestHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
       }
 
-      TSOS currentState = tm->forwardPredictedState();
-      if (tm->backwardPredictedState().isValid()) 
-	currentState = combiner(tm->backwardPredictedState(), tm->forwardPredictedState());
-      TSOS updatedState = tm->updatedState();
-      tchi2+=tm->estimate();
+      TSOS currentState = tm.forwardPredictedState();
+      if (tm.backwardPredictedState().isValid()) 
+	currentState = combiner(tm.backwardPredictedState(), tm.forwardPredictedState());
+      TSOS updatedState = tm.updatedState();
+      tchi2+=tm.estimate();
 
       //plot chi2 increment
-      double chi2increment = tm->estimate();
-      LogTrace("TestHits") << "tm->estimate()=" << tm->estimate();
+      double chi2increment = tm.estimate();
+      LogTrace("TestHits") << "tm->estimate()=" << tm.estimate();
       title.str("");
       title << "Chi2Increment_" << subdetId << "-" << layerId;
       hChi2Increment[title.str()]->Fill( chi2increment );

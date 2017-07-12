@@ -84,12 +84,9 @@ void DQMGenericTnPClient::endRun(const edm::Run &run, const edm::EventSetup &set
     }
   }
 
-  for(set<string>::const_iterator iSubDir = subDirSet.begin();
-      iSubDir != subDirSet.end(); ++iSubDir) {
-    const string& dirName = *iSubDir;
-    for(VParameterSet::const_iterator pset = efficiencies.begin(); 
-        pset != efficiencies.end(); ++pset) {
-      calculateEfficiency(dirName, *pset);
+  for(const auto & dirName : subDirSet) {
+    for(const auto & efficiencie : efficiencies) {
+      calculateEfficiency(dirName, efficiencie);
     }
   }
 

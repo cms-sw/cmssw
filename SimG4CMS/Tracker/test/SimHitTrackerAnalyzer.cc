@@ -166,26 +166,23 @@ SimHitTrackerAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup&
    }
    */
 
-   for (std::vector<SimTrack>::iterator isimtk = theSimTracks.begin();
-	isimtk != theSimTracks.end(); ++isimtk){
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum  x = "<<isimtk->momentum().x() <<" y = "<<isimtk->momentum().y() <<" z = "<< isimtk->momentum().z();
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<std::sqrt(isimtk->momentum().perp2());
+   for (auto & theSimTrack : theSimTracks){
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum  x = "<<theSimTrack.momentum().x() <<" y = "<<theSimTrack.momentum().y() <<" z = "<< theSimTrack.momentum().z();
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Track momentum Ptx = "<<std::sqrt(theSimTrack.momentum().perp2());
    }
 
-   for (std::vector<SimVertex>::iterator isimvtx = theSimVertexes.begin();
-	isimvtx != theSimVertexes.end(); ++isimvtx){
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Vertex position  x = "<<isimvtx->position().x() <<" y = "<<isimvtx->position().y() <<" z = "<< isimvtx->position().z();
+   for (auto & theSimVertexe : theSimVertexes){
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Vertex position  x = "<<theSimVertexe.position().x() <<" y = "<<theSimVertexe.position().y() <<" z = "<< theSimVertexe.position().z();
    }
 
 
    std::map<unsigned int, std::vector<PSimHit>,std::less<unsigned int> > SimHitMap;
 
-   for (std::vector<PSimHit>::iterator isim = theTrackerHits.begin();
-	isim != theTrackerHits.end(); ++isim){
-     SimHitMap[(*isim).detUnitId()].push_back((*isim));
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" SimHit position  x = "<<isim->localPosition().x() <<" y = "<<isim->localPosition().y() <<" z = "<< isim->localPosition().z();
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" SimHit DetID = "<<isim->detUnitId();	
-     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Time of flight = "<<isim->timeOfFlight();
+   for (auto & theTrackerHit : theTrackerHits){
+     SimHitMap[theTrackerHit.detUnitId()].push_back(theTrackerHit);
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" SimHit position  x = "<<theTrackerHit.localPosition().x() <<" y = "<<theTrackerHit.localPosition().y() <<" z = "<< theTrackerHit.localPosition().z();
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" SimHit DetID = "<<theTrackerHit.detUnitId();	
+     edm::LogInfo("TrackerSimInfoAnalyzer")<<" Time of flight = "<<theTrackerHit.timeOfFlight();
    }
 }
 

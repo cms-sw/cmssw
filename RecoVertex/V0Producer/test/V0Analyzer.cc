@@ -527,12 +527,12 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   // Count how many simulated K0s we have
   double numSimKshorts = 0.;
   double simRad = 0.;
-  for(unsigned int ndx1 = 0; ndx1 < theSimTracks.size(); ndx1++) {
-    if(theSimTracks[ndx1].type() == 310) {
-      math::XYZTLorentzVectorD k0sP(theSimTracks[ndx1].momentum());
+  for(auto & theSimTrack : theSimTracks) {
+    if(theSimTrack.type() == 310) {
+      math::XYZTLorentzVectorD k0sP(theSimTrack.momentum());
       k0sPtHisto->Fill( sqrt(k0sP.Perp2()), 1. );
       simRad = 
-	sqrt(theSimVerts[(theSimTracks[ndx1].vertIndex() + 1)].position().perp2());
+	sqrt(theSimVerts[(theSimTrack.vertIndex() + 1)].position().perp2());
       numSimKshorts += 1.;
     }
   }
@@ -601,45 +601,45 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
   }
 
   // Histogram the invariant mass (retrieved from the V0Candidate)
-  for(unsigned int ksndx_ = 0; ksndx_ < theKshorts.size(); ksndx_++) {
-    myNativeParticleMassHisto->Fill( theKshorts[ksndx_].mass() );
+  for(auto & theKshort : theKshorts) {
+    myNativeParticleMassHisto->Fill( theKshort.mass() );
   }
 
 
-  for(unsigned int ksndx = 0; ksndx < theKshorts.size(); ksndx++) {
+  for(auto & theKshort : theKshorts) {
     std::vector<reco::RecoChargedCandidate> v0daughters;
     std::vector<reco::TrackRef> theDaughterTracks;
 
-    for (unsigned int i = 0; i < theKshorts[ksndx].numberOfDaughters(); i++) {
+    for (unsigned int i = 0; i < theKshort.numberOfDaughters(); i++) {
       v0daughters.push_back( *(dynamic_cast<reco::RecoChargedCandidate *> 
-			       (theKshorts[ksndx].daughter(i))) );
+			       (theKshort.daughter(i))) );
     }
 
-    for(unsigned int j = 0; j < v0daughters.size(); j++) {
-      theDaughterTracks.push_back(v0daughters[j].track());
+    for(auto & v0daughter : v0daughters) {
+      theDaughterTracks.push_back(v0daughter.track());
     }
 
 
     reco::TrackBase::Point beamSpot(0,0,0);
 
-    for(unsigned int k = 0; k < theDaughterTracks.size(); k++) {
-      myImpactParameterHisto->Fill( sqrt( theDaughterTracks[k]->dxy( beamSpot )
-				       * theDaughterTracks[k]->dxy( beamSpot )
-				       + theDaughterTracks[k]->dsz( beamSpot )
-				       * theDaughterTracks[k]->dsz( beamSpot )),
+    for(auto & theDaughterTrack : theDaughterTracks) {
+      myImpactParameterHisto->Fill( sqrt( theDaughterTrack->dxy( beamSpot )
+				       * theDaughterTrack->dxy( beamSpot )
+				       + theDaughterTrack->dsz( beamSpot )
+				       * theDaughterTrack->dsz( beamSpot )),
 				    1.);
     }
     
     //reco::Vertex k0s = theKshorts[ksndx].vertex();
-    reco::Particle::Point k0s(theKshorts[ksndx].vx(),
-			      theKshorts[ksndx].vy(),
-			      theKshorts[ksndx].vz());
+    reco::Particle::Point k0s(theKshort.vx(),
+			      theKshort.vy(),
+			      theKshort.vz());
 
     /*myKshortPtHisto->Fill(sqrt(theKshorts[ksndx].px() *
 			       theKshorts[ksndx].px() +
 			       theKshorts[ksndx].py() *
 			       theKshorts[ksndx].py()), 1.);*/
-    myKshortPtHisto->Fill(theKshorts[ksndx].pt(), 1.);
+    myKshortPtHisto->Fill(theKshort.pt(), 1.);
 
     /*
     if(theKshorts[ksndx].pdgId() == 310) {
@@ -656,7 +656,7 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     std::cout << "@@@ MASS: " << theKshorts[ksndx].mass() << std::endl;
     */
 
-    kShortEtaHisto->Fill(theKshorts[ksndx].eta(), 1.);
+    kShortEtaHisto->Fill(theKshort.eta(), 1.);
 
     //std::cout << "tracksSize()=" << k0s.tracksSize() << std::endl;
     //std::cout << "hasRefittedTracks()="<< k0s.hasRefittedTracks() << std::endl;
@@ -677,16 +677,16 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     //double sig01 = k0s.covariance(0,1);
     //double sig02 = k0s.covariance(0,2);
     //double sig12 = k0s.covariance(1,2);
-    double sig00 = theKshorts[ksndx].vertexCovariance(0,0);
-    double sig11 = theKshorts[ksndx].vertexCovariance(1,1);
-    double sig22 = theKshorts[ksndx].vertexCovariance(2,2);
-    double sig01 = theKshorts[ksndx].vertexCovariance(0,1);
-    double sig02 = theKshorts[ksndx].vertexCovariance(0,2);
-    double sig12 = theKshorts[ksndx].vertexCovariance(1,2);
+    double sig00 = theKshort.vertexCovariance(0,0);
+    double sig11 = theKshort.vertexCovariance(1,1);
+    double sig22 = theKshort.vertexCovariance(2,2);
+    double sig01 = theKshort.vertexCovariance(0,1);
+    double sig02 = theKshort.vertexCovariance(0,2);
+    double sig12 = theKshort.vertexCovariance(1,2);
 
     double vtxRSph = vtxPos.mag();
     double vtxR = vtxPos.perp();
-    double vtxChi2 = theKshorts[ksndx].vertexChi2();
+    double vtxChi2 = theKshort.vertexChi2();
     double vtxErrorSph =
       sqrt( sig00*(x_*x_) + sig11*(y_*y_) + sig22*(z_*z_)
 	    + 2*(sig01*(x_*y_) + sig02*(x_*z_) + sig12*(y_*z_)) ) 
@@ -701,8 +701,8 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 
     using namespace reco;
     std::vector<reco::TrackRef> theVtxTrax;
-    for( unsigned int i = 0; i < v0daughters.size(); i++ ) {
-      theVtxTrax.push_back( v0daughters[i].track() );
+    for(auto & v0daughter : v0daughters) {
+      theVtxTrax.push_back( v0daughter.track() );
     }
 
     bool hitsOkay2 = true;
@@ -797,15 +797,15 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
 	    << std::endl;
     if(!hitsOkay) ++numDiff1;
     if(!hitsOkay2) ++numDiff2;
-    for(unsigned int ndx3 = 0; ndx3 < theRecoTracks.size(); ndx3++) {
-      tkEtaHisto->Fill(theRecoTracks[ndx3].eta(), 1.);
+    for(auto & theRecoTrack : theRecoTracks) {
+      tkEtaHisto->Fill(theRecoTrack.eta(), 1.);
       //tkChi2Histo->Fill(theRecoTracks[ndx3].normalizedChi2(), 1.);
     }
 
     if(nHitsCut) {
-      for(unsigned int ndx3_1 = 0; ndx3_1 < theRecoTracks.size(); ndx3_1++) {
+      for(auto & theRecoTrack : theRecoTracks) {
 	//tkEtaHisto->Fill(theRecoTracks[ndx3_1].eta(), 1.);
-	tkChi2Histo->Fill(theRecoTracks[ndx3_1].normalizedChi2(), 1.);
+	tkChi2Histo->Fill(theRecoTrack.normalizedChi2(), 1.);
       }
     }
 
@@ -814,19 +814,19 @@ void V0Analyzer::analyze(const edm::Event& iEvent,
     //step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
     //if(hitsOkay2) {
     if(vtxChi2 < 7. && nHitsCut && tkChi2Cut) {
-      step1massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+      step1massHisto->Fill(theKshort.mass(), 1.);
       myRhoEfficiencyHisto->Fill(recoRad, 1.);
       rVtxHisto1->Fill(vtxR, 1.);
       //if(vtxR > 0.1) {
       //if(vtxR > 1.) {
-	step2massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	step2massHisto->Fill(theKshort.mass(), 1.);
 	myRhoEfficiencyHisto2->Fill(recoRad, 1.);
 	vtxSigHisto1->Fill(vtxSig, 1.);
 	if(vtxSig > 20.) {
-	  step3massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	  step3massHisto->Fill(theKshort.mass(), 1.);
 	  myRhoEfficiencyHisto3->Fill(recoRad, 1.);
 	  if(hitsOkay) {
-	    step4massHisto->Fill(theKshorts[ksndx].mass(), 1.);
+	    step4massHisto->Fill(theKshort.mass(), 1.);
 	    rVtxHisto2->Fill(vtxR, 1.);
 	    myEtaEfficiencyHisto->Fill(recoEta, 1.);
 	    myRhoEfficiencyHisto4->Fill(recoRad, 1.);

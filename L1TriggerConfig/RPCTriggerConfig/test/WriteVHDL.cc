@@ -587,12 +587,10 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
  
  
   // build map of used TB inputs
-  for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
-      it != rpcGeom->dets().end();
-      ++it)
+  for(auto it : rpcGeom->dets())
   {
-    if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
-    RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
+    if( dynamic_cast<const RPCRoll* >( it ) == 0 ) continue;
+    RPCRoll const* roll = dynamic_cast< RPCRoll const*>( it );
     int detId = roll->id().rawId();
     
     for (int strip = 1; strip<= roll->nstrips(); ++strip){
@@ -666,11 +664,9 @@ void WriteVHDL::prepareEncdap4thPlaneConnections(edm::ESHandle<RPCGeometry> rpcG
    //std::cout << d << std::endl;
    int chamberMatches = 0;
    // check if 3d plane matches 4th plane
-   for(TrackingGeometry::DetContainer::const_iterator it3 = rpcGeom->dets().begin();
-             it3 != rpcGeom->dets().end();
-                  ++it3)
+   for(auto it3 : rpcGeom->dets())
    {
-     RPCRoll const* roll3 = dynamic_cast< RPCRoll const*>( *it3 );
+     RPCRoll const* roll3 = dynamic_cast< RPCRoll const*>( it3 );
      if( roll3 == 0 ) continue;
      RPCDetId d3 = roll3->id().rawId();
      if (d3 != matching4stDetId ) continue;
@@ -847,12 +843,10 @@ std::string WriteVHDL::writeConeDef(const edm::EventSetup& evtSetup, int tower, 
 
 
     bool beg = true;
-    for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
-      it != rpcGeom->dets().end();
-      ++it)
+    for(auto it : rpcGeom->dets())
     {
-      if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
-      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
+      if( dynamic_cast<const RPCRoll* >( it ) == 0 ) continue;
+      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( it );
       
       int detId = roll->id().rawId();
       //iterate over strips

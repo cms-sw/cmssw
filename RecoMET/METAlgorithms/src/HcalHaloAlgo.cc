@@ -59,16 +59,16 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       MaxTimeHits[i] = 0.;
     }
   
-  for( HBHERecHitCollection::const_iterator hit = TheHBHERecHits->begin() ; hit != TheHBHERecHits->end() ; hit++ )
+  for(const auto & hit : *TheHBHERecHits)
     {
-      HcalDetId id = HcalDetId(hit->id());                                                                                                    
+      HcalDetId id = HcalDetId(hit.id());                                                                                                    
       switch ( id.subdet() )                                                                                         
 	{      
 	case HcalBarrel:                                                                           
-	  if(hit->energy() < HBRecHitEnergyThreshold )continue;
+	  if(hit.energy() < HBRecHitEnergyThreshold )continue;
 	  break;                                                                                                                  
 	case HcalEndcap:                                                                                          
-	  if(hit->energy() < HERecHitEnergyThreshold ) continue;
+	  if(hit.energy() < HERecHitEnergyThreshold ) continue;
 	  break;
 	default:
 	  continue;
@@ -78,10 +78,10 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
       int iPhi = id.iphi();
       if(iPhi < 73 && TMath::Abs(iEta) < 23 )
 	{ 
-	  SumE[iPhi]+= hit->energy();
+	  SumE[iPhi]+= hit.energy();
 	  NumHits[iPhi] ++;
 	  
-	  float time = hit->time();
+	  float time = hit.time();
 	  MinTimeHits[iPhi] = time < MinTimeHits[iPhi] ? time : MinTimeHits[iPhi];
 	  MaxTimeHits[iPhi] = time > MaxTimeHits[iPhi] ? time : MaxTimeHits[iPhi];
 	}
@@ -96,24 +96,24 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 	  
 	  // Loop over rechits again to calculate direction based on timing info
 	  std::vector<const HBHERecHit*> Hits;
-	  for( HBHERecHitCollection::const_iterator hit = TheHBHERecHits->begin() ; hit != TheHBHERecHits->end() ; hit++ )
+	  for(const auto & hit : *TheHBHERecHits)
 	    {
 
-	      HcalDetId id = HcalDetId(hit->id());
+	      HcalDetId id = HcalDetId(hit.id());
 	      if( id.iphi() != iPhi ) continue;
 	      if( TMath::Abs(id.ieta() ) > 22 ) continue;  // has to overlap geometrically w/ HB
 	      switch ( id.subdet() )
 		{
 		case HcalBarrel:
-		  if(hit->energy() < HBRecHitEnergyThreshold )continue;
+		  if(hit.energy() < HBRecHitEnergyThreshold )continue;
 		  break;
 		case HcalEndcap:
-		  if(hit->energy() < HERecHitEnergyThreshold ) continue;
+		  if(hit.energy() < HERecHitEnergyThreshold ) continue;
 		  break;
 		default:
 		  continue;
 		}
-	      Hits.push_back(&(*hit));
+	      Hits.push_back(&hit);
 	    }
 	      
 	  std::sort( Hits.begin() , Hits.end() , CompareTime);
@@ -144,14 +144,14 @@ HcalHaloData HcalHaloAlgo::Calculate(const CaloGeometry& TheCaloGeometry, edm::H
 
   std::map<int, float> iPhiHadEtMap;
   std::vector<const CaloTower*> sortedCaloTowers;
-  for(CaloTowerCollection::const_iterator tower = TheCaloTowers->begin(); tower != TheCaloTowers->end(); tower++) {
-    if(abs(tower->ieta()) > maxAbsIEta) continue;
+  for(const auto & tower : *TheCaloTowers) {
+    if(abs(tower.ieta()) > maxAbsIEta) continue;
 
-    int iPhi = tower->iphi();
+    int iPhi = tower.iphi();
     if(!iPhiHadEtMap.count(iPhi)) iPhiHadEtMap[iPhi] = 0.0;
-    iPhiHadEtMap[iPhi] += tower->hadEt();
+    iPhiHadEtMap[iPhi] += tower.hadEt();
 
-    if(tower->numProblematicHcalCells() > 0) sortedCaloTowers.push_back(&(*tower));
+    if(tower.numProblematicHcalCells() > 0) sortedCaloTowers.push_back(&tower);
 
   }
 

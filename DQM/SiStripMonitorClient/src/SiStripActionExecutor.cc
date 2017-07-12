@@ -240,8 +240,8 @@ void SiStripActionExecutor::printReportSummary(MonitorElement* me,
 void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std::map<std::string, std::vector<std::string> >& layout_map, std::ostringstream& str_val) { 
 
   str_val << std::endl;
-  for (std::map<std::string, std::vector< std::string > >::iterator it = layout_map.begin() ; it != layout_map.end(); it++) {
-    std::string set_name = it->first;
+  for (auto & it : layout_map) {
+    std::string set_name = it.first;
     if (set_name.find("Summary") != std::string::npos) continue;
     configWriter_->createElement(set_name);
     
@@ -250,8 +250,8 @@ void SiStripActionExecutor::printShiftHistoParameters(DQMStore * dqm_store, std:
     
     str_val << std::setprecision(2);
     str_val << setiosflags(std::ios::fixed);
-    for (std::vector<std::string>::iterator im = it->second.begin(); 
-	 im != it->second.end(); im++) {  
+    for (std::vector<std::string>::iterator im = it.second.begin(); 
+	 im != it.second.end(); im++) {  
       std::string path_name = (*im);
       if (path_name.size() == 0) continue;
       MonitorElement* me = dqm_store->get(path_name);

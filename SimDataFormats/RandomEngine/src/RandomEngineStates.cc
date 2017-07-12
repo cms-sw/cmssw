@@ -24,18 +24,14 @@ namespace edm {
     if (moduleLabels_.size() != stateLengths_.size()) corrupt = true;
 
     unsigned int sum = 0U;
-    for (std::vector<unsigned>::const_iterator i = seedLengths_.begin(),
-	                                    iEnd = seedLengths_.end();
-         i != iEnd; ++i) {
-      sum += *i;
+    for (unsigned int seedLength : seedLengths_) {
+      sum += seedLength;
     }
     if (sum != seedVectors_.size()) corrupt = true;
 
     sum = 0U;
-    for (std::vector<unsigned>::const_iterator i = stateLengths_.begin(),
-	                                    iEnd = stateLengths_.end();
-         i != iEnd; ++i) {
-      sum += *i;
+    for (unsigned int stateLength : stateLengths_) {
+      sum += stateLength;
     }
     if (sum != stateVectors_.size()) corrupt = true;
 
@@ -122,19 +118,15 @@ namespace edm {
       std::vector<uint32_t> const& seedVector = state->getSeed();
       *seedLength = seedVector.size();
 
-      for (std::vector<uint32_t>::const_iterator j = seedVector.begin(),
-                                              jEnd = seedVector.end();
-           j != jEnd; ++j) {
-        seedVectors_.push_back(*j);
+      for (unsigned int j : seedVector) {
+        seedVectors_.push_back(j);
       }
 
       std::vector<uint32_t> const& stateVector = state->getState();
       *stateLength = stateVector.size();
 
-      for (std::vector<uint32_t>::const_iterator j = stateVector.begin(),
-                                              jEnd = stateVector.end();
-           j != jEnd; ++j) {
-        stateVectors_.push_back(*j);
+      for (unsigned int j : stateVector) {
+        stateVectors_.push_back(j);
       }
     }
   }

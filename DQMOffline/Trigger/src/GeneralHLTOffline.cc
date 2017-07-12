@@ -284,15 +284,14 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       std::cout << "Number of datasets to be monitored "
                 << datasetNames.size() << std::endl;
     
-    for (unsigned int i = 0; i < datasetNames.size(); i++) {
-      const std::vector<std::string> &datasetPaths = hlt_config_.datasetContent(datasetNames[i]);
+    for (const auto & datasetName : datasetNames) {
+      const std::vector<std::string> &datasetPaths = hlt_config_.datasetContent(datasetName);
       if (debugPrint) {
-        std::cout << "This is dataset " << datasetNames[i]
+        std::cout << "This is dataset " << datasetName
                   << "datasetPaths.size() = " << datasetPaths.size() << std::endl;
-        for (unsigned int iPath = 0;
-             iPath < datasetPaths.size(); iPath++) {
+        for (const auto & datasetPath : datasetPaths) {
           std::cout << "Paths in begin job "
-                    << datasetPaths[iPath] << std::endl;
+                    << datasetPath << std::endl;
         }
       }
       
@@ -301,11 +300,11 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       bool foundDataset = false;
       int datasetNum = -1;
       for (unsigned int d = 0; d < AddedDatasets.size(); d++) {
-        if (AddedDatasets[d].compare(datasetNames[i]) == 0) {
+        if (AddedDatasets[d].compare(datasetName) == 0) {
           foundDataset = true;
           datasetNum = d;
           if (debugPrint)
-            std::cout << "Dataset " << datasetNames[i]
+            std::cout << "Dataset " << datasetName
                       << " found in AddedDatasets at position " << d << std::endl;
           break;
         }
@@ -314,10 +313,10 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       if (!foundDataset) {
         if (debugPrint)
           std::cout << " Fill trigger paths for dataset "
-                    << datasetNames[i] << std::endl;
+                    << datasetName << std::endl;
         PDsVectorPathsVector.push_back(datasetPaths);
         // store dataset pathname
-        AddedDatasets.push_back(datasetNames[i]);
+        AddedDatasets.push_back(datasetName);
       } else {
         // This trigger path has already been added - this implies that
         // this is a new run What we want to do is check if there is a
@@ -358,7 +357,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
           if (debugPrint)
             std::cout << datasetPaths[iTrig]
                       << "  NOT FOUND - so we added it to the correct dataset "
-                      << datasetNames[i] << std::endl;
+                      << datasetName << std::endl;
         }
       }
       // Let's check this whole big structure
@@ -374,16 +373,14 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       }
 
       if (debugPrint)
-        std::cout <<"Found PD: " << datasetNames[i] << std::endl;
+        std::cout <<"Found PD: " << datasetName << std::endl;
     }  // end of loop over dataset names
 
 
 
     std::vector<std::string> triggerNames = hlt_config_.triggerNames();
 
-    for( unsigned int iPath=0; iPath<triggerNames.size(); iPath++ ){
-      std::string pathName = triggerNames[iPath];
-
+    for(auto pathName : triggerNames){
       const std::vector<std::string>& moduleLabels = hlt_config_.moduleLabels(pathName);
       int NumModules = int( moduleLabels.size() );
 

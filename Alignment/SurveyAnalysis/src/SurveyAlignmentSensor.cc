@@ -21,9 +21,9 @@ void SurveyAlignmentSensor::findAlignPars(bool bias)
     AlgebraicVector par(6, 0);
     AlgebraicSymMatrix cov(6, 0);
 
-    for (unsigned int l = 0; l < theLevels.size(); ++l)
+    for (auto theLevel : theLevels)
     {
-      SurveyResidual res(*ali, theLevels[l], bias);
+      SurveyResidual res(*ali, theLevel, bias);
 
       if ( !res.valid() ) continue;
 

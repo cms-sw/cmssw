@@ -142,9 +142,9 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
           GlobalVector globalVector(0,0,1);
           if(isoPixTrackRefs.size() == 0) return result;
 	  
-          for(uint32_t p=0; p<isoPixTrackRefs.size(); p++)
+          for(auto & isoPixTrackRef : isoPixTrackRefs)
             {
-              GlobalVector ptrVec((isoPixTrackRefs[p]->track())->px(),(isoPixTrackRefs[p]->track())->py(),(isoPixTrackRefs[p]->track())->pz());
+              GlobalVector ptrVec((isoPixTrackRef->track())->px(),(isoPixTrackRef->track())->py(),(isoPixTrackRef->track())->pz());
               globalVector = ptrVec;
 	      
               result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(globalVector,
@@ -178,9 +178,9 @@ class HITRegionalPixelSeedGenerator : public TrackingRegionProducer {
 	  GlobalVector globalVector(0,0,1);
 	  if(jets->size() == 0) return result;
 	  
-	  for (l1extra::L1JetParticleCollection::const_iterator iJet = jets->begin(); iJet != jets->end(); iJet++) 
+	  for (const auto & iJet : *jets) 
 	    {
-	      GlobalVector jetVector(iJet->p4().x(), iJet->p4().y(), iJet->p4().z());
+	      GlobalVector jetVector(iJet.p4().x(), iJet.p4().y(), iJet.p4().z());
 	      GlobalPoint  vertex(0, 0, originz);
 	      
 	      result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>( jetVector,

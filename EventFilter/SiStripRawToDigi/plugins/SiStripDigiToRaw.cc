@@ -225,21 +225,21 @@ namespace sistrip {
           FEDStripData fedData(zeroSuppressed);
           
           
-          for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
+          for (const auto & conn : conns) {
             
             // Determine FED key from cabling
-            uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+            uint32_t fed_key = ( ( conn.fedId() & sistrip::invalid_ ) << 16 ) | ( conn.fedCh() & sistrip::invalid_ );
             
             // Determine whether DetId or FED key should be used to index digi containers
-            uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
+            uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : conn.detId();
             
             // Check key is non-zero and valid
             if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
             
             // Determine APV pair number (needed only when using DetId)
-            uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
+            uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : conn.apvPairNumber();
             
-            FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
+            FEDStripData::ChannelData& chanData = fedData[conn.fedCh()];
 
             // Find digis for DetID in collection
             if (!collection.isValid()){
@@ -277,7 +277,7 @@ namespace sistrip {
           	std::stringstream ss; 
           	ss << "[sistrip::DigiToRaw::createFedBuffers]" 
           	   << " Incompatible ADC values in buffer!"
-          	   << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
+          	   << "  FedId/FedCh: " << *ifed << "/" << conn.fedCh()
           	   << "  DetStrip: " << STRIP(idigi, digis_begin)
           	   << "  FedChStrip: " << strip
           	   << "  AdcValue: " << (*idigi).adc()
@@ -326,9 +326,9 @@ namespace sistrip {
             << *(fed_ids.begin()) << " and " << *(fed_ids.end());
         }
 
-        for ( auto ifed = fed_ids.begin(); ifed != fed_ids.end(); ++ifed ) {
+        for (unsigned short fed_id : fed_ids) {
           
-          auto conns = cabling->fedConnections(*ifed);
+          auto conns = cabling->fedConnections(fed_id);
           
           //for special mode premix raw, data is zero-suppressed but not converted to 8 bit
           //zeroSuppressed here means converted to 8 bit...
@@ -336,21 +336,21 @@ namespace sistrip {
           FEDStripData fedData(zeroSuppressed);
           
           
-          for (auto iconn = conns.begin() ; iconn != conns.end(); iconn++ ) {
+          for (const auto & conn : conns) {
             
             // Determine FED key from cabling
-            uint32_t fed_key = ( ( iconn->fedId() & sistrip::invalid_ ) << 16 ) | ( iconn->fedCh() & sistrip::invalid_ );
+            uint32_t fed_key = ( ( conn.fedId() & sistrip::invalid_ ) << 16 ) | ( conn.fedCh() & sistrip::invalid_ );
             
             // Determine whether DetId or FED key should be used to index digi containers
-            uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : iconn->detId();
+            uint32_t key = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? fed_key : conn.detId();
             
             // Check key is non-zero and valid
             if ( !key || ( key == sistrip::invalid32_ ) ) { continue; }
             
             // Determine APV pair number (needed only when using DetId)
-            uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : iconn->apvPairNumber();
+            uint16_t ipair = ( useFedKey_ || mode_ == READOUT_MODE_SCOPE ) ? 0 : conn.apvPairNumber();
             
-            FEDStripData::ChannelData& chanData = fedData[iconn->fedCh()];
+            FEDStripData::ChannelData& chanData = fedData[conn.fedCh()];
 
             // Find digis for DetID in collection
             if (!collection.isValid()){
@@ -388,7 +388,7 @@ namespace sistrip {
           	std::stringstream ss; 
           	ss << "[sistrip::DigiToRaw::createFedBuffers]" 
           	   << " Incompatible ADC values in buffer!"
-          	   << "  FedId/FedCh: " << *ifed << "/" << iconn->fedCh()
+          	   << "  FedId/FedCh: " << fed_id << "/" << conn.fedCh()
           	   << "  DetStrip: " << STRIP(idigi, digis_begin)
           	   << "  FedChStrip: " << strip
           	   << "  AdcValue: " << (*idigi).adc()
@@ -409,8 +409,8 @@ namespace sistrip {
               << "Almost at the end...";
           }
           //create the buffer
-          FEDRawData& fedrawdata = buffers->FEDData( *ifed );
-          bufferGenerator_.generateBuffer(&fedrawdata,fedData,*ifed);
+          FEDRawData& fedrawdata = buffers->FEDData( fed_id );
+          bufferGenerator_.generateBuffer(&fedrawdata,fedData,fed_id);
 
           if ( edm::isDebugEnabled() ) {
             std::ostringstream debugStream;

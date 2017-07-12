@@ -52,10 +52,10 @@ bool JGJFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      float jet_eta[3];
 
      int njets(0);
-     for( GenJetCollection::const_iterator jet = o4->begin(); jet != o4->end(); ++jet ) {
+     for(const auto & jet : *o4) {
        if(njets<4) {
-        jet_pt[njets]=jet->pt();
-        jet_eta[njets]=jet->eta();
+        jet_pt[njets]=jet.pt();
+        jet_eta[njets]=jet.eta();
        }
        njets++;
      }
@@ -81,10 +81,10 @@ bool JGJFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      float jet_eta[3];
 
      int njets(0);
-     for( GenJetCollection::const_iterator jet = o6->begin(); jet != o6->end(); ++jet ) {
+     for(const auto & jet : *o6) {
        if(njets<4) {
-        jet_pt[njets]=jet->pt();
-        jet_eta[njets]=jet->eta();
+        jet_pt[njets]=jet.pt();
+        jet_eta[njets]=jet.eta();
        }
        njets++;
      }
@@ -110,10 +110,10 @@ bool JGJFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      float jet_eta[3];
 
      int njets(0);
-     for( GenJetCollection::const_iterator jet = oo->begin(); jet != oo->end(); ++jet ) {
+     for(const auto & jet : *oo) {
        if(njets<4) {
-        jet_pt[njets]=jet->pt();
-        jet_eta[njets]=jet->eta();
+        jet_pt[njets]=jet.pt();
+        jet_eta[njets]=jet.eta();
        }
        njets++;
      }

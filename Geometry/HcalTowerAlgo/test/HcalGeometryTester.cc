@@ -124,8 +124,8 @@ void HcalGeometryTester::testClosestCells(CaloSubdetectorGeometry* g,
   if (topology.valid(forwardDet3)) testClosestCell(forwardDet3, g);
   
   const std::vector<DetId>& ids=g->getValidDetIds(DetId::Hcal,HcalBarrel);
-  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
-    testClosestCell(HcalDetId(*i), g);
+  for (auto id : ids) {
+    testClosestCell(HcalDetId(id), g);
   }
 }
 

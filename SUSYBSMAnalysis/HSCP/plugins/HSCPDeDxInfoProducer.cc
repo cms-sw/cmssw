@@ -103,11 +103,11 @@ void HSCPDeDxInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iS
      if(useTrajectory){  //trajectory allows to take into account the local direction of the particle on the module sensor --> muc much better 'dx' measurement
         const edm::Ref<std::vector<Trajectory> > traj = cit->key; cit++;
         const vector<TrajectoryMeasurement> & measurements = traj->measurements();
-        for(vector<TrajectoryMeasurement>::const_iterator it = measurements.begin(); it!=measurements.end(); it++){
-           TrajectoryStateOnSurface trajState=it->updatedState();
+        for(const auto & measurement : measurements){
+           TrajectoryStateOnSurface trajState=measurement.updatedState();
            if( !trajState.isValid()) continue;
      
-           const TrackingRecHit * recHit=(*it->recHit()).hit();
+           const TrackingRecHit * recHit=(*measurement.recHit()).hit();
            if(!recHit)continue;
            LocalVector trackDirection = trajState.localDirection();
            float cosine = trackDirection.z()/trackDirection.mag();

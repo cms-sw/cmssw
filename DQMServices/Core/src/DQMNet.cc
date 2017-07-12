@@ -1301,10 +1301,8 @@ DQMNet::run(void)
   // Perform I/O.  Every once in a while flush updates to peers.
   while (! shouldStop())
   {
-    for (int i = 0; i < 2; ++i)
+    for (auto ap : automatic)
     {
-      AutoPeer *ap = automatic[i];
-
       // If we need a server connection and don't have one yet,
       // initiate asynchronous connection creation.  Swallow errors
       // in case the server won't talk to us.

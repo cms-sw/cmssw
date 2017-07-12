@@ -60,9 +60,9 @@ BTagPerformanceAnalyzerOnData::BTagPerformanceAnalyzerOnData(const edm::Paramete
       std::vector< edm::EDGetTokenT<edm::View<reco::BaseTagInfo>> > tokens;
       if(dataFormatType == "GenericMVA") {
         const std::vector<InputTag> listInfo = iModule->getParameter<vector<InputTag>>("listTagInfos"); 
-        for(unsigned int ITi=0; ITi<listInfo.size(); ITi++) { 
-          tokens.push_back(consumes< View<BaseTagInfo> >(listInfo[ITi]));
-          vIP.push_back(listInfo[ITi]);
+        for(const auto & ITi : listInfo) { 
+          tokens.push_back(consumes< View<BaseTagInfo> >(ITi));
+          vIP.push_back(ITi);
         }
       }
       else {
@@ -247,23 +247,23 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     LogDebug("Info") << "Found " << tagColl.size() << " B candidates in collection " << jetTagInputTags[iJetLabel];
 
     int plotterSize =  binJetTagPlotters[iJetLabel].size();
-    for (JetTagCollection::const_iterator tagI = tagColl.begin(); tagI != tagColl.end(); ++tagI) {
+    for (const auto & tagI : tagColl) {
       
       //JEC
-      reco::Jet correctedJet = *(tagI->first);     
+      reco::Jet correctedJet = *(tagI.first);     
       double jec = 1.0;
       if(doJEC && corrector) {
-        jec = corrector->correction(*(tagI->first));
+        jec = corrector->correction(*(tagI.first));
       }
 
-      if (!jetSelector(*(tagI->first), -1, infoHandle, jec)) 
+      if (!jetSelector(*(tagI.first), -1, infoHandle, jec)) 
         continue;
       
       for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-        bool inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*tagI->first, jec);
+        bool inBin = binJetTagPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*tagI.first, jec);
         // Fill histograms if in desired pt/rapidity bin.
         if (inBin)
-          binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(*tagI, jec, -1);
+          binJetTagPlotters[iJetLabel][iPlotter]->analyzeTag(tagI, jec, -1);
       }
     }
     for (int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
@@ -283,24 +283,24 @@ void BTagPerformanceAnalyzerOnData::analyze(const edm::Event& iEvent, const edm:
     const reco::JetTagCollection& tagColl2 = *(tagHandle2.product());
 
     int plotterSize = binTagCorrelationPlotters[iJetLabel].size();
-    for (JetTagCollection::const_iterator tagI = tagColl1.begin(); tagI != tagColl1.end(); ++tagI) {
+    for (const auto & tagI : tagColl1) {
       //JEC
-      reco::Jet correctedJet = *(tagI->first);     
+      reco::Jet correctedJet = *(tagI.first);     
       double jec = 1.0;
       if(doJEC && corrector) {
-        jec = corrector->correction(*(tagI->first));
+        jec = corrector->correction(*(tagI.first));
       }
 
-      if (!jetSelector(*(tagI->first), -1, infoHandle, jec))
+      if (!jetSelector(*(tagI.first), -1, infoHandle, jec))
         continue;
       
       for(int iPlotter = 0; iPlotter != plotterSize; ++iPlotter) {
-        bool inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*(tagI->first), jec);
+        bool inBin = binTagCorrelationPlotters[iJetLabel][iPlotter]->etaPtBin().inBin(*(tagI.first), jec);
 
         if(inBin)
         {
-          double discr2 = tagColl2[tagI->first];
-          binTagCorrelationPlotters[iJetLabel][iPlotter]->analyzeTags(tagI->second, discr2, -1);
+          double discr2 = tagColl2[tagI.first];
+          binTagCorrelationPlotters[iJetLabel][iPlotter]->analyzeTags(tagI.second, discr2, -1);
         }
       }
     }

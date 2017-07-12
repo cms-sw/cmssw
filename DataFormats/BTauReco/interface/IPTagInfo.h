@@ -205,7 +205,7 @@ template <class Container, class Base> TaggingVariableList IPTagInfo<Container,B
 template<class Container, class Base> Container IPTagInfo<Container,Base>::sorted(const std::vector<size_t>& indexes) const
 {
  Container tr;
- for(size_t i =0 ; i < indexes.size(); i++) tr.push_back(m_selected[indexes[i]]);
+ for(unsigned long indexe : indexes) tr.push_back(m_selected[indexe]);
  return tr;
 }
 
@@ -294,8 +294,8 @@ if(mode == IP3DSig || mode == IP2DSig ||mode ==  IP3DValue || mode == IP2DValue)
  } else
 //Ascending:
  {
-  for(std::multimap<float,size_t>::iterator it = sortedIdx.begin(); it!=sortedIdx.end(); it++)
-    if(it->first <= cut) result.push_back(it->second);
+  for(auto & it : sortedIdx)
+    if(it.first <= cut) result.push_back(it.second);
  }
  return result;
 }

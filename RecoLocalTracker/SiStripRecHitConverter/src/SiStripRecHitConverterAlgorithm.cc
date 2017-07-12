@@ -255,9 +255,9 @@ match(products& output, LocalVector trackdirection) const
     // now look for unmatched stereo hits    
     SiStripRecHit2DCollection::FastFiller fillerStereoUnm(*output.stereoUnmatched, stereoHits.detId());
       std::sort(matchedSteroClusters.begin(), matchedSteroClusters.end());
-      for (edmNew::DetSet<SiStripRecHit2D>::const_iterator it = stereoHits.begin(), ed = stereoHits.end(); it != ed; ++it) {
-	if (!std::binary_search(matchedSteroClusters.begin(), matchedSteroClusters.end(), it->cluster().key())) {
-	  fillerStereoUnm.push_back(*it);
+      for (const auto & stereoHit : stereoHits) {
+	if (!std::binary_search(matchedSteroClusters.begin(), matchedSteroClusters.end(), stereoHit.cluster().key())) {
+	  fillerStereoUnm.push_back(stereoHit);
 	}
       }
     if (fillerStereoUnm.empty()) fillerStereoUnm.abort(); 

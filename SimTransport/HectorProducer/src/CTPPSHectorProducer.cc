@@ -109,8 +109,8 @@ void CTPPSHectorProducer::produce(edm::Event & iEvent, const edm::EventSetup & e
     (*NewCorrespondenceMap).swap(thisLink);
 
     if ( m_verbosity ) {
-        for ( unsigned int i = 0; i < (*NewCorrespondenceMap).size(); i++) 
-            LogDebug("HectorEventProcessing") << "Hector correspondence table: " << (*NewCorrespondenceMap)[i];
+        for (auto i : (*NewCorrespondenceMap)) 
+            LogDebug("HectorEventProcessing") << "Hector correspondence table: " << i;
     }
 
     iEvent.put(std::move(NewCorrespondenceMap));

@@ -188,13 +188,11 @@ void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 
   
   // loop over uncalibRecHit
-  for (EcalUncalibratedRecHitCollection::const_iterator uncalibRecHit = EBUncalibRecHit->begin () ;
-       uncalibRecHit != EBUncalibRecHit->end () ;
-       ++uncalibRecHit)
+  for (const auto & uncalibRecHit : *EBUncalibRecHit)
     {
-      EBDetId EBid = EBDetId(uncalibRecHit->id());
+      EBDetId EBid = EBDetId(uncalibRecHit.id());
       if (meEBUncalibRecHitOccupancy_) meEBUncalibRecHitOccupancy_->Fill( EBid.iphi(), EBid.ieta() );
-      if (meEBUncalibRecHitPedestal_) meEBUncalibRecHitPedestal_->Fill(uncalibRecHit->pedestal());
+      if (meEBUncalibRecHitPedestal_) meEBUncalibRecHitPedestal_->Fill(uncalibRecHit.pedestal());
 
       // Find corresponding recHit
       EcalRecHitCollection::const_iterator myRecHit = EBRecHit->find(EBid);
@@ -223,8 +221,8 @@ void EcalLocalRecoTask::analyze(const edm::Event& e, const edm::EventSetup& c)
 	{
 	  if (eMax> (*it).mean_x1 + 5 * (*it).rms_x1 ) //only real signal RecHit
 	    {
-	      if (meEBUncalibRecHitMaxSampleRatio_) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit->amplitude()+uncalibRecHit->pedestal()) /eMax);
-	      edm::LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit->amplitude()+uncalibRecHit->pedestal();  
+	      if (meEBUncalibRecHitMaxSampleRatio_) meEBUncalibRecHitMaxSampleRatio_->Fill( (uncalibRecHit.amplitude()+uncalibRecHit.pedestal()) /eMax);
+	      edm::LogInfo("EcalLocalRecoTaskInfo") << " eMax = " << eMax << " Amplitude = " << uncalibRecHit.amplitude()+uncalibRecHit.pedestal();  
 	    }
 	  else
 	    continue;

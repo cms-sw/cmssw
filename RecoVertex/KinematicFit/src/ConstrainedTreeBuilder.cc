@@ -135,18 +135,18 @@ RefCountedKinematicTree ConstrainedTreeBuilder::buildTree(const RefCountedKinema
  resTree->addParticle(fVertex, vtx, virtualParticle);
 
 //adding final state
- for(std::vector<RefCountedKinematicParticle>::const_iterator il = particles.begin(); il != particles.end(); il++)
+ for(const auto & particle : particles)
  {
-  if((*il)->previousParticle()->correspondingTree() != 0)
+  if(particle->previousParticle()->correspondingTree() != 0)
   {
-   KinematicTree * tree = (*il)->previousParticle()->correspondingTree();
+   KinematicTree * tree = particle->previousParticle()->correspondingTree();
    tree->movePointerToTheTop();
-   tree->replaceCurrentParticle(*il);
+   tree->replaceCurrentParticle(particle);
    RefCountedKinematicVertex cdVertex = resTree->currentDecayVertex();
    resTree->addTree(cdVertex, tree);
   }else{
    RefCountedKinematicVertex ffVertex = vFactory->vertex();
-   resTree->addParticle(vtx,ffVertex,*il);
+   resTree->addParticle(vtx,ffVertex,particle);
   }
  }
  return resTree;
@@ -167,11 +167,11 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(const std::vector<RefCo
  jac(2,2) = 1;
  jac(3,3) = 1;
  int i_int=0;
- for(std::vector<RefCountedKinematicParticle>::const_iterator i = rPart.begin(); i != rPart.end(); i++)
+ for(const auto & i : rPart)
  {
 
 //vertex position related components of the matrix
-  double a_i = - (*i)->currentState().particleCharge() * (*i)->magneticField()->inInverseGeV((*i)->currentState().globalPosition()).z();
+  double a_i = - i->currentState().particleCharge() * i->magneticField()->inInverseGeV(i->currentState().globalPosition()).z();
 
   AlgebraicMatrix upper(3,7,0);
   AlgebraicMatrix diagonal(7,7,0);
@@ -237,8 +237,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(const std::vector<RefCo
 // cout<<"reduced matrix"<<reduced<<endl;
  int il_int = 0;
   double energy_global = sqrt(newPar(3)*newPar(3)+newPar(4)*newPar(4) + newPar(5)*newPar(5)+newPar(6)*newPar(6));
- for(std::vector<RefCountedKinematicParticle>::const_iterator rs = rPart.begin();
-                                                       rs!=rPart.end();rs++)
+ for(const auto & rs : rPart)
  {
 //jacobian components:
   AlgebraicMatrix jc_el(4,4,0);
@@ -247,7 +246,7 @@ AlgebraicMatrix ConstrainedTreeBuilder::covarianceMatrix(const std::vector<RefCo
   jc_el(3,3) = 1.;
 
 //non-trival elements: mass correlations:
-  AlgebraicVector7 l_Par = (*rs)->currentState().kinematicParameters().vector();
+  AlgebraicVector7 l_Par = rs->currentState().kinematicParameters().vector();
   double energy_local  = sqrt(l_Par(6)*l_Par(6) + l_Par(3)*l_Par(3) + l_Par(4)*l_Par(4) + l_Par(5)*l_Par(5));
   jc_el(4,4) = energy_global*l_Par(6)/(newPar(6)*energy_local);
   jc_el(4,1) = ((energy_global*l_Par(3)/energy_local) - newPar(3))/newPar(6);

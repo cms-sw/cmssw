@@ -131,11 +131,9 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
     m_helper->finalState(incidentRHadron,track.GetMaterial(),targetParticle);
 
   // Fill a list of the new particles to create including the incident if it survives
-  for(HadronicProcessHelper::ReactionProduct::iterator it  = reactionProduct.begin();
-      it != reactionProduct.end() ;  
-      ++it)
+  for(int & it : reactionProduct)
     {
-      G4ParticleDefinition * productDefinition =theParticleTable->FindParticle(*it);
+      G4ParticleDefinition * productDefinition =theParticleTable->FindParticle(it);
       newParticlesRHadron.push_back(productDefinition);
       CustomParticle* cProd = dynamic_cast<CustomParticle*>(productDefinition);
 

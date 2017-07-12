@@ -381,9 +381,9 @@ namespace hcaldqm
 				{
 					char name[10];
 					std::vector<std::string> labels;
-					for (uint32_t i=0; i<_runs.size(); i++)
+					for (int _run : _runs)
 					{
-						sprintf(name, "%d", _runs[i]);
+						sprintf(name, "%d", _run);
 						labels.push_back(name);
 					}
 					return labels;

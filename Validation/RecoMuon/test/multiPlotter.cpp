@@ -150,9 +150,9 @@ int main(int argc, char *argv[] )
   baseName->Append("/");
   
   TList *sourcelist = new TList();  
-  for (std::vector<std::string>::size_type i = 0; i < inFileVector.size(); i++) {
-    std::cout << inFileVector[i] << " " << std::endl;
-    sourcelist->Add(TFile::Open(TString(inFileVector[i])));
+  for (const auto & i : inFileVector) {
+    std::cout << i << " " << std::endl;
+    sourcelist->Add(TFile::Open(TString(i)));
   }
 
   TCanvas* c1 = new TCanvas("c1") ;

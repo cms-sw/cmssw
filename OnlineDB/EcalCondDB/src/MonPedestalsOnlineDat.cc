@@ -146,14 +146,14 @@ void MonPedestalsOnlineDat::writeArrayDB(const std::map< EcalLogicID, MonPedesta
   const MonPedestalsOnlineDat* dataitem;
   int count=0;
   typedef map< EcalLogicID, MonPedestalsOnlineDat >::const_iterator CI;
-  for (CI p = data->begin(); p != data->end(); ++p) {
-        channel = &(p->first);
+  for (const auto & p : *data) {
+        channel = &(p.first);
 	int logicID = channel->getLogicID();
 	if (!logicID) { throw(std::runtime_error("MonPedestalsOnlineDat::writeArrayDB:  Bad EcalLogicID")); }
 	ids[count]=logicID;
 	iovid_vec[count]=iovID;
 
-	dataitem = &(p->second);
+	dataitem = &(p.second);
 	// dataIface.writeDB( channel, dataitem, iov);
 	float x=dataitem->getADCMeanG12();
 	float y=dataitem->getADCRMSG12();

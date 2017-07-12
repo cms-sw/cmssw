@@ -209,8 +209,8 @@ AlignmentMonitorAsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSe
    
    // Form pairs of trajectories and tracks
    ConstTrajTrackPairCollection trajTracks;
-   for (TrajTrackAssociationCollection::const_iterator iPair = trajTracksMap->begin();  iPair != trajTracksMap->end();  ++iPair) {
-      trajTracks.push_back(ConstTrajTrackPair(&(*(*iPair).key), &(*(*iPair).val)));
+   for (const auto & iPair : *trajTracksMap) {
+      trajTracks.push_back(ConstTrajTrackPair(&(*iPair.key), &(*iPair.val)));
    }
    
    // Run the monitors

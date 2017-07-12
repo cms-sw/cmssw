@@ -381,17 +381,17 @@ void prim_conv_sector::init ()
 }
 void prim_conv_sector::genblk__class::init()
 {
-	for (map <ull, station11__class>::iterator mit = station11.begin(); mit != station11.end(); mit++)
-		mit->second.init();
-	for (map <ull, station12__class>::iterator mit = station12.begin(); mit != station12.end(); mit++)
-		mit->second.init();
-	for (map <ull, station__class>::iterator mit = station.begin(); mit != station.end(); mit++)
-		mit->second.init();
+	for (auto & mit : station11)
+		mit.second.init();
+	for (auto & mit : station12)
+		mit.second.init();
+	for (auto & mit : station)
+		mit.second.init();
 }
 void prim_conv_sector::genblk__class::station11__class::init()
 {
-	for (map <ull, csc11__class>::iterator mit = csc11.begin(); mit != csc11.end(); mit++)
-		mit->second.init();
+	for (auto & mit : csc11)
+		mit.second.init();
 }
 void prim_conv_sector::genblk__class::station11__class::csc11__class::init()
 {
@@ -399,8 +399,8 @@ void prim_conv_sector::genblk__class::station11__class::csc11__class::init()
 }
 void prim_conv_sector::genblk__class::station12__class::init()
 {
-	for (map <ull, csc12__class>::iterator mit = csc12.begin(); mit != csc12.end(); mit++)
-		mit->second.init();
+	for (auto & mit : csc12)
+		mit.second.init();
 }
 void prim_conv_sector::genblk__class::station12__class::csc12__class::init()
 {
@@ -408,8 +408,8 @@ void prim_conv_sector::genblk__class::station12__class::csc12__class::init()
 }
 void prim_conv_sector::genblk__class::station__class::init()
 {
-	for (map <ull, csc__class>::iterator mit = csc.begin(); mit != csc.end(); mit++)
-		mit->second.init();
+	for (auto & mit : csc)
+		mit.second.init();
 }
 void prim_conv_sector::genblk__class::station__class::csc__class::init()
 {

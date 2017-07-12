@@ -318,8 +318,7 @@ void HGCalTimingAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> c
 
   xBeam_ = yBeam_ = zBeam_ = pBeam_ = -1000000;
   int vertIndex(-1);
-  for (edm::SimTrackContainer::const_iterator simTrkItr = SimTk->begin(); 
-       simTrkItr!= SimTk->end(); simTrkItr++) {
+  for (const auto & simTrkItr : *SimTk) {
 #ifdef EDM_ML_DEBUG
     std::cout << "Track " << simTrkItr->trackId() << " Vertex "
 	      << simTrkItr->vertIndex() << " Type " << simTrkItr->type()
@@ -328,8 +327,8 @@ void HGCalTimingAnalyzer::analyzeSimTracks(edm::Handle<edm::SimTrackContainer> c
 	      << std::endl;
 #endif
     if (vertIndex == -1) {
-      vertIndex = simTrkItr->vertIndex();
-      pBeam_    = simTrkItr->momentum().P();
+      vertIndex = simTrkItr.vertIndex();
+      pBeam_    = simTrkItr.momentum().P();
     }
   }
   if (vertIndex != -1 && vertIndex < (int)SimVtx->size()) {

@@ -127,11 +127,9 @@ EcalDisplaysByEvent::analyze(edm::Event const & iEvent, edm::EventSetup const & 
   edm::Handle<EcalRawDataCollection> DCCHeaders;
   iEvent.getByLabel(headerProducer_, DCCHeaders);
 
-  for (EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();
-		  headerItr != DCCHeaders->end (); 
-		  ++headerItr) 
+  for (const auto & headerItr : *DCCHeaders) 
   {
-    FEDsAndDCCHeaders_[headerItr->id()+600] = *headerItr;
+    FEDsAndDCCHeaders_[headerItr.id()+600] = headerItr;
   }
 
   int ievt = iEvent.id().event();
@@ -204,9 +202,9 @@ EcalDisplaysByEvent::analyze(edm::Event const & iEvent, edm::EventSetup const & 
 void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits,
     int ievt, ESHandle<CaloTopology> caloTopo)
 {
-  for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr)
+  for (const auto & hitItr : *hits)
   {
-    EcalRecHit hit = (*hitItr);
+    EcalRecHit hit = hitItr;
     DetId det = hit.id();
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
     int FEDid = 600+elecId.dccId();
@@ -280,8 +278,8 @@ void EcalDisplaysByEvent::selectHits(Handle<EcalRecHitCollection> hits,
 TGraph* EcalDisplaysByEvent::selectDigi(DetId thisDet, int ievt)
 {
   int emptyY[10];
-  for (int i=0; i<10; i++)
-    emptyY[i] = 0;
+  for (int & i : emptyY)
+    i = 0;
   TGraph* emptyGraph = fileService->make<TGraph>(10, abscissa, emptyY);
   emptyGraph->SetTitle("NOT ECAL");
   
@@ -444,9 +442,9 @@ void EcalDisplaysByEvent::makeHistos(Handle<EEDigiCollection> eeDigiHandle) {
 
 void EcalDisplaysByEvent::makeHistos(Handle<EcalRecHitCollection> hits)
 {
-  for (EcalRecHitCollection::const_iterator hitItr = hits->begin(); hitItr != hits->end(); ++hitItr)
+  for (const auto & hitItr : *hits)
   {
-    EcalRecHit hit = (*hitItr);
+    EcalRecHit hit = hitItr;
     DetId det = hit.id();
     EcalElectronicsId elecId = ecalElectronicsMap_->getElectronicsId(det);
     int FEDid = 600+elecId.dccId();

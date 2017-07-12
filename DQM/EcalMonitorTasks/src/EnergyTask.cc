@@ -57,16 +57,16 @@ namespace ecaldqm
     uint32_t neitherGoodNorOOT(~(0x1 << EcalRecHit::kGood |
                                  0x1 << EcalRecHit::kOutOfTime));
 
-    for(EcalRecHitCollection::const_iterator hitItr(_hits.begin()); hitItr != _hits.end(); ++hitItr){
+    for(const auto & _hit : _hits){
 
-      if(isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorPoorCalib)) continue;
-      if(!isPhysicsRun_ && hitItr->checkFlagMask(neitherGoodNorOOT)) continue;
+      if(isPhysicsRun_ && _hit.checkFlagMask(neitherGoodNorPoorCalib)) continue;
+      if(!isPhysicsRun_ && _hit.checkFlagMask(neitherGoodNorOOT)) continue;
 
-      float energy(hitItr->energy());
+      float energy(_hit.energy());
 
       if(energy < 0.) continue;
 
-      DetId id(hitItr->id());
+      DetId id(_hit.id());
 
       meHitMap.fill(id, energy);
       meHitMapAll.fill(id, energy);

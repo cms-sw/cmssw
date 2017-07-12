@@ -270,7 +270,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 #endif
 
     TrajectoryStateOnSurface propagatedState = startingState;
-    for ( unsigned int ilayer=0; ilayer<navLayers.size(); ilayer++ ) {
+    for (auto & navLayer : navLayers) {
 
 #ifdef FAMOS_DEBUG
       std::cout << "Propagating to layer " << ilayer << " " 
@@ -279,7 +279,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 #endif
       
       std::vector<DetWithState> comps = 
-	navLayers[ilayer]->compatibleDets(propagatedState,*propagatorWithMaterial,theEstimator);
+	navLayer->compatibleDets(propagatedState,*propagatorWithMaterial,theEstimator);
       if ( comps.empty() ) continue;
 
 #ifdef FAMOS_DEBUG
@@ -292,8 +292,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
       SteppingHelixStateInfo shsDest;
-      ((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface(),shsDest);
-      std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
+      ((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayer->surface(),shsDest);
+      std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayer->surface()),
 						      shsDest.path());
       // No need to continue if there is no valid propagation available.
       // This happens rarely (~0.1% of ttbar events)
@@ -306,7 +306,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       // Now propagate without dE/dx (average) 
       // [To add the dE/dx fluctuations to the actual dE/dx]
       std::pair<TrajectoryStateOnSurface,double> nextNoMaterial = 
-	propagatorWithoutMaterial->propagateWithPath(propagatedState,navLayers[ilayer]->surface());
+	propagatorWithoutMaterial->propagateWithPath(propagatedState,navLayer->surface());
 
       // Update the propagated state
       propagatedState = next.first;
@@ -336,17 +336,17 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
       tof += dtof;
 
-      for ( unsigned int icomp=0; icomp<comps.size(); icomp++ )
+      for (auto & comp : comps)
 	{
-      const GeomDet *gd = comps[icomp].first;
+      const GeomDet *gd = comp.first;
       if ( gd->subDetector() == GeomDetEnumerators::DT ) {
         DTChamberId id(gd->geographicalId());
         const DTChamber *chamber = dtGeom->chamber(id);
         std::vector<const DTSuperLayer *> superlayer = chamber->superLayers();
-        for ( unsigned int isl=0; isl<superlayer.size(); isl++ ) {
-          std::vector<const DTLayer *> layer = superlayer[isl]->layers();
-          for ( unsigned int ilayer=0; ilayer<layer.size(); ilayer++ ) {
-            DTLayerId lid = layer[ilayer]->id();
+        for (auto & isl : superlayer) {
+          std::vector<const DTLayer *> layer = isl->layers();
+          for (auto & ilayer : layer) {
+            DTLayerId lid = ilayer->id();
 #ifdef FAMOS_DEBUG
 	    std::cout << "    Extrapolated to DT (" 
 		      << lid.wheel() << "," 
@@ -366,7 +366,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
             if ( ! path.first ) continue;
             LocalPoint lpos = det->toLocal(GlobalPoint(crossing.position(path.second)));
 	    if ( ! det->surface().bounds().inside(lpos) ) continue;
-	    const DTTopology& dtTopo = layer[ilayer]->specificTopology();
+	    const DTTopology& dtTopo = ilayer->specificTopology();
             int wire = dtTopo.channel(lpos);
 	    if (wire - dtTopo.firstChannel() < 0 || wire - dtTopo.lastChannel() > 0 ) continue;
 	    // no drift cell here (on the chamber edge or just outside)
@@ -402,8 +402,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
         CSCDetId id(gd->geographicalId());
         const CSCChamber *chamber = cscGeom->chamber(id);
         std::vector<const CSCLayer *> layers = chamber->layers();
-        for ( unsigned int ilayer=0; ilayer<layers.size(); ilayer++ ) {
-          CSCDetId lid = layers[ilayer]->id();
+        for (auto & layer : layers) {
+          CSCDetId lid = layer->id();
 
 #ifdef FAMOS_DEBUG
             std::cout << "    Extrapolated to CSC (" 
@@ -424,7 +424,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	  // For CSCs the Bounds are for chamber frames not gas regions
 	  //      if ( ! det->surface().bounds().inside(lpos) ) continue;
 	  // New function knows where the 'active' volume is:
-	  const CSCLayerGeometry* laygeom = layers[ilayer]->geometry();
+	  const CSCLayerGeometry* laygeom = layer->geometry();
           if ( ! laygeom->inside( lpos ) ) continue; 
 	  //double thickness = laygeom->thickness(); gives number which is about 20 times too big
           double thickness = det->surface().bounds().thickness(); // this one works much better...
@@ -457,8 +457,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
         RPCDetId id(gd->geographicalId());
         const RPCChamber *chamber = rpcGeom->chamber(id);
         std::vector<const RPCRoll *> roll = chamber->rolls();
-        for ( unsigned int iroll=0; iroll<roll.size(); iroll++ ) {
-          RPCDetId rid = roll[iroll]->id();
+        for (auto & iroll : roll) {
+          RPCDetId rid = iroll->id();
 
 #ifdef FAMOS_DEBUG
 	  std::cout << "    Extrapolated to RPC (" 

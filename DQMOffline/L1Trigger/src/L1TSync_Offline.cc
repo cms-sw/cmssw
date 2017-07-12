@@ -243,8 +243,8 @@ void L1TSync_Offline::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&
   const L1GtTriggerMenu* menu = menuRcd.product();
 
   // Filling Alias-Bit Map
-  for (CItAlgo algo = menu->gtAlgorithmAliasMap().begin(); algo!=menu->gtAlgorithmAliasMap().end(); ++algo){
-    m_algoBit[(algo->second).algoAlias()] = (algo->second).algoBitNumber();
+  for (const auto & algo : menu->gtAlgorithmAliasMap()){
+    m_algoBit[(algo.second).algoAlias()] = (algo.second).algoBitNumber();
   }
 
   // Getting fill number for this run
@@ -390,12 +390,12 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
           unsigned int  eventBx = ~0;      
 
           // Running over FDL results to get which bits fired
-          for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
+          for(const auto & a : gtFdlVectorData){
    
             // Selecting the FDL that triggered
-            if(gtFdlVectorData[a].bxInEvent() == 0){
-              eventBx = gtFdlVectorData[a].localBxNr();
-              if(gtFdlVectorData[a].gtDecisionWord()[ m_algoBit[tTrigger] ]){firedAlgo = true;}
+            if(a.bxInEvent() == 0){
+              eventBx = a.localBxNr();
+              if(a.gtDecisionWord()[ m_algoBit[tTrigger] ]){firedAlgo = true;}
             }
           }
 
@@ -412,10 +412,10 @@ void L1TSync_Offline::analyze(const Event & iEvent, const EventSetup & eventSetu
 
             int DifAlgoVsBunchStructure = 9999; // Majorated
 
-            for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
+            for(const auto & a : gtFdlVectorData){
 
-              int bxFDL     = gtFdlVectorData[a].localBxNr();
-              int bxInEvent = gtFdlVectorData[a].bxInEvent();
+              int bxFDL     = a.localBxNr();
+              int bxInEvent = a.bxInEvent();
 
               if(m_beamConfig.bxConfig(bxFDL) && abs(bxInEvent)<abs(DifAlgoVsBunchStructure)){
                 DifAlgoVsBunchStructure = -1*bxInEvent;
@@ -483,11 +483,11 @@ void L1TSync_Offline::getBeamConfOffline(const Event& iEvent){
     
     const vector<L1GtFdlWord>& gtFdlVectorData = gtReadoutRecordData->gtFdlVector();
     
-    for(unsigned int a=0 ; a<gtFdlVectorData.size() ; a++){
+    for(const auto & a : gtFdlVectorData){
       // Selecting the FDL that triggered
-      if(gtFdlVectorData[a].bxInEvent() == 0){
+      if(a.bxInEvent() == 0){
 	//eventBx = gtFdlVectorData[a].localBxNr();
-	if(gtFdlVectorData[a].gtDecisionWord()[ m_algoBit[ m_selectedTriggers["BPTX"] ] ]){firedAlgo = true;}
+	if(a.gtDecisionWord()[ m_algoBit[ m_selectedTriggers["BPTX"] ] ]){firedAlgo = true;}
       }
       
       // Fill beam status with BPTX fires

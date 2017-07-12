@@ -77,8 +77,8 @@ void TauElementsOperators::replaceSubStr(string& s,const string& oldSubStr,const
 
 const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin) const{
   TrackRefVector theFilteredTracks;
-  for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
-    if ((**iTrack).pt()>ptTrackMin)theFilteredTracks.push_back(*iTrack);
+  for (auto && Track : Tracks_) {
+    if ((*Track).pt()>ptTrackMin)theFilteredTracks.push_back(Track);
   }  
   TrackRefVector theFilteredTracksInCone;
   if (coneMetric=="DR"){
@@ -97,8 +97,8 @@ const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& c
 }
 const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& coneAxis,const string coneMetric,const double coneSize,const double ptTrackMin,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV) const{
   TrackRefVector theFilteredTracks;
-  for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
-    if ((**iTrack).pt()>ptTrackMin && fabs((**iTrack).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
+  for (auto && Track : Tracks_) {
+    if ((*Track).pt()>ptTrackMin && fabs((*Track).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(Track);
   }  
   TrackRefVector theFilteredTracksInCone;
   if (coneMetric=="DR"){
@@ -117,8 +117,8 @@ const TrackRefVector TauElementsOperators::tracksInCone(const math::XYZVector& c
 }
 const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt)const{     
   TrackRefVector theFilteredTracks;
-  for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
-    if ((**iTrack).pt()>minPt)theFilteredTracks.push_back(*iTrack);
+  for (auto && Track : Tracks_) {
+    if ((*Track).pt()>minPt)theFilteredTracks.push_back(Track);
   }  
   TrackRefVector theFilteredTracksInAnnulus;
   if (outercone_metric=="DR"){
@@ -169,8 +169,8 @@ const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector
 }
 const TrackRefVector TauElementsOperators::tracksInAnnulus(const math::XYZVector& myVector,const string innercone_metric,const double innercone_size,const string outercone_metric,const double outercone_size,const double minPt,const double tracktorefpoint_maxDZ,const double refpoint_Z, const Vertex &myPV)const{     
   TrackRefVector theFilteredTracks;
-  for (TrackRefVector::const_iterator iTrack=Tracks_.begin();iTrack!=Tracks_.end();++iTrack) {
-    if ((**iTrack).pt()>minPt && fabs((**iTrack).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(*iTrack);
+  for (auto && Track : Tracks_) {
+    if ((*Track).pt()>minPt && fabs((*Track).dz(myPV.position())-refpoint_Z)<=tracktorefpoint_maxDZ)theFilteredTracks.push_back(Track);
   }  
   TrackRefVector theFilteredTracksInAnnulus;
   if (outercone_metric=="DR"){
@@ -229,9 +229,9 @@ const TrackRef TauElementsOperators::leadTk(const math::XYZVector& jetAxis,strin
   if ((int)matchingConeTracks.size()==0) return TrackRef();
   TrackRef leadingTrack;
   double leadingTrackPt=0.;
-  for (TrackRefVector::const_iterator track=matchingConeTracks.begin();track!=matchingConeTracks.end();++track) {
-    if ((*track)->pt()>ptTrackMin && (*track)->pt()>leadingTrackPt){
-      leadingTrack=(*track);
+  for (auto && matchingConeTrack : matchingConeTracks) {
+    if ((matchingConeTrack)->pt()>ptTrackMin && (matchingConeTrack)->pt()>leadingTrackPt){
+      leadingTrack=(matchingConeTrack);
       leadingTrackPt=leadingTrack->pt();
     }
   }  

@@ -132,8 +132,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
 
   
 
-  for (unsigned int i=0;i<tp.product()->size();i++) {
-    EcalEBTriggerPrimitiveDigi d=(*(tp.product()))[i];
+  for (auto d : *tp.product()) {
     int subdet=0;
     if (subdet==0) {
       ecal_et_[subdet]->Fill(d.encodedEt());
@@ -171,8 +170,7 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
   // const EBDetId & myId = myFrame.id();
      
   int nTP=0;   
-  for (unsigned int i=0;i<tp.product()->size();i++) {
-    EcalEBTriggerPrimitiveDigi d=(*(tp.product()))[i];
+  for (auto d : *tp.product()) {
     const EBDetId TPid= d.id();
     // if ( myId != TPid ) continue;
     
@@ -211,10 +209,10 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
     
     
     if ( recHits_ ) {      
-      for (unsigned int j=0;j<rechit_EB_col.product()->size();j++) {
-	const EBDetId & myid1=(*rechit_EB_col.product())[j].id();
+      for (const auto & j : *rechit_EB_col.product()) {
+	const EBDetId & myid1=j.id();
 	float theta =  theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
-	float rhEt=((*rechit_EB_col.product())[j].energy())*sin(theta);
+	float rhEt=(j.energy())*sin(theta);
 	if ( myid1 == TPid ) {
 	  if (debug_) std::cout << " Analyzer same cristal " << myid1 << " " << TPid << std::endl;
 	  //	  if ( rhEt < 1.5 && Et > 10 )  {
@@ -254,10 +252,10 @@ EcalEBTrigPrimAnalyzer::analyze(const edm::Event& iEvent, const  edm::EventSetup
   
   if ( recHits_) {  
     hRatioEt_->Divide( hTPEt_, hRechitEt_);
-    for (unsigned int j=0;j<rechit_EB_col.product()->size();j++) {
-      const EBDetId & myid1=(*rechit_EB_col.product())[j].id();
+    for (const auto & j : *rechit_EB_col.product()) {
+      const EBDetId & myid1=j.id();
       float theta =  theBarrelGeometry->getGeometry(myid1)->getPosition().theta();
-      float rhEt=((*rechit_EB_col.product())[j].energy())*sin(theta);
+      float rhEt=(j.energy())*sin(theta);
       if ( rhEt >0 ) 
 	hAllRechitEt_ ->Fill(rhEt);
     }

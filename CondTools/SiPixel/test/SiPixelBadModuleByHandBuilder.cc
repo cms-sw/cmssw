@@ -20,16 +20,16 @@ SiPixelQuality* SiPixelBadModuleByHandBuilder::getNewObject(){
   
   SiPixelQuality* obj = new SiPixelQuality();
 
-  for(Parameters::iterator it = BadModuleList_.begin(); it != BadModuleList_.end(); ++it) {
+  for(auto & it : BadModuleList_) {
 
     if (printdebug_)
-     edm::LogInfo("SiPixelBadModuleByHandBuilder") << " BadModule " << *it << " \t" << std::endl; 	    
+     edm::LogInfo("SiPixelBadModuleByHandBuilder") << " BadModule " << it << " \t" << std::endl; 	    
 
 
     SiPixelQuality::disabledModuleType BadModule;
     BadModule.errorType = 3; BadModule.BadRocs = 0;
-    BadModule.DetID = it->getParameter<uint32_t>("detid");
-    std::string errorstring = it->getParameter<std::string>("errortype");
+    BadModule.DetID = it.getParameter<uint32_t>("detid");
+    std::string errorstring = it.getParameter<std::string>("errortype");
     std::cout << "now looking at detid " << BadModule.DetID << ", string " << errorstring << std::endl;
  
       //////////////////////////////////////
@@ -63,10 +63,10 @@ SiPixelQuality* SiPixelBadModuleByHandBuilder::getNewObject(){
       else if(errorstring=="none"){
 	BadModule.errorType = 3;
 	//       badroclist_ = iConfig.getUntrackedParameter<std::vector<uint32_t> >("badroclist");
-	std::vector<uint32_t> BadRocList = it->getParameter<std::vector<uint32_t> >("badroclist");
+	std::vector<uint32_t> BadRocList = it.getParameter<std::vector<uint32_t> >("badroclist");
         short badrocs = 0;
-        for(std::vector<uint32_t>::iterator iter = BadRocList.begin(); iter != BadRocList.end(); ++iter){
-	  badrocs +=  1 << *iter; // 1 << *iter = 2^{*iter} using bitwise shift 
+        for(unsigned int & iter : BadRocList){
+	  badrocs +=  1 << iter; // 1 << *iter = 2^{*iter} using bitwise shift 
 	}
         BadModule.BadRocs = badrocs;
       }

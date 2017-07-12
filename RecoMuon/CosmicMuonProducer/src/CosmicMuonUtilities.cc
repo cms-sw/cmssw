@@ -51,19 +51,19 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::ConstMuonRe
 
    stringstream output;
 
-    for (ConstMuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
+    for (const auto & hit : hits) {
+    if ( !hit->isValid() ) {
       output << "invalid RecHit"<<endl;
       continue;
     }
 
-    const GlobalPoint& pos = (*ir)->globalPosition();
+    const GlobalPoint& pos = hit->globalPosition();
     output
     << "pos"<<pos
     << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector()<<endl;
+    << "  dim " << hit->dimension()
+    << "  det " << hit->det()->geographicalId().det()
+    << "  sub det " << hit->det()->subDetector()<<endl;
   }
 
   return output.str();
@@ -78,19 +78,19 @@ string CosmicMuonUtilities::print(const MuonTransientTrackingRecHit::MuonRecHitC
 
    stringstream output;
 
-    for (MuonRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
+    for (const auto & hit : hits) {
+    if ( !hit->isValid() ) {
       output << "invalid RecHit"<<endl;
       continue;
     }
 
-    const GlobalPoint& pos = (*ir)->globalPosition();
+    const GlobalPoint& pos = hit->globalPosition();
     output
     << "pos"<<pos
     << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector()<<endl;
+    << "  dim " << hit->dimension()
+    << "  det " << hit->det()->geographicalId().det()
+    << "  sub det " << hit->det()->subDetector()<<endl;
   }
 
   return output.str();
@@ -105,19 +105,19 @@ string CosmicMuonUtilities::print(const TransientTrackingRecHit::ConstRecHitCont
 
     stringstream output;
 
-    for (TransientTrackingRecHit::ConstRecHitContainer::const_iterator ir = hits.begin(); ir != hits.end(); ir++ ) {
-    if ( !(*ir)->isValid() ) {
+    for (const auto & hit : hits) {
+    if ( !hit->isValid() ) {
       output << "invalid RecHit"<<endl;
       continue;
     }
 
-    const GlobalPoint& pos = (*ir)->globalPosition();
+    const GlobalPoint& pos = hit->globalPosition();
     output
     << "pos"<<pos
     << "radius "<<pos.perp()
-    << "  dim " << (*ir)->dimension()
-    << "  det " << (*ir)->det()->geographicalId().det()
-    << "  sub det " << (*ir)->det()->subDetector()<<endl;
+    << "  dim " << hit->dimension()
+    << "  det " << hit->det()->geographicalId().det()
+    << "  sub det " << hit->det()->subDetector()<<endl;
   }
 
   return output.str();

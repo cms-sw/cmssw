@@ -89,14 +89,14 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
     edm::LogInfo("HcalIsoTrack") << "Track: eta/phi " << etaPhi.first << "/" << etaPhi.second << " pt:" << isoPixTrackRefs[p]->track()->pt() << " cone " << coneSize_ << "\n" << "rechit size EB/EE : " << ecalEB->size() << "/" << ecalEE->size() << " coneSize_: " << coneSize_;
 #endif
     if (etaAbs<1.7) {
-      for (EcalRecHitCollection::const_iterator eItr=ecalEB->begin(); eItr!=ecalEB->end(); eItr++) {
-	GlobalPoint pos = geo->getPosition(eItr->detid());
+      for (const auto & eItr : *ecalEB) {
+	GlobalPoint pos = geo->getPosition(eItr.detid());
 	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {
 	  nhitIn++;
-	  inEnergy += (eItr->energy());
-	  if (eItr->energy() > hitCountEthr_) nhitOut++;
-	  if (eItr->energy() > hitEthr_)      outEnergy += (eItr->energy());
+	  inEnergy += (eItr.energy());
+	  if (eItr.energy() > hitCountEthr_) nhitOut++;
+	  if (eItr.energy() > hitEthr_)      outEnergy += (eItr.energy());
 #ifdef DebugLog
 	  edm::LogInfo("HcalIsoTrack") << "Rechit Close to the track has energy " << eItr->energy() << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif
@@ -104,14 +104,14 @@ void IsolatedEcalPixelTrackCandidateProducer::produce(edm::StreamID, edm::Event&
       }
     }
     if (etaAbs>1.25) {
-      for (EcalRecHitCollection::const_iterator eItr=ecalEE->begin(); eItr!=ecalEE->end(); eItr++) {
-	GlobalPoint pos = geo->getPosition(eItr->detid());
+      for (const auto & eItr : *ecalEE) {
+	GlobalPoint pos = geo->getPosition(eItr.detid());
 	double      R   = reco::deltaR(pos.eta(),pos.phi(),etaPhi.first,etaPhi.second);
 	if (R < coneSize_) {
 	  nhitIn++;
-	  inEnergy += (eItr->energy());
-	  if (eItr->energy() > hitCountEthr_) nhitOut++;
-	  if (eItr->energy() > hitEthr_)      outEnergy += (eItr->energy());
+	  inEnergy += (eItr.energy());
+	  if (eItr.energy() > hitCountEthr_) nhitOut++;
+	  if (eItr.energy() > hitEthr_)      outEnergy += (eItr.energy());
 #ifdef DebugLog
 	  edm::LogInfo("HcalIsoTrack") << "Rechit Close to the track has energy " << eItr->energy() << " eta/phi: " << pos.eta() << "/" << pos.phi() << " deltaR: " << R;
 #endif

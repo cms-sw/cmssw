@@ -203,19 +203,19 @@ void L1MuDTWedgeSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
     if ( (*iter1)->empty() ) continue;
     L1MuDTSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
-    for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
-      if ( *iter1 == *iter2 ) continue; 
-      if ( (*iter2)->empty() ) continue;
-      L1MuDTSecProcId sp2 = (*iter2)->spid();
-      int qual2 = (*iter2)->quality();
+    for (auto & cand : cands) {
+      if ( cand == 0 ) continue;
+      if ( *iter1 == cand ) continue; 
+      if ( cand->empty() ) continue;
+      L1MuDTSecProcId sp2 = cand->spid();
+      int qual2 = cand->quality();
       if ( sp1 == sp2 ) continue;
       if ( !neighbour(sp1,sp2) ) continue;
       int adr_shift = ( sp2.wheel() == -1 ) ? 0 : 2;
       int countTS = 0;
       for ( int stat = 2; stat <= 4; stat++ ) {
         int adr1 = (*iter1)->address(stat);
-        int adr2 = (*iter2)->address(stat);
+        int adr2 = cand->address(stat);
         if ( adr1 == 15 || adr2 == 15 ) continue;
         if ( (adr2/2)%2 == 1 ) continue;
         if ( adr1 == adr2 + adr_shift ) countTS++;
@@ -230,9 +230,9 @@ void L1MuDTWedgeSorter::runCOL(vector<L1MuDTTrack*>& cands) const {
         }
         else {
           if ( L1MuDTTFConfig::Debug(5) ) {
-            cout << "Wedge Sorter cancel : "; (*iter2)->print();
+            cout << "Wedge Sorter cancel : "; cand->print();
           }
-         (*iter2)->disable();
+         cand->disable();
         }
       }
     }

@@ -155,12 +155,11 @@ void MaterialProperties::setMaterialProperties()
 
 	// set the options for the materials 
 	{
-		for(G4MaterialTable::const_iterator theMTEntry = theMaterialTable->begin();
-		theMTEntry != theMaterialTable->end(); theMTEntry++) 
+		for(auto theMTEntry : *theMaterialTable) 
 		{
-			if(*theMTEntry)
+			if(theMTEntry)
 			{
-				G4Material * theMaterial = const_cast<G4Material*>(*theMTEntry);
+				G4Material * theMaterial = const_cast<G4Material*>(theMTEntry);
 
 				if (theMaterial->GetMaterialPropertiesTable())
 				{ 

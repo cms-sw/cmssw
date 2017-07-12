@@ -294,38 +294,38 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
   bool accept(false);
   if (_Muon.isValid() && barrelRecHitsHandle.isValid() && 
       endcapRecHitsHandle.isValid() && hbhe.isValid()) { 
-    for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); RecMuon!= _Muon->end(); ++RecMuon)  {
+    for (const auto & RecMuon : *_Muon)  {
       
-      if (RecMuon->p() > 10.0) accept = true;
+      if (RecMuon.p() > 10.0) accept = true;
 
-      muon_is_good_.push_back(RecMuon->isPFMuon());
-      muon_global_.push_back(RecMuon->isGlobalMuon());
-      muon_tracker_.push_back(RecMuon->isTrackerMuon());
-      ptGlob_.push_back((RecMuon)->pt());
-      etaGlob_.push_back(RecMuon->eta());
-      phiGlob_.push_back(RecMuon->phi());
-      energyMuon_.push_back(RecMuon->energy());	
-      pMuon_.push_back(RecMuon->p());
+      muon_is_good_.push_back(RecMuon.isPFMuon());
+      muon_global_.push_back(RecMuon.isGlobalMuon());
+      muon_tracker_.push_back(RecMuon.isTrackerMuon());
+      ptGlob_.push_back(RecMuon.->pt());
+      etaGlob_.push_back(RecMuon.eta());
+      phiGlob_.push_back(RecMuon.phi());
+      energyMuon_.push_back(RecMuon.energy());	
+      pMuon_.push_back(RecMuon.p());
 #ifdef EDM_ML_DEBUG
       edm::LogInfo("HBHEMuon") << "Energy:" << RecMuon->energy() << " P:"
 			       << RecMuon->p() << std::endl;
 #endif
       // acessing tracker hits info
-      if (RecMuon->track().isNonnull()) {
-	trackerLayer_.push_back(RecMuon->track()->hitPattern().trackerLayersWithMeasurement());
+      if (RecMuon.track().isNonnull()) {
+	trackerLayer_.push_back(RecMuon.track()->hitPattern().trackerLayersWithMeasurement());
       } else {
 	trackerLayer_.push_back(-1);
       }
-      if (RecMuon->innerTrack().isNonnull()) {
+      if (RecMuon.innerTrack().isNonnull()) {
 	innerTrack_.push_back(true);
-	numPixelLayers_.push_back(RecMuon->innerTrack()->hitPattern().pixelLayersWithMeasurement());
-	chiTracker_.push_back(RecMuon->innerTrack()->normalizedChi2());
-	dxyTracker_.push_back(fabs(RecMuon->innerTrack()->dxy((*firstGoodVertex).position())));
-	dzTracker_.push_back(fabs(RecMuon->innerTrack()->dz((*firstGoodVertex).position())));
-	innerTrackpt_.push_back(RecMuon->innerTrack()->pt());
-	innerTracketa_.push_back(RecMuon->innerTrack()->eta());
-	innerTrackphi_.push_back(RecMuon->innerTrack()->phi());
-	tight_PixelHits_.push_back(RecMuon->innerTrack()->hitPattern().numberOfValidPixelHits());
+	numPixelLayers_.push_back(RecMuon.innerTrack()->hitPattern().pixelLayersWithMeasurement());
+	chiTracker_.push_back(RecMuon.innerTrack()->normalizedChi2());
+	dxyTracker_.push_back(fabs(RecMuon.innerTrack()->dxy((*firstGoodVertex).position())));
+	dzTracker_.push_back(fabs(RecMuon.innerTrack()->dz((*firstGoodVertex).position())));
+	innerTrackpt_.push_back(RecMuon.innerTrack()->pt());
+	innerTracketa_.push_back(RecMuon.innerTrack()->eta());
+	innerTrackphi_.push_back(RecMuon.innerTrack()->phi());
+	tight_PixelHits_.push_back(RecMuon.innerTrack()->hitPattern().numberOfValidPixelHits());
       } else {
 	innerTrack_.push_back(false);
 	numPixelLayers_.push_back(0);
@@ -338,14 +338,14 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	tight_PixelHits_.push_back(0);
       }
       // outer track info
-      if (RecMuon->outerTrack().isNonnull()) {
+      if (RecMuon.outerTrack().isNonnull()) {
 	outerTrack_.push_back(true);
-	outerTrackPt_.push_back(RecMuon->outerTrack()->pt());
-	outerTrackEta_.push_back(RecMuon->outerTrack()->eta());
-	outerTrackPhi_.push_back(RecMuon->outerTrack()->phi());
-	outerTrackChi_.push_back(RecMuon->outerTrack()->normalizedChi2());
-	outerTrackHits_.push_back(RecMuon->outerTrack()->numberOfValidHits());
-	outerTrackRHits_.push_back(RecMuon->outerTrack()->recHitsSize());
+	outerTrackPt_.push_back(RecMuon.outerTrack()->pt());
+	outerTrackEta_.push_back(RecMuon.outerTrack()->eta());
+	outerTrackPhi_.push_back(RecMuon.outerTrack()->phi());
+	outerTrackChi_.push_back(RecMuon.outerTrack()->normalizedChi2());
+	outerTrackHits_.push_back(RecMuon.outerTrack()->numberOfValidHits());
+	outerTrackRHits_.push_back(RecMuon.outerTrack()->recHitsSize());
       } else {
 	outerTrack_.push_back(false);
 	outerTrackPt_.push_back(0);
@@ -356,16 +356,16 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	outerTrackRHits_.push_back(0);
       }
       // Tight Muon cuts
-      if (RecMuon->globalTrack().isNonnull())  {	 	
+      if (RecMuon.globalTrack().isNonnull())  {	 	
 	globalTrack_.push_back(true);
-	chiGlobal_.push_back(RecMuon->globalTrack()->normalizedChi2());
-	globalMuonHits_.push_back(RecMuon->globalTrack()->hitPattern().numberOfValidMuonHits());
-	matchedStat_.push_back(RecMuon->numberOfMatchedStations());  
-	globalTrckPt_.push_back(RecMuon->globalTrack()->pt());
-	globalTrckEta_.push_back(RecMuon->globalTrack()->eta());
-	globalTrckPhi_.push_back(RecMuon->globalTrack()->phi()); 
-	tight_TransImpara_.push_back(fabs(RecMuon->muonBestTrack()->dxy((*firstGoodVertex).position())));
-	tight_LongPara_.push_back(fabs(RecMuon->muonBestTrack()->dz((*firstGoodVertex).position())));
+	chiGlobal_.push_back(RecMuon.globalTrack()->normalizedChi2());
+	globalMuonHits_.push_back(RecMuon.globalTrack()->hitPattern().numberOfValidMuonHits());
+	matchedStat_.push_back(RecMuon.numberOfMatchedStations());  
+	globalTrckPt_.push_back(RecMuon.globalTrack()->pt());
+	globalTrckEta_.push_back(RecMuon.globalTrack()->eta());
+	globalTrckPhi_.push_back(RecMuon.globalTrack()->phi()); 
+	tight_TransImpara_.push_back(fabs(RecMuon.muonBestTrack()->dxy((*firstGoodVertex).position())));
+	tight_LongPara_.push_back(fabs(RecMuon.muonBestTrack()->dz((*firstGoodVertex).position())));
       } else {
 	globalTrack_.push_back(false);
 	chiGlobal_.push_back(0);
@@ -378,13 +378,13 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	tight_LongPara_.push_back(0);
       }
       
-      isolationR04_.push_back(((RecMuon->pfIsolationR04().sumChargedHadronPt + std::max(0.,RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt - (0.5 *RecMuon->pfIsolationR04().sumPUPt))) / RecMuon->pt()) );
+      isolationR04_.push_back(((RecMuon.pfIsolationR04().sumChargedHadronPt + std::max(0.,RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt - (0.5 *RecMuon.pfIsolationR04().sumPUPt))) / RecMuon.pt()) );
       
-      isolationR03_.push_back(((RecMuon->pfIsolationR03().sumChargedHadronPt + std::max(0.,RecMuon->pfIsolationR03().sumNeutralHadronEt + RecMuon->pfIsolationR03().sumPhotonEt - (0.5 * RecMuon->pfIsolationR03().sumPUPt))) / RecMuon->pt()));
+      isolationR03_.push_back(((RecMuon.pfIsolationR03().sumChargedHadronPt + std::max(0.,RecMuon.pfIsolationR03().sumNeutralHadronEt + RecMuon.pfIsolationR03().sumPhotonEt - (0.5 * RecMuon.pfIsolationR03().sumPUPt))) / RecMuon.pt()));
 
-      ecalEnergy_.push_back(RecMuon->calEnergy().emS9);		 
-      hcalEnergy_.push_back(RecMuon->calEnergy().hadS9);
-      hoEnergy_.push_back(RecMuon->calEnergy().hoS9);
+      ecalEnergy_.push_back(RecMuon.calEnergy().emS9);		 
+      hcalEnergy_.push_back(RecMuon.calEnergy().hadS9);
+      hoEnergy_.push_back(RecMuon.calEnergy().hoS9);
       
       double eEcal(0), eHcal(0), activeLengthTot(0), activeLengthHotTot(0);
       double eHcalDepth[MaxDepth], eHcalDepthHot[MaxDepth];
@@ -394,8 +394,8 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
       for (int i=0; i<MaxDepth; ++i) 
 	eHcalDepth[i] = eHcalDepthHot[i] = activeL[i] = activeHotL[i] = -10000;
       
-      if (RecMuon->innerTrack().isNonnull()) {
-	const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+      if (RecMuon.innerTrack().isNonnull()) {
+	const reco::Track* pTrack = (RecMuon.innerTrack()).get();
 	spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, (((verbosity_/100)%10>0)));
 	
 	ecalDetId_.push_back((trackID.detIdECAL)()); 
@@ -435,12 +435,12 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	  eHcal = spr::eHCALmatrix(theHBHETopology, closestCell, hbhe,0,0, false, true, -100.0, -100.0, -100.0, -100.0, -500.,500.,useRaw_);
 	  std::vector<std::pair<double,int> > ehdepth;
 	  spr::energyHCALCell((HcalDetId) closestCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, (((verbosity_/1000)%10)>0));
-	  for (unsigned int i=0; i<ehdepth.size(); ++i) {
-	    eHcalDepth[ehdepth[i].second-1] = ehdepth[i].first;
-	    HcalSubdetector subdet0 = (hborhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
-	    HcalDetId hcid0(subdet0,ieta,iphi,ehdepth[i].second);
+	  for (auto & i : ehdepth) {
+	    eHcalDepth[i.second-1] = i.first;
+	    HcalSubdetector subdet0 = (hborhe) ? ((i.second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+	    HcalDetId hcid0(subdet0,ieta,iphi,i.second);
 	    double actL = activeLength(DetId(hcid0));
-	    activeL[ehdepth[i].second-1] = actL;
+	    activeL[i.second-1] = actL;
 	    activeLengthTot += actL;
 #ifdef EDM_ML_DEBUG
 	    if ((verbosity_%10) > 0)
@@ -459,12 +459,12 @@ void HcalHBHEMuonAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSet
 	    hborhe = (std::abs(ieta) == 16);
 	    std::vector<std::pair<double,int> > ehdepth;
 	    spr::energyHCALCell(hotCell, hbhe, ehdepth, maxDepth_, -100.0, -100.0, -100.0, -100.0, -500.0, 500.0, useRaw_, false);//(((verbosity_/1000)%10)>0    ));
-	    for (unsigned int i=0; i<ehdepth.size(); ++i) {
-	      eHcalDepthHot[ehdepth[i].second-1] = ehdepth[i].first;
-	      HcalSubdetector subdet0 = (hborhe) ? ((ehdepth[i].second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
-	      HcalDetId hcid0(subdet0,ieta,iphi,ehdepth[i].second);
+	    for (auto & i : ehdepth) {
+	      eHcalDepthHot[i.second-1] = i.first;
+	      HcalSubdetector subdet0 = (hborhe) ? ((i.second >= depthHE) ? HcalEndcap : HcalBarrel) : subdet;
+	      HcalDetId hcid0(subdet0,ieta,iphi,i.second);
 	      double actL = activeLength(DetId(hcid0));
-	      activeHotL[ehdepth[i].second-1] = actL;
+	      activeHotL[i.second-1] = actL;
 	      activeLengthHotTot += actL;
 #ifdef EDM_ML_DEBUG
 	      if ((verbosity_%10) > 0)
@@ -662,8 +662,8 @@ void HcalHBHEMuonAnalyzer::beginRun(edm::Run const& iRun, edm::EventSetup const&
     unsigned int ntriggers = hltConfig_.size();
     for (unsigned int t=0;t<ntriggers;++t) {
       std::string hltname(hltConfig_.triggerName(t));
-      for (unsigned int ik=0; ik<6; ++ik) {
-	if (hltname.find(string_search[ik])!=std::string::npos ){
+      for (const auto & ik : string_search) {
+	if (hltname.find(ik)!=std::string::npos ){
 	  all_triggers.push_back(hltname);
 	  break;
 	}
@@ -796,16 +796,16 @@ double HcalHBHEMuonAnalyzer::activeLength(const DetId& id_) {
   int depth= id.depth();
   double lx(0);
   if (id.subdet() == HcalBarrel) {
-    for (unsigned int i=0; i<actHB.size(); ++i) {
-      if (ieta == actHB[i].ieta && depth == actHB[i].depth) {
-	lx = actHB[i].thick;
+    for (auto & i : actHB) {
+      if (ieta == i.ieta && depth == i.depth) {
+	lx = i.thick;
 	break;
       }
     }
   } else {
-    for (unsigned int i=0; i<actHE.size(); ++i) {
-      if (ieta == actHE[i].ieta && depth == actHE[i].depth) {
-	lx = actHE[i].thick;
+    for (auto & i : actHE) {
+      if (ieta == i.ieta && depth == i.depth) {
+	lx = i.thick;
 	break;
       }
     }

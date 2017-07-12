@@ -57,8 +57,8 @@ void EcalFenixStrip::process_part2_barrel(uint32_t stripid,const EcalTPGSlidingW
   if (debug_) {
     std::cout<< "output of formatter is a vector of size: "<<format_out_.size()<<std::endl; 
     std::cout<< "value : "<<std::endl;
-    for (unsigned int i =0; i<format_out_.size();i++){
-      std::cout <<" "<<format_out_[i];
+    for (int i : format_out_){
+      std::cout <<" "<<i;
     }    
     std::cout<<std::endl;
 
@@ -82,8 +82,8 @@ void  EcalFenixStrip::process_part2_endcap(uint32_t stripid,const EcalTPGSliding
    if (debug_) {
      std::cout<< "output of formatter is a vector of size: "<<format_out_.size()<<std::endl; 
       std::cout<< "value : "<<std::endl;
-      for (unsigned int i =0; i<format_out_.size();i++){
-        std::cout <<" "<<std::dec<<format_out_[i];
+      for (int i : format_out_){
+        std::cout <<" "<<std::dec<<i;
       }    
      std::cout<<std::endl;
    }

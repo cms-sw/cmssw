@@ -23,12 +23,11 @@ CSCTruthTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   MuonTruth theTruth(iEvent,iSetup,conf_);
 
-  for(CSCRecHit2DCollection::const_iterator recHitItr = cscRecHits->begin();
-      recHitItr != cscRecHits->end(); recHitItr++)
+  for(const auto & recHitItr : *cscRecHits)
   {
-     theTruth.analyze(*recHitItr);
+     theTruth.analyze(recHitItr);
      edm::LogVerbatim("SimMuonCSCTruthTest") 
-       << theTruth.muonFraction() << " " << recHitItr->cscDetId();
+       << theTruth.muonFraction() << " " << recHitItr.cscDetId();
   }
 }
 

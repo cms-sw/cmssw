@@ -37,9 +37,9 @@ TransientTrackingRecHit::RecHitPointer  SiTrackerMultiRecHitUpdator::buildMultiR
   LogTrace("SiTrackerMultiRecHitUpdator") << "Calling SiTrackerMultiRecHitUpdator::buildMultiRecHit with AnnealingFactor: "  << annealing;
 
   TransientTrackingRecHit::ConstRecHitContainer tcomponents;	
-  for (std::vector<const TrackingRecHit*>::const_iterator iter = rhv.begin(); iter != rhv.end(); iter++){
+  for (auto iter : rhv){
 
-    TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(*iter);
+    TransientTrackingRecHit::RecHitPointer transient = theBuilder->build(iter);
     if(transient->isValid()) tcomponents.push_back(transient);
 
   }

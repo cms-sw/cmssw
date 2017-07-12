@@ -169,13 +169,13 @@ m_fillLumis(iConfig.getUntrackedParameter<bool>("fillLumis"))
   const PSets& elements = iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("elements");
   if(m_fillRuns) {
     m_runFillers.reserve(elements.size());
-    for( PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it){
-      switch(it->getUntrackedParameter<unsigned int>("type",1)) {
+    for(const auto & element : elements){
+      switch(element.getUntrackedParameter<unsigned int>("type",1)) {
         case 1:
-        m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it,*dstore,false)));
+        m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(element,*dstore,false)));
         break;
         case 2:
-        m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it,*dstore,false)));
+        m_runFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(element,*dstore,false)));
         break;
       }
     }
@@ -183,13 +183,13 @@ m_fillLumis(iConfig.getUntrackedParameter<bool>("fillLumis"))
 
   if(m_fillLumis) {
     m_lumiFillers.reserve(elements.size());
-    for( PSets::const_iterator it = elements.begin(), itEnd = elements.end(); it != itEnd; ++it){
-      switch(it->getUntrackedParameter<unsigned int>("type",1)) {
+    for(const auto & element : elements){
+      switch(element.getUntrackedParameter<unsigned int>("type",1)) {
         case 1:
-        m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(*it,*dstore,true)));
+        m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH1FFiller(element,*dstore,true)));
         break;
         case 2:
-        m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(*it,*dstore,true)));
+        m_lumiFillers.push_back(boost::shared_ptr<FillerBase>(new TH2FFiller(element,*dstore,true)));
         break;
       }
     }
@@ -257,10 +257,8 @@ DummyFillDQMStore::beginRun(edm::Run const&, edm::EventSetup const&)
 void 
 DummyFillDQMStore::endRun(edm::Run const&, edm::EventSetup const&)
 {
-  for(std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_runFillers.begin(), itEnd = m_runFillers.end();
-  it != itEnd;
-  ++it) {
-    (*it)->fill();
+  for(auto & m_runFiller : m_runFillers) {
+    m_runFiller->fill();
   }
 }
 
@@ -268,10 +266,8 @@ DummyFillDQMStore::endRun(edm::Run const&, edm::EventSetup const&)
 void 
 DummyFillDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  for(std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin(), itEnd = m_lumiFillers.end();
-  it != itEnd;
-  ++it) {
-    (*it)->reset();
+  for(auto & m_lumiFiller : m_lumiFillers) {
+    m_lumiFiller->reset();
   }
 }
 
@@ -279,10 +275,8 @@ DummyFillDQMStore::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventS
 void 
 DummyFillDQMStore::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
 {
-  for(std::vector<boost::shared_ptr<FillerBase> >::iterator it = m_lumiFillers.begin(), itEnd = m_lumiFillers.end();
-  it != itEnd;
-  ++it) {
-    (*it)->fill();
+  for(auto & m_lumiFiller : m_lumiFillers) {
+    m_lumiFiller->fill();
   }
 }
 

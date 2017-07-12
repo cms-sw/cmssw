@@ -81,11 +81,11 @@ void CandOneToManyDeltaRMatcher::produce( edm::StreamID, Event& evt, const Event
   evt.getByToken( matchedToken_, matched ) ;
 
   if (printdebug_) {
-    for( CandidateCollection::const_iterator c = source->begin(); c != source->end(); ++c ) {
-      cout << "[CandOneToManyDeltaRMatcher] Et source  " << c->et() << endl;
+    for(const auto & c : *source) {
+      cout << "[CandOneToManyDeltaRMatcher] Et source  " << c.et() << endl;
     }
-    for( CandidateCollection::const_iterator c = matched->begin(); c != matched->end(); ++c ) {
-      cout << "[CandOneToManyDeltaRMatcher] Et matched " << c->et() << endl;
+    for(const auto & c : *matched) {
+      cout << "[CandOneToManyDeltaRMatcher] Et matched " << c.et() << endl;
     }
   }
 

@@ -27,11 +27,10 @@ using namespace edm;
 void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const&, edm::EventSetup const& setup) {
 
   int j=0;
-  for (unsigned int ww=0;ww<associators.size();ww++){
-    for (unsigned int www=0;www<label.size();www++){
+  for (const auto & associator : associators){
+    for (auto algo : label){
 
       ibooker.cd();
-      InputTag algo = label[www];
       string dirName=dirName_;
       if (algo.process()!="")
 	dirName+=algo.process()+"_";
@@ -45,7 +44,7 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       if (dirName.find("UpdatedAtVtx")<dirName.length()){
         dirName.replace(dirName.find("UpdatedAtVtx"),12,"UpdAtVtx");
       }
-      string assoc= associators[ww];
+      string assoc= associator;
       if (assoc.find("tpToTkmuTrackAssociation")<assoc.length()){
         dirName+="_TkAsso";
       }
@@ -118,10 +117,10 @@ void MuonTrackValidator::bookHistograms(DQMStore::IBooker& ibooker, edm::Run con
       h_pullDz.push_back( ibooker.book1D("pullDz","pull of dz parameter",250,-25,25) );
       h_pullQoverp.push_back( ibooker.book1D("pullQoverp","pull of qoverp parameter",250,-25,25) );
       
-      if (associators[ww]=="trackAssociatorByChi2"){
+      if (associator=="trackAssociatorByChi2"){
 	h_assochi2.push_back( ibooker.book1D("assocChi2","track association #chi^{2}",1000000,0,100000) );
 	h_assochi2_prob.push_back(ibooker.book1D("assocChi2_prob","probability of association #chi^{2}",100,0,1));
-      } else if (associators[ww]=="trackAssociatorByHits"){
+      } else if (associator=="trackAssociatorByHits"){
 	h_assocFraction.push_back( ibooker.book1D("assocFraction","fraction of shared hits",200,0,2) );
 	h_assocSharedHit.push_back(ibooker.book1D("assocSharedHit","number of shared hits",20,0,20));
       }
@@ -275,8 +274,8 @@ void MuonTrackValidator::analyze(const edm::Event& event, const edm::EventSetup&
   std::vector<const reco::TrackToTrackingParticleAssociator*> associator;
   if (UseAssociators) {
     edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
-    for (unsigned int w=0;w<associators.size();w++) {
-      event.getByLabel(associators[w],theAssociator);
+    for (const auto & w : associators) {
+      event.getByLabel(w,theAssociator);
       associator.push_back( theAssociator.product() );
     }
   }

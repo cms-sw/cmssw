@@ -33,11 +33,11 @@ ShiftTTrigDB::ShiftTTrigDB(const ParameterSet& pset) {
   dbLabel  = pset.getUntrackedParameter<string>("dbLabel", "");
 
   int counter=0;
-  for(vector<ParameterSet>::iterator parameter = parameters.begin(); parameter != parameters.end(); ++parameter ) {
+  for(auto & parameter : parameters) {
     vector<int> chAddress;
-    chAddress.push_back(parameter->getParameter<int>("wheel"));
-    chAddress.push_back(parameter->getParameter<int>("sector"));
-    chAddress.push_back(parameter->getParameter<int>("station"));
+    chAddress.push_back(parameter.getParameter<int>("wheel"));
+    chAddress.push_back(parameter.getParameter<int>("sector"));
+    chAddress.push_back(parameter.getParameter<int>("station"));
     chambers.push_back(chAddress);
     //Map the ttrig shift with the chamber addresses
     mapShiftsByChamber[chAddress] = shifts[counter];
@@ -70,12 +70,11 @@ void ShiftTTrigDB::endJob() {
   vector<const DTSuperLayer*> dtSupLylist = muonGeom->superLayers();
 
   //Loop on all superlayers
-  for (auto sl = dtSupLylist.begin();
-       sl != dtSupLylist.end(); sl++) {
+  for (auto & sl : dtSupLylist) {
     float ttrigMean = 0;
     float ttrigSigma = 0;
     float kFactor = 0;
-    tTrigMap->get((*sl)->id(),
+    tTrigMap->get(sl->id(),
 		  ttrigMean,
 		  ttrigSigma,
                   kFactor,
@@ -89,17 +88,17 @@ void ShiftTTrigDB::endJob() {
 	cout<<"[ShiftTTrigDB]: Wrong configuration: use three integer to indicate each chamber. Aborting."<<endl;
 	abort();
       }
-      if(((*sl)->id().wheel() == (*ch)[0]) ||  (*ch)[0] == 999){
-	if(((*sl)->id().sector() == (*ch)[1]) ||  (*ch)[1] == 999){
-	  if(((*sl)->id().station() == (*ch)[2]) ||  (*ch)[2] == 999){
+      if((sl->id().wheel() == (*ch)[0]) ||  (*ch)[0] == 999){
+	if((sl->id().sector() == (*ch)[1]) ||  (*ch)[1] == 999){
+	  if((sl->id().station() == (*ch)[2]) ||  (*ch)[2] == 999){
 
 	    //Compute new ttrig
 	    double newTTrigMean =  ttrigMean + mapShiftsByChamber[(*ch)]; 
 	    //Store new ttrig in the new map
-	    tTrigNewMap->set((*sl)->id(), newTTrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
+	    tTrigNewMap->set(sl->id(), newTTrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
 	    ttrigShifted = true;
 	    if(debug){
-	      cout<<"Shifting SL: " << (*sl)->id()
+	      cout<<"Shifting SL: " << sl->id()
 		  << " from "<< ttrigMean <<" to "<< newTTrigMean <<endl;
 	    }
 	  }
@@ -108,9 +107,9 @@ void ShiftTTrigDB::endJob() {
     }//End loop on chambers to be shifted
     if(!ttrigShifted){
       //Store old ttrig in the new map
-      tTrigNewMap->set((*sl)->id(), ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
+      tTrigNewMap->set(sl->id(), ttrigMean, ttrigSigma, kFactor, DTTimeUnits::ns);
       if(debug){
-	cout<<"Copying  SL: " << (*sl)->id()
+	cout<<"Copying  SL: " << sl->id()
 	    << " ttrig "<< ttrigMean <<endl;
       }
     }

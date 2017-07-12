@@ -114,13 +114,11 @@ GsfVertexSmoother::vertexAndTrackUpdate(const VertexState & oldVertex,
   std::vector<RefittedTrackComponent> newTrackComponents;
   newTrackComponents.reserve(prevVtxComponents.size()*ltComponents.size());
 
-  for (VSC::iterator vertexCompIter = prevVtxComponents.begin();
-  	vertexCompIter != prevVtxComponents.end(); vertexCompIter++ ) {
+  for (auto & prevVtxComponent : prevVtxComponents) {
 
-    for (LTC::iterator trackCompIter = ltComponents.begin();
-  	trackCompIter != ltComponents.end(); trackCompIter++ ) {
+    for (auto & ltComponent : ltComponents) {
       newTrackComponents.push_back
-        (createNewComponent(*vertexCompIter, *trackCompIter, trackWeight));
+        (createNewComponent(prevVtxComponent, ltComponent, trackWeight));
     }
   }
 
@@ -143,11 +141,10 @@ GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
   double totalWeight = 0.;
   double totalVtxChi2 = 0., totalTrkChi2 = 0.;
 
-  for (std::vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
-    iter != trackComponents.end(); ++iter ) {
-    totalWeight += iter->first.second;
-    totalVtxChi2 += iter->second.first  * iter->first.second ;
-    totalTrkChi2 += iter->second.second * iter->first.second ;
+  for (const auto & trackComponent : trackComponents) {
+    totalWeight += trackComponent.first.second;
+    totalVtxChi2 += trackComponent.second.first  * trackComponent.first.second ;
+    totalTrkChi2 += trackComponent.second.second * trackComponent.first.second ;
   }
 
   totalVtxChi2 /= totalWeight ;
@@ -157,10 +154,9 @@ GsfVertexSmoother::TrackChi2Pair GsfVertexSmoother::assembleTrackComponents(
   reWeightedRTSC.reserve(trackComponents.size());
   
 
-  for (std::vector<RefittedTrackComponent>::const_iterator iter = trackComponents.begin();
-    iter != trackComponents.end(); ++iter ) {
-    if (iter->second.first!=0) {
-      reWeightedRTSC.push_back(iter->first.first->stateWithNewWeight(iter->second.first/totalWeight));
+  for (const auto & trackComponent : trackComponents) {
+    if (trackComponent.second.first!=0) {
+      reWeightedRTSC.push_back(trackComponent.first.first->stateWithNewWeight(trackComponent.second.first/totalWeight));
     }
   }
 
@@ -209,16 +205,16 @@ GsfVertexSmoother::meanVertex(const VertexState & vertexA,
   std::vector<VertexState> vsCompB = vertexB.components();
   std::vector<VertexState> finalVS;
   finalVS.reserve(vsCompA.size()*vsCompB.size());
-  for (std::vector<VertexState>::iterator iA = vsCompA.begin(); iA!= vsCompA.end(); ++iA)
+  for (auto & iA : vsCompA)
   {
-    for (std::vector<VertexState>::iterator iB = vsCompB.begin(); iB!= vsCompB.end(); ++iB)
+    for (auto & iB : vsCompB)
     {
-      AlgebraicSymMatrix33 newWeight = iA->weight().matrix() +
-				     iB->weight().matrix();
-      AlgebraicVector3 newWtP = iA->weightTimesPosition() +
-      			       iB->weightTimesPosition();
-      double newWeightInMixture = iA->weightInMixture() *
-				  iB->weightInMixture();
+      AlgebraicSymMatrix33 newWeight = iA.weight().matrix() +
+				     iB.weight().matrix();
+      AlgebraicVector3 newWtP = iA.weightTimesPosition() +
+      			       iB.weightTimesPosition();
+      double newWeightInMixture = iA.weightInMixture() *
+				  iB.weightInMixture();
       finalVS.push_back( VertexState(newWtP, newWeight, newWeightInMixture) );
     }
   }
@@ -237,14 +233,12 @@ double GsfVertexSmoother::priorVertexChi2(
   std::vector<VertexState> priorVertexComp  = priorVertex.components();
   std::vector<VertexState> fittedVertexComp = fittedVertex.components();
   double vetexChi2 = 0.;
-  for (std::vector<VertexState>::iterator pvI = priorVertexComp.begin(); 
-  	pvI!= priorVertexComp.end(); ++pvI)
+  for (auto & pvI : priorVertexComp)
   {
-    for (std::vector<VertexState>::iterator fvI = fittedVertexComp.begin(); 
-    	fvI!= fittedVertexComp.end(); ++fvI)
+    for (auto & fvI : fittedVertexComp)
     {
-      vetexChi2 += (pvI->weightInMixture())*(fvI->weightInMixture())*
-      			helper.vertexChi2(*pvI, *fvI);
+      vetexChi2 += (pvI.weightInMixture())*(fvI.weightInMixture())*
+      			helper.vertexChi2(pvI, fvI);
     }
   }
   return vetexChi2;

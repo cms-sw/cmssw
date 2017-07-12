@@ -34,8 +34,8 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
     DDsvalues_type sv1(fv1.mergedSpecifics());
     std::vector<double> neta;
     neta = getDDDArray("indexPMTR",sv1);
-    for (unsigned int ii=0; ii<neta.size(); ii++) {
-      int index = static_cast<int>(neta[ii]);
+    for (double ii : neta) {
+      int index = static_cast<int>(ii);
       int ir=-1, ifib=-1;
       if (index >= 0) {
 	ir   = index/10; ifib = index%10;
@@ -44,8 +44,8 @@ HFShowerPMT::HFShowerPMT(std::string & name, const DDCompactView & cpv,
       pmtFib1.push_back(ifib);
     }
     neta = getDDDArray("indexPMTL",sv1);
-    for (unsigned int ii=0; ii<neta.size(); ii++) {
-      int index = static_cast<int>(neta[ii]);
+    for (double ii : neta) {
+      int index = static_cast<int>(ii);
       int ir=-1, ifib=-1;
       if (index >= 0) {
 	ir   = index/10; ifib = index%10;

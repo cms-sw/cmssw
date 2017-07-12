@@ -25,9 +25,9 @@ JetFlavourFilter::~JetFlavourFilter()
 HepMC::GenParticle * JetFlavourFilter::findParticle(const GenPartVect& genPartVect,
 	const int requested_id)
 {
-  for (GenPartVectIt p = genPartVect.begin(); p != genPartVect.end(); p++)
+  for (auto p : genPartVect)
     {
-      if (requested_id == (*p)->pdg_id()) return *p;
+      if (requested_id == p->pdg_id()) return p;
     }
   return 0;
 }
@@ -110,9 +110,9 @@ bool JetFlavourFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   int flavour = 0;
   int ff[6];
   ff[0]=0; ff[1]=0; ff[2]=0; ff[3]=0; ff[4]=0; ff[5]=0; 
-  for (vector<int>::iterator i = foundQ.begin(); i != foundQ.end(); i++){
-    ++ff[(*i)-1];
-    if ((*i)>flavour) flavour = (*i);
+  for (int & i : foundQ){
+    ++ff[i-1];
+    if (i>flavour) flavour = i;
   }
   // Is it light quark jet?
   if ((flavour>=0)&&(flavour<=3)) flavour=1;

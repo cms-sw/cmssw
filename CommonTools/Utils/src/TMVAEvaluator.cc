@@ -92,24 +92,24 @@ float TMVAEvaluator::evaluateTMVA(const std::map<std::string,float> & inputs, bo
   std::lock_guard<std::mutex> lock(m_mutex);
 
   // set the input variable values
-  for(auto it = mVariables.begin(); it!=mVariables.end(); ++it)
+  for(auto & mVariable : mVariables)
   {
-    if (inputs.count(it->first)>0)
-      it->second.second = inputs.at(it->first);
+    if (inputs.count(mVariable.first)>0)
+      mVariable.second.second = inputs.at(mVariable.first);
     else
-      edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+      edm::LogError("MissingInputVariable") << "Input variable " << mVariable.first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
   }
 
   // if using spectator variables
   if(useSpectators)
   {
     // set the spectator variable values
-    for(auto it = mSpectators.begin(); it!=mSpectators.end(); ++it)
+    for(auto & mSpectator : mSpectators)
     {
-      if (inputs.count(it->first)>0)
-        it->second.second = inputs.at(it->first);
+      if (inputs.count(mSpectator.first)>0)
+        mSpectator.second.second = inputs.at(mSpectator.first);
       else
-        edm::LogError("MissingSpectatorVariable") << "Spectator variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+        edm::LogError("MissingSpectatorVariable") << "Spectator variable " << mSpectator.first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
     }
   }
 
@@ -128,12 +128,12 @@ float TMVAEvaluator::evaluateGBRForest(const std::map<std::string,float> & input
   std::unique_ptr<float[]> vars(new float[mVariables.size()]); // allocate n floats
 
   // set the input variable values
-  for(auto it = mVariables.begin(); it!=mVariables.end(); ++it)
+  for(auto & mVariable : mVariables)
   {
-    if (inputs.count(it->first)>0)
-      vars[it->second.first] = inputs.at(it->first);
+    if (inputs.count(mVariable.first)>0)
+      vars[mVariable.second.first] = inputs.at(mVariable.first);
     else
-      edm::LogError("MissingInputVariable") << "Input variable " << it->first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
+      edm::LogError("MissingInputVariable") << "Input variable " << mVariable.first << " is missing from the list of inputs. The returned discriminator value might not be sensible.";
   }
 
   // evaluate the MVA

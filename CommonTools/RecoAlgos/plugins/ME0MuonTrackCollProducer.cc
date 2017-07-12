@@ -75,13 +75,12 @@ void ME0MuonTrackCollProducer::produce(edm::Event& iEvent, const edm::EventSetup
   
 
 
-  for(std::vector<reco::ME0Muon>::const_iterator thismuon = OurMuons->begin();
-       thismuon != OurMuons->end(); ++thismuon) {
+  for(const auto & thismuon : *OurMuons) {
 
-    if (!muon::isGoodMuon(*thismuon, muon::Tight)) continue;
+    if (!muon::isGoodMuon(thismuon, muon::Tight)) continue;
     reco::TrackRef trackref;    
 
-    if (thismuon->innerTrack().isNonnull()) trackref = thismuon->innerTrack();
+    if (thismuon.innerTrack().isNonnull()) trackref = thismuon.innerTrack();
 
       const reco::Track* trk = &(*trackref);
       // pointer to old track:

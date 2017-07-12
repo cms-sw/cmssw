@@ -32,9 +32,9 @@ void TestCaloSelectors::analyze(const edm::Event& evt, const edm::EventSetup& c)
 
   double maxEt=-1;
   GlobalPoint pMax;
-  for (HBHERecHitCollection::const_iterator i=mhbhe.begin(); i!=mhbhe.end(); i++) {
-    GlobalPoint p=pG->getPosition(i->detid());
-    double et=i->energy()/cosh(p.eta());
+  for (const auto & i : mhbhe) {
+    GlobalPoint p=pG->getPosition(i.detid());
+    double et=i.energy()/cosh(p.eta());
     if (et>maxEt) {
       pMax=p;
       maxEt=et;

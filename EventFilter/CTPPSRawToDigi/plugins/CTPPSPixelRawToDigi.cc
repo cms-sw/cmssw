@@ -65,9 +65,7 @@ void CTPPSPixelRawToDigi::produce( edm::Event& ev,
   CTPPSPixelDataFormatter formatter(mapping->ROCMapping);
 
   bool errorsInEvent = false; 
-  for (auto aFed = fedIds_.begin(); aFed != fedIds_.end(); ++aFed) {
-    int fedId = *aFed;
- 
+  for (int fedId : fedIds_) {
     edm::LogInfo("CTPPSPixelRawToDigi")<< " PRODUCE DIGI FOR FED: " <<  dec <<fedId << endl;
 
 /// get event data for this fed

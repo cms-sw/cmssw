@@ -70,30 +70,29 @@ void GlobalPositionRcdScan::analyze(const edm::Event& evt, const edm::EventSetup
     std::cout << "=====================================================\n" 
 	      << "GlobalPositionRcd content starting from run " << evt.run() << ":" << std::endl;
   
-    for (std::vector<AlignTransform>::const_iterator i = globalPositionRcd->m_align.begin();
-	 i != globalPositionRcd->m_align.end();  ++i) {
+    for (const auto & i : globalPositionRcd->m_align) {
       std::cout << "  Component ";
-      if (i->rawId() == DetId(DetId::Tracker).rawId()) {
+      if (i.rawId() == DetId(DetId::Tracker).rawId()) {
 	std::cout << "Tracker";
       }
-      else if (i->rawId() == DetId(DetId::Muon).rawId()) {
+      else if (i.rawId() == DetId(DetId::Muon).rawId()) {
 	std::cout << "Muon   ";
       }
-      else if (i->rawId() == DetId(DetId::Ecal).rawId()) {
+      else if (i.rawId() == DetId(DetId::Ecal).rawId()) {
 	std::cout << "Ecal   ";
       }
-      else if (i->rawId() == DetId(DetId::Hcal).rawId()) {
+      else if (i.rawId() == DetId(DetId::Hcal).rawId()) {
 	std::cout << "Hcal   ";
       }
-      else if (i->rawId() == DetId(DetId::Calo).rawId()) {
+      else if (i.rawId() == DetId(DetId::Calo).rawId()) {
 	std::cout << "Calo   ";
       }
       else {
 	std::cout << "Unknown";
       }
-      std::cout << " entry " << i->rawId() 
-		<< "\n     translation " << i->translation() << "\n";
-      const AlignTransform::Rotation hepRot(i->rotation());
+      std::cout << " entry " << i.rawId() 
+		<< "\n     translation " << i.translation() << "\n";
+      const AlignTransform::Rotation hepRot(i.rotation());
       if (eulerAngles_) {
 	std::cout << "     euler angles " << hepRot.eulerAngles() << std::endl;
       }

@@ -17,8 +17,8 @@ using namespace PhysicsTools;
 static std::string escape(const std::string &arg)
 {
 	std::string result;
-	for(std::string::const_iterator c = arg.begin(); c != arg.end(); ++c)
-		switch(*c) {
+	for(char c : arg)
+		switch(c) {
 		    case '<':
 			result += "&lt;";
 			break;
@@ -32,7 +32,7 @@ static std::string escape(const std::string &arg)
 			result += "&quot;";
 			break;
 		    default:
-			result += *c;
+			result += c;
 		}
 
 	return result;

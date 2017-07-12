@@ -148,9 +148,8 @@ void HcalSiPMHitResponse::add(const PCaloHit& hit, CLHEP::HepRandomEngine* engin
 void HcalSiPMHitResponse::addPEnoise(CLHEP::HepRandomEngine* engine)
 {
   // Add SiPM dark current noise to all cells
-  for(std::vector<DetId>::const_iterator idItr = theDetIds->begin();
-      idItr != theDetIds->end(); ++idItr) {
-    HcalDetId id(*idItr);
+  for(auto theDetId : *theDetIds) {
+    HcalDetId id(theDetId);
     const HcalSimParameters& pars =
       static_cast<const HcalSimParameters&>(theParameterMap->simParameters(id));
 

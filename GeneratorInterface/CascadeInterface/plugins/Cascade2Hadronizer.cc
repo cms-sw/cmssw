@@ -480,9 +480,8 @@ namespace gen {
     vector<string> AllSets = fParameters.getParameter<vector<string> >("parameterSets");
 
     //-- loop over the different sets
-    for(unsigned i=0; i<AllSets.size();++i) {
+    for(auto Set : AllSets) {
     
-      string Set = AllSets[i];
       vector<string> Para_Set = fParameters.getParameter<vector<string> >(Set);
 
       //-- loop over all the parameters and stop in case of mistake
@@ -521,8 +520,8 @@ namespace gen {
 
   bool Cascade2Hadronizer::declareStableParticles(const vector<int>& _pdg){
     vector<int> pdg = _pdg; 
-    for(size_t i=0; i<pdg.size(); i++){
-      int PyID = HepPID::translatePDTtoPythia(pdg[i]);
+    for(int i : pdg){
+      int PyID = HepPID::translatePDTtoPythia(i);
       int pyCode = pycomp_( PyID );
 
       if(pyCode > 0){

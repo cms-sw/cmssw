@@ -435,13 +435,12 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 	rawidValid = 0;
 
 	//  HO collection
-	for (HODigiCollection::const_iterator it=cho->begin(); it!=cho->end();
-		++it)
+	for (const auto & it : *cho)
 	{
-		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(*it, 8.5, 0, it->size()-1);
+		double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(it, 8.5, 0, it.size()-1);
 
 		//  Explicit check on the DetIds present in the Collection
-		HcalDetId const& did = it->id();
+		HcalDetId const& did = it.id();
 		uint32_t rawid = _ehashmap.lookup(did);
 		if (rawid==0) 
 		{meUnknownIds1LS->Fill(1); _unknownIdsPresent=true;continue;}
@@ -462,7 +461,7 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 		_cSumQ_SubdetPM.fill(did, sumQ);
 		_cOccupancy_depth.fill(did);
 		if (_ptype != fOffline) { // hidefed2crate
-			_cDigiSize_FED.fill(eid, it->size());
+			_cDigiSize_FED.fill(eid, it.size());
 		}
 		if (eid.isVMEid())
 		{
@@ -486,20 +485,20 @@ DigiPhase1Task::DigiPhase1Task(edm::ParameterSet const& ps):
 				_cCapIdRots_FEDuTCA.fill(eid, 1);*/
 		}
 
-		for (int i=0; i<it->size(); i++)
+		for (int i=0; i<it.size(); i++)
 		{
-			_cADC_SubdetPM.fill(did, it->sample(i).adc());
-			_cfC_SubdetPM.fill(did, it->sample(i).nominal_fC());
+			_cADC_SubdetPM.fill(did, it.sample(i).adc());
+			_cfC_SubdetPM.fill(did, it.sample(i).nominal_fC());
 			if (_ptype != fOffline) { // hidefed2crate
 				if (sumQ>_cutSumQ_HO)
-					_cShapeCut_FED.fill(eid, i, it->sample(i).nominal_fC());
+					_cShapeCut_FED.fill(eid, i, it.sample(i).nominal_fC());
 			}
 		}
 
 		if (sumQ>_cutSumQ_HO)
 		{
-			double timing = hcaldqm::utilities::aveTS<HODataFrame>(*it, 8.5, 0,
-				it->size()-1);
+			double timing = hcaldqm::utilities::aveTS<HODataFrame>(it, 8.5, 0,
+				it.size()-1);
 			_cSumQ_depth.fill(did, sumQ);
 			_cSumQvsLS_SubdetPM.fill(did, _currentLS, sumQ);
 			_cOccupancyCut_depth.fill(did);

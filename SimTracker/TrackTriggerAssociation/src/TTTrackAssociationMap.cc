@@ -59,13 +59,13 @@ bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isGenuine( edm::Ptr< TTTra
   std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > TP_Stubs = theStubAssociationMap->findTTStubRefs( this->findTrackingParticlePtr( aTrack ) );
   std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > TRK_Stubs = aTrack->getStubRefs();
  
-  for ( unsigned int js = 0; js < TRK_Stubs.size(); js++ )
+  for (const auto & TRK_Stub : TRK_Stubs)
   {
     /// We want that all the stubs of the track are included in the container of
     /// all the stubs produced by this particular TrackingParticle which we
     /// already know is one of the TrackingParticles that released hits
     /// in this track we are evaluating right now
-    if ( std::find( TP_Stubs.begin(), TP_Stubs.end(), TRK_Stubs.at(js) ) == TP_Stubs.end() )
+    if ( std::find( TP_Stubs.begin(), TP_Stubs.end(), TRK_Stub ) == TP_Stubs.end() )
       {
 	return false;
       }
@@ -95,9 +95,9 @@ bool TTTrackAssociationMap< Ref_Phase2TrackerDigi_ >::isUnknown( edm::Ptr< TTTra
   int unknownstubs=0;
 
   std::vector< edm::Ref< edmNew::DetSetVector< TTStub< Ref_Phase2TrackerDigi_ > >, TTStub< Ref_Phase2TrackerDigi_ > > > theseStubs = aTrack->getStubRefs();
-  for ( unsigned int i = 0; i < theseStubs.size(); i++ )
+  for (const auto & theseStub : theseStubs)
   {
-    if ( theStubAssociationMap->isUnknown( theseStubs.at(i) ) == false )
+    if ( theStubAssociationMap->isUnknown( theseStub ) == false )
     {
       ++unknownstubs;
       if (unknownstubs>=2) return false;

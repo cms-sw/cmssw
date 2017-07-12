@@ -750,115 +750,91 @@ void L1ExtraDQM::endRun(const edm::Run& run, const edm::EventSetup& evSetup) {
 
     // delete if event setup has changed only FIXME
   
-    for (std::vector<L1ExtraMonElement<l1extra::L1MuonParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraMuon.begin(); iterME
-            != m_meAnalysisL1ExtraMuon.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraMuon) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraMuon.clear();
 
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1EmParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraIsoEG.begin(); iterME
-            != m_meAnalysisL1ExtraIsoEG.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraIsoEG) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraIsoEG.clear();
 
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1EmParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraNoIsoEG.begin(); iterME
-            != m_meAnalysisL1ExtraNoIsoEG.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraNoIsoEG) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraNoIsoEG.clear();
 
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraCenJet.begin(); iterME
-            != m_meAnalysisL1ExtraCenJet.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraCenJet) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraCenJet.clear();
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraForJet.begin(); iterME
-            != m_meAnalysisL1ExtraForJet.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraForJet) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraForJet.clear();
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1JetParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraTauJet.begin(); iterME
-            != m_meAnalysisL1ExtraTauJet.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraTauJet) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraTauJet.clear();
       
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraETT.begin(); iterME
-            != m_meAnalysisL1ExtraETT.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraETT) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraETT.clear();
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraETM.begin(); iterME
-            != m_meAnalysisL1ExtraETM.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraETM) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraETM.clear();
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraHTT.begin(); iterME
-            != m_meAnalysisL1ExtraHTT.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraHTT) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraHTT.clear();
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1EtMissParticleCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraHTM.begin(); iterME
-            != m_meAnalysisL1ExtraHTM.end(); ++iterME) {
+    for (auto & iterME : m_meAnalysisL1ExtraHTM) {
 
-        delete *iterME;
+        delete iterME;
 
     }
     m_meAnalysisL1ExtraHTM.clear();
 
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1HFRingsCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraHfBitCounts.begin(); iterME
-            != m_meAnalysisL1ExtraHfBitCounts.end(); ++iterME) {
+    for (auto & m_meAnalysisL1ExtraHfBitCount : m_meAnalysisL1ExtraHfBitCounts) {
 
-        delete *iterME;
+        delete m_meAnalysisL1ExtraHfBitCount;
 
     }
     m_meAnalysisL1ExtraHfBitCounts.clear();
 
-    for (std::vector<L1ExtraMonElement<l1extra::L1HFRingsCollection>*>::iterator
-            iterME = m_meAnalysisL1ExtraHfRingEtSums.begin(); iterME
-            != m_meAnalysisL1ExtraHfRingEtSums.end(); ++iterME) {
+    for (auto & m_meAnalysisL1ExtraHfRingEtSum : m_meAnalysisL1ExtraHfRingEtSums) {
 
-        delete *iterME;
+        delete m_meAnalysisL1ExtraHfRingEtSum;
 
     }
     m_meAnalysisL1ExtraHfRingEtSums.clear();

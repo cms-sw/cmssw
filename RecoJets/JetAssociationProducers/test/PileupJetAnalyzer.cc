@@ -90,10 +90,8 @@ void PileupJetAnalyzer::analyze(const edm::Event &event,
 	event.getByToken(tokenSimVertex, simVertices);
 
 	// find vertices in all jets
-	for(JetTracksAssociationCollection::const_iterator iter =
-						jetTracksAssoc->begin();
-	    iter != jetTracksAssoc->end(); ++iter) {
-		const edm::RefToBase<Jet> &jet = iter->first;
+	for(const auto & iter : *jetTracksAssoc) {
+		const edm::RefToBase<Jet> &jet = iter.first;
 		if (jet->energy() < jetMinE ||
 		    jet->et() < jetMinEt ||
 		    std::abs(jet->eta()) > jetMaxEta)
@@ -106,10 +104,9 @@ void PileupJetAnalyzer::analyze(const edm::Event &event,
 
 		// note: the following code is FastSim specific right now
 
-		const TrackRefVector &tracks = iter->second;
-		for(TrackRefVector::const_iterator track = tracks.begin();
-		    track != tracks.end(); ++track) {
-			TrackingRecHitRef hitRef = (*track)->recHit(0);
+		const TrackRefVector &tracks = iter.second;
+		for(auto && track : tracks) {
+			TrackingRecHitRef hitRef = (track)->recHit(0);
 			bool signal = false;
 			unsigned int trackId;
 
@@ -143,7 +140,7 @@ void PileupJetAnalyzer::analyze(const edm::Event &event,
 			}
 
 			*(signal ? &sigSum : &bkgSum) +=
-					std::min((*track)->pt(), trackPtLimit);
+					std::min((track)->pt(), trackPtLimit);
 		}
 
 		if (sigSum + bkgSum < 1.0e-9)

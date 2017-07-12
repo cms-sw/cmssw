@@ -78,9 +78,8 @@ class TauLeadTrackExtractor<reco::PFTau>
   double getTrackPtSum(const reco::PFTau& tau) const
   {
     double trackPtSum = 0.;
-    for ( std::vector<PFCandidatePtr>::const_iterator signalTrack = tau.signalPFChargedHadrCands().begin();
-	  signalTrack != tau.signalPFChargedHadrCands().end(); ++signalTrack ) {
-      trackPtSum += (*signalTrack)->pt();
+    for (const auto & signalTrack : tau.signalPFChargedHadrCands()) {
+      trackPtSum += signalTrack->pt();
     }
     return trackPtSum;
   }
@@ -190,13 +189,12 @@ double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits,
 			 const GlobalPoint& eventVertexPosition)
 {
   double ecalEnergySum = 0.;
-  for ( EcalRecHitCollection::const_iterator ecalRecHit = ecalRecHits.begin();
-	ecalRecHit != ecalRecHits.end(); ++ecalRecHit ) {
-    const CaloCellGeometry* cellGeometry = detGeometry->getGeometry(ecalRecHit->detid());
+  for (const auto & ecalRecHit : ecalRecHits) {
+    const CaloCellGeometry* cellGeometry = detGeometry->getGeometry(ecalRecHit.detid());
     
     if ( !cellGeometry ) {
       edm::LogError ("compEcalEnergySum") 
-	<< " Failed to access ECAL geometry for detId = " << ecalRecHit->detid().rawId()
+	<< " Failed to access ECAL geometry for detId = " << ecalRecHit.detid().rawId()
 	<< " --> skipping !!";
       continue;
     }
@@ -220,7 +218,7 @@ double compEcalEnergySum(const EcalRecHitCollection& ecalRecHits,
     double dParl = TVector3(cellPosition.x(), cellPosition.y(), cellPosition.z()).Dot(dir.Unit());
     
     if ( dPerp < dR && dParl > 100. ) {
-      ecalEnergySum += ecalRecHit->energy();
+      ecalEnergySum += ecalRecHit.energy();
     }
   }
   
@@ -233,10 +231,9 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
 			 const GlobalPoint& eventVertexPosition)
 {
   double hcalEnergySum = 0.;
-  for ( HBHERecHitCollection::const_iterator hcalRecHit = hcalRecHits.begin();
-	hcalRecHit != hcalRecHits.end(); ++hcalRecHit ) {
-    const CaloCellGeometry* hbCellGeometry = hbGeometry->getGeometry(hcalRecHit->detid());
-    const CaloCellGeometry* heCellGeometry = heGeometry->getGeometry(hcalRecHit->detid());
+  for (const auto & hcalRecHit : hcalRecHits) {
+    const CaloCellGeometry* hbCellGeometry = hbGeometry->getGeometry(hcalRecHit.detid());
+    const CaloCellGeometry* heCellGeometry = heGeometry->getGeometry(hcalRecHit.detid());
 
     const GlobalPoint* cellPosition = 0;
     if ( hbCellGeometry ) cellPosition = &(hbCellGeometry->getPosition());
@@ -244,7 +241,7 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
 
     if ( !cellPosition ) {
       edm::LogError ("compHcalEnergySum") 
-	<< " Failed to access HCAL geometry for detId = " << hcalRecHit->detid().rawId()
+	<< " Failed to access HCAL geometry for detId = " << hcalRecHit.detid().rawId()
 	<< " --> skipping !!";
       continue;
     }
@@ -266,7 +263,7 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
     double dParl = TVector3(cellPosition->x(), cellPosition->y(), cellPosition->z()).Dot(dir.Unit());
 
     if ( dPerp < dR && dParl > 100. ) {
-      hcalEnergySum += hcalRecHit->energy();
+      hcalEnergySum += hcalRecHit.energy();
     }
   }
   

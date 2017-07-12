@@ -132,14 +132,14 @@ DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      
      const std::vector<uint32_t>& detids = reader->getAllDetIds();
      
-     for(std::vector<uint32_t>::const_iterator detid=detids.begin();detid!=detids.end();++detid) {
+     for(unsigned int detid : detids) {
        
-       LogDebug("DetID") << *detid;
+       LogDebug("DetID") << detid;
        int index=0;
        for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
-	 if(detidsel->isSelected(*detid)) {
+	 if(detidsel->isSelected(detid)) {
 	   LogDebug("selected") << "Selected by selection " << index;
-	   unsigned int det = *detid;
+	   unsigned int det = detid;
 	   tkhisto_->add(det,index);
 	   tkmap_.fill_current_val(det,index);
 	 }
@@ -155,14 +155,14 @@ DetIdSelectorTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
      SiPixelDetInfoFileReader pxlreader(fp.fullPath());
      const std::vector<uint32_t>& detids = pxlreader.getAllDetIds();
      
-     for(std::vector<uint32_t>::const_iterator detid=detids.begin();detid!=detids.end();++detid) {
+     for(unsigned int detid : detids) {
        
-       LogDebug("DetID") << *detid;
+       LogDebug("DetID") << detid;
        int index=0;
        for(std::vector<DetIdSelector>::const_iterator detidsel=detidsels_.begin();detidsel!=detidsels_.end();++detidsel) {
-	 if(detidsel->isSelected(*detid)) {
+	 if(detidsel->isSelected(detid)) {
 	   LogDebug("selected") << "Selected by selection " << index;
-	   unsigned int det = *detid;
+	   unsigned int det = detid;
 	   //	   tkhisto_->add(det,index);
 	   tkmap_.fill_current_val(det,index);
 	 }

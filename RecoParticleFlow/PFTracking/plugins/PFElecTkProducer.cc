@@ -290,8 +290,8 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 						    useNuclear_,useConversions_,useV0_,
 						    theEcalClusters,selGsfPFRecTracks[ipfgsf])) {
 	  const vector<PFRecTrackRef>& convBremPFRecTracks(convBremFinder_->getConvBremPFRecTracks());
-	  for(unsigned int ii = 0; ii<convBremPFRecTracks.size(); ii++) {
-	    selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTracks[ii]);
+	  for(const auto & convBremPFRecTrack : convBremPFRecTracks) {
+	    selGsfPFRecTracks[ipfgsf].addConvBremPFRecTrackRef(convBremPFRecTrack);
 	  }
 	}
 	
@@ -307,12 +307,12 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
 	vector<reco::GsfPFRecTrack> trueGsfPFRecTracks;
 	if(secondaries.size() > 0) {
 	  // loop on secondaries gsf tracks (from converted brems)
-	  for(unsigned int isecpfgsf=0; isecpfgsf<secondaries.size();isecpfgsf++) {
+	  for(unsigned int & secondarie : secondaries) {
 	    
-	    PFRecTrackRef refsecKF =  selGsfPFRecTracks[(secondaries[isecpfgsf])].kfPFRecTrackRef();
+	    PFRecTrackRef refsecKF =  selGsfPFRecTracks[secondarie].kfPFRecTrackRef();
 	    
-	    unsigned int secGsfIndex = selGsfPFRecTracks[(secondaries[isecpfgsf])].trackId();
-	    GsfTrackRef secGsfRef = selGsfPFRecTracks[(secondaries[isecpfgsf])].gsfTrackRef();
+	    unsigned int secGsfIndex = selGsfPFRecTracks[secondarie].trackId();
+	    GsfTrackRef secGsfRef = selGsfPFRecTracks[secondarie].gsfTrackRef();
 
 	    if(refsecKF.isNonnull()) {
 	      // NOTE::IT SAVED THE TRACKID OF THE PRIMARY!!! THIS IS USED IN PFBLOCKALGO.CC/H
@@ -363,8 +363,8 @@ PFElecTkProducer::produce(Event& iEvent, const EventSetup& iSetup)
   //now the secondary GsfPFRecTracks are in the event, the Ref can be created
   createGsfPFRecTrackRef(gsfPfRefProd,primaryGsfPFRecTracks,GsfPFMap);
   
-  for(unsigned int iGSF = 0; iGSF<primaryGsfPFRecTracks.size();iGSF++){
-    gsfPFRecTrackCollection->push_back(primaryGsfPFRecTracks[iGSF]);
+  for(const auto & primaryGsfPFRecTrack : primaryGsfPFRecTracks){
+    gsfPFRecTrackCollection->push_back(primaryGsfPFRecTrack);
   }
   iEvent.put(std::move(gsfPFRecTrackCollection));
 
@@ -792,18 +792,18 @@ PFElecTkProducer::minTangDist(const reco::GsfPFRecTrack& primGsf,
 
 
   unsigned int cbrem = 0;
-  for (unsigned isbrem = 0; isbrem < secPFBrem.size(); isbrem++) {
-    if(secPFBrem[isbrem].indTrajPoint() == 99) continue;
+  for (auto & isbrem : secPFBrem) {
+    if(isbrem.indTrajPoint() == 99) continue;
     const reco::PFTrajectoryPoint& atSecECAL 
-      = secPFBrem[isbrem].extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+      = isbrem.extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
     if( ! atSecECAL.isValid() ) continue;
     float secPhi  = atSecECAL.positionREP().Phi();
 
     unsigned int sbrem = 0;
-    for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-      if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
+    for(auto & ipbrem : primPFBrem) {
+      if(ipbrem.indTrajPoint() == 99) continue;
       const reco::PFTrajectoryPoint& atPrimECAL 
-	= primPFBrem[ipbrem].extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
+	= ipbrem.extrapolatedPoint( reco::PFTrajectoryPoint::ECALEntrance );
       if( ! atPrimECAL.isValid() ) continue;
       sbrem++;
       if(sbrem <= 3) {
@@ -890,10 +890,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
     vector<PFCluster> vecPFClusters;
     vecPFClusters.clear();
 
-    for (PFClusterCollection::const_iterator clus = theEClus.begin();
-	 clus != theEClus.end();
-	 clus++ ) {
-      PFCluster clust = *clus;
+    for (auto clust : theEClus) {
       clust.calculatePositionREP();
 
       float deta = fabs(scRef->position().eta() - clust.position().eta());
@@ -918,9 +915,9 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	// check if it touch the Brem-tangents
 	if(foundLink == false) {
 	  vector<PFBrem> primPFBrem = gsfPfTrack.PFRecBrem();
-	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
-	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
+	  for(auto & ipbrem : primPFBrem) {
+	    if(ipbrem.indTrajPoint() == 99) continue;
+	    const reco::PFRecTrack& pfBremTrack = ipbrem;
 	    double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 	      LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true ) : -1.;
 	    if(dist > 0.) {
@@ -936,8 +933,8 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
       } // END if anble preselection
     } // PFClusters Loop
     if(vecPFClusters.size() > 0 ) {
-      for(unsigned int pf = 0; pf < vecPFClusters.size(); pf++) {
-	bool isCommon = ClusterClusterMapping::overlap(vecPFClusters[pf],*scRef);
+      for(const auto & vecPFCluster : vecPFClusters) {
+	bool isCommon = ClusterClusterMapping::overlap(vecPFCluster,*scRef);
 	if(isCommon) {
 	  isSharingEnergy = true;
 	}
@@ -955,10 +952,7 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
     nPFCluster.clear();
     iPFCluster.clear();
 
-    for (PFClusterCollection::const_iterator clus = theEClus.begin();
-	 clus != theEClus.end();
-	 clus++ ) {
-      PFCluster clust = *clus;
+    for (auto clust : theEClus) {
       clust.calculatePositionREP();
       
       float ndeta = fabs(nGsfPFRecTrack.gsfTrackRef()->eta() - clust.position().eta());
@@ -978,9 +972,9 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	}
 	if(foundNLink == false) {
 	  const vector<PFBrem>& primPFBrem = nGsfPFRecTrack.PFRecBrem();
-	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
-	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
+	  for(const auto & ipbrem : primPFBrem) {
+	    if(ipbrem.indTrajPoint() == 99) continue;
+	    const reco::PFRecTrack& pfBremTrack = ipbrem;
 	    if(foundNLink == false) {
 	      double dist = pfBremTrack.extrapolatedPoint( reco::PFTrajectoryPoint::ECALShowerMax ).isValid() ?
 		LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true ) : -1.;
@@ -1010,9 +1004,9 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 	}
 	if(foundILink == false) {
 	  vector<PFBrem> primPFBrem = iGsfPFRecTrack.PFRecBrem();
-	  for(unsigned ipbrem = 0; ipbrem < primPFBrem.size(); ipbrem++) {
-	    if(primPFBrem[ipbrem].indTrajPoint() == 99) continue;
-	    const reco::PFRecTrack& pfBremTrack = primPFBrem[ipbrem];
+	  for(auto & ipbrem : primPFBrem) {
+	    if(ipbrem.indTrajPoint() == 99) continue;
+	    const reco::PFRecTrack& pfBremTrack = ipbrem;
 	    if(foundILink == false) {
 	      double dist = LinkByRecHit::testTrackAndClusterByRecHit(pfBremTrack , clust, true );
 	      if(dist > 0.) {
@@ -1028,9 +1022,9 @@ PFElecTkProducer::isSharingEcalEnergyWithEgSC(const reco::GsfPFRecTrack& nGsfPFR
 
 
     if(nPFCluster.size() > 0 && iPFCluster.size() > 0) {
-      for(unsigned int npf = 0; npf < nPFCluster.size(); npf++) {
-	for(unsigned int ipf = 0; ipf < iPFCluster.size(); ipf++) {
-	  bool isCommon = ClusterClusterMapping::overlap(nPFCluster[npf],iPFCluster[ipf]);
+      for(const auto & npf : nPFCluster) {
+	for(const auto & ipf : iPFCluster) {
+	  bool isCommon = ClusterClusterMapping::overlap(npf,ipf);
 	  if(isCommon) {
 	    isSharingEnergy = true;
 	    break;

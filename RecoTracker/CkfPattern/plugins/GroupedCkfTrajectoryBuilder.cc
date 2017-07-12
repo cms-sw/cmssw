@@ -341,9 +341,8 @@ GroupedCkfTrajectoryBuilder::groupedLimitedCandidates (const TrajectorySeed& see
   while ( !candidates.empty()) {
 
     newCand.clear();
-    for (TempTrajectoryContainer::iterator traj=candidates.begin();
-	 traj!=candidates.end(); traj++) {
-      if ( !advanceOneLayer(seed, *traj, regionalCondition, propagator, inOut, newCand, result) ) {
+    for (auto & candidate : candidates) {
+      if ( !advanceOneLayer(seed, candidate, regionalCondition, propagator, inOut, newCand, result) ) {
 	LogDebug("CkfPattern")<< "GCTB: terminating after advanceOneLayer==false";
  	continue;
       }
@@ -841,16 +840,15 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   //seedHits.reserve(nSeed);
   TempTrajectoryContainer rebuiltTrajectories;
 
-  for ( TempTrajectoryContainer::iterator it=result.begin();
-	it!=result.end(); it++ ) {
+  for (auto & it : result) {
 
     // Refit - keep existing trajectory in case fit is not possible
     // or fails
     //
 
-    auto && reFitted = backwardFit(*it,nSeed,fitter,seedHits);
+    auto && reFitted = backwardFit(it,nSeed,fitter,seedHits);
     if unlikely( !reFitted.isValid() ) {
-	rebuiltTrajectories.push_back(std::move(*it));
+	rebuiltTrajectories.push_back(std::move(it));
 	LogDebug("CkfPattern")<< "RebuildSeedingRegion skipped as backward fit failed";
 	//			    << "after reFitted.size() " << reFitted.size();
 	continue;
@@ -866,12 +864,12 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     // real cause that stopped the original in-out trajectory, since
     // that's the one we want to monitor
     for (size_t i = rebuiltTrajectories.size() - 1; i < rebuiltTrajectories.size() - nRebuilt - 1; --i) {
-      rebuiltTrajectories[i].setStopReason(it->stopReason());
+      rebuiltTrajectories[i].setStopReason(it.stopReason());
     }
 
-    if ( nRebuilt==0 && !theKeepOriginalIfRebuildFails ) it->invalidate();  // won't use original in-out track
+    if ( nRebuilt==0 && !theKeepOriginalIfRebuildFails ) it.invalidate();  // won't use original in-out track
 
-    if ( nRebuilt<0 ) rebuiltTrajectories.push_back(std::move(*it));
+    if ( nRebuilt<0 ) rebuiltTrajectories.push_back(std::move(it));
   }
   //
   // Replace input trajectories with new ones
@@ -939,10 +937,9 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
   bool orig_ok = false;
   //const RecHitEqualByChannels recHitEqual(false,false);
   //vector<TM> oldMeasurements(candidate.measurements());
-  for ( TempTrajectoryContainer::iterator it=rebuiltTrajectories.begin();
-	it!=rebuiltTrajectories.end(); it++ ) {
+  for (auto & rebuiltTrajectorie : rebuiltTrajectories) {
     
-    TempTrajectory::DataContainer newMeasurements(it->measurements());
+    TempTrajectory::DataContainer newMeasurements(rebuiltTrajectorie.measurements());
     //
     // Verify presence of seeding hits?
     //
@@ -970,7 +967,7 @@ GroupedCkfTrajectoryBuilder::rebuildSeedingRegion(const TrajectorySeed&seed,
     nrOfTrajectories++;
     result.emplace_back(seed.direction(),seed.nHits());
     TempTrajectory & reversedTrajectory = result.back();
-    reversedTrajectory.setNLoops(it->nLoops());
+    reversedTrajectory.setNLoops(rebuiltTrajectorie.nLoops());
     for (TempTrajectory::DataContainer::const_iterator im=newMeasurements.rbegin(), ed = newMeasurements.rend();
 	 im != ed; --im ) {
       reversedTrajectory.push(*im);
@@ -1090,16 +1087,16 @@ GroupedCkfTrajectoryBuilder::backwardFit (TempTrajectory& candidate, unsigned in
   //So we have to cache the detLayer pointers and replug them in.
   //For the backward building it would be enaugh to cache the last DetLayer, 
   //but for the intermediary cleaning we need all
-  for ( vector<TM>::const_iterator im=tmsbf.begin();im!=tmsbf.end(); im++ ) {
-    fitted.emplace( (*im).forwardPredictedState(),
-		    (*im).backwardPredictedState(),
-		    (*im).updatedState(),
-		    (*im).recHit(),
-		    (*im).estimate(),
+  for (const auto & im : tmsbf) {
+    fitted.emplace( im.forwardPredictedState(),
+		    im.backwardPredictedState(),
+		    im.updatedState(),
+		    im.recHit(),
+		    im.estimate(),
 		    bwdDetLayer[iDetLayer]
 		    );
     
-    LogDebug("CkfPattern")<<PrintoutHelper::dumpMeasurement(*im);
+    LogDebug("CkfPattern")<<PrintoutHelper::dumpMeasurement(im);
     iDetLayer++;
   }
   /*
@@ -1130,11 +1127,11 @@ GroupedCkfTrajectoryBuilder::verifyHits (TempTrajectory::DataContainer::const_it
 
   auto rend = rbegin; 
   while (maxDepth > 0) { --maxDepth; --rend; }
-  for ( auto  ir=hits.begin();	ir!=hits.end(); ir++ ) {
+  for (auto hit : hits) {
     // assume that all seeding hits are valid!
     bool foundHit(false);
     for ( auto im=rbegin; im!=rend; --im ) {
-      if ( im->recHit()->isValid() && (*ir)->sharesInput(im->recHit()->hit(), TrackingRecHit::some) ) {
+      if ( im->recHit()->isValid() && hit->sharesInput(im->recHit()->hit(), TrackingRecHit::some) ) {
 	foundHit = true;
 	break;
       }

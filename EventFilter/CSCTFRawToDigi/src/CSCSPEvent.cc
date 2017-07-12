@@ -37,9 +37,8 @@ bool CSCSPEvent::unpack(const unsigned short *&buf) throw() {
 
 		// Link initial LCTs to the tracks in each time bin
 		for(unsigned short tbin=0; tbin<header_.nTBINs(); tbin++){
-			for(unsigned short trk=0; trk<3; trk++){
-				CSCSP_SPblock &track = record_[tbin].sp[trk];
-				if( track.ME1_id()==0 && track.ME2_id()==0 && track.ME3_id()==0 && track.ME4_id()==0 && track.MB_id()==0 ) continue;
+			for(auto & track : record_[tbin].sp){
+					if( track.ME1_id()==0 && track.ME2_id()==0 && track.ME3_id()==0 && track.ME4_id()==0 && track.MB_id()==0 ) continue;
 				// The key LCT identified by the BXA algorithm is the second earliest LCT
 				int second_earliest_lct_delay = -1; // this is going to be a # tbins the key LCT was delayed to allign with the latest LCT
 				if( track.mode() != 15 && track.mode() != 11 ){ // BXA works only on non halo tracks and non-singles

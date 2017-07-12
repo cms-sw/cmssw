@@ -424,8 +424,8 @@ float EcalClusterLazyToolsBase::getESShape(const std::vector<float>& ESHits0)
 {
   const int nBIN = 21;
   float esRH[nBIN];
-  for (int idx=0; idx<nBIN; idx++) {
-    esRH[idx] = 0.;
+  for (float & idx : esRH) {
+    idx = 0.;
   }
 
   for(int ibin=0; ibin<((nBIN+1)/2); ibin++) {

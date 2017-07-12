@@ -237,8 +237,8 @@ TtFullHadSignalSel::TtFullHadSignalSel(const std::vector<pat::Jet>& jets)
   ROOT::Math::Boost CoMBoostTotal(totalSystem.BoostToCM());
   std::vector<reco::LeafCandidate> boostedJets;
 
-  for(std::vector<pat::Jet>::const_iterator jet = jets.begin(); jet != jets.end(); ++jet){
-    boostedJets.push_back(reco::LeafCandidate(jet->charge(), CoMBoostTotal(jet->p4()), jet->vertex(), jet->pdgId(), jet->status(), true));
+  for(const auto & jet : jets){
+    boostedJets.push_back(reco::LeafCandidate(jet.charge(), CoMBoostTotal(jet.p4()), jet.vertex(), jet.pdgId(), jet.status(), true));
   }
 
   EtSin2Theta3jet_ /= ((double)(jets.size()-3));

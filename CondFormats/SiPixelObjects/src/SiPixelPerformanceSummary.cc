@@ -180,8 +180,7 @@ bool SiPixelPerformanceSummary::setClusterSizeOffTrack(uint32_t detId, float mea
 
 vector<uint32_t> SiPixelPerformanceSummary::getAllDetIds() const {
   vector<uint32_t> allDetIds; 
-  for (vector<DetSummary>::const_iterator iDetSumm = allDetSummaries_.begin(); 
-       iDetSumm!=allDetSummaries_.end(); ++iDetSumm) allDetIds.push_back(iDetSumm->detId_); 
+  for (const auto & allDetSummarie : allDetSummaries_) allDetIds.push_back(allDetSummarie.detId_); 
   return allDetIds; 
 }
 
@@ -218,6 +217,5 @@ void SiPixelPerformanceSummary::print() const {
 
 void SiPixelPerformanceSummary::printAll() const {
   print();
-  for (vector<DetSummary>::const_iterator iDetSumm = allDetSummaries_.begin(); 
-       iDetSumm!=allDetSummaries_.end(); ++iDetSumm) print(iDetSumm->detId_); 
+  for (const auto & allDetSummarie : allDetSummaries_) print(allDetSummarie.detId_); 
 }

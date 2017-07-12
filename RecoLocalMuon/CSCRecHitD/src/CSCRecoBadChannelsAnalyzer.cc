@@ -98,9 +98,7 @@
     int ibadchannels = 0; // COUNT OF BAD STRIP CHANNELS
     int ibadlayers = 0 ; //COUNT OF LAYERS WITH BAD STRIP CHANNELS
 
-    for( auto it = vecOfLayers.begin(); it != vecOfLayers.end(); ++it ){
-
-      const CSCLayer* layer = *it;
+    for(auto layer : vecOfLayers){
 
       if( layer ){
         CSCDetId id = layer->id();

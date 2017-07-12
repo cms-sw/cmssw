@@ -94,20 +94,18 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 			  << this->specificSurface().outerRadius() ;
   
 
-  for(auto it=theFrontComps.begin(); 
-      it!=theFrontComps.end(); it++){
+  for(auto & theFrontComp : theFrontComps){
     LogDebug("TkDetLayers") << "frontPetal phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() ;
+	 << theFrontComp->surface().position().phi() << " , "
+	 << theFrontComp->surface().position().z() <<   " , "
+	 << theFrontComp->surface().position().perp() ;
   }
 
-  for(auto it=theBackComps.begin(); 
-      it!=theBackComps.end(); it++){
+  for(auto & theBackComp : theBackComps){
     LogDebug("TkDetLayers") << "backPetal phi,z,r: " 
-	 << (*it)->surface().position().phi() << " , "
-	 << (*it)->surface().position().z() <<   " , "
-	 << (*it)->surface().position().perp() ;
+	 << theBackComp->surface().position().phi() << " , "
+	 << theBackComp->surface().position().z() <<   " , "
+	 << theBackComp->surface().position().perp() ;
   }
   //----------------------------------- 
 
@@ -117,8 +115,8 @@ TECLayer::TECLayer(vector<const TECPetal*>& innerPetals,
 
 
 TECLayer::~TECLayer(){
-  for (auto i=theComps.begin(); i!=theComps.end(); i++) {
-    delete *i;
+  for (auto & theComp : theComps) {
+    delete theComp;
   }
 } 
   

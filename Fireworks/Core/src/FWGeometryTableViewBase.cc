@@ -295,12 +295,12 @@ void  FWGeometryTableViewBase::checkExpandLevel()
    if ( m_topNodeIdx.value() > 0) 
       ae += getTableManager()->refEntries().at(m_topNodeIdx.value()).m_level;
 
-   for (FWGeometryTableManagerBase::Entries_i i = getTableManager()->refEntries().begin(); i !=  getTableManager()->refEntries().end(); ++i)
+   for (auto & i : getTableManager()->refEntries())
    {
-      if (i->m_level  < ae)
-         i->setBit(FWGeometryTableManagerBase::kExpanded);
+      if (i.m_level  < ae)
+         i.setBit(FWGeometryTableManagerBase::kExpanded);
       else
-         i->resetBit(FWGeometryTableManagerBase::kExpanded);
+         i.resetBit(FWGeometryTableManagerBase::kExpanded);
    } 
 }
 
@@ -316,13 +316,13 @@ FWGeometryTableViewBase::populate3DViewsFromConfig()
 
       if(0!=keyVals)  
       {
-         for(FWConfiguration::KeyValuesIt it = keyVals->begin(); it!= keyVals->end(); ++it) {
+         for(const auto & keyVal : *keyVals) {
     
-            TString sname = it->first;
+            TString sname = keyVal.first;
             TEveViewer* v = dynamic_cast<TEveViewer*>(viewers->FindChild(sname.Data()));
             if (!v)
             {
-               fwLog(fwlog::kError)  << "FWGeometryTableViewBase::populate3DViewsFromConfig no viewer found " << it->first << std::endl;
+               fwLog(fwlog::kError)  << "FWGeometryTableViewBase::populate3DViewsFromConfig no viewer found " << keyVal.first << std::endl;
                return;
             }
             v->AddScene(m_eveScene);  
@@ -652,9 +652,9 @@ void FWGeometryTableViewBase::setTopNodePathFromConfig(const FWConfiguration& iF
 void FWGeometryTableViewBase::reloadColors()
 {
   // printf("relaodColors \n");
-   for (FWGeometryTableManagerBase::Entries_i i = getTableManager()->refEntries().begin(); i !=  getTableManager()->refEntries().end(); ++i)
+   for (auto & i : getTableManager()->refEntries())
    {
-      i->m_color = i->m_node->GetVolume()->GetLineColor();
+      i.m_color = i.m_node->GetVolume()->GetLineColor();
    }
    
    refreshTable3D();

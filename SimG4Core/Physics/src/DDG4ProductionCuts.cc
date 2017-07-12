@@ -46,9 +46,8 @@ void DDG4ProductionCuts::update() {
   //
   // Loop over all DDLP and provide the cuts for each region
   //
-  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin();
-       tit != vec_.end(); tit++){
-    setProdCuts((*tit).second,(*tit).first);
+  for (auto & tit : vec_){
+    setProdCuts(tit.second,tit.first);
   }
 }
 
@@ -66,26 +65,25 @@ void DDG4ProductionCuts::initialize() {
 			<<" DDG4ProductionCuts : Got "<<vec_.size()
 			<<" region roots.\n"
 			<<" DDG4ProductionCuts : List of all roots:";
-    for ( size_t jj=0; jj<vec_.size(); ++jj)
+    for (auto & jj : vec_)
       LogDebug("Physics") << "   DDG4ProductionCuts : root=" 
-			  << vec_[jj].second.name();
+			  << jj.second.name();
   }
 
   // Now generate all the regions
-  for (G4LogicalVolumeToDDLogicalPartMap::Vector::iterator tit = vec_.begin();
-       tit != vec_.end(); tit++) {
+  for (auto & tit : vec_) {
 
     std::string  regionName;
-    unsigned int num= map_.toString(m_KeywordRegion,(*tit).second,regionName);
+    unsigned int num= map_.toString(m_KeywordRegion,tit.second,regionName);
   
     if (num != 1) {
       throw cms::Exception("SimG4CorePhysics", " DDG4ProductionCuts::initialize: Problem with Region tags.");
     }
     G4Region * region = getRegion(regionName);
-    region->AddRootLogicalVolume((*tit).first);
+    region->AddRootLogicalVolume(tit.first);
   
     if ( m_Verbosity > 0 )
-      LogDebug("Physics") << " MakeRegions: added " <<((*tit).first)->GetName()
+      LogDebug("Physics") << " MakeRegions: added " <<(tit.first)->GetName()
 			  << " to region " << region->GetName();
   }
 }

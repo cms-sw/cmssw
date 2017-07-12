@@ -230,11 +230,9 @@ void ZDCDigiStudy::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   //////////////////////////////////////////////////DIGIS///////////////////////////////////
   if (gotZDCDigis==true){
-    for (ZDCDigiCollection::const_iterator zdc = zdchandle->begin();
-         zdc!=zdchandle->end();
-         ++zdc)
+    for (const auto & zdc : *zdchandle)
       {
-        const ZDCDataFrame digi = (const ZDCDataFrame)(*zdc);
+        const ZDCDataFrame digi = (const ZDCDataFrame)zdc;
         //std::cout <<"CHANNEL = "<<zdc->id().channel()<<std::endl;
 
 

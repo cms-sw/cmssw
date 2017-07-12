@@ -1509,78 +1509,78 @@ void JetAnalyzer_HeavyIons::analyze(const edm::Event& mEvent, const edm::EventSe
 
   mNJets->Fill(recoJets.size());
 
-  for (unsigned ijet=0; ijet<recoJets.size(); ijet++) {
-    if (recoJets[ijet].pt() > mRecoJetPtThreshold) {
+  for (auto & recoJet : recoJets) {
+    if (recoJet.pt() > mRecoJetPtThreshold) {
       //counting forward and barrel jets
       // get an idea of no of jets with pT>40 GeV 
-      if(recoJets[ijet].pt() > 40)
+      if(recoJet.pt() > 40)
 	nJet_40++;
-      if (mEta) mEta->Fill(recoJets[ijet].eta());
-      if (mjetpileup) mjetpileup->Fill(recoJets[ijet].pileup());
-      if (mJetArea)      mJetArea     ->Fill(recoJets[ijet].jetArea());
-      if (mPhi)          mPhi         ->Fill(recoJets[ijet].phi());
-      if (mEnergy)       mEnergy      ->Fill(recoJets[ijet].energy());
-      if (mP)            mP           ->Fill(recoJets[ijet].p());
-      if (mPt)           mPt          ->Fill(recoJets[ijet].pt());
-      if (mMass)         mMass        ->Fill(recoJets[ijet].mass());
-      if (mConstituents) mConstituents->Fill(recoJets[ijet].nConstituents());
+      if (mEta) mEta->Fill(recoJet.eta());
+      if (mjetpileup) mjetpileup->Fill(recoJet.pileup());
+      if (mJetArea)      mJetArea     ->Fill(recoJet.jetArea());
+      if (mPhi)          mPhi         ->Fill(recoJet.phi());
+      if (mEnergy)       mEnergy      ->Fill(recoJet.energy());
+      if (mP)            mP           ->Fill(recoJet.p());
+      if (mPt)           mPt          ->Fill(recoJet.pt());
+      if (mMass)         mMass        ->Fill(recoJet.mass());
+      if (mConstituents) mConstituents->Fill(recoJet.nConstituents());
 
-      for(size_t iii = 0 ; iii < numbers.size() ; iii++)
+      for(auto & number : numbers)
         {
-          pfDeltaR = sqrt((numbers[iii][2]-recoJets[ijet].phi())*(numbers[iii][2]-recoJets[ijet].phi()) + (numbers[iii][1]-recoJets[ijet].eta())*(numbers[iii][1]-recoJets[ijet].eta())); //MZ
+          pfDeltaR = sqrt((number[2]-recoJet.phi())*(number[2]-recoJet.phi()) + (number[1]-recoJet.eta())*(number[1]-recoJet.eta())); //MZ
 
-          mPFVsPtInitialDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
+          mPFVsPtInitialDeltaR_pTCorrected->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
 
 
-          mPFVsPtDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][4]/recoJets[ijet].pt()); //MZ
+          mPFVsPtDeltaR_pTCorrected->Fill(pfDeltaR,number[4]/recoJet.pt()); //MZ
 
           mPFDeltaR ->Fill(pfDeltaR); //MZ
           mPFDeltaR_Scaled_R->Fill(pfDeltaR,1. / pow(pfDeltaR,2)); //MZ
-          mPFDeltaR_pTCorrected->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
+          mPFDeltaR_pTCorrected->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
 
-          if(recoJets[ijet].pt() > 20 && recoJets[ijet].pt() < 30)
+          if(recoJet.pt() > 20 && recoJet.pt() < 30)
 	    {
-	      mPFDeltaR_pTCorrected_PFpT_20To30->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-	      mPFDeltaR_pTCorrected_PFVsInitialpT_20To30->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFpT_20To30->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFVsInitialpT_20To30->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
 	    }
 
-          if(recoJets[ijet].pt() > 30 && recoJets[ijet].pt() < 50)
+          if(recoJet.pt() > 30 && recoJet.pt() < 50)
 	    {
-	      mPFDeltaR_pTCorrected_PFpT_30To50->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-	      mPFDeltaR_pTCorrected_PFVsInitialpT_30To50->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFpT_30To50->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFVsInitialpT_30To50->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
 	    }
 
-          if(recoJets[ijet].pt() > 50 && recoJets[ijet].pt() < 80)
+          if(recoJet.pt() > 50 && recoJet.pt() < 80)
 	    {
-	      mPFDeltaR_pTCorrected_PFpT_50To80->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-	      mPFDeltaR_pTCorrected_PFVsInitialpT_50To80->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
-	    }
-
-
-          if(recoJets[ijet].pt() > 80 && recoJets[ijet].pt() < 120)
-	    {
-	      mPFDeltaR_pTCorrected_PFpT_80To120->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-	      mPFDeltaR_pTCorrected_PFVsInitialpT_80To120->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFpT_50To80->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFVsInitialpT_50To80->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
 	    }
 
 
-          if(recoJets[ijet].pt() > 120 && recoJets[ijet].pt() < 180)
+          if(recoJet.pt() > 80 && recoJet.pt() < 120)
 	    {
-	      mPFDeltaR_pTCorrected_PFpT_120To180->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-	      mPFDeltaR_pTCorrected_PFVsInitialpT_120To180->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFpT_80To120->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFVsInitialpT_80To120->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
 	    }
 
 
-          if(recoJets[ijet].pt() > 180 && recoJets[ijet].pt() < 300)
+          if(recoJet.pt() > 120 && recoJet.pt() < 180)
 	    {
-	      mPFDeltaR_pTCorrected_PFpT_180To300->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-	      mPFDeltaR_pTCorrected_PFVsInitialpT_180To300->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFpT_120To180->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFVsInitialpT_120To180->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
 	    }
 
-          if(recoJets[ijet].pt() > 300)
+
+          if(recoJet.pt() > 180 && recoJet.pt() < 300)
 	    {
-	      mPFDeltaR_pTCorrected_PFpT_300ToInf->Fill(pfDeltaR,numbers[iii][0]/recoJets[ijet].pt()); //MZ
-	      mPFDeltaR_pTCorrected_PFVsInitialpT_300ToInf->Fill(pfDeltaR,numbers[iii][3]/recoJets[ijet].pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFpT_180To300->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFVsInitialpT_180To300->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
+	    }
+
+          if(recoJet.pt() > 300)
+	    {
+	      mPFDeltaR_pTCorrected_PFpT_300ToInf->Fill(pfDeltaR,number[0]/recoJet.pt()); //MZ
+	      mPFDeltaR_pTCorrected_PFVsInitialpT_300ToInf->Fill(pfDeltaR,number[3]/recoJet.pt()); //MZ
 	    }
 
         }

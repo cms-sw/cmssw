@@ -39,9 +39,9 @@ vector<const reco::GenJet*> VBFGenJetFilter::filterGenJets(const vector<reco::Ge
   
   vector<const reco::GenJet*> out;
   
-  for(unsigned i=0; i<jets->size(); i++){
+  for(const auto & jet : *jets){
     
-    const reco::GenJet* j = &((*jets)[i]);
+    const reco::GenJet* j = &jet;
     
     if(j->p4().pt() >ptMin &&  j->p4().eta()>etaMin && j->p4().eta()<etaMax)
     {

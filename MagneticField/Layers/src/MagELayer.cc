@@ -32,8 +32,7 @@ MagELayer::~MagELayer(){
 
 const MagVolume * 
 MagELayer::findVolume(const GlobalPoint & gp, double tolerance) const {
-  for(vector<MagVolume*>::const_iterator ivol = theVolumes.begin();
-	ivol != theVolumes.end(); ++ivol) {
+  for(auto theVolume : theVolumes) {
     // FIXME : use a binfinder
 #ifdef MF_DEBUG
     {
@@ -41,7 +40,7 @@ MagELayer::findVolume(const GlobalPoint & gp, double tolerance) const {
       cout << "        Trying volume " << mv->volumeNo << " " << int(mv->copyno) << endl;
     }
 #endif
-    if ( (*ivol)->inside(gp,tolerance) ) return (*ivol);
+    if ( theVolume->inside(gp,tolerance) ) return theVolume;
   }
 
   return 0;

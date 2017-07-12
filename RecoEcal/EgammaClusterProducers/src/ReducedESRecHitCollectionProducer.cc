@@ -79,15 +79,15 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
   {
     const reco::SuperClusterCollection* eeSuperClusters = pEndcapSuperClusters.product();
     
-    for (reco::SuperClusterCollection::const_iterator isc = eeSuperClusters->begin(); isc != eeSuperClusters->end(); ++isc) {
+    for (const auto & eeSuperCluster : *eeSuperClusters) {
 
-      if (isc->energy() < scEtThresh_) continue;
-      if (fabs(isc->eta()) < 1.65 || fabs(isc->eta()) > 2.6) continue;
+      if (eeSuperCluster.energy() < scEtThresh_) continue;
+      if (fabs(eeSuperCluster.eta()) < 1.65 || fabs(eeSuperCluster.eta()) > 2.6) continue;
       //cout<<"SC energy : "<<isc->energy()<<" "<<isc->eta()<<endl;
 
       //Int_t nBC = 0;
-      reco::CaloCluster_iterator ibc = isc->clustersBegin();
-      for ( ; ibc != isc->clustersEnd(); ++ibc ) {  
+      reco::CaloCluster_iterator ibc = eeSuperCluster.clustersBegin();
+      for ( ; ibc != eeSuperCluster.clustersEnd(); ++ibc ) {  
 
 	//cout<<"BC : "<<nBC<<endl;
 
@@ -109,13 +109,13 @@ void ReducedESRecHitCollectionProducer::produce(edm::Event & e, const edm::Event
 
 
   edm::Handle<DetIdCollection > detId;
-  for( unsigned int t = 0; t < interestingDetIdCollections_.size(); ++t )
+  for(auto interestingDetIdCollection : interestingDetIdCollections_)
     {
-      e.getByToken(interestingDetIdCollections_[t],detId);    
+      e.getByToken(interestingDetIdCollection,detId);    
       if(!detId.isValid())
       {
           Labels labels;
-          labelsForToken(interestingDetIdCollections_[t], labels);
+          labelsForToken(interestingDetIdCollection, labels);
           edm::LogError("MissingInput")<<"no reason to skip detid from : (" << labels.module << ", "
                                                                             << labels.productInstance << ", "
                                                                             << labels.process << ")" << std::endl;

@@ -50,11 +50,11 @@ void DAFTrackProducerAlgorithm::runWithCandidate(const TrackingGeometry * theG,
   int cont = 0;
   int nTracksChanged = 0;
 
-  for (TrajTrackAssociationCollection::const_iterator itTTmap = TTmap.begin(); itTTmap != TTmap.end(); itTTmap++){
+  for (const auto & itTTmap : TTmap){
 
-    const edm::Ref<std::vector<Trajectory> > BeforeDAFTraj  = itTTmap->key;
+    const edm::Ref<std::vector<Trajectory> > BeforeDAFTraj  = itTTmap.key;
     std::vector<TrajectoryMeasurement> BeforeDAFTrajMeas = BeforeDAFTraj->measurements();
-    const reco::TrackRef BeforeDAFTrack = itTTmap->val;
+    const reco::TrackRef BeforeDAFTrack = itTTmap.val;
 
     float ndof = 0;
     Trajectory CurrentTraj;
@@ -381,10 +381,10 @@ float DAFTrackProducerAlgorithm::calculateNdof(const Trajectory vtraj) const
   if (!vtraj.isValid()) return 0;
   float ndof = 0;
   const std::vector<TrajectoryMeasurement>& meas = vtraj.measurements();
-  for (std::vector<TrajectoryMeasurement>::const_iterator iter = meas.begin(); iter != meas.end(); iter++){
+  for (const auto & mea : meas){
 
-    if (iter->recHit()->isValid()){
-      SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*iter->recHit());
+    if (mea.recHit()->isValid()){
+      SiTrackerMultiRecHit const & mHit = dynamic_cast<SiTrackerMultiRecHit const &>(*mea.recHit());
       std::vector<const TrackingRecHit*> components = mHit.recHits();
       int iComp = 0;
       for(std::vector<const TrackingRecHit*>::const_iterator iter2 = components.begin(); iter2 != components.end(); iter2++, iComp++){

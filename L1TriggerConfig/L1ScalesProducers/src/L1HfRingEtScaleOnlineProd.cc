@@ -156,10 +156,9 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
 	 edm::LogError( "L1-O2O" ) << "Problem with L1HfRingEtScale key : scale query failed." ;
      }
      else {
-       for( std::vector< std::string >::iterator thresh = queryStrings.begin();
-	    thresh != queryStrings.end(); ++thresh) {
+       for(auto & queryString : queryStrings) {
 	 float tempScale = 0.;
-	 scaleResults.fillVariable(*thresh,tempScale);
+	 scaleResults.fillVariable(queryString,tempScale);
 	 thresholds.push_back(tempScale);
        }
      }

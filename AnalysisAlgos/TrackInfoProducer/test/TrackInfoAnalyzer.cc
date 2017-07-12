@@ -60,16 +60,16 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
     reco::TrackInfoCollection tC = *(trackCollection.product());
 
     edm::LogInfo("TrackInfoAnalyzer") <<"number of infos "<< tC.size();
-    for (reco::TrackInfoCollection::iterator track=tC.begin(); track!=tC.end(); ++track){
+    for (auto & track : tC){
 
       //const reco::TrackInfo::TrajectoryInfo tinfo=track->trajstate();
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
-      edm::LogInfo("TrackInfoAnalyzer") <<"N hits in the seed: "<<track->seed().nHits();
-      edm::LogInfo("TrackInfoAnalyzer") <<"Starting state "<<track->seed().startingState().parameters().position();
-      if(track->trajStateMap().size()>0){
-      for(iter=track->trajStateMap().begin();iter!=track->trajStateMap().end();++iter){
-	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).momentum();
-	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).position();
+      edm::LogInfo("TrackInfoAnalyzer") <<"N hits in the seed: "<<track.seed().nHits();
+      edm::LogInfo("TrackInfoAnalyzer") <<"Starting state "<<track.seed().startingState().parameters().position();
+      if(track.trajStateMap().size()>0){
+      for(iter=track.trajStateMap().begin();iter!=track.trajStateMap().end();++iter){
+	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track.stateOnDet(Combined,(*iter).first)->parameters()).momentum();
+	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track.stateOnDet(Combined,(*iter).first)->parameters()).position();
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();
 	DetId id= (*iter).first->geographicalId();
 	unsigned int iSubDet = StripSubdetector(id).subdetId();
@@ -77,20 +77,20 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
           int layer = tTopo->tibLayer(id);
           unsigned int order = tTopo->tibOrder(id);
           if(layer==1){
-            if(order==0)tib1int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	      else if(order==1)tib1ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+            if(order==0)tib1int->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	      else if(order==1)tib1ext->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==2){
-	    if(order==0)tib2int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(order==1)tib2ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(order==0)tib2int->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(order==1)tib2ext->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==3){
-	    if(order==0)tib3int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(order==1)tib3ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(order==0)tib3int->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(order==1)tib3ext->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	  else if(layer==4){
-	    if(order==0)tib4int->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
-	    else if(order==1)tib4ext->Fill((track->stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    if(order==0)tib4int->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
+	    else if(order==1)tib4ext->Fill((track.stateOnDet(Combined,(*iter).first)->parameters()).position().x()-((*iter).first)->localPosition().x());
 	  }
 	}
       }

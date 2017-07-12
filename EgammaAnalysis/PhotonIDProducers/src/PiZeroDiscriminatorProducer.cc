@@ -195,25 +195,23 @@ void PiZeroDiscriminatorProducer::produce(Event& evt, const EventSetup& es) {
 // Get the Preshower 2-planes energy vectors associated with the given SC
           vector<float> vout_stripE1;
 	  vector<float> vout_stripE2;
-          for(reco::PreshowerClusterShapeCollection::const_iterator esClus = clustersX->begin();
-                                                       esClus !=clustersX->end(); esClus++) {
-             SuperClusterRef sc_ref = esClus->superCluster();
+          for(const auto & esClus : *clustersX) {
+             SuperClusterRef sc_ref = esClus.superCluster();
              float dR = sqrt((SC_eta-sc_ref->eta())*(SC_eta-sc_ref->eta()) +
 	                     (SC_phi-sc_ref->phi())*(SC_phi-sc_ref->phi()));
              if(dR < 0.01 ) {
 
-	       vout_stripE1 = esClus->getStripEnergies();
+	       vout_stripE1 = esClus.getStripEnergies();
 
              }
           }
-	  for(reco::PreshowerClusterShapeCollection::const_iterator esClus = clustersY->begin();
-                                                       esClus !=clustersY->end(); esClus++) {
-            SuperClusterRef sc_ref = esClus->superCluster();
+	  for(const auto & esClus : *clustersY) {
+            SuperClusterRef sc_ref = esClus.superCluster();
 	    float dR = sqrt((SC_eta-sc_ref->eta())*(SC_eta-sc_ref->eta()) +
 	                     (SC_phi-sc_ref->phi())*(SC_phi-sc_ref->phi()));
              if(dR < 0.01 ) {
 
-               vout_stripE2 = esClus->getStripEnergies();
+               vout_stripE2 = esClus.getStripEnergies();
 
 	    }
           }

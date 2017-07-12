@@ -106,9 +106,8 @@ void ME0MuonConverter::produce(edm::Event& ev, const edm::EventSetup& setup) {
 
   auto oc = std::make_unique<RecoChargedCandidateCollection>();
 
-  for (std::vector<ME0Muon>::const_iterator thisMuon = OurMuons->begin();
-       thisMuon != OurMuons->end(); ++thisMuon){
-    TrackRef tkRef = thisMuon->innerTrack();
+  for (const auto & thisMuon : *OurMuons){
+    TrackRef tkRef = thisMuon.innerTrack();
     
     Particle::Charge q = tkRef->charge();
     Particle::LorentzVector p4(tkRef->px(), tkRef->py(), tkRef->pz(), tkRef->p());
@@ -117,7 +116,7 @@ void ME0MuonConverter::produce(edm::Event& ev, const edm::EventSetup& setup) {
     int pid = 0;
     if(abs(q)==1) pid = q < 0 ? 13 : -13;
     reco::RecoChargedCandidate cand(q, p4, vtx, pid);
-    cand.setTrack(thisMuon->innerTrack());
+    cand.setTrack(thisMuon.innerTrack());
     oc->push_back(cand);
   }
     

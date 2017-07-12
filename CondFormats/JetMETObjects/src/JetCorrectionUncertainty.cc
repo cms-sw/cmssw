@@ -110,9 +110,9 @@ float JetCorrectionUncertainty::getUncertainty(bool fDirection)
 std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::string>& fNames)
 {
   std::vector<float> result;
-  for(unsigned i=0;i<fNames.size();i++)
+  for(const auto & fName : fNames)
     {
-      if (fNames[i] == "JetEta")
+      if (fName == "JetEta")
         {
           if (!mIsJetEtaset) {
 	    edm::LogError("JetCorrectionUncertainty::")<<" jet eta is not set";
@@ -121,7 +121,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
 	    result.push_back(mJetEta);
 	  }
         }
-      else if (fNames[i] == "JetPt")
+      else if (fName == "JetPt")
         {
           if (!mIsJetPtset){
 	    edm::LogError("JetCorrectionUncertainty::")<<" jet pt is not set";  
@@ -130,7 +130,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
 	    result.push_back(mJetPt);
 	  }
         }
-      else if (fNames[i] == "JetPhi")
+      else if (fName == "JetPhi")
         {
           if (!mIsJetPhiset) {
 	    edm::LogError("JetCorrectionUncertainty::")<<" jet phi is not set";  
@@ -139,7 +139,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
 	    result.push_back(mJetPt);
 	  }
         }
-      else if (fNames[i] == "JetE")
+      else if (fName == "JetE")
         {
           if (!mIsJetEset) {
 	    edm::LogError("JetCorrectionUncertainty::")<<" jet energy is not set";
@@ -148,7 +148,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
 	    result.push_back(mJetE);
 	  }
         }
-      else if (fNames[i] == "JetEMF")
+      else if (fName == "JetEMF")
         {
           if (!mIsJetEMFset) {
 	    edm::LogError("JetCorrectionUncertainty::")<<" jet emf is not set";
@@ -157,7 +157,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
 	    result.push_back(mJetEMF);
 	  }
         } 
-      else if (fNames[i] == "LepPx")
+      else if (fName == "LepPx")
         {
           if (!mIsLepPxset){
 	    edm::LogError("JetCorrectionUncertainty::")<<" lepton px is not set";
@@ -166,7 +166,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
 	    result.push_back(mLepPx);
 	  }
         }
-      else if (fNames[i] == "LepPy")
+      else if (fName == "LepPy")
         {
           if (!mIsLepPyset){
 	    edm::LogError("JetCorrectionUncertainty::")<<" lepton py is not set";
@@ -175,7 +175,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
 	    result.push_back(mLepPy);
 	  }
         }
-      else if (fNames[i] == "LepPz")
+      else if (fName == "LepPz")
         {
           if (!mIsLepPzset){
 	    edm::LogError("JetCorrectionUncertainty::")<<" lepton pz is not set";
@@ -186,7 +186,7 @@ std::vector<float> JetCorrectionUncertainty::fillVector(const std::vector<std::s
         }
      
       else {
-	edm::LogError("JetCorrectionUncertainty::")<<" unknown parameter "<<fNames[i];
+	edm::LogError("JetCorrectionUncertainty::")<<" unknown parameter "<<fName;
 	result.push_back(-999.0);
       }
     }     

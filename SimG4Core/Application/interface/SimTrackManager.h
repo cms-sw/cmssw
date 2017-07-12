@@ -91,15 +91,15 @@ public:
   }
   int giveMotherNeeded(int i) const { 
     int theResult = 0;
-    for (unsigned int itr=0; itr<idsave.size(); itr++) { 
-      if ((idsave[itr]).first == i) { theResult = (idsave[itr]).second; break; } 
+    for (const auto & itr : idsave) { 
+      if (itr.first == i) { theResult = itr.second; break; } 
     }
     return theResult ; 
   }
   bool trackExists(unsigned int i) const {
     bool flag = false;
-    for (unsigned int itr=0; itr<(*m_trksForThisEvent).size(); ++itr) {
-      if ((*m_trksForThisEvent)[itr]->trackID() == i) {
+    for (auto & itr : (*m_trksForThisEvent)) {
+      if (itr->trackID() == i) {
 	flag = true; break;
       }
     }

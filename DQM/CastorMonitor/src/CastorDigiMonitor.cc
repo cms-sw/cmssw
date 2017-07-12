@@ -139,10 +139,9 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
   return;
  }
 
- for(CastorDigiCollection::const_iterator j=castorDigis.begin();
-	 j!=castorDigis.end(); j++)
+ for(const auto & castorDigi : castorDigis)
  {
-   const CastorDataFrame digi = (const CastorDataFrame)(*j);	
+   const CastorDataFrame digi = (const CastorDataFrame)castorDigi;	
  
    int capid1 = digi.sample(0).capid();
    hdigisize->Fill(digi.size());
@@ -182,8 +181,8 @@ void CastorDigiMonitor::processEvent(const CastorDigiCollection& castorDigis,
  const float repChanWarning = 0.95;
  if(ievt_ %100 != 0) return;
    float ModuleSum[14], SectorSum[16];
-   for(int m=0; m<14; m++) ModuleSum[m]=0.;
-   for(int s=0; s<16; s++) SectorSum[s]=0.;
+   for(float & m : ModuleSum) m=0.;
+   for(float & s : SectorSum) s=0.;
    for(int mod=0; mod<14; mod++) for(int sec=0; sec<16; sec++) {
      for(int ts=0; ts<=1; ts++) {
      int ind = ModSecToIndex(mod,sec);

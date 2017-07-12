@@ -36,16 +36,15 @@ DTMeanTimer::DTMeanTimer(const DTSuperLayer* sl,
   ESHandle<DTGeometry> dtGeom;
   eventSetup.get<MuonGeometryRecord>().get(dtGeom);
 
-  for (DTRecHitCollection::const_iterator hit = hits->begin();
-       hit!=hits->end();  ++hit) {
+  for (const auto & hit : *hits) {
     // get only this SL hits.
-    if ((*hit).wireId().superlayerId()!=sl->id() ) continue;
+    if (hit.wireId().superlayerId()!=sl->id() ) continue;
 
-    DTWireId wireId = (*hit).wireId();
+    DTWireId wireId = hit.wireId();
 
     float ttrig = sync->offset(wireId);
 
-    float time = (*hit).digiTime() - ttrig;
+    float time = hit.digiTime() - ttrig;
 
     hitsLay[wireId.layer()-1][wireId.wire()]=time;
   }

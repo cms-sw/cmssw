@@ -7,9 +7,9 @@ SiTrackerMultiRecHit::SiTrackerMultiRecHit(const LocalPoint& pos, const LocalErr
 					   const std::vector< std::pair<const TrackingRecHit*, float> >& aHitMap, double annealing):
   BaseTrackerRecHit(pos,err, idet,trackerHitRTTI::multi)	
 {
-  for(std::vector<std::pair<const TrackingRecHit*, float> >::const_iterator ihit = aHitMap.begin(); ihit != aHitMap.end(); ihit++){
-    theHits.push_back(ihit->first->clone());
-    theWeights.push_back(ihit->second);
+  for(const auto & ihit : aHitMap){
+    theHits.push_back(ihit.first->clone());
+    theWeights.push_back(ihit.second);
   }
   annealing_ = annealing;
 }
@@ -22,10 +22,10 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
   vector<const TrackingRecHit*> otherhits=other->recHits();
   if(what==all){
     if(theHits.size()!=other->recHits().size())return false;
-    for(vector<const TrackingRecHit*>::iterator otherhit=otherhits.begin();otherhit!=otherhits.end();++otherhit){
+    for(auto & otherhit : otherhits){
       bool found=false;
-      for(OwnVector<TrackingRecHit>::const_iterator hit=theHits.begin();hit!=theHits.end();++hit){
-	if((hit)->sharesInput(*otherhit,all)){
+      for(const auto & theHit : theHits){
+	if(theHit.->sharesInput(otherhit,all)){
 	  found=true;
 	  break;
 	}
@@ -37,14 +37,14 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
     return true;
   }
   else{
-    for(OwnVector<TrackingRecHit>::const_iterator hit=theHits.begin();hit!=theHits.end();++hit){
+    for(const auto & theHit : theHits){
       if(otherhits.size()!=0){ 
-	for(vector<const TrackingRecHit*>::iterator otherhit=otherhits.begin();otherhit!=otherhits.end();++otherhit){
-	  if((hit)->sharesInput(*otherhit,some))return true;
+	for(auto & otherhit : otherhits){
+	  if(theHit.->sharesInput(otherhit,some))return true;
 	}
       }
       else{//otherwise it should be a single rechit
-	if((hit)->sharesInput(other,some))return true;
+	if(theHit.->sharesInput(other,some))return true;
       } 
     }
     return false;
@@ -54,8 +54,8 @@ bool SiTrackerMultiRecHit::sharesInput(const TrackingRecHit* other,
 
 vector<const TrackingRecHit*> SiTrackerMultiRecHit::recHits() const{
   vector<const TrackingRecHit*> myhits;
-  for(edm::OwnVector<TrackingRecHit>::const_iterator ihit = theHits.begin(); ihit != theHits.end(); ihit++) {
-    myhits.push_back(&*ihit);
+  for(const auto & theHit : theHits) {
+    myhits.push_back(&theHit);
   }
   return myhits;
 }

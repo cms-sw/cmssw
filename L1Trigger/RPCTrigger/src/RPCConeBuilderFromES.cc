@@ -153,13 +153,13 @@ L1RpcLogConesVec RPCConeBuilderFromES::getConesFromES(edm::Handle<RPCDigiCollect
   // copy missing from compressed to uncompressed  
   for(;itLHitUncomp != logHitsFromUncomp.end(); ++itLHitUncomp) {
     bool present = false;
-    for (unsigned int i=0;  i < logHits.size(); ++i)  
+    for (auto & logHit : logHits)  
     {
 
-      if ( logHits[i].getTower() == itLHitUncomp->getTower()
-           && logHits[i].getLogSector() == itLHitUncomp->getLogSector()
-           && logHits[i].getLogSegment() == itLHitUncomp->getLogSegment()
-           && logHits[i].getlogPlaneNumber() == itLHitUncomp->getlogPlaneNumber()  )
+      if ( logHit.getTower() == itLHitUncomp->getTower()
+           && logHit.getLogSector() == itLHitUncomp->getLogSector()
+           && logHit.getLogSegment() == itLHitUncomp->getLogSegment()
+           && logHit.getlogPlaneNumber() == itLHitUncomp->getlogPlaneNumber()  )
       {
          present = true;
       }

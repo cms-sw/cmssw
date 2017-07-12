@@ -27,9 +27,8 @@ VolumeMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& tsos,
   // Update momentum. In case of failure: return invalid state
   //
   double dpSum(0.);
-  for ( EstimateContainer::const_iterator i=estimates.begin();
-	i!=estimates.end(); ++i ) {
-    double dp = (**i).deltaP();
+  for (auto estimate : estimates) {
+    double dp = (*estimate).deltaP();
     if ( propDir==alongMomentum )  dpSum += dp;
     else  dpSum -= dp;
   }
@@ -41,9 +40,8 @@ VolumeMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& tsos,
   if ( tsos.hasError() ) {
 //     AlgebraicSymMatrix55 eloc(tsos.localError().matrix());
     AlgebraicSymMatrix55 matCov;
-    for ( EstimateContainer::const_iterator i=estimates.begin();
-	  i!=estimates.end(); ++i ) {
-      matCov += (**i).deltaLocalError();
+    for (auto estimate : estimates) {
+      matCov += (*estimate).deltaLocalError();
     }
     //
     // transform to local system of trackfor the time being: brute force

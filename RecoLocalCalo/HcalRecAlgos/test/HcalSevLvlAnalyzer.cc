@@ -126,24 +126,24 @@ HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			       2,  //Pulseshape
 			       1};  //Multiplicity
 
-   for (unsigned i=0; i<4; i++) //loop over rechitflag
-     for (unsigned k=0; k<5; k++) //loop over channelstatus
+   for (unsigned int i : sampleHBRHFlag) //loop over rechitflag
+     for (unsigned int k : sampleHBChSt) //loop over channelstatus
        {
-	 int theLevel = myProd->getSeverityLevel(myIdHB, sampleHBRHFlag[i], sampleHBChSt[k]);
+	 int theLevel = myProd->getSeverityLevel(myIdHB, i, k);
 	 
 	 std::cout << "Status for " << myIdHB 
-		   << " with RHFlag " << sampleHBRHFlag[i] << " (" << std::hex << sampleHBRHFlag[i] 
-		   << ") and ChStFlag " << std::dec << sampleHBChSt[k] 
-		   << " (" << std::hex << sampleHBChSt[k] << std::dec << ") is: " << theLevel;
+		   << " with RHFlag " << i << " (" << std::hex << i 
+		   << ") and ChStFlag " << std::dec << k 
+		   << " (" << std::hex << k << std::dec << ") is: " << theLevel;
 	 std::cout << std::endl;
 
-	 bool dropchannel = myProd->dropChannel(sampleHBChSt[k]);
-	 bool recovered = myProd->recoveredRecHit(myIdHB, sampleHBRHFlag[i]);
+	 bool dropchannel = myProd->dropChannel(k);
+	 bool recovered = myProd->recoveredRecHit(myIdHB, i);
 	 
 	 std::cout << "DropChannel status for " << myIdHB 
-		   << " with RHFlag " << sampleHBRHFlag[i] << " (" << std::hex << sampleHBRHFlag[i] 
-		   << ") and ChStFlag " << std::dec << sampleHBChSt[k] 
-		   << " (" << std::hex << sampleHBChSt[k] << std::dec << ") is: " << dropchannel
+		   << " with RHFlag " << i << " (" << std::hex << i 
+		   << ") and ChStFlag " << std::dec << k 
+		   << " (" << std::hex << k << std::dec << ") is: " << dropchannel
 		   << ", recovered status is: " << recovered << std::endl;
 	 std::cout << std::endl;
 
@@ -169,15 +169,15 @@ HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			       2,  //Pulseshape
 			       1};  //Multiplicity
 
-   for (unsigned i=0; i<4; i++) //loop over rechitflag
-     for (unsigned k=0; k<5; k++) //loop over channelstatus
+   for (unsigned int i : sampleHERHFlag) //loop over rechitflag
+     for (unsigned int k : sampleHEChSt) //loop over channelstatus
        {
-	 int theLevel = myProd->getSeverityLevel(myIdHE, sampleHERHFlag[i], sampleHEChSt[k]);
+	 int theLevel = myProd->getSeverityLevel(myIdHE, i, k);
 	 
 	 std::cout << "Status for " << myIdHE 
-		   << " with RHFlag " << sampleHERHFlag[i] << " (" << std::hex << sampleHERHFlag[i] 
-		   << ") and ChStFlag " << std::dec << sampleHEChSt[k] 
-		   << " (" << std::hex << sampleHEChSt[k] << std::dec << ") is: " << theLevel;
+		   << " with RHFlag " << i << " (" << std::hex << i 
+		   << ") and ChStFlag " << std::dec << k 
+		   << " (" << std::hex << k << std::dec << ") is: " << theLevel;
 	 std::cout << std::endl; 
        }
    std::cout << std::endl;
@@ -194,15 +194,15 @@ HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			       1,  //HFDigiTime
 			       2};  //HFLongShort
 
-   for (unsigned i=0; i<4; i++) //loop over rechitflag
-     for (unsigned k=0; k<5; k++) //loop over channelstatus
+   for (unsigned int i : sampleHFRHFlag) //loop over rechitflag
+     for (unsigned int k : sampleHFChSt) //loop over channelstatus
        {
-	 int theLevel = myProd->getSeverityLevel(myIdHF, sampleHFRHFlag[i], sampleHFChSt[k]);
+	 int theLevel = myProd->getSeverityLevel(myIdHF, i, k);
 	 
 	 std::cout << "Status for " << myIdHF 
-		   << " with RHFlag " << sampleHFRHFlag[i] << " (" << std::hex << sampleHFRHFlag[i] 
-		   << ") and ChStFlag " << std::dec << sampleHFChSt[k] 
-		   << " (" << std::hex << sampleHFChSt[k] << std::dec << ") is: " << theLevel;
+		   << " with RHFlag " << i << " (" << std::hex << i 
+		   << ") and ChStFlag " << std::dec << k 
+		   << " (" << std::hex << k << std::dec << ") is: " << theLevel;
 	 std::cout << std::endl; 
        }
    std::cout << std::endl;
@@ -218,15 +218,15 @@ HcalSevLvlAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			       32,  //nothing significant
 			       1};  //HOBit
 
-   for (unsigned i=0; i<3; i++) //loop over rechitflag
-     for (unsigned k=0; k<5; k++) //loop over channelstatus
+   for (unsigned int i : sampleHORHFlag) //loop over rechitflag
+     for (unsigned int k : sampleHOChSt) //loop over channelstatus
        {
-	 int theLevel = myProd->getSeverityLevel(myIdHO, sampleHORHFlag[i], sampleHOChSt[k]);
+	 int theLevel = myProd->getSeverityLevel(myIdHO, i, k);
 	 
 	 std::cout << "Status for " << myIdHO 
-		   << " with RHFlag " << sampleHORHFlag[i] << " (" << std::hex << sampleHORHFlag[i] 
-		   << ") and ChStFlag " << std::dec << sampleHOChSt[k] 
-		   << " (" << std::hex << sampleHOChSt[k] << std::dec << ") is: " << theLevel;
+		   << " with RHFlag " << i << " (" << std::hex << i 
+		   << ") and ChStFlag " << std::dec << k 
+		   << " (" << std::hex << k << std::dec << ") is: " << theLevel;
 	 std::cout << std::endl; 
        }
    std::cout << std::endl;

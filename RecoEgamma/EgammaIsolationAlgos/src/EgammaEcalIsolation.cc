@@ -48,9 +48,9 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
   const reco::SuperCluster *matchedsupercluster=0;
   bool MATCHEDSC = false;
   
-  for(reco::SuperClusterCollection::const_iterator scItr = superClusterCollection_->begin(); scItr != superClusterCollection_->end(); ++scItr){
+  for(const auto & scItr : *superClusterCollection_){
     
-    const reco::SuperCluster *supercluster = &(*scItr);
+    const reco::SuperCluster *supercluster = &scItr;
  
     math::XYZVector currentPosition(supercluster->position().x(),
 		     supercluster->position().y(),
@@ -71,9 +71,9 @@ double EgammaEcalIsolation::getEcalEtSum(const reco::Candidate* candidate){
   const reco::BasicCluster *cluster= 0;
   
   //loop over basic clusters
-  for(reco::BasicClusterCollection::const_iterator cItr = basicClusterCollection_->begin(); cItr != basicClusterCollection_->end(); ++cItr){
+  for(const auto & cItr : *basicClusterCollection_){
  
-    cluster = &(*cItr);
+    cluster = &cItr;
 //    double ebc_bcchi2 = cluster->chi2();
     int   ebc_bcalgo = cluster->algo();
     double ebc_bce    = cluster->energy();

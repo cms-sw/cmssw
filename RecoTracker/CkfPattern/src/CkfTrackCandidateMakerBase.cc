@@ -346,13 +346,12 @@ namespace cms{
 			       <<PrintoutHelper::dumpCandidates(theTmpTrajectories);
 
         { Lock lock(theMutex);
-	for(vector<Trajectory>::iterator it=theTmpTrajectories.begin();
-	    it!=theTmpTrajectories.end(); it++){
-	  if( it->isValid() ) {
-	    it->setSeedRef(collseed->refAt(j));
+	for(auto & theTmpTrajectorie : theTmpTrajectories){
+	  if( theTmpTrajectorie.isValid() ) {
+	    theTmpTrajectorie.setSeedRef(collseed->refAt(j));
             if(produceSeedStopReasons_) (*outputSeedStopReasons)[j] = SeedStopReason::NOT_STOPPED;
 	    // Store trajectory
-	    rawResult.push_back(std::move(*it));
+	    rawResult.push_back(std::move(theTmpTrajectorie));
   	    // Tell seed cleaner which hits this trajectory used.
             //TO BE FIXED: this cut should be configurable via cfi file
             if (theSeedCleaner && rawResult.back().foundHits()>3) theSeedCleaner->add( &rawResult.back() );
@@ -429,36 +428,36 @@ namespace cms{
       unsmoothedResult.shrink_to_fit();
       // If requested, reverse the trajectories creating a new 1-hit seed on the last measurement of the track
       if (reverseTrajectories) {
-        for (auto it = unsmoothedResult.begin(), ed = unsmoothedResult.end(); it != ed; ++it) {
+        for (auto & it : unsmoothedResult) {
           // reverse the trajectory only if it has valid hit on the last measurement (should happen)
-          if (it->lastMeasurement().updatedState().isValid() &&
-              it->lastMeasurement().recHit().get() != 0     &&
-              it->lastMeasurement().recHit()->isValid()) {
+          if (it.lastMeasurement().updatedState().isValid() &&
+              it.lastMeasurement().recHit().get() != 0     &&
+              it.lastMeasurement().recHit()->isValid()) {
             // I can't use reverse in place, because I want to change the seed
             // 1) reverse propagation direction
-            PropagationDirection direction = it->direction();
+            PropagationDirection direction = it.direction();
             if (direction == alongMomentum)           direction = oppositeToMomentum;
             else if (direction == oppositeToMomentum) direction = alongMomentum;
             // 2) make a seed
-            TrajectoryStateOnSurface const & initState = it->lastMeasurement().updatedState();
-            auto                    initId = it->lastMeasurement().recHitR().rawId();
+            TrajectoryStateOnSurface const & initState = it.lastMeasurement().updatedState();
+            auto                    initId = it.lastMeasurement().recHitR().rawId();
             PTrajectoryStateOnDet && state = trajectoryStateTransform::persistentState( initState, initId);
             TrajectorySeed::recHitContainer hits;
-            hits.push_back(it->lastMeasurement().recHit()->hit()->clone());
+            hits.push_back(it.lastMeasurement().recHit()->hit()->clone());
             boost::shared_ptr<const TrajectorySeed> seed(new TrajectorySeed(state, std::move(hits), direction));
             // 3) make a trajectory
             Trajectory trajectory(seed, direction);
-	    trajectory.setNLoops(it->nLoops());
-            trajectory.setSeedRef(it->seedRef());
-            trajectory.setStopReason(it->stopReason());
+	    trajectory.setNLoops(it.nLoops());
+            trajectory.setSeedRef(it.seedRef());
+            trajectory.setStopReason(it.stopReason());
             // 4) push states in reversed order
-            Trajectory::DataContainer &meas = it->measurements();
+            Trajectory::DataContainer &meas = it.measurements();
             trajectory.reserve(meas.size());
             for (auto itmeas = meas.rbegin(), endmeas = meas.rend(); itmeas != endmeas; ++itmeas) {
               trajectory.push(std::move(*itmeas));
             }
             // replace
-            (*it)= std::move(trajectory);
+            it= std::move(trajectory);
           } else {
             edm::LogWarning("CkfPattern_InvalidLastMeasurement") << "Last measurement of the trajectory is invalid, cannot reverse it";
           }

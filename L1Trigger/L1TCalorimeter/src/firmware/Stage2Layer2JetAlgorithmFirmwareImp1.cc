@@ -93,11 +93,9 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::create(const std::vector<l1t::Ca
       std::vector<l1t::Jet> jetsAccu;
      
       // loop over the 10 rings in this group
-      for ( unsigned ringIt=0; ringIt<theRings.at(ringGroupIt-1).size(); ringIt++ ) {
+      for (int ieta : theRings.at(ringGroupIt-1)) {
 	
-	int ieta = theRings.at(ringGroupIt-1).at(ringIt);
-       
-	// the jets in this ring
+		// the jets in this ring
 	std::vector<l1t::Jet> jetsRing;
 	
 	// loop over phi in the ring
@@ -215,10 +213,10 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::accuSort(std::vector<l1t::Jet> &
   std::vector< std::vector<l1t::Jet> > jetEtaPos( 41 , std::vector<l1t::Jet>(18, tempJet));
   std::vector< std::vector<l1t::Jet> > jetEtaNeg( 41 , std::vector<l1t::Jet>(18, tempJet));
   
-  for (unsigned int iJet = 0; iJet < jets.size(); iJet++)
+  for (auto & jet : jets)
     {
-      if (jets.at(iJet).hwEta() > 0) jetEtaPos.at(jets.at(iJet).hwEta()-1).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
-      else  jetEtaNeg.at(-(jets.at(iJet).hwEta()+1)).at((jets.at(iJet).hwPhi()-1)/4) = jets.at(iJet);
+      if (jet.hwEta() > 0) jetEtaPos.at(jet.hwEta()-1).at((jet.hwPhi()-1)/4) = jet;
+      else  jetEtaNeg.at(-(jet.hwEta()+1)).at((jet.hwPhi()-1)/4) = jet;
     }
   
   AccumulatingSort <l1t::Jet> etaPosSorter(7);
@@ -452,13 +450,13 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     }
 
     //Loop over jets and apply corrections
-    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+    for(auto & jet : jets){
 
       //Check jet is above the calibration threshold, if not do nothing
-      if(jet->hwPt() < calibThreshold) continue;
-      if(jet->hwPt() >= 0xFFFF) continue;
+      if(jet.hwPt() < calibThreshold) continue;
+      if(jet.hwPt() >= 0xFFFF) continue;
 
-      int etaBin = CaloTools::regionEta( jet->hwEta() );
+      int etaBin = CaloTools::regionEta( jet.hwEta() );
 
       //Get the parameters from the vector
       //Each 6 values are the parameters for an eta bin
@@ -471,10 +469,10 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       //in calibFit
       //This is derived from the actual physical pt of the jets, not the hwEt
       //This needs to be addressed in the future
-      double ptPhys = jet->hwPt() * params_->jetLsb();
+      double ptPhys = jet.hwPt() * params_->jetLsb();
       double correction = calibFit(ptPhys, params);
 
-      jet->setHwPt(correction*jet->hwPt());
+      jet.setHwPt(correction*jet.hwPt());
 
     }
 
@@ -488,23 +486,23 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       return;
     }
 
-    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+    for(auto & jet : jets){
 
-      if(jet->hwPt() < calibThreshold) continue;
-      if(jet->hwPt() >= 0xFFFF) continue;
+      if(jet.hwPt() < calibThreshold) continue;
+      if(jet.hwPt() >= 0xFFFF) continue;
 
-      int etaBin = CaloTools::regionEta( jet->hwEta() );
+      int etaBin = CaloTools::regionEta( jet.hwEta() );
 
       double params[8];
       for(int i=0; i<8; i++){
         params[i] = params_->jetCalibrationParams()[etaBin*8 + i];
       }
 
-      double ptPhys = jet->hwPt() * params_->jetLsb();
+      double ptPhys = jet.hwPt() * params_->jetLsb();
       double correction = params[6];
       if (ptPhys>params[7]) correction = calibFit(ptPhys, params);
 
-      jet->setHwPt(correction*jet->hwPt());
+      jet.setHwPt(correction*jet.hwPt());
 
     }
 
@@ -518,26 +516,26 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
       return;
     }
 
-    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+    for(auto & jet : jets){
 
-      if(jet->hwPt() < calibThreshold) continue;
-      if(jet->hwPt() >= 0xFFFF) continue;
+      if(jet.hwPt() < calibThreshold) continue;
+      if(jet.hwPt() >= 0xFFFF) continue;
 
-      int etaBin = CaloTools::bin16Eta( jet->hwEta() );
+      int etaBin = CaloTools::bin16Eta( jet.hwEta() );
 
       double params[11];
       for(int i=0; i<11; i++){
         params[i] = params_->jetCalibrationParams()[etaBin*11 + i];
       }
 
-      double ptPhys = jet->hwPt() * params_->jetLsb();
+      double ptPhys = jet.hwPt() * params_->jetLsb();
       double correction = params[7];
 
       if (ptPhys<params[8]) correction = params[7];
       else if (ptPhys>params[10]) correction = params[9];
       else correction = calibFitErr(ptPhys, params); 
 
-      jet->setHwPt(correction*jet->hwPt());
+      jet.setHwPt(correction*jet.hwPt());
 
     }
 
@@ -552,33 +550,33 @@ void l1t::Stage2Layer2JetAlgorithmFirmwareImp1::calibrate(std::vector<l1t::Jet> 
     // The multiplicand is 10-bit unsigned, addend is 8-bit signed.
 
     //Loop over jets and apply corrections
-    for(std::vector<l1t::Jet>::iterator jet = jets.begin(); jet!=jets.end(); jet++){
+    for(auto & jet : jets){
 
       //Check jet is above the calibration threshold, if not do nothing
-      if(jet->hwPt() < calibThreshold) continue;
+      if(jet.hwPt() < calibThreshold) continue;
 
       // In the firmware, we take bits 1 to 8 of the hwPt.
       // To avoid getting nonsense by only taking smaller bits,
       // any values larger than 511 are automatically set to 511.
-      int jetHwPt = jet->hwPt();
+      int jetHwPt = jet.hwPt();
       if (jetHwPt >= 0x200) {
 	jetHwPt = 0x1FF;
       }
       unsigned int ptBin = params_->jetCompressPtLUT()->data(jetHwPt>>1);
-      unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(CaloTools::mpEta(jet->hwEta())));
+      unsigned int etaBin = params_->jetCompressEtaLUT()->data(abs(CaloTools::mpEta(jet.hwEta())));
       unsigned int compBin =  (etaBin<<4) | ptBin;
       
       unsigned int addPlusMult = params_->jetCalibrationLUT()->data(compBin);
       unsigned int multiplier = addPlusMult & 0x3ff;
       // handles -ve numbers correctly
       int8_t addend = (addPlusMult>>10);
-      unsigned int jetPtCorr = ((jet->hwPt()*multiplier)>>9) + addend;
+      unsigned int jetPtCorr = ((jet.hwPt()*multiplier)>>9) + addend;
 
       if(jetPtCorr < 0xFFFF) {
-	jet->setHwPt(jetPtCorr);
+	jet.setHwPt(jetPtCorr);
       }
       else {
-	jet->setHwPt(0xFFFF);
+	jet.setHwPt(0xFFFF);
       }
     }
     

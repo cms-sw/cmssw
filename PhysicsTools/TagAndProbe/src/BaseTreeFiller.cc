@@ -158,12 +158,12 @@ tnp::BaseTreeFiller::addBranches_(TTree *tree, const edm::ParameterSet &iConfig,
     }
 
     // then make all the variables in the trees
-    for (std::vector<tnp::ProbeVariable>::iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
-        tree->Branch(it->name().c_str(), it->address(), (it->name()+"/F").c_str());
+    for (auto & var : vars_) {
+        tree->Branch(var.name().c_str(), var.address(), (var.name()+"/F").c_str());
     }
 
-    for (std::vector<tnp::ProbeFlag>::iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
-        tree->Branch(it->name().c_str(), it->address(), (it->name()+"/I").c_str());
+    for (auto & flag : flags_) {
+        tree->Branch(flag.name().c_str(), flag.address(), (flag.name()+"/I").c_str());
     }
 
 }
@@ -183,11 +183,11 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
     }
 
     totWeight_ = 1.;
-    for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
-        it->init(iEvent);
+    for (const auto & var : vars_) {
+        var.init(iEvent);
     }
-    for (std::vector<tnp::ProbeFlag>::const_iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
-        it->init(iEvent);
+    for (const auto & flag : flags_) {
+        flag.init(iEvent);
     }
     if (weightMode_ == External) {
       // edm::Handle<double> weight;
@@ -304,20 +304,20 @@ void tnp::BaseTreeFiller::init(const edm::Event &iEvent) const {
 }
 
 void tnp::BaseTreeFiller::fill(const reco::CandidateBaseRef &probe) const {
-    for (std::vector<tnp::ProbeVariable>::const_iterator it = vars_.begin(), ed = vars_.end(); it != ed; ++it) {
+    for (const auto & var : vars_) {
       if (ignoreExceptions_)  {
-            try{ it->fill(probe); } catch(cms::Exception &ex ){}
+            try{ var.fill(probe); } catch(cms::Exception &ex ){}
         } else {
 	  
-            it->fill(probe);
+            var.fill(probe);
         }
     }
 
-    for (std::vector<tnp::ProbeFlag>::const_iterator it = flags_.begin(), ed = flags_.end(); it != ed; ++it) {
+    for (const auto & flag : flags_) {
         if (ignoreExceptions_)  {
-            try{ it->fill(probe); } catch(cms::Exception &ex ){}
+            try{ flag.fill(probe); } catch(cms::Exception &ex ){}
         } else {
-            it->fill(probe);
+            flag.fill(probe);
         }
     }
     if (tree_) tree_->Fill();

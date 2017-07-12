@@ -94,9 +94,9 @@ void PixelTrackVal::analyze(
     std::cout << "Reconstructed "<< tracks.size() << " tracks" << std::endl;
   }
 
-  for (unsigned int idx=0; idx<tracks.size(); idx++) {
+  for (const auto & track : tracks) {
 
-    const reco::Track * it= &tracks[idx];
+    const reco::Track * it= &track;
     TH1* h = static_cast<TH1*>(hList.FindObject("h_Nan"));
     h->Fill(1.,edm::isNotFinite(it->momentum().x())*1.);
     h->Fill(2.,edm::isNotFinite(it->momentum().y())*1.);
@@ -120,14 +120,14 @@ void PixelTrackVal::analyze(
     if (problem) std::cout <<" *** PROBLEM **" << std::endl;
 
     if (verbose_ > 0) {
-      std::cout << "\tmomentum: " << tracks[idx].momentum()
-		<< "\tPT: " << tracks[idx].pt()
+      std::cout << "\tmomentum: " << track.momentum()
+		<< "\tPT: " << track.pt()
 		<< std::endl;
-      std::cout << "\tvertex: " << tracks[idx].vertex()
-		<< "\tTIP: "<< tracks[idx].d0() << " +- " << tracks[idx].d0Error()
-		<< "\tZ0: " << tracks[idx].dz() << " +- " << tracks[idx].dzError()
+      std::cout << "\tvertex: " << track.vertex()
+		<< "\tTIP: "<< track.d0() << " +- " << track.d0Error()
+		<< "\tZ0: " << track.dz() << " +- " << track.dzError()
 		<< std::endl;
-      std::cout << "\tcharge: " << tracks[idx].charge() << std::endl;
+      std::cout << "\tcharge: " << track.charge() << std::endl;
     }
   }
 
@@ -152,20 +152,20 @@ void PixelTrackVal::analyze(
   float detaMax=0.012;
   float dRMax=0.025;
   typedef edm::SimTrackContainer::const_iterator IP;
-  for (IP p=simTrks->begin(); p != simTrks->end(); p++) {
-    if ( (*p).noVertex() ) continue;
-    if ( (*p).type() == -99) continue;
-    if ( (*p).vertIndex() != 0) continue;
+  for (const auto & p : *simTrks) {
+    if ( p.noVertex() ) continue;
+    if ( p.type() == -99) continue;
+    if ( p.vertIndex() != 0) continue;
 
-    math::XYZVector mom_gen( (*p).momentum().x(), (*p).momentum().y(), (*p).momentum().z());
-    float phi_gen = (*p).momentum().phi();
+    math::XYZVector mom_gen( p.momentum().x(), p.momentum().y(), p.momentum().z());
+    float phi_gen = p.momentum().phi();
 //    float pt_gen = (*p).momentum().Pt();
-    float pt_gen = sqrt((*p).momentum().x() * (*p).momentum().x() + (*p).momentum().y() * (*p).momentum().y());
-    float eta_gen = (*p).momentum().eta();
-    math::XYZTLorentzVectorD vtx((*simVtcs)[p->vertIndex()].position().x(),
-                                 (*simVtcs)[p->vertIndex()].position().y(),
-                                 (*simVtcs)[p->vertIndex()].position().z(),
-                                 (*simVtcs)[p->vertIndex()].position().e());
+    float pt_gen = sqrt(p.momentum().x() * p.momentum().x() + p.momentum().y() * p.momentum().y());
+    float eta_gen = p.momentum().eta();
+    math::XYZTLorentzVectorD vtx((*simVtcs)[p.vertIndex()].position().x(),
+                                 (*simVtcs)[p.vertIndex()].position().y(),
+                                 (*simVtcs)[p.vertIndex()].position().z(),
+                                 (*simVtcs)[p.vertIndex()].position().e());
     float z_gen  = vtx.z();
 
 //     cout << "\tmomentum: " <<  (*p).momentum()
@@ -173,12 +173,12 @@ void PixelTrackVal::analyze(
 //          << endl;
 
     typedef reco::TrackCollection::const_iterator IT;
-    for (IT it=tracks.begin(); it!=tracks.end(); it++) {
-      math::XYZVector mom_rec = (*it).momentum();
-      float phi_rec = (*it).momentum().phi();
-      float pt_rec = (*it).pt();
-      float z_rec  = (*it).vertex().z();
-      float eta_rec = (*it).momentum().eta();
+    for (const auto & track : tracks) {
+      math::XYZVector mom_rec = track.momentum();
+      float phi_rec = track.momentum().phi();
+      float pt_rec = track.pt();
+      float z_rec  = track.vertex().z();
+      float eta_rec = track.momentum().eta();
 //    float chi2   = (*it).chi2();
       float dphi = phi_gen - phi_rec;
       while (dphi > M_PI) dphi -=2*M_PI;
@@ -193,9 +193,9 @@ void PixelTrackVal::analyze(
         static_cast<TH1*>(hList.FindObject("h_dR"))->Fill( dR);
       if (fabs(deta) < detaMax && dR < dRMax) {
         static_cast<TH1*>(hList.FindObject("h_Pt"))->Fill((pt_gen - pt_rec)/pt_gen);
-        static_cast<TH1*>(hList.FindObject("h_TIP"))->Fill( it->d0() );
+        static_cast<TH1*>(hList.FindObject("h_TIP"))->Fill( track.d0() );
         static_cast<TH1*>(hList.FindObject("h_VtxZ"))->Fill( dz );
-        static_cast<TH1*>(hList.FindObject("h_VtxZ_Pull"))->Fill( fabs( dz/it->dzError()) );
+        static_cast<TH1*>(hList.FindObject("h_VtxZ_Pull"))->Fill( fabs( dz/track.dzError()) );
       }
     }
   } 

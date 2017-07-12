@@ -133,13 +133,13 @@ void EcalRecHitsMerger::produce(edm::Event & e, const edm::EventSetup& iSetup){
         module_label != Pi0SourceEB_.label() ) continue;
 
     if (instance == InputRecHitEB_) {
-	for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {
-		EBMergedRecHits -> push_back(*it);
+	for (const auto & it : *EcalRecHits_done[i]) {
+		EBMergedRecHits -> push_back(it);
   	}
    }
    else if (instance == InputRecHitEE_) {
-	for (EcalRecHitCollection::const_iterator it=EcalRecHits_done[i]->begin(); it !=EcalRecHits_done[i]->end(); it++) {
-		EEMergedRecHits -> push_back(*it);
+	for (const auto & it : *EcalRecHits_done[i]) {
+		EEMergedRecHits -> push_back(it);
 	}
    }
 

@@ -152,7 +152,7 @@ int main (int argc, char** argv)
   
   std::vector<int> algobits ;
   std::vector<std::string> algos = split(l1algo,",") ;
-  for (unsigned int i=0 ; i<algos.size() ; i++) algobits.push_back(atoi(algos[i].c_str())) ;
+  for (auto & algo : algos) algobits.push_back(atoi(algo.c_str())) ;
 
 
   unsigned int ref = 2 ;
@@ -209,10 +209,10 @@ int main (int argc, char** argv)
       }
     }
   }
-  for (unsigned int i=0 ; i<files.size() ; i++) {
-    files[i] = inputdir+"/"+files[i] ;
-    std::cout<<"Input file: "<<files[i]<<std::endl ;
-    chain->Add (files[i].c_str()) ;
+  for (auto & file : files) {
+    file = inputdir+"/"+file ;
+    std::cout<<"Input file: "<<file<<std::endl ;
+    chain->Add (file.c_str()) ;
   }
 
   EcalTPGVariables treeVars ;
@@ -235,9 +235,9 @@ int main (int argc, char** argv)
     // trigger selection if any
     bool keep(false) ;
     if (!algobits.size()) keep = true ; // keep all events when no trigger selection
-    for (unsigned int algo = 0 ; algo<algobits.size() ; algo++)
+    for (int algobit : algobits)
       for (unsigned int ntrig = 0 ; ntrig < treeVars.nbOfActiveTriggers ; ntrig++)
-	if (algobits[algo] == treeVars.activeTriggers[ntrig]) keep = true ;
+	if (algobit == treeVars.activeTriggers[ntrig]) keep = true ;
     if (!keep) continue ;
     
              
@@ -266,7 +266,7 @@ int main (int argc, char** argv)
 	std::cout<<"(phi,eta, Nbxtals)="<<std::dec<<iphi<<" "<<ieta<<" "<<nbXtals<<std::endl ;
 	std::cout<<"Data Et, TTF: "<<tp<<" "<<ttf<<std::endl ;
 	std::cout<<"Emulator: " ;
-	for (int i=0 ; i<5 ; i++) std::cout<<emul[i]<<" " ;
+	for (int i : emul) std::cout<<i<<" " ;
 	std::cout<<std::endl ;
       }
 
@@ -302,7 +302,7 @@ int main (int argc, char** argv)
 	    std::cout<<"(phi,eta, Nbxtals)="<<std::dec<<iphi<<" "<<ieta<<" "<<nbXtals<<std::endl ;
 	    std::cout<<"Data Et, TTF: "<<tp<<" "<<ttf<<std::endl ;
 	    std::cout<<"Emulator: " ;
-	    for (int i=0 ; i<5 ; i++) std::cout<<emul[i]<<" " ;
+	    for (int i : emul) std::cout<<i<<" " ;
 	    std::cout<<std::endl ;
 	  }
 	}

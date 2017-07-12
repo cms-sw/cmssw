@@ -406,9 +406,9 @@ std::vector<int> GenTtbarCategorizer::nHadronsOrderedJetIndices(const std::map<i
     const int nElements = m_jetIndex.size();
     std::vector<std::pair<int, int> > v_jetNhadIndexPair;
     v_jetNhadIndexPair.reserve(nElements);
-    for(std::map<int, int>::const_iterator it = m_jetIndex.begin(); it != m_jetIndex.end(); ++it) {
-        const int jetIndex = it->first;
-        const int nHadrons = it->second;
+    for(const auto & it : m_jetIndex) {
+        const int jetIndex = it.first;
+        const int nHadrons = it.second;
         v_jetNhadIndexPair.push_back( std::pair<int, int>(nHadrons, jetIndex) );
     }
     // Sorting the vector of pairs by their key value

@@ -222,8 +222,8 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 	}
 	else {
 	  edm::LogWarning("L1AcceptBunchCrossingNoType") << "L1AcceptBunchCrossing with no type found: ";
-	  for(L1AcceptBunchCrossingCollection::const_iterator debu=pIn->begin();debu!=pIn->end();++debu) {
-	    edm::LogPrint("L1AcceptBunchCrossingNoType") << *debu;
+	  for(const auto & debu : *pIn) {
+	    edm::LogPrint("L1AcceptBunchCrossingNoType") << debu;
 	  }
 	}
       }
@@ -247,8 +247,8 @@ APVCyclePhaseProducerFromL1ABC::produce(edm::Event& iEvent, const edm::EventSetu
 									<< absbxoffset << " at orbit "
 									<< iEvent.orbitNumber() << " and BX "
 									<< iEvent.bunchCrossing();
-	   for(L1AcceptBunchCrossingCollection::const_iterator l1abc=pIn->begin();l1abc!=pIn->end();++l1abc) {
-	     edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << *l1abc;
+	   for(const auto & l1abc : *pIn) {
+	     edm::LogVerbatim("L1AcceptBunchCrossingAbsoluteBXOffsetChanged") << l1abc;
 	   }
 	 }
 

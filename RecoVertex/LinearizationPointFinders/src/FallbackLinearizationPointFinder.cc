@@ -25,11 +25,10 @@ GlobalPoint FallbackLinearizationPointFinder::getLinearizationPoint(
       {
         std::vector < std::pair < GlobalPoint, float > > wtracks;
         wtracks.reserve ( tracks.size() - 1 );
-        for ( std::vector< reco::TransientTrack >::const_iterator i=tracks.begin(); 
-              i!=tracks.end() ; ++i )
+        for (const auto & track : tracks)
         {
             std::pair < GlobalPoint, float > tmp ( 
-                i->impactPointState().globalPosition(), 1. );
+                track.impactPointState().globalPosition(), 1. );
             wtracks.push_back ( tmp );
         }
         return (*theModeFinder) ( wtracks );

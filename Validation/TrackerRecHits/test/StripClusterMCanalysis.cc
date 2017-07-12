@@ -266,27 +266,26 @@ StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventSetup&
     hZvPri->Fill(zv);
 //    iterate over pixel vertices and fill the pixel vertex Ntuple
     int iVtx = 0;
-    for(reco::VertexCollection::const_iterator vi = pixelVertexColl.begin();
-	vi != pixelVertexColl.end(); ++vi) {
-      if (printOut_ > 0) std::cout << "  " << vi->tracksSize() << "  " << vi->z() << "+/-" << vi->zError() << std::endl;
-      pvNtp_.isValid = int(vi->isValid());
-      pvNtp_.isFake = int(vi->isFake());
-      pvNtp_.Ntrks = vi->tracksSize();
-      pvNtp_.nDoF = vi->ndof();
-      pvNtp_.chisq = vi->chi2();
-      pvNtp_.xV = vi->x();
-      pvNtp_.yV = vi->y();
-      pvNtp_.zV = vi->z();
-      pvNtp_.xVsig = vi->xError();
-      pvNtp_.yVsig = vi->yError();
-      pvNtp_.zVsig = vi->zError();
+    for(const auto & vi : pixelVertexColl) {
+      if (printOut_ > 0) std::cout << "  " << vi.tracksSize() << "  " << vi.z() << "+/-" << vi.zError() << std::endl;
+      pvNtp_.isValid = int(vi.isValid());
+      pvNtp_.isFake = int(vi.isFake());
+      pvNtp_.Ntrks = vi.tracksSize();
+      pvNtp_.nDoF = vi.ndof();
+      pvNtp_.chisq = vi.chi2();
+      pvNtp_.xV = vi.x();
+      pvNtp_.yV = vi.y();
+      pvNtp_.zV = vi.z();
+      pvNtp_.xVsig = vi.xError();
+      pvNtp_.yVsig = vi.yError();
+      pvNtp_.zVsig = vi.zError();
       pvTree_->Fill();
-      hzV_Iev->Fill(vi->z(), evCnt_);
+      hzV_Iev->Fill(vi.z(), evCnt_);
       if (iVtx == 0) {
-	hNtrk_zVerrPri->Fill(vi->zError(), vi->tracksSize());
+	hNtrk_zVerrPri->Fill(vi.zError(), vi.tracksSize());
       } else {
-	hNtrk_zVerrSec->Fill(vi->zError(), vi->tracksSize());
-	hZvSec->Fill(vi->z() - zv);
+	hNtrk_zVerrSec->Fill(vi.zError(), vi.tracksSize());
+	hZvSec->Fill(vi.z() - zv);
       }
       ++iVtx;
     }
@@ -425,7 +424,7 @@ StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	  } // if newTrack ... else
 	  if (printOut_ > 2) {
 	    std::cout << "    Track charge accumulator = ";
-	    for (unsigned int it = 0; it < trackCharge.size(); ++it) printf("%7.1f  ", trackCharge[it]);
+	    for (float it : trackCharge) printf("%7.1f  ", it);
 	    std::cout << std::endl;
 	  }
 
@@ -497,8 +496,8 @@ StripClusterMCanalysis::analyze(const edm::Event& iEvent, const edm::EventSetup&
       clusNtp_.fourthPathLength = hitPathLength.size() > 3 ? hitPathLength[3]: 0;
       clusNtp_.pathLstraight = modPathLength;
       float allHtPathLength = 0;
-      for (unsigned int ih=0; ih<hitPathLength.size(); ++ih)
-	  allHtPathLength += hitPathLength[ih];
+      for (float ih : hitPathLength)
+	  allHtPathLength += ih;
       clusNtp_.allHtPathLength = allHtPathLength;
 	clusNtp_.Ntp = trackID.size();
 	if (printOut_ > 0 && trackCharge.size() == 2)

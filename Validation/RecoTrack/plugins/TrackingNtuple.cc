@@ -2197,14 +2197,14 @@ void TrackingNtuple::fillPixelHits(const edm::Event& iEvent,
   iEvent.getByToken(pixelRecHitToken_, pixelHits);
   for (auto it = pixelHits->begin(); it!=pixelHits->end(); it++ ) {
     const DetId hitId = it->detId();
-    for (auto hit = it->begin(); hit!=it->end(); hit++ ) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
+    for (auto & hit : *it) {
+      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
 
-      hitProductIds.insert(hit->cluster().id());
+      hitProductIds.insert(hit.cluster().id());
 
-      const int key = hit->cluster().key();
+      const int key = hit.cluster().key();
       const int lay = tTopo.layer(hitId);
-      SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
+      SimHitData simHitData = matchCluster(hit.firstClusterRef(), hitId, key, ttrh,
                                            clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Pixel);
 
       pix_isBarrel .push_back( hitId.subdetId()==1 );
@@ -2343,14 +2343,14 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
   iEvent.getByToken(stripMatchedRecHitToken_, matchedHits);
   for (auto it = matchedHits->begin(); it!=matchedHits->end(); it++ ) {
     const DetId hitId = it->detId();
-    for (auto hit = it->begin(); hit!=it->end(); hit++ ) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
+    for (auto & hit : *it) {
+      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
       const int lay = tTopo.layer(hitId);
-      monoStereoClusterList.emplace_back(hit->monoHit().cluster().key(),hit->stereoHit().cluster().key());
+      monoStereoClusterList.emplace_back(hit.monoHit().cluster().key(),hit.stereoHit().cluster().key());
       glu_isBarrel .push_back( (hitId.subdetId()==StripSubdetector::TIB || hitId.subdetId()==StripSubdetector::TOB) );
       glu_detId    .push_back( tTopo, hitId );
-      glu_monoIdx  .push_back( hit->monoHit().cluster().key() );
-      glu_stereoIdx.push_back( hit->stereoHit().cluster().key() );
+      glu_monoIdx  .push_back( hit.monoHit().cluster().key() );
+      glu_stereoIdx.push_back( hit.stereoHit().cluster().key() );
       glu_seeIdx   .emplace_back(); // filled in fillSeeds
       glu_x        .push_back( ttrh->globalPosition().x() );
       glu_y        .push_back( ttrh->globalPosition().y() );
@@ -2364,8 +2364,8 @@ void TrackingNtuple::fillStripMatchedHits(const edm::Event& iEvent,
       glu_radL     .push_back( ttrh->surface()->mediumProperties().radLen() );
       glu_bbxi     .push_back( ttrh->surface()->mediumProperties().xi() );
       LogTrace("TrackingNtuple") << "stripMatchedHit"
-                                 << " cluster0=" << hit->stereoHit().cluster().key()
-                                 << " cluster1=" << hit->monoHit().cluster().key()
+                                 << " cluster0=" << hit.stereoHit().cluster().key()
+                                 << " cluster1=" << hit.monoHit().cluster().key()
                                  << " subdId=" << hitId.subdetId()
                                  << " lay=" << lay
                                  << " rawId=" << hitId.rawId()
@@ -2388,14 +2388,14 @@ void TrackingNtuple::fillPhase2OTHits(const edm::Event& iEvent,
   iEvent.getByToken(phase2OTRecHitToken_, phase2OTHits);
   for (auto it = phase2OTHits->begin(); it!=phase2OTHits->end(); it++ ) {
     const DetId hitId = it->detId();
-    for (auto hit = it->begin(); hit!=it->end(); hit++ ) {
-      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&*hit);
+    for (auto & hit : *it) {
+      TransientTrackingRecHit::RecHitPointer ttrh = theTTRHBuilder.build(&hit);
 
-      hitProductIds.insert(hit->cluster().id());
+      hitProductIds.insert(hit.cluster().id());
 
-      const int key = hit->cluster().key();
+      const int key = hit.cluster().key();
       const int lay = tTopo.layer(hitId);
-      SimHitData simHitData = matchCluster(hit->firstClusterRef(), hitId, key, ttrh,
+      SimHitData simHitData = matchCluster(hit.firstClusterRef(), hitId, key, ttrh,
                                            clusterToTPMap, tpKeyToIndex, simHitsTPAssoc, digiSimLink, simHitRefKeyToIndex, HitType::Phase2OT);
 
       ph2_isBarrel .push_back( hitId.subdetId()==1 );

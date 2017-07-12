@@ -352,10 +352,10 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
 
   const vector<const DetLayer*>& dtlayers = theService->detLayerGeometry()->allDTLayers();
 
-  for (auto iLayer = dtlayers.begin(); iLayer != dtlayers.end(); ++iLayer) {
+  for (auto dtlayer : dtlayers) {
 
     // crossing points of track with cylinder
-    GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const BarrelDetLayer*>(*iLayer));
+    GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const BarrelDetLayer*>(dtlayer));
 
     // check if point is inside the detector
     if ((fabs(xPoint.y()) < 1000.0) && (fabs(xPoint.z()) < 1500 ) &&
@@ -380,9 +380,9 @@ vector<const GeomDet*> MuonShowerInformationFiller::getCompatibleDets(const reco
   allCrossingPoints.clear();
 
   const vector<const DetLayer*>& csclayers = theService->detLayerGeometry()->allCSCLayers();
-  for (auto iLayer = csclayers.begin(); iLayer != csclayers.end(); ++iLayer) {
+  for (auto csclayer : csclayers) {
 
-    GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const ForwardDetLayer*>(*iLayer));
+    GlobalPoint xPoint = crossingPoint(innerPos, outerPos, dynamic_cast<const ForwardDetLayer*>(csclayer));
 
     // check if point is inside the detector
     if ((fabs(xPoint.y()) < 1000.0) && (fabs(xPoint.z()) < 1500.0)
@@ -732,8 +732,8 @@ void MuonShowerInformationFiller::fillHitsByStation(const reco::Muon& muon) {
           DTRecHitCollection::range dRecHits = theDTRecHits->get(lid);
           for (DTRecHitCollection::const_iterator rechit = dRecHits.first; rechit != dRecHits.second;++rechit) {
             vector<const TrackingRecHit*> subrechits = (*rechit).recHits();
-            for (vector<const TrackingRecHit*>::iterator irechit = subrechits.begin(); irechit != subrechits.end(); ++irechit) {
-                     muonRecHits.at(station-1).push_back(MuonTransientTrackingRecHit::specificBuild((&**igd),&**irechit));
+            for (auto & subrechit : subrechits) {
+                     muonRecHits.at(station-1).push_back(MuonTransientTrackingRecHit::specificBuild((&**igd),&*subrechit));
                 }
              }
           }

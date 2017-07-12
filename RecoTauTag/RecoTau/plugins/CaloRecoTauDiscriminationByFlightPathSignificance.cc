@@ -79,9 +79,9 @@ CaloRecoTauDiscriminationByFlightPathSignificance::threeProngFlightPathSig(
   //Secondary vertex
   reco::TrackRefVector signalTracks = tau->signalTracks();
   vector<TransientTrack> transientTracks;
-  for(size_t i = 0; i < signalTracks.size(); ++i){
+  for(const auto & signalTrack : signalTracks){
     const TransientTrack transientTrack =
-        transientTrackBuilder->build(signalTracks[i]);
+        transientTrackBuilder->build(signalTrack);
     transientTracks.push_back(transientTrack);
   }
   if(transientTracks.size() > 1) {

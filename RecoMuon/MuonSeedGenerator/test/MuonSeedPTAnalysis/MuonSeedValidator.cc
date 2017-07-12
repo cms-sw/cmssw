@@ -256,15 +256,15 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
 
       // 1. statistic for seeds
       int nu_seeds_trk =0;
-      for(size_t j=0; j < seeds_simtrk.size(); j++){
-         if ( seeds_simtrk[j]== static_cast<int>(i) ) nu_seeds_trk++;
+      for(int j : seeds_simtrk){
+         if ( j== static_cast<int>(i) ) nu_seeds_trk++;
          if ( nu_seeds_trk > 19 ) nu_seeds_trk = 19;
       }
 
       // 2. statistic for sta
       int nu_sta_trk =0;
-      for(size_t j=0; j < sta_simtrk.size(); j++){
-         if ( sta_simtrk[j]== static_cast<int>(i) ) nu_sta_trk++;
+      for(int j : sta_simtrk){
+         if ( j== static_cast<int>(i) ) nu_sta_trk++;
       }
       std::vector<double> pa_tmp = palayer[i] ; 
       histo1->Fill1b( getEta(theta_p[i]), nu_seeds_trk, nu_sta_trk, pt_trk[i],
@@ -318,8 +318,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
          }
       }
       bool hasSeed = false;
-      for(unsigned int j=0; j < seeds_simtrk.size(); j++){
-         if ( seeds_simtrk[j] == static_cast<int>(i) ) hasSeed = true;
+      for(int j : seeds_simtrk){
+         if ( j == static_cast<int>(i) ) hasSeed = true;
       }
       if ( !hasSeed ) {
          histo2 = h_NoSeed;
@@ -340,8 +340,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
       std::vector<int> showers = IdentifyShowering( cscSegments ,cscGeom, dt4DSegments, dtGeom,theta_p[i], phi_p[i] );
 
       double maxR = 0. ;
-      for (size_t j =0; j< muCone.size(); j++) {
-         if ( muCone[j] > maxR ) maxR = muCone[j];
+      for (double j : muCone) {
+         if ( j > maxR ) maxR = j;
       }
  
       double aveShower = 0;
@@ -365,8 +365,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
       }
       // Orphan
       else  {
-         for (size_t j=0; j < theta_p.size(); j++ ) { 
-             histo5->Fill5b( seed_gp[i].eta(), getEta(theta_p[j]), seed_mT[i] );
+         for (double j : theta_p) { 
+             histo5->Fill5b( seed_gp[i].eta(), getEta(j), seed_mT[i] );
          }
       }
   }
@@ -599,8 +599,8 @@ void MuonSeedValidator::analyze(const Event& event, const EventSetup& eventSetup
       }
 
       int nu_seed_trk =0;
-      for(size_t j=0; j < seeds_simtrk.size(); j++){
-         if ( seeds_simtrk[j]== static_cast<int>(i) ) nu_seed_trk++;
+      for(int j : seeds_simtrk){
+         if ( j== static_cast<int>(i) ) nu_seed_trk++;
       }
       histo3->Fill3f( sim_eta ,nu_seed_trk); 
 
@@ -621,19 +621,19 @@ void MuonSeedValidator::CSCsegment_stat( Handle<CSCSegmentCollection> cscSeg , E
          cscseg_stat[i]=0;
          cscseg_stat1[i]=0;
      }
-     for(CSCSegmentCollection::const_iterator seg_It = cscSeg->begin(); seg_It != cscSeg->end(); seg_It++)
+     for(const auto & seg_It : *cscSeg)
      { 
-        CSCDetId DetId = (CSCDetId)(*seg_It).cscDetId();
+        CSCDetId DetId = (CSCDetId)seg_It.cscDetId();
 	const CSCChamber* cscchamber = cscGeom->chamber( DetId );
-	GlobalPoint  gp = cscchamber->toGlobal((*seg_It).localPosition() );
-	GlobalVector gv = cscchamber->toGlobal((*seg_It).localDirection() );
+	GlobalPoint  gp = cscchamber->toGlobal(seg_It.localPosition() );
+	GlobalVector gv = cscchamber->toGlobal(seg_It.localDirection() );
         if (( fabs(gp.theta()- trkTheta) > dtMax  ) || ( fabs(gv.phi()- trkPhi) > dfMax ) ) continue;
 
-        double dof = static_cast<double>( (*seg_It).degreesOfFreedom() ) ;
-        double chi2_dof = (*seg_It).chi2()/dof ;
+        double dof = static_cast<double>( seg_It.degreesOfFreedom() ) ;
+        double chi2_dof = seg_It.chi2()/dof ;
 
         cscseg_stat[DetId.station()] += 1;
-        if ((*seg_It).nRecHits() > 4 && chi2_dof < 200.0 ) {
+        if (seg_It.nRecHits() > 4 && chi2_dof < 200.0 ) {
            cscseg_stat1[DetId.station()] += 1;
         }
      }
@@ -652,23 +652,23 @@ void MuonSeedValidator::DTsegment_stat( Handle<DTRecSegment4DCollection> dtSeg, 
          dtseg_stat[i]=0;
          dtseg_stat1[i]=0;
      }
-     for(DTRecSegment4DCollection::const_iterator seg_It = dtSeg->begin(); seg_It != dtSeg->end(); seg_It++)
+     for(const auto & seg_It : *dtSeg)
      { 
         //if ( !(*seg_It).hasPhi() || !(*seg_It).hasZed()  ) continue;
-        if ( !(*seg_It).hasPhi()  ) continue;
+        if ( !seg_It.hasPhi()  ) continue;
 
-        DTChamberId DetId = (*seg_It).chamberId();
+        DTChamberId DetId = seg_It.chamberId();
         const DTChamber* dtchamber = dtGeom->chamber( DetId );
-        GlobalPoint  gp = dtchamber->toGlobal( (*seg_It).localPosition() );
-        GlobalVector gv = dtchamber->toGlobal( (*seg_It).localDirection() );
+        GlobalPoint  gp = dtchamber->toGlobal( seg_It.localPosition() );
+        GlobalVector gv = dtchamber->toGlobal( seg_It.localDirection() );
 
         if ( ( fabs(gp.theta()- trkTheta) > dtMax  ) || ( fabs(gv.phi()- trkPhi) > dfMax ) ) continue;
 
         dtseg_stat[DetId.station()] += 1;
 
-        int n_phiHits = ((*seg_It).phiSegment())->specificRecHits().size();
+        int n_phiHits = (seg_It.phiSegment())->specificRecHits().size();
         //if ( DetId.station() < 4 && (*seg_It).hasZed() && (n_phiHits > 4) ) {
-        if ( DetId.station() < 4 && (*seg_It).dimension() == 4 ) {
+        if ( DetId.station() < 4 && seg_It.dimension() == 4 ) {
            dtseg_stat1[DetId.station()] += 1;
         }
         if ( DetId.station() == 4 && (n_phiHits > 4) ) {
@@ -727,14 +727,14 @@ void MuonSeedValidator::Simsegment_stat( std::vector<SimSegment> sCSC, std::vect
 }
 
 void MuonSeedValidator::CSCRecHit_Stat(Handle<CSCRecHit2DCollection> cscrechit, ESHandle<CSCGeometry> cscGeom, double trkEta, double trkPhi){
-     for (int i=0; i <6; i++) {
-         cscrh_sum[i]=0;
+     for (int & i : cscrh_sum) {
+         i=0;
      }
-     for(CSCRecHit2DCollection::const_iterator r_it = cscrechit->begin(); r_it != cscrechit->end(); r_it++)
+     for(const auto & r_it : *cscrechit)
      { 
-        CSCDetId det_id = (CSCDetId)(*r_it).cscDetId();
+        CSCDetId det_id = (CSCDetId)r_it.cscDetId();
 	const CSCChamber* cscchamber = cscGeom->chamber( det_id );
-	GlobalPoint gp = cscchamber->toGlobal((*r_it).localPosition() );
+	GlobalPoint gp = cscchamber->toGlobal(r_it.localPosition() );
         if (( fabs(gp.eta()- trkEta) > dtMax  ) || ( fabs(gp.phi()- trkPhi) > dfMax ) ) continue;
 
         cscrh_sum[det_id.station()]++;
@@ -750,16 +750,16 @@ void MuonSeedValidator::CSCRecHit_Stat(Handle<CSCRecHit2DCollection> cscrechit, 
 void MuonSeedValidator::DTRecHit_Stat(Handle<DTRecHitCollection> dtrechit, ESHandle<DTGeometry> dtGeom, double trkEta, double trkPhi){
 
      //double phi[4]={999.0};
-     for (int i=0; i <6; i++) {
-         dtrh_sum[i]=0;
+     for (int & i : dtrh_sum) {
+         i=0;
      }
 
      double eta=-9.0;
      double nn=0.0;
-     for (DTRecHitCollection::const_iterator r_it = dtrechit->begin(); r_it != dtrechit->end(); r_it++){
-         DTWireId det_id = (*r_it).wireId();
+     for (const auto & r_it : *dtrechit){
+         DTWireId det_id = r_it.wireId();
          const DTChamber* dtchamber = dtGeom->chamber( det_id );
-         LocalPoint lrh = (*r_it).localPosition();
+         LocalPoint lrh = r_it.localPosition();
          GlobalPoint grh = dtchamber->toGlobal( lrh );
          if ( ( fabs(grh.eta()- trkEta) > dtMax  ) || ( fabs(grh.phi()- trkPhi) > dfMax ) ) continue;
 
@@ -1102,15 +1102,15 @@ void MuonSeedValidator::SimInfo(Handle<edm::SimTrackContainer> simTracks,
   palayer.clear();
   trackID.clear();
 
-  for (SimTrackContainer::const_iterator simTk_It = simTracks->begin(); simTk_It != simTracks->end(); simTk_It++)
+  for (const auto & simTk_It : *simTracks)
   {
 
       //if (abs((*simTk_It).type())!=13 || (*simTk_It).vertIndex() != 0 ) continue;
       bool rechitSize = (dsimHits->size() <8 && csimHits->size() <4) ? true:false ;
-      if (abs((*simTk_It).type())!=13 || rechitSize || (*simTk_It).vertIndex() != 0 ) continue;
+      if (abs(simTk_It.type())!=13 || rechitSize || simTk_It.vertIndex() != 0 ) continue;
     
-      trackID.push_back( static_cast<int>((*simTk_It).trackId())  );
-      if ((*simTk_It).type()==13) {
+      trackID.push_back( static_cast<int>(simTk_It.trackId())  );
+      if (simTk_It.type()==13) {
          theQ.push_back( -1.0 );
       }else {
          theQ.push_back(  1.0 );
@@ -1119,9 +1119,9 @@ void MuonSeedValidator::SimInfo(Handle<edm::SimTrackContainer> simTracks,
       std::vector<double> pt1(5,0.0);
       std::vector<double> pa1(5,0.0);
 
-      double px = ((*simTk_It).momentum()).x();
-      double py = ((*simTk_It).momentum()).y();
-      double pz = ((*simTk_It).momentum()).z();
+      double px = (simTk_It.momentum()).x();
+      double py = (simTk_It.momentum()).y();
+      double pz = (simTk_It.momentum()).z();
       pa1[0] = sqrt( px*px + py*py + pz*pz );
       pt1[0] = sqrt( px*px + py*py );
 
@@ -1131,16 +1131,16 @@ void MuonSeedValidator::SimInfo(Handle<edm::SimTrackContainer> simTracks,
       pt_trk.push_back( pt1[0] );
    
       double enu2   = 0.0;
-      for (PSimHitContainer::const_iterator ds_It = dsimHits->begin(); ds_It != dsimHits->end(); ds_It++)
+      for (const auto & ds_It : *dsimHits)
       {          
-          Local3DPoint lp = (*ds_It).localPosition(); 
+          Local3DPoint lp = ds_It.localPosition(); 
 
-          DTLayerId D_Id = DTLayerId( (*ds_It).detUnitId() );
+          DTLayerId D_Id = DTLayerId( ds_It.detUnitId() );
           const DTLayer* dtlayer = dtGeom->layer(D_Id);
-          GlobalVector m2 = dtlayer->toGlobal((*ds_It).momentumAtEntry() );
+          GlobalVector m2 = dtlayer->toGlobal(ds_It.momentumAtEntry() );
           GlobalPoint gp = dtlayer->toGlobal(lp );
 
-          if ( ( abs((*ds_It).particleType())==13 ) && ( (*ds_It).trackId()==(*simTk_It).trackId() )) {
+          if ( ( abs(ds_It.particleType())==13 ) && ( ds_It.trackId()==simTk_It.trackId() )) {
  
              pt1[ D_Id.station() ] = sqrt( (m2.x()*m2.x()) + (m2.y()*m2.y()) );
              pa1[ D_Id.station() ] = sqrt( (m2.x()*m2.x()) + (m2.y()*m2.y()) + (m2.z()*m2.z()) );
@@ -1156,15 +1156,15 @@ void MuonSeedValidator::SimInfo(Handle<edm::SimTrackContainer> simTracks,
       }
 
       double enu1   = 0.0;
-      for (PSimHitContainer::const_iterator cs_It = csimHits->begin(); cs_It != csimHits->end(); cs_It++)
+      for (const auto & cs_It : *csimHits)
       {
-          CSCDetId C_Id = CSCDetId((*cs_It).detUnitId());
+          CSCDetId C_Id = CSCDetId(cs_It.detUnitId());
           const CSCChamber* cscchamber = cscGeom->chamber( C_Id );
-          GlobalVector m1 = cscchamber->toGlobal((*cs_It).momentumAtEntry() );
-          Local3DPoint lp = (*cs_It).localPosition(); 
+          GlobalVector m1 = cscchamber->toGlobal(cs_It.momentumAtEntry() );
+          Local3DPoint lp = cs_It.localPosition(); 
           GlobalPoint gp = cscchamber->toGlobal(lp );
 
-          if ( ( abs((*cs_It).particleType())==13 ) && ( (*cs_It).trackId()==(*simTk_It).trackId() )) {
+          if ( ( abs(cs_It.particleType())==13 ) && ( cs_It.trackId()==simTk_It.trackId() )) {
 
              if (enu2 == 0.0) {
                 pt1[C_Id.station()] = sqrt( (m1.x()*m1.x()) + (m1.y()*m1.y()) ) ; 
@@ -1199,22 +1199,22 @@ int MuonSeedValidator::RecSegReader( Handle<CSCSegmentCollection> cscSeg, Handle
 
      double n=0.0;
      double m=0.0;
-     for(CSCSegmentCollection::const_iterator it = cscSeg->begin(); it != cscSeg->end(); it++)
+     for(const auto & it : *cscSeg)
      {
-        if ( (*it).nRecHits() < 4) continue;
-        CSCDetId DetId = (CSCDetId)(*it).cscDetId();
+        if ( it.nRecHits() < 4) continue;
+        CSCDetId DetId = (CSCDetId)it.cscDetId();
 	const CSCChamber* cscchamber = cscGeom->chamber( DetId );
-	GlobalPoint gp = cscchamber->toGlobal((*it).localPosition() );
+	GlobalPoint gp = cscchamber->toGlobal(it.localPosition() );
         if (( fabs(gp.theta()- trkTheta) > 0.5  ) || ( fabs(gp.phi()- trkPhi) > 0.5)  ) continue;
-	GlobalVector gv = cscchamber->toGlobal((*it).localDirection() );
+	GlobalVector gv = cscchamber->toGlobal(it.localDirection() );
 
 
         ave_phi += gp.phi();
         ave_eta += gp.eta();
-        dx_error.push_back( (*it).localDirectionError().xx() );
-        dy_error.push_back( (*it).localDirectionError().yy() );
-        x_error.push_back( (*it).localPositionError().xx() );
-        y_error.push_back( (*it).localPositionError().yy() );
+        dx_error.push_back( it.localDirectionError().xx() );
+        dy_error.push_back( it.localDirectionError().yy() );
+        x_error.push_back( it.localPositionError().xx() );
+        y_error.push_back( it.localPositionError().yy() );
         n++;
         if (debug) {
            cout <<"~~~~~~~~~~~~~~~~  reco segs  ~~~~~~~~~~~~~~~~  " <<endl;
@@ -1223,14 +1223,14 @@ int MuonSeedValidator::RecSegReader( Handle<CSCSegmentCollection> cscSeg, Handle
 	   cout <<"  h1= "<<gv.eta()<<"  f1= "<<gv.phi()<<"   gv= "<< gv <<endl;
         }
      }
-     for(DTRecSegment4DCollection::const_iterator it = dtSeg->begin(); it != dtSeg->end(); it++)
+     for(const auto & it : *dtSeg)
      {
-        if ( !(*it).hasPhi() || !(*it).hasZed()  ) continue;
-        DTChamberId DetId = (*it).chamberId();
+        if ( !it.hasPhi() || !it.hasZed()  ) continue;
+        DTChamberId DetId = it.chamberId();
         const DTChamber* dtchamber = dtGeom->chamber( DetId );
-        GlobalPoint  gp = dtchamber->toGlobal( (*it).localPosition() );
+        GlobalPoint  gp = dtchamber->toGlobal( it.localPosition() );
         if (( fabs(gp.eta()- trkTheta) > 0.5  ) || ( fabs(gp.phi()- trkPhi) > 0.5 ) ) continue;
-	GlobalVector gv = dtchamber->toGlobal((*it).localDirection() );
+	GlobalVector gv = dtchamber->toGlobal(it.localDirection() );
 
         ave_phi += gp.phi();
         ave_eta += gp.eta();
@@ -1246,22 +1246,22 @@ int MuonSeedValidator::RecSegReader( Handle<CSCSegmentCollection> cscSeg, Handle
      ave_eta = ave_eta / (n+m) ;
 
      // Calculate the residual of phi and eta
-     for(CSCSegmentCollection::const_iterator it = cscSeg->begin(); it != cscSeg->end(); it++)
+     for(const auto & it : *cscSeg)
      {
-        if ( (*it).nRecHits() < 4) continue;
-        CSCDetId DetId = (CSCDetId)(*it).cscDetId();
+        if ( it.nRecHits() < 4) continue;
+        CSCDetId DetId = (CSCDetId)it.cscDetId();
         const CSCChamber* cscchamber = cscGeom->chamber( DetId );
-        GlobalPoint gp = cscchamber->toGlobal((*it).localPosition() );
+        GlobalPoint gp = cscchamber->toGlobal(it.localPosition() );
         if ( (fabs(gp.theta()- trkTheta) > 0.5  ) || ( fabs(gp.phi()- trkPhi) > 0.5 ) ) continue;
         phi_resid.push_back( gp.phi()- ave_phi );
         eta_resid.push_back( gp.eta()- ave_eta );
      }
-     for(DTRecSegment4DCollection::const_iterator it = dtSeg->begin(); it != dtSeg->end(); it++)
+     for(const auto & it : *dtSeg)
      {
-        if ( !(*it).hasPhi() || !(*it).hasZed()  ) continue;
-        DTChamberId DetId = (*it).chamberId();
+        if ( !it.hasPhi() || !it.hasZed()  ) continue;
+        DTChamberId DetId = it.chamberId();
         const DTChamber* dtchamber = dtGeom->chamber( DetId );
-        GlobalPoint  gp = dtchamber->toGlobal( (*it).localPosition() );
+        GlobalPoint  gp = dtchamber->toGlobal( it.localPosition() );
         if ( (fabs(gp.eta()- trkTheta) > 0.5  ) || ( fabs(gp.phi()- trkPhi) > 0.5 ) ) continue;
         phi_resid.push_back( gp.phi()- ave_phi );
         eta_resid.push_back( gp.eta()- ave_eta );
@@ -1313,12 +1313,12 @@ std::vector<int> MuonSeedValidator::IdentifyShowering(Handle<CSCSegmentCollectio
    int CSC2 = 0; 
    int CSC3 = 0; 
    int CSC4 = 0;
-   for(CSCSegmentCollection::const_iterator i1 = cscSeg->begin(); i1 != cscSeg->end(); i1++)
+   for(const auto & i1 : *cscSeg)
    { 
       if (trkTheta > 0.87 ) continue;
-      CSCDetId DId = (CSCDetId)(*i1).cscDetId();
+      CSCDetId DId = (CSCDetId)i1.cscDetId();
       const CSCChamber* cscchamber = cscGeom->chamber( DId );
-      GlobalPoint  gp = cscchamber->toGlobal((*i1).localPosition() );
+      GlobalPoint  gp = cscchamber->toGlobal(i1.localPosition() );
       double dh = gp.eta() - getEta(trkTheta) ;
       double df = gp.phi() - trkPhi ;
       double dR = sqrt( (dh*dh) + (df*df) ); 
@@ -1384,12 +1384,12 @@ std::vector<int> MuonSeedValidator::IdentifyShowering(Handle<CSCSegmentCollectio
    int DT1 = 0;
    int DT2 = 0;
    int DT3 = 0;
-   for(DTRecSegment4DCollection::const_iterator i1 = dtSeg->begin(); i1 != dtSeg->end(); i1++)
+   for(const auto & i1 : *dtSeg)
    {
       if (trkTheta < 0.52 ) continue;
-      DTChamberId DId = (*i1).chamberId();
+      DTChamberId DId = i1.chamberId();
       const DTChamber* dtchamber = dtGeom->chamber( DId );
-      GlobalPoint  gp = dtchamber->toGlobal( (*i1).localPosition() );
+      GlobalPoint  gp = dtchamber->toGlobal( i1.localPosition() );
       
       double dh = gp.eta() - getEta(trkTheta) ;
       double df = gp.phi() - trkPhi ;

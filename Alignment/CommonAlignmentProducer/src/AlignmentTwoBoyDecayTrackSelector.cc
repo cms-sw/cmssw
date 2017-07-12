@@ -209,26 +209,24 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
   typedef pair<double,const reco::Track*> candCollectionItem;
   vector<candCollectionItem> candCollection;
 
-  for (reco::CaloMETCollection::const_iterator itMET = missingET->begin();
-       itMET != missingET->end();
-       ++itMET) {
+  for (const auto & itMET : *missingET) {
     
-    met4.SetXYZT((*itMET).px(),
-		 (*itMET).py(),
-		 (*itMET).pz(),
-		 (*itMET).p());
+    met4.SetXYZT(itMET.px(),
+		 itMET.py(),
+		 itMET.pz(),
+		 itMET.p());
   
-    for (unsigned int iCand = 0; iCand < cands.size(); iCand++) {
+    for (auto cand : cands) {
     
-      track.SetXYZT(cands.at(iCand)->px(),
-		    cands.at(iCand)->py(),
-		    cands.at(iCand)->pz(),
-		    sqrt( cands.at(iCand)->p()*cands.at(iCand)->p() + theDaughterMass*theDaughterMass ));
+      track.SetXYZT(cand->px(),
+		    cand->py(),
+		    cand->pz(),
+		    sqrt( cand->p()*cand->p() + theDaughterMass*theDaughterMass ));
       
       mother = track + met4;
       
-      const reco::Track *trk = cands.at(iCand);
-      const reco::CaloMET *met = &(*itMET);
+      const reco::Track *trk = cand;
+      const reco::CaloMET *met = &itMET;
 
       bool correctCharge = true;
       if (theChargeSwitch) correctCharge = this->checkCharge(trk);

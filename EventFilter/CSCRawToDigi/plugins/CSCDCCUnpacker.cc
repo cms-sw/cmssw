@@ -236,9 +236,8 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
       cscFEDids.push_back(id);
     }
 
-  for (unsigned int i=0; i<cscFEDids.size(); i++)   // loop over all CSC FEDs (DCCs and DDUs)
+  for (unsigned int id : cscFEDids)   // loop over all CSC FEDs (DCCs and DDUs)
     {
-      unsigned int id = cscFEDids[i];
       bool isDDU_FED = ((id >= FEDNumbering::MINCSCDDUFEDID) && (id <= FEDNumbering::MAXCSCDDUFEDID))?true:false;
 
 
@@ -410,12 +409,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 		  // if (cscData.size() != 0) std::cout << "FED" << id << " DDU Source ID: " << dduData[iDDU].header().source_id() << " firmware version: " << dduData[iDDU].header().format_version() << std::endl;
 
 
-                  for (unsigned int iCSC=0; iCSC<cscData.size(); ++iCSC)   // loop over CSCs
+                  for (const auto & iCSC : cscData)   // loop over CSCs
                     {
 
                       ///first process chamber-wide digis such as LCT
-                      int vmecrate = cscData[iCSC].dmbHeader()->crateID();
-                      int dmb = cscData[iCSC].dmbHeader()->dmbID();
+                      int vmecrate = iCSC.dmbHeader()->crateID();
+                      int dmb = iCSC.dmbHeader()->dmbID();
 
                       int icfeb = 0;  /// default value for all digis not related to cfebs
                       int ilayer = 0; /// layer=0 flags entire chamber
@@ -456,12 +455,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                         } 
 
                       /// check alct data integrity
-                      int nalct = cscData[iCSC].dmbHeader()->nalct();
+                      int nalct = iCSC.dmbHeader()->nalct();
                       bool goodALCT=false;
                       //if (nalct&&(cscData[iCSC].dataPresent>>6&0x1)==1) {
-                      if (nalct&&cscData[iCSC].alctHeader())
+                      if (nalct&&iCSC.alctHeader())
                         {
-                          if (cscData[iCSC].alctHeader()->check())
+                          if (iCSC.alctHeader()->check())
                             {
                               goodALCT=true;
                             }
@@ -480,14 +479,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                       if (goodALCT)
                         {
                           std::vector <CSCALCTDigi>  alctDigis =
-                            cscData[iCSC].alctHeader()->ALCTDigis();
+                            iCSC.alctHeader()->ALCTDigis();
                           if (SuppressZeroLCT)
                             {
                               std::vector<CSCALCTDigi> alctDigis_0;
-                              for (int unsigned i=0; i<alctDigis.size(); ++i)
+                              for (auto & alctDigi : alctDigis)
                                 {
-                                  if (alctDigis[i].isValid())
-                                    alctDigis_0.push_back(alctDigis[i]);
+                                  if (alctDigi.isValid())
+                                    alctDigis_0.push_back(alctDigi);
                                 }
                               alctProduct->move(std::make_pair(alctDigis_0.begin(), alctDigis_0.end()),layer);
                             }
@@ -497,14 +496,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
 
 
                       ///check tmb data integrity
-                      int nclct = cscData[iCSC].dmbHeader()->nclct();
+                      int nclct = iCSC.dmbHeader()->nclct();
                       bool goodTMB=false;
                       //	    if (nclct&&(cscData[iCSC].dataPresent>>5&0x1)==1) {
-                      if (nclct&&cscData[iCSC].tmbData())
+                      if (nclct&&iCSC.tmbData())
                         {
-                          if (cscData[iCSC].tmbHeader()->check())
+                          if (iCSC.tmbHeader()->check())
                             {
-                              if (cscData[iCSC].clctData()->check()) goodTMB=true;
+                              if (iCSC.clctData()->check()) goodTMB=true;
                             }
                           else
                             {
@@ -521,14 +520,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                       if (goodTMB)
                         {
                           std::vector <CSCCorrelatedLCTDigi>  correlatedlctDigis =
-                            cscData[iCSC].tmbHeader()->CorrelatedLCTDigis(layer.rawId());
+                            iCSC.tmbHeader()->CorrelatedLCTDigis(layer.rawId());
                           if (SuppressZeroLCT)
                             {
                               std::vector<CSCCorrelatedLCTDigi> correlatedlctDigis_0;
-                              for (int unsigned i=0; i<correlatedlctDigis.size(); ++i)
+                              for (auto & correlatedlctDigi : correlatedlctDigis)
                                 {
-                                  if (correlatedlctDigis[i].isValid())
-                                    correlatedlctDigis_0.push_back(correlatedlctDigis[i]);
+                                  if (correlatedlctDigi.isValid())
+                                    correlatedlctDigis_0.push_back(correlatedlctDigi);
                                 }
                               corrlctProduct->move(std::make_pair(correlatedlctDigis_0.begin(),
                                                                   correlatedlctDigis_0.end()),layer);
@@ -538,14 +537,14 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                                                                 correlatedlctDigis.end()),layer);
 
                           std::vector <CSCCLCTDigi>  clctDigis =
-                            cscData[iCSC].tmbHeader()->CLCTDigis(layer.rawId());
+                            iCSC.tmbHeader()->CLCTDigis(layer.rawId());
                           if (SuppressZeroLCT)
                             {
                               std::vector<CSCCLCTDigi> clctDigis_0;
-                              for (int unsigned i=0; i<clctDigis.size(); ++i)
+                              for (auto & clctDigi : clctDigis)
                                 {
-                                  if (clctDigis[i].isValid())
-                                    clctDigis_0.push_back(clctDigis[i]);
+                                  if (clctDigi.isValid())
+                                    clctDigis_0.push_back(clctDigi);
                                 }
                               clctProduct->move(std::make_pair(clctDigis_0.begin(), clctDigis_0.end()),layer);
                             }
@@ -553,12 +552,12 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                             clctProduct->move(std::make_pair(clctDigis.begin(), clctDigis.end()),layer);
 
                           /// fill cscrpc digi
-                          if (cscData[iCSC].tmbData()->checkSize())
+                          if (iCSC.tmbData()->checkSize())
                             {
-                              if (cscData[iCSC].tmbData()->hasRPC())
+                              if (iCSC.tmbData()->hasRPC())
                                 {
                                   std::vector <CSCRPCDigi>  rpcDigis =
-                                    cscData[iCSC].tmbData()->rpcData()->digis();
+                                    iCSC.tmbData()->rpcData()->digis();
                                   rpcProduct->move(std::make_pair(rpcDigis.begin(), rpcDigis.end()),layer);
                                 }
                             }
@@ -571,19 +570,19 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                         {
                           for ( icfeb = 0; icfeb < 7; ++icfeb )  ///loop over status digis
                             {
-                              if ( cscData[iCSC].cfebData(icfeb) != NULL )
+                              if ( iCSC.cfebData(icfeb) != NULL )
                                 cfebStatusProduct->
-                                insertDigi(layer, cscData[iCSC].cfebData(icfeb)->statusDigi());
+                                insertDigi(layer, iCSC.cfebData(icfeb)->statusDigi());
                             }
                           /// fill dmb status digi
-                          dmbStatusProduct->insertDigi(layer, CSCDMBStatusDigi(cscData[iCSC].dmbHeader()->data(),
-                                                       cscData[iCSC].dmbTrailer()->data()));
+                          dmbStatusProduct->insertDigi(layer, CSCDMBStatusDigi(iCSC.dmbHeader()->data(),
+                                                       iCSC.dmbTrailer()->data()));
                           if (goodTMB)  tmbStatusProduct->
-                            insertDigi(layer, CSCTMBStatusDigi(cscData[iCSC].tmbHeader()->data(),
-                                                               cscData[iCSC].tmbData()->tmbTrailer()->data()));
+                            insertDigi(layer, CSCTMBStatusDigi(iCSC.tmbHeader()->data(),
+                                                               iCSC.tmbData()->tmbTrailer()->data()));
                           if (goodALCT) alctStatusProduct->
-                            insertDigi(layer, CSCALCTStatusDigi(cscData[iCSC].alctHeader()->data(),
-                                                                cscData[iCSC].alctTrailer()->data()));
+                            insertDigi(layer, CSCALCTStatusDigi(iCSC.alctHeader()->data(),
+                                                                iCSC.alctTrailer()->data()));
                         }
 
 
@@ -596,31 +595,31 @@ void CSCDCCUnpacker::produce(edm::Event & e, const edm::EventSetup& c)
                           // Allocate all ME1/1 wire digis to ring 1
                           layer = pcrate->detId( vmecrate, dmb, 0, ilayer );
                           {
-                            std::vector <CSCWireDigi> wireDigis =  cscData[iCSC].wireDigis(ilayer);
+                            std::vector <CSCWireDigi> wireDigis =  iCSC.wireDigis(ilayer);
                             wireProduct->move(std::make_pair(wireDigis.begin(), wireDigis.end()),layer);
                           }
 
                           for ( icfeb = 0; icfeb < 7; ++icfeb )
                             {
                               layer = pcrate->detId( vmecrate, dmb, icfeb,ilayer );
-                              if (cscData[iCSC].cfebData(icfeb) && cscData[iCSC].cfebData(icfeb)->check())
+                              if (iCSC.cfebData(icfeb) && iCSC.cfebData(icfeb)->check())
                                 {
                                   std::vector<CSCStripDigi> stripDigis;
-                                  cscData[iCSC].cfebData(icfeb)->digis(layer.rawId(),stripDigis);
+                                  iCSC.cfebData(icfeb)->digis(layer.rawId(),stripDigis);
                                   stripProduct->move(std::make_pair(stripDigis.begin(),
                                                                     stripDigis.end()),layer);
                                 }
                             }
 
 
-                          if (goodTMB && (cscData[iCSC].tmbHeader() != NULL))
+                          if (goodTMB && (iCSC.tmbHeader() != NULL))
                             {
-                              int nCFEBs = cscData[iCSC].tmbHeader()->NCFEBs();
+                              int nCFEBs = iCSC.tmbHeader()->NCFEBs();
                               for ( icfeb = 0; icfeb < nCFEBs; ++icfeb )
                                 {
 				  layer = pcrate->detId( vmecrate, dmb, icfeb,ilayer );
                                   std::vector <CSCComparatorDigi>  comparatorDigis =
-                                    cscData[iCSC].clctData()->comparatorDigis(layer.rawId(), icfeb);
+                                    iCSC.clctData()->comparatorDigis(layer.rawId(), icfeb);
                                   // Set cfeb=0, so that ME1/a and ME1/b comparators go to
                                   // ring 1.
                                   layer = pcrate->detId( vmecrate, dmb, 0, ilayer );
@@ -1328,32 +1327,32 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << ddu_h2_coll.size() <<"  "<< ddu_common << "  "<<ddu_header2 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<ddu_h2_coll.size(); ++k)
-    std::cout << "Line:  " << ddu_h2_coll[k] << std::endl;
+  for (int k : ddu_h2_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << ddu_h3_coll.size() <<"  "<< ddu_common << "  "<<ddu_header3 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<ddu_h3_coll.size(); ++k)
-    std::cout << "Line:  " << ddu_h3_coll[k] << std::endl;
+  for (int k : ddu_h3_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << ddu_t1_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail1 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<ddu_t1_coll.size(); ++k)
-    std::cout << "Line:  " << ddu_t1_coll[k] << std::endl;
+  for (int k : ddu_t1_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << ddu_t2_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail2 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<ddu_t2_coll.size(); ++k)
-    std::cout << "Line:  " << ddu_t2_coll[k] << std::endl;
+  for (int k : ddu_t2_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << ddu_t3_coll.size() <<"  "<< ddu_common << "  "<<ddu_trail3 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<ddu_t3_coll.size(); ++k)
-    std::cout << "Line:  " << ddu_t3_coll[k] << std::endl;
+  for (int k : ddu_t3_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
@@ -1374,20 +1373,20 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << dmb_h2_coll.size() <<"  "<< dmb_common << "  "<<dmb_header2 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<dmb_h2_coll.size(); ++k)
-    std::cout << "Line:  " << dmb_h2_coll[k] << std::endl;
+  for (int k : dmb_h2_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << dmb_t1_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr1 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<dmb_t1_coll.size(); ++k)
-    std::cout << "Line:  " << dmb_t1_coll[k] << std::endl;
+  for (int k : dmb_t1_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << dmb_t2_coll.size() <<"  "<< dmb_common << "  "<<dmb_tr2 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<dmb_t2_coll.size(); ++k)
-    std::cout << "Line:  " << dmb_t2_coll[k] << std::endl;
+  for (int k : dmb_t2_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
@@ -1484,8 +1483,8 @@ void CSCDCCUnpacker::visual_raw(int hl,int id, int run, int event,bool fedshort,
   std::cout << "||||||||||||||||||||" << std::endl;
   std::cout << std::endl << std::endl;
   std::cout << cfeb_t1_coll.size() <<"  "<< cfeb_common << "  "<<cfeb_tr1 << "  "<< "found" << std::endl;
-  for (unsigned int k=0; k<cfeb_t1_coll.size(); ++k)
-    std::cout << "Line:  " << cfeb_t1_coll[k] << std::endl;
+  for (int k : cfeb_t1_coll)
+    std::cout << "Line:  " << k << std::endl;
   std::cout <<"********************************************************************************" << std::endl;
 
 }

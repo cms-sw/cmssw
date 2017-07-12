@@ -43,24 +43,21 @@ bool CaloRing::addEnergy(unsigned pane, double energy) {
 
 double CaloRing::totalE() const {
 	double ans(0.0);
-	for (std::vector<double>::const_iterator cit = myPanes_.begin(); cit
-			!= myPanes_.end(); ++cit) {
-		ans += *cit;
+	for (double myPane : myPanes_) {
+		ans += myPane;
 	}
 	return ans;
 }
 
 void CaloRing::reset() {
-	for (std::vector<double>::iterator cit = myPanes_.begin(); cit
-			!= myPanes_.end(); ++cit)
-		*cit = 0.0;
+	for (double & myPane : myPanes_)
+		myPane = 0.0;
 
 }
 
 void CaloRing::printEnergies(std::ostream& s, double range) {
-	for (std::vector<double>::iterator cit = myPanes_.begin(); cit
-			!= myPanes_.end(); ++cit)
-		s << (*cit)/range << "\t";
+	for (double & myPane : myPanes_)
+		s << myPane/range << "\t";
 }
 
 std::ostream& pftools::operator<<(std::ostream& s,
@@ -78,10 +75,9 @@ std::ostream& pftools::operator<<(std::ostream& s,
 	s << "CaloWindow at (" << caloWindow.baryEta() << ", "
 	  << caloWindow.baryPhi() << "):\n";
 	double totalE(0.0);
-	for (std::map<unsigned, pftools::CaloRing>::const_iterator cit =
-	      caloWindow.getRingDepositions().begin(); cit != caloWindow.getRingDepositions().end(); ++cit) {
-		unsigned ring = (*cit).first;
-		const CaloRing& cr = (*cit).second;
+	for (const auto & cit : caloWindow.getRingDepositions()) {
+		unsigned ring = cit.first;
+		const CaloRing& cr = cit.second;
 		s << "Ring " << ring << ":\t" << cr << "\n";
 		totalE += cr.totalE();
 	}
@@ -93,16 +89,14 @@ std::ostream& pftools::operator<<(std::ostream& s,
 
 vector<double> CaloWindow::stream(double normalisation) const {
 	vector<double> stream;
-	for (map<unsigned, pftools::CaloRing>::const_iterator cit =
-			energies_.begin(); cit != energies_.end(); ++cit) {
-		CaloRing c = (*cit).second;
+	for (const auto & energie : energies_) {
+		CaloRing c = energie.second;
 		std::vector<double> ringE = c.getEnergies();
 		stream.insert(stream.end(), ringE.begin(), ringE.end());
 	}
 	if(normalisation != 1.0){
-		for(vector<double>::iterator i = stream.begin(); i != stream.end(); ++i) {
-			double& entry = *i;
-			entry /= normalisation;
+		for(double & entry : stream) {
+				entry /= normalisation;
 		}
 	}
 	return stream;
@@ -244,9 +238,8 @@ bool CaloWindow::addHit(double eta, double phi, double energy) {
 }
 std::map<unsigned, double> CaloWindow::getRingEnergySummations() const {
 	std::map<unsigned, double> answer;
-	for (std::map<unsigned, CaloRing>::const_iterator cit = energies_.begin(); cit
-			!= energies_.end(); ++cit) {
-		std::pair<unsigned, CaloRing> pair = *cit;
+	for (const auto & energie : energies_) {
+		std::pair<unsigned, CaloRing> pair = energie;
 		answer[pair.first] = pair.second.totalE();
 	}
 

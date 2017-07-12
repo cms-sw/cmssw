@@ -157,11 +157,10 @@ void FTSimHitTest::plotHits(const edm::Handle<edm::PSimHitContainer>& hits,
   unsigned kount(0);
 #endif
   std::vector<unsigned int> ids;
-  for (edm::PSimHitContainer::const_iterator it = hits->begin();
-       it != hits->end(); ++it) {
-    unsigned int id  = it->detUnitId();
-    double energy    = it->energyLoss();
-    double time      = it->tof();
+  for (const auto & it : *hits) {
+    unsigned int id  = it.detUnitId();
+    double energy    = it.energyLoss();
+    double time      = it.tof();
     int    etaz      = FastTimeDetId(id).ieta();
     int    phi       = FastTimeDetId(id).iphi();
     int    zside     = FastTimeDetId(id).zside();

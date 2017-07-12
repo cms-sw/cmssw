@@ -114,12 +114,11 @@ FWCSCWireDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* prod
   }
   const FWGeometry *geom = iItem->getGeom();
 
-  for ( CSCWireDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end(); 
-        dri != driEnd; ++dri )
+  for (auto && digi : *digis)
   {
-    const CSCDetId& cscDetId = (*dri).first;
+    const CSCDetId& cscDetId = digi.first;
     unsigned int rawid = cscDetId.rawId();
-    const CSCWireDigiCollection::Range& range = (*dri).second;
+    const CSCWireDigiCollection::Range& range = digi.second;
  
     if( ! geom->contains( rawid ))
     {

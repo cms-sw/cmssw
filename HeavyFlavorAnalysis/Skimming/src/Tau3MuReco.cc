@@ -236,11 +236,11 @@ bool Tau3MuReco::findCorrectPairing()
         tempMuonCollection.clear();
 	tempTrackCollection.clear();
 
-        for(UInt_t i=0; i< (*it).size(); i++)
+        for(unsigned int i : (*it))
         {
-            Charge += m_TrackCollection->at((*it).at(i)).charge();
-            tempTrackCollection.push_back(m_TrackCollection->at((*it).at(i)));
-	    tempMuonCollection.push_back(m_MuonCollection->at((*it).at(i)));
+            Charge += m_TrackCollection->at(i).charge();
+            tempTrackCollection.push_back(m_TrackCollection->at(i));
+	    tempMuonCollection.push_back(m_MuonCollection->at(i));
         }
 
         LogDebug("Tau3MuReco") << "Charge is: " << (int)Charge << " Have to be -1 or 1!!!" << std::endl;

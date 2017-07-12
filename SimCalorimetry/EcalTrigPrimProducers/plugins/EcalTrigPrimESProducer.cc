@@ -134,9 +134,9 @@ std::unique_ptr<EcalTPGSlidingWindow> EcalTrigPrimESProducer::produceSlidingWind
 {
   auto prod = std::make_unique<EcalTPGSlidingWindow>();
   parseTextFile() ;
-  for (int subdet=0 ; subdet<2 ; subdet++) {
+  for (auto & subdet : mapStrip_) {
     std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-    for (it = mapStrip_[subdet].begin() ; it != mapStrip_[subdet].end() ; it++) {
+    for (it = subdet.begin() ; it != subdet.end() ; it++) {
       prod->setValue(it->first,(it->second)[0]) ;
     }
   }
@@ -225,9 +225,9 @@ std::unique_ptr<EcalTPGWeightGroup> EcalTrigPrimESProducer::produceWeightGroup(c
 {
   auto prod = std::make_unique<EcalTPGWeightGroup>();
   parseTextFile() ;
-  for (int subdet=0 ; subdet<2 ; subdet++) {
+  for (auto & subdet : mapStrip_) {
     std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-    for (it = mapStrip_[subdet].begin() ; it != mapStrip_[subdet].end() ; it++) {
+    for (it = subdet.begin() ; it != subdet.end() ; it++) {
       prod->setValue(it->first,(it->second)[1]) ;
     }
   }
@@ -238,9 +238,9 @@ std::unique_ptr<EcalTPGLutGroup> EcalTrigPrimESProducer::produceLutGroup(const E
 {
   auto prod = std::make_unique<EcalTPGLutGroup>();
   parseTextFile() ;
-  for (int subdet=0 ; subdet<2 ; subdet++) {
+  for (auto & subdet : mapTower_) {
     std::map<uint32_t, std::vector<uint32_t> >::const_iterator it ;
-    for (it = mapTower_[subdet].begin() ; it != mapTower_[subdet].end() ; it++) {
+    for (it = subdet.begin() ; it != subdet.end() ; it++) {
       prod->setValue(it->first,(it->second)[0]) ;
     }
   }

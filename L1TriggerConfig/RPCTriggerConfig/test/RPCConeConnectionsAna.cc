@@ -308,13 +308,11 @@ void RPCConeConnectionsAna::printSymetric(RPCDetId det,  edm::ESHandle<RPCGeomet
 
 
 
-    for(TrackingGeometry::DetContainer::const_iterator it = rpcGeom->dets().begin();
-      it != rpcGeom->dets().end();
-      ++it)
+    for(auto it : rpcGeom->dets())
     {
 
-      if( dynamic_cast<const RPCRoll* >( *it ) == 0 ) continue;
-      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( *it );
+      if( dynamic_cast<const RPCRoll* >( it ) == 0 ) continue;
+      RPCRoll const* roll = dynamic_cast< RPCRoll const*>( it );
 
       if (roll->id() != detSym) continue;
       printRoll(roll);

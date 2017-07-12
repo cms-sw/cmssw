@@ -679,8 +679,8 @@ FBaseSimEvent::printMCTruth(const HepMC::GenEvent& myGenEvent) {
 		<< std::setw(6) << std::setprecision(2) << vertex2.phi() << " " 
 		<< std::setw(5) << std::setprecision(1) << vertex2.pt() << " " 
 		<< std::setw(6) << std::setprecision(1) << vertex2.z() << " ";
-      for ( unsigned id=0; id<children.size(); ++id )
-	std::cout << std::setw(4) << children[id]->barcode() << " ";
+      for (auto & id : children)
+	std::cout << std::setw(4) << id->barcode() << " ";
     }
     std::cout << std::endl;
 

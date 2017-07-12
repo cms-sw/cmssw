@@ -51,9 +51,9 @@ void Pythia6EGun::generateEvent(CLHEP::HepRandomEngine*)
    fEvt = new HepMC::GenEvent() ;
      
    int ip=1;
-   for ( size_t i=0; i<fPartIDs.size(); i++ )
+   for (int particleID : fPartIDs)
    {
-	 int particleID = fPartIDs[i]; // this is PDG - need to convert to Py6 !!!
+	 // this is PDG - need to convert to Py6 !!!
 	 int py6PID = HepPID::translatePDTtoPythia( particleID );
          int dum = 0;
 	 double ee=0,the=0,eta=0;

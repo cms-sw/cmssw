@@ -144,7 +144,7 @@ bool Py8InterfaceBase::readSettings( int )
 bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
 {
   
-  for ( size_t i=0; i<pdgIds.size(); i++ )
+  for (int PyID : pdgIds)
   {
     // FIXME: need to double check if PID's are the same in Py6 & Py8,
     //        because the HepPDT translation tool is actually for **Py6** 
@@ -152,7 +152,6 @@ bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
     // well, actually it looks like Py8 operates in PDT id's rather than Py6's
     //
 //    int PyID = HepPID::translatePDTtoPythia( pdgIds[i] ); 
-    int PyID = pdgIds[i]; 
     std::ostringstream pyCard ;
     pyCard << PyID <<":mayDecay=false";
 
@@ -175,14 +174,14 @@ bool Py8InterfaceBase::declareStableParticles( const std::vector<int>& pdgIds )
 }
 
 bool Py8InterfaceBase:: declareSpecialSettings( const std::vector<std::string>& settings ){
-   for ( unsigned int iss=0; iss<settings.size(); iss++ ){
-     if ( settings[iss].find("QED-brem-off") != std::string::npos ){
+   for (const auto & setting : settings){
+     if ( setting.find("QED-brem-off") != std::string::npos ){
        fMasterGen->readString( "TimeShower:QEDshowerByL=off" );
      }
      else{
-       size_t fnd1 = settings[iss].find("Pythia8:");
+       size_t fnd1 = setting.find("Pythia8:");
        if ( fnd1 != std::string::npos ){
-	 std::string value = settings[iss].substr (fnd1+8);
+	 std::string value = setting.substr (fnd1+8);
 	 fDecayer->readString(value);
        }
      }

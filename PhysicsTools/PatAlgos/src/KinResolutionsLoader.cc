@@ -19,8 +19,8 @@ KinResolutionsLoader::KinResolutionsLoader(const edm::ParameterSet &iConfig)
     handles_.resize(patlabels_.size());
 
     // 'default' maps to empty string
-    for (std::vector<std::string>::iterator it = patlabels_.begin(), ed = patlabels_.end(); it != ed; ++it) {
-        if (*it == "default") *it = "";
+    for (auto & patlabel : patlabels_) {
+        if (patlabel == "default") patlabel = "";
     }
 }
 

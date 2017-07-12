@@ -160,9 +160,8 @@ namespace hcaldqm
 
 			//	reset all the tmp flags to fNA
 			//	MUST DO IT NOW! AS NCDAQ MIGHT OVERWRITE IT!
-			for (std::vector<flag::Flag>::iterator ft=vtmpflags.begin();
-				ft!=vtmpflags.end(); ++ft)
-				ft->reset();
+			for (auto & vtmpflag : vtmpflags)
+				vtmpflag.reset();
 
 			if (_xDigiSize.get(eid)>0)
 				vtmpflags[fDigiSize]._state = flag::fBAD;

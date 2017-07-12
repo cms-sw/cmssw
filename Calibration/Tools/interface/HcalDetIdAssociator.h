@@ -28,13 +28,13 @@ class HHcalDetIdAssociator: public HCaloDetIdAssociator{
    virtual std::set<DetId> getASetOfValidDetIds(){
       std::set<DetId> setOfValidIds;
       const std::vector<DetId>& vectOfValidIds = geometry_->getValidDetIds(DetId::Hcal, 1);//HB
-      for(std::vector<DetId>::const_iterator it = vectOfValidIds.begin(); it != vectOfValidIds.end(); ++it)
-         setOfValidIds.insert(*it);
+      for(auto vectOfValidId : vectOfValidIds)
+         setOfValidIds.insert(vectOfValidId);
 
 //      vectOfValidIds.clear();
       const std::vector<DetId>& vectOfValidIdsHE = geometry_->getValidDetIds(DetId::Hcal, 2);//HE
-      for(std::vector<DetId>::const_iterator it = vectOfValidIdsHE.begin(); it != vectOfValidIdsHE.end(); ++it)
-         setOfValidIds.insert(*it);
+      for(auto it : vectOfValidIdsHE)
+         setOfValidIds.insert(it);
 
       return setOfValidIds;
 

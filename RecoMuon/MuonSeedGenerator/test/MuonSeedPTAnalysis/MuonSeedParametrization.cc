@@ -140,45 +140,45 @@ MuonSeedParametrization::~MuonSeedParametrization(){
   theFile->cd();
 
   theFile->cd("ME_All");
-  for (int i=0; i<15; i++) {
-      hME1[i]->Write();
+  for (auto & i : hME1) {
+      i->Write();
   }
-  for (int i=0; i<8; i++) {
-      hME2[i]->Write();
+  for (auto & i : hME2) {
+      i->Write();
   }
   theFile->cd();
 
   theFile->cd("MB_All");
-  for (int i=0; i<26; i++) {
-      hMB1[i]->Write();
+  for (auto & i : hMB1) {
+      i->Write();
   }
-  for (int i=0; i<12; i++) {
-      hMB2[i]->Write();
+  for (auto & i : hMB2) {
+      i->Write();
   }
   theFile->cd();
 
   theFile->cd("OL_All");
-  for (int i=0; i<6; i++) {
-      hOL1[i]->Write();
+  for (auto & i : hOL1) {
+      i->Write();
   }
   // for tree
   theFile->cd();
 
   // Release the memory ...
-  for (int i=0; i<15; i++) {
-      delete hME1[i];
+  for (auto & i : hME1) {
+      delete i;
   }
-  for (int i=0; i<26; i++) {
-      delete hMB1[i];
+  for (auto & i : hMB1) {
+      delete i;
   }
-  for (int i=0; i<6; i++) {
-      delete hOL1[i];
+  for (auto & i : hOL1) {
+      delete i;
   }
-  for (int i=0; i<8; i++) {
-      delete hME2[i];
+  for (auto & i : hME2) {
+      delete i;
   }
-  for (int i=0; i<12; i++) {
-      delete hMB2[i];
+  for (auto & i : hMB2) {
+      delete i;
   }
   delete h_all;
   delete h_csc;
@@ -360,10 +360,10 @@ void MuonSeedParametrization::analyze(const Event& event, const EventSetup& even
   FromDTSingleSeg(dtseg_V,dtGeom,sDT_v);
 
   /// chi2 distribution
-  for (int i=0; i<5; i++) {
-      if (chi2_dof1[i]< 0.0) continue;     
+  for (double i : chi2_dof1) {
+      if (i< 0.0) continue;     
       histo2 = h_csc;
-      histo2->Fill3b( chi2_dof1[i] );
+      histo2->Fill3b( i );
   }
   for (int i=1; i<5; i++) {
       if (chi2_dof3[i]< 0.0) continue;
@@ -432,11 +432,11 @@ void MuonSeedParametrization::CSCsegment_stat( Handle<CSCSegmentCollection> cscS
          cscseg_stat[i]=0;
          cscseg_stat1[i]=0;
      }
-     for(CSCSegmentCollection::const_iterator seg_It = cscSeg->begin(); seg_It != cscSeg->end(); seg_It++)
+     for(const auto & seg_It : *cscSeg)
      { 
-        CSCDetId DetId = (CSCDetId)(*seg_It).cscDetId();
+        CSCDetId DetId = (CSCDetId)seg_It.cscDetId();
         cscseg_stat[DetId.station()] += 1;
-        if ((*seg_It).nRecHits() > 4 ) {
+        if (seg_It.nRecHits() > 4 ) {
            cscseg_stat1[DetId.station()] += 1;
         }
      }
@@ -460,19 +460,19 @@ void MuonSeedParametrization::DTsegment_stat( Handle<DTRecSegment4DCollection> d
          dtseg_stat1[i]=0;
          dt2Dseg_stat[i]=0;
      }
-     for(DTRecSegment4DCollection::const_iterator seg_It = dtSeg->begin(); seg_It != dtSeg->end(); seg_It++)
+     for(const auto & seg_It : *dtSeg)
      { 
-        if ( (*seg_It).hasPhi() && (*seg_It).hasZed()  ) {
-           DTChamberId DId1 = (*seg_It).chamberId();
+        if ( seg_It.hasPhi() && seg_It.hasZed()  ) {
+           DTChamberId DId1 = seg_It.chamberId();
 	   dtseg_stat[DId1.station()] += 1;
-	   int n_phiHits = ((*seg_It).phiSegment())->specificRecHits().size();
+	   int n_phiHits = (seg_It.phiSegment())->specificRecHits().size();
 	   if ( n_phiHits > 4 ) {
               dtseg_stat1[DId1.station()] += 1;
            }
         }
-        if ( (*seg_It).hasPhi() && !(*seg_It).hasZed() ) {
+        if ( seg_It.hasPhi() && !seg_It.hasZed() ) {
 
-           const DTChamberRecSegment2D *phiSeg = (*seg_It).phiSegment();
+           const DTChamberRecSegment2D *phiSeg = seg_It.phiSegment();
            DetId geoId = (phiSeg)->geographicalId();
            DTChamberId DId2 = DTChamberId( geoId );
            dt2Dseg_stat[ DId2.station() ] += 1;
@@ -494,12 +494,12 @@ void MuonSeedParametrization::DTsegment_stat( Handle<DTRecSegment4DCollection> d
 }
 // number rechit in each station, basically only for those station cannot form a segment
 void MuonSeedParametrization::CSCRecHit_stat(Handle<CSCRecHit2DCollection> cscrechit, ESHandle<CSCGeometry> cscGeom){
-     for (int i=0; i <6; i++) {
-         cscrh_sum[i]=0;
+     for (int & i : cscrh_sum) {
+         i=0;
      }
-     for(CSCRecHit2DCollection::const_iterator r_it = cscrechit->begin(); r_it != cscrechit->end(); r_it++)
+     for(const auto & r_it : *cscrechit)
      { 
-        CSCDetId det_id = (CSCDetId)(*r_it).cscDetId();
+        CSCDetId det_id = (CSCDetId)r_it.cscDetId();
         //const CSCLayer* csclayer = cscGeom->layer( det_id );
         //const CSCChamber* cscchamber = cscGeom->chamber( det_id );
         //LocalPoint lrh = (*r_it).localPosition();
@@ -517,16 +517,16 @@ void MuonSeedParametrization::CSCRecHit_stat(Handle<CSCRecHit2DCollection> cscre
 void MuonSeedParametrization::DTRecHit_stat(Handle<DTRecHitCollection> dtrechit, ESHandle<DTGeometry> dtGeom){
 
      //double phi[4]={999.0};
-     for (int i=0; i <6; i++) {
-         dtrh_sum[i]=0;
+     for (int & i : dtrh_sum) {
+         i=0;
      }
 
      double eta=-9.0;
      double nn=0.0;
-     for (DTRecHitCollection::const_iterator r_it = dtrechit->begin(); r_it != dtrechit->end(); r_it++){
-         DTWireId det_id = (*r_it).wireId();
+     for (const auto & r_it : *dtrechit){
+         DTWireId det_id = r_it.wireId();
          const DTChamber* dtchamber = dtGeom->chamber( det_id );
-         LocalPoint lrh = (*r_it).localPosition();
+         LocalPoint lrh = r_it.localPosition();
          GlobalPoint grh = dtchamber->toGlobal( lrh );
          dtrh_sum[det_id.station()]++;
          eta += grh.eta();
@@ -574,20 +574,20 @@ void MuonSeedParametrization::SimInfo(Handle<edm::SimTrackContainer> simTracks,
   eta_d = -9.0;
   eta_trk = -9.0;
 
-  for (SimTrackContainer::const_iterator simTk_It = simTracks->begin(); simTk_It != simTracks->end(); simTk_It++)
+  for (const auto & simTk_It : *simTracks)
   {
-      if (abs((*simTk_It).type())!=13) continue;
+      if (abs(simTk_It.type())!=13) continue;
 
-      if ((*simTk_It).type()==13) {
+      if (simTk_It.type()==13) {
          theQ = -1.0;
       }else {
          theQ = 1.0;
       }
 
 
-      float px = ((*simTk_It).momentum()).x();
-      float py = ((*simTk_It).momentum()).y();
-      float pz = ((*simTk_It).momentum()).z();
+      float px = (simTk_It.momentum()).x();
+      float py = (simTk_It.momentum()).y();
+      float pz = (simTk_It.momentum()).z();
       pt1[0] = sqrt((px*px) + (py*py));
       pa[0] = sqrt((px*px) + (py*py) + (pz*pz));
       double theta = acos( pz/pa[0] );
@@ -595,14 +595,14 @@ void MuonSeedParametrization::SimInfo(Handle<edm::SimTrackContainer> simTracks,
 
       double eta_c1=0.0;
       double enu1 = 0.0;
-      for (PSimHitContainer::const_iterator cs_It = csimHits->begin(); cs_It != csimHits->end(); cs_It++)
+      for (const auto & cs_It : *csimHits)
       {
-          CSCDetId C_Id = CSCDetId((*cs_It).detUnitId());
+          CSCDetId C_Id = CSCDetId(cs_It.detUnitId());
           const CSCChamber* cscchamber = cscGeom->chamber( C_Id );
-          GlobalVector m1 = cscchamber->toGlobal((*cs_It).momentumAtEntry() );
-          Local3DPoint lp = (*cs_It).localPosition();
+          GlobalVector m1 = cscchamber->toGlobal(cs_It.momentumAtEntry() );
+          Local3DPoint lp = cs_It.localPosition();
           GlobalPoint gp = cscchamber->toGlobal(lp );
-          if ( ( abs((*cs_It).particleType())==13 ) && ( (*cs_It).trackId()==1 )) {
+          if ( ( abs(cs_It.particleType())==13 ) && ( cs_It.trackId()==1 )) {
              pt1[C_Id.station()] = sqrt( (m1.x()*m1.x()) + (m1.y()*m1.y()) );
              pa[C_Id.station()] = sqrt( (m1.x()*m1.x()) + (m1.y()*m1.y()) + (m1.z()*m1.z()));
              etaLc[C_Id.station()] = fabs( gp.eta() );
@@ -619,16 +619,16 @@ void MuonSeedParametrization::SimInfo(Handle<edm::SimTrackContainer> simTracks,
 
       double eta_d1=0.0;
       double enu2 = 0.0;
-      for (PSimHitContainer::const_iterator ds_It = dsimHits->begin(); ds_It != dsimHits->end(); ds_It++)
+      for (const auto & ds_It : *dsimHits)
       {
-          Local3DPoint lp = (*ds_It).localPosition();
+          Local3DPoint lp = ds_It.localPosition();
 
-          DTLayerId D_Id = DTLayerId( (*ds_It).detUnitId() );
+          DTLayerId D_Id = DTLayerId( ds_It.detUnitId() );
           const DTLayer* dtlayer = dtGeom->layer(D_Id);
-          GlobalVector m2 = dtlayer->toGlobal((*ds_It).momentumAtEntry() );
+          GlobalVector m2 = dtlayer->toGlobal(ds_It.momentumAtEntry() );
           GlobalPoint gp = dtlayer->toGlobal(lp );
 
-          if ( ( abs((*ds_It).particleType())==13 ) && ( (*ds_It).trackId()==1 )) {
+          if ( ( abs(ds_It.particleType())==13 ) && ( ds_It.trackId()==1 )) {
              pt1[D_Id.station()] = sqrt( (m2.x()*m2.x()) + (m2.y()*m2.y()) );
              pa[D_Id.station()] = sqrt( (m2.x()*m2.x()) + (m2.y()*m2.y()) + (m2.z()*m2.z()));
              etaLd[D_Id.station()] = fabs( gp.eta() );

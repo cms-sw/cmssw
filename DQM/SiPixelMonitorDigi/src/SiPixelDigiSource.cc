@@ -120,8 +120,8 @@ SiPixelDigiSource::beginLuminosityBlock(const edm::LuminosityBlock& lb, edm::Eve
 
     ROCMapToReset=true; //the ROC map is reset each 10 lumisections
 
-    for (int i=0; i<2;i++) NzeroROCs[i]=0;
-    for (int i=0; i<2;i++) NloEffROCs[i]=0; //resetting also Zero and low eff. ROC counters
+    for (int & NzeroROC : NzeroROCs) NzeroROC=0;
+    for (int & NloEffROC : NloEffROCs) NloEffROC=0; //resetting also Zero and low eff. ROC counters
 
     NzeroROCs[1]=-672;
     NloEffROCs[1]=-672;//this magic number derives by the way the endcap occupancy is filled, there are always 672 empty bins by construction
@@ -290,8 +290,8 @@ void SiPixelDigiSource::dqmBeginRun(const edm::Run& r, const edm::EventSetup& iS
     DoZeroRocsFMI1=false;
     DoZeroRocsFMI2=false;
 
-    for (int i=0; i<2; i++) NzeroROCs[i]=0;
-    for (int i=0; i<2;i++) NloEffROCs[i]=0;
+    for (int & NzeroROC : NzeroROCs) NzeroROC=0;
+    for (int & NloEffROC : NloEffROCs) NloEffROC=0;
    
     // Build map
     buildStructure(iSetup);

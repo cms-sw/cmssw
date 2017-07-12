@@ -155,17 +155,17 @@ namespace l1t {
 	Hit_.set_stub_num(0);
 	// See if matching hit is already in event record (from neighboring sector)
 	bool duplicate_hit_exists = false;
-	for (uint iHit = 0; iHit < res_hit->size(); iHit++) {
+	for (auto & iHit : *res_hit) {
 
-	  if ( Hit_.BX() == res_hit->at(iHit).BX() && Hit_.Station() == res_hit->at(iHit).Station() &&
-	       ( Hit_.Ring() == res_hit->at(iHit).Ring() || abs(Hit_.Ring() - res_hit->at(iHit).Ring()) == 3 ) && 
-	       Hit_.Chamber() == res_hit->at(iHit).Chamber() ) {
+	  if ( Hit_.BX() == iHit.BX() && Hit_.Station() == iHit.Station() &&
+	       ( Hit_.Ring() == iHit.Ring() || abs(Hit_.Ring() - iHit.Ring()) == 3 ) && 
+	       Hit_.Chamber() == iHit.Chamber() ) {
 
-	    if ( Hit_.Neighbor() == res_hit->at(iHit).Neighbor() ) {
+	    if ( Hit_.Neighbor() == iHit.Neighbor() ) {
 	      ME_.set_stub_num( ME_.Stub_num() + 1 );
 	      Hit_.set_stub_num( Hit_.Stub_num() + 1); }
-	    else if ( Hit_.Ring() == res_hit->at(iHit).Ring() && Hit_.Strip() == res_hit->at(iHit).Strip() && 
-		      Hit_.Wire() == res_hit->at(iHit).Wire() )
+	    else if ( Hit_.Ring() == iHit.Ring() && Hit_.Strip() == iHit.Strip() && 
+		      Hit_.Wire() == iHit.Wire() )
 	      duplicate_hit_exists = true;
 	  }
 	}

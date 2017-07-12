@@ -115,11 +115,11 @@ Level1TriggerScalers::Level1TriggerScalers(const unsigned char * rawData)
       raw->trig.deadtimeBeamActivePartitionController;
     deadtimeBeamActiveTimeSlot_ = raw->trig.deadtimeBeamActiveTimeSlot;
 
-    for ( int i=0; i<ScalersRaw::N_L1_TRIGGERS_v1; i++)
-    { gtAlgoCounts_.push_back( raw->trig.gtAlgoCounts[i]);}
+    for (unsigned int gtAlgoCount : raw->trig.gtAlgoCounts)
+    { gtAlgoCounts_.push_back( gtAlgoCount);}
 
-    for ( int i=0; i<ScalersRaw::N_L1_TEST_TRIGGERS_v1; i++)
-    { gtTechCounts_.push_back( raw->trig.gtTechCounts[i]);}
+    for (unsigned int gtTechCount : raw->trig.gtTechCounts)
+    { gtTechCounts_.push_back( gtTechCount);}
 
     if ( version_ >= 5 )
     {

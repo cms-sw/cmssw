@@ -100,15 +100,15 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        JetContainer.clear();
        CaloTower seedTower;
        nEvents++;
-       for(reco::CaloJetCollection::const_iterator calojetIter = calojetHandle->begin();calojetIter != calojetHandle->end();++calojetIter) {
-	 if( ((calojetIter->et())*cosh(calojetIter->eta()) > JetMinE_) && (calojetIter->energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
-	   JetContainer.push_back(*calojetIter);
+       for(const auto & calojetIter : *calojetHandle) {
+	 if( ((calojetIter.et())*cosh(calojetIter.eta()) > JetMinE_) && (calojetIter.energyFractionHadronic() > JetHCALminEnergyFraction_) ) {
+	   JetContainer.push_back(calojetIter);
 	   double maxTowerE = 0.0;
-	   for(CaloTowerCollection::const_iterator kal = towerHandle->begin(); kal != towerHandle->end(); kal++) {
-	     double dR = deltaR((*calojetIter).eta(),(*calojetIter).phi(),(*kal).eta(),(*kal).phi());
-	     if( (dR < 0.50) && (kal->p() > maxTowerE) ) {
-	       maxTowerE = kal->p();
-	       seedTower = *kal;
+	   for(const auto & kal : *towerHandle) {
+	     double dR = deltaR(calojetIter.eta(),calojetIter.phi(),kal.eta(),kal.phi());
+	     if( (dR < 0.50) && (kal.p() > maxTowerE) ) {
+	       maxTowerE = kal.p();
+	       seedTower = kal;
 	     }
 	   }
 	   TowerContainer.push_back(seedTower);
@@ -160,9 +160,9 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 	{
 	  edm::Handle<EcalRecHitCollection> ec;
 	  iEvent.getByToken(*i,ec);
-	  for(EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit)
+	  for(const auto & recHit : (*ec))
 	    {
-	      tmpEcalRecHitCollection->push_back(*recHit);
+	      tmpEcalRecHitCollection->push_back(recHit);
 	    }
 	}    
 
@@ -170,20 +170,20 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
 
       //////// write HCAL collections:
       const HBHERecHitCollection Hithbhe = *(hbhe.product());
-      for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
+      for(const auto & hbheItr : Hithbhe)
 	{
-	  miniHBHERecHitCollection->push_back(*hbheItr);
+	  miniHBHERecHitCollection->push_back(hbheItr);
 	}
       const HORecHitCollection Hitho = *(ho.product());
-      for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
+      for(const auto & hoItr : Hitho)
 	{
-	  miniHORecHitCollection->push_back(*hoItr);
+	  miniHORecHitCollection->push_back(hoItr);
 	}
       
       const HFRecHitCollection Hithf = *(hf.product());
-      for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
+      for(const auto & hfItr : Hithf)
 	{
-	  miniHFRecHitCollection->push_back(*hfItr);
+	  miniHFRecHitCollection->push_back(hfItr);
 	}
       /////
 
@@ -197,9 +197,9 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       // write PS
       const EcalRecHitCollection& psrechits = *(pRecHits.product());
       
-      for(EcalRecHitCollection::const_iterator i=psrechits.begin(); i!=psrechits.end(); i++) 
+      for(const auto & psrechit : psrechits) 
 	{
-	  outputESColl->push_back( *i );
+	  outputESColl->push_back( psrechit );
 	}
       
 
@@ -223,9 +223,9 @@ AlCaHcalNoiseProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
       for ( int j=0; j< FEDNumbering::MAXFEDID; ++j ) 
 	{
 	  bool rightFED=false;
-	  for (uint32_t k=0; k<selFEDs.size(); k++)
+	  for (int selFED : selFEDs)
 	    {
-	      if (j==selFEDs[k])
+	      if (j==selFED)
 		{
 		  rightFED=true;
 		}

@@ -28,9 +28,8 @@ AlignableCSCEndcap::AlignableCSCEndcap( const std::vector<AlignableCSCStation*>&
 /// Clean delete of the vector and its elements
 AlignableCSCEndcap::~AlignableCSCEndcap() 
 {
-  for ( std::vector<AlignableCSCStation*>::iterator iter = theCSCStations.begin(); 
-	iter != theCSCStations.end(); iter++)
-    delete *iter;
+  for (auto & theCSCStation : theCSCStations)
+    delete theCSCStation;
 
 }
 
@@ -63,9 +62,8 @@ AlignableCSCEndcap::PositionType AlignableCSCEndcap::computePosition()
 
   float zz = 0.;
 
-  for ( std::vector<AlignableCSCStation*>::iterator ilayer = theCSCStations.begin();
-		ilayer != theCSCStations.end(); ilayer++ )
-    zz += (*ilayer)->globalPosition().z();
+  for (auto & theCSCStation : theCSCStations)
+    zz += theCSCStation->globalPosition().z();
 
   zz /= static_cast<float>(theCSCStations.size());
 
@@ -99,9 +97,8 @@ void AlignableCSCEndcap::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCStation*>::const_iterator iLayer = theCSCStations.begin();
-		iLayer != theCSCStations.end(); iLayer++ )
-	(*iLayer)->dump();
+  for (auto theCSCStation : theCSCStations)
+	theCSCStation->dump();
 
 }
 
@@ -113,9 +110,9 @@ Alignments* AlignableCSCEndcap::alignments( void ) const
   std::vector<Alignable*> comp = this->components();
   Alignments* m_alignments = new Alignments();
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for (auto & i : comp)
     {
-      Alignments* tmpAlignments = (*i)->alignments();
+      Alignments* tmpAlignments = i->alignments();
       std::copy( tmpAlignments->m_align.begin(), tmpAlignments->m_align.end(), 
 				 std::back_inserter(m_alignments->m_align) );
 	  delete tmpAlignments;
@@ -137,9 +134,9 @@ AlignmentErrorsExtended* AlignableCSCEndcap::alignmentErrors( void ) const
   AlignmentErrorsExtended* m_alignmentErrors = new AlignmentErrorsExtended();
 
   // Add components recursively
-  for ( std::vector<Alignable*>::iterator i=comp.begin(); i!=comp.end(); i++ )
+  for (auto & i : comp)
     {
-	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = (*i)->alignmentErrors();
+	  AlignmentErrorsExtended* tmpAlignmentErrorsExtended = i->alignmentErrors();
       std::copy( tmpAlignmentErrorsExtended->m_alignError.begin(), tmpAlignmentErrorsExtended->m_alignError.end(), 
 				 std::back_inserter(m_alignmentErrors->m_alignError) );
 	  delete tmpAlignmentErrorsExtended;

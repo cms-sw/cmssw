@@ -104,8 +104,8 @@ CompositeAlignmentParameters::derivatives( const std::vector<TrajectoryStateOnSu
 					   const std::vector<AlignableDetOrUnitPtr>& alidetvec ) const
 {
   std::vector<Alignable*> alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it)
-    alivec.push_back(alignableFromAlignableDet(*it));
+  for (const auto & it : alidetvec)
+    alivec.push_back(alignableFromAlignableDet(it));
   
   CompositeAlignmentDerivativesExtractor extractor(alivec,alidetvec,tsosvec);
   return extractor.derivatives();
@@ -128,8 +128,8 @@ CompositeAlignmentParameters::correctionTerm( const std::vector<TrajectoryStateO
 					      const std::vector<AlignableDetOrUnitPtr>& alidetvec) const
 {
   std::vector<Alignable*> alivec;
-  for (std::vector<AlignableDetOrUnitPtr>::const_iterator it=alidetvec.begin(); it!=alidetvec.end(); ++it )
-    alivec.push_back(alignableFromAlignableDet(*it));
+  for (const auto & it : alidetvec)
+    alivec.push_back(alignableFromAlignableDet(it));
   
   CompositeAlignmentDerivativesExtractor extractor(alivec,alidetvec,tsosvec);
   return extractor.correctionTerm();
@@ -420,10 +420,10 @@ CompositeAlignmentParameters::extractPositionAndLength( const std::vector<Aligna
 {
   length = 0;
 
-  for ( std::vector<Alignable*>::const_iterator it = alignables.begin(); it != alignables.end(); ++it ) 
+  for (auto alignable : alignables) 
   {
     // check if in components 
-    if ( std::find( theComponents.begin(), theComponents.end(), *it ) == theComponents.end() ) 
+    if ( std::find( theComponents.begin(), theComponents.end(), alignable ) == theComponents.end() ) 
     {
       edm::LogError( "NotFound" ) << "@SUB=CompositeAlignmentParameters::extractPositionAndLength"
 				  << "Alignable not found in components!";
@@ -431,8 +431,8 @@ CompositeAlignmentParameters::extractPositionAndLength( const std::vector<Aligna
     }
 
     // get pos/length
-    Aliposmap::const_iterator iposmap = theAliposmap.find( *it );
-    Alilenmap::const_iterator ilenmap = theAlilenmap.find( *it );
+    Aliposmap::const_iterator iposmap = theAliposmap.find( alignable );
+    Alilenmap::const_iterator ilenmap = theAlilenmap.find( alignable );
     if ( iposmap == theAliposmap.end() || ilenmap == theAlilenmap.end() ) 
     {
       edm::LogError( "NotFound" ) << "@SUB=CompositeAlignmentParameters::extractPositionAndLength"

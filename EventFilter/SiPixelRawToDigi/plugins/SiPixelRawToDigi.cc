@@ -210,9 +210,7 @@ void SiPixelRawToDigi::produce( edm::Event& ev,
     LogDebug("SiPixelRawToDigi") << "region2unpack #modules (BPIX,EPIX,total): "<<regions_->nBarrelModules()<<" "<<regions_->nForwardModules()<<" "<<regions_->nModules();
   }
 
-  for (auto aFed = fedIds.begin(); aFed != fedIds.end(); ++aFed) {
-    int fedId = *aFed;
-
+  for (int fedId : fedIds) {
     if(!usePilotBlade && (fedId==40) ) continue; // skip pilot blade data
 
     if (regions_ && !regions_->mayUnpackFED(fedId)) continue;

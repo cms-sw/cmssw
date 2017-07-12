@@ -139,10 +139,9 @@ CmsShowCommon::permuteColors()
    std::vector<Color_t> colv;
    colv.reserve(64);
    
-   for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-        i != m_context->eventItemsManager()->end(); ++i)
+   for (auto i : *m_context->eventItemsManager())
    {
-      colv.push_back((*i)->defaultDisplayProperties().color());
+      colv.push_back(i->defaultDisplayProperties().color());
    }
 
    int vi = colv.size() - 1;
@@ -247,10 +246,8 @@ CmsShowCommon::addTo(FWConfiguration& oTo) const
 void
 CmsShowCommon::setFrom(const FWConfiguration& iFrom)
 {  
-   for(const_iterator it =begin(), itEnd = end();
-       it != itEnd;
-       ++it) {
-         (*it)->setFrom(iFrom); 
+   for(auto it : *this) {
+         it->setFrom(iFrom); 
    }  
 
    if (iFrom.valueForKey("Palette"))
@@ -312,10 +309,9 @@ CmsShowCommon::setPalette()
    } 
 
    m_context->colorManager()->propagatePaletteChanges();
-   for (FWEventItemsManager::const_iterator i = m_context->eventItemsManager()->begin();
-        i != m_context->eventItemsManager()->end(); ++i)
+   for (auto i : *m_context->eventItemsManager())
    {
-      (*i)->resetColor();
+      i->resetColor();
    }
 }
 

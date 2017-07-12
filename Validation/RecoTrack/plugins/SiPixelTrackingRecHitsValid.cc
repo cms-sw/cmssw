@@ -1112,9 +1112,9 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
       //   << " Pixel RecHits" << std::endl;
   
       //-----Iterate over detunits
-      for (TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++) 
+      for (auto it : pDD->dets()) 
 	{
-	  DetId detId = ((*it)->geographicalId());
+	  DetId detId = (it->geographicalId());
 	 
 	  unsigned int subid = detId.subdetId();
 	  if ( !((subid==1) || (subid==2)) ) 
@@ -1136,7 +1136,7 @@ void SiPixelTrackingRecHitsValid::analyze(const edm::Event& e, const edm::EventS
 	      float rechitx = lp.x();
 	      float rechity = lp.y();
 	     
-	      detId = (*it)->geographicalId();
+	      detId = it->geographicalId();
 	      subdetId = (int)detId.subdetId();
 	      if ( (int)detId.subdetId() == (int)PixelSubdetector::PixelBarrel ) 
 		{

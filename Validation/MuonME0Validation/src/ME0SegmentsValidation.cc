@@ -199,23 +199,23 @@ void ME0SegmentsValidation::analyze(const edm::Event& e,
         int numberRHBkg = 0;
         std::vector<ME0RecHit> selectedME0RecHits;
         
-        for (auto rh = me0rhs.begin(); rh!= me0rhs.end(); rh++)
+        for (auto & me0rh : me0rhs)
         {
             
-            auto me0id = rh->me0Id();
+            auto me0id = me0rh.me0Id();
             auto rhr = ME0Geometry_->etaPartition(me0id);
-            auto rhLP = rh->localPosition();
+            auto rhLP = me0rh.localPosition();
             
             auto result = isMatched(me0id, rhLP, ME0Digis);
             if(result.second == 1){
                 
                 ++numberRHSig;
-                selectedME0RecHits.push_back(*rh);
+                selectedME0RecHits.push_back(me0rh);
                 
             }
             else ++numberRHBkg;
             
-            auto erhLEP = rh->localPositionError();
+            auto erhLEP = me0rh.localPositionError();
             auto rhGP = rhr->toGlobal(rhLP);
             auto rhLPSegm = chamber->toLocal(rhGP);
             float xe = segLP.x()+segLD.x()*rhLPSegm.z()/segLD.z();
@@ -342,9 +342,9 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(ME0DetId me0id, LocalPoint r
     int particleType = 0;
     int isPrompt = -1;
     
-    for (ME0DigiPreRecoCollection::DigiRangeIterator cItr=ME0Digis->begin(); cItr!=ME0Digis->end(); cItr++) {
+    for (auto && cItr : *ME0Digis) {
         
-        ME0DetId id = (*cItr).first;
+        ME0DetId id = cItr.first;
         
         int region_dg = (int) id.region();
         int layer_dg = (int) id.layer();
@@ -357,7 +357,7 @@ std::pair<int,int> ME0SegmentsValidation::isMatched(ME0DetId me0id, LocalPoint r
         if(roll_rh != roll_dg) continue;
         
         ME0DigiPreRecoCollection::const_iterator digiItr;
-        for (digiItr = (*cItr ).second.first; digiItr != (*cItr ).second.second; ++digiItr)
+        for (digiItr = cItr.second.first; digiItr != cItr.second.second; ++digiItr)
         {
             
             float l_x_dg = digiItr->x();

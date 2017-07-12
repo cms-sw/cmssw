@@ -344,7 +344,7 @@ EcalSimpleTBAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& 
 
 
    
-   double samples_save[10]; for(int i=0; i < 10; ++i) samples_save[i]=0.0;
+   double samples_save[10]; for(double & i : samples_save) i=0.0;
    
    // find the rechit corresponding digi and the max sample
    EBDigiCollection::const_iterator myDg = digis->find(xtalInBeam_);

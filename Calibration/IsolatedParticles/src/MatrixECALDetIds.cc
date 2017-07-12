@@ -39,9 +39,9 @@ namespace spr{
 						*barrelTopo, *endcapTopo, 
 						*barrelGeom, *endcapGeom,
 						debug, ignoreTransition);
-    for (unsigned int i1=0; i1<vdetS.size(); i1++) {
-      if (std::count(vdets.begin(),vdets.end(),vdetS[i1]) == 0)
-	vdets.push_back(vdetS[i1]);
+    for (auto i1 : vdetS) {
+      if (std::count(vdets.begin(),vdets.end(),i1) == 0)
+	vdets.push_back(i1);
     }
     unsigned int ndet = (2*ieta+1)*(2*iphi+1);
     if (vdets.size() != ndet) {
@@ -90,17 +90,17 @@ namespace spr{
     std::vector<DetId> vdets, vdetx;
     spr::matrixECALIds(det, ietaphi, ietaphi, geo, caloTopology, vdets, debug,
 		       ignoreTransition);
-    for (unsigned int i=0; i<vdets.size(); ++i) {
+    for (auto & vdet : vdets) {
       GlobalPoint rpoint;
-      if (vdets[i].subdetId() == EcalEndcap) {
-	EEDetId EEid = EEDetId(vdets[i]);
+      if (vdet.subdetId() == EcalEndcap) {
+	EEDetId EEid = EEDetId(vdet);
 	rpoint = geo->getPosition(EEid);
       } else {
-	EBDetId EBid = EBDetId(vdets[i]);
+	EBDetId EBid = EBDetId(vdet);
 	rpoint = geo->getPosition(EBid);
       }
       if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint)<dR) {
-	vdetx.push_back(vdets[i]);
+	vdetx.push_back(vdet);
       }
     }
 
@@ -147,9 +147,9 @@ namespace spr{
 						*endcapTopo, *barrelGeom,
 						*endcapGeom, debug,
 						ignoreTransition);
-    for (unsigned int i1=0; i1<vdetS.size(); i1++) {
-      if (std::count(vdets.begin(),vdets.end(),vdetS[i1]) == 0)
-	vdets.push_back(vdetS[i1]);
+    for (auto i1 : vdetS) {
+      if (std::count(vdets.begin(),vdets.end(),i1) == 0)
+	vdets.push_back(i1);
     }
 
     unsigned int ndet = (ietaE+ietaW+1)*(iphiN+iphiS+1);
@@ -212,15 +212,15 @@ namespace spr{
 			       barrelGeom, endcapGeom, debug, ignoreTransition);
       vdetW = spr::newECALIdEW(dets, last, ieta, dirW, barrelTopo, endcapTopo,
 			       barrelGeom, endcapGeom, debug, ignoreTransition);
-      for (unsigned int i1=0; i1<vdetW.size(); i1++) {
-	if (std::count(vdets.begin(),vdets.end(),vdetW[i1]) == 0) {
-	  vdets.push_back(vdetW[i1]);
+      for (auto i1 : vdetW) {
+	if (std::count(vdets.begin(),vdets.end(),i1) == 0) {
+	  vdets.push_back(i1);
 	  dirs.push_back(dir[0]);
 	}
       }
-      for (unsigned int i1=0; i1<vdetE.size(); i1++) {
-	if (std::count(vdets.begin(),vdets.end(),vdetE[i1]) == 0) {
-	  vdets.push_back(vdetE[i1]);
+      for (auto i1 : vdetE) {
+	if (std::count(vdets.begin(),vdets.end(),i1) == 0) {
+	  vdets.push_back(i1);
 	  dirs.push_back(dir[0]);
 	}
       }
@@ -262,17 +262,17 @@ namespace spr{
 	    vdetW = spr::newECALIdEW(vdetn, 0, ieta, dirnW, barrelTopo, 
 				     endcapTopo, barrelGeom, endcapGeom,
 				     debug, ignoreTransition);
-	    for (unsigned int i2=0; i2<vdetW.size(); i2++) {
-	      if (std::count(vdets.begin(),vdets.end(),vdetW[i2]) == 0 &&
-		  std::count(vdetnew.begin(),vdetnew.end(),vdetW[i2]) == 0) {
-		vdets.push_back(vdetW[i2]);
+	    for (auto i2 : vdetW) {
+	      if (std::count(vdets.begin(),vdets.end(),i2) == 0 &&
+		  std::count(vdetnew.begin(),vdetnew.end(),i2) == 0) {
+		vdets.push_back(i2);
 		dirs.push_back(dirn[0]);
 	      }
 	    }
-	    for (unsigned int i2=0; i2<vdetE.size(); i2++) {
-	      if (std::count(vdets.begin(),vdets.end(),vdetE[i2]) == 0 &&
-		  std::count(vdetnew.begin(),vdetnew.end(),vdetE[i2]) == 0) {
-		vdets.push_back(vdetE[i2]);
+	    for (auto i2 : vdetE) {
+	      if (std::count(vdets.begin(),vdets.end(),i2) == 0 &&
+		  std::count(vdetnew.begin(),vdetnew.end(),i2) == 0) {
+		vdets.push_back(i2);
 		dirs.push_back(dirn[0]);
 	      }
 	    }
@@ -357,9 +357,9 @@ namespace spr{
       vdetW = spr::newECALIdEW(dets, last, ietaE, ietaW, dirW, barrelTopo,
 			       endcapTopo, barrelGeom, endcapGeom, 
 			       debug, ignoreTransition);
-      for (unsigned int i1=0; i1<vdetW.size(); i1++) {
-	if (std::count(vdets.begin(),vdets.end(),vdetW[i1]) == 0) {
-	  vdets.push_back(vdetW[i1]);
+      for (auto i1 : vdetW) {
+	if (std::count(vdets.begin(),vdets.end(),i1) == 0) {
+	  vdets.push_back(i1);
 	  dirs.push_back(dir[0]);
 	  jetaE.push_back(0);
 	  jetaW.push_back(0);
@@ -367,9 +367,9 @@ namespace spr{
 	  jphiS.push_back(iphiS[0]);
 	}
       }
-      for (unsigned int i1=0; i1<vdetE.size(); i1++) {
-	if (std::count(vdets.begin(),vdets.end(),vdetE[i1]) == 0) {
-	  vdets.push_back(vdetE[i1]);
+      for (auto i1 : vdetE) {
+	if (std::count(vdets.begin(),vdets.end(),i1) == 0) {
+	  vdets.push_back(i1);
 	  dirs.push_back(dir[0]);
 	  jetaE.push_back(0);
 	  jetaW.push_back(0);
@@ -431,19 +431,19 @@ namespace spr{
 	    vdetW = spr::newECALIdEW(vdetn, 0, ietE, ietW, dirnW, barrelTopo,
 				     endcapTopo, barrelGeom, endcapGeom,
 				     debug, ignoreTransition);
-	    for (unsigned int i2=0; i2<vdetW.size(); i2++) {
-	      if (std::count(vdets.begin(),vdets.end(),vdetW[i2]) == 0 &&
-		  std::count(vdetnew.begin(),vdetnew.end(),vdetW[i2]) == 0) {
-		vdets.push_back(vdetW[i2]);
+	    for (auto i2 : vdetW) {
+	      if (std::count(vdets.begin(),vdets.end(),i2) == 0 &&
+		  std::count(vdetnew.begin(),vdetnew.end(),i2) == 0) {
+		vdets.push_back(i2);
 		dirs.push_back(dirn[0]);
 		jetaE.push_back(0); jphiN.push_back(kfiN);
 		jetaW.push_back(0); jphiS.push_back(kfiS);
 	      }
 	    }
-	    for (unsigned int i2=0; i2<vdetE.size(); i2++) {
-	      if (std::count(vdets.begin(),vdets.end(),vdetE[i2]) == 0 &&
-		  std::count(vdetnew.begin(),vdetnew.end(),vdetE[i2]) == 0) {
-		vdets.push_back(vdetE[i2]);
+	    for (auto i2 : vdetE) {
+	      if (std::count(vdets.begin(),vdets.end(),i2) == 0 &&
+		  std::count(vdetnew.begin(),vdetnew.end(),i2) == 0) {
+		vdets.push_back(i2);
 		dirs.push_back(dirn[0]);
 		jetaE.push_back(0); jphiN.push_back(kfiN);
 		jetaW.push_back(0); jphiS.push_back(kfiS);
@@ -678,8 +678,8 @@ namespace spr{
 	  neighbours = endcapTopo.getNeighbours(cell,dir);
 	  if (neighbours.size()>0 && !neighbours[0].null()) ok = 1;
 	  else                                              ok =-1;
-	  for (EcalBarrelGeometry::OrderedListOfEEDetId::const_iterator iptr=ol.begin(); iptr != ol.end(); ++iptr)
-	    cells.push_back(*iptr);
+	  for (auto iptr : ol)
+	    cells.push_back(iptr);
 	}
       }
     } else if (det.subdetId() == EcalEndcap) {
@@ -702,8 +702,8 @@ namespace spr{
 	  neighbours = barrelTopo.getNeighbours(cell,dir);
 	  if (neighbours.size()>0 && !neighbours[0].null()) ok = 1;
 	  else                                              ok =-1;
-	  for (EcalEndcapGeometry::OrderedListOfEBDetId::const_iterator iptr=ol.begin(); iptr != ol.end(); ++iptr)
-	    cells.push_back(*iptr);
+	  for (auto iptr : ol)
+	    cells.push_back(iptr);
 	}
       }
     }  

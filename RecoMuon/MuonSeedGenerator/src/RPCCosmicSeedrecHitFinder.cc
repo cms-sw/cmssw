@@ -75,8 +75,8 @@ void RPCCosmicSeedrecHitFinder::setEdge(const edm::EventSetup& iSetup) {
 
     // Find all chamber in RB1in and collect their surface
     const std::vector<DetId> AllRPCId = rpcGeometry->detIds();
-    for(std::vector<DetId>::const_iterator it = AllRPCId.begin(); it != AllRPCId.end(); it++) {
-        RPCDetId RPCId(it->rawId());
+    for(auto it : AllRPCId) {
+        RPCDetId RPCId(it.rawId());
         int Region = RPCId.region();
         int Station = RPCId.station();
         int Layer = RPCId.layer();
@@ -99,8 +99,8 @@ void RPCCosmicSeedrecHitFinder::unsetEdge() {
 
 void RPCCosmicSeedrecHitFinder::unsetInput() {
 
-    for(unsigned int i = 0; i < RPCLayerNumber; i++)
-        AllrecHits[i].clear();
+    for(auto & AllrecHit : AllrecHits)
+        AllrecHit.clear();
     isInputset = false;
 }
 

@@ -11,10 +11,8 @@ CMSInsideOutAlgorithm::run(const std::vector<fastjet::PseudoJet>& fInput, std::v
 
    //make a list of input objects
    list<fastjet::PseudoJet> input;
-   for (std::vector<fastjet::PseudoJet>::const_iterator candIter  = fInput.begin();
-	candIter != fInput.end(); 
-	++candIter) {
-      input.push_back(*candIter);
+   for (const auto & candIter : fInput) {
+      input.push_back(candIter);
    }
 
    while( !input.empty() && input.front().perp() > seedThresholdPt_ ) 

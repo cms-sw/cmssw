@@ -33,9 +33,8 @@ double RecoTauSoftTwoProngTausCleanerPlugin::operator()(const reco::PFTauRef& ta
   double result = 0.;
   const std::vector<PFRecoTauChargedHadron>& chargedHadrons = tau->signalTauChargedHadronCandidates();
   if ( chargedHadrons.size() == 2 ) {
-    for ( std::vector<PFRecoTauChargedHadron>::const_iterator chargedHadron = chargedHadrons.begin();
-	  chargedHadron != chargedHadrons.end(); ++chargedHadron ) {
-      if ( !(chargedHadron->getTrack().get() && chargedHadron->getTrack()->pt() > minTrackPt_) ) result += 1.e+3;
+    for (const auto & chargedHadron : chargedHadrons) {
+      if ( !(chargedHadron.getTrack().get() && chargedHadron.getTrack()->pt() > minTrackPt_) ) result += 1.e+3;
     }
   }
   return result;

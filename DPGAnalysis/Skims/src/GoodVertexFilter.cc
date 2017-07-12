@@ -72,11 +72,11 @@ GoodVertexFilter::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetu
  edm::Handle<reco::VertexCollection> pvHandle; 
  iEvent.getByToken(vertexSrc,pvHandle);
  const reco::VertexCollection & vertices = *pvHandle.product();
- for(reco::VertexCollection::const_iterator it=vertices.begin() ; it!=vertices.end() ; ++it)
+ for(const auto & vertice : vertices)
   {
-      if(it->ndof() > minNDOF && 
-         ( (maxAbsZ <=0 ) || fabs(it->z()) <= maxAbsZ ) &&
-         ( (maxd0 <=0 ) || fabs(it->position().rho()) <= maxd0 )
+      if(vertice.ndof() > minNDOF && 
+         ( (maxAbsZ <=0 ) || fabs(vertice.z()) <= maxAbsZ ) &&
+         ( (maxd0 <=0 ) || fabs(vertice.position().rho()) <= maxd0 )
        ) result = true;
   }
 

@@ -92,9 +92,8 @@ bool TkModuleGroupSelector::createGroup(
   referenceRun_.push_back(refrun);
   firstId_.push_back(Id);
   runRange_.push_back(range);
-  for(std::list<Alignable*>::const_iterator it = selected_alis.begin();
-      it != selected_alis.end(); ++it) {
-    this->fillDetIdMap((*it)->id(), firstId_.size()-1);
+  for(auto selected_ali : selected_alis) {
+    this->fillDetIdMap(selected_ali->id(), firstId_.size()-1);
     modules_selected = true;
   }
   if(refrun > 0 && range.size() > 0) { //FIXME: last condition not really needed?
@@ -146,47 +145,44 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
   unsigned int Id = 0;
   unsigned int psetnr = 0;
   //loop over all LA groups
-  for(edm::VParameterSet::const_iterator pset = granularityConfig.begin();
-      pset != granularityConfig.end();
-      ++pset) {
+  for(const auto & pset : granularityConfig) {
 
     //test for unknown parameters
-    this->verifyParameterNames((*pset),psetnr);
+    this->verifyParameterNames(pset,psetnr);
     psetnr++;
 
     bool modules_selected = false; //track whether at all a module has been selected in this group
     const std::vector<edm::RunNumber_t> range =
-      ((*pset).exists("RunRange") ? pset->getParameter<std::vector<edm::RunNumber_t> >("RunRange")
+      (pset.exists("RunRange") ? pset.getParameter<std::vector<edm::RunNumber_t> >("RunRange")
        : defaultRunRange);
     if(range.empty()) {
       throw cms::Exception("BadConfig")
         << "@SUB=TkModuleGroupSelector::createModuleGroups:\n"
         << "Run range array empty!";
     }
-    const bool split = this->testSplitOption((*pset));
+    const bool split = this->testSplitOption(pset);
 
     edm::RunNumber_t refrun = 0;
-    if((*pset).exists("ReferenceRun")) {
-      refrun = (*pset).getParameter<edm::RunNumber_t>("ReferenceRun");
+    if(pset.exists("ReferenceRun")) {
+      refrun = pset.getParameter<edm::RunNumber_t>("ReferenceRun");
     } else {
       refrun = defaultReferenceRun;
     }
     
     AlignmentParameterSelector selector(aliTracker);
     selector.clear();
-    selector.addSelections((*pset).getParameter<edm::ParameterSet> ("levels"));
+    selector.addSelections(pset.getParameter<edm::ParameterSet> ("levels"));
 
     const std::vector<Alignable*> &alis = selector.selectedAlignables();
     std::list<Alignable*> selected_alis;
-    for(std::vector<Alignable*>::const_iterator it = alis.begin(); it != alis.end(); ++it) {
-      const std::vector<Alignable*> &aliDaughts = (*it)->deepComponents();
-      for (std::vector<Alignable*>::const_iterator iD = aliDaughts.begin();
-           iD != aliDaughts.end(); ++iD) {
-        if((*iD)->alignableObjectId() == align::AlignableDetUnit || (*iD)->alignableObjectId() == align::AlignableDet) {
+    for(auto ali : alis) {
+      const std::vector<Alignable*> &aliDaughts = ali->deepComponents();
+      for (auto aliDaught : aliDaughts) {
+        if(aliDaught->alignableObjectId() == align::AlignableDetUnit || aliDaught->alignableObjectId() == align::AlignableDet) {
           if(split) {
-            modules_selected = this->createGroup(Id, range, std::list<Alignable*>(1,(*iD)), refrun);
+            modules_selected = this->createGroup(Id, range, std::list<Alignable*>(1,aliDaught), refrun);
           } else {
-            selected_alis.push_back((*iD));
+            selected_alis.push_back(aliDaught);
           }
         }
       }
@@ -197,11 +193,10 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
     }
         
     edm::RunNumber_t firstRun = 0; 
-    for(std::vector<edm::RunNumber_t>::const_iterator iRun = range.begin(); 
-        iRun != range.end(); ++iRun)  {
-      localRunRange.insert((*iRun));
-      if((*iRun) > firstRun) {
-        firstRun = (*iRun);
+    for(unsigned int iRun : range)  {
+      localRunRange.insert(iRun);
+      if(iRun > firstRun) {
+        firstRun = iRun;
       } else {
         throw cms::Exception("BadConfig")
           << "@SUB=TkModuleGroupSelector::createModuleGroups:"
@@ -217,9 +212,8 @@ void TkModuleGroupSelector::createModuleGroups(AlignableTracker *aliTracker,
   }
 
   //copy local set into the global vector of run boundaries
-  for(std::set<edm::RunNumber_t>::const_iterator itRun = localRunRange.begin();
-      itRun != localRunRange.end(); ++itRun) {
-    globalRunRange_.push_back((*itRun));
+  for(unsigned int itRun : localRunRange) {
+    globalRunRange_.push_back(itRun);
   }
 }
 
@@ -253,10 +247,8 @@ int TkModuleGroupSelector::getParameterIndexFromDetId(unsigned int detId,
   int index = -1;
 
   bool sel = false;
-  for(std::vector<int>::const_iterator itSubDets = subdetids_.begin();
-      itSubDets != subdetids_.end();
-      ++itSubDets) {
-    if (temp_id.det() == DetId::Tracker && temp_id.subdetId() == (*itSubDets)) {
+  for(int subdetid : subdetids_) {
+    if (temp_id.det() == DetId::Tracker && temp_id.subdetId() == subdetid) {
       sel = true;
       break;
     }

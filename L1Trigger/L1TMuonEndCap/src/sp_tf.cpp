@@ -166,12 +166,11 @@ cout << "Tester size: " << tester.size() << endl;
 
   hitCount = 0;
   int bxIndex = 0;
-  for(std::vector<TriggerPrimitive>::iterator h = tester.begin(); h != tester.end(); h++)
+  for(auto C3 : tester)
 //  for(std::vector<ConvertedHit>::iterator h = ConvHits.begin();h != ConvHits.end();h++)
   {
       cout << "An iteration through the trig prim h loop.\n";
 
-      TriggerPrimitive C3 = *h;
       CSCDetId Det = C3.detId<CSCDetId>();
       int station = Det.station();
 

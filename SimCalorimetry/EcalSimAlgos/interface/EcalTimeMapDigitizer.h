@@ -67,9 +67,9 @@ class EcalTimeMapDigitizer
     bool
     zero()
     {
-      for (unsigned int i(0);i<time_average_capacity;++i)
+      for (unsigned int nhit : nhits)
 	{
-	  if(nhits[i]>0)
+	  if(nhit>0)
 	    return false;
 	}
       return true;

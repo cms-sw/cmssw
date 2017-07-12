@@ -156,20 +156,20 @@ StandAloneTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    iSetup.get<DetIdAssociatorRecord>().get("MuonDetIdAssociator", muonDetIdAssociator_);
 
    // loop over tracks
-   for (reco::TrackCollection::const_iterator track = tracks->begin();  track != tracks->end();  ++track) {
+   for (const auto & track : *tracks) {
       // find the corresponding refitted trajectory
       const Trajectory *traj = NULL;
-      for (TrajTrackAssociationCollection::const_iterator iPair = trajtracksmap->begin();  iPair != trajtracksmap->end();  ++iPair) {
-	 if (&(*(iPair->val)) == &(*track)) {
-	    traj = &(*(iPair->key));
+      for (const auto & iPair : *trajtracksmap) {
+	 if (&(*(iPair.val)) == &track) {
+	    traj = &(*(iPair.key));
 	 }
       }
 
       // if good track, good trajectory
-      if (track->pt() > 20.  &&  traj != NULL  &&  traj->isValid()) {
+      if (track.pt() > 20.  &&  traj != NULL  &&  traj->isValid()) {
 
 	 // calculate all residuals on this track
-	MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry,  muonDetIdAssociator_, prop, traj, &(*track), m_muonAlignment->getAlignableNavigator(), 1000.);
+	MuonResidualsFromTrack muonResidualsFromTrack(iSetup, magneticField, globalGeometry,  muonDetIdAssociator_, prop, traj, &track, m_muonAlignment->getAlignableNavigator(), 1000.);
 	 std::vector<DetId> chamberIds = muonResidualsFromTrack.chamberIds();
 
 	 // if the tracker part of refit is okay
@@ -193,7 +193,7 @@ StandAloneTest::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 		     m_ttree_resid = csc->residual();
 		     m_ttree_residslope = csc->resslope();
 		     m_ttree_phi = csc->global_trackpos().phi();
-		     m_ttree_qoverpt = double(track->charge()) / track->pt();
+		     m_ttree_qoverpt = double(track.charge()) / track.pt();
 		     m_ttree->Fill();
 		  } // end if CSC is okay
 

@@ -199,8 +199,8 @@ ConversionProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for (size_t i = 0; i < trackCollectionHandle->size(); ++i)
     trackPtrVector.push_back(trackCollectionHandle->ptrAt(i));
 
-  for (edm::PtrVector<reco::ConversionTrack>::const_iterator tk_ref = trackPtrVector.begin(); tk_ref != trackPtrVector.end(); ++tk_ref ){
-    convTrackMap.insert(std::make_pair((*tk_ref)->track()->eta(),*tk_ref));
+  for (auto && tk_ref : trackPtrVector){
+    convTrackMap.insert(std::make_pair((tk_ref)->track()->eta(),tk_ref));
   }
 
   edm::Handle<reco::VertexCollection> vertexHandle;
@@ -348,19 +348,19 @@ void ConversionProducer::buildCollection(edm::Event& iEvent, const edm::EventSet
   
   //2 propagate all tracks into ECAL, record its eta and phi
  
-  for (std::multimap<float, edm::Ptr<reco::ConversionTrack> >::const_iterator tk_ref = allTracks.begin(); tk_ref != allTracks.end(); ++tk_ref ){
-    const reco::Track* tk = tk_ref->second->trackRef().get()  ;
+  for (const auto & allTrack : allTracks){
+    const reco::Track* tk = allTrack.second->trackRef().get()  ;
     
     
     //check impact position then match with BC
     math::XYZPointF ew;
     if ( getTrackImpactPosition(tk, trackerGeom, magField, ew) ){
-      trackImpactPosition[tk_ref->second] = ew;
+      trackImpactPosition[allTrack.second] = ew;
       
       reco::CaloClusterPtr closest_bc;//the closest matching BC to track
       
       if ( getMatchedBC(basicClusterPtrs, ew, closest_bc) ){
-	trackMatchedBC[tk_ref->second] = closest_bc;
+	trackMatchedBC[allTrack.second] = closest_bc;
       }
     }    
   }
@@ -684,8 +684,8 @@ bool ConversionProducer::matchingSC(const std::multimap<double, reco::CaloCluste
   double detaMin=999.;
   double dphiMin=999.;                 
   reco::CaloClusterPtr match;
-  for (std::multimap<double, reco::CaloClusterPtr>::const_iterator scItr = scMap.begin();  scItr != scMap.end(); scItr++) {
-    const reco::CaloClusterPtr& sc = scItr->second; 
+  for (const auto & scItr : scMap) {
+    const reco::CaloClusterPtr& sc = scItr.second; 
     const double delta_phi = reco::deltaPhi( aConv.refittedPairMomentum().phi(), sc->phi());
     double sceta = sc->eta();
     double conveta = etaTransformation(aConv.refittedPairMomentum().eta(), aConv.zOfPrimaryVertexFromTracks() );

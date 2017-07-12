@@ -325,9 +325,9 @@ void GlobalCondition::print(std::ostream& myCout) const
 
     myCout << "  Object types:      ";
 
-    for (unsigned int i = 0; i < m_objectType.size(); ++i) {
+    for (auto i : m_objectType) {
 
-        switch (m_objectType[i]) {
+        switch (i) {
             case l1t::gtMu: {
                     myCout << " Mu ";
                 }
@@ -412,7 +412,7 @@ void GlobalCondition::print(std::ostream& myCout) const
 
                 break;
             default: {
-                    myCout << " Unknown type " << m_objectType[i];
+                    myCout << " Unknown type " << i;
                 }
                 break;
         }

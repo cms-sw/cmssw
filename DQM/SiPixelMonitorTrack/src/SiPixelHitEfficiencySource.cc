@@ -166,18 +166,16 @@ void SiPixelHitEfficiencySource::dqmBeginRun(const edm::Run& r, edm::EventSetup 
   if (debug_) LogVerbatim("PixelDQM") << "TrackerGeometry "<< &(*TG) <<" size is "<< TG->dets().size() << endl;
  
   // build theSiPixelStructure with the pixel barrel and endcap dets from TrackerGeometry
-  for (TrackerGeometry::DetContainer::const_iterator pxb = TG->detsPXB().begin();  
-       pxb!=TG->detsPXB().end(); pxb++) {
-    if (dynamic_cast<PixelGeomDetUnit const *>((*pxb))!=0) {
-      SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule((*pxb)->geographicalId().rawId());
-      theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>((*pxb)->geographicalId().rawId(), module));
+  for (auto pxb : TG->detsPXB()) {
+    if (dynamic_cast<PixelGeomDetUnit const *>(pxb)!=0) {
+      SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule(pxb->geographicalId().rawId());
+      theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>(pxb->geographicalId().rawId(), module));
     }
   }
-  for (TrackerGeometry::DetContainer::const_iterator pxf = TG->detsPXF().begin(); 
-       pxf!=TG->detsPXF().end(); pxf++) {
-    if (dynamic_cast<PixelGeomDetUnit const *>((*pxf))!=0) {
-      SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule((*pxf)->geographicalId().rawId());
-      theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>((*pxf)->geographicalId().rawId(), module));
+  for (auto pxf : TG->detsPXF()) {
+    if (dynamic_cast<PixelGeomDetUnit const *>(pxf)!=0) {
+      SiPixelHitEfficiencyModule* module = new SiPixelHitEfficiencyModule(pxf->geographicalId().rawId());
+      theSiPixelStructure.insert(pair<uint32_t, SiPixelHitEfficiencyModule*>(pxf->geographicalId().rawId(), module));
     }
   }
   LogInfo("PixelDQM") << "SiPixelStructure size is " << theSiPixelStructure.size() << endl;
@@ -188,35 +186,34 @@ void SiPixelHitEfficiencySource::bookHistograms(DQMStore::IBooker & iBooker, edm
 
   // book residual histograms in theSiPixelFolder - one (x,y) pair of histograms per det
   SiPixelFolderOrganizer theSiPixelFolder(false);
-  for (std::map<uint32_t, SiPixelHitEfficiencyModule*>::iterator pxd = theSiPixelStructure.begin(); 
-       pxd!=theSiPixelStructure.end(); pxd++) {
+  for (auto & pxd : theSiPixelStructure) {
 
     if(modOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,0,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,0,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,pxd.first,0,isUpgrade)) pxd.second->book(pSet_,iSetup,iBooker,0,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Folder Creation Failed! "; 
     }
     if(ladOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,1,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,1,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,pxd.first,1,isUpgrade)) pxd.second->book(pSet_,iSetup,iBooker,1,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource ladder Folder Creation Failed! "; 
     }
     if(layOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,2,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,2,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,pxd.first,2,isUpgrade)) pxd.second->book(pSet_,iSetup,iBooker,2,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource layer Folder Creation Failed! "; 
     }
     if(phiOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,3,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,3,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,pxd.first,3,isUpgrade)) pxd.second->book(pSet_,iSetup,iBooker,3,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource phi Folder Creation Failed! "; 
     }
     if(bladeOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,4,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,4,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,pxd.first,4,isUpgrade)) pxd.second->book(pSet_,iSetup,iBooker,4,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Blade Folder Creation Failed! "; 
     }
     if(diskOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,5,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,5,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,pxd.first,5,isUpgrade)) pxd.second->book(pSet_,iSetup,iBooker,5,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Disk Folder Creation Failed! "; 
     }
     if(ringOn){
-      if (theSiPixelFolder.setModuleFolder(iBooker,(*pxd).first,6,isUpgrade)) (*pxd).second->book(pSet_,iSetup,iBooker,6,isUpgrade);
+      if (theSiPixelFolder.setModuleFolder(iBooker,pxd.first,6,isUpgrade)) pxd.second->book(pSet_,iSetup,iBooker,6,isUpgrade);
       else throw cms::Exception("LogicError") << "SiPixelHitEfficiencySource Ring Folder Creation Failed! "; 
     }
   }
@@ -336,13 +333,13 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
   bool debug_ = false;
   
   //Loop over track collection
-  for(TrajTrackAssociationCollection::const_iterator it =  ttac.begin();it !=  ttac.end(); ++it){
+  for(const auto & it : ttac){
     //define vector to save extrapolated tracks
     std::vector<TrajectoryMeasurement> expTrajMeasurements;
 
-    const edm::Ref<std::vector<Trajectory> > traj_iterator = it->key;  
+    const edm::Ref<std::vector<Trajectory> > traj_iterator = it.key;  
     // Trajectory Map, extract Trajectory for this track
-    reco::TrackRef trackref = it->val;
+    reco::TrackRef trackref = it.val;
     //tracks++;
     
     bool isBpixtrack = false, isFpixtrack = false;
@@ -491,9 +488,8 @@ void SiPixelHitEfficiencySource::analyze(const edm::Event& iEvent, const edm::Ev
     //if an extrapolated hit was found but not matched to an exisitng L1 hit then push the hit back into the collection
     //now keep the first one that is left
     if(!expTrajMeasurements.empty()){
-      for (size_t f=0; f<expTrajMeasurements.size(); f++) {
-	TrajectoryMeasurement AddHit=expTrajMeasurements[f];
-	if (AddHit.recHit()->getType()==TrackingRecHit::missing){
+      for (auto AddHit : expTrajMeasurements) {
+		if (AddHit.recHit()->getType()==TrackingRecHit::missing){
 	  tmeasColl.push_back(AddHit);
 	  isBpixtrack = true;
 

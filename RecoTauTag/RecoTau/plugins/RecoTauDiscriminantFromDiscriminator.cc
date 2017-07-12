@@ -67,11 +67,11 @@ std::vector<double> RecoTauDiscriminantFromDiscriminator::operator()(
   edm::ProductID tauProdId = tau.id();
   double result = -999;
   bool foundGoodDiscriminator = false;
-  for (size_t i = 0; i < discriminators_.size(); ++i) {
+  for (const auto & discriminator : discriminators_) {
     // Check if the discriminator actually exists
-    if (!discriminators_[i].second.isValid())
+    if (!discriminator.second.isValid())
       continue;
-    const reco::PFTauDiscriminator& disc = *(discriminators_[i].second);
+    const reco::PFTauDiscriminator& disc = *(discriminator.second);
     if (tauProdId == disc.keyProduct().id()) {
       foundGoodDiscriminator = true;
       result = (disc)[tau];
@@ -83,11 +83,11 @@ std::vector<double> RecoTauDiscriminantFromDiscriminator::operator()(
     std::stringstream error;
     error << "Couldn't find a PFTauDiscriminator usable with given tau."
       << std::endl << " Input tau has product id: " << tau.id() << std::endl;
-    for (size_t i = 0; i < discriminators_.size(); ++i ) {
-      error << "disc: " << discriminators_[i].first;
-      error << " isValid: " << discriminators_[i].second.isValid();
-      if (discriminators_[i].second.isValid()) {
-        error << " product: " << discriminators_[i].second->keyProduct().id();
+    for (const auto & discriminator : discriminators_) {
+      error << "disc: " << discriminator.first;
+      error << " isValid: " << discriminator.second.isValid();
+      if (discriminator.second.isValid()) {
+        error << " product: " << discriminator.second->keyProduct().id();
       }
       error << std::endl;
     }

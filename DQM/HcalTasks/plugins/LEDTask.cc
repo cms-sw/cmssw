@@ -310,10 +310,9 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 
 //	int currentEvent = e.eventAuxiliary().id().event();
 
-	for (HBHEDigiCollection::const_iterator it=chbhe->begin();
-		it!=chbhe->end(); ++it)
+	for (const auto & it : *chbhe)
 	{
-		const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
+		const HBHEDataFrame digi = (const HBHEDataFrame)it;
 		HcalDetId did = digi.id();
 		HcalElectronicsId eid = digi.elecId();
 
@@ -381,10 +380,9 @@ LEDTask::LEDTask(edm::ParameterSet const& ps):
 			}
 		}
 	}
-	for (HODigiCollection::const_iterator it=cho->begin();
-		it!=cho->end(); ++it)
+	for (const auto & it : *cho)
 	{
-		const HODataFrame digi = (const HODataFrame)(*it);
+		const HODataFrame digi = (const HODataFrame)it;
 		HcalDetId did = digi.id();
 		HcalElectronicsId eid = digi.elecId();
 		//double sumQ = hcaldqm::utilities::sumQ<HODataFrame>(digi, 8.5, 0, digi.size()-1);

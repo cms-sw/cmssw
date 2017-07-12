@@ -26,9 +26,8 @@ AlignableCSCRing::AlignableCSCRing( const std::vector<AlignableCSCChamber*>& csc
 /// Clean delete of the vector and its elements
 AlignableCSCRing::~AlignableCSCRing() 
 {
-  for ( std::vector<AlignableCSCChamber*>::iterator iter = theCSCChambers.begin(); 
-	iter != theCSCChambers.end(); iter++)
-    delete *iter;
+  for (auto & theCSCChamber : theCSCChambers)
+    delete theCSCChamber;
 
 }
 
@@ -61,9 +60,8 @@ AlignableCSCRing::PositionType AlignableCSCRing::computePosition()
 
   float zz = 0.;
 
-  for ( std::vector<AlignableCSCChamber*>::iterator ichamber = theCSCChambers.begin();
-		ichamber != theCSCChambers.end(); ichamber++ )
-    zz += (*ichamber)->globalPosition().z();
+  for (auto & theCSCChamber : theCSCChambers)
+    zz += theCSCChamber->globalPosition().z();
 
   zz /= static_cast<float>(theCSCChambers.size());
 
@@ -107,8 +105,7 @@ void AlignableCSCRing::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableCSCChamber*>::const_iterator iChamber = theCSCChambers.begin();
-		iChamber != theCSCChambers.end(); iChamber++ )
-	 edm::LogInfo("AlignableDump")  << (**iChamber);
+  for (auto theCSCChamber : theCSCChambers)
+	 edm::LogInfo("AlignableDump")  << (*theCSCChamber);
 
 }

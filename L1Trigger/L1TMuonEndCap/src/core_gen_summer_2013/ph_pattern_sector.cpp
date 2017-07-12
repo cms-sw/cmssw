@@ -253,13 +253,13 @@ void ph_pattern_sector::init ()
 }
 void ph_pattern_sector::gb__class::init()
 {
-	for (map <ull, ph_pat_zone__class>::iterator mit = ph_pat_zone.begin(); mit != ph_pat_zone.end(); mit++)
-		mit->second.init();
+	for (auto & mit : ph_pat_zone)
+		mit.second.init();
 }
 void ph_pattern_sector::gb__class::ph_pat_zone__class::init()
 {
-	for (map <ull, ph_pat_hit__class>::iterator mit = ph_pat_hit.begin(); mit != ph_pat_hit.end(); mit++)
-		mit->second.init();
+	for (auto & mit : ph_pat_hit)
+		mit.second.init();
 }
 void ph_pattern_sector::gb__class::ph_pat_zone__class::ph_pat_hit__class::init()
 {

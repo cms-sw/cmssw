@@ -112,10 +112,8 @@ ParticleTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    edm::Handle<reco::PFCandidateCollection> inputsHandle;
    iEvent.getByToken(src_, inputsHandle);
    
-   for(reco::PFCandidateCollection::const_iterator ci  = inputsHandle->begin(); ci!=inputsHandle->end(); ++ci)  {
+   for(const auto & particle : *inputsHandle)  {
 
-    const reco::PFCandidate& particle = *ci;
-    
     // put a cutoff if you want
     //if(particle.et() < 0.3) continue;      
     

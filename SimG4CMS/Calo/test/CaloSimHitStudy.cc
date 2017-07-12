@@ -389,26 +389,26 @@ void CaloSimHitStudy::analyzeHits (std::vector<PCaloHit>& ebHits,
 				   std::vector<PCaloHit>& hcHits) {
 
   double edepEB=0, edepEBT = 0;
-  for (unsigned int i=0; i<ebHits.size(); i++) {
-    double edep      = ebHits[i].energy();
-    double time      = ebHits[i].time();
-    if  (ebHits[i].depth()==0) {
+  for (auto & ebHit : ebHits) {
+    double edep      = ebHit.energy();
+    double time      = ebHit.time();
+    if  (ebHit.depth()==0) {
       edepEB += edep;
       if (time < tmax_) edepEBT += edep;
     }
   }
   double edepEE=0, edepEET = 0;
-  for (unsigned int i=0; i<eeHits.size(); i++) {
-    double edep      = eeHits[i].energy();
-    double time      = eeHits[i].time();
+  for (auto & eeHit : eeHits) {
+    double edep      = eeHit.energy();
+    double time      = eeHit.time();
     edepEE += edep;
     if (time < tmax_) edepEET += edep;
   }
   double edepH=0, edepHT = 0, edepHO=0, edepHOT=0;
-  for (unsigned int i=0; i<hcHits.size(); i++) {
-    double edep      = hcHits[i].energy();
-    double time      = hcHits[i].time();
-    HcalDetId id     = HcalDetId(hcHits[i].id());
+  for (auto & hcHit : hcHits) {
+    double edep      = hcHit.energy();
+    double time      = hcHit.time();
+    HcalDetId id     = HcalDetId(hcHit.id());
     int subdet       = id.subdet();
     if (subdet == static_cast<int>(HcalBarrel) || 
 	subdet == static_cast<int>(HcalEndcap)) {

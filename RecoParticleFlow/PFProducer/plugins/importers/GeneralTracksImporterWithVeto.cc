@@ -64,8 +64,8 @@ importToBlock( const edm::Event& e,
   e.getByToken(veto_,vetosH);
   const auto& vetos = *vetosH;
   std::unordered_set<unsigned> vetoed;
-  for(unsigned i = 0; i < vetos.size(); ++i ) {
-    vetoed.insert(vetos[i].trackRef().key());
+  for(const auto & veto : vetos) {
+    vetoed.insert(veto.trackRef().key());
   }
   edm::Handle<reco::MuonCollection> muons;
   e.getByToken(muons_,muons);

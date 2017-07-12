@@ -167,9 +167,8 @@ HcalLaserHBHEHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSe
   int ncalibHF=0;   // this will track number of HF digi channels
 
   
-  for (HcalCalibDigiCollection::const_iterator Calibiter = calib_digi->begin();
-       Calibiter != calib_digi->end(); ++ Calibiter) {
-    const HcalCalibDataFrame digi = (const HcalCalibDataFrame)(*Calibiter);
+  for (const auto & Calibiter : *calib_digi) {
+    const HcalCalibDataFrame digi = (const HcalCalibDataFrame)Calibiter;
     if (digi.zsMarkAndPass()) continue; // skip digis labeled as "mark and pass" in NZS events
     HcalCalibDetId myid=(HcalCalibDetId)digi.id();
     if (filterHBHE_ && (myid.hcalSubdet()==HcalBarrel || myid.hcalSubdet()==HcalEndcap)) 
@@ -178,8 +177,8 @@ HcalLaserHBHEHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSe
 	// Compute charge in current channel (for relevant TS only)
 	// If total charge in channel exceeds threshold, increment count of calib channels
 	double thischarge=0;
-	for (unsigned int i=0;i<CalibTS_.size();++i) {
-	  thischarge+=digi[CalibTS_[i]].nominal_fC();
+	for (int i : CalibTS_) {
+	  thischarge+=digi[i].nominal_fC();
 	  if (thischarge>  HBHEcalibThreshold_ ) {
 	    ++ncalibHBHE;
 	    break;
@@ -216,10 +215,9 @@ HcalLaserHBHEHFFilter2012::filter(edm::Event& iEvent, const edm::EventSetup& iSe
     double goodrbxfrac=0.;
     int Nbad=72*3;  // 3 bad RBXes, 72 channels each
     int Ngood=2592*2-Nbad;  // remaining HBHE channels are 'good'
-    for (HBHEDigiCollection::const_iterator hbhe = hbhe_digi->begin();
-	 hbhe != hbhe_digi->end(); ++ hbhe)
+    for (const auto & hbhe : *hbhe_digi)
       {
-	const HBHEDataFrame digi = (const HBHEDataFrame)(*hbhe);
+	const HBHEDataFrame digi = (const HBHEDataFrame)hbhe;
 	HcalDetId myid=(HcalDetId)digi.id();
 	bool isbad=false; // assume channel is not bad
 	if ( myid.subdet()==HcalBarrel && myid.ieta()<0 )

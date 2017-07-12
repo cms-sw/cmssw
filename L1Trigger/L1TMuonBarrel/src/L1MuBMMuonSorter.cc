@@ -173,19 +173,19 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
     if ( (*iter1)->empty() ) continue;
     L1MuBMSecProcId sp1 = (*iter1)->spid();
     int qual1 = (*iter1)->quality();
-    for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
-      if ( *iter1 == *iter2 ) continue;
-      if ( (*iter2)->empty() ) continue;
-      L1MuBMSecProcId sp2 = (*iter2)->spid();
-      int qual2 = (*iter2)->quality();
+    for (auto & cand : cands) {
+      if ( cand == 0 ) continue;
+      if ( *iter1 == cand ) continue;
+      if ( cand->empty() ) continue;
+      L1MuBMSecProcId sp2 = cand->spid();
+      int qual2 = cand->quality();
       if (sp1 == sp2 ) continue;
       int topology = neighbour(sp1,sp2);
       if ( topology == -1 ) continue;
       int countTS = 0;
       for ( int stat = 2; stat <= 4; stat++ ) {
         int adr1 = (*iter1)->address(stat);
-        int adr2 = (*iter2)->address(stat);
+        int adr2 = cand->address(stat);
         if ( adr1 == 15 || adr2 == 15 ) continue;
         switch ( topology ) {
           case 1 : {
@@ -243,9 +243,9 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
         }
         else {
           if ( L1MuBMTFConfig::Debug(5) ) {
-            cout << "Muon Sorter cancel : "; (*iter2)->print();
+            cout << "Muon Sorter cancel : "; cand->print();
           }
-         (*iter2)->disable();
+         cand->disable();
         }
       }
     }
@@ -261,15 +261,15 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
     int phi1 = (*iter1)->phi();
     int pt1 = (*iter1)->pt();
     int qual1 = (*iter1)->quality();
-    for ( TI iter2 = cands.begin(); iter2 != cands.end(); iter2++ ) {
-      if ( *iter2 == 0 ) continue;
-      if ( *iter1 == *iter2 ) continue;
-      if ( (*iter2)->empty() ) continue;
-      int phi2 = (*iter2)->phi();
-      int pt2 = (*iter2)->pt();
-      int qual2 = (*iter2)->quality();
+    for (auto & cand : cands) {
+      if ( cand == 0 ) continue;
+      if ( *iter1 == cand ) continue;
+      if ( cand->empty() ) continue;
+      int phi2 = cand->phi();
+      int pt2 = cand->pt();
+      int qual2 = cand->quality();
       int w1 = (*iter1)->getStartTSphi().wheel();
-      int w2 = (*iter2)->getStartTSphi().wheel();
+      int w2 = cand->getStartTSphi().wheel();
       int phidiff = (phi2 - phi1)%144;
       if ( phidiff >= 72 ) phidiff -= 144;
       if ( phidiff < -72 ) phidiff += 144;
@@ -280,10 +280,10 @@ void L1MuBMMuonSorter::runCOL(vector<L1MuBMTrack*>& cands) const {
           cout << "========================================" << endl;
           cout << " special cancellation : " << endl;
           (*iter1)->print(); if ( rank1 <  rank2 ) cout << "cancelled" << endl;
-          (*iter2)->print(); if ( rank1 >= rank2 ) cout << "cancelled" << endl;
+          cand->print(); if ( rank1 >= rank2 ) cout << "cancelled" << endl;
           cout << "========================================" << endl;
         }
-        if ( rank1 >= rank2 ) (*iter2)->disable();
+        if ( rank1 >= rank2 ) cand->disable();
         if ( rank1 <  rank2 ) { (*iter1)->disable(); break; }
       }
     }

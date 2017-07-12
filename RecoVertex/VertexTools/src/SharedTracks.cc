@@ -11,9 +11,8 @@ namespace vertexTools {
 					pvTracks.insert(iter->castTo<TrackRef>());
 
 			unsigned int count = 0;
-			for(std::vector<TrackRef>::const_iterator iter = svTracks.begin();
-					iter != svTracks.end(); iter++)
-				count += pvTracks.count(*iter);
+			for(const auto & svTrack : svTracks)
+				count += pvTracks.count(svTrack);
 
 			return (double)count/(double)svTracks.size();
 		}
@@ -21,11 +20,10 @@ namespace vertexTools {
 				double minTrackWeight, float maxsigma)
 		{
 			unsigned int count = 0;
-			for(std::vector<CandidatePtr>::const_iterator iter = svTracks.begin();
-					iter != svTracks.end(); iter++)
+			for(const auto & svTrack : svTracks)
 			{
-				if( std::abs((*iter)->bestTrack()->dz()-pv.z())/(*iter)->bestTrack()->dzError() < maxsigma &&
-						std::abs((*iter)->bestTrack()->dxy(pv.position())/(*iter)->bestTrack()->dxyError()) < maxsigma 
+				if( std::abs(svTrack->bestTrack()->dz()-pv.z())/svTrack->bestTrack()->dzError() < maxsigma &&
+						std::abs(svTrack->bestTrack()->dxy(pv.position())/svTrack->bestTrack()->dxyError()) < maxsigma 
 				  )
 					count++;
 			}
@@ -34,10 +32,9 @@ namespace vertexTools {
 	double	computeSharedTracks(const VertexCompositePtrCandidate &sv2, const std::vector<CandidatePtr> &svTracks, double , float )
 		{
 			unsigned int count = 0;
-			for(std::vector<CandidatePtr>::const_iterator iter = svTracks.begin();
-					iter != svTracks.end(); iter++)
+			for(const auto & svTrack : svTracks)
 			{
-				if(std::find(sv2.daughterPtrVector().begin(),sv2.daughterPtrVector().end(),*iter)!= sv2.daughterPtrVector().end())
+				if(std::find(sv2.daughterPtrVector().begin(),sv2.daughterPtrVector().end(),svTrack)!= sv2.daughterPtrVector().end())
 					count++;
 			}
 			return (double)count/(double)svTracks.size();

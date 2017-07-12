@@ -78,9 +78,9 @@ void CaloRecoTauTagInfoProducer::produce(edm::Event& iEvent,const edm::EventSetu
   //  auto selectedDetIds = std::make_unique<DetIdCollection>();
   CaloTauTagInfoCollection* extCollection=new CaloTauTagInfoCollection();
 
-  for(JetTracksAssociationCollection::const_iterator iAssoc=theCaloJetTracksAssociatorCollection->begin();iAssoc!=theCaloJetTracksAssociatorCollection->end();iAssoc++){
+  for(const auto & iAssoc : *theCaloJetTracksAssociatorCollection){
 //    CaloTauTagInfo myCaloTauTagInfo=CaloRecoTauTagInfoAlgo_->buildCaloTauTagInfo(iEvent,iSetup,(*iAssoc).first.castTo<CaloJetRef>(),(*iAssoc).second,thePV);
-    CaloTauTagInfo myCaloTauTagInfo=CaloRecoTauTagInfoAlgo_->buildCaloTauTagInfo(iEvent,iSetup,(*iAssoc).first,(*iAssoc).second,thePV);
+    CaloTauTagInfo myCaloTauTagInfo=CaloRecoTauTagInfoAlgo_->buildCaloTauTagInfo(iEvent,iSetup,iAssoc.first,iAssoc.second,thePV);
     extCollection->push_back(myCaloTauTagInfo);
     //    std::vector<DetId> myDets = CaloRecoTauTagInfoAlgo_->getVectorDetId((*iAssoc).first.castTo<CaloJetRef>());
 

@@ -113,8 +113,8 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
     return;
   }
   pf_NPV_ = 0;
-  for(std::vector<reco::Vertex>::const_iterator it=pv->begin(); it!=pv->end(); ++it){
-    if(!it->isFake() && it->ndof() > 4) ++pf_NPV_;
+  for(const auto & it : *pv){
+    if(!it.isFake() && it.ndof() > 4) ++pf_NPV_;
   }
     
   // Get jet corrections
@@ -129,9 +129,9 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 
   // sort jets by corrected et
   std::set<JetCorretPair, JetCorretPairComp> pfjetcorretpairset;
-  for(reco::PFJetCollection::const_iterator it=pfjets->begin(); it!=pfjets->end(); ++it) {
-    const reco::PFJet* jet=&(*it);
-    double jec = correctorPF->correction(*it, iEvent, evSetup);
+  for(const auto & it : *pfjets) {
+    const reco::PFJet* jet=&it;
+    double jec = correctorPF->correction(it, iEvent, evSetup);
     pfjetcorretpairset.insert(JetCorretPair(jet, jec));
   }
 
@@ -140,8 +140,8 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
   pf_realthirdjet_px_=pf_realthirdjet_py_=0.0;
   pf_realthirdjet_px_ = 1;
   int cntr=0;
-  for(std::set<JetCorretPair, JetCorretPairComp>::const_iterator it=pfjetcorretpairset.begin(); it!=pfjetcorretpairset.end(); ++it) {
-    JetCorretPair jet=(*it);
+  for(const auto & it : pfjetcorretpairset) {
+    JetCorretPair jet=it;
     ++cntr;
     if(cntr==1) pf_tag=jet;
     else if(cntr==2) pf_probe=jet;
@@ -185,8 +185,8 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
   // dump
   if(debug_) {
     std::cout << "Run: " << iEvent.id().run() << "; Event: " << iEvent.id().event() << std::endl;
-    for(reco::PFJetCollection::const_iterator it=pfjets->begin(); it!=pfjets->end(); ++it) {
-      const reco::PFJet *jet=&(*it);
+    for(const auto & it : *pfjets) {
+      const reco::PFJet *jet=&it;
       std::cout << "istag=" << (jet==pf_tag.jet()) << "; isprobe=" << (jet==pf_probe.jet()) << "; et=" << jet->et() << "; eta=" << jet->eta() << std::endl;
     }
   }
@@ -438,11 +438,11 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
       // Get elements from block
       reco::PFBlockRef blockRef = (*it)->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-      for(unsigned iEle=0; iEle<elements.size(); iEle++) {
-	if(elements[iEle].index() == (*it)->elementsInBlocks()[e].second){
-	  if(elements[iEle].type() == reco::PFBlockElement::HCAL){ // Element is HB or HE
+      for(const auto & element : elements) {
+	if(element.index() == (*it)->elementsInBlocks()[e].second){
+	  if(element.type() == reco::PFBlockElement::HCAL){ // Element is HB or HE
 	    // Get cluster and hits
-	    reco::PFClusterRef clusterref = elements[iEle].clusterRef();
+	    reco::PFClusterRef clusterref = element.clusterRef();
 	    reco::PFCluster cluster = *clusterref;
 	    double cluster_dR = deltaR(tpfjet_eta_,tpfjet_phi_,cluster.eta(),cluster.phi());
 	    if(tpfjet_clusters.count(cluster_dR) == 0){
@@ -461,19 +461,19 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 	    for(int iHit=0; iHit<nHits; iHit++){
 	      int etaPhiPF = getEtaPhi(hitsAndFracs[iHit].first);
 		  
-	      for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith=hbhereco->begin(); ith!=hbhereco->end(); ++ith){
-		int etaPhiRecHit = getEtaPhi((*ith).id());
+	      for(const auto & ith : *hbhereco){
+		int etaPhiRecHit = getEtaPhi(ith.id());
 		if(etaPhiPF == etaPhiRecHit){
 		  tpfjet_had_ntwrs_.at(tpfjet_had_n_ - 1)++;
-		  if(tpfjet_rechits.count((*ith).id()) == 0){
-		    tpfjet_twr_ieta_.push_back((*ith).id().ieta());
-		    tpfjet_twr_iphi_.push_back((*ith).id().iphi());
-		    tpfjet_twr_depth_.push_back((*ith).id().depth());
-		    tpfjet_twr_subdet_.push_back((*ith).id().subdet());
-		    if(hitsAndFracs[iHit].second > 0.05 && (*ith).energy() > 0.0) twrietas[(*ith).id().ieta()]++;
-		    tpfjet_twr_hade_.push_back((*ith).energy());
+		  if(tpfjet_rechits.count(ith.id()) == 0){
+		    tpfjet_twr_ieta_.push_back(ith.id().ieta());
+		    tpfjet_twr_iphi_.push_back(ith.id().iphi());
+		    tpfjet_twr_depth_.push_back(ith.id().depth());
+		    tpfjet_twr_subdet_.push_back(ith.id().subdet());
+		    if(hitsAndFracs[iHit].second > 0.05 && ith.energy() > 0.0) twrietas[ith.id().ieta()]++;
+		    tpfjet_twr_hade_.push_back(ith.energy());
 		    tpfjet_twr_frac_.push_back(hitsAndFracs[iHit].second);
-		    tpfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    tpfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		    tpfjet_twr_hadind_.push_back(tpfjet_had_n_ - 1);
 		    tpfjet_twr_elmttype_.push_back(0);
 		    tpfjet_twr_clusterind_.push_back(cluster_ind);
@@ -483,10 +483,10 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		    else{
 		      tpfjet_twr_candtrackind_.push_back(-1);
 		    }
-		    switch((*ith).id().subdet()){
+		    switch(ith.id().subdet()){
 		    case HcalSubdetector::HcalBarrel:
 		      {
-			CaloCellGeometry::CornersVec cv = HBGeom->getCorners((*ith).id());
+			CaloCellGeometry::CornersVec cv = HBGeom->getCorners(ith.id());
 			float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 			if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
@@ -495,7 +495,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		      }
 		    case HcalSubdetector::HcalEndcap:
 		      {
-			CaloCellGeometry::CornersVec cv = HEGeom->getCorners((*ith).id());
+			CaloCellGeometry::CornersVec cv = HEGeom->getCorners(ith.id());
 			float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 			if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
@@ -506,24 +506,24 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		      tpfjet_twr_dR_.push_back(-1);
 		      break;
 		    }
-		    tpfjet_rechits[(*ith).id()].first = tpfjet_ntwrs_;
+		    tpfjet_rechits[ith.id()].first = tpfjet_ntwrs_;
 		    ++tpfjet_ntwrs_;
 		  }
-		  else if(tpfjet_rechits[(*ith).id()].second.count(hitsAndFracs[iHit].second) == 0){
-		    tpfjet_twr_frac_.at(tpfjet_rechits[(*ith).id()].first) += hitsAndFracs[iHit].second;
-		    if(cluster_dR < tpfjet_cluster_dR_.at(tpfjet_twr_clusterind_.at(tpfjet_rechits[(*ith).id()].first))){
-		      tpfjet_twr_clusterind_.at(tpfjet_rechits[(*ith).id()].first) = cluster_ind;
+		  else if(tpfjet_rechits[ith.id()].second.count(hitsAndFracs[iHit].second) == 0){
+		    tpfjet_twr_frac_.at(tpfjet_rechits[ith.id()].first) += hitsAndFracs[iHit].second;
+		    if(cluster_dR < tpfjet_cluster_dR_.at(tpfjet_twr_clusterind_.at(tpfjet_rechits[ith.id()].first))){
+		      tpfjet_twr_clusterind_.at(tpfjet_rechits[ith.id()].first) = cluster_ind;
 		    }
-		    tpfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    tpfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		  }
 		} // Test if ieta,iphi matches
 	      } // Loop over rechits
 	    } // Loop over hits
 	  } // Test if element is from HCAL
-	  else if(elements[iEle].type() == reco::PFBlockElement::HFHAD){ // Element is HF	
-	    for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
-	      if((*ith).id().depth() == 1) continue; // Remove long fibers
-	      const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id().rawId());
+	  else if(element.type() == reco::PFBlockElement::HFHAD){ // Element is HF	
+	    for(const auto & ith : *hfreco){
+	      if(ith.id().depth() == 1) continue; // Remove long fibers
+	      const CaloCellGeometry *thisCell = HFGeom->getGeometry(ith.id().rawId());
 	      const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 
 	      bool passMatch = false;
@@ -537,11 +537,11 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 
 	      if(passMatch){
 		tpfjet_had_ntwrs_.at(tpfjet_had_n_ - 1)++;
-		tpfjet_twr_ieta_.push_back((*ith).id().ieta());
-		tpfjet_twr_iphi_.push_back((*ith).id().iphi());
-		tpfjet_twr_depth_.push_back((*ith).id().depth());
-		tpfjet_twr_subdet_.push_back((*ith).id().subdet());
-		tpfjet_twr_hade_.push_back((*ith).energy());
+		tpfjet_twr_ieta_.push_back(ith.id().ieta());
+		tpfjet_twr_iphi_.push_back(ith.id().iphi());
+		tpfjet_twr_depth_.push_back(ith.id().depth());
+		tpfjet_twr_subdet_.push_back(ith.id().subdet());
+		tpfjet_twr_hade_.push_back(ith.energy());
 		tpfjet_twr_frac_.push_back(1.0);
 		tpfjet_twr_hadind_.push_back(tpfjet_had_n_ - 1);
 		tpfjet_twr_elmttype_.push_back(1);
@@ -552,14 +552,14 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		tpfjet_twr_dR_.push_back(deltaR(tpfjet_eta_,tpfjet_phi_,avgeta,avgphi));
 		++tpfjet_ntwrs_;
-		HFHAD_E += (*ith).energy();
+		HFHAD_E += ith.energy();
 	      }
 	    }
 	  }
-	  else if(elements[iEle].type() == reco::PFBlockElement::HFEM){ // Element is HF
-	    for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
-	      if((*ith).id().depth() == 2) continue; // Remove short fibers
-	      const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id().rawId());
+	  else if(element.type() == reco::PFBlockElement::HFEM){ // Element is HF
+	    for(const auto & ith : *hfreco){
+	      if(ith.id().depth() == 2) continue; // Remove short fibers
+	      const CaloCellGeometry *thisCell = HFGeom->getGeometry(ith.id().rawId());
 	      const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 
 	      bool passMatch = false;
@@ -573,11 +573,11 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 
 	      if(passMatch){
 		tpfjet_had_ntwrs_.at(tpfjet_had_n_ - 1)++;
-		tpfjet_twr_ieta_.push_back((*ith).id().ieta());
-		tpfjet_twr_iphi_.push_back((*ith).id().iphi());
-		tpfjet_twr_depth_.push_back((*ith).id().depth());
-		tpfjet_twr_subdet_.push_back((*ith).id().subdet());
-		tpfjet_twr_hade_.push_back((*ith).energy());
+		tpfjet_twr_ieta_.push_back(ith.id().ieta());
+		tpfjet_twr_iphi_.push_back(ith.id().iphi());
+		tpfjet_twr_depth_.push_back(ith.id().depth());
+		tpfjet_twr_subdet_.push_back(ith.id().subdet());
+		tpfjet_twr_hade_.push_back(ith.energy());
 		tpfjet_twr_frac_.push_back(1.0);
 		tpfjet_twr_hadind_.push_back(tpfjet_had_n_ - 1);
 		tpfjet_twr_elmttype_.push_back(2);
@@ -588,12 +588,12 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		tpfjet_twr_dR_.push_back(deltaR(tpfjet_eta_,tpfjet_phi_,avgeta,avgphi));
 		++tpfjet_ntwrs_;
-		HFEM_E += (*ith).energy();
+		HFEM_E += ith.energy();
 	      }
 	    }
 	  }
-	  else if(elements[iEle].type() == reco::PFBlockElement::HO){ // Element is HO
-	    reco::PFClusterRef clusterref = elements[iEle].clusterRef();
+	  else if(element.type() == reco::PFBlockElement::HO){ // Element is HO
+	    reco::PFClusterRef clusterref = element.clusterRef();
 	    reco::PFCluster cluster = *clusterref;
 	    double cluster_dR = deltaR(tpfjet_eta_,tpfjet_phi_,cluster.eta(),cluster.phi());
 	    if(tpfjet_clusters.count(cluster_dR) == 0){
@@ -610,19 +610,19 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 	    for(int iHit=0; iHit<nHits; iHit++){
 	      int etaPhiPF = getEtaPhi(hitsAndFracs[iHit].first);
 
-	      for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>::const_iterator ith=horeco->begin(); ith!=horeco->end(); ++ith){
-		int etaPhiRecHit = getEtaPhi((*ith).id());
+	      for(const auto & ith : *horeco){
+		int etaPhiRecHit = getEtaPhi(ith.id());
 		if(etaPhiPF == etaPhiRecHit){
 		  tpfjet_had_ntwrs_.at(tpfjet_had_n_ - 1)++;
-		  if(tpfjet_rechits.count((*ith).id()) == 0){
-		    tpfjet_twr_ieta_.push_back((*ith).id().ieta());
-		    tpfjet_twr_iphi_.push_back((*ith).id().iphi());
-		    tpfjet_twr_depth_.push_back((*ith).id().depth());
-		    tpfjet_twr_subdet_.push_back((*ith).id().subdet());
-		    if(hitsAndFracs[iHit].second > 0.05 && (*ith).energy() > 0.0) twrietas[(*ith).id().ieta()]++;
-		    tpfjet_twr_hade_.push_back((*ith).energy());
+		  if(tpfjet_rechits.count(ith.id()) == 0){
+		    tpfjet_twr_ieta_.push_back(ith.id().ieta());
+		    tpfjet_twr_iphi_.push_back(ith.id().iphi());
+		    tpfjet_twr_depth_.push_back(ith.id().depth());
+		    tpfjet_twr_subdet_.push_back(ith.id().subdet());
+		    if(hitsAndFracs[iHit].second > 0.05 && ith.energy() > 0.0) twrietas[ith.id().ieta()]++;
+		    tpfjet_twr_hade_.push_back(ith.energy());
 		    tpfjet_twr_frac_.push_back(hitsAndFracs[iHit].second);
-		    tpfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    tpfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		    tpfjet_twr_hadind_.push_back(tpfjet_had_n_ - 1);
 		    tpfjet_twr_elmttype_.push_back(3);
 		    tpfjet_twr_clusterind_.push_back(cluster_ind);
@@ -632,21 +632,21 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		    else{
 		      tpfjet_twr_candtrackind_.push_back(-1);
 		    }
-		    const CaloCellGeometry *thisCell = HOGeom->getGeometry((*ith).id().rawId());
+		    const CaloCellGeometry *thisCell = HOGeom->getGeometry(ith.id().rawId());
 		    const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 		    float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 		    float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		    if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		    tpfjet_twr_dR_.push_back(deltaR(tpfjet_eta_,tpfjet_phi_,avgeta,avgphi));
-		    tpfjet_rechits[(*ith).id()].first = tpfjet_ntwrs_;
+		    tpfjet_rechits[ith.id()].first = tpfjet_ntwrs_;
 		    ++tpfjet_ntwrs_;
 		  }
-		  else if(tpfjet_rechits[(*ith).id()].second.count(hitsAndFracs[iHit].second) == 0){
-		    tpfjet_twr_frac_.at(tpfjet_rechits[(*ith).id()].first) += hitsAndFracs[iHit].second;
-		    if(cluster_dR < tpfjet_cluster_dR_.at(tpfjet_twr_clusterind_.at(tpfjet_rechits[(*ith).id()].first))){
-		      tpfjet_twr_clusterind_.at(tpfjet_rechits[(*ith).id()].first) = cluster_ind;
+		  else if(tpfjet_rechits[ith.id()].second.count(hitsAndFracs[iHit].second) == 0){
+		    tpfjet_twr_frac_.at(tpfjet_rechits[ith.id()].first) += hitsAndFracs[iHit].second;
+		    if(cluster_dR < tpfjet_cluster_dR_.at(tpfjet_twr_clusterind_.at(tpfjet_rechits[ith.id()].first))){
+		      tpfjet_twr_clusterind_.at(tpfjet_rechits[ith.id()].first) = cluster_ind;
 		    }
-		    tpfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    tpfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		  }
 		} // Test if ieta,iphi match
 	      } // Loop over rechits
@@ -841,11 +841,11 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
       // Get elements from block
       reco::PFBlockRef blockRef = (*it)->elementsInBlocks()[e].first;
       const edm::OwnVector<reco::PFBlockElement>& elements = blockRef->elements();
-      for(unsigned iEle=0; iEle<elements.size(); iEle++) {
-	if(elements[iEle].index() == (*it)->elementsInBlocks()[e].second){
-	  if(elements[iEle].type() == reco::PFBlockElement::HCAL){ // Element is HB or HE
+      for(const auto & element : elements) {
+	if(element.index() == (*it)->elementsInBlocks()[e].second){
+	  if(element.type() == reco::PFBlockElement::HCAL){ // Element is HB or HE
 	    // Get cluster and hits
-	    reco::PFClusterRef clusterref = elements[iEle].clusterRef();
+	    reco::PFClusterRef clusterref = element.clusterRef();
 	    reco::PFCluster cluster = *clusterref;
 	    double cluster_dR = deltaR(ppfjet_eta_,ppfjet_phi_,cluster.eta(),cluster.phi());
 	    if(ppfjet_clusters.count(cluster_dR) == 0){
@@ -863,18 +863,18 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 	    for(int iHit=0; iHit<nHits; iHit++){
 	      int etaPhiPF = getEtaPhi(hitsAndFracs[iHit].first);
 
-	      for(edm::SortedCollection<HBHERecHit,edm::StrictWeakOrdering<HBHERecHit>>::const_iterator ith=hbhereco->begin(); ith!=hbhereco->end(); ++ith){
-		int etaPhiRecHit = getEtaPhi((*ith).id());
+	      for(const auto & ith : *hbhereco){
+		int etaPhiRecHit = getEtaPhi(ith.id());
 		if(etaPhiPF == etaPhiRecHit){
 		  ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		  if(ppfjet_rechits.count((*ith).id()) == 0){
-		    ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-		    ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-		    ppfjet_twr_depth_.push_back((*ith).id().depth());
-		    ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-		    ppfjet_twr_hade_.push_back((*ith).energy());
+		  if(ppfjet_rechits.count(ith.id()) == 0){
+		    ppfjet_twr_ieta_.push_back(ith.id().ieta());
+		    ppfjet_twr_iphi_.push_back(ith.id().iphi());
+		    ppfjet_twr_depth_.push_back(ith.id().depth());
+		    ppfjet_twr_subdet_.push_back(ith.id().subdet());
+		    ppfjet_twr_hade_.push_back(ith.energy());
 		    ppfjet_twr_frac_.push_back(hitsAndFracs[iHit].second);
-		    ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		    ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 		    ppfjet_twr_elmttype_.push_back(0);
 		    ppfjet_twr_clusterind_.push_back(cluster_ind);
@@ -884,10 +884,10 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		    else{
 		      ppfjet_twr_candtrackind_.push_back(-1);
 		    }
-		    switch((*ith).id().subdet()){
+		    switch(ith.id().subdet()){
 		    case HcalSubdetector::HcalBarrel:
 		      {
-			CaloCellGeometry::CornersVec cv = HBGeom->getCorners((*ith).id());
+			CaloCellGeometry::CornersVec cv = HBGeom->getCorners(ith.id());
 			float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 			if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
@@ -896,7 +896,7 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		      }
 		    case HcalSubdetector::HcalEndcap:
 		      {
-			CaloCellGeometry::CornersVec cv = HEGeom->getCorners((*ith).id());
+			CaloCellGeometry::CornersVec cv = HEGeom->getCorners(ith.id());
 			float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 			float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 			if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
@@ -907,24 +907,24 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		      ppfjet_twr_dR_.push_back(-1);
 		      break;
 		    }
-		    ppfjet_rechits[(*ith).id()].first = ppfjet_ntwrs_;
+		    ppfjet_rechits[ith.id()].first = ppfjet_ntwrs_;
 		    ++ppfjet_ntwrs_;
 		  }
-		  else if(ppfjet_rechits[(*ith).id()].second.count(hitsAndFracs[iHit].second) == 0){
-		    ppfjet_twr_frac_.at(ppfjet_rechits[(*ith).id()].first) += hitsAndFracs[iHit].second;
-		    if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first))){
-		      ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first) = cluster_ind;
+		  else if(ppfjet_rechits[ith.id()].second.count(hitsAndFracs[iHit].second) == 0){
+		    ppfjet_twr_frac_.at(ppfjet_rechits[ith.id()].first) += hitsAndFracs[iHit].second;
+		    if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first))){
+		      ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first) = cluster_ind;
 		    }
-		    ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		  }
 		} // Test if ieta,iphi matches
 	      } // Loop over rechits
 	    } // Loop over hits
 	  } // Test if element is from HCAL
-	  else if(elements[iEle].type() == reco::PFBlockElement::HFHAD){ // Element is HF
-	    for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
-	      if((*ith).id().depth() == 1) continue; // Remove long fibers
-	      const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id().rawId());
+	  else if(element.type() == reco::PFBlockElement::HFHAD){ // Element is HF
+	    for(const auto & ith : *hfreco){
+	      if(ith.id().depth() == 1) continue; // Remove long fibers
+	      const CaloCellGeometry *thisCell = HFGeom->getGeometry(ith.id().rawId());
 	      const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 
 	      bool passMatch = false;
@@ -938,11 +938,11 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		  
 	      if(passMatch){
 		ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-		ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-		ppfjet_twr_depth_.push_back((*ith).id().depth());
-		ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-		ppfjet_twr_hade_.push_back((*ith).energy());
+		ppfjet_twr_ieta_.push_back(ith.id().ieta());
+		ppfjet_twr_iphi_.push_back(ith.id().iphi());
+		ppfjet_twr_depth_.push_back(ith.id().depth());
+		ppfjet_twr_subdet_.push_back(ith.id().subdet());
+		ppfjet_twr_hade_.push_back(ith.energy());
 		ppfjet_twr_frac_.push_back(1.0);
 		ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 		ppfjet_twr_elmttype_.push_back(1);
@@ -953,14 +953,14 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		ppfjet_twr_dR_.push_back(deltaR(ppfjet_eta_,ppfjet_phi_,avgeta,avgphi));
 		++ppfjet_ntwrs_;
-		HFHAD_E += (*ith).energy();
+		HFHAD_E += ith.energy();
 	      }
 	    }		
 	  }
-	  else if(elements[iEle].type() == reco::PFBlockElement::HFEM){ // Element is HF
-	    for(edm::SortedCollection<HFRecHit,edm::StrictWeakOrdering<HFRecHit>>::const_iterator ith=hfreco->begin(); ith!=hfreco->end(); ++ith){
-	      if((*ith).id().depth() == 2) continue; // Remove short fibers
-	      const CaloCellGeometry *thisCell = HFGeom->getGeometry((*ith).id().rawId());
+	  else if(element.type() == reco::PFBlockElement::HFEM){ // Element is HF
+	    for(const auto & ith : *hfreco){
+	      if(ith.id().depth() == 2) continue; // Remove short fibers
+	      const CaloCellGeometry *thisCell = HFGeom->getGeometry(ith.id().rawId());
 	      const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 	      
 	      bool passMatch = false;
@@ -974,11 +974,11 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		  
 	      if(passMatch){
 		ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-		ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-		ppfjet_twr_depth_.push_back((*ith).id().depth());
-		ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-		ppfjet_twr_hade_.push_back((*ith).energy());
+		ppfjet_twr_ieta_.push_back(ith.id().ieta());
+		ppfjet_twr_iphi_.push_back(ith.id().iphi());
+		ppfjet_twr_depth_.push_back(ith.id().depth());
+		ppfjet_twr_subdet_.push_back(ith.id().subdet());
+		ppfjet_twr_hade_.push_back(ith.energy());
 		ppfjet_twr_frac_.push_back(1.0);
 		ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 		ppfjet_twr_elmttype_.push_back(2);
@@ -989,12 +989,12 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		ppfjet_twr_dR_.push_back(deltaR(ppfjet_eta_,ppfjet_phi_,avgeta,avgphi));
 		++ppfjet_ntwrs_;
-		HFEM_E += (*ith).energy();
+		HFEM_E += ith.energy();
 	      }
 	    }
 	  }
-	  else if(elements[iEle].type() == reco::PFBlockElement::HO){ // Element is HO
-	    reco::PFClusterRef clusterref = elements[iEle].clusterRef();
+	  else if(element.type() == reco::PFBlockElement::HO){ // Element is HO
+	    reco::PFClusterRef clusterref = element.clusterRef();
 	    reco::PFCluster cluster = *clusterref;
 	    double cluster_dR = deltaR(ppfjet_eta_,ppfjet_phi_,cluster.eta(),cluster.phi());
 	    if(ppfjet_clusters.count(cluster_dR) == 0){
@@ -1011,18 +1011,18 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 	    for(int iHit=0; iHit<nHits; iHit++){
 	      int etaPhiPF = getEtaPhi(hitsAndFracs[iHit].first);
 
-	      for(edm::SortedCollection<HORecHit,edm::StrictWeakOrdering<HORecHit>>::const_iterator ith=horeco->begin(); ith!=horeco->end(); ++ith){
-		int etaPhiRecHit = getEtaPhi((*ith).id());
+	      for(const auto & ith : *horeco){
+		int etaPhiRecHit = getEtaPhi(ith.id());
 		if(etaPhiPF == etaPhiRecHit){
 		  ppfjet_had_ntwrs_.at(ppfjet_had_n_ - 1)++;
-		  if(ppfjet_rechits.count((*ith).id()) == 0){
-		    ppfjet_twr_ieta_.push_back((*ith).id().ieta());
-		    ppfjet_twr_iphi_.push_back((*ith).id().iphi());
-		    ppfjet_twr_depth_.push_back((*ith).id().depth());
-		    ppfjet_twr_subdet_.push_back((*ith).id().subdet());
-		    ppfjet_twr_hade_.push_back((*ith).energy());
+		  if(ppfjet_rechits.count(ith.id()) == 0){
+		    ppfjet_twr_ieta_.push_back(ith.id().ieta());
+		    ppfjet_twr_iphi_.push_back(ith.id().iphi());
+		    ppfjet_twr_depth_.push_back(ith.id().depth());
+		    ppfjet_twr_subdet_.push_back(ith.id().subdet());
+		    ppfjet_twr_hade_.push_back(ith.energy());
 		    ppfjet_twr_frac_.push_back(hitsAndFracs[iHit].second);
-		    ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		    ppfjet_twr_hadind_.push_back(ppfjet_had_n_ - 1);
 		    ppfjet_twr_elmttype_.push_back(3);
 		    ppfjet_twr_clusterind_.push_back(cluster_ind);
@@ -1032,21 +1032,21 @@ DiJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& evSetup)
 		    else{
 		      ppfjet_twr_candtrackind_.push_back(-1);
 		    }
-		    const CaloCellGeometry *thisCell = HOGeom->getGeometry((*ith).id().rawId());
+		    const CaloCellGeometry *thisCell = HOGeom->getGeometry(ith.id().rawId());
 		    const CaloCellGeometry::CornersVec& cv = thisCell->getCorners();
 		    float avgeta = (cv[0].eta() + cv[2].eta())/2.0;
 		    float avgphi = (static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		    if(cv[0].phi() < cv[2].phi()) avgphi = (2.0*3.141592653 + static_cast<double>(cv[0].phi()) + static_cast<double>(cv[2].phi()))/2.0;
 		    ppfjet_twr_dR_.push_back(deltaR(ppfjet_eta_,ppfjet_phi_,avgeta,avgphi));
-		    ppfjet_rechits[(*ith).id()].first = ppfjet_ntwrs_;
+		    ppfjet_rechits[ith.id()].first = ppfjet_ntwrs_;
 		    ++ppfjet_ntwrs_;
 		  }
-		  else if(ppfjet_rechits[(*ith).id()].second.count(hitsAndFracs[iHit].second) == 0){
-		    ppfjet_twr_frac_.at(ppfjet_rechits[(*ith).id()].first) += hitsAndFracs[iHit].second;
-		    if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first))){
-		      ppfjet_twr_clusterind_.at(ppfjet_rechits[(*ith).id()].first) = cluster_ind;
+		  else if(ppfjet_rechits[ith.id()].second.count(hitsAndFracs[iHit].second) == 0){
+		    ppfjet_twr_frac_.at(ppfjet_rechits[ith.id()].first) += hitsAndFracs[iHit].second;
+		    if(cluster_dR < ppfjet_cluster_dR_.at(ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first))){
+		      ppfjet_twr_clusterind_.at(ppfjet_rechits[ith.id()].first) = cluster_ind;
 		    }
-		    ppfjet_rechits[(*ith).id()].second.insert(hitsAndFracs[iHit].second);
+		    ppfjet_rechits[ith.id()].second.insert(hitsAndFracs[iHit].second);
 		  }
 		} // Test if ieta,iphi match
 	      } // Loop over rechits

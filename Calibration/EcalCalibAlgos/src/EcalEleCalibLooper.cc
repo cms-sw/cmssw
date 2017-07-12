@@ -142,10 +142,8 @@ EcalEleCalibLooper::EcalEleCalibLooper (const edm::ParameterSet& iConfig) :
 EcalEleCalibLooper::~EcalEleCalibLooper ()
 {
   edm::LogInfo ("IML") << "[EcalEleCalibLooper][dtor]" ;
-  for (std::vector<VEcalCalibBlock *>::iterator calibBlock = m_EcalCalibBlocks.begin () ;
-       calibBlock != m_EcalCalibBlocks.end () ;
-       ++calibBlock) 
-    delete (*calibBlock) ;
+  for (auto & m_EcalCalibBlock : m_EcalCalibBlocks) 
+    delete m_EcalCalibBlock ;
 
 }
 
@@ -173,14 +171,10 @@ void EcalEleCalibLooper::startingNewLoop (unsigned int ciclo)
 
  
 
-  for (std::vector<VEcalCalibBlock *>::iterator calibBlock = m_EcalCalibBlocks.begin () ;
-       calibBlock != m_EcalCalibBlocks.end () ;
-       ++calibBlock) 
-          (*calibBlock)->reset ();
-  for (std::map<int,int>::iterator it= m_xtalNumOfHits.begin();
-       it!=m_xtalNumOfHits.end();
-       ++it)
-    it->second = 0 ;
+  for (auto & m_EcalCalibBlock : m_EcalCalibBlocks) 
+          m_EcalCalibBlock->reset ();
+  for (auto & m_xtalNumOfHit : m_xtalNumOfHits)
+    m_xtalNumOfHit.second = 0 ;
  return ;
 }
 
@@ -249,26 +243,24 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
    }
 
  //Start the loop over the electrons 
- for (reco::GsfElectronCollection::const_iterator eleIt = pElectrons->begin ();
-      eleIt != pElectrons->end ();
-      ++eleIt )
+ for (const auto & eleIt : *pElectrons)
    {
      double pSubtract = 0 ;
      double pTk = 0 ;
      std::map<int , double> xtlMap;
      DetId Max =0;
-     if (std::abs(eleIt->eta())<1.49)
-	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),barrelHitsCollection).first;
+     if (std::abs(eleIt.eta())<1.49)
+	     Max = EcalClusterTools::getMaximum(eleIt.superCluster()->hitsAndFractions(),barrelHitsCollection).first;
      else 
-	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),endcapHitsCollection).first;
+	     Max = EcalClusterTools::getMaximum(eleIt.superCluster()->hitsAndFractions(),endcapHitsCollection).first;
      if (Max.det()==0) continue;
-     m_MapFiller->fillMap(eleIt->superCluster ()->hitsAndFractions (),Max, 
+     m_MapFiller->fillMap(eleIt.superCluster ()->hitsAndFractions (),Max, 
                            barrelHitsCollection,endcapHitsCollection, xtlMap,pSubtract);
      if (m_maxSelectedNumPerXtal > 0 && 
         m_xtalNumOfHits[Max.rawId ()] > m_maxSelectedNumPerXtal ) continue;
      ++m_xtalNumOfHits[Max.rawId()];
      if (m_xtalRegionId[Max.rawId()]==-1) continue;
-     pTk = eleIt->trackMomentumAtVtx ().R ();
+     pTk = eleIt.trackMomentumAtVtx ().R ();
      m_EcalCalibBlocks.at (m_xtalRegionId[Max.rawId()])->Fill (xtlMap.begin (), 
 		                                   xtlMap.end (),pTk,pSubtract) ;
    } //End of the loop over the electron collection
@@ -286,10 +278,8 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
 edm::EDLooper::Status EcalEleCalibLooper::endOfLoop (const edm::EventSetup& dumb,unsigned int iCounter)
 {
  edm::LogInfo ("IML") << "[InvMatrixCalibLooper][endOfLoop] entering..." ;
- for (std::vector<VEcalCalibBlock *>::iterator calibBlock = m_EcalCalibBlocks.begin ();
-       calibBlock!=m_EcalCalibBlocks.end ();
-       ++calibBlock) 
-   (*calibBlock)->solve (m_usingBlockSolver, m_minCoeff,m_maxCoeff);
+ for (auto & m_EcalCalibBlock : m_EcalCalibBlocks) 
+   m_EcalCalibBlock->solve (m_usingBlockSolver, m_minCoeff,m_maxCoeff);
 
   TH1F * EBcoeffEnd = new TH1F ("EBRegion","EBRegion",100,0.5,2.1) ;
   TH2F * EBcoeffMap = new TH2F ("EBcoeff","EBcoeff",171,-85,85,360,1,361);

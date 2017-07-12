@@ -232,9 +232,9 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   std::vector<uint32_t > DetIdmasks = SiPixelDynamicInefficiency->getDetIdmasks();
   
   // Loop on all modules, calculate geometrical scale factors and store in map for easy access
-  for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
-    const DetId detid = (*it_module)->geographicalId();
+  for(auto it_module : geom->detUnits()) {
+    if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==0) continue;
+    const DetId detid = it_module->geographicalId();
     uint32_t rawid = detid.rawId();
     PixelGeomFactors[rawid] = 1;
     ColGeomFactors[rawid] = 1;
@@ -249,9 +249,9 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
   size_t i=0;
   for (auto factor : PUFactors) {
     const DetId db_id = DetId(factor.first);
-    for(TrackerGeometry::DetUnitContainer::const_iterator it_module = geom->detUnits().begin(); it_module != geom->detUnits().end(); it_module++) {
-      if( dynamic_cast<PixelGeomDetUnit const*>((*it_module))==0) continue;
-      const DetId detid = (*it_module)->geographicalId();
+    for(auto it_module : geom->detUnits()) {
+      if( dynamic_cast<PixelGeomDetUnit const*>(it_module)==0) continue;
+      const DetId detid = it_module->geographicalId();
       if (!matches(detid, db_id, DetIdmasks)) continue;
       if (iPU.count(detid.rawId())) {
 	throw cms::Exception("Database")<<"Multiple db_ids match to same module in SiPixelDynamicInefficiency DB Object";
@@ -267,8 +267,8 @@ void DataMixingSiPixelMCDigiWorker::PixelEfficiencies::init_from_db(const edm::E
 
 bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& detid, const DetId& db_id, const std::vector<uint32_t >& DetIdmasks) {
   if (detid.subdetId() != db_id.subdetId()) return false;
-  for (size_t i=0; i<DetIdmasks.size(); ++i) {
-    DetId maskid = DetId(DetIdmasks.at(i));
+  for (unsigned int DetIdmask : DetIdmasks) {
+    DetId maskid = DetId(DetIdmask);
     if (maskid.subdetId() != db_id.subdetId()) continue;
     if ((detid.rawId()&maskid.rawId()) != (db_id.rawId()&maskid.rawId()) && 
 	(db_id.rawId()&maskid.rawId()) != DetId(db_id.det(), db_id.subdetId()).rawId()) return false;
@@ -473,12 +473,12 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 
     setPileupInfo(ps, bs);
 
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    for(auto iu : pDD->detUnits()){
       
-      if((*iu)->type().isTrackerPixel()) {
+      if(iu->type().isTrackerPixel()) {
 
 	//
-	const PixelGeomDetUnit* pixdet = dynamic_cast<const PixelGeomDetUnit*>((*iu));
+	const PixelGeomDetUnit* pixdet = dynamic_cast<const PixelGeomDetUnit*>(iu);
 	uint32_t detID = pixdet->geographicalId().rawId();
 
 	// fetch merged hits for this detID
@@ -612,10 +612,10 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
   
 	  // Now loop again over pixels to kill some of them.
 	  // Loop over hit pixels, amplitude in electrons, channel = coded row,col
-	  for(signal_map_iterator i = theSignal.begin();i != theSignal.end(); ++i) {
+	  for(auto & i : theSignal) {
     
 	    //    int chan = i->first;
-	    std::pair<int,int> ip = PixelDigi::channelToPixel(i->first);//get pixel pos
+	    std::pair<int,int> ip = PixelDigi::channelToPixel(i.first);//get pixel pos
 	    int row = ip.first;  // X in row
 	    int col = ip.second; // Y is in col
 	    //transform to ROC index coordinates
@@ -629,11 +629,11 @@ bool DataMixingSiPixelMCDigiWorker::PixelEfficiencies::matches(const DetId& deti
 	    if( chips[chipIndex]==0 || columns[dColInDet]==0
 		|| rand>pixelEfficiency ) {
 	      // make pixel amplitude =0, pixel will be lost at clusterization
-	      i->second=(0.); // reset amplitude
+	      i.second=(0.); // reset amplitude
 	    } // end if
 	    //Make a new Digi:
 
-	    SPD.push_back( PixelDigi(i->first, i->second) );     
+	    SPD.push_back( PixelDigi(i.first, i.second) );     
 
 	  } // end pixel loop
 	  // push back vector here of one detID

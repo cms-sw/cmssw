@@ -9,8 +9,8 @@
 
 template <typename T>
 EcalDeadChannelRecoveryNN<T>::EcalDeadChannelRecoveryNN() {
-  for (int id = 0; id < 9; ++id) {
-    ctx_[id].mlp = NULL;
+  for (auto & id : ctx_) {
+    id.mlp = NULL;
   }
 
   this->load();
@@ -18,8 +18,8 @@ EcalDeadChannelRecoveryNN<T>::EcalDeadChannelRecoveryNN() {
 
 template <typename T>
 EcalDeadChannelRecoveryNN<T>::~EcalDeadChannelRecoveryNN() {
-  for (int id = 0; id < 9; ++id) {
-    if (ctx_[id].mlp) {
+  for (auto & id : ctx_) {
+    if (id.mlp) {
       // @TODO segfaults for an uknown reason
       // delete ctx[id].mlp;
       // delete ctx[id].tree;

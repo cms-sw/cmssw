@@ -100,10 +100,9 @@ FP420SD::FP420SD(G4String name, const DDCompactView & cpv,
 
     this->Register();
 
-    for (std::vector<std::string>::const_iterator it=lvNames.begin();
-	 it !=lvNames.end(); it++) {
-      this->AssignSD(*it);
-      edm::LogInfo("FP420Sim") << "FP420SD : Assigns SD to LV " << (*it);
+    for (const auto & lvName : lvNames) {
+      this->AssignSD(lvName);
+      edm::LogInfo("FP420Sim") << "FP420SD : Assigns SD to LV " << lvName;
     }
     
     if      (name == "FP420SI") {

@@ -371,24 +371,20 @@ void ProcLikelihood::trainData(const std::vector<double> *values,
 
 		switch(iter->iteration) {
 		    case ITER_EMPTY:
-			for(std::vector<double>::const_iterator value =
-							values->begin();
-				value != values->end(); value++) {
+			for(double value : *values) {
 				iter->signal.range.min =
-					iter->signal.range.max = *value;
+					iter->signal.range.max = value;
 				iter->iteration = ITER_RANGE;
 				break;
 			}
 		    case ITER_RANGE:
-			for(std::vector<double>::const_iterator value =
-							values->begin();
-				value != values->end(); value++) {
+			for(double value : *values) {
 				iter->signal.range.min =
 					std::min(iter->signal.range.min,
-					         *value);
+					         value);
 				iter->signal.range.max =
 					std::max(iter->signal.range.max,
-					         *value);
+					         value);
 			}
 			continue;
 		    case ITER_FILL:
@@ -401,9 +397,8 @@ void ProcLikelihood::trainData(const std::vector<double> *values,
 		unsigned int n = pdf.distr.size() - 1;
 		double mult = 1.0 / pdf.range.width();
  
-		for(std::vector<double>::const_iterator value =
-			values->begin(); value != values->end(); value++) {
-			double x = (*value - pdf.range.min) * mult;
+		for(double value : *values) {
+			double x = (value - pdf.range.min) * mult;
 			if (x < 0.0)
 				x = 0.0;
 			else if (x >= 1.0)
@@ -441,29 +436,28 @@ void ProcLikelihood::trainEnd()
 	if (iteration == ITER_FILL)
 		iteration = ITER_DONE;
 
-	for(std::vector<SigBkg>::iterator iter = pdfs.begin();
-	    iter != pdfs.end(); iter++) {
-		switch(iter->iteration) {
+	for(auto & pdf : pdfs) {
+		switch(pdf.iteration) {
 		    case ITER_EMPTY:
 		    case ITER_RANGE:
-			iter->background.range = iter->signal.range;
-			iter->iteration = ITER_FILL;
+			pdf.background.range = pdf.signal.range;
+			pdf.iteration = ITER_FILL;
 			done = false;
 			break;
 		    case ITER_FILL:
-			iter->signal.distr.front() *= 2;
-			iter->signal.distr.back() *= 2;
-			smoothArray(iter->signal.distr.size(),
-			            &iter->signal.distr.front(),
-			            iter->smooth);
+			pdf.signal.distr.front() *= 2;
+			pdf.signal.distr.back() *= 2;
+			smoothArray(pdf.signal.distr.size(),
+			            &pdf.signal.distr.front(),
+			            pdf.smooth);
 
-			iter->background.distr.front() *= 2;
-			iter->background.distr.back() *= 2;
-			smoothArray(iter->background.distr.size(),
-			            &iter->background.distr.front(),
-			            iter->smooth);
+			pdf.background.distr.front() *= 2;
+			pdf.background.distr.back() *= 2;
+			smoothArray(pdf.background.distr.size(),
+			            &pdf.background.distr.front(),
+			            pdf.smooth);
 
-			iter->iteration = ITER_DONE;
+			pdf.iteration = ITER_DONE;
 			break;
 		    default:
 			/* shut up */;
@@ -758,12 +752,11 @@ static DOMElement *xmlStorePDF(DOMDocument *doc,
 	XMLDocument::writeAttribute(elem, "lower", pdf.range.min);
 	XMLDocument::writeAttribute(elem, "upper", pdf.range.max);
 
-	for(std::vector<double>::const_iterator iter =
-	    pdf.distr.begin(); iter != pdf.distr.end(); iter++) {
+	for(double iter : pdf.distr) {
 		DOMElement *value = doc->createElement(XMLUniStr("value"));
 		elem->appendChild(value);	
 
-		XMLDocument::writeContent<double>(value, doc, *iter);
+		XMLDocument::writeContent<double>(value, doc, iter);
 	}
 
 	return elem;

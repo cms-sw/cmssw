@@ -63,13 +63,13 @@ MuonME0DetLayerGeometryBuilder::buildLayer(int endcap,
 
   LogTrace(metname) << "Starting to Build Layer ";
   
-  for (vector<int>::iterator roll = rolls.begin(); roll!=rolls.end(); roll++) {    
+  for (int & roll : rolls) {    
     LogTrace(metname) << "On a roll ";
     
     vector<const GeomDet*> frontDets, backDets;
       
     for(std::vector<int>::iterator chamber=chambers.begin(); chamber<chambers.end(); chamber++) {
-      ME0DetId me0Id(endcap,layer,(*chamber), (*roll));
+      ME0DetId me0Id(endcap,layer,(*chamber), roll);
       const GeomDet* geomDet = geo.idToDet(me0Id);
 	  
       if (geomDet !=0) {

@@ -59,22 +59,22 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
     std::cout << "Reconstructed "<< tC.size() << " tracks" << std::endl ;
     
     int i=1;
-    for (reco::TrackCollection::const_iterator track=tC.begin(); track!=tC.end(); track++){
+    for (const auto & track : tC){
       std::cout << "Track number "<< i << std::endl ;
-      std::cout << "\tmomentum: " << track->momentum()<< std::endl;
-      std::cout << "\tPT: " << track->pt()<< std::endl;
-      std::cout << "\tvertex: " << track->vertex()<< std::endl;
-      std::cout << "\timpact parameter: " << track->d0()<< std::endl;
-      std::cout << "\tcharge: " << track->charge()<< std::endl;
-      std::cout << "\tnormalizedChi2: " << track->normalizedChi2()<< std::endl;
+      std::cout << "\tmomentum: " << track.momentum()<< std::endl;
+      std::cout << "\tPT: " << track.pt()<< std::endl;
+      std::cout << "\tvertex: " << track.vertex()<< std::endl;
+      std::cout << "\timpact parameter: " << track.d0()<< std::endl;
+      std::cout << "\tcharge: " << track.charge()<< std::endl;
+      std::cout << "\tnormalizedChi2: " << track.normalizedChi2()<< std::endl;
       cout<<"\tFrom EXTRA : "<<endl;
-      cout<<"\t\touter PT "<< track->outerPt()<<endl;
+      cout<<"\t\touter PT "<< track.outerPt()<<endl;
       //
       // try and access Hits
       //
       SimTrackIds.clear();
-      cout <<"\t\tNumber of RecHits "<<track->recHitsSize()<<endl;
-      for (trackingRecHit_iterator it = track->recHitsBegin();  it != track->recHitsEnd(); it++){
+      cout <<"\t\tNumber of RecHits "<<track.recHitsSize()<<endl;
+      for (trackingRecHit_iterator it = track.recHitsBegin();  it != track.recHitsEnd(); it++){
 	if ((*it)->isValid()){
 	  std::cout <<"\t\t\tRecHit on det "<<(*it)->geographicalId().rawId()<<std::endl;
 	  std::cout <<"\t\t\tRecHit in LP "<<(*it)->localPosition()<<std::endl;
@@ -126,10 +126,10 @@ void myTrackAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& se
 	}
       }
       float totsim = nmax;
-      float tothits = track->recHitsSize();//include pixel as well..
+      float tothits = track.recHitsSize();//include pixel as well..
       float fraction = totsim/tothits ;
 
-      std::cout << " Track id # " << i << "# of rechits = " << track->recHitsSize() << " matched simtrack id= " << idmax 
+      std::cout << " Track id # " << i << "# of rechits = " << track.recHitsSize() << " matched simtrack id= " << idmax 
 	   << " fraction = " << fraction << std::endl;
       std::cout << " sim track mom = " <<  theSimTracks[idmax].momentum() << std::endl;
       i++;

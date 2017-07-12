@@ -446,10 +446,10 @@ void TkLayerMap::createTIB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 
   XYbin xyb;
 
-  for(size_t j=0;j<LayerDetIdList.size();++j){
-    xyb=getXY_TIB(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTIB] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
+  for(unsigned int j : LayerDetIdList){
+    xyb=getXY_TIB(j,layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=j;
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTIB] " << j<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
   }
 }
 
@@ -465,10 +465,10 @@ void TkLayerMap::createTOB(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 
   XYbin xyb;
 
-  for(size_t j=0;j<LayerDetIdList.size();++j){
-    xyb=getXY_TOB(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
+  for(unsigned int j : LayerDetIdList){
+    xyb=getXY_TOB(j,layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=j;
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTOB] " << j<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
   }
 }
 
@@ -484,10 +484,10 @@ void TkLayerMap::createTID(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
   
   XYbin xyb;
 
-  for(size_t j=0;j<LayerDetIdList.size();++j){
-    xyb=getXY_TID(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTID] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
+  for(unsigned int j : LayerDetIdList){
+    xyb=getXY_TID(j,layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=j;
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTID] " << j<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
   }
 }
 
@@ -503,10 +503,10 @@ void TkLayerMap::createTEC(std::vector<uint32_t>& TkDetIdList,int layerEnumNb){
 
   XYbin xyb;
 
-  for(size_t j=0;j<LayerDetIdList.size();++j){
-    xyb=getXY_TEC(LayerDetIdList[j],layerEnumNb);
-    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=LayerDetIdList[j];
-    LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] " << LayerDetIdList[j]<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
+  for(unsigned int j : LayerDetIdList){
+    xyb=getXY_TEC(j,layerEnumNb);
+    binToDet[(xyb.ix-1)+nchX*(xyb.iy-1)]=j;
+    LogTrace("TkLayerMap") << "[TkLayerMap::createTEC] " << j<< " " << xyb.ix << " " << xyb.iy  << " " << xyb.x << " " << xyb.y ;
     
   }
 }

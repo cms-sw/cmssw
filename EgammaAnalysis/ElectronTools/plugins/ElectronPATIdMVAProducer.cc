@@ -74,8 +74,8 @@ ElectronPATIdMVAProducer::ElectronPATIdMVAProducer(const edm::ParameterSet& iCon
         bool manualCat_ = true;
 
 	std::string path_mvaWeightFileEleID;
-	for(unsigned ifile=0 ; ifile < fpMvaWeightFiles.size() ; ++ifile) {
-	  path_mvaWeightFileEleID = edm::FileInPath ( fpMvaWeightFiles[ifile].c_str() ).fullPath();
+	for(auto & fpMvaWeightFile : fpMvaWeightFiles) {
+	  path_mvaWeightFileEleID = edm::FileInPath ( fpMvaWeightFile.c_str() ).fullPath();
 	  mvaWeightFiles_.push_back(path_mvaWeightFileEleID);
 	}
 
@@ -121,14 +121,14 @@ void ElectronPATIdMVAProducer::produce(edm::Event& iEvent, const edm::EventSetup
         std::vector<float> values;
         values.reserve(egCollection->size());
 
-        for ( pat::ElectronCollection::const_iterator egIter = egCandidates.begin(); egIter != egCandidates.end(); ++egIter) {
+        for (const auto & egCandidate : egCandidates) {
 
           double mvaVal = -999999;
 
 
 
 
-	  mvaVal = mvaID_->mvaValue( *egIter, _Rho, verbose_);
+	  mvaVal = mvaID_->mvaValue( egCandidate, _Rho, verbose_);
 
 
 	  values.push_back( mvaVal );

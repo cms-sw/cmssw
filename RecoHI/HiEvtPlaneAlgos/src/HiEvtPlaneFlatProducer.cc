@@ -169,8 +169,8 @@ HiEvtPlaneFlatProducer::~HiEvtPlaneFlatProducer()
  
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
-  for(int i = 0; i<NumEPNames; i++) {
-    delete flat[i];
+  for(auto & i : flat) {
+    delete i;
   }
 
 }
@@ -265,15 +265,15 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 
   auto evtplaneOutput = std::make_unique<EvtPlaneCollection>();
   EvtPlane * ep[NumEPNames];
-  for(int i = 0; i<NumEPNames; i++) {
-    ep[i]=0;
+  for(auto & i : ep) {
+    i=0;
   }
   int indx = 0;
-  for (EvtPlaneCollection::const_iterator rp = evtPlanes_->begin();rp !=evtPlanes_->end(); rp++) {
-	double psiOffset = rp->angle(0);
-	double s = rp->sumSin(0);
-	double c = rp->sumCos(0);
-	uint m = rp->mult();
+  for (const auto & rp : *evtPlanes_) {
+	double psiOffset = rp.angle(0);
+	double s = rp.sumSin(0);
+	double c = rp.sumCos(0);
+	uint m = rp.mult();
 
 	double soff = s;
 	double coff = c;
@@ -283,15 +283,15 @@ HiEvtPlaneFlatProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
 		psiOffset = flat[indx]->getOffsetPsi(soff, coff);
 	}
 	double psiFlat = flat[indx]->getFlatPsi(psiOffset,vzr_sell,bin);
-	ep[indx]= new EvtPlane(indx, 2, psiFlat, soff, coff,rp->sumw(), rp->sumw2(), rp->sumPtOrEt(), rp->sumPtOrEt2(), m);
-	ep[indx]->addLevel(0, rp->angle(0), s, c);
-	ep[indx]->addLevel(3,0., rp->sumSin(3), rp->sumCos(3));
+	ep[indx]= new EvtPlane(indx, 2, psiFlat, soff, coff,rp.sumw(), rp.sumw2(), rp.sumPtOrEt(), rp.sumPtOrEt2(), m);
+	ep[indx]->addLevel(0, rp.angle(0), s, c);
+	ep[indx]->addLevel(3,0., rp.sumSin(3), rp.sumCos(3));
 	if(useOffsetPsi_) ep[indx]->addLevel(1, psiOffset, soff, coff);
 	++indx;
     }
   
-  for(int i = 0; i< NumEPNames; i++) {
-    if(ep[i]!=0) evtplaneOutput->push_back(*ep[i]);
+  for(auto & i : ep) {
+    if(i!=0) evtplaneOutput->push_back(*i);
     
   }
   iEvent.put(std::move(evtplaneOutput));

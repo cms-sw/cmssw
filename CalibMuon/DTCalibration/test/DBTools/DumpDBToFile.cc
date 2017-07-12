@@ -126,12 +126,11 @@ void DumpDBToFile::endJob() {
 	int type =1; //ie constant
 	int nfields=1;
 	cout << "[DumpDBToFile] MTime version: " << mTimeMap->version() << endl;
-	for(DTMtime::const_iterator mtime = mTimeMap->begin();
-	    mtime != mTimeMap->end(); ++mtime) {
-	  DTWireId wireId((*mtime).first.wheelId,
-			  (*mtime).first.stationId,
-			  (*mtime).first.sectorId,
-			  (*mtime).first.slId, 0, 0);
+	for(const auto & mtime : *mTimeMap) {
+	  DTWireId wireId(mtime.first.wheelId,
+			  mtime.first.stationId,
+			  mtime.first.sectorId,
+			  mtime.first.slId, 0, 0);
 	  float vdrift;
 	  float reso;
 	  DetId detId( wireId.rawId() );
@@ -153,9 +152,9 @@ void DumpDBToFile::endJob() {
 	cout << "[DumpDBToFile] DTRecoConditions (vdrift) version: " << version
 	     << " expression: " << expr << endl;
 	if (version!=1 || expr!="[0]") throw cms::Exception("Configuration") << "only version 1, type 1 is presently supported for VDriftDB";
-	for(DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
-	  DTWireId wireId(irc->first);
-	  const vector<double>& data = irc->second;
+	for(const auto & rcond : *rconds) {
+	  DTWireId wireId(rcond.first);
+	  const vector<double>& data = rcond.second;
 	  int nfields = data.size(); // FIXME check size
 	  float vdrift = data[0];
 	  float reso = 0;
@@ -175,12 +174,11 @@ void DumpDBToFile::endJob() {
 	int type = 1; //ie constant
 	int nfields =1;
 	cout << "[DumpDBToFile] TTrig version: " << tTrigMap->version() << endl;
-	for(DTTtrig::const_iterator ttrig = tTrigMap->begin();
-	    ttrig != tTrigMap->end(); ++ttrig) {
-	  DTWireId wireId((*ttrig).first.wheelId,
-			  (*ttrig).first.stationId,
-			  (*ttrig).first.sectorId,
-			  (*ttrig).first.slId, 0, 0);
+	for(const auto & ttrig : *tTrigMap) {
+	  DTWireId wireId(ttrig.first.wheelId,
+			  ttrig.first.stationId,
+			  ttrig.first.sectorId,
+			  ttrig.first.slId, 0, 0);
 	  DetId detId(wireId.rawId());
 	  float tmea;
 	  float trms;
@@ -207,9 +205,9 @@ void DumpDBToFile::endJob() {
 
 	cout << "[DumpDBToFile] DTRecoConditions (ttrig) version: " << rconds->version() 
 	     << " expression: " << expr << endl;
-	for(DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
-	  DTWireId wireId(irc->first);
-	  const vector<double>& data = irc->second;
+	for(const auto & rcond : *rconds) {
+	  DTWireId wireId(rcond.first);
+	  const vector<double>& data = rcond.second;
 	  int nfields = data.size(); // FIXME check size (should be 1)
 	  float ttrig = data[0];
 	  float sigma = 0; // Unused in DTRecoConditions
@@ -229,8 +227,7 @@ void DumpDBToFile::endJob() {
     //---------- T0, noise, dead
     } else if(dbToDump == "TZeroDB") {
       cout << "[DumpDBToFile] T0 version: " << tZeroMap->version() << endl;
-      for(DTT0::const_iterator tzero = tZeroMap->begin();
-	  tzero != tZeroMap->end(); ++tzero) {
+      for(const auto & tzero : *tZeroMap) {
 // @@@ NEW DTT0 FORMAT
 //	DTWireId wireId((*tzero).first.wheelId,
 //			(*tzero).first.stationId,
@@ -238,7 +235,7 @@ void DumpDBToFile::endJob() {
 //			(*tzero).first.slId,
 //			(*tzero).first.layerId,
 //			(*tzero).first.cellId);
-        int channelId = tzero->channelId;
+        int channelId = tzero.channelId;
         if ( channelId == 0 ) continue;
         DTWireId wireId(channelId);
 // @@@ NEW DTT0 END
@@ -261,16 +258,15 @@ void DumpDBToFile::endJob() {
 	theCalibFile->addCell(wireId, consts);
       }
     } else if(dbToDump == "NoiseDB") {
-      for(DTStatusFlag::const_iterator statusFlag = statusMap->begin();
-	  statusFlag != statusMap->end(); ++statusFlag) {
-	DTWireId wireId((*statusFlag).first.wheelId,
-			(*statusFlag).first.stationId,
-			(*statusFlag).first.sectorId,
-			(*statusFlag).first.slId,
-			(*statusFlag).first.layerId,
-			(*statusFlag).first.cellId);
+      for(const auto & statusFlag : *statusMap) {
+	DTWireId wireId(statusFlag.first.wheelId,
+			statusFlag.first.stationId,
+			statusFlag.first.sectorId,
+			statusFlag.first.slId,
+			statusFlag.first.layerId,
+			statusFlag.first.cellId);
 	cout << wireId
-	     << " Noisy Flag: " << (*statusFlag).second.noiseFlag << endl;
+	     << " Noisy Flag: " << statusFlag.second.noiseFlag << endl;
 	vector<float> consts;
 	consts.push_back(-1);
 	consts.push_back(-1);
@@ -279,21 +275,20 @@ void DumpDBToFile::endJob() {
 	consts.push_back(-1);
 	consts.push_back(-9999999);      
 	consts.push_back(-9999999);
-	consts.push_back((*statusFlag).second.noiseFlag);
+	consts.push_back(statusFlag.second.noiseFlag);
 
 	theCalibFile->addCell(wireId, consts);
       }
     }  else if(dbToDump == "DeadDB") {
-      for(DTDeadFlag::const_iterator deadFlag = deadMap->begin();
-	  deadFlag != deadMap->end(); ++deadFlag) {
-	DTWireId wireId((*deadFlag).first.wheelId,
-			(*deadFlag).first.stationId,
-			(*deadFlag).first.sectorId,
-			(*deadFlag).first.slId,
-			(*deadFlag).first.layerId,
-			(*deadFlag).first.cellId);
+      for(const auto & deadFlag : *deadMap) {
+	DTWireId wireId(deadFlag.first.wheelId,
+			deadFlag.first.stationId,
+			deadFlag.first.sectorId,
+			deadFlag.first.slId,
+			deadFlag.first.layerId,
+			deadFlag.first.cellId);
 	cout << wireId
-	     << " Dead Flag: " << (*deadFlag).second.dead_TP << endl;
+	     << " Dead Flag: " << deadFlag.second.dead_TP << endl;
 	vector<float> consts;
 	consts.push_back(-1);
 	consts.push_back(-1);
@@ -302,7 +297,7 @@ void DumpDBToFile::endJob() {
 	consts.push_back(-1);
 	consts.push_back(-9999999);      
 	consts.push_back(-9999999);
-	consts.push_back((*deadFlag).second.dead_TP);
+	consts.push_back(deadFlag.second.dead_TP);
 
 	theCalibFile->addCell(wireId, consts);
       }
@@ -313,10 +308,9 @@ void DumpDBToFile::endJob() {
 	int version = 1;
 	int type =2; // par[step]
 	cout << "RecoUncertDB version: " << uncertMap->version() << endl;
-	for(DTRecoUncertainties::const_iterator wireAndUncerts = uncertMap->begin();
-	    wireAndUncerts != uncertMap->end(); ++wireAndUncerts) {
-	  DTWireId wireId((*wireAndUncerts).first);
-	  vector<float> values = (*wireAndUncerts).second;	
+	for(const auto & wireAndUncerts : *uncertMap) {
+	  DTWireId wireId(wireAndUncerts.first);
+	  vector<float> values = wireAndUncerts.second;	
 // 	  cout << wireId;
 // 	  copy(values.begin(), values.end(), ostream_iterator<float>(cout, " cm, "));
 // 	  cout << endl;
@@ -334,9 +328,9 @@ void DumpDBToFile::endJob() {
 	cout << "[DumpDBToFile] DTRecoConditions (uncerts) version: " << rconds->version() 
 	     << " expression: " << expr << endl;
 
-	for(DTRecoConditions::const_iterator irc = rconds->begin(); irc != rconds->end(); ++irc) {
-	  DTWireId wireId(irc->first);
-	  const vector<double>& data = irc->second;
+	for(const auto & rcond : *rconds) {
+	  DTWireId wireId(rcond.first);
+	  const vector<double>& data = rcond.second;
 	  int nfields = data.size();
 	  vector<float> consts(11+nfields,-1);
 	  consts[10] = float(version*1000+type*100+nfields);
@@ -351,31 +345,30 @@ void DumpDBToFile::endJob() {
 
   else if (dbToDump == "ChannelsDB"){
     ofstream out(theOutputFileName.c_str());
-    for(DTReadOutMapping::const_iterator roLink = channelsMap->begin();
-	roLink != channelsMap->end(); ++roLink) {
-      out << roLink->dduId << ' ' 
-	  << roLink->rosId << ' ' 
-	  << roLink->robId << ' ' 
-	  << roLink->tdcId << ' ' 
-	  << roLink->channelId << ' ' 
-	  << roLink->wheelId << ' ' 
-	  << roLink->stationId << ' ' 
-	  << roLink->sectorId << ' ' 
-	  << roLink->slId << ' ' 
-	  << roLink->layerId << ' ' 
-	  << roLink->cellId <<endl;
+    for(const auto & roLink : *channelsMap) {
+      out << roLink.dduId << ' ' 
+	  << roLink.rosId << ' ' 
+	  << roLink.robId << ' ' 
+	  << roLink.tdcId << ' ' 
+	  << roLink.channelId << ' ' 
+	  << roLink.wheelId << ' ' 
+	  << roLink.stationId << ' ' 
+	  << roLink.sectorId << ' ' 
+	  << roLink.slId << ' ' 
+	  << roLink.layerId << ' ' 
+	  << roLink.cellId <<endl;
        
-      cout << "ddu " <<roLink->dduId << ' ' 
-	   << "ros " <<roLink->rosId << ' ' 
-	   << "rob " <<roLink->robId << ' ' 
-	   << "tdc " <<roLink->tdcId << ' ' 
-	   << "channel " <<roLink->channelId << ' ' << "->" << ' '
-	   << "wheel "   <<roLink->wheelId << ' ' 
-	   << "station " <<roLink->stationId << ' ' 
-	   << "sector "  <<roLink->sectorId << ' ' 
-	   << "superlayer " << roLink->slId << ' ' 
-	   << "layer "   << roLink->layerId << ' ' 
-	   << "wire "    << roLink->cellId << ' '<<endl;
+      cout << "ddu " <<roLink.dduId << ' ' 
+	   << "ros " <<roLink.rosId << ' ' 
+	   << "rob " <<roLink.robId << ' ' 
+	   << "tdc " <<roLink.tdcId << ' ' 
+	   << "channel " <<roLink.channelId << ' ' << "->" << ' '
+	   << "wheel "   <<roLink.wheelId << ' ' 
+	   << "station " <<roLink.stationId << ' ' 
+	   << "sector "  <<roLink.sectorId << ' ' 
+	   << "superlayer " << roLink.slId << ' ' 
+	   << "layer "   << roLink.layerId << ' ' 
+	   << "wire "    << roLink.cellId << ' '<<endl;
     }
   }
 

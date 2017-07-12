@@ -14,10 +14,9 @@ void PythonParameterSet::addVPSet(bool tracked, std::string const& name,
     = edm::toVector<PythonParameterSet>(value);
   std::vector<edm::ParameterSet> v2;
   v2.reserve(v.size());
-  for(std::vector<PythonParameterSet>::iterator ppsetItr = v.begin(), ppsetItrEnd = v.end();
-      ppsetItr != ppsetItrEnd; ++ppsetItr)
+  for(auto & ppsetItr : v)
   {
-    v2.push_back(ppsetItr->theParameterSet);
+    v2.push_back(ppsetItr.theParameterSet);
   }
   addParameter(tracked, name, v2);
 }
@@ -30,10 +29,9 @@ boost::python::list PythonParameterSet::getVPSet(bool tracked, std::string const
 
   // convert to PythonParameterSets
   boost::python::list l;
-  for(std::vector<edm::ParameterSet>::const_iterator psetItr = v.begin(), psetItrEnd = v.end();
-      psetItr != psetItrEnd; ++psetItr)
+  for(const auto & psetItr : v)
   {
-    l.append(PythonParameterSet(*psetItr));
+    l.append(PythonParameterSet(psetItr));
   }
 
   return l;

@@ -49,11 +49,11 @@ double CaloRecoTauDiscriminationByInvMass::threeProngInvMass(
     const CaloTauRef& tau) const {
   TLorentzVector sum;
   reco::TrackRefVector signalTracks = tau->signalTracks();
-  for(size_t i = 0; i < signalTracks.size(); ++i){
+  for(const auto & signalTrack : signalTracks){
     TLorentzVector p4;
-    p4.SetXYZM(signalTracks[i]->px(),
-               signalTracks[i]->py(),
-               signalTracks[i]->pz(),
+    p4.SetXYZM(signalTrack->px(),
+               signalTrack->py(),
+               signalTrack->pz(),
                chargedPionMass);
     sum += p4;
   }

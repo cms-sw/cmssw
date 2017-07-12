@@ -33,8 +33,8 @@ void SiStripSubStructure::getTIBDetectors(const std::vector<uint32_t> & inputDet
                                           uint32_t requested_int_ext,
                                           uint32_t requested_string) const{
  // loop over all input detectors
-  for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
-    uint32_t therawid = (*it);                  // raw id of single detector
+  for(unsigned int therawid : inputDetRawIds){
+    // raw id of single detector
     TIBDetId potentialTIB = TIBDetId(therawid); // build TIBDetId, at this point is just DetId, but do not want to cast twice
     if( potentialTIB.subdetId() ==  int (StripSubdetector::TIB) ){ // check if subdetector field is a TIB, both tested numbers are int
       if( // check if TIB is from the ones requested
@@ -57,8 +57,8 @@ void SiStripSubStructure::getTIDDetectors(const std::vector<uint32_t> & inputDet
                                           uint32_t requested_ring,
                                           uint32_t requested_ster) const{
  // loop over all input detectors
-  for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
-    uint32_t therawid = (*it);                  // raw id of single detector
+  for(unsigned int therawid : inputDetRawIds){
+    // raw id of single detector
     TIDDetId potentialTID = TIDDetId(therawid); // build TIDDetId, at this point is just DetId, but do not want to cast twice
     if( potentialTID.subdetId() ==  int (StripSubdetector::TID) ){ // check if subdetector field is a TID, both tested numbers are int
       if( // check if TID is from the ones requested
@@ -80,8 +80,8 @@ void SiStripSubStructure::getTOBDetectors(const std::vector<uint32_t> & inputDet
                                           uint32_t requested_bkw_frw,
                                           uint32_t requested_rod) const{
  // loop over all input detectors
-  for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
-    uint32_t therawid = (*it);                  // raw id of single detector
+  for(unsigned int therawid : inputDetRawIds){
+    // raw id of single detector
     TOBDetId potentialTOB = TOBDetId(therawid); // build TOBDetId, at this point is just DetId, but do not want to cast twice
     if( potentialTOB.subdetId() ==  int (StripSubdetector::TOB) ){ // check if subdetector field is a TOB, both tested numbers are int
       if( // check if TOB is from the ones requested
@@ -105,8 +105,8 @@ void SiStripSubStructure::getTECDetectors(const std::vector<uint32_t> & inputDet
                                           uint32_t requested_ring,
                                           uint32_t requested_ster) const{ 
  // loop over all input detectors
-  for(vector<uint32_t>::const_iterator it = inputDetRawIds.begin(); it!=inputDetRawIds.end();it++){
-    uint32_t therawid = (*it);                  // raw id of single detector
+  for(unsigned int therawid : inputDetRawIds){
+    // raw id of single detector
     TECDetId potentialTEC = TECDetId(therawid); // build TECDetId, at this point is just DetId, but do not want to cast twice
     if( potentialTEC.subdetId() ==  int (StripSubdetector::TEC) ){ // check if subdetector field is a TEC, both tested numbers are int
       if( // check if TEC is from the ones requested

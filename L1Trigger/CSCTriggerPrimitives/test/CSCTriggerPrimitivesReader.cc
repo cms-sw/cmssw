@@ -1812,12 +1812,12 @@ void CSCTriggerPrimitivesReader::HotWires(const edm::Event& iEvent) {
   iEvent.getByToken(wireDigi_token_, wires);  
 
   int serial_old=-1;
-  for (CSCWireDigiCollection::DigiRangeIterator dWDiter=wires->begin(); dWDiter!=wires->end(); dWDiter++) {
-    CSCDetId id = (CSCDetId)(*dWDiter).first;
+  for (auto && dWDiter : *wires) {
+    CSCDetId id = (CSCDetId)dWDiter.first;
     int serial = chamberSerial(id)-1;
     //     printf("serial %i\n",serial);
-    std::vector<CSCWireDigi>::const_iterator wireIter = (*dWDiter).second.first;
-    std::vector<CSCWireDigi>::const_iterator lWire = (*dWDiter).second.second;
+    std::vector<CSCWireDigi>::const_iterator wireIter = dWDiter.second.first;
+    std::vector<CSCWireDigi>::const_iterator lWire = dWDiter.second.second;
     bool has_layer=false;
     for( ; wireIter != lWire; ++wireIter) {
       has_layer=true;
@@ -2286,8 +2286,8 @@ void CSCTriggerPrimitivesReader::drawALCTHistos() {
   TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -2360,8 +2360,8 @@ void CSCTriggerPrimitivesReader::drawCLCTHistos() {
   TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -2529,8 +2529,8 @@ void CSCTriggerPrimitivesReader::drawLCTTMBHistos() {
   TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -2626,8 +2626,8 @@ void CSCTriggerPrimitivesReader::drawLCTMPCHistos() {
   TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -2699,8 +2699,8 @@ void CSCTriggerPrimitivesReader::drawCompHistos() {
   TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3037,8 +3037,8 @@ void CSCTriggerPrimitivesReader::drawResolHistos() {
   TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3414,8 +3414,8 @@ void CSCTriggerPrimitivesReader::drawEfficHistos() {
   TPostScript *ps = new TPostScript(fname.c_str(), 111);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .05, .05, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .05, .05, .93, .93);
   }
 
   int page = 1;
@@ -3553,8 +3553,8 @@ void CSCTriggerPrimitivesReader::drawHistosForTalks() {
   TCanvas *c2 = new TCanvas("c2", "", 0, 0, 540, 540);
 
   TPad *pad[MAXPAGES];
-  for (int i_page = 0; i_page < MAXPAGES; i_page++) {
-    pad[i_page] = new TPad("", "", .07, .07, .93, .93);
+  for (auto & i_page : pad) {
+    i_page = new TPad("", "", .07, .07, .93, .93);
   }
 
   int page = 1;

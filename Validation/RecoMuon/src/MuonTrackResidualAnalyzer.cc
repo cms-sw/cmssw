@@ -312,13 +312,12 @@ MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> dtSimhits,
 void MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> simhits, 
 						  map<DetId,const PSimHit*> &hitIdMap){
   
-  for(PSimHitContainer::const_iterator simhit = simhits->begin();
-      simhit != simhits->end(); ++simhit) {
+  for(const auto & simhit : *simhits) {
     
-    if ( abs(simhit->particleType()) != 13 && theSimTkId != simhit->trackId()) continue; 
+    if ( abs(simhit.particleType()) != 13 && theSimTkId != simhit.trackId()) continue; 
     
-    theSimHitContainer.push_back(&*simhit);
-    DetId id = DetId(simhit->detUnitId());
+    theSimHitContainer.push_back(&simhit);
+    DetId id = DetId(simhit.detUnitId());
     
     if(id.subdetId() == MuonSubdetId::DT){
       DTLayerId lId(id.rawId());
@@ -328,7 +327,7 @@ void MuonTrackResidualAnalyzer::mapMuSimHitsPerId(Handle<PSimHitContainer> simhi
     map<DetId,const PSimHit*>::const_iterator it = hitIdMap.find(id);
     
     if (it == hitIdMap.end() )
-      hitIdMap[id] = &*simhit;
+      hitIdMap[id] = &simhit;
     else
       LogDebug("MuonTrackResidualAnalyzer")<<"TWO muons in the same sensible volume!!";
     

@@ -25,21 +25,20 @@ std::vector<TrajectorySeed> MuonOverlapSeedFromRecHits::seeds() const
   //@@ doesn't handle overlap between ME11 and ME12 correctly
   // sort by station
   MuonRecHitContainer barrelHits, endcapHits;
-  for ( MuonRecHitContainer::const_iterator iter = theRhits.begin(), end = theRhits.end();
-        iter != end; ++iter)
+  for (const auto & theRhit : theRhits)
   {
-    if((*iter)->isDT())
+    if(theRhit->isDT())
     {
-      DTChamberId dtId((**iter).geographicalId().rawId());
+      DTChamberId dtId((*theRhit).geographicalId().rawId());
       // try not doing seeds that start in DT station 2, if there'as a good single segment seed
-      if(dtId.station() == 1 || (dtId.station()==2 && (*iter)->dimension() == 2))
+      if(dtId.station() == 1 || (dtId.station()==2 && theRhit->dimension() == 2))
       {
-        barrelHits.push_back(*iter);
+        barrelHits.push_back(theRhit);
       }
     }
     else
     {
-      endcapHits.push_back(*iter);
+      endcapHits.push_back(theRhit);
     }
   }
 

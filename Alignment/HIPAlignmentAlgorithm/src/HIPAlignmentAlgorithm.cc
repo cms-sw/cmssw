@@ -133,8 +133,8 @@ HIPAlignmentAlgorithm::initialize( const edm::EventSetup& setup,
 	if(themultiIOV){
 		if(theIOVrangeSet.size()!=1){
 		bool findMatchIOV=false;
-		for (unsigned int iovl = 0; iovl <theIOVrangeSet.size(); iovl++){
-			if(firstrun == theIOVrangeSet.at(iovl)){
+		for (unsigned int iovl : theIOVrangeSet){
+			if(firstrun == iovl){
 				std::string iovapp = std::to_string(firstrun);
 				iovapp.append(".root");
 				iovapp.insert(0,"_");
@@ -341,9 +341,9 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
       GlobalPoint pos = ali->surface().position();
       float tmpz = pos.z();
   if(nhit< 1500 || (tmp_Type==5 && tmp_Layer==4 && fabs(tmpz)>90)){	
-	  for (unsigned int l = 0; l < theLevels.size(); ++l)
+	  for (auto & theLevel : theLevels)
 	    {
-	      SurveyResidual res(*ali, theLevels[l], true);
+	      SurveyResidual res(*ali, theLevel, true);
 				
 	      if ( res.valid() )
 		{
@@ -352,7 +352,7 @@ void HIPAlignmentAlgorithm::terminate(const edm::EventSetup& iSetup)
 		  // variable for tree
 		  AlgebraicVector sensResid = res.sensorResidual();
 		  m3_Id = ali->id();
-		  m3_ObjId = theLevels[l];
+		  m3_ObjId = theLevel;
 		  m3_par[0] = sensResid[0]; m3_par[1] = sensResid[1]; m3_par[2] = sensResid[2];
 		  m3_par[3] = sensResid[3]; m3_par[4] = sensResid[4]; m3_par[5] = sensResid[5];
 					
@@ -718,14 +718,12 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 	
   // loop over tracks  
   const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
-  for (ConstTrajTrackPairCollection::const_iterator it=tracks.begin();
-       it!=tracks.end();
-       ++it) {
+  for (const auto & it : tracks) {
 
 //CY: pre-selection
 
-    const Trajectory* traj = (*it).first;
-    const reco::Track* track = (*it).second;
+    const Trajectory* traj = it.first;
+    const reco::Track* track = it.second;
 		
     float pt    = track->pt();
     float eta   = track->eta();
@@ -798,12 +796,8 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 		
     // loop over measurements	
     std::vector<TrajectoryMeasurement> measurements = traj->measurements();
-    for (std::vector<TrajectoryMeasurement>::iterator im=measurements.begin();
-	 im!=measurements.end();
-	 ++im) {
+    for (auto meas : measurements) {
    
-      TrajectoryMeasurement meas = *im;
-
       // const TransientTrackingRecHit* ttrhit = &(*meas.recHit());
       // const TrackingRecHit *hit = ttrhit->hit();
       const TransientTrackingRecHit* hit = &(*meas.recHit());

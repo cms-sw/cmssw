@@ -107,33 +107,31 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 
   std::vector<TLorentzVector> LV;
 
-  for (reco::GsfElectronCollection::const_iterator recoElectron =
-	 electronCollection->begin ();
-       recoElectron != electronCollection->end (); recoElectron++)
+  for (const auto & recoElectron : *electronCollection)
     {
 
-      if (recoElectron->et () <= 25)
+      if (recoElectron.et () <= 25)
 	continue;
 
       // Define Isolation variables
-      double IsoTrk = (recoElectron->dr03TkSumPt () / recoElectron->et ());
+      double IsoTrk = (recoElectron.dr03TkSumPt () / recoElectron.et ());
       double IsoEcal =
-	(recoElectron->dr03EcalRecHitSumEt () / recoElectron->et ());
+	(recoElectron.dr03EcalRecHitSumEt () / recoElectron.et ());
       double IsoHcal =
-	(recoElectron->dr03HcalTowerSumEt () / recoElectron->et ());
-      double HE = (recoElectron->hcalOverEcal ());
+	(recoElectron.dr03HcalTowerSumEt () / recoElectron.et ());
+      double HE = (recoElectron.hcalOverEcal ());
 
       //Define ID variables
 
-      float DeltaPhiTkClu = recoElectron->deltaPhiSuperClusterTrackAtVtx ();
-      float DeltaEtaTkClu = recoElectron->deltaEtaSuperClusterTrackAtVtx ();
-      float sigmaIeIe = recoElectron->sigmaIetaIeta ();
+      float DeltaPhiTkClu = recoElectron.deltaPhiSuperClusterTrackAtVtx ();
+      float DeltaEtaTkClu = recoElectron.deltaEtaSuperClusterTrackAtVtx ();
+      float sigmaIeIe = recoElectron.sigmaIetaIeta ();
 
       //Define Conversion Rejection Variables
 
-      float Dcot = recoElectron->convDcot ();
-      float Dist = recoElectron->convDist ();
-      int NumberOfExpectedInnerHits = recoElectron->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+      float Dcot = recoElectron.convDcot ();
+      float Dist = recoElectron.convDist ();
+      int NumberOfExpectedInnerHits = recoElectron.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 
       //quality flags
 
@@ -147,7 +145,7 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
 
       /***** Barrel WP80 Cuts *****/
 
-      if (fabs (recoElectron->eta ()) <= 1.4442)
+      if (fabs (recoElectron.eta ()) <= 1.4442)
 	{
 
 	  /* Isolation */
@@ -174,14 +172,14 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
       if (isIsolatedBarrel && isIDBarrel && isConvertedBarrel) {
 	elIsAccepted++;
 	elIsAcceptedEB++;
-	TLorentzVector b_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
+	TLorentzVector b_e2(recoElectron.momentum ().x (),recoElectron.momentum ().y (),recoElectron.momentum ().z (), recoElectron.p ());
 	LV.push_back(b_e2);
       }
 
       /***** Endcap WP80 Cuts *****/
 
-      if (fabs (recoElectron->eta ()) >= 1.5660
-	  && fabs (recoElectron->eta ()) <= 2.5000)
+      if (fabs (recoElectron.eta ()) >= 1.5660
+	  && fabs (recoElectron.eta ()) <= 2.5000)
 	{
 
 	  /* Isolation */
@@ -207,7 +205,7 @@ EcalZmassTask::analyze (const edm::Event & iEvent,
       if (isIsolatedEndcap && isIDEndcap && isConvertedEndcap) {
 	elIsAccepted++;
 	elIsAcceptedEE++;
-	TLorentzVector e_e2(recoElectron->momentum ().x (),recoElectron->momentum ().y (),recoElectron->momentum ().z (), recoElectron->p ());
+	TLorentzVector e_e2(recoElectron.momentum ().x (),recoElectron.momentum ().y (),recoElectron.momentum ().z (), recoElectron.p ());
 	LV.push_back(e_e2);
       }
 

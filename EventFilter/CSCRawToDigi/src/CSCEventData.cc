@@ -28,9 +28,9 @@ CSCEventData::CSCEventData(int chamberType, uint16_t format_version) :
     theFormatVersion(format_version)
 {
 
-  for (unsigned i = 0; i < MAX_CFEB; ++i)
+  for (auto & i : theCFEBData)
     {
-      theCFEBData[i] = 0;
+      i = 0;
     }
 }
 
@@ -329,9 +329,9 @@ void CSCEventData::init()
   theAnodeData = 0;
   theALCTTrailer = 0;
   theTMBData = 0;
-  for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb)
+  for (auto & icfeb : theCFEBData)
     {
-      theCFEBData[icfeb] = 0;
+      icfeb = 0;
     }
   alctZSErecovered=0;
   zseEnable=0;
@@ -375,9 +375,9 @@ void CSCEventData::destroy()
   delete theAnodeData;
   delete theALCTTrailer;
   delete theTMBData;
-  for (int icfeb = 0; icfeb < MAX_CFEB; ++icfeb)
+  for (auto & icfeb : theCFEBData)
     {
-      delete theCFEBData[icfeb];
+      delete icfeb;
     }
   /*
     std::cout << "Before delete alctZSErecovered " << std::endl;
@@ -522,9 +522,9 @@ void CSCEventData::setEventInformation(int bxnum, int lvl1num)
 */
 	
     }
-  for (unsigned cfeb=0; cfeb< 7; cfeb++)
+  for (auto & cfeb : theCFEBData)
     {
-      if (theCFEBData[cfeb]) theCFEBData[cfeb]->setL1A(lvl1num); 
+      if (cfeb) cfeb->setL1A(lvl1num); 
     }
 }
 
@@ -681,12 +681,12 @@ boost::dynamic_bitset<> CSCEventData::pack()
       result  = bitset_utilities::append(result, theTMBData->pack());
     }
 
-  for (int icfeb = 0;  icfeb < MAX_CFEB;  ++icfeb)
+  for (auto & icfeb : theCFEBData)
     {
-      if (theCFEBData[icfeb] != NULL)
+      if (icfeb != NULL)
         {
-          boost::dynamic_bitset<> cfebData = bitset_utilities::ushortToBitset(theCFEBData[icfeb]->sizeInWords()*16,
-                                             theCFEBData[icfeb]->data());
+          boost::dynamic_bitset<> cfebData = bitset_utilities::ushortToBitset(icfeb->sizeInWords()*16,
+                                             icfeb->data());
           result = bitset_utilities::append(result, cfebData);
         }
     }
@@ -702,14 +702,14 @@ unsigned int CSCEventData::calcALCTcrc(std::vector< std::pair<unsigned int, unsi
   int CRC=0;
 //  int size=0;
 
-  for (unsigned int n = 0; n < vec.size(); n++)
+  for (auto & n : vec)
     {
 //      size += vec[n].first;
-      for (uint16_t j=0, w=0; j<vec[n].first; j++ )
+      for (uint16_t j=0, w=0; j<n.first; j++ )
         {
 	 
-          if (vec[n].second != NULL) { 
-          w = vec[n].second[j] & 0xffff;
+          if (n.second != NULL) { 
+          w = n.second[j] & 0xffff;
           for (uint32_t i=15, t=0, ncrc=0; i<16; i--)
             {
               t = ((w >> i) & 1) ^ ((CRC >> 21) & 1);

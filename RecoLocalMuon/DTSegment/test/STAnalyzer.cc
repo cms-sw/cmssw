@@ -173,9 +173,8 @@ void STAnalyzer::beginRun(const edm::Run& run, const EventSetup& setup) {
 
   if(FirstPass){
   const std::vector<const DTChamber*> & chs = dtGeom->chambers();
-  for (auto ch = chs.begin();
-       ch!=chs.end() ; ++ch) 
-    hitsPerChamber[(*ch)->id()]=0;
+  for (auto ch : chs) 
+    hitsPerChamber[ch->id()]=0;
   }
 
   FirstPass = false;
@@ -331,9 +330,9 @@ void STAnalyzer::analyzeSATrack(const Event & event,
     trackingRecHit_iterator rhend = staTrack->recHitsEnd();
     
     // zero's the maps
-    for ( std::map<DTChamberId, int>::iterator h=hitsPerChamber.begin(); h!=hitsPerChamber.end(); ++h) (*h).second=0;
-    for ( std::map<DTSuperLayerId, int>::iterator h=hitsPerSL.begin(); h!=hitsPerSL.end(); ++h) (*h).second=0;
-    for ( std::map<DTLayerId, int>::iterator h=hitsPerLayer.begin(); h!=hitsPerLayer.end(); ++h) (*h).second=0;
+    for (auto & h : hitsPerChamber) h.second=0;
+    for (auto & h : hitsPerSL) h.second=0;
+    for (auto & h : hitsPerLayer) h.second=0;
     
     int firstHitWheel = 0; // the Wheel of first hit
     int lastHitWheel = 0; // the Wheel of last hit
@@ -371,17 +370,17 @@ void STAnalyzer::analyzeSATrack(const Event & event,
     }
     if(debug) {
       cout << "PerChamber " << muonDumper.dumpTSOS(innerTSOS) << endl;
-      for ( std::map<DTChamberId, int>::iterator h=hitsPerChamber.begin(); h!=hitsPerChamber.end(); ++h)
-        if ((*h).second ) cout << (*h).first << ":" << (*h).second << endl;
+      for (auto & h : hitsPerChamber)
+        if (h.second ) cout << h.first << ":" << h.second << endl;
       cout << "=====" << endl;
 
       cout << "PerSL " << endl;
-      for ( std::map<DTSuperLayerId, int>::iterator h=hitsPerSL.begin(); h!=hitsPerSL.end(); ++h) 
-        if ((*h).second )  cout << (*h).first << ":" << (*h).second << endl;
+      for (auto & h : hitsPerSL) 
+        if (h.second )  cout << h.first << ":" << h.second << endl;
       cout << "=====" << endl;
       cout << "PerLayer " << endl;
-      for ( std::map<DTLayerId, int>::iterator h=hitsPerLayer.begin(); h!=hitsPerLayer.end(); ++h) 
-        if ((*h).second ) cout << (*h).first << ":" << (*h).second << endl;
+      for (auto & h : hitsPerLayer) 
+        if (h.second ) cout << h.first << ":" << h.second << endl;
       cout << "=====" << endl;
     }
     

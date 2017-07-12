@@ -79,7 +79,7 @@ EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(
 				   "fEnergyElectronsEE","fEnergyPhotonsEE"};
   int tit = 0;
   int par = 0;
-  for ( EcalFunctionParameters::const_iterator it = record.params().begin(); it != record.params().end(); ++it ) {
+  for (float it : record.params()) {
     if(par < 2) tit = 0;
     else if(par < 86) tit = 1;
     else if(par < 170) tit = 2;
@@ -93,7 +93,7 @@ EcalClusterEnergyCorrectionObjectSpecificXMLTranslator::dumpXML(
       root->getOwnerDocument()->createElement( cms::xerces::uStr(ECEC_tag[tit].c_str()).ptr());
     root->appendChild(ECEC);
 
-    WriteNodeWithValue(ECEC,Value_tag,*it);
+    WriteNodeWithValue(ECEC,Value_tag,it);
     par++;
   }
   std::cout << "\n";

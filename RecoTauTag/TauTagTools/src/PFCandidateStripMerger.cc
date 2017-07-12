@@ -25,8 +25,8 @@ bool
 PFCandidateStripMerger::candidateMatches(const reco::PFCandidatePtr& cand)
 {
   bool matches = false;
-  for(unsigned int i=0; i < inputPdgIds_.size(); ++i) {
-    if(std::abs(cand->pdgId()) == inputPdgIds_.at(i)) {
+  for(int inputPdgId : inputPdgIds_) {
+    if(std::abs(cand->pdgId()) == inputPdgId) {
       matches = true;
       continue;
     }
@@ -45,9 +45,9 @@ PFCandidateStripMerger::mergeCandidates(const vector<PFCandidatePtr>& candidates
 
   //Copy the input getting the relevant candidates and sort by pt 
   vector<PFCandidatePtr> cands;
-  for(unsigned int i=0;i<candidates.size();++i)
-    if(candidateMatches(candidates.at(i)))
-      cands.push_back(candidates.at(i));
+  for(const auto & candidate : candidates)
+    if(candidateMatches(candidate))
+      cands.push_back(candidate);
  
   if(cands.size()>1)
   TauTagTools::sortRefVectorByPt(cands);

@@ -54,8 +54,8 @@ DTTracoLUTs::DTTracoLUTs(string testfile):
 DTTracoLUTs::~DTTracoLUTs() {
 
   psi_lut.clear();
-  for(int k=0;k<3;k++)
-    phi_lut[k].clear();
+  for(auto & k : phi_lut)
+    k.clear();
 }
 
 
@@ -69,8 +69,8 @@ DTTracoLUTs::~DTTracoLUTs() {
 void DTTracoLUTs::reset() {
 
   psi_lut.clear();
-  for(int k=0;k<3;k++)
-    phi_lut[k].clear();
+  for(auto & k : phi_lut)
+    k.clear();
 }
 
 
@@ -106,7 +106,7 @@ int DTTracoLUTs::load() {
   if ( filePHI.open() != 0 ) return -1;
 
   // read file for PHI values    --->  phi is 12 bits, 11+sign(12..16), resolution 12 bits
-  for(int y=0;y<3;y++){     //3 series of values: I-outer, II-innner, III-correlated
+  for(auto & y : phi_lut){     //3 series of values: I-outer, II-innner, III-correlated
     for(int h=0;h<512;h++){
         int phi  = filePHI.readHex();
         //phi &= 0x0FFF;                //get 12 bits
@@ -115,7 +115,7 @@ int DTTracoLUTs::load() {
         //sgn &= 0x01;
         //if(sgn==1)                    //negative value
           //phi = -phi;
-        phi_lut[y].push_back(phi);  //positive value
+        y.push_back(phi);  //positive value
     }
   } 
   filePHI.close();

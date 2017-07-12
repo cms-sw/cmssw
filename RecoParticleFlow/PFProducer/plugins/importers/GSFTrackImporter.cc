@@ -88,10 +88,9 @@ importToBlock( const edm::Event& e,
     bool PassTracker = false;
     bool GetPout = false;
     unsigned int IndexPout = 0;
-    for(auto itPfGsfPoint =  PfGsfPoint.begin();  
-	itPfGsfPoint!= PfGsfPoint.end();++itPfGsfPoint) {      
-      if (itPfGsfPoint->isValid()){
-	int layGsfP = itPfGsfPoint->layer();
+    for(const auto & itPfGsfPoint : PfGsfPoint) {      
+      if (itPfGsfPoint.isValid()){
+	int layGsfP = itPfGsfPoint.layer();
 	if (layGsfP == -1) PassTracker = true;
 	if (PassTracker && layGsfP > 0 && GetPout == false) {
 	  IndexPout = c_gsf-1;

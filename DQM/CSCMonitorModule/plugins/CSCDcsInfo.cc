@@ -60,8 +60,8 @@ void CSCDcsInfo::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & iget
   ibooker.setCurrentFolder("CSC/EventInfo");
   mos.insert(std::make_pair("DCSSummary", ibooker.bookFloat("DCSSummary")));
 
-  for (std::map<std::string, MonitorElement*>::iterator it = mos.begin(); it != mos.end(); it++) { 
-    it->second->Fill(-1);
+  for (auto & mo : mos) { 
+    mo.second->Fill(-1);
   }
 
 }

@@ -111,17 +111,15 @@ void Level1TriggerRates::computeRates(Level1TriggerScalers const& t,
     Level1TriggerScalers::percentLSActive(t.deadtimeBeamActiveTimeSlot(),run);
 
   const std::vector<unsigned int> gtAlgoCounts = t.gtAlgoCounts();
-  for ( std::vector<unsigned int>::const_iterator counts = gtAlgoCounts.begin();
-	counts != gtAlgoCounts.end(); ++counts)
+  for (unsigned int gtAlgoCount : gtAlgoCounts)
   {
-    gtAlgoCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts,run));
+    gtAlgoCountsRate_.push_back(Level1TriggerScalers::rateLS(gtAlgoCount,run));
   }
 
   const std::vector<unsigned int> gtTechCounts = t.gtTechCounts();
-  for ( std::vector<unsigned int>::const_iterator counts = gtTechCounts.begin();
-	counts != gtTechCounts.end(); ++counts)
+  for (unsigned int gtTechCount : gtTechCounts)
   {
-    gtTechCountsRate_.push_back(Level1TriggerScalers::rateLS(*counts,run));
+    gtTechCountsRate_.push_back(Level1TriggerScalers::rateLS(gtTechCount,run));
   }
 
   deltaNS_ = 0ULL;

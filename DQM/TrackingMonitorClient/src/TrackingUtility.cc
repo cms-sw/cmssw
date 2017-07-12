@@ -11,8 +11,7 @@ int TrackingUtility::getMEList(std::string name, std::vector<std::string>& value
   prefix_str += "/"; 
   std::string temp_str = name.substr(name.find(":")+1);
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin();
-       it != values.end(); it++) (*it).insert(0,prefix_str);
+  for (auto & value : values) value.insert(0,prefix_str);
   return values.size();
 }
 //
@@ -35,10 +34,9 @@ bool TrackingUtility::checkME(std::string name, std::string me_name, std::string
   std::string temp_str = name.substr(name.find(":")+1);
   std::vector<std::string> values;
   split(temp_str, values, ",");
-  for (std::vector<std::string>::iterator it = values.begin();
-       it != values.end(); it++) {
-    if ((*it).find(me_name) != std::string::npos) {
-      full_path = prefix_str + (*it);
+  for (auto & value : values) {
+    if (value.find(me_name) != std::string::npos) {
+      full_path = prefix_str + value;
       return true;
     }
   }

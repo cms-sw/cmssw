@@ -100,8 +100,8 @@ double jetProbability( const std::vector<float> & v ) const
    int ngoodtracks=v.size();
    double SumJet=0.;
 
-  for(std::vector<float>::const_iterator q = v.begin(); q != v.end(); q++){
-    SumJet+=(*q>m_minTrackProb)?log(*q):log(m_minTrackProb);
+  for(float q : v){
+    SumJet+=(q>m_minTrackProb)?log(q):log(m_minTrackProb);
   }
 
   double ProbJet;

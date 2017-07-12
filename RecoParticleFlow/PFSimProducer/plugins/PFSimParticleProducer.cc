@@ -328,9 +328,8 @@ void PFSimParticleProducer::produce(Event& iEvent,
 		      //Alex (08/10/08) TO BE REMOVED, eliminating
 		      //duplicated rechits
 		      bool alreadyin = false;
-		      for( unsigned ihit = 0; ihit < recHitContrib.size(); 
-			   ++ihit )
-			if(detid.rawId() == recHitContrib[ihit]) 
+		      for(unsigned int ihit : recHitContrib)
+			if(detid.rawId() == ihit) 
 			  alreadyin = true;
 		      
 		      if(!alreadyin){		

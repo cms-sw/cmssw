@@ -67,8 +67,8 @@ setNoises(uint32_t detId, std::vector<std::pair<uint16_t, float> >& digiNoises )
   detnoise.resize(768,1.0);
   
   SiStripNoises::InputVector theSiStripVector;
-  for(uint16_t strip=0; strip<detnoise.size(); strip++) {
-    noises->setData( detnoise.at(strip), theSiStripVector);
+  for(float strip : detnoise) {
+    noises->setData( strip, theSiStripVector);
   }
   noises->put(detId,theSiStripVector);
 }

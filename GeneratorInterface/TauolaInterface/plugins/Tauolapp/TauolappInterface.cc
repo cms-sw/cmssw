@@ -118,8 +118,7 @@ void TauolappInterface::init( const edm::EventSetup& es ){
 
    if (fPSet->exists("parameterSets")){
      std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
-     for (unsigned int ip=0; ip<par.size(); ++ip ){
-       std::string curSet = par[ip];
+     for (auto curSet : par){
        if(curSet=="setNewCurrents") Tauolapp::Tauola::setNewCurrents(fPSet->getParameter<int>(curSet));
      }
    }
@@ -130,8 +129,7 @@ void TauolappInterface::init( const edm::EventSetup& es ){
 
    if (fPSet->exists("parameterSets")){
      std::vector<std::string> par = fPSet->getParameter< std::vector<std::string> >("parameterSets");
-     for (unsigned int ip=0; ip<par.size(); ++ip ){
-       std::string curSet = par[ip];
+     for (auto curSet : par){
        if(curSet=="spinCorrelationSetAll") Tauolapp::Tauola::spin_correlation.setAll(fPSet->getParameter<bool>(curSet));
        if(curSet=="spinCorrelationGAMMA") Tauolapp::Tauola::spin_correlation.GAMMA=fPSet->getParameter<bool>(curSet);
        if(curSet=="spinCorrelationZ0") Tauolapp::Tauola::spin_correlation.Z0=fPSet->getParameter<bool>(curSet);
@@ -245,8 +243,8 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
 		abs(mother_pid) == 36    // A0
 		){
 	       bool isfound=false;
-	       for(unsigned int k=0;k<match.size();k++){
-		 if((*mother)==match.at(k))isfound=true;
+	       for(auto & k : match){
+		 if((*mother)==k)isfound=true;
 	       }
 	       if(!isfound) match.push_back(*mother);
 	     }
@@ -334,8 +332,8 @@ HepMC::GenEvent* TauolappInterface::decay( HepMC::GenEvent* evt ){
        }
      }
      if ( BCodes.size() > 0 ){
-       for ( size_t ibc=0; ibc<BCodes.size(); ibc++ ){
-	 HepMC::GenParticle* p1 = evt->barcode_to_particle( BCodes[ibc] );
+       for (int BCode : BCodes){
+	 HepMC::GenParticle* p1 = evt->barcode_to_particle( BCode );
 	 int nbc = p1->barcode() - 10000 + NPartBefore;
 	 p1->suggest_barcode( nbc );
        }

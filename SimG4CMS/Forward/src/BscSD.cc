@@ -80,10 +80,9 @@ BscSD::BscSD(std::string name, const DDCompactView & cpv,
 
   this->Register();
 
-  for (std::vector<std::string>::const_iterator it=lvNames.begin();
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("BscSim") << "BscSD : Assigns SD to LV " << (*it);
+  for (const auto & lvName : lvNames) {
+    this->AssignSD(lvName);
+    edm::LogInfo("BscSim") << "BscSD : Assigns SD to LV " << lvName;
   }
     
   if      (name == "BSCHits") {

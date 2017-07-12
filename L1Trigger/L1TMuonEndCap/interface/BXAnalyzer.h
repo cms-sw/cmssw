@@ -21,18 +21,18 @@ std::vector<std::vector<ConvertedHit>> GroupBX(std::vector<ConvertedHit> ConvHit
   
   const int CentralBX = 6;
   
-  for(std::vector<ConvertedHit>::iterator i = ConvHits.begin();i != ConvHits.end();i++){
+  for(auto & ConvHit : ConvHits){
     
-    int diff = i->BX() - CentralBX;
+    int diff = ConvHit.BX() - CentralBX;
     
     if((diff > -3) && (diff < 1))
-      output[0].push_back(*i);
+      output[0].push_back(ConvHit);
     
     if((diff < 3) && (diff > -1))
-      output[2].push_back(*i);
+      output[2].push_back(ConvHit);
     
     if(std::abs(diff) < 2)
-      output[1].push_back(*i);
+      output[1].push_back(ConvHit);
   }
 
   for (int i = 1; i < 3; i++) {
@@ -111,8 +111,8 @@ PatternOutput DeleteDuplicatePatterns(std::vector<PatternOutput> Pout){
       
       std::vector<ConvertedHit> test = Pout[i].hits;
       
-      for(std::vector<ConvertedHit>::iterator it = test.begin();it != test.end();it++){
-	Hits.push_back(*it);
+      for(auto & it : test){
+	Hits.push_back(it);
       }
     }
     

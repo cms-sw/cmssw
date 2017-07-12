@@ -91,9 +91,8 @@ namespace
     int    chargedMultiplicity = 0;
     int    neutralMultiplicity = 0;
     int    muonMultiplicity    = 0;
-    for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(jetConstituent->get());
+    for (const auto & jetConstituent : jetConstituents) {
+      const reco::PFCandidate* pfCandidate = dynamic_cast<const reco::PFCandidate*>(jetConstituent.get());
       if ( pfCandidate ) {
 	switch ( pfCandidate->particleId() ) {
 	case reco::PFCandidate::h :          // charged hadron
@@ -182,9 +181,8 @@ namespace
   {
     std::cout << "#" << label << " = " << jetConstituents.size() << ":" << std::endl;
     int idx = 0;
-    for ( reco::Jet::Constituents::const_iterator jetConstituent = jetConstituents.begin();
-	  jetConstituent != jetConstituents.end(); ++jetConstituent ) {
-      std::cout << " jetConstituent #" << idx << ": Pt = " << (*jetConstituent)->pt() << ", eta = " << (*jetConstituent)->eta() << ", phi = " << (*jetConstituent)->phi() << std::endl;
+    for (const auto & jetConstituent : jetConstituents) {
+      std::cout << " jetConstituent #" << idx << ": Pt = " << jetConstituent->pt() << ", eta = " << jetConstituent->eta() << ", phi = " << jetConstituent->phi() << std::endl;
       ++idx;
     }
   }

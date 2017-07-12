@@ -169,11 +169,10 @@ bool L1GlobalTriggerReadoutRecord::operator!=(
 const bool L1GlobalTriggerReadoutRecord::decision(int bxInEventValue) const
 {
 
-    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
-            return (*itBx).finalOR();
+        if ( itBx.bxInEvent() == bxInEventValue ) {
+            return itBx.finalOR();
         }
     }
 
@@ -203,11 +202,10 @@ const bool L1GlobalTriggerReadoutRecord::decision() const
 const cms_uint16_t L1GlobalTriggerReadoutRecord::finalOR(int bxInEventValue) const
 {
 
-    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
-            return (*itBx).finalOR();
+        if ( itBx.bxInEvent() == bxInEventValue ) {
+            return itBx.finalOR();
         }
     }
 
@@ -240,11 +238,10 @@ L1GlobalTriggerReadoutRecord::decisionWord(int bxInEventValue) const
 {
     const static DecisionWord emptyDecisionWord;
 
-    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
-            return (*itBx).gtDecisionWord();
+        if ( itBx.bxInEvent() == bxInEventValue ) {
+            return itBx.gtDecisionWord();
         }
     }
 
@@ -275,11 +272,10 @@ const TechnicalTriggerWord &
 L1GlobalTriggerReadoutRecord::technicalTriggerWord(int bxInEventValue) const {
     const static TechnicalTriggerWord emptyTechnicalTriggerWord;
 
-    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
-            return (*itBx).gtTechnicalTriggerWord();
+        if ( itBx.bxInEvent() == bxInEventValue ) {
+            return itBx.gtTechnicalTriggerWord();
         }
     }
 
@@ -310,13 +306,12 @@ L1GlobalTriggerReadoutRecord::technicalTriggerWord() const {
 void L1GlobalTriggerReadoutRecord::setDecision(const bool& t, int bxInEventValue)
 {
 
-    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+        if ( itBx.bxInEvent() == bxInEventValue ) {
 
             // TODO FIXME when manipulating partitions
-            (*itBx).setFinalOR(static_cast<uint16_t> (t));
+            itBx.setFinalOR(static_cast<uint16_t> (t));
             return;
         }
     }
@@ -346,12 +341,11 @@ void L1GlobalTriggerReadoutRecord::setDecisionWord(
     int bxInEventValue)
 {
 
-    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+        if ( itBx.bxInEvent() == bxInEventValue ) {
 
-            (*itBx).setGtDecisionWord (decisionWordValue);
+            itBx.setGtDecisionWord (decisionWordValue);
             return;
         }
     }
@@ -380,12 +374,11 @@ void L1GlobalTriggerReadoutRecord::setTechnicalTriggerWord(
         const TechnicalTriggerWord& ttWordValue, int bxInEventValue)
 {
 
-    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (auto & itBx : m_gtFdlWord) {
 
-        if ((*itBx).bxInEvent() == bxInEventValue) {
+        if (itBx.bxInEvent() == bxInEventValue) {
 
-            (*itBx).setGtTechnicalTriggerWord(ttWordValue);
+            itBx.setGtTechnicalTriggerWord(ttWordValue);
             return;
         }
     }
@@ -416,19 +409,18 @@ void L1GlobalTriggerReadoutRecord::printGtDecision(
     std::ostream& myCout, int bxInEventValue) const
 {
 
-    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+        if ( itBx.bxInEvent() == bxInEventValue ) {
 
             myCout << "\nL1 Global Trigger Record: " << std::endl;
 
             myCout << "  Bunch cross " << bxInEventValue
             << std::endl
-            << "  Global Decision = " << std::setw(5) << (*itBx).globalDecision()
+            << "  Global Decision = " << std::setw(5) << itBx.globalDecision()
             << std::endl;
 
-            (*itBx).printGtDecisionWord(myCout);
+            itBx.printGtDecisionWord(myCout);
 
         }
     }
@@ -451,17 +443,16 @@ void L1GlobalTriggerReadoutRecord::printTechnicalTrigger(
 ) const
 {
 
-    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
+        if ( itBx.bxInEvent() == bxInEventValue ) {
 
             myCout << "\nL1 Global Trigger Record: " << std::endl;
 
             myCout << "  Bunch cross " << bxInEventValue
             << std::endl;
 
-            (*itBx).printGtTechnicalTriggerWord(myCout);
+            itBx.printGtTechnicalTriggerWord(myCout);
         }
     }
 
@@ -524,11 +515,10 @@ void L1GlobalTriggerReadoutRecord::setGtfeWord(const L1GtfeWord& gtfeWordValue)
 const L1GtFdlWord L1GlobalTriggerReadoutRecord::gtFdlWord(int bxInEventValue) const
 {
 
-    for (std::vector<L1GtFdlWord>::const_iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
-            return (*itBx);
+        if ( itBx.bxInEvent() == bxInEventValue ) {
+            return itBx;
         }
     }
 
@@ -557,11 +547,10 @@ void L1GlobalTriggerReadoutRecord::setGtFdlWord(
 {
 
     // if a L1GtFdlWord exists for bxInEventValue, replace it
-    for (std::vector<L1GtFdlWord>::iterator itBx = m_gtFdlWord.begin();
-            itBx != m_gtFdlWord.end(); ++itBx) {
+    for (auto & itBx : m_gtFdlWord) {
 
-        if ( (*itBx).bxInEvent() == bxInEventValue ) {
-            *itBx = gtFdlWordValue;
+        if ( itBx.bxInEvent() == bxInEventValue ) {
+            itBx = gtFdlWordValue;
             LogTrace("L1GlobalTriggerReadoutRecord")
             << "L1GlobalTriggerReadoutRecord: replacing L1GtFdlWord for bxInEvent = "
             << bxInEventValue << "\n"
@@ -594,14 +583,13 @@ const L1GtPsbWord L1GlobalTriggerReadoutRecord::gtPsbWord(
     cms_uint16_t boardIdValue, int bxInEventValue) const
 {
 
-    for (std::vector<L1GtPsbWord>::const_iterator itBx = m_gtPsbWord.begin();
-            itBx != m_gtPsbWord.end(); ++itBx) {
+    for (const auto & itBx : m_gtPsbWord) {
 
         if (
-            ((*itBx).bxInEvent() == bxInEventValue) &&
-            ((*itBx).boardId() == boardIdValue)) {
+            (itBx.bxInEvent() == bxInEventValue) &&
+            (itBx.boardId() == boardIdValue)) {
 
-            return (*itBx);
+            return itBx;
 
         }
     }
@@ -633,14 +621,13 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
 {
 
     // if a L1GtPsbWord with the same bxInEventValue and boardIdValue exists, replace it
-    for (std::vector<L1GtPsbWord>::iterator itBx = m_gtPsbWord.begin();
-            itBx != m_gtPsbWord.end(); ++itBx) {
+    for (auto & itBx : m_gtPsbWord) {
 
         if (
-            ((*itBx).bxInEvent() == bxInEventValue) &&
-            ((*itBx).boardId() == boardIdValue)) {
+            (itBx.bxInEvent() == bxInEventValue) &&
+            (itBx.boardId() == boardIdValue)) {
 
-            *itBx = gtPsbWordValue;
+            itBx = gtPsbWordValue;
 
             LogTrace("L1GlobalTriggerReadoutRecord")
             << "\nL1GlobalTriggerReadoutRecord: replacing L1GtPsbWord with boardId = "
@@ -655,14 +642,13 @@ void L1GlobalTriggerReadoutRecord::setGtPsbWord(
     // otherwise, write in the first empty PSB
     // empty means: PSB with bxInEvent = 0, boardId = 0
 
-    for (std::vector<L1GtPsbWord>::iterator itBx = m_gtPsbWord.begin();
-            itBx != m_gtPsbWord.end(); ++itBx) {
+    for (auto & itBx : m_gtPsbWord) {
 
         if (
-            ((*itBx).bxInEvent() == 0) &&
-            ((*itBx).boardId() == 0)) {
+            (itBx.bxInEvent() == 0) &&
+            (itBx.boardId() == 0)) {
 
-            *itBx = gtPsbWordValue;
+            itBx = gtPsbWordValue;
 
             LogTrace("L1GlobalTriggerReadoutRecord")
             << "\nL1GlobalTriggerReadoutRecord: filling an empty L1GtPsbWord"
@@ -714,17 +700,15 @@ void L1GlobalTriggerReadoutRecord::reset()
 
     m_gtfeWord.reset();
 
-    for (std::vector<L1GtFdlWord>::iterator itFdl = m_gtFdlWord.begin();
-            itFdl != m_gtFdlWord.end(); ++itFdl) {
+    for (auto & itFdl : m_gtFdlWord) {
 
-        itFdl->reset();
+        itFdl.reset();
 
     }
 
-    for (std::vector<L1GtPsbWord>::iterator itPsb = m_gtPsbWord.begin();
-            itPsb != m_gtPsbWord.end(); ++itPsb) {
+    for (auto & itPsb : m_gtPsbWord) {
 
-        itPsb->reset();
+        itPsb.reset();
 
     }
 
@@ -740,17 +724,15 @@ void L1GlobalTriggerReadoutRecord::print(std::ostream& myCout) const
 
     m_gtfeWord.print(myCout);
 
-    for (std::vector<L1GtFdlWord>::const_iterator itFdl = m_gtFdlWord.begin();
-            itFdl != m_gtFdlWord.end(); ++itFdl) {
+    for (const auto & itFdl : m_gtFdlWord) {
 
-        itFdl->print(myCout);
+        itFdl.print(myCout);
 
     }
 
-    for (std::vector<L1GtPsbWord>::const_iterator itPsb = m_gtPsbWord.begin();
-            itPsb != m_gtPsbWord.end(); ++itPsb) {
+    for (const auto & itPsb : m_gtPsbWord) {
 
-        itPsb->print(myCout);
+        itPsb.print(myCout);
 
     }
 

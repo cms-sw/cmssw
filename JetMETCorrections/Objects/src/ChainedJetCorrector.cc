@@ -11,8 +11,8 @@ double ChainedJetCorrector::correction (const LorentzVector& fJet) const
 {
   LorentzVector jet = fJet;
   double result = 1;
-  for (size_t i = 0; i < mCorrectors.size (); ++i) {
-    double scale = mCorrectors[i]->correction (jet);
+  for (auto mCorrector : mCorrectors) {
+    double scale = mCorrector->correction (jet);
     jet *= scale;
     result *= scale;
   }
@@ -24,8 +24,8 @@ double ChainedJetCorrector::correction (const reco::Jet& fJet) const
 {
   std::auto_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
   double result = 1;
-  for (size_t i = 0; i < mCorrectors.size (); ++i) {
-    double scale = mCorrectors[i]->correction (*jet);
+  for (auto mCorrector : mCorrectors) {
+    double scale = mCorrector->correction (*jet);
     jet->scaleEnergy (scale);
     result *= scale;
   }
@@ -39,8 +39,8 @@ double ChainedJetCorrector::correction (const reco::Jet& fJet,
 {
   std::auto_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
   double result = 1;
-  for (size_t i = 0; i < mCorrectors.size (); ++i) {
-    double scale = mCorrectors[i]->correction (*jet, fEvent, fSetup);
+  for (auto mCorrector : mCorrectors) {
+    double scale = mCorrector->correction (*jet, fEvent, fSetup);
     jet->scaleEnergy (scale);
     result *= scale;
   }
@@ -54,8 +54,8 @@ double ChainedJetCorrector::correction (const reco::Jet& fJet,
 {
   std::auto_ptr<reco::Jet> jet (dynamic_cast<reco::Jet*> (fJet.clone ()));
   double result = 1;
-  for (size_t i = 0; i < mCorrectors.size (); ++i) {
-    double scale = mCorrectors[i]->correction (*jet, fJetRef, fEvent, fSetup);
+  for (auto mCorrector : mCorrectors) {
+    double scale = mCorrector->correction (*jet, fJetRef, fEvent, fSetup);
     jet->scaleEnergy (scale);
     result *= scale;
   }
@@ -65,8 +65,8 @@ double ChainedJetCorrector::correction (const reco::Jet& fJet,
 /// if correction needs event information
 bool ChainedJetCorrector::eventRequired () const
 {
-  for (size_t i = 0; i < mCorrectors.size (); ++i) {
-    if (mCorrectors[i]->eventRequired ()) return true;
+  for (auto mCorrector : mCorrectors) {
+    if (mCorrector->eventRequired ()) return true;
   }
   return false;
 }
@@ -74,8 +74,8 @@ bool ChainedJetCorrector::eventRequired () const
 /// if correction needs jet reference
 bool ChainedJetCorrector::refRequired () const
 {
-  for (size_t i = 0; i < mCorrectors.size (); ++i) {
-    if (mCorrectors[i]->refRequired ()) return true;
+  for (auto mCorrector : mCorrectors) {
+    if (mCorrector->refRequired ()) return true;
   }
   return false;
 }

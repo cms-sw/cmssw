@@ -65,8 +65,8 @@ CentralityFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
    int bin = *cbin_;
 
-   for(unsigned int i = 0; i < selectedBins_.size(); ++i){
-     if(bin == selectedBins_[i]) result = true;
+   for(int selectedBin : selectedBins_){
+     if(bin == selectedBin) result = true;
    }
 
    return result;

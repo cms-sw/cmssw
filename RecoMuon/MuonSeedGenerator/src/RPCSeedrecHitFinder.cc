@@ -80,8 +80,8 @@ void RPCSeedrecHitFinder::fillrecHits() {
         return;
     }
     cout << "Now fill recHits from Layers: ";
-    for(unsigned int k = 0; k < LayersinRPC.size(); k++)
-        cout << LayersinRPC[k] <<" ";
+    for(unsigned int k : LayersinRPC)
+        cout << k <<" ";
     cout << endl;
     unsigned int LayerIndex = 0;
     therecHits.clear();

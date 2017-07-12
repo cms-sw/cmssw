@@ -214,34 +214,32 @@ BlockAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 	    // otherwise is possible to loop over all the elements associated
 	    
-	    for(std::multimap<double, unsigned int>::iterator itecal = ecalAssoPFClusters.begin();
-		itecal != ecalAssoPFClusters.end(); ++itecal) {
+	    for(auto & ecalAssoPFCluster : ecalAssoPFClusters) {
 	      // to get the reference to the PF clusters, this is needed.
-	      reco::PFClusterRef clusterRef = elements[itecal->second].clusterRef();	
+	      reco::PFClusterRef clusterRef = elements[ecalAssoPFCluster.second].clusterRef();	
 	      
 	      // from the clusterRef get the energy, direction, etc
 	      float ClustRawEnergy = clusterRef->energy();
 	      float ClustEta = clusterRef->position().eta();
 	      float ClustPhi = clusterRef->position().phi();
 
-	      cout << " My cluster index " << itecal->second 
+	      cout << " My cluster index " << ecalAssoPFCluster.second 
 		   << " energy " <<  ClustRawEnergy
 		   << " eta " << ClustEta
 		   << " phi " << ClustPhi << endl;
 
 	      // now retrieve the tracks associated to the PFClusters
 	      std::multimap<double, unsigned int> associatedTracks;
-	      iBlock->associatedElements(itecal->second,linkData,
+	      iBlock->associatedElements(ecalAssoPFCluster.second,linkData,
 					 associatedTracks,
 					 reco::PFBlockElement::TRACK,
 					 reco::PFBlock::LINKTEST_ALL);
 	      if (associatedTracks.size()>0)
 		{
-		  for(std::multimap<double, unsigned int>::iterator ittrack = associatedTracks.begin();
-		      ittrack != associatedTracks.end(); ++ittrack) {
+		  for(auto & associatedTrack : associatedTracks) {
 		    cout << " Found a track.  Eenergy " ;
 		    // no need to dynamic_cast, the trackRef() methods exists for all PFBlockElements
-		    std::cout << elements[ittrack->second].trackRef()->p() << std::endl;
+		    std::cout << elements[associatedTrack.second].trackRef()->p() << std::endl;
 		    
 		  } // loop on elements
 		} // associated tracks

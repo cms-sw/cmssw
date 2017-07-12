@@ -125,21 +125,21 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
   // create a collection on TimeMeasurements for the track        
   std::vector<TimeMeasurement> tms;
-  for (std::vector<const CSCSegment*>::iterator rechit = range.begin(); rechit!=range.end();++rechit) {
+  for (auto & rechit : range) {
 
     // Create the ChamberId
-    DetId id = (*rechit)->geographicalId();
+    DetId id = rechit->geographicalId();
     CSCDetId chamberId(id.rawId());
     //    int station = chamberId.station();
 
-    if (!(*rechit)->specificRecHits().size()) continue;
+    if (!rechit->specificRecHits().size()) continue;
 
-    const std::vector<CSCRecHit2D> hits2d = (*rechit)->specificRecHits();
+    const std::vector<CSCRecHit2D> hits2d = rechit->specificRecHits();
 
     // store all the hits from the segment
-    for (std::vector<CSCRecHit2D>::const_iterator hiti=hits2d.begin(); hiti!=hits2d.end(); hiti++) {
+    for (const auto & hiti : hits2d) {
 
-      const GeomDet* cscDet = theTrackingGeometry->idToDet(hiti->geographicalId());
+      const GeomDet* cscDet = theTrackingGeometry->idToDet(hiti.geographicalId());
       TimeMeasurement thisHit;
 
       std::pair< TrajectoryStateOnSurface, double> tsos;
@@ -147,20 +147,20 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
 
       double dist;            
       if (tsos.first.isValid()) dist = tsos.second+posp.mag(); 
-        else dist = cscDet->toGlobal(hiti->localPosition()).mag();
+        else dist = cscDet->toGlobal(hiti.localPosition()).mag();
 
       thisHit.distIP = dist;
       if (UseStripTime) {
         thisHit.weightInvbeta = dist*dist/(theStripError_*theStripError_*30.*30.);
         thisHit.weightTimeVtx = 1./(theStripError_*theStripError_);
-        thisHit.timeCorr = hiti->tpeak()-theStripTimeOffset_;
+        thisHit.timeCorr = hiti.tpeak()-theStripTimeOffset_;
         tms.push_back(thisHit);
       }
 
       if (UseWireTime) {
 	thisHit.weightInvbeta = dist*dist/(theWireError_*theWireError_*30.*30.);
         thisHit.weightTimeVtx = 1./(theWireError_*theWireError_);
-        thisHit.timeCorr = hiti->wireTime()-theWireTimeOffset_;
+        thisHit.timeCorr = hiti.wireTime()-theWireTimeOffset_;
         tms.push_back(thisHit);
       }
       
@@ -187,13 +187,13 @@ CSCTimingExtractor::fillTiming(TimeMeasurementSequence &tmSequence, reco::TrackR
     totalWeightInvbeta=0;
     totalWeightTimeVtx=0;
       
-    for (std::vector<TimeMeasurement>::iterator tm=tms.begin(); tm!=tms.end(); ++tm) {
-      dstnc.push_back(tm->distIP);
-      local_t0.push_back(tm->timeCorr);
-      hitWeightInvbeta.push_back(tm->weightInvbeta);
-      hitWeightTimeVtx.push_back(tm->weightTimeVtx);
-      totalWeightInvbeta+=tm->weightInvbeta;
-      totalWeightTimeVtx+=tm->weightTimeVtx;
+    for (auto & tm : tms) {
+      dstnc.push_back(tm.distIP);
+      local_t0.push_back(tm.timeCorr);
+      hitWeightInvbeta.push_back(tm.weightInvbeta);
+      hitWeightTimeVtx.push_back(tm.weightTimeVtx);
+      totalWeightInvbeta+=tm.weightInvbeta;
+      totalWeightTimeVtx+=tm.weightTimeVtx;
     }
           
     if (totalWeightInvbeta==0) break;        

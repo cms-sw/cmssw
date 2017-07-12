@@ -10,8 +10,8 @@ CaloTauElementsOperators::CaloTauElementsOperators(CaloTau& theCaloTau) : TauEle
 std::vector<std::pair<math::XYZPoint,float> > 
 CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,const std::string coneMetric,const double coneSize,const double EcalRecHit_minEt,const std::vector<std::pair<math::XYZPoint,float> >& myEcalRecHits)const{
    std::vector<std::pair<math::XYZPoint,float> > theFilteredEcalRecHits;
-   for (std::vector<std::pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myEcalRecHits.begin();iEcalRecHit!=myEcalRecHits.end();++iEcalRecHit) {
-      if ((*iEcalRecHit).second*fabs(sin((*iEcalRecHit).first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(*iEcalRecHit);
+   for (const auto & myEcalRecHit : myEcalRecHits) {
+      if (myEcalRecHit.second*fabs(sin(myEcalRecHit.first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(myEcalRecHit);
    }  
    std::vector<std::pair<math::XYZPoint,float> > theFilteredEcalRecHitsInCone;
    if (coneMetric=="DR"){
@@ -32,8 +32,8 @@ CaloTauElementsOperators::EcalRecHitsInCone(const math::XYZVector& coneAxis,cons
 std::vector<std::pair<math::XYZPoint,float> > 
 CaloTauElementsOperators::EcalRecHitsInAnnulus(const math::XYZVector& coneAxis,const std::string innerconeMetric,const double innerconeSize,const std::string outerconeMetric,const double outerconeSize,const double EcalRecHit_minEt,const std::vector<std::pair<math::XYZPoint,float> >& myEcalRecHits) const {     
    std::vector<std::pair<math::XYZPoint,float> > theFilteredEcalRecHits;
-   for (std::vector<std::pair<math::XYZPoint,float> >::const_iterator iEcalRecHit=myEcalRecHits.begin();iEcalRecHit!=myEcalRecHits.end();++iEcalRecHit) {
-      if ((*iEcalRecHit).second*fabs(sin((*iEcalRecHit).first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(*iEcalRecHit);
+   for (const auto & myEcalRecHit : myEcalRecHits) {
+      if (myEcalRecHit.second*fabs(sin(myEcalRecHit.first.theta()))>EcalRecHit_minEt)theFilteredEcalRecHits.push_back(myEcalRecHit);
    }  
    std::vector<std::pair<math::XYZPoint,float> > theFilteredEcalRecHitsInAnnulus;
    if (outerconeMetric=="DR"){

@@ -160,8 +160,8 @@ void CosmicClusterProducer::clusterizeECALPart(edm::Event &evt, const edm::Event
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec;
  
-  for (int erg=0;erg<int(clusters.size());++erg){
-    reco::ClusterShape TestShape = shapeAlgo_.Calculate(clusters[erg],hitCollection_p,geometry_p,topology_p);
+  for (const auto & cluster : clusters){
+    reco::ClusterShape TestShape = shapeAlgo_.Calculate(cluster,hitCollection_p,geometry_p,topology_p);
     ClusVec.push_back(TestShape);
   }
   

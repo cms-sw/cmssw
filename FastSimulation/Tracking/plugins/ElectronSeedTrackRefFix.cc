@@ -87,14 +87,14 @@ ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSet
 
    ValueMap<PreIdRef>::Filler mapFiller(*oIdMap);
    
-   for(unsigned int s = 0;s<iSeeds->size();++s){
-     oSeeds->push_back(iSeeds->at(s));
+   for(const auto & s : *iSeeds){
+     oSeeds->push_back(s);
      TrackRef newTrackRef(newTracks,oSeeds->back().ctfTrack().index());
      oSeeds->back().setCtfTrack(newTrackRef);
    }
 
-   for(unsigned int i = 0;i<iIds->size();++i){
-     oIds->push_back(iIds->at(i));
+   for(const auto & i : *iIds){
+     oIds->push_back(i);
      TrackRef newTrackRef(newTracks,oIds->back().trackRef().index());
      oIds->back().setTrack(newTrackRef);
    }

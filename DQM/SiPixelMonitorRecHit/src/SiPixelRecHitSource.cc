@@ -188,11 +188,11 @@ void SiPixelRecHitSource::buildStructure(const edm::EventSetup& iSetup){
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->dets().size() <<" detectors"<<std::endl;
   LogVerbatim ("PixelDQM") << " *** I have " << pDD->detTypes().size() <<" types"<<std::endl;
   
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it : pDD->dets()){
     
-    if(dynamic_cast<PixelGeomDetUnit const *>((*it))!=0){
+    if(dynamic_cast<PixelGeomDetUnit const *>(it)!=0){
 
-      DetId detId = (*it)->geographicalId();
+      DetId detId = it->geographicalId();
       
       if((detId.subdetId() == static_cast<int>(PixelSubdetector::PixelBarrel)) ||
 	 (detId.subdetId() == static_cast<int>(PixelSubdetector::PixelEndcap))){ 

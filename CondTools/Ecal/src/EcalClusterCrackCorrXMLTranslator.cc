@@ -76,7 +76,7 @@ EcalClusterCrackCorrXMLTranslator::dumpXML(
   const std::string ECCC_tag[4] = {"IPCloseEtaSide", "IPFarEtaSide",
 				   "IPClosePhiSide", "IPFarPhiSide"};;
   int num = 0;
-  for ( EcalFunctionParameters::const_iterator it = record.params().begin(); it != record.params().end(); ++it ) {
+  for (float it : record.params()) {
     int side = num /5;
     int par = num%5;
     std::string s;
@@ -88,7 +88,7 @@ EcalClusterCrackCorrXMLTranslator::dumpXML(
       root->getOwnerDocument()->createElement( cms::xerces::uStr(sw.c_str()).ptr());
     root->appendChild(ECCC);
 
-    WriteNodeWithValue(ECCC,Value_tag,*it);
+    WriteNodeWithValue(ECCC,Value_tag,it);
     num++;
   } 
   

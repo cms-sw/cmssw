@@ -252,8 +252,8 @@ void ProcMLP::trainData(const std::vector<double> *values,
 		vars[i] = values->front();
 	}
 
-	for(unsigned int i = 0; i < targets.size(); i++)
-		targets[i] = target;
+	for(double & i : targets)
+		i = target;
 
 	mlp->set(row++, &vars.front(), &targets.front(), weight);
 }

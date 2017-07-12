@@ -17,12 +17,12 @@ ZonesOutput zonemaker(std::vector<ConvertedHit> ConvHits){
   PhiMemoryImage image0;
   std::vector<PhiMemoryImage> zones (4,image0);
   
-  for (std::vector<ConvertedHit>::iterator h = ConvHits.begin(); h != ConvHits.end(); h++){ 
+  for (auto & ConvHit : ConvHits){ 
 
     int zmask[4] = {1,2,4,8};
     for(int zone=0;zone<4;zone++){
-      if(h->ZoneWord() & zmask[zone]){
-	zones[zone].SetBit(h->Station(),h->Zhit()+1);
+      if(ConvHit.ZoneWord() & zmask[zone]){
+	zones[zone].SetBit(ConvHit.Station(),ConvHit.Zhit()+1);
       }
     }
   }

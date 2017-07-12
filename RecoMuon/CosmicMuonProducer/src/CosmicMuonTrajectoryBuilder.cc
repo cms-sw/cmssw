@@ -362,7 +362,7 @@ CosmicMuonTrajectoryBuilder::trajectories(const TrajectorySeed& seed) {
        }
   }
 
-  for ( vector<Trajectory*>::iterator t = trajL.begin(); t != trajL.end(); ++t ) delete *t;
+  for (auto & t : trajL) delete t;
 
   trajL.clear();
 
@@ -761,8 +761,8 @@ void CosmicMuonTrajectoryBuilder::reverseTrajectoryPropagationDirection(Trajecto
   Trajectory newTraj(traj.seed(), newDir);
   const std::vector<TrajectoryMeasurement>& meas = traj.measurements();
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = meas.begin(); itm != meas.end(); ++itm) {
-    newTraj.push(*itm);
+  for (const auto & mea : meas) {
+    newTraj.push(mea);
   }
 
   while (!traj.empty()) {

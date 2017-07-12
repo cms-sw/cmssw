@@ -131,12 +131,11 @@ void DTSegment2DQuality::analyze(const Event & event, const EventSetup& eventSet
 
   //Map simHits by sl
   map<DTSuperLayerId, PSimHitContainer > simHitsPerSl;
-  for(PSimHitContainer::const_iterator simHit = simHits->begin();
-      simHit != simHits->end(); simHit++){
+  for(const auto & simHit : *simHits){
     // Create the id of the sl (the simHits in the DT known their wireId)
-    DTSuperLayerId slId = ((DTWireId(simHit->detUnitId())).layerId()).superlayerId();
+    DTSuperLayerId slId = ((DTWireId(simHit.detUnitId())).layerId()).superlayerId();
     // Fill the map
-    simHitsPerSl[slId].push_back(*simHit);
+    simHitsPerSl[slId].push_back(simHit);
   }
 
   // Get the 2D rechits from the event

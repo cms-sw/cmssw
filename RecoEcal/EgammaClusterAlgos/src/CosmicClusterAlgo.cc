@@ -322,10 +322,10 @@ bool CosmicClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator)
    navigator.home();
 
    std::vector<DetId>::const_iterator detItr;
-   for (unsigned int i = 0; i < swissCrossVec.size(); ++i)
+   for (auto & i : swissCrossVec)
    {
-      thisHit = recHits_->find(swissCrossVec[i]);
-      if  ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end()) thisEnergy = 0.0;
+      thisHit = recHits_->find(i);
+      if  ((i == DetId(0)) || thisHit == recHits_->end()) thisEnergy = 0.0;
       else thisEnergy = thisHit->energy();
       if (thisEnergy > seedEnergy)
       {

@@ -72,19 +72,19 @@ TtDecayChannelSelector::operator()(const reco::GenParticleCollection& parts, std
 	  ++iBeauty;
 	}
 	if( search(td, TopDecayID::WID, inputType) ){
-	  for(reco::GenParticle::const_iterator wd=td->begin(); wd!=td->end(); ++wd){
-	    if( std::abs(wd->pdgId())==TopDecayID::elecID ){
+	  for(const auto & wd : *td){
+	    if( std::abs(wd.pdgId())==TopDecayID::elecID ){
 	      ++iElec;
 	    }
-	    if( std::abs(wd->pdgId())==TopDecayID::muonID ){
+	    if( std::abs(wd.pdgId())==TopDecayID::muonID ){
 	      ++iMuon;
 	    }
-	    if( std::abs(wd->pdgId())==TopDecayID::tauID  ){ 
+	    if( std::abs(wd.pdgId())==TopDecayID::tauID  ){ 
 	      if(restrictTauDecays_){
 		// count as iTau if it is leptonic, one-prong
 		// or three-prong and ignore increasing iLep
 		// though else
-		if(tauDecay(*wd)){
+		if(tauDecay(wd)){
 		  ++iTau; 
 		} else{
 		  ++iLep; 
@@ -196,8 +196,8 @@ TtDecayChannelSelector::countProngs(const reco::Candidate& part) const
   }
   // if unstable, call recursively on daughters
   int prong =0;
-  for(reco::Candidate::const_iterator daughter=part.begin();daughter!=part.end(); ++daughter){
-    prong += countProngs(*daughter);
+  for(const auto & daughter : part){
+    prong += countProngs(daughter);
   }
   return prong;
 }

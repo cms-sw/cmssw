@@ -187,20 +187,20 @@ void BDHadronTrackMonitoringHarvester::dqmEndJob(DQMStore::IBooker & ibook, DQMS
     // ***********************
 
     // b jets
-    for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        iget.removeElement("nTrk_bjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+    for(const auto & i : BDHadronTrackMonitoringAnalyzer::TrkHistCat) {
+        iget.removeElement("nTrk_bjet_"+i);
     }
     iget.removeElement("nTrkAll_bjet");
 
     // c jets
-    for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        iget.removeElement("nTrk_cjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+    for(const auto & i : BDHadronTrackMonitoringAnalyzer::TrkHistCat) {
+        iget.removeElement("nTrk_cjet_"+i);
     }
     iget.removeElement("nTrkAll_cjet");
 
     // dusg jets
-    for(unsigned int i = 0; i < BDHadronTrackMonitoringAnalyzer::TrkHistCat.size(); i++) {
-        iget.removeElement("nTrk_dusgjet_"+BDHadronTrackMonitoringAnalyzer::TrkHistCat[i]);
+    for(const auto & i : BDHadronTrackMonitoringAnalyzer::TrkHistCat) {
+        iget.removeElement("nTrk_dusgjet_"+i);
     }
     iget.removeElement("nTrkAll_dusgjet");
 

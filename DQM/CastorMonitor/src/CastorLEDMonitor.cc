@@ -59,9 +59,9 @@ void CastorLEDMonitor::processEvent( const CastorDigiCollection& castorDigis, co
   return;
  }
 
- for(CastorDigiCollection::const_iterator j=castorDigis.begin(); j!=castorDigis.end(); j++)
+ for(const auto & castorDigi : castorDigis)
  {
-   const CastorDataFrame digi = (const CastorDataFrame)(*j);
+   const CastorDataFrame digi = (const CastorDataFrame)castorDigi;
    int module = digi.id().module()-1;
    int sector = digi.id().sector()-1;
    double qsum=0.;

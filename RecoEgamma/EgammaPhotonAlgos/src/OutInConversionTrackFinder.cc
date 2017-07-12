@@ -104,23 +104,23 @@ std::vector<Trajectory> OutInConversionTrackFinder::tracks(const TrajectorySeedC
   
   int goodSeed=0;  
   std::vector<Trajectory> theTmpTrajectories;
-  for(TrajectorySeedCollection::const_iterator iSeed=outInSeeds.begin(); iSeed!=outInSeeds.end();iSeed++){
+  for(const auto & outInSeed : outInSeeds){
 
     theTmpTrajectories.clear();
     
-    if (!theSeedCleaner_ || theSeedCleaner_->good(&(*iSeed))) {
+    if (!theSeedCleaner_ || theSeedCleaner_->good(&outInSeed)) {
       goodSeed++;
 
 
-      DetId tmpId = DetId( iSeed->startingState().detId());
+      DetId tmpId = DetId( outInSeed.startingState().detId());
       const GeomDet* tmpDet  = theMeasurementTracker_->geomTracker()->idToDet( tmpId );
-      GlobalVector gv = tmpDet->surface().toGlobal( iSeed->startingState().parameters().momentum() );
+      GlobalVector gv = tmpDet->surface().toGlobal( outInSeed.startingState().parameters().momentum() );
       
       //      std::cout << " OutInConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
-      LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << " R " << gv.perp() << " eta " << gv.eta() << " phi " << gv.phi() << "\n";
+      LogDebug("OutInConversionTrackFinder") << " OutInConversionTrackFinder::tracks seed starting state position  " << outInSeed.startingState().parameters().position() << " momentum " <<  outInSeed.startingState().parameters().momentum() << " charge " << outInSeed.startingState().parameters().charge() << " R " << gv.perp() << " eta " << gv.eta() << " phi " << gv.phi() << "\n";
       
       
-      theCkfTrajectoryBuilder_->trajectories(*iSeed, theTmpTrajectories);
+      theCkfTrajectoryBuilder_->trajectories(outInSeed, theTmpTrajectories);
       
       LogDebug("OutInConversionTrackFinder") << "OutInConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories" << "\n";
       

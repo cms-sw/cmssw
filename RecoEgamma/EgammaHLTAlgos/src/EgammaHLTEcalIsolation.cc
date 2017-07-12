@@ -37,10 +37,8 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
 
 
 
-  for(std::vector<const reco::SuperCluster*>::const_iterator scItr = sclusters.begin(); scItr != sclusters.end(); ++scItr){
+  for(auto supercluster : sclusters){
     
-    
-    const reco::SuperCluster *supercluster = *scItr;
     
     float SCphi = supercluster->phi();
     float SCeta = supercluster->eta();
@@ -66,9 +64,9 @@ float EgammaHLTEcalIsolation::isolPtSum(const reco::RecoCandidate* recocandidate
   const reco::BasicCluster *cluster= 0;
 
   //loop over basic clusters
-  for(std::vector<const reco::BasicCluster*>::const_iterator cItr = bclusters.begin(); cItr != bclusters.end(); ++cItr){
+  for(auto bcluster : bclusters){
  
-    cluster = *cItr;
+    cluster = bcluster;
 //    float ebc_bcchi2 = cluster->chi2(); //chi2 for SC was useless and it is removed in 31x
     int   ebc_bcalgo = cluster->algo();
     float ebc_bce    = cluster->energy();

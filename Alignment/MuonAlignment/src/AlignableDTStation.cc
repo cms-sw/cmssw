@@ -26,9 +26,8 @@ AlignableDTStation::AlignableDTStation( const std::vector<AlignableDTChamber*>& 
 /// Clean delete of the vector and its elements
 AlignableDTStation::~AlignableDTStation() 
 {
-  for ( std::vector<AlignableDTChamber*>::iterator iter = theDTChambers.begin(); 
-	iter != theDTChambers.end(); iter++)
-    delete *iter;
+  for (auto & theDTChamber : theDTChambers)
+    delete theDTChamber;
 
 }
 
@@ -61,9 +60,8 @@ AlignableDTStation::PositionType AlignableDTStation::computePosition()
 
   float zz = 0.;
 
-  for ( std::vector<AlignableDTChamber*>::iterator ilayer = theDTChambers.begin();
-		ilayer != theDTChambers.end(); ilayer++ )
-    zz += (*ilayer)->globalPosition().z();
+  for (auto & theDTChamber : theDTChambers)
+    zz += theDTChamber->globalPosition().z();
 
   zz /= static_cast<float>(theDTChambers.size());
 
@@ -98,8 +96,7 @@ void AlignableDTStation::dump( void ) const
 {
 
   edm::LogInfo("AlignableDump") << (*this);
-  for ( std::vector<AlignableDTChamber*>::const_iterator iChamber = theDTChambers.begin();
-		iChamber != theDTChambers.end(); iChamber++ )
-	edm::LogInfo("AlignableDump") << (**iChamber);
+  for (auto theDTChamber : theDTChambers)
+	edm::LogInfo("AlignableDump") << (*theDTChamber);
 
 }

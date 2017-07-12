@@ -791,14 +791,13 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			}
 
 			int iflag=0;
-			for (std::vector<hcaldqm::flag::Flag>::iterator ft=_vflags.begin();
-				ft!=_vflags.end(); ++ft)
+			for (auto & _vflag : _vflags)
 			{
 				_cSummaryvsLS_FED.setBinContent(eid, _currentLS, iflag,
-					int(ft->_state));
-				fSum+=(*ft);
+					int(_vflag._state));
+				fSum+=_vflag;
 				iflag++;
-				ft->reset();
+				_vflag.reset();
 			}
 			_cSummaryvsLS.setBinContent(eid, _currentLS, fSum._state);
 		}
@@ -861,10 +860,9 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 			+ _tagHEP17.label() + " " + _tagHEP17.instance());
 
 	int nHB(0), nHE(0), nHO(0), nHF(0);
-	for (HBHEDigiCollection::const_iterator it=chbhe->begin();
-		it!=chbhe->end(); ++it)
+	for (const auto & it : *chbhe)
 	{
-		const HBHEDataFrame digi = (const HBHEDataFrame)(*it);
+		const HBHEDataFrame digi = (const HBHEDataFrame)it;
 		HcalDetId did = digi.id();
 		int digiSizeToUse = floor(digi.size()/constants::CAPS_NUM)*
 			constants::CAPS_NUM-1;
@@ -872,14 +870,14 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 
 		for (int i=0; i<digiSizeToUse; i++)
 		{
-			_cADC_SubdetPM.fill(did, it->sample(i).adc());
+			_cADC_SubdetPM.fill(did, it.sample(i).adc());
 
-			_xPedSum1LS.get(did)+=it->sample(i).adc();
-			_xPedSum21LS.get(did)+=it->sample(i).adc()*it->sample(i).adc();
+			_xPedSum1LS.get(did)+=it.sample(i).adc();
+			_xPedSum21LS.get(did)+=it.sample(i).adc()*it.sample(i).adc();
 			_xPedEntries1LS.get(did)++;
 			
-			_xPedSumTotal.get(did)+=it->sample(i).adc();
-			_xPedSum2Total.get(did)+=it->sample(i).adc()*it->sample(i).adc();
+			_xPedSumTotal.get(did)+=it.sample(i).adc();
+			_xPedSum2Total.get(did)+=it.sample(i).adc()*it.sample(i).adc();
 			_xPedEntriesTotal.get(did)++;
 		}
 	}
@@ -915,24 +913,23 @@ PedestalTask::PedestalTask(edm::ParameterSet const& ps):
 	_cOccupancyEAvsLS_Subdet.fill(HcalDetId(HcalEndcap, 1,1,1), 
 		_currentLS, nHE);
 
-	for (HODigiCollection::const_iterator it=cho->begin();
-		it!=cho->end(); ++it)
+	for (const auto & it : *cho)
 	{
-		const HODataFrame digi = (const HODataFrame)(*it);
+		const HODataFrame digi = (const HODataFrame)it;
 		HcalDetId did = digi.id();
 		int digiSizeToUse = floor(digi.size()/constants::CAPS_NUM)*
 			constants::CAPS_NUM-1;
 		nHO++;
 		for (int i=0; i<digiSizeToUse; i++)
 		{
-			_cADC_SubdetPM.fill(did, it->sample(i).adc());
+			_cADC_SubdetPM.fill(did, it.sample(i).adc());
 
-			_xPedSum1LS.get(did)+=it->sample(i).adc();
-			_xPedSum21LS.get(did)+=it->sample(i).adc()*it->sample(i).adc();
+			_xPedSum1LS.get(did)+=it.sample(i).adc();
+			_xPedSum21LS.get(did)+=it.sample(i).adc()*it.sample(i).adc();
 			_xPedEntries1LS.get(did)++;
 			
-			_xPedSumTotal.get(did)+=it->sample(i).adc();
-			_xPedSum2Total.get(did)+=it->sample(i).adc()*it->sample(i).adc();
+			_xPedSumTotal.get(did)+=it.sample(i).adc();
+			_xPedSum2Total.get(did)+=it.sample(i).adc()*it.sample(i).adc();
 			_xPedEntriesTotal.get(did)++;
 		}
 	}

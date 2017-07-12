@@ -120,48 +120,48 @@ void makePlots(std::string inputFileName, std::string outputFileName)
   std::vector<TH1F*> hLayers;
 //   unsigned int normFactor;
   
-  for(std::vector< std::string >::iterator itPlot=plotType.begin(); itPlot!=plotType.end(); itPlot++)
+  for(auto & itPlot : plotType)
   {
     // Put together the Tracker histograms with the TIB, TID, TOB and TEC ones
     
-    histoName = "h" + *itPlot + "Tracker";
+    histoName = "h" + itPlot + "Tracker";
     hTracker = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTracker) {
-      hTracker->Scale(1/findNormFactor(*itPlot,"Tracker",stackHistograms));
+      hTracker->Scale(1/findNormFactor(itPlot,"Tracker",stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
 
     histoStack = new THStack(histoName.c_str(), histoName.c_str());
 
-    histoName = "h" + *itPlot + "TIB";
+    histoName = "h" + itPlot + "TIB";
     hTIB = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTIB) {
-      hTIB->Scale(1/findNormFactor(*itPlot,"TIB",stackHistograms));
+      hTIB->Scale(1/findNormFactor(itPlot,"TIB",stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
     
-    histoName = "h" + *itPlot + "TID";
+    histoName = "h" + itPlot + "TID";
     hTID = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTID) {
-      hTID->Scale(1/findNormFactor(*itPlot,"TID",stackHistograms));
+      hTID->Scale(1/findNormFactor(itPlot,"TID",stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
 
-    histoName = "h" + *itPlot + "TOB";
+    histoName = "h" + itPlot + "TOB";
     hTOB = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTOB) {
-      hTOB->Scale(1/findNormFactor(*itPlot,"TOB",stackHistograms));
+      hTOB->Scale(1/findNormFactor(itPlot,"TOB",stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
 
-    histoName = "h" + *itPlot + "TEC";
+    histoName = "h" + itPlot + "TEC";
     hTEC = (TH1F*)inputFile->Get(histoName.c_str());
     if(hTEC) {
-      hTEC->Scale(1/findNormFactor(*itPlot,"TEC",stackHistograms));
+      hTEC->Scale(1/findNormFactor(itPlot,"TEC",stackHistograms));
     }
     else {std::cout << histoName << " not found" << std::endl;}
     
-    c1 = new TCanvas(("c"+*itPlot+"Tracker").c_str(), "", 1200, 600);
+    c1 = new TCanvas(("c"+itPlot+"Tracker").c_str(), "", 1200, 600);
     setCanvasStyle(c1, false);
     //     hTracker->Draw();
     if(hTracker) setHistoStackStyle(hTracker,1);
@@ -215,7 +215,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
     c1->Update();
     outputFile->cd();
     c1->Write();
-    c1->SaveAs((*itPlot+"Tracker.png").c_str());
+    c1->SaveAs((itPlot+"Tracker.png").c_str());
     
     delete histoStack;
     delete textX;
@@ -226,33 +226,33 @@ void makePlots(std::string inputFileName, std::string outputFileName)
    
     
     // Put together the histograms for the different layers of the detectors
-    for(std::vector< std::string >::iterator itSub=subDetName.begin(); itSub!=subDetName.end(); itSub++)
+    for(auto & itSub : subDetName)
     {
       unsigned int nLayers = 0;
       std::string layerName;
 //       std::cout << "itSub = " << (*itSub).c_str() << std::endl;
-      if((*itSub).compare("TIB")==0)
+      if(itSub.compare("TIB")==0)
       {
         nLayers=4;
         layerName="Layer";
         legend = new TLegend(0.4,0.9,0.9,1);
         setLegendStyle(legend,2);
       }
-      else if((*itSub).compare("TID+")==0 || (*itSub).compare("TID-")==0)
+      else if(itSub.compare("TID+")==0 || itSub.compare("TID-")==0)
       {
         nLayers=3;
         layerName="Disk";
         legend = new TLegend(0.35,0.9,0.9,1);
         setLegendStyle(legend,3);
       }
-      else if((*itSub).compare("TOB")==0)
+      else if(itSub.compare("TOB")==0)
       {
         nLayers=6;
         layerName="Layer";
         legend = new TLegend(0.35,0.9,0.9,1);
         setLegendStyle(legend,3);
       }
-      else if((*itSub).compare("TEC+")==0 || (*itSub).compare("TEC-")==0)
+      else if(itSub.compare("TEC+")==0 || itSub.compare("TEC-")==0)
       {
         nLayers=9;
         layerName="Disk";
@@ -260,7 +260,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
         setLegendStyle(legend,5);
       }
       
-      c1 = new TCanvas(("c" + *itPlot + *itSub).c_str(),"", 1200, 600);
+      c1 = new TCanvas(("c" + itPlot + itSub).c_str(),"", 1200, 600);
       setCanvasStyle(c1, false);
 //       if((*itSub).compare("TEC+")==0 || (*itSub).compare("TEC-")==0)
 //       {
@@ -268,7 +268,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
 //       }
 //       else
 //       {
-      histoName = "h" + *itPlot + *itSub;
+      histoName = "h" + itPlot + itSub;
 //       }
 //       hSubDet = (TH1F*)inputFile->Get(histoName.c_str());
 //       setHistoStackStyle(hSubDet,1);
@@ -344,16 +344,16 @@ void makePlots(std::string inputFileName, std::string outputFileName)
 //         }
 //         else
 //         {
-          histoName = "h" + *itPlot + *itSub + layerName + oss.str();
+          histoName = "h" + itPlot + itSub + layerName + oss.str();
 //           std::cout << "histoName = " << histoName.c_str() << std::endl;
           histo = (TH1F*)inputFile->Get(histoName.c_str());
 	  if(histo) {
 	    histo2 = new TH1F(*histo);
-	    histo->Scale(1/findNormFactor(*itPlot, *itSub + " " + layerName + " " + oss.str(), false));
-	    histo2->Scale(1/findNormFactor(*itPlot, *itSub + " " + layerName + " " + oss.str(), stackHistograms));
+	    histo->Scale(1/findNormFactor(itPlot, itSub + " " + layerName + " " + oss.str(), false));
+	    histo2->Scale(1/findNormFactor(itPlot, itSub + " " + layerName + " " + oss.str(), stackHistograms));
 	    // First: plot histogram separately
 	    setHistoStyle(histo);
-	    c2 = new TCanvas(("c" + *itPlot + *itSub +  layerName + oss.str()).c_str(), "", 1200, 600);
+	    c2 = new TCanvas(("c" + itPlot + itSub +  layerName + oss.str()).c_str(), "", 1200, 600);
 	    setCanvasStyle(c2, true);
 	    histo->Draw(plotHistoOptions.c_str());
 	    double histoMaximum = histo->GetMaximum();
@@ -363,7 +363,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
 		c2->SetLogy(0);
 	      }
 	    legend2 = new TLegend(0.6,0.92,0.9,0.97);
-	    legend2->AddEntry(histo,(*itSub + layerName + oss.str()).c_str());
+	    legend2->AddEntry(histo,(itSub + layerName + oss.str()).c_str());
 	    setLegendStyle(legend2, 1);
 	    legend2->Draw();
 	    textX = new TPaveText();
@@ -376,7 +376,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
 	    c2->Update();
 	    outputFile->cd();
 	    c2->Write();
-	    c2->SaveAs((*itPlot + *itSub + layerName + oss.str() + ".png").c_str());
+	    c2->SaveAs((itPlot + itSub + layerName + oss.str() + ".png").c_str());
 	    delete textX;
 	    delete textY;
 	    delete legend2;
@@ -387,7 +387,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
 	    hLayers.push_back(histo2);
 	    setHistoStackStyle(hLayers.back(), iLayer);
 	    histoStack->Add(hLayers.back());
-	    entryLabel = *itSub + " " + layerName + " " + oss.str();
+	    entryLabel = itSub + " " + layerName + " " + oss.str();
 	    legend->AddEntry(hLayers.back(), entryLabel.c_str());
 	    //           hLayers.back()->Draw("same");
 	    //         }
@@ -420,7 +420,7 @@ void makePlots(std::string inputFileName, std::string outputFileName)
       c1->Update();
       outputFile->cd();
       c1->Write();
-      c1->SaveAs((*itPlot + *itSub + ".png").c_str());
+      c1->SaveAs((itPlot + itSub + ".png").c_str());
       delete histoStack;
       delete textX;
       delete textY;

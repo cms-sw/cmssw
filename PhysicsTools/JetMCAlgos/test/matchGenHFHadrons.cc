@@ -324,32 +324,32 @@ void matchGenHFHadrons::analyze(const edm::Event& event, const edm::EventSetup& 
     
     // Finding additional b jets (before top decay)
     std::vector<int> additionalBJetIds;
-    for(std::map<int, int>::iterator it = bJetBeforeTopIds.begin(); it != bJetBeforeTopIds.end(); ++it) {
-        const int jetId = it->first;
+    for(auto & bJetBeforeTopId : bJetBeforeTopIds) {
+        const int jetId = bJetBeforeTopId.first;
         // Skipping the jet if it contains a b hadron directly from top quark decay
         if(bJetFromTopIds.count(jetId) > 0) continue;
         additionalBJetIds.push_back(jetId);
     }
     // Finding pseudo-additional b jets (after top decay)
     std::vector<int> pseudoadditionalBJetIds;
-    for(std::map<int, int>::iterator it = bJetAfterTopIds.begin(); it != bJetAfterTopIds.end(); ++it) {
-        const int jetId = it->first;
+    for(auto & bJetAfterTopId : bJetAfterTopIds) {
+        const int jetId = bJetAfterTopId.first;
         // Skipping the jet if it contains a b hadron directly from top quark decay
         if(bJetFromTopIds.count(jetId) > 0) continue;
         pseudoadditionalBJetIds.push_back(jetId);
     }
     // Finding additional c jets
     std::vector<int> additionalCJetIds;
-    for(std::map<int, int>::iterator it = cJetBeforeTopIds.begin(); it != cJetBeforeTopIds.end(); ++it) {
-        const int jetId = it->first;
+    for(auto & cJetBeforeTopId : cJetBeforeTopIds) {
+        const int jetId = cJetBeforeTopId.first;
         // Skipping the jet if it contains a b hadron directly from top quark decay
         if(bJetFromTopIds.count(jetId) > 0) continue;
         additionalCJetIds.push_back(jetId);
     }
     // Finding pseudo-additional c jets (after top decay)
     std::vector<int> pseudoadditionalCJetIds;
-    for(std::map<int, int>::iterator it = cJetAfterTopIds.begin(); it != cJetAfterTopIds.end(); ++it) {
-        const int jetId = it->first;
+    for(auto & cJetAfterTopId : cJetAfterTopIds) {
+        const int jetId = cJetAfterTopId.first;
         // Skipping the jet if it contains a b hadron directly from top quark decay
         if(bJetFromTopIds.count(jetId) > 0) continue;
         pseudoadditionalCJetIds.push_back(jetId);
@@ -438,8 +438,7 @@ void matchGenHFHadrons::findAncestorParticles( const int startId, std::set<int>&
     if(startPdgId == endPdgId && firstAnyLast == 1) {
         int nSamePdgIdMothers = 0;
         // Counting how many mothers with the same pdgId the particle has
-        for(size_t motherId = 0; motherId < motherIds.size(); ++motherId) {
-            const int motherParticleId = motherIds.at(motherId);
+        for(int motherParticleId : motherIds) {
             if(motherParticleId < 0) continue;
             int motherParticlePdgId = genParticles.at(motherParticleId).pdgId();
             if(endPdgIdIsAbs) motherParticlePdgId = std::abs(motherParticlePdgId);
@@ -452,8 +451,7 @@ void matchGenHFHadrons::findAncestorParticles( const int startId, std::set<int>&
     }
     
     // Looping over all mothers of the particle
-    for(size_t motherId = 0; motherId < motherIds.size(); ++motherId) {
-        const int motherParticleId = motherIds.at(motherId);
+    for(int motherParticleId : motherIds) {
         if(motherParticleId < 0) continue;
         int motherParticlePdgId = genParticles.at(motherParticleId).pdgId();
         if(endPdgIdIsAbs) motherParticlePdgId = std::abs(motherParticlePdgId);
@@ -610,8 +608,7 @@ void matchGenHFHadrons::fillHadronTree( TTree* tree, const int flavour, const re
         if(std::abs(hadronParticlePdgId)/100 == 5 && std::abs(hadronParticlePdgId)%1000/10/11 != 5) quarkCandidateFlavourSign *= -1;
         // Selecting candidates that have proper flavour sign
         std::vector<std::pair<int, double> > hadronLastQuarks_sameFlavour;
-        for(std::set<int>::iterator it=hadronLastQuarks.begin(); it!=hadronLastQuarks.end(); ++it) {
-            const int quarkParticleId = *it;
+        for(int quarkParticleId : hadronLastQuarks) {
             if(quarkParticleId < 0) continue;
             const int quarkParticlePdgId = genHadPlusMothers.at(quarkParticleId).pdgId();
             // Skipping quarks that have opposite flavour sign

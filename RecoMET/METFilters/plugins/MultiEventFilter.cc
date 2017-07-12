@@ -46,8 +46,8 @@ MultiEventFilter::MultiEventFilter(const edm::ParameterSet & iConfig)
   std::string fFile = fp.fullPath();
   std::ifstream inStream(fFile.c_str());
 
-  for (unsigned int i = 0; i < eventList_.size(); ++i) {
-    std::vector<std::string> tokens = edm::tokenize(eventList_[i], ":");
+  for (const auto & i : eventList_) {
+    std::vector<std::string> tokens = edm::tokenize(i, ":");
     if(tokens.size() != 3) {
       throw edm::Exception(edm::errors::Configuration) << "Incorrect event specification";
       continue;
@@ -73,10 +73,10 @@ bool MultiEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
 
   bool pass = true;
 
-  for (unsigned int i = 0; i < events_.size(); ++i) {
-    if (events_[i].event == iEvent.id().event() &&
-        events_[i].run == iEvent.id().run() &&
-        events_[i].lumi == iEvent.id().luminosityBlock()) pass = false; 
+  for (auto & event : events_) {
+    if (event.event == iEvent.id().event() &&
+        event.run == iEvent.id().run() &&
+        event.lumi == iEvent.id().luminosityBlock()) pass = false; 
   }
 
   iEvent.put(std::make_unique<bool>(pass));

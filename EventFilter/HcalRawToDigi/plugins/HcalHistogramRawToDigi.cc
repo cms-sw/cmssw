@@ -14,8 +14,8 @@ HcalHistogramRawToDigi::HcalHistogramRawToDigi(edm::ParameterSet const& conf):
   firstFED_(conf.getUntrackedParameter<int>("HcalFirstFED",FEDNumbering::MINHCALFEDID))
 {
   std::ostringstream ss;
-  for (unsigned int i=0; i<fedUnpackList_.size(); i++) 
-    ss << fedUnpackList_[i] << " ";
+  for (int i : fedUnpackList_) 
+    ss << i << " ";
   edm::LogInfo("HCAL") << "HcalHistogramRawToDigi will unpack FEDs ( " << ss.str() << ")";
 
 

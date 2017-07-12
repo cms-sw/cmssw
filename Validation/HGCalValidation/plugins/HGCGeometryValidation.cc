@@ -97,8 +97,8 @@ void HGCGeometryValidation::dqmBeginRun(const edm::Run& iRun,
 					const edm::EventSetup& iSetup) {
 
   //initiating hgcnumbering
-  for (size_t i=0; i<geometrySource_.size(); i++) {
-    if (geometrySource_[i].find("Hcal") != std::string::npos) {
+  for (auto & i : geometrySource_) {
+    if (i.find("Hcal") != std::string::npos) {
       edm::ESHandle<HcalDDDSimConstants> pHRNDC;
       iSetup.get<HcalSimNumberingRecord>().get(pHRNDC);
       if (pHRNDC.isValid()) {
@@ -106,16 +106,16 @@ void HGCGeometryValidation::dqmBeginRun(const edm::Run& iRun,
 	hgcGeometry_.push_back(0);
       } else {
 	edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for "
-				      << geometrySource_[i] << std::endl;
+				      << i << std::endl;
       }
     } else {
       edm::ESHandle<HGCalDDDConstants> hgcGeom;
-      iSetup.get<IdealGeometryRecord>().get(geometrySource_[i],hgcGeom);
+      iSetup.get<IdealGeometryRecord>().get(i,hgcGeom);
       if (hgcGeom.isValid()) {
 	hgcGeometry_.push_back(hgcGeom.product());
       } else {
 	edm::LogWarning("HGCalValid") << "Cannot initiate HGCalGeometry for "
-				      << geometrySource_[i] << std::endl;
+				      << i << std::endl;
       }
     }
   }

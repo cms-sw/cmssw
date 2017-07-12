@@ -144,8 +144,8 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
     const std::vector<std::string> & triggerNames_ = triggerNames.triggerNames();
     for (unsigned int iHLT=0; iHLT<triggerResults->size(); iHLT++) {
       int hlt    = triggerResults->accept(iHLT);
-      for (unsigned int i=0; i<trigNames_.size(); ++i) {
-	if (triggerNames_[iHLT].find(trigNames_[i].c_str())!=std::string::npos){
+      for (auto & trigName : trigNames_) {
+	if (triggerNames_[iHLT].find(trigName.c_str())!=std::string::npos){
 	  if (hlt > 0) {
 	    ok = true;
 	  }
@@ -176,8 +176,7 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
 			       << _Muon.isValid() << std::endl;
 #endif
       if (_Muon.isValid()) { 
-	for (reco::MuonCollection::const_iterator RecMuon = _Muon->begin(); 
-	     RecMuon!= _Muon->end(); ++RecMuon)  {
+	for (const auto & RecMuon : *_Muon)  {
 #ifdef DebugLog
 	  edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Muon:Track " 
 				   << RecMuon->track().isNonnull() 
@@ -189,20 +188,20 @@ bool AlCaHBHEMuonFilter::filter(edm::Event& iEvent, edm::EventSetup const& iSetu
 				   << RecMuon->globalTrack().isNonnull()
 				   << std::endl;
 #endif
-	  if ((RecMuon->track().isNonnull()) &&
-	      (RecMuon->innerTrack().isNonnull()) &&
-	      (RecMuon->outerTrack().isNonnull()) &&
-	      (RecMuon->globalTrack().isNonnull())) {
-	    const reco::Track* pTrack = (RecMuon->innerTrack()).get();
+	  if ((RecMuon.track().isNonnull()) &&
+	      (RecMuon.innerTrack().isNonnull()) &&
+	      (RecMuon.outerTrack().isNonnull()) &&
+	      (RecMuon.globalTrack().isNonnull())) {
+	    const reco::Track* pTrack = (RecMuon.innerTrack()).get();
 	    spr::propagatedTrackID trackID = spr::propagateCALO(pTrack, geo, bField, false);
 #ifdef DebugLog
 	    edm::LogInfo("HBHEMuon") << "AlCaHBHEMuonFilter::Propagate: ECAL "
 				     << trackID.okECAL << " to HCAL " 
 				     << trackID.okHCAL << std::endl;
 #endif
-	    double trackIso = RecMuon->isolationR03().sumPt;
-	    double caloIso  = RecMuon->isolationR03().emEt + RecMuon->isolationR03().hadEt;
-	    double isolR04  = ((RecMuon->pfIsolationR04().sumChargedHadronPt + std::max(0.,RecMuon->pfIsolationR04().sumNeutralHadronEt + RecMuon->pfIsolationR04().sumPhotonEt - (0.5 *RecMuon->pfIsolationR04().sumPUPt))) / RecMuon->pt());
+	    double trackIso = RecMuon.isolationR03().sumPt;
+	    double caloIso  = RecMuon.isolationR03().emEt + RecMuon.isolationR03().hadEt;
+	    double isolR04  = ((RecMuon.pfIsolationR04().sumChargedHadronPt + std::max(0.,RecMuon.pfIsolationR04().sumNeutralHadronEt + RecMuon.pfIsolationR04().sumPhotonEt - (0.5 *RecMuon.pfIsolationR04().sumPUPt))) / RecMuon.pt());
 	    bool   isoCut   = (pfCut_) ? (isolR04 < pfIsoCut_) :
 	      ((trackIso < trackIsoCut_) && (caloIso < caloIsoCut_));
 	    if ((trackID.okECAL) && (trackID.okHCAL) && isoCut) {

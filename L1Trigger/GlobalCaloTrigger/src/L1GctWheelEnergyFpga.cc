@@ -77,24 +77,24 @@ ostream& operator << (ostream& os, const L1GctWheelEnergyFpga& fpga)
       os << "LeafCard* " << i << " = " << fpga.m_inputLeafCards.at(i) << endl;
     } 
   os << "Input Ex " << endl;
-  for(unsigned i=0; i < fpga.m_inputEx.size(); i++)
+  for(const auto & i : fpga.m_inputEx)
     {
-      os << fpga.m_inputEx.at(i) << endl;
+      os << i << endl;
     } 
   os << "Input Ey " << endl;
-  for(unsigned i=0; i < fpga.m_inputEy.size(); i++)
+  for(const auto & i : fpga.m_inputEy)
     {
-      os << fpga.m_inputEy.at(i) << endl;
+      os << i << endl;
     } 
   os << "Input Et " << endl;
-  for(unsigned i=0; i < fpga.m_inputEt.size(); i++)
+  for(const auto & i : fpga.m_inputEt)
     {
-      os << fpga.m_inputEt.at(i) << endl;
+      os << i << endl;
     } 
   os << "Input Ht " << endl;
-  for(unsigned i=0; i < fpga.m_inputHt.size(); i++)
+  for(const auto & i : fpga.m_inputHt)
     {
-      os << (fpga.m_inputHt.at(i)) << endl;
+      os << i << endl;
     } 
   os << "Output Ex " << fpga.m_outputEx << endl;
   os << "Output Ey " << fpga.m_outputEy << endl;

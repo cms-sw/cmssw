@@ -54,7 +54,7 @@ namespace reco {
     /// default constructor - The vertex will not be valid. Position, error,
     /// chi2, ndof will have random entries, and the vectors of tracks will be empty
     /// Use the isValid method to check that your vertex is valid. 
-    Vertex():  chi2_( 0.0 ), ndof_( 0 ), position_(0.,0.,0.), time_(0.) { validity_ = false; for(int i = 0; i < size4D; ++ i ) covariance_[i]=0.;
+    Vertex():  chi2_( 0.0 ), ndof_( 0 ), position_(0.,0.,0.), time_(0.) { validity_ = false; for(float & i : covariance_) i=0.;
 }
     /// Constructor for a fake vertex.
     Vertex( const Point &, const Error &);

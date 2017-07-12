@@ -25,8 +25,8 @@ private:
   struct ModuleGain{
     float apv[6];
 
-    void soft_reset(){ for (int i=0;i<6;++i) if(apv[i]==-1)apv[i]=1; }
-    void hard_reset(float val){ for (int i=0;i<6;++i) apv[i]=val; }
+    void soft_reset(){ for (float & i : apv) if(i==-1)i=1; }
+    void hard_reset(float val){ for (float & i : apv) i=val; }
     
   };
 

@@ -345,9 +345,9 @@ void L1GtVhdlTemplateFile::append(const std::string &str)
 
 void L1GtVhdlTemplateFile::append(const L1GtVhdlTemplateFile& file)
 {
-    for (unsigned int i=0; i<file.lines_.size(); i++)
+    for (const auto & line : file.lines_)
     {
-        lines_.push_back(file.lines_.at(i));
+        lines_.push_back(line);
     }
 }
 
@@ -432,9 +432,9 @@ void L1GtVhdlTemplateFile::getConditionsFromAlgo(std::string condString, std::ve
     operators.push_back("(");
     operators.push_back(")");
 
-    for (unsigned int i =0; i<operators.size(); i++)
+    for (const auto & i : operators)
     {
-        while (findAndReplaceString(condString, operators.at(i), "")) findAndReplaceString(condString, operators.at(i), "");
+        while (findAndReplaceString(condString, i, "")) findAndReplaceString(condString, i, "");
     }
 
     split(condString,result);

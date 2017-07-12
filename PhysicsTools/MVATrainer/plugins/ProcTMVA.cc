@@ -237,9 +237,8 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 			<< " cannot be opened for reading." << std::endl;
 
 	std::size_t size = getStreamSize(in) + methods[0].name.size();
-	for(std::vector<std::string>::const_iterator iter = names.begin();
-	    iter != names.end(); ++iter)
-		size += iter->size() + 1;
+	for(const auto & name : names)
+		size += name.size() + 1;
 	size += (size / 32) + 128;
 
         std::shared_ptr<char> buffer( new char[size] );
@@ -248,10 +247,8 @@ Calibration::VarProcessor *ProcTMVA::getCalibration() const
 		ext::ozstream ozs(&os);
 		ozs << methods[0].name << "\n";
 		ozs << names.size() << "\n";
-		for(std::vector<std::string>::const_iterator iter =
-							names.begin();
-		    iter != names.end(); ++iter)
-			ozs << *iter << "\n";
+		for(const auto & name : names)
+			ozs << name << "\n";
 		ozs << in.rdbuf();
 		ozs.flush();
 	}

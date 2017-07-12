@@ -172,9 +172,9 @@ TrackerMap::TrackerMap(const edm::ParameterSet & tkmapPset,const SiStripFedCabli
            int key = icrate->fecCrate()*10000000+ifec->fecSlot()*100000+iring->fecRing()*1000+iccu->ccuAddr();
            int layer=0;
            TmCcu * ccu = ccuMap[key];
-           for ( std::vector<SiStripModule>::const_iterator imod = iccu->modules().begin(); imod != iccu->modules().end(); imod++ ) {
+           for (const auto & imod : iccu->modules()) {
              nmod++;
-             TmModule *imod1 = imoduleMap[imod->detId()];
+             TmModule *imod1 = imoduleMap[imod.detId()];
              layer=imod1->layer;
              fecModuleMap.insert(std::make_pair(ccu,imod1));
              if(imod1!=0)imod1->CcuId=key;//imod1->ccuId=key+Crate*1000000
@@ -932,8 +932,8 @@ void TrackerMap::save(bool print_total,float minval, float maxval,std::string s,
     MyC->Clear();
     delete MyC;
     if (printflag)delete axis;
-    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
-      delete (*pos1);}
+    for(auto & pos1 : vp){
+      delete pos1;}
     
   }
   }
@@ -1550,8 +1550,8 @@ void TrackerMap::save_as_fectrackermap(bool print_total,float minval, float maxv
     MyC->Clear();
     delete MyC;
     if (printflag&&!saveWebInterface)delete axis;
-    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
-         delete (*pos1);}
+    for(auto & pos1 : vp){
+         delete pos1;}
    
 
 
@@ -1833,8 +1833,8 @@ void TrackerMap::save_as_HVtrackermap(bool print_total,float minval, float maxva
     MyC->Clear();
     delete MyC;
      if (printflag&&!saveWebInterface)delete axis;
-    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
-         delete (*pos1);}
+    for(auto & pos1 : vp){
+         delete pos1;}
     
 	 
 	 }//if(temporary_file)
@@ -2117,8 +2117,8 @@ void TrackerMap::save_as_psutrackermap(bool print_total,float minval, float maxv
     MyC->Clear();
     delete MyC;
      if (printflag&&!saveWebInterface)delete axis;
-    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
-         delete (*pos1);}
+    for(auto & pos1 : vp){
+         delete pos1;}
    
 }//if(temporary_file)
 }//if(enabledFedProcessing)
@@ -2388,8 +2388,8 @@ void TrackerMap::save_as_fedtrackermap(bool print_total,float minval, float maxv
     MyC->Clear();
     delete MyC;
      if (printflag&&!saveWebInterface)delete axis;
-    for(std::vector<TPolyLine*>::iterator pos1=vp.begin();pos1!=vp.end();pos1++){
-         delete (*pos1);}
+    for(auto & pos1 : vp){
+         delete pos1;}
    
   
 }//if(temporary_file)

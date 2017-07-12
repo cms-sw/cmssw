@@ -110,8 +110,8 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
 
   if (UseAssociators_) {
     edm::Handle<reco::TrackToTrackingParticleAssociator> theAssociator;
-    for (unsigned int w=0;w<associators_.size();w++) {
-      event.getByLabel(associators_[w],theAssociator);
+    for (const auto & associator : associators_) {
+      event.getByLabel(associator,theAssociator);
       associator_.push_back( theAssociator.product() );
     }
   }
@@ -126,10 +126,10 @@ void TPNtuplizer::analyze(const edm::Event& event, const edm::EventSetup& es)
       ++num_sel;
     }
     edm::LogVerbatim("TPNtuplizer") << "\n# Tracking particles selected = " << num_sel << "\n";
-    for (unsigned int www=0;www<label_.size();www++){
+    for (const auto & www : label_){
       // get track collection from event for specified collection label(s)
       edm::Handle<View<Track> >  trackCollection;
-      event.getByLabel(label_[www], trackCollection);
+      event.getByLabel(www, trackCollection);
       edm::LogVerbatim("TPNtuplizer") << "\n# of Reco tracks collection = " << trackCollection->size() << "\n";
       // do the association
       reco::RecoToSimCollection recSimColl;

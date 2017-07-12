@@ -110,8 +110,8 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
 
   edm::Handle<CrossingFrame<PSimHit> > cf_simhit;
   std::vector<const CrossingFrame<PSimHit> *> cf_simhitvec;
-  for(uint32_t i = 0; i< trackerContainers.size();i++){
-    iEvent.getByLabel("mix",trackerContainers[i],cf_simhit);
+  for(const auto & trackerContainer : trackerContainers){
+    iEvent.getByLabel("mix",trackerContainer,cf_simhit);
     cf_simhitvec.push_back(cf_simhit.product());
   }
 
@@ -163,25 +163,25 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   theDigiLinkVector.reserve(10000);
   theDigiLinkVector.clear();
 
-  for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+  for(auto iu : pDD->detUnits()){
     if(useConfFromDB){
       //apply the cable map _before_ digitization: consider only the detis that are connected 
-      if(theDetIdList.find((*iu)->geographicalId().rawId())==theDetIdList.end())
+      if(theDetIdList.find(iu->geographicalId().rawId())==theDetIdList.end())
         continue;
     }
-    GlobalVector bfield=pSetup->inTesla((*iu)->surface().position());
-    auto sgd = dynamic_cast<StripGeomDetUnit const*>((*iu));
+    GlobalVector bfield=pSetup->inTesla(iu->surface().position());
+    auto sgd = dynamic_cast<StripGeomDetUnit const*>(iu);
     if (sgd != 0){
-      edm::DetSet<SiStripDigi> collectorZS((*iu)->geographicalId().rawId());
-      edm::DetSet<SiStripRawDigi> collectorRaw((*iu)->geographicalId().rawId());
-      edm::DetSet<StripDigiSimLink> linkcollector((*iu)->geographicalId().rawId());
-      float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle((*iu)->geographicalId().rawId()) : 0.;
-      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[(*iu)->geographicalId().rawId()],sgd,bfield,langle,
+      edm::DetSet<SiStripDigi> collectorZS(iu->geographicalId().rawId());
+      edm::DetSet<SiStripRawDigi> collectorRaw(iu->geographicalId().rawId());
+      edm::DetSet<StripDigiSimLink> linkcollector(iu->geographicalId().rawId());
+      float langle = (lorentzAngleHandle.isValid()) ? lorentzAngleHandle->getLorentzAngle(iu->geographicalId().rawId()) : 0.;
+      theDigiAlgo->run(collectorZS,collectorRaw,SimHitMap[iu->geographicalId().rawId()],sgd,bfield,langle,
 		       gainHandle,thresholdHandle,noiseHandle,pedestalHandle, deadChannelHandle, tTopo, engine);
       if(zeroSuppression){
         if(collectorZS.data.size()>0){
           theDigiVector.push_back(collectorZS);
-          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+          if(SimHitMap[iu->geographicalId().rawId()].size()>0){
             linkcollector.data = theDigiAlgo->make_link();
             if(linkcollector.data.size()>0)
               theDigiLinkVector.push_back(linkcollector);
@@ -190,7 +190,7 @@ void DigiSimLinkProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
       }else{
         if(collectorRaw.data.size()>0){
           theRawDigiVector.push_back(collectorRaw);
-          if(SimHitMap[(*iu)->geographicalId().rawId()].size()>0){
+          if(SimHitMap[iu->geographicalId().rawId()].size()>0){
             linkcollector.data = theDigiAlgo->make_link();
             if(linkcollector.data.size()>0)
               theDigiLinkVector.push_back(linkcollector);

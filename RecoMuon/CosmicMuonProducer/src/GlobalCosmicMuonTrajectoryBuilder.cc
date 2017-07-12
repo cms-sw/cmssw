@@ -190,10 +190,9 @@ MuonCandidate::CandidateContainer GlobalCosmicMuonTrajectoryBuilder::trajectorie
   MuonCandidate* myCand = new MuonCandidate(myTraj,muTrack,tkTrack);
   result.push_back(myCand);
   LogTrace(category_)<<"final global cosmic muon: ";
-  for (std::vector<TrajectoryMeasurement>::const_iterator itm = mytms.begin();
-       itm != mytms.end(); ++itm ) {
-       LogTrace(category_)<<"updated pos "<<itm->updatedState().globalPosition()
-                       <<"mom "<<itm->updatedState().globalMomentum();
+  for (const auto & mytm : mytms) {
+       LogTrace(category_)<<"updated pos "<<mytm.updatedState().globalPosition()
+                       <<"mom "<<mytm.updatedState().globalMomentum();
    }
   return result;
 }

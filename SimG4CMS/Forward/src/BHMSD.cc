@@ -62,10 +62,9 @@ BHMSD::BHMSD(std::string name, const DDCompactView & cpv,
 
   this->Register();
 
-  for (std::vector<std::string>::iterator it=lvNames.begin();  
-       it !=lvNames.end(); it++) {
-    this->AssignSD(*it);
-    edm::LogInfo("BHMSim") << "BHMSD : Assigns SD to LV " << (*it);
+  for (auto & lvName : lvNames) {
+    this->AssignSD(lvName);
+    edm::LogInfo("BHMSim") << "BHMSD : Assigns SD to LV " << lvName;
   }
     
   if (verbn > 0) {

@@ -151,9 +151,9 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent * evt) {
 			int fCellId = -1;
 			int fFiberId = -1;
 			parseDetId(aHit->towerId(), fTowerId, fCellId, fFiberId);
-			for(unsigned int iph = 0; iph < thePhotonsFromHit.size(); ++iph){
-			    if(aHit->depth() == 1)LongFiberPhotons.push_back(thePhotonsFromHit[iph]);
-			    if(aHit->depth() == 2)ShortFiberPhotons.push_back(thePhotonsFromHit[iph]);
+			for(const auto & iph : thePhotonsFromHit){
+			    if(aHit->depth() == 1)LongFiberPhotons.push_back(iph);
+			    if(aHit->depth() == 2)ShortFiberPhotons.push_back(iph);
 			}
 			LogDebug("HcalForwardLib") << "HcalForwardAnalysis::setPhotons() NbPhotons " << thePhotonsFromHit.size()
 			<< " towerId " << fTowerId << " cellId " << fCellId << " fiberId " << fFiberId << " depth " << aHit->depth();
@@ -210,17 +210,15 @@ void HcalForwardAnalysis::setPhotons(const EndOfEvent * evt) {
   double theta = primMomDirOnSurf.theta();
   double phi = primMomDirOnSurf.phi();
 
-	for(unsigned int k = 0; k < LongFiberPhotons.size(); ++k){
-		HFShowerPhoton aPhoton =  LongFiberPhotons[k];
-		photonProdX =  aPhoton.x()*cos(theta)*cos(phi) + aPhoton.y()*cos(theta)*sin(phi) - aPhoton.z()*sin(theta) - primPosOnSurf.x();
+	for(auto aPhoton : LongFiberPhotons){
+			photonProdX =  aPhoton.x()*cos(theta)*cos(phi) + aPhoton.y()*cos(theta)*sin(phi) - aPhoton.z()*sin(theta) - primPosOnSurf.x();
 		photonProdY =  -aPhoton.x()*sin(phi) + aPhoton.y()*cos(phi) - primPosOnSurf.y();
 		photonProdZ = aPhoton.x()*sin(theta)*cos(phi) + aPhoton.y()*sin(theta)*sin(phi) + aPhoton.z()*cos(theta) - primPosOnSurf.z();
 		photonProdTime = aPhoton.t()- primTimeOnSurf;
 		thePhotons.push_back(Photon(1, photonProdX, photonProdY, photonProdZ, photonProdTime, aPhoton.lambda()));
 	}
-	for(unsigned int k = 0; k < ShortFiberPhotons.size(); ++k){
-			HFShowerPhoton aPhoton =  ShortFiberPhotons[k];
-			photonProdX =  aPhoton.x()*cos(theta)*cos(phi) + aPhoton.y()*cos(theta)*sin(phi) - aPhoton.z()*sin(theta) - primPosOnSurf.x();
+	for(auto aPhoton : ShortFiberPhotons){
+				photonProdX =  aPhoton.x()*cos(theta)*cos(phi) + aPhoton.y()*cos(theta)*sin(phi) - aPhoton.z()*sin(theta) - primPosOnSurf.x();
 			photonProdY =  -aPhoton.x()*sin(phi) + aPhoton.y()*cos(phi) - primPosOnSurf.y();
 			photonProdZ = aPhoton.x()*sin(theta)*cos(phi) + aPhoton.y()*sin(theta)*sin(phi) + aPhoton.z()*cos(theta) - primPosOnSurf.z();
 			photonProdTime = aPhoton.t()- primTimeOnSurf;

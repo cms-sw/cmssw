@@ -511,10 +511,9 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
 
   double footprintCorrection_value = 0.;
   if ( applyFootprintCorrection_ || storeRawFootprintCorrection_ ) {
-    for ( std::vector<std::unique_ptr<FootprintCorrection> >::const_iterator footprintCorrection = footprintCorrections_.begin();
-	  footprintCorrection != footprintCorrections_.end(); ++footprintCorrection ) {
-      if ( (*footprintCorrection)->selection_(*pfTau) ) {
-	footprintCorrection_value = (*footprintCorrection)->offset_(*pfTau);
+    for (const auto & footprintCorrection : footprintCorrections_) {
+      if ( footprintCorrection->selection_(*pfTau) ) {
+	footprintCorrection_value = footprintCorrection->offset_(*pfTau);
       }
     }
   }
@@ -579,10 +578,9 @@ PFRecoTauDiscriminationByIsolation::discriminate(const PFTauRef& pfTau) const
   double photonSumPt_outsideSignalCone = 0.;
   if ( applyPhotonPtSumOutsideSignalConeCut_ || storeRawPhotonSumPt_outsideSignalCone_ ) {
     const std::vector<reco::PFCandidatePtr>& signalPFGammas = pfTau->signalPFGammaCands();
-    for ( std::vector<reco::PFCandidatePtr>::const_iterator signalPFGamma = signalPFGammas.begin();
-	  signalPFGamma != signalPFGammas.end(); ++signalPFGamma ) {
-      double dR = deltaR(pfTau->eta(), pfTau->phi(), (*signalPFGamma)->eta(), (*signalPFGamma)->phi());
-      if ( dR > pfTau->signalConeSize() ) photonSumPt_outsideSignalCone += (*signalPFGamma)->pt();
+    for (const auto & signalPFGamma : signalPFGammas) {
+      double dR = deltaR(pfTau->eta(), pfTau->phi(), signalPFGamma->eta(), signalPFGamma->phi());
+      if ( dR > pfTau->signalConeSize() ) photonSumPt_outsideSignalCone += signalPFGamma->pt();
     }
     if ( photonSumPt_outsideSignalCone > maxAbsPhotonSumPt_outsideSignalCone_ || photonSumPt_outsideSignalCone > (maxRelPhotonSumPt_outsideSignalCone_*pfTau->pt()) ) {
       failsPhotonPtSumOutsideSignalConeCut = true;

@@ -278,9 +278,9 @@ void check_sigma ( string filename , string iDir , string plot , float limit_err
 bool check_isgood ( vector<int> & ls_badlist, int ls ) 
 {
   //check if this LS is found in the BAD list
-  for ( unsigned int i = 0; i < ls_badlist.size() ; i++ )
+  for (int i : ls_badlist)
     {
-      if ( ls == ls_badlist[i] ) return false;
+      if ( ls == i ) return false;
     }
   return true;
 }
@@ -415,8 +415,8 @@ void vector_AND ( vector<int> & bad_def, vector<int> bad_sc)
 
   int def_size = bad_def.size();
   for ( int i = 0; i < def_size; i++ )
-    for ( unsigned int j = 0; j < bad_sc.size(); j++ )
-      if ( bad_def[ i ] == bad_sc[ j ] )
+    for (int j : bad_sc)
+      if ( bad_def[ i ] == j )
 	{
 	  temp.push_back( bad_def[ i ] );
 	  break;

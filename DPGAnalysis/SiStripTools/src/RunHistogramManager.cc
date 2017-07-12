@@ -143,9 +143,9 @@ void  RunHistogramManager::beginRun(const unsigned int irun, TFileDirectory& sub
 
   // loop on the histograms and update the pointer references
 
-  for(unsigned int ih=0;ih<_histograms.size();++ih) {
+  for(auto & _histogram : _histograms) {
 
-    _histograms[ih]->beginRun(irun,subrun,fillrun);
+    _histogram->beginRun(irun,subrun,fillrun);
 
   }
 }

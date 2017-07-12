@@ -145,10 +145,10 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
   
   
   int NDetid = 0;
-  for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
+  for(auto it : pDD->dets()){
     detid=0;
-    if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0)
-      detid=((*it)->geographicalId()).rawId();
+    if( dynamic_cast<PixelGeomDetUnit const*>(it)!=0)
+      detid=(it->geographicalId()).rawId();
     if(detid==0)
       continue;
     NDetid++;
@@ -212,7 +212,7 @@ void SiPixelGainCalibrationReadDQMFile::fillDatabase(const edm::EventSetup& iSet
     }
     
     
-    const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>((*it));
+    const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(it);
     const PixelTopology & topol = pixDet->specificTopology();       
     // Get the module sizes.
     size_t nrows = topol.nrows();      // rows in x
@@ -641,19 +641,19 @@ SiPixelGainCalibrationReadDQMFile::getHistograms(){
       // std::cout << "now done examining " << notdonelist[idir]<< " " << nsubdirs[idir] <<  std::endl;
     }
     nempty=0;
-    for(size_t i=0; i<nsubdirs.size(); i++){
-      if(nsubdirs[i]!=-1)
+    for(int nsubdir : nsubdirs){
+      if(nsubdir!=-1)
 	nempty++;
     }
   }
   //  std::cout << "\n done!" << std::endl;
   
-  for(size_t idir=0; idir<dirlist.size() ; ++idir){
+  for(auto & idir : dirlist){
     //    std::cout << "good dir "  << dirlist[idir] << std::endl;
     
     uint32_t detid = 1;
     
-    dir = therootfile_->GetDirectory(dirlist[idir]);
+    dir = therootfile_->GetDirectory(idir);
     list = dir->GetListOfKeys();
     for(ikey=0;ikey<list->GetEntries();  ikey++){
       TKey *thekey = (TKey*)list->At(ikey);
@@ -670,7 +670,7 @@ SiPixelGainCalibrationReadDQMFile::getHistograms(){
 	  
 	if(keyname.Contains("GainChi2Prob2d")){
 
-	  TString tempstr =dirlist[idir];
+	  TString tempstr =idir;
 	  tempstr+="/";
 	  tempstr+=keyname;
 	  TString replacestring = rootfilestring_;
@@ -681,7 +681,7 @@ SiPixelGainCalibrationReadDQMFile::getHistograms(){
 	}
 	else if(keyname.Contains("GainFitResult2d")){
 
-	  TString tempstr =dirlist[idir];
+	  TString tempstr =idir;
 	  tempstr+="/";
 	  tempstr+=keyname;
 	  TString replacestring = rootfilestring_;
@@ -694,7 +694,7 @@ SiPixelGainCalibrationReadDQMFile::getHistograms(){
 	  
 	  //	  std::cout << dirlist[idir] << std::endl;
 	  std::map<std::string,TString> tempmap;
-	  TString tempstr =dirlist[idir];
+	  TString tempstr =idir;
 	  tempstr+="/";
 	  tempstr+=keyname;
 	  TString replacestring = rootfilestring_;
@@ -710,7 +710,7 @@ SiPixelGainCalibrationReadDQMFile::getHistograms(){
 	  //	  std::cout << dirlist[idir] << std::endl;
 	  std::map<std::string,TString> tempmap;
 	  
-	  TString tempstr =dirlist[idir];
+	  TString tempstr =idir;
 	  tempstr+="/";
 	  tempstr+=keyname;
 	  //	  std::cout << tempstr << std::endl;

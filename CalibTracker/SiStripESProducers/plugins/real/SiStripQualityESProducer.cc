@@ -58,9 +58,9 @@ std::shared_ptr<SiStripQuality> SiStripQualityESProducer::produce(const SiStripQ
   // Set the protection against empty RunInfo objects
   quality->setUseEmptyRunInfo( pset_.getParameter<bool>("UseEmptyRunInfo") );
 
-  for( Parameters::iterator itToGet = toGet.begin(); itToGet != toGet.end(); ++itToGet ) {
-    tagName = itToGet->getParameter<std::string>("tag");
-    recordName = itToGet->getParameter<std::string>("record");
+  for(auto & itToGet : toGet) {
+    tagName = itToGet.getParameter<std::string>("tag");
+    recordName = itToGet.getParameter<std::string>("record");
 
     edm::LogInfo("SiStripQualityESProducer") << "[SiStripQualityESProducer::produce] Getting data from record " << recordName << " with tag " << tagName << std::endl;
 

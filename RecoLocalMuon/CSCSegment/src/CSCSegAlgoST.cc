@@ -99,9 +99,9 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const Cham
   // Define yweight penalty depending on chamber. 
   // We fixed the relative ratios, but they can be scaled by parameters:
   
-  for(int a = 0; a<5; ++a) {
+  for(auto & a : a_yweightPenaltyThreshold) {
     for(int b = 0; b<5; ++b) {
-      a_yweightPenaltyThreshold[a][b] = 0.0;
+      a[b] = 0.0;
     }
   }
   
@@ -131,11 +131,11 @@ std::vector<CSCSegment> CSCSegAlgoST::run(const CSCChamber* aChamber, const Cham
       rechits_clusters = clusterHits( theChamber, rechits );
     }
     // loop over the found clusters:
-    for(std::vector<ChamberHitContainer>::iterator sub_rechits = rechits_clusters.begin(); sub_rechits !=  rechits_clusters.end(); ++sub_rechits ) {
+    for(auto & rechits_cluster : rechits_clusters) {
       // clear the buffer for the subset of segments:
       segments_temp.clear();
       // build the subset of segments:
-      segments_temp = buildSegments( (*sub_rechits) );
+      segments_temp = buildSegments( rechits_cluster );
       // add the found subset of segments to the collection of all segments in this chamber:
       segments.insert( segments.end(), segments_temp.begin(), segments_temp.end() );
     }
@@ -194,17 +194,17 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
   int hit_nr_worst = -1;
   //int hit_nr_2ndworst = -1;
   
-  for(std::vector<CSCSegment>::iterator it=segments.begin(); it != segments.end(); ++it) {
+  for(auto & segment : segments) {
     
     // do nothing for nhit <= minHitPerSegment
-    if( (*it).nRecHits() <= minHitsPerSegment ) continue;
+    if( segment.nRecHits() <= minHitsPerSegment ) continue;
     
     if( !use_brute_force ) {// find worst hit
       
-      float chisq    = (*it).chi2();
-      int nhits      = (*it).nRecHits();
-      LocalPoint localPos = (*it).localPosition();
-      LocalVector segDir = (*it).localDirection();
+      float chisq    = segment.chi2();
+      int nhits      = segment.nRecHits();
+      LocalPoint localPos = segment.localPosition();
+      LocalVector segDir = segment.localDirection();
       const CSCChamber* cscchamber = theChamber;
       float globZ       ;
 	  
@@ -215,7 +215,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       if( ChiSquaredProbability((double)chisq,(double)(2*nhits-4)) < chi2ndfProbMin  ) {
 
 	// find (rough) "residuals" (NOT excluding the hit from the fit - speed!) of hits on segment
-	std::vector<CSCRecHit2D> theseRecHits = (*it).specificRecHits();
+	std::vector<CSCRecHit2D> theseRecHits = segment.specificRecHits();
 	std::vector<CSCRecHit2D>::const_iterator iRH_worst;
 	//float xdist_local       = -99999.;
 
@@ -293,12 +293,12 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
    
     std::vector< CSCRecHit2D > buffer;
     std::vector< std::vector< CSCRecHit2D > > reduced_segments;
-    std::vector< CSCRecHit2D > theseRecHits = (*it).specificRecHits();
+    std::vector< CSCRecHit2D > theseRecHits = segment.specificRecHits();
     float best_red_seg_prob = 0.0;
     // usefor chi2 1 diff   float best_red_seg_prob = 99999.;
     buffer.clear();
 
-    if( ChiSquaredProbability((double)(*it).chi2(),(double)((2*(*it).nRecHits())-4)) < chi2ndfProbMin  ) {
+    if( ChiSquaredProbability((double)segment.chi2(),(double)((2*segment.nRecHits())-4)) < chi2ndfProbMin  ) {
 	
       buffer = theseRecHits;
 
@@ -325,11 +325,11 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
     }
       
     // Loop over the subsegments and fit (only one segment if "use_brute_force" is false):
-    for(size_t iSegment=0; iSegment<reduced_segments.size(); ++iSegment) {
+    for(auto & reduced_segment : reduced_segments) {
       // loop over hits on given segment and push pointers to hits into protosegment
       protoSegment.clear();
-      for(size_t m = 0; m<reduced_segments[iSegment].size(); ++m ) {
-	protoSegment.push_back(&reduced_segments[iSegment][m]);
+      for(size_t m = 0; m<reduced_segment.size(); ++m ) {
+	protoSegment.push_back(&reduced_segment[m]);
       }
 
       // Create fitter object
@@ -366,8 +366,8 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
       // n-hit segment is (*it)
       // (n-1)-hit segment is temp
       // replace n-hit segment with (n-1)-hit segment if segment probability is BPMinImprovement better
-      double oldchi2 = (*it).chi2();
-      double olddof  =  2 * (*it).nRecHits() - 4;
+      double oldchi2 = segment.chi2();
+      double olddof  =  2 * segment.nRecHits() - 4;
       double newchi2 = temp.chi2();
       double newdof  = 2 * temp.nRecHits() - 4;
       if( ( ChiSquaredProbability(oldchi2,olddof) < (1./BPMinImprovement)*
@@ -380,7 +380,7 @@ std::vector<CSCSegment> CSCSegAlgoST::prune_bad_hits(const CSCChamber* aChamber,
 	// If it has at least  minHitsPerSegment  hits replace the n-hit segment
         // with this  better (n-1)-hit segment:
         if( temp.nRecHits() >= minHitsPerSegment ) {
-          (*it) = temp;
+          segment = temp;
         }
       }
     } // end of loop over subsegments (iSegment)
@@ -424,25 +424,25 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::clusterHits(const C
   // split rechits into subvectors and return vector of vectors:
   // Loop over rechits 
   // Create one seed per hit
-  for(unsigned int i = 0; i < rechits.size(); ++i) {
+  for(auto rechit : rechits) {
 
     temp.clear();
 
-    temp.push_back(rechits[i]);
+    temp.push_back(rechit);
 
     seeds.push_back(temp);
 
     // First added hit in seed defines the mean to which the next hit is compared
     // for this seed.
 
-    running_meanX.push_back( rechits[i]->localPosition().x() );
-    running_meanY.push_back( rechits[i]->localPosition().y() );
+    running_meanX.push_back( rechit->localPosition().x() );
+    running_meanY.push_back( rechit->localPosition().y() );
 	
     // set min/max X and Y for box containing the hits in the precluster:
-    seed_minX.push_back( rechits[i]->localPosition().x() );
-    seed_maxX.push_back( rechits[i]->localPosition().x() );
-    seed_minY.push_back( rechits[i]->localPosition().y() );
-    seed_maxY.push_back( rechits[i]->localPosition().y() );
+    seed_minX.push_back( rechit->localPosition().x() );
+    seed_maxX.push_back( rechit->localPosition().x() );
+    seed_minY.push_back( rechit->localPosition().y() );
+    seed_maxY.push_back( rechit->localPosition().y() );
   }
     
   // merge clusters that are too close
@@ -524,9 +524,9 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
   // Loop over rechits
   // Create one seed per hit
   //std::cout<<" rechits.size() = "<<rechits.size()<<std::endl;
-  for(unsigned int i = 0; i < rechits.size(); ++i) {
+  for(auto rechit : rechits) {
     temp.clear();
-    temp.push_back(rechits[i]);
+    temp.push_back(rechit);
     seeds.push_back(temp);
     usedCluster.push_back(false);
   }
@@ -586,20 +586,20 @@ std::vector< std::vector<const CSCRecHit2D*> > CSCSegAlgoST::chainHits(const CSC
 }
 
 bool CSCSegAlgoST::isGoodToMerge(bool gangedME11a, ChamberHitContainer & newChain, ChamberHitContainer & oldChain) {
-  for(size_t iRH_new = 0;iRH_new<newChain.size();++iRH_new){
-    int layer_new = newChain[iRH_new]->cscDetId().layer()-1;     
-    int middleStrip_new = newChain[iRH_new]->nStrips()/2;
-    int centralStrip_new = newChain[iRH_new]->channels(middleStrip_new);
-    int centralWire_new = newChain[iRH_new]->hitWire();
+  for(auto & iRH_new : newChain){
+    int layer_new = iRH_new->cscDetId().layer()-1;     
+    int middleStrip_new = iRH_new->nStrips()/2;
+    int centralStrip_new = iRH_new->channels(middleStrip_new);
+    int centralWire_new = iRH_new->hitWire();
     bool layerRequirementOK = false;
     bool stripRequirementOK = false;
     bool wireRequirementOK = false;
     bool goodToMerge = false;
-    for(size_t iRH_old = 0;iRH_old<oldChain.size();++iRH_old){      
-      int layer_old = oldChain[iRH_old]->cscDetId().layer()-1;
-      int middleStrip_old = oldChain[iRH_old]->nStrips()/2;
-      int centralStrip_old = oldChain[iRH_old]->channels(middleStrip_old);
-      int centralWire_old = oldChain[iRH_old]->hitWire();
+    for(auto & iRH_old : oldChain){      
+      int layer_old = iRH_old->cscDetId().layer()-1;
+      int middleStrip_old = iRH_old->nStrips()/2;
+      int centralStrip_old = iRH_old->channels(middleStrip_old);
+      int centralWire_old = iRH_old->hitWire();
 
       // to be chained, two hits need to be in neighbouring layers...
       // or better allow few missing layers (upto 3 to avoid inefficiencies);
@@ -754,12 +754,12 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
   // The other the corresponding hits. 
   
   // Loop all available hits, count hits per layer and fill the hits into array by layer
-  for(size_t M = 0; M < rechits.size(); ++M) {
+  for(auto rechit : rechits) {
     // add hits to array per layer and count hits per layer:
-    hits_onLayerNumber[ rechits[M]->cscDetId().layer()-1 ] += 1;
-    if(hits_onLayerNumber[ rechits[M]->cscDetId().layer()-1 ] == 1 ) n_layers_occupied_tot += 1;
+    hits_onLayerNumber[ rechit->cscDetId().layer()-1 ] += 1;
+    if(hits_onLayerNumber[ rechit->cscDetId().layer()-1 ] == 1 ) n_layers_occupied_tot += 1;
     // add hits to vector in array
-    PAhits_onLayer[rechits[M]->cscDetId().layer()-1]    .push_back(rechits[M]);	   
+    PAhits_onLayer[rechit->cscDetId().layer()-1]    .push_back(rechit);	   
   }
  
   // We have now counted the hits per layer and filled pointers to the hits into an array
@@ -848,7 +848,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
 
   // loop over the six chamber layers and form segment candidates from the available hits:
 
-  for(int layer = 0; layer < 6; ++layer) {
+  for(auto & layer : PAhits_onLayer) {
 
     // *****************************************************************
     // *** Set missed layer counter here (not currently implemented) ***
@@ -857,7 +857,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
     //   n_layers_missed_tot += 1;
     // }
 
-    if( PAhits_onLayer[layer].size() > 0 ) {
+    if( layer.size() > 0 ) {
       n_layers_processed += 1;
     }
 
@@ -871,12 +871,12 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
     int orig_number_of_noL6_psegs = Psegments_noL6.size();
 
     // loop over the hits on the layer and initiate protosegments or add hits to protosegments
-    for(int hit = 0; hit < int(PAhits_onLayer[layer].size()); ++hit) { // loop all hits on the Layer number "layer"
+    for(int hit = 0; hit < int(layer.size()); ++hit) { // loop all hits on the Layer number "layer"
 
       // create protosegments from all hits on the first layer with hits
       if( orig_number_of_psegs == 0 ) { // would be faster to turn this around - ask for "orig_number_of_psegs != 0"
 
-	Psegments_hits.push_back(PAhits_onLayer[layer][hit]);
+	Psegments_hits.push_back(layer[hit]);
 
 	Psegments.push_back(Psegments_hits); 
 	Psegments_noL6.push_back(Psegments_hits); 
@@ -914,7 +914,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
       else {
 	if( orig_number_of_noL1_psegs == 0 ) {
 
-	  Psegments_hits.push_back(PAhits_onLayer[layer][hit]);
+	  Psegments_hits.push_back(layer[hit]);
 
 	  Psegments_noL1.push_back(Psegments_hits); 
 
@@ -947,7 +947,7 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
 	  // - If not last hit, clone  existing protosegments  (PAhits_onLayer[layer].size()-1) times
 	  // - then add the new hits
 
-	  if( ! (hit == int(PAhits_onLayer[layer].size()-1)) ) { // not the last hit - prepare (copy) new protosegments for the following hits
+	  if( ! (hit == int(layer.size()-1)) ) { // not the last hit - prepare (copy) new protosegments for the following hits
 	    // clone psegs (to add next hits or last hit on layer):
 
 	    Psegments.push_back(Psegments[ pseg_pos ]); 
@@ -983,13 +983,13 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
 	    if (n_layers_processed != 6 && pseg < orig_number_of_noL6_psegs) weight_noL6_B.push_back(weight_noL6_B[ pseg_noL6_pos ]);
 	  }
 	  // add hits to original pseg:
-	  Psegments[ pseg_pos ].push_back(PAhits_onLayer[ layer ][ hit ]);
-	  if (n_layers_processed != 2 && pseg < orig_number_of_noL1_psegs) Psegments_noL1[ pseg_noL1_pos ].push_back(PAhits_onLayer[ layer ][ hit ]);
-	  if (n_layers_processed != 2 && pseg < orig_number_of_noL2_psegs) Psegments_noL2[ pseg_noL2_pos ].push_back(PAhits_onLayer[ layer ][ hit ]);
-	  if (n_layers_processed != 3 && pseg < orig_number_of_noL3_psegs) Psegments_noL3[ pseg_noL3_pos ].push_back(PAhits_onLayer[ layer ][ hit ]);
-	  if (n_layers_processed != 4 && pseg < orig_number_of_noL4_psegs) Psegments_noL4[ pseg_noL4_pos ].push_back(PAhits_onLayer[ layer ][ hit ]);
-	  if (n_layers_processed != 5 && pseg < orig_number_of_noL5_psegs) Psegments_noL5[ pseg_noL5_pos ].push_back(PAhits_onLayer[ layer ][ hit ]);
-	  if (n_layers_processed != 6 && pseg < orig_number_of_noL6_psegs) Psegments_noL6[ pseg_noL6_pos ].push_back(PAhits_onLayer[ layer ][ hit ]);
+	  Psegments[ pseg_pos ].push_back(layer[ hit ]);
+	  if (n_layers_processed != 2 && pseg < orig_number_of_noL1_psegs) Psegments_noL1[ pseg_noL1_pos ].push_back(layer[ hit ]);
+	  if (n_layers_processed != 2 && pseg < orig_number_of_noL2_psegs) Psegments_noL2[ pseg_noL2_pos ].push_back(layer[ hit ]);
+	  if (n_layers_processed != 3 && pseg < orig_number_of_noL3_psegs) Psegments_noL3[ pseg_noL3_pos ].push_back(layer[ hit ]);
+	  if (n_layers_processed != 4 && pseg < orig_number_of_noL4_psegs) Psegments_noL4[ pseg_noL4_pos ].push_back(layer[ hit ]);
+	  if (n_layers_processed != 5 && pseg < orig_number_of_noL5_psegs) Psegments_noL5[ pseg_noL5_pos ].push_back(layer[ hit ]);
+	  if (n_layers_processed != 6 && pseg < orig_number_of_noL6_psegs) Psegments_noL6[ pseg_noL6_pos ].push_back(layer[ hit ]);
             
 	  // calculate/update the weight (only for >2 hits on psegment):
 
@@ -1547,8 +1547,8 @@ std::vector<CSCSegment> CSCSegAlgoST::buildSegments(const ChamberHitContainer& r
     ChooseSegments3( chosen_Psegments, chosen_weight_A, chosen_pseg ); 
   }
 
-  for(unsigned int iSegment=0; iSegment<GoodSegments.size();++iSegment){
-    protoSegment = GoodSegments[iSegment];
+  for(const auto & GoodSegment : GoodSegments){
+    protoSegment = GoodSegment;
 
     // Create new fitter object
     CSCCondSegFit* segfit = new CSCCondSegFit( pset(), chamber(), protoSegment );
@@ -1716,9 +1716,9 @@ void CSCSegAlgoST::ChooseSegments2(int best_seg) {
     // For best results another iteration/comparison over Psegments 
     //should be applied here... It would make the program much slower.
     discard = false;
-    for(unsigned int ibad=0;ibad<BadCandidate.size();++ibad) {
+    for(unsigned int ibad : BadCandidate) {
       // can save this loop if we used an array in sync with Psegments!!!!
-      if(isegm == BadCandidate[ibad]) {
+      if(isegm == ibad) {
 	discard = true;
       }
     }

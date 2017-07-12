@@ -73,8 +73,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
   reco::SuperClusterCollection saveEndcapSuperClusters;
   bool meet_single_thresh = false;
   //Loop over barrel superclusters, and apply threshold
-  for (int loop=0;loop<int(BarrelSuperClusters.size());loop++){
-    SuperCluster clus1 = BarrelSuperClusters[loop];
+  for (auto clus1 : BarrelSuperClusters){
     float eta1 = clus1.eta();
     float energy1 = clus1.energy();
     float theta1 = 2*atan(exp(-1.*eta1));
@@ -88,8 +87,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
   }
 
   //Loop over endcap superclusters, and apply threshold
-  for (int loop=0;loop<int(EndcapSuperClusters.size());loop++){
-    SuperCluster clus1 = EndcapSuperClusters[loop];
+  for (auto clus1 : EndcapSuperClusters){
     float eta1 = clus1.eta();
     float energy1 = clus1.energy();
     float theta1 = 2*atan(exp(-1.*eta1));
@@ -129,8 +127,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
       if ( digis ) {
          std::vector<DetId> saveTheseDetIds;
          //pick out the detids for the 3x3 in each of the selected superclusters
-         for (int loop = 0;loop < int(saveBarrelSuperClusters.size());loop++){
-           SuperCluster clus1 = saveBarrelSuperClusters[loop];
+         for (auto clus1 : saveBarrelSuperClusters){
            CaloClusterPtr bcref = clus1.seed();
            const BasicCluster *bc = bcref.get();
            //Get the maximum detid
@@ -140,12 +137,12 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            std::vector<DetId> detvec = 
 			   EcalClusterTools::matrixDetId(topology,EDetty.first, -1, 1, -1, 1);
            //Loop over the 3x3
-           for (int ik = 0;ik<int(detvec.size());++ik)
-             saveTheseDetIds.push_back(detvec[ik]);
+           for (auto ik : detvec)
+             saveTheseDetIds.push_back(ik);
            
          }
-         for (int detloop=0; detloop < int(saveTheseDetIds.size());++detloop){
-         	EBDetId detL = EBDetId(saveTheseDetIds[detloop]);
+         for (auto saveTheseDetId : saveTheseDetIds){
+         	EBDetId detL = EBDetId(saveTheseDetId);
            
            for (EBDigiCollection::const_iterator blah = digis->begin();
                 blah!=digis->end();blah++){
@@ -191,8 +188,7 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
          //std::vector<DetId> saveTheseDetIds;
          std::set<DetId> saveTheseDetIds;
          //pick out the digis for the 3x3 in each of the selected superclusters
-         for (int loop = 0;loop < int(saveEndcapSuperClusters.size());loop++){
-           SuperCluster clus1 = saveEndcapSuperClusters[loop];
+         for (auto clus1 : saveEndcapSuperClusters){
            CaloClusterPtr bcref = clus1.seed();
            const BasicCluster *bc = bcref.get();
            //Get the maximum detid
@@ -201,8 +197,8 @@ void EcalDigiSelector::produce(edm::Event& evt, const edm::EventSetup& es)
            std::vector<DetId> detvec = 
 			   EcalClusterTools::matrixDetId(topology,EDetty.first, -1, 1, -1, 1);
            //Loop over the 3x3
-           for (int ik = 0;ik<int(detvec.size());++ik)
-             saveTheseDetIds.insert(detvec[ik]);
+           for (auto ik : detvec)
+             saveTheseDetIds.insert(ik);
          }
          int eecounter=0;
          for (EEDigiCollection::const_iterator blah = digis->begin();

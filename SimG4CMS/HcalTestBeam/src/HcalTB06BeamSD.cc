@@ -137,8 +137,8 @@ std::vector<G4String> HcalTB06BeamSD::getNames(DDFilteredView& fv) {
     const DDLogicalPart & log = fv.logicalPart();
     G4String name = log.name().name();
     bool ok = true;
-    for (unsigned int i=0; i<tmp.size(); i++)
-      if (name == tmp[i]) ok = false;
+    for (const auto & i : tmp)
+      if (name == i) ok = false;
     if (ok) tmp.push_back(name);
     dodet = fv.next();
   }

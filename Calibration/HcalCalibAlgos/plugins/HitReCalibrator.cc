@@ -60,15 +60,15 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HBHERecHitCollection> hbhe;
   iEvent.getByToken(tok_hbhe_,hbhe);
   const HBHERecHitCollection Hithbhe = *(hbhe.product());
-  for(HBHERecHitCollection::const_iterator hbheItr=Hithbhe.begin(); hbheItr!=Hithbhe.end(); hbheItr++)
+  for(const auto & hbheItr : Hithbhe)
         {
-           DetId id = hbheItr->detid();
+           DetId id = hbheItr.detid();
            float recal; 
            if (jetRecalib->exists(id))
              recal = jetRecalib->getValues(id)->getValue();
 	   else recal = 1.; 
-           float energy = hbheItr->energy(); 
-           float time = hbheItr->time();
+           float energy = hbheItr.energy(); 
+           float time = hbheItr.time();
            HBHERecHit* hbhehit = new HBHERecHit(id,recal*energy,time);  
            miniDiJetsHBHERecHitCollection->push_back(*hbhehit);
         }
@@ -80,15 +80,15 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HORecHitCollection> ho;
   iEvent.getByToken(tok_ho_,ho);
   const HORecHitCollection Hitho = *(ho.product());
-  for(HORecHitCollection::const_iterator hoItr=Hitho.begin(); hoItr!=Hitho.end(); hoItr++)
+  for(const auto & hoItr : Hitho)
         {
-           DetId id = hoItr->detid();
+           DetId id = hoItr.detid();
            float recal; 
            if (jetRecalib->exists(id))
              recal = jetRecalib->getValues(id)->getValue();
 	   else recal = 1.; 
-           float energy = hoItr->energy(); 
-           float time = hoItr->time();
+           float energy = hoItr.energy(); 
+           float time = hoItr.time();
            HORecHit* hohit = new HORecHit(id,recal*energy,time); 
            miniDiJetsHORecHitCollection->push_back(*hohit);
         }
@@ -100,15 +100,15 @@ HitReCalibrator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   edm::Handle<HFRecHitCollection> hf;
   iEvent.getByToken(tok_hf_,hf);
   const HFRecHitCollection Hithf = *(hf.product());
-  for(HFRecHitCollection::const_iterator hfItr=Hithf.begin(); hfItr!=Hithf.end(); hfItr++)
+  for(const auto & hfItr : Hithf)
       {
-           DetId id = hfItr->detid();
+           DetId id = hfItr.detid();
            float recal; 
            if (jetRecalib->exists(id))
              recal = jetRecalib->getValues(id)->getValue();
 	   else recal = 1.; 
-           float energy = hfItr->energy(); 
-           float time = hfItr->time();
+           float energy = hfItr.energy(); 
+           float time = hfItr.time();
            HFRecHit* hfhit = new HFRecHit(id,recal*energy,time); 
            miniDiJetsHFRecHitCollection->push_back(*hfhit);
       }

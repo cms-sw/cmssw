@@ -91,8 +91,8 @@ GlobalPoint SMS::location ( const std::vector<GlobalPoint> & data ) const
   {
     std::vector < float > D;
     // Compute squared distances to all points
-    for ( std::vector< GlobalPoint >::const_iterator j=data.begin(); j!=data.end() ; ++j )
-    { D.push_back ( (*j - *i).mag2() ); }
+    for (const auto & j : data)
+    { D.push_back ( (j - *i).mag2() ); }
     // Find q-quantile in each row of the distance matrix
     sort( D.begin(), D.end() );
     MyPair tmp (  D[nq-1], &(*i) );
@@ -134,10 +134,9 @@ GlobalPoint SMS::location (  const std::vector < GlPtWt > & wdata ) const
   if ( !(theType & Weighted) )
   {
     std::vector < GlobalPoint > points;
-    for ( std::vector< GlPtWt >::const_iterator i=wdata.begin(); 
-          i!=wdata.end() ; ++i )
+    for (const auto & i : wdata)
     {
-      points.push_back ( i->first );
+      points.push_back ( i.first );
     };
     if ( debug() )
     {

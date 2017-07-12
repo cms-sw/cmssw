@@ -59,8 +59,8 @@ std::shared_ptr<L1GtTriggerMask> L1GtTriggerMaskTechTrigConfigOnlineProd::newObj
             gtSchema, "GT_PARTITION_FINOR_TT");
 
     if (edm::isDebugEnabled()) {
-        for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
-            LogTrace("L1GtTriggerMaskTechTrigConfigOnlineProd") << ( *iter ) << std::endl;
+        for (const auto & column : columns) {
+            LogTrace("L1GtTriggerMaskTechTrigConfigOnlineProd") << column << std::endl;
 
         }
     }

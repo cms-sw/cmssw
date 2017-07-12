@@ -191,18 +191,17 @@ void DTDigitizer::produce(Event& iEvent, const EventSetup& iSetup){
       const DTLayer* layer = muonGeom->layer(wireId.layerId()); 
 
       // Loop on the hits of this wire    
-      for (vector<const PSimHit*>::const_iterator hit=vhit.begin();
-	   hit != vhit.end(); hit++){
+      for (auto hit : vhit){
 	//************ 5 ***************
-	LocalPoint locPos = (*hit)->localPosition();
+	LocalPoint locPos = hit->localPosition();
 
 	const LocalVector BLoc=layer->surface().toLocal(magnField->inTesla(layer->surface().toGlobal(locPos)));
 
-	time = computeTime(layer, wireId, *hit, BLoc, engine);
+	time = computeTime(layer, wireId, hit, BLoc, engine);
 
 	//************ 6 ***************
 	if (time.second) {
-	  tdCont.push_back(make_pair((*hit),time.first));
+	  tdCont.push_back(make_pair(hit,time.first));
 	} else {
 	  if (debug) LogPrint("DTDigitizer") << "hit discarded" << endl;
 	}

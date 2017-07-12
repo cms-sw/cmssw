@@ -27,9 +27,8 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 
    const DetIds& ids ( 0 == di ? sg->getValidDetIds( det, subdet ) : *di ) ;
 //------------------------------------------------------------
-   for( DetIds::const_iterator id ( ids.begin() ) ; id != ids.end() ; ++id )
+   for(auto dId : ids)
    {
-      const DetId dId ( *id ) ;
       unsigned int found ( 0 ) ;
       const CaloCellGeometry& cg ( *sg->getGeometry( dId ) ) ;
       const CaloCellGeometry::CornersVec& gc ( cg.getCorners() ) ;

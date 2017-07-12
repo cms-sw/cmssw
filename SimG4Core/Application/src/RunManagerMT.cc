@@ -195,9 +195,9 @@ void RunManagerMT::initG4(const DDCompactView *pDD, const MagneticField *pMF,
 
   if(0 < m_G4Commands.size()) {
     G4cout << "RunManagerMT: Requested UI commands: " << G4endl;
-    for (unsigned it=0; it<m_G4Commands.size(); ++it) {
-      G4cout << "    " << m_G4Commands[it] << G4endl;
-      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Commands[it]);
+    for (const auto & m_G4Command : m_G4Commands) {
+      G4cout << "    " << m_G4Command << G4endl;
+      G4UImanager::GetUIpointer()->ApplyCommand(m_G4Command);
     }
   }
 

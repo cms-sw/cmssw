@@ -312,8 +312,8 @@ TkGluedMeasurementDet::projectOnGluedDet( Collector& collector,
                                           const RecHitContainer& hits,
                                           const GlobalVector & gdir ) const 
 {
-  for ( RecHitContainer::const_iterator ihit = hits.begin(); ihit!=hits.end(); ihit++) {
-    collector.addProjected( **ihit, gdir );
+  for (const auto & hit : hits) {
+    collector.addProjected( *hit, gdir );
   }
 }
 
@@ -348,11 +348,11 @@ void TkGluedMeasurementDet::checkProjection(const TrajectoryStateOnSurface& ts,
 					    const RecHitContainer& monoHits, 
 					    const RecHitContainer& stereoHits) const
 {
-  for (RecHitContainer::const_iterator i=monoHits.begin(); i != monoHits.end(); ++i) {
-    checkHitProjection( **i, ts, fastGeomDet());
+  for (const auto & monoHit : monoHits) {
+    checkHitProjection( *monoHit, ts, fastGeomDet());
   }
-  for (RecHitContainer::const_iterator i=stereoHits.begin(); i != stereoHits.end(); ++i) {
-    checkHitProjection( **i, ts, fastGeomDet());
+  for (const auto & stereoHit : stereoHits) {
+    checkHitProjection( *stereoHit, ts, fastGeomDet());
   }
 }
 

@@ -251,12 +251,12 @@ void CaloTruthAccumulator::accumulateEvent( const T& event,
   std::unordered_multimap<Index_t,Index_t> genPartsToSimClusters;
   const auto& simTracks = *hSimTracks;
   // loop over 
-  for (unsigned int i = 0 ; i < simTracks.size() ; ++i) {
-    if ( simTracks[i].momentum().E() < minEnergy_ || std::abs(simTracks[i].momentum().Eta()) >= maxPseudoRapidity_ ) continue;
-    if ( simTracks[i].noGenpart() ) continue;
-    auto temp = CaloTruthAccumulator::descendantSimClusters( simTracks[i].trackId(),simHitPointers );
+  for (const auto & simTrack : simTracks) {
+    if ( simTrack.momentum().E() < minEnergy_ || std::abs(simTrack.momentum().Eta()) >= maxPseudoRapidity_ ) continue;
+    if ( simTrack.noGenpart() ) continue;
+    auto temp = CaloTruthAccumulator::descendantSimClusters( simTrack.trackId(),simHitPointers );
     if( temp.size() ) {
-      output_.pCaloParticles->emplace_back(simTracks[i]);
+      output_.pCaloParticles->emplace_back(simTrack);
       m_caloParticles.sc_start_.push_back(output_.pSimClusters->size());
       auto mbegin = std::make_move_iterator(temp.begin());
       auto mend = std::make_move_iterator(temp.end());

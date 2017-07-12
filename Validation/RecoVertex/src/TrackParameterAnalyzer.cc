@@ -134,15 +134,14 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    iEvent.getByToken( edmSimVertexContainerToken_, simVtcs );
    if(verbose_){
      std::cout << "SimVertex " << simVtcs->size() << std::endl;
-     for(edm::SimVertexContainer::const_iterator v=simVtcs->begin();
-	 v!=simVtcs->end(); ++v){
+     for(const auto & v : *simVtcs){
        std::cout << "simvtx "
 		 << std::setw(10) << std::setprecision(4)
-		 << v->position().x() << " "
-		 << v->position().y() << " "
-		 << v->position().z() << " "
-		 << v->parentIndex() << " "
-		 << v->noParent() << " "
+		 << v.position().x() << " "
+		 << v.position().y() << " "
+		 << v.position().z() << " "
+		 << v.parentIndex() << " "
+		 << v.noParent() << " "
 		 << std::endl;
      }
    }
@@ -153,18 +152,17 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    
    if(verbose_){std::cout << "simtrks " << simTrks->size() << std::endl;}
    std::vector<ParameterVector > tsim;
-   for(edm::SimTrackContainer::const_iterator t=simTrks->begin();
-       t!=simTrks->end(); ++t){
-     if (t->noVertex()){
+   for(const auto & t : *simTrks){
+     if (t.noVertex()){
        std::cout << "simtrk  has no vertex" << std::endl;
        return;
      }else{
        // get the vertex position
-       HepLorentzVector v((*simVtcs)[t->vertIndex()].position().x(),
-                          (*simVtcs)[t->vertIndex()].position().y(),
-                          (*simVtcs)[t->vertIndex()].position().z(),
-                          (*simVtcs)[t->vertIndex()].position().e());
-       int pdgCode=t->type();
+       HepLorentzVector v((*simVtcs)[t.vertIndex()].position().x(),
+                          (*simVtcs)[t.vertIndex()].position().y(),
+                          (*simVtcs)[t.vertIndex()].position().z(),
+                          (*simVtcs)[t.vertIndex()].position().e());
+       int pdgCode=t.type();
 
        if( pdgCode==-99 ){
 	 // such entries cause crashes, no idea what they are
@@ -176,12 +174,12 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 	 else {
 	   std::cout << pdgCode << " " <<std::endl;
 	 }
-	 HepLorentzVector p(t->momentum().x(),t->momentum().y(),t->momentum().z(),t->momentum().e());
+	 HepLorentzVector p(t.momentum().x(),t.momentum().y(),t.momentum().z(),t.momentum().e());
 	 if(verbose_){
 	   std::cout << "simtrk "
-		       << " gen=" << std::setw( 4) << t->genpartIndex()
-		       << " vtx=" << std::setw( 4) << t->vertIndex() 
-		       << " pdg=" << std::setw( 5) << t->type() 
+		       << " gen=" << std::setw( 4) << t.genpartIndex()
+		       << " vtx=" << std::setw( 4) << t.vertIndex() 
+		       << " pdg=" << std::setw( 5) << t.type() 
 		       << " Q="   << std::setw( 3) << Q 
 		       << " pt="  << std::setw(6) << p.perp()
 		       << " vx="  << std::setw(6) << v.x() 
@@ -223,10 +221,9 @@ TrackParameterAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
    edm::Handle<reco::TrackCollection> recTracks;
    iEvent.getByToken( recoTrackCollectionToken_, recTracks );
 
-   for(reco::TrackCollection::const_iterator t=recTracks->begin();
-       t!=recTracks->end(); ++t){
-     reco::TrackBase::ParameterVector  p = t->parameters();
-     reco::TrackBase::CovarianceMatrix c = t->covariance();
+   for(const auto & t : *recTracks){
+     reco::TrackBase::ParameterVector  p = t.parameters();
+     reco::TrackBase::CovarianceMatrix c = t.covariance();
      if(verbose_){
        std::cout << "reco pars= " << p << std::endl;
      }

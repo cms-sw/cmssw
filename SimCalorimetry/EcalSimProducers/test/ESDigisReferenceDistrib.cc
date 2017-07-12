@@ -54,11 +54,11 @@ ESDigisReferenceDistrib::~ESDigisReferenceDistrib(){
   
   // saving and deleting
   TFile file(outputRootFile_.c_str(),"RECREATE");
-  for (int ii=0; ii<3 ; ii++) { meESDigiADC_[ii] -> Write(); }  
+  for (auto & ii : meESDigiADC_) { ii -> Write(); }  
   meESDigi3D_ -> Write();
   file.Close();
 
-  for (int ii=0; ii<3; ii++) { if (meESDigiADC_[ii]){ delete meESDigiADC_[ii]; }}
+  for (auto & ii : meESDigiADC_) { if (ii){ delete ii; }}
   if (meESDigi3D_) delete meESDigi3D_;
 }
 

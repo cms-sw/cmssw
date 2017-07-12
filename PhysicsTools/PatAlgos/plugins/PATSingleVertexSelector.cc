@@ -141,9 +141,9 @@ PATSingleVertexSelector::filter_(Mode mode, const edm::Event &iEvent, const edm:
     if (selVtxs_.empty() || (bestCand_.isNull())) return result;
     reco::VertexRef which;
     float dzmin = 9999.0;
-    for (auto itv = selVtxs_.begin(), edv = selVtxs_.end(); itv != edv; ++itv) {
-      float dz = std::abs((*itv)->z() - bestCand_->vz());
-      if (dz < dzmin) { dzmin = dz; which = *itv; }
+    for (auto & selVtx : selVtxs_) {
+      float dz = std::abs(selVtx->z() - bestCand_->vz());
+      if (dz < dzmin) { dzmin = dz; which = selVtx; }
     }
     if (which.isNonnull()) // actually it should not happen, but better safe than sorry
       result->push_back(*which);

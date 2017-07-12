@@ -29,18 +29,18 @@ typedef std::vector<Bools> VBools;
 
 std::ostream& operator<<(std::ostream& ost, const Strings& s)
 {
-  for(Strings::const_iterator i(s.begin()),e(s.end());i!=e;++i)
+  for(const auto & i : s)
     {
-      ost << *i << " ";
+      ost << i << " ";
     }
   return ost;
 }
 
 std::ostream& operator<<(std::ostream& ost, const Bools& b)
 {
-  for(unsigned int i=0;i<b.size();++i)
+  for(bool i : b)
     {
-      ost << b[i] << " ";
+      ost << i << " ";
     }
   return ost;
 }

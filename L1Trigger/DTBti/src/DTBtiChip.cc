@@ -537,11 +537,11 @@ DTBtiChip::clear() {
   }
 
   vector<DTBtiTrig*>::iterator p1;
-  for(int is=0;is<DTConfig::NSTEPL-DTConfig::NSTEPF+1;is++){
-    for(p1=_trigs[is].begin();p1<_trigs[is].end();p1++){
+  for(auto & _trig : _trigs){
+    for(p1=_trig.begin();p1<_trig.end();p1++){
       delete (*p1);
     }
-    _trigs[is].clear();
+    _trig.clear();
   }
 }
 
@@ -817,9 +817,9 @@ DTBtiChip::store(const int eq, const int code, const int K, const int X,
     DTBtiTrig* trg = new DTBtiTrig(this,code,K,X,trig_step,eq,strobe,Keq);
 
     // store also the digis
-    for(int c=0; c<9; c++) {
-      if(_thisStepUsedHit[c]) {
-        const DTDigi* digi = _thisStepUsedHit[c]->hitDigi();
+    for(auto & c : _thisStepUsedHit) {
+      if(c) {
+        const DTDigi* digi = c->hitDigi();
         if(digi)
           trg->addDigi(digi);
       }

@@ -139,7 +139,7 @@ DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31],
 
   if (debug()) {
     std::cout << "TSS :" << std::dec << std::endl << "tstren= " ;
-    for (int i=0; i<24 ;i++) std::cout << tstren[i] << " ";
+    for (bool i : tstren) std::cout << i << " ";
     std::cout << " tsscgs1="  << tsscgs1
 	      << " tssgs1="   << tssgs1
 	      << " tsscgs2="  << tsscgs2
@@ -175,7 +175,7 @@ DTConfigTSPhi::DTConfigTSPhi(bool debugTS, unsigned short int tss_buffer[7][31],
 	      << " carrytsms=" << carrytsms
 	      << " carrytsmd=" << carrytsmd
 	      << " tsmword="; 
-    for (int i=0;i<8;i++) std::cout << tsmword[i] << " ";
+    for (bool i : tsmword) std::cout << i << " ";
     std::cout << " tsmmsk1="  << tsmmsk1
 	      << " tsmmsk2="  << tsmmsk2 << std::endl;
   }

@@ -66,23 +66,22 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
 
   theChamberSegmentMap.clear();
   unsigned nPerEvent = 0;
-  for(CSCSegmentCollection::const_iterator segmentItr = cscRecHits->begin(); 
-      segmentItr != cscRecHits->end(); segmentItr++) 
+  for(const auto & cscRecHit : *cscRecHits) 
   {
     ++nPerEvent;
-    int detId = segmentItr->geographicalId().rawId();
+    int detId = cscRecHit.geographicalId().rawId();
     int chamberType = whatChamberType(detId);
 
-    theNRecHitsPlot->Fill(segmentItr->nRecHits());
+    theNRecHitsPlot->Fill(cscRecHit.nRecHits());
     theNPerChamberTypePlot->Fill(chamberType);
-    theChamberSegmentMap[detId].push_back(*segmentItr);
+    theChamberSegmentMap[detId].push_back(cscRecHit);
 
     // do the resolution plots
     const PSimHit * hit = keyHit(detId);
     if(hit != 0) 
     {
       const CSCLayer * layer = findLayer(hit->detUnitId());
-      plotResolution(*hit, *segmentItr, layer, chamberType);
+      plotResolution(*hit, cscRecHit, layer, chamberType);
     }  
   }
 

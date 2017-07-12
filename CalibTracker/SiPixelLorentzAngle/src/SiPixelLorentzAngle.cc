@@ -188,9 +188,9 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
   e.getByToken(t_trajTrack,trajTrackCollectionHandle);
   if(trajTrackCollectionHandle->size() >0){
     trackEventsCounter_++;
-    for(TrajTrackAssociationCollection::const_iterator it = trajTrackCollectionHandle->begin(); it!=trajTrackCollectionHandle->end();++it){
-      const Track&      track = *it->val;
-      const Trajectory& traj  = *it->key;
+    for(const auto & it : *trajTrackCollectionHandle){
+      const Track&      track = *it.val;
+      const Trajectory& traj  = *it.key;
 		
       // get the trajectory measurements
       std::vector<TrajectoryMeasurement> tmColl = traj.measurements(); 
@@ -277,18 +277,18 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	    matched.clear();        
 	    matched = associate->associateHit((*recHitPix));	
 	    float dr_start=9999.;
-	    for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
-	      DetId simdetIdObj((*isim).detUnitId());
+	    for (auto & isim : matched){
+	      DetId simdetIdObj(isim.detUnitId());
 	      if (simdetIdObj == detIdObj) {
-		float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
-		float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
-		float sim_x2 = (*isim).exitPoint().x();
-		float sim_y2 = (*isim).exitPoint().y();
+		float sim_x1 = isim.entryPoint().x(); // width (row index, in col direction)
+		float sim_y1 = isim.entryPoint().y(); // length (col index, in row direction)
+		float sim_x2 = isim.exitPoint().x();
+		float sim_y2 = isim.exitPoint().y();
 		float sim_xpos = 0.5*(sim_x1+sim_x2);
 		float sim_ypos = 0.5*(sim_y1+sim_y2);
-		float sim_px = (*isim).momentumAtEntry().x();
-		float sim_py = (*isim).momentumAtEntry().y();
-		float sim_pz = (*isim).momentumAtEntry().z();
+		float sim_px = isim.momentumAtEntry().x();
+		float sim_py = isim.momentumAtEntry().y();
+		float sim_pz = isim.momentumAtEntry().z();
 						
 		float dr = (sim_xpos-(recHitPix->localPosition().x()))*(sim_xpos-recHitPix->localPosition().x()) +
 		  (sim_ypos-recHitPix->localPosition().y())*(sim_ypos-recHitPix->localPosition().y());
@@ -396,18 +396,18 @@ void SiPixelLorentzAngle::analyze(const edm::Event& e, const edm::EventSetup& es
 	    matched.clear();        
 	    matched = associate->associateHit((*recHitPix));	
 	    float dr_start=9999.;
-	    for (std::vector<PSimHit>::iterator isim = matched.begin(); isim != matched.end(); ++isim){
-	      DetId simdetIdObj((*isim).detUnitId());
+	    for (auto & isim : matched){
+	      DetId simdetIdObj(isim.detUnitId());
 	      if (simdetIdObj == detIdObj) {
-		float sim_x1 = (*isim).entryPoint().x(); // width (row index, in col direction)
-		float sim_y1 = (*isim).entryPoint().y(); // length (col index, in row direction)
-		float sim_x2 = (*isim).exitPoint().x();
-		float sim_y2 = (*isim).exitPoint().y();
+		float sim_x1 = isim.entryPoint().x(); // width (row index, in col direction)
+		float sim_y1 = isim.entryPoint().y(); // length (col index, in row direction)
+		float sim_x2 = isim.exitPoint().x();
+		float sim_y2 = isim.exitPoint().y();
 		float sim_xpos = 0.5*(sim_x1+sim_x2);
 		float sim_ypos = 0.5*(sim_y1+sim_y2);
-		float sim_px = (*isim).momentumAtEntry().x();
-		float sim_py = (*isim).momentumAtEntry().y();
-		float sim_pz = (*isim).momentumAtEntry().z();
+		float sim_px = isim.momentumAtEntry().x();
+		float sim_py = isim.momentumAtEntry().y();
+		float sim_pz = isim.momentumAtEntry().z();
 						
 		float dr = (sim_xpos-(recHitPix->localPosition().x()))*(sim_xpos-recHitPix->localPosition().x()) +
 		  (sim_ypos-recHitPix->localPosition().y())*(sim_ypos-recHitPix->localPosition().y());
@@ -499,12 +499,12 @@ inline void SiPixelLorentzAngle::fillPix(const SiPixelCluster & LocPix, const Pi
 {
   const std::vector<SiPixelCluster::Pixel>& pixvector = LocPix.pixels();
   pixinfo.npix = 0;
-  for(std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end(); itPix++){
+  for(auto itPix : pixvector){
     // 	for(pixinfo.npix = 0; pixinfo.npix < static_cast<int>(pixvector.size()); ++pixinfo.npix) {
-    pixinfo.row[pixinfo.npix] = itPix->x;
-    pixinfo.col[pixinfo.npix] = itPix->y;
-    pixinfo.adc[pixinfo.npix] = itPix->adc;
-    LocalPoint lp = topol->localPosition(MeasurementPoint(itPix->x + 0.5, itPix->y+0.5));
+    pixinfo.row[pixinfo.npix] = itPix.x;
+    pixinfo.col[pixinfo.npix] = itPix.y;
+    pixinfo.adc[pixinfo.npix] = itPix.adc;
+    LocalPoint lp = topol->localPosition(MeasurementPoint(itPix.x + 0.5, itPix.y+0.5));
     pixinfo.x[pixinfo.npix] = lp.x();
     pixinfo.y[pixinfo.npix]= lp.y();
     pixinfo.npix++;

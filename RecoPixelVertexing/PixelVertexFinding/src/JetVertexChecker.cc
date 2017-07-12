@@ -141,9 +141,9 @@ JetVertexChecker::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
       reco::TrackRefVector tracks = it->second;
       math::XYZVector jetMomentum = it->first->momentum();
       math::XYZVector trMomentum;
-      for(reco::TrackRefVector::const_iterator itTrack = tracks.begin(); itTrack != tracks.end(); ++itTrack) 
+      for(auto && track : tracks) 
       {
-         const reco::Track& iTrack = **itTrack;
+         const reco::Track& iTrack = *track;
 	     if(m_newMethod && iTrack.chi2()>m_maxChi2) continue;
              trMomentum += iTrack.momentum();
 	     if(m_newMethod) trkpt += std::min(m_maxTrackPt,( iTrack.pt()));

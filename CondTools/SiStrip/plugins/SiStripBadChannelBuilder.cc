@@ -28,10 +28,10 @@ void SiStripBadChannelBuilder::algoAnalyze(const edm::Event & event, const edm::
   
   const std::vector<uint32_t> DetIds = reader.getAllDetIds();
   
-  for(Parameters::iterator iBadComponent = BadComponentList_.begin(); iBadComponent != BadComponentList_.end(); ++iBadComponent ) {
+  for(auto & iBadComponent : BadComponentList_) {
     
-    uint32_t BadModule_ = iBadComponent->getParameter<uint32_t>("BadModule");
-    std::vector<uint32_t> BadChannelList_ = iBadComponent->getParameter<std::vector<uint32_t> >("BadChannelList");
+    uint32_t BadModule_ = iBadComponent.getParameter<uint32_t>("BadModule");
+    std::vector<uint32_t> BadChannelList_ = iBadComponent.getParameter<std::vector<uint32_t> >("BadChannelList");
 
     std::vector<unsigned int> theSiStripVector;
     unsigned int NStrips=reader.getNumberOfApvsAndStripLength(BadModule_).first*128;   

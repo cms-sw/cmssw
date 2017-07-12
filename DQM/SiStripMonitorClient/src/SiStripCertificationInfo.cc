@@ -72,9 +72,8 @@ void SiStripCertificationInfo::beginRun(edm::Run const& run, edm::EventSetup con
     
     if ( sumFED.isValid() ) {
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
-      for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-	int fedID = FedsInIds[it];     
-	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected_;
+      for(int fedID : FedsInIds) {
+		if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDConnected_;
       }
       LogDebug ("SiStripDcsInfo") << " SiStripDcsInfo :: Connected FEDs " << nFEDConnected_;
     }
@@ -216,29 +215,28 @@ void SiStripCertificationInfo::fillSiStripCertificationMEs(edm::EventSetup const
   float    sToNTot  = 0.0;
   SiStripFolderOrganizer folder_organizer;  
   int xbin = 0;
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
-       it != SubDetMEsMap.end(); it++) {   
+  for (auto & it : SubDetMEsMap) {   
     xbin++;
-    std::string name = it->first;
-    std::string tag  = it->second.subdet_tag;
-    MonitorElement* me = it->second.det_fractionME;
+    std::string name = it.first;
+    std::string tag  = it.second.subdet_tag;
+    MonitorElement* me = it.second.det_fractionME;
     if (!me) continue;
-    std::string bad_module_folder = mechanical_dir+"/"+it->second.folder_name+"/"+"BadModuleList";
+    std::string bad_module_folder = mechanical_dir+"/"+it.second.folder_name+"/"+"BadModuleList";
     std::vector<MonitorElement *> faulty_detMEs = dqmStore_->getContents(bad_module_folder);
     
     uint16_t ndet_subdet = 0;
     uint16_t nfaulty_subdet = 0;
-    int nlayer = it->second.n_layer;
+    int nlayer = it.second.n_layer;
     int ybin = 0; 
     for (int ilayer = 0; ilayer < nlayer; ilayer++) {
       uint16_t ndet_layer = detCabling_->connectedNumber(tag, ilayer+1);
       ndet_subdet += ndet_layer; 
       ybin++;
       uint16_t nfaulty_layer = 0;
-      for (std::vector<MonitorElement *>::iterator im = faulty_detMEs.begin(); im != faulty_detMEs.end(); im++) {
-        if ((*im)->kind() != MonitorElement::DQM_KIND_INT ) continue;
-	if ((*im)->getIntValue() == 0) continue; 
-        uint32_t detId = atoi((*im)->getName().c_str()); 
+      for (auto & faulty_detME : faulty_detMEs) {
+        if (faulty_detME->kind() != MonitorElement::DQM_KIND_INT ) continue;
+	if (faulty_detME->getIntValue() == 0) continue; 
+        uint32_t detId = atoi(faulty_detME->getName().c_str()); 
         std::pair<std::string,int32_t> det_layer_pair = folder_organizer.GetSubDetAndLayer(detId, tTopo, false);
         if (abs(det_layer_pair.second) == ilayer+1) nfaulty_layer++; 
       }
@@ -280,9 +278,8 @@ void SiStripCertificationInfo::resetSiStripCertificationMEs() {
   if (!sistripCertificationBooked_) bookSiStripCertificationMEs();
   if (sistripCertificationBooked_) {
     SiStripCertification->Reset();
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
-	 it != SubDetMEsMap.end(); it++) {   
-      it->second.det_fractionME->Reset();
+    for (auto & it : SubDetMEsMap) {   
+      it.second.det_fractionME->Reset();
     }
     SiStripCertificationSummaryMap->Reset();
   }
@@ -294,10 +291,9 @@ void SiStripCertificationInfo::fillDummySiStripCertification() {
   resetSiStripCertificationMEs();
   if (sistripCertificationBooked_) {
     SiStripCertification->Fill(-1.0);
-    for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin(); 
-	 it != SubDetMEsMap.end(); it++) {   
-      it->second.det_fractionME->Reset();
-      it->second.det_fractionME->Fill(-1.0);
+    for (auto & it : SubDetMEsMap) {   
+      it.second.det_fractionME->Reset();
+      it.second.det_fractionME->Fill(-1.0);
     }
     
     for (int xbin = 1; xbin < SiStripCertificationSummaryMap->getNbinsX()+1; xbin++) {
@@ -324,17 +320,16 @@ void SiStripCertificationInfo::fillSiStripCertificationMEsAtLumi() {
   std::string full_path;
   float dcs_flag = 1.0;
   float dqm_flag = 1.0;
-  for (std::map<std::string, SubDetMEs>::iterator it = SubDetMEsMap.begin();
-       it != SubDetMEsMap.end(); it++) {
-    std::string type = it->first;
+  for (auto & it : SubDetMEsMap) {
+    std::string type = it.first;
     full_path = strip_dir + "/EventInfo/DCSContents/SiStrip_" + type;
     MonitorElement* me_dcs = dqmStore_->get(full_path);
     if (me_dcs && me_dcs->kind() == MonitorElement::DQM_KIND_REAL) dcs_flag = me_dcs->getFloatValue(); 
     full_path = strip_dir + "/EventInfo/reportSummaryContents/SiStrip_" + type;
     MonitorElement* me_dqm = dqmStore_->get(full_path);
     if (me_dqm && me_dqm->kind() == MonitorElement::DQM_KIND_REAL) dqm_flag = me_dqm->getFloatValue(); 
-    it->second.det_fractionME->Reset();
-    it->second.det_fractionME->Fill(fminf(dqm_flag,dcs_flag));
+    it.second.det_fractionME->Reset();
+    it.second.det_fractionME->Fill(fminf(dqm_flag,dcs_flag));
   }
   dcs_flag = 1.0;
   dqm_flag = 1.0;

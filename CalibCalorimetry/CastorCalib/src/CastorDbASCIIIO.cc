@@ -113,14 +113,12 @@ bool dumpCastorObject (std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   //std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const float* values = fObject.getValues (*channel)->getValues ();
+  for (auto & channel : channels) {
+    const float* values = fObject.getValues (channel)->getValues ();
     if (values) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %10X\n",
-	       values[0], values[1], values[2], values[3], channel->rawId ());
+	       values[0], values[1], values[2], values[3], channel.rawId ());
       fOutput << buffer;
     }
   }
@@ -160,13 +158,11 @@ bool dumpCastorSingleFloatObject (std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const float value = fObject.getValues (*channel)->getValue ();
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const float value = fObject.getValues (channel)->getValue ();
+    dumpId (fOutput, channel);
     sprintf (buffer, " %8.5f %10X\n",
-	     value, channel->rawId ());
+	     value, channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -205,13 +201,11 @@ bool dumpCastorSingleIntObject (std::ostream& fOutput, const T& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const int value = fObject.getValues (*channel)->getValue ();
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const int value = fObject.getValues (channel)->getValue ();
+    dumpId (fOutput, channel);
     sprintf (buffer, " %15d %10X\n",
-	     value, channel->rawId ());
+	     value, channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -307,14 +301,12 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestals& fObject) {
 
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const float* values = fObject.getValues (*channel)->getValues ();
+  for (auto & channel : channels) {
+    const float* values = fObject.getValues (channel)->getValues ();
     if (values) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
-	       values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], channel->rawId ());
+	       values[0], values[1], values[2], values[3], values[4], values[5], values[6], values[7], channel.rawId ());
       fOutput << buffer;
     }
   }
@@ -370,13 +362,11 @@ bool dumpObject (std::ostream& fOutput, const CastorChannelQuality& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const int value = fObject.getValues (*channel)->getValue ();
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const int value = fObject.getValues (channel)->getValue ();
+    dumpId (fOutput, channel);
     sprintf (buffer, " %15X %10X\n",
-	     value, channel->rawId ());
+	     value, channel.rawId ());
     fOutput << buffer;
   }
   return true;
@@ -492,17 +482,15 @@ bool dumpObject (std::ostream& fOutput, const CastorPedestalWidths& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const CastorPedestalWidth* item = fObject.getValues (*channel);
+  for (auto & channel : channels) {
+    const CastorPedestalWidth* item = fObject.getValues (channel);
     if (item) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       sprintf (buffer, " %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %8.5f %10X\n",
 	       item->getSigma (0,0), item->getSigma (0,1), item->getSigma (0,2), item->getSigma (0,3), 
 	       item->getSigma (1,0), item->getSigma (1,1), item->getSigma (1,2), item->getSigma (1,3),
 	       item->getSigma (2,0), item->getSigma (2,1), item->getSigma (2,2), item->getSigma (2,3),
-	       item->getSigma (3,0), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), channel->rawId ());
+	       item->getSigma (3,0), item->getSigma (3,1), item->getSigma (3,2), item->getSigma (3,3), channel.rawId ());
       fOutput << buffer;
     }
   }
@@ -578,11 +566,9 @@ bool dumpObject (std::ostream& fOutput, const CastorQIEData& fObject) {
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const CastorQIECoder* coder = fObject.getCoder (*channel);
-    dumpId (fOutput, *channel);
+  for (auto & channel : channels) {
+    const CastorQIECoder* coder = fObject.getCoder (channel);
+    dumpId (fOutput, channel);
     for (unsigned capid = 0; capid < 4; capid++) {
       for (unsigned range = 0; range < 4; range++) {
 	sprintf (buffer, " %8.5f", coder->offset (capid, range));
@@ -620,8 +606,8 @@ bool getObject (std::istream& fInput, CastorCalibrationQIEData* fObject) {
       CastorCalibrationQIECoder coder (id.rawId ());
       int index = 4;
       float values [32];
-      for (unsigned bin = 0; bin < 32; bin++) {
-	values[bin] = atof (items [index++].c_str ());
+      for (float & value : values) {
+	value = atof (items [index++].c_str ());
       }
       coder.setMinCharges (values);
       fObject->addCoder (coder);
@@ -639,12 +625,10 @@ bool dumpObject (std::ostream& fOutput, const CastorCalibrationQIEData& fObject)
   fOutput << buffer;
   std::vector<DetId> channels = fObject.getAllChannels ();
   std::sort (channels.begin(), channels.end(), DetIdLess ());
-  for (std::vector<DetId>::iterator channel = channels.begin ();
-       channel !=  channels.end ();
-       ++channel) {
-    const CastorCalibrationQIECoder* coder = fObject.getCoder (*channel);
+  for (auto & channel : channels) {
+    const CastorCalibrationQIECoder* coder = fObject.getCoder (channel);
     if (coder) {
-      dumpId (fOutput, *channel);
+      dumpId (fOutput, channel);
       const float* lowEdge = coder->minCharges ();
       for (unsigned bin = 0; bin < 32; bin++) {
 	sprintf (buffer, " %8.5f", lowEdge [bin]);
@@ -733,8 +717,7 @@ bool dumpObject (std::ostream& fOutput, const CastorElectronicsMap& fObject) {
 	   "i", "cr", "sl", "tb", "dcc", "spigot", "fiber/slb", "fibcha/slbcha", "subdet", "ieta", "iphi", "depth");
   fOutput << buf << std::endl;
 
-  for (unsigned i = 0; i < eids.size (); i++) {
-    CastorElectronicsId eid = eids[i];
+  for (auto eid : eids) {
     if (eid.isTriggerChainId()) {
       DetId trigger = fObject.lookupTrigger (eid);
       if (trigger.rawId ()) {
@@ -796,10 +779,10 @@ bool dumpObject (std::ostream& fOutput, const CastorRecoParams& fObject) {
 	fOutput << buffer;
 	std::vector<DetId> channels = fObject.getAllChannels ();
 	std::sort (channels.begin(), channels.end(), DetIdLess ());
-	for (std::vector<DetId>::iterator channel = channels.begin();channel != channels.end();++channel) {
-		dumpId (fOutput, *channel);
+	for (auto & channel : channels) {
+		dumpId (fOutput, channel);
 		sprintf (buffer, " %15d %15d %16X\n",
-		fObject.getValues (*channel)->firstSample(), fObject.getValues (*channel)->samplesToAdd(), channel->rawId ());
+		fObject.getValues (channel)->firstSample(), fObject.getValues (channel)->samplesToAdd(), channel.rawId ());
 		fOutput << buffer;
 	}
 	return true;

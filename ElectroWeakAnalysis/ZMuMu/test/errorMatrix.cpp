@@ -23,11 +23,11 @@ int main() {
   fstream file("error.txt");
   string name[n];
   double err[n][n];
-  for(unsigned int i = 0; i < n; ++i)
-    file >> name[i];
-  for(unsigned int i = 0; i < n; ++i) {
+  for(auto & i : name)
+    file >> i;
+  for(auto & i : err) {
     for(unsigned int j = 0; j < n; ++j) {
-      file >> err[i][j];
+      file >> i[j];
     }
   }
 

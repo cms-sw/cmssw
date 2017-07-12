@@ -240,11 +240,11 @@ void V0Fitter::fitAll(const edm::Event& iEvent, const edm::EventSetup& iSetup,
       if (useRefTracks_ && theRefTracks.size() > 1) {
          reco::TransientTrack* thePositiveRefTrack = 0;
          reco::TransientTrack* theNegativeRefTrack = 0;
-         for (std::vector<reco::TransientTrack>::iterator iTrack = theRefTracks.begin(); iTrack != theRefTracks.end(); ++iTrack) {
-            if (iTrack->track().charge() > 0.) {
-               thePositiveRefTrack = &*iTrack;
-            } else if (iTrack->track().charge() < 0.) {
-               theNegativeRefTrack = &*iTrack;
+         for (auto & theRefTrack : theRefTracks) {
+            if (theRefTrack.track().charge() > 0.) {
+               thePositiveRefTrack = &theRefTrack;
+            } else if (theRefTrack.track().charge() < 0.) {
+               theNegativeRefTrack = &theRefTrack;
             }
          }
          if (thePositiveRefTrack == 0 || theNegativeRefTrack == 0) continue;

@@ -200,18 +200,18 @@ PhotonValidatorMiniAOD::analyze( const edm::Event &iEvent, const edm::EventSetup
 
     
 
-    for ( reco::GenParticleCollection::const_iterator mcIter=genParticles->begin() ; mcIter!=genParticles->end() ; mcIter++ ) {
-        if ( !(mcIter->pdgId() == 22 ) ) continue;
-        if ( mcIter->mother() != nullptr && !(mcIter->mother()->pdgId()==25) ) continue;
-        if ( fabs(mcIter->eta()) > 2.5 ) continue;
+    for (const auto & mcIter : *genParticles) {
+        if ( !(mcIter.pdgId() == 22 ) ) continue;
+        if ( mcIter.mother() != nullptr && !(mcIter.mother()->pdgId()==25) ) continue;
+        if ( fabs(mcIter.eta()) > 2.5 ) continue;
 	//       if ( mcIter->pt() < 5) continue;
         //        if ( fabs(mcIter->eta()) > 1.4442 && fabs(mcIter->eta()) < 1.566) continue;
  
 
-        float mcPhi= mcIter->phi();
-        float mcEta= mcIter->eta();
+        float mcPhi= mcIter.phi();
+        float mcEta= mcIter.eta();
         //mcEta = etaTransformation(mcEta, (*mcPho).primaryVertex().z() );
-        float mcEnergy=mcIter->energy();
+        float mcEnergy=mcIter.energy();
 
 
 

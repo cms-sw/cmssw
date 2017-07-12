@@ -304,9 +304,8 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
       LogDebug("L1T") << "Found packet [" << itr->first_ << ", " << itr->last_ << "]";
       LogDebug("L1T") << "Link " << link << " has " << itr->links_.find(link)->second.size() << " frames";
 
-      for (unsigned iFrame=0; iFrame<itr->links_.find(link)->second.size(); ++iFrame) {
-	uint64_t d = itr->links_.find(link)->second.at(iFrame);
-      	data.push_back(d);
+      for (uint64_t d : itr->links_.find(link)->second) {
+		data.push_back(d);
       }
     }
     else {
@@ -346,9 +345,8 @@ MP7BufferDumpToRaw::getBlocks(int iBoard)
       LogDebug("L1T") << "Found packet [" << itr->first_ << ", " << itr->last_ << "]";
       LogDebug("L1T") << "Link " << link << " has " << itr->links_.find(link)->second.size() << " frames";
 
-      for (unsigned iFrame=0; iFrame<itr->links_.find(link)->second.size(); ++iFrame) {
-	uint64_t d = itr->links_.find(link)->second.at(iFrame);
-	data.push_back(d);
+      for (uint64_t d : itr->links_.find(link)->second) {
+		data.push_back(d);
       }
 
     }

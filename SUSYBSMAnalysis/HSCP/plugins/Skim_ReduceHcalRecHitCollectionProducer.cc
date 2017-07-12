@@ -149,12 +149,10 @@ ReduceHcalRecHitCollectionProducer::produce(edm::Event& iEvent, const edm::Event
    Handle<TrackCollection> tkTracks;
    iEvent.getByToken(inputCollectionToken_,tkTracks);
    std::unique_ptr< DetIdCollection > interestingDetIdCollection( new DetIdCollection() ) ;
-   for(TrackCollection::const_iterator itTrack = tkTracks->begin();
-       itTrack != tkTracks->end();
-       ++itTrack) {
-        if(itTrack->pt()>ptcut_){
+   for(const auto & itTrack : *tkTracks) {
+        if(itTrack.pt()>ptcut_){
 
-           TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, *itTrack, parameters_, TrackDetectorAssociator::InsideOut);
+           TrackDetMatchInfo info = trackAssociator_.associate(iEvent, iSetup, itTrack, parameters_, TrackDetectorAssociator::InsideOut);
 
           if(info.crossedHcalIds.size()>0){
              //loop through hits in the cone

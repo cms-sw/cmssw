@@ -164,14 +164,14 @@ namespace ecaldqm
   {
     TString path(path_);
 
-    for(typename MESet::PathReplacements::const_iterator repItr(_replacements.begin()); repItr != _replacements.end(); ++repItr){
+    for(const auto & _replacement : _replacements){
       TString pattern("\\%\\(");
-      pattern += repItr->first;
+      pattern += _replacement.first;
       pattern += "\\)s";
 
       TPRegexp re(pattern);
 
-      re.Substitute(path, repItr->second, "g");
+      re.Substitute(path, _replacement.second, "g");
     }
 
     return path.Data();
@@ -200,8 +200,8 @@ namespace ecaldqm
 
         if(searchNeighborsInTower){
           std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
-          for(std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
-            if((_statusManager->getStatus(idItr->rawId()) & _mask) != 0) return true;
+          for(auto & id : ids)
+            if((_statusManager->getStatus(id.rawId()) & _mask) != 0) return true;
         }
       }
       break;
@@ -240,8 +240,8 @@ namespace ecaldqm
       {
         EcalTrigTowerDetId ttId(_id);
         std::vector<DetId> ids(getTrigTowerMap()->constituentsOf(ttId));
-        for(std::vector<DetId>::iterator idItr(ids.begin()); idItr != ids.end(); ++idItr)
-          if((_statusManager->getStatus(idItr->rawId()) & _mask) != 0) return true;
+        for(auto & id : ids)
+          if((_statusManager->getStatus(id.rawId()) & _mask) != 0) return true;
       }
       break;
 
@@ -259,8 +259,8 @@ namespace ecaldqm
 
     DQMStore& store(*edm::Service<DQMStore>());
 
-    for(unsigned iME(0); iME < mes_.size(); ++iME)
-      store.softReset(mes_[iME]);
+    for(auto & me : mes_)
+      store.softReset(me);
   }
 
   void
@@ -270,8 +270,8 @@ namespace ecaldqm
 
     DQMStore& store(*edm::Service<DQMStore>());
 
-    for(unsigned iME(0); iME < mes_.size(); ++iME)
-      store.disableSoftReset(mes_[iME]);
+    for(auto & me : mes_)
+      store.disableSoftReset(me);
   }
 
   void

@@ -150,11 +150,10 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	iEvent.getByToken(labelTT_, ecalTrigPrim);
 
      // loop on TP's and add one by one to the block
-     for (EcalTrigPrimDigiCollection::const_iterator it = ecalTrigPrim -> begin();
-			   it != ecalTrigPrim -> end(); it++) {
+     for (const auto & it : *ecalTrigPrim) {
 
-	   const EcalTriggerPrimitiveDigi& trigprim = *it;
-	   const EcalTrigTowerDetId& detid = it -> id();
+	   const EcalTriggerPrimitiveDigi& trigprim = it;
+	   const EcalTrigTowerDetId& detid = it. -> id();
 
 	   if ( (detid.subDet() == EcalBarrel) && (! doBarrel_) ) continue;
            if ( (detid.subDet() == EcalEndcap) && (! doEndCap_) ) continue;
@@ -180,10 +179,8 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
         // iEvent.getByType(ebSrFlags);
 	   iEvent.getByToken(labelEBSR_, ebSrFlags);
                                                                                                                                                 
-           for (EBSrFlagCollection::const_iterator it = ebSrFlags -> begin();
-                        it != ebSrFlags -> end(); it++) {
-                const EcalSrFlag& srflag = *it;
-		int flag = srflag.value();
+           for (const auto & srflag : *ebSrFlags) {
+                	int flag = srflag.value();
 
 		EcalTrigTowerDetId id = srflag.id();
 		int Dccid = TheMapping -> DCCid(id);
@@ -203,9 +200,7 @@ EcalDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	// iEvent.getByType(eeSrFlags);
 	iEvent.getByToken(labelEESR_, eeSrFlags);
 
-           for (EESrFlagCollection::const_iterator it = eeSrFlags -> begin();
-                        it != eeSrFlags -> end(); it++) {
-                const EcalSrFlag& srflag = *it;
+           for (const auto & srflag : *eeSrFlags) {
                 int flag = srflag.value();
 		EcalScDetId id = srflag.id();
 		pair<int, int> ind = TheMapping -> getDCCandSC(id);

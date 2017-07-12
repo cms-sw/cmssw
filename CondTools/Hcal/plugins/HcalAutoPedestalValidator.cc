@@ -27,9 +27,8 @@ void HcalAutoPedestalValidator::analyze(const edm::Event& ev, const edm::EventSe
   std::vector<DetId> listRefChan = myRefPeds->getAllChannels();
   std::vector<DetId>::iterator cell;
   bool failflag = false;
-  for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
+  for (auto mydetid : listRefChan)
   {
-     DetId mydetid = *it;
      cell = std::find(listNewChan.begin(), listNewChan.end(), mydetid);
      if (cell == listNewChan.end()) {continue;}
      else

@@ -302,17 +302,17 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   event.getByLabel(ecalHitsProducer_, barrelHits_, pEcalRecHitBarrelCollection);
   const EcalRecHitCollection* ecalRecHitBarrelCollection = pEcalRecHitBarrelCollection.product();
   cout << " ECAL Barrel RecHits # "<< ecalRecHitBarrelCollection->size() <<endl;
-  for(EcalRecHitCollection::const_iterator aRecHitEB = ecalRecHitBarrelCollection->begin(); aRecHitEB != ecalRecHitBarrelCollection->end(); aRecHitEB++) {
+  for(const auto & aRecHitEB : *ecalRecHitBarrelCollection) {
     //cout << " ECAL Barrel RecHit #,E,time,det,subdetid: "<<nRecHitsEB<<" "<<aRecHitEB->energy()<<" "<<aRecHitEB->time()<<" "<<aRecHitEB->detid().det()<<" "<<aRecHitEB->detid().subdetId()<<endl;
 
 
-    EBDetId ebrhdetid = aRecHitEB->detid();
+    EBDetId ebrhdetid = aRecHitEB.detid();
     //cout << " EBDETID: z,ieta,iphi "<<ebrhdetid.zside()<<" "<<ebrhdetid.ieta()<<" "<<ebrhdetid.iphi()<<endl;
     //cout << " EBDETID: tower_ieta,tower_iphi "<<ebrhdetid.tower_ieta()<<" "<<ebrhdetid.tower_iphi()<<endl;
     //cout << " EBDETID: iSM, ic "<<ebrhdetid.ism()<<" "<<ebrhdetid.ic()<<endl;
 
     int sign = ebrhdetid.zside()>0 ? 1 : 0;
-    EcalRecHit aHit(aRecHitEB->id(),aRecHitEB->energy()*oldCalibs_barl[abs(ebrhdetid.ieta())-1][ebrhdetid.iphi()-1][sign],aRecHitEB->time());
+    EcalRecHit aHit(aRecHitEB.id(),aRecHitEB.energy()*oldCalibs_barl[abs(ebrhdetid.ieta())-1][ebrhdetid.iphi()-1][sign],aRecHitEB.time());
     recalibEcalRecHitCollection->push_back(aHit);
 
     nRecHitsEB++;
@@ -383,8 +383,8 @@ Pi0FixedMassWindowCalibration::duringLoop(const edm::Event& event,
   
   //Create associated ClusterShape objects.
   std::vector <reco::ClusterShape> ClusVec_recalib;
-  for (int erg=0;erg<int(clusters_recalib.size());++erg){
-    reco::ClusterShape TestShape_recalib = shapeAlgo_.Calculate(clusters_recalib[erg],recalibEcalRecHitCollection,geometry_p,topology_p);
+  for (const auto & erg : clusters_recalib){
+    reco::ClusterShape TestShape_recalib = shapeAlgo_.Calculate(erg,recalibEcalRecHitCollection,geometry_p,topology_p);
     ClusVec_recalib.push_back(TestShape_recalib);
   }
 

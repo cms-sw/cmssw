@@ -71,12 +71,10 @@ namespace edmtest
     edm::copy_all(trigpaths, std::ostream_iterator<std::string>(message, " "));
     message << '\n';
 
-    for (stringvec::const_iterator i = trigpaths.begin(), e = trigpaths.end();
-	 i != e;
-	 ++i)
+    for (const auto & trigpath : trigpaths)
       {
-	message << "path name: " << *i << " contains: ";
-	edm::copy_all(tns->getTrigPathModules(*i), std::ostream_iterator<std::string>(message, " "));
+	message << "path name: " << trigpath << " contains: ";
+	edm::copy_all(tns->getTrigPathModules(trigpath), std::ostream_iterator<std::string>(message, " "));
 	message << '\n';
       }
 

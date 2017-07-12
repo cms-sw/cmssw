@@ -94,10 +94,8 @@ void CSGAction::setName(const std::string& name) {
    // Does not update menu yet
    m_name = name;
    
-   for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
-       it != itEnd;
-       ++it) {
-      TGTextButton* tb = dynamic_cast<TGTextButton*>(*it);
+   for(auto & m_button : m_buttons) {
+      TGTextButton* tb = dynamic_cast<TGTextButton*>(m_button);
       if (tb)
       {
          (tb)->SetText(name.c_str());
@@ -115,10 +113,8 @@ CSGAction::setMenuLabel(const std::string& label) {
 
 void CSGAction::setToolTip(const std::string& tip) {
    m_toolTip = tip;
-   for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
-       it != itEnd;
-       ++it) {
-      (*it)->SetToolTipText(tip.c_str(), m_supervisor->getToolTipDelay());
+   for(auto & m_button : m_buttons) {
+      m_button->SetToolTipText(tip.c_str(), m_supervisor->getToolTipDelay());
    }
    if (m_tools != 0) m_tools->fTipText = tip.c_str();
 }
@@ -312,10 +308,8 @@ Bool_t CSGAction::isEnabled() const {
 void CSGAction::enableImp() {
    if(isEnabled()) {
       if (m_menu != 0) m_menu->EnableEntry(m_entry);
-      for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
-          it != itEnd;
-          ++it) {
-         (*it)->SetEnabled(kTRUE);
+      for(auto & m_button : m_buttons) {
+         m_button->SetEnabled(kTRUE);
       }
 
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kTRUE);
@@ -331,10 +325,8 @@ void CSGAction::enableImp() {
 void CSGAction::disableImp() {
    if(!isEnabled()) {
       if (m_menu != 0) m_menu->DisableEntry(m_entry);
-      for(std::vector<TGButton*>::iterator it = m_buttons.begin(), itEnd = m_buttons.end();
-          it != itEnd;
-          ++it) {
-         (*it)->SetEnabled(kFALSE);
+      for(auto & m_button : m_buttons) {
+         m_button->SetEnabled(kFALSE);
       }
       if (m_toolBar != 0) m_toolBar->GetButton(m_entry)->SetEnabled(kFALSE);
       if (m_keycode != 0) {

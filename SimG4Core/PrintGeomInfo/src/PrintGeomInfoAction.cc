@@ -63,7 +63,7 @@ PrintGeomInfoAction::PrintGeomInfoAction(const edm::ParameterSet &p) {
 	 << "\n                                                        "
 	 << " Sensitive " << _dumpSense << " for " << names.size()
 	 << " namess";
-  for (unsigned int i=0; i<names.size(); i++) G4cout << " " << names[i];
+  for (const auto & name : names) G4cout << " " << name;
   G4cout << G4endl;
 }
  
@@ -77,9 +77,8 @@ void PrintGeomInfoAction::update(const BeginOfJob * job) {
 
     G4cout << "PrintGeomInfoAction::Get Printout of Sensitive Volumes " 
 	   << "for " << names.size() << " Readout Units" << G4endl;
-    for (unsigned int i=0; i<names.size(); i++) {
+    for (auto sd : names) {
       std::string attribute = "ReadOutName";
-      std::string sd        = names[i];
       DDSpecificsMatchesValueFilter filter{DDValue(attribute,sd,0)};
       DDFilteredView fv(*pDD,filter);
       G4cout << "PrintGeomInfoAction:: Get Filtered view for " 

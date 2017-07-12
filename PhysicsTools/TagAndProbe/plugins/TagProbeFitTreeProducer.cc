@@ -204,8 +204,8 @@ TagProbeFitTreeProducer::checkMother(const reco::GenParticleRef &ref) const {
     if (motherPdgId_.empty()) return true;
     if (motherPdgId_.find(abs(ref->pdgId())) != motherPdgId_.end()) return true;
     reco::GenParticle::mothers m = ref->motherRefVector();
-    for (reco::GenParticle::mothers::const_iterator it = m.begin(), e = m.end(); it != e; ++it) {
-        if (checkMother(*it)) return true;
+    for (auto && it : m) {
+        if (checkMother(it)) return true;
     }
     return false;
 }

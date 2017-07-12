@@ -629,9 +629,8 @@ ME::lmmodFromDcc( int idcc )
       if( ilmr<0 ) continue;
       bool isBarrel_ = isBarrel( ilmr );
       std::vector< int > vec_ = lmmodFromLmr( ilmr );
-      for( unsigned ii=0; ii<vec_.size(); ii++ )
+      for(int ilmmod_ : vec_)
 	{
-	  int ilmmod_ = vec_[ii];
 	  if( !isBarrel_ )
 	    {
 	      // special case for Julie

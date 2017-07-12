@@ -229,7 +229,7 @@ void EcalTBValidation::analyze( const edm::Event& event, const edm::EventSetup& 
 
   // pulse shape
   double sampleSave[10];
-  for(int ii=0; ii < 10; ++ii){ sampleSave[ii] = 0.0; }
+  for(double & ii : sampleSave){ ii = 0.0; }
   EBDigiCollection::const_iterator thisDigi = theDigis->find(xtalInBeamId);
   // int sMax = -1; // UNUSED
   double eMax = 0.;

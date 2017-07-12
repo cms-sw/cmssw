@@ -2431,15 +2431,12 @@ L1ExtraParticleMapProd::evaluateDoubleDifferentCaloObjectTrigger(
    l1extra::L1JetParticleVectorRef& outputRefs2,              // output
    l1extra::L1ParticleMap::L1IndexComboVector& combos )       // output
 {
-   for( size_t i = 0 ; i < inputRefs1.size() ; ++i )
+   for(const auto & refi : inputRefs1)
    {
-      const l1extra::L1EmParticleRef& refi = inputRefs1[ i ] ;
       if( refi.get()->et() >= etThreshold1 )
       {
-	 for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
+	 for(const auto & refj : inputRefs2)
 	 {
-	    const l1extra::L1JetParticleRef& refj = inputRefs2[ j ] ;
-
 	    // Check for identical region only if both HW objects are non-null.
 	    if( refj.get()->et() >= etThreshold2 &&
 		( refi.get()->gctEmCand() == 0 ||
@@ -2613,13 +2610,13 @@ L1ExtraParticleMapProd::evaluateDoubleExclusiveIsoEG(
          decision=true;
          if (inputRefs2.size()>0)
             {   // should veto if there are jets, with pt>thresh
-               for( size_t j = 0 ; j < inputRefs2.size() ; ++j )
+               for(const auto & j : inputRefs2)
                   {
-                     if(inputRefs2[j].get()->gctJetCand()->regionId() ==
+                     if(j.get()->gctJetCand()->regionId() ==
 			inputRefs1[0].get()->gctEmCand()->regionId())continue;
-                     if(inputRefs2[j].get()->gctJetCand()->regionId() ==
+                     if(j.get()->gctJetCand()->regionId() ==
 			inputRefs1[1].get()->gctEmCand()->regionId())continue;
-                     if(inputRefs2[j].get()->et( )> etThreshold2  ) {
+                     if(j.get()->et( )> etThreshold2  ) {
 		       decision=false; break; }
 		     // break : for a faster algorithm
                   }

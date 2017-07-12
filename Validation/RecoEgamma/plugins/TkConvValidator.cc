@@ -991,9 +991,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
       }
 
-      for ( edm::RefVector<TrackingParticleCollection>::iterator iTrk=theConvTP_.begin(); iTrk!=theConvTP_.end(); ++iTrk) {
-	h_simTkPt_ -> Fill ( (*iTrk)->pt() );
-	h_simTkEta_ -> Fill ( (*iTrk)->eta() );
+      for (auto && iTrk : theConvTP_) {
+	h_simTkPt_ -> Fill ( (iTrk)->pt() );
+	h_simTkEta_ -> Fill ( (iTrk)->eta() );
       }
 
 
@@ -1019,9 +1019,9 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
      float chi2Prob = 0.;
       //////////////////Measure reco efficiencies
      // cout << " size of conversions " << convHandle->size() << endl;
-     for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
+     for (const auto & conv : *convHandle) {
 
-	const reco::Conversion aConv = (*conv);
+	const reco::Conversion aConv = conv;
         if ( arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged)  ) continue;
 	if ( generalTracksOnly_ && !aConv.quality(reco::Conversion::generalTracksOnly) ) continue;
         if ( arbitratedEcalSeeded_ && !aConv.quality(reco::Conversion::arbitratedEcalSeeded)  ) continue;
@@ -1147,8 +1147,8 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
 
   // ########################### RECO to SIM ############################## //
 
-  for (reco::ConversionCollection::const_iterator conv = convHandle->begin();conv!=convHandle->end();++conv) {
-    const reco::Conversion aConv = (*conv);
+  for (const auto & conv : *convHandle) {
+    const reco::Conversion aConv = conv;
     if ( arbitratedMerged_ && !aConv.quality(reco::Conversion::arbitratedMerged)  ) continue;
     if ( generalTracksOnly_ && !aConv.quality(reco::Conversion::generalTracksOnly) ) continue;
     if ( arbitratedEcalSeeded_ && !aConv.quality(reco::Conversion::arbitratedEcalSeeded)  ) continue;

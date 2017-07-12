@@ -65,16 +65,16 @@ void L2TauPixelTrackMatch::produce(edm::Event& ev, const edm::EventSetup& es)
   // *** Selects interesting tracks ***
 
   vector<TinyTrack> good_tracks;
-  for(TrackCollection::const_iterator itrk = tracksHandle->begin(); itrk != tracksHandle->end(); ++itrk)
+  for(const auto & itrk : *tracksHandle)
   {
-    if (itrk->pt() < m_trackMinPt) continue;
-    if ( std::abs(itrk->eta()) > m_jetMaxEta + m_deltaR ) continue;
+    if (itrk.pt() < m_trackMinPt) continue;
+    if ( std::abs(itrk.eta()) > m_jetMaxEta + m_deltaR ) continue;
        
     TinyTrack trk;
-    trk.pt = itrk->pt();
-    trk.phi = itrk->phi();
-    trk.eta = itrk->eta();
-    double dz = itrk->dz(beam_spot);
+    trk.pt = itrk.pt();
+    trk.phi = itrk.phi();
+    trk.eta = itrk.eta();
+    double dz = itrk.dz(beam_spot);
     trk.vtx = math::XYZPoint(bs.x(dz), bs.y(dz), dz);
     good_tracks.push_back(trk);
   }

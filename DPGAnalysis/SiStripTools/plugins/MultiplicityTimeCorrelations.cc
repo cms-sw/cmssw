@@ -159,9 +159,9 @@ MultiplicityTimeCorrelations::MultiplicityTimeCorrelations(const edm::ParameterS
 
   std::vector<edm::ParameterSet> wantedsubds(iConfig.getUntrackedParameter<std::vector<edm::ParameterSet> >("wantedSubDets"));
 
-  for(std::vector<edm::ParameterSet>::iterator ps=wantedsubds.begin();ps!=wantedsubds.end();++ps) {
-    _subdets[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<std::string>("detLabel");
-    _binmax[ps->getParameter<unsigned int>("detSelection")] = ps->getParameter<int>("binMax");
+  for(auto & wantedsubd : wantedsubds) {
+    _subdets[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<std::string>("detLabel");
+    _binmax[wantedsubd.getParameter<unsigned int>("detSelection")] = wantedsubd.getParameter<int>("binMax");
   }
   std::map<int,std::string> labels;
 
@@ -284,8 +284,8 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
       // create map of digi multiplicity
 
       std::map<int,int> digimap;
-      for(std::map<unsigned int, int>::const_iterator mult=mults->begin();mult!=mults->end();++mult) {
-	if(_subdets.find(mult->first)!=_subdets.end()) digimap[int(mult->first)] = mult->second;
+      for(const auto & mult : *mults) {
+	if(_subdets.find(mult.first)!=_subdets.end()) digimap[int(mult.first)] = mult.second;
       }
 
       _digibxcorrhmevent.fill(*he,digimap,apvphase);
@@ -297,13 +297,13 @@ MultiplicityTimeCorrelations::analyze(const edm::Event& iEvent, const edm::Event
 	long long dbx = he->deltaBX();
 
 	if(_dbxhistos.find(dbx)!=_dbxhistos.end()) {
-	  for(std::map<unsigned int,int>::const_iterator ndigi=mults->begin();ndigi!=mults->end();++ndigi) {
-	  _dbxhistos[dbx][ndigi->first]->Fill(ndigi->second);
+	  for(const auto & ndigi : *mults) {
+	  _dbxhistos[dbx][ndigi.first]->Fill(ndigi.second);
 	  }
 	}
 	if(_dbxhistos.find(-1)!=_dbxhistos.end()) {
-	  for(std::map<unsigned int,int>::const_iterator ndigi=mults->begin();ndigi!=mults->end();++ndigi) {
-	  _dbxhistos[-1][ndigi->first]->Fill(ndigi->second);
+	  for(const auto & ndigi : *mults) {
+	  _dbxhistos[-1][ndigi.first]->Fill(ndigi.second);
 	  }
 	}
 	/*

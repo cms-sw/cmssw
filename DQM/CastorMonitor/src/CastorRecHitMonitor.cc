@@ -143,12 +143,11 @@ void CastorRecHitMonitor::processEventTowers(
  if(castorTowers.size() <= 0) return;
  int nTowers = 0;
 
- for(reco::CastorTowerCollection::const_iterator iTower= castorTowers.begin();
-  iTower!= castorTowers.end(); iTower++) {
+ for(const auto & castorTower : castorTowers) {
 
-   hTowerE->Fill(iTower->energy()*0.001);
-   h2TowerEMhad->Fill(iTower->hadEnergy()*0.001,iTower->emEnergy()*0.001);
-   hTowerDepth->Fill(iTower->depth());
+   hTowerE->Fill(castorTower.energy()*0.001);
+   h2TowerEMhad->Fill(castorTower.hadEnergy()*0.001,castorTower.emEnergy()*0.001);
+   hTowerDepth->Fill(castorTower.depth());
    nTowers++;
  }
  hTowerMultipl->Fill(nTowers);
@@ -158,8 +157,8 @@ void CastorRecHitMonitor::processEvent(const CastorRecHitCollection& castorHits)
 {
  if(fVerbosity>0) std::cout << "CastorRecHitMonitor::processEvent (begin)"<< std::endl;
  ievt_++; 
- for (int z=0; z<14; z++) for (int phi=0; phi<16; phi++)
-	energyInEachChannel[z][phi] = 0.;
+ for (auto & z : energyInEachChannel) for (int phi=0; phi<16; phi++)
+	z[phi] = 0.;
 
  CastorRecHitCollection::const_iterator CASTORiter;
 // if (showTiming)  { cpu_timer.reset(); cpu_timer.start(); } 

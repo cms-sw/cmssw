@@ -50,9 +50,8 @@ GhostTrackPrediction SequentialGhostTrackFitter::fit(
 			break;
 
 		if (iteration > 0) {
-			for(unsigned int i = 0; i < states.size(); i++) {
-				GhostTrackState &state = states[i];
-				state.linearize(lastPred);
+			for(auto & state : states) {
+					state.linearize(lastPred);
 			}
 		}
 

@@ -23,9 +23,9 @@ const double VertexWeighter::weight(const std::vector<float>& zpositions, const 
 
   if(!m_dummy) {
 
-    for(std::vector<float>::const_iterator zpos = zpositions.begin() ; zpos != zpositions.end() ; ++zpos) {
+    for(float zposition : zpositions) {
       
-      final_weight *= (m_sigma_init/m_sigma_final) * exp(-pow((*zpos-m_mean_init),2)/2.*(1./pow(m_sigma_final,2)-1./pow(m_sigma_init,2)));
+      final_weight *= (m_sigma_init/m_sigma_final) * exp(-pow((zposition-m_mean_init),2)/2.*(1./pow(m_sigma_final,2)-1./pow(m_sigma_init,2)));
 
     }
 

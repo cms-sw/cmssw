@@ -49,13 +49,13 @@ PixelTemplateSmearerBase::PixelTemplateSmearerBase(
 
 PixelTemplateSmearerBase::~PixelTemplateSmearerBase()
 {
-    for (auto it = theXHistos.begin(); it != theXHistos.end(); ++it )
+    for (auto & theXHisto : theXHistos)
     {
-        delete it->second;
+        delete theXHisto.second;
     }
-    for (auto it = theYHistos.begin(); it != theYHistos.end(); ++it )
+    for (auto & theYHisto : theYHistos)
     {
-        delete it->second;
+        delete theYHisto.second;
     }
     theXHistos.clear();
     theYHistos.clear();
@@ -235,9 +235,9 @@ PixelTemplateSmearerBase::process(TrackingRecHitProductPtr product) const
     //    listOfUnmergedHits simply goes out of scope.  However, we
     //    created the MergeGroups and thus we need to get rid of them.
     //
-    for (auto mg_it = listOfMergeGroups.begin(); mg_it != listOfMergeGroups.end(); ++mg_it )
+    for (auto & listOfMergeGroup : listOfMergeGroups)
     {
-        delete *mg_it;    // each MergeGroup is deleted; its ptrs to PSimHits we do not own...
+        delete listOfMergeGroup;    // each MergeGroup is deleted; its ptrs to PSimHits we do not own...
     }
 
     return product;
@@ -700,12 +700,12 @@ processMergeGroups(
     RandomEngineAndDistribution const * random
 ) const
 {
-    for ( auto mg_it = mergeGroups.begin(); mg_it != mergeGroups.end(); ++mg_it) 
+    for (auto & mergeGroup : mergeGroups) 
     {
-        if ((*mg_it)->smearIt)
+        if (mergeGroup->smearIt)
         {
-            FastSingleTrackerRecHit recHit = smearMergeGroup( *mg_it, detUnit, boundX, boundY, random );
-            product->addRecHit( recHit, (*mg_it)->group);
+            FastSingleTrackerRecHit recHit = smearMergeGroup( mergeGroup, detUnit, boundX, boundY, random );
+            product->addRecHit( recHit, mergeGroup->group);
         }
     }
     return product;
@@ -729,9 +729,9 @@ smearMergeGroup(
     float locpy = 0;
     float locpz = 0;
 
-    for (auto hit_it = mg->group.begin(); hit_it != mg->group.end(); ++hit_it) 
+    for (auto & hit_it : mg->group) 
     {
-        const PSimHit simHit = *hit_it->second; 
+        const PSimHit simHit = *hit_it.second; 
         //getting local momentum and adding all of the hits' momentums up
         LocalVector localDir = simHit.momentumAtEntry().unit();
         loccx += localDir.x();

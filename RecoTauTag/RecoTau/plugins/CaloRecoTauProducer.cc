@@ -101,8 +101,8 @@ void CaloRecoTauProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSet
     }
     ++iinfo;
   }
-  for(unsigned int i =0;i<CaloRecoTauAlgo_->mySelectedDetId_.size();i++)
-    selectedDetIds->push_back(CaloRecoTauAlgo_->mySelectedDetId_[i]);
+  for(auto i : CaloRecoTauAlgo_->mySelectedDetId_)
+    selectedDetIds->push_back(i);
 
 
    iEvent.put(std::move(resultCaloTau));

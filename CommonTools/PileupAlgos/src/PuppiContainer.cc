@@ -20,8 +20,8 @@ PuppiContainer::PuppiContainer(const edm::ParameterSet &iConfig) {
     fPuppiWeightCut  = iConfig.getParameter<double>("MinPuppiWeight");
     std::vector<edm::ParameterSet> lAlgos = iConfig.getParameter<std::vector<edm::ParameterSet> >("algos");
     fNAlgos = lAlgos.size();
-    for(unsigned int i0 = 0; i0 < lAlgos.size(); i0++) {
-        PuppiAlgo pPuppiConfig(lAlgos[i0]);
+    for(auto & lAlgo : lAlgos) {
+        PuppiAlgo pPuppiConfig(lAlgo);
         fPuppiAlgo.push_back(pPuppiConfig);
     }
 }
@@ -42,9 +42,8 @@ void PuppiContainer::initialize(const std::vector<RecoObj> &iRecoObjects) {
     fPVFrac = 0.;
     fNPV    = 1.;
     fRecoParticles = iRecoObjects;
-    for (unsigned int i = 0; i < fRecoParticles.size(); i++){
+    for (auto fRecoParticle : fRecoParticles){
         fastjet::PseudoJet curPseudoJet;
-        auto fRecoParticle = fRecoParticles[i];
         // float nom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt)*(cosh(fRecoParticle.eta))*(cosh(fRecoParticle.eta))) + (fRecoParticle.pt)*sinh(fRecoParticle.eta);//hacked
         // float denom = sqrt((fRecoParticle.m)*(fRecoParticle.m) + (fRecoParticle.pt)*(fRecoParticle.pt));//hacked
         // float rapidity = log(nom/denom);//hacked
@@ -120,10 +119,10 @@ double PuppiContainer::var_within_R(int iId, const vector<PseudoJet> & particles
 }
 //In fact takes the median not the average
 void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &iConstits,std::vector<fastjet::PseudoJet> const &iParticles,std::vector<fastjet::PseudoJet> const &iChargedParticles) {
-    for(unsigned int i0 = 0; i0 < iConstits.size(); i0++ ) {
+    for(const auto & iConstit : iConstits) {
         double pVal = -1;
         //Calculate the Puppi Algo to use
-        int  pPupId   = getPuppiId(iConstits[i0].pt(),iConstits[i0].eta());
+        int  pPupId   = getPuppiId(iConstit.pt(),iConstit.eta());
         if(pPupId == -1 || fPuppiAlgo[pPupId].numAlgos() <= iOpt){
             fVals.push_back(-1);
             continue;
@@ -133,12 +132,12 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &i
         bool pCharged = fPuppiAlgo[pPupId].isCharged(iOpt);
         double pCone  = fPuppiAlgo[pPupId].coneSize (iOpt);
         //Compute the Puppi Metric
-        if(!pCharged) pVal = goodVar(iConstits[i0],iParticles       ,pAlgo,pCone);
-        if( pCharged) pVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
+        if(!pCharged) pVal = goodVar(iConstit,iParticles       ,pAlgo,pCone);
+        if( pCharged) pVal = goodVar(iConstit,iChargedParticles,pAlgo,pCone);
         fVals.push_back(pVal);
         //if(std::isnan(pVal) || std::isinf(pVal)) cerr << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- " << iConstits[i0].eta() << endl;
         if( ! edm::isFinite(pVal)) {
-            LogDebug( "NotFound" )  << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- " << iConstits[i0].eta() << endl;
+            LogDebug( "NotFound" )  << "====> Value is Nan " << pVal << " == " << iConstit.pt() << " -- " << iConstit.eta() << endl;
             continue;
         }
         
@@ -149,10 +148,10 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &i
             pCharged = fPuppiAlgo[i1].isCharged(iOpt);
             pCone    = fPuppiAlgo[i1].coneSize (iOpt);
             double curVal = -1; 
-            if(!pCharged) curVal = goodVar(iConstits[i0],iParticles       ,pAlgo,pCone);
-            if( pCharged) curVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
+            if(!pCharged) curVal = goodVar(iConstit,iParticles       ,pAlgo,pCone);
+            if( pCharged) curVal = goodVar(iConstit,iChargedParticles,pAlgo,pCone);
             //std::cout << "i1 = " << i1 << ", curVal = " << curVal << ", eta = " << iConstits[i0].eta() << ", pupID = " << pPupId << std::endl;
-            fPuppiAlgo[i1].add(iConstits[i0],curVal,iOpt);
+            fPuppiAlgo[i1].add(iConstit,curVal,iOpt);
         }
 
     }
@@ -161,18 +160,18 @@ void PuppiContainer::getRMSAvg(int iOpt,std::vector<fastjet::PseudoJet> const &i
 //In fact takes the median not the average
 void PuppiContainer::getRawAlphas(int iOpt,std::vector<fastjet::PseudoJet> const &iConstits,std::vector<fastjet::PseudoJet> const &iParticles,std::vector<fastjet::PseudoJet> const &iChargedParticles) {
     for(int j0 = 0; j0 < fNAlgos; j0++){
-        for(unsigned int i0 = 0; i0 < iConstits.size(); i0++ ) {
+        for(const auto & iConstit : iConstits) {
             double pVal = -1;
             //Get the Puppi Sub Algo (given iteration)
             int  pAlgo    = fPuppiAlgo[j0].algoId   (iOpt);
             bool pCharged = fPuppiAlgo[j0].isCharged(iOpt);
             double pCone  = fPuppiAlgo[j0].coneSize (iOpt);
             //Compute the Puppi Metric
-            if(!pCharged) pVal = goodVar(iConstits[i0],iParticles       ,pAlgo,pCone);
-            if( pCharged) pVal = goodVar(iConstits[i0],iChargedParticles,pAlgo,pCone);
+            if(!pCharged) pVal = goodVar(iConstit,iParticles       ,pAlgo,pCone);
+            if( pCharged) pVal = goodVar(iConstit,iChargedParticles,pAlgo,pCone);
             fRawAlphas.push_back(pVal);
             if( ! edm::isFinite(pVal)) {
-                LogDebug( "NotFound" )  << "====> Value is Nan " << pVal << " == " << iConstits[i0].pt() << " -- " << iConstits[i0].eta() << endl;
+                LogDebug( "NotFound" )  << "====> Value is Nan " << pVal << " == " << iConstit.pt() << " -- " << iConstit.eta() << endl;
                 continue;
             }
         }

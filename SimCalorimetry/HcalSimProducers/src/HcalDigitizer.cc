@@ -342,14 +342,14 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
     }
     
     //eliminate bad hits
-    for (unsigned int i=0; i< hcalHitsOrig.size(); i++) {
-      DetId id(hcalHitsOrig[i].id());
+    for (auto & i : hcalHitsOrig) {
+      DetId id(i.id());
       HcalDetId hid(id);
       if (!htopoP->validHcal(hid)) {
         edm::LogError("HcalDigitizer") << "bad hcal id found in digitizer. Skipping " << id.rawId() << " " << hid << std::endl;
         continue;
       }
-      else if(hid.subdet()==HcalForward && !doHFWindow_ && hcalHitsOrig[i].depth()!=0){
+      else if(hid.subdet()==HcalForward && !doHFWindow_ && i.depth()!=0){
         //skip HF window hits unless desired
         continue;
       }
@@ -365,8 +365,8 @@ void HcalDigitizer::accumulateCaloHits(edm::Handle<std::vector<PCaloHit> > const
 #ifdef DebugLog
         std::cout << "Hit " << i << " out of " << hcalHits.size() << " " << std::hex << id.rawId() << " --> " << newid.rawId() << std::dec << " " << HcalDetId(newid.rawId()) << '\n';
 #endif
-        hcalHitsOrig[i].setID(newid.rawId());
-        hcalHits.push_back(hcalHitsOrig[i]);
+        i.setID(newid.rawId());
+        hcalHits.push_back(i);
       }
     }
 
@@ -654,14 +654,14 @@ void HcalDigitizer::buildHFQIECells(const std::vector<DetId>& allCells, const ed
       qieTypes.setTopo(htopo.product());
     }
 	
-	for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
-      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
+	for(auto allCell : allCells) {
+      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(allCell)->getValue());
       if(qieType == QIE8) {
-        theHFQIE8DetIds.push_back(*detItr);
+        theHFQIE8DetIds.push_back(allCell);
       } else if(qieType == QIE10) {
-        theHFQIE10DetIds.push_back(*detItr);
+        theHFQIE10DetIds.push_back(allCell);
       } else { //default is QIE8
-        theHFQIE8DetIds.push_back(*detItr);
+        theHFQIE8DetIds.push_back(allCell);
       }
     }
 	
@@ -693,16 +693,16 @@ void HcalDigitizer::buildHBHEQIECells(const std::vector<DetId>& allCells, const 
       qieTypes.setTopo(htopo.product());
     }
 	
-	for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
-      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(*detItr)->getValue());
+	for(auto allCell : allCells) {
+      HcalQIENum qieType = HcalQIENum(qieTypes.getValues(allCell)->getValue());
       if(qieType == QIE8) {
-        theHBHEQIE8DetIds.push_back(*detItr);
+        theHBHEQIE8DetIds.push_back(allCell);
       }
       else if(qieType == QIE11) {
-        theHBHEQIE11DetIds.push_back(*detItr);
+        theHBHEQIE11DetIds.push_back(allCell);
       }
       else { //default is QIE8
-        theHBHEQIE8DetIds.push_back(*detItr);
+        theHBHEQIE8DetIds.push_back(allCell);
       }
     }
 	
@@ -744,16 +744,16 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
       mcParams.setTopo(htopo.product());
     }
 
-    for(std::vector<DetId>::const_iterator detItr = allCells.begin(); detItr != allCells.end(); ++detItr) {
-      int shapeType = mcParams.getValues(*detItr)->signalShape();
+    for(auto allCell : allCells) {
+      int shapeType = mcParams.getValues(allCell)->signalShape();
       if(shapeType == HcalShapes::ZECOTEK) {
-        zecotekDetIds.emplace_back(*detItr);
-        theHOSiPMDetIds.push_back(*detItr);
+        zecotekDetIds.emplace_back(allCell);
+        theHOSiPMDetIds.push_back(allCell);
       } else if(shapeType == HcalShapes::HAMAMATSU) {
-        hamamatsuDetIds.emplace_back(*detItr);
-        theHOSiPMDetIds.push_back(*detItr);
+        hamamatsuDetIds.emplace_back(allCell);
+        theHOSiPMDetIds.push_back(allCell);
       } else {
-        theHOHPDDetIds.push_back(*detItr);
+        theHOHPDDetIds.push_back(allCell);
       }
     }
 
@@ -784,8 +784,8 @@ void HcalDigitizer::buildHOSiPMCells(const std::vector<DetId>& allCells, const e
 
 void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits) {
 
-  for (unsigned int ii=0; ii<hcalHits.size(); ++ii) {
-    uint32_t tmpId = hcalHits[ii].id();
+  for (auto & hcalHit : hcalHits) {
+    uint32_t tmpId = hcalHit.id();
     int det, z, depth, ieta, phi, lay;
     HcalTestNumbering::unpackHcalIndex(tmpId,det,z,depth,ieta,phi,lay);
 	
@@ -809,7 +809,7 @@ void HcalDigitizer::darkening(std::vector<PCaloHit>& hcalHits) {
     }
 	
     //reset hit energy
-    if(darkened) hcalHits[ii].setEnergy(hcalHits[ii].energy()*dweight);	
+    if(darkened) hcalHit.setEnergy(hcalHit.energy()*dweight);	
   }
   
 }

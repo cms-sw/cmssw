@@ -77,14 +77,12 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
 
   // Check all combination of positives and negatives
   if(positives.size() > 0 && negatives.size() > 0)
-    for(reco::track_iterator ipos = positives.begin();
-                             ipos!= positives.end(); ipos++)
-    for(reco::track_iterator ineg = negatives.begin();
-                             ineg!= negatives.end(); ineg++)
+    for(auto && positive : positives)
+    for(auto && negative : negatives)
     {
       reco::VZeroData data;
 
-      if(theFinder.checkTrackPair(**ipos,**ineg, vertices, data) == true)
+      if(theFinder.checkTrackPair(*positive,*negative, vertices, data) == true)
       {
         // Create vertex (creation point)
         reco::Vertex vertex(reco::Vertex::Point(data.crossingPoint.x(),
@@ -93,8 +91,8 @@ void VZeroProducer::produce(Event& ev, const EventSetup& es)
                             reco::Vertex::Error(), 0.,0.,0);
 
         // Add references to daughters
-        vertex.add(reco::TrackBaseRef(*ipos));
-        vertex.add(reco::TrackBaseRef(*ineg));
+        vertex.add(reco::TrackBaseRef(positive));
+        vertex.add(reco::TrackBaseRef(negative));
 
         // Store vzero
         result->push_back(reco::VZero(vertex,data));

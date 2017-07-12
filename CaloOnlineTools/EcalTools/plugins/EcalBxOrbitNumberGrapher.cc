@@ -74,11 +74,10 @@ EcalBxOrbitNumberGrapher::analyze(const edm::Event& iEvent, const edm::EventSetu
   }
 
   //-----------------BX STuff here
-   for ( EcalRawDataCollection::const_iterator headerItr= DCCHeaders->begin();headerItr != DCCHeaders->end(); 
-	  ++headerItr ) {
-    headerItr->getEventSettings();
-    int myorbit = headerItr->getOrbit();
-    int mybx = headerItr->getBX();
+   for (const auto & headerItr : *DCCHeaders) {
+    headerItr.getEventSettings();
+    int myorbit = headerItr.getOrbit();
+    int mybx = headerItr.getBX();
     
     if ( orbit == -100 )
     {

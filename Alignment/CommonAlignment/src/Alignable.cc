@@ -72,15 +72,14 @@ bool Alignable::firstCompsWithParams(Alignables &paramComps) const
   bool hasAliComp = false; // whether there are any (grand-) daughters with parameters
   bool first = true;
   const Alignables comps(this->components());
-  for (Alignables::const_iterator iComp = comps.begin(), iCompEnd = comps.end();
-       iComp != iCompEnd; ++iComp) {
-    if ((*iComp)->alignmentParameters()) { // component has parameters itself
-      paramComps.push_back(*iComp);
+  for (auto comp : comps) {
+    if (comp->alignmentParameters()) { // component has parameters itself
+      paramComps.push_back(comp);
       if (!first && !hasAliComp) isConsistent = false;
       hasAliComp = true;
     } else {
       const unsigned int nCompBefore = paramComps.size();
-      if (!(*iComp)->firstCompsWithParams(paramComps)) {
+      if (!comp->firstCompsWithParams(paramComps)) {
         isConsistent = false; // problem down in hierarchy
       }
       if (paramComps.size() != nCompBefore) {
@@ -299,8 +298,8 @@ void Alignable::cacheTransformation()
   // now treat components (a clean design would move that to AlignableComposite...)
   const Alignables comps(this->components());
 
-  for (auto it = comps.begin(); it != comps.end(); ++it) {
-    (*it)->cacheTransformation();
+  for (auto comp : comps) {
+    comp->cacheTransformation();
   }
 
 }
@@ -327,8 +326,8 @@ void Alignable::restoreCachedTransformation()
   // now treat components (a clean design would move that to AlignableComposite...)
   const auto comps = this->components();
 
-  for (auto it = comps.begin(); it != comps.end(); ++it) {
-    (*it)->restoreCachedTransformation();
+  for (auto comp : comps) {
+    comp->restoreCachedTransformation();
   }
  
 }

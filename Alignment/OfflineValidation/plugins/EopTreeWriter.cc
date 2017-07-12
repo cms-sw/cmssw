@@ -161,9 +161,9 @@ EopTreeWriter::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      {
        edm::Handle<EcalRecHitCollection> ec;
        iEvent.getByLabel(*i,ec);
-       for(EcalRecHitCollection::const_iterator recHit = (*ec).begin(); recHit != (*ec).end(); ++recHit)
+       for(const auto & recHit : (*ec))
 	 {
-	   tmpEcalRecHitCollection->push_back(*recHit);
+	   tmpEcalRecHitCollection->push_back(recHit);
 	 }
      }      
    

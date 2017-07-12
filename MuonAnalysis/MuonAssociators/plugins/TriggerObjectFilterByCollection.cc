@@ -45,8 +45,7 @@ TriggerObjectFilterByCollection::TriggerObjectFilterByCollection(const edm::Para
     collections_(iConfig.getParameter<std::vector<std::string> >("collections")) 
 {
     produces<std::vector<pat::TriggerObjectStandAlone> >();
-    for (unsigned int i = 0, n = collections_.size(); i < n; ++i) {
-        std::string &c = collections_[i];
+    for (auto & c : collections_) {
         int numsc = std::count(c.begin(), c.end(), ':');
         if      (numsc == 1) c.push_back(':');
         else if (numsc == 2) c.append("::");
@@ -62,13 +61,13 @@ TriggerObjectFilterByCollection::produce(edm::Event & iEvent, const edm::EventSe
 
     std::unique_ptr<std::vector<pat::TriggerObjectStandAlone> > out(new std::vector<pat::TriggerObjectStandAlone>());
     out->reserve(src->size());
-    for (std::vector<pat::TriggerObjectStandAlone>::const_iterator it = src->begin(), ed = src->end(); it != ed; ++it) {
-        const std::string &coll = it->collection();
+    for (const auto & it : *src) {
+        const std::string &coll = it.collection();
         bool found = false;
         for (std::vector<std::string>::const_iterator ic = collections_.begin(), ec = collections_.end(); ic != ec; ++ic) {
             if (strncmp(coll.c_str(), ic->c_str(), ic->size()) == 0) { found = true; break; }
         }
-        if (found) out->push_back(*it);
+        if (found) out->push_back(it);
     }
 
     iEvent.put(std::move(out));

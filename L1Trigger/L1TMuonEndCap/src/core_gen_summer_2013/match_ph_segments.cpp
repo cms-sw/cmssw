@@ -1391,8 +1391,8 @@ void match_ph_segments::init ()
 }
 void match_ph_segments::gb__class::init()
 {
-	for (map <ull, fs_loop__class>::iterator mit = fs_loop.begin(); mit != fs_loop.end(); mit++)
-		mit->second.init();
+	for (auto & mit : fs_loop)
+		mit.second.init();
 }
 void match_ph_segments::gb__class::fs_loop__class::init()
 {

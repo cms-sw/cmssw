@@ -65,14 +65,12 @@ void printPartonJet::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
              (*partonJets)[j].et(),
              (*partonJets)[j].eta(),
              (*partonJets)[j].phi()  );
-    for( Candidate::const_iterator itC  = (*partonJets)[j].begin();
-                                   itC != (*partonJets)[j].end();
-                                   itC ++) {
+    for(const auto & itC : (*partonJets)[j]) {
          cout << "              Constituent (pt,eta,phi,pdgId): "
-              << itC->pt() << " "
-              << itC->eta() << " "
-              << itC->phi() << " "
-              << itC->pdgId() << endl;
+              << itC.pt() << " "
+              << itC.eta() << " "
+              << itC.phi() << " "
+              << itC.pdgId() << endl;
     }
   }
 }

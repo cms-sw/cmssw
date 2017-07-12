@@ -13,7 +13,7 @@ GenericJet::GenericJet (const LorentzVector& fP4,
 			const std::vector<CandidateBaseRef>& fConstituents)
   :  CompositeRefBaseCandidate (0, fP4, fVertex)
 {
-  for (unsigned i = 0; i < fConstituents.size (); i++) addDaughter (fConstituents [i]);
+  for (const auto & fConstituent : fConstituents) addDaughter (fConstituent);
 }
 
 int GenericJet::nConstituents () const {

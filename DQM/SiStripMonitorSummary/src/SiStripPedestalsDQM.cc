@@ -40,10 +40,9 @@ void SiStripPedestalsDQM::fillModMEs(const std::vector<uint32_t> & selectedDetId
 
   ModMEs CondObj_ME;
   
-  for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-      detIter_!= selectedDetIds.end();detIter_++){
+  for(unsigned int selectedDetId : selectedDetIds){
       
-    fillMEsForDet(CondObj_ME,*detIter_,tTopo);
+    fillMEsForDet(CondObj_ME,selectedDetId,tTopo);
       
   }
 }    
@@ -79,15 +78,14 @@ void SiStripPedestalsDQM::fillSummaryMEs(const std::vector<uint32_t> & selectedD
   es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();
-      detIter_!= selectedDetIds.end();detIter_++){
-    fillMEsForLayer(/*SummaryMEsMap_,*/ *detIter_,tTopo);
+  for(unsigned int selectedDetId : selectedDetIds){
+    fillMEsForLayer(/*SummaryMEsMap_,*/ selectedDetId,tTopo);
   }
 
-  for (std::map<uint32_t, ModMEs>::iterator iter=SummaryMEsMap_.begin(); iter!=SummaryMEsMap_.end(); iter++){
+  for (auto & iter : SummaryMEsMap_){
 
     ModMEs selME;
-    selME = iter->second;
+    selME = iter.second;
 
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel") && fPSet_.getParameter<bool>("OutputSummaryProfileAtLayerLevelAsImage")){
 

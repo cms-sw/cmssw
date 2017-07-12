@@ -138,8 +138,8 @@ void HGCalClusteringImpl::mergeClusters( l1t::HGCalCluster & main_cluster,
 
     const edm::PtrVector<l1t::HGCalTriggerCell>& pertinentTC = secondary_cluster.constituents();
     
-    for( edm::PtrVector<l1t::HGCalTriggerCell>::iterator tc = pertinentTC.begin(); tc != pertinentTC.end(); ++tc ){
-        main_cluster.addConstituent(*tc);
+    for(auto && tc : pertinentTC){
+        main_cluster.addConstituent(tc);
     }
 
 }

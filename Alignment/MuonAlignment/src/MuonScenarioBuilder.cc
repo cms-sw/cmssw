@@ -75,20 +75,20 @@ align::Scalars MuonScenarioBuilder::extractParameters(const edm::ParameterSet& p
   std::ostringstream error;
   edm::ParameterSet Parameters = this->getParameterSet_((std::string)blockId, pSet);
   std::vector<std::string> parameterNames = Parameters.getParameterNames();
-  for ( std::vector<std::string>::iterator iParam = parameterNames.begin(); iParam != parameterNames.end(); iParam++ ) {
-    if ( (*iParam) == "scale" )    scale_ = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "distribution" ) distribution_ = Parameters.getParameter<std::string>( *iParam );
-    else if ( (*iParam) == "scaleError" ) scaleError_ = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiX" )     phiX_     = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiY" )     phiY_     = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "phiZ" )     phiZ_     = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dX" )       dX_       = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dY" )       dY_       = Parameters.getParameter<double>( *iParam );
-    else if ( (*iParam) == "dZ" )       dZ_       = Parameters.getParameter<double>( *iParam );
-    else if ( Parameters.retrieve( *iParam ).typeCode() != 'P' )
+  for (auto & parameterName : parameterNames) {
+    if ( parameterName == "scale" )    scale_ = Parameters.getParameter<double>( parameterName );
+    else if ( parameterName == "distribution" ) distribution_ = Parameters.getParameter<std::string>( parameterName );
+    else if ( parameterName == "scaleError" ) scaleError_ = Parameters.getParameter<double>( parameterName );
+    else if ( parameterName == "phiX" )     phiX_     = Parameters.getParameter<double>( parameterName );
+    else if ( parameterName == "phiY" )     phiY_     = Parameters.getParameter<double>( parameterName );
+    else if ( parameterName == "phiZ" )     phiZ_     = Parameters.getParameter<double>( parameterName );
+    else if ( parameterName == "dX" )       dX_       = Parameters.getParameter<double>( parameterName );
+    else if ( parameterName == "dY" )       dY_       = Parameters.getParameter<double>( parameterName );
+    else if ( parameterName == "dZ" )       dZ_       = Parameters.getParameter<double>( parameterName );
+    else if ( Parameters.retrieve( parameterName ).typeCode() != 'P' )
       { // Add unknown parameter to list
 	if ( !error.str().length() ) error << "Unknown parameter name(s): ";
-	error << " " << *iParam;
+	error << " " << parameterName;
       }
   }
   align::Scalars param;
@@ -129,12 +129,12 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
   int index[5][4][14];
   int counter = 0;
   //Create and index for the chambers in the Alignable vector
-  for(std::vector<Alignable *>::iterator iter = DTchambers.begin(); iter != DTchambers.end(); ++iter) {
-    DTChamberId myId((*iter)->geomDetId().rawId());
+  for(auto & DTchamber : DTchambers) {
+    DTChamberId myId(DTchamber->geomDetId().rawId());
     index[myId.wheel()+2][myId.station()-1][myId.sector()-1] = counter;
     counter++;
   }
-  for(int wheel = 0; wheel < 5; wheel++) {
+  for(auto & wheel : index) {
     for(int sector = 0; sector < 12; sector++) {
       align::Scalars disp;
       align::Scalars rotation;
@@ -153,13 +153,13 @@ void MuonScenarioBuilder::moveDTSectors(const edm::ParameterSet& pSet)
         rotation.push_back(phix); rotation.push_back(phiy); rotation.push_back(phiz);
       }
       for(int station = 0; station < 4; station++) {
-        Alignable *myAlign = DTchambers.at(index[wheel][station][sector]);
+        Alignable *myAlign = DTchambers.at(wheel[station][sector]);
         this->moveChamberInSector(myAlign, disp, rotation, errorDisp, errorRotation);
         if(sector == 3 && station == 3) {
-	  Alignable *myAlignD = DTchambers.at(index[wheel][station][12]);
+	  Alignable *myAlignD = DTchambers.at(wheel[station][12]);
           this->moveChamberInSector(myAlignD, disp, rotation, errorDisp, errorRotation);
 	} else if(sector == 9 && station == 3) {
-	  Alignable *myAlignD = DTchambers.at(index[wheel][station][13]);
+	  Alignable *myAlignD = DTchambers.at(wheel[station][13]);
           this->moveChamberInSector(myAlignD, disp, rotation, errorDisp, errorRotation);
         }
       }
@@ -192,8 +192,8 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
   int sector_index[2][4][4][36];
   int counter = 0;
   //Create an index for the chambers in the alignable vector
-  for(std::vector<Alignable *>::iterator iter = CSCchambers.begin(); iter != CSCchambers.end(); ++iter) {
-    CSCDetId myId((*iter)->geomDetId().rawId());
+  for(auto & CSCchamber : CSCchambers) {
+    CSCDetId myId(CSCchamber->geomDetId().rawId());
     index[myId.endcap()-1][myId.station()-1][myId.ring()-1][myId.chamber()-1] = counter;
     sector_index[myId.endcap()-1][myId.station()-1][myId.ring()-1][myId.chamber()-1] = CSCTriggerNumbering::sectorFromTriggerLabels(CSCTriggerNumbering::triggerSectorFromLabels(myId),CSCTriggerNumbering::triggerSubSectorFromLabels(myId) , myId.station());
     counter++;
@@ -226,10 +226,10 @@ void MuonScenarioBuilder::moveCSCSectors(const edm::ParameterSet& pSet)
 	    } else {
 	      r_ring[0] = 1; r_ring[1] = 2;
 	    }
-	    for(int r_counter = 0; r_counter < 2; r_counter++) {
+	    for(int r_counter : r_ring) {
 	      for(int chamber = 0; chamber < 36; chamber++) {
-		if(sector == (sector_index[endcap][station][r_ring[r_counter]][chamber]+1)/2) {
-		  Alignable *myAlign = CSCchambers.at(index[endcap][station][r_ring[r_counter]][chamber]);
+		if(sector == (sector_index[endcap][station][r_counter][chamber]+1)/2) {
+		  Alignable *myAlign = CSCchambers.at(index[endcap][station][r_counter][chamber]);
                   this->moveChamberInSector(myAlign, disp, rotation, errorDisp, errorRotation);
 		}
 	      }
@@ -284,17 +284,17 @@ void MuonScenarioBuilder::moveMuon(const edm::ParameterSet& pSet)
     disp.push_back(dx); disp.push_back(dy); disp.push_back(dz);
     rotation.push_back(phix); rotation.push_back(phiy); rotation.push_back(phiz);
   }
-  for(std::vector<Alignable *>::iterator iter = DTbarrel.begin(); iter != DTbarrel.end(); ++iter) {
-    theMuonModifier.moveAlignable( *iter, false, true, disp[0], disp[1], disp[2] );
-    theMuonModifier.rotateAlignable( *iter, false, true, rotation[0],  rotation[1], rotation[2] );
-    theMuonModifier.addAlignmentPositionError( *iter, errorx, errory, errorz );
-    theMuonModifier.addAlignmentPositionErrorFromRotation( *iter,  errorphix, errorphiy, errorphiz ); 
+  for(auto & iter : DTbarrel) {
+    theMuonModifier.moveAlignable( iter, false, true, disp[0], disp[1], disp[2] );
+    theMuonModifier.rotateAlignable( iter, false, true, rotation[0],  rotation[1], rotation[2] );
+    theMuonModifier.addAlignmentPositionError( iter, errorx, errory, errorz );
+    theMuonModifier.addAlignmentPositionErrorFromRotation( iter,  errorphix, errorphiy, errorphiz ); 
   }
-  for(std::vector<Alignable *>::iterator iter = CSCendcaps.begin(); iter != CSCendcaps.end(); ++iter) {
-    theMuonModifier.moveAlignable( *iter, false, true, disp[0], disp[1], disp[2] );
-    theMuonModifier.rotateAlignable( *iter, false, true, rotation[0],  rotation[1], rotation[2] );
-    theMuonModifier.addAlignmentPositionError( *iter, errorx, errory, errorz );
-    theMuonModifier.addAlignmentPositionErrorFromRotation( *iter,  errorphix, errorphiy, errorphiz ); 
+  for(auto & CSCendcap : CSCendcaps) {
+    theMuonModifier.moveAlignable( CSCendcap, false, true, disp[0], disp[1], disp[2] );
+    theMuonModifier.rotateAlignable( CSCendcap, false, true, rotation[0],  rotation[1], rotation[2] );
+    theMuonModifier.addAlignmentPositionError( CSCendcap, errorx, errory, errorz );
+    theMuonModifier.addAlignmentPositionErrorFromRotation( CSCendcap,  errorphix, errorphiy, errorphiz ); 
   }
 }
 

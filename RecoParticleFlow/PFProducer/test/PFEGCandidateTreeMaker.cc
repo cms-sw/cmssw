@@ -185,21 +185,21 @@ findBestGenMatches(const edm::Event& e,
 	  elesandphos.push_back(reco::GenParticleRef(genp,i));
 	}
       }
-      for( size_t i = 0; i < elesandphos.size(); ++i ) {
+      for(auto & elesandpho : elesandphos) {
 	double dE_min = -1;
 	reco::PFCandidateRef bestmatch;
 	for( size_t k = 0; k < pfs->size(); ++k ) {	  
 	  reco::SuperClusterRef scref = pfs->at(k).superClusterRef();
 	  if( scref.isAvailable() && scref.isNonnull() && 
-	      reco::deltaR(*scref,*elesandphos[i]) < 0.3 ) {
-	    double dE = std::abs(scref->energy()-elesandphos[i]->energy());
+	      reco::deltaR(*scref,*elesandpho) < 0.3 ) {
+	    double dE = std::abs(scref->energy()-elesandpho->energy());
 	    if( dE_min == -1 || dE < dE_min ) {
 	      dE_min = dE;
 	      bestmatch = reco::PFCandidateRef(pfs,k);
 	    }
 	  }
 	}
-      	_genmatched[bestmatch] = elesandphos[i];
+      	_genmatched[bestmatch] = elesandpho;
       }
     } else {
       throw cms::Exception("PFSuperClusterTreeMaker")
@@ -339,9 +339,9 @@ getPFCandMatch(const reco::PFCandidate& cand,
   if( egxtra.isAvailable() && egxtra.isNonnull() ) {
     reco::SuperClusterRef scref = egxtra->superClusterPFECALRef();
     if( scref.isAvailable() && scref.isNonnull() ) {
-      for( auto ipf = pf->begin(); ipf != pf->end(); ++ipf ) {
-	if( std::abs(ipf->pdgId()) == pdgid_search  && pdgid_search == 11) {
-	  reco::GsfTrackRef gsfref = ipf->gsfTrackRef();	    
+      for(const auto & ipf : *pf) {
+	if( std::abs(ipf.pdgId()) == pdgid_search  && pdgid_search == 11) {
+	  reco::GsfTrackRef gsfref = ipf.gsfTrackRef();	    
 	  reco::ElectronSeedRef sRef = gsfref->seedRef().castTo<reco::ElectronSeedRef>();
 	  if( sRef.isNonnull() && sRef.isAvailable() && sRef->isEcalDriven() ) {
 	    reco::SuperClusterRef temp(sRef->caloCluster().castTo<reco::SuperClusterRef>());
@@ -349,8 +349,8 @@ getPFCandMatch(const reco::PFCandidate& cand,
 	      return true;
 	    }
 	  }
-	} else if ( std::abs(ipf->pdgId()) == 22 && pdgid_search == 22) {
-	  reco::SuperClusterRef temp(ipf->superClusterRef());
+	} else if ( std::abs(ipf.pdgId()) == 22 && pdgid_search == 22) {
+	  reco::SuperClusterRef temp(ipf.superClusterRef());
 	  if( scref == temp ) {
 	    return true;
 	  }

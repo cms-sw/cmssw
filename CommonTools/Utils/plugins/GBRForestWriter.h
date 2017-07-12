@@ -96,9 +96,8 @@ class GBRForestWriter : public edm::EDAnalyzer
     }
     ~jobEntryType() 
     {
-      for ( std::vector<categoryEntryType*>::iterator it = categories_.begin();
-	    it != categories_.end(); ++it ) {
-	delete (*it);
+      for (auto & categorie : categories_) {
+	delete categorie;
       }
     }
     std::vector<categoryEntryType*> categories_;

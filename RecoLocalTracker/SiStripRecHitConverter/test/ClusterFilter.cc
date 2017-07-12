@@ -21,8 +21,8 @@ ClusterFilter::ClusterFilter( const ParameterSet & pset ) :
    e.getByLabel(clusterProducer, clusters);
    //   int size=clusters.product()->size();
    int size = 0;
-   for (edm::DetSetVector<SiStripCluster>::const_iterator DSViter=clusters.product()->begin(); DSViter!=clusters.product()->end(); ++DSViter) {
-     size += DSViter->data.size();
+   for (const auto & DSViter : *clusters.product()) {
+     size += DSViter.data.size();
    }
 
    if(size>nMax_)return 0;

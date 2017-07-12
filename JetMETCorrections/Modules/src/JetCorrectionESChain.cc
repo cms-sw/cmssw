@@ -30,9 +30,9 @@ JetCorrectionESChain::~JetCorrectionESChain() {}
 std::shared_ptr<JetCorrector> JetCorrectionESChain::produce(JetCorrectionsRecord const& fRecord) {
   ChainedJetCorrector* corrector = dynamic_cast<ChainedJetCorrector*>(&*mChainCorrector);
   corrector->clear ();
-  for (size_t i = 0; i < mCorrectors.size(); ++i) {
+  for (const auto & mCorrector : mCorrectors) {
     edm::ESHandle <JetCorrector> handle;
-    fRecord.get(mCorrectors[i], handle);
+    fRecord.get(mCorrector, handle);
     corrector->push_back(&*handle);
   }
   return mChainCorrector;

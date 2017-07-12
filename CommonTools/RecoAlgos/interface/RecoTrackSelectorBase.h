@@ -74,8 +74,8 @@ public:
     bool quality_ok = true;
     if (quality_.size()!=0) {
       quality_ok = false;
-      for (unsigned int i = 0; i<quality_.size();++i) {
-	if (t.quality(quality_[i])){
+      for (auto i : quality_) {
+	if (t.quality(i)){
 	  quality_ok = true;
 	  break;
 	}

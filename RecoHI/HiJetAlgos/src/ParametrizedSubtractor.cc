@@ -15,9 +15,8 @@
 using namespace std;
 
 void ParametrizedSubtractor::rescaleRMS(double s){
-   for ( std::map<int, double>::iterator iter = esigma_.begin();
-	 iter != esigma_.end(); ++iter ){
-      iter->second = s*(iter->second);
+   for (auto & iter : esigma_){
+      iter.second = s*(iter.second);
    }
 }
 
@@ -116,11 +115,9 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
    int it = -100;
    vector<fastjet::PseudoJet> newcoll;
         
-   for (vector<fastjet::PseudoJet>::iterator input_object = coll.begin (),
-	   fjInputsEnd = coll.end(); 
-	input_object != fjInputsEnd; ++input_object) {
+   for (auto & input_object : coll) {
     
-      reco::CandidatePtr const & itow =  (*inputs_)[ input_object->user_index() ];
+      reco::CandidatePtr const & itow =  (*inputs_)[ input_object.user_index() ];
     
       it = ieta( itow );
       iphi( itow );
@@ -131,19 +128,19 @@ void ParametrizedSubtractor::subtractPedestal(vector<fastjet::PseudoJet> & coll)
       }
 
       double etnew = Original_Et - getPU(it,1,1);
-      float mScale = etnew/input_object->Et(); 
+      float mScale = etnew/input_object.Et(); 
       if(etnew < 0.) mScale = 0.;
     
-      math::XYZTLorentzVectorD towP4(input_object->px()*mScale, input_object->py()*mScale,
-				     input_object->pz()*mScale, input_object->e()*mScale);
+      math::XYZTLorentzVectorD towP4(input_object.px()*mScale, input_object.py()*mScale,
+				     input_object.pz()*mScale, input_object.e()*mScale);
     
-      int index = input_object->user_index();
-      input_object->reset ( towP4.px(),
+      int index = input_object.user_index();
+      input_object.reset ( towP4.px(),
 			    towP4.py(),
 			    towP4.pz(),
 			    towP4.energy() );
-      input_object->set_user_index(index);
-      if(etnew > 0. && dropZeroTowers_) newcoll.push_back(*input_object);
+      input_object.set_user_index(index);
+      if(etnew > 0. && dropZeroTowers_) newcoll.push_back(input_object);
    }
    if(dropZeroTowers_) coll = newcoll;
 

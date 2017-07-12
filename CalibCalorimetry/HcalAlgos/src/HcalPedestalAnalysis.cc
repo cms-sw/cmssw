@@ -28,7 +28,7 @@ HcalPedestalAnalysis::HcalPedestalAnalysis(const edm::ParameterSet& ps)
   sample=0;
   m_file=0;
   m_AllPedsOK=0;
-  for(int i=0; i<4; i++) m_stat[i]=0;
+  for(float & i : m_stat) i=0;
   for(int k=0;k<4;k++) state.push_back(true);
 
 // user cfg parameters
@@ -138,11 +138,11 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   // HBHE
   try{
     if(!hbhe.size()) throw (int)hbhe.size();
-    for (HBHEDigiCollection::const_iterator j=hbhe.begin(); j!=hbhe.end(); ++j){
-      const HBHEDataFrame digi = (const HBHEDataFrame)(*j);
+    for (const auto & j : hbhe){
+      const HBHEDataFrame digi = (const HBHEDataFrame)j;
       m_coder = cond.getHcalCoder(digi.id());
       m_shape = cond.getHcalShape(m_coder);
-      for(int k=0; k<(int)state.size();k++) state[k]=true;
+      for(auto && k : state) k=true;
 // here we loop over pairs of time slices, it is more convenient
 // in order to extract the correlation matrix
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
@@ -163,8 +163,8 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   // HO
   try{
     if(!ho.size()) throw (int)ho.size();
-    for (HODigiCollection::const_iterator j=ho.begin(); j!=ho.end(); ++j){
-      const HODataFrame digi = (const HODataFrame)(*j);
+    for (const auto & j : ho){
+      const HODataFrame digi = (const HODataFrame)j;
       m_coder = cond.getHcalCoder(digi.id());
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {	   
         for(int flag=0; flag<4; flag++){
@@ -184,8 +184,8 @@ void HcalPedestalAnalysis::processEvent(const HBHEDigiCollection& hbhe,
   // HF
   try{
     if(!hf.size()) throw (int)hf.size();
-    for (HFDigiCollection::const_iterator j=hf.begin(); j!=hf.end(); ++j){
-      const HFDataFrame digi = (const HFDataFrame)(*j);
+    for (const auto & j : hf){
+      const HFDataFrame digi = (const HFDataFrame)j;
       m_coder = cond.getHcalCoder(digi.id());
       for (int i=m_startTS; i<digi.size() && i<=m_endTS; i++) {
         for(int flag=0; flag<4; flag++){
@@ -770,16 +770,16 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
 
   if(nstat[0]+nstat[1]+nstat[2]+nstat[3]<2500) PedValLog<<"HcalPedVal: warning - low statistics"<<std::endl;
 // find complete list of channels in current data and reference
-  for (int i=0; i<(int)RawChanns.size(); i++){
-    isinRef[HcalDetId(RawChanns[i])]=false;
+  for (auto RawChann : RawChanns){
+    isinRef[HcalDetId(RawChann)]=false;
   }
-  for (int i=0; i<(int)RefChanns.size(); i++){
-    detid=HcalDetId(RefChanns[i]);
+  for (auto RefChann : RefChanns){
+    detid=HcalDetId(RefChann);
     isinRaw[detid]=false;
     isinRef[detid]=true;
   }
-  for (int i=0; i<(int)RawChanns.size(); i++){
-    detid=HcalDetId(RawChanns[i]);
+  for (auto RawChann : RawChanns){
+    detid=HcalDetId(RawChann);
     isinRaw[detid]=true;
     if (isinRef[detid]==false) {
       PedValLog<<"HcalPedVal: channel "<<detid<<" not found in reference set"<<std::endl;
@@ -789,8 +789,8 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
 
 // main loop over channels
   int erflag=0;
-  for (int i=0; i<(int)RefChanns.size(); i++){
-    detid=HcalDetId(RefChanns[i]);
+  for (auto RefChann : RefChanns){
+    detid=HcalDetId(RefChann);
     for (int icap=0; icap<4; icap++) {
       RefPedVals[icap]=fRefPedestals->getValues(detid)->getValue(icap);
       for (int icap2=icap; icap2<4; icap2++) {
@@ -869,8 +869,8 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
 // now construct the remaining part of the validated objects
 // if nothing changed outside tolerance, validated set = reference set
   if(erflag%100000 == 0) {
-    for (int i=0; i<(int)RefChanns.size(); i++){
-      detid=HcalDetId(RefChanns[i]);
+    for (auto RefChann : RefChanns){
+      detid=HcalDetId(RefChann);
       if (isinRaw[detid]) {
         HcalPedestalWidth widthsp(detid);
         for (int icap=0; icap<4; icap++) {
@@ -890,8 +890,8 @@ int HcalPedestalAnalysis::HcalPedVal(int nstat[4], const HcalPedestals* fRefPede
 
 // if anything changed, validated set = raw set + reference for missing/bad channels
   else {
-    for (int i=0; i<(int)RawChanns.size(); i++){
-      detid=HcalDetId(RawChanns[i]);
+    for (auto RawChann : RawChanns){
+      detid=HcalDetId(RawChann);
       if (isinRaw[detid]) {
         HcalPedestalWidth widthsp(detid);
         for (int icap=0; icap<4; icap++) {

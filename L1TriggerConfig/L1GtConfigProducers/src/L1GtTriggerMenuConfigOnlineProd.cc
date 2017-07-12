@@ -209,8 +209,8 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuGeneralFromDB(
     if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n List of columns in L1T_MENU_GENERAL_VIEW:\n" << std::endl;
-        for (std::vector<std::string>::const_iterator iter = columns.begin(); iter != columns.end(); iter++) {
-            LogTrace("L1GtTriggerMenuConfigOnlineProd") << ( *iter ) << std::endl;
+        for (const auto & column : columns) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << column << std::endl;
 
         }
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -230,20 +230,19 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuGeneralFromDB(
 
     // retrieve menu interface name, scales key, algorithm implementation tag
 
-    for (std::vector<std::string>::const_iterator constIt = columns.begin(); constIt
-            != columns.end(); ++constIt) {
+    for (const auto & column : columns) {
 
-        if ( ( *constIt ) == "MENU_IMPLEMENTATION") {
-            results.fillVariable(*constIt, m_tableMenuGeneral.menuImplementation);
+        if ( column == "MENU_IMPLEMENTATION") {
+            results.fillVariable(column, m_tableMenuGeneral.menuImplementation);
 
-        } else if ( ( *constIt ) == "INTERFACE") {
-            results.fillVariable(*constIt, m_tableMenuGeneral.menuInterface);
+        } else if ( column == "INTERFACE") {
+            results.fillVariable(column, m_tableMenuGeneral.menuInterface);
 
-        } else if ( ( *constIt ) == "SCALES_KEY") {
-            results.fillVariable(*constIt, m_tableMenuGeneral.scalesKey);
+        } else if ( column == "SCALES_KEY") {
+            results.fillVariable(column, m_tableMenuGeneral.scalesKey);
 
-        } else if ( ( *constIt ) == "ALGO_IMPL_TAG") {
-            results.fillVariable(*constIt, m_tableMenuGeneral.algoImplTag);
+        } else if ( column == "ALGO_IMPL_TAG") {
+            results.fillVariable(column, m_tableMenuGeneral.algoImplTag);
 
         } else {
             // do nothing
@@ -283,8 +282,8 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(
     if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_ALGO_VIEW:\n"
             << std::endl;
-        for (std::vector<std::string>::const_iterator iter = columnsMenuAlgo.begin(); iter != columnsMenuAlgo.end(); iter++) {
-            LogTrace("L1GtTriggerMenuConfigOnlineProd") << ( *iter ) << std::endl;
+        for (const auto & iter : columnsMenuAlgo) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << iter << std::endl;
 
         }
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -310,20 +309,19 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoFromDB(
 
     for (int iRow = 0; iRow < resultsMenuAlgoRows; ++iRow) {
 
-        for (std::vector<std::string>::const_iterator constIt = columnsMenuAlgo.begin(); constIt
-                != columnsMenuAlgo.end(); ++constIt) {
+        for (const auto & constIt : columnsMenuAlgo) {
 
-            if ( ( *constIt ) == "ALGO_INDEX") {
-                resultsMenuAlgo.fillVariableFromRow(*constIt, iRow, menuAlgo.bitNumberSh);
+            if ( constIt == "ALGO_INDEX") {
+                resultsMenuAlgo.fillVariableFromRow(constIt, iRow, menuAlgo.bitNumberSh);
 
-            } else if ( ( *constIt ) == "NAME") {
-                resultsMenuAlgo.fillVariableFromRow(*constIt, iRow, menuAlgo.algName);
+            } else if ( constIt == "NAME") {
+                resultsMenuAlgo.fillVariableFromRow(constIt, iRow, menuAlgo.algName);
 
-            } else if ( ( *constIt ) == "ALIAS") {
-                resultsMenuAlgo.fillVariableFromRow(*constIt, iRow, menuAlgo.algAlias);
+            } else if ( constIt == "ALIAS") {
+                resultsMenuAlgo.fillVariableFromRow(constIt, iRow, menuAlgo.algAlias);
 
-            } else if ( ( *constIt ) == "LOGICEXPR") {
-                resultsMenuAlgo.fillVariableFromRow(*constIt, iRow, menuAlgo.logExpression);
+            } else if ( constIt == "LOGICEXPR") {
+                resultsMenuAlgo.fillVariableFromRow(constIt, iRow, menuAlgo.logExpression);
 
             } else {
                 // do nothing
@@ -368,9 +366,8 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(
     if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n List of columns in L1T_MENU_ALGO_COND_VIEW:\n" << std::endl;
-        for (std::vector<std::string>::const_iterator iter = columnsMenuAlgoCond.begin(); iter
-                != columnsMenuAlgoCond.end(); iter++) {
-            LogTrace("L1GtTriggerMenuConfigOnlineProd") << ( *iter ) << std::endl;
+        for (const auto & iter : columnsMenuAlgoCond) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << iter << std::endl;
 
         }
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -396,19 +393,18 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuAlgoCondFromDB(
 
     for (int iRow = 0; iRow < resultsMenuAlgoCondRows; ++iRow) {
 
-        for (std::vector<std::string>::const_iterator constIt = columnsMenuAlgoCond.begin(); constIt
-                != columnsMenuAlgoCond.end(); ++constIt) {
+        for (const auto & constIt : columnsMenuAlgoCond) {
 
-            if ( ( *constIt ) == "ALGO_INDEX") {
+            if ( constIt == "ALGO_INDEX") {
                 resultsMenuAlgoCond.fillVariableFromRow(
-                        *constIt, iRow, menuAlgoCond.bitNumberSh);
+                        constIt, iRow, menuAlgoCond.bitNumberSh);
 
-            } else if ( ( *constIt ) == "COND_INDEX") {
+            } else if ( constIt == "COND_INDEX") {
                 resultsMenuAlgoCond.fillVariableFromRow(
-                        *constIt, iRow, menuAlgoCond.condIndexF);
+                        constIt, iRow, menuAlgoCond.condIndexF);
 
-            } else if ( ( *constIt ) == "COND_FK") {
-                resultsMenuAlgoCond.fillVariableFromRow(*constIt, iRow, menuAlgoCond.condFK);
+            } else if ( constIt == "COND_FK") {
+                resultsMenuAlgoCond.fillVariableFromRow(constIt, iRow, menuAlgoCond.condFK);
 
             } else {
                 // do nothing
@@ -449,9 +445,8 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
     if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n List of columns in L1T_MENU_COND_VIEW:\n" << std::endl;
-        for (std::vector<std::string>::const_iterator iter = columnsMenuCond.begin(); iter
-                != columnsMenuCond.end(); iter++) {
-            LogTrace("L1GtTriggerMenuConfigOnlineProd") << ( *iter ) << std::endl;
+        for (const auto & iter : columnsMenuCond) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << iter << std::endl;
 
         }
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -477,61 +472,60 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuCondFromDB(
 
     for (int iRow = 0; iRow < resultsMenuCondRows; ++iRow) {
 
-        for (std::vector<std::string>::const_iterator constIt = columnsMenuCond.begin(); constIt
-                != columnsMenuCond.end(); ++constIt) {
+        for (const auto & constIt : columnsMenuCond) {
 
-            if ( ( *constIt ) == "COND") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.cond);
+            if ( constIt == "COND") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.cond);
 
-            } else if ( ( *constIt ) == "COND_CATEGORY") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.condCategory);
+            } else if ( constIt == "COND_CATEGORY") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.condCategory);
 
-            } else if ( ( *constIt ) == "COND_TYPE") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.condType);
+            } else if ( constIt == "COND_TYPE") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.condType);
 
-            } else if ( ( *constIt ) == "GT_OBJECT_1") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.gtObject1);
+            } else if ( constIt == "GT_OBJECT_1") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.gtObject1);
 
-            } else if ( ( *constIt ) == "GT_OBJECT_2") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.gtObject2);
+            } else if ( constIt == "GT_OBJECT_2") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.gtObject2);
 
-            } else if ( ( *constIt ) == "COND_GEQ") {
+            } else if ( constIt == "COND_GEQ") {
                 //float condGEqFloat = -1;
                 //resultsMenuCond.fillVariableFromRow(*constIt, iRow, condGEqFloat);
                 //menuCond.condGEq = (condGEqFloat > 0.5) ? true : false;
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.condGEq);
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.condGEq);
 
-            } else if ( ( *constIt ) == "COUNT_INDEX") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.countIndex);
+            } else if ( constIt == "COUNT_INDEX") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.countIndex);
 
-            } else if ( ( *constIt ) == "COUNT_THRESHOLD") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.countThreshold);
+            } else if ( constIt == "COUNT_THRESHOLD") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.countThreshold);
 
-            } else if ( ( *constIt ) == "CHARGE_CORRELATION") {
+            } else if ( constIt == "CHARGE_CORRELATION") {
                 resultsMenuCond.fillVariableFromRow(
-                        *constIt, iRow, menuCond.chargeCorrelation);
+                        constIt, iRow, menuCond.chargeCorrelation);
 
-            } else if ( ( *constIt ) == "OBJECT_PARAMETER_1_FK") {
+            } else if ( constIt == "OBJECT_PARAMETER_1_FK") {
                 resultsMenuCond.fillVariableFromRow(
-                        *constIt, iRow, menuCond.objectParameter1FK);
+                        constIt, iRow, menuCond.objectParameter1FK);
 
-            } else if ( ( *constIt ) == "OBJECT_PARAMETER_2_FK") {
+            } else if ( constIt == "OBJECT_PARAMETER_2_FK") {
                 resultsMenuCond.fillVariableFromRow(
-                        *constIt, iRow, menuCond.objectParameter2FK);
+                        constIt, iRow, menuCond.objectParameter2FK);
 
-            } else if ( ( *constIt ) == "OBJECT_PARAMETER_3_FK") {
+            } else if ( constIt == "OBJECT_PARAMETER_3_FK") {
                 resultsMenuCond.fillVariableFromRow(
-                        *constIt, iRow, menuCond.objectParameter3FK);
+                        constIt, iRow, menuCond.objectParameter3FK);
 
-            } else if ( ( *constIt ) == "OBJECT_PARAMETER_4_FK") {
+            } else if ( constIt == "OBJECT_PARAMETER_4_FK") {
                 resultsMenuCond.fillVariableFromRow(
-                        *constIt, iRow, menuCond.objectParameter4FK);
+                        constIt, iRow, menuCond.objectParameter4FK);
 
-            } else if ( ( *constIt ) == "DELTA_ETA_RANGE") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.deltaEtaRange);
+            } else if ( constIt == "DELTA_ETA_RANGE") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.deltaEtaRange);
 
-            } else if ( ( *constIt ) == "DELTA_PHI_RANGE") {
-                resultsMenuCond.fillVariableFromRow(*constIt, iRow, menuCond.deltaPhiRange);
+            } else if ( constIt == "DELTA_PHI_RANGE") {
+                resultsMenuCond.fillVariableFromRow(constIt, iRow, menuCond.deltaPhiRange);
 
             } else {
                 // do nothing
@@ -588,9 +582,8 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
     if (m_isDebugEnabled) {
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n List of columns in L1T_MENU_OP_VIEW:\n"
                 << std::endl;
-        for (std::vector<std::string>::const_iterator iter = columnsMenuOp.begin(); iter
-                != columnsMenuOp.end(); iter++) {
-            LogTrace("L1GtTriggerMenuConfigOnlineProd") << ( *iter ) << std::endl;
+        for (const auto & iter : columnsMenuOp) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << iter << std::endl;
 
         }
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -615,53 +608,52 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuObjectParametersFromDB(
 
     for (int iRow = 0; iRow < resultsMenuOpRows; ++iRow) {
 
-        for (std::vector<std::string>::const_iterator constIt = columnsMenuOp.begin(); constIt
-                != columnsMenuOp.end(); ++constIt) {
+        for (const auto & constIt : columnsMenuOp) {
 
-            if ( ( *constIt ) == "ID") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.opId);
+            if ( constIt == "ID") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.opId);
 
-            } else if ( ( *constIt ) == "PT_HIGH_THRESHOLD") {
+            } else if ( constIt == "PT_HIGH_THRESHOLD") {
                 resultsMenuOp.fillVariableFromRow(
-                        *constIt, iRow, menuObjectParameters.ptHighThreshold);
+                        constIt, iRow, menuObjectParameters.ptHighThreshold);
 
-            } else if ( ( *constIt ) == "PT_LOW_THRESHOLD") {
+            } else if ( constIt == "PT_LOW_THRESHOLD") {
                 resultsMenuOp.fillVariableFromRow(
-                        *constIt, iRow, menuObjectParameters.ptLowThreshold);
+                        constIt, iRow, menuObjectParameters.ptLowThreshold);
 
-            } else if ( ( *constIt ) == "ENABLE_MIP") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.enableMip);
+            } else if ( constIt == "ENABLE_MIP") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.enableMip);
 
-            } else if ( ( *constIt ) == "ENABLE_ISO") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.enableIso);
+            } else if ( constIt == "ENABLE_ISO") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.enableIso);
 
-            } else if ( ( *constIt ) == "REQUEST_ISO") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.requestIso);
+            } else if ( constIt == "REQUEST_ISO") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.requestIso);
 
-            } else if ( ( *constIt ) == "ENERGY_OVERFLOW") {
+            } else if ( constIt == "ENERGY_OVERFLOW") {
                 resultsMenuOp.fillVariableFromRow(
-                        *constIt, iRow, menuObjectParameters.energyOverflow);
+                        constIt, iRow, menuObjectParameters.energyOverflow);
 
-            } else if ( ( *constIt ) == "ET_THRESHOLD") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.etThreshold);
+            } else if ( constIt == "ET_THRESHOLD") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.etThreshold);
 
-            } else if ( ( *constIt ) == "ETA_RANGE") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.etaRange);
+            } else if ( constIt == "ETA_RANGE") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.etaRange);
 
-            } else if ( ( *constIt ) == "PHI_RANGE") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiRange);
+            } else if ( constIt == "PHI_RANGE") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.phiRange);
 
-            } else if ( ( *constIt ) == "PHI_LOW") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiLow);
+            } else if ( constIt == "PHI_LOW") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.phiLow);
 
-            } else if ( ( *constIt ) == "PHI_HIGH") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.phiHigh);
+            } else if ( constIt == "PHI_HIGH") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.phiHigh);
 
-            } else if ( ( *constIt ) == "QUALITY_RANGE") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.qualityRange);
+            } else if ( constIt == "QUALITY_RANGE") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.qualityRange);
 
-            } else if ( ( *constIt ) == "CHARGE") {
-                resultsMenuOp.fillVariableFromRow(*constIt, iRow, menuObjectParameters.charge);
+            } else if ( constIt == "CHARGE") {
+                resultsMenuOp.fillVariableFromRow(constIt, iRow, menuObjectParameters.charge);
 
             } else {
                 // do nothing
@@ -715,9 +707,8 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuTechTrigFromDB(
         LogTrace("L1GtTriggerMenuConfigOnlineProd")
                 << "\n List of columns in L1T_MENU_TECHTRIG_VIEW:\n"
                 << std::endl;
-        for (std::vector<std::string>::const_iterator iter =
-                columnsMenuTechTrig.begin(); iter != columnsMenuTechTrig.end(); iter++) {
-            LogTrace("L1GtTriggerMenuConfigOnlineProd") << (*iter) << std::endl;
+        for (const auto & iter : columnsMenuTechTrig) {
+            LogTrace("L1GtTriggerMenuConfigOnlineProd") << iter << std::endl;
 
         }
         LogTrace("L1GtTriggerMenuConfigOnlineProd") << "\n\n" << std::endl;
@@ -744,16 +735,14 @@ bool L1GtTriggerMenuConfigOnlineProd::tableMenuTechTrigFromDB(
 
     for (int iRow = 0; iRow < resultsMenuTechTrigRows; ++iRow) {
 
-        for (std::vector<std::string>::const_iterator constIt =
-                columnsMenuTechTrig.begin(); constIt
-                != columnsMenuTechTrig.end(); ++constIt) {
+        for (const auto & constIt : columnsMenuTechTrig) {
 
-            if ((*constIt) == "TECHTRIG_INDEX") {
-                resultsMenuTechTrig.fillVariableFromRow(*constIt, iRow,
+            if (constIt == "TECHTRIG_INDEX") {
+                resultsMenuTechTrig.fillVariableFromRow(constIt, iRow,
                         menuTechTrig.bitNumberSh);
 
-            } else if ((*constIt) == "NAME") {
-                resultsMenuTechTrig.fillVariableFromRow(*constIt, iRow,
+            } else if (constIt == "NAME") {
+                resultsMenuTechTrig.fillVariableFromRow(constIt, iRow,
                         menuTechTrig.techName);
 
             } else {
@@ -789,11 +778,10 @@ const std::map<int, std::string> L1GtTriggerMenuConfigOnlineProd::condIndexNameM
 
     std::map<int, std::string> mapIndexName;
 
-    for (std::vector<TableMenuAlgoCond>::const_iterator constIt = m_tableMenuAlgoCond.begin(); constIt
-            != m_tableMenuAlgoCond.end(); ++constIt) {
+    for (const auto & constIt : m_tableMenuAlgoCond) {
 
-        if (bitNr == (*constIt).bitNumberSh) {
-            mapIndexName[static_cast<int>((*constIt).condIndexF)] = (*constIt).condFK;
+        if (bitNr == constIt.bitNumberSh) {
+            mapIndexName[static_cast<int>(constIt.condIndexF)] = constIt.condFK;
         }
 
     }

@@ -188,10 +188,10 @@ namespace sistrip {
     outputData.reserve(inputPayloadDigis->size());
     
     // Loop over channels in input collection
-    for (DSVRawDigis::const_iterator inputChannel = inputPayloadDigis->begin(); inputChannel != inputPayloadDigis->end(); ++inputChannel) {
-      const std::vector<SiStripRawDigi>& inputDetSetData = inputChannel->data;
+    for (const auto & inputPayloadDigi : *inputPayloadDigis) {
+      const std::vector<SiStripRawDigi>& inputDetSetData = inputPayloadDigi.data;
       // Create new detSet with same key (in this case it is the fedKey, not detId)
-      outputData.push_back( DetSetRawDigis(inputChannel->detId()) );
+      outputData.push_back( DetSetRawDigis(inputPayloadDigi.detId()) );
       std::vector<SiStripRawDigi>& outputDetSetData = outputData.back().data;
       outputDetSetData.resize(STRIPS_PER_FEDCH);
       // Copy the data into the output vector reordering

@@ -33,17 +33,17 @@ void SiStripApvGainReader::analyze( const edm::Event& e, const edm::EventSetup& 
   FILE* pFile=NULL;
   if(formatedOutput_!="")pFile=fopen(formatedOutput_.c_str(), "w");
 
-  for (size_t id=0;id<detid.size();id++){
-    SiStripApvGain::Range range=SiStripApvGain_->getRange(detid[id], gainType_);	
+  for (unsigned int id : detid){
+    SiStripApvGain::Range range=SiStripApvGain_->getRange(id, gainType_);	
     if(printdebug_){
        int apv=0;
        for(int it=0;it<range.second-range.first;it++){
-          edm::LogInfo("SiStripApvGainReader")  << "detid " << detid[id] << " \t " << apv++ << " \t " << SiStripApvGain_->getApvGain(it,range)     << std::endl;        
+          edm::LogInfo("SiStripApvGainReader")  << "detid " << id << " \t " << apv++ << " \t " << SiStripApvGain_->getApvGain(it,range)     << std::endl;        
        }
     }
 
     if(pFile){
-       fprintf(pFile,"%i ",detid[id]);
+       fprintf(pFile,"%i ",id);
        for(int it=0;it<range.second-range.first;it++){
           fprintf(pFile,"%f ", SiStripApvGain_->getApvGain(it,range) );
        }fprintf(pFile, "\n");

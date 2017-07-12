@@ -98,9 +98,9 @@ void MuonMillepedeTrackRefitter::produce( edm::Event & event, const edm::EventSe
      
   reco::TrackRef::key_type trackIndex = 0;
 
-  for (reco::TrackCollection::const_iterator trackSA = tracksSA->begin();  trackSA != tracksSA->end();  ++trackSA ) {
+  for (const auto & trackSA : *tracksSA) {
    
-    reco::TransientTrack tTrackSA( *trackSA, &*theMGField, theTrackingGeometry );
+    reco::TransientTrack tTrackSA( trackSA, &*theMGField, theTrackingGeometry );
 
     //Create an empty trajectory
     Trajectory myTraj;

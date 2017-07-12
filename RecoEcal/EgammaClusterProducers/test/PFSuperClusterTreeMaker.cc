@@ -161,19 +161,19 @@ findBestGenMatches(const edm::Event& e,
 	  elesandphos.push_back(reco::GenParticleRef(genp,i));
 	}
       }
-      for( size_t i = 0; i < elesandphos.size(); ++i ) {
+      for(auto & elesandpho : elesandphos) {
 	double dE_min = -1;
 	reco::SuperClusterRef bestmatch;
 	for( size_t k = 0; k < scs->size(); ++k ) {
-	  if( reco::deltaR(scs->at(k),*elesandphos[i]) < 0.3 ) {
-	    double dE = std::abs(scs->at(k).energy()-elesandphos[i]->energy());
+	  if( reco::deltaR(scs->at(k),*elesandpho) < 0.3 ) {
+	    double dE = std::abs(scs->at(k).energy()-elesandpho->energy());
 	    if( dE_min == -1 || dE < dE_min ) {
 	      dE_min = dE;
 	      bestmatch = reco::SuperClusterRef(scs,k);
 	    }
 	  }
 	}
-	_genmatched[bestmatch] = elesandphos[i];
+	_genmatched[bestmatch] = elesandpho;
       }
     } else {
       throw cms::Exception("PFSuperClusterTreeMaker")

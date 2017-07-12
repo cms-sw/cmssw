@@ -55,11 +55,10 @@ FWGEMDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* product,
   }
   const FWGeometry *geom = iItem->getGeom();
 
-  for ( GEMDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
+  for (auto && digi : *digis)
   {
-    unsigned int rawid = (*dri).first.rawId();
-    const GEMDigiCollection::Range& range = (*dri).second;
+    unsigned int rawid = digi.first.rawId();
+    const GEMDigiCollection::Range& range = digi.second;
 
     if( ! geom->contains( rawid ))
     {
@@ -142,11 +141,10 @@ FWGEMPadDigiProxyBuilder::build(const FWEventItem* iItem, TEveElementList* produ
   }
   const FWGeometry *geom = iItem->getGeom();
 
-  for ( GEMPadDigiCollection::DigiRangeIterator dri = digis->begin(), driEnd = digis->end();
-        dri != driEnd; ++dri )
+  for (auto && digi : *digis)
   {
-    unsigned int rawid = (*dri).first.rawId();
-    const GEMPadDigiCollection::Range& range = (*dri).second;
+    unsigned int rawid = digi.first.rawId();
+    const GEMPadDigiCollection::Range& range = digi.second;
 
     if( ! geom->contains( rawid ))
     {

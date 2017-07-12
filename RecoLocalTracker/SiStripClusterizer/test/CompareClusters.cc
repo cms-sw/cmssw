@@ -71,8 +71,8 @@ std::string CompareClusters::
 printCluster(const SiStripCluster & cluster) {
   std::stringstream s;
   s  << "\t" << cluster.firstStrip() << " [ ";
-  for(unsigned i=0; i<cluster.amplitudes().size(); i++) {
-    s << static_cast<int>(cluster.amplitudes()[i]) << " ";
+  for(unsigned char i : cluster.amplitudes()) {
+    s << static_cast<int>(i) << " ";
   }
   s << "]" << std::endl;
   return s.str();
@@ -86,13 +86,13 @@ printDigis(uint32_t id) {
   SiStripQuality::Range qualityRange = qualityHandle->getRange(id);
   edm::DetSetVector<SiStripDigi>::const_iterator set = digiHandle->find(id);
   if(set != digiHandle->end()) {
-    for(edm::DetSet<SiStripDigi>::const_iterator digi = set->begin(); digi!=set->end(); digi++) {
+    for(const auto & digi : *set) {
       s << "( " 
-	<< digi->strip() << ", "
-	<< digi->adc()   << ", "
-	<< noiseHandle->getNoise(digi->strip(),noiseRange) << ", "
-	<< gainHandle->getStripGain(digi->strip(),gainRange) << ", "
-	<< ( qualityHandle->IsStripBad(qualityRange, digi->strip())  ? "bad" : "good") << ")\n";
+	<< digi.strip() << ", "
+	<< digi.adc()   << ", "
+	<< noiseHandle->getNoise(digi.strip(),noiseRange) << ", "
+	<< gainHandle->getStripGain(digi.strip(),gainRange) << ", "
+	<< ( qualityHandle->IsStripBad(qualityRange, digi.strip())  ? "bad" : "good") << ")\n";
     }
   }
   return s.str();

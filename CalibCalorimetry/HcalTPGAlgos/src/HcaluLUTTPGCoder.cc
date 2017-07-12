@@ -207,10 +207,10 @@ void HcaluLUTTPGCoder::updateXML(const char* filename) {
        ieta <= HcalDetId::kHcalEtaMask2; ++ieta) {
     for (int iphi = 0; iphi <= HcalDetId::kHcalPhiMask2; ++iphi) {
       for (int depth = 1; depth < HcalDetId::kHcalDepthMask2; ++depth) {
-	for (int isub=0; isub<3; ++isub) {
-	  HcalDetId detid(subdet[isub], ieta, iphi, depth);
+	for (auto & isub : subdet) {
+	  HcalDetId detid(isub, ieta, iphi, depth);
 	  if (!topo_->valid(detid)) continue;
-	  int id = getLUTId(subdet[isub], ieta, iphi, depth);
+	  int id = getLUTId(isub, ieta, iphi, depth);
 	  std::vector<unsigned int>* lut = _xml->getLutFast(detid);
 	  if (lut==0) throw cms::Exception("PROBLEM: No inputLUT_ in xml file for ") << detid << std::endl;
 	  if (lut->size()!=INPUT_LUT_SIZE) throw cms::Exception ("PROBLEM: Wrong inputLUT_ size in xml file for ") << detid << std::endl;

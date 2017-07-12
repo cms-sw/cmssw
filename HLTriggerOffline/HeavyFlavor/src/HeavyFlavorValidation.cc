@@ -147,17 +147,17 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 	}
 	stringstream os;
 	vector<string> triggerNames = hltConfig.triggerNames();
-	for( size_t i = 0; i < triggerNames.size(); i++) {
-		TString triggerName = triggerNames[i];
+	for(const auto & i : triggerNames) {
+		TString triggerName = i;
 		if (triggerName.Contains(triggerPathName)){ 
-			vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-			for( size_t j = 0; j < moduleNames.size(); j++) {
-				TString name = moduleNames[j];
+			vector<string> moduleNames = hltConfig.moduleLabels( i );
+			for(auto & moduleName : moduleNames) {
+				TString name = moduleName;
                                 // MK 2016-12-09: added requirement for the module EDM type to be
                                 // EDFilter, as without it the name check can match also any EDProducer
                                 // (and would be fragile; ok I think it is still fragile, but the added
                                 // check allows PR #16792 to go forward)
-				if(name.Contains("Filter") && hltConfig.moduleEDMType(moduleNames[j]) == "EDFilter"){
+				if(name.Contains("Filter") && hltConfig.moduleEDMType(moduleName) == "EDFilter"){
 					int level = 0;
 					if(name.Contains("L1"))
 						level = 1;
@@ -169,8 +169,8 @@ void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSe
 						level = 4;
 					if(name.Contains("Vertex") || name.Contains("Dz"))
 						level = 5;
-					filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
-					os<<" "<<moduleNames[j];
+					filterNamesLevels.push_back( pair<string,int>(moduleName,level) );
+					os<<" "<<moduleName;
 				}
 			}
 			break;
@@ -294,10 +294,10 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   Handle<GenParticleCollection> genParticles;
   iEvent.getByToken(genParticlesToken, genParticles);
   if(genParticles.isValid()){
-    for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
-      if( p->status() == 1 && std::abs(p->pdgId())==13 && 
-          ( find( motherIDs.begin(), motherIDs.end(), -1 )!=motherIDs.end() || find( motherIDs.begin(), motherIDs.end(), getMotherId(&(*p)) )!=motherIDs.end() ) ){
-        genMuons.push_back( *p );
+    for(const auto & p : *genParticles){
+      if( p.status() == 1 && std::abs(p.pdgId())==13 && 
+          ( find( motherIDs.begin(), motherIDs.end(), -1 )!=motherIDs.end() || find( motherIDs.begin(), motherIDs.end(), getMotherId(&p) )!=motherIDs.end() ) ){
+        genMuons.push_back( p );
       }  
     }
   }else{
@@ -312,10 +312,10 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   Handle<MuonCollection> recoMuonsHandle;
   iEvent.getByToken(recoMuonsToken, recoMuonsHandle);
   if(recoMuonsHandle.isValid()){
-    for(MuonCollection::const_iterator p=recoMuonsHandle->begin(); p!= recoMuonsHandle->end(); ++p){
-      if(p->isGlobalMuon()){
-        globMuons.push_back(*p);
-        globMuons_position.push_back( LeafCandidate( p->charge(), math::XYZTLorentzVector(p->outerTrack()->innerPosition().x(), p->outerTrack()->innerPosition().y(), p->outerTrack()->innerPosition().z(), 0.) ) );
+    for(const auto & p : *recoMuonsHandle){
+      if(p.isGlobalMuon()){
+        globMuons.push_back(p);
+        globMuons_position.push_back( LeafCandidate( p.charge(), math::XYZTLorentzVector(p.outerTrack()->innerPosition().x(), p.outerTrack()->innerPosition().y(), p.outerTrack()->innerPosition().z(), 0.) ) );
       }
     }
   }else{
@@ -340,16 +340,16 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
         if( filterNamesLevels[i].second==1 ){
           vector<L1MuonParticleRef> l1Cands;
           rawTriggerEvent->getObjects( index, TriggerL1Mu, l1Cands );
-          for(size_t j=0; j<l1Cands.size(); j++){
-            muonsAtFilter[i].push_back(*l1Cands[j]);
+          for(auto & l1Cand : l1Cands){
+            muonsAtFilter[i].push_back(*l1Cand);
           }
         }else{
           vector<RecoChargedCandidateRef> hltCands;        
           rawTriggerEvent->getObjects( index, TriggerMuon, hltCands );
-          for(size_t j=0; j<hltCands.size(); j++){
-            muonsAtFilter[i].push_back(*hltCands[j]);
+          for(auto & hltCand : hltCands){
+            muonsAtFilter[i].push_back(*hltCand);
             if( filterNamesLevels[i].second==2 ){
-              muonPositionsAtFilter[i].push_back( LeafCandidate( hltCands[j]->charge(), math::XYZTLorentzVector(hltCands[j]->track()->innerPosition().x(), hltCands[j]->track()->innerPosition().y(), hltCands[j]->track()->innerPosition().z(), 0.) ) );
+              muonPositionsAtFilter[i].push_back( LeafCandidate( hltCand->charge(), math::XYZTLorentzVector(hltCand->track()->innerPosition().x(), hltCand->track()->innerPosition().y(), hltCand->track()->innerPosition().z(), 0.) ) );
             }
           }
         }
@@ -370,8 +370,8 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     for(int i=0; i<aodTriggerEvent->sizeFilters(); i++){         
      if(aodTriggerEvent->filterTag(i)==InputTag((filterNamesLevels.end()-1)->first,"",triggerProcessName)){
         Keys keys = aodTriggerEvent->filterKeys(i);
-        for(size_t j=0; j<keys.size(); j++){
-          pathMuons.push_back( LeafCandidate( allObjects[keys[j]].id()>0 ? 1 : -1, math::PtEtaPhiMLorentzVector( allObjects[keys[j]].pt(), allObjects[keys[j]].eta(), allObjects[keys[j]].phi(), muonMass ) ) );
+        for(unsigned short key : keys){
+          pathMuons.push_back( LeafCandidate( allObjects[key].id()>0 ? 1 : -1, math::PtEtaPhiMLorentzVector( allObjects[key].pt(), allObjects[key].eta(), allObjects[key].phi(), muonMass ) ) );
         }
       }
     }

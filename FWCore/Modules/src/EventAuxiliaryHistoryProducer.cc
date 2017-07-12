@@ -45,8 +45,8 @@ namespace edm {
 
     //Serialize into std::vector 
     auto result = std::make_unique<std::vector<EventAuxiliary>>();
-    for(size_t j = 0; j < history_.size(); ++j) { 
-      result->push_back(history_[j]);
+    for(const auto & j : history_) { 
+      result->push_back(j);
     }
     e.put(std::move(result));
   }

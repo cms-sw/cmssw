@@ -133,9 +133,8 @@ void ObjectViewCleaner<T>::produce(edm::Event& iEvent,const edm::EventSetup& iSe
       const T& candidate = candidates->at(iObject);
       if (!objKeepCut_(candidate)) isClean[iObject] = false;
 
-      for (unsigned int iObj=0;iObj<objects->size();iObj++) {
-	const reco::Candidate& obj = objects->at(iObj);
-	if (!objRemoveCut_(obj)) continue;
+      for (const auto & obj : *objects) {
+		if (!objRemoveCut_(obj)) continue;
 
 	double deltaR = reco::deltaR(candidate,obj);
 	if (deltaR<deltaRMin_)  isClean[iObject] = false;

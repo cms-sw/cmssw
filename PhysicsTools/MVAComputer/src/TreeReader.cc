@@ -288,9 +288,8 @@ void TreeReader::update()
 			<< "No TTree set in TreeReader::automaticAdd."
 			<< std::endl;
 
-	for(std::map<AtomicId, Value>::iterator iter = valueMap.begin();
-	    iter != valueMap.end(); iter++)
-		iter->second.update(this);
+	for(auto & iter : valueMap)
+		iter.second.update(this);
 
 	upToDate = true;
 }
@@ -342,9 +341,8 @@ Variable::ValueList TreeReader::fill()
 std::vector<AtomicId> TreeReader::variables() const
 {
 	std::vector<AtomicId> result;
-	for(std::map<AtomicId, Value>::const_iterator iter = valueMap.begin();
-	    iter != valueMap.end(); iter++)
-		result.push_back(iter->first);
+	for(const auto & iter : valueMap)
+		result.push_back(iter.first);
 
 	return result;
 }
@@ -406,9 +404,8 @@ void TreeReader::Value::fill(AtomicId name, TreeReader *reader) const
 				static_cast<const std::vector<Double_t>*>(ptr);
 			if (!values)
 				values = &reader->multiDouble[index].second;
-			for(std::vector<Double_t>::const_iterator iter =
-				values->begin(); iter != values->end(); iter++)
-				reader->values.add(name, *iter);
+			for(double value : *values)
+				reader->values.add(name, value);
 			break;
 		    }
 		    case 'F': {
@@ -416,9 +413,8 @@ void TreeReader::Value::fill(AtomicId name, TreeReader *reader) const
 				static_cast<const std::vector<Float_t>*>(ptr);
 			if (!values)
 				values = &reader->multiFloat[index].second;
-			for(std::vector<Float_t>::const_iterator iter =
-				values->begin(); iter != values->end(); iter++)
-				reader->values.add(name, *iter);
+			for(float value : *values)
+				reader->values.add(name, value);
 			break;
 		    }
 		    case 'I': {
@@ -426,9 +422,8 @@ void TreeReader::Value::fill(AtomicId name, TreeReader *reader) const
 				static_cast<const std::vector<Int_t>*>(ptr);
 			if (!values)
 				values = &reader->multiInt[index].second;
-			for(std::vector<Int_t>::const_iterator iter =
-				values->begin(); iter != values->end(); iter++)
-				reader->values.add(name, *iter);
+			for(int value : *values)
+				reader->values.add(name, value);
 			break;
 		    }
 		    case 'B': {
@@ -436,9 +431,8 @@ void TreeReader::Value::fill(AtomicId name, TreeReader *reader) const
 				static_cast<const std::vector<Bool_t>*>(ptr);
 			if (!values)
 				values = &reader->multiBool[index].second;
-			for(std::vector<Bool_t>::const_iterator iter =
-				values->begin(); iter != values->end(); iter++)
-				reader->values.add(name, *iter);
+			for(const_reference value : *values)
+				reader->values.add(name, value);
 			break;
 		    }
 		}

@@ -102,12 +102,10 @@ void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   cout << "**********************" << endl;
   cout << "* OneToOne Printout  *" << endl;
   cout << "**********************" << endl;
-  for( CandViewMatchMap::const_iterator f  = matchedjetsOne1->begin();
-                                        f != matchedjetsOne1->end();
-                                        f++) {
+  for(const auto & f : *matchedjetsOne1) {
 
-      const Candidate *sourceRef = &*(f->key);
-      const Candidate *matchRef  = &*(f->val);
+      const Candidate *sourceRef = &*(f.key);
+      const Candidate *matchRef  = &*(f.val);
       dR= DeltaR( sourceRef->p4() , matchRef->p4() );
       totalLenght+=dR;
 
@@ -126,12 +124,10 @@ void matchOneToOne::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
   cout << "-----------------" << endl;
 
-  for( CandViewMatchMap::const_iterator f  = matchedjetsOne2->begin();
-                                        f != matchedjetsOne2->end();
-                                        f++) {
+  for(const auto & f : *matchedjetsOne2) {
 
-      const Candidate *sourceRef = &*(f->key);
-      const Candidate *matchRef  = &*(f->val);
+      const Candidate *sourceRef = &*(f.key);
+      const Candidate *matchRef  = &*(f.val);
       dR= DeltaR( sourceRef->p4() , matchRef->p4() );
       printf("[matchOneToOne mtc2src] (pt,eta,phi) source = %6.2f %5.2f %5.2f matched = %6.2f %5.2f %5.2f dR=%5.3f\n",
              sourceRef->et(),

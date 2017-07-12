@@ -70,9 +70,8 @@ MuonServiceProxy::MuonServiceProxy(const edm::ParameterSet& par):theTrackingGeom
   if(propagatorNames.empty())
     LogDebug("Muon|RecoMuon|MuonServiceProxy") << "NO propagator(s) selected!";
   
-  for(vector<string>::iterator propagatorName = propagatorNames.begin();
-      propagatorName != propagatorNames.end(); ++propagatorName)
-    thePropagators[ *propagatorName ] = ESHandle<Propagator>(0);
+  for(auto & propagatorName : propagatorNames)
+    thePropagators[ propagatorName ] = ESHandle<Propagator>(0);
 
   theCacheId_GTG = 0;
   theCacheId_MG = 0;  
@@ -140,9 +139,8 @@ void MuonServiceProxy::update(const edm::EventSetup& setup){
     LogTrace(metname) << "Tracking Component changed!";
     theChangeInTrackingComponentsRecord = true;
     theCacheId_P = newCacheId_P;
-    for(propagators::iterator prop = thePropagators.begin(); prop != thePropagators.end();
-	++prop)
-      setup.get<TrackingComponentsRecord>().get( prop->first , prop->second );
+    for(auto & thePropagator : thePropagators)
+      setup.get<TrackingComponentsRecord>().get( thePropagator.first , thePropagator.second );
   }
   else
     theChangeInTrackingComponentsRecord = false;

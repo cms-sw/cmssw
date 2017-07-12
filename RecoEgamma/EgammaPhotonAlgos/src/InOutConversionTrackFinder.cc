@@ -73,19 +73,19 @@ std::vector<Trajectory> InOutConversionTrackFinder::tracks(const TrajectorySeedC
 
   // Loop over the seeds
   int goodSeed=0;
-  for(TrajectorySeedCollection::const_iterator iSeed=inOutSeeds.begin(); iSeed!=inOutSeeds.end();iSeed++){
-    if (!theSeedCleaner_ || theSeedCleaner_->good(&(*iSeed))) {
+  for(const auto & inOutSeed : inOutSeeds){
+    if (!theSeedCleaner_ || theSeedCleaner_->good(&inOutSeed)) {
     goodSeed++;
     
-    LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks hits in the seed " << iSeed->nHits() << "\n";
-    LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks seed starting state position  " << iSeed->startingState().parameters().position() << " momentum " <<  iSeed->startingState().parameters().momentum() << " charge " << iSeed->startingState().parameters().charge() << "\n";
-    LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks seed  starting state para, vector  " << iSeed->startingState().parameters().vector() << "\n";
+    LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks hits in the seed " << inOutSeed.nHits() << "\n";
+    LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks seed starting state position  " << inOutSeed.startingState().parameters().position() << " momentum " <<  inOutSeed.startingState().parameters().momentum() << " charge " << inOutSeed.startingState().parameters().charge() << "\n";
+    LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::tracks seed  starting state para, vector  " << inOutSeed.startingState().parameters().vector() << "\n";
      
 
     
     std::vector<Trajectory> theTmpTrajectories;
 
-    theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(*iSeed);
+    theTmpTrajectories = theCkfTrajectoryBuilder_->trajectories(inOutSeed);
     
     LogDebug("InOutConversionTrackFinder") << " InOutConversionTrackFinder::track returned " << theTmpTrajectories.size() << " trajectories for this seed " << "\n";
     

@@ -108,8 +108,8 @@ MultiplicityCorrelator::MultiplicityCorrelator(const edm::ParameterSet& iConfig)
 MultiplicityCorrelator::~MultiplicityCorrelator()
 {
 
-  for(unsigned int i=0;i<m_mchms.size();++i) {
-    delete m_mchms[i];
+  for(auto & m_mchm : m_mchms) {
+    delete m_mchm;
   }
 
 }
@@ -162,8 +162,8 @@ MultiplicityCorrelator::beginJob()
 void
 MultiplicityCorrelator::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup) {
 
-  for(unsigned int i=0;i<m_mchms.size();++i) {
-    m_mchms[i]->beginRun(iRun);
+  for(auto & m_mchm : m_mchms) {
+    m_mchm->beginRun(iRun);
   }
 }
 // ------------ method called once each job just after ending the event loop  ------------

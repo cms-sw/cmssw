@@ -571,28 +571,27 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                    }
                    */
 
-                for (std::vector<reco::MuonChamberMatch>::const_iterator chamberMatch = m_recoMuon->matches().begin();  
-                        chamberMatch != m_recoMuon->matches().end();  chamberMatch++)
+                for (const auto & chamberMatch : m_recoMuon->matches())
                 {
-                    if (chamberMatch->id.det() != DetId::Muon ) continue;
+                    if (chamberMatch.id.det() != DetId::Muon ) continue;
 
-                    for (std::vector<reco::MuonSegmentMatch>::const_iterator segMatch = chamberMatch->segmentMatches.begin();
-                            segMatch != chamberMatch->segmentMatches.end();  ++segMatch)
+                    for (std::vector<reco::MuonSegmentMatch>::const_iterator segMatch = chamberMatch.segmentMatches.begin();
+                            segMatch != chamberMatch.segmentMatches.end();  ++segMatch)
                     {
                         // select the only segment that belongs to track and is the best in station by dR
                         if (! (segMatch->isMask(reco::MuonSegmentMatch::BestInStationByDR) &&
                                     segMatch->isMask(reco::MuonSegmentMatch::BelongsToTrackByDR)) ) continue;
 
-                        if (chamberMatch->id.subdetId() == MuonSubdetId::DT)
+                        if (chamberMatch.id.subdetId() == MuonSubdetId::DT)
                         {
-                            const DTChamberId chamberId(chamberMatch->id.rawId());
+                            const DTChamberId chamberId(chamberMatch.id.rawId());
 
                             DTRecSegment4DRef segmentDT = segMatch->dtSegmentRef;
                             const DTRecSegment4D* segment = segmentDT.get();
                             if (segment == 0)  continue;
 
-                            if ( segment->hasPhi()  &&  fabs(chamberMatch->x - segMatch->x) > maxResidual ) continue;
-                            if ( segment->hasZed()  &&  fabs(chamberMatch->y - segMatch->y) > maxResidual ) continue;
+                            if ( segment->hasPhi()  &&  fabs(chamberMatch.x - segMatch->x) > maxResidual ) continue;
+                            if ( segment->hasZed()  &&  fabs(chamberMatch.y - segMatch->y) > maxResidual ) continue;
 
                             // have we seen this chamber before?
                             if (m_dt13.find(chamberId) == m_dt13.end()  &&  m_dt2.find(chamberId) == m_dt2.end()) {
@@ -608,7 +607,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                     //            m_dt2[chamberId] = new MuonTrackDT2ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
                                 }
                                 else if (m_debug) std::cout<<"multi segment match to tmuon: dt2  -- should not happen!"<<std::endl;
-                                m_dt2[chamberId]->setSegmentResidual(&(*chamberMatch), &(*segMatch));
+                                m_dt2[chamberId]->setSegmentResidual(&chamberMatch, &(*segMatch));
                             }
                             if (segment->hasPhi())
                             {
@@ -619,16 +618,16 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                     //            m_dt13[chamberId] = new MuonTrackDT13ChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
                                 }
                                 else if (m_debug) std::cout<<"multi segment match to tmuon: dt13  -- should not happen!"<<std::endl;
-                                m_dt13[chamberId]->setSegmentResidual(&(*chamberMatch), &(*segMatch));
+                                m_dt13[chamberId]->setSegmentResidual(&chamberMatch, &(*segMatch));
                             }
                         }
 
-                        else if (chamberMatch->id.subdetId() == MuonSubdetId::CSC) 
+                        else if (chamberMatch.id.subdetId() == MuonSubdetId::CSC) 
                         {
-                            const CSCDetId cscDetId(chamberMatch->id.rawId());
+                            const CSCDetId cscDetId(chamberMatch.id.rawId());
                             const CSCDetId chamberId(cscDetId.chamberId());
 
-                            if ( fabs(chamberMatch->x - segMatch->x) > maxResidual ) continue;
+                            if ( fabs(chamberMatch.x - segMatch->x) > maxResidual ) continue;
 
                             // have we seen this chamber before?
                             if (m_csc.find(chamberId) == m_csc.end())
@@ -639,7 +638,7 @@ MuonResidualsFromTrack::MuonResidualsFromTrack(const edm::EventSetup& iSetup,
                                 //          m_csc[chamberId] = new MuonTrackCSCChamberResidual(globalGeometry, navigator, chamberId, chamberAlignable);
                             }
                             else if (m_debug) std::cout<<"multi segment match to tmuon: csc  -- should not happen!"<<std::endl;
-                            m_csc[chamberId]->setSegmentResidual(&(*chamberMatch), &(*segMatch));
+                            m_csc[chamberId]->setSegmentResidual(&chamberMatch, &(*segMatch));
                         }
 
                     }

@@ -171,10 +171,9 @@ namespace edmtest {
         assert(!proc_pset.existsAs<edm::ParameterSet>(*i,true));
         assert(proc_pset.existsAs<edm::ParameterSet>(*i,false));
         bool isInRegistry = false;
-        for (edm::pset::Registry::const_iterator j = reg->begin(), jEnd = reg->end();
-             j != jEnd; ++j) {
-          if (j->second.exists("@module_label")) {
-            if (j->second.getParameter<std::string>("@module_label") == *i) isInRegistry = true;
+        for (auto & j : *reg) {
+          if (j.second.exists("@module_label")) {
+            if (j.second.getParameter<std::string>("@module_label") == *i) isInRegistry = true;
 	  }
         }
         assert(isInRegistry);

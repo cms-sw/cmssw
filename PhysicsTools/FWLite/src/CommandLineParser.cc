@@ -576,11 +576,8 @@ CommandLineParser::_setVariablesFromFile (const string &filename)
       // first '#'.
       string withspaces = line.substr (where);
       string nospaces;
-      for (int position = 0; 
-           position < (int) withspaces.length(); 
-           ++position)
+      for (char ch : withspaces)
       {
-         char ch = withspaces[position];
          if ('#' == ch)
          {
             // start of a comment

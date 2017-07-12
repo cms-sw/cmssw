@@ -12,12 +12,12 @@ bool EgTrigTagProbeCut::pass(const OffEle& theEle,const OffEvt& evt)const
   const OffEle* tagEle=NULL;
   const std::vector<OffEle>& eles = evt.eles();
   //we are looking for an *additional* tag
-  for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-    if( ((eles[eleNr].*cutCodeFunc_)() & cutCode_)==0x0 && (bitsToPass_&eles[eleNr].trigBits())==bitsToPass_){
+  for(const auto & ele : eles){
+    if( ((ele.*cutCodeFunc_)() & cutCode_)==0x0 && (bitsToPass_&ele.trigBits())==bitsToPass_){
       //now a check that the tag is not the same as the probe
-      if(reco::deltaR2(theEle.eta(),theEle.phi(),eles[eleNr].eta(),eles[eleNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe electron
+      if(reco::deltaR2(theEle.eta(),theEle.phi(),ele.eta(),ele.phi())>0.1*0.1){//not in a cone of 0.1 of probe electron
 	nrTags++;
-	tagEle = &eles[eleNr];
+	tagEle = &ele;
       }
     }
   }
@@ -40,12 +40,12 @@ bool EgTrigTagProbeCut_New::pass(const OffEle& theEle,const OffEvt& evt)const
   const OffEle* tagEle=NULL;
   const std::vector<OffEle>& eles = evt.eles();
   //we are looking for an *additional* tag
-  for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-    if( ((eles[eleNr].*cutCodeFunc_)() & cutCode_)==0x0 && (bit1ToPass_&eles[eleNr].trigBits())==bit1ToPass_){
+  for(const auto & ele : eles){
+    if( ((ele.*cutCodeFunc_)() & cutCode_)==0x0 && (bit1ToPass_&ele.trigBits())==bit1ToPass_){
       //now a check that the tag is not the same as the probe
-      if(reco::deltaR2(theEle.eta(),theEle.phi(),eles[eleNr].eta(),eles[eleNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe electron
+      if(reco::deltaR2(theEle.eta(),theEle.phi(),ele.eta(),ele.phi())>0.1*0.1){//not in a cone of 0.1 of probe electron
 	nrTags++;
-	tagEle = &eles[eleNr];
+	tagEle = &ele;
       }
     }
   }
@@ -69,12 +69,12 @@ bool EgTrigTagProbeCut_NewPho::pass(const OffPho& thePho,const OffEvt& evt)const
   const OffPho* tagPho=NULL;
   const std::vector<OffPho>& phos = evt.phos();
   //we are looking for an *additional* tag
-  for(size_t phoNr=0;phoNr<phos.size();phoNr++){
-    if( ((phos[phoNr].*cutCodeFunc_)() & cutCode_)==0x0 && (bit1ToPass_&phos[phoNr].trigBits())==bit1ToPass_){
+  for(const auto & pho : phos){
+    if( ((pho.*cutCodeFunc_)() & cutCode_)==0x0 && (bit1ToPass_&pho.trigBits())==bit1ToPass_){
       //now a check that the tag is not the same as the probe
-      if(reco::deltaR2(thePho.eta(),thePho.phi(),phos[phoNr].eta(),phos[phoNr].phi())>0.1*0.1){//not in a cone of 0.1 of probe "photon"
+      if(reco::deltaR2(thePho.eta(),thePho.phi(),pho.eta(),pho.phi())>0.1*0.1){//not in a cone of 0.1 of probe "photon"
 	nrTags++;
-	tagPho = &phos[phoNr];
+	tagPho = &pho;
       }
     }
   }
@@ -89,10 +89,10 @@ bool EgTrigTagProbeCut_NewPho::pass(const OffPho& thePho,const OffEvt& evt)const
 bool EgDiEleCut::pass(const OffEle& obj,const OffEvt& evt)const
 {
   const std::vector<OffEle>& eles = evt.eles();
-  for(size_t eleNr=0;eleNr<eles.size();eleNr++){
-    if(&eles[eleNr]!=&obj){ //different electrons
+  for(const auto & ele : eles){
+    if(&ele!=&obj){ //different electrons
      
-      int diEleCutCode = (obj.*cutCodeFunc_)() | (eles[eleNr].*cutCodeFunc_)();
+      int diEleCutCode = (obj.*cutCodeFunc_)() | (ele.*cutCodeFunc_)();
       if( (diEleCutCode & cutCode_)==0x0) return true;
     }
   }
@@ -104,10 +104,10 @@ bool EgDiEleCut::pass(const OffEle& obj,const OffEvt& evt)const
 bool EgDiPhoCut::pass(const OffPho& obj,const OffEvt& evt)const
 {
   const std::vector<OffPho>& phos = evt.phos();
-  for(size_t phoNr=0;phoNr<phos.size();phoNr++){
-    if(&phos[phoNr]!=&obj){ //different phos
+  for(const auto & pho : phos){
+    if(&pho!=&obj){ //different phos
      
-      int diPhoCutCode = (obj.*cutCodeFunc_)() | (phos[phoNr].*cutCodeFunc_)();
+      int diPhoCutCode = (obj.*cutCodeFunc_)() | (pho.*cutCodeFunc_)();
       if( (diPhoCutCode & cutCode_)==0x0) return true;
     }
   }

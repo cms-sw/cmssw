@@ -105,10 +105,9 @@ int AlignableDataIO::writeAbsPos(const align::Alignables& alivec,
 {
 
   int icount=0;
-  for( align::Alignables::const_iterator it=alivec.begin();
-       it!=alivec.end(); ++it ) 
+  for(auto it : alivec) 
     {
-      int iret = writeAbsPos(*it,validCheck);
+      int iret = writeAbsPos(it,validCheck);
       if (iret==0) icount++;
     }
   LogDebug("WriteAbsPos") << "all,written: " << alivec.size() <<","<< icount;
@@ -126,10 +125,9 @@ AlignableDataIO::readAbsPos(const align::Alignables& alivec, int& ierr)
   AlignablePositions retvec;
   int ierr2=0;
   ierr=0;
-  for( align::Alignables::const_iterator it=alivec.begin();
-       it!=alivec.end(); ++it ) 
+  for(auto it : alivec) 
     {
-      AlignableAbsData ad=readAbsPos(*it, ierr2);
+      AlignableAbsData ad=readAbsPos(it, ierr2);
       if (ierr2==0) retvec.push_back(ad);
     }
   
@@ -146,10 +144,9 @@ int AlignableDataIO::writeOrgPos( const align::Alignables& alivec,
 {
 
   int icount=0;
-  for( align::Alignables::const_iterator it=alivec.begin();
-       it!=alivec.end(); ++it ) 
+  for(auto it : alivec) 
     {
-      int iret=writeOrgPos(*it,validCheck);
+      int iret=writeOrgPos(it,validCheck);
       if (iret==0) icount++;
     }
   
@@ -167,10 +164,9 @@ AlignableDataIO::readOrgPos(const align::Alignables& alivec, int& ierr)
   AlignablePositions retvec;
   int ierr2=0;
   ierr=0;
-  for( align::Alignables::const_iterator it=alivec.begin();
-       it!=alivec.end(); ++it ) 
+  for(auto it : alivec) 
     {
-      AlignableAbsData ad=readOrgPos(*it, ierr2);
+      AlignableAbsData ad=readOrgPos(it, ierr2);
       if (ierr2==0) retvec.push_back(ad);
     }
 
@@ -187,9 +183,8 @@ int AlignableDataIO::writeRelPos(const align::Alignables& alivec,
 {
 
   int icount=0;
-  for( align::Alignables::const_iterator it=alivec.begin();
-       it!=alivec.end(); ++it ) {
-    int iret=writeRelPos(*it,validCheck);
+  for(auto it : alivec) {
+    int iret=writeRelPos(it,validCheck);
     if (iret==0) icount++;
   }
   LogDebug("WriteRelPos") << "all,written: " << alivec.size() <<", "<< icount;
@@ -206,10 +201,9 @@ AlignableDataIO::readRelPos(const align::Alignables& alivec, int& ierr)
   AlignableShifts retvec;
   int ierr2=0;
   ierr=0;
-  for( align::Alignables::const_iterator it=alivec.begin();
-       it!=alivec.end(); ++it ) 
+  for(auto it : alivec) 
     {
-      AlignableRelData ad=readRelPos(*it, ierr2);
+      AlignableRelData ad=readRelPos(it, ierr2);
       if (ierr2==0) retvec.push_back(ad);
     }
   LogDebug("ReadRelPos") << "all,read: " << alivec.size() <<", "<< retvec.size();

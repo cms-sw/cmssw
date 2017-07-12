@@ -106,10 +106,9 @@ void SiStripMonitorTrack::analyze(const edm::Event& e, const edm::EventSetup& es
   iLumisection = e.orbitNumber()/262144.0;
 
   // initialise # of clusters
-  for (std::map<std::string, SubDetMEs>::iterator iSubDet = SubDetMEsMap.begin();
-       iSubDet != SubDetMEsMap.end(); iSubDet++) {
-    iSubDet->second.totNClustersOnTrack = 0;
-    iSubDet->second.totNClustersOffTrack = 0;
+  for (auto & iSubDet : SubDetMEsMap) {
+    iSubDet.second.totNClustersOnTrack = 0;
+    iSubDet.second.totNClustersOffTrack = 0;
   }
 
   //Perform track study
@@ -1150,11 +1149,10 @@ void SiStripMonitorTrack::AllClusters(const edm::Event& ev, const edm::EventSetu
       LogDebug("SiStripMonitorTrack") << "on detid "<< detid << " N Cluster= " << DSViter->size();
 
       //Loop on Clusters
-      for(edmNew::DetSet<SiStripCluster>::const_iterator ClusIter = DSViter->begin(), ClusEnd = DSViter->end();
-          ClusIter!=ClusEnd; ++ClusIter) {
+      for(const auto & ClusIter : *DSViter) {
 
-        if (vPSiStripCluster.find(&*ClusIter) == vPSiStripCluster.end()) {
-          SiStripClusterInfo SiStripClusterInfo_(*ClusIter,es,detid);
+        if (vPSiStripCluster.find(&ClusIter) == vPSiStripCluster.end()) {
+          SiStripClusterInfo SiStripClusterInfo_(ClusIter,es,detid);
 	  //          clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs, tTopo,stripGain,stripQuality,*digihandle);
           clusterInfos(&SiStripClusterInfo_,detid,OffTrack, /*track_ok*/ false,LV,MEs, tTopo,stripGain,stripQuality,digilist);
         }

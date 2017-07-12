@@ -34,7 +34,7 @@ public:
 
   /// Set the errors
    void setErrors(const std::vector<float> & er) {
-   for(unsigned int i=0;i<er.size();i++) ery.push_back(er[i]); 
+   for(float i : er) ery.push_back(i); 
  };
 
   /// Set the norm (if needed)

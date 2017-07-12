@@ -204,26 +204,26 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
 
 
   //loop over electrons
-  for (reco::GsfElectronCollection::const_iterator iele = gsfElectronCollection.begin(); iele!=gsfElectronCollection.end(); ++iele) {
+  for (const auto & iele : gsfElectronCollection) {
     //apply basic pre-selection cuts to remove the conversions with obviously displaced tracks which will anyways be
     //removed from the analysis by the hit pattern or impact parameter requirements
-    if (iele->pt() < elePtMin_) continue;
-    if (iele->gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > eleExpectedHitsInnerMax_) continue;
-    if ( std::abs(iele->gsfTrack()->dxy(thevtx.position())) > eleD0Max_ ) continue;
+    if (iele.pt() < elePtMin_) continue;
+    if (iele.gsfTrack()->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) > eleExpectedHitsInnerMax_) continue;
+    if ( std::abs(iele.gsfTrack()->dxy(thevtx.position())) > eleD0Max_ ) continue;
 
     //fill information for all electrons
-    h_elePtAll_->Fill(iele->pt());
-    h_eleEtaAll_->Fill(iele->eta());
-    h_elePhiAll_->Fill(iele->phi());
+    h_elePtAll_->Fill(iele.pt());
+    h_eleEtaAll_->Fill(iele.eta());
+    h_elePhiAll_->Fill(iele.phi());
 
 
     //find matching conversion if any
-    reco::ConversionRef convref = ConversionTools::matchedConversion(*iele,convHandle,thebs.position());
+    reco::ConversionRef convref = ConversionTools::matchedConversion(iele,convHandle,thebs.position());
     //fill information on passing electrons only if there is no matching conversion (electron passed the conversion rejection cut!)
     if (convref.isNull()) {
-      h_elePtPass_->Fill(iele->pt());
-      h_eleEtaPass_->Fill(iele->eta());
-      h_elePhiPass_->Fill(iele->phi());
+      h_elePtPass_->Fill(iele.pt());
+      h_eleEtaPass_->Fill(iele.eta());
+      h_elePhiPass_->Fill(iele.phi());
     }
     else {
       //matching conversion, electron failed conversion rejection cut
@@ -232,9 +232,9 @@ void ElectronConversionRejectionValidator::analyze( const edm::Event& e, const e
       //which is most likely to be the conversion of the primary photon in case there was one.)
 
       //fill electron info
-      h_elePtFail_->Fill(iele->pt());
-      h_eleEtaFail_->Fill(iele->eta());
-      h_elePhiFail_->Fill(iele->phi());
+      h_elePtFail_->Fill(iele.pt());
+      h_eleEtaFail_->Fill(iele.eta());
+      h_elePhiFail_->Fill(iele.phi());
 
       //fill conversion info
       math::XYZVectorF convmom = convref->refittedPairMomentum();

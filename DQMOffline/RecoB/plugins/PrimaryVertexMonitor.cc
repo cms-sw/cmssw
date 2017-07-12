@@ -135,10 +135,10 @@ PrimaryVertexMonitor::bookHistograms(DQMStore::IBooker &iBooker,
 
   type[0] = iBooker.book1D("otherType","Vertex type (other Vtx)",3,-0.5,2.5);
   type[1] = iBooker.book1D("tagType","Vertex type (tagged Vtx)",3,-0.5,2.5);
-  for (int i=0;i<2;++i){
-    type[i]->getTH1F()->GetXaxis()->SetBinLabel(1,"Valid, real");
-    type[i]->getTH1F()->GetXaxis()->SetBinLabel(2,"Valid, fake");
-    type[i]->getTH1F()->GetXaxis()->SetBinLabel(3,"Invalid");
+  for (auto & i : type){
+    i->getTH1F()->GetXaxis()->SetBinLabel(1,"Valid, real");
+    i->getTH1F()->GetXaxis()->SetBinLabel(2,"Valid, fake");
+    i->getTH1F()->GetXaxis()->SetBinLabel(3,"Invalid");
   }
 
 

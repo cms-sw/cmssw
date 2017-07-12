@@ -38,8 +38,8 @@ namespace ecaldqm
     }
     void append(std::set<Collections> const& _s)
     {
-      for(std::set<Collections>::const_iterator sItr(_s.begin()); sItr != _s.end(); ++sItr)
-        append(*sItr);
+      for(auto _ : _s)
+        append(_);
     }
   };
 
@@ -58,9 +58,9 @@ namespace ecaldqm
     std::vector<Collections> formSequence() const
     {
       std::vector<Collections> sequence;
-      for(unsigned iD(0); iD < set_.size(); iD++){
-        if(std::find(sequence.begin(), sequence.end(), set_[iD].dependant) != sequence.end()) continue;
-        formSequenceFragment_(set_[iD], sequence, sequence.end());
+      for(const auto & iD : set_){
+        if(std::find(sequence.begin(), sequence.end(), iD.dependant) != sequence.end()) continue;
+        formSequenceFragment_(iD, sequence, sequence.end());
       }
       return sequence;
     }

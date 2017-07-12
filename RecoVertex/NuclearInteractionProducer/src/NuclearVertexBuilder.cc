@@ -230,13 +230,11 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
         if ((j<=i))continue;
         int noverlap=0;
         std::vector<const TrackingRecHit*>& iHits = rh[track];
-        for ( unsigned ih=0; ih<iHits.size(); ++ih ) {
-          const TrackingRecHit* it = iHits[ih];
+        for (auto it : iHits) {
           if (it->isValid()){
             std::vector<const TrackingRecHit*>& jHits = rh[track2];
-            for ( unsigned ih2=0; ih2<jHits.size(); ++ih2 ) {
-            const TrackingRecHit* jt = jHits[ih2];
-              if (jt->isValid()){
+            for (auto jt : jHits) {
+            if (jt->isValid()){
                 const TrackingRecHit* kt = jt;
                 if ( it->sharesInput(kt,TrackingRecHit::some) )noverlap++;
                }
@@ -271,8 +269,8 @@ void NuclearVertexBuilder::cleanTrackCollection( const reco::TrackRef& primTrack
 void NuclearVertexBuilder::checkEnergy( const reco::TrackRef& primTrack,
                                         std::vector<reco::TrackRef>& tC) const {
    float totalEnergy=0;
-   for(size_t i=0; i< tC.size(); ++i) {
-     totalEnergy += tC[i]->p();
+   for(auto & i : tC) {
+     totalEnergy += i->p();
    }
    if( totalEnergy > primTrack->p()+0.1*primTrack->p() ) {
            tC.pop_back();

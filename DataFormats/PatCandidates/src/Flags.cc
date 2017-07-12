@@ -40,8 +40,8 @@ Flags::get( const std::string & str ) {
 uint32_t
 Flags::get( const std::vector<std::string> & strs ) {
     uint32_t ret = 0;
-    for (std::vector<std::string>::const_iterator it = strs.begin(), ed = strs.end(); it != ed; ++it) {
-        ret |= get( *it );
+    for (const auto & str : strs) {
+        ret |= get( str );
     }
     return ret;
 }
@@ -80,8 +80,8 @@ Flags::Core::get ( const std::string & instr ) {
 uint32_t
 Flags::Core::get ( const std::vector<std::string> & strs ) {
     uint32_t ret = 0;
-    for (std::vector<std::string>::const_iterator it = strs.begin(), ed = strs.end(); it != ed; ++it) {
-        ret |= get( *it );
+    for (const auto & str : strs) {
+        ret |= get( str );
     }
     return ret;
 }
@@ -151,8 +151,8 @@ Flags::Selection::get ( const std::string & instr ) {
 uint32_t
 Flags::Selection::get ( const std::vector<std::string> & strs ) {
     uint32_t ret = 0;
-    for (std::vector<std::string>::const_iterator it = strs.begin(), ed = strs.end(); it != ed; ++it) {
-        ret |= get( *it );
+    for (const auto & str : strs) {
+        ret |= get( str );
     }
     return ret;
 }
@@ -206,8 +206,8 @@ Flags::Overlap::get ( const std::string & instr ) {
 uint32_t
 Flags::Overlap::get ( const std::vector<std::string> & strs ) {
     uint32_t ret = 0;
-    for (std::vector<std::string>::const_iterator it = strs.begin(), ed = strs.end(); it != ed; ++it) {
-        ret |= get( *it );
+    for (const auto & str : strs) {
+        ret |= get( str );
     }
     return ret;
 }
@@ -264,8 +264,8 @@ Flags::Isolation::get ( const std::string & instr ) {
 uint32_t
 Flags::Isolation::get ( const std::vector<std::string> & strs ) {
     uint32_t ret = 0;
-    for (std::vector<std::string>::const_iterator it = strs.begin(), ed = strs.end(); it != ed; ++it) {
-        ret |= get( *it );
+    for (const auto & str : strs) {
+        ret |= get( str );
     }
     return ret;
 }

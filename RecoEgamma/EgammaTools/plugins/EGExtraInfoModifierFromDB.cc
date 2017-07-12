@@ -215,16 +215,12 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
     }    
   }
 
-  for (std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = e_conf.tag_float_token_map.begin(); 
-       imap != e_conf.tag_float_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, ele_vmaps);
+  for (auto & imap : e_conf.tag_float_token_map) {
+    get_product(evt, imap.second.second, ele_vmaps);
   }
 
-  for (std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = e_conf.tag_int_token_map.begin(); 
-       imap != e_conf.tag_int_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, ele_int_vmaps);
+  for (auto & imap : e_conf.tag_int_token_map) {
+    get_product(evt, imap.second.second, ele_int_vmaps);
   }
   
   if( !ph_conf.tok_photon_src.isUninitialized() ) {
@@ -238,16 +234,12 @@ void EGExtraInfoModifierFromDB::setEvent(const edm::Event& evt) {
   }
    
 
-  for (std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = ph_conf.tag_float_token_map.begin(); 
-       imap != ph_conf.tag_float_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, pho_vmaps);
+  for (auto & imap : ph_conf.tag_float_token_map) {
+    get_product(evt, imap.second.second, pho_vmaps);
   }
 
-  for (std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = ph_conf.tag_int_token_map.begin(); 
-       imap != ph_conf.tag_int_token_map.end(); 
-       imap++) {
-    get_product(evt, imap->second.second, pho_int_vmaps);
+  for (auto & imap : ph_conf.tag_int_token_map) {
+    get_product(evt, imap.second.second, pho_int_vmaps);
   }
   
   edm::Handle<double> rhoH;
@@ -316,32 +308,24 @@ void EGExtraInfoModifierFromDB::setConsumes(edm::ConsumesCollector& sumes) {
   if(!(empty_tag == e_conf.electron_src))
     e_conf.tok_electron_src = sumes.consumes<edm::View<pat::Electron> >(e_conf.electron_src);  
 
-  for ( std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = e_conf.tag_float_token_map.begin(); 
-	imap != e_conf.tag_float_token_map.end(); 
-	imap++) {
-    make_consumes(imap->second.first, imap->second.second, sumes);
+  for (auto & imap : e_conf.tag_float_token_map) {
+    make_consumes(imap.second.first, imap.second.second, sumes);
   }  
 
-  for ( std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = e_conf.tag_int_token_map.begin(); 
-	imap != e_conf.tag_int_token_map.end(); 
-	imap++) {
-    make_int_consumes(imap->second.first, imap->second.second, sumes);
+  for (auto & imap : e_conf.tag_int_token_map) {
+    make_int_consumes(imap.second.first, imap.second.second, sumes);
   }  
   
   // setup photons 
   if(!(empty_tag == ph_conf.photon_src)) 
     ph_conf.tok_photon_src = sumes.consumes<edm::View<pat::Photon> >(ph_conf.photon_src);
 
-  for ( std::unordered_map<std::string, ValMapFloatTagTokenPair>::iterator imap = ph_conf.tag_float_token_map.begin(); 
-	imap != ph_conf.tag_float_token_map.end(); 
-	imap++) {
-    make_consumes(imap->second.first, imap->second.second, sumes);
+  for (auto & imap : ph_conf.tag_float_token_map) {
+    make_consumes(imap.second.first, imap.second.second, sumes);
   }  
 
-  for ( std::unordered_map<std::string, ValMapIntTagTokenPair>::iterator imap = ph_conf.tag_int_token_map.begin(); 
-	imap != ph_conf.tag_int_token_map.end(); 
-	imap++) {
-    make_int_consumes(imap->second.first, imap->second.second, sumes);
+  for (auto & imap : ph_conf.tag_int_token_map) {
+    make_int_consumes(imap.second.first, imap.second.second, sumes);
   }  
 }
 

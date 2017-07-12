@@ -198,8 +198,8 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
     // Convert to CandidatePtr
     std::vector<reco::CandidatePtr> constituents;
     bool hasBHadron = false;
-    for ( size_t j=0, m=fjConstituents.size(); j<m; ++j ) {
-      const int index = fjConstituents[j].user_index();
+    for (const auto & fjConstituent : fjConstituents) {
+      const int index = fjConstituent.user_index();
       if ( bHadronIdxs.find(index) != bHadronIdxs.end() ) {
         hasBHadron = true;
         continue;
@@ -356,9 +356,9 @@ void PseudoTopProducer::produce(edm::Event& event, const edm::EventSetup& eventS
       // Continue to build leptonic pseudo top
       double minDR = 1e9;
       int selB1 = -1;
-      for ( auto b1Itr = bjetIdxs.begin(); b1Itr != bjetIdxs.end(); ++b1Itr ) {
-        const double dR = deltaR(jets->at(*b1Itr).p4(), w1LVec);
-        if ( dR < minDR ) { selB1 = *b1Itr; minDR = dR; }
+      for (unsigned long & bjetIdx : bjetIdxs) {
+        const double dR = deltaR(jets->at(bjetIdx).p4(), w1LVec);
+        if ( dR < minDR ) { selB1 = bjetIdx; minDR = dR; }
       }
       if ( selB1 == -1 ) break;
       const auto& bJet1 = jets->at(selB1);

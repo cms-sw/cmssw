@@ -499,17 +499,16 @@ RawTask::RawTask(edm::ParameterSet const& ps):
 		//	iterate over all flags:
 		//	- sum them all up in summary flag for this FED
 		//	- reset each flag right after using it
-		for (std::vector<flag::Flag>::iterator ft=_vflags.begin();
-			ft!=_vflags.end(); ++ft)
+		for (auto & _vflag : _vflags)
 		{
 			_cSummaryvsLS_FED.setBinContent(eid, _currentLS, int(iflag),
-				ft->_state);
-			fSum+=(*ft);
+				_vflag._state);
+			fSum+=_vflag;
 			iflag++;
 
 			//	this is the MUST! We don't keep flags per FED, reset
 			//	each one of them after using
-			ft->reset();
+			_vflag.reset();
 		}
 		_cSummaryvsLS.setBinContent(eid, _currentLS, fSum._state);
 	}

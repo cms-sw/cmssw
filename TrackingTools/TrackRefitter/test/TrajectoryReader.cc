@@ -135,25 +135,22 @@ void TrajectoryReader::analyze(const Event & event, const EventSetup& eventSetup
   LogTrace(metname) << "looking at: " << theInputLabel;
 
   LogTrace(metname) << "All trajectories";
-  for(Trajectories::const_iterator trajectory = trajectories->begin(); 
-      trajectory != trajectories->end(); ++trajectory)
-    printTrajectoryRecHits(*trajectory,trackingGeometry);
+  for(const auto & trajectory : *trajectories)
+    printTrajectoryRecHits(trajectory,trackingGeometry);
 
   LogTrace(metname) << "All tracks";
-  for (reco::TrackCollection::const_iterator tr = tracks->begin(); 
-       tr != tracks->end(); ++tr) 
-    printTrackRecHits(*tr,trackingGeometry);
+  for (const auto & tr : *tracks) 
+    printTrackRecHits(tr,trackingGeometry);
   
   
   Handle<TrajTrackAssociationCollection> assoMap;
   event.getByLabel(theInputLabel,assoMap);
 
   LogTrace(metname) << "Association";
-  for(TrajTrackAssociationCollection::const_iterator it = assoMap->begin();
-      it != assoMap->end(); ++it){
+  for(const auto & it : *assoMap){
 
-    const Ref<vector<Trajectory> > traj = it->key;
-    const reco::TrackRef tk = it->val;
+    const Ref<vector<Trajectory> > traj = it.key;
+    const reco::TrackRef tk = it.val;
 
     printTrackRecHits(*tk,trackingGeometry);
     printTrajectoryRecHits(*traj,trackingGeometry);

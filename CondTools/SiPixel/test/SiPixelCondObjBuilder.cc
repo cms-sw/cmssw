@@ -59,15 +59,15 @@ SiPixelCondObjBuilder::analyze(const edm::Event& iEvent, const edm::EventSetup& 
    iSetup.get<TrackerDigiGeometryRecord>().get( pDD );     
    edm::LogInfo("SiPixelCondObjBuilder") <<" There are "<<pDD->dets().size() <<" detectors"<<std::endl;
    
-   for(TrackerGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
-     if( dynamic_cast<PixelGeomDetUnit const*>((*it))!=0){
-       uint32_t detid=((*it)->geographicalId()).rawId();
+   for(auto it : pDD->dets()){
+     if( dynamic_cast<PixelGeomDetUnit const*>(it)!=0){
+       uint32_t detid=(it->geographicalId()).rawId();
        
        // Stop if module limit reached
        nmodules++;
        if( nmodules > numberOfModules_ ) break;
 
-       const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>((*it));
+       const PixelGeomDetUnit * pixDet  = dynamic_cast<const PixelGeomDetUnit*>(it);
        const PixelTopology & topol = pixDet->specificTopology();       
        // Get the module sizes.
        int nrows = topol.nrows();      // rows in x

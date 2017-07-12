@@ -388,11 +388,10 @@ TrackClusterSplitter::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
       Handle<TrajTrackAssociationCollection> trajectories; 
       iEvent.getByToken(trajTrackAssociations_, trajectories);
-      for ( TrajTrackAssociationCollection::const_iterator it = trajectories->begin(), 
-	      ed = trajectories->end(); it != ed; ++it ) 
+      for (const auto & it : *trajectories) 
 	{ 
-	  const Trajectory  & traj =  *it->key;
-	  const reco::Track * tk   = &*it->val;
+	  const Trajectory  & traj =  *it.key;
+	  const reco::Track * tk   = &*it.val;
 	  
 	  if ( traj.measurements().size() != tk->recHitsSize() ) 
 	    throw cms::Exception("Aargh") << "Sizes don't match: traj " << traj.measurements().size()  
@@ -746,8 +745,8 @@ void TrackClusterSplitter::splitCluster<SiStripCluster> (const SiStripClusterWit
 		  
 		  // gavril : This is never used. Will use it below 
 		  float clusterAmp = 0.0;
-		  for (size_t j=0; j<trackAmp[i].size(); ++j ) 
-		    clusterAmp += (float)(trackAmp[i])[j];
+		  for (unsigned short j : trackAmp[i]) 
+		    clusterAmp += (float)j;
 		  
 		  if ( clusterAmp > 0.0 && firstStrip[i] != 9999 && trackAmp[i].size() > 0  ) 
 		    { 
@@ -1274,11 +1273,11 @@ void TrackClusterSplitter::splitCluster<SiPixelCluster> (const SiPixelClusterWit
 		
 		const std::vector<SiPixelCluster::Pixel>& pixvector = (*c.cluster).pixels();
 		
-		for(std::vector<SiPixelCluster::Pixel>::const_iterator itPix = pixvector.begin(); itPix != pixvector.end(); itPix++)
+		for(auto itPix : pixvector)
 		  {
-		    if (((int) itPix->x) == ((int) pixel_coord.first)&&(((int) itPix->y) == ((int) pixel_coord.second)))
+		    if (((int) itPix.x) == ((int) pixel_coord.first)&&(((int) itPix.y) == ((int) pixel_coord.second)))
 		      {
-			newPixelCharge = (int) (linkiter->fraction()*itPix->adc); 
+			newPixelCharge = (int) (linkiter->fraction()*itPix.adc); 
 		      }
 		  }
 		

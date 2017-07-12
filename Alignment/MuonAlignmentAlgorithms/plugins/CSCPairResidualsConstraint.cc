@@ -94,8 +94,8 @@ bool CSCPairResidualsConstraint::addTrack(const std::vector<TrajectoryMeasuremen
   std::vector<const TransientTrackingRecHit*> hits_i;
   std::vector<const TransientTrackingRecHit*> hits_j;
 
-  for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();  measurement != measurements.end();  ++measurement) {
-    const TransientTrackingRecHit *hit = &*(measurement->recHit());
+  for (const auto & measurement : measurements) {
+    const TransientTrackingRecHit *hit = &*(measurement.recHit());
 
     DetId id = hit->geographicalId();
     if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
@@ -387,8 +387,8 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
   std::map<int,int> stations;
   int total = 0;
   TransientTrackingRecHit::ConstRecHitContainer cscHits;
-  for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements.begin();  measurement != measurements.end();  ++measurement) {
-    DetId id = measurement->recHit()->geographicalId();
+  for (const auto & measurement : measurements) {
+    DetId id = measurement.recHit()->geographicalId();
     if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::CSC) {
       CSCDetId cscid(id.rawId());
       CSCDetId chamberId(cscid.endcap(), cscid.station(), cscid.ring(), cscid.chamber(), 0);
@@ -402,7 +402,7 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
 	stations[station]++;
 	total++;
 
-	cscHits.push_back(measurement->recHit());
+	cscHits.push_back(measurement.recHit());
       }
     }
   }
@@ -426,17 +426,17 @@ bool CSCPairResidualsConstraint::dphidzFromTrack(const std::vector<TrajectoryMea
       bool found_plus = false;
       bool found_minus = false;
       TrajectoryStateOnSurface tsos_plus, tsos_minus;
-      for (std::vector<TrajectoryMeasurement>::const_iterator measurement = measurements2.begin();  measurement != measurements2.end();  ++measurement) {
-	double z = measurement->recHit()->globalPosition().z();
+      for (const auto & measurement : measurements2) {
+	double z = measurement.recHit()->globalPosition().z();
 	if (z > m_Zplane) {
 	  if (!found_plus  ||  fabs(z - m_Zplane) < fabs(tsos_plus.globalPosition().z() - m_Zplane)) {
-	    tsos_plus = TrajectoryStateCombiner().combine(measurement->forwardPredictedState(), measurement->backwardPredictedState());
+	    tsos_plus = TrajectoryStateCombiner().combine(measurement.forwardPredictedState(), measurement.backwardPredictedState());
 	  }
 	  if (tsos_plus.isValid()) found_plus = true;
 	}
 	else {
 	  if (!found_minus  ||  fabs(z - m_Zplane) < fabs(tsos_minus.globalPosition().z() - m_Zplane)) {
-	    tsos_minus = TrajectoryStateCombiner().combine(measurement->forwardPredictedState(), measurement->backwardPredictedState());
+	    tsos_minus = TrajectoryStateCombiner().combine(measurement.forwardPredictedState(), measurement.backwardPredictedState());
 	  }
 	  if (tsos_minus.isValid()) found_minus = true;
 	}

@@ -78,17 +78,15 @@ void printEvent::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup
              bRatio,
              cRatio  );
 
-    for( Candidate::const_iterator c  = f->begin();
-                                   c != f->end();
-                                   c ++) {
+    for(const auto & c : *f) {
       bool isB = false;
       bool isC = false;
-      isB = decayFromBHadron(*c);
-      isC = decayFromCHadron(*c);
+      isB = decayFromBHadron(c);
+      isC = decayFromCHadron(c);
       printf("        [Constituents] (pt,eta,phi | isB,isC) = %6.2f %5.2f %5.2f | %1d %1d |\n",
-                c->et(),
-                c->eta(),
-                c->phi(),
+                c.et(),
+                c.eta(),
+                c.phi(),
                 isB,isC  );
     }
   }

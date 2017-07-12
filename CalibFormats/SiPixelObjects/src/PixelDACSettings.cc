@@ -290,9 +290,9 @@ PixelDACSettings::PixelDACSettings(std::vector< std::vector<std::string> > &tabl
   // modified by MR on 25-02-2008 10:00:45
   // colM stores the index (referred to tableMat) where the specified dac setting is store!!!
   for(unsigned int c = skipColumns ; c < ins.size() ; c++){
-    for(unsigned int n=0; n<colNames.size(); n++){
-      if(tableMat[0][c] == colNames[n]){
-	colM[colNames[n]] = c;
+    for(const auto & colName : colNames){
+      if(tableMat[0][c] == colName){
+	colM[colName] = c;
 	break;
       }
     }
@@ -383,8 +383,8 @@ PixelROCDACSettings PixelDACSettings::getDACSettings(int ROCId) const {
 PixelROCDACSettings* PixelDACSettings::getDACSettings(PixelROCName name){
 
 
-  for(unsigned int i=0;i<dacsettings_.size();i++){
-    if (dacsettings_[i].getROCName()==name) return &(dacsettings_[i]);
+  for(auto & dacsetting : dacsettings_){
+    if (dacsetting.getROCName()==name) return &dacsetting;
   }
 
   return 0;
@@ -395,8 +395,8 @@ void PixelDACSettings::writeBinary(std::string filename) const {
 
   std::ofstream out(filename.c_str(),std::ios::binary);
 
-  for(unsigned int i=0;i<dacsettings_.size();i++){
-    dacsettings_[i].writeBinary(out);
+  for(const auto & dacsetting : dacsettings_){
+    dacsetting.writeBinary(out);
   }
 
 }
@@ -411,8 +411,8 @@ void PixelDACSettings::writeASCII(std::string dir) const {
   std::cout << __LINE__ << "]\t" << mthn << "Writing to file " << filename << std::endl ; 
   std::ofstream out(filename.c_str());
   
-  for(unsigned int i=0;i<dacsettings_.size();i++){
-    dacsettings_[i].writeASCII(out);
+  for(const auto & dacsetting : dacsettings_){
+    dacsetting.writeASCII(out);
   }
 
 }
@@ -470,8 +470,8 @@ void PixelDACSettings::writeXML( std::ofstream *outstream,
 				 std::ofstream *out2stream) const {
   std::string mthn = "[PixelDACSettings::writeXML()]\t\t\t    " ;
 
-  for(unsigned int i=0;i<dacsettings_.size();i++){
-    dacsettings_[i].writeXML(outstream);
+  for(const auto & dacsetting : dacsettings_){
+    dacsetting.writeXML(outstream);
   }
 }
 
@@ -550,13 +550,13 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
 
   //pixelFEC->fecDebug(1);  //FIXME someday maybe don't want to take the time
 
-  for(unsigned int i=0;i<dacsettings_.size();i++){  // loop over ROCs
+  for(const auto & dacsetting : dacsettings_){  // loop over ROCs
 
-    bool disableRoc = rocIsDisabled(detconfig, dacsettings_[i].getROCName());
+    bool disableRoc = rocIsDisabled(detconfig, dacsetting.getROCName());
 
-    dacsettings_[i].getDACs(dacs);
+    dacsetting.getDACs(dacs);
 
-    PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
+    PixelHdwAddress theROC=*(trans->getHdwAddress(dacsetting.getROCName()));
 
     //Need to set readout speed (40MHz) and Vcal range (0-1800 mV) and enable the chip
 
@@ -615,7 +615,7 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
     }
 
     if (!HVon || disableRoc) { //HV off
-      int controlreg=dacsettings_[i].getControlRegister();
+      int controlreg=dacsetting.getControlRegister();
       //      std::cout << "[PixelDACSettings::generateConfiguration] HV off! ROC control reg to be set to: " <<  (controlreg|0x2) <<std::endl;
       pixelFEC->progdac(theROC.mfec(),
 			theROC.mfecchannel(),
@@ -635,7 +635,7 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
       //       << " ROC control reg to be set to: " <<  dacs[28] <<" LastDAC=Temp"<<std::endl;
       if( (theROC.mfec()==1) && (theROC.mfecchannel()==1) &&  (theROC.hubaddress()==0) && 
 	  (theROC.portaddress()==0) &&  (theROC.rocid()) ) 
-	std::cout<<"ROC="<<dacsettings_[i].getROCName()<< " ROC control reg to be set to: " 
+	std::cout<<"ROC="<<dacsetting.getROCName()<< " ROC control reg to be set to: " 
 		 <<  dacs[28] <<" LastDAC=Temp "<<temperatureReg<<std::endl;
       //int temperatureReg = dacs[26];  // overwrite with the number from DB
       pixelFEC->progdac(theROC.mfec(),
@@ -650,7 +650,7 @@ void PixelDACSettings::generateConfiguration(PixelFECConfigInterface* pixelFEC,
       //	       << " ROC control reg to be set to: " <<  dacs[28] <<" LastDAC=Vcal"<<std::endl;
       if( (theROC.mfec()==1) && (theROC.mfecchannel()==1) &&  (theROC.hubaddress()==0) && 
 	  (theROC.portaddress()==0) &&  (theROC.rocid()) )
-	std::cout<<"ROC="<<dacsettings_[i].getROCName()
+	std::cout<<"ROC="<<dacsetting.getROCName()
 		 << " ROC control reg to be set to: " <<  dacs[28] <<" LastDAC=Vcal"<<std::endl;
       // VCAL
       pixelFEC->progdac(theROC.mfec(),
@@ -681,12 +681,12 @@ void PixelDACSettings::setVcthrDisable(PixelFECConfigInterface* pixelFEC, PixelN
 
   std::vector<unsigned int> dacs;
 
-  for(unsigned int i=0;i<dacsettings_.size();i++){ //loop over the ROCs
+  for(const auto & dacsetting : dacsettings_){ //loop over the ROCs
 
-    dacsettings_[i].getDACs(dacs);
-    int controlreg=dacsettings_[i].getControlRegister();
+    dacsetting.getDACs(dacs);
+    int controlreg=dacsetting.getControlRegister();
     
-    PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
+    PixelHdwAddress theROC=*(trans->getHdwAddress(dacsetting.getROCName()));
 
     //std::cout<<"disabling ROC="<<dacsettings_[i].getROCName()<<std::endl;
     pixelFEC->progdac(theROC.mfec(),
@@ -747,9 +747,9 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
 
   std::vector<unsigned int> dacs;
 
-  for(unsigned int i=0;i<dacsettings_.size();i++){ //loop over the ROCs
+  for(const auto & dacsetting : dacsettings_){ //loop over the ROCs
 
-    bool disableRoc = rocIsDisabled(detconfig, dacsettings_[i].getROCName()); //don't enable ROCs that are disabled in the detconfig
+    bool disableRoc = rocIsDisabled(detconfig, dacsetting.getROCName()); //don't enable ROCs that are disabled in the detconfig
 
 
     //std::cout<<"ROC="<<dacsettings_[i].getROCName()<<" ; VcThr set to "<<dacs[11]
@@ -757,10 +757,10 @@ void PixelDACSettings::setVcthrEnable(PixelFECConfigInterface* pixelFEC, PixelNa
 
     if (!disableRoc) {  // Disable
 
-      dacsettings_[i].getDACs(dacs);
-      int controlreg=dacsettings_[i].getControlRegister();
+      dacsetting.getDACs(dacs);
+      int controlreg=dacsetting.getControlRegister();
       
-      PixelHdwAddress theROC=*(trans->getHdwAddress(dacsettings_[i].getROCName()));
+      PixelHdwAddress theROC=*(trans->getHdwAddress(dacsetting.getROCName()));
 
       pixelFEC->progdac(theROC.mfec(),
 			theROC.mfecchannel(),

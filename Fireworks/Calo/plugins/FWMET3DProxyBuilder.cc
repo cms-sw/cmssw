@@ -104,11 +104,11 @@ FWMET3DProxyBuilder::scaleProduct(TEveElementList* parent, FWViewType::EType typ
    // printf("scale prod \n");
    FWViewEnergyScale* caloScale = vc->getEnergyScale();  
 
-   for (std::vector<Arrow*>::iterator i = m_arrows.begin(); i!= m_arrows.end(); ++ i)
+   for (auto & m_arrow : m_arrows)
    {
-      if ( vc == (*i)->m_vc)
+      if ( vc == m_arrow->m_vc)
       {
-         (*i)->setScale(caloScale);  
+         m_arrow->setScale(caloScale);  
       }
    }
 }

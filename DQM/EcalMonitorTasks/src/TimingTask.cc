@@ -128,27 +128,27 @@ namespace ecaldqm
     MESet& meTimeAmpBXm( MEs_.at("TimeAmpBXm") );
     MESet& meTimeAmpBXp( MEs_.at("TimeAmpBXp") );
 
-    for( EcalUncalibratedRecHitCollection::const_iterator uhitItr(_uhits.begin()); uhitItr != _uhits.end(); ++uhitItr ) {
+    for(const auto & _uhit : _uhits) {
 
       // Apply reconstruction quality cuts
-      if( !uhitItr->checkFlag(EcalUncalibratedRecHit::kGood) ) continue;
-      DetId id( uhitItr->id() );
+      if( !_uhit.checkFlag(EcalUncalibratedRecHit::kGood) ) continue;
+      DetId id( _uhit.id() );
       float chi2Threshold = ( id.subdetId() == EcalBarrel ) ? chi2ThresholdEB_ : chi2ThresholdEE_;
-      if( uhitItr->chi2() > chi2Threshold ) continue;
+      if( _uhit.chi2() > chi2Threshold ) continue;
 
       // Apply amplitude cut based on approx rechit energy
-      float amp( uhitItr->amplitude() );
+      float amp( _uhit.amplitude() );
       float ampThreshold( id.subdetId() == EcalBarrel ? energyThresholdEB_*20. : energyThresholdEE_*5. ); // 1 GeV ~ ( EB:20, EE:5 ) ADC
       if( amp < ampThreshold ) continue;
 
       // Apply jitter timing cut based on approx rechit timing
       float timeOff( id.subdetId() == EcalBarrel ? 0.4 : 1.8 );
-      float hitTime( uhitItr->jitter()*25. + timeOff ); // 1 jitter ~ 25 ns
+      float hitTime( _uhit.jitter()*25. + timeOff ); // 1 jitter ~ 25 ns
       if( std::abs(hitTime) >= 5. ) continue;
 
       // Fill MEs
-      meTimeAmpBXm.fill( id,amp,uhitItr->outOfTimeAmplitude(4) ); // BX-1
-      meTimeAmpBXp.fill( id,amp,uhitItr->outOfTimeAmplitude(6) ); // BX+1
+      meTimeAmpBXm.fill( id,amp,_uhit.outOfTimeAmplitude(4) ); // BX-1
+      meTimeAmpBXp.fill( id,amp,_uhit.outOfTimeAmplitude(6) ); // BX+1
 
     }
   }

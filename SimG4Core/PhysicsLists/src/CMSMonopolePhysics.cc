@@ -91,9 +91,9 @@ void CMSMonopolePhysics::ConstructProcess() {
 
   if (verbose > 0)
     G4cout << "### CMSMonopolePhysics ConstructProcess()" << G4endl;
-  for (unsigned int ii=0; ii<monopoles.size(); ++ii) {
-    if (monopoles[ii]) {
-      G4Monopole* mpl = monopoles[ii];
+  for (auto & monopole : monopoles) {
+    if (monopole) {
+      G4Monopole* mpl = monopole;
       G4ProcessManager *pmanager = mpl->GetProcessManager();
       if(!pmanager) {
         std::ostringstream o;

@@ -158,10 +158,8 @@ namespace sistrip{
       }
 
       //calculate common mode values
-      for (uint32_t iapv(0); iapv<apvs.size(); iapv++){
-	std::vector<uint16_t> lVec = apvs[iapv];
-
-	std::vector<uint16_t>::iterator mid = lVec.begin() + (lVec.size()/2 - 1);
+      for (auto lVec : apvs){
+		std::vector<uint16_t>::iterator mid = lVec.begin() + (lVec.size()/2 - 1);
 	std::nth_element(lVec.begin(), mid, lVec.end());
 
 	//std::sort(lVec.begin(),lVec.end());
@@ -220,16 +218,14 @@ namespace sistrip{
 
   
   void FEDEmulator::fillPeds(const edm::DetSetVector<SiStripRawDigi>::const_iterator & peds){
-    for (edm::DetSet<SiStripRawDigi>::const_iterator iApv = peds->begin(); 
-	 iApv != peds->end(); ++iApv) {
-      pedestals_.push_back(iApv->adc());
+    for (const auto & iApv : *peds) {
+      pedestals_.push_back(iApv.adc());
     }
   }
    
   void FEDEmulator::fillNoises(const edm::DetSetVector<SiStripProcessedRawDigi>::const_iterator & noises){
-    for (edm::DetSet<SiStripProcessedRawDigi>::const_iterator iApv = noises->begin(); 
-	 iApv != noises->end(); ++iApv) {
-      noises_.push_back(iApv->adc());
+    for (const auto & iApv : *noises) {
+      noises_.push_back(iApv.adc());
     }
   }
   

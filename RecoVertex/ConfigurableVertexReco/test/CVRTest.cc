@@ -51,10 +51,9 @@ namespace {
   void printVertices ( const vector < TransientVertex > & vtces )
   {
     cout << "[CVRTest] " << vtces.size() << " vertices." << endl;
-    for ( vector< TransientVertex >::const_iterator i=vtces.begin();
-          i!=vtces.end() ; ++i )
+    for (const auto & vtce : vtces)
     {
-      printVertex ( *i );
+      printVertex ( vtce );
       cout << endl;
     }
   }

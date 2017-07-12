@@ -45,9 +45,8 @@ std::vector<JetCorrectorParameters>
 TauJetCorrFactorsProducer::params(const JetCorrectorParametersCollection& jecParameters, const std::vector<std::string>& levels) const
 {
   std::vector<JetCorrectorParameters> retVal;
-  for ( std::vector<std::string>::const_iterator corrLevel = levels.begin();
-	corrLevel != levels.end(); ++corrLevel ) {
-    const JetCorrectorParameters& jecParameter_level = jecParameters[*corrLevel];
+  for (const auto & level : levels) {
+    const JetCorrectorParameters& jecParameter_level = jecParameters[level];
     retVal.push_back(jecParameter_level);
   }
   return retVal;

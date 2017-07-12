@@ -198,8 +198,8 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	else if (encoding=="dec") strtol_base=10;
 	
 	// convert the data
-	for (unsigned int j=0; j<values.size(); j++) 
-	  lut.push_back(strtol(values[j].c_str(),0,strtol_base));
+	for (auto & value : values) 
+	  lut.push_back(strtol(value.c_str(),0,strtol_base));
       }
   for (int tb=0; tb<=1; tb++) 
     for (int slb=1; slb<=6; slb++) 
@@ -228,8 +228,8 @@ void ConfigurationDatabaseImplXMLFile::getLUTs(const std::string& tag, int crate
 	else if (encoding=="dec") strtol_base=10;
 	
 	// convert the data
-	for (unsigned int j=0; j<values.size(); j++) 
-	  lut.push_back(strtol(values[j].c_str(),0,strtol_base));
+	for (auto & value : values) 
+	  lut.push_back(strtol(value.c_str(),0,strtol_base));
       }
 }
 
@@ -290,8 +290,8 @@ void ConfigurationDatabaseImplXMLFile::getPatterns(const std::string& tag, int c
     else if (encoding=="dec") strtol_base=10;
       
     // convert the data
-    for (unsigned int j=0; j<values.size(); j++) 
-      lut.push_back(strtol(values[j].c_str(),0,strtol_base));
+    for (auto & value : values) 
+      lut.push_back(strtol(value.c_str(),0,strtol_base));
     }
 }
 

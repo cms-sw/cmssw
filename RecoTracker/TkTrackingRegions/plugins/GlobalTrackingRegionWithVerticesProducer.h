@@ -87,11 +87,11 @@ public:
       edm::Handle<reco::VertexCollection> vertexCollection;
       ev.getByToken(token_vertex,vertexCollection);
 
-      for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); iV != vertexCollection->end() ; iV++) {
-          if (!iV->isValid()) continue;
-          if (iV->isFake() && !(theUseFakeVertices && theUseFixedError)) continue;
-	  GlobalPoint theOrigin_       = GlobalPoint(iV->x(),iV->y(),iV->z());
-	  double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV->zError())*theSigmaZVertex); 
+      for(const auto & iV : *vertexCollection) {
+          if (!iV.isValid()) continue;
+          if (iV.isFake() && !(theUseFakeVertices && theUseFixedError)) continue;
+	  GlobalPoint theOrigin_       = GlobalPoint(iV.x(),iV.y(),iV.z());
+	  double theOriginHalfLength_ = (theUseFixedError ? theFixedError : (iV.zError())*theSigmaZVertex); 
 	  result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin_, theOriginRadius, theOriginHalfLength_, thePrecise, theUseMS) );
 	  if(theMaxNVertices >= 0 && result.size() >= static_cast<unsigned>(theMaxNVertices))
 	    break;

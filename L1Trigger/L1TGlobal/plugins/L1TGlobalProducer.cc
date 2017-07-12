@@ -540,8 +540,7 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
 
     // For now, set masks according to prescale value of 0
     m_initialTriggerMaskAlgoTrig.clear();
-    for( unsigned int iAlgo=0; iAlgo < prescaleFactorsAlgoTrig.size(); iAlgo++ ){
-      unsigned int value = prescaleFactorsAlgoTrig[iAlgo];
+    for(unsigned int value : prescaleFactorsAlgoTrig){
       value = ( value==0 ) ? 0 : 1;
       m_initialTriggerMaskAlgoTrig.push_back(value);
     }
@@ -649,10 +648,9 @@ void L1TGlobalProducer::produce(edm::Event& iEvent, const edm::EventSetup& evSet
         const std::vector<GlobalObjectMap> objMapVec =  
             gtObjectMapRecord->gtObjectMap();
 
-        for (std::vector<GlobalObjectMap>::const_iterator
-                it = objMapVec.begin(); it != objMapVec.end(); ++it) {
+        for (const auto & it : objMapVec) {
 
-            (*it).print(myCoutStream);
+            it.print(myCoutStream);
 
         }
 

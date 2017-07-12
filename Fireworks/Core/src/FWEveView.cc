@@ -368,10 +368,8 @@ FWEveView::setFrom(const FWConfiguration& iFrom)
    // we care.
    if (version() >= 2 && iFrom.version() >= 1)
    {
-      for(const_iterator it =begin(), itEnd = end();
-          it != itEnd;
-          ++it) {
-         (*it)->setFrom(iFrom);      
+      for(auto it : *this) {
+         it->setFrom(iFrom);      
       }  
    }
    if (iFrom.version() > 1)

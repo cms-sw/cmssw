@@ -10,12 +10,12 @@ FWPFEcalRecHitLegoProxyBuilder::scaleProduct( TEveElementList *parent, FWViewTyp
    typedef std::vector<FWPFLegoRecHit*> rh;
 
    // printf("FWPFEcalRecHitLegoProxyBuilder::scaleProduct >> scale %f \n", caloScale->getValToHeight());
-   for( rh::iterator i = m_recHits.begin(); i != m_recHits.end(); ++i )
+   for(auto & m_recHit : m_recHits)
    {  // Tallest tower needs deciding still
-      if( (*i)->isTallest() == false && (*i)->getEtEnergy( b ) == maxVal )
-         (*i)->setIsTallest( true );
+      if( m_recHit->isTallest() == false && m_recHit->getEtEnergy( b ) == maxVal )
+         m_recHit->setIsTallest( true );
 
-      (*i)->updateScale( vc, getMaxValLog(caloScale->getPlotEt()));
+      m_recHit->updateScale( vc, getMaxValLog(caloScale->getPlotEt()));
    }
 }
 
@@ -43,11 +43,11 @@ FWPFEcalRecHitLegoProxyBuilder::calculateCentre( const std::vector<TEveVector> &
 {
    TEveVector centre;
 
-   for( size_t i = 0; i < corners.size(); ++i )
+   for(auto corner : corners)
    {
-      centre.fX += corners[i].fX;
-      centre.fY += corners[i].fY;            // Get total for x,y,z values
-      centre.fZ += corners[i].fZ;
+      centre.fX += corner.fX;
+      centre.fY += corner.fY;            // Get total for x,y,z values
+      centre.fZ += corner.fZ;
    }
    centre *= 1.f / 8.f;
 
@@ -130,8 +130,8 @@ FWPFEcalRecHitLegoProxyBuilder::build( const FWEventItem *iItem, TEveElementList
 void
 FWPFEcalRecHitLegoProxyBuilder::cleanLocal()
 {
-   for( std::vector<FWPFLegoRecHit*>::iterator i = m_recHits.begin(); i != m_recHits.end(); ++i )
-      delete (*i);
+   for(auto & m_recHit : m_recHits)
+      delete m_recHit;
 
    m_recHits.clear();
 }

@@ -93,8 +93,8 @@ namespace edm
 
     iSetup.get<TrackerDigiGeometryRecord>().get(geometryType,pDD);
 
-    for(auto iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); ++iu) {
-      unsigned int detId = (*iu)->geographicalId().rawId();
+    for(auto iu : pDD->detUnits()) {
+      unsigned int detId = iu->geographicalId().rawId();
       DetId idet=DetId(detId);
       unsigned int isub=idet.subdetId();
       if((isub == StripSubdetector::TIB) ||
@@ -102,7 +102,7 @@ namespace edm
 	 (isub == StripSubdetector::TOB) ||
 	 (isub == StripSubdetector::TEC)) {
 
-	auto stripdet = dynamic_cast<StripGeomDetUnit const*>((*iu));
+	auto stripdet = dynamic_cast<StripGeomDetUnit const*>(iu);
 	assert(stripdet != 0);
 	DMinitializeDetUnit(stripdet, iSetup);
       }
@@ -433,9 +433,9 @@ namespace edm
     //Now, do noise, zero suppression, take into account bad channels, etc.
     // This section stolen from SiStripDigitizerAlgorithm
     // must loop over all detIds in the tracker to get all of the noise added properly.
-    for(TrackingGeometry::DetUnitContainer::const_iterator iu = pDD->detUnits().begin(); iu != pDD->detUnits().end(); iu ++){
+    for(auto iu : pDD->detUnits()){
 
-      const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>((*iu));
+      const StripGeomDetUnit* sgd = dynamic_cast<const StripGeomDetUnit*>(iu);
       if (sgd != 0){
 
 	uint32_t detID = sgd->geographicalId().rawId();

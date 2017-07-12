@@ -146,10 +146,8 @@ std::vector<unsigned> CalibratableTest::findPrimarySimParticles(
 		const std::vector<PFSimParticle>& sims) {
 	std::vector<unsigned> answers;
 	unsigned index(0);
-	for (std::vector<PFSimParticle>::const_iterator cit = sims.begin(); cit
-			!= sims.end(); ++cit) {
-		PFSimParticle theSim = *cit;
-		//TODO: what about rejected events?
+	for (auto theSim : sims) {
+			//TODO: what about rejected events?
 		if (theSim.motherId() >= 0)
 			continue;
 		int particleId = abs(theSim.pdgCode());
@@ -187,17 +185,16 @@ void CalibratableTest::extractCandidate(const PFCandidate& cand) {
 	if (debug_ > 3)
 		std::cout << "\tLooping over elements in blocks, "
 				<< eleInBlocks.size() << " of them."<< std::endl;
-	for (PFCandidate::ElementsInBlocks::iterator bit = eleInBlocks.begin(); bit
-			!= eleInBlocks.end(); ++bit) {
+	for (auto & eleInBlock : eleInBlocks) {
 
 		/* 
 		 * Find PFClusters associated with this candidate.
 		 */
 		
 		//Extract block reference
-		PFBlockRef blockRef((*bit).first);
+		PFBlockRef blockRef(eleInBlock.first);
 		//Extract index
-		unsigned indexInBlock((*bit).second);
+		unsigned indexInBlock(eleInBlock.second);
 		//Dereference the block (what a palava!)
 		const PFBlock& block = *blockRef;
 		//And finally get a handle on the elements
@@ -250,11 +247,9 @@ std::vector<unsigned> CalibratableTest::findCandidatesInDeltaR(
 	double trEta = pft.trajectoryPoint(PFTrajectoryPoint::ECALEntrance).positionREP().Eta();
 	double trPhi = pft.trajectoryPoint(PFTrajectoryPoint::ECALEntrance).positionREP().Phi();
 
-	for (std::vector<PFCandidate>::const_iterator cit = cands.begin(); cit
-			!= cands.end(); ++cit) {
+	for (auto cand : cands) {
 
-		PFCandidate cand = *cit;
-		double cEta = cand.eta();
+			double cEta = cand.eta();
 		double cPhi = cand.phi();
 
 		if (deltaR(cEta, trEta, cPhi, trPhi) < deltaRCut) {

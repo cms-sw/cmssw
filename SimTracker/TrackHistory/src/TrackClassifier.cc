@@ -245,10 +245,8 @@ void TrackClassifier::qualityInformation(reco::TrackBaseRef const & track)
         const TrackQuality::Layer &layer = quality_.layer(i);
 
         // check all hits in that layer
-        for (unsigned int j = 0; j < layer.hits.size(); j++)
+        for (auto hit : layer.hits)
         {
-            const TrackQuality::Layer::Hit &hit = layer.hits[j];
-
             // In those cases the bad hit was used by track reconstruction
             if (hit.state == TrackQuality::Layer::Noise ||
                     hit.state == TrackQuality::Layer::Misassoc)
@@ -285,9 +283,9 @@ void TrackClassifier::processesAtGenerator()
     TrackHistory::RecoGenParticleTrail const & recoGenParticleTrail = tracer_.recoGenParticleTrail();
 
     // Loop over the generated particles (reco::GenParticle in the recoGenParticleTrail)
-    for (TrackHistory::RecoGenParticleTrail::const_iterator iparticle = recoGenParticleTrail.begin(); iparticle != recoGenParticleTrail.end(); ++iparticle)
+    for (auto iparticle : recoGenParticleTrail)
     {
-                pdgid = std::abs((*iparticle)->pdgId());
+                pdgid = std::abs(iparticle->pdgId());
                 // Get particle type
                 HepPDT::ParticleID particleID(pdgid);
 
@@ -307,9 +305,9 @@ void TrackClassifier::processesAtGenerator()
                         update(flags_[CWeakDecay], particleID.hasCharm());
                         // Check for B and C pure leptonic decay
                         std::set<int> daughterIds;
-                        size_t ndau = (*iparticle)->numberOfDaughters();
+                        size_t ndau = iparticle->numberOfDaughters();
                         for( size_t i = 0; i < ndau; ++ i ){
-    						daughterIds.insert((*iparticle)->daughter(i)->pdgId());
+    						daughterIds.insert(iparticle->daughter(i)->pdgId());
     					}
                         update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && (daughterIds.find(13) != daughterIds.end()));
                         update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && (daughterIds.find(13) != daughterIds.end()));
@@ -338,17 +336,13 @@ void TrackClassifier::processesAtSimulation()
     TrackHistory::SimParticleTrail const & simParticleTrail = tracer_.simParticleTrail();
 
     // Loop over the simulated particles
-    for (
-        TrackHistory::SimParticleTrail::const_iterator iparticle = simParticleTrail.begin();
-        iparticle != simParticleTrail.end();
-        ++iparticle
-    )
+    for (const auto & iparticle : simParticleTrail)
     {
         // pdgid of the real source parent vertex
         int pdgid = 0;
 
         // Get a reference to the TP's parent vertex
-        TrackingVertexRef const & parentVertex = (*iparticle)->parentVertex();
+        TrackingVertexRef const & parentVertex = iparticle->parentVertex();
 
         // Look for the original source track
         if ( parentVertex.isNonnull() )
@@ -434,7 +428,7 @@ void TrackClassifier::processesAtSimulation()
                     update(flags_[CWeakDecay], particleID.hasCharm());
 
                     // Check for B or C pure leptonic decays
-                    int daughtId = abs((*iparticle)->pdgId());
+                    int daughtId = abs(iparticle->pdgId());
                     update(flags_[FromBWeakDecayMuon], particleID.hasBottom() && daughtId == 13);
                     update(flags_[FromCWeakDecayMuon], particleID.hasCharm() && daughtId == 13);
                 }

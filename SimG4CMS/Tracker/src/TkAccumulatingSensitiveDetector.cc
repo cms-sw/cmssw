@@ -107,10 +107,10 @@ TkAccumulatingSensitiveDetector::TkAccumulatingSensitiveDetector(string name,
     // Now attach the right detectors (LogicalVolumes) to me
     const vector<string>&  lvNames = clg.logicalNames(name);
     this->Register();
-    for (vector<string>::const_iterator it = lvNames.begin();  it != lvNames.end(); it++)
+    for (const auto & lvName : lvNames)
     {
-      edm::LogInfo("TrackerSimInfo")<< name << " attaching LV " << *it;
-	this->AssignSD(*it);
+      edm::LogInfo("TrackerSimInfo")<< name << " attaching LV " << lvName;
+	this->AssignSD(lvName);
     }
 
     theG4ProcessTypeEnumerator = new G4ProcessTypeEnumerator;

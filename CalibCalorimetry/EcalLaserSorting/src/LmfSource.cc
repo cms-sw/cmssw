@@ -341,8 +341,8 @@ bool LmfSource::readEventWithinFile(bool doSkip){
     if(verbosity_){
       cout << "[LmfSource] " << nPreRead32 << " first 32-bit words of "
            << "FED block: " << hex << setfill('0');
-      for(unsigned i = 0; i< buf.size(); ++i){
-        cout << "0x" << setw(8) << buf[i] << " ";
+      for(int i : buf){
+        cout << "0x" << setw(8) << i << " ";
       }
       cout << dec << setfill(' ');
     }
@@ -448,8 +448,7 @@ std::string LmfSource::toString(TimeValue_t& t) const{
 }
 
 void LmfSource::checkFileNames(){
-  for(unsigned i = 0; i < fileNames_.size(); ++i){
-    std::string& fileName = fileNames_[i];
+  for(auto & fileName : fileNames_){
     const char s[] = "file:";
     if(fileName.compare(0, sizeof(s)-1, s)==0){ //file: prefix => to strip
       fileName.erase(fileName.begin(),

@@ -43,9 +43,9 @@ DigiComparisonTask::DigiComparisonTask(edm::ParameterSet const& ps):
 		vhashuTCA);
 	
 	//	INITIALIZE
-	for  (unsigned int i=0; i<10; i++)
+	for  (auto & i : _cADC_Subdet)
 	{
-		_cADC_Subdet[i].initialize(_name, "ADC",
+		i.initialize(_name, "ADC",
 			hashfunctions::fSubdet,
 			new quantity::ValueQuantity(quantity::fADCCorr_128),
 			new quantity::ValueQuantity(quantity::fADCCorr_128),

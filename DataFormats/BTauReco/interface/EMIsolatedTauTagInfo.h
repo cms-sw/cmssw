@@ -48,14 +48,14 @@ namespace reco {
         double energyRMax= 0.;
         double energyRMin = 0.;
 
-        for (EMLorentzVectorRefVector::const_iterator mRH = myRecHits.begin(); mRH != myRecHits.end(); ++mRH)
+        for (auto && myRecHit : myRecHits)
         {
-            double delta  = ROOT::Math::VectorUtil::DeltaR((myJet).p4().Vect(), (**mRH));
+            double delta  = ROOT::Math::VectorUtil::DeltaR((myJet).p4().Vect(), (*myRecHit));
             if (delta < rMax) {
-                energyRMax += (**mRH).pt();
+                energyRMax += (*myRecHit).pt();
             }
             if (delta < rMin) {
-                energyRMin += (**mRH).pt();
+                energyRMin += (*myRecHit).pt();
             }
         }
         double pIsol = energyRMax - energyRMin;

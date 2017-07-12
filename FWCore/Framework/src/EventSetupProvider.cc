@@ -148,41 +148,33 @@ preferEverything(const ComponentDescription& iComponent,
 {
    //need to get our hands on the actual DataProxyProvider
    bool foundProxyProvider = false;
-   for(Providers::const_iterator itProvider = iProviders.begin(), itProviderEnd = iProviders.end();
-       itProvider!= itProviderEnd;
-       ++itProvider) {
-      std::set<ComponentDescription> components = itProvider->second->proxyProviderDescriptions();
+   for(const auto & iProvider : iProviders) {
+      std::set<ComponentDescription> components = iProvider.second->proxyProviderDescriptions();
       if(components.find(iComponent)!= components.end()) {
          std::shared_ptr<DataProxyProvider> proxyProv = 
-         itProvider->second->proxyProvider(*(components.find(iComponent)));
+         iProvider.second->proxyProvider(*(components.find(iComponent)));
          assert(proxyProv.get());
          
          std::set<EventSetupRecordKey> records = proxyProv->usingRecords();
-         for(std::set<EventSetupRecordKey>::iterator itRecord = records.begin(),
-             itRecordEnd = records.end();
-             itRecord != itRecordEnd;
-             ++itRecord){
-            const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(*itRecord);
+         for(auto record : records){
+            const DataProxyProvider::KeyedProxies& keyedProxies = proxyProv->keyedProxies(record);
             if(!keyedProxies.empty()){
                //add them to our output
                EventSetupRecordProvider::DataToPreferredProviderMap& dataToProviderMap =
-               iReturnValue[*itRecord];
+               iReturnValue[record];
                
-               for(DataProxyProvider::KeyedProxies::const_iterator itProxy = keyedProxies.begin(),
-	           itProxyEnd = keyedProxies.end();
-                   itProxy != itProxyEnd;
-                   ++itProxy) {
+               for(const auto & keyedProxie : keyedProxies) {
                   EventSetupRecordProvider::DataToPreferredProviderMap::iterator itFind =
-                  dataToProviderMap.find(itProxy->first);
+                  dataToProviderMap.find(keyedProxie.first);
                   if(itFind != dataToProviderMap.end()){
                      throw cms::Exception("ESPreferConflict") <<"Two providers have been set to be preferred for\n"
-                     <<itProxy->first.type().name()<<" \""<<itProxy->first.name().value()<<"\""
+                     <<keyedProxie.first.type().name()<<" \""<<keyedProxie.first.name().value()<<"\""
                      <<"\n the providers are "
                      <<"\n 1) type="<<itFind->second.type_<<" label=\""<<itFind->second.label_<<"\""
                      <<"\n 2) type="<<iComponent.type_<<" label=\""<<iComponent.label_<<"\""
                      <<"\nPlease modify configuration so only one is preferred";
                   }
-                  dataToProviderMap.insert(std::make_pair(itProxy->first,iComponent));
+                  dataToProviderMap.insert(std::make_pair(keyedProxie.first,iComponent));
                }
             }
          }
@@ -203,16 +195,13 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
    using namespace edm::eventsetup;
    RecordToPreferred returnValue;
    if(0 != iInfo){
-      for(EventSetupProvider::PreferredProviderInfo::const_iterator itInfo = iInfo->begin(),
-          itInfoEnd = iInfo->end();
-          itInfo != itInfoEnd;
-          ++itInfo) {
-         if(itInfo->second.empty()) {
+      for(const auto & itInfo : *iInfo) {
+         if(itInfo.second.empty()) {
             //want everything
-            preferEverything(itInfo->first, iProviders, returnValue);
+            preferEverything(itInfo.first, iProviders, returnValue);
          } else {
-            for(EventSetupProvider::RecordToDataMap::const_iterator itRecData = itInfo->second.begin(),
-	        itRecDataEnd = itInfo->second.end();
+            for(EventSetupProvider::RecordToDataMap::const_iterator itRecData = itInfo.second.begin(),
+	        itRecDataEnd = itInfo.second.end();
                 itRecData != itRecDataEnd;
                 ++itRecData) {
                std::string recordName= itRecData->first;
@@ -220,7 +209,7 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
                if(recordKey.type() == eventsetup::EventSetupRecordKey::TypeTag()) {
                   throw cms::Exception("ESPreferUnknownRecord") <<"Unknown record \""<<recordName
                   <<"\" used in es_prefer statement for type="
-                  <<itInfo->first.type_<<" label=\""<<itInfo->first.label_
+                  <<itInfo.first.type_<<" label=\""<<itInfo.first.label_
                   <<"\"\n Please check spelling.";
                   //record not found
                }
@@ -229,17 +218,17 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
                assert(itRecordProvider != iProviders.end());
                
                std::set<ComponentDescription> components = itRecordProvider->second->proxyProviderDescriptions();
-               std::set<ComponentDescription>::iterator itProxyProv = components.find(itInfo->first);
+               std::set<ComponentDescription>::iterator itProxyProv = components.find(itInfo.first);
                if(itProxyProv == components.end()){
-                  throw cms::Exception("ESPreferWrongRecord")<<"The type="<<itInfo->first.type_<<" label=\""<<
-                  itInfo->first.label_<<"\" does not provide data for the Record "<<recordName;
+                  throw cms::Exception("ESPreferWrongRecord")<<"The type="<<itInfo.first.type_<<" label=\""<<
+                  itInfo.first.label_<<"\" does not provide data for the Record "<<recordName;
                }
                //Does it data type exist?
                eventsetup::TypeTag datumType = eventsetup::TypeTag::findType(itRecData->second.first);
                if(datumType == eventsetup::TypeTag()) {
                   //not found
-                  throw cms::Exception("ESPreferWrongDataType")<<"The es_prefer statement for type="<<itInfo->first.type_<<" label=\""<<
-                  itInfo->first.label_<<"\" has the unknown data type \""<<itRecData->second.first<<"\""
+                  throw cms::Exception("ESPreferWrongDataType")<<"The es_prefer statement for type="<<itInfo.first.type_<<" label=\""<<
+                  itInfo.first.label_<<"\" has the unknown data type \""<<itRecData->second.first<<"\""
                   <<"\n Please check spelling";
                }
                eventsetup::DataKey datumKey(datumType, itRecData->second.second.c_str());
@@ -251,8 +240,8 @@ RecordToPreferred determinePreferred(const EventSetupProvider::PreferredProvider
                if(std::find_if(keyedProxies.begin(), keyedProxies.end(), 
                                 boost::bind(std::equal_to<DataKey>(), datumKey, boost::bind(&DataProxyProvider::KeyedProxies::value_type::first,_1))) ==
                    keyedProxies.end()){
-                  throw cms::Exception("ESPreferWrongData")<<"The es_prefer statement for type="<<itInfo->first.type_<<" label=\""<<
-                  itInfo->first.label_<<"\" specifies the data item \n"
+                  throw cms::Exception("ESPreferWrongData")<<"The es_prefer statement for type="<<itInfo.first.type_<<" label=\""<<
+                  itInfo.first.label_<<"\" specifies the data item \n"
                   <<"  type=\""<<itRecData->second.first<<"\" label=\""<<itRecData->second.second<<"\""
                   <<"  which is not provided.  Please check spelling.";
                }
@@ -283,24 +272,19 @@ EventSetupProvider::finishConfiguration()
 {   
    //we delayed adding finders to the system till here so that everything would be loaded first
    recordToFinders_->clear();
-   for(std::vector<std::shared_ptr<EventSetupRecordIntervalFinder> >::iterator itFinder=finders_->begin(),
-       itEnd = finders_->end();
-       itFinder != itEnd;
-       ++itFinder) {
+   for(auto & itFinder : *finders_) {
       typedef std::set<EventSetupRecordKey> Keys;
-      const Keys recordsUsing = (*itFinder)->findingForRecords();
+      const Keys recordsUsing = itFinder->findingForRecords();
       
-      for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
-          itKey != itKeyEnd;
-          ++itKey) {
-        (*recordToFinders_)[*itKey].push_back(*itFinder);
-         Providers::iterator itFound = providers_.find(*itKey);
+      for(auto itKey : recordsUsing) {
+        (*recordToFinders_)[itKey].push_back(itFinder);
+         Providers::iterator itFound = providers_.find(itKey);
          if(providers_.end() == itFound) {
             //create a provider for this record
-            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
-            itFound = providers_.find(*itKey);
+            insert(itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(itKey));
+            itFound = providers_.find(itKey);
          }
-         itFound->second->addFinder(*itFinder);
+         itFound->second->addFinder(itFinder);
       }      
    }
    //we've transfered our ownership so this is no longer needed
@@ -310,32 +294,27 @@ EventSetupProvider::finishConfiguration()
    // their Records and therefore could delay setting up their Proxies
    psetIDToRecordKey_->clear();
    typedef std::set<EventSetupRecordKey> Keys;
-   for(std::vector<std::shared_ptr<DataProxyProvider> >::iterator itProvider=dataProviders_->begin(),
-       itEnd = dataProviders_->end();
-       itProvider != itEnd;
-       ++itProvider) {
+   for(auto & itProvider : *dataProviders_) {
       
-      ParameterSetIDHolder psetID((*itProvider)->description().pid_);
+      ParameterSetIDHolder psetID(itProvider->description().pid_);
 
-      const Keys recordsUsing = (*itProvider)->usingRecords();
+      const Keys recordsUsing = itProvider->usingRecords();
       
-      for(Keys::const_iterator itKey = recordsUsing.begin(), itKeyEnd = recordsUsing.end();
-          itKey != itKeyEnd;
-          ++itKey) {
+      for(auto itKey : recordsUsing) {
 
-         if ((*itProvider)->description().isLooper_) {
-            recordsWithALooperProxy_->insert(*itKey);
+         if (itProvider->description().isLooper_) {
+            recordsWithALooperProxy_->insert(itKey);
          }
 
-         (*psetIDToRecordKey_)[psetID].insert(*itKey);
+         (*psetIDToRecordKey_)[psetID].insert(itKey);
 
-         Providers::iterator itFound = providers_.find(*itKey);
+         Providers::iterator itFound = providers_.find(itKey);
          if(providers_.end() == itFound) {
             //create a provider for this record
-            insert(*itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(*itKey));
-            itFound = providers_.find(*itKey);
+            insert(itKey, EventSetupRecordProviderFactoryManager::instance().makeRecordProvider(itKey));
+            itFound = providers_.find(itKey);
          }
-         itFound->second->add(*itProvider);
+         itFound->second->add(itProvider);
       }
    }
    dataProviders_.reset();
@@ -364,18 +343,15 @@ EventSetupProvider::finishConfiguration()
          std::vector<std::shared_ptr<EventSetupRecordProvider> > depProviders;
          depProviders.reserve(records.size());
          bool foundAllProviders = true;
-         for(std::set<EventSetupRecordKey>::iterator itRecord = records.begin(),
-              itRecordEnd = records.end();
-              itRecord != itRecordEnd;
-              ++itRecord) {
-            Providers::iterator itFound = providers_.find(*itRecord);
+         for(auto record : records) {
+            Providers::iterator itFound = providers_.find(record);
             if(itFound == providers_.end()) {
                foundAllProviders = false;
                if(missingRecords.size() == 0) {
-                 missingRecords = itRecord->name();
+                 missingRecords = record.name();
                } else {
                  missingRecords += ", ";
-                 missingRecords += itRecord->name();
+                 missingRecords += record.name();
                }
                //break;
             } else {
@@ -442,10 +418,8 @@ EventSetupProvider::resetRecordPlusDependentRecords(const EventSetupRecordKey& i
 void 
 EventSetupProvider::forceCacheClear()
 {
-   for(Providers::iterator it=providers_.begin(), itEnd = providers_.end();
-       it != itEnd;
-       ++it) {
-      it->second->resetProxies();
+   for(auto & provider : providers_) {
+      provider.second->resetProxies();
    }
 }
 
@@ -755,10 +729,8 @@ EventSetupProvider::eventSetupForInstance(const IOVSyncValue& iValue)
       finishConfiguration();
    }
 
-   for(Providers::iterator itProvider = providers_.begin(), itProviderEnd = providers_.end();
-        itProvider != itProviderEnd;
-        ++itProvider) {
-      itProvider->second->addRecordToIfValid(*this, iValue);
+   for(auto & provider : providers_) {
+      provider.second->addRecordToIfValid(*this, iValue);
    }   
    return eventSetup_;
 }

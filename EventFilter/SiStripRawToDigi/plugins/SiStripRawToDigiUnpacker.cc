@@ -483,8 +483,8 @@ namespace sistrip {
 	
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 256*ipair, proc_work_digis_.size(), samples.size());
-	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	      proc_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+	    for (unsigned short sample : samples) {
+	      proc_work_digis_.push_back(  SiStripRawDigi( sample ) );
 	    }
 	    proc_work_registry_.push_back( regItem );
 	  }
@@ -504,8 +504,8 @@ namespace sistrip {
 	
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
-	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	      scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+	    for (unsigned short sample : samples) {
+	      scope_work_digis_.push_back(  SiStripRawDigi( sample ) );
 	    }
 	    scope_work_registry_.push_back( regItem );
 	  }
@@ -531,8 +531,8 @@ namespace sistrip {
 	
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
-	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	      scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+	    for (unsigned short sample : samples) {
+	      scope_work_digis_.push_back(  SiStripRawDigi( sample ) );
 	    }
 	    scope_work_registry_.push_back( regItem );
 	  

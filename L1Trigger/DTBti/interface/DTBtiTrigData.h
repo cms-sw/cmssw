@@ -94,8 +94,8 @@ class DTBtiTrigData : public DTTrigData {
     _Kval = 9999; 
     _Xval = 0;
     _str = -1;
-    for(int j=0;j<6;j++)
-	_Keq[j]=-1;
+    for(float & j : _Keq)
+	j=-1;
   }  
 
   //! Return chamber identifier

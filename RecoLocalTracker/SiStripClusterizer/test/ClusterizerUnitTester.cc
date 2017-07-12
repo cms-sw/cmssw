@@ -147,8 +147,8 @@ std::string ClusterizerUnitTester::
 printCluster(const SiStripCluster & cluster) {
   std::stringstream s;
   s  << "\t" << cluster.firstStrip() << " [ ";
-  for(unsigned i=0; i<cluster.amplitudes().size(); i++) {
-    s << static_cast<int>(cluster.amplitudes()[i]) << " ";
+  for(unsigned char i : cluster.amplitudes()) {
+    s << static_cast<int>(i) << " ";
   }
   s << "]" << std::endl;
   return s.str();

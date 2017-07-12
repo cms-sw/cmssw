@@ -489,10 +489,10 @@ bool RPCSeedPattern::checkSegment() const
     bool isFit = true;
     unsigned int count = 0;
     // first 4 recHits should be located in RB1 and RB2
-    for(ConstMuonRecHitContainer::const_iterator iter=theRecHits.begin(); iter!=theRecHits.end(); iter++)
+    for(const auto & theRecHit : theRecHits)
     {
         count++;
-        const GeomDet* Detector = (*iter)->det();
+        const GeomDet* Detector = theRecHit->det();
         if(dynamic_cast<const RPCChamber*>(Detector) != 0)
         {
             const RPCChamber* RPCCh = dynamic_cast<const RPCChamber*>(Detector);
@@ -527,13 +527,13 @@ MuonTransientTrackingRecHit::ConstMuonRecHitPointer RPCSeedPattern::BestRefRecHi
     int index = 0;
     // Use the last one for recHit on last layer has minmum delta Z for barrel or delta R for endcap while calculating the momentum
     // But for Algorithm 3 we use the 4th recHit on the 2nd segment for more accurate
-    for (ConstMuonRecHitContainer::const_iterator iter=theRecHits.begin(); iter!=theRecHits.end(); iter++)
+    for (const auto & theRecHit : theRecHits)
     {
         if(AlgorithmType != 3)
-            best = (*iter);
+            best = theRecHit;
         else
             if(index < 4)
-                best = (*iter);
+                best = theRecHit;
         index++;        
     }
     return best;
@@ -697,13 +697,13 @@ void RPCSeedPattern::checkSimplePattern(const edm::EventSetup& eSetup)
         delete [] gp;
     }
     meanBz = 0.;
-    for(unsigned int index = 0; index < BzValue.size(); index++)
-        meanBz += BzValue[index];
+    for(double index : BzValue)
+        meanBz += index;
     meanBz /= BzValue.size();
     cout << "Mean Bz is " << meanBz << endl;
     deltaBz = 0.;
-    for(unsigned int index = 0; index < BzValue.size(); index++)
-        deltaBz += (BzValue[index] - meanBz) * (BzValue[index] - meanBz);
+    for(double index : BzValue)
+        deltaBz += (index - meanBz) * (index - meanBz);
     deltaBz /= BzValue.size();
     deltaBz = sqrt(deltaBz);
     cout<< "delata Bz is " << deltaBz << endl;

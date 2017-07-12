@@ -29,8 +29,8 @@ PedeLabeler::PedeLabeler(const PedeLabelerBase::TopLevelAlignables& alignables,
 
   if (alignables.aliExtras_) {
     align::Alignables allExtras = alignables.aliExtras_->components();
-    for ( std::vector<Alignable*>::iterator it = allExtras.begin(); it != allExtras.end(); ++it ) {
-      alis.push_back(*it);
+    for (auto & allExtra : allExtras) {
+      alis.push_back(allExtra);
     }
   }
 
@@ -158,10 +158,10 @@ unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
 
   std::vector<Alignable*> allComps;
 
-  for (std::vector<Alignable*>::const_iterator iAli = alis.begin(); iAli != alis.end(); ++iAli) {
-    if (*iAli) {
-      allComps.push_back(*iAli);
-      (*iAli)->recursiveComponents(allComps);
+  for (auto ali : alis) {
+    if (ali) {
+      allComps.push_back(ali);
+      ali->recursiveComponents(allComps);
     }
   }
 
@@ -183,9 +183,9 @@ unsigned int PedeLabeler::buildMap(const std::vector<Alignable*> &alis)
 			    200, 210, 220, 230, 240, 250, 260, 270};// AT
 
   const size_t nBeams = sizeof(beamIds)/sizeof(beamIds[0]);
-  for (size_t iBeam = 0; iBeam < nBeams; ++iBeam) {
+  for (unsigned int beamId : beamIds) {
     //edm::LogInfo("Alignment") << "Las beam " << beamIds[iBeam] << " gets label " << id << ".";
-    theLasBeamToLabelMap[beamIds[iBeam]] = id;
+    theLasBeamToLabelMap[beamId] = id;
     id += theMaxNumParam;
   }
 
@@ -200,10 +200,9 @@ unsigned int PedeLabeler::buildReverseMap()
   // alignables
   theIdToAlignableMap.clear();  // just in case of re-use...
 
-  for (AlignableToIdMap::iterator it = theAlignableToIdMap.begin();
-       it != theAlignableToIdMap.end(); ++it) {
-    const unsigned int key = (*it).second;
-    Alignable *ali = (*it).first;
+  for (auto & it : theAlignableToIdMap) {
+    const unsigned int key = it.second;
+    Alignable *ali = it.first;
     theIdToAlignableMap[key] = ali;
   }
 

@@ -103,8 +103,8 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
 														    mypropagleadTrackECALSurfContactPoint.y(),
 														    mypropagleadTrackECALSurfContactPoint.z())));
 	std::vector<CaloTowerDetId> mypropagleadTrack_closestCaloTowerNeighbourIds=getCaloTowerneighbourDetIds(myCaloSubdetectorGeometry, *caloTowerTopology, mypropagleadTrack_closestCaloTowerId);
-	for(std::vector<CaloTowerPtr>::const_iterator iCaloTower=myCaloTowers.begin();iCaloTower!=myCaloTowers.end();iCaloTower++){
-	  CaloTowerDetId iCaloTowerId((**iCaloTower).id());
+	for(const auto & myCaloTower : myCaloTowers){
+	  CaloTowerDetId iCaloTowerId((*myCaloTower).id());
 	  bool CaloTower_inside3x3matrix=false;
 	  if (iCaloTowerId==mypropagleadTrack_closestCaloTowerId) CaloTower_inside3x3matrix=true;
 	  if (!CaloTower_inside3x3matrix){
@@ -116,11 +116,11 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
 	    }
 	  }
 	  if (!CaloTower_inside3x3matrix) continue;	  
-	  myleadTrackHCAL3x3hitsEtSum+=(**iCaloTower).hadEt();
-	  if((**iCaloTower).hadEt()>=myleadTrackHCAL3x3hottesthitEt ){
-	    if ((**iCaloTower).hadEt()!=myleadTrackHCAL3x3hottesthitEt || 
-		((**iCaloTower).hadEt()==myleadTrackHCAL3x3hottesthitEt && fabs((**iCaloTower).eta()-mypropagleadTrackECALSurfContactPoint.Eta())<myleadTrackHCAL3x3hottesthitDEta)) myleadTrackHCAL3x3hottesthitDEta = fabs((**iCaloTower).eta()-mypropagleadTrackECALSurfContactPoint.Eta());
-	    myleadTrackHCAL3x3hottesthitEt=(**iCaloTower).hadEt();
+	  myleadTrackHCAL3x3hitsEtSum+=(*myCaloTower).hadEt();
+	  if((*myCaloTower).hadEt()>=myleadTrackHCAL3x3hottesthitEt ){
+	    if ((*myCaloTower).hadEt()!=myleadTrackHCAL3x3hottesthitEt || 
+		((*myCaloTower).hadEt()==myleadTrackHCAL3x3hottesthitEt && fabs((*myCaloTower).eta()-mypropagleadTrackECALSurfContactPoint.Eta())<myleadTrackHCAL3x3hottesthitDEta)) myleadTrackHCAL3x3hottesthitDEta = fabs((*myCaloTower).eta()-mypropagleadTrackECALSurfContactPoint.Eta());
+	    myleadTrackHCAL3x3hottesthitEt=(*myCaloTower).hadEt();
 	  }	
 	}	
 	myCaloTau.setleadTrackHCAL3x3hitsEtSum(myleadTrackHCAL3x3hitsEtSum);
@@ -130,8 +130,8 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
     
     if (UseTrackLeadTrackDZconstraint_){
       TrackRefVector myTksbis;
-      for (TrackRefVector::const_iterator iTrack=myTks.begin();iTrack!=myTks.end();++iTrack) {
-	if (fabs((**iTrack).dz(myPV.position())-myleadTkDZ)<=TrackLeadTrack_maxDZ_) myTksbis.push_back(*iTrack);
+      for (auto && myTk : myTks) {
+	if (fabs((*myTk).dz(myPV.position())-myleadTkDZ)<=TrackLeadTrack_maxDZ_) myTksbis.push_back(myTk);
       }
       myTks=myTksbis;
     }
@@ -151,9 +151,9 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
     math::XYZTLorentzVector mySignalTksInvariantMass(0.,0.,0.,0.);
     if((int)(mySignalTks.size())!=0){
       int mySignalTks_qsum=0;       
-      for(int i=0;i<(int)mySignalTks.size();i++){
-	mySignalTks_qsum+=mySignalTks[i]->charge();
-	math::XYZTLorentzVector mychargedpicand_fromTk_LorentzVect(mySignalTks[i]->momentum().x(),mySignalTks[i]->momentum().y(),mySignalTks[i]->momentum().z(),sqrt(std::pow((double)mySignalTks[i]->momentum().r(),2)+std::pow(chargedpi_mass_,2)));
+      for(const auto & mySignalTk : mySignalTks){
+	mySignalTks_qsum+=mySignalTk->charge();
+	math::XYZTLorentzVector mychargedpicand_fromTk_LorentzVect(mySignalTk->momentum().x(),mySignalTk->momentum().y(),mySignalTk->momentum().z(),sqrt(std::pow((double)mySignalTk->momentum().r(),2)+std::pow(chargedpi_mass_,2)));
 	mySignalTksInvariantMass+=mychargedpicand_fromTk_LorentzVect;
       }
       myCaloTau.setCharge(mySignalTks_qsum);    
@@ -168,7 +168,7 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
     
     // setting sum of Pt of the isolation annulus Tracks
     float myIsolTks_Ptsum=0.;
-    for(int i=0;i<(int)myIsolTks.size();i++) myIsolTks_Ptsum+=myIsolTks[i]->pt();
+    for(const auto & myIsolTk : myIsolTks) myIsolTks_Ptsum+=myIsolTk->pt();
     myCaloTau.setisolationTracksPtSum(myIsolTks_Ptsum);
 
 
@@ -188,35 +188,35 @@ CaloTau CaloRecoTauAlgorithm::buildCaloTau(edm::Event& iEvent,const edm::EventSe
   double maxDeltaR = 0.8;
     math::XYZPoint myCaloJetdir((*myCaloJet).px(),(*myCaloJet).py(),(*myCaloJet).pz());
     
-  for(EBRecHitCollection::const_iterator theRecHit = EBRecHits->begin();theRecHit != EBRecHits->end(); theRecHit++){
+  for(const auto & theRecHit : *EBRecHits){
     theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalBarrel);
-    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit.id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
-      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit.energy());
       thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
-      mySelectedDetId_.push_back(theRecHit->id());
+      mySelectedDetId_.push_back(theRecHit.id());
     }
   }
 
-for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit != EERecHits->end(); theRecHit++){
+for(const auto & theRecHit : *EERecHits){
     theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalEndcap);
-    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit.id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
-      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit.energy());
       thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
-      mySelectedDetId_.push_back(theRecHit->id());
+      mySelectedDetId_.push_back(theRecHit.id());
     }
 }
- for(ESRecHitCollection::const_iterator theRecHit = ESRecHits->begin();theRecHit != ESRecHits->end(); theRecHit++){
+ for(const auto & theRecHit : *ESRecHits){
   theCaloSubdetectorGeometry = theCaloGeometry->getSubdetectorGeometry(DetId::Ecal,EcalPreshower);
-    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit->id());  
+    const CaloCellGeometry* theRecHitCell=theCaloSubdetectorGeometry->getGeometry(theRecHit.id());  
     math::XYZPoint theRecHitCell_XYZPoint(theRecHitCell->getPosition().x(),theRecHitCell->getPosition().y(),theRecHitCell->getPosition().z());
     if(ROOT::Math::VectorUtil::DeltaR(myCaloJetdir,theRecHitCell_XYZPoint) < maxDeltaR){
-      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit->energy());
+      std::pair<math::XYZPoint,float> thePositionAndEnergyEcalRecHit(theRecHitCell_XYZPoint,theRecHit.energy());
       thePositionAndEnergyEcalRecHits.push_back(thePositionAndEnergyEcalRecHit);
-      mySelectedDetId_.push_back(theRecHit->id());
+      mySelectedDetId_.push_back(theRecHit.id());
     }
  }
 
@@ -272,9 +272,9 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
 
   math::XYZTLorentzVector myTks_XYZTLorentzVect(0.,0.,0.,0.);
   math::XYZTLorentzVector alternatLorentzVect(0.,0.,0.,0.);
-  for(TrackRefVector::iterator iTrack=myTks.begin();iTrack!=myTks.end();iTrack++) {
+  for(auto && myTk : myTks) {
     // build a charged pion candidate Lorentz vector from a Track
-    math::XYZTLorentzVector iChargedPionCand_XYZTLorentzVect((**iTrack).momentum().x(),(**iTrack).momentum().y(),(**iTrack).momentum().z(),sqrt(std::pow((double)(**iTrack).momentum().r(),2)+std::pow(chargedpi_mass_,2)));
+    math::XYZTLorentzVector iChargedPionCand_XYZTLorentzVect((*myTk).momentum().x(),(*myTk).momentum().y(),(*myTk).momentum().z(),sqrt(std::pow((double)(*myTk).momentum().r(),2)+std::pow(chargedpi_mass_,2)));
     myTks_XYZTLorentzVect+=iChargedPionCand_XYZTLorentzVect;
     alternatLorentzVect+=iChargedPionCand_XYZTLorentzVect;
   }
@@ -296,8 +296,8 @@ for(EERecHitCollection::const_iterator theRecHit = EERecHits->begin();theRecHit 
     
   // setting Et of the highest Et HCAL CaloTower
   double mymaxEtHCALtower_Et=0.; 
-  for(unsigned int iTower=0;iTower<myCaloTowers.size();iTower++){
-    if((*myCaloTowers[iTower]).hadEt()>=mymaxEtHCALtower_Et) mymaxEtHCALtower_Et=(*myCaloTowers[iTower]).hadEt();
+  for(const auto & myCaloTower : myCaloTowers){
+    if((*myCaloTower).hadEt()>=mymaxEtHCALtower_Et) mymaxEtHCALtower_Et=(*myCaloTower).hadEt();
   }
   myCaloTau.setmaximumHCALhitEt(mymaxEtHCALtower_Et);
 

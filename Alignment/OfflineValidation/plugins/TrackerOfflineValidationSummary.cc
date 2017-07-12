@@ -255,12 +255,11 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
                                           std::map<std::string,std::string>& substructureName,
                                           const TrackerTopology* tTopo)
 {
-  for(std::map<int, TrackerOfflineValidationSummary::ModuleHistos>::iterator it = moduleHist.begin(), 
-	itEnd= moduleHist.end(); it != itEnd;++it ) { 
+  for(auto & it : moduleHist) { 
     treeMem.clear(); // make empty/default
     
     //variables concerning the tracker components/hierarchy levels
-    const DetId detId = it->first;
+    const DetId detId = it.first;
     treeMem.moduleId = detId;
     treeMem.subDetId = detId.subdetId();
 
@@ -366,61 +365,61 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     
     
     // Assign histos from first step (TrackerOfflineValidation) to the module's entry in the TTree for retrieving mean, rms, median ...
-    const std::string histDir = associateModuleHistsWithTree(treeMem, it->second, substructureName);
+    const std::string histDir = associateModuleHistsWithTree(treeMem, it.second, substructureName);
     
     
     //mean and RMS values (extracted from histograms Xprime on module level)
-    treeMem.entries = static_cast<UInt_t>(it->second.ResXprimeHisto->GetEntries());
-    treeMem.meanX = it->second.ResXprimeHisto->GetMean();
-    treeMem.rmsX  = it->second.ResXprimeHisto->GetRMS();
+    treeMem.entries = static_cast<UInt_t>(it.second.ResXprimeHisto->GetEntries());
+    treeMem.meanX = it.second.ResXprimeHisto->GetMean();
+    treeMem.rmsX  = it.second.ResXprimeHisto->GetRMS();
     //treeMem.sigmaX = Fwhm(it->second.ResXprimeHisto)/2.355;
     if (useFit_) {
       //call fit function which returns mean and sigma from the fit
       //for absolute residuals
-      std::pair<float,float> fitResult1 = this->fitResiduals(it->second.ResXprimeHisto);
+      std::pair<float,float> fitResult1 = this->fitResiduals(it.second.ResXprimeHisto);
       treeMem.fitMeanX = fitResult1.first;
       treeMem.fitSigmaX = fitResult1.second;
       //for normalized residuals
-      std::pair<float,float> fitResult2 = this->fitResiduals(it->second.NormResXprimeHisto);
+      std::pair<float,float> fitResult2 = this->fitResiduals(it.second.NormResXprimeHisto);
       treeMem.fitMeanNormX = fitResult2.first;
       treeMem.fitSigmaNormX = fitResult2.second;
     }
     
     //get median for absolute residuals
-    treeMem.medianX = this->getMedian(it->second.ResXprimeHisto);
+    treeMem.medianX = this->getMedian(it.second.ResXprimeHisto);
 
-    int numberOfBins=it->second.ResXprimeHisto->GetNbinsX();
-    treeMem.numberOfUnderflows = it->second.ResXprimeHisto->GetBinContent(0);
-    treeMem.numberOfOverflows = it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
-    treeMem.numberOfOutliers =  it->second.ResXprimeHisto->GetBinContent(0)+it->second.ResXprimeHisto->GetBinContent(numberOfBins+1);
+    int numberOfBins=it.second.ResXprimeHisto->GetNbinsX();
+    treeMem.numberOfUnderflows = it.second.ResXprimeHisto->GetBinContent(0);
+    treeMem.numberOfOverflows = it.second.ResXprimeHisto->GetBinContent(numberOfBins+1);
+    treeMem.numberOfOutliers =  it.second.ResXprimeHisto->GetBinContent(0)+it.second.ResXprimeHisto->GetBinContent(numberOfBins+1);
     //mean and RMS values (extracted from histograms(normalized Xprime on module level)
-    treeMem.meanNormX = it->second.NormResXprimeHisto->GetMean();
-    treeMem.rmsNormX = it->second.NormResXprimeHisto->GetRMS();
+    treeMem.meanNormX = it.second.NormResXprimeHisto->GetMean();
+    treeMem.rmsNormX = it.second.NormResXprimeHisto->GetRMS();
 
     double stats[20];
-    it->second.NormResXprimeHisto->GetStats(stats);
+    it.second.NormResXprimeHisto->GetStats(stats);
     // GF  treeMem.chi2PerDofX = stats[3]/(stats[0]-1);
     if (stats[0]) treeMem.chi2PerDofX = stats[3]/stats[0];
     
     //treeMem.sigmaNormX = Fwhm(it->second.NormResXprimeHisto)/2.355;
-    treeMem.histNameX = it->second.ResXprimeHisto->GetName();
-    treeMem.histNameNormX = it->second.NormResXprimeHisto->GetName();
+    treeMem.histNameX = it.second.ResXprimeHisto->GetName();
+    treeMem.histNameNormX = it.second.NormResXprimeHisto->GetName();
     
 
     // fill tree variables in local coordinates if set in cfg of TrackerOfllineValidation
-    if(it->second.ResHisto && it->second.NormResHisto){ // if(lCoorHistOn_) {
-      treeMem.meanLocalX = it->second.ResHisto->GetMean();
-      treeMem.rmsLocalX = it->second.ResHisto->GetRMS();
-      treeMem.meanNormLocalX = it->second.NormResHisto->GetMean();
-      treeMem.rmsNormLocalX = it->second.NormResHisto->GetRMS();
-      treeMem.histNameLocalX = it->second.ResHisto->GetName();
-      treeMem.histNameNormLocalX = it->second.NormResHisto->GetName();
+    if(it.second.ResHisto && it.second.NormResHisto){ // if(lCoorHistOn_) {
+      treeMem.meanLocalX = it.second.ResHisto->GetMean();
+      treeMem.rmsLocalX = it.second.ResHisto->GetRMS();
+      treeMem.meanNormLocalX = it.second.NormResHisto->GetMean();
+      treeMem.rmsNormLocalX = it.second.NormResHisto->GetRMS();
+      treeMem.histNameLocalX = it.second.ResHisto->GetName();
+      treeMem.histNameNormLocalX = it.second.NormResHisto->GetName();
     }
 
     // mean and RMS values in local y (extracted from histograms Yprime on module level)
     // might exist in pixel only
-    if (it->second.ResYprimeHisto) { //(stripYResiduals_){
-      TH1 *h = it->second.ResYprimeHisto;
+    if (it.second.ResYprimeHisto) { //(stripYResiduals_){
+      TH1 *h = it.second.ResYprimeHisto;
       treeMem.meanY = h->GetMean();
       treeMem.rmsY  = h->GetRMS();
       
@@ -436,8 +435,8 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
       treeMem.histNameY = h->GetName();
     }
     
-    if (it->second.NormResYprimeHisto) {
-      TH1 *h = it->second.NormResYprimeHisto;
+    if (it.second.NormResYprimeHisto) {
+      TH1 *h = it.second.NormResYprimeHisto;
       treeMem.meanNormY = h->GetMean();
       treeMem.rmsNormY  = h->GetRMS();
       h->GetStats(stats); // stats buffer defined above
@@ -455,12 +454,12 @@ TrackerOfflineValidationSummary::fillTree(TTree& tree, std::map<int, TrackerOffl
     const bool removeModuleLevelHists(parSet_.getParameter<bool>("removeModuleLevelHists"));
     if(removeModuleLevelHists){
       dbe_->setCurrentFolder("");
-      if(it->second.ResHisto)          dbe_->removeElement(histDir + "/" + it->second.ResHisto->GetName());
-      if(it->second.NormResHisto)      dbe_->removeElement(histDir + "/" + it->second.NormResHisto->GetName());
-      if(it->second.ResXprimeHisto)    dbe_->removeElement(histDir + "/" + it->second.ResXprimeHisto->GetName());
-      if(it->second.NormResXprimeHisto)dbe_->removeElement(histDir + "/" + it->second.NormResXprimeHisto->GetName());
-      if(it->second.ResYprimeHisto)    dbe_->removeElement(histDir + "/" + it->second.ResYprimeHisto->GetName());
-      if(it->second.NormResYprimeHisto)dbe_->removeElement(histDir + "/" + it->second.NormResYprimeHisto->GetName());
+      if(it.second.ResHisto)          dbe_->removeElement(histDir + "/" + it.second.ResHisto->GetName());
+      if(it.second.NormResHisto)      dbe_->removeElement(histDir + "/" + it.second.NormResHisto->GetName());
+      if(it.second.ResXprimeHisto)    dbe_->removeElement(histDir + "/" + it.second.ResXprimeHisto->GetName());
+      if(it.second.NormResXprimeHisto)dbe_->removeElement(histDir + "/" + it.second.NormResXprimeHisto->GetName());
+      if(it.second.ResYprimeHisto)    dbe_->removeElement(histDir + "/" + it.second.ResYprimeHisto->GetName());
+      if(it.second.NormResYprimeHisto)dbe_->removeElement(histDir + "/" + it.second.NormResYprimeHisto->GetName());
     }
     
     tree.Fill();
@@ -710,32 +709,32 @@ void
 TrackerOfflineValidationSummary::bookHarvestingHists()
 {
   edm::LogInfo("TrackerOfflineValidationSummary")<<"Harvesting histograms will be booked for "<<vHarvestingHierarchy_.size()<<" different hierarchy selections";
-  for(std::vector<HarvestingHierarchy>::iterator iHier = vHarvestingHierarchy_.begin(); iHier != vHarvestingHierarchy_.end(); ++iHier){
+  for(auto & iHier : vHarvestingHierarchy_){
     
     std::stringstream dmrXprimeHistoName, dmrYprimeHistoName, dmrXprimeHistoTitle, dmrYprimeHistoTitle;
-    dmrXprimeHistoName << "h_DmrXprime_" << iHier->hierarchyName;
-    dmrYprimeHistoName << "h_DmrYprime_" << iHier->hierarchyName;
-    dmrXprimeHistoTitle<<  "DMR for " << iHier->hierarchyName <<";<#DeltaX> [cm];# modules";
-    dmrYprimeHistoTitle<<  "DMR for " << iHier->hierarchyName <<";<#DeltaY> [cm];# modules";
+    dmrXprimeHistoName << "h_DmrXprime_" << iHier.hierarchyName;
+    dmrYprimeHistoName << "h_DmrYprime_" << iHier.hierarchyName;
+    dmrXprimeHistoTitle<<  "DMR for " << iHier.hierarchyName <<";<#DeltaX> [cm];# modules";
+    dmrYprimeHistoTitle<<  "DMR for " << iHier.hierarchyName <<";<#DeltaY> [cm];# modules";
     
     std::string directoryString(moduleDirectory_);
     if(directoryString.length()!=0)directoryString += "/";
-    directoryString += iHier->componentName;
+    directoryString += iHier.componentName;
     dbe_->setCurrentFolder(directoryString);
     
     int nBinsX(0); double xMin(0.), xMax(0.);
-    if(iHier->componentName == "Pixel"){
+    if(iHier.componentName == "Pixel"){
       this->getBinning("TH1DmrXprimePixelModules",nBinsX,xMin,xMax);
-      iHier->harvestingHistos.DmrXprime = dbe_->book1D(dmrXprimeHistoName.str(),dmrXprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+      iHier.harvestingHistos.DmrXprime = dbe_->book1D(dmrXprimeHistoName.str(),dmrXprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
       this->getBinning("TH1DmrYprimePixelModules",nBinsX,xMin,xMax);
-      iHier->harvestingHistos.DmrYprime = dbe_->book1D(dmrYprimeHistoName.str(),dmrYprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+      iHier.harvestingHistos.DmrYprime = dbe_->book1D(dmrYprimeHistoName.str(),dmrYprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
     }
-    else if(iHier->componentName == "Strip"){
+    else if(iHier.componentName == "Strip"){
       this->getBinning("TH1DmrXprimeStripModules",nBinsX,xMin,xMax);
-      iHier->harvestingHistos.DmrXprime = dbe_->book1D(dmrXprimeHistoName.str(),dmrXprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+      iHier.harvestingHistos.DmrXprime = dbe_->book1D(dmrXprimeHistoName.str(),dmrXprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
       if(!parSet_.getParameter<bool>("stripYDmrs"))continue;
       this->getBinning("TH1DmrYprimeStripModules",nBinsX,xMin,xMax);
-      iHier->harvestingHistos.DmrYprime = dbe_->book1D(dmrYprimeHistoName.str(),dmrYprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
+      iHier.harvestingHistos.DmrYprime = dbe_->book1D(dmrYprimeHistoName.str(),dmrYprimeHistoTitle.str(),nBinsX,xMin,xMax)->getTH1();
     }
   }
 }
@@ -762,12 +761,12 @@ TrackerOfflineValidationSummary::fillHarvestingHists(TTree& tree)
   const unsigned int minEntriesPerModule(parSet_.getParameter<unsigned int>("minEntriesPerModuleForDmr"));
   edm::LogInfo("TrackerOfflineValidationSummary")<<"Median of a module is added to DMR plots if it contains at least "<<minEntriesPerModule<<" hits";
   
-  for(std::vector<HarvestingHierarchy>::iterator iHier = vHarvestingHierarchy_.begin(); iHier != vHarvestingHierarchy_.end(); ++iHier){
-    for(std::vector<unsigned int>::const_iterator iTreeEntries = iHier->treeEntries.begin(); iTreeEntries != iHier->treeEntries.end(); ++iTreeEntries){
+  for(auto & iHier : vHarvestingHierarchy_){
+    for(std::vector<unsigned int>::const_iterator iTreeEntries = iHier.treeEntries.begin(); iTreeEntries != iHier.treeEntries.end(); ++iTreeEntries){
       tree.GetEntry(*iTreeEntries);
       if(treeMemPtr->entries < minEntriesPerModule)continue;
-      iHier->harvestingHistos.DmrXprime->Fill(treeMemPtr->medianX);
-      if(iHier->harvestingHistos.DmrYprime)iHier->harvestingHistos.DmrYprime->Fill(treeMemPtr->medianY);
+      iHier.harvestingHistos.DmrXprime->Fill(treeMemPtr->medianX);
+      if(iHier.harvestingHistos.DmrYprime)iHier.harvestingHistos.DmrYprime->Fill(treeMemPtr->medianY);
     }
   }
 }

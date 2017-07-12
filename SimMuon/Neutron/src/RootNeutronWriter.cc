@@ -11,12 +11,11 @@ RootNeutronWriter::RootNeutronWriter(const string & fileName)
 
 RootNeutronWriter::~RootNeutronWriter() 
 {
-  for(std::map<int, RootChamberWriter>::iterator mapItr = theChamberWriters.begin();
-      mapItr != theChamberWriters.end(); ++mapItr)
+  for(auto & theChamberWriter : theChamberWriters)
   {
-    mapItr->second.tree()->Print();
+    theChamberWriter.second.tree()->Print();
     // the tree will remember which file it's from
-    theFile = mapItr->second.tree()->GetCurrentFile();
+    theFile = theChamberWriter.second.tree()->GetCurrentFile();
   }
   theFile->Write();
 //  theFile->Close();

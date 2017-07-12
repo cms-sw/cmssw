@@ -10,6 +10,6 @@ Tokenizer::Tokenizer(const std::string & sep, const std::string & input, bool al
 }
 
 void Tokenizer::join(std::string & out, const std::string & sep, bool alsoempty) const {
-    for (super::const_iterator p=begin(); p!=end(); p++)
-      if (alsoempty || (!(*p).empty()) ) { out+=*p; out+=sep;}
+    for (const auto & p : *this)
+      if (alsoempty || (!p.empty()) ) { out+=p; out+=sep;}
 }

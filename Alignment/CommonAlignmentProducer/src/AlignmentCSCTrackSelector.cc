@@ -35,11 +35,11 @@ AlignmentCSCTrackSelector::select(const Tracks& tracks, const edm::Event& evt) c
 {
    Tracks result;
 
-   for (Tracks::const_iterator track = tracks.begin();  track != tracks.end();  ++track) {
+   for (auto track : tracks) {
       int hitsOnStationA = 0;
       int hitsOnStationB = 0;
 
-      for (trackingRecHit_iterator hit = (*track)->recHitsBegin();  hit != (*track)->recHitsEnd();  ++hit) {
+      for (trackingRecHit_iterator hit = track->recHitsBegin();  hit != track->recHitsEnd();  ++hit) {
 	 DetId id = (*hit)->geographicalId();
 
 	 if (id.det() == DetId::Muon  &&  id.subdetId() == MuonSubdetId::DT) {
@@ -65,7 +65,7 @@ AlignmentCSCTrackSelector::select(const Tracks& tracks, const edm::Event& evt) c
       else stationBokay = (m_minHitsPerStation <= hitsOnStationB  &&  hitsOnStationB <= m_maxHitsPerStation);
 
       if (stationAokay  &&  stationBokay) {
-	 result.push_back(*track);
+	 result.push_back(track);
       }
    } // end loop over tracks
   

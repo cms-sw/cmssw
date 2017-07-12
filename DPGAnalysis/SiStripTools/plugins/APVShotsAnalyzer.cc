@@ -279,15 +279,15 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    APVShotFinder apvsf(*digis,_zs);
    const std::vector<APVShot>& shots = apvsf.getShots();
 
-   for(std::vector<APVShot>::const_iterator shot=shots.begin();shot!=shots.end();++shot) {
-     if(shot->isGenuine()) {
+   for(const auto & shot : shots) {
+     if(shot.isGenuine()) {
 
        //get the fedid from the detid
 
-       uint32_t det=shot->detId();
+       uint32_t det=shot.detId();
        if (_useCabling){
 
-	 int apvPair = shot->apvNumber()/2;
+	 int apvPair = shot.apvNumber()/2;
 	 LogDebug("APVPair") << apvPair;
 
 	 const FedChannelConnection& theConn = _detCabling->getConnection( det , apvPair);
@@ -342,7 +342,7 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 	 _fed->Fill(lFedId);
 
 	 if(_fedrun && *_fedrun) (*_fedrun)->Fill(lFedId);
-	 _medianVsFED->Fill(lFedId,shot->median());
+	 _medianVsFED->Fill(lFedId,shot.median());
 
 
        }
@@ -350,17 +350,17 @@ APVShotsAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
        ++nshots;
 
 
-       _whichAPV->Fill(shot->apvNumber());
-       _median->Fill(shot->median());
-       _stripMult->Fill(shot->nStrips());
-       _subDetector->Fill(shot->subDet());
+       _whichAPV->Fill(shot.apvNumber());
+       _median->Fill(shot.median());
+       _stripMult->Fill(shot.nStrips());
+       _subDetector->Fill(shot.subDet());
 
-       if(_whichAPVrun && *_whichAPVrun) (*_whichAPVrun)->Fill(shot->apvNumber());
-       if(_medianrun && *_medianrun) (*_medianrun)->Fill(shot->median());
-       if(_stripMultrun && *_stripMultrun) (*_stripMultrun)->Fill(shot->nStrips());
-       if(_subDetectorrun && *_subDetectorrun) (*_subDetectorrun)->Fill(shot->subDet());
+       if(_whichAPVrun && *_whichAPVrun) (*_whichAPVrun)->Fill(shot.apvNumber());
+       if(_medianrun && *_medianrun) (*_medianrun)->Fill(shot.median());
+       if(_stripMultrun && *_stripMultrun) (*_stripMultrun)->Fill(shot.nStrips());
+       if(_subDetectorrun && *_subDetectorrun) (*_subDetectorrun)->Fill(shot.subDet());
 
-       tkhisto2->fill(det,shot->nStrips());;
+       tkhisto2->fill(det,shot.nStrips());;
        tkhisto->add(det,1);
 
 

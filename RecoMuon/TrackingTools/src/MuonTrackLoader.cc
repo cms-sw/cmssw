@@ -361,10 +361,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, nonUpdatedHandle);
   
     // Now Create traj<->tracks association map
-    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
-          i != tjTkMap.end(); i++ ) {
-      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
-                            edm::Ref<reco::TrackCollection>( nonUpdatedHandle, (*i).second ) );
+    for (auto & i : tjTkMap) {
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, i.first ),
+                            edm::Ref<reco::TrackCollection>( nonUpdatedHandle, i.second ) );
     }
     event.put(std::move(trajTrackMap), instance );
   }
@@ -405,15 +404,15 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
   // get combined Trajectories
   TrajectoryContainer combinedTrajs;
   TrajectoryContainer trackerTrajs;
-  for (CandidateContainer::const_iterator it = muonCands.begin(); it != muonCands.end(); ++it) {
-    LogDebug(metname) << "Loader glbSeedRef " << (*it)->trajectory()->seedRef().isNonnull();
-    if ((*it)->trackerTrajectory() )  LogDebug(metname) << " " << "tkSeedRef " << (*it)->trackerTrajectory()->seedRef().isNonnull();
+  for (auto muonCand : muonCands) {
+    LogDebug(metname) << "Loader glbSeedRef " << muonCand->trajectory()->seedRef().isNonnull();
+    if (muonCand->trackerTrajectory() )  LogDebug(metname) << " " << "tkSeedRef " << muonCand->trackerTrajectory()->seedRef().isNonnull();
 
-    combinedTrajs.push_back((*it)->trajectory());
-    if ( thePutTkTrackFlag ) trackerTrajs.push_back((*it)->trackerTrajectory());
+    combinedTrajs.push_back(muonCand->trajectory());
+    if ( thePutTkTrackFlag ) trackerTrajs.push_back(muonCand->trackerTrajectory());
 
     else {
-      if ((*it)->trackerTrajectory()) delete ((*it)->trackerTrajectory());
+      if (muonCand->trackerTrajectory()) delete (muonCand->trackerTrajectory());
     }
   
     // // Create the links between sta and tracker tracks
@@ -437,8 +436,8 @@ MuonTrackLoader::loadTracks(const CandidateContainer& muonCands,
 		      << trackerTrajs.size();
     trackerTracks = loadTracks(trackerTrajs, event, trackerTksVec, ttopo, theL2SeededTkLabel, theSmoothTkTrackFlag);
   } else {
-    for (TrajectoryContainer::iterator it = trackerTrajs.begin(); it != trackerTrajs.end(); ++it) {
-        if(*it) delete *it;
+    for (auto & trackerTraj : trackerTrajs) {
+        if(trackerTraj) delete trackerTraj;
     }
   }
 
@@ -560,22 +559,21 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     theSmoother->setHitCloner(&hitCloner);
   }
 
-  for(TrajectoryContainer::const_iterator rawTrajectory = trajectories.begin();
-      rawTrajectory != trajectories.end(); ++rawTrajectory){
+  for(auto trajectorie : trajectories){
 
     reco::TrackRef glbRef;
     std::vector<std::pair<Trajectory*,reco::TrackRef> >::const_iterator mmit;
     for(mmit = miniMap.begin();mmit!=miniMap.end();++mmit){
-      if(mmit->first == *rawTrajectory) glbRef = mmit->second;
+      if(mmit->first == trajectorie) glbRef = mmit->second;
     }
     
-    Trajectory &trajectory = **rawTrajectory;
+    Trajectory &trajectory = *trajectorie;
     
     if(doSmoothing){
-      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(**rawTrajectory);
+      vector<Trajectory> trajectoriesSM = theSmoother->trajectories(*trajectorie);
       
       if(!trajectoriesSM.empty()) {
-	const edm::RefToBase<TrajectorySeed> tmpSeedRef = (**rawTrajectory).seedRef();
+	const edm::RefToBase<TrajectorySeed> tmpSeedRef = (*trajectorie).seedRef();
 	trajectory = trajectoriesSM.front();
         trajectory.setSeedRef(tmpSeedRef);
       } else
@@ -593,7 +591,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     
     // Check if the extrapolation went well    
     if(!resultOfTrackExtrapAtPCA.first) {
-      delete *rawTrajectory;
+      delete trajectorie;
       continue;
     }
     
@@ -654,7 +652,7 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     // We don't need the original trajectory anymore.
     // It has been copied by value in the trajectoryCollection, if 
     // it is required to put it into the event.
-    delete *rawTrajectory;
+    delete trajectorie;
 
     if(theTrajectoryFlag) tjTkMap[iTjRef-1] = iTkRef-1;
   }
@@ -683,10 +681,9 @@ MuonTrackLoader::loadTracks(const TrajectoryContainer& trajectories,
     auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, nonUpdatedHandle);
 
     // Now Create traj<->tracks association map
-    for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin(); 
-          i != tjTkMap.end(); i++ ) {
-      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
-                            edm::Ref<reco::TrackCollection>( nonUpdatedHandle, (*i).second ) );
+    for (auto & i : tjTkMap) {
+      trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, i.first ),
+                            edm::Ref<reco::TrackCollection>( nonUpdatedHandle, i.second ) );
     }
     event.put(std::move(trajTrackMap), instance );
   }

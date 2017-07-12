@@ -461,22 +461,21 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
 
 void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, MagProviderInterpol*> & interpolators) {
   // Build all MagVolumes setting the MagProviderInterpol
-  for (handles::const_iterator vol=volumes.begin(); vol!=volumes.end();
-       ++vol){
+  for (auto volume : volumes){
     const MagProviderInterpol* mp = 0;
-    if (interpolators.find((*vol)->magFile)!=interpolators.end()) {
-      mp = interpolators[(*vol)->magFile];
+    if (interpolators.find(volume->magFile)!=interpolators.end()) {
+      mp = interpolators[volume->magFile];
     } else {
-      edm::LogError("MagGeoBuilderFromDDDbuildMagVolumes") << "No interpolator found for file " << (*vol)->magFile
-							   << " vol: " << (*vol)->volumeno << "\n" << interpolators.size() <<endl;
+      edm::LogError("MagGeoBuilderFromDDDbuildMagVolumes") << "No interpolator found for file " << volume->magFile
+							   << " vol: " << volume->volumeno << "\n" << interpolators.size() <<endl;
     }  
 
     // Search for [volume,sector] in the list of scaling factors; sector = 0 handled as wildcard
     // ASSUMPTION: copyno == sector.
-    int key = ((*vol)->volumeno)*100+(*vol)->copyno; 
+    int key = (volume->volumeno)*100+volume->copyno; 
     map<int, double>::const_iterator isf = theScalingFactors.find(key);
     if (isf == theScalingFactors.end()) {
-      key = ((*vol)->volumeno)*100;
+      key = (volume->volumeno)*100;
       isf = theScalingFactors.find(key);
     }
     
@@ -484,25 +483,25 @@ void MagGeoBuilderFromDDD::buildMagVolumes(const handles & volumes, map<string, 
     if (isf != theScalingFactors.end()) {
       sf = (*isf).second;
 
-      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< (*vol)->volumeno << "["<< (*vol)->copyno << "] (key:" << key << ")" << endl;
+      edm::LogInfo("MagneticField|VolumeBasedMagneticFieldESProducer") << "Applying scaling factor " << sf << " to "<< volume->volumeno << "["<< volume->copyno << "] (key:" << key << ")" << endl;
     }
 
-    const GloballyPositioned<float> * gpos = (*vol)->placement();
-    (*vol)->magVolume = new MagVolume6Faces(gpos->position(),
+    const GloballyPositioned<float> * gpos = volume->placement();
+    volume->magVolume = new MagVolume6Faces(gpos->position(),
 					    gpos->rotation(),
-					    (*vol)->shape(),
-					    (*vol)->sides(),
+					    volume->shape(),
+					    volume->sides(),
 					    mp, sf);
 
-    if ((*vol)->copyno==(*vol)->masterSector) {
-      (*vol)->magVolume->ownsFieldProvider(true);
+    if (volume->copyno==volume->masterSector) {
+      volume->magVolume->ownsFieldProvider(true);
     }
 
-    (*vol)->magVolume->setIsIron((*vol)->isIron());
+    volume->magVolume->setIsIron(volume->isIron());
 
     // The name and sector of the volume are saved for debug purposes only. They may be removed at some point...
-    (*vol)->magVolume->volumeNo = (*vol)->volumeno;
-    (*vol)->magVolume->copyno = (*vol)->copyno;
+    volume->magVolume->volumeNo = volume->volumeno;
+    volume->magVolume->copyno = volume->copyno;
   }
 }
 
@@ -657,9 +656,8 @@ vector<MagESector*> MagGeoBuilderFromDDD::endcapSectors() const{
 vector<MagVolume6Faces*> MagGeoBuilderFromDDD::barrelVolumes() const{
   vector<MagVolume6Faces*> v;
   v.reserve(bVolumes.size());
-  for (handles::const_iterator i=bVolumes.begin();
-       i!=bVolumes.end(); ++i){
-    v.push_back((*i)->magVolume);
+  for (auto bVolume : bVolumes){
+    v.push_back(bVolume->magVolume);
   }
   return v;
 }
@@ -667,9 +665,8 @@ vector<MagVolume6Faces*> MagGeoBuilderFromDDD::barrelVolumes() const{
 vector<MagVolume6Faces*> MagGeoBuilderFromDDD::endcapVolumes() const{
   vector<MagVolume6Faces*> v;
   v.reserve(eVolumes.size());
-  for (handles::const_iterator i=eVolumes.begin();
-       i!=eVolumes.end(); ++i){
-    v.push_back((*i)->magVolume);
+  for (auto eVolume : eVolumes){
+    v.push_back(eVolume->magVolume);
   }
   return v;
 }

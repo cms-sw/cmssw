@@ -108,10 +108,10 @@ IsoTrig::IsoTrig(const edm::ParameterSet& iConfig) :
     tok_SiPixelRecHits = consumes<SiPixelRecHitCollection>(edm::InputTag("hltSiPixelRecHits"));
   }
   if(doChgIsolTree) {
-    for (unsigned int k=0; k<pixelTracksSources_.size(); ++k) {
+    for (const auto & pixelTracksSource : pixelTracksSources_) {
       //      edm::InputTag  pix (pixelTracksSources_[k],"",processName);
       //      tok_pixtks_.push_back(consumes<reco::TrackCollection>(pix));
-      tok_pixtks_.push_back(consumes<reco::TrackCollection>(pixelTracksSources_[k]));
+      tok_pixtks_.push_back(consumes<reco::TrackCollection>(pixelTracksSource));
     }
   }
 #ifdef DebugLog
@@ -316,9 +316,9 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
       unsigned int triggerindx = hltConfig.triggerIndex(triggerNames_[i]);
       const std::vector<std::string>& moduleLabels(hltConfig.moduleLabels(triggerindx));
       
-      for (unsigned int in=0; in<trigNames.size(); ++in) {
+      for (auto & trigName : trigNames) {
 	//	  if (triggerNames_[i].find(trigNames[in].c_str())!=std::string::npos || triggerNames_[i]==" ") {
-	if (triggerNames_[i].find(trigNames[in].c_str())!=std::string::npos) {
+	if (triggerNames_[i].find(trigName.c_str())!=std::string::npos) {
 #ifdef DebugLog
 	  if (verbosity%10 > 0) std::cout << "trigger that i want " << triggerNames_[i] << " accept " << triggerResults->accept(i) << std::endl;
 #endif
@@ -340,7 +340,7 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      std::cout << triggerNames_[i] << " accept " << hlt << " preL1 " 
 			<< preL1 << " preHLT " << preHLT << std::endl;
 #endif	    
-	    for (int iv=0; iv<3; ++iv) vec[iv].clear();
+	    for (auto & iv : vec) iv.clear();
 	    if (TrigList.find(RunNo) != TrigList.end() ) {
 	      TrigList[RunNo] += 1;
 	      } else {
@@ -353,9 +353,8 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
 	      std::vector<int> Keys;
 	      std::string label = triggerEvent.filterTag(ifilter).label();
 	      //loop over keys to objects passing this filter
-	      for (unsigned int imodule=0; imodule<moduleLabels.size(); 
-		     imodule++) {
-		if (label.find(moduleLabels[imodule]) != std::string::npos) {
+	      for (const auto & moduleLabel : moduleLabels) {
+		if (label.find(moduleLabel) != std::string::npos) {
 #ifdef DebugLog
 		  if (verbosity%10 > 0) std::cout << "FILTERNAME " << label << std::endl;
 #endif
@@ -979,61 +978,61 @@ void IsoTrig::studyTiming(const edm::Event& theEvent) {
     double ptTriggered  = -10;
     double etaTriggered = -100;
     double phiTriggered = -100;
-    for (unsigned int p=0; p<l1tauobjref.size(); p++) {
-      if (l1tauobjref[p]->pt()>ptTriggered) {
-	ptTriggered  = l1tauobjref[p]->pt(); 
-	phiTriggered = l1tauobjref[p]->phi();
-	etaTriggered = l1tauobjref[p]->eta();
+    for (auto & p : l1tauobjref) {
+      if (p->pt()>ptTriggered) {
+	ptTriggered  = p->pt(); 
+	phiTriggered = p->phi();
+	etaTriggered = p->eta();
       }
     }
-    for (unsigned int p=0; p<l1jetobjref.size(); p++) {
-      if (l1jetobjref[p]->pt()>ptTriggered) {
-	ptTriggered  = l1jetobjref[p]->pt();
-	phiTriggered = l1jetobjref[p]->phi();
-	etaTriggered = l1jetobjref[p]->eta();
+    for (auto & p : l1jetobjref) {
+      if (p->pt()>ptTriggered) {
+	ptTriggered  = p->pt();
+	phiTriggered = p->phi();
+	etaTriggered = p->eta();
       }
     }
-    for (unsigned int p=0; p<l1forjetobjref.size(); p++) {
-      if (l1forjetobjref[p]->pt()>ptTriggered) {
-	ptTriggered=l1forjetobjref[p]->pt();
-	phiTriggered=l1forjetobjref[p]->phi();
-	etaTriggered=l1forjetobjref[p]->eta();
+    for (auto & p : l1forjetobjref) {
+      if (p->pt()>ptTriggered) {
+	ptTriggered=p->pt();
+	phiTriggered=p->phi();
+	etaTriggered=p->eta();
       }
     }
-    for(unsigned iS=0; iS<pixelTrackRefsHE.size(); iS++) {
+    for(auto & iS : pixelTrackRefsHE) {
       reco::VertexCollection::const_iterator vitSel;
       double minDZ = 100;
       bool vtxMatch;
       for (reco::VertexCollection::const_iterator vit=pVertHE->begin(); vit!=pVertHE->end(); vit++) {
-	if (fabs(pixelTrackRefsHE[iS]->dz(vit->position()))<minDZ) {
-	  minDZ  = fabs(pixelTrackRefsHE[iS]->dz(vit->position()));
+	if (fabs(iS->dz(vit->position()))<minDZ) {
+	  minDZ  = fabs(iS->dz(vit->position()));
 	  vitSel = vit;
 	}
       }
       //cut on dYX:
-      if (minDZ!=100&&fabs(pixelTrackRefsHE[iS]->dxy(vitSel->position()))<vtxCutSeed_) vtxMatch=true;
+      if (minDZ!=100&&fabs(iS->dxy(vitSel->position()))<vtxCutSeed_) vtxMatch=true;
       if (minDZ==100) vtxMatch=true;
       
       //select tracks not matched to triggered L1 jet
-      double R=deltaR(etaTriggered, phiTriggered, pixelTrackRefsHE[iS]->eta(), pixelTrackRefsHE[iS]->phi());
+      double R=deltaR(etaTriggered, phiTriggered, iS->eta(), iS->phi());
       if (R>tauUnbiasCone_ && vtxMatch) nSeedHE++;
     }
-    for(unsigned iS=0; iS<pixelTrackRefsHB.size(); iS++) {
+    for(auto & iS : pixelTrackRefsHB) {
       reco::VertexCollection::const_iterator vitSel;
       double minDZ = 100;
       bool vtxMatch;
       for (reco::VertexCollection::const_iterator vit=pVertHB->begin(); vit!=pVertHB->end(); vit++) {
-	if (fabs(pixelTrackRefsHB[iS]->dz(vit->position()))<minDZ) {
-	  minDZ  = fabs(pixelTrackRefsHB[iS]->dz(vit->position()));
+	if (fabs(iS->dz(vit->position()))<minDZ) {
+	  minDZ  = fabs(iS->dz(vit->position()));
 	  vitSel = vit;
 	}
       }
       //cut on dYX:
-      if (minDZ!=100&&fabs(pixelTrackRefsHB[iS]->dxy(vitSel->position()))<101.0) vtxMatch=true;
+      if (minDZ!=100&&fabs(iS->dxy(vitSel->position()))<101.0) vtxMatch=true;
       if (minDZ==100) vtxMatch=true;
       
       //select tracks not matched to triggered L1 jet
-      double R=deltaR(etaTriggered, phiTriggered, pixelTrackRefsHB[iS]->eta(), pixelTrackRefsHB[iS]->phi());
+      double R=deltaR(etaTriggered, phiTriggered, iS->eta(), iS->phi());
       if (R>1.2 && vtxMatch) nSeedHB++;
     }
     
@@ -1202,28 +1201,28 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection>& trkCollection,
 
   math::XYZTLorentzVector mindRvec;
   double mindR;
-  for (unsigned int k=0; k<vec[2].size(); ++k) {
+  for (auto & k : vec[2]) {
     //// Find min of deta/dphi/dR for each of L3 objects with L2 objects
     mindR=999.9;
 #ifdef DebugLog
     if (verbosity%10 > 1) std::cout << "L3obj: pt " << vec[2][k].pt() << " eta " << vec[2][k].eta() << " phi " << vec[2][k].phi() << std::endl;
 #endif
-    for (unsigned int j=0; j<vec[1].size(); j++) {
-      dr   = dR(vec[2][k],vec[1][j]);
+    for (auto & j : vec[1]) {
+      dr   = dR(k,j);
       if (dr<mindR) {
 	mindR=dr;
-	mindRvec=vec[1][j];
+	mindRvec=j;
       }
     }
-    fillDifferences(0, vec[2][k], mindRvec, (verbosity%10 >0));
+    fillDifferences(0, k, mindRvec, (verbosity%10 >0));
     if (mindR < 0.03) {
-      fillDifferences(1, vec[2][k], mindRvec, (verbosity%10 >0));
+      fillDifferences(1, k, mindRvec, (verbosity%10 >0));
       fillHist(6, mindRvec);
-      fillHist(8, vec[2][k]);
+      fillHist(8, k);
     } else {
-      fillDifferences(2, vec[2][k], mindRvec, (verbosity%10 >0));
+      fillDifferences(2, k, mindRvec, (verbosity%10 >0));
       fillHist(7, mindRvec);
-      fillHist(9, vec[2][k]);
+      fillHist(9, k);
     }
 	      	      
     ////// Minimum deltaR for each of L3 objs with Reco::tracks
@@ -1243,8 +1242,8 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection>& trkCollection,
 	   trkItr!=trkCollection->end(); trkItr++) {
 	math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
 				   trkItr->pz(), trkItr->p());
-	double deltaR = dR(v4, vec[2][k]);
-	double dp     = std::abs(v4.r()/vec[2][k].r()-1.0);
+	double deltaR = dR(v4, k);
+	double dp     = std::abs(v4.r()/k.r()-1.0);
 	if (deltaR<mindR) {
 	  mindR    = deltaR;
 	  mindP    = dp;
@@ -1270,8 +1269,8 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection>& trkCollection,
 	     trkItr!=trkCollection->end(); trkItr++) {
 	  math::XYZTLorentzVector v4(trkItr->px(), trkItr->py(), 
 				     trkItr->pz(), trkItr->p());
-	  double deltaR = dR(v4, vec[2][k]);
-	  double dp     = std::abs(v4.r()/vec[2][k].r()-1.0);
+	  double deltaR = dR(v4, k);
+	  double dp     = std::abs(v4.r()/k.r()-1.0);
 	  if (dp<mindP && deltaR<0.03) {
 	    mindR    = deltaR;
 	    mindP    = dp;
@@ -1286,13 +1285,13 @@ void IsoTrig::studyTrigger(edm::Handle<reco::TrackCollection>& trkCollection,
 		    << mindRvec.phi() << std::endl;
 #endif
       }
-      fillDifferences(3, vec[2][k], mindRvec, (verbosity%10 >0));
+      fillDifferences(3, k, mindRvec, (verbosity%10 >0));
       fillHist(3, mindRvec);
       if(mindR < 0.03) {
-	fillDifferences(4, vec[2][k], mindRvec, (verbosity%10 >0));
+	fillDifferences(4, k, mindRvec, (verbosity%10 >0));
 	fillHist(4, mindRvec);
       } else {
-	fillDifferences(5, vec[2][k], mindRvec, (verbosity%10 >0));
+	fillDifferences(5, k, mindRvec, (verbosity%10 >0));
 	fillHist(5, mindRvec);
       }
       if (goodTk != trkCollection->end()) goodTks.push_back(goodTk);
@@ -1340,8 +1339,8 @@ void IsoTrig::studyIsolation(edm::Handle<reco::TrackCollection>& trkCollection,
 	HcalDetId detId = (HcalDetId)(trkDetItr->detIdHCAL);
 	ieta = detId.ieta();
       }
-      for (unsigned k=0; k<vec[0].size(); ++k) {
-	double deltaR = dR(v4, vec[0][k]);
+      for (auto & k : vec[0]) {
+	double deltaR = dR(v4, k);
 	if (deltaR<mindR) mindR = deltaR;
       }
 #ifdef DebugLog
@@ -1552,25 +1551,25 @@ void IsoTrig::getGoodTracks(const edm::Event& iEvent,
     l1trigobj->getObjects(trigger::TriggerL1ForJet, l1forjetobjref);
 
     double ptTriggered(-10), etaTriggered(-100), phiTriggered(-100); 
-    for (unsigned int p=0; p<l1tauobjref.size(); p++) {
-      if (l1tauobjref[p]->pt()>ptTriggered) {
-	ptTriggered  = l1tauobjref[p]->pt(); 
-	phiTriggered = l1tauobjref[p]->phi();
-	etaTriggered = l1tauobjref[p]->eta();
+    for (auto & p : l1tauobjref) {
+      if (p->pt()>ptTriggered) {
+	ptTriggered  = p->pt(); 
+	phiTriggered = p->phi();
+	etaTriggered = p->eta();
       }
     }
-    for (unsigned int p=0; p<l1jetobjref.size(); p++) {
-      if (l1jetobjref[p]->pt()>ptTriggered) {
-	ptTriggered  = l1jetobjref[p]->pt();
-	phiTriggered = l1jetobjref[p]->phi();
-	etaTriggered = l1jetobjref[p]->eta();
+    for (auto & p : l1jetobjref) {
+      if (p->pt()>ptTriggered) {
+	ptTriggered  = p->pt();
+	phiTriggered = p->phi();
+	etaTriggered = p->eta();
       }
     }
-    for (unsigned int p=0; p<l1forjetobjref.size(); p++) {
-      if (l1forjetobjref[p]->pt()>ptTriggered) {
-	ptTriggered=l1forjetobjref[p]->pt();
-	phiTriggered=l1forjetobjref[p]->phi();
-	etaTriggered=l1forjetobjref[p]->eta();
+    for (auto & p : l1forjetobjref) {
+      if (p->pt()>ptTriggered) {
+	ptTriggered=p->pt();
+	phiTriggered=p->phi();
+	etaTriggered=p->eta();
       }
     }
     double pTriggered = ptTriggered*cosh(etaTriggered);
@@ -1615,8 +1614,8 @@ void IsoTrig::getGoodTracks(const edm::Event& iEvent,
     }
   }
 
-  for (unsigned int ii=0; ii<nGood.size(); ++ii)
-    t_nGoodTk->push_back(nGood[ii]);
+  for (int ii : nGood)
+    t_nGoodTk->push_back(ii);
 }
 
 void IsoTrig::fillHist(int indx, math::XYZTLorentzVector& vec) {

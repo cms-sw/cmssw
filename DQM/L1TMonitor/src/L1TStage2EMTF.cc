@@ -190,16 +190,16 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<l1t::EMTFDaqOutCollection> DaqOutCollection;
   e.getByToken(daqToken, DaqOutCollection);
 
-  for (std::vector<l1t::EMTFDaqOut>::const_iterator DaqOut = DaqOutCollection->begin(); DaqOut != DaqOutCollection->end(); ++DaqOut) {
-    const l1t::emtf::MECollection* MECollection = DaqOut->PtrMECollection();
-    for (std::vector<l1t::emtf::ME>::const_iterator ME = MECollection->begin(); ME != MECollection->end(); ++ME) {
-      if (ME->SE()) emtfErrors->Fill(1);
-      if (ME->SM()) emtfErrors->Fill(2);
-      if (ME->BXE()) emtfErrors->Fill(3);
-      if (ME->AF()) emtfErrors->Fill(4);
+  for (const auto & DaqOut : *DaqOutCollection) {
+    const l1t::emtf::MECollection* MECollection = DaqOut.PtrMECollection();
+    for (const auto & ME : *MECollection) {
+      if (ME.SE()) emtfErrors->Fill(1);
+      if (ME.SM()) emtfErrors->Fill(2);
+      if (ME.BXE()) emtfErrors->Fill(3);
+      if (ME.AF()) emtfErrors->Fill(4);
     }
 
-    const l1t::emtf::EventHeader* EventHeader = DaqOut->PtrEventHeader();
+    const l1t::emtf::EventHeader* EventHeader = DaqOut.PtrEventHeader();
     if (!EventHeader->Rdy()) emtfErrors->Fill(5);
   }
 
@@ -207,15 +207,15 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
   edm::Handle<l1t::EMTFHitCollection> HitCollection;
   e.getByToken(hitToken, HitCollection);
 
-  for (std::vector<l1t::EMTFHit>::const_iterator Hit = HitCollection->begin(); Hit != HitCollection->end(); ++Hit) {
-    int endcap = Hit->Endcap();
-    int sector = Hit->Sector();
-    int station = Hit->Station();
-    int ring = Hit->Ring();
-    int cscid = Hit->CSC_ID();
-    int chamber = Hit->Chamber();
-    int strip = Hit->Strip();
-    int wire = Hit->Wire();
+  for (const auto & Hit : *HitCollection) {
+    int endcap = Hit.Endcap();
+    int sector = Hit.Sector();
+    int station = Hit.Station();
+    int ring = Hit.Ring();
+    int cscid = Hit.CSC_ID();
+    int chamber = Hit.Chamber();
+    int strip = Hit.Strip();
+    int wire = Hit.Wire();
 
     int hist_index = 0;
     int cscid_offset = (sector - 1) * 9;
@@ -250,7 +250,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
 
     if (endcap > 0) hist_index = 17 - hist_index;
 
-    emtfHitBX->Fill(Hit->BX(), hist_index);
+    emtfHitBX->Fill(Hit.BX(), hist_index);
 
     emtfHitStrip[hist_index]->Fill(strip);
     emtfHitWire[hist_index]->Fill(wire);
@@ -258,7 +258,7 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfChamberStrip[hist_index]->Fill(chamber, strip);
     emtfChamberWire[hist_index]->Fill(chamber, wire);
 
-    if (Hit->Subsector() == 1) {
+    if (Hit.Subsector() == 1) {
       emtfHitOccupancy->Fill(cscid + cscid_offset, endcap * (station - 0.5));
     } else {
       emtfHitOccupancy->Fill(cscid + cscid_offset, endcap * (station + 0.5));
@@ -277,17 +277,17 @@ void L1TStage2EMTF::analyze(const edm::Event& e, const edm::EventSetup& c) {
     emtfnTracks->Fill(10);
   }
 
-  for (std::vector<l1t::EMTFTrack>::const_iterator Track = TrackCollection->begin(); Track != TrackCollection->end(); ++Track) {
-    int endcap = Track->Endcap();
-    int sector = Track->Sector();
-    float eta = Track->Eta();
-    float phi_glob_rad = Track->Phi_glob_rad();
-    int mode = Track->Mode();
-    int quality = Track->Quality();
+  for (const auto & Track : *TrackCollection) {
+    int endcap = Track.Endcap();
+    int sector = Track.Sector();
+    float eta = Track.Eta();
+    float phi_glob_rad = Track.Phi_glob_rad();
+    int mode = Track.Mode();
+    int quality = Track.Quality();
 
-    emtfTracknHits->Fill(Track->NumHits());
-    emtfTrackBX->Fill(endcap * (sector - 0.5), Track->BX());
-    emtfTrackPt->Fill(Track->Pt());
+    emtfTracknHits->Fill(Track.NumHits());
+    emtfTrackBX->Fill(endcap * (sector - 0.5), Track.BX());
+    emtfTrackPt->Fill(Track.Pt());
     emtfTrackEta->Fill(eta);
     emtfTrackPhi->Fill(phi_glob_rad);
     emtfTrackOccupancy->Fill(eta, phi_glob_rad);

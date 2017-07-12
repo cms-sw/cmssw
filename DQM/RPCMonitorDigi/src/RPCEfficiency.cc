@@ -293,8 +293,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      std::set<RPCDetId> rollsForThisDT = rollstoreDT[DTStationIndex(0,dtWheel,dtSector,dtStation)];
 	      
 	       LogDebug("rpcefficiency")<<"DT  \t \t Loop over all the rolls asociated to this DT";
-	      for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
-		const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+	      for (auto iteraRoll : rollsForThisDT){
+		const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll);
 		RPCDetId rpcId = rollasociated->id();
 		const BoundPlane & RPCSurface = rollasociated->surface(); 
 		
@@ -498,8 +498,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			  
 			  assert(rollsForThisDT.size()>=1);
 			  
-			  for (std::set<RPCDetId>::iterator iteraRoll=rollsForThisDT.begin();iteraRoll != rollsForThisDT.end(); iteraRoll++){
-			    const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll); //roll asociado a MB4
+			  for (auto iteraRoll : rollsForThisDT){
+			    const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll); //roll asociado a MB4
 			    const BoundPlane & RPCSurfaceRB4 = rollasociated->surface(); //surface MB4
 			    
 			    //   RPCGeomServ rpcsrv(rpcId);
@@ -689,9 +689,9 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      if(rpcRing!=1){
 		
 		//Loop over all the rolls
-		for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
+		for (auto iteraRoll : rollsForThisCSC){
 		  
-		  const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
+		  const RPCRoll* rollasociated = rpcGeo->roll(iteraRoll);
 		  RPCDetId rpcId = rollasociated->id();
 		  
 		  const BoundPlane & RPCSurface = rollasociated->surface(); 

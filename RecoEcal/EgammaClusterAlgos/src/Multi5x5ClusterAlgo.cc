@@ -205,14 +205,14 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       std::sort(whichClusCrysBelongsTo_.begin(),whichClusCrysBelongsTo_.end(),PairSortByFirst<DetId,int>());
       
   
-      for(size_t clusNr=0;clusNr<protoClusters_.size();clusNr++){
-	if(!protoClusters_[clusNr].containsSeed()){
-	  const EcalRecHit& seedHit =protoClusters_[clusNr].seed();
+      for(auto & protoCluster : protoClusters_){
+	if(!protoCluster.containsSeed()){
+	  const EcalRecHit& seedHit =protoCluster.seed();
 	  typedef std::vector<std::pair<DetId,int> >::iterator It;
 	  std::pair<It,It> result = std::equal_range(whichClusCrysBelongsTo_.begin(),whichClusCrysBelongsTo_.end(),seedHit.id(),PairSortByFirst<DetId,int>());
 	  
 	  if(result.first!=result.second) protoClusters_[result.first->second].removeHit(seedHit);
-	  protoClusters_[clusNr].addSeed();
+	  protoCluster.addSeed();
 	  
 	}
       }
@@ -220,8 +220,7 @@ void Multi5x5ClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
     
     
       
-    for(size_t clusNr=0;clusNr<protoClusters_.size();clusNr++){
-      const ProtoBasicCluster& protoCluster= protoClusters_[clusNr];
+    for(const auto & protoCluster : protoClusters_){
       Point position;
       position = posCalculator_.Calculate_Location(protoCluster.hits(), hits,geometry_p, geometryES_p);
       clusters_v.push_back(reco::BasicCluster(protoCluster.energy(), position, reco::CaloID(detector_), protoCluster.hits(),
@@ -275,7 +274,7 @@ void Multi5x5ClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
     if ((seedOutside && energy>=0) || (!seedOutside && energy >= seedEnergy)) 
     {
       if(reassignSeedCrysToClusterItSeeds_){ //if we're not doing this, we dont need this info so lets not bother filling it
-	for(size_t hitNr=0;hitNr<current_v.size();hitNr++) whichClusCrysBelongsTo_.push_back(std::pair<DetId,int>(current_v[hitNr].first,protoClusters_.size()));
+	for(auto & hitNr : current_v) whichClusCrysBelongsTo_.push_back(std::pair<DetId,int>(hitNr.first,protoClusters_.size()));
       }
 	protoClusters_.push_back(ProtoBasicCluster(energy,*seedIt,current_v));
       
@@ -315,14 +314,14 @@ bool Multi5x5ClusterAlgo::checkMaxima(CaloNavigator<DetId> &navigator,
     navigator.home();
 
     std::vector<DetId>::const_iterator detItr;
-    for (unsigned int i = 0; i < swissCrossVec.size(); ++i)
+    for (auto & i : swissCrossVec)
     {
 
         // look for this hit
-        thisHit = recHits_->find(swissCrossVec[i]);
+        thisHit = recHits_->find(i);
 
         // continue if this hit was not found
-        if  ((swissCrossVec[i] == DetId(0)) || thisHit == recHits_->end()) continue; 
+        if  ((i == DetId(0)) || thisHit == recHits_->end()) continue; 
 
         // the recHit has to be skipped in the local maximum search if it was found
         // in the map of channels to be excluded 
@@ -456,8 +455,8 @@ bool Multi5x5ClusterAlgo::ProtoBasicCluster::addSeed()
 
 bool Multi5x5ClusterAlgo::ProtoBasicCluster::isSeedCrysInHits_()const
 {
-  for(size_t hitNr=0;hitNr<hits_.size();hitNr++){
-    if(seed_.id()==hits_[hitNr].first) return true;
+  for(const auto & hit : hits_){
+    if(seed_.id()==hit.first) return true;
   }
   return false;
 }

@@ -28,12 +28,11 @@ CSCWireHitSim::simulate(const CSCLayer * layer,
   const CSCLayerGeometry * geom = layer->geometry(); 
 
   theNewWireHits.clear();
-  for (edm::PSimHitContainer::const_iterator hitItr = simHits.begin();
-       hitItr != simHits.end();  ++hitItr)
+  for (const auto & simHit : simHits)
   {
 
     std::vector<LocalPoint> ionClusters 
-      = getIonizationClusters(*hitItr, layer, engine);
+      = getIonizationClusters(simHit, layer, engine);
 
     unsigned nClusters = ionClusters.size();
     theNewWireHits.reserve(theNewWireHits.size()+nClusters);
@@ -48,7 +47,7 @@ CSCWireHitSim::simulate(const CSCLayer * layer,
 
       theNewWireHits.push_back( 
           theDriftSim->getWireHit(ionClusters[icl], layer, nearestWire,
-                                  *hitItr, engine) );
+                                  simHit, engine) );
 
     }
   } 
