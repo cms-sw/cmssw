@@ -191,7 +191,12 @@ void DQMFileSaverPB::fillDescriptions(
       "Label of the stream.");
 
   DQMFileSaverBase::fillDescription(desc);
-  descriptions.add("saver", desc);
+
+  // Changed to use addDefault instead of add here because previously
+  // DQMFileSaverOnline and DQMFileSaverPB both used the module label
+  // "saver" which caused conflicting cfi filenames to be generated.
+  // add could be used if unique module labels were given.
+  descriptions.addDefault(desc);
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
