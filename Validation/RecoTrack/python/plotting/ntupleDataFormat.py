@@ -331,21 +331,29 @@ class _TrackingParticleMatchAdaptor(object):
         return TrackingParticle(self._tree, idx)
 
     def bestMatchingTrackingParticleShareFrac(self):
+        """Fraction of shared hits with reco hits as denominator for best-matching TrackingParticle."""
         return self.bestSimTrkShareFrac()
 
     def bestMatchingTrackingParticleShareFracSimDenom(self):
+        """Fraction of shared hits with TrackingParticle::numberOfTrackerHits() as denominator for best-matching TrackingParticle."""
         return self.bestSimTrkShareFracSimDenom()
 
+    def bestMatchingTrackingParticleShareFracSimClusterDenom(self):
+        """Fraction of shared hits with number of reco clusters associated to a TrackingParticle as denominator for best-matching TrackingParticle."""
+        return self.bestSimTrkShareFracSimClusterDenom()
+
     def bestMatchingTrackingParticleNormalizedChi2(self):
+        """Normalized chi2 calculated from track parameters+covariance matrix and TrackingParticle parameters for best-matching TrackingParticle."""
         return self.bestSimTrkNChi2()
 
     def bestMatchingTrackingParticleFromFirstHit(self):
         """Returns best-matching TrackingParticle, even for fake tracks, or None if there is no best-matching TrackingParticle.
 
         Best-matching is defined as the one with largest number of
-        hits matched to the hits of a track (>= 3). If there are many
-        fulfilling the same number of hits, the one inducing the
-        innermost hit of the track is chosen.
+        hits matched to the hits of a track (>= 3) starting from the
+        beginning of the track. If there are many fulfilling the same
+        number of hits, "a first TP" is chosen (a bit arbitrary, but
+        should be rare".
         """
         idx = self.bestFromFirstHitSimTrkIdx()
         if idx < 0:
@@ -353,12 +361,19 @@ class _TrackingParticleMatchAdaptor(object):
         return TrackingParticle(self._tree, idx)
 
     def bestMatchingTrackingParticleFromFirstHitShareFrac(self):
+        """Fraction of shared hits with reco hits as denominator for best-matching TrackingParticle starting from the first hit of a track."""
         return self.bestFromFirstHitSimTrkShareFrac()
 
     def bestMatchingTrackingParticleFromFirstHitShareFracSimDenom(self):
+        """Fraction of shared hits with TrackingParticle::numberOfTrackerHits() as denominator for best-matching TrackingParticle starting from the first hit of a track."""
         return self.bestFromFirstHitSimTrkShareFracSimDenom()
 
+    def bestMatchingTrackingParticleFromFirstHitShareFracSimClusterDenom(self):
+        """Fraction of shared hits with number of reco clusters associated to a TrackingParticle as denominator for best-matching TrackingParticle starting from the first hit of a track."""
+        return self.bestFromFirstHitSimTrkShareFracSimClusterDenom()
+
     def bestMatchingTrackingParticleFromFirstHitNormalizedChi2(self):
+        """Normalized chi2 calculated from track parameters+covariance matrix and TrackingParticle parameters for best-matching TrackingParticle starting from the first hit of a track."""
         return self.bestFromFirstHitSimTrkNChi2()
 
 ##########
