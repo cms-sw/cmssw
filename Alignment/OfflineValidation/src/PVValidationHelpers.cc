@@ -115,7 +115,7 @@ std::tuple<std::string,std::string,std::string> PVValHelper::getTypeString (PVVa
       break;
 
     default:
-      edm::LogWarning("PVValidationHelpers") <<" getTypeString() unknown residual type"<<type<<std::endl;
+      edm::LogWarning("PVValidationHelpers") <<" getTypeString() unknown residual type: "<<type<<std::endl;
     }
 
   return returnType;
@@ -148,7 +148,7 @@ std::tuple<std::string,std::string,std::string> PVValHelper::getVarString (PVVal
       returnVar = std::make_tuple("modZ","module number","");
       break;
     default:
-      edm::LogWarning("PVValidationHelpers") <<" getVarString() unknown plot variable"<<var<<std::endl;
+      edm::LogWarning("PVValidationHelpers") <<" getVarString() unknown plot variable: "<<var<<std::endl;
     }
 
   return returnVar;
