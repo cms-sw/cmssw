@@ -85,6 +85,7 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
   ibooker.setCurrentFolder(outputDir_);
 
   std::vector<float> bins;
+  bins.reserve(nBinsNum+1);
   for(int i = 1 ; i <= nBinsNum ; ++i) {
     bins.push_back(numH->GetBinLowEdge(i));
   }

@@ -62,11 +62,7 @@ TauL1TPair::TauL1TPair(const TauL1TPair& tauL1tPair) {
 }
 
 double TauL1TPair::dR() {
-  
-  float dEta = m_regTau ? (m_regTau->eta() - eta()) : 999.;					
-  float dPhi = m_regTau ? TMath::ACos(TMath::Cos(m_regTau->phi() - phi())) : 999.; 		
-  float dr = sqrt(dEta*dEta + dPhi*dPhi);
-  return dr;
+  return deltaR(m_regTau->eta(),m_regTau->phi(),eta(),phi());
 }
 
 
@@ -90,7 +86,7 @@ L1TTauOffline::L1TTauOffline(const edm::ParameterSet& ps) :
         histFolder_(ps.getParameter < std::string > ("histFolder")),
         efficiencyFolder_(histFolder_ + "/efficiency_raw"),
         stage2CaloLayer2TauToken_(consumes < l1t::TauBxCollection > (ps.getUntrackedParameter < edm::InputTag > ("l1tInputTag"))),
-        tauEfficiencyThresholds_(ps.getParameter < std::vector<double> > ("tauEfficiencyThresholds")),
+        tauEfficiencyThresholds_(ps.getParameter < std::vector<int> > ("tauEfficiencyThresholds")),
         tauEfficiencyBins_(ps.getParameter < std::vector<double> > ("tauEfficiencyBins"))
 {
   edm::LogInfo("L1TTauOffline") << "Constructor " << "L1TTauOffline::L1TTauOffline " << std::endl;
@@ -126,19 +122,23 @@ void L1TTauOffline::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const &
   //book at beginRun
   bookTauHistos(ibooker);
  
-  vector<string>::const_iterator trigNamesIt  = triggerPath_.begin();
-  vector<string>::const_iterator trigNamesEnd = triggerPath_.end();
-
-  for (; trigNamesIt!=trigNamesEnd; ++trigNamesIt) { 
+  for ( auto trigNamesIt = triggerPath_.begin() ; trigNamesIt!=triggerPath_.end() ; trigNamesIt++){
     
-    TString tNameTmp = TString(*trigNamesIt); 
-    TRegexp tNamePattern = TRegexp(tNameTmp,true);
+
+    std::string tNameTmp = (*trigNamesIt); 
+    std::string tNamePattern = "";
+    std::size_t found0 = tNameTmp.find("*");
+    if(found0!=std::string::npos) tNamePattern = tNameTmp.substr(0,tNameTmp.size()-1);
+    else tNamePattern = tNameTmp;
+
     int tIndex = -1;
     
     for (unsigned ipath = 0; ipath < m_hltConfig.size(); ++ipath) {
       
-      TString tmpName = TString(m_hltConfig.triggerName(ipath));
-      if (tmpName.Contains(tNamePattern)) {
+      std::string tmpName = m_hltConfig.triggerName(ipath);
+      
+      std::size_t found=tmpName.find(tNamePattern);
+      if (found!=std::string::npos){  
 	tIndex = int(ipath);
 	m_trigIndices.push_back(tIndex);
       }
@@ -243,22 +243,14 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
   getProbeTaus(e,taus,muons,primaryVertex);
   getTauL1tPairs(l1tCands);
 
-  reco::PFTauCollection::const_iterator tauIt  = taus->begin();
-  reco::PFTauCollection::const_iterator tauEnd = taus->end();
-
   vector<l1t::Tau> l1tContainer;
-  
+  l1tContainer.reserve(l1tCands->size()+1);
+
   for (auto tau = l1tCands->begin(0); tau != l1tCands->end(0); ++tau) {
      l1tContainer.push_back(*tau);
-  }
-
-  vector<l1t::Tau>::const_iterator l1tIt = l1tContainer.begin();;				
-  vector<l1t::Tau>::const_iterator l1tEnd = l1tContainer.end();				
-
-  vector<TauL1TPair>::const_iterator tauL1tPairsIt  = m_TauL1tPairs.begin();
-  vector<TauL1TPair>::const_iterator tauL1tPairsEnd = m_TauL1tPairs.end(); 
+  } 
      
-  for(; tauL1tPairsIt!=tauL1tPairsEnd; ++tauL1tPairsIt) {
+  for(auto tauL1tPairsIt=m_TauL1tPairs.begin(); tauL1tPairsIt!=m_TauL1tPairs.end(); ++tauL1tPairsIt) {
 
     float eta = tauL1tPairsIt->eta();
     float phi = tauL1tPairsIt->phi();
@@ -267,18 +259,13 @@ void L1TTauOffline::analyze(edm::Event const& e, edm::EventSetup const& eSetup)
     // unmatched gmt cands have l1tPt = -1.	
     float l1tPt  = tauL1tPairsIt->l1tPt();
 
-    vector<int>::const_iterator l1tPtCutsIt  = m_L1tPtCuts.begin();
-    vector<int>::const_iterator l1tPtCutsEnd = m_L1tPtCuts.end();
-
     int counter = 0;
 
     for (auto threshold : tauEfficiencyThresholds_) 
       {
-	std::string str_threshold = std::to_string(int(threshold));
+	std::string str_threshold = std::to_string(threshold);
       
-	int l1tPtCut = 0;
-	std::istringstream ss(str_threshold);
-	ss >> l1tPtCut;
+	int l1tPtCut = threshold;
 	bool l1tAboveCut = (l1tPt >= l1tPtCut);
 
 	stringstream ptCutToTag; ptCutToTag << l1tPtCut;
@@ -471,7 +458,7 @@ void L1TTauOffline::bookTauHistos(DQMStore::IBooker & ibooker)
 
 }
 
-const reco::Vertex L1TTauOffline::getPrimaryVertex( edm::Handle<reco::VertexCollection> & vertex, edm::Handle<reco::BeamSpot> & beamSpot ) {
+const reco::Vertex L1TTauOffline::getPrimaryVertex( edm::Handle<reco::VertexCollection> const& vertex, edm::Handle<reco::BeamSpot> const& beamSpot ) {
   
   reco::Vertex::Point posVtx;
   reco::Vertex::Error errVtx;
@@ -480,11 +467,7 @@ const reco::Vertex L1TTauOffline::getPrimaryVertex( edm::Handle<reco::VertexColl
 
   if (vertex.isValid())
     {
-
-      vector<reco::Vertex>::const_iterator vertexIt  = vertex->begin();
-      vector<reco::Vertex>::const_iterator vertexEnd = vertex->end();
-
-      for (;vertexIt!=vertexEnd;++vertexIt) 
+      for (auto vertexIt=vertex->begin();vertexIt!=vertex->end();++vertexIt) 
 	{
 	  if (vertexIt->isValid() && 
 	      !vertexIt->isFake()) 
@@ -509,17 +492,14 @@ const reco::Vertex L1TTauOffline::getPrimaryVertex( edm::Handle<reco::VertexColl
   return primaryVertex;
 }
 
-bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent>  & triggerEvent, const reco::Muon * muon) {
+bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent> const& triggerEvent, const reco::Muon * muon) {
 
 
   double matchDeltaR = 9999;
 
   trigger::TriggerObjectCollection trigObjs = triggerEvent->getObjects();
 
-  vector<int>::const_iterator trigIndexIt  = m_trigIndices.begin();
-  vector<int>::const_iterator trigIndexEnd = m_trigIndices.end();
-  
-  for(; trigIndexIt!=trigIndexEnd; ++trigIndexIt) {
+  for(auto trigIndexIt = m_trigIndices.begin(); trigIndexIt!=m_trigIndices.end(); ++trigIndexIt) {
 
     const vector<string> moduleLabels(m_hltConfig.moduleLabels(*trigIndexIt));
     const unsigned moduleIndex = m_hltConfig.size((*trigIndexIt))-2;
@@ -545,27 +525,22 @@ bool L1TTauOffline::matchHlt(edm::Handle<trigger::TriggerEvent>  & triggerEvent,
 
 }
 
-void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> & l1tCands) {					
+void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> const& l1tCands) {					
 
   m_TauL1tPairs.clear();
   
-  vector<const reco::PFTau*>::const_iterator probeTauIt  = m_ProbeTaus.begin();	
-  vector<const reco::PFTau*>::const_iterator probeTauEnd = m_ProbeTaus.end();		
   vector<l1t::Tau> l1tContainer;
+  l1tContainer.reserve(l1tCands->size()+1);
   
   for (auto tau = l1tCands->begin(0); tau != l1tCands->end(0); ++tau) {
     l1tContainer.push_back(*tau);
   }
+			
+  for (auto probeTauIt = m_ProbeTaus.begin(); probeTauIt!=m_ProbeTaus.end(); ++probeTauIt) {    
 
-  vector<l1t::Tau>::const_iterator l1tIt;					
-  vector<l1t::Tau>::const_iterator l1tEnd = l1tContainer.end();				
-  
-  for (; probeTauIt!=probeTauEnd; ++probeTauIt) {    
-    
     TauL1TPair pairBestCand((*probeTauIt),0);    
-    l1tIt = l1tContainer.begin();
     
-    for(; l1tIt!=l1tEnd; ++l1tIt) {
+    for(auto l1tIt =  l1tContainer.begin() ; l1tIt!=l1tContainer.end(); ++l1tIt) {
       
       TauL1TPair pairTmpCand((*probeTauIt),&(*l1tIt));
 
@@ -580,27 +555,22 @@ void L1TTauOffline::getTauL1tPairs(edm::Handle<l1t::TauBxCollection> & l1tCands)
 
 }
 
-void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons, edm::Handle<reco::PFMETCollection> &mets,  const reco::Vertex & vertex, edm::Handle<trigger::TriggerEvent> & trigEvent) {
+void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> const& muons, edm::Handle<reco::PFMETCollection> const& mets,  const reco::Vertex & vertex, edm::Handle<trigger::TriggerEvent> const& trigEvent) {
 
   m_TightMuons.clear();
-  reco::MuonCollection::const_iterator muonIt  = muons->begin();
-  reco::MuonCollection::const_iterator muonEnd = muons->end();
-
-  reco::MuonCollection::const_iterator muonIt2  = muons->begin();
-  reco::MuonCollection::const_iterator muonEnd2 = muons->end();
 
   const reco::PFMET *pfmet=NULL;
   pfmet=&(mets->front());
 
   int nb_mu=0;
 
-  for(; muonIt2!=muonEnd2; ++muonIt2) {
+  for(auto muonIt2 = muons->begin(); muonIt2!=muons->end(); ++muonIt2) {
     if (fabs(muonIt2->eta())< 2.4 && muonIt2->pt()>10 && muon::isLooseMuon((*muonIt2)) && (muonIt2->pfIsolationR04().sumChargedHadronPt+max(muonIt2->pfIsolationR04().sumNeutralHadronEt+muonIt2->pfIsolationR04().sumPhotonEt-0.5*muonIt2->pfIsolationR04().sumPUPt,0.0))/muonIt2->pt()<0.3) {
       ++nb_mu;
     }
   }
   bool foundTightMu=false;
-  for(; muonIt!=muonEnd; ++muonIt) {
+  for(auto muonIt = muons->begin(); muonIt!=muons->end(); ++muonIt) {
     if (!matchHlt(trigEvent,&(*muonIt))) continue;
     float muiso=(muonIt->pfIsolationR04().sumChargedHadronPt+max(muonIt->pfIsolationR04().sumNeutralHadronEt+muonIt->pfIsolationR04().sumPhotonEt-0.5*muonIt->pfIsolationR04().sumPUPt,0.0))/muonIt->pt();
 
@@ -612,16 +582,11 @@ void L1TTauOffline::getTightMuons(edm::Handle<reco::MuonCollection> & muons, edm
       } 
     }
   }
-  vector<const reco::Muon*>::const_iterator tightMuIt  = m_TightMuons.begin();
-  vector<const reco::Muon*>::const_iterator tightMuEnd  = m_TightMuons.end();
-  
 }
 
-void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFTauCollection> & taus, edm::Handle<reco::MuonCollection> & muons, const reco::Vertex & vertex) {
+void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFTauCollection> const& taus, edm::Handle<reco::MuonCollection> const& muons, const reco::Vertex & vertex) {
 
   m_ProbeTaus.clear();
-  reco::PFTauCollection::const_iterator tauIt  = taus->begin();
-  reco::PFTauCollection::const_iterator tauEnd = taus->end();
 
   edm::Handle<reco::PFTauDiscriminator> antimu;
   iEvent.getByToken(AntiMuInputTag_, antimu);
@@ -658,7 +623,8 @@ void L1TTauOffline::getProbeTaus(const edm::Event & iEvent,edm::Handle<reco::PFT
   if (m_TightMuons.size()>0){
      TLorentzVector mymu;
      mymu.SetPtEtaPhiE(m_TightMuons[0]->pt(),m_TightMuons[0]->eta(),m_TightMuons[0]->phi(),m_TightMuons[0]->energy());
-     for(unsigned iTau=0; tauIt!=tauEnd; ++tauIt,++iTau) {
+     int iTau=0;
+     for(auto tauIt  = taus->begin(); tauIt!=taus->end(); ++tauIt,++iTau) {
         reco::PFTauRef tauCandidate(taus, iTau);
 	TLorentzVector mytau;
 	mytau.SetPtEtaPhiE(tauIt->pt(),tauIt->eta(),tauIt->phi(),tauIt->energy());
