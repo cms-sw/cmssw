@@ -18,8 +18,7 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
-#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
-//#include "SimDataFormats/CTPPS/interface/LHCApertureApproximator.h"
+#include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 
 #include "TFile.h"

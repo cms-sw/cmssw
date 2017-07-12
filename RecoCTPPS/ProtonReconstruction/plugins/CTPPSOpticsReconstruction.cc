@@ -23,7 +23,7 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
 
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
-#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
+#include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
 

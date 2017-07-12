@@ -1,4 +1,4 @@
-#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
+#include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
 
 #include <vector>
 #include <iostream>

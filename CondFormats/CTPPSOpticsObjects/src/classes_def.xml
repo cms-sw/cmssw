@@ -1,0 +1,11 @@
+<lcgdict>
+  <class name="LHCOpticsApproximator" ClassVersion="1">
+    <version ClassVersion="1" checksum="1974952999"/>
+  </class>
+  <class name="LHCApertureApproximator" ClassVersion="1">
+    <version ClassVersion="1" checksum="2314677677"/>
+  </class>
+  <class name="TMultiDimFet" ClassVersion="1">
+    <version ClassVersion="1" checksum="2981266364"/>
+  </class>
+</lcgdict>

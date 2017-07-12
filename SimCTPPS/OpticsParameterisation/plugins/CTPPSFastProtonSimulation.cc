@@ -30,7 +30,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
+#include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
 
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"

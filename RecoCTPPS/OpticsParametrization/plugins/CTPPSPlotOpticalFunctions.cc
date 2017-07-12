@@ -13,7 +13,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
-#include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
+#include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
 
 #include "TGraph.h"
 

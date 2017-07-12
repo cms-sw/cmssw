@@ -2,7 +2,7 @@
 // Author: Christian Holm Christensen 07/11/2000
 
 #include "Riostream.h"
-#include "SimDataFormats/CTPPS/interface/TMultiDimFet.h"
+#include "CondFormats/CTPPSOpticsObjects/interface/TMultiDimFet.h"
 #include "TMath.h"
 #include "TH1.h"
 #include "TH2.h"
