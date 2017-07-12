@@ -42,8 +42,5 @@ _phase2_hcalLocalRecoSequence = hcalLocalRecoSequence.copy()
 _phase2_hcalLocalRecoSequence.remove(hbheprereco)
 
 from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
-phase2_hcal.toModify( horeco, digiLabel = cms.InputTag('simHcalDigis') )
-phase2_hcal.toModify( hfprereco, digiLabel = cms.InputTag('simHcalDigis','HFQIE10DigiCollection') )
-phase2_hcal.toModify( zdcreco, digiLabel = cms.InputTag('simHcalUnsuppressedDigis'), digiLabelhcal = cms.InputTag('simHcalUnsuppressedDigis') )
 phase2_hcal.toReplaceWith( hcalLocalRecoSequence, _phase2_hcalLocalRecoSequence )
 
