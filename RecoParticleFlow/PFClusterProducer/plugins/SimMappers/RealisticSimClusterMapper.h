@@ -16,7 +16,7 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
  RealisticSimClusterMapper(const edm::ParameterSet& conf,
 			 edm::ConsumesCollector& sumes) :
     InitialClusteringStepBase(conf,sumes),
-    _invisibleFraction(conf.getParameter<double>("invisibleFraction")),
+    invisibleFraction_(conf.getParameter<double>("invisibleFraction")),
     _exclusiveFraction(conf.getParameter<double>("exclusiveFraction")),
     _useMCFractionsForExclEnergy(conf.getParameter<bool>("useMCFractionsForExclEnergy"))
     {
@@ -38,7 +38,7 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
   
  private:  
   hgcal::RecHitTools rhtools_;
-  const float _invisibleFraction = 0.3f;
+  const float invisibleFraction_ = 0.3f;
   const float _exclusiveFraction = 0.7f;
   const bool _useMCFractionsForExclEnergy = false;
   edm::EDGetTokenT<SimClusterCollection> _simClusterToken;
