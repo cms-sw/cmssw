@@ -186,11 +186,28 @@ namespace edm {
       cfi_filename = labelAndDesc.first + "_cfi.py";
     }
     if (!usedCfiFileNames.insert(cfi_filename).second) {
-      throw edm::Exception(edm::errors::LogicError,
-        "While in function ConfigurationDescriptions::writeCfiForLabel\nTwo cfi files are being generated with the same name in the same directory\n")
-        << "The cfi file name is '" << cfi_filename << "'\n"
-        << "This error is probably caused by duplicate labels being passed to the\nConfigurationDescriptions::add function for one module or two different modules.\n"
-        << "module label = \"" << labelAndDesc.first << "\"\n";
+      edm::Exception ex(edm::errors::LogicError,
+                        "Two cfi files are being generated with the same name in the same directory.\n");
+      ex << "The cfi file name is '" << cfi_filename << "' and\n"
+         << "the module label is \'" << labelAndDesc.first << "\'.\n"
+         << "This error is probably caused by an error in one or more fillDescriptions functions\n"
+         << "where duplicate module labels are being passed to the ConfigurationDescriptions::add\n"
+         << "function. All such module labels must be unique within a package.\n"
+         << "If you do not want the generated cfi file and do not need more than one\n"
+         << "description for a plugin, then a way to fix this is to use the addDefault\n"
+         << "function instead of the add function.\n"
+         << "There are 3 common ways this problem can happen.\n"
+         << "1. This can happen when a module label is explicitly duplicated in one or more\n"
+         << "fillDescriptions functions. Fix these by changing the module labels to be unique.\n"
+         << "2. This can also happen when a module class is a template class and plugins are\n"
+         << "defined by instantiations with differing template parameters and these plugins\n"
+         << "share the same fillDescriptions function. Fix these by specializing the fillDescriptions\n"
+         << "function for each template instantiation.\n"
+         << "3. This can also happen when there is an inheritance heirarchy and multiple plugin modules\n"
+         << "are defined using derived classes and the base class which share the same fillDescriptions\n"
+         << "function. Fix these by redefining the fillDescriptions function in each derived class.\n";
+      ex.addContext("Executing function ConfigurationDescriptions::writeCfiForLabel");
+      throw ex;
     }
     std::ofstream outFile(cfi_filename.c_str());
 
