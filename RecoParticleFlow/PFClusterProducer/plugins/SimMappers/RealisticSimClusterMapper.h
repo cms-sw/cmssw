@@ -42,7 +42,7 @@ class RealisticSimClusterMapper : public InitialClusteringStepBase {
   const float exclusiveFraction_ = 0.7f;
   const bool useMCFractionsForExclEnergy_ = false;
   edm::EDGetTokenT<SimClusterCollection> simClusterToken_;
-  edm::Handle<SimClusterCollection> _simClusterH;
+  edm::Handle<SimClusterCollection> simClusterH_;
   
 };
 

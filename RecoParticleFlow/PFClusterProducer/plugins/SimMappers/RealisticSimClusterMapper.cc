@@ -27,7 +27,7 @@
 
 void RealisticSimClusterMapper::updateEvent(const edm::Event& ev)
 {
-    ev.getByToken(simClusterToken_, _simClusterH);
+    ev.getByToken(simClusterToken_, simClusterH_);
 }
 
 void RealisticSimClusterMapper::update(const edm::EventSetup& es)
@@ -41,7 +41,7 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         reco::PFClusterCollection& output)
 {
 
-    const SimClusterCollection& simClusters = *_simClusterH;
+    const SimClusterCollection& simClusters = *simClusterH_;
     auto const& hits = *input;
     RealisticHitToClusterAssociator realisticAssociator;
     constexpr const int numberOfLayers = 52;
