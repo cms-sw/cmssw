@@ -14,7 +14,7 @@ process.source = cms.Source('EmptySource')
 
 process.load('SimRomanPot.CTPPSOpticsParameterisation.lhcBeamProducer_cfi')
 process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisation_cfi')
-process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsReconstruction_cfi')
+process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')
 process.load('Validation.CTPPS.ctppsParameterisationValidation_cfi')
 
 process.out = cms.OutputModule('PoolOutputModule',

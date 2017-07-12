@@ -25,7 +25,7 @@
 #include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "SimDataFormats/CTPPS/interface/LHCOpticsApproximator.h"
 
-#include "SimRomanPot/CTPPSOpticsParameterisation/interface/ProtonReconstructionAlgorithm.h"
+#include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
 
 class CTPPSOpticsReconstruction : public edm::stream::EDProducer<> {
   public:

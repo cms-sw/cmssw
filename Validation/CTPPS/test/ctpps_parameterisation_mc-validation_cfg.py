@@ -19,7 +19,7 @@ process.source = cms.Source('PoolSource',
 )
 
 process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisation_cfi')
-process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsReconstruction_cfi')
+process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')
 process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('source')
 #process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('generatorSmeared')
 #process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('prunedGenParticles') # miniAOD
