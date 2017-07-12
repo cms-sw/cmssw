@@ -27,7 +27,7 @@ public:
 class DDPassAllFilter : public DDFilter
 {
 public:
-  bool accept(const DDExpandedView &) const override final {
+  bool accept(const DDExpandedView &) const final {
     return true;
   }
 };
@@ -40,9 +40,9 @@ class DDSpecificsFilter : public DDFilter
 public:
   DDSpecificsFilter();
   
-  ~DDSpecificsFilter();
+  ~DDSpecificsFilter() override;
   
-  bool accept(const DDExpandedView &) const override final; 
+  bool accept(const DDExpandedView &) const final; 
 	      
   void setCriteria(const DDValue & nameVal, // name & value of a variable 
                    DDCompOp );
@@ -73,7 +73,7 @@ public:
     attribute_(iAttribute,"",0 )
     {}
 
-  bool accept(const DDExpandedView &) const override final; 
+  bool accept(const DDExpandedView &) const final; 
 
 private:
   DDValue attribute_;
@@ -86,7 +86,7 @@ public:
     value_(iValue)
     {}
 
-  bool accept(const DDExpandedView &) const override final; 
+  bool accept(const DDExpandedView &) const final; 
 
 private:
   DDValue value_;
@@ -100,7 +100,7 @@ public:
     f1_(std::move(iF1)),
     f2_(std::move(iF2)) {}
 
-  bool accept(const DDExpandedView & node) const override final {
+  bool accept(const DDExpandedView & node) const final {
     return f1_.accept(node) && f2_.accept(node);
   }
 private:

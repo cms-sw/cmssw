@@ -16,7 +16,7 @@ class CSCGeometryAsChambers : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGeometryAsChambers( const edm::ParameterSet& );
-  ~CSCGeometryAsChambers();
+  ~CSCGeometryAsChambers() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

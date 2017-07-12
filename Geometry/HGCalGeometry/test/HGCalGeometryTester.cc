@@ -22,7 +22,7 @@
 class HGCalGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalGeometryTester(const edm::ParameterSet& );
-  ~HGCalGeometryTester();
+  ~HGCalGeometryTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

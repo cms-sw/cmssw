@@ -16,7 +16,7 @@ class CSCGeometryOfStrips : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGeometryOfStrips( const edm::ParameterSet& );
-  ~CSCGeometryOfStrips();
+  ~CSCGeometryOfStrips() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

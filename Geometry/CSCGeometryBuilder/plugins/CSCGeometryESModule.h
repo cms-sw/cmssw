@@ -22,7 +22,7 @@ public:
   CSCGeometryESModule(const edm::ParameterSet& p);
 
   /// Destructor
-  virtual ~CSCGeometryESModule();
+  ~CSCGeometryESModule() override;
 
   /// Produce CSCGeometry
   std::shared_ptr<CSCGeometry> produce(const MuonGeometryRecord& record);

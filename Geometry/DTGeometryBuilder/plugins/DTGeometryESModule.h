@@ -23,7 +23,7 @@ public:
   DTGeometryESModule(const edm::ParameterSet & p);
 
   /// Destructor
-  virtual ~DTGeometryESModule();
+  ~DTGeometryESModule() override;
 
   /// Produce DTGeometry.
   std::shared_ptr<DTGeometry> produce(const MuonGeometryRecord& record);

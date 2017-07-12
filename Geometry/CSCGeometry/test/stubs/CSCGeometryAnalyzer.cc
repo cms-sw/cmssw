@@ -17,7 +17,7 @@ class CSCGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGeometryAnalyzer( const edm::ParameterSet& );
-  ~CSCGeometryAnalyzer();
+  ~CSCGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

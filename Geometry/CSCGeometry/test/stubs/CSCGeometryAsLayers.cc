@@ -17,7 +17,7 @@ class CSCGeometryAsLayers : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGeometryAsLayers( const edm::ParameterSet& );
-  ~CSCGeometryAsLayers();
+  ~CSCGeometryAsLayers() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
