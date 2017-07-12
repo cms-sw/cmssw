@@ -128,16 +128,16 @@ std::float_t RecHitTools::getRadiusToSide(const DetId& id) const {
   return size;
 }
 
-unsigned int RecHitTools::getLayer(const int type) const {
+unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
 
   int layer(0);
-  if        (type == 1) {
+  if        (type == ForwardSubdetector::HGCEE) {
     auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
     layer       = (geomEE->topology().dddConstants()).layers(true);
-  } else if (type == 2) {
+  } else if (type == ForwardSubdetector::HGCHEF) {
     auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
     layer       = (geomFH->topology().dddConstants()).layers(true);
-  } else if (type == 3) {
+  } else if (type == ForwardSubdetector::HGCHEB) {
     auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
     layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
   } else {
