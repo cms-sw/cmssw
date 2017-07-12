@@ -226,7 +226,7 @@ hltTrackRefitterForSiStripMonitorTrack.Propagator              = cms.string('hlt
 hltTrackRefitterForSiStripMonitorTrack.Fitter                  = cms.string('hltESPFittingSmootherIT')
 hltTrackRefitterForSiStripMonitorTrack.MeasurementTrackerEvent = cms.InputTag('hltMeasurementTrackerEvent')
 hltTrackRefitterForSiStripMonitorTrack.NavigationSchool        = cms.string('navigationSchoolESProducer')
-hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltIter2Merged")
+hltTrackRefitterForSiStripMonitorTrack.src                     = cms.InputTag("hltTracksMerged") # hltIter2Merged
 
 HLTSiStripMonitorTrack.TopFolderName = cms.string('HLT/SiStrip')
 HLTSiStripMonitorTrack.TrackProducer = 'hltTrackRefitterForSiStripMonitorTrack'

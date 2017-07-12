@@ -53,10 +53,15 @@ iter2HPTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2HP'
 iter2HPTracksMonitoringHLT.TrackProducer    = 'hltIter2PFlowTrackSelectionHighPurity'
 iter2HPTracksMonitoringHLT.allTrackProducer = 'hltIter2PFlowTrackSelectionHighPurity'
 
+iter2MergedTracksMonitoringHLT = trackingMonHLT.clone()
+iter2MergedTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2Merged'
+iter2MergedTracksMonitoringHLT.TrackProducer    = 'hltIter2Merged'
+iter2MergedTracksMonitoringHLT.allTrackProducer = 'hltIter2Merged'
+
 iterHLTTracksMonitoringHLT = trackingMonHLT.clone()
-iterHLTTracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter2Merged'
-iterHLTTracksMonitoringHLT.TrackProducer    = 'hltIter2Merged'
-iterHLTTracksMonitoringHLT.allTrackProducer = 'hltIter2Merged'
+iterHLTTracksMonitoringHLT.FolderName       = 'HLT/Tracking/tracks'
+iterHLTTracksMonitoringHLT.TrackProducer    = 'hltTracksMerged'
+iterHLTTracksMonitoringHLT.allTrackProducer = 'hltTracksMerged'
 
 iter3TracksMonitoringHLT = trackingMonHLT.clone()
 iter3TracksMonitoringHLT.FolderName       = 'HLT/Tracking/iter3Merged'
@@ -73,6 +78,7 @@ trackingMonitorHLT = cms.Sequence(
     + iter0HPTracksMonitoringHLT
 #    + iter1HPTracksMonitoringHLT
 #    + iter2HPTracksMonitoringHLT
+    + iter2MergedTracksMonitoringHLT
     + iterHLTTracksMonitoringHLT
 )    
 
@@ -84,6 +90,7 @@ trackingMonitorHLTall = cms.Sequence(
     + iter1HPTracksMonitoringHLT
     + iter2TracksMonitoringHLT
     + iter2HPTracksMonitoringHLT
+    + iter2MergedTracksMonitoringHLT
     + iterHLTTracksMonitoringHLT
 #    + iter3TracksMonitoringHLT
 #    + iter4TracksMonitoringHLT
