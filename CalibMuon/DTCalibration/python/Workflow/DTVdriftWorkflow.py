@@ -76,7 +76,7 @@ class DTvdriftWorkflow( DTWorkflow ):
         self.process = tools.loadCmsProcess(self.pset_template)
 
         if self.options.inputVDriftDB:
-            add_local_vdrift_db(self)
+            self.add_local_vdrift_db(self)
         vdrift_db = "vDrift_segment"+ tag + ".db"
         vdrift_db = os.path.join(self.result_path, vdrift_db)
         self.process.dtVDriftSegmentWriter.vDriftAlgoConfig.rootFileName = "file:///" + merged_file

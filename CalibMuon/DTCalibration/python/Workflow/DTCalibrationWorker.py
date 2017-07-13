@@ -26,6 +26,7 @@ class DTCalibrationWorker(object):
         workflow_class = eval(class_name)
         workflow_class_instance = workflow_class(self.options)
         workflow_class_instance.run()
+        return workflow_class_instance.local_path
 
     @property
     def has_crab3_env(self):

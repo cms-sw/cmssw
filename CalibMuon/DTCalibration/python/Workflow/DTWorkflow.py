@@ -20,8 +20,6 @@ class DTWorkflow(CLIHelper, CrabHelper):
         self.options = options
         super( DTWorkflow, self ).__init__()
         self.digilabel = "muonDTDigis"
-        log.info("Initialize DTWorkflow with command:")
-        log.info(" ".join(sys.argv))
         # dict to hold required variables. Can not be marked in argparse to allow
         # loading of options from config
         self.required_options_dict = {}
@@ -283,7 +281,7 @@ class DTWorkflow(CLIHelper, CrabHelper):
                             stderr=subprocess.STDOUT,
                             shell = True)
         stdout = process.communicate()[0]
-        log.debug(stdout)
+        log.info(stdout)
         if process.returncode != 0:
             raise RuntimeError("Failed to use cmsRun for pset %s" % self.pset_name)
         return process.returncode
