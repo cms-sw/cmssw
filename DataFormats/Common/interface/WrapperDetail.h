@@ -44,8 +44,8 @@ namespace edm {
 
     // valueTypeInfo_() will return typeid(T::value_type) if T::value_type is declared and typeid(void) otherwise.
     // Definitions for the following struct and function templates are not needed; we only require the declarations.
-    template<typename T> static yes_tag& has_value_type(typename T::value_type*);
-    template<typename T> static no_tag& has_value_type(...);
+    template<typename T> static yes_tag has_value_type(typename T::value_type*);
+    template<typename T> static no_tag has_value_type(...);
 
     template<typename T> struct has_typedef_value_type {
       static constexpr bool value = std::is_same<decltype(has_value_type<T>(nullptr)), yes_tag>::value;
@@ -64,8 +64,8 @@ namespace edm {
 
     // memberTypeInfo_() will return typeid(T::member_type) if T::member_type is declared and typeid(void) otherwise.
     // Definitions for the following struct and function templates are not needed; we only require the declarations.
-    template<typename T> static yes_tag& has_member_type(typename T::member_type*);
-    template<typename T> static no_tag& has_member_type(...);
+    template<typename T> static yes_tag has_member_type(typename T::member_type*);
+    template<typename T> static no_tag has_member_type(...);
 
     template<typename T> struct has_typedef_member_type {
       static constexpr bool value = std::is_same<decltype(has_member_type<T>(nullptr)), yes_tag>::value;
