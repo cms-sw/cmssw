@@ -368,7 +368,7 @@ bool Pythia8Hadronizer::initializeForInternalPartons()
   
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
-  bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
+  bool internalMerging = !(fMasterGen->settings.word("Merging:Process")=="void");
   
   if (internalMatching && internalMerging) {
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
@@ -494,7 +494,7 @@ bool Pythia8Hadronizer::initializeForExternalPartons()
   
   //adapted from main89.cc in pythia8 examples
   bool internalMatching = fMasterGen->settings.flag("JetMatching:merge");
-  bool internalMerging = !(fMasterGen->settings.word("Merging:Process").compare("void")==0);
+  bool internalMerging = !(fMasterGen->settings.word("Merging:Process")=="void");
   
   if (internalMatching && internalMerging) {
     throw edm::Exception(edm::errors::Configuration,"Pythia8Interface")
