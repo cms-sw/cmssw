@@ -7,10 +7,12 @@
 ****************************************************************************/
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
-#include "DataFormats/DetId/interface/DetId.h"
+
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
+
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
+
 #include <iostream>
-#include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 using namespace std;
 
@@ -18,8 +20,7 @@ using namespace std;
 
 char TotemRPGeometry::Build(const DetGeomDesc *gD)
 {
-  // propagate through the GeometricalDet structure and add
-  // all detectors to 'theMap'
+  // propagate through the GeometricalDet structure and add all detectors to 'theMap'
   deque<const DetGeomDesc *> buffer;
   buffer.emplace_back(gD);
   while (!buffer.empty())
@@ -27,15 +28,22 @@ char TotemRPGeometry::Build(const DetGeomDesc *gD)
     const DetGeomDesc *d = buffer.front();
     buffer.pop_front();
 
-    // check if it is RP detector
-    if (! d->name().name().compare(DDD_TOTEM_RP_DETECTOR_NAME)
-       or d->name().name().compare(DDD_CTPPS_DIAMONDS_DETECTOR_NAME)==0
-	or d->name().name().compare(DDD_CTPPS_PIXELS_DETECTOR_NAME)==0){
-	AddDetector(d->geographicalID(), d);
-      }
-    // check if it is RP device (primary vacuum)
-    if (! d->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
+    // check if it is a sensor
+    if (d->name().name().compare(DDD_TOTEM_RP_SENSOR_NAME) == 0
+        || d->name().name().compare(DDD_CTPPS_DIAMONDS_SEGMENT_NAME) == 0
+	    || d->name().name().compare(DDD_CTPPS_PIXELS_SENSOR_NAME) == 0 )
+    {
+	  AddDetector(d->geographicalID(), d);
+    }
+
+    // check if it is a RP
+    if (d->name().name().compare(DDD_TOTEM_RP_RP_NAME) == 0
+        || d->name().name().compare(DDD_CTPPS_PIXELS_RP_NAME) == 0
+        || d->name().name().compare(DDD_CTPPS_DIAMONDS_RP_NAME) == 0
+      )
+    {
       AddRPDevice(d->geographicalID(), d);
+    }
     
     for (unsigned int i = 0; i < d->components().size(); i++)
       buffer.emplace_back(d->components()[i]);
@@ -127,7 +135,7 @@ const DetGeomDesc* TotemRPGeometry::GetRPDevice(unsigned int id) const
   RPDeviceMapType::const_iterator it = theRomanPotMap.find(id);
   if (it == theRomanPotMap.end())
     throw cms::Exception("TotemRPGeometry") << "Not found RP device with ID " << id << ", i.e. "
-      << TotemRPDetId(id);
+      << CTPPSDetId(id);
 
   return (*it).second;
 }
