@@ -129,7 +129,7 @@ BPHMonitor::~BPHMonitor()
 }
 
 MEbinning
-BPHMonitor::getHistoPSet(edm::ParameterSet pset)
+BPHMonitor::getHistoPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{
       pset.getParameter<int32_t>("nbins"), pset.getParameter<double>("xmin"), pset.getParameter<double>("xmax"),
@@ -137,13 +137,13 @@ BPHMonitor::getHistoPSet(edm::ParameterSet pset)
 }
 
 MEbinning
-BPHMonitor::getHistoLSPSet(edm::ParameterSet pset)
+BPHMonitor::getHistoLSPSet(const edm::ParameterSet& pset)
 {
   return MEbinning{pset.getParameter<int32_t>("nbins"), 0., double(pset.getParameter<int32_t>("nbins"))};
 }
 
 void
-BPHMonitor::setMETitle(METME& me, std::string titleX, std::string titleY)
+BPHMonitor::setMETitle(METME& me, const std::string& titleX, const std::string& titleY)
 {
   me.numerator->setAxisTitle(titleX, 1);
   me.numerator->setAxisTitle(titleY, 2);
@@ -409,15 +409,15 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
       if (muoSelection_ref(m))
         tagMuons.push_back(m);
     }
-    for (int i = 0; i < int(tagMuons.size()); i++) {
+    for (auto & tagMuon : tagMuons) {
       for (auto const& m : *muoHandle) {
         if (!L3_) {
           if (!matchToTrigger(hltpath, m, handleTriggerEvent))
             continue;
         }
-        if ((tagMuons[i].pt() == m.pt()))
+        if ((tagMuon.pt() == m.pt()))
           continue;                                                                                      // not the same
-        if ((tagMuons[i].p4() + m.p4()).M() > minmass_ && (tagMuons[i].p4() + m.p4()).M() < maxmass_) {  // near to J/psi mass
+        if ((tagMuon.p4() + m.p4()).M() > minmass_ && (tagMuon.p4() + m.p4()).M() < maxmass_) {  // near to J/psi mass
           muPhi_.denominator->Fill(m.phi());
           muEta_.denominator->Fill(m.eta());
           muPt_.denominator->Fill(m.pt());
@@ -667,7 +667,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
-              reco::Track itrk1 = t;
+              const reco::Track& itrk1 = t;
 
               if ((reco::deltaR(t.eta(), t.phi(), m1.eta(), m1.phi()) <= 0.001))
                 continue;  // checking overlaping
@@ -734,7 +734,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
-              reco::Track itrk1 = t;
+              const reco::Track& itrk1 = t;
               if ((reco::deltaR(t.eta(), t.phi(), m1.eta(), m1.phi()) <= 0.001))
                 continue;  // checking overlaping
               if ((reco::deltaR(t.eta(), t.phi(), m.eta(), m.phi()) <= 0.001))
@@ -805,8 +805,8 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                   continue;
                 if (!matchToTrigger(hltpath, t1, handleTriggerEvent))
                   continue;
-                reco::Track itrk1 = t;
-                reco::Track itrk2 = t1;
+                const reco::Track& itrk1 = t;
+                const reco::Track& itrk2 = t1;
 
                 if ((reco::deltaR(t.eta(), t.phi(), m1.eta(), m1.phi()) <= 0.001))
                   continue;  // checking overlaping
@@ -1126,7 +1126,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
-              reco::Track itrk1 = t;
+              const reco::Track& itrk1 = t;
               if ((reco::deltaR(t.eta(), t.phi(), m1.eta(), m1.phi()) <= 0.001))
                 continue;  // checking overlaping
               if ((reco::deltaR(t.eta(), t.phi(), m.eta(), m.phi()) <= 0.001))
@@ -1187,7 +1187,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
-              reco::Track itrk1 = t;
+              const reco::Track& itrk1 = t;
               if ((reco::deltaR(t.eta(), t.phi(), m1.eta(), m1.phi()) <= 0.001))
                 continue;  // checking overlaping
               if ((reco::deltaR(t.eta(), t.phi(), m.eta(), m.phi()) <= 0.001))
@@ -1257,8 +1257,8 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                   continue;
                 if (!matchToTrigger(hltpath, t1, handleTriggerEvent))
                   continue;
-                reco::Track itrk1 = t;
-                reco::Track itrk2 = t1;
+                const reco::Track& itrk1 = t;
+                const reco::Track& itrk2 = t1;
 
                 if ((reco::deltaR(t.eta(), t.phi(), m1.eta(), m1.phi()) <= 0.001))
                   continue;  // checking overlaping
@@ -1458,7 +1458,7 @@ BPHMonitor::fillDescriptions(edm::ConfigurationDescriptions& descriptions)
 
 template <typename T>
 bool
-BPHMonitor::matchToTrigger(std::string theTriggerName, T t, edm::Handle<trigger::TriggerEvent> handleTriggerEvent)
+BPHMonitor::matchToTrigger(const std::string& theTriggerName, T t, const edm::Handle<trigger::TriggerEvent>& handleTriggerEvent)
 {
   bool matchedToTrigger = false;
   if (handleTriggerEvent->sizeFilters() > 0) {
@@ -1473,8 +1473,8 @@ BPHMonitor::matchToTrigger(std::string theTriggerName, T t, edm::Handle<trigger:
         name = fullname;
       }
       const trigger::Keys& k = handleTriggerEvent->filterKeys(ia);
-      for (trigger::Keys::const_iterator ki = k.begin(); ki != k.end(); ++ki) {
-        reco::Particle theTriggerParticle = toc[*ki].particle();
+      for (unsigned short ki : k) {
+        reco::Particle theTriggerParticle = toc[ki].particle();
         if (name.find(theTriggerName) != string::npos) {
           if ((reco::deltaR(t.eta(), t.phi(), theTriggerParticle.eta(), theTriggerParticle.phi()) <= 0.2)) {
             matchedToTrigger = true;
