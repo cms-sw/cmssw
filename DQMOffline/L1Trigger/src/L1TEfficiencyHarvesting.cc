@@ -82,8 +82,10 @@ void L1TEfficiencyPlotHandler::book(DQMStore::IBooker &ibooker, DQMStore::IGette
   double min = numH->GetXaxis()->GetXmin();
   double max = numH->GetXaxis()->GetXmax();
 
+  std::string denXaxisTitle{denH->GetXaxis()->GetTitle()};
+
   ibooker.setCurrentFolder(outputDir_);
-  h_efficiency_ = ibooker.book1D(plotName_, plotName_, nBinsNum, min, max);
+  h_efficiency_ = ibooker.book1D(plotName_, plotName_+";"+denXaxisTitle+";L1 efficiency", nBinsNum, min, max);
 
 }
 
