@@ -271,7 +271,6 @@ from DQMOffline.L1Trigger.L1TMuonOffline_cfi import *
 from Configuration.StandardSequences.Eras import eras
 from DQM.L1TMonitor.L1TStage2_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
-from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import *
 
 stage2UnpackPath = cms.Sequence(
      l1tCaloLayer1Digis +
@@ -353,8 +352,7 @@ Stage2l1TriggerDqmOffline = cms.Sequence(
 Stage2l1TriggerDqmOfflineClient = cms.Sequence(
                                 l1tStage2EmulatorMonitorClient *
                                 l1tStage2MonitorClient *
-                                DQMHarvestL1Trigger *
-                                l1tEfficiencyMuonsHarvesting
+                                DQMHarvestL1Trigger
                                 )
 
 
