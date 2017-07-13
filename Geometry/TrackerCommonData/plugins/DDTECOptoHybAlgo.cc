@@ -62,8 +62,8 @@ void DDTECOptoHybAlgo::execute(DDCompactView& cpv) {
   // given r positions are for the lower left corner
   rpos += optoHeight/2;
   int    copyNo = startCopyNo;
-  for (int i = 0; i < (int)(angles.size()); i++) {
-    double phix = -angles.at(i);
+  for (double angle : angles) {
+    double phix = -angle;
     // given phi positions are for the lower left corner
     phix += asin(optoWidth/2/rpos);
     double xpos = rpos * cos(phix);

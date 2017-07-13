@@ -1,5 +1,5 @@
 #include "Geometry/ForwardGeometry/interface/IdealZDCTrapezoid.h"
-#include <math.h>
+#include <cmath>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
