@@ -1,5 +1,4 @@
 #include "L1Trigger/L1THGCal/interface/be_algorithms/HGCalShowerShape.h"
-//#include "L1Trigger/L1THGCal/interface/LinkDef.h"
 #include "TMath.h"
 #include <cmath>
 #include "TH3F.h"
@@ -11,6 +10,8 @@
 #include "TMatrixD.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
+#include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 
 #include "DataFormats/Math/interface/deltaR.h"
 
@@ -21,29 +22,61 @@
 #include <string>
 
 
-void HGCalShowerShape::Init2D(std::vector<float> tc_energy, std::vector<float> tc_eta, std::vector<float> tc_phi/*, std::vector<float> tc_x, std::vector<float> tc_y, std::vector<float> tc_z*/){
-    
-  tc_energy_ = tc_energy;
-  tc_eta_ = tc_eta;
-  tc_phi_ = tc_phi;
- /* tc_x_ = tc_x;
-  tc_y_ = tc_y;
-  tc_z_ = tc_z;*/
 
+void HGCalShowerShape::Init2D(const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs){
 
-  SigmaEtaEta_=0;
+    std::vector<float> tc_energy ; 
+    std::vector<float> tc_eta ;
+    std::vector<float> tc_phi ;
 
-  SigmaPhiPhi_=0;
- 
+    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc){
+   
+	tc_energy.emplace_back((*tc)->energy());
+	tc_eta.emplace_back((*tc)->eta());
+	tc_phi.emplace_back((*tc)->phi());
+
+    }
+
+    tc_energy_ = tc_energy;
+    tc_eta_ = tc_eta;
+    tc_phi_ = tc_phi;
 
 }
-
 
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
-void HGCalShowerShape::Init3D(std::vector<int> layer, std::vector<int> subdetID, std::vector<float> cl2D_energy, std::vector<int> nTC, std::vector<float> tc_energy, std::vector<float> tc_eta, std::vector<float> tc_phi/*, std::vector<float> tc_x, std::vector<float> tc_y, std::vector<float> tc_z*/){
-    
+
+
+void HGCalShowerShape::Init3D(const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs){
+
+    std::vector<int> layer ; // Size : ncl2D
+    std::vector<int> subdetID ;
+    std::vector<float> cl2D_energy ;
+    std::vector<int> nTC ;
+    std::vector<float> tc_energy ; // Size : ncl2D*nTCi
+    std::vector<float> tc_eta ;
+    std::vector<float> tc_phi ;
+
+    for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
+        
+        	layer.emplace_back((*clu)->layer());
+        	subdetID.emplace_back((*clu)->subdetId());
+        	cl2D_energy.emplace_back((*clu)->energy());
+
+		    const edm::PtrVector<l1t::HGCalTriggerCell> triggerCells = (*clu)->constituents();
+    		unsigned int ncells = triggerCells.size();
+		    nTC.emplace_back(ncells);
+		    for(unsigned int itc=0; itc<ncells;itc++){
+
+    			l1t::HGCalTriggerCell thistc = *triggerCells[itc];
+
+        		tc_energy.emplace_back(thistc.energy());
+        		tc_eta.emplace_back(thistc.eta());
+        		tc_phi.emplace_back(thistc.phi());
+
+		    }
+    }
 
   ncl2D_=layer.size();
 
@@ -54,43 +87,9 @@ void HGCalShowerShape::Init3D(std::vector<int> layer, std::vector<int> subdetID,
   tc_energy_ = tc_energy;
   tc_eta_ = tc_eta;
   tc_phi_ = tc_phi;
- /* tc_x_ = tc_x;
-  tc_y_ = tc_y;
-  tc_z_ = tc_z;*/
-
-  EnergyVector_.clear();
-  SigmaZZ_=0; 
-  SigmaEtaEtaVector_.clear();
-  SigmaPhiPhiVector_.clear();
-
-  EMax_=0;
-  E0_=0;
-  EMaxLayer_=0;
-
-  SigmaEtaEta_=0;
-  SigmaEtaEtaMax_=0;
-  SigmaEtaEta0_=0;
-  SigmaEtaEta10_=0;
-  SigmaEtaEtaMaxLayer_=0;
-
-  SigmaPhiPhi_=0;
-  SigmaPhiPhiMax_=0;
-  SigmaPhiPhi0_=0;
-  SigmaPhiPhi10_=0;
-  SigmaPhiPhiMaxLayer_=0;
-
-  dEtaMax_=0;
-  dPhiMax_=0;
-
-  firstLayer_=0;
-  nLayers_=0;
-
- /* showerEta_=0;
-  showerPhi_=0;
-  SigmaEtaEtaTotCor_=0;
-  SigmaPhiPhiTotCor_=0;*/
 
 }
+
 
 
 
@@ -269,7 +268,6 @@ void HGCalShowerShape::makeHGCalProfile(){
 
 		nLayers_=lastLayer_-firstLayer_+1;
 
-
 		for(int ilayer=0;ilayer<40;ilayer++){   //Loop on HGCal layers
 
 			int Layer_found=0;
@@ -362,8 +360,6 @@ void HGCalShowerShape::makeHGCalProfile(){
         
         SigmaEtaEta0_=SigmaEtaEtaVector_.at(firstLayer_);
         SigmaPhiPhi0_=SigmaPhiPhiVector_.at(firstLayer_);
-       // SigmaEtaEta10_=SigmaEtaEta_.at(10);
-       // SigmaPhiPhi10_=SigmaPhiPhi_.at(10);
 
         Zmean_=Zmean(energy_,z_);
         SigmaZZ_=SigmaZZ(energy_,z_);
@@ -378,193 +374,7 @@ void HGCalShowerShape::makeHGCalProfile(){
 }
 
 
-///////////////////////////////////////////////////////////////////////////////////////////////
 
-/*void HGCalShowerShape::showerAxisAnalysis(){
-
-    TPrincipal *principal= new TPrincipal(3,"D"); 
-  
-    double variables[3] = {0.,0.,0.};
-
-    // minimal rechit value
-    float mip_ = 0.000040;
-
-    for(unsigned int itc=0; itc<tc_energy_.size() ; itc++) {   //Loop on TC inside cl2D
-     
-	variables[0] = tc_x_.at(itc);
-	variables[1] = tc_y_.at(itc);
-	variables[2] = tc_z_.at(itc);
-	
-	// energy weighting
-	for (int i=0; i<int(tc_energy_.at(itc)/mip_); i++) principal->AddRow(variables); 
-	
-    }
-
-
-    principal->MakePrincipals();
-  
-    TMatrixD matrix = *principal->GetEigenVectors();
-  
-    GlobalPoint pcaShowerPos((*principal->GetMeanValues())[0],(*principal->GetMeanValues())[1],(*principal->GetMeanValues())[2]);	 
-    GlobalVector pcaShowerDir(matrix(0,0),matrix(1,0),matrix(2,0));
-
-    std::cout<<" Shower Pos Eta "<<pcaShowerPos.eta()<<" Phi "<<pcaShowerPos.phi()<<std::endl;
-    std::cout<<" Shower Dir Eta "<<pcaShowerDir.eta()<<" Phi "<<pcaShowerDir.phi()<<std::endl;
-
-    showerEta_=pcaShowerPos.eta();						   
-    showerPhi_=pcaShowerPos.phi();		
-				   
-
-}
-*/
-///////////////////////////////////////////////////////////////////////////////////////////////
-
-/*
-void HGCalShowerShape::make3DHistogram(std::string name, std::vector<float> x, std::vector<float> y){
-
-
-    
-    tc_x_=x;
-    tc_y_=y;
-
-
-    float x0=tc_x_.at(0);
-    float y0=tc_y_.at(0);
-
-    h3DShowerEE = new TH3F("", "", 40,x0-40,x0+40,40,y0-40,y0+40,40,0,40);   //not very elegant for xy range ...
-    h3DShowerFH = new TH3F("", "", 40,x0-40,x0+40,40,y0-40,y0+40,40,0,40);   
-	   
-
-	for(int ilayer=0;ilayer<28;ilayer++){   //Loop on HGCal layers
-
-		int Layer_found=0;
-
-	    int tc_index=0; // trigger cell index inside cl2D vector
-
-		for(int i2d=0;i2d<ncl2D_;i2d++){   // Loop on cl2D inside 3DC
-	
-			int cl2D_layer=-999;
-
-			if(subdetID_.at(i2d)==3) cl2D_layer=layer_.at(i2d);
-			if(subdetID_.at(i2d)==4) cl2D_layer=layer_.at(i2d)+28;
-
-			if (cl2D_layer==ilayer){
-
-				Layer_found=1; //+=1 il want to count cl2D per layer
-
-				int ntc=nTC_.at(i2d);
-
-		        	for(int itc=0; itc<ntc ; itc++) {   //Loop on TC inside cl2D
-
-                        h3DShowerEE->Fill(tc_x_.at(tc_index),tc_y_.at(tc_index),ilayer,tc_energy_.at(tc_index));
-
-					    tc_index++;
-
-		        	}
-
-			}
-
-			else{
-
-				if (Layer_found==1) break; //Go to next ilayer
-				tc_index+=nTC_.at(i2d);
-		
-			}
-
-		}
-		
-		
-	}
-
-
-for(int ilayer=28;ilayer<40;ilayer++){   //Loop on HGCal layers
-
-		int Layer_found=0;
-
-	    int tc_index=0; // trigger cell index inside cl2D vector
-
-		for(int i2d=0;i2d<ncl2D_;i2d++){   // Loop on cl2D inside 3DC
-	
-			int cl2D_layer=-999;
-
-			if(subdetID_.at(i2d)==3) cl2D_layer=layer_.at(i2d);
-			if(subdetID_.at(i2d)==4) cl2D_layer=layer_.at(i2d)+28;
-
-			if (cl2D_layer==ilayer){
-
-				Layer_found=1; //+=1 il want to count cl2D per layer
-
-				int ntc=nTC_.at(i2d);
-
-		        	for(int itc=0; itc<ntc ; itc++) {   //Loop on TC inside cl2D
-
-                        h3DShowerFH->Fill(tc_x_.at(tc_index),tc_y_.at(tc_index),ilayer,tc_energy_.at(tc_index));
-
-					    tc_index++;
-
-		        	}
-
-			}
-
-			else{
-
-				if (Layer_found==1) break; //Go to next ilayer
-				tc_index+=nTC_.at(i2d);
-		
-			}
-
-		}
-		
-		
-	}
-
-*/
-
-/*
-
-    h3DShowerEE = new TH3F("", "", 40,x0-40,x0+40,40,y0-40,y0+40,100,320,420);   //not very elegant for xy range ...
-    h3DShowerFH = new TH3F("", "", 40,x0-40,x0+40,40,y0-40,y0+40,100,320,420);   
-
-
-                    int ntc=tc_energy_.size();
-
-		        	for(int itc=0; itc<ntc ; itc++) {   //Loop on TC inside cl2D
-
-                        if(fabs(tc_z_.at(itc))<350) h3DShowerEE->Fill(tc_x_.at(itc),tc_y_.at(itc),fabs(tc_z_.at(itc)),tc_energy_.at(itc));
-                        else h3DShowerFH->Fill(tc_x_.at(itc),tc_y_.at(itc),fabs(tc_z_.at(itc)),tc_energy_.at(itc));
-
-		        	}
-
-
-
-
-
-
-    TCanvas *can=new TCanvas;
-
-    h3DShowerEE->GetXaxis()->SetTitle("x (cm)");
-    h3DShowerEE->GetYaxis()->SetTitle("y (cm)");
-    h3DShowerEE->GetZaxis()->SetTitle("z (cm)");
-    h3DShowerEE->GetXaxis()->SetTitleOffset(1.5);
-    h3DShowerEE->GetYaxis()->SetTitleOffset(1.5);
-    h3DShowerEE->GetZaxis()->SetTitleOffset(1.5);
-    h3DShowerEE->Draw("ISO");
-    h3DShowerEE->SetFillColor(kAzure-9);
-    h3DShowerFH->Draw("ISO,same");
-    h3DShowerFH->SetFillColor(kBlue-1);
-    can->SaveAs(Form("3DplotsZ/%s_iso.png",name.c_str()));
-    can->SaveAs(Form("3DplotsZ/%s_iso.root",name.c_str()));
-    //h3DShower->Draw("BOX");
-    //can->SaveAs(Form("3Dplots/%s_box.png",name.c_str()));
-    //can->SaveAs(Form("3Dplots/%s_box.root",name.c_str()));
-
-    delete can;
-    delete h3DShowerEE;
-    delete h3DShowerFH;
-
-}
-
-*/
 
 
 // -----------------------------------
