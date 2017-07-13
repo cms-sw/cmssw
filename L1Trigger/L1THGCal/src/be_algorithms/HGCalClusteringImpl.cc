@@ -277,7 +277,7 @@ void HGCalClusteringImpl::showerShape2D( const edm::PtrVector<l1t::HGCalTriggerC
     sigmaEtaEta_=0;
     sigmaPhiPhi_=0;
 
-    std::vector<float> tc_energy ; 
+    /*std::vector<float> tc_energy ; 
     std::vector<float> tc_eta ;
     std::vector<float> tc_phi ;
 
@@ -287,10 +287,10 @@ void HGCalClusteringImpl::showerShape2D( const edm::PtrVector<l1t::HGCalTriggerC
 	tc_eta.emplace_back((*tc)->eta());
 	tc_phi.emplace_back((*tc)->phi());
 
-    }
+    }*/
 
     HGCalShowerShape *shape=new HGCalShowerShape();
-    shape->Init2D(tc_energy,tc_eta,tc_phi);
+    shape->Init2D(triggerCellsPtrs);
     shape->make2DshowerShape();
     sigmaEtaEta_=shape->SigmaEtaEta();
     sigmaPhiPhi_=shape->SigmaPhiPhi();

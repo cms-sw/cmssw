@@ -4,11 +4,11 @@
 #include <cmath>
 #include "TH3F.h"
 #include <string>
-//#include "L1Trigger/L1THGCal/interface/LinkDef.h"
 #include "TPrincipal.h"
 #include "TMatrixD.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/GeometryVector/interface/GlobalVector.h"
+#include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 
    
     class HGCalShowerShape{
@@ -19,9 +19,9 @@
 
     ~HGCalShowerShape(){}
 
-    void Init2D(/*std::vector<int> layer, std::vector<int> subdetID, std::vector<float> cl2D_energy, std::vector<int> nTC,*/ std::vector<float> tc_energy, std::vector<float> tc_eta, std::vector<float> tc_phi/*, std::vector<float> tc_x, std::vector<float> tc_y, std::vector<float> tc_z*/);
+    void Init2D(const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs);
 
-    void Init3D(std::vector<int> layer, std::vector<int> subdetID, std::vector<float> cl2D_energy, std::vector<int> nTC, std::vector<float> tc_energy, std::vector<float> tc_eta, std::vector<float> tc_phi/*, std::vector<float> tc_x, std::vector<float> tc_y, std::vector<float> tc_z*/);  
+    void Init3D(const edm::PtrVector<l1t::HGCalCluster> & clustersPtr);
 
     void make2DshowerShape();
   
@@ -41,26 +41,18 @@
     float SigmaEtaEta() const {return SigmaEtaEta_;}      
     float SigmaEtaEtaMax() const {return SigmaEtaEtaMax_;}    
     float SigmaEtaEta0() const {return SigmaEtaEta0_;}    
-    float SigmaEtaEta10() const {return SigmaEtaEta0_;}    
     int SigmaEtaEtaMaxLayer() const {return SigmaEtaEtaMaxLayer_;} 
     std::vector<float> SigmaEtaEtaVector() const {return SigmaEtaEtaVector_;}     
 
     float SigmaPhiPhi() const {return SigmaPhiPhi_;}      
     float SigmaPhiPhiMax() const {return SigmaPhiPhiMax_;}    
     float SigmaPhiPhi0() const {return SigmaPhiPhi0_;}    
-    float SigmaPhiPhi10() const {return SigmaPhiPhi0_;}    
     int SigmaPhiPhiMaxLayer() const {return SigmaPhiPhiMaxLayer_;} 
     std::vector<float> SigmaPhiPhiVector() const {return SigmaPhiPhiVector_;}   
 
     float dEtaMax() const {return dEtaMax_;}  
     float dPhiMax() const {return dPhiMax_;}  
 
-    // Compute Shower moments using principal axis of the shower (based on PCAShowerAnalysis from C.Charlot)
-  /*  void showerAxisAnalysis();
-    float SigmaEtaEtaTotCor() const {return SigmaEtaEtaTotCor_;}      
-    float SigmaPhiPhiTotCor() const {return SigmaPhiPhiTotCor_;}    */  
-
-  //  void make3DHistogram(std::string name, std::vector<float> x, std::vector<float> y);//work in cartesian coordinate
 
 
     private: 
@@ -121,15 +113,6 @@
     TH3F *h3DShower;
     TH3F *h3DShowerFH;
     TH3F *h3DShowerEE;
-
-    // Compute Shower moments using principal axis of the shower (based on PCAShowerAnalysis from C.Charlot)
- /*   float showerEta_;
-    float showerPhi_;
-    float SigmaEtaEtaTotCor_;
-    float SigmaPhiPhiTotCor_;*/
-    //float SigmaEtaEtaCor(std::vector<float> energy, std::vector<float> eta, float showerEta);
-    //float SigmaPhiPhiCor(std::vector<float> energy, std::vector<float> phi, float showerPhi);
-
 
     //Auxiliary Containers to compute shower shapes
     std::vector<float> energy_layer_ ;
