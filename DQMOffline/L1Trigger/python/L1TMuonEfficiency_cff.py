@@ -13,7 +13,7 @@ for plot in plots:
         plotName = '{0}_{1}'.format(plot, threshold)
         allEfficiencyPlots.append(plotName)
 
-from DQMOffline.L1Trigger.L1TEfficiencyHarvesting2_cfi import l1tEfficiencyHarvesting
+from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import l1tEfficiencyHarvesting
 l1tMuonEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs = cms.untracked.VPSet(
         cms.untracked.PSet(
