@@ -23,9 +23,9 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
-#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 
-#include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
 #include "TH1D.h"
 #include "TH2D.h"
@@ -49,7 +49,7 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
     virtual void endJob() override;
 
     edm::EDGetTokenT<edm::HepMCProduct> genProtonsToken_;
-    edm::EDGetTokenT< edm::View<CTPPSSimProtonTrack> > recoProtons45Token_, recoProtons56Token_;
+    edm::EDGetTokenT< edm::View<reco::ProtonTrack> > recoProtons45Token_, recoProtons56Token_;
     edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > tracksToken_;
 
     //edm::ParameterSet beamConditions_;
@@ -70,8 +70,8 @@ class ParamValidation : public edm::one::EDAnalyzer<edm::one::SharedResources>
 
 ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   genProtonsToken_   ( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "genProtonsTag" ) ) ),
-  recoProtons45Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
-  recoProtons56Token_( consumes< edm::View<CTPPSSimProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
+  recoProtons45Token_( consumes< edm::View<reco::ProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons45Tag" ) ) ),
+  recoProtons56Token_( consumes< edm::View<reco::ProtonTrack> >( iConfig.getParameter<edm::InputTag>( "recoProtons56Tag" ) ) ),
   tracksToken_       ( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
   //beamConditions_  ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   sqrtS_           ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ).getParameter<double>( "sqrtS" ) ),
@@ -146,7 +146,7 @@ ParamValidation::analyze( const edm::Event& iEvent, const edm::EventSetup& )
     throw cms::Exception("ParamValidation") << "Not yet supporting multiple generated protons per event";
   }*/
 
-  edm::Handle< edm::View<CTPPSSimProtonTrack> > reco_protons[2];
+  edm::Handle< edm::View<reco::ProtonTrack> > reco_protons[2];
   iEvent.getByToken( recoProtons45Token_, reco_protons[0] );
   iEvent.getByToken( recoProtons56Token_, reco_protons[1] );
 

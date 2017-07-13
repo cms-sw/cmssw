@@ -17,9 +17,9 @@
 #include "DataFormats/Common/interface/Ptr.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 
 #include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
-#include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 
 #include "TFile.h"
 #include "TSpline.h"
@@ -38,7 +38,7 @@ class ProtonReconstructionAlgorithm
     ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string&, bool, bool );
     ~ProtonReconstructionAlgorithm();
 
-    void reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<CTPPSSimProtonTrack>& reco ) const;
+    void reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<reco::ProtonTrack>& reco ) const;
 
   private:
     /// optics data associated with 1 RP

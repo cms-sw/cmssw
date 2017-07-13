@@ -21,8 +21,8 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/CTPPSReco/interface/CTPPSLocalTrackLite.h"
+#include "DataFormats/ProtonReco/interface/ProtonTrack.h"
 
-#include "SimDataFormats/CTPPS/interface/CTPPSSimProtonTrack.h"
 #include "CondFormats/CTPPSOpticsObjects/interface/LHCOpticsApproximator.h"
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
@@ -36,7 +36,7 @@ class CTPPSOpticsReconstruction : public edm::stream::EDProducer<> {
 
   private:
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
-    void transportProtonTrack( const CTPPSSimProtonTrack&, std::vector<CTPPSLocalTrackLite>& );
+    void transportProtonTrack( const reco::ProtonTrack&, std::vector<CTPPSLocalTrackLite>& );
 
     edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > hitsToken_;
 
@@ -61,8 +61,8 @@ CTPPSOpticsReconstruction::CTPPSOpticsReconstruction( const edm::ParameterSet& i
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
 {
-  produces< std::vector<CTPPSSimProtonTrack> >( "sector45" );
-  produces< std::vector<CTPPSSimProtonTrack> >( "sector56" );
+  produces< std::vector<reco::ProtonTrack> >( "sector45" );
+  produces< std::vector<reco::ProtonTrack> >( "sector56" );
 
   // load optics and interpolators
   std::unordered_map<unsigned int,std::string> pots_45, pots_56;
@@ -86,8 +86,8 @@ CTPPSOpticsReconstruction::~CTPPSOpticsReconstruction()
 void
 CTPPSOpticsReconstruction::produce( edm::Event& iEvent, const edm::EventSetup& )
 {
-  std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut45( new std::vector<CTPPSSimProtonTrack> );
-  std::unique_ptr< std::vector<CTPPSSimProtonTrack> > pOut56( new std::vector<CTPPSSimProtonTrack> );
+  std::unique_ptr< std::vector<reco::ProtonTrack> > pOut45( new std::vector<reco::ProtonTrack> );
+  std::unique_ptr< std::vector<reco::ProtonTrack> > pOut56( new std::vector<reco::ProtonTrack> );
 
   edm::Handle< edm::View<CTPPSLocalTrackLite> > hits;
   iEvent.getByToken( hitsToken_, hits );

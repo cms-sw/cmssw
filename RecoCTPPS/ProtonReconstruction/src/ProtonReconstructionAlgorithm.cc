@@ -103,7 +103,7 @@ ProtonReconstructionAlgorithm::~ProtonReconstructionAlgorithm()
 //----------------------------------------------------------------------------------------------------
 
 void
-ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<CTPPSSimProtonTrack>& out ) const
+ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<reco::ProtonTrack>& out ) const
 {
   out.clear();
 
