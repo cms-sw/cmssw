@@ -1,7 +1,7 @@
 #include "Geometry/ForwardGeometry/interface/IdealCastorTrapezoid.h"
 #include "CLHEP/Geometry/Plane3D.h"
 #include "CLHEP/Geometry/Transform3D.h"
-#include <math.h>
+#include <cmath>
 
 typedef CaloCellGeometry::CCGFloat CCGFloat ;
 typedef CaloCellGeometry::Pt3D     Pt3D     ;
