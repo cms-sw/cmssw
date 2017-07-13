@@ -84,7 +84,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include <typeinfo>
 #include <string>
 #include <vector>
-#include <boost/type_traits.hpp>
+#include <type_traits>
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -261,8 +261,8 @@ namespace edm {
   // no such member function.
 
   namespace detail {
-    typedef char (& no_tag)[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
+    using no_tag = std::false_type; // type indicating FALSE
+    using yes_tag = std::true_type; // type indicating TRUE
 
     // Definitions forthe following struct and function templates are
     // not needed; we only require the declarations.
@@ -273,9 +273,8 @@ namespace edm {
 
     template<typename T>
     struct has_postinsert {
-      static bool const value = 
-	sizeof(has_postinsert_helper<T>(nullptr)) == sizeof(yes_tag) &&
-	!boost::is_base_of<DoNotSortUponInsertion, T>::value;
+      static constexpr bool value = std::is_same<decltype(has_postinsert_helper<T>(nullptr)), yes_tag>::value &&
+	!std::is_base_of<DoNotSortUponInsertion, T>::value;
     };
 
 
@@ -284,8 +283,8 @@ namespace edm {
 
     template <typename T>
     struct has_donotrecordparents {
-      static bool const value = 
-	boost::is_base_of<DoNotRecordParents,T>::value;
+      static constexpr bool value =
+	std::is_base_of<DoNotRecordParents,T>::value;
     };
 
   }
