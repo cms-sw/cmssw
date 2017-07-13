@@ -123,7 +123,9 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
       if(PVname == ((*pvs)[i])->GetName()) {
 	G4cout << " ##### PhysVolume " << PVname << " [" << ((*pvs)[i])->GetCopyNo() 
 	       << "]  LV: " <<  ((*pvs)[i])->GetLogicalVolume()->GetName() 
-	       << " Mother LV: " <<  ((*pvs)[i])->GetMotherLogical()->GetName() << G4endl;
+	       << " Mother LV: " <<  ((*pvs)[i])->GetMotherLogical()->GetName()
+	       << " Region: " << ((*pvs)[i])->GetLogicalVolume()->GetRegion()->GetName() 
+	       << G4endl;
 	G4cout << "       Translation: " << ((*pvs)[i])->GetObjectTranslation() << G4endl;
 	G4cout << "       Rotation:    " << ((*pvs)[i])->GetObjectRotationValue() << G4endl;
 	if(gdmlFlag) {
@@ -138,7 +140,10 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
     for (unsigned int i=0; i<numLV; ++i) {
       if(LVname == ((*lvs)[i])->GetName()) {
 	G4int np = ((*lvs)[i])->GetNoDaughters();
-	G4cout << " ##### LogVolume " << LVname << "  " << np << " daughters" << G4endl;
+	G4cout << " ##### LogVolume " << LVname << "  " << np << " daughters" 
+	       << " Region: " << ((*lvs)[i])->GetRegion()->GetName() 
+	       << G4endl;
+	G4cout << *(((*lvs)[i])->GetSolid()) << G4endl;
 	for (G4int j=0; j<np; ++j) {
 	  G4VPhysicalVolume* pv = ((*lvs)[i])->GetDaughter(j);
 	  if(pv) {
@@ -148,6 +153,7 @@ G4CheckOverlap::G4CheckOverlap(const edm::ParameterSet &p) {
 		   << pv->GetLogicalVolume()->GetName() << G4endl;
 	    G4cout << "       Translation: " << pv->GetObjectTranslation() << G4endl;
 	    G4cout << "       Rotation:    " << pv->GetObjectRotationValue() << G4endl;
+            G4cout << *(pv->GetLogicalVolume()->GetSolid()) << G4endl;
 	  }
 	}
       }
