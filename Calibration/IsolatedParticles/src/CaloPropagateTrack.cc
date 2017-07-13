@@ -176,7 +176,6 @@ namespace spr{
 #endif
       vdets.push_back(vdet);
     }
-    
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "propagateCALO:: for " << vdets.size() << " tracks" << std::endl;
@@ -235,8 +234,7 @@ namespace spr{
 	trkD.detIdHCAL = gHB->getClosestCell(point);
       }
       trkDir.push_back(trkD);
-    }
-    
+    }    
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
@@ -298,7 +296,6 @@ namespace spr{
       vdet.phiHCAL = point.phi();
       vdet.detIdHCAL = gHB->getClosestCell(point);
     }
-    
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "propagateCALO:: for 1 track" << std::endl;
@@ -366,7 +363,6 @@ namespace spr{
       }
       trkDir.push_back(trkD);
     }
-
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
@@ -444,7 +440,6 @@ namespace spr{
       }
       trkDir.push_back(trkD);
     }
-
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "propagateCALO:: for " << trkDir.size() << " tracks" << std::endl;
@@ -511,7 +506,6 @@ namespace spr{
 	trkD.detIdHCAL = gHB->getClosestCell(point);
       }
     }
-
 #ifdef EDM_ML_DEBUG
     if (debug) {
       std::cout << "propagateCALO:: for track [" << thisTrk << "] Flag: " << trkD.ok << " ECAL (" << trkD.okECAL << ") HCAL (" << trkD.okHCAL << ")" << std::endl;
@@ -534,6 +528,41 @@ namespace spr{
 #endif
     return trkD;
   }
+
+  spr::propagatedTrackDirection propagateHCALBack(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
+
+    const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
+    spr::trackAtOrigin   trk = spr::simTrackAtOrigin(thisTrk, SimTk, SimVtx, debug);
+    spr::propagatedTrackDirection trkD;
+    trkD.ok     = trk.ok;
+    trkD.detIdECAL = DetId(0);
+    trkD.detIdHCAL = DetId(0);
+    trkD.detIdEHCAL= DetId(0);
+#ifdef EDM_ML_DEBUG
+    if (debug) std::cout << "Propagate track " << thisTrk << " charge " << trk.charge << " position " << trk.position << " p " << trk.momentum << " Flag " << trkD.ok << std::endl;
+#endif
+    if (trkD.ok) {
+      spr::propagatedTrack info = spr::propagateCalo (trk.position, trk.momentum, trk.charge, bField, spr::zBackHE, spr::rBackHB, spr::etaBEHcal, debug);
+      GlobalPoint point = GlobalPoint(info.point.x(),info.point.y(),info.point.z());
+      trkD.okHCAL        = info.ok;
+      trkD.pointHCAL     = point;
+      trkD.directionHCAL = info.direction;
+      if (trkD.okHCAL) {
+	trkD.detIdHCAL = gHB->getClosestCell(point);
+      }
+    }
+#ifdef EDM_ML_DEBUG
+    if (debug) {
+      std::cout << "propagateCALO:: for track [" << thisTrk << "] Flag: " << trkD.ok << " ECAL (" << trkD.okECAL << ") HCAL (" << trkD.okHCAL << ")" << std::endl;
+            if (trkD.okHCAL) {
+	std::cout << " HCAL point " << trkD.pointHCAL << " direction "
+		  << trkD.directionHCAL << " " << (HcalDetId)(trkD.detIdHCAL); 
+      }
+    }
+#endif
+    return trkD;
+  }
+
 
   std::pair<bool,HcalDetId> propagateHCALBack(const reco::Track* track, const CaloGeometry* geo, const MagneticField* bField, bool debug) {
     const CaloSubdetectorGeometry* gHB = geo->getSubdetectorGeometry(DetId::Hcal,HcalBarrel);
@@ -663,6 +692,7 @@ namespace spr{
 	std::cout << "propagateTracker:: Barrel " << tsosb.isValid() << " Endcap " << tsose.isValid() << " OverAll " << ok << " Point " << point << " RDist " << rdist << " dS " << dS << " dS/pt " << rdist*rat/momentum.perp() << " zdist " << dZ << " dz/pz " << dZ/momentum.z() << " Length " << length << std::endl;
 #endif
     }
+
     return std::pair<math::XYZPoint,double>(point,length);
   }
 
@@ -735,8 +765,8 @@ namespace spr{
   }
 
   spr::trackAtOrigin simTrackAtOrigin(unsigned int thisTrk, 
-				      edm::Handle<edm::SimTrackContainer>& 
-				      SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, bool 
+				      edm::Handle<edm::SimTrackContainer>& SimTk, 
+				      edm::Handle<edm::SimVertexContainer>& SimVtx, bool 
 #ifdef EDM_ML_DEBUG
 				      debug
 #endif
