@@ -29,7 +29,7 @@ l1tTauOfflineDQM = cms.EDAnalyzer(
 
     histFolder=cms.string('L1T/L1TTau'),
 
-    tauEfficiencyThresholds=cms.vdouble(tauEfficiencyThresholds),
+    tauEfficiencyThresholds=cms.vint32(tauEfficiencyThresholds),
     tauEfficiencyBins=cms.vdouble(tauEfficiencyBins),
     
 )
