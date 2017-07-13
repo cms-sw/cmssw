@@ -524,16 +524,16 @@ destinationPSet(ParameterSet const & pset, std::string const & psetName)
   noneExcept <int> (pset, psetName, "int", "lineLength"); 
 
   vString okbool;
-  okbool.push_back ("placeholder");
-  okbool.push_back ("optionalPSet");
-  okbool.push_back ("noLineBreaks");
-  okbool.push_back ("noTimeStamps");
+  okbool.emplace_back("placeholder");
+  okbool.emplace_back("optionalPSet");
+  okbool.emplace_back("noLineBreaks");
+  okbool.emplace_back("noTimeStamps");
   noneExcept <bool> (pset, psetName, "bool", okbool);   
   vString okstring;
-  okstring.push_back ("threshold");
-  okstring.push_back ("output");
-  okstring.push_back ("filename");
-  okstring.push_back ("extension");
+  okstring.emplace_back("threshold");
+  okstring.emplace_back("output");
+  okstring.emplace_back("filename");
+  okstring.emplace_back("extension");
   noneExcept <std::string> (pset, psetName, "string", okstring);   
   
 } // destinationPSet
@@ -572,19 +572,19 @@ defaultPSet(ParameterSet const & main_pset)
   
   // No other parameters
   vString okint;
-  okint.push_back("limit");
-  okint.push_back("reportEvery");
-  okint.push_back("timespan");
-  okint.push_back("lineLength");
+  okint.emplace_back("limit");
+  okint.emplace_back("reportEvery");
+  okint.emplace_back("timespan");
+  okint.emplace_back("lineLength");
   noneExcept <int> (pset, psetName, "int", okint); 
   vString okbool;
-  okbool.push_back ("placeholder");
-  okbool.push_back ("optionalPSet");
-  okbool.push_back ("noLineBreaks");
-  okbool.push_back ("noTimeStamps");
+  okbool.emplace_back("placeholder");
+  okbool.emplace_back("optionalPSet");
+  okbool.emplace_back("noLineBreaks");
+  okbool.emplace_back("noTimeStamps");
   noneExcept <bool> (pset, psetName, "bool", okbool);   
   vString okstring;
-  okstring.push_back ("threshold");
+  okstring.emplace_back("threshold");
   noneExcept <std::string> (pset, psetName, "string", okstring);   
   
 } // defaultPSet
@@ -638,15 +638,15 @@ statisticsPSet(ParameterSet const & pset, std::string const & psetName)
   noneExcept <int> (pset, psetName, "int"); 
 
   vString okbool;
-  okbool.push_back ("placeholder");
-  okbool.push_back ("optionalPSet");
-  okbool.push_back ("reset");
+  okbool.emplace_back("placeholder");
+  okbool.emplace_back("optionalPSet");
+  okbool.emplace_back("reset");
   noneExcept <bool> (pset, psetName, "bool", okbool);   
   vString okstring;
-  okstring.push_back ("output");
-  okstring.push_back ("filename");
-  okstring.push_back ("extension");
-  okstring.push_back ("threshold");
+  okstring.emplace_back("output");
+  okstring.emplace_back("filename");
+  okstring.emplace_back("extension");
+  okstring.emplace_back("threshold");
   noneExcept <std::string> (pset, psetName, "string", okstring);   
   
 } // statisticsPSet
@@ -696,13 +696,13 @@ fwkJobReportPSet(ParameterSet const & pset, std::string const & psetName)
   noneExcept <int> (pset, psetName, "int"); 
 
   vString okbool;
-  okbool.push_back ("placeholder");
-  okbool.push_back ("optionalPSet");
+  okbool.emplace_back("placeholder");
+  okbool.emplace_back("optionalPSet");
   noneExcept <bool> (pset, psetName, "bool", okbool);   
   vString okstring;
-  okstring.push_back ("output");
-  okstring.push_back ("filename");
-  okstring.push_back ("extension");
+  okstring.emplace_back("output");
+  okstring.emplace_back("filename");
+  okstring.emplace_back("extension");
   noneExcept <std::string> (pset, psetName, "string", okstring);   
   
 } // fwkJobReportPSet

@@ -415,13 +415,13 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
     L1MuDTTrackCandCollection const *dttc = dtf_trk_data_->getContainer();
     for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
 	it!=dttc->end(); it++)
-      dtf_trk_data_v.push_back(L1MuRegionalCand(*it)); 
+      dtf_trk_data_v.emplace_back(*it); 
   }
   if(dtf_trk_emul_.isValid()) {
     L1MuDTTrackCandCollection const *dttc = dtf_trk_emul_->getContainer();
     for(L1MuDTTrackCandCollection::const_iterator  it=dttc->begin(); 
 	it!=dttc->end(); it++)
-      dtf_trk_emul_v.push_back(L1MuRegionalCand(*it)); 
+      dtf_trk_emul_v.emplace_back(*it); 
   }  
   dtf_trk_data =&dtf_trk_data_v;
   dtf_trk_emul =&dtf_trk_emul_v;
@@ -507,7 +507,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
       std::vector<L1MuGMTExtendedCand> gmc;
       gmc = igmtrr->getGMTCands();
       for(GmtECIt iter1=gmc.begin(); iter1!=gmc.end(); iter1++) {
-	gmt_can_emul_vec.push_back(L1MuGMTCand(iter1->getDataWord(),iter1->bx()));
+	gmt_can_emul_vec.emplace_back(iter1->getDataWord(),iter1->bx());
       }
       //get reg cands
       typedef L1MuRegionalCandCollection::const_iterator GmtRCIt;
@@ -703,7 +703,7 @@ L1Comparator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   if(m_dedigis.size()==0) {
     if(verbose())
       std::cout << "\n [L1Comparator] adding empty collection to DErecord\n";
-    m_dedigis.push_back(L1DataEmulDigi());
+    m_dedigis.emplace_back();
   }
   
   // >>---- d|e record ---- <<  

@@ -157,8 +157,8 @@ void HGCalClusterProducer::produce(edm::Event& evt,
     *clusters_sharing = algo->getClusters(true);
 
   std::vector<std::string> names;
-  names.push_back(std::string("gen"));
-  names.push_back(std::string("calo_face"));
+  names.emplace_back("gen");
+  names.emplace_back("calo_face");
 
   auto clusterHandle = evt.put(std::move(clusters));
   auto clusterHandleSharing = evt.put(std::move(clusters_sharing),"sharing");

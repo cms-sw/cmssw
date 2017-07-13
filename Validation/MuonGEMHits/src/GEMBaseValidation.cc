@@ -11,12 +11,12 @@ GEMBaseValidation::GEMBaseValidation( const edm::ParameterSet& ps)
   RangeZR_ = ps.getUntrackedParameter< std::vector<double> >("RangeGlobalZR");
   nBinXY_ = ps.getUntrackedParameter< int >("nBinGlobalXY",360) ;
 
-  regionLabel.push_back("-1");
-  regionLabel.push_back("1" );
+  regionLabel.emplace_back("-1");
+  regionLabel.emplace_back("1" );
 
 
-  layerLabel.push_back("1");
-  layerLabel.push_back("2");
+  layerLabel.emplace_back("1");
+  layerLabel.emplace_back("2");
 }
 
 const GEMGeometry* GEMBaseValidation::initGeometry(edm::EventSetup const & iSetup) {

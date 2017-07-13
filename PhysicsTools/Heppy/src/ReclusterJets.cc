@@ -45,7 +45,7 @@ ReclusterJets::ReclusterJets(const std::vector<LorentzVector> & objects, double 
 std::vector<math::XYZTLorentzVector> ReclusterJets::makeP4s(const std::vector<fastjet::PseudoJet> &jets) {
   std::vector<math::XYZTLorentzVector> JetObjectsAll;
   for (const fastjet::PseudoJet & pj : jets) {
-    JetObjectsAll.push_back( LorentzVector( pj.px(), pj.py(), pj.pz(), pj.e() ) );
+    JetObjectsAll.emplace_back( pj.px(), pj.py(), pj.pz(), pj.e() );
   }
   return JetObjectsAll;
 }

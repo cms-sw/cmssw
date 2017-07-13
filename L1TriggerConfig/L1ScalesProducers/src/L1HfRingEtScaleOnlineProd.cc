@@ -130,14 +130,14 @@ L1HfRingEtScaleOnlineProd::newObject( const std::string& objectKey )
  
      // get thresholds
      std::vector< std::string > queryStrings ;
-     queryStrings.push_back( "E_GEV_BIN_LOW_0");
-     queryStrings.push_back( "E_GEV_BIN_LOW_1");
-     queryStrings.push_back( "E_GEV_BIN_LOW_2");
-     queryStrings.push_back( "E_GEV_BIN_LOW_3");
-     queryStrings.push_back( "E_GEV_BIN_LOW_4");
-     queryStrings.push_back( "E_GEV_BIN_LOW_5");
-     queryStrings.push_back( "E_GEV_BIN_LOW_6");
-     queryStrings.push_back( "E_GEV_BIN_LOW_7");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_0");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_1");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_2");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_3");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_4");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_5");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_6");
+     queryStrings.emplace_back("E_GEV_BIN_LOW_7");
 
      l1t::OMDSReader::QueryResults scaleResults =
        m_omdsReader.basicQuery( queryStrings,

@@ -154,10 +154,10 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
     _seedmax.push_back(scps->getUntrackedParameter<double>("maxValue",100000.));
 
     if(scps->exists("trackFilter")) {
-      _seedfilters.push_back(FromTrackRefSeedFilter(consumesCollector(),scps->getParameter<edm::ParameterSet>("trackFilter")));
+      _seedfilters.emplace_back(consumesCollector(),scps->getParameter<edm::ParameterSet>("trackFilter"));
     }
     else {
-      _seedfilters.push_back(FromTrackRefSeedFilter());
+      _seedfilters.emplace_back();
     }
   }
   
@@ -202,8 +202,8 @@ SeedMultiplicityAnalyzer::SeedMultiplicityAnalyzer(const edm::ParameterSet& iCon
     _hseedphieta.push_back(tfserv->make<TH2F>(hname.c_str(),htitle.c_str(),80,-4.,4.,80,-M_PI,M_PI));
     _hseedphieta[_hseedphieta.size()-1]->GetXaxis()->SetTitle("#eta");  _hseedphieta[_hseedphieta.size()-1]->GetYaxis()->SetTitle("#phi"); 
 
-    _hseedmult2D.push_back(std::vector<TH2F*>());
-    _hseedeta2D.push_back(std::vector<TH2F*>());
+    _hseedmult2D.emplace_back();
+    _hseedeta2D.emplace_back();
     
 
     hname = extendedlabel + std::string("_npixelrh");

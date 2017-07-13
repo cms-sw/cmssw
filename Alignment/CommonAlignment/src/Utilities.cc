@@ -246,13 +246,13 @@ align::makeNonOverlappingRunRanges(const edm::VParameterSet& runRanges,
     }
 
     for (const auto& iFirst: uniqueFirstRunNumbers) {
-      uniqueRunRanges.push_back(std::make_pair(iFirst.first, endValue));
+      uniqueRunRanges.emplace_back(std::make_pair(iFirst.first, endValue));
     }
     for (unsigned int i = 0;i<uniqueRunRanges.size()-1;++i) {
       uniqueRunRanges[i].second = uniqueRunRanges[i+1].first - 1;
     }
   } else {
-    uniqueRunRanges.push_back(std::make_pair(defaultRun, endValue));
+    uniqueRunRanges.emplace_back(std::make_pair(defaultRun, endValue));
   }
 
   return uniqueRunRanges;

@@ -329,7 +329,7 @@ SiStripDigitizerAlgorithm::digitize(
 
     if(bs.any()){
       // store this information so it can be saved to the event later
-      theAffectedAPVvector.push_back(std::make_pair(detID,bs));
+      theAffectedAPVvector.emplace_back(std::make_pair(detID,bs));
 
       if(!PreMixing_) {
 

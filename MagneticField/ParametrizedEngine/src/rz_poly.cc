@@ -17,7 +17,7 @@ rz_poly::rz_poly(int N)
    v3.np[0] = 0;
    v3.np[1] = 1;
    
-   data.push_back(poly_vect(1, v3));
+   data.emplace_back(1, v3);
    
    for (int m = 2; m <=N; ++m) {
       nz = m;

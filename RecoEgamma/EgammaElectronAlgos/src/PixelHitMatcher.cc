@@ -226,7 +226,7 @@ PixelHitMatcher::compatibleSeeds
 	  const float dRz2 = (subDet2%2==1)?pp2.dZ():pp2.dPerp();
 	  const float dPhi2 = pp2.dPhi();
 	  const unsigned char hitsMask = (1<<idx1)|(1<<idx2);
-	  result.push_back(SeedWithInfo(seed,hitsMask,subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
+	  result.emplace_back(seed,hitsMask,subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1) ;
 	}
       }// inner loop on hits
     }// outer loop on hits

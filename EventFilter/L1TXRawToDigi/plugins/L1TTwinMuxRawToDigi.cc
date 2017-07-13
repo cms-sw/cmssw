@@ -407,12 +407,12 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb2_phi_conv  = radAngConversion(mb2_phi);
         int mb2_phib_conv = benAngConversion(mb2_phib);
 
-        phiSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+        phiSegments.emplace_back( bxNr, wheel, sector-1, 
                                                 1, mb1_phi_conv, mb1_phib_conv, 
-                                                mb1_qual, mb1_ts2tag, bxCounter ) );
-        phiSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                mb1_qual, mb1_ts2tag, bxCounter );
+        phiSegments.emplace_back( bxNr, wheel, sector-1, 
                                                 2, mb2_phi_conv, mb2_phib_conv, 
-                                                mb2_qual, mb2_ts2tag, bxCounter ) );
+                                                mb2_qual, mb2_ts2tag, bxCounter );
 
         if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"
@@ -450,12 +450,12 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb4_phi_conv  = radAngConversion(mb4_phi);
         int mb4_phib_conv = benAngConversion(mb4_phib);
 
-        phiSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+        phiSegments.emplace_back( bxNr, wheel, sector-1, 
                                                   3, mb3_phi_conv, mb3_phib_conv, 
-                                                  mb3_qual, mb3_ts2tag, bxCounter) );
-        phiSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                  mb3_qual, mb3_ts2tag, bxCounter );
+        phiSegments.emplace_back( bxNr, wheel, sector-1, 
                                                   4, mb4_phi_conv, mb4_phib_conv, 
-                                                  mb4_qual, mb4_ts2tag, bxCounter) );
+                                                  mb4_qual, mb4_ts2tag, bxCounter );
 
         if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex
                               << dataWordSub   << std::dec      << "\t|\t"
@@ -508,7 +508,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         qualBTI[5] = ((mb1_eta_HQ & 0x20)>>5);
         qualBTI[6] = (((mb1_eta_HQ & 0x40)>>6) || ((mb1_eta_HQ & 0x80)>>7));
 
-        theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 1, posBTI, qualBTI) );
+        theSegments.emplace_back( bxNr, wheel, sector-1, 1, posBTI, qualBTI );
         
         //MB2
         posBTI[0] = (mb2_eta & 0x01);
@@ -527,7 +527,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         qualBTI[5] = ((mb2_eta_HQ & 0x20)>>5);
         qualBTI[6] = (((mb2_eta_HQ & 0x40)>>6) || ((mb2_eta_HQ & 0x80)>>7));
 
-        theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 2, posBTI, qualBTI) );
+        theSegments.emplace_back( bxNr, wheel, sector-1, 2, posBTI, qualBTI );
         
         //MB3
         posBTI[0] = (mb3_eta & 0x01);
@@ -546,7 +546,7 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         qualBTI[5] = ((mb3_eta_HQ & 0x20)>>5);
         qualBTI[6] = (((mb3_eta_HQ & 0x40)>>6) || ((mb3_eta_HQ & 0x80)>>7));
 
-        theSegments.push_back( L1MuDTChambThDigi( bxNr, wheel, sector-1, 3, posBTI, qualBTI) );
+        theSegments.emplace_back( bxNr, wheel, sector-1, 3, posBTI, qualBTI );
         
       }//etha word
      
@@ -578,12 +578,12 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb2_phi_conv  = radAngConversion(mb2_phi);
         int mb2_phib_conv = benAngConversion(mb2_phib);
 
-        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+        phioutSegments.emplace_back( bxNr, wheel, sector-1, 
                                                 1, mb1_phi_conv, mb1_phib_conv, 
-                                                mb1_qual, mb1_ts2tag, bxCounter, mb1_q3 + 2*mb1_q4 ) );
-        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                mb1_qual, mb1_ts2tag, bxCounter, mb1_q3 + 2*mb1_q4 );
+        phioutSegments.emplace_back( bxNr, wheel, sector-1, 
                                                 2, mb2_phi_conv, mb2_phib_conv, 
-                                                mb2_qual, mb2_ts2tag, bxCounter, mb2_q3 + 2*mb2_q4 ) );
+                                                mb2_qual, mb2_ts2tag, bxCounter, mb2_q3 + 2*mb2_q4 );
 
         if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"
@@ -631,12 +631,12 @@ void L1TTwinMuxRawToDigi::processFed( int twinMuxFed,
         int mb4_phi_conv  = radAngConversion(mb4_phi);
         int mb4_phib_conv = benAngConversion(mb4_phib);
 
-        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+        phioutSegments.emplace_back( bxNr, wheel, sector-1, 
                                                 3, mb3_phi_conv, mb3_phib_conv, 
-                                                mb3_qual, mb3_ts2tag, bxCounter, mb3_q3 + 2*mb3_q4 ) );
-        phioutSegments.push_back( L1MuDTChambPhDigi( bxNr, wheel, sector-1, 
+                                                mb3_qual, mb3_ts2tag, bxCounter, mb3_q3 + 2*mb3_q4 );
+        phioutSegments.emplace_back( bxNr, wheel, sector-1, 
                                                 4, mb4_phi_conv, mb4_phib_conv, 
-                                                mb4_qual, mb4_ts2tag, bxCounter, mb4_q3 + 2*mb4_q4 ) );
+                                                mb4_qual, mb4_ts2tag, bxCounter, mb4_q3 + 2*mb4_q4 );
 
         if ( debug_ ) logfile << '[' << ++lcounter << "]\t"<< std::hex 
                               << dataWordSub   << std::dec      << "\t|\t"

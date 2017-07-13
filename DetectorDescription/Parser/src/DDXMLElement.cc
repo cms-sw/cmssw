@@ -238,7 +238,7 @@ DDXMLElement::appendAttributes( std::vector<std::string> & tv,
     if (itnv != attributes_[i].end())
       tv.push_back(itnv->second);
     else
-      tv.push_back("");
+      tv.emplace_back("");
   }  
 }
 

@@ -297,13 +297,13 @@ void TaggingVariableList::insert( const TaggingVariable & variable, bool delayed
 }
 
 void TaggingVariableList::insert( TaggingVariableName tag, TaggingValue value, bool delayed /* = false */ ) {
-  m_list.push_back( TaggingVariable( tag, value ) );
+  m_list.emplace_back( tag, value );
   if (not delayed) finalize();
 }
 
 void TaggingVariableList::insert( TaggingVariableName tag, const std::vector<TaggingValue> & values, bool delayed /* = false */ ) {
   for (std::vector<TaggingValue>::const_iterator i = values.begin(); i != values.end(); i++) {
-    m_list.push_back( TaggingVariable(tag, *i) );
+    m_list.emplace_back(tag, *i );
   }
   if (not delayed) finalize();
 }

@@ -304,12 +304,12 @@ JetCorrFactorsProducer::fillDescriptions(edm::ConfigurationDescriptions & descri
   iDesc.add<std::string>("extraJPTOffset", "L1Offset");
 
   std::vector<std::string> levels;
-  levels.push_back(std::string("L1Offset"  ));
-  levels.push_back(std::string("L2Relative"));
-  levels.push_back(std::string("L3Absolute"));
-  levels.push_back(std::string("L2L3Residual"));
-  levels.push_back(std::string("L5Flavor"  ));
-  levels.push_back(std::string("L7Parton"  ));
+  levels.emplace_back("L1Offset"  );
+  levels.emplace_back("L2Relative");
+  levels.emplace_back("L3Absolute");
+  levels.emplace_back("L2L3Residual");
+  levels.emplace_back("L5Flavor"  );
+  levels.emplace_back("L7Parton"  );
   iDesc.add<std::vector<std::string> >("levels", levels);
   descriptions.add("JetCorrFactorsProducer", iDesc);
 }

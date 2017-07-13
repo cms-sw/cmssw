@@ -39,7 +39,7 @@ extern "C"{
 PhotosInterface::PhotosInterface()
    : fOnlyPDG(-1)
 {
-   fSpecialSettings.push_back("QED-brem-off:all");
+   fSpecialSettings.emplace_back("QED-brem-off:all");
    fAvoidTauLeptonicDecays = false;
    fIsInitialized = false; 
 }
@@ -47,7 +47,7 @@ PhotosInterface::PhotosInterface()
 PhotosInterface::PhotosInterface( const edm::ParameterSet& )
    : fOnlyPDG(-1)
 {
-   fSpecialSettings.push_back("QED-brem-off:all");
+   fSpecialSettings.emplace_back("QED-brem-off:all");
    fIsInitialized = false;
 }
 

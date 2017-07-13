@@ -2169,7 +2169,7 @@ ApeEstimator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    TrajTrackAssociationCollection::const_iterator i_trajTrack;
    for(i_trajTrack = m_TrajTracksMap->begin();i_trajTrack != m_TrajTracksMap->end();++i_trajTrack){
-     trajTracks.push_back(ConstTrajTrackPair(&(*(*i_trajTrack).key), &(*(*i_trajTrack).val)));
+     trajTracks.emplace_back(&(*(*i_trajTrack).key), &(*(*i_trajTrack).val));
    }
    
    

@@ -849,8 +849,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	     qual == 6 ||
 	     qual == 7 )
 	 {
-	    inputMuonRefsSingle.push_back(
-	       edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
+	    inputMuonRefsSingle.emplace_back( muHandle, i ) ;
 	 }
 
 	 if( qual == 3 ||
@@ -858,8 +857,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
 	     qual == 6 ||
 	     qual == 7 )
 	 {
-	    inputMuonRefsDouble.push_back(
-	       edm::Ref< L1MuonParticleCollection >( muHandle, i ) ) ;
+	    inputMuonRefsDouble.emplace_back( muHandle, i ) ;
 	 }
       }
    }

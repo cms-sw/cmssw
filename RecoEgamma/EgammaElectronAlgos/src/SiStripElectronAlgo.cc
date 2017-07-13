@@ -229,9 +229,9 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     
     PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(state, innerhit_neg_->geographicalId().rawId());
     TrajectorySeed trajectorySeed(PTraj, hits, alongMomentum);
-    trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, PTraj));
+    trackCandidateOut.emplace_back(hits, trajectorySeed, PTraj);
     
-    electronOut.push_back(reco::SiStripElectron(superclusterIn,
+    electronOut.emplace_back(superclusterIn,
 						-1,
 						outputRphiHits_neg_,
 						outputStereoHits_neg_,
@@ -245,7 +245,7 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						zVsRSlope_neg_,
 						numberOfStereoHits_neg_,
 						numberOfBarrelRphiHits_neg_,
-						numberOfEndcapZphiHits_neg_));
+						numberOfEndcapZphiHits_neg_);
     
     return true;
   }
@@ -323,9 +323,9 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
     
     PTrajectoryStateOnDet const & PTraj = trajectoryStateTransform::persistentState(state, innerhit_pos_->geographicalId().rawId());
     TrajectorySeed trajectorySeed(PTraj, hits, alongMomentum);
-    trackCandidateOut.push_back(TrackCandidate(hits, trajectorySeed, PTraj));
+    trackCandidateOut.emplace_back(hits, trajectorySeed, PTraj);
     
-    electronOut.push_back(reco::SiStripElectron(superclusterIn,
+    electronOut.emplace_back(superclusterIn,
 						1,
 						outputRphiHits_pos_,
 						outputStereoHits_pos_,
@@ -339,7 +339,7 @@ bool SiStripElectronAlgo::findElectron(reco::SiStripElectronCollection& electron
 						zVsRSlope_pos_,
 						numberOfStereoHits_pos_,
 						numberOfBarrelRphiHits_pos_,
-						numberOfEndcapZphiHits_pos_));
+						numberOfEndcapZphiHits_pos_);
     
     return true;
   }

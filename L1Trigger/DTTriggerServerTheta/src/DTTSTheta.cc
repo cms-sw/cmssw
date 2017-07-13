@@ -188,7 +188,7 @@ DTTSTheta::runDTTSTheta() {
 	std::cout << std::endl;
       }
 
-      _cache.push_back(DTChambThSegm(ChamberId(),is,pos,qual));
+      _cache.emplace_back(ChamberId(),is,pos,qual);
     }
   }
 

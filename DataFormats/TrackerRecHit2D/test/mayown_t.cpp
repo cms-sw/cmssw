@@ -16,7 +16,7 @@ int main() {
   std::vector<double> dd(10,3.14);
   VD vd;
   for (int i=0; i<10; ++i) {
-    if (i%2==0) vd.push_back(PD(dd[i]));
+    if (i%2==0) vd.emplace_back(dd[i]);
     else vd.push_back(PD(new double(-1.2)));
   }
 

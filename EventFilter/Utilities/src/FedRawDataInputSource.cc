@@ -170,7 +170,7 @@ FedRawDataInputSource::FedRawDataInputSource(edm::ParameterSet const& pset,
     std::unique_lock<std::mutex> lk(startupLock_);
     //issue a memory fence here and in threads (constructor was segfaulting without this)
     thread_quit_signal.push_back(false);
-    workerJob_.push_back(ReaderInfo(nullptr,nullptr));
+    workerJob_.emplace_back(nullptr,nullptr);
     cvReader_.push_back(new std::condition_variable);
     tid_active_.push_back(0);
     threadInit_.store(false,std::memory_order_release);
@@ -463,7 +463,7 @@ inline evf::EvFDaqDirector::FileStatus FedRawDataInputSource::getNextEvent()
     if (!daqDirector_->isSingleStreamThread() && !fileListMode_) {
       //put the file in pending delete list;
       std::unique_lock<std::mutex> lkw(fileDeleteLock_);
-      filesToDelete_.push_back(std::pair<int,InputFile*>(currentFileIndex_,currentFile_));
+      filesToDelete_.emplace_back(currentFileIndex_,currentFile_);
     }
     else {
       //in single-thread and stream jobs, events are already processed

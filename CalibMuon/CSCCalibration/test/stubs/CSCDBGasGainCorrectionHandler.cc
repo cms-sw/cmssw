@@ -38,7 +38,7 @@ void popcon::CSCDBGasGainCorrectionImpl::getNewObjects()
   std::cout << "getNewObjects : enter till ? \n";
   
    
-  m_to_transfer.push_back(std::make_pair(cngasgain,snc));
+  m_to_transfer.emplace_back(std::make_pair(cngasgain,snc));
    
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
   std::cout << "CSCGasGainCorrectionHandler - time before writing into DB:"<< std::endl;

@@ -151,7 +151,7 @@ JetPartonMatching::matchingTotalMinDist()
   for(unsigned int ip=0; ip<partons.size(); ++ip){
     for(unsigned int ij=0; ij<jets.size(); ++ij){ 
       double dist = distance(jets[ij]->p4(), partons[ip]->p4());
-      distances.push_back(std::pair<double, unsigned int>(dist, ip*jets.size()+ij));
+      distances.emplace_back(dist, ip*jets.size()+ij);
     }
   }
   std::sort(distances.begin(), distances.end());
@@ -211,7 +211,7 @@ JetPartonMatching::minSumDist_recursion(const unsigned int ip, std::vector<unsig
     double dist  = distance(partons[ip]->p4(), jets[jetIndices[ip]]->p4());
     if(useMaxDist_ && dist > maxDist_) return; // outlier rejection
     sumDist += distance(partons[ip]->p4(), jets[jetIndices[ip]]->p4());
-    match.push_back(std::make_pair(ip, jetIndices[ip]));
+    match.emplace_back(std::make_pair(ip, jetIndices[ip]));
   }
 
   distMatchVec.push_back( std::make_pair(sumDist, match)  );
@@ -286,7 +286,7 @@ JetPartonMatching::matchingPtOrderedMinDist()
     }
     
     if(ijMin >= 0){
-      match.push_back( std::make_pair(ptOrderedPartons[ip].second, jetIndices[ijMin]) );
+      match.emplace_back(std::make_pair(ptOrderedPartons[ip].second, jetIndices[ijMin]) );
       jetIndices.erase(jetIndices.begin() + ijMin, jetIndices.begin() + ijMin + 1);
     }
     else

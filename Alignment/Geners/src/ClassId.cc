@@ -352,8 +352,7 @@ namespace gs {
                     std::size_t end = pos - 1;
                     while (isspace(id_[end])) --end;
                     ++end;
-                    (*params)[ncommas].push_back(
-                        ClassId(id_.substr(begin, end - begin)));
+                    (*params)[ncommas].emplace_back(id_.substr(begin, end - begin));
                     begin = pos + 1;
                     ++ncommas;
                 }
@@ -362,8 +361,7 @@ namespace gs {
             std::size_t end = rightBrak - 1;
             while (isspace(id_[end])) --end;
             ++end;
-            (*params)[ncommas].push_back(
-                ClassId(id_.substr(begin, end - begin)));
+            (*params)[ncommas].emplace_back(id_.substr(begin, end - begin));
         }
     }
 }

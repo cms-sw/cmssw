@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 			out << "\t\t<var name=\"" << escape(iter->name)
 			    << "\" multiple=\"true\" optional=\"true\"/>"
 			    << std::endl;
-			vars.push_back(std::make_pair("input", iter->name));
+			vars.emplace_back(std::make_pair("input", iter->name));
 		}
 		out << "\t</input>" << std::endl;
 

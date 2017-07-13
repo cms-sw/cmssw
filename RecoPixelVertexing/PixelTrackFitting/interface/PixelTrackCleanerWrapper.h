@@ -25,7 +25,7 @@ public:
         trhs.push_back(trh);
         hitMap[trh]=ttrhs[i];
       }
-      initialT_TRHs.push_back( pixeltrackfitting::TrackWithRecHits(it->first, trhs) );
+      initialT_TRHs.emplace_back(it->first, trhs );
     }
 
     pixeltrackfitting::TracksWithRecHits finalT_TRHs = theCleaner->cleanTracks(initialT_TRHs);
@@ -39,7 +39,7 @@ public:
                trhs.size()>2 ? hitMap[trhs[2]] : SeedingHitSet::nullPtr(),
                trhs.size()>3 ? hitMap[trhs[3]] : SeedingHitSet::nullPtr() ); 
 
-       finalT_TTRHs.push_back( pixeltrackfitting::TrackWithTTRHs(it->first, ttrhs));
+       finalT_TTRHs.emplace_back(it->first, ttrhs);
     }
     return finalT_TTRHs;
   }

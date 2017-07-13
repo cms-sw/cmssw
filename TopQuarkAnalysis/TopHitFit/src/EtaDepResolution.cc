@@ -102,7 +102,7 @@ EtaDepResolution::Read(const Defaults_Text& defs)
             double            etamin = defs.get_float(os_etamin.str());
             double            etamax = defs.get_float(os_etamax.str());
             Vector_Resolution res(defs.get_string(os_res.str()));
-            _EtaDepResElement.push_back(EtaDepResElement(etamin,etamax,res));
+            _EtaDepResElement.emplace_back(etamin,etamax,res);
 
         }
         else {

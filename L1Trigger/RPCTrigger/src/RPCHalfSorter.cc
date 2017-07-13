@@ -84,12 +84,12 @@ L1RpcTBMuonsVec2 RPCHalfSorter::runHalf(L1RpcTBMuonsVec2 &tcsMuonsVec2) {
   sort(outputEndcapMuons.begin(), outputEndcapMuons.end(), RPCTBMuon::TMuonMore());
 
   while(outputBarrelMuons.size() < RPCConst::m_FINAL_OUT_MUONS_CNT)
-    outputBarrelMuons.push_back(RPCTBMuon());
+    outputBarrelMuons.emplace_back();
   while(outputBarrelMuons.size() > RPCConst::m_FINAL_OUT_MUONS_CNT)
     outputBarrelMuons.pop_back();
   
   while(outputEndcapMuons.size() < RPCConst::m_FINAL_OUT_MUONS_CNT)
-    outputEndcapMuons.push_back(RPCTBMuon());
+    outputEndcapMuons.emplace_back();
   while(outputEndcapMuons.size() > RPCConst::m_FINAL_OUT_MUONS_CNT)
     outputEndcapMuons.pop_back();
 

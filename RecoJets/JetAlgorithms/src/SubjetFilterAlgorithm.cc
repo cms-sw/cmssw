@@ -206,9 +206,9 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
 	    ((fastjet::ClusterSequenceArea*)cs)->area(fjSubJets[iSub]) : 0.0;
 	  
 	  if (iSub<2||constituents.size()>0)
-	    subJets.push_back(CompoundPseudoSubJet(fjSubJets[iSub],
+	    subJets.emplace_back(fjSubJets[iSub],
 						   subJetArea,
-						   constituents));
+						   constituents);
 	}
 	
       } // PASSED Y CUT
@@ -221,7 +221,7 @@ void SubjetFilterAlgorithm::run(const std::vector<fastjet::PseudoJet>& fjInputs,
     double fatJetArea = (doAreaFastjet_) ?
       ((fastjet::ClusterSequenceArea*)cs)->area(fjFatJet) : 0.0;
 
-    fjJets.push_back(CompoundPseudoJet(fjFatJet,fatJetArea,subJets));
+    fjJets.emplace_back(fjFatJet,fatJetArea,subJets);
     
     ntotal_++;
     if (subJets.size()>3) nfound_++;

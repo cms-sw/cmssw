@@ -324,8 +324,8 @@ void JetMatchingMGFastJet::init(const lhef::LHERunInfo* runInfo)
         std::vector<Param> values;
         for(std::map<std::string, std::string>::const_iterator iter =
                         mgParams.begin(); iter != mgParams.end(); ++iter) {
-                params.push_back(" " + iter->first);
-                values.push_back(iter->second);
+                params.emplace_back(" " + iter->first);
+                values.emplace_back(iter->second);
 
         }
 
@@ -429,15 +429,15 @@ int JetMatchingMGFastJet::match( const lhef::LHEEvent* partonLevel,
 	// which would actually indicate position in "history" of the "master" ClusSeq
 	//
 	fastjet::PseudoJet exjet = fClusJets[i];
-        MatchingInput.push_back( fastjet::PseudoJet( exjet.px(), exjet.py(), exjet.pz(), exjet.e() ) );
+        MatchingInput.emplace_back( exjet.px(), exjet.py(), exjet.pz(), exjet.e() );
 	MatchingInput.back().set_user_index(i);
      }
 
      int idx = typeIdx[0][counter];
-     MatchingInput.push_back( fastjet::PseudoJet( hepeup.PUP[idx][0],
+     MatchingInput.emplace_back( hepeup.PUP[idx][0],
                                                   hepeup.PUP[idx][1],
 						  hepeup.PUP[idx][2],
-						  hepeup.PUP[idx][3]) );
+						  hepeup.PUP[idx][3] );
 
      //
      // in principle, one can use ClusterSequence::n_particles() 

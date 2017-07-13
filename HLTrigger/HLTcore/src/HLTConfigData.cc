@@ -145,7 +145,7 @@ void HLTConfigData::extract()
 	 if (pset!=ParameterSet()) {
 	   const bool   l1Tech(pset.getParameter<bool>("L1TechTriggerSeeding"));
 	   const string l1Seed(pset.getParameter<string>("L1SeedsLogicalExpression"));
-	   hltL1GTSeeds_[i].push_back(pair<bool,string>(l1Tech,l1Seed));
+	   hltL1GTSeeds_[i].emplace_back(l1Tech,l1Seed);
 	 }
        }
      }

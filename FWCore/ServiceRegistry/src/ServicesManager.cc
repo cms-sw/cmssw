@@ -257,7 +257,7 @@ namespace edm {
                                                         MakerHolder(base,
                                                                     *itParam,
                                                                     registry_)));
-            requestedCreationOrder_.push_back(TypeIDBase(base->serviceType()));
+            requestedCreationOrder_.emplace_back(base->serviceType());
          }
       }
 

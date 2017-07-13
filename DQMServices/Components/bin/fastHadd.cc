@@ -640,7 +640,7 @@ int main(int argc, char * argv[]) {
       return showusage();
     }
     for (; arg < argc; ++arg) {
-      filenames.push_back(argv[arg]);
+      filenames.emplace_back(argv[arg]);
     }
   }
 
@@ -650,7 +650,7 @@ int main(int argc, char * argv[]) {
       return showusage();
     }
     for (; arg < argc; ++arg) {
-      filenames.push_back(argv[arg]);
+      filenames.emplace_back(argv[arg]);
     }
   }
 

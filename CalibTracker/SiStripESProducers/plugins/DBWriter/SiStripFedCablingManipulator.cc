@@ -112,7 +112,7 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiSt
 	std::map<uint32_t, std::pair<uint32_t, uint32_t> >::const_iterator it=dcuDetIdMap.find(iconn->dcuId());
 	if(it!=dcuDetIdMap.end() && it->second.first==iconn->detId()){
 	  edm::LogInfo("SiStripFedCablingManipulator")<< "::manipulate - fedid "<< *ifeds << " dcuid " <<  iconn->dcuId() << " oldDet " << iconn->detId() << " newDetID " << it->second.second ;
-	  conns.push_back(FedChannelConnection( 
+	  conns.emplace_back( 
 					       iconn->fecCrate(),
 					       iconn->fecSlot(),
 					       iconn->fecRing(),
@@ -130,10 +130,10 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiSt
 					       iconn->pll(),
 					       iconn->mux(),
 					       iconn->lld()
-					       )
+					       
 			  );
 	}else{
-	  conns.push_back(FedChannelConnection( 
+	  conns.emplace_back( 
 					       iconn->fecCrate(),
 					       iconn->fecSlot(),
 					       iconn->fecRing(),
@@ -151,7 +151,7 @@ void SiStripFedCablingManipulator::manipulate(const SiStripFedCabling* iobj,SiSt
 					       iconn->pll(),
 					       iconn->mux(),
 					       iconn->lld()
-					       )
+					       
 			  );
 	}
       }

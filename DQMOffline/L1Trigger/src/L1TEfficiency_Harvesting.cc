@@ -243,7 +243,7 @@ L1TEfficiency_Harvesting::L1TEfficiency_Harvesting(const ParameterSet & ps) :
         vector<string>::const_iterator plotIt  = plots.begin();
         vector<string>::const_iterator plotEnd = plots.end();
 
-        for (; plotIt!=plotEnd; ++plotIt) m_plotHandlers.push_back(L1TEfficiencyPlotHandler(dir,(*plotIt)));
+        for (; plotIt!=plotEnd; ++plotIt) m_plotHandlers.emplace_back(dir,(*plotIt));
     }
 }
 

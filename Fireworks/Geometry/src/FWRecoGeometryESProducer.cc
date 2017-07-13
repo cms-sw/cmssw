@@ -568,7 +568,7 @@ unsigned int
 FWRecoGeometryESProducer::insert_id( unsigned int rawid )
 {
   ++m_current;
-  m_fwGeometry->idToName.push_back(FWRecoGeom::Info());
+  m_fwGeometry->idToName.emplace_back();
   m_fwGeometry->idToName.back().id = rawid;
   
   return m_current;

@@ -97,7 +97,7 @@ void RecoTauJetRegionProducer::produce(edm::Event& evt, const edm::EventSetup& e
   std::vector<PFCandPtr> pfCands;
   pfCands.reserve(pfCandsHandle->size());
   for ( size_t icand = 0; icand < pfCandsHandle->size(); ++icand ) {
-    pfCands.push_back(PFCandPtr(pfCandsHandle, icand));
+    pfCands.emplace_back(pfCandsHandle, icand);
   }
 
   // Get the jets

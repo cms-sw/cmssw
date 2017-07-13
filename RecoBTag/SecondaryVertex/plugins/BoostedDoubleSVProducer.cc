@@ -669,13 +669,13 @@ BoostedDoubleSVProducer::calcNsubjettiness(const reco::JetBaseRef & jet, float &
           const reco::Candidate * constit = daughter->daughter(i);
 
           if ( constit )
-            fjParticles.push_back( fastjet::PseudoJet( constit->px(), constit->py(), constit->pz(), constit->energy() ) );
+            fjParticles.emplace_back( constit->px(), constit->py(), constit->pz(), constit->energy() );
           else
             edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";
         }
       }
       else
-        fjParticles.push_back( fastjet::PseudoJet( daughter->px(), daughter->py(), daughter->pz(), daughter->energy() ) );
+        fjParticles.emplace_back( daughter->px(), daughter->py(), daughter->pz(), daughter->energy() );
     }
     else
       edm::LogWarning("MissingJetConstituent") << "Jet constituent required for N-subjettiness computation is missing!";

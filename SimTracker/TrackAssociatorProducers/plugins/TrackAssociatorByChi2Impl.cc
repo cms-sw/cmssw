@@ -75,7 +75,7 @@ TrackAssociatorByChi2Impl::compareTracksParam(const TrackCollection& rtColl,
 	if (chi2<chi2cut) outMap[chi2]=*st;
       }
     }
-    outputVec.push_back(RecoToSimPair(*track,outMap));
+    outputVec.emplace_back(*track,outMap);
   }
   return outputVec;
 }

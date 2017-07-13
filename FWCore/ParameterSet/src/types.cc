@@ -662,7 +662,7 @@ static void
 
     for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
         stringItr != stringItrEnd; ++stringItr) {
-      to.push_back(InputTag(*stringItr));
+      to.emplace_back(*stringItr);
     }
     return true;
   } // decode to VInputTag
@@ -712,7 +712,7 @@ static void
 
      for(std::vector<std::string>::const_iterator stringItr = strings.begin(), stringItrEnd = strings.end();
          stringItr != stringItrEnd; ++stringItr) {
-        to.push_back(ESInputTag(*stringItr));
+        to.emplace_back(*stringItr);
      }
      return true;
   } // decode to VInputTag

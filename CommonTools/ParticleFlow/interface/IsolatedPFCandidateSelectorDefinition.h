@@ -94,7 +94,7 @@ namespace pf2pat {
 
 	if(passed) {
 	  // passed all cuts, selected
-	  selected_.push_back( reco::PFCandidate(*pfc) );
+	  selected_.emplace_back(*pfc );
 	  reco::PFCandidatePtr ptrToMother( hc, key );
 	  selected_.back().setSourceCandidatePtr( ptrToMother );
 	}

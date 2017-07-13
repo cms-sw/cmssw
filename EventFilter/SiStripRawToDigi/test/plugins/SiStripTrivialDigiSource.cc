@@ -95,7 +95,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
 
       // Create DetSet
       if ( zero_suppr_vector.empty() ) { zero_suppr_vector.reserve(40000); }
-      zero_suppr_vector.push_back( edm::DetSet<SiStripDigi>(key) );
+      zero_suppr_vector.emplace_back(key );
       edm::DetSet<SiStripDigi>& zs = zero_suppr_vector.back();
       zs.data.reserve(768); 
 
@@ -120,7 +120,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
  	std::vector<uint16_t>::iterator iter = find( used_strips.begin(), used_strips.end(), strip );
  	if ( iter == used_strips.end() && adc ) { // require non-zero adc!
 	  uint16_t level = raw_ ? ped_ + adc : adc;
-	  zs.data.push_back( SiStripDigi( strip, level ) );
+	  zs.data.emplace_back( strip, level );
 	  used_strips.push_back( strip ); 
 	  ndigis++;
 	  idigi++;
@@ -132,7 +132,7 @@ void SiStripTrivialDigiSource::produce( edm::Event& event,
       if ( raw_ ) {
  	for ( uint16_t istr = 256*ipair; istr < 256*(ipair+1); ++istr ) {
  	  if ( find( used_strips.begin(), used_strips.end(), istr ) == used_strips.end() ) { 
- 	    zs.data.push_back( SiStripDigi( istr, ped_ ) );
+ 	    zs.data.emplace_back( istr, ped_ );
  	  }
  	}
       }

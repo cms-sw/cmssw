@@ -484,7 +484,7 @@ int MuonMCClassifier::convertAndPush(const TrackingParticle &tp,
                                      reco::GenParticleCollection &out,
                                      const TrackingParticleRef & simMom,
                                      const edm::Handle<reco::GenParticleCollection> & genParticles) const {
-    out.push_back(reco::GenParticle(tp.charge(), tp.p4(), tp.vertex(), tp.pdgId(), tp.status(), true));
+    out.emplace_back(tp.charge(), tp.p4(), tp.vertex(), tp.pdgId(), tp.status(), true);
     if (simMom.isNonnull() && !simMom->genParticles().empty()) {
          if (genParticles.id() != simMom->genParticles().id()) {
             throw cms::Exception("Configuration") << "Product ID mismatch between the genParticle collection (" << genParticles_ << ", id " << genParticles.id() << ") and the references in the TrackingParticles (id " << simMom->genParticles().id() << ")\n";

@@ -227,7 +227,7 @@ int OffHelper::fillOffEleVec(std::vector<OffEle>& egHLTOffEles)
     OffEle::HLTData hltData;
     fillHLTData(*gsfIter,hltData);
 
-    egHLTOffEles.push_back(OffEle(*gsfIter,clusShapeData,isolData,hltData,eventData));
+    egHLTOffEles.emplace_back(*gsfIter,clusShapeData,isolData,hltData,eventData);
     
     //now we would like to set the cut results
     OffEle& ele =  egHLTOffEles.back();
@@ -369,7 +369,7 @@ int OffHelper::fillOffPhoVec(std::vector<OffPho>& egHLTOffPhos)
     OffPho::HLTData hltData;
     fillHLTDataPho(*phoIter,hltData); 
 
-    egHLTOffPhos.push_back(OffPho(*phoIter,clusShapeData,isolData,hltData));
+    egHLTOffPhos.emplace_back(*phoIter,clusShapeData,isolData,hltData);
     OffPho& pho =  egHLTOffPhos.back();
     pho.setCutCode(phoCuts_.getCutCode(pho));
     pho.setLooseCutCode(phoLooseCuts_.getCutCode(pho));

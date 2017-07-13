@@ -53,7 +53,7 @@ L1RpcTBMuonsVec RPCTBGhostBuster::gBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
   if(pacMuonsVec.size() == 0)
     return L1RpcTBMuonsVec(); //empty vector;
 //--------- killing ghosts ---------------------------------------
-  pacMuonsVec.push_back(RPCTBMuon()); //adding  empty muon to the end,
+  pacMuonsVec.emplace_back(); //adding  empty muon to the end,
 
   for(unsigned int iMu = 0; iMu < RPCConst::m_SEGMENTS_IN_SECTOR_CNT; iMu++) {
     if(pacMuonsVec[iMu].getCode() == 0)
@@ -114,7 +114,7 @@ L1RpcTBMuonsVec RPCTBGhostBuster::gBPhi(L1RpcTBMuonsVec &pacMuonsVec) const {
 
 //-------setting size to m_GBPHI_OUT_MUONS_CNT----------------
   while (outputMuons.size() < RPCConst::m_GBPHI_OUT_MUONS_CNT)
-    outputMuons.push_back(RPCTBMuon());
+    outputMuons.emplace_back();
   while(outputMuons.size() > RPCConst::m_GBPHI_OUT_MUONS_CNT)
     outputMuons.pop_back();
 
@@ -168,7 +168,7 @@ L1RpcTBMuonsVec RPCTBGhostBuster::gBEta(L1RpcTBMuonsVec2 &gbPhiMuonsVec2) const 
   
 //-------setting size to m_GBETA_OUT_MUONS_CNT----------------
   while(outputMuons.size() < RPCConst::m_GBETA_OUT_MUONS_CNT)
-    outputMuons.push_back(RPCTBMuon());
+    outputMuons.emplace_back();
   while(outputMuons.size() > RPCConst::m_GBETA_OUT_MUONS_CNT)
     outputMuons.pop_back();
 

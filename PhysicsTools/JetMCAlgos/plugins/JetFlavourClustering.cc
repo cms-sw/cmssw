@@ -311,7 +311,7 @@ JetFlavourClustering::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
          edm::LogWarning("NullTransverseMomentum") << "dropping input candidate with pt=0";
          continue;
        }
-       fjInputs.push_back(fastjet::PseudoJet(constit->px(),constit->py(),constit->pz(),constit->energy()));
+       fjInputs.emplace_back(constit->px(),constit->py(),constit->pz(),constit->energy());
      }
    }
    // insert "ghost" b hadrons in the vector of constituents

@@ -42,7 +42,7 @@ MaterialAccountingGroup::MaterialAccountingGroup( const std::string & name, cons
               << ") cm" << std::endl;
     LogTrace("MaterialAccountingGroup") << "Name of added element: "
                                         << fv.logicalPart().toString() << std::endl;
-    m_elements.push_back( GlobalPoint(position.x(), position.y(), position.z()) );
+    m_elements.emplace_back(position.x(), position.y(), position.z() );
   }
 
   // grow the bounding box

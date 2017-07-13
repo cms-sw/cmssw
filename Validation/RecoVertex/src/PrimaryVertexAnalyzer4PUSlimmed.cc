@@ -65,9 +65,8 @@ PrimaryVertexAnalyzer4PUSlimmed::PrimaryVertexAnalyzer4PUSlimmed(
   reco_vertex_collections_ = iConfig.getParameter<std::vector<edm::InputTag> >(
       "vertexRecoCollections");
   for (auto const& l : reco_vertex_collections_) {
-    reco_vertex_collection_tokens_.push_back(
-        edm::EDGetTokenT<edm::View<reco::Vertex>>(
-            consumes<edm::View<reco::Vertex>>(l)));
+    reco_vertex_collection_tokens_.emplace_back(
+            consumes<edm::View<reco::Vertex>>(l));
   }
   errorPrintedForColl_.resize(reco_vertex_collections_.size(), false);
 }

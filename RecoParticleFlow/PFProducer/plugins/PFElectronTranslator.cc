@@ -145,12 +145,12 @@ void PFElectronTranslator::produce(edm::Event& iEvent,
 
     reco::PFCandidatePtr ptrToPFElectron(pfCandidates,i);
     //CandidatePtr_.push_back(ptrToPFElectron->sourceCandidatePtr(0));
-    CandidatePtr_.push_back(ptrToPFElectron);    
+    CandidatePtr_.emplace_back(ptrToPFElectron);    
 
-    basicClusters_.push_back(reco::BasicClusterCollection());
-    pfClusters_.push_back(std::vector<const reco::PFCluster *>());
-    preshowerClusters_.push_back(reco::PreshowerClusterCollection());
-    ambiguousGsfTracks_.push_back(std::vector<reco::GsfTrackRef>());
+    basicClusters_.emplace_back();
+    pfClusters_.emplace_back();
+    preshowerClusters_.emplace_back();
+    ambiguousGsfTracks_.emplace_back();
 
     for(unsigned iele=0; iele<cand.elementsInBlocks().size(); ++iele) {
       // first get the block 
@@ -296,22 +296,22 @@ void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 //  std::cout << " # hits " << myPFCluster.hitsAndFractions().size() << std::endl;
 
 //  basicClusters.push_back(reco::CaloCluster(myPFCluster.energy(),
-  basicClusters.push_back(reco::CaloCluster(
+  basicClusters.emplace_back(
 					    //	    myPFCluster.energy(),
 					    coCandidate.rawEcalEnergy(),
 					    myPFCluster.position(),
 					    myPFCluster.caloID(),
 					    myPFCluster.hitsAndFractions(),
 					    myPFCluster.algo(),
-					    myPFCluster.seed()));
+					    myPFCluster.seed());
 }
 
 
 void PFElectronTranslator::createPreshowerCluster(const reco::PFBlockElement & PFBE, reco::PreshowerClusterCollection& preshowerClusters,unsigned plane) const
 {
   reco::PFClusterRef  myPFClusterRef= PFBE.clusterRef();
-  preshowerClusters.push_back(reco::PreshowerCluster(myPFClusterRef->energy(),myPFClusterRef->position(),
-					       myPFClusterRef->hitsAndFractions(),plane));
+  preshowerClusters.emplace_back(myPFClusterRef->energy(),myPFClusterRef->position(),
+					       myPFClusterRef->hitsAndFractions(),plane);
 }
 
 void PFElectronTranslator::createBasicClusterPtrs(const edm::OrphanHandle<reco::BasicClusterCollection> & basicClustersHandle )
@@ -424,7 +424,7 @@ void PFElectronTranslator::fillSCRefValueMap(edm::Event& iEvent,
       if(itcheck==scMap_.end())
 	{
 	  //	  edm::LogWarning("PFElectronTranslator") << "SCRef Map, missing GSF track ref" << std::endl;
-	  values.push_back(reco::SuperClusterRef());
+	  values.emplace_back();
 	}
       else
 	{

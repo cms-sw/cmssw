@@ -99,7 +99,7 @@ namespace reco {
     energy_(energy), correctedEnergy_(-1.0), correctedEnergyUncertainty_(-1.0), position_ (position),  algoID_(algoId)
        {
           hitsAndFractions_.reserve(usedHits.size());
-          for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.push_back(std::pair< DetId, float > ( usedHits[i],1.));
+          for(size_t i = 0; i < usedHits.size(); i++) hitsAndFractions_.emplace_back( usedHits[i],1.);
 	  flags_=flags&flagsMask_;
       }
 
@@ -186,7 +186,7 @@ namespace reco {
     const CaloID& caloID() const {return caloID_;}
 
     void addHitAndFraction( DetId id, float fraction ) { 
-            hitsAndFractions_.push_back( std::pair<DetId, float>(id, fraction) );
+            hitsAndFractions_.emplace_back(id, fraction );
     }
 
     /// replace getHitsByDetId() : return hits by DetId 

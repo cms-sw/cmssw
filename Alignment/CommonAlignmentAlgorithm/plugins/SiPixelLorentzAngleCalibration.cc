@@ -200,7 +200,7 @@ SiPixelLorentzAngleCalibration::derivatives(std::vector<ValuesIndexPair> &outDer
       // FIXME: Have to treat that for FPIX yDerivative != 0., due to higher order effects! 
       if (xDerivative) { // If field is zero, this is zero: do not return it
 	const Values derivs(xDerivative, 0.); // yDerivative = 0.
-	outDerivInds.push_back(ValuesIndexPair(derivs, index));
+	outDerivInds.emplace_back(derivs, index);
       }
     }
   } else {

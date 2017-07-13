@@ -315,7 +315,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
   if( !doRegex )
   {
     DDName ddnm( nm, ns );
-    result.push_back( DDLogicalPart( ddnm ));
+    result.emplace_back( ddnm );
     return std::make_pair( true, "" );
   }
   std::string status;
@@ -352,7 +352,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
     //if (doit)  edm::LogInfo("DDLogicalPart") << "rgx: " << aName << ' ' << it->first << ' ' << doit << std::endl;
     std::vector<DDName>::size_type sz = it->second.size(); // no of 'compatible' namespaces
     if ( emptyNs && (sz==1) ) { // accept all logical parts in all the namespaces
-      result.push_back(it->second[0]);
+      result.emplace_back(it->second[0]);
       //std::vector<DDName>::const_iterator nsIt(it->second.begin()), nsEd(it->second.end());
       //for(; nsIt != nsEd; ++nsIt) {
       //   result.push_back(DDLogicalPart(*nsIt));
@@ -366,7 +366,7 @@ DDIsValid( const std::string & ns, const std::string & nm, std::vector<DDLogical
 	bool another_doit = aNsRegex.match(nsit->ns());
 	if ( another_doit ) {
 	  //temp.push_back(std::make_pair(it->first,*nsit));
-	  result.push_back(DDLogicalPart(*nsit));
+	  result.emplace_back(*nsit);
 	}
       }
     }

@@ -160,7 +160,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
        const TrackRef &tk = (*mucands)[i].track();
        edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
        TrackRef staTrack = l3seedRef->l2Track();
-       L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+       L2toL3s[staTrack].emplace_back(mucands,i);
      }
    }
    // Using normal TrajectorySeeds:
@@ -182,7 +182,7 @@ HLTMuonTrimuonL3Filter::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSe
 	  float dPt = std::abs(tk->pt() - globalTrack.pt())/tk->pt();
           const TrackRef staTrack = link.standAloneTrack();
 	  if (dR2 < 0.02*0.02 and dPt < 0.001) {
-	      L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+	      L2toL3s[staTrack].emplace_back(cand);
 	  }
         } //MTL loop
      } //RCC loop

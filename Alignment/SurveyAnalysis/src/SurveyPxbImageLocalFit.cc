@@ -237,10 +237,10 @@ void SurveyPxbImageLocalFit::doFit(value_t u1, value_t v1, value_t g1, value_t u
 	//std::cout << "mod_tr2: " << mod_tr2 << std::endl;
 
 	fidpoint_t fidpointvec;
-	fidpointvec.push_back(coord_t(mod_tr1(0),mod_tr1(1)));
-	fidpointvec.push_back(coord_t(mod_tr1(2),mod_tr1(3)));
-	fidpointvec.push_back(coord_t(mod_tr2(0),mod_tr2(1)));
-	fidpointvec.push_back(coord_t(mod_tr2(2),mod_tr2(3)));
+	fidpointvec.emplace_back(mod_tr1(0),mod_tr1(1));
+	fidpointvec.emplace_back(mod_tr1(2),mod_tr1(3));
+	fidpointvec.emplace_back(mod_tr2(0),mod_tr2(1));
+	fidpointvec.emplace_back(mod_tr2(2),mod_tr2(3));
 
 	doFit(fidpointvec);
 }

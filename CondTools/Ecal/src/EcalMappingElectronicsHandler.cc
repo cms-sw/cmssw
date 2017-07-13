@@ -71,7 +71,7 @@ void EcalMappingElectronicsHandler::getNewObjects()
   f.close();
   edm::LogInfo("EcalMappingElectronicsHandler") << "Reading completed ready to insert in DB";  
   //Filling completed transferring to DB
-  m_to_transfer.push_back(std::make_pair(payload,since_));
+  m_to_transfer.emplace_back(std::make_pair(payload,since_));
   //  delete payload;
 }
 

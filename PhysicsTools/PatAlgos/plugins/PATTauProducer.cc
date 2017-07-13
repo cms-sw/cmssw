@@ -76,7 +76,7 @@ PATTauProducer::PATTauProducer(const edm::ParameterSet & iConfig):
     edm::ParameterSet idps = iConfig.getParameter<edm::ParameterSet>("tauIDSources");
     std::vector<std::string> names = idps.getParameterNamesForType<edm::InputTag>();
     for (std::vector<std::string>::const_iterator it = names.begin(), ed = names.end(); it != ed; ++it) {
-      tauIDSrcs_.push_back(NameTag(*it, idps.getParameter<edm::InputTag>(*it)));
+      tauIDSrcs_.emplace_back(*it, idps.getParameter<edm::InputTag>(*it));
     }
     // but in any case at least once
     if (tauIDSrcs_.empty()) throw cms::Exception("Configuration") <<

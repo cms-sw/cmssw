@@ -204,7 +204,7 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
                 }
                 if (takenAlready) {
                         inCleanOnlyInd.push_back(0);
-                        scCleanSeedDetId.push_back(DetId(0));
+                        scCleanSeedDetId.emplace_back(0);
                         continue;
                 }
                 inCleanOnlyInd.push_back(1);

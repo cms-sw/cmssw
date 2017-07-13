@@ -116,11 +116,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
  
   // MCGeant
   sprintf(hname,"hMCRGP1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"RawGenParticles");
   hMCRGP[0] = new TH1F(hname,htitle,100,0.,5000.);
   sprintf(hname,"hMCRGP2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMCRGP[1] = new TH1F(hname,htitle,100,0.,500.);  
   for (Int_t i = 0; i < 2; ++i) {
     hMCRGP[i]->GetXaxis()->SetTitle("Number of Raw Generated Particles");
@@ -129,11 +129,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hMCG4Vtx1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"G4 Vertices");
   hMCG4Vtx[0] = new TH1F(hname,htitle,100,0.,50000.);
   sprintf(hname,"hMCG4Vtx2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMCG4Vtx[1] = new TH1F(hname,htitle,100,-0.5,99.5); 
   for (Int_t i = 0; i < 2; ++i) {
     hMCG4Vtx[i]->GetXaxis()->SetTitle("Number of Vertices");
@@ -142,11 +142,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hMCG4Trk1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"G4 Tracks");
   hMCG4Trk[0] = new TH1F(hname,htitle,150,0.,15000.);
   sprintf(hname,"hMCG4Trk2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMCG4Trk[1] = new TH1F(hname,htitle,150,-0.5,99.5);    
   for (Int_t i = 0; i < 2; ++i) {
     hMCG4Trk[i]->GetXaxis()->SetTitle("Number of Tracks");
@@ -155,11 +155,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hGeantVtxX1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Geant vertex x/micrometer");
   hGeantVtxX[0] = new TH1F(hname,htitle,100,-8000000.,8000000.);
   sprintf(hname,"hGeantVtxX2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hGeantVtxX[1] = new TH1F(hname,htitle,100,-50.,50.); 
   for (Int_t i = 0; i < 2; ++i) {
     hGeantVtxX[i]->GetXaxis()->SetTitle("x of Vertex (um)");
@@ -168,11 +168,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hGeantVtxY1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Geant vertex y/micrometer");
   hGeantVtxY[0] = new TH1F(hname,htitle,100,-8000000,8000000.);
   sprintf(hname,"hGeantVtxY2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hGeantVtxY[1] = new TH1F(hname,htitle,100,-50.,50.); 
   for (Int_t i = 0; i < 2; ++i) {
     hGeantVtxY[i]->GetXaxis()->SetTitle("y of Vertex (um)");
@@ -181,11 +181,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hGeantVtxZ1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Geant vertex z/millimeter");
   hGeantVtxZ[0] = new TH1F(hname,htitle,100,-11000.,11000.);
   sprintf(hname,"hGeantVtxZ2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hGeantVtxZ[1] = new TH1F(hname,htitle,100,-250.,250.);
   for (Int_t i = 0; i < 2; ++i) {
     hGeantVtxZ[i]->GetXaxis()->SetTitle("z of Vertex (mm)");
@@ -194,7 +194,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hGeantTrkPt");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Geant track pt/GeV");
   hGeantTrkPt = new TH1F(hname,htitle,100,0.,200.);
   hGeantTrkPt->GetXaxis()->SetTitle("pT of Track (GeV)");
@@ -202,7 +202,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hGeantTrkPt->GetName()] = hGeantTrkPt;
   
   sprintf(hname,"hGeantTrkE");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Geant track E/GeV");
   hGeantTrkE = new TH1F(hname,htitle,100,0.,5000.);
   hGeantTrkE->GetXaxis()->SetTitle("E of Track (GeV)");
@@ -211,27 +211,27 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
  
   // ECal
   sprintf(hname,"hCaloEcal1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Ecal hits");
   hCaloEcal[0] = new TH1F(hname,htitle,100,0.,10000.);
   sprintf(hname,"hCaloEcal2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloEcal[1] = new TH1F(hname,htitle,100,-0.5,99.5);
   
   sprintf(hname,"hCaloEcalE1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Ecal hits, energy/GeV");
   hCaloEcalE[0] = new TH1F(hname,htitle,100,0.,10.);
   sprintf(hname,"hCaloEcalE2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloEcalE[1] = new TH1F(hname,htitle,100,0.,0.1);
   
   sprintf(hname,"hCaloEcalToF1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Ecal hits, ToF/ns");
   hCaloEcalToF[0] = new TH1F(hname,htitle,100,0.,1000.);
   sprintf(hname,"hCaloEcalToF2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloEcalToF[1] = new TH1F(hname,htitle,100,0.,100.);
   
   for (Int_t i = 0; i < 2; ++i) {
@@ -247,7 +247,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hCaloEcalPhi");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Ecal hits, phi/rad");
   hCaloEcalPhi = new TH1F(hname,htitle,100,-3.2,3.2);
   hCaloEcalPhi->GetXaxis()->SetTitle("Phi of Hits (rad)");
@@ -255,7 +255,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hCaloEcalPhi->GetName()] = hCaloEcalPhi;
   
   sprintf(hname,"hCaloEcalEta");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Ecal hits, eta");
   hCaloEcalEta = new TH1F(hname,htitle,100,-5.5,5.5);
   hCaloEcalEta->GetXaxis()->SetTitle("Eta of Hits");
@@ -263,27 +263,27 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hCaloEcalEta->GetName()] = hCaloEcalEta;
 
   sprintf(hname,"hCaloPreSh1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"PreSh hits");
   hCaloPreSh[0] = new TH1F(hname,htitle,100,0.,10000.);
   sprintf(hname,"hCaloPreSh2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloPreSh[1] = new TH1F(hname,htitle,100,-0.5,99.5);
   
   sprintf(hname,"hCaloPreShE1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"PreSh hits, energy/GeV");
   hCaloPreShE[0] = new TH1F(hname,htitle,100,0.,10.);
   sprintf(hname,"hCaloPreShE2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloPreShE[1] = new TH1F(hname,htitle,100,0.,0.1);
 
   sprintf(hname,"hCaloPreShToF1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"PreSh hits, ToF/ns");
   hCaloPreShToF[0] = new TH1F(hname,htitle,100,0.,1000.);
   sprintf(hname,"hCaloPreShToF2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloPreShToF[1] = new TH1F(hname,htitle,100,0.,100.);
   
   for (Int_t i = 0; i < 2; ++i) {
@@ -299,7 +299,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hCaloPreShPhi");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"PreSh hits, phi/rad");
   hCaloPreShPhi = new TH1F(hname,htitle,100,-3.2,3.2);
   hCaloPreShPhi->GetXaxis()->SetTitle("Phi of Hits (rad)");
@@ -307,7 +307,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hCaloPreShPhi->GetName()] = hCaloPreShPhi;
 
   sprintf(hname,"hCaloPreShEta");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"PreSh hits, eta");
   hCaloPreShEta = new TH1F(hname,htitle,100,-5.5,5.5);
   hCaloPreShEta->GetXaxis()->SetTitle("Eta of Hits");
@@ -316,27 +316,27 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
 
   // Hcal
   sprintf(hname,"hCaloHcal1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Hcal hits");
   hCaloHcal[0] = new TH1F(hname,htitle,100,0.,10000.);
   sprintf(hname,"hCaloHcal2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloHcal[1] = new TH1F(hname,htitle,100,-0.5,99.5);
   
   sprintf(hname,"hCaloHcalE1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Hcal hits, energy/GeV");
   hCaloHcalE[0] = new TH1F(hname,htitle,100,0.,10.);
   sprintf(hname,"hCaloHcalE2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloHcalE[1] = new TH1F(hname,htitle,100,0.,0.1);
   
   sprintf(hname,"hCaloHcalToF1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Hcal hits, ToF/ns");
   hCaloHcalToF[0] = new TH1F(hname,htitle,100,0.,1000.);
   sprintf(hname,"hCaloHcalToF2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hCaloHcalToF[1] = new TH1F(hname,htitle,100,0.,100.);
   
   for (Int_t i = 0; i < 2; ++i) {
@@ -352,7 +352,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hCaloHcalPhi");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Hcal hits, phi/rad");
   hCaloHcalPhi = new TH1F(hname,htitle,100,-3.2,3.2);
   hCaloHcalPhi->GetXaxis()->SetTitle("Phi of Hits (rad)");
@@ -360,7 +360,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hCaloHcalPhi->GetName()] = hCaloHcalPhi;
   
   sprintf(hname,"hCaloHcalEta");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Hcal hits, eta");
   hCaloHcalEta = new TH1F(hname,htitle,100,-5.5,5.5);
   hCaloHcalEta->GetXaxis()->SetTitle("Eta of Hits");
@@ -369,11 +369,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
 
   // tracker
   sprintf(hname,"hTrackerPx1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Pixel hits");
   hTrackerPx[0] = new TH1F(hname,htitle,100,0.,10000.);
   sprintf(hname,"hTrackerPx2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hTrackerPx[1] = new TH1F(hname,htitle,100,-0.5,99.5);
   for (Int_t i = 0; i < 2; ++i) {
     hTrackerPx[i]->GetXaxis()->SetTitle("Number of Pixel Hits");
@@ -382,7 +382,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hTrackerPxPhi");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Pixel hits phi/rad");
   hTrackerPxPhi = new TH1F(hname,htitle,100,-3.2,3.2);
   hTrackerPxPhi->GetXaxis()->SetTitle("Phi of Hits (rad)");
@@ -390,7 +390,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerPxPhi->GetName()] = hTrackerPxPhi;
 
   sprintf(hname,"hTrackerPxEta");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Pixel hits eta");
   hTrackerPxEta = new TH1F(hname,htitle,100,-3.5,3.5);
   hTrackerPxEta->GetXaxis()->SetTitle("Eta of Hits");
@@ -398,7 +398,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerPxEta->GetName()] = hTrackerPxEta;
 
   sprintf(hname,"hTrackerPxBToF");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Pixel barrel hits, ToF/ns");
   hTrackerPxBToF = new TH1F(hname,htitle,100,0.,40.);
   hTrackerPxBToF->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -406,7 +406,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerPxBToF->GetName()] = hTrackerPxBToF;
 
   sprintf(hname,"hTrackerPxBR");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Pixel barrel hits, R/cm");
   hTrackerPxBR = new TH1F(hname,htitle,100,0.,50.);
   hTrackerPxBR->GetXaxis()->SetTitle("R of Hits (cm)");
@@ -414,7 +414,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerPxBR->GetName()] = hTrackerPxBR;
 
   sprintf(hname,"hTrackerPxFToF");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Pixel forward hits, ToF/ns");
   hTrackerPxFToF = new TH1F(hname,htitle,100,0.,50.);
   hTrackerPxFToF->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -422,7 +422,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerPxFToF->GetName()] = hTrackerPxFToF;
 
   sprintf(hname,"hTrackerPxFZ");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Pixel forward hits, Z/cm");
   hTrackerPxFZ = new TH1F(hname,htitle,200,-100.,100.);
   hTrackerPxFZ->GetXaxis()->SetTitle("Z of Hits (cm)");
@@ -430,11 +430,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerPxFZ->GetName()] = hTrackerPxFZ;
   
   sprintf(hname,"hTrackerSi1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Silicon hits");
   hTrackerSi[0] = new TH1F(hname,htitle,100,0.,10000.);
   sprintf(hname,"hTrackerSi2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hTrackerSi[1] = new TH1F(hname,htitle,100,-0.5,99.5);
   for (Int_t i = 0; i < 2; ++i) { 
     hTrackerSi[i]->GetXaxis()->SetTitle("Number of Silicon Hits");
@@ -443,7 +443,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hTrackerSiPhi");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Silicon hits phi/rad");
   hTrackerSiPhi = new TH1F(hname,htitle,100,-3.2,3.2);
   hTrackerSiPhi->GetXaxis()->SetTitle("Phi of Hits (rad)");
@@ -451,7 +451,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerSiPhi->GetName()] = hTrackerSiPhi;
 
   sprintf(hname,"hTrackerSiEta");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Silicon hits eta");
   hTrackerSiEta = new TH1F(hname,htitle,100,-3.5,3.5);
   hTrackerSiEta->GetXaxis()->SetTitle("Eta of Hits");
@@ -459,7 +459,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerSiEta->GetName()] = hTrackerSiEta;
   
   sprintf(hname,"hTrackerSiBToF");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Silicon barrel hits, ToF/ns");
   hTrackerSiBToF = new TH1F(hname,htitle,100,0.,50.);
   hTrackerSiBToF->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -467,7 +467,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerSiBToF->GetName()] = hTrackerSiBToF;
 
   sprintf(hname,"hTrackerSiBR");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Silicon barrel hits, R/cm");
   hTrackerSiBR = new TH1F(hname,htitle,100,0.,200.);
   hTrackerSiBR->GetXaxis()->SetTitle("R of Hits (cm)");
@@ -475,7 +475,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerSiBR->GetName()] = hTrackerSiBR;
   
   sprintf(hname,"hTrackerSiFToF");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Silicon forward hits, ToF/ns");
   hTrackerSiFToF = new TH1F(hname,htitle,100,0.,75.);
   hTrackerSiFToF->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -483,7 +483,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hTrackerSiFToF->GetName()] = hTrackerSiFToF;
 
   sprintf(hname,"hTrackerSiFZ");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Silicon forward hits, Z/cm");
   hTrackerSiFZ = new TH1F(hname,htitle,200,-300.,300.);
   hTrackerSiFZ->GetXaxis()->SetTitle("Z of Hits (cm)");
@@ -492,11 +492,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
 
   // muon
   sprintf(hname,"hMuon1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon hits");
   hMuon[0] = new TH1F(hname,htitle,100,0.,10000.);
   sprintf(hname,"hMuon2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMuon[1] = new TH1F(hname,htitle,100,-0.5,99.5);
   for (Int_t i = 0; i < 2; ++i) { 
     hMuon[i]->GetXaxis()->SetTitle("Number of Muon Hits");
@@ -505,7 +505,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }  
   
   sprintf(hname,"hMuonPhi");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon hits phi/rad");
   hMuonPhi = new TH1F(hname,htitle,100,-3.2,3.2);
   hMuonPhi->GetXaxis()->SetTitle("Phi of Hits (rad)");
@@ -513,7 +513,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hMuonPhi->GetName()] = hMuonPhi;
 
   sprintf(hname,"hMuonEta");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon hits eta");
   hMuonEta = new TH1F(hname,htitle,100,-3.5,3.5);
   hMuonEta->GetXaxis()->SetTitle("Eta of Hits");
@@ -521,11 +521,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hMuonEta->GetName()] = hMuonEta;
 
   sprintf(hname,"hMuonCscToF1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon CSC hits, ToF/ns");
   hMuonCscToF[0] = new TH1F(hname,htitle,100,0.,250.);
   sprintf(hname,"hMuonCscToF2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMuonCscToF[1] = new TH1F(hname,htitle,100,0.,50.);
   for (Int_t i = 0; i < 2; ++i) {   
     hMuonCscToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -534,7 +534,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }  
   
   sprintf(hname,"hMuonCscZ");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon CSC hits, Z/cm");
   hMuonCscZ = new TH1F(hname,htitle,200,-1500.,1500.);
   hMuonCscZ->GetXaxis()->SetTitle("Z of Hits (cm)");
@@ -542,11 +542,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hMuonCscZ->GetName()] = hMuonCscZ;
   
   sprintf(hname,"hMuonDtToF1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon DT hits, ToF/ns");
   hMuonDtToF[0] = new TH1F(hname,htitle,100,0.,250.);
   sprintf(hname,"hMuonDtToF2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMuonDtToF[1] = new TH1F(hname,htitle,100,0.,50.);
   for (Int_t i = 0; i < 2; ++i) {   
     hMuonDtToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -555,7 +555,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   } 
   
   sprintf(hname,"hMuonDtR");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon DT hits, R/cm");
   hMuonDtR = new TH1F(hname,htitle,100,0.,1500.); 
   hMuonDtR->GetXaxis()->SetTitle("R of Hits (cm)");
@@ -563,11 +563,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hMuonDtR->GetName()] = hMuonDtR;
 
   sprintf(hname,"hMuonRpcFToF1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon RPC forward hits, ToF/ns");
   hMuonRpcFToF[0] = new TH1F(hname,htitle,100,0.,250.);
   sprintf(hname,"hMuonRpcFToF2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMuonRpcFToF[1] = new TH1F(hname,htitle,100,0.,50.);
   for (Int_t i = 0; i < 2; ++i) {   
     hMuonRpcFToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -576,7 +576,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }  
   
   sprintf(hname,"hMuonRpcFZ");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon RPC forward hits, Z/cm");
   hMuonRpcFZ = new TH1F(hname,htitle,201,-1500.,1500.);
   hMuonRpcFZ->GetXaxis()->SetTitle("Z of Hits (cm)");
@@ -584,11 +584,11 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   histMap_[hMuonRpcFZ->GetName()] = hMuonRpcFZ;
 
   sprintf(hname,"hMuonRpcBToF1");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon RPC barrel hits, ToF/ns");
   hMuonRpcBToF[0] = new TH1F(hname,htitle,100,0.,250.);
   sprintf(hname,"hMuonRpcBToF2");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   hMuonRpcBToF[1] = new TH1F(hname,htitle,100,0.,50.);
   for (Int_t i = 0; i < 2; ++i) {   
     hMuonRpcBToF[i]->GetXaxis()->SetTitle("Time of Flight of Hits (ns)");
@@ -597,7 +597,7 @@ GlobalHitsProdHist::GlobalHitsProdHist(const edm::ParameterSet& iPSet) :
   }
   
   sprintf(hname,"hMuonRpcBR");
-  histName_.push_back(hname);
+  histName_.emplace_back(hname);
   sprintf(htitle,"Muon RPC barrel hits, R/cm");
   hMuonRpcBR = new TH1F(hname,htitle,100,0.,1500.);
   hMuonRpcBR->GetXaxis()->SetTitle("R of Hits (cm)");

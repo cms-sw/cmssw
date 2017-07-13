@@ -37,7 +37,7 @@ inline ParameterCollector::const_iterator::const_iterator(
    : collector_(collector), dump_(dump), special_(special)
 {
    if (begin != end)
-      iter_.push_back(IterPair(begin, end));
+      iter_.emplace_back(begin, end);
 
    next();
 }
@@ -81,8 +81,8 @@ void ParameterCollector::const_iterator::next()
               *dump_ << "\n####### " << block << " #######" << std::endl;
 
            if (!pos->second.empty())
-              iter_.push_back(IterPair(pos->second.begin(),
-                                       pos->second.end()));
+              iter_.emplace_back(pos->second.begin(),
+                                       pos->second.end());
       } else {
          cache_ = collector_->resolve(line);
          if (dump_)

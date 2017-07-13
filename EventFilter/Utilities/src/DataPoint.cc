@@ -107,7 +107,7 @@ void DataPoint::trackVectorUIntAtomic(std::string const& name, std::vector<Atomi
 void DataPoint::makeStreamLumiMap(unsigned int size)
 {
   for (unsigned int i=0;i<size;i++) {
-    streamDataMaps_.push_back(MonPtrMap());
+    streamDataMaps_.emplace_back();
   }
 }
 

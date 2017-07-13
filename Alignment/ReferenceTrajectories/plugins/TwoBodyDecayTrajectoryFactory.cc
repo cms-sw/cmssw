@@ -254,7 +254,7 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
                                                               beamSpot,
                                                               config);
   if ( setParameterErrors && tbd.hasError() ) result->setParameterErrors( tbd.covariance() );
-  trajectories.push_back( ReferenceTrajectoryPtr( result ) );
+  trajectories.emplace_back( result );
   return trajectories;
 }
 

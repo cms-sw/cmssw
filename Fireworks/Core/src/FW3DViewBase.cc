@@ -86,10 +86,10 @@ public:
    {
       TGLVertex3 o = appexOffset;
 
-      planeSet.push_back(TGLPlane(o, vtx[0], vtx[1]));
-      planeSet.push_back(TGLPlane(o, vtx[1], vtx[2]));
-      planeSet.push_back(TGLPlane(o, vtx[2], vtx[3]));
-      planeSet.push_back(TGLPlane(o, vtx[3], vtx[0])); 
+      planeSet.emplace_back(o, vtx[0], vtx[1]);
+      planeSet.emplace_back(o, vtx[1], vtx[2]);
+      planeSet.emplace_back(o, vtx[2], vtx[3]);
+      planeSet.emplace_back(o, vtx[3], vtx[0]); 
    }
 };
 }

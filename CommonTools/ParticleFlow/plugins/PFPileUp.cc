@@ -96,7 +96,7 @@ void PFPileUp::produce(Event& iEvent,
       for ( edm::View<reco::PFCandidate>::const_iterator viewBegin = pfView->begin(),
 	      viewEnd = pfView->end(), iview = viewBegin;
 	    iview != viewEnd; ++iview ) {
-	usedIfNoFwdPtrs.push_back( edm::FwdPtr<reco::PFCandidate>( pfView->ptrAt(iview-viewBegin), pfView->ptrAt(iview-viewBegin)  ) );
+	usedIfNoFwdPtrs.emplace_back( pfView->ptrAt(iview-viewBegin), pfView->ptrAt(iview-viewBegin)  );
       }
       pfCandidatesRef = &usedIfNoFwdPtrs;
     }

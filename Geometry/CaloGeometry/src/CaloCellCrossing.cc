@@ -90,15 +90,15 @@ CaloCellCrossing::CaloCellCrossing( const GlobalPoint&              gp ,
 			{
 			   ++found ;
 			   m_detId.push_back( dId ) ;
-			   m_ctr .push_back( GlobalPoint( ctr.x(), ctr.y(), ctr.z() ) ) ;
-			   m_entr.push_back( GlobalPoint(  pt.x(),  pt.y(),  pt.z() ) ) ;
+			   m_ctr .emplace_back( ctr.x(), ctr.y(), ctr.z() ) ;
+			   m_entr.emplace_back(  pt.x(),  pt.y(),  pt.z() ) ;
 			}
 			else
 			{
 			   if( 1 == found )
 			   {
 			      ++found ;
-			      m_exit.push_back( GlobalPoint( pt.x(), pt.y(), pt.z() ) ) ;
+			      m_exit.emplace_back( pt.x(), pt.y(), pt.z() ) ;
 			   } 
 			   else
 			   {

@@ -914,9 +914,9 @@ namespace edm
   {
     // default the selection to everything (wildcard)
     Strings selection;
-    selection.push_back("*");
-    selection.push_back("!*");
-    selection.push_back("exception@*");
+    selection.emplace_back("*");
+    selection.emplace_back("!*");
+    selection.emplace_back("exception@*");
 
     // the SelectEvents parameter is a ParameterSet within
     // a ParameterSet, so we have to pull it out twice

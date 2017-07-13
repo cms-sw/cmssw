@@ -49,7 +49,7 @@ BoostedJetMerger::produce(edm::Event& iEvent, const edm::EventSetup&)
 
 	edm::Ref<std::vector<pat::Jet> > subjetRef ( h_subJetsOut, outputSubjets->size() - 1);
 	edm::Ptr< pat::Jet > subjetPtr ( h_subJetsOut.id(), subjetRef.key(), h_subJetsOut.productGetter() );
-	nextSubjets.push_back( subjetPtr );
+	nextSubjets.emplace_back(subjetPtr );
       }
     }
     outputs->back().clearDaughters();

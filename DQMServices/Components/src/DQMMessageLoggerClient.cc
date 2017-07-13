@@ -105,7 +105,7 @@ void DQMMessageLoggerClient::fillHistograms(){
 	if( rootHisto->GetBinContent(bin)>0){ 
 	  nonzeros++;
 	  binContent.push_back(rootHisto->GetBinContent(bin));
-	  binLabel.push_back(rootHisto->GetXaxis()->GetBinLabel(bin));
+	  binLabel.emplace_back(rootHisto->GetXaxis()->GetBinLabel(bin));
 	}
 	
       }

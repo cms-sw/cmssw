@@ -81,7 +81,7 @@ void popcon::EcalTPGPhysicsConstfromFile::getNewObjects() {
   item.FG_highRatio = FG_highRatio; 
   physC->setValue(ee.rawId(), item); 
 
-  m_to_transfer.push_back(std::make_pair((EcalTPGPhysicsConst*)physC, fileIOV));
+  m_to_transfer.emplace_back(std::make_pair((EcalTPGPhysicsConst*)physC, fileIOV));
 
   std::cout << "EcalTPGPhysicsConstfromFile - > end of getNewObjects -----------\n";
 	

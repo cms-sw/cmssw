@@ -82,7 +82,7 @@ TauJetCorrFactorsProducer::produce(edm::Event& evt, const edm::EventSetup& es)
     // the string corresponds to the label of the correction level, the float to the tau-jet energy correction factor.
     // The first correction level is predefined with label 'Uncorrected'. The correction factor is 1.
     std::vector<TauJetCorrFactors::CorrectionFactor> jec;
-    jec.push_back(std::make_pair(std::string("Uncorrected"), 1.0));
+    jec.emplace_back(std::make_pair(std::string("Uncorrected"), 1.0));
 
     if ( levels_.size() == 0 )
       throw cms::Exception("No JECFactors")

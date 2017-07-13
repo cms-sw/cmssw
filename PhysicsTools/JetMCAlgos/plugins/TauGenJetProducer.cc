@@ -93,7 +93,7 @@ void TauGenJetProducer::produce(edm::StreamID, Event& iEvent,
 
       // need to convert the vector of reference to the constituents
       // to a vector of pointers to build the genjet
-      constituents.push_back( refToPtr( *igr) );
+      constituents.emplace_back(refToPtr( *igr) );
     }
 
     math::XYZPoint vertex;

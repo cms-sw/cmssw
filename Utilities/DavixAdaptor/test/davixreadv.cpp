@@ -21,7 +21,7 @@ int main(int, char ** /*argv*/) try {
     std::vector<IOPosBuffer> iov;
     iov.reserve(i);
     for (IOSize j = 0; j < i; j++) {
-      iov.push_back(IOPosBuffer(offset[j], buf, sizes[j]));
+      iov.emplace_back(offset[j], buf, sizes[j]);
     }
     s->readv(&iov[0], iov.size());
     std::cout << "stats " << i << ":\n" << StorageAccount::summaryText() << std::endl;

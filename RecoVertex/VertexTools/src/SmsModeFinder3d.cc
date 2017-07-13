@@ -11,7 +11,7 @@ GlobalPoint SmsModeFinder3d::operator() ( const std::vector<PointAndDistance> & 
         i!=values.end() ; ++i )
   {
     float weight = pow ( 10 + 10000 * i->second, -2 );
-    weighted.push_back ( std::pair < GlobalPoint, float > ( i->first, weight ) );
+    weighted.emplace_back( i->first, weight );
   };
   return theAlgo.location( weighted );
 }

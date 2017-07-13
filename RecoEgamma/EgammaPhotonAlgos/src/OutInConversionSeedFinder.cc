@@ -506,7 +506,7 @@ void OutInConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,
 	
 
 
-	theSeeds_.push_back(TrajectorySeed( ptsod, myHits, oppositeToMomentum ));
+	theSeeds_.emplace_back( ptsod, myHits, oppositeToMomentum );
         nSeedsPerBC_++;
 
       }

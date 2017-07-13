@@ -152,8 +152,8 @@ ParticleKinematicLinearizedTrackState::components()const
 {
  std::vector<ReferenceCountingPointer<LinearizedTrackState<6> > > res;
  res.reserve(1);
- res.push_back(RefCountedLinearizedTrackState( 
-  			const_cast< ParticleKinematicLinearizedTrackState*>(this)));
+ res.emplace_back( 
+  			const_cast< ParticleKinematicLinearizedTrackState*>(this));
  return res;
 }
 

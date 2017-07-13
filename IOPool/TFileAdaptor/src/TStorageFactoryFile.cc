@@ -460,7 +460,7 @@ TStorageFactoryFile::ReadBuffers(char *buf, Long64_t *pos, Int_t *len, Int_t nbu
   iov.reserve(nbuf);
   for (Int_t i = 0; i < nbuf; ++i)
   {
-    iov.push_back(IOPosBuffer(pos[i], nobuf, len[i]));
+    iov.emplace_back(pos[i], nobuf, len[i]);
     total += len[i];
   }
 

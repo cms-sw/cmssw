@@ -143,7 +143,7 @@ EgammaIsoHcalDetIdCollectionProducer::addDetIds(const reco::SuperCluster& superC
     int dIEtaAbs = std::abs(calDIEta(seedHcalIEta,recHit.id().ieta()));
     int dIPhiAbs = std::abs(calDIPhi(seedHcalIPhi,recHit.id().iphi()));
   
-    if(dIEtaAbs<=maxDIEta_ && dIPhiAbs<=maxDIPhi_ && recHit.energy()>minEnergyHCAL_) detIdsToStore.push_back(recHit.id().rawId());
+    if(dIEtaAbs<=maxDIEta_ && dIPhiAbs<=maxDIPhi_ && recHit.energy()>minEnergyHCAL_) detIdsToStore.emplace_back(recHit.id().rawId());
   }
 
 }

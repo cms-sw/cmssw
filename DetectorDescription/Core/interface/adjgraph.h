@@ -358,7 +358,7 @@ void graph<N,E>::findRoots(edge_list & result) const
   for (; v_sz < v_ed; ++v_sz) {
     if (rootCandidate[v_sz]) {
       //std::cout << "found = " << g.nodeData(v_sz) << std::endl;
-      result.push_back(edge_type(v_sz,0));    
+      result.emplace_back(v_sz,0);    
     }
   }  
 }

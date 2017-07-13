@@ -164,7 +164,7 @@ PFConversionProducer::produce(Event& iEvent, const EventSetup& iSetup)
 		  stip = IPTools::signedTransverseImpactParameter(thebuilder.build(*trackRef), direction, *pv).second.significance();
 		}
 	      pfRecTrack.setSTIP(stip);	    
-	      pfRecTkcoll.push_back(reco::PFRecTrackRef( pfTrackRefProd, idx++));    	  
+	      pfRecTkcoll.emplace_back( pfTrackRefProd, idx++);    	  
 	      pfRecTrackColl->push_back(pfRecTrack);	    
 	    }
 	}//end loop over tracks

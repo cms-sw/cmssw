@@ -136,7 +136,7 @@ void IslandClusterAlgo::mainSearch(const EcalRecHitCollection* hits,
       // clear the vector of hits in current cluster
       current_v.clear();
 
-      current_v.push_back( std::pair<DetId, float>(it->id(), 1.) ); // by default hit energy fractions are set at 1.
+      current_v.emplace_back(it->id(), 1. ); // by default hit energy fractions are set at 1.
       used_s.insert(it->id());
 
       // Create a navigator at the seed
@@ -170,7 +170,7 @@ void IslandClusterAlgo::searchNorth(const CaloNavigator<DetId> &navigator)
 
   if (shouldBeAdded(northern_it, southern_it))
     {
-      current_v.push_back( std::pair<DetId, float>(northern, 1.)); // by default hit energy fractions are set at 1.
+      current_v.emplace_back(northern, 1.); // by default hit energy fractions are set at 1.
       used_s.insert(northern);
       searchNorth(navigator);
     }
@@ -191,7 +191,7 @@ void IslandClusterAlgo::searchSouth(const CaloNavigator<DetId> &navigator)
 
   if (shouldBeAdded(southern_it, northern_it))
     {
-      current_v.push_back( std::pair<DetId, float>(southern, 1.)); // by default hit energy fractions are set at 1.
+      current_v.emplace_back(southern, 1.); // by default hit energy fractions are set at 1.
       used_s.insert(southern);
       searchSouth(navigator);
     }
@@ -217,7 +217,7 @@ void IslandClusterAlgo::searchWest(const CaloNavigator<DetId> &navigator, const 
       nsNavigator.home();
       searchWest(navigator, topology);
 
-      current_v.push_back( std::pair<DetId, float>(western, 1.)); // by default hit energy fractions are set at 1.
+      current_v.emplace_back(western, 1.); // by default hit energy fractions are set at 1.
       used_s.insert(western);
     }
 }
@@ -242,7 +242,7 @@ void IslandClusterAlgo::searchEast(const CaloNavigator<DetId> &navigator, const 
       nsNavigator.home();
       searchEast(navigator, topology);
 
-      current_v.push_back( std::pair<DetId, float>(eastern, 1.)); // by default hit energy fractions are set at 1.
+      current_v.emplace_back(eastern, 1.); // by default hit energy fractions are set at 1.
       used_s.insert(eastern);
     }
 }
@@ -302,6 +302,6 @@ void IslandClusterAlgo::makeCluster(const EcalRecHitCollection* hits,
       std::cout << "     Eta        = " << position.eta() << std::endl;
       std::cout << "*****************************" << std::endl;
     }
-  clusters_v.push_back(reco::BasicCluster(energy, position, caloID, current_v, reco::CaloCluster::island));
+  clusters_v.emplace_back(energy, position, caloID, current_v, reco::CaloCluster::island);
 }
 

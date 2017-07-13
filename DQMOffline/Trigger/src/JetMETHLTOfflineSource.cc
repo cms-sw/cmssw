@@ -2870,13 +2870,13 @@ JetMETHLTOfflineSource::bookHistograms(DQMStore::IBooker & iBooker, edm::Run con
 	MonitorElement * TriggerSummary = iBooker.book1D(histoname.c_str(),title.c_str(),7, -0.5,6.5);
 	
 	std::vector<std::string> trigger;
-	trigger.push_back("Nevt");
-	trigger.push_back("L1 failed");
-	trigger.push_back("L1 & HLT failed");
-	trigger.push_back("L1 failed but not HLT");
-	trigger.push_back("L1 passed");
-	trigger.push_back("L1 & HLT passed");
-	trigger.push_back("L1 passed but not HLT");
+	trigger.emplace_back("Nevt");
+	trigger.emplace_back("L1 failed");
+	trigger.emplace_back("L1 & HLT failed");
+	trigger.emplace_back("L1 failed but not HLT");
+	trigger.emplace_back("L1 passed");
+	trigger.emplace_back("L1 & HLT passed");
+	trigger.emplace_back("L1 passed but not HLT");
 	
 	for(unsigned int i =0; i < trigger.size(); i++)
 	  TriggerSummary->setBinLabel(i+1, trigger[i]);

@@ -79,18 +79,18 @@ DTTFMasksOnlineProd::newObject( const std::string& objectKey )
 
      // Order of strings is used below -- don't change!
      std::vector< std::string > crateMaskColumns ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_1" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_2" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_3" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_4" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_5" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_6" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_1_E" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_2_E" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_3_E" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_4_E" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_5_E" ) ;
-     crateMaskColumns.push_back( "WEDGE_CRATE_6_E" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_1" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_2" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_3" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_4" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_5" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_6" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_1_E" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_2_E" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_3_E" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_4_E" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_5_E" ) ;
+     crateMaskColumns.emplace_back("WEDGE_CRATE_6_E" ) ;
 
      l1t::OMDSReader::QueryResults crateMaskResults =
        m_omdsReader.basicQuery( crateMaskColumns,

@@ -181,7 +181,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
        edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
        TrackRef staTrack = l3seedRef->l2Track();
        LogDebug("HLTMuonL3PreFilter") <<"L2 from: "<<iEvent.getProvenance(staTrack.id()).moduleLabel() <<" index: "<<staTrack.key();
-       L2toL3s[staTrack].push_back(RecoChargedCandidateRef(mucands,i));
+       L2toL3s[staTrack].emplace_back(mucands,i);
      }
    } //end of useL3MTS
 
@@ -219,7 +219,7 @@ bool HLTMuonL3PreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trig
 
           if (matchPreviousCand_ && dR2 < 0.02*0.02 and dPt < 0.001) {
             const TrackRef staTrack = link.standAloneTrack();
-            L2toL3s[staTrack].push_back(RecoChargedCandidateRef(cand));
+            L2toL3s[staTrack].emplace_back(cand);
             check_l1match = false;
           }
         } //MTL loop

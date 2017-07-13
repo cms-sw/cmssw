@@ -410,7 +410,7 @@ void testMagneticField::compareSectorTables(string file1) {
 	cout << "ERROR: " << p12 << " " << p2[i] << " " << (p12-p2[i]).mag() << endl;      
       }
       
-      b12.push_back(GlobalVector( cphi*b1[i].x()-sphi*b1[i].y(), sphi*b1[i].x()+cphi*b1[i].y(),   b1[i].z()));
+      b12.emplace_back( cphi*b1[i].x()-sphi*b1[i].y(), sphi*b1[i].x()+cphi*b1[i].y(),   b1[i].z());
       GlobalVector delta = (b2[i]-b12[i]);
       float d = delta.mag();
       avgdelta+=d;

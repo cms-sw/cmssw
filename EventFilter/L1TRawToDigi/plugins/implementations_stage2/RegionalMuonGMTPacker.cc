@@ -74,7 +74,7 @@ namespace l1t {
 
          // push everything in the blocks vector
          for (auto &kv : payloadMap) {
-            blocks.push_back(Block(kv.first, kv.second));
+            blocks.emplace_back(kv.first, kv.second);
          }
       }
    }

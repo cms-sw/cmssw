@@ -481,9 +481,9 @@ Bool_t readRR( const TString & pathFile )
   Bool_t foundDataset( kFALSE );
   Bool_t foundSignoff( kFALSE );
   vector< TString > nameCmpNode;
-  nameCmpNode.push_back( "STRIP" );
-  nameCmpNode.push_back( "PIX" );
-  nameCmpNode.push_back( "TRACK" );
+  nameCmpNode.emplace_back("STRIP" );
+  nameCmpNode.emplace_back("PIX" );
+  nameCmpNode.emplace_back("TRACK" );
 
   // Read RR file corresponding to output format type 'xml_all'
   TXMLEngine * xmlRR( new TXMLEngine );
@@ -730,9 +730,9 @@ Bool_t readRRTracker( const TString & pathFile )
   Bool_t foundGroup( kFALSE );
   Bool_t foundDataset( kFALSE );
   vector< TString > nameCmpNode;
-  nameCmpNode.push_back( "STRIP" );
-  nameCmpNode.push_back( "PIXEL" );
-  nameCmpNode.push_back( "TRACKING" );
+  nameCmpNode.emplace_back("STRIP" );
+  nameCmpNode.emplace_back("PIXEL" );
+  nameCmpNode.emplace_back("TRACKING" );
 
   // Read RR file corresponding to output format type 'xml'
   TXMLEngine * xmlRR( new TXMLEngine );
@@ -961,14 +961,14 @@ void certifyRun()
     sDQMSiStrip_[ sRunNumber_ ] = FlagConvert( ( Int_t )( flagDQM ) );
     sSiStrip_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ SiStrip ] ] );
     vector< TString > comments;
-    if ( ! flagDet )     comments.push_back( "too low overall fraction of good modules" );
-    if ( ! flagDAQ )     comments.push_back( "DAQSummary BAD" );
-    if ( ! flagDCS )     comments.push_back( "DCSSummary BAD" );
+    if ( ! flagDet )     comments.emplace_back("too low overall fraction of good modules" );
+    if ( ! flagDAQ )     comments.emplace_back("DAQSummary BAD" );
+    if ( ! flagDCS )     comments.emplace_back("DCSSummary BAD" );
 //     if ( ! bSiStripOn_ ) comments.push_back( "HV off" );
-    if ( ! flagCert )    comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] ) );
+    if ( ! flagCert )    comments.emplace_back( "Tracker shifter: " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] );
     if ( iFlags[ sSubSys_[ SiStrip ] ] == BAD ) {
       ++nRunsBadSiStrip_;
-      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] ) );
+      if ( flagCert ) comments.emplace_back( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsSiStrip_[ sRunNumber_ ] );
       sRunCommentsSiStrip_[ sRunNumber_ ] = comments;
     }
   } else {
@@ -991,14 +991,14 @@ void certifyRun()
     sDQMPixel_[ sRunNumber_ ] = FlagConvert( ( Int_t )( flagDQM ) );
     sPixel_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ Pixel ] ] );
     vector< TString > comments;
-    if ( ! flagReportSummary ) comments.push_back( "ReportSummary BAD" );
-    if ( ! flagDAQ )           comments.push_back( "DAQSummary BAD" );
-    if ( ! flagDCS )           comments.push_back( "DCSSummary BAD" );
+    if ( ! flagReportSummary ) comments.emplace_back("ReportSummary BAD" );
+    if ( ! flagDAQ )           comments.emplace_back("DAQSummary BAD" );
+    if ( ! flagDCS )           comments.emplace_back("DCSSummary BAD" );
 //     if ( ! bPixelOn_ )         comments.push_back( "HV off" );
-    if ( ! flagCert )          comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsPixel_[ sRunNumber_ ] ) );
+    if ( ! flagCert )          comments.emplace_back( "Tracker shifter: " + sRRTrackerCommentsPixel_[ sRunNumber_ ] );
     if ( iFlags[ sSubSys_[ Pixel ] ] == BAD ) {
       ++nRunsBadPixel_;
-      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsPixel_[ sRunNumber_ ] ) );
+      if ( flagCert ) comments.emplace_back( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsPixel_[ sRunNumber_ ] );
       sRunCommentsPixel_[ sRunNumber_ ] = comments;
     }
   } else {
@@ -1014,17 +1014,17 @@ void certifyRun()
     Bool_t flagDQM( kFALSE );
     vector< TString > comments;
     if ( iFlagsRR_[ sSubSys_[ SiStrip ] ] == EXCL && iFlagsRR_[ sSubSys_[ Pixel ] ] == EXCL ) {
-      comments.push_back( "SiStrip and Pixel EXCL: no reasonable Tracking" );
+      comments.emplace_back("SiStrip and Pixel EXCL: no reasonable Tracking" );
     } else {
       Bool_t flagChi2( fCertificates_[ "ReportTrackChi2" ] > maxBad_ );
       Bool_t flagRate( fCertificates_[ "ReportTrackRate" ] > maxBad_ );
       Bool_t flagRecHits( fCertificates_[ "ReportTrackRecHits" ] > maxBad_ );
       flagDQM  = flagChi2 * flagRate * flagRecHits;
-      if ( ! flagChi2 )    comments.push_back( "Chi2/DoF too low" );
-      if ( ! flagRate )    comments.push_back( "Track rate too low" );
-      if ( ! flagRecHits ) comments.push_back( "Too few RecHits" );
+      if ( ! flagChi2 )    comments.emplace_back("Chi2/DoF too low" );
+      if ( ! flagRate )    comments.emplace_back("Track rate too low" );
+      if ( ! flagRecHits ) comments.emplace_back("Too few RecHits" );
 //       if ( ! bSiStripOn_ ) comments.push_back( "HV SiStrip off" );
-      if ( ! flagCert ) comments.push_back( TString( "Tracker shifter: " + sRRTrackerCommentsTracking_[ sRunNumber_ ] ) );
+      if ( ! flagCert ) comments.emplace_back( "Tracker shifter: " + sRRTrackerCommentsTracking_[ sRunNumber_ ] );
     }
 //     iFlags[ sSubSys_[ Tracking ] ] = ( Int_t )( flagDQM * bSiStripOn_ * flagCert );
     iFlags[ sSubSys_[ Tracking ] ] = ( Int_t )( flagDQM * flagCert );
@@ -1032,7 +1032,7 @@ void certifyRun()
     sTracking_[ sRunNumber_ ]    = FlagConvert( iFlags[ sSubSys_[ Tracking ] ] );
     if ( iFlags[ sSubSys_[ Tracking ] ] == BAD ) {
       ++nRunsBadTracking_;
-      if ( flagCert ) comments.push_back( TString( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsTracking_[ sRunNumber_ ] ) );
+      if ( flagCert ) comments.emplace_back( "Tracker shifter differs (GOOD): " + sRRTrackerCommentsTracking_[ sRunNumber_ ] );
       sRunCommentsTracking_[ sRunNumber_ ] = comments;
     }
   } else {

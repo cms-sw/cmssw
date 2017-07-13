@@ -253,7 +253,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	  // set the "backward" ref to the original collection for association
 	  edm::Ptr<CaloTower> caloBackRef ( *itow );
 	  // add to the list of FwdPtr's
-	  itowersRef.push_back( pat::CaloTowerFwdPtrCollection::value_type ( caloForwardRef, caloBackRef ) );
+	  itowersRef.emplace_back( caloForwardRef, caloBackRef );
 	}
       }
       ajet.setCaloTowers( itowersRef );
@@ -274,7 +274,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 	// set the "backward" ref to the original collection for association
 	edm::Ptr<reco::PFCandidate> pfBackRef ( *ipart );
 	// add to the list of FwdPtr's
-	iparticlesRef.push_back( pat::PFCandidateFwdPtrCollection::value_type ( pfForwardRef, pfBackRef ) );
+	iparticlesRef.emplace_back( pfForwardRef, pfBackRef );
       }
       ajet.setPFCandidates( iparticlesRef );
     }

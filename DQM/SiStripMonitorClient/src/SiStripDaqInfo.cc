@@ -72,12 +72,12 @@ void SiStripDaqInfo::bookStatus() {
     else dqmStore_->setCurrentFolder("SiStrip/EventInfo/DAQContents");
       
     std::vector<std::string> det_type;
-    det_type.push_back("TIB");
-    det_type.push_back("TOB");
-    det_type.push_back("TIDF");
-    det_type.push_back("TIDB");
-    det_type.push_back("TECF");
-    det_type.push_back("TECB");
+    det_type.emplace_back("TIB");
+    det_type.emplace_back("TOB");
+    det_type.emplace_back("TIDF");
+    det_type.emplace_back("TIDB");
+    det_type.emplace_back("TECF");
+    det_type.emplace_back("TECB");
       
     for ( std::vector<std::string>::iterator it = det_type.begin(); it != det_type.end(); it++) {
       std::string det = (*it);

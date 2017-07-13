@@ -23,7 +23,7 @@ EventWithHistory::EventWithHistory(const std::vector<edm::EventAuxiliary>& veaux
 {
   for(std::vector<edm::EventAuxiliary>::const_reverse_iterator eaux=veaux.rbegin();eaux!=veaux.rend();eaux++) {
     if(eaux!=veaux.rbegin()) {
-      _prevse.push_back(*eaux);
+      _prevse.emplace_back(*eaux);
     }
   }
 }

@@ -194,7 +194,7 @@ int16_t SiStripAPVRestorer::BaselineAndSaturationInspect(const uint16_t& firstAP
   if(useRealMeanCM_) itCMMap = MeanCMmap_.find(detId_);
   
   for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
-     apvFlags_.push_back( "" );
+     apvFlags_.emplace_back("" );
     if(!badAPVs_[APV]){
      float MeanAPVCM = MeanCM_;
      if(useRealMeanCM_&&itCMMap!= MeanCMmap_.end()) MeanAPVCM =(itCMMap->second)[APV];
@@ -237,7 +237,7 @@ int16_t SiStripAPVRestorer::AbnormalBaselineInspect( const uint16_t& firstAPV, s
   
   int devCount = 0, qualityCount = 0, minstrip = 0; 
  for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
-    apvFlags_.push_back( "" );
+    apvFlags_.emplace_back("" );
     if(!badAPVs_[APV]){
       float MeanAPVCM = MeanCM_;
       if(useRealMeanCM_&&itCMMap!= MeanCMmap_.end()) MeanAPVCM =(itCMMap->second)[APV];
@@ -276,7 +276,7 @@ int16_t SiStripAPVRestorer::NullInspect(const uint16_t& firstAPV, std::vector<T>
   int16_t nAPVflagged = 0;
 
   for(uint16_t APV=firstAPV ; APV< digis.size()/128 + firstAPV; ++APV){
-   apvFlags_.push_back( "" );
+   apvFlags_.emplace_back("" );
    if(!badAPVs_[APV]){ 
      int zeroCount = 0, qualityCount = 0; 
      for (uint16_t istrip=APV*128; istrip<(APV+1)*128; ++istrip){

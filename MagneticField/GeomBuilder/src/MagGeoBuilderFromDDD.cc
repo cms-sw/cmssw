@@ -374,8 +374,8 @@ void MagGeoBuilderFromDDD::build(const DDCompactView & cpva)
       }
     }
 
-    sectors.push_back(eSector(eVolumes.begin()+((i)*offset),
-			      eVolumes.begin()+((i+1)*offset)));
+    sectors.emplace_back(eVolumes.begin()+((i)*offset),
+			      eVolumes.begin()+((i+1)*offset));
   }
    
   if (debug) cout << "Endcap: Found " 

@@ -170,8 +170,8 @@ void testExpressionEvaluator::checkAll() {
   cands.push_back(c1);  cands.push_back(c2); 
   edm::TestHandle<std::vector<reco::LeafCandidate> > constituentsHandle(&cands, edm::ProductID(42));
   reco::Jet::Constituents constituents;
-  constituents.push_back( reco::Jet::Constituent(constituentsHandle, 0) );
-  constituents.push_back( reco::Jet::Constituent(constituentsHandle, 1) );
+  constituents.emplace_back(constituentsHandle, 0 );
+  constituents.emplace_back(constituentsHandle, 1 );
   reco::CaloJet::Specific caloSpecific; caloSpecific.mMaxEInEmTowers = 0.5;
   pat::Jet jet(reco::CaloJet(p1+p2, reco::Jet::Point(), caloSpecific, constituents));
   { 

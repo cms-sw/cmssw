@@ -303,7 +303,7 @@ void Fourvec_Event::set_nu_p (const Fourvec& p)
   }
   else {
     _has_neutrino = true;
-    _objs.push_back (FE_Obj (p, 0, nu_label, 0, 0, 0, false));
+    _objs.emplace_back(p, 0, nu_label, 0, 0, 0, false);
   }
 
   _kt += p;

@@ -42,12 +42,12 @@ EgammaHLTTimeCleanedRechitProducer::~EgammaHLTTimeCleanedRechitProducer()
 void EgammaHLTTimeCleanedRechitProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   std::vector<std::string> productTags;
-  productTags.push_back("EcalTimeCleanedRecHitsEB");
-  productTags.push_back("EcalTimeCleanedRecHitsEE");
+  productTags.emplace_back("EcalTimeCleanedRecHitsEB");
+  productTags.emplace_back("EcalTimeCleanedRecHitsEE");
   desc.add<std::vector<std::string>>("productLabels", productTags);
   std::vector<edm::InputTag> inputTags;
-  inputTags.push_back(edm::InputTag("hltEcalRecHitAll:EcalRecHitsEB"));
-  inputTags.push_back(edm::InputTag("hltEcalRecHitAll:EcalRecHitsEE"));
+  inputTags.emplace_back("hltEcalRecHitAll:EcalRecHitsEB");
+  inputTags.emplace_back("hltEcalRecHitAll:EcalRecHitsEE");
   desc.add<std::vector<edm::InputTag>>("ecalhitLabels", inputTags);
   desc.add<double>("TimeMax", 10);
   desc.add<double>("TimeMin", -10);

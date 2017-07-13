@@ -141,7 +141,7 @@ namespace pat {
               }
           private:
               void insert(const std::string & filter, const std::string &path, unsigned int pathIndex, bool lastFilter, bool l3Filter) {
-                  map_[filter].push_back(PathAndFlags(path, pathIndex, lastFilter, l3Filter));
+                  map_[filter].emplace_back(path, pathIndex, lastFilter, l3Filter);
               }
               std::map<std::string,std::vector<PathAndFlags> > map_;
               const std::vector<PathAndFlags> empty_;

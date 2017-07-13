@@ -347,7 +347,7 @@ unsigned int MomentumDependentPedeLabeler::buildMomentumDependencyMap(AlignableT
       lower = strtod(tokens[0].c_str(), 0);
       upper = strtod(tokens[1].c_str(), 0);
 
-      MomentumRanges.push_back(std::pair<float,float>(lower, upper));
+      MomentumRanges.emplace_back(lower, upper);
     }
     
     const std::vector<std::string> selStrings = (*iter).getParameter<std::vector<std::string> >("selector");

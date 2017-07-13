@@ -128,7 +128,7 @@ void HLTScalers::dqmBeginRun(const edm::Run& run, const edm::EventSetup& c) {
       }
 
       // push stream A and its PDs
-      pairPDPaths_.push_back(make_pair("A", PD));
+      pairPDPaths_.emplace_back(make_pair("A", PD));
 
     } else {
       LogDebug("HLTScalers")

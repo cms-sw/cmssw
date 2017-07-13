@@ -265,7 +265,7 @@ FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup)
                throw cms::Exception("NoDictionary")<<"The type '"<<itData->first<<"' can not be retrieved from the Record "<<it->first<<" and stored \n"
                "because no dictionary exists for the type.";
             }
-            dataInfos.push_back(DataInfo(tt,itData->second));
+            dataInfos.emplace_back(tt,itData->second);
          }
          m_handlers.push_back( std::make_shared<RecordHandler>(rKey,m_file,dataInfos) );
       }

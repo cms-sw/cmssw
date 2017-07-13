@@ -213,16 +213,16 @@ void GeometryAligner::removeGlobalTransform( const Alignments* alignments,
     newPosition = inverseGlobalRotation * ( (*iAlign).translation() - globalShift );
     newRotation = (*iAlign).rotation() * globalRotation;
     
-    newAlignments->m_align.push_back( AlignTransform(newPosition,
+    newAlignments->m_align.emplace_back(newPosition,
                                                      newRotation,
-                                                     (*iAlign).rawId()) );
+                                                     (*iAlign).rawId() );
     
     // Don't remove global position transformation from APE
     // as it wasn't applied. Just fill vector with original
     // values
     GlobalErrorExtended error( asSMatrix<6>((*iAlignError).matrix()) );
-    newAlignmentErrorsExtended->m_alignError.push_back( AlignTransformErrorExtended( (*iAlignError).matrix(),
-								     (*iAlignError).rawId() ) );
+    newAlignmentErrorsExtended->m_alignError.emplace_back( (*iAlignError).matrix(),
+								     (*iAlignError).rawId() );
 
     //if ( error.cxx() || error.cyy() || error.czz() ||
 //	 error.cyx() || error.czx() || error.czy() ) {

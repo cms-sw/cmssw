@@ -52,7 +52,7 @@ vector<string>  Utils::Glob(const char* pattern) {
 
   vector<string> results;
   for(unsigned i=0; i<globbuf.gl_pathc; i++) {
-    results.push_back(globbuf.gl_pathv[i]);
+    results.emplace_back(globbuf.gl_pathv[i]);
   }
   
   globfree(&globbuf);

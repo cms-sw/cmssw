@@ -369,7 +369,7 @@ void popcon::EcalLaserHandler::getNewObjects()
 	delete apdpns_popcon;
       }
       if ((iseq->second.size() > 0) && (!m_fake)) {
-	m_to_transfer.push_back(std::make_pair(apdpns_popcon, 
+	m_to_transfer.emplace_back(std::make_pair(apdpns_popcon, 
 					       Tm(t_last).cmsNanoSeconds()));
       } 
     } else {

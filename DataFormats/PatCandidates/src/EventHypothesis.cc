@@ -9,7 +9,7 @@ pat::EventHypothesis::getDemangledSymbol(const char* mangledSymbol) const {
 }
 
 void pat::EventHypothesis::add(const CandRefType &ref, const std::string &role) {
-    particles_.push_back(value_type(role,ref));
+    particles_.emplace_back(role,ref);
 }
 
 const pat::EventHypothesis::CandRefType & 

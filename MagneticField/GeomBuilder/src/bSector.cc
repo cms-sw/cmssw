@@ -39,7 +39,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(begin,end);
     }
-    rods.push_back(bRod(begin,end));
+    rods.emplace_back(begin,end);
   } else {
     // Clusterize in phi. Use bin edge so that complete clusters can be 
     // easily found (not trivial using bin centers!)
@@ -119,7 +119,7 @@ MagGeoBuilderFromDDD::bSector::bSector(handles::const_iterator begin,
 	  volumeHandle::printUniqueNames(rodStart, separ);
 	}
 	
-	rods.push_back(bRod(rodStart, separ));
+	rods.emplace_back(rodStart, separ);
 	rodStart = separ;
 	DZ1 = 0.;
       }

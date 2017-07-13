@@ -432,10 +432,10 @@ CosmicMuonSeedGenerator::makeSegPairs(const MuonTransientTrackingRecHit::MuonRec
 	   if ((*ihit1)->globalPosition().y() > 0.0 && ( (*ihit1)->globalPosition().y()  > (*ihit2)->globalPosition().y() ) ) { 
               std::string tag2 = "top"+tag;
 
-              result.push_back(MuonRecHitPair(*ihit1, *ihit2, tag2));
+              result.emplace_back(*ihit1, *ihit2, tag2);
            } else if ((*ihit1)->globalPosition().y() < 0.0 && ( (*ihit1)->globalPosition().y()  < (*ihit2)->globalPosition().y() ) ) {
               std::string tag2 = "bottom"+tag;
-              result.push_back(MuonRecHitPair(*ihit2, *ihit1, tag2));
+              result.emplace_back(*ihit2, *ihit1, tag2);
 
            }
         }

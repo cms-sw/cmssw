@@ -79,7 +79,7 @@ std::vector<EventRecords> RPCRecordFormatter::recordPack(
       int partitionNumber = packedStrip/8; 
       RecordCD cdr(lbInLink, partitionNumber, eod, halfP, vector<int>(1,packedStrip) );
 
-      result.push_back(  EventRecords(trigger_BX, bxr, lbr, cdr) );
+      result.emplace_back(trigger_BX, bxr, lbr, cdr );
     }
   }
   return result;

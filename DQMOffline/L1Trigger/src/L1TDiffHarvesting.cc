@@ -130,7 +130,7 @@ L1TDiffHarvesting::L1TDiffHarvesting(const edm::ParameterSet& ps) :
   for (auto plotConfig : ps.getUntrackedParameter < std::vector<edm::ParameterSet> > ("plotCfgs")) {
     vector < string > plots = plotConfig.getUntrackedParameter < vector < string >> ("plots");
     for (auto plot : plots) {
-      plotHandlers_.push_back(L1TDiffPlotHandler(plotConfig, plot));
+      plotHandlers_.emplace_back(plotConfig, plot);
     }
   }
 }

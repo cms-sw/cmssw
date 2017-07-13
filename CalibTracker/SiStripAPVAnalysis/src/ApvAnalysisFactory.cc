@@ -177,7 +177,7 @@ void ApvAnalysisFactory::updatePair(uint32_t detId, size_t pairNumber, const edm
  
       for( size_t istrip = startStrip; istrip < stopStrip;istrip++)
       {
-        if(in.data.size() <= istrip) tmpRawDigi.data.push_back( 0);
+        if(in.data.size() <= istrip) tmpRawDigi.data.emplace_back(0);
         else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
       }
       
@@ -212,7 +212,7 @@ void ApvAnalysisFactory::update(uint32_t detId, const edm::DetSet<SiStripRawDigi
      
      for( size_t istrip = startStrip; istrip < stopStrip;istrip++)
      {
-       if( in.data.size() <= istrip) tmpRawDigi.data.push_back(0);
+       if( in.data.size() <= istrip) tmpRawDigi.data.emplace_back(0);
        else tmpRawDigi.data.push_back(in.data[istrip]); //maybe dangerous
      }
 

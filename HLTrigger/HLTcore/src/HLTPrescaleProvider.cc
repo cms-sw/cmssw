@@ -293,7 +293,7 @@ HLTPrescaleProvider::prescaleValuesInDetail(const edm::Event& iEvent,
       if (!l1tGlobalUtil_.getPrescaleByName(l1tSeed,l1tPrescale)) {
 	l1error += 1;
       }
-      result.first.push_back(std::pair<std::string,int>(l1tSeed,l1tPrescale));
+      result.first.emplace_back(l1tSeed,l1tPrescale);
     }
     if (l1error!=0) {
       if (count_[3]<countMax) {

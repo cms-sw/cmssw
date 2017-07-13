@@ -268,8 +268,8 @@ void IsoTrig::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
     if(iPixCol.isValid()){
       for (reco::TrackCollection::const_iterator pit=iPixCol->begin(); pit!=iPixCol->end(); pit++) {
 	if(iPix==0) 
-	  pixelTrackRefsHB.push_back(reco::TrackRef(iPixCol,pit-iPixCol->begin()));
-	pixelTrackRefsHE.push_back(reco::TrackRef(iPixCol,pit-iPixCol->begin()));
+	  pixelTrackRefsHB.emplace_back(iPixCol,pit-iPixCol->begin());
+	pixelTrackRefsHE.emplace_back(iPixCol,pit-iPixCol->begin());
       }
     }
   }

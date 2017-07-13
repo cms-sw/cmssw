@@ -284,7 +284,7 @@ namespace sistrip {
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
             
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc())); unpacker++;}
+	    while (unpacker.hasData()) {zs_work_digis_.emplace_back(unpacker.sampleNumber()+ipair*256,unpacker.adc()); unpacker++;}
           } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -308,8 +308,8 @@ namespace sistrip {
  	  if ( extractCm_ ) {
  	    try {
 	      Registry regItem2( key, 2*ipair, cm_work_digis_.size(), 2 );
-	      cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(0) ) );
-	      cm_work_digis_.push_back( SiStripRawDigi( buffer->channel(iconn->fedCh()).cmMedian(1) ) );
+	      cm_work_digis_.emplace_back( buffer->channel(iconn->fedCh()).cmMedian(0) );
+	      cm_work_digis_.emplace_back( buffer->channel(iconn->fedCh()).cmMedian(1) );
 	      cm_work_registry_.push_back( regItem2 );
  	    } catch (const cms::Exception& e) {
  	      if ( edm::isDebugEnabled() ) {
@@ -333,7 +333,7 @@ namespace sistrip {
 	    sistrip::FEDBSChannelUnpacker unpacker = sistrip::FEDBSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()), 10);
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()));unpacker++;}
+	    while (unpacker.hasData()) {zs_work_digis_.emplace_back(unpacker.sampleNumber()+ipair*256,unpacker.adc());unpacker++;}
 	  } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -372,7 +372,7 @@ namespace sistrip {
             sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::zeroSuppressedLiteModeUnpacker(buffer->channel(iconn->fedCh()));
 	    	    
     	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-   	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<bits_shift));unpacker++;}
+   	    while (unpacker.hasData()) {zs_work_digis_.emplace_back(unpacker.sampleNumber()+ipair*256,unpacker.adc()<<bits_shift);unpacker++;}
  	  } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -405,7 +405,7 @@ namespace sistrip {
 	    sistrip::FEDZSChannelUnpacker unpacker = sistrip::FEDZSChannelUnpacker::preMixRawModeUnpacker(buffer->channel(iconn->fedCh()));
 	    
 	    /// unpack -> add check to make sure strip < nstrips && strip > last strip......
-	    while (unpacker.hasData()) {zs_work_digis_.push_back(SiStripDigi(unpacker.sampleNumber()+ipair*256,unpacker.adcPreMix()));unpacker++;}
+	    while (unpacker.hasData()) {zs_work_digis_.emplace_back(unpacker.sampleNumber()+ipair*256,unpacker.adcPreMix());unpacker++;}
 	  } catch (const cms::Exception& e) {
             if ( edm::isDebugEnabled() ) {
               edm::LogWarning(sistrip::mlRawToDigi_)
@@ -463,7 +463,7 @@ namespace sistrip {
 	      physical = i%128;
 	      readoutOrder( physical, readout );                 // convert index from physical to readout order
 	      (i/128) ? readout=readout*2+1 : readout=readout*2; // un-multiplex data
-	      virgin_work_digis_.push_back(  SiStripRawDigi( samples[readout] ) );
+	      virgin_work_digis_.emplace_back( samples[readout] );
 	    }
 	    virgin_work_registry_.push_back( regItem );
 	  }
@@ -484,7 +484,7 @@ namespace sistrip {
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 256*ipair, proc_work_digis_.size(), samples.size());
 	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	      proc_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+	      proc_work_digis_.emplace_back( samples[i] );
 	    }
 	    proc_work_registry_.push_back( regItem );
 	  }
@@ -505,7 +505,7 @@ namespace sistrip {
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
 	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	      scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+	      scope_work_digis_.emplace_back( samples[i] );
 	    }
 	    scope_work_registry_.push_back( regItem );
 	  }
@@ -532,7 +532,7 @@ namespace sistrip {
 	  if ( !samples.empty() ) { 
 	    Registry regItem(key, 0, scope_work_digis_.size(), samples.size());
 	    for ( uint16_t i = 0, n = samples.size(); i < n; i++ ) {
-	      scope_work_digis_.push_back(  SiStripRawDigi( samples[i] ) );
+	      scope_work_digis_.emplace_back( samples[i] );
 	    }
 	    scope_work_registry_.push_back( regItem );
 	  
@@ -593,7 +593,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it = zs_work_registry_.begin(), it2 = it+1, end = zs_work_registry_.end();
       while (it < end) {
-	sorted_and_merged.push_back( edm::DetSet<SiStripDigi>(it->detid) );
+	sorted_and_merged.emplace_back(it->detid );
 	std::vector<SiStripDigi> & digis = sorted_and_merged.back().data;
 	// first count how many digis we have
 	size_t len = it->length;
@@ -647,7 +647,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it = virgin_work_registry_.begin(), it2, end = virgin_work_registry_.end();
       while (it < end) {
-	sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+	sorted_and_merged.emplace_back(it->detid );
 	std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
       
 	bool isDetOk = true; 
@@ -701,7 +701,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it = proc_work_registry_.begin(), it2, end = proc_work_registry_.end();
       while (it < end) {
-	sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+	sorted_and_merged.emplace_back(it->detid );
 	std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
       
 	bool isDetOk = true; 
@@ -757,7 +757,7 @@ namespace sistrip {
       bool errorInData = false;
       std::vector<Registry>::iterator it, end;
       for (it = scope_work_registry_.begin(), end = scope_work_registry_.end() ; it != end; ++it) {
-	sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+	sorted_and_merged.emplace_back(it->detid );
 	std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
 	digis.insert( digis.end(), & scope_work_digis_[it->index], & scope_work_digis_[it->index + it->length] );
       
@@ -801,7 +801,7 @@ namespace sistrip {
 	bool errorInData = false;
 	std::vector<Registry>::iterator it = cm_work_registry_.begin(), it2, end = cm_work_registry_.end();
 	while (it < end) {
-	  sorted_and_merged.push_back( edm::DetSet<SiStripRawDigi>(it->detid) );
+	  sorted_and_merged.emplace_back(it->detid );
 	  std::vector<SiStripRawDigi> & digis = sorted_and_merged.back().data;
       
 	  bool isDetOk = true; 

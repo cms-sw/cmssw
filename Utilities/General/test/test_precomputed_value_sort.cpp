@@ -87,12 +87,12 @@ int main() {
   // Create a vector with some random Points
   vector<Point> v1;
   v1.reserve(6);
-  v1.push_back(Point(-1.343, 2.445));
-  v1.push_back(Point(-1.566, 1.678));
-  v1.push_back(Point(-1.678, 1.569));
-  v1.push_back(Point(-3.138, 5.321));
-  v1.push_back(Point(-5.12, 0.321));
-  v1.push_back(Point(-5.12, -0.321));
+  v1.emplace_back(-1.343, 2.445);
+  v1.emplace_back(-1.566, 1.678);
+  v1.emplace_back(-1.678, 1.569);
+  v1.emplace_back(-3.138, 5.321);
+  v1.emplace_back(-5.12, 0.321);
+  v1.emplace_back(-5.12, -0.321);
 
   // A vector of pointer to Points
   vector<Point*> v2;

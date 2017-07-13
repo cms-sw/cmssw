@@ -1111,7 +1111,7 @@ void GhostTrackVertexFinder::refitGhostTrack(
 		if (oldStates.size() == 1)
 			states.push_back(info.states[oldStates[0]]);
 		else
-			states.push_back(GhostTrackState(iter->vertexState()));
+			states.emplace_back(iter->vertexState());
 	}
 
 	KalmanGhostTrackUpdater updater;

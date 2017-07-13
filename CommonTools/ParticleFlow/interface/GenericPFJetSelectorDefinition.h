@@ -25,7 +25,7 @@ namespace pf2pat {
 	   pfc != hc->end(); ++pfc, ++key) {
 
 	if( selector_(*pfc) ) {
-	  selected_.push_back( reco::PFJet(*pfc) );
+	  selected_.emplace_back(*pfc );
 	  reco::CandidatePtr ptrToMother( hc, key );
 	  selected_.back().setSourceCandidatePtr( ptrToMother );
 

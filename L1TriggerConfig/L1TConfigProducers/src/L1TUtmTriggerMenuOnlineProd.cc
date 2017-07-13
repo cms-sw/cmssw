@@ -41,7 +41,7 @@ std::shared_ptr<L1TUtmTriggerMenu> L1TUtmTriggerMenuOnlineProd::newObject(const 
     }
 
     std::vector< std::string > queryColumns;
-    queryColumns.push_back( "CONF" ) ;
+    queryColumns.emplace_back("CONF" ) ;
 
     l1t::OMDSReader::QueryResults queryResult =
             m_omdsReader.basicQuery( queryColumns,

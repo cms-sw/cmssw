@@ -147,7 +147,7 @@ METCorrectorParameters::METCorrectorParameters(const std::string& fFile, const s
   }
   if (currentDefinitions=="")
     handleError("METCorrectorParameters","No definitions found!!!");
-  if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
+  if (mRecords.empty() && currentSection == "") mRecords.emplace_back();
   if (mRecords.empty() && currentSection != "") 
   {
     std::stringstream sserr; 
@@ -384,7 +384,7 @@ void METCorrectorParametersCollection::push_back( key_type i, value_type const &
   if( isMiniAod(i))
   {
     std::cout << "This is MiniAod, getMiniAodBin = " << getMiniAodBin(source) << std::endl;
-    correctionsMiniAod_.push_back( pair_type(getMiniAodBin(source),j) );
+    correctionsMiniAod_.emplace_back(getMiniAodBin(source),j );
   }else{
     std::cout << "***** NOT ADDING " << source << ", corresponding position in METCorrectorParameters is not found." << std::endl;
   }

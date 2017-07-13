@@ -104,7 +104,7 @@ process(const ClusterCollection& input, std::vector<DetDigiCollection>& output_b
       size_t firstStrip = clus->firstStrip();
       uint16_t stripPos=firstStrip;
       for(;istrip<width;++istrip){
-	detDigis.data.push_back( SiStripDigi( stripPos, applyGain(stripPos,clus->amplitudes()[istrip]) ) );
+	detDigis.data.emplace_back( stripPos, applyGain(stripPos,clus->amplitudes()[istrip]) );
 	stripPos++;
       }
     }

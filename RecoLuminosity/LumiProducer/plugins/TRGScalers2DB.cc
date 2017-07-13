@@ -574,7 +574,7 @@ namespace lumi{
       if(pos!=triggernamemap.end()){
 	algonames.push_back(pos->second);
       }else{
-	algonames.push_back("False");
+	algonames.emplace_back("False");
       }
     }
     //

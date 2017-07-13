@@ -398,10 +398,10 @@ void work() {
     assert(newsize == (oldsize+1));
     assert(r.id == edm::det_id_type(17));
     assert(r.data.size() == 0);
-    r.data.push_back(Value(10.1));
-    r.data.push_back(Value(9.1));
-    r.data.push_back(Value(4.0));
-    r.data.push_back(Value(4.0));
+    r.data.emplace_back(10.1);
+    r.data.emplace_back(9.1);
+    r.data.emplace_back(4.0);
+    r.data.emplace_back(4.0);
     c.post_insert();
     sanity_check(c);
   }
@@ -413,7 +413,7 @@ void work() {
     for(unsigned int i = 0; i < numDetSets; ++i) {
         detset    d(i);
         for(unsigned int j = 0; j < detSetSize; ++j) {
-            d.data.push_back(Value(100*i + 1.0/j));
+            d.data.emplace_back(100*i + 1.0/j);
         }
         v.push_back(d);
       }

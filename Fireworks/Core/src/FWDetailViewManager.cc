@@ -103,7 +103,7 @@ FWDetailViewManager::openDetailViewFor(const FWModelId &id, const std::string& i
    TGMainFrame* mf = (TGMainFrame*)(eveFrame->GetParent());
    mf->SetWindowName(Form("%s Detail View [%d]", id.item()->name().c_str(), id.index())); 
   
-   m_views.push_back(ViewFrame(eveFrame, detailView, eveFrame->GetEveWindow()));
+   m_views.emplace_back(eveFrame, detailView, eveFrame->GetEveWindow());
 
    mf->MapRaised();
 }

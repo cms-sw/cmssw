@@ -38,7 +38,7 @@ void EcalFloatCondObjectContainerHandler::getNewObjects(){
   //for now we don't make use of the xml header to read the since
   //but rely on the one passed from parameter set
   
-  m_to_transfer.push_back(std::make_pair(payload,since_));
+  m_to_transfer.emplace_back(std::make_pair(payload,since_));
 
 }
 

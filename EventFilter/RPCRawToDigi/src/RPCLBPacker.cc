@@ -39,9 +39,9 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const & lb_map
                     RPCLBLink lb_link(link_it->second.first);
                     RPCLBLink mlb_link(lb_link);
                     mlb_link.setLinkBoard().setConnector();
-                    mlb_lbrecords[mlb_link].push_back(RPCLBRecord(digi->bx() - min_bx, false
+                    mlb_lbrecords[mlb_link].emplace_back(digi->bx() - min_bx, false
                                                                   , lb_link.getLinkBoard(), false, 0, lb_link.getConnector()
-                                                                  , (channel > 8 ? 1 : 0), 0x01 << ((channel - 1) % 8) ));
+                                                                  , (channel > 8 ? 1 : 0), 0x01 << ((channel - 1) % 8) );
                     break;
                 }
             }
@@ -82,7 +82,7 @@ void RPCLBPacker::getRPCLBRecords(RPCInverseLBLinkMap const & lb_map
                     last_bcn = (3564 + bcn + min_bx + idx) % 3564;
                     last_lbrecord.setBCN(last_bcn);
                     last_lbrecord.setBC0(last_bcn == 0);
-                    bx_lbrecord.push_back(std::pair<int, RPCLBRecord>(min_bx + idx, last_lbrecord));
+                    bx_lbrecord.emplace_back(min_bx + idx, last_lbrecord);
                     ++idx;
                 } else {
                     bx_lbrecord.back().second.setEOD(true);

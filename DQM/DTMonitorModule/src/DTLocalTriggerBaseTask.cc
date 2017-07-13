@@ -85,8 +85,8 @@ DTLocalTriggerBaseTask::DTLocalTriggerBaseTask(const edm::ParameterSet& ps) :
   trig_Token_ = consumes<DTLocalTriggerCollection>(
       ps.getUntrackedParameter<InputTag>("inputTagDDU"));
 
-  if (processTM) theTypes.push_back("TM");
-  if (processDDU) theTypes.push_back("DDU");
+  if (processTM) theTypes.emplace_back("TM");
+  if (processDDU) theTypes.emplace_back("DDU");
 	
 
   if (tpMode) {

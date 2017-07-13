@@ -180,7 +180,7 @@ void TreeReader::addTypeSingle(AtomicId name, const void *value, char type, bool
 			break;
 		    case 'B':
 			index = (int)singleBool.size();
-			singleBool.push_back(Bool());
+			singleBool.emplace_back();
 			break;
 		}
 	}

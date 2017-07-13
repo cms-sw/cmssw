@@ -86,7 +86,7 @@ std::shared_ptr<L1MuGMTParameters> L1MuGMTParametersOnlineProducer::newObject( c
   auto ptrResult = std::make_shared<L1MuGMTParameters>();
 
   std::vector<std::string> resultColumns = helper.getColumnList();
-  resultColumns.push_back("CMSSW_VERSION");
+  resultColumns.emplace_back("CMSSW_VERSION");
 
   l1t::OMDSReader::QueryResults resultLines = 
     m_omdsReader.basicQuery(

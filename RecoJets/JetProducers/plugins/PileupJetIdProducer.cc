@@ -241,10 +241,10 @@ PileupJetIdProducer::initJetEnergyCorrector(const edm::EventSetup &iSetup, bool 
 {
 	//jet energy correction levels to apply on raw jet
 	std::vector<std::string> jecLevels;
-	jecLevels.push_back("L1FastJet");
-	jecLevels.push_back("L2Relative");
-	jecLevels.push_back("L3Absolute");
-	if(isData && ! residualsFromTxt_ ) jecLevels.push_back("L2L3Residual");
+	jecLevels.emplace_back("L1FastJet");
+	jecLevels.emplace_back("L2Relative");
+	jecLevels.emplace_back("L3Absolute");
+	if(isData && ! residualsFromTxt_ ) jecLevels.emplace_back("L2L3Residual");
 
 	//check the corrector parameters needed according to the correction levels
 	edm::ESHandle<JetCorrectorParametersCollection> parameters;
@@ -255,7 +255,7 @@ PileupJetIdProducer::initJetEnergyCorrector(const edm::EventSetup &iSetup, bool 
 		jetCorPars_.push_back(ip); 
 	} 
 	if( isData && residualsFromTxt_ ) {
-		jetCorPars_.push_back(JetCorrectorParameters(residualsTxt_.fullPath())); 
+		jetCorPars_.emplace_back(residualsTxt_.fullPath()); 
 	}
 	
 	//instantiate the jet corrector

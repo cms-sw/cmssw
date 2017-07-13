@@ -44,7 +44,7 @@ bool ForwardDetRingOneZ::add(int idet, vector<DetWithState>& result,
     theCompatibilityChecker.isCompatible(theDets[idet],tsos, prop, est);
 
   if (compat.first) {
-    result.push_back(DetWithState(theDets[idet], compat.second));
+    result.emplace_back(theDets[idet], compat.second);
   }
 
   return compat.first;

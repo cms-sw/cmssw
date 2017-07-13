@@ -69,7 +69,7 @@ void sumDepths(vector<TCell> &selectCells) {
       else
 	newId = HcalDetId(HcalDetId(i_it2->id()).subdet(), HcalDetId(i_it2->id()).ieta(), HcalDetId(i_it2->id()).iphi(), 1);
 	
-      selectCellsDepth1.push_back(TCell(newId, 0.0));
+      selectCellsDepth1.emplace_back(newId, 0.0);
       //////////            cout << "\nCreated a dummy cell in depth one to recover energy!!!\n" << endl;
     }
   }
@@ -115,7 +115,7 @@ void combinePhi(vector<TCell> &selectCells) {
     
   map<UInt_t, vector<Float_t> >::iterator m_it = etaSliceE.begin();
   for (; m_it != etaSliceE.end(); ++m_it) {
-    combinedCells.push_back(TCell(m_it->first, accumulate(m_it->second.begin(), m_it->second.end(), 0.0) ) );
+    combinedCells.emplace_back(m_it->first, accumulate(m_it->second.begin(), m_it->second.end(), 0.0) );
   }
     
   // replace the original TCell vector with the new one
@@ -143,7 +143,7 @@ void combinePhi(vector<TCell> &selectCells, vector<TCell> &combinedCells) {
     
   map<UInt_t, vector<Float_t> >::iterator m_it = etaSliceE.begin();
   for (; m_it != etaSliceE.end(); ++m_it) {
-    combinedCells.push_back(TCell(m_it->first, accumulate(m_it->second.begin(), m_it->second.end(), 0.0) ) );
+    combinedCells.emplace_back(m_it->first, accumulate(m_it->second.begin(), m_it->second.end(), 0.0) );
   }
         
 }
@@ -315,7 +315,7 @@ void sumSmallDepths(vector<TCell> &selectCells) {
     UInt_t dummyId = HcalDetId(HcalDetId(i_it->id()).subdet(), HcalDetId(i_it->id()).ieta(), HcalDetId(i_it->id()).iphi(), 1);
     if (find(dummyIds.begin(), dummyIds.end(), dummyId)==dummyIds.end()) {
       dummyIds.push_back(dummyId);
-      createdCells.push_back(TCell(dummyId, 0.0));
+      createdCells.emplace_back(dummyId, 0.0);
     }
   }
 

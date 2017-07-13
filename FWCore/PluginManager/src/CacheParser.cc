@@ -167,7 +167,7 @@ CacheParser::write(const CategoryToInfos& iInfos, std::ostream& oOut)
       std::string loadable(it2->loadable_.filename());
 #endif
       std::string name(it2->name_);
-      ordered[loadable].push_back(NameAndType(name,type));
+      ordered[loadable].emplace_back(name,type);
     }
   }
   write(ordered,oOut);

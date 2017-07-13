@@ -40,7 +40,7 @@ void popcon::CSCDBChipSpeedCorrectionImpl::getNewObjects()
   std::cout << "getNewObjects : enter till ? \n";
   
    
-  m_to_transfer.push_back(std::make_pair(cnchipspeed,snc));
+  m_to_transfer.emplace_back(std::make_pair(cnchipspeed,snc));
    
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n" << std::endl;
   std::cout << "CSCChipSpeedCorrectionHandler - time before writing into DB:"<< std::endl;

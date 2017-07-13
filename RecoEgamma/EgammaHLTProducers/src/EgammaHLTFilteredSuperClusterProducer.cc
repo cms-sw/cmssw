@@ -103,7 +103,7 @@ EgammaHLTFilteredSuperClusterProducer(const edm::ParameterSet& pset):
 {
   const auto& cutPsets = pset.getParameter<std::vector<edm::ParameterSet> >("cuts");
   for(auto& cutPset : cutPsets){
-    cuts_.push_back(SelectionCut(cutPset,consumesCollector()));
+    cuts_.emplace_back(cutPset,consumesCollector());
   }
 
   produces<std::vector<reco::SuperClusterRef>>();

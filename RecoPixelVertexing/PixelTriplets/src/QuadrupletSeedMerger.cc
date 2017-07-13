@@ -183,14 +183,14 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
   for(unsigned int it=0; it < nInputTriplets; ++it) {
     double phi = phiEtaCache[it].first;
     double eta = phiEtaCache[it].second;
-    nodes.push_back(KDTreeNodeInfo<unsigned int>(it, eta, phi));
+    nodes.emplace_back(it, eta, phi);
     minEta = std::min(minEta, eta);
     maxEta = std::max(maxEta, eta);
 
     // to wrap all points in phi
     // if(phi < 0) phi += twoPi(); else phi -= twoPi();
     double twoPi = std::copysign(Geom::twoPi(), phi);
-    nodes.push_back(KDTreeNodeInfo<unsigned int>(it, eta, phi-twoPi));
+    nodes.emplace_back(it, eta, phi-twoPi);
   }
   KDTreeBox kdEtaPhi(minEta-0.01, maxEta+0.01, -1*Geom::twoPi(), Geom::twoPi());
   kdtree.build(nodes, kdEtaPhi);
@@ -299,7 +299,7 @@ const OrderedSeedingHits& QuadrupletSeedMerger::mergeTriplets( const OrderedSeed
     std::vector<SeedMergerPixelLayer> currentLayers;
     currentLayers.reserve(lsIt->size());
     for( ctfseeding::SeedingLayers::const_iterator layIt = lsIt->begin(); layIt < lsIt->end(); ++layIt ) {
-      currentLayers.push_back( SeedMergerPixelLayer( layIt->name() ) );
+      currentLayers.emplace_back( layIt->name() );
     }
     // loop all pair combinations of these 4 layers;
     // strategy is to look for shared hits on such a pair and

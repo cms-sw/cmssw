@@ -103,8 +103,8 @@ void EgHLTOfflineClient::runClient_(DQMStore::IBooker& ibooker, DQMStore::IGette
 
 
   std::vector<std::string> regions;
-  regions.push_back("eb");
-  regions.push_back("ee");
+  regions.emplace_back("eb");
+  regions.emplace_back("ee");
 
   for (size_t filterNr = 0; filterNr < eleHLTFilterNames_.size(); filterNr++) {
     //std::cout<<"FilterName: "<<eleHLTFilterNames_[filterNr]<<std::endl;

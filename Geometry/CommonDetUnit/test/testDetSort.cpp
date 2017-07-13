@@ -55,10 +55,10 @@ int main() {
 
   // Fill the vector to be sorted
   vector<MyDet> v;
-  v.push_back(MyDet(PositionType(2,1,1)));
-  v.push_back(MyDet(PositionType(1,1,2)));
-  v.push_back(MyDet(PositionType(1,2,3)));
-  v.push_back(MyDet(PositionType(2,2,4)));
+  v.emplace_back(PositionType(2,1,1));
+  v.emplace_back(PositionType(1,1,2));
+  v.emplace_back(PositionType(1,2,3));
+  v.emplace_back(PositionType(2,2,4));
 
 
   cout << "Original  vector: " << endl;

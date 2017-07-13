@@ -349,7 +349,7 @@ bool CSCEfficiency::filter(edm::Event & event, const edm::EventSetup& eventSetup
 	else if(4==iS && iR>1){
 	  continue;
 	} 
-	refME.push_back( CSCDetId(endcap, iS, iR, chamber));
+	refME.emplace_back(endcap, iS, iR, chamber);
       }
     }
     //---- loop over the "refference" CSCDetIds

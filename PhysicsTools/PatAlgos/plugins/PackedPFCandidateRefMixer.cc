@@ -64,7 +64,7 @@ pat::PackedPFCandidateRefMixer::produce(edm::Event & iEvent, const edm::EventSet
         bool found = false;
         for (const auto & pf2pc : pf2pcs) {
             if (pf2pc->contains(newpfRef.id())) {
-                outptrs.push_back(refToPtr((*pf2pc)[newpfRef]));
+                outptrs.emplace_back(refToPtr((*pf2pc)[newpfRef]));
                 found = true;
                 break;
             }

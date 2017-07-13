@@ -1025,11 +1025,9 @@ DTTracoChip::add_btiT(int step, int pos, const DTBtiTrigData* btitrig) {
 
   // Store trigger candidate
   if(pos<=DTConfigTraco::NBTITC){
-    _innerCand[step-DTConfigTraco::NSTEPF].push_back(
-      DTTracoCand(this,btitrig,pos,step));
+    _innerCand[step-DTConfigTraco::NSTEPF].emplace_back(this,btitrig,pos,step);
   } else {
-    _outerCand[step-DTConfigTraco::NSTEPF].push_back(
-      DTTracoCand(this,btitrig,pos,step));
+    _outerCand[step-DTConfigTraco::NSTEPF].emplace_back(this,btitrig,pos,step);
   }
 
   // Fill array for BX LTS

@@ -364,7 +364,7 @@ void LHEReader::XMLHandler::endElement(const XMLCh *const uri,
 	    XMLSimpleStr weight(rwgt->getFirstChild()->getNodeValue());
 	    switch( rwgt->getNodeType() ) {
 	    case DOMNode::ELEMENT_NODE:
-	      weightsinevent.push_back(std::make_pair((const char*)atname,
+	      weightsinevent.emplace_back(std::make_pair((const char*)atname,
 						      (const char*)weight));
 	      break;	    
 	    default:	    	  

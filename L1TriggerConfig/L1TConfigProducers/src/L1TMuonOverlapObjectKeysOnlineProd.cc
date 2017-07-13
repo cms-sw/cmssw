@@ -32,7 +32,7 @@ void L1TMuonOverlapObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1TriggerKe
     std::string  rsKey = OMTFKey.substr(   OMTFKey.find(":")+1, std::string::npos );
 
     std::vector< std::string > queryStrings ;
-    queryStrings.push_back( "ALGO" ) ;
+    queryStrings.emplace_back("ALGO" ) ;
 
     std::string algo_key;
 

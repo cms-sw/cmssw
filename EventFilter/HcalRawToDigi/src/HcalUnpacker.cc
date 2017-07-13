@@ -876,7 +876,7 @@ void HcalUnpacker::unpack(const FEDRawData& raw, const HcalElectronicsMap& emap,
 	  }	  
 	  continue;
 	}
-	histoDigis.push_back(HcalHistogramDigi(HcalDetId(did))); // add it!
+	histoDigis.emplace_back(HcalDetId(did)); // add it!
 	HcalHistogramDigi& digi=histoDigis.back();
 	
 	// unpack the four capids

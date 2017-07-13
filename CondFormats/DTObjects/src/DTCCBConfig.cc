@@ -139,8 +139,8 @@ DTCCBConfig::configKeyMap() const {
         pck = 0;
       }
     }
-    keyList.push_back( std::pair< DTCCBId,std::vector<int> >( ccbId,
-                                                              cfgKeys ) );
+    keyList.emplace_back( ccbId,
+                                                              cfgKeys );
     delete ptr;
   }
   return keyList;
@@ -204,8 +204,8 @@ int DTCCBConfig::setConfigKey( int   wheelId,
     ccbId. sectorId =  sectorId;
     std::vector<int>::const_iterator cfgIter = confKey.begin();
     std::vector<int>::const_iterator cfgIend = confKey.end();
-    while ( cfgIter != cfgIend ) dataList.push_back( std::pair<DTCCBId,int>(
-                                                     ccbId, *cfgIter++ ) );
+    while ( cfgIter != cfgIend ) dataList.emplace_back(
+                                                     ccbId, *cfgIter++ );
     *confPtr = confKey;
     return -1;
   }
@@ -218,8 +218,8 @@ int DTCCBConfig::setConfigKey( int   wheelId,
     ccbId. sectorId =  sectorId;
     std::vector<int>::const_iterator cfgIter = confKey.begin();
     std::vector<int>::const_iterator cfgIend = confKey.end();
-    while ( cfgIter != cfgIend ) dataList.push_back( std::pair<DTCCBId,int>(
-                                                     ccbId, *cfgIter++ ) );
+    while ( cfgIter != cfgIend ) dataList.emplace_back(
+                                                     ccbId, *cfgIter++ );
     return 0;
   }
 
@@ -262,7 +262,7 @@ int DTCCBConfig::appendConfigKey( int   wheelId,
 
   while ( iter != iend ) {
     key = *iter++;
-    dataList.push_back( std::pair<DTCCBId,int>( ccbId, key ) );
+    dataList.emplace_back( ccbId, key );
     confPtr->push_back( key );
   }
 

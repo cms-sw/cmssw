@@ -73,7 +73,7 @@ namespace stage2 {
 
         } //end loop over bx
       
-        res.push_back(Block(blkID, load));
+        res.emplace_back(blkID, load);
       
       } //loop over blks
 

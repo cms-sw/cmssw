@@ -79,7 +79,7 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
     iEvent.getByToken(verticesToken_, vertices);
     for (vector<reco::Vertex>::const_iterator itv = vertices->begin(), edv = vertices->end(); itv != edv; ++itv) {
       if ( !(vtxPreselection_(*itv)) ) continue;
-      selVtxs_.push_back( reco::VertexRef(vertices,std::distance(vertices->begin(),itv) ) );
+      selVtxs_.emplace_back(vertices,std::distance(vertices->begin(),itv) );
     }
   }
   // -- candidate data --
@@ -90,7 +90,7 @@ PATSingleVertexSelector::filter(edm::Event & iEvent, const edm::EventSetup & iSe
       iEvent.getByToken(*itt, theseCands);
       for (View<reco::Candidate>::const_iterator itc = theseCands->begin(), edc = theseCands->end(); itc != edc; ++itc) {
         if ( !(candPreselection_(*itc)) ) continue;
-        cands.push_back( pair<double, reco::CandidatePtr>(-itc->pt(), reco::CandidatePtr(theseCands,std::distance(theseCands->begin(),itc) ) ) );
+        cands.emplace_back(-itc->pt(), reco::CandidatePtr(theseCands,std::distance(theseCands->begin(),itc) ) );
       }
     }
     if (!cands.empty()) bestCand_ = cands.front().second;

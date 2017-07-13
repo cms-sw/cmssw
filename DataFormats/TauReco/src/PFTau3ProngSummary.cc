@@ -10,10 +10,10 @@ PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef T
     has3ProngSolution_.push_back(false);
     solution_Chi2_.push_back(0);
     thetaGJsig_.push_back(0);
-    tau_p4_.push_back(TLorentzVector(0,0,0,0));
-    daughter_PDGID_.push_back(std::vector<int>());
-    daughter_charge_.push_back(std::vector<int>());
-    daughter_p4_.push_back(std::vector<TLorentzVector>());
+    tau_p4_.emplace_back(0,0,0,0);
+    daughter_PDGID_.emplace_back();
+    daughter_charge_.emplace_back();
+    daughter_p4_.emplace_back();
   }
   a1_=a1;
   sv_=TVector3(TIP_->secondaryVertex()->x(),TIP_->secondaryVertex()->y(),TIP_->secondaryVertex()->z());
@@ -28,10 +28,10 @@ PFTau3ProngSummary::PFTau3ProngSummary(reco::PFTauTransverseImpactParameterRef T
     has3ProngSolution_.push_back(false);
     solution_Chi2_.push_back(0);
     thetaGJsig_.push_back(0);
-    tau_p4_.push_back(TLorentzVector(0,0,0,0));
-    daughter_PDGID_.push_back(std::vector<int>());
-    daughter_charge_.push_back(std::vector<int>());
-    daughter_p4_.push_back(std::vector<TLorentzVector>());
+    tau_p4_.emplace_back(0,0,0,0);
+    daughter_PDGID_.emplace_back();
+    daughter_charge_.emplace_back();
+    daughter_p4_.emplace_back();
   }
   a1_=a1;
   sv_=sv;
@@ -46,10 +46,10 @@ PFTau3ProngSummary::PFTau3ProngSummary(){
     has3ProngSolution_.push_back(false);
     solution_Chi2_.push_back(0);
     thetaGJsig_.push_back(0);
-    tau_p4_.push_back(TLorentzVector(0,0,0,0));
-    daughter_PDGID_.push_back(std::vector<int>());
-    daughter_charge_.push_back(std::vector<int>());
-    daughter_p4_.push_back(std::vector<TLorentzVector>());
+    tau_p4_.emplace_back(0,0,0,0);
+    daughter_PDGID_.emplace_back();
+    daughter_charge_.emplace_back();
+    daughter_p4_.emplace_back();
   }
 }
 

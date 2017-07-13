@@ -346,7 +346,7 @@ SeedingLayerSets SeedingLayerSetsBuilder::layers(const edm::EventSetup& es)
       const LayerSpec& layer = theLayers[layerIndex];
       const DetLayer *detLayer = theLayerDets[layerIndex];
 
-      set.push_back( SeedingLayer( theLayerNames[layerIndex], layerIndex, detLayer, theTTRHBuilders[layerIndex], layer.extractor.get()));
+      set.emplace_back( theLayerNames[layerIndex], layerIndex, detLayer, theTTRHBuilders[layerIndex], layer.extractor.get());
     }
     result.push_back(set);
   }

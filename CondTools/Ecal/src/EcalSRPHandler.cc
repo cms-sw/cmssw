@@ -727,7 +727,7 @@ void popcon::EcalSRPHandler::getNewObjects() {
 	  // write the new payload to ORCON/ORCOFF
 	  EcalSRSettings* srp_pop = new EcalSRSettings();
 	  ChangePayload(*srp_pop, *sr);  // add this payload to DB
-	  m_to_transfer.push_back(std::make_pair(srp_pop, irun));
+	  m_to_transfer.emplace_back(std::make_pair(srp_pop, irun));
 
 	  std::ostringstream ss; 
 	  ss << "Run=" << irun << "_SRPchanged_"<<std::endl; 

@@ -65,7 +65,7 @@ int main(int argc, char**argv)
  if (inf->IsZombie()) return(0);
  TIter next(inf->GetListOfKeys());
  while ((key = (TKey*)next()))
-   HistoNamesList.push_back(key->GetName());
+   HistoNamesList.emplace_back(key->GetName());
  ///////////// CaloPt /////////////////////////////////////
  sprintf(name,"MeanCaloPt");
  if (!HistoExists(HistoNamesList,name)) return(0);

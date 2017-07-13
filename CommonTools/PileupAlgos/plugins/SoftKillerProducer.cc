@@ -112,7 +112,7 @@ SoftKillerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   for ( auto i = pfCandidates->begin(), 
 	  ibegin = pfCandidates->begin(),
 	  iend = pfCandidates->end(); i != iend; ++i ) {
-    fjInputs.push_back( fastjet::PseudoJet( i->px(), i->py(), i->pz(), i->energy() ) );
+    fjInputs.emplace_back( i->px(), i->py(), i->pz(), i->energy() );
     fjInputs.back().set_user_index( i - ibegin );
   }
 

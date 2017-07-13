@@ -107,7 +107,7 @@ HLTMuonL1TtoL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tr
      TrackRef tk = (*mucands)[n].track();
      edm::Ref<L3MuonTrajectorySeedCollection> l3seedRef = tk->seedRef().castTo<edm::Ref<L3MuonTrajectorySeedCollection> >();
      l1t::MuonRef l1mu = l3seedRef->l1tParticle();
-       L1toL3s[l1mu].push_back(RecoChargedCandidateRef(mucands,n));
+       L1toL3s[l1mu].emplace_back(mucands,n);
    }
 
    // additionnal objects needed

@@ -115,7 +115,7 @@ namespace l1t
 					if (checkQual(mbQual[iw], isNewFw))
 						continue;
 					
-					phiData.push_back( L1MuDTChambPhDigi( ibx, wheel, sector, iw+1, mbPhi[iw], mbPhiB[iw], mbQual[iw], trTag, mbBxC[iw], mbRPC[iw] ) );
+					phiData.emplace_back( ibx, wheel, sector, iw+1, mbPhi[iw], mbPhiB[iw], mbQual[iw], trTag, mbBxC[iw], mbRPC[iw] );
 				}//iw
 				
 				
@@ -136,7 +136,7 @@ namespace l1t
 					for (int i = 0; i < 3; i++)
 					{
 						if (zeroFlag[i])
-							theData.push_back(L1MuDTChambThDigi( ibx, wheel, sector, i+1, etaHits[i], linkAndQual_.hits[i]) );
+							theData.emplace_back( ibx, wheel, sector, i+1, etaHits[i], linkAndQual_.hits[i] );
 					}
 
 				}

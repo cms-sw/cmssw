@@ -152,7 +152,7 @@ CaloCellGeometry::getParmPtr(
 
    if( 0 == pP )
    {
-      pvv.push_back( ParVec( mgr ) ) ;
+      pvv.emplace_back( mgr ) ;
       ParVec& back ( pvv.back() ) ;
       for( unsigned int i ( 0 ) ; i != vv.size() ; ++i )
       {

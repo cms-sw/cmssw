@@ -33,7 +33,7 @@ void popcon::CSCFakeDBGainsImpl::getNewObjects()
   std::cin >> snc;
  
   
-  m_to_transfer.push_back(std::make_pair(cngains,snc));
+  m_to_transfer.emplace_back(std::make_pair(cngains,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"<< std::endl;
 }

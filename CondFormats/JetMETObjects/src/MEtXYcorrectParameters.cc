@@ -149,7 +149,7 @@ MEtXYcorrectParameters::MEtXYcorrectParameters(const std::string& fFile, const s
   }
   if (currentDefinitions=="")
     handleError("MEtXYcorrectParameters","No definitions found!!!");
-  if (mRecords.empty() && currentSection == "") mRecords.push_back(Record());
+  if (mRecords.empty() && currentSection == "") mRecords.emplace_back();
   if (mRecords.empty() && currentSection != "") 
   {
     std::stringstream sserr; 
@@ -403,19 +403,19 @@ void MEtXYcorrectParametersCollection::push_back( key_type i, value_type const &
 {
   if( isShiftMC(i))
   {
-    correctionsShift_.push_back( pair_type(getShiftMcFlavBin(flav),j) );
+    correctionsShift_.emplace_back(getShiftMcFlavBin(flav),j );
   }else if( isShiftDY(i))
   {
-    correctionsShift_.push_back( pair_type(getShiftDyFlavBin(flav),j) );
+    correctionsShift_.emplace_back(getShiftDyFlavBin(flav),j );
   }else if( isShiftTTJets(i))
   {
-    correctionsShift_.push_back( pair_type(getShiftTTJetsFlavBin(flav),j) );
+    correctionsShift_.emplace_back(getShiftTTJetsFlavBin(flav),j );
   }else if( isShiftWJets(i))
   {
-    correctionsShift_.push_back( pair_type(getShiftWJetsFlavBin(flav),j) );
+    correctionsShift_.emplace_back(getShiftWJetsFlavBin(flav),j );
   }else if( isShiftData(i))
   {
-    correctionsShift_.push_back( pair_type(getShiftDataFlavBin(flav),j) );
+    correctionsShift_.emplace_back(getShiftDataFlavBin(flav),j );
   }else{
     std::stringstream sserr;
     sserr<<"The level type: "<<i<<" is not in the level list";

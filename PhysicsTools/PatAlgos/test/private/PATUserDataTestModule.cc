@@ -195,7 +195,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
        vector<Ptr<pat::UserData> > halfp4sPtr;
        for (size_t i = 0; i < recoMuons->size(); ++i) {
             // It is crucial to use the OrphanHandle here and not a RefProd from GetRefBeforePut
-            halfp4sPtr.push_back(Ptr<pat::UserData>(handle, i));
+            halfp4sPtr.emplace_back(handle, i);
        }
        std::cout << "   Made edm::Ptr<> to those useless objects" << std::endl;
        auto vmhalfp4s = std::make_unique<ValueMap<Ptr<pat::UserData>>>();

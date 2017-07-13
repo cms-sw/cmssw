@@ -47,7 +47,7 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(const edm::EventSetup &iSe
 {
   vector<MSLayer> result;
   vector<const DetLayer*>::const_iterator il;
-  for (il=theLayers.begin();il!=theLayers.end();il++) result.push_back(MSLayer(*il)); 
+  for (il=theLayers.begin();il!=theLayers.end();il++) result.emplace_back(*il); 
   return result;
 }
     
@@ -98,7 +98,7 @@ vector<MSLayer> MultipleScatteringGeometry::detLayers(float eta, float z,const e
               && zRange.inside(tsos.globalPosition().z());
       //     contains = fl->contains(fl->toLocal(tsos.globalPosition()));
     }
-    if (contains) result.push_back(MSLayer(*il));
+    if (contains) result.emplace_back(*il);
   }
   return result;
 }

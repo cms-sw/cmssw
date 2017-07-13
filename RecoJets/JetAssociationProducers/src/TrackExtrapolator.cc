@@ -61,7 +61,7 @@ TrackExtrapolator::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
     // Cut on track quality
     if (itrk->quality (trackQuality)) {
-      goodTracks.push_back (reco::TrackRef (tracks_h, itrk - trkBegin));
+      goodTracks.emplace_back(tracks_h, itrk - trkBegin);
     }
   }
   std::vector<reco::TrackBase::Point>  vresultPos(1);

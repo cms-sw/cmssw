@@ -157,7 +157,7 @@ namespace cond {
     void IOVEditor::insert( cond::Time_t since, const cond::Hash& payloadHash, const boost::posix_time::ptime& insertionTime, bool ){
       if( m_data.get() ){
 	// here the type check could be added
-	m_data->iovBuffer.push_back( std::tie( since, payloadHash, insertionTime ) );
+	m_data->iovBuffer.emplace_back(std::tie( since, payloadHash, insertionTime ) );
       }
     }
 

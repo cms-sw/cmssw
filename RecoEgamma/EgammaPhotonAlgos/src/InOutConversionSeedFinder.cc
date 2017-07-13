@@ -714,7 +714,7 @@ void InOutConversionSeedFinder::createSeed(const TrajectoryMeasurement & m1,  co
        
 	
        
-	theSeeds_.push_back(TrajectorySeed( ptsod, myHits, alongMomentum ));
+	theSeeds_.emplace_back( ptsod, myHits, alongMomentum );
 	nSeedsPerInputTrack_++;
        
 	//std::cout << "InOutConversionSeedFinder::createSeed New seed hit 1 R " << m1.recHit()->globalPosition().perp() << "\n";

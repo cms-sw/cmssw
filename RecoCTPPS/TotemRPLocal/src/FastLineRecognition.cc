@@ -114,7 +114,7 @@ void FastLineRecognition::getPatterns(const DetSetVector<TotemRPRecHit> &input, 
       double z = gd.z - z0;
       double w = sigma0 / hit->getSigma();
   
-      points.push_back(Point(detId, hit, p, z, w));
+      points.emplace_back(detId, hit, p, z, w);
     }
   }
 
@@ -265,7 +265,7 @@ bool FastLineRecognition::getOneLine(const vector<FastLineRecognition::Point> &p
 #if CTPPS_DEBUG > 0
         printf("\t\t\t\t--> new cluster %lu\n", clusters.size());
 #endif
-        clusters.push_back(Cluster());
+        clusters.emplace_back();
         clusters.back().add(& (*it1), & (*it2), a, b, w);
       }
     }

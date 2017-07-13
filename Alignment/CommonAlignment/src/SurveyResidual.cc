@@ -237,7 +237,7 @@ void SurveyResidual::calculate(const Alignable& ali)
   {
     align::GlobalVector nv = nominalPoints[j] - nominalMomPos;
 
-    theNominalVs.push_back( align::GlobalVector( toCurrent * nv.basicVector() ) );
+    theNominalVs.emplace_back( toCurrent * nv.basicVector() );
     theCurrentVs.push_back(currentPoints[j] - currentMomPos);
   }
 

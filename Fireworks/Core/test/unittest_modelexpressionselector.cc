@@ -64,10 +64,10 @@ BOOST_AUTO_TEST_CASE( modelexpressionselector )
 
 
    reco::TrackCollection fVector;
-   fVector.push_back(reco::Track());
-   fVector.push_back(reco::Track(20,20,reco::Track::Point(), 
-                                 reco::Track::Vector(20,0,0), -1, reco::Track::CovarianceMatrix()));
-   fVector.push_back(reco::Track());
+   fVector.emplace_back();
+   fVector.emplace_back(20,20,reco::Track::Point(), 
+                                 reco::Track::Vector(20,0,0), -1, reco::Track::CovarianceMatrix());
+   fVector.emplace_back();
    
    TClass* cls=TClass::GetClass("std::vector<reco::Track>");
    assert(0!=cls);

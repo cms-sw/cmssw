@@ -136,7 +136,7 @@ FWHGTowerProxyBuilderBase::fillCaloData()
                 
                if(info.isSelected())
                {
-                  selected.push_back(TEveCaloData::CellId_t(tower, m_sliceIndex));
+                  selected.emplace_back(tower, m_sliceIndex);
                } 
             }
          }

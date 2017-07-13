@@ -244,9 +244,9 @@ int main() {
     abort();
   }
   std::list<std::string> newContext;
-  newContext.push_back("new1");
-  newContext.push_back("new2");
-  newContext.push_back("new3");
+  newContext.emplace_back("new1");
+  newContext.emplace_back("new2");
+  newContext.emplace_back("new3");
   e7.setContext(newContext);
   if (e7.context() != newContext) {
     std::cerr<<e7;
@@ -267,9 +267,9 @@ int main() {
     abort();
   }
   std::list<std::string> newAdditionalInfo;
-  newAdditionalInfo.push_back("newInfo1");
-  newAdditionalInfo.push_back("newInfo2");
-  newAdditionalInfo.push_back("newInfo3");
+  newAdditionalInfo.emplace_back("newInfo1");
+  newAdditionalInfo.emplace_back("newInfo2");
+  newAdditionalInfo.emplace_back("newInfo3");
   e7.setAdditionalInfo(newAdditionalInfo);
   if (e7.additionalInfo() != newAdditionalInfo) {
     std::cerr<<e7;

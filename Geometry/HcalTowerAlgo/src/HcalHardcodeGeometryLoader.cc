@@ -121,7 +121,7 @@ std::vector <HcalHardcodeGeometryLoader::HBHOCellParameters> HcalHardcodeGeometr
 #ifdef DebugLog
       std::cout << "HB " << idepth << " R " << rmin << ":" << rmax << "\n";
 #endif
-      result.push_back(HcalHardcodeGeometryLoader::HBHOCellParameters(iring, (int)idepth, 1, 1, 5, rmin, rmax, etaMin, etaMax));
+      result.emplace_back(iring, (int)idepth, 1, 1, 5, rmin, rmax, etaMin, etaMax);
     }
   }
   return result;
@@ -294,12 +294,12 @@ std::vector<HcalHardcodeGeometryLoader::HECellParameters> HcalHardcodeGeometryLo
 #ifdef DebugLog
 	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etaBounds[iringm16+2] << std::endl;
 #endif
-	  result.push_back(HcalHardcodeGeometryLoader::HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etaBounds[iringm16+2]));
+	  result.emplace_back(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etaBounds[iringm16+2]);
 	} else {
 #ifdef DebugLog
 	  std::cout << "HE iEta " << iring << " Depth " << depthIndex << " Eta " << etamin << ":" << etamax << std::endl;
 #endif
-	  result.push_back(HcalHardcodeGeometryLoader::HECellParameters(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etamax));
+	  result.emplace_back(iring, depthIndex, 1, stepPhi, deltaPhi, zmin, zmax, etamin, etamax);
 	}
       }
     }

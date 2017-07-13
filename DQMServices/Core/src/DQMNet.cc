@@ -222,7 +222,7 @@ DQMNet::unpackQualityData(QReports &qr, uint32_t &flags, const char *from)
   qr.reserve(nqv);
   while (*qdata)
   {
-    qr.push_back(DQMNet::QValue());
+    qr.emplace_back();
     DQMNet::QValue &qv = qr.back();
 
     qv.code = atoi(qdata);

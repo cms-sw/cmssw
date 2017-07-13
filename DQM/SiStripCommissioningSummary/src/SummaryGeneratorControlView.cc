@@ -88,7 +88,7 @@ void SummaryGeneratorControlView::fill( const std::string& top_level_dir,
 	 path.channel() != sistrip::invalid_ ) { bin << sistrip::dot_ << path.channel(); }
     
     // Store "value" in appropriate std::vector within std::map (key is bin label)
-    map_[bin.str()].push_back( Data(value,error) );
+    map_[bin.str()].emplace_back(value,error );
     entries_++;
 //     LogTrace(mlTest_)
 //       << "TEST " 

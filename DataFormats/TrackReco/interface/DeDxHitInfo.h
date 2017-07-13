@@ -81,11 +81,11 @@ namespace reco {
     const std::vector<SiPixelCluster>& pixelClusters() const {return pixelClusters_;}
     
     void addHit(const float charge, const float pathlength, const DetId& detId, const LocalPoint& pos, const SiStripCluster& stripCluster){
-      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos));   
+      infos_.emplace_back(charge, pathlength, detId, pos);   
       stripClusters_.push_back(stripCluster);
     }
     void addHit(const float charge, const float pathlength, const DetId& detId, const LocalPoint& pos, const SiPixelCluster& pixelCluster){
-      infos_.push_back(DeDxHitInfoContainer(charge, pathlength, detId, pos));
+      infos_.emplace_back(charge, pathlength, detId, pos);
       pixelClusters_.push_back(pixelCluster);
     }
     

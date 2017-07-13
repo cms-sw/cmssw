@@ -108,7 +108,7 @@ std::vector<std::pair<uint16_t,uint16_t>> SiStripBadModuleFedErrESSource::getFed
       for ( uint16_t j = 1; j < th2->GetNbinsX()+1; ++j ) {
         if ( th2->GetBinContent(j,i) > m_cutoff * entries ) {
           edm::LogInfo("SiStripBadModuleFedErrService") << " [SiStripBadModuleFedErrService::getFedBadChannelList] :: FedId & Channel " << th2->GetYaxis()->GetBinLowEdge(i) <<   "  " << th2->GetXaxis()->GetBinLowEdge(j);
-          ret.push_back(std::pair<uint16_t, uint16_t>(th2->GetYaxis()->GetBinLowEdge(i), th2->GetXaxis()->GetBinLowEdge(j)));
+          ret.emplace_back(th2->GetYaxis()->GetBinLowEdge(i), th2->GetXaxis()->GetBinLowEdge(j));
         }
       }
     }

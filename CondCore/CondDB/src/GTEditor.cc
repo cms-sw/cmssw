@@ -129,7 +129,7 @@ namespace cond {
 	if( rlabel.empty() ){
 	  rlabel = "-";
 	}
-	m_data->tagListBuffer.push_back( std::tie( recordName, rlabel, tagName ) );
+	m_data->tagListBuffer.emplace_back(std::tie( recordName, rlabel, tagName ) );
       } 
     }
     

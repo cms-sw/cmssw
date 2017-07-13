@@ -129,7 +129,7 @@ void CSCDCCEventData::addChamber(CSCEventData & chamber, int dduID, int dduSlot,
     // make a new one
     CSCDDUHeader newDDUHeader(dccHeader().getCDFBunchCounter(), 
                               dccHeader().getCDFEventNumber(), dduID, ddu_fmt_version);
-    theDDUData.push_back(CSCDDUEventData(newDDUHeader));
+    theDDUData.emplace_back(newDDUHeader);
     dduIndex = nDDUs;
     dccHeader().setDAV(dduSlot);
   }

@@ -219,7 +219,7 @@ GsfVertexSmoother::meanVertex(const VertexState & vertexA,
       			       iB->weightTimesPosition();
       double newWeightInMixture = iA->weightInMixture() *
 				  iB->weightInMixture();
-      finalVS.push_back( VertexState(newWtP, newWeight, newWeightInMixture) );
+      finalVS.emplace_back(newWtP, newWeight, newWeightInMixture );
     }
   }
   #ifndef CMS_NO_COMPLEX_RETURNS

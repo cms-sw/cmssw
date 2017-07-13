@@ -73,7 +73,7 @@ void EcalTBHodoscopeRecInfoAlgo::fitLine(float &x, float &xSlope, float &xQualit
       x0 = (( x2 + x1 ) - xs *
 	    ( zPosition_[ipl2] + zPosition_[ipl1] ))/2.0;  // x0
       xq = (xQ1 + xQ2)/2.0; // Quality, how i can do better ?
-      tracks.push_back(BeamTrack(x0,xs,xq));
+      tracks.emplace_back(x0,xs,xq);
     }
   }
 

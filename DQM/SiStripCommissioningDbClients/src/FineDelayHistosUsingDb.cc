@@ -212,7 +212,7 @@ bool FineDelayHistosUsingDb::update( SiStripConfigDb::DeviceDescriptionsRange de
     int delayFine   = int(round((delay-25*delayCoarse)*24./25.));
     if(delayFine==24) { delayFine=0; ++delayCoarse; }
     //  maximum coarse setting
-    if ( delayCoarse > 15 ) { invalid.push_back(fec_key); delayCoarse = sistrip::invalid_; }
+    if ( delayCoarse > 15 ) { invalid.emplace_back(fec_key); delayCoarse = sistrip::invalid_; }
 		    
     // Update PLL settings
     if ( delayCoarse != sistrip::invalid_ && 

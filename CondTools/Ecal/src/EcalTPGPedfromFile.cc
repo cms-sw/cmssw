@@ -106,7 +106,7 @@ void popcon::EcalTPGPedfromFile::getNewObjects() {
   fLin.close();
   // for the time beeing just transfer pedestal
   //  m_to_transfer.push_back(std::make_pair((EcalTPGLinearizationConst*)linC, fileIOV));
-  m_to_transfer.push_back(std::make_pair((EcalTPGPedestals*)peds, fileIOV));
+  m_to_transfer.emplace_back(std::make_pair((EcalTPGPedestals*)peds, fileIOV));
 
   std::cout << "Ecal -> end of getNewObjects -----------\n";	
 }

@@ -190,7 +190,7 @@ DDLSpecPar::processElement( const std::string& name, const std::string& nmspace,
     DDValue val(it->first, it->second.second);
     bool isEvaluated = it->second.first;
     val.setEvalState(isEvaluated);
-    svt.push_back(DDsvalues_Content_type(val,val));      
+    svt.emplace_back(val,val);      
   }
   std::sort(svt.begin(),svt.end());
 

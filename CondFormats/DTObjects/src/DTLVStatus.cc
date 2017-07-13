@@ -177,8 +177,7 @@ int DTLVStatus::set( int   wheelId,
     data.flagCMC = flagCMC;
     data.flagDMC = flagDMC;
     ientry = dataList.size();
-    dataList.push_back( std::pair<DTLVStatusId,
-                                  DTLVStatusData>( key, data ) );
+    dataList.emplace_back( key, data );
     dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;
   }

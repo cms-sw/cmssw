@@ -59,7 +59,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
       volumeHandle::printUniqueNames(layStart, separ);
     }
     
-    layers.push_back(eLayer(layStart, separ));
+    layers.emplace_back(layStart, separ);
     layStart = separ;
   }
   {
@@ -68,7 +68,7 @@ MagGeoBuilderFromDDD::eSector::eSector(handles::const_iterator begin,
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(separ,last);
     }
-    layers.push_back(eLayer(separ, last));
+    layers.emplace_back(separ, last);
   }
 
   // FIXME: Check that all layers have the same dz?. 

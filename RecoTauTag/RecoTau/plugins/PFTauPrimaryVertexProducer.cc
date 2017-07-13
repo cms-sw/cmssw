@@ -211,8 +211,8 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	    // Get tracks from PFTau daugthers
 	    const std::vector<edm::Ptr<reco::PFCandidate> > cands = RefPFTau->signalPFChargedHadrCands(); 
 	    for (std::vector<edm::Ptr<reco::PFCandidate> >::const_iterator iter = cands.begin(); iter!=cands.end(); iter++){
-	      if(iter->get()->trackRef().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(iter->get()->trackRef()));
-	      else if(iter->get()->gsfTrackRef().isNonnull()){SignalTracks.push_back(reco::TrackBaseRef(((iter)->get()->gsfTrackRef())));}
+	      if(iter->get()->trackRef().isNonnull()) SignalTracks.emplace_back(iter->get()->trackRef());
+	      else if(iter->get()->gsfTrackRef().isNonnull()){SignalTracks.emplace_back(((iter)->get()->gsfTrackRef()));}
 	    }
 	  }
 	}
@@ -222,7 +222,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  if(Mu.isValid()) {
 	    for(reco::MuonCollection::size_type iMuon = 0; iMuon< Mu->size(); iMuon++){
 	      reco::MuonRef RefMuon(Mu, iMuon);
-	      if(RefMuon->track().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(RefMuon->track()));
+	      if(RefMuon->track().isNonnull()) SignalTracks.emplace_back(RefMuon->track());
 	    }
 	  }
 	}
@@ -231,7 +231,7 @@ void PFTauPrimaryVertexProducer::produce(edm::Event& iEvent,const edm::EventSetu
 	  if(Electron.isValid()) {
 	    for(reco::ElectronCollection::size_type iElectron = 0; iElectron<Electron->size(); iElectron++){
 	      reco::ElectronRef RefElectron(Electron, iElectron);
-	      if(RefElectron->track().isNonnull()) SignalTracks.push_back(reco::TrackBaseRef(RefElectron->track()));
+	      if(RefElectron->track().isNonnull()) SignalTracks.emplace_back(RefElectron->track());
 	    }
 	  }
 	}

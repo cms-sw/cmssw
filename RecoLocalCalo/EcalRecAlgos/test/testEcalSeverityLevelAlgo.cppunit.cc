@@ -39,19 +39,19 @@ void testEcalSeverityLevelAlgo::setUp(){
   edm::ParameterSet flagmaskps;
   std::vector<std::string> kGoodv,kProblematicv,kRecoveredv,
                            kTimev,kWeirdv,kBadv; 
-  kGoodv.push_back("kGood");
-  kProblematicv.push_back("kPoorReco");
-  kProblematicv.push_back("kPoorCalib");
-  kProblematicv.push_back("kNoisy");
-  kProblematicv.push_back("kSaturated");
-  kRecoveredv.push_back("kLeadingEdgeRecovered");
-  kRecoveredv.push_back("kTowerRecovered");
-  kTimev.push_back("kOutOfTime");
-  kWeirdv.push_back("kWeird");
-  kWeirdv.push_back("kDiWeird");
-  kBadv.push_back("kFaultyHardware");
-  kBadv.push_back("kDead");
-  kBadv.push_back("kKilled");
+  kGoodv.emplace_back("kGood");
+  kProblematicv.emplace_back("kPoorReco");
+  kProblematicv.emplace_back("kPoorCalib");
+  kProblematicv.emplace_back("kNoisy");
+  kProblematicv.emplace_back("kSaturated");
+  kRecoveredv.emplace_back("kLeadingEdgeRecovered");
+  kRecoveredv.emplace_back("kTowerRecovered");
+  kTimev.emplace_back("kOutOfTime");
+  kWeirdv.emplace_back("kWeird");
+  kWeirdv.emplace_back("kDiWeird");
+  kBadv.emplace_back("kFaultyHardware");
+  kBadv.emplace_back("kDead");
+  kBadv.emplace_back("kKilled");
 
   flagmaskps.addParameter<std::vector<string> > ("kGood",kGoodv);
   flagmaskps.addParameter<std::vector<string> > ("kProblematic",kProblematicv);

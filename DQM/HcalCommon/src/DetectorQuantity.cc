@@ -99,7 +99,7 @@ namespace hcaldqm
 			for (int i=0; i<84; i++)
 			{
 				sprintf(name, "%d", getDid_ieta(i).ieta());
-				labels.push_back(std::string(name));
+				labels.emplace_back(name);
 			}
 			return labels;
 		}

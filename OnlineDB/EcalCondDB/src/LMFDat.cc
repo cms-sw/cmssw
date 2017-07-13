@@ -544,7 +544,7 @@ void LMFDat::getKeyTypes()
 {
   m_type.reserve(m_keys.size());
   for (unsigned int i = 0; i < m_keys.size(); i++) {
-    m_type.push_back("");
+    m_type.emplace_back("");
   }
   // get the description of the table
   std::string sql = "";

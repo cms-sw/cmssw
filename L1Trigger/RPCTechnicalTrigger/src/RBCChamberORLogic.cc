@@ -15,19 +15,19 @@
 //=============================================================================
 RBCChamberORLogic::RBCChamberORLogic(  ) {
   
-  m_rbname.push_back(std::string("RB1InFw"));
-  m_rbname.push_back(std::string("RB1OutFw"));
-  m_rbname.push_back(std::string("RB22Fw"));
-  m_rbname.push_back(std::string("RB23Fw"));
-  m_rbname.push_back(std::string("RB23M"));
-  m_rbname.push_back(std::string("RB3Fw"));
-  m_rbname.push_back(std::string("RB4Fw"));
-  m_rbname.push_back(std::string("RB1InBk"));
-  m_rbname.push_back(std::string("RB1OutBk"));
-  m_rbname.push_back(std::string("RB22Bk"));
-  m_rbname.push_back(std::string("RB23Bk"));
-  m_rbname.push_back(std::string("RB3Bk"));
-  m_rbname.push_back(std::string("RB4Bk"));
+  m_rbname.emplace_back("RB1InFw");
+  m_rbname.emplace_back("RB1OutFw");
+  m_rbname.emplace_back("RB22Fw");
+  m_rbname.emplace_back("RB23Fw");
+  m_rbname.emplace_back("RB23M");
+  m_rbname.emplace_back("RB3Fw");
+  m_rbname.emplace_back("RB4Fw");
+  m_rbname.emplace_back("RB1InBk");
+  m_rbname.emplace_back("RB1OutBk");
+  m_rbname.emplace_back("RB22Bk");
+  m_rbname.emplace_back("RB23Bk");
+  m_rbname.emplace_back("RB3Bk");
+  m_rbname.emplace_back("RB4Bk");
   
   itr2names itr = m_rbname.begin();
   

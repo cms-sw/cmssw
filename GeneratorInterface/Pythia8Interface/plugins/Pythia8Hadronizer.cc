@@ -887,7 +887,7 @@ GenLumiInfoHeader *Pythia8Hadronizer::getGenLumiInfoHeader() const {
   if (fMasterGen->info.initrwgt) weights_number += fMasterGen->info.initrwgt->weightsKeys.size();
   if(weights_number > 1){
     genLumiInfoHeader->weightNames().reserve(weights_number + 1);
-    genLumiInfoHeader->weightNames().push_back("nominal");
+    genLumiInfoHeader->weightNames().emplace_back("nominal");
   }
 
   //fill weight names

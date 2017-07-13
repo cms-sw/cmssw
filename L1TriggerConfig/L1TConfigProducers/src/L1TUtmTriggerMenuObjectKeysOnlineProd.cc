@@ -27,7 +27,7 @@ void L1TUtmTriggerMenuObjectKeysOnlineProd::fillObjectKeys( ReturnType pL1Trigge
 
     std::string l1_menu_key;
     std::vector< std::string > queryStrings ;
-    queryStrings.push_back( "L1_MENU" ) ;
+    queryStrings.emplace_back("L1_MENU" ) ;
 
     std::string l1_menu_name, ugt_key;
 

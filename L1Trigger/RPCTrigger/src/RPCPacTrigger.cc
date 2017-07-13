@@ -13,7 +13,7 @@ RPCPacTrigger::RPCPacTrigger(RPCTriggerConfiguration* triggerConfig):
 {
   m_TrigCnfg = triggerConfig;
   for(int iTC = 0; iTC < m_TrigCnfg->getTCsCnt(); iTC++) {
-    m_TriggerCratesVec.push_back(RPCTriggerCrate(m_TrigCnfg, iTC));
+    m_TriggerCratesVec.emplace_back(m_TrigCnfg, iTC);
   }
 }
 

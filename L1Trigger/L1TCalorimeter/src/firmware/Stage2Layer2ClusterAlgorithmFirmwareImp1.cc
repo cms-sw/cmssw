@@ -85,7 +85,7 @@ void l1t::Stage2Layer2ClusterAlgorithmFirmwareImp1::clustering(const std::vector
     if(hwEt>=seedThreshold_)
     {
       math::XYZTLorentzVector emptyP4;
-      clusters.push_back( l1t::CaloCluster(emptyP4, hwEt, iEta, iPhi) );
+      clusters.emplace_back(emptyP4, hwEt, iEta, iPhi );
       l1t::CaloCluster& cluster = clusters.back();
       cluster.setHwPtEm(hwEtEm);
       cluster.setHwPtHad(hwEtHad);

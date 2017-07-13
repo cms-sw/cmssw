@@ -26,10 +26,10 @@ extractPrimitives(const edm::Event& ev,
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
-      out.push_back(TriggerPrimitive((*chamber).first,
+      out.emplace_back((*chamber).first,
 				     digi->strip(),
 				     (*chamber).first.layer(),
-				     digi->bx()));
+				     digi->bx());
     }
   }  
 }

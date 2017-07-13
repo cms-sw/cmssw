@@ -114,7 +114,7 @@ HBHELinearMap::HBHELinearMap()
 
     inverse_.reserve(ChannelCount);
     for (unsigned i=0; i<ChannelCount; ++i)
-        inverse_.push_back(MapPair(lookup_[i], i));
+        inverse_.emplace_back(lookup_[i], i);
     std::sort(inverse_.begin(), inverse_.end());
 }
 

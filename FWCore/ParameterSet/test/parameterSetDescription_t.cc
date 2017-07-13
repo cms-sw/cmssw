@@ -1016,7 +1016,7 @@ namespace testParameterSetDescription {
     catch(edm::Exception const&) { /* There should be an exception */ }
 
     std::vector<std::string> labels1;
-    labels1.push_back(std::string("setB"));
+    labels1.emplace_back("setB");
     psetA.addParameter<std::vector<std::string> >("allowedLabelsA", labels1);
 
     // Now setB should be an allowed parameter
@@ -1081,7 +1081,7 @@ namespace testParameterSetDescription {
       catch(edm::Exception const&) { /* There should be an exception */ }
 
       std::vector<std::string> labels1;
-      labels1.push_back(std::string("vSetD"));
+      labels1.emplace_back("vSetD");
       psetC.addParameter<std::vector<std::string> >("allowedLabelsC", labels1);
 
       // Now vSetB should be an allowed parameter
@@ -1506,7 +1506,7 @@ int main(int, char**) try {
   nest1.addParameter<edm::ParameterSet>("nestLevel1b", nest2);
 
   std::vector<edm::ParameterSet> vPset;
-  vPset.push_back(edm::ParameterSet());
+  vPset.emplace_back();
   vPset.push_back(nest1);
 
   pset.addUntrackedParameter<std::vector<edm::ParameterSet> >("nestLevel0", vPset);

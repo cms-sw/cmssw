@@ -55,7 +55,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
       volumeHandle::printUniqueNames(slabStart, separ);
     }
     
-    slabs.push_back(bSlab(slabStart, separ));
+    slabs.emplace_back(slabStart, separ);
     slabStart = separ;
   }
   {
@@ -64,7 +64,7 @@ MagGeoBuilderFromDDD::bRod::bRod(handles::const_iterator begin,
 	   << " unique volumes: ";
       volumeHandle::printUniqueNames(separ,last);
     }
-    slabs.push_back(bSlab(separ, last));
+    slabs.emplace_back(separ, last);
   }
 
   // Check that all slabs have the same dphi.

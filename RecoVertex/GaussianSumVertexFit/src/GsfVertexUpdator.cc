@@ -157,8 +157,8 @@ GsfVertexUpdator::VertexChi2Pair GsfVertexUpdator::assembleVertexComponents(
     iter != newVertexComponents.end(); iter ++) {
     double weight = iter->second.first/totalWeight;
     if (iter->second.first>DBL_MIN) {
-      vertexComponents.push_back(VertexState(iter->first.weightTimesPosition(),
-       iter->first.weight(), weight));
+      vertexComponents.emplace_back(iter->first.weightTimesPosition(),
+       iter->first.weight(), weight);
       totalChi2 += iter->second.second * weight;
     }
   }

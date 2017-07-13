@@ -46,7 +46,7 @@ std::vector<HepMC::GenParticle>
           if(dist < RConeIsol && pti > MaxPtIsol ) { isol = false; break;}
         }
       }
-      if(isol) isoleptons.push_back(HepMC::GenParticle(**part));
+      if(isol) isoleptons.emplace_back(**part);
     }
   }
   return isoleptons;

@@ -80,7 +80,7 @@ VarProcessor::ConfigCtx::ConfigCtx(const std::vector<Variable::Flags>& flags) :
 {
 	for(std::vector<Variable::Flags>::const_iterator iter = flags.begin();
 	    iter != flags.end(); ++iter)
-		configs.push_back(Config(*iter, 1));
+		configs.emplace_back(*iter, 1);
 }
 
 VarProcessor::ConfigCtx::Context *

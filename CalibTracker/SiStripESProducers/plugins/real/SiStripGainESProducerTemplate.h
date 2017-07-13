@@ -83,7 +83,7 @@ template<typename TDependentRecord, typename TInputRecord>
 void SiStripGainESProducerTemplate<TDependentRecord, TInputRecord>::fillApvGain( const SiStripGainRcd & a, const std::pair<std::string, std::string> & recordLabelPair, std::vector<edm::ESHandle<SiStripApvGain> >& pDD )
 {
   // Put in an empty ApvGain and fill it
-  pDD.push_back(edm::ESHandle<SiStripApvGain>());
+  pDD.emplace_back();
   std::string recordName( recordLabelPair.first );
   std::string labelName( recordLabelPair.second );
   if( recordName == "SiStripApvGainRcd" ) a.getRecord<SiStripApvGainRcd>().get( labelName, pDD.back() );

@@ -311,7 +311,7 @@ DTTSPhi::runTSPhi() {
 	    DTTSCand* first = (*p_tsm)->getTrack(1);
 	    if( config()->TsmGetCarryFlag()==0 ) {  //  get 1st tk at current BX and ignore any 2nd tk at previous BX
 	      
-              _cache.push_back(DTChambPhSegm(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1));
+              _cache.emplace_back(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1);
 	      ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX
 	      if( config()->debug())
 	        std::cout << "ntsm = " <<  ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd] << " is = " << is << " i_tsmd = " << i_tsmd << std::endl; 
@@ -351,7 +351,7 @@ DTTSPhi::runTSPhi() {
 		// SM sector collector
 		ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX. I need to know if there is at least a first track from TSM to run Sect Coll
 		
-		_cache.push_back(DTChambPhSegm(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1));
+		_cache.emplace_back(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1);
 		//		(*p_tsm)->getTrack(1)->print();
 		
 		if((*p_tsm)->nTracks()>1)   {  // there is a 2nd tk
@@ -363,7 +363,7 @@ DTTSPhi::runTSPhi() {
 	      }
 	      else   {      // if 2nd tk prev BX is better than first present BX skip the event and get 2nd prev BX 
 		ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at previous BX.
-		_cache.push_back(DTChambPhSegm(ChamberId(),is-1,secondPrevBx->tracoTr(),2));
+		_cache.emplace_back(ChamberId(),is-1,secondPrevBx->tracoTr(),2);
 		//secondPrevBx->print();
 	      }
 	    }
@@ -373,7 +373,7 @@ DTTSPhi::runTSPhi() {
 	      if( (!existSecondPrevBx) || first->isHtrig() || first->isCorr()) {
 		ntsm[is-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at current BX. 
 		// SM sector collector: Load DTSectColl with output of DTTSM
-		_cache.push_back(DTChambPhSegm(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1));
+		_cache.emplace_back(ChamberId(),is,(*p_tsm)->getTrack(1)->tracoTr(),1);
 		//		(*p_tsm)->getTrack(1)->print();
 		
 		if((*p_tsm)->nTracks()>1)   {  // there is a 2nd tk
@@ -385,7 +385,7 @@ DTTSPhi::runTSPhi() {
 	      }
 	      else {
 		ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd]++;  // SM increment ntsm at previous BX. 
-		_cache.push_back(DTChambPhSegm(ChamberId(),is-1,secondPrevBx->tracoTr(),2));
+		_cache.emplace_back(ChamberId(),is-1,secondPrevBx->tracoTr(),2);
 		//		secondPrevBx->print(); 
 	      }
 	    }
@@ -397,7 +397,7 @@ DTTSPhi::runTSPhi() {
       else if ( ((*p_tsm)->nCand(1) == 0) && (is-1-DTConfigTSPhi::NSTEPF>=0) && ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd] > 0 ) {// it means that the last BX with sort 2 was not the previous one
 	existSecondPrevBx = ((is-1-DTConfigTSPhi::NSTEPF>=0) && (ntsm[is-1-DTConfigTSPhi::NSTEPF][i_tsmd]>1) && (secondPrevBx->tracoTr()->code()>0));
 	if(existSecondPrevBx) {
-	  _cache.push_back(DTChambPhSegm(ChamberId(),is-1,secondPrevBx->tracoTr(),2));
+	  _cache.emplace_back(ChamberId(),is-1,secondPrevBx->tracoTr(),2);
 	  
 	  //	  secondPrevBx->print();
 	}

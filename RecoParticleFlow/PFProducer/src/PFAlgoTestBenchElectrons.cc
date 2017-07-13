@@ -95,7 +95,7 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	  }
 	}
 	if (ECALBREM_index != 1000){
-	  ecalindexforbrem.push_back(make_pair(chi2BremFinal,ECALBREM_index));  
+	  ecalindexforbrem.emplace_back(make_pair(chi2BremFinal,ECALBREM_index));  
 	  // for each brem (same size that brems)
 	  brem_index.push_back(index);
 	}
@@ -163,7 +163,7 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 
     if (active[iEle] == true) {
       vector<unsigned> assoel(0);
-      associate.push_back(make_pair(active[iEle],assoel));
+      associate.emplace_back(make_pair(active[iEle],assoel));
     }
     if (active[iEle] == false){
       PFBlockElement::Type type = elements[iEle].type();
@@ -178,7 +178,7 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	  unsigned index_brem = it->first;
 	  assoel.push_back(index_brem);
 	}
-	associate.push_back(make_pair(active[iEle],assoel));
+	associate.emplace_back(make_pair(active[iEle],assoel));
 	// push back hcal cluster to be done
 	// push back ps cluster to be done
       }
@@ -194,7 +194,7 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	    assoel.push_back(index_ecalbrem);
 	  }
 	}
-	associate.push_back(make_pair(active[iEle],assoel));
+	associate.emplace_back(make_pair(active[iEle],assoel));
 	
 	// push back hcal cluster to be done
 	// push back ps cluster to be done
@@ -205,7 +205,7 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	  // push back the associate gsf track
 	  vector<unsigned> assoel(0);
 	  assoel.push_back(GSF_index);
-	  associate.push_back(make_pair(active[iEle],assoel));
+	  associate.emplace_back(make_pair(active[iEle],assoel));
 	}
 	for (map<unsigned, unsigned>::iterator it = FinalBremECALIndex.begin(); it != FinalBremECALIndex.end(); ++it ) {
 	  unsigned index_ecalbrem = it->second;
@@ -213,7 +213,7 @@ void PFAlgoTestBenchElectrons::processBlock(const reco::PFBlockRef& blockref,
 	  if (iEle == index_ecalbrem) {    // push back the brems associate to ecal 
 	    vector<unsigned> assoel(0);
 	    assoel.push_back(index_brem);
-	    associate.push_back(make_pair(active[iEle],assoel));
+	    associate.emplace_back(make_pair(active[iEle],assoel));
 	  }
 	}
       }

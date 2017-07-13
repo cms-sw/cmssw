@@ -144,8 +144,8 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
-         output.push_back(TrajectorySeed(trajectoryStateTransform::persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId())
-         ,hits,alongMomentum));
+         output.emplace_back(trajectoryStateTransform::persistentState(outerUpdated,(*(HitTriplets[it].outer())).geographicalId().rawId())
+         ,hits,alongMomentum);
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
             edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
@@ -164,8 +164,8 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	if ( outerUpdated.isValid()) {
 	  LogDebug("CosmicSeedFinder") <<"outerUpdated "<<outerUpdated;
 	  
-	  output.push_back(TrajectorySeed(trajectoryStateTransform::persistentState(outerUpdated, 
-                            (*(HitTriplets[it].outer())).geographicalId().rawId()),hits,oppositeToMomentum));
+	  output.emplace_back(trajectoryStateTransform::persistentState(outerUpdated, 
+                            (*(HitTriplets[it].outer())).geographicalId().rawId()),hits,oppositeToMomentum);
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
             edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
@@ -229,7 +229,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
             PTrajectoryStateOnDet const &  PTraj =
 	      trajectoryStateTransform::persistentState(outerUpdated, (*(HitPairs[is].outer())).geographicalId().rawId());
 	    
-	    output.push_back( TrajectorySeed(PTraj,hits,alongMomentum));
+	    output.emplace_back(PTraj,hits,alongMomentum);
 
             if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
               edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";
@@ -264,7 +264,7 @@ bool SeedGeneratorForCosmics::seeds(TrajectorySeedCollection &output,
 	  PTrajectoryStateOnDet const &  PTraj = 
 	    trajectoryStateTransform::persistentState(outerUpdated,(*(HitPairs[is].outer())).geographicalId().rawId());
           
-	  output.push_back(TrajectorySeed(PTraj,hits,oppositeToMomentum));
+	  output.emplace_back(PTraj,hits,oppositeToMomentum);
 
           if ((maxSeeds_ > 0) && (output.size() > size_t(maxSeeds_))) {
             edm::LogError("TooManySeeds") << "Found too many seeds, bailing out.\n";

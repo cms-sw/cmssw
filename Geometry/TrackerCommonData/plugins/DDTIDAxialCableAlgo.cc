@@ -128,7 +128,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
     DDName mat(DDSplit(matIn).first, DDSplit(matIn).second); 
     DDMaterial matter(mat);
     DDLogicalPart genlogic(DDName(name, idNameSpace), matter, solid);
-    logs.push_back(DDName(name, idNameSpace));
+    logs.emplace_back(name, idNameSpace);
   }
 
   //Cable in the vertical part
@@ -167,7 +167,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
   DDName mat(DDSplit(matIn).first, DDSplit(matIn).second); 
   DDMaterial matter(mat);
   DDLogicalPart genlogic(DDName(name, idNameSpace), matter, solid);
-  logs.push_back(DDName(name, idNameSpace));
+  logs.emplace_back(name, idNameSpace);
 
   //Cable in the outer part
   name = childName + std::to_string(zposWheel.size()+1);
@@ -182,7 +182,7 @@ void DDTIDAxialCableAlgo::execute(DDCompactView& cpv) {
   mat    = DDName(DDSplit(matOut).first, DDSplit(matOut).second);
   matter = DDMaterial(mat);
   genlogic = DDLogicalPart(DDName(name, idNameSpace), matter, solid);
-  logs.push_back(DDName(name, idNameSpace));
+  logs.emplace_back(name, idNameSpace);
 
   //Position the cables
   double theta = 90.*CLHEP::deg;

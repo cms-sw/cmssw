@@ -617,7 +617,7 @@ void matchGenHFHadrons::fillHadronTree( TTree* tree, const int flavour, const re
             // Skipping quarks that have opposite flavour sign
             if(quarkParticlePdgId * quarkCandidateFlavourSign < 0) continue;
             double hadron_quark_dR = ROOT::Math::VectorUtil::DeltaR(genHadPlusMothers.at(hadronParticleId).polarP4(), genHadPlusMothers.at(quarkParticleId).polarP4());
-            hadronLastQuarks_sameFlavour.push_back( std::pair<int, double>(quarkParticleId, hadron_quark_dR) );
+            hadronLastQuarks_sameFlavour.emplace_back(quarkParticleId, hadron_quark_dR );
         }
         hadron_nQuarksSameFlavour_ = hadronLastQuarks_sameFlavour.size();
         

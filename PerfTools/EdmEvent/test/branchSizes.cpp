@@ -227,7 +227,7 @@ int main( int argc, char * argv[] ) {
     string name( b->GetName() );
     if ( name == "EventAux" ) continue;
     size_type s = GetTotalSize( b, verbose );
-    v.push_back( make_pair( b->GetName(), s ) );
+    v.emplace_back(make_pair( b->GetName(), s ) );
   }
   if ( vm.count( kAlphabeticOrderOpt ) ) {
     sort( v.begin(), v.end(), sortByName() );

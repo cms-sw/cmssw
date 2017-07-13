@@ -204,7 +204,7 @@ FWLiteESSource::registerProxies(const edm::eventsetup::EventSetupRecordKey& iRec
       HCTypeTag tt = HCTypeTag::findType(it->first);
       if(tt != HCTypeTag() ) {
          edm::eventsetup::DataKey dk(tt,edm::eventsetup::IdTags(it->second.c_str()));
-         aProxyList.push_back(std::make_pair(dk,
+         aProxyList.emplace_back(std::make_pair(dk,
                                              std::make_shared<FWLiteProxy>(TypeID(tt.value()),&rec)));
       } else {
          LogDebug("UnknownESType")<<"The type '"<<it->first<<"' is unknown in this job";

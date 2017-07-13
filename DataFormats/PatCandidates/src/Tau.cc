@@ -49,11 +49,11 @@ Tau::Tau(const reco::BaseTau & aTau) :
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(&aTau);
     if (pfTau != 0){
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
-      pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+      pfSpecific_.emplace_back(*pfTau);
+      pfEssential_.emplace_back(*pfTau);
     }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(&aTau);
-    if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
+    if (caloTau != 0) caloSpecific_.emplace_back(*caloTau);
 }
 
 /// constructor from ref to reco::BaseTau
@@ -76,11 +76,11 @@ Tau::Tau(const edm::RefToBase<reco::BaseTau> & aTauRef) :
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0){
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
-      pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+      pfSpecific_.emplace_back(*pfTau);
+      pfEssential_.emplace_back(*pfTau);
     }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
-    if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
+    if (caloTau != 0) caloSpecific_.emplace_back(*caloTau);
 }
 
 /// constructor from ref to reco::BaseTau
@@ -103,11 +103,11 @@ Tau::Tau(const edm::Ptr<reco::BaseTau> & aTauRef) :
 {
     const reco::PFTau * pfTau = dynamic_cast<const reco::PFTau *>(aTauRef.get());
     if (pfTau != 0){
-      pfSpecific_.push_back(pat::tau::TauPFSpecific(*pfTau));
-      pfEssential_.push_back(pat::tau::TauPFEssential(*pfTau));
+      pfSpecific_.emplace_back(*pfTau);
+      pfEssential_.emplace_back(*pfTau);
     }
     const reco::CaloTau * caloTau = dynamic_cast<const reco::CaloTau *>(aTauRef.get());
-    if (caloTau != 0) caloSpecific_.push_back(pat::tau::TauCaloSpecific(*caloTau));
+    if (caloTau != 0) caloSpecific_.emplace_back(*caloTau);
 }
 
 /// destructor
@@ -825,9 +825,9 @@ reco::CandidatePtrVector Tau::signalCands() const {
       reco::CandidatePtrVector ret2;
       std::vector<std::pair<float,size_t> > pt_index;
       size_t index=0;
-      for (const auto & p : signalChargedHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
-      for (const auto & p : signalNeutralHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
-      for (const auto & p : signalGammaCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+      for (const auto & p : signalChargedHadrCandPtrs_){ ret2.push_back(p); pt_index.emplace_back(std::make_pair(p->pt(),index)); index++;}
+      for (const auto & p : signalNeutralHadrCandPtrs_){ ret2.push_back(p); pt_index.emplace_back(std::make_pair(p->pt(),index)); index++;}
+      for (const auto & p : signalGammaCandPtrs_){ ret2.push_back(p); pt_index.emplace_back(std::make_pair(p->pt(),index)); index++;}
       std::sort(pt_index.begin(),pt_index.end(),
 	        boost::bind(&std::pair<float,size_t>::first,_1) >
 		boost::bind(&std::pair<float,size_t>::first,_2));
@@ -891,9 +891,9 @@ reco::CandidatePtrVector Tau::isolationCands() const {
     reco::CandidatePtrVector ret2;
     std::vector<std::pair<float,size_t> > pt_index;
     size_t index=0;
-    for (const auto & p : isolationChargedHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
-    for (const auto & p : isolationNeutralHadrCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
-    for (const auto & p : isolationGammaCandPtrs_){ ret2.push_back(p); pt_index.push_back(std::make_pair(p->pt(),index)); index++;}
+    for (const auto & p : isolationChargedHadrCandPtrs_){ ret2.push_back(p); pt_index.emplace_back(std::make_pair(p->pt(),index)); index++;}
+    for (const auto & p : isolationNeutralHadrCandPtrs_){ ret2.push_back(p); pt_index.emplace_back(std::make_pair(p->pt(),index)); index++;}
+    for (const auto & p : isolationGammaCandPtrs_){ ret2.push_back(p); pt_index.emplace_back(std::make_pair(p->pt(),index)); index++;}
     std::sort(pt_index.begin(),pt_index.end(),
 	      boost::bind(&std::pair<float,size_t>::first,_1) >
 	      boost::bind(&std::pair<float,size_t>::first,_2));

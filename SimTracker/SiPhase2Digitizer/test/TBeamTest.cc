@@ -233,9 +233,9 @@ void TBeamTest::bookHistograms(DQMStore::IBooker & ibooker,
   std::string top_folder = config_.getParameter<std::string>("TopFolderName");
 
   std::vector<std::string> types;
-  types.push_back("2S_Modules");
-  types.push_back("PSP_Modules");
-  types.push_back("PSS_Modules");    
+  types.emplace_back("2S_Modules");
+  types.emplace_back("PSP_Modules");
+  types.emplace_back("PSS_Modules");    
   ibooker.cd();
 
   for (const auto& itype : types) {

@@ -47,7 +47,7 @@ float MuIsoByTrackPt::isolation(const edm::Event& ev, const edm::EventSetup& es,
 {
   IsoDeposit dep = extractor()->deposit(ev,es,muon);
   MuIsoBaseIsolator::DepositContainer deposits;
-  deposits.push_back(&dep);
+  deposits.emplace_back(&dep);
   if (isolator()->resultType() == MuIsoBaseIsolator::ISOL_FLOAT_TYPE){
     return isolator()->result(deposits).valFloat;
   }

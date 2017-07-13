@@ -65,7 +65,7 @@ vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs
   vector<Global2DVector> p;
   for(vector<GlobalPoint>::const_iterator ig = g.begin();
                                           ig!= g.end(); ig++)
-     p.push_back( Global2DVector(ig->x(), ig->y()) );
+     p.emplace_back(ig->x(), ig->y() );
 
   //
   vector<GlobalVector> globalDirs;
@@ -98,9 +98,9 @@ vector<GlobalVector> ClusterShapeTrackFilter::getGlobalDirs
                                                ip!= p.end(); ip++)
     {
       Global2DVector v = (*ip - c)*curvature*dir;
-      globalDirs.push_back(GlobalVector(-v.y()*sinTheta,
+      globalDirs.emplace_back(-v.y()*sinTheta,
                                          v.x()*sinTheta,
-                                               cosTheta));
+                                               cosTheta);
     }
   }
 

@@ -105,7 +105,7 @@ void MultiVertexFitter::createSeed( const vector < TransientTrack > & tracks )
     CachingVertex<5> vtx = createSeedFromLinPt (
         theSeeder->getLinearizationPoint ( tracks ) );
     int snr= seedNr();
-    theVertexStates.push_back ( pair < int, CachingVertex<5> > ( snr, vtx ) );
+    theVertexStates.emplace_back( snr, vtx );
     for ( vector< TransientTrack >::const_iterator track=tracks.begin();
           track!=tracks.end() ; ++track )
     {
@@ -163,7 +163,7 @@ void MultiVertexFitter::createSeed( const vector < TrackAndWeight > & tracks )
   {
     CachingVertex<5> vtx = KalmanVertexFitter().vertex ( newTracks );
     int snr = seedNr();
-    theVertexStates.push_back ( pair < int, CachingVertex<5> > ( snr, vtx ) );
+    theVertexStates.emplace_back( snr, vtx );
 
     // We initialise the weights with the original
     // user supplied weights.
@@ -260,8 +260,7 @@ vector < CachingVertex<5> > MultiVertexFitter::vertices (
         vtx!=initials.end() ; ++vtx )
   {
     int snr = seedNr();
-    theVertexStates.push_back ( pair < int, CachingVertex<5> >
-        ( snr, *vtx ) );
+    theVertexStates.emplace_back( snr, *vtx );
     TransientVertex rvtx = *vtx;
     const vector < TransientTrack > & trks = rvtx.originalTracks();
     for ( vector< TransientTrack >::const_iterator trk=trks.begin();
@@ -545,8 +544,7 @@ bool MultiVertexFitter::updateSeeds()
         int snr = seedNr();
         double disp = ( newVertex.position() - seed->second.position() ).mag();
         if ( disp > max_disp ) max_disp = disp;
-        newSeeds.push_back ( 
-            pair < int, CachingVertex<5> > ( snr, newVertex ) );
+        newSeeds.emplace_back( snr, newVertex );
       };
     } catch ( exception & e )
     {

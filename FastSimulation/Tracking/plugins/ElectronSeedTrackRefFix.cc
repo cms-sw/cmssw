@@ -106,10 +106,10 @@ ElectronSeedTrackRefFix::produce(edm::Event& iEvent, const edm::EventSetup& iSet
    for(unsigned int t = 0;t<newTracks->size();++t){
      if(t < oldTracks->size()){
        TrackRef oldTrackRef(oldTracks,t);
-       values.push_back(PreIdRef(preIdProd,(*(iIdMap.product()))[oldTrackRef].index()));
+       values.emplace_back(preIdProd,(*(iIdMap.product()))[oldTrackRef].index());
      }
      else{
-       values.push_back(PreIdRef());
+       values.emplace_back();
      }
    }
    mapFiller.insert(newTracks,values.begin(),values.end());

@@ -271,7 +271,7 @@ DTCombinatorialPatternReco::findCompatibleHits(const LocalPoint& posIni,
       tried.push_back(0);
       continue; // neither is compatible
     }
-    result.push_back(DTSegmentCand::AssPoint(*hit, lrcode));
+    result.emplace_back(*hit, lrcode);
   }
 
 
@@ -390,7 +390,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<DTSegmentCand::AssPoint
     // try with the right
     if(debug)
       cout << "Right hit" << endl;
-    points.push_back(DTSegmentCand::AssPoint(unassHit, DTEnums::Right));
+    points.emplace_back(unassHit, DTEnums::Right);
     pointsNoLR.pop_front();
     buildPointsCollection(points, pointsNoLR, candidates, sl);
     pointsNoLR.push_front((unassHit));
@@ -399,7 +399,7 @@ DTCombinatorialPatternReco::buildPointsCollection(vector<DTSegmentCand::AssPoint
     // try with the left
     if(debug)
       cout << "Left hit" << endl;
-    points.push_back(DTSegmentCand::AssPoint(unassHit, DTEnums::Left));
+    points.emplace_back(unassHit, DTEnums::Left);
     pointsNoLR.pop_front();
     buildPointsCollection(points, pointsNoLR, candidates, sl);
     pointsNoLR.push_front((unassHit));

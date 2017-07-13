@@ -660,7 +660,7 @@ namespace edmtest {
     iDesc.addOptionalNode(test103, false);
 
     std::vector<edm::ParameterSet> defaultVPSet104;
-    defaultVPSet104.push_back(edm::ParameterSet());
+    defaultVPSet104.emplace_back();
     edm::ParameterDescription<std::vector<edm::ParameterSet> > test104(std::string("test104"), barx, false, defaultVPSet104);
     iDesc.addNode(test104);
 
@@ -739,7 +739,7 @@ namespace edmtest {
     psetInVector2.addUntrackedParameter<unsigned int>("ndouDrinks", 11U);
 
     std::vector<edm::ParameterSet> anotherDefaultVPSet;
-    anotherDefaultVPSet.push_back(edm::ParameterSet());
+    anotherDefaultVPSet.emplace_back();
     edm::ParameterSet anotherParameterSet;
     anotherParameterSet.addParameter<int>("xvalue", 17);
     anotherDefaultVPSet.push_back(anotherParameterSet);

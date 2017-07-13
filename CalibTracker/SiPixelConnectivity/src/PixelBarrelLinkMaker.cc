@@ -95,7 +95,7 @@ PixelBarrelLinkMaker::Links PixelBarrelLinkMaker::links(
     int idRoc = 0;
     for (int id = (*it).rocIds.min(); id <= (*it).rocIds.max(); id++) {
       idRoc++;
-      rocs.push_back( PixelROC( it->unit, id, idRoc) ); 
+      rocs.emplace_back( it->unit, id, idRoc ); 
     }
     link.add(rocs);
     result.push_back(link); 

@@ -71,7 +71,7 @@ AlignmentParameterStore::selectParameters( const std::vector<AlignableDet*>& ali
 
   std::vector<AlignableDet*>::const_iterator it, iEnd;
   for ( it = alignabledets.begin(), iEnd = alignabledets.end(); it != iEnd; ++it)
-    detOrUnits.push_back(AlignableDetOrUnitPtr(*it));
+    detOrUnits.emplace_back(*it);
 
   return this->selectParameters(detOrUnits);
 }
@@ -712,8 +712,8 @@ bool AlignmentParameterStore
     for (unsigned int iParMast = 0, iParMastUsed = 0; iParMast < aliSel.size(); ++iParMast) {
       if (!all && !aliSel[iParMast]) continue;// no higher level parameter & constraint deselected
       if (firstComp) { // fill output with empty arrays 
-	paramIdsVecOut.push_back(std::vector<ParameterId>());
-	factorsVecOut.push_back(std::vector<double>());
+	paramIdsVecOut.emplace_back();
+	factorsVecOut.emplace_back();
       }
       for (unsigned int iParComp = 0; iParComp < aliCompSel.size(); ++iParComp) {
 	if (aliCompSel[iParComp]) {
@@ -727,7 +727,7 @@ bool AlignmentParameterStore
 	    if (iParMast < 3 && (iParComp % 9) >= 3) factor = 0.;
 	  }
 	  if (fabs(factor) > epsilon) {
-	    paramIdsVecOut[iParMastUsed].push_back(ParameterId(*iComp, iParComp));
+	    paramIdsVecOut[iParMastUsed].emplace_back(*iComp, iParComp);
 	    factorsVecOut[iParMastUsed].push_back(factor);
 	  }
 	}

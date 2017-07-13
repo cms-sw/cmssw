@@ -193,7 +193,7 @@ int SimTrackManager::getOrCreateVertex(TrackWithHistory * trkH, int iParentID,
   const G4VProcess* pr = trkH->creatorProcess();
   if(pr) { ptype = pr->GetProcessSubType(); }
   simEvent->add(new G4SimVertex(trkH->vertexPosition(),trkH->globalTime(),parent,ptype));
-  m_vertexMap[parent].push_back(MapVertexPosition(m_nVertices,trkH->vertexPosition()));
+  m_vertexMap[parent].emplace_back(m_nVertices,trkH->vertexPosition());
   m_nVertices++;
   return (m_nVertices-1);
   

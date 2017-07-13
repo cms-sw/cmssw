@@ -122,15 +122,15 @@ void DQMStandaloneExample::createMonitorElements(void)
 // create the quality tests
 void DQMStandaloneExample::createQualityTests(void)
 {
-  testNames.push_back("my_chi2");
-  testNames.push_back("my_kolm");
-  testNames.push_back("my_xrange");
-  testNames.push_back("my_yrange");
-  testNames.push_back("deadChan");
-  testNames.push_back("noisyChan");
-  testNames.push_back("my_histo_equal");
-  testNames.push_back("my_int_equal");
-  testNames.push_back("meanNear");
+  testNames.emplace_back("my_chi2");
+  testNames.emplace_back("my_kolm");
+  testNames.emplace_back("my_xrange");
+  testNames.emplace_back("my_yrange");
+  testNames.emplace_back("deadChan");
+  testNames.emplace_back("noisyChan");
+  testNames.emplace_back("my_histo_equal");
+  testNames.emplace_back("my_int_equal");
+  testNames.emplace_back("meanNear");
 
   vector<string>::const_iterator it = testNames.begin();
 

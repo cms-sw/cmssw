@@ -1307,9 +1307,9 @@ template<> std::unique_ptr<HcalElectronicsMap> createObject<HcalElectronicsMap>(
 	continue;
       }
       if (items[8]=="NA" || items[8]=="NT") {
-	while (items.size()<12) items.push_back(""); // don't worry here
+	while (items.size()<12) items.emplace_back(""); // don't worry here
       } else if (items[8]=="HT") {
-	if (items.size()==11) items.push_back("");
+	if (items.size()==11) items.emplace_back("");
 	else {
 	  edm::LogError("MapFormat") << "HcalElectronicsMap-> Bad line: " << buffer 
 				     << "\n HT line must contain at least 11 items: i  cr sl tb dcc spigot fiber fiberchan subdet=HT ieta iphi";

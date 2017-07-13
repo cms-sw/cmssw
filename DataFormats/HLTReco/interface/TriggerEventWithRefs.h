@@ -93,9 +93,7 @@ namespace trigger
     /// setters - to build EDProduct
     void addFilterObject(const edm::InputTag& filterTag, const TriggerFilterObjectWithRefs& tfowr) {
        
-      filterObjects_.push_back(
-
-        TriggerFilterObject(filterTag, 
+      filterObjects_.emplace_back(filterTag, 
 			    addObjects(tfowr.photonIds(),tfowr.photonRefs()),
 			    addObjects(tfowr.electronIds(),tfowr.electronRefs()),
 			    addObjects(tfowr.muonIds(),tfowr.muonRefs()),
@@ -117,7 +115,7 @@ namespace trigger
 			    addObjects(tfowr.l1tjetIds(),tfowr.l1tjetRefs()),
 			    addObjects(tfowr.l1ttauIds(),tfowr.l1ttauRefs()),
 			    addObjects(tfowr.l1tetsumIds(),tfowr.l1tetsumRefs())
-			   )
+			   
 
 	    );
 

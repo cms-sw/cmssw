@@ -23,10 +23,10 @@ extractPrimitives(edm::Handle<RPCDigiCollection> rpcDigis,
     auto digi = (*chamber).second.first;
     auto dend = (*chamber).second.second;
     for( ; digi != dend; ++digi ) {
-      out.push_back(L1TMuon::TriggerPrimitive((*chamber).first,
+      out.emplace_back((*chamber).first,
 				     digi->strip(),
 				     (*chamber).first.layer(),
-				     digi->bx()));
+				     digi->bx());
     }
   }
 }

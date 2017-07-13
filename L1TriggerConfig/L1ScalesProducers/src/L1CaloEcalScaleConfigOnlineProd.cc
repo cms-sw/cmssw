@@ -114,15 +114,15 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 
  
      std::vector< std::string > paramStrings ;
-     paramStrings.push_back("LOGIC_ID");  // EB/EE
-     paramStrings.push_back("ETSAT");  //Only object needed
+     paramStrings.emplace_back("LOGIC_ID");  // EB/EE
+     paramStrings.emplace_back("ETSAT");  //Only object needed
     
     
      std::vector< std::string> IDStrings;
-     IDStrings.push_back("NAME");
-     IDStrings.push_back("ID1");
-     IDStrings.push_back("ID2");
-     IDStrings.push_back("maps_to");
+     IDStrings.emplace_back("NAME");
+     IDStrings.emplace_back("ID1");
+     IDStrings.emplace_back("ID2");
+     IDStrings.emplace_back("maps_to");
 
     l1t::OMDSReader::QueryResults paramResults =
        m_omdsReader.basicQuery( paramStrings,
@@ -175,9 +175,9 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
      //     std::cout << " eb lsb " << eb_lsb << " ee_lsb " << ee_lsb << std::endl;
   
      std::vector< std::string > grpLUT;
-     grpLUT.push_back("GROUP_ID");
-     grpLUT.push_back("LUT_ID");
-     grpLUT.push_back("LUT_VALUE");
+     grpLUT.emplace_back("GROUP_ID");
+     grpLUT.emplace_back("LUT_ID");
+     grpLUT.emplace_back("LUT_VALUE");
      
      l1t::OMDSReader::QueryResults lutGrpResults = 
        m_omdsReader.basicQuery( grpLUT,
@@ -237,8 +237,8 @@ L1CaloEcalScaleConfigOnlineProd::newObject( const std::string& objectKey )
 
 
      std::vector < std::string > groupMap;
-     groupMap.push_back("LOGIC_ID");
-     groupMap.push_back("GROUP_ID");
+     groupMap.emplace_back("LOGIC_ID");
+     groupMap.emplace_back("GROUP_ID");
 
 
      

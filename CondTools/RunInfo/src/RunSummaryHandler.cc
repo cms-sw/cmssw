@@ -73,7 +73,7 @@ void RunSummaryHandler::getNewObjects() {
   
   // transfer fake run for 1 to since for the first time
   if (tagInfo().size==0){
-    m_to_transfer.push_back(std::make_pair((RunSummary*) (r->Fake_RunSummary()),1));
+    m_to_transfer.emplace_back(std::make_pair((RunSummary*) (r->Fake_RunSummary()),1));
   }
 
   // transfer also empty run if tag already existing 
@@ -87,7 +87,7 @@ void RunSummaryHandler::getNewObjects() {
   
   
   *r = rn.readData("RUNSESSION_PARAMETER", "STRING_VALUE",(int)snc );
-  m_to_transfer.push_back(std::make_pair((RunSummary*)r,snc));
+  m_to_transfer.emplace_back(std::make_pair((RunSummary*)r,snc));
   std::ostringstream ss;
   ss << "since =" << snc;
     

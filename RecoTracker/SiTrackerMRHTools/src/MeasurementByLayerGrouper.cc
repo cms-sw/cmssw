@@ -32,8 +32,8 @@ vector<pair<const DetLayer*, vector<TrajectoryMeasurement> > > MeasurementByLaye
 			) ;
     
     		vector<TM> group(start, ipart);
-    		result.push_back(pair<const DetLayer*, vector<TM> >(getDetLayer(*start),
-							group));
+    		result.emplace_back(getDetLayer(*start),
+							group);
     		start = ipart;
   	}
 #ifdef debug_MeasurementByLayerGrouper_

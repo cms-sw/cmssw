@@ -31,7 +31,7 @@ void popcon::CSCCrateMapImpl::getNewObjects()
   std::cin >> snc;
  
   
-  m_to_transfer.push_back(std::make_pair((CSCCrateMap*)mycrate_map,snc));
+  m_to_transfer.emplace_back(std::make_pair((CSCCrateMap*)mycrate_map,snc));
   
   std::cout << "------- " << m_name << "CSC src - > getNewObjects -----------\n"<< std::endl;
 }

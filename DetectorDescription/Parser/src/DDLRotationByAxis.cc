@@ -46,7 +46,7 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
       DDName pName = myRealParent->getDDName(nmspace);
       std::string tn = pName.name() + std::string("Rotation");
       std::vector<std::string> names;
-      names.push_back("name");
+      names.emplace_back("name");
 
       std::vector<std::string> values;
       values.push_back(tn);

@@ -108,7 +108,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     for( ; digi != dend; ++digi ) {
       CSCCorrelatedLCTDigi tmp_digi = *digi;
       tmp_digi.setBX( tmp_digi.getBX() + std::max(bxShiftCSC, -1*tmp_digi.getBX()) );
-      out.push_back(TriggerPrimitive((*chamber).first,tmp_digi));
+      out.emplace_back((*chamber).first,tmp_digi);
       l1t::EMTFHitExtra thisHit;
       thisHit.ImportCSCDetId( (*chamber).first );
       thisHit.ImportCSCCorrelatedLCTDigi( tmp_digi );
@@ -130,7 +130,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     auto rdigi = (*rchamber).second.first;
     auto rdend = (*rchamber).second.second;
     for( ; rdigi != rdend; ++rdigi) {
-      out_rpc.push_back(TriggerPrimitive( (*rchamber).first, rdigi->strip(), 0, rdigi->bx())); // Layer unset.  How to access? - AWB 03.06.16 
+      out_rpc.emplace_back( (*rchamber).first, rdigi->strip(), 0, rdigi->bx()); // Layer unset.  How to access? - AWB 03.06.16 
     }
   }
   

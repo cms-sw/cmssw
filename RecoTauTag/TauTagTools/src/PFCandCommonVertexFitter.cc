@@ -85,7 +85,7 @@ void PFCandCommonVertexFitterBase::fill(std::vector<TransientTrack> & tracks,
           trk = myPFCand->trackRef().get();
        }
       if(trk != 0) {
-	tracks.push_back(TransientTrack(* trk, bField_));
+	tracks.emplace_back(* trk, bField_);
 	daughters.push_back(d);
 	trackTypes.push_back(type);
       } else {

@@ -207,7 +207,7 @@ int DTStatusFlag::set( int   wheelId,
     data. deadFlag =  deadFlag;
     data. nohvFlag =  nohvFlag;
     ientry = dataList.size();
-    dataList.push_back( std::pair<const DTStatusFlagId,
+    dataList.emplace_back(std::pair<const DTStatusFlagId,
                                         DTStatusFlagData>( key, data ) );
     dBuf->insert( chanKey.begin(), chanKey.end(), ientry );
     return 0;

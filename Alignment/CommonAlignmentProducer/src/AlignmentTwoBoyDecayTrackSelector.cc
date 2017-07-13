@@ -150,8 +150,8 @@ AlignmentTwoBodyDecayTrackSelector::checkMass(const Tracks& cands) const
 	  mother.M() < theMaxMass &&
 	  correctCharge &&
 	  acoplanarTracks) {
-	candCollection.push_back(candCollectionItem(mother.Pt(),
-						    constTrackPair(trk1, trk2)));
+	candCollection.emplace_back(mother.Pt(),
+						    constTrackPair(trk1, trk2));
       }
     }
   }
@@ -240,7 +240,7 @@ AlignmentTwoBodyDecayTrackSelector::checkMETMass(const Tracks& cands,const edm::
 	  mother.M() < theMaxMass &&
 	  correctCharge &&
 	  acoplanarTracks) {
-	candCollection.push_back(candCollectionItem(mother.Pt(), trk));
+	candCollection.emplace_back(mother.Pt(), trk);
       }
     }
   }

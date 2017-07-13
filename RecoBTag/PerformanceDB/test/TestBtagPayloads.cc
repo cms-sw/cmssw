@@ -116,11 +116,11 @@ TestBtagPayloads::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    std::vector< std::string > measureName;
    std::vector< std::string > measureType;
 
-   measureName.push_back("TTBARWPBTAGCSVL");measureName.push_back("TTBARWPBTAGCSVL");measureName.push_back("TTBARWPBTAGCSVL");measureName.push_back("TTBARWPBTAGCSVL");
-   measureName.push_back("TTBARWPBTAGJPT");measureName.push_back("TTBARWPBTAGJPT");measureName.push_back("TTBARWPBTAGJPT");measureName.push_back("TTBARWPBTAGJPT");
+   measureName.emplace_back("TTBARWPBTAGCSVL");measureName.emplace_back("TTBARWPBTAGCSVL");measureName.emplace_back("TTBARWPBTAGCSVL");measureName.emplace_back("TTBARWPBTAGCSVL");
+   measureName.emplace_back("TTBARWPBTAGJPT");measureName.emplace_back("TTBARWPBTAGJPT");measureName.emplace_back("TTBARWPBTAGJPT");measureName.emplace_back("TTBARWPBTAGJPT");
 
-   measureType.push_back("BTAGBEFFCORR");measureType.push_back("BTAGBERRCORR");measureType.push_back("BTAGCEFFCORR");measureType.push_back("BTAGCERRCORR");
-   measureType.push_back("BTAGBEFFCORR");measureType.push_back("BTAGBERRCORR");measureType.push_back("BTAGCEFFCORR");measureType.push_back("BTAGCERRCORR");
+   measureType.emplace_back("BTAGBEFFCORR");measureType.emplace_back("BTAGBERRCORR");measureType.emplace_back("BTAGCEFFCORR");measureType.emplace_back("BTAGCERRCORR");
+   measureType.emplace_back("BTAGBEFFCORR");measureType.emplace_back("BTAGBERRCORR");measureType.emplace_back("BTAGCEFFCORR");measureType.emplace_back("BTAGCERRCORR");
    
 
    if( measureName.size() != measureType.size() )

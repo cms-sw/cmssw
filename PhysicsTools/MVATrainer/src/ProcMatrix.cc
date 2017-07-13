@@ -401,7 +401,7 @@ std::vector<ProcMatrix::Rank> ProcMatrix::ranking() const
 			}
 		}
 
-		ranking.push_back(Rank(bestIdx, corr));
+		ranking.emplace_back(bestIdx, corr);
 		corr = bestCorr;
 		use[bestIdx] = false;
 		maskLine(coeffs, bestIdx);
@@ -409,7 +409,7 @@ std::vector<ProcMatrix::Rank> ProcMatrix::ranking() const
 
 	for(unsigned int i = 0; i < n; i++)
 		if (use[i])
-			ranking.push_back(Rank(i, corr));
+			ranking.emplace_back(i, corr);
 
 	return ranking;
 }

@@ -163,7 +163,7 @@ FWMETProxyBuilder::buildViewType(const reco::MET& met, unsigned int iIndex, TEve
    setupAddElement( marker, &oItemHolder );
 
    // printf("add line %s  %f %f .... eta %f theta %f\n", item()->name().c_str(), met.et(), met.energy(), met.eta(), met.theta());
-   m_lines.push_back(fireworks::scaleMarker(marker, met.et(), met.energy(), vc));  // register for scales
+   m_lines.emplace_back(marker, met.et(), met.energy(), vc);  // register for scales
 
    context().voteMaxEtAndEnergy(met.et(), met.energy());
 }
