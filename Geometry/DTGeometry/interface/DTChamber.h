@@ -28,13 +28,13 @@ class DTChamber : public GeomDet {
     DTChamber(DTChamberId id, const ReferenceCountingPointer<BoundPlane>& plane);
 
     /// Destructor
-    virtual ~DTChamber();
+    ~DTChamber() override;
 
     /// Return the DTChamberId of this chamber
     DTChamberId id() const;
 
     // Which subdetector
-    virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+    SubDetector subDetector() const override {return GeomDetEnumerators::DT;}
 
     /// equal if the id is the same
     bool operator==(const DTChamber& ch) const;
@@ -43,10 +43,10 @@ class DTChamber : public GeomDet {
     void add(DTSuperLayer* sl);
 
     /// Return the superlayers in the chamber
-    virtual std::vector< const GeomDet*> components() const;
+    std::vector< const GeomDet*> components() const override;
 
     /// Return the sub-component (SL or layer) with a given id in this chamber
-    virtual const GeomDet* component(DetId id) const;
+    const GeomDet* component(DetId id) const override;
 
     /// Return the superlayers in the chamber
     const std::vector< const DTSuperLayer*>& superLayers() const;

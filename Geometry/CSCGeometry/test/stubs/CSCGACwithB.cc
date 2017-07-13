@@ -22,7 +22,7 @@ class CSCGACwithB : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGACwithB( const edm::ParameterSet& );
-  ~CSCGACwithB();
+  ~CSCGACwithB() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

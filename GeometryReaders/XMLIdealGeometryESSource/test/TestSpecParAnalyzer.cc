@@ -41,7 +41,7 @@
 class TestSpecParAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestSpecParAnalyzer( const edm::ParameterSet& );
-  ~TestSpecParAnalyzer();
+  ~TestSpecParAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

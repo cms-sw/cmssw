@@ -57,7 +57,7 @@ class CaloGeometryDBEP : public edm::ESProducer
 			  edm::es::Label( T::producerTag() ) ) ;//+std::string("TEST") ) ) ;
       }
 
-      virtual ~CaloGeometryDBEP<T,U>() {}
+      ~CaloGeometryDBEP<T,U>() override {}
     
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {

@@ -14,8 +14,8 @@ typedef std::unary_function<const GeometricDet*, double> uFcn;
 
 class CmsTrackerLevelBuilder : public CmsTrackerAbstractConstruction {
 public:
-  virtual void build(DDFilteredView& , GeometricDet*, std::string);
-  virtual ~CmsTrackerLevelBuilder(){}
+  void build(DDFilteredView& , GeometricDet*, std::string) override;
+  ~CmsTrackerLevelBuilder() override{}
   
   
   struct subDetByType{

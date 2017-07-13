@@ -40,7 +40,7 @@ class CaloGeometryAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResourc
 public:
 
   explicit CaloGeometryAnalyzer( const edm::ParameterSet& );
-  ~CaloGeometryAnalyzer();
+  ~CaloGeometryAnalyzer() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

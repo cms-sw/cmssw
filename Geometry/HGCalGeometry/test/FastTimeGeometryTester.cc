@@ -21,7 +21,7 @@
 class FastTimeGeometryTester : public edm::one::EDAnalyzer<> {
 public:
   explicit FastTimeGeometryTester(const edm::ParameterSet& );
-  ~FastTimeGeometryTester();
+  ~FastTimeGeometryTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

@@ -45,7 +45,7 @@ class CaloTowerGeometryAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
   explicit CaloTowerGeometryAnalyzer( const edm::ParameterSet& );
-  ~CaloTowerGeometryAnalyzer( void );
+  ~CaloTowerGeometryAnalyzer( void ) override;
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

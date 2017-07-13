@@ -55,7 +55,7 @@ class RPCGEO2 : public edm::one::EDAnalyzer<>
 {
 public:
   explicit RPCGEO2(const edm::ParameterSet&);
-  ~RPCGEO2();
+  ~RPCGEO2() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

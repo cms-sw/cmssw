@@ -22,10 +22,10 @@
 class HGCalTopologyTester : public edm::EDAnalyzer {
 public:
   explicit HGCalTopologyTester(const edm::ParameterSet& );
-  ~HGCalTopologyTester();
+  ~HGCalTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const HGCalTopology& topology);
 
 private:

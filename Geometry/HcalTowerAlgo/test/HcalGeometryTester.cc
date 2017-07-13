@@ -18,7 +18,7 @@ class HcalGeometryTester : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalGeometryTester( const edm::ParameterSet& );
-  ~HcalGeometryTester( void ) {}
+  ~HcalGeometryTester( void ) override {}
     
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

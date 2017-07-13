@@ -14,7 +14,7 @@ class HcalGeometryDump : public edm::one::EDAnalyzer<> {
 
 public:
   explicit HcalGeometryDump( const edm::ParameterSet& );
-  ~HcalGeometryDump( void );
+  ~HcalGeometryDump( void ) override;
     
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

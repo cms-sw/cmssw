@@ -69,7 +69,7 @@
 class ModuleNumbering : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleNumbering( const edm::ParameterSet& );
-  ~ModuleNumbering();
+  ~ModuleNumbering() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

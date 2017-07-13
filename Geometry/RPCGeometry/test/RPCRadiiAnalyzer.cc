@@ -33,7 +33,7 @@ class RPCRadiiAnalyzer : public edm::one::EDAnalyzer<> {
  public: 
   RPCRadiiAnalyzer( const edm::ParameterSet& pset);
 
-  ~RPCRadiiAnalyzer();
+  ~RPCRadiiAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

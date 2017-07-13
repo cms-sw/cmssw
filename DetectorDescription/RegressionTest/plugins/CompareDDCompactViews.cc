@@ -14,7 +14,7 @@ class CompareDDCompactViews : public edm::one::EDAnalyzer<edm::one::WatchRuns>
 {
 public:
   explicit CompareDDCompactViews( const edm::ParameterSet& iConfig );
-  ~CompareDDCompactViews( void ) {}
+  ~CompareDDCompactViews( void ) override {}
   
   void beginJob() override {}
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;
