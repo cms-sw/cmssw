@@ -114,9 +114,9 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     bufferNew.pop_front();
 
     // Is it sensor? If yes, apply full sensor alignments
-    if ( pD->name().name().compare( DDD_TOTEM_RP_DETECTOR_NAME) == 0
-      or pD->name().name().compare( DDD_CTPPS_DIAMONDS_DETECTOR_NAME ) == 0
-	 or pD->name().name().compare(DDD_CTPPS_PIXELS_DETECTOR_NAME)==0 )
+    if ( pD->name().name().compare(DDD_TOTEM_RP_SENSOR_NAME) == 0
+      || pD->name().name().compare(DDD_CTPPS_DIAMONDS_SEGMENT_NAME) == 0
+	  || pD->name().name().compare(DDD_CTPPS_PIXELS_SENSOR_NAME)==0 )
     {
       unsigned int plId = pD->geographicalID();
 
@@ -128,7 +128,10 @@ void TotemRPGeometryESModule::ApplyAlignments(const ESHandle<DetGeomDesc> &ideal
     }
 
     // Is it RP box? If yes, apply RP alignments
-    if (! pD->name().name().compare(DDD_TOTEM_RP_PRIMARY_VACUUM_NAME))
+    if (pD->name().name().compare(DDD_TOTEM_RP_RP_NAME) == 0
+        || pD->name().name().compare(DDD_CTPPS_PIXELS_RP_NAME) == 0
+        || pD->name().name().compare(DDD_CTPPS_DIAMONDS_RP_NAME) == 0
+      )
     {
       unsigned int rpId = pD->geographicalID();
       
