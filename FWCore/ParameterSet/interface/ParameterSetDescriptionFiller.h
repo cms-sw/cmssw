@@ -24,7 +24,6 @@ method of the templated argument.  This allows the ParameterSetDescriptionFiller
 
 #include <type_traits>
 #include <string>
-#include <boost/mpl/if.hpp>
 #include "FWCore/ParameterSet/interface/ParameterSetDescriptionFillerBase.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
@@ -66,8 +65,8 @@ namespace edm {
 
   namespace fillDetails {
 
-    typedef char (& no_tag)[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
+    using no_tag = std::false_type; // type indicating FALSE
+    using yes_tag = std::true_type; // type indicating TRUE
 
     template <typename T, void (*)(ConfigurationDescriptions &)>  struct fillDescriptions_function;
     template <typename T> no_tag  has_fillDescriptions_helper(...);
@@ -75,8 +74,8 @@ namespace edm {
 
     template<typename T>
     struct has_fillDescriptions_function {
-      static bool const value =
-        sizeof(has_fillDescriptions_helper<T>(0)) == sizeof(yes_tag);
+      static constexpr bool value =
+      std::is_same<decltype(has_fillDescriptions_helper<T>(nullptr)),yes_tag>::value;
     };
 
     template <typename T>
@@ -101,8 +100,8 @@ namespace edm {
 
     template<typename T>
     struct has_prevalidate_function {
-      static bool const value =
-      sizeof(has_prevalidate_helper<T>(0)) == sizeof(yes_tag);
+      static constexpr bool value =
+      std::is_same<decltype(has_prevalidate_helper<T>(nullptr)),yes_tag>::value;
     };
 
     template <typename T>
