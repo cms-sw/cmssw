@@ -76,31 +76,31 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
 
  public:
   explicit PrimaryVertexValidation(const edm::ParameterSet&);
-  ~PrimaryVertexValidation();
+  ~PrimaryVertexValidation() override;
 
  private:
-  virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endJob();
+  virtual void beginJob() override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endJob() override;
   bool isBFieldConsistentWithMode(const edm::EventSetup& iSetup) const;
   bool isHit2D(const TrackingRecHit &hit) const;
-  bool hasFirstLayerPixelHits(const reco::TransientTrack track);
-  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack track);
-  std::pair<Double_t,Double_t> getMedian(TH1F *histo);
-  std::pair<Double_t,Double_t> getMAD(TH1F *histo);
-  std::pair<std::pair<Double_t,Double_t>, std::pair<Double_t,Double_t> > fitResiduals(TH1 *hist);
-  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], statmode::estimator fitPar_, TString var_);
+  bool hasFirstLayerPixelHits(const reco::TransientTrack& track);
+  std::pair<bool,bool> pixelHitsCheck(const reco::TransientTrack& track);
+  Measurement1D getMedian(TH1F *histo);
+  Measurement1D getMAD(TH1F *histo);
+  std::pair<Measurement1D, Measurement1D > fitResiduals(TH1 *hist);
+  void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], statmode::estimator fitPar_,const std::string& var_);
   void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, statmode::estimator fitPar_); 
 
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
-  bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,std::string qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
+  bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
 
-  std::vector<TH1F*> bookResidualsHistogram(TFileDirectory dir,unsigned int theNOfBins,TString resType,TString varType); 
-  std::map<std::string, TH1*> bookVertexHistograms(TFileDirectory dir);
+  std::vector<TH1F*> bookResidualsHistogram(const TFileDirectory& dir,unsigned int theNOfBins,std::string resType,const std::string& varType); 
+  std::map<std::string, TH1*> bookVertexHistograms(const TFileDirectory& dir);
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
   void add(std::map<std::string, TH1*>& h, TH1* hist);
-  void fill(std::map<std::string, TH1*>& h, std::string s, double x);
-  void fill(std::map<std::string, TH1*>& h, std::string s, double x, double y);
+  void fill(std::map<std::string, TH1*>& h,const std::string& s, double x);
+  void fill(std::map<std::string, TH1*>& h,const std::string& s, double x, double y);
   void fillByIndex(std::vector<TH1F*>& h, unsigned int index, double x); 
   void fillMap(TH2F* trendMap, TH1F* residualsMapPlot[100][100], statmode::estimator fitPar_);
   
@@ -134,7 +134,9 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   bool    doBPix_;
   bool    doFPix_;
   double  ptOfProbe_;
+  double  pOfProbe_;
   double  etaOfProbe_;
+  double  nHitsOfProbe_;
   bool    isPhase1_;
   int nBins_;                 // actual number of histograms     
   std::vector<unsigned int> runControlNumbers_;
@@ -546,6 +548,10 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* h_probeHitsInTEC_;  
   TH1F* h_probeHitsInBPIX_; 
   TH1F* h_probeHitsInFPIX_; 
+
+  TH1F* h_probeL1Ladder_;
+  TH1F* h_probeL1Module_;
+  TH1I* h_probeHasBPixL1Overlap_;  
 
   // check vertex
 
