@@ -1,5 +1,5 @@
-#ifndef LepHTMonitor_H
-#define LepHTMonitor_H
+#ifndef DQMOffline_Trigger_LepHTMonitor_h
+#define DQMOffline_Trigger_LepHTMonitor_h
 
 //event
 #include "FWCore/Framework/interface/Event.h"
@@ -139,4 +139,4 @@ private:
 
 };
 
-#endif
+#endif  // ! DQMOffline_Trigger_LepHTMonitor_h

@@ -27,36 +27,36 @@ namespace{
   bool isGood(const reco::GsfElectron &el, const reco::Vertex::Point &pv_position,
               const reco::BeamSpot::Point &bs_position,
               const edm::Handle<reco::ConversionCollection> &convs, bool pass_id,
-	      const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,  
-	      const double d0_cut_b, const double dz_cut_b,  const double d0_cut_e,  const double dz_cut_e){
+              const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,
+              const double d0_cut_b, const double dz_cut_b,  const double d0_cut_e,  const double dz_cut_e) {
 
     //Electron ID
-    if(!pass_id) return false;
+    if (!pass_id) return false;
 
     //pT
-    if(el.pt()<lep_counting_threshold || fabs(el.superCluster()->eta()) > lep_eta_cut) return false;
+    if (el.pt()<lep_counting_threshold || std::abs(el.superCluster()->eta()) > lep_eta_cut) return false;
 
     //Isolation
     const auto &iso = el.pfIsolationVariables();
     const float absiso = iso.sumChargedHadronPt
       + std::max(0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt -0.5 * iso.sumPUPt);
     const float relisowithdb = absiso/el.pt();
-    if(relisowithdb>lep_iso_cut) return false; 
-    
+    if (relisowithdb>lep_iso_cut) return false;
+
     //Conversion matching
     bool pass_conversion = false;
-    if(convs.isValid()){
+    if (convs.isValid()) {
       pass_conversion = !ConversionTools::hasMatchedConversion(el, convs, bs_position);
     }
     else{
       edm::LogError("LepHTMonitor") << "Electron conversion matching failed.\n";
     }
-    if(!pass_conversion) return false;
-    
+    if (!pass_conversion) return false;
+
 
     //Impact parameter
     float d0 = 999., dz=999.;
-    if(el.gsfTrack().isNonnull()){
+    if (el.gsfTrack().isNonnull()) {
       d0=-(el.gsfTrack()->dxy(pv_position));
       dz = el.gsfTrack()->dz(pv_position);
     }
@@ -65,11 +65,11 @@ namespace{
       return false;
     }
     float etasc = el.superCluster()->eta();
-    if(fabs(etasc)>1.479){//Endcap 
-      if(fabs(d0)>d0_cut_e || fabs(dz)>dz_cut_e) return false;
- 
+    if (std::abs(etasc)>1.479) {//Endcap
+      if (std::abs(d0)>d0_cut_e || std::abs(dz)>dz_cut_e) return false;
+
     }else{//Barrel
-      if(fabs(d0)>d0_cut_b || fabs(dz)>dz_cut_b) return false;
+      if (std::abs(d0)>d0_cut_b || std::abs(dz)>dz_cut_b) return false;
     }
 
     return true;
@@ -77,51 +77,38 @@ namespace{
 
   //Offline muon definition
   bool isGood(const reco::Muon &mu, const reco::Vertex &pv,
-	      const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,
-	      const double d0_cut, const double dz_cut, int muonIDlevel){
+              const double lep_counting_threshold, const double lep_iso_cut, const double lep_eta_cut,
+              const double d0_cut, const double dz_cut, int muonIDlevel) {
 
     const reco::Vertex::Point &pv_position = pv.position();
 
-    //Muon pt and eta acceptance
-    if(mu.pt()<lep_counting_threshold || fabs(mu.eta())>lep_eta_cut) return false;
-    try{
-      //Muon isolation
-      const auto &iso = mu.pfIsolationR04();
-      const float absiso = iso.sumChargedHadronPt
-	+ std::max(0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt -0.5 * iso.sumPUPt);
-      const float relisowithdb = absiso/mu.pt();
-      if(relisowithdb>lep_iso_cut) return false;
-    }catch(...){
-      edm::LogWarning("LepHTMonitor") << "Could not read muon isolation.\n";
-      return false;
-    }
-    try{
-      //Muon ID
-      bool pass_id = false;
-      if(muonIDlevel == 1) pass_id = muon::isLooseMuon(mu);
-      else if(muonIDlevel == 3) pass_id = muon::isTightMuon(mu,pv);
-      else pass_id = muon::isMediumMuon(mu); 
+    // Muon pt and eta acceptance
+    if (mu.pt()<lep_counting_threshold || std::abs(mu.eta())>lep_eta_cut) return false;
 
-      if(!pass_id) return false;
+    // Muon isolation
+    const auto &iso = mu.pfIsolationR04();
+    const float absiso = iso.sumChargedHadronPt
+      + std::max(0.0, iso.sumNeutralHadronEt + iso.sumPhotonEt -0.5 * iso.sumPUPt);
+    const float relisowithdb = absiso/mu.pt();
+    if (relisowithdb>lep_iso_cut) return false;
 
-    }catch(...){
-      edm::LogWarning("LepHTMonitor") << "Could not read isMediumMuon().\n";
-      return false;
-    }
-    //Muon impact parameter
-    float d0 = 999., dz=999.;
-    try{
-      d0=fabs(mu.muonBestTrack()->dxy(pv_position));
-      dz=fabs(mu.muonBestTrack()->dz(pv_position));
-    }catch(...){
-      edm::LogWarning("LepHTMonitor") << "Could not read muon.muonBestTrack().\n";
-      return false;
-    }
-    if(d0>d0_cut || dz>dz_cut) return false;
+    // Muon ID
+    bool pass_id = false;
+    if (muonIDlevel == 1) pass_id = muon::isLooseMuon(mu);
+    else if (muonIDlevel == 3) pass_id = muon::isTightMuon(mu,pv);
+    else pass_id = muon::isMediumMuon(mu);
+
+    if (!pass_id) return false;
+
+    // Muon impact parameter
+    float d0 = std::abs(mu.muonBestTrack()->dxy(pv_position));
+    float dz = std::abs(mu.muonBestTrack()->dz(pv_position));
+    if (d0>d0_cut || dz>dz_cut) return false;
 
     return true;
   }
 }
+
 LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps):
   theElectronTag_(ps.getParameter<edm::InputTag>("electronCollection")),
   theElectronCollection_(consumes<edm::View<reco::GsfElectron> >(theElectronTag_)),
@@ -193,36 +180,36 @@ LepHTMonitor::LepHTMonitor(const edm::ParameterSet &ps):
     << "Constructor LepHTMonitor::LepHTMonitor\n";
   }
 
-LepHTMonitor::~LepHTMonitor(){
+LepHTMonitor::~LepHTMonitor() {
   edm::LogInfo("LepHTMonitor")
     << "Destructor LepHTMonitor::~LepHTMonitor\n";
 }
 
-void LepHTMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &e){
+void LepHTMonitor::dqmBeginRun(const edm::Run &run, const edm::EventSetup &e) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::beginRun\n";
 }
 
 void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
-                                           const edm::Run &iRun, const edm::EventSetup &iSetup){
+                                           const edm::Run &iRun, const edm::EventSetup &iSetup) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::bookHistograms\n";
   //book at beginRun
   ibooker.cd();
   ibooker.setCurrentFolder("HLT/LepHT/" + folderName_);
- 
+
 
   bool is_mu = false;
   bool is_ele = false;
-  if(theElectronTag_.label() == "" && theMuonTag_.label() != ""){
+  if (theElectronTag_.label().empty() and not theMuonTag_.label().empty()) {
     is_mu=true;
-  }else if(theElectronTag_.label() != "" && theMuonTag_.label() == ""){
+  } else if (not theElectronTag_.label().empty() and theMuonTag_.label().empty()) {
     is_ele=true;
   }
   //Cosmetic axis names
   std::string lepton="lepton", Lepton="Lepton";
-  if(is_mu && !is_ele){
+  if (is_mu && !is_ele) {
     lepton="muon";
     Lepton="Muon";
-  }else if(is_ele && !is_mu){
+  }else if (is_ele && !is_mu) {
     lepton="electron";
     Lepton="Electron";
   }
@@ -230,7 +217,7 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   if ( num_genTriggerEventFlag_ && num_genTriggerEventFlag_->on() ) num_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_lep_genTriggerEventFlag_ && den_lep_genTriggerEventFlag_->on() ) den_lep_genTriggerEventFlag_->initRun( iRun, iSetup );
   if ( den_HT_genTriggerEventFlag_ && den_HT_genTriggerEventFlag_->on() ) den_HT_genTriggerEventFlag_->initRun( iRun, iSetup );
-  
+
 
   //Convert to vfloat for picky TH1F constructor
   vector<float> f_ptbins;
@@ -241,7 +228,7 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
   //num and den hists to be divided in harvesting step to make turn on curves
   h_pfHTTurnOn_num_ = ibooker.book1D("pfHTTurnOn_num", "Numerator;Offline H_{T} [GeV];",  f_htbins.size()-1, f_htbins.data());
   h_pfHTTurnOn_den_ = ibooker.book1D("pfHTTurnOn_den","Denominator;Offline H_{T} [GeV];",  f_htbins.size()-1, f_htbins.data());
-  
+
   h_lepPtTurnOn_num_  = ibooker.book1D("lepPtTurnOn_num", ("Numerator;Offline "+lepton+" p_{T} [GeV];").c_str(),   f_ptbins.size()-1, f_ptbins.data());
   h_lepPtTurnOn_den_  = ibooker.book1D("lepPtTurnOn_den", ("Denominator;Offline "+lepton+" p_{T} [GeV];").c_str(), f_ptbins.size()-1, f_ptbins.data());
   h_lepEtaTurnOn_num_ = ibooker.book1D("lepEtaTurnOn_num", "Numerator;Offline lepton #eta;", nbins_eta_,etabins_min_,etabins_max_);
@@ -259,11 +246,11 @@ void LepHTMonitor::bookHistograms(DQMStore::IBooker &ibooker,
 }
 
 void LepHTMonitor::beginLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                                 const edm::EventSetup &context){
+                                                 const edm::EventSetup &context) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::beginLuminosityBlock\n";
 }
 
-void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
+void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::analyze\n";
 
   //Find whether main and auxilliary triggers fired
@@ -274,13 +261,13 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
   if (den_HT_genTriggerEventFlag_->on() && den_HT_genTriggerEventFlag_->accept( e, eSetup) ) hasFiredAuxiliary=true;
   if (num_genTriggerEventFlag_->on() && num_genTriggerEventFlag_->accept( e, eSetup) ) hasFired=true;
 
-  if(!(hasFiredAuxiliary || hasFiredLeptonAuxiliary)) return;
+  if (!(hasFiredAuxiliary || hasFiredLeptonAuxiliary)) return;
   int npv=0;
   //Vertex
   edm::Handle<reco::VertexCollection> VertexCollection;
-  if(theVertexCollectionTag_.label() != ""){
+  if (not theVertexCollectionTag_.label().empty()) {
     e.getByToken(theVertexCollection_, VertexCollection);
-    if( !VertexCollection.isValid() ){
+    if ( !VertexCollection.isValid() ) {
       edm::LogWarning("LepHTMonitor")
         << "Invalid VertexCollection: " << theVertexCollectionTag_.label() << '\n';
     }
@@ -290,19 +277,19 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
 
   //Get electron ID map
   edm::Handle<edm::ValueMap<bool> > ele_id_decisions;
-  if(theElectronVIDTag_.label() != ""){
+  if (not theElectronVIDTag_.label().empty()) {
     e.getByToken(theElectronVIDMap_ ,ele_id_decisions);
-    if(!ele_id_decisions.isValid()){
+    if (!ele_id_decisions.isValid()) {
       edm::LogWarning("LepHTMonitor")
-	<< "Invalid Electron VID map: " << theElectronVIDTag_.label() << '\n';
+        << "Invalid Electron VID map: " << theElectronVIDTag_.label() << '\n';
     }
   }
 
   //Conversions
   edm::Handle<reco::ConversionCollection> ConversionCollection;
-  if(theConversionCollectionTag_.label() != ""){
+  if (not theConversionCollectionTag_.label().empty()) {
     e.getByToken(theConversionCollection_, ConversionCollection);
-    if( !ConversionCollection.isValid() ){
+    if ( !ConversionCollection.isValid() ) {
       edm::LogWarning("LepHTMonitor")
         << "Invalid ConversionCollection: " << theConversionCollectionTag_.label() << '\n';
     }
@@ -310,9 +297,9 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
 
   //Beam Spot
   edm::Handle<reco::BeamSpot> BeamSpot;
-  if(theBeamSpotTag_.label() != ""){
+  if (not theBeamSpotTag_.label().empty()) {
     e.getByToken(theBeamSpot_, BeamSpot);
-    if( !BeamSpot.isValid() ){
+    if ( !BeamSpot.isValid() ) {
       edm::LogWarning("LepHTMonitor")
         << "Invalid BeamSpot: " << theBeamSpotTag_.label() << '\n';
     }
@@ -320,9 +307,9 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
 
   //MET
   edm::Handle<reco::PFMETCollection> pfMETCollection;
-  if(thePfMETTag_.label() != ""){
+  if (not thePfMETTag_.label().empty()) {
     e.getByToken(thePfMETCollection_, pfMETCollection);
-    if( !pfMETCollection.isValid() ){
+    if ( !pfMETCollection.isValid() ) {
       edm::LogWarning("LepHTMonitor")
         << "Invalid PFMETCollection: " << thePfMETTag_.label() << '\n';
     }
@@ -330,9 +317,9 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
 
   //Jets
   edm::Handle<reco::PFJetCollection> pfJetCollection;
-  if(thePfJetTag_.label() != ""){
+  if (not thePfJetTag_.label().empty()) {
     e.getByToken (thePfJetCollection_,pfJetCollection);
-    if( !pfJetCollection.isValid() ){
+    if ( !pfJetCollection.isValid() ) {
       edm::LogWarning("LepHTMonitor")
         << "Invalid PFJetCollection: " << thePfJetTag_.label() << '\n';
     }
@@ -340,19 +327,19 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
 
   //Electron
   edm::Handle<edm::View<reco::GsfElectron> > ElectronCollection;
-  if(theElectronTag_.label() != ""){
+  if (not theElectronTag_.label().empty()) {
     e.getByToken (theElectronCollection_, ElectronCollection);
-    if( !ElectronCollection.isValid() ){
+    if ( !ElectronCollection.isValid() ) {
       edm::LogWarning("LepHTMonitor")
         << "Invalid GsfElectronCollection: " << theElectronTag_.label() << '\n';
     }
   }
-  
+
   //Muon
   edm::Handle<reco::MuonCollection> MuonCollection;
-  if(theMuonTag_.label() != ""){
+  if (not theMuonTag_.label().empty()) {
     e.getByToken (theMuonCollection_, MuonCollection);
-    if( !MuonCollection.isValid() ){
+    if ( !MuonCollection.isValid() ) {
       edm::LogWarning("LepHTMonitor")
         << "Invalid MuonCollection: " << theMuonTag_.label() << '\n';
     }
@@ -360,18 +347,18 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
 
   //Get offline HT
   double pfHT = -1.0;
-  if(pfJetCollection.isValid()){
+  if (pfJetCollection.isValid()) {
     pfHT=0.0;
-    for(const auto &pfjet: *pfJetCollection){
-      if(pfjet.pt() < jetPtCut_) continue;
-      if(fabs(pfjet.eta()) > jetEtaCut_) continue;
+    for(const auto &pfjet: *pfJetCollection) {
+      if (pfjet.pt() < jetPtCut_) continue;
+      if (std::abs(pfjet.eta()) > jetEtaCut_) continue;
       pfHT += pfjet.pt();
     }
   }
 
   //Get offline MET
   double pfMET = -1.0;
-  if(pfMETCollection.isValid() && pfMETCollection->size()){
+  if (pfMETCollection.isValid() && pfMETCollection->size()) {
     pfMET = pfMETCollection->front().et();
   }
 
@@ -388,99 +375,108 @@ void LepHTMonitor::analyze(const edm::Event &e, const edm::EventSetup &eSetup){
   double min_mu_pt=-1.0;
   int nels=0;
   int nmus=0;
-  if(VertexCollection.isValid() && VertexCollection->size()){//for quality checks
+  if (VertexCollection.isValid() && VertexCollection->size()) {//for quality checks
     //Try to find a reco electron
-    if(ElectronCollection.isValid()
+    if (ElectronCollection.isValid()
        && ConversionCollection.isValid()
        && BeamSpot.isValid()
-       && ele_id_decisions.isValid()){
+       && ele_id_decisions.isValid()) {
       size_t index=0;
-      for(const auto &electron: *ElectronCollection){
-	const auto el = ElectronCollection->ptrAt(index);
-	bool pass_id = (*ele_id_decisions)[el];
-        if(isGood(electron, VertexCollection->front().position(),
-                  BeamSpot->position(), ConversionCollection, pass_id,
-		  lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, 
-		  lep_d0_cut_b_, lep_dz_cut_b_, lep_d0_cut_e_, lep_dz_cut_e_)){
-          if(electron.pt()>lep_max_pt) {lep_max_pt=electron.pt(); lep_eta=electron.eta();lep_phi=electron.phi();} 
-	  if(electron.pt()<min_ele_pt || min_ele_pt<0){ min_ele_pt=electron.pt(); trailing_ele_eta=electron.eta(); trailing_ele_phi=electron.phi();} 
-	  nels++;
+      for(const auto &electron: *ElectronCollection) {
+        const auto el = ElectronCollection->ptrAt(index);
+        bool pass_id = (*ele_id_decisions)[el];
+        if (isGood(electron, VertexCollection->front().position(),
+              BeamSpot->position(), ConversionCollection, pass_id,
+              lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_,
+              lep_d0_cut_b_, lep_dz_cut_b_, lep_d0_cut_e_, lep_dz_cut_e_))
+        {
+          if (electron.pt()>lep_max_pt) {lep_max_pt=electron.pt(); lep_eta=electron.eta();lep_phi=electron.phi();}
+          if (electron.pt()<min_ele_pt || min_ele_pt<0) { min_ele_pt=electron.pt(); trailing_ele_eta=electron.eta(); trailing_ele_phi=electron.phi();}
+          nels++;
         }
-	index++;
+        index++;
       }
     }
 
     //Try to find a reco muon
-    if(MuonCollection.isValid()){
-      for(const auto &muon: *MuonCollection){
-        if(isGood(muon, VertexCollection->front(),lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, lep_d0_cut_b_, lep_dz_cut_b_, muonIDlevel_)){
-          if(muon.pt()>lep_max_pt) {lep_max_pt=muon.pt(); lep_eta=muon.eta();lep_phi=muon.phi();} 
-          if(muon.pt()<min_mu_pt || min_mu_pt<0) {min_mu_pt=muon.pt(); trailing_mu_eta=muon.eta(); trailing_mu_phi=muon.phi();} 
-	  nmus++;
+    if (MuonCollection.isValid()) {
+      for(const auto &muon: *MuonCollection) {
+        if (isGood(muon, VertexCollection->front(),lep_counting_threshold_,lep_iso_cut_,lep_eta_cut_, lep_d0_cut_b_, lep_dz_cut_b_, muonIDlevel_)) {
+          if (muon.pt()>lep_max_pt) {lep_max_pt=muon.pt(); lep_eta=muon.eta();lep_phi=muon.phi();}
+          if (muon.pt()<min_mu_pt || min_mu_pt<0) {min_mu_pt=muon.pt(); trailing_mu_eta=muon.eta(); trailing_mu_phi=muon.phi();}
+          nmus++;
         }
       }
     }
   }
 
-  
+
   //Fill single lepton triggers with leading lepton pT
   float lep_pt = lep_max_pt;
+
   //For dilepton triggers, use trailing rather than leading lepton
-  if(nmusCut_>=2) {lep_pt = min_mu_pt; lep_eta = trailing_mu_eta; lep_phi = trailing_mu_phi;}
-  if(nelsCut_>=2) {lep_pt = min_ele_pt; lep_eta = trailing_ele_eta; lep_phi = trailing_ele_phi;}
-  if(nelsCut_>=1 && nmusCut_>=1) {
-    if(min_ele_pt<min_mu_pt) {lep_pt = min_ele_pt; lep_eta = trailing_ele_eta; lep_phi = trailing_ele_phi;}
-    else {lep_pt = min_mu_pt; lep_eta = trailing_mu_eta; lep_phi = trailing_mu_phi;}
+  if (nmusCut_>=2) {lep_pt = min_mu_pt; lep_eta = trailing_mu_eta; lep_phi = trailing_mu_phi;}
+  if (nelsCut_>=2) {lep_pt = min_ele_pt; lep_eta = trailing_ele_eta; lep_phi = trailing_ele_phi;}
+  if (nelsCut_>=1 && nmusCut_>=1) {
+    if (min_ele_pt<min_mu_pt) {
+      lep_pt = min_ele_pt;
+      lep_eta = trailing_ele_eta;
+      lep_phi = trailing_ele_phi;
+    } else {
+      lep_pt = min_mu_pt;
+      lep_eta = trailing_mu_eta;
+      lep_phi = trailing_mu_phi;
+    }
   }
-	   
+
   const bool nleps_cut = nels>=nelsCut_ && nmus>=nmusCut_;
   bool lep_plateau = lep_pt>lep_pt_plateau_ || lep_pt_plateau_<0.0;
 
   //Fill lepton pT and eta histograms
-  if(hasFiredLeptonAuxiliary || !e.isRealData()){
-   
-    if(nleps_cut  && (pfMET>metCut_ || metCut_<0.0) && (pfHT>htCut_ || htCut_<0.0)){
-      if(h_lepPtTurnOn_den_){ 
-	if(lep_pt > ptbins_.back()) lep_pt = ptbins_.back()-1; //Overflow protection
-	h_lepPtTurnOn_den_->Fill(lep_pt);
+  if (hasFiredLeptonAuxiliary || !e.isRealData()) {
+
+    if (nleps_cut  && (pfMET>metCut_ || metCut_<0.0) && (pfHT>htCut_ || htCut_<0.0)) {
+      if (h_lepPtTurnOn_den_) {
+        if (lep_pt > ptbins_.back()) lep_pt = ptbins_.back()-1; //Overflow protection
+        h_lepPtTurnOn_den_->Fill(lep_pt);
       }
-      if(h_lepPtTurnOn_num_ && hasFired) h_lepPtTurnOn_num_->Fill(lep_pt);
+      if (h_lepPtTurnOn_num_ && hasFired) h_lepPtTurnOn_num_->Fill(lep_pt);
 
-      if(lep_plateau){ //Fill Eta and Phi histograms for leptons above pT threshold
-	if(h_lepEtaTurnOn_den_) h_lepEtaTurnOn_den_->Fill(lep_eta);
-       	if(h_lepEtaTurnOn_num_ && hasFired) h_lepEtaTurnOn_num_->Fill(lep_eta);
-	if(h_lepPhiTurnOn_den_) h_lepPhiTurnOn_den_->Fill(lep_phi);
-       	if(h_lepPhiTurnOn_num_ && hasFired) h_lepPhiTurnOn_num_->Fill(lep_phi);
-	if(h_lepEtaPhiTurnOn_den_) h_lepEtaPhiTurnOn_den_->Fill(lep_eta,lep_phi);
-       	if(h_lepEtaPhiTurnOn_num_ && hasFired) h_lepEtaPhiTurnOn_num_->Fill(lep_eta,lep_phi);
+      if (lep_plateau) {
+        //Fill Eta and Phi histograms for leptons above pT threshold
+        if (h_lepEtaTurnOn_den_) h_lepEtaTurnOn_den_->Fill(lep_eta);
+        if (h_lepEtaTurnOn_num_ && hasFired) h_lepEtaTurnOn_num_->Fill(lep_eta);
+        if (h_lepPhiTurnOn_den_) h_lepPhiTurnOn_den_->Fill(lep_phi);
+        if (h_lepPhiTurnOn_num_ && hasFired) h_lepPhiTurnOn_num_->Fill(lep_phi);
+        if (h_lepEtaPhiTurnOn_den_) h_lepEtaPhiTurnOn_den_->Fill(lep_eta,lep_phi);
+        if (h_lepEtaPhiTurnOn_num_ && hasFired) h_lepEtaPhiTurnOn_num_->Fill(lep_eta,lep_phi);
 
-	//Fill NPV histograms
-	if(h_NPVTurnOn_den_) h_NPVTurnOn_den_->Fill(npv);
-       	if(h_NPVTurnOn_num_ && hasFired) h_NPVTurnOn_num_->Fill(npv);
-	
+        //Fill NPV histograms
+        if (h_NPVTurnOn_den_) h_NPVTurnOn_den_->Fill(npv);
+        if (h_NPVTurnOn_num_ && hasFired) h_NPVTurnOn_num_->Fill(npv);
       }
     }
   }
-  
+
   //Fill HT turn-on histograms
-  if(hasFiredAuxiliary || !e.isRealData()){
-    if(nleps_cut && lep_plateau ){
-      if(h_pfHTTurnOn_den_){ 
-	if(pfHT > htbins_.back()) pfHT = htbins_.back()-1; //Overflow protection
-	h_pfHTTurnOn_den_->Fill(pfHT);
+  if (hasFiredAuxiliary || !e.isRealData()) {
+    if (nleps_cut && lep_plateau ) {
+      if (h_pfHTTurnOn_den_) {
+        if (pfHT > htbins_.back()) pfHT = htbins_.back()-1; //Overflow protection
+        h_pfHTTurnOn_den_->Fill(pfHT);
       }
-      if(h_pfHTTurnOn_num_ && hasFired) h_pfHTTurnOn_num_->Fill(pfHT); 
+      if (h_pfHTTurnOn_num_ && hasFired) h_pfHTTurnOn_num_->Fill(pfHT);
     }
   }
 }
 
 void LepHTMonitor::endLuminosityBlock(const edm::LuminosityBlock &lumiSeg,
-                                               const edm::EventSetup &eSetup){
+                                               const edm::EventSetup &eSetup) {
   edm::LogInfo("LepHTMonitor")
     << "LepHTMonitor::endLuminosityBlock\n";
 }
 
-void LepHTMonitor::endRun(const edm::Run &run, const edm::EventSetup &eSetup){
+void LepHTMonitor::endRun(const edm::Run &run, const edm::EventSetup &eSetup) {
   edm::LogInfo("LepHTMonitor") << "LepHTMonitor::endRun\n";
 }
 
