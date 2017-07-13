@@ -1,8 +1,8 @@
-#ifndef DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYMUON_OFFLINE_H
-#define DQMOFFLINE_L1TRIGGER_L1TEFFICIENCYMUON_OFFLINE_H
+#ifndef DQMOFFLINE_L1TRIGGER_L1TMUONOFFLINE_H
+#define DQMOFFLINE_L1TRIGGER_L1TMUONOFFLINE_H
 
 /**
- * \file L1TEfficiencyMuons.h
+ * \file L1TMuonOffline.h
  *
  * \author J. Pela, C. Battilana
 *
@@ -110,10 +110,10 @@ class MuonGmtPair {
 // DQM class declaration
 //
 
-class L1TEfficiencyMuons_Offline : public DQMEDAnalyzer {
+class L1TMuonOffline : public DQMEDAnalyzer {
     public:
-        L1TEfficiencyMuons_Offline(const edm::ParameterSet& ps);
-        virtual ~L1TEfficiencyMuons_Offline();
+        L1TMuonOffline(const edm::ParameterSet& ps);
+        virtual ~L1TMuonOffline();
 
     protected:
    // Luminosity Block
