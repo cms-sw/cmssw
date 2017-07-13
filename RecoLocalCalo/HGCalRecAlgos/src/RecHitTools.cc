@@ -140,7 +140,7 @@ unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
   } else if (type == ForwardSubdetector::HGCHEB) {
     auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
     layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
-  } else {
+  } else if (type == ForwardSubdetector::ForwardEmpty) {
     auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
     layer       = (geomEE->topology().dddConstants()).layers(true);
     auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
@@ -148,7 +148,7 @@ unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
     auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
     layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
   }
-  return layer;
+  return (unsigned int)(layer);
 }
 
 unsigned int RecHitTools::getLayer(const DetId& id) const {
