@@ -32,34 +32,34 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
     , num_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet"), consumesCollector(), *this))
     , den_genTriggerEventFlag_(new GenericTriggerEventFlag(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet"), consumesCollector(), *this))
     , muoSelection_(iConfig.getParameter<std::string>("muoSelection"))
-    , muoSelection_ref(iConfig.getParameter<std::string>("muoSelection_ref"))
-    , muoSelection_tag(iConfig.getParameter<std::string>("muoSelection_tag"))
-    , muoSelection_probe(iConfig.getParameter<std::string>("muoSelection_probe"))
+    , muoSelection_ref_(iConfig.getParameter<std::string>("muoSelection_ref"))
+    , muoSelection_tag_(iConfig.getParameter<std::string>("muoSelection_tag"))
+    , muoSelection_probe_(iConfig.getParameter<std::string>("muoSelection_probe"))
     , nmuons_(iConfig.getParameter<int>("nmuons"))
     , tnp_(iConfig.getParameter<int>("tnp"))
-    , L3_(iConfig.getParameter<int>("L3"))
+    , l3_(iConfig.getParameter<int>("L3"))
     , trOrMu_(iConfig.getParameter<int>("trOrMu"))
-    , Jpsi_(iConfig.getParameter<int>("Jpsi"))
-    , Upsilon_(iConfig.getParameter<int>("Upsilon"))  // if ==1 path with Upsilon constraint
+    , jpsi_(iConfig.getParameter<int>("Jpsi"))
+    , upsilon_(iConfig.getParameter<int>("Upsilon"))  // if ==1 path with Upsilon constraint
     , nofset_(iConfig.getParameter<int>("nofset"))
     , seagull_(iConfig.getParameter<int>("seagull"))
     , maxmass_(iConfig.getParameter<double>("maxmass"))
     , minmass_(iConfig.getParameter<double>("minmass"))
-    , maxmassJpsi(iConfig.getParameter<double>("maxmassJpsi"))
-    , minmassJpsi(iConfig.getParameter<double>("minmassJpsi"))
-    , maxmassUpsilon(iConfig.getParameter<double>("maxmassUpsilon"))
-    , minmassUpsilon(iConfig.getParameter<double>("minmassUpsilon"))
-    , maxmassJpsiTk(iConfig.getParameter<double>("maxmassJpsiTk"))
-    , minmassJpsiTk(iConfig.getParameter<double>("minmassJpsiTk"))
-    , minprob(iConfig.getParameter<double>("minprob"))
-    , mincos(iConfig.getParameter<double>("mincos"))
-    , minDS(iConfig.getParameter<double>("minDS"))
+    , maxmassJpsi_(iConfig.getParameter<double>("maxmassJpsi"))
+    , minmassJpsi_(iConfig.getParameter<double>("minmassJpsi"))
+    , maxmassUpsilon_(iConfig.getParameter<double>("maxmassUpsilon"))
+    , minmassUpsilon_(iConfig.getParameter<double>("minmassUpsilon"))
+    , maxmassJpsiTk_(iConfig.getParameter<double>("maxmassJpsiTk"))
+    , minmassJpsiTk_(iConfig.getParameter<double>("minmassJpsiTk"))
+    , minprob_(iConfig.getParameter<double>("minprob"))
+    , mincos_(iConfig.getParameter<double>("mincos"))
+    , minDS_(iConfig.getParameter<double>("minDS"))
     , hltInputTag_(mayConsume<trigger::TriggerEvent>(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<edm::InputTag>("hltInputTag")))
-    , hltpaths_num(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
-    , hltpaths_den(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
+    , hltpaths_num_(iConfig.getParameter<edm::ParameterSet>("numGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
+    , hltpaths_den_(iConfig.getParameter<edm::ParameterSet>("denGenericTriggerEventPSet").getParameter<std::vector<std::string>>("hltPaths"))
     , trSelection_(iConfig.getParameter<std::string>("muoSelection"))
-    , trSelection_ref(iConfig.getParameter<std::string>("trSelection_ref"))
-    , DMSelection_ref(iConfig.getParameter<std::string>("DMSelection_ref"))
+    , trSelection_ref_(iConfig.getParameter<std::string>("trSelection_ref"))
+    , dmSelection_ref_(iConfig.getParameter<std::string>("DMSelection_ref"))
 {
   muPhi_.numerator   = nullptr;
   muPhi_.denominator = nullptr;
@@ -100,24 +100,24 @@ BPHMonitor::BPHMonitor(const edm::ParameterSet& iConfig)
   phPt_.numerator    = nullptr;
   phPt_.denominator  = nullptr;
 
-  DiMuPhi_.numerator     = nullptr;
-  DiMuPhi_.denominator   = nullptr;
-  DiMuEta_.numerator     = nullptr;
-  DiMuEta_.denominator   = nullptr;
-  DiMuPt_.numerator      = nullptr;
-  DiMuPt_.denominator    = nullptr;
-  DiMuPVcos_.numerator   = nullptr;
-  DiMuPVcos_.denominator = nullptr;
-  DiMuProb_.numerator    = nullptr;
-  DiMuProb_.denominator  = nullptr;
-  DiMuDS_.numerator      = nullptr;
-  DiMuDS_.denominator    = nullptr;
-  DiMuDCA_.numerator     = nullptr;
-  DiMuDCA_.denominator   = nullptr;
-  DiMuMass_.numerator    = nullptr;
-  DiMuMass_.denominator  = nullptr;
-  DiMudR_.numerator      = nullptr;
-  DiMudR_.denominator    = nullptr;
+  diMuPhi_.numerator     = nullptr;
+  diMuPhi_.denominator   = nullptr;
+  diMuEta_.numerator     = nullptr;
+  diMuEta_.denominator   = nullptr;
+  diMuPt_.numerator      = nullptr;
+  diMuPt_.denominator    = nullptr;
+  diMuPVcos_.numerator   = nullptr;
+  diMuPVcos_.denominator = nullptr;
+  diMuProb_.numerator    = nullptr;
+  diMuProb_.denominator  = nullptr;
+  diMuDS_.numerator      = nullptr;
+  diMuDS_.denominator    = nullptr;
+  diMuDCA_.numerator     = nullptr;
+  diMuDCA_.denominator   = nullptr;
+  diMuMass_.numerator    = nullptr;
+  diMuMass_.denominator  = nullptr;
+  diMudR_.numerator      = nullptr;
+  diMudR_.denominator    = nullptr;
 }
 
 BPHMonitor::~BPHMonitor()
@@ -312,48 +312,48 @@ BPHMonitor::bookHistograms(DQMStore::IBooker& ibooker, edm::Run const& iRun, edm
 
     histname  = "DiMuEta";
     histtitle = "DiMuEta";
-    bookME(ibooker, DiMuEta_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
-    setMETitle(DiMuEta_, "DiMu#eta", "events/ ");
+    bookME(ibooker, diMuEta_, histname, histtitle, eta_binning_.nbins, eta_binning_.xmin, eta_binning_.xmax);
+    setMETitle(diMuEta_, "DiMu#eta", "events/ ");
 
     histname  = "DiMuPt";
     histtitle = "DiMu_P_{t}";
-    bookME(ibooker, DiMuPt_, histname, histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
-    setMETitle(DiMuPt_, "DiMu_Pt[GeV]", "events/1GeV");
+    bookME(ibooker, diMuPt_, histname, histtitle, pt_binning_.nbins, pt_binning_.xmin, pt_binning_.xmax);
+    setMETitle(diMuPt_, "DiMu_Pt[GeV]", "events/1GeV");
 
     histname  = "DiMuPhi";
     histtitle = "DiMuPhi";
-    bookME(ibooker, DiMuPhi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
-    setMETitle(DiMuPhi_, "DiMu_#phi", "events / 0.1 rad");
+    bookME(ibooker, diMuPhi_, histname, histtitle, phi_binning_.nbins, phi_binning_.xmin, phi_binning_.xmax);
+    setMETitle(diMuPhi_, "DiMu_#phi", "events / 0.1 rad");
 
     histname  = "DiMuPVcos";
     histtitle = "DiMuPVcos";
-    bookME(ibooker, DiMuPVcos_, histname, histtitle, cos_binning_.nbins, cos_binning_.xmin, cos_binning_.xmax);
-    setMETitle(DiMuPVcos_, "DiMu_#cosPV", "events / ");
+    bookME(ibooker, diMuPVcos_, histname, histtitle, cos_binning_.nbins, cos_binning_.xmin, cos_binning_.xmax);
+    setMETitle(diMuPVcos_, "DiMu_#cosPV", "events / ");
 
     histname  = "DiMuProb";
     histtitle = "DiMuProb";
-    bookME(ibooker, DiMuProb_, histname, histtitle, prob_binning_.nbins, prob_binning_.xmin, prob_binning_.xmax);
-    setMETitle(DiMuProb_, "DiMu_#prob", "events / ");
+    bookME(ibooker, diMuProb_, histname, histtitle, prob_binning_.nbins, prob_binning_.xmin, prob_binning_.xmax);
+    setMETitle(diMuProb_, "DiMu_#prob", "events / ");
 
     histname  = "DiMuDS";
     histtitle = "DiMuDS";
-    bookME(ibooker, DiMuDS_, histname, histtitle, ds_binning_.nbins, ds_binning_.xmin, ds_binning_.xmax);
-    setMETitle(DiMuDS_, "DiMu_#ds", "events / 0.1 rad");
+    bookME(ibooker, diMuDS_, histname, histtitle, ds_binning_.nbins, ds_binning_.xmin, ds_binning_.xmax);
+    setMETitle(diMuDS_, "DiMu_#ds", "events / 0.1 rad");
 
     histname  = "DiMuDCA";
     histtitle = "DiMuDCA";
-    bookME(ibooker, DiMuDCA_, histname, histtitle, dca_binning_.nbins, dca_binning_.xmin, dca_binning_.xmax);
-    setMETitle(DiMuDCA_, "DiMu_#dca", "events / ");
+    bookME(ibooker, diMuDCA_, histname, histtitle, dca_binning_.nbins, dca_binning_.xmin, dca_binning_.xmax);
+    setMETitle(diMuDCA_, "DiMu_#dca", "events / ");
 
     histname  = "DiMuMass";
     histtitle = "DiMuMass";
-    bookME(ibooker, DiMuMass_, histname, histtitle, mass_binning_.nbins, mass_binning_.xmin, mass_binning_.xmax);
-    setMETitle(DiMuMass_, "DiMu_#mass", "events / ");
+    bookME(ibooker, diMuMass_, histname, histtitle, mass_binning_.nbins, mass_binning_.xmin, mass_binning_.xmax);
+    setMETitle(diMuMass_, "DiMu_#mass", "events / ");
 
     histname  = "DiMudR";
     histtitle = "DiMudR";
-    bookME(ibooker, DiMudR_, histname, histtitle, dR_binning_.nbins, dR_binning_.xmin, dR_binning_.xmax);
-    setMETitle(DiMudR_, "DiMu_#dR", "events / ");
+    bookME(ibooker, diMudR_, histname, histtitle, dR_binning_.nbins, dR_binning_.xmin, dR_binning_.xmax);
+    setMETitle(diMudR_, "DiMu_#dR", "events / ");
   }
 
   if (trOrMu_) {
@@ -398,20 +398,20 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     iEvent.getByToken(hltInputTag_, handleTriggerEvent);
     if (handleTriggerEvent->sizeFilters() == 0)
       return;
-    std::string hltpath = hltpaths_num[0];
+    std::string hltpath = hltpaths_num_[0];
     std::vector<reco::Muon> tagMuons;
     std::vector<reco::Muon> probeMuons;
     for (auto const& m : *muoHandle) {  // applying tag selection
-      if (!L3_) {                       // matching does not work for L3 tnp monitoring yet
+      if (!l3_) {                       // matching does not work for L3 tnp monitoring yet
         if (!matchToTrigger(hltpath, m, handleTriggerEvent))
           continue;
       }
-      if (muoSelection_ref(m))
+      if (muoSelection_ref_(m))
         tagMuons.push_back(m);
     }
     for (auto & tagMuon : tagMuons) {
       for (auto const& m : *muoHandle) {
-        if (!L3_) {
+        if (!l3_) {
           if (!matchToTrigger(hltpath, m, handleTriggerEvent))
             continue;
         }
@@ -438,21 +438,21 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     iEvent.getByToken(hltInputTag_, handleTriggerEvent);
     if (handleTriggerEvent->sizeFilters() == 0)
       return;
-    std::string hltpath = hltpaths_den[0];
+    std::string hltpath = hltpaths_den_[0];
     for (auto const& m : *muoHandle) {
       if (!matchToTrigger(hltpath, m, handleTriggerEvent))
         continue;
-      if (!muoSelection_ref(m))
+      if (!muoSelection_ref_(m))
         continue;
       for (auto const& m1 : *muoHandle) {
         if (m1.pt() == m.pt())
           continue;
-        if (!muoSelection_ref(m1))
+        if (!muoSelection_ref_(m1))
           continue;
         if (!matchToTrigger(hltpath, m1, handleTriggerEvent))
           continue;
         if (nofset_ < 10) {
-          if (!DMSelection_ref(m1.p4() + m.p4()))
+          if (!dmSelection_ref_(m1.p4() + m.p4()))
             continue;
           if (m.charge() * m1.charge() > 0)
             continue;
@@ -501,17 +501,17 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           tnp_ = 1;  // already filled hists for tnp method
 
         case 2:
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
           mu1Phi_.denominator->Fill(m.phi());
@@ -520,23 +520,23 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           mu2Phi_.denominator->Fill(m1.phi());
           mu2Eta_.denominator->Fill(m1.eta());
           mu2Pt_.denominator->Fill(m1.pt());
-          DiMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuPhi_.denominator->Fill((m1.p4() + m.p4()).Phi());
+          diMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
+          diMuPhi_.denominator->Fill((m1.p4() + m.p4()).Phi());
           break;
 
         case 3:
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
           mu1Eta_.denominator->Fill(m.eta());
@@ -546,18 +546,18 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           break;
 
         case 4:
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
-          DiMuMass_.denominator->Fill(mass);
+          diMuMass_.denominator->Fill(mass);
 
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
@@ -567,23 +567,23 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           mu2Phi_.denominator->Fill(m1.phi());
           mu2Eta_.denominator->Fill(m1.eta());
           mu2Pt_.denominator->Fill(m1.pt());
-          DiMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuPhi_.denominator->Fill((m1.p4() + m.p4()).Phi());
-          DiMudR_.denominator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
+          diMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
+          diMuPhi_.denominator->Fill((m1.p4() + m.p4()).Phi());
+          diMudR_.denominator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
           break;
 
         case 5:
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
@@ -593,24 +593,24 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           mu2Phi_.denominator->Fill(m1.phi());
           mu2Eta_.denominator->Fill(m1.eta());
           mu2Pt_.denominator->Fill(m1.pt());
-          DiMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuPhi_.denominator->Fill((m1.p4() + m.p4()).Phi());
-          DiMudR_.denominator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
+          diMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
+          diMuPhi_.denominator->Fill((m1.p4() + m.p4()).Phi());
+          diMudR_.denominator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
           break;
 
         case 6:
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
@@ -636,37 +636,37 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           break;
 
         case 8:  // vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
-          DiMuProb_.denominator->Fill(dimuonCL);
-          if (dimuonCL < minprob)
+          diMuProb_.denominator->Fill(dimuonCL);
+          if (dimuonCL < minprob_)
             continue;
-          DiMuDS_.denominator->Fill(displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi)));
-          DiMuPVcos_.denominator->Fill(jpsi_cos);
-          DiMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuDCA_.denominator->Fill(cApp.distance());
+          diMuDS_.denominator->Fill(displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi)));
+          diMuPVcos_.denominator->Fill(jpsi_cos);
+          diMuPt_.denominator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.denominator->Fill((m1.p4() + m.p4()).Eta());
+          diMuDCA_.denominator->Fill(cApp.distance());
           break;
 
         case 9:
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
-          if (std::abs(jpsi_cos) < mincos)
+          if (std::abs(jpsi_cos) < mincos_)
             continue;
-          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS)
+          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS_)
             continue;
 
           if (trHandle.isValid()) {
             for (auto const& t : *trHandle) {
-              if (!trSelection_ref(t))
+              if (!trSelection_ref_(t))
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
@@ -705,7 +705,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
               reco::Vertex vertex = tv;
               if (!tv.isValid())
                 continue;
-              if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
+              if (pB.mass() > maxmassJpsiTk_ || pB.mass() < minmassJpsiTk_)
                 continue;
               float JpsiTkCL = 0;
               if ((vertex.chi2() >= 0.0) && (vertex.ndof() > 0))
@@ -717,11 +717,11 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                                                    -1 * ((vertexBeamSpot.y0() - secondaryVertex.y()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
               reco::Vertex::Point vperp(displacementFromBeamspot.x(), displacementFromBeamspot.y(), 0.);
               float jpsiKcos = vperp.Dot(pperp) / (vperp.R() * pperp.R());
-              if (JpsiTkCL < minprob)
+              if (JpsiTkCL < minprob_)
                 continue;
-              if (std::abs(jpsiKcos) < mincos)
+              if (std::abs(jpsiKcos) < mincos_)
                 continue;
-              if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS)
+              if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS_)
                 continue;
               muPhi_.denominator->Fill(t.phi());
               muEta_.denominator->Fill(t.eta());
@@ -733,7 +733,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
         case 10:
           if (trHandle.isValid()) {
             for (auto const& t : *trHandle) {
-              if (!trSelection_ref(t))
+              if (!trSelection_ref_(t))
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
@@ -768,7 +768,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
               reco::Vertex vertex = tv;
               if (!tv.isValid())
                 continue;
-              if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
+              if (pB.mass() > maxmassJpsiTk_ || pB.mass() < minmassJpsiTk_)
                 continue;
               float JpsiTkCL = 0;
               if ((vertex.chi2() >= 0.0) && (vertex.ndof() > 0))
@@ -779,7 +779,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
               GlobalPoint displacementFromBeamspot(-1 * ((vertexBeamSpot.x0() - secondaryVertex.x()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
                                                    -1 * ((vertexBeamSpot.y0() - secondaryVertex.y()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
               reco::Vertex::Point vperp(displacementFromBeamspot.x(), displacementFromBeamspot.y(), 0.);
-              if (JpsiTkCL < minprob)
+              if (JpsiTkCL < minprob_)
                 continue;
               muPhi_.denominator->Fill(m1.phi());
               muEta_.denominator->Fill(m1.eta());
@@ -790,21 +790,21 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
         case 11:
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
-          if (std::abs(jpsi_cos) < mincos)
+          if (std::abs(jpsi_cos) < mincos_)
             continue;
-          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS)
+          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS_)
             continue;
 
           if (trHandle.isValid()) {
             for (auto const& t : *trHandle) {
-              if (!trSelection_ref(t))
+              if (!trSelection_ref_(t))
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
               for (auto const& t1 : *trHandle) {
-                if (!trSelection_ref(t1))
+                if (!trSelection_ref_(t1))
                   continue;
                 if (!matchToTrigger(hltpath, t1, handleTriggerEvent))
                   continue;
@@ -852,7 +852,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                 reco::Vertex vertex = tv;
                 if (!tv.isValid())
                   continue;
-                if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
+                if (pB.mass() > maxmassJpsiTk_ || pB.mass() < minmassJpsiTk_)
                   continue;
                 float JpsiTkCL = 0;
                 if ((vertex.chi2() >= 0.0) && (vertex.ndof() > 0))
@@ -864,11 +864,11 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                                                      -1 * ((vertexBeamSpot.y0() - secondaryVertex.y()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
                 reco::Vertex::Point vperp(displacementFromBeamspot.x(), displacementFromBeamspot.y(), 0.);
                 float jpsiKcos = vperp.Dot(pperp) / (vperp.R() * pperp.R());
-                if (JpsiTkCL < minprob)
+                if (JpsiTkCL < minprob_)
                   continue;
-                if (std::abs(jpsiKcos) < mincos)
+                if (std::abs(jpsiKcos) < mincos_)
                   continue;
-                if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS)
+                if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS_)
                   continue;
                 mu1Phi_.denominator->Fill(t.phi());
                 mu1Eta_.denominator->Fill(t.eta());
@@ -885,7 +885,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     }
 
     if (nofset_ == 7) {  // photons
-      std::string hltpath = hltpaths_den[0];
+      std::string hltpath = hltpaths_den_[0];
       for (auto const& p : *phHandle) {
         if (!matchToTrigger(hltpath, p, handleTriggerEvent))
           continue;
@@ -900,11 +900,11 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
     iEvent.getByToken(hltInputTag_, handleTriggerEvent);
     if (handleTriggerEvent->sizeFilters() == 0)
       return;
-    hltpath = hltpaths_num[0];
+    hltpath = hltpaths_num_[0];
     for (auto const& m : *muoHandle) {
       if (!matchToTrigger(hltpath, m, handleTriggerEvent))
         continue;
-      if (!muoSelection_ref(m))
+      if (!muoSelection_ref_(m))
         continue;
       for (auto const& m1 : *muoHandle) {
         if (seagull_ && ((m.charge() * deltaPhi(m.phi(), m1.phi())) > 0.))
@@ -913,11 +913,11 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           continue;
         if (m1.pt() == m.pt())
           continue;
-        if (!muoSelection_ref(m1))
+        if (!muoSelection_ref_(m1))
           continue;
         if (!matchToTrigger(hltpath, m1, handleTriggerEvent))
           continue;
-        if (!DMSelection_ref(m1.p4() + m.p4()))
+        if (!dmSelection_ref_(m1.p4() + m.p4()))
           continue;
         edm::ESHandle<MagneticField> bFieldHandle;
         iSetup.get<IdealMagneticFieldRecord>().get(bFieldHandle);
@@ -962,17 +962,17 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           tnp_ = 1;  // already filled hists for tnp method
 
         case 2:
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
           mu1Phi_.numerator->Fill(m.phi());
@@ -981,23 +981,23 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           mu2Phi_.numerator->Fill(m1.phi());
           mu2Eta_.numerator->Fill(m1.eta());
           mu2Pt_.numerator->Fill(m1.pt());
-          DiMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuPhi_.numerator->Fill((m1.p4() + m.p4()).Phi());
+          diMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
+          diMuPhi_.numerator->Fill((m1.p4() + m.p4()).Phi());
           break;
 
         case 3:
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
           mu1Eta_.numerator->Fill(m.eta());
@@ -1008,18 +1008,18 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
         case 4:
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
-          DiMuMass_.numerator->Fill(mass);
+          diMuMass_.numerator->Fill(mass);
 
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
@@ -1029,23 +1029,23 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           mu2Phi_.numerator->Fill(m1.phi());
           mu2Eta_.numerator->Fill(m1.eta());
           mu2Pt_.numerator->Fill(m1.pt());
-          DiMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuPhi_.numerator->Fill((m1.p4() + m.p4()).Phi());
-          DiMudR_.numerator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
+          diMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
+          diMuPhi_.numerator->Fill((m1.p4() + m.p4()).Phi());
+          diMudR_.numerator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
           break;
 
         case 5:
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
@@ -1055,24 +1055,24 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           mu2Phi_.numerator->Fill(m1.phi());
           mu2Eta_.numerator->Fill(m1.eta());
           mu2Pt_.numerator->Fill(m1.pt());
-          DiMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuPhi_.numerator->Fill((m1.p4() + m.p4()).Phi());
-          DiMudR_.numerator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
+          diMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
+          diMuPhi_.numerator->Fill((m1.p4() + m.p4()).Phi());
+          diMudR_.numerator->Fill(reco::deltaR(m.eta(), m.phi(), m1.eta(), m1.phi()));
           break;
 
         case 6:
 
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
 
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
@@ -1098,37 +1098,37 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           break;
 
         case 8:  // vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
-          if ((Jpsi_) && (!Upsilon_)) {
-            if (mass > maxmassJpsi || mass < minmassJpsi)
+          if ((jpsi_) && (!upsilon_)) {
+            if (mass > maxmassJpsi_ || mass < minmassJpsi_)
               continue;
           }
 
-          if ((!Jpsi_) && (Upsilon_)) {
-            if (mass > maxmassUpsilon || mass < minmassUpsilon)
+          if ((!jpsi_) && (upsilon_)) {
+            if (mass > maxmassUpsilon_ || mass < minmassUpsilon_)
               continue;
           }
 
-          DiMuProb_.numerator->Fill(dimuonCL);
-          if (dimuonCL < minprob)
+          diMuProb_.numerator->Fill(dimuonCL);
+          if (dimuonCL < minprob_)
             continue;
-          DiMuDS_.numerator->Fill(displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi)));
-          DiMuPVcos_.numerator->Fill(jpsi_cos);
-          DiMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
-          DiMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
-          DiMuDCA_.numerator->Fill(cApp.distance());
+          diMuDS_.numerator->Fill(displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi)));
+          diMuPVcos_.numerator->Fill(jpsi_cos);
+          diMuPt_.numerator->Fill((m1.p4() + m.p4()).Pt());
+          diMuEta_.numerator->Fill((m1.p4() + m.p4()).Eta());
+          diMuDCA_.numerator->Fill(cApp.distance());
           break;
 
         case 9:
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
-          if (std::abs(jpsi_cos) < mincos)
+          if (std::abs(jpsi_cos) < mincos_)
             continue;
-          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS)
+          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS_)
             continue;
 
           if (trHandle.isValid()) {
             for (auto const& t : *trHandle) {
-              if (!trSelection_ref(t))
+              if (!trSelection_ref_(t))
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
@@ -1161,7 +1161,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
               reco::Vertex vertex = tv;
               if (!tv.isValid())
                 continue;
-              if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
+              if (pB.mass() > maxmassJpsiTk_ || pB.mass() < minmassJpsiTk_)
                 continue;
               float JpsiTkCL = 0;
               if ((vertex.chi2() >= 0.0) && (vertex.ndof() > 0))
@@ -1173,11 +1173,11 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                                                    -1 * ((vertexBeamSpot.y0() - secondaryVertex.y()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
               reco::Vertex::Point vperp(displacementFromBeamspot.x(), displacementFromBeamspot.y(), 0.);
               float jpsiKcos = vperp.Dot(pperp) / (vperp.R() * pperp.R());
-              if (JpsiTkCL < minprob)
+              if (JpsiTkCL < minprob_)
                 continue;
-              if (std::abs(jpsiKcos) < mincos)
+              if (std::abs(jpsiKcos) < mincos_)
                 continue;
-              if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS)
+              if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS_)
                 continue;
               muPhi_.numerator->Fill(t.phi());
               muEta_.numerator->Fill(t.eta());
@@ -1189,7 +1189,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
         case 10:
           if (trHandle.isValid()) {
             for (auto const& t : *trHandle) {
-              if (!trSelection_ref(t))
+              if (!trSelection_ref_(t))
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
@@ -1224,7 +1224,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
               reco::Vertex vertex = tv;
               if (!tv.isValid())
                 continue;
-              if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
+              if (pB.mass() > maxmassJpsiTk_ || pB.mass() < minmassJpsiTk_)
                 continue;
               float JpsiTkCL = 0;
               if ((vertex.chi2() >= 0.0) && (vertex.ndof() > 0))
@@ -1235,7 +1235,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
               GlobalPoint displacementFromBeamspot(-1 * ((vertexBeamSpot.x0() - secondaryVertex.x()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dxdz()),
                                                    -1 * ((vertexBeamSpot.y0() - secondaryVertex.y()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
               reco::Vertex::Point vperp(displacementFromBeamspot.x(), displacementFromBeamspot.y(), 0.);
-              if (JpsiTkCL < minprob)
+              if (JpsiTkCL < minprob_)
                 continue;
               muPhi_.numerator->Fill(m1.phi());
               muEta_.numerator->Fill(m1.eta());
@@ -1245,21 +1245,21 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           break;
 
         case 11:
-          if (dimuonCL < minprob)
+          if (dimuonCL < minprob_)
             continue;
-          if (std::abs(jpsi_cos) < mincos)
+          if (std::abs(jpsi_cos) < mincos_)
             continue;
-          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS)
+          if ((displacementFromBeamspotJpsi.perp() / sqrt(jerr.rerr(displacementFromBeamspotJpsi))) < minDS_)
             continue;
 
           if (trHandle.isValid()) {
             for (auto const& t : *trHandle) {
-              if (!trSelection_ref(t))
+              if (!trSelection_ref_(t))
                 continue;
               if (!matchToTrigger(hltpath, t, handleTriggerEvent))
                 continue;
               for (auto const& t1 : *trHandle) {
-                if (!trSelection_ref(t1))
+                if (!trSelection_ref_(t1))
                   continue;
                 if (!matchToTrigger(hltpath, t1, handleTriggerEvent))
                   continue;
@@ -1307,7 +1307,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                 reco::Vertex vertex = tv;
                 if (!tv.isValid())
                   continue;
-                if (pB.mass() > maxmassJpsiTk || pB.mass() < minmassJpsiTk)
+                if (pB.mass() > maxmassJpsiTk_ || pB.mass() < minmassJpsiTk_)
                   continue;
                 float JpsiTkCL = 0;
                 if ((vertex.chi2() >= 0.0) && (vertex.ndof() > 0))
@@ -1319,11 +1319,11 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
                                                      -1 * ((vertexBeamSpot.y0() - secondaryVertex.y()) + (secondaryVertex.z() - vertexBeamSpot.z0()) * vertexBeamSpot.dydz()), 0);
                 reco::Vertex::Point vperp(displacementFromBeamspot.x(), displacementFromBeamspot.y(), 0.);
                 float jpsiKcos = vperp.Dot(pperp) / (vperp.R() * pperp.R());
-                if (JpsiTkCL < minprob)
+                if (JpsiTkCL < minprob_)
                   continue;
-                if (std::abs(jpsiKcos) < mincos)
+                if (std::abs(jpsiKcos) < mincos_)
                   continue;
-                if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS)
+                if ((displacementFromBeamspot.perp() / sqrt(err.rerr(displacementFromBeamspot))) < minDS_)
                   continue;
                 mu1Phi_.numerator->Fill(t.phi());
                 mu1Eta_.numerator->Fill(t.eta());
@@ -1339,7 +1339,7 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
       }
     }
     if (nofset_ == 7) {  // photons
-      std::string hltpath = hltpaths_den[0];
+      std::string hltpath = hltpaths_den_[0];
       for (auto const& p : *phHandle) {
         if (!matchToTrigger(hltpath, p, handleTriggerEvent))
           continue;
