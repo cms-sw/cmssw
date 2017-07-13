@@ -19,8 +19,12 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(1)
 )
 
-process.GeomInfo = cms.EDAnalyzer("CTPPSGeometryInfo")
+process.ctppsGeometryInfo = cms.EDAnalyzer("CTPPSGeometryInfo",
+    geometryType = cms.untracked.string("real"),
+    printRPInfo = cms.untracked.bool(True),
+    printSensorInfo = cms.untracked.bool(True)
+)
 
 process.p = cms.Path(
-    process.GeomInfo
+    process.ctppsGeometryInfo
 )
