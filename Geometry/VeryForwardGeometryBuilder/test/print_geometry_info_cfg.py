@@ -11,7 +11,8 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # geometry
-process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
+#process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
+process.load("Configuration.Geometry.geometry_CTPPS_alaTotem_RECO_cfi")
 
 # no events to process
 process.source = cms.Source("EmptySource")
