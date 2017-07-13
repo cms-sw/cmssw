@@ -160,7 +160,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceIdealGD(const Ideal
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
-  iRecord.get("XMLIdealGeometryESSource_CTPPS", cpv);
+  iRecord.get(cpv);
   
   // construct the tree of DetGeomDesc
   DDDTotemRPContruction worker;
