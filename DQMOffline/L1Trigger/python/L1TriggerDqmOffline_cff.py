@@ -268,7 +268,6 @@ from DQMOffline.L1Trigger.L1TEGammaOffline_cfi import *
 l1tEGammaOfflineDQMEmu.stage2CaloLayer2EGammaSource=cms.InputTag("valCaloStage2Layer2Digis")
 from DQMOffline.L1Trigger.L1TEfficiencyMuons_Offline_cfi import *
 
-from Configuration.StandardSequences.Eras import eras
 from DQM.L1TMonitor.L1TStage2_cff import *
 from DQMOffline.L1Trigger.L1TriggerDqmOffline_SecondStep_cff import *
 from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import *
