@@ -10,7 +10,7 @@
 //      Defaults: numb=50, type=3, append=true, fiteta=true, iname=2
 //
 //             For plotting stored histograms from FitHist's
-//  PlotHist(infile, prefix, text, modePlot, iopt, dataMC, drawStatBox, save);
+//  PlotHist(infile, prefix, text, modePlot, kopt, dataMC, drawStatBox, save);
 //      Defaults: modePlot=0, iopt=0, dataMC=false, drawStatBox=true, save=false
 //
 //             For plotting several histograms in the same plot
@@ -26,11 +26,11 @@
 //      Note prefixN, textN have the same meaning as prefix and text for set N
 //
 //             For plotting stored histograms from CalibTree
-//  PlotHistCorrResults(infile, text, save);
+//  PlotHistCorrResults(infile, text, prefix, save);
 //      Defaults: save=false
 //
 //             For plotting correction factors
-//  PlotHistCorrFactor(infile, text, nmin, save);
+//  PlotHistCorrFactor(infile, text, prefix, scale, nmin, save);
 //      Defaults: nmin=20, save=false
 //
 //             For plotting correction factors from 2 different runs on the
@@ -72,6 +72,7 @@
 //  save     (bool)         = if true it saves the canvas as a pdf file
 //  nmin     (int)          = minimum # of #ieta points needed to show the
 //                            fitted line
+//  scale    (double)       = constant scale factor applied to the factors
 //  ratio    (bool)         = set to show the ratio plot (false)
 //  drawStatBox (bool)      = set to show the statistical box (true)
 //  year     (int)          = Year of data taking (applicable to Data)
@@ -820,7 +821,8 @@ void PlotTwoHists(std::string infile, std::string prefix1, std::string text1,
   }
 }
 
-void PlotHistCorrResults(std::string infile, std::string text, bool save=false){
+void PlotHistCorrResults(std::string infile, std::string text, 
+			 std::string prefix, bool save=false) {
 
   std::string name[5]  = {"Eta1Bf","Eta2Bf","Eta1Af","Eta2Af","Cvg0"};
   std::string title[5] = {"Mean at the start of itertions",
@@ -839,7 +841,7 @@ void PlotHistCorrResults(std::string infile, std::string text, bool save=false){
     TH1D* hist1 = (TH1D*)file->FindObjectAny(name[k].c_str());
     if (hist1 != 0) {
       TH1D* hist = (TH1D*)(hist1->Clone()); 
-      sprintf (namep, "c_%s", name[k].c_str());
+      sprintf (namep, "c_%s%s", prefix.c_str(), name[k].c_str());
       TCanvas *pad = new TCanvas(namep, namep, 700, 500);
       pad->SetRightMargin(0.10);
       pad->SetTopMargin(0.10);
@@ -890,8 +892,9 @@ void PlotHistCorrResults(std::string infile, std::string text, bool save=false){
   }
 }
 
-void PlotHistCorrFactor(std::string infile, std::string text, int nmin=20,
-			bool save=false) {
+void PlotHistCorrFactor(std::string infile, std::string text, 
+			std::string prefix="", double scale=1.0,
+			int nmin=20, bool save=false) {
 
   std::vector<cfactors> cfacs;
   std::ifstream fInput(infile.c_str());
@@ -913,7 +916,7 @@ void PlotHistCorrFactor(std::string infile, std::string text, int nmin=20,
 	int   depth = std::atoi (items[2].c_str());
 	float corrf = std::atof (items[3].c_str());
 	float dcorr = std::atof (items[4].c_str());
-	cfactors cfac(ieta,depth,corrf,dcorr);
+	cfactors cfac(ieta,depth,scale*corrf,scale*dcorr);
 	cfacs.push_back(cfac);
 	if (ieta > etamax) etamax = ieta;
 	if (ieta < etamin) etamin = ieta;
@@ -977,7 +980,8 @@ void PlotHistCorrFactor(std::string infile, std::string text, int nmin=20,
     entries.push_back(nent);
     dy  += 0.025;
   }
-  TCanvas *pad = new TCanvas("CorrFactor","CorrFactor", 700, 500);
+  sprintf (name, "c_%sCorrFactor", prefix.c_str());
+  TCanvas *pad = new TCanvas(name, name, 700, 500);
   pad->SetRightMargin(0.10); pad->SetTopMargin(0.10);
   double yh = 0.90;
   double yl = yh-0.025*hists.size()-dy-0.01;
