@@ -51,8 +51,8 @@ struct Print {
   // typedef edm::TrieNode<Det> const node;
   void operator()(Det det, std::string const & label) const {
     if (!det) return; 
-    for (size_t i=0; i<label.size();++i)
-      std::cout << int(label[i]) <<'/';
+    for (char i : label)
+      std::cout << int(i) <<'/';
     std::cout << " " << det->geographicalId().rawId() << std::endl;
   }
   

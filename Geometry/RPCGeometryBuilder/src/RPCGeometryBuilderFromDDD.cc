@@ -79,8 +79,8 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
 
     std::vector<const DDsvalues_type* > specs(fview.specifics());
     int nStrips=0;
-    for (auto is=specs.begin();is!=specs.end(); ++is){
-      if (DDfetch( *is, numbOfStrips)){
+    for (auto & spec : specs){
+      if (DDfetch( spec, numbOfStrips)){
         nStrips=int(numbOfStrips.doubles()[0]);
       }
     }
@@ -173,9 +173,9 @@ RPCGeometry* RPCGeometryBuilderFromDDD::buildGeometry(DDFilteredView& fview, con
     doSubDets = fview.nextSibling(); // go to next layer
   }
   // Create the RPCChambers and store them on the Geometry
-  for ( auto ich=chids.begin(); ich != chids.end(); ++ich ) {
-    const RPCDetId& chid = ich->first;
-    const auto& rls = ich->second;
+  for (auto & ich : chids) {
+    const RPCDetId& chid = ich.first;
+    const auto& rls = ich.second;
 
     // compute the overall boundplane.
     BoundPlane* bp=0;

@@ -109,9 +109,9 @@ std::string
 TestCompareDDSpecsDumpFiles::merge( const std::list<std::string>& list )
 {
   std::string str( "" );
-  for( std::list<std::string>::const_iterator it = list.begin(); it != list.end(); ++it )
+  for(const auto & it : list)
   {
-    str.append( *it );
+    str.append( it );
     str.append("|");
   }
 

@@ -14,8 +14,7 @@ DTGeometry::DTGeometry() {}
 DTGeometry::~DTGeometry(){
   // delete all the chambers (which will delete the SL which will delete the
   // layers)
-  for (auto ich=theChambers.begin();
-       ich!=theChambers.end(); ++ich) delete (*ich);
+  for (auto & theChamber : theChambers) delete theChamber;
 }
 
 const DTGeometry::DetTypeContainer&  DTGeometry::detTypes() const{
