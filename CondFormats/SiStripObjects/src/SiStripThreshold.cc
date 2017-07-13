@@ -3,7 +3,7 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include <cassert>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 bool SiStripThreshold::put(const uint32_t& DetId, const InputVector& _vect) {
   InputVector vect = _vect;

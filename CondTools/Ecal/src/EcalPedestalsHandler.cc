@@ -3,7 +3,7 @@
 #include "CondTools/Ecal/interface/EcalPedestalsHandler.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
-#include <string.h>
+#include <cstring>
 #include<iostream>
 #include <fstream>
 

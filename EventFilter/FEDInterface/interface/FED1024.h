@@ -2,7 +2,7 @@
 #define EVF_FEDINTERFACE_FED1024_H
 
 
-#include <stddef.h>
+#include <cstddef>
 #include "EventFilter/FEDInterface/interface/fed_header.h"
 #include "EventFilter/FEDInterface/interface/FEDConstants.h"
 

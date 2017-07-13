@@ -13,7 +13,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 
 using namespace pos;

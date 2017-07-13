@@ -17,7 +17,7 @@
 #include "DataFormats/SiPixelDetId/interface/PixelEndcapNameUpgrade.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 
-#include <math.h>
+#include <cmath>
 
 #include <iostream>
 using namespace std;

@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <stdint.h>
+#include <cstdint>
 
 #include<vector>
 #include<unordered_map>

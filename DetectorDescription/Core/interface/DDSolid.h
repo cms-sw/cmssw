@@ -1,7 +1,7 @@
 #ifndef DETECTOR_DESCRIPTION_CORE_DD_SOLID_H
 #define DETECTOR_DESCRIPTION_CORE_DD_SOLID_H
 
-#include <stddef.h>
+#include <cstddef>
 #include <iosfwd>
 #include <vector>
 

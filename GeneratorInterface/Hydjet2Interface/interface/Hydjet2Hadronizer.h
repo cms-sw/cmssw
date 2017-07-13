@@ -34,7 +34,7 @@
 #include <map>
 #include <string>
 #include <vector>
-#include <math.h>
+#include <cmath>
 
 #include "HYJET_COMMONS.h"
 extern HYIPARCommon HYIPAR;

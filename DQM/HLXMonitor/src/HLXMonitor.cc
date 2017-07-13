@@ -7,7 +7,7 @@
 
 // STL Headers
 
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 #include <TSystem.h>
 

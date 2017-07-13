@@ -25,7 +25,7 @@
 // C++ Headers --
 //---------------
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 

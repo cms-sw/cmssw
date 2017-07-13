@@ -19,7 +19,7 @@
 //---------------
 // C++ Headers --
 //---------------
-#include <math.h> 
+#include <cmath> 
 #include <cstring>
 
 //-------------------------------

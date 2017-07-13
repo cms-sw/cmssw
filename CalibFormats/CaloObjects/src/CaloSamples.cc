@@ -1,6 +1,6 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 CaloSamples::CaloSamples() : id_(), size_(0), presamples_(0), preciseSize_(0), precisePresamples_(0) { setBlank() ; }

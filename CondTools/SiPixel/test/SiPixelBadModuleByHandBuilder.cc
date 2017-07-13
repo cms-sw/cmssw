@@ -1,6 +1,6 @@
 #include "CondTools/SiPixel/test/SiPixelBadModuleByHandBuilder.h"
 
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 

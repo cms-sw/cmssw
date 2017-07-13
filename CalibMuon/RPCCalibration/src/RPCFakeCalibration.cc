@@ -17,7 +17,7 @@
 #include "CondFormats/DataRecord/interface/RPCStripNoisesRcd.h"
 
 #include <cmath>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <memory>
 #include <fstream>

@@ -1,6 +1,6 @@
 #include "RecoParticleFlow/PFProducer/interface/Utils.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <regex.h>
 
 

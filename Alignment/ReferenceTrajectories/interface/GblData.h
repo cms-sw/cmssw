@@ -33,7 +33,7 @@
 #include<iostream>
 #include<vector>
 #include <array>
-#include<math.h>
+#include<cmath>
 #include "Alignment/ReferenceTrajectories/interface/VMatrix.h"
 
 #include "Eigen/Core"

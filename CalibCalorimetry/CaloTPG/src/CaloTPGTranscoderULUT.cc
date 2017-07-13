@@ -7,7 +7,7 @@
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include <iostream>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 
 //#include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EventSetup.h"

@@ -2,11 +2,11 @@
 #define _FILE_OFFSET_BITS 64
 #include "Utilities/StorageFactory/interface/LocalFileSystem.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <assert.h>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
+#include <cstring>
+#include <cassert>
 #include <sys/param.h>
 #if BSD
 # include <sys/statvfs.h>

@@ -18,7 +18,7 @@
 #include <algorithm>
 #include <iostream>
 #include <fstream>
-#include <stdlib.h> // for setenv; <cstdlib> is likely to fail
+#include <cstdlib> // for setenv; <cstdlib> is likely to fail
 #include <string>
 #include <unistd.h>
 

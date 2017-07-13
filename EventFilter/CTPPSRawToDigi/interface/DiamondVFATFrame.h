@@ -9,7 +9,7 @@
 
 #include <vector>
 #include <cstddef>
-#include <stdint.h>
+#include <cstdint>
 
 #include "EventFilter/CTPPSRawToDigi/interface/VFATFrame.h" 
 

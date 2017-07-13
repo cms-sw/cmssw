@@ -1,6 +1,6 @@
 #include "DDAngular.h"
 
-#include <math.h>
+#include <cmath>
 
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 #include "CLHEP/Units/SystemOfUnits.h"

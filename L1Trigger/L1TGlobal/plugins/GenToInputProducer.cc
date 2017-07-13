@@ -42,7 +42,7 @@
 
 #include "TMath.h"
 #include "TRandom3.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 using namespace edm;

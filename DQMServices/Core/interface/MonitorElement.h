@@ -22,7 +22,7 @@
 # include <sstream>
 # include <iomanip>
 # include <cassert>
-# include <stdint.h>
+# include <cstdint>
 
 # ifndef DQM_ROOT_METHODS
 #  define DQM_ROOT_METHODS 1

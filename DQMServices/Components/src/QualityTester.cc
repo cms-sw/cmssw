@@ -14,9 +14,9 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;

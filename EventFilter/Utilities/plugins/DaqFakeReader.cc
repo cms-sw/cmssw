@@ -20,7 +20,7 @@
 
 #include <cmath>
 #include <sys/time.h>
-#include <string.h>
+#include <cstring>
 
 
 using namespace std;

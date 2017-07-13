@@ -2,7 +2,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
-#include <time.h>
+#include <ctime>
 
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/ME.h"
 #include "CalibCalorimetry/EcalLaserAnalyzer/interface/MEGeom.h"

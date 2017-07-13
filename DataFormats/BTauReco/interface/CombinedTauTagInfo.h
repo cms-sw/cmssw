@@ -9,7 +9,7 @@
  */
 
 #include <limits>
-#include <math.h>
+#include <cmath>
 #include "CLHEP/Vector/LorentzVector.h"
 #include "DataFormats/BTauReco/interface/RefMacros.h"
 #include "DataFormats/JetReco/interface/Jet.h"

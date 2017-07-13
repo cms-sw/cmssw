@@ -1,7 +1,7 @@
 #include <fstream>
 #include <sstream>
 #include <sys/time.h>
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>

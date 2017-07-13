@@ -20,7 +20,7 @@
 #include <ostream>
 #include <set>
 #include <string>
-#include <stddef.h>
+#include <cstddef>
 #include <utility>
 #include <vector>
 

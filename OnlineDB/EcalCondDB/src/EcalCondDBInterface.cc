@@ -3,9 +3,9 @@
 #include <string>
 #include <vector>
 #include <sstream>
-#include <stdlib.h>
 #include <cstdlib>
-#include <time.h>
+#include <cstdlib>
+#include <ctime>
 #include <stdexcept>
 #include "OnlineDB/Oracle/interface/Oracle.h"
 

@@ -19,7 +19,7 @@
 #include <map>
 #include <utility>
 #include <string>
-#include <stdio.h>
+#include <cstdio>
 #include <algorithm>
 
 

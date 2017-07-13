@@ -1,6 +1,6 @@
 #include <iostream>
 #include <fstream>
-#include <time.h>
+#include <ctime>
 #include <string>
 #include <map>
 

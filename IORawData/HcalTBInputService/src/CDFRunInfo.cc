@@ -1,7 +1,7 @@
 #include <TMap.h>
 #include <TObjString.h>
 #include "IORawData/HcalTBInputService/src/CDFRunInfo.h"
-#include <stdlib.h>
+#include <cstdlib>
 
 const char* CDFRunInfo::RootVariableName = "CDFRunInfo";
 

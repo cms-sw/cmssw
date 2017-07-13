@@ -9,7 +9,7 @@
 #include <boost/bind.hpp>
 #include <ostream>
 #include <limits>
-#include <assert.h>
+#include <cassert>
 
 #include "Rtypes.h"
 #include "TROOT.h"

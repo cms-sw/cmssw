@@ -15,7 +15,7 @@
 
 #include "H_Parameters.h"
 
-#include <math.h>
+#include <cmath>
 
 CTPPSHector::CTPPSHector(const edm::ParameterSet & param, bool verbosity,bool CTPPSTransport) : 
     m_smearAng(false),m_sig_e(0.),m_smearE(false),m_sigmaSTX(0.),m_sigmaSTY(0.),

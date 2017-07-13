@@ -7,9 +7,9 @@
 #include "Getline.h"
 #include <iostream>
 #include <fstream>
-#include <string.h>
+#include <cstring>
 #include <memory>
-#include <signal.h>
+#include <csignal>
 
 #include "Fireworks/Core/src/CmsShowMain.h"
 #include "Fireworks/Core/interface/fwPaths.h"

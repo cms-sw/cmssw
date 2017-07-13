@@ -30,7 +30,7 @@
 #include "CLHEP/Units/GlobalPhysicalConstants.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 
-#include <math.h>
+#include <cmath>
 
 //#define DebugLog
 

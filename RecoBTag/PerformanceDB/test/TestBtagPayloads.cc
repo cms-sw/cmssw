@@ -19,7 +19,7 @@
 // system include files
 #include <iostream>
 #include <memory>
-#include <stdio.h>
+#include <cstdio>
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"

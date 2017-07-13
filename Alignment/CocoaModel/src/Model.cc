@@ -33,11 +33,11 @@
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignments.h"
 #include "CondFormats/OptAlignObjects/interface/OpticalAlignMeasurements.h"
 
-#include <stdlib.h>
-#include <ctype.h>
+#include <cstdlib>
+#include <cctype>
 //#include <algo.h>
-#include <assert.h>
-#include <time.h>
+#include <cassert>
+#include <ctime>
 
 #include <algorithm>
 

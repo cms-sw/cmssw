@@ -5,7 +5,7 @@ Toy EDAnalyzer for testing purposes only.
 
 ----------------------------------------------------------------------*/
 
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
 #include <string>
 #include <iostream>

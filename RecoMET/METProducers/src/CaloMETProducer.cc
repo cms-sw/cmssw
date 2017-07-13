@@ -24,7 +24,7 @@
 #include "RecoMET/METAlgorithms/interface/CaloSpecificAlgo.h"
 #include "RecoMET/METAlgorithms/interface/SignCaloSpecificAlgo.h"
 
-#include <string.h>
+#include <cstring>
 
 //____________________________________________________________________________||
 namespace cms

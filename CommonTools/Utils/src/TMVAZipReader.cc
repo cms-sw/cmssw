@@ -1,7 +1,7 @@
 #include "CommonTools/Utils/interface/TMVAZipReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 #include <cstdio>
 #include <cstdlib>
 #include "zlib.h"

@@ -2,7 +2,7 @@
 #define ECAL_FENIXTCP_SFGVB_EB_H
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 /** 
     \class EcalFenixTcpsFgvbEB

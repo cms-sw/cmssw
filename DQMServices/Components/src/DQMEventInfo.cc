@@ -10,9 +10,9 @@
 #include <TSystem.h>
 
 #include <algorithm>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 #include <boost/algorithm/string/join.hpp>
 

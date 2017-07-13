@@ -35,7 +35,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;

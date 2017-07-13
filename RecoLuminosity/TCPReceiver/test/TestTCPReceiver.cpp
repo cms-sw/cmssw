@@ -8,7 +8,7 @@
 #include "RecoLuminosity/TCPReceiver/interface/LumiStructures.hh"
 
 #include <iostream>
-#include <signal.h>
+#include <csignal>
 #include <cstdlib>
 
 int gContinue=1;

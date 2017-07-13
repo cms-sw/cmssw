@@ -12,14 +12,14 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include <cmath>
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <iostream>
 #include<cstring>
 #include<string>
 #include<vector>
-#include<stdlib.h>
+#include<cstdlib>
 #include <utility>
 #include <map>
 

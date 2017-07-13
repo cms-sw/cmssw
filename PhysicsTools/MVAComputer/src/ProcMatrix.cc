@@ -13,7 +13,7 @@
 // Created:     Sat Apr 24 15:18 CEST 2007
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "PhysicsTools/MVAComputer/interface/VarProcessor.h"
 #include "PhysicsTools/MVAComputer/interface/Calibration.h"

@@ -18,7 +18,7 @@
 #include <sstream>
 #include <sys/time.h>
 #include <unistd.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sys/file.h>
 #include <boost/lexical_cast.hpp>
 #include <boost/filesystem/fstream.hpp>

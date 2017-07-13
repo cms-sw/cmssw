@@ -7,7 +7,7 @@
 
 #include "EventFilter/Utilities/interface/JSONSerializer.h"
 
-#include <assert.h>
+#include <cassert>
 
 using namespace jsoncollector;
 

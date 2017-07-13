@@ -23,7 +23,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFBlockElement.h"
 
 
-#include <math.h>
+#include <cmath>
 
 #include <cstdlib>
 #include <iostream>

@@ -7,7 +7,7 @@
 #include "CondFormats/L1TObjects/interface/L1MuCSCTFConfiguration.h"
 #include "CondFormats/DataRecord/interface/L1MuCSCTFConfigurationRcd.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include <stdlib.h>
+#include <cstdlib>
 #include <sstream>
 #include <strings.h>
 

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <iomanip>
-#include <stdlib.h>
-#include <stdint.h>
+#include <cstdlib>
+#include <cstdint>
 
 #include "UCTLayer1.hh"
 

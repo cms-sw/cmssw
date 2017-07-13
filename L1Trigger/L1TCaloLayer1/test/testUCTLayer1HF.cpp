@@ -1,9 +1,9 @@
 #include <iostream>
 #include <iomanip>
 #include <vector>
-#include <stdlib.h>
-#include <stdint.h>
-#include <math.h>
+#include <cstdlib>
+#include <cstdint>
+#include <cmath>
 
 using namespace std;
 

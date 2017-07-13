@@ -14,13 +14,13 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/wait.h>
-#include <stdio.h>
-#include <stdint.h>
+#include <cstdio>
+#include <cstdint>
 #include <iostream>
 #include <sstream>
 #include <cassert>
 #include <cfloat>
-#include <inttypes.h>
+#include <cinttypes>
 
 #if __APPLE__
 # define MESSAGE_SIZE_LIMIT (1*1024*1024)

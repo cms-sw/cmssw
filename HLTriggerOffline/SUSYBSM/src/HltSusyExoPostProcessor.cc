@@ -7,10 +7,10 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 #include <iomanip>
 #include <fstream>
-#include <math.h>
+#include <cmath>
 #include "TH1.h"
 #include "TProfile.h"
 

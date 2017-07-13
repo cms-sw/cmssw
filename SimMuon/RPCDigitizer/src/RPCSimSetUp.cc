@@ -21,7 +21,7 @@
 #include "DataFormats/MuonDetId/interface/RPCDetId.h"
 
 #include <cmath>
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <sstream>
 #include <iostream>

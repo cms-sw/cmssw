@@ -13,7 +13,7 @@
 //
 
 // System include files
-#include <math.h>
+#include <cmath>
 #include "TEveBox.h"
 
 // User include files

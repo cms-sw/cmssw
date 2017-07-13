@@ -1,5 +1,5 @@
 #include "DataFormats/METReco/interface/HcalCaloFlagTool.h"
-#include <string.h>
+#include <cstring>
 #include <cstdio>
 
 HcalCaloFlagTool::HcalCaloFlagTool(const std::string& releaseName) : 

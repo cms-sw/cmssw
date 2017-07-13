@@ -10,7 +10,7 @@
 #include <tuple>
 #include <fstream>
 #include <unistd.h>
-#include <limits.h>
+#include <climits>
 //
 #include <boost/regex.hpp>
 

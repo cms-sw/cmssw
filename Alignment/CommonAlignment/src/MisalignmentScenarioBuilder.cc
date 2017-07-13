@@ -9,7 +9,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
-#include <stdlib.h>
+#include <cstdlib>
 
 // Framework
 #include "FWCore/Utilities/interface/Exception.h"

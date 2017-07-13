@@ -39,7 +39,7 @@
 #include <map>
 #include <string>
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 #include <vector>
 
 const unsigned int PixelLumiDQM::lastBunchCrossing;

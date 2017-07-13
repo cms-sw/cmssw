@@ -6,8 +6,8 @@
 #else
 #include "CastorMergerData.h"
 #endif
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 #include <algorithm>
 
 CastorMergerData::CastorMergerData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }

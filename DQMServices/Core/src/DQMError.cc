@@ -1,7 +1,7 @@
 #include "DQMServices/Core/src/DQMError.h"
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
 
 #if WITHOUT_CMS_FRAMEWORK
 static const char FAILED[] = "(out of memory while formatting error message)";

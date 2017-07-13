@@ -7,7 +7,7 @@
 #include <numeric>
 #include <vector>
 #include <algorithm>
-#include <stdlib.h>
+#include <cstdlib>
 
 namespace heppy {
 

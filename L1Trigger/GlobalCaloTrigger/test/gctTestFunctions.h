@@ -17,7 +17,7 @@
  */
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
 #include "FWCore/Framework/interface/Event.h"

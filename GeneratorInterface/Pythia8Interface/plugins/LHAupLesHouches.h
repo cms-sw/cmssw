@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 #include <memory>
-#include <assert.h>
+#include <cassert>
 
 #include "boost/shared_ptr.hpp"
 

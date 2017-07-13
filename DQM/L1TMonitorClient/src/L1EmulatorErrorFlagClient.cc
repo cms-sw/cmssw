@@ -9,9 +9,9 @@
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "TRandom.h"
 #include <TF1.h>
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <TProfile.h>
 #include <TProfile2D.h>
 #include <memory>

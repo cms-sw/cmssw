@@ -10,7 +10,7 @@
 #include <iostream>
 #include <cassert>
 #include <cfloat>
-#include <inttypes.h>
+#include <cinttypes>
 
 #if !WITHOUT_CMS_FRAMEWORK
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

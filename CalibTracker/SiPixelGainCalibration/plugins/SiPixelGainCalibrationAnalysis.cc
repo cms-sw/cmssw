@@ -22,7 +22,7 @@ Implementation:
 #include "SiPixelGainCalibrationAnalysis.h"
 #include <sstream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include "TGraphErrors.h"
 #include "TMath.h"
 

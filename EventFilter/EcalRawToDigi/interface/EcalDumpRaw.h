@@ -11,7 +11,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
-#include <inttypes.h>
+#include <cinttypes>
 //#include "pgras/PGUtilities/interface/PGHisto.h"
 
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"

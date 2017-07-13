@@ -17,7 +17,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
-#include <time.h>
+#include <ctime>
 
 using namespace sistrip;
 

@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 #include <list>
 #include <string>
 #include <map>

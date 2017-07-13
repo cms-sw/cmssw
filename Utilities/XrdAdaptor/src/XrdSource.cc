@@ -5,7 +5,7 @@
 #include <chrono>
 #include <atomic>
 #include <iostream>
-#include <assert.h>
+#include <cassert>
 #include <netdb.h>
 
 #include "XrdCl/XrdClFile.hh"

@@ -5,7 +5,7 @@
 #include <chrono>
 
 // POSIX standard headers
-#include <time.h>
+#include <ctime>
 
 // based on clock()
 struct clock_clock

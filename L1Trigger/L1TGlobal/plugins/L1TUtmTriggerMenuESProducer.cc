@@ -13,8 +13,8 @@
 #include <iostream>
 #include <fstream>
 #include <unistd.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "tmEventSetup/tmEventSetup.hh"
 #include "tmEventSetup/esTriggerMenu.hh"

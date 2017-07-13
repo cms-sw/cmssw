@@ -26,7 +26,7 @@
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 
-#include <math.h>
+#include <cmath>
 
 class EgammaProbeSelector : public edm::EDFilter {
 

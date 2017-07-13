@@ -8,7 +8,7 @@
 #include "L1Trigger/RPCTechnicalTrigger/interface/RPCData.h"
 #include "L1Trigger/RPCTechnicalTrigger/interface/ProcessInputSignal.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <ios>

@@ -21,7 +21,7 @@
 #include "CSCDQM_Utility.h"
 #endif
 
-#include <stdint.h>
+#include <cstdint>
 
 namespace cscdqm {
 

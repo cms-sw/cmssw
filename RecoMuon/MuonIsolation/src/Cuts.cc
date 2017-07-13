@@ -1,7 +1,7 @@
 #include "RecoMuon/MuonIsolation/interface/Cuts.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include <math.h>
+#include <cmath>
 #include <sstream>
 
 using namespace std;

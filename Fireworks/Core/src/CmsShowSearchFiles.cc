@@ -1,7 +1,7 @@
 #include <stdexcept>
 #include <iostream>
 #include <fstream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <set>
 #include "TGClient.h"
 #include "TGHtml.h"

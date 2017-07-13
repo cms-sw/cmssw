@@ -10,7 +10,7 @@
 //         Created:  Wed Mar  5 09:13:47 EST 2008
 //
 
-#include <stdio.h>
+#include <cstdio>
 #include <boost/bind.hpp>
 #include <algorithm>
 #include <sstream>

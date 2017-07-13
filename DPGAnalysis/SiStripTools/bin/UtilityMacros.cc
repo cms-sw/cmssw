@@ -1,4 +1,4 @@
-#include <math.h>
+#include <cmath>
 #include "TH1D.h"
 #include "TProfile2D.h"
 

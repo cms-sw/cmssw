@@ -11,7 +11,7 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "TRandom.h"
-#include <math.h>
+#include <cmath>
 
 using namespace std;
 using namespace edm;

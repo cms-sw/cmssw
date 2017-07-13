@@ -44,7 +44,7 @@
 
 #include "TString.h"
 #include <string>
-#include <stdlib.h> 
+#include <cstdlib> 
 #include <cstdio>
 
 #include "boost/filesystem.hpp"

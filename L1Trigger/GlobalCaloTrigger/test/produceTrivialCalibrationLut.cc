@@ -4,7 +4,7 @@
 
 #include "CondFormats/L1TObjects/interface/L1CaloEtScale.h"
 
-#include <math.h>
+#include <cmath>
 #include <cassert>
 
 produceTrivialCalibrationLut::produceTrivialCalibrationLut() :

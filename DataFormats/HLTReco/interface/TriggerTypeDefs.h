@@ -11,7 +11,7 @@
  */
 
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 namespace trigger
 {

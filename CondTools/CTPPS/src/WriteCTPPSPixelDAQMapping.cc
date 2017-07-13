@@ -26,7 +26,7 @@
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelDAQMapping.h"
 #include "CondFormats/CTPPSReadoutObjects/interface/CTPPSPixelAnalysisMask.h"
 
-#include <stdint.h>
+#include <cstdint>
 
 //----------------------------------------------------------------------------------------------------
 

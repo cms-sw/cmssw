@@ -14,7 +14,7 @@
 #include <sstream>
 #include <iostream>
 #include <ios>
-#include <assert.h>
+#include <cassert>
 #include <stdexcept>
 #include "CalibFormats/SiPixelObjects/interface/PixelTrimAllPixels.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelTimeFormatter.h"

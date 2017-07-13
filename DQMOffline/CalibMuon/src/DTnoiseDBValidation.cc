@@ -28,9 +28,9 @@
 #include "CondFormats/DTObjects/interface/DTStatusFlag.h"
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include "TFile.h"
 #include "TH1F.h"
 

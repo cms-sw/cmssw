@@ -12,7 +12,7 @@
 
 // system include files
 #include <cassert>
-#include <limits.h>
+#include <climits>
 #include <iostream>
 #include "TGResourcePool.h"
 

@@ -3,9 +3,9 @@
 // . rotation matrices and translation std::vectors of module CLHEP/Vector
 //   (they are typedef'd to DDRotationMatrix and DDTranslation in
 //   DDD/DDCore/interface/DDTransform.h
-#include <stdlib.h>
+#include <cstdlib>
 #include <sys/time.h>
-#include <time.h>
+#include <ctime>
 #include <fstream>
 #include <map>
 #include <memory>

@@ -1,6 +1,6 @@
 #include "DetectorDescription/Parser/src/DDLSpecPar.h"
 
-#include <stddef.h>
+#include <cstddef>
 #include <algorithm>
 #include <map>
 #include <utility>

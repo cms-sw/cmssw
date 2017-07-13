@@ -1,7 +1,7 @@
 #ifndef PhysicsTools_MVAComputer_TreeReader_h
 #define PhysicsTools_MVAComputer_TreeReader_h
 
-#include <stdint.h>
+#include <cstdint>
 #include <utility>
 #include <string>
 #include <vector>

@@ -1,7 +1,7 @@
 #include "OnlineDB/EcalCondDB/interface/LMFDat.h"
 
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using std::cout;
 using std::endl;

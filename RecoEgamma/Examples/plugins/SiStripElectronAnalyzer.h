@@ -21,7 +21,7 @@
 // system include files
 #include <memory>
 #include <map>
-#include <math.h>
+#include <cmath>
 
 // user include files
 

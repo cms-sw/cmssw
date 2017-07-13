@@ -17,7 +17,7 @@
 #include <vector>
 #include <iomanip>
 #include <set>
-#include <stdio.h>
+#include <cstdio>
 
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"

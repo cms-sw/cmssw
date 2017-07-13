@@ -1,7 +1,7 @@
 #ifndef DETECTORDESCRIPTION_PARSER_DDL_SAX2FILEHANDLER_H
 #define DETECTORDESCRIPTION_PARSER_DDL_SAX2FILEHANDLER_H
 
-#include <stddef.h>
+#include <cstddef>
 #include <xercesc/sax2/Attributes.hpp>
 #include <map>
 #include <string>

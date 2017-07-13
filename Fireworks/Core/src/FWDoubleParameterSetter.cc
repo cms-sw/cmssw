@@ -13,7 +13,7 @@
 // system include files
 #include "TGLabel.h"
 #include "TGNumberEntry.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 // user include files

@@ -1,6 +1,6 @@
 #include<typeinfo>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 #include "SimGeneral/NoiseGenerators/interface/GaussianTailNoiseGenerator.h"
 

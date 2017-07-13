@@ -1,7 +1,7 @@
 #ifndef DDCompactView_h
 #define DDCompactView_h
 
-#include <stddef.h>
+#include <cstddef>
 #include <memory>
 #include <string>
 #include <utility>

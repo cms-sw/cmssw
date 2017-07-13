@@ -3,10 +3,10 @@
 #include "CalibCalorimetry/EcalLaserSorting/interface/WatcherStreamFileReader.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <errno.h>
-#include <limits.h>
-#include <stdlib.h>
-#include <stdio.h>
+#include <cerrno>
+#include <climits>
+#include <cstdlib>
+#include <cstdio>
 #include <cstring>
 #include <unistd.h>
 #include <sys/types.h>

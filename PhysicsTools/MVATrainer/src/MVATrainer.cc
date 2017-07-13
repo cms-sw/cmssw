@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 #include <functional>
 #include <ext/functional>
 #include <algorithm>

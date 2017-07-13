@@ -19,7 +19,7 @@
 #include <string>
 #include <iostream>
 #include <typeinfo>
-#include <time.h>
+#include <ctime>
 
 #include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Random/RandGauss.h"

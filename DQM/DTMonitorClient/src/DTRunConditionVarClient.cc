@@ -25,9 +25,9 @@
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 
 using namespace edm;
 using namespace std;

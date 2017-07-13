@@ -1,6 +1,6 @@
 #include <stdexcept>
 #include <string>
-#include <math.h>
+#include <cmath>
 
 #include "OnlineDB/EcalCondDB/interface/RunDCSLVDat.h"
 #include "OnlineDB/EcalCondDB/interface/RunIOV.h"

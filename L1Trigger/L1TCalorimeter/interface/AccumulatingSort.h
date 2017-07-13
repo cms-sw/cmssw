@@ -1,6 +1,6 @@
 #include <vector>
 #include <list>
-#include <stdint.h>
+#include <cstdint>
 
 
 template < typename T >

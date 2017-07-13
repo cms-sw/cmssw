@@ -13,7 +13,7 @@
 // system include files
 
 #include "TGButton.h"
-#include <assert.h>
+#include <cassert>
 #include <iostream>
 
 // user include files

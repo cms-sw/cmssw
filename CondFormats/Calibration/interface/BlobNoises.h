@@ -4,7 +4,7 @@
 
 #include<vector>
 //#include<boost/cstdint.hpp>
-#include <stdint.h>
+#include <cstdint>
 
 class BlobNoises {
 public:

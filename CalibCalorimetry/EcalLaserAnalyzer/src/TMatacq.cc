@@ -6,7 +6,7 @@
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMatacq.h>
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 #include "TVectorD.h"
 
 #include <CalibCalorimetry/EcalLaserAnalyzer/interface/TMarkov.h>

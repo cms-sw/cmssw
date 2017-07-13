@@ -13,7 +13,7 @@
 #include <cassert>
 #include <cstdio>
 #include <cstring>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include "uuid/uuid.h"
 

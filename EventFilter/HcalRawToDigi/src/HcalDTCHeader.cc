@@ -3,8 +3,8 @@
  */
 #include "EventFilter/HcalRawToDigi/interface/HcalHTRData.h"
 #include "EventFilter/HcalRawToDigi/interface/HcalDTCHeader.h"
-#include <string.h>
-#include <stdint.h>
+#include <cstring>
+#include <cstdint>
 
 const int HcalDTCHeader::SLOT_COUNT = 12;
 const int HcalDTCHeader::MINIMUM_SLOT = 1;

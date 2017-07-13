@@ -40,7 +40,7 @@
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 //
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 
 using namespace std;
 using namespace edm;

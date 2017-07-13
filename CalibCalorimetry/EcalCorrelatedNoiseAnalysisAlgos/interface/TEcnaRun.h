@@ -8,9 +8,9 @@
 #include <iomanip>
 #include <string>
 #include <vector>
-#include <time.h>
-#include <math.h>
-#include <stdio.h>
+#include <ctime>
+#include <cmath>
+#include <cstdio>
 #include "Riostream.h"
 
 // ROOT include files

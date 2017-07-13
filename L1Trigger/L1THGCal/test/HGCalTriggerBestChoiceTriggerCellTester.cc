@@ -33,7 +33,7 @@
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodecImpl.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
 
-#include <stdlib.h> 
+#include <cstdlib> 
 #include <map> 
 #include "TH2.h"
 

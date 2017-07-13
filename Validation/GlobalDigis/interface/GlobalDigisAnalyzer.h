@@ -93,7 +93,7 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
 #include <iostream>
-#include <stdlib.h>
+#include <cstdlib>
 #include <string>
 #include <memory>
 #include <vector>

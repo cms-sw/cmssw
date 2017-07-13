@@ -12,8 +12,8 @@
 #include <sstream>
 #include <ios>
 #include <stdexcept>
-#include <assert.h>
-#include <stdio.h>
+#include <cassert>
+#include <cstdio>
 
 using namespace std;
 using namespace pos;

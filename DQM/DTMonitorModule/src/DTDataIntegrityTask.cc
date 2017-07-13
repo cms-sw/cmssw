@@ -19,7 +19,7 @@
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
-#include <math.h>
+#include <cmath>
 #include <fstream>
 #include <map>
 #include <string>

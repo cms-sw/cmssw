@@ -9,8 +9,8 @@
 const int HcalHTRData::CHANNELS_PER_SPIGOT         = 24;
 const int HcalHTRData::MAXIMUM_SAMPLES_PER_CHANNEL = 20;
 #endif
-#include <string.h>
-#include <stdio.h>
+#include <cstring>
+#include <cstdio>
 
 HcalHTRData::HcalHTRData() : m_formatVersion(-2), m_rawLength(0), m_rawConst(0), m_ownData(0) { }
 HcalHTRData::HcalHTRData(const unsigned short* data, int length) {

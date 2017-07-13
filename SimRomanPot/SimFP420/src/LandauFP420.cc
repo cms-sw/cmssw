@@ -47,7 +47,7 @@
 #include "CLHEP/Random/RandPoisson.h"
 #include "CLHEP/Random/RandFlat.h"
 
-#include <stdio.h>
+#include <cstdio>
 #include <gsl/gsl_fit.h>
 #include <cmath>
 #include<vector>

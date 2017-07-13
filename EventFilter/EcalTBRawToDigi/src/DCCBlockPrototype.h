@@ -13,7 +13,7 @@
 #include <set>
 #include <iostream>
 #include <iomanip>
-#include <stdint.h>
+#include <cstdint>
 
 class DCCTBDataParser;
 class DCCTBDataField;

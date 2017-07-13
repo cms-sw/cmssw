@@ -2,8 +2,8 @@
 
 #ifndef __BLOOM_H__
 #define __BLOOM_H__
-#include <stdint.h>
-#include <stdlib.h>
+#include <cstdint>
+#include <cstdlib>
 
 const char *dablooms_version(void);
 

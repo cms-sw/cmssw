@@ -19,7 +19,7 @@
 #include "CLHEP/Random/RandFlat.h"
 
 #include <cmath>
-#include <math.h>
+#include <cmath>
 
 HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
   theDbService(nullptr),

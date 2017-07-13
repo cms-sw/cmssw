@@ -1,5 +1,5 @@
 #include "DataFormats/HGCRecHit/interface/HGCUncalibratedRecHit.h"
-#include <math.h>
+#include <cmath>
 
 HGCUncalibratedRecHit::HGCUncalibratedRecHit() :
   amplitude_(0.), pedestal_(0.), jitter_(0.), chi2_(10000.), OOTamplitude_(0.), OOTchi2_(10000.), flags_(0), aux_(0) { }

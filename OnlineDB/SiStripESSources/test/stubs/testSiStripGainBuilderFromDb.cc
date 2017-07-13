@@ -8,7 +8,7 @@
 #include "CalibFormats/SiStripObjects/interface/SiStripFecCabling.h"
 #include <iostream>
 #include <sstream>
-#include <math.h>
+#include <cmath>
 #include <iomanip>
 
 // -----------------------------------------------------------------------------

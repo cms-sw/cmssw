@@ -3,7 +3,7 @@
 #include "CalibCalorimetry/CastorCalib/interface/CastorTimeSlew.h"
 #include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include <algorithm> // for "max"
-#include <math.h>
+#include <cmath>
 
 constexpr double MaximumFractionalError = 0.0005; // 0.05% error allowed from this source
 

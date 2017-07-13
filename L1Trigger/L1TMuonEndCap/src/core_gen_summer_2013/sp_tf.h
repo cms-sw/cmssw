@@ -11,8 +11,8 @@
 #include <memory>
 #include <map>
 
-#include <stdio.h>
-#include <stdlib.h>
+#include <cstdio>
+#include <cstdlib>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -63,9 +63,9 @@
 
 #include "L1Trigger/CSCCommonTrigger/interface/CSCPatternLUT.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-#include <math.h>
+#include <cstdio>
+#include <cstdlib>
+#include <cmath>
 
 ///////////////////////////////////////
 

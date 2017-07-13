@@ -5,7 +5,7 @@
 #include "classlib/utils/Signal.h"
 #include "TROOT.h"
 #include <iostream>
-#include <errno.h>
+#include <cerrno>
 
 #ifndef _NSIG
 #define _NSIG NSIG

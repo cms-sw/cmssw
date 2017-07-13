@@ -13,9 +13,9 @@
 
 #include "boost/tokenizer.hpp"
 
-#include <stdio.h>
+#include <cstdio>
 #include <sys/types.h>
-#include <signal.h>
+#include <csignal>
 
 using namespace std;
 

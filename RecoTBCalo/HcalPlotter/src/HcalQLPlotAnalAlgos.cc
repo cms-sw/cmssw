@@ -19,7 +19,7 @@
 
 // system include files
 #include <memory>
-#include <math.h>
+#include <cmath>
 
 // user include files
 #include "FWCore/MessageLogger/interface/MessageLogger.h"

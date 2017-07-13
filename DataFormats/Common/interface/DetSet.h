@@ -12,8 +12,8 @@ own copy of the common DetId.
 ----------------------------------------------------------------------*/
 
 #include <vector>
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
 #include "FWCore/Utilities/interface/GCC11Compatibility.h"
 

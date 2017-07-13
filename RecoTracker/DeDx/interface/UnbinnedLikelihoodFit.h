@@ -3,7 +3,7 @@
 #include <TObject.h>
 #include <TF1.h>
 #include <TVirtualFitter.h>
-#include <stdint.h>
+#include <cstdint>
 
 // a class to perform a likelihood fit
 // Author: Christophe Delaere

@@ -12,10 +12,10 @@
 
 
 #include <iostream>
-#include <math.h>
-#include <errno.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include <cmath>
+#include <cerrno>
+#include <cstdio>
+#include <cstdlib>
 #include <fcntl.h>
 #include <cstring>
 #include <unistd.h>

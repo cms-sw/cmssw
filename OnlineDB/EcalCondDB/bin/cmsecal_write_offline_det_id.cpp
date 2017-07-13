@@ -31,7 +31,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
-#include <time.h>
+#include <ctime>
 
 class CondDBApp {
 public:

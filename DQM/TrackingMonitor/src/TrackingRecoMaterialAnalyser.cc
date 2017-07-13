@@ -23,7 +23,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
-#include <assert.h>
+#include <cassert>
 #include <unordered_map>
 #include <string>
 

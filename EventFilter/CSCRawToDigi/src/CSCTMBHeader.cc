@@ -8,8 +8,8 @@
 #include "DataFormats/CSCDigi/interface/CSCCLCTDigi.h"
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include <math.h>
-#include <string.h> // memcpy
+#include <cmath>
+#include <cstring> // memcpy
 
 #ifdef LOCAL_UNPACK
 bool CSCTMBHeader::debug = false;

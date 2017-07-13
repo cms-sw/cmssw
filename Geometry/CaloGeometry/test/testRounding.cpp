@@ -1,7 +1,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include <stdio.h>
+#include <cstdio>
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 struct HFCellParameters
 {
