@@ -144,13 +144,11 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
 	DD3Vector x, y, z;
 	rm.GetComponents(x, y, z);
 	if ((x.Cross(y)).Dot(z)<0)
-	  //edm::LogInfo("SimG4CoreGeometry") 
-	  G4cout << ">>Reflection encountered: " 
-					    << gra.edgeData(cit->second)->rot_  << "\n"//;
-	/*LogDebug("SimG4CoreGeometry")*/
+	  edm::LogInfo("SimG4CoreGeometry") << ">>Reflection encountered: " 
+					    << gra.edgeData(cit->second)->rot_  
 					    << ">>Placement d=" << gra.nodeData(cit->first).ddname() 
 					    << " m=" << ddLP.ddname() << " cp=" << gra.edgeData(cit->second)->copyno_
-		 << " r=" << gra.edgeData(cit->second)->rot_.ddname() << G4endl;     
+					    << " r=" << gra.edgeData(cit->second)->rot_.ddname() << G4endl;     
 	G4ThreeVector tempTran(gra.edgeData(cit->second)->trans_.X(), gra.edgeData(cit->second)->trans_.Y(), gra.edgeData(cit->second)->trans_.Z());
 	G4Translate3D transl = tempTran;
 	CLHEP::HepRep3x3 temp( x.X(), x.Y(), x.Z(), y.X(), y.Y(), y.Z(), z.X(), z.Y(), z.Z() ); //matrix representation
@@ -179,10 +177,9 @@ DDGeometryReturnType DDG4Builder::BuildGeometry() {
       map_.insert(reflLogicalVolume,ddlv);
       DDG4Dispatchable * disp = new DDG4Dispatchable(&(ddg4_it->first),reflLogicalVolume);
       theVectorOfDDG4Dispatchables_->push_back(disp);
-      //edm::LogInfo("SimG4CoreGeometry")
-      G4cout<< "DDG4Builder: newEvent: dd=" 
-					<< ddlv.ddname() << " g4=" 
-					<< reflLogicalVolume->GetName() << G4endl;
+      edm::LogInfo("SimG4CoreGeometry")<< "DDG4Builder: newEvent: dd=" 
+				       << ddlv.ddname() << " g4=" 
+				       << reflLogicalVolume->GetName() << G4endl;
     }  
   }
       
