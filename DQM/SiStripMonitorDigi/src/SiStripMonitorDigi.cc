@@ -294,28 +294,27 @@ void SiStripMonitorDigi::endLuminosityBlock(const edm::LuminosityBlock& lb, cons
     int nFeds [6] = { 96 , 96 , 84 , 15 , 15 , 134 }; // tec- , tec+ , tib , tid- , tid+ , tob
     int nFedsConnected [6] = { nFedTECm , nFedTECp , nFedTIB , nFedTIDm , nFedTIDp , nFedTOB };
 
-    MonitorElement * me = dqmStore_->get(topFolderName_+"/MechanicalView/NumberOfDigisInLastLS");
-    if (me) {
+    if (digiFailureMEs.SubDetTotDigiProfLS) {
 
       for (int ibin = 1; ibin<7;ibin++){
 
-	float value = me->getBinContent(ibin);
+        float value = digiFailureMEs.SubDetTotDigiProfLS->getBinContent(ibin);
 
-	float fillvalue = 2;
-	if ( isStableBeams
-	     //	     && (int)lb.id().luminosityBlock() > ignoreFirstNLumisections_     //ignore first X lumisections for HV rampup
-	     && ( (int)lb.id().luminosityBlock() - SBDeclaredAt ) > ignoreFirstNLumisections_
-	     && (float)nFedsConnected[ibin-1] / nFeds[ibin-1] > 0.5
-	     && value < 50. ){
+        float fillvalue = 2;
+        if ( isStableBeams
+          //	     && (int)lb.id().luminosityBlock() > ignoreFirstNLumisections_     //ignore first X lumisections for HV rampup
+          && ( (int)lb.id().luminosityBlock() - SBDeclaredAt ) > ignoreFirstNLumisections_
+          && (float)nFedsConnected[ibin-1] / nFeds[ibin-1] > 0.5
+          && value < 50. ){
 
-	  fillvalue = 1.01;
-	}
+            fillvalue = 1.01;
+          }
 
-	//account for integrated LS: fill previous bins as well
-	for ( int fillbin = (int)lb.id().luminosityBlock() - integrateNLumisections_ + 1 ; fillbin <= (int)lb.id().luminosityBlock() ; fillbin++ )
-	  digiFailureMEs.SubDetDigiFailures2D -> Fill( fillbin , ibin-1 , fillvalue );
+          //account for integrated LS: fill previous bins as well
+          for ( int fillbin = (int)lb.id().luminosityBlock() - integrateNLumisections_ + 1 ; fillbin <= (int)lb.id().luminosityBlock() ; fillbin++ )
+          digiFailureMEs.SubDetDigiFailures2D->Fill( fillbin , ibin-1 , fillvalue );
+        }
       }
-    }
   }
 
 }
