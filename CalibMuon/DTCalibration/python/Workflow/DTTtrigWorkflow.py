@@ -153,7 +153,7 @@ class DTttrigWorkflow( DTWorkflow ):
         self.process.dtResidualCalibration.rootFileName = self.output_file
         self.prepare_common_submit()
         if self.options.histoRange:
-            self.process.dtResidualCalibration.histogramRange = cms.double(self.options.histoRange)
+            self.process.dtResidualCalibration.histogramRange = cms.double(float(self.options.histoRange))
         if self.options.inputCalibDB:
             self.add_local_calib_db()
         self.write_pset_file()
