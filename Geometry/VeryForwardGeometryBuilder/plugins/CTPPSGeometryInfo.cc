@@ -149,7 +149,7 @@ void CTPPSGeometryInfo::PrintGeometry(const TotemRPGeometry &geometry, const edm
   char timeStr[50];
   strftime(timeStr, 50, "%F %T", localtime(&unixTime));
 
-  cout << ">> CTPPSGeometryInfo::PrintGeometry > new " << geometryType << "geometry found in run="
+  cout << ">> CTPPSGeometryInfo::PrintGeometry > new " << geometryType << " geometry found in run="
     << event.id().run() << ", event=" << event.id().event() << ", UNIX timestamp=" << unixTime
     << " (" << timeStr << ")";
 
