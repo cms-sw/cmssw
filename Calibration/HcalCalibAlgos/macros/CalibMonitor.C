@@ -2,8 +2,8 @@
 // Usage:
 // .L CalibMonitor.C+g
 //  CalibMonitor c1(fname, dirname, dupFileName, outFileName, prefix, 
-//                  corrFileName, flag, numb, dataMC, useGen, etalo, etahi,
-//                  runlo, runhi, phimin, phimax, zside);
+//                  corrFileName, flag, numb, dataMC, useGen, scale,
+//                  etalo, etahi, runlo, runhi, phimin, phimax, zside);
 //  c1.Loop();
 //  c1.SavePlot(histFileName,append,all);
 //
@@ -42,6 +42,8 @@
 //   dataMC (bool)             = true/false for data/MC (default true)
 //   useGen (bool)             = true/false to use generator level momentum
 //                               or reconstruction level momentum (def false)
+//   scale (double)            = energy scale if correction factor to be used
+//                               (default = 1.0)
 //   etalo/etahi (int,int)     = |eta| ranges (0:30)
 //   runlo  (int)              = lower value of run number (def -1)
 //   runhi  (int)              = higher value of run number (def 9999999)
@@ -179,8 +181,8 @@ public :
 	       std::string dupFileName, std::string outTxtFileName, 
 	       std::string prefix="", std::string corrFileName="",
 	       int flag=0, int numb=42, bool datMC=true, bool useGen=false,
-	       int etalo=0, int etahi=30, int runlo=-1, int runhi=99999999,
-	       int phimin=1, int phimax=72, int zside=1);
+	       double scale=1.0, int etalo=0, int etahi=30, int runlo=-1, 
+	       int runhi=99999999, int phimin=1, int phimax=72, int zside=1);
   virtual ~CalibMonitor();
   virtual Int_t              Cut(Long64_t entry);
   virtual Int_t              GetEntry(Long64_t entry);
@@ -204,7 +206,7 @@ private:
   bool                      dataMC_, useGen_, corrPU_, corrE_;
   int                       plotType_, etalo_, etahi_, runlo_, runhi_;
   int                       phimin_, phimax_, zside_;
-  double                    log2by18_;
+  double                    scale_, log2by18_;
   std::vector<Long64_t>     entries_;
   std::vector<double>       etas_, ps_, dl1_;
   std::vector<int>          nvx_, ietas_;
@@ -220,7 +222,7 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
 			   std::string dupFileName, std::string outTxtFileName,
 			   std::string prefix, std::string corrFileName,
 			   int flag, int numb, bool dataMC, bool useGen, 
-			   int etalo, int etahi, int runlo,
+			   double scale, int etalo, int etahi, int runlo,
 			   int runhi, int phimin, int phimax,
 			   int zside) : fname_(fname), dirnm_(dirnm),
 					prefix_(prefix), 
@@ -230,7 +232,7 @@ CalibMonitor::CalibMonitor(std::string fname, std::string dirnm,
 					etalo_(etalo), etahi_(etahi), 
 					runlo_(runlo), runhi_(runhi),
 					phimin_(phimin), phimax_(phimax),
-					zside_(zside) {
+					zside_(zside), scale_(scale) {
   // if parameter tree is not specified (or zero), connect the file
   // used to generate this class and read the Tree
 
@@ -956,7 +958,7 @@ bool CalibMonitor::ReadCorrFactor(std::string &fname) {
 	  int   ieta  = std::atoi (items[1].c_str());
 	  int   depth = std::atoi (items[2].c_str());
 	  float corrf = std::atof (items[3].c_str());
-	  cfactors_[std::pair<int,int>(ieta,depth)] = corrf;
+	  cfactors_[std::pair<int,int>(ieta,depth)] = scale_*corrf;
 	}
       }
       fInput.close();
