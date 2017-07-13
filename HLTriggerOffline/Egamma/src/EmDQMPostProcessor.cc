@@ -388,7 +388,6 @@ TH2F* EmDQMPostProcessor::dividehistos2D(DQMStore::IBooker & ibooker, DQMStore::
 
   MonitorElement* meOut = ibooker.book2D(outName,titel,num->GetXaxis()->GetNbins(),num->GetXaxis()->GetXmin(),num->GetXaxis()->GetXmax(),num->GetYaxis()->GetNbins(),num->GetYaxis()->GetXmin(),num->GetYaxis()->GetXmax());
  TH2F* out= meOut->getTH2F();
-  std::cout<<num->GetXaxis()->GetNbins()<<" ,"<<num->GetXaxis()->GetXmin()<<" ,"<<num->GetXaxis()->GetXmax()<<" , "<<num->GetYaxis()->GetNbins()<<" , "<<num->GetYaxis()->GetXmin()<<" , "<<num->GetYaxis()->GetXmax()<<std::endl;
   out->Add(num);
   out->Divide(denom);
   out->GetXaxis()->SetTitle(label.c_str());
