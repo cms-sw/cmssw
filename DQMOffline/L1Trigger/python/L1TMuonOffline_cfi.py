@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-l1tEfficiencyMuons_offline = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
+l1tMuonOfflineDQM = cms.EDAnalyzer("L1TEfficiencyMuons_Offline",
     verbose   = cms.untracked.bool(False),
     gmtPtCuts = cms.untracked.vint32(16,20,25),
     muonInputTag = cms.untracked.InputTag("muons"),
