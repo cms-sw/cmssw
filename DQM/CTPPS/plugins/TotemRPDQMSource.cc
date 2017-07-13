@@ -597,7 +597,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       if (!ft.isValid())
         continue;
 
-      double rp_z = geometry->GetRPGlobalTranslation(rpId).z();
+      double rp_z = geometry->getRPTranslation(rpId).z();
 
       for (unsigned int plNum = 0; plNum < 10; ++plNum)
       {
@@ -608,7 +608,7 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
         double ft_x = ft.getX0() + ft.getTx() * (ft_z - rp_z);
         double ft_y = ft.getY0() + ft.getTy() * (ft_z - rp_z);
 
-        double ft_v = geometry->GlobalToLocal(plId, CLHEP::Hep3Vector(ft_x, ft_y, ft_z)).y();
+        double ft_v = geometry->globalToLocal(plId, CLHEP::Hep3Vector(ft_x, ft_y, ft_z)).y();
 
         bool hasMatchingHit = false;
         const auto &hit_ds_it = hits->find(plId);
@@ -819,14 +819,14 @@ void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& e
       TotemRPDetId plId_V(rpId); plId_V.setPlane(0);
       TotemRPDetId plId_U(rpId); plId_U.setPlane(1);
 
-      double rp_x = ( geometry->GetDetector(plId_V)->translation().x() +
-                      geometry->GetDetector(plId_U)->translation().x() ) / 2.;
-      double rp_y = ( geometry->GetDetector(plId_V)->translation().y() +
-                      geometry->GetDetector(plId_U)->translation().y() ) / 2.;
+      double rp_x = ( geometry->getSensor(plId_V)->translation().x() +
+                      geometry->getSensor(plId_U)->translation().x() ) / 2.;
+      double rp_y = ( geometry->getSensor(plId_V)->translation().y() +
+                      geometry->getSensor(plId_U)->translation().y() ) / 2.;
   
       // mean read-out direction of U and V planes
-      CLHEP::Hep3Vector rod_U = geometry->LocalToGlobalDirection(plId_U, CLHEP::Hep3Vector(0., 1., 0.));
-      CLHEP::Hep3Vector rod_V = geometry->LocalToGlobalDirection(plId_V, CLHEP::Hep3Vector(0., 1., 0.));
+      CLHEP::Hep3Vector rod_U = geometry->localToGlobalDirection(plId_U, CLHEP::Hep3Vector(0., 1., 0.));
+      CLHEP::Hep3Vector rod_V = geometry->localToGlobalDirection(plId_V, CLHEP::Hep3Vector(0., 1., 0.));
   
       double x = ft.getX0() - rp_x;
       double y = ft.getY0() - rp_y;
