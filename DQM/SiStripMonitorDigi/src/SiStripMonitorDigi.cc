@@ -45,7 +45,7 @@ const double NORBITS_PER_SECOND = 11223.;
 
 //--------------------------------------------------------------------------------------------
 SiStripMonitorDigi::SiStripMonitorDigi(const edm::ParameterSet& iConfig) :
-  dqmStore_(edm::Service<DQMStore>().operator->()),
+  //dqmStore_(edm::Service<DQMStore>().operator->()),
   conf_(iConfig),
   show_mechanical_structure_view(true),
   show_readout_view             (false),
