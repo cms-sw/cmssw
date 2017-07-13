@@ -498,7 +498,7 @@ void B2GDQM::analyzeSemiMu(const Event& iEvent, const edm::EventSetup& iSetup) {
   if (hadJet.isAvailable() == false || lepJet.isAvailable() == false) return;
 
   auto lepJetP4 = lepJet->p4();
-  auto muonP4 = muon.p4();
+  const auto& muonP4 = muon.p4();
 
   double tot = lepJetP4.mag2();
   double ss = muonP4.Dot(lepJet->p4());
@@ -575,7 +575,7 @@ void B2GDQM::analyzeSemiE(const Event& iEvent, const edm::EventSetup& iSetup) {
   if (hadJet.isAvailable() == false || lepJet.isAvailable() == false) return;
 
   auto lepJetP4 = lepJet->p4();
-  auto electronP4 = electron.p4();
+  const auto& electronP4 = electron.p4();
 
   double tot = lepJetP4.mag2();
   double ss = electronP4.Dot(lepJet->p4());

@@ -205,7 +205,7 @@ FWPathsPopup::postEvent(edm::Event const &event)
 
    if (triggerResults.isValid())
    {
-      edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
+      const edm::TriggerNames& triggerNames = event.triggerNames(*triggerResults);
      
       for (size_t i = 0, e = triggerResults->size(); i != e; ++i)
       {

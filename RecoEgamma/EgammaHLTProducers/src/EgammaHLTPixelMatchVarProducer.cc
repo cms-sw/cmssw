@@ -248,7 +248,7 @@ void EgammaHLTPixelMatchVarProducer::produce(edm::Event& iEvent, const edm::Even
     
     std::array<float,4> bestS2{{std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max(),std::numeric_limits<float>::max()}};
     for(auto & seed : *pixelSeedsHandle){
-      edm::RefToBase<reco::CaloCluster> pixelClusterRef = seed.caloCluster() ;
+      const edm::RefToBase<reco::CaloCluster>& pixelClusterRef = seed.caloCluster() ;
       reco::SuperClusterRef pixelSCRef = pixelClusterRef.castTo<reco::SuperClusterRef>() ;
       if(&(*candSCRef) ==  &(*pixelSCRef)){
 	

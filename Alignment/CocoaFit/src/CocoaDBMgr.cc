@@ -185,7 +185,7 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO( OpticalObject* opto )
   CLHEP::HepRotation parentRmGlobInv = inverseOf( opto->parent()->rmGlob() );
   centreLocal = parentRmGlobInv * centreLocal;
 
-  const std::vector< Entry* > theCoordinateEntryVector = opto->CoordinateEntryList();
+  const std::vector< Entry* >& theCoordinateEntryVector = opto->CoordinateEntryList();
   std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting coord " <<std::endl;
 
   data.x_.value_= centreLocal.x() / 100.; // in cm
@@ -217,7 +217,7 @@ OpticalAlignInfo CocoaDBMgr::GetOptAlignInfoFromOptO( OpticalObject* opto )
   data.angz_.error_= GetEntryError( theCoordinateEntryVector[5] ) * 180./M_PI; // in deg;
 
   
-  const std::vector< Entry* > theExtraEntryVector = opto->ExtraEntryList();  std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting entry " << std::endl;
+  const std::vector< Entry* >& theExtraEntryVector = opto->ExtraEntryList();  std::cout << " CocoaDBMgr::GetOptAlignInfoFromOptO starting entry " << std::endl;
 
   std::vector< Entry* >::const_iterator ite;
   for( ite = theExtraEntryVector.begin(); ite != theExtraEntryVector.end(); ++ite ) {
@@ -316,8 +316,8 @@ AlignTransform* CocoaDBMgr::GetAlignInfoFromOptO( OpticalObject* opto )
 {
   if(ALIUtils::debug >= 3) std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO " << opto->name() << std::endl;
 
-  AlignTransform::Translation trans = opto->centreGlob();
-  AlignTransform::Rotation rot = opto->rmGlob();
+  const AlignTransform::Translation& trans = opto->centreGlob();
+  const AlignTransform::Rotation& rot = opto->rmGlob();
   align::ID cmsswID = opto->getCmsswID();
 
   std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptO buildalign" << opto->name() << std::endl;
@@ -348,7 +348,7 @@ AlignTransformErrorExtended* CocoaDBMgr::GetAlignInfoErrorFromOptO( OpticalObjec
   return alignError;
 
   CLHEP::HepMatrix errm(3,3);
-  const std::vector< Entry* > theCoordinateEntryVector = opto->CoordinateEntryList();
+  const std::vector< Entry* >& theCoordinateEntryVector = opto->CoordinateEntryList();
 std::cout << "@@@ CocoaDBMgr::GetAlignInfoFromOptOfill errm " << opto->name() << std::endl;
   errm(0,0) = GetEntryError( theCoordinateEntryVector[0] ) / 100.; // in cm
   errm(1,1) = GetEntryError( theCoordinateEntryVector[1] ) / 100.; // in cm

@@ -240,7 +240,7 @@ void MaterialBudgetData::dataPerStep( const G4Step* aStep )
   
   G4VPhysicalVolume*       pv                = aStep->GetPreStepPoint()->GetPhysicalVolume();
   const G4VTouchable*      t                 = aStep->GetPreStepPoint()->GetTouchable();
-  G4ThreeVector            objectTranslation = t->GetTranslation();
+  const G4ThreeVector&            objectTranslation = t->GetTranslation();
   const G4RotationMatrix*  objectRotation    = t->GetRotation();
   const G4VProcess*        interactionPre    = prePoint->GetProcessDefinedStep();
   const G4VProcess*        interactionPost   = postPoint->GetProcessDefinedStep();

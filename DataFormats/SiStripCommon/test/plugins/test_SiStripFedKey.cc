@@ -120,8 +120,8 @@ void testSiStripFedKey::beginJob() {
 		    sistrip::invalid_);
   SiStripFedKey valid(51,1,1,1);
   SiStripFedKey all(0,0,0,0);
-  SiStripFedKey same(valid);
-  SiStripFedKey equal = valid;
+  const SiStripFedKey& same(valid);
+  const SiStripFedKey& equal = valid;
   SiStripFedKey equals; 
   equals = valid;
 

@@ -420,9 +420,9 @@ EcalSimHitsValidProducer::update(const EndOfEvent* evt){
 void
 EcalSimHitsValidProducer::update(const G4Step* aStep){
  G4StepPoint* preStepPoint = aStep->GetPreStepPoint();
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
   G4VPhysicalVolume* currentPV  = preStepPoint->GetPhysicalVolume();
-  G4String name         = currentPV->GetName();
+  const G4String& name         = currentPV->GetName();
   std::string crystal;
   crystal.assign(name,0,4);
 

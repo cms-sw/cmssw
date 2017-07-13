@@ -289,7 +289,7 @@ bool DAFTrackProducerAlgorithm::buildTrack (const Trajectory vtraj,
 int DAFTrackProducerAlgorithm::countingGoodHits(const Trajectory traj) const{
 
   int ngoodhits = 0;
-  Trajectory myTraj = traj;
+  const Trajectory& myTraj = traj;
   std::vector<TrajectoryMeasurement> vtm = traj.measurements();
 
   for (std::vector<TrajectoryMeasurement>::const_iterator tm = vtm.begin(); tm != vtm.end(); tm++){

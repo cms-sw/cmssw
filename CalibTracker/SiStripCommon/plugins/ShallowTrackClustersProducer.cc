@@ -142,7 +142,7 @@ produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 		size_t trk_strt_idx = ontrk_cluster_idx;
 
     BOOST_FOREACH( const TrajectoryMeasurement measurement, traj->measurements() ) {
-      const TrajectoryStateOnSurface tsos = measurement.updatedState();
+      const TrajectoryStateOnSurface& tsos = measurement.updatedState();
       const TrajectoryStateOnSurface unbiased = combiner(measurement.forwardPredictedState(), measurement.backwardPredictedState());
 
       const TrackingRecHit*         hit        = measurement.recHit()->hit();

@@ -202,7 +202,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   reco::Candidate::LorentzVector stripsP4;
   BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
       tau->signalPiZeroCandidates()){
-    math::XYZTLorentzVector candP4 = cand.p4();
+    const math::XYZTLorentzVector& candP4 = cand.p4();
     stripsP4 += candP4;
   }
 
@@ -210,7 +210,7 @@ PFRecoTauDiscriminationByHPSSelection::discriminate(const reco::PFTauRef& tau) c
   if (massWindow.assumeStripMass_ >= 0) {
     BOOST_FOREACH(const reco::RecoTauPiZero& cand, 
         tau->signalPiZeroCandidates()){
-      math::XYZTLorentzVector uncorrected = cand.p4();
+      const math::XYZTLorentzVector& uncorrected = cand.p4();
       math::XYZTLorentzVector corrected = 
         applyMassConstraint(uncorrected, massWindow.assumeStripMass_);
       math::XYZTLorentzVector correction = corrected - uncorrected;

@@ -436,7 +436,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     if( RorZofFirstHitMin_.at(0) != 0.0 || RorZofFirstHitMin_.at(1) != 0.0 
       || RorZofFirstHitMax_.at(0) != 999.0 || RorZofFirstHitMax_.at(1) != 999.0 ) {
 
-      const reco::TrackBase::Point firstPoint(trackp->innerPosition());
+      const reco::TrackBase::Point& firstPoint(trackp->innerPosition());
 
       if( (std::fabs(firstPoint.R()) < RorZofFirstHitMin_.at(0) )) passedFirstHitPositionR = false;
       if( (std::fabs(firstPoint.R()) > RorZofFirstHitMax_.at(0) )) passedFirstHitPositionR = false;
@@ -447,7 +447,7 @@ bool AlignmentTrackSelector::detailedHitsCheck(const reco::Track *trackp, const 
     if( RorZofLastHitMin_.at(0) != 0.0 || RorZofLastHitMin_.at(1) != 0.0 
       || RorZofLastHitMax_.at(0) != 999.0 || RorZofLastHitMax_.at(1) != 999.0 ) {
 
-      const reco::TrackBase::Point lastPoint(trackp->outerPosition());
+      const reco::TrackBase::Point& lastPoint(trackp->outerPosition());
 
       if( (std::fabs(lastPoint.R()) < RorZofLastHitMin_.at(0) )) passedLastHitPositionR = false;
       if( (std::fabs(lastPoint.R()) > RorZofLastHitMax_.at(0) )) passedLastHitPositionR = false;

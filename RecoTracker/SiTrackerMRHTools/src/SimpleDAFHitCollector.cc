@@ -31,7 +31,7 @@ vector<TrajectoryMeasurement> SimpleDAFHitCollector::recHits(const Trajectory& t
 
   //WARNING: At the moment the trajectories has the measurements 
   //with reversed sorting after the track smoothing
-  const vector<TrajectoryMeasurement> meas = traj.measurements();
+  const vector<TrajectoryMeasurement>& meas = traj.measurements();
   unsigned int hitcounter = 1;
 
   if (meas.empty()) return vector<TrajectoryMeasurement>();

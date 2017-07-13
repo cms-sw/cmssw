@@ -619,7 +619,7 @@ void BeamMonitor::analyze(const Event& iEvent,
   if(iEvent.getByToken(hltSrc_, triggerResults)){
      const edm::TriggerNames & trigNames = iEvent.triggerNames(*triggerResults); 
       for (unsigned int i=0; i< triggerResults->size(); i++){
-           std::string trigName = trigNames.triggerName(i);
+           const std::string& trigName = trigNames.triggerName(i);
 
          if(JetTrigPass) continue;
 

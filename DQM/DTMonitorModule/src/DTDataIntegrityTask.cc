@@ -805,7 +805,7 @@ void DTDataIntegrityTask::processFED(DTDDUData & data, const std::vector<DTROS25
     hCorruptionSummary->Fill(code.getDDUID(), 6);
   }
 
-  DTDDUSecondStatusWord secondWord = data.getSecondStatusWord();
+  const DTDDUSecondStatusWord& secondWord = data.getSecondStatusWord();
 
   // Fill the status summary of the TTS
 

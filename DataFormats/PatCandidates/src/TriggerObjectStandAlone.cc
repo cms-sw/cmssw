@@ -406,7 +406,7 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
          return &iter->second;
       }
 
-      auto   triggerNames= event.triggerNames(res); //this also ensure that the registry is filled
+      const auto&   triggerNames= event.triggerNames(res); //this also ensure that the registry is filled
       edm::pset::Registry* psetRegistry = edm::pset::Registry::instance();
       edm::ParameterSet const* pset=0;
       if (0!=(pset=psetRegistry->getMapped(psetid ))) {
@@ -425,7 +425,7 @@ std::vector<std::string>  const* TriggerObjectStandAlone::allLabels(edm::Paramet
 		    auto moduleStrip=module.front()!='-' ? module : module.substr(1);
  
 		    if (pset->exists(moduleStrip)) {
-			auto modulePSet= pset->getParameterSet(moduleStrip);
+			const auto& modulePSet= pset->getParameterSet(moduleStrip);
 			if (modulePSet.existsAs<bool>("saveTags",true) and 
 			    modulePSet.getParameter<bool>("saveTags") ) {
 			    saveTags.insert(moduleStrip);

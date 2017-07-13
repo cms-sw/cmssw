@@ -391,8 +391,8 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
                         reco::Track track1 = tracks->at(0);
                         reco::Track track2 = tracks->at(1);
 
-                        math::XYZPoint dca1 = track1.referencePoint();
-                        math::XYZPoint dca2 = track2.referencePoint();
+                        const math::XYZPoint& dca1 = track1.referencePoint();
+                        const math::XYZPoint& dca2 = track2.referencePoint();
 
                         // looping through the hits for track 1
                         int Nrechits1 =0;
@@ -472,7 +472,7 @@ void CosmicSplitterValidation::analyze(const edm::Event& iEvent, const edm::Even
 
                         // original tracks calculations
                         reco::Track origTrack = originalTracks->at(0);
-                        math::XYZPoint dca_org = origTrack.referencePoint();
+                        const math::XYZPoint& dca_org = origTrack.referencePoint();
 
                         // looping through the hits for the original track
                         int Nrechitsorg =0;

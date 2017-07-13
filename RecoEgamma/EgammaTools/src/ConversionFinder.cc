@@ -64,7 +64,7 @@ std::vector<ConversionInfo> ConversionFinder::getConversionInfos(const reco::Gsf
   //get the references to the gsf and ctf tracks that are made
   //by the electron
   const reco::TrackRef    el_ctftrack	= gsfElectron.ctfTrack();
-  const reco::GsfTrackRef el_gsftrack	= gsfElectron.gsfTrack();
+  const reco::GsfTrackRef& el_gsftrack	= gsfElectron.gsfTrack();
 
   //protect against the wrong collection being passed to the function
   if(el_ctftrack.isNonnull() && el_ctftrack.id() != ctftracks_h.id())

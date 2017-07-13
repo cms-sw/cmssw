@@ -36,7 +36,7 @@ make_and_fit_symmchi2(Book& book) {
     const std::string base = boost::erase_all_copy(it->first,"_all");
 
     std::vector<Book::iterator> rebin_hists;              
-    Book::iterator    all = it;	                             rebin_hists.push_back(all);   
+    const Book::iterator&    all = it;	                             rebin_hists.push_back(all);   
     Book::iterator     w1 = book.find(base+"_w1");           rebin_hists.push_back(w1);    
     Book::iterator var_w2 = book.find(base+method(AVGV2,0)); rebin_hists.push_back(var_w2);
     Book::iterator var_w3 = book.find(base+method(AVGV3,0)); rebin_hists.push_back(var_w3);

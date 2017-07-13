@@ -344,7 +344,7 @@ void testRefInROOT::testHandleErrors()
    CPPUNIT_ASSERT_THROW(*pThings,cms::Exception);
    
    //try copy constructor
-   fwlite::Handle<edmtest::ThingCollection> pThings2(pThings) ;
+   const fwlite::Handle<edmtest::ThingCollection>& pThings2(pThings) ;
    CPPUNIT_ASSERT_THROW(*pThings2,cms::Exception);
    
 }

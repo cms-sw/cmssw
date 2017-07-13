@@ -1130,11 +1130,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	       double tbptSqPhy = et0Phy*et0Phy + et1Phy*et1Phy + 2*et0Phy*et1Phy*(cosPhi1Phy*cosPhi2Phy + sinPhi1Phy*sinPhi2Phy);
 	       // get values from LUT's
 
-	       std::string lutName0 = lutObj0;
+	       const std::string& lutName0 = lutObj0;
 	       unsigned int precCosLUT0 = m_gtScales->getPrec_Cos(lutName0);
 	       unsigned int precSinLUT0 = m_gtScales->getPrec_Sin(lutName0);
 
-	       std::string lutName1 = lutObj1;
+	       const std::string& lutName1 = lutObj1;
 	       unsigned int precCosLUT1 = m_gtScales->getPrec_Cos(lutName1);
 	       unsigned int precSinLUT1 = m_gtScales->getPrec_Sin(lutName1);
 

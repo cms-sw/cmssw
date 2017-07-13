@@ -451,7 +451,7 @@ void MuonAlignmentFromReference::run(const edm::EventSetup& iSetup, const EventI
     {
         if (m_debug) std::cout << "JUST BEFORE LOOP OVER trajTrackPairs" << std::endl;
         // const ConstTrajTrackPairCollection &trajtracks = eventInfo.trajTrackPairs_; // trajTrackPairs_ now private
-        const ConstTrajTrackPairCollection trajtracks = eventInfo.trajTrackPairs();
+        const ConstTrajTrackPairCollection& trajtracks = eventInfo.trajTrackPairs();
 
         for (ConstTrajTrackPairCollection::const_iterator trajtrack = trajtracks.begin();  trajtrack != trajtracks.end();  ++trajtrack)
         {

@@ -133,7 +133,7 @@ void calcTopMass::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
 
     const math::XYZTLorentzVector theJet = (*j).first.get()->p4();
     const MatchedPartons aMatch = (*j).second;
-    const GenParticleRef thePhyDef = aMatch.physicsDefinitionParton() ;
+    const GenParticleRef& thePhyDef = aMatch.physicsDefinitionParton() ;
     
     if(thePhyDef.isNonnull()) {
 

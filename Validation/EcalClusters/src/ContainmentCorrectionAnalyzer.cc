@@ -182,7 +182,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	superClusterEt[nRECOphotons-1]=nearSC->rawEnergy()/std::cosh(nearSC->position().eta());
 	iMC[nRECOphotons-1]=nMCphotons-1;
 
-	reco::CaloClusterPtr theSeed = nearSC->seed();
+	const reco::CaloClusterPtr& theSeed = nearSC->seed();
 	seedXtal[nRECOphotons-1] = EcalClusterTools::getMaximum(*theSeed, ebRecHits).first;
 	e1[nRECOphotons-1]       = EcalClusterTools::eMax(*theSeed, ebRecHits);
 	e9[nRECOphotons-1]       = EcalClusterTools::e3x3(*theSeed, ebRecHits, topology ); 
@@ -222,7 +222,7 @@ void ContainmentCorrectionAnalyzer::analyze( const Event& evt, const EventSetup&
 	superClusterEt[nRECOphotons-1]=(nearSC->rawEnergy() + psEnergy)/std::cosh(nearSC->position().eta());
 	iMC[nRECOphotons-1]=nMCphotons-1;
 
-	reco::CaloClusterPtr theSeed = nearSC->seed();
+	const reco::CaloClusterPtr& theSeed = nearSC->seed();
 	seedXtal[nRECOphotons-1] = EcalClusterTools::getMaximum(*theSeed, eeRecHits).first;
 	e1[nRECOphotons-1]       = EcalClusterTools::eMax(*theSeed, eeRecHits) + psEnergy;
 	e9[nRECOphotons-1]       = EcalClusterTools::e3x3(*theSeed, eeRecHits, topology ) + psEnergy; 
@@ -409,7 +409,7 @@ std::vector<EcalSimPhotonMCTruth> ContainmentCorrectionAnalyzer::findMcTruth(std
 	convInd[iPho]=nConv;         
 	int convVtxId =  trkFromConversion[0]->vertIndex();
 	SimVertex convVtx = theSimVertices[convVtxId];
-	math::XYZTLorentzVectorD vtxPosition = convVtx.position();
+	const math::XYZTLorentzVectorD& vtxPosition = convVtx.position();
 	// math::XYZTLorentzVectorD momentum = (*iPhoTk)->momentum(); // UNUSED
 	if ( nConv <= 10) {         
 	  if ( trkFromConversion.size() > 1) {

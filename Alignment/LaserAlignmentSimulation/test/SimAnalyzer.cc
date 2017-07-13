@@ -267,7 +267,7 @@ void SimAnalyzer::trackerStatistics(edm::Event const& theEvent, edm::EventSetup 
 	const TrackerGeometry& theTracker(*theTrackerGeometry);
 
 	// the DetUnits
-	TrackingGeometry::DetContainer theDetUnits = theTracker.dets();
+	const TrackingGeometry::DetContainer& theDetUnits = theTracker.dets();
 
 	// get the SimHitContainers
 	std::vector<edm::Handle<edm::PSimHitContainer> > theSimHitContainers;

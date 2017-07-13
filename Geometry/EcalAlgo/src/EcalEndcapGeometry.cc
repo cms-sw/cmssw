@@ -124,7 +124,7 @@ EcalEndcapGeometry::initializeParms()
      const CaloCellGeometry* cell ( cellGeomPtr(i) ) ;
      if( 0 != cell )
      {
-	const GlobalPoint p ( cell->getPosition()  ) ;
+	const GlobalPoint& p ( cell->getPosition()  ) ;
 	const CCGFloat z ( p.z() ) ;
 	const CCGFloat zz ( 0 > z ? zeN : zeP ) ;
 	const CCGFloat x ( p.x()*zz/z ) ;

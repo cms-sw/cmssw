@@ -449,7 +449,7 @@ GenPurposeSkimmerData::analyze(const edm::Event& evt, const edm::EventSetup& es)
   edm::Handle<reco::BeamSpot> pBeamSpot;
   evt.getByToken(offlineBeamSpotToken_, pBeamSpot);
   const reco::BeamSpot *bspot = pBeamSpot.product();
-  const math::XYZPoint bspotPosition = bspot->position();
+  const math::XYZPoint& bspotPosition = bspot->position();
   //
   for (int i=0; i<20; ++i) {
     ctf_track_pt[i] = -9999.;

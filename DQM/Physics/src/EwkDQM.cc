@@ -250,7 +250,7 @@ void EwkDQM::analyze(const Event& iEvent, const EventSetup& iSetup) {
   bool passed_electron_HLT = false;
   bool passed_muon_HLT = false;
   for (unsigned int i = 0; i < HLTresults->size(); i++) {
-    const std::string trigName = trigNames.triggerName(i);
+    const std::string& trigName = trigNames.triggerName(i);
     // check if triggerName matches electronPath
     for (unsigned int index = 0;
          index < theElecTriggerPathToPass_.size() && !passed_electron_HLT;

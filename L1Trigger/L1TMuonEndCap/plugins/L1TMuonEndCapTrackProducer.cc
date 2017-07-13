@@ -307,7 +307,7 @@ void L1TMuonEndCapTrackProducer::produce(edm::Event& ev,
     ///////////////////////////////  same hits. This is where the BX analysis ends; Only 1 list of found patterns is given to the next module.
     
     std::vector<PatternOutput> Pout = Patterns(Zout);
-    std::vector<PatternOutput> Pout_Hold = Pout;
+    const std::vector<PatternOutput>& Pout_Hold = Pout;
     
     // PatternOutput Test = DeleteDuplicatePatterns(Pout);
     

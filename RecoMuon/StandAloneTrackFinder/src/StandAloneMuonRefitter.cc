@@ -43,7 +43,7 @@ StandAloneMuonRefitter::RefitResult StandAloneMuonRefitter::singleRefit(const Tr
 
   vector<Trajectory> refitted;
 
-  TrajectoryMeasurement lastTM = trajectory.lastMeasurement();                                      
+  const TrajectoryMeasurement& lastTM = trajectory.lastMeasurement();                                      
 
   TrajectoryStateOnSurface firstTsos(lastTM.updatedState());
 

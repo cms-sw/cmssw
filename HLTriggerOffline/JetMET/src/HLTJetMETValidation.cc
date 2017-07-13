@@ -397,7 +397,7 @@ void HLTJetMETValidation::getHLTResults(const edm::TriggerResults& hltresults,
     HLTinit_=true;
     
     for (int itrig = 0; itrig != ntrigs; ++itrig){
-      std::string trigName = triggerNames.triggerName(itrig);
+      const std::string& trigName = triggerNames.triggerName(itrig);
       // std::cout << "trigger " << itrig << ": " << trigName << std::endl; 
     }
   }

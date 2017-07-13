@@ -51,7 +51,7 @@ public:
       conf.getParameter<edm::InputTag>("inputPS");
     _inputPS = consumes<reco::PFClusterCollection>( inputPS );
 
-    const edm::ParameterSet corConf = conf.getParameterSet("energyCorrector");
+    const edm::ParameterSet& corConf = conf.getParameterSet("energyCorrector");
     _corrector.reset(new PFClusterEMEnergyCorrector(corConf,consumesCollector()));
 
     produces<reco::PFCluster::EEtoPSAssociation>();

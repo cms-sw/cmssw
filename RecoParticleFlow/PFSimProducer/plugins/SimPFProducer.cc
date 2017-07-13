@@ -318,7 +318,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
 	    if( supercluster_index != -1 ) {
 	      edm::Ref<reco::PFBlockCollection> blockRef(blocksHandle,block_index);
 	      for( const auto& elem : blockRef->elements() ) {
-		auto ref = elem.clusterRef();
+		const auto& ref = elem.clusterRef();
 		if( !usedSimCluster[ref.key()] ) {
 		  candidate.addElementInBlock(blockRef,elem.index());
 		  usedSimCluster[ref.key()] = true;
@@ -342,7 +342,7 @@ void SimPFProducer::produce(edm::StreamID, edm::Event& evt, const edm::EventSetu
     reco::PFBlockRef blref(blocksHandle,ibl);
     const auto& elements = theblocks[ibl].elements();
     for( const auto& elem : elements ) {
-      auto ref = elem.clusterRef();
+      const auto& ref = elem.clusterRef();
       const auto& simtruth = SimClustersTruth[ref.key()];
       reco::PFCandidate::ParticleType part_type;
       if( !usedSimCluster[ref.key()] ) {

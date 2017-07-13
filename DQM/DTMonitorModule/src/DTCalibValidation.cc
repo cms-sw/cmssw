@@ -366,7 +366,7 @@ void DTCalibValidation::compute(const DTGeometry *dtGeom,
       if(recHitsPerWire.find(wireId) == recHitsPerWire.end()) {
         LogTrace("DTCalibValidation") << "   No RecHit found at Step: " << step << " in cell: " << wireId;
       } else {
-	vector<type> recHits = recHitsPerWire.at(wireId);
+	const vector<type>& recHits = recHitsPerWire.at(wireId);
 	LogTrace("DTCalibValidation") << "   " << recHits.size() << " RecHits, Step " << step << " in channel: " << wireId;
 
 	// Get the layer

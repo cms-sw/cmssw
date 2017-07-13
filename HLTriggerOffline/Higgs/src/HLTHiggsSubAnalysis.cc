@@ -567,7 +567,7 @@ void HLTHiggsSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventSet
     delete matches;  
     
     // -- Trigger Results
-    const edm::TriggerNames trigNames = iEvent.triggerNames(*(cols->triggerResults));
+    const edm::TriggerNames& trigNames = iEvent.triggerNames(*(cols->triggerResults));
 
     if( _bookHtPlots ){
       edm::Handle<reco::PFJetCollection> recoJet;

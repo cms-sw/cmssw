@@ -107,7 +107,7 @@ SiPixelDataQuality::~SiPixelDataQuality() {
  */
 int SiPixelDataQuality::getDetId(MonitorElement * mE) 
 {
- string mEName = mE->getName() ;
+ const string& mEName = mE->getName() ;
 
  int detId = 0;
  

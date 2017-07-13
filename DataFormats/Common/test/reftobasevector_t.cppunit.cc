@@ -41,7 +41,7 @@ using namespace testreftobase;
 void
 do_some_tests(edm::RefToBaseVector<Base> x)
 {
-  edm::RefToBaseVector<Base> copy(x);
+  const edm::RefToBaseVector<Base>& copy(x);
  
   CPPUNIT_ASSERT(x.empty() == copy.empty());
   CPPUNIT_ASSERT(x.size() == copy.size());
@@ -69,7 +69,7 @@ testRefToBaseVector::check()
   rv2.push_back( Ref<std::vector<Inherit2> >( h2, 1 ) );
 
   RefToBaseVector<Base> empty;
-  RefToBaseVector<Base> copy_of_empty(empty);
+  const RefToBaseVector<Base>& copy_of_empty(empty);
 
   CPPUNIT_ASSERT(empty == copy_of_empty);
 

@@ -517,7 +517,7 @@ void RegressionEnergyPatElectronProducer::produce( edm::Event & event, const edm
 										       debug_);
 	FinalMomentum = RegressionMomentum;
 	FinalMomentumError = RegressionMomentumError;
-	math::XYZTLorentzVector oldMomentum = ele->p4();
+	const math::XYZTLorentzVector& oldMomentum = ele->p4();
 	math::XYZTLorentzVector newMomentum = math::XYZTLorentzVector
 	  ( oldMomentum.x()*FinalMomentum/oldMomentum.t(),
 	    oldMomentum.y()*FinalMomentum/oldMomentum.t(),

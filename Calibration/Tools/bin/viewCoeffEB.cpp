@@ -30,7 +30,7 @@ int main (int argc, char* argv[])
   if (!fileName.empty ()) barrelreader.parseXMLMiscalibFile (fileName) ;
   EcalIntercalibConstants* constants = 
          new EcalIntercalibConstants (map.get ()) ;
-  EcalIntercalibConstantMap imap = 
+  const EcalIntercalibConstantMap& imap = 
       constants->getMap () ;  
 
   TH1F coeffDistr ("coeffDistrEB","coeffDistrEB",500,0,2) ;

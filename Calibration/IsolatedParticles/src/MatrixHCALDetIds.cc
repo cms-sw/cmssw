@@ -50,7 +50,7 @@ namespace spr{
 				   bool debug) {
  
     HcalDetId   hcdet = HcalDetId(det);
-    GlobalPoint core  = geo->getPosition(hcdet);
+    const GlobalPoint& core  = geo->getPosition(hcdet);
     std::vector<DetId> dets, vdetx;
     dets.push_back(det);
     int ietaphi = (int)(dR/15.0)+1;
@@ -58,7 +58,7 @@ namespace spr{
 						  ietaphi, includeHO, debug);
     for (unsigned int i=0; i<vdets.size(); ++i) {
       HcalDetId   hcdet  = HcalDetId(vdets[i]);
-      GlobalPoint rpoint = geo->getPosition(hcdet);
+      const GlobalPoint& rpoint = geo->getPosition(hcdet);
       if (spr::getDistInPlaneTrackDir(core, trackMom, rpoint) < dR) {
 	vdetx.push_back(vdets[i]);
       }

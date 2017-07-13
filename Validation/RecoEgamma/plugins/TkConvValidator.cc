@@ -1030,7 +1030,7 @@ void TkConvValidator::analyze( const edm::Event& e, const edm::EventSetup& esup 
         if ( highPurity_ && !aConv.quality(reco::Conversion::highPurity) ) continue;
 
 	//problematic?
-	std::vector<edm::RefToBase<reco::Track> > tracks = aConv.tracks();
+	const std::vector<edm::RefToBase<reco::Track> >& tracks = aConv.tracks();
 
 
 	const reco::Vertex& vtx = aConv.conversionVertex();

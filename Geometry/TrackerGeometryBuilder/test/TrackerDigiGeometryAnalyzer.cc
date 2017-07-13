@@ -135,7 +135,7 @@ void TrackerDigiGeometryAnalyzer::analyseTrapezoidal( const GeomDetUnit& det)
 
   checkTopology( det);
 
-  GlobalPoint pos = det.position();
+  const GlobalPoint& pos = det.position();
   double length = tb->length();
   double width = tb->width();
 

@@ -57,7 +57,7 @@ void testDTDetIds::testConstructors(){
 	CPPUNIT_ASSERT(newChamberId == chamberId);
 
 	// Test DTChamberId copy constructor
-	DTChamberId copyChamberId(newChamberId);
+	const DTChamberId& copyChamberId(newChamberId);
 	CPPUNIT_ASSERT(copyChamberId == newChamberId);
 
 	for (int slayer=DTWireId::minSuperLayerId; 
@@ -79,7 +79,7 @@ void testDTDetIds::testConstructors(){
 	  CPPUNIT_ASSERT(anotherSLId == slId);
 
 	  // Test DTChamberId copy constructor
-	  DTChamberId copyChamberIdFromSl(slId);
+	  const DTChamberId& copyChamberIdFromSl(slId);
 	  CPPUNIT_ASSERT(copyChamberIdFromSl == chamberId);
 
 	  // Test DTSuperLayerId constructor from raw SL Id
@@ -87,7 +87,7 @@ void testDTDetIds::testConstructors(){
 	  CPPUNIT_ASSERT(copyChamberIdFromRawSl == chamberId);
 
 	  // Test DTSuperLayerId copy constructor
-	  DTSuperLayerId copySlId(slId);
+	  const DTSuperLayerId& copySlId(slId);
 	  CPPUNIT_ASSERT(slId == copySlId);
 
 	  for (int layer=DTWireId::minLayerId; 
@@ -114,7 +114,7 @@ void testDTDetIds::testConstructors(){
 	    CPPUNIT_ASSERT(anotherLayerId1 == layerId);
 
 	    // Test DTChamberId copy constructor
-	    DTChamberId copyChamberIdFromLayer(layerId);
+	    const DTChamberId& copyChamberIdFromLayer(layerId);
 	    CPPUNIT_ASSERT(copyChamberIdFromLayer == chamberId);
 
 	    // Test DTSuperLayerId constructor from raw layer Id
@@ -122,7 +122,7 @@ void testDTDetIds::testConstructors(){
 	    CPPUNIT_ASSERT(copyChamberIdFromRawLayer == chamberId);
 	    
 	    // Test DTSuperLayerId copy constructor
-	    DTSuperLayerId copySlIdFromLayer(layerId);
+	    const DTSuperLayerId& copySlIdFromLayer(layerId);
 	    CPPUNIT_ASSERT(copySlIdFromLayer == slId);
 
 	    // Test DTSuperLayerId constructor from raw layer Id
@@ -130,7 +130,7 @@ void testDTDetIds::testConstructors(){
 	    CPPUNIT_ASSERT(copySlIdFromRawLayer == slId);
 
 	    // Test DTLayerId copy constructor
-	    DTLayerId copyLayerId(layerId);
+	    const DTLayerId& copyLayerId(layerId);
 	    CPPUNIT_ASSERT(copyLayerId == layerId);
 	    
 	    for (int wire=DTWireId::minWireId; 
@@ -163,7 +163,7 @@ void testDTDetIds::testConstructors(){
 	      CPPUNIT_ASSERT(anotherWireId2 == wireId);
 
 	      // Test DTChamberId copy constructor
-	      DTChamberId copyChamberIdFromWire(wireId);
+	      const DTChamberId& copyChamberIdFromWire(wireId);
 	      CPPUNIT_ASSERT(copyChamberIdFromWire == chamberId);
 
 	      // Test DTChamberId constructor from raw wireId
@@ -171,7 +171,7 @@ void testDTDetIds::testConstructors(){
 	      CPPUNIT_ASSERT(copyChamberIdFromRawWire == chamberId);
 
 	      // Test DTSuperLayerId copy constructor
-	      DTSuperLayerId copySlIdFromWire(wireId);
+	      const DTSuperLayerId& copySlIdFromWire(wireId);
 	      CPPUNIT_ASSERT(copySlIdFromWire == slId);
 
 	      // Test DTSuperLayerId constructor from raw wireId
@@ -179,7 +179,7 @@ void testDTDetIds::testConstructors(){
 	      CPPUNIT_ASSERT(copySlIdFromRawWire == slId);
 	      
 	      // Test DTLayerId copy constructor
-	      DTLayerId copyLayerIdFromWire(wireId);
+	      const DTLayerId& copyLayerIdFromWire(wireId);
 	      CPPUNIT_ASSERT(copyLayerIdFromWire == layerId);
 
 	      // Test DTLayerId constructor from raw wireId
@@ -187,7 +187,7 @@ void testDTDetIds::testConstructors(){
 	      CPPUNIT_ASSERT(copyLayerIdFromRawWire == layerId);
 
 	      // Test DTWireId copy constructor
-	      DTWireId copyWireId(wireId);
+	      const DTWireId& copyWireId(wireId);
 	      CPPUNIT_ASSERT(copyWireId == wireId);
 	    }
 	  }
@@ -348,13 +348,13 @@ void testDTDetIds::testMemberOperators(){
   CPPUNIT_ASSERT(layer3 == layer1);
 
   // Test assignement operators from derived objects
-  DTChamberId chamber6 = superlayer1;
+  const DTChamberId& chamber6 = superlayer1;
   CPPUNIT_ASSERT(chamber6 == chamber3);
 
-  DTSuperLayerId superlayer6 = layer1;
+  const DTSuperLayerId& superlayer6 = layer1;
   CPPUNIT_ASSERT(superlayer6 == superlayer3);
 
-  DTLayerId layer6 = wire1;
+  const DTLayerId& layer6 = wire1;
   CPPUNIT_ASSERT(layer6 == layer3);
 
 

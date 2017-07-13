@@ -67,7 +67,7 @@ G4double ToyModelHadronicProcess::GetMeanFreePath(const G4Track& aTrack, G4doubl
 G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 							 const G4Step& /*  step*/)
 {
-  const G4TouchableHandle thisTouchable(track.GetTouchableHandle());
+  const G4TouchableHandle& thisTouchable(track.GetTouchableHandle());
   
   // A little setting up
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
@@ -75,7 +75,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 
   //This will contain RHadron Def + RHad momentum
   const G4DynamicParticle* incidentRHadron = track.GetDynamicParticle(); 
-  const G4ThreeVector aPosition = track.GetPosition();
+  const G4ThreeVector& aPosition = track.GetPosition();
 
   CustomParticle* CustomIncident = dynamic_cast<CustomParticle*>(incidentRHadron->GetDefinition());
 
@@ -121,7 +121,7 @@ G4VParticleChange* ToyModelHadronicProcess::PostStepDoIt(const G4Track& track,
 	     << incidentParticle->Get4Momentum().m() / GeV <<G4endl;
     }
  
-  const G4ThreeVector position = track.GetPosition();
+  const G4ThreeVector& position = track.GetPosition();
   std::vector<G4ParticleDefinition*> newParticles;        // this will contain clouds
   std::vector<G4ParticleDefinition*> newParticlesRHadron; // this will contain r-hadron
 

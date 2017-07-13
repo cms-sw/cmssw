@@ -220,7 +220,7 @@ void HGCalDigiValidation::digiValidation(const T1& detId, const T2* geom,
   
   if (verbosity_>1) edm::LogInfo("HGCalValidation") << detId;
   DetId id1 = DetId(detId.rawId());
-  GlobalPoint global1 = geom->getPosition(id1);
+  const GlobalPoint& global1 = geom->getPosition(id1);
   
   if (verbosity_>1) 
     edm::LogInfo("HGCalValidation") << " adc = "         <<  adc

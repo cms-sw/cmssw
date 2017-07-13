@@ -161,13 +161,13 @@ double LumiReWeighting::weight( const edm::EventBase &e ) {
 
   if(FirstWarning_) {
 
-    edm::ProcessHistory PHist = e.processHistory();
+    const edm::ProcessHistory& PHist = e.processHistory();
     edm::ProcessHistory::const_iterator PHist_iter = PHist.begin();
 
     for(; PHist_iter<PHist.end() ;++PHist_iter) {
       edm::ProcessConfiguration PConf = *(PHist_iter);
-      edm::ReleaseVersion Release =  PConf.releaseVersion() ;
-      const std::string Process =  PConf.processName();
+      const edm::ReleaseVersion& Release =  PConf.releaseVersion() ;
+      const std::string& Process =  PConf.processName();
 
     }
     //    SetFirstFalse();
@@ -213,13 +213,13 @@ double LumiReWeighting::weightOOT( const edm::EventBase &e ) {
 
   if(LumiSection != OldLumiSection_) {
 
-    edm::ProcessHistory PHist = e.processHistory();
+    const edm::ProcessHistory& PHist = e.processHistory();
     edm::ProcessHistory::const_iterator PHist_iter = PHist.begin();
 
     for(; PHist_iter<PHist.end() ;++PHist_iter) {
       edm::ProcessConfiguration PConf = *(PHist_iter);
-      edm::ReleaseVersion Release =  PConf.releaseVersion() ;
-      const std::string Process =  PConf.processName();
+      const edm::ReleaseVersion& Release =  PConf.releaseVersion() ;
+      const std::string& Process =  PConf.processName();
 
     }
     OldLumiSection_ = LumiSection;

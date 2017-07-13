@@ -73,7 +73,7 @@ UPDATE(BeginOfTrack)
    std::cout <<"++ signal G4Step " ;
    if(m_verbose) {
       const G4StepPoint* post = iStep->GetPostStepPoint();
-      const G4ThreeVector pos = post->GetPosition();
+      const G4ThreeVector& pos = post->GetPosition();
       std::cout << "( "<<pos.x()<<","<<pos.y()<<","<<pos.z()<<") ";
       if(post->GetPhysicalVolume()) {
 	 std::cout << post->GetPhysicalVolume()->GetName();

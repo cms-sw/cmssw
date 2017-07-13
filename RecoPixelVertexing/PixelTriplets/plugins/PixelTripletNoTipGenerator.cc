@@ -49,7 +49,7 @@ void PixelTripletNoTipGenerator::hitTriplets(
 //double errorXY = sqrt( sqr(bs.BeamWidthX()) + sqr(bs.BeamWidthY()) );
 //
 
-  GlobalPoint bsPoint = region.origin();
+  const GlobalPoint& bsPoint = region.origin();
   double errorXY = region.originRBound();
   GlobalVector shift =   bsPoint - GlobalPoint(0.,0.,0.);
 

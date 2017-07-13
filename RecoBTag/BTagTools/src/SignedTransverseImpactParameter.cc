@@ -41,7 +41,7 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const TransientT
     GlobalPoint D0(TSOS.globalPosition());
     
     GlobalVector DD0(D0.x()-vertex.x(),D0.y()-vertex.y(),0.);
-    GlobalVector JetDir(direction);
+    const GlobalVector& JetDir(direction);
     double ps = DD0.dot(JetDir);
     theValue = DD0.mag()*(ps/abs(ps));
 
@@ -102,7 +102,7 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::zImpactParameter ( con
 
   // sign as in rphi
   GlobalVector PVPCA ( PCA.x()-PV.x() , PCA.y()-PV.y() , 0. );
-  GlobalVector JetDir(direction);
+  const GlobalVector& JetDir(direction);
   double sign = PVPCA.dot(JetDir);
   sign /= fabs(sign) ;
 

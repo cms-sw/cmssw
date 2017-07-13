@@ -521,7 +521,7 @@ bool EvtGenInterface::addToHepMC(HepMC::GenParticle* partHep,const EvtId &idEvt,
   EvtVector4R vInit(posHep.t(),posHep.x(),posHep.y(),posHep.z());
   // Reset polarization if requested....
   if(EvtPDL::getSpinType(idEvt) == EvtSpinType::DIRAC && polarizations.count(partHep->pdg_id())>0){
-    HepMC::FourVector momHep = partHep->momentum();
+    const HepMC::FourVector& momHep = partHep->momentum();
     EvtVector4R momEvt;
     momEvt.set(momHep.t(),momHep.x(),momHep.y(),momHep.z());
     // Particle is spin 1/2, so we can polarize it. Check polarizations map for particle, grab its polarization if it exists

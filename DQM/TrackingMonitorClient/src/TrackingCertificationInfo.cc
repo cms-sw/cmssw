@@ -299,7 +299,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEs(DQMStore::IBooker &
     if (!me) continue;
     if (verbose_) std::cout<< "[TrackingCertificationInfo::fillTrackingCertificationMEs] me: " << me->getName() << std::endl;
     if (me->kind() == MonitorElement::DQM_KIND_REAL) {
-      std::string name = me->getName();
+      const std::string& name = me->getName();
       float val   = me->getFloatValue();
 
       for (std::map<std::string, TrackingMEs>::const_iterator it = TrackingMEsMap.begin();
@@ -413,7 +413,7 @@ void TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi(DQMStore::IBo
     if (!me) continue;
     if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] me: " << me->getName() << std::endl;
     if (me->kind() == MonitorElement::DQM_KIND_REAL) {
-      std::string name = me->getName();
+      const std::string& name = me->getName();
       float val   = me->getFloatValue();
       if (verbose_) std::cout << "[TrackingCertificationInfo::fillTrackingCertificationMEsAtLumi] val:  " << val << std::endl;
 

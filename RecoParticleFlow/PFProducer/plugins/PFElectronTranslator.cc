@@ -287,7 +287,7 @@ void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 					      std::vector<const reco::PFCluster *> & pfClusters,
 					      const reco::PFCandidate & coCandidate) const
 {
-  reco::PFClusterRef myPFClusterRef= PFBE.clusterRef();
+  const reco::PFClusterRef& myPFClusterRef= PFBE.clusterRef();
   if(myPFClusterRef.isNull()) return;  
 
   const reco::PFCluster & myPFCluster (*myPFClusterRef);
@@ -309,7 +309,7 @@ void PFElectronTranslator::createBasicCluster(const reco::PFBlockElement & PFBE,
 
 void PFElectronTranslator::createPreshowerCluster(const reco::PFBlockElement & PFBE, reco::PreshowerClusterCollection& preshowerClusters,unsigned plane) const
 {
-  reco::PFClusterRef  myPFClusterRef= PFBE.clusterRef();
+  const reco::PFClusterRef&  myPFClusterRef= PFBE.clusterRef();
   preshowerClusters.push_back(reco::PreshowerCluster(myPFClusterRef->energy(),myPFClusterRef->position(),
 					       myPFClusterRef->hitsAndFractions(),plane));
 }

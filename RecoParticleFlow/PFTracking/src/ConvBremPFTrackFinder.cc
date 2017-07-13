@@ -57,8 +57,8 @@ ConvBremPFTrackFinder::runConvBremFinder(const Handle<PFRecTrackCollection>& the
   
   
   
-  reco::GsfTrackRef refGsf =  gsfpfrectk.gsfTrackRef();
-  reco::PFRecTrackRef pfTrackRef = gsfpfrectk.kfPFRecTrackRef();
+  const reco::GsfTrackRef& refGsf =  gsfpfrectk.gsfTrackRef();
+  const reco::PFRecTrackRef& pfTrackRef = gsfpfrectk.kfPFRecTrackRef();
   vector<PFBrem> primPFBrem = gsfpfrectk.PFRecBrem();
  
   

@@ -179,7 +179,7 @@ void FieldStepWatcher::findTouch(G4VPhysicalVolume * pv, int leafDepth) {
   LogDebug("FieldStepWatcher") << "FieldStepWatcher::find Touch " 
 			       << lv->GetName() << " at level " << leafDepth;
   if (leafDepth == level-1) {
-    std::string lvname = lv->GetName();
+    const std::string& lvname = lv->GetName();
     if (findName(lvname) < 0) lvnames.push_back(lvname);
   } else if (leafDepth < level-1) {
     int noDaughters = lv->GetNoDaughters();

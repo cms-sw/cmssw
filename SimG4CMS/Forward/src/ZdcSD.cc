@@ -192,10 +192,10 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
     G4SteppingControl  stepControlFlag = aStep->GetControlFlag();
     G4StepPoint*       preStepPoint = aStep->GetPreStepPoint();
     G4VPhysicalVolume* currentPV    = preStepPoint->GetPhysicalVolume();
-    G4String           nameVolume   = currentPV->GetName();
+    const G4String&           nameVolume   = currentPV->GetName();
 
-    G4ThreeVector      hitPoint = preStepPoint->GetPosition();	
-    G4ThreeVector      hit_mom = preStepPoint->GetMomentumDirection();
+    const G4ThreeVector&      hitPoint = preStepPoint->GetPosition();	
+    const G4ThreeVector&      hit_mom = preStepPoint->GetMomentumDirection();
     G4double           stepL = aStep->GetStepLength()/cm;
     G4double           beta     = preStepPoint->GetBeta();
     G4double           charge   = preStepPoint->GetCharge();
@@ -209,14 +209,14 @@ double ZdcSD::getEnergyDeposit(G4Step * aStep, edm::ParameterSet const & p ) {
     // postStepPoint information
     G4StepPoint* postStepPoint = aStep->GetPostStepPoint();   
     G4VPhysicalVolume* postPV = postStepPoint->GetPhysicalVolume();
-    G4String postnameVolume = postPV->GetName();
+    const G4String& postnameVolume = postPV->GetName();
 
     // theTrack information
     G4Track* theTrack = aStep->GetTrack();   
     G4String particleType = theTrack->GetDefinition()->GetParticleName();
     G4int primaryID = theTrack->GetTrackID();
     G4double entot = theTrack->GetTotalEnergy();
-    G4ThreeVector vert_mom = theTrack->GetVertexMomentumDirection();
+    const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
     G4ThreeVector localPoint = theTrack->GetTouchable()->GetHistory()->GetTopTransform().TransformPoint(hitPoint);
 
     // calculations

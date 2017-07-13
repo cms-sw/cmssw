@@ -454,7 +454,7 @@ void MillePedeAlignmentAlgorithm::terminate()
 std::vector<std::string> MillePedeAlignmentAlgorithm::getExistingFormattedFiles(const std::vector<std::string>& plainFiles, const std::string& theDir) {
   std::vector<std::string> files;
   for (const auto& plainFile: plainFiles) {
-    std::string theInputFileName = plainFile;
+    const std::string& theInputFileName = plainFile;
     int theNumber = 0;
     while (true) {
       // Create a formatted version of the filename, with growing numbers

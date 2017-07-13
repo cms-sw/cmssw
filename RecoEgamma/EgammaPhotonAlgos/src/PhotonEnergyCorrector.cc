@@ -50,7 +50,7 @@ PhotonEnergyCorrector::PhotonEnergyCorrector( const edm::ParameterSet& config, e
   photonUncertaintyCalculator_.reset(new EnergyUncertaintyPhotonSpecific(config));
  
   if( config.existsAs<edm::ParameterSet>("regressionConfig") ) {
-    const edm::ParameterSet regr_conf = 
+    const edm::ParameterSet& regr_conf = 
       config.getParameterSet("regressionConfig");
     const std::string& mname = regr_conf.getParameter<std::string>("modifierName");
     ModifyObjectValueBase* regr = ModifyObjectValueFactory::get()->create(mname,regr_conf);

@@ -201,7 +201,7 @@ void MuonAlignment::recursiveCopySurveyToAlignment(Alignable *alignable) {
    if (alignable->survey() != NULL) {
       const SurveyDet *survey = alignable->survey();
 
-      align::PositionType pos = survey->position();
+      const align::PositionType& pos = survey->position();
       align::RotationType rot = survey->rotation();
 
       align::PositionType oldpos = alignable->globalPosition();

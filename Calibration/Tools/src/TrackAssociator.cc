@@ -144,7 +144,7 @@ HTrackDetMatchInfo HTrackAssociator::associate( const edm::Event& iEvent,
    
    init( iSetup );
    
-   FreeTrajectoryState currentPosition(trackOrigin);
+   const FreeTrajectoryState& currentPosition(trackOrigin);
 
    if (parameters.useEcal) fillEcal( iEvent, iSetup, info, currentPosition,parameters.idREcal, parameters.dREcal);
    if (parameters.useHcal) fillHcal( iEvent, iSetup, info, currentPosition,parameters.idRHcal,parameters.dRHcal);

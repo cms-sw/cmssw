@@ -134,7 +134,7 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
       detId_itr != vec.end(); detId_itr++){
     //get detid position
     const CaloCellGeometry* cellGeometry = geomEE->getGeometry(*detId_itr);
-    const GlobalPoint gp ( cellGeometry->getPosition() ) ;
+    const GlobalPoint& gp ( cellGeometry->getPosition() ) ;
     
     //find closest HE cell
     const HcalDetId closestCell ( geomHE->getClosestCell( gp ) ) ;

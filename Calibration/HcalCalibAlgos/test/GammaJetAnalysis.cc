@@ -1648,7 +1648,7 @@ float GammaJetAnalysis::pfEcalIso(const reco::Photon* localPho1, edm::Handle<rec
           continue;
       }
       // Shift the photon direction vector according to the PF vertex                                                                  
-      math::XYZPoint pfvtx = pfc.vertex();
+      const math::XYZPoint& pfvtx = pfc.vertex();
       math::XYZVector photon_directionWrtVtx(localPho->superCluster()->x() - pfvtx.x(),
                                              localPho->superCluster()->y() - pfvtx.y(),
                                              localPho->superCluster()->z() - pfvtx.z());

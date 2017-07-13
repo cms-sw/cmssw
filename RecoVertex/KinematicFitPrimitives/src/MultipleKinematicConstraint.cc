@@ -42,7 +42,7 @@ std::pair<AlgebraicMatrix, AlgebraicVector> MultipleKinematicConstraint::derivat
  if(exPoint.num_row() ==0 ) throw VertexException("MultipleKinematicConstraint::value requested for zero Linearization point");
 
 //security check for extended cartesian parametrization 
- AlgebraicVector expansion = exPoint;
+ const AlgebraicVector& expansion = exPoint;
  int inSize = exPoint.num_row(); 
  if((inSize%7) !=0) throw VertexException("MultipleKinematicConstraint::linearization point has a wrong dimension");
 

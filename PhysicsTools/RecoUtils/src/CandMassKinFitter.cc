@@ -19,7 +19,7 @@ FitQuality CandMassKinFitter::set( Candidate & c ) const {
 			      "MassConstraint", 0, 0 , mass_);
   for ( size_t i = 0; i < daus; ++ i ) {
     const Candidate & dau = * c.daughter( i );
-    Particle::LorentzVector p4 = dau.p4();
+    const Particle::LorentzVector& p4 = dau.p4();
     TMatrixD & err = errors[i];
     TVector3 & mom = momenta[i];
     mom = TVector3( p4.px(), p4.py(), p4.pz() );

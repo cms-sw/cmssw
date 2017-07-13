@@ -130,14 +130,14 @@ void CastorTestAnalysis::update(const G4Step * aStep) {
   //  G4String particleType = theTrack->GetDefinition()->GetParticleName();
   G4int pdgcode		= theTrack->GetDefinition()->GetPDGEncoding();
 
-  G4ThreeVector vert_mom = theTrack->GetVertexMomentumDirection();
+  const G4ThreeVector& vert_mom = theTrack->GetVertexMomentumDirection();
   G4double vpx = vert_mom.x();
   G4double vpy = vert_mom.y();
   G4double vpz = vert_mom.z();
   double eta = 0.5 * log( (1.+vpz) / (1.-vpz) );
   double phi = atan2(vpy,vpx);
 
-  G4ThreeVector hitPoint = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPoint = preStepPoint->GetPosition();
 
    // Fill-in ntuple
   //  castorsteparray[ntcastors_evt] = (*evt)()->GetEventID();

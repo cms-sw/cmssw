@@ -27,7 +27,7 @@ public:
   
   HTrackVariables(DQMStore::IBooker &ibooker,std::string dirName_, std::string name,std::string whereIs =""):theName(name.c_str()),where(whereIs.c_str()){
     ibooker.cd();
-    std::string dirName=dirName_;
+    const std::string& dirName=dirName_;
     //dirName+="/";
     //dirName+=name.c_str();
     
@@ -162,7 +162,7 @@ public:
   HResolution(DQMStore::IBooker &ibooker, std::string dirName_,std::string name,std::string whereIs):theName(name.c_str()),where(whereIs.c_str()){
     
     ibooker.cd();
-    std::string dirName=dirName_;
+    const std::string& dirName=dirName_;
     //dirName+="/";
     //dirName+=name.c_str();
     

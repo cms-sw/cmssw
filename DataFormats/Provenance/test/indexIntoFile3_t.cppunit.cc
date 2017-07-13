@@ -305,7 +305,7 @@ void TestIndexIntoFile3::testIterEndWithEvent() {
                                              1,
                                              3,
                                              4);
-  edm::IndexIntoFile::IndexIntoFileItr iter2(iter4);
+  const edm::IndexIntoFile::IndexIntoFileItr& iter2(iter4);
 
   CPPUNIT_ASSERT(iter2 == iter4);
   CPPUNIT_ASSERT(iter2.indexIntoFile() == &indexIntoFile);

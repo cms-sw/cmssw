@@ -551,7 +551,7 @@ uint32_t HCalSD::setDetUnitId(G4Step * aStep) {
 
   G4StepPoint* preStepPoint = aStep->GetPreStepPoint(); 
   const G4VTouchable* touch = preStepPoint->GetTouchable();
-  G4ThreeVector hitPoint    = preStepPoint->GetPosition();
+  const G4ThreeVector& hitPoint    = preStepPoint->GetPosition();
 
   int depth = (touch->GetReplicaNumber(0))%10 + 1;
   int lay   = (touch->GetReplicaNumber(0)/10)%100 + 1;

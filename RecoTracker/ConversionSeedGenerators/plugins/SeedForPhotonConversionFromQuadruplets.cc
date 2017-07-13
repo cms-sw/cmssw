@@ -117,7 +117,7 @@ const TrajectorySeed * SeedForPhotonConversionFromQuadruplets::trajectorySeed(
   vHit[3]=mtth2->globalPosition();
 
   //Photon source vertex primary vertex
-  GlobalPoint vgPhotVertex=region.origin();
+  const GlobalPoint& vgPhotVertex=region.origin();
   math::XYZVector vPhotVertex(vgPhotVertex.x(), vgPhotVertex.y(), vgPhotVertex.z());
 
   math::XYZVector h1(vHit[0].x(),vHit[0].y(),vHit[0].z());

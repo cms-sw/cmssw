@@ -33,7 +33,7 @@ HGCalTriggerNtupleManager::
 HGCalTriggerNtupleManager(const edm::ParameterSet& conf) 
 {
     tree_ = file_service_->make<TTree>("HGCalTriggerNtuple","HGCalTriggerNtuple");    
-    const std::vector<edm::ParameterSet> ntuple_cfgs = conf.getParameterSetVector("Ntuples");
+    const std::vector<edm::ParameterSet>& ntuple_cfgs = conf.getParameterSetVector("Ntuples");
     for(const auto& ntuple_cfg : ntuple_cfgs) 
     {
         const std::string& ntuple_name = ntuple_cfg.getParameter<std::string>("NtupleName");

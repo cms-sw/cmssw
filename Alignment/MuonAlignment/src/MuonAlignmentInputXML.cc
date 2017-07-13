@@ -749,7 +749,7 @@ void MuonAlignmentInputXML::do_setposition(const XERCES_CPP_NAMESPACE::DOMElemen
     if (relativeto == 0) {}
 
     else if (relativeto == 1) {
-      align::PositionType idealPosition = ideal->globalPosition();
+      const align::PositionType& idealPosition = ideal->globalPosition();
       align::RotationType idealRotation = ideal->globalRotation();
 
       oldpos = align::PositionType(idealRotation * (oldpos.basicVector() - idealPosition.basicVector()));
@@ -844,7 +844,7 @@ void MuonAlignmentInputXML::do_setposition(const XERCES_CPP_NAMESPACE::DOMElemen
       Alignable *ali = aliiter->first;
       Alignable *ideal = alitoideal[ali];
 
-      align::PositionType idealPosition = ideal->globalPosition();
+      const align::PositionType& idealPosition = ideal->globalPosition();
       align::RotationType idealRotation = ideal->globalRotation();
       align::PositionType newpos = align::PositionType(idealRotation.transposed() * pos.basicVector() + idealPosition.basicVector());
       align::RotationType newrot = rot * idealRotation;
@@ -857,7 +857,7 @@ void MuonAlignmentInputXML::do_setposition(const XERCES_CPP_NAMESPACE::DOMElemen
       Alignable *container = ali->mother();
 
       if (container != NULL) {
-	align::PositionType globalPosition = container->globalPosition();
+	const align::PositionType& globalPosition = container->globalPosition();
 	align::RotationType globalRotation = container->globalRotation();
 	align::PositionType newpos = align::PositionType(globalRotation.transposed() * pos.basicVector() + globalPosition.basicVector());
 	align::RotationType newrot = rot * globalRotation;

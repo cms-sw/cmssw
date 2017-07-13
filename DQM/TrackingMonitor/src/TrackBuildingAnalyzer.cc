@@ -50,7 +50,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   //  std::cout << "[TrackBuildingAnalyzer::beginRun] AlgoName: " << AlgoName << std::endl;
   
   // use the AlgoName and Quality Name 
-  std::string CatagoryName = AlgoName;
+  const std::string& CatagoryName = AlgoName;
   
   // get binning from the configuration
   int    TrackPtBin = iConfig.getParameter<int>(   "TrackPtBin");

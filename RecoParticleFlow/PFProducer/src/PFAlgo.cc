@@ -3111,9 +3111,9 @@ unsigned PFAlgo::reconstructTrack( const reco::PFBlockElement& elt, bool allowLo
   const reco::PFBlockElementTrack* eltTrack 
     = dynamic_cast<const reco::PFBlockElementTrack*>(&elt);
 
-  reco::TrackRef trackRef = eltTrack->trackRef();
+  const reco::TrackRef& trackRef = eltTrack->trackRef();
   const reco::Track& track = *trackRef;
-  reco::MuonRef muonRef = eltTrack->muonRef();
+  const reco::MuonRef& muonRef = eltTrack->muonRef();
   int charge = track.charge()>0 ? 1 : -1;
 
   // Assume this particle is a charged Hadron

@@ -106,7 +106,7 @@ class FilterPFCandByParticleId {
       id_(particleId){};
     template<typename PFCandCompatiblePtrType>
       bool operator()(const PFCandCompatiblePtrType& ptr) const {
-        PFCandidatePtr pfptr(ptr);
+        const PFCandidatePtr& pfptr(ptr);
         return ptr->particleId() == id_;
       }
   private:

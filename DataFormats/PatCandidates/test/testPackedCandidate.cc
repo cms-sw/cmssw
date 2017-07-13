@@ -55,7 +55,7 @@ void testPackedCandidate::testCopyConstructor() {
   //  CPPUNIT_ASSERT(pc.p4() == lv);
   //  CPPUNIT_ASSERT(pc.vertex() == v);
 
-  pat::PackedCandidate copy_pc(pc);
+  const pat::PackedCandidate& copy_pc(pc);
 
   //CPPUNIT_ASSERT(copy_pc.polarP4() == plv);
   //CPPUNIT_ASSERT(copy_pc.p4() == lv);

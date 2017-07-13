@@ -161,7 +161,7 @@ void testRefToBaseProd::constructTest() {
      dummyContainer.push_back(dummy);
      OrphanHandle<DummyCollection2> handle(&dummyContainer, pid);
      RefToBaseProd<Dummy> dummyPtr(handle);
-     RefToBaseProd<Dummy> dummyPtr2(dummyPtr);
+     const RefToBaseProd<Dummy>& dummyPtr2(dummyPtr);
      
      CPPUNIT_ASSERT(dummyPtr.id() == pid);
      compareTo(dummyPtr,dummyContainer);
@@ -219,7 +219,7 @@ void testRefToBaseProd::getTest() {
    RefToBaseProd<IntValue>& prod = reinterpret_cast<RefToBaseProd<IntValue>&>(core);
 
    //previously making a copy before reading back would cause seg fault
-   RefToBaseProd<IntValue> prodCopy(prod);
+   const RefToBaseProd<IntValue>& prodCopy(prod);
    
    CPPUNIT_ASSERT(!prod.hasCache());
 

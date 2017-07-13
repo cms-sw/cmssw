@@ -426,7 +426,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
         assert( indexLastFilterPathModules < sizeModulesPath );
         std::map< unsigned, std::string > indicesModules;
         for ( size_t iM = 0; iM < sizeModulesPath; ++iM ) {
-          const std::string nameModule( hltConfig.moduleLabel( indexPath, iM ) );
+          const std::string& nameModule( hltConfig.moduleLabel( indexPath, iM ) );
           if ( addPathModuleLabels_ ) {
             triggerPath.addModule( nameModule );
           }
@@ -438,7 +438,7 @@ void PATTriggerProducer::produce( Event& iEvent, const EventSetup& iSetup )
           indicesModules.insert( std::pair< unsigned, std::string >( slotModule, nameModule ) );
         }
         // add L1 seeds
-        const L1SeedCollection l1Seeds( hltConfig.hltL1GTSeeds( namePath ) );
+        const L1SeedCollection& l1Seeds( hltConfig.hltL1GTSeeds( namePath ) );
         for ( L1SeedCollection::const_iterator iSeed = l1Seeds.begin(); iSeed != l1Seeds.end(); ++iSeed ) {
           triggerPath.addL1Seed( *iSeed );
         }

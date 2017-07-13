@@ -131,7 +131,7 @@ void L1MetFilterRecoTreeProducer::analyze(const edm::Event& iEvent, const edm::E
   if (trigRes.isValid()) {
 
     // get trigger names
-    edm::TriggerNames trigNames = iEvent.triggerNames(*trigRes);
+    const edm::TriggerNames& trigNames = iEvent.triggerNames(*trigRes);
     // get hbhe noise filter result
     edm::Handle<bool> hbheNoiseFilterResult;
     iEvent.getByToken(hbheNoiseFilterResultToken_, hbheNoiseFilterResult);

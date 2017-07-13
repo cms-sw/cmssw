@@ -87,7 +87,7 @@ PFTrackTransformer::addPoints( reco::PFRecTrack& pftrack,
   math::XYZTLorentzVector momClosest 
     = math::XYZTLorentzVector(track.px(), track.py(), 
 			      track.pz(), track.p());
-  math::XYZPoint posClosest = track.vertex();
+  const math::XYZPoint& posClosest = track.vertex();
   
   pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 				     posClosest,momClosest));
@@ -266,7 +266,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
       math::XYZTLorentzVector momClosest 
 	= math::XYZTLorentzVector(p.x(), p.y(), 
 				  p.z(), ptot);
-      math::XYZPoint posClosest = track.vertex();
+      const math::XYZPoint& posClosest = track.vertex();
       pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 					 posClosest,momClosest));
       
@@ -609,7 +609,7 @@ PFTrackTransformer::addPointsAndBrems( reco::GsfPFRecTrack& pftrack,
   math::XYZTLorentzVector momClosest 
     = math::XYZTLorentzVector(InMom.x(), InMom.y(), 
 			      InMom.z(), ptot);
-  math::XYZPoint posClosest = track.vertex();
+  const math::XYZPoint& posClosest = track.vertex();
   pftrack.addPoint(PFTrajectoryPoint(-1,PFTrajectoryPoint::ClosestApproach,
 				     posClosest,momClosest));
   

@@ -221,7 +221,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 
 
 		// the precomputed direction with respect to the primary vertex
-		GlobalVector dir = svTagInfo.flightDirection(0);
+		const GlobalVector& dir = svTagInfo.flightDirection(0);
 
 		// unfortunately CMSSW hsa all kinds of vectors,
 		// and sometimes we need to convert them *sigh*

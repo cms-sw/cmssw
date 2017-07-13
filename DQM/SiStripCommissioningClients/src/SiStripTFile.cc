@@ -157,7 +157,7 @@ void SiStripTFile::addDevice(unsigned int key) {
   if (view_ == sistrip::CONTROL_VIEW) {
     if (!dqmFormat_) setDQMFormat(sistrip::UNKNOWN_RUN_TYPE, sistrip::CONTROL_VIEW);
     SiStripFecKey control_path(key);
-    std::string directory_path = control_path.path();
+    const std::string& directory_path = control_path.path();
     cd(sistrip::dqmRoot_);
     addPath(directory_path);
   }

@@ -95,7 +95,7 @@ std::vector<unsigned> L1GctHtMissLut::getThresholdsGct() const
 
 L1GctHtMissLut L1GctHtMissLut::operator= (const L1GctHtMissLut& lut)
 {
-  L1GctHtMissLut temp(lut);
+  const L1GctHtMissLut& temp(lut);
   return temp;
 }
 

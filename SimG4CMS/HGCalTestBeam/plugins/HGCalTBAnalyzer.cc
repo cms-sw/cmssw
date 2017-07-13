@@ -649,7 +649,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 #endif
 	for (auto it : *theDigiContainers) {
 	  HGCEEDetId detId     = (it.id());
-	  HGCSample  hgcSample = it.sample(sampleIndex_);
+	  const HGCSample&  hgcSample = it.sample(sampleIndex_);
 	  uint16_t   adc       = hgcSample.data();
 	  analyzeDigi(0, detId, adc);
 	}
@@ -665,7 +665,7 @@ void HGCalTBAnalyzer::analyze(const edm::Event& iEvent,
 #endif
 	for (auto it : *theDigiContainers) {
 	  HGCHEDetId detId     = (it.id());
-	  HGCSample  hgcSample = it.sample(sampleIndex_);
+	  const HGCSample&  hgcSample = it.sample(sampleIndex_);
 	  uint16_t   adc       = hgcSample.data();
 	  analyzeDigi(1, detId, adc);
 	}

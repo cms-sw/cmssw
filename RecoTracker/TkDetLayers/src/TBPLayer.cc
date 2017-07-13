@@ -132,7 +132,7 @@ void TBPLayer::searchNeighbors( const TrajectoryStateOnSurface& tsos,
 				bool checkClosest) const {
   using barrelUtil::overlap;
   
-  GlobalPoint gCrossingPos = crossing.position();
+  const GlobalPoint& gCrossingPos = crossing.position();
   auto gphi = gCrossingPos.barePhi();  
   
   const vector<const GeometricSearchDet*>& sLayer( subLayer( crossing.subLayerIndex()));

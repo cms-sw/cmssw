@@ -149,7 +149,7 @@ operator<<(std::ostream& os, edm::ProcessHistory& iHist) {
 
 void HistoryNode::printHistory(std::string const& iIndent) const {
   std::string const indentDelta("  ");
-  std::string indent = iIndent;
+  const std::string& indent = iIndent;
   for(auto const& item : *this) {
     std::cout << indent << item;
     item.printHistory(indent + indentDelta);

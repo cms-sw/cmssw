@@ -61,11 +61,11 @@ PluginManager::PluginManager(const PluginManager::Config& iConfig) :
   searchPath_( iConfig.searchPath() )
 {
     using std::placeholders::_1;
-    const boost::filesystem::path kCacheFile(standard::cachefileName());
+    const boost::filesystem::path& kCacheFile(standard::cachefileName());
     // This is the filename of a file which contains plugins which exist in the
     // base release and which should exists in the local area, otherwise they
     // were removed and we want to catch their usage.
-    const boost::filesystem::path kPoisonedCacheFile(standard::poisonedCachefileName());
+    const boost::filesystem::path& kPoisonedCacheFile(standard::poisonedCachefileName());
     //NOTE: This may not be needed :/
     PluginFactoryManager* pfm = PluginFactoryManager::get();
     pfm->newFactory_.connect(std::bind(std::mem_fn(&PluginManager::newFactory),this,_1));
@@ -339,7 +339,7 @@ PluginManager::configure(const Config& iConfig )
     throw cms::Exception("PluginManagerReconfigured");
   }
   
-  Config realConfig = iConfig;
+  const Config& realConfig = iConfig;
   if (realConfig.searchPath().empty() ) {
     throw cms::Exception("PluginManagerEmptySearchPath");
   }

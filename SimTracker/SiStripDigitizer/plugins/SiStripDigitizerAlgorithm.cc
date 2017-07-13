@@ -230,8 +230,8 @@ void SiStripDigitizerAlgorithm::calculateInstlumiScale(PileupMixingContent* puIn
 
   if (puInfo && FirstLumiCalc_) {
 
-    const std::vector<int> bunchCrossing = puInfo->getMix_bunchCrossing();
-    const std::vector<float> TrueInteractionList = puInfo->getMix_TrueInteractions();
+    const std::vector<int>& bunchCrossing = puInfo->getMix_bunchCrossing();
+    const std::vector<float>& TrueInteractionList = puInfo->getMix_TrueInteractions();
     const int bunchSpacing = puInfo->getMix_bunchSpacing();                                 
 
     double RevFreq = 11245.;

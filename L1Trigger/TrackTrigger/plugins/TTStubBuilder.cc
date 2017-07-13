@@ -280,8 +280,8 @@ void TTStubBuilder< Ref_Phase2TrackerDigi_ >::produce( edm::Event& iEvent, const
       TTStub< Ref_Phase2TrackerDigi_ > tempTTStub( stubIter->getDetId() );
 
       /// Compare the clusters stored in the stub with the ones of this module
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > lowerClusterToBeReplaced = stubIter->getClusterRef(0);
-      edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > > upperClusterToBeReplaced = stubIter->getClusterRef(1);
+      const edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >& lowerClusterToBeReplaced = stubIter->getClusterRef(0);
+      const edm::Ref< edmNew::DetSetVector< TTCluster< Ref_Phase2TrackerDigi_ > >, TTCluster< Ref_Phase2TrackerDigi_ > >& upperClusterToBeReplaced = stubIter->getClusterRef(1);
 
       bool lowerOK = false;
       bool upperOK = false;

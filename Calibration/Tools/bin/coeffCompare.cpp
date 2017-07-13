@@ -89,7 +89,7 @@ int main (int argc, char* argv[])
   if (!barrelfile.empty ()) barrelreader.parseXMLMiscalibFile (barrelfile) ;
   EcalIntercalibConstants* EBconstants = 
          new EcalIntercalibConstants (EBscalibMap.get ()) ;
-  EcalIntercalibConstantMap iEBscalibMap = EBconstants->getMap () ;  //MF prende i vecchi coeff
+  const EcalIntercalibConstantMap& iEBscalibMap = EBconstants->getMap () ;  //MF prende i vecchi coeff
 
   CaloMiscalibMapEcal EEscalibMap ;
   EEscalibMap.prefillMap () ;
@@ -97,7 +97,7 @@ int main (int argc, char* argv[])
   if (!endcapfile.empty ()) endcapreader.parseXMLMiscalibFile (endcapfile) ;
   EcalIntercalibConstants* EEconstants = 
          new EcalIntercalibConstants (EEscalibMap.get ()) ;
-  EcalIntercalibConstantMap iEEscalibMap = EEconstants->getMap () ;  //MF prende i vecchi coeff
+  const EcalIntercalibConstantMap& iEEscalibMap = EEconstants->getMap () ;  //MF prende i vecchi coeff
 
   //PG get the recalibration files for EB and EE
   //PG -----------------------------------------
@@ -108,7 +108,7 @@ int main (int argc, char* argv[])
   if (!calibBarrelfile.empty ()) calibBarrelreader.parseXMLMiscalibFile (calibBarrelfile) ;
   EcalIntercalibConstants* EBCconstants = 
          new EcalIntercalibConstants (EBcalibMap.get ()) ;
-  EcalIntercalibConstantMap iEBcalibMap = EBCconstants->getMap () ;  //MF prende i vecchi coeff
+  const EcalIntercalibConstantMap& iEBcalibMap = EBCconstants->getMap () ;  //MF prende i vecchi coeff
 
   CaloMiscalibMapEcal EEcalibMap ;
   EEcalibMap.prefillMap () ;
@@ -116,7 +116,7 @@ int main (int argc, char* argv[])
   if (!calibEndcapfile.empty ()) calibEndcapreader.parseXMLMiscalibFile (calibEndcapfile) ;
   EcalIntercalibConstants* EECconstants = 
          new EcalIntercalibConstants (EEcalibMap.get ()) ;
-  EcalIntercalibConstantMap iEEcalibMap = EECconstants->getMap () ;  //MF prende i vecchi coeff
+  const EcalIntercalibConstantMap& iEEcalibMap = EECconstants->getMap () ;  //MF prende i vecchi coeff
   
   //PG fill the histograms
   //PG -------------------

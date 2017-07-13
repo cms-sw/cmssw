@@ -185,7 +185,7 @@ namespace popcon{
 	  edm::FileInPath fp_("CalibTracker/SiStripCommon/data/SiStripDetInfo.dat");
 	  SiStripDetInfoFileReader reader(fp_.fullPath());
 	  
-	  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo > DetInfos  = reader.getAllData();
+	  const std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >& DetInfos  = reader.getAllData();
 	  
 	  int count=-1;
 	  for(std::map<uint32_t, SiStripDetInfoFileReader::DetInfo >::const_iterator it = DetInfos.begin(); it != DetInfos.end(); it++){    

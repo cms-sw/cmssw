@@ -157,7 +157,7 @@ int main (int argc, char **argv) try {
 
         path  filename (*file);
         path shortName(file->path().filename());
-        std::string stringName = shortName.string();
+        const std::string& stringName = shortName.string();
 
         static std::string const kPluginPrefix(standard::pluginPrefix());
         if (stringName.size() < kPluginPrefix.size()) {

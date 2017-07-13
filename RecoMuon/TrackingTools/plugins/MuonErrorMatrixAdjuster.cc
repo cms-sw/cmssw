@@ -82,8 +82,8 @@ reco::Track MuonErrorMatrixAdjuster::makeTrack(const reco::Track & recotrack_ori
   //get the parameters of the track so I can reconstruct it
   double chi2 = recotrack_orig.chi2();
   double ndof = recotrack_orig.ndof();
-  math::XYZPoint refpos = recotrack_orig.referencePoint();
-  math::XYZVector mom = recotrack_orig.momentum();
+  const math::XYZPoint& refpos = recotrack_orig.referencePoint();
+  const math::XYZVector& mom = recotrack_orig.momentum();
   int charge = recotrack_orig.charge();
   
   reco::TrackBase::CovarianceMatrix covariance_matrix = fix_cov_matrix(recotrack_orig.covariance(),PCAstate.momentum());

@@ -112,7 +112,7 @@ analyze(edm::Event const& event, edm::EventSetup const& es) {
        iBit != endBits; ++iBit) {
 
     L1GlobalTriggerObjectMap const* objMap = gtObjectMapRecord->getObjectMap(*iBit);
-    std::string algoName1 = objMap->algoName();
+    const std::string& algoName1 = objMap->algoName();
 
     if (algoName1 != algoNames2.at(*iBit)) {
       cms::Exception ex("L1GlobalTrigger");

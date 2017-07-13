@@ -106,7 +106,7 @@ FSimTrack::setHO(const RawParticle& pp, int success) {
 std::ostream& operator <<(std::ostream& o , const FSimTrack& t) {
 
   std::string name = t.particleInfo() ? t.particleInfo()->name() : "Unknown";
-  XYZTLorentzVector momentum1 = t.momentum();
+  const XYZTLorentzVector& momentum1 = t.momentum();
   XYZVector vertex1 = t.vertex().position().Vect();
   int vertexId1 = t.vertex().id();
 

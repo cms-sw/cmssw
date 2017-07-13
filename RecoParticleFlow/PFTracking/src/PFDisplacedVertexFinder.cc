@@ -237,7 +237,7 @@ PFDisplacedVertexFinder::fitVertexFromSeed(const PFDisplacedVertexSeed& displace
   // ---- Prepare transient track list ----
 
   set < TrackBaseRef, PFDisplacedVertexSeed::Compare > const& tracksToFit = displacedVertexSeed.elements();
-  GlobalPoint seedPoint = displacedVertexSeed.seedPoint();
+  const GlobalPoint& seedPoint = displacedVertexSeed.seedPoint();
 
   vector<TransientTrack> transTracks;
   vector<TransientTrack> transTracksRaw;
@@ -692,8 +692,8 @@ PFDisplacedVertexFinder::rejectAndLabelVertex(PFDisplacedVertex& dv){
 bool 
 PFDisplacedVertexFinder::isCloseTo(const PFDisplacedVertexSeed& dv1, const PFDisplacedVertexSeed& dv2) const {
 
-  const GlobalPoint vP1 = dv1.seedPoint();
-  const GlobalPoint vP2 = dv2.seedPoint();
+  const GlobalPoint& vP1 = dv1.seedPoint();
+  const GlobalPoint& vP2 = dv2.seedPoint();
 
   double Delta_Long = getLongDiff(vP1, vP2);
   if (Delta_Long > longSize_) return false;

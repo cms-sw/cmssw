@@ -59,7 +59,7 @@ namespace reco {
     template<typename C>
     typename CandMatcher<C>::reference_type CandMatcher<C>::operator[](const reco::Candidate & c) const {
       if (c.hasMasterClone()) {
-      	CandidateBaseRef master = c.masterClone();
+      	const CandidateBaseRef& master = c.masterClone();
 	return master->numberOfDaughters() == 0 ? map_[master] : (*this)[*master];
       }
       size_t nDau = c.numberOfDaughters();

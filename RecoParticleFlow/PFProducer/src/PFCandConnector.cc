@@ -163,7 +163,7 @@ PFCandConnector::analyseNuclearWPrim(std::unique_ptr<PFCandidateCollection>& pfC
 
   // ------- look for the little friends -------- //
 
-  math::XYZTLorentzVectorD momentumPrim = primaryCand.p4();
+  const math::XYZTLorentzVectorD& momentumPrim = primaryCand.p4();
 
   math::XYZTLorentzVectorD momentumSec;
 

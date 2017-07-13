@@ -310,8 +310,8 @@ void ZMuMu_Radiative_analyzer::analyze(const Event& event, const EventSetup& set
       CandidateBaseRef zMuSaCandRef = zMuSa->refAt(i);
       const Candidate *  lep0 =zMuSaCand.daughter(0);
       const Candidate *  lep1 =zMuSaCand.daughter(1);
-      CandidateBaseRef dau0 = lep0->masterClone();
-      CandidateBaseRef dau1 = lep1->masterClone();
+      const CandidateBaseRef& dau0 = lep0->masterClone();
+      const CandidateBaseRef& dau1 = lep1->masterClone();
       const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0);//cast in patMuon
       const pat::Muon& mu1 = dynamic_cast<const pat::Muon&>(*dau1);
 

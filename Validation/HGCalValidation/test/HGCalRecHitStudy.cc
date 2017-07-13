@@ -210,7 +210,7 @@ template<class T1, class T2>
 void HGCalRecHitStudy::recHitValidation(DetId & detId, int layer, 
 					     const T1* geom, T2 it) {
 
-  GlobalPoint global = geom->getPosition(detId);
+  const GlobalPoint& global = geom->getPosition(detId);
   double      energy = it->energy();
 
   float globalx = global.x();

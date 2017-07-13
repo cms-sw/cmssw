@@ -908,8 +908,8 @@ class HMassVSPart : public Histograms
     
     double costhetaCS, phiCS;
 
-    CLHEP::HepLorentzVector mu= momentum1;
-    CLHEP::HepLorentzVector mubar= momentum2;    
+    const CLHEP::HepLorentzVector& mu= momentum1;
+    const CLHEP::HepLorentzVector& mubar= momentum2;    
     CLHEP::HepLorentzVector Q(mu+mubar);
     double muplus  = 1.0/sqrt(2.0) * (mu.e() + mu.z());
     double muminus = 1.0/sqrt(2.0) * (mu.e() - mu.z());

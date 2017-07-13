@@ -374,7 +374,7 @@ std::string EcalTBWeightsXMLTranslator::dumpXML(const EcalCondHeader& header,
 
   xuti::writeHeader(root, header);
 
-  const EcalTBWeights::EcalTBWeightMap wmap= record.getMap();
+  const EcalTBWeights::EcalTBWeightMap& wmap= record.getMap();
 
   EcalTBWeights::EcalTBWeightMap::const_iterator it ;
   for (it =wmap.begin(); it!=wmap.end(); ++it){

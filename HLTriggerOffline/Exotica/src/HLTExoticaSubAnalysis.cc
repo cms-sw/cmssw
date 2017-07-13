@@ -480,7 +480,7 @@ void HLTExoticaSubAnalysis::analyze(const edm::Event & iEvent, const edm::EventS
     // 	      comparator);
 
     // -- Trigger Results
-    const edm::TriggerNames trigNames = iEvent.triggerNames(*(cols->triggerResults));
+    const edm::TriggerNames& trigNames = iEvent.triggerNames(*(cols->triggerResults));
 
     // counting HLT passed events for debugging
     for (std::vector<HLTExoticaPlotter>::iterator an = _plotters.begin(); an != _plotters.end(); ++an) {

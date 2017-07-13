@@ -140,7 +140,7 @@ void HLTInfo::analyze(const edm::Handle<edm::TriggerResults>                 & h
 
     for (int itrig = 0; itrig != ntrigs; ++itrig){
 
-      std::string trigName=triggerNames.triggerName(itrig);
+      const std::string& trigName=triggerNames.triggerName(itrig);
       bool accept = hltresults->accept(itrig);
 
       //trigPrescl[itrig] = hltConfig_.prescaleValue(iEvent, eventSetup, trigName);

@@ -79,7 +79,7 @@ int main()
 	     << std::endl;
 	abort();
     }
-    edm::Exception ecopy(e);
+    const edm::Exception& ecopy(e);
     if (e.explainSelf() != ecopy.explainSelf()) {
       abort();
     }

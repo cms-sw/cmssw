@@ -796,10 +796,10 @@ edm::EDLooper::Status MuScleFit::duringLoop( const edm::Event & event, const edm
     hltConfig.init(event.getRun(), eventSetup, triggerResultsProcess_, changed);
 
 
-    const edm::TriggerNames triggerNames = event.triggerNames(*triggerResults);
+    const edm::TriggerNames& triggerNames = event.triggerNames(*triggerResults);
 
     for (unsigned i=0; i<triggerNames.size(); i++) {
-      std::string hltName = triggerNames.triggerName(i);
+      const std::string& hltName = triggerNames.triggerName(i);
 
       // match the path in the pset with the true name of the trigger
       for ( unsigned int ipath=0; ipath<triggerPath_.size(); ipath++ ) {

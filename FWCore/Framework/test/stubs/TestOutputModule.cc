@@ -139,7 +139,7 @@ namespace edmtest
 
     std::vector<unsigned char> vHltState;
 
-    std::vector<std::string> hlts = getAllTriggerNames();
+    const std::vector<std::string>& hlts = getAllTriggerNames();
     unsigned int hltSize = hlts.size(); 
 
     for(unsigned int i=0; i != hltSize ; ++i) {

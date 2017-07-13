@@ -1753,7 +1753,7 @@ std::vector<double> OpticalObject::getLocalRotationAngles( const std::vector< En
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 std::vector<double> OpticalObject::getRotationAnglesInOptOFrame( const OpticalObject* optoAncestor, const std::vector< Entry* >& entries ) const
 {
-  CLHEP::HepRotation rmParent = optoAncestor->rmGlob();  //ORIGINAL ?????????????????
+  const CLHEP::HepRotation& rmParent = optoAncestor->rmGlob();  //ORIGINAL ?????????????????
   CLHEP::HepRotation rmLocal = rmParent.inverse() * theRmGlob;
 
   //I was using theRmGlobOriginal, assuming it has been set to theRmGlob already, check it, in case it may have other consequences

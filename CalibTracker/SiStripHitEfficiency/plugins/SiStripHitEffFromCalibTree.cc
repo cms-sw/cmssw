@@ -391,7 +391,7 @@ void SiStripHitEffFromCalibTree::algoAnalyze(const edm::Event& e, const edm::Eve
     	  float htedge   = 0;
     	  float hapoth   = 0;
 		  if(layer>=11) {
-			const BoundPlane plane = stripdet->surface();
+			const BoundPlane& plane = stripdet->surface();
 			const TrapezoidalPlaneBounds* trapezoidalBounds( dynamic_cast<const TrapezoidalPlaneBounds*>(&(plane.bounds())));
 			std::array<const float, 4> const & parameters = (*trapezoidalBounds).parameters(); 
 			hbedge         = parameters[0];

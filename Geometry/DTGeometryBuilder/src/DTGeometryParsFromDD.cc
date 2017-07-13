@@ -222,7 +222,7 @@ DTGeometryParsFromDD::plane(const DDFilteredView& fv) const {
   //     ORCA uses 'passive' rotation. 
   //     'active' and 'passive' rotations are inverse to each other
   //  DDRotationMatrix tmp = fv.rotation();
-  DDRotationMatrix rotation = fv.rotation();//REMOVED .Inverse();
+  const DDRotationMatrix& rotation = fv.rotation();//REMOVED .Inverse();
   DD3Vector x, y, z;
   rotation.GetComponents(x,y,z);
 //   std::cout << "INVERSE rotation by its own operator: "<< fv.rotation() << std::endl;

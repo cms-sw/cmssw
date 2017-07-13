@@ -61,13 +61,13 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 							  const G4Step&  aStep)
 {
   //  G4cout<<"**** Entering FullModelHadronicProcess::PostStepDoIt       ******"<<G4endl;
-  const G4TouchableHandle thisTouchable(aTrack.GetTouchableHandle());
+  const G4TouchableHandle& thisTouchable(aTrack.GetTouchableHandle());
 
   // A little setting up
   aParticleChange.Initialize(aTrack);
   const G4DynamicParticle* IncidentRhadron = aTrack.GetDynamicParticle();
   CustomParticle* CustomIncident = static_cast<CustomParticle*>(IncidentRhadron->GetDefinition());
-  const G4ThreeVector aPosition = aTrack.GetPosition();
+  const G4ThreeVector& aPosition = aTrack.GetPosition();
   //  G4cout<<"G: "<<aStep.GetStepLength()/cm<<G4endl;
   const G4int theIncidentPDG = IncidentRhadron->GetDefinition()->GetPDGEncoding();
   G4ParticleTable* theParticleTable = G4ParticleTable::GetParticleTable();
@@ -111,7 +111,7 @@ G4VParticleChange* FullModelHadronicProcess::PostStepDoIt(const G4Track& aTrack,
 
   //These two for getting CMS transforms later (histogramming purposes...)
   G4LorentzVector FullRhadron4Momentum = IncidentRhadron->Get4Momentum();
-  G4LorentzVector Cloud4Momentum = cloudMomentum;
+  const G4LorentzVector& Cloud4Momentum = cloudMomentum;
 
   cloudParticle->Set4Momentum(cloudMomentum);         	
 

@@ -427,7 +427,7 @@ std::vector<std::string> MuonSensitiveDetector::getNames(){
 Local3DPoint MuonSensitiveDetector::InitialStepPositionVsParent(G4Step * currentStep, G4int levelsUp) {
   
   G4StepPoint * preStepPoint = currentStep->GetPreStepPoint();
-  G4ThreeVector globalCoordinates = preStepPoint->GetPosition();
+  const G4ThreeVector& globalCoordinates = preStepPoint->GetPosition();
   
   const G4TouchableHistory * theTouchable=(const G4TouchableHistory *)
     (preStepPoint->GetTouchable());
@@ -443,7 +443,7 @@ Local3DPoint MuonSensitiveDetector::FinalStepPositionVsParent(G4Step * currentSt
   
   G4StepPoint * postStepPoint = currentStep->GetPostStepPoint();
   G4StepPoint * preStepPoint  = currentStep->GetPreStepPoint();
-  G4ThreeVector globalCoordinates = postStepPoint->GetPosition();
+  const G4ThreeVector& globalCoordinates = postStepPoint->GetPosition();
     
   const G4TouchableHistory * theTouchable = (const G4TouchableHistory *)
     (preStepPoint->GetTouchable());

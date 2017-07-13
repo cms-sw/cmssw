@@ -49,7 +49,7 @@ HiEgammaSCEnergyCorrectionAlgo::applyCorrection(const reco::SuperCluster &cl,
    }
 
    // Get the seed cluster  	
-   reco::CaloClusterPtr seedC = cl.seed();
+   const reco::CaloClusterPtr& seedC = cl.seed();
 
    if (verbosity_ <= pINFO)
    {

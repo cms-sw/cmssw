@@ -130,7 +130,7 @@ CTPPSSimHitProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
             if(pid!=2212) continue;
 
             HepMC::GenVertex* pv = (*i)->production_vertex();
-            HepMC::FourVector vertex = pv->position();
+            const HepMC::FourVector& vertex = pv->position();
             const HepMC::FourVector p((*i)->momentum());
             protonCTPPS.push_back(math::XYZTLorentzVector(p.x(),p.y(),p.z(),p.t()));
 

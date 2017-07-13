@@ -236,7 +236,7 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
       // check in which volume it is
       G4StepPoint * thePreStepPoint = theStep->GetPreStepPoint();
       G4VPhysicalVolume * thePreStepPhysicalVolume = thePreStepPoint->GetPhysicalVolume();
-      G4String thePreStepPhysicalVolumeName = thePreStepPhysicalVolume->GetName();
+      const G4String& thePreStepPhysicalVolumeName = thePreStepPhysicalVolume->GetName();
       G4Material * thePreStepMaterial = thePreStepPoint->GetMaterial();
       
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PreStep Position = " << thePreStepPoint->GetPosition()
@@ -245,7 +245,7 @@ void LaserSteppingAction::UserSteppingAction(const G4Step * myStep)
 
       G4StepPoint * thePostStepPoint = theStep->GetPostStepPoint();
       G4VPhysicalVolume * thePostStepPhysicalVolume = thePostStepPoint->GetPhysicalVolume();
-      G4String thePostStepPhysicalVolumeName = thePostStepPhysicalVolume->GetName();
+      const G4String& thePostStepPhysicalVolumeName = thePostStepPhysicalVolume->GetName();
       G4Material * thePostStepMaterial = thePostStepPoint->GetMaterial();
       
       LogDebug("LaserAlignmentSimulationStepping") << "<LaserSteppingAction::UserSteppingAction(const G4Step *)>: the PostStep Position = " << thePostStepPoint->GetPosition()

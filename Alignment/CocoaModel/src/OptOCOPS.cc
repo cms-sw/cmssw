@@ -172,7 +172,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
 
   if (ALIUtils::debug >= 35) std::cout << "2. Get the Y of the laser and project it on the COPS" << std::endl;
   CLHEP::Hep3Vector YAxis_xhair(0.,1.,0.);
-  CLHEP::HepRotation rmtx = xhairOptO->rmGlob();
+  const CLHEP::HepRotation& rmtx = xhairOptO->rmGlob();
   YAxis_xhair = rmtx * YAxis_xhair;
   ALILine Yline_xhair( inters, copsPlane.project( YAxis_xhair ));
   if (ALIUtils::debug >= 3) {

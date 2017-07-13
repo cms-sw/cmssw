@@ -169,7 +169,7 @@ CaloSamplesAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 	theParameterMap->setDbService(conditions.product());
 	
 	// Event information
-	edm::EventAuxiliary aux = iEvent.eventAuxiliary();
+	const edm::EventAuxiliary& aux = iEvent.eventAuxiliary();
 	unsigned run = aux.run();
 	unsigned lumiblock = aux.luminosityBlock();
 	unsigned long long event = aux.event();

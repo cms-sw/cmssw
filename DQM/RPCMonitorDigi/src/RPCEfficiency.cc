@@ -449,8 +449,8 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		  //check if the dimension of the segment is 2 and the station is 4
 
 		  if(segment->dimension()==2){
-		    LocalVector segmentDirectionMB4=segmentDirection;
-		    LocalPoint segmentPositionMB4=segmentPosition;
+		    const LocalVector& segmentDirectionMB4=segmentDirection;
+		    const LocalPoint& segmentPositionMB4=segmentPosition;
 		    
 		    
 		    const BoundPlane& DTSurface4 = dtGeo->idToDet(DTId)->surface();

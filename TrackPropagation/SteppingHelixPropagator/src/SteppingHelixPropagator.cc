@@ -1059,7 +1059,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	//	Vector p1 = tau;
 	//	Vector p2 = tauNext;
 	Point xStart = svCurrent.r3;
-	Vector dx = drVec;
+	const Vector& dx = drVec;
 	//GlobalVector h  = MagneticField::inInverseGeV(xStart);
 	// Martijn: field is now given as parameter.. GlobalVector h  = globalParameters.magneticFieldInInverseGeV(xStart);
 
@@ -1077,7 +1077,7 @@ bool SteppingHelixPropagator::makeAtomStep(SteppingHelixPropagator::StateInfo& s
 	//AlgebraicMatrix a(5,5,1);
 	// define average magnetic field and gradient 
 	// at initial point - inlike TRPRFN
-	Vector hn = bHat;
+	const Vector& hn = bHat;
 	//	double qp = -2.99792458e-3*b0;
 	//   double q = -h.mag()*qbp;
 

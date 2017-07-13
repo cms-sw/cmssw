@@ -129,7 +129,7 @@ EcalSRCondTools::analyze(const edm::Event& event, const edm::EventSetup& es){
       cout << "EcalTPGPhysicsConst record not found. Check the Cond DB Global tag.\n";
     } else{
       const EcalTPGPhysicsConst * tp = hTp.product();
-      const EcalTPGPhysicsConstMap mymap = tp->getMap();
+      const EcalTPGPhysicsConstMap& mymap = tp->getMap();
       if(mymap.size()!=2){
         cout << "Error: TPG physics record is of unexpected size: "
              << mymap.size()  << " elements instead of two (one for EB, one for EE)\n";

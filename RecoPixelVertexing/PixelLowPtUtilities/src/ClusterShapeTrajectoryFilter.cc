@@ -131,7 +131,7 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
   (TempTrajectory& trajectory) const 
 {
   assert(theCache);
-  TempTrajectory::DataContainer tms = trajectory.measurements();
+  const TempTrajectory::DataContainer& tms = trajectory.measurements();
 
   for(TempTrajectory::DataContainer::const_iterator
        tm = tms.rbegin(); tm!= tms.rend(); --tm)
