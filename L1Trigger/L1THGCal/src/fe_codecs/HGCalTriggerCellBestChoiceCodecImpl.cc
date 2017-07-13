@@ -13,7 +13,8 @@ HGCalTriggerCellBestChoiceCodecImpl(const edm::ParameterSet& conf) :
     tdcsaturation_(conf.getParameter<double>("tdcsaturation")), 
     tdcnBits_(conf.getParameter<uint32_t>("tdcnBits")), 
     tdcOnsetfC_(conf.getParameter<double>("tdcOnsetfC")),
-    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits"))
+    triggerCellTruncationBits_(conf.getParameter<uint32_t>("triggerCellTruncationBits")),
+    thickness_corrections_(conf.getParameter<std::vector<double>>("ThicknessCorrections"))
 {
   // Cannot have more selected cells than the max number of cells
   if(nData_>nCellsInModule_) nData_ = nCellsInModule_;
@@ -181,6 +182,21 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std
         HGCalDetId triggercellid( tcid );
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         uint32_t value = frame.second; 
+        // equalize value among cell thicknesses
+        int thickness = 0;
+        switch(cellid.subdetId())
+        {
+            case ForwardSubdetector::HGCEE:
+                thickness = geometry.cellInfo().topo_ee->dddConstants().waferTypeL(cellid.wafer())-1;
+                break;
+            case ForwardSubdetector::HGCHEF:
+                thickness = geometry.cellInfo().topo_fh->dddConstants().waferTypeL(cellid.wafer())-1;
+                break;
+            default:
+                break;
+        };
+        double thickness_correction = thickness_corrections_.at(thickness);
+        value = (double)value*thickness_correction;
         payload[triggercellid] += value; // 32 bits integer should be largely enough 
 
     }

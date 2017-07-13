@@ -70,6 +70,7 @@ class HGCalTriggerCellBestChoiceCodecImpl
         double   tdcLSB_;
         uint32_t triggerCellTruncationBits_;
         uint32_t triggerCellSaturationBits_;
+        std::vector<double> thickness_corrections_;
 
 };
 
