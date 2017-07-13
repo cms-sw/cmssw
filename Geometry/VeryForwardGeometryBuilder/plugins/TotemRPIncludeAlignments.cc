@@ -35,7 +35,7 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
 {
   public:
     TotemRPIncludeAlignments(const edm::ParameterSet &p);
-    virtual ~TotemRPIncludeAlignments(); 
+    ~TotemRPIncludeAlignments() override; 
 
     std::unique_ptr<RPAlignmentCorrectionsData> produceMeasured(const RPMeasuredAlignmentRecord &);
     std::unique_ptr<RPAlignmentCorrectionsData> produceReal(const RPRealAlignmentRecord &);
@@ -46,7 +46,7 @@ class  TotemRPIncludeAlignments : public edm::ESProducer, public edm::EventSetup
     RPAlignmentCorrectionsDataSequence acsMeasured, acsReal, acsMisaligned;
     RPAlignmentCorrectionsData acMeasured, acReal, acMisaligned;
 
-    virtual void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&);
+    void setIntervalFor(const edm::eventsetup::EventSetupRecordKey&, const edm::IOVSyncValue&, edm::ValidityInterval&) override;
 
     /// merges an array of sequences to one
     RPAlignmentCorrectionsDataSequence Merge(const std::vector<RPAlignmentCorrectionsDataSequence>) const;

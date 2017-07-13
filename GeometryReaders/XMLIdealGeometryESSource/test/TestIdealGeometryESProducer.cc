@@ -43,7 +43,7 @@
 class TestIdealGeometryESProducer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestIdealGeometryESProducer( const edm::ParameterSet& );
-  ~TestIdealGeometryESProducer();
+  ~TestIdealGeometryESProducer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;

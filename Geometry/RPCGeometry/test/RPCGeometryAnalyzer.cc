@@ -31,7 +31,7 @@ class RPCGeometryAnalyzer : public edm::one::EDAnalyzer<> {
  public: 
   RPCGeometryAnalyzer( const edm::ParameterSet& pset);
 
-  ~RPCGeometryAnalyzer();
+  ~RPCGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

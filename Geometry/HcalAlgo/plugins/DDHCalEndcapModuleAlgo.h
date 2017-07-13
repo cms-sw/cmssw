@@ -12,7 +12,7 @@ class DDHCalEndcapModuleAlgo : public DDAlgorithm {
 public:
   //Constructor and Destructor
   DDHCalEndcapModuleAlgo(); //const std::string & name);
-  virtual ~DDHCalEndcapModuleAlgo();
+  ~DDHCalEndcapModuleAlgo() override;
   
   struct HcalEndcapPar {
     double yh1, bl1, tl1, yh2, bl2, tl2, alp, theta, phi, xpos, ypos, zpos;
@@ -26,8 +26,8 @@ public:
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& cpv);
+		  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& cpv) override;
 
 protected:
 

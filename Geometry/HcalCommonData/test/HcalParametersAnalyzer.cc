@@ -9,7 +9,7 @@
 class HcalParametersAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit HcalParametersAnalyzer( const edm::ParameterSet& );
-  ~HcalParametersAnalyzer( void );
+  ~HcalParametersAnalyzer( void ) override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

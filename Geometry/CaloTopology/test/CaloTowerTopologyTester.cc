@@ -22,10 +22,10 @@
 class CaloTowerTopologyTester : public edm::EDAnalyzer {
 public:
   explicit CaloTowerTopologyTester(const edm::ParameterSet& );
-  ~CaloTowerTopologyTester();
+  ~CaloTowerTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const CaloTowerTopology& topology);
 
 private:

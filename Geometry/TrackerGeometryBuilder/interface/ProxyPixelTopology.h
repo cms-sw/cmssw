@@ -30,66 +30,66 @@ public:
 
   ProxyPixelTopology( PixelGeomDetType const * type, Plane * bp );
 
-  virtual LocalPoint localPosition( const MeasurementPoint& ) const;
+  LocalPoint localPosition( const MeasurementPoint& ) const override;
   /// conversion taking also the predicted track state 
-  virtual LocalPoint localPosition( const MeasurementPoint& mp,
-				    const Topology::LocalTrackPred &trkPred ) const;
+  LocalPoint localPosition( const MeasurementPoint& mp,
+				    const Topology::LocalTrackPred &trkPred ) const override;
   
-  virtual LocalError localError( const MeasurementPoint&,
-                                 const MeasurementError& ) const;
+  LocalError localError( const MeasurementPoint&,
+                                 const MeasurementError& ) const override;
   /// conversion taking also the predicted track state
-  virtual LocalError localError( const MeasurementPoint& mp,
+  LocalError localError( const MeasurementPoint& mp,
 				 const MeasurementError& me,
-				 const Topology::LocalTrackPred &trkPred ) const;
+				 const Topology::LocalTrackPred &trkPred ) const override;
 
-  virtual MeasurementPoint measurementPosition( const LocalPoint & ) const;
-  virtual MeasurementPoint measurementPosition( const LocalPoint &lp, 
-						const Topology::LocalTrackAngles &dir ) const;
+  MeasurementPoint measurementPosition( const LocalPoint & ) const override;
+  MeasurementPoint measurementPosition( const LocalPoint &lp, 
+						const Topology::LocalTrackAngles &dir ) const override;
 
-  virtual MeasurementError measurementError( const LocalPoint &lp, const LocalError &le ) const;
-  virtual MeasurementError measurementError( const LocalPoint &lp, const LocalError &le,
-					     const Topology::LocalTrackAngles &dir ) const;
+  MeasurementError measurementError( const LocalPoint &lp, const LocalError &le ) const override;
+  MeasurementError measurementError( const LocalPoint &lp, const LocalError &le,
+					     const Topology::LocalTrackAngles &dir ) const override;
 
-  virtual int channel( const LocalPoint& ) const;
-  virtual int channel( const LocalPoint &lp, const Topology::LocalTrackAngles &dir ) const;
+  int channel( const LocalPoint& ) const override;
+  int channel( const LocalPoint &lp, const Topology::LocalTrackAngles &dir ) const override;
   
-  virtual std::pair<float,float> pixel( const LocalPoint& p) const;
+  std::pair<float,float> pixel( const LocalPoint& p) const override;
   /// conversion taking also the angle from the track state
-  virtual std::pair<float,float> pixel( const LocalPoint& p,
-					const Topology::LocalTrackAngles &ltp ) const; 
+  std::pair<float,float> pixel( const LocalPoint& p,
+					const Topology::LocalTrackAngles &ltp ) const override; 
   
-  virtual std::pair<float,float> pitch() const { return specificTopology().pitch(); }
-  virtual int nrows() const { return specificTopology().nrows(); }
-  virtual int ncolumns() const { return specificTopology().ncolumns(); }
-  virtual int rocsY() const { return specificTopology().rocsY(); } 	 
-  virtual int rocsX() const { return specificTopology().rocsX(); } 	 
-  virtual int rowsperroc() const { return specificTopology().rowsperroc(); } 	 
-  virtual int colsperroc() const { return specificTopology().colsperroc(); }
-  virtual float localX( const float mpX ) const;
-  virtual float localX( const float mpX, const Topology::LocalTrackPred &trkPred ) const;
-  virtual float localY( const float mpY ) const;
-  virtual float localY( const float mpY, const Topology::LocalTrackPred &trkPred ) const;
+  std::pair<float,float> pitch() const override { return specificTopology().pitch(); }
+  int nrows() const override { return specificTopology().nrows(); }
+  int ncolumns() const override { return specificTopology().ncolumns(); }
+  int rocsY() const override { return specificTopology().rocsY(); } 	 
+  int rocsX() const override { return specificTopology().rocsX(); } 	 
+  int rowsperroc() const override { return specificTopology().rowsperroc(); } 	 
+  int colsperroc() const override { return specificTopology().colsperroc(); }
+  float localX( const float mpX ) const override;
+  float localX( const float mpX, const Topology::LocalTrackPred &trkPred ) const override;
+  float localY( const float mpY ) const override;
+  float localY( const float mpY, const Topology::LocalTrackPred &trkPred ) const override;
 
-  virtual bool isItBigPixelInX(const int ixbin) const {
+  bool isItBigPixelInX(const int ixbin) const override {
     return specificTopology().isItBigPixelInX(ixbin);
   }
-  virtual bool isItBigPixelInY(const int iybin) const {
+  bool isItBigPixelInY(const int iybin) const override {
     return specificTopology().isItBigPixelInY(iybin);
   }
-  virtual bool containsBigPixelInX(int ixmin, int ixmax) const {
+  bool containsBigPixelInX(int ixmin, int ixmax) const override {
     return specificTopology().containsBigPixelInX(ixmin, ixmax);
   }
-  virtual bool containsBigPixelInY(int iymin, int iymax) const {
+  bool containsBigPixelInY(int iymin, int iymax) const override {
     return specificTopology().containsBigPixelInY(iymin, iymax);
   }
 
-  virtual bool isItEdgePixelInX(int ixbin) const {
+  bool isItEdgePixelInX(int ixbin) const override {
     return specificTopology().isItEdgePixelInX(ixbin);
   }
-  virtual bool isItEdgePixelInY(int iybin) const {
+  bool isItEdgePixelInY(int iybin) const override {
     return specificTopology().isItEdgePixelInY(iybin);
   }
-  virtual bool isItEdgePixel(int ixbin, int iybin) const {
+  bool isItEdgePixel(int ixbin, int iybin) const override {
     return specificTopology().isItEdgePixel(ixbin, iybin);
   }
 

@@ -17,7 +17,7 @@ class HcalHardcodeGeometryEP : public edm::ESProducer {
 
 public:
   HcalHardcodeGeometryEP(const edm::ParameterSet&);
-  virtual ~HcalHardcodeGeometryEP();
+  ~HcalHardcodeGeometryEP() override;
 
   typedef std::shared_ptr<CaloSubdetectorGeometry> ReturnType;
 

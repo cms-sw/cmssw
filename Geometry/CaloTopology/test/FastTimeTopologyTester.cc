@@ -22,10 +22,10 @@
 class FastTimeTopologyTester : public edm::EDAnalyzer {
 public:
   explicit FastTimeTopologyTester(const edm::ParameterSet& );
-  ~FastTimeTopologyTester();
+  ~FastTimeTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const FastTimeTopology& topology);
 
 private:

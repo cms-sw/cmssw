@@ -35,7 +35,7 @@ class OutputMagneticFieldDDToDDL : public edm::one::EDAnalyzer<edm::one::WatchRu
 {
 public:
   explicit OutputMagneticFieldDDToDDL( const edm::ParameterSet& iConfig );
-  ~OutputMagneticFieldDDToDDL( void );
+  ~OutputMagneticFieldDDToDDL( void ) override;
   
   void beginJob() override {}
   void beginRun(edm::Run const& iEvent, edm::EventSetup const&) override;

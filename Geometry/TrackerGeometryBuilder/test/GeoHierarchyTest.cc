@@ -61,7 +61,7 @@ struct Print {
 class GeoHierarchy : public edm::one::EDAnalyzer<> {
 public:
   explicit GeoHierarchy( const edm::ParameterSet& );
-  ~GeoHierarchy();
+  ~GeoHierarchy() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

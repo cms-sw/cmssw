@@ -53,7 +53,7 @@ class  TotemRPGeometryESModule : public edm::ESProducer
 {
   public:
     TotemRPGeometryESModule(const edm::ParameterSet &p);
-    virtual ~TotemRPGeometryESModule(); 
+    ~TotemRPGeometryESModule() override; 
 
     std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
 

@@ -32,7 +32,7 @@ class RPCSectorAnalyzer : public edm::one::EDAnalyzer<> {
  public: 
   RPCSectorAnalyzer( const edm::ParameterSet& pset);
 
-  ~RPCSectorAnalyzer();
+  ~RPCSectorAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

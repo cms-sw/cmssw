@@ -19,7 +19,7 @@ public:
 
   explicit CaloAlignmentRcdRead( const edm::ParameterSet& /*iConfig*/ )
     :nEventCalls_(0) {}
-  ~CaloAlignmentRcdRead() {}
+  ~CaloAlignmentRcdRead() override {}
   
   template<typename T>
   void dumpAlignments(const edm::EventSetup& evtSetup);

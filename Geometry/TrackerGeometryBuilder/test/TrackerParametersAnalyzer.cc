@@ -16,7 +16,7 @@ class TrackerParametersAnalyzer : public edm::one::EDAnalyzer<>
 {
 public:
   explicit TrackerParametersAnalyzer( const edm::ParameterSet& ) {}
-  ~TrackerParametersAnalyzer() {}
+  ~TrackerParametersAnalyzer() override {}
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
