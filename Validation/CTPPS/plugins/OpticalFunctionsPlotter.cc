@@ -41,6 +41,7 @@ class OpticalFunctionsPlotter : public edm::one::EDAnalyzer<edm::one::SharedReso
 
     edm::FileInPath opticsFile_;
     std::vector<std::string> opticsObjects_;
+    edm::ParameterSet beamConditions_;
 
     double vtx0_y_45_, vtx0_y_56_;
     double half_crossing_angle_45_, half_crossing_angle_56_;
@@ -57,10 +58,11 @@ class OpticalFunctionsPlotter : public edm::one::EDAnalyzer<edm::one::SharedReso
 OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConfig ) :
   opticsFile_            ( iConfig.getParameter<edm::FileInPath>( "opticsFile" ) ),
   opticsObjects_         ( iConfig.getParameter< std::vector<std::string> >( "opticsObjects" ) ),
-  vtx0_y_45_             ( iConfig.getParameter<double>( "vtx0_y_45" ) ),
-  vtx0_y_56_             ( iConfig.getParameter<double>( "vtx0_y_56" ) ),
-  half_crossing_angle_45_( iConfig.getParameter<double>( "half_crossing_angle_45" ) ),
-  half_crossing_angle_56_( iConfig.getParameter<double>( "half_crossing_angle_56" ) )
+  beamConditions_        ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
+  vtx0_y_45_             ( beamConditions_.getParameter<double>( "yOffsetSector45" ) ), // in m
+  vtx0_y_56_             ( beamConditions_.getParameter<double>( "yOffsetSector56" ) ), // in m
+  half_crossing_angle_45_( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ), // in rad
+  half_crossing_angle_56_( beamConditions_.getParameter<double>( "halfCrossingAngleSector56" ) ) // in rad
 {
   usesResource( "TFileService" );
 
@@ -71,20 +73,42 @@ OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConf
   for ( const auto& objName : opticsObjects_ ) {
     // make output directory
     TFileDirectory dir = fs->mkdir( objName.c_str() );
-    g_x0_vs_xi[objName] = dir.make<TGraph>(); g_x0_vs_xi[objName]->SetName( "g_x0_vs_xi" );
-    g_y0_vs_xi[objName] = dir.make<TGraph>(); g_y0_vs_xi[objName]->SetName( "g_y0_vs_xi" );
-    g_y0_vs_x0[objName] = dir.make<TGraph>(); g_y0_vs_x0[objName]->SetName( "g_y0_vs_x0" );
-    g_y0_vs_x0so[objName] = dir.make<TGraph>(); g_y0_vs_x0so[objName]->SetName( "g_y0_vs_x0so" );
-    g_y0so_vs_x0so[objName] = dir.make<TGraph>(); g_y0so_vs_x0so[objName]->SetName( "g_y0so_vs_x0so" );
+    g_x0_vs_xi[objName] = dir.make<TGraph>();
+    g_x0_vs_xi[objName]->SetName( "g_x0_vs_xi" );
+    g_x0_vs_xi[objName]->SetTitle( ";#xi;x_{0}" );
+    g_y0_vs_xi[objName] = dir.make<TGraph>();
+    g_y0_vs_xi[objName]->SetName( "g_y0_vs_xi" );
+    g_y0_vs_xi[objName]->SetTitle( ";#xi;y_{0}" );
+    g_y0_vs_x0[objName] = dir.make<TGraph>();
+    g_y0_vs_x0[objName]->SetName( "g_y0_vs_x0" );
+    g_y0_vs_x0[objName]->SetTitle( ";x_{0};y_{0}" );
+    g_y0_vs_x0so[objName] = dir.make<TGraph>();
+    g_y0_vs_x0so[objName]->SetName( "g_y0_vs_x0so" );
+    g_y0_vs_x0so[objName]->SetTitle( ";#hat{x}_{0};y_{0}" );
+    g_y0so_vs_x0so[objName] = dir.make<TGraph>();
+    g_y0so_vs_x0so[objName]->SetName( "g_y0so_vs_x0so" );
+    g_y0so_vs_x0so[objName]->SetTitle( ";#hat{x}_{0};#hat{y}_{0}" );
 
-    g_v_x_vs_xi[objName] = dir.make<TGraph>(); g_v_x_vs_xi[objName]->SetName( "g_v_x_vs_xi" );
-    g_L_x_vs_xi[objName] = dir.make<TGraph>(); g_L_x_vs_xi[objName]->SetName( "g_L_x_vs_xi" );
+    g_v_x_vs_xi[objName] = dir.make<TGraph>();
+    g_v_x_vs_xi[objName]->SetName( "g_v_x_vs_xi" );
+    g_v_x_vs_xi[objName]->SetTitle( ";#xi;v_{x}" );
+    g_L_x_vs_xi[objName] = dir.make<TGraph>();
+    g_L_x_vs_xi[objName]->SetName( "g_L_x_vs_xi" );
+    g_L_x_vs_xi[objName]->SetTitle( ";#xi;L_{x}" );
 
-    g_v_y_vs_xi[objName] = dir.make<TGraph>(); g_v_y_vs_xi[objName]->SetName( "g_v_y_vs_xi" );
-    g_L_y_vs_xi[objName] = dir.make<TGraph>(); g_L_y_vs_xi[objName]->SetName( "g_L_y_vs_xi" );
+    g_v_y_vs_xi[objName] = dir.make<TGraph>();
+    g_v_y_vs_xi[objName]->SetName( "g_v_y_vs_xi" );
+    g_v_y_vs_xi[objName]->SetTitle( ";#xi;v_{y}" );
+    g_L_y_vs_xi[objName] = dir.make<TGraph>();
+    g_L_y_vs_xi[objName]->SetName( "g_L_y_vs_xi" );
+    g_L_y_vs_xi[objName]->SetTitle( ";#xi;L_{y}" );
 
-    g_xi_vs_x[objName] = dir.make<TGraph>(); g_xi_vs_x[objName]->SetName( "g_xi_vs_x" );
-    g_xi_vs_xso[objName] = dir.make<TGraph>(); g_xi_vs_xso[objName]->SetName( "g_xi_vs_xso" );
+    g_xi_vs_x[objName] = dir.make<TGraph>();
+    g_xi_vs_x[objName]->SetName( "g_xi_vs_x" );
+    g_xi_vs_x[objName]->SetTitle( ";x;#xi" );
+    g_xi_vs_xso[objName] = dir.make<TGraph>();
+    g_xi_vs_xso[objName]->SetName( "g_xi_vs_xso" );
+    g_xi_vs_xso[objName]->SetTitle( ";#hat{x};#xi" );
   }
 }
 
