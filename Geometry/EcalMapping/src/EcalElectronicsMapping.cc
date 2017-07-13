@@ -859,8 +859,8 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid, int D
 		std::cout << __FILE__ << ":" << __LINE__ << ": " << xtals.size()
 			  << " crystals read out by channel " <<  DCC_Channel << " of DCC "
 			  << DCCid << ": ";
-		for(auto xtal : xtals){
-			std::cout << EEDetId(xtal) << " ";
+		for(size_t i = 0; i < xtals.size(); ++i){
+			std::cout << EEDetId(xtals[i]) << " ";
 		}
 		std::cout << "\n";
 	}
@@ -869,8 +869,8 @@ std::vector<EcalScDetId> EcalElectronicsMapping::getEcalScDetId(int DCCid, int D
 				       "EcalElectronicsMapping : can not create EcalScDetId for DCC " << DCCid << 
 				       " and DCC_Channel " << DCC_Channel << ".";
 	
-	for(auto xtal : xtals){
-		EEDetId eedetid = xtal;
+	for(size_t iXtal = 0; iXtal < xtals.size(); ++iXtal){
+		EEDetId eedetid = xtals[iXtal];
 		int ix = eedetid.ix();
 		int iy = eedetid.iy();
 		int iz = eedetid.zside();

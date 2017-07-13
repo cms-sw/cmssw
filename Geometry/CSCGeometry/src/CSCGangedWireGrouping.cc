@@ -16,7 +16,9 @@ CSCGangedWireGrouping::CSCGangedWireGrouping(
   int firstWire = 1;         // (virtual) wire number which is 1st in a group
   int countConsecutive = 0;  // counter for the sections in DDD
 
-  for (int igs : consecutiveGroups) {
+  for ( CIterator it = consecutiveGroups.begin();
+	it != consecutiveGroups.end(); ++it ) {
+    int igs = *it;
     if ( igs != 0 ) {
       // igs is number of consecutive groups each containing
       // an identical number of wires

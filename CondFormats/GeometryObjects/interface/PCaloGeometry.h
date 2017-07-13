@@ -4,7 +4,7 @@
 #include "CondFormats/Serialization/interface/Serializable.h"
 
 #include <vector>
-#include <cstdint>
+#include <stdint.h>
 
 class PCaloGeometry{
 

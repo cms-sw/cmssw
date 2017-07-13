@@ -97,13 +97,13 @@ RctInputTextToDigi::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	  //	    {
 	  //	      oldVersion_ = true;
 	  //	    }
-	  if((junk_counter == 11) && (junk == "1-32"))
+	  if((junk_counter == 11) && (junk.compare("1-32") == 0))
 	    {
 	      oldVersion_ = true;
 	    }
 	  junk_counter++;
 	}
-      while (junk != "LUTOut");
+      while (junk.compare("LUTOut") != 0);
       std::cout << "Skipped file header" << std::endl;
       if (oldVersion_) {std::cout << "oldVersion_ TRUE (tower 1-32)" << std::endl;}
       else {std::cout << "oldVersion_ FALSE (tower 0-31)" << std::endl;}

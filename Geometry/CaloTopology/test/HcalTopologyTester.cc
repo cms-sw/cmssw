@@ -74,24 +74,24 @@ void HcalTopologyTester::doTest(const HcalTopology& topology) {
 	    std::vector<DetId> idU = topology.up(id);
 	    std::cout << "Neighbours for : Tower " << id << std::endl;
 	    std::cout << "          " << idE.size() << " sets along East:";
-	    for (auto & i : idE) 
-	      std::cout << " " << (HcalDetId)(i());
+	    for (unsigned int i=0; i<idE.size(); ++i) 
+	      std::cout << " " << (HcalDetId)(idE[i]());
 	    std::cout << std::endl;
 	    std::cout << "          " << idW.size() << " sets along West:";
-	    for (auto & i : idW) 
-	      std::cout << " " << (HcalDetId)(i());
+	    for (unsigned int i=0; i<idW.size(); ++i) 
+	      std::cout << " " << (HcalDetId)(idW[i]());
 	    std::cout << std::endl;
 	    std::cout << "          " << idN.size() << " sets along North:";
-	    for (auto & i : idN) 
-	      std::cout << " " << (HcalDetId)(i());
+	    for (unsigned int i=0; i<idN.size(); ++i) 
+	      std::cout << " " << (HcalDetId)(idN[i]());
 	    std::cout << std::endl;
 	    std::cout << "          " << idS.size() << " sets along South:";
-	    for (auto & i : idS) 
-	      std::cout << " " << (HcalDetId)(i());
+	    for (unsigned int i=0; i<idS.size(); ++i) 
+	      std::cout << " " << (HcalDetId)(idS[i]());
 	    std::cout << std::endl;
 	    std::cout << "          " << idU.size() << " sets up in depth:";
-	    for (auto & i : idU) 
-	      std::cout << " " << (HcalDetId)(i());
+	    for (unsigned int i=0; i<idU.size(); ++i) 
+	      std::cout << " " << (HcalDetId)(idU[i]());
 	    std::cout << std::endl;
 	  }
 	}

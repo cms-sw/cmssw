@@ -13,24 +13,24 @@ HcalHitRelabeller::HcalHitRelabeller(bool nd) :
 void HcalHitRelabeller::process(std::vector<PCaloHit>& hcalHits) {
 
   if (theRecNumber) {
-    for (auto & hcalHit : hcalHits) {
+    for (unsigned int ii=0; ii<hcalHits.size(); ++ii) {
 
 #ifdef EDM_ML_DEBUG
       std::cout << "Hit[" << ii << "] " << std::hex << hcalHits[ii].id() 
 		<< std::dec << " Neutral density " << neutralDensity_ << "\n";
 #endif
-      double energy = (hcalHit.energy());
+      double energy = (hcalHits[ii].energy());
       if (neutralDensity_) {
-	energy *= (energyWt(hcalHit.id()));
-	hcalHit.setEnergy(energy);
+	energy *= (energyWt(hcalHits[ii].id()));
+	hcalHits[ii].setEnergy(energy);
       }
-      DetId newid = relabel(hcalHit.id());
+      DetId newid = relabel(hcalHits[ii].id());
 #ifdef EDM_ML_DEBUG
       std::cout << "Hit " << ii << " out of " << hcalHits.size() << " " 
 		<< std::hex << newid.rawId() << std::dec << " E " << energy 
                 << std::endl;
 #endif
-      hcalHit.setID(newid.rawId());
+      hcalHits[ii].setID(newid.rawId());
 #ifdef EDM_ML_DEBUG
       std::cout << "Modified Hit " << HcalDetId(hcalHits[ii].id()) <<std::endl;
 #endif

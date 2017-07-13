@@ -7,9 +7,10 @@ CaloTopology::CaloTopology() {
 
 CaloTopology::~CaloTopology() 
 {
-   for(auto & theTopologie : theTopologies_)
+   for( TopMap::iterator i ( theTopologies_.begin() ) ;
+	i != theTopologies_.end() ; ++i )
    {
-      delete theTopologie.second ;
+      delete i->second ;
    }
 }
 

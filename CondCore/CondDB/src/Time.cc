@@ -23,7 +23,7 @@ namespace cond {
     
     TimeType timeTypeFromName( const std::string& name ){
       for (auto const &i : s_timeTypeMap)
-        if (name == i.first)
+        if (name.compare(i.first) == 0)
           return i.second;
       const cond::TimeTypeSpecs & theSpec = cond::findSpecs( name );
       return theSpec.type;

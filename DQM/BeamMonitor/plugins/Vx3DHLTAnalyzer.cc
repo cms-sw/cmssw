@@ -642,7 +642,7 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
     }
 
 
-  if (ResetType == "scratch")
+  if (ResetType.compare("scratch") == 0)
     {
       runNumber      = 0;
       numberGoodFits = 0;
@@ -696,7 +696,7 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: scratch" << endl;
       if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -scratch- issued\n" << endl;
     }
-  else if (ResetType == "whole")
+  else if (ResetType.compare("whole") == 0)
     {
       Vx_X->Reset();
       Vx_Y->Reset();
@@ -718,7 +718,7 @@ void Vx3DHLTAnalyzer::reset (string ResetType)
       if (internalDebug == true) cout << "[Vx3DHLTAnalyzer]::\tReset issued: whole" << endl;
       if ((debugMode == true) && (outputDebugFile.is_open() == true)) outputDebugFile << "Reset -whole- issued\n" << endl;
     }
-  else if (ResetType == "hitCounter")
+  else if (ResetType.compare("hitCounter") == 0)
     {
       totalHits = 0;
 

@@ -57,20 +57,20 @@ void CaloTowerTopologyTester::doTest(const CaloTowerTopology& topology) {
         std::vector<DetId> idS = topology.south(id);
         std::cout << "Neighbours for : Tower " << id << std::endl;
         std::cout << "          " << idE.size() << " sets along East:";
-        for (auto & i : idE) 
-          std::cout << " " << (CaloTowerDetId)(i());
+        for (unsigned int i=0; i<idE.size(); ++i) 
+          std::cout << " " << (CaloTowerDetId)(idE[i]());
         std::cout << std::endl;
         std::cout << "          " << idW.size() << " sets along West:";
-        for (auto & i : idW) 
-          std::cout << " " << (CaloTowerDetId)(i());
+        for (unsigned int i=0; i<idW.size(); ++i) 
+          std::cout << " " << (CaloTowerDetId)(idW[i]());
         std::cout << std::endl;
         std::cout << "          " << idN.size() << " sets along North:";
-        for (auto & i : idN) 
-          std::cout << " " << (CaloTowerDetId)(i());
+        for (unsigned int i=0; i<idN.size(); ++i) 
+          std::cout << " " << (CaloTowerDetId)(idN[i]());
         std::cout << std::endl;
         std::cout << "          " << idS.size() << " sets along South:";
-        for (auto & i : idS) 
-          std::cout << " " << (CaloTowerDetId)(i());
+        for (unsigned int i=0; i<idS.size(); ++i) 
+          std::cout << " " << (CaloTowerDetId)(idS[i]());
         std::cout << std::endl;
       }
     }

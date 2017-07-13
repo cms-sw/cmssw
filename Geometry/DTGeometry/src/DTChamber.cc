@@ -69,8 +69,9 @@ const DTSuperLayer* DTChamber::superLayer(DTSuperLayerId id) const{
 
 
 const DTSuperLayer* DTChamber::superLayer(int isl) const {
-  for (auto theSL : theSLs) {
-    if (theSL->id().superLayer()==isl) return theSL;
+  for (std::vector<const DTSuperLayer*>::const_iterator i = theSLs.begin();
+       i!= theSLs.end(); ++i) {
+    if ((*i)->id().superLayer()==isl) return (*i);
   }
   return 0;
 }

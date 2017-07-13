@@ -124,16 +124,16 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       eeDetIds.push_back(EEDetId(50,1,1,EEDetId::XYMODE));
       eeDetIds.push_back(EEDetId(50,25,1,EEDetId::XYMODE));
       eeDetIds.push_back(EEDetId(3,60,1,EEDetId::XYMODE));
-      for (auto eeDetId : eeDetIds)
+      for (unsigned int i=0;i<eeDetIds.size();i++)
 	{
 
-	  EEDetId myId(eeDetId);
+	  EEDetId myId(eeDetIds[i]);
 	  if (myId.zside()==-1)
 	    continue;
 	  std::vector<DetId> myNeighbours=topology->getWindow(myId,13,13);
-	  for (auto myNeighbour : myNeighbours)
+	  for (unsigned int i=0;i<myNeighbours.size();i++)
 	    {
-	      EEDetId myEEId(myNeighbour);
+	      EEDetId myEEId(myNeighbours[i]);
 	      TBox *box = new TBox(myEEId.ix()-0.5,myEEId.iy()-0.5,myEEId.ix()+0.5,myEEId.iy()+0.5);
 	      box->SetFillColor(1);
 	      box->Draw();
@@ -188,13 +188,13 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       ebDetIds.push_back(EBDetId(30,30));
       ebDetIds.push_back(EBDetId(-1,120));
       ebDetIds.push_back(EBDetId(85,1));
-      for (auto ebDetId : ebDetIds)
+      for (unsigned int i=0;i<ebDetIds.size();i++)
 	{
-	  EBDetId myId(ebDetId);
+	  EBDetId myId(ebDetIds[i]);
 	  std::vector<DetId> myNeighbours=topology->getWindow(myId,13,13);
-	  for (auto myNeighbour : myNeighbours)
+	  for (unsigned int i=0;i<myNeighbours.size();i++)
 	    {
-	      EBDetId myEBId(myNeighbour);
+	      EBDetId myEBId(myNeighbours[i]);
 	      TBox *box = new TBox(myEBId.ieta()-0.5,myEBId.iphi()-0.5,myEBId.ieta()+0.5,myEBId.iphi()+0.5);
 	      box->SetFillColor(1);
 	      box->Draw();

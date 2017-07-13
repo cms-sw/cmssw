@@ -8,7 +8,7 @@ void ComCodes::setCode(const char* descript,int code)
 {
   bool found=false;
   for(size_t i=0;i<_codeDefs.size() && !found;i++){
-    if(_codeDefs[i].first==descript) found=true;
+    if(_codeDefs[i].first.compare(descript)==0) found=true;
   }
   if(!found) _codeDefs.push_back(std::pair<std::string,int>(descript,code));
  
@@ -30,7 +30,7 @@ int ComCodes::getCode(const char* descript)const
     bool found=false;
 
     for(size_t i=0;i<_codeDefs.size() && !found;i++){
-      if(_codeDefs[i].first==codeKey){
+      if(_codeDefs[i].first.compare(codeKey)==0){
  	found=true;
  	code |= _codeDefs[i].second;
 

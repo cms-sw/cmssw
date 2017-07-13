@@ -74,7 +74,7 @@ namespace cscdqm {
           ///
           /// Load histogram definition
           ///
-          if (nodeName == XML_BOOK_DEFINITION) {
+          if (nodeName.compare(XML_BOOK_DEFINITION) == 0) {
 
             CoHistoProps dp;
             getNodeProperties(node, dp);
@@ -88,7 +88,7 @@ namespace cscdqm {
           ///
           /// Load histogram
           ///
-          if (nodeName == XML_BOOK_HISTOGRAM) {
+          if (nodeName.compare(XML_BOOK_HISTOGRAM) == 0) {
   
             CoHistoProps hp;
 

@@ -72,8 +72,10 @@ void
 
    int icount = 0;
 
-   for(auto layer : vl){
+   for( auto it = vl.begin(); it != vl.end(); ++it ){
 
+      const CSCLayer* layer = *it;
+     
       if( layer ){
         ++icount;
 

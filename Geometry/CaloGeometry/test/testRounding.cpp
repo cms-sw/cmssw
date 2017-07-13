@@ -1,7 +1,7 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
-#include <cstdio>
+#include <stdio.h>
 #include <iostream>
-#include <cmath>
+#include <math.h>
 
 struct HFCellParameters
 {
@@ -67,8 +67,9 @@ int main()
     HFCellParameters (41, 2, 3, 4, 20, HFZMIN2, HFZMAX, 12.5, 16.9)
   };
 
-  for(const auto & param : cells)
+  for( int iCell = 0; iCell < 26; ++iCell )
   {
+    const HFCellParameters& param = cells[iCell];
     for( int iPhi = param.phiFirst; iPhi <= MAX_HCAL_PHI; iPhi += param.phiStep )
     {
       for( int iside = -1; iside <= 1; iside += 2 ) // both detector sides are identical

@@ -87,9 +87,10 @@ RPCChamber::roll(RPCDetId id) const
 const RPCRoll* 
 RPCChamber::roll(int isl) const 
 {
-  for (auto theRoll : theRolls) {
-    if (theRoll->id().roll()==isl) 
-      return theRoll;
+  for (std::vector<const RPCRoll*>::const_iterator i = theRolls.begin();
+       i!= theRolls.end(); ++i) {
+    if ((*i)->id().roll()==isl) 
+      return (*i);
   }
   return 0;
 }

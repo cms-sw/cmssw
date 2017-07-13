@@ -87,9 +87,11 @@ CaloTowerGeometry::getSummary(CaloSubdetectorGeometry::TrVec&  tVec,
   dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
   dinsVec.reserve(numberOfCellsForCorners());
    
-  for (const auto & pv : parVecVec()) {
-    for (float iv : pv) {
-      dVec.push_back( iv ) ;
+  for (ParVecVec::const_iterator ivv (parVecVec().begin()) ; 
+       ivv != parVecVec().end() ; ++ivv) {
+    const ParVec& pv ( *ivv ) ;
+    for (ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv) {
+      dVec.push_back( *iv ) ;
     }
   }
    

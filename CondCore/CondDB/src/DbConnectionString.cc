@@ -63,7 +63,7 @@ namespace cond {
         //We test here that the signature string, if defined, is actually set to sig, otherwise we throw an exception
         std::string signatureParameter( "sig" );
         if( !signature.empty() ) {
-          if( signature == signatureParameter ) {
+          if( signature.compare( signatureParameter ) == 0 ) {
             std::string::size_type s = finalConn.rfind('/');
             finalConn.insert( s, "(security="+signature+')' );
           } else {

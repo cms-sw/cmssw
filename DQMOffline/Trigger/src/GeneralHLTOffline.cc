@@ -301,7 +301,7 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
       bool foundDataset = false;
       int datasetNum = -1;
       for (unsigned int d = 0; d < AddedDatasets.size(); d++) {
-        if (AddedDatasets[d] == datasetNames[i]) {
+        if (AddedDatasets[d].compare(datasetNames[i]) == 0) {
           foundDataset = true;
           datasetNum = d;
           if (debugPrint)
@@ -344,7 +344,8 @@ GeneralHLTOffline::dqmBeginRun(edm::Run const& iRun,
               std::cout << "Looping over existing trigger list " << od
                         <<  "  " << PDsVectorPathsVector[datasetNum][od] << std::endl;
             // Compare, see if match is found
-            if (hlt_config_.removeVersion(datasetPaths[iTrig]) == hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) {
+            if (hlt_config_.removeVersion(datasetPaths[iTrig]).compare(
+								       hlt_config_.removeVersion(PDsVectorPathsVector[datasetNum][od])) == 0) {
               found = true;
               if (debugPrint)
                 std::cout << " FOUND " << datasetPaths[iTrig] << std::endl;

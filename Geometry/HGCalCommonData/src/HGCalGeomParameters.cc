@@ -433,12 +433,13 @@ void HGCalGeomParameters::loadGeometryHexagon(const DDFilteredView& _fv,
   }
 
   for (unsigned int i=0; i<layers.size(); ++i) {
-    for (auto & layer : layers) {
-      if (layer.first == (int)(i+1)) {
+    for (std::map<int,HGCalGeomParameters::layerParameters>::iterator itr = layers.begin();
+	 itr != layers.end(); ++itr) {
+      if (itr->first == (int)(i+1)) {
 	php.layerIndex_.push_back(i);
-	php.rMinLayHex_.push_back(layer.second.rmin);
-	php.rMaxLayHex_.push_back(layer.second.rmax);
-	php.zLayerHex_.push_back(layer.second.zpos);
+	php.rMinLayHex_.push_back(itr->second.rmin);
+	php.rMaxLayHex_.push_back(itr->second.rmax);
+	php.zLayerHex_.push_back(itr->second.zpos);
 	break;
       }
     }
@@ -668,8 +669,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
   DDsvalues_type sv(fv.mergedSpecifics());
   int nmin(4);
   php.boundR_ = getDDDArray("RadiusBound",sv,nmin);
-  for (double & k : php.boundR_) 
-    k *= k_ScaleFromDDD;
+  for (unsigned int k=0; k<php.boundR_.size(); ++k) 
+    php.boundR_[k] *= k_ScaleFromDDD;
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalGeomParameters: wafer radius ranges for cell grouping " 
 	    << php.boundR_[0] << ":" << php.boundR_[1] << ":"
@@ -677,8 +678,8 @@ void HGCalGeomParameters::loadSpecParsHexagon(const DDFilteredView& fv,
 #endif
   nmin = 2;
   php.rLimit_ = getDDDArray("RadiusLimits",sv,nmin);
-  for (double & k : php.rLimit_) 
-    k *= k_ScaleFromDDD;
+  for (unsigned int k=0; k<php.rLimit_.size(); ++k) 
+    php.rLimit_[k] *= k_ScaleFromDDD;
 #ifdef EDM_ML_DEBUG
   std::cout << "HGCalGeomParameters: Minimum/maximum R " 
 	    << php.rLimit_[0] << ":" << php.rLimit_[1] << "\n";

@@ -60,20 +60,20 @@ void FastTimeTopologyTester::doTest(const FastTimeTopology& topology) {
 	  std::vector<DetId> idN = topology.north(id);
 	  std::vector<DetId> idS = topology.south(id);
 	  std::cout << "          " << idE.size() << " sets along East:";
-	  for (auto & i : idE) 
-	    std::cout << " " << (FastTimeDetId)(i());
+	  for (unsigned int i=0; i<idE.size(); ++i) 
+	    std::cout << " " << (FastTimeDetId)(idE[i]());
 	  std::cout << std::endl;
 	  std::cout << "          " << idW.size() << " sets along West:";
-	  for (auto & i : idW) 
-	    std::cout << " " << (FastTimeDetId)(i());
+	  for (unsigned int i=0; i<idW.size(); ++i) 
+	    std::cout << " " << (FastTimeDetId)(idW[i]());
 	  std::cout << std::endl;
 	  std::cout << "          " << idN.size() << " sets along North:";
-	  for (auto & i : idN) 
-	    std::cout << " " << (FastTimeDetId)(i());
+	  for (unsigned int i=0; i<idN.size(); ++i) 
+	    std::cout << " " << (FastTimeDetId)(idN[i]());
 	  std::cout << std::endl;
 	  std::cout << "          " << idS.size() << " sets along South:";
-	  for (auto & i : idS) 
-	    std::cout << " " << (FastTimeDetId)(i());
+	  for (unsigned int i=0; i<idS.size(); ++i) 
+	    std::cout << " " << (FastTimeDetId)(idS[i]());
 	  std::cout << std::endl;
 	}
 	phi += 10;

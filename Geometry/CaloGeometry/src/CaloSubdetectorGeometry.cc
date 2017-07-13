@@ -154,11 +154,12 @@ CaloSubdetectorGeometry::getSummary( CaloSubdetectorGeometry::TrVec&  tVec ,
    iVec.reserve( numberOfShapes()==1 ? 1 : m_validIds.size() ) ;
    dVec.reserve( numberOfShapes()*numberOfParametersPerShape() ) ;
 
-   for(const auto & pv : parVecVec())
+   for( ParVecVec::const_iterator ivv ( parVecVec().begin() ) ; ivv != parVecVec().end() ; ++ivv )
    {
-      for(float iv : pv)
+      const ParVec& pv ( *ivv ) ;
+      for( ParVec::const_iterator iv ( pv.begin() ) ; iv != pv.end() ; ++iv )
       {
-	 dVec.push_back( iv ) ;
+	 dVec.push_back( *iv ) ;
       }
    }
 

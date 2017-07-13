@@ -92,13 +92,13 @@ void CrystalCenterDump::build(const CaloGeometry& cg, DetId::Detector det, int s
 
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
-  for (auto id : ids) {
+  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
     n++;
-    const CaloCellGeometry* cell=geom->getGeometry(id);
+    const CaloCellGeometry* cell=geom->getGeometry(*i);
     if (det == DetId::Ecal)
       {
         if (subdetn == EcalBarrel) {
-          EBDetId ebid(id.rawId());
+          EBDetId ebid(i->rawId());
           if (ebid.ism() == 1) {
             
             float depth = (crystalDepth());

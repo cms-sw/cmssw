@@ -62,20 +62,20 @@ void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
 	      std::vector<DetId> idN = topology.north(id);
 	      std::vector<DetId> idS = topology.south(id);
 	      std::cout << "          " << idE.size() << " sets along East:";
-	      for (auto & i : idE) 
-		std::cout << " " << (HGCEEDetId)(i());
+	      for (unsigned int i=0; i<idE.size(); ++i) 
+		std::cout << " " << (HGCEEDetId)(idE[i]());
 	      std::cout << std::endl;
 	      std::cout << "          " << idW.size() << " sets along West:";
-	      for (auto & i : idW) 
-		std::cout << " " << (HGCEEDetId)(i());
+	      for (unsigned int i=0; i<idW.size(); ++i) 
+		std::cout << " " << (HGCEEDetId)(idW[i]());
 	      std::cout << std::endl;
 	      std::cout << "          " << idN.size() << " sets along North:";
-	      for (auto & i : idN) 
-		std::cout << " " << (HGCEEDetId)(i());
+	      for (unsigned int i=0; i<idN.size(); ++i) 
+		std::cout << " " << (HGCEEDetId)(idN[i]());
 	      std::cout << std::endl;
 	      std::cout << "          " << idS.size() << " sets along South:";
-	      for (auto & i : idS) 
-		std::cout << " " << (HGCEEDetId)(i());
+	      for (unsigned int i=0; i<idS.size(); ++i) 
+		std::cout << " " << (HGCEEDetId)(idS[i]());
 	      std::cout << std::endl;
 	    }
 	    cell += 100;

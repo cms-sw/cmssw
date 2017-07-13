@@ -105,13 +105,13 @@ RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
    vlp.push_back(LocalPoint( 0, 0, 1));
 
 
-   for(auto it : pDD->dets()){
+   for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-      if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
+      if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
        ++iRPCCHcount;
-       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
+       const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
 
        
        RPCDetId detId=ch->id();
@@ -121,11 +121,12 @@ RPCGeometryAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetu
 	 //       "  "<<"Roll 1 = "<<(rollRaf->id()).rawId()<<std::endl;
 
        std::vector< const RPCRoll*> rollsRaf = (ch->rolls());
-       for(auto & r : rollsRaf){
+       for(std::vector<const RPCRoll*>::iterator r = rollsRaf.begin();
+	   r != rollsRaf.end(); ++r){
 
-	 if(r->id().region() == 0){
-	 std::cout<<"RPCDetId = "<<r->id().rawId()<<std::endl;
-	 std::cout<<"Region = "<<r->id().region()<<"  Ring = "<<r->id().ring()<<"  Station = "<<r->id().station()<<"  Sector = "<<r->id().sector()<<"  Layer = "<<r->id().layer()<<"  Subsector = "<<r->id().subsector()<<"  Roll = "<<r->id().roll()<<std::endl;
+	 if((*r)->id().region() == 0){
+	 std::cout<<"RPCDetId = "<<(*r)->id().rawId()<<std::endl;
+	 std::cout<<"Region = "<<(*r)->id().region()<<"  Ring = "<<(*r)->id().ring()<<"  Station = "<<(*r)->id().station()<<"  Sector = "<<(*r)->id().sector()<<"  Layer = "<<(*r)->id().layer()<<"  Subsector = "<<(*r)->id().subsector()<<"  Roll = "<<(*r)->id().roll()<<std::endl;
 	 }
        }
      }

@@ -35,12 +35,12 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
 
 
    // dump pedestals:
-   if(dumpupdate!="null"){
+   if(dumpupdate.compare("null")!=0){
     std::ofstream outStream(dumpupdate.c_str());
     std::cout << "--- Dumping PedestalWidths - update ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream, (*myNewPeds) );
    }
-   if(dumprefs!="null"){
+   if(dumprefs.compare("null")!=0){
     std::ofstream outStream2(dumprefs.c_str());
     std::cout << "--- Dumping PedestalWidths - reference ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream2, (*myRefPeds) );
@@ -105,7 +105,7 @@ void HcalPedestalWidthsCheck::analyze(const edm::Event& ev, const edm::EventSetu
       }
       std::cout << "These are identical" << std::endl;
     }
-   if(outfile!="null"){
+   if(outfile.compare("null")!=0){
    for (std::vector<DetId>::iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
 	DetId mydetid = *it;

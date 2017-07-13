@@ -8,8 +8,10 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <cstdint>
-#include <unordered_map>
+#include <stdint.h>
+
+#include<vector>
+#include<unordered_map>
 
 class HGCalParameters {
 

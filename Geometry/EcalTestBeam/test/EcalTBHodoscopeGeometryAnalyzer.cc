@@ -101,9 +101,9 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
   
   int n=0;
   const std::vector<DetId>& ids=geom->getValidDetIds(det,subdetn);
-  for (auto id : ids) {
+  for (std::vector<DetId>::const_iterator i=ids.begin(); i!=ids.end(); i++) {
     n++;
-    const CaloCellGeometry* cell=geom->getGeometry(id);
+    const CaloCellGeometry* cell=geom->getGeometry(*i);
     if (det == DetId::Ecal)
       {
         if (subdetn == EcalLaserPnDiode) 
@@ -112,7 +112,7 @@ void EcalTBHodoscopeGeometryAnalyzer::build(const CaloGeometry& cg, DetId::Detec
             CLHEP::Hep3Vector thisCellPos( cell->getPosition().x(), cell->getPosition().y(), cell->getPosition().z() );
             CLHEP::Hep3Vector rotCellPos = (*fromCMStoTB_)*thisCellPos;
 
-            edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(id) << " position =  " <<rotCellPos;
+            edm::LogInfo("EcalTBGeom") << "Fiber DetId = " << HodoscopeDetId(*i) << " position =  " <<rotCellPos;
           }
       }
   }

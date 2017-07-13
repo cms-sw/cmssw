@@ -68,12 +68,12 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 
 
   // dump gains:
-   if(dumpupdate!="null"){
+   if(dumpupdate.compare("null")!=0){
    std::ofstream outStream(dumpupdate.c_str());
    std::cout << "--- Dumping Gains - update ---" << std::endl;
    HcalDbASCIIIO::dumpObject (outStream, (*myNewGains) );
    }
-   if(dumprefs!="null"){
+   if(dumprefs.compare("null")!=0){
     std::ofstream outStream2(dumprefs.c_str());
     std::cout << "--- Dumping Gains - reference ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream2, (*myRefGains) );
@@ -158,7 +158,7 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
     // push back into new vector the corresponding updated conditions,
     // or if it doesn't exist, the reference
 
-    if(outfile!="null"){
+    if(outfile.compare("null")!=0){
       HcalGains *resultGains = new HcalGains(refGains->topo());
     for (std::vector<DetId>::const_iterator it = listRefChan.begin(); it != listRefChan.end(); it++)
       {
@@ -214,7 +214,7 @@ void HcalGainsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es)
 void 
 HcalGainsCheck::endJob() 
 {
-  if(rootfile!="null"){
+  if(rootfile.compare("null")!=0){
   f->Write();
 }
   f->Close();

@@ -130,9 +130,10 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
   //get list of EE detids
   const std::vector<DetId>& vec(geomEE->getValidDetIds());
   //loop over EE detids
-  for(auto detId_itr : vec){
+  for(std::vector<DetId>::const_iterator detId_itr =vec.begin();
+      detId_itr != vec.end(); detId_itr++){
     //get detid position
-    const CaloCellGeometry* cellGeometry = geomEE->getGeometry(detId_itr);
+    const CaloCellGeometry* cellGeometry = geomEE->getGeometry(*detId_itr);
     const GlobalPoint gp ( cellGeometry->getPosition() ) ;
     
     //find closest HE cell
@@ -140,6 +141,6 @@ void CaloTowerConstituentsMapBuilder::assignEEtoHE(const CaloGeometry* geometry,
     
     //assign to appropriate CaloTower
     CaloTowerDetId tid(cttopo->convertHcaltoCT(closestCell.ietaAbs(),closestCell.subdet())*closestCell.zside(), closestCell.iphi());
-    theMap.assign(detId_itr,tid);
+    theMap.assign(*detId_itr,tid);
   }
 }

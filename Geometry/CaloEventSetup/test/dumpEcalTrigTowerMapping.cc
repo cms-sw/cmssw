@@ -147,10 +147,10 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       const std::vector<DetId>& eeDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing endcap trig tower mapping **"<<std::endl;
-      for (auto eeDetId : eeDetIds)
+      for (unsigned int i=0;i<eeDetIds.size();i++)
 	{
-	  EEDetId myId(eeDetId);
-	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetId);      
+	  EEDetId myId(eeDetIds[i]);
+	  EcalTrigTowerDetId myTower=etmap.towerOf(eeDetIds[i]);      
 
 //	  std::cout<<"eedetid="<<EEDetId(eeDetIds[i])<<", myTower="<<myTower<<std::endl;
 
@@ -208,10 +208,10 @@ void dumpEcalTrigTowerMapping::build(const CaloGeometry& cg, const EcalTrigTower
       const std::vector<DetId>& ebDetIds= cg.getValidDetIds(det,subdetn);
 
       std::cout<<"*** testing barrel trig tower mapping **"<<std::endl;
-      for (auto ebDetId : ebDetIds)
+      for (unsigned int i=0;i<ebDetIds.size();i++)
 	{
-	  EBDetId myId(ebDetId);
-	  EcalTrigTowerDetId myTower=etmap.towerOf(ebDetId);      
+	  EBDetId myId(ebDetIds[i]);
+	  EcalTrigTowerDetId myTower=etmap.towerOf(ebDetIds[i]);      
 
 	  assert( myTower == EcalTrigTowerDetId::detIdFromDenseIndex( myTower.denseIndex() ) ) ;
 

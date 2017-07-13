@@ -13,9 +13,9 @@ PlaneBuilderForGluedDet::plane( const std::vector<const GeomDetUnit*>& dets ) co
   // find mean position
   typedef Surface::PositionType::BasicVectorType Vector;
   Vector posSum( 0, 0, 0 );
-  for(auto det : dets)
+  for( std::vector<const GeomDetUnit*>::const_iterator i = dets.begin(), end = dets.end(); i != end; ++i )
   {
-    posSum += (*det).surface().position().basicVector();
+    posSum += (**i).surface().position().basicVector();
   }
   Surface::PositionType meanPos( posSum / float( dets.size()));
   
@@ -37,9 +37,10 @@ PlaneBuilderForGluedDet::computeRectBounds( const std::vector<const GeomDetUnit*
 {
   // go over all corners and compute maximum deviations from mean pos.
   std::vector<GlobalPoint> corners;
-  for(auto det : dets)
+  for( std::vector<const GeomDetUnit*>::const_iterator idet = dets.begin(), dend = dets.end();
+       idet != dend; ++idet )
   {
-    const Plane& bplane = dynamic_cast<const Plane&>(det->surface());
+    const Plane& bplane = dynamic_cast<const Plane&>(( *idet )->surface());
     std::vector<GlobalPoint> dc = BoundingBox().corners( bplane );
     corners.insert( corners.end(), dc.begin(), dc.end());
   }

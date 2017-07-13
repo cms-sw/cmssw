@@ -82,7 +82,9 @@ void
      "  phi(0)" << std::endl;
    std::cout << dashedLine_ << std::endl;
 
-   for(auto chamber : vc){
+   for( auto it = vc.begin(); it != vc.end(); ++it ){
+
+      const CSCChamber* chamber = *it;
 
       if( chamber ){
         ++jcount;

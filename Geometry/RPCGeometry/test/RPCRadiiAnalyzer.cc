@@ -88,33 +88,34 @@ RPCRadiiAnalyzer::analyze( const edm::Event& /*iEvent*/, const edm::EventSetup& 
   const double radToDeg = 180. / dPi; //@@ Where to get pi from?
   
   
-  for(auto it : pDD->dets()){
+  for(TrackingGeometry::DetContainer::const_iterator it = pDD->dets().begin(); it != pDD->dets().end(); it++){
 
 //      //----------------------- RPCCHAMBER TEST -------------------------------------------------------
 
-    if( dynamic_cast< const RPCChamber* >( it ) != 0 ){
-      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( it ); 
+    if( dynamic_cast< const RPCChamber* >( *it ) != 0 ){
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
       
       
       //RPCDetId detId=ch->id();
       
       std::vector< const RPCRoll*> rolls = (ch->rolls());
-      for(auto & roll : rolls){
+      for(std::vector<const RPCRoll*>::iterator r = rolls.begin();
+	  r != rolls.end(); ++r){
 	
-	if(roll->id().region() == -1 &&
-	   roll->id().station() > 0)// &&
+	if((*r)->id().region() == -1 &&
+	   (*r)->id().station() > 0)// &&
 	   //	   (*r)->id().ring() == 2)
 	  {
 	    //	    std::cout<<"RPCDetId = "<<(*r)->id()<<std::endl;
-	    RPCGeomServ geosvc(roll->id()); 
+	    RPCGeomServ geosvc((*r)->id()); 
 	    LocalPoint centre(0.,0.,0.);
-	    GlobalPoint gc = roll->toGlobal(centre);
+	    GlobalPoint gc = (*r)->toGlobal(centre);
 	    double phic = double(gc.phi())*radToDeg;
 	    double radii = double(gc.perp());
 	    std::cout <<geosvc.name()<<" phi="<<phic
 		      <<" r="<<radii
-		      <<" detName "<<roll->specs()->detName()
-		      <<" s="<<roll->id().sector()<<" subs="<<roll->id().subsector()
+		      <<" detName "<<(*r)->specs()->detName()
+		      <<" s="<<(*r)->id().sector()<<" subs="<<(*r)->id().subsector()
 		      <<std::endl;
 	  }
       }

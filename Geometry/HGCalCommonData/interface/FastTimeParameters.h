@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
-#include <cstdint>
+#include <stdint.h>
 
 class FastTimeParameters {
 

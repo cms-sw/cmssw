@@ -59,10 +59,10 @@ struct TimeValidityInterval
     
     static edm::TimeValue_t UNIXStringToValue(const std::string &s)
     {
-      if (s == "-inf")
+      if (s.compare("-inf") == 0)
         return BeginOfTime();
 
-      if (s == "+inf")
+      if (s.compare("+inf") == 0)
         return EndOfTime();
 
       // see: src/framework/DataFormats/Provenance/interface/Timestamp.h

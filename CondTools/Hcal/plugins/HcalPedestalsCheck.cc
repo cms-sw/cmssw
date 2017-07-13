@@ -34,12 +34,12 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
   const HcalElectronicsMap* myRefEMap = refEMap.product();
 
   // dump pedestals:
-  if(!(dumprefs=="null")){
+  if(!(dumprefs.compare("null")==0)){
     std::ofstream outStream(dumprefs.c_str());
     std::cout << "--- Dumping Pedestals - reference ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream, (*myRefPeds) );
   }
-  if(!(dumpupdate=="null")){
+  if(!(dumpupdate.compare("null")==0)){
     std::ofstream outStream2(dumpupdate.c_str());
     std::cout << "--- Dumping Pedestals - updated ---" << std::endl;
     HcalDbASCIIIO::dumpObject (outStream2, (*myNewPeds) );
@@ -104,7 +104,7 @@ void HcalPedestalsCheck::analyze(const edm::Event& ev, const edm::EventSetup& es
       }
     if(!failflag) std::cout << "These are identical to within deltaP" << std::endl;
     }
-    if(!(outfile=="null"))
+    if(!(outfile.compare("null")==0))
     {
     // first get the list of all channels from the update
     std::vector<DetId> listNewChan = myNewPeds->getAllChannels();

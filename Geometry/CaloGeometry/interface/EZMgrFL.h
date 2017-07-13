@@ -2,7 +2,7 @@
 #define GEOMETRY_CALOGEOMETRY_EZMGRFL_H 1
 
 #include <vector>
-#include <cassert>
+#include <assert.h>
 
 template < class T >
 class EZMgrFL

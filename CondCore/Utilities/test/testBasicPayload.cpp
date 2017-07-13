@@ -70,7 +70,7 @@ int main (int argc, char** argv)
   bool generate = false;
   if (argc > 1) {
     std::string option = std::string(argv[1]);
-    generate = (option=="generate");
+    generate = (option.compare("generate")==0);
   }
 
   int ret = 0;

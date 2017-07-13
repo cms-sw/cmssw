@@ -123,9 +123,6 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
      // eta within calorimeter acceptance 4.7
      if(fabs((&Genjet)->eta())>4.7) continue;
 
-     // only consider the gen jet with pt greater than 10 GeV
-     if((&Genjet)->pt()<10.0) continue;
-
      double minDR = 999.0;
 
      // match L1T object
@@ -150,9 +147,6 @@ void L1Validator::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
     int pdg = GenPart->pdgId(), status = GenPart->status();
 
     double minDR = 999.0;
-
-    // only consider the gen particle with pt greater than 10 GeV
-    if(GenPart->pt()<10.0) continue;
 
     /// select the final state (i.e status==1) muons (pdg==+/-13)
     if(status==1 && abs(pdg)==13){  //Muon
