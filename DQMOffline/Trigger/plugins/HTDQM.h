@@ -30,7 +30,6 @@ private:
   MEbinning           ht_binning_;
   MEbinning           ls_binning_;
 
-  ObjME htME_;
   ObjME htME_variableBinning_;
   ObjME htVsMET_;
   ObjME htVsLS_;
