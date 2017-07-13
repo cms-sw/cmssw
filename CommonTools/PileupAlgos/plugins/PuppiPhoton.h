@@ -40,6 +40,7 @@ private:
 	double pt_;
 	double eta_;
 	bool   usePFRef_;
+	bool   usePFphotons_;
 	bool   runOnMiniAOD_;
 	bool   usePhotonId_;
 	std::vector<double>  dRMatch_;
