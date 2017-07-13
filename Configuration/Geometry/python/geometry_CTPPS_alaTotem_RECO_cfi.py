@@ -131,8 +131,8 @@ XMLIdealGeometryESSource = cms.ESSource("XMLIdealGeometryESSource",
                                               )
 
 
-XMLIdealGeometryESSource.geomXMLFiles.append("Geometry/VeryForwardData/data/RP_Position/RP_Dist_Beam_Cent.xml")
-#XMLIdealGeometryESSource.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
+#XMLIdealGeometryESSource.geomXMLFiles.append("Geometry/VeryForwardData/data/RP_Position/RP_Dist_Beam_Cent.xml")
+XMLIdealGeometryESSource.geomXMLFiles.append("Geometry/VeryForwardData/data/2016_ctpps_15sigma_margin0/RP_Dist_Beam_Cent.xml")
 
 # real geometry
 TotemRPGeometryESModule = cms.ESProducer("TotemRPGeometryESModule",
