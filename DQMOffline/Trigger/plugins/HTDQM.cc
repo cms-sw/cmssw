@@ -11,12 +11,6 @@ void HTDQM::initialise(const edm::ParameterSet& iConfig ){
   ht_binning_ = getHistoPSet(iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("htPSet"));
   ls_binning_ = getHistoLSPSet (iConfig.getParameter<edm::ParameterSet>("histoPSet").getParameter<edm::ParameterSet>("htlsPSet"));
   
-  htME_variableBinning_.numerator   = nullptr;
-  htME_variableBinning_.denominator = nullptr;
-  htVsMET_.numerator   = nullptr;
-  htVsMET_.denominator = nullptr;
-  htVsLS_.numerator   = nullptr;
-  htVsLS_.denominator = nullptr;
 }
 
 void HTDQM::bookHistograms(DQMStore::IBooker     & ibooker) 
