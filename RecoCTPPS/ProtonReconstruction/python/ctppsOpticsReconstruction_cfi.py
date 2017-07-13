@@ -1,17 +1,16 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimRomanPot.CTPPSOpticsParameterisation.ctppsDetectorPackages_cff import detectorPackages_2016PreTS2
-from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
+from SimCTPPS.OpticsParameterisation.ctppsDetectorPackages_cff import detectorPackages_2016PreTS2
+from SimCTPPS.OpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
 ctppsOpticsReconstruction = cms.EDProducer('CTPPSOpticsReconstruction',
-    potsHitsTag = cms.InputTag('ctppsOpticsParameterisation'),
+    potsTracksTag = cms.InputTag('ctppsLocalTrackLiteProducer'),
 
     beamConditions = lhcBeamConditions_2016PreTS2,
     detectorPackages = detectorPackages_2016PreTS2,
 
     checkApertures = cms.bool(True),
-    invertBeamCoordinatesSystem = cms.bool(True),
 
-    opticsFileBeam1 = cms.FileInPath('SimRomanPot/CTPPSOpticsParameterisation/data/parametrization_6500GeV_0p4_185_reco_beam1.root'),
-    opticsFileBeam2 = cms.FileInPath('SimRomanPot/CTPPSOpticsParameterisation/data/parametrization_6500GeV_0p4_185_reco_beam2.root'),
+    opticsFileBeam1 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2016_preTS2/version4-vale1/beam1/parametrization_6500GeV_0p4_185_reco.root'),
+    opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root'),
 )

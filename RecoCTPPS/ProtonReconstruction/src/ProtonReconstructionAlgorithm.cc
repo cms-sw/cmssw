@@ -10,15 +10,15 @@
 
 #include "RecoCTPPS/ProtonReconstruction/interface/ProtonReconstructionAlgorithm.h"
 
-ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::ParameterSet& beam_conditions, std::unordered_map<unsigned int, std::string> objects, const std::string& optics_file, bool check_aper, bool invert_coord ) :
+ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::ParameterSet& beam_conditions, std::unordered_map<unsigned int, std::string> objects, const std::string& optics_file, bool check_aper ) :
   beamConditions_( beam_conditions ),
   halfCrossingAngleSector45_( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ),
   halfCrossingAngleSector56_( beamConditions_.getParameter<double>( "halfCrossingAngleSector56" ) ),
   yOffsetSector45_( beamConditions_.getParameter<double>( "yOffsetSector45" ) ),
   yOffsetSector56_( beamConditions_.getParameter<double>( "yOffsetSector56" ) ),
   fitter_( std::make_unique<ROOT::Fit::Fitter>() ),
-  checkApertures_( check_aper ), invertBeamCoordinatesSystem_( invert_coord ),
-  chiSquareCalculator_( std::make_unique<ChiSquareCalculator>( beamConditions_, checkApertures_, invertBeamCoordinatesSystem_ ) )
+  checkApertures_( check_aper ),
+  chiSquareCalculator_( std::make_unique<ChiSquareCalculator>( beamConditions_, checkApertures_ ) )
 {
   // load optics approximation
   auto f_in_optics = std::make_unique<TFile>( optics_file.c_str() );
@@ -37,8 +37,8 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::Paramet
     rpod.optics = std::make_shared<LHCOpticsApproximator>( *dynamic_cast<LHCOpticsApproximator*>( of_orig ) );
 
     // build auxiliary optical functions
-    double crossing_angle = 0.;
-    double vtx0_y = 0.;
+    double crossing_angle = 0.0;
+    double vtx0_y = 0.0;
 
     // determine LHC sector from RP id
     if ( pot_id.arm()==0 ) {
@@ -57,23 +57,23 @@ ProtonReconstructionAlgorithm::ProtonReconstructionAlgorithm( const edm::Paramet
          g_L_y_vs_xi = std::make_unique<TGraph>();
 
     // first start by populating the interpolation graphs
-    for ( double xi=0.; xi<=0.201; xi+=0.005 ) {
+    for ( double xi=0.0; xi<=0.201; xi+=0.005 ) {
       // input: only xi
-      double kin_in_xi[5] = { 0., crossing_angle * ( 1.-xi ), vtx0_y, 0., -xi };
+      double kin_in_xi[5] = { 0.0, crossing_angle * ( 1.-xi ), vtx0_y, 0.0, -xi };
       double kin_out_xi[5];
-      rpod.optics->Transport( kin_in_xi, kin_out_xi, checkApertures_, invertBeamCoordinatesSystem_ );
+      rpod.optics->Transport( kin_in_xi, kin_out_xi, checkApertures_, true );
 
       // input: xi and vtx_y
       const double vtx_y = beamConditions_.getParameter<double>( "vertexSize" );
-      double kin_in_xi_vtx_y[5] = { 0., crossing_angle * ( 1.-xi ), vtx0_y + vtx_y, 0., -xi };
+      double kin_in_xi_vtx_y[5] = { 0.0, crossing_angle * ( 1.-xi ), vtx0_y + vtx_y, 0.0, -xi };
       double kin_out_xi_vtx_y[5];
-      rpod.optics->Transport( kin_in_xi_vtx_y, kin_out_xi_vtx_y, checkApertures_, invertBeamCoordinatesSystem_ );
+      rpod.optics->Transport( kin_in_xi_vtx_y, kin_out_xi_vtx_y, checkApertures_, true );
 
       // input: xi and th_y
       const double th_y = beamConditions_.getParameter<double>( "beamDivergence" );
-      double kin_in_xi_th_y[5] = { 0., crossing_angle * ( 1.-xi ), vtx0_y, th_y * ( 1.-xi ), -xi };
+      double kin_in_xi_th_y[5] = { 0.0, crossing_angle * ( 1.-xi ), vtx0_y, th_y * ( 1.-xi ), -xi };
       double kin_out_xi_th_y[5];
-      rpod.optics->Transport( kin_in_xi_th_y, kin_out_xi_th_y, checkApertures_, invertBeamCoordinatesSystem_ );
+      rpod.optics->Transport( kin_in_xi_th_y, kin_out_xi_th_y, checkApertures_, true );
 
       // fill graphs
       int idx = g_xi_vs_x->GetN();
@@ -110,7 +110,7 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
   if ( tracks.size()<2 ) return;
 
   // first loop to extract a rough estimate of xi (mean of all xi's)
-  double sum_xi0 = 0.;
+  double sum_xi0 = 0.0;
   unsigned int num_tracks = 0;
 
   for ( const auto& trk : tracks ) {
@@ -124,7 +124,7 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
 
   { //FIXME replace with a loop over all pots tracks to reconstruct tracks!
     // second loop to extract a rough estimate of th_y and vtx_y
-    double y[2] = { 0., 0. }, v_y[2] = { 0., 0. }, L_y[2] = { 0., 0. };
+    double y[2] = { 0.0, 0.0 }, v_y[2] = { 0.0, 0.0 }, L_y[2] = { 0.0, 0.0 };
     unsigned int y_idx = 0;
     for ( const auto& trk : tracks ) {
       if ( y_idx>1 ) break;
@@ -144,7 +144,7 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
 
     // minimisation
     fitter_->Config().ParSettings( 0 ).Set( "xi", xi_0, 0.005 );
-    fitter_->Config().ParSettings( 1 ).Set( "th_x", 0., 20.e-6 );
+    fitter_->Config().ParSettings( 1 ).Set( "th_x", 0.0, 20.0e-6 );
     fitter_->Config().ParSettings( 2 ).Set( "th_y", th_y_0, 1.e-6 );
     fitter_->Config().ParSettings( 3 ).Set( "vtx_y", vtx_y_0, 1.e-6 );
 
@@ -168,7 +168,7 @@ ProtonReconstructionAlgorithm::reconstruct( const std::vector< edm::Ptr<CTPPSLoc
       << "theta_y=" << params[2] << ", "
       << "vertex_y=" << params[3] << "\n";
 
-    out.emplace_back( Local3DPoint( 0., params[3]/*vtx_y*/, 0. ), Local3DVector( params[1]/*th_x*/, params[2]/*th_y*/, 0. ), params[0]/*xi*/ );
+    out.emplace_back( Local3DPoint( 0.0, params[3]/*vtx_y*/, 0.0 ), Local3DVector( params[1]/*th_x*/, params[2]/*th_y*/, 0.0 ), params[0]/*xi*/ );
   }
 }
 
@@ -185,10 +185,10 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
   const double& vtx_y = parameters[3];
 
   // calculate chi^2 by looping over hits
-  double S2 = 0.;
+  double S2 = 0.0;
 
   for ( auto& trk : *tracks ) {
-    double crossing_angle = 0., vtx0_y = 0.;
+    double crossing_angle = 0.0, vtx0_y = 0.0;
     const TotemRPDetId detid( trk->getRPId() );
 
     // determine LHC sector from RP id
@@ -207,7 +207,7 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
 
     double kin_in[5] = { vtx_x,	( th_x+crossing_angle ) * ( 1.-xi ), vtx0_y+vtx_y, th_y * ( 1.-xi ), -xi };
     double kin_out[5];
-    oit->second.optics->Transport( kin_in, kin_out, check_apertures, invert_beam_coord_systems );
+    oit->second.optics->Transport( kin_in, kin_out, check_apertures, true );
 
     const double& x = kin_out[0];
     const double& y = kin_out[2];

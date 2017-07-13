@@ -18,7 +18,7 @@ process.source = cms.Source('PoolSource',
     )
 )
 
-process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisation_cfi')
+process.load('SimCTPPS.OpticsParameterisation.ctppsOpticsParameterisation_cfi')
 process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')
 process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('source')
 #process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('generatorSmeared')

@@ -38,12 +38,11 @@ class CTPPSOpticsReconstruction : public edm::stream::EDProducer<> {
     virtual void produce( edm::Event&, const edm::EventSetup& ) override;
     void transportProtonTrack( const reco::ProtonTrack&, std::vector<CTPPSLocalTrackLite>& );
 
-    edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > hitsToken_;
+    edm::EDGetTokenT< edm::View<CTPPSLocalTrackLite> > tracksToken_;
 
     edm::ParameterSet beamConditions_;
 
     bool checkApertures_;
-    bool invertBeamCoordinatesSystem_;
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
     std::vector<edm::ParameterSet> detectorPackages_;
@@ -53,10 +52,9 @@ class CTPPSOpticsReconstruction : public edm::stream::EDProducer<> {
 };
 
 CTPPSOpticsReconstruction::CTPPSOpticsReconstruction( const edm::ParameterSet& iConfig ) :
-  hitsToken_( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsHitsTag" ) ) ),
+  tracksToken_( consumes< edm::View<CTPPSLocalTrackLite> >( iConfig.getParameter<edm::InputTag>( "potsTracksTag" ) ) ),
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
-  invertBeamCoordinatesSystem_( iConfig.getParameter<bool>( "invertBeamCoordinatesSystem" ) ),
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) )
@@ -76,8 +74,8 @@ CTPPSOpticsReconstruction::CTPPSOpticsReconstruction( const edm::ParameterSet& i
   }
 
   // reconstruction algorithms
-  prAlgo45_ = std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, pots_45, opticsFileBeam2_.fullPath(), checkApertures_, invertBeamCoordinatesSystem_ );
-  prAlgo56_ = std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, pots_56, opticsFileBeam1_.fullPath(), checkApertures_, invertBeamCoordinatesSystem_ );
+  prAlgo45_ = std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, pots_45, opticsFileBeam2_.fullPath(), checkApertures_ );
+  prAlgo56_ = std::make_unique<ProtonReconstructionAlgorithm>( beamConditions_, pots_56, opticsFileBeam1_.fullPath(), checkApertures_ );
 }
 
 CTPPSOpticsReconstruction::~CTPPSOpticsReconstruction()
@@ -89,12 +87,12 @@ CTPPSOpticsReconstruction::produce( edm::Event& iEvent, const edm::EventSetup& )
   std::unique_ptr< std::vector<reco::ProtonTrack> > pOut45( new std::vector<reco::ProtonTrack> );
   std::unique_ptr< std::vector<reco::ProtonTrack> > pOut56( new std::vector<reco::ProtonTrack> );
 
-  edm::Handle< edm::View<CTPPSLocalTrackLite> > hits;
-  iEvent.getByToken( hitsToken_, hits );
+  edm::Handle< edm::View<CTPPSLocalTrackLite> > tracks;
+  iEvent.getByToken( tracksToken_, tracks );
 
   // run reconstruction
-  prAlgo45_->reconstruct( hits->ptrs(), *pOut45 );
-  prAlgo56_->reconstruct( hits->ptrs(), *pOut56 );
+  prAlgo45_->reconstruct( tracks->ptrs(), *pOut45 );
+  prAlgo56_->reconstruct( tracks->ptrs(), *pOut56 );
 
   iEvent.put( std::move( pOut45 ), "sector45" );
   iEvent.put( std::move( pOut56 ), "sector56" );

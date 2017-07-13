@@ -8,8 +8,8 @@
  *
  ****************************************************************************/
 
-#ifndef SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
-#define SimRomanPot_CTPPSOpticsParameterisation_ProtonReconstructionAlgorithm_h
+#ifndef RecoCTPPS_ProtonReconstruction_ProtonReconstructionAlgorithm_h
+#define RecoCTPPS_ProtonReconstruction_ProtonReconstructionAlgorithm_h
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -35,7 +35,7 @@ enum LHCSector { unknownSector, sector45, sector56 };
 class ProtonReconstructionAlgorithm
 {
   public:
-    ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string&, bool, bool );
+    ProtonReconstructionAlgorithm( const edm::ParameterSet&, std::unordered_map<unsigned int, std::string>, const std::string&, bool );
     ~ProtonReconstructionAlgorithm();
 
     void reconstruct( const std::vector< edm::Ptr<CTPPSLocalTrackLite> >& tracks, std::vector<reco::ProtonTrack>& reco ) const;
@@ -56,13 +56,13 @@ class ProtonReconstructionAlgorithm
     /// class for calculation of chi^2
     class ChiSquareCalculator {
       public:
-        ChiSquareCalculator( const edm::ParameterSet& bc, bool aper, bool invert ) :
+        ChiSquareCalculator( const edm::ParameterSet& bc, bool aper ) :
           beamConditions_( bc ),
           halfCrossingAngleSector45_( bc.getParameter<double>( "halfCrossingAngleSector45" ) ),
           halfCrossingAngleSector56_( bc.getParameter<double>( "halfCrossingAngleSector56" ) ),
           yOffsetSector45_( bc.getParameter<double>( "yOffsetSector45" ) ),
           yOffsetSector56_( bc.getParameter<double>( "yOffsetSector56" ) ),
-          check_apertures( aper ), invert_beam_coord_systems( invert ) {}
+          check_apertures( aper ) {}
         double operator() ( const double* ) const;
 
         const std::vector< edm::Ptr<CTPPSLocalTrackLite> >* tracks;
@@ -73,14 +73,12 @@ class ProtonReconstructionAlgorithm
         double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
         double yOffsetSector45_, yOffsetSector56_;
         const bool check_apertures;
-        const bool invert_beam_coord_systems;
     };
 
     // fitter object
     std::unique_ptr<ROOT::Fit::Fitter> fitter_;
 
     bool checkApertures_;
-    bool invertBeamCoordinatesSystem_;
 
     std::unique_ptr<ChiSquareCalculator> chiSquareCalculator_;
 };

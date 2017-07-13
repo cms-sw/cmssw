@@ -76,7 +76,6 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
     bool roundToPitch_;
 
     bool checkApertures_;
-    bool invertBeamCoordinatesSystem_;
     bool produceHitsRelativeToBeam_;
 
     /// strip pitch in mm
@@ -95,7 +94,11 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
     double stripZeroPosition_;
 
     edm::ESHandle<TotemRPGeometry> geometry_;
+
+    static const bool invertBeamCoordinatesSystem_;
 };
+
+const bool CTPPSFastProtonSimulation::invertBeamCoordinatesSystem_ = true;
 
 CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& iConfig ) :
   protonsToken_( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
@@ -108,7 +111,6 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
   simulateDetectorsResolution_( iConfig.getParameter<bool>( "simulateDetectorsResolution" ) ),
   roundToPitch_               ( iConfig.getParameter<bool>( "roundToPitch" ) ),
   checkApertures_             ( iConfig.getParameter<bool>( "checkApertures" ) ),
-  invertBeamCoordinatesSystem_( iConfig.getParameter<bool>( "invertBeamCoordinatesSystem" ) ),
   produceHitsRelativeToBeam_  ( iConfig.getParameter<bool>( "produceHitsRelativeToBeam" ) ),
   pitch_                      ( iConfig.getParameter<double>( "pitch" ) ),
   insensitiveMargin_          ( iConfig.getParameter<double>( "insensitiveMargin" ) ),
@@ -216,12 +218,12 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     double half_cr_angle = 0.0, vtx_y_offset = 0.0;
     int z_sign = 0;
     if ( rp.detid.arm()==0 ) {
-      z_sign = +1; //FIXME LHC or CMS convention?
+      z_sign = -1; //FIXME LHC or CMS convention?
       half_cr_angle = halfCrossingAngleSector45_;
       vtx_y_offset = yOffsetSector45_;
     }
     if ( rp.detid.arm()==1 ) {
-      z_sign = -1;
+      z_sign = +1;
       half_cr_angle = halfCrossingAngleSector56_;
       vtx_y_offset = yOffsetSector56_;
     }
@@ -247,7 +249,7 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     //printf("    track: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_tr, b_x_tr, a_y_tr, b_y_tr);
 
     // evaluate positions (in mm) of track and beam
-    const double de_z = ( gl_o.z()-optics_z0*z_sign ) * z_sign;
+    const double de_z = ( gl_o.z()-optics_z0 ) * z_sign;
 
     const double x_tr = a_x_tr * de_z + b_x_tr * 1.e3;
     const double y_tr = a_y_tr * de_z + b_y_tr * 1.e3;
@@ -257,7 +259,7 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
 
     if ( produceHitsRelativeToBeam_ ) {
       std::array<double,5> kin_in_be, kin_out_be;
-      kin_in_be = { { 0., half_cr_angle, vtx_y_offset, 0., 0. } };
+      kin_in_be = { { 0.0, half_cr_angle, vtx_y_offset, 0.0, 0.0 } };
 
       bool be_proton_transported = rp.approximator->Transport( kin_in_be.data(), kin_out_be.data(), checkApertures_, invertBeamCoordinatesSystem_ );
 
@@ -274,16 +276,16 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
       const double x_be = a_x_be * de_z + b_x_be * 1.e3;
       const double y_be = a_y_be * de_z + b_y_be * 1.e3;
 
-      /*
-      cout << TotemRPDetId(it->first) << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - opticsZ0) <<
+      /*std::cout << TotemRPDetId(rp.detid) << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - optics_z0) <<
         " | track: x=" << x_tr << ", y=" << y_tr <<
         " | beam: x=" << x_be << ", y=" << y_be <<
-        endl;
-      */
+        std::endl;*/
 
       h_glo -= CLHEP::Hep3Vector( x_be, y_be, 0.0 );
     }
-    TotemRPRecHit hit;
+    //std::cout << TotemRPDetId(rp.detid) << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - optics_z0) << " | track: x=" << x_tr << ", y=" << y_tr << std::endl;
+
+    TotemRPRecHit hit; // all coordinates in mm
     if ( produceHit( h_glo, rp.detid, hit ) ) hits.push_back( hit );
   }
   /*const double rp_resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.0;

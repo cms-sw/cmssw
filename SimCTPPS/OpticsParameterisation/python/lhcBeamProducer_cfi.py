@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-from SimRomanPot.CTPPSOpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
+from SimCTPPS.OpticsParameterisation.lhcBeamConditions_cff import lhcBeamConditions_2016PreTS2
 
 lhcBeamProducer = cms.EDProducer('FlatRandomXiGunProducer',
     PGunParameters = cms.PSet(

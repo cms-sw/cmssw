@@ -12,10 +12,29 @@ process.maxEvents = cms.untracked.PSet(
 
 process.source = cms.Source('EmptySource')
 
-process.load('SimRomanPot.CTPPSOpticsParameterisation.lhcBeamProducer_cfi')
-process.load('SimRomanPot.CTPPSOpticsParameterisation.ctppsOpticsParameterisation_cfi')
+process.load('SimCTPPS.OpticsParameterisation.lhcBeamProducer_cfi')
+process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
+
+# load the geometry
+from Geometry.VeryForwardGeometry.geometryRP_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles
+process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
+    geomXMLFiles = totemGeomXMLFiles+ctppsDiamondGeomXMLFiles+["SimCTPPS/OpticsParameterisation/test/RP_Dist_Beam_Cent.xml"],
+    rootNodeName = cms.string('cms:CMSE'),
+)
+process.TotemRPGeometryESModule = cms.ESProducer("TotemRPGeometryESModule")
+
+# load the reconstruction
+process.load("RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi")
+process.load("RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi")
+process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
+
 process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')
+
 process.load('Validation.CTPPS.ctppsParameterisationValidation_cfi')
+
+process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsFastProtonSimulation")
+#process.totemRPUVPatternFinder.verbosity = cms.untracked.uint32(10)
+process.ctppsLocalTrackLiteProducer.doNothing = cms.bool(False)
 
 process.out = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('ctppsSim.root')
@@ -26,7 +45,7 @@ process.RandomNumberGeneratorService.lhcBeamProducer = cms.PSet(
     #engineName = cms.untracked.string('TRandom3'),
 )
 # for detectors resolution smearing
-process.RandomNumberGeneratorService.ctppsOpticsParameterisation = cms.PSet( initialSeed = cms.untracked.uint32(1), )
+process.RandomNumberGeneratorService.ctppsFastProtonSimulation = cms.PSet( initialSeed = cms.untracked.uint32(1), )
 
 # prepare the output file
 process.TFileService = cms.Service('TFileService',
@@ -45,7 +64,10 @@ process.Timing = cms.Service('Timing',
  
 process.p = cms.Path(
     process.lhcBeamProducer
-    * process.ctppsOpticsParameterisation
+    * process.ctppsFastProtonSimulation
+    * process.totemRPUVPatternFinder
+    * process.totemRPLocalTrackFitter
+    * process.ctppsLocalTrackLiteProducer
     * process.ctppsOpticsReconstruction
     * process.ctppsParameterisationValidation
 )

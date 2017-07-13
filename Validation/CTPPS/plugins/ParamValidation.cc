@@ -88,31 +88,31 @@ ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   h_gen_vtx_y_ = gen_dir.make<TH1D>( "h_gen_vtx_y", ";vtx_{y}^{gen}", 100, -1.e-3, 1.e-3 );
   h_gen_th_x_ = gen_dir.make<TH1D>( "h_gen_th_x", ";#theta_{x}^{gen}", 100, -1.e-4, 1.e-4 );
   h_gen_th_y_ = gen_dir.make<TH1D>( "h_gen_th_y", ";#theta_{y}^{gen}", 100, -1.e-4, 1.e-4 );
-  h_gen_xi_ = gen_dir.make<TH1D>( "h_gen_xi", ";#xi^{gen}", 100, 0., 0.25 );
+  h_gen_xi_ = gen_dir.make<TH1D>( "h_gen_xi", ";#xi^{gen}", 100, 0.0, 0.25 );
 
   unsigned short i = 0;
   for ( unsigned int sect : { 45, 56 } ) {
     TFileDirectory sect_dir = fs->mkdir( Form( "sector %d", sect ) );
     // prepare plots - histograms
-    h_de_vtx_x_[i] = sect_dir.make<TH1D>( Form( "h_de_vtx_x_%d", sect ), Form( ";vtx_{x}^{reco,%d} - vtx_{x}^{gen}", sect ), 100, -40E-6, +40E-6 );
-    h_de_vtx_y_[i] = sect_dir.make<TH1D>( Form( "h_de_vtx_y_%d", sect ), Form( ";vtx_{y}^{reco,%d} - vtx_{y}^{gen}", sect ), 100, -250E-6, +250E-6 );
-    h_de_th_x_[i] = sect_dir.make<TH1D>( Form( "h_de_th_x_%d", sect ), Form( ";#theta_{x}^{reco,%d} - #theta_{x}^{gen}", sect ), 100, -100E-6, +100E-6 );
-    h_de_th_y_[i] = sect_dir.make<TH1D>( Form( "h_de_th_y_%d", sect ), Form( ";#theta_{y}^{reco,%d} - #theta_{y}^{gen}", sect ), 100, -100E-6, +100E-6 );
-    h_de_xi_[i] = sect_dir.make<TH1D>( Form( "h_de_xi_%d", sect ), Form( ";#xi^{reco,%d} - #xi^{gen}", sect ), 100, -5E-3, +5E-3 );
+    h_de_vtx_x_[i] = sect_dir.make<TH1D>( Form( "h_de_vtx_x_%d", sect ), Form( ";vtx_{x}^{reco,%d} - vtx_{x}^{gen}", sect ), 100, -40.0e-6, +40.0e-6 );
+    h_de_vtx_y_[i] = sect_dir.make<TH1D>( Form( "h_de_vtx_y_%d", sect ), Form( ";vtx_{y}^{reco,%d} - vtx_{y}^{gen}", sect ), 100, -250.0e-6, +250.0e-6 );
+    h_de_th_x_[i] = sect_dir.make<TH1D>( Form( "h_de_th_x_%d", sect ), Form( ";#theta_{x}^{reco,%d} - #theta_{x}^{gen}", sect ), 100, -100.0e-6, +100.0e-6 );
+    h_de_th_y_[i] = sect_dir.make<TH1D>( Form( "h_de_th_y_%d", sect ), Form( ";#theta_{y}^{reco,%d} - #theta_{y}^{gen}", sect ), 100, -100.0e-6, +100.0e-6 );
+    h_de_xi_[i] = sect_dir.make<TH1D>( Form( "h_de_xi_%d", sect ), Form( ";#xi^{reco,%d} - #xi^{gen}", sect ), 100, -5.0-3, +5.0e-3 );
 
     // prepare plots - 2D histograms
-    h2_de_vtx_x_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_vtx_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -40E-6, +40E-6 );
-    h2_de_vtx_y_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -250E-6, +250E-6 );
-    h2_de_th_x_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_th_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Delta#theta_{x}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
-    h2_de_th_y_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_th_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Delta#theta_{y}^{%d}", sect, sect ), 50, -5E-3, +5E-3, 50, -100E-6, +100E-6 );
-    h2_de_vtx_y_vs_de_th_y_[i] = sect_dir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_th_y_%d", sect ), Form( ";#Delta#theta_{y}^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -100E-6, +100E-6, 50, -250E-6, +250E-6 );
+    h2_de_vtx_x_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_vtx_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{x}^{%d}", sect, sect ), 50, -5.0e-3, +5.0e-3, 50, -40.0e-6, +40.0e-6 );
+    h2_de_vtx_y_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -5.0e-3, +5.0e-3, 50, -250.0e-6, +250.0e-6 );
+    h2_de_th_x_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_th_x_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Delta#theta_{x}^{%d}", sect, sect ), 50, -5.0e-3, +5.0e-3, 50, -100.0e-6, +100.0e-6 );
+    h2_de_th_y_vs_de_xi_[i] = sect_dir.make<TH2D>( Form( "h2_de_th_y_vs_de_xi_%d", sect ), Form( ";#Delta#xi^{%d};#Delta#theta_{y}^{%d}", sect, sect ), 50, -5.0e-3, +5.0e-3, 50, -100.0e-6, +100.0e-6 );
+    h2_de_vtx_y_vs_de_th_y_[i] = sect_dir.make<TH2D>( Form( "h2_de_vtx_y_vs_de_th_y_%d", sect ), Form( ";#Delta#theta_{y}^{%d};#Deltavtx_{y}^{%d}", sect, sect ), 50, -100.0e-6, +100.0e-6, 50, -250.0e-6, +250.0e-6 );
 
     // prepare plots - profiles
-    p_de_vtx_x_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_vtx_x_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{x}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_vtx_y_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_vtx_y_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{y}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_th_x_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_th_x_vs_xi_%d", sect ), Form( ";#xi;#Delta#theta_{x}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_th_y_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_th_y_vs_xi_%d", sect ), Form( ";#xi;#Delta#theta_{y}^{%d}", sect ), 20, 0., 0.20 );
-    p_de_xi_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_xi_vs_xi_%d", sect ), Form( ";#xi;#Delta#xi^{%d}", sect ), 20, 0., 0.20 );
+    p_de_vtx_x_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_vtx_x_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{x}^{%d}", sect ), 20, 0.0, 0.20 );
+    p_de_vtx_y_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_vtx_y_vs_xi_%d", sect ), Form( ";#xi;#Deltavtx_{y}^{%d}", sect ), 20, 0.0, 0.20 );
+    p_de_th_x_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_th_x_vs_xi_%d", sect ), Form( ";#xi;#Delta#theta_{x}^{%d}", sect ), 20, 0.0, 0.20 );
+    p_de_th_y_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_th_y_vs_xi_%d", sect ), Form( ";#xi;#Delta#theta_{y}^{%d}", sect ), 20, 0.0, 0.20 );
+    p_de_xi_vs_xi_[i] = sect_dir.make<TProfile>( Form( "p_de_xi_vs_xi_%d", sect ), Form( ";#xi;#Delta#xi^{%d}", sect ), 20, 0.0, 0.20 );
 
     i++;
   }
@@ -121,7 +121,7 @@ ParamValidation::ParamValidation( const edm::ParameterSet& iConfig ) :
   TFileDirectory hm_dir = fs->mkdir( "hitmaps" );
   for ( const auto& det : detectorPackages_ ) {
     const TotemRPDetId pot_id( det.getParameter<unsigned int>( "potId" ) );
-    m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) , ";x;y", 300, 0., 30E-3, 200, -10E-3, +10E-3 ) ) );
+    m_rp_h2_y_vs_x_.insert( std::make_pair( pot_id, hm_dir.make<TH2D>( Form( "h2_rp_hits_arm%d_rp%d", pot_id.arm(), pot_id.rp() ) , ";x;y", 300, 0.0, 30.0e-3, 200, -10.0e-3, +10.0e-3 ) ) );
   }
 }
 
