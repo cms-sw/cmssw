@@ -67,16 +67,15 @@ hltGTs = {
     'run2_data_Fake1'        : ('run2_data_relval'     ,l1Menus['Fake1']),
     'run2_data_Fake2'        : ('run2_data_relval'     ,l1Menus['Fake2']),
     'run2_data_GRun2016'     : ('run2_data_relval'     ,l1Menus['GRun2016']),
-    'run2_data_FULL'         : ('TSG2_data_relval'     ,l1Menus['FULL']+pfscecal),
-    'run2_data_GRun'         : ('TSG2_data_relval'     ,l1Menus['GRun']+pfscecal),
+    'run2_data_FULL'         : ('run2_data_promptlike' ,l1Menus['FULL']+pfscecal),
+    'run2_data_GRun'         : ('run2_data_promptlike' ,l1Menus['GRun']+pfscecal),
     'run2_data_HIon'         : ('run2_data_relval'     ,l1Menus['HIon']),
-    'run2_data_PIon'         : ('TSG2_data_relval'     ,l1Menus['PIon']+pfscecal),
-    'run2_data_PRef'         : ('TSG2_data_relval'     ,l1Menus['PRef']+pfscecal),
+    'run2_data_PIon'         : ('run2_data_promptlike' ,l1Menus['PIon']+pfscecal),
+    'run2_data_PRef'         : ('run2_data_promptlike' ,l1Menus['PRef']+pfscecal),
 
 }
 
 def autoCondHLT(autoCond):
-    autoCond['TSG2_data_relval'] = '91X_dataRun2_PromptLike_v4' # temporary
     for key,val in hltGTs.iteritems():
         if len(val)==1 :
            autoCond[key] = ( autoCond[val[0]] )
