@@ -18,6 +18,6 @@ ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
     checkApertures = cms.bool(True),
     invertBeamCoordinatesSystem = cms.bool(True),
 
-    opticsFileBeam1 = cms.FileInPath('SimCTPPS/OpticsParameterisation/data/2016_preTS2/version4-vale1/beam1/parametrization_6500GeV_0p4_185_reco.root'),
-    opticsFileBeam2 = cms.FileInPath('SimCTPPS/OpticsParameterisation/data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root'),
+    opticsFileBeam1 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2016_preTS2/version4-vale1/beam1/parametrization_6500GeV_0p4_185_reco.root'),
+    opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root'),
 )

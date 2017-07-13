@@ -29,11 +29,11 @@
 
 //----------------------------------------------------------------------------------------------------
 
-class CTPPSPlotOpticalFunctions : public edm::one::EDAnalyzer<edm::one::SharedResources>
+class OpticalFunctionsPlotter : public edm::one::EDAnalyzer<edm::one::SharedResources>
 {
   public:
-    explicit CTPPSPlotOpticalFunctions(const edm::ParameterSet&);
-    ~CTPPSPlotOpticalFunctions();
+    explicit OpticalFunctionsPlotter(const edm::ParameterSet&);
+    ~OpticalFunctionsPlotter();
 
   private: 
     virtual void beginJob() override;
@@ -54,7 +54,7 @@ class CTPPSPlotOpticalFunctions : public edm::one::EDAnalyzer<edm::one::SharedRe
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSPlotOpticalFunctions::CTPPSPlotOpticalFunctions( const edm::ParameterSet& iConfig ) :
+OpticalFunctionsPlotter::OpticalFunctionsPlotter( const edm::ParameterSet& iConfig ) :
   opticsFile_            ( iConfig.getParameter<edm::FileInPath>( "opticsFile" ) ),
   opticsObjects_         ( iConfig.getParameter< std::vector<std::string> >( "opticsObjects" ) ),
   vtx0_y_45_             ( iConfig.getParameter<double>( "vtx0_y_45" ) ),
@@ -71,61 +71,47 @@ CTPPSPlotOpticalFunctions::CTPPSPlotOpticalFunctions( const edm::ParameterSet& i
   for ( const auto& objName : opticsObjects_ ) {
     // make output directory
     TFileDirectory dir = fs->mkdir( objName.c_str() );
-    g_x0_vs_xi[objName] = dir.make<TGraph>();
-    g_y0_vs_xi[objName] = dir.make<TGraph>();
-    g_y0_vs_x0[objName] = dir.make<TGraph>();
-    g_y0_vs_x0so[objName] = dir.make<TGraph>();
-    g_y0so_vs_x0so[objName] = dir.make<TGraph>();
+    g_x0_vs_xi[objName] = dir.make<TGraph>(); g_x0_vs_xi[objName]->SetName( "g_x0_vs_xi" );
+    g_y0_vs_xi[objName] = dir.make<TGraph>(); g_y0_vs_xi[objName]->SetName( "g_y0_vs_xi" );
+    g_y0_vs_x0[objName] = dir.make<TGraph>(); g_y0_vs_x0[objName]->SetName( "g_y0_vs_x0" );
+    g_y0_vs_x0so[objName] = dir.make<TGraph>(); g_y0_vs_x0so[objName]->SetName( "g_y0_vs_x0so" );
+    g_y0so_vs_x0so[objName] = dir.make<TGraph>(); g_y0so_vs_x0so[objName]->SetName( "g_y0so_vs_x0so" );
 
-    g_v_x_vs_xi[objName] = dir.make<TGraph>();
-    g_L_x_vs_xi[objName] = dir.make<TGraph>();
+    g_v_x_vs_xi[objName] = dir.make<TGraph>(); g_v_x_vs_xi[objName]->SetName( "g_v_x_vs_xi" );
+    g_L_x_vs_xi[objName] = dir.make<TGraph>(); g_L_x_vs_xi[objName]->SetName( "g_L_x_vs_xi" );
 
-    g_v_y_vs_xi[objName] = dir.make<TGraph>();
-    g_L_y_vs_xi[objName] = dir.make<TGraph>();
+    g_v_y_vs_xi[objName] = dir.make<TGraph>(); g_v_y_vs_xi[objName]->SetName( "g_v_y_vs_xi" );
+    g_L_y_vs_xi[objName] = dir.make<TGraph>(); g_L_y_vs_xi[objName]->SetName( "g_L_y_vs_xi" );
 
-    g_xi_vs_x[objName] = dir.make<TGraph>();
-    g_xi_vs_xso[objName] = dir.make<TGraph>();
-    /*g_x0_vs_xi->Write("g_x0_vs_xi");
-    g_y0_vs_xi->Write("g_y0_vs_xi");
-    g_y0_vs_x0->Write("g_y0_vs_x0");
-    g_y0_vs_x0so->Write("g_y0_vs_x0so");
-    g_y0so_vs_x0so->Write("g_y0so_vs_x0so");
-
-    g_v_x_vs_xi->Write("g_v_x_vs_xi");
-    g_L_x_vs_xi->Write("g_L_x_vs_xi");
-
-    g_v_y_vs_xi->Write("g_v_y_vs_xi");
-    g_L_y_vs_xi->Write("g_L_y_vs_xi");
-
-    g_xi_vs_x->Write("g_xi_vs_x");
-    g_xi_vs_xso->Write("g_xi_vs_xso");*/
+    g_xi_vs_x[objName] = dir.make<TGraph>(); g_xi_vs_x[objName]->SetName( "g_xi_vs_x" );
+    g_xi_vs_xso[objName] = dir.make<TGraph>(); g_xi_vs_xso[objName]->SetName( "g_xi_vs_xso" );
   }
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CTPPSPlotOpticalFunctions::~CTPPSPlotOpticalFunctions()
-{
-}
+OpticalFunctionsPlotter::~OpticalFunctionsPlotter()
+{}
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSPlotOpticalFunctions::beginJob()
+void
+OpticalFunctionsPlotter::beginJob()
 {
-  printf(">> CTPPSPlotOpticalFunctions::beginJob\n");
+  std::ostringstream oss;
 
   // open input file
   auto f_in = std::make_unique<TFile>( opticsFile_.fullPath().c_str() );
   if ( !f_in )
-    throw cms::Exception("CTPPSPlotOpticalFunctions") << "Cannot open file '" << opticsFile_ << "'.";
+    throw cms::Exception("OpticalFunctionsPlotter") << "Cannot open file '" << opticsFile_ << "'.";
 
   // go through all optics objects
   for ( const auto& objName : opticsObjects_ ) {
     const auto optApp = dynamic_cast<LHCOpticsApproximator*>( f_in->Get( objName.c_str() ) );
     if (!optApp)
-      throw cms::Exception("CTPPSPlotOpticalFunctions") << "Cannot load object '" << objName << "'.";
+      throw cms::Exception("OpticalFunctionsPlotter") << "Cannot load object '" << objName << "'.";
 
-    printf("* %s --> %s\n", objName.c_str(), optApp->GetName());
+    oss << "* " << objName << " --> " << optApp->GetName() << std::endl;
 
     // determine crossing angle, vertex offset
     double crossing_angle = 0.;
@@ -197,11 +183,11 @@ void CTPPSPlotOpticalFunctions::beginJob()
       g_xi_vs_x[objName]->SetPoint(idx, kin_out_xi[0], xi);
       g_xi_vs_xso[objName]->SetPoint(idx, kin_out_xi[0] - kin_out_zero[0], xi);
     }
-
   }
+  edm::LogInfo("OpticalFunctionsPlotter::beginJob") << oss.str();
 }
 
 //----------------------------------------------------------------------------------------------------
 
-DEFINE_FWK_MODULE( CTPPSPlotOpticalFunctions );
+DEFINE_FWK_MODULE( OpticalFunctionsPlotter );
 
