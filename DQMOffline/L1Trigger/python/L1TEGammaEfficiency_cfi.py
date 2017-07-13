@@ -25,7 +25,7 @@ for variable, thresholds in variables.iteritems():
             plotName = '{0}_threshold_{1}'.format(plot, threshold)
             add_plot(plotName)
 
-from DQMOffline.L1Trigger.L1TEfficiencyHarvesting2_cfi import l1tEfficiencyHarvesting
+from DQMOffline.L1Trigger.L1TEfficiencyHarvesting_cfi import l1tEfficiencyHarvesting
 l1tEGammaEfficiency = l1tEfficiencyHarvesting.clone(
     plotCfgs=cms.untracked.VPSet(
         cms.untracked.PSet(
