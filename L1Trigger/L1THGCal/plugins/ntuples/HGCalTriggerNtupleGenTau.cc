@@ -1,13 +1,10 @@
 #include <vector>
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/CompositeRefCandidateT.h"
-#include "DataFormats/HepMCCandidate/interface/GenStatusFlags.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerNtupleBase.h"
-#include "Math/LorentzVector.h"
+#include "DataFormats/Math/interface/LorentzVector.h"
 
-typedef ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> > LorentzVector;
-
+typedef math::XYZTLorentzVector LorentzVector;
 
 class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
 {
@@ -18,6 +15,9 @@ class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
         virtual void initialize(TTree&, const edm::ParameterSet&, edm::ConsumesCollector&&) override final;
         virtual void fill(const edm::Event&, const edm::EventSetup& ) override final;
     
+    private:
+        virtual void clear() override final;
+
         bool isStableLepton( const reco::GenParticle & daughter );
         bool isElectron( const reco::GenParticle & daughter );
         bool isMuon( const reco::GenParticle & daughter );
@@ -26,34 +26,31 @@ class HGCalTriggerNtupleGenTau : public HGCalTriggerNtupleBase
         bool isIntermediateResonance( const reco::GenParticle & daughter );
         bool isGamma( const reco::GenParticle & daughter );
 
-    private:
-        virtual void clear() override final;
-
         edm::EDGetToken gen_token_;
         bool isPythia8generator_;
 
-        std::vector<float> gen_tau_pt_;
-        std::vector<float> gen_tau_eta_;
-        std::vector<float> gen_tau_phi_;
-        std::vector<float> gen_tau_energy_;
-        std::vector<float> gen_tau_mass_;
+        std::vector<float> gentau_pt_;
+        std::vector<float> gentau_eta_;
+        std::vector<float> gentau_phi_;
+        std::vector<float> gentau_energy_;
+        std::vector<float> gentau_mass_;
 
-        std::vector<float> gen_tauVis_pt_;
-        std::vector<float> gen_tauVis_eta_;
-        std::vector<float> gen_tauVis_phi_;
-        std::vector<float> gen_tauVis_energy_;
-        std::vector<float> gen_tauVis_mass_;    
-        std::vector<int> gen_tau_decayMode_;
-        std::vector<int> gen_tau_totNproducts_;
-        std::vector<int> gen_tau_totNgamma_;
-        std::vector<int> gen_tau_totNcharged_;
+        std::vector<float> gentau_vis_pt_;
+        std::vector<float> gentau_vis_eta_;
+        std::vector<float> gentau_vis_phi_;
+        std::vector<float> gentau_vis_energy_;
+        std::vector<float> gentau_vis_mass_;    
+        std::vector<int> gentau_decayMode_;
+        std::vector<int> gentau_totNproducts_;
+        std::vector<int> gentau_totNgamma_;
+        std::vector<int> gentau_totNcharged_;
 
-        std::vector<std::vector<float> > gen_product_pt_;
-        std::vector<std::vector<float> > gen_product_eta_;
-        std::vector<std::vector<float> > gen_product_phi_;
-        std::vector<std::vector<float> > gen_product_energy_;
-        std::vector<std::vector<float> > gen_product_mass_;
-        std::vector<std::vector< int > > gen_product_id_;
+        std::vector<std::vector<float> > gentau_products_pt_;
+        std::vector<std::vector<float> > gentau_products_eta_;
+        std::vector<std::vector<float> > gentau_products_phi_;
+        std::vector<std::vector<float> > gentau_products_energy_;
+        std::vector<std::vector<float> > gentau_products_mass_;
+        std::vector<std::vector< int > > gentau_products_id_;
         
 };
 
@@ -75,102 +72,79 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
     gen_token_ = collector.consumes<reco::GenParticleCollection>(conf.getParameter<edm::InputTag>("GenParticles"));
     isPythia8generator_ = conf.getParameter<bool>("isPythia8");
 
-    tree.Branch("gen_tau_pt", &gen_tau_pt_);
-    tree.Branch("gen_tau_eta", &gen_tau_eta_);
-    tree.Branch("gen_tau_phi", &gen_tau_phi_);
-    tree.Branch("gen_tau_energy", &gen_tau_energy_);
-    tree.Branch("gen_tau_mass", &gen_tau_mass_);
-    tree.Branch("gen_tauVis_pt", &gen_tauVis_pt_);
-    tree.Branch("gen_tauVis_eta", &gen_tauVis_eta_);
-    tree.Branch("gen_tauVis_phi", &gen_tauVis_phi_);
-    tree.Branch("gen_tauVis_energy", &gen_tauVis_energy_);
-    tree.Branch("gen_tauVis_mass", &gen_tauVis_mass_);
-    tree.Branch("gen_product_pt", &gen_product_pt_);
-    tree.Branch("gen_product_eta", &gen_product_eta_);
-    tree.Branch("gen_product_phi", &gen_product_phi_);
-    tree.Branch("gen_product_energy", &gen_product_energy_);
-    tree.Branch("gen_product_mass", &gen_product_mass_);
-    tree.Branch("gen_product_id", &gen_product_id_);
-    tree.Branch("gen_tau_decayMode", &gen_tau_decayMode_);
-    tree.Branch("gen_tau_totNproducts", &gen_tau_totNproducts_);
-    tree.Branch("gen_tau_totNgamma", &gen_tau_totNgamma_);
-    tree.Branch("gen_tau_totNcharged", &gen_tau_totNcharged_);
+    tree.Branch("gentau_pt", &gentau_pt_);
+    tree.Branch("gentau_eta", &gentau_eta_);
+    tree.Branch("gentau_phi", &gentau_phi_);
+    tree.Branch("gentau_energy", &gentau_energy_);
+    tree.Branch("gentau_mass", &gentau_mass_);
+    tree.Branch("gentau_vis_pt", &gentau_vis_pt_);
+    tree.Branch("gentau_vis_eta", &gentau_vis_eta_);
+    tree.Branch("gentau_vis_phi", &gentau_vis_phi_);
+    tree.Branch("gentau_vis_energy", &gentau_vis_energy_);
+    tree.Branch("gentau_vis_mass", &gentau_vis_mass_);
+    tree.Branch("gentau_products_pt", &gentau_products_pt_);
+    tree.Branch("gentau_products_eta", &gentau_products_eta_);
+    tree.Branch("gentau_products_phi", &gentau_products_phi_);
+    tree.Branch("gentau_products_energy", &gentau_products_energy_);
+    tree.Branch("gentau_products_mass", &gentau_products_mass_);
+    tree.Branch("gentau_products_id", &gentau_products_id_);
+    tree.Branch("gentau_decayMode", &gentau_decayMode_);
+    tree.Branch("gentau_totNproducts", &gentau_totNproducts_);
+    tree.Branch("gentau_totNgamma", &gentau_totNgamma_);
+    tree.Branch("gentau_totNcharged", &gentau_totNcharged_);
 
 }
+
+bool isGoodTau( const reco::GenParticle& candidate ){
+    return ( std::abs( candidate.pdgId() ) == 15 && candidate.status() == 2 );    
+}
+
 
 bool HGCalTriggerNtupleGenTau::isChargedPion( const reco::GenParticle& candidate ){
-    bool isChPi=false;
-    if( fabs(candidate.pdgId()) == 211 && candidate.status()==1 
-        && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() )
-    {
-        isChPi=true;
-    }
-    return isChPi;
+    return ( std::abs(candidate.pdgId()) == 211 && candidate.status()==1 
+             && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
+
 
 bool HGCalTriggerNtupleGenTau::isStableLepton( const reco::GenParticle& candidate )
 {
-    bool isLept=false;
-    if( (fabs(candidate.pdgId()) == 11 || fabs(candidate.pdgId()) == 13) && candidate.status()==1 
-        && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() )
-    {
-        isLept=true;
-    }
-    return isLept;
+    return ( (std::abs(candidate.pdgId()) == 11 || std::abs(candidate.pdgId()) == 13) && candidate.status()==1 
+             && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
+
 
 bool HGCalTriggerNtupleGenTau::isElectron( const reco::GenParticle& candidate )
 {
-    bool isEle=false;
-    if( fabs(candidate.pdgId()) == 11 && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() )
-    {
-        isEle=true;
-    }
-    return isEle;
+    return ( std::abs(candidate.pdgId()) == 11 && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
+
 
 bool HGCalTriggerNtupleGenTau::isMuon( const reco::GenParticle& candidate )
 {
-    bool isMu=false;
-    if( fabs(candidate.pdgId()) == 13 && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() )
-    {
-        isMu=true;
-    }
-    return isMu;
+    return ( std::abs(candidate.pdgId()) == 13 && candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
+
 
 bool HGCalTriggerNtupleGenTau::isNeutralPion( const reco::GenParticle& candidate )
 {
-    bool isPiZero=false;
-    if( fabs(candidate.pdgId()) == 111 && candidate.status()==2 && candidate.statusFlags().isTauDecayProduct()
-        && !candidate.isDirectPromptTauDecayProductFinalState() )
-    {
-        isPiZero=true;
-    }
-    return isPiZero;
+    return ( std::abs(candidate.pdgId()) == 111 && candidate.status()==2 && candidate.statusFlags().isTauDecayProduct()
+             && !candidate.isDirectPromptTauDecayProductFinalState() );
 }
+
 
 bool HGCalTriggerNtupleGenTau::isGamma( const reco::GenParticle& candidate )
 {
-    bool isGammaFromPiZero=false;
-    if( fabs(candidate.pdgId()) == 22 && candidate.status()==1 && candidate.statusFlags().isTauDecayProduct() 
-        && !candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() )
-    {
-        isGammaFromPiZero=true;
-    }
-    return isGammaFromPiZero;
+    return ( std::abs(candidate.pdgId()) == 22 && candidate.status()==1 && candidate.statusFlags().isTauDecayProduct() 
+             && !candidate.isDirectPromptTauDecayProductFinalState() && candidate.isLastCopy() );
 }
+
 
 bool HGCalTriggerNtupleGenTau::isIntermediateResonance( const reco::GenParticle& candidate )
 {
-    bool isResonance=false;
-    if( ( fabs(candidate.pdgId()) == 213 || fabs(candidate.pdgId()) == 20213 || fabs(candidate.pdgId()) == 24 )
-        && candidate.isDirectPromptTauDecayProductFinalState() && candidate.status() == 2  )
-    {
-        isResonance=true;
-    }
-    return isResonance;
+    return ( ( std::abs(candidate.pdgId()) == 213 || std::abs(candidate.pdgId()) == 20213 || std::abs(candidate.pdgId()) == 24 )
+             && candidate.isDirectPromptTauDecayProductFinalState() && candidate.status() == 2 );
 }
+
 
 void
 HGCalTriggerNtupleGenTau::
@@ -186,15 +160,14 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     {
         
         /* select good taus */
-        if(fabs(particle.pdgId())==15 && particle.status()==2){
+        if( isGoodTau( particle ) ){
 
-            LorentzVector tau_p4 = particle.p4();
             LorentzVector tau_p4vis(0.,0.,0.,0.);
-            gen_tau_pt_.emplace_back(tau_p4.Pt());
-            gen_tau_eta_.emplace_back(tau_p4.Eta());
-            gen_tau_phi_.emplace_back(tau_p4.Phi());
-            gen_tau_energy_.emplace_back(tau_p4.E());
-            gen_tau_mass_.emplace_back(tau_p4.M());
+            gentau_pt_.emplace_back( particle.pt() );
+            gentau_eta_.emplace_back( particle.eta() );
+            gentau_phi_.emplace_back( particle.phi() );
+            gentau_energy_.emplace_back( particle.energy() );
+            gentau_mass_.emplace_back( particle.mass() );
 
             int n_pi=0;
             int n_piZero=0;
@@ -210,83 +183,59 @@ fill(const edm::Event& e, const edm::EventSetup& es)
             std::vector< int > tau_products_id;
             
             /* loop over tau daughters */
-            const edm::RefVector<std::vector<reco::GenParticle> >& daughters = particle.daughterRefVector();
+            const reco::GenParticleRefVector& daughters = particle.daughterRefVector();
+                
+            for( const auto& daughter : daughters ){
 
-            for( const auto daughter : daughters ){
-
-                std::vector< LorentzVector > finalProd_p4;
-                std::vector< int > finalProd_id;
+                reco::GenParticleRefVector finalProds;
 
                 if( isStableLepton( *daughter ) ){
                     if( isElectron( *daughter ) ){
                         n_ele++;
                     }
-                    else if( isMuon(*daughter) ){
+                    else if( isMuon( *daughter ) ){
                         n_mu++;
                     }
-                    finalProd_p4.push_back(daughter->p4());       
-                    finalProd_id.push_back(daughter->pdgId());
                     tau_p4vis+=(daughter->p4());
+                    finalProds.push_back( daughter );
                 }        
 
-                /* Here the selection of the decay product according to the Pythia8 decayTree */
-                if( isPythia8generator_ ){
-                    if( isChargedPion( *daughter ) ){
-                        n_pi++;
-                        finalProd_p4.push_back(daughter->p4());
-                        finalProd_id.push_back(daughter->pdgId());
-                        tau_p4vis+=(daughter->p4());
-                    }                
-                    if( isNeutralPion( *daughter ) ){
-                        n_piZero++;
-                        const edm::RefVector<std::vector<reco::GenParticle> >& grandaughters = (*daughter).daughterRefVector();
-                        for( const auto grandaughter : grandaughters ){
-                            if( isGamma( *grandaughter ) ){
-                                n_gamma++;
-                                finalProd_p4.push_back(grandaughter->p4());
-                                finalProd_id.push_back(grandaughter->pdgId());
-                                tau_p4vis+=(grandaughter->p4());         
-                            }
+                if( isChargedPion( *daughter ) ){
+                    n_pi++;
+                    tau_p4vis+=(daughter->p4());
+                    finalProds.push_back( daughter );
+                }                
+
+                if( isNeutralPion( *daughter ) ){
+                    n_piZero++;
+                    const reco::GenParticleRefVector& grandaughters = daughter->daughterRefVector();
+                    for( const auto& grandaughter : grandaughters ){
+                        if( isGamma( *grandaughter ) ){
+                            n_gamma++;
+                            tau_p4vis+=(grandaughter->p4());         
+                            finalProds.push_back( daughter );
                         }
                     }
                 }
-
-                /* Here the selection of the decay product according to the Pythia6 decayTree */
-                else if( !isPythia8generator_ ){            
-                    if( isChargedPion( *daughter ) ){
-                        n_pi++;
-                        finalProd_p4.push_back(daughter->p4());
-                        finalProd_id.push_back(daughter->pdgId());
-                        tau_p4vis+=(daughter->p4());
-                    }
-                    if( isNeutralPion( *daughter ) ){
-                        n_piZero++;
-                        const edm::RefVector<std::vector<reco::GenParticle> >& grandaughters = (*daughter).daughterRefVector();
-                        for( const auto grandaughter : grandaughters ){
-                            n_gamma++;
-                            finalProd_p4.push_back(grandaughter->p4());
-                            finalProd_id.push_back(grandaughter->pdgId());
-                            tau_p4vis+=(grandaughter->p4());         
-                        }          
-                    }
+                                
+                /* Here the selection of the decay product according to the Pythia6 decayTree */                
+                if( !isPythia8generator_ ){            
                     if( isIntermediateResonance( *daughter ) ){
-                        const edm::RefVector<std::vector<reco::GenParticle> >& grandaughters = (*daughter).daughterRefVector();
-                        for( const auto grandaughter : grandaughters ){
+                        const reco::GenParticleRefVector& grandaughters = daughter->daughterRefVector();
+                        for( const auto& grandaughter : grandaughters ){
                             if( isChargedPion( *grandaughter ) ){
                                 n_pi++;
-                                finalProd_p4.push_back(grandaughter->p4());
-                                finalProd_id.push_back(grandaughter->pdgId());
                                 tau_p4vis+=(grandaughter->p4());         
+                                finalProds.push_back( daughter );
                             }                            
                             if( isNeutralPion( *grandaughter ) ){
                                 n_piZero++;
-                                const edm::RefVector<std::vector<reco::GenParticle> >& descendants = (*grandaughter).daughterRefVector();
-                                for( const auto descendant : descendants ){
+                                const reco::GenParticleRefVector& descendants = grandaughter->daughterRefVector();
+                                for( const auto& descendant : descendants ){
                                     if( isGamma( *descendant ) ){
                                         n_gamma++;
-                                        finalProd_p4.push_back(descendant->p4());
-                                        finalProd_id.push_back(descendant->pdgId());
                                         tau_p4vis+=(descendant->p4());         
+                                        finalProds.push_back( daughter );
                                     }
                                 }
                             }                            
@@ -295,47 +244,47 @@ fill(const edm::Event& e, const edm::EventSetup& es)
                 }
 
                 /* Fill daughter informations */
-                for(unsigned j=0; j<finalProd_p4.size(); ++j){
-                    tau_products_pt.emplace_back(finalProd_p4.at(j).Pt());
-                    tau_products_eta.emplace_back(finalProd_p4.at(j).Eta());
-                    tau_products_phi.emplace_back(finalProd_p4.at(j).Phi());
-                    tau_products_energy.emplace_back(finalProd_p4.at(j).E());
-                    tau_products_mass.emplace_back(finalProd_p4.at(j).M());                                    
-                    tau_products_id.emplace_back(finalProd_id.at(j));
+                for( const auto& prod : finalProds ){  
+                    tau_products_pt.emplace_back( prod->pt() );
+                    tau_products_eta.emplace_back( prod->eta() );
+                    tau_products_phi.emplace_back( prod->phi() );
+                    tau_products_energy.emplace_back( prod->energy() );
+                    tau_products_mass.emplace_back( prod->mass() );                                    
+                    tau_products_id.emplace_back( prod->pdgId() );
                 }
                 
             } 
            
             /* assign the tau-variables */
-            gen_tauVis_pt_.emplace_back(tau_p4vis.Pt());
-            gen_tauVis_eta_.emplace_back(tau_p4vis.Eta());
-            gen_tauVis_phi_.emplace_back(tau_p4vis.Phi());
-            gen_tauVis_energy_.emplace_back(tau_p4vis.E());
-            gen_tauVis_mass_.emplace_back(tau_p4vis.M());
-            gen_tau_totNproducts_.emplace_back(n_pi + n_gamma);
-            gen_tau_totNgamma_.emplace_back(n_gamma);
-            gen_tau_totNcharged_.emplace_back(n_pi);
+            gentau_vis_pt_.emplace_back(tau_p4vis.Pt());
+            gentau_vis_eta_.emplace_back(tau_p4vis.Eta());
+            gentau_vis_phi_.emplace_back(tau_p4vis.Phi());
+            gentau_vis_energy_.emplace_back(tau_p4vis.E());
+            gentau_vis_mass_.emplace_back(tau_p4vis.M());
+            gentau_totNproducts_.emplace_back(n_pi + n_gamma);
+            gentau_totNgamma_.emplace_back(n_gamma);
+            gentau_totNcharged_.emplace_back(n_pi);
    
-            gen_product_pt_.emplace_back(tau_products_pt);
-            gen_product_eta_.emplace_back(tau_products_eta);
-            gen_product_phi_.emplace_back(tau_products_phi);
-            gen_product_energy_.emplace_back(tau_products_energy);
-            gen_product_mass_.emplace_back(tau_products_mass);
-            gen_product_id_.emplace_back(tau_products_id);
+            gentau_products_pt_.emplace_back(tau_products_pt);
+            gentau_products_eta_.emplace_back(tau_products_eta);
+            gentau_products_phi_.emplace_back(tau_products_phi);
+            gentau_products_energy_.emplace_back(tau_products_energy);
+            gentau_products_mass_.emplace_back(tau_products_mass);
+            gentau_products_id_.emplace_back(tau_products_id);
 
             /* leptonic tau decays */
-            if( n_pi == 0 && n_piZero == 0 && n_ele==1 ){ gen_tau_decayMode_.emplace_back(11); }
-            else if( n_pi == 0 && n_piZero == 0 && n_mu==1 ){ gen_tau_decayMode_.emplace_back(13); }
+            if( n_pi == 0 && n_piZero == 0 && n_ele==1 ){ gentau_decayMode_.emplace_back(11); }
+            else if( n_pi == 0 && n_piZero == 0 && n_mu==1 ){ gentau_decayMode_.emplace_back(13); }
             /* 1-prong */
-            else if( n_pi == 1 && n_piZero == 0 ){ gen_tau_decayMode_.emplace_back(0); }
+            else if( n_pi == 1 && n_piZero == 0 ){ gentau_decayMode_.emplace_back(0); }
             /* 1-prong + pi0s */            
-            else if( n_pi == 1 && n_piZero >= 1 ){ gen_tau_decayMode_.emplace_back(1); }
+            else if( n_pi == 1 && n_piZero >= 1 ){ gentau_decayMode_.emplace_back(1); }
             /* 3-prongs */
-            else if( n_pi == 3 && n_piZero == 0 ){ gen_tau_decayMode_.emplace_back(4); }
+            else if( n_pi == 3 && n_piZero == 0 ){ gentau_decayMode_.emplace_back(4); }
             /* 3-prongs + pi0s */
-            else if( n_pi == 3 && n_piZero >= 1 ){ gen_tau_decayMode_.emplace_back(5); }
+            else if( n_pi == 3 && n_piZero >= 1 ){ gentau_decayMode_.emplace_back(5); }
             /* other decays */
-            else{ gen_tau_decayMode_.emplace_back(-1); } 
+            else{ gentau_decayMode_.emplace_back(-1); } 
 
         }
     }
@@ -347,26 +296,26 @@ void
 HGCalTriggerNtupleGenTau::
 clear()
 {
-    gen_tau_pt_.clear();
-    gen_tau_eta_.clear();
-    gen_tau_phi_.clear();
-    gen_tau_energy_.clear();
-    gen_tau_mass_.clear();
-    gen_tau_decayMode_.clear();
-    gen_tauVis_pt_.clear();
-    gen_tauVis_eta_.clear();
-    gen_tauVis_phi_.clear();
-    gen_tauVis_energy_.clear();
-    gen_tauVis_mass_.clear();
-    gen_tau_totNproducts_.clear();
-    gen_tau_totNgamma_.clear();
-    gen_tau_totNcharged_.clear();
-    gen_product_pt_.clear();
-    gen_product_eta_.clear();
-    gen_product_phi_.clear();
-    gen_product_energy_.clear();
-    gen_product_mass_.clear();
-    gen_product_id_.clear();
+    gentau_pt_.clear();
+    gentau_eta_.clear();
+    gentau_phi_.clear();
+    gentau_energy_.clear();
+    gentau_mass_.clear();
+    gentau_decayMode_.clear();
+    gentau_vis_pt_.clear();
+    gentau_vis_eta_.clear();
+    gentau_vis_phi_.clear();
+    gentau_vis_energy_.clear();
+    gentau_vis_mass_.clear();
+    gentau_totNproducts_.clear();
+    gentau_totNgamma_.clear();
+    gentau_totNcharged_.clear();
+    gentau_products_pt_.clear();
+    gentau_products_eta_.clear();
+    gentau_products_phi_.clear();
+    gentau_products_energy_.clear();
+    gentau_products_mass_.clear();
+    gentau_products_id_.clear();
 }
 
 
