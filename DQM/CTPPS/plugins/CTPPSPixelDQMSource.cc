@@ -38,14 +38,11 @@ class CTPPSPixelDQMSource: public DQMEDAnalyzer
    void dqmBeginRun(edm::Run const &, edm::EventSetup const &) override;
    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
    void analyze(edm::Event const& e, edm::EventSetup const& eSetup);
-   void beginLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
-   void endLuminosityBlock(edm::LuminosityBlock const& lumi, edm::EventSetup const& eSetup);
    void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
 
  private:
    unsigned int verbosity;
    long int nEvents = 0;
-   int current_LS = 0;
   edm::EDGetTokenT<edm::DetSetVector<CTPPSPixelDigi>> tokenDigi;
 //  edm::EDGetTokenT< edm::DetSetVector<CTPPSPixelCluster> > tokenCluster;
 
@@ -151,7 +148,6 @@ void CTPPSPixelDQMSource::dqmBeginRun(edm::Run const &run, edm::EventSetup const
 {
   if(verbosity) LogPrint("CTPPSPixelDQMSource") <<"RPstatusWord= "<<rpStatusWord;
   nEvents = 0;
-  current_LS = 0;
 
   pixRowMAX = thePixIndices.getDefaultRowDetSize();
   pixColMAX = thePixIndices.getDefaultColDetSize();
@@ -239,7 +235,7 @@ edm::EventSetup const &)
 	xmax,0,xmax, CluSizeMAX,0,CluSizeMAX);
    h2CluSize[arm][stn]->getTH2F()->SetOption("colz");
 
-//--------- Hits ---
+//--------- RPots ---
    int pixBinW = 4;
      for(int rp=RPn_first; rp<RPn_last; rp++) { // only installed pixel pots
        ID.setRP(rp);
@@ -271,7 +267,7 @@ edm::EventSetup const &)
 
 	
        hp2HitsMultROC_LS[indexP]=ibooker.bookProfile2D("ROCs_hits_multiplicity_per_event vs LS",
-	 rpTitle+";LumiSection;Plane#_ROC#", 1000,0.,1000.,
+	 rpTitle+";LumiSection;Plane#___ROC#", 1000,0.,1000.,
 	 NplaneMAX*NROCsMAX,0.,double(NplaneMAX*NROCsMAX),0.,ROCSizeInX*ROCSizeInY,"");
        hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetOption("colz");
        hp2HitsMultROC_LS[indexP]->getTProfile2D()->SetMinimum(1.0e-10);
@@ -346,23 +342,12 @@ edm::EventSetup const &)
 }
 
 //-------------------------------------------------------------------------------
-void CTPPSPixelDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
-                        edm::EventSetup const& context) 
-{
-  current_LS = lumiBlock.id().luminosityBlock();
-}
-
-void CTPPSPixelDQMSource::endLuminosityBlock(edm::LuminosityBlock const& lumiBlock, 
-                        edm::EventSetup const& context) {}
-
-//---------------------------------------------------------------------------------
 
 void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   ++nEvents;
-
-// current_LS = nEvents/2;
- if(current_LS<0) current_LS=0;
+  int lumiId = event.getLuminosityBlock().id().luminosityBlock();
+  if(lumiId<0) lumiId=0;
 
   int RPactivity[NArms][NRPotsMAX], digiSize[NArms][NRPotsMAX];
   for(int arm = 0; arm <2; arm++) { 
@@ -470,7 +455,7 @@ void CTPPSPixelDQMSource::analyze(edm::Event const& event, edm::EventSetup const
           for(int r=0; r<NROCsMAX; r++) if(HitsMultROC[indp][r] > 0) ++rocf[r];
           for(int r=0; r<NROCsMAX; r++) { 
             h2HitsMultROC[index]->Fill(p,r,HitsMultROC[indp][r]);
-            hp2HitsMultROC_LS[index]->Fill(current_LS,p*NROCsMAX+r,HitsMultROC[indp][r]);
+            hp2HitsMultROC_LS[index]->Fill(lumiId,p*NROCsMAX+r,HitsMultROC[indp][r]);
           }
         }
         int max = 0;
