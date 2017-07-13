@@ -18,12 +18,8 @@ class TriggerDQMBase
   };
   
   struct ObjME {
-    MonitorElement* numerator;
-    MonitorElement* denominator;
-    inline void clear(){
-      numerator = nullptr;
-      denominator = nullptr;
-    };
+    MonitorElement* numerator = nullptr;
+    MonitorElement* denominator = nullptr;
   };
 
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);

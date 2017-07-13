@@ -24,8 +24,8 @@ vbfsusyEfficiency = DQMEDHarvester("DQMGenericClient",
         
     ),
     efficiencyProfile = cms.untracked.vstring(
-        "effic_ht_vs_MET 'HT efficiency vs MET; MET; PF HT efficiency' htVsMET_numerator htVsMET_denominator"
-        "effic_ht_vs_LS  'HT efficiency vs LS; LS; PF HT efficiency' htVsLS_numerator htVsLS_denominator"
+        "effic_ht_vs_MET 'HT efficiency vs MET; MET; PF HT efficiency' htVsMET_numerator htVsMET_denominator",
+        "effic_ht_vs_LS  'HT efficiency vs LS; LS; PF HT efficiency' htVsLS_numerator htVsLS_denominator",
         "effic_met_vs_LS 'MET efficiency vs LS; LS; PF MET efficiency' metVsLS_numerator metVsLS_denominator",
         "effic_jet1etaVsLS 'Jet1 #eta efficiency vs LS; LS; jet1 #eta efficiency' jet1etaVsLS_numerator jet1etaVsLS_denominator",
 "effic_mjjVsLS 'M_{jj} efficiency vs LS; LS;  M_{jj} efficiency' mjjVsLS_numerator mjjVsLS_denominator",
