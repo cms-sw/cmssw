@@ -160,6 +160,7 @@ class L1TEfficiencyMuons_Offline : public DQMEDAnalyzer {
         BXVector<l1t::Muon>  m_L1tL1tMuons;
 
         // config params
+        std::string m_HistFolder;
         std::vector<int> m_GmtPtCuts;
         edm::EDGetTokenT<reco::MuonCollection> m_MuonInputTag;
         edm::EDGetTokenT<l1t::MuonBxCollection> m_GmtInputTag;
