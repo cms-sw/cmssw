@@ -176,14 +176,14 @@ void CTPPSGeometryInfo::PrintGeometry(const TotemRPGeometry &geometry, const edm
     cout << "    axis2: local axis (0, 1, 0) in global coordinates" << endl;
     cout << "    axis3: local axis (0, 0, 1) in global coordinates" << endl;
 
-    for (auto it = geometry.beginDet(); it != geometry.endDet(); ++it)
+    for (auto it = geometry.beginSensor(); it != geometry.endSensor(); ++it)
     {
       CTPPSDetId detId(it->first);
   
-      Hep3Vector gl_o = geometry.LocalToGlobal(detId, Hep3Vector(0, 0, 0));
-      Hep3Vector gl_a1 = geometry.LocalToGlobal(detId, Hep3Vector(1, 0, 0)) - gl_o;
-      Hep3Vector gl_a2 = geometry.LocalToGlobal(detId, Hep3Vector(0, 1, 0)) - gl_o;
-      Hep3Vector gl_a3 = geometry.LocalToGlobal(detId, Hep3Vector(0, 0, 1)) - gl_o;
+      Hep3Vector gl_o = geometry.localToGlobal(detId, Hep3Vector(0, 0, 0));
+      Hep3Vector gl_a1 = geometry.localToGlobal(detId, Hep3Vector(1, 0, 0)) - gl_o;
+      Hep3Vector gl_a2 = geometry.localToGlobal(detId, Hep3Vector(0, 1, 0)) - gl_o;
+      Hep3Vector gl_a3 = geometry.localToGlobal(detId, Hep3Vector(0, 0, 1)) - gl_o;
 
       PrintDetId(detId);
 
