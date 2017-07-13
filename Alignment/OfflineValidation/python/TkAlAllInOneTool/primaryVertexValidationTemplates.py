@@ -23,7 +23,7 @@ if isMC:
      print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is simulation!"
      runboundary = 1
 else:
-     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real dATA!"
+     print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: This is real DATA!"
      if ('.oO[lumilist]Oo.'):
           print ">>>>>>>>>> testPVValidation_cfg.py: msg%-i: JSON filtering with: .oO[lumilist]Oo. "
           import FWCore.PythonUtilities.LumiList as LumiList
