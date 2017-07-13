@@ -14,7 +14,6 @@
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/RPAlignmentCorrectionsMethods.h"
-//#include "Alignment/RPTrackBased/interface/AlignmentGeometry.h"
 
 #include <set>
 
@@ -47,7 +46,8 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsDataFrom
   try {
     XMLPlatformUtils::Initialize();
   }
-  catch (const XMLException& toCatch) {
+  catch (const XMLException& toCatch)
+  {
     char* message = XMLString::transcode(toCatch.getMessage());
     throw cms::Exception("RPAlignmentCorrectionsMethods") << "An XMLException caught with message: " << message << ".\n";
     XMLString::release(&message);
@@ -60,7 +60,8 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsDataFrom
   try {
     parser->parse(fn.c_str());
   }
-  catch (...) {
+  catch (...)
+  {
     throw cms::Exception("RPAlignmentCorrectionsMethods") << "Cannot parse file `" << fn << "' (exception)." << endl;
   }
 
@@ -115,7 +116,7 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
     // default values
     double sh_r = 0., sh_x = 0., sh_y = 0., sh_z = 0., rot_z = 0.;
     double sh_r_e = 0., sh_x_e = 0., sh_y_e = 0., sh_z_e = 0., rot_z_e = 0.;
-    unsigned int decId = 0;
+    unsigned int id = 0;
     bool idSet = false;
 
     // get attributes
@@ -128,7 +129,7 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
 
       if (!strcmp(XMLString::transcode(a->getNodeName()), "id"))
       {
-        decId = atoi(XMLString::transcode(a->getNodeValue()));
+        id = atoi(XMLString::transcode(a->getNodeValue()));
         idSet = true;
       } else if (!strcmp(XMLString::transcode(a->getNodeName()), "sh_r"))
           sh_r = atof(XMLString::transcode(a->getNodeValue()));
@@ -165,21 +166,10 @@ RPAlignmentCorrectionsData RPAlignmentCorrectionsMethods::GetCorrectionsData(DOM
 
     // add the alignment to the right list
     if (nodeType == 1)
-    {
-      const unsigned int arm = decId / 1000;
-      const unsigned int st = (decId / 100) % 10;
-      const unsigned int rp = (decId / 10) % 10;
-      const unsigned int det = decId % 10;
-      result.AddSensorCorrection(TotemRPDetId(arm, st, rp, det), a, true);
-    }
+      result.AddSensorCorrection(id, a, true);
 
     if (nodeType == 2)
-    {
-      const unsigned int arm = (decId / 100) % 10;
-      const unsigned int st = (decId / 10) % 10;
-      const unsigned int rp = decId % 10;
-      result.AddRPCorrection(TotemRPDetId(arm, st, rp), a, true);
-    }
+      result.AddRPCorrection(id, a, true);
   }
 
   return result;
