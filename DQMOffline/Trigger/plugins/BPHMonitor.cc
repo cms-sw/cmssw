@@ -416,8 +416,9 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
             continue;
         }
         if ((tagMuon.pt() == m.pt()))
-          continue;                                                                                      // not the same
-        if ((tagMuon.p4() + m.p4()).M() > minmass_ && (tagMuon.p4() + m.p4()).M() < maxmass_) {  // near to J/psi mass
+          continue; // not the same
+        auto mass = (tagMuon.p4() + m.p4()).M();
+        if (mass > minmass_ && mass < maxmass_) {  // near to J/psi mass
           muPhi_.denominator->Fill(m.phi());
           muEta_.denominator->Fill(m.eta());
           muPt_.denominator->Fill(m.pt());
@@ -493,17 +494,20 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           cApp.calculate(mu1TS.theState(), mu2TS.theState());
         }
 
+        auto mass = (m1.p4() + m.p4()).M();
+
         switch (nofset_) {  // nofset_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
         case 1:
           tnp_ = 1;  // already filled hists for tnp method
+
         case 2:
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -523,12 +527,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
         case 3:
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -542,19 +546,18 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           break;
 
         case 4:
-
           if (dimuonCL < minprob)
             continue;
 
-          DiMuMass_.denominator->Fill((m1.p4() + m.p4()).M());
+          DiMuMass_.denominator->Fill(mass);
 
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -575,12 +578,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
             continue;
 
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -602,12 +605,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
             continue;
 
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -634,12 +637,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
         case 8:  // vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -952,17 +955,20 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           cApp.calculate(mu1TS.theState(), mu2TS.theState());
         }
 
+        auto mass = (m1.p4() + m.p4()).M();
+
         switch (nofset_) {  // nofset_ = 1...9, represents different sets of variables for different paths, we want to have different hists for different paths
         case 1:
           tnp_ = 1;  // already filled hists for tnp method
+
         case 2:
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -982,12 +988,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
         case 3:
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -1005,15 +1011,15 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
           if (dimuonCL < minprob)
             continue;
 
-          DiMuMass_.numerator->Fill((m1.p4() + m.p4()).M());
+          DiMuMass_.numerator->Fill(mass);
 
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -1034,12 +1040,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
             continue;
 
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -1061,12 +1067,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
             continue;
 
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
@@ -1093,12 +1099,12 @@ BPHMonitor::analyze(edm::Event const& iEvent, edm::EventSetup const& iSetup)
 
         case 8:  // vtx monitoring, filling probability, DS, DCA, cos of pointing angle to the PV, eta, pT of dimuon
           if ((Jpsi_) && (!Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassJpsi || (m1.p4() + m.p4()).M() < minmassJpsi)
+            if (mass > maxmassJpsi || mass < minmassJpsi)
               continue;
           }
 
           if ((!Jpsi_) && (Upsilon_)) {
-            if ((m1.p4() + m.p4()).M() > maxmassUpsilon || (m1.p4() + m.p4()).M() < minmassUpsilon)
+            if (mass > maxmassUpsilon || mass < minmassUpsilon)
               continue;
           }
 
