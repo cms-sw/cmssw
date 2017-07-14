@@ -9,8 +9,8 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include "DataFormats/L1TMuon/interface/EMTFDaqOut.h"
-#include "DataFormats/L1TMuon/interface/EMTFHit.h"
-#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit2016.h"
+#include "DataFormats/L1TMuon/interface/EMTFTrack2016.h"
 #include "DataFormats/L1TMuon/interface/RegionalMuonCand.h"
 
 
@@ -31,8 +31,8 @@ class L1TStage2EMTF : public DQMEDAnalyzer {
  private:
 
   edm::EDGetTokenT<l1t::EMTFDaqOutCollection> daqToken;
-  edm::EDGetTokenT<l1t::EMTFHitCollection> hitToken;
-  edm::EDGetTokenT<l1t::EMTFTrackCollection> trackToken;
+  edm::EDGetTokenT<l1t::EMTFHit2016Collection> hitToken;
+  edm::EDGetTokenT<l1t::EMTFTrack2016Collection> trackToken;
   edm::EDGetTokenT<l1t::RegionalMuonCandBxCollection> muonToken;
   std::string monitorDir;
   bool verbose;

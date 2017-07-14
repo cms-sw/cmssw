@@ -109,12 +109,12 @@ namespace l1t {
 	std::vector<int> conv_vals_SP;
 	std::vector<int> conv_vals_pT_LUT;
 
-	EMTFHitCollection* res_hit;
-	res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHits();
+	EMTFHit2016Collection* res_hit;
+	res_hit = static_cast<EMTFCollections*>(coll)->getEMTFHit2016s();
 
-	EMTFTrackCollection* res_track;
-        res_track = static_cast<EMTFCollections*>(coll)->getEMTFTracks();
-        EMTFTrack Track_;
+	EMTFTrack2016Collection* res_track;
+        res_track = static_cast<EMTFCollections*>(coll)->getEMTFTrack2016s();
+        EMTFTrack2016 Track_;
 
 	RegionalMuonCandBxCollection* res_cand;
 	res_cand = static_cast<EMTFCollections*>(coll)->getRegionalMuonCands();

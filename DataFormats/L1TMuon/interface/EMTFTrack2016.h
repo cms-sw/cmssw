@@ -1,22 +1,22 @@
 // Class for muon tracks in EMTF - AWB 04.01.16
 // Mostly copied from L1Trigger/L1TMuonEndCap/interface/MuonInternalTrack.h
 
-#ifndef __l1t_EMTFTrack_h__
-#define __l1t_EMTFTrack_h__
+#ifndef __l1t_EMTFTrack2016_h__
+#define __l1t_EMTFTrack2016_h__
 
 #include <vector>
 #include <boost/cstdint.hpp>
  
 #include "DataFormats/GeometryVector/interface/Pi.h"
-#include "DataFormats/L1TMuon/interface/EMTFHit.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit2016.h"
 #include "DataFormats/L1TMuon/interface/EMTF/SP.h"
 
 
 namespace l1t {
-  class EMTFTrack {
+  class EMTFTrack2016 {
   public:
     
-  EMTFTrack() :
+  EMTFTrack2016() :
     // Using -999 instead of -99 b/c this seems most common in the emulator.  Unfortunate. - AWB 17.03.16
     endcap(-999), sector(-999), sector_GMT(-999), sector_index(-999), mode(-999), mode_LUT(-999), quality(-999), bx(-999),
       pt(-999), pt_GMT(-999), pt_LUT_addr(0), eta(-999), eta_GMT(-999), eta_LUT(-999), phi_loc_int(-999), 
@@ -27,22 +27,22 @@ namespace l1t {
       fr_1(-999), fr_2(-999), fr_3(-999), fr_4(-999), track_num(-999), has_neighbor(-999), all_neighbor(-999), numHits(0)
       {};
     
-    virtual ~EMTFTrack() {};
+    virtual ~EMTFTrack2016() {};
 
     // float pi = 3.141592653589793238;
 
     void ImportSP( const emtf::SP _SP, int _sector );
     void ImportPtLUT( int _mode, unsigned long _address );
 
-    void set_Hits(EMTFHitCollection bits)       { _Hits = bits;                numHits = _Hits.size(); }
-    void push_Hit(EMTFHit bits)                 { _Hits.push_back(bits);       numHits = _Hits.size(); }
+    void set_Hits(EMTFHit2016Collection bits)       { _Hits = bits;                numHits = _Hits.size(); }
+    void push_Hit(EMTFHit2016 bits)                 { _Hits.push_back(bits);       numHits = _Hits.size(); }
     void set_HitIndices(std::vector<uint> bits) { _HitIndices = bits;          numHits = _HitIndices.size(); }
     void push_HitIndex(uint bits)               { _HitIndices.push_back(bits); numHits = _HitIndices.size(); }
 
     int NumHits()            const { return numHits; }
-    EMTFHitCollection Hits()       { return _Hits; }
+    EMTFHit2016Collection Hits()       { return _Hits; }
     std::vector<uint> HitIndices() { return _HitIndices; }
-    const EMTFHitCollection * PtrHits()       const { return &_Hits; }
+    const EMTFHit2016Collection * PtrHits()       const { return &_Hits; }
     const std::vector<uint> * PtrHitIndices() const { return &_HitIndices; }
     
     void set_endcap        (int  bits) { endcap       = bits; }
@@ -143,7 +143,7 @@ namespace l1t {
     
   private:
     
-    EMTFHitCollection _Hits;
+    EMTFHit2016Collection _Hits;
     std::vector<uint>  _HitIndices;
 
     int   endcap;       // -1 or 1.  Filled in emulator from hit. 
@@ -195,11 +195,11 @@ namespace l1t {
     int   all_neighbor;
     int   numHits;
     
-  }; // End of class EMTFTrack
+  }; // End of class EMTFTrack2016
   
-  // Define a vector of EMTFTrack
-  typedef std::vector<EMTFTrack> EMTFTrackCollection;
+  // Define a vector of EMTFTrack2016
+  typedef std::vector<EMTFTrack2016> EMTFTrack2016Collection;
   
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFTrack_h__ */
+#endif /* define __l1t_EMTFTrack2016_h__ */
