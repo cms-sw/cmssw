@@ -17,7 +17,7 @@ TotemAlignment/RPDataFormats/src/RPAlignmentCorrectionsSequence.cc
 
 
 	<!-- strip RP 0, plane 0 -->
-	<det id="1979711488" sh_x="0" sh_y="+0" />
+	<det id="1979711488" sh_x="0" sh_y="+1000" />
 
 	<!-- pixel RP 23, plane 0 -->
 	<det id="2023227392" sh_x="0" sh_y="-1000" />
