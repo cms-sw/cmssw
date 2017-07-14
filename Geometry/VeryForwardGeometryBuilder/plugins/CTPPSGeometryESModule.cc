@@ -30,7 +30,7 @@
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/DetGeomDesc.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
 /**
@@ -50,10 +50,10 @@ class  CTPPSGeometryESModule : public edm::ESProducer
     std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
 
     std::unique_ptr<DetGeomDesc> produceRealGD(const VeryForwardRealGeometryRecord &);
-    std::unique_ptr<TotemRPGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
+    std::unique_ptr<CTPPSGeometry> produceRealTG(const VeryForwardRealGeometryRecord &);
 
     std::unique_ptr<DetGeomDesc> produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &);
-    std::unique_ptr<TotemRPGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &);
+    std::unique_ptr<CTPPSGeometry> produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &);
 
   protected:
     unsigned int verbosity;
@@ -358,22 +358,22 @@ std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGD(const Ve
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> CTPPSGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
+std::unique_ptr<CTPPSGeometry> CTPPSGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
 
-  return std::make_unique<TotemRPGeometry>( gD.product());
+  return std::make_unique<CTPPSGeometry>( gD.product());
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> CTPPSGeometryESModule::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &iRecord)
+std::unique_ptr<CTPPSGeometry> CTPPSGeometryESModule::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
 
-  return std::make_unique<TotemRPGeometry>( gD.product());
+  return std::make_unique<CTPPSGeometry>( gD.product());
 }
 
 DEFINE_FWK_EVENTSETUP_MODULE(CTPPSGeometryESModule);

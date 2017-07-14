@@ -10,7 +10,7 @@
 
 #include "DataFormats/CTPPSReco/interface/TotemRPRecHit.h"
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include <map>
 #include <cmath>

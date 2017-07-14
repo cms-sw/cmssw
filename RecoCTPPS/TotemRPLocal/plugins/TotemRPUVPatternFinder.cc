@@ -21,7 +21,7 @@
 #include "DataFormats/CTPPSReco/interface/TotemRPUVPattern.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include "RecoCTPPS/TotemRPLocal/interface/FastLineRecognition.h"
 
@@ -167,7 +167,7 @@ void TotemRPUVPatternFinder::produce(edm::Event& event, const edm::EventSetup& e
       << ">> TotemRPUVPatternFinder::produce " << event.id().run() << ":" << event.id().event();
 
   // geometry
-  ESHandle<TotemRPGeometry> geometry;
+  ESHandle<CTPPSGeometry> geometry;
   es.get<VeryForwardRealGeometryRecord>().get(geometry);
   if (geometryWatcher.check(es))
     lrcgn->resetGeometry(geometry.product());

@@ -29,7 +29,7 @@
 //#include "RecoTotemRP/RPRecoDataFormats/interface/RPMulFittedTrackCollection.h"
 
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
 
 #include <string>
@@ -425,7 +425,7 @@ void TotemRPDQMSource::beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg,
 void TotemRPDQMSource::analyze(edm::Event const& event, edm::EventSetup const& eventSetup)
 {
   // get event setup data
-  ESHandle<TotemRPGeometry> geometry;
+  ESHandle<CTPPSGeometry> geometry;
   eventSetup.get<VeryForwardRealGeometryRecord>().get(geometry);
 
   // get event data
