@@ -135,14 +135,14 @@ clean(const edm::Handle<reco::PFRecHitCollection>& input,
       int curphiL = hphi-predphi;
       int curphiH = hphi+predphi;
 
-      //HcalDetId valid phi range (1-72)
+      //HcalDetId valid phi range (0-72)
       while (curphiL<0) curphiL+=72;
       while (curphiH>72) curphiH-=72;
 
       std::pair<std::vector<int>, std::vector<int>>  phietas({heta,heta+1,heta-1,heta,heta},{hphi,hphi,hphi,curphiL,curphiH});
 
       std::vector<uint32_t> rawDetIds;
-      for(int in=0;in<5;in++) {
+      for(unsigned in=0;in<phietas.first.size();in++) {
         HcalDetId tempID (HcalForward, phietas.first[in], phietas.second[in], comp);
         rawDetIds.push_back(tempID.rawId());
       }
