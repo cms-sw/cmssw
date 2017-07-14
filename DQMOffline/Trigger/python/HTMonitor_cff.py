@@ -195,6 +195,42 @@ PFMETTypeOne140_PFMHT140_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.
 PFMETTypeOne140_PFMHT140_HTmonitoring.jetSelection      = cms.string("pt > 100 && eta < 2.5 && neutralHadronEnergyFraction < 0.8 && chargedHadronEnergyFraction > 0.1")
 PFMETTypeOne140_PFMHT140_HTmonitoring.jetSelection_HT   = cms.string("pt > 30 && eta < 2.5")
 
+# HLT_PFMET120_PFMHT120_IDTight_L1ETMnoHF
+PFMET120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring = hltHTmonitoring.clone()
+PFMET120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring.FolderName = cms.string('HLT/MET/PFMET120_L1ETMnoHF/')
+PFMET120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_L1ETMnoHF_v")
+PFMET120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring.metSelection      = cms.string("pt > 220")
+
+# HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_L1ETMnoHF
+PFMETNoMu120_PFMHTNoMu120_IDTight_L1ETMnoHF_HTmonitoring = hltHTmonitoring.clone()
+PFMETNoMu120_PFMHTNoMu120_IDTight_L1ETMnoHF_HTmonitoring.FolderName = cms.string('HLT/MET/PFMETNoMu120_L1ETMnoHF/')
+PFMETNoMu120_PFMHTNoMu120_IDTight_L1ETMnoHF_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_L1ETMnoHF_v")
+PFMETNoMu120_PFMHTNoMu120_IDTight_L1ETMnoHF_HTmonitoring.metSelection      = cms.string("pt > 220")
+
+# HLT_PFMETTypeOne120_PFMHT120_IDTight_L1ETMnoHF
+PFMETTypeOne120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring = hltHTmonitoring.clone()
+PFMETTypeOne120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring.FolderName = cms.string('HLT/MET/PFMETTypeOne120_L1ETMnoHF/')
+PFMETTypeOne120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne120_PFMHT120_IDTight_L1ETMnoHF_v")
+PFMETTypeOne120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring.metSelection      = cms.string("pt > 220")
+
+# HLT_PFMET120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60
+PFMET120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring = hltHTmonitoring.clone()
+PFMET120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.FolderName = cms.string('HLT/MET/PFMET120_L1ETMHF_HTT60/')
+PFMET120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMET120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_v")
+PFMET120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.metSelection      = cms.string("pt > 220")
+
+# HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_L1ETMHF_HTT60
+PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring = hltHTmonitoring.clone()
+PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.FolderName = cms.string('HLT/MET/PFMETNoMu120_L1ETMHF_HTT60/')
+PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_L1ETMHF_HTT60_v")
+PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.metSelection      = cms.string("pt > 220")
+
+# HLT_PFMETTypeOne120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60
+PFMETTypeOne120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring = hltHTmonitoring.clone()
+PFMETTypeOne120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.FolderName = cms.string('HLT/MET/PFMETTypeOne120_L1ETMHF_HTT60/')
+PFMETTypeOne120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_PFMETTypeOne120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_v")
+PFMETTypeOne120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring.metSelection      = cms.string("pt > 220")
+
 exoHLTHTmonitoring = cms.Sequence(
     PFMETNoMu90_PFMHTNoMu90_HTmonitoring
     + PFMETNoMu120_PFMHTNoMu120_HTmonitoring
@@ -222,5 +258,11 @@ exoHLTHTmonitoring = cms.Sequence(
     + PFMETTypeOne120_PFMHT120_HTmonitoring
     + PFMETTypeOne130_PFMHT130_HTmonitoring
     + PFMETTypeOne140_PFMHT140_HTmonitoring
+    + PFMET120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring
+    + PFMETNoMu120_PFMHTNoMu120_IDTight_L1ETMnoHF_HTmonitoring
+    + PFMETTypeOne120_PFMHT120_IDTight_L1ETMnoHF_HTmonitoring
+    + PFMET120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring
+    + PFMETNoMu120_PFMHTNoMu120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring
+    + PFMETTypeOne120_PFMHT120_IDTight_PFHT60_L1ETMHF_HTT60_HTmonitoring    
 )
 
