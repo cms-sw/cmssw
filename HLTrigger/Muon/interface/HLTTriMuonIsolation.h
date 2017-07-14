@@ -53,6 +53,7 @@ class HLTTriMuonIsolation : public edm::global::EDProducer<> {
         const double MatchingConeSize_;
         const double MinTriMuonMass_  ;
         const double MaxTriMuonMass_  ;
+        const double MaxTriMuonRadius_;
         const int    TriMuonAbsCharge_;
         const double MaxDZ_           ;
         const bool   EnableRelIso_    ;
@@ -75,6 +76,7 @@ HLTTriMuonIsolation::HLTTriMuonIsolation(const edm::ParameterSet& iConfig):
     MatchingConeSize_                                                    (iConfig.getParameter<double>       ("MatchingConeSize"  )) ,
     MinTriMuonMass_                                                      (iConfig.getParameter<double>       ("MinTriMuonMass"    )) ,
     MaxTriMuonMass_                                                      (iConfig.getParameter<double>       ("MaxTriMuonMass"    )) , 
+    MaxTriMuonRadius_                                                    (iConfig.getParameter<double>       ("MaxTriMuonRadius"  )) , 
     TriMuonAbsCharge_                                                    (iConfig.getParameter<int>          ("TriMuonAbsCharge"  )) ,
     MaxDZ_                                                               (iConfig.getParameter<double>       ("MaxDZ"             )) , 
     EnableRelIso_                                                        (iConfig.getParameter<bool>         ("EnableRelIso"      )) ,
@@ -177,7 +179,19 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
                     if (std::abs(Tau.daughter(0)->vz() - Tau.vz()) > MaxDZ_) continue;
                     if (std::abs(Tau.daughter(1)->vz() - Tau.vz()) > MaxDZ_) continue;
                     if (std::abs(Tau.daughter(2)->vz() - Tau.vz()) > MaxDZ_) continue;
-                                                            
+                    
+                    // require muons to be collimated
+                    bool collimated = true;           
+                    for (auto const &idau : Daughters){
+                        if (reco::deltaR2(Tau.p4(), idau.p4()) > MaxTriMuonRadius_*MaxTriMuonRadius_) {
+                            collimated = false;
+                            break;
+                        }
+                    }
+                                  
+                    if (!collimated) continue;
+                        
+                    // a good tau, at last                      
                     Taus->push_back(Tau);
                 }
             }
@@ -236,6 +250,7 @@ HLTTriMuonIsolation::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("MatchingConeSize", 0.03 );
   desc.add<double>("MinTriMuonMass"  , 0.5  );
   desc.add<double>("MaxTriMuonMass"  , 2.8  );
+  desc.add<double>("MaxTriMuonRadius", 0.6  );
   desc.add<int>   ("TriMuonAbsCharge", -1   );
   desc.add<double>("MaxDZ"           , 0.3  );
   desc.add<bool>  ("EnableRelIso"    , false);
