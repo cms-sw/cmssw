@@ -700,12 +700,6 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
   TrajectoryStateCombiner tsoscomb;
 
-  m_Ntracks=0;
-  // hit info  
-  m_sinTheta =0;
-  m_angle = 0;
-  m_detId =0;
-  m_hitwt=1;
   m_datatype=theDataGroup;
 
   // loop over tracks  
@@ -894,27 +888,25 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
         //Make cut on hit impact angle, reduce collision hits perpendicular to modules
         if (IsCollision){ if (angle>col_cut)ihitwt=0; }
         else{ if (angle<cos_cut)ihitwt=0; }
-        m_angle = angle;
-        m_sinTheta = sin_theta;
-        m_detId = ali->id();
+
+        // Fill hit monitor variables
+        theMonitorConfig.hitmonitorvars.m_angle = angle;
+        theMonitorConfig.hitmonitorvars.m_sinTheta = sin_theta;
+        theMonitorConfig.hitmonitorvars.m_detId = ali->id();
 
         // Check pixel XY and Q probabilities
-        m_hasHitProb = false;
-        m_probXY=-1;
-        m_probQ=-1;
-        m_rawQualityWord=9999;
         if ((*ihit)->hit()!=nullptr){
           const SiPixelRecHit* pixhit = dynamic_cast<const SiPixelRecHit*>((*ihit)->hit());
           if (pixhit!=nullptr){
-            m_hasHitProb = pixhit->hasFilledProb();
-            if (m_hasHitProb){
+            theMonitorConfig.hitmonitorvars.m_hasHitProb = pixhit->hasFilledProb();
+            if (theMonitorConfig.hitmonitorvars.m_hasHitProb){
               // Prob X, Y are deprecated
-              m_probXY=pixhit->probabilityXY();
-              m_probQ=pixhit->probabilityQ();
-              m_rawQualityWord=pixhit->rawQualityWord();
+              theMonitorConfig.hitmonitorvars.m_probXY=pixhit->probabilityXY();
+              theMonitorConfig.hitmonitorvars.m_probQ=pixhit->probabilityQ();
+              theMonitorConfig.hitmonitorvars.m_rawQualityWord=pixhit->rawQualityWord();
               if (alispecifics->applyPixelProbCut){
-                bool probXYgood = (m_probXY>=alispecifics->minPixelProbXY && m_probXY<=alispecifics->maxPixelProbXY);
-                bool probQgood = (m_probQ>=alispecifics->minPixelProbQ && m_probQ<=alispecifics->maxPixelProbQ);
+                bool probXYgood = (theMonitorConfig.hitmonitorvars.m_probXY>=alispecifics->minPixelProbXY && theMonitorConfig.hitmonitorvars.m_probXY<=alispecifics->maxPixelProbXY);
+                bool probQgood = (theMonitorConfig.hitmonitorvars.m_probQ>=alispecifics->minPixelProbQ && theMonitorConfig.hitmonitorvars.m_probQ<=alispecifics->maxPixelProbQ);
                 bool probXYQgood;
                 if (alispecifics->usePixelProbXYOrProbQ) probXYQgood = (probXYgood || probQgood);
                 else probXYQgood = (probXYgood && probQgood);
@@ -924,7 +916,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
           }
         }
 
-        m_hitwt = ihitwt;
+        theMonitorConfig.hitmonitorvars.m_hitwt = ihitwt;
         if (ihitwt!=0.){
           bool hitProcessed=false;
           switch (nhitDim){
@@ -1067,15 +1059,9 @@ void HIPAlignmentAlgorithm::bookRoot(void){
     if (theMonitorConfig.fillTrackHitMonitoring){
       TString tname_hit=Form("T1_hit_%i", theIteration);
       theHitMonitorTree = new TTree(tname_hit, "Hitwise tree");
-      theHitMonitorTree->Branch("Id", &m_detId, "Id/i");
       theHitMonitorTree->Branch("DataType", &m_datatype);
-      theHitMonitorTree->Branch("sinTheta", &m_sinTheta);
-      theHitMonitorTree->Branch("impactAngle", &m_angle);
-      theHitMonitorTree->Branch("wt", &m_hitwt);
-      theHitMonitorTree->Branch("probPresent", &m_hasHitProb);
-      theHitMonitorTree->Branch("probXY", &m_probXY);
-      theHitMonitorTree->Branch("probQ", &m_probQ);
-      theHitMonitorTree->Branch("qualityWord", &m_rawQualityWord);
+      theMonitorConfig.hitmonitorvars.setTree(theHitMonitorTree);
+      theMonitorConfig.hitmonitorvars.bookBranches();
     }
   }
 
