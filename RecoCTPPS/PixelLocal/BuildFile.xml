@@ -13,8 +13,6 @@
 <use name="CondCore/DBOutputService"/>
 <use name="FWCore/ServiceRegistry"/>
 
-<use name="root"/>
- 
 <export>
   <lib name="1"/>
 </export>
