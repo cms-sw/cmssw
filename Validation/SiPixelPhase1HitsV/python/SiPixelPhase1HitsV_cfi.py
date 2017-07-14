@@ -163,10 +163,10 @@ SiPixelPhase1HitsAnalyzerV = cms.EDAnalyzer("SiPixelPhase1HitsV",
         pixForwardLowSrc = cms.InputTag("g4SimHits","TrackerHitsPixelEndcapLowTof"),
         pixForwardHighSrc = cms.InputTag("g4SimHits","TrackerHitsPixelEndcapHighTof"),
 
-	# Hit Efficiency stuff
+        # Hit Efficiency stuff
         associateRecoTracks = cms.bool(True),
         tracksTag = cms.InputTag("generalTracks"),
-	tpTag = cms.InputTag("mix","MergedTrackTruth"),
+        tpTag = cms.InputTag("mix","MergedTrackTruth"),
         trackAssociatorByHitsTag = cms.InputTag("trackAssociatorByHits"),
         associateStrip = cms.bool(True),
         associatePixel = cms.bool(True),

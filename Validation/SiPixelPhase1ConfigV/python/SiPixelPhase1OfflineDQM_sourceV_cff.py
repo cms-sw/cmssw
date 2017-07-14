@@ -17,6 +17,6 @@ siPixelPhase1OfflineDQM_sourceV = cms.Sequence(SiPixelPhase1DigisAnalyzerV
                                             + SiPixelPhase1HitsAnalyzerV
                                             + SiPixelPhase1RecHitsAnalyzerV
                                             + SiPixelPhase1TrackClustersAnalyzerV
-					    + SiPixelPhase1TrackingParticleAnalyzerV
+                                            + SiPixelPhase1TrackingParticleAnalyzerV
                                             )
 
