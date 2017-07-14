@@ -603,6 +603,7 @@ void HcalUnpacker::unpackUTCA(const FEDRawData& raw, const HcalElectronicsMap& e
     //Check to make sure uMNio is not unpacked here
     if(uhtr.getFormatVersion() != 1) {
       unpackUMNio(raw, slot, colls);
+      continue;
     }  
 #ifdef DebugLog
     //debug printouts

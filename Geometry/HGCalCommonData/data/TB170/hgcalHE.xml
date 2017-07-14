@@ -18,18 +18,19 @@
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalHEWaferFine, hgcalwafer:HGCalHEWaferCoarse</Vector>
     <Vector name="CoverName" type="string" nEntries="3">
-      hgcal:HGCalHEPCB, hgcal:HGCalHEKapton, hgcal:HGCalHEAbsorber</Vector>
+      hgcal:HGCalHESiliconPCB, hgcal:HGCalHESiliconKapton, 
+      hgcal:HGCalHESiliconCu</Vector>
     <Vector name="MaterialNames" type="string" nEntries="8">
       materials:StainlessSteel, materials:Air, materials:Air, 
       materials:Copper, materials:Air, materials:Air, materials:Air,
       materials:StainlessSteel</Vector>
     <Vector name="VolumeNames" type="string" nEntries="8">
-      HESiliconAbsorber1, HESiliconPCB1, HESiliconShield1, HESiliconHeatShield, 
+      HESteel40mm,        HESiliconPCB1,    HESiliconCu,     HECu, 
       HESiliconSensitive, HESiliconKapton1, HESiliconAirGap, 
-      HESiliconSupport</Vector>
+      HESteel10mm</Vector>
     <Vector name="Thickness" type="numeric" nEntries="8">
-      40.0*mm, [hgcal:thPCB], [hgcal:thAbsHE], 6.0*mm, 0.1*mm, [hgcal:thKapton],
-      6.89*mm, 10.0*mm</Vector>
+      40.0*mm, [hgcal:thPCB], [hgcal:thAbsHE], 6.0*mm, 0.1*mm, 
+      [hgcal:thKapton], 6.89*mm, 10.0*mm</Vector>
     <Vector name="Layers" type="numeric" nEntries="13"> 
       1, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 7</Vector>
     <Vector name="LayerThick" type="numeric" nEntries="13"> 

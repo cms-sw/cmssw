@@ -36,7 +36,7 @@ class HGCalNumberingInitialization : public edm::ESProducer {
 
 public:
   HGCalNumberingInitialization(const edm::ParameterSet&);
-  ~HGCalNumberingInitialization();
+  ~HGCalNumberingInitialization() override;
 
   typedef std::unique_ptr<HGCalDDDConstants> ReturnType;
 

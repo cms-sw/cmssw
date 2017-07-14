@@ -21,7 +21,7 @@ void GEMCoPadDigiValidation::bookHistograms(DQMStore::IBooker & ibooker, edm::Ru
   int npadsGE21 = 0;
   int nPads = 0;
 
-  if ( nStation() > 1 ) {
+  if ( GEMGeometry_->regions()[0]->stations()[1]->superChambers().size() != 0 ) {
     npadsGE21  = GEMGeometry_->regions()[0]->stations()[1]->superChambers()[0]->chambers()[0]->etaPartitions()[0]->npads();
   }
 
@@ -143,8 +143,8 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       if ( bx1 < (Short_t)minBXGEM_ || bx1 > (Short_t)maxBXGEM_) continue;
       if ( bx2 < (Short_t)minBXGEM_ || bx2 > (Short_t)maxBXGEM_) continue;
 
-      LocalPoint lp1 = superChamber->chamber(1)->etaPartition(1)->centreOfPad(pad1);
-      LocalPoint lp2 = superChamber->chamber(1)->etaPartition(1)->centreOfPad(pad2);
+      LocalPoint lp1 = superChamber->chamber(1)->etaPartition(nroll)->centreOfPad(pad1);
+      LocalPoint lp2 = superChamber->chamber(2)->etaPartition(nroll)->centreOfPad(pad2);
 
       GlobalPoint gp1 = surface.toGlobal(lp1);
       GlobalPoint gp2 = surface.toGlobal(lp2);
@@ -163,7 +163,7 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
       else {
         edm::LogError("GEMCoPadDigiValidation")<<"region : "<<re<<std::endl;
       }
-      int binX = (chamber-1)*2+(la-1);
+      int binX = (chamber-1)*2+la;
       int binY = nroll;
       int station_num = st-1;
 
@@ -175,8 +175,8 @@ void GEMCoPadDigiValidation::analyze(const edm::Event& e,
 
       histname_suffix = getSuffixName( re, st ) ;
       TString dcEta_histname = TString::Format("copad_dcEta%s",histname_suffix.Data());
-      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX, binY); 
-      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX+1, binY); 
+      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX, binY);
+      theCoPad_dcEta[dcEta_histname.Hash()]->Fill( binX+1, binY);
 
       // Fill detail plots.
       if ( detailPlot_) {

@@ -46,7 +46,7 @@
 class ExtractXMLFile : public edm::one::EDAnalyzer<> {
 public:
   explicit ExtractXMLFile( const edm::ParameterSet& );
-  ~ExtractXMLFile();
+  ~ExtractXMLFile() override;
 
   void beginJob() override {} 
   void analyze(edm::Event const&, edm::EventSetup const&) override;

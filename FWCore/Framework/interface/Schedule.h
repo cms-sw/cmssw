@@ -180,9 +180,6 @@ namespace edm {
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
 
-    // Call openNewFileIfNeeded() on all OutputModules
-    void openNewOutputFilesIfNeeded();
-
     // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock& fb);
 

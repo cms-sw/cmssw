@@ -69,7 +69,7 @@
 class ModuleNumbering : public edm::one::EDAnalyzer<> {
 public:
   explicit ModuleNumbering( const edm::ParameterSet& );
-  ~ModuleNumbering();
+  ~ModuleNumbering() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -206,8 +206,8 @@ ModuleNumbering::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetu
   std::vector<const GeometricDet*> modules =  (*rDD).deepComponents();
   std::map< uint32_t , const GeometricDet* > mapDetIdToGeometricDet;
   
-  for(unsigned int i=0; i<modules.size();i++){  
-    mapDetIdToGeometricDet[modules[i]->geographicalID().rawId()] = modules[i];
+  for(auto & module : modules){  
+    mapDetIdToGeometricDet[module->geographicalID().rawId()] = module;
   }
   
   // Debug variables

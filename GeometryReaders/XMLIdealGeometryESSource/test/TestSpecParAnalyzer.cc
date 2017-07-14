@@ -41,7 +41,7 @@
 class TestSpecParAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TestSpecParAnalyzer( const edm::ParameterSet& );
-  ~TestSpecParAnalyzer();
+  ~TestSpecParAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -89,12 +89,12 @@ TestSpecParAnalyzer::analyze( const edm::Event& iEvent, const edm::EventSetup& i
 	 for (;  it != (**spit).end(); it++) {
 	   std::cout << "\t" << it->second.name() << std::endl;
 	   if ( it->second.isEvaluated() ) {
-	     for ( size_t i = 0; i < it->second.doubles().size(); ++i) {
-	       std::cout << "\t\t" << it->second.doubles()[i] << std::endl;
+	     for (double i : it->second.doubles()) {
+	       std::cout << "\t\t" << i << std::endl;
 	     }
 	   } else {
-	     for ( size_t i = 0 ; i < it->second.strings().size(); ++i) {
-	       std::cout << "\t\t" << it->second.strings()[i] << std::endl;
+	     for (const auto & i : it->second.strings()) {
+	       std::cout << "\t\t" << i << std::endl;
 	     }
 	   }
 	 }

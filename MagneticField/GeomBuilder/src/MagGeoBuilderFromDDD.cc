@@ -682,7 +682,8 @@ float MagGeoBuilderFromDDD::maxR() const{
 
 float MagGeoBuilderFromDDD::maxZ() const{
   //FIXME: should get it from the actual geometry
-  if (geometryVersion>=120812) return 2000.;
+  if (geometryVersion>=160812) return 2400.;
+  else if (geometryVersion>=120812) return 2000.;
   else return 1600.;
 }
 

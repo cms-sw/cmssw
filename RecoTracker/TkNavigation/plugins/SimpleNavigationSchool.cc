@@ -26,13 +26,11 @@
 
 using namespace std;
 
-SimpleNavigationSchool::SimpleNavigationSchool(const GeometricSearchTracker* theInputTracker,
-					       const MagneticField* field) : 
-  theBarrelLength(0),theField(field), theTracker(theInputTracker)
+void SimpleNavigationSchool::init()
 {
 
-  theAllDetLayersInSystem=&theInputTracker->allLayers();
-  theAllNavigableLayer.resize(theInputTracker->allLayers().size(),nullptr);
+  theAllDetLayersInSystem=&theTracker->allLayers();
+  theAllNavigableLayer.resize(theTracker->allLayers().size(),nullptr);
 
 
   // Get barrel layers

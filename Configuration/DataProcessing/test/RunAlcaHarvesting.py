@@ -103,7 +103,22 @@ class RunAlcaHarvesting:
 
 if __name__ == '__main__':
     valid = ["scenario=", "global-tag=", "lfn=", "dataset=","workflows=","alcapromptdataset="]
-    usage = """RunAlcaHarvesting.py <options>"""
+    usage = \
+    usage = """
+    RunAlcaHarvesting.py <options>
+
+
+    Where options are:
+    --scenario=ScenarioName
+    --global-tag=GlobalTag
+    --lfn=/store/input/lfn
+    --dataset=/A/B/C
+    --workflows=theWFs
+    --alcapromptdataset=theAPdataset
+
+    """
+
+
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
     except getopt.GetoptError as ex:

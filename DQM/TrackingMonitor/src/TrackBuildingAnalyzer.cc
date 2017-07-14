@@ -96,10 +96,15 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   int    TCHitBin   = iConfig.getParameter<int>(   "TCHitBin");
   double TCHitMin   = iConfig.getParameter<double>("TCHitMin");
   double TCHitMax   = iConfig.getParameter<double>("TCHitMax");
+
+  int MVABin        = iConfig.getParameter<int>(   "MVABin");
+  double MVAMin     = iConfig.getParameter<double>("MVAMin");
+  double MVAMax     = iConfig.getParameter<double>("MVAMax");
   
   
   edm::InputTag seedProducer   = iConfig.getParameter<edm::InputTag>("SeedProducer");
   edm::InputTag tcProducer     = iConfig.getParameter<edm::InputTag>("TCProducer");
+  std::vector<std::string> mvaProducers = iConfig.getParameter<std::vector<std::string> >("MVAProducers");
   
   doAllPlots     = iConfig.getParameter<bool>("doAllPlots");
   doAllSeedPlots = iConfig.getParameter<bool>("doSeedParameterHistos");
@@ -117,6 +122,7 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
   doProfPHI      = iConfig.getParameter<bool>("doSeedNVsPhiProf");
   doProfETA      = iConfig.getParameter<bool>("doSeedNVsEtaProf");
   doStopSource   = iConfig.getParameter<bool>("doStopSource");
+  doMVAPlots     = iConfig.getParameter<bool>("doMVAPlots");
   
   //    if (doAllPlots){doAllSeedPlots=true; doTCPlots=true;}
   
@@ -319,6 +325,52 @@ void TrackBuildingAnalyzer::initHisto(DQMStore::IBooker & ibooker, const edm::Pa
     TrackCandPhiVsEta = ibooker.book2D(histname+CatagoryName, histname+CatagoryName, EtaBin, EtaMin, EtaMax, PhiBin, PhiMin, PhiMax);
     TrackCandPhiVsEta->setAxisTitle("Track Candidate #eta", 1);
     TrackCandPhiVsEta->setAxisTitle("Track Candidate #phi", 2);
+
+    if(doAllTCPlots || doMVAPlots) {
+      for(size_t i=1, end=mvaProducers.size(); i<=end; ++i) {
+        auto num = std::to_string(i);
+        std::string pfix;
+
+        if(i == 1) {
+          trackMVAsHP.push_back(nullptr);
+          trackMVAsHPVsPtProfile.push_back(nullptr);
+          trackMVAsHPVsEtaProfile.push_back(nullptr);
+        }
+        else {
+          pfix = " (not loose-selected)";
+          std::string pfix2 = " (not HP-selected)";
+          histname = "TrackMVA"+num+"HP_"+tcProducer.label() + "_";
+          trackMVAsHP.push_back(ibooker.book1D(histname+CatagoryName, histname+CatagoryName+pfix2, MVABin, MVAMin, MVAMax));
+          trackMVAsHP.back()->setAxisTitle("Track selection MVA"+num, 1);
+          trackMVAsHP.back()->setAxisTitle("Number of tracks", 2);
+
+          histname = "TrackMVA"+num+"HPVsPtProfile_"+tcProducer.label() + "_";
+          trackMVAsHPVsPtProfile.push_back(ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName+pfix2, TrackPtBin, TrackPtMin, TrackPtMax, MVABin, MVAMin, MVAMax));
+          trackMVAsHPVsPtProfile.back()->setAxisTitle("Track p_{T} (GeV/c)", 1);
+          trackMVAsHPVsPtProfile.back()->setAxisTitle("Track selection MVA"+num, 2);
+
+          histname = "TrackMVA"+num+"HPVsEtaProfile_"+tcProducer.label() + "_";
+          trackMVAsHPVsEtaProfile.push_back(ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName+pfix2, EtaBin, EtaMin, EtaMax, MVABin, MVAMin, MVAMax));
+          trackMVAsHPVsEtaProfile.back()->setAxisTitle("Track #eta", 1);
+          trackMVAsHPVsEtaProfile.back()->setAxisTitle("Track selection MVA"+num, 2);
+        }
+
+        histname = "TrackMVA"+num+"_"+tcProducer.label() + "_";
+        trackMVAs.push_back(ibooker.book1D(histname+CatagoryName, histname+CatagoryName+pfix, MVABin, MVAMin, MVAMax));
+        trackMVAs.back()->setAxisTitle("Track selection MVA"+num, 1);
+        trackMVAs.back()->setAxisTitle("Number of tracks", 2);
+
+        histname = "TrackMVA"+num+"VsPtProfile_"+tcProducer.label() + "_";
+        trackMVAsVsPtProfile.push_back(ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName+pfix, TrackPtBin, TrackPtMin, TrackPtMax, MVABin, MVAMin, MVAMax));
+        trackMVAsVsPtProfile.back()->setAxisTitle("Track p_{T} (GeV/c)", 1);
+        trackMVAsVsPtProfile.back()->setAxisTitle("Track selection MVA"+num, 2);
+
+        histname = "TrackMVA"+num+"VsEtaProfile_"+tcProducer.label() + "_";
+        trackMVAsVsEtaProfile.push_back(ibooker.bookProfile(histname+CatagoryName, histname+CatagoryName+pfix, EtaBin, EtaMin, EtaMax, MVABin, MVAMin, MVAMax));
+        trackMVAsVsEtaProfile.back()->setAxisTitle("Track #eta", 1);
+        trackMVAsVsEtaProfile.back()->setAxisTitle("Track selection MVA"+num, 2);
+      }
+    }
   }
   
 }
@@ -441,5 +493,66 @@ void TrackBuildingAnalyzer::analyze
     if (doAllTCPlots) NumberOfRecHitsPerTrackCand->Fill( numberOfHits );
     if (doAllTCPlots) NumberOfRecHitsPerTrackCandVsEtaProfile->Fill( eta, numberOfHits );
     if (doAllTCPlots) NumberOfRecHitsPerTrackCandVsPhiProfile->Fill( phi, numberOfHits );
+  }
+}
+
+namespace {
+  bool trackSelected(unsigned char mask, unsigned char qual) {
+    return mask & 1<<qual;
+  }
+}
+void TrackBuildingAnalyzer::analyze(const edm::View<reco::Track>& trackCollection,
+                                    const std::vector<const MVACollection *>& mvaCollections,
+                                    const std::vector<const QualityMaskCollection *>& qualityMaskCollections) {
+  if(!(doAllTCPlots || doMVAPlots))
+    return;
+  if(trackCollection.empty())
+    return;
+
+  const auto ntracks = trackCollection.size();
+  const auto nmva = mvaCollections.size();
+  for(const auto mva: mvaCollections) {
+    if(mva->size() != ntracks) {
+      edm::LogError("LogicError") << "TrackBuildingAnalyzer: Incompatible size of MVACollection, " << mva->size() << " differs from the size of the track collection " << ntracks;
+      return;
+    }
+  }
+  for(const auto qual: qualityMaskCollections) {
+    if(qual->size() != ntracks) {
+      edm::LogError("LogicError") << "TrackBuildingAnalyzer: Incompatible size of QualityMaskCollection, " << qual->size() << " differs from the size of the track collection " << ntracks;
+      return;
+    }
+  }
+
+
+  for(size_t iTrack=0; iTrack<ntracks; ++iTrack) {
+    // Fill MVA1 histos with all tracks, MVA2 histos only with tracks
+    // not selected by MVA1 etc
+    bool selectedLoose = false;
+    bool selectedHP = false;
+
+    const auto pt = trackCollection[iTrack].pt();
+    const auto eta = trackCollection[iTrack].eta();
+
+    for(size_t iMVA=0; iMVA<nmva; ++iMVA) {
+      const auto mva = (*(mvaCollections[iMVA]))[iTrack];
+      if(!selectedLoose) {
+        trackMVAs[iMVA]->Fill(mva);
+        trackMVAsVsPtProfile[iMVA]->Fill(pt, mva);
+        trackMVAsVsEtaProfile[iMVA]->Fill(eta, mva);
+      }
+      if(iMVA >= 1 && !selectedHP) {
+        trackMVAsHP[iMVA]->Fill(mva);
+        trackMVAsHPVsPtProfile[iMVA]->Fill(pt, mva);
+        trackMVAsHPVsEtaProfile[iMVA]->Fill(eta, mva);
+      }
+
+      const auto qual = (*(qualityMaskCollections)[iMVA])[iTrack];
+      selectedLoose |= trackSelected(qual, reco::TrackBase::loose);
+      selectedHP |= trackSelected(qual, reco::TrackBase::highPurity);
+
+      if(selectedLoose && selectedHP)
+        break;
+    }
   }
 }

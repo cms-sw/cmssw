@@ -88,7 +88,7 @@ SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned = cms.EDAnalyzer("SUSY_HLT_Inc
 
 
 
-SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToInclusiveMEToHBHEoBeamHaloCleanedPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHE_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -97,7 +97,7 @@ SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMG
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToInclusiveMEToDefaultPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -106,7 +106,7 @@ SUSY_HLT_InclusiveMET_Default_POSTPROCESSING = DQMEDHarvester("DQMGenericClient"
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToInclusiveMEToHBHECleanedPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_HBHECleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -115,7 +115,7 @@ SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericCli
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToInclusiveMEToBeamHaloCleanedPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -125,7 +125,7 @@ SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMGeneri
 )
 
 
-SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToInclusiveMEToNotCleanedPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMET170_NotCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -134,7 +134,7 @@ SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClie
   resolution = cms.vstring("")
 )
 
-SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToInclusiveType1PFMEToHBHEoBeamHaloCleanedPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring("HLT/SUSYBSM/HLT_PFMETTypeOne190_HBHE_BeamHaloCleaned_v"),
   efficiency = cms.vstring(
     "pfMetTurnOn_eff 'Efficiency vs PFMET' pfMetTurnOn_num pfMetTurnOn_den",
@@ -152,11 +152,11 @@ SUSY_HLT_InclusiveMET = cms.Sequence(SUSY_HLT_InclusiveMET_Default +
                                      SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned
 )
 
-SUSY_HLT_InclusiveMET_POSTPROCESSING = cms.Sequence(SUSY_HLT_InclusiveMET_Default_POSTPROCESSING +
-                                                    SUSY_HLT_InclusiveMET_HBHE_BeamHaloCleaned_POSTPROCESSING +
-                                                    SUSY_HLT_InclusiveMET_HBHECleaned_POSTPROCESSING +
-                                                    SUSY_HLT_InclusiveMET_BeamHaloCleaned_POSTPROCESSING +
-                                                    SUSY_HLT_InclusiveMET_NotCleaned_POSTPROCESSING +
-                                                    SUSY_HLT_InclusiveType1PFMET_HBHE_BeamHaloCleaned_POSTPROCESSING
+SUSY_HLT_InclusiveMET_POSTPROCESSING = cms.Sequence(SUSYoHLToInclusiveMEToDefaultPOSTPROCESSING +
+                                                    SUSYoHLToInclusiveMEToHBHEoBeamHaloCleanedPOSTPROCESSING +
+                                                    SUSYoHLToInclusiveMEToHBHECleanedPOSTPROCESSING +
+                                                    SUSYoHLToInclusiveMEToBeamHaloCleanedPOSTPROCESSING +
+                                                    SUSYoHLToInclusiveMEToNotCleanedPOSTPROCESSING +
+                                                    SUSYoHLToInclusiveType1PFMEToHBHEoBeamHaloCleanedPOSTPROCESSING
 )
 
