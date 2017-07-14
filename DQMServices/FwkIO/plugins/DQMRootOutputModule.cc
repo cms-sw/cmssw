@@ -586,7 +586,8 @@ DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptio
     ->setComment("Only write the run with this run number. 0 means write all runs.");
   desc.addOptionalUntracked<int>("splitLevel", 99)
     ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
-  edm::OutputModule::fillDescription(desc, std::vector<std::string>(1U, std::string("drop *")));
+  const std::vector<std::string> keep = {"drop *", "keep DQMToken_*_*_*"};
+  edm::OutputModule::fillDescription(desc, keep);
 
   edm::ParameterSetDescription dataSet;
   dataSet.setAllowAnything();

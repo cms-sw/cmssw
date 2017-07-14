@@ -17,8 +17,11 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
+#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
@@ -32,12 +35,18 @@ class HLTMuonL3PreFilter : public HLTFilter {
 
    private:
       bool triggeredByLevel2(const reco::TrackRef& track,std::vector<reco::RecoChargedCandidateRef>& vcands) const;
+      bool applySelection(const reco::RecoChargedCandidateRef&, const reco::BeamSpot&) const; 
+
       const edm::InputTag                    beamspotTag_ ;
       const edm::EDGetTokenT<reco::BeamSpot> beamspotToken_ ;
       const edm::InputTag                                          candTag_;   // input tag identifying product contains muons
       const edm::EDGetTokenT<reco::RecoChargedCandidateCollection> candToken_; // token identifying product contains muons
       const edm::InputTag                                          previousCandTag_;   // input tag identifying product contains muons passing the previous level
       const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> previousCandToken_; // token identifying product contains muons passing the previous level
+      const edm::InputTag                                          l1CandTag_;   // input tag identifying product contains muons passing the L1 level
+      const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> l1CandToken_; // token identifying product contains muons passing the L1 level
+      const edm::InputTag                                          recoMuTag_;   // input tag identifying reco muons
+      const edm::EDGetTokenT<reco::MuonCollection>                 recoMuToken_; // token identifying product contains reco muons
       const int    min_N_;            // minimum number of muons to fire the trigger
       const double max_Eta_;          // Eta cut
       const int    min_Nhits_;        // threshold on number of hits on muon
@@ -53,6 +62,16 @@ class HLTMuonL3PreFilter : public HLTFilter {
       const int min_NmuonHits_;         // cutoff in minumum number of chi2 hits
       const double max_PtDifference_;   // cutoff in maximum different between global track and tracker track
       const double min_TrackPt_;        // cutoff in tracker track pt
+
+      // cuts for L3FromL1
+      const int min_MuonStations_L3fromL1_;            // cut on min number of stations - for L3FromL1
+      const unsigned int allowedTypeMask_L3fromL1_;
+      const unsigned int requiredTypeMask_L3fromL1_;
+      double maxNormalizedChi2_L3fromL1_;
+      muon::SelectionType trkMuonId_;
+      const double L1MatchingdR_;
+      const bool matchPreviousCand_;
+
       const bool devDebug_;
       const edm::InputTag theL3LinksLabel;
       const edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;

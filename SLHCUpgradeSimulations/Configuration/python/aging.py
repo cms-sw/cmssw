@@ -130,6 +130,15 @@ def ageEcal(process,lumi,instLumi):
         ['EcalTPGLinearizationConstRcd','EcalTPGLinearizationConst_TL{:d}_upgrade_8deg_mc'],
     ]
 
+    # update PF thresholds, based on https://indico.cern.ch/event/653123/contributions/2659235/attachments/1491385/2318364/170711_upsg_ledovskoy.pdf
+    ecal_thresholds = {
+        300 : 0.103,
+        1000 : 0.175,
+        3000 : 0.435,
+        4500 : 0.707,
+    }
+    ecal_seed_multiplier = 2.5
+
     # try to get conditions
     if int(lumi) in ecal_lumis:
         if not hasattr(process.GlobalTag,'toGet'):
@@ -141,6 +150,15 @@ def ageEcal(process,lumi,instLumi):
                 connect = cms.string("frontier://FrontierProd/CMS_CONDITIONS")
                 )
             )
+        if hasattr(process,"particleFlowClusterECALUncorrected"):
+            _seeds = process.particleFlowClusterECALUncorrected.seedFinder.thresholdsByDetector
+            for iseed in range(0,len(_seeds)):
+                if _seeds[iseed].detector.value()=="ECAL_BARREL":
+                    _seeds[iseed].seedingThreshold = cms.double(ecal_thresholds[int(lumi)]*ecal_seed_multiplier)
+            _clusters = process.particleFlowClusterECALUncorrected.initialClusteringStep.thresholdsByDetector
+            for icluster in range(0,len(_clusters)):
+                if _clusters[icluster].detector.value()=="ECAL_BARREL":
+                    _clusters[icluster].gatheringThreshold = cms.double(ecal_thresholds[int(lumi)])
         
     return process
 

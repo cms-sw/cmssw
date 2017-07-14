@@ -4,7 +4,6 @@
 #include <string>
 #include <vector>
 
-
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -61,7 +60,6 @@ public:
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
   static void fillHistoPSetDescription(edm::ParameterSetDescription & pset);
   static void fillHistoLSPSetDescription(edm::ParameterSetDescription & pset);
-
 protected:
 
   void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
@@ -90,11 +88,22 @@ private:
 
 
   std::vector<double> photon_variable_binning_;
+  std::vector<double> diphoton_mass_binning_;
+  
   MEbinning           photon_binning_;
   MEbinning           ls_binning_;
+  
+  PhotonME subphotonEtaME_;
+  PhotonME subphotonME_;
+  PhotonME subphotonPhiME_;
+  PhotonME subphotonME_variableBinning_;
+  PhotonME subphotonEtaPhiME_;   
+  PhotonME subphotonr9ME_;   
+  PhotonME subphotonHoverEME_;   
+  PhotonME diphotonMassME_;
 
-  PhotonME photonME_;
   PhotonME photonEtaME_;
+  PhotonME photonME_;
   PhotonME photonPhiME_;
   PhotonME photonME_variableBinning_;
   PhotonME photonVsLS_;
@@ -142,7 +151,6 @@ private:
   std::unique_ptr<GenericTriggerEventFlag> num_genTriggerEventFlag_ ;
   std::unique_ptr<GenericTriggerEventFlag> den_genTriggerEventFlag_ ;
 
-
   StringCutObjectSelector<reco::MET,true>         metSelection_;
   StringCutObjectSelector<reco::PFJet,true   >    jetSelection_;
   StringCutObjectSelector<reco::GsfElectron,true> eleSelection_;
@@ -150,7 +158,6 @@ private:
   unsigned int njets_;
   unsigned int nphotons_;
   unsigned int nelectrons_;
-
 
 };
 

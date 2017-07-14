@@ -113,9 +113,9 @@ RPCGeometry* RPCGeometryBuilderFromCondDB::build(const RecoIdealGeometry& rgeo)
   }
 
   // Create the RPCChambers and store them on the Geometry
-  for ( auto ich=chids.begin(); ich != chids.end(); ++ich ) {
-    const RPCDetId& chid = ich->first;
-    const auto& rls = ich->second;
+  for (auto & ich : chids) {
+    const RPCDetId& chid = ich.first;
+    const auto& rls = ich.second;
 
     // compute the overall boundplane.
     BoundPlane* bp=0;

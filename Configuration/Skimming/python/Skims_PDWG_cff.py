@@ -89,6 +89,19 @@ SKIMStreamBPHSkim = cms.FilteredStream(
 
 #####################
 
+from Configuration.Skimming.PDWG_EXONoBPTXSkim_cff import *
+EXONoBPTXSkimPath = cms.Path()
+SKIMStreamEXONoBPTXSkim = cms.FilteredStream(
+    responsible = 'PDWG',
+    name = 'EXONoBPTXSkim',
+    paths = (EXONoBPTXSkimPath),
+    content = EXONoBPTXSkim_EventContent.outputCommands,
+    selectEvents = cms.untracked.PSet(),
+    dataTier = cms.untracked.string('USER')
+    )
+
+#####################
+
 from Configuration.Skimming.PDWG_DiJetAODSkim_cff import *
 diJetAveSkimPath = cms.Path(DiJetAveSkim_Trigger)
 SKIMStreamDiJet = cms.FilteredStream(
@@ -219,6 +232,17 @@ SKIMStreamEXOHPTE = cms.FilteredStream(
     selectEvents = cms.untracked.PSet(),
     dataTier = cms.untracked.string('AOD')
     )
+
+from Configuration.Skimming.PDWG_EXOMONOPOLE_cff import *
+EXOMONOPOLEPath = cms.Path(EXOMonopoleSkimSequence)
+SKIMStreamEXOMONOPOLE = cms.FilteredStream(
+        responsible = 'PDWG',
+        name = 'EXOMONOPOLE',
+        paths = (EXOMONOPOLEPath),
+        content = EXOMonopoleSkimContent.outputCommands,
+        selectEvents = cms.untracked.PSet(),
+        dataTier = cms.untracked.string('USER')
+        )
 
 #####################
 # For the Data on Data Mixing in TSG

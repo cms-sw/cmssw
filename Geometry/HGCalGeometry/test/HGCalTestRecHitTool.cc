@@ -28,7 +28,7 @@
 class HGCalTestRecHitTool : public edm::one::EDAnalyzer<> {
 public:
   explicit HGCalTestRecHitTool(const edm::ParameterSet& );
-  ~HGCalTestRecHitTool();
+  ~HGCalTestRecHitTool() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -187,7 +187,8 @@ double HGCalTestRecHitTool::getLayerZ(int type, int layer) const {
     check_geom(geom);
     auto ddd = (geom->topology().dddConstants());
     check_ddd(ddd);
-    zpos = ddd->getRZ(2,layer+7);
+    std::pair<int,int>etar = ddd->getEtaRange(1);
+    zpos = ddd->getRZ(2,etar.second,layer);
   } else {
     auto geom = (type == 1) ? 
       static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF)) :

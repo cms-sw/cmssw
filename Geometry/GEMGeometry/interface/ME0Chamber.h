@@ -13,13 +13,13 @@ public:
   ME0Chamber(ME0DetId id, const ReferenceCountingPointer<BoundPlane>& plane);
 
   /// Destructor
-  virtual ~ME0Chamber();
+  ~ME0Chamber() override;
 
   /// Return the ME0DetId of this chamber
   ME0DetId id() const;
 
   // Which subdetector
-  virtual SubDetector subDetector() const {return GeomDetEnumerators::ME0;}
+  SubDetector subDetector() const override {return GeomDetEnumerators::ME0;}
 
   /// equal if the id is the same
   bool operator==(const ME0Chamber& ch) const;
@@ -28,10 +28,10 @@ public:
   void add(ME0Layer* layer);
 
   /// Return the rolls in the chamber
-  virtual std::vector<const GeomDet*> components() const;
+  std::vector<const GeomDet*> components() const override;
 
   /// Return the sub-component (roll) with a given id in this chamber
-  virtual const GeomDet* component(DetId id) const;
+  const GeomDet* component(DetId id) const override;
 
   /// Return the layer corresponding to the given id 
   const ME0Layer* layer(ME0DetId id) const;

@@ -51,7 +51,7 @@
 class testEcalGetWindow : public edm::one::EDAnalyzer<> {
 public:
   explicit testEcalGetWindow( const edm::ParameterSet& );
-  ~testEcalGetWindow();
+  ~testEcalGetWindow() override;
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;
@@ -124,16 +124,16 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       eeDetIds.push_back(EEDetId(50,1,1,EEDetId::XYMODE));
       eeDetIds.push_back(EEDetId(50,25,1,EEDetId::XYMODE));
       eeDetIds.push_back(EEDetId(3,60,1,EEDetId::XYMODE));
-      for (unsigned int i=0;i<eeDetIds.size();i++)
+      for (auto eeDetId : eeDetIds)
 	{
 
-	  EEDetId myId(eeDetIds[i]);
+	  EEDetId myId(eeDetId);
 	  if (myId.zside()==-1)
 	    continue;
 	  std::vector<DetId> myNeighbours=topology->getWindow(myId,13,13);
-	  for (unsigned int i=0;i<myNeighbours.size();i++)
+	  for (auto myNeighbour : myNeighbours)
 	    {
-	      EEDetId myEEId(myNeighbours[i]);
+	      EEDetId myEEId(myNeighbour);
 	      TBox *box = new TBox(myEEId.ix()-0.5,myEEId.iy()-0.5,myEEId.ix()+0.5,myEEId.iy()+0.5);
 	      box->SetFillColor(1);
 	      box->Draw();
@@ -188,13 +188,13 @@ void testEcalGetWindow::build(const CaloGeometry& /*cg*/, const CaloTopology& ct
       ebDetIds.push_back(EBDetId(30,30));
       ebDetIds.push_back(EBDetId(-1,120));
       ebDetIds.push_back(EBDetId(85,1));
-      for (unsigned int i=0;i<ebDetIds.size();i++)
+      for (auto ebDetId : ebDetIds)
 	{
-	  EBDetId myId(ebDetIds[i]);
+	  EBDetId myId(ebDetId);
 	  std::vector<DetId> myNeighbours=topology->getWindow(myId,13,13);
-	  for (unsigned int i=0;i<myNeighbours.size();i++)
+	  for (auto myNeighbour : myNeighbours)
 	    {
-	      EBDetId myEBId(myNeighbours[i]);
+	      EBDetId myEBId(myNeighbour);
 	      TBox *box = new TBox(myEBId.ieta()-0.5,myEBId.iphi()-0.5,myEBId.ieta()+0.5,myEBId.iphi()+0.5);
 	      box->SetFillColor(1);
 	      box->Draw();

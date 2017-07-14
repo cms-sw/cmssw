@@ -7,28 +7,29 @@
 // Original Author: Marcel Schneider
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/GeometryVector/interface/LocalPoint.h"
-
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
-
 #include "DataFormats/TrackReco/interface/Track.h"
-
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-
 #include "DQM/SiPixelPhase1RecHits/interface/SiPixelPhase1RecHits.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 SiPixelPhase1RecHits::SiPixelPhase1RecHits(const edm::ParameterSet& iConfig) :
   SiPixelPhase1Base(iConfig) 
 {
   srcToken_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("src"));
+
+  offlinePrimaryVerticesToken_ = consumes<reco::VertexCollection>(std::string("offlinePrimaryVertices"));
+
   onlyValid_=iConfig.getParameter<bool>("onlyValidHits");
+
+  applyVertexCut_=iConfig.getUntrackedParameter<bool>("VertexCut",true);
+
 }
 
 void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
@@ -41,7 +42,15 @@ void SiPixelPhase1RecHits::analyze(const edm::Event& iEvent, const edm::EventSet
   iEvent.getByToken( srcToken_, tracks);
   if (!tracks.isValid()) return;
 
+  edm::Handle<reco::VertexCollection> vertices;
+  iEvent.getByToken(offlinePrimaryVerticesToken_, vertices);
+
+  if (applyVertexCut_ && (!vertices.isValid() || vertices->size() == 0)) return;
+
+
   for (auto const & track : *tracks) {
+
+    if (applyVertexCut_ && (track.pt() < 0.75 || std::abs( track.dxy(vertices->at(0).position()) ) > 5*track.dxyError())) continue;
 
     bool isBpixtrack = false, isFpixtrack = false;
 

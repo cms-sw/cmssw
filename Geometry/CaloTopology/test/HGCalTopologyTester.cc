@@ -22,10 +22,10 @@
 class HGCalTopologyTester : public edm::EDAnalyzer {
 public:
   explicit HGCalTopologyTester(const edm::ParameterSet& );
-  ~HGCalTopologyTester();
+  ~HGCalTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const HGCalTopology& topology);
 
 private:
@@ -62,20 +62,20 @@ void HGCalTopologyTester::doTest(const HGCalTopology& topology) {
 	      std::vector<DetId> idN = topology.north(id);
 	      std::vector<DetId> idS = topology.south(id);
 	      std::cout << "          " << idE.size() << " sets along East:";
-	      for (unsigned int i=0; i<idE.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idE[i]());
+	      for (auto & i : idE) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	      std::cout << "          " << idW.size() << " sets along West:";
-	      for (unsigned int i=0; i<idW.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idW[i]());
+	      for (auto & i : idW) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	      std::cout << "          " << idN.size() << " sets along North:";
-	      for (unsigned int i=0; i<idN.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idN[i]());
+	      for (auto & i : idN) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	      std::cout << "          " << idS.size() << " sets along South:";
-	      for (unsigned int i=0; i<idS.size(); ++i) 
-		std::cout << " " << (HGCEEDetId)(idS[i]());
+	      for (auto & i : idS) 
+		std::cout << " " << (HGCEEDetId)(i());
 	      std::cout << std::endl;
 	    }
 	    cell += 100;

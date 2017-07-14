@@ -1167,11 +1167,11 @@ int LaserSorter::readFormatVersion(std::ifstream& in,
 
   const string lmf = string("LMF");
   
-  if(in.good() && lmf.compare(magic)==0){
+  if(in.good() && lmf==magic){
     vers = (data >>24) & 0xFF;
   }
 
-  if(lmf.compare(magic)!=0){
+  if(lmf!=magic){
     edm::LogWarning("LaserSorter") << "File " << fileName
                                    << "is not an LMF file.\n";
   }

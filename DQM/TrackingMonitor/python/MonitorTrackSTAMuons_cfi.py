@@ -12,10 +12,8 @@ MonitorTrackSTAMuons.beamSpot      = cms.InputTag("offlineBeamSpot")
 MonitorTrackSTAMuons.ClusterLabels = cms.vstring('Tot')
 
 # output parameters
-MonitorTrackSTAMuons.OutputMEsInRootFile = cms.bool(False)
 MonitorTrackSTAMuons.AlgoName            = cms.string('sta')
 MonitorTrackSTAMuons.Quality             = cms.string('')
-MonitorTrackSTAMuons.OutputFileName      = cms.string('monitortrackparameters_stamuons.root')
 MonitorTrackSTAMuons.FolderName          = cms.string('Muons/standAloneMuonsUpdatedAtVtx')
 MonitorTrackSTAMuons.BSFolderName        = cms.string('Muons/standAloneMuonsUpdatedAtVtx/BeamSpotParameters')
 
