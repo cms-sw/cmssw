@@ -22,14 +22,6 @@
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
 #include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
-// TODO: remove ?
-/*
-#include "DetectorDescription/Core/src/Material.h"
-#include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
-#include "DetectorDescription/Core/src/Specific.h"
-*/
-
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
 
 #include "CondFormats/AlignmentRecord/interface/RPRealAlignmentRecord.h"
@@ -49,11 +41,11 @@
  *
  * Second, it creates CTPPSGeometry from DetGeoDesc tree.
  **/
-class  TotemRPGeometryESModule : public edm::ESProducer
+class  CTPPSGeometryESModule : public edm::ESProducer
 {
   public:
-    TotemRPGeometryESModule(const edm::ParameterSet &p);
-    virtual ~TotemRPGeometryESModule(); 
+    CTPPSGeometryESModule(const edm::ParameterSet &p);
+    virtual ~CTPPSGeometryESModule(); 
 
     std::unique_ptr<DetGeomDesc> produceIdealGD(const IdealGeometryRecord &);
 
@@ -79,28 +71,28 @@ using namespace edm;
 //----------------------------------------------------------------------------------------------------
 //----------------------------------------------------------------------------------------------------
 
-TotemRPGeometryESModule::TotemRPGeometryESModule(const edm::ParameterSet &p)
+CTPPSGeometryESModule::CTPPSGeometryESModule(const edm::ParameterSet &p)
 {
   verbosity = p.getUntrackedParameter<unsigned int>("verbosity", 1);  
 
-  setWhatProduced(this, &TotemRPGeometryESModule::produceIdealGD);
+  setWhatProduced(this, &CTPPSGeometryESModule::produceIdealGD);
 
-  setWhatProduced(this, &TotemRPGeometryESModule::produceRealGD);
-  setWhatProduced(this, &TotemRPGeometryESModule::produceRealTG);
+  setWhatProduced(this, &CTPPSGeometryESModule::produceRealGD);
+  setWhatProduced(this, &CTPPSGeometryESModule::produceRealTG);
 
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMisalignedGD);
-  setWhatProduced(this, &TotemRPGeometryESModule::produceMisalignedTG);
+  setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedGD);
+  setWhatProduced(this, &CTPPSGeometryESModule::produceMisalignedTG);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-TotemRPGeometryESModule::~TotemRPGeometryESModule()
+CTPPSGeometryESModule::~CTPPSGeometryESModule()
 {
 }
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPGeometryESModule::applyAlignments(const ESHandle<DetGeomDesc> &idealGD, 
+void CTPPSGeometryESModule::applyAlignments(const ESHandle<DetGeomDesc> &idealGD, 
     const ESHandle<RPAlignmentCorrectionsData> &alignments, DetGeomDesc* &newGD)
 {
   newGD = new DetGeomDesc( *(idealGD.product()) );
@@ -162,7 +154,7 @@ void TotemRPGeometryESModule::applyAlignments(const ESHandle<DetGeomDesc> &ideal
 
 //----------------------------------------------------------------------------------------------------
 
-void TotemRPGeometryESModule::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd)
+void CTPPSGeometryESModule::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd)
 {
   // try to dive into next level
   if (! fv->firstChild())
@@ -284,7 +276,7 @@ void TotemRPGeometryESModule::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceIdealGD(const IdealGeometryRecord &iRecord)
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceIdealGD(const IdealGeometryRecord &iRecord)
 {
   // get the DDCompactView from EventSetup
   edm::ESHandle<DDCompactView> cpv;
@@ -304,7 +296,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceIdealGD(const Ideal
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord &iRecord)
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceRealGD(const VeryForwardRealGeometryRecord &iRecord)
 {
   // get the input GeometricalDet
   edm::ESHandle<DetGeomDesc> idealGD;
@@ -318,14 +310,14 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
   if (alignments.isValid())
   {
     if (verbosity)
-      LogVerbatim("TotemRPGeometryESModule::produceRealGD")
-        << ">> TotemRPGeometryESModule::produceRealGD > Real geometry: "
+      LogVerbatim("CTPPSGeometryESModule::produceRealGD")
+        << ">> CTPPSGeometryESModule::produceRealGD > Real geometry: "
         << alignments->GetRPMap().size() << " RP and "
         << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
     if (verbosity)
-      LogVerbatim("TotemRPGeometryESModule::produceRealGD")
-        << ">> TotemRPGeometryESModule::produceRealGD > Real geometry: No alignments applied.";
+      LogVerbatim("CTPPSGeometryESModule::produceRealGD")
+        << ">> CTPPSGeometryESModule::produceRealGD > Real geometry: No alignments applied.";
   }
 
   DetGeomDesc* newGD = NULL;
@@ -335,7 +327,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceRealGD(const VeryFo
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &iRecord)
+std::unique_ptr<DetGeomDesc> CTPPSGeometryESModule::produceMisalignedGD(const VeryForwardMisalignedGeometryRecord &iRecord)
 {
   // get the input GeometricalDet
   edm::ESHandle<DetGeomDesc> idealGD;
@@ -349,14 +341,14 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const 
   if (alignments.isValid())
   {
     if (verbosity)
-      LogVerbatim("TotemRPGeometryESModule::produceMisalignedGD")
-        << ">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: "
+      LogVerbatim("CTPPSGeometryESModule::produceMisalignedGD")
+        << ">> CTPPSGeometryESModule::produceMisalignedGD > Misaligned geometry: "
         << alignments->GetRPMap().size() << " RP and "
         << alignments->GetSensorMap().size() << " sensor alignments applied.";
   } else {
     if (verbosity)
-      LogVerbatim("TotemRPGeometryESModule::produceMisalignedGD")
-        << ">> TotemRPGeometryESModule::produceMisalignedGD > Misaligned geometry: No alignments applied.";
+      LogVerbatim("CTPPSGeometryESModule::produceMisalignedGD")
+        << ">> CTPPSGeometryESModule::produceMisalignedGD > Misaligned geometry: No alignments applied.";
   }
 
   DetGeomDesc* newGD = NULL;
@@ -366,7 +358,7 @@ std::unique_ptr<DetGeomDesc> TotemRPGeometryESModule::produceMisalignedGD(const 
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
+std::unique_ptr<TotemRPGeometry> CTPPSGeometryESModule::produceRealTG(const VeryForwardRealGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
@@ -376,7 +368,7 @@ std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceRealTG(const Ve
 
 //----------------------------------------------------------------------------------------------------
 
-std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &iRecord)
+std::unique_ptr<TotemRPGeometry> CTPPSGeometryESModule::produceMisalignedTG(const VeryForwardMisalignedGeometryRecord &iRecord)
 {
   edm::ESHandle<DetGeomDesc> gD;
   iRecord.get(gD);
@@ -384,4 +376,4 @@ std::unique_ptr<TotemRPGeometry> TotemRPGeometryESModule::produceMisalignedTG(co
   return std::make_unique<TotemRPGeometry>( gD.product());
 }
 
-DEFINE_FWK_EVENTSETUP_MODULE(TotemRPGeometryESModule);
+DEFINE_FWK_EVENTSETUP_MODULE(CTPPSGeometryESModule);
