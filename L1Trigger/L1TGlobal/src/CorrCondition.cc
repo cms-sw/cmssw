@@ -705,10 +705,11 @@ const bool l1t::CorrCondition::evaluateCondition(const int bxEval) const {
 	    //If we are dealing with the same object type avoid the two legs
 	    // either being the same object
 	    if( cndObjTypeVec[0] == cndObjTypeVec[1] &&
-	               obj0Index == obj1Index ) {
+		obj0Index == obj1Index &&
+		cond0bx == cond1bx) {
 
-		       LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
-		       continue;
+	      LogDebug("L1TGlobal") << "Corr Condition looking at same leg...skip" << std::endl;
+	      continue;
 	    }
 
             switch (cond1Categ) {
