@@ -14,6 +14,7 @@
 #include <map>
 #include <iterator>
 #include <algorithm>
+#include <stddef.h>
 
 namespace edm {
   namespace helper {
