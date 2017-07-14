@@ -165,12 +165,10 @@ std::vector<float> PVValHelper::generateBins(int n, float start,float range)
 
   std::vector<float> v(n);
   float interval = range/(n-1);
-
-  //std::cout<<" interval:"<<interval<<std::endl;
-
   std::iota(v.begin(),v.end(),1.);
 
-  for(float &a : v) { std::cout<< a << " ";  }
+  //std::cout<<" interval:"<<interval<<std::endl;
+  //for(float &a : v) { std::cout<< a << " ";  }
   //std::cout<< "\n";
 
   std::for_each(begin(v), end(v), [&](float& a) { a = start+((a-1)*interval); });
