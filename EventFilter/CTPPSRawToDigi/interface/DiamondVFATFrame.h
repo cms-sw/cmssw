@@ -1,8 +1,11 @@
-/**********************************************************
+/****************************************************************************
 *
-* Seyed Mohsen Etesami (setesami@cern.ch)    
+* This is a part of the TOTEM offline software.
+* Authors:
+*   Seyed Mohsen Etesami (setesami@cern.ch)
+*   Nicola Minafra
 *
-**********************************************************/
+****************************************************************************/
 
 #ifndef EventFilter_CTPPSRawToDigi_DiamondVFATFrame
 #define EventFilter_CTPPSRawToDigi_DiamondVFATFrame
