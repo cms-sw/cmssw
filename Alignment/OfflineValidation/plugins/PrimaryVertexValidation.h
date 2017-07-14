@@ -83,7 +83,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   std::pair<Measurement1D, Measurement1D > fitResiduals(TH1 *hist);
 
   void fillTrendPlot(TH1F* trendPlot, TH1F *residualsPlot[100], PVValHelper::estimator fitPar_, const std::string& var_);
-  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, PVValHelper::estimator fitPar_); 
+  void fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h, PVValHelper::estimator fitPar_,PVValHelper::plotVariable plotVar=PVValHelper::END_OF_PLOTS); 
 
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
   bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
