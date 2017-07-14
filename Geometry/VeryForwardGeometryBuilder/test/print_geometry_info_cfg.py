@@ -11,8 +11,13 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # geometry
+# TODO
 #process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
 process.load("Configuration.Geometry.geometry_CTPPS_alaTotem_RECO_cfi")
+
+# load alignment correction
+process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi")
+process.ctppsIncludeAlignments.RealFiles = cms.vstring()
 
 # no events to process
 process.source = cms.Source("EmptySource")
@@ -23,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 process.ctppsGeometryInfo = cms.EDAnalyzer("CTPPSGeometryInfo",
     geometryType = cms.untracked.string("real"),
     printRPInfo = cms.untracked.bool(True),
-    printSensorInfo = cms.untracked.bool(True)
+    printSensorInfo = cms.untracked.bool(False) # TODO: revert to true
 )
 
 process.p = cms.Path(
