@@ -9,6 +9,7 @@ ctppsPlotOpticalFunctions_45 = cms.EDAnalyzer("OpticalFunctionsPlotter",
     beamConditions = lhcBeamConditions_2016PreTS2,
     minXi = cms.double(0.0),
     maxXi = cms.double(0.151),
+    xiStep = cms.double(0.001),
 )
 
 # plotter for functions in sector 56

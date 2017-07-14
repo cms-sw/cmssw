@@ -16,16 +16,11 @@ process.load('SimCTPPS.OpticsParameterisation.lhcBeamProducer_cfi')
 process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
 
 # load the geometry
-from Geometry.VeryForwardGeometry.geometryRP_cfi import totemGeomXMLFiles, ctppsDiamondGeomXMLFiles
-process.XMLIdealGeometryESSource_CTPPS = cms.ESSource("XMLIdealGeometryESSource",
-    geomXMLFiles = totemGeomXMLFiles+ctppsDiamondGeomXMLFiles+["SimCTPPS/OpticsParameterisation/test/RP_Dist_Beam_Cent.xml"],
-    rootNodeName = cms.string('cms:CMSE'),
-)
-process.TotemRPGeometryESModule = cms.ESProducer("TotemRPGeometryESModule")
+process.load('SimCTPPS.OpticsParameterisation.simGeometryRP_cfi')
 
 # load the reconstruction
-process.load("RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi")
-process.load("RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi")
+process.load('RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi')
+process.load('RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi')
 process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
 
 process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')

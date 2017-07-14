@@ -233,8 +233,7 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     double optics_z0 = rp.z_position*1.e3; //FIXME
 
     // transport proton to its corresponding RP
-    std::array<double,5> kin_in_tr, kin_out_tr;
-    kin_in_tr = { { vtx_x, ( th_x + half_cr_angle ) * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } };
+    std::array<double,5> kin_in_tr = { { vtx_x, ( th_x + half_cr_angle ) * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } }, kin_out_tr;
 
     bool tr_proton_transported = rp.approximator->Transport( kin_in_tr.data(), kin_out_tr.data(), checkApertures_, invertBeamCoordinatesSystem_ );
 
@@ -258,30 +257,29 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     CLHEP::Hep3Vector h_glo( x_tr, y_tr, gl_o.z() );
 
     if ( produceHitsRelativeToBeam_ ) {
-      std::array<double,5> kin_in_be, kin_out_be;
-      kin_in_be = { { 0.0, half_cr_angle, vtx_y_offset, 0.0, 0.0 } };
+      std::array<double,5> kin_in_be = { { 0.0, half_cr_angle, vtx_y_offset, 0.0, 0.0 } }, kin_out_be;
 
       bool be_proton_transported = rp.approximator->Transport( kin_in_be.data(), kin_out_be.data(), checkApertures_, invertBeamCoordinatesSystem_ );
 
       // stop if proton not transportable
-      if ( !be_proton_transported ) return;
-
-      const double a_x_be = kin_out_be[1];
-      const double a_y_be = kin_out_be[3];
-      const double b_x_be = kin_out_be[0];
-      const double b_y_be = kin_out_be[2];
+      if ( be_proton_transported ) {
+        const double a_x_be = kin_out_be[1];
+        const double a_y_be = kin_out_be[3];
+        const double b_x_be = kin_out_be[0];
+        const double b_y_be = kin_out_be[2];
 
       //printf("    beam: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_be, b_x_be, a_y_be, b_y_be);
 
-      const double x_be = a_x_be * de_z + b_x_be * 1.e3;
-      const double y_be = a_y_be * de_z + b_y_be * 1.e3;
+        const double x_be = a_x_be * de_z + b_x_be * 1.e3;
+        const double y_be = a_y_be * de_z + b_y_be * 1.e3;
 
-      /*std::cout << TotemRPDetId(rp.detid) << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - optics_z0) <<
-        " | track: x=" << x_tr << ", y=" << y_tr <<
-        " | beam: x=" << x_be << ", y=" << y_be <<
-        std::endl;*/
+        /*std::cout << TotemRPDetId(rp.detid) << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - optics_z0) <<
+          " | track: x=" << x_tr << ", y=" << y_tr <<
+          " | beam: x=" << x_be << ", y=" << y_be <<
+          std::endl;*/
 
-      h_glo -= CLHEP::Hep3Vector( x_be, y_be, 0.0 );
+        h_glo -= CLHEP::Hep3Vector( x_be, y_be, 0.0 );
+      }
     }
     //std::cout << TotemRPDetId(rp.detid) << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - optics_z0) << " | track: x=" << x_tr << ", y=" << y_tr << std::endl;
 

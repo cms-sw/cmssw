@@ -17,16 +17,26 @@ process.source = cms.Source('PoolSource',
 '/store/group/phys_pps/diphoton/GammaGammaToGammaGamma_13TeV_fpmc/GammaGammaToGammaGamma_13TeV_fpmc_GEN-SIM/170319_191338/0000/GammaGammaGammaGamma_Tune4C_13TeV_pythia8_cff_py_GEN_1.root', # GEN-level
     )
 )
+process.load('SimCTPPS.OpticsParameterisation.ctppsFastProtonSimulation_cfi')
 
-process.load('SimCTPPS.OpticsParameterisation.ctppsOpticsParameterisation_cfi')
+# load the geometry
+process.load('SimCTPPS.OpticsParameterisation.simGeometryRP_cfi')
+
+# load the reconstruction
+process.load('RecoCTPPS.TotemRPLocal.totemRPUVPatternFinder_cfi')
+process.load('RecoCTPPS.TotemRPLocal.totemRPLocalTrackFitter_cfi')
+process.load('RecoCTPPS.TotemRPLocal.ctppsLocalTrackLiteProducer_cfi')
+
 process.load('RecoCTPPS.ProtonReconstruction.ctppsOpticsReconstruction_cfi')
-process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('source')
-#process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('generatorSmeared')
-#process.ctppsOpticsParameterisation.beamParticlesTag = cms.InputTag('prunedGenParticles') # miniAOD
-#process.ctppsOpticsParameterisation.beamConditions.yOffsetSector45 = cms.double(0.0)
-#process.ctppsOpticsParameterisation.beamConditions.yOffsetSector56 = cms.double(0.0)
-#process.ctppsOpticsParameterisation.beamConditions.halfCrossingAngleSector45 = cms.double(0.0)
-#process.ctppsOpticsParameterisation.beamConditions.halfCrossingAngleSector56 = cms.double(0.0)
+process.ctppsFastProtonSimulation.beamParticlesTag = cms.InputTag('source')
+#process.ctppsFastProtonSimulation.beamParticlesTag = cms.InputTag('generatorSmeared')
+#process.ctppsFastProtonSimulation.beamParticlesTag = cms.InputTag('prunedGenParticles') # miniAOD
+#process.ctppsFastProtonSimulation.beamConditions.yOffsetSector45 = cms.double(0.0)
+#process.ctppsFastProtonSimulation.beamConditions.yOffsetSector56 = cms.double(0.0)
+#process.ctppsFastProtonSimulation.beamConditions.halfCrossingAngleSector45 = cms.double(0.0)
+#process.ctppsFastProtonSimulation.beamConditions.halfCrossingAngleSector56 = cms.double(0.0)
+process.totemRPUVPatternFinder.tagRecHit = cms.InputTag("ctppsFastProtonSimulation")
+process.ctppsLocalTrackLiteProducer.doNothing = cms.bool(False)
 
 process.out = cms.OutputModule('PoolOutputModule',
     fileName = cms.untracked.string('ctppsSim.root'),
@@ -34,7 +44,7 @@ process.out = cms.OutputModule('PoolOutputModule',
 )
 
 # for detectors resolution smearing
-process.RandomNumberGeneratorService.ctppsOpticsParameterisation = cms.PSet( initialSeed = cms.untracked.uint32(1), )
+process.RandomNumberGeneratorService.ctppsFastProtonSimulation = cms.PSet( initialSeed = cms.untracked.uint32(1), )
 
 process.load('Validation.CTPPS.ctppsParameterisationValidation_cfi')
 process.paramValidation.genProtonsTag = cms.InputTag('source')
@@ -46,7 +56,11 @@ process.TFileService = cms.Service('TFileService',
 )
 
 process.p = cms.Path(
-    process.ctppsOpticsParameterisation
+    process.ctppsFastProtonSimulation
+    * process.ctppsFastProtonSimulation
+    * process.totemRPUVPatternFinder
+    * process.totemRPLocalTrackFitter
+    * process.ctppsLocalTrackLiteProducer
     * process.ctppsOpticsReconstruction
 )
 
