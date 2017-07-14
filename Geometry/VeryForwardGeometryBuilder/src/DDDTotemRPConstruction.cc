@@ -69,10 +69,10 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
           << cN.size() << ". It must be >= 3." << endl;
 
       // extract information
-      const unsigned int A = cN[cN.size() - 3];
-      const unsigned int arm = A / 100;
-      const unsigned int station = (A % 100) / 10;
-      const unsigned int rp = A % 10;
+      const unsigned int decRPId = cN[cN.size() - 3];
+      const unsigned int arm = decRPId / 100;
+      const unsigned int station = (decRPId % 100) / 10;
+      const unsigned int rp = decRPId % 10;
       const unsigned int detector = cN[cN.size() - 1];
       newGD->setGeographicalID(TotemRPDetId(arm, station, rp, detector));
     }
@@ -80,12 +80,16 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
     // strip RPs
     if (fv->logicalPart().name().name().compare(DDD_TOTEM_RP_RP_NAME) == 0)
     {
-      const uint32_t decRPId = fv->copyno();
-      const uint32_t armIdx = (decRPId / 100) % 10;
-      const uint32_t stIdx = (decRPId / 10) % 10;
-      const uint32_t rpIdx = decRPId % 10;
+      const unsigned int decRPId = fv->copyno();
 
-      newGD->setGeographicalID(TotemRPDetId(armIdx, stIdx, rpIdx));
+      // check it is a strip RP
+      if (decRPId < 10000)
+      {
+        const unsigned int armIdx = (decRPId / 100) % 10;
+        const unsigned int stIdx = (decRPId / 10) % 10;
+        const unsigned int rpIdx = decRPId % 10;
+        newGD->setGeographicalID(TotemRPDetId(armIdx, stIdx, rpIdx));
+      }
     }
 
     // pixel sensors
@@ -98,16 +102,29 @@ void DDDTotemRPContruction::buildDetGeomDesc(DDFilteredView *fv, DetGeomDesc *gd
           << cN.size() << ". It must be >= 4." << endl;
 
       // extract information
-      const unsigned int A = cN[cN.size() - 4];
-      const unsigned int arm = A / 100;
-      const unsigned int station = (A % 100) / 10;
-      const unsigned int rp = A % 10;
+      const unsigned int decRPId = cN[cN.size() - 4] % 10000;
+      const unsigned int arm = decRPId / 100;
+      const unsigned int station = (decRPId % 100) / 10;
+      const unsigned int rp = decRPId % 10;
       const unsigned int detector = cN[cN.size() - 2] - 1;
       newGD->setGeographicalID(CTPPSPixelDetId(arm, station, rp, detector));
     }
 
     // pixel RPs
-    // TODO
+    if (fv->logicalPart().name().name().compare(DDD_CTPPS_PIXELS_RP_NAME) == 0)
+    {
+      uint32_t decRPId = fv->copyno();
+    
+      // check it is a pixel RP
+      if (decRPId >= 10000)
+      {
+        decRPId = decRPId % 10000;
+        const uint32_t armIdx = (decRPId / 100) % 10;
+        const uint32_t stIdx = (decRPId / 10) % 10;
+        const uint32_t rpIdx = decRPId % 10;
+        newGD->setGeographicalID(CTPPSPixelDetId(armIdx, stIdx, rpIdx));
+      }
+    }
 
     // diamond sensors
     if (fv->logicalPart().name().name().compare(DDD_CTPPS_DIAMONDS_SEGMENT_NAME) == 0)
