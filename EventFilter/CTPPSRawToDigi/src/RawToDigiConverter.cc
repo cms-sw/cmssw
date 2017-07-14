@@ -4,6 +4,8 @@
 * Authors:
 *   Jan Kašpar (jan.kaspar@gmail.com)
 *   Seyed Mohsen Etesami (setesami@cern.ch)
+*   Nicola Minafra
+*
 ****************************************************************************/
 
 #include "EventFilter/CTPPSRawToDigi/interface/RawToDigiConverter.h"
