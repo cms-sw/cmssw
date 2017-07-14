@@ -6,12 +6,12 @@
  *
  ****************************************************************************/
 
-#include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
+
 #include "FWCore/Utilities/interface/typelookup.h"
-#include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/CTPPSAlignment/interface/RPAlignmentCorrectionsData.h"
+#include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 
 #include <set>
 
@@ -43,6 +43,8 @@ RPAlignmentCorrectionData& RPAlignmentCorrectionsData::GetSensorCorrection(unsig
   return sensors[id];
 }
 
+//----------------------------------------------------------------------------------------------------
+
 RPAlignmentCorrectionData RPAlignmentCorrectionsData::GetSensorCorrection(unsigned int id) const
 {
   RPAlignmentCorrectionData a;
@@ -58,15 +60,18 @@ RPAlignmentCorrectionData RPAlignmentCorrectionsData::GetFullSensorCorrection(un
   bool useRPErrors) const
 {
   RPAlignmentCorrectionData c;
-  mapType::const_iterator it = rps.find(id / 10);
-  if (it != rps.end())
-    c = it->second;
-  it = sensors.find(id);
-  if (it != sensors.end())
-    c.add(it->second, useRPErrors);
 
-  //printf("> full correction %u | ", id);
-  //c.print();
+  // try to get alignment correction of the full RP
+  auto rpIt = rps.find(CTPPSDetId(id).getRPId());
+  if (rpIt != rps.end())
+    c = rpIt->second;
+
+  // try to get sensor alignment correction
+  auto sIt = sensors.find(id);
+
+  // merge the corrections
+  if (sIt != sensors.end())
+    c.add(sIt->second, useRPErrors);
 
   return c;
 }
@@ -116,7 +121,7 @@ void RPAlignmentCorrectionsData::AddCorrections(const RPAlignmentCorrectionsData
 {
   for (mapType::const_iterator it = nac.rps.begin(); it != nac.rps.end(); ++it)
     AddRPCorrection(it->first, it->second, sumErrors, addShR, addShZ, addRotZ);
-  
+
   for (mapType::const_iterator it = nac.sensors.begin(); it != nac.sensors.end(); ++it)
     AddSensorCorrection(it->first, it->second, sumErrors, addShR, addShZ, addRotZ);
 }
@@ -129,6 +134,6 @@ void RPAlignmentCorrectionsData::Clear()
   sensors.clear();
 }
 
+//----------------------------------------------------------------------------------------------------
 
 TYPELOOKUP_DATA_REG (RPAlignmentCorrectionsData);
-
