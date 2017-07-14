@@ -88,7 +88,7 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   static bool vtxSort( const reco::Vertex &  a, const reco::Vertex & b );
   bool passesTrackCuts(const reco::Track & track, const reco::Vertex & vertex,const std::string& qualityString_, double dxyErrMax_,double dzErrMax_, double ptErrMax_);
 
-  std::vector<TH1F*> bookResidualsHistogram(TFileDirectory dir,unsigned int theNOfBins,PVValHelper::residualType resType,PVValHelper::plotVariable varType, bool isNormalized=false); 
+  std::vector<TH1F*> bookResidualsHistogram(const TFileDirectory& dir,unsigned int theNOfBins,PVValHelper::residualType resType,PVValHelper::plotVariable varType, bool isNormalized=false); 
   std::map<std::string, TH1*> bookVertexHistograms(const TFileDirectory& dir);
 
   void fillTrackHistos(std::map<std::string, TH1*> & h, const std::string & ttype, const reco::TransientTrack *tt, const reco::Vertex & v,const reco::BeamSpot & beamSpot, double fBfield);
@@ -363,6 +363,28 @@ class PrimaryVertexValidation : public edm::one::EDAnalyzer<edm::one::SharedReso
   TH1F* n_dxypTCentralWidthTrend;
   TH1F* n_dzpTCentralMeanTrend;
   TH1F* n_dzpTCentralWidthTrend;
+
+  // --- trend as a function of the ladder/module number
+
+  TH1F* a_dxymodZMeanTrend;					     		
+  TH1F* a_dxymodZWidthTrend; 					      			
+  TH1F* a_dzmodZMeanTrend; 		       		      			
+  TH1F* a_dzmodZWidthTrend; 
+					       			
+  TH1F* a_dxyladderMeanTrend;  						 			
+  TH1F* a_dxyladderWidthTrend; 					        		       
+  TH1F* a_dzladderMeanTrend;   					        			
+  TH1F* a_dzladderWidthTrend;  
+						 		      
+  TH1F* n_dxymodZMeanTrend;   						 			
+  TH1F* n_dxymodZWidthTrend;  					        			
+  TH1F* n_dzmodZMeanTrend;   					        			
+  TH1F* n_dzmodZWidthTrend;  
+						 			
+  TH1F* n_dxyladderMeanTrend;  						 			
+  TH1F* n_dxyladderWidthTrend; 						 			
+  TH1F* n_dzladderMeanTrend;   						 			
+  TH1F* n_dzladderWidthTrend; 
 
   // ---- medians and MAD
 
