@@ -7,7 +7,26 @@
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <CondFormats/Alignment/interface/Definitions.h>
 
-struct HIPTrackMonitorVariables{
+
+class HIPMonitorVariables{
+protected:
+
+  TTree* tree;
+
+
+public:
+
+  HIPMonitorVariables() : tree(0){}
+  virtual ~HIPMonitorVariables(){}
+
+  void setTree(TTree* tree_){ tree=tree_; }
+  virtual void bookBranches()=0;
+  virtual void fill()=0;
+
+};
+class HIPTrackMonitorVariables : public HIPMonitorVariables{
+public:
+
   const int maxNEvents;
   const int maxTracksRcd;
   int nEvents;
@@ -15,9 +34,12 @@ struct HIPTrackMonitorVariables{
   std::vector<float> m_Pt, m_Eta, m_Phi, m_Chi2n, m_P, m_d0, m_dz, m_wt;
   std::vector<int> m_Nhits, m_nhPXB, m_nhPXF, m_nhTIB, m_nhTOB, m_nhTID, m_nhTEC;
 
-  TTree* tree;
+  HIPTrackMonitorVariables(int maxNEvents_=-1, int maxTracksRcd_=-1) : HIPMonitorVariables(), maxNEvents(maxNEvents_), maxTracksRcd(maxTracksRcd_), nEvents(0), m_Ntracks(0){}
 
-  HIPTrackMonitorVariables(int maxNEvents_=-1, int maxTracksRcd_=-1) : maxNEvents(maxNEvents_), maxTracksRcd(maxTracksRcd_), nEvents(0), m_Ntracks(0), tree(0){}
+  void bookBranches();
+  void fill();
+
+protected:
 
   void resetPerEvent(){
     // Do not reset m_Ntracks
@@ -29,13 +51,10 @@ struct HIPTrackMonitorVariables{
     m_Nhits.resize(NewSize); m_nhPXB.resize(NewSize); m_nhPXF.resize(NewSize); m_nhTIB.resize(NewSize); m_nhTOB.resize(NewSize); m_nhTID.resize(NewSize); m_nhTEC.resize(NewSize);
   }
 
-  void setTree(TTree* tree_){ tree=tree_; }
-  void bookBranches();
-  void fill();
-
 };
+class HIPHitMonitorVariables : public HIPMonitorVariables{
+public:
 
-struct HIPHitMonitorVariables{
   const int maxHitsRcd;
   int nHits;
 
@@ -44,7 +63,7 @@ struct HIPHitMonitorVariables{
   unsigned int m_rawQualityWord;
   align::ID m_detId;
 
-  TTree* tree;
+protected:
 
   void resetPerHit(){
     m_hasHitProb=false;
@@ -57,9 +76,10 @@ struct HIPHitMonitorVariables{
     m_detId=0;
   }
 
-  HIPHitMonitorVariables(int maxHitsRcd_=-1) : maxHitsRcd(maxHitsRcd_), nHits(0), tree(0){ resetPerHit(); }
+public:
 
-  void setTree(TTree* tree_){ tree=tree_; }
+  HIPHitMonitorVariables(int maxHitsRcd_=-1) : HIPMonitorVariables(), maxHitsRcd(maxHitsRcd_), nHits(0){ resetPerHit(); }
+
   void bookBranches();
   void fill();
 
