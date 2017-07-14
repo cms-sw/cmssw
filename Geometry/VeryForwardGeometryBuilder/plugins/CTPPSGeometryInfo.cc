@@ -157,13 +157,13 @@ void CTPPSGeometryInfo::PrintGeometry(const TotemRPGeometry &geometry, const edm
   if (printRPInfo)
   {
     cout << endl << "* RPs:" << endl;
-    cout << "  ID |   center x (mm)    |   center y (mm)    |   center z  (m)" << endl;
+    cout << "    ce: RP center in global coordinates, in mm" << endl;
     for (auto it = geometry.beginRP(); it != geometry.endRP(); ++it)
     {
       const DDTranslation &t = it->second->translation();
 
       PrintDetId(CTPPSDetId(it->first), false);
-      cout << " | " << fixed << setprecision(3) << t.x() << " | " << t.y() << " | " << t.z() * 1E-3 << endl;
+      cout << fixed << setprecision(3) << " | ce=(" << t.x() << ", " << t.y() << ", " << t.z() << ")" << endl;
     }
   }
   
@@ -171,10 +171,10 @@ void CTPPSGeometryInfo::PrintGeometry(const TotemRPGeometry &geometry, const edm
   if (printSensorInfo)
   {
     cout << endl << "* sensors:" << endl;
-    cout << "    center: sensor center in global coordinates, in mm" << endl;
-    cout << "    axis1: local axis (1, 0, 0) in global coordinates" << endl;
-    cout << "    axis2: local axis (0, 1, 0) in global coordinates" << endl;
-    cout << "    axis3: local axis (0, 0, 1) in global coordinates" << endl;
+    cout << "    ce: sensor center in global coordinates, in mm" << endl;
+    cout << "    a1: local axis (1, 0, 0) in global coordinates" << endl;
+    cout << "    a2: local axis (0, 1, 0) in global coordinates" << endl;
+    cout << "    a3: local axis (0, 0, 1) in global coordinates" << endl;
 
     for (auto it = geometry.beginSensor(); it != geometry.endSensor(); ++it)
     {
@@ -188,10 +188,10 @@ void CTPPSGeometryInfo::PrintGeometry(const TotemRPGeometry &geometry, const edm
       PrintDetId(detId);
 
       cout
-        << " | center=(" << gl_o.x() << ", " << gl_o.y() << ", " << gl_o.z() << ")"
-        << " | axis1=(" << gl_a1.x() << ", " << gl_a1.y() << ", " << gl_a1.z() << ")"
-        << " | axis2=(" << gl_a2.x() << ", " << gl_a2.y() << ", " << gl_a2.z() << ")"
-        << " | axis3=(" << gl_a3.x() << ", " << gl_a3.y() << ", " << gl_a3.z() << ")"
+        << " | ce=(" << gl_o.x() << ", " << gl_o.y() << ", " << gl_o.z() << ")"
+        << " | a1=(" << gl_a1.x() << ", " << gl_a1.y() << ", " << gl_a1.z() << ")"
+        << " | a2=(" << gl_a2.x() << ", " << gl_a2.y() << ", " << gl_a2.z() << ")"
+        << " | a3=(" << gl_a3.x() << ", " << gl_a3.y() << ", " << gl_a3.z() << ")"
         << endl;
     }
   }
