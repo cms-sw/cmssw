@@ -150,18 +150,19 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
   theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-TMath::Pi(),2*TMath::Pi());
   theDetails_.trendbins[PVValHelper::eta] = PVValHelper::generateBins(nBins_+1,-etaOfProbe_,2*etaOfProbe_);
 
-  std::cout << "etaBins: ";
-  for (auto ieta: theDetails_.trendbins[PVValHelper::eta]) {
-    std::cout << ieta << " ";
+  if(debug_){
+    edm::LogVerbatim("PrimaryVertexValidation") << "etaBins: ";
+    for (auto ieta: theDetails_.trendbins[PVValHelper::eta]) {
+      edm::LogVerbatim("PrimaryVertexValidation") << ieta << " ";
+    }
+    edm::LogVerbatim("PrimaryVertexValidation") << "\n";
+    
+    edm::LogVerbatim("PrimaryVertexValidation") << "phiBins: ";
+    for (auto iphi: theDetails_.trendbins[PVValHelper::phi]) {
+      edm::LogVerbatim("PrimaryVertexValidation") << iphi << " ";
+    }
+    edm::LogVerbatim("PrimaryVertexValidation") << "\n";
   }
-  std::cout << "\n";
-
-  std::cout << "phiBins: ";
-  for (auto iphi: theDetails_.trendbins[PVValHelper::phi]) {
-    std::cout << iphi << " ";
-  }
-  std::cout << "\n";
-
   
 }
    
@@ -1339,7 +1340,7 @@ void PrimaryVertexValidation::beginJob()
   const float dzmax_phi  = theDetails_.getHigh(PVValHelper::dz ,PVValHelper::eta); 
   const float dxymax_eta = theDetails_.getHigh(PVValHelper::dxy,PVValHelper::phi);
   const float dzmax_eta  = theDetails_.getHigh(PVValHelper::dz, PVValHelper::eta);
-  const float d3Dmax_phi = theDetails_.getHigh(PVValHelper::d3D,PVValHelper::phi);
+  //const float d3Dmax_phi = theDetails_.getHigh(PVValHelper::d3D,PVValHelper::phi);
   const float d3Dmax_eta = theDetails_.getHigh(PVValHelper::d3D,PVValHelper::eta);
 
   ///////////////////////////////////////////////////////////////////
@@ -1349,6 +1350,12 @@ void PrimaryVertexValidation::beginJob()
   //
   ///////////////////////////////////////////////////////////////////
 
+  //    _   _            _      _         ___        _    _           _    
+  //   /_\ | |__ ___ ___| |_  _| |_ ___  | _ \___ __(_)__| |_  _ __ _| |___
+  //  / _ \| '_ (_-</ _ \ | || |  _/ -_) |   / -_|_-< / _` | || / _` | (_-<
+  // /_/ \_\_.__/__/\___/_|\_,_|\__\___| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
+  //
+  
   TFileDirectory AbsTransPhiRes  = fs->mkdir("Abs_Transv_Phi_Residuals");
   a_dxyPhiResiduals  = bookResidualsHistogram(AbsTransPhiRes,nBins_,PVValHelper::dxy,PVValHelper::phi);
   a_dxPhiResiduals   = bookResidualsHistogram(AbsTransPhiRes,nBins_,PVValHelper::dx,PVValHelper::phi);
@@ -1440,6 +1447,13 @@ void PrimaryVertexValidation::beginJob()
   TFileDirectory AbsLongModZRes   = fs->mkdir("Abs_Long_modZ_Residuals"); 
   h_dz_modZ_       = bookResidualsHistogram(AbsLongModZRes,8,PVValHelper::dz,PVValHelper::modZ);		       
 
+
+  //  _  _                    _ _           _   ___        _    _           _    
+  // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
+  // | .` / _ \ '_| '  \/ _` | | |_ / -_) _` | |   / -_|_-< / _` | || / _` | (_-<
+  // |_|\_\___/_| |_|_|_\__,_|_|_/__\___\__,_| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
+  //
+  
   TFileDirectory NormTransModZRes = fs->mkdir("Norm_Transv_modZ_Residuals"); 
   h_norm_dxy_modZ_ = bookResidualsHistogram(NormTransModZRes,8,PVValHelper::norm_dxy,PVValHelper::modZ,true);	       
 
@@ -1474,155 +1488,7 @@ void PrimaryVertexValidation::beginJob()
     
     float etaF=-etaOfProbe_+i*etaSect_;
     float etaL=-etaOfProbe_+(i+1)*etaSect_;
-    
-    // dxy vs phi and eta
-     
-    //a_dxyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dxy_phi_plot%i",i),
-    //						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy} [#mum];tracks",phiF,phiL),
-    //						     theDetails_.histobins,-dxymax_phi,dxymax_phi);
-    
-    // a_dxyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dxy_eta_plot%i",i),
-    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy} [#mum];tracks",etaF,etaL),
-    // 						     theDetails_.histobins,-dxymax_eta,dxymax_eta);
-
-    // // dx vs phi and eta
-     
-    // a_dxPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dx_phi_plot%i",i),
-    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{x} [#mum];tracks",phiF,phiL),
-    // 						    theDetails_.histobins,-dxymax_phi,dxymax_phi);
-    
-    // a_dxEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dx_eta_plot%i",i),
-    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{x} [#mum];tracks",etaF,etaL),
-    // 						    theDetails_.histobins,-dxymax_eta,dxymax_eta);
-
-
-    // // dy vs phi and eta
-     
-    // a_dyPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_dy_phi_plot%i",i),
-    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{y} [#mum];tracks",phiF,phiL),
-    // 						    theDetails_.histobins,-dxymax_phi,dxymax_phi);
-    
-    // a_dyEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_dy_eta_plot%i",i),
-    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{y} [#mum];tracks",etaF,etaL),
-    // 						    theDetails_.histobins,-dxymax_eta,dxymax_eta);
-    
-    // // IP2D vs phi and eta
-
-    // a_IP2DPhiResiduals[i] = AbsTransPhiRes.make<TH1F>(Form("histo_IP2D_phi_plot%i",i),
-    // 						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D} [#mum];tracks",phiF,phiL),
-    // 						     theDetails_.histobins,-dxymax_phi,dxymax_phi);
-    
-    // a_IP2DEtaResiduals[i] = AbsTransEtaRes.make<TH1F>(Form("histo_IP2D_eta_plot%i",i),
-    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D} [#mum];tracks",etaF,etaL),
-    // 						     theDetails_.histobins,-dxymax_eta,dxymax_eta);
-
-    // // IP3D vs phi and eta
-
-    // a_IP3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_IP3D_phi_plot%i",i),
-    // 						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D} [#mum];tracks",phiF,phiL),
-    // 						   theDetails_.histobins,-dxymax_phi,dxymax_phi);
-    
-    // a_IP3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_IP3D_eta_plot%i",i),
-    // 						   Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D} [#mum];tracks",etaF,etaL),
-    // 						   theDetails_.histobins,-dxymax_eta,dxymax_eta);
-
-    // // dz vs phi and eta
-
-    // a_dzPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_dz_phi_plot%i",i),
-    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z} [#mum];tracks",phiF,phiL),
-    // 						    theDetails_.histobins,-dzmax_phi,dzmax_phi);
-    
-    // a_dzEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_dz_eta_plot%i",i),
-    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z} [#mum];tracks",etaF,etaL),
-    // 						    theDetails_.histobins,-dzmax_eta,dzmax_eta);
-
-
-    // // resz vs phi and eta
-
-    // a_reszPhiResiduals[i]  = AbsLongPhiRes.make<TH1F>(Form("histo_resz_phi_plot%i",i),
-    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;z_{trk} - z_{vtx} [#mum];tracks",phiF,phiL),
-    // 						    theDetails_.histobins,-dzmax_phi,dzmax_phi);
-    
-    // a_reszEtaResiduals[i]  = AbsLongEtaRes.make<TH1F>(Form("histo_resz_eta_plot%i",i),
-    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;z_{trk} - z_{vtx} [#mum];tracks",etaF,etaL),
-    // 						    theDetails_.histobins,-dzmax_eta,dzmax_eta);
-
-    // // d3D vs phi and eta
-
-    // a_d3DPhiResiduals[i] = Abs3DPhiRes.make<TH1F>(Form("histo_d3D_phi_plot%i",i),
-    // 						  Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D} [#mum];tracks",phiF,phiL),
-    // 						  theDetails_.histobins,0.,d3Dmax_phi);
-    
-    // a_d3DEtaResiduals[i] = Abs3DEtaRes.make<TH1F>(Form("histo_d3D_eta_plot%i",i),
-    // 						  Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D} [#mum];tracks",etaF,etaL),
-    // 						  theDetails_.histobins,0.,d3Dmax_eta);
-       
-    // //  _  _                    _ _           _   ___        _    _           _    
-    // // | \| |___ _ _ _ __  __ _| (_)______ __| | | _ \___ __(_)__| |_  _ __ _| |___
-    // // | .` / _ \ '_| '  \/ _` | | |_ / -_) _` | |   / -_|_-< / _` | || / _` | (_-<
-    // // |_|\_\___/_| |_|_|_\__,_|_|_/__\___\__,_| |_|_\___/__/_\__,_|\_,_\__,_|_/__/
-    // //
-                                                                             
-    // // normalized dxy vs eta and phi
-   				
-    // n_dxyPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
-    // 						      Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",phiF,phiL),
-    // 						      theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.);
-    
-    // n_dxyEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i",i),
-    // 						      Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL),
-    // 						      theDetails_.histobins,-dxymax_eta/100.,dxymax_eta/100.);
-    
-    // // normalized IP2d vs eta and phi
-    
-    // n_IP2DPhiResiduals[i] = NormTransPhiRes.make<TH1F>(Form("histo_norm_IP2D_phi_plot%i",i),
-    // 						       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{2D}/#sigma_{IP_{2D}};tracks",phiF,phiL),
-    // 						       theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.);
-    
-    // n_IP2DEtaResiduals[i] = NormTransEtaRes.make<TH1F>(Form("histo_norm_IP2D_eta_plot%i",i),
-    // 						       Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{2D}/#sigma_{IP_{2D}};tracks",etaF,etaL),
-    // 						       theDetails_.histobins,-dxymax_eta/100.,dxymax_eta/100.);
-    
-    // // normalized IP3d vs eta and phi
-    
-    // n_IP3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_IP3D_phi_plot%i",i),
-    // 						    Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;IP_{3D}/#sigma_{IP_{3D}};tracks",phiF,phiL),
-    // 						    theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.);
-    
-    // n_IP3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_IP3D_eta_plot%i",i),
-    // 						    Form("%.2f<#eta^{probe}_{tk}<%.2f;IP_{3D}/#sigma_{IP_{3D}};tracks",etaF,etaL),
-    // 						    theDetails_.histobins,-dxymax_eta/100.,dxymax_eta/100.);
-
-    // // normalized dz vs phi and eta
-
-    // n_dzPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_dz_phi_plot%i",i),
-    // 						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",phiF,phiL),
-    // 						     theDetails_.histobins,-dzmax_phi/100.,dzmax_phi/100.);
-    
-    // n_dzEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_dz_eta_plot%i",i),
-    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL),
-    // 						     theDetails_.histobins,-dzmax_eta/100.,dzmax_eta/100.);
-
-    // // pull of resz
-
-    // n_reszPhiResiduals[i]  = NormLongPhiRes.make<TH1F>(Form("histo_norm_resz_phi_plot%i",i),
-    // 						     Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",phiF,phiL),
-    // 						     theDetails_.histobins,-dzmax_phi/100.,dzmax_phi/100.);
-    
-    // n_reszEtaResiduals[i]  = NormLongEtaRes.make<TH1F>(Form("histo_norm_resz_eta_plot%i",i),
-    // 						     Form("%.2f<#eta^{probe}_{tk}<%.2f;(z_{trk}-z_{vtx})/#sigma_{res_{z}};tracks",etaF,etaL),
-    // 						     theDetails_.histobins,-dzmax_eta/100.,dzmax_eta/100.);
-
-    // // normalized d3D vs phi and eta
-
-    // n_d3DPhiResiduals[i] = Norm3DPhiRes.make<TH1F>(Form("histo_norm_d3D_phi_plot%i",i),
-    // 						   Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{3D}/#sigma_{d_{3D}};tracks",phiF,phiL),
-    // 						   theDetails_.histobins,0.,d3Dmax_phi/100.);
-    
-    // n_d3DEtaResiduals[i] = Norm3DEtaRes.make<TH1F>(Form("histo_norm_d3D_eta_plot%i",i),
-    // 						   Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{3D}/#sigma_{d_{3D}};tracks",etaF,etaL),
-    // 						   theDetails_.histobins,0.,d3Dmax_eta/100.);
-
+                                                                                          
     //  ___           _    _     ___  _  __  __   ___        _    _           _    
     // |   \ ___ _  _| |__| |___|   \(_)/ _|/ _| | _ \___ __(_)__| |_  _ __ _| |___
     // | |) / _ \ || | '_ \ / -_) |) | |  _|  _| |   / -_|_-< / _` | || / _` | (_-<
@@ -1971,39 +1837,7 @@ void PrimaryVertexValidation::beginJob()
       
       float etaF=-etaOfProbe_+i*etaSect_;
       float etaL=-etaOfProbe_+(i+1)*etaSect_;
-      
-      // a_dxyPhiBiasResiduals[i] = AbsTransPhiBiasRes.make<TH1F>(Form("histo_dxy_phi_plot%i",i),
-      // 							       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy} [#mum];tracks",phiF,phiL),
-      // 							       theDetails_.histobins,-dxymax_phi,dxymax_phi);
-
-      // a_dxyEtaBiasResiduals[i] = AbsTransEtaBiasRes.make<TH1F>(Form("histo_dxy_eta_plot%i",i),
-      // 							       Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy} [#mum];tracks",etaF,etaL),
-      // 							       theDetails_.histobins,-dxymax_eta,dxymax_eta);
-      
-      // a_dzPhiBiasResiduals[i]  = AbsLongPhiBiasRes.make<TH1F>(Form("histo_dz_phi_plot%i",i),
-      // 							      Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f #circ;d_{z} [#mum];tracks",phiF,phiL),
-      // 							      theDetails_.histobins,-dzmax_phi,dzmax_phi);
-
-      // a_dzEtaBiasResiduals[i]  = AbsLongEtaBiasRes.make<TH1F>(Form("histo_dz_eta_plot%i",i),
-      // 							      Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z} [#mum];tracks",etaF,etaL),
-      // 							      theDetails_.histobins,-dzmax_eta,dzmax_eta);
-      
-      // n_dxyPhiBiasResiduals[i] = NormTransPhiBiasRes.make<TH1F>(Form("histo_norm_dxy_phi_plot%i",i),
-      // 								Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{xy}/#sigma_{d_{xy}};tracks",phiF,phiL),
-      // 								theDetails_.histobins,-dxymax_phi/100.,dxymax_phi/100.);
-
-      // n_dxyEtaBiasResiduals[i] = NormTransEtaBiasRes.make<TH1F>(Form("histo_norm_dxy_eta_plot%i",i),
-      // 								Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{xy}/#sigma_{d_{xy}};tracks",etaF,etaL),
-      // 								theDetails_.histobins,-dxymax_eta/100.,dxymax_eta/100.);
-      
-      // n_dzPhiBiasResiduals[i]  = NormLongPhiBiasRes.make<TH1F>(Form("histo_norm_dz_phi_plot%i",i),
-      // 							       Form("%.2f#circ<#varphi^{probe}_{tk}<%.2f#circ;d_{z}/#sigma_{d_{z}};tracks",phiF,phiL),
-      // 							       theDetails_.histobins,-dzmax_phi/100.,dzmax_phi/100.);
-
-      // n_dzEtaBiasResiduals[i]  = NormLongEtaBiasRes.make<TH1F>(Form("histo_norm_dz_eta_plot%i",i),
-      // 							       Form("%.2f<#eta^{probe}_{tk}<%.2f;d_{z}/#sigma_{d_{z}};tracks",etaF,etaL),
-      // 							       theDetails_.histobins,-dzmax_eta/100.,dzmax_eta/100.);
-      
+       
       for ( int j=0; j<nBins_; ++j ) {
 	
 	a_dxyBiasResidualsMap[i][j] = AbsDoubleDiffBiasRes.make<TH1F>(Form("histo_dxy_eta_plot%i_phi_plot%i",i,j),
