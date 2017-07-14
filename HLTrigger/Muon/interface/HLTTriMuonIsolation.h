@@ -51,6 +51,7 @@ class HLTTriMuonIsolation : public edm::global::EDProducer<> {
         const double ChargedRelIsoCut_;
         const double ChargedAbsIsoCut_;
         const double IsoConeSize_     ;
+        const double MatchingConeSize_;
         const double MinTriMuonMass_  ;
         const double MaxTriMuonMass_  ;
         const int    TriMuonAbsCharge_;
@@ -72,6 +73,7 @@ HLTTriMuonIsolation::HLTTriMuonIsolation(const edm::ParameterSet& iConfig):
     ChargedRelIsoCut_                                                    (iConfig.getParameter<double>       ("ChargedRelIsoCut"  )) ,
     ChargedAbsIsoCut_                                                    (iConfig.getParameter<double>       ("ChargedAbsIsoCut"  )) ,
     IsoConeSize_                                                         (iConfig.getParameter<double>       ("IsoConeSize"       )) ,
+    MatchingConeSize_                                                    (iConfig.getParameter<double>       ("MatchingConeSize"  )) ,
     MinTriMuonMass_                                                      (iConfig.getParameter<double>       ("MinTriMuonMass"    )) ,
     MaxTriMuonMass_                                                      (iConfig.getParameter<double>       ("MaxTriMuonMass"    )) , 
     TriMuonAbsCharge_                                                    (iConfig.getParameter<int>          ("TriMuonAbsCharge"  )) ,
@@ -121,7 +123,7 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
             const reco::TrackRef &tk_i = i->track();
             for (std::vector<reco::RecoChargedCandidateRef>::const_iterator imu = PassedL3Muons.begin(); imu != PassedL3Muons.end(); ++imu){
                 reco::TrackRef candTrkRef = (*imu)->get<reco::TrackRef>();
-                if (reco::deltaR2(tk_i->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_1 = true;
+                if (reco::deltaR2(tk_i->momentum(), candTrkRef->momentum()) < (MatchingConeSize_*MatchingConeSize_)) passingPreviousFilter_1 = true;
             }
             for (auto j = i+1; j != AllMuCands_end; ++j) {
                 // check that muon_j passes the previous filter
@@ -129,16 +131,18 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
                 const reco::TrackRef &tk_j = j->track();
                 for (std::vector<reco::RecoChargedCandidateRef>::const_iterator imu = PassedL3Muons.begin(); imu != PassedL3Muons.end(); ++imu){
                     reco::TrackRef candTrkRef = (*imu)->get<reco::TrackRef>();
-                    if (reco::deltaR2(tk_j->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_2 = true;                
+                    if (reco::deltaR2(tk_j->momentum(), candTrkRef->momentum()) < (MatchingConeSize_*MatchingConeSize_)) passingPreviousFilter_2 = true;                
                 }
+                // if, at this point, no muons passed the previous filter just skip to the next iteration
+                if (!(passingPreviousFilter_1 || passingPreviousFilter_2)) continue;
                 for (auto k = j+1; k != AllMuCands_end; ++k){
                     // check that muon_k passes the previous filter
                     bool passingPreviousFilter_3 = false;
                     const reco::TrackRef &tk_k = k->track();
                     for (std::vector<reco::RecoChargedCandidateRef>::const_iterator imu = PassedL3Muons.begin(); imu != PassedL3Muons.end(); ++imu){
                         reco::TrackRef candTrkRef = (*imu)->get<reco::TrackRef>();
-                        if (reco::deltaR2(tk_k->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_3 = true;
-                    }                    
+                        if (reco::deltaR2(tk_k->momentum(), candTrkRef->momentum()) < (MatchingConeSize_*MatchingConeSize_)) passingPreviousFilter_3 = true;
+                    }                                        
                     // at least two muons must have passed the previous di-muon filter
                     if (!( (passingPreviousFilter_1 & passingPreviousFilter_2 ) ||
                            (passingPreviousFilter_1 & passingPreviousFilter_3 ) ||
@@ -170,7 +174,7 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
                     Tau.setPdgId(tauPdgId);
                     Tau.setVertex((Daughters)[0].vertex()); // assign the leading muon vertex as tau vertex
 
-                    // the three muons must be close in Z
+                    // the three muons must be close to each other in Z
                     if (std::abs(Tau.daughter(0)->vz() - Tau.vz()) > MaxDZ_) continue;
                     if (std::abs(Tau.daughter(1)->vz() - Tau.vz()) > MaxDZ_) continue;
                     if (std::abs(Tau.daughter(2)->vz() - Tau.vz()) > MaxDZ_) continue;
@@ -230,6 +234,7 @@ HLTTriMuonIsolation::fillDescriptions(edm::ConfigurationDescriptions& descriptio
   desc.add<double>("ChargedAbsIsoCut", 3.0  );
   desc.add<double>("ChargedRelIsoCut", 0.1  );
   desc.add<double>("IsoConeSize"     , 0.5  );
+  desc.add<double>("MatchingConeSize", 0.03 );
   desc.add<double>("MinTriMuonMass"  , 0.5  );
   desc.add<double>("MaxTriMuonMass"  , 2.8  );
   desc.add<int>   ("TriMuonAbsCharge", -1   );
