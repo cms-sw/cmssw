@@ -25,7 +25,7 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
 )
 
 SiPixelPhase1TrackEfficiencyInactive = DefaultHistoTrack.clone(
-  name = "missing",
+  name = "inactive",
   title = "Inactive Hits",
   xlabel = "inactive hits",
   dimensions = 0,
