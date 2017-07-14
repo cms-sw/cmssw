@@ -87,7 +87,7 @@ HLTSinglet<T>::HLTSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig)
 {
    LogDebug("") << "Input/ptcut/etacut/ncut : "
 		<< inputTag_.encode() << " "
-		<< min_E_ << " " << min_Pt_ << " " << min_Mass_ << " "
+		<< min_E_ << " " << min_Pt_ << " " << min_Mass_ << " " << max_Mass_ << " "
 		<< min_Eta_ << " " << max_Eta_ << " " << min_N_ ;
 }
 
