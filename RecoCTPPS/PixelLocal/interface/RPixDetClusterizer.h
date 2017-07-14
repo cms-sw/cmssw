@@ -95,10 +95,10 @@ public:
 
   static constexpr unsigned short MAXSIZE = 256;
   unsigned short adc[MAXSIZE];
-  unsigned char row[MAXSIZE];
-  unsigned char col[MAXSIZE];
-  unsigned char rowmin;
-  unsigned char colmin;
+  uint8_t row[MAXSIZE];
+  uint8_t col[MAXSIZE];
+  uint8_t rowmin;
+  uint8_t colmin;
   unsigned short isize;
   unsigned short curr;
 

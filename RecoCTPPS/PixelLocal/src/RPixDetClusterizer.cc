@@ -49,8 +49,8 @@ void RPixDetClusterizer::buildClusters(unsigned int detId, const std::vector<CTP
 
   for( auto const &RPdit : rpix_digi_set_){
 
-    unsigned char row = RPdit.row();
-    unsigned char column = RPdit.column();
+    uint8_t row = RPdit.row();
+    uint8_t column = RPdit.column();
     if( row > maxRow || column > maxCol)
       throw cms::Exception("CTPPSDigiOutofRange") 
 	<< " row = " << row << "  column = "<<column;
