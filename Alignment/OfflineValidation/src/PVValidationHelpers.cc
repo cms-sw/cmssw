@@ -1,6 +1,9 @@
 #include "Alignment/OfflineValidation/interface/PVValidationHelpers.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <cassert>
+#include <numeric>
+#include <algorithm>
+#include <iostream>
 //#include "TH1.h"
 
 //*************************************************************
@@ -153,4 +156,25 @@ std::tuple<std::string,std::string,std::string> PVValHelper::getVarString (PVVal
 
   return returnVar;
   
+}
+
+//*************************************************************
+std::vector<float> PVValHelper::generateBins(int n, float start,float range)
+//*************************************************************
+{
+
+  std::vector<float> v(n);
+  float interval = range/(n-1);
+
+  //std::cout<<" interval:"<<interval<<std::endl;
+
+  std::iota(v.begin(),v.end(),1.);
+
+  for(float &a : v) { std::cout<< a << " ";  }
+  //std::cout<< "\n";
+
+  std::for_each(begin(v), end(v), [&](float& a) { a = start+((a-1)*interval); });
+
+  return v;
+
 }

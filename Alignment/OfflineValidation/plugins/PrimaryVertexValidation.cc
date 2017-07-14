@@ -147,6 +147,22 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     std::cout<<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << " (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ")"<<std::endl;
   }
 
+  theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-TMath::Pi(),2*TMath::Pi());
+  theDetails_.trendbins[PVValHelper::eta] = PVValHelper::generateBins(nBins_+1,-etaOfProbe_,2*etaOfProbe_);
+
+  std::cout << "etaBins: ";
+  for (auto ieta: theDetails_.trendbins[PVValHelper::eta]) {
+    std::cout << ieta << " ";
+  }
+  std::cout << "\n";
+
+  std::cout << "phiBins: ";
+  for (auto iphi: theDetails_.trendbins[PVValHelper::phi]) {
+    std::cout << iphi << " ";
+  }
+  std::cout << "\n";
+
+  
 }
    
 // Destructor
@@ -2264,47 +2280,47 @@ void PrimaryVertexValidation::endJob()
 
   if(useTracksFromRecoVtx_){
 
-    fillTrendPlotByIndex(a_dxyPhiMeanBiasTrend ,a_dxyPhiBiasResiduals,PVValHelper::MEAN);  
-    fillTrendPlotByIndex(a_dxyPhiWidthBiasTrend,a_dxyPhiBiasResiduals,PVValHelper::WIDTH);
-    fillTrendPlotByIndex(a_dzPhiMeanBiasTrend  ,a_dzPhiBiasResiduals ,PVValHelper::MEAN);   
-    fillTrendPlotByIndex(a_dzPhiWidthBiasTrend ,a_dzPhiBiasResiduals ,PVValHelper::WIDTH);  
+    fillTrendPlotByIndex(a_dxyPhiMeanBiasTrend ,a_dxyPhiBiasResiduals,PVValHelper::MEAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(a_dxyPhiWidthBiasTrend,a_dxyPhiBiasResiduals,PVValHelper::WIDTH,PVValHelper::phi);
+    fillTrendPlotByIndex(a_dzPhiMeanBiasTrend  ,a_dzPhiBiasResiduals ,PVValHelper::MEAN,PVValHelper::phi);   
+    fillTrendPlotByIndex(a_dzPhiWidthBiasTrend ,a_dzPhiBiasResiduals ,PVValHelper::WIDTH,PVValHelper::phi);  
     
-    fillTrendPlotByIndex(a_dxyEtaMeanBiasTrend ,a_dxyEtaBiasResiduals,PVValHelper::MEAN); 
-    fillTrendPlotByIndex(a_dxyEtaWidthBiasTrend,a_dxyEtaBiasResiduals,PVValHelper::WIDTH);
-    fillTrendPlotByIndex(a_dzEtaMeanBiasTrend  ,a_dzEtaBiasResiduals ,PVValHelper::MEAN); 
-    fillTrendPlotByIndex(a_dzEtaWidthBiasTrend ,a_dzEtaBiasResiduals ,PVValHelper::WIDTH);
+    fillTrendPlotByIndex(a_dxyEtaMeanBiasTrend ,a_dxyEtaBiasResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(a_dxyEtaWidthBiasTrend,a_dxyEtaBiasResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+    fillTrendPlotByIndex(a_dzEtaMeanBiasTrend  ,a_dzEtaBiasResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(a_dzEtaWidthBiasTrend ,a_dzEtaBiasResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
     
-    fillTrendPlotByIndex(n_dxyPhiMeanBiasTrend ,n_dxyPhiBiasResiduals,PVValHelper::MEAN); 
-    fillTrendPlotByIndex(n_dxyPhiWidthBiasTrend,n_dxyPhiBiasResiduals,PVValHelper::WIDTH);
-    fillTrendPlotByIndex(n_dzPhiMeanBiasTrend  ,n_dzPhiBiasResiduals ,PVValHelper::MEAN); 
-    fillTrendPlotByIndex(n_dzPhiWidthBiasTrend ,n_dzPhiBiasResiduals ,PVValHelper::WIDTH);
+    fillTrendPlotByIndex(n_dxyPhiMeanBiasTrend ,n_dxyPhiBiasResiduals,PVValHelper::MEAN,PVValHelper::phi); 
+    fillTrendPlotByIndex(n_dxyPhiWidthBiasTrend,n_dxyPhiBiasResiduals,PVValHelper::WIDTH,PVValHelper::phi);
+    fillTrendPlotByIndex(n_dzPhiMeanBiasTrend  ,n_dzPhiBiasResiduals ,PVValHelper::MEAN,PVValHelper::phi); 
+    fillTrendPlotByIndex(n_dzPhiWidthBiasTrend ,n_dzPhiBiasResiduals ,PVValHelper::WIDTH,PVValHelper::phi);
     
-    fillTrendPlotByIndex(n_dxyEtaMeanBiasTrend ,n_dxyEtaBiasResiduals,PVValHelper::MEAN); 
-    fillTrendPlotByIndex(n_dxyEtaWidthBiasTrend,n_dxyEtaBiasResiduals,PVValHelper::WIDTH);
-    fillTrendPlotByIndex(n_dzEtaMeanBiasTrend  ,n_dzEtaBiasResiduals ,PVValHelper::MEAN); 
-    fillTrendPlotByIndex(n_dzEtaWidthBiasTrend ,n_dzEtaBiasResiduals ,PVValHelper::WIDTH);
+    fillTrendPlotByIndex(n_dxyEtaMeanBiasTrend ,n_dxyEtaBiasResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(n_dxyEtaWidthBiasTrend,n_dxyEtaBiasResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+    fillTrendPlotByIndex(n_dzEtaMeanBiasTrend  ,n_dzEtaBiasResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+    fillTrendPlotByIndex(n_dzEtaWidthBiasTrend ,n_dzEtaBiasResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
     
     // medians and MADs	  
     
-    fillTrendPlotByIndex(a_dxyPhiMedianBiasTrend,a_dxyPhiBiasResiduals,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(a_dxyPhiMADBiasTrend   ,a_dxyPhiBiasResiduals,PVValHelper::MAD); 
-    fillTrendPlotByIndex(a_dzPhiMedianBiasTrend ,a_dzPhiBiasResiduals ,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(a_dzPhiMADBiasTrend    ,a_dzPhiBiasResiduals ,PVValHelper::MAD); 
+    fillTrendPlotByIndex(a_dxyPhiMedianBiasTrend,a_dxyPhiBiasResiduals,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(a_dxyPhiMADBiasTrend   ,a_dxyPhiBiasResiduals,PVValHelper::MAD,PVValHelper::phi); 
+    fillTrendPlotByIndex(a_dzPhiMedianBiasTrend ,a_dzPhiBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(a_dzPhiMADBiasTrend    ,a_dzPhiBiasResiduals ,PVValHelper::MAD,PVValHelper::phi); 
     
-    fillTrendPlotByIndex(a_dxyEtaMedianBiasTrend,a_dxyEtaBiasResiduals,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(a_dxyEtaMADBiasTrend   ,a_dxyEtaBiasResiduals,PVValHelper::MAD); 
-    fillTrendPlotByIndex(a_dzEtaMedianBiasTrend ,a_dzEtaBiasResiduals ,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(a_dzEtaMADBiasTrend    ,a_dzEtaBiasResiduals ,PVValHelper::MAD); 
+    fillTrendPlotByIndex(a_dxyEtaMedianBiasTrend,a_dxyEtaBiasResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(a_dxyEtaMADBiasTrend   ,a_dxyEtaBiasResiduals,PVValHelper::MAD,PVValHelper::eta); 
+    fillTrendPlotByIndex(a_dzEtaMedianBiasTrend ,a_dzEtaBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(a_dzEtaMADBiasTrend    ,a_dzEtaBiasResiduals ,PVValHelper::MAD,PVValHelper::eta); 
     
-    fillTrendPlotByIndex(n_dxyPhiMedianBiasTrend,n_dxyPhiBiasResiduals,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(n_dxyPhiMADBiasTrend   ,n_dxyPhiBiasResiduals,PVValHelper::MAD); 
-    fillTrendPlotByIndex(n_dzPhiMedianBiasTrend ,n_dzPhiBiasResiduals ,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(n_dzPhiMADBiasTrend    ,n_dzPhiBiasResiduals ,PVValHelper::MAD); 
+    fillTrendPlotByIndex(n_dxyPhiMedianBiasTrend,n_dxyPhiBiasResiduals,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(n_dxyPhiMADBiasTrend   ,n_dxyPhiBiasResiduals,PVValHelper::MAD,PVValHelper::phi); 
+    fillTrendPlotByIndex(n_dzPhiMedianBiasTrend ,n_dzPhiBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+    fillTrendPlotByIndex(n_dzPhiMADBiasTrend    ,n_dzPhiBiasResiduals ,PVValHelper::MAD,PVValHelper::phi); 
     
-    fillTrendPlotByIndex(n_dxyEtaMedianBiasTrend,n_dxyEtaBiasResiduals,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(n_dxyEtaMADBiasTrend   ,n_dxyEtaBiasResiduals,PVValHelper::MAD); 
-    fillTrendPlotByIndex(n_dzEtaMedianBiasTrend ,n_dzEtaBiasResiduals ,PVValHelper::MEDIAN);  
-    fillTrendPlotByIndex(n_dzEtaMADBiasTrend    ,n_dzEtaBiasResiduals ,PVValHelper::MAD); 
+    fillTrendPlotByIndex(n_dxyEtaMedianBiasTrend,n_dxyEtaBiasResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(n_dxyEtaMADBiasTrend   ,n_dxyEtaBiasResiduals,PVValHelper::MAD,PVValHelper::eta); 
+    fillTrendPlotByIndex(n_dzEtaMedianBiasTrend ,n_dzEtaBiasResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+    fillTrendPlotByIndex(n_dzEtaMADBiasTrend    ,n_dzEtaBiasResiduals ,PVValHelper::MAD,PVValHelper::eta); 
    
     // 2d Maps
 
@@ -2322,25 +2338,25 @@ void PrimaryVertexValidation::endJob()
 
   // do profiles
 
-  fillTrendPlotByIndex(a_dxyPhiMeanTrend, a_dxyPhiResiduals,PVValHelper::MEAN);  
-  fillTrendPlotByIndex(a_dxyPhiWidthTrend,a_dxyPhiResiduals,PVValHelper::WIDTH);  
-  fillTrendPlotByIndex(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,PVValHelper::MEAN);   
-  fillTrendPlotByIndex(a_dzPhiWidthTrend ,a_dzPhiResiduals ,PVValHelper::WIDTH);  
+  fillTrendPlotByIndex(a_dxyPhiMeanTrend, a_dxyPhiResiduals,PVValHelper::MEAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(a_dxyPhiWidthTrend,a_dxyPhiResiduals,PVValHelper::WIDTH,PVValHelper::phi);  
+  fillTrendPlotByIndex(a_dzPhiMeanTrend  ,a_dzPhiResiduals ,PVValHelper::MEAN,PVValHelper::phi);   
+  fillTrendPlotByIndex(a_dzPhiWidthTrend ,a_dzPhiResiduals ,PVValHelper::WIDTH,PVValHelper::phi);  
   
-  fillTrendPlotByIndex(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,PVValHelper::MEAN); 
-  fillTrendPlotByIndex(a_dxyEtaWidthTrend,a_dxyEtaResiduals,PVValHelper::WIDTH);
-  fillTrendPlotByIndex(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,PVValHelper::MEAN); 
-  fillTrendPlotByIndex(a_dzEtaWidthTrend ,a_dzEtaResiduals ,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(a_dxyEtaMeanTrend ,a_dxyEtaResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(a_dxyEtaWidthTrend,a_dxyEtaResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+  fillTrendPlotByIndex(a_dzEtaMeanTrend  ,a_dzEtaResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(a_dzEtaWidthTrend ,a_dzEtaResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
   
-  fillTrendPlotByIndex(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,PVValHelper::MEAN); 
-  fillTrendPlotByIndex(n_dxyPhiWidthTrend,n_dxyPhiResiduals,PVValHelper::WIDTH);
-  fillTrendPlotByIndex(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,PVValHelper::MEAN); 
+  fillTrendPlotByIndex(n_dxyPhiMeanTrend ,n_dxyPhiResiduals,PVValHelper::MEAN,PVValHelper::phi); 
+  fillTrendPlotByIndex(n_dxyPhiWidthTrend,n_dxyPhiResiduals,PVValHelper::WIDTH,PVValHelper::phi);
+  fillTrendPlotByIndex(n_dzPhiMeanTrend  ,n_dzPhiResiduals ,PVValHelper::MEAN,PVValHelper::phi); 
   fillTrendPlotByIndex(n_dzPhiWidthTrend ,n_dzPhiResiduals ,PVValHelper::WIDTH);
   
-  fillTrendPlotByIndex(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,PVValHelper::MEAN); 
-  fillTrendPlotByIndex(n_dxyEtaWidthTrend,n_dxyEtaResiduals,PVValHelper::WIDTH);
-  fillTrendPlotByIndex(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,PVValHelper::MEAN); 
-  fillTrendPlotByIndex(n_dzEtaWidthTrend ,n_dzEtaResiduals ,PVValHelper::WIDTH);
+  fillTrendPlotByIndex(n_dxyEtaMeanTrend ,n_dxyEtaResiduals,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(n_dxyEtaWidthTrend,n_dxyEtaResiduals,PVValHelper::WIDTH,PVValHelper::eta);
+  fillTrendPlotByIndex(n_dzEtaMeanTrend  ,n_dzEtaResiduals ,PVValHelper::MEAN,PVValHelper::eta); 
+  fillTrendPlotByIndex(n_dzEtaWidthTrend ,n_dzEtaResiduals ,PVValHelper::WIDTH,PVValHelper::eta);
     
   // vs transverse momentum
 
@@ -2388,26 +2404,26 @@ void PrimaryVertexValidation::endJob()
 
   // medians and MADs	  
   
-  fillTrendPlotByIndex(a_dxyPhiMedianTrend,a_dxyPhiResiduals,PVValHelper::MEDIAN);
-  fillTrendPlotByIndex(a_dxyPhiMADTrend   ,a_dxyPhiResiduals,PVValHelper::MAD);   
+  fillTrendPlotByIndex(a_dxyPhiMedianTrend,a_dxyPhiResiduals,PVValHelper::MEDIAN,PVValHelper::phi);
+  fillTrendPlotByIndex(a_dxyPhiMADTrend   ,a_dxyPhiResiduals,PVValHelper::MAD,PVValHelper::phi);   
   
-  fillTrendPlotByIndex(a_dzPhiMedianTrend ,a_dzPhiResiduals ,PVValHelper::MEDIAN);  
-  fillTrendPlotByIndex(a_dzPhiMADTrend    ,a_dzPhiResiduals ,PVValHelper::MAD); 
+  fillTrendPlotByIndex(a_dzPhiMedianTrend ,a_dzPhiResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(a_dzPhiMADTrend    ,a_dzPhiResiduals ,PVValHelper::MAD,PVValHelper::phi); 
   
-  fillTrendPlotByIndex(a_dxyEtaMedianTrend,a_dxyEtaResiduals,PVValHelper::MEDIAN);  
-  fillTrendPlotByIndex(a_dxyEtaMADTrend   ,a_dxyEtaResiduals,PVValHelper::MAD); 
-  fillTrendPlotByIndex(a_dzEtaMedianTrend ,a_dzEtaResiduals ,PVValHelper::MEDIAN);  
-  fillTrendPlotByIndex(a_dzEtaMADTrend    ,a_dzEtaResiduals ,PVValHelper::MAD); 
+  fillTrendPlotByIndex(a_dxyEtaMedianTrend,a_dxyEtaResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(a_dxyEtaMADTrend   ,a_dxyEtaResiduals,PVValHelper::MAD,PVValHelper::eta); 
+  fillTrendPlotByIndex(a_dzEtaMedianTrend ,a_dzEtaResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(a_dzEtaMADTrend    ,a_dzEtaResiduals ,PVValHelper::MAD,PVValHelper::eta); 
   
-  fillTrendPlotByIndex(n_dxyPhiMedianTrend,n_dxyPhiResiduals,PVValHelper::MEDIAN);  
-  fillTrendPlotByIndex(n_dxyPhiMADTrend   ,n_dxyPhiResiduals,PVValHelper::MAD); 
-  fillTrendPlotByIndex(n_dzPhiMedianTrend ,n_dzPhiResiduals ,PVValHelper::MEDIAN);  
-  fillTrendPlotByIndex(n_dzPhiMADTrend    ,n_dzPhiResiduals ,PVValHelper::MAD); 
+  fillTrendPlotByIndex(n_dxyPhiMedianTrend,n_dxyPhiResiduals,PVValHelper::MEDIAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(n_dxyPhiMADTrend   ,n_dxyPhiResiduals,PVValHelper::MAD,PVValHelper::phi); 
+  fillTrendPlotByIndex(n_dzPhiMedianTrend ,n_dzPhiResiduals ,PVValHelper::MEDIAN,PVValHelper::phi);  
+  fillTrendPlotByIndex(n_dzPhiMADTrend    ,n_dzPhiResiduals ,PVValHelper::MAD,PVValHelper::phi); 
   
-  fillTrendPlotByIndex(n_dxyEtaMedianTrend,n_dxyEtaResiduals,PVValHelper::MEDIAN);  
-  fillTrendPlotByIndex(n_dxyEtaMADTrend   ,n_dxyEtaResiduals,PVValHelper::MAD); 
-  fillTrendPlotByIndex(n_dzEtaMedianTrend ,n_dzEtaResiduals ,PVValHelper::MEDIAN);  
-  fillTrendPlotByIndex(n_dzEtaMADTrend    ,n_dzEtaResiduals ,PVValHelper::MAD); 
+  fillTrendPlotByIndex(n_dxyEtaMedianTrend,n_dxyEtaResiduals,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(n_dxyEtaMADTrend   ,n_dxyEtaResiduals,PVValHelper::MAD,PVValHelper::eta); 
+  fillTrendPlotByIndex(n_dzEtaMedianTrend ,n_dzEtaResiduals ,PVValHelper::MEDIAN,PVValHelper::eta);  
+  fillTrendPlotByIndex(n_dzEtaMADTrend    ,n_dzEtaResiduals ,PVValHelper::MAD,PVValHelper::eta); 
     
   // 2D Maps
 
@@ -2674,7 +2690,7 @@ void PrimaryVertexValidation::fillTrendPlot(TH1F* trendPlot, TH1F* residualsPlot
 }
 
 //*************************************************************
-void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h,  PVValHelper::estimator fitPar_)
+void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<TH1F*>& h,  PVValHelper::estimator fitPar_, PVValHelper::plotVariable plotVar)
 //*************************************************************
 {  
 
@@ -2721,6 +2737,20 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
 	edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlotByIndex() "<<fitPar_<<" unknown estimator!"<<std::endl;
 	break;
       }
+
+    char bincenter[129];
+    if(plotVar == PVValHelper::eta){
+      auto etaBins = theDetails_.trendbins[PVValHelper::eta];
+      sprintf(bincenter,"%.1f",(etaBins[bin-1]+etaBins[bin])/2.);      
+      trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
+    } else if(plotVar == PVValHelper::phi){
+      auto phiBins = theDetails_.trendbins[PVValHelper::phi];
+      sprintf(bincenter,"%.1f",180.*(phiBins[bin-1]+phiBins[bin])/(2.*TMath::Pi()));
+      trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
+    } else {
+      //edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlotByIndex() "<< plotVar <<" unknown track parameter!"<<std::endl;
+    }
+    
   }
 }
 
@@ -2913,8 +2943,13 @@ std::vector<TH1F*> PrimaryVertexValidation::bookResidualsHistogram(const TFileDi
   std::string units     = std::get<2>(PVValHelper::getTypeString(resType));
 
   for(unsigned int i=0; i<theNOfBins;i++){
+
+    TString title = (varType == PVValHelper::phi || varType == PVValHelper::eta) ? 	 
+      Form("%s vs %s - bin %i (%f < %s < %f);%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i, theDetails_.trendbins[varType][i],t_varType.c_str(),theDetails_.trendbins[varType][i+1],t_resType.c_str(),units.c_str()) : Form("%s vs %s - bin %i;%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i,t_resType.c_str(),units.c_str());
+
     TH1F* htemp = dir.make<TH1F>(Form("histo_%s_%s_plot%i",s_resType.c_str(),s_varType.c_str(),i),
-				 Form("%s vs %s - bin %i;%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i,t_resType.c_str(),units.c_str()),
+				 //Form("%s vs %s - bin %i;%s %s;tracks",t_resType.c_str(),t_varType.c_str(),i,t_resType.c_str(),units.c_str()),
+				 title.Data(),
 				 theDetails_.histobins,down,up); 
     h.push_back(htemp);
   }

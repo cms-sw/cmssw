@@ -54,8 +54,11 @@ namespace PVValHelper {
     };
 
   struct histodetails{
-    std::map<std::pair<residualType,plotVariable>,std::pair<float,float>> range;
+
     int histobins;
+    std::map<std::pair<residualType,plotVariable>,std::pair<float,float>> range;
+    std::map<plotVariable,std::vector<float> > trendbins; 
+
     void setMap(residualType type,plotVariable plot,float low,float high){
       assert(low<high);     
       range[std::make_pair(type,plot)] = std::make_pair(low,high);
@@ -104,6 +107,8 @@ namespace PVValHelper {
   std::tuple<std::string,std::string,std::string> getTypeString (residualType type);  
 
   std::tuple<std::string,std::string,std::string> getVarString (PVValHelper::plotVariable var);
+
+  std::vector<float> generateBins(int n, float start, float range);
 
 };
 
