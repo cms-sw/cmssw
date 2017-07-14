@@ -226,10 +226,7 @@ Pythia8Hadronizer::Pythia8Hadronizer(const edm::ParameterSet &params) :
     edm::LogInfo("Pythia8Interface") << "Start setup for reweightGenEmp";
     edm::ParameterSet rgeParams =
        params.getParameter<edm::ParameterSet>("reweightGenEmp");
-    fReweightEmpUserHook.reset(
-       new PtHatEmpReweightUserHook(rgeParams.getParameter<double>("pTHatMin"),
-                                    rgeParams.getParameter<double>("pTHatMax"))
-       );
+    fReweightEmpUserHook.reset(new PtHatEmpReweightUserHook());
     edm::LogInfo("Pythia8Interface") << "End setup for reweightGenEmp";
   }
   if( params.exists( "reweightGenRap" ) )

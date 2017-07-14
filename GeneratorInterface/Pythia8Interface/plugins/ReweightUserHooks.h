@@ -29,10 +29,10 @@ class PtHatReweightUserHook : public Pythia8::UserHooks
 class PtHatEmpReweightUserHook : public Pythia8::UserHooks
 {
   public:
-   PtHatEmpReweightUserHook(double _pTHatMin, double _pTHatMax) :
-      pTHatMin(_pTHatMin), pTHatMax(_pTHatMax) {
-      sigma = TF1("sigma", "([0]*pow(x,[2]+[3]*log(0.01*x)+[4]*pow(log(0.01*x),2))*pow(1-2*x/(13000.+[5]),[1]))*x", pTHatMin, pTHatMax);
-      sigma.SetParameters(5.35720e+13,1.09077e+01,-2.58981e+00,-5.15755e-01,5.59513e-02,3.5e+02);
+    PtHatEmpReweightUserHook()
+    {
+      p = {5.3571961909810e+13,1.0907678218282e+01,-2.5898069229451e+00,-5.1575514014931e-01,5.5951279807561e-02,3.5e+02};
+      sigma = [this](double x) -> double { return (p[0]*pow(x,p[2]+p[3]*log(0.01*x)+p[4]*pow(log(0.01*x),2))*pow(1-2*x/(13000.+p[5]),p[1]))*x; };
     }
     virtual ~PtHatEmpReweightUserHook() {}
 
@@ -43,7 +43,7 @@ class PtHatEmpReweightUserHook : public Pythia8::UserHooks
     {
       //the variable selBias of the base class should be used;
       if ((sigmaProcessPtr->nFinal() == 2)) {
-         selBias = 1.0/sigma.Eval(phaseSpacePtr->pTHat());
+        selBias = 1.0/sigma(phaseSpacePtr->pTHat());
         return selBias;
       }
       selBias = 1.;
@@ -51,8 +51,8 @@ class PtHatEmpReweightUserHook : public Pythia8::UserHooks
     }
 
   private:
-    double pTHatMin, pTHatMax;
-    TF1 sigma;
+    std::vector<double> p;
+    std::function<double(double)> sigma;
 };
 
 class RapReweightUserHook : public Pythia8::UserHooks
