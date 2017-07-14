@@ -37,7 +37,7 @@ namespace l1t {
   public:
     
   EMTFTrack() :
-    endcap(-99), sector(-99), sector_idx(-99), 
+    _PtLUT(), endcap(-99), sector(-99), sector_idx(-99), 
       mode(-99), mode_CSC(0), mode_RPC(0), mode_neighbor(0), mode_inv(-99),
       rank(-99), winner(-99), charge(-99), bx(-99), first_bx(-99), second_bx(-99),
       pt(-99), pt_XML(-99), zone(-99), ph_num(-99), ph_q(-99),
