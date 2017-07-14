@@ -5,8 +5,8 @@
 *
 ****************************************************************************/
 
-#ifndef Geometry_VeryForwardGeometryBuilder_TotemRPGeometry
-#define Geometry_VeryForwardGeometryBuilder_TotemRPGeometry
+#ifndef Geometry_VeryForwardGeometryBuilder_CTPPSGeometry
+#define Geometry_VeryForwardGeometryBuilder_CTPPSGeometry
 
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
 #include "DataFormats/CTPPSDetId/interface/CTPPSPixelDetId.h"
@@ -29,18 +29,18 @@
  * etc. (see the comments in definition bellow)
  **/
 
-class TotemRPGeometry
+class CTPPSGeometry
 {
   public:
     typedef std::map<unsigned int, const DetGeomDesc* > mapType;
     typedef std::map<int, const DetGeomDesc* > RPDeviceMapType;
     typedef std::map<unsigned int, std::set<unsigned int> > mapSetType;
 
-    TotemRPGeometry() {}
-    ~TotemRPGeometry() {}
+    CTPPSGeometry() {}
+    ~CTPPSGeometry() {}
 
     /// build up from DetGeomDesc
-    TotemRPGeometry(const DetGeomDesc * gd)
+    CTPPSGeometry(const DetGeomDesc * gd)
     {
       build(gd);
     }

@@ -18,14 +18,14 @@
 #include "DataFormats/CTPPSReco/interface/CTPPSDiamondRecHit.h"
 
 #include "Geometry/VeryForwardRPTopology/interface/RPTopology.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 class CTPPSDiamondRecHitProducerAlgorithm
 {
   public:
     CTPPSDiamondRecHitProducerAlgorithm( const edm::ParameterSet& conf );
 
-    void build( const TotemRPGeometry*, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
+    void build( const CTPPSGeometry*, const edm::DetSetVector<CTPPSDiamondDigi>&, edm::DetSetVector<CTPPSDiamondRecHit>& );
 
   private:
     /// Conversion constant between HPTDC time slice and absolute time (in ns)

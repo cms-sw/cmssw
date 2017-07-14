@@ -35,7 +35,7 @@ void TotemRPLocalTrackFitterAlgorithm::reset()
 //----------------------------------------------------------------------------------------------------
 
 TotemRPLocalTrackFitterAlgorithm::RPDetCoordinateAlgebraObjs
-TotemRPLocalTrackFitterAlgorithm::prepareReconstAlgebraData(unsigned int det_id, const TotemRPGeometry& tot_rp_geom)
+TotemRPLocalTrackFitterAlgorithm::prepareReconstAlgebraData(unsigned int det_id, const CTPPSGeometry& tot_rp_geom)
 {
   RPDetCoordinateAlgebraObjs det_algebra_obj;
 
@@ -62,7 +62,7 @@ TotemRPLocalTrackFitterAlgorithm::prepareReconstAlgebraData(unsigned int det_id,
 //----------------------------------------------------------------------------------------------------
 
 TotemRPLocalTrackFitterAlgorithm::RPDetCoordinateAlgebraObjs*
-TotemRPLocalTrackFitterAlgorithm::getDetAlgebraData(unsigned int det_id, const TotemRPGeometry& tot_rp_geom)
+TotemRPLocalTrackFitterAlgorithm::getDetAlgebraData(unsigned int det_id, const CTPPSGeometry& tot_rp_geom)
 {
   auto it = det_data_map_.find(det_id);
   if (it != det_data_map_.end())
@@ -77,7 +77,7 @@ TotemRPLocalTrackFitterAlgorithm::getDetAlgebraData(unsigned int det_id, const T
 //----------------------------------------------------------------------------------------------------
 
 bool TotemRPLocalTrackFitterAlgorithm::fitTrack(const edm::DetSetVector<TotemRPRecHit> &hits, double z_0,
-    const TotemRPGeometry &tot_geom, TotemRPLocalTrack &fitted_track)
+    const CTPPSGeometry &tot_geom, TotemRPLocalTrack &fitted_track)
 {
   fitted_track.setValid(false);
 
