@@ -1,6 +1,6 @@
 import FWCore.ParameterSet.Config as cms
 
-TotemRPIncludeAlignments = cms.ESSource("TotemRPIncludeAlignments",
+ctppsIncludeAlignments = cms.ESSource("CTPPSIncludeAlignments",
     verbosity = cms.untracked.uint32(1),
 
     MeasuredFiles = cms.vstring(),
