@@ -6,7 +6,7 @@
 *
 ****************************************************************************/
 
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSDDDNames.h"
 
@@ -18,7 +18,7 @@ using namespace std;
 
 //----------------------------------------------------------------------------------------------------
 
-char TotemRPGeometry::build(const DetGeomDesc *gD)
+char CTPPSGeometry::build(const DetGeomDesc *gD)
 {
   // reset
   theMap.clear();
@@ -74,7 +74,7 @@ char TotemRPGeometry::build(const DetGeomDesc *gD)
 
 //----------------------------------------------------------------------------------------------------
 
-char TotemRPGeometry::addSensor(unsigned int id, const DetGeomDesc* &gD)
+char CTPPSGeometry::addSensor(unsigned int id, const DetGeomDesc* &gD)
 {
   if (theMap.find(id) != theMap.end())
     return 1;
@@ -85,7 +85,7 @@ char TotemRPGeometry::addSensor(unsigned int id, const DetGeomDesc* &gD)
 
 //----------------------------------------------------------------------------------------------------
 
-char TotemRPGeometry::addRP(unsigned int id, const DetGeomDesc* &gD)
+char CTPPSGeometry::addRP(unsigned int id, const DetGeomDesc* &gD)
 {
   if (theRomanPotMap.find(id) != theRomanPotMap.end())
     return 1;
@@ -96,11 +96,11 @@ char TotemRPGeometry::addRP(unsigned int id, const DetGeomDesc* &gD)
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* TotemRPGeometry::getSensor(unsigned int id) const
+const DetGeomDesc* CTPPSGeometry::getSensor(unsigned int id) const
 {
   auto it = theMap.find(id);
   if (it == theMap.end())
-    throw cms::Exception("TotemRPGeometry") << "Not found detector with ID " << id << ", i.e. "
+    throw cms::Exception("CTPPSGeometry") << "Not found detector with ID " << id << ", i.e. "
       << CTPPSDetId(id);
 
   return it->second;
@@ -108,48 +108,48 @@ const DetGeomDesc* TotemRPGeometry::getSensor(unsigned int id) const
 
 //----------------------------------------------------------------------------------------------------
 
-const DetGeomDesc* TotemRPGeometry::getRP(unsigned int id) const
+const DetGeomDesc* CTPPSGeometry::getRP(unsigned int id) const
 {
   auto it = theRomanPotMap.find(id);
   if (it == theRomanPotMap.end())
-    throw cms::Exception("TotemRPGeometry") << "Not found RP device with ID " << id << ", i.e. "
+    throw cms::Exception("CTPPSGeometry") << "Not found RP device with ID " << id << ", i.e. "
       << CTPPSDetId(id);
 
   return it->second;
 }
 
 //----------------------------------------------------------------------------------------------------
-std::set<unsigned int> const& TotemRPGeometry::getStationsInArm(unsigned int id) const
+std::set<unsigned int> const& CTPPSGeometry::getStationsInArm(unsigned int id) const
 {
   auto it = stationsInArm.find(id);
   if (it == stationsInArm.end())
-    throw cms::Exception("TotemRPGeometry") << "Arm with ID " << id << " not found.";
+    throw cms::Exception("CTPPSGeometry") << "Arm with ID " << id << " not found.";
   return it->second;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::set<unsigned int> const& TotemRPGeometry::getRPsInStation(unsigned int id) const
+std::set<unsigned int> const& CTPPSGeometry::getRPsInStation(unsigned int id) const
 {
   auto it = rpsInStation.find(id);
   if (it == rpsInStation.end())
-    throw cms::Exception("TotemRPGeometry") << "Station with ID " << id << " not found.";
+    throw cms::Exception("CTPPSGeometry") << "Station with ID " << id << " not found.";
   return it->second;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-std::set<unsigned int> const& TotemRPGeometry::getSensorsInRP(unsigned int id) const
+std::set<unsigned int> const& CTPPSGeometry::getSensorsInRP(unsigned int id) const
 {
   auto it = detsInRP.find(id);
   if (it == detsInRP.end())
-    throw cms::Exception("TotemRPGeometry") << "RP with ID " << id << " not found.";
+    throw cms::Exception("CTPPSGeometry") << "RP with ID " << id << " not found.";
   return it->second;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::localToGlobal(const DetGeomDesc *gd, const CLHEP::Hep3Vector& r) const
+CLHEP::Hep3Vector CTPPSGeometry::localToGlobal(const DetGeomDesc *gd, const CLHEP::Hep3Vector& r) const
 {
   CLHEP::Hep3Vector tmp = gd->rotation() * r;
   tmp.setX(tmp.x() + (gd->translation()).x());
@@ -160,14 +160,14 @@ CLHEP::Hep3Vector TotemRPGeometry::localToGlobal(const DetGeomDesc *gd, const CL
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::localToGlobal(unsigned int id, const CLHEP::Hep3Vector& r) const
+CLHEP::Hep3Vector CTPPSGeometry::localToGlobal(unsigned int id, const CLHEP::Hep3Vector& r) const
 {
   return localToGlobal(getSensor(id), r);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::globalToLocal(const DetGeomDesc *gd, const CLHEP::Hep3Vector& r) const
+CLHEP::Hep3Vector CTPPSGeometry::globalToLocal(const DetGeomDesc *gd, const CLHEP::Hep3Vector& r) const
 {
   CLHEP::Hep3Vector tmp = r;
   tmp.setX(tmp.x() - (gd->translation()).x());
@@ -178,28 +178,28 @@ CLHEP::Hep3Vector TotemRPGeometry::globalToLocal(const DetGeomDesc *gd, const CL
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::globalToLocal(unsigned int id, const CLHEP::Hep3Vector& r) const
+CLHEP::Hep3Vector CTPPSGeometry::globalToLocal(unsigned int id, const CLHEP::Hep3Vector& r) const
 {
   return globalToLocal(getSensor(id), r);
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::localToGlobalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const
+CLHEP::Hep3Vector CTPPSGeometry::localToGlobalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const
 {
   return getSensor(id)->rotation() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::globalToLocalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const
+CLHEP::Hep3Vector CTPPSGeometry::globalToLocalDirection(unsigned int id, const CLHEP::Hep3Vector& dir) const
 {
   return (getSensor(id)->rotation()).Inverse() * dir;
 }
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::getSensorTranslation(unsigned int id) const
+CLHEP::Hep3Vector CTPPSGeometry::getSensorTranslation(unsigned int id) const
 {
   auto gd = getSensor(id);
 
@@ -213,7 +213,7 @@ CLHEP::Hep3Vector TotemRPGeometry::getSensorTranslation(unsigned int id) const
 
 //----------------------------------------------------------------------------------------------------
 
-CLHEP::Hep3Vector TotemRPGeometry::getRPTranslation(unsigned int id) const
+CLHEP::Hep3Vector CTPPSGeometry::getRPTranslation(unsigned int id) const
 {
   auto gd = getRP(id);
 

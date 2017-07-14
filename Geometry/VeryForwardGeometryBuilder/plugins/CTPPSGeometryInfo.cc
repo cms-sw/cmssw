@@ -17,7 +17,7 @@
 #include "Geometry/Records/interface/IdealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardRealGeometryRecord.h"
 #include "Geometry/Records/interface/VeryForwardMisalignedGeometryRecord.h"
-#include "Geometry/VeryForwardGeometryBuilder/interface/TotemRPGeometry.h"
+#include "Geometry/VeryForwardGeometryBuilder/interface/CTPPSGeometry.h"
 
 #include "DataFormats/CTPPSDetId/interface/CTPPSDetId.h"
 #include "DataFormats/CTPPSDetId/interface/TotemRPDetId.h"
@@ -47,7 +47,7 @@ class CTPPSGeometryInfo : public edm::one::EDAnalyzer<>
 
     static void PrintDetId(const CTPPSDetId &id, bool printDetails = true);
 
-    void PrintGeometry(const TotemRPGeometry &, const edm::Event&);
+    void PrintGeometry(const CTPPSGeometry &, const edm::Event&);
 };
 
 //----------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ CTPPSGeometryInfo::CTPPSGeometryInfo(const edm::ParameterSet& ps) :
 
 void CTPPSGeometryInfo::analyze(const edm::Event& event, const edm::EventSetup& es)
 {
-  ESHandle<TotemRPGeometry> geometry;
+  ESHandle<CTPPSGeometry> geometry;
 
   if (!geometryType.compare("ideal"))
   {
@@ -143,7 +143,7 @@ void CTPPSGeometryInfo::PrintDetId(const CTPPSDetId &id, bool printDetails)
 
 //----------------------------------------------------------------------------------------------------
 
-void CTPPSGeometryInfo::PrintGeometry(const TotemRPGeometry &geometry, const edm::Event& event)
+void CTPPSGeometryInfo::PrintGeometry(const CTPPSGeometry &geometry, const edm::Event& event)
 {
   time_t unixTime = event.time().unixTime();
   char timeStr[50];
