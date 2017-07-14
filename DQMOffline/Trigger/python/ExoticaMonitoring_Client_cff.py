@@ -35,7 +35,6 @@ photonEfficiency = DQMEDHarvester("DQMGenericClient",
   
 )
 
-
 NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/NoBPTX/*"),
     verbose        = cms.untracked.uint32(0), # Set to 2 for all messages
@@ -58,5 +57,5 @@ NoBPTXEfficiency = DQMEDHarvester("DQMGenericClient",
 exoticaClient = cms.Sequence(
     metEfficiency
     + NoBPTXEfficiency
-   + photonEfficiency
+    + photonEfficiency
 )

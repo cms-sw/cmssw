@@ -97,8 +97,9 @@ process.emulTPDigis.upgradeHF = cms.bool(True)
 process.emulTPDigis.upgradeHE = cms.bool(True)
 process.emulTPDigis.inputLabel = cms.VInputTag("hcalDigis", "hcalDigis")
 process.emulTPDigis.inputUpgradeLabel = cms.VInputTag("hcalDigis", "hcalDigis")
-process.emulTPDigis.numberOfSamplesHF = cms.int32(2)
-process.emulTPDigis.numberOfPresamplesHF = cms.int32(1)
+# Enable ZS on emulated TPs, to match what is done in data
+process.emulTPDigis.RunZS = cms.bool(True)
+process.emulTPDigis.ZS_threshold = cms.uint32(0)
 process.hcalDigis.InputLabel = rawTag
 
 # Exclude the laser FEDs. They contaminate the QIE10/11 digi collections. 

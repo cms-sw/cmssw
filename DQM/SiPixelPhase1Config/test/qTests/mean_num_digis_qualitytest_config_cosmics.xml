@@ -41,8 +41,8 @@
 
   <!-- PXFORWARD -->
   <!-- PXRING 1 -->
-  <!-- PXDISK Â±1 --> <!-- error -->
-  <QTEST name="Yrange:PXRing_1__PXDisk_Â±1:mean_num_digis" activate="true">
+  <!-- PXDISK ±1 --> <!-- error -->
+  <QTEST name="Yrange:PXRing_1__PXDisk_±1:mean_num_digis" activate="true">
     <TYPE>ContentsYRange</TYPE>
     <PARAM name="useEmptyBins">1</PARAM>
     <PARAM name="error">0.2</PARAM>
@@ -50,8 +50,8 @@
     <PARAM name="ymin">0.01</PARAM>
     <PARAM name="ymax">10.</PARAM>
   </QTEST>
-  <!-- PXDISK Â±2 --> <!-- pass -->
-  <QTEST name="Yrange:PXRing_1__PXDisk_Â±2:mean_num_digis" activate="true">
+  <!-- PXDISK ±2 --> <!-- pass -->
+  <QTEST name="Yrange:PXRing_1__PXDisk_±2:mean_num_digis" activate="true">
     <TYPE>ContentsYRange</TYPE>
     <PARAM name="useEmptyBins">1</PARAM>
     <PARAM name="error">0.2</PARAM>
@@ -59,8 +59,8 @@
     <PARAM name="ymin">0.01</PARAM>
     <PARAM name="ymax">10.</PARAM>
   </QTEST>
-  <!-- PXDISK Â±3 -->
-  <QTEST name="Yrange:PXRing_1__PXDisk_Â±3:mean_num_digis" activate="true">
+  <!-- PXDISK ±3 -->
+  <QTEST name="Yrange:PXRing_1__PXDisk_±3:mean_num_digis" activate="true">
     <TYPE>ContentsYRange</TYPE>
     <PARAM name="useEmptyBins">1</PARAM>
     <PARAM name="error">0.2</PARAM>
@@ -69,8 +69,8 @@
     <PARAM name="ymax">10.</PARAM>
   </QTEST>
   <!-- PXRING 2 -->
-  <!-- PXDISK Â±1 -->
-  <QTEST name="Yrange:PXRing_2__PXDisk_Â±1:mean_num_digis" activate="true">
+  <!-- PXDISK ±1 -->
+  <QTEST name="Yrange:PXRing_2__PXDisk_±1:mean_num_digis" activate="true">
     <TYPE>ContentsYRange</TYPE>
     <PARAM name="useEmptyBins">1</PARAM>
     <PARAM name="error">0.2</PARAM>
@@ -78,8 +78,8 @@
     <PARAM name="ymin">0.01</PARAM>
     <PARAM name="ymax">10.</PARAM>
   </QTEST>
-  <!-- PXDISK Â±2 -->
-  <QTEST name="Yrange:PXRing_2__PXDisk_Â±2:mean_num_digis" activate="true">
+  <!-- PXDISK ±2 -->
+  <QTEST name="Yrange:PXRing_2__PXDisk_±2:mean_num_digis" activate="true">
     <TYPE>ContentsYRange</TYPE>
     <PARAM name="useEmptyBins">1</PARAM>
     <PARAM name="error">0.2</PARAM>
@@ -87,8 +87,8 @@
     <PARAM name="ymin">0.01</PARAM>
     <PARAM name="ymax">10.</PARAM>
   </QTEST>
-  <!-- PXDISK Â±3 -->
-  <QTEST name="Yrange:PXRing_2__PXDisk_Â±3:mean_num_digis" activate="true">
+  <!-- PXDISK ±3 -->
+  <QTEST name="Yrange:PXRing_2__PXDisk_±3:mean_num_digis" activate="true">
     <TYPE>ContentsYRange</TYPE>
     <PARAM name="useEmptyBins">1</PARAM>
     <PARAM name="error">0.2</PARAM>
@@ -115,21 +115,21 @@
 
   <!-- PXFORWARD LINKS -->
   <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_1/mean_num_digis_PXDisk_*1">
-    <TestName activate="true">Yrange:PXRing_1__PXDisk_Â±1:mean_num_digis</TestName>
+    <TestName activate="true">Yrange:PXRing_1__PXDisk_±1:mean_num_digis</TestName>
   </LINK>
   <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_1/mean_num_digis_PXDisk_*2">
-    <TestName activate="true">Yrange:PXRing_1__PXDisk_Â±2:mean_num_digis</TestName>
+    <TestName activate="true">Yrange:PXRing_1__PXDisk_±2:mean_num_digis</TestName>
   </LINK>
   <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_1/mean_num_digis_PXDisk_*3">
-    <TestName activate="true">Yrange:PXRing_1__PXDisk_Â±3:mean_num_digis</TestName>
+    <TestName activate="true">Yrange:PXRing_1__PXDisk_±3:mean_num_digis</TestName>
   </LINK>
   <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_2/mean_num_digis_PXDisk_*1">
-    <TestName activate="true">Yrange:PXRing_2__PXDisk_Â±1:mean_num_digis</TestName>
+    <TestName activate="true">Yrange:PXRing_2__PXDisk_±1:mean_num_digis</TestName>
   </LINK>
   <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_2/mean_num_digis_PXDisk_*2">
-    <TestName activate="true">Yrange:PXRing_2__PXDisk_Â±2:mean_num_digis</TestName>
+    <TestName activate="true">Yrange:PXRing_2__PXDisk_±2:mean_num_digis</TestName>
   </LINK>
   <LINK name="PixelPhase1/Phase1_MechanicalView/PXForward/HalfCylinder_*/PXRing_2/mean_num_digis_PXDisk_*3">
-    <TestName activate="true">Yrange:PXRing_2__PXDisk_Â±3:mean_num_digis</TestName>
+    <TestName activate="true">Yrange:PXRing_2__PXDisk_±3:mean_num_digis</TestName>
   </LINK>
 </TESTCONFIGURATION>

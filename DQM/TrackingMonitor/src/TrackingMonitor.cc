@@ -13,6 +13,7 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/TrackingMonitor/interface/TrackBuildingAnalyzer.h"
 #include "DQM/TrackingMonitor/interface/TrackAnalyzer.h"
@@ -118,6 +119,16 @@ TrackingMonitor::TrackingMonitor(const edm::ParameterSet& iConfig)
   trackToken_          = consumes<edm::View<reco::Track> >(trackProducer);
   trackCandidateToken_ = consumes<TrackCandidateCollection>(tcProducer); 
   seedToken_           = consumes<edm::View<TrajectorySeed> >(seedProducer);
+
+  doMVAPlots = iConfig.getParameter<bool>("doMVAPlots");
+  if(doMVAPlots) {
+    mvaQualityTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<std::string> >("MVAProducers"),
+                                              [&](const std::string& tag) {
+                                                return std::make_tuple(consumes<MVACollection>(edm::InputTag(tag, "MVAValues")),
+                                                                       consumes<QualityMaskCollection>(edm::InputTag(tag, "QualityMasks")));
+                                              });
+    mvaTrackToken_ = consumes<edm::View<reco::Track> >(iConfig.getParameter<edm::InputTag>("TrackProducerForMVA"));
+  }
 
   edm::InputTag stripClusterInputTag_ = iConfig.getParameter<edm::InputTag>("stripCluster");
   edm::InputTag pixelClusterInputTag_ = iConfig.getParameter<edm::InputTag>("pixelCluster");
@@ -651,7 +662,7 @@ void TrackingMonitor::bookHistograms(DQMStore::IBooker & ibooker,
 										      NTrk2DBin,NTrk2DMin,NTrk2DMax
 										      )));
       std::string title = "Number of " + ClusterLabels[i] + " Clusters";
-      if(ClusterLabels[i].compare("Tot")==0)
+      if(ClusterLabels[i]=="Tot")
 	title = "# of Clusters in (Pixel+Strip) Detectors";
       NumberOfTrkVsClusters[i]->setAxisTitle(title, 1);
       NumberOfTrkVsClusters[i]->setAxisTitle("Number of Tracks", 2);
@@ -852,6 +863,26 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	} else {
 	  edm::LogWarning("TrackingMonitor") << "No Track Candidates in the event.  Not filling associated histograms";
 	}
+
+	if(doMVAPlots) {
+	  // Get MVA and quality mask collections
+	  std::vector<const MVACollection *> mvaCollections;
+	  std::vector<const QualityMaskCollection *> qualityMaskCollections;
+
+	  edm::Handle<edm::View<reco::Track> > htracks;
+	  iEvent.getByToken(mvaTrackToken_, htracks);
+
+	  edm::Handle<MVACollection> hmva;
+	  edm::Handle<QualityMaskCollection> hqual;
+	  for(const auto& tokenTpl: mvaQualityTokens_) {
+	    iEvent.getByToken(std::get<0>(tokenTpl), hmva);
+	    iEvent.getByToken(std::get<1>(tokenTpl), hqual);
+
+	    mvaCollections.push_back(hmva.product());
+	    qualityMaskCollections.push_back(hqual.product());
+	  }
+	  theTrackBuildingAnalyzer->analyze(*htracks, mvaCollections, qualityMaskCollections);
+	}
       }
       
       //plots for trajectory seeds
@@ -965,11 +996,11 @@ void TrackingMonitor::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 	  setNclus(iEvent,NClus);
 	  for (uint  i=0; i< ClusterLabels.size(); i++){
 	    if ( doPlotsVsLUMI_ || doAllPlots )	{
-	      if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
-	      if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
+	      if (ClusterLabels[i]  =="Pix") NumberOfPixelClustersVsLUMI->Fill(lumi,NClus[i]);
+	      if (ClusterLabels[i]=="Strip") NumberOfStripClustersVsLUMI->Fill(lumi,NClus[i]);
 	    }
-	    if (ClusterLabels[i].compare("Pix")  ==0) NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
-	    if (ClusterLabels[i].compare("Strip")==0) NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	    if (ClusterLabels[i]  =="Pix") NumberOfPixelClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
+	    if (ClusterLabels[i]=="Strip") NumberOfStripClustersVsGoodPVtx->Fill(float(totalNumGoodPV),NClus[i]);
 	  }
 	
 	if ( doPlotsVsBXlumi_ ) {
@@ -1000,9 +1031,9 @@ void TrackingMonitor::setMaxMinBin(std::vector<double> &arrayMin,  std::vector<d
 
   for (uint i=0; i<ClusterLabels.size(); ++i) {
 
-    if     (ClusterLabels[i].compare("Pix")==0  ) {arrayMin[i]=pmin; arrayMax[i]=pmax;      arrayBin[i]=pbin;}
-    else if(ClusterLabels[i].compare("Strip")==0) {arrayMin[i]=smin; arrayMax[i]=smax;      arrayBin[i]=sbin;}
-    else if(ClusterLabels[i].compare("Tot")==0  ) {arrayMin[i]=smin; arrayMax[i]=smax+pmax; arrayBin[i]=sbin;}
+    if     (ClusterLabels[i]=="Pix"  ) {arrayMin[i]=pmin; arrayMax[i]=pmax;      arrayBin[i]=pbin;}
+    else if(ClusterLabels[i]=="Strip") {arrayMin[i]=smin; arrayMax[i]=smax;      arrayBin[i]=sbin;}
+    else if(ClusterLabels[i]=="Tot"  ) {arrayMin[i]=smin; arrayMax[i]=smax+pmax; arrayBin[i]=sbin;}
     else {edm::LogWarning("TrackingMonitor")  << "Cluster Label " << ClusterLabels[i] << " not defined, using strip parameters "; 
       arrayMin[i]=smin; arrayMax[i]=smax; arrayBin[i]=sbin;}
 
@@ -1029,9 +1060,9 @@ void TrackingMonitor::setNclus(const edm::Event& iEvent,std::vector<int> &arrayN
   arrayNclus.resize(ClusterLabels.size());
   for (uint i=0; i<ClusterLabels.size(); ++i){
     
-    if     (ClusterLabels[i].compare("Pix")==0  ) arrayNclus[i]=ncluster_pix ;
-    else if(ClusterLabels[i].compare("Strip")==0) arrayNclus[i]=ncluster_strip;
-    else if(ClusterLabels[i].compare("Tot")==0  ) arrayNclus[i]=ncluster_pix+ncluster_strip;
+    if     (ClusterLabels[i]=="Pix"  ) arrayNclus[i]=ncluster_pix ;
+    else if(ClusterLabels[i]=="Strip") arrayNclus[i]=ncluster_strip;
+    else if(ClusterLabels[i]=="Tot"  ) arrayNclus[i]=ncluster_pix+ncluster_strip;
     else {edm::LogWarning("TrackingMonitor") << "Cluster Label " << ClusterLabels[i] << " not defined using stri parametrs ";
       arrayNclus[i]=ncluster_strip ;}
   }

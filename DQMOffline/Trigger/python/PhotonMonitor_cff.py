@@ -69,6 +69,53 @@ exoHLTPhotonmonitoring = cms.Sequence(
 )
 
 
+DiphotonMass90_monitoring = hltPhotonmonitoring.clone()
+DiphotonMass90_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass90/')
+DiphotonMass90_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass90_v*")
+DiphotonMass90_monitoring.nphotons = cms.uint32(2)
+DiphotonMass90_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
+
+DiphotonMass95_monitoring = hltPhotonmonitoring.clone()
+DiphotonMass95_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass95/')
+DiphotonMass95_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30_22_R9Id_OR_IsoCaloId_AND_HE_R9Id_Mass95_v*")
+DiphotonMass95_monitoring.nphotons = cms.uint32(2)
+DiphotonMass95_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
+
+DiphotonMass55AND_monitoring = hltPhotonmonitoring.clone()
+DiphotonMass55AND_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55AND/')
+DiphotonMass55AND_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v*")
+DiphotonMass55AND_monitoring.nphotons = cms.uint32(2)
+DiphotonMass55AND_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
+DiphotonMass55AND_monitoring.histoPSet.massBinning = cms.vdouble(50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,75.,80.,90.,110.,150.)
+
+DiphotonMass55EB_monitoring = hltPhotonmonitoring.clone()
+DiphotonMass55EB_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55EB/')
+DiphotonMass55EB_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_PixelVeto_Mass55_v*")
+DiphotonMass55EB_monitoring.nphotons = cms.uint32(2)
+DiphotonMass55EB_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)")
+DiphotonMass55EB_monitoring.histoPSet.massBinning = cms.vdouble(50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,75.,80.,90.,110.,150.)
+
+DiphotonMass55ANDnoPV_monitoring = hltPhotonmonitoring.clone()
+DiphotonMass55ANDnoPV_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55ANDnoPV/')
+DiphotonMass55ANDnoPV_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v*")
+DiphotonMass55ANDnoPV_monitoring.nphotons = cms.uint32(2)
+DiphotonMass55ANDnoPV_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)||(pt > 20 && abs(eta)<2.5 && abs(eta)>1.5556 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.035 && full5x5_r9>.8)")
+DiphotonMass55EB_monitoring.histoPSet.massBinning = cms.vdouble(50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,75.,80.,90.,110.,150.)
+
+DiphotonMass55EBnoPV_monitoring = hltPhotonmonitoring.clone()
+DiphotonMass55EBnoPV_monitoring.FolderName = cms.string('HLT/Photon/diphotonMass55EBnoPV/')
+DiphotonMass55EBnoPV_monitoring.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_NoPixelVeto_Mass55_v*")
+DiphotonMass55EBnoPV_monitoring.nphotons = cms.uint32(2)
+DiphotonMass55EBnoPV_monitoring.photonSelection = cms.string("(pt > 20 && abs(eta)<1.4442 && hadTowOverEm<0.12 && full5x5_sigmaIetaIeta()<0.015 && full5x5_r9>.5)")
+DiphotonMass55EBnoPV_monitoring.histoPSet.massBinning = cms.vdouble(50.,51.,52.,53.,54.,55.,56.,57.,58.,59.,60.,61.,62.,63.,64.,65.,66.,67.,68.,69.,70.,75.,80.,90.,110.,150.)
 
 
 
+higgsHLTDiphotonMonitoring = cms.Sequence(
+    DiphotonMass90_monitoring
+    +DiphotonMass95_monitoring
+    +DiphotonMass55AND_monitoring
+    +DiphotonMass55EB_monitoring
+    +DiphotonMass55ANDnoPV_monitoring
+    +DiphotonMass55EBnoPV_monitoring 
+)

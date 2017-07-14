@@ -36,7 +36,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
 
     for (uint16_t i =0; i< EBDetId::kSizeForDenseIndexing; ++i) {
-        std::string hname = dqmDir_+"/eb_" + std::to_string(i);
+        std::string hname = dqmDir_+"/EB/"+std::to_string(int(i/100))+"/eb_" + std::to_string(i);
         MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
         double rms  = ch->getRMS();
@@ -67,7 +67,7 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
 
     for (uint16_t i =0; i< EEDetId::kSizeForDenseIndexing; ++i) {
 
-        std::string hname = dqmDir_+"/ee_" + std::to_string(i);
+        std::string hname = dqmDir_+"/EE/"+std::to_string(int(i/100))+"/ee_" + std::to_string(i);
      
         MonitorElement* ch= igetter_.get(hname);
         double mean = ch->getMean();
@@ -94,6 +94,9 @@ void ECALpedestalPCLHarvester::dqmEndJob(DQMStore::IBooker& ibooker_, DQMStore::
         pedestals.setValue(id.rawId(),ped);
     }
 
+
+
+    dqmPlots(pedestals, ibooker_);
 
     // check if there are large variations wrt exisiting pedstals
 
@@ -186,5 +189,75 @@ bool ECALpedestalPCLHarvester::checkVariation(const EcalPedestalsMap& oldPedesta
 
     return false;
 
+
+}
+
+
+
+
+void  ECALpedestalPCLHarvester::dqmPlots(const EcalPedestals& newpeds, DQMStore::IBooker& ibooker){
+
+     ibooker.cd();
+     ibooker.setCurrentFolder(dqmDir_+"/Summary");
+
+     MonitorElement * pmeb = ibooker.book2D("meaneb","Pedestal Means",360, 1., 361., 171, -85., 86.);
+     MonitorElement * preb = ibooker.book2D("rmseb","Pedestal RMS",360, 1., 361., 171, -85., 86.);
+
+     MonitorElement * pmeep = ibooker.book2D("meaneep","Pedestal Means",100,1,101,100,1,101);
+     MonitorElement * preep = ibooker.book2D("rmseep","Pedestal RMS",100,1,101,100,1,101);
+
+     MonitorElement * pmeem = ibooker.book2D("meaneem","Pedestal Means",100,1,101,100,1,101);
+     MonitorElement * preem = ibooker.book2D("rmseem","Pedestal RMS",100,1,101,100,1,101);
+
+     MonitorElement * pmebd = ibooker.book2D("meanebdiff","Pedestal Means Diff",360, 1., 361., 171, -85., 86.);
+     MonitorElement * prebd = ibooker.book2D("rmsebdiff","Pedestal RMS Diff",360, 1., 361., 171, -85., 86.);
+
+     MonitorElement * pmeepd = ibooker.book2D("meaneepdiff","Pedestal Means Diff",100,1,101,100,1,101);
+     MonitorElement * preepd = ibooker.book2D("rmseepdiff","Pedestal RMS Diff",100,1,101,100,1,101);
+
+     MonitorElement * pmeemd = ibooker.book2D("meaneemdiff","Pedestal Means Diff",100,1,101,100,1,101);
+     MonitorElement * preemd = ibooker.book2D("rmseemdiff","Pedestal RMS Diff",100,1,101,100,1,101);
+
+     
+     for (int hash =0; hash<EBDetId::kSizeForDenseIndexing;++hash){
+         
+         EBDetId di= EBDetId::detIdFromDenseIndex(hash); 
+         float mean= newpeds[di].mean_x12;
+         float rms = newpeds[di].rms_x12;
+         
+         float cmean = (*currentPedestals_)[di].mean_x12;
+         float crms  = (*currentPedestals_)[di].rms_x12;
+                  
+         pmeb->Fill(di.iphi(),di.ieta(),mean);
+         preb->Fill(di.iphi(),di.ieta(),rms);
+         pmebd->Fill(di.iphi(),di.ieta(),(mean-cmean)/cmean);
+         prebd->Fill(di.iphi(),di.ieta(),(rms-crms)/crms);
+
+     }
+
+     
+     for (int hash =0; hash<EEDetId::kSizeForDenseIndexing;++hash){
+         
+         EEDetId di= EEDetId::detIdFromDenseIndex(hash); 
+         float mean= newpeds[di].mean_x12;
+         float rms = newpeds[di].rms_x12;
+         float cmean = (*currentPedestals_)[di].mean_x12;
+         float crms  = (*currentPedestals_)[di].rms_x12;
+
+         if (di.zside() >0){
+             pmeep->Fill(di.ix(),di.iy(),mean);
+             preep->Fill(di.ix(),di.iy(),rms);
+             pmeepd->Fill(di.ix(),di.iy(),(mean-cmean)/cmean);
+             preepd->Fill(di.ix(),di.iy(),(rms-crms)/crms);
+         } else{
+             pmeem->Fill(di.ix(),di.iy(),mean);
+             preem->Fill(di.ix(),di.iy(),rms);
+             pmeemd->Fill(di.ix(),di.iy(),(mean-cmean)/cmean);
+             preemd->Fill(di.ix(),di.iy(),(rms-crms)/crms);
+         }
+         
+     }
+
+     
 
 }

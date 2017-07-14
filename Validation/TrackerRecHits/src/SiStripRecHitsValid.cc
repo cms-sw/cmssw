@@ -589,21 +589,21 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
       int32_t lnumber = det_layer_pair.second;
       const std::string& lname = det_layer_pair.first; 
       std::vector<uint32_t> layerDetIds;
-      if (lname.compare(tec) == 0) {
+      if (lname == tec) {
         if (lnumber > 0) {
 	  substructure.getTECDetectors(activeDets,layerDetIds,2,0,0,0,abs(lnumber),0);
         } else if (lnumber < 0) {
 	  substructure.getTECDetectors(activeDets,layerDetIds,1,0,0,0,abs(lnumber),0);
         }
-      } else if (lname.compare(tid) == 0) {
+      } else if (lname == tid) {
          if (lnumber > 0) {
 	   substructure.getTIDDetectors(activeDets,layerDetIds,2,0,abs(lnumber),0);
         } else if (lnumber < 0) {
 	  substructure.getTIDDetectors(activeDets,layerDetIds,1,0,abs(lnumber),0);
         }
-      } else if (lname.compare(tob) == 0) {
+      } else if (lname == tob) {
 	substructure.getTOBDetectors(activeDets,layerDetIds,lnumber,0,0);
-      } else if (lname.compare(tib) == 0) {
+      } else if (lname == tib) {
 	substructure.getTIBDetectors(activeDets,layerDetIds,lnumber,0,0,0);
       }  
       LayerDetMap[label] = layerDetIds;
@@ -631,7 +631,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
       std::vector<uint32_t> stereoandmatchedDetIds;        
       int32_t stereolnumber = det_layer_pair.second;
       const std::string& stereolname = det_layer_pair.first;
-      if ( stereolname.compare(tec) == 0 && (tTopo->tecIsStereo(detid)) ) {
+      if ( stereolname == tec && (tTopo->tecIsStereo(detid)) ) {
         if ( stereolnumber > 0 ) {
           substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,2,0,0,0,abs(stereolnumber),1);
 	  isStereo = true;
@@ -639,7 +639,7 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 	  substructure.getTECDetectors(activeDets,stereoandmatchedDetIds,1,0,0,0,abs(stereolnumber),1);
 	  isStereo = true;
         }
-      } else if ( stereolname.compare(tid) == 0 && (tTopo->tidIsStereo(detid)) ) {
+      } else if ( stereolname == tid && (tTopo->tidIsStereo(detid)) ) {
         if ( stereolnumber > 0 ) {
 	  substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,2,0,abs(stereolnumber),1);
 	  isStereo = true;
@@ -647,10 +647,10 @@ void SiStripRecHitsValid::createMEs(DQMStore::IBooker & ibooker,const edm::Event
 	  substructure.getTIDDetectors(activeDets,stereoandmatchedDetIds,1,0,abs(stereolnumber),1);
 	  isStereo = true;
         }
-      } else if ( stereolname.compare(tob) == 0 && (tTopo->tobIsStereo(detid)) ) {
+      } else if ( stereolname == tob && (tTopo->tobIsStereo(detid)) ) {
 	substructure.getTOBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0);
 	isStereo = true;
-      } else if ( stereolname.compare(tib) == 0 && (tTopo->tibIsStereo(detid)) ) {
+      } else if ( stereolname == tib && (tTopo->tibIsStereo(detid)) ) {
 	substructure.getTIBDetectors(activeDets,stereoandmatchedDetIds,stereolnumber,0,0,0);
 	isStereo = true;
       } 

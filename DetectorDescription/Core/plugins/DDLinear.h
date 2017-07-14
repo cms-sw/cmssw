@@ -14,15 +14,15 @@ class DDLinear : public DDAlgorithm
 {
 public:
   DDLinear( void );
-  virtual ~DDLinear( void );
+  ~DDLinear( void ) override;
 
   void initialize( const DDNumericArguments & nArgs,
                    const DDVectorArguments & vArgs,
                    const DDMapArguments & mArgs,
                    const DDStringArguments & sArgs,
-                   const DDStringVectorArguments & vsArgs );
+                   const DDStringVectorArguments & vsArgs ) override;
 
-  void execute( DDCompactView& cpv );
+  void execute( DDCompactView& cpv ) override;
 
 private:
   int           m_n;              //Number of copies

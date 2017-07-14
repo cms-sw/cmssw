@@ -25,7 +25,7 @@ class EcalTBHodoscopeGeometryLoaderFromDDD;
 class EcalTBHodoscopeGeometryEP : public edm::ESProducer {
  public:
   EcalTBHodoscopeGeometryEP(const edm::ParameterSet&);
-  ~EcalTBHodoscopeGeometryEP();
+  ~EcalTBHodoscopeGeometryEP() override;
   
   typedef std::unique_ptr<CaloSubdetectorGeometry> ReturnType;
   

@@ -17,7 +17,7 @@
 class TrackerTopologyAnalyzer : public edm::one::EDAnalyzer<> {
 public:
   explicit TrackerTopologyAnalyzer( const edm::ParameterSet& ) {};
-  ~TrackerTopologyAnalyzer() {};
+  ~TrackerTopologyAnalyzer() override {};
   
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

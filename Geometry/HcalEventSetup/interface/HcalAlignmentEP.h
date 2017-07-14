@@ -28,7 +28,7 @@ public:
   typedef AlignTransform::Rotation    Rot ;
 
   HcalAlignmentEP(const edm::ParameterSet&);
-  ~HcalAlignmentEP();
+  ~HcalAlignmentEP() override;
 
 //-------------------------------------------------------------------
  
