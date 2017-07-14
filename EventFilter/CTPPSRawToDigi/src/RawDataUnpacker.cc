@@ -3,6 +3,7 @@
 * This is a part of TOTEM offline software.
 * Authors: 
 *   Jan Kašpar (jan.kaspar@gmail.com)
+*   Nicola Minafra
 *
 ****************************************************************************/
 
@@ -17,10 +18,9 @@ using namespace edm;
 
 //----------------------------------------------------------------------------------------------------
 
-RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet &conf) :
-  verbosity(conf.getUntrackedParameter<unsigned int>("verbosity", 0))
-{
-}
+RawDataUnpacker::RawDataUnpacker(const edm::ParameterSet& iConfig) :
+  verbosity(iConfig.getUntrackedParameter<unsigned int>("verbosity", 0))
+{}
 
 //----------------------------------------------------------------------------------------------------
 
@@ -47,7 +47,6 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
   // get OptoRx metadata
   unsigned long long head = buf[0];
   unsigned long long foot = buf[frameSize-1];
-
 
   fedInfo.setHeader(head);
   fedInfo.setFooter(foot);
@@ -81,11 +80,11 @@ int RawDataUnpacker::ProcessOptoRxFrame(const word *buf, unsigned int frameSize,
   #endif
 
   // parallel or serial transmission?
-  if (FOV == 1)
+  if (FOV == 1) {
     return ProcessOptoRxFrameSerial(buf, frameSize, fc);
+  }
 
   if (FOV == 2 || FOV == 3) {
-//     std::cout<< "FOV: "<< FOV<<std::endl;
     return ProcessOptoRxFrameParallel(buf, frameSize, fedInfo, fc);
   }
 
@@ -395,19 +394,19 @@ int RawDataUnpacker::ProcessVFATDataParallel(const uint16_t *buf, unsigned int O
         continue;
       }
       switch ( buf[i] & 0xF800 ) {
-        case VFAT_DIAMOND_HEADER_OF_WORD_2:     // If Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_2: // if Word 2 of the diamond VFAT frame is found
           fd[2] = buf[i];
           fd[1] = buf[i + 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_3:     // If Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_3: // if Word 2 of the diamond VFAT frame is found
           fd[3] = buf[i];
           fd[4] = buf[i - 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_5:     // If Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_5: // if Word 2 of the diamond VFAT frame is found
           fd[5] = buf[i];
           fd[6] = buf[i - 1];
           break;
-        case VFAT_DIAMOND_HEADER_OF_WORD_7:     // If Word 2 of the diamond VFAT frame is found
+        case VFAT_DIAMOND_HEADER_OF_WORD_7: // if Word 2 of the diamond VFAT frame is found
           fd[7] = buf[i];
           fd[8] = buf[i - 1];
           break;
