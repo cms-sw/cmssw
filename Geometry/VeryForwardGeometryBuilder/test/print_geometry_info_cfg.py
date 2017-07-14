@@ -11,13 +11,11 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # geometry
-# TODO
-#process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
-process.load("Configuration.Geometry.geometry_CTPPS_alaTotem_RECO_cfi")
+process.load("Geometry.VeryForwardGeometry.geometryRP_cfi")
 
 # load alignment correction
 process.load("Geometry.VeryForwardGeometryBuilder.ctppsIncludeAlignments_cfi")
-process.ctppsIncludeAlignments.RealFiles = cms.vstring()
+process.ctppsIncludeAlignments.RealFiles = cms.vstring("./alignment_corrections.xml")
 
 # no events to process
 process.source = cms.Source("EmptySource")
