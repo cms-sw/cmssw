@@ -3,7 +3,6 @@
 
 #include <iostream>
 #include <string>
-#include <boost/range/irange.hpp>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
