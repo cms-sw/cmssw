@@ -7,6 +7,7 @@ from RecoBTag.SecondaryVertex.secondaryVertex_cff import *
 from RecoBTag.Combined.combinedMVA_cff import *
 from RecoBTag.CTagging.RecoCTagging_cff import *
 from RecoBTag.Combined.deepFlavour_cff import *
+from RecoBTag.DeepFlavour.DeepFlavour_cff import *
 from RecoVertex.AdaptiveVertexFinder.inclusiveVertexing_cff import *
 
 legacyBTaggingTask = cms.Task(
@@ -65,8 +66,10 @@ pfBTaggingTask = cms.Task(
     # overall combined taggers
     #CSV + soft-lepton + jet probability discriminators combined
     pfCombinedMVAV2BJetTags,
-    pfChargeBJetTags
+    pfChargeBJetTags,
+    pfDeepFlavourJetTags
 )
+
 pfBTagging = cms.Sequence(pfBTaggingTask)
 
 btaggingTask = cms.Task(
