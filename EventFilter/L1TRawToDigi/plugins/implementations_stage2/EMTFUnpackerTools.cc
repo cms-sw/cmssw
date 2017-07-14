@@ -97,7 +97,7 @@ namespace l1t {
 	_track.set_gmt_charge ( _SP.C() );
 	_track.set_gmt_charge_valid( _SP.VC() );
 
-	EMTFPtLUT _lut;
+	EMTFPtLUT _lut = {};
 	_lut.address = _SP.Pt_LUT_addr();
 	_track.set_PtLUT( _lut );
 	
