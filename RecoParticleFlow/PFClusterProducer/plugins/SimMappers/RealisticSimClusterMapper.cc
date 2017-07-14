@@ -84,19 +84,20 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
         }
 
     }
-    realisticAssociator.computeAssociation(exclusiveFraction_, useMCFractionsForExclEnergy_,rhtools_.lastLayerEE(), rhtools_.lastLayerFH() );
+    realisticAssociator.computeAssociation(exclusiveFraction_, useMCFractionsForExclEnergy_,
+            rhtools_.lastLayerEE(), rhtools_.lastLayerFH());
     realisticAssociator.findAndMergeInvisibleClusters(invisibleFraction_, exclusiveFraction_);
     const auto& realisticClusters = realisticAssociator.realisticClusters();
     unsigned int nClusters = realisticClusters.size();
     for (unsigned ic = 0; ic < nClusters; ++ic)
     {
 
+        float highest_energy = 0.0f;
+        output.emplace_back();
+        reco::PFCluster& back = output.back();
+        edm::Ref < std::vector<reco::PFRecHit> > seed;
         if (realisticClusters[ic].isVisible())
         {
-            float highest_energy = 0.0f;
-            output.emplace_back();
-            reco::PFCluster& back = output.back();
-            edm::Ref < std::vector<reco::PFRecHit> > seed;
             const auto& hitsIdsAndFractions = realisticClusters[ic].hitsIdsAndFractions();
             for (const auto& idAndF : hitsIdsAndFractions)
             {
@@ -110,17 +111,17 @@ void RealisticSimClusterMapper::buildClusters(const edm::Handle<reco::PFRecHitCo
                     seed = ref;
                 }
             }
-            if (back.hitsAndFractions().size() != 0)
-            {
-                back.setSeed(seed->detId());
-                back.setEnergy(realisticClusters[ic].getEnergy());
-                back.setCorrectedEnergy(realisticClusters[ic].getEnergy());
-            }
-            else
-            {
-                back.setSeed(-1);
-                back.setEnergy(0.f);
-            }
+        }
+        if (back.hitsAndFractions().size() != 0)
+        {
+            back.setSeed(seed->detId());
+            back.setEnergy(realisticClusters[ic].getEnergy());
+            back.setCorrectedEnergy(realisticClusters[ic].getEnergy());
+        }
+        else
+        {
+            back.setSeed(-1);
+            back.setEnergy(0.f);
         }
     }
 }
