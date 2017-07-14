@@ -88,6 +88,7 @@ hcalRecAlgos = cms.ESProducer("HcalRecAlgoESProducer",
     DropChannelStatusBits = cms.vstring('HcalCellMask','HcalCellOff', 'HcalCellDead')
 ) 
 
+# This is to use phase1 flags defined in DataFormats/METReco/interface/HcalPhase1FlagLabels.h
 from Configuration.Eras.Modifier_run2_HCAL_2017_cff import run2_HCAL_2017
 run2_HCAL_2017.toModify(hcalRecAlgos,
     phase = cms.uint32(1),
