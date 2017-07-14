@@ -217,8 +217,8 @@ std::pair<double,double> fitTwoGauss (TH1D* hist, bool debug) {
 std::pair<double,double> fitOneGauss (TH1D* hist, bool debug) {
   double mean     = hist->GetMean();
   double rms      = hist->GetRMS();
-  double LowEdge  = ((mean-1.5*rms)<0.15) ? 0.15 : (mean-1.5*rms);
-  double HighEdge = (hist->GetEntries()>100) ? (mean+2.0*rms) : (mean+1.5*rms);
+  double LowEdge  = ((mean-1.5*rms)<0.15) ? 0.15 : (mean-1.0*rms);
+  double HighEdge = (hist->GetEntries()>100) ? (mean+1.5*rms) : (mean+1.0*rms);
   std::string option = (hist->GetEntries()>100) ? "QRS" : "QRWLS";
   TFitResultPtr Fit = hist->Fit("gaus",option.c_str(),"",LowEdge,HighEdge);
   double value = Fit->Value(1);
