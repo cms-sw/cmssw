@@ -54,7 +54,7 @@ autoCond = {
     # GlobalTag for MC production with perfectly aligned and calibrated detector for Phase1 2019
     'phase1_2019_design'       : 'DES19_70_V2', # placeholder (GT not meant for standard RelVal) 
     # GlobalTag for MC production with realistic conditions for Phase2 2023
-    'phase2_realistic'         : '91X_upgrade2023_realistic_v1'
+    'phase2_realistic'         : '91X_upgrade2023_realistic_v3'
 }
 
 aliases = {
