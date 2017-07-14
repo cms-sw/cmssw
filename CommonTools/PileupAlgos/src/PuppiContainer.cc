@@ -263,8 +263,7 @@ std::vector<double> const & PuppiContainer::puppiWeights() {
         if(pWeight*fPFParticles[i0].pt()   < fPuppiAlgo[pPupId].neutralPt(fNPV) && fRecoParticles[i0].id == 0 ) pWeight = 0;  //threshold cut on the neutral Pt
         if(fInvert) pWeight = 1.-pWeight;
         //std::cout << "fRecoParticles[i0].pt = " <<  fRecoParticles[i0].pt << ", fRecoParticles[i0].charge = " << fRecoParticles[i0].charge << ", fRecoParticles[i0].id = " << fRecoParticles[i0].id << ", weight = " << pWeight << std::endl;
-        if(fPFParticles[i0].pt()>0)
-          pWeight=min(max(pWeight,fPFParticles[i0].pt()/fPtMax),1.);
+        if(fRecoParticles[i0].id == 0) pWeight=min(max(pWeight,fPFParticles[i0].pt()/fPtMax),1.);
 
         fWeights .push_back(pWeight);
         fAlphaMed.push_back(fPuppiAlgo[pPupId].median());
