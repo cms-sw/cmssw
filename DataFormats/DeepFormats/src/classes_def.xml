@@ -1,0 +1,15 @@
+<lcgdict>
+
+  <class name="deep::JetFeatures"/>
+  <class name="deep::SecondaryVertexFeatures"/>
+  <class name="deep::DeepFlavourFeatures"/>
+
+  <class name="reco::DeepFlavourTagInfo"/>
+  <class name="reco::DeepFlavourTagInfoCollection"/>
+  <class name="reco::DeepFlavourTagInfoRef"/>
+  <class name="reco::DeepFlavourTagInfoFwdRef"/>
+  <class name="reco::DeepFlavourTagInfoRefProd"/>
+  <class name="reco::DeepFlavourTagInfoRefVector"/>
+  <class name="edm::Wrapper<reco::DeepFlavourTagInfoCollection>"/>
+
+</lcgdict>
