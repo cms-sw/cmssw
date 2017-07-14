@@ -722,7 +722,7 @@ def _mergeBinLabels(labelsAll):
                 # pick the last addition of the bin
                 ind = labels_merged.index(lab)
                 if operation[ind] == "-" and operation[-1] == "+":
-                    label_merged.remove(lab)
+                    labels_merged.remove(lab)
                     del operation[ind] # to keep xbinlabels and operation indices in sync
                 elif operation[ind] == "+" and operation[-1] == "-":
                     del operation[-1] # to keep xbinlabels and operation indices in sync
