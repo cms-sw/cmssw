@@ -24,14 +24,19 @@ public:
 
   
 CTPPSPixelCluster(uint16_t isize, uint16_t * adcs,         
-		  uint8_t const * rowpos,  uint8_t const * colpos, 
-		  uint8_t const  rowmin,  uint8_t const  colmin) :
+		  uint8_t const * rowpos,  uint8_t const * colpos ) :
   thePixelOffset(2*isize), // the pixel offset is the pixel position inside the cluster wrt rowmin (even positions) and colmin (odd positions)
     thePixelADC(adcs, adcs+isize)   
     {
 
       uint8_t maxCol = 0;
       uint8_t maxRow = 0;
+      uint8_t rowmin = MAXROW;
+      uint8_t colmin = MAXCOL;
+      for (unsigned int j=0; j!=isize; ++j) {
+	rowmin = std::min(rowpos[j],rowmin);
+	colmin = std::min(colpos[j],colmin);
+      }
       for (unsigned int i=0; i!=isize; ++i) {
 	uint8_t rowoffset = rowpos[i]-rowmin;
 	uint8_t coloffset = colpos[i]-colmin;
