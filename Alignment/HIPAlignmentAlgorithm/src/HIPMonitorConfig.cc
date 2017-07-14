@@ -4,8 +4,10 @@
 HIPMonitorConfig::HIPMonitorConfig(const edm::ParameterSet& cfg) :
 cfgMonitor(cfg.getParameter<edm::ParameterSet>("monitorConfig")),
 outfilecore(cfgMonitor.getParameter<std::string>("outfile")),
-fillTrackMonitoring(cfgMonitor.getParameter<bool>("fillTrackMonitoring")),
 maxEventsPerJob(cfgMonitor.getParameter<int>("maxEventsPerJob")),
+fillTrackMonitoring(cfgMonitor.getParameter<bool>("fillTrackMonitoring")),
+maxTracks(cfgMonitor.getParameter<int>("maxTracks")),
+trackmonitorvars(maxEventsPerJob, maxTracks),
 fillTrackHitMonitoring(cfgMonitor.getParameter<bool>("fillTrackHitMonitoring")),
 maxHits(cfgMonitor.getParameter<int>("maxHits")),
 eventCounter(0),
@@ -17,8 +19,9 @@ hitCounter(0)
 HIPMonitorConfig::HIPMonitorConfig(const HIPMonitorConfig& other) :
 cfgMonitor(other.cfgMonitor),
 outfilecore(other.outfilecore),
-fillTrackMonitoring(other.fillTrackMonitoring),
 maxEventsPerJob(other.maxEventsPerJob),
+fillTrackMonitoring(other.fillTrackMonitoring),
+maxTracks(other.maxTracks),
 fillTrackHitMonitoring(other.fillTrackHitMonitoring),
 maxHits(other.maxHits),
 outfile(other.outfile),

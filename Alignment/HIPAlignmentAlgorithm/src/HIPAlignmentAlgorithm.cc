@@ -753,22 +753,22 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
 
     // fill track parameters in root tree
     {
-      m_Nhits.push_back(nhit);
-      m_Pt.push_back(pt);
-      m_P.push_back(p);
-      m_Eta.push_back(eta);
-      m_Phi.push_back(phi);
-      m_Chi2n.push_back(chi2n);
-      m_nhPXB.push_back(nhpxb);
-      m_nhPXF.push_back(nhpxf);
-      m_nhTIB.push_back(nhtib);
-      m_nhTOB.push_back(nhtob);
-      m_nhTID.push_back(nhtid);
-      m_nhTEC.push_back(nhtec);
-      m_d0.push_back(d0);
-      m_dz.push_back(dz);
-      m_wt.push_back(ihitwt);
-      m_Ntracks++;
+      theMonitorConfig.trackmonitorvars.m_Nhits.push_back(nhit);
+      theMonitorConfig.trackmonitorvars.m_Pt.push_back(pt);
+      theMonitorConfig.trackmonitorvars.m_P.push_back(p);
+      theMonitorConfig.trackmonitorvars.m_Eta.push_back(eta);
+      theMonitorConfig.trackmonitorvars.m_Phi.push_back(phi);
+      theMonitorConfig.trackmonitorvars.m_Chi2n.push_back(chi2n);
+      theMonitorConfig.trackmonitorvars.m_nhPXB.push_back(nhpxb);
+      theMonitorConfig.trackmonitorvars.m_nhPXF.push_back(nhpxf);
+      theMonitorConfig.trackmonitorvars.m_nhTIB.push_back(nhtib);
+      theMonitorConfig.trackmonitorvars.m_nhTOB.push_back(nhtob);
+      theMonitorConfig.trackmonitorvars.m_nhTID.push_back(nhtid);
+      theMonitorConfig.trackmonitorvars.m_nhTEC.push_back(nhtec);
+      theMonitorConfig.trackmonitorvars.m_d0.push_back(d0);
+      theMonitorConfig.trackmonitorvars.m_dz.push_back(dz);
+      theMonitorConfig.trackmonitorvars.m_wt.push_back(ihitwt);
+      theMonitorConfig.trackmonitorvars.m_Ntracks++;
     }
 
     std::vector<const TransientTrackingRecHit*> hitvec;
@@ -951,7 +951,7 @@ void HIPAlignmentAlgorithm::run(const edm::EventSetup& setup, const EventInfo &e
   } // end of track loop
 
   // fill eventwise root tree (with prescale defined in pset)
-  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents() && theTrackMonitorTree!=nullptr) theTrackMonitorTree->Fill();
+  if (theMonitorConfig.fillTrackMonitoring && theMonitorConfig.checkNevents()) theMonitorConfig.trackmonitorvars.fill();
 }
 
 // ----------------------------------------------------------------------------
@@ -1059,23 +1059,9 @@ void HIPAlignmentAlgorithm::bookRoot(void){
       theTrackMonitorTree = new TTree(tname, "Eventwise tree");
       //theTrackMonitorTree->Branch("Run",     &m_Run,     "Run/I");
       //theTrackMonitorTree->Branch("Event",   &m_Event,   "Event/I");
-      theTrackMonitorTree->Branch("Ntracks", &m_Ntracks);
-      theTrackMonitorTree->Branch("Nhits", &m_Nhits);
       theTrackMonitorTree->Branch("DataType", &m_datatype);
-      theTrackMonitorTree->Branch("nhPXB", &m_nhPXB);
-      theTrackMonitorTree->Branch("nhPXF", &m_nhPXF);
-      theTrackMonitorTree->Branch("nhTIB", &m_nhTIB);
-      theTrackMonitorTree->Branch("nhTOB", &m_nhTOB);
-      theTrackMonitorTree->Branch("nhTID", &m_nhTID);
-      theTrackMonitorTree->Branch("nhTEC", &m_nhTEC);
-      theTrackMonitorTree->Branch("Pt", &m_Pt);
-      theTrackMonitorTree->Branch("P", &m_P);
-      theTrackMonitorTree->Branch("Eta", &m_Eta);
-      theTrackMonitorTree->Branch("Phi", &m_Phi);
-      theTrackMonitorTree->Branch("Chi2n", &m_Chi2n);
-      theTrackMonitorTree->Branch("d0", &m_d0);
-      theTrackMonitorTree->Branch("dz", &m_dz);
-      theTrackMonitorTree->Branch("wt", &m_wt);
+      theMonitorConfig.trackmonitorvars.setTree(theTrackMonitorTree);
+      theMonitorConfig.trackmonitorvars.bookBranches();
     }
     // book hit-wise ROOT Tree
     if (theMonitorConfig.fillTrackHitMonitoring){
