@@ -1,38 +1,38 @@
 // Class for muon tracks in EMTF - AWB 04.01.16
 // Mostly copied from L1Trigger/L1TMuonEndCap/interface/MuonInternalTrack.h
 
-#ifndef __l1t_EMTFTrackExtra_h__
-#define __l1t_EMTFTrackExtra_h__
+#ifndef __l1t_EMTFTrack2016Extra_h__
+#define __l1t_EMTFTrack2016Extra_h__
 
 #include <vector>
 #include <boost/cstdint.hpp> 
 
-#include "DataFormats/L1TMuon/interface/EMTFTrack.h"
-#include "DataFormats/L1TMuon/interface/EMTFHitExtra.h"
+#include "DataFormats/L1TMuon/interface/EMTFTrack2016.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit2016Extra.h"
 
 
 namespace l1t {
-  class EMTFTrackExtra: public EMTFTrack {
+  class EMTFTrack2016Extra: public EMTFTrack2016 {
   public:
     
-  EMTFTrackExtra() :
+  EMTFTrack2016Extra() :
     first_bx(-999), second_bx(-999), pt_XML(-999), theta_int(-999), theta_deg(-999), theta_rad(-999), 
       type(-999), rank(-999), layer(-999), straightness(-999), strip(-999), isGMT(-999), numHitsExtra(0)
 	{};
     
-    virtual ~EMTFTrackExtra() {};
+    virtual ~EMTFTrack2016Extra() {};
 
-    EMTFTrack CreateEMTFTrack();
+    EMTFTrack2016 CreateEMTFTrack2016();
 
-    void set_HitsExtra(EMTFHitExtraCollection bits)  { _HitsExtra = bits;                numHitsExtra = _HitsExtra.size(); }
-    void push_HitExtra(EMTFHitExtra bits)            { _HitsExtra.push_back(bits);       numHitsExtra = _HitsExtra.size(); }
+    void set_HitsExtra(EMTFHit2016ExtraCollection bits)  { _HitsExtra = bits;                numHitsExtra = _HitsExtra.size(); }
+    void push_HitExtra(EMTFHit2016Extra bits)            { _HitsExtra.push_back(bits);       numHitsExtra = _HitsExtra.size(); }
     void set_HitExtraIndices(std::vector<uint> bits) { _HitExtraIndices = bits;          numHitsExtra = _HitExtraIndices.size(); }
     void push_HitExtraIndex(uint bits)               { _HitExtraIndices.push_back(bits); numHitsExtra = _HitExtraIndices.size(); }
 
     int NumHitsExtra()                             const { return numHitsExtra; }
-    EMTFHitExtraCollection HitsExtra()                   { return _HitsExtra; }
+    EMTFHit2016ExtraCollection HitsExtra()                   { return _HitsExtra; }
     std::vector<uint> HitExtraIndices()                  { return _HitExtraIndices; }
-    const EMTFHitExtraCollection * PtrHitsExtra()  const { return &_HitsExtra; }
+    const EMTFHit2016ExtraCollection * PtrHitsExtra()  const { return &_HitsExtra; }
     const std::vector<uint> * PtrHitExtraIndices() const { return &_HitExtraIndices; }
     
     /* // Can't have a vector of vectors of vectors in ROOT files */
@@ -68,7 +68,7 @@ namespace l1t {
     
   private:
     
-    EMTFHitExtraCollection _HitsExtra;
+    EMTFHit2016ExtraCollection _HitsExtra;
     std::vector<uint>  _HitExtraIndices;
 
     /* // Can't have a vector of vectors of vectors in ROOT files */
@@ -90,11 +90,11 @@ namespace l1t {
     int   isGMT;        //  0 or 1.  Filled in emulator.
     int   numHitsExtra;
     
-  }; // End of class EMTFTrackExtra
+  }; // End of class EMTFTrack2016Extra
   
-  // Define a vector of EMTFTrackExtra
-  typedef std::vector<EMTFTrackExtra> EMTFTrackExtraCollection;
+  // Define a vector of EMTFTrack2016Extra
+  typedef std::vector<EMTFTrack2016Extra> EMTFTrack2016ExtraCollection;
   
 } // End of namespace l1t
 
-#endif /* define __l1t_EMTFTrackExtra_h__ */
+#endif /* define __l1t_EMTFTrack2016Extra_h__ */

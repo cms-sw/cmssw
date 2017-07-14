@@ -1,8 +1,8 @@
 
-#ifndef EMTFHitTools_h
-#define EMTFHitTools_h
+#ifndef EMTFHit2016Tools_h
+#define EMTFHit2016Tools_h
 
-#include "DataFormats/L1TMuon/interface/EMTFHitExtra.h"
+#include "DataFormats/L1TMuon/interface/EMTFHit2016Extra.h"
 
 namespace l1t {
   
@@ -25,4 +25,4 @@ namespace l1t {
   
 } // End namespace l1t
 
-#endif /* define EMTFHitTools_h */
+#endif /* define EMTFHit2016Tools_h */
