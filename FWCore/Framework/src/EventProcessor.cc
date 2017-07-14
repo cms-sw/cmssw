@@ -66,7 +66,6 @@
 #include "MessageForSource.h"
 #include "MessageForParent.h"
 
-#include "boost/thread/xtime.hpp"
 #include "boost/range/adaptor/reversed.hpp"
 
 #include <exception>
