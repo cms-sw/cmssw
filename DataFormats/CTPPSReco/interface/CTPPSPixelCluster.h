@@ -53,16 +53,16 @@ CTPPSPixelCluster(uint16_t isize, uint16_t * adcs,
 
   float avg_row() const {
     float qm = 0.0;
-    int isize = thePixelADC.size();
-    for (int i=0; i<isize; ++i)
+    unsigned int isize = thePixelADC.size();
+    for (unsigned int i=0; i<isize; ++i)
       qm += float(thePixelADC[i]) * (thePixelOffset[i*2] + theMinPixelRow + 0.5f);
     return qm/charge();
   }
    
   float avg_col() const {
     float qm = 0.0;
-    int isize = thePixelADC.size();
-    for (int i=0; i<isize; ++i)
+    unsigned int isize = thePixelADC.size();
+    for (unsigned int i=0; i<isize; ++i)
       qm += float(thePixelADC[i]) * (thePixelOffset[i*2+1]  + theMinPixelCol + 0.5f);
     return qm/charge();
   }
@@ -71,38 +71,38 @@ CTPPSPixelCluster(uint16_t isize, uint16_t * adcs,
 
   inline float charge() const {
     float qm = 0.0;
-    int isize = thePixelADC.size();
-    for (int i=0; i<isize; ++i) 
+    unsigned int isize = thePixelADC.size();
+    for (unsigned int i=0; i<isize; ++i) 
       qm += float(thePixelADC[i]);
     return qm;
   }
 
   // Return number of pixels.
-  int size() const { return thePixelADC.size();}
+  unsigned int size() const { return thePixelADC.size();}
    
   // Return cluster dimension in rows
-  int sizeRow() const { return thePixelRowSpan +1;}
+  unsigned int sizeRow() const { return thePixelRowSpan +1;}
    
   // Return cluster dimension in columns
-  int sizeCol() const { return thePixelColSpan +1;}
+  unsigned int sizeCol() const { return thePixelColSpan +1;}
 
-  inline int minPixelRow() const { return theMinPixelRow;}
-  inline int minPixelCol() const { return theMinPixelCol;}
+  inline unsigned int minPixelRow() const { return theMinPixelRow;}
+  inline unsigned int minPixelCol() const { return theMinPixelCol;}
 
   
-  inline int colSpan() const {return thePixelColSpan; }
-  inline int rowSpan() const { return thePixelRowSpan; }
+  inline unsigned int colSpan() const {return thePixelColSpan; }
+  inline unsigned int rowSpan() const { return thePixelRowSpan; }
 
   const std::vector<uint8_t> & pixelOffset() const { return thePixelOffset;}
   const std::vector<uint16_t> & pixelADC() const { return thePixelADC;}
 
-  int pixelRow(int i) const {
+  unsigned int pixelRow(unsigned int i) const {
     return theMinPixelRow + thePixelOffset[i*2];
   }
-  int pixelCol(int i) const {
+  unsigned int pixelCol(unsigned int i) const {
     return theMinPixelCol + thePixelOffset[i*2+1];
   }
-  int pixelADC(int i) const {
+  unsigned int pixelADC(unsigned int i) const {
     return thePixelADC[i];
   }
   
