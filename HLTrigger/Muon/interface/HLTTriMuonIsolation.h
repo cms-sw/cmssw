@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <string>
+#include <boost/range/irange.hpp>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/global/EDProducer.h"
@@ -110,30 +111,38 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
     edm::Handle<reco::TrackCollection> IsoTracks;
     iEvent.getByToken(IsoTracksToken_, IsoTracks);
           
-    if (AllMuCands->size() >= 3){
+    if (AllMuCands->size() >= 3 && L3MuCands->size() >= 2){
         // Create the 3-muon candidates
         // loop over L3/Trk muons and create all combinations
-        for (unsigned int i = 0; i != AllMuCands->size(); ++i){
-            const reco::TrackRef &tk_i = (*AllMuCands)[i].track();
-            for (unsigned int j = i+1; j != AllMuCands->size(); ++j){
-                const reco::TrackRef &tk_j = (*AllMuCands)[j].track();
-                for (unsigned int k = j+1; k != AllMuCands->size(); ++k){
-                    const reco::TrackRef &tk_k = (*AllMuCands)[k].track();
-
-                    int passingPreviousFilter_1 = 0;
-                    int passingPreviousFilter_2 = 0;
-                    int passingPreviousFilter_3 = 0;
-    
+        auto AllMuCands_end = AllMuCands->end();
+        for (auto i = AllMuCands->begin(); i != AllMuCands_end; ++i) {
+            // check that muon_i passes the previous filter
+            bool passingPreviousFilter_1 = false;
+            const reco::TrackRef &tk_i = i->track();
+            for (std::vector<reco::RecoChargedCandidateRef>::const_iterator imu = PassedL3Muons.begin(); imu != PassedL3Muons.end(); ++imu){
+                reco::TrackRef candTrkRef = (*imu)->get<reco::TrackRef>();
+                if (reco::deltaR2(tk_i->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_1 = true;
+            }
+            for (auto j = i+1; j != AllMuCands_end; ++j) {
+                // check that muon_j passes the previous filter
+                bool passingPreviousFilter_2 = false;
+                const reco::TrackRef &tk_j = j->track();
+                for (std::vector<reco::RecoChargedCandidateRef>::const_iterator imu = PassedL3Muons.begin(); imu != PassedL3Muons.end(); ++imu){
+                    reco::TrackRef candTrkRef = (*imu)->get<reco::TrackRef>();
+                    if (reco::deltaR2(tk_j->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_2 = true;                
+                }
+                for (auto k = j+1; k != AllMuCands_end; ++k){
+                    // check that muon_k passes the previous filter
+                    bool passingPreviousFilter_3 = false;
+                    const reco::TrackRef &tk_k = k->track();
                     for (std::vector<reco::RecoChargedCandidateRef>::const_iterator imu = PassedL3Muons.begin(); imu != PassedL3Muons.end(); ++imu){
                         reco::TrackRef candTrkRef = (*imu)->get<reco::TrackRef>();
-                        if (reco::deltaR2(tk_i->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_1++;
-                        if (reco::deltaR2(tk_j->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_2++; 
-                        if (reco::deltaR2(tk_k->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_3++;
+                        if (reco::deltaR2(tk_k->momentum(), candTrkRef->momentum()) < (0.03*0.03)) passingPreviousFilter_3 = true;
                     }                    
                     // at least two muons must have passed the previous di-muon filter
-                    if (((passingPreviousFilter_1 < 1) & (passingPreviousFilter_2 < 1)) ||
-                        ((passingPreviousFilter_1 < 1) & (passingPreviousFilter_3 < 1)) ||
-                        ((passingPreviousFilter_2 < 1) & (passingPreviousFilter_3 < 1))) continue;
+                    if (!( (passingPreviousFilter_1 & passingPreviousFilter_2 ) ||
+                           (passingPreviousFilter_1 & passingPreviousFilter_3 ) ||
+                           (passingPreviousFilter_2 & passingPreviousFilter_3 ) )) continue;
 
                     // Create a composite candidate to be a tau
                     reco::CompositeCandidate Tau;
@@ -141,9 +150,9 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
                     // sort the muons by pt and add them to the tau
                     reco::RecoChargedCandidateCollection Daughters;
                     
-                    Daughters.push_back((*AllMuCands)[i]);
-                    Daughters.push_back((*AllMuCands)[j]);
-                    Daughters.push_back((*AllMuCands)[k]);
+                    Daughters.push_back(*i);
+                    Daughters.push_back(*j);
+                    Daughters.push_back(*k);
                                                             
                     std::sort(Daughters.begin(), Daughters.end(), ptComparer);
 
@@ -160,6 +169,11 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
                     Tau.setCharge(charge);
                     Tau.setPdgId(tauPdgId);
                     Tau.setVertex((Daughters)[0].vertex()); // assign the leading muon vertex as tau vertex
+
+                    // the three muons must be close in Z
+                    if (std::abs(Tau.daughter(0)->vz() - Tau.vz()) > MaxDZ_) continue;
+                    if (std::abs(Tau.daughter(1)->vz() - Tau.vz()) > MaxDZ_) continue;
+                    if (std::abs(Tau.daughter(2)->vz() - Tau.vz()) > MaxDZ_) continue;
                                                             
                     Taus->push_back(Tau);
                 }
@@ -168,24 +182,22 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
 
         // Loop over taus and further select
         for (reco::CompositeCandidateCollection::const_iterator itau = Taus->begin(); itau != Taus->end(); ++itau){
-            if (    itau->pt()   < TriMuonPtCut_  ) continue;
-            if (    itau->mass() < MinTriMuonMass_) continue;
-            if (    itau->mass() > MaxTriMuonMass_) continue;
-            if (abs(itau->eta()) > TriMuonEtaCut_ ) continue;
-            if (itau->daughter(0)->pt() < Muon1PtCut_) continue;
-            if (itau->daughter(1)->pt() < Muon2PtCut_) continue;
-            if (itau->daughter(2)->pt() < Muon3PtCut_) continue;
-            if ((abs(itau->charge()) != TriMuonAbsCharge_) & (TriMuonAbsCharge_ >= 0)) continue;
-            if (abs(itau->daughter(0)->vz() - itau->vz()) > MaxDZ_) continue;
-            if (abs(itau->daughter(1)->vz() - itau->vz()) > MaxDZ_) continue;
-            if (abs(itau->daughter(2)->vz() - itau->vz()) > MaxDZ_) continue;
+            if (         itau->pt()   < TriMuonPtCut_  ) continue;
+            if (         itau->mass() < MinTriMuonMass_) continue;
+            if (         itau->mass() > MaxTriMuonMass_) continue;
+            if (std::abs(itau->eta()) > TriMuonEtaCut_ ) continue;
+            if (itau->daughter(0)->pt() < Muon1PtCut_  ) continue;
+            if (itau->daughter(1)->pt() < Muon2PtCut_  ) continue;
+            if (itau->daughter(2)->pt() < Muon3PtCut_  ) continue;
+            if ((std::abs(itau->charge()) != TriMuonAbsCharge_) & (TriMuonAbsCharge_ >= 0)) continue;
             
-            double sumPt = -itau->pt(); // remove the candidate pt from the iso sum
+            // remove the candidate pt from the iso sum
+            double sumPt = -itau->pt(); 
             
             // compute iso sum pT
             for (reco::TrackCollection::const_iterator itrk = IsoTracks->begin(); itrk != IsoTracks->end(); ++itrk){
                 if (reco::deltaR2(itrk->momentum(), itau->p4()) > IsoConeSize_*IsoConeSize_) continue;
-                if (abs(itrk->vz() - itau->vz()) > MaxDZ_) continue;
+                if (std::abs(itrk->vz() - itau->vz()) > MaxDZ_) continue;
                 sumPt += itrk->pt();
             }
             
