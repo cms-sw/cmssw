@@ -1,16 +1,16 @@
 
-#include "L1Trigger/L1TMuonEndCap/interface/EMTFHitTools.h"
+#include "L1Trigger/L1TMuonEndCap/interface/EMTFHit2016Tools.h"
 
 namespace l1t {
 
-  void EMTFHit::PrintSimulatorHeader() {
+  void EMTFHit2016::PrintSimulatorHeader() {
     std::cout << "Simulator hits: time_bin, endcap, sector, subsector, station, valid, "
               << "quality, CLCT pattern, wiregroup,  cscid, bend,  halfstrip" << std::endl;
     std::cout << "Expected values:   0 - 7, 1 or 0,  1 - 6, 0 / 1 - 2,   1 - 4, 0 - 1, "
               << " 0 - 15,       0 - 15,     0 - ?, 1 - 18, 0 - 1,     0 - ?" << std::endl;
   }
 
-  void EMTFHit::PrintForSimulator () {
+  void EMTFHit2016::PrintForSimulator () {
     std::cout << bx + 6 << ", " << ((endcap == 1) ? 1 : 0) << ", " << sector << ", " << std::max(subsector, 0) << ", "
 	      << station << ", " << valid << ", " << quality << ", " << pattern << ", " << wire << ", "
               << ((ring == 4) ? csc_ID + 9 : csc_ID) << ", " << std::max(bend, 0) << ", " << strip << std::endl;
@@ -18,47 +18,47 @@ namespace l1t {
 
   // Based on L1Trigger/L1TMuon/src/MuonTriggerPrimitive.cc
   // TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCTDigi& digi)
-  void EMTFHit::ImportCSCDetId( const CSCDetId& _detId) {
+  void EMTFHit2016::ImportCSCDetId( const CSCDetId& _detId) {
 
-    EMTFHit::SetCSCDetId ( _detId ); 
+    EMTFHit2016::SetCSCDetId ( _detId ); 
     // It appears the following function *actually does literally nothing* - AWB 17.03.16
     // calculateCSCGlobalSector(detid,_globalsector,_subsector);
 
     // Based on L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h
-    EMTFHit::set_endcap  ( (_detId.endcap() == 2) ? -1 : _detId.endcap() ); // Convert from {+,-} = {1,2} to {1,-1}
-    EMTFHit::set_station ( _detId.station()       );
-    EMTFHit::set_sector  ( _detId.triggerSector() );
-    EMTFHit::set_ring    ( _detId.ring()          );
-    EMTFHit::set_chamber ( _detId.chamber()       );
+    EMTFHit2016::set_endcap  ( (_detId.endcap() == 2) ? -1 : _detId.endcap() ); // Convert from {+,-} = {1,2} to {1,-1}
+    EMTFHit2016::set_station ( _detId.station()       );
+    EMTFHit2016::set_sector  ( _detId.triggerSector() );
+    EMTFHit2016::set_ring    ( _detId.ring()          );
+    EMTFHit2016::set_chamber ( _detId.chamber()       );
 
-    EMTFHit::set_is_CSC_hit ( 1 );
-    EMTFHit::set_is_RPC_hit ( 0 );
+    EMTFHit2016::set_is_CSC_hit ( 1 );
+    EMTFHit2016::set_is_RPC_hit ( 0 );
 
-  } // End EMTFHit::ImportCSCDetId
+  } // End EMTFHit2016::ImportCSCDetId
 
-  CSCDetId EMTFHit::CreateCSCDetId() {
+  CSCDetId EMTFHit2016::CreateCSCDetId() {
 
     return CSCDetId( (endcap == 1) ? 1 : 2, station,    // For now, leave "layer" unfilled, defaults to 0.
   		     (ring == 4) ? 1 : ring, chamber ); // Not sure if this is correct, or what "layer" does. - AWB 27.04.16
   }
 
-  void EMTFHit::ImportRPCDetId( const RPCDetId& _detId) {
+  void EMTFHit2016::ImportRPCDetId( const RPCDetId& _detId) {
 
-    EMTFHit::SetRPCDetId ( _detId ); 
+    EMTFHit2016::SetRPCDetId ( _detId ); 
     
-    EMTFHit::set_endcap    ( _detId.region()    ); // 0 for barrel, +/-1 for +/- endcap
-    EMTFHit::set_station   ( _detId.station()   ); // Same as in CSCs (?)
-    EMTFHit::set_sector    ( _detId.sector()    ); // Same as in CSCs (?)  
-    EMTFHit::set_subsector ( _detId.subsector() ); // Same as in CSCs (?)
-    EMTFHit::set_ring      ( _detId.ring()      ); // Ring number in endcap (from 1 to 3, but only 2 and 3 exist currently)
-    EMTFHit::set_roll      ( _detId.roll()      ); // AKA eta "partition" or "segment": subdivision of ring into 3 parts, noted "C-B-A" in-to-out
+    EMTFHit2016::set_endcap    ( _detId.region()    ); // 0 for barrel, +/-1 for +/- endcap
+    EMTFHit2016::set_station   ( _detId.station()   ); // Same as in CSCs (?)
+    EMTFHit2016::set_sector    ( _detId.sector()    ); // Same as in CSCs (?)  
+    EMTFHit2016::set_subsector ( _detId.subsector() ); // Same as in CSCs (?)
+    EMTFHit2016::set_ring      ( _detId.ring()      ); // Ring number in endcap (from 1 to 3, but only 2 and 3 exist currently)
+    EMTFHit2016::set_roll      ( _detId.roll()      ); // AKA eta "partition" or "segment": subdivision of ring into 3 parts, noted "C-B-A" in-to-out
 
-    EMTFHit::set_is_CSC_hit ( 0 );
-    EMTFHit::set_is_RPC_hit ( 1 );
+    EMTFHit2016::set_is_CSC_hit ( 0 );
+    EMTFHit2016::set_is_RPC_hit ( 1 );
 
-  } // End EMTFHit::ImportCSCDetId
+  } // End EMTFHit2016::ImportCSCDetId
 
-  RPCDetId EMTFHit::CreateRPCDetId() {
+  RPCDetId EMTFHit2016::CreateRPCDetId() {
     
     return RPCDetId( endcap, ring, station, sector, rpc_layer, subsector, roll );
     
@@ -68,34 +68,34 @@ namespace l1t {
   // TriggerPrimitive::TriggerPrimitive(const CSCDetId& detid, const CSCCorrelatedLCTDigi& digi)
   // This is what gets filled when "getCSCData()" is called in
   // L1Trigger/L1TMuonEndCap/interface/PrimitiveConverter.h
-  void EMTFHit::ImportCSCCorrelatedLCTDigi( const CSCCorrelatedLCTDigi& _digi ) {
+  void EMTFHit2016::ImportCSCCorrelatedLCTDigi( const CSCCorrelatedLCTDigi& _digi ) {
 
-    EMTFHit::SetCSCLCTDigi ( _digi );
+    EMTFHit2016::SetCSCLCTDigi ( _digi );
 
-    EMTFHit::set_track_num ( _digi.getTrknmb()  );
-    EMTFHit::set_valid     ( _digi.isValid()    );
-    EMTFHit::set_quality   ( _digi.getQuality() );
-    EMTFHit::set_wire      ( _digi.getKeyWG()   );
-    EMTFHit::set_strip     ( _digi.getStrip()   );
-    EMTFHit::set_pattern   ( _digi.getPattern() );
-    EMTFHit::set_bend      ( _digi.getBend()    );
-    EMTFHit::set_bx        ( _digi.getBX() - 6  ); // Standard for csctfDigis in data, simCscTriggerPrimitiveDigis in MC
-    EMTFHit::set_mpc_link  ( _digi.getMPCLink() );
-    EMTFHit::set_sync_err  ( _digi.getSyncErr() );
-    EMTFHit::set_csc_ID    ( _digi.getCSCID()   );
+    EMTFHit2016::set_track_num ( _digi.getTrknmb()  );
+    EMTFHit2016::set_valid     ( _digi.isValid()    );
+    EMTFHit2016::set_quality   ( _digi.getQuality() );
+    EMTFHit2016::set_wire      ( _digi.getKeyWG()   );
+    EMTFHit2016::set_strip     ( _digi.getStrip()   );
+    EMTFHit2016::set_pattern   ( _digi.getPattern() );
+    EMTFHit2016::set_bend      ( _digi.getBend()    );
+    EMTFHit2016::set_bx        ( _digi.getBX() - 6  ); // Standard for csctfDigis in data, simCscTriggerPrimitiveDigis in MC
+    EMTFHit2016::set_mpc_link  ( _digi.getMPCLink() );
+    EMTFHit2016::set_sync_err  ( _digi.getSyncErr() );
+    EMTFHit2016::set_csc_ID    ( _digi.getCSCID()   );
 
-    EMTFHit::set_subsector ( calc_subsector( station, chamber ) ); 
+    EMTFHit2016::set_subsector ( calc_subsector( station, chamber ) ); 
 
-  } // End EMTFHit::ImportCSCCorrelatedLCTDigi
+  } // End EMTFHit2016::ImportCSCCorrelatedLCTDigi
 
-  void EMTFHitExtra::ImportCSCCorrelatedLCTDigi( const CSCCorrelatedLCTDigi& _digi ) { 
+  void EMTFHit2016Extra::ImportCSCCorrelatedLCTDigi( const CSCCorrelatedLCTDigi& _digi ) { 
 
-    EMTFHit::ImportCSCCorrelatedLCTDigi ( _digi );
-    EMTFHitExtra::set_bx0  ( _digi.getBX0()     );
+    EMTFHit2016::ImportCSCCorrelatedLCTDigi ( _digi );
+    EMTFHit2016Extra::set_bx0  ( _digi.getBX0()     );
 
-  } // End EMTFHitExtra::ImportCSCCorrelatedLCTDigi
+  } // End EMTFHit2016Extra::ImportCSCCorrelatedLCTDigi
 
-  CSCCorrelatedLCTDigi EMTFHit::CreateCSCCorrelatedLCTDigi() {
+  CSCCorrelatedLCTDigi EMTFHit2016::CreateCSCCorrelatedLCTDigi() {
 
     return CSCCorrelatedLCTDigi( 1, valid, quality, wire, strip, 
   				 pattern, (bend == 1) ? 1 : 0,   
@@ -104,38 +104,38 @@ namespace l1t {
     // Appear to be unused in the emulator code. mpclink = 0 (after bx) indicates unsorted.
   }
 
-  void EMTFHit::ImportRPCDigi( const RPCDigi& _digi ) {
+  void EMTFHit2016::ImportRPCDigi( const RPCDigi& _digi ) {
 
-    EMTFHit::SetRPCDigi    ( _digi );
-    EMTFHit::set_strip_hi  ( _digi.strip()  );
-    EMTFHit::set_strip_low ( _digi.strip()  );
-    EMTFHit::set_bx        ( _digi.bx() - 6 );  // Started looking at RPCs, not used yet
+    EMTFHit2016::SetRPCDigi    ( _digi );
+    EMTFHit2016::set_strip_hi  ( _digi.strip()  );
+    EMTFHit2016::set_strip_low ( _digi.strip()  );
+    EMTFHit2016::set_bx        ( _digi.bx() - 6 );  // Started looking at RPCs, not used yet
 
   }
 
-  RPCDigi EMTFHit::CreateRPCDigi() {
+  RPCDigi EMTFHit2016::CreateRPCDigi() {
     return RPCDigi( strip, bx + 6 );
   }
 
-  void EMTFHit::ImportME( const emtf::ME _ME) {
+  void EMTFHit2016::ImportME( const emtf::ME _ME) {
 
-    EMTFHit::set_wire       ( _ME.Wire() );
-    EMTFHit::set_strip      ( _ME.Strip() );
-    EMTFHit::set_quality    ( _ME.Quality() );
-    EMTFHit::set_pattern    ( _ME.CLCT_pattern() );
-    EMTFHit::set_bend       ( (_ME.LR() == 1) ? 1 : -1 );
-    EMTFHit::set_valid      ( _ME.VP() );
-    EMTFHit::set_sync_err   ( _ME.SE() );
-    EMTFHit::set_bx         ( _ME.TBIN() - 3 );
-    EMTFHit::set_bc0        ( _ME.BC0() ); 
-    EMTFHit::set_is_CSC_hit ( true  );
-    EMTFHit::set_is_RPC_hit ( false );
+    EMTFHit2016::set_wire       ( _ME.Wire() );
+    EMTFHit2016::set_strip      ( _ME.Strip() );
+    EMTFHit2016::set_quality    ( _ME.Quality() );
+    EMTFHit2016::set_pattern    ( _ME.CLCT_pattern() );
+    EMTFHit2016::set_bend       ( (_ME.LR() == 1) ? 1 : -1 );
+    EMTFHit2016::set_valid      ( _ME.VP() );
+    EMTFHit2016::set_sync_err   ( _ME.SE() );
+    EMTFHit2016::set_bx         ( _ME.TBIN() - 3 );
+    EMTFHit2016::set_bc0        ( _ME.BC0() ); 
+    EMTFHit2016::set_is_CSC_hit ( true  );
+    EMTFHit2016::set_is_RPC_hit ( false );
 
     // Station, CSC_ID, Sector, Subsector, Neighbor, Sector_index, Ring, and Chamber filled in
     // EventFilter/L1TRawToDigi/src/implementations_stage2/EMTFBlockME.cc
     // "set_layer()" is not invoked, so Layer is not yet filled - AWB 21.04.16
 
-  } // End EMTFHit::ImportME
+  } // End EMTFHit2016::ImportME
 
   int calc_ring (int _station, int _csc_ID, int _strip) {
     if (_station > 1) {
@@ -151,7 +151,7 @@ namespace l1t {
       else return -999;
     }
     else return -999;
-  } // End EMTFHit::calc_ring
+  } // End EMTFHit2016::calc_ring
 
   int calc_chamber (int _station, int _sector, int _subsector, int _ring, int _csc_ID) {
     int tmp_chamber = -999;
@@ -171,11 +171,11 @@ namespace l1t {
       if (tmp_chamber > 36) tmp_chamber -= 36;
     }
     return tmp_chamber;
-  } // End EMTFHit::calc_chamber
+  } // End EMTFHit2016::calc_chamber
 
-  EMTFHit EMTFHitExtra::CreateEMTFHit() {
+  EMTFHit2016 EMTFHit2016Extra::CreateEMTFHit2016() {
 
-    EMTFHit thisHit;
+    EMTFHit2016 thisHit;
     thisHit.set_endcap       ( Endcap()        );
     thisHit.set_station      ( Station()       );
     thisHit.set_ring         ( Ring()          );
@@ -201,7 +201,7 @@ namespace l1t {
     thisHit.set_is_RPC_hit   ( Is_RPC_hit()    );
 
     return thisHit;
-  } // End EMTFHitExtra::CreateEMTFHit
+  } // End EMTFHit2016Extra::CreateEMTFHit2016
 
     
 } // End namespace l1t
