@@ -51,7 +51,11 @@ process.load('Configuration.StandardSequences.MagneticField_38T_PostLS1_cff')
 #
 #process.pEcalTPs = cms.Path( process.EcalEBTrigPrimProducer )
 
-
+process.EcalTPSorterProducer = cms.EDProducer("EcalTPSorterProducer",
+   tpsToKeep = cms.untracked.double(20),
+   towerMapName = cms.untracked.string("newMap.json"),
+   ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
+)
 
 
 # --------------------------------------------------------------------------------------------
@@ -71,13 +75,14 @@ process.L1EGammaCrystalsProducer = cms.EDProducer("L1EGCrystalClusterProducer",
    doBremClustering = cms.untracked.bool(True), # Should always be True when using for E/Gamma
    #ecalTPEB = cms.InputTag("EcalEBTrigPrimProducer","","L1AlgoTest"),
    ecalTPEB = cms.InputTag("simEcalEBTriggerPrimitiveDigis","","HLT"),
+   #ecalTPEB = cms.InputTag("EcalTPSorterProducer","EcalTPsTopPerRegion","L1AlgoTest"),
    ecalRecHitEB = cms.InputTag("ecalRecHit","EcalRecHitsEB","RECO"),
    hcalRecHit = cms.InputTag("hbhereco"),
    hcalTP = cms.InputTag("simHcalTriggerPrimitiveDigis","","HLT"),
    useTowerMap = cms.untracked.bool(False)
 )
 
-process.pL1EG = cms.Path( process.L1EGammaCrystalsProducer )
+process.pL1EG = cms.Path( process.EcalTPSorterProducer + process.L1EGammaCrystalsProducer )
 
 
 
