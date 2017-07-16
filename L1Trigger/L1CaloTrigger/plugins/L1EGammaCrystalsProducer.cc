@@ -388,6 +388,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float ECalPileUpEnergy = 0.;
       float upperSideLobePt = 0.;
       float lowerSideLobePt = 0.;
+      float e1x1 = 0.;
       float e2x2_1 = 0.;
       float e2x2_2 = 0.;
       float e2x2_3 = 0.;
@@ -398,6 +399,7 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
       float e2x5 = 0.;
       float e5x5 = 0.;
       float e3x5 = 0.;
+      float eCross = 0.;
       bool electronWP98;
       bool photonWP80;
       std::vector<float> crystalPt;
@@ -493,13 +495,29 @@ void L1EGCrystalClusterProducer::produce(edm::Event& iEvent, const edm::EventSet
          {
             e2x2_4 += hit.energy;
          }
+
+         // Store 1x1 
+         if ( hit.dieta(centerhit) == 0 && hit.diphi(centerhit) == 0 )
+         {
+            e1x1 += hit.energy;
+         }
+
+         // Build swiss cross
+         if ( (hit.dieta(centerhit) == 0 && abs(hit.diphi(centerhit)) < 2) 
+                || (hit.diphi(centerhit) == 0 && abs(hit.dieta(centerhit)) < 2) )
+         {
+            eCross += hit.energy;
+         }
+
          e2x2 = TMath::Max( e2x2_1, e2x2_2 );
          e2x2 = TMath::Max( e2x2, e2x2_3 );
          e2x2 = TMath::Max( e2x2, e2x2_4 );
+         params["E1x1"] = e1x1;
          params["E2x2"] = e2x2;
          params["E2x5"] = e2x5;
          params["E3x5"] = e3x5;
          params["E5x5"] = e5x5;
+         params["ECross"] = eCross;
 
          // Isolation and pileup must not use hits used in the cluster
          // As for the endcap hits, well, as far as this algorithm is concerned, caveat emptor...
