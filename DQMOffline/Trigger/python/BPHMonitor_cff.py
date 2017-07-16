@@ -2,7 +2,6 @@ import FWCore.ParameterSet.Config as cms
 
 from DQMOffline.Trigger.BPHMonitor_cfi import hltBPHmonitoring
 
-# HLT_PFMETNoMu90_PFMHTNoMu90_IDTight
 Dimuon0_Jpsi_tnp = hltBPHmonitoring.clone()
 Dimuon0_Jpsi_tnp.FolderName = cms.string('HLT/BPH/DiMu0_Jpsi_L1_NO_OS_denTrack2/')
 Dimuon0_Jpsi_tnp.tnp = cms.int32(1)
@@ -13,6 +12,16 @@ Dimuon0_Jpsi_tnp.denGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Mu7p5_Tr
 Dimuon0_Jpsi_tnp.denGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_SingleMu5_SQ OR L1_SingleMu7_SQ")
 Dimuon0_Jpsi_tnp.muoSelection_ref = cms.string("pt>7.5 && abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
 Dimuon0_Jpsi_tnp.muoSelection = cms.string("abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+
+Dimuon25_Jpsi_tnp = hltBPHmonitoring.clone()
+Dimuon25_Jpsi_tnp.FolderName = cms.string('HLT/BPH/DiMu25_Jpsi_noCorr/')
+Dimuon25_Jpsi_tnp.tnp = cms.int32(1)
+Dimuon25_Jpsi_tnp.nofset = cms.int32(1)
+Dimuon25_Jpsi_tnp.numGenericTriggerEventPSet.hltPaths = cms.vstring("HLT_Dimuon25_Jpsi_noCorrL1_v*")
+Dimuon25_Jpsi_tnp.numGenericTriggerEventPSet.l1Algorithms = cms.vstring("L1_DoubleMu0_SQ")
+Dimuon25_Jpsi_tnp.muoSelection_ref = cms.string("pt>3.5 && abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+Dimuon25_Jpsi_tnp.muoSelection = cms.string("abs(eta)<2.4 & isPFMuon & isGlobalMuon  & innerTrack.hitPattern.trackerLayersWithMeasurement>5 & innerTrack.hitPattern.numberOfValidPixelHits>0 ")
+
 
 Dimuon0_Upsilon_tnp = hltBPHmonitoring.clone()
 Dimuon0_Upsilon_tnp.FolderName = cms.string('HLT/BPH/DiMu0_Upsilon_L1_NO_OS_denTrack2/')
@@ -662,6 +671,7 @@ bphHLTmonitoring = cms.Sequence(
     Dimuon0_Upsilon_tnp
     + Dimuon0_Upsilon_tnp1
     + Dimuon0_Upsilon_tnp2
+    #+ Dimuon25_Jpsi_tnp
     + Dimuon0_Jpsi_tnp
     + Dimuon0_Jpsi_tnp1
     + Dimuon0_Jpsi_tnp2
@@ -689,7 +699,7 @@ bphHLTmonitoring = cms.Sequence(
     + Dimuon12_masscut2
     + Trimuon2_masscut4
     + Trimuon2_masscut5
-    #+ Trimuon2_masscut6
+    + Trimuon2_masscut6
     + Dimuon0_masscut3
     + Dimuon0_tripleMu1
     + Dimuon0_tripleMu2
@@ -699,12 +709,12 @@ bphHLTmonitoring = cms.Sequence(
     + Dimuon0_L3TnP_Jpsi
     + Dimuon0_L3TnP_Upsilon
     + Dimuon0_HLT_OS
-#   + Dimuon0_HLT_OS1
+    + Dimuon0_HLT_OS1
     + Dimuon0_looseVtx_Jpsi
     + Dimuon0_looseVtx_Upsilon
     + Dimuon0_tightVtx_Jpsi
     + Dimuon0_addTrack_Jpsi
-    #+ Dimuon0_addTrackTrack_Jpsi
+    + Dimuon0_addTrackTrack_Jpsi
     + Dimuon0_addTrackMu_Onia
     + Dimuon0_addTrackMu_Phi
     + Dimuon0_addTrackMu_Onia1
