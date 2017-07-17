@@ -4,14 +4,14 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "DetectorDescription/Base/interface/DDTypes.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithm.h"
+#include "DetectorDescription/Core/interface/DDTypes.h"
+#include "DetectorDescription/Core/interface/DDAlgorithm.h"
 
 class DDHCalEndcapAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDHCalEndcapAlgo(); //const std::string & name);
-  virtual ~DDHCalEndcapAlgo();
+  ~DDHCalEndcapAlgo() override;
   
   //Get Methods
   std::string getGenMat()                  const {return genMaterial;}
@@ -81,9 +81,9 @@ class DDHCalEndcapAlgo : public DDAlgorithm {
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 protected:
 

@@ -21,6 +21,9 @@ public:
 
   KinematicParameters() : vl(false) {}
 
+  template<typename... Args> 
+  KinematicParameters(Args... args) : par(args...), vl(true){}
+
   KinematicParameters(const AlgebraicVector7& pr): par(pr),vl(true)
   {}
 
@@ -41,12 +44,12 @@ public:
   /**
    * The momentum vector
    */
-  GlobalVector momentum() const;
+  GlobalVector momentum() const {return GlobalVector(par[3], par[4], par[5]);}
   
   /**
    * The position of the state
    */
-  GlobalPoint position() const;
+  GlobalPoint position() const {return GlobalPoint(par[0], par[1], par[2]);}
   
   /**
    * The mass of the particle
@@ -56,7 +59,10 @@ public:
   /**
    * The energy of the particle
    */
-  double energy() const;
+  double energy() const {
+  return sqrt(par(3)*par(3)+par(4)*par(4)+par(5)*par(5)+par(6)*par(6));
+  }
+ 
 
   bool isValid() const
   {return vl;}

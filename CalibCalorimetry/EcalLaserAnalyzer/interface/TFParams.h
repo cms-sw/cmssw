@@ -9,7 +9,7 @@
 #include "TDirectory.h"
 #include "TPaveLabel.h"
 #include "TF1.h"
-#include "time.h"
+#include <ctime>
 #include "TGraph.h"
 #include <stdio.h>
 #include <math.h>
@@ -93,6 +93,6 @@ double fitpj(double **, double *,double ** , double noise_val, int debug) ;
  double mixShape( Double_t *, Double_t * ) ;
  double computePulseWidth( int, double, double) ;
 
- //  ClassDef( TFParams, 1 ) 
+ ClassDef( TFParams, 0 )
 };
 #endif

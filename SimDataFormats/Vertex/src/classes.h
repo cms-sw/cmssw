@@ -5,7 +5,7 @@
 
 #include <vector>
  
-namespace {
+namespace SimDataFormats_Vertex {
   struct dictionary {
     SimVertex dummy33;
     std::vector<SimVertex> dummy333;

@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 using namespace edm;
 
 #include "Geometry/DTGeometry/interface/DTLayer.h"
@@ -19,7 +20,6 @@ using namespace edm;
 
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1D.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecSegment2D.h"
 #include "DataFormats/DTRecHit/interface/DTRecSegment2DCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
@@ -38,7 +38,7 @@ DTRecSegment2DProducer::DTRecSegment2DProducer(const edm::ParameterSet& pset) {
   debug = pset.getUntrackedParameter<bool>("debug"); 
 
   // the name of the 1D rec hits collection
-  theRecHits1DLabel = pset.getParameter<InputTag>("recHits1DLabel");
+  recHits1DToken_ = consumes<DTRecHitCollection>(pset.getParameter<InputTag>("recHits1DLabel"));
 
   if(debug)
     cout << "[DTRecSegment2DProducer] Constructor called" << endl;
@@ -72,10 +72,10 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
   
   // Get the 1D rechits from the event
   Handle<DTRecHitCollection> allHits; 
-  event.getByLabel(theRecHits1DLabel, allHits);
+  event.getByToken(recHits1DToken_, allHits);
 
   // Create the pointer to the collection which will store the rechits
-  auto_ptr<DTRecSegment2DCollection> segments(new DTRecSegment2DCollection());
+  auto segments = std::make_unique<DTRecSegment2DCollection>();
 
   // Iterate through all hit collections ordered by LayerId
   DTRecHitCollection::id_iterator dtLayerIt;
@@ -107,7 +107,7 @@ void DTRecSegment2DProducer::produce(edm::Event& event, const
     if (segs.size() > 0 )
       segments->put(SLId, segs.begin(),segs.end());
   }
-  event.put(segments);
+  event.put(std::move(segments));
 }
 
 

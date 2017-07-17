@@ -9,6 +9,7 @@
 
 #include "HLTrigger/HLTcore/interface/TriggerSummaryAnalyzerRAW.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 //
 // constructors and destructor
@@ -18,9 +19,7 @@ TriggerSummaryAnalyzerRAW::TriggerSummaryAnalyzerRAW(const edm::ParameterSet& ps
   inputToken_(consumes<trigger::TriggerEventWithRefs>(inputTag_))
 { }
 
-TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW()
-{
-}
+TriggerSummaryAnalyzerRAW::~TriggerSummaryAnalyzerRAW() = default;
 
 //
 // member functions
@@ -41,103 +40,135 @@ TriggerSummaryAnalyzerRAW::analyze(const edm::Event& iEvent, const edm::EventSet
    using namespace reco;
    using namespace l1extra;
    using namespace trigger;
+   using namespace l1t;
 
-   cout << endl;
-   cout << "TriggerSummaryAnalyzerRAW: content of TriggerEventWithRefs: " << inputTag_.encode();
+   LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
+   LogVerbatim("TriggerSummaryAnalyzerRAW") << "TriggerSummaryAnalyzerRAW: content of TriggerEventWithRefs: " << inputTag_.encode();
 
    Handle<TriggerEventWithRefs> handle;
    iEvent.getByToken(inputToken_,handle);
    if (handle.isValid()) {
-     cout << "Used Processname: " << handle->usedProcessName() << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Used Processname: " << handle->usedProcessName() << endl;
      const size_type nFO(handle->size());
-     cout << "Number of TriggerFilterObjects: " << nFO << endl;
-     cout << "The TriggerFilterObjects: #, tag" << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Number of TriggerFilterObjects: " << nFO << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "The TriggerFilterObjects: #, tag" << endl;
      for (size_type iFO=0; iFO!=nFO; ++iFO) {
-       cout << iFO << " " << handle->filterTag(iFO).encode() << endl;
-       cout << "  # of objects:";
+       LogVerbatim("TriggerSummaryAnalyzerRAW") << iFO << " " << handle->filterTag(iFO).encode() << endl;
+       LogVerbatim("TriggerSummaryAnalyzerRAW") << "  # of objects:";
 
        const unsigned int nPhotons(handle->photonSlice(iFO).second-
 				   handle->photonSlice(iFO).first);
-       if (nPhotons>0) cout << " Photons: " << nPhotons;
+       if (nPhotons>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " Photons: " << nPhotons;
 
        const unsigned int nElectrons(handle->electronSlice(iFO).second-
 				     handle->electronSlice(iFO).first);
-       if (nElectrons>0) cout << " Electrons: " << nElectrons;
+       if (nElectrons>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " Electrons: " << nElectrons;
 
        const unsigned int nMuons(handle->muonSlice(iFO).second-
 				 handle->muonSlice(iFO).first);
-       if (nMuons>0) cout << " Muons: " << nMuons;
+       if (nMuons>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " Muons: " << nMuons;
 
        const unsigned int nJets(handle->jetSlice(iFO).second-
 				handle->jetSlice(iFO).first);
-       if (nJets>0) cout << " Jets: " << nJets;
+       if (nJets>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " Jets: " << nJets;
 
        const unsigned int nComposites(handle->compositeSlice(iFO).second-
 				      handle->compositeSlice(iFO).first);
-       if (nComposites>0) cout << " Composites: " << nComposites;
+       if (nComposites>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " Composites: " << nComposites;
 
        const unsigned int nBaseMETs(handle->basemetSlice(iFO).second-
 				    handle->basemetSlice(iFO).first);
-       if (nBaseMETs>0) cout << " BaseMETs: " << nBaseMETs;
+       if (nBaseMETs>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " BaseMETs: " << nBaseMETs;
 
        const unsigned int nCaloMETs(handle->calometSlice(iFO).second-
 				    handle->calometSlice(iFO).first);
-       if (nCaloMETs>0) cout << " CaloMETs: " << nCaloMETs;
+       if (nCaloMETs>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " CaloMETs: " << nCaloMETs;
 
        const unsigned int nPixTracks(handle->pixtrackSlice(iFO).second-
 				     handle->pixtrackSlice(iFO).first);
-       if (nPixTracks>0) cout << " PixTracks: " << nPixTracks;
+       if (nPixTracks>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " PixTracks: " << nPixTracks;
 
        const unsigned int nL1EM(handle->l1emSlice(iFO).second-
 				handle->l1emSlice(iFO).first);
-       if (nL1EM>0) cout << " L1EM: " << nL1EM;
+       if (nL1EM>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1EM: " << nL1EM;
 
        const unsigned int nL1Muon(handle->l1muonSlice(iFO).second-
 				  handle->l1muonSlice(iFO).first);
-       if (nL1Muon>0) cout << " L1Muon: " << nL1Muon;
+       if (nL1Muon>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1Muon: " << nL1Muon;
 
        const unsigned int nL1Jet(handle->l1jetSlice(iFO).second-
 				 handle->l1jetSlice(iFO).first);
-       if (nL1Jet>0) cout << " L1Jet: " << nL1Jet;
+       if (nL1Jet>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1Jet: " << nL1Jet;
 
        const unsigned int nL1EtMiss(handle->l1etmissSlice(iFO).second-
 				    handle->l1etmissSlice(iFO).first);
-       if (nL1EtMiss>0) cout << " L1EtMiss: " << nL1EtMiss;
+       if (nL1EtMiss>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1EtMiss: " << nL1EtMiss;
 
        const unsigned int nL1HfRings(handle->l1hfringsSlice(iFO).second-
 				    handle->l1hfringsSlice(iFO).first);
-       if (nL1HfRings>0) cout << " L1HfRings: " << nL1HfRings;
+       if (nL1HfRings>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1HfRings: " << nL1HfRings;
 
        const unsigned int nPFJets(handle->pfjetSlice(iFO).second-
 				handle->pfjetSlice(iFO).first);
-       if (nPFJets>0) cout << " PFJets: " << nPFJets;
+       if (nPFJets>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " PFJets: " << nPFJets;
 
        const unsigned int nPFTaus(handle->pftauSlice(iFO).second-
 				handle->pftauSlice(iFO).first);
-       if (nPFTaus>0) cout << " PFTaus: " << nPFTaus;
+       if (nPFTaus>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " PFTaus: " << nPFTaus;
 
-       cout << endl;
+       const unsigned int nPFMETs(handle->pfmetSlice(iFO).second-
+				  handle->pfmetSlice(iFO).first);
+       if (nPFMETs>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " PFMETs: " << nPFMETs;
+
+       const unsigned int nL1TMuon(handle->l1tmuonSlice(iFO).second-
+				  handle->l1tmuonSlice(iFO).first);
+       if (nL1TMuon>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TMuon: " << nL1TMuon;
+
+       const unsigned int nL1TEGamma(handle->l1tegammaSlice(iFO).second-
+				  handle->l1tegammaSlice(iFO).first);
+       if (nL1TEGamma>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TEGamma: " << nL1TEGamma;
+
+       const unsigned int nL1TJet(handle->l1tjetSlice(iFO).second-
+				  handle->l1tjetSlice(iFO).first);
+       if (nL1TJet>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TJet: " << nL1TJet;
+
+       const unsigned int nL1TTau(handle->l1ttauSlice(iFO).second-
+				  handle->l1ttauSlice(iFO).first);
+       if (nL1TTau>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TTau: " << nL1TTau;
+
+       const unsigned int nL1TEtSum(handle->l1tetsumSlice(iFO).second-
+				  handle->l1tetsumSlice(iFO).first);
+       if (nL1TEtSum>0) LogVerbatim("TriggerSummaryAnalyzerRAW") << " L1TEtSum: " << nL1TEtSum;
+
+
+       LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
      }
-     cout << "Elements in linearised collections of Refs: " << endl;
-     cout << "  Photons:    " << handle->photonSize()    << endl;
-     cout << "  Electrons:  " << handle->electronSize()  << endl;
-     cout << "  Muons:      " << handle->muonSize()      << endl;
-     cout << "  Jets:       " << handle->jetSize()       << endl;
-     cout << "  Composites: " << handle->compositeSize() << endl;
-     cout << "  BaseMETs:   " << handle->basemetSize()   << endl;
-     cout << "  CaloMETs:   " << handle->calometSize()   << endl;
-     cout << "  Pixtracks:  " << handle->pixtrackSize()  << endl;
-     cout << "  L1EM:       " << handle->l1emSize()      << endl;
-     cout << "  L1Muon:     " << handle->l1muonSize()    << endl;
-     cout << "  L1Jet:      " << handle->l1jetSize()     << endl;
-     cout << "  L1EtMiss:   " << handle->l1etmissSize()  << endl;
-     cout << "  L1HfRings:  " << handle->l1hfringsSize() << endl;
-     cout << "  PFJets:     " << handle->pfjetSize()     << endl;
-     cout << "  PFTaus:     " << handle->pftauSize()     << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Elements in linearised collections of Refs: " << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Photons:    " << handle->photonSize()    << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Electrons:  " << handle->electronSize()  << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Muons:      " << handle->muonSize()      << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Jets:       " << handle->jetSize()       << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Composites: " << handle->compositeSize() << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  BaseMETs:   " << handle->basemetSize()   << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  CaloMETs:   " << handle->calometSize()   << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  Pixtracks:  " << handle->pixtrackSize()  << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1EM:       " << handle->l1emSize()      << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1Muon:     " << handle->l1muonSize()    << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1Jet:      " << handle->l1jetSize()     << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1EtMiss:   " << handle->l1etmissSize()  << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1HfRings:  " << handle->l1hfringsSize() << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFJets:     " << handle->pfjetSize()     << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFTaus:     " << handle->pftauSize()     << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  PFMETs:     " << handle->pfmetSize()     << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TMuon:    " << handle->l1tmuonSize()   << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEGamma:  " << handle->l1tegammaSize() << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TJet:     " << handle->l1tjetSize()    << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TTau:     " << handle->l1ttauSize()    << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "  L1TEtSum:   " << handle->l1tetsumSize()  << endl;
    } else {
-     cout << "Handle invalid! Check InputTag provided." << endl;
+     LogVerbatim("TriggerSummaryAnalyzerRAW") << "Handle invalid! Check InputTag provided." << endl;
    }
-   cout << endl;
+   LogVerbatim("TriggerSummaryAnalyzerRAW") << endl;
    
    return;
 }

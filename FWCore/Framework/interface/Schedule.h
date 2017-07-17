@@ -68,6 +68,7 @@
 #include "FWCore/Framework/src/WorkerRegistry.h"
 #include "FWCore/Framework/src/GlobalSchedule.h"
 #include "FWCore/Framework/src/StreamSchedule.h"
+#include "FWCore/Framework/src/SystemTimeKeeper.h"
 #include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
@@ -78,8 +79,8 @@
 #include "FWCore/Utilities/interface/ConvertException.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/StreamID.h"
-
-#include "boost/shared_ptr.hpp"
+#include "FWCore/Utilities/interface/get_underlying_safe.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include <map>
 #include <memory>
@@ -87,6 +88,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include <utility>
 
 namespace edm {
 
@@ -99,38 +101,45 @@ namespace edm {
   class ExceptionCollector;
   class OutputModuleCommunicator;
   class ProcessContext;
+  class ProductRegistry;
   class PreallocationConfiguration;
   class StreamSchedule;
   class GlobalSchedule;
-  class TriggerTimingReport;
+  struct TriggerTimingReport;
   class ModuleRegistry;
+  class ThinnedAssociationsHelper;
+  class SubProcessParentageHelper;
   class TriggerResultInserter;
+  class PathStatusInserter;
+  class EndPathStatusInserter;
+  class WaitingTaskHolder;
+
   
   class Schedule {
   public:
     typedef std::vector<std::string> vstring;
-    typedef boost::shared_ptr<Worker> WorkerPtr;
     typedef std::vector<Worker*> AllWorkers;
-    typedef std::vector<boost::shared_ptr<OutputModuleCommunicator>> AllOutputModuleCommunicators;
+    typedef std::vector<edm::propagate_const<std::shared_ptr<OutputModuleCommunicator>>> AllOutputModuleCommunicators;
 
     typedef std::vector<Worker*> Workers;
 
     Schedule(ParameterSet& proc_pset,
-             service::TriggerNamesService& tns,
+             service::TriggerNamesService const& tns,
              ProductRegistry& pregistry,
              BranchIDListHelper& branchIDListHelper,
+             ThinnedAssociationsHelper& thinnedAssociationsHelper,
+             SubProcessParentageHelper const* subProcessParentageHelper,
              ExceptionToActionTable const& actions,
-             boost::shared_ptr<ActivityRegistry> areg,
-             boost::shared_ptr<ProcessConfiguration> processConfiguration,
-             const ParameterSet* subProcPSet,
+             std::shared_ptr<ActivityRegistry> areg,
+             std::shared_ptr<ProcessConfiguration> processConfiguration,
+             bool hasSubprocesses,
              PreallocationConfiguration const& config,
              ProcessContext const* processContext);
 
-    template <typename T>
-    void processOneEvent(unsigned int iStreamID,
-                         typename T::MyPrincipal& principal,
-                         EventSetup const& eventSetup,
-                         bool cleaningUpAfterException = false);
+    void processOneEventAsync(WaitingTaskHolder iTask,
+                              unsigned int iStreamID,
+                              EventPrincipal& principal,
+                              EventSetup const& eventSetup);
 
     template <typename T>
     void processOneGlobal(typename T::MyPrincipal& principal,
@@ -138,10 +147,23 @@ namespace edm {
                           bool cleaningUpAfterException = false);
 
     template <typename T>
+    void processOneGlobalAsync(WaitingTaskHolder iTask,
+                               typename T::MyPrincipal& principal,
+                               EventSetup const& eventSetup,
+                               bool cleaningUpAfterException = false);
+
+    template <typename T>
     void processOneStream(unsigned int iStreamID,
                           typename T::MyPrincipal& principal,
                           EventSetup const& eventSetup,
                           bool cleaningUpAfterException = false);
+
+    template <typename T>
+    void processOneStreamAsync(WaitingTaskHolder iTask,
+                               unsigned int iStreamID,
+                               typename T::MyPrincipal& principal,
+                               EventSetup const& eventSetup,
+                               bool cleaningUpAfterException = false);
 
     void beginJob(ProductRegistry const&);
     void endJob(ExceptionCollector & collector);
@@ -158,9 +180,6 @@ namespace edm {
     // Call closeFile() on all OutputModules.
     void closeOutputFiles();
 
-    // Call openNewFileIfNeeded() on all OutputModules
-    void openNewOutputFilesIfNeeded();
-
     // Call openFiles() on all OutputModules
     void openOutputFiles(FileBlock& fb);
 
@@ -173,9 +192,6 @@ namespace edm {
     // Call shouldWeCloseFile() on all OutputModules.
     bool shouldWeCloseOutput() const;
 
-    void preForkReleaseResources();
-    void postForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
-
     /// Return a vector allowing const access to all the
     /// ModuleDescriptions for this Schedule.
 
@@ -187,9 +203,34 @@ namespace edm {
     ///adds to oLabelsToFill the labels for all paths in the process
     void availablePaths(std::vector<std::string>& oLabelsToFill) const;
 
+    ///Adds to oLabelsToFill the labels for all trigger paths in the process.
+    ///This is different from availablePaths because it includes the
+    ///empty paths to match the entries in TriggerResults exactly.
+    void triggerPaths(std::vector<std::string>& oLabelsToFill) const;
+
+    ///adds to oLabelsToFill the labels for all end paths in the process
+    void endPaths(std::vector<std::string>& oLabelsToFill) const;
+
     ///adds to oLabelsToFill in execution order the labels of all modules in path iPathLabel
     void modulesInPath(std::string const& iPathLabel,
                        std::vector<std::string>& oLabelsToFill) const;
+
+    ///adds the ModuleDescriptions into the vector for the modules scheduled in path iPathLabel
+    ///hint is a performance optimization if you might know the position of the module in the path
+    void moduleDescriptionsInPath(std::string const& iPathLabel,
+                                  std::vector<ModuleDescription const*>& descriptions,
+                                  unsigned int hint) const;
+
+    ///adds the ModuleDescriptions into the vector for the modules scheduled in path iEndPathLabel
+    ///hint is a performance optimization if you might know the position of the module in the path
+    void moduleDescriptionsInEndPath(std::string const& iEndPathLabel,
+                                     std::vector<ModuleDescription const*>& descriptions,
+                                     unsigned int hint) const;
+
+    void fillModuleAndConsumesInfo(std::vector<ModuleDescription const*>& allModuleDescriptions,
+                                   std::vector<std::pair<unsigned int, unsigned int> >& moduleIDToIndex,
+                                   std::vector<std::vector<ModuleDescription const*> >& modulesWhoseProductsAreConsumedBy,
+                                   ProductRegistry const& preg) const;
 
     /// Return the number of events this Schedule has tried to process
     /// (inclues both successes and failures, including failures due
@@ -228,39 +269,45 @@ namespace edm {
 
     /// clone the type of module with label iLabel but configure with iPSet.
     /// Returns true if successful.
-    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet);
+    bool changeModule(std::string const& iLabel, ParameterSet const& iPSet, const ProductRegistry& iRegistry);
 
     /// returns the collection of pointers to workers
     AllWorkers const& allWorkers() const;
 
+    /// Convert "@currentProcess" in InputTag process names to the actual current process name.
+    void convertCurrentProcessAlias(std::string const& processName);
+
   private:
 
-    void limitOutput(ParameterSet const& proc_pset, BranchIDLists const& branchIDLists);
+    void limitOutput(ParameterSet const& proc_pset,
+                     BranchIDLists const& branchIDLists,
+                     SubProcessParentageHelper const* subProcessParentageHelper);
 
-    std::shared_ptr<TriggerResultInserter> resultsInserter_;
-    boost::shared_ptr<ModuleRegistry> moduleRegistry_;
-    std::vector<std::shared_ptr<StreamSchedule>> streamSchedules_;
+    std::shared_ptr<TriggerResultInserter const> resultsInserter() const {return get_underlying_safe(resultsInserter_);}
+    std::shared_ptr<TriggerResultInserter>& resultsInserter() {return get_underlying_safe(resultsInserter_);}
+    std::shared_ptr<ModuleRegistry const> moduleRegistry() const {return get_underlying_safe(moduleRegistry_);}
+    std::shared_ptr<ModuleRegistry>& moduleRegistry() {return get_underlying_safe(moduleRegistry_);}
+
+    edm::propagate_const<std::shared_ptr<TriggerResultInserter>> resultsInserter_;
+    std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>> pathStatusInserters_;
+    std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>> endPathStatusInserters_;
+    edm::propagate_const<std::shared_ptr<ModuleRegistry>> moduleRegistry_;
+    std::vector<edm::propagate_const<std::shared_ptr<StreamSchedule>>> streamSchedules_;
     //In the future, we will have one GlobalSchedule per simultaneous transition
-    std::unique_ptr<GlobalSchedule> globalSchedule_;
+    edm::propagate_const<std::unique_ptr<GlobalSchedule>> globalSchedule_;
 
     AllOutputModuleCommunicators         all_output_communicators_;
     PreallocationConfiguration           preallocConfig_;
 
+    edm::propagate_const<std::unique_ptr<SystemTimeKeeper>> summaryTimeKeeper_;
 
-    bool                           wantSummary_;
+    std::vector<std::string> const* pathNames_;
+    std::vector<std::string> const* endPathNames_;
+    bool wantSummary_;
 
     volatile bool           endpathsAreActive_;
   };
 
-
-  template <typename T>
-  void Schedule::processOneEvent(unsigned int iStreamID,
-                                 typename T::MyPrincipal& ep,
-                                 EventSetup const& es,
-                                 bool cleaningUpAfterException) {
-    assert(iStreamID<streamSchedules_.size());
-    streamSchedules_[iStreamID]->processOneEvent<T>(ep,es,cleaningUpAfterException);
-  }
 
   template <typename T>
   void Schedule::processOneStream(unsigned int iStreamID,
@@ -270,6 +317,17 @@ namespace edm {
     assert(iStreamID<streamSchedules_.size());
     streamSchedules_[iStreamID]->processOneStream<T>(ep,es,cleaningUpAfterException);
   }
+  
+  template <typename T>
+  void Schedule::processOneStreamAsync(WaitingTaskHolder iTaskHolder,
+                                       unsigned int iStreamID,
+                                       typename T::MyPrincipal& ep,
+                                       EventSetup const& es,
+                                       bool cleaningUpAfterException) {
+    assert(iStreamID<streamSchedules_.size());
+    streamSchedules_[iStreamID]->processOneStreamAsync<T>(std::move(iTaskHolder),ep,es,cleaningUpAfterException);
+  }
+
   template <typename T>
   void
   Schedule::processOneGlobal(typename T::MyPrincipal& ep,
@@ -277,5 +335,15 @@ namespace edm {
                                  bool cleaningUpAfterException) {
     globalSchedule_->processOneGlobal<T>(ep,es,cleaningUpAfterException);
   }
+  
+  template <typename T>
+  void
+  Schedule::processOneGlobalAsync(WaitingTaskHolder iTaskHolder,
+                                  typename T::MyPrincipal& ep,
+                                  EventSetup const& es,
+                                  bool cleaningUpAfterException) {
+    globalSchedule_->processOneGlobalAsync<T>(iTaskHolder,ep,es,cleaningUpAfterException);
+  }
+
 }
 #endif

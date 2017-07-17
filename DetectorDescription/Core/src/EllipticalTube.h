@@ -1,9 +1,12 @@
 #ifndef DDI_EllipticalTube_h
 #define DDI_EllipticalTube_h
 
-#include <iosfwd>
-#include "Solid.h"
 #include <DataFormats/GeometryVector/interface/Pi.h>
+#include <iosfwd>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "Solid.h"
 
 namespace DDI {
 
@@ -17,11 +20,11 @@ namespace DDI {
       p_.push_back(ySemiAxis);
       p_.push_back(zHeight);
     }  
-    ~EllipticalTube() { }
+    ~EllipticalTube() override { }
 
     /// Not as flexible and possibly less accurate than G4 volume.
-    double volume() const ;
-    void stream(std::ostream & os) const;
+    double volume() const override ;
+    void stream(std::ostream & os) const override;
   };
 
 }

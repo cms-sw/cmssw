@@ -1,5 +1,9 @@
 #include "L1Trigger/HardwareValidation/plugins/L1DummyProducer.h"
 
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/Exception.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
 using namespace dedefs;
 
 L1DummyProducer::L1DummyProducer(const edm::ParameterSet& iConfig) {
@@ -90,9 +94,12 @@ L1DummyProducer::L1DummyProducer(const edm::ParameterSet& iConfig) {
 
   ///rnd # settings
   edm::Service<edm::RandomNumberGenerator> rng;
-  CLHEP::HepRandomEngine& engine = rng->getEngine();
-  rndFlat_ = new CLHEP::RandFlat  (engine, 0., 1.);
-  rndGaus_ = new CLHEP::RandGaussQ(engine, 0., 1.);
+  if(!rng.isAvailable()) {
+    throw cms::Exception("Configuration")
+      << "L1DummyProducer requires the RandomNumberGeneratorService\n"
+         "which is not present in the configuration file.  You must add the service\n"
+         "in the configuration file or remove the modules that require it.";
+  }
   EBase_ = iConfig.getUntrackedParameter<double>("EnergyBase",100.);
   ESigm_ = iConfig.getUntrackedParameter<double>("EnergySigm",10.);
 
@@ -101,93 +108,94 @@ L1DummyProducer::L1DummyProducer(const edm::ParameterSet& iConfig) {
 }
   
 L1DummyProducer::~L1DummyProducer() {
-  delete rndFlat_;
-  delete rndGaus_;
 }
 
 void
 L1DummyProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(iEvent.streamID());
+
   if(verbose())
     std::cout << "L1DummyProducer::produce...\n" << std::flush;
 
   /// define the data collections
-  std::auto_ptr<EcalTrigPrimDigiCollection> 	    ecal_tp_data(new EcalTrigPrimDigiCollection     );
-  std::auto_ptr<HcalTrigPrimDigiCollection> 	    hcal_tp_data(new HcalTrigPrimDigiCollection     );
-  std::auto_ptr<L1CaloEmCollection>         	     rct_em_data(new L1CaloEmCollection             );
-  std::auto_ptr<L1CaloRegionCollection>     	    rct_rgn_data(new L1CaloRegionCollection         );
-  std::auto_ptr<L1GctEmCandCollection>      	gct_isolaem_data(new L1GctEmCandCollection          ); 
-  std::auto_ptr<L1GctEmCandCollection>      	gct_noisoem_data(new L1GctEmCandCollection          ); 
-  std::auto_ptr<L1GctJetCandCollection>     	gct_cenjets_data(new L1GctJetCandCollection         ); 
-  std::auto_ptr<L1GctJetCandCollection>     	gct_forjets_data(new L1GctJetCandCollection         ); 
-  std::auto_ptr<L1GctJetCandCollection>     	gct_taujets_data(new L1GctJetCandCollection         ); 
-  std::auto_ptr<L1MuDTChambPhContainer>     	     dtp_ph_data(new L1MuDTChambPhContainer         );
-  std::auto_ptr<L1MuDTChambThContainer>     	     dtp_th_data(new L1MuDTChambThContainer         );
-  std::auto_ptr<L1MuRegionalCandCollection> 	        dtf_data(new L1MuRegionalCandCollection     );
-  std::auto_ptr<L1MuDTTrackContainer>       	    dtf_trk_data(new L1MuDTTrackContainer           );
-  std::auto_ptr<CSCCorrelatedLCTDigiCollection>         ctp_data(new CSCCorrelatedLCTDigiCollection );
-  std::auto_ptr<L1MuRegionalCandCollection> 	        ctf_data(new L1MuRegionalCandCollection     );
-  std::auto_ptr<L1CSCTrackCollection>       	    ctf_trk_data(new L1CSCTrackCollection           );
-  std::auto_ptr<L1MuRegionalCandCollection> 	    rpc_cen_data(new L1MuRegionalCandCollection     );
-  std::auto_ptr<L1MuRegionalCandCollection> 	    rpc_for_data(new L1MuRegionalCandCollection     );
-  std::auto_ptr<LTCDigiCollection>          	        ltc_data(new LTCDigiCollection              );
-  std::auto_ptr<L1MuGMTCandCollection>      	        gmt_data(new L1MuGMTCandCollection          );
-  std::auto_ptr<L1MuGMTReadoutCollection>   	    gmt_rdt_data(new L1MuGMTReadoutCollection       ); 
-  std::auto_ptr<L1GlobalTriggerReadoutRecord>       glt_rdt_data(new L1GlobalTriggerReadoutRecord   );
-  std::auto_ptr<L1GlobalTriggerEvmReadoutRecord>    glt_evm_data(new L1GlobalTriggerEvmReadoutRecord);
-  std::auto_ptr<L1GlobalTriggerObjectMapRecord>     glt_obj_data(new L1GlobalTriggerObjectMapRecord );
+  std::unique_ptr<EcalTrigPrimDigiCollection> 	    ecal_tp_data(new EcalTrigPrimDigiCollection     );
+  std::unique_ptr<HcalTrigPrimDigiCollection> 	    hcal_tp_data(new HcalTrigPrimDigiCollection     );
+  std::unique_ptr<L1CaloEmCollection>         	     rct_em_data(new L1CaloEmCollection             );
+  std::unique_ptr<L1CaloRegionCollection>     	    rct_rgn_data(new L1CaloRegionCollection         );
+  std::unique_ptr<L1GctEmCandCollection>      	gct_isolaem_data(new L1GctEmCandCollection          ); 
+  std::unique_ptr<L1GctEmCandCollection>      	gct_noisoem_data(new L1GctEmCandCollection          ); 
+  std::unique_ptr<L1GctJetCandCollection>     	gct_cenjets_data(new L1GctJetCandCollection         ); 
+  std::unique_ptr<L1GctJetCandCollection>     	gct_forjets_data(new L1GctJetCandCollection         ); 
+  std::unique_ptr<L1GctJetCandCollection>     	gct_taujets_data(new L1GctJetCandCollection         ); 
+  std::unique_ptr<L1MuDTChambPhContainer>     	     dtp_ph_data(new L1MuDTChambPhContainer         );
+  std::unique_ptr<L1MuDTChambThContainer>     	     dtp_th_data(new L1MuDTChambThContainer         );
+  std::unique_ptr<L1MuRegionalCandCollection> 	        dtf_data(new L1MuRegionalCandCollection     );
+  std::unique_ptr<L1MuDTTrackContainer>       	    dtf_trk_data(new L1MuDTTrackContainer           );
+  std::unique_ptr<CSCCorrelatedLCTDigiCollection>         ctp_data(new CSCCorrelatedLCTDigiCollection );
+  std::unique_ptr<L1MuRegionalCandCollection> 	        ctf_data(new L1MuRegionalCandCollection     );
+  std::unique_ptr<L1CSCTrackCollection>       	    ctf_trk_data(new L1CSCTrackCollection           );
+  std::unique_ptr<L1MuRegionalCandCollection> 	    rpc_cen_data(new L1MuRegionalCandCollection     );
+  std::unique_ptr<L1MuRegionalCandCollection> 	    rpc_for_data(new L1MuRegionalCandCollection     );
+  std::unique_ptr<LTCDigiCollection>          	        ltc_data(new LTCDigiCollection              );
+  std::unique_ptr<L1MuGMTCandCollection>      	        gmt_data(new L1MuGMTCandCollection          );
+  std::unique_ptr<L1MuGMTReadoutCollection>   	    gmt_rdt_data(new L1MuGMTReadoutCollection       ); 
+  std::unique_ptr<L1GlobalTriggerReadoutRecord>       glt_rdt_data(new L1GlobalTriggerReadoutRecord   );
+  std::unique_ptr<L1GlobalTriggerEvmReadoutRecord>    glt_evm_data(new L1GlobalTriggerEvmReadoutRecord);
+  std::unique_ptr<L1GlobalTriggerObjectMapRecord>     glt_obj_data(new L1GlobalTriggerObjectMapRecord );
 
   /// fill candidate collections
-  if(m_doSys[ETP]) SimpleDigi(    ecal_tp_data  );
-  if(m_doSys[HTP]) SimpleDigi(    hcal_tp_data  );
-  if(m_doSys[RCT]) SimpleDigi(     rct_em_data	);
-  if(m_doSys[RCT]) SimpleDigi(    rct_rgn_data	);
-  if(m_doSys[GCT]) SimpleDigi(gct_isolaem_data,0);
-  if(m_doSys[GCT]) SimpleDigi(gct_noisoem_data,1);
-  if(m_doSys[GCT]) SimpleDigi(gct_cenjets_data,0);
-  if(m_doSys[GCT]) SimpleDigi(gct_forjets_data,1);
-  if(m_doSys[GCT]) SimpleDigi(gct_taujets_data,2);
-  if(m_doSys[DTP]) SimpleDigi(     dtp_ph_data	);
-  if(m_doSys[DTP]) SimpleDigi(     dtp_th_data	);
-  if(m_doSys[DTF]) SimpleDigi(        dtf_data,0);
-  if(m_doSys[DTF]) SimpleDigi(    dtf_trk_data	);
-  if(m_doSys[CTP]) SimpleDigi(        ctp_data  );
-  if(m_doSys[CTF]) SimpleDigi(        ctf_data,2);
-  if(m_doSys[CTF]) SimpleDigi(    ctf_trk_data	);
-  if(m_doSys[RPC]) SimpleDigi(    rpc_cen_data,1);
-  if(m_doSys[RPC]) SimpleDigi(    rpc_for_data,3);
-  if(m_doSys[LTC]) SimpleDigi(        ltc_data	);
-  if(m_doSys[GMT]) SimpleDigi(        gmt_data	);
-  if(m_doSys[GMT]) SimpleDigi(    gmt_rdt_data	);
-  if(m_doSys[GLT]) SimpleDigi(	  glt_rdt_data  );
-  if(m_doSys[GLT]) SimpleDigi(	  glt_evm_data  );
-  if(m_doSys[GLT]) SimpleDigi(	  glt_obj_data  );
+  if(m_doSys[ETP]) SimpleDigi(engine,     ecal_tp_data  );
+  if(m_doSys[HTP]) SimpleDigi(engine,     hcal_tp_data  );
+  if(m_doSys[RCT]) SimpleDigi(engine,      rct_em_data	);
+  if(m_doSys[RCT]) SimpleDigi(engine,     rct_rgn_data	);
+  if(m_doSys[GCT]) SimpleDigi(engine, gct_isolaem_data,0);
+  if(m_doSys[GCT]) SimpleDigi(engine, gct_noisoem_data,1);
+  if(m_doSys[GCT]) SimpleDigi(engine, gct_cenjets_data,0);
+  if(m_doSys[GCT]) SimpleDigi(engine, gct_forjets_data,1);
+  if(m_doSys[GCT]) SimpleDigi(engine, gct_taujets_data,2);
+  if(m_doSys[DTP]) SimpleDigi(engine,      dtp_ph_data	);
+  if(m_doSys[DTP]) SimpleDigi(engine,      dtp_th_data	);
+  if(m_doSys[DTF]) SimpleDigi(engine,         dtf_data,0);
+  if(m_doSys[DTF]) SimpleDigi(engine,     dtf_trk_data	);
+  if(m_doSys[CTP]) SimpleDigi(engine,         ctp_data  );
+  if(m_doSys[CTF]) SimpleDigi(engine,         ctf_data,2);
+  if(m_doSys[CTF]) SimpleDigi(engine,     ctf_trk_data	);
+  if(m_doSys[RPC]) SimpleDigi(engine,     rpc_cen_data,1);
+  if(m_doSys[RPC]) SimpleDigi(engine,     rpc_for_data,3);
+  if(m_doSys[LTC]) SimpleDigi(engine,         ltc_data	);
+  if(m_doSys[GMT]) SimpleDigi(engine,         gmt_data	);
+  if(m_doSys[GMT]) SimpleDigi(engine,     gmt_rdt_data	);
+  if(m_doSys[GLT]) SimpleDigi(engine, 	  glt_rdt_data  );
+  if(m_doSys[GLT]) SimpleDigi(engine, 	  glt_evm_data  );
+  if(m_doSys[GLT]) SimpleDigi(engine, 	  glt_obj_data  );
 
   /// put collection
-  if(m_doSys[ETP]) iEvent.put(    ecal_tp_data,instName[ETP][0]);
-  if(m_doSys[HTP]) iEvent.put(    hcal_tp_data,instName[HTP][0]);
-  if(m_doSys[RCT]) iEvent.put(     rct_em_data,instName[RCT][0]);
-  if(m_doSys[RCT]) iEvent.put(    rct_rgn_data,instName[RCT][0]);
-  if(m_doSys[GCT]) iEvent.put(gct_isolaem_data,instName[GCT][0]);
-  if(m_doSys[GCT]) iEvent.put(gct_noisoem_data,instName[GCT][1]);
-  if(m_doSys[GCT]) iEvent.put(gct_cenjets_data,instName[GCT][2]);
-  if(m_doSys[GCT]) iEvent.put(gct_forjets_data,instName[GCT][3]);
-  if(m_doSys[GCT]) iEvent.put(gct_taujets_data,instName[GCT][4]);
-  if(m_doSys[DTP]) iEvent.put(     dtp_ph_data,instName[DTP][0]);
-  if(m_doSys[DTP]) iEvent.put(     dtp_th_data,instName[DTP][0]);
-  if(m_doSys[DTF]) iEvent.put(        dtf_data,instName[DTF][0]);
-  if(m_doSys[DTF]) iEvent.put(    dtf_trk_data,instName[DTF][1]);
-  if(m_doSys[CTP]) iEvent.put(        ctp_data,instName[CTP][0]);
-  if(m_doSys[CTF]) iEvent.put(        ctf_data,instName[CTF][0]);
-  if(m_doSys[CTF]) iEvent.put(    ctf_trk_data,instName[CTF][1]);
-  if(m_doSys[RPC]) iEvent.put(    rpc_cen_data,instName[RPC][0]);
-  if(m_doSys[RPC]) iEvent.put(    rpc_for_data,instName[RPC][1]);
-  if(m_doSys[LTC]) iEvent.put(        ltc_data,instName[LTC][0]);
-  if(m_doSys[GMT]) iEvent.put(        gmt_data,instName[GMT][0]);
-  if(m_doSys[GMT]) iEvent.put(    gmt_rdt_data,instName[GMT][0]);
-  if(m_doSys[GLT]) iEvent.put(    glt_rdt_data,instName[GLT][0]);
-  if(m_doSys[GLT]) iEvent.put(    glt_evm_data,instName[GLT][0]);
-  if(m_doSys[GLT]) iEvent.put(    glt_obj_data,instName[GLT][0]);
+  if(m_doSys[ETP]) iEvent.put(std::move(ecal_tp_data),instName[ETP][0]);
+  if(m_doSys[HTP]) iEvent.put(std::move(hcal_tp_data),instName[HTP][0]);
+  if(m_doSys[RCT]) iEvent.put(std::move(rct_em_data),instName[RCT][0]);
+  if(m_doSys[RCT]) iEvent.put(std::move(rct_rgn_data),instName[RCT][0]);
+  if(m_doSys[GCT]) iEvent.put(std::move(gct_isolaem_data),instName[GCT][0]);
+  if(m_doSys[GCT]) iEvent.put(std::move(gct_noisoem_data),instName[GCT][1]);
+  if(m_doSys[GCT]) iEvent.put(std::move(gct_cenjets_data),instName[GCT][2]);
+  if(m_doSys[GCT]) iEvent.put(std::move(gct_forjets_data),instName[GCT][3]);
+  if(m_doSys[GCT]) iEvent.put(std::move(gct_taujets_data),instName[GCT][4]);
+  if(m_doSys[DTP]) iEvent.put(std::move(dtp_ph_data),instName[DTP][0]);
+  if(m_doSys[DTP]) iEvent.put(std::move(dtp_th_data),instName[DTP][0]);
+  if(m_doSys[DTF]) iEvent.put(std::move(dtf_data),instName[DTF][0]);
+  if(m_doSys[DTF]) iEvent.put(std::move(dtf_trk_data),instName[DTF][1]);
+  if(m_doSys[CTP]) iEvent.put(std::move(ctp_data),instName[CTP][0]);
+  if(m_doSys[CTF]) iEvent.put(std::move(ctf_data),instName[CTF][0]);
+  if(m_doSys[CTF]) iEvent.put(std::move(ctf_trk_data),instName[CTF][1]);
+  if(m_doSys[RPC]) iEvent.put(std::move(rpc_cen_data),instName[RPC][0]);
+  if(m_doSys[RPC]) iEvent.put(std::move(rpc_for_data),instName[RPC][1]);
+  if(m_doSys[LTC]) iEvent.put(std::move(ltc_data),instName[LTC][0]);
+  if(m_doSys[GMT]) iEvent.put(std::move(gmt_data),instName[GMT][0]);
+  if(m_doSys[GMT]) iEvent.put(std::move(gmt_rdt_data),instName[GMT][0]);
+  if(m_doSys[GLT]) iEvent.put(std::move(glt_rdt_data),instName[GLT][0]);
+  if(m_doSys[GLT]) iEvent.put(std::move(glt_evm_data),instName[GLT][0]);
+  if(m_doSys[GLT]) iEvent.put(std::move(glt_obj_data),instName[GLT][0]);
 
   nevt_++;
 

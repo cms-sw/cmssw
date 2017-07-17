@@ -32,7 +32,7 @@ struct data
 		double pt,double weight2)
      : Z(z), SigZ(sigz),D(d),SigD(sigd),Phi(phi),Pt(pt),weight2(1){}
 };
-typedef std::vector<data> zData;//!
+typedef std::vector<::data> zData;//!
 typedef zData::const_iterator zDataConstIter;//!
 typedef zData::iterator zDataIter;//!
 //zData zdata;//!

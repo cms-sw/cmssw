@@ -2,6 +2,7 @@
 #define Alignment_CommonAlignmentAlgorithm_AlignmentCSCBeamHaloSelector_h
 
 #include <vector>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 
 namespace edm {
@@ -13,10 +14,10 @@ class TrackingRecHit;
 
 class AlignmentCSCBeamHaloSelector {
    public:
-      typedef std::vector<const reco::Track*> Tracks; 
+      typedef std::vector<const reco::Track*> Tracks;
 
       /// constructor
-      AlignmentCSCBeamHaloSelector(const edm::ParameterSet &iConfig);
+      AlignmentCSCBeamHaloSelector(const edm::ParameterSet &iConfig, edm::ConsumesCollector & iC);
 
       /// destructor
       ~AlignmentCSCBeamHaloSelector();

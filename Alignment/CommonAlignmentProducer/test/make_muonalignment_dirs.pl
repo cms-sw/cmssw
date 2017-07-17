@@ -329,16 +329,16 @@ cd ..\n", $N, $N);
                 string tag = \"DTSurveyRcd\"
             },
             {
-                string record = \"DTSurveyErrorRcd\"
-                string tag = \"DTSurveyErrorRcd\"
+                string record = \"DTSurveyErrorExtendedRcd\"
+                string tag = \"DTSurveyErrorExtendedRcd\"
             },
             {
                 string record = \"CSCSurveyRcd\"
                 string tag = \"CSCSurveyRcd\"
             },
             {
-                string record = \"CSCSurveyErrorRcd\"
-                string tag = \"CSCSurveyErrorRcd\"
+                string record = \"CSCSurveyErrorExtendedRcd\"
+                string tag = \"CSCSurveyErrorExtendedRcd\"
             }
         }
     }
@@ -455,16 +455,16 @@ date
                 string tag = \"DTAlignmentRcd\"
             },
             {
-                string record = \"DTAlignmentErrorRcd\"
-                string tag = \"DTAlignmentErrorRcd\"
+                string record = \"DTAlignmentErrorExtendedRcd\"
+                string tag = \"DTAlignmentErrorExtendedRcd\"
             },
             {
                 string record = \"CSCAlignmentRcd\"
                 string tag = \"CSCAlignmentRcd\"
             },
             {
-                string record = \"CSCAlignmentErrorRcd\"
-                string tag = \"CSCAlignmentErrorRcd\"
+                string record = \"CSCAlignmentErrorExtendedRcd\"
+                string tag = \"CSCAlignmentErrorExtendedRcd\"
             }
         }
     }
@@ -496,16 +496,16 @@ date
 		string tag = \"DTAlignmentRcd\"
 	    },
 	    {
-		string record = \"DTAlignmentErrorRcd\"
-		string tag = \"DTAlignmentErrorRcd\"
+		string record = \"DTAlignmentErrorExtendedRcd\"
+		string tag = \"DTAlignmentErrorExtendedRcd\"
 	    },
 	    {
 		string record = \"CSCAlignmentRcd\"
 		string tag = \"CSCAlignmentRcd\"
 	    },
 	    {
-		string record = \"CSCAlignmentErrorRcd\"
-		string tag = \"CSCAlignmentErrorRcd\"
+		string record = \"CSCAlignmentErrorExtendedRcd\"
+		string tag = \"CSCAlignmentErrorExtendedRcd\"
 	    }
 	}
     }
@@ -622,16 +622,16 @@ es_source = PoolDBESSource {
           string tag = \"DTAlignmentRcd\"
       },
       {
-          string record = \"DTAlignmentErrorRcd\"
-          string tag = \"DTAlignmentErrorRcd\"
+          string record = \"DTAlignmentErrorExtendedRcd\"
+          string tag = \"DTAlignmentErrorExtendedRcd\"
       },
       {
           string record = \"CSCAlignmentRcd\"
           string tag = \"CSCAlignmentRcd\"
       },
       {
-          string record = \"CSCAlignmentErrorRcd\"
-          string tag = \"CSCAlignmentErrorRcd\"
+          string record = \"CSCAlignmentErrorExtendedRcd\"
+          string tag = \"CSCAlignmentErrorExtendedRcd\"
       }
     }
 }

@@ -3,13 +3,15 @@
 
 #include <string>
 #include <memory>
+// temporarely
 // 
 
 namespace coral {
   class Blob;
 }
 
-namespace conddb {
+namespace cond {
+
   class Binary {
   public:
     Binary();
@@ -32,11 +34,10 @@ namespace conddb {
 
     size_t size() const;
 
-    std::string hash() const;
-
   private:
     std::shared_ptr<coral::Blob> m_data;
   };
+
 }
 
 #endif

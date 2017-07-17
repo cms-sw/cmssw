@@ -24,8 +24,9 @@
 #include <cstdlib>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -46,7 +47,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -54,7 +55,7 @@
 
 namespace reco
 {
-  class BeamHaloSummaryProducer : public edm::EDProducer {
+  class BeamHaloSummaryProducer : public edm::stream::EDProducer<> {
     
   public:
     explicit BeamHaloSummaryProducer(const edm::ParameterSet&);
@@ -68,6 +69,11 @@ namespace reco
     edm::InputTag IT_EcalHaloData;
     edm::InputTag IT_HcalHaloData;
     edm::InputTag IT_GlobalHaloData;
+
+    edm::EDGetTokenT<CSCHaloData> cschalodata_token_;
+    edm::EDGetTokenT<EcalHaloData> ecalhalodata_token_;
+    edm::EDGetTokenT<HcalHaloData> hcalhalodata_token_;
+    edm::EDGetTokenT<GlobalHaloData> globalhalodata_token_;
 
     float L_EcalPhiWedgeEnergy;
     int L_EcalPhiWedgeConstituents;
@@ -96,6 +102,8 @@ namespace reco
     int T_HcalPhiWedgeConstituents;
     float T_HcalPhiWedgeToF;
     float T_HcalPhiWedgeConfidence;
+    
+    int problematicStripMinLength;
   };
 }
 

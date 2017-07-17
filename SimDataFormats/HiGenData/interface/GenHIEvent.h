@@ -64,14 +64,14 @@ namespace edm {
       double EtMR() const {return EtMR_;}
       int NchargedPtCut() const {return nChargedPtCut_;}
       int NchargedPtCutMR() const {return nChargedPtCutMR_;}
-      void setGenParticles(const reco::GenParticleCollection*) const;
+      void setGenParticles(const reco::GenParticleCollection*);
       const std::vector<reco::GenParticleRef>    getSubEvent(unsigned int sub_id) const;
 
       int           getNsubs() const {return subevents_.size();}
 
    private:
 
-      mutable SubEventCollection subevents_;
+      SubEventCollection subevents_;
       int sel_;
 
       double b_;

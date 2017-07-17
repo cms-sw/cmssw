@@ -21,7 +21,7 @@ public:
 
 private:
 
-  float maxD0Sig_, minPt_;
+  float maxD0Sig_, minPt_, maxEta_;
   int minSiLayers_, minPxLayers_;
   float maxNormChi2_;
   reco::TrackBase::TrackQuality quality_;

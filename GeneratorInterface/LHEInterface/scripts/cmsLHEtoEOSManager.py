@@ -1,6 +1,8 @@
 #! /usr/bin/env python
 
-__version__ = "$Revision: 1.11 $"
+print 'Starting cmsLHEtoEOSManager.py'
+
+__version__ = "$Revision: 1.13 $"
 
 import os
 import subprocess
@@ -49,10 +51,10 @@ def lastArticle():
     return max(artList)
 
 
-def fileUpload(uploadPath,lheList, reallyDoIt):
+def fileUpload(uploadPath,lheList, checkSumList, reallyDoIt):
 
     inUploadScript = ''
-
+    index = 0
     for f in lheList:
         realFileName = f.split('/')[-1]
         # Check the file existence
@@ -73,15 +75,33 @@ def fileUpload(uploadPath,lheList, reallyDoIt):
                 print 'Overwriting file '+newFileName+'\n'
         # add the file
         if addFile:
-            print 'Adding file '+str(f)+'\n'
-            inUploadScript += defaultEOScpCommand+additionalOption+' '+str(f)+' '+defaultEOSLoadPath+uploadPath+'/'+str(realFileName)+'\n'
-
+#            print 'Adding file '+str(f)+'\n'
+            inUploadScript = defaultEOScpCommand + additionalOption + ' ' + str(f) + ' ' + defaultEOSLoadPath+uploadPath + '/' + str(realFileName)
+            print 'Uploading file %s...' % str(f)
+            if reallyDoIt:
+                exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
+                exeRealUpload.communicate()
+                eosCheckSumCommand = '/afs/cern.ch/project/eos/installation/0.3.15/bin/eos.select find --checksum ' + uploadPath + '/' + str(realFileName) + ' | awk \'{print $2}\' | cut -d= -f2'
+                exeEosCheckSum = subprocess.Popen(eosCheckSumCommand ,shell=True, stdout=subprocess.PIPE)
+                EosCheckSum = exeEosCheckSum.stdout.read()
+                assert exeEosCheckSum.wait() == 0
+               # print 'checksum: eos = ' + EosCheckSum + 'orig file = ' + checkSumList[index] + '\n'
+                if checkSumList[index] not in EosCheckSum:
+                    print 'WARNING! The checksum for file ' + str(realFileName) + ' in EOS\n'
+                    print EosCheckSum + '\n'
+                    print 'does not match the checksum of the original one\n'
+                    print checkSumList[index] + '\n'
+                    print 'please try to re-upload file ' + str(realFileName) + ' to EOS.\n'
+                else:
+                    print 'Checksum OK for file ' + str(realFileName)
+        index = index+1            
+ 
 # launch the upload shell script        
 
-    print '\n Launching upload script \n'+inUploadScript+'\n at '+time.asctime(time.localtime(time.time()))+' ...\n'
-    if reallyDoIt:  
-      exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
-      exeRealUpload.communicate()
+#    print '\n Launching upload script \n'+inUploadScript+'\n at '+time.asctime(time.localtime(time.time()))+' ...\n'
+#    if reallyDoIt:  
+#      exeRealUpload = subprocess.Popen(["/bin/sh","-c",inUploadScript])
+#      exeRealUpload.communicate()
     print '\n Upload ended at '+time.asctime(time.localtime(time.time()))
 
 #################################################################################################    
@@ -97,6 +117,9 @@ if __name__ == '__main__':
                       help='LHE local file list to be uploaded, separated by ","' ,
                       default='',
                       dest='fileList')
+
+    parser.add_option('-F', '--files-from', metavar = 'FILE',
+                      help='File containing the list of LHE local files be uploaded, one file per line')
 
     parser.add_option('-n', '--new', 
                       help='Create a new article' ,
@@ -121,7 +144,7 @@ if __name__ == '__main__':
                       dest='dryRun')
     
     parser.add_option('-c', '--compress',
-                      help='compress the local .lhe file with xc before upload',
+                      help='compress the local .lhe file with xz before upload',
                       action='store_true',
                       default=False,
                       dest='compress')
@@ -138,15 +161,15 @@ if __name__ == '__main__':
     
     reallyDoIt = not options.dryRun
 
-    # Now some fault control..If an error is found we raise an exception
+    # Now some fault control. If an error is found we raise an exception
     if not options.newId and options.artIdUp==0 and options.artIdLi==0:
         raise Exception('Please specify the action to be taken, either "-n", "-u" or "-l"!')
     
-    if options.fileList=='' and (options.newId or options.artIdUp!=0):
+    if options.fileList == '' and not options.files_from and (options.newId or options.artIdUp!=0):
         raise Exception('Please provide the input file list!')
 
     if (options.newId and (options.artIdUp != 0 or options.artIdLi != 0)) or (options.artIdUp != 0 and options.artIdLi != 0):
-        raise Exception('Options "-n", "-u" and "-l" are mutually exclusive, please chose only one!')
+        raise Exception('Options "-n", "-u" and "-l" are mutually exclusive, please choose only one!')
 
     if options.newId:
         print 'Action: create new article\n'
@@ -156,25 +179,57 @@ if __name__ == '__main__':
         print 'Action: list content of article '+str(options.artIdLi)+'\n'
 
     if options.artIdLi==0:
-        theList = options.fileList.split(',')
+        theList = []
+        if len(options.fileList) > 0:
+            theList=(options.fileList.split(','))
+            
+        if options.files_from:
+            try:
+                f = open(options.files_from)
+            except IOError:
+                raise Exception('Cannot open the file list, \'%s\'' % options.files_from)
+            for l in f:
+                l = l.strip()
+                if len(l) == 0 or l[0] == '#':
+                    continue
+                theList.append(l)
+
         theCompressedFilesList = []
+        theCheckSumList = []
         for f in theList: 
             # Check the file name extension
+            print f
             if not ( f.lower().endswith(".lhe") or f.lower().endswith(".lhe.xz") ):
                 raise Exception('Input file name must have the "lhe" or "lhe.xz" final extension!')
+            if( f.lower().endswith(".lhe.xz") ):
+                print "Important! Input file "+f+" is already zipped: please make sure you verified its integrity with xmllint before zipping it. You can do it with:\n"
+                print "xmllint file.lhe\n"
+                print "Otherwise it is best to pass the unzipped file to this script and let it check its integrity and compress the file with the --compress option\n"
             # Check the local file existence
             if not os.path.exists(f):
                 raise Exception('Input file '+f+' does not exists')
+            if( f.lower().endswith(".lhe") ):
+                theCheckIntegrityCommand = 'xmllint -noout '+f
+                exeCheckIntegrity = subprocess.Popen(["/bin/sh","-c", theCheckIntegrityCommand])
+                intCode = exeCheckIntegrity.wait()
+                if(intCode is not 0):
+                    raise Exception('Input file '+f+ ' is corrupted')
             if reallyDoIt and options.compress:
               print "Compressing file",f
+              if( f.lower().endswith(".lhe.xz") ):
+                  raise Exception('Input file '+f+' is already compressed! This is inconsistent with the --compress option!')
               theCompressionCommand = 'xz '+f
               exeCompression = subprocess.Popen(["/bin/sh","-c",theCompressionCommand])
               exeCompression.communicate()
               theCompressedFilesList.append(f+'.xz')
         if reallyDoIt and options.compress:
           theList = theCompressedFilesList
-              
-        
+        for f in theList:
+            exeCheckSum = subprocess.Popen(["/afs/cern.ch/cms/caf/bin/cms_adler32",f], stdout=subprocess.PIPE) 
+            getCheckSum = subprocess.Popen(["awk", "{print $1}"], stdin=exeCheckSum.stdout, stdout=subprocess.PIPE)
+            exeCheckSum.stdout.close()
+            output,err = getCheckSum.communicate()
+            theCheckSumList.append(output)
 
     newArt = 0
     uploadPath = ''
@@ -198,7 +253,7 @@ if __name__ == '__main__':
         if articleExist(newArt):
             uploadPath = defaultEOSRootPath+'/'+str(newArt)
         else:
-            raise('Article '+str(newArt)+' to be updated does not exist!')
+            raise Exception('Article '+str(newArt)+' to be updated does not exist!')
 
 # list article
         
@@ -212,7 +267,7 @@ if __name__ == '__main__':
 
 
     if newArt > 0:
-        fileUpload(uploadPath,theList, reallyDoIt)
+        fileUpload(uploadPath,theList, theCheckSumList, reallyDoIt)
         listPath = defaultEOSRootPath+'/'+str(newArt)
         print ''
         print 'Listing the '+str(newArt)+' article content after upload:'

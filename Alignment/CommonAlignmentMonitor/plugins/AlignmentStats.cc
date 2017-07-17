@@ -3,7 +3,7 @@
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
 #include "Alignment/CommonAlignment/interface/Alignable.h"
 #include "Alignment/CommonAlignment/interface/Utilities.h"
@@ -147,7 +147,7 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     //std::cout << "   loop on hits of track #" << (itt - tracks->begin()) << std::endl;
     for (trackingRecHit_iterator ith = ittrk->recHitsBegin(), edh = ittrk->recHitsEnd(); ith != edh; ++ith) {
 
-      const TrackingRecHit *hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+      const TrackingRecHit *hit = *ith; // ith is an iterator on edm::Ref to rechit
       if(! hit->isValid())continue;
       DetId detid = hit->geographicalId();
       int subDet = detid.subdetId();
@@ -255,7 +255,6 @@ void AlignmentStats::analyze(const edm::Event &iEvent, const edm::EventSetup &iS
     tmpPresc_=prescale_;
   }
   if(trk_cnt!=ntracks)edm::LogError("AlignmentStats")<<"\nERROR! trk_cnt="<<trk_cnt<<"   ntracks="<<ntracks;
-  trk_cnt=0;
 
   return;
 }
@@ -311,7 +310,7 @@ void AlignmentStats::endJob(){
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  lastSetup_->get<IdealGeometryRecord>().get(tTopoHandle);
+  lastSetup_->get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   AlignableTracker* theAliTracker=new AlignableTracker(&(*trackerGeometry_), tTopo);

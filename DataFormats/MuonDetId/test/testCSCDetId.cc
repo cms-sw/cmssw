@@ -6,8 +6,6 @@
    \date 27 Jul 2005
 */
 
-static const char CVSId[] = "$Id: testCSCDetId.cc,v 1.4 2006/02/13 14:28:45 ptc Exp $";
-
 #include <cppunit/extensions/HelperMacros.h>
 #include <DataFormats/MuonDetId/interface/CSCDetId.h>
 #include <FWCore/Utilities/interface/Exception.h>
@@ -31,6 +29,9 @@ public:
   void testOne();
   void testFail();
   void testStatic();
+  
+private:
+  void testValid(CSCDetId&);
 };
 
 ///registration of the test so that the runner can find it
@@ -84,34 +85,18 @@ void testCSCDetId::testOne(){
 }
 
 
-void testCSCDetId::testFail(){
-  
-  // std::cout << "\ntestCSCDetId: testFail starting... " << std::endl;
-
+void testCSCDetId::testFail()
+{  
   // construct using an invalid input index
-  try {
-    // Invalid layer
-    CSCDetId detid(3,1,1,1,7);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0); 
-    detid.rawId(); // avoid compiler warning
-  } catch (cms::Exception& e) {
-    //    std::cout << "\ntestCSCDetId: testFail exception caught " << std::endl;
-    // OK
-  } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
-  }
+  // Invalid layer
+  std::cout << "\nConstruct CSCDetId using an invalid input index\n";
+  CSCDetId detid1(3,1,1,1,7);
+  testValid(detid1);
   
   // contruct using an invalid input id
-  try {
-    CSCDetId detid(3211);
-    CPPUNIT_ASSERT("Failed to throw required exception" == 0);      
-    detid.rawId(); // avoid compiler warning
-  } catch (cms::Exception& e) {
-    // OK
-    //    std::cout << "\ntestCSCDetId: testFail exception caught " << std::endl;
-  } catch (...) {
-    CPPUNIT_ASSERT("Threw wrong kind of exception" == 0);
-  }
+  std::cout << "\nConstruct CSCDetId using an invalid input id\n";
+  CSCDetId detid2(3211);
+  testValid(detid2);
 }
 
 void testCSCDetId::testStatic(){
@@ -140,4 +125,35 @@ void testCSCDetId::testStatic(){
   CPPUNIT_ASSERT(CSCDetId::chamber(id2) == ic );
   CPPUNIT_ASSERT(CSCDetId::layer(id2)   == il );
   CPPUNIT_ASSERT(CSCDetId::chamber(id3) == ic );
+}
+
+void testCSCDetId::testValid(CSCDetId& detId)
+{
+  if( detId.det() != DetId::Muon || detId.subdetId() != MuonSubdetId::CSC )
+  {
+    std::cout << "Invalid CSCDetId:"
+	      << " det: " << detId.det()
+	      << " subdet: " << detId.subdetId()
+	      << " is not a valid CSC id\n";  
+  }
+  int iendcap = detId.endcap();
+  int istation = detId.station();
+  int iring = detId.ring();
+  int ichamber = detId.chamber();
+  int ilayer = detId.layer();
+  if( iendcap  < detId.minEndcapId() || iendcap  > detId.maxEndcapId() ||
+      istation < detId.minStationId() || istation > detId.maxStationId() ||
+      iring    < detId.minRingId() || iring    > detId.maxRingId() ||
+      ichamber < detId.minChamberId() || ichamber > detId.maxChamberId() ||
+      ilayer   < detId.minLayerId() || ilayer   > detId.maxLayerId())
+  {
+    std::cout << "Invalid CSCDetId:" 
+	      << " Invalid parameters: " 
+	      << " E:"<< iendcap << "(" << detId.minEndcapId() << ":" <<  detId.maxEndcapId() << ")" 
+	      << " S:"<< istation << "(" << detId.minStationId() << ":" <<  detId.maxStationId() << ")" 
+	      << " R:"<< iring << "(" << detId.minRingId() << ":" <<  detId.maxRingId() << ")" 
+	      << " C:"<< ichamber << "(" << detId.minChamberId() << ":" <<  detId.maxChamberId() << ")" 
+	      << " L:"<< ilayer << "(" << detId.minLayerId() << ":" <<  detId.maxLayerId() << ")" 
+	      << "\n";
+  }
 }

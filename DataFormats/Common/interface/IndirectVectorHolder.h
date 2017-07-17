@@ -20,23 +20,23 @@ namespace edm {
 
       IndirectVectorHolder();
       IndirectVectorHolder( const IndirectVectorHolder & other);
-      IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p);
+      IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p);
       IndirectVectorHolder(RefVectorHolderBase * p);
       virtual ~IndirectVectorHolder();
       IndirectVectorHolder& operator= (IndirectVectorHolder const& rhs);
       void swap(IndirectVectorHolder& other);
-      virtual BaseVectorHolder<T>* clone() const;
-      virtual BaseVectorHolder<T>* cloneEmpty() const;
-      virtual ProductID id() const;
-      virtual EDProductGetter const* productGetter() const;
-      virtual bool empty() const;
-      virtual size_type size() const;
-      virtual void clear();
-      virtual base_ref_type const at(size_type idx) const;
-      virtual std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const {
-	return std::auto_ptr<reftobase::RefVectorHolderBase>( helper_->clone() );
+      virtual BaseVectorHolder<T>* clone() const override;
+      virtual BaseVectorHolder<T>* cloneEmpty() const override;
+      virtual ProductID id() const override;
+      virtual EDProductGetter const* productGetter() const override;
+      virtual bool empty() const override;
+      virtual size_type size() const override;
+      virtual void clear() override;
+      virtual base_ref_type const at(size_type idx) const override;
+      virtual std::unique_ptr<reftobase::RefVectorHolderBase> vectorHolder() const override {
+	return std::unique_ptr<reftobase::RefVectorHolderBase>( helper_->clone() );
       }
-      virtual void push_back( const BaseHolder<T> * r ) {
+      virtual void push_back( const BaseHolder<T> * r ) override {
 	typedef IndirectHolder<T> holder_type;
 	const holder_type * h = dynamic_cast<const holder_type *>( r );
 	if( h == 0 )
@@ -44,20 +44,17 @@ namespace edm {
 	    "In IndirectHolder<T> trying to push_back wrong reference type");
 	helper_->push_back( h->helper_ );
       }
-      virtual const void * product() const {
-	return helper_->product();
-      }
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
-      virtual bool isAvailable() const { return helper_->isAvailable(); }
+      virtual bool isAvailable() const override { return helper_->isAvailable(); }
 
       //Used by ROOT storage
       CMS_CLASS_VERSION(10)
 
     private:
       typedef typename base_type::const_iterator_imp const_iterator_imp;
-      RefVectorHolderBase * helper_;
+      RefVectorHolderBase* helper_;
 
     public:
       struct const_iterator_imp_specific : public const_iterator_imp {
@@ -93,19 +90,19 @@ namespace edm {
 	typename RefVectorHolderBase::const_iterator i;
       };
 
-      const_iterator begin() const {
+      const_iterator begin() const override {
 	return const_iterator( new const_iterator_imp_specific( helper_->begin() ) );
       }
-      const_iterator end() const {
+      const_iterator end() const override {
 	return const_iterator( new const_iterator_imp_specific( helper_->end() ) );
       }
     };
 
     template <typename T>
-    IndirectVectorHolder<T>::IndirectVectorHolder() : BaseVectorHolder<T>(), helper_( 0 ) { }
+    IndirectVectorHolder<T>::IndirectVectorHolder() : BaseVectorHolder<T>(), helper_( nullptr ) { }
 
     template <typename T>
-    IndirectVectorHolder<T>::IndirectVectorHolder(boost::shared_ptr<RefVectorHolderBase> p) :
+    IndirectVectorHolder<T>::IndirectVectorHolder(std::shared_ptr<RefVectorHolderBase> p) :
       BaseVectorHolder<T>(), helper_(p->clone()) { }
 
     template <typename T>

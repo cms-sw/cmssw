@@ -11,12 +11,15 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/TrackingGeometry.h"
 #include "Geometry/GEMGeometry/interface/GEMEtaPartition.h"
-//#include "Geometry/GEMGeometry/interface/GEMChamber.h"
+#include "Geometry/GEMGeometry/interface/GEMChamber.h"
+#include "Geometry/GEMGeometry/interface/GEMSuperChamber.h"
+#include "Geometry/GEMGeometry/interface/GEMRing.h"
+#include "Geometry/GEMGeometry/interface/GEMStation.h"
+#include "Geometry/GEMGeometry/interface/GEMRegion.h"
 #include <vector>
 #include <map>
 
 class GeomDetType;
-class GeomDetUnit;
 
 class GEMGeometry : public TrackingGeometry {
 
@@ -25,49 +28,85 @@ class GEMGeometry : public TrackingGeometry {
   GEMGeometry();
 
   /// Destructor
-  virtual ~GEMGeometry();
+  ~GEMGeometry() override;
 
   // Return a vector of all det types
-  virtual const DetTypeContainer&  detTypes() const;
+  const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  virtual const DetUnitContainer& detUnits() const;
+  const DetUnitContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
-  virtual const DetContainer& dets() const;
+  const DetContainer& dets() const override;
   
   // Return a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer& detUnitIds() const;
+  const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds
-  virtual const DetIdContainer& detIds() const;
+  const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDetUnit(DetId) const;
+  const GeomDetUnit* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  virtual const GeomDet* idToDet(DetId) const;
+  const GeomDet* idToDet(DetId) const override;
 
 
   //---- Extension of the interface
 
+  /// Return a vector of all GEM regions
+  const std::vector<const GEMRegion*>& regions() const;
+
+  /// Return a vector of all GEM stations
+  const std::vector<const GEMStation*>& stations() const;
+
+  /// Return a vector of all GEM rings
+  const std::vector<const GEMRing*>& rings() const;
+
+  /// Return a vector of all GEM super chambers
+  const std::vector<const GEMSuperChamber*>& superChambers() const;
+
   /// Return a vector of all GEM chambers
-  //  const std::vector<GEMChamber*>& chambers() const;
+  const std::vector<const GEMChamber*>& chambers() const;
 
   /// Return a vector of all GEM eta partitions
-  const std::vector<GEMEtaPartition*>& etaPartitions() const;
+  const std::vector<const GEMEtaPartition*>& etaPartitions() const;
+
+  // Return a GEMRegion 
+  const GEMRegion* region(int region) const;
+
+  // Return a GEMStation
+  const GEMStation* station(int region, int station) const;
+
+  /// Return a GEMRing
+  const GEMRing* ring(int region, int station, int ring) const;
+
+  // Return a GEMSuperChamber given its id
+  const GEMSuperChamber* superChamber(GEMDetId id) const;
 
   // Return a GEMChamber given its id
-  //  const GEMChamber* chamber(GEMDetId id) const;
+  const GEMChamber* chamber(GEMDetId id) const;
 
-  /// Return a etaPartition given its id
+  /// Return a GEMEtaPartition given its id
   const GEMEtaPartition* etaPartition(GEMDetId id) const;
 
-  /// Add a GEM etaPartition  to the Geometry
-  void add(GEMEtaPartition* etaPartition);
+  /// Add a GEMRegion to the Geometry
+  void add(GEMRegion* region);
 
-  /// Add a GEM Chamber to the Geometry
-  //  void add(GEMChamber* ch);
+  /// Add a GEMStation to the Geometry
+  void add(GEMStation* station);
+
+  /// Add a GEMRing to the Geometry
+  void add(GEMRing* ring);
+
+  /// Add a GEMSuperChamber to the Geometry
+  void add(GEMSuperChamber* sch);
+ 
+  /// Add a GEMChamber to the Geometry
+  void add(GEMChamber* ch);
+
+  /// Add a GEMEtaPartition  to the Geometry
+  void add(GEMEtaPartition* etaPartition);
 
  private:
   DetUnitContainer theEtaPartitions;
@@ -79,9 +118,12 @@ class GEMGeometry : public TrackingGeometry {
   // Map for efficient lookup by DetId 
   mapIdToDet theMap;
 
-  std::vector<GEMEtaPartition*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
-  //  std::vector<GEMChamber*> allChambers; // Are owned by this class.
-
+  std::vector<const GEMEtaPartition*> allEtaPartitions; // Are not owned by this class; are owned by their chamber.
+  std::vector<const GEMChamber*> allChambers; // Are not owned by this class; are owned by their chamber.
+  std::vector<const GEMSuperChamber*> allSuperChambers; // Are owned by this class.
+  std::vector<const GEMRing*> allRings; // Are owned by this class.
+  std::vector<const GEMStation*> allStations; // Are owned by this class.
+  std::vector<const GEMRegion*> allRegions; // Are owned by this class.
 };
 
 #endif

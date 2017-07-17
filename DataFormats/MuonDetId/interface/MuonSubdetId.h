@@ -13,6 +13,7 @@ public:
   static const int CSC=2;
   static const int RPC=3; 
   static const int GEM=4; 
+  static const int ME0=5; 
 };
 
 #endif

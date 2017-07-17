@@ -1,12 +1,12 @@
 #include "RecoMuon/TrackingTools/test/MuonErrorMatrixAnalyzer.h"
 
-#include <DataFormats/GeometrySurface/interface/Plane.h>
-#include <TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h>
+#include "DataFormats/GeometrySurface/interface/Plane.h"
+#include "TrackingTools/PatternTools/interface/TSCPBuilderNoMaterial.h"
 //#include <TrackingTools/GeomPropagators/interface/AnalyticalImpactPointExtrapolator.h>
-#include <TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryParameters.h>
+#include "TrackingTools/TrajectoryParametrization/interface/CurvilinearTrajectoryParameters.h"
 
 //#include <TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h>
-#include <TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h>
+#include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
@@ -17,13 +17,13 @@
 #include <cmath>
 #include "DataFormats/Math/interface/deltaPhi.h" 
 
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "TrackingTools/GeomPropagators/interface/Propagator.h"
+#include "TrackingTools/Records/interface/TrackingComponentsRecord.h"
 
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -218,10 +218,11 @@ MuonErrorMatrixAnalyzer::analyze_from_pull(const edm::Event& iEvent, const edm::
   iEvent.getByLabel(trackingParticleLabel,TPtracks);
 
   //get the associator
-  iSetup.get<TrackAssociatorRecord>().get(theAssocLabel,theAssociator);
+  edm::Handle<reco::TrackToTrackingParticleAssociator> associator;
+  iEvent.getByLabel(theAssocLabel,associator);
 
   //associate  
-  reco::RecoToSimCollection recSimColl = theAssociator->associateRecoToSim(tracks,TPtracks, &iEvent,&iSetup);
+  reco::RecoToSimCollection recSimColl = associator->associateRecoToSim(tracks,TPtracks);
 
   LogDebug(theCategory)<<"I have found: "<<recSimColl.size()<<" associations in total.";
   

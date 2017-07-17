@@ -13,22 +13,11 @@ CaloTowersDQMClient::CaloTowersDQMClient(const edm::ParameterSet& iConfig):conf_
 {
 
   outputFile_ = iConfig.getUntrackedParameter<std::string>("outputFile", "myfile.root");
-
-  dbe_ = edm::Service<DQMStore>().operator->();
-  if (!dbe_) {
-    edm::LogError("CaloTowersDQMClient") << "unable to get DQMStore service, upshot is no client histograms will be made";
-  }
-  if(iConfig.getUntrackedParameter<bool>("DQMStore", false)) {
-    if(dbe_) dbe_->setVerbose(0);
-  }
- 
   debug_ = false;
   verbose_ = false;
-
   dirName_=iConfig.getParameter<std::string>("DQMDirName");
-  if(dbe_) dbe_->setCurrentFolder(dirName_);
- 
-}
+  
+ }
 
 
 CaloTowersDQMClient::~CaloTowersDQMClient()
@@ -42,10 +31,6 @@ void CaloTowersDQMClient::beginJob()
 
 }
 
-void CaloTowersDQMClient::endJob() 
-{
-   if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
-}
 
 void CaloTowersDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c)
 {
@@ -53,57 +38,7 @@ void CaloTowersDQMClient::beginRun(const edm::Run& run, const edm::EventSetup& c
 }
 
 
-void CaloTowersDQMClient::endRun(const edm::Run& run, const edm::EventSetup& c)
-{
-  runClient_();
-}
-
-//dummy analysis function
-void CaloTowersDQMClient::analyze(const edm::Event& iEvent,const edm::EventSetup& iSetup)
-{
-  
-}
-
-void CaloTowersDQMClient::endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,const edm::EventSetup& c)
-{ 
-//  runClient_();
-}
-
-void CaloTowersDQMClient::runClient_()
-{
-  if(!dbe_) return; //we dont have the DQMStore so we cant do anything
-  dbe_->setCurrentFolder(dirName_);
-
-  if (verbose_) std::cout << "\nrunClient" << std::endl; 
-
-  std::vector<MonitorElement*> hcalMEs;
-
-  // Since out folders are fixed to three, we can just go over these three folders
-  // i.e., CaloTowersV/CaloTowersTask, HcalRecHitsV/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
-  std::vector<std::string> fullPathHLTFolders = dbe_->getSubdirs();
-  for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
-
-    if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
-    dbe_->setCurrentFolder(fullPathHLTFolders[i]);
-
-    std::vector<std::string> fullSubPathHLTFolders = dbe_->getSubdirs();
-    for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
-
-      if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
-
-      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersV/CaloTowersTask") ==0  ){
-         hcalMEs = dbe_->getContents(fullSubPathHLTFolders[j]);
-         if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
-         if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;
-      }
-
-    }    
-
-  }
-
-}
-
-// called after entering the CaloTowersV/CaloTowersTask directory
+// called after entering the CaloTowersD/CaloTowersTask directory
 // hcalMEs are within that directory
 int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hcalMEs){
 
@@ -207,5 +142,40 @@ int CaloTowersDQMClient::CaloTowersEndjob(const std::vector<MonitorElement*> &hc
    return 1;
 
 }
+
+void CaloTowersDQMClient::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGetter & igetter) 
+{
+ 
+  igetter.setCurrentFolder(dirName_);
+  if (verbose_) std::cout << "\nrunClient" << std::endl; 
+
+  std::vector<MonitorElement*> hcalMEs;
+
+  // Since out folders are fixed to three, we can just go over these three folders
+  // i.e., CaloTowersD/CaloTowersTask, HcalRecHitsD/HcalRecHitTask, NoiseRatesV/NoiseRatesTask.
+  std::vector<std::string> fullPathHLTFolders = igetter.getSubdirs();
+  for(unsigned int i=0;i<fullPathHLTFolders.size();i++) {
+
+    if (verbose_) std::cout <<"\nfullPath: "<< fullPathHLTFolders[i] << std::endl;
+    igetter.setCurrentFolder(fullPathHLTFolders[i]);
+
+    std::vector<std::string> fullSubPathHLTFolders = igetter.getSubdirs();
+    for(unsigned int j=0;j<fullSubPathHLTFolders.size();j++) {
+
+      if (verbose_) std::cout <<"fullSub: "<<fullSubPathHLTFolders[j] << std::endl;
+
+      if( strcmp(fullSubPathHLTFolders[j].c_str(), "CaloTowersD/CaloTowersTask") ==0  ){
+         hcalMEs = igetter.getContents(fullSubPathHLTFolders[j]);
+         if (verbose_) std::cout <<"hltMES size : "<<hcalMEs.size()<<std::endl;
+         if( !CaloTowersEndjob(hcalMEs) ) std::cout<<"\nError in CaloTowersEndjob!"<<std::endl<<std::endl;
+      }
+
+    }    
+
+  }
+
+}
+
+
 
 DEFINE_FWK_MODULE(CaloTowersDQMClient);

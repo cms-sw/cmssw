@@ -28,7 +28,7 @@ sys.argv=theargv
 
 from urllib2  import Request,build_opener,urlopen
 
-if os.environ.has_key("RELMON_SA"):
+if "RELMON_SA" in os.environ:
   from definitions import *
   from authentication import X509CertOpen
   from utils import __file__ as this_module_name  
@@ -51,7 +51,7 @@ def setTDRStyle():
   this_dir_one_up=this_dir[:this_dir.rfind("/")+1]
   #this_dir_two_up=this_dir_one_up[:this_dir_one_up.rfind("/")+1]
   style_file=''
-  if os.environ.has_key("RELMON_SA"):
+  if "RELMON_SA" in os.environ:
     style_file=this_dir_one_up+"data/tdrstyle_mod.C"
   else:
     style_file="%s/src/Utilities/RelMon/data/tdrstyle_mod.C"%(os.environ["CMSSW_BASE"])
@@ -138,9 +138,8 @@ class StatisticalTest(object):
             # Conversation with JeanRoch and David 5 April
             return 1
           elif one_empty:
-            #return -103
-            # Conversation with JeanRoch and David 5 April
-            return 1
+            # Due conversation with Giovanni on 2015-09-10
+            return 0
 
           # if histos have different number of bins
           if Nbins1!=Nbins2:
@@ -327,7 +326,7 @@ class BinToBin(StatisticalTest):
     equal = 1
     nbins = getNbins(self.h1)
     n_ok_bins=0.0
-    for ibin in xrange(0,nbins):
+    for ibin in xrange(0, nbins+2):
       h1bin=self.h1.GetBinContent(ibin)
       h2bin=self.h2.GetBinContent(ibin)
       bindiff=h1bin-h2bin
@@ -534,12 +533,25 @@ def get_relval_cmssw_version(file):
     cmssw_release = re.findall('(CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?)-', file)
     gr_r_version = re.findall('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
     if cmssw_release and gr_r_version:
+        if "PU" in gr_r_version[0][0] and not "FastSim" in file:
+            __gt = re.sub('^[^_]*_', "", gr_r_version[0][0])
+            __process_string = gr_r_version[0][1]
+            return (__gt, __process_string)
+        elif "PU" in gr_r_version[0][0] and "FastSim" in file:   #a check for FastSimPU samples
+            return (cmssw_release[0], "PU_")                     #with possibly different GT's
         return (cmssw_release[0], gr_r_version[0])
 
 def get_relval_id(file):
     """Returns unique relval ID (dataset name) for a given file."""
-    dataset_name = re.findall('R\d{9}__([\w\d]*)__CMSSW_', file)
-    return dataset_name[0]
+    dataset_name = re.findall('R\d{9}__([\w\D]*)__CMSSW_', file)
+    __process_string = re.search('CMSSW_\d*_\d*_\d*(?:_[\w\d]*)?-([\w\d]*)_V\d*\w?(_[\w\d]*)?-v', file)
+    _ps = ""
+    if __process_string:
+        if "PU" in __process_string.group(1) and not "FastSim" in file:
+            _ps = re.search('^[^_]*_', __process_string.group(1)).group()
+        elif "PU" in __process_string.group(1) and "FastSim" in file:
+            return dataset_name[0]+"_", _ps ##some testing is needed
+    return dataset_name[0], _ps
 
 ##-------------------------  Make files pairs --------------------------
 def is_relvaldata(files):
@@ -565,7 +577,7 @@ def make_files_pairs(files, verbose=True):
     versions_files = dict()
     for file in files:
         version = get_cmssw_version(file)
-        if versions_files.has_key(version):
+        if version in versions_files:
             versions_files[version].append(file)
         else:
             versions_files[version] = [file]
@@ -603,9 +615,11 @@ def make_files_pairs(files, verbose=True):
             c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and run_re.search(file)]
             c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and run_re.search(file)]
         else:
-            dataset_re = re.compile(unique_id+'_')
-            c1_files = [file for file in versions_files[v1] if dataset_re.search(file)]
-            c2_files = [file for file in versions_files[v2] if dataset_re.search(file)]
+            dataset_re = re.compile(unique_id[0]+'_')
+            ps_re = re.compile(unique_id[1])
+            ##compile a PU re and search also for same PU
+            c1_files = [file for file in versions_files[v1] if dataset_re.search(file) and ps_re.search(file)]
+            c2_files = [file for file in versions_files[v2] if dataset_re.search(file) and ps_re.search(file)]
 
         if len(c1_files) > 0 and len(c2_files) > 0:
             first_file = get_max_version(c1_files)

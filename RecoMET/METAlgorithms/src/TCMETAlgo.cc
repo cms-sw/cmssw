@@ -78,8 +78,8 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
     {
       clustersECALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersECAL"));
       clustersHCALToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHCAL"));
-      clustersHFEMToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFEM"));
-      clustersHFHADToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHFHAD"));
+      clustersHFToken_ = iConsumesCollector.consumes<reco::PFClusterCollection>(iConfig.getParameter<edm::InputTag>("PFClustersHF"));
+
     }
 
   muonDepValueMapToken_ = iConsumesCollector.consumes<edm::ValueMap<reco::MuonMETCorrectionData> >(iConfig.getParameter<edm::InputTag>("muonDepValueMap"));
@@ -120,7 +120,10 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   maxchi2_tight_          = iConfig.getParameter<double>("chi2_tight_max" );
   minhits_tight_          = iConfig.getParameter<double>("nhits_tight_min");
   maxPtErr_tight_         = iConfig.getParameter<double>("ptErr_tight_max");
-  maxTrackAlgo_           = iConfig.getParameter<int>   ("maxTrackAlgo");
+  std::vector<std::string> trackAlgoNames = iConfig.getParameter<std::vector<std::string>>("trackAlgos");
+  std::transform(trackAlgoNames.begin(), trackAlgoNames.end(), std::back_inserter(trackAlgos_), [](const std::string& name) {
+      return reco::TrackBase::algoByName(name);
+    });
 
   isCosmics_ = iConfig.getParameter<bool>  ("isCosmics");
   minpt_     = iConfig.getParameter<double>("pt_min"   );
@@ -132,7 +135,11 @@ void TCMETAlgo::configure(const edm::ParameterSet& iConfig, edm::ConsumesCollect
   hOverECut_ = iConfig.getParameter<double>("hOverECut");
 
   trkQuality_ = iConfig.getParameter<std::vector<int> >("track_quality");
-  trkAlgos_   = iConfig.getParameter<std::vector<int> >("track_algos"  );
+  std::vector<std::string> algos = iConfig.getParameter<std::vector<std::string> >("track_algos");
+  std::transform(algos.begin(), algos.end(), std::back_inserter(trkAlgos_), [](const std::string& a) {
+      return reco::TrackBase::algoByName(a);
+    });
+
 
   showerRF_          = getResponseFunction_shower();
   response_function_ = 0;
@@ -227,20 +234,9 @@ void TCMETAlgo::initialize_MET_with_PFClusters(edm::Event& event)
       pfcsumet += et;
     }
 
-  edm::Handle< reco::PFClusterCollection > clustersHFHAD;
-  event.getByToken(clustersHFHADToken_, clustersHFHAD);
-  for (reco::PFClusterCollection::const_iterator it = clustersHFHAD->begin(); it != clustersHFHAD->end(); it++)
-    {
-      const math::XYZPoint& cluster_pos = it->position();
-      double et = it->energy()/cosh(cluster_pos.eta());
-      pfcmet_x -= et*cos(cluster_pos.phi());
-      pfcmet_y -= et*sin(cluster_pos.phi());
-      pfcsumet += et;
-    }
-
-  edm::Handle< reco::PFClusterCollection > clustersHFEM;
-  event.getByToken(clustersHFEMToken_, clustersHFEM);
-  for (reco::PFClusterCollection::const_iterator it = clustersHFEM->begin(); it != clustersHFEM->end(); it++)
+  edm::Handle< reco::PFClusterCollection > clustersHF;
+  event.getByToken(clustersHFToken_, clustersHF);
+  for (reco::PFClusterCollection::const_iterator it = clustersHF->begin(); it != clustersHF->end(); it++)
     {
       const math::XYZPoint& cluster_pos = it->position();
       double et = it->energy()/cosh(cluster_pos.eta());
@@ -558,22 +554,19 @@ void TCMETAlgo::findGoodShowerTracks(std::vector<int>& goodShowerTracks)
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedInnerHits(const reco::TrackRef track){
-  const reco::HitPattern& p_inner = track->trackerExpectedHitsInner();
-  return p_inner.numberOfHits();
+  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
 }
 
 //____________________________________________________________________________||
 int TCMETAlgo::nExpectedOuterHits(const reco::TrackRef track)
 {
-  const reco::HitPattern& p_outer = track->trackerExpectedHitsOuter();
-  return p_outer.numberOfHits();
+  return track->hitPattern().numberOfHits(reco::HitPattern::MISSING_OUTER_HITS);
 }
 
 //____________________________________________________________________________||
 int TCMETAlgo::nLayers(const reco::TrackRef track)
 {
-  const reco::HitPattern& p = track->hitPattern();
-  return p.trackerLayersWithMeasurement();
+  return track->hitPattern().trackerLayersWithMeasurement();
 }
 
 //____________________________________________________________________________||
@@ -644,7 +637,7 @@ bool TCMETAlgo::isGoodTrack(const reco::TrackRef track)
     d0 = -1 * track->dxy( bspot );
     }
      
-  if( track->algo() < maxTrackAlgo_ )
+  if(std::find(trackAlgos_.begin(), trackAlgos_.end(), track->algo()) != trackAlgos_.end())
     {
       //1st 4 tracking iterations (pT-dependent d0 cut + nlayers cut)
        

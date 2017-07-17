@@ -14,6 +14,10 @@ HBHETimingShapedFlagSetter::HBHETimingShapedFlagSetter()
 {
 }
 
+HBHETimingShapedFlagSetter::~HBHETimingShapedFlagSetter()
+{
+}
+
 HBHETimingShapedFlagSetter::HBHETimingShapedFlagSetter(const std::vector<double>& v_userEnvelope)
 {
   makeTfilterEnvelope(v_userEnvelope);

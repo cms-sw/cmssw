@@ -3,10 +3,11 @@
 
 #include "FWCore/MessageLogger/interface/AbstractMLscribe.h"
 #include "FWCore/MessageLogger/interface/MessageLoggerQ.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 // I believe the below are not needed:
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iosfwd>
 #include <vector>
@@ -39,7 +40,7 @@ class MainThreadMLscribe : public AbstractMLscribe
 {
 public:
   // ---  birth/death:
-  MainThreadMLscribe(boost::shared_ptr<ThreadQueue> tqp);
+  MainThreadMLscribe(std::shared_ptr<ThreadQueue> tqp);
   virtual ~MainThreadMLscribe();
 
   // --- receive and act on messages:
@@ -49,7 +50,7 @@ public:
 
 private:
 
-   boost::shared_ptr<ThreadQueue>   m_queue;
+   edm::propagate_const<std::shared_ptr<ThreadQueue>> m_queue;
 };  // MainThreadMLscribe
 
 

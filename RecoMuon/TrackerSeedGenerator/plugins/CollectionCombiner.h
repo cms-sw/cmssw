@@ -18,7 +18,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -26,37 +26,41 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 template <typename Collection>
-class CollectionCombiner : public edm::EDProducer{
+class CollectionCombiner : public edm::global::EDProducer<>{
 public:
   explicit CollectionCombiner(const edm::ParameterSet&);
   ~CollectionCombiner();
   
 private:
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
   // ----------member data ---------------------------
   std::vector<edm::InputTag> labels;
+  std::vector<edm::EDGetTokenT<Collection> > collectionTokens; 
+
 };
 
 template <typename Collection>
 CollectionCombiner<Collection>::CollectionCombiner(const edm::ParameterSet& iConfig){
   labels = iConfig.getParameter<std::vector<edm::InputTag> >("labels");
   produces<Collection>();
+  for (unsigned int i=0;i<labels.size();++i)
+    collectionTokens.push_back(consumes<Collection>(labels.at(i)));
 }
 template <typename Collection>
 CollectionCombiner<Collection>::~CollectionCombiner(){}
 
 template <typename Collection>
-void CollectionCombiner<Collection>::produce(edm::Event& iEvent, const edm::EventSetup& es)
+void CollectionCombiner<Collection>::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& es) const
 {
   unsigned int i=0,i_max=labels.size();
   edm::Handle<Collection> handle;
-  std::auto_ptr<Collection> merged(new Collection());
+  auto merged = std::make_unique<Collection>();
   for (;i!=i_max;++i){
-    iEvent.getByLabel(labels[i], handle);
+    iEvent.getByToken(collectionTokens[i], handle);
     merged->insert(merged->end(), handle->begin(), handle->end());
   }
-  iEvent.put(merged);
+  iEvent.put(std::move(merged));
 }
 
 

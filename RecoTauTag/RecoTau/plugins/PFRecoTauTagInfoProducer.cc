@@ -17,7 +17,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -32,19 +32,23 @@ using namespace reco;
 using namespace edm;
 using namespace std;
 
-class PFRecoTauTagInfoProducer : public EDProducer {
+class PFRecoTauTagInfoProducer : public edm::global::EDProducer<> {
  public:
   explicit PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig);
   ~PFRecoTauTagInfoProducer();
-  virtual void produce(edm::Event&,const edm::EventSetup&) override;
+  virtual void produce(edm::StreamID, edm::Event&,const edm::EventSetup&) const override;
  private:
-  PFRecoTauTagInfoAlgorithm* PFRecoTauTagInfoAlgo_;
+  std::unique_ptr<const PFRecoTauTagInfoAlgorithm> PFRecoTauTagInfoAlgo_;
   edm::InputTag PFCandidateProducer_;
   edm::InputTag PFJetTracksAssociatorProducer_;
   edm::InputTag PVProducer_;
   double smearedPVsigmaX_;
   double smearedPVsigmaY_;
-  double smearedPVsigmaZ_;  
+  double smearedPVsigmaZ_;
+
+  edm::EDGetTokenT<PFCandidateCollection> PFCandidate_token;
+  edm::EDGetTokenT<JetTracksAssociationCollection> PFJetTracksAssociator_token;
+  edm::EDGetTokenT<VertexCollection> PV_token;
 };
 
 PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iConfig){
@@ -55,27 +59,29 @@ PFRecoTauTagInfoProducer::PFRecoTauTagInfoProducer(const edm::ParameterSet& iCon
   smearedPVsigmaX_                    = iConfig.getParameter<double>("smearedPVsigmaX");
   smearedPVsigmaY_                    = iConfig.getParameter<double>("smearedPVsigmaY");
   smearedPVsigmaZ_                    = iConfig.getParameter<double>("smearedPVsigmaZ");	
-  PFRecoTauTagInfoAlgo_=new PFRecoTauTagInfoAlgorithm(iConfig);
+  PFRecoTauTagInfoAlgo_.reset( new PFRecoTauTagInfoAlgorithm(iConfig) );
+  PFCandidate_token = consumes<PFCandidateCollection>(PFCandidateProducer_);
+  PFJetTracksAssociator_token = consumes<JetTracksAssociationCollection>(PFJetTracksAssociatorProducer_);
+  PV_token = consumes<VertexCollection>(PVProducer_);
   produces<PFTauTagInfoCollection>();      
 }
 PFRecoTauTagInfoProducer::~PFRecoTauTagInfoProducer(){
-  delete PFRecoTauTagInfoAlgo_;
 }
 
-void PFRecoTauTagInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup){
+void PFRecoTauTagInfoProducer::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const {
   edm::Handle<JetTracksAssociationCollection> thePFJetTracksAssociatorCollection;
-  iEvent.getByLabel(PFJetTracksAssociatorProducer_,thePFJetTracksAssociatorCollection);
+  iEvent.getByToken(PFJetTracksAssociator_token,thePFJetTracksAssociatorCollection);
   // *** access the PFCandidateCollection in the event in order to retrieve the PFCandidateRefVector which constitutes each PFJet
   edm::Handle<PFCandidateCollection> thePFCandidateCollection;
-  iEvent.getByLabel(PFCandidateProducer_,thePFCandidateCollection);
-  PFCandidateRefVector thePFCandsInTheEvent;
+  iEvent.getByToken(PFCandidate_token,thePFCandidateCollection);
+  vector<PFCandidatePtr> thePFCandsInTheEvent;
   for(unsigned int i_PFCand=0;i_PFCand!=thePFCandidateCollection->size();i_PFCand++) { 
-        thePFCandsInTheEvent.push_back(PFCandidateRef(thePFCandidateCollection,i_PFCand));
+        thePFCandsInTheEvent.push_back(PFCandidatePtr(thePFCandidateCollection,i_PFCand));
   }
   // ***
   // query a rec/sim PV
   edm::Handle<VertexCollection> thePVs;
-  iEvent.getByLabel(PVProducer_,thePVs);
+  iEvent.getByToken(PV_token,thePVs);
   const VertexCollection vertCollection=*(thePVs.product());
   math::XYZPoint V(0,0,-1000.);
 
@@ -90,14 +96,14 @@ else{
     thePV=Vertex(SimPVPoint,SimPVError,1,1,1);    
   }
   
-  auto_ptr<PFTauTagInfoCollection> resultExt(new PFTauTagInfoCollection);  
+  auto resultExt = std::make_unique<PFTauTagInfoCollection>();  
   for(JetTracksAssociationCollection::const_iterator iAssoc=thePFJetTracksAssociatorCollection->begin();iAssoc!=thePFJetTracksAssociatorCollection->end();iAssoc++){
     PFTauTagInfo myPFTauTagInfo=PFRecoTauTagInfoAlgo_->buildPFTauTagInfo((*iAssoc).first.castTo<PFJetRef>(),thePFCandsInTheEvent,(*iAssoc).second,thePV);
     resultExt->push_back(myPFTauTagInfo);
   }
   
 
-  //  OrphanHandle<PFTauTagInfoCollection> myPFTauTagInfoCollection=iEvent.put(resultExt);
-  iEvent.put(resultExt);
+  //  OrphanHandle<PFTauTagInfoCollection> myPFTauTagInfoCollection=iEvent.put(std::move(resultExt));
+  iEvent.put(std::move(resultExt));
 }
 DEFINE_FWK_MODULE(PFRecoTauTagInfoProducer);

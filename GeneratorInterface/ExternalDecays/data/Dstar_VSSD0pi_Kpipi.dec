@@ -1,0 +1,19 @@
+# This is the decay file for the decay Dstar -> D0 Pion -> Kaon Pion Pion
+Alias myD*+   D*+
+Alias myD*-   D*-
+ChargeConj myD*- myD*+
+Alias myD0      D0
+Alias myanti-D0 anti-D0
+ChargeConj myanti-D0 myD0
+#
+Decay myD*+
+  1.0000   myD0  pi+  VSS;
+Enddecay
+CDecay myD*-
+
+Decay myD0
+  1.000   K- pi+  PHSP;
+Enddecay
+CDecay myanti-D0
+
+End

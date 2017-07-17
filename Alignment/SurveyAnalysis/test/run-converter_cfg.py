@@ -44,7 +44,7 @@ process.PoolDBOutputService = cms.Service("PoolDBOutputService",
         tag = cms.string('TibTidTecAllSurvey_v2')
     ), 
         cms.PSet(
-            record = cms.string('TrackerAlignmentErrorRcd'),
+            record = cms.string('TrackerAlignmentErrorExtendedRcd'),
             tag = cms.string('TibTidTecAllSurveyAPE_v2')
         )),
    connect = cms.string('sqlite_file:TibTidTecAllSurvey.db')                                     

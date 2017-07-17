@@ -1,7 +1,6 @@
 <use   name="AnalysisDataFormats/TopObjects"/>
 <use   name="FWCore/FWLite"/>
 <use   name="FWCore/Framework"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <environment>
   <bin   file="TopHypothesisFWLiteAnalyzer.cc">

@@ -34,7 +34,9 @@ public:
   virtual void		attach (IOFD fd);
 
   using Storage::read;
+  using Storage::readv;
   using Storage::write;
+  using Storage::writev;
   using Storage::position;
 
   virtual bool		prefetch (const IOPosBuffer *what, IOSize n);

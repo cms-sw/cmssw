@@ -24,7 +24,7 @@
 class PFCandidateManager : public Benchmark {
 
  public:
-
+  
   PFCandidateManager( float dRMax = 0.3,
 		      bool matchCharge = true, 
 		      Benchmark::Mode mode=Benchmark::DEFAULT) 
@@ -44,7 +44,7 @@ class PFCandidateManager : public Benchmark {
   void setDirectory(TDirectory* dir);
 
   /// book histograms
-  void setup();
+  void setup(DQMStore::IBooker& b);
   
   /// fill histograms with all particle
   template< class C>

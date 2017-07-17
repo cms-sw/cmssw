@@ -19,7 +19,7 @@ using namespace jpt;
 
 // -----------------------------------------------------------------------------
 //
-JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset ) 
+JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset, edm::ConsumesCollector&& iC ) 
   : verbose_( pset.getParameter<bool>("Verbose") ),
     vectorial_( pset.getParameter<bool>("VectorialCorrection") ),
     vecResponse_( pset.getParameter<bool>("UseResponseInVecCorr") ),
@@ -91,6 +91,15 @@ JetPlusTrackCorrector::JetPlusTrackCorrector( const edm::ParameterSet& pset )
        << " UseOutOfVertexTracks : " << ( useOutOfVertexTracks_ ? "true" : "false" );
     edm::LogWarning("JetPlusTrackCorrector") << ss.str();
   }
+
+  input_jetTracksAtVertex_token_ =  iC.consumes<reco::JetTracksAssociation::Container>(jetTracksAtVertex_); 
+  input_jetTracksAtCalo_token_ = iC.consumes<reco::JetTracksAssociation::Container>(jetTracksAtCalo_);
+  inut_reco_muons_token_ = iC.consumes<RecoMuons> (muons_);
+  input_pvCollection_token_ = iC.consumes<reco::VertexCollection>(srcPVs_);
+  input_reco_elecs_token_ = iC.consumes<RecoElectrons>(electrons_);
+  input_reco_elec_ids_token_ = iC.consumes<RecoElectronIds>( electronIds_);
+
+
 }
 
 // -----------------------------------------------------------------------------
@@ -106,7 +115,7 @@ double JetPlusTrackCorrector::correction( const reco::Jet& fJet, const reco::Jet
 					  MatchedTracks &pions,
 					  MatchedTracks &muons,
 					  MatchedTracks &elecs,
-					  bool &validMatches) const 
+					  bool &validMatches)  
 {
 
 //  std::cout<<" JetPlusTrackCorrector::correction "<<std::endl;
@@ -233,7 +242,7 @@ bool JetPlusTrackCorrector::matchTracks( const reco::Jet& fJet,
 					 const edm::EventSetup& setup, //@@ required by method in derived class
 					 jpt::MatchedTracks& pions, 
 					 jpt::MatchedTracks& muons, 
-					 jpt::MatchedTracks& elecs ) const {
+					 jpt::MatchedTracks& elecs ) {
   
   // Associate tracks to jet at both the Vertex and CaloFace
   JetTracks jet_tracks;
@@ -303,7 +312,7 @@ bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
  
   // Get Jet-track association at Vertex
   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtVertex;
-  event.getByLabel( jetTracksAtVertex_, jetTracksAtVertex ); 
+  event.getByToken(input_jetTracksAtVertex_token_, jetTracksAtVertex ); 
       
   if ( !jetTracksAtVertex.isValid() || jetTracksAtVertex.failedToGet() ) {
     if ( verbose_ && edm::isDebugEnabled() ) {
@@ -332,7 +341,7 @@ bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
 
   // Get Jet-track association at Calo
   edm::Handle<reco::JetTracksAssociation::Container> jetTracksAtCalo;
-  event.getByLabel( jetTracksAtCalo_, jetTracksAtCalo );
+  event.getByToken(input_jetTracksAtCalo_token_, jetTracksAtCalo );
 
   if ( !jetTracksAtCalo.isValid() || jetTracksAtCalo.failedToGet() ) {
     if ( verbose_ && edm::isDebugEnabled() ) {
@@ -362,7 +371,7 @@ bool JetPlusTrackCorrector::jtaUsingEventData( const reco::Jet& fJet,
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::getMuons( const edm::Event& event, edm::Handle<RecoMuons>& reco_muons ) const {
-  event.getByLabel( muons_, reco_muons ); 
+  event.getByToken(inut_reco_muons_token_, reco_muons ); 
   if ( !reco_muons.isValid() || reco_muons.failedToGet() ) {
     edm::LogError("JetPlusTrackCorrector")
       << "[JetPlusTrackCorrector::" << __func__ << "]"
@@ -382,7 +391,7 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
 					 const edm::Event& event, 
 					 MatchedTracks& pions, 
 					 MatchedTracks& muons,
-					 MatchedTracks& elecs ) const { 
+					 MatchedTracks& elecs ) { 
   
   // Some init  
   pions.clear(); 
@@ -393,7 +402,7 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
 
    vertex_=reco::Particle::Point(0,0,0);
    edm::Handle<reco::VertexCollection> pvCollection;
-   event.getByLabel(srcPVs_,pvCollection);
+   event.getByToken(input_pvCollection_token_, pvCollection);
    if ( pvCollection.isValid() && pvCollection->size()>0 ) vertex_=pvCollection->begin()->position();
 
   // Get RECO muons
@@ -539,9 +548,9 @@ void JetPlusTrackCorrector::matchTracks( const JetTracks& jet_tracks,
 // -----------------------------------------------------------------------------
 //
 bool JetPlusTrackCorrector::getElectrons( const edm::Event& event, 
-					  edm::Handle<RecoElectrons>& reco_elecs,
+					  edm::Handle<RecoElectrons>& reco_elecs,     
 					  edm::Handle<RecoElectronIds>& reco_elec_ids ) const {
-  event.getByLabel( electrons_, reco_elecs ); 
+  event.getByToken(input_reco_elecs_token_, reco_elecs ); 
   if ( !reco_elecs.isValid() || reco_elecs.failedToGet() ) {
     edm::LogError("JetPlusTrackCorrector")
       << "[JetPlusTrackCorrector::" << __func__ << "]"
@@ -552,7 +561,7 @@ bool JetPlusTrackCorrector::getElectrons( const edm::Event& event,
       << electrons_.process() << "\"";
     return false;
   }
-  event.getByLabel( electronIds_, reco_elec_ids ); 
+  event.getByToken(input_reco_elec_ids_token_, reco_elec_ids ); 
   if ( !reco_elec_ids.isValid() || reco_elec_ids.failedToGet() ) {
     edm::LogError("JetPlusTrackCorrector")
       << "[JetPlusTrackCorrector::" << __func__ << "]"
@@ -634,7 +643,7 @@ bool JetPlusTrackCorrector::tracksInCalo( const MatchedTracks& pions,
 // -----------------------------------------------------------------------------
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4& jet,
-								 const MatchedTracks& pions ) const {
+								 const MatchedTracks& pions ) {
 
   P4 corr_pions;
 /*
@@ -707,7 +716,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionCorrection( const P4& jet,
 // -----------------------------------------------------------------------------
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::muonCorrection( const P4& jet,
-								 const MatchedTracks& muons ) const {
+								 const MatchedTracks& muons ) {
   
   P4 corr_muons;
   
@@ -858,7 +867,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
 								bool in_cone_at_calo_face,
 								double mass, 
 								bool is_pion,
-								double mip ) const { 
+								double mip ) { 
 
   // Correction to be applied to jet 4-momentum
   P4 correction;
@@ -998,7 +1007,7 @@ JetPlusTrackCorrector::P4 JetPlusTrackCorrector::calculateCorr( const P4& jet,
 //
 JetPlusTrackCorrector::P4 JetPlusTrackCorrector::pionEfficiency( const P4& jet,
 								 const Efficiency& eff,
-								 bool in_cone_at_calo_face ) const { 
+								 bool in_cone_at_calo_face )  { 
   
   // Total correction to be applied
   P4 correction;
@@ -1249,8 +1258,6 @@ double NewResponse = fJet.energy();
 if( trBgOutOfVertex.size() == 0 ) return mScale;
    double EnergyOfBackgroundCharged         = 0.;
    double ResponseOfBackgroundCharged       = 0.;
-   double NumberOfBackgroundChargedVertex   = 0.;
-   double NumberOfBackgroundChargedCalo     = 0.;
 
 //   
 // calculate the mean response
@@ -1283,11 +1290,9 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
 	 
 	 EnergyOfBackgroundCharged += echarBg/efficiency_.value(ieta,ipt);
 
-         NumberOfBackgroundChargedVertex++;
 	 
        } // Energy BG tracks
 
-//        std::cout<<" JetPlusTrackCorrector.cc, NumberOfBackgroundChargedVertex ="<<NumberOfBackgroundChargedVertex<<std::endl;
 
 //============= ResponseOfBackgroundCharged =======================>
 
@@ -1314,11 +1319,9 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
 //       std::cout<<" Efficiency of bg tracks "<<efficiency_.value(ieta,ipt)<<std::endl;
 
 
-         NumberOfBackgroundChargedCalo++;
 
        } // Response of BG tracks
 
-//  std::cout<<" JetPlusTrackCorrector.cc, NumberOfBackgroundChargedCalo ="<<NumberOfBackgroundChargedCalo<<std::endl;
 //=================================================================>
 
 //=================================================================>
@@ -1369,15 +1372,11 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
        
     EnergyOfBackgroundCharged       = EnergyOfBackgroundCharged/SquareEtaRingWithoutJets;
     ResponseOfBackgroundCharged     = ResponseOfBackgroundCharged/SquareEtaRingWithoutJets;
-    NumberOfBackgroundChargedVertex = NumberOfBackgroundChargedVertex/SquareEtaRingWithoutJets;
-    NumberOfBackgroundChargedCalo   = NumberOfBackgroundChargedCalo/SquareEtaRingWithoutJets;
 //    NumberOfBackgroundCharged   = NumberOfBackgroundCharged/SquareEtaRingWithoutJets;
 
 
     EnergyOfBackgroundCharged       = M_PI*mConeSize*mConeSize*EnergyOfBackgroundCharged;
     ResponseOfBackgroundCharged     = M_PI*mConeSize*mConeSize*ResponseOfBackgroundCharged;
-    NumberOfBackgroundChargedVertex = M_PI*mConeSize*mConeSize*NumberOfBackgroundChargedVertex;
-    NumberOfBackgroundChargedCalo   = M_PI*mConeSize*mConeSize*NumberOfBackgroundChargedCalo;
 //    NumberOfBackgroundCharged   = M_PI*mConeSize*mConeSize*NumberOfBackgroundCharged;
 
 
@@ -1386,8 +1385,6 @@ if( trBgOutOfVertex.size() == 0 ) return mScale;
 //      std::cout<<"====JetPlusTrackCorrector, Old response=fJet.energy()"<<fJet.energy()
 //               <<" EnergyOfBackgroundCharged="<<EnergyOfBackgroundCharged
 //               <<" ResponseOfBackgroundCharged="<<ResponseOfBackgroundCharged
-//               <<" NewResponse="<<NewResponse<<" NumberOfBackgroundChargedVertex="<<NumberOfBackgroundChargedVertex
-//               <<" NumberOfBackgroundChargedCalo="<<NumberOfBackgroundChargedCalo<<std::endl;
     
     mScale = NewResponse/fJet.energy();
     if(mScale <0.) mScale=0.;       

@@ -55,7 +55,6 @@ public:
    virtual void voteCaloMaxVal();
 
    virtual void eventBegin();
-   virtual void eventEnd();
 
    //returns the new element created from this import
    void importElements(TEveElement* iProjectableChild, float layer, TEveElement* iProjectedParent=0);
@@ -93,6 +92,9 @@ private:
    FWBoolParameter m_showPixelEndcap;
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
+   FWBoolParameter m_showRpcEndcap;
+   FWBoolParameter m_showGEM;
+   FWBoolParameter m_showME0;
 
    FWBoolParameter    m_shiftOrigin;
    FWDoubleParameter  m_fishEyeDistortion;

@@ -1,4 +1,4 @@
 {
   gSystem->Load("./libPhysicsToolsFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();
 }

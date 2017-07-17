@@ -12,7 +12,6 @@
 <use   name="clhep"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/ParameterSet"/>
-<use   name="rootcintex"/>
 <use   name="root"/>
 <library   file="TrackInfoAnalyzer.cc" name="TrackInfoAnalyzer">
   <flags   EDM_PLUGIN="1"/>

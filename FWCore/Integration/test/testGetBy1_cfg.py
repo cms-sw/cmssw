@@ -3,11 +3,32 @@ import FWCore.ParameterSet.Config as cms
 process = cms.Process("PROD1")
 
 process.Tracer = cms.Service('Tracer',
-                             dumpContextForLabel = cms.untracked.string('intProducerA'),
+                             dumpContextForLabels = cms.untracked.vstring('intProducerA'),
                              dumpNonModuleContext = cms.untracked.bool(True)
 )
 
-process.options = cms.untracked.PSet( allowUnscheduled = cms.untracked.bool(True) )
+process.MessageLogger = cms.Service("MessageLogger",
+    destinations   = cms.untracked.vstring('cout',
+                                           'cerr'
+    ),
+    categories = cms.untracked.vstring(
+        'Tracer'
+    ),
+    cout = cms.untracked.PSet(
+        default = cms.untracked.PSet (
+            limit = cms.untracked.int32(0)
+        ),
+        Tracer = cms.untracked.PSet(
+            limit=cms.untracked.int32(100000000)
+        )
+    )
+)
+
+process.options = cms.untracked.PSet(
+    numberOfStreams = cms.untracked.uint32(1),
+    numberOfConcurrentRuns = cms.untracked.uint32(1),
+    numberOfConcurrentLuminosityBlocks = cms.untracked.uint32(1)
+)
 
 process.source = cms.Source("IntSource")
 process.maxEvents = cms.untracked.PSet(
@@ -60,14 +81,18 @@ process.intVectorProducer = cms.EDProducer("IntVectorProducer",
   ivalue = cms.int32(11)
 )
 
-process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3)
+process.intProducerB = cms.EDProducer("IntProducer", ivalue = cms.int32(1000))
+
+process.t = cms.Task(process.intProducerU, process.intProducerA, process.intProducerB, process.intVectorProducer)
+
+process.p = cms.Path(process.intProducer * process.a1 * process.a2 * process.a3, process.t)
 
 process.e = cms.EndPath(process.out)
 
 copyProcess = cms.Process("COPY")
-process.subProcess = cms.SubProcess(copyProcess,
+process.addSubProcess(cms.SubProcess(copyProcess,
     outputCommands = cms.untracked.vstring(
         "keep *", 
         "drop *_intProducerA_*_*"
     )
-)
+))

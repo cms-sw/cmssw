@@ -61,7 +61,7 @@ namespace reco {
     void addLCorrClusEnergy(float LCorrE);
     const std::vector<float>& LCorrClusEnergy() const {return LocalCorr_;}
 
-    void SetPFPhotonRes(float Res){Res=MVAResolution_;}
+    void SetPFPhotonRes(float Res){MVAResolution_ = Res;}
     float PFPhotonRes()const {return MVAResolution_;}
  private:
     

@@ -104,13 +104,6 @@ void SummaryHistogramFactory<FedTimingAnalysis>::fill( TH1& summary_histo ) {
     return;
   }
 
-  // Check if instance of generator class exists
-  if ( !(&summary_histo) ) { 
-    edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 
-	 << " NULL pointer to SummaryGenerator object!";
-    return;
-  }
-
   // Check if std::map is filled
   if ( !generator_->size() ) { 
     edm::LogWarning(mlSummaryPlots_) << "[SummaryHistogramFactory::" << __func__ << "]" 

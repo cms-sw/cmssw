@@ -3,13 +3,15 @@
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
+#include "DataFormats/TrackReco/interface/TrajectoryStopReasons.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <vector>
 #include <algorithm>
+#include <limits>
 #include <boost/shared_ptr.hpp>
 
 /** A class for detailed particle trajectory representation.
@@ -40,21 +42,15 @@ class Trajectory
 public:
 
   typedef std::vector<TrajectoryMeasurement>                   DataContainer;
-  typedef TransientTrackingRecHit::ConstRecHitContainer        ConstRecHitContainer;
-  typedef ConstRecHitContainer                                 RecHitContainer;
-
+  using ConstRecHitContainer = TrackingRecHit::ConstRecHitContainer;
+  using RecHitContainer = ConstRecHitContainer;
 
   /** Default constructor of an empty trajectory with undefined seed and 
    * undefined direction. This constructor is necessary in order to transiently
    * copy vector<Trajectory> in the edm::Event
    */
   
-  Trajectory() : 
-    theSeed(), seedRef_(),
-    theChiSquared(0), theChiSquaredBad(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false), theValid(false),theDPhiCache(0),theNLoops(0)
-    {}
+  Trajectory() {}
 
 
   /** Constructor of an empty trajectory with undefined direction.
@@ -64,10 +60,8 @@ public:
    */
     
   explicit Trajectory( const TrajectorySeed& seed) : 
-    theSeed( new TrajectorySeed(seed) ), seedRef_(),
-    theChiSquared(0), theChiSquaredBad(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(anyDirection), theDirectionValidity(false), theValid(true),theDPhiCache(0),theNLoops(0)
+    theSeed( new TrajectorySeed(seed) ),
+    theValid(true)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -75,11 +69,10 @@ public:
    *  added in the correct direction.
    */
   Trajectory( const TrajectorySeed& seed, PropagationDirection dir) : 
-    theSeed( new TrajectorySeed(seed) ), seedRef_(),
-    theChiSquared(0), theChiSquaredBad(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
-   
+    theSeed( new TrajectorySeed(seed) ),
+    theDirection(dir),
+    theDirectionValidity(true),
+    theValid(true)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -87,10 +80,10 @@ public:
    *  added in the correct direction.
    */
   Trajectory( const boost::shared_ptr<const TrajectorySeed> & seed, PropagationDirection dir) : 
-    theSeed( seed ), seedRef_(),
-    theChiSquared(0), theChiSquaredBad(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
+    theSeed( seed ),
+    theDirection(dir),
+    theDirectionValidity(true),
+    theValid(true)
   {}
 
   /** Constructor of an empty trajectory with defined direction.
@@ -98,32 +91,33 @@ public:
    *  added in the correct direction.
    */
   explicit Trajectory(PropagationDirection dir) : 
-    theSeed(), seedRef_(),
-    theChiSquared(0), theChiSquaredBad(0),
-    theNumberOfFoundHits(0), theNumberOfLostHits(0),
-    theDirection(dir), theDirectionValidity(true), theValid(true),theDPhiCache(0),theNLoops(0)
-   
+    theDirection(dir),
+    theDirectionValidity(true),
+    theValid(true)
   {}
 
 
-#if defined( __GXX_EXPERIMENTAL_CXX0X__)
- Trajectory(Trajectory const & rh) :
-   theSeed(rh.theSeed), seedRef_(rh.seedRef_),
-    theData(rh.theData),
-    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
-     theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops) 
-  {}
-
+  Trajectory(Trajectory const & rh) = default;
+  Trajectory & operator=(Trajectory const & rh) = default;
 
   Trajectory(Trajectory && rh) : 
-    theSeed(std::move(rh.theSeed)), seedRef_(std::move(rh.seedRef_)),
+    theSeed(std::move(rh.theSeed)),
+    seedRef_(std::move(rh.seedRef_)),
     theData(std::move(rh.theData)),
-    theChiSquared(rh.theChiSquared), theChiSquaredBad(rh.theChiSquaredBad),
-    theNumberOfFoundHits(rh.theNumberOfFoundHits), theNumberOfLostHits(rh.theNumberOfLostHits),
-    theDirection(rh.theDirection), theDirectionValidity(rh.theDirectionValidity), theValid(rh.theValid),
-    theDPhiCache(rh.theDPhiCache),theNLoops(rh.theNLoops)  
+    theChiSquared(rh.theChiSquared),
+    theChiSquaredBad(rh.theChiSquaredBad),
+    theNumberOfFoundHits(rh.theNumberOfFoundHits),
+    theNumberOfFoundPixelHits(rh.theNumberOfFoundPixelHits),
+    theNumberOfLostHits(rh.theNumberOfLostHits),
+    theNumberOfTrailingFoundHits(rh.theNumberOfTrailingFoundHits),
+    theNumberOfCCCBadHits_(rh.theNumberOfCCCBadHits_),
+    theDirection(rh.theDirection),
+    theDirectionValidity(rh.theDirectionValidity),
+    theValid(rh.theValid),
+    theDPhiCache(rh.theDPhiCache),
+    theCCCThreshold_(rh.theCCCThreshold_),
+    theNLoops(rh.theNLoops),
+    stopReason_(rh.stopReason_)
   {}
 
   Trajectory & operator=(Trajectory && rh) {
@@ -133,11 +127,16 @@ public:
     theChiSquaredBad=rh.theChiSquaredBad;
     theValid=rh.theValid;
     theDPhiCache=rh.theDPhiCache;
+    theCCCThreshold_=rh.theCCCThreshold_;
     theNLoops=rh.theNLoops;  
     theNumberOfFoundHits=rh.theNumberOfFoundHits;
+    theNumberOfFoundPixelHits=rh.theNumberOfFoundPixelHits;
     theNumberOfLostHits=rh.theNumberOfLostHits;
+    theNumberOfTrailingFoundHits=rh.theNumberOfTrailingFoundHits;
+    theNumberOfCCCBadHits_=rh.theNumberOfCCCBadHits_;
     theDirection=rh.theDirection; 
     theDirectionValidity=rh.theDirectionValidity;
+    stopReason_ = rh.stopReason_;
     swap(theSeed,rh.theSeed);
     swap(seedRef_,rh.seedRef_);
 
@@ -145,26 +144,6 @@ public:
 
   }
 
- Trajectory & operator=(Trajectory const & rh) {
-    theData = rh.theData;
-    theChiSquared=rh.theChiSquared;
-    theChiSquaredBad=rh.theChiSquaredBad;
-    theValid=rh.theValid;
-    theDPhiCache=rh.theDPhiCache; 
-    theNLoops=rh.theNLoops;  
-    theNumberOfFoundHits=rh.theNumberOfFoundHits;
-    theNumberOfLostHits=rh.theNumberOfLostHits;
-    theDirection=rh.theDirection;
-    theDirectionValidity=rh.theDirectionValidity;
-    theSeed = rh.theSeed;
-    seedRef_ = rh.seedRef_;
-
-    return *this;
-
-  }
-
-
-#endif
 
   /** Reserves space in the vector to avoid lots of allocations when 
       push_back-ing measurements */
@@ -174,12 +153,14 @@ public:
    *  The Chi2 of the trajectory is incremented by the value
    *  of tm.estimate() . 
    */
-  void push( const TrajectoryMeasurement& tm);
-
-  /** same as the one-argument push, but the trajectory Chi2 is incremented 
+  void push(const TrajectoryMeasurement& tm);
+  /** same as the one-argument push, but the trajectory Chi2 is incremented
    *  by chi2Increment. Useful e.g. in trajectory smoothing.
    */
-  void push( const TrajectoryMeasurement& tm, double chi2Increment);
+  void push(const TrajectoryMeasurement & tm, double chi2Increment);
+
+  void push(TrajectoryMeasurement&& tm);
+  void push(TrajectoryMeasurement&& tm, double chi2Increment);
 
   /** Remove the last measurement from the trajectory.
    */
@@ -213,14 +194,22 @@ public:
   /** Return all measurements in a container.
    */
   DataContainer const & measurements() const { return theData;}
+  DataContainer & measurements() { return theData;}
+
   /// obsolete name, use measurements() instead.
   DataContainer const & data() const { return measurements();}
 
   /** Return all RecHits in a container.
    */
-  ConstRecHitContainer recHits(bool splitting=false) const;
-
-  void recHitsV(ConstRecHitContainer & cont,bool splitting = false) const;
+  ConstRecHitContainer recHits() const {
+    ConstRecHitContainer hits;
+    hits.reserve(theData.size());
+    for (Trajectory::DataContainer::const_iterator itm
+           = theData.begin(); itm != theData.end(); itm++){
+      hits.push_back((*itm).recHit());
+    }
+    return hits;
+  }
 
   /** Just valid hits..
    *
@@ -235,12 +224,31 @@ public:
 
   int foundHits() const { return theNumberOfFoundHits;}
 
+  /** Number of valid pixel RecHits used to determine the trajectory.
+   */
+  int foundPixelHits() const { return theNumberOfFoundPixelHits;}
+
   /** Number of detector layers crossed without valid RecHits.
    *  Used mainly as a criteria for abandoning a trajectory candidate
    *  during trajectory building.
    */
 
   int lostHits() const { return theNumberOfLostHits;}
+
+  /** Number of valid RecHits at the end of the trajectory after last lost hit.
+   */
+   int trailingFoundHits() const { return theNumberOfTrailingFoundHits;}
+
+
+  /** Number of hits that are not compatible with the CCC used during
+   *  patter recognition. Used mainly as a criteria for abandoning a
+   *  trajectory candidate during trajectory building.
+   */
+  int cccBadHits() const { return theNumberOfCCCBadHits_;}
+
+  //number of hits in seed
+  unsigned int seedNHits() const { return seed().nHits();}
+
   
   /// True if trajectory has no measurements.
   bool empty() const { return theData.empty();}
@@ -251,7 +259,7 @@ public:
   /// - Trajectories with only invalid hits:
   ///     raw Chi2 (not norm.) of invalid hits w.r.t. the "default" trajectory
   ///     (traj. containing only the seed information)
-  double chiSquared() const { return (theNumberOfFoundHits ? theChiSquared : theChiSquaredBad);}
+  float chiSquared() const { return (theNumberOfFoundHits ? theChiSquared : theChiSquaredBad);}
 
   /// Number of dof of the trajectory. The method accepts a bool in order to properly 
   /// take into account the presence of magnetic field in the dof computation.
@@ -285,12 +293,17 @@ public:
   /** Definition of what it means for a hit to be "lost".
    *  This definition is also used by the TrajectoryBuilder.
    */
-  static bool lost( const TransientTrackingRecHit& hit);
+  static bool lost( const TrackingRecHit& hit);
 
   /** Returns true if the hit type is TrackingRecHit::bad
    *  Used in stand-alone trajectory construction
    */
-  static bool isBad( const TransientTrackingRecHit& hit);
+  static bool isBad( const TrackingRecHit& hit);
+
+  /** Returns true if the hit type is TrackingRecHit::bad
+   *  Used in trajectory filtering
+   */
+  static bool pixel( const TrackingRecHit& hit);
 
   /// Redundant method, returns the layer of lastMeasurement() .
   const DetLayer* lastLayer() const {
@@ -324,6 +337,8 @@ public:
   /// two layers crossed by the trajectory
    float dPhiCacheForLoopersReconstruction() const { return theDPhiCache;}
 
+   float cccThreshold() const {return theCCCThreshold_;}
+
   /// method to set the delta phi angle betweem the directions of the two measurements on the last 
   /// two layers crossed by the trajectory
    void setDPhiCacheForLoopersReconstruction(float dphi) {  theDPhiCache = dphi;}
@@ -334,24 +349,38 @@ public:
    void setNLoops(signed char value) { theNLoops=value;}
    void incrementLoops() {theNLoops++;}
 
+   void setStopReason(StopReason s) { stopReason_ = s; }
+   StopReason stopReason() const {return stopReason_;}
+
+   int numberOfCCCBadHits(float ccc_threshold);
+
 private:
+
+  void pushAux(double chi2Increment);
+  bool badForCCC(const TrajectoryMeasurement &tm);
+  void updateBadForCCC(float ccc_threshold);
 
   boost::shared_ptr<const TrajectorySeed>    theSeed;
   edm::RefToBase<TrajectorySeed> seedRef_;
 
   DataContainer theData;
-  float theChiSquared;
-  float theChiSquaredBad;
+  float theChiSquared=0;
+  float theChiSquaredBad=0;
 
-  signed short theNumberOfFoundHits;
-  signed short theNumberOfLostHits;
+  signed short theNumberOfFoundHits=0;
+  signed short theNumberOfFoundPixelHits=0;
+  signed short theNumberOfLostHits=0;
+  signed short theNumberOfTrailingFoundHits=0;
+  signed short theNumberOfCCCBadHits_=0;
 
-  PropagationDirection theDirection;
-  bool                 theDirectionValidity;
-  bool theValid;
+  PropagationDirection theDirection=anyDirection;
+  bool                 theDirectionValidity=false;
+  bool theValid=false;
 
-  float theDPhiCache;
-  signed char theNLoops;
+  float theDPhiCache=0;
+  float theCCCThreshold_=std::numeric_limits<float>::max();
+  signed char theNLoops=0;
+  StopReason stopReason_ = StopReason::UNINITIALIZED;
 
   void check() const;
 };

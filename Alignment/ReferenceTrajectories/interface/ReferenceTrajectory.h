@@ -40,6 +40,8 @@
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/TrajectoryState/interface/SurfaceSideDefinition.h"
 
+#include "Alignment/ReferenceTrajectories/interface/GblTrajectory.h"
+
 class TrajectoryStateOnSurface;
 class MagneticField;
 class MaterialEffectsUpdator;
@@ -62,30 +64,27 @@ public:
      the material effects to be considered and a particle mass,
      the magnetic field and beamSpot of the event are needed for propagations etc.
    */
-  ReferenceTrajectory(const TrajectoryStateOnSurface &referenceTsos,
-		      const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-		      bool hitsAreReverse,
-		      const MagneticField *magField,
-		      MaterialEffects materialEffects,
-		      PropagationDirection propDir,
-		      double mass,
-		      bool useBeamSpot,
-		      const reco::BeamSpot &beamSpot);
+  ReferenceTrajectory(const TrajectoryStateOnSurface& referenceTsos,
+                      const TransientTrackingRecHit::ConstRecHitContainer& recHits,
+                      const MagneticField* magField,
+                      const reco::BeamSpot& beamSpot,
+                      const ReferenceTrajectoryBase::Config& config);
+
   virtual ~ReferenceTrajectory() {}
 
   virtual ReferenceTrajectory* clone() const { return new ReferenceTrajectory(*this); }
 
 protected:
 
-  ReferenceTrajectory(unsigned int nPar, unsigned int nHits, MaterialEffects materialEffects);
+  // ReferenceTrajectory(unsigned int nPar, unsigned int nHits, MaterialEffects materialEffects);
+  ReferenceTrajectory(unsigned int nPar, unsigned int nHits,
+		      const ReferenceTrajectoryBase::Config& config);
 
   /** internal method to calculate members
    */
   virtual bool construct(const TrajectoryStateOnSurface &referenceTsos, 
 			 const TransientTrackingRecHit::ConstRecHitContainer &recHits,
-			 double mass, MaterialEffects materialEffects,
-			 const PropagationDirection propDir, const MagneticField *magField,
-			 bool useBeamSpot,
+			 const MagneticField *magField,
 			 const reco::BeamSpot &beamSpot);
 
   /** internal method to get apropriate updator
@@ -97,7 +96,7 @@ protected:
   virtual bool propagate(const Plane &previousSurface, const TrajectoryStateOnSurface &previousTsos,
 			 const Plane &newSurface, TrajectoryStateOnSurface &newTsos, AlgebraicMatrix &newJacobian, 
 			 AlgebraicMatrix &newCurvlinJacobian, double &nextStep,
-			 const PropagationDirection propDir, const MagneticField *magField) const;
+			 const MagneticField *magField) const;
   
   /** internal method to fill measurement and error matrix for hit iRow/2
    */
@@ -147,6 +146,21 @@ protected:
 				     const std::vector<double> &allSteps,
 				     const GlobalTrajectoryParameters &gtp,   
 				     const double minStep = 1.0);
+  
+  /** internal methods to add material effects using broken lines (fine version, local system)
+   */
+  virtual bool addMaterialEffectsLocalGbl(const std::vector<AlgebraicMatrix> &allJacobians,
+                                     const std::vector<AlgebraicMatrix> &allProjections,
+                                     const std::vector<AlgebraicSymMatrix> &allCurvatureChanges,
+                                     const std::vector<AlgebraicSymMatrix> &allDeltaParameterCovs);
+
+  /** internal methods to add material effects using broken lines (fine version, curvilinear system)
+   */
+  virtual bool addMaterialEffectsCurvlinGbl(const std::vector<AlgebraicMatrix> &allJacobians,
+                                     const std::vector<AlgebraicMatrix> &allProjections,
+                                     const std::vector<AlgebraicSymMatrix> &allCurvChanges,
+                                     const std::vector<AlgebraicSymMatrix> &allDeltaParaCovs,
+                                     const std::vector<AlgebraicMatrix> &allLocalToCurv);
           
   /// Don't care for propagation direction 'anyDirection' - in that case the material effects
   /// are anyway not updated ...
@@ -167,6 +181,20 @@ protected:
   template <unsigned int N>
     AlgebraicMatrix
     getHitProjectionMatrixT(const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
+private:
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicVector& in, Eigen::MatrixBase<Derived>& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicMatrix& in, Eigen::MatrixBase<Derived>& out);
+  template <typename Derived>
+  void clhep2eigen(const AlgebraicSymMatrix& in, Eigen::MatrixBase<Derived>& out);
+
+  const double mass_;
+  const MaterialEffects materialEffects_;
+  const PropagationDirection propDir_;
+  const bool useBeamSpot_;
+  const bool includeAPEs_;
+  const bool allowZeroMaterial_;
 };
 
 #endif

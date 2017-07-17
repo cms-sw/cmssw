@@ -4,6 +4,7 @@
 <use   name="FWCore/Utilities"/>
 <use   name="SimDataFormats/ValidationFormats"/>
 <use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="DataFormats/HcalDetId"/>
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/Common"/>
 <use   name="Geometry/CommonDetUnit"/>
@@ -13,6 +14,7 @@
 <use   name="Geometry/DTGeometry"/>
 <use   name="Geometry/RPCGeometry"/>
 <use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/HcalCommonData"/>
 <use   name="Geometry/Records"/>
 <use   name="DQMServices/Core"/>
 <use   name="root"/>

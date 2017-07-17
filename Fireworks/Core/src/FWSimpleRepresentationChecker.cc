@@ -37,8 +37,9 @@
 FWSimpleRepresentationChecker::FWSimpleRepresentationChecker(const std::string& iTypeName,
                                                              const std::string& iPurpose,
                                                              unsigned int iBitPackedViews,
-                                                             bool iRepresentsSubPart) :
-   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart),
+                                                             bool iRepresentsSubPart,
+                                                             bool iRequiresFF) :
+   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart, iRequiresFF),
    m_typeidName(iTypeName)
 {
 }
@@ -71,9 +72,16 @@ FWSimpleRepresentationChecker::~FWSimpleRepresentationChecker()
 //
 // const member functions
 //
-static bool inheritsFrom(const edm::TypeWithDict& iChild,
+bool FWSimpleRepresentationChecker::inheritsFrom(const edm::TypeWithDict& iChild,
                          const std::string& iParentTypeName,
                          unsigned int& distance) {
+                           
+   if (iChild.getClass()) {
+      if (iChild.getClass()->GetTypeInfo() == 0) {
+         return false;
+      }
+   }
+                           
    if(iChild.typeInfo().name() == iParentTypeName) {
       return true;
    }
@@ -103,7 +111,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    if(0==clss || 0==clss->GetTypeInfo()) {
       return FWRepresentationInfo();
    }
-   boost::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
+   std::shared_ptr<FWItemAccessorBase> accessor = factory.accessorFor(clss);
 
    const TClass* modelClass = accessor->modelType();
    //std::cout <<"   "<<modelClass->GetName()<<" "<< bool(modelClass == clss)<< std::endl;
@@ -117,7 +125,7 @@ FWSimpleRepresentationChecker::infoFor(const std::string& iTypeName) const
    //see if the modelType inherits from our type
 
    if(inheritsFrom(modelType,m_typeidName,distance) ) {
-      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart());
+      return FWRepresentationInfo(purpose(),distance,bitPackedViews(), representsSubPart(), requiresFF());
    }
    return FWRepresentationInfo();
 }

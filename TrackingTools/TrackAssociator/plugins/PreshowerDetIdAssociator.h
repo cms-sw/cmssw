@@ -26,12 +26,12 @@ class PreshowerDetIdAssociator: public CaloDetIdAssociator{
 
    PreshowerDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
      
-   virtual const char* name() const { return "Preshower"; }
+   virtual const char* name() const override { return "Preshower"; }
  protected:
 
-   virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const {
+   virtual void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const override {
      if ( subDetectorIndex != 0 ) throw cms::Exception("FatalError") << "Preshower has only one sub-detector for geometry. Abort.";
-     return geometry_->getValidDetIds(DetId::Ecal, EcalPreshower);
+     validIds = geometry_->getValidDetIds(DetId::Ecal, EcalPreshower);
    };
 
 };

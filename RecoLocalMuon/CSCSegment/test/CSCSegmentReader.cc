@@ -43,15 +43,15 @@ CSCSegmentReader::CSCSegmentReader(const edm::ParameterSet& pset) {
   hx       = new TH1F("h9", "deltaX", 400, -100, +100);
   hy       = new TH1F("h10", "deltaY",400, -100, +100);
     
-  char a[3];
+  char a[4];
   for (int i=0; i<9; i++) {
-    sprintf(a, "h2%d", i);
+    snprintf(a, sizeof(a), "h2%d", i);
     hdxOri[i]    = new TH1F(a, "#Delta X", 101, -5.05, 5.05);
-    sprintf(a, "h3%d", i);
+    snprintf(a, sizeof(a), "h3%d", i);
     hdyOri[i]    = new TH1F(a, "#Delta Y", 101, -5.05, 5.05);
-    sprintf(a, "h4%d", i);
+    snprintf(a, sizeof(a), "h4%d", i);
     hphiDir[i]   = new TH1F(a, "#Delta #phi", 101, -0.505, 0.505);
-    sprintf(a, "h5%d", i);
+    snprintf(a, sizeof(a), "h5%d", i);
     hthetaDir[i] = new TH1F(a, "#Delta #theta", 101, -0.505, 0.505);
   }    
 }

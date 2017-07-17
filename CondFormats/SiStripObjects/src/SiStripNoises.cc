@@ -31,36 +31,51 @@ bool SiStripNoises::put(const uint32_t& DetId, const InputVector& input) {
 	return true;
 }
 
-const SiStripNoises::Range SiStripNoises::getRange(const uint32_t& DetId) const {
+const SiStripNoises::Range SiStripNoises::getRange(const uint32_t DetId) const {
 	// get SiStripNoises Range of DetId
 
 	RegistryIterator p = std::lower_bound(indexes.begin(),indexes.end(),DetId,SiStripNoises::StrictWeakOrdering());
 	if (p==indexes.end()|| p->detid!=DetId) 
 		return SiStripNoises::Range(v_noises.end(),v_noises.end()); 
-	else 
-		return SiStripNoises::Range(v_noises.begin()+p->ibegin,v_noises.begin()+p->iend);
+	else {
+                __builtin_prefetch((&v_noises.front())+p->ibegin);
+       	       	__builtin_prefetch((&v_noises.front())+p->ibegin+96);
+      	       	__builtin_prefetch((&v_noises.front())+p->iend-96);
+ 		return SiStripNoises::Range(v_noises.begin()+p->ibegin,v_noises.begin()+p->iend);
+
+             }
 }
+
+SiStripNoises::Range SiStripNoises::getRangeByPos(unsigned short pos) const {
+  if (pos>indexes.size()) return Range(v_noises.end(),v_noises.end()); 
+  auto p = indexes.begin()+pos;
+  __builtin_prefetch((&v_noises.front())+p->ibegin);
+  __builtin_prefetch((&v_noises.front())+p->ibegin+96);
+  __builtin_prefetch((&v_noises.front())+p->iend-96);
+  return Range(v_noises.begin()+p->ibegin,v_noises.begin()+p->iend);
+}
+
 
 void SiStripNoises::getDetIds(std::vector<uint32_t>& DetIds_) const {
 	// returns vector of DetIds in map
 	SiStripNoises::RegistryIterator begin = indexes.begin();
 	SiStripNoises::RegistryIterator end   = indexes.end();
+        DetIds_.reserve(indexes.size());
 	for (SiStripNoises::RegistryIterator p=begin; p != end; ++p) {
 		DetIds_.push_back(p->detid);
 	}
 }
 
-float SiStripNoises::getNoise(uint16_t strip, const Range& range) {
-	if (9*strip>=(range.second-range.first)*8){
+void SiStripNoises::verify(uint16_t strip, const Range& range) {
+	if (9*strip>=(range.second-range.first)*8)
 		throw cms::Exception("CorruptedData")
 			<< "[SiStripNoises::getNoise] looking for SiStripNoises for a strip out of range: strip " << strip;
-	}
-	return getNoiseFast(strip,range);
 }
 
 void SiStripNoises::setData(float noise_, InputVector& v){
 	v.push_back((static_cast<int16_t>  (noise_*10.0 + 0.5) & 0x01FF)) ;
 }
+
 
 void SiStripNoises::encode(const InputVector& Vi, std::vector<unsigned char>& Vo){
   static const uint16_t  BITS_PER_STRIP  = 9;

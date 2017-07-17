@@ -9,6 +9,7 @@
 
 #include "TLorentzVector.h"
 #include "DataFormats/METReco/interface/CaloMETFwd.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
 #include <vector>
 
@@ -27,6 +28,9 @@ class AlphaTVarProducer : public edm::EDProducer {
   
   
   edm::InputTag inputJetTag_; // input tag identifying product
+
+  //define Token(-s)
+  edm::EDGetTokenT<reco::CaloJetCollection> inputJetTagToken_;
 };
 
 #endif //AlphaTVarProducer_h

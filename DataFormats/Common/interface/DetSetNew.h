@@ -1,6 +1,10 @@
 #ifndef DataFormats_Common_DetSetNew_h
 #define DataFormats_Common_DetSetNew_h
 
+#include "DataFormats/Common/interface/Ref.h"
+#include <vector>
+#include <cassert>
+
 namespace edmNew {
   //  FIXME move it elsewhere....
   typedef unsigned int det_id_type;
@@ -21,6 +25,7 @@ namespace edmNew {
     typedef unsigned int id_type;
     typedef T data_type;
 
+    typedef std::vector<data_type> DataContainer;
     typedef data_type * iterator;
     typedef data_type const * const_iterator;
 
@@ -29,19 +34,25 @@ namespace edmNew {
     
     
     inline
-    DetSet() : m_id(0), m_data(0), m_size(0){}
+    DetSet() : m_id(0), m_data(0), m_offset(-1), m_size(0){}
     inline
-    DetSet(id_type i, data_type const * idata, size_type isize) :
-      m_id(i), m_data(idata), m_size(isize) {}
+    DetSet(id_type i, DataContainer const & idata, size_type ioffset, size_type isize) :
+      m_id(i), m_data(&idata), m_offset(ioffset), m_size(isize) {}
     
-   inline
+    inline
     DetSet(Container const & icont,
-	   typename Container::Item const & item);
+	   typename Container::Item const & item, bool update) :
+      m_id(0), m_data(0), m_offset(-1), m_size(0){
+      set(icont,item, update);
+    }
 
     //FIXME (it may confuse users as size_type is same type as id_type...)
     inline
     void set(Container const & icont,
-	     typename Container::Item const & item);
+	     typename Container::Item const & item, bool update=true);
+
+    bool isValid() const { return m_offset>=0;}
+
     inline
     data_type & operator[](size_type i) {
       return data()[i];
@@ -64,6 +75,7 @@ namespace edmNew {
     inline
     const_iterator end() const { return data()+m_size;}
 
+    int offset() const {return m_offset;}
 
     inline
     id_type id() const { return m_id;}
@@ -76,18 +88,35 @@ namespace edmNew {
 
     inline
     bool empty() const { return m_size==0;}
+
+
+    template<typename HandleT>
+    edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>
+    makeRefTo(HandleT const & handle, const_iterator ci) const {
+      return edm::Ref<typename HandleT::element_type, typename HandleT::element_type::value_type::value_type>( handle.id(), ci, ci - &(container().front()) );
+    }
+
+    unsigned int makeKeyOf(const_iterator ci) const {
+      return  ci - &(container().front());
+    }
     
   private:
+
+     DataContainer const & container() const { return *m_data; }
+   
     data_type const * data() const {
-      return m_data;
+      if(m_offset|m_size) assert(m_data);
+      return m_data ? (&((*m_data)[m_offset])) : 0;
     }
 
    data_type * data() {
-      return const_cast<data_type *>(m_data);
+     assert(m_data);
+     return const_cast<data_type *>(&((*m_data)[m_offset]));
     }
     
     id_type m_id;
-    data_type const * m_data;
+    DataContainer const * m_data;
+    int m_offset;
     size_type m_size;
   };
 }

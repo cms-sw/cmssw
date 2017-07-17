@@ -49,7 +49,7 @@ public:
     
     const std::string metname = "Muon|RecoMuon|RecoMuonDetLayers|GeneralBinFinderInPhi";
 
-    static T epsilon = 10*std::numeric_limits<T>::epsilon();
+    static const T epsilon = 10*std::numeric_limits<T>::epsilon();
     // Assume -pi, pi range in pi (which is the case for Geom::Phi
 
     LogTrace(metname) << "GeneralBinFinderInPhi::binIndex,"

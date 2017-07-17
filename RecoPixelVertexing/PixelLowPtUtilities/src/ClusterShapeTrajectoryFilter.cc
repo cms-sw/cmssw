@@ -5,18 +5,22 @@
 
 #include "RecoPixelVertexing/PixelLowPtUtilities/interface/ClusterShapeHitFilter.h"
 
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/ProjectedSiStripRecHit2D.h"
+#include "DataFormats/SiPixelCluster/interface/SiPixelClusterShapeCache.h"
 
 #include "Geometry/CommonDetUnit/interface/GlobalTrackingGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
@@ -32,20 +36,36 @@
 using namespace std;
 
 /*****************************************************************************/
+ClusterShapeTrajectoryFilter::ClusterShapeTrajectoryFilter(const edm::ParameterSet& iConfig, edm::ConsumesCollector& iC):
+  theCacheToken(iC.consumes<SiPixelClusterShapeCache>(iConfig.getParameter<edm::InputTag>("cacheSrc"))),
+  theFilter(nullptr)
+{}
+
 ClusterShapeTrajectoryFilter::~ClusterShapeTrajectoryFilter()
 {
+}
+
+void ClusterShapeTrajectoryFilter::setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
+  edm::ESHandle<ClusterShapeHitFilter> shape;
+  iSetup.get<TrajectoryFilter::Record>().get("ClusterShapeHitFilter", shape);
+  theFilter = shape.product();
+
+  edm::Handle<SiPixelClusterShapeCache> cache;
+  iEvent.getByToken(theCacheToken, cache);
+  theCache = cache.product();
 }
 
 /*****************************************************************************/
 bool ClusterShapeTrajectoryFilter::toBeContinued
   (Trajectory& trajectory) const 
 {
+  assert(theCache);
   vector<TrajectoryMeasurement> tms = trajectory.measurements();
 
   for(vector<TrajectoryMeasurement>::const_iterator
        tm = tms.begin(); tm!= tms.end(); tm++)
   {
-    const TransientTrackingRecHit* ttRecHit = &(*((*tm).recHit()));
+    const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
     if(ttRecHit->isValid())
     {
@@ -54,16 +74,20 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
       TrajectoryStateOnSurface ts = (*tm).updatedState();
       const GlobalVector gdir = ts.globalDirection();
 
-      if(ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelBarrel ||
-         ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelEndcap)
+      if(ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
 
         if(recHit != 0)
-          return theFilter->isCompatible(*recHit, gdir);
+          return theFilter->isCompatible(*recHit, gdir, *theCache);
       }
-      else
+      else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
       { // strip
         if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != 0)
         { // glued
@@ -106,12 +130,13 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
 bool ClusterShapeTrajectoryFilter::toBeContinued
   (TempTrajectory& trajectory) const 
 {
+  assert(theCache);
   TempTrajectory::DataContainer tms = trajectory.measurements();
 
   for(TempTrajectory::DataContainer::const_iterator
        tm = tms.rbegin(); tm!= tms.rend(); --tm)
   {
-    const TransientTrackingRecHit* ttRecHit = &(*((*tm).recHit()));
+    const TrackingRecHit* ttRecHit = &(*((*tm).recHit()));
 
     if(ttRecHit->isValid())
     {
@@ -120,21 +145,25 @@ bool ClusterShapeTrajectoryFilter::toBeContinued
       TrajectoryStateOnSurface ts = (*tm).updatedState();
       GlobalVector gdir = ts.globalDirection();
 
-      if(ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelBarrel ||
-         ttRecHit->det()->subDetector() == GeomDetEnumerators::PixelEndcap)
+      if(ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelBarrel ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::PixelEndcap ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXB ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P1PXEC ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXB ||
+	 ttRecHit->det()->subDetector()==GeomDetEnumerators::SubDetector::P2PXEC) 
       { // pixel
         const SiPixelRecHit* recHit =
            dynamic_cast<const SiPixelRecHit *>(tRecHit);
 
         if(recHit != 0)
-          if(! theFilter->isCompatible(*recHit, gdir))
+          if(! theFilter->isCompatible(*recHit, gdir, *theCache))
           {
             LogTrace("TrajectFilter")
               << "  [TrajectFilter] fail pixel";
             return false;
           }
       }
-      else
+      else if(GeomDetEnumerators::isTrackerStrip(ttRecHit->det()->subDetector()))
       { // strip
         if(dynamic_cast<const SiStripMatchedRecHit2D *>(tRecHit)  != 0)
         { // glued

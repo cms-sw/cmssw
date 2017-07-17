@@ -6,8 +6,6 @@
  *       Class to hold drift tubes mean-times
  *             ( SL by SL mean-time calculation )
  *
- *  $Date: 2008/09/29 13:10:34 $
- *  $Revision: 1.8 $
  *  \author Paolo Ronchese INFN Padova
  *
  */
@@ -20,17 +18,22 @@
 //------------------------------------
 // Collaborating Class Declarations --
 //------------------------------------
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/DTObjects/interface/DTTimeUnits.h"
 #include "CondFormats/DTObjects/interface/DTVelocityUnits.h"
-#include "CondFormats/DTObjects/interface/DTBufferTree.h"
 #include "DataFormats/MuonDetId/interface/DTWireId.h"
 #include "DataFormats/MuonDetId/interface/DTSuperLayerId.h"
+#include "FWCore/Utilities/interface/ConstRespectingPtr.h"
 
 //---------------
 // C++ Headers --
 //---------------
 #include <string>
 #include <vector>
+#include <utility>
+
+template <class Key, class Content> class DTBufferTree;
 
 //              ---------------------
 //              -- Class Interface --
@@ -50,6 +53,8 @@ class DTMtimeId {
   int   layerId;
   int    cellId;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -63,6 +68,8 @@ class DTMtimeData {
   float mTime;
   float mTrms;
 
+
+ COND_SERIALIZABLE;
 };
 
 
@@ -257,21 +264,24 @@ class DTMtime {
   const_iterator begin() const;
   const_iterator end() const;
 
+  void initialize();
+
  private:
+
+  DTMtime(DTMtime const&);
+  DTMtime& operator=(DTMtime const&);
 
   std::string dataVersion;
   float nsPerCount;
 
   std::vector< std::pair<DTMtimeId,DTMtimeData> > dataList;
 
-  DTBufferTree<int,int>* dBuf;
+  edm::ConstRespectingPtr<DTBufferTree<int,int> > dBuf COND_TRANSIENT;
 
   /// read and store full content
-  void cacheMap() const;
   std::string mapName() const;
 
+
+ COND_SERIALIZABLE;
 };
-
-
 #endif // DTMtime_H
-

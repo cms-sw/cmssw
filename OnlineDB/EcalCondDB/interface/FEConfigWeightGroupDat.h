@@ -32,19 +32,15 @@ class FEConfigWeightGroupDat : public IDataItem {
   inline float getWeight4() const { return m_w4; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigWeightGroupDat* item, FEConfigWeightInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigWeightGroupDat* item, FEConfigWeightInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigWeightGroupDat>* data, FEConfigWeightInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigWeightGroupDat>* data, FEConfigWeightInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigWeightGroupDat >* fillMap, FEConfigWeightInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigWeightGroupDat >* fillMap, FEConfigWeightInfo* iconf) noexcept(false);
 
   // User data
   int m_group_id;

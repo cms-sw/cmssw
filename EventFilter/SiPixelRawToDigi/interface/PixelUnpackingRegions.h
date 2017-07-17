@@ -11,12 +11,12 @@
 
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingMap.h"
+#include "CondFormats/SiPixelObjects/interface/SiPixelFedCablingTree.h"
 #include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include <cmath>
 #include <vector>
 #include <set>
-#include <boost/scoped_ptr.hpp>
 
 
 /** \class PixelUnpackingRegions
@@ -68,8 +68,6 @@ public:
 
   /// various informational accessors:
   unsigned int nFEDs() const { return feds_.size(); }
-  unsigned int nBarrelFEDs() const;
-  unsigned int nForwardFEDs() const;
   unsigned int nModules() const { return modules_.size(); }
   unsigned int nBarrelModules() const;
   unsigned int nForwardModules() const;
@@ -125,7 +123,7 @@ private:
   std::vector<Module> phiFPIXp_;
   std::vector<Module> phiFPIXm_;
 
-  boost::scoped_ptr<SiPixelFedCabling> cabling_;
+  std::unique_ptr<SiPixelFedCablingTree> cabling_;
   math::XYZPoint beamSpot_;
 
   edm::ESWatcher<SiPixelFedCablingMapRcd> watcherSiPixelFedCablingMap_;

@@ -16,8 +16,7 @@
 #include <string>
 #include <vector>
 #include <typeinfo>
-#include <cxxabi.h>
-#include <DataFormats/Common/interface/OwnVector.h>
+#include "DataFormats/Common/interface/OwnVector.h"
 
 
 namespace pat {
@@ -52,11 +51,12 @@ namespace pat {
     /// Make a UserData pointer from some value, wrapping it appropriately.
     /// It will check for dictionaries, unless 'transientOnly' is true
     template<typename T>
-    static std::auto_ptr<UserData> make(const T &value, bool transientOnly=false) ;
+    static std::unique_ptr<UserData> make(const T &value, bool transientOnly=false) ;
 
   protected:
     /// Get out the data (can't template non virtual functions)
     virtual const void * data_  () const = 0;
+    static std::string typeNameFor(std::type_info const& iInfo);
 
   private:
     static void checkDictionaries(const std::type_info &type) ;
@@ -69,13 +69,13 @@ namespace pat {
         UserHolder() : obj_() {}
         UserHolder(const T &data) : obj_(data) {}
         /// Clone
-        virtual UserHolder<T> * clone() const { return new UserHolder<T>(*this); }
+        virtual UserHolder<T> * clone() const override { return new UserHolder<T>(*this); }
         /// Concrete type of stored data
-        virtual const std::type_info & typeId()   const { return typeid(T); }
+        virtual const std::type_info & typeId()   const override { return typeid(T); }
         /// Human readable name of the concrete type of stored data
-        virtual const std::string    & typeName() const { return typeName_(); }
+        virtual const std::string    & typeName() const override { return typeName_(); }
     protected:
-        virtual const void *           data_()  const { return &obj_; }
+        virtual const void *           data_()  const override { return &obj_; }
     private: 
         T obj_;
         static const std::string & typeName_() ;
@@ -86,19 +86,17 @@ namespace pat {
 
 
 template<typename T>
-std::auto_ptr<pat::UserData> pat::UserData::make(const T &value, bool transientOnly) {
+std::unique_ptr<pat::UserData> pat::UserData::make(const T &value, bool transientOnly) {
     if (!transientOnly) {
         checkDictionaries(typeid(T));
         checkDictionaries(typeid(pat::UserHolder<T>));
     }
-    return std::auto_ptr<UserData>(new pat::UserHolder<T>(value));  
+    return std::unique_ptr<UserData>(new pat::UserHolder<T>(value));  
 }
 
 template<typename T> 
 const std::string & pat::UserHolder<T>::typeName_() {
-    static int status = 0;
-    static const char * demangled = abi::__cxa_demangle(typeid(T).name(),  0, 0, &status);
-    static const std::string name(status == 0 ? demangled : "[UNKNOWN]");
+    static const std::string name(typeNameFor(typeid(T)));
     return name;
 }
 

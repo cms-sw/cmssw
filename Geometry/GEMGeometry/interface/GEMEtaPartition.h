@@ -1,35 +1,31 @@
 #ifndef Geometry_GEMGeometry_GEMEtaPartition_H
 #define Geometry_GEMGeometry_GEMEtaPartition_H
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "DataFormats/MuonDetId/interface/GEMDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 
 class StripTopology;
 class GEMEtaPartitionSpecs;
-//class GEMChamber;
 
 class GEMEtaPartition : public GeomDetUnit
 {
 public:
   
   GEMEtaPartition(GEMDetId id, BoundPlane::BoundPlanePointer bp, GEMEtaPartitionSpecs* rrs);
-  ~GEMEtaPartition();
+  ~GEMEtaPartition() override;
 
   const GEMEtaPartitionSpecs* specs() const { return specs_; }
   GEMDetId id() const { return id_; }
 
-  const Topology& topology() const;
+  const Topology& topology() const override;
   const StripTopology& specificTopology() const;
 
   const Topology& padTopology() const;
   const StripTopology& specificPadTopology() const;
 
-  const GeomDetType& type() const; 
- 
-  /// Return the chamber this roll belongs to 
-  //const GEMChamber* chamber() const;
+  const GeomDetType& type() const override; 
  
   // strip-related methods:
 
@@ -43,8 +39,7 @@ public:
   /// returns center of strip position for FRACTIONAL strip number
   /// that has a value range of [0., nstrip]
   LocalPoint  centreOfStrip(float strip) const;
-  LocalError  localError(float strip) const;
-
+  LocalError  localError(float strip, float cluster_size= 1.) const;
   /// returns fractional strip number [0..nstrips] for a LocalPoint
   /// E.g., if local point hit strip #2, the fractional strip number would be
   /// somewhere in the (1., 2] interval

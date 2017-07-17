@@ -90,18 +90,18 @@ IOVSyncValue::throwInvalidComparison() const {
 //
 const IOVSyncValue&
 IOVSyncValue::invalidIOVSyncValue() {
-   static IOVSyncValue s_invalid;
+   static const IOVSyncValue s_invalid;
    return s_invalid;
 }
 const IOVSyncValue&
 IOVSyncValue::endOfTime() {
-   static IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
+   static const IOVSyncValue s_endOfTime(EventID(0xFFFFFFFFUL, LuminosityBlockID::maxLuminosityBlockNumber(), EventID::maxEventNumber()),
                                    Timestamp::endOfTime());
    return s_endOfTime;
 }
 const IOVSyncValue&
 IOVSyncValue::beginOfTime() {
-   static IOVSyncValue s_beginOfTime(EventID(1,0,0), Timestamp::beginOfTime());
+   static const IOVSyncValue s_beginOfTime(EventID(1,0,0), Timestamp::beginOfTime());
    return s_beginOfTime;
 }
 }

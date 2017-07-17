@@ -1,0 +1,30 @@
+The Tau Embedding runs in four steps
+
+1. Selection events with two muons
+2. Cleaning the events from the two muons 
+3. Simulating the Z-> tau tau events 
+4. Merging the Simulated and Cleand event
+
+
+In all of this step the RECO seqeunce hast to be runned. So just take the common CMSDriver.py commands, add the embedding customiser and save RAWRECO (and in merge step only MINIAODSIM). 
+The input of the first step must be RAW, and the inputs of the other samples are step before. 
+
+1.
+cmsDriver.py ...
+--customise TauAnalysis/MCEmbeddingTools/customisers.customisoptions,TauAnalysis/MCEmbeddingTools/customisers.customiseSelecting \
+
+2. 
+cmsDriver.py ...
+--customise TauAnalysis/MCEmbeddingTools/customisers.customisoptions,TauAnalysis/MCEmbeddingTools/customisers.customiseLHEandCleaning \
+
+3. 
+cmsDriver.py TauAnalysis/MCEmbeddingTools/python/EmbeddingPythia8Hadronizer_cfi.py \
+... 
+--customise TauAnalysis/MCEmbeddingTools/customisers.customiseGenerator,TauAnalysis/MCEmbeddingTools/customisers.customisoptions \
+
+4.
+cmsDriver.py ...
+--customise TauAnalysis/MCEmbeddingTools/customisers.customisoptions,TauAnalysis/MCEmbeddingTools/customisers.customiseMerging \
+
+
+You can find some working examples for CMSSW_8_0_21 in this folder. 

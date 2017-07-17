@@ -95,7 +95,7 @@ Now you will want to do something useful, like run a TSelector.
 This turned out to be quite tricky. Here is an example.
 We made a ThingsTSelector, which we put into libFWCoreTFWLiteSelectorTest.
 To ensure that our TSelector was auto-loaded we loaded libFWCoreFWLite
-and then enabled the AutoLibraryLoader.
+and then enabled fwlite.
 NOTE WELL: libFWCoreTFWLiteSelectorTest.so must be in the LD_LIBRARY_PATH
 for all the proofd's you are running.
 
@@ -111,7 +111,7 @@ everything load properly on the remote proof host(s).
     // This makes the TSelectors in the library available to the
     // remote proof session
     gSystem->Load("libFWCoreFWLite");
-    AutoLibraryLoader::enable();
+    FWLiteEnabler::enable();
     gSystem->Load("libFWCoreTFWLiteSelectorTest");
   }
 
@@ -123,11 +123,8 @@ Now make proof_local.C
 
     // You need this to allow ROOT to be able to use a ThingsTSelector
     gSystem->Load("libFWCoreFWLite");
-    AutoLibraryLoader::enable();
+    FWLiteEnabler::enable();
 
-    // Have to load library manually since Proof does not use the 
-    // mechanism used by TFile to find class dictionaries and therefore
-    // the AutoLibraryLoader cannot help
     gSystem->Load("libFWCoreTFWLiteSelectorTest");
 
     // This makes sure the TSelector library and dictionary are properly

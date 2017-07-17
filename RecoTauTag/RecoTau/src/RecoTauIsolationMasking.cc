@@ -32,11 +32,11 @@ class PtSorter {
 // Check if an object is within DR of a track collection
 class MultiTrackDRFilter {
   public:
-    MultiTrackDRFilter(double deltaR, const reco::PFCandidateRefVector& trks)
+  MultiTrackDRFilter(double deltaR, const std::vector<reco::PFCandidatePtr>& trks)
       :deltaR_(deltaR),tracks_(trks){}
     template <typename T>
     bool operator()(const T& t) const {
-      BOOST_FOREACH(const reco::PFCandidateRef& trk, tracks_) {
+      BOOST_FOREACH(const reco::PFCandidatePtr& trk, tracks_) {
         if (reco::deltaR(trk->p4(), t->p4()) < deltaR_)
           return true;
       }
@@ -44,16 +44,16 @@ class MultiTrackDRFilter {
     }
   private:
     double deltaR_;
-    const reco::PFCandidateRefVector& tracks_;
+  const std::vector<reco::PFCandidatePtr>& tracks_;
 };
 
 double square(double x) { return x*x; }
 
 template<typename T>
-reco::PFCandidateRefVector convertRefCollection(const T& coll) {
-  reco::PFCandidateRefVector output;
+std::vector<reco::PFCandidatePtr> convertRefCollection(const T& coll) {
+  std::vector<reco::PFCandidatePtr> output;
   output.reserve(coll.size());
-  BOOST_FOREACH(const reco::PFCandidateRef cand, coll) {
+  BOOST_FOREACH(const reco::PFCandidatePtr cand, coll) {
     output.push_back(cand);
   }
   return output;
@@ -75,7 +75,7 @@ RecoTauIsolationMasking::IsoMaskResult
 RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
   IsoMaskResult output;
 
-  typedef std::list<reco::PFCandidateRef> PFCandList;
+  typedef std::list<reco::PFCandidatePtr> PFCandList;
   // Copy original iso collections.
   std::copy(tau.isolationPFGammaCands().begin(),
       tau.isolationPFGammaCands().end(), std::back_inserter(output.gammas));
@@ -87,7 +87,7 @@ RecoTauIsolationMasking::mask(const reco::PFTau& tau) const {
   courses.push_back(&(output.h0s));
   courses.push_back(&(output.gammas));
   // Mask using each one of the tracks
-  BOOST_FOREACH(const reco::PFCandidateRef& track,
+  BOOST_FOREACH(const reco::PFCandidatePtr& track,
       tau.signalPFChargedHadrCands()) {
     double trackerEnergy = track->energy();
     double linkedEcalEnergy = track->ecalEnergy();

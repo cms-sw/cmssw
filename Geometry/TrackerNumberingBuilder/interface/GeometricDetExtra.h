@@ -4,8 +4,8 @@
 //#include "CondFormats/GeometryObjects/interface/PGeometricDetExtra.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "DetectorDescription/Core/interface/DDExpandedView.h"
-/* #include "DetectorDescription/Base/interface/DDRotationMatrix.h" */
-/* #include "DetectorDescription/Base/interface/DDTranslation.h" */
+/* #include "DetectorDescription/Core/interface/DDRotationMatrix.h" */
+/* #include "DetectorDescription/Core/interface/DDTranslation.h" */
 /* #include "DetectorDescription/Core/interface/DDSolidShapes.h" */
 /* #include "DataFormats/GeometrySurface/interface/Surface.h" */
 /* #include "DataFormats/GeometrySurface/interface/Bounds.h" */
@@ -58,7 +58,7 @@ class GeometricDetExtra {
   /**
    * set or add or clear components
    */
-  void setGeographicalId(DetId id) const {
+  void setGeographicalId(DetId id) {
     _geographicalId = id; 
     //std::cout <<"setGeographicalId " << int(id) << std::endl;
   }
@@ -108,8 +108,7 @@ class GeometricDetExtra {
   /** Data members **/
 
   GeometricDet const* _mygd;  
-  //FIXME WHY? FROM GeometricDet comment 
-  mutable DetId _geographicalId;
+  DetId _geographicalId;
   GeoHistory _parents;
   double _volume;
   double _density;

@@ -1,8 +1,14 @@
 #include "DetectorDescription/Core/src/Cons.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
-#include "CLHEP/Units/GlobalPhysicalConstants.h"
+
 #include <cmath>
 #include <ostream>
+#include <vector>
+
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
 
 DDI::Cons::Cons(double zhalf,
 	 double rInMinusZ,

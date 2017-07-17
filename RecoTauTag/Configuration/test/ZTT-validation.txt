@@ -1,0 +1,1 @@
+/store/relval/CMSSW_8_0_0/RelValTTbar_13/GEN-SIM-RECO/PU25ns_80X_mcRun2_asymptotic_v4-v1/10000/42D6DF66-9DDA-E511-9200-0CC47A4D7670.root

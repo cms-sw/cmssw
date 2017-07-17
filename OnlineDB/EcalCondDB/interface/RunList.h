@@ -27,16 +27,16 @@ class RunList  : public IDBObject {
   std::vector<RunIOV> getRuns() ;
   
   // Methods from IUniqueDBObject
-  void fetchRuns() throw(std::runtime_error);
-  void fetchNonEmptyRuns() throw(std::runtime_error);
-  void fetchNonEmptyGlobalRuns() throw(std::runtime_error);
-  void fetchNonEmptyRuns(int min_run, int max_run) throw(std::runtime_error);
-  void fetchNonEmptyGlobalRuns(int min_run, int max_run) throw(std::runtime_error);
-  void fetchRuns(int min_run, int max_run) throw(std::runtime_error);
-  void fetchRuns(int min_run, int max_run, bool withTriggers, bool withGlobalTriggers) throw(std::runtime_error);
-  void fetchLastNRuns( int max_run, int n_runs  ) throw(std::runtime_error);
-  void fetchRunsByLocation (int min_run, int max_run, const LocationDef& locDef )  throw(std::runtime_error);
-  void fetchGlobalRunsByLocation(int min_run, int max_run, const LocationDef& locDef )  throw(std::runtime_error);
+  void fetchRuns() noexcept(false);
+  void fetchNonEmptyRuns() noexcept(false);
+  void fetchNonEmptyGlobalRuns() noexcept(false);
+  void fetchNonEmptyRuns(int min_run, int max_run) noexcept(false);
+  void fetchNonEmptyGlobalRuns(int min_run, int max_run) noexcept(false);
+  void fetchRuns(int min_run, int max_run) noexcept(false);
+  void fetchRuns(int min_run, int max_run, bool withTriggers, bool withGlobalTriggers) noexcept(false);
+  void fetchLastNRuns( int max_run, int n_runs  ) noexcept(false);
+  void fetchRunsByLocation (int min_run, int max_run, const LocationDef& locDef )  noexcept(false);
+  void fetchGlobalRunsByLocation(int min_run, int max_run, const LocationDef& locDef )  noexcept(false);
 
 
  private:

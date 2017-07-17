@@ -7,6 +7,8 @@
 
 #include <vector>
 
+class RandomEngineAndDistribution;
+
 /** 
  * This is the generic class for Material Effects in the tracker material, 
  * from which FamosPairProductionSimulator, FamosBremsstrahlungSimulator, 
@@ -27,8 +29,7 @@ class MaterialEffectsSimulator
   typedef std::vector<RawParticle>::const_iterator RHEP_const_iter;
 
   // Constructor : default values are for Silicon
-  MaterialEffectsSimulator(const RandomEngine* engine,
-			   double A = 28.0855,
+  MaterialEffectsSimulator(double A = 28.0855,
 			   double Z = 14.0000,
 			   double density = 2.329,
 			   double radLen = 9.360);
@@ -51,9 +52,8 @@ class MaterialEffectsSimulator
   ///Electron mass in GeV/c2
   inline double eMass() const { return 0.000510998902; }
 
-
   /// Compute the material effect (calls the sub class)
-  void updateState(ParticlePropagator& myTrack, double radlen);
+  void updateState(ParticlePropagator& myTrack, double radlen, RandomEngineAndDistribution const*);
   
   /// Returns const iterator to the beginning of the daughters list
   inline RHEP_const_iter beginDaughters() const {return _theUpdatedState.begin();}
@@ -73,14 +73,16 @@ class MaterialEffectsSimulator
   /// The id of the closest charged daughter (filled for nuclear interactions only)
   inline int closestDaughterId() { return theClosestChargedDaughterId; } 
 
+  /// Used by  NuclearInteractionSimulator to save last sampled event
+  virtual void save() {};
+
  private:
 
   /// Overloaded in all material effects updtators
-  virtual void compute(ParticlePropagator& Particle ) = 0;
+  virtual void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*) = 0;
 
   /// Returns the fraction of radiation lengths traversed
   inline double radiationLength() const {return radLengths;}
-
 
  protected:
 
@@ -95,8 +97,6 @@ class MaterialEffectsSimulator
   double radLen;
 
   GlobalVector theNormalVector;
-
-  const RandomEngine* random;
 
   int theClosestChargedDaughterId;
 

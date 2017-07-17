@@ -121,27 +121,87 @@ proc.templateAnalyzer = cms.EDAnalyzer(
    )
 )
 
+
 proc.RunHPSValidation = proc.templateAnalyzer.clone()
+
+#for fast sim we need to ignore the HLT TriggerResults
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+fastSim.toModify(
+   proc.RunHPSValidation, 
+   hltInputTag = cms.InputTag(""), 
+   GenericTriggerSelection=dict(hltInputTag = cms.InputTag("")) 
+)
+
 proc.RunHPSValidation.ExtensionName = ""
 #RunHPSValidation.TauPtCut = cms.double(15.)
 proc.RunHPSValidation.TauProducer   = cms.InputTag('hpsPFTauProducer')
 proc.RunHPSValidation.discriminators = cms.VPSet(
    cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFinding"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
-   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVAElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingNewDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByDecayModeFindingOldDMs"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightChargedIsolation"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(True)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5VLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5LooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5MediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5TightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA5VTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightMuonRejection3"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLoosePileupWeightedIsolation3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumPileupWeightedIsolation3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   #cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightPileupWeightedIsolation3Hits"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VLooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6LooseElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6MediumElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6TightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMVA6VTightElectronRejection"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWoldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWnewDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseCombinedIsolationDBSumPtCorr3HitsdR03"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumCombinedIsolationDBSumPtCorr3HitsdR03"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightCombinedIsolationDBSumPtCorr3HitsdR03"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1DBdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVLooseIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByLooseIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByMediumIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByTightIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVTightIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False)),
+   cms.PSet( discriminator = cms.string("hpsPFTauDiscriminationByVVTightIsolationMVArun2v1PWdR03oldDMwLT"),selectionCut = cms.double(0.5),plotStep = cms.bool(False))
 )
 
 proc.TauValNumeratorAndDenominator = cms.Sequence(

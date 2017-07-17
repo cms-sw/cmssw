@@ -4,10 +4,12 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHitFwd.h" 
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/RefVectorIterator.h"
-#include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefToBase.h"
+#include "DataFormats/Common/interface/Ref.h"
+#include "DataFormats/Common/interface/Ptr.h"
+#include "DataFormats/Common/interface/RefHolder.h"
 
-namespace {
+namespace DataFormats_TrajectorySeed {
   struct dictionary {
     std::vector<TrajectorySeed> v1;
     TrajectorySeedCollection c1;
@@ -22,6 +24,7 @@ namespace {
     edm::reftobase::IndirectHolder<TrajectorySeed> ihs;
     edm::reftobase::Holder< TrajectorySeed, edm::Ref<TrajectorySeedCollection> > rbh;
     edm::reftobase::RefHolder< edm::Ref<TrajectorySeedCollection> > rbrh;
-
+    edm::reftobase::RefHolder< edm::Ptr<TrajectorySeed> > rhptrts;
+    edm::Ptr<TrajectorySeed> ptrts;
   };
 }

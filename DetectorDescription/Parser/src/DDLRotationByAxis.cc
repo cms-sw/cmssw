@@ -1,31 +1,23 @@
-/***************************************************************************
-                          DDLRotationByAxis.cc  -  description
-                             -------------------
-    begin                : Wed Nov 19, 2003
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLRotationByAxis.h"
 
-#include "DetectorDescription/Core/interface/DDTransform.h"
-#include "DetectorDescription/Base/interface/DDdebug.h"
-#include "DetectorDescription/ExprAlgo/interface/ClhepEvaluator.h"
+#include <map>
+#include <utility>
+#include <vector>
 
-#include <Math/RotationX.h>
-#include <Math/RotationY.h>
-#include <Math/RotationZ.h>
+#include "DetectorDescription/Core/interface/DDName.h"
+#include "DetectorDescription/Core/interface/DDTransform.h"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "Math/GenVector/RotationX.h"
+#include "Math/GenVector/RotationY.h"
+#include "Math/GenVector/RotationZ.h"
+
+class DDCompactView;
 
 DDLRotationByAxis::DDLRotationByAxis( DDLElementRegistry* myreg )
   : DDXMLElement( myreg ) 
-{}
-
-DDLRotationByAxis::~DDLRotationByAxis( void )
 {}
 
 void
@@ -38,9 +30,6 @@ DDLRotationByAxis::preProcessElement( const std::string& name, const std::string
 void
 DDLRotationByAxis::processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv )
 {
-  DCOUT_V('P', "DDLRotationByAxis::processElement started " << name);
-
-  //  std::cout << "my parent is : " << parent() << std::endl;
   DDXMLAttribute atts = getAttributeSet();
   if (parent() != "RotationSequence")
   {
@@ -53,20 +42,15 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
     DDRotationMatrix* ddr = new DDRotationMatrix(R);
     if (atts.find("name") == atts.end())
     {
-      //how do we make up a ddname! damn_it!
-      //          DDXMLElement * myRealParent = DDLElementRegistry::instance()->getElement(parent());
-      DDXMLElement * myRealParent = myRegistry_->getElement(parent());
+      auto myRealParent = myRegistry_->getElement(parent());
       DDName pName = myRealParent->getDDName(nmspace);
       std::string tn = pName.name() + std::string("Rotation");
       std::vector<std::string> names;
       names.push_back("name");
-      //no need, used already names.push_back("axis");
-      //no need, used already names.push_back("angle");
 
       std::vector<std::string> values;
       values.push_back(tn);
-      //no need, used already values.push_back(atts.find("axis")->second);
-      //no need, used already values.push_back(atts.find("angle")->second);
+
       clear();
       loadAttributes(name, names, values, nmspace, cpv);
     }
@@ -75,8 +59,6 @@ DDLRotationByAxis::processElement( const std::string& name, const std::string& n
     clear();
   }
   else { } //let the parent handle the clearing, etc.
-
-  DCOUT_V('P', "DDLRotationByAxis::processElement completed");
 }
 
 DDRotationMatrix
@@ -87,7 +69,6 @@ DDLRotationByAxis::processOne( DDRotationMatrix R, std::string& axis, std::strin
   
   ClhepEvaluator & ev = myRegistry_->evaluator();
   double dAngle = ev.eval(pNameSpace, angle);
-  //  CLHEP::HepRotation R;
 
   if ( axis == "x") {
     R = ROOT::Math::RotationX(dAngle);

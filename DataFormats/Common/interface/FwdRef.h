@@ -140,7 +140,7 @@ namespace edm {
     /// General purpose constructor from 2 refs (forward and backward.
     FwdRef(Ref<C,T,F> const & ref,
 	   Ref<C,T,F> const & backRef) :
-        ref_(ref), backRef_(backRef) {}
+        ref_(ref), backRef_(backRef) { assert(ref.isNull() == backRef.isNull()); }
   
     /// Destructor
     ~FwdRef() {}
@@ -155,12 +155,10 @@ namespace edm {
 
     /// Returns C++ pointer to the item
     T const* get() const {
-      if ( ref_.isNonnull() ) {
+      if ( ref_.isAvailable() ) {
 	return ref_.get();
-      } else if ( backRef_.isNonnull() ) {
-	return backRef_.get();
       } else {
-	return 0;
+	return backRef_.get();
       }
     }
 
@@ -179,13 +177,11 @@ namespace edm {
 
     /// Accessor for product getter.
     EDProductGetter const* productGetter() const {
-      if ( ref_.productGetter() ) return ref_.productGetter();
+      //another thread might cause productGetter() to change its value
+      EDProductGetter const* getter = ref_.productGetter();
+      if ( getter ) return getter;
       else return backRef_.productGetter();
     }
-
-    /// Accessor for product collection
-    // Accessor must get the product if necessary
-    C const* product() const;
 
     /// Accessor for product ID.
     ProductID id() const {return ref_.isNonnull() ? ref_.id() : backRef_.id();}
@@ -215,18 +211,6 @@ namespace edm {
 #include "DataFormats/Common/interface/RefProd.h"
 
 namespace edm {
-
-
-  /// Accessor for product collection
-  // Accessor must get the product if necessary
-  template <typename C, typename T, typename F>
-  inline
-  C const*
-  FwdRef<C, T, F>::product() const {
-    return ref_.isNonnull() && ref_.isAvailable() ? 
-      ref_.product() :
-      backRef_.product();
-  }
 
   /// Dereference operator
   template <typename C, typename T, typename F>

@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 eidCutBasedClassesExt = cms.EDProducer("EleIdCutBasedExtProducer",
 
-    src = cms.InputTag("gsfElectrons"),
+    src = cms.InputTag("gedGsfElectrons"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),
     algorithm = cms.string('eIDCBClasses'),

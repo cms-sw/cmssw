@@ -12,7 +12,7 @@
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
 //#include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include <iostream>
 #include <string>
@@ -23,13 +23,12 @@ using namespace edm;
 
 class TrackInfoAnalyzer : public edm::EDAnalyzer {
  public:
-  TrackInfoAnalyzer(const edm::ParameterSet& pset) {conf_=pset;}
+  TrackInfoAnalyzer(const edm::ParameterSet& pset);
   void beginJob(){
     //       cout << "beginJob" <<endl;
     //     edm::ESHandle<TrackerGeometry> tkgeom;
     //    c.get<TrackerDigiGeometryRecord>().get( tkgeom );
     //     tracker=&(* tkgeom);
-    std::string filename = conf_.getParameter<std::string>("OutFileName");
     output = new TFile(filename.c_str(), "RECREATE");
     tib1int = new TH1F("Tib1Int", "Tib Layer 1 Int", 100, -1, 1);
     tib1ext = new TH1F("Tib1Ext", "Tib Layer 1 Ext", 100, -1, 1);
@@ -39,13 +38,11 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
     tib3ext = new TH1F("Tib3Ext", "Tib Layer 3 Ext", 100, -0.5, 0.5);
     tib4int = new TH1F("Tib4Int", "Tib Layer 4 Int", 100, -0.5, 0.5);
     tib4ext = new TH1F("Tib4Ext", "Tib Layer 4 Ext", 100, -0.5, 0.5);
-
-}
+  }
 
   ~TrackInfoAnalyzer(){
     delete output;
   }
-  edm::ParameterSet conf_;
 
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup){ //analyze
 
@@ -53,25 +50,24 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<IdealGeometryRecord>().get(tTopoHandle);
+    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     //std::cout << "\nEvent ID = "<< event.id() << std::endl ;
-    edm::InputTag TkTag = conf_.getParameter<edm::InputTag>("TrackInfo");
     edm::Handle<reco::TrackInfoCollection> trackCollection;
-    event.getByLabel(TkTag, trackCollection);
-      
+    event.getByToken(trackCollectionToken, trackCollection);
+
     reco::TrackInfoCollection tC = *(trackCollection.product());
 
     edm::LogInfo("TrackInfoAnalyzer") <<"number of infos "<< tC.size();
-    for (reco::TrackInfoCollection::iterator track=tC.begin(); track!=tC.end(); track++){
-      
+    for (reco::TrackInfoCollection::iterator track=tC.begin(); track!=tC.end(); ++track){
+
       //const reco::TrackInfo::TrajectoryInfo tinfo=track->trajstate();
       reco::TrackInfo::TrajectoryInfo::const_iterator iter;
       edm::LogInfo("TrackInfoAnalyzer") <<"N hits in the seed: "<<track->seed().nHits();
       edm::LogInfo("TrackInfoAnalyzer") <<"Starting state "<<track->seed().startingState().parameters().position();
       if(track->trajStateMap().size()>0){
-      for(iter=track->trajStateMap().begin();iter!=track->trajStateMap().end();iter++){
+      for(iter=track->trajStateMap().begin();iter!=track->trajStateMap().end();++iter){
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalMomentum: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).momentum();
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition: "<<(track->stateOnDet(Combined,(*iter).first)->parameters()).position();
 	edm::LogInfo("TrackInfoAnalyzer") <<"LocalPosition (rechit): "<<((*iter).first)->localPosition();
@@ -107,16 +103,23 @@ class TrackInfoAnalyzer : public edm::EDAnalyzer {
   }
  private:
   TFile * output;
-  TH1F* tib1int;  
+  TH1F* tib1int;
   TH1F* tib1ext;
-  TH1F* tib2int;  
+  TH1F* tib2int;
   TH1F* tib2ext;
-  TH1F* tib3int;  
+  TH1F* tib3int;
   TH1F* tib3ext;
-  TH1F* tib4int;  
+  TH1F* tib4int;
   TH1F* tib4ext;
-  
+  std::string filename;
+  edm::EDGetTokenT<reco::TrackInfoCollection> trackCollectionToken;
+
 };
+
+TrackInfoAnalyzer::TrackInfoAnalyzer(const edm::ParameterSet& pset)
+: filename(pset.getParameter<std::string>("OutFileName"))
+, trackCollectionToken(consumes<reco::TrackInfoCollection>(pset.getParameter<edm::InputTag>("TrackInfo")))
+{}
 
 
 DEFINE_FWK_MODULE(TrackInfoAnalyzer);

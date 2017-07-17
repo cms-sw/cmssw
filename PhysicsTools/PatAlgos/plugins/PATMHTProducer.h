@@ -2,8 +2,8 @@
 //
 // Package:    PATMHTProducer
 // Class:      PATMHTProducer
-// 
-/**\class PATMHTProducer 
+//
+/**\class PATMHTProducer
 
  Description: <one line class summary>
 
@@ -27,14 +27,14 @@
 // user include files
 
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
-#include "FWCore/Utilities/interface/InputTag.h" 
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
@@ -61,46 +61,44 @@
 //
 
 namespace pat {
-  class PATMHTProducer : public edm::EDProducer {
+  class PATMHTProducer : public edm::stream::EDProducer<> {
   public:
     explicit PATMHTProducer(const edm::ParameterSet&);
     ~PATMHTProducer();
-    
+
   private:
-    virtual void beginJob() ;
     virtual void produce(edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() ;
-    
+
     double getJets(edm::Event&, const edm::EventSetup&);
     double getElectrons(edm::Event&, const edm::EventSetup&);
     double getMuons(edm::Event&, const edm::EventSetup&);
     void   getTowers(edm::Event&, const edm::EventSetup&);
-    
-    
+
+
     // ----------member data ---------------------------
-    
+
     double verbose_;
-    
+
     // input tags.
     edm::InputTag mhtLabel_;
-    edm::InputTag jetLabel_;
-    edm::InputTag eleLabel_;
-    edm::InputTag muoLabel_;
-    edm::InputTag tauLabel_;
-    edm::InputTag phoLabel_;
-  
+    edm::EDGetTokenT<edm::View<pat::Jet> > jetToken_;
+    edm::EDGetTokenT<edm::View<pat::Electron> > eleToken_;
+    edm::EDGetTokenT<edm::View<pat::Muon> > muoToken_;
+    edm::EDGetTokenT<edm::View<pat::Tau> > tauToken_;
+    edm::EDGetTokenT<edm::View<pat::Photon> > phoToken_;
+
     std::vector<metsig::SigInputObj> physobjvector_ ;
 
     double uncertaintyScaleFactor_; // scale factor for the uncertainty parameters.
     bool    controlledUncertainty_; // use controlled uncertainty parameters.
 
- 
+
     //--- test the uncertainty parameters ---//
 
     class uncertaintyFunctions{
     public:
-      TF1 *etUncertainty;
-      TF1 *phiUncertainty;
+      std::unique_ptr<TF1> etUncertainty;
+      std::unique_ptr<TF1> phiUncertainty;
     };
 
     void setUncertaintyParameters();// fills the following uncertaintyFunctions objects:
@@ -123,7 +121,7 @@ namespace pat {
     bool useJets_;
     bool useElectrons_;
     bool useMuons_;
-    std::set<CaloTowerDetId> s_clusteredTowers; 
+    std::set<CaloTowerDetId> s_clusteredTowers;
 
     bool noHF_;
 
@@ -144,21 +142,21 @@ namespace pat {
 
     //  double uncertaintyScaleFactor_; // scale factor for the uncertainty parameters.
 
-    double jetEtUncertaintyParameter0_ ; 
-    double jetEtUncertaintyParameter1_ ; 
-    double jetEtUncertaintyParameter2_ ; 
+    double jetEtUncertaintyParameter0_ ;
+    double jetEtUncertaintyParameter1_ ;
+    double jetEtUncertaintyParameter2_ ;
 
-    double jetPhiUncertaintyParameter0_ ; 
-    double jetPhiUncertaintyParameter1_ ; 
-    double jetPhiUncertaintyParameter2_ ; 
+    double jetPhiUncertaintyParameter0_ ;
+    double jetPhiUncertaintyParameter1_ ;
+    double jetPhiUncertaintyParameter2_ ;
 
-    double eleEtUncertaintyParameter0_ ; 
-    double elePhiUncertaintyParameter0_ ; 
+    double eleEtUncertaintyParameter0_ ;
+    double elePhiUncertaintyParameter0_ ;
 
-    double muonEtUncertaintyParameter0_ ; 
-    double muonPhiUncertaintyParameter0_ ; 
+    double muonEtUncertaintyParameter0_ ;
+    double muonPhiUncertaintyParameter0_ ;
 
-    edm::InputTag CaloJetAlgorithmTag_; 
+    edm::InputTag CaloJetAlgorithmTag_;
     edm::InputTag CorJetAlgorithmTag_;
     std::string   JetCorrectionService_;
     edm::InputTag MuonTag_;
@@ -168,11 +166,11 @@ namespace pat {
     std::string significanceLabel_;
 
     //--- For Muon Calo Deposits ---//
-    //TrackDetectorAssociator   trackAssociator_; 
+    //TrackDetectorAssociator   trackAssociator_;
     //TrackAssociatorParameters trackAssociatorParameters_;
 
-    double towerEtThreshold_ ; 
-    bool useHO_ ; 
+    double towerEtThreshold_ ;
+    bool useHO_ ;
 
 
   };

@@ -12,27 +12,22 @@
 #include "MagneticField/GeomBuilder/test/stubs/MagGeometryExerciser.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-
 #include "MagneticField/Layers/interface/MagVerbosity.h"
-
-//dirty hack
-#define private public
 #include "MagneticField/GeomBuilder/src/MagGeoBuilderFromDDD.h"
 #include "MagneticField/VolumeBasedEngine/interface/VolumeBasedMagneticField.h"
-#undef public
 
 #include <iostream>
 #include <vector>
 
 using namespace std;
 
-class MagGeometryAnalyzer : public edm::EDAnalyzer {
+class testMagGeometryAnalyzer : public edm::EDAnalyzer {
  public:
   /// Constructor
-  MagGeometryAnalyzer(const edm::ParameterSet& pset) {};
+  testMagGeometryAnalyzer(const edm::ParameterSet& pset) {};
 
   /// Destructor
-  virtual ~MagGeometryAnalyzer() {};
+  virtual ~testMagGeometryAnalyzer() {};
 
   /// Perform the real analysis
   void analyze(const edm::Event & event, const edm::EventSetup& eventSetup);
@@ -41,12 +36,12 @@ class MagGeometryAnalyzer : public edm::EDAnalyzer {
   }
   
  private:
-  void testGrids( const vector<MagVolume6Faces*>& bvol);
+  void testGrids( const vector<MagVolume6Faces const*>& bvol);
 };
 
 using namespace edm;
 
-void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
+void testMagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetup& eventSetup) {
 
   ESHandle<MagneticField> magfield;
   eventSetup.get<IdealMagneticFieldRecord>().get(magfield);
@@ -79,10 +74,10 @@ void MagGeometryAnalyzer::analyze(const edm::Event & event, const edm::EventSetu
 #include "VolumeGridTester.h"
 
 
-void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces*>& bvol) {
+void testMagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces const*>& bvol) {
   static map<string,int> nameCalls;
 
-  for (vector<MagVolume6Faces*>::const_iterator i=bvol.begin();
+  for (vector<MagVolume6Faces const*>::const_iterator i=bvol.begin();
        i!=bvol.end(); i++) {
     if ((*i)->copyno != 1) {
       continue;
@@ -100,4 +95,4 @@ void MagGeometryAnalyzer::testGrids(const vector<MagVolume6Faces*>& bvol) {
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"
-DEFINE_FWK_MODULE(MagGeometryAnalyzer);
+DEFINE_FWK_MODULE(testMagGeometryAnalyzer);

@@ -3,6 +3,9 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <algorithm>
+#include <mutex>
+
+static std::mutex s_fillLock;
 
 HcalDDDGeometry::HcalDDDGeometry(const HcalTopology& topo)
   : topo_(topo),
@@ -10,7 +13,8 @@ HcalDDDGeometry::HcalDDDGeometry(const HcalTopology& topo)
     m_hbCellVec ( topo.getHBSize() ) ,
     m_heCellVec ( topo.getHESize() ) ,
     m_hoCellVec ( topo.getHOSize() ) ,
-    m_hfCellVec ( topo.getHFSize() ) 
+    m_hfCellVec ( topo.getHFSize() ) ,
+    m_filledDetIds(false)
 {
 }
 
@@ -21,6 +25,11 @@ HcalDDDGeometry::~HcalDDDGeometry()
 void
 HcalDDDGeometry::fillDetIds() const
 {
+   std::lock_guard<std::mutex> guard(s_fillLock);
+   if (m_filledDetIds) {
+     //another thread already did the work
+     return;
+   }
    const std::vector<DetId>& baseIds ( CaloSubdetectorGeometry::getValidDetIds() ) ;
    for( unsigned int i ( 0 ) ; i != baseIds.size() ; ++i ) 
    {
@@ -57,6 +66,7 @@ HcalDDDGeometry::fillDetIds() const
    std::sort( m_hfIds.begin(), m_hfIds.end() ) ;
        
    m_emptyIds.resize( 0 ) ;
+   m_filledDetIds = true;
 }
 
 std::vector<DetId> const &
@@ -64,7 +74,7 @@ HcalDDDGeometry::getValidDetIds(DetId::Detector det,
 				int subdet) const
 {
   if( 0 != subdet &&
-      0 == m_hbIds.size() ) fillDetIds() ;
+      not m_filledDetIds ) fillDetIds() ;
   return ( 0 == subdet ? CaloSubdetectorGeometry::getValidDetIds() :
 	   ( HcalBarrel == subdet ? m_hbIds :
 	     ( HcalEndcap == subdet ? m_heIds :
@@ -91,26 +101,26 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 		       << " radius " << radius;
   HcalDetId bestId;
   if (abseta <= etaMax_) {
-    for (unsigned int i=0; i<hcalCells_.size(); i++) {
-      if (abseta >=hcalCells_[i].etaMin() && abseta <=hcalCells_[i].etaMax()) {
-	HcalSubdetector bc = hcalCells_[i].detType();
-	int etaring = hcalCells_[i].etaBin();
+    for (const auto & hcalCell : hcalCells_) {
+      if (abseta >=hcalCell.etaMin() && abseta <=hcalCell.etaMax()) {
+	HcalSubdetector bc = hcalCell.detType();
+	int etaring = hcalCell.etaBin();
 	int phibin  = 0;
-	if (hcalCells_[i].unitPhi() == 4) {
+	if (hcalCell.unitPhi() == 4) {
 	  // rings 40 and 41 are offset wrt the other phi numbering
 	  //  1        1         1         2
 	  //  ------------------------------
 	  //  72       36        36        1
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset()+
-				     0.5*hcalCells_[i].phiBinWidth())/
-				    hcalCells_[i].phiBinWidth());
-	  if (phibin == 0) phibin = hcalCells_[i].nPhiBins();
+	  phibin = static_cast<int>((phi+hcalCell.phiOffset()+
+				     0.5*hcalCell.phiBinWidth())/
+				    hcalCell.phiBinWidth());
+	  if (phibin == 0) phibin = hcalCell.nPhiBins();
 	  phibin = phibin*4 - 1; 
 	} else {
-	  phibin = static_cast<int>(((phi/deg)+hcalCells_[i].phiOffset())/
-				    hcalCells_[i].phiBinWidth()) + 1;
+	  phibin = static_cast<int>((phi+hcalCell.phiOffset())/
+				    hcalCell.phiBinWidth()) + 1;
 	  // convert to the convention of numbering 1,3,5, in 36 phi bins
-	  phibin = (phibin-1)*(hcalCells_[i].unitPhi()) + 1;
+	  phibin = (phibin-1)*(hcalCell.unitPhi()) + 1;
 	}
 
 	int dbin   = 1;
@@ -120,9 +130,9 @@ HcalDDDGeometry::getClosestCell(const GlobalPoint& r) const
 	  break;
 	} else {
 	  double rz = z;
-	  if (hcalCells_[i].depthType()) rz = radius;
-	  if (rz < hcalCells_[i].depthMax()) {
-	    dbin   = hcalCells_[i].depthSegment();
+	  if (hcalCell.depthType()) rz = radius;
+	  if (rz < hcalCell.depthMax()) {
+	    dbin   = hcalCell.depthSegment();
 	    bestId = HcalDetId(bc, etabin, phibin, dbin);
 	    break;
 	  }
@@ -141,8 +151,8 @@ HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
 
   hcalCells_.insert(hcalCells_.end(), cells.begin(), cells.end());
   int num = static_cast<int>(hcalCells_.size());
-  for (unsigned int i=0; i<cells.size(); i++) {
-    if (cells[i].etaMax() > etaMax_ ) etaMax_ = cells[i].etaMax();
+  for (const auto & cell : cells) {
+    if (cell.etaMax() > etaMax_ ) etaMax_ = cell.etaMax();
   }
 
   LogDebug("HCalGeom") << "HcalDDDGeometry::insertCell " << cells.size()
@@ -152,7 +162,7 @@ HcalDDDGeometry::insertCell(std::vector<HcalCellType> const & cells){
 }
 
 void
-HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
+HcalDDDGeometry::newCellImpl( const GlobalPoint& f1 ,
 			  const GlobalPoint& f2 ,
 			  const GlobalPoint& f3 ,
 			  const CCGFloat*    parm ,
@@ -165,37 +175,49 @@ HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
 
   HcalDetId hId(detId);
 
-  if( hId.subdet()==HcalBarrel )
-  {
+  if( hId.subdet()==HcalBarrel ) {
     m_hbCellVec[ din ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-  }
-  else
-  {
-    if( hId.subdet()==HcalEndcap )
-    {
+  } else {
+    if( hId.subdet()==HcalEndcap ) {
       const unsigned int index ( din - m_hbCellVec.size() ) ;
       m_heCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-    }
-    else
-    {
-      if( hId.subdet()==HcalOuter )
-      {
+    } else  {
+      if( hId.subdet()==HcalOuter )  {
 	const unsigned int index ( din 
 				   - m_hbCellVec.size() 
 				   - m_heCellVec.size() ) ;
 	m_hoCellVec[ index ] = IdealObliquePrism( f1, cornersMgr(), parm ) ;
-      }
-      else
-      { // assuming HcalForward here!
+      } else { // assuming HcalForward here!
 	const unsigned int index ( din 
 				   - m_hbCellVec.size() 
 				   - m_heCellVec.size() 
 				   - m_hoCellVec.size() ) ;
-	m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm ) ;
+	m_hfCellVec[ index ] = IdealZPrism( f1, cornersMgr(), parm, hId.depth()==1 ? IdealZPrism::EM : IdealZPrism::HADR ) ;
       }
     }
   }
-  addValidID( detId ) ;
+}
+
+void
+HcalDDDGeometry::newCell( const GlobalPoint& f1 ,
+              const GlobalPoint& f2 ,
+              const GlobalPoint& f3 ,
+              const CCGFloat*    parm ,
+              const DetId&       detId   )
+{
+  newCellImpl(f1,f2,f3,parm,detId);
+  addValidID( detId );
+}
+
+void
+HcalDDDGeometry::newCellFast( const GlobalPoint& f1 ,
+              const GlobalPoint& f2 ,
+              const GlobalPoint& f3 ,
+              const CCGFloat*    parm ,
+              const DetId&       detId   )
+{
+  newCellImpl(f1,f2,f3,parm,detId);
+  m_validIds.push_back(detId);
 }
 
 const CaloCellGeometry* 
@@ -242,4 +264,12 @@ HcalDDDGeometry::cellGeomPtr( uint32_t din ) const
     }
   }
   return ( 0 == cell || 0 == cell->param() ? 0 : cell ) ;
+}
+
+void HcalDDDGeometry::increaseReserve(unsigned int extra) {
+  m_validIds.reserve(m_validIds.size()+extra);
+}
+
+void HcalDDDGeometry::sortValidIds() {
+  std::sort(m_validIds.begin(),m_validIds.end());
 }

@@ -17,20 +17,25 @@
 #include "FWCore/Framework/interface/one/OutputModuleBase.h"
 
 #include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ThinnedAssociation.h"
 #include "DataFormats/Provenance/interface/BranchDescription.h"
 #include "DataFormats/Provenance/interface/BranchKey.h"
-#include "DataFormats/Provenance/interface/ParentageRegistry.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
+#include "FWCore/Framework/interface/EventForOutput.h"
 #include "FWCore/Framework/interface/EventPrincipal.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
 #include "FWCore/Framework/interface/OutputModuleDescription.h"
 #include "FWCore/Framework/interface/TriggerNamesService.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
+#include "FWCore/Framework/src/PreallocationConfiguration.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/DebugMacros.h"
-
+#include "FWCore/Utilities/interface/DictionaryTools.h"
 
 namespace edm {
   namespace one {
@@ -51,32 +56,39 @@ namespace edm {
     droppedBranchIDToKeptBranchID_(),
     branchIDLists_(new BranchIDLists),
     origBranchIDLists_(nullptr),
-    branchParents_(),
-    branchChildren_() {
+    thinnedAssociationsHelper_(new ThinnedAssociationsHelper) {
       
       hasNewlyDroppedBranch_.fill(false);
       
       Service<service::TriggerNamesService> tns;
       process_name_ = tns->getProcessName();
       
-      ParameterSet selectevents =
+      selectEvents_ =
       pset.getUntrackedParameterSet("SelectEvents", ParameterSet());
       
-      selectevents.registerIt(); // Just in case this PSet is not registered
+      selectEvents_.registerIt(); // Just in case this PSet is not registered
       
-      selector_config_id_ = selectevents.id();
-      wantAllEvents_ = detail::configureEventSelector(selectevents,
+      selector_config_id_ = selectEvents_.id();
+      
+      //need to set wantAllEvents_ in constructor
+      // we will make the remaining selectors once we know how many streams
+      selectors_.resize(1);
+      wantAllEvents_ = detail::configureEventSelector(selectEvents_,
                                                       process_name_,
                                                       getAllTriggerNames(),
-                                                      selectors_);
+                                                      selectors_[0],
+                                                      consumesCollector());
+
     }
     
     void OutputModuleBase::configure(OutputModuleDescription const& desc) {
       remainingEvents_ = maxEvents_ = desc.maxEvents_;
       origBranchIDLists_ = desc.branchIDLists_;
+      subProcessParentageHelper_ = desc.subProcessParentageHelper_;
     }
     
-    void OutputModuleBase::selectProducts(ProductRegistry const& preg) {
+    void OutputModuleBase::selectProducts(ProductRegistry const& preg,
+                                          ThinnedAssociationsHelper const& thinnedAssociationsHelper) {
       if(productSelector_.initialized()) return;
       productSelector_.initialize(productSelectorRules_, preg.allBranchDescriptions());
       
@@ -85,7 +97,9 @@ namespace edm {
       // for more information.
       
       std::map<BranchID, BranchDescription const*> trueBranchIDToKeptBranchDesc;
-      
+      std::vector<BranchDescription const*> associationDescriptions;
+      std::set<BranchID> keptProductsInEvent;
+
       for(auto const& it : preg.productList()) {
         BranchDescription const& desc = it.second;
         if(desc.transient()) {
@@ -93,79 +107,115 @@ namespace edm {
         } else if(!desc.present() && !desc.produced()) {
           // else if the branch containing the product has been previously dropped,
           // output nothing
+        } else if(desc.unwrappedType() == typeid(ThinnedAssociation)) {
+          associationDescriptions.push_back(&desc);
         } else if(selected(desc)) {
-          // else if the branch has been selected, put it in the list of selected branches.
-          if(desc.produced()) {
-            // First we check if an equivalent branch has already been selected due to an EDAlias.
-            // We only need the check for products produced in this process.
-            BranchID const& trueBranchID = desc.originalBranchID();
-            std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(trueBranchID);
-            if(iter != trueBranchIDToKeptBranchDesc.end()) {
-              throw edm::Exception(errors::Configuration, "Duplicate Output Selection")
-              << "Two (or more) equivalent branches have been selected for output.\n"
-              << "#1: " << BranchKey(desc) << "\n"
-              << "#2: " << BranchKey(*iter->second) << "\n"
-              << "Please drop at least one of them.\n";
-            }
-            trueBranchIDToKeptBranchDesc.insert(std::make_pair(trueBranchID, &desc));
-          }
-          switch (desc.branchType()) {
-            case InEvent:
-            {
-              consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                       InputTag{desc.moduleLabel(),
-                         desc.productInstanceName(),
-                         desc.processName()});
-              break;
-            }
-            case InLumi:
-            {
-              consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                               InputTag(desc.moduleLabel(),
-                                        desc.productInstanceName(),
-                                        desc.processName()));
-              break;
-            }
-            case InRun:
-            {
-              consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
-                              InputTag(desc.moduleLabel(),
-                                       desc.productInstanceName(),
-                                       desc.processName()));
-              break;
-            }
-            default:
-              assert(false);
-              break;
-          }
-          // Now put it in the list of selected branches.
-          keptProducts_[desc.branchType()].push_back(&desc);
+          keepThisBranch(desc, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
         } else {
           // otherwise, output nothing,
           // and mark the fact that there is a newly dropped branch of this type.
           hasNewlyDroppedBranch_[desc.branchType()] = true;
         }
       }
+
+      thinnedAssociationsHelper.selectAssociationProducts(associationDescriptions,
+                                                          keptProductsInEvent,
+                                                          keepAssociation_);
+
+      for(auto association : associationDescriptions) {
+        if(keepAssociation_[association->branchID()]) {
+          keepThisBranch(*association, trueBranchIDToKeptBranchDesc, keptProductsInEvent);
+        } else {
+          hasNewlyDroppedBranch_[association->branchType()] = true;
+        }
+      }
+
       // Now fill in a mapping needed in the case that a branch was dropped while its EDAlias was kept.
-      for(auto const& it : preg.productList()) {
-        BranchDescription const& desc = it.second;
-        if(!desc.produced() || desc.isAlias()) continue;
-        BranchID const& branchID = desc.branchID();
-        std::map<BranchID, BranchDescription const*>::const_iterator iter = trueBranchIDToKeptBranchDesc.find(branchID);
-        if(iter != trueBranchIDToKeptBranchDesc.end()) {
-          // This branch, produced in this process, or an alias of it, was persisted.
-          BranchID const& keptBranchID = iter->second->branchID();
-          if(keptBranchID != branchID) {
-            // An EDAlias branch was persisted.
-            droppedBranchIDToKeptBranchID_.insert(std::make_pair(branchID.id(), keptBranchID.id()));
+      ProductSelector::fillDroppedToKept(preg, trueBranchIDToKeptBranchDesc, droppedBranchIDToKeptBranchID_);
+
+      thinnedAssociationsHelper_->updateFromParentProcess(thinnedAssociationsHelper, keepAssociation_, droppedBranchIDToKeptBranchID_);
+    }
+
+    void OutputModuleBase::keepThisBranch(BranchDescription const& desc,
+                        std::map<BranchID, BranchDescription const*>& trueBranchIDToKeptBranchDesc,
+                        std::set<BranchID>& keptProductsInEvent) {
+
+      ProductSelector::checkForDuplicateKeptBranch(desc,
+                                                   trueBranchIDToKeptBranchDesc);
+
+      EDGetToken token;
+
+      std::vector<std::string> missingDictionaries;
+      if (!checkDictionary(missingDictionaries, desc.className(), desc.unwrappedType())) {
+        std::string context("Calling OutputModuleBase::keepThisBranch, checking dictionaries for kept types");
+        throwMissingDictionariesException(missingDictionaries, context);
+      }
+
+      switch (desc.branchType()) {
+      case InEvent:
+        {
+          if(desc.produced()) {
+            keptProductsInEvent.insert(desc.originalBranchID());
+          } else {
+            keptProductsInEvent.insert(desc.branchID());
           }
+          token = consumes(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                       InputTag{desc.moduleLabel(),
+                       desc.productInstanceName(),
+                       desc.processName()});
+          break;
+        }
+      case InLumi:
+        {
+          token = consumes<InLumi>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                    InputTag(desc.moduleLabel(),
+                                    desc.productInstanceName(),
+                                    desc.processName()));
+          break;
+        }
+      case InRun:
+        {
+          token = consumes<InRun>(TypeToGet{desc.unwrappedTypeID(),PRODUCT_TYPE},
+                                   InputTag(desc.moduleLabel(),
+                                   desc.productInstanceName(),
+                                   desc.processName()));
+          break;
+        }
+      default:
+        assert(false);
+        break;
+      }
+      // Now put it in the list of selected branches.
+      keptProducts_[desc.branchType()].push_back(std::make_pair(&desc, token));
+    }
+
+    OutputModuleBase::~OutputModuleBase() { }
+    
+    SharedResourcesAcquirer OutputModuleBase::createAcquirer() {
+      return SharedResourcesAcquirer{
+        std::vector<std::shared_ptr<SerialTaskQueue>>(1, std::make_shared<SerialTaskQueue>())};
+    }
+    
+    void OutputModuleBase::doPreallocate(PreallocationConfiguration const& iPC) {
+      auto nstreams = iPC.numberOfStreams();
+      selectors_.resize(nstreams);
+      
+      bool seenFirst = false;
+      for(auto& s : selectors_) {
+        if(seenFirst) {
+          detail::configureEventSelector(selectEvents_,
+                                         process_name_,
+                                         getAllTriggerNames(),
+                                         s,
+                                         consumesCollector());
+        } else {
+          seenFirst = true;
         }
       }
     }
-    
-    OutputModuleBase::~OutputModuleBase() { }
-    
+
     void OutputModuleBase::doBeginJob() {
+      resourcesAcquirer_ = createAcquirer();
       this->beginJob();
     }
     
@@ -173,24 +223,26 @@ namespace edm {
       endJob();
     }
     
-    
-    Trig OutputModuleBase::getTriggerResults(EventPrincipal const& ep,
-                                             ModuleCallingContext const* mcc) const {
-      return selectors_.getOneTriggerResults(ep, mcc);  }
+    bool OutputModuleBase::prePrefetchSelection(StreamID id, EventPrincipal const& ep, ModuleCallingContext const* mcc) {
+      if(wantAllEvents_) return true;
+      auto& s = selectors_[id.value()];
+      EventForOutput e(ep, moduleDescription_, mcc);
+      e.setConsumer(this);
+      return s.wantEvent(e);
+    }
     
     bool
     OutputModuleBase::doEvent(EventPrincipal const& ep,
                               EventSetup const&,
+                              ActivityRegistry* act,
                               ModuleCallingContext const* mcc) {
-      detail::TRBESSentry products_sentry(selectors_);
       
-      if(!wantAllEvents_) {
-        if(!selectors_.wantEvent(ep, mcc)) {
-          return true;
-        }
+      {
+        EventForOutput e(ep, moduleDescription_, mcc);
+        e.setConsumer(this);
+        EventSignalsSentry sentry(act,mcc);
+        write(e);
       }
-      write(ep, mcc);
-      updateBranchParents(ep);
       if(remainingEvents_ > 0) {
         --remainingEvents_;
       }
@@ -201,7 +253,9 @@ namespace edm {
     OutputModuleBase::doBeginRun(RunPrincipal const& rp,
                                  EventSetup const&,
                                  ModuleCallingContext const* mcc) {
-      doBeginRun_(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc);
+      r.setConsumer(this);
+      doBeginRun_(r);
       return true;
     }
     
@@ -209,21 +263,27 @@ namespace edm {
     OutputModuleBase::doEndRun(RunPrincipal const& rp,
                                EventSetup const&,
                                ModuleCallingContext const* mcc) {
-      doEndRun_(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc);
+      r.setConsumer(this);
+      doEndRun_(r);
       return true;
     }
     
     void
     OutputModuleBase::doWriteRun(RunPrincipal const& rp,
                                  ModuleCallingContext const* mcc) {
-      writeRun(rp, mcc);
+      RunForOutput r(rp, moduleDescription_, mcc);
+      r.setConsumer(this);
+      writeRun(r);
     }
     
     bool
     OutputModuleBase::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                              EventSetup const&,
                                              ModuleCallingContext const* mcc) {
-      doBeginLuminosityBlock_(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      lb.setConsumer(this);
+      doBeginLuminosityBlock_(lb);
       return true;
     }
     
@@ -231,13 +291,18 @@ namespace edm {
     OutputModuleBase::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                            EventSetup const&,
                                            ModuleCallingContext const* mcc) {
-      doEndLuminosityBlock_(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      lb.setConsumer(this);
+      doEndLuminosityBlock_(lb);
+
       return true;
     }
     
     void OutputModuleBase::doWriteLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                                   ModuleCallingContext const* mcc) {
-      writeLuminosityBlock(lbp, mcc);
+      LuminosityBlockForOutput lb(lbp, moduleDescription_, mcc);
+      lb.setConsumer(this);
+      writeLuminosityBlock(lb);
     }
     
     void OutputModuleBase::doOpenFile(FileBlock const& fb) {
@@ -252,26 +317,9 @@ namespace edm {
       doRespondToCloseInputFile_(fb);
     }
     
-    void
-    OutputModuleBase::doPreForkReleaseResources() {
-      //doPreForkReleaseResources();
-    }
-    
-    void
-    OutputModuleBase::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-      //postForkReacquireResources_(iChildIndex, iNumberOfChildren);
-    }
-    
-    void OutputModuleBase::maybeOpenFile() {
-      if(!isFileOpen()) reallyOpenFile();
-    }
-    
     void OutputModuleBase::doCloseFile() {
       if(isFileOpen()) {
-        fillDependencyGraph();
         reallyCloseFile();
-        branchParents_.clear();
-        branchChildren_.clear();
       }
     }
     
@@ -279,7 +327,7 @@ namespace edm {
     }
     
     BranchIDLists const*
-    OutputModuleBase::branchIDLists() const {
+    OutputModuleBase::branchIDLists() {
       if(!droppedBranchIDToKeptBranchID_.empty()) {
         // Make a private copy of the BranchIDLists.
         *branchIDLists_ = *origBranchIDLists_;
@@ -298,6 +346,11 @@ namespace edm {
       return origBranchIDLists_;
     }
     
+    ThinnedAssociationsHelper const*
+    OutputModuleBase::thinnedAssociationsHelper() const {
+      return thinnedAssociationsHelper_.get();
+    }
+
     ModuleDescription const&
     OutputModuleBase::description() const {
       return moduleDescription_;
@@ -340,41 +393,5 @@ namespace edm {
                                                                 outputModulePathPositions,
                                                                 anyProductProduced);
     }
-    
-    void
-    OutputModuleBase::updateBranchParents(EventPrincipal const& ep) {
-      for(EventPrincipal::const_iterator i = ep.begin(), iEnd = ep.end(); i != iEnd; ++i) {
-        if((*i) && (*i)->productProvenancePtr() != 0) {
-          BranchID const& bid = (*i)->branchDescription().branchID();
-          BranchParents::iterator it = branchParents_.find(bid);
-          if(it == branchParents_.end()) {
-            it = branchParents_.insert(std::make_pair(bid, std::set<ParentageID>())).first;
-          }
-          it->second.insert((*i)->productProvenancePtr()->parentageID());
-          branchChildren_.insertEmpty(bid);
-        }
-      }
-    }
-    
-    void
-    OutputModuleBase::fillDependencyGraph() {
-      for(BranchParents::const_iterator i = branchParents_.begin(), iEnd = branchParents_.end();
-          i != iEnd; ++i) {
-        BranchID const& child = i->first;
-        std::set<ParentageID> const& eIds = i->second;
-        for(std::set<ParentageID>::const_iterator it = eIds.begin(), itEnd = eIds.end();
-            it != itEnd; ++it) {
-          Parentage entryDesc;
-          ParentageRegistry::instance()->getMapped(*it, entryDesc);
-          std::vector<BranchID> const& parents = entryDesc.parents();
-          for(std::vector<BranchID>::const_iterator j = parents.begin(), jEnd = parents.end();
-              j != jEnd; ++j) {
-            branchChildren_.insertChild(*j, child);
-          }
-        }
-      }
-    }
-    
-    
   }
 }

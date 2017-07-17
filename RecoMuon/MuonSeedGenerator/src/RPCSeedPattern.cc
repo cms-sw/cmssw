@@ -24,7 +24,7 @@
 
 #include "gsl/gsl_statistics.h"
 #include "TH1F.h"
-#include "math.h"
+#include <cmath>
 
 using namespace std;
 using namespace edm;

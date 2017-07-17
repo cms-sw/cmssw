@@ -5,6 +5,7 @@
 #include <DetectorDescription/Core/src/Cons.h>
 #include <DetectorDescription/Core/src/Ellipsoid.h>
 #include <DetectorDescription/Core/src/EllipticalTube.h>
+#include <DetectorDescription/Core/src/ExtrudedPolygon.h>
 #include <DetectorDescription/Core/src/Orb.h>
 #include <DetectorDescription/Core/src/Parallelepiped.h>
 #include <DetectorDescription/Core/src/Polycone.h>
@@ -13,6 +14,7 @@
 #include <DetectorDescription/Core/src/Torus.h>
 #include <DetectorDescription/Core/src/Trap.h>
 #include <DetectorDescription/Core/src/Tubs.h>
+#include <DetectorDescription/Core/src/CutTubs.h>
 
 #include <DataFormats/GeometryVector/interface/Pi.h>
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
@@ -29,6 +31,8 @@
 #include <G4Trap.hh>
 #include <G4Trd.hh>
 #include <G4Tubs.hh>
+#include <G4CutTubs.hh>
+#include <G4ExtrudedSolid.hh>
 #include <string>
 
 //
@@ -308,7 +312,13 @@ doPolycone2( const std::string& name, double phiStart, double phiTotal,
 	     const std::vector<double> & z,
 	     const std::vector<double> & r )
 {  
-  G4Polycone g4( name, phiStart, phiTotal, z.size(), &z[0], &r[0] );
+  std::cout << "### doPolycone_RZ: " << "phi1=" << phiStart/deg 
+  	    << " phi2=" << phiTotal/deg 
+  	    << " N= " << z.size() << std::endl;
+  for(size_t i=0; i<z.size(); ++i) { 
+    std::cout << " R= " << r[i] << " Z= " << z[i] << std::endl;
+  }
+  G4Polycone g4( name, phiStart, phiTotal, z.size(), &r[0], &z[0] );
   DDI::Polycone dd( phiStart, phiTotal, z, r );
   DDPolycone dds = DDSolidFactory::polycone( name, phiStart, phiTotal, z, r );
   dd.stream(std::cout);
@@ -358,7 +368,7 @@ doPolyhedra2( const std::string& name, int sides, double phiStart, double phiTot
 	      const std::vector<double> & z,
 	      const std::vector<double> & r )
 {  
-  G4Polyhedra g4( name, phiStart, phiTotal, sides, z.size(), &z[0], &r[0] );
+  G4Polyhedra g4( name, phiStart, phiTotal, sides, z.size(), &r[0], &z[0] );
   DDI::Polyhedra dd( sides, phiStart, phiTotal, z, r );
   DDPolyhedra dds = DDSolidFactory::polyhedra( name, sides, phiStart, phiTotal, z, r );
   dd.stream(std::cout);
@@ -523,6 +533,72 @@ doEllipsoid( const std::string& name, double xSemiAxis, double ySemiAxis,
 // 	      G4double  halfzlen,
 // 	      G4double  dphi)
 
+//
+// 24. Cylindrical Cut Section or Cut Tube:
+//
+// G4CutTubs(const G4String& pName,                        
+//           G4double  pRMin,
+//           G4double  pRMax,
+//           G4double  pDz,
+//           G4double  pSPhi,
+//           G4double  pDPhi,
+//           G4ThreeVector pLowNorm,
+//           G4ThreeVector pHighNorm)
+void
+doCutTubs( const std::string& name, double rIn, double rOut, 
+	   double zhalf, double startPhi, double deltaPhi,
+	   std::array<double, 3> lowNorm, std::array<double, 3> highNorm )
+{
+  G4CutTubs g4( name, rIn, rOut, zhalf, startPhi, deltaPhi,
+		G4ThreeVector( lowNorm[0], lowNorm[1], lowNorm[2]),
+		G4ThreeVector( highNorm[0], highNorm[1], highNorm[2]));
+  DDI::CutTubs dd( zhalf, rIn, rOut, startPhi, deltaPhi,
+		   lowNorm[0], lowNorm[1], lowNorm[2],
+		   highNorm[0], highNorm[1], highNorm[2] );
+  DDCutTubs dds = DDSolidFactory::cuttubs( name, zhalf, rIn, rOut, startPhi, deltaPhi,
+					   lowNorm[0], lowNorm[1], lowNorm[2],
+					   highNorm[0], highNorm[1], highNorm[2] );
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
+//
+// 25. Extruded Polygon:
+//
+// The extrusion of an arbitrary polygon (extruded solid)
+// with fixed outline in the defined Z sections can be defined as follows
+// (in a general way, or as special construct with two Z sections):
+//
+//    G4ExtrudedSolid(const G4String& pName,
+//                    std::vector<G4TwoVector> polygon,
+//                    std::vector<ZSection> zsections)
+//
+void
+doExtrudedPgon( const std::string& name, const std::vector<double> x,
+		const std::vector<double> y, const std::vector<double> z,
+		const std::vector<double> zx, const std::vector<double> zy,
+		const std::vector<double> zscale )
+{
+  std::vector<G4TwoVector> polygon;
+  std::vector<G4ExtrudedSolid::ZSection> zsections;
+  for( unsigned int it = 0; it < x.size(); ++it )
+    polygon.emplace_back( x[it], y[it] );
+  for( unsigned int it = 0; it < z.size(); ++it )
+    zsections.emplace_back( z[it], G4TwoVector(zx[it], zy[it]), zscale[it] );
+  G4ExtrudedSolid g4( name, polygon, zsections );
+  DDI::ExtrudedPolygon dd( x, y, z, zx, zy, zscale );
+  DDExtrudedPolygon dds = DDSolidFactory::extrudedpolygon( name,  x, y, z, zx, zy, zscale );
+
+  dd.stream(std::cout);
+  std::cout << std::endl;
+  std::cout << "\tg4 volume = " << g4.GetCubicVolume()/cm3 <<" cm3" << std::endl;
+  std::cout << "\tdd volume = " << dd.volume()/cm3 << " cm3"<<  std::endl;
+  std::cout << "\tDD Information: " << dds << " vol= " << dds.volume() << std::endl;
+}
+
 int
 main( int argc, char *argv[] )
 {
@@ -653,7 +729,7 @@ main( int argc, char *argv[] )
   doPolycone1( name, phiStart, phiTotal, z, rInner, rOuter );
   std::cout << std::endl;
 
-  doPolycone2( name, phiStart, phiTotal, z, rOuter );
+  doPolycone2( name, phiStart, phiTotal, z, rOuter);
   std::cout << std::endl;
 
 //
@@ -739,6 +815,38 @@ main( int argc, char *argv[] )
 //
 // 23. Tube Section Twisted along Its Axis: 
 //   
+
+//
+// 24. Cylindrical Cut Section or Cut Tube:
+//
+  std::cout << "\n\nCutTub tests\n" << std::endl;
+  std::array<double, 3> lowNorm = {{0, -0.7, -0.71}};
+  std::array<double, 3> highNorm = {{ 0.7, 0, 0.71 }};
+  
+  doCutTubs( name, rIn, rOut, zhalf, startPhi, deltaPhi, lowNorm, highNorm );
+  std::cout << std::endl;
+
+//
+// 25. Extruded Polygon:
+//
+// The extrusion of an arbitrary polygon (extruded solid)
+// with fixed outline in the defined Z sections can be defined as follows
+// (in a general way, or as special construct with two Z sections):
+//
+//    G4ExtrudedSolid(const G4String& pName,
+//                    std::vector<G4TwoVector> polygon,
+//                    std::vector<ZSection> zsections)
+//
+  std::cout << "\n\nExtruded Polygon tests\n" << std::endl;
+  std::vector<double> x = { -300, -300, 300, 300, 150, 150, -150, -150 };
+  std::vector<double> y = { -300, 300, 300, -300, -300, 150, 150, -300 };
+  std::vector<double> epz = { -600, -150, 100, 600 };
+  std::vector<double> zx = { 0, 0, 0, 0 };
+  std::vector<double> zy = { 300, -300, 0, 300 }; 
+  std::vector<double> zscale = { 8, 10, 6, 12 };
+  
+  doExtrudedPgon( name, x, y, epz, zx, zy, zscale );
+  std::cout << std::endl;
   
   return EXIT_SUCCESS;
 }

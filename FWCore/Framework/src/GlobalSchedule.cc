@@ -1,6 +1,8 @@
 #include "FWCore/Framework/src/GlobalSchedule.h"
 #include "FWCore/Framework/src/WorkerMaker.h"
 #include "FWCore/Framework/src/TriggerResultInserter.h"
+#include "FWCore/Framework/src/PathStatusInserter.h"
+#include "FWCore/Framework/src/EndPathStatusInserter.h"
 
 #include "DataFormats/Provenance/interface/ProcessConfiguration.h"
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
@@ -16,15 +18,17 @@
 #include <map>
 
 namespace edm {
-  GlobalSchedule::GlobalSchedule(TriggerResultInserter* inserter,
-                                 boost::shared_ptr<ModuleRegistry> modReg,
+  GlobalSchedule::GlobalSchedule(std::shared_ptr<TriggerResultInserter> inserter,
+                                 std::vector<edm::propagate_const<std::shared_ptr<PathStatusInserter>>>& pathStatusInserters,
+                                 std::vector<edm::propagate_const<std::shared_ptr<EndPathStatusInserter>>>& endPathStatusInserters,
+                                 std::shared_ptr<ModuleRegistry> modReg,
                                  std::vector<std::string> const& iModulesToUse,
                                  ParameterSet& proc_pset,
                                  ProductRegistry& pregistry,
                                  PreallocationConfiguration const& prealloc,
                                  ExceptionToActionTable const& actions,
-                                 boost::shared_ptr<ActivityRegistry> areg,
-                                 boost::shared_ptr<ProcessConfiguration> processConfiguration,
+                                 std::shared_ptr<ActivityRegistry> areg,
+                                 std::shared_ptr<ProcessConfiguration> processConfiguration,
                                  ProcessContext const* processContext) :
     workerManager_(modReg,areg,actions),
     actReg_(areg),
@@ -33,26 +37,45 @@ namespace edm {
     for (auto const& moduleLabel : iModulesToUse) {
       bool isTracked;
       ParameterSet* modpset = proc_pset.getPSetForUpdate(moduleLabel, isTracked);
-      if (modpset == 0) {
-        throw Exception(errors::Configuration) <<
-        "The unknown module label \"" << moduleLabel <<
-        "\"\n please check spelling";
-      }
-      assert(isTracked);
-      
-      //side effect keeps this module around
-      addToAllWorkers(workerManager_.getWorker(*modpset, pregistry, &prealloc,processConfiguration, moduleLabel));
+      if (modpset != nullptr) { // It will be null for PathStatusInserters, it should
+                                // be impossible to be null for anything else
+        assert(isTracked);
 
+        //side effect keeps this module around
+        addToAllWorkers(workerManager_.getWorker(*modpset, pregistry, &prealloc,processConfiguration, moduleLabel));
+      }
     }
     if(inserter) {
-      results_inserter_.reset(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions));
+      results_inserter_ = WorkerPtr(new edm::WorkerT<TriggerResultInserter::ModuleType>(inserter, inserter->moduleDescription(), &actions)); // propagate_const<T> has no reset() function
+      inserter->doPreallocate(prealloc);
       results_inserter_->setActivityRegistry(actReg_);
       addToAllWorkers(results_inserter_.get());
     }
 
+    for(auto & pathStatusInserter : pathStatusInserters) {
+      std::shared_ptr<PathStatusInserter> inserterPtr = get_underlying(pathStatusInserter);
+      WorkerPtr workerPtr(new edm::WorkerT<PathStatusInserter::ModuleType>(inserterPtr,
+                                                                           inserterPtr->moduleDescription(),
+                                                                           &actions));
+      pathStatusInserterWorkers_.emplace_back(workerPtr);
+      inserterPtr->doPreallocate(prealloc);
+      workerPtr->setActivityRegistry(actReg_);
+      addToAllWorkers(workerPtr.get());
+    }
+
+    for(auto & endPathStatusInserter : endPathStatusInserters) {
+      std::shared_ptr<EndPathStatusInserter> inserterPtr = get_underlying(endPathStatusInserter);
+      WorkerPtr workerPtr(new edm::WorkerT<EndPathStatusInserter::ModuleType>(inserterPtr,
+                                                                              inserterPtr->moduleDescription(),
+                                                                              &actions));
+      endPathStatusInserterWorkers_.emplace_back(workerPtr);
+      inserterPtr->doPreallocate(prealloc);
+      workerPtr->setActivityRegistry(actReg_);
+      addToAllWorkers(workerPtr.get());
+    }
+
   } // GlobalSchedule::GlobalSchedule
 
-  
   void GlobalSchedule::endJob(ExceptionCollector & collector) {
     workerManager_.endJob(collector);
   }
@@ -92,7 +115,7 @@ namespace edm {
 
   void
   GlobalSchedule::addToAllWorkers(Worker* w) {
-    workerManager_.addToAllWorkers(w, false);
+    workerManager_.addToAllWorkers(w);
   }
 
 }

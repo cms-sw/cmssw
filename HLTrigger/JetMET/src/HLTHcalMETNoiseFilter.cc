@@ -50,6 +50,7 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig) :
     minRecHitE_(iConfig.getParameter<double>("minRecHitE")),
     minLowHitE_(iConfig.getParameter<double>("minLowHitE")),
     minHighHitE_(iConfig.getParameter<double>("minHighHitE")),
+    minR45HitE_(5.0),
     TS4TS5EnergyThreshold_(iConfig.getParameter<double>("TS4TS5EnergyThreshold"))
 {
 
@@ -66,11 +67,14 @@ HLTHcalMETNoiseFilter::HLTHcalMETNoiseFilter(const edm::ParameterSet& iConfig) :
      TS4TS5LowerCut_.push_back(std::pair<double, double>(TS4TS5LowerThresholdTemp[i], TS4TS5LowerCutTemp[i]));
   sort(TS4TS5LowerCut_.begin(), TS4TS5LowerCut_.end());
 
+  if(iConfig.existsAs<double>("minR45HitE"))
+     minR45HitE_ = iConfig.getParameter<double>("minR45HitE");
+
   m_theHcalNoiseToken = consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_);
 }
 
 
-HLTHcalMETNoiseFilter::~HLTHcalMETNoiseFilter(){}
+HLTHcalMETNoiseFilter::~HLTHcalMETNoiseFilter()= default;
 
 void
 HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -93,6 +97,7 @@ HLTHcalMETNoiseFilter::fillDescriptions(edm::ConfigurationDescriptions& descript
   desc.add<double>("minRecHitE",1.5);
   desc.add<double>("minLowHitE",10.0);
   desc.add<double>("minHighHitE",25.0);
+  desc.add<double>("minR45HitE",5.0);
   desc.add<double>("TS4TS5EnergyThreshold",50.0);
 
   double TS4TS5UpperThresholdArray[5] = {70, 90, 100, 400, 4000 };
@@ -136,17 +141,16 @@ bool HLTHcalMETNoiseFilter::filter(edm::Event& iEvent, const edm::EventSetup& iS
 
   // create a sorted set of the RBXs, ordered by energy
   noisedataset_t data;
-  for(HcalNoiseRBXCollection::const_iterator it=rbxs_h->begin(); it!=rbxs_h->end(); ++it) {
-    const HcalNoiseRBX &rbx=(*it);
+  for(auto const & rbx : *rbxs_h) {
     CommonHcalNoiseRBXData d(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
-			     TS4TS5UpperCut_, TS4TS5LowerCut_);
+			     TS4TS5UpperCut_, TS4TS5LowerCut_, minR45HitE_);
     data.insert(d);
   }
 
   // data is now sorted by RBX energy
   // only consider top N=numRBXsToConsider_ energy RBXs
   int cntr=0;
-  for(noisedataset_t::const_iterator it=data.begin();
+  for(auto it=data.begin();
       it!=data.end() && cntr<numRBXsToConsider_;
       ++it, ++cntr) {
 

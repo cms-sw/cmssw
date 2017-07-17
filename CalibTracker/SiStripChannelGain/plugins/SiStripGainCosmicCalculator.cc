@@ -9,7 +9,7 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h"
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
@@ -29,7 +29,7 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 //#include "DQM/SiStripCommon/interface/SiStripGenerateKey.h"
 
@@ -71,7 +71,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
 {
    //Retrieve tracker topology from geometry
    edm::ESHandle<TrackerTopology> tTopoHandle;
-   iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+   iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
    tTopo = tTopoHandle.product();
  
    eventSetupCopy_ = &iSetup;
@@ -105,8 +105,8 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
    // get tracker geometry and find nr. of apv pairs for each active detector 
    edm::ESHandle<TrackerGeometry> tkGeom; iSetup.get<TrackerDigiGeometryRecord>().get( tkGeom );     
    for(TrackerGeometry::DetContainer::const_iterator it = tkGeom->dets().begin(); it != tkGeom->dets().end(); it++){ // loop over detector modules
-     if( dynamic_cast<StripGeomDetUnit*>((*it))!=0){
-       uint32_t detid=((*it)->geographicalId()).rawId();
+     if( dynamic_cast<const StripGeomDetUnit*>((*it))!=0){
+       uint32_t detid= ((*it)->geographicalId()).rawId();
        // get thickness for all detector modules, not just for active, this is strange 
        double module_thickness = (*it)->surface().bounds().thickness(); // get thickness of detector from GeomDet (DetContainer == vector<GeomDet*>)
        thickness_map.insert(std::make_pair(detid,module_thickness));
@@ -126,7 +126,7 @@ void SiStripGainCosmicCalculator::algoBeginJob(const edm::EventSetup& iSetup)
        }
        //
        if(is_active_detector && (!exclude_this_detid)){ // check whether is active detector and that should not be excluded
-	 const StripTopology& p = dynamic_cast<StripGeomDetUnit*>((*it))->specificTopology();
+	 const StripTopology& p = dynamic_cast<const StripGeomDetUnit*>((*it))->specificTopology();
 	 unsigned short NAPVPairs = p.nstrips()/256;
          if( NAPVPairs<2 || NAPVPairs>3 ) {
            edm::LogError("SiStripGainCosmicCalculator")<<"Problem with Number of strips in detector: "<<p.nstrips()<<" Exiting program";
@@ -180,9 +180,8 @@ void SiStripGainCosmicCalculator::algoAnalyze(const edm::Event & iEvent, const e
       if(sistripsimplehit){
         ((TH1F*) HlistOtherHistos->FindObject("SiStripRecHitType"))->Fill(1.);
         const SiStripRecHit2D::ClusterRef & cluster=sistripsimplehit->cluster();
-        const std::vector<uint8_t>& ampls = cluster->amplitudes();
-//        const std::vector<uint16_t>& ampls = cluster->amplitudes();
-        uint32_t thedetid  = cluster->geographicalId();
+        const auto & ampls = cluster->amplitudes();
+        uint32_t thedetid  = 0; // is zero since long time cluster->geographicalId();
         double module_width = moduleWidth(thedetid, &iSetup);
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_cm"))->Fill(local_position.x());
         ((TH1F*) HlistOtherHistos->FindObject("LocalPosition_normalized"))->Fill(local_position.x()/module_width);
@@ -222,8 +221,9 @@ std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * in
 //  delete landaufit;
 //
   // perform fit with standard landau
-  inputHisto->Fit("landau","0Q");
-  TF1 * fitfunction = (TF1*) inputHisto->GetListOfFunctions()->First();
+  // make our own copy to avoid problems with threads
+  std::unique_ptr<TF1> fitfunction( new TF1("landaufit","landau") );
+  inputHisto->Fit(fitfunction.get(),"0Q");
   adcs = fitfunction->GetParameter("MPV");
   error = fitfunction->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
   double chi2 = fitfunction->GetChisquare();
@@ -231,15 +231,14 @@ std::pair<double,double> SiStripGainCosmicCalculator::getPeakOfLandau( TH1F * in
   double chi2overndf = chi2 / ndf;
   // in case things went wrong, try to refit in smaller range
   if(adcs< 2. || (error/adcs)>1.8 ){
-     inputHisto->Fit("landau","0Q",0,0.,400.);
-     TF1 * fitfunction2 = (TF1*) inputHisto->GetListOfFunctions()->First();
+     inputHisto->Fit(fitfunction.get(),"0Q",0,0.,400.);
      std::cout<<"refitting landau for histogram "<<inputHisto->GetTitle()<<std::endl;
      std::cout<<"initial error/adcs ="<<error<<" / "<<adcs<<std::endl;
-     std::cout<<"new     error/adcs ="<<fitfunction2->GetParError(1)<<" / "<<fitfunction2->GetParameter("MPV")<<std::endl;
-     adcs = fitfunction2->GetParameter("MPV");
-     error = fitfunction2->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
-     chi2 = fitfunction2->GetChisquare();
-     ndf = fitfunction2->GetNDF();
+     std::cout<<"new     error/adcs ="<<fitfunction->GetParError(1)<<" / "<<fitfunction->GetParameter("MPV")<<std::endl;
+     adcs = fitfunction->GetParameter("MPV");
+     error = fitfunction->GetParError(1); // MPV is parameter 1 (0=constant, 1=MPV, 2=Sigma)
+     chi2 = fitfunction->GetChisquare();
+     ndf = fitfunction->GetNDF();
      chi2overndf = chi2 / ndf;
    }
    // if still wrong, give up
@@ -283,9 +282,9 @@ SiStripApvGain * SiStripGainCosmicCalculator::getNewObject() {
 
   std::cout<<"total_nr_of_events="<<total_nr_of_events<<std::endl;
   // book some more histograms
-  TH1F *ChargeOfEachAPVPair = new TH1F("ChargeOfEachAPVPair","ChargeOfEachAPVPair",1,0,1); ChargeOfEachAPVPair->SetBit(TH1::kCanRebin);
-  TH1F *EntriesApvPairs = new TH1F("EntriesApvPairs","EntriesApvPairs",1,0,1); EntriesApvPairs->SetBit(TH1::kCanRebin);
-  TH1F * NrOfEntries = new TH1F("NrOfEntries","NrOfEntries",351,-0.5,350.5);// NrOfEntries->SetBit(TH1::kCanRebin);
+  TH1F *ChargeOfEachAPVPair = new TH1F("ChargeOfEachAPVPair","ChargeOfEachAPVPair",1,0,1); ChargeOfEachAPVPair->SetCanExtend(TH1::kAllAxes);
+  TH1F *EntriesApvPairs = new TH1F("EntriesApvPairs","EntriesApvPairs",1,0,1); EntriesApvPairs->SetCanExtend(TH1::kAllAxes);
+  TH1F * NrOfEntries = new TH1F("NrOfEntries","NrOfEntries",351,-0.5,350.5);// NrOfEntries->SetCanExtend(TH1::kAllAxes);
   TH1F * ModuleThickness = new TH1F("ModuleThickness","ModuleThickness",2,0.5,2.5); HlistOtherHistos->Add(ModuleThickness);
   ModuleThickness->GetXaxis()->SetBinLabel(1,"320mu"); ModuleThickness->GetXaxis()->SetBinLabel(2,"500mu"); ModuleThickness->SetYTitle("Nr APVPairs");
   TH1F * ModuleWidth = new TH1F("ModuleWidth","ModuleWidth",5,0.5,5.5); HlistOtherHistos->Add(ModuleWidth);
@@ -324,8 +323,8 @@ SiStripApvGain * SiStripGainCosmicCalculator::getNewObject() {
   MeanCharge = MeanCharge / NrOfApvPairs;
   // calculate correction
   TH1F* CorrectionOfEachAPVPair = (TH1F*) ChargeOfEachAPVPair->Clone("CorrectionOfEachAPVPair");
-  TH1F *ChargeOfEachAPVPairControlView = new TH1F("ChargeOfEachAPVPairControlView","ChargeOfEachAPVPairControlView",1,0,1); ChargeOfEachAPVPairControlView->SetBit(TH1::kCanRebin);
-TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairControlView","CorrectionOfEachAPVPairControlView",1,0,1); CorrectionOfEachAPVPairControlView->SetBit(TH1::kCanRebin);
+  TH1F *ChargeOfEachAPVPairControlView = new TH1F("ChargeOfEachAPVPairControlView","ChargeOfEachAPVPairControlView",1,0,1); ChargeOfEachAPVPairControlView->SetCanExtend(TH1::kAllAxes);
+TH1F *CorrectionOfEachAPVPairControlView = new TH1F("CorrectionOfEachAPVPairControlView","CorrectionOfEachAPVPairControlView",1,0,1); CorrectionOfEachAPVPairControlView->SetCanExtend(TH1::kAllAxes);
   std::ofstream APVPairTextOutput("apvpair_corrections.txt");
   APVPairTextOutput<<"# MeanCharge = "<<MeanCharge<<std::endl;
   APVPairTextOutput<<"# Nr. of APVPairs = "<<NrOfApvPairs<<std::endl;

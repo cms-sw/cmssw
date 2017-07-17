@@ -37,7 +37,7 @@ process.mix = cms.EDProducer("MixingModule",
         input = cms.untracked.int32(1)
     ),
     
-    input = cms.SecSource("PoolRASource",    
+    input = cms.SecSource("EmbeddedRootSource",
     fileNames = cms.untracked.vstring(
    	'/store/relval/CMSSW_3_1_0_pre4/RelValTTbar/GEN-SIM-DIGI-RAW-HLTDEBUG/IDEAL_30X_v1/0003/3AA6EEA4-3B16-DE11-B35F-001617C3B654.root'),
 

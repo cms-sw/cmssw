@@ -15,8 +15,8 @@ using namespace std;
 
 PFJetFilter::PFJetFilter(const edm::ParameterSet& iConfig)
 {
-  inputTruthLabel_             = iConfig.getParameter<edm::InputTag>("InputTruthLabel");
-  inputRecoLabel_              = iConfig.getParameter<edm::InputTag>("InputRecoLabel");
+  inputTruthLabel_             = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("InputTruthLabel") );
+  inputRecoLabel_              = consumes<edm::View<reco::Candidate> >(iConfig.getParameter<edm::InputTag>("InputRecoLabel") );
 
   recPt_cut                    = iConfig.getParameter<double>("recPt");
   genPt_cut                    = iConfig.getParameter<double>("genPt");
@@ -62,7 +62,7 @@ PFJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iESetup)
 
  // Get Truth Candidates (GenCandidates, GenJets, etc.)
     Handle<candidateCollection> truth_hnd;
-    bool isGen = iEvent.getByLabel(inputTruthLabel_, truth_hnd);
+    bool isGen = iEvent.getByToken(inputTruthLabel_, truth_hnd);
     if ( !isGen ) { 
       std::cout << "Warning : no Gen jets in input !" << std::endl;
       return false;
@@ -72,7 +72,7 @@ PFJetFilter::filter(edm::Event& iEvent, const edm::EventSetup& iESetup)
 
    // Get Reco Candidates (PFlow, CaloJet, etc.)
     Handle<candidateCollection> reco_hnd;
-    bool isReco = iEvent.getByLabel(inputRecoLabel_, reco_hnd);
+    bool isReco = iEvent.getByToken(inputRecoLabel_, reco_hnd);
     if ( !isReco ) { 
       std::cout << "Warning : no Reco jets in input !" << std::endl;
       return false; 

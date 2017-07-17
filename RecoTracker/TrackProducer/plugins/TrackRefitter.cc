@@ -10,14 +10,18 @@
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
 		      iConfig.getParameter<bool>("useHitsSplitting")),
   theAlgo(iConfig)
 {
   setConf(iConfig);
-  setSrc( consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
-          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
+  setSrc( consumes<edm::View<reco::Track>>(iConfig.getParameter<edm::InputTag>( "src" )), 
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
   std::string  constraint_str = iConfig.getParameter<std::string>( "constraint" );
   edm::InputTag trkconstrcoll = iConfig.getParameter<edm::InputTag>( "srcConstr" );
@@ -37,6 +41,7 @@ TrackRefitter::TrackRefitter(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<std::vector<int> >() ;
   produces<TrajTrackAssociationCollection>();
 
 }
@@ -47,10 +52,11 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection>      outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection>   outputRHColl (new TrackingRecHitCollection);
+  std::unique_ptr<reco::TrackCollection>      outputTColl(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection> outputTEColl(new reco::TrackExtraCollection);
+  std::unique_ptr<std::vector<Trajectory> >   outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<std::vector<int> >           outputIndecesInputColl(new std::vector<int>);
 
   //
   //declare and get stuff to be retrieved from ES
@@ -63,6 +69,9 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
+
   //
   //declare and get TrackCollection to be retrieved from the event
   //
@@ -71,10 +80,18 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   switch(constraint_){
   case none :
     {
-      edm::Handle<reco::TrackCollection> theTCollection;
+      edm::Handle<edm::View<reco::Track>> theTCollection;
       getFromEvt(theEvent,theTCollection,bs);
+
+      LogDebug("TrackRefitter") << "TrackRefitter::produce(none):Number of Trajectories:" << (*theTCollection).size();
+
+      if (bs.position()==math::XYZPoint(0.,0.,0.) && bs.type() == reco::BeamSpot::Unknown) {
+	edm::LogError("TrackRefitter") << " BeamSpot is (0,0,0), it is probably because is not valid in the event"; break; }
+
       if (theTCollection.failedToGet()){
-	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection."; break;}
+        edm::EDConsumerBase::Labels labels;
+        labelsForToken(src_, labels);
+	edm::LogError("TrackRefitter")<<"could not get the reco::TrackCollection." << labels.module; break;}
       LogDebug("TrackRefitter") << "run the algorithm" << "\n";
 
       try {
@@ -92,6 +109,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
+      if (!recoBeamSpotHandle.isValid()) break;
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
 	//edm::LogError("TrackRefitter")<<"could not get TrackMomConstraintAssociationCollection product.";
@@ -109,6 +127,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       theEvent.getByToken(trkconstrcoll_,theTCollectionWithConstraint);
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
+      if (!recoBeamSpotHandle.isValid()) break;
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
 	edm::LogError("TrackRefitter")<<"could not get TrackVtxConstraintAssociationCollection product."; break;}
@@ -124,6 +143,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
       theEvent.getByToken(trkconstrcoll_,theTCollectionWithConstraint);
       edm::Handle<reco::BeamSpot> recoBeamSpotHandle;
       theEvent.getByToken(bsSrc_,recoBeamSpotHandle);
+      if (!recoBeamSpotHandle.isValid()) break;
       bs = *recoBeamSpotHandle;      
       if (theTCollectionWithConstraint.failedToGet()){
 	//edm::LogError("TrackRefitter")<<"could not get TrackParamConstraintAssociationCollection product.";
@@ -139,7 +159,7 @@ void TrackRefitter::produce(edm::Event& theEvent, const edm::EventSetup& setup)
 
   
   //put everything in th event
-  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(), theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl,  outputIndecesInputColl, algoResults,theBuilder.product(), httopo.product());
   LogDebug("TrackRefitter") << "end" << "\n";
 }
 

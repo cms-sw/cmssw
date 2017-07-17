@@ -23,10 +23,6 @@ CosmicHitPairGenerator::CosmicHitPairGenerator(SeedLayerPairs& layers,
 
 CosmicHitPairGenerator::~CosmicHitPairGenerator()
 {
-  Container::const_iterator it;
-  for (it = theGenerators.begin(); it!= theGenerators.end(); it++) {
-    delete (*it);
-  }
 }
 
 
@@ -34,8 +30,7 @@ void CosmicHitPairGenerator::add(
 				   const LayerWithHits *inner, const LayerWithHits *outer,
 				   const edm::EventSetup& iSetup) 
 { 
-  theGenerators.push_back( 
-			  new CosmicHitPairGeneratorFromLayerPair( inner, outer, iSetup));
+  theGenerators.push_back(std::make_unique<CosmicHitPairGeneratorFromLayerPair>( inner, outer, iSetup));
 }
 
 void CosmicHitPairGenerator::hitPairs(

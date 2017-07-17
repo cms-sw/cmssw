@@ -44,6 +44,8 @@ private:
   std::string mapFileName;
 
   std::string dbToDump;
+  std::string format;
+
   // sum the correction in the txt file (for the mean value) to what is input DB 
   bool diffMode;
   const DTTtrig *tTrigMapOrig;

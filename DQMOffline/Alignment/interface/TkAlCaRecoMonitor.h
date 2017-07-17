@@ -15,31 +15,33 @@ Monitoring special quantities related to Tracker Alignment AlCaReco Production.
 #include <algorithm>
 #include <vector>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
+//DataFormats
+#include <DataFormats/JetReco/interface/CaloJet.h>
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 class TrackerGeometry;
 class DQMStore;
 
-class TkAlCaRecoMonitor : public edm::EDAnalyzer {
+class TkAlCaRecoMonitor : public DQMEDAnalyzer {
  public:
   explicit TkAlCaRecoMonitor(const edm::ParameterSet&);
   ~TkAlCaRecoMonitor();
-  virtual void beginJob(); // without eventsetup!
-  virtual void endJob(void);
-  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   
  private:
   void fillHitmaps(const reco::Track &track, const TrackerGeometry& geometry);
   void fillRawIdMap(const TrackerGeometry &geometry);
 
   // ----------member data ---------------------------
-  DQMStore* dqmStore_;
   edm::ParameterSet conf_;
 
   double maxJetPt_;
@@ -65,8 +67,9 @@ class TkAlCaRecoMonitor : public edm::EDAnalyzer {
   bool runsOnReco_;
   bool useSignedR_;
 
-  edm::InputTag trackProducer_;
-  edm::InputTag referenceTrackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> trackProducer_;
+  edm::EDGetTokenT<reco::TrackCollection> referenceTrackProducer_;
+  edm::EDGetTokenT<reco::CaloJetCollection> jetCollection_;
   double daughterMass_;
   std::map<int,int> binByRawId_;
 };

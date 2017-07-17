@@ -1,3 +1,5 @@
+#include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
+
 //
 // HcalNoiseInfoProducer.cc
 //
@@ -7,22 +9,18 @@
 //
 //
 
-#include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
-#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
-#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "CalibFormats/HcalObjects/interface/HcalCoderDb.h"
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbRecord.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputerRcd.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 using namespace reco;
 
@@ -49,9 +47,19 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   caloTowerCollName_ = iConfig.getParameter<std::string>("caloTowerCollName");
   trackCollName_     = iConfig.getParameter<std::string>("trackCollName");
 
+  if (iConfig.existsAs<std::string>("jetCollName"))
+  {
+      jetCollName_   = iConfig.getParameter<std::string>("jetCollName");
+      maxNHF_        = iConfig.getParameter<double>("maxNHF");
+      maxjetindex_   = iConfig.getParameter<int>("maxjetindex");
+      jet_token_     = consumes<reco::PFJetCollection>(edm::InputTag(jetCollName_));
+  }
+
   minRecHitE_        = iConfig.getParameter<double>("minRecHitE");
   minLowHitE_        = iConfig.getParameter<double>("minLowHitE");
   minHighHitE_       = iConfig.getParameter<double>("minHighHitE");
+  if(iConfig.existsAs<double>("minR45HitE"))
+     minR45HitE_        = iConfig.getParameter<double>("minR45HitE");
 
   HcalAcceptSeverityLevel_ = iConfig.getParameter<uint32_t>("HcalAcceptSeverityLevel");
   if (iConfig.exists("HcalRecHitFlagsToBeExcluded"))
@@ -117,6 +125,12 @@ HcalNoiseInfoProducer::HcalNoiseInfoProducer(const edm::ParameterSet& iConfig) :
   for(int i = 0; i < 128; i++)
      adc2fC[i] = adc2fCTemp[i];
 
+  hbhedigi_token_      = consumes<HBHEDigiCollection>(edm::InputTag(digiCollName_));
+  hcalcalibdigi_token_ = consumes<HcalCalibDigiCollection>(edm::InputTag("hcalDigis"));
+  hbherechit_token_    = consumes<HBHERecHitCollection>(edm::InputTag(recHitCollName_));
+  calotower_token_     = consumes<CaloTowerCollection>(edm::InputTag(caloTowerCollName_));
+  track_token_         = consumes<reco::TrackCollection>(edm::InputTag(trackCollName_));
+
   // we produce a vector of HcalNoiseRBXs
   produces<HcalNoiseRBXCollection>();
   // we also produce a noise summary
@@ -138,20 +152,27 @@ void
 HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   // this is what we're going to actually write to the EDM
-  std::auto_ptr<HcalNoiseRBXCollection> result1(new HcalNoiseRBXCollection);
-  std::auto_ptr<HcalNoiseSummary> result2(new HcalNoiseSummary);
+  auto result1 = std::make_unique<HcalNoiseRBXCollection>();
+  auto result2 = std::make_unique<HcalNoiseSummary>();
 
   // define an empty HcalNoiseRBXArray that we're going to fill
   HcalNoiseRBXArray rbxarray;
   HcalNoiseSummary &summary=*result2;
 
+  // Get topology class to use later
+  edm::ESHandle<HcalTopology> topo;
+  iSetup.get<HcalRecNumberingRecord>().get(topo);
+  theHcalTopology_ = topo.product();
+  
   // fill them with the various components
   // digi assumes that rechit information is available
   if(fillRecHits_)    fillrechits(iEvent, iSetup, rbxarray, summary);
   if(fillDigis_)      filldigis(iEvent, iSetup, rbxarray, summary);
   if(fillCaloTowers_) fillcalotwrs(iEvent, iSetup, rbxarray, summary);
   if(fillTracks_)     filltracks(iEvent, iSetup, summary);
-  
+
+  filljetinfo(iEvent, iSetup, summary);
+
   // Why is this here?  Shouldn't it have been in the filldigis method? Any reason for TotalCalibCharge to be defined outside filldigis(...) ?-- Jeff, 7/2/12
   //if(fillDigis_)      summary.calibCharge_ = TotalCalibCharge;
 
@@ -163,7 +184,7 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   for(HcalNoiseRBXArray::iterator rit = rbxarray.begin(); rit!=rbxarray.end(); ++rit) {
     HcalNoiseRBX &rbx=(*rit);
     CommonHcalNoiseRBXData data(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
-      TS4TS5UpperCut_, TS4TS5LowerCut_);
+      TS4TS5UpperCut_, TS4TS5LowerCut_, minR45HitE_);
 
     // find the highest energy rbx
     if(data.energy()>maxenergy) {
@@ -197,8 +218,8 @@ HcalNoiseInfoProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
   }
   
   // put the rbxcollection and summary into the EDM
-  iEvent.put(result1);
-  iEvent.put(result2);
+  iEvent.put(std::move(result1));
+  iEvent.put(std::move(result2));
   
   return;
 }
@@ -240,6 +261,11 @@ HcalNoiseInfoProducer::fillOtherSummaryVariables(HcalNoiseSummary& summary, cons
   // TS4TS5
   if(data.PassTS4TS5() == false)
      summary.hasBadRBXTS4TS5_ = true;
+
+  if(algo_.passLooseRBXRechitR45(data) == false)
+     summary.hasBadRBXRechitR45Loose_ = true;
+  if(algo_.passTightRBXRechitR45(data) == false)
+     summary.hasBadRBXRechitR45Tight_ = true;
 
   // hit timing
   if(data.minLowEHitTime()<summary.min10GeVHitTime()) {
@@ -314,7 +340,7 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
   edm::ESHandle<HcalDbService> conditions;
   iSetup.get<HcalDbRecord>().get(conditions);
   edm::ESHandle<HcalChannelQuality> qualhandle;
-  iSetup.get<HcalChannelQualityRcd>().get(qualhandle);
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo",qualhandle);
   const HcalChannelQuality* myqual = qualhandle.product();
   edm::ESHandle<HcalSeverityLevelComputer> mycomputer;
   iSetup.get<HcalSeverityLevelComputerRcd>().get(mycomputer);
@@ -322,7 +348,9 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // get the digis
   edm::Handle<HBHEDigiCollection> handle;
-  iEvent.getByLabel(digiCollName_, handle);
+  //  iEvent.getByLabel(digiCollName_, handle);
+  iEvent.getByToken(hbhedigi_token_, handle);
+
   if(!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound) << " could not find HBHEDigiCollection named " << digiCollName_ << "\n.";
     return;
@@ -358,7 +386,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
     edm::RefVector<HBHERecHitCollection> &rechits=hpd.rechits_;
     for(edm::RefVector<HBHERecHitCollection>::const_iterator rit=rechits.begin();
 	rit!=rechits.end(); ++rit, ++counter) {
-      if((*rit)->id() == digi.id()) {
+      const HcalDetId & detid = (*rit)->idFront();
+      if(DetId(detid) == digi.id()) {
 	if(counter==0) isBig=isBig5=true;  // digi is also the highest energy rechit
 	if(counter<5) isBig5=true;         // digi is one of 5 highest energy rechits
 	isRBX=true;
@@ -393,7 +422,8 @@ HcalNoiseInfoProducer::filldigis(edm::Event& iEvent, const edm::EventSetup& iSet
 
   // get the calibration digis
   edm::Handle<HcalCalibDigiCollection> hCalib;
-  iEvent.getByLabel("hcalDigis", hCalib);
+  //  iEvent.getByLabel("hcalDigis", hCalib);
+  iEvent.getByToken(hcalcalibdigi_token_, hCalib);
 
   // get total charge in calibration channels
   if(hCalib.isValid() == true)
@@ -488,7 +518,7 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 {
   // get the HCAL channel status map
   edm::ESHandle<HcalChannelQuality> hcalChStatus;
-  iSetup.get<HcalChannelQualityRcd>().get( hcalChStatus );
+  iSetup.get<HcalChannelQualityRcd>().get( "withTopo", hcalChStatus );
   const HcalChannelQuality* dbHcalChStatus = hcalChStatus.product();
 
   // get the severity level computer
@@ -503,7 +533,9 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 
   // get the rechits
   edm::Handle<HBHERecHitCollection> handle;
-  iEvent.getByLabel(recHitCollName_, handle);
+  //  iEvent.getByLabel(recHitCollName_, handle);
+  iEvent.getByToken(hbherechit_token_, handle);
+
   if(!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
       << " could not find HBHERecHitCollection named " << recHitCollName_ << "\n.";
@@ -527,13 +559,15 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
     const HBHERecHit &rechit=(*it);
 
     // skip bad rechits (other than those flagged by the isolated noise, triangle, flat, and spike algorithms)
-    const DetId id = rechit.detid();
+    const DetId id = rechit.idFront();
+
     uint32_t recHitFlag = rechit.flags();
     uint32_t isolbitset = (1 << HcalCaloFlagLabels::HBHEIsolatedNoise);
     uint32_t flatbitset = (1 << HcalCaloFlagLabels::HBHEFlatNoise);
     uint32_t spikebitset = (1 << HcalCaloFlagLabels::HBHESpikeNoise);
     uint32_t trianglebitset = (1 << HcalCaloFlagLabels::HBHETriangleNoise);
     uint32_t ts4ts5bitset = (1 << HcalCaloFlagLabels::HBHETS4TS5Noise);
+    uint32_t negativebitset = (1 << HcalCaloFlagLabels::HBHENegativeNoise);
     for(unsigned int i=0; i<HcalRecHitFlagsToBeExcluded_.size(); i++) {
       uint32_t bitset = (1 << HcalRecHitFlagsToBeExcluded_[i]);
       recHitFlag = (recHitFlag & bitset) ? recHitFlag-bitset : recHitFlag;
@@ -549,54 +583,54 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
 
     // do some rechit counting and energies
     summary.rechitCount_ = summary.rechitCount_ + 1;
-    summary.rechitEnergy_ = summary.rechitEnergy_ + rechit.energy();
+    summary.rechitEnergy_ = summary.rechitEnergy_ + rechit.eraw();
     if ((dbStatusFlag & (1 <<HcalChannelStatus::HcalBadLaserSignal))==1) // hit comes from a region where no laser calibration pulse is normally seen
       {
 	++summary.hitsInNonLaserRegion_;
-	summary.energyInNonLaserRegion_+=rechit.energy();
+	summary.energyInNonLaserRegion_+=rechit.eraw();
       }
     else // hit comes from region where laser calibration pulse is seen
       {
 	++summary.hitsInLaserRegion_;
-	summary.energyInLaserRegion_+=rechit.energy();
+	summary.energyInLaserRegion_+=rechit.eraw();
       }
 
-    if(rechit.energy() > 1.5)
+    if(rechit.eraw() > 1.5)
     {
       summary.rechitCount15_ = summary.rechitCount15_ + 1;
-      summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.energy();
+      summary.rechitEnergy15_ = summary.rechitEnergy15_ + rechit.eraw();
     }
 
     // if it was ID'd as isolated noise, update the summary object
     if(rechit.flags() & isolbitset) {
       summary.nisolnoise_++;
-      summary.isolnoisee_ += rechit.energy();
+      summary.isolnoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.isolnoiseet_ += et;
     }
 
     if(rechit.flags() & flatbitset) {
       summary.nflatnoise_++;
-      summary.flatnoisee_ += rechit.energy();
+      summary.flatnoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.flatnoiseet_ += et;
     }
 
     if(rechit.flags() & spikebitset) {
       summary.nspikenoise_++;
-      summary.spikenoisee_ += rechit.energy();
+      summary.spikenoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.spikenoiseet_ += et;
     }
 
     if(rechit.flags() & trianglebitset) {
       summary.ntrianglenoise_++;
-      summary.trianglenoisee_ += rechit.energy();
+      summary.trianglenoisee_ += rechit.eraw();
       GlobalPoint gp = geo->getPosition(rechit.id());
-      double et = rechit.energy()*gp.perp()/gp.mag();
+      double et = rechit.eraw()*gp.perp()/gp.mag();
       summary.trianglenoiseet_ += et;
     }
 
@@ -604,11 +638,19 @@ HcalNoiseInfoProducer::fillrechits(edm::Event& iEvent, const edm::EventSetup& iS
       if ((dbStatusFlag & (1 <<HcalChannelStatus::HcalCellExcludeFromHBHENoiseSummaryR45))==0)  // only add to TS4TS5 if the bit is not marked as "HcalCellExcludeFromHBHENoiseSummaryR45"
 	{
 	  summary.nts4ts5noise_++;
-	  summary.ts4ts5noisee_ += rechit.energy();
+	  summary.ts4ts5noisee_ += rechit.eraw();
 	  GlobalPoint gp = geo->getPosition(rechit.id());
-	  double et = rechit.energy()*gp.perp()/gp.mag();
+	  double et = rechit.eraw()*gp.perp()/gp.mag();
 	  summary.ts4ts5noiseet_ += et;
 	}
+    }
+    
+    if(rechit.flags() & negativebitset) {
+	  summary.nnegativenoise_++;
+	  summary.negativenoisee_ += rechit.eraw();
+	  GlobalPoint gp = geo->getPosition(rechit.id());
+	  double et = rechit.eraw()*gp.perp()/gp.mag();
+	  summary.negativenoiseet_ += et;
     }
 
     // find the hpd that the rechit is in
@@ -644,7 +686,9 @@ HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& i
 {
   // get the calotowers
   edm::Handle<CaloTowerCollection> handle;
-  iEvent.getByLabel(caloTowerCollName_, handle);
+  //  iEvent.getByLabel(caloTowerCollName_, handle);
+  iEvent.getByToken(calotower_token_, handle);
+
   if(!handle.isValid()) {
     throw edm::Exception(edm::errors::ProductNotFound)
       << " could not find CaloTowerCollection named " << caloTowerCollName_ << "\n.";
@@ -679,12 +723,54 @@ HcalNoiseInfoProducer::fillcalotwrs(edm::Event& iEvent, const edm::EventSetup& i
   return;
 }
 
+// ------------ fill the summary info from jets
+void
+HcalNoiseInfoProducer::filljetinfo(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
+{
+    bool goodJetFoundInLowBVRegion = false; // checks whether a jet is in
+                                            // a low BV region, where false
+                                            // noise flagging rate is higher.
+    if (!jetCollName_.empty())
+    {
+        edm::Handle<reco::PFJetCollection> pfjet_h;
+        iEvent.getByToken(jet_token_, pfjet_h);
+
+        if (pfjet_h.isValid())
+        {
+            int jetindex=0;
+            for(reco::PFJetCollection::const_iterator jet = pfjet_h->begin();
+                jet != pfjet_h->end(); ++jet)
+            {
+                if (jetindex>maxjetindex_) break; // only look at jets with
+                                                  // indices up to maxjetindex_
+
+                // Check whether jet is in low-BV region (0<eta<1.4, -1.8<phi<-1.4)
+                if (jet->eta()>0.0 && jet->eta()<1.4 &&
+                    jet->phi()>-1.8 && jet->phi()<-1.4)
+                {
+                    // Look for a good jet in low BV region;
+                    // if found, we will keep event
+                    if  (maxNHF_<0.0 || jet->neutralHadronEnergyFraction()<maxNHF_)
+                    {
+                        goodJetFoundInLowBVRegion=true;
+                        break;
+                    }
+                }
+                ++jetindex;
+            }
+        }
+    }
+
+    summary.goodJetFoundInLowBVRegion_ = goodJetFoundInLowBVRegion;
+}
+
 // ------------ fill the summary with track information
 void
 HcalNoiseInfoProducer::filltracks(edm::Event& iEvent, const edm::EventSetup& iSetup, HcalNoiseSummary& summary) const
 {
   edm::Handle<reco::TrackCollection> handle;
-  iEvent.getByLabel(trackCollName_, handle);
+  //  iEvent.getByLabel(trackCollName_, handle);
+  iEvent.getByToken(track_token_, handle);
 
   // don't throw exception, just return quietly
   if(!handle.isValid()) {

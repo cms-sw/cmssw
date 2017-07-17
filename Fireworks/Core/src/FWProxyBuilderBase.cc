@@ -139,7 +139,7 @@ FWProxyBuilderBase::build()
          clean();
          for (Product_it i = m_products.begin(); i != m_products.end(); ++i)
          {
-            // printf("build() %s \n", m_item->name().c_str());
+             //printf("build() %s \n", m_item->name().c_str());
             TEveElementList* elms = (*i)->m_elements;
             size_t oldSize = elms->NumChildren();
 
@@ -158,6 +158,7 @@ FWProxyBuilderBase::build()
             TEveProjectable* pable = dynamic_cast<TEveProjectable*>(elms);
             if (pable->HasProjecteds())
             {
+               // loop projected holders
                for (TEveProjectable::ProjList_i i = pable->BeginProjecteds(); i != pable->EndProjecteds(); ++i)
                {
                   TEveProjectionManager *pmgr = (*i)->GetManager();
@@ -169,10 +170,19 @@ FWProxyBuilderBase::build()
                   TEveElement::List_i parentIt = projectedAsElement->BeginChildren();
                   for (TEveElement::List_i prodIt = elms->BeginChildren(); prodIt != elms->EndChildren(); ++prodIt, ++cnt)
                   {
+                      // reused projected holder
                      if (cnt < oldSize)
                      {  
-                        // reused projected holder
-                        pmgr->SubImportChildren(*prodIt, *parentIt);
+                        if ((*parentIt)->NumChildren()) {
+                            // update projected (mislleading name)
+                           for ( TEveElement::List_i pci = (*parentIt)->BeginChildren(); pci != (*parentIt)->EndChildren(); pci++)
+                               pmgr->ProjectChildrenRecurse(*parentIt);
+                        }
+                        else {
+                            // import projectable
+                           pmgr->SubImportChildren(*prodIt, *parentIt);
+                        }
+
                         ++parentIt;
                      }
                      else if (cnt < itemSize) 

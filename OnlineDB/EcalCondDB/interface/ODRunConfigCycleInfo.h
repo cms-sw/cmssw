@@ -54,17 +54,17 @@ int getCycleNumber()const {return m_cycle_num;  }
   std::string m_tag;
   std::string m_description;
 
-  void prepareWrite()  throw(std::runtime_error);
-  void writeDB()       throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
+  void writeDB() noexcept(false);
   void clear();
-  void fetchData(ODRunConfigCycleInfo * result)     throw(std::runtime_error);
-  void insertConfig() throw(std::runtime_error);
+  void fetchData(ODRunConfigCycleInfo * result) noexcept(false);
+  void insertConfig() noexcept(false);
 
 
   // Methods from IUniqueDBObject
-  int fetchID() throw(std::runtime_error); // fetches the Cycle by the seq_id and cycle_num
-  int fetchIDLast() throw(std::runtime_error); // fetches the Cycle by the seq_id and cycle_num
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false); // fetches the Cycle by the seq_id and cycle_num
+  int fetchIDLast() noexcept(false); // fetches the Cycle by the seq_id and cycle_num
+  void setByID(int id) noexcept(false);
 
 };
 

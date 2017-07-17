@@ -28,7 +28,9 @@
 
 #ifdef DQMGLOBAL
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "EventFilter/CSCRawToDigi/interface/CSCDCCEventData.h"
@@ -115,8 +117,14 @@ namespace cscdqm {
 // ===================================================================================================
 
     public:
+
+    EventProcessor(Configuration* const p_config);
       
-      EventProcessor(Configuration* const p_config);
+#ifdef DQMGLOBAL
+
+    EventProcessor(Configuration* const p_config, const edm::InputTag& itag, edm::ConsumesCollector& coco);
+
+#endif
 
       /**
        * @brief  Destructor
@@ -167,12 +175,18 @@ namespace cscdqm {
       uint32_t cntCFEBs;	/// Total Number of CFEBs per event from DMB DAV 
       uint32_t cntALCTs;	/// Total Number of ALCTs per event from DMB DAV 
       uint32_t cntTMBs;		/// Total Number of TMBs per event from DMB DAV
+
+      
+      uint16_t    theFormatVersion; /// Data Format version (2005, 2013)
       
 	
       // bool fFirstEvent;
       bool fCloseL1As; // Close L1A bit from DDU Trailer
       bool EmuEventDisplayWasReset;
-      
+
+      // token for input
+      edm::EDGetTokenT<FEDRawDataCollection> frdtoken;      
+
 // ===================================================================================================
 // Local ONLY stuff 
 // ===================================================================================================
@@ -197,7 +211,7 @@ namespace cscdqm {
 
     public:
 
-      void processEvent(const edm::Event& e, const edm::InputTag& inputTag);
+      void processEvent(const edm::Event& e, const edm::InputTag& inputTag );
 
 #endif      
 

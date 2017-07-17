@@ -46,7 +46,7 @@ class ProcNormalize : public TrainProcessor {
 
 	virtual bool load() override;
 	virtual void save() override;
-	
+
     private:
 	enum Iteration {
 		ITER_EMPTY,
@@ -174,9 +174,10 @@ void ProcNormalize::configure(DOMElement *elem)
 
 	if (pdfs.size() != nInputs * nCategories)
 		throw cms::Exception("ProcNormalize")
-			<< "Got " << (pdfs.size() / nCategories)
-			<< " pdf configs for " << nInputs
-			<< " input varibles." << std::endl;
+			<< "Got " << pdfs.size()
+			<< " pdf configs in total for " << nCategories
+			<< " categories and " << nInputs
+			<< " input varibles (" << (nInputs * nCategories) << " in total)." << std::endl;
 }
 
 Calibration::VarProcessor *ProcNormalize::getCalibration() const
@@ -522,7 +523,7 @@ void ProcNormalize::save()
 		    iter->distr.begin(); iter2 != iter->distr.end(); iter2++) {
 			DOMElement *value =
 					doc->createElement(XMLUniStr("value"));
-			elem->appendChild(value);	
+			elem->appendChild(value);
 
 			XMLDocument::writeContent<double>(value, doc, *iter2);
 		}

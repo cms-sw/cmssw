@@ -2,17 +2,13 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include "Utilities/Timing/interface/TimingReport.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
-#include "DataFormats/JetReco/interface/CaloJet.h"
 
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -34,8 +30,8 @@ using namespace reco;
 using namespace muonisolation;
 using reco::isodeposit::Direction;
 
-JetExtractor::JetExtractor(const ParameterSet& par) :
-  theJetCollectionLabel(par.getParameter<edm::InputTag>("JetCollectionLabel")),
+JetExtractor::JetExtractor(const ParameterSet& par, edm::ConsumesCollector && iC) :
+  theJetCollectionToken(iC.consumes<CaloJetCollection>(par.getParameter<edm::InputTag>("JetCollectionLabel"))),
   thePropagatorName(par.getParameter<std::string>("PropagatorName")),
   theThreshold(par.getParameter<double>("Threshold")),
   theDR_Veto(par.getParameter<double>("DR_Veto")),
@@ -48,12 +44,13 @@ JetExtractor::JetExtractor(const ParameterSet& par) :
   ParameterSet serviceParameters = par.getParameter<ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
 
-  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"));
+  //  theAssociatorParameters = new TrackAssociatorParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC_);
+  theAssociatorParameters = new TrackAssociatorParameters();
+  theAssociatorParameters->loadParameters(par.getParameter<edm::ParameterSet>("TrackAssociatorParameters"), iC);
   theAssociator = new TrackDetectorAssociator();
 }
 
 JetExtractor::~JetExtractor(){
-  if (thePrintTimeReport) TimingReport::current()->dump(std::cout);
   if (theAssociatorParameters) delete theAssociatorParameters;
   if (theService) delete theService;
   if (theAssociator) delete theAssociator;
@@ -72,10 +69,10 @@ IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSe
 
   theService->update(eventSetup);
   theAssociator->setPropagator(&*(theService->propagator(thePropagatorName)));
- 
+
   typedef IsoDeposit::Veto Veto;
   IsoDeposit::Direction muonDir(muon.eta(), muon.phi());
-  
+
   IsoDeposit depJet(muonDir);
 
   edm::ESHandle<MagneticField> bField;
@@ -91,9 +88,9 @@ IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSe
 
 
   edm::Handle<CaloJetCollection> caloJetsH;
-  event.getByLabel(theJetCollectionLabel, caloJetsH);
+  event.getByToken(theJetCollectionToken, caloJetsH);
 
-  //use calo towers    
+  //use calo towers
   CaloJetCollection::const_iterator jetCI = caloJetsH->begin();
   for (; jetCI != caloJetsH->end(); ++jetCI){
     double deltar0 = reco::deltaR(muon,*jetCI);
@@ -105,7 +102,7 @@ IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSe
 
     std::vector<DetId>::const_iterator crossedCI =  mInfo.crossedTowerIds.begin();
     std::vector<CaloTowerPtr>::const_iterator jetTowCI = jetConstituents.begin();
-    
+
     double sumEtExcluded = 0;
     for (;jetTowCI != jetConstituents.end(); ++ jetTowCI){
       bool isExcluded = false;
@@ -129,7 +126,7 @@ IsoDeposit JetExtractor::deposit( const Event & event, const EventSetup& eventSe
 
     reco::isodeposit::Direction jetDir(jetCI->eta(), jetCI->phi());
     depJet.addDeposit(jetDir, depositEt);
-    
+
   }
 
   std::vector<const CaloTower*>::const_iterator crossedCI =  mInfo.crossedTowers.begin();

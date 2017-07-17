@@ -12,8 +12,8 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     markAndPass = cms.bool(False),
     HBlevel = cms.int32(8),
     HElevel = cms.int32(9),
-    HOlevel = cms.int32(8),
-    HFlevel = cms.int32(10),
+    HOlevel = cms.int32(24),
+    HFlevel = cms.int32(-9999),
     HBregion = cms.vint32(3,6),      
     HEregion = cms.vint32(3,6),
     HOregion = cms.vint32(1,8),
@@ -21,5 +21,13 @@ simHcalDigis = cms.EDProducer("HcalRealisticZS",
     useConfigZSvalues = cms.int32(0)
 )
 
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toModify( simHcalDigis,
+                             useConfigZSvalues = cms.int32(1),
+                             HElevel = cms.int32(3)
+)
 
-
+from Configuration.Eras.Modifier_run2_HF_2017_cff import run2_HF_2017
+run2_HF_2017.toModify( simHcalDigis,
+                             HFregion = cms.vint32(1,2)
+)

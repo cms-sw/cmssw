@@ -5,9 +5,16 @@
 import FWCore.ParameterSet.Config as cms
 
 RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        trackingMaterialProducer = cms.untracked.uint32(288269),
-        VtxSmeared = cms.untracked.uint32(863771)
-    ),
-    sourceSeed = cms.untracked.uint32(442302)
-)
+                                           VtxSmeared = cms.PSet(
+                                             initialSeed = cms.untracked.uint32(863771),
+                                             engineName = cms.untracked.string('HepJamesRandom')
+                                             ),
+                                           trackingMaterialProducer = cms.PSet(
+                                             initialSeed = cms.untracked.uint32(288269),
+                                             engineName = cms.untracked.string('HepJamesRandom')
+                                             ),
+                                           generator = cms.PSet(
+                                             initialSeed = cms.untracked.uint32(220675),
+                                             engineName = cms.untracked.string('HepJamesRandom')
+                                             )
+                                           )

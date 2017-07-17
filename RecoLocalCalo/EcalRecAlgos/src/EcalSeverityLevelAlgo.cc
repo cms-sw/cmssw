@@ -46,6 +46,7 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
       //manipulate the mask
       mask|=(0x1<<f);
     }
+
     flagMask_[snum]=mask;
   }
   // read configuration of dbstatus
@@ -53,7 +54,7 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
   const edm::ParameterSet & dbps=
     p.getParameter< edm::ParameterSet >("dbstatusMask");
   std::vector<std::string> dbseverities = dbps.getParameterNames();
-  std::vector<uint32_t>    dbflags;
+  std::vector<std::string> dbflags;
  
   dbstatusMask_.resize(dbseverities.size());
 
@@ -62,18 +63,19 @@ EcalSeverityLevelAlgo::EcalSeverityLevelAlgo(const edm::ParameterSet& p){
     EcalSeverityLevel::SeverityLevel snum=
       (EcalSeverityLevel::SeverityLevel) StringToEnumValue<EcalSeverityLevel::SeverityLevel>(severities[is]);
     
-    dbflags=dbps.getParameter<std::vector<uint32_t> >(severities[is]);
+    dbflags=dbps.getParameter<std::vector<std::string> >(severities[is]);
     uint32_t mask=0;
     for (unsigned int ifi=0;ifi!=dbflags.size();++ifi){
-      int f= dbflags[ifi];
+        EcalChannelStatusCode::Code f= 
+            (EcalChannelStatusCode::Code)StringToEnumValue<EcalChannelStatusCode::Code>(dbflags[ifi]);
       
       //manipulate the mask
       mask|=(0x1<<f);
     }
+
     dbstatusMask_[snum]=mask;
   }
 
-  
 
 }
 
@@ -91,20 +93,19 @@ EcalSeverityLevelAlgo::severityLevel(const DetId& id,
 
 
   // else evaluate from dbstatus
- 
-  if (!chStatus_)     
-    edm::LogError("ObjectNotFound") << "Channel Status not set for EcalSeverityLevelAlgo"; 
-	
+  return severityLevel(id);
+
+}
+
+EcalSeverityLevel::SeverityLevel
+EcalSeverityLevelAlgo::severityLevel(const DetId& id) const {
+
+  using namespace EcalSeverityLevel;
+
 
   EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
-  uint16_t dbStatus = 0;
-  if ( chIt != chStatus_->end() ) {
-    dbStatus = chIt->getStatusCode() & 0x1F;
-  } else {
-    edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
-	 << id.rawId() 
-	 << "! something wrong with EcalChannelStatus in your DB? ";
-  }
+
+  uint16_t dbStatus = chIt->getStatusCode();
  
   // kGood==0 we know!
   if (0==dbStatus)  return kGood;

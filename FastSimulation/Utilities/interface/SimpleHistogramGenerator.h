@@ -14,7 +14,7 @@
 
 #include <vector>
 
-class RandomEngine;
+class RandomEngineAndDistribution;
 class TH1;
 class TAxis;
 
@@ -25,27 +25,25 @@ class SimpleHistogramGenerator
   /// Constructor that perform the necessary integration and inversion steps
   /// xmin and xmax are the generation bounds, n is the internal table size
   /// and iter is the number of iterations for the numerical part.
-  SimpleHistogramGenerator(TH1 * histo, const RandomEngine* engine);
+  SimpleHistogramGenerator(TH1 * histo);
 
   /// Default destructor
   virtual ~SimpleHistogramGenerator() {}
 
   /// The random generation
-  double generate() const;
+  double generate(RandomEngineAndDistribution const*) const;
 
   int binarySearch(const int& n, 
-		   const std::vector<double>& array, 
+		   const std::vector<float>& array, 
 		   const double& value) const;
 
  private:
 
-  const RandomEngine* random;
-
   /// Pointer to the histogram
-  TH1 * myHisto;
+  //TH1 * myHisto;
 
    /// the axis
-  TAxis * theXaxis;
+  //TAxis * theXaxis;
 
   /// Number of bins
   int nBins;
@@ -57,7 +55,7 @@ class SimpleHistogramGenerator
   double binWidth;
 
   /// Integral
-  std::vector<double> integral;
+  std::vector<float> integral;
 
   /// Number of entries
   double nEntries;

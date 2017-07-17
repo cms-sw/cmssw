@@ -13,7 +13,7 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 #include "RecoTracker/TrackProducer/interface/TrackProducerBase.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
-#include "DataFormats/EgammaTrackReco/interface/TrackCandidateCaloClusterAssociation.h"
+
 #include "DataFormats/EgammaTrackReco/interface/TrackCaloClusterAssociation.h"
 #include "DataFormats/CaloRecHit/interface/CaloCluster.h"
 
@@ -23,7 +23,8 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
 {
   setConf(iConfig);
   setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
-          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
   if ( iConfig.exists("clusterRemovalInfo") ) {
@@ -38,6 +39,13 @@ TrackProducerWithSCAssociation::TrackProducerWithSCAssociation(const edm::Parame
   trackSuperClusterAssociationCollection_ = iConfig.getParameter<std::string>("recoTrackSCAssociationCollection");
   myTrajectoryInEvent_ = iConfig.getParameter<bool>("TrajectoryInEvent");
 
+  assoc_token = 
+    consumes<reco::TrackCandidateCaloClusterPtrAssociation>(
+		    edm::InputTag(conversionTrackCandidateProducer_,
+				  trackCSuperClusterAssociationCollection_));
+  measurementTrkToken_=
+    consumes<MeasurementTrackerEvent>(edm::InputTag("MeasurementTrackerEvent")); //hardcoded because the original was and no time to fix (sigh)
+  
  
   //register your products
   produces<reco::TrackCollection>().setBranchAlias( alias_ + "Tracks" );
@@ -62,12 +70,12 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection>       outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+  auto outputRHColl = std::make_unique<TrackingRecHitCollection>();
+  auto outputTColl = std::make_unique<reco::TrackCollection>();
+  auto outputTEColl = std::make_unique<reco::TrackExtraCollection>();
+  auto outputTrajectoryColl = std::make_unique<std::vector<Trajectory>>();
   //   Reco Track - Super Cluster Association
-  std::auto_ptr<reco::TrackCaloClusterPtrAssociation> scTrkAssoc_p(new reco::TrackCaloClusterPtrAssociation);
+  auto scTrkAssoc_p = std::make_unique<reco::TrackCaloClusterPtrAssociation>();
 
   //
   //declare and get stuff to be retrieved from ES
@@ -80,6 +88,9 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   edm::ESHandle<MeasurementTracker> theMeasTk;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
 
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
+  const TrackerTopology *ttopo = httopo.product();
  
 
   //
@@ -88,7 +99,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
   //// Get the association map between candidate out in tracks and the SC where they originated
   validTrackCandidateSCAssociationInput_=true;
   edm::Handle<reco::TrackCandidateCaloClusterPtrAssociation> trkCandidateSCAssocHandle;
-  theEvent.getByLabel(conversionTrackCandidateProducer_, trackCSuperClusterAssociationCollection_ , trkCandidateSCAssocHandle);
+  theEvent.getByToken(assoc_token, trkCandidateSCAssocHandle);
   if ( !trkCandidateSCAssocHandle.isValid() ) {
     //    std::cout << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
     edm::LogError("TrackProducerWithSCAssociation") << "Error! Can't get the product  "<<trackCSuperClusterAssociationCollection_.c_str() << " but keep running. Empty collection will be produced " << "\n";
@@ -155,7 +166,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
 	  
 	  //build Track
 	  // LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation going to buildTrack"<< "\n";
-	  bool ok = theAlgo.buildTrack(theFitter.product(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
+          FitterCloner fc(theFitter.product(),theBuilder.product());
+	  bool ok = theAlgo.buildTrack(fc.fitter.get(),thePropagator.product(),algoResults, hits, theTSOS, seed, ndof, bs, theTC->seedRef());
 	  // LogDebug("TrackProducerWithSCAssociation")  << "TrackProducerWithSCAssociation buildTrack result: " << ok << "\n";
 	  if(ok) {
 	    cont++;
@@ -172,7 +184,8 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
     //put everything in the event
     // we copy putInEvt to get OrphanHandle filled...
     putInEvt(theEvent,thePropagator.product(),theMeasTk.product(), 
-	     outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+	     std::move(outputRHColl), std::move(outputTColl), std::move(outputTEColl), std::move(outputTrajectoryColl),
+             algoResults, theBuilder.product(), ttopo);
     
     // now construct associationmap and put it in the  event
     if (  validTrackCandidateSCAssociationInput_ ) {    
@@ -191,7 +204,7 @@ void TrackProducerWithSCAssociation::produce(edm::Event& theEvent, const edm::Ev
       filler.fill();
     }    
     
-    theEvent.put(scTrkAssoc_p,trackSuperClusterAssociationCollection_ ); 
+    theEvent.put(std::move(scTrkAssoc_p),trackSuperClusterAssociationCollection_ ); 
     
   }
 
@@ -236,8 +249,8 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
   } catch (cms::Exception &e){ edm::LogInfo("TrackProducerWithSCAssociation") << "cms::Exception caught!!!" << "\n" << e << "\n";}
 
 
-  for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*(((*prod).second).first),thePropagator.product()->magneticField() ));
+  for (auto & prod : algoResults){
+    ttks.emplace_back(*prod.track,thePropagator.product()->magneticField());
   }
 
   //LogDebug("TrackProducerWithSCAssociation") << "TrackProducerWithSCAssociation end" << "\n";
@@ -246,37 +259,37 @@ std::vector<reco::TransientTrack> TrackProducerWithSCAssociation::getTransient(e
 }
 
 
+#include "RecoTracker/TransientTrackingRecHit/interface/Traj2TrackHits.h"
 
 
- void TrackProducerWithSCAssociation::putInEvt(edm::Event& evt,
+void TrackProducerWithSCAssociation::putInEvt(edm::Event& evt,
 					       const Propagator* thePropagator,
 					       const MeasurementTracker* theMeasTk,
-					       std::auto_ptr<TrackingRecHitCollection>& selHits,
-					       std::auto_ptr<reco::TrackCollection>& selTracks,
-					       std::auto_ptr<reco::TrackExtraCollection>& selTrackExtras,
-					       std::auto_ptr<std::vector<Trajectory> >&   selTrajectories,
-					       AlgoProductCollection& algoResults)
+					       std::unique_ptr<TrackingRecHitCollection> selHits,
+					       std::unique_ptr<reco::TrackCollection> selTracks,
+					       std::unique_ptr<reco::TrackExtraCollection> selTrackExtras,
+					       std::unique_ptr<std::vector<Trajectory>> selTrajectories,
+                                               AlgoProductCollection& algoResults, TransientTrackingRecHitBuilder const * hitBuilder,
+                                               const TrackerTopology *ttopo)
 {
 
 TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   reco::TrackExtraRefProd rTrackExtras = evt.getRefBeforePut<reco::TrackExtraCollection>();
 
   edm::Ref<reco::TrackExtraCollection>::key_type idx = 0;
-  edm::Ref<reco::TrackExtraCollection>::key_type hidx = 0;
   edm::Ref<reco::TrackCollection>::key_type iTkRef = 0;
   edm::Ref< std::vector<Trajectory> >::key_type iTjRef = 0;
   std::map<unsigned int, unsigned int> tjTkMap;
 
-  for(AlgoProductCollection::iterator i=algoResults.begin(); i!=algoResults.end();i++){
-    Trajectory * theTraj = (*i).first;
+  for(auto & i : algoResults){
+    Trajectory * theTraj = i.trajectory;
     if(myTrajectoryInEvent_) {
       selTrajectories->push_back(*theTraj);
       iTjRef++;
     }
-    const TrajectoryFitter::RecHitContainer& transHits = theTraj->recHits();
     
-    reco::Track * theTrack = (*i).second.first;
-    PropagationDirection seedDir = (*i).second.second;
+    reco::Track * theTrack =  i.track;
+    PropagationDirection seedDir = i.pDir;
     
     //LogDebug("TrackProducer") << "In KfTrackProducerBase::putInEvt - seedDir=" << seedDir;
     
@@ -324,8 +337,9 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     //======= I want to set the second hitPattern here =============
     if (theSchool.isValid())
       {
-	NavigationSetter setter( *theSchool );
-	setSecondHitPattern(theTraj,track,thePropagator,theMeasTk);
+        edm::Handle<MeasurementTrackerEvent> mte;
+        evt.getByToken(measurementTrkToken_, mte);
+	setSecondHitPattern(theTraj,track,thePropagator,&*mte, ttopo);
       }
     //==============================================================
 
@@ -339,27 +353,17 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
     reco::TrackExtra & tx = selTrackExtras->back();
    // ---  NOTA BENE: the convention is to sort hits and measurements "along the momentum".
     // This is consistent with innermost and outermost labels only for tracks from LHC collisions
-    size_t k = 0;
-    if (theTraj->direction() == alongMomentum) {
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.begin();
-           j != transHits.end(); j ++ ) {
-        if ((**j).hit()!=0){
-          TrackingRecHit * hit = (**j).hit()->clone();
-          track.setHitPattern( * hit, k++ );
-          selHits->push_back( hit );
-          tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-        }
-      }
-    }else{
-      for( TrajectoryFitter::RecHitContainer::const_iterator j = transHits.end()-1;
-           j != transHits.begin()-1; --j ) {
-        if ((**j).hit()!=0){
-          TrackingRecHit * hit = (**j).hit()->clone();
-          track.setHitPattern( * hit, k++ );
-          selHits->push_back( hit );
-        tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
-        }
-      }
+    reco::TrackExtra::TrajParams trajParams;
+    reco::TrackExtra::Chi2sFive chi2s;
+    Traj2TrackHits t2t;
+    auto ih = selHits->size();
+    t2t(*theTraj,*selHits,trajParams,chi2s);
+    auto ie = selHits->size();
+    tx.setHits(rHits,ih,ie-ih);
+    tx.setTrajParams(std::move(trajParams),std::move(chi2s));
+    for (;ih<ie; ++ih) {
+      auto const & hit = (*selHits)[ih];
+      track.appendHitPattern(hit, *ttopo);
     }
     // ----
 
@@ -379,17 +383,17 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
   //LogTrace("TrackingRegressionTest") << "=================================================";
 
 
-  rTracks_ = evt.put( selTracks );
+  rTracks_ = evt.put(std::move(selTracks));
 
 
-  evt.put( selTrackExtras );
-  evt.put( selHits );
+  evt.put(std::move(selTrackExtras));
+  evt.put(std::move(selHits));
   
   if(myTrajectoryInEvent_) {
-    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(selTrajectories);
+    edm::OrphanHandle<std::vector<Trajectory> > rTrajs = evt.put(std::move(selTrajectories));
     
     // Now Create traj<->tracks association map
-    std::auto_ptr<TrajTrackAssociationCollection> trajTrackMap( new TrajTrackAssociationCollection() );
+    auto trajTrackMap = std::make_unique<TrajTrackAssociationCollection>(rTrajs, rTracks_);
     for ( std::map<unsigned int, unsigned int>::iterator i = tjTkMap.begin();
           i != tjTkMap.end(); i++ ) {
       edm::Ref<std::vector<Trajectory> > trajRef( rTrajs, (*i).first );
@@ -397,12 +401,6 @@ TrackingRecHitRefProd rHits = evt.getRefBeforePut<TrackingRecHitCollection>();
       trajTrackMap->insert( edm::Ref<std::vector<Trajectory> >( rTrajs, (*i).first ),
                             edm::Ref<reco::TrackCollection>( rTracks_, (*i).second ) );
     }
-    evt.put( trajTrackMap );
+    evt.put(std::move(trajTrackMap));
   }
-
-
-
-
-
-
 }

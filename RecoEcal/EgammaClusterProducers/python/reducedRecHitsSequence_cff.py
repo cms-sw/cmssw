@@ -17,6 +17,60 @@ interestingEcalDetIdEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollect
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
     )
 
+interestingEcalDetIdPFEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALBarrel"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
+
+interestingEcalDetIdPFEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALEndcap"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )
+
+interestingEcalDetIdPFES = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterECAL","particleFlowBasicClusterECALPreshower"),
+    recHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+    severityLevel = cms.int32(-1),
+    keepNextToDead = cms.bool(False),
+    keepNextToBoundary = cms.bool(False)    
+    )
+
+interestingEcalDetIdOOTPFEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALBarrel"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
+
+interestingEcalDetIdOOTPFEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALEndcap"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )
+
+interestingEcalDetIdOOTPFES = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowSuperClusterOOTECAL","particleFlowBasicClusterOOTECALPreshower"),
+    recHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+    severityLevel = cms.int32(-1),
+    keepNextToDead = cms.bool(False),
+    keepNextToBoundary = cms.bool(False)    
+    )
+
+interestingEcalDetIdRefinedEB = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowEGamma","EBEEClusters"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB")
+    )
+
+interestingEcalDetIdRefinedEE = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowEGamma","EBEEClusters"),
+    recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEE")
+    )
+
+interestingEcalDetIdRefinedES = RecoEcal.EgammaClusterProducers.interestingDetIdCollectionProducer_cfi.interestingDetIdCollectionProducer.clone(
+    basicClustersLabel = cms.InputTag("particleFlowEGamma","ESClusters"),
+    recHitsLabel = cms.InputTag("ecalPreshowerRecHit","EcalRecHitsES"),
+    severityLevel = cms.int32(-1),
+    keepNextToDead = cms.bool(False),
+    keepNextToBoundary = cms.bool(False)    
+    )
+    
 # rechits associated to high pt tracks for HSCP
 
 from TrackingTools.TrackAssociator.default_cfi import TrackAssociatorParameterBlock
@@ -27,22 +81,24 @@ interestingTrackEcalDetIds = cms.EDProducer('InterestingTrackEcalDetIdProducer',
     MinTrackPt      = cms.double(50.0)
 )
 
-
-
 reducedEcalRecHitsEB = cms.EDProducer("ReducedRecHitCollectionProducer",
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     interestingDetIdCollections = cms.VInputTag(
             # ecal
             cms.InputTag("interestingEcalDetIdEB"),
             cms.InputTag("interestingEcalDetIdEBU"),
+            #ged
+            cms.InputTag("interestingEcalDetIdPFEB"),
+            cms.InputTag("interestingEcalDetIdRefinedEB"),
+            # oot
+            cms.InputTag("interestingEcalDetIdOOTPFEB"),
             # egamma
-            cms.InputTag("interestingEleIsoDetIdEB"),
+            cms.InputTag("interestingGedEleIsoDetIdEB"),
+            cms.InputTag("interestingGedGamIsoDetIdEB"),
+            cms.InputTag("interestingOotGamIsoDetIdEB"),
             cms.InputTag("interestingGamIsoDetIdEB"),
             # tau
             #cms.InputTag("caloRecoTauProducer"),
-            #pf
-            cms.InputTag("pfElectronInterestingEcalDetIdEB"),
-            cms.InputTag("pfPhotonInterestingEcalDetIdEB"),
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
@@ -56,14 +112,18 @@ reducedEcalRecHitsEE = cms.EDProducer("ReducedRecHitCollectionProducer",
     interestingDetIdCollections = cms.VInputTag(
             # ecal
             cms.InputTag("interestingEcalDetIdEE"),
+            #ged
+            cms.InputTag("interestingEcalDetIdPFEE"),
+            cms.InputTag("interestingEcalDetIdRefinedEE"),            
+            # oot
+            cms.InputTag("interestingEcalDetIdOOTPFEE"),
             # egamma
-            cms.InputTag("interestingEleIsoDetIdEE"),
+            cms.InputTag("interestingGedEleIsoDetIdEE"),
+            cms.InputTag("interestingGedGamIsoDetIdEE"),
+            cms.InputTag("interestingOotGamIsoDetIdEE"),
             cms.InputTag("interestingGamIsoDetIdEE"),
             # tau
             #cms.InputTag("caloRecoTauProducer"),
-            #pf
-            cms.InputTag("pfElectronInterestingEcalDetIdEE"),
-            cms.InputTag("pfPhotonInterestingEcalDetIdEE"),
             # muons
             cms.InputTag("muonEcalDetIds"),
             # high pt tracks
@@ -77,16 +137,40 @@ reducedEcalRecHitsES = cms.EDProducer("ReducedESRecHitCollectionProducer",
                                       EcalRecHitCollectionES = cms.InputTag('ecalPreshowerRecHit','EcalRecHitsES'),
                                       EndcapSuperClusterCollection = cms.InputTag('correctedMulti5x5SuperClustersWithPreshower'),
                                       OutputLabel_ES = cms.string(''),
-                                      interestingDetIds = cms.VInputTag()
+                                      interestingDetIds = cms.VInputTag(
+                                        cms.InputTag("interestingEcalDetIdPFES"),
+                                        cms.InputTag("interestingEcalDetIdRefinedES"), 
+                                        cms.InputTag("interestingEcalDetIdOOTPFES"),
+                                      ),
+                                      interestingDetIdsNotToClean = cms.VInputTag(
+                                          cms.InputTag("interestingGedEgammaIsoESDetId"),
+                                          cms.InputTag("interestingOotEgammaIsoESDetId"),
                                       )
+)
 
 #selected digis
 from RecoEcal.EgammaClusterProducers.ecalDigiSelector_cff import *
 
 reducedEcalRecHitsSequence = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
                                           interestingEcalDetIdEE*
+                                          interestingEcalDetIdPFEB*interestingEcalDetIdPFEE*interestingEcalDetIdPFES*
+                                          interestingEcalDetIdOOTPFEB*interestingEcalDetIdOOTPFEE*interestingEcalDetIdOOTPFES*
+                                          interestingEcalDetIdRefinedEB*interestingEcalDetIdRefinedEE*interestingEcalDetIdRefinedES*
                                           interestingTrackEcalDetIds*
                                           reducedEcalRecHitsEB*
                                           reducedEcalRecHitsEE*
                                           seldigis*
                                           reducedEcalRecHitsES)
+                                          
+reducedEcalRecHitsSequenceEcalOnly = cms.Sequence(interestingEcalDetIdEB*interestingEcalDetIdEBU*
+                                          interestingEcalDetIdEE*
+                                          reducedEcalRecHitsEB*
+                                          reducedEcalRecHitsEE*
+                                          seldigis)                                          
+
+
+_phase2_reducedEcalRecHitsSequence = reducedEcalRecHitsSequence.copy()
+_phase2_reducedEcalRecHitsSequence.remove(reducedEcalRecHitsES)
+
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith( reducedEcalRecHitsSequence , _phase2_reducedEcalRecHitsSequence )

@@ -104,7 +104,7 @@ namespace edmtest {
     // format is 16 instead of 17.
     // assert(ps.getParameter<double>("doublev1") == std::numeric_limits<double>::min());
     assert(ps.getUntrackedParameter<double>("doublev2") == 0.0);
-    assert(ps.getUntrackedParameter<double>("doublev3") == 0.3);
+    assert(fabs(ps.getUntrackedParameter<double>("doublev3") - 0.3)< 0.0000001);
 
     std::vector<double> vdouble;
     vdouble = ps.getParameter<std::vector<double> >("vdoublev1");
@@ -125,7 +125,7 @@ namespace edmtest {
     assert(vdouble[0] == 1e+300);
     assert(vdouble[1] == 0.0);
     assert(vdouble[2] == 11.0);
-    assert(vdouble[3] == 0.3);
+    assert(fabs(vdouble[3] - 0.3)< 0.0000001);
 
     assert(ps.getParameter<bool>("boolv1") == true);
     assert(ps.getParameter<bool>("boolv2") == false);
@@ -429,8 +429,8 @@ namespace edmtest {
     // This serves no purpose, I just put it here so the module does something
     // Probably could just make this method do nothing and it would not
     // affect the test.
-    std::auto_ptr<ThingCollection> result(new ThingCollection);  //Empty
-    e.put(result);
+    auto result = std::make_unique<ThingCollection>();  //Empty
+    e.put(std::move(result));
   }
 
   void
@@ -770,22 +770,22 @@ namespace edmtest {
     pn = wildcardPset.addWildcardUntracked<double>(std::string("*"));
     pn->setComment("A comment for a wildcard parameter");
 
-    std::auto_ptr<edm::ParameterDescriptionNode> wnode(new edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireExactlyOne, true));
-    wildcardPset.addOptionalNode(wnode, false);
+    std::unique_ptr<edm::ParameterDescriptionNode> wnode = std::make_unique<edm::ParameterWildcard<edm::ParameterSetDescription>>("*", edm::RequireExactlyOne, true);
+    wildcardPset.addOptionalNode(std::move(wnode), false);
 
     edm::ParameterSetDescription wSet1;
     wSet1.add<unsigned int>("Drinks", 5);
 
-    std::auto_ptr<edm::ParameterDescriptionNode> wnode2(new edm::ParameterWildcard<edm::ParameterSetDescription>("*", edm::RequireAtLeastOne, true, wSet1));
-    wildcardPset.addOptionalNode(wnode2, false);
+    std::unique_ptr<edm::ParameterDescriptionNode> wnode2 = std::make_unique<edm::ParameterWildcard<edm::ParameterSetDescription>>("*", edm::RequireAtLeastOne, true, wSet1);
+    wildcardPset.addOptionalNode(std::move(wnode2), false);
 
-    std::auto_ptr<edm::ParameterDescriptionNode> wnode3(new edm::ParameterWildcard<std::vector<edm::ParameterSet> >("*", edm::RequireExactlyOne, true));
-    wildcardPset.addOptionalNode(wnode3, false);
+    std::unique_ptr<edm::ParameterDescriptionNode> wnode3 = std::make_unique<edm::ParameterWildcard<std::vector<edm::ParameterSet>>>("*", edm::RequireExactlyOne, true);
+    wildcardPset.addOptionalNode(std::move(wnode3), false);
 
     wSet1.add<unsigned int>("Drinks2", 11);
 
-    std::auto_ptr<edm::ParameterDescriptionNode> wnode4(new edm::ParameterWildcard<std::vector<edm::ParameterSet> >("*", edm::RequireAtLeastOne, true, wSet1));
-    wildcardPset.addOptionalNode(wnode4, false);
+    std::unique_ptr<edm::ParameterDescriptionNode> wnode4 = std::make_unique<edm::ParameterWildcard<std::vector<edm::ParameterSet>>>("*", edm::RequireAtLeastOne, true, wSet1);
+    wildcardPset.addOptionalNode(std::move(wnode4), false);
 
     iDesc.add("wildcardPset", wildcardPset);
 

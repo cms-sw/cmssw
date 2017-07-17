@@ -3,11 +3,16 @@
 
 #include "SeedFromConsecutiveHitsCreator.h"
 
-class SeedFromConsecutiveHitsTripletOnlyCreator GCC11_FINAL : public SeedFromConsecutiveHitsCreator {
+class dso_hidden SeedFromConsecutiveHitsTripletOnlyCreator final : public SeedFromConsecutiveHitsCreator {
 public:
 
   SeedFromConsecutiveHitsTripletOnlyCreator( const edm::ParameterSet & cfg):
     SeedFromConsecutiveHitsCreator(cfg) { }
+
+  static void fillDescriptions(edm::ParameterSetDescription& desc) {
+    SeedFromConsecutiveHitsCreator::fillDescriptions(desc);
+  }
+  static const char *fillDescriptionsLabel() { return "ConsecutiveHitsTripletOnly"; }
 
   virtual ~SeedFromConsecutiveHitsTripletOnlyCreator(){}
 

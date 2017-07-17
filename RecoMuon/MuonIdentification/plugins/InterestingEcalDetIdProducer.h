@@ -3,11 +3,14 @@
 // -*- C++ -*-
 #include <memory>
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+
 class CaloTopology;
-class InterestingEcalDetIdProducer : public edm::EDProducer {
+class InterestingEcalDetIdProducer : public edm::stream::EDProducer<> {
  public:
   explicit InterestingEcalDetIdProducer(const edm::ParameterSet&);
   ~InterestingEcalDetIdProducer();
@@ -16,6 +19,7 @@ class InterestingEcalDetIdProducer : public edm::EDProducer {
 
  private:
   edm::InputTag inputCollection_;
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
   const CaloTopology* caloTopology_;
 };
 

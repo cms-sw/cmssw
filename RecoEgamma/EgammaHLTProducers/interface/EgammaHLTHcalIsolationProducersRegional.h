@@ -20,7 +20,7 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
- #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -29,6 +29,10 @@
 
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTHcalIsolation;
 
 class EgammaHLTHcalIsolationProducersRegional : public edm::EDProducer {
@@ -36,8 +40,9 @@ public:
   explicit EgammaHLTHcalIsolationProducersRegional(const edm::ParameterSet&);
   ~EgammaHLTHcalIsolationProducersRegional();
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
 private:
   EgammaHLTHcalIsolationProducersRegional(const EgammaHLTHcalIsolationProducersRegional& rhs){}
   EgammaHLTHcalIsolationProducersRegional& operator=(const EgammaHLTHcalIsolationProducersRegional& rhs){return *this;}

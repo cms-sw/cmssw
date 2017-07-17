@@ -1,12 +1,13 @@
 """
 Print information about objects in a ROOT file.
 """
+from __future__ import absolute_import
 
-from version import __version__
+from .version import __version__
 
 from ROOT import Double
 import copy
-import argparse
+from . import argparse
 import sys
 import os
 
@@ -123,7 +124,7 @@ def main():
         tfile = TFile(filename, "read")
         try:
             recurse_thru_file(tfile, arguments)
-        except IOError, e:
+        except IOError as e:
             if e.errno != 32:
                 raise
 

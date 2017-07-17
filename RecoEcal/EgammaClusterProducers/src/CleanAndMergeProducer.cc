@@ -166,10 +166,10 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
         // now you have the collection of basic clusters of the SC to be remain in the
         // in the clean collection, export them to the event
         // you will need to reread them later in order to make correctly the refs to the SC
-        std::auto_ptr< reco::BasicClusterCollection> basicClusters_p(new reco::BasicClusterCollection);
+        auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
         basicClusters_p->assign(basicClusters.begin(), basicClusters.end());
         edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  
-                evt.put(basicClusters_p, bcCollection_);
+                evt.put(std::move(basicClusters_p), bcCollection_);
         if (!(bccHandle.isValid())) {
 	  edm::LogWarning("MissingInput")<<"could not get a handle on the BasicClusterCollection!" << std::endl;
 	  return;
@@ -201,13 +201,13 @@ void CleanAndMergeProducer::produce(edm::Event& evt,
 	  
         }
         // export the collection of references to the clean collection
-        std::auto_ptr< reco::SuperClusterRefVector >  scRefs_p( scRefs );
-        evt.put(scRefs_p, refScCollection_);
+        std::unique_ptr<reco::SuperClusterRefVector> scRefs_p(scRefs);
+        evt.put(std::move(scRefs_p), refScCollection_);
 
         // the collection of basic clusters is already in the event
         // the collection of uncleaned SC
-        std::auto_ptr< reco::SuperClusterCollection > superClusters_p(new reco::SuperClusterCollection);
+        auto superClusters_p = std::make_unique<reco::SuperClusterCollection>();
         superClusters_p->assign(superClusters.begin(), superClusters.end());
-        evt.put(superClusters_p, scCollection_);
+        evt.put(std::move(superClusters_p), scCollection_);
         LogDebug("EcalCleaning")<< "Hybrid Clusters (Basic/Super) added to the Event! :-)";
 }

@@ -5,7 +5,7 @@
 // Package:     FWCore/Framework
 // Class  :     EDConsumerBase
 // 
-/**\class EDConsumerBase EDConsumerBase.h "EDConsumerBase.h"
+/**\class edm::EDConsumerBase
 
  Description: Allows declaration of what data is being consumed
 
@@ -19,42 +19,58 @@
 //
 
 // system include files
+#include <map>
+#include <string>
 #include <vector>
-
+#include <array>
 // user include files
+#include "FWCore/Framework/interface/ProductResolverIndexAndSkipBit.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 #include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeToGet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/SoATuple.h"
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/ProductLabels.h"
 
 
 // forward declarations
 
 namespace edm {
-  class ProductHolderIndexHelper;
+  class ModuleDescription;
+  class ProductResolverIndexHelper;
+  class ProductRegistry;
   class ConsumesCollector;
   template<typename T> class WillGetIfMatch;
-  
+
   class EDConsumerBase
   {
     
   public:
-    EDConsumerBase() {}
-    virtual ~EDConsumerBase();
+    EDConsumerBase() : frozen_(false), containsCurrentProcessAlias_(false) {}
+    virtual ~EDConsumerBase() noexcept(false);
     
+    // disallow copying
+    EDConsumerBase(EDConsumerBase const&) = delete;
+    EDConsumerBase const& operator=(EDConsumerBase const&) = delete;
+    
+    // allow moving
+    EDConsumerBase(EDConsumerBase&&) = default;
+    EDConsumerBase& operator=(EDConsumerBase&&) = default;
+
     // ---------- const member functions ---------------------
-    ProductHolderIndex indexFrom(EDGetToken, BranchType, TypeID const&) const;
-    
-    void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
-    void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
-    
+    ProductResolverIndexAndSkipBit indexFrom(EDGetToken, BranchType, TypeID const&) const;
+
+    void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+    void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+
+    std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType iType) const { return itemsToGetFromBranch_[iType]; }
 
     ///\return true if the product corresponding to the index was registered via consumes or mayConsume call
-    bool registeredToConsume(ProductHolderIndex, BranchType) const;
+    bool registeredToConsume(ProductResolverIndex, bool, BranchType) const;
     
     ///\return true of TypeID corresponds to a type specified in a consumesMany call
     bool registeredToConsumeMany(TypeID const&, BranchType) const;
@@ -62,15 +78,22 @@ namespace edm {
     
     // ---------- member functions ---------------------------
     void updateLookup(BranchType iBranchType,
-                      ProductHolderIndexHelper const&);
+                      ProductResolverIndexHelper const&,
+                      bool iPrefetchMayGet);
     
-    struct Labels {
-      const char*  module;
-      const char*  productInstance;
-      const char*  process;
-    };
+    typedef ProductLabels Labels;
     void labelsForToken(EDGetToken iToken, Labels& oLabels) const;
     
+    void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                         ProductRegistry const& preg,
+                                         std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                         std::string const& processName) const;
+
+    /// Convert "@currentProcess" in InputTag process names to the actual current process name.
+    void convertCurrentProcessAlias(std::string const& processName);
+
+    std::vector<ConsumesInfo> consumesInfo() const;
+
   protected:
     friend class ConsumesCollector;
     template<typename T> friend class WillGetIfMatch;
@@ -80,32 +103,31 @@ namespace edm {
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> consumes(edm::InputTag const& tag) {
       TypeToGet tid=TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,true), tag.willSkipCurrentProcess()};
+      return EDGetTokenT<ProductType>{recordConsumes(B,tid, checkIfEmpty(tag),true)};
     }
 
     EDGetToken consumes(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(InEvent,id,tag,true), tag.willSkipCurrentProcess()};
+      return EDGetToken{recordConsumes(InEvent, id, checkIfEmpty(tag), true)};
     }
-    
+
     template <BranchType B>
     EDGetToken consumes(TypeToGet const& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B,id,tag,true), tag.willSkipCurrentProcess()};
+      return EDGetToken{recordConsumes(B, id, checkIfEmpty(tag), true)};
     }
 
     template <typename ProductType, BranchType B=InEvent>
     EDGetTokenT<ProductType> mayConsume(edm::InputTag const& tag) {
       TypeToGet tid=TypeToGet::make<ProductType>();
-      return EDGetTokenT<ProductType>{recordConsumes(B,tid, tag,false), tag.willSkipCurrentProcess()};
+      return EDGetTokenT<ProductType>{recordConsumes(B, tid, checkIfEmpty(tag), false)};
     }
-    
-    
+
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
       return mayConsume<InEvent>(id,tag);
     }
-    
+
     template <BranchType B>
     EDGetToken mayConsume(const TypeToGet& id, edm::InputTag const& tag) {
-      return EDGetToken{recordConsumes(B,id,tag,false), tag.willSkipCurrentProcess()};
+      return EDGetToken{recordConsumes(B,id,checkIfEmpty(tag),false)};
     }
 
     template <typename ProductType, BranchType B=InEvent>
@@ -113,39 +135,38 @@ namespace edm {
       TypeToGet tid=TypeToGet::make<ProductType>();
       consumesMany<B>(tid);
     }
-    
-    
+
     void consumesMany(const TypeToGet& id) {
       consumesMany<InEvent>(id);
     }
-    
+
     template <BranchType B>
     void consumesMany(const TypeToGet& id) {
       recordConsumes(B,id,edm::InputTag{},true);
     }
 
   private:
-    EDConsumerBase(const EDConsumerBase&) = delete;
-    
-    const EDConsumerBase& operator=(const EDConsumerBase&) = delete;
-    
     unsigned int recordConsumes(BranchType iBranch, TypeToGet const& iType, edm::InputTag const& iTag, bool iAlwaysGets);
-    
+
     void throwTypeMismatch(edm::TypeID const&, EDGetToken) const;
     void throwBranchMismatch(BranchType, EDGetToken) const;
     void throwBadToken(edm::TypeID const& iType, EDGetToken iToken) const;
-    
+    void throwConsumesCallAfterFrozen(TypeToGet const&, InputTag const&) const;
+
+    edm::InputTag const& checkIfEmpty(edm::InputTag const& tag);
     // ---------- member data --------------------------------
+
     struct TokenLookupInfo {
       TokenLookupInfo(edm::TypeID const& iID,
-                      ProductHolderIndex iIndex,
+                      ProductResolverIndex iIndex,
+                      bool skipCurrentProcess,
                       BranchType iBranch):
-      m_type(iID),m_index(iIndex),m_branchType(iBranch){}
+        m_type(iID),m_index(iIndex, skipCurrentProcess), m_branchType(iBranch){}
       edm::TypeID m_type;
-      ProductHolderIndex m_index;
+      ProductResolverIndexAndSkipBit m_index;
       BranchType m_branchType;
     };
-    
+
     struct LabelPlacement {
       LabelPlacement(unsigned int iStartOfModuleLabel,
                      unsigned short iDeltaToProductInstance,
@@ -157,7 +178,7 @@ namespace edm {
       unsigned short m_deltaToProductInstance;
       unsigned short m_deltaToProcessName;
     };
-    
+
     //define the purpose of each 'column' in m_tokenInfo
     enum {kLookupInfo,kAlwaysGets,kLabels,kKind};
     edm::SoATuple<TokenLookupInfo,bool,LabelPlacement,edm::KindOfType> m_tokenInfo;
@@ -165,9 +186,12 @@ namespace edm {
     //m_tokenStartOfLabels holds the entries into this container
     // for each of the 3 labels needed to id the data
     std::vector<char> m_tokenLabels;
-    
+
+    std::array<std::vector<ProductResolverIndexAndSkipBit>, edm::NumBranchTypes> itemsToGetFromBranch_;
+
+    bool frozen_;
+    bool containsCurrentProcessAlias_;
   };
 }
-
 
 #endif

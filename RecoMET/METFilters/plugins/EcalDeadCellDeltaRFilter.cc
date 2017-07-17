@@ -2,11 +2,11 @@
 //
 // Package:    EcalDeadCellDeltaRFilter
 // Class:      EcalDeadCellDeltaRFilter
-// 
+//
 /**\class EcalDeadCellDeltaRFilter EcalDeadCellDeltaRFilter.cc
 
  Description: <one line class summary>
- Event filtering for RA2 analysis (filtering status is stored in the event) 
+ Event filtering for RA2 analysis (filtering status is stored in the event)
 */
 //
 // Original Author:  Hongxuan Liu
@@ -19,7 +19,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-// XXX: Must BEFORE Frameworkfwd.h 
+// XXX: Must BEFORE Frameworkfwd.h
 #include "PhysicsTools/SelectorUtils/interface/JetIDSelectionFunctor.h"
 #include "PhysicsTools/SelectorUtils/interface/strbitset.h"
 
@@ -88,6 +88,8 @@
 #include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include "TFile.h"
 #include "TTree.h"
 #include "TH1.h"
@@ -106,13 +108,13 @@ private:
   virtual void envSet(const edm::EventSetup&);
 
   // ----------member data ---------------------------
-  const edm::InputTag jetInputTag_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
   edm::Handle<edm::View<reco::Jet> > jets;
 // jet selection cut: pt, eta
 // default (pt=-1, eta= 9999) means no cut
-  const std::vector<double> jetSelCuts_; 
+  const std::vector<double> jetSelCuts_;
 
-  const edm::InputTag metInputTag_;
+  edm::EDGetTokenT<edm::View<reco::MET> > metToken_;
   edm::Handle<edm::View<reco::MET> > met;
 
   const bool debug_, printSkimInfo_;
@@ -122,8 +124,11 @@ private:
   void loadEventInfo(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void loadJets(const edm::Event& iEvent, const edm::EventSetup& iSetup);
   void loadMET(const edm::Event& iEvent, const edm::EventSetup& iSetup);
-  
-  unsigned int run, event, ls; bool isdata;
+
+  edm::RunNumber_t run;
+  edm::EventNumber_t event;
+  edm::LuminosityBlockNumber_t ls;
+  bool isdata;
 
   double calomet, calometPhi, tcmet, tcmetPhi, pfmet, pfmetPhi;
 
@@ -181,7 +186,7 @@ private:
 
 void EcalDeadCellDeltaRFilter::loadMET(const edm::Event& iEvent, const edm::EventSetup& iSetup){
 
-  iEvent.getByLabel(metInputTag_, met);
+  iEvent.getByToken(metToken_, met);
 
 }
 
@@ -202,8 +207,8 @@ void EcalDeadCellDeltaRFilter::loadEventInfo(const edm::Event& iEvent, const edm
 }
 
 void EcalDeadCellDeltaRFilter::loadJets(const edm::Event& iEvent, const edm::EventSetup& iSetup ){
-   
-  iEvent.getByLabel(jetInputTag_, jets);
+
+  iEvent.getByToken(jetToken_, jets);
 
 }
 
@@ -215,10 +220,10 @@ void EcalDeadCellDeltaRFilter::loadJets(const edm::Event& iEvent, const edm::Eve
 // constructors and destructor
 //
 EcalDeadCellDeltaRFilter::EcalDeadCellDeltaRFilter(const edm::ParameterSet& iConfig)
-  : jetInputTag_ (iConfig.getParameter<edm::InputTag>("jetInputTag"))
+  : jetToken_ (consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("jetInputTag")))
   , jetSelCuts_ (iConfig.getParameter<std::vector<double> >("jetSelCuts"))
 
-  , metInputTag_ (iConfig.getParameter<edm::InputTag>("metInputTag"))
+  , metToken_ (consumes<edm::View<reco::MET> >(iConfig.getParameter<edm::InputTag>("metInputTag")))
 
   , debug_ (iConfig.getUntrackedParameter<bool>("debug",false))
   , printSkimInfo_ (iConfig.getUntrackedParameter<bool>("printSkimInfo",false))
@@ -268,7 +273,7 @@ void EcalDeadCellDeltaRFilter::envSet(const edm::EventSetup& iSetup) {
   iSetup.get<IdealGeometryRecord>().get(ttMap_);
 
   iSetup.get<EcalChannelStatusRcd> ().get(ecalStatus);
-  iSetup.get<HcalChannelQualityRcd>().get(hcalStatus);
+  iSetup.get<HcalChannelQualityRcd>().get("withTopo",hcalStatus);
   iSetup.get<CaloGeometryRecord>   ().get(geometry);
 
   if( !ecalStatus.isValid() )  throw "Failed to get ECAL channel status!";
@@ -312,23 +317,20 @@ bool EcalDeadCellDeltaRFilter::filter(edm::Event& iEvent, const edm::EventSetup&
   int boundaryStatus = etaToBoundary(closeToMETjetsVec);
 
   if(debug_ ){
-     printf("\nrun : %8d  event : %12d  ls : %8d  dPhiToMETstatus : %d  deadCellStatus : %d  boundaryStatus : %d\n", run, event, ls, dPhiToMETstatus, deadCellStatus, boundaryStatus);
+     printf("\nrun : %8u  event : %12llu  ls : %8u  dPhiToMETstatus : %d  deadCellStatus : %d  boundaryStatus : %d\n", run, event, ls, dPhiToMETstatus, deadCellStatus, boundaryStatus);
      printf("met : %6.2f  metphi : % 6.3f  dPhiToMET : %5.3f  dRtoDeadCell : %5.3f\n", (*met)[0].pt(), (*met)[0].phi(), dPhiToMET, dRtoDeadCell);
   }
 
   if( makeProfileRoot_ ){
 //     h1_dummy->Fill(xxx);
   }
- 
-  std::auto_ptr<int> deadCellStatusPtr ( new int(deadCellStatus) );
-  std::auto_ptr<int> boundaryStatusPtr ( new int(boundaryStatus) );
 
-  iEvent.put( deadCellStatusPtr, "deadCellStatus");
-  iEvent.put( boundaryStatusPtr, "boundaryStatus");
+  iEvent.put(std::make_unique<int>(deadCellStatus), "deadCellStatus");
+  iEvent.put(std::make_unique<int>(boundaryStatus), "boundaryStatus");
 
   if( deadCellStatus || (doCracks_ && boundaryStatus) ) pass = false;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 }
@@ -372,7 +374,7 @@ int EcalDeadCellDeltaRFilter::etaToBoundary(const std::vector<reco::Jet> &jetTVe
 
      if( std::abs(recoJetEta)>cracksHBHEdef_[0] && std::abs(recoJetEta)<cracksHBHEdef_[1] ) isClose += (cntOrder10*10 + 1);
      if( std::abs(recoJetEta)>cracksHEHFdef_[0] && std::abs(recoJetEta)<cracksHEHFdef_[1] ) isClose += (cntOrder10*10 + 2);
- 
+
      if( isClose/pow(10, cntOrder10) >=3 ) cntOrder10 = isClose/10 + 1;
   }
 
@@ -417,7 +419,7 @@ int EcalDeadCellDeltaRFilter::dRtoMaskedChnsEvtFilterFunc(const std::vector<reco
 
   for(unsigned int ii=0; ii<jetTVec.size(); ii++){
 
-     const reco::Jet& jet = jetTVec[ii]; 
+     const reco::Jet& jet = jetTVec[ii];
 
      std::map<double, DetId> dummy;
      int isPerJetClose = isCloseToBadEcalChannel(jet, dRCutVal, chnStatus, dummy);
@@ -457,7 +459,7 @@ int EcalDeadCellDeltaRFilter::isCloseToBadEcalChannel(const reco::Jet &jet, cons
       double dist = reco::deltaR(eta, phi, jetEta, jetPhi);
 
       if( min_dist > dist ){ min_dist = dist; min_detId = maskedDetId; }
-   }   
+   }
 
    if( min_dist > deltaRCut && deltaRCut >0 ) return 0;
 
@@ -475,11 +477,11 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps(){
   for( int ieta=-85; ieta<=85; ieta++ ){
      for( int iphi=0; iphi<=360; iphi++ ){
         if(! EBDetId::validDetId( ieta, iphi ) )  continue;
-            
+
         const EBDetId detid = EBDetId( ieta, iphi, EBDetId::ETAPHIMODE );
         EcalChannelStatus::const_iterator chit = ecalStatus->find( detid );
 // refer https://twiki.cern.ch/twiki/bin/viewauth/CMS/EcalChannelStatus
-        int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1; 
+        int status = ( chit != ecalStatus->end() ) ? chit->getStatusCode() & 0x1F : -1;
 
         const CaloSubdetectorGeometry*  subGeom = geometry->getSubdetectorGeometry (detid);
         const CaloCellGeometry*        cellGeom = subGeom->getGeometry (detid);
@@ -526,7 +528,7 @@ int EcalDeadCellDeltaRFilter::getChannelStatusMaps(){
   } // end loop ix
 
   EcalAllDeadChannelsTTMap.clear();
-  std::map<DetId, std::vector<int> >::iterator bitItor; 
+  std::map<DetId, std::vector<int> >::iterator bitItor;
   for(bitItor = EcalAllDeadChannelsBitMap.begin(); bitItor != EcalAllDeadChannelsBitMap.end(); bitItor++){
      const DetId id = bitItor->first;
      EcalTrigTowerDetId ttDetId = ttMap_->towerOf(id);

@@ -1,4 +1,4 @@
-#ifndef PhysicsTools_PatExamples_PatTauAnalyzer_h  
+#ifndef PhysicsTools_PatExamples_PatTauAnalyzer_h
 #define PhysicsTools_PatExamples_PatTauAnalyzer_h
 
 #include "FWCore/Framework/interface/Event.h"
@@ -7,16 +7,18 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/PatCandidates/interface/Tau.h"
+
 #include <TH1.h>
 
 #include <string>
 
-class PatTauAnalyzer : public edm::EDAnalyzer 
+class PatTauAnalyzer : public edm::EDAnalyzer
 {
- public: 
+ public:
   explicit PatTauAnalyzer(const edm::ParameterSet&);
   ~PatTauAnalyzer();
-  
+
 //--- methods inherited from EDAnalyzer base-class
   void beginJob();
   void analyze(const edm::Event&, const edm::EventSetup&);
@@ -25,6 +27,7 @@ class PatTauAnalyzer : public edm::EDAnalyzer
  private:
 //--- configuration parameters
   edm::InputTag src_;
+  edm::EDGetTokenT<pat::TauCollection> srcToken_;
 
   bool requireGenTauMatch_;
 
@@ -45,9 +48,9 @@ class PatTauAnalyzer : public edm::EDAnalyzer
   TH1* hTauJetPhi_;
 
   TH1* hNumTauJets_;
-  
+
   TH1* hTauLeadTrackPt_;
-  
+
   TH1* hTauNumSigConeTracks_;
   TH1* hTauNumIsoConeTracks_;
 
@@ -55,18 +58,18 @@ class PatTauAnalyzer : public edm::EDAnalyzer
   TH1* hTauDiscrByTaNC_;
   TH1* hTauDiscrAgainstElectrons_;
   TH1* hTauDiscrAgainstMuons_;
-  
+
   TH1* hTauJetEnergyIsoPassed_;
   TH1* hTauJetPtIsoPassed_;
   TH1* hTauJetEtaIsoPassed_;
   TH1* hTauJetPhiIsoPassed_;
-  
+
   TH1* hTauJetEnergyTaNCpassed_;
   TH1* hTauJetPtTaNCpassed_;
   TH1* hTauJetEtaTaNCpassed_;
   TH1* hTauJetPhiTaNCpassed_;
 };
 
-#endif  
+#endif
 
 

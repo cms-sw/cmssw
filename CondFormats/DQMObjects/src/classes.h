@@ -1,8 +1,8 @@
-#include "CondFormats/DQMObjects/interface/DQMSummary.h"
-#include "CondFormats/DQMObjects/interface/HDQMSummary.h"
+#include "CondFormats/DQMObjects/src/headers.h"
 
 
-namespace {
+
+namespace CondFormats_DQMObjects {
   struct dictionary { 
   
   std::vector<std::string>::iterator tmp30;

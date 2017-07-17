@@ -4,5 +4,4 @@
 <export>
   <lib   name="1"/>
 </export>
-<flags   CXXFLAGS="-Wno-format"/>
-
+<flags   CXXFLAGS="-Wno-format -Wno-format-contains-nul"/>

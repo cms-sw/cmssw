@@ -1,6 +1,8 @@
 #ifndef EcalTPGGroups_h
 #define EcalTPGGroups_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 #include <boost/cstdint.hpp>
 
@@ -29,6 +31,8 @@ class EcalTPGGroups
  protected:
   EcalTPGGroupsMap map_ ;
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

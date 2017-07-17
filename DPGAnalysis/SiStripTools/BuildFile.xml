@@ -1,6 +1,6 @@
 <flags   GENREFLEX_ARGS="--"/>
 <use   name="root"/>
-<use   name="rootrflx"/>
+
 <use   name="FWCore/MessageLogger"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/ServiceRegistry"/>
@@ -23,6 +23,9 @@
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
 <use   name="SimDataFormats/PileupSummaryInfo"/>
+<use   name="SimDataFormats/GeneratorProducts"/>
+<use   name="TrackingTools/TrajectoryState"/>
+<use   name="TrackingTools/TransientTrackingRecHit"/>
 
 <export>
   <lib   name="1"/>

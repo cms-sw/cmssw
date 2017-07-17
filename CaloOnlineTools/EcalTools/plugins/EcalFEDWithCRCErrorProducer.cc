@@ -100,7 +100,7 @@ EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
   edm::Handle<FEDRawDataCollection> rawdata;  
   iEvent.getByLabel(DataLabel_,rawdata);
 
-  std::auto_ptr<FEDRawDataCollection> producedData(new FEDRawDataCollection);
+  auto producedData = std::make_unique<FEDRawDataCollection>();
   // get fed raw data and SM id
 
   // loop over FEDS
@@ -140,7 +140,7 @@ EcalFEDWithCRCErrorProducer::produce(edm::Event& iEvent, const edm::EventSetup& 
 	}
     }
   
-  iEvent.put(producedData);  
+  iEvent.put(std::move(producedData));
 }
 
 //define this as a plug-in

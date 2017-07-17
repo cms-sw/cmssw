@@ -30,7 +30,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -55,19 +55,18 @@
 // class declaration
 //
 
-class TrackExtrapolator : public edm::EDProducer {
+class TrackExtrapolator : public edm::stream::EDProducer<> {
    public:
       explicit TrackExtrapolator(const edm::ParameterSet&);
       ~TrackExtrapolator();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
+
       
       // ----------member data ---------------------------
 
-      edm::InputTag tracksSrc_;    /// Input tracks
+      edm::EDGetTokenT<reco::TrackCollection> tracksSrc_;    /// Input tracks
       reco::TrackBase::TrackQuality trackQuality_; /// track quality of the tracks we care about
 
 

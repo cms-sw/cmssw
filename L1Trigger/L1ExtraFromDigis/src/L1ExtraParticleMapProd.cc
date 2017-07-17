@@ -864,7 +864,7 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
       }
    }
 
-   auto_ptr< L1ParticleMapCollection > mapColl( new L1ParticleMapCollection ) ;
+   unique_ptr< L1ParticleMapCollection > mapColl( new L1ParticleMapCollection ) ;
    bool globalDecision = false ;
    std::vector< bool > decisionWord ;
 
@@ -1880,14 +1880,14 @@ L1ExtraParticleMapProd::produce(edm::Event& iEvent,
    }
 
    // Put the L1ParticleMapCollection into the event.
-   iEvent.put( mapColl ) ;
+   iEvent.put(std::move(mapColl)) ;
 
    // Make a L1GlobalTriggerReadoutRecord and put it into the event.
-   auto_ptr< L1GlobalTriggerReadoutRecord > gtRecord(
+   unique_ptr< L1GlobalTriggerReadoutRecord > gtRecord(
       new L1GlobalTriggerReadoutRecord() ) ;
    gtRecord->setDecision( globalDecision ) ;
    gtRecord->setDecisionWord( decisionWord ) ;
-   iEvent.put( gtRecord ) ;
+   iEvent.put(std::move(gtRecord)) ;
 
    return ;
 }

@@ -6,12 +6,13 @@
 #include <string>
 #include <vector>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_StdDictionaries {
+  struct dictionarymap {
   std::map<int,int> dummywm4;
   std::map<int,std::pair<double,double> > dummymipdd;
   std::map<int,std::pair<unsigned int,unsigned int> > dummyypwmv9;
   std::map<int,std::pair<unsigned long,unsigned long> > dummyypwmv10;
+  std::map<int,std::pair<std::basic_string<char>, int> > dummympsi;
   std::map<int,unsigned int> dummymiui;
   std::map<short,short> dummymss;
   std::map<short,unsigned int> dummymsui;

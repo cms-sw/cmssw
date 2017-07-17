@@ -6,7 +6,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -14,22 +14,33 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-class TauJetSelectorForHLTTrackSeeding : public edm::EDProducer {
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/JetReco/interface/TrackJet.h"
+#include "DataFormats/JetReco/interface/TrackJetCollection.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+
+class TauJetSelectorForHLTTrackSeeding : public edm::global::EDProducer<> {
 
 public:
   explicit TauJetSelectorForHLTTrackSeeding(const edm::ParameterSet&);
   ~TauJetSelectorForHLTTrackSeeding();
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&) override;
-  virtual void endJob() ;
+  virtual void beginJob()  override;
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+  virtual void endJob()  override;
       
   // ----------member data ---------------------------
 
-  const edm::InputTag inputTrackJetTag_;
-  const edm::InputTag inputCaloJetTag_;
-  const edm::InputTag inputTrackTag_;
+  edm::EDGetTokenT<reco::TrackJetCollection> inputTrackJetToken_;
+  edm::EDGetTokenT<reco::CaloJetCollection> inputCaloJetToken_;
+  edm::EDGetTokenT<reco::TrackCollection> inputTrackToken_;
   const double ptMinCaloJet_;
   const double etaMinCaloJet_;
   const double etaMaxCaloJet_;

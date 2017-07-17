@@ -1,4 +1,5 @@
 #include "DQM/SiStripMonitorSummary/interface/SiStripBaseCondObjDQM.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
 
 #include "TCanvas.h"
 
@@ -67,13 +68,15 @@ void SiStripBaseCondObjDQM::analysis(const edm::EventSetup & eSetup_){
   if(Mod_On_ )                                            { fillModMEs    (activeDetIds, eSetup_); }
   if(SummaryOnLayerLevel_On_ || SummaryOnStringLevel_On_ ){ fillSummaryMEs(activeDetIds, eSetup_); }
 
-  std::string filename = hPSet_.getParameter<std::string>("TkMapName");
-  if (filename!=""){
-    char sRun[128];
-    sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
-    filename.insert(filename.find("."),sRun);
-    
-    saveTkMap(filename.c_str(), minValue, maxValue);
+  if(fPSet_.getParameter<bool>("TkMap_On") || hPSet_.getParameter<bool>("TkMap_On")) {
+    std::string filename = hPSet_.getParameter<std::string>("TkMapName");
+    if (filename!=""){
+      char sRun[128];
+      sprintf(sRun,"_Run_%d",eSetup_.iovSyncValue().eventID().run());
+      filename.insert(filename.find("."),sRun);
+      
+      saveTkMap(filename.c_str(), minValue, maxValue);
+    }
   }
 }
 // -----
@@ -169,21 +172,18 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
   
   if( fPSet_.getParameter<bool>("restrictModules")){
 
-    std::map<unsigned int, std::string> m_included_subdets;
-    std::map<unsigned int, DetIdSelector> m_included_subdetsels;
-    std::vector<edm::ParameterSet> included_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeIncluded_DetIdSelector");
-    for(std::vector<edm::ParameterSet>::const_iterator wsdps = included_subdets.begin();wsdps!=included_subdets.end();++wsdps) {
-      m_included_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
-      m_included_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
-	DetIdSelector(wsdps->getUntrackedParameter<std::vector<std::string> >("selection",std::vector<std::string>()));
+    std::vector<DetIdSelector> included_subdetsels;
+    std::vector<std::string> included_subdets = fPSet_.getParameter<std::vector<std::string> >("ModulesToBeIncluded_DetIdSelector");
+    for(std::vector<std::string>::const_iterator wsdps = included_subdets.begin();wsdps!=included_subdets.end();++wsdps) {
+      included_subdetsels.push_back(DetIdSelector(*wsdps));
     }
     
     std::vector<uint32_t> modulesToBeIncluded;
     for(std::vector<uint32_t>::const_iterator detid=detIds_.begin();detid!=detIds_.end();++detid) {
-      for(std::map<unsigned int,DetIdSelector>::const_iterator detidsel=m_included_subdetsels.begin();detidsel!=m_included_subdetsels.end();++detidsel) {
-	DetIdSelector detIdSel = detidsel->second;
-	if(detIdSel.isSelected(*detid)) {
+      for(std::vector<DetIdSelector>::const_iterator detidsel=included_subdetsels.begin();detidsel!=included_subdetsels.end();++detidsel) {
+	if(detidsel->isSelected(*detid)) {
 	  modulesToBeIncluded.push_back(*detid);
+	  break;
 	  //	  std::cout << "detId: " << *detid << " is selected" << std::endl;
 	}
       }
@@ -191,21 +191,18 @@ void SiStripBaseCondObjDQM::selectModules(std::vector<uint32_t> & detIds_){
     
     // -----
     // *** exclude modules ***
-    std::map<unsigned int, std::string> m_excluded_subdets;
-    std::map<unsigned int, DetIdSelector> m_excluded_subdetsels;
-    std::vector<edm::ParameterSet> excluded_subdets = fPSet_.getParameter<std::vector<edm::ParameterSet> >("ModulesToBeExcluded_DetIdSelector");
-    for(std::vector<edm::ParameterSet>::const_iterator wsdps = excluded_subdets.begin();wsdps!=excluded_subdets.end();++wsdps) {
-      m_excluded_subdets   [wsdps->getParameter<unsigned int>("detSelection")] = wsdps->getParameter<std::string>("detLabel");
-      m_excluded_subdetsels[wsdps->getParameter<unsigned int>("detSelection")] = 
-	DetIdSelector(wsdps->getUntrackedParameter<std::vector<std::string> >("selection",std::vector<std::string>()));
+    std::vector<DetIdSelector> excluded_subdetsels;
+    std::vector<std::string> excluded_subdets = fPSet_.getParameter<std::vector<std::string> >("ModulesToBeExcluded_DetIdSelector");
+    for(std::vector<std::string>::const_iterator wsdps = excluded_subdets.begin();wsdps!=excluded_subdets.end();++wsdps) {
+      excluded_subdetsels.push_back(DetIdSelector(*wsdps));
     }
     
     std::vector<uint32_t> modulesToBeExcluded;
     for(std::vector<uint32_t>::const_iterator detid=detIds_.begin();detid!=detIds_.end();++detid) {
-      for(std::map<unsigned int,DetIdSelector>::const_iterator detidsel=m_excluded_subdetsels.begin();detidsel!=m_excluded_subdetsels.end();++detidsel) {
-	DetIdSelector detIdSel = detidsel->second;
-	if(detIdSel.isSelected(*detid)) {
+      for(std::vector<DetIdSelector>::const_iterator detidsel=excluded_subdetsels.begin();detidsel!=excluded_subdetsels.end();++detidsel) {
+	if(detidsel->isSelected(*detid)) {
 	  modulesToBeExcluded.push_back(*detid);
+	  break;
 	}
       }
     }
@@ -391,6 +388,9 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_ ){
     SummaryMEsMap_iter = SummaryMEsMap_.find(getStringNameAndId(detId_,tTopo).second);
   }
+  else if(CondObj_name_ == "bpcorrection" && SummaryOnStringLevel_On_ ){
+    SummaryMEsMap_iter = SummaryMEsMap_.find(getStringNameAndId(detId_,tTopo).second);
+  }
   else {
     SummaryMEsMap_iter = SummaryMEsMap_.find(getLayerNameAndId(detId_,tTopo).second);
   }
@@ -407,6 +407,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
       CondObj_name_ == "lowthreshold"  || 
       CondObj_name_ == "highthreshold" || 
       CondObj_name_ == "apvgain"       || 
+      CondObj_name_ == "bpcorrection"  || 
       CondObj_name_ == "lorentzangle") ) {
     if(hPSet_.getParameter<bool>("FillSummaryProfileAtLayerLevel"))	
       if (!CondObj_ME.SummaryOfProfileDistr) { bookSummaryProfileMEs(CondObj_ME,detId_,tTopo); }
@@ -416,6 +417,7 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   if(   (CondObj_fillId_ =="ProfileAndCumul" || CondObj_fillId_ =="onlyCumul" ) &&
 	(
 	 CondObj_name_ == "lorentzangle" ||  
+	 CondObj_name_ == "bpcorrection" ||  
 	 CondObj_name_ == "noise")  ) {
     if(hPSet_.getParameter<bool>("FillCumulativeSummaryAtLayerLevel"))
       if (!CondObj_ME.SummaryOfCumulDistr) { bookSummaryCumulMEs(CondObj_ME,detId_,tTopo); } 
@@ -434,6 +436,10 @@ void SiStripBaseCondObjDQM::getSummaryMEs(ModMEs& CondObj_ME, const uint32_t& de
   } 
                           
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) {
+    //FIXME getStringNameandId takes time. not need to call it every timne. put the call at the beginning of the method and caache the string 
+    SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_,tTopo).second,CondObj_ME) );
+  }
+  else if(CondObj_name_ == "bpcorrection" && SummaryOnStringLevel_On_) {
     //FIXME getStringNameandId takes time. not need to call it every timne. put the call at the beginning of the method and caache the string 
     SummaryMEsMap_.insert( std::make_pair(getStringNameAndId(detId_,tTopo).second,CondObj_ME) );
   }
@@ -560,6 +566,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   int nStrip, nApv, layerId_;    
   
   if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
+  else if(CondObj_name_ == "bpcorrection" && SummaryOnStringLevel_On_) { layerId_= getStringNameAndId(detId_,tTopo).second;}
   else                                                            { layerId_= getLayerNameAndId(detId_,tTopo).second;}
 
 
@@ -576,7 +583,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     hSummaryOfProfile_HighX          = nStrip+0.5;
   
   }  
-  else if( (CondObj_name_ == "lorentzangle" && SummaryOnLayerLevel_On_) || CondObj_name_ == "quality"){ // plot in detId-number
+  else if( ((CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection" ) && SummaryOnLayerLevel_On_) || CondObj_name_ == "quality"){ // plot in detId-number
 
     // -----
     // get detIds belonging to same layer to fill X-axis with detId-number
@@ -604,7 +611,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     hSummaryOfProfile_HighX          = sameLayerDetIds_.size()+0.5;
  
   } 
-  else if( CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_){ // plot in detId-number
+  else if( (CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection") && SummaryOnStringLevel_On_){ // plot in detId-number
 
     // -----
     // get detIds belonging to same string to fill X-axis with detId-number
@@ -676,7 +683,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
   }
   // ---
   
-  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
+  if((CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection") && SummaryOnStringLevel_On_) { 
     hSummaryOfProfile_name = hidmanager.createHistoLayer(hSummaryOfProfile_description, "layer" , getStringNameAndId(detId_,tTopo).first,"") ;
   }
   else {
@@ -716,7 +723,7 @@ void SiStripBaseCondObjDQM::bookSummaryProfileMEs(SiStripBaseCondObjDQM::ModMEs&
     
     }
   } 
-  if( CondObj_name_ == "lorentzangle"){
+  if( CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection"){
 
     // Put the detIds for the -z side as following the geometrical order:
       reverse(sameLayerDetIds_.begin(), sameLayerDetIds_.begin()+sameLayerDetIds_.size()/2);
@@ -799,8 +806,8 @@ void SiStripBaseCondObjDQM::bookSummaryCumulMEs(SiStripBaseCondObjDQM::ModMEs& C
   }
   // ---
   
-  // LA Histos are plotted for each string:
-  if(CondObj_name_ == "lorentzangle" && SummaryOnStringLevel_On_) { 
+  // LA and BP Histos are plotted for each string:
+  if((CondObj_name_ == "lorentzangle" || CondObj_name_ == "bpcorrection") && SummaryOnStringLevel_On_) { 
     hSummaryOfCumul_name = hidmanager.createHistoLayer(hSummaryOfCumul_description, "layer" , getStringNameAndId(detId_,tTopo).first, "") ;
   }
   else {  
@@ -1244,7 +1251,7 @@ void SiStripBaseCondObjDQM::fillModMEs(const std::vector<uint32_t> & selectedDet
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   ModMEs CondObj_ME;
@@ -1260,7 +1267,7 @@ void SiStripBaseCondObjDQM::fillSummaryMEs(const std::vector<uint32_t> & selecte
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
   
   for(std::vector<uint32_t>::const_iterator detIter_ = selectedDetIds.begin();

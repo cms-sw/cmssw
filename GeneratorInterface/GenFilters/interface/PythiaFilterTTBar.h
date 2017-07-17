@@ -61,7 +61,7 @@ class PythiaFilterTTBar : public edm::EDFilter {
 
    private:
 
-      std::string label_;
+      edm::EDGetTokenT<edm::HepMCProduct> token_;
 
       unsigned int decayType_;
 

@@ -32,7 +32,7 @@ class ECALRegFEDSelector : public edm::EDProducer {
  public:
   ECALRegFEDSelector(const edm::ParameterSet&);
   ~ECALRegFEDSelector();
-  const EcalElectronicsMapping* ec_mapping;
+  std::unique_ptr<const EcalElectronicsMapping> ec_mapping;
 
   double delta_;
   bool fedSaved[1200];

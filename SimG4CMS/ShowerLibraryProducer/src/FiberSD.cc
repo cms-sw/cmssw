@@ -1,6 +1,10 @@
 #include "SimG4CMS/ShowerLibraryProducer/interface/FiberSD.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "DataFormats/Math/interface/Point3D.h"
+#include "Geometry/HcalCommonData/interface/HcalDDDSimConstants.h"
+#include "Geometry/Records/interface/HcalSimNumberingRecord.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EventSetup.h"
 
 #include "G4VPhysicalVolume.hh"
 #include "G4PVPlacement.hh"
@@ -15,7 +19,7 @@
 #include "G4ios.hh"
 
 FiberSD::FiberSD(std::string name, const DDCompactView & cpv, 
-		 SensitiveDetectorCatalog & clg, edm::ParameterSet const & p, 
+		 const SensitiveDetectorCatalog & clg, edm::ParameterSet const & p,
 		 const SimTrackManager* manager) :
   SensitiveCaloDetector(name, cpv, clg, p), theName(name),
   m_trackManager(manager), theHCID(-1), theHC(0) {
@@ -35,9 +39,9 @@ FiberSD::FiberSD(std::string name, const DDCompactView & cpv,
   //
   // Now attach the right detectors (LogicalVolumes) to me
   //
-  std::vector<std::string> lvNames = clg.logicalNames(name);
+  const std::vector<std::string>& lvNames = clg.logicalNames(name);
   this->Register();
-  for (std::vector<std::string>::iterator it=lvNames.begin();
+  for (std::vector<std::string>::const_iterator it=lvNames.begin();
        it !=lvNames.end(); it++){
     this->AssignSD(*it);
     LogDebug("FiberSim") << "FiberSD : Assigns SD to LV " << (*it);
@@ -123,6 +127,21 @@ void FiberSD::clear() {}
 void FiberSD::DrawAll()  {}
 
 void FiberSD::PrintAll() {}
+
+void FiberSD::update(const BeginOfJob * job) {
+
+  const edm::EventSetup* es = (*job)();
+  edm::ESHandle<HcalDDDSimConstants>    hdc;
+  es->get<HcalSimNumberingRecord>().get(hdc);
+  if (hdc.isValid()) {
+    HcalDDDSimConstants *hcalConstants = (HcalDDDSimConstants*)(&(*hdc));
+    theShower->initRun(0, hcalConstants);
+  } else {
+    edm::LogError("HcalSim") << "HCalSD : Cannot find HcalDDDSimConstant";
+    throw cms::Exception("Unknown", "HCalSD") << "Cannot find HcalDDDSimConstant" << "\n";
+  }
+
+}
 
 void FiberSD::update(const BeginOfRun *) {}
 

@@ -30,9 +30,9 @@ namespace edm {
       
       // Transfer ownership of worker to the registry
       labelToModule_[moduleLabel] = modPtr;
-      return labelToModule_[moduleLabel];
+      return modPtr;
     }
-    return (modItr->second);
+    return get_underlying_safe(modItr->second);
   }
   
   maker::ModuleHolder*

@@ -39,11 +39,24 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+// GCT and RCT data formats
+#include "DataFormats/L1GlobalCaloTrigger/interface/L1GctCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloCollections.h"
+#include "DataFormats/L1CaloTrigger/interface/L1CaloRegionDetId.h"
+
+// L1Extra
+#include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1JetParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/L1EtMissParticleFwd.h"
+
+// Ecal
+#include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
+
 // DQM
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 // Trigger Headers
 
 
@@ -52,7 +65,7 @@
 // class declaration
 //
 
-class L1TCompare : public edm::EDAnalyzer {
+class L1TCompare : public DQMEDAnalyzer {
 
 public:
 
@@ -64,17 +77,14 @@ public:
 
 protected:
 // Analyze
- void analyze(const edm::Event& e, const edm::EventSetup& c);
+ void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
-// BeginJob
- void beginJob(void);
-
-// EndJob
-void endJob(void);
+// BeginRun
+  virtual void bookHistograms(DQMStore::IBooker &ibooker, edm::Run const&, edm::EventSetup const&) override;
+  virtual void dqmBeginRun(edm::Run const&, edm::EventSetup const&) override;
 
 private:
   // ----------member data ---------------------------
-  DQMStore * dbe;
 
   // ++ RCT-GCT
   // - iso
@@ -101,9 +111,17 @@ private:
   bool monitorDaemon_;
   std::ofstream logFile_;
 
+  edm::EDGetTokenT<L1CaloEmCollection> rctSourceEm_token_;
+  edm::EDGetTokenT<L1CaloRegionCollection> rctSourceRctEmRgn_token_;
   edm::InputTag rctSource_;
   edm::InputTag gctSource_;
   edm::InputTag ecalTpgSource_;
+  edm::EDGetTokenT<EcalTrigPrimDigiCollection> ecalTpgSource_token_;
+
+  //define Token(-s)
+  edm::EDGetTokenT<L1GctJetCandCollection> gctCenJetsToken_;
+  edm::EDGetTokenT<L1GctEmCandCollection> gctIsoEmCandsToken_;
+  edm::EDGetTokenT<L1GctEmCandCollection> gctNonIsoEmCandsToken_;
   
   class RctObject {
   public:

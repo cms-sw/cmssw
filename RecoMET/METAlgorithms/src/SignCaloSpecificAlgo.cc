@@ -23,8 +23,7 @@ using namespace std;
 
 //____________________________________________________________________________||
 SignCaloSpecificAlgo::SignCaloSpecificAlgo():
-  significance_(0.),
-  matrix_(2,2)
+  significance_(0.)
 {
   matrix_(0,0)=matrix_(1,0)=matrix_(0,1)=matrix_(1,1)=0.;
 }

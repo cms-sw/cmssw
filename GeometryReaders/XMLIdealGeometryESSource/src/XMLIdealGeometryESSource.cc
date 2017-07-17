@@ -1,6 +1,5 @@
 #include "GeometryReaders/XMLIdealGeometryESSource/interface/XMLIdealGeometryESSource.h"
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Core/interface/DDCompactView.h"
 #include "DetectorDescription/Core/interface/DDRoot.h"
@@ -8,7 +7,7 @@
 #include "DetectorDescription/Core/interface/DDMaterial.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
 
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
@@ -41,26 +40,26 @@ XMLIdealGeometryESSource::XMLIdealGeometryESSource(const edm::ParameterSet & p):
 
 XMLIdealGeometryESSource::~XMLIdealGeometryESSource() { }
 
-std::auto_ptr<DDCompactView>
+std::unique_ptr<DDCompactView>
 XMLIdealGeometryESSource::produceGeom(const IdealGeometryRecord &)
 {
   return produce();
 }
 
-std::auto_ptr<DDCompactView>
+std::unique_ptr<DDCompactView>
 XMLIdealGeometryESSource::produceMagField(const IdealMagneticFieldRecord &)
 { 
   return produce();
 }
 
 
-std::auto_ptr<DDCompactView>
+std::unique_ptr<DDCompactView>
 XMLIdealGeometryESSource::produce() {
   
   DDName ddName(rootNodeName_);
   DDLogicalPart rootNode(ddName);
   DDRootDef::instance().set(rootNode);
-  std::auto_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
+  std::unique_ptr<DDCompactView> returnValue(new DDCompactView(rootNode));
   DDLParser parser(*returnValue); //* parser = DDLParser::instance();
   parser.getDDLSAX2FileHandler()->setUserNS(userNS_);
   int result2 = parser.parse(geoConfig_);

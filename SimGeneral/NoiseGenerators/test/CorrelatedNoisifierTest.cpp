@@ -3,6 +3,10 @@
 #include "CommonTools/Statistics/interface/AutocorrelationAnalyzer.h"
 #include "CLHEP/Random/JamesRandom.h"
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 typedef math::ErrorD<10>::type MyMat;
 
 template class CorrelatedNoisifier< MyMat > ;
@@ -10,6 +14,7 @@ template class CorrelatedNoisifier< MyMat > ;
 template
 void
 CorrelatedNoisifier< MyMat >::noisify(std::vector<double>&,
+                                      CLHEP::HepRandomEngine*,
 				      const std::vector<double>*) const ;
 
 int main()
@@ -44,8 +49,8 @@ int main()
    {
 //      Noisifier noisifier ( input, &engine ) ;
       Noisifier noisifier ( 0 == itry ?
-			       Noisifier(input, &engine) :
-				  Noisifier( &engine, chol ) );
+			       Noisifier(input) :
+				  Noisifier( nullptr, chol ) );
 
       if( 0 == itry ) chol = noisifier.cholMat() ;
 
@@ -55,7 +60,7 @@ int main()
       for( unsigned int i=0; i<nTotal; ++i ) 
       {
 	 std::vector<double> samples(10);
-	 noisifier.noisify(samples);
+	 noisifier.noisify(samples, &engine);
 	 analyzer.analyze(samples);
       }
 

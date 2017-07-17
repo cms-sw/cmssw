@@ -1,11 +1,10 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "DataFormats/PatCandidates/interface/Jet.h"
 #include "PhysicsTools/PatExamples/interface/AnalysisTasksAnalyzerBTag.h"
 
 
 /// default constructor
-AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cfg, TFileDirectory& fs): 
+AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cfg, TFileDirectory& fs):
   edm::BasicAnalyzer::BasicAnalyzer(cfg, fs),
   Jets_(cfg.getParameter<edm::InputTag>("Jets")),
   bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
@@ -15,12 +14,32 @@ AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cf
 {
   hists_["BTag_b"] = fs.make<TH1F>("BTag_b"  , "BTag_b"  ,  bins_,  lowerbin_, upperbin_);
   hists_["BTag_g"] = fs.make<TH1F>("BTag_g" , "BTag_g" ,  bins_, lowerbin_,   upperbin_);
-  hists_["BTag_c"] = fs.make<TH1F>("BTag_c" , "BTag_c" ,  bins_, lowerbin_,   upperbin_); 
+  hists_["BTag_c"] = fs.make<TH1F>("BTag_c" , "BTag_c" ,  bins_, lowerbin_,   upperbin_);
   hists_["BTag_uds"] = fs.make<TH1F>("BTag_uds", "BTag_uds",   bins_, lowerbin_, upperbin_);
   hists_["BTag_other"] = fs.make<TH1F>("BTag_other", "BTag_other",   bins_, lowerbin_, upperbin_);
   hists_["effBTag_b"] = fs.make<TH1F>("effBTag_b"  , "effBTag_b"  ,  bins_,  lowerbin_, upperbin_);
   hists_["effBTag_g"] = fs.make<TH1F>("effBTag_g" , "effBTag_g" ,  bins_, lowerbin_,  upperbin_);
-  hists_["effBTag_c"] = fs.make<TH1F>("effBTag_c" , "effBTag_c" ,  bins_, lowerbin_, upperbin_); 
+  hists_["effBTag_c"] = fs.make<TH1F>("effBTag_c" , "effBTag_c" ,  bins_, lowerbin_, upperbin_);
+  hists_["effBTag_uds"] = fs.make<TH1F>("effBTag_uds", "effBTag_uds",   bins_, lowerbin_, upperbin_);
+  hists_["effBTag_other"] = fs.make<TH1F>("effBTag_other", "effBTag_other",  bins_, lowerbin_, upperbin_);
+}
+AnalysisTasksAnalyzerBTag::AnalysisTasksAnalyzerBTag(const edm::ParameterSet& cfg, TFileDirectory& fs, edm::ConsumesCollector&& iC):
+  edm::BasicAnalyzer::BasicAnalyzer(cfg, fs),
+  Jets_(cfg.getParameter<edm::InputTag>("Jets")),
+  JetsToken_(iC.consumes<std::vector<pat::Jet> >(Jets_)),
+  bTagAlgo_(cfg.getParameter<std::string>("bTagAlgo")),
+  bins_(cfg.getParameter<unsigned int>("bins")),
+  lowerbin_(cfg.getParameter<double>("lowerbin")),
+  upperbin_(cfg.getParameter<double>("upperbin"))
+{
+  hists_["BTag_b"] = fs.make<TH1F>("BTag_b"  , "BTag_b"  ,  bins_,  lowerbin_, upperbin_);
+  hists_["BTag_g"] = fs.make<TH1F>("BTag_g" , "BTag_g" ,  bins_, lowerbin_,   upperbin_);
+  hists_["BTag_c"] = fs.make<TH1F>("BTag_c" , "BTag_c" ,  bins_, lowerbin_,   upperbin_);
+  hists_["BTag_uds"] = fs.make<TH1F>("BTag_uds", "BTag_uds",   bins_, lowerbin_, upperbin_);
+  hists_["BTag_other"] = fs.make<TH1F>("BTag_other", "BTag_other",   bins_, lowerbin_, upperbin_);
+  hists_["effBTag_b"] = fs.make<TH1F>("effBTag_b"  , "effBTag_b"  ,  bins_,  lowerbin_, upperbin_);
+  hists_["effBTag_g"] = fs.make<TH1F>("effBTag_g" , "effBTag_g" ,  bins_, lowerbin_,  upperbin_);
+  hists_["effBTag_c"] = fs.make<TH1F>("effBTag_c" , "effBTag_c" ,  bins_, lowerbin_, upperbin_);
   hists_["effBTag_uds"] = fs.make<TH1F>("effBTag_uds", "effBTag_uds",   bins_, lowerbin_, upperbin_);
   hists_["effBTag_other"] = fs.make<TH1F>("effBTag_other", "effBTag_other",  bins_, lowerbin_, upperbin_);
 }
@@ -32,13 +51,13 @@ AnalysisTasksAnalyzerBTag::~AnalysisTasksAnalyzerBTag()
   hists_["effBTag_c"]->SetBinContent(i,hists_["BTag_c"]->Integral(i,hists_["BTag_c"]->GetNbinsX()+1)/hists_["BTag_c"]->Integral(0,hists_["BTag_c"]->GetNbinsX()+1) );
   hists_["effBTag_uds"]->SetBinContent(i,hists_["BTag_uds"]->Integral(i,hists_["BTag_uds"]->GetNbinsX()+1)/hists_["BTag_uds"]->Integral(0,hists_["BTag_uds"]->GetNbinsX()+1) );
   hists_["effBTag_other"]->SetBinContent(i,hists_["BTag_other"]->Integral(i,hists_["BTag_other"]->GetNbinsX()+1)/hists_["BTag_other"]->Integral(0,hists_["BTag_other"]->GetNbinsX()+1) );
-  } 
+  }
 }
 /// everything that needs to be done during the event loop
-void 
+void
 AnalysisTasksAnalyzerBTag::analyze(const edm::EventBase& event)
 {
-  // define what Jet you are using; this is necessary as FWLite is not 
+  // define what Jet you are using; this is necessary as FWLite is not
   // capable of reading edm::Views
   using pat::Jet;
 
@@ -48,14 +67,14 @@ AnalysisTasksAnalyzerBTag::analyze(const edm::EventBase& event)
 
   // loop Jet collection and fill histograms
   for(std::vector<Jet>::const_iterator Jet_it=Jets->begin(); Jet_it!=Jets->end(); ++Jet_it){
-  
+
     pat::Jet Jet(*Jet_it);
 
    //Categorize the Jets
     if( abs(Jet.partonFlavour())==5){
       hists_["BTag_b"]->Fill(Jet.bDiscriminator(bTagAlgo_));
     }
-    else{ 
+    else{
       if( abs(Jet.partonFlavour())==21 || abs(Jet.partonFlavour())==9 ){
 	hists_["BTag_g"]->Fill(Jet.bDiscriminator(bTagAlgo_));
       }

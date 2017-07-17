@@ -60,7 +60,7 @@ private:
 
   CutStruct firstDaughter, secondDaughter;
 
-  std::string label_;
+  edm::EDGetTokenT<edm::HepMCProduct> token_;
   int noAccepted;
   int motherParticle;
 };

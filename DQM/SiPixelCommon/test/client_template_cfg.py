@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("SIPIXELDQM")
 
@@ -81,7 +82,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
 # DQM modules:
-process.sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
+process.sipixelEDAClient = DQMEDHarvester("SiPixelEDAClient",
     FileSaveFrequency = cms.untracked.int32(50),
     StaticUpdateFrequency = cms.untracked.int32(10)
 )
@@ -93,10 +94,6 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 )
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 
 # define all paths and sequences:
 process.Digis = cms.Sequence(process.siPixelDigis)

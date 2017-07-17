@@ -14,7 +14,6 @@
 #include "FWCore/ServiceRegistry/interface/ModuleCallingContext.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "HLTrigger/HLTcore/interface/HLTPrescaler.h"
 
@@ -29,17 +28,18 @@ const unsigned int HLTPrescaler::prescaleSeed_ = 65537;
 ///////////////////////////////////////////////////////////////////////////////
 
 //_____________________________________________________________________________
-HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig) :
+HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig, const trigger::Efficiency* efficiency) :
   prescaleSet_(0)
   , prescaleFactor_(1)
   , eventCount_(0)
   , acceptCount_(0)
   , offsetCount_(0)
   , offsetPhase_(iConfig.getParameter<unsigned int>("offset"))
-  , prescaleService_(0)
+  , prescaleService_(nullptr)
   , newLumi_(true)
   , gtDigiTag_ (iConfig.getParameter<edm::InputTag>("L1GtReadoutRecordTag"))
-  , gtDigiToken_ (consumes<L1GlobalTriggerReadoutRecord>(gtDigiTag_))
+  , gtDigi1Token_ (consumes<L1GlobalTriggerReadoutRecord>(gtDigiTag_))
+  , gtDigi2Token_ (consumes<GlobalAlgBlkBxCollection>(gtDigiTag_))
 {
   if(edm::Service<edm::service::PrescaleService>().isAvailable())
     prescaleService_ = edm::Service<edm::service::PrescaleService>().operator->();
@@ -48,11 +48,7 @@ HLTPrescaler::HLTPrescaler(edm::ParameterSet const& iConfig) :
 }
 
 //_____________________________________________________________________________    
-HLTPrescaler::~HLTPrescaler()
-{
-  
-}
-
+HLTPrescaler::~HLTPrescaler() = default;
 
 ////////////////////////////////////////////////////////////////////////////////
 // implementation of member functions
@@ -61,7 +57,7 @@ HLTPrescaler::~HLTPrescaler()
 void HLTPrescaler::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   desc.add<unsigned int>("offset",0);
-  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtDigis"));
+  desc.add<edm::InputTag>("L1GtReadoutRecordTag",edm::InputTag("hltGtStage2Digis"));
   descriptions.add("hltPrescaler", desc);
 }
 
@@ -88,16 +84,28 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
       const unsigned int oldSet(prescaleSet_);
       const unsigned int oldPrescale(prescaleFactor_);
 
-      edm::Handle<L1GlobalTriggerReadoutRecord> handle;
-      iEvent.getByToken(gtDigiToken_,handle);
-      if (handle.isValid()) {
-        prescaleSet_ = handle->gtFdlWord().gtPrescaleFactorIndexAlgo();
-        // gtPrescaleFactorIndexTech() is also available
-        // by construction, they should always return the same index
-        prescaleFactor_ = prescaleService_->getPrescale(prescaleSet_, pathName);
+      edm::Handle<GlobalAlgBlkBxCollection> handle2;
+      iEvent.getByToken(gtDigi2Token_,handle2);
+      if (handle2.isValid()) {
+        if (handle2->begin(0)!=handle2->end(0)) {
+	  prescaleSet_ = static_cast<unsigned int>(handle2->begin(0)->getPreScColumn());
+	  prescaleFactor_ = prescaleService_->getPrescale(prescaleSet_, pathName);
+	} else {
+	  edm::LogWarning("HLT") << "Cannot read prescale column index from GT2 data: using default as defined by configuration or DAQ";
+	  prescaleFactor_ = prescaleService_->getPrescale(pathName);
+	}
       } else {
-        edm::LogWarning("HLT") << "Cannot read prescale column index from GT data: using default as defined by configuration or DAQ";
-        prescaleFactor_ = prescaleService_->getPrescale(pathName);
+	edm::Handle<L1GlobalTriggerReadoutRecord> handle1;
+	iEvent.getByToken(gtDigi1Token_,handle1);
+	if (handle1.isValid()) {
+	  prescaleSet_ = handle1->gtFdlWord().gtPrescaleFactorIndexAlgo();
+	  // gtPrescaleFactorIndexTech() is also available
+	  // by construction, they should always return the same index
+	  prescaleFactor_ = prescaleService_->getPrescale(prescaleSet_, pathName);
+	} else {
+	  edm::LogWarning("HLT") << "Cannot read prescale column index from GT1 data: using default as defined by configuration or DAQ";
+	  prescaleFactor_ = prescaleService_->getPrescale(pathName);
+	}
       }
 
       if (prescaleSet_ != oldSet) {
@@ -127,12 +135,27 @@ bool HLTPrescaler::filter(edm::Event& iEvent, const edm::EventSetup&)
 
 
 //_____________________________________________________________________________
-void HLTPrescaler::endJob()
+void HLTPrescaler::endStream()
 {
+  //since these are std::atomic, it is safe to increment them
+  // even if multiple endStreams are being called.
+  globalCache()->eventCount_ += eventCount_;
+  globalCache()->acceptCount_ += acceptCount_; 
+  return;
+}
+
+//_____________________________________________________________________________
+void HLTPrescaler::globalEndJob(const trigger::Efficiency* efficiency)
+{
+  unsigned int accept(efficiency->acceptCount_);
+  unsigned int event (efficiency->eventCount_);
   edm::LogInfo("PrescaleSummary")
-    << acceptCount_<< "/" <<eventCount_
+    << accept << "/" << event
     << " ("
-    << 100.*acceptCount_/static_cast<double>(std::max(1u,eventCount_))
+    << 100.*accept/static_cast<double>(std::max(1u,event))
     << "% of events accepted).";
   return;
 }
+
+#include "FWCore/Framework/interface/MakerMacros.h"
+DEFINE_FWK_MODULE(HLTPrescaler);

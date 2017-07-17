@@ -27,11 +27,11 @@ class LikelihoodPdfProduct {
   void setSplitFrac(const char* specname, const char* catName, float frac=1.0);
 
   //! get the likelihood ratio p(a priori) * L(specName) / L_tot
-  float getRatio(const char* specName, const std::vector<float>& measurements, std::string);
+  float getRatio(const char* specName, const std::vector<float>& measurements, const std::string&) const;
 
  private:
 
-  float getSpeciesProb(const char* specName, const std::vector<float>& measurements, std::string gsfClass);
+  float getSpeciesProb(const char* specName, const std::vector<float>& measurements, const std::string& gsfClass) const;
   std::string _name;
   const ElectronLikelihoodCalibration *_calibration;
   std::vector<LikelihoodSpecies*> _specList;

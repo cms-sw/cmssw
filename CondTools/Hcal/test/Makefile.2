@@ -1,0 +1,23 @@
+include Makefile.common
+
+BOOST_LIB = /usr/local/lib
+BOOST_INC = /usr/local/include
+
+OPTIMIZE = -std=c++11 -g
+INCLUDES = -I. -I$(BOOST_INC)
+CXXFLAGS = $(OPTIMIZE) $(INCLUDES) -fPIC -Wall -W -Werror
+LINKFLAGS = $(OPTIMIZE) -fPIC
+
+LIBS = -L$(BOOST_LIB) -lboost_serialization -L/usr/lib -ldl -lm
+
+BINARIES = $(PROGRAMS:.cc=)
+
+all: $(BINARIES)
+
+$(BINARIES): % : %.o $(OFILES); g++ $(LINKFLAGS) -o $@ $^ $(LIBS)
+
+clean:
+	rm -f $(BINARIES) core core.* *.o *.d *~
+
+-include $(OFILES:.o=.d)
+-include $(PROGRAMS:.cc=.d)

@@ -8,27 +8,43 @@
 #include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/src/edmodule_mightGet_config.h"
+#include "FWCore/Framework/src/EventSignalsSentry.h"
+
+#include "SharedResourcesRegistry.h"
 
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 namespace edm {
+  
+  EDFilter::EDFilter() : ProducerBase() , moduleDescription_(),
+  previousParentage_(), previousParentageId_() {
+    SharedResourcesRegistry::instance()->registerSharedResource(
+                                                                SharedResourcesRegistry::kLegacyModuleResourceName);
+  }
+
   EDFilter::~EDFilter() {
   }
 
   bool
-  EDFilter::doEvent(EventPrincipal& ep, EventSetup const& c,
+  EDFilter::doEvent(EventPrincipal const& ep, EventSetup const& c,
+                    ActivityRegistry* act,
                     ModuleCallingContext const* mcc) {
     bool rc = false;
     Event e(ep, moduleDescription_, mcc);
     e.setConsumer(this);
+    e.setSharedResourcesAcquirer(&resourceAcquirer_);
+    EventSignalsSentry sentry(act,mcc);
     rc = this->filter(e, c);
     commit_(e,&previousParentage_, &previousParentageId_);
     return rc;
   }
 
   void 
-  EDFilter::doBeginJob() { 
+  EDFilter::doBeginJob() {
+    std::vector<std::string> res = {SharedResourcesRegistry::kLegacyModuleResourceName};
+    resourceAcquirer_ = SharedResourcesRegistry::instance()->createAcquirer(res);
+
     this->beginJob();
   }
    
@@ -37,7 +53,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doBeginRun(RunPrincipal& rp, EventSetup const& c,
+  EDFilter::doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                        ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -48,7 +64,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doEndRun(RunPrincipal& rp, EventSetup const& c,
+  EDFilter::doEndRun(RunPrincipal const& rp, EventSetup const& c,
                      ModuleCallingContext const* mcc) {
     Run r(rp, moduleDescription_, mcc);
     r.setConsumer(this);
@@ -59,7 +75,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDFilter::doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                    ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
@@ -69,7 +85,7 @@ namespace edm {
   }
 
   void
-  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+  EDFilter::doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                  ModuleCallingContext const* mcc) {
     LuminosityBlock lb(lbp, moduleDescription_, mcc);
     lb.setConsumer(this);
@@ -89,16 +105,6 @@ namespace edm {
     respondToCloseInputFile(fb);
   }
 
-  void 
-  EDFilter::doPreForkReleaseResources() {
-    preForkReleaseResources();
-  }
-  
-  void 
-  EDFilter::doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren) {
-    postForkReacquireResources(iChildIndex, iNumberOfChildren);
-  }
-  
   void
   EDFilter::fillDescriptions(ConfigurationDescriptions& descriptions) {
     ParameterSetDescription desc;

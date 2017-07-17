@@ -4,15 +4,16 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtSemiLepEvtPartons.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
 
 class TtSemiLepJetCombWMassMaxSumPt : public edm::EDProducer {
 
  public:
-  
+
   explicit TtSemiLepJetCombWMassMaxSumPt(const edm::ParameterSet&);
   ~TtSemiLepJetCombWMassMaxSumPt();
-  
+
  private:
 
   virtual void beginJob() {};
@@ -21,8 +22,8 @@ class TtSemiLepJetCombWMassMaxSumPt : public edm::EDProducer {
 
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
 
-  edm::InputTag jets_;
-  edm::InputTag leps_;
+  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT< edm::View<reco::RecoCandidate> > lepsToken_;
   int maxNJets_;
   double wMass_;
   bool useBTagging_;

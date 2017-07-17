@@ -2,7 +2,7 @@
 //
 // Package:    HLTCaloTowerFilter
 // Class:      HLTCaloTowerFilter
-// 
+//
 /**\class HLTCaloTowerFilter HLTCaloTowerFilter.cc Work/HLTCaloTowerFilter/src/HLTCaloTowerFilter.cc
 
  Description: <one line class summary>
@@ -22,7 +22,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/CaloTowers/interface/CaloTower.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
@@ -33,16 +33,16 @@
 class HLTCaloTowerFilter : public HLTFilter {
 public:
   explicit HLTCaloTowerFilter(const edm::ParameterSet&);
-  ~HLTCaloTowerFilter();
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
-    
+  ~HLTCaloTowerFilter() override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
+
 private:
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) override;
+  bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   // ----------member data ---------------------------
   edm::EDGetTokenT<CaloTowerCollection> inputToken_;
   edm::InputTag inputTag_;    // input tag identifying product
-  double        min_Pt_;      // pt threshold in GeV 
+  double        min_Pt_;      // pt threshold in GeV
   double        max_Eta_;     // eta range (symmetric)
   unsigned int  min_N_;       // number of objects passing cuts required
 
@@ -84,7 +84,7 @@ HLTCaloTowerFilter::fillDescriptions(edm::ConfigurationDescriptions& description
 
 // ------------ method called on each new Event  ------------
 bool
-HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) {
+HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, trigger::TriggerFilterObjectWithRefs & filterproduct) const {
   using namespace std;
   using namespace edm;
   using namespace reco;
@@ -102,8 +102,8 @@ HLTCaloTowerFilter::hltFilter(edm::Event& event, const edm::EventSetup& setup, t
 
   // look at all objects, check cuts and add to filter object
   unsigned int n = 0;
-  for (CaloTowerCollection::const_iterator i = caloTowers->begin(); i != caloTowers->end(); ++i) {
-    if ( (i->pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (std::abs(i->eta()) <= max_Eta_) ) )
+  for (auto const & i : *caloTowers) {
+    if ( (i.pt() >= min_Pt_) and ( (max_Eta_ < 0.0) or (std::abs(i.eta()) <= max_Eta_) ) )
       ++n;
       //edm::Ref<CaloTowerCollection> ref(towers, std::distance(caloTowers->begin(), i));
       //filterproduct.addObject(TriggerJet, ref);

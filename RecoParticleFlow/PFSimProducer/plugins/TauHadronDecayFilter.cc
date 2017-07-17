@@ -32,12 +32,9 @@ using namespace std;
 TauHadronDecayFilter::TauHadronDecayFilter(const edm::ParameterSet& iConfig) {
   //now do what ever initialization is needed
 
-  vertexGenerator_ = iConfig.getParameter<edm::ParameterSet>
-    ( "VertexGenerator" );   
   particleFilter_ = iConfig.getParameter<edm::ParameterSet>
     ( "ParticleFilter" );   
 
-  // mySimEvent =  new FSimEvent(vertexGenerator_, particleFilter_);
   mySimEvent =  new FSimEvent( particleFilter_);
 }
 
@@ -54,8 +51,8 @@ TauHadronDecayFilter::~TauHadronDecayFilter() {
 bool
 TauHadronDecayFilter::filter(edm::Event& iEvent, 
 			     const edm::EventSetup& iSetup) {
-
-  
+  ParticleTable::Sentry ptable(mySimEvent->theTable());
+    
   Handle<vector<SimTrack> > simTracks;
   iEvent.getByLabel("g4SimHits",simTracks);
   Handle<vector<SimVertex> > simVertices;
@@ -96,8 +93,6 @@ TauHadronDecayFilter::beginRun(const edm::Run& run,
   // edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
 
   es.getData(pdt);
-  if ( !ParticleTable::instance() ) 
-    ParticleTable::instance(&(*pdt));
   mySimEvent->initializePdt(&(*pdt));
 
 }

@@ -23,15 +23,8 @@
 #include "RecoMuon/TrackingTools/interface/MuonTrackFinder.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+#include "RecoMuon/GlobalTrackingTools/interface/MuonTrackingRegionBuilder.h"
 
-// Input and output collection
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-
-#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
-#include "DataFormats/MuonReco/interface/MuonFwd.h"
-#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
 
 using namespace edm;
 using namespace std;
@@ -48,6 +41,10 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
 
   // L2 Muon Collection Label
   theL2CollectionLabel = parameterSet.getParameter<InputTag>("MuonCollectionLabel");
+  l2MuonToken_ = consumes<reco::TrackCollection>(theL2CollectionLabel);
+  l2MuonTrajToken_ = consumes<std::vector<Trajectory> >(theL2CollectionLabel.label());
+  l2AssoMapToken_ = consumes<TrajTrackAssociationCollection>(theL2CollectionLabel.label());
+  updatedL2AssoMapToken_ = consumes<reco::TrackToTrackMap>(theL2CollectionLabel.label());
 
   // service parameters
   ParameterSet serviceParameters = parameterSet.getParameter<ParameterSet>("ServiceParameters");
@@ -57,10 +54,11 @@ L3MuonProducer::L3MuonProducer(const ParameterSet& parameterSet) {
   
   // the services
   theService = new MuonServiceProxy(serviceParameters);
+  ConsumesCollector iC = consumesCollector();
   
   // instantiate the concrete trajectory builder in the Track Finder
-  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,theService);
-  L3MuonTrajectoryBuilder* l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService);
+  MuonTrackLoader* mtl = new MuonTrackLoader(trackLoaderParameters,iC,theService);
+  L3MuonTrajectoryBuilder* l3mtb = new L3MuonTrajectoryBuilder(trajectoryBuilderParameters, theService,iC);
   theTrackFinder = new MuonTrackFinder(l3mtb, mtl);
 
   theL2SeededTkLabel = trackLoaderParameters.getUntrackedParameter<std::string>("MuonSeededTracksInstance",std::string());
@@ -110,20 +108,23 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
   // Take the L2 muon container(s)
   LogTrace(metname)<<"Taking the L2 Muons "<<theL2CollectionLabel<<endl;
 
+
   Handle<reco::TrackCollection> L2Muons;
-  event.getByLabel(theL2CollectionLabel,L2Muons);
+  event.getByToken(l2MuonToken_,L2Muons);
 
   Handle<vector<Trajectory> > L2MuonsTraj;
   vector<MuonTrajectoryBuilder::TrackCand> L2TrackCands;
 
 
-  event.getByLabel(theL2CollectionLabel.label(), L2MuonsTraj);      
-  
+  event.getByToken(l2MuonTrajToken_, L2MuonsTraj);      
+
   edm::Handle<TrajTrackAssociationCollection> L2AssoMap;
-  event.getByLabel(theL2CollectionLabel.label(),L2AssoMap);
-  
+  event.getByToken(l2AssoMapToken_,L2AssoMap);
+
   edm::Handle<reco::TrackToTrackMap> updatedL2AssoMap;
-  event.getByLabel(theL2CollectionLabel.label(),updatedL2AssoMap);
+  event.getByToken(updatedL2AssoMapToken_,updatedL2AssoMap);
+
+
       
   for(TrajTrackAssociationCollection::const_iterator it = L2AssoMap->begin(); it != L2AssoMap->end(); ++it){	
     const Ref<vector<Trajectory> > traj = it->key;
@@ -144,10 +145,167 @@ void L3MuonProducer::produce(Event& event, const EventSetup& eventSetup) {
     L2TrackCands.push_back(L2Cand);
   }
   
-  theTrackFinder->reconstruct(L2TrackCands, event);      
+  theTrackFinder->reconstruct(L2TrackCands, event, eventSetup);
   
   LogTrace(metname)<<"Event loaded"
                    <<"================================"
                    <<endl<<endl;
     
+}
+
+void L3MuonProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<std::vector<std::string>>("Propagators", {
+      "hltESPSmartPropagatorAny",
+      "SteppingHelixPropagatorAny",
+      "hltESPSmartPropagator",
+      "hltESPSteppingHelixPropagatorOpposite",
+    });
+    psd0.add<bool>("RPCLayers", true);
+    psd0.addUntracked<bool>("UseMuonNavigation", true);
+    desc.add<edm::ParameterSetDescription>("ServiceParameters", psd0);
+  }
+  desc.add<edm::InputTag>("MuonCollectionLabel", edm::InputTag("hltL2Muons","UpdatedAtVtx"));
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.addUntracked<bool>("PutTkTrackIntoEvent", false);
+    psd0.add<std::string>("TTRHBuilder", "hltESPTTRHBWithTrackAngle");
+    psd0.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    psd0.addUntracked<bool>("SmoothTkTrack", false);
+    psd0.addUntracked<std::string>("MuonSeededTracksInstance", "L2Seeded");
+    psd0.add<std::string>("Smoother", "hltESPKFTrajectorySmootherForMuonTrackLoader");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("MaxChi2", 1000000.0);
+      psd1.add<std::string>("Propagator", "hltESPSteppingHelixPropagatorOpposite");
+      psd1.add<std::vector<double>>("BeamSpotPositionErrors", {
+        0.1,
+        0.1,
+        5.3,
+      });
+      psd0.add<edm::ParameterSetDescription>("MuonUpdatorAtVertexParameters", psd1);
+    }
+    psd0.add<bool>("VertexConstraint", false);
+    psd0.add<bool>("DoSmoothing", false);
+    desc.add<edm::ParameterSetDescription>("TrackLoaderParameters", psd0);
+  }
+  {
+    edm::ParameterSetDescription psd0;
+    psd0.add<double>("ScaleTECyFactor", -1.0);
+    psd0.add<edm::InputTag>("tkTrajVertex", edm::InputTag("hltPixelVertices"));
+    psd0.add<bool>("tkTrajUseVertex", false);
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<int>("TrackerSkipSection", -1);
+      psd1.add<bool>("DoPredictionsOnly", false);
+      psd1.add<bool>("PropDirForCosmics", false);
+      psd1.add<int>("HitThreshold", 1);
+      psd1.add<int>("MuonHitsOption", 1);
+      psd1.add<bool>("RefitFlag", true);
+      psd1.add<std::string>("Fitter", "hltESPL3MuKFTrajectoryFitter");
+      psd1.add<int>("SkipStation", -1);
+      psd1.add<std::string>("TrackerRecHitBuilder", "hltESPTTRHBWithTrackAngle");
+      psd1.add<double>("Chi2CutRPC", 1.0);
+      psd1.add<std::string>("MuonRecHitBuilder", "hltESPMuonTransientTrackingRecHitBuilder");
+      psd1.add<std::string>("RefitDirection", "insideOut");
+      psd1.add<edm::InputTag>("CSCRecSegmentLabel", edm::InputTag("hltCscSegments"));
+      psd1.add<edm::InputTag>("GEMRecHitLabel", edm::InputTag("gemRecHits"));
+      psd1.add<edm::InputTag>("ME0RecHitLabel", edm::InputTag("me0Segments"));
+      psd1.add<std::vector<int>>("DYTthrs", {
+        30,
+        15,
+      });
+      psd1.add<double>("Chi2CutCSC", 150.0);
+      psd1.add<double>("Chi2CutDT", 10.0);
+      psd1.add<double>("Chi2CutGEM", 1.0);
+      psd1.add<double>("Chi2CutME0", 1.0);
+      psd1.add<bool>("RefitRPCHits", true);
+      psd1.add<edm::InputTag>("DTRecSegmentLabel", edm::InputTag("hltDt4DSegments"));
+      psd1.add<std::string>("Propagator", "hltESPSmartPropagatorAny");
+      psd1.add<int>("TrackerSkipSystem", -1);
+      psd0.add<edm::ParameterSetDescription>("GlbRefitterParameters", psd1);
+    }
+    psd0.add<double>("tkTrajMaxChi2", 9999.0);
+    psd0.add<double>("ScaleTECxFactor", -1.0);
+    psd0.add<std::string>("TrackerRecHitBuilder", "hltESPTTRHBWithTrackAngle");
+    psd0.add<edm::InputTag>("tkTrajBeamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    psd0.add<std::string>("MuonRecHitBuilder", "hltESPMuonTransientTrackingRecHitBuilder");
+    psd0.add<double>("tkTrajMaxDXYBeamSpot", 9999.0);
+    psd0.add<std::string>("TrackerPropagator", "SteppingHelixPropagatorAny");
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<bool>("precise", true);
+      psd1.add<bool>("Eta_fixed", true);
+      psd1.add<double>("Eta_min", 0.1);
+      psd1.add<bool>("Z_fixed", false);
+      psd1.add<edm::InputTag>("MeasurementTrackerName", edm::InputTag("hltESPMeasurementTracker"));
+      psd1.add<int>("maxRegions", 2);
+      psd1.add<double>("Pt_min", 3.0);
+      psd1.add<double>("Rescale_Dz", 4.0);
+      psd1.add<double>("PhiR_UpperLimit_Par1", 0.6);
+      psd1.add<double>("PhiR_UpperLimit_Par2", 0.2);
+      psd1.add<edm::InputTag>("vertexCollection", edm::InputTag("pixelVertices"));
+      psd1.add<bool>("Phi_fixed", true);
+      psd1.add<edm::InputTag>("input", edm::InputTag("hltL2Muons","UpdatedAtVtx"));
+      psd1.add<double>("DeltaR", 0.025);
+      psd1.add<int>("OnDemand", -1);
+      psd1.add<double>("DeltaZ", 24.2);
+      psd1.add<double>("Rescale_phi", 3.0);
+      psd1.add<double>("Rescale_eta", 3.0);
+      psd1.add<double>("DeltaEta", 0.04);
+      psd1.add<double>("DeltaPhi", 0.15);
+      psd1.add<double>("Phi_min", 0.1);
+      psd1.add<bool>("UseVertex", false);
+      psd1.add<double>("EtaR_UpperLimit_Par1", 0.25);
+      psd1.add<double>("EtaR_UpperLimit_Par2", 0.15);
+      psd1.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+      psd1.add<double>("EscapePt", 3.0);
+      psd1.add<bool>("Pt_fixed", false);
+      psd0.add<edm::ParameterSetDescription>("MuonTrackingRegionBuilder", psd1);
+    }
+    psd0.add<bool>("RefitRPCHits", true);
+    psd0.add<double>("PCut", 2.5);
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<bool>("DoPredictionsOnly", false);
+      psd1.add<std::string>("Fitter", "hltESPL3MuKFTrajectoryFitter");
+      psd1.add<std::string>("TrackerRecHitBuilder", "hltESPTTRHBWithTrackAngle");
+      psd1.add<std::string>("Smoother", "hltESPKFTrajectorySmootherForMuonTrackLoader");
+      psd1.add<std::string>("MuonRecHitBuilder", "hltESPMuonTransientTrackingRecHitBuilder");
+      psd1.add<std::string>("RefitDirection", "insideOut");
+      psd1.add<bool>("RefitRPCHits", true);
+      psd1.add<std::string>("Propagator", "hltESPSmartPropagatorAny");
+      psd0.add<edm::ParameterSetDescription>("TrackTransformer", psd1);
+    }
+    {
+      edm::ParameterSetDescription psd1;
+      psd1.add<double>("Quality_3", 7.0);
+      psd1.add<double>("DeltaRCut_1", 0.1);
+      psd1.add<double>("MinP", 2.5);
+      psd1.add<double>("MinPt", 1.0);
+      psd1.add<double>("Quality_2", 15.0);
+      psd1.add<double>("Pt_threshold2", 999999999.0);
+      psd1.add<double>("LocChi2Cut", 0.001);
+      psd1.add<double>("Eta_threshold", 1.2);
+      psd1.add<double>("Pt_threshold1", 0.0);
+      psd1.add<double>("Chi2Cut_1", 50.0);
+      psd1.add<double>("Quality_1", 20.0);
+      psd1.add<double>("Chi2Cut_3", 200.0);
+      psd1.add<double>("DeltaRCut_3", 1.0);
+      psd1.add<double>("DeltaRCut_2", 0.2);
+      psd1.add<double>("DeltaDCut_1", 40.0);
+      psd1.add<double>("DeltaDCut_2", 10.0);
+      psd1.add<double>("DeltaDCut_3", 15.0);
+      psd1.add<double>("Chi2Cut_2", 50.0);
+      psd1.add<std::string>("Propagator", "hltESPSmartPropagator");
+      psd0.add<edm::ParameterSetDescription>("GlobalMuonTrackMatcher", psd1);
+    }
+    psd0.add<double>("PtCut", 1.0);
+    psd0.add<bool>("matchToSeeds", true);
+    psd0.add<edm::InputTag>("tkTrajLabel", edm::InputTag("hltBRSMuonSeededTracksOutIn"));
+    desc.add<edm::ParameterSetDescription>("L3TrajBuilderParameters", psd0);
+  }
+  descriptions.add("L3MuonProducer", desc);
 }

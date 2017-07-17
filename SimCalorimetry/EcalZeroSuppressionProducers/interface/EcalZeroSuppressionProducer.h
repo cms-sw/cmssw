@@ -1,7 +1,8 @@
 #ifndef ECALZEROSUPPRESSIONPRODUCER_H
 #define ECALZEROSUPPRESSIONPRODUCER_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -20,7 +21,7 @@
 #include "SimCalorimetry/EcalZeroSuppressionAlgos/interface/EcalZeroSuppressor.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloDigiCollectionSorter.h"
 
-class EcalZeroSuppressionProducer : public edm::EDProducer
+class EcalZeroSuppressionProducer : public edm::stream::EDProducer<>
 {
 public:
 
@@ -48,6 +49,9 @@ private:
 
   EcalZeroSuppressor<EBDataFrame> theBarrelZeroSuppressor_;
   EcalZeroSuppressor<EEDataFrame> theEndcapZeroSuppressor_;
+
+  edm::EDGetTokenT<EBDigiCollection> EB_token;
+  edm::EDGetTokenT<EEDigiCollection> EE_token;
  
 };
 

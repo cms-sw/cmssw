@@ -13,6 +13,7 @@
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup; }
 
@@ -24,7 +25,7 @@ class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   public:
 
     /// constructor with Parameter Set and MuonServiceProxy
-    GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
+  GlobalMuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*,edm::ConsumesCollector&);
           
     /// destructor
     ~GlobalMuonTrajectoryBuilder();
@@ -43,7 +44,7 @@ class GlobalMuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
   private:
   
     edm::InputTag theTkTrackLabel;
-
+    edm::EDGetTokenT<reco::TrackCollection> allTrackerTracksToken;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
 
 };

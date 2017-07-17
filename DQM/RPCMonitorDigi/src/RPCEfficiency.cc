@@ -1,8 +1,5 @@
 /***************************************
-Author: 
-Camilo Carrillo
-Universidad de los Andes Bogota Colombia
-camilo.carrilloATcern.ch
+Original Author: Camilo Carrillo
 ****************************************/
 
 #include "DQM/RPCMonitorDigi/interface/RPCEfficiency.h"
@@ -18,9 +15,6 @@ camilo.carrilloATcern.ch
 
 //FW Core
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-
-
-void RPCEfficiency::beginJob(){}
 
 int distsector_tmp(int sector1,int sector2){
  
@@ -61,21 +55,18 @@ RPCEfficiency::RPCEfficiency(const edm::ParameterSet& iConfig){
 
 }
 
-void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup){
- 
 
-  //Interface
+void RPCEfficiency::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & run, edm::EventSetup const & iSetup ) {
 
-  dbe = edm::Service<DQMStore>().operator->();
-   
   std::string folder;
-  dbe->setCurrentFolder(folderPath);
-  statistics = dbe->book1D("Statistics","All Statistics",33,0.5,33.5);
+  ibooker.cd();
+  ibooker.setCurrentFolder(folderPath);
+  statistics = ibooker.book1D("Statistics","All Statistics",33,0.5,33.5);
 
    
   statistics->setBinLabel(1,"Events ",1);
-
-  statistics->setBinLabel(2,"Events with DT seg",1);  
+  statistics->setBinLabel(2,"Events with DT seg",1);
+  
   std::stringstream sstr;
   for( int i = 1; i<=15; i++ ){ //DT form bin 3 to bin 17
     sstr.str("");
@@ -93,8 +84,8 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 
    LogDebug("rpcefficiency")<<"booking Global histograms with "<<folderPath;
    
-  folder = folderPath+"MuonSegEff/"+"Residuals/Barrel";
-  dbe->setCurrentFolder(folder);
+  folder = folderPath+"MuonSegEff/Residuals/Barrel";
+  ibooker.setCurrentFolder(folder);
  
   //Barrel
   std::stringstream histoName, histoTitle;
@@ -104,72 +95,68 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
     histoTitle.str("");
     histoName<<"GlobalResidualsClu1La"<<layer;
     histoTitle<<"RPC Residuals Layer "<<layer<<" Cluster Size 1"; 
-    hGlobalResClu1La[layer-1] = dbe->book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
+    hGlobalResClu1La[layer-1] = ibooker.book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
  
     histoName.str("");
     histoTitle.str("");
     histoName<<"GlobalResidualsClu2La"<<layer;
     histoTitle<<"RPC Residuals Layer "<<layer<<" Cluster Size 2"; 
-    hGlobalResClu2La[layer-1] = dbe->book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
+    hGlobalResClu2La[layer-1] = ibooker.book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
     
     histoName.str("");
     histoTitle.str("");
     histoName<<"GlobalResidualsClu3La"<<layer;
     histoTitle<<"RPC Residuals Layer "<<layer<<" Cluster Size 3"; 
-    hGlobalResClu3La[layer-1] = dbe->book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
+    hGlobalResClu3La[layer-1] = ibooker.book1D(histoName.str(), histoTitle.str(),101,-10.,10.);
     
   }
   
-   LogDebug("rpcefficiency")<<"Booking Residuals for EndCap";
-  folder = folderPath+"MuonSegEff/Residuals/EndCap";
-  dbe->setCurrentFolder(folder);
-
+  LogDebug("rpcefficiency")<<"Booking Residuals for EndCap";
+  folder = folderPath+"MuonSegEff/Residuals/Endcap";
+  ibooker.setCurrentFolder(folder);
+  
   //Endcap   
+  hGlobalResClu1R3C = ibooker.book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R3B = ibooker.book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R3A = ibooker.book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2C = ibooker.book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2B = ibooker.book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
+  hGlobalResClu1R2A = ibooker.book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
 
+  hGlobalResClu2R3C = ibooker.book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R3B = ibooker.book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R3A = ibooker.book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2C = ibooker.book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2B = ibooker.book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
+  hGlobalResClu2R2A = ibooker.book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
 
-  hGlobalResClu1R3C = dbe->book1D("GlobalResidualsClu1R3C","RPC Residuals Ring 3 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R3B = dbe->book1D("GlobalResidualsClu1R3B","RPC Residuals Ring 3 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R3A = dbe->book1D("GlobalResidualsClu1R3A","RPC Residuals Ring 3 Roll A Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2C = dbe->book1D("GlobalResidualsClu1R2C","RPC Residuals Ring 2 Roll C Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2B = dbe->book1D("GlobalResidualsClu1R2B","RPC Residuals Ring 2 Roll B Cluster Size 1",101,-10.,10.);
-  hGlobalResClu1R2A = dbe->book1D("GlobalResidualsClu1R2A","RPC Residuals Ring 2 Roll A Cluster Size 1",101,-10.,10.);
-
-  hGlobalResClu2R3C = dbe->book1D("GlobalResidualsClu2R3C","RPC Residuals Ring 3 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R3B = dbe->book1D("GlobalResidualsClu2R3B","RPC Residuals Ring 3 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R3A = dbe->book1D("GlobalResidualsClu2R3A","RPC Residuals Ring 3 Roll A Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2C = dbe->book1D("GlobalResidualsClu2R2C","RPC Residuals Ring 2 Roll C Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2B = dbe->book1D("GlobalResidualsClu2R2B","RPC Residuals Ring 2 Roll B Cluster Size 2",101,-10.,10.);
-  hGlobalResClu2R2A = dbe->book1D("GlobalResidualsClu2R2A","RPC Residuals Ring 2 Roll A Cluster Size 2",101,-10.,10.);
-
-  hGlobalResClu3R3C = dbe->book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R3B = dbe->book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R3A = dbe->book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2C = dbe->book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2B = dbe->book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
-  hGlobalResClu3R2A = dbe->book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
-
+  hGlobalResClu3R3C = ibooker.book1D("GlobalResidualsClu3R3C","RPC Residuals Ring 3 Roll C Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R3B = ibooker.book1D("GlobalResidualsClu3R3B","RPC Residuals Ring 3 Roll B Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R3A = ibooker.book1D("GlobalResidualsClu3R3A","RPC Residuals Ring 3 Roll A Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2C = ibooker.book1D("GlobalResidualsClu3R2C","RPC Residuals Ring 2 Roll C Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2B = ibooker.book1D("GlobalResidualsClu3R2B","RPC Residuals Ring 2 Roll B Cluster Size 3",101,-10.,10.);
+  hGlobalResClu3R2A = ibooker.book1D("GlobalResidualsClu3R2A","RPC Residuals Ring 2 Roll A Cluster Size 3",101,-10.,10.);
 
 
   edm::ESHandle<RPCGeometry> rpcGeo;
   iSetup.get<MuonGeometryRecord>().get(rpcGeo);
   
   
-  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if(dynamic_cast< RPCChamber* >( *it ) != 0 ){
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
+  for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){ //Loop on all detector units
+
+    if(dynamic_cast< const RPCChamber* >( *it ) != 0 ){ // check if chamber exists
+      const RPCChamber* ch = dynamic_cast< const RPCChamber* >( *it ); 
+      std::vector< const RPCRoll*> roles = (ch->rolls()); //get all rolls in a chambers
+
+      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){ //Loop on all rolls
 	
 	RPCDetId rpcId = (*r)->id();
 	int region=rpcId.region();
-	//booking all histograms
+	
+	LogDebug("rpcefficiency")<<"Booking for "<<rpcId.rawId();
 
-	//	std::string nameRoll = rpcsrv.name();
-	
-	 LogDebug("rpcefficiency")<<"Booking for "<<rpcId.rawId();
-	
-	bookDetUnitSeg(rpcId,(*r)->nstrips(),folderPath+"MuonSegEff/", 	meCollection[rpcId.rawId()] );
-	
+	bookDetUnitSeg(ibooker, rpcId,(*r)->nstrips(),  folderPath+"MuonSegEff/", meCollection[rpcId.rawId()] ); // book histograms
+
 	if(region==0&&(incldt||incldtMB4)){
 	  //LogDebug("rpcefficiency")<<"--Filling the dtstore"<<rpcId;
 	  int wheel=rpcId.ring();
@@ -177,7 +164,7 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 	  int station=rpcId.station();
 	  DTStationIndex ind(region,wheel,sector,station);
 	  std::set<RPCDetId> myrolls;
-	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) myrolls=rollstoreDT[ind];
+	  if (rollstoreDT.find(ind)!=rollstoreDT.end()) {myrolls=rollstoreDT[ind];}
 	  myrolls.insert(rpcId);
 	  rollstoreDT[ind]=myrolls;
  
@@ -189,64 +176,44 @@ void RPCEfficiency::beginRun(const edm::Run& run, const edm::EventSetup& iSetup)
 	  RPCGeomServ rpcsrv(rpcId);
 	  int rpcsegment = rpcsrv.segment();
 	  int cscchamber = rpcsegment;
-          if((station==2||station==3)&&ring==3){
+
+          if((station==2||station==3||station==4)&&ring==3){
             cscring = 2;
           }
 	   
 	  CSCStationIndex ind(region,cscstation,cscring,cscchamber);
           std::set<RPCDetId> myrolls;
-	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){
-            myrolls=rollstoreCSC[ind];
-          }
+	  if (rollstoreCSC.find(ind)!=rollstoreCSC.end()){ myrolls=rollstoreCSC[ind];}
           myrolls.insert(rpcId);
           rollstoreCSC[ind]=myrolls;
-	}
-      }
-    }
-  }
-   for (TrackingGeometry::DetContainer::const_iterator it=rpcGeo->dets().begin();it<rpcGeo->dets().end();it++){
-    if( dynamic_cast< RPCChamber* >( *it ) != 0 ){
-       
-      RPCChamber* ch = dynamic_cast< RPCChamber* >( *it ); 
-      std::vector< const RPCRoll*> roles = (ch->rolls());
-      for(std::vector<const RPCRoll*>::const_iterator r = roles.begin();r != roles.end(); ++r){
-	RPCDetId rpcId = (*r)->id();
-	 
-	int region=rpcId.region();
-	 
-	if(region!=0 && inclcsc && (rpcId.ring()==2 || rpcId.ring()==3)){
-	  int region=rpcId.region();                                                                                         
-          int station=rpcId.station();                                                                                       
-          int ring=rpcId.ring();                                                                                             
-	  int cscring = ring;
-	     
-	  if((station==2||station==3)&&ring==3) cscring = 2; //CSC Ring 2 covers rpc ring 2 & 3                              
 
- 
-          int cscstation=station;                                                                                            
-          RPCGeomServ rpcsrv(rpcId);                                                                                         
-          int rpcsegment = rpcsrv.segment();                                                                                 
-                                                                                                                             
-	  int cscchamber = rpcsegment+1;                                                                                     
-          if(cscchamber==37)cscchamber=1;                                                                                    
-          CSCStationIndex ind(region,cscstation,cscring,cscchamber);                                                         
-	  std::set<RPCDetId> myrolls;                                                                                        
-          if (rollstoreCSC.find(ind)!=rollstoreCSC.end())myrolls=rollstoreCSC[ind];                                          
-          myrolls.insert(rpcId);                                                                                             
-          rollstoreCSC[ind]=myrolls;                                                                                         
-                                                                                                                              
-          cscchamber = rpcsegment-1;                                                                                         
-          if(cscchamber==0)cscchamber=36;                                                                                    
-          CSCStationIndex indDos(region,cscstation,cscring,cscchamber);                                                      
-	  std::set<RPCDetId> myrollsDos;                                                                                     
-          if (rollstoreCSC.find(indDos)!=rollstoreCSC.end()) myrollsDos=rollstoreCSC[indDos];                                 
-          myrollsDos.insert(rpcId);                                                                                          
-          rollstoreCSC[indDos]=myrollsDos;                                                                                                                                 
-        }
+	  if(rpcId.ring()==2 || rpcId.ring()==3){
+	    
+	    cscchamber = rpcsegment+1;                                                                                     
+	    if(cscchamber==37){cscchamber=1;}                                                                                    
+	    CSCStationIndex ind2(region,cscstation,cscring,cscchamber);                                                         
+	    std::set<RPCDetId> myrolls2;                                                                                        
+	    if (rollstoreCSC.find(ind2)!=rollstoreCSC.end()){myrolls2=rollstoreCSC[ind2];}                                          
+	    myrolls2.insert(rpcId);                                                                                             
+	    rollstoreCSC[ind2]=myrolls2;                                                                                         
+	    
+	    cscchamber = rpcsegment-1;                                                                                         
+	    if(cscchamber==0){cscchamber=36;}                                                                                    
+	    CSCStationIndex ind3(region,cscstation,cscring,cscchamber);                                                      
+	    std::set<RPCDetId> myrolls3;                                                                                     
+	    if (rollstoreCSC.find(ind3)!=rollstoreCSC.end()) {myrolls3=rollstoreCSC[ind3]; }                                
+	    myrolls3.insert(rpcId);                                                                                          
+	    rollstoreCSC[ind3]=myrolls3;    
+	    
+	  }
+	  
+	}
+
       }
     }
   }
 }//beginRun
+
 
 RPCEfficiency::~RPCEfficiency(){}
 
@@ -281,9 +248,9 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       
       if(all4DSegments->size()>0){
 	
-	if(all4DSegments->size()<=16) statistics->Fill(2);
+	if(all4DSegments->size()<=16) {statistics->Fill(2);}
 	
-	 LogDebug("rpcefficiency")<<"\t Number of DT Segments in this event = "<<all4DSegments->size();
+	LogDebug("rpcefficiency")<<"\t Number of DT Segments in this event = "<<all4DSegments->size();
 	
 	std::map<DTChamberId,int> DTSegmentCounter;
 	DTRecSegment4DCollection::const_iterator segment;  
@@ -330,9 +297,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		const RPCRoll* rollasociated = rpcGeo->roll(*iteraRoll);
 		RPCDetId rpcId = rollasociated->id();
 		const BoundPlane & RPCSurface = rollasociated->surface(); 
-		
-// 		RPCGeomServ rpcsrv(rpcId);
-// 		std::string nameRoll = rpcsrv.name();
 		
 		GlobalPoint CenterPointRollGlobal = RPCSurface.toGlobal(LocalPoint(0,0,0));
 		
@@ -394,9 +358,6 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		    for (recHit = recHitCollection.first; recHit != recHitCollection.second ; recHit++) {
 		      countRecHits++;
 		      
-		   //    sprintf(meIdRPC,"BXDistribution_%d",rollasociated->id().rawId());
-// 		      meMap[meIdRPC]->Fill(recHit->BunchX());
-		      
 		      LocalPoint recHitPos=recHit->localPosition();
 		      float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
 		       LogDebug("rpcefficiency")<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction.";
@@ -415,31 +376,27 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		      if(fabs(minres)<=(rangestrips+cluSize*0.5)*stripw){
 			 LogDebug("rpcefficiency")<<"DT  \t \t \t \t \t \t True!";
 			
-			//	float cosal = dx/sqrt(dx*dx+dz*dz);    
-			
 			if(rollId.station()==1&&rollId.layer()==1)     { 
 			  if(cluSize==1*dupli) {hGlobalResClu1La[0]->Fill(minres);}
 			  else if(cluSize==2*dupli){ hGlobalResClu2La[0]->Fill(minres);} 
-			  else if(cluSize==3*dupli){ hGlobalResClu3La[0]->Fill(minres);}}
-			else if(rollId.station()==1&&rollId.layer()==2){ 
+			  else if(cluSize==3*dupli){ hGlobalResClu3La[0]->Fill(minres);}
+			}else if(rollId.station()==1&&rollId.layer()==2){ 
 			  if(cluSize==1*dupli) {hGlobalResClu1La[1]->Fill(minres);}
 			  else if(cluSize==2*dupli){ hGlobalResClu2La[1]->Fill(minres);} 
-			  else if(cluSize==3*dupli){ hGlobalResClu3La[1]->Fill(minres);}}
-			else if(rollId.station()==2&&rollId.layer()==1){ 
+			  else if(cluSize==3*dupli){ hGlobalResClu3La[1]->Fill(minres);}
+			}else if(rollId.station()==2&&rollId.layer()==1){ 
 			  if(cluSize==1*dupli) {hGlobalResClu1La[2]->Fill(minres);}
 			  else if(cluSize==2*dupli){ hGlobalResClu2La[2]->Fill(minres);} 
 			  else if(cluSize==3*dupli){ hGlobalResClu3La[2]->Fill(minres);}
-			}
-			else if(rollId.station()==2&&rollId.layer()==2){ 
+			}else if(rollId.station()==2&&rollId.layer()==2){ 
 			  if(cluSize==1*dupli) {hGlobalResClu1La[3]->Fill(minres);}
 			  if(cluSize==2*dupli){ hGlobalResClu2La[3]->Fill(minres);} 
 			  else if(cluSize==3*dupli){ hGlobalResClu3La[3]->Fill(minres);}
-			}
-			else if(rollId.station()==3){ 
+			}else if(rollId.station()==3){ 
 			  if(cluSize==1*dupli) {hGlobalResClu1La[4]->Fill(minres);}
 			  else if(cluSize==2*dupli){ hGlobalResClu2La[4]->Fill(minres);} 
 			  else if(cluSize==3*dupli){ hGlobalResClu3La[4]->Fill(minres);}
-		      }
+			}
 			meIdRPC.str("");
 			meIdRPC<<"RPCDataOccupancyFromDT_"<<rollId.rawId();
 			meMap[meIdRPC.str()]->Fill(stripPredicted);
@@ -590,30 +547,22 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				 fabs(PointExtrapolatedRPCFrame.y()) < stripl*0.5){
 				
 				RPCDetId  rollId = rollasociated->id();
+				const float stripPredicted=rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
 				
-			// 	RPCGeomServ rpcsrv(rollId);
-// 				std::string nameRoll = rpcsrv.name();
-// 				 LogDebug("rpcefficiency")<<"MB4 \t \t \t \t \t The RPCName is "<<nameRoll;
-				const float stripPredicted=
-				  rollasociated->strip(LocalPoint(PointExtrapolatedRPCFrame.x(),PointExtrapolatedRPCFrame.y(),0.)); 
-				
-				 LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
+				LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Candidate (from DT Segment) STRIP---> "<<stripPredicted<< std::endl;
 				//--------- HISTOGRAM STRIP PREDICTED FROM DT  MB4 -------------------
 				
-				std::map<std::string, MonitorElement*> meMap=meCollection[rollId.rawId()];
-				
+				std::map<std::string, MonitorElement*> meMap=meCollection[rollId.rawId()];				
 				meIdDT.str("");
 				meIdDT<<"ExpectedOccupancyFromDT_"<<rollId.rawId();
 				meMap[meIdDT.str()]->Fill(stripPredicted);
-				//-------------------------------------------------
-				
 				
 				//-------RecHitPart Just For Residual--------
 				int countRecHits = 0;
 				int cluSize = 0;
 				float minres = 3000.;
 				
-				 LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Getting RecHits in Roll Asociated";
+				LogDebug("rpcefficiency")<<"MB4 \t \t \t \t Getting RecHits in Roll Asociated";
 				typedef std::pair<RPCRecHitCollection::const_iterator, RPCRecHitCollection::const_iterator> rangeRecHits;
 				rangeRecHits recHitCollection =  rpcHits->get(rollasociated->id());
 				RPCRecHitCollection::const_iterator recHit;
@@ -622,7 +571,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				  countRecHits++;
 				  LocalPoint recHitPos=recHit->localPosition();
 				  float res=PointExtrapolatedRPCFrame.x()- recHitPos.x();	    
-				   LogDebug("rpcefficiency")<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction.";
+				  LogDebug("rpcefficiency")<<"DT  \t \t \t \t \t Found Rec Hit at "<<res<<"cm of the prediction.";
 				  if(fabs(res)<fabs(minres)){
 				    minres=res;
 				    cluSize = recHit->clusterSize();
@@ -630,7 +579,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 				}		
 				
 				if(countRecHits==0){
-				   LogDebug("rpcefficiency") <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT";
+				  LogDebug("rpcefficiency") <<"MB4 \t \t \t \t \t \t THIS ROLL DOESN'T HAVE ANY RECHIT";
 				}else{     
 				  assert(minres!=3000); 
 				  
@@ -670,21 +619,20 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
       }else{
 	 LogDebug("rpcefficiency")<<"MB4 \t This event doesn't have 4D Segment";
       }
-      
   }
   
   
   if(inclcsc){
-     LogDebug("rpcefficiency") <<"\t Getting the CSC Segments";
+    LogDebug("rpcefficiency") <<"\t Getting the CSC Segments";
     edm::Handle<CSCSegmentCollection> allCSCSegments;
     
     iEvent.getByToken(cscSegments, allCSCSegments);
-      
+    
     if(allCSCSegments.isValid()){ 
       if(allCSCSegments->size()>0){
 	statistics->Fill(18);
 	
-	 LogDebug("rpcefficiency")<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size();
+	LogDebug("rpcefficiency")<<"CSC \t Number of CSC Segments in this event = "<<allCSCSegments->size();
 	
 	std::map<CSCDetId,int> CSCSegmentsCounter;
 	CSCSegmentCollection::const_iterator segment;
@@ -702,13 +650,13 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	for (segment = allCSCSegments->begin();segment!=allCSCSegments->end(); ++segment){
 	  CSCDetId CSCId = segment->cscDetId();
 	  
-	  if(CSCSegmentsCounter[CSCId]==1 && CSCId.station()!=4 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
+	  if(CSCSegmentsCounter[CSCId]==1 && CSCId.ring()!=1 && allCSCSegments->size()>=2){
 	     LogDebug("rpcefficiency")<<"CSC \t \t yes";
 	    int cscEndCap = CSCId.endcap();
 	    int cscStation = CSCId.station();
 	    int cscRing = CSCId.ring();
 	    //	    int cscChamber = CSCId.chamber();
-	    int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relacion entre las endcaps
+	    int rpcRegion = 1; if(cscEndCap==2) rpcRegion= -1;//Relation among the endcaps
 	    int rpcRing = cscRing;
 	    if(cscRing==4)rpcRing =1;
 	    int rpcStation = cscStation;
@@ -738,7 +686,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 	      std::set<RPCDetId> rollsForThisCSC = rollstoreCSC[CSCStationIndex(rpcRegion,rpcStation,rpcRing,rpcSegment)];
 	       LogDebug("rpcefficiency")<<"CSC \t \t Number of rolls for this CSC = "<<rollsForThisCSC.size();
 	      
-	      if(rpcRing!=1&&rpcStation!=4){
+	      if(rpcRing!=1){
 		
 		//Loop over all the rolls
 		for (std::set<RPCDetId>::iterator iteraRoll = rollsForThisCSC.begin();iteraRoll != rollsForThisCSC.end(); iteraRoll++){
@@ -832,31 +780,34 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 			   LogDebug("rpcefficiency")<<"CSC  \t \t \t \t \t \t True!";
 			  
 			  if(rollId.ring()==2&&rollId.roll()==1){
-			    if(cluSize==1*dupli) hGlobalResClu1R2A->Fill(minres); 
-			    else if(cluSize==2*dupli) hGlobalResClu2R2A->Fill(minres); 
-			    else if(cluSize==3*dupli) hGlobalResClu3R2A->Fill(minres);
+			    if(cluSize==1*dupli) { hGlobalResClu1R2A->Fill(minres);} 
+			    else if(cluSize==2*dupli) { hGlobalResClu2R2A->Fill(minres); }
+			    else if(cluSize==3*dupli)  {hGlobalResClu3R2A->Fill(minres);}
 			  }
 			  else if(rollId.ring()==2&&rollId.roll()==2){
-			    if(cluSize==1*dupli) hGlobalResClu1R2B->Fill(minres); 
-			    else if(cluSize==2*dupli) hGlobalResClu2R2B->Fill(minres); 
-			    else if(cluSize==3*dupli) hGlobalResClu3R2B->Fill(minres);
+			    if(cluSize==1*dupli) { hGlobalResClu1R2B->Fill(minres);} 
+			    else if(cluSize==2*dupli) { hGlobalResClu2R2B->Fill(minres); }
+			    else if(cluSize==3*dupli)  {hGlobalResClu3R2B->Fill(minres);}
 			  }
 			  else if(rollId.ring()==2&&rollId.roll()==3){
-			    if(cluSize==1*dupli) hGlobalResClu1R2C->Fill(minres); 
-			    else if(cluSize==2*dupli) hGlobalResClu2R2C->Fill(minres); 
-			    else if(cluSize==3*dupli) hGlobalResClu3R2C->Fill(minres);
+			    if(cluSize==1*dupli) { hGlobalResClu1R2C->Fill(minres);} 
+			    else if(cluSize==2*dupli)  {hGlobalResClu2R2C->Fill(minres); }
+			    else if(cluSize==3*dupli) { hGlobalResClu3R2C->Fill(minres);}
 			  }
 			  else if(rollId.ring()==3&&rollId.roll()==1){
-			    if(cluSize==1*dupli) hGlobalResClu1R3A->Fill(minres); 
-			    else if(cluSize==2*dupli) hGlobalResClu2R3A->Fill(minres); 
-			    else if(cluSize==3*dupli) hGlobalResClu3R3A->Fill(minres);
+			    if(cluSize==1*dupli)  {hGlobalResClu1R3A->Fill(minres); }
+			    else if(cluSize==2*dupli) { hGlobalResClu2R3A->Fill(minres); }
+			    else if(cluSize==3*dupli)  {hGlobalResClu3R3A->Fill(minres);}
 			  }
 			  else if(rollId.ring()==3&&rollId.roll()==2){
-			    if(cluSize==1*dupli) hGlobalResClu1R3B->Fill(minres); 
-			    else if(cluSize==2*dupli) hGlobalResClu2R3B->Fill(minres); 
-			    else if(cluSize==3*dupli) hGlobalResClu3R3B->Fill(minres);
+			    if(cluSize==1*dupli) { hGlobalResClu1R3B->Fill(minres); }
+			    else if(cluSize==2*dupli) { hGlobalResClu2R3B->Fill(minres); }
+			    else if(cluSize==3*dupli) { hGlobalResClu3R3B->Fill(minres);}
 			  }
-			  else if(rollId.ring()==3&&rollId.roll()==3){if(cluSize==1*dupli) hGlobalResClu1R3C->Fill(minres); if(cluSize==2*dupli) hGlobalResClu2R3C->Fill(minres); if(cluSize==3*dupli) hGlobalResClu3R3C->Fill(minres);
+			  else if(rollId.ring()==3&&rollId.roll()==3){
+			    if(cluSize==1*dupli) {hGlobalResClu1R3C->Fill(minres); }
+			    else if(cluSize==2*dupli) {hGlobalResClu2R3C->Fill(minres); }
+			    else if(cluSize==3*dupli) {hGlobalResClu3R3C->Fill(minres);}
 			  }
 			  meIdRPC.str("");
 			  meIdRPC<<"RPCDataOccupancyFromCSC_"<<rollId.rawId();
@@ -871,7 +822,7 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 		     LogDebug("rpcefficiency")<<"CSC \t \t \t No, Exrtrapolation too long!, canceled";
 		  }//D so big
 		}//loop over the rolls asociated 
-	      }//Condition over the startup geometry!!!!
+	      }//Condition over the LS1 geometry!!!!
 	    }//Is the segment 4D?
 	  }else{
 	     LogDebug("rpcefficiency")<<"CSC \t \t More than one segment in this chamber, or we are in Station Ring 1 or in Station 4";
@@ -886,13 +837,4 @@ void RPCEfficiency::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 }
 
 
-void RPCEfficiency::endRun(const edm::Run& r, const edm::EventSetup& iSetup){
-  if (EffSaveRootFile){
-    dbe->save(EffRootFileName);
-  }
-}
 
-
-void RPCEfficiency::endJob(){
-  dbe =0;
-}

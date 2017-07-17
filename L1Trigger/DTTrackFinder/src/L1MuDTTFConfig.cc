@@ -70,6 +70,8 @@ void L1MuDTTFConfig::setDefaults() {
   // set min and max bunch crossing
   m_BxMin = m_ps->getUntrackedParameter<int>("BX_min",-9);
   m_BxMax = m_ps->getUntrackedParameter<int>("BX_max", 7);
+  s_BxMin = m_BxMin;
+  s_BxMax = m_BxMax;
 
   // set Filter for Extrapolator
   m_extTSFilter = m_ps->getUntrackedParameter<int>("Extrapolation_Filter",1);
@@ -171,27 +173,7 @@ void L1MuDTTFConfig::setDefaults() {
 
 }
 
-
-// static data members
-
-edm::InputTag L1MuDTTFConfig::m_DTDigiInputTag = edm::InputTag();
-edm::InputTag L1MuDTTFConfig::m_CSCTrSInputTag = edm::InputTag();
-
-bool L1MuDTTFConfig::m_debug = false;
-int  L1MuDTTFConfig::m_dbgLevel = -1;
-bool L1MuDTTFConfig::m_overlap = true;
-int  L1MuDTTFConfig::m_BxMin = -9;
-int  L1MuDTTFConfig::m_BxMax =  7;
-int  L1MuDTTFConfig::m_extTSFilter  = 1;
-bool L1MuDTTFConfig::m_openLUTs  = false;
-bool L1MuDTTFConfig::m_useEX21 = false;
-bool L1MuDTTFConfig::m_etaTF = true;
-bool L1MuDTTFConfig::m_etacanc = false;
-bool L1MuDTTFConfig::m_TSOutOfTimeFilter = false;
-int  L1MuDTTFConfig::m_TSOutOfTimeWindow = 1;
-int  L1MuDTTFConfig::m_NbitsExtPhi  = 8; 
-int  L1MuDTTFConfig::m_NbitsExtPhib = 8;
-int  L1MuDTTFConfig::m_NbitsPtaPhi  = 12; 
-int  L1MuDTTFConfig::m_NbitsPtaPhib = 10;
-int  L1MuDTTFConfig::m_NbitsPhiPhi  = 10; 
-int  L1MuDTTFConfig::m_NbitsPhiPhib = 10;
+std::atomic<bool> L1MuDTTFConfig::m_debug{false};
+std::atomic<int> L1MuDTTFConfig::m_dbgLevel{-1};
+std::atomic<int> L1MuDTTFConfig::s_BxMin{-9};
+std::atomic<int> L1MuDTTFConfig::s_BxMax{-7};

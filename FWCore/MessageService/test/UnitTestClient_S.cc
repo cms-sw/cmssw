@@ -1,6 +1,7 @@
 #include "FWCore/MessageLogger/interface/LoggedErrorsSummary.h"
 #include "FWCore/MessageService/test/UnitTestClient_S.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/Event.h"
 
 #include <iostream>
 #include <string>
@@ -44,14 +45,15 @@ void
 }  
 
 void
-  UTC_SUMMARY::analyze( edm::Event      const & /*unused*/
+  UTC_SUMMARY::analyze( edm::Event      const & iEvent
                             , edm::EventSetup const & /*unused*/
                               )
 {
-  if (!edm::FreshErrorsExist()) {
+  const auto index = iEvent.streamID().value();
+  if (!edm::FreshErrorsExist(index)) {
     edm::LogInfo   ("NoFreshErrors") << "Not in this event, anyway";
   }
-  std::vector<edm::ErrorSummaryEntry> es = edm::LoggedErrorsSummary();
+  std::vector<edm::ErrorSummaryEntry> es = edm::LoggedErrorsSummary(index);
   std::ostringstream os;
   for (unsigned int i = 0; i != es.size(); ++i) {
     os << es[i].category << "   " << es[i].module << "   " 

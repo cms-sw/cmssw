@@ -1,0 +1,10 @@
+<Layouts>
+<layout name="Tracks">
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/NumberOfTracks_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/HitProperties/NumberOfRecHitsPerTrack_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/TrackPt_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/Chi2oNDF_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/TrackPhi_GenTk"></monitorable>
+  <monitorable name="Tracking/TrackParameters/GeneralProperties/TrackEta_GenTk"></monitorable>
+</layout>
+</Layouts>

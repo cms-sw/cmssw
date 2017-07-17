@@ -24,6 +24,8 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "CommonTools/UtilAlgos/interface/TFileService.h"
+
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
@@ -68,12 +70,21 @@ SiStripOfflineDQM::SiStripOfflineDQM(edm::ParameterSet const& pSet) : configPar_
 
   usedWithEDMtoMEConverter_= configPar_.getUntrackedParameter<bool>("UsedWithEDMtoMEConverter",false); 
   createSummary_           = configPar_.getUntrackedParameter<bool>("CreateSummary",false);
+  createTkInfoFile_        = configPar_.getUntrackedParameter<bool>("CreateTkInfoFile",false);
   inputFileName_           = configPar_.getUntrackedParameter<std::string>("InputFileName","");
   outputFileName_          = configPar_.getUntrackedParameter<std::string>("OutputFileName","");
   globalStatusFilling_     = configPar_.getUntrackedParameter<int>("GlobalStatusFilling", 1);
   printFaultyModuleList_   = configPar_.getUntrackedParameter<bool>("PrintFaultyModuleList", false);
 
   nEvents_  = 0;
+
+  tkinfoTree_ = nullptr;
+
+  if(createTkInfoFile_) {
+    edm::Service<TFileService> fs;
+    tkinfoTree_ = fs->make<TTree>("TkDetIdInfo", "");
+  }
+
 }
 /** 
 * @brief 
@@ -127,9 +138,9 @@ void SiStripOfflineDQM::beginRun(edm::Run const& run, edm::EventSetup const& eSe
       
       std::vector<int> FedsInIds= sumFED->m_fed_in;   
       for(unsigned int it = 0; it < FedsInIds.size(); ++it) {
-	int fedID = FedsInIds[it];     
-	
-	if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDs;
+        int fedID = FedsInIds[it];     
+        
+        if(fedID>=siStripFedIdMin &&  fedID<=siStripFedIdMax)  ++nFEDs;
       }
     }
   }
@@ -201,14 +212,19 @@ void SiStripOfflineDQM::endRun(edm::Run const& run, edm::EventSetup const& eSetu
     if (create_tkmap) {
       std::vector<edm::ParameterSet> tkMapOptions = configPar_.getUntrackedParameter< std::vector<edm::ParameterSet> >("TkMapOptions" );
       if (actionExecutor_->readTkMapConfiguration(eSetup)) {
-	
-	for(std::vector<edm::ParameterSet>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
-	  edm::ParameterSet tkMapPSet = *it;
-	  std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
-	  tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
-	  edm::LogInfo("TkMapParameters") << tkMapPSet;
-	  actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type, eSetup); 
-	}
+        std::vector<std::string> map_names;
+        
+        for(std::vector<edm::ParameterSet>::iterator it = tkMapOptions.begin(); it != tkMapOptions.end(); ++it) {
+          edm::ParameterSet tkMapPSet = *it;
+          std::string map_type = it->getUntrackedParameter<std::string>("mapName","");
+          map_names.push_back(map_type);
+          tkMapPSet.augment(configPar_.getUntrackedParameter<edm::ParameterSet>("TkmapParameters"));
+          edm::LogInfo("TkMapParameters") << tkMapPSet;
+          actionExecutor_->createOfflineTkMap(tkMapPSet, dqmStore_, map_type, eSetup); 
+        }
+        if(createTkInfoFile_) {
+          actionExecutor_->createTkInfoFile(map_names, tkinfoTree_, dqmStore_);
+        }
       }
     } 
   }
@@ -228,9 +244,6 @@ void SiStripOfflineDQM::endJob() {
       actionExecutor_->printFaultyModuleList(dqmStore_, str_val);
       std::cout << str_val.str() << std::endl;
     }  
-    // Save Output file
-    dqmStore_->cd();
-    dqmStore_->save(outputFileName_, "","","");
   }
 }
 /** 

@@ -6,8 +6,9 @@
 #include <deque>
 #include <set>
 #include <string>
+#include <bitset>
 
-namespace {
+namespace DataFormats_WrappedStdDictionaries {
   struct dictionary {
   edm::Wrapper<std::vector<unsigned long> > dummy1;
   edm::Wrapper<std::vector<unsigned int> > dummy2;
@@ -31,11 +32,15 @@ namespace {
   edm::Wrapper<std::vector<std::pair<std::basic_string<char>,double> > > dummy16;
   edm::Wrapper<std::vector<std::pair<std::basic_string<char>,float> > > dummy16_0;
   edm::Wrapper<std::vector<std::pair<unsigned int,double> > > dummy16_1;
+  edm::Wrapper<std::vector<std::pair<int,int>>> dummy16_2;
+
   edm::Wrapper<std::list<int> > dummy17;
 
   edm::Wrapper<std::deque<int> > dummy18;
 
   edm::Wrapper<std::set<int> > dummy19;
+
+  edm::Wrapper<std::bitset<6>> dummybitset;
 
   edm::Wrapper<std::pair<unsigned long, unsigned long> > dymmywp1;
   edm::Wrapper<std::pair<unsigned int, unsigned int> > dymmywp2;
@@ -84,5 +89,6 @@ namespace {
   edm::Wrapper<bool> dummyw13;
   edm::Wrapper<unsigned long long> dummyw14;
   edm::Wrapper<long long> dummyw15;
+  edm::Wrapper<std::vector<std::pair<int,std::bitset<6> > > > v_p_i_b;
 };
 }

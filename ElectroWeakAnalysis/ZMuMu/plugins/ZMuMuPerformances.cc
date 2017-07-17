@@ -1,16 +1,16 @@
 /* \class ZMuMuPerformances
- * 
+ *
  * author: Davide Piccolo
  *
  * ZMuMu Performances:
  * check charge mis-id for standAlone and global muons,
- * check standAlne resolution vs track resolution 
+ * check standAlne resolution vs track resolution
  *
  */
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h" 
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -23,32 +23,46 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Candidate/interface/OverlapChecker.h"
 #include "DataFormats/Math/interface/deltaR.h"
+#include "DataFormats/Candidate/interface/Particle.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Candidate/interface/CandAssociation.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
 #include <vector>
+
 using namespace edm;
 using namespace std;
 using namespace reco;
+
+typedef ValueMap<float> IsolationCollection;
 
 class ZMuMuPerformances : public edm::EDAnalyzer {
 public:
   ZMuMuPerformances(const edm::ParameterSet& pset);
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
-  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2); 
+  bool check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  float getParticlePhi(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
+  Particle::LorentzVector getParticleP4(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2);
   virtual void endJob() override;
 
-  edm::InputTag zMuMu_, zMuMuMatchMap_; 
-  edm::InputTag zMuTrack_, zMuTrackMatchMap_; 
-  edm::InputTag zMuStandAlone_, zMuStandAloneMatchMap_;
-  edm::InputTag muons_, muonMatchMap_, muonIso_;
-  edm::InputTag tracks_, trackIso_;
-  edm::InputTag genParticles_;
+  EDGetTokenT<CandidateView> zMuMuToken_;
+  EDGetTokenT<GenParticleMatch> zMuMuMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuTrackToken_;
+  EDGetTokenT<GenParticleMatch> zMuTrackMatchMapToken_;
+  EDGetTokenT<CandidateView> zMuStandAloneToken_;
+  EDGetTokenT<GenParticleMatch> zMuStandAloneMatchMapToken_;
+  EDGetTokenT<CandidateView> muonsToken_;
+  EDGetTokenT<GenParticleMatch> muonMatchMapToken_;
+  EDGetTokenT<IsolationCollection> muonIsoToken_;
+  EDGetTokenT<CandidateView> tracksToken_;
+  EDGetTokenT<IsolationCollection> trackIsoToken_;
+  EDGetTokenT<GenParticleCollection> genParticlesToken_;
 
   bool noCut_;
   double zMassMin_, zMassMax_;
@@ -66,23 +80,23 @@ private:
   TH1D *h_n_trackerStaOnlyMuon_perEvent_MCmatch, *h_n_tracks_perEvent;
   TH1D *h_n_zMuMu_perEvent, *h_n_zMuSta_perEvent, *h_n_zMuTrack_perEvent;
 
-  // zMuMu inv mass 
-  TH1D *h_zMuMuMassSameSign, *h_zMuMuMassSameSign_MCmatch,*h_zMuMuMassOppositeSign; 
+  // zMuMu inv mass
+  TH1D *h_zMuMuMassSameSign, *h_zMuMuMassSameSign_MCmatch,*h_zMuMuMassOppositeSign;
   // histograms with MC truth
   // charge truth
-  TH1D *h_GlobalMuonChargeTimeGenCharge,*h_TrackerMuonChargeTimeGenCharge; 
+  TH1D *h_GlobalMuonChargeTimeGenCharge,*h_TrackerMuonChargeTimeGenCharge;
   // resolution respect to gen particles
-  TH1D *h_GlobalMuonEtaMinusGenEta,*h_TrackerMuonEtaMinusGenEta,*h_GlobalMuonPtMinusGenPt,*h_TrackerMuonPtMinusGenPt; 
+  TH1D *h_GlobalMuonEtaMinusGenEta,*h_TrackerMuonEtaMinusGenEta,*h_GlobalMuonPtMinusGenPt,*h_TrackerMuonPtMinusGenPt;
   TH1D *h_GlobalMuonStaComponentEtaMinusGenEta, *h_GlobalMuonStaComponentPtMinusGenPt;
-  TH2D *h_DEtaGlobalGenvsEtaGen, *h_DPtGlobalGenvsPtGen, *h_DEtaGlobalStaComponentGenvsEtaGen,*h_DPtGlobalStaComponentGenvsPtGen; 
-  TH2D *h_DPtGlobalGenvsEtaGen, *h_DPtGlobalStaComponentGenvsEtaGen; 
+  TH2D *h_DEtaGlobalGenvsEtaGen, *h_DPtGlobalGenvsPtGen, *h_DEtaGlobalStaComponentGenvsEtaGen,*h_DPtGlobalStaComponentGenvsPtGen;
+  TH2D *h_DPtGlobalGenvsEtaGen, *h_DPtGlobalStaComponentGenvsEtaGen;
   // resolution respect to gen particles for ZMuMuTagged events
   TH1D *h_GlobalMuonEtaMinusGenEta_ZMuMuTagged;
-  TH1D *h_GlobalMuonPtMinusGenPt_ZMuMuTagged; 
+  TH1D *h_GlobalMuonPtMinusGenPt_ZMuMuTagged;
   TH1D *h_GlobalMuonStaComponentEtaMinusGenEta_ZMuMuTagged, *h_GlobalMuonStaComponentPtMinusGenPt_ZMuMuTagged;
   TH2D *h_DEtaGlobalGenvsEtaGen_ZMuMuTagged, *h_DPtGlobalGenvsPtGen_ZMuMuTagged;
-  TH2D *h_DEtaGlobalStaComponentGenvsEtaGen_ZMuMuTagged,*h_DPtGlobalStaComponentGenvsPtGen_ZMuMuTagged; 
-  TH2D *h_DPtGlobalGenvsEtaGen_ZMuMuTagged, *h_DPtGlobalStaComponentGenvsEtaGen_ZMuMuTagged; 
+  TH2D *h_DEtaGlobalStaComponentGenvsEtaGen_ZMuMuTagged,*h_DPtGlobalStaComponentGenvsPtGen_ZMuMuTagged;
+  TH2D *h_DPtGlobalGenvsEtaGen_ZMuMuTagged, *h_DPtGlobalStaComponentGenvsEtaGen_ZMuMuTagged;
   TH2D *h_DPtTrackGenvsPtGen_ZMuMuTagged, *h_DPtTrackGenvsEtaGen_ZMuMuTagged;
 
   // histograms for cynematic of ZMuMutagged muons for STA performances studies
@@ -116,7 +130,7 @@ private:
 
 
   // global counters
-  int totalNumberOfZfound;          // total number of events with Z found 
+  int totalNumberOfZfound;          // total number of events with Z found
   int totalNumberOfZpassed;         // total number of Z that pass cynematical cuts at generator level
 
   int nZMuMuSameSign;               // number of ZMuMu SameSIgn (no Cuts)
@@ -149,50 +163,39 @@ private:
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/Particle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
-#include "DataFormats/Common/interface/ValueMap.h"
-#include "DataFormats/Candidate/interface/CandAssociation.h"
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include <iostream>
 #include <iterator>
 #include <cmath>
-using namespace std;
-using namespace reco;
-using namespace edm;
 
+ZMuMuPerformances::ZMuMuPerformances(const ParameterSet& pset) :
+  zMuMuToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuMu"))),
+  zMuMuMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuMuMatchMap"))),
+  zMuTrackToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuTrack"))),
+  zMuTrackMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuTrackMatchMap"))),
+  zMuStandAloneToken_(consumes<CandidateView>(pset.getParameter<InputTag>("zMuStandAlone"))),
+  zMuStandAloneMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("zMuStandAloneMatchMap"))),
+  muonsToken_(consumes<CandidateView>(pset.getParameter<InputTag>("muons"))),
+  muonMatchMapToken_(mayConsume<GenParticleMatch>(pset.getParameter<InputTag>("muonMatchMap"))),
+  muonIsoToken_(mayConsume<IsolationCollection>(pset.getParameter<InputTag>("muonIso"))),
+  tracksToken_(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
+  trackIsoToken_(mayConsume<IsolationCollection>(pset.getParameter<InputTag>("trackIso"))),
+  genParticlesToken_(consumes<GenParticleCollection>(pset.getParameter<InputTag>( "genParticles"))),
 
-typedef edm::ValueMap<float> IsolationCollection;
+  noCut_(pset.getParameter<bool>("noCut")),
 
-ZMuMuPerformances::ZMuMuPerformances(const ParameterSet& pset) : 
-  zMuMu_(pset.getParameter<InputTag>("zMuMu")), 
-  zMuMuMatchMap_(pset.getParameter<InputTag>("zMuMuMatchMap")), 
-  zMuTrack_(pset.getParameter<InputTag>("zMuTrack")), 
-  zMuTrackMatchMap_(pset.getParameter<InputTag>("zMuTrackMatchMap")), 
-  zMuStandAlone_(pset.getParameter<InputTag>("zMuStandAlone")), 
-  zMuStandAloneMatchMap_(pset.getParameter<InputTag>("zMuStandAloneMatchMap")), 
-  muons_(pset.getParameter<InputTag>("muons")), 
-  muonMatchMap_(pset.getParameter<InputTag>("muonMatchMap")), 
-  muonIso_(pset.getParameter<InputTag>("muonIso")), 
-  tracks_(pset.getParameter<InputTag>("tracks")), 
-  trackIso_(pset.getParameter<InputTag>("trackIso")), 
-  genParticles_(pset.getParameter<InputTag>( "genParticles" ) ),
-
-  noCut_(pset.getParameter<bool>("noCut")), 
-
-  zMassMin_(pset.getUntrackedParameter<double>("zMassMin")), 
-  zMassMax_(pset.getUntrackedParameter<double>("zMassMax")), 
-  ptminPlus_(pset.getUntrackedParameter<double>("ptminPlus")), 
-  ptmaxPlus_(pset.getUntrackedParameter<double>("ptmaxPlus")), 
-  etaminPlus_(pset.getUntrackedParameter<double>("etaminPlus")),  
-  etamaxPlus_(pset.getUntrackedParameter<double>("etamaxPlus")),  
-  ptminMinus_(pset.getUntrackedParameter<double>("ptminMinus")), 
-  ptmaxMinus_(pset.getUntrackedParameter<double>("ptmaxMinus")), 
-  etaminMinus_(pset.getUntrackedParameter<double>("etaminMinus")),  
-  etamaxMinus_(pset.getUntrackedParameter<double>("etamaxMinus")),  
-  isomax_(pset.getUntrackedParameter<double>("isomax")) { 
+  zMassMin_(pset.getUntrackedParameter<double>("zMassMin")),
+  zMassMax_(pset.getUntrackedParameter<double>("zMassMax")),
+  ptminPlus_(pset.getUntrackedParameter<double>("ptminPlus")),
+  ptmaxPlus_(pset.getUntrackedParameter<double>("ptmaxPlus")),
+  etaminPlus_(pset.getUntrackedParameter<double>("etaminPlus")),
+  etamaxPlus_(pset.getUntrackedParameter<double>("etamaxPlus")),
+  ptminMinus_(pset.getUntrackedParameter<double>("ptminMinus")),
+  ptmaxMinus_(pset.getUntrackedParameter<double>("ptmaxMinus")),
+  etaminMinus_(pset.getUntrackedParameter<double>("etaminMinus")),
+  etamaxMinus_(pset.getUntrackedParameter<double>("etamaxMinus")),
+  isomax_(pset.getUntrackedParameter<double>("isomax")) {
   Service<TFileService> fs;
 
   // cut setting
@@ -216,7 +219,7 @@ ZMuMuPerformances::ZMuMuPerformances(const ParameterSet& pset) :
   h_n_zMuSta_perEvent = fs->make<TH1D>("n_zMuSta_perEvent","n.of global-sta muons per Event",6,-.5,5.5);
   h_n_zMuTrack_perEvent = fs->make<TH1D>("n_zMuTrack_perEvent","n.of global-track muons per Event",100,-.5,99.5);
 
-  // zMuMu inv mass 
+  // zMuMu inv mass
   h_zMuMuMassSameSign = fs->make<TH1D>("zMuMuMassSameSign","inv Mass ZMuMu cand SameSign",100, 0., 200.);
   h_zMuMuMassOppositeSign = fs->make<TH1D>("zMuMuMassOppositeSign","inv Mass ZMuMu cand OppositeSign",100, 0., 200.);
   h_zMuMuMassSameSign_MCmatch = fs->make<TH1D>("zMuMuMassSameSign_MCmatch","inv Mass ZMuMu cand SameSign (MC match)",100, 0., 200.);
@@ -288,7 +291,7 @@ ZMuMuPerformances::ZMuMuPerformances(const ParameterSet& pset) :
 
   //
   // ****************************************************************************************************
-  // histograms for cynematic of ZMuTracktagged muons with unMatched StandAlone 
+  // histograms for cynematic of ZMuTracktagged muons with unMatched StandAlone
   h_zMuTrackMass_ZMuTrackTagged = fs->make<TH1D>("zMuTrackMass_ZMuTrackTagged","inv Mass ZMuTrack cand (global-track)",100, 0., 200.);
   h_etaTrack_ZMuTrackTagged = fs->make<TH1D>("etaTrack_ZMuTrackTagged","eta of Track (global-track)",50, -2.5, 2.5);
   h_phiTrack_ZMuTrackTagged = fs->make<TH1D>("phiTrack_ZMuTrackTagged","phi of Track (global-track)",50, -3.1415, 3.1415);
@@ -302,7 +305,7 @@ ZMuMuPerformances::ZMuMuPerformances(const ParameterSet& pset) :
   h_ptTrack_wrongStaCharge_ZMuTrackTagged = fs->make<TH1D>("ptTrack_wrongStaCharge_ZMuTrackTagged","pt of Track (global-track wrongUnMatchedStaCharge)",100, 0., 100.);
   h_DRTrack_wrongStaCharge_ZMuTrackTagged = fs->make<TH1D>("DRTrackSta_wrongStaCharge_ZMuTrackTagged","DR track-sta (global-track wrongUnMatchedStaCharge)",100, 0., 5.);
 
-  // histograms for cynematic of ZMuStatagged muons with unMatched Track 
+  // histograms for cynematic of ZMuStatagged muons with unMatched Track
   h_zMuStaMass_ZMuStaTagged = fs->make<TH1D>("zMuStaMass_ZMuStaTagged","inv Mass ZMuSta cand (global-sta)",100, 0., 200.);
   h_etaSta_ZMuStaTagged = fs->make<TH1D>("etaSta_ZMuStaTagged","eta of Sta (global-sta)",50, -2.5, 2.5);
   h_phiSta_ZMuStaTagged = fs->make<TH1D>("phiSta_ZMuStaTagged","phi of Sta (global-sta)",50, -3.1415, 3.1415);
@@ -315,8 +318,8 @@ ZMuMuPerformances::ZMuMuPerformances(const ParameterSet& pset) :
   h_ptSta_wrongTrkCharge_ZMuStaTagged = fs->make<TH1D>("ptSta_wrongTrkCharge_ZMuStaTagged","pt of Sta (global-sta wrongUnMatchedTrkCharge)",100, 0., 100.);
 
   // clear global counters
-  totalNumberOfZfound=0;  
-  totalNumberOfZpassed=0;  
+  totalNumberOfZfound=0;
+  totalNumberOfZpassed=0;
   nZMuMuSameSign_mcMatched =  0;
   nZMuMuSameSign = 0;
   n_goodTrack_ZMuMutagged = 0;
@@ -338,32 +341,31 @@ ZMuMuPerformances::ZMuMuPerformances(const ParameterSet& pset) :
   n_OneGoodZMuTrack=0;
   n_MultipleGoodZMuTrack=0;
   numberOfMatchedZMuSta_=0;
-  n_ZMuStaTaggedMatched=0; 
+  n_ZMuStaTaggedMatched=0;
 }
 
 void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
-  Handle<CandidateView> zMuMu;  
+  Handle<CandidateView> zMuMu;
   Handle<GenParticleMatch> zMuMuMatchMap; //Map of Z made by Mu global + Mu global (can be used also for same sign Zmumu)
-  Handle<CandidateView> zMuTrack;  
+  Handle<CandidateView> zMuTrack;
   Handle<GenParticleMatch> zMuTrackMatchMap; //Map of Z made by Mu + Track
-  Handle<CandidateView> zMuStandAlone; 
+  Handle<CandidateView> zMuStandAlone;
   Handle<GenParticleMatch> zMuStandAloneMatchMap; //Map of Z made by Mu + StandAlone
   Handle<CandidateView> muons; //Collection of Muons
-  Handle<GenParticleMatch> muonMatchMap; 
-  Handle<IsolationCollection> muonIso; 
+  Handle<GenParticleMatch> muonMatchMap;
+  Handle<IsolationCollection> muonIso;
   Handle<CandidateView> tracks; //Collection of Tracks
-  Handle<IsolationCollection> trackIso; 
+  Handle<IsolationCollection> trackIso;
   Handle<GenParticleCollection> genParticles;  // Collection of Generatd Particles
-  
-  event.getByLabel(zMuMu_, zMuMu); 
-  event.getByLabel(zMuTrack_, zMuTrack); 
-  event.getByLabel(zMuStandAlone_, zMuStandAlone); 
-  event.getByLabel(muons_, muons); 
-  event.getByLabel(muonMatchMap_, muonMatchMap); 
-  event.getByLabel(tracks_, tracks); 
-  event.getByLabel(genParticles_, genParticles);
 
-  /*  
+  event.getByToken(zMuMuToken_, zMuMu);
+  event.getByToken(zMuTrackToken_, zMuTrack);
+  event.getByToken(zMuStandAloneToken_, zMuStandAlone);
+  event.getByToken(muonsToken_, muons);
+  event.getByToken(tracksToken_, tracks);
+  event.getByToken(genParticlesToken_, genParticles);
+
+  /*
   cout << "*********  zMuMu         size : " << zMuMu->size() << endl;
   cout << "*********  zMuMuSameSign size : " << zMuMuSameSign->size() << endl;
   cout << "*********  zMuStandAlone size : " << zMuStandAlone->size() << endl;
@@ -374,7 +376,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
   cout << "*********  generated     size : " << genParticles->size()<< endl;
   cout << "***************************************************" << endl;
   */
- 
+
   int n_globalMuon_perEvent=0;
   int n_staOnlyMuon_perEvent=0;
   int n_trackerOnlyMuon_perEvent=0;
@@ -385,14 +387,14 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
   int n_trackerStaOnlyMuon_perEvent_MCmatch=0;
 
   for(unsigned int j = 0; j < muons->size() ; ++j) {
-    CandidateBaseRef muCandRef = muons->refAt(j); 
+    CandidateBaseRef muCandRef = muons->refAt(j);
     const Candidate & muCand = (*muons)[j]; //the candidate
     const reco::Muon & muon = dynamic_cast<const reco::Muon &>(muCand);
     reco::TrackRef innerTrackRef = muon.track();
     reco::TrackRef outerTrackRef = muon.standAloneMuon();
     TrackRef muStaComponentRef = muCand.get<TrackRef,reco::StandAloneMuonTag>();  // standalone part of muon
     TrackRef muTrkComponentRef = muCand.get<TrackRef>();  // track part of muon
-    GenParticleRef muonMatch = (*muonMatchMap)[muCandRef]; 
+    GenParticleRef muonMatch = (*muonMatchMap)[muCandRef];
     if (muCandRef->isGlobalMuon()==1) n_globalMuon_perEvent++;
     if (muCandRef->isGlobalMuon()==0 && muCandRef->isTrackerMuon()==0 && muCandRef->isStandAloneMuon()==1) n_staOnlyMuon_perEvent++;
     if (muCandRef->isGlobalMuon()==0 && muCandRef->isTrackerMuon()==1 && muCandRef->isStandAloneMuon()==0) n_trackerOnlyMuon_perEvent++;
@@ -415,7 +417,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	h_DEtaGlobalStaComponentGenvsEtaGen->Fill(muonMatch->eta(),muStaComponentRef->eta() - muonMatch->eta());
 	h_DPtGlobalStaComponentGenvsPtGen->Fill(muonMatch->pt(),(muStaComponentRef->pt() - muonMatch->pt())/muonMatch->pt());
        }
-      if (muCandRef->isGlobalMuon()==0 && muCandRef->isTrackerMuon()==1) { 
+      if (muCandRef->isGlobalMuon()==0 && muCandRef->isTrackerMuon()==1) {
 	h_TrackerMuonChargeTimeGenCharge->Fill(productCharge);
 	h_TrackerMuonEtaMinusGenEta->Fill(muCandRef->eta() - muonMatch->eta());
 	h_TrackerMuonPtMinusGenPt->Fill((muCandRef->pt() - muonMatch->pt())/muonMatch->pt());
@@ -435,16 +437,16 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
   h_n_zMuMu_perEvent->Fill(zMuMu->size());
   h_n_zMuSta_perEvent->Fill(zMuStandAlone->size());
   h_n_zMuTrack_perEvent->Fill(zMuTrack->size());
-	    
+
   //      std::cout<<"Run-> "<<event.id().run()<<std::endl;
-  //      std::cout<<"Event-> "<<event.id().event()<<std::endl; 
+  //      std::cout<<"Event-> "<<event.id().event()<<std::endl;
 
 
   // loop on ZMuMu
   if (zMuMu->size() > 0 ) {
-    event.getByLabel(zMuMuMatchMap_, zMuMuMatchMap); 
-    event.getByLabel(muonIso_, muonIso); 
-    event.getByLabel(muonMatchMap_, muonMatchMap); 
+    event.getByToken(zMuMuMatchMapToken_, zMuMuMatchMap);
+    event.getByToken(muonIsoToken_, muonIso);
+    event.getByToken(muonMatchMapToken_, muonMatchMap);
     float muGenplus_pt = 0, muGenminus_pt = 0, muGenplus_eta = 100, muGenminus_eta = 100;
     for(unsigned int i = 0; i < zMuMu->size(); ++i) { //loop on candidates
       const Candidate & zMuMuCand = (*zMuMu)[i]; //the candidate
@@ -453,7 +455,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       bool isMCMatched = false;
       if(zMuMuMatch.isNonnull()) {
 	isMCMatched = true;   // ZMuMu matched
-	if(zMuMuMatch->pdgId() == 23 && zMuMuMatch->status()==3 && zMuMuMatch->numberOfDaughters() == 3) {  
+	if(zMuMuMatch->pdgId() == 23 && zMuMuMatch->status()==3 && zMuMuMatch->numberOfDaughters() == 3) {
 	                                     // Z0 decays in mu+ mu-, the 3rd daughter is the same Z0
 	  const Candidate * dauGen0 = zMuMuMatch->daughter(0);
 	  const Candidate * dauGen1 = zMuMuMatch->daughter(1);
@@ -537,7 +539,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       bool massCut = false;
 
       // ******************************************************************************************************************************
-      // Start study for StandAlone charge mis-id: select global-global events according to global1+track2 (or global2+track1) 
+      // Start study for StandAlone charge mis-id: select global-global events according to global1+track2 (or global2+track1)
       // *******************************************************************************************************************************
 
       // cynematical cuts for Zglobal1Track2
@@ -579,7 +581,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	    h_DEtaGlobalStaComponentGenvsEtaGen_ZMuMuTagged->Fill(etaGen,etaSta1-etaGen);
 	    h_DPtGlobalStaComponentGenvsPtGen_ZMuMuTagged->Fill(ptGen,(ptSta1-ptGen)/ptGen);
 	    h_DPtGlobalGenvsEtaGen_ZMuMuTagged->Fill(etaGen,(ptGlobal1-ptGen)/ptGen);
-	    h_DPtGlobalStaComponentGenvsEtaGen_ZMuMuTagged->Fill(etaGen,(ptSta1-ptGen)/ptGen);	  
+	    h_DPtGlobalStaComponentGenvsEtaGen_ZMuMuTagged->Fill(etaGen,(ptSta1-ptGen)/ptGen);
 	    h_DPtTrackGenvsPtGen_ZMuMuTagged->Fill(ptGen,(ptTracker1-ptGen)/ptGen);
 	    h_DPtTrackGenvsEtaGen_ZMuMuTagged->Fill(etaGen,(ptTracker1-ptGen)/ptGen);
 
@@ -592,7 +594,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	    h_ptStaMinusptTrack_vsEtaTracker_correctStaCharge_ZMuMuTagged->Fill(etaTracker2,(ptSta2-ptTracker2)/ptTracker2);
 	    h_ptStaMinusptTrack_vsPtTracker_correctStaCharge_ZMuMuTagged->Fill(ptTracker2,(ptSta2-ptTracker2)/ptTracker2);
 	    // qui posso aggiungere plot col MC match
-	  }  
+	  }
 	  if (chargeSta2 != chargeTracker2) {  // StandAlone2 has wrong charge
 	    n_wrongStaCharge_ZMuMutagged++;
 	    h_zMuTrackMass_wrongStaCharge_ZMuMuTagged->Fill(massGlobalTracker);  // inv mass global+tracker part (wrong Sta charge)
@@ -652,7 +654,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	    h_DPtTrackGenvsPtGen_ZMuMuTagged->Fill(ptGen,(ptTracker2-ptGen)/ptGen);
 	    h_DPtTrackGenvsEtaGen_ZMuMuTagged->Fill(etaGen,(ptTracker2-ptGen)/ptGen);
 	  } // end if MC Match
-	  
+
 
 	  if (chargeSta1 == chargeTracker1) {   // StandAlone1 has correct charge
 	    n_correctStaCharge_ZMuMutagged++;
@@ -661,7 +663,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	    h_ptStaMinusptTrack_vsEtaTracker_correctStaCharge_ZMuMuTagged->Fill(etaTracker1,(ptSta1-ptTracker1)/ptTracker1);
 	    h_ptStaMinusptTrack_vsPtTracker_correctStaCharge_ZMuMuTagged->Fill(ptTracker1,(ptSta1-ptTracker1)/ptTracker1);
 
-	  }  
+	  }
 	  if (chargeSta1 != chargeTracker1) {  // StandAlone2 has wrong charge
 	    n_wrongStaCharge_ZMuMutagged++;
 	    h_zMuTrackMass_wrongStaCharge_ZMuMuTagged->Fill(massTrackerGlobal);  // inv mass global+tracker part (wrong Sta charge)
@@ -674,7 +676,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       }  // end if cuts
 
       // ******************************************************************************************************************************
-      // Start study for tracker charge mis-id: select global-global events according to global1+staComponent2 (or global2+staComponent1) 
+      // Start study for tracker charge mis-id: select global-global events according to global1+staComponent2 (or global2+staComponent1)
       // *******************************************************************************************************************************
 
       etaCut = false;
@@ -706,7 +708,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	  if (chargeSta2 == chargeTracker2) {   // track2 has correct charge
 	    n_correctTrkCharge_ZMuMutagged++;
 	    // qui posso aggiungere plot col MC match
-	  }  
+	  }
 	  if (chargeSta2 != chargeTracker2) {  // track2 has wrong charge
 	    n_wrongTrkCharge_ZMuMutagged++;
 	    h_zMuStaMass_wrongTrkCharge_ZMuMuTagged->Fill(massGlobalSta);  // inv mass global+sta part (wrong Trk charge)
@@ -747,7 +749,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	  if (chargeSta1 == chargeTracker1) {   // track1 has correct charge
 	    n_correctTrkCharge_ZMuMutagged++;
 	    // qui posso aggiungere plot col MC match
-	  }  
+	  }
 	  if (chargeSta1 != chargeTracker1) {  // track1 has wrong charge
 	    n_wrongTrkCharge_ZMuMutagged++;
 	    h_zMuStaMass_wrongTrkCharge_ZMuMuTagged->Fill(massStaGlobal);  // inv mass global+sta part (wrong Trk charge)
@@ -771,7 +773,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
   int taggedMuon_index = -1; // index of Sta muon with minimum DR respect to unMatched track
   int n_ZMuTrackTagged_inEvent = 0;  // number of tagged Z in the event
   if (zMuTrack->size() > 0 && zMuMu->size()==0) {           // check ZMuTrack just if no ZMuMu has been found in the event
-    event.getByLabel(zMuTrackMatchMap_, zMuTrackMatchMap); 
+    event.getByToken(zMuTrackMatchMapToken_, zMuTrackMatchMap);
     for(unsigned int i = 0; i < zMuTrack->size(); ++i) { //loop on candidates
       const Candidate & zMuTrackCand = (*zMuTrack)[i]; //the candidate
       CandidateBaseRef zMuTrackCandRef = zMuTrack->refAt(i);
@@ -784,9 +786,9 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       double m = zMuTrackCand.mass();
       CandidateBaseRef zglobalDaughter = zMuTrackCand.daughter(0)->masterClone();
       CandidateBaseRef ztrackerDaughter = zMuTrackCand.daughter(1)->masterClone();
-      TrackRef zglobalDaughter_StaComponentRef = zMuTrackCand.daughter(0)->get<TrackRef,reco::StandAloneMuonTag>();  
+      TrackRef zglobalDaughter_StaComponentRef = zMuTrackCand.daughter(0)->get<TrackRef,reco::StandAloneMuonTag>();
                                                                                   // standalone part of global component of ZMuMu
-      TrackRef zglobalDaughter_TrackComponentRef = zMuTrackCand.daughter(0)->get<TrackRef>();  
+      TrackRef zglobalDaughter_TrackComponentRef = zMuTrackCand.daughter(0)->get<TrackRef>();
                                                                                   // track part Of the global component of ZMuMu
       double ZtrackerDaughterCharge = ztrackerDaughter->charge();
       double ZtrackerDaughterPt = ztrackerDaughter->pt();
@@ -794,8 +796,8 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       double ZtrackerDaughterPhi = ztrackerDaughter->phi();
       double ZglobalDaughterPt = zglobalDaughter->pt();
       double ZglobalDaughterEta = zglobalDaughter->eta();
-      double ZglobalDaughter_StaComponentCharge = zglobalDaughter_StaComponentRef->charge(); 
-      double ZglobalDaughter_TrackComponentCharge = zglobalDaughter_TrackComponentRef->charge(); 
+      double ZglobalDaughter_StaComponentCharge = zglobalDaughter_StaComponentRef->charge();
+      double ZglobalDaughter_TrackComponentCharge = zglobalDaughter_TrackComponentRef->charge();
 
       //*********************************************************************************************************************
       // study of standAlone charge mis-id and efficiency selecting ZMuTrack events (tag the index of Z and of muon)
@@ -815,7 +817,7 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	ptCut = true;
 	massCut = true;
       }
-      if (etaCut && ptCut && massCut && ZglobalDaughter_StaComponentCharge == ZglobalDaughter_TrackComponentCharge && 
+      if (etaCut && ptCut && massCut && ZglobalDaughter_StaComponentCharge == ZglobalDaughter_TrackComponentCharge &&
 	  ZglobalDaughter_TrackComponentCharge != ZtrackerDaughterCharge) {   // cynematic cuts and global charge consistent and opposite tracker charge
 	n_ZMuTrackTagged_inEvent++;
 
@@ -823,23 +825,23 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	// ...
 
 	for(unsigned int j = 0; j < muons->size() ; ++j) {
-	  CandidateBaseRef muCandRef = muons->refAt(j); 
+	  CandidateBaseRef muCandRef = muons->refAt(j);
 	  const Candidate & muCand = (*muons)[j]; //the candidate
 	  TrackRef muStaComponentRef = muCand.get<TrackRef,reco::StandAloneMuonTag>();  // standalone part of muon
 	  TrackRef muTrkComponentRef = muCand.get<TrackRef>();  // track part of muon
 
-	  if (muCandRef->isStandAloneMuon()==1 && muCandRef->isGlobalMuon()==0 && muCandRef->isTrackerMuon()==1) {	    
+	  if (muCandRef->isStandAloneMuon()==1 && muCandRef->isGlobalMuon()==0 && muCandRef->isTrackerMuon()==1) {
 	    double muEta = muCandRef->eta();
 	    double muPhi = muCandRef->phi();
 	    // check DeltaR between Sta muon and tracks of ZMuTrack
 	    double DRmuSta_trackOfZ = deltaR(muEta, muPhi, ZtrackerDaughterEta, ZtrackerDaughterPhi);
-	    if (DRmuSta_trackOfZ == 0) {  // match track track ... standalone-muTracker 
+	    if (DRmuSta_trackOfZ == 0) {  // match track track ... standalone-muTracker
 	      taggedZ_index = i;
 	      taggedMuon_index = j;
 	    } // end check minimum DR
 	  }  // end if isStandAlone
 	}    // end loop on muon candidates
-      } // end cynematic cuts    
+      } // end cynematic cuts
 
     }  // end loop on zMuTrack size
   }   // end if zMuTrack size > 0
@@ -856,9 +858,9 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       double m = zMuTrackCand.mass();
       CandidateBaseRef zglobalDaughter = zMuTrackCand.daughter(0)->masterClone();
       CandidateBaseRef ztrackerDaughter = zMuTrackCand.daughter(1)->masterClone();
-      TrackRef zglobalDaughter_StaComponentRef = zMuTrackCand.daughter(0)->get<TrackRef,reco::StandAloneMuonTag>();  
+      TrackRef zglobalDaughter_StaComponentRef = zMuTrackCand.daughter(0)->get<TrackRef,reco::StandAloneMuonTag>();
                                                                           // standalone part of global component of ZMuMu
-      TrackRef zglobalDaughter_TrackComponentRef = zMuTrackCand.daughter(0)->get<TrackRef>();  
+      TrackRef zglobalDaughter_TrackComponentRef = zMuTrackCand.daughter(0)->get<TrackRef>();
                                                                           // track part Of the global component of ZMuMu
       double ZtrackerDaughterCharge = ztrackerDaughter->charge();
       double ZtrackerDaughterPt = ztrackerDaughter->pt();
@@ -883,33 +885,33 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       h_ptTrack_ZMuTrackTagged->Fill(ZtrackerDaughterPt);        // pt of tagged track
       h_DRTrack_ZMuTrackTagged->Fill(DRmuSta_trackOfZ);          // DR between sta1 and tracker1 for tagged track
 
-      // check StandAlone charge    
+      // check StandAlone charge
       if (muCharge != ZtrackerDaughterCharge) {  // wrong Sta charge
 	n_wrongStaCharge_ZMuTracktagged++;                              // number of events wrong charge for unMatched Sta
 	h_zMuTrackMass_wrongStaCharge_ZMuTrackTagged->Fill(m);         // inv mass ZMuTrack for tagged events wrong unMatched Sta charge
 	h_etaTrack_wrongStaCharge_ZMuTrackTagged->Fill(ZtrackerDaughterEta);   // eta of tagged track wrong unMatched Sta charge
 	h_phiTrack_wrongStaCharge_ZMuTrackTagged->Fill(ZtrackerDaughterPhi);      // phi of tagged track wrong unMatched Sta charge
 	h_ptTrack_wrongStaCharge_ZMuTrackTagged->Fill(ZtrackerDaughterPt);        // pt of tagged track wrong unMatched Sta charge
-	h_DRTrack_wrongStaCharge_ZMuTrackTagged->Fill(DRmuSta_trackOfZ);          // DR between unMatched Sta and tracker for wrong sta charge 
+	h_DRTrack_wrongStaCharge_ZMuTrackTagged->Fill(DRmuSta_trackOfZ);          // DR between unMatched Sta and tracker for wrong sta charge
       } else {  // correct Sta charge
 	n_correctStaCharge_ZMuTracktagged++;                              // number of events correct charge for unMatched Sta
       }  // end if Sta charge check
-    }   // end if StandAlone is present    
+    }   // end if StandAlone is present
   }  // end if zMuTrack tagged
 
   //*********************************************************************************************************************
-  // study of track charge mis-id and efficiency selecting ZMuSta events 
+  // study of track charge mis-id and efficiency selecting ZMuSta events
   // for Track charge mis-id just use unMatched standAlone muons trackerMuons that are standAlone Muons but no globalMuons
   // ********************************************************************************************************************
-  
-  // loop on ZMuSta in order to recover some unMatched StandAlone 
+
+  // loop on ZMuSta in order to recover some unMatched StandAlone
   bool isZMuStaMatched=false;
   //LargerDRCut=2.; // larger DR cut to recover unMatched Sta
   taggedZ_index = -1; // index of Z with minimum DR respect to unMatched Sta
   taggedMuon_index = -1; // index of Sta muon with minimum DR respect to unMatched track
   int n_ZMuStaTagged_inEvent = 0;  // number of tagged Z in the event
   if (zMuStandAlone->size() > 0) {           // check ZMuSta just if no ZMuMu has been found in the event
-    event.getByLabel(zMuStandAloneMatchMap_, zMuStandAloneMatchMap); 
+    event.getByToken(zMuStandAloneMatchMapToken_, zMuStandAloneMatchMap);
     for(unsigned int i = 0; i < zMuStandAlone->size(); ++i) { //loop on candidates
       const Candidate & zMuStaCand = (*zMuStandAlone)[i]; //the candidate
       CandidateBaseRef zMuStaCandRef = zMuStandAlone->refAt(i);
@@ -932,25 +934,25 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	iglb = 1;
 	ista = 0;
       }
-      TrackRef zglobalDaughter_StaComponentRef = zMuStaCand.daughter(iglb)->get<TrackRef,reco::StandAloneMuonTag>();  
+      TrackRef zglobalDaughter_StaComponentRef = zMuStaCand.daughter(iglb)->get<TrackRef,reco::StandAloneMuonTag>();
                                                                                   // standalone part of global component of ZMuMu
-      TrackRef zglobalDaughter_TrackComponentRef = zMuStaCand.daughter(iglb)->get<TrackRef>();  
+      TrackRef zglobalDaughter_TrackComponentRef = zMuStaCand.daughter(iglb)->get<TrackRef>();
                                                                                   // track part Of the global component of ZMuMu
-      TrackRef zstaDaughter_StaComponentRef = zMuStaCand.daughter(ista)->get<TrackRef,reco::StandAloneMuonTag>();  
+      TrackRef zstaDaughter_StaComponentRef = zMuStaCand.daughter(ista)->get<TrackRef,reco::StandAloneMuonTag>();
                                                                                   // standalone part of global component of ZMuMu
-      TrackRef zstaDaughter_TrackComponentRef = zMuStaCand.daughter(ista)->get<TrackRef>();  
+      TrackRef zstaDaughter_TrackComponentRef = zMuStaCand.daughter(ista)->get<TrackRef>();
                                                                                   // track part Of the global component of ZMuMu
       double ZglobalDaughterPt = zglobalDaughter->pt();
       double ZglobalDaughterEta = zglobalDaughter->eta();
 
-      double ZstaDaughter_StaComponentCharge = zstaDaughter_StaComponentRef->charge(); 
-      double ZstaDaughter_StaComponentPt = zstaDaughter_StaComponentRef->pt(); 
-      double ZstaDaughter_StaComponentEta = zstaDaughter_StaComponentRef->eta(); 
-      double ZstaDaughter_StaComponentPhi = zstaDaughter_StaComponentRef->phi(); 
-      double ZstaDaughter_TrackComponentCharge = zstaDaughter_TrackComponentRef->charge(); 
+      double ZstaDaughter_StaComponentCharge = zstaDaughter_StaComponentRef->charge();
+      double ZstaDaughter_StaComponentPt = zstaDaughter_StaComponentRef->pt();
+      double ZstaDaughter_StaComponentEta = zstaDaughter_StaComponentRef->eta();
+      double ZstaDaughter_StaComponentPhi = zstaDaughter_StaComponentRef->phi();
+      double ZstaDaughter_TrackComponentCharge = zstaDaughter_TrackComponentRef->charge();
 
-      double ZglobalDaughter_StaComponentCharge = zglobalDaughter_StaComponentRef->charge(); 
-      double ZglobalDaughter_TrackComponentCharge = zglobalDaughter_TrackComponentRef->charge(); 
+      double ZglobalDaughter_StaComponentCharge = zglobalDaughter_StaComponentRef->charge();
+      double ZglobalDaughter_TrackComponentCharge = zglobalDaughter_TrackComponentRef->charge();
 
       // cynematical cuts for ZMuSta
       bool etaCut = false;
@@ -959,14 +961,14 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
       bool massCut = false;
       if (abs(ZglobalDaughterEta)<etamax_ && abs(ZstaDaughter_StaComponentEta)<etamax_) etaCut = true;
       if (ZglobalDaughterPt>ptmin_ && ZstaDaughter_StaComponentPt>ptmin_) ptCut = true;
-      if (m>massMin_ && m<massMax_) massCut = true;          // dovrei usare la massa fatta con la sola parte sta 
-                                                             // (Se è anche trackerMu non è cosi') 
+      if (m>massMin_ && m<massMax_) massCut = true;          // dovrei usare la massa fatta con la sola parte sta
+                                                             // (Se è anche trackerMu non è cosi')
        if (noCut_) {
 	etaCut = true;
 	ptCut = true;
 	massCut = true;
       }
-      if (etaCut && ptCut && massCut && ZglobalDaughter_StaComponentCharge == ZglobalDaughter_TrackComponentCharge && 
+      if (etaCut && ptCut && massCut && ZglobalDaughter_StaComponentCharge == ZglobalDaughter_TrackComponentCharge &&
 	  ZglobalDaughter_StaComponentCharge != ZstaDaughter_StaComponentCharge) {   // cynematic cuts and global charge consistent and opposite sta charge
 	n_ZMuStaTagged_inEvent++;
 	if (isZMuStaMatched) n_ZMuStaTaggedMatched++;
@@ -978,8 +980,8 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	  h_etaSta_ZMuStaTagged->Fill(ZstaDaughter_StaComponentEta);   // eta of tagged sta
 	  h_phiSta_ZMuStaTagged->Fill(ZstaDaughter_StaComponentPhi);  // phi of tagged sta
 	  h_ptSta_ZMuStaTagged->Fill(ZstaDaughter_StaComponentPt);        // pt of tagged sta
-	  
-	  // check Track charge    
+
+	  // check Track charge
 	  if (ZstaDaughter_StaComponentCharge != ZstaDaughter_TrackComponentCharge) {  // wrong Trk charge
 	    n_wrongTrkCharge_ZMuStatagged++;                              // number of events wrong track charge for unMatched track
 	    h_zMuStaMass_wrongTrkCharge_ZMuStaTagged->Fill(m);         // inv mass ZMuSta for tagged evts wrong unMatched track charge
@@ -989,18 +991,18 @@ void ZMuMuPerformances::analyze(const Event& event, const EventSetup& setup) {
 	  } else {  // correct Sta charge
 	    n_correctTrkCharge_ZMuStatagged++;                              // number of events correct charge for unMatched Sta
 	  }  // end if Sta charge check
-	  
+
 	} else {   // tracker inefficient
 	  n_TrkNotFound_ZMuStatagged++;
 	}
-      } // end cynematic cuts    
+      } // end cynematic cuts
       if (n_ZMuStaTagged_inEvent==0) {
       }
 
 
     }  // end loop on zMuSta candidates
   }   // end check ZMuSta size
-  
+
 }       // end analyze
 
 bool ZMuMuPerformances::check_ifZmumu(const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
@@ -1014,9 +1016,9 @@ bool ZMuMuPerformances::check_ifZmumu(const Candidate * dauGen0, const Candidate
   if (partId0==13 || partId1==13 || partId2==13) muminusFound=true;
   if (partId0==-13 || partId1==-13 || partId2==-13) muplusFound=true;
   if (partId0==23 || partId1==23 || partId2==23) ZFound=true;
-  return muplusFound*muminusFound*ZFound;   
+  return muplusFound*muminusFound*ZFound;
 }
- 
+
 float ZMuMuPerformances::getParticlePt(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -1049,7 +1051,7 @@ float ZMuMuPerformances::getParticlePt(const int ipart, const Candidate * dauGen
   }
   return ptpart;
 }
- 
+
 float ZMuMuPerformances::getParticleEta(const int ipart, const Candidate * dauGen0, const Candidate * dauGen1, const Candidate * dauGen2)
 {
   int partId0 = dauGen0->pdgId();
@@ -1148,7 +1150,7 @@ Particle::LorentzVector ZMuMuPerformances::getParticleP4(const int ipart, const 
   }
   return p4part;
 }
- 
+
 
 
 void ZMuMuPerformances::endJob() {
@@ -1179,8 +1181,8 @@ void ZMuMuPerformances::endJob() {
   cout << " number of ZMuSta mactched = " << numberOfMatchedZMuSta_ << endl;
   cout << " number of ZMuSta Tagged matched = " << n_ZMuStaTaggedMatched << endl;
 }
-  
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(ZMuMuPerformances);
-  
+

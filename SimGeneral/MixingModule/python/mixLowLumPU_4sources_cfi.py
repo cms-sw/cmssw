@@ -10,30 +10,11 @@ import FWCore.ParameterSet.Config as cms
 # or you can replace the type by "none" for a source you dont want
 # please note that the names of the input sources are fixed: 'input', 'cosmics', 'beamhalo_minus', 'beamhalo_plus'
 #
-from SimGeneral.MixingModule.aliases_cfi import *
 from SimGeneral.MixingModule.mixObjects_cfi import *
-from SimGeneral.MixingModule.trackingTruthProducer_cfi import *
+from SimGeneral.MixingModule.digitizers_cfi import *
+
 mix = cms.EDProducer("MixingModule",
-    digitizers = cms.PSet(
-      pixel = cms.PSet(
-        pixelDigitizer
-      ),
-      strip = cms.PSet(
-        stripDigitizer
-      ),
-      ecal = cms.PSet(
-        ecalDigitizer
-      ),
-      hcal = cms.PSet(
-        hcalDigitizer
-      ),
-      castor  = cms.PSet(
-        castorDigitizer
-      ),
-      mergedtruth = cms.PSet(
-      	trackingParticles
-      )
-    ),
+    digitizers = cms.PSet(theDigitizers),
     LabelPlayback = cms.string(''),
     maxBunch = cms.int32(3),
     minBunch = cms.int32(-5), ## in units of 25 nsec
@@ -44,7 +25,7 @@ mix = cms.EDProducer("MixingModule",
 
     playback = cms.untracked.bool(False),
     useCurrentProcessOnly = cms.bool(False),
-    input = cms.SecSource("PoolSource",
+    input = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             sigmaInel = cms.double(80.0),
             Lumi = cms.double(2.8)
@@ -58,7 +39,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/68ECAE92-5F99-DD11-ACAB-000423D98E6C.root',
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root')
     ),
-    cosmics = cms.SecSource("PoolSource",
+    cosmics = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(1.6625e-05)
         ),
@@ -72,7 +53,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/68ECAE92-5F99-DD11-ACAB-000423D98E6C.root',
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root')
     ),
-    beamhalo_minus = cms.SecSource("PoolSource",
+    beamhalo_minus = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(0.00040503)
         ),
@@ -86,7 +67,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/68ECAE92-5F99-DD11-ACAB-000423D98E6C.root',
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root')
     ),
-    beamhalo_plus = cms.SecSource("PoolSource",
+    beamhalo_plus = cms.SecSource("EmbeddedRootSource",
         nbPileupEvents = cms.PSet(
             averageNumber = cms.double(0.00040503)
         ),
@@ -100,23 +81,7 @@ mix = cms.EDProducer("MixingModule",
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/68ECAE92-5F99-DD11-ACAB-000423D98E6C.root',
         '/store/relval/CMSSW_2_1_10/RelValMinBias/GEN-SIM-DIGI-RAW-HLTDEBUG/STARTUP_V7_v2/0000/8802D325-5E99-DD11-B858-000423D98A44.root')
     ),
-    mixObjects = cms.PSet(
-        mixCH = cms.PSet(
-            mixCaloHits
-        ),
-        mixTracks = cms.PSet(
-            mixSimTracks
-        ),
-        mixVertices = cms.PSet(
-            mixSimVertices
-        ),
-        mixSH = cms.PSet(
-            mixSimHits
-        ),
-        mixHepMC = cms.PSet(
-            mixHepMCProducts
-        )
-    )
+    mixObjects = cms.PSet(theMixObjects)
 )
 
 

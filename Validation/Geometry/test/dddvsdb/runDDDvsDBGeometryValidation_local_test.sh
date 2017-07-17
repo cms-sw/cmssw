@@ -62,9 +62,9 @@ addpkg CondTools/Geometry
 #cvs update -r V05-00-11 Geometry/TrackerGeometryBuilder
 
 if ($loctag != '') then 
-    cd Configuration/StandardSequences/python
+    cd CondCore/ESSources/python
     set escloctag = `(echo $loctag | sed '{s/\//\\\//g}')`
-    sed -i "{s/frontier:\/\/FrontierProd\/CMS_COND_31X_GLOBALTAG/${escloctag}/g}" FrontierConditions_GlobalTag_cfi.py 
+    sed -i "{s/frontier:\/\/FrontierProd\/CMS_CONDITIONS/${escloctag}/g}" CondDBESSource_cfi.py 
 endif
 
 cd $CMSSW_BASE/src

@@ -23,35 +23,37 @@
 class BarrelDetLayer : public DetLayer {
  public:
 
-  BarrelDetLayer() : DetLayer(true),
+  BarrelDetLayer(bool doHaveGroup) : DetLayer(doHaveGroup,true),
     theCylinder(0){}
   
   virtual ~BarrelDetLayer();
 
   /// GeometricSearchDet interface
-  virtual const BoundSurface&  surface() const  GCC11_FINAL { return *theCylinder;}
+  virtual const BoundSurface&  surface() const  final { return *theCylinder;}
 
   virtual std::pair<bool, TrajectoryStateOnSurface>
   compatible( const TrajectoryStateOnSurface& ts, const Propagator&, 
-	      const MeasurementEstimator&) const GCC11_FINAL;
+	      const MeasurementEstimator&) const final;
 
   /// DetLayer interface
-  virtual Location location() const GCC11_FINAL {return GeomDetEnumerators::barrel;}
+  virtual Location location() const final {return GeomDetEnumerators::barrel;}
 
 
   /// Extension of the interface
-  virtual const BoundCylinder&  specificSurface() const GCC11_FINAL { return *theCylinder;}
+  virtual const BoundCylinder&  specificSurface() const final { return *theCylinder;}
 
   bool contains( const Local3DPoint& p) const;
 
 
 
 protected:
-  void setSurface( BoundCylinder* cp);
 
   virtual void initialize();
 
+  void setSurface( BoundCylinder* cp);
   virtual BoundCylinder* computeSurface();
+
+  SimpleCylinderBounds const & bounds() const { return static_cast<SimpleCylinderBounds const &>(theCylinder->bounds());} 
 
 
 private:

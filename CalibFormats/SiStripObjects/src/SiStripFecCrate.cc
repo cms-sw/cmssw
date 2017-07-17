@@ -15,12 +15,12 @@ SiStripFecCrate::SiStripFecCrate( const FedChannelConnection& conn )
 // -----------------------------------------------------------------------------
 //
 void SiStripFecCrate::addDevices( const FedChannelConnection& conn ) {
-  std::vector<SiStripFec>::const_iterator ifec = fecs().begin();
-  while ( ifec != fecs().end() && (*ifec).fecSlot() != conn.fecSlot() ) { ifec++; }
-  if ( ifec == fecs().end() ) { 
+  auto ifec = fecs_.begin();
+  while ( ifec != fecs_.end() && (*ifec).fecSlot() != conn.fecSlot() ) { ifec++; }
+  if ( ifec == fecs_.end() ) { 
     fecs_.push_back( SiStripFec( conn ) ); 
   } else { 
-    const_cast<SiStripFec&>(*ifec).addDevices( conn ); 
+    ifec->addDevices( conn ); 
   }
 }
 

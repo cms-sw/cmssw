@@ -7,7 +7,7 @@
 using namespace std;
 using namespace edm;
 
-GenJetParticleSelector::GenJetParticleSelector(const ParameterSet& cfg) :
+GenJetParticleSelector::GenJetParticleSelector(const ParameterSet& cfg, edm::ConsumesCollector & iC) :
   stableOnly_(cfg.getParameter<bool>("stableOnly")),
   partons_(false), bInclude_(false) {
   const string excludeString("excludeList");

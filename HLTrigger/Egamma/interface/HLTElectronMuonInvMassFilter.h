@@ -41,12 +41,12 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
    public:
       explicit HLTElectronMuonInvMassFilter(const edm::ParameterSet&);
       ~HLTElectronMuonInvMassFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);      
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag eleCandTag_;
-      edm::InputTag muonCandTag_; 
+      edm::InputTag muonCandTag_;
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> eleCandToken_;
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs> muonCandToken_;
 
@@ -54,9 +54,9 @@ class HLTElectronMuonInvMassFilter : public HLTFilter {
       double upperMassCut_;
       int ncandcut_;
       bool relaxed_;
-      edm::InputTag L1IsoCollTag_; 
-      edm::InputTag L1NonIsoCollTag_; 
-      edm::InputTag MuonCollTag_; 
+      edm::InputTag L1IsoCollTag_;
+      edm::InputTag L1NonIsoCollTag_;
+      edm::InputTag MuonCollTag_;
 };
 
 #endif //HLTElectronMuonInvMassFilter_h

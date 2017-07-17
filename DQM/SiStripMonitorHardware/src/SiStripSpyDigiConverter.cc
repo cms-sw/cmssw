@@ -20,7 +20,7 @@
 
 namespace sistrip {
 
-  std::auto_ptr<SpyDigiConverter::DSVRawDigis> 
+  std::unique_ptr<SpyDigiConverter::DSVRawDigis> 
   SpyDigiConverter::extractPayloadDigis(const DSVRawDigis* inputScopeDigis,
 					std::vector<uint32_t> * pAPVAddresses,
 					const bool discardDigisWithAPVAddrErr,
@@ -112,7 +112,7 @@ namespace sistrip {
     }
 
     //return DSV of output
-    return std::auto_ptr<DSVRawDigis>( new DSVRawDigis(outputData, true) );
+    return std::unique_ptr<DSVRawDigis>( new DSVRawDigis(outputData, true) );
     
   } // end of SpyDigiConverter::extractPayloadDigis method
 
@@ -181,7 +181,7 @@ namespace sistrip {
 
 
 
-  std::auto_ptr<SpyDigiConverter::DSVRawDigis> SpyDigiConverter::reorderDigis(const DSVRawDigis* inputPayloadDigis)
+  std::unique_ptr<SpyDigiConverter::DSVRawDigis> SpyDigiConverter::reorderDigis(const DSVRawDigis* inputPayloadDigis)
   {
     // Data is already sorted so push back fast into vector to avoid sorts and create DSV later
     std::vector<DetSetRawDigis> outputData;
@@ -202,10 +202,10 @@ namespace sistrip {
     }
     
     //return DSV of output
-    return std::auto_ptr<DSVRawDigis>( new DSVRawDigis(outputData,true) );
+    return std::unique_ptr<DSVRawDigis>( new DSVRawDigis(outputData,true) );
   } // end of SpyDigiConverter::reorderDigis method.
 
-  std::auto_ptr<SpyDigiConverter::DSVRawDigis>
+  std::unique_ptr<SpyDigiConverter::DSVRawDigis>
   SpyDigiConverter::mergeModuleChannels(const DSVRawDigis* inputPhysicalOrderChannelDigis, 
 					const SiStripFedCabling& cabling)
   {
@@ -214,13 +214,13 @@ namespace sistrip {
 
     RawDigiDetSetVectorFiller dsvFiller(nFeds*FEDCH_PER_FED/2, nFeds*FEDCH_PER_FED*STRIPS_PER_FEDCH);
     // Loop over FEDs in cabling
-    std::vector<uint16_t>::const_iterator iFed = cabling.feds().begin();
-    const std::vector<uint16_t>::const_iterator endFeds = cabling.feds().end();
+    auto iFed = cabling.fedIds().begin();
+    auto endFeds = cabling.fedIds().end();
     for (; iFed != endFeds; ++iFed) {
       // Loop over cabled channels
-      const std::vector<FedChannelConnection>& conns = cabling.connections(*iFed);
-      std::vector<FedChannelConnection>::const_iterator iConn = conns.begin();
-      const std::vector<FedChannelConnection>::const_iterator endConns = conns.end();
+      auto conns = cabling.fedConnections(*iFed);
+      auto iConn = conns.begin();
+      auto endConns = conns.end();
       for (; iConn != endConns; ++iConn) {
 	// Skip channels not connected to a detector.
 	if (!iConn->isConnected()) continue;

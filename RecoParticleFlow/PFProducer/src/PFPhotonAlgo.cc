@@ -86,7 +86,7 @@ PFPhotonAlgo::PFPhotonAlgo(std::string mvaweightfile,
 
 void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 			       std::vector<bool>& active,
-			       std::auto_ptr<PFCandidateCollection> &pfCandidates,
+			       std::unique_ptr<PFCandidateCollection> &pfCandidates,
 			       std::vector<reco::PFCandidatePhotonExtra>& pfPhotonExtraCandidates,
 			       std::vector<reco::PFCandidate> 
 			       &tempElectronCandidates
@@ -831,16 +831,18 @@ void PFPhotonAlgo::RunPFPhoton(const reco::PFBlockRef&  blockRef,
 	    photonCand.addElementInBlock(blockRef,*it);
 	    if( elements[*it].type() == reco::PFBlockElement::TRACK  )
 	      {
-		if(elements[*it].convRef().isNonnull())
-		  {
-		    //make sure it is not stored already as the partner track
-		    bool matched=false;
-		    for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
-		      {
-			if(ConversionsRef_[ic]==elements[*it].convRef())matched=true;
-		      }
-		    if(!matched)ConversionsRef_.push_back(elements[*it].convRef());
-		  }
+		for( const auto& convref : elements[*it].convRefs() ) {
+		  if(convref.isNonnull())
+		    {
+		      //make sure it is not stored already as the partner track
+		      bool matched=false;
+		      for(unsigned int ic = 0; ic < ConversionsRef_.size(); ic++)
+			{
+			  if(ConversionsRef_[ic]==convref)matched=true;
+			}
+		      if(!matched)ConversionsRef_.push_back(convref);
+		    }
+		}
 	      }
 	  }
 	active[*it] = false;	
@@ -1323,9 +1325,9 @@ bool PFPhotonAlgo::EvaluateSingleLegMVA(const reco::PFBlockRef& blockref, const 
   //use this to store linkdata in the associatedElements function below  
   PFBlock::LinkData linkData =  block.linkData();  
   //calculate MVA Variables  
-  chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();  
-  nlost=elements[track_index].trackRef()->trackerExpectedHitsInner().numberOfLostHits();  
-  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement();  
+  chi2=elements[track_index].trackRef()->chi2()/elements[track_index].trackRef()->ndof();
+  nlost=elements[track_index].trackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
+  nlayers=elements[track_index].trackRef()->hitPattern().trackerLayersWithMeasurement();
   track_pt=elements[track_index].trackRef()->pt();  
   STIP=elements[track_index].trackRefPF()->STIP();  
    
@@ -1380,7 +1382,7 @@ void PFPhotonAlgo::EarlyConversion(
   for ( std::vector<reco::PFCandidate>::const_iterator ec=tempElectronCandidates.begin();   ec != tempElectronCandidates.end(); ++ec ) 
     {
       //      bool matched=false;
-      int mh=ec->gsfTrackRef()->trackerExpectedHitsInner().numberOfLostHits();
+      int mh=ec->gsfTrackRef()->hitPattern().numberOfLostHits(HitPattern::MISSING_INNER_HITS);
       //if(mh==0)continue;//Case where missing hits greater than zero
       
       reco::GsfTrackRef gsf=ec->gsfTrackRef();

@@ -14,7 +14,7 @@
 <use   name="RecoEgamma/EgammaTools"/>
 <use   name="RecoVertex/KinematicFit"/>
 <use   name="RecoVertex/KinematicFitPrimitives"/>
-<use   name="rootrflx"/>
+
 <use   name="TrackingTools/TransientTrack"/>
 <use   name="TrackingTools/IPTools"/>
 <use   name="TrackingTools/Records"/>

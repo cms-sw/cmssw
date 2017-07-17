@@ -6,6 +6,8 @@
 #include "SimG4Core/Notification/interface/BeginOfTrack.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include <vector>
+
 class SaveSimTrack : public SimWatcher,
                      public Observer<const BeginOfTrack *> {
 
@@ -15,7 +17,7 @@ public:
   void update(const BeginOfTrack * trk);
 
 private:
-  int    pdgMin, pdgMax;
+  std::vector<int> pdgs_;
 };
 
 #endif

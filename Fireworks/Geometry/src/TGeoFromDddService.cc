@@ -37,6 +37,7 @@
 #include "TGeoTube.h"
 #include "TGeoArb8.h"
 #include "TGeoTrd2.h"
+#include "TGeoXtru.h"
 
 #include "Math/GenVector/RotationX.h"
 
@@ -316,7 +317,19 @@ TGeoFromDddService::createShape(const std::string& iName,
                                     params[2]/cm,
                                     params[0]/cm,
                                     params[3]/deg,
-                                    params[4]/deg);
+                                    params[3]/deg + params[4]/deg);
+	    break;
+	 case ddcuttubs:
+	    //Order in params is  zhalf,rIn,rOut,startPhi,deltaPhi
+	    rSolid= new TGeoCtub(
+				 iName.c_str(),
+				 params[1]/cm,
+				 params[2]/cm,
+				 params[0]/cm,
+				 params[3]/deg,
+				 params[3]/deg + params[4]/deg,
+				 params[5],params[6],params[7],
+				 params[8],params[9],params[10]);
 	    break;
 	 case ddtrap:
 	    rSolid =new TGeoTrap(
@@ -374,6 +387,28 @@ TGeoFromDddService::createShape(const std::string& iName,
 		  *it /=cm;
 	       }
 	       rSolid->SetDimensions(&(*(temp.begin())));
+	    }
+	    break;
+         case ddextrudedpolygon:
+	    {
+	      DDExtrudedPolygon extrPgon(iSolid);
+	      std::vector<double> x = extrPgon.xVec();
+	      std::transform(x.begin(), x.end(), x.begin(),[](double d) { return d/cm; });
+	      std::vector<double> y = extrPgon.yVec();
+	      std::transform(y.begin(), y.end(), y.begin(),[](double d) { return d/cm; });
+	      std::vector<double> z = extrPgon.zVec();
+	      std::vector<double> zx = extrPgon.zxVec();
+	      std::vector<double> zy = extrPgon.zyVec();
+	      std::vector<double> zscale = extrPgon.zscaleVec();
+	      
+	      TGeoXtru* mySolid = new TGeoXtru(z.size());
+	      mySolid->DefinePolygon(x.size(), &(*x.begin()), &(*y.begin()));
+	      for( size_t i = 0; i < params[0]; ++i )
+	      {
+		mySolid->DefineSection( i, z[i]/cm, zx[i]/cm, zy[i]/cm, zscale[i]);
+	      }
+	      
+	      rSolid = mySolid;
 	    }
 	    break;
 	 case ddpseudotrap:

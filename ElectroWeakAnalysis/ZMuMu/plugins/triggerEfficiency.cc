@@ -35,7 +35,8 @@ private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   virtual void endJob() override;
   int SingleTrigger_ ,DoubleTrigger_ ,  NoTrigger_ , zmumuIncrement_ ;
-  InputTag selectMuon_, zMuMu_ ;
+  EDGetTokenT<vector<pat::Muon> > selectMuonToken_;
+  EDGetTokenT<CandidateView> zMuMuToken_;
   string pathName_;
   int  nbinsEta_;
   double minEta_ , maxEta_;
@@ -43,15 +44,15 @@ private:
   double minPt_ , maxPt_;
   int nbinsEtaPt_;
   TH1D *h_pt_distribution_;
-  TH1D *h_numberTrigMuon_, *h_numberMuon_ ;  
-  TH1D *h_numberTrigMuon_ptStudy_, *h_numberMuon_ptStudy_ ;  
-  TH1D *h_EtaDist_Pt80_; 
+  TH1D *h_numberTrigMuon_, *h_numberMuon_ ;
+  TH1D *h_numberTrigMuon_ptStudy_, *h_numberMuon_ptStudy_ ;
+  TH1D *h_EtaDist_Pt80_;
   vector<double> vectorPt , vectorEta ;
 };
 
-testAnalyzer::testAnalyzer(const edm::ParameterSet& pset) : 
-  selectMuon_( pset.getParameter<InputTag>( "selectMuon" ) ),
-  zMuMu_( pset.getParameter<InputTag>( "ZMuMu" ) ),
+testAnalyzer::testAnalyzer(const edm::ParameterSet& pset) :
+  selectMuonToken_( consumes<vector<pat::Muon> >( pset.getParameter<InputTag>( "selectMuon" ) ) ),
+  zMuMuToken_( consumes<CandidateView>( pset.getParameter<InputTag>( "ZMuMu" ) ) ),
   pathName_( pset.getParameter<string>( "pathName" ) ),
   nbinsEta_( pset.getParameter<int>( "EtaBins" ) ),
   minEta_( pset.getParameter<double>( "minEta" ) ),
@@ -67,7 +68,7 @@ testAnalyzer::testAnalyzer(const edm::ParameterSet& pset) :
   Service<TFileService> fs;
   h_pt_distribution_ = fs->make<TH1D>("PtResolution ","Pt Resolution",200,-4.,4.);
   h_numberMuon_ = fs->make<TH1D>("Denominatore","Number of Muons vs Eta",nbinsEta_,minEta_,maxEta_);
-  h_numberTrigMuon_ = fs->make<TH1D>("NumeratoreTrigMuon","Number of Triggered Muons vs Eta",nbinsEta_ ,minEta_,maxEta_); 
+  h_numberTrigMuon_ = fs->make<TH1D>("NumeratoreTrigMuon","Number of Triggered Muons vs Eta",nbinsEta_ ,minEta_,maxEta_);
   h_numberMuon_ptStudy_ = fs->make<TH1D>("DenominatorePtStudy","Number of Muons vs Pt",nbinsPt_,minPt_,maxPt_);
   h_numberTrigMuon_ptStudy_ = fs->make<TH1D>("NumeratoreTrigMuonPtStudy","Number of Triggered Muons vs Pt",nbinsPt_,minPt_,maxPt_);
   h_EtaDist_Pt80_ = fs->make<TH1D>("EtaDistr","Eta distribution (Pt>80)",nbinsEtaPt_,minEta_,maxEta_);
@@ -75,9 +76,9 @@ testAnalyzer::testAnalyzer(const edm::ParameterSet& pset) :
 
 void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   Handle<vector<pat::Muon> > selectMuon;
-  event.getByLabel(selectMuon_, selectMuon);
+  event.getByToken(selectMuonToken_, selectMuon);
   Handle<CandidateView> zMuMu;
-  event.getByLabel(zMuMu_, zMuMu);
+  event.getByToken(zMuMuToken_, zMuMu);
   int zmumuSize = zMuMu->size();
   if(zmumuSize > 0){
     for( int i = 0; i < zmumuSize ; ++i){
@@ -89,9 +90,9 @@ void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup
       CandidateBaseRef dau1 = zMuMuCand.daughter(1)->masterClone();
       const pat::Muon& mu0 = dynamic_cast<const pat::Muon&>(*dau0);//cast in patMuon
       const pat::Muon& mu1 = dynamic_cast<const pat::Muon&>(*dau1);
-      const pat::TriggerObjectStandAloneCollection mu0HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu0HLTMatches =
 	mu0.triggerObjectMatchesByPath( pathName_ );
-      const pat::TriggerObjectStandAloneCollection mu1HLTMatches = 
+      const pat::TriggerObjectStandAloneCollection mu1HLTMatches =
 	mu1.triggerObjectMatchesByPath( pathName_ );
       double EtaPatMu0 = mu0.eta();
       double EtaPatMu1 = mu1.eta();
@@ -129,7 +130,7 @@ void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup
 	  double PtDif = PtTrig-PtPatMu1;
 	  h_pt_distribution_->Fill(PtDif);
 	}
-      }	 
+      }
       else{
 	if(PtPatMu0>80) {
 	  h_EtaDist_Pt80_->Fill(EtaPatMu1);
@@ -137,7 +138,7 @@ void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup
 	  vectorEta.push_back(EtaPatMu0);
 	}
       }
-      
+
       if(singleTrigFlag0 && singleTrigFlag1)DoubleTrigger_++;
       if(singleTrigFlag0 && !singleTrigFlag1)SingleTrigger_++;
       if(!singleTrigFlag0 && singleTrigFlag1)SingleTrigger_++;
@@ -145,8 +146,8 @@ void testAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup
 
     }//end loop on ZMuMu candidates
   }//end check on ZMuMu
- 
-}  
+
+}
 
 void testAnalyzer::endJob() {
   cout<< "DoubleTrigger = " << DoubleTrigger_ << " , SingleTrigger = " << SingleTrigger_ << " , NoTrigger = "<< NoTrigger_ <<" ,zmumuIncrement = "<< zmumuIncrement_ << endl;
@@ -161,4 +162,4 @@ void testAnalyzer::endJob() {
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(testAnalyzer);
-  
+

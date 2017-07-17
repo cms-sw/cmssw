@@ -1,3 +1,4 @@
+##!/bin/csh -x
 #!/bin/csh
 
 #This script can be used to generate a web page to compare histograms from 
@@ -16,20 +17,25 @@
 #which can then be viewed in a web browser using validation.html.
 
 #=============BEGIN CONFIGURATION=================
-setenv TYPE Photons
+setenv TYPE GEDPhotons
+setenv ANALYZERNAME pfPhotonValidator
+#setenv TYPE Photons
+#setenv ANALYZERNAME PhotonValidator
 setenv CMSSWver1 7_0_0
 setenv RELEASE 7_0_0
-setenv PRERELEASE pre1
+setenv PRERELEASE 
+setenv UPGRADE True
+setenv LHCENERGY   13
 
-setenv FULLGLOBALTAG PRE_ST62_V8-v1
-setenv FASTGLOBALTAG PRE_ST62_V8_FastSim-v1
+setenv FULLGLOBALTAG POSTLS170_V3-v2
+setenv FASTGLOBALTAG POSTLS170_V3_FastSim-v2
 
-setenv RELEASE ${RELEASE}_${PRERELEASE}
-#setenv RELEASE ${RELEASE}
+#setenv RELEASE ${RELEASE}_${PRERELEASE}
+setenv RELEASE ${RELEASE}
 
 
-#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
-setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
+setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}/src/Validation/RecoEgamma/test
+#setenv WorkDir1   /afs/cern.ch/user/n/nancy/scratch0/CMSSW/test/CMSSW_${CMSSWver1}_${PRERELEASE}/src/Validation/RecoEgamma/test
 
 
 #Name of sample (affects output directory name and htmldescription only) 
@@ -64,12 +70,14 @@ setenv FASTSIM ${WorkDir1}/PhotonValidationRelVal${RELEASE}_SingleGammaFlatPt10T
 
 else if ($SAMPLE == H130GGgluonfusion) then 
 
-setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Efficiencies
-setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/Photons
-setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/PhotonValidator/ConversionInfo
-setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
-setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion__CMSSW_${RELEASE}-${FASTGLOBALTAG}__DQM.root
+setenv HISTOPATHNAME_Efficiencies DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZERNAME}/Efficiencies
+setenv HISTOPATHNAME_Photons DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZERNAME}/Photons
+setenv HISTOPATHNAME_Conversions DQMData/Run\ 1/EgammaV/Run\ summary/${ANALYZERNAME}/ConversionInfo
 
+if (  $UPGRADE == True ) then
+setenv FULLSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${LHCENERGY}__CMSSW_${RELEASE}-${FULLGLOBALTAG}__DQM.root
+setenv FASTSIM ${WorkDir1}/DQM_V0001_R000000001__RelValH130GGgluonfusion_${LHCENERGY}__CMSSW_${RELEASE}-${FASTGLOBALTAG}__DQM.root
+endif
 
 
 else if ($SAMPLE == PhotonJets_Pt_10) then
@@ -94,7 +102,7 @@ endif
 #http://cmsdoc.cern.ch/Physics/egamma/www/validation/
 
 setenv CURRENTDIR $PWD
-setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation
+setenv OUTPATH /afs/cern.ch/cms/Physics/egamma/www/validation/Photons
 cd $OUTPATH
 if (! -d $RELEASE) then
   mkdir $RELEASE
@@ -113,7 +121,12 @@ if (! -d vsFastSim) then
 endif
 setenv OUTPATH $OUTPATH/vsFastSim
 
+if ( $UPGRADE == True) then
+setenv OUTDIR $OUTPATH/${SAMPLE}_${LHCENERGY}TeV
+else
 setenv OUTDIR $OUTPATH/${SAMPLE}
+endif
+
 if (! -d $OUTDIR) then
   cd $OUTPATH
   mkdir $OUTDIR
@@ -126,17 +139,17 @@ cd $OUTDIR
 #The list of histograms to be compared for each TYPE can be configured below:
 
 
-if ( $TYPE == Photons ) then
+if ( $TYPE == Photons || $TYPE == GEDPhotons ) then
 
 
-cat > efficiencyForPhotons <<EOF
-  recoEffVsEta
-  recoEffVsPhi
-  recoEffVsEt
-  deadChVsEta
-  deadChVsPhi
-  deadChVsEt
-EOF
+#cat > efficiencyForPhotons <<EOF
+#  recoEffVsEta
+#  recoEffVsPhi
+#  recoEffVsEt
+#  deadChVsEta
+#  deadChVsPhi
+#  deadChVsEt
+#EOF
 
 
 #  gamgamMassAll
@@ -171,6 +184,7 @@ cat > scaledhistosForPhotons <<EOF
   eResconvAll
   eResconvBarrel
   eResconvEndcap
+  psEEndcap
   isoTrkSolidConeDR04All
   isoTrkSolidConeDR04Barrel
   isoTrkSolidConeDR04Endcap
@@ -309,7 +323,7 @@ $i->SetMaximum(1.1);
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
+$i->SetMarkerSize(0.8);
 $i->SetLineWidth(1);
 $i->Draw();
 file_new->cd("$HISTOPATHNAME_Efficiencies");
@@ -319,7 +333,7 @@ $i->SetMaximum(1.1);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
+$i->SetMarkerSize(0.8);
 $i->SetLineWidth(1);
 $i->Draw("same");
 c$i->SaveAs("gifs/$i.gif");
@@ -350,8 +364,16 @@ hold=$i;
 Double_t mold=$i->GetMaximum();
 Double_t nold=$i->GetEntries();
 if ( $i==scEAll || $i==phoEAll ) {  
-$i->GetYaxis()->SetRangeUser(0.,6000.);
-}
+$i->GetYaxis()->SetRangeUser(0.,6000.); 
+}  else if ( $i==eResAll ||  $i==eResunconvAll ) {
+$i->SetMaximum(12000.);
+}   else if ( $i==eResEndcap ) {
+$i->SetMaximum(2500.);
+}  else if ( $i==eResBarrel || $i==eResunconvBarrel ) {
+$i->SetMaximum(10000.);
+}  else if ( $i==eResunconvEndcap ) {
+$i->SetMaximum(1500.);
+} 
 $i->SetStats(0);
 $i->SetMinimum(0.);
 //if ( mnew > mold) 
@@ -370,7 +392,7 @@ $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
+$i->SetMarkerSize(0.8);
 //$i->SetLineWidth(1);
 $i->Scale(nold/nnew);
 TH1F* hnew=new  TH1F("hnew"," ",nBins,xMin,xMax);
@@ -394,6 +416,9 @@ ratio->SetBinError(i, erro);
 ratio->SetStats(0);
 ratio->SetLineColor(1);
 ratio->SetLineWidth(2);
+if ( $i==psEEndcap) {
+ratio->GetYaxis()->SetRangeUser(0.,5.); 
+}
 ratio->Draw("e");
 TLine *l = new TLine(xMin,1.,xMax,1.);
 l->Draw(); 
@@ -432,7 +457,7 @@ $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
+$i->SetMarkerSize(0.8);
 $i->Draw("e1same");
 cc$i->SaveAs("gifs/log$i.gif");
 
@@ -475,7 +500,7 @@ $i->SetMaximum(1.1);
 $i->SetLineColor(kPink+8);
 $i->SetMarkerColor(kPink+8);
 $i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
+$i->SetMarkerSize(0.8);
 $i->SetLineWidth(1);
 $i->Draw();
 file_new->cd("$HISTOPATHNAME_Photons");
@@ -483,7 +508,7 @@ $i->SetStats(0);
 $i->SetLineColor(kBlack);
 $i->SetMarkerColor(kBlack);
 $i->SetMarkerStyle(20);
-$i->SetMarkerSize(1);
+$i->SetMarkerSize(0.8);
 $i->SetLineWidth(1);
 $i->Draw("e1same");
 c$i->SaveAs("gifs/$i.gif");
@@ -515,8 +540,8 @@ rm end.C
 if ( $TYPE == PixelMatchGsfElectron ) then
   setenv ANALYZER PixelMatchGsfElectronAnalyzer
   setenv CFG read_gsfElectrons
-else if ( $TYPE == Photons ) then
-  setenv ANALYZER PhotonValidator
+else if ( $TYPE == Photons || $TYPE == GEDPhotons  ) then
+  setenv ANALYZER  ${ANALYZERNAME}
   setenv CFG PhotonValidator_cfg
 endif
 

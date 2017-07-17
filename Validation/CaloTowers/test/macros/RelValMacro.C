@@ -1,700 +1,632 @@
+#include "TFile.h"
+#include "TString.h"
+#include "TCanvas.h"
+#include "TH1.h"
+#include "TH2.h"
+#include "TProfile.h"
+#include "TDirectory.h"
+#include "TPaveText.h"
+#include "TPaveStats.h"
+#include "TROOT.h"
+#include "TStyle.h"
+#include "TColor.h"
+#include "TLegend.h"
+#include "TKey.h"
+#include "TClass.h"
 
-#include <fstream>
-#include <TFile.h>
-#include <TString.h>
-#include <TCanvas.h>
-#include "CombinedCaloTowers.C"
+#include <iostream>
+#include <map>
+#include <string>
+#include <cstring>
+#include <cstdio>
 
+#include "rootlogon.h"
 
-using namespace std;
-
-void prn(TString s0, TString s1) {
-    std::cout << "\t>> " << s0 << ": " << s1 << std::endl;
+template<class T1, class T2>
+void prn(T1 s1, T2 s2) 
+{
+    std::cout << "\t>> " << s1 << ": " << s2 << std::endl;
 }
 
-void prn(TString s0, double d) {
-    std::cout << "\t>> " << s0 << ": " << d << std::endl;
+void RelValMacro(std::string ref_vers, std::string val_vers, std::string rfname, std::string vfname, std::string inputStream = "InputRelVal.txt");
+void ProcessRelVal(TFile *ref_file, TFile *val_file, std::string ref_vers, std::string val_vers, std::string histName, std::string outLabel, int nRebin, double xAxisMin, double xAxisMax, double yAxisMin, double yAxisMax,
+                   std::string dimSwitch, std::string statSwitch, std::string chi2Switch, std::string logSwitch, int refCol, int valCol, std::string xAxisTitle, std::string histName2 = "");
+template<class T>
+void setObjProps(T obj);
+
+class DirectoryFinder
+{
+private:
+    std::map<std::string, TDirectory*> ptdMap;
+    TDirectory* findDirectory( TDirectory *target, std::string& s);
+public:
+    TDirectory* operator()(TDirectory *target, std::string& s);
+} dfRef, dfVal;
+
+int main(int argn, char **argv)
+{
+    if(argn == 5)       RelValMacro(argv[1], argv[2], argv[3], argv[4]);
+    else if(argn == 6)  RelValMacro(argv[1], argv[2], argv[3], argv[4], argv[5]);
+    else
+    {
+	printf("Usage: ./RelValMacro.exe refVersion valVersion refFileName valFileName [input stream]\n");
+    }
 }
 
+void RelValMacro(std::string ref_vers, std::string val_vers, std::string rfname, std::string vfname, std::string inputStream) 
+{
+    //Warning!!! This rootlogon hacks the root color pallate.  This should probably be rewritten.  
+    setColors();
+    
+    //File Read 
+    FILE * inputFile = NULL;
+    if((inputFile = fopen(inputStream.c_str(), "r")))
+    {
+        char buff[4096];
+        char *c;
+	
+	char histName[128], histName2[128] = "", ofileName[128], xAxisTitle[128];
+	double xAxisMin, xAxisMax, yAxisMin, yAxisMax;
+	char dimFlag[32], statFlag[32], chi2Flag[32], logFlag[32];
+	int nRebin, draw, refCol, valCol;
 
-void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nHits2D, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest = 0, bool bRBX = false);
+	TFile* Ref_File = new TFile(rfname.c_str());
+	TFile* Val_File = new TFile(vfname.c_str());
 
-void RelValMacro(TString ref_vers = "218", TString val_vers = "218", TString rfname, TString vfname, TString InputStream = "InputRelVal.txt", int harvest = 0) {
+	if(Ref_File && Val_File)
+	{
+	    while(!feof(inputFile) && (c = fgets(buff, 4096, inputFile)) != NULL)
+	    {            
+		//The following lines allow for comments.  The first comment character (#) will be replaced with a end of string.
+		char* k = strchr(buff, '#');
+		if(k) *k = '\0';
+		//Parse the line
+		if(sscanf(buff, "%s %d %s %d %lf %lf %lf %lf %s %s %s %s %d %d %[^\n]", histName, &draw, ofileName, &nRebin, &xAxisMin, &xAxisMax, &yAxisMin, &yAxisMax, dimFlag, statFlag, chi2Flag, logFlag, &refCol, &valCol, xAxisTitle) == 15)
+		{
+		    //Skip is set not to draw
+		    if(!draw) continue;
+                
+		    //Ugly hack for the timing plots, this should be fixed 
+		    if(strcmp(dimFlag, "TM") == 0)
+		    {
+			fgets(buff, 4096, inputFile);
+			sscanf(buff, "%s", histName2);
+		    }
+                
+		    //Make plot
+		    ProcessRelVal(Ref_File, Val_File, ref_vers, val_vers, histName, ofileName, nRebin, xAxisMin, xAxisMax, yAxisMin, yAxisMax, dimFlag, statFlag, chi2Flag, logFlag, refCol, valCol, xAxisTitle, histName2);
+		}
+	    }
+	}
+	else
+	{
+	    if(!Ref_File) std::cout << "Input root file \"" << rfname << "\" not found!!!" << std::endl;
+	    if(!Val_File) std::cout << "Input root file \"" << vfname << "\" not found!!!" << std::endl;
+	}
+        fclose(inputFile);
+	
+	Ref_File->Close();
+	Val_File->Close();
+    }
+    else
+    {
+        std::cout << "Input file \"" << inputStream << "\" not found!!!" << std::endl;
+    }
 
-    ifstream RelValStream;
-
-    RelValStream.open(InputStream);
-
-    TFile Ref_File(rfname);
-    TFile Val_File(vfname);
-
-/*
-    A note about MC histograms: 22 of them are not included in this current implementation.
-    Two things must be done to include them again:
-    1. Uncomment the appropriate lines below in the service variables detailing how many
-       histograms ProcessRelVal will expect from the Input txt files.
-    2. Change the aforementioned Input txt files DrawSwitch flags from 0 to 1 (the second 
-       number after the histogram name). 
-*/
-
-
-    //Service variables
-    //HcalDigis
-    //Please note 22 MC histograms are taken OUT of here
-    //Add 11 for HD_nProfID and 11 for HD_nHist1 and 22 for HD_nHistTot
-    const int HD_nHistTot = 43 + 11 + 4 + 1; 
-//    const int HD_nHistTot = 43 + 11 + 4 + 11 + 1;
-    const int HD_nHist1 = 8 + 5 + 11 + 4 + 4 + 1;
-//    const int HD_nHist1 = 8 + 5 + 11 + 4 + 11 + 4 + 1;
-    const int HD_nHist2 = 11;
-    const int HD_nHist2D = 4;
-    const int HD_nProfInd = 0;
-//    const int HD_nProfInd = 11;
-
-    //CaloTowers
-    const int CT_nHistTot = 61 + 15;
-    const int CT_nHist1 = 22 + 15;
-    const int CT_nHist2 = 6;
-    const int CT_nProf = 6;
-
-    //RecHits
-    const int RH_nHistTot = 87 + 4 + 4 + 5;
-    const int RH_nHist1 = 24 + 4 + 4;
-    const int RH_nHist2 = 4;
-    const int RH_nHist2D = 5;
-    const int RH_nProfInd = 12;
-
-    //RBX Noise
-    const int RBX_nHistTot = 6;
-    const int RBX_nHist1 = 5;
-
-    ProcessRelVal(Ref_File, Val_File, RelValStream, HD_nHist1, HD_nHist2, HD_nHist2D, HD_nProfInd, HD_nHistTot, ref_vers, val_vers, harvest, false, true);
-
-    ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers, harvest);
-
-    ProcessRelVal(Ref_File, Val_File, RelValStream, RH_nHist1, RH_nHist2, RH_nHist2D, RH_nProfInd, RH_nHistTot, ref_vers, val_vers, harvest, false, false);
-
-    ProcessRelVal(Ref_File, Val_File, RelValStream, RBX_nHist1, 0, 0, 0, RBX_nHistTot, ref_vers, val_vers, harvest, true, false);
-
-
-    Ref_File.Close();
-    Val_File.Close();
+//    ProcessSubDetCT(Ref_File, Val_File, RelValStream, CT_nHist1, CT_nHist2, CT_nProf, CT_nHistTot, ref_vers, val_vers, harvest);
 
     return;
 }
 
-void ProcessRelVal(TFile &ref_file, TFile &val_file, ifstream &recstr, const int nHist1, const int nHist2, const int nHist2D, const int nProfInd, const int nHistTot, TString ref_vers, TString val_vers, int harvest, bool bRBX, bool bHD = false) {
+void ProcessRelVal(TFile *ref_file, TFile *val_file, std::string ref_vers, std::string val_vers, std::string histName, std::string outLabel, int nRebin, double xAxisMin, double xAxisMax, double yAxisMin, double yAxisMax,
+                   std::string dimSwitch, std::string statSwitch, std::string chi2Switch, std::string logSwitch, int refCol, int valCol, std::string xAxisTitle, std::string histName2)
+{
+    //split directory off histName 
+    int slashLoc = histName.rfind("/");
+    std::string histDir = histName.substr(0, slashLoc);
+    if(slashLoc < histName.size() - 1) histName = histName.substr(slashLoc + 1, histName.size());
 
-    TString RefHistDir, ValHistDir;
-
-    if (bRBX) {
-        if (harvest == 11) {
-            RefHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
-            ValHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
-        } else if (harvest == 10) {
-            RefHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
-            ValHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
-        } else if (harvest == 1) {
-            RefHistDir = "DQMData/Run 1/NoiseRatesV/Run summary/NoiseRatesTask";
-            ValHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
-        } else {
-            RefHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
-            ValHistDir = "DQMData/NoiseRatesV/NoiseRatesTask";
-        }
+    //Get objects from TFiles
+    TDirectory *refTD = dfRef(ref_file, histDir);
+    TObject *refObj = 0;
+    if(refTD) 
+    {
+        refObj = refTD->Get(histName.c_str());
+        if(refObj) refObj = refObj->Clone();
     }
-    //AF
-    else if (bHD) {
-        if (harvest == 11) {
-            RefHistDir = "DQMData/Run 1/HcalDigisV/Run summary/HcalDigiTask";
-            ValHistDir = "DQMData/Run 1/HcalDigisV/Run summary/HcalDigiTask";
-        } else if (harvest == 10) {
-            RefHistDir = "DQMData/HcalDigisV/HcalDigiTask";
-            ValHistDir = "DQMData/Run 1/HcalDigisV/Run summary/HcalDigiTask";
-        } else if (harvest == 1) {
-            RefHistDir = "DQMData/Run 1/HcalDigisV/Run summary/HcalDigiTask";
-            ValHistDir = "DQMData/HcalDigisV/HcalDigiTask";
-        } else {
-            RefHistDir = "DQMData/HcalDigisV/HcalDigiTask";
-            ValHistDir = "DQMData/HcalDigisV/HcalDigiTask";
-        }
-    } else {
-        if (harvest == 11) {
-            RefHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
-            ValHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
-        } else if (harvest == 10) {
-            RefHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
-            ValHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
-        } else if (harvest == 1) {
-            RefHistDir = "DQMData/Run 1/HcalRecHitsV/Run summary/HcalRecHitTask";
-            ValHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
-        } else {
-            RefHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
-            ValHistDir = "DQMData/HcalRecHitsV/HcalRecHitTask";
-        }
+    else 
+    {
+	std::cout << "Cannot find directory \"" << histDir << "\" in file \"" << ref_file->GetName() << "\"" << std::endl;
+	return;
+    }
+    if(!refObj)
+    {
+	std::cout << "Cannot find histogram \"" << histDir << "\\" << histName << "\" in file \"" << ref_file->GetName() << "\"" << std::endl;
+	return;
     }
 
-    TCanvas* myc = 0;
-    TLegend* leg = 0;
-    TPaveText* ptchi2 = 0;
-    TPaveStats *ptstats_r = 0;
-    TPaveStats *ptstats_v = 0;
+    TDirectory *valTD = dfVal(val_file, histDir);
+    TObject *valObj = 0;
+    if(valTD) 
+    {
+        valObj = valTD->Get(histName.c_str());
+        if(valObj) valObj = valObj->Clone();
+    }
+    else
+    {
+	std::cout << "Cannot find directory \"" << histDir << "\" in file \"" << val_file->GetName() << "\"" << std::endl;
+	return;
+    }
+    if(!refObj)
+    {
+	std::cout << "Cannot find histogram \"" << histDir << "\\" << histName << "\" in file \"" << val_file->GetName() << "\"" << std::endl;
+	return;
+    }
 
-    TH1F * ref_hist1[nHist1];
-    TH2F * ref_hist2[nHist2];
-    TProfile * ref_prof[nProfInd];
-    TH1D * ref_fp[nProfInd];
-    TH2F * ref_hist2D[nHist2D];
+    //Format canvas
+    TCanvas *myc = 0;
+    if (dimSwitch.compare("PRwide") == 0) {
+        gStyle->SetPadLeftMargin(0.06);
+        gStyle->SetPadRightMargin(0.03);
+        myc = new TCanvas("myc", "", 1200, 600);
+    } else myc = new TCanvas("myc", "", 800, 600);
+    myc->SetGrid();
 
-    TH1F * val_hist1[nHist1];
-    TH2F * val_hist2[nHist2];
-    TProfile * val_prof[nProfInd];
-    TH1D * val_fp[nProfInd];
-    TH2F * val_hist2D[nHist2D];
+    std::string xTitleCheck = xAxisTitle;
+    xTitleCheck = xTitleCheck.substr(1, 7);
 
-    int i;
-    int DrawSwitch;
-    TString StatSwitch, Chi2Switch, LogSwitch, DimSwitch;
-    int RefCol, ValCol;
-    TString HistName, HistName2;
-    char xAxisTitle[200];
-    int nRebin;
-    float xAxisMin, xAxisMax, yAxisMin, yAxisMax;
-    TString OutLabel, ProfileLabel;
-    string xTitleCheck;
+    //Format pad
+    if(logSwitch.compare("Log") == 0 && dimSwitch.compare("2D") == 0)
+    {
+        myc->SetLogy(0);
+        myc->SetLogz(1);
+    }
+    else if(logSwitch.compare("Log") == 0)
+    {
+        myc->SetLogy(1);
+    }
+    
+    if (dimSwitch.compare("1D") == 0) 
+    {
+        //Get histograms from objects
+        TH1* ref_hist1 = (TH1*)refObj;
+        TH1* val_hist1 = (TH1*)valObj;
 
-    float hmax = 0;
+        // change what is embedded in DQM histos
+        setObjProps(ref_hist1);
+        setObjProps(val_hist1);
 
-    int nh1 = 0;
-    int nh2 = 0;
-    int npr = 0;
-    int npi = 0;
-    int n2D = 0;
-
-    for (i = 0; i < nHistTot; i++) {
-
-        //Read in 1/0 switch saying whether this histogram is used
-        //Skip it if not used, otherwise get output file label, histogram
-        //axis ranges and title
-	//ALTERED: Reads in all inputs and then uses 1/0 switch to skip
-        //See below
-        recstr >> HistName >> DrawSwitch;
-        prn("HistName", HistName);
-//        if (DrawSwitch == 0) continue;
-
-        recstr >> OutLabel >> nRebin;
-        recstr >> xAxisMin >> xAxisMax >> yAxisMin >> yAxisMax;
-        recstr >> DimSwitch >> StatSwitch >> Chi2Switch >> LogSwitch;
-        recstr >> RefCol >> ValCol;
-        recstr.getline(xAxisTitle, 200);
-
-	//Make sure extra Profile info is also taken care of
-        if (DrawSwitch == 0) {
-           if (DimSwitch == "TM") 
-		recstr >> ProfileLabel;
-           continue;
+        //Rebin histograms -- has to be done first
+        if (nRebin != 1) {
+            ref_hist1->Rebin(nRebin);
+            val_hist1->Rebin(nRebin);
         }
 
+        //Set the colors, styles, titles, stat boxes and format axes for the histograms
+        ref_hist1->SetStats(kTRUE);
+        val_hist1->SetStats(kTRUE);
 
-        // Nasty trick:
-        // recovering colors redefined in rootlogon.C (for "rainbow" Palette)
-        Float_t r, g, b;
-        Float_t saturation = 1;
-        Float_t lightness = 0.5;
-        Float_t maxHue = 280;
-        Float_t minHue = 0;
-        Int_t maxPretty = 50;
-        Float_t hue;
+        if (statSwitch.compare("Stat") != 0 && statSwitch.compare("Statrv") != 0) {
+            ref_hist1->SetStats(kFALSE);
+            val_hist1->SetStats(kFALSE);
+        }
 
-        for (int j = 0; j < maxPretty; j++) {
-            hue = maxHue - (j + 1)*((maxHue - minHue) / maxPretty);
-            TColor::HLStoRGB(hue, lightness, saturation, r, g, b);
-            TColor *color = (TColor*) (gROOT->GetListOfColors()->At(j + 51));
-            color->SetRGB(r, g, b);
-         }
-         gStyle->SetPalette(1);
+        //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+        //xAxis
+        if (xAxisMin == 0) xAxisMin = ref_hist1->GetXaxis()->GetXmin();
+        if (xAxisMax < 0) xAxisMax = ref_hist1->GetXaxis()->GetXmax();
 
+        if (xAxisMax > 0 || xAxisMin != 0) {
+            ref_hist1->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
+            val_hist1->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
+        }
+        //yAxis
+        if (yAxisMin != 0) ref_hist1->SetMinimum(yAxisMin);
+        if (yAxisMax > 0) ref_hist1->SetMaximum(yAxisMax);
+        else if (ref_hist1->GetMaximum() < val_hist1->GetMaximum() &&
+                val_hist1->GetMaximum() > 0) {
+            if (logSwitch.compare("Log") == 0) ref_hist1->SetMaximum(2 * val_hist1->GetMaximum());
+            else ref_hist1->SetMaximum(1.05 * val_hist1->GetMaximum());
+        }
 
-        //Format canvas
-        if (DimSwitch == "PRwide") {
-            gStyle->SetPadLeftMargin(0.06);
-            gStyle->SetPadRightMargin(0.03);
-            myc = new TCanvas("myc", "", 1200, 600);
-        } else myc = new TCanvas("myc", "", 800, 600);
-        myc->SetGrid();
+        //Title
+        if (xTitleCheck != "NoTitle") ref_hist1->GetXaxis()->SetTitle(xAxisTitle.c_str());
 
-        xTitleCheck = xAxisTitle;
-        xTitleCheck = xTitleCheck.substr(1, 7);
+        //Different histo colors and styles
+        ref_hist1->SetTitle("");
+        ref_hist1->SetLineColor(refCol);
+        ref_hist1->SetLineStyle(1);
+        ref_hist1->SetMarkerSize(0.02);
 
-        //Format pad
-        if (LogSwitch == "Log") myc->SetLogy(1);
-        else myc->SetLogy(0);
+        val_hist1->SetTitle("");
+        val_hist1->SetLineColor(valCol);
+        val_hist1->SetLineStyle(2);
+        val_hist1->SetMarkerSize(0.02);
+        if(statSwitch.compare("Stat") != 0 && statSwitch.compare("Statrv") != 0)
+        {
+            ref_hist1->SetLineWidth(2);
+            val_hist1->SetLineWidth(2);
+        }
+
+        //Legend
+        TLegend *leg = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
+        leg->SetBorderSize(2);
+        leg->SetFillStyle(1001);
+        leg->AddEntry(ref_hist1, ("CMSSW_" + ref_vers).c_str(), "l");
+        leg->AddEntry(val_hist1, ("CMSSW_" + val_vers).c_str(), "l");
+
+        if (chi2Switch.compare("Chi2") == 0) {
+            //Draw and save histograms
+            ref_hist1->SetFillColor(40);//42 Originally, now 40 which is lgiht brown
+            ref_hist1->Draw("hist");
+            val_hist1->SetLineStyle(1);
+            if (statSwitch.compare("Statrv") == 0) val_hist1->Draw("sames e0");
+            else val_hist1->Draw("same e0");
+
+            //Get p-value from chi2 test
+            const float NCHI2MIN = 0.01;
+
+            float pval;
+            char tempbuff[30];
+
+            pval = ref_hist1->Chi2Test(val_hist1);
+
+            sprintf(tempbuff, "Chi2 p-value: %6.3E", pval);
+
+            TPaveText* ptchi2 = new TPaveText(0.05, 0.92, 0.35, 0.99, "NDC");
+
+            if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
+            else ptchi2->SetFillColor(kRed);
+
+            ptchi2->SetTextSize(0.03);
+            ptchi2->AddText(tempbuff);
+            ptchi2->Draw();
+        } else {
+            //Draw and save histograms
+            ref_hist1->Draw("hist");
+            if (statSwitch.compare("Statrv") == 0) val_hist1->Draw("hist sames");
+            else val_hist1->Draw("hist same");
+        }
+
+        //Stat Box where required
+        if (statSwitch.compare("Stat") == 0 || statSwitch.compare("Statrv") == 0) {
+            TPaveStats* ptstats_r = new TPaveStats(0.85, 0.86, 0.98, 0.98, "brNDC");
+            ptstats_r->SetTextColor(refCol);
+            ref_hist1->GetListOfFunctions()->Add(ptstats_r);
+            ptstats_r->SetParent(ref_hist1->GetListOfFunctions());
+            TPaveStats* ptstats_v = new TPaveStats(0.85, 0.74, 0.98, 0.86, "brNDC");
+            ptstats_v->SetTextColor(valCol);
+            val_hist1->GetListOfFunctions()->Add(ptstats_v);
+            ptstats_v->SetParent(val_hist1->GetListOfFunctions());
+
+            ptstats_r->Draw();
+            ptstats_v->Draw();
+        }
+
+        leg->Draw();
+
+        myc->SaveAs(outLabel.c_str());
+    }
+    //Profiles not associated with histograms
+    else if (dimSwitch.compare("PR") == 0 || dimSwitch.compare("PRwide") == 0) 
+    {
+        //Get profiles from objects
+        TProfile* ref_prof = (TProfile*)refObj;
+        TProfile* val_prof = (TProfile*)valObj;
+
+        // HACK to change what is embedded in DQM histos
+        setObjProps(ref_prof);
+        setObjProps(val_prof);
+
+        //Legend
+        TLegend* leg = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
+        leg->SetBorderSize(2);
+        leg->SetFillStyle(1001);
+
+        //Ordinary profiles
+        if(dimSwitch.compare("PR") == 0) 
+        {
+            ref_prof->SetTitle("");
+            ref_prof->SetErrorOption("");
+
+            val_prof->SetTitle("");
+            val_prof->SetErrorOption("");
+
+            ref_prof->GetXaxis()->SetTitle(xAxisTitle.c_str());
+
+            if (statSwitch.compare("Stat") != 0 && statSwitch.compare("Statrv") != 0) {
+                ref_prof->SetStats(kFALSE);
+                val_prof->SetStats(kFALSE);
+            }
+
+            ref_prof->SetLineColor(41);
+            ref_prof->SetLineStyle(1);
+            ref_prof->SetLineWidth(1);
+            ref_prof->SetMarkerColor(41);
+            ref_prof->SetMarkerStyle(21);
+            ref_prof->SetMarkerSize(0.8);
+
+            val_prof->SetLineColor(43);
+            val_prof->SetLineStyle(1);
+            val_prof->SetLineWidth(1);
+            val_prof->SetMarkerColor(43);
+            val_prof->SetMarkerStyle(22);
+            val_prof->SetMarkerSize(1.0);
+
+            if (ref_prof->GetMaximum() < val_prof->GetMaximum() &&
+                    val_prof->GetMaximum() > 0) {
+                if (logSwitch.compare("Log") == 0) ref_prof->SetMaximum(2 * val_prof->GetMaximum());
+                else ref_prof->SetMaximum(1.05 * val_prof->GetMaximum());
+            }
+
+            ref_prof->Draw("hist pl");
+            val_prof->Draw("hist pl same");
+
+            leg->AddEntry(ref_prof, ("CMSSW_" + ref_vers).c_str(), "pl");
+            leg->AddEntry(val_prof, ("CMSSW_" + val_vers).c_str(), "pl");
+        }//Wide profiles
+        else if(dimSwitch.compare("PRwide") == 0)
+        {
+            char temp[128];
+            sprintf(temp, "%s_px_v", ref_prof->GetName());
+            TH1* ref_fp = ref_prof->ProjectionX();
+            TH1* val_fp = val_prof->ProjectionX(temp);
+
+            ref_fp->SetTitle("");
+            val_fp->SetTitle("");
+
+            ref_fp->GetXaxis()->SetTitle(xAxisTitle.c_str());
+
+            if(statSwitch.compare("Stat") != 0 && statSwitch.compare("Statrv") != 0) 
+            {
+                ref_fp->SetStats(kFALSE);
+                val_fp->SetStats(kFALSE);
+            }
+
+            int nbins = ref_fp->GetNbinsX();
+            for (int j = 1; j < nbins; j++) {
+                ref_fp->SetBinError(j, 0.);
+                val_fp->SetBinError(j, 0.);
+            }
+            ref_fp->SetLineWidth(0);
+            ref_fp->SetLineColor(0); // 5 yellow
+            ref_fp->SetLineStyle(1);
+            ref_fp->SetMarkerColor(2);
+            ref_fp->SetMarkerStyle(20);
+            ref_fp->SetMarkerSize(0.5);
+
+            val_fp->SetLineWidth(0);
+            val_fp->SetLineColor(0); // 45 blue
+            val_fp->SetLineStyle(2);
+            val_fp->SetMarkerColor(4);
+            val_fp->SetMarkerStyle(22);
+            val_fp->SetMarkerSize(0.5);
+
+            if (ref_fp->GetMaximum() < val_fp->GetMaximum() &&
+                    val_fp->GetMaximum() > 0) {
+                if (logSwitch.compare("Log") == 0) ref_fp->SetMaximum(2 * val_fp->GetMaximum());
+                else ref_fp->SetMaximum(1.05 * val_fp->GetMaximum());
+            }
+
+            ref_fp->Draw("p9");
+            val_fp->Draw("p9same");
+
+            leg->AddEntry(ref_fp, ("CMSSW_" + ref_vers).c_str(), "lp");
+            leg->AddEntry(val_fp, ("CMSSW_" + val_vers).c_str(), "lp");
+
+        }
+
+        leg->Draw("");
+
+        myc->SaveAs(outLabel.c_str());
+    }//Timing Histograms (special: read two lines at once)
+    else if (dimSwitch.compare("TM") == 0) 
+    {
+        //split directory off histName 
+        int slashLoc2 = histName2.rfind("/");
+        std::string histDir2 = histName2.substr(0, slashLoc2);
+        if(slashLoc2 < histName2.size() - 1) histName2 = histName2.substr(slashLoc2 + 1, histName2.size());
+
+        //Get objects from TFiles
+        TDirectory *refTD2 = dfRef(ref_file, histDir2);
+        TObject *refObj2 = refTD->Get(histName2.c_str())->Clone();
+        TDirectory *valTD2 = dfVal(val_file, histDir2);
+        TObject *valObj2 = valTD->Get(histName2.c_str())->Clone();
+
+        TH2* ref_hist2 = (TH2*)refObj;
+        TProfile* ref_prof = (TProfile*)refObj2;
+
+        ref_hist2->SetMarkerStyle(21);
+        ref_prof ->SetMarkerStyle(21);
+        ref_hist2->SetMarkerSize(0.02);
+        ref_prof ->SetMarkerSize(0.02);
+
+        TH2* val_hist2 = (TH2F*)valObj;
+        TProfile* val_prof = (TProfile*)valObj2;
+
+        val_hist2->SetMarkerStyle(21);
+        val_prof ->SetMarkerStyle(21);
+        val_hist2->SetMarkerSize(0.02);
+        val_prof ->SetMarkerSize(0.02);
+
+        // HACK to change what is embedded in DQM histos
+        setObjProps(ref_hist2);
+        setObjProps(val_hist2);
+
+        //Min/Max Convention: Default AxisMin = 0. Default AxisMax = -1.
+        //xAxis
+        if (xAxisMin == 0) xAxisMin = ref_hist2->GetXaxis()->GetXmin();
+        if (xAxisMax < 0) xAxisMax = ref_hist2->GetXaxis()->GetXmax();
+
+        if (xAxisMax > 0 || xAxisMin != 0) {
+            ref_hist2->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
+            val_hist2->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
+        }
+        //yAxis
+        if (yAxisMin != 0) ref_hist2->SetMinimum(yAxisMin);
+        if (yAxisMax > 0) ref_hist2->SetMaximum(yAxisMax);
+        else if (ref_hist2->GetMaximum() < val_hist2->GetMaximum() &&
+                val_hist2->GetMaximum() > 0) {
+            if (logSwitch == "Log") ref_hist2->SetMaximum(2 * val_hist2->GetMaximum());
+            else ref_hist2->SetMaximum(1.05 * val_hist2->GetMaximum());
+        }
 
         //AF
-        if (LogSwitch == "Log" && DimSwitch == "2D"){
-          myc->SetLogy(0);
-          myc->SetLogz(1);
+        if (yAxisMax > 0 || yAxisMin != 0) {
+            ref_hist2->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
+            val_hist2->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
         }
 
-        if (DimSwitch == "1D") {
-            //Get histograms from files
-            ref_file.cd(RefHistDir);
-            ref_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
+        //Legend
+        TLegend* leg = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
+        leg->SetBorderSize(2);
+        leg->SetFillStyle(1001);
 
-            val_file.cd(ValHistDir);
-            val_hist1[nh1] = (TH1F*) gDirectory->Get(HistName);
+        ref_hist2->GetXaxis()->SetTitle(xAxisTitle.c_str());
+        ref_hist2->SetStats(kFALSE);
 
-            // HACK to change what is embedded in DQM histos
-            ref_hist1[nh1]->GetXaxis()->SetLabelSize(0.04);
-            val_hist1[nh1]->GetXaxis()->SetLabelSize(0.04);
-            ref_hist1[nh1]->GetYaxis()->SetLabelSize(0.04);
-            val_hist1[nh1]->GetYaxis()->SetLabelSize(0.04);
-            ref_hist1[nh1]->GetXaxis()->SetTitleSize(0.045);
-            val_hist1[nh1]->GetXaxis()->SetTitleSize(0.045);
+        ref_hist2->SetTitle("");
+        val_hist2->SetTitle("");
 
-            ref_hist1[nh1]->GetXaxis()->SetTickLength(-0.015);
-            val_hist1[nh1]->GetXaxis()->SetTickLength(-0.015);
-            ref_hist1[nh1]->GetYaxis()->SetTickLength(-0.015);
-            val_hist1[nh1]->GetYaxis()->SetTickLength(-0.015);
+        ref_hist2->SetMarkerColor(refCol); // rose
+        ref_hist2->Draw();
+        ref_prof->SetLineColor(41);
+        ref_prof->Draw("same");
 
-            ref_hist1[nh1]->GetXaxis()->SetLabelOffset(0.02);
-            val_hist1[nh1]->GetXaxis()->SetLabelOffset(0.02);
-            ref_hist1[nh1]->GetYaxis()->SetLabelOffset(0.02);
-            val_hist1[nh1]->GetYaxis()->SetLabelOffset(0.02);
+        val_hist2->SetMarkerColor(valCol);
+        val_hist2->Draw("same");
+        val_prof->SetLineColor(45);
+        val_prof->Draw("same");
 
-            ref_hist1[nh1]->GetXaxis()->SetTitleOffset(1.3);
-            val_hist1[nh1]->GetXaxis()->SetTitleOffset(1.3);
+        leg->AddEntry(ref_prof, ("CMSSW_" + ref_vers).c_str(), "pl");
+	leg->AddEntry(val_prof, ("CMSSW_" + val_vers).c_str(), "pl");
 
+        leg->Draw("");
 
-            //Rebin histograms -- has to be done first
-            if (nRebin != 1) {
-                ref_hist1[nh1]->Rebin(nRebin);
-                val_hist1[nh1]->Rebin(nRebin);
-            }
+        myc->SaveAs(outLabel.c_str());
 
-            //Set the colors, styles, titles, stat boxes and format axes for the histograms
-            ref_hist1[nh1]->SetStats(kTRUE);
-            val_hist1[nh1]->SetStats(kTRUE);
-
-            if (StatSwitch != "Stat" && StatSwitch != "Statrv") {
-                ref_hist1[nh1]->SetStats(kFALSE);
-                val_hist1[nh1]->SetStats(kFALSE);
-            }
-
-            //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
-            //xAxis
-            if (xAxisMin == 0) xAxisMin = ref_hist1[nh1]->GetXaxis()->GetXmin();
-            if (xAxisMax < 0) xAxisMax = ref_hist1[nh1]->GetXaxis()->GetXmax();
-
-            if (xAxisMax > 0 || xAxisMin != 0) {
-                ref_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
-                val_hist1[nh1]->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
-            }
-            //yAxis
-            if (yAxisMin != 0) ref_hist1[nh1]->SetMinimum(yAxisMin);
-            if (yAxisMax > 0) ref_hist1[nh1]->SetMaximum(yAxisMax);
-            else if (ref_hist1[nh1]->GetMaximum() < val_hist1[nh1]->GetMaximum() &&
-                    val_hist1[nh1]->GetMaximum() > 0) {
-                if (LogSwitch == "Log") ref_hist1[nh1]->SetMaximum(2 * val_hist1[nh1]->GetMaximum());
-                else ref_hist1[nh1]->SetMaximum(1.05 * val_hist1[nh1]->GetMaximum());
-            }
-
-            //Title
-            if (xTitleCheck != "NoTitle") ref_hist1[nh1]->GetXaxis()->SetTitle(xAxisTitle);
-
-            //Different histo colors and styles
-            ref_hist1[nh1]->SetTitle("");
-            ref_hist1[nh1]->SetLineColor(RefCol);
-            ref_hist1[nh1]->SetLineStyle(1);
-            ref_hist1[nh1]->SetMarkerSize(0.02);
-            if (StatSwitch != "Stat" && StatSwitch != "Statrv") ref_hist1[nh1]->SetLineWidth(2);
-
-            val_hist1[nh1]->SetTitle("");
-            val_hist1[nh1]->SetLineColor(ValCol);
-            val_hist1[nh1]->SetLineStyle(2);
-            val_hist1[nh1]->SetMarkerSize(0.02);
-            if (StatSwitch != "Stat" && StatSwitch != "Statrv") val_hist1[nh1]->SetLineWidth(2);
-
-            //Legend
-            TLegend *leg = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
-            leg->SetBorderSize(2);
-            leg->SetFillStyle(1001);
-            leg->AddEntry(ref_hist1[nh1], "CMSSW_" + ref_vers, "l");
-            leg->AddEntry(val_hist1[nh1], "CMSSW_" + val_vers, "l");
-
-            if (Chi2Switch == "Chi2") {
-                //Draw and save histograms
-                ref_hist1[nh1]->SetFillColor(40);//42 Originally, now 40 which is lgiht brown
-                ref_hist1[nh1]->Draw("hist");
-                val_hist1[nh1]->SetLineStyle(1);
-                if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("sames e0");
-                else val_hist1[nh1]->Draw("same e0");
-
-                //Get p-value from chi2 test
-                const float NCHI2MIN = 0.01;
-
-                float pval;
-                stringstream mystream;
-                char tempbuff[30];
-
-                pval = ref_hist1[nh1]->Chi2Test(val_hist1[nh1]);
-
-                sprintf(tempbuff, "Chi2 p-value: %6.3E%c", pval, '\0');
-                mystream << tempbuff;
-
-                ptchi2 = new TPaveText(0.05, 0.92, 0.35, 0.99, "NDC");
-
-                if (pval > NCHI2MIN) ptchi2->SetFillColor(kGreen);
-                else ptchi2->SetFillColor(kRed);
-
-                ptchi2->SetTextSize(0.03);
-                ptchi2->AddText(mystream.str().c_str());
-                ptchi2->Draw();
-            } else {
-                //Draw and save histograms
-                ref_hist1[nh1]->Draw("hist");
-                if (StatSwitch == "Statrv") val_hist1[nh1]->Draw("hist sames");
-                else val_hist1[nh1]->Draw("hist same");
-            }
-
-            //Stat Box where required
-            if (StatSwitch == "Stat" || StatSwitch == "Statrv") {
-                ptstats_r = new TPaveStats(0.85, 0.86, 0.98, 0.98, "brNDC");
-                ptstats_r->SetTextColor(RefCol);
-                ref_hist1[nh1]->GetListOfFunctions()->Add(ptstats_r);
-                ptstats_r->SetParent(ref_hist1[nh1]->GetListOfFunctions());
-                ptstats_v = new TPaveStats(0.85, 0.74, 0.98, 0.86, "brNDC");
-                ptstats_v->SetTextColor(ValCol);
-                val_hist1[nh1]->GetListOfFunctions()->Add(ptstats_v);
-                ptstats_v->SetParent(val_hist1[nh1]->GetListOfFunctions());
-
-                ptstats_r->Draw();
-                ptstats_v->Draw();
-            }
-
-            leg->Draw();
-
-            myc->SaveAs(OutLabel);
-            nh1++;
-        }
-            //Profiles not associated with histograms
-        else if (DimSwitch == "PR" || DimSwitch == "PRwide") {
-            //Get profiles from files
-            ref_file.cd(RefHistDir);
-            ref_prof[npi] = (TProfile*) gDirectory->Get(HistName);
-
-            val_file.cd(ValHistDir);
-            val_prof[npi] = (TProfile*) gDirectory->Get(HistName);
-
-            // HACK to change what is embedded in DQM histos
-            ref_prof[npi]->GetXaxis()->SetLabelSize(0.04);
-            val_prof[npi]->GetXaxis()->SetLabelSize(0.04);
-            ref_prof[npi]->GetYaxis()->SetLabelSize(0.04);
-            val_prof[npi]->GetYaxis()->SetLabelSize(0.04);
-            ref_prof[npi]->GetXaxis()->SetTitleSize(0.045);
-            val_prof[npi]->GetXaxis()->SetTitleSize(0.045);
-
-            ref_prof[npi]->GetXaxis()->SetTickLength(-0.015);
-            val_prof[npi]->GetXaxis()->SetTickLength(-0.015);
-            ref_prof[npi]->GetYaxis()->SetTickLength(-0.015);
-            val_prof[npi]->GetYaxis()->SetTickLength(-0.015);
-
-            ref_prof[npi]->GetXaxis()->SetLabelOffset(0.02);
-            val_prof[npi]->GetXaxis()->SetLabelOffset(0.02);
-            ref_prof[npi]->GetYaxis()->SetLabelOffset(0.02);
-            val_prof[npi]->GetYaxis()->SetLabelOffset(0.02);
-
-            ref_prof[npi]->GetXaxis()->SetTitleOffset(1.3);
-            val_prof[npi]->GetXaxis()->SetTitleOffset(1.3);
-
-
-            //Legend
-            leg = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
-            leg->SetBorderSize(2);
-            leg->SetFillStyle(1001);
-
-            //Ordinary profiles
-            if (DimSwitch == "PR") {
-                ref_prof[npi]->SetTitle("");
-                ref_prof[npi]->SetErrorOption("");
-
-                val_prof[npi]->SetTitle("");
-                val_prof[npi]->SetErrorOption("");
-
-                ref_prof[npi]->GetXaxis()->SetTitle(xAxisTitle);
-
-                if (StatSwitch != "Stat" && StatSwitch != "Statrv") {
-                    ref_prof[npi]->SetStats(kFALSE);
-                    val_prof[npi]->SetStats(kFALSE);
-                }
-
-                ref_prof[npi]->SetLineColor(41);
-                ref_prof[npi]->SetLineStyle(1);
-                ref_prof[npi]->SetLineWidth(1);
-                ref_prof[npi]->SetMarkerColor(41);
-                ref_prof[npi]->SetMarkerStyle(21);
-                ref_prof[npi]->SetMarkerSize(0.8);
-
-                val_prof[npi]->SetLineColor(43);
-                val_prof[npi]->SetLineStyle(1);
-                val_prof[npi]->SetLineWidth(1);
-                val_prof[npi]->SetMarkerColor(43);
-                val_prof[npi]->SetMarkerStyle(22);
-                val_prof[npi]->SetMarkerSize(1.0);
-
-                if (ref_prof[npi]->GetMaximum() < val_prof[npi]->GetMaximum() &&
-                        val_prof[npi]->GetMaximum() > 0) {
-                    if (LogSwitch == "Log") ref_prof[npi]->SetMaximum(2 * val_prof[npi]->GetMaximum());
-                    else ref_prof[npi]->SetMaximum(1.05 * val_prof[npi]->GetMaximum());
-                }
-
-                ref_prof[npi]->Draw("hist pl");
-                val_prof[npi]->Draw("hist pl same");
-
-                leg->AddEntry(ref_prof[npi], "CMSSW_" + ref_vers, "pl");
-                leg->AddEntry(val_prof[npi], "CMSSW_" + val_vers, "pl");
-            }//Wide profiles
-            else if (DimSwitch == "PRwide") {
-                TString temp = HistName + "_px_v";
-                ref_fp[npi] = ref_prof[npi]->ProjectionX();
-                val_fp[npi] = val_prof[npi]->ProjectionX(temp.Data());
-
-                ref_fp[npi]->SetTitle("");
-                val_fp[npi]->SetTitle("");
-
-                ref_fp[npi]->GetXaxis()->SetTitle(xAxisTitle);
-
-                if (StatSwitch != "Stat" && StatSwitch != "Statrv") {
-                    ref_fp[npi]->SetStats(kFALSE);
-                    val_fp[npi]->SetStats(kFALSE);
-                }
-
-                int nbins = ref_fp[npi]->GetNbinsX();
-                for (int j = 1; j < nbins; j++) {
-                    ref_fp[npi]->SetBinError(j, 0.);
-                    val_fp[npi]->SetBinError(j, 0.);
-                }
-                ref_fp[npi]->SetLineWidth(0);
-                ref_fp[npi]->SetLineColor(0); // 5 yellow
-                ref_fp[npi]->SetLineStyle(1);
-                ref_fp[npi]->SetMarkerColor(2);
-                ref_fp[npi]->SetMarkerStyle(20);
-                ref_fp[npi]->SetMarkerSize(0.5);
-
-                val_fp[npi]->SetLineWidth(0);
-                val_fp[npi]->SetLineColor(0); // 45 blue
-                val_fp[npi]->SetLineStyle(2);
-                val_fp[npi]->SetMarkerColor(4);
-                val_fp[npi]->SetMarkerStyle(22);
-                val_fp[npi]->SetMarkerSize(0.5);
-
-                if (ref_fp[npi]->GetMaximum() < val_fp[npi]->GetMaximum() &&
-                        val_fp[npi]->GetMaximum() > 0) {
-                    if (LogSwitch == "Log") ref_fp[npi]->SetMaximum(2 * val_fp[npi]->GetMaximum());
-                    else ref_fp[npi]->SetMaximum(1.05 * val_fp[npi]->GetMaximum());
-                }
-
-                ref_fp[npi]->Draw("p9");
-                val_fp[npi]->Draw("p9same");
-
-                leg->AddEntry(ref_fp[npi], "CMSSW_" + ref_vers, "lp");
-                leg->AddEntry(val_fp[npi], "CMSSW_" + val_vers, "lp");
-
-            }
-
-            leg->Draw("");
-
-            myc->SaveAs(OutLabel);
-
-            npi++;
-        }//Timing Histograms (special: read two lines at once)
-        else if (DimSwitch == "TM") {
-
-            recstr >> HistName2;
-
-            ref_file.cd(RefHistDir);
-
-            ref_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
-            ref_prof[npi] = (TProfile*) gDirectory->Get(HistName2);
-
-            ref_hist2[nh2]->SetMarkerStyle(21);
-            ref_prof[npi] ->SetMarkerStyle(21);
-            ref_hist2[nh2]->SetMarkerSize(0.02);
-            ref_prof[npi] ->SetMarkerSize(0.02);
-
-            val_file.cd(ValHistDir);
-
-            val_hist2[nh2] = (TH2F*) gDirectory->Get(HistName);
-            val_prof[npi] = (TProfile*) gDirectory->Get(HistName2);
-
-            val_hist2[nh2]->SetMarkerStyle(21);
-            val_prof[npi] ->SetMarkerStyle(21);
-            val_hist2[nh2]->SetMarkerSize(0.02);
-            val_prof[npi] ->SetMarkerSize(0.02);
-
-            // HACK to change what is embedded in DQM histos
-            ref_hist2[nh2]->GetXaxis()->SetLabelSize(0.04);
-            val_hist2[nh2]->GetXaxis()->SetLabelSize(0.04);
-            ref_hist2[nh2]->GetYaxis()->SetLabelSize(0.04);
-            val_hist2[nh2]->GetYaxis()->SetLabelSize(0.04);
-            ref_hist2[nh2]->GetXaxis()->SetTitleSize(0.045);
-            val_hist2[nh2]->GetXaxis()->SetTitleSize(0.045);
-
-            ref_hist2[nh2]->GetXaxis()->SetTickLength(-0.015);
-            val_hist2[nh2]->GetXaxis()->SetTickLength(-0.015);
-            ref_hist2[nh2]->GetYaxis()->SetTickLength(-0.015);
-            val_hist2[nh2]->GetYaxis()->SetTickLength(-0.015);
-
-            ref_hist2[nh2]->GetXaxis()->SetLabelOffset(0.02);
-            val_hist2[nh2]->GetXaxis()->SetLabelOffset(0.02);
-            ref_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
-            val_hist2[nh2]->GetYaxis()->SetLabelOffset(0.02);
-
-            ref_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3);
-            val_hist2[nh2]->GetXaxis()->SetTitleOffset(1.3);
-
-
-            //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
-            //xAxis
-            if (xAxisMin == 0) xAxisMin = ref_hist2[nh2]->GetXaxis()->GetXmin();
-            if (xAxisMax < 0) xAxisMax = ref_hist2[nh2]->GetXaxis()->GetXmax();
-
-            if (xAxisMax > 0 || xAxisMin != 0) {
-                ref_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
-                val_hist2[nh2]->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
-            }
-            //yAxis
-            if (yAxisMin != 0) ref_hist2[nh2]->SetMinimum(yAxisMin);
-            if (yAxisMax > 0) ref_hist2[nh2]->SetMaximum(yAxisMax);
-            else if (ref_hist2[nh2]->GetMaximum() < val_hist2[nh2]->GetMaximum() &&
-                    val_hist2[nh2]->GetMaximum() > 0) {
-                if (LogSwitch == "Log") ref_hist2[nh2]->SetMaximum(2 * val_hist2[nh2]->GetMaximum());
-                else ref_hist2[nh2]->SetMaximum(1.05 * val_hist2[nh2]->GetMaximum());
-            }
-
-            //AF
-            if (yAxisMax > 0 || yAxisMin != 0) {
-                ref_hist2[nh2]->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
-                val_hist2[nh2]->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
-            }
-
-            //Legend
-            leg = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
-            leg->SetBorderSize(2);
-            leg->SetFillStyle(1001);
-
-            ref_hist2[nh2]->GetXaxis()->SetTitle(xAxisTitle);
-            ref_hist2[nh2]->SetStats(kFALSE);
-
-	    ref_hist2[nh2]->SetTitle("");
-            val_hist2[nh2]->SetTitle("");
-
-            ref_hist2[nh2]->SetMarkerColor(RefCol); // rose
-            ref_hist2[nh2]->Draw();
-            ref_prof[npi]->SetLineColor(41);
-            ref_prof[npi]->Draw("same");
-
-            val_hist2[nh2]->SetMarkerColor(ValCol);
-            val_hist2[nh2]->Draw("same");
-            val_prof[npi]->SetLineColor(45);
-            val_prof[npi]->Draw("same");
-
-            leg->AddEntry(ref_prof[npi], "CMSSW_" + ref_vers, "pl");
-            leg->AddEntry(val_prof[npi], "CMSSW_" + val_vers, "pl");
-
-            leg->Draw("");
-
-            myc->SaveAs(OutLabel);
-
-            npi++;
-            nh2++;
-            i++;
-        } else if (DimSwitch == "2D") {
-
-            myc->SetGrid(0, 0);
-
-            //Get histograms from files
-            ref_file.cd(RefHistDir);
-            ref_hist2D[n2D] = (TH2F*) gDirectory->Get(HistName);
-
-            val_file.cd(ValHistDir);
-            val_hist2D[n2D] = (TH2F*) gDirectory->Get(HistName);
-
-            ref_hist2D[n2D]->SetStats(kFALSE);
-            val_hist2D[n2D]->SetStats(kFALSE);
-
-            // HACK to change what is embedded in DQM histos
-            ref_hist2D[n2D]->GetXaxis()->SetLabelSize(0.04);
-            val_hist2D[n2D]->GetXaxis()->SetLabelSize(0.04);
-            ref_hist2D[n2D]->GetYaxis()->SetLabelSize(0.04);
-            val_hist2D[n2D]->GetYaxis()->SetLabelSize(0.04);
-            ref_hist2D[n2D]->GetXaxis()->SetTitleSize(0.045);
-            val_hist2D[n2D]->GetXaxis()->SetTitleSize(0.045);
-
-            ref_hist2D[n2D]->GetXaxis()->SetTickLength(-0.015);
-            val_hist2D[n2D]->GetXaxis()->SetTickLength(-0.015);
-            ref_hist2D[n2D]->GetYaxis()->SetTickLength(-0.015);
-            val_hist2D[n2D]->GetYaxis()->SetTickLength(-0.015);
-
-            ref_hist2D[n2D]->GetXaxis()->SetLabelOffset(0.02);
-            val_hist2D[n2D]->GetXaxis()->SetLabelOffset(0.02);
-            ref_hist2D[n2D]->GetYaxis()->SetLabelOffset(0.02);
-            val_hist2D[n2D]->GetYaxis()->SetLabelOffset(0.02);
-
-            ref_hist2D[n2D]->GetXaxis()->SetTitleOffset(1.3);
-            val_hist2D[n2D]->GetXaxis()->SetTitleOffset(1.3);
-
-	    ref_hist2D[n2D]->SetTitle("");
-	    val_hist2D[n2D]->SetTitle("");
-
-            // special zoom on HB/HE depth1
-            if (n2D == 1) {
-                ref_hist2D[n2D]->GetXaxis()->SetRangeUser(-29., 28.);
-                val_hist2D[n2D]->GetXaxis()->SetRangeUser(-29., 28.);
-            }
-
-            //AF
-            //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
-            //xAxis
-            if (xAxisMax > 0 || xAxisMin != 0) {
-                ref_hist2D[n2D]->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
-                val_hist2D[n2D]->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
-            }
-            //yAxis
-            if (yAxisMax > 0 || yAxisMin != 0) {
-                ref_hist2D[n2D]->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
-                val_hist2D[n2D]->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
-            }
-
-            TLegend *leg1 = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
-            leg1->SetBorderSize(2);
-            leg1->SetFillStyle(1001);
-            leg1->AddEntry(ref_hist2D[n2D], "CMSSW_" + ref_vers, "l");
-
-            if (xTitleCheck != "NoTitle") ref_hist2D[n2D]->GetXaxis()->SetTitle(xAxisTitle);
-            ref_hist2D[n2D]->Draw("colz");
-            leg1->Draw();
-            myc->SaveAs("ref_" + OutLabel);
-
-
-            TLegend *leg2 = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
-            leg2->SetBorderSize(2);
-            leg2->SetFillStyle(1001);
-            leg2->AddEntry(val_hist2D[n2D], "CMSSW_" + val_vers, "l");
-
-            if (xTitleCheck != "NoTitle") val_hist2D[n2D]->GetXaxis()->SetTitle(xAxisTitle);
-            val_hist2D[n2D]->Draw("colz");
-            leg2->Draw();
-            myc->SaveAs("val_" + OutLabel);
-
-            n2D++;
-        }
-
-
-        if (myc) delete myc;
-        if (leg) delete leg;
-        if (ptchi2) delete ptchi2;
-        if (ptstats_r) delete ptstats_r;
-        if (ptstats_v) delete ptstats_v;
+	if(refObj2) delete refObj2;
+	if(valObj2) delete valObj2;
     }
+    else if(dimSwitch.compare("2D") == 0) 
+    {
+
+        myc->SetGrid(0, 0);
+
+        //Get histograms from objects
+        TH2* ref_hist2D = (TH2*)refObj;
+        TH2* val_hist2D = (TH2*)valObj;
+
+        ref_hist2D->SetStats(kFALSE);
+        val_hist2D->SetStats(kFALSE);
+
+        // HACK to change what is embedded in DQM histos
+        setObjProps(ref_hist2D);
+        setObjProps(val_hist2D);
+
+        ref_hist2D->SetTitle("");
+        val_hist2D->SetTitle("");
+
+        // special zoom on HB/HE depth1
+        //if (n2D == 1) {
+        //    ref_hist2D->GetXaxis()->SetRangeUser(-29., 28.);
+        //    val_hist2D->GetXaxis()->SetRangeUser(-29., 28.);
+        //}
+
+        //Min/Max Convetion: Default AxisMin = 0. Default AxisMax = -1.
+        //xAxis
+        if (xAxisMax > 0 || xAxisMin != 0) {
+            ref_hist2D->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
+            val_hist2D->GetXaxis()->SetRangeUser(xAxisMin, xAxisMax);
+        }
+        //yAxis
+        if (yAxisMax > 0 || yAxisMin != 0) {
+            ref_hist2D->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
+            val_hist2D->GetYaxis()->SetRangeUser(yAxisMin, yAxisMax);
+        }
+
+        TLegend *leg1 = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
+        leg1->SetBorderSize(2);
+        leg1->SetFillStyle(1001);
+        leg1->AddEntry(ref_hist2D, ("CMSSW_" + ref_vers).c_str(), "l");
+
+        if (xTitleCheck != "NoTitle") ref_hist2D->GetXaxis()->SetTitle(xAxisTitle.c_str());
+        ref_hist2D->Draw("colz");
+        leg1->Draw();
+        myc->SaveAs(("ref_" + outLabel).c_str());
+
+        TLegend *leg2 = new TLegend(0.50, 0.91, 0.84, 0.99, "", "brNDC");
+        leg2->SetBorderSize(2);
+        leg2->SetFillStyle(1001);
+        leg2->AddEntry(val_hist2D, ("CMSSW_" + val_vers).c_str(), "l");
+
+        if (xTitleCheck != "NoTitle") val_hist2D->GetXaxis()->SetTitle(xAxisTitle.c_str());
+        val_hist2D->Draw("colz");
+        leg2->Draw();
+        myc->SaveAs(("val_" + outLabel).c_str());
+    }
+
+    if(myc) delete myc;
+    if(refObj) delete refObj;
+    if(valObj) delete valObj;
+
     return;
+}
+
+TDirectory* DirectoryFinder::operator()(TDirectory *target, std::string& s)
+{
+    if(ptdMap.find(s) == ptdMap.end()) return (ptdMap[s] = findDirectory(target, s));
+    else                               return ptdMap[s];
+}
+
+TDirectory* DirectoryFinder::findDirectory( TDirectory *target, std::string& s)
+{
+    TDirectory *retval = 0;
+
+    // loop over all keys in this directory                                                                                                                                                                                                  
+    TIter nextkey(target->GetListOfKeys());
+    TKey *key, *oldkey=0;
+    while((key = (TKey*)nextkey()))
+    {
+	//keep only the highest cycle number for each key                                                                                                                                                                                    
+	if (oldkey && !strcmp(oldkey->GetName(),key->GetName())) continue;
+
+	// read object from file                                                                                                                                                                                                             
+//	target->cd();
+	TObject *obj = key->ReadObj();
+//	obj->Print();
+
+	if(obj->IsA()->InheritsFrom(TDirectory::Class()))
+	{
+	    // it's a subdirectory                                                                                                                                                                                                           
+	    //std::cout << "Found subdirectory " << obj->GetName() << std::endl;
+
+	    if(strcmp(s.c_str(), obj->GetName()) == 0) return (TDirectory*)obj;
+
+	    if((retval = findDirectory((TDirectory*)obj, s))) break;
+
+	}
+	else
+	{
+	    break;
+	}
+    }
+
+    return retval;
+}
+
+template<class T>
+void setObjProps(T obj)
+{
+    obj->GetXaxis()->SetLabelSize(0.04);
+    obj->GetYaxis()->SetLabelSize(0.04);
+    obj->GetXaxis()->SetTitleSize(0.045);
+
+    obj->GetXaxis()->SetTickLength(-0.015);
+    obj->GetYaxis()->SetTickLength(-0.015);
+
+    obj->GetXaxis()->SetLabelOffset(0.02);
+    obj->GetYaxis()->SetLabelOffset(0.02);
+    
+    obj->GetXaxis()->SetTitleOffset(1.3);
 }

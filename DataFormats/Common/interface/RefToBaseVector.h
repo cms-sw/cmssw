@@ -6,8 +6,11 @@
  *
  */
 #include "DataFormats/Common/interface/CMS_CLASS_VERSION.h"
+#include "DataFormats/Common/interface/FillViewHelperVector.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
-#include "boost/shared_ptr.hpp"
+#include <algorithm>
+#include <memory>
+#include <utility>
 #include <vector>
 
 namespace edm {
@@ -35,9 +38,7 @@ namespace edm {
     explicit RefToBaseVector(REFV const& );
     template<typename C>
     explicit RefToBaseVector(Handle<C> const& );
-    template<typename T1>
-    explicit RefToBaseVector(Handle<View<T1> > const& );
-    RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p);
+    RefToBaseVector(std::shared_ptr<reftobase::RefVectorHolderBase> p);
     RefToBaseVector& operator=(RefToBaseVector const& iRHS);
     void swap(RefToBaseVector& other);
 
@@ -48,8 +49,8 @@ namespace edm {
 
     value_type at(size_type idx) const;
     value_type operator[](size_type idx) const;
-    bool isValid() const { return holder_ != 0; }
-    bool isInvalid() const { return holder_ == 0; }
+    bool isValid() const { return holder_ != nullptr; }
+    bool isInvalid() const { return holder_ == nullptr; }
     bool empty() const;
     size_type size() const;
     //size_type capacity() const;
@@ -60,9 +61,8 @@ namespace edm {
 
     void push_back( const RefToBase<T> & );
 
-    void fillView(std::vector<void const*>& pointers) const;
-    std::auto_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
-    const void * product() const;
+    void fillView(std::vector<void const*>& pointers, FillViewHelperVector& helpers) const;
+    std::unique_ptr<reftobase::RefVectorHolderBase> vectorHolder() const;
  
     /// Checks if collection is in memory or available
     /// in the Event. No type checking is done.
@@ -72,7 +72,7 @@ namespace edm {
     CMS_CLASS_VERSION(10)
 
   private:
-    holder_type * holder_;
+    holder_type* holder_;
   };
 }
 
@@ -109,7 +109,7 @@ namespace edm {
   template <class T>
   inline
   RefToBaseVector<T>::RefToBaseVector() : 
-    holder_(0) 
+    holder_(nullptr)
   { }
 
   template <class T>
@@ -122,12 +122,12 @@ namespace edm {
   template <class T>
   inline
   RefToBaseVector<T>::RefToBaseVector(const RefToBaseVector<T>& iOther) : 
-    holder_(iOther.holder_ ? iOther.holder_->clone() : 0)
+    holder_(iOther.holder_ ? iOther.holder_->clone() : nullptr)
   { }
 
   template <class T>
   inline
-  RefToBaseVector<T>::RefToBaseVector(boost::shared_ptr<reftobase::RefVectorHolderBase> p) : 
+  RefToBaseVector<T>::RefToBaseVector(std::shared_ptr<reftobase::RefVectorHolderBase> p) : 
     holder_(new reftobase::IndirectVectorHolder<T>(p)) {
   }
 
@@ -159,7 +159,7 @@ namespace edm {
   typename RefToBaseVector<T>::value_type
   RefToBaseVector<T>::at(size_type idx) const 
   {
-    if ( holder_ == 0 )
+    if ( holder_ == nullptr )
       Exception::throwThis( errors::InvalidReference,
 	"Trying to dereference null RefToBaseVector<T> in method: at(",
 	idx,
@@ -196,7 +196,7 @@ namespace edm {
   void 
   RefToBaseVector<T>::clear()
   {
-    if ( holder_ != 0 )
+    if ( holder_ != nullptr )
       holder_->clear();
   }
 
@@ -213,7 +213,7 @@ namespace edm {
   EDProductGetter const * 
   RefToBaseVector<T>::productGetter() const
   {
-    return holder_ ? holder_->productGetter() : 0;
+    return holder_ ? holder_->productGetter() : nullptr;
   }
 
   template <class T>
@@ -234,21 +234,25 @@ namespace edm {
 
   template <typename T>
   void
-  RefToBaseVector<T>::fillView(std::vector<void const*>& pointers) const
+  RefToBaseVector<T>::fillView(std::vector<void const*>& pointers, FillViewHelperVector& helpers) const
   {
     pointers.reserve(this->size());
+    helpers.reserve(this->size());
     for (const_iterator i=begin(), e=end(); i!=e; ++i) {
       RefToBase<T> ref = * i;
       member_type const * address = ref.isNull() ? 0 : & * ref;
       pointers.push_back(address);
+      helpers.push_back(FillViewHelperVector::value_type(ref.id(),ref.key()));
     }
   }
 
   // NOTE: the following implementation has unusual signature!
   template <typename T>
   inline void fillView(RefToBaseVector<T> const& obj,
-		       std::vector<void const*>& pointers) {
-    obj.fillView(pointers);
+                       ProductID const&,
+                       std::vector<void const*>& pointers,
+                       FillViewHelperVector& helpers) {
+    obj.fillView(pointers,helpers);
   }
 
   template <typename T>
@@ -258,28 +262,21 @@ namespace edm {
 
   template <typename T>
   void RefToBaseVector<T>::push_back( const RefToBase<T> & r ) {
-    if ( holder_ == 0 ) {
-      std::auto_ptr<reftobase::BaseVectorHolder<T> > p = r.holder_->makeVectorHolder();
+    if ( holder_ == nullptr ) {
+      std::unique_ptr<reftobase::BaseVectorHolder<T> > p = r.holder_->makeVectorHolder();
       holder_ = p.release();
     }
     holder_->push_back( r.holder_ );
   }
 
   template <typename T>
-  std::auto_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
-    return holder_ ? holder_->vectorHolder() : std::auto_ptr<reftobase::RefVectorHolderBase>();
+  std::unique_ptr<reftobase::RefVectorHolderBase> RefToBaseVector<T>::vectorHolder() const {
+    return holder_ ? holder_->vectorHolder() : std::unique_ptr<reftobase::RefVectorHolderBase>();
   }
-
-  template <typename T>
-  const void * RefToBaseVector<T>::product() const {
-    return holder_ ? holder_->product() : 0;
-  }
-
 }
 
 #include "DataFormats/Common/interface/RefVector.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
 
 namespace edm {
 
@@ -288,12 +285,6 @@ namespace edm {
   RefToBaseVector<T>::RefToBaseVector(const Handle<C> & h ) :
     holder_(new reftobase::VectorHolder<T, RefVector<C, typename refhelper::ValueTrait<C>::value, 
 	    typename refhelper::FindTrait<C, T>::value> >(h.id())) {
-  }
-
-  template<typename T>
-  template<typename T1>
-  RefToBaseVector<T>::RefToBaseVector(const Handle<View<T1> > & h ) :
-    holder_(h->refVector().holder_->cloneEmpty()) {
   }
 
 }

@@ -13,7 +13,7 @@ namespace converter {
     typedef reco::Track value_type;
     typedef reco::TrackCollection Components;
     typedef reco::RecoChargedCandidate Candidate;
-    TrackToCandidate(const edm::ParameterSet & cfg) : 
+    TrackToCandidate(const edm::ParameterSet & cfg) :
       MassiveCandidateConverter(cfg) {
     }
     void convert(reco::TrackRef trkRef, reco::RecoChargedCandidate & c) const {
@@ -25,12 +25,12 @@ namespace converter {
       c.setP4(reco::Candidate::LorentzVector(p.x(), p.y(), p.z(), t));
       c.setTrack(trkRef);
       c.setPdgId(particle_.pdgId());
-    }  
+    }
   };
 
   namespace helper {
     template<>
-    struct CandConverter<reco::Track> { 
+    struct CandConverter<reco::Track> {
       typedef TrackToCandidate type;
     };
   }

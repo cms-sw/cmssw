@@ -12,7 +12,7 @@
 
 #include "SimDataFormats/RPCDigiSimLink/interface/RPCDigiSimLink.h"
 
-namespace {
+namespace SimDataFormats_RPCDigiSimLink {
   struct dictionary {
     edm::Wrapper<RPCDigiSimLink> RPCDigiSimLinkWrapper;
     edm::Wrapper< std::vector<RPCDigiSimLink>  > RPCDigiSimLinkVector;

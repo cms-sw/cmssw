@@ -4,81 +4,62 @@ ExoticaDQM = cms.EDAnalyzer(
     "ExoticaDQM",
 
     #Trigger Results
-    triggerResultsCollection = cms.InputTag("TriggerResults", "", "HLT"),
-
-    #Trigger Lists
-    triggerMultiJetsList     = cms.vstring(
-    "HLT_MonoCentralPFJet80_PFMETnoMu105_NHEF0p95_v"
-    ),
-    triggerLongLivedList     = cms.vstring(
-    "HLT_L2DoubleMu23_NoVertex_v"
-    "HLT_L2DoubleMu23_NoVertex_2Cha_Angle2p5_v"
-    "HLT_L2DoubleMu38_NoVertex_2Cha_Angle2p5_v"
-    "HLT_HT650_Track50_dEdx3p6_v"
-    "HLT_HT650_Track60_dEdx3p7_v"
-    "HLT_MET80_Track50_dEdx3p6_v"
-    "HLT_MET80_Track60_dEdx3p7_v"
-    "HLT_HT300_DoubleDisplacedPFJet60_ChgFraction10_v"
-    "HLT_HT300_SingleDisplacedPFJet60_v"
-    "HLT_HT300_SingleDisplacedPFJet60_ChgFraction10_v"
-    "HLT_HT300_DoubleDisplacedPFJet60_v"
-    "HLT_JetE30_NoBPTX_v"
-    "HLT_JetE30_NoBPTX3BX_NoHalo_v"
-    "HLT_JetE50_NoBPTX3BX_NoHalo_v"
-    "HLT_JetE70_NoBPTX3BX_NoHalo_v"
-    "HLT_Mu40_eta2p1_Track50_dEdx3p6_v"
-    "HLT_Mu40_eta2p1_Track60_dEdx3p7_v"
-    "HLT_L2Mu70_eta2p1_PFMET55_v"
-    "HLT_L2Mu70_eta2p1_PFMET60_v"
-    "HLT_L2Mu20_eta2p1_NoVertex_v"
-    "HLT_L2Mu10_NoVertex_NoBPTX3BX_NoHalo_v"
-    "HLT_L2Mu20_NoVertex_2Cha_NoBPTX3BX_NoHalo_v"
-    "HLT_L2Mu30_NoVertex_2Cha_NoBPTX3BX_NoHalo_v"
-    "HLT_DoubleDisplacedMu4_DiPFJet40Neutral_v"
-    "HLT_L2TripleMu10_0_0_NoVertex_PFJet40Neutral_v"
-    "HLT_DoublePhoton48_HEVT_v"
-    "HLT_DoublePhoton53_HEVT_v"
-    "HLT_DisplacedPhoton65_CaloIdVL_IsoL_PFMET25_v"
-    "HLT_DisplacedPhoton65EBOnly_CaloIdVL_IsoL_PFMET30_v"
-    ),
+    TriggerResults           = cms.InputTag('TriggerResults','','HLT'),
+    HltPaths                 = cms.vstring("HLT_Mu","HLT_Ele","HLT_Photon","HLT_PFHT","HLT_HT","HLT_PFMET","HLT_MET","HLT_"),
 
     #Physics objects
-    electronCollection       = cms.InputTag("gsfElectrons"),
-    pfelectronCollectionEI   = cms.InputTag("pfIsolatedElectronsEI"),
+    vertexCollection         = cms.InputTag('offlinePrimaryVertices'),
+    electronCollection       = cms.InputTag("gedGsfElectrons"),
 
     muonCollection           = cms.InputTag("muons"),
-    pfmuonCollectionEI       = cms.InputTag("pfIsolatedMuonsEI"),
-   
-    tauCollection            = cms.InputTag("caloRecoTauProducer"),
-    #pftauCollection          = cms.InputTag("pfTaus"),
 
-    photonCollection         = cms.InputTag("photons"),
-    #pfphotonCollection       = cms.InputTag("pfIsolatedPhotons"),
+    photonCollection         = cms.InputTag("gedPhotons"),
 
-    caloJetCollection        = cms.InputTag("ak5CaloJets"),
-    pfJetCollection          = cms.InputTag("ak5PFJets"),
-    pfJetCollectionEI        = cms.InputTag("pfJets"),
+    pfJetCollection          = cms.InputTag('ak4PFJetsCHS'),
+    jetCorrector             = cms.InputTag('ak4PFL1FastL2L3Corrector'),
 
-    caloMETCollection        = cms.InputTag("corMetGlobalMuons","","RECO"),
-    pfMETCollection          = cms.InputTag("pfMet","","RECO"),
-    pfMETCollectionEI        = cms.InputTag("pfMetEI","","RECO"),
+    DiJetPFJetCollection     = cms.VInputTag('ak4PFJetsCHS','ak8PFJetsCHS'),
 
-    #Cuts
-    #Multijets
-    mj_monojet_ptPFJet       = cms.double(30.0),
-    mj_monojet_ptPFMuon      = cms.double(10.0),
-    mj_monojet_ptPFElectron  = cms.double(10.0),
-    CaloJetCorService        = cms.string("ak5CaloL1FastL2L3"),
-    PFJetCorService          = cms.string("ak5PFL1FastL2L3"),
+    caloMETCollection        = cms.InputTag("caloMetM"),
+    pfMETCollection          = cms.InputTag("pfMet"),
 
-    #
-    #LongLived
+    trackCollection          = cms.InputTag("generalTracks"),
+
+    displacedMuonCollection  = cms.InputTag("displacedGlobalMuons"),
+    displacedSAMuonCollection  = cms.InputTag("displacedStandAloneMuons"),
+
+    # MC truth
+    genParticleCollection    = cms.InputTag("genParticles"),
     
-    #genParticleCollection    = cms.InputTag("genParticles"),
-
-    #PtThrMu1 = cms.untracked.double(3.0),
-    #PtThrMu2 = cms.untracked.double(3.0)
-
+    #Cuts
+    # DiJet
+    dijet_PFJet1_pt_cut       = cms.double(30.0),
+    dijet_PFJet2_pt_cut       = cms.double(30.0),
+    # DiMuon
+    dimuon_Muon1_pt_cut      = cms.double(50.0),
+    dimuon_Muon2_pt_cut      = cms.double(50.0),
+    # DiElectron
+    dielectron_Electron1_pt_cut = cms.double(50.0),
+    dielectron_Electron2_pt_cut = cms.double(50.0),
+    # DiPhoton
+    diphoton_Photon1_pt_cut   = cms.double(20.0),
+    diphoton_Photon2_pt_cut   = cms.double(20.0),
+    # MonoMuon
+    monomuon_Muon_pt_cut      = cms.double(80.0),
+    monomuon_Muon_met_cut     = cms.double(100.0),
+    # MonoElectron
+    monoelectron_Electron_pt_cut  = cms.double(80.0),
+    monoelectron_Electron_met_cut = cms.double(100.0),
+    # Monojet
+    monojet_PFJet_pt_cut      = cms.double(80.0),
+    monojet_PFJet_met_cut     = cms.double(100.0),
+    # MonoPhoton
+    monophoton_Photon_pt_cut  = cms.double(80.0),
+    monophoton_Photon_met_cut = cms.double(100.0),
+    # Displaced lepton or jet
+    dispFermion_eta_cut = cms.double(2.4),
+    dispFermion_pt_cut  = cms.double(1.0),
+    
     JetIDParams  = cms.PSet(
         useRecHits      = cms.bool(True),
         hbheRecHitsColl = cms.InputTag("hbhereco"),

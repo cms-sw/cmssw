@@ -3,14 +3,25 @@
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "Geometry/CaloTopology/interface/HcalTopology.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
 
-CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology * topology) :
-  m_topology(topology),
+#include <memory>
+
+//#define EDM_ML_DEBUG
+
+CaloTowerConstituentsMap::~CaloTowerConstituentsMap() {
+  delete m_reverseItems.load();
+  m_reverseItems = nullptr;
+}
+CaloTowerConstituentsMap::CaloTowerConstituentsMap(const HcalTopology * hcaltopo, const CaloTowerTopology * cttopo) :
+  m_hcaltopo(hcaltopo),
+  m_cttopo(cttopo),
   standardHB_(false),
   standardHE_(false),
   standardHF_(false),
   standardHO_(false),
-  standardEB_(false)
+  standardEB_(false),
+  m_reverseItems(nullptr)
 {
 }
 
@@ -20,6 +31,7 @@ CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
   edm::SortedCollection<MapItem>::const_iterator i=m_items.find(id);
   if (i!=m_items.end()) tid=i->tower;
 
+  //use hcaltopo when dealing with hcal detids
   if (tid.null()) {
     if (id.det()==DetId::Hcal) { 
       HcalDetId hid(id);
@@ -27,10 +39,7 @@ CaloTowerDetId CaloTowerConstituentsMap::towerOf(const DetId& id) const {
 	   (hid.subdet()==HcalEndcap && standardHE_ )  ||
 	   (hid.subdet()==HcalOuter  && standardHO_ )  ||
 	   (hid.subdet()==HcalForward && standardHF_) ) {
-	if ((hid.subdet()==HcalForward) && hid.ietaAbs()==29)  // special handling for tower 29
-	  tid=CaloTowerDetId(30*hid.zside(),hid.iphi());
-	else 
-	  tid=CaloTowerDetId(hid.ieta(),hid.iphi());
+        tid = CaloTowerDetId(m_cttopo->convertHcaltoCT(hid.ietaAbs(),hid.subdet())*hid.zside(),hid.iphi());
       }      
     } else if (id.det()==DetId::Ecal) {
       EcalSubdetector esd=(EcalSubdetector)id.subdetId();
@@ -53,63 +62,119 @@ void CaloTowerConstituentsMap::assign(const DetId& cell, const CaloTowerDetId& t
 
 void CaloTowerConstituentsMap::sort() {
   m_items.sort();
+  
+//  for (auto const & it : m_items)
+//    std::cout << std::hex << it.cell.rawId() << " " << it.tower.rawId() << std::dec << std::endl;
+
 }
 
 std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId& id) const {
   std::vector<DetId> items;
 
   // build reverse map if needed
-  if (!m_items.empty() && m_reverseItems.empty()) {
-    for (edm::SortedCollection<MapItem>::const_iterator i=m_items.begin(); i!=m_items.end(); i++)
-      m_reverseItems.insert(std::pair<CaloTowerDetId,DetId>(i->tower,i->cell));
+  if(!m_reverseItems.load(std::memory_order_acquire)) {
+      std::unique_ptr<std::multimap<CaloTowerDetId,DetId>> ptr{new std::multimap<CaloTowerDetId,DetId>};
+      for (auto m_item : m_items)
+          ptr->insert(std::pair<CaloTowerDetId,DetId>(m_item.tower,m_item.cell));
+      std::multimap<CaloTowerDetId,DetId>* expected = nullptr;
+      if(m_reverseItems.compare_exchange_strong(expected, ptr.get(), std::memory_order_acq_rel)) {
+          ptr.release();
+      }
   }
 
   /// copy from the items map
   std::multimap<CaloTowerDetId,DetId>::const_iterator j;
-  std::pair<std::multimap<CaloTowerDetId,DetId>::const_iterator,std::multimap<CaloTowerDetId,DetId>::const_iterator> range=m_reverseItems.equal_range(id);
+  auto range=(*m_reverseItems.load(std::memory_order_acquire)).equal_range(id);
   for (j=range.first; j!=range.second; j++)
     items.push_back(j->second);
 
   // dealing with topo dependency...
+  //use cttopo when dealing with calotower detids
   int nd, sd;
-
+  int hcal_ieta = m_cttopo->convertCTtoHcal(id.ietaAbs());
+  
   if (standardHB_) {
-    if (id.ietaAbs()<=m_topology->lastHBRing()) {
-      m_topology->depthBinInformation(HcalBarrel,id.ietaAbs(),nd,sd);
-      for (int i=0; i<nd; i++)
-	items.push_back(HcalDetId(HcalBarrel,id.ieta(),id.iphi(),i+sd));
+    if (id.ietaAbs()<=m_cttopo->lastHBRing()) {
+      m_hcaltopo->depthBinInformation(HcalBarrel,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	if (m_hcaltopo->withSpecialRBXHBHE()) {
+	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd));
+	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
+	    items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	    std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	  }
+	} else {
+	  HcalDetId hid(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),i+sd);
+	  items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	}
+      }
     }
   }
   if (standardHO_) {
-    if (id.ietaAbs()<=m_topology->lastHORing()) {
-      m_topology->depthBinInformation(HcalOuter,id.ietaAbs(),nd,sd);
-      for (int i=0; i<nd; i++)
-	items.push_back(HcalDetId(HcalOuter,id.ieta(),id.iphi(),i+sd));
+    if (id.ietaAbs()<=m_cttopo->lastHORing()) {
+      m_hcaltopo->depthBinInformation(HcalOuter,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	HcalDetId hid(HcalOuter,hcal_ieta*id.zside(),id.iphi(),i+sd);
+        items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+      }
     }
   }
   if (standardHE_) {
-    if (id.ietaAbs()>=m_topology->firstHERing() && id.ietaAbs()<=m_topology->lastHERing()) {
-      m_topology->depthBinInformation(HcalEndcap,id.ietaAbs(),nd,sd);
-      for (int i=0; i<nd; i++)
-	items.push_back(HcalDetId(HcalEndcap,id.ieta(),id.iphi(),i+sd));
+    if (id.ietaAbs()>=m_cttopo->firstHERing() && id.ietaAbs()<=m_cttopo->lastHERing()) {
+      m_hcaltopo->depthBinInformation(HcalEndcap,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	if (m_hcaltopo->withSpecialRBXHBHE()) {
+	  HcalDetId hid = m_hcaltopo->mergedDepthDetId(HcalDetId(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd));
+	  if (std::find(items.begin(),items.end(),hid) == items.end()) {
+	    items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	    std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	  } 
+	} else {
+	  HcalDetId hid(HcalEndcap,hcal_ieta*id.zside(),id.iphi(),i+sd);
+	  items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	}
+      }
     }
   }
   if (standardHF_) {
-    if (id.ietaAbs()>m_topology->firstHFRing() && id.ietaAbs()<=m_topology->lastHFRing()) { 
-      int ieta=id.ieta();
-      m_topology->depthBinInformation(HcalForward,id.ietaAbs(),nd,sd);
-      for (int i=0; i<nd; i++)
-	items.push_back(HcalDetId(HcalForward,ieta,id.iphi(),i+sd));
-       if (id.ietaAbs() == 30) {
-       ieta = 29*id.zside();
-       m_topology->depthBinInformation(HcalForward,ieta,nd,sd);
-       for (int i=0; i<nd; i++)
-         items.push_back(HcalDetId(HcalForward,ieta,id.iphi(),i+sd));
-       }
+    if (id.ietaAbs()>=m_cttopo->firstHFRing() && id.ietaAbs()<=m_cttopo->lastHFRing()) { 
+      m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta,id.iphi(),id.zside(),nd,sd);
+      for (int i=0; i<nd; i++) {
+	HcalDetId hid(HcalForward,hcal_ieta*id.zside(),id.iphi(),i+sd);
+        items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+      }
+      // special handling for first HF tower
+      if (id.ietaAbs() == m_cttopo->firstHFRing()) {
+        int hcal_ieta2 = hcal_ieta-1;
+        m_hcaltopo->depthBinInformation(HcalForward,hcal_ieta2,id.iphi(),id.zside(),nd,sd);
+        for (int i=0; i<nd; i++) {
+	  HcalDetId hid(HcalForward,hcal_ieta2*id.zside(),id.iphi(),i+sd);
+          items.push_back(hid);
+#ifdef EDM_ML_DEBUG
+	  std::cout << id << " Depth " << i << ":" << i+sd << " " << hid <<"\n";
+#endif
+	}
+      }
     }
   }
-  if (standardEB_ && id.ietaAbs()<=EBDetId::MAX_IETA/5) {
-    HcalDetId hid(HcalBarrel,id.ieta(),id.iphi(),1); // for the limits
+  if (standardEB_ && hcal_ieta<=EBDetId::MAX_IETA/5) {
+    HcalDetId hid(HcalBarrel,hcal_ieta*id.zside(),id.iphi(),1); // for the limits
     int etaMin, etaMax;
     if (hid.zside() == -1) {
       etaMin = hid.crystal_ieta_high();
@@ -120,9 +185,8 @@ std::vector<DetId> CaloTowerConstituentsMap::constituentsOf(const CaloTowerDetId
     }
     for (int ie=etaMin; ie<=etaMax; ie++)
       for (int ip=hid.crystal_iphi_low(); ip<=hid.crystal_iphi_high(); ip++)
-	items.push_back(EBDetId(ie,ip));
+        items.push_back(EBDetId(ie,ip));
   }
-
   return items;
 }
 

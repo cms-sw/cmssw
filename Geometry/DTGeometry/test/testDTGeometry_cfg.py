@@ -5,8 +5,9 @@ process.load('Configuration.Geometry.GeometryExtended_cff')
 process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_cff')
 process.load('Geometry.CommonDetUnit.globalTrackingGeometry_cfi')
 process.load('Geometry.MuonNumbering.muonNumberingInitialization_cfi')
+from Configuration.AlCa.autoCond import autoCond
+process.GlobalTag.globaltag = autoCond['mc']
 
-process.GlobalTag.globaltag = 'MC_31X_V8::All'
 process.load("Alignment.CommonAlignmentProducer.FakeAlignmentSource_cfi")
 process.preferFakeAlign = cms.ESPrefer("FakeAlignmentSource") 
 

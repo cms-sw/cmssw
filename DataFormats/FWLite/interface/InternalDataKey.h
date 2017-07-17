@@ -18,10 +18,10 @@
 // Original Author:  Eric Vaandering
 //         Created:  Jan 29 09:01:20 CDT 2009
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeID.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TBranch.h"
 
@@ -40,9 +40,9 @@ namespace fwlite {
                     char const* iProduct,
                     char const* iProcess) :
                type_(iType),
-               module_(iModule!=0? iModule:kEmpty()),
-               product_(iProduct!=0?iProduct:kEmpty()),
-               process_(iProcess!=0?iProcess:kEmpty()) {}
+               module_(iModule != nullptr ? iModule : kEmpty()),
+               product_(iProduct != nullptr ? iProduct : kEmpty()),
+               process_(iProcess != nullptr ? iProcess : kEmpty()) {}
 
             ~DataKey() {
             }
@@ -79,15 +79,14 @@ namespace fwlite {
       };
 
       struct Data {
-            TBranch* branch_;
+            edm::propagate_const<TBranch*> branch_;
             Long64_t lastProduct_;
             edm::ObjectWithDict obj_; // For wrapped object
-            void * pObj_; // pointer to pProd_.  ROOT requires the address of the pointer be stable
-            void * pProd_; // pointer to wrapped product
-            edm::WrapperInterfaceBase * interface_;
+            void* pObj_; // ROOT requires the address of the pointer be stable
+            edm::WrapperBase const* pProd_; // WrapperBase of the wrapped object
 
             ~Data() {
-               obj_.typeOf().destruct(obj_.address(), true);
+               obj_.destruct(true);
             }
       };
 
@@ -96,5 +95,4 @@ namespace fwlite {
 
 }
 
-#endif /*__CINT__ */
 #endif

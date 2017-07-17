@@ -1,8 +1,9 @@
 #include "DetectorDescription/Core/src/Parallelepiped.h"
-#include "CLHEP/Units/GlobalSystemOfUnits.h"
 
 #include <ostream>
-#include <cmath>
+
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
 
 void DDI::Parallelepiped::stream(std::ostream & os) const
 {

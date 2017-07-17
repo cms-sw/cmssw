@@ -18,7 +18,7 @@
 class CaloGeometryHelper;
 class CrystalWindowMap;
 class Histos;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class FSimTrack;
 
 class EcalHitMaker: public CaloHitMaker
@@ -36,7 +36,7 @@ class EcalHitMaker: public CaloHitMaker
 	       int onEcal,
 	       unsigned size,
 	       unsigned showertype,
-	       const RandomEngine* engine);
+	       const RandomEngineAndDistribution* engine);
 
   ~EcalHitMaker();
 
@@ -300,9 +300,7 @@ class EcalHitMaker: public CaloHitMaker
   std::vector<CLHEP::Hep2Vector> mycorners;
   std::vector<XYZPoint> corners;
 
-
-  const RandomEngine* random;
-
+  const RandomEngineAndDistribution* random;
 
 #ifdef FAMOSDEBUG
   Histos * myHistos;

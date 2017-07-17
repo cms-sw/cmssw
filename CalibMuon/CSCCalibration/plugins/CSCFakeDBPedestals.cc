@@ -5,7 +5,7 @@
 
 CSCFakeDBPedestals::CSCFakeDBPedestals(const edm::ParameterSet& iConfig)
 {
-  cndbPedestals = boost::shared_ptr<CSCDBPedestals> ( prefillDBPedestals() );
+  cndbPedestals = std::shared_ptr<CSCDBPedestals> ( prefillDBPedestals() );
 
   //the following line is needed to tell the framework what
   // data is being produced

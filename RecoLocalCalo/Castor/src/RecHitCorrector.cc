@@ -118,7 +118,7 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    
    CastorCalibrations calibrations;
    
-   std::auto_ptr<CastorRecHitCollection> rec(new CastorRecHitCollection);
+   auto rec = std::make_unique<CastorRecHitCollection>();
    
    for (unsigned int i=0;i<rechits->size();i++) {
    	CastorRecHit rechit = (*rechits)[i];
@@ -166,7 +166,7 @@ RecHitCorrector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 	}
    }
    
-   iEvent.put(rec);
+   iEvent.put(std::move(rec));
  
 }
 

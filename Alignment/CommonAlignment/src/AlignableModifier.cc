@@ -113,7 +113,7 @@ bool AlignableModifier::modify( Alignable* alignable, const edm::ParameterSet& p
   std::ostringstream error;
   std::vector<std::string> parameterNames = pSet.getParameterNames();
   for ( std::vector<std::string>::iterator iParam = parameterNames.begin(); 
-        iParam != parameterNames.end(); iParam++ ) {
+        iParam != parameterNames.end(); ++iParam ) {
     if  ( (*iParam) == "distribution" ) distribution_ = pSet.getParameter<std::string>( *iParam );
     else if ( (*iParam) == "setError" ) setError_ = pSet.getParameter<bool>( *iParam );
     else if ( (*iParam) == "setRotations") setRotations_ = pSet.getParameter<bool>( *iParam );
@@ -581,7 +581,8 @@ void AlignableModifier::addAlignmentPositionErrorLocal( Alignable* alignable,
   as=as.similarityT(am); //rotate error matrix
 
   GlobalError ge( asSMatrix<3>(as) );
-  AlignmentPositionError ape( ge );
+  GlobalErrorExtended gee(ge.cxx(),ge.cyx(),ge.czx(),0.,0.,0.,ge.cyy(),ge.czy(),0.,0.,0.,ge.czz(),0.,0.,0.,0.,0.,0.,0.,0.,0.);
+  AlignmentPositionError ape(gee);
 
   alignable->addAlignmentPositionError( ape, true ); // propagate down to components
 

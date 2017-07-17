@@ -10,7 +10,7 @@
 
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -20,8 +20,6 @@
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit1D.h"
-#include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "Utilities/General/interface/ClassName.h"
 
@@ -61,7 +59,7 @@ TkAlCaOverlapTagger::~TkAlCaOverlapTagger(){}
 void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSetup){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   edm::Handle<TrajTrackAssociationCollection> assoMap;
@@ -112,7 +110,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
       }
       
       
-      TransientTrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
+      TrackingRecHit::ConstRecHitPointer hitpointer = itTrajMeas->recHit();
       const TrackingRecHit *hit=&(* hitpointer);
       if(!hit->isValid())continue;
 
@@ -139,13 +137,13 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	    if (hitInStrip){
 	      //cout<<"  TypeId of the RecHit: "<<className(*hit)<<endl;
 	      // const std::type_info &type = typeid(*hit);
-	      const TSiStripRecHit2DLocalPos* transstriphit2D = dynamic_cast<const  TSiStripRecHit2DLocalPos*>(hit);
-	      const TSiStripRecHit1D* transstriphit1D = dynamic_cast<const  TSiStripRecHit1D*>(hit);
+	      const SiStripRecHit2D* transstriphit2D = dynamic_cast<const  SiStripRecHit2D*>(hit);
+	      const SiStripRecHit1D* transstriphit1D = dynamic_cast<const  SiStripRecHit1D*>(hit);
 	   
 	      //   if (type == typeid(SiStripRecHit1D)) {
 	      if(transstriphit1D!=0){
 		//	const SiStripRecHit1D* striphit=dynamic_cast<const  SiStripRecHit1D*>(hit);
-		const SiStripRecHit1D* striphit=transstriphit1D->specificHit();
+		const SiStripRecHit1D* striphit=transstriphit1D;
 		if(striphit!=0){
 		  SiStripRecHit1D::ClusterRef stripclust(striphit->cluster());
 		  
@@ -163,7 +161,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	      else if(transstriphit2D!=0){
 	      //else if (type == typeid(SiStripRecHit2D)) {
 		//		const SiStripRecHit2D* striphit=dynamic_cast<const  SiStripRecHit2D*>(hit);
-		const SiStripRecHit2D* striphit=transstriphit2D->specificHit();   
+		const SiStripRecHit2D* striphit=transstriphit2D;   
 		if(striphit!=0){
 		  SiStripRecHit2D::ClusterRef stripclust(striphit->cluster());
 		  
@@ -188,9 +186,9 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 	 
 	    }//end if hit in Strips
 	    else {//pixel hit
-	      const TSiPixelRecHit* transpixelhit = dynamic_cast<const TSiPixelRecHit*>(hit);
+	      const SiPixelRecHit* transpixelhit = dynamic_cast<const SiPixelRecHit*>(hit);
 	      if(transpixelhit!=0){
-		const SiPixelRecHit* pixelhit=transpixelhit->specificHit();
+		const SiPixelRecHit* pixelhit=transpixelhit;
 		SiPixelClusterRefNew pixclust(pixelhit->cluster());
 		
 		if(pixclust.id()==pixelclusters.id()){
@@ -222,7 +220,7 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
 
   // prepare output 
-  std::auto_ptr<AliClusterValueMap> hitvalmap( new AliClusterValueMap);
+  auto hitvalmap = std::make_unique<AliClusterValueMap>();
   AliClusterValueMap::Filler mapfiller(*hitvalmap); 
 
   edm::TestHandle<std::vector<AlignmentClusterFlag> > fakePixelHandle( &pixelvalues,pixelclusters.id());
@@ -236,8 +234,8 @@ void TkAlCaOverlapTagger::produce(edm::Event &iEvent, const edm::EventSetup &iSe
 
 
 
-  // iEvent.put(stripmap);
-  iEvent.put(hitvalmap);
+  // iEvent.put(std::move(stripmap));
+  iEvent.put(std::move(hitvalmap));
 }//end  TkAlCaOverlapTagger::produce
 int TkAlCaOverlapTagger::layerFromId (const DetId& id, const TrackerTopology* tTopo) const
 {

@@ -41,6 +41,8 @@
 #include "RecoParticleFlow/Benchmark/interface/PFMETBenchmark.h"
 #include "FWCore/ServiceRegistry/interface/Service.h" 
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
 using namespace edm;
 using namespace reco;
 using namespace std;
@@ -60,16 +62,16 @@ private:
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
   // ----------member data ---------------------------
-
+  edm::EDGetTokenT<reco::GenParticleCollection> sInputTruthLabel_tok_;
+  edm::EDGetTokenT<reco::PFMETCollection> sInputRecoLabel_tok_;
+  edm::EDGetTokenT<reco::CaloMETCollection> sInputCaloLabel_tok_;
+  edm::EDGetTokenT<reco::METCollection> sInputTCLabel_tok_;
+  
 };
 /// PFJet Benchmark
 
 //neuhaus - comment
 PFMETBenchmark PFMETBenchmark_;
-InputTag sInputTruthLabel;
-InputTag sInputRecoLabel;
-InputTag sInputCaloLabel;
-InputTag sInputTCLabel;
 string OutputFileName;
 bool pfmBenchmarkDebug;
 bool xplotAgainstReco;
@@ -90,22 +92,14 @@ PFMETBenchmarkAnalyzer::PFMETBenchmarkAnalyzer(const edm::ParameterSet& iConfig)
 
 {
   //now do what ever initialization is needed
-  sInputTruthLabel = 
-    iConfig.getParameter<InputTag>("InputTruthLabel");
-  sInputRecoLabel = 
-    iConfig.getParameter<InputTag>("InputRecoLabel");
-  sInputCaloLabel = 
-    iConfig.getParameter<InputTag>("InputCaloLabel");
-  sInputTCLabel = 
-    iConfig.getParameter<InputTag>("InputTCLabel");
-  OutputFileName = 
-    iConfig.getUntrackedParameter<string>("OutputFile");
-  pfmBenchmarkDebug = 
-    iConfig.getParameter<bool>("pfjBenchmarkDebug");
-  xplotAgainstReco = 
-    iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
-  xbenchmarkLabel_  = 
-    iConfig.getParameter<string>("BenchmarkLabel"); 
+  sInputTruthLabel_tok_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<InputTag>("InputTruthLabel"));
+  sInputRecoLabel_tok_ = consumes<reco::PFMETCollection>(iConfig.getParameter<InputTag>("InputRecoLabel"));
+  sInputCaloLabel_tok_ = consumes<reco::CaloMETCollection>(iConfig.getParameter<InputTag>("InputCaloLabel"));
+  sInputTCLabel_tok_ = consumes<reco::METCollection>(iConfig.getParameter<InputTag>("InputTCLabel"));
+  OutputFileName = iConfig.getUntrackedParameter<string>("OutputFile");
+  pfmBenchmarkDebug = iConfig.getParameter<bool>("pfjBenchmarkDebug");
+  xplotAgainstReco = iConfig.getParameter<bool>("PlotAgainstRecoQuantities");
+  xbenchmarkLabel_  = iConfig.getParameter<string>("BenchmarkLabel"); 
   xdbe_ = edm::Service<DQMStore>().operator->();
 
   PFMETBenchmark_.setup(
@@ -134,7 +128,7 @@ PFMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 {
  // get gen jet collection
   Handle<GenParticleCollection> genparticles;
-  bool isGen = iEvent.getByLabel(sInputTruthLabel, genparticles);
+  bool isGen = iEvent.getByToken(sInputTruthLabel_tok_, genparticles);
   if (!isGen) { 
     std::cout << "Warning : no Gen Particles in input !" << std::endl;
     return;
@@ -142,7 +136,7 @@ PFMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // get rec PFMet collection
   Handle<PFMETCollection> pfmets;
-  bool isReco = iEvent.getByLabel(sInputRecoLabel, pfmets);   
+  bool isReco = iEvent.getByToken(sInputRecoLabel_tok_, pfmets);   
   if (!isReco) { 
     std::cout << "Warning : no PF MET in input !" << std::endl;
     return;
@@ -150,14 +144,14 @@ PFMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
 
   // get rec TCMet collection
   Handle<METCollection> tcmets;
-  bool isTC = iEvent.getByLabel(sInputTCLabel, tcmets);   
+  bool isTC = iEvent.getByToken(sInputTCLabel_tok_, tcmets);   
   if (!isTC) { 
     std::cout << "Warning : no TC MET in input !" << std::endl;
     return;
   }
 
   Handle<CaloMETCollection> calomets;
-  bool isCalo = iEvent.getByLabel(sInputCaloLabel, calomets);   
+  bool isCalo = iEvent.getByToken(sInputCaloLabel_tok_, calomets);   
   if (!isCalo) { 
     std::cout << "Warning : no Calo MET in input !" << std::endl;
     return;

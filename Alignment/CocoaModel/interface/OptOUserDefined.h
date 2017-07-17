@@ -3,8 +3,8 @@
 //CAT: Model
 //
 //   Base class to describe Optical Objects of type sensor 2D
-// 
-//   History: v1.0 
+//
+//   History: v1.0
 //   Pedro Arce
 
 #ifndef _OPTOUSERDEFINED_HH
@@ -21,16 +21,16 @@ class OptOUserDefined: public OpticalObject
 public:
   //---------- Constructors / Destructor
   OptOUserDefined(){ };
-  OptOUserDefined(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) : 
+  OptOUserDefined(OpticalObject* parent, const ALIstring& type, const ALIstring& name, const ALIbool copy_data) :
   OpticalObject( parent, type, name, copy_data){ };
   ~OptOUserDefined(){ };
 
 #ifdef COCOA_VIS
-  virtual void fillVRML();
-  virtual void fillIguana();
+  virtual void fillVRML() override;
+  virtual void fillIguana() override;
 #endif
   //---------- userDefinedBehaviour
-  virtual void userDefinedBehaviour( LightRay& lightray, Measurement& meas, ALIstring& behav);
+  virtual void userDefinedBehaviour( LightRay& lightray, Measurement& meas, const ALIstring& behav) override;
 
 };
 

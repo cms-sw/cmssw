@@ -27,7 +27,7 @@ public:
 
   typedef std::vector< double > ParmVec ;
 
-  typedef boost::shared_ptr< CaloSubdetectorGeometry > PtrType ;
+  typedef std::shared_ptr<CaloSubdetectorGeometry > PtrType ;
 
   typedef CaloSubdetectorGeometry::ParVec    ParVec ;
   typedef CaloSubdetectorGeometry::ParVecVec ParVecVec ;
@@ -60,7 +60,8 @@ private:
   unsigned int getDetIdForDDDNode( const DDFilteredView& fv ) ;
 
   typename T::NumberingScheme m_scheme;
-  DDSpecificsFilter  m_filter;
+  DDAndFilter<DDSpecificsMatchesValueFilter,
+              DDSpecificsMatchesValueFilter> m_filter;
 };
 
 #endif

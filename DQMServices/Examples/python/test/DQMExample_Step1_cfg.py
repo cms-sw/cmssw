@@ -20,16 +20,16 @@ process.load('DQMServices.Examples.test.DQMExample_Step1_cfi')
 
 
 process.maxEvents = cms.untracked.PSet(
-    input = cms.untracked.int32(-1)
+    input = cms.untracked.int32(200)
 )
+
+with open('fileList.log') as f:
+    lines = f.readlines()
 
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring(
-        #reco from relVals
-        'file:/afs/cern.ch/cms/CAF/CMSCOMM/COMM_DQM/datatest/forTutorial/step2_RAW2DIGI_RECO_fromRelValTTbarLepton.root'
-        )
+    fileNames = cms.untracked.vstring(lines)
 )
 
 
@@ -40,8 +40,10 @@ process.DQMoutput = cms.OutputModule("DQMRootOutputModule",
 from Configuration.AlCa.GlobalTag import GlobalTag
 process.GlobalTag = GlobalTag(process.GlobalTag, 'auto:mc', '')  #for MC
 
+
 # Path and EndPath definitions
 process.dqmoffline_step = cms.Path(process.DQMExample_Step1)
+#process.dqmsave_step = cms.Path(process.DQMSaver)
 process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 
 
@@ -49,4 +51,5 @@ process.DQMoutput_step = cms.EndPath(process.DQMoutput)
 process.schedule = cms.Schedule(
     process.dqmoffline_step,
     process.DQMoutput_step
+#    process.dqmsave_step
     )

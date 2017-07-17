@@ -20,6 +20,9 @@ CastorJetIDProducer::CastorJetIDProducer(const edm::ParameterSet& iConfig) :
   helper_    ( )
 {
   produces< reco::CastorJetIDValueMap >();
+
+  input_jet_token_ = consumes<edm::View<reco::BasicJet> >(src_);
+
 }
 
 
@@ -39,10 +42,10 @@ CastorJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the input jets
   edm::Handle< edm::View<reco::BasicJet> > h_jets;
-  iEvent.getByLabel( src_, h_jets );
+  iEvent.getByToken( input_jet_token_, h_jets );
 
   // allocate the jet--->jetid value map
-  std::auto_ptr<reco::CastorJetIDValueMap> castorjetIdValueMap( new reco::CastorJetIDValueMap );
+  auto castorjetIdValueMap = std::make_unique<reco::CastorJetIDValueMap>();
   // instantiate the filler with the map
   reco::CastorJetIDValueMap::Filler filler(*castorjetIdValueMap);
   
@@ -78,18 +81,7 @@ CastorJetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   filler.fill();
 
   // write map to the event
-  iEvent.put( castorjetIdValueMap );
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-CastorJetIDProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-CastorJetIDProducer::endJob() {
+  iEvent.put(std::move(castorjetIdValueMap));
 }
 
 //define this as a plug-in

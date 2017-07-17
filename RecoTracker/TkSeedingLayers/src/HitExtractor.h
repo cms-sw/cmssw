@@ -4,58 +4,60 @@
 #include <vector>
 #include <iterator>
 #include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
+#include "DataFormats/Common/interface/ContainerMask.h"
 
-namespace edm { class Event; class EventSetup; }
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+#include <limits>
+
+namespace edm { class Event; class EventSetup; class ConsumesCollector;}
 namespace ctfseeding { class SeedingLayer; }
 
 namespace ctfseeding {
 
-class HitExtractor {
-public:
-  typedef std::vector<TransientTrackingRecHit::ConstRecHitPointer> Hits;
-  virtual ~HitExtractor(){}
-  HitExtractor(){
-    skipClusters=false;}
-  virtual Hits hits(const SeedingLayer & sl, const edm::Event& , const edm::EventSetup& ) const =0;
+  class HitExtractor {
+  public:
+    using TkHit = BaseTrackerRecHit;
+    using TkHitRef = BaseTrackerRecHit const &;
+    using HitPointer = mayown_ptr<BaseTrackerRecHit>;
+    using Hits=std::vector<HitPointer>;
+    
+    virtual ~HitExtractor(){}
+    HitExtractor() {}
+    
+    virtual Hits hits(const TkTransientTrackingRecHitBuilder& ttrhBuilder, const edm::Event& , const edm::EventSetup& ) const =0;
+    virtual HitExtractor * clone() const = 0;
+    
+    //skip clusters
+    void useSkipClusters(const edm::InputTag & m, edm::ConsumesCollector& iC) {
+      skipClusters=true; maskCluster=true;
+      useSkipClusters_(m, iC);
+    }
+    bool skipClusters=false;
+    bool filterCluster=false;
+    bool maskCluster=false;
+    float minGoodCharge=0;  
 
-  //skip clusters
-  void useSkipClusters( const edm::InputTag & m) {
-    skipClusters=true;
-    theSkipClusters=m;
-  }
-  bool skipClusters;
-  edm::InputTag theSkipClusters;
-};
-
-class HitConv {
-public:
-  HitConv(const SeedingLayer &sl, const edm::EventSetup &es) : sl_(sl), es_(es) {}
-  template<typename H> 
-  TransientTrackingRecHit::ConstRecHitPointer operator()(const H &hit) {
-    const TrackingRecHit* trh = &hit;
-    return sl_.hitBuilder()->build(trh); }
-private:
-  const SeedingLayer    &sl_;
-  const edm::EventSetup &es_;
-
-};
+  protected:
+    virtual void useSkipClusters_(const edm::InputTag & m, edm::ConsumesCollector& iC) = 0;
+  };
+  
   
   template <typename DSTV, typename A, typename B>
   inline void range2SeedingHits(DSTV const & dstv,
 				HitExtractor::Hits & v,
-				std::pair<A,B> const & sel,
-				const SeedingLayer &sl, const edm::EventSetup &es) {
+				std::pair<A,B> const & sel) {
     typename DSTV::Range range = dstv.equal_range(sel.first,sel.second);
     size_t ts = v.size();
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++)
       ts += std::distance((*id).begin(), (*id).end());
     v.reserve(ts);
     for(typename DSTV::const_iterator id=range.first; id!=range.second; id++){
-      std::transform((*id).begin(), (*id).end(), std::back_inserter(v), HitConv(sl,es));
+      for ( auto const & h : (*id) ) v.emplace_back(h);
     }
-  }
   
+  }
 }
-
 #endif

@@ -8,3 +8,5 @@ hltPrevalidationHI = cms.Sequence( hiEgammaPrevalidationSequence )
 hltValidationHI = cms.Sequence(hiSingleJetValidation
                                + hiEgammaValidationSequence
                                )
+
+hltValidationHI.remove(hiSingleJetValidation)

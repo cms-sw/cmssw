@@ -2,7 +2,6 @@
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegion.h"
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "RecoTracker/TkHitPairs/interface/OrderedHitPair.h"
-#include "RecoTracker/TkHitPairs/interface/OrderedHitPairs.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "TrackingTools/DetLayers/interface/BarrelDetLayer.h"
@@ -11,7 +10,7 @@
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"
 
 using namespace std;
-typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
+// typedef TransientTrackingRecHit::ConstRecHitPointer TkHitPairsCachedHit;
 
 CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const LayerWithHits* inner, 
 							     const LayerWithHits* outer, 
@@ -26,6 +25,7 @@ CosmicHitPairGeneratorFromLayerPair::CosmicHitPairGeneratorFromLayerPair(const L
   iSetup.get<TrackerDigiGeometryRecord>().get(tracker);
   trackerGeometry = tracker.product();
 }
+CosmicHitPairGeneratorFromLayerPair::~CosmicHitPairGeneratorFromLayerPair() {}
 void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   const TrackingRegion & region, OrderedHitPairs & result,
   const edm::EventSetup& iSetup)
@@ -73,12 +73,11 @@ void CosmicHitPairGeneratorFromLayerPair::hitPairs(
   iSetup.get<TransientRecHitRecord>().get(builderName, builder);
 
   
-  std::vector<const TrackingRecHit*>::const_iterator ohh;
-  for(ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
-    TkHitPairsCachedHit oh= builder->build(*ohh);
-    std::vector<const TrackingRecHit*>::const_iterator ihh;
-    for(ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
-      TkHitPairsCachedHit ih= builder->build(*ihh);
+
+  for( auto ohh=theOuterLayer->recHits().begin();ohh!=theOuterLayer->recHits().end();ohh++){
+    for(auto ihh=theInnerLayer->recHits().begin();ihh!=theInnerLayer->recHits().end();ihh++){
+     auto oh = static_cast<BaseTrackerRecHit const * const>(*ohh);
+     auto ih = static_cast<BaseTrackerRecHit const * const>(*ihh);
       
       float z_diff =ih->globalPosition().z()-oh->globalPosition().z();
       float inny=ih->globalPosition().y();

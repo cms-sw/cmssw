@@ -1,7 +1,6 @@
 #ifndef QcdHighPtDQM_H
 #define QcdHighPtDQM_H
 
-
 /** \class QcdHighPtDQM
  *
  *  DQM Physics Module for High Pt QCD group
@@ -11,57 +10,42 @@
  *  By Keith Rose
  */
 
-
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 #include "DataFormats/METReco/interface/CaloMETCollection.h"
 
-
 class DQMStore;
 class MonitorElement;
 
-class QcdHighPtDQM : public edm::EDAnalyzer {
+class QcdHighPtDQM : public DQMEDAnalyzer {
  public:
-
-  /// Constructor
   QcdHighPtDQM(const edm::ParameterSet&);
-  
-  /// Destructor
   virtual ~QcdHighPtDQM();
-  
-  /// Inizialize parameters for histo binning
-  void beginJob();
-
-  /// Get the analysis
-  void analyze(const edm::Event&, const edm::EventSetup&);
-
-  void endJob(void);
-
-
+  void bookHistograms(DQMStore::IBooker&, edm::Run const&,
+                      edm::EventSetup const&) override;
+  void analyze(const edm::Event&, const edm::EventSetup&) override;
 
  private:
+  // input tags/Tokens for Jets/MET
+  edm::EDGetTokenT<reco::CaloJetCollection> jetToken_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken1_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken2_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken3_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metToken4_;
 
-
-  // ----------member data ---------------------------
-  
-  DQMStore* theDbe;
-
-  //input tags for Jets/MET
-  edm::InputTag jetLabel_;
-  edm::InputTag metLabel1_;
-  edm::InputTag metLabel2_;
-  edm::InputTag metLabel3_;
-  edm::InputTag metLabel4_;
-  
-  //map of MEs
+  // map of MEs
   std::map<std::string, MonitorElement*> MEcontainer_;
 
-  //methods to calculate MET over SumET and MET over Leading Jet Pt
+  // methods to calculate MET over SumET and MET over Leading Jet Pt
   float movers(const reco::CaloMETCollection& metcollection);
   float moverl(const reco::CaloMETCollection& metcollection, float& ljpt);
-
 };
-#endif  
+#endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

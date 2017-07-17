@@ -33,7 +33,6 @@ namespace edm {
       virtual RefVectorHolder<REFV> * clone() const;
       virtual RefVectorHolder<REFV> * cloneEmpty() const;
       void setRefs(REFV const& refs);
-      virtual void reallyFillView(void const*, ProductID const&, std::vector<void const*> &);
       virtual size_t keyForIndex(size_t idx) const;
 
       //Needed for ROOT storage
@@ -56,7 +55,7 @@ namespace edm {
 	bool equal_to(const_iterator_imp const* o) const { return i == dc(o); }
 	bool less_than(const_iterator_imp const* o) const { return i < dc(o); }
 	void assign(const_iterator_imp const* o) { i = dc(o); }
-	boost::shared_ptr<RefHolderBase> deref() const;
+	std::shared_ptr<RefHolderBase> deref() const;
 	difference_type difference(const_iterator_imp const* o) const { return i - dc(o); }
       private:
 	typename REFV::const_iterator const& dc(const_iterator_imp const* o) const {
@@ -82,16 +81,13 @@ namespace edm {
       const_iterator end() const {
 	return const_iterator(new const_iterator_imp_specific(refs_.end()));
       }
-      virtual void const* product() const {
-	return refs_.product();
-      }
 
       /// Checks if product collection is in memory or available
       /// in the Event. No type checking is done.
       virtual bool isAvailable() const { return refs_.isAvailable(); }
 
     private:
-      virtual boost::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const;
+      virtual std::shared_ptr<reftobase::RefHolderBase> refBase(size_t idx) const;
       REFV refs_;
     };
 
@@ -205,51 +201,15 @@ namespace edm {
     }
 
     template <typename REFV>
-    boost::shared_ptr<RefHolderBase>
+    std::shared_ptr<RefHolderBase>
     RefVectorHolder<REFV>::refBase(size_t idx) const {
-      return boost::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(refs_[idx]));
+      return std::shared_ptr<RefHolderBase>(std::make_shared<RefHolder<typename REFV::value_type> >(refs_[idx]));
     }
 
     template<typename REFV>
-    boost::shared_ptr<RefHolderBase> RefVectorHolder<REFV>::const_iterator_imp_specific::deref() const {
-      return boost::shared_ptr<RefHolderBase>(new RefHolder<typename REFV::value_type>(*i));
-    }
-
-  }
-}
-
-#include "DataFormats/Common/interface/FillView.h"
-#include "DataFormats/Common/interface/traits.h"
-#include "boost/mpl/if.hpp"
-
-namespace edm {
-  namespace reftobase {
-    template<typename REFV>
-    struct RefVectorHolderNoFillView {
-      static void reallyFillView(RefVectorHolder<REFV>&, void const*, ProductID const&, std::vector<void const*>&) {
-	Exception::throwThis(errors::ProductDoesNotSupportViews,
-	  "The product type ",
-	  typeid(typename REFV::collection_type).name(),
-	  "\ndoes not support Views\n");
-      }
-    };
-
-    template<typename REFV>
-    struct RefVectorHolderDoFillView {
-      static void reallyFillView(RefVectorHolder<REFV>& rvh, void const* prod, ProductID const& id , std::vector<void const*> & pointers) {
-	typedef typename REFV::collection_type collection;
-	collection const* product = static_cast<collection const*>(prod);
-	detail::reallyFillView(*product, id, pointers, rvh);
-      }
-    };
-
-    template<typename REFV>
-    void RefVectorHolder<REFV>::reallyFillView(void const* iProd, ProductID const& iId , std::vector<void const*> & oPointers) {
-      typedef
-	typename boost::mpl::if_c<has_fillView<typename REFV::collection_type>::value,
-	RefVectorHolderDoFillView<REFV>,
-	RefVectorHolderNoFillView<REFV> >::type maybe_filler;
-      maybe_filler::reallyFillView(*this, iProd, iId, oPointers);
+    std::shared_ptr<RefHolderBase>
+    RefVectorHolder<REFV>::const_iterator_imp_specific::deref() const {
+      return std::shared_ptr<RefHolderBase>(std::make_shared<RefHolder<typename REFV::value_type> >(*i));
     }
   }
 }

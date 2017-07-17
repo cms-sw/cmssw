@@ -35,6 +35,9 @@
 //
 // class decleration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class PythiaDauFilter : public edm::EDFilter {
    public:
@@ -48,7 +51,7 @@ class PythiaDauFilter : public edm::EDFilter {
 
       // ----------member data ---------------------------
       
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        std::vector<int> dauIDs;
        int particleID;
        bool chargeconju; 

@@ -14,10 +14,14 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
-class DQMStore;
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 class MonitorElement;
 
-class DQMHcalPhiSymAlCaReco : public edm::EDAnalyzer {
+class DQMHcalPhiSymAlCaReco : public DQMEDAnalyzer {
 
 public:
 
@@ -26,26 +30,22 @@ public:
 
 protected:
    
-  void beginJob();
-
-  void beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+//  void beginRun(const edm::Run& r, const edm::EventSetup& c);
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override ;
 
   void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                            const edm::EventSetup& context) ;
+                            const edm::EventSetup& context) override ;
 
   void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, 
-                          const edm::EventSetup& c);
+                          const edm::EventSetup& c) override;
 
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  void endRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-  void endJob();
 
 private:
  
 
-  DQMStore*   dbe_;  
   int eventCounter_;  
       
 //                        
@@ -87,15 +87,15 @@ private:
 
   /// object to monitor
   
-  edm::InputTag  hbherecoMB;
+  edm::EDGetTokenT<HBHERecHitCollection>  hbherecoMB;
   edm::InputTag  horecoMB;
-  edm::InputTag  hfrecoMB;
+  edm::EDGetTokenT<HFRecHitCollection>  hfrecoMB;
   
-  edm::InputTag  hbherecoNoise;
+  edm::EDGetTokenT<HBHERecHitCollection>  hbherecoNoise;
   edm::InputTag  horecoNoise;
-  edm::InputTag  hfrecoNoise;
+  edm::EDGetTokenT<HFRecHitCollection>  hfrecoNoise;
 
-  edm::InputTag rawInLabel_;
+  edm::EDGetTokenT<FEDRawDataCollection> rawInLabel_;
   
   /// DQM folder name
   std::string folderName_; 

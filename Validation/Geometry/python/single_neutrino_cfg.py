@@ -2,6 +2,12 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("TestProcess")
 process.load("SimGeneral.HepPDTESSource.pythiapdt_cfi")
+#process.load("IOMC.EventVertexGenerators.VtxSmearedFlat_cfi")
+from Configuration.StandardSequences.VtxSmeared import VtxSmeared
+#process.load(VtxSmeared['Flat'])
+process.load(VtxSmeared['NoSmear'])
+
+process.load("GeneratorInterface.Core.generatorSmeared_cfi")
 
 process.load("Configuration.EventContent.EventContent_cff")
 
@@ -9,11 +15,10 @@ process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(10000)
 )
 
-process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        generator = cms.untracked.uint32(456789)
-    )
-)
+process.load("IOMC.RandomEngine.IOMC_cff")
+process.RandomNumberGeneratorService.generator.initialSeed = 456789
+process.RandomNumberGeneratorService.VtxSmeared.engineName = cms.untracked.string('HepJamesRandom')
+process.RandomNumberGeneratorService.VtxSmeared.initialSeed = cms.untracked.uint32(98765432)
 
 process.source = cms.Source("EmptySource",
     firstRun        = cms.untracked.uint32(1),
@@ -39,6 +44,6 @@ process.o1 = cms.OutputModule("PoolOutputModule",
     fileName = cms.untracked.string('single_neutrino_random.root')
 )
 
-process.p1 = cms.Path(process.generator)
+process.p1 = cms.Path(process.generator*process.VtxSmeared*process.generatorSmeared)
 process.outpath = cms.EndPath(process.o1)
 

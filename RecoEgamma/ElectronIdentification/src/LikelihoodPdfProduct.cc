@@ -79,14 +79,14 @@ LikelihoodPdfProduct::setSplitFrac(const char* specname,
 float 
 LikelihoodPdfProduct::getRatio(const char* specname, 
 			       const std::vector<float>& measurements, 
-			       std::string gsfClass) 
+			       const std::string& gsfClass) const
 {
   float sigProb=0, bkgProb=0;
   std::vector<LikelihoodSpecies*>::const_iterator specItr;
   for(specItr=_specList.begin();specItr!=_specList.end();specItr++) {
-    LikelihoodSpecies* species = *specItr;
-    std::map<std::string,float> splitFractions = species->getSplitFractions();
-    std::map<std::string,float>::iterator iter = splitFractions.find(gsfClass);
+    const LikelihoodSpecies* species = *specItr;
+    std::map<std::string,float> const& splitFractions = species->getSplitFractions();
+    std::map<std::string,float>::const_iterator iter = splitFractions.find(gsfClass);
     //! if the pdf is not splitted, assign the split fraction = 1
     float splitFr= (splitFractions.size()==0) ? 1. : iter->second;
     if(strcmp(species->getName(),specname)==0) {
@@ -107,16 +107,16 @@ LikelihoodPdfProduct::getRatio(const char* specname,
 float 
 LikelihoodPdfProduct::getSpeciesProb(const char* specName, 
 				     const std::vector<float>& measurements, 
-				     std::string gsfClass) 
+				     const std::string& gsfClass)  const
 {
   float bareProb=1.;
   float priorWeight=1.;
   std::vector<LikelihoodSpecies*>::const_iterator specItr;
   for(specItr=_specList.begin();specItr!=_specList.end();specItr++) {
-    LikelihoodSpecies* species = *specItr;
+    const LikelihoodSpecies* species = *specItr;
     if(strcmp(species->getName(),specName)==0) {
       for(unsigned int ipdf=0; ipdf< species->getListOfPdfs().size(); ipdf++) {
-        bareProb*=species->getListOfPdfs().at(ipdf)->getVal(measurements.at(ipdf),gsfClass);
+        bareProb*=species->getListOfPdfs()[ipdf]->getVal(measurements.at(ipdf),gsfClass);
       }
       priorWeight=species->getPrior();
       break;

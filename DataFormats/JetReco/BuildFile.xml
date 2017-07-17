@@ -6,7 +6,7 @@
 <use   name="DataFormats/ParticleFlowReco"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="FWCore/Utilities"/>
-<use   name="rootrflx"/>
+
 <flags LCG_DICT_HEADER="classes_1.h classes_2.h classes_3.h classes_4.h"/>
 <flags LCG_DICT_XML="classes_def_1.xml classes_def_2.xml classes_def_3.xml classes_def_4.xml"/>
 <export>

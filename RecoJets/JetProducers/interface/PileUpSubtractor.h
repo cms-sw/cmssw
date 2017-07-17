@@ -2,6 +2,7 @@
 #define __PUSubtractor__
 
 #include <vector>
+#include "boost/shared_ptr.hpp"
 #include "fastjet/PseudoJet.hh"
 #include "fastjet/ClusterSequence.hh"
 #include "fastjet/ClusterSequenceArea.hh"
@@ -10,6 +11,9 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
@@ -25,28 +29,29 @@ class PileUpSubtractor{
   typedef boost::shared_ptr<fastjet::RangeDefinition>        RangeDefPtr;
   typedef boost::shared_ptr<fastjet::JetDefinition>          JetDefPtr;
   
-  PileUpSubtractor(const edm::ParameterSet& iConfig); 
+  PileUpSubtractor(const edm::ParameterSet& iConfig,  edm::ConsumesCollector && iC); 
   virtual ~PileUpSubtractor(){;}
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
-virtual void setDefinition(JetDefPtr const & jetDef);
-virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
+  virtual void setDefinition(JetDefPtr const & jetDef);
+  virtual void reset(std::vector<edm::Ptr<reco::Candidate> >& input,
 	     std::vector<fastjet::PseudoJet>& towers,
 	     std::vector<fastjet::PseudoJet>& output);
-virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
-virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
-virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
-virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
-virtual void offsetCorrectJets();
-virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
-virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
-virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
-virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
- virtual double getCone(double cone, double eta, double phi, double& et, double& pu);
- int getN(const reco::CandidatePtr & in) const;
- int getNwithJets(const reco::CandidatePtr & in) const;
+  virtual void setupGeometryMap(edm::Event& iEvent,const edm::EventSetup& iSetup);
+  virtual void calculatePedestal(std::vector<fastjet::PseudoJet> const & coll);
+  virtual void subtractPedestal(std::vector<fastjet::PseudoJet> & coll);
+  virtual void calculateOrphanInput(std::vector<fastjet::PseudoJet> & orphanInput);
+  virtual void offsetCorrectJets();
+  virtual double getMeanAtTower(const reco::CandidatePtr & in) const;
+  virtual double getSigmaAtTower(const reco::CandidatePtr & in) const;
+  virtual double getPileUpAtTower(const reco::CandidatePtr & in) const;
+  virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
+  virtual double getCone(double cone, double eta, double phi, double& et, double& pu);
+  int getN(const reco::CandidatePtr & in) const;
+  int getNwithJets(const reco::CandidatePtr & in) const;
 
- int ieta(const reco::CandidatePtr & in) const;
- int iphi(const reco::CandidatePtr & in) const;
+  int ieta(const reco::CandidatePtr & in) const;
+  int iphi(const reco::CandidatePtr & in) const;
 
  protected:
 
@@ -64,6 +69,10 @@ virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
   bool     doRhoFastjet_;
   double   jetPtMin_;
   double   puPtMin_;
+
+  double ghostEtaMax;
+  int    activeAreaRepeats;
+  double ghostArea;
 
   double                nSigmaPU_;                  // number of sigma for pileup
   double                radiusPU_;                  // pileup radius
@@ -84,7 +93,7 @@ virtual double getPileUpEnergy(int ijet) const {return jetOffset_[ijet];}
 };
 
 #include "FWCore/PluginManager/interface/PluginFactory.h"
-namespace edm {class ParameterSet; class EventSetup; }
-typedef edmplugin::PluginFactory<PileUpSubtractor *(const edm::ParameterSet & )> PileUpSubtractorFactory;
+namespace edm {class ParameterSet; class EventSetup; class ConsumesCollector;}
+typedef edmplugin::PluginFactory<PileUpSubtractor *(const edm::ParameterSet &, edm::ConsumesCollector &&)> PileUpSubtractorFactory;
 
 #endif

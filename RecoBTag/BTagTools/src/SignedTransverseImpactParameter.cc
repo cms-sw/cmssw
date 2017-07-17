@@ -23,7 +23,7 @@ pair<bool,Measurement1D> SignedTransverseImpactParameter::apply(const TransientT
 
   TrajectoryStateOnSurface stateOnSurface = track.impactPointState();
 
-  FreeTrajectoryState * FTS =  stateOnSurface.freeState(); //aRecTrack.stateAtFirstPoint().freeTrajectoryState());
+  const FreeTrajectoryState * FTS =  stateOnSurface.freeState(); //aRecTrack.stateAtFirstPoint().freeTrajectoryState());
 
   GlobalPoint vertexPosition(vertex.x(),vertex.y(),vertex.z());
  

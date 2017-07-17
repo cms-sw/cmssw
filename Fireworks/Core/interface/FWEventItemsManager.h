@@ -20,7 +20,7 @@
 
 // system include files
 #include <vector>
-#include <boost/shared_ptr.hpp>
+#include <memory>
 #include "sigc++/signal.h"
 
 // user include files
@@ -86,7 +86,7 @@ private:
    fireworks::Context* m_context;
 
    const edm::EventBase* m_event;
-   boost::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
+   std::shared_ptr<FWItemAccessorFactory> m_accessorFactory;
 };
 
 

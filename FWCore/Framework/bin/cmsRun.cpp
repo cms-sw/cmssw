@@ -4,6 +4,7 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 ----------------------------------------------------------------------*/
 
 #include "FWCore/Framework/interface/EventProcessor.h"
+#include "FWCore/Framework/interface/defaultCmsRunServices.h"
 #include "FWCore/MessageLogger/interface/ExceptionMessages.h"
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
@@ -25,7 +26,6 @@ PSet script.   See notes in EventProcessor.cpp for details about it.
 #include "TError.h"
 
 #include "boost/program_options.hpp"
-#include "boost/shared_ptr.hpp"
 #include "tbb/task_scheduler_init.h"
 
 #include <cstring>
@@ -49,18 +49,20 @@ static char const* const kJobModeOpt="mode";
 static char const* const kMultiThreadMessageLoggerOpt = "multithreadML,t";
 static char const* const kNumberOfThreadsCommandOpt = "numThreads,n";
 static char const* const kNumberOfThreadsOpt = "numThreads";
+static char const* const kSizeOfStackForThreadCommandOpt = "sizeOfStackForThreadsInKB,s";
+static char const* const kSizeOfStackForThreadOpt = "sizeOfStackForThreadsInKB";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt = "help,h";
 static char const* const kStrictOpt = "strict";
-static char const* const kProgramName = "cmsRun";
 
+constexpr unsigned int kDefaultSizeOfStackForThreadsInKB = 10*1024; //10MB
 // -----------------------------------------------
 namespace {
   class EventProcessorWithSentry {
   public:
     explicit EventProcessorWithSentry() : ep_(nullptr), callEndJob_(false) {}
-    explicit EventProcessorWithSentry(std::auto_ptr<edm::EventProcessor> ep) :
-      ep_(ep),
+    explicit EventProcessorWithSentry(std::unique_ptr<edm::EventProcessor> ep) :
+      ep_(std::move(ep)),
       callEndJob_(false) {}
     ~EventProcessorWithSentry() {
       if(callEndJob_ && ep_.get()) {
@@ -76,6 +78,11 @@ namespace {
       }
       edm::clearMessageLog();
     }
+    EventProcessorWithSentry(EventProcessorWithSentry const&) = delete;
+    EventProcessorWithSentry const& operator=(EventProcessorWithSentry const&) = delete;
+    EventProcessorWithSentry(EventProcessorWithSentry&&) = default; // Allow Moving
+    EventProcessorWithSentry& operator=(EventProcessorWithSentry&&) = default; // Allow moving
+
     void on() {
       callEndJob_ = true;
     }
@@ -86,26 +93,30 @@ namespace {
       return ep_.get();
     }
   private:
-    std::auto_ptr<edm::EventProcessor> ep_;
+    std::unique_ptr<edm::EventProcessor> ep_;
     bool callEndJob_;
   };
   
-  void setNThreads(unsigned int iNThreads,
-                   std::unique_ptr<tbb::task_scheduler_init>& oPtr) {
+  unsigned int setNThreads(unsigned int iNThreads,
+                           unsigned int iStackSize,
+                           std::unique_ptr<tbb::task_scheduler_init>& oPtr) {
     //The TBB documentation doesn't explicitly say this, but when the task_scheduler_init's
     // destructor is run it does a 'wait all' for all tasks to finish and then shuts down all the threads.
     // This provides a clean synchronization point.
     //We have to destroy the old scheduler before starting a new one in order to
     // get tbb to actually switch the number of threads. If we do not, tbb stays at 1 threads
-    edm::LogInfo("ThreadSetup") <<"setting # threads "<<iNThreads;
+
+    //stack size is given in KB but passed in as bytes
+    iStackSize *= 1024;
 
     oPtr.reset();
     if(0==iNThreads) {
       //Allow TBB to decide how many threads. This is normally the number of CPUs in the machine.
-      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{}};
-    } else {
-      oPtr = std::unique_ptr<tbb::task_scheduler_init>{new tbb::task_scheduler_init{static_cast<int>(iNThreads)}};
+      iNThreads = tbb::task_scheduler_init::default_num_threads();
     }
+    oPtr = std::make_unique<tbb::task_scheduler_init>(static_cast<int>(iNThreads),iStackSize);
+
+    return iNThreads;
   }
 }
 
@@ -116,15 +127,17 @@ int main(int argc, char* argv[]) {
   bool alwaysAddContext = true;
   //Default to only use 1 thread. We define this early since plugin system or message logger
   // may be using TBB.
+  //NOTE: with new version of TBB (44_20160316oss) we can only construct 1 tbb::task_scheduler_init per job
+  // else we get a crash. So for now we can't have any services use tasks in their constructors.
   bool setNThreadsOnCommandLine = false;
-  std::unique_ptr<tbb::task_scheduler_init> tsiPtr{new tbb::task_scheduler_init{1}};
-  boost::shared_ptr<edm::Presence> theMessageServicePresence;
+  std::unique_ptr<tbb::task_scheduler_init> tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
+  std::shared_ptr<edm::Presence> theMessageServicePresence;
   std::unique_ptr<std::ofstream> jobReportStreamPtr;
-  boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
+  std::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::JobReport> > jobRep;
   EventProcessorWithSentry proc;
 
   try {
-    try {
+    returnCode = edm::convertException::wrap([&]()->int {
 
       // NOTE: MacOs X has a lower rlimit for opened file descriptor than Linux (256
       // in Snow Leopard vs 512 in SLC5). This is a problem for some of the workflows
@@ -160,11 +173,11 @@ int main(int argc, char* argv[]) {
       // Load the message service plug-in
 
       if(multiThreadML) {
-        theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+        theMessageServicePresence = std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
           makePresence("MessageServicePresence").release());
       }
       else {
-        theMessageServicePresence = boost::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
+        theMessageServicePresence = std::shared_ptr<edm::Presence>(edm::PresenceFactory::get()->
           makePresence("SingleThreadMSPresence").release());
       }
 
@@ -184,8 +197,10 @@ int main(int argc, char* argv[]) {
                 "enable job report files (if any) specified in configuration file")
         (kJobModeCommandOpt, boost::program_options::value<std::string>(),
                 "Job Mode for MessageLogger defaults - default mode is grid")
-      (kNumberOfThreadsCommandOpt,boost::program_options::value<unsigned int>(),
+	(kNumberOfThreadsCommandOpt,boost::program_options::value<unsigned int>(),
                 "Number of threads to use in job (0 is use all CPUs)")
+	(kSizeOfStackForThreadCommandOpt,boost::program_options::value<unsigned int>(),
+   	        "Size of stack in KB to use for extra threads (0 is use system default size)")
         (kMultiThreadMessageLoggerOpt,
                 "MessageLogger handles multiple threads - default is single-thread")
         (kStrictOpt, "strict parsing");
@@ -224,10 +239,19 @@ int main(int argc, char* argv[]) {
         return 0;
       }
       
+      unsigned int nThreadsOnCommandLine{0};
       if(vm.count(kNumberOfThreadsOpt)) {
         setNThreadsOnCommandLine=true;
         unsigned int nThreads = vm[kNumberOfThreadsOpt].as<unsigned int>();
-        setNThreads(nThreads,tsiPtr);
+        unsigned int stackSize=kDefaultSizeOfStackForThreadsInKB;
+        if(vm.count(kSizeOfStackForThreadOpt)) {
+          stackSize=vm[kSizeOfStackForThreadOpt].as<unsigned int>();
+        }
+        nThreadsOnCommandLine=setNThreads(nThreads,stackSize,tsiPtr);
+      }
+      if(not tsiPtr) {
+        //If we haven't initialized TBB yet, do it here
+        tsiPtr = std::make_unique<tbb::task_scheduler_init>(1);
       }
 
       if (!vm.count(kParameterSetOpt)) {
@@ -252,20 +276,20 @@ int main(int argc, char* argv[]) {
       } else if(vm.count(kEnableJobreportOpt)) {
         jobReportFile = "FrameworkJobReport.xml";
       }
-      jobReportStreamPtr = std::auto_ptr<std::ofstream>(jobReportFile.empty() ? 0 : new std::ofstream(jobReportFile.c_str()));
+      jobReportStreamPtr = jobReportFile.empty() ? nullptr : std::make_unique<std::ofstream>(jobReportFile.c_str());
 
       //NOTE: JobReport must have a lifetime shorter than jobReportStreamPtr so that when the JobReport destructor
       // is called jobReportStreamPtr is still valid
-      std::auto_ptr<edm::JobReport> jobRepPtr(new edm::JobReport(jobReportStreamPtr.get()));
-      jobRep.reset(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(jobRepPtr));
+      auto jobRepPtr = std::make_unique<edm::JobReport>(jobReportStreamPtr.get());
+      jobRep.reset(new edm::serviceregistry::ServiceWrapper<edm::JobReport>(std::move(jobRepPtr)));
       edm::ServiceToken jobReportToken =
         edm::ServiceRegistry::createContaining(jobRep);
 
       context = "Processing the python configuration file named ";
       context += fileName;
-      boost::shared_ptr<edm::ProcessDesc> processDesc;
+      std::shared_ptr<edm::ProcessDesc> processDesc;
       try {
-        boost::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
+        std::shared_ptr<edm::ParameterSet> parameterSet = edm::readConfig(fileName, argc, argv);
         processDesc.reset(new edm::ProcessDesc(parameterSet));
       }
       catch(cms::Exception& iException) {
@@ -278,33 +302,40 @@ int main(int argc, char* argv[]) {
       context = "Setting up number of threads";
       {
         if(not setNThreadsOnCommandLine) {
-          boost::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+          std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
           if(pset->existsAs<edm::ParameterSet>("options",false)) {
             auto const& ops = pset->getUntrackedParameterSet("options");
             if(ops.existsAs<unsigned int>("numberOfThreads",false)) {
               unsigned int nThreads = ops.getUntrackedParameter<unsigned int>("numberOfThreads");
-              setNThreads(nThreads,tsiPtr);
+              unsigned int stackSize=kDefaultSizeOfStackForThreadsInKB;
+              if(ops.existsAs<unsigned int>("sizeOfStackForThreadsInKB",false)) {
+                stackSize = ops.getUntrackedParameter<unsigned int>("sizeOfStackForThreadsInKB");
+              }
+              const auto nThreadsUsed = setNThreads(nThreads,stackSize,tsiPtr);
+              if(nThreadsUsed != nThreads) {
+                auto newOp = pset->getUntrackedParameterSet("options");
+                newOp.addUntrackedParameter<unsigned int>("numberOfThreads",nThreadsUsed);
+                pset->insertParameterSet(true,"options",edm::ParameterSetEntry(newOp,false));
+              }
             }
           }
+        } else {
+          //inject it into the top level ParameterSet
+          edm::ParameterSet newOp;
+          std::shared_ptr<edm::ParameterSet> pset = processDesc->getProcessPSet();
+          if(pset->existsAs<edm::ParameterSet>("options",false)) {
+            newOp = pset->getUntrackedParameterSet("options");
+          }
+          newOp.addUntrackedParameter<unsigned int>("numberOfThreads",nThreadsOnCommandLine);
+          pset->insertParameterSet(true,"options",edm::ParameterSetEntry(newOp,false));
         }
       }
 
       context = "Initializing default service configurations";
-      std::vector<std::string> defaultServices;
-      defaultServices.reserve(7);
-      defaultServices.push_back("MessageLogger");
-      defaultServices.push_back("InitRootHandlers");
-#ifdef linux
-      defaultServices.push_back("EnableFloatingPointExceptions");
-#endif
-      defaultServices.push_back("UnixSignalService");
-      defaultServices.push_back("AdaptorConfig");
-      defaultServices.push_back("SiteLocalConfigService");
-      defaultServices.push_back("StatisticsSenderService");
 
       // Default parameters will be used for the default services
       // if they are not overridden from the configuration files.
-      processDesc->addServices(defaultServices);
+      processDesc->addServices(edm::defaultCmsRunServices());
 
       context = "Setting MessageLogger defaults";
       // Decide what mode of hardcoded MessageLogger defaults to use
@@ -314,51 +345,27 @@ int main(int argc, char* argv[]) {
       }
 
       context = "Constructing the EventProcessor";
-      std::auto_ptr<edm::EventProcessor>
-          procP(new
-                edm::EventProcessor(processDesc, jobReportToken,
-                                    edm::serviceregistry::kTokenOverrides));
-      EventProcessorWithSentry procTmp(procP);
-      proc = procTmp;
+      EventProcessorWithSentry procTmp(
+        std::make_unique<edm::EventProcessor>(processDesc, jobReportToken, edm::serviceregistry::kTokenOverrides));
+      proc = std::move(procTmp);
 
       alwaysAddContext = false;
       context = "Calling beginJob";
       proc->beginJob();
 
-      alwaysAddContext = true;
-      context = "Calling EventProcessor::forkProcess";
-      if (!proc->forkProcess(jobReportFile)) {
-        return 0;
-      }
-
       alwaysAddContext = false;
       context = "Calling EventProcessor::runToCompletion (which does almost everything after beginJob and before endJob)";
       proc.on();
-      proc->runToCompletion();
+      auto status = proc->runToCompletion();
+      if (status == edm::EventProcessor::epSignal) {
+        returnCode = edm::errors::CaughtSignal;
+      }
       proc.off();
 
       context = "Calling endJob";
       proc->endJob();
-    }
-    catch (cms::Exception& e) {
-      throw;
-    }
-    // The functions in the following catch blocks throw an edm::Exception
-    catch(std::bad_alloc& bda) {
-      edm::convertException::badAllocToEDM();
-    }
-    catch (std::exception& e) {
-      edm::convertException::stdToEDM(e);
-    }
-    catch(std::string& s) {
-      edm::convertException::stringToEDM(s);
-    }
-    catch(char const* c) {
-      edm::convertException::charPtrToEDM(c);
-    }
-    catch (...) {
-      edm::convertException::unknownToEDM();
-    }
+      return returnCode;
+    });
   }
   // All exceptions which are not handled before propagating
   // into main will get caught here.

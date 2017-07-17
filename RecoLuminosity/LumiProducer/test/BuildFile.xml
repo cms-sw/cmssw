@@ -1,6 +1,25 @@
 <use name="FWCore/Framework"/>
 <use name="DataFormats/Luminosity"/>
 
+<library file="analysis/plugins/*.cc" name="PCCNTupler">
+    <use   name="FWCore/PluginManager"/>
+    <use   name="FWCore/ParameterSet"/>
+    <use   name="DataFormats/VertexReco"/>
+    <use   name="DataFormats/DetId"/>
+    <use   name="Geometry/TrackerGeometryBuilder"/>
+    <use   name="DataFormats/SiPixelDetId"/>
+    <use   name="DataFormats/TrackerRecHit2D"/>
+    <use   name="DataFormats/TrackingRecHit"/>
+    <use   name="HLTrigger/HLTcore"/>
+    <use   name="CondFormats/RunInfo"/>
+    <use   name="clhep"/>
+    <use   name="boost"/>
+    <use   name="root"/>
+    <use   name="rootrflx"/>
+    <flags EDM_PLUGIN="1"/>
+</library>
+
+
 <bin file="TestIntegration.cpp" name="TestLumiProd">
   <flags NO_TESTRUN="1"/>
   <flags TEST_RUNNER_ARGS=" /bin/bash RecoLuminosity/LumiProducer/test run_lumiProd.sh"/>
@@ -8,6 +27,7 @@
 </bin>
 
 <bin file="testWrite2LumiDB.cpp" name="testWrite2LumiDB">
+  <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>
   <use name="RecoLuminosity/LumiProducer"/>
 </bin>
@@ -32,8 +52,10 @@
 </bin>
 
 <bin file="testBoostRegex.cpp" name="testBoostRegex">
+  <flags NO_TESTRUN="1"/>
   <use name="boost"/>
 </bin>
+
 <bin file="validation/populateDummy2LumiDB.cpp" name="populateDummy2LumiDB">
   <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>

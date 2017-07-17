@@ -1,5 +1,9 @@
 import FWCore.ParameterSet.Config as cms
 
+from RecoPixelVertexing.PixelLowPtUtilities.clusterShapeTrackFilter_cfi import clusterShapeTrackFilter
+from RecoPixelVertexing.PixelLowPtUtilities.trackFitter_cfi import trackFitter
+from RecoPixelVertexing.PixelLowPtUtilities.trackCleaner_cfi import trackCleaner
+
 ##########################
 # The base for all steps
 allPixelTracks = cms.EDProducer("PixelTrackProducer",
@@ -27,7 +31,7 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
     # Ordered hits
     OrderedHitsFactoryPSet = cms.PSet(
         ComponentName = cms.string('StandardHitTripletGenerator'),
-        SeedingLayers = cms.string('PixelLayerTriplets'),
+        SeedingLayers = cms.InputTag('PixelLayerTriplets'),
         GeneratorPSet = cms.PSet(
             ComponentName = cms.string('PixelTripletLowPtGenerator'),
             checkClusterShape       = cms.bool(False),
@@ -35,28 +39,27 @@ allPixelTracks = cms.EDProducer("PixelTrackProducer",
             nSigMultipleScattering  = cms.double(5.0),
             maxAngleRatio = cms.double(10.0),
             rzTolerance   = cms.double(0.2),
-            TTRHBuilder   = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
+            TTRHBuilder   = cms.string('TTRHBuilderWithoutAngle4PixelTriplets'),
+            clusterShapeCacheSrc = cms.InputTag("siPixelClusterShapeCache")
         )
     ),
 
     # Filter
-    useFilterWithES = cms.bool(True),
-    FilterPSet = cms.PSet(
-        ComponentName = cms.string('ClusterShapeTrackFilter')
-#       ptMin  = cms.double()
-#       ptMax  = cms.double()
-    ),
+    Filter = cms.InputTag("clusterShapeTrackFilter"),
 
     # Cleaner
-    CleanerPSet = cms.PSet(
-        ComponentName = cms.string('TrackCleaner')
-    ),
+    CleanerPSet = cms.string("trackCleaner"),
 
     # Fitter
-    FitterPSet = cms.PSet(
-        ComponentName = cms.string('TrackFitter'),
-        TTRHBuilder   = cms.string('TTRHBuilderWithoutAngle4PixelTriplets')
-    )
+    FitterPSet = cms.InputTag("allPixelTracksFitter"),
 )
 
+allPixelTracksFitter = trackFitter.clone(
+    TTRHBuilder = 'TTRHBuilderWithoutAngle4PixelTriplets'
+)
 
+allPixelTracksSequence = cms.Sequence(
+    allPixelTracksFitter +
+    clusterShapeTrackFilter +
+    allPixelTracks
+)

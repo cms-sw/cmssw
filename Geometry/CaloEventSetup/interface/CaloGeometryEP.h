@@ -3,7 +3,6 @@
 
 // system include files
 #include <memory>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ModuleFactory.h"
@@ -42,7 +41,7 @@ class CaloGeometryEP : public edm::ESProducer
 			  edm::es::Label( T::producerTag() ) ) ;
       }
 
-      virtual ~CaloGeometryEP<T>() {}
+      ~CaloGeometryEP<T>() override {}
       PtrType produceAligned( const typename T::AlignedRecord& iRecord ) 
       {
 	 const Alignments* alignPtr  ( 0 ) ;

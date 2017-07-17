@@ -41,8 +41,8 @@ class JetChargeAnalyzer : public edm::EDAnalyzer {
         virtual void endJob(const edm::EventSetup& iSetup);
     private:
         // physics stuff
-        edm::InputTag         src_;
-        edm::InputTag         jetMCSrc;
+        edm::EDGetTokenT<JetChargeCollection>         srcToken_;
+        edm::EDGetTokenT<reco::JetFlavourMatchingCollection>         jetMCSrcToken_;
         double                minET_;
         // plot stuff
         std::string           dir_;
@@ -50,15 +50,15 @@ class JetChargeAnalyzer : public edm::EDAnalyzer {
 
 
 
-        
+
 };
 
 const int   pdgIds[12] = {  0 ,  1 ,  -1 ,  2 ,  -2 ,  3 ,  -3 ,  4 ,  -4 ,  5 ,  -5 , 21  };
 const char* pdgs  [12] = { "?", "u", "-u", "d", "-d", "s", "-s", "c", "-c", "b", "-b", "g" };
 
 JetChargeAnalyzer::JetChargeAnalyzer(const edm::ParameterSet &iConfig) :
-        src_(iConfig.getParameter<edm::InputTag>("src")),   
-	jetMCSrc(iConfig.getParameter<edm::InputTag>("jetFlavour")),
+        srcToken_(consumes<JetChargeCollection>(iConfig.getParameter<edm::InputTag>("src"))),
+	jetMCSrcToken_(consumes<reco::JetFlavourMatchingCollection>(iConfig.getParameter<edm::InputTag>("jetFlavour"))),
         minET_(iConfig.getParameter<double>("minET")),
         dir_(iConfig.getParameter<std::string>("dir")) {
     edm::Service<TFileService> fs;
@@ -73,28 +73,28 @@ JetChargeAnalyzer::JetChargeAnalyzer(const edm::ParameterSet &iConfig) :
 
 void JetChargeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) {
   using namespace edm; using namespace reco;
-  
+
   Handle<JetChargeCollection> hJC;
-  iEvent.getByLabel(src_, hJC);
+  iEvent.getByToken(srcToken_, hJC);
   //
   // get jet flavour via genparticles
   //
   edm::Handle<JetFlavourMatchingCollection> jetMC;
   FlavourMap flavours;
-  
-  iEvent.getByLabel(jetMCSrc, jetMC);
+
+  iEvent.getByToken(jetMCSrcToken_, jetMC);
   for (JetFlavourMatchingCollection::const_iterator iter = jetMC->begin();
        iter != jetMC->end(); iter++) {
     unsigned int fl = abs(iter->second.getFlavour());
-    flavours.insert(FlavourMap::value_type(iter->first, fl));        
+    flavours.insert(FlavourMap::value_type(iter->first, fl));
   }
   //          for (JetChargeCollection::const_iterator it = hJC->begin(), ed = hJC->end(); it != ed; ++it) {
   for (unsigned int i =0; i< hJC->size(); ++i){
-    
+
     const Jet &jet = *(hJC->key(i));
     if (jet.et() < minET_) continue;
     //        int id = jf_.identifyBasedOnPartons(jet).mainFlavour();
-    
+
     edm::RefToBase<reco::Jet> jetr = hJC->key(i);
     int id = flavours[jetr];
     int k;
@@ -105,7 +105,7 @@ void JetChargeAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup&
     }
     charge_[k]->Fill(hJC->value(i));
   }
-  
+
 }
 void JetChargeAnalyzer::endJob(const edm::EventSetup& iSetup) {
 }

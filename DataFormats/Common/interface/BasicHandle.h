@@ -25,19 +25,19 @@ If failedToGet() returns false but isValid() is also false then no attempt
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Common/interface/ProductData.h"
-#include "DataFormats/Common/interface/WrapperHolder.h"
 #include "DataFormats/Provenance/interface/ProductID.h"
 #include "DataFormats/Provenance/interface/Provenance.h"
-#include "DataFormats/Provenance/interface/WrapperInterfaceBase.h"
+#include "DataFormats/Common/interface/HandleExceptionFactory.h"
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace cms {
   class Exception;
 }
 
 namespace edm {
+  class WrapperBase;
   template <typename T> class Wrapper;
 
   class BasicHandle {
@@ -49,28 +49,20 @@ namespace edm {
     BasicHandle(BasicHandle const& h) :
       product_(h.product_),
       prov_(h.prov_),
-      whyFailed_(h.whyFailed_){}
+      whyFailedFactory_(h.whyFailedFactory_){}
 
-    BasicHandle(void const* iProd, WrapperInterfaceBase const* iInterface, Provenance const* iProv) :
-      product_(WrapperHolder(iProd, iInterface)),
+    BasicHandle(BasicHandle &&h) = default;
+    
+    BasicHandle(WrapperBase const* iProd, Provenance const* iProv) :
+      product_(iProd),
       prov_(iProv) {
-    }
-
-    BasicHandle(WrapperHolder const& iWrapperHolder, Provenance const* iProv) :
-      product_(iWrapperHolder),
-      prov_(iProv) {
-    }
-
-    BasicHandle(ProductData const& productData) :
-      product_(WrapperHolder(productData.wrapper_.get(), productData.getInterface())),
-      prov_(&productData.prov_) {
     }
 
     ///Used when the attempt to get the data failed
-    BasicHandle(boost::shared_ptr<cms::Exception> const& iWhyFailed):
+    BasicHandle(std::shared_ptr<HandleExceptionFactory> const& iWhyFailed):
     product_(),
     prov_(0),
-    whyFailed_(iWhyFailed) {}
+    whyFailedFactory_(iWhyFailed) {}
 
     ~BasicHandle() {}
 
@@ -78,7 +70,7 @@ namespace edm {
       using std::swap;
       swap(product_, other.product_);
       std::swap(prov_, other.prov_);
-      swap(whyFailed_,other.whyFailed_);
+      swap(whyFailedFactory_,other.whyFailedFactory_);
     }
 
     BasicHandle& operator=(BasicHandle const& rhs) {
@@ -88,22 +80,14 @@ namespace edm {
     }
 
     bool isValid() const {
-      return product_.wrapper() != 0 && prov_ != 0;
+      return product_ && prov_;
     }
 
     bool failedToGet() const {
-      return 0 != whyFailed_.get();
+      return bool(whyFailedFactory_);
     }
 
-    WrapperInterfaceBase const* interface() const {
-      return product_.interface();
-    }
-
-    void const* wrapper() const {
-      return product_.wrapper();
-    }
-
-    WrapperHolder wrapperHolder() const {
+    WrapperBase const* wrapper() const {
       return product_;
     }
 
@@ -115,13 +99,28 @@ namespace edm {
       return prov_->productID();
     }
 
-    boost::shared_ptr<cms::Exception> whyFailed() const {
-      return whyFailed_;
+    std::shared_ptr<cms::Exception> whyFailed() const {
+      return whyFailedFactory_->make();
     }
+    
+    std::shared_ptr<HandleExceptionFactory> const& whyFailedFactory() const {
+      return whyFailedFactory_;
+    }
+    
+    std::shared_ptr<HandleExceptionFactory>& whyFailedFactory()  {
+      return whyFailedFactory_;
+    }
+
+    void clear() {
+      product_ = nullptr;
+      prov_ = nullptr;
+      whyFailedFactory_.reset();
+    }
+
   private:
-    WrapperHolder product_;
+    WrapperBase const* product_;
     Provenance const* prov_;
-    boost::shared_ptr<cms::Exception> whyFailed_;
+    std::shared_ptr<HandleExceptionFactory> whyFailedFactory_;
   };
 
   // Free swap function

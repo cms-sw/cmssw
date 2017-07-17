@@ -16,7 +16,7 @@ class TIDLayerBuilder {
  public:
   TIDLayerBuilder(){};
   TIDLayer* build(const GeometricDet* aTIDLayer,
-		  const TrackerGeometry* theGeomDetGeometry);
+		  const TrackerGeometry* theGeomDetGeometry) __attribute__ ((cold));
 
    
 };

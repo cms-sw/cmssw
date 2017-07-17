@@ -17,12 +17,12 @@
 #include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimCalorimetry/CaloSimAlgos/interface/CaloVPECorrection.h"
-// CLHEP Random numbers
-#include "CLHEP/Random/RandBinomial.h"
-#include "CLHEP/Random/RandFlat.h"
-#include "CLHEP/Random/RandGaussQ.h"
-#include "CLHEP/Random/RandPoissonQ.h"
+
 class CaloShapes;
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 class HPDIonFeedbackSim: public CaloVPECorrection
 {
@@ -33,24 +33,16 @@ class HPDIonFeedbackSim: public CaloVPECorrection
     
     //copied from HFSimParameters.h
     void setDbService(const HcalDbService * service) {theDbService = service;}
-    /// need a shaper in order to set thermal noise
-    void setRandomEngine(CLHEP::HepRandomEngine & engine);
 
     // in units of fC
-    virtual double correctPE(const DetId & detId, double npe) const;
-    double getIonFeedback(DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV);
+    virtual double correctPE(const DetId & detId, double npe, CLHEP::HepRandomEngine*) const;
+    double getIonFeedback(DetId detId, double signal, double pedWidth, bool doThermal, bool isInGeV, CLHEP::HepRandomEngine*);
 
-    void addThermalNoise(CaloSamples & samples);
+    void addThermalNoise(CaloSamples & samples, CLHEP::HepRandomEngine*);
 
   private:
     double fCtoGeV(const DetId & detId) const;
     const HcalDbService * theDbService;
     const CaloShapes * theShapes;
-    
-    mutable CLHEP::RandBinomial * theRandBinomial;
-    mutable CLHEP::RandFlat*      theRandFlat;
-    mutable CLHEP::RandGaussQ *   theRandGauss;
-    mutable CLHEP::RandPoissonQ*  theRandPoissonQ; 
-
 };
 #endif

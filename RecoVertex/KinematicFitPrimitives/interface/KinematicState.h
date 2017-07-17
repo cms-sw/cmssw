@@ -19,23 +19,33 @@ class KinematicState{
 
 public:
 
-/**
- * Default constructor for internal
- * KinematicFitPrimitives library needs
- * only
- */
- KinematicState()
- {vl = false;}
- 
-/**
- * Constructor taking directly KinematicParameters
- * KinematicError and Charge. To be used with
- * proper KinematicStateBuilder.
- */
- KinematicState(const KinematicParameters& parameters,
- 	const KinematicParametersError& error, const TrackCharge& charge,
-	const MagneticField* field);
-						       
+  /**
+   * Default constructor for internal
+   * KinematicFitPrimitives library needs
+   * only
+   */
+  KinematicState()
+  {vl = false;}
+  
+  /**
+   * Constructor taking directly KinematicParameters
+   * KinematicError and Charge. To be used with
+   * proper KinematicStateBuilder.
+   */
+
+  KinematicState(const KinematicParameters& parameters,
+		 const KinematicParametersError& error, const TrackCharge& charge,
+  		 const MagneticField* field);
+  
+  KinematicState(const FreeTrajectoryState & state, 
+		 const ParticleMass& mass, float m_sigma) :
+    fts(state), 
+    param(state.position().x(),state.position().y(),state.position().z(),
+	  state.momentum().x(),state.momentum().y(),state.momentum().z(),
+	  mass),
+    err(state.cartesianError(),m_sigma), vl(true){}
+  
+  
  bool operator==(const KinematicState& other) const;
 
   /**
@@ -48,37 +58,40 @@ public:
  * and private data
  */
 
-KinematicParameters const & kinematicParameters() const {return param;}
+  KinematicParameters const & kinematicParameters() const {return param;}
+  
+  KinematicParametersError const & kinematicParametersError() const {return err;}
 
-KinematicParametersError const & kinematicParametersError() const {return err;}
+  GlobalTrajectoryParameters const & trajectoryParameters() const { return fts.parameters();}
 
-GlobalVector globalMomentum() const {return param.momentum();}
 
-GlobalPoint  globalPosition() const {return param.position();}
-
-TrackCharge particleCharge() const {return ch;}
-
+  GlobalVector globalMomentum() const {return fts.momentum();}
+  
+  GlobalPoint  globalPosition() const {return fts.position();}
+  
+  TrackCharge particleCharge() const {return fts.charge();}
+  
 
 
 /**
  * KinematicState -> FreeTrajectoryState 
  * converter
  */
- FreeTrajectoryState freeTrajectoryState() const;
+  FreeTrajectoryState freeTrajectoryState() const { return fts;}
  
- bool isValid() const
- {return vl;}
+  bool isValid() const {return vl;}
 
-  const MagneticField* magneticField() const {return theField;}
+  GlobalVector magneticFieldInInverseGeV( const GlobalPoint& x) const { return trajectoryParameters().magneticFieldInInverseGeV(x);}
+  GlobalVector magneticFieldInInverseGeV() const { return trajectoryParameters().magneticFieldInInverseGeV();}
+
+  const MagneticField* magneticField() const {return &trajectoryParameters().magneticField();}
 
  
 private:
-
-  const MagneticField* theField;
+  FreeTrajectoryState fts;
   KinematicParameters param;
   KinematicParametersError err;
-  TrackCharge ch;
- 
+  
   bool vl;
 };
 #endif

@@ -3,9 +3,8 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/ServiceRegistry/interface/RandomEngineSentry.h"
 #include "FWCore/Utilities/interface/Exception.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
@@ -58,7 +57,8 @@ BeamHaloProducer::~BeamHaloProducer() {
 
 
 BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
-	evt(0)
+  evt(0),
+  isInitialized_(false)
 {
 
    int iparam[8];
@@ -83,20 +83,11 @@ BeamHaloProducer::BeamHaloProducer( const ParameterSet & pset) :
    cparam     = pset.getUntrackedParameter<std::string>("G3FNAME","input.txt");
    call_bh_set_parameters(iparam,fparam,cparam);
 
-
-// -- Seed for randomnumbers
-    Service<RandomNumberGenerator> rng;
-    _BeamHalo_randomEngine = &(rng->getEngine());
-    long seed = (long)(rng->mySeed());
-
-
-// -- initialisation
-   call_ki_bhg_init(seed);
-
-
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
-  produces<GenRunInfoProduct, InRun>();
+  produces<GenRunInfoProduct, Transition::EndRun>();
+
+  usesResource("BeamHaloProducer");
 
   cout << "BeamHaloProducer: starting event generation ... " << endl;
 }
@@ -106,10 +97,29 @@ void BeamHaloProducer::clear()
 {
 }
 
+void BeamHaloProducer::setRandomEngine(CLHEP::HepRandomEngine* v) {
+  _BeamHalo_randomEngine = v;
+}
+
+void BeamHaloProducer::beginLuminosityBlock(LuminosityBlock const& lumi, EventSetup const&)
+{
+  if(!isInitialized_) {
+    isInitialized_ = true;
+    RandomEngineSentry<BeamHaloProducer> randomEngineSentry(this, lumi.index());
+
+    // -- initialisation
+    long seed = 1; // This seed is not actually used
+    call_ki_bhg_init(seed);
+  }
+}
+
 void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
+
+  RandomEngineSentry<BeamHaloProducer> randomEngineSentry(this, e.streamID());
+
 	// cout << "in produce " << endl;
 
-  //    	auto_ptr<HepMCProduct> bare_product(new HepMCProduct());
+  //    	unique_ptr<HepMCProduct> bare_product(new HepMCProduct());
 
 	// cout << "apres autoptr " << endl;
 
@@ -145,12 +155,12 @@ void BeamHaloProducer::produce(Event & e, const EventSetup & es) {
 	HepMC::WeightContainer& weights = evt -> weights();
 	weights.push_back(weight);
 	//	evt->print();
-  std::auto_ptr<HepMCProduct> CMProduct(new HepMCProduct());
+  std::unique_ptr<HepMCProduct> CMProduct(new HepMCProduct());
   if (evt) CMProduct->addHepMCData(evt);
-  e.put(CMProduct);
+  e.put(std::move(CMProduct), "unsmeared");
 
-  auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
-  e.put(genEventInfo);
+  unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(evt));
+  e.put(std::move(genEventInfo));
 }
 
 void BeamHaloProducer::endRunProduce( Run &run, const EventSetup& es )
@@ -158,8 +168,8 @@ void BeamHaloProducer::endRunProduce( Run &run, const EventSetup& es )
    // just create an empty product
    // to keep the EventContent definitions happy
    // later on we might put the info into the run info that this is a PGun
-   auto_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
-   run.put( genRunInfo );
+   unique_ptr<GenRunInfoProduct> genRunInfo( new GenRunInfoProduct() );
+   run.put(std::move(genRunInfo));
 }
 
 bool BeamHaloProducer::call_bh_set_parameters(int* ival, float* fval, const std::string cval_string) {

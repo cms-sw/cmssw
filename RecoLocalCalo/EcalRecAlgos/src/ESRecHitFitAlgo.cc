@@ -34,9 +34,9 @@ ESRecHitFitAlgo::~ESRecHitFitAlgo() {
 
 double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) const {
   
-  double *fitresults = new double[3];
-  double adc[3];  
-  double tx[3];
+  double *fitresults = new double[3] {};
+  double adc[3] {};  
+  double tx[3] {};
   tx[0] = -5.; 
   tx[1] = 20.;
   tx[2] = 45.;
@@ -56,10 +56,10 @@ double* ESRecHitFitAlgo::EvalAmplitude(const ESDataFrame& digi, double ped) cons
   if (r23 < ratioCuts_->getR23Low()) status = 7;
 
   if (int(status) == 0) {
-    double para[10];
+    double para[10] {};
     TGraph *gr = new TGraph(3, tx, adc);
     fit_->SetParameters(50, 10);
-    gr->Fit("fit", "MQ");
+    gr->Fit(fit_, "MQ");
     fit_->GetParameters(para); 
     fitresults[0] = para[0]; 
     fitresults[1] = para[1];  

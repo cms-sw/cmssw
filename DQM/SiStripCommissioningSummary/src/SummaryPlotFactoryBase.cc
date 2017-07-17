@@ -127,14 +127,6 @@ void SummaryPlotFactoryBase::fill( TH1& summary_histo ) {
     return; 
   } 
   
-  // Check if instance of generator class exists
-  if ( !(&summary_histo) ) { 
-    edm::LogWarning(mlSummaryPlots_)
-      << "[SummaryPlotFactoryBase::" << __func__ << "]" 
-      << " NULL pointer to TH1 object!";
-    return;
-  }
-  
   // Print contents of map for histogram
   //generator_->printMap();
   

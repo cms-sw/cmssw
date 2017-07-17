@@ -61,17 +61,29 @@
 #include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidate.h"
 #include "DataFormats/ParticleFlowReco/interface/RecoPFClusterRefCandidateFwd.h"
 
+#include "DataFormats/ParticleFlowReco/interface/HGCalMultiCluster.h"
+
 #include <map>
 
-namespace {
-  struct dictionary {
+namespace DataFormats_ParticleFlowReco {
+  struct dictionary2 {
 
     std::vector<reco::PFCluster>                         dummy1;
     edm::Wrapper< std::vector<reco::PFCluster> >         dummy2;
 
+    reco::HGCalMultiCluster dummy_hgcmc;
+    std::vector<reco::HGCalMultiCluster> dummy_vhgcmc;
+    edm::Wrapper<std::vector<reco::HGCalMultiCluster> > dummy_wvhgcmc;
+
+    reco::PFCluster::EEtoPSAssociation sceepsassoc;
+    edm::Wrapper<reco::PFCluster::EEtoPSAssociation> wsceepsassoc;    
+    std::pair<reco::CaloClusterPtr::key_type,edm::Ptr<reco::PFCluster> > 
+      sceepsassocval;
+
     std::vector<reco::PFRecHit>                          dummy3;
     edm::Ref< std::vector<reco::PFRecHit> >              dummy4;
     edm::Wrapper< std::vector<reco::PFRecHit> >          dummy5;
+    edm::RefVector<std::vector<reco::PFRecHit> >         dummy5_2;
 
     std::vector<reco::PFRecTrack>                        dummy6;
     edm::Wrapper< std::vector<reco::PFRecTrack> >        dummy7;

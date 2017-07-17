@@ -5,7 +5,7 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
@@ -17,24 +17,19 @@
 // class declaration
 //
 
-class HLTRPCFilter : public edm::EDFilter {
+class HLTRPCFilter : public edm::global::EDFilter<> {
    public:
       explicit HLTRPCFilter(const edm::ParameterSet&);
       ~HLTRPCFilter();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      double rangestrips;
-      edm::InputTag rpcRecHitsLabel;
-      edm::InputTag rpcDTPointsLabel;
-      edm::InputTag rpcCSCPointsLabel;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
       edm::EDGetTokenT<RPCRecHitCollection> rpcRecHitsToken;
       edm::EDGetTokenT<RPCRecHitCollection> rpcDTPointsToken;
       edm::EDGetTokenT<RPCRecHitCollection> rpcCSCPointsToken;
-
-      
-      // ----------member data ---------------------------
+      double rangestrips;
 };
 
 #endif

@@ -33,6 +33,7 @@ class SiStripNoisesDQM : public SiStripBaseCondObjDQM{
  
   private:
     bool gainRenormalisation_;
+    bool simGainRenormalisation_;
     edm::ESHandle<SiStripNoises> noiseHandle_; 
     edm::ESHandle<SiStripApvGain> gainHandle_;
     

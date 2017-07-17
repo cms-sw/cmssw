@@ -1,10 +1,13 @@
 #include "DetectorDescription/Core/interface/DDName.h"
+
+#include <ext/alloc_traits.h>
+#include <stdlib.h>
+#include <sstream>
+
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDCurrentNamespace.h"
 #include "DetectorDescription/Core/interface/DDSplit.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
-#include <sstream>
 
 std::ostream & operator<<(std::ostream & os, const DDName & n)
 { 
@@ -86,7 +89,7 @@ void DDName::defineId(const std::pair<std::string,std::string> & nm, DDName::id_
 
 const std::string & DDName::name() const 
 {
-  static std::string ano_("anonymous");
+  const static std::string ano_("anonymous");
   const std::string * result;
   if (id_ < 0) {
       result = &ano_;
@@ -100,7 +103,7 @@ const std::string & DDName::name() const
 
 const std::string & DDName::ns() const
 {
-  static std::string ano_("anonymous");
+  const static std::string ano_("anonymous");
   const std::string * result;
   if (id_ < 0) {
       result = &ano_;

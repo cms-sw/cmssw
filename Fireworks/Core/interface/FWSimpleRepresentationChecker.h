@@ -32,7 +32,8 @@ public:
    FWSimpleRepresentationChecker(const std::string& iTypeidName,
                                  const std::string& iPurpose,
                                  unsigned int iBitPackedViews,
-                                 bool iRepresentsSubPart);
+                                 bool iRepresentsSubPart,
+                                 bool iRequiresFF = false);
    virtual ~FWSimpleRepresentationChecker();
 
    // ---------- const member functions ---------------------
@@ -41,7 +42,9 @@ public:
    // ---------- static member functions --------------------
 
    // ---------- member functions ---------------------------
-
+   static bool inheritsFrom(const edm::TypeWithDict& iChild,
+                            const std::string& iParentTypeName, unsigned int& distance);
+                                                
 private:
    FWSimpleRepresentationChecker(const FWSimpleRepresentationChecker&); // stop default
 
@@ -50,6 +53,5 @@ private:
    // ---------- member data --------------------------------
    const std::string m_typeidName;
 };
-
 
 #endif

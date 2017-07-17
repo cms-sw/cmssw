@@ -5,7 +5,10 @@ import FWCore.ParameterSet.Config as cms
 
 # Tracker
 from RecoVertex.BeamSpotProducer.BeamSpot_cfi import *
-from RecoLocalTracker.Configuration.RecoLocalTracker_cff import *
+from RecoLuminosity.LumiProducer.bunchSpacingProducer_cfi import *
+from RecoLocalTracker.Configuration.RecoLocalTrackerHeavyIons_cff import *
+from RecoTracker.MeasurementDet.MeasurementTrackerEventProducer_cfi import *
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
 
 # Ecal
 from RecoLocalCalo.Configuration.ecalLocalRecoSequence_cff import *
@@ -21,8 +24,6 @@ from RecoLocalCalo.CastorReco.CastorSimpleReconstructor_cfi import *
 # Muons
 from RecoLocalMuon.Configuration.RecoLocalMuon_cff import *
 
-from RecoLuminosity.LumiProducer.lumiProducer_cff import *
-
 #--------------------------------------------------------------------------
 # HIGH LEVEL RECO
 
@@ -30,34 +31,30 @@ from RecoHI.Configuration.Reconstruction_HI_cff import *
 from RecoHI.Configuration.Reconstruction_hiPF_cff import *
 from RecoLocalCalo.Castor.Castor_cff import *
 from RecoHI.HiEgammaAlgos.HiElectronSequence_cff import *
-
+from RecoLuminosity.LumiProducer.lumiProducer_cff import *
 #--------------------------------------------------------------------------
 
+from RecoPixelVertexing.PixelLowPtUtilities.siPixelClusterShapeCache_cfi import *
+siPixelClusterShapeCachePreSplitting = siPixelClusterShapeCache.clone(
+    src = 'siPixelClustersPreSplitting'
+    )
+
 caloReco = cms.Sequence(ecalLocalRecoSequence*hcalLocalRecoSequence)
-hbhereco = hbheprereco.clone()
-hcalLocalRecoSequence.replace(hbheprereco,hbhereco)
-muonReco = cms.Sequence(trackerlocalreco+muonlocalreco+lumiProducer)
-localReco = cms.Sequence(offlineBeamSpot*muonReco*caloReco*castorreco)
+muonReco = cms.Sequence(trackerlocalreco+MeasurementTrackerEventPreSplitting+siPixelClusterShapeCachePreSplitting+muonlocalreco)
+localReco = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloReco*castorreco)
 
 #hbherecoMB = hbheprerecoMB.clone()
 #hcalLocalRecoSequenceNZS.replace(hbheprerecoMB,hbherecoMB)
+
 caloRecoNZS = cms.Sequence(caloReco+hcalLocalRecoSequenceNZS)
-localReco_HcalNZS = cms.Sequence(offlineBeamSpot*muonReco*caloRecoNZS)
+localReco_HcalNZS = cms.Sequence(bunchSpacingProducer*offlineBeamSpot*muonReco*caloRecoNZS)
 
 #--------------------------------------------------------------------------
 # Main Sequence
-
-reconstruct_PbPb = cms.Sequence(localReco*globalRecoPbPb*CastorFullReco)
+reconstruct_PbPb = cms.Sequence(localReco*CastorFullReco*globalRecoPbPb)
 reconstructionHeavyIons = cms.Sequence(reconstruct_PbPb)
 
 reconstructionHeavyIons_HcalNZS = cms.Sequence(localReco_HcalNZS*globalRecoPbPb)
 
-reconstructionHeavyIons_withPF = cms.Sequence(reconstructionHeavyIons)
-reconstructionHeavyIons_HcalNZS_withPF = cms.Sequence(reconstructionHeavyIons_HcalNZS)
-
-reconstructionHeavyIons_withPF *= hiElectronSequence*HiParticleFlowReco
-reconstructionHeavyIons_HcalNZS_withPF *= hiElectronSequence*HiParticleFlowReco
-
-
-reconstructionHeavyIons_withRegitMu = cms.Sequence(reconstructionHeavyIons*reMuonRecoPbPb)
+reconstructionHeavyIons_withRegitMu = cms.Sequence(reconstructionHeavyIons*regionalMuonRecoPbPb)
 #--------------------------------------------------------------------------

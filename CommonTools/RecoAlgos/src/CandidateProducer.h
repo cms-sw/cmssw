@@ -14,7 +14,7 @@
  */
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Candidate/interface/CandidateFwd.h"
@@ -26,8 +26,8 @@ namespace converter {
   namespace helper {
     template<typename T>
     struct CandConverter { };
-    
-    struct ConcreteCreator { 
+
+    struct ConcreteCreator {
       template<typename CColl, typename Comp, typename Conv>
       static void create(size_t idx, CColl & cands, const Comp & components, Conv & converter) {
 	typename Conv::Candidate c;
@@ -37,8 +37,8 @@ namespace converter {
 	cands.push_back(c);
       }
     };
-    
-    struct PolymorphicCreator { 
+
+    struct PolymorphicCreator {
       template<typename CColl, typename Comp, typename Conv>
       static void create(size_t idx, CColl & cands, const Comp & components, Conv & converter) {
 	typename Conv::Candidate * c = new typename Conv::Candidate;
@@ -50,12 +50,12 @@ namespace converter {
     };
 
     template<typename CColl>
-    struct CandCreator { 
+    struct CandCreator {
       typedef ConcreteCreator type;
     };
 
     template<>
-    struct CandCreator<reco::CandidateCollection> { 
+    struct CandCreator<reco::CandidateCollection> {
       typedef PolymorphicCreator type;
     };
   }
@@ -65,19 +65,19 @@ template<typename TColl, typename CColl, typename Selector = AnySelector,
 	 typename Conv = typename converter::helper::CandConverter<typename TColl::value_type>::type,
 	 typename Creator = typename converter::helper::CandCreator<CColl>::type,
 	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type>
-class CandidateProducer : public edm::EDProducer {
+class CandidateProducer : public edm::stream::EDProducer<> {
 public:
   /// constructor from parameter set
   CandidateProducer(const edm::ParameterSet & cfg) :
-    src_(cfg.template getParameter<edm::InputTag>("src")), 
+    srcToken_(consumes<TColl>(cfg.template getParameter<edm::InputTag>("src"))),
     converter_(cfg),
-    selector_(reco::modules::make<Selector>(cfg)),
+    selector_(reco::modules::make<Selector>(cfg, consumesCollector())),
     initialized_(false) {
     produces<CColl>();
   }
   /// destructor
   ~CandidateProducer() { }
-  
+
 private:
   /// begin job (first run)
   void beginRun(const edm::Run&, const edm::EventSetup& es) override {
@@ -89,10 +89,10 @@ private:
   /// process one event
   void produce(edm::Event& evt, const edm::EventSetup& es) override {
     edm::Handle<TColl> src;
-    evt.getByLabel(src_, src);
+    evt.getByToken(srcToken_, src);
     Init::init(selector_, evt, es);
-    ::helper::MasterCollection<TColl> master(src);
-    std::auto_ptr<CColl> cands(new CColl);
+    ::helper::MasterCollection<TColl> master(src, evt);
+    std::unique_ptr<CColl> cands(new CColl);
     if(src->size()!= 0) {
       size_t size = src->size();
       cands->reserve(size);
@@ -101,10 +101,10 @@ private:
 	  Creator::create(master.index(idx), *cands, master, converter_);
       }
     }
-    evt.put(cands);
+    evt.put(std::move(cands));
   }
   /// label of source collection and tag
-  edm::InputTag src_;
+  edm::EDGetTokenT<TColl> srcToken_;
   /// converter helper
   Conv converter_;
   /// selector

@@ -2,9 +2,7 @@
 #define PixelTripletNoTipGenerator_H
 
 #include "RecoPixelVertexing/PixelTriplets/interface/HitTripletGeneratorFromPairAndLayers.h"
-#include "RecoTracker/TkHitPairs/interface/HitPairGenerator.h"
 #include "CombinedHitTripletGenerator.h"
-#include "RecoTracker/TkSeedingLayers/interface/SeedingLayer.h"
 
 namespace edm { class Event; class EventSetup; } 
 
@@ -15,23 +13,24 @@ namespace edm { class Event; class EventSetup; }
 class PixelTripletNoTipGenerator : public HitTripletGeneratorFromPairAndLayers {
 typedef CombinedHitTripletGenerator::LayerCacheType       LayerCacheType;
 public:
-  PixelTripletNoTipGenerator(const edm::ParameterSet& cfg);
+  PixelTripletNoTipGenerator(const edm::ParameterSet& cfg, edm::ConsumesCollector& iC);
 
-  virtual ~PixelTripletNoTipGenerator() { delete thePairGenerator; }
-
-  virtual void init( const HitPairGenerator & pairs,
-      const std::vector<ctfseeding::SeedingLayer> & layers, LayerCacheType* layerCache);
+  virtual ~PixelTripletNoTipGenerator();
 
   virtual void hitTriplets( const TrackingRegion& region, OrderedHitTriplets & trs,
-      const edm::Event & ev, const edm::EventSetup& es);
-
-  const HitPairGenerator & pairGenerator() const { return *thePairGenerator; }
-  const std::vector<ctfseeding::SeedingLayer> & thirdLayers() const { return theLayers; }
+                            const edm::Event & ev, const edm::EventSetup& es,
+                            const SeedingLayerSetsHits::SeedingLayerSet& pairLayers,
+                            const std::vector<SeedingLayerSetsHits::SeedingLayer>& thirdLayers) override;
+  void hitTriplets(
+		   const TrackingRegion& region, 
+		   OrderedHitTriplets & result,
+		   const edm::EventSetup & es,
+		   const HitDoublets & doublets,
+		   const RecHitsSortedInPhi ** thirdHitMap,
+		   const std::vector<const DetLayer *> & thirdLayerDetLayer,
+		   const int nThirdLayers)override;
 
 private:
-  HitPairGenerator * thePairGenerator;
-  std::vector<ctfseeding::SeedingLayer> theLayers;
-  LayerCacheType * theLayerCache;
   float extraHitRZtolerance;
   float extraHitRPhitolerance;
   float extraHitPhiToleranceForPreFiltering;

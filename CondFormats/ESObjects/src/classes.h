@@ -1,4 +1,3 @@
-
 #include <boost/cstdint.hpp>
 
 #include "CondFormats/ESObjects/interface/ESCondObjectContainer.h"
@@ -20,7 +19,7 @@
 #include "CondFormats/ESObjects/interface/ESRecHitRatioCuts.h"
 #include "CondFormats/ESObjects/interface/ESTimeSampleWeights.h"
 
-namespace{
+namespace CondFormats_ESObjects {
   struct dictionary {
 
     ESCondObjectContainer<ESPedestal> ESPedestalsMap;

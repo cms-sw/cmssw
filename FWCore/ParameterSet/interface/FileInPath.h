@@ -97,9 +97,6 @@ namespace edm
     /// Where was the file found?
     LocationCode location() const;
 
-    /// Was the file found under the "local" area?
-    bool isLocal() const;
-
     /// Return a string that can be used to open the referenced
     /// file. 
     ///

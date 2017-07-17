@@ -50,7 +50,7 @@ protected:
    virtual void modelChangesComing() {}
    virtual void modelChangesDone() {}
 
-   std::vector<boost::shared_ptr<FWGeometryTableViewBase> > m_views;
+   std::vector<std::shared_ptr<FWGeometryTableViewBase> > m_views;
 
 private:
    FWGeometryTableViewManager(const FWGeometryTableViewManager&); // stop default

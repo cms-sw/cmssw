@@ -26,7 +26,7 @@ class TBranch;
 class NUEvent;
 
 class ParticlePropagator;
-class RandomEngine;
+class RandomEngineAndDistribution;
 //class DaqMonitorBEInterface;
 //class MonitorElement;
 
@@ -35,19 +35,18 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
  public:
 
   /// Constructor
-  NuclearInteractionSimulator(std::vector<double>& pionEnergies,
-			      std::vector<int>& pionTypes,
-			      std::vector<std::string>& pionNames,
-			      std::vector<double>& pionMasses,
-			      std::vector<double>& pionPMin,
+  NuclearInteractionSimulator(std::vector<double>& hadronEnergies,
+			      std::vector<int>& hadronTypes,
+			      std::vector<std::string>& hadronNames,
+			      std::vector<double>& hadronMasses,
+			      std::vector<double>& hadronPMin,
 			      double pionEnergy,
 			      std::vector<double>& lengthRatio,
 			      std::vector< std::vector<double> >& ratios,
 			      std::map<int,int >& idMap,
 			      std::string inputFile,
 			      unsigned int distAlgo,
-			      double distCut,
-			      const RandomEngine* engine);
+			      double distCut);
 
   /// Default Destructor
   ~NuclearInteractionSimulator();
@@ -61,7 +60,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
  private:
 
   /// Generate a nuclear interaction according to the probability that it happens
-  void compute(ParticlePropagator& Particle);
+  void compute(ParticlePropagator& Particle, RandomEngineAndDistribution const*);
 
   /// Compute distance between secondary and primary
   double distanceToPrimary(const RawParticle& Particle,
@@ -79,7 +78,7 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
   std::vector<double> theLengthRatio;
   std::vector< std::vector<double> > theRatios;
 
-  std::vector< std::vector<TFile*> > theFiles;
+  TFile* theFile;
   std::vector< std::vector<TTree*> > theTrees;
   std::vector< std::vector<TBranch*> > theBranches;
   std::vector< std::vector<NUEvent*> > theNUEvents;
@@ -97,6 +96,8 @@ class NuclearInteractionSimulator : public MaterialEffectsSimulator
 
   std::ofstream myOutputFile;
   unsigned myOutputBuffer;
+
+  bool currentValuesWereSet;
 
   //  DaqMonitorBEInterface * dbe;
   //  MonitorElement* hAfter;

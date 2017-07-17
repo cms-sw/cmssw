@@ -1,10 +1,11 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
 #include <DataFormats/EcalDetId/interface/EBDetId.h>
@@ -27,7 +28,7 @@
 #include "FWCore/Utilities/interface/typelookup.h"  ///// added as a try for CaloTopology
 
 
-class EcalLaserCorrFilter : public edm::EDFilter {
+class EcalLaserCorrFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -36,10 +37,11 @@ class EcalLaserCorrFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-    
-    const edm::InputTag ebRHSrc_, eeRHSrc_;
-  
+    virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+
+    const edm::EDGetTokenT<EcalRecHitCollection> ebRHSrcToken_;
+    const edm::EDGetTokenT<EcalRecHitCollection> eeRHSrcToken_;
+
     // thresholds to laser corr to set kPoorCalib
     const double EBLaserMIN_, EELaserMIN_, EBLaserMAX_, EELaserMAX_, EBEnegyMIN_, EEEnegyMIN_;
     const bool   taggingMode_, debug_;
@@ -47,8 +49,8 @@ class EcalLaserCorrFilter : public edm::EDFilter {
 
 
 EcalLaserCorrFilter::EcalLaserCorrFilter(const edm::ParameterSet & iConfig)
-  : ebRHSrc_      (iConfig.getParameter<edm::InputTag>("EBRecHitSource"))
-  , eeRHSrc_      (iConfig.getParameter<edm::InputTag>("EERecHitSource"))
+  : ebRHSrcToken_      (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitSource")))
+  , eeRHSrcToken_      (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource")))
   , EBLaserMIN_   (iConfig.getParameter<double>("EBLaserMIN"))
   , EELaserMIN_   (iConfig.getParameter<double>("EELaserMIN"))
   , EBLaserMAX_   (iConfig.getParameter<double>("EBLaserMAX"))
@@ -62,17 +64,17 @@ EcalLaserCorrFilter::EcalLaserCorrFilter(const edm::ParameterSet & iConfig)
 }
 
 
-bool EcalLaserCorrFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool EcalLaserCorrFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
    using namespace edm;
    using namespace reco;
    using namespace std;
 
   edm::Handle<EcalRecHitCollection> ebRHs;
-  iEvent.getByLabel(ebRHSrc_, ebRHs);
+  iEvent.getByToken(ebRHSrcToken_, ebRHs);
 
   edm::Handle<EcalRecHitCollection> eeRHs;
-  iEvent.getByLabel(eeRHSrc_, eeRHs);
+  iEvent.getByToken(eeRHSrcToken_, eeRHs);
 
   // Laser corrections
   edm::ESHandle<EcalLaserDbService> laser;
@@ -98,11 +100,11 @@ bool EcalLaserCorrFilter::filter(edm::Event & iEvent, const edm::EventSetup & iS
     if( energy>EEEnegyMIN_ && (lasercalib < EELaserMIN_ || lasercalib > EELaserMAX_) ) {
       goodCalib = false;
       if(debug_) {
-	std::cout << "RecHit EE " 
+         edm::LogInfo("EcalLaserCorrFilter")
+          << "RecHit EE "
 		  << iEvent.id().run()<< ":" << iEvent.luminosityBlock() <<":"<<iEvent.id().event()
-		  << " lasercalib " << lasercalib << " rechit ene " << energy << " time " << time 
-		  << " ix, iy, z = " << jx << " " << jy  << " " << jz 
-		  << std::endl;
+		  << " lasercalib " << lasercalib << " rechit ene " << energy << " time " << time
+		  << " ix, iy, z = " << jx << " " << jy  << " " << jz;
       }
     }
 
@@ -127,21 +129,20 @@ bool EcalLaserCorrFilter::filter(edm::Event & iEvent, const edm::EventSetup & iS
     if (energy>EBEnegyMIN_ && (lasercalib < EBLaserMIN_ || lasercalib > EBLaserMAX_) ) {
       goodCalib = false;
       if(debug_) {
-	std::cout << "RecHit EB " 
+          edm::LogInfo("EcalLaserCorrFilter")
+          << "RecHit EB "
 		  << iEvent.id().run()<< ":" << iEvent.luminosityBlock() <<":"<<iEvent.id().event()
-		  << " lasercalib " << lasercalib << " rechit ene " << energy << " time " << time 
-		  << " eta, phi, z = " << etarec << " " << phirec  << " " << zrec
-		  << std::endl;
+		  << " lasercalib " << lasercalib << " rechit ene " << energy << " time " << time
+		  << " eta, phi, z = " << etarec << " " << phirec  << " " << zrec;
       }
     }
     //if (!goodCalib) break;
   }
 
-  
-  bool result = goodCalib;
-  //std::cout << " *********** Result ******** " << result << std::endl;
 
-  iEvent.put( std::auto_ptr<bool>(new bool(result)) );
+  bool result = goodCalib;
+
+  iEvent.put(std::make_unique<bool>(result));
 
   return taggingMode_ || result;
 

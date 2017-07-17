@@ -119,6 +119,8 @@
 // 26 wmtan 7/22/11 Fix clang compilation errors for LogDebug and LogTrace
 //                  by making MessageSender copyable, and holding
 //                  the ErrorObj in a shared pointer with a custom deleter.
+//
+// 27 mkortela 2/27/17 Add IfLogTrace and IfLogDebug
 // =================================================
 
 // system include files
@@ -505,6 +507,22 @@ public:
 #define LogDebug(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) ? edm::LogDebug_() : edm::LogDebug_(id, __FILE__, __LINE__)
 #define LogTrace(id) (edm::MessageDrop::debugAlwaysSuppressed || !edm::MessageDrop::instance()->debugEnabled) ? edm::LogTrace_() : edm::LogTrace_(id)
 #endif
+
+// change log 27
+//
+// These macros reduce the need to pollute the code with #ifdefs. The
+// idea is that the condition is checked only if debugging is enabled.
+// That way the condition expression may use variables that are
+// declared only if EDM_ML_DEBUG is enabled. If it is disabled, rely
+// on the fact that LogDebug/LogTrace should compile to no-op.
+#ifdef EDM_ML_DEBUG
+#define IfLogDebug(cond, cat) if(cond) LogDebug(cat)
+#define IfLogTrace(cond, cat) if(cond) LogTrace(cat)
+#else
+#define IfLogDebug(cond, cat) LogDebug(cat)
+#define IfLogTrace(cond, cat) LogTrace(cat)
+#endif
+
 
 #endif  // MessageLogger_MessageLogger_h
 

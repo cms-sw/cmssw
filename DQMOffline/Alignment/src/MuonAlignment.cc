@@ -16,10 +16,10 @@ MuonAlignment::MuonAlignment(const edm::ParameterSet& pSet) {
 
     parameters = pSet;
 
-    theMuonCollectionLabel = parameters.getParameter<edm::InputTag>("MuonCollection");
+    theMuonCollectionLabel = consumes<reco::TrackCollection>(parameters.getParameter<edm::InputTag>("MuonCollection"));
   
-    theRecHits4DTagDT = parameters.getParameter<edm::InputTag>("RecHits4DDTCollectionTag");
-    theRecHits4DTagCSC = parameters.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag");
+    theRecHits4DTagDT = consumes<DTRecSegment4DCollection>(parameters.getParameter<edm::InputTag>("RecHits4DDTCollectionTag"));
+    theRecHits4DTagCSC = consumes<CSCSegmentCollection>(parameters.getParameter<edm::InputTag>("RecHits4DCSCCollectionTag"));
   
     resLocalXRangeStation1 = parameters.getUntrackedParameter<double>("resLocalXRangeStation1");
     resLocalXRangeStation2 = parameters.getUntrackedParameter<double>("resLocalXRangeStation2");
@@ -238,16 +238,16 @@ void MuonAlignment::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
 
     // Get the RecoMuons collection from the event
     edm::Handle<reco::TrackCollection> muons;
-    iEvent.getByLabel(theMuonCollectionLabel, muons);
+    iEvent.getByToken(theMuonCollectionLabel, muons);
 
     // Get the 4D DTSegments
     edm::Handle<DTRecSegment4DCollection> all4DSegmentsDT;
-    iEvent.getByLabel(theRecHits4DTagDT, all4DSegmentsDT);
+    iEvent.getByToken(theRecHits4DTagDT, all4DSegmentsDT);
     DTRecSegment4DCollection::const_iterator segmentDT;
 
     // Get the 4D CSCSegments
     edm::Handle<CSCSegmentCollection> all4DSegmentsCSC;
-    iEvent.getByLabel(theRecHits4DTagCSC, all4DSegmentsCSC);
+    iEvent.getByToken(theRecHits4DTagCSC, all4DSegmentsCSC);
     CSCSegmentCollection::const_iterator segmentCSC;
   
     //Vectors used to perform the matching between Segments and hits from Track

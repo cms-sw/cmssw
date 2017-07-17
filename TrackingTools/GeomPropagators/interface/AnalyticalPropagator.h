@@ -20,10 +20,10 @@ class MagneticField;
  *  (currently: propagation to arbitrary plane).
  */
 
-class AnalyticalPropagator GCC11_FINAL : public Propagator {
+class AnalyticalPropagator final : public Propagator {
 
 public:
-
+  
   AnalyticalPropagator( const MagneticField* field,
 		        PropagationDirection dir = alongMomentum,
 			float maxDPhi = 1.6,bool isOld=true) :
@@ -34,6 +34,7 @@ public:
     isOldPropagationType(isOld) {}
 
   ~AnalyticalPropagator() {}
+
   //
   // use base class methods where necessary:
   // - propagation from TrajectoryStateOnSurface 
@@ -43,39 +44,30 @@ public:
   //
   using Propagator::propagate;
   using Propagator::propagateWithPath;
-
-  /// propagation to plane
-  TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                     const Plane& plane) const {
-    return propagateWithPath(fts,plane).first;
-  }
+  
+ private:
   /// propagation to plane with path length  
   std::pair<TrajectoryStateOnSurface,double> 
-  propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Plane& plane) const; 
+    propagateWithPath(const FreeTrajectoryState& fts, 
+		    const Plane& plane) const override; 
   
-  /// propagation to cylinder
-  TrajectoryStateOnSurface propagate(const FreeTrajectoryState& fts, 
-                                     const Cylinder& cylinder) const {
-    return propagateWithPath(fts,cylinder).first;
-  }
+
   /// propagation to cylinder with path length
   std::pair<TrajectoryStateOnSurface,double> 
   propagateWithPath(const FreeTrajectoryState& fts, 
-		    const Cylinder& cylinder) const;
+		    const Cylinder& cylinder) const override;
+
+
+ public:
   /** limitation of change in transverse direction
    *  (to avoid loops).
    */
-  virtual bool setMaxDirectionChange( float phiMax) { 
+  virtual bool setMaxDirectionChange( float phiMax) override { 
     theMaxDPhi2 = phiMax*phiMax;
     return true;
   }
   
-#ifndef CMS_NO_RELAXED_RETURN_TYPE
-  virtual AnalyticalPropagator * clone() const 
-#else
-    virtual Propagator * clone() const
-#endif
+  virtual AnalyticalPropagator * clone() const override
   {
     return new AnalyticalPropagator(*this);
   }
@@ -121,7 +113,7 @@ private:
   bool propagateWithHelixCrossing(HelixPlaneCrossing&, const Plane&, const float,
 				  GlobalPoint&, GlobalVector&, double& s) const dso_internal;
 
-  virtual const MagneticField* magneticField() const {return theField;}
+  virtual const MagneticField* magneticField() const override {return theField;}
 
 private:
   typedef std::pair<TrajectoryStateOnSurface,double> TsosWP;

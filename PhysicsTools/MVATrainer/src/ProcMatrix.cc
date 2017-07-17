@@ -55,8 +55,8 @@ class ProcMatrix : public TrainProcessor {
 
 	std::vector<Rank> ranking() const;
 
-	std::auto_ptr<LeastSquares>	lsSignal, lsBackground;
-	std::auto_ptr<LeastSquares>	ls;
+	std::unique_ptr<LeastSquares>	lsSignal, lsBackground;
+	std::unique_ptr<LeastSquares>	ls;
 	std::vector<double>		vars;
 	bool				fillSignal;
 	bool				fillBackground;

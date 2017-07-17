@@ -11,6 +11,13 @@
 #include <FWCore/Framework/interface/ESHandle.h>
 class TrajectoryStateClosestToBeamLineBuilder;
 
+
+ParametersDefinerForTP::ParametersDefinerForTP(const edm::ParameterSet& iConfig)
+  : beamSpotInputTag_ ( iConfig.getUntrackedParameter<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot")) )
+{
+}
+
+
 TrackingParticle::Vector
 ParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup& iSetup,
 	const Charge charge, const Point & vtx, const LorentzVector& lv) const {
@@ -22,7 +29,7 @@ ParametersDefinerForTP::momentum(const edm::Event& iEvent, const edm::EventSetup
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
   
   edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(InputTag("offlineBeamSpot"),bs);
+  iEvent.getByLabel(beamSpotInputTag_,bs);
 
   TrackingParticle::Vector momentum(0, 0, 0); 
 
@@ -49,7 +56,7 @@ TrackingParticle::Point ParametersDefinerForTP::vertex(const edm::Event& iEvent,
   iSetup.get<IdealMagneticFieldRecord>().get(theMF);
   
   edm::Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(InputTag("offlineBeamSpot"),bs);
+  iEvent.getByLabel(beamSpotInputTag_,bs);
 
   TrackingParticle::Point vertex(0, 0, 0);
   
@@ -62,7 +69,12 @@ TrackingParticle::Point ParametersDefinerForTP::vertex(const edm::Event& iEvent,
   TrajectoryStateClosestToBeamLine tsAtClosestApproach = tscblBuilder(ftsAtProduction,*bs);//as in TrackProducerAlgorithm
   if(tsAtClosestApproach.isValid()){
     GlobalPoint v = tsAtClosestApproach.trackStateAtPCA().position();
-    vertex = TrackingParticle::Point(v.x()-bs->x0(),v.y()-bs->y0(),v.z()-bs->z0());
+    vertex = TrackingParticle::Point(v.x(),v.y(),v.z());
+  }
+  else {
+    // to preserve old behaviour
+    // would be better to flag this somehow to allow ignoring in downstream
+    vertex = TrackingParticle::Point(bs->x0(), bs->y0(), bs->z0());
   }
   return vertex;
 }

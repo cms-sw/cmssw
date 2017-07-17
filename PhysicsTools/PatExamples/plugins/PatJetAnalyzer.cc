@@ -20,7 +20,7 @@
 /// maximal number of bins used for the jet
 /// response plots
 static const unsigned int MAXBIN=8;
-/// binning used for the jet response plots 
+/// binning used for the jet response plots
 /// (NOTE BINS must have a length of MAXBIN
 /// +1)
 static const float BINS[]={30., 40., 50., 60., 70., 80., 100., 125., 150.};
@@ -30,9 +30,9 @@ static const float BINS[]={30., 40., 50., 60., 70., 80., 100., 125., 150.};
 
    \brief   Module to analyze pat::Jets in the context of a more complex exercise.
 
-   Basic quantities of jets like the transverse momentum, eta and phi as well as the 
-   invariant dijet mass are plotted. Basic histograms for a jet energy response plot 
-   as a function of the pt of the reference object are filled. As reference matched 
+   Basic quantities of jets like the transverse momentum, eta and phi as well as the
+   invariant dijet mass are plotted. Basic histograms for a jet energy response plot
+   as a function of the pt of the reference object are filled. As reference matched
    partons are chosen. Input parameters are:
 
     - src       --> input for the pat jet collection (edm::InputTag).
@@ -47,7 +47,7 @@ public:
   explicit PatJetAnalyzer(const edm::ParameterSet& cfg);
   /// default destructor
   ~PatJetAnalyzer(){};
-  
+
 private:
   /// everything that needs to be done during the even loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
@@ -59,19 +59,19 @@ private:
   // print jet pt for each level of energy corrections
   void print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx);
 
-private:  
+private:
   /// correction level for pat jet
   std::string corrLevel_;
   /// pat jets
-  edm::InputTag jets_;
+  edm::EDGetTokenT<edm::View<pat::Jet> > jetsToken_;
   /// management of 1d histograms
-  std::map<std::string,TH1F*> hists_; 
+  std::map<std::string,TH1F*> hists_;
 };
 
 
 PatJetAnalyzer::PatJetAnalyzer(const edm::ParameterSet& cfg):
   corrLevel_(cfg.getParameter<std::string>("corrLevel")),
-  jets_(cfg.getParameter<edm::InputTag>("src"))
+  jetsToken_(consumes<edm::View<pat::Jet> >(cfg.getParameter<edm::InputTag>("src")))
 {
   // register TFileService
   edm::Service<TFileService> fs;
@@ -91,7 +91,7 @@ PatJetAnalyzer::PatJetAnalyzer(const edm::ParameterSet& cfg):
     char buffer [10]; sprintf (buffer, "jes_%i", idx);
     char title  [50]; sprintf (title , "p_{T}^{rec}/p_{T}^{gen} [%i GeV - %i GeV]", (int)BINS[idx], (int)BINS[idx+1]);
     hists_[buffer]=fs->make<TH1F>(buffer, title,  100, 0., 2.);
-  }  
+  }
 }
 
 void
@@ -99,7 +99,7 @@ PatJetAnalyzer::analyze(const edm::Event& event, const edm::EventSetup& setup)
 {
   // recieve jet collection label
   edm::Handle<edm::View<pat::Jet> > jets;
-  event.getByLabel(jets_,jets);
+  event.getByToken(jetsToken_,jets);
 
   // loop jets
   for(edm::View<pat::Jet>::const_iterator jet=jets->begin(); jet!=jets->end(); ++jet){
@@ -134,7 +134,7 @@ PatJetAnalyzer::print(edm::View<pat::Jet>::const_iterator& jet, unsigned int idx
   std::cout << "[" << idx << "] :: eta=" << std::setw(10) << jet->eta() << " phi=" << std::setw(10) << jet->phi() << " size: " << jet->availableJECLevels().size() << std::endl;
   for(unsigned int idx=0; idx<jet->availableJECLevels().size(); ++idx){
     pat::Jet correctedJet;
-    if(jet->availableJECLevels()[idx].find("L5Flavor")!=std::string::npos|| 
+    if(jet->availableJECLevels()[idx].find("L5Flavor")!=std::string::npos||
        jet->availableJECLevels()[idx].find("L7Parton")!=std::string::npos ){
       correctedJet=jet->correctedJet(idx, pat::JetCorrFactors::UDS);
     }

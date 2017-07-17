@@ -40,7 +40,7 @@
 namespace edm {
    namespace serviceregistry {
 
-      ServicesManager::MakerHolder::MakerHolder(boost::shared_ptr<ServiceMakerBase> iMaker,
+      ServicesManager::MakerHolder::MakerHolder(std::shared_ptr<ServiceMakerBase> iMaker,
                                                 ParameterSet& iPSet,
                                                 ActivityRegistry& iRegistry) :
       maker_(iMaker),
@@ -78,7 +78,7 @@ namespace edm {
                                        ServiceLegacy iLegacy,
                                        std::vector<ParameterSet>& iConfiguration,
                                        bool associate) :
-            associatedManager_(associate ? iToken.manager_ : boost::shared_ptr<ServicesManager>()),
+            associatedManager_(associate ? iToken.manager_ : std::shared_ptr<ServicesManager>()),
             type2Maker_(new Type2Maker) {
          fillListOfMakers(iConfiguration);
 
@@ -237,7 +237,7 @@ namespace edm {
               itParamEnd = iConfiguration.end();
               itParam != itParamEnd;
               ++itParam) {
-            boost::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
+            std::shared_ptr<ServiceMakerBase> base(ServicePluginFactory::get()->create(itParam->getParameter<std::string>("@service_type")));
 
             if(0 == base.get()) {
                throw Exception(errors::Configuration, "Service")
@@ -268,10 +268,43 @@ namespace edm {
       }
 
       void
+      ServicesManager::createServiceFor(MakerHolder const& iMaker) {
+         std::string serviceType = iMaker.pset_->getParameter<std::string>("@service_type");
+         std::unique_ptr<ParameterSetDescriptionFillerBase> filler(
+                                                                   ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
+         ConfigurationDescriptions descriptions(filler->baseType());
+         filler->fill(descriptions);
+         
+         try {
+            convertException::wrap([&]() {
+               descriptions.validate(*(iMaker.pset_), serviceType);
+            });
+         }
+         catch (cms::Exception & iException) {
+            std::ostringstream ost;
+            ost << "Validating configuration of service of type " << serviceType;
+            iException.addContext(ost.str());
+            throw;
+         }
+         try {
+            convertException::wrap([&]() {
+               // This creates the service
+               iMaker.add(*this);
+            });
+         }
+         catch (cms::Exception & iException) {
+            std::ostringstream ost;
+            ost << "Constructing service of type " << serviceType;
+            iException.addContext(ost.str());
+            throw;
+         }
+      }
+     
+      void
       ServicesManager::createServices() {
 
          //create a shared_ptr of 'this' that will not delete us
-         boost::shared_ptr<ServicesManager> shareThis(this, NoOp());
+         std::shared_ptr<ServicesManager> shareThis(this, NoOp());
 
          ServiceToken token(shareThis);
 
@@ -291,52 +324,11 @@ namespace edm {
            // Check to make sure this maker is still there.  They are deleted
            // sometimes and that is OK.
            if(itMaker != type2Maker_->end()) {
-
-             std::string serviceType = itMaker->second.pset_->getParameter<std::string>("@service_type");
-             std::auto_ptr<ParameterSetDescriptionFillerBase> filler(
-               ParameterSetDescriptionFillerPluginFactory::get()->create(serviceType));
-             ConfigurationDescriptions descriptions(filler->baseType());
-             filler->fill(descriptions);
-
-             try {
-               try {
-                 descriptions.validate(*(itMaker->second.pset_), serviceType);
-               }
-               catch (cms::Exception& e) { throw; }
-               catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-               catch (std::exception& e) { convertException::stdToEDM(e); }
-               catch(std::string& s) { convertException::stringToEDM(s); }
-               catch(char const* c) { convertException::charPtrToEDM(c); }
-               catch (...) { convertException::unknownToEDM(); }
-             }
-             catch (cms::Exception & iException) {
-               std::ostringstream ost;
-               ost << "Validating configuration of service of type " << serviceType;
-               iException.addContext(ost.str());
-               throw;
-             }
-             try {
-               try {
-                 // This creates the service
-                 itMaker->second.add(*this);
-               }
-               catch (cms::Exception& e) { throw; }
-               catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-               catch (std::exception& e) { convertException::stdToEDM(e); }
-               catch(std::string& s) { convertException::stringToEDM(s); }
-               catch(char const* c) { convertException::charPtrToEDM(c); }
-               catch (...) { convertException::unknownToEDM(); }
-             }
-             catch (cms::Exception & iException) {
-               std::ostringstream ost;
-               ost << "Constructing service of type " << serviceType;
-               iException.addContext(ost.str());
-               throw;
-             }
+              createServiceFor(itMaker->second);
            }
          }
          //No longer need the makers
-         type2Maker_.reset();
+         type2Maker_ = nullptr; // propagate_const<T> has no reset() function
       }
       //
       // const member functions

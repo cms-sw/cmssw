@@ -8,7 +8,7 @@
 ##   - edit the NavigationSchoolAnalyzer cfg.py to select which navigation school to print
 ##   - run the cfg.py for the NavigationSchoolAnalyzer
 ##   - perl -w navigationSchoolCharter.pl detailedInfo.log > yourSchool.dot
-##   - graphviz -Tpng -o yourSchool.png < yourSchool.dot
+##   - dot -Tpng -o yourSchool.png yourSchool.dot
 ##
 ## Output:
 ##   - red lines are 'inside-out' only (red = hot = bang = proton-proton collisions = in-out)

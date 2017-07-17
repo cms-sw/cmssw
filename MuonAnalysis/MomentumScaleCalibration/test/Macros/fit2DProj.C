@@ -15,7 +15,6 @@
 #include <cmath>
 #include <iomanip>
 
-using namespace std;
 
 /**
  * Small function to simplify the creation of text in the TPaveText. <br>
@@ -23,26 +22,26 @@ using namespace std;
  */
 TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0)
 {
-  // cout << "text = " << text << ", num1 = " << num1 << ", divider = " << divider << ", num2 = " << num2 << endl;
+  // std::cout << "text = " << text << ", num1 = " << num1 << ", divider = " << divider << ", num2 = " << num2 << std::endl;
 
   // Counter gives the precision
   int precision = 1;
   int k=1;
   while( int(num2*k) == 0 ) {
-    // cout << "int(num2*"<<k<<")/int("<<k<<") = " << int(num2*k)/int(k) << endl;
+    // std::cout << "int(num2*"<<k<<")/int("<<k<<") = " << int(num2*k)/int(k) << std::endl;
     k*=10;
     ++precision;
   }
 
-  stringstream numString;
+  std::stringstream numString;
   TString textString(text);
-  numString << setprecision(precision) << fixed << num1;
+  numString << std::setprecision(precision) << std::fixed << num1;
   textString += numString.str();
   if( num2 != 0 ) {
     textString += divider;
     numString.str("");
-    if( string(text).find("ndf") != string::npos ) precision = 0;
-    numString << setprecision(precision) << fixed << num2;
+    if( std::string(text).find("ndf") != std::string::npos ) precision = 0;
+    numString << std::setprecision(precision) << std::fixed << num2;
     textString += numString.str();
   }
   return textString;
@@ -113,15 +112,15 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
   //Declare some variables
   TH1 * histoY;
   TString nameY;
-  vector<double> Ftop;
-  vector<double> Fwidth;
-  vector<double> Fmass;
-  vector<double> Etop;
-  vector<double> Ewidth;
-  vector<double> Emass;
-  vector<double> Fchi2;
-  vector<double> Xcenter;
-  vector<double> Ex;
+  std::vector<double> Ftop;
+  std::vector<double> Fwidth;
+  std::vector<double> Fmass;
+  std::vector<double> Etop;
+  std::vector<double> Ewidth;
+  std::vector<double> Emass;
+  std::vector<double> Fchi2;
+  std::vector<double> Xcenter;
+  std::vector<double> Ex;
 
   TString fileOutName("fitCompare2"+name);
   fileOutName += append;
@@ -131,16 +130,16 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
   for (int i=1; i<=(histo->GetXaxis()->GetNbins());i++) {
 
     //Project on Y (set name and title)
-    stringstream number;
+    std::stringstream number;
     number << i;
     TString numberString(number.str());
     nameY = name + "_" + numberString;
-    // cout << "nameY  " << nameY << endl;
+    // std::cout << "nameY  " << nameY << std::endl;
 
     histoY = histo->ProjectionY(nameY, i, i);
 
     double xBin = histo->GetXaxis()->GetBinCenter(i);
-    stringstream xBinString;
+    std::stringstream xBinString;
     xBinString << xBin;
     TString title("Projection of x = ");
     title += xBinString.str();
@@ -151,12 +150,12 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
 
       //Make the dirty work!
       TF1 *fit;
-      cout << "fitType = " << fitType << endl;
+      std::cout << "fitType = " << fitType << std::endl;
       if(fitType == 1) fit = gaussianFit(histoY, resonanceType);
       else if(fitType == 2) fit = lorentzianFit(histoY, resonanceType);
       else if(fitType == 3) fit = linLorentzianFit(histoY);
       else {
-	cout<<"Wrong fit type: 1=gaussian, 2=lorentzian, 3=lorentzian+linear."<<endl;
+	std::cout<<"Wrong fit type: 1=gaussian, 2=lorentzian, 3=lorentzian+linear."<<std::endl;
 	abort();
       }
 
@@ -194,7 +193,7 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
       }
       else {
         // Skip nan
-        cout << "Skipping nan" << endl;
+        std::cout << "Skipping nan" << std::endl;
         Ftop.push_back(0);
         Fwidth.push_back(0);
         Fmass.push_back(0);
@@ -217,21 +216,21 @@ TGraphErrors* fit2DProj(TString name, TString path, int minEntries, int rebinX, 
   double x[nn],ym[nn],e[nn],eym[nn];
   double yw[nn],eyw[nn],yc[nn];
 
-  // cout << "number of bins = " << nn << endl;
-  // cout << "Values:" << endl;
+  // std::cout << "number of bins = " << nn << std::endl;
+  // std::cout << "Values:" << std::endl;
 
   for (int j=0;j<nn;j++){
-    // cout << "xCenter["<<j<<"] = " << Xcenter[j] << endl;
+    // std::cout << "xCenter["<<j<<"] = " << Xcenter[j] << std::endl;
     x[j]=Xcenter[j]+xDisplace;
-    // cout << "Fmass["<<j<<"] = " << Fmass[j] << endl;
+    // std::cout << "Fmass["<<j<<"] = " << Fmass[j] << std::endl;
     ym[j]=Fmass[j];
-    // cout << "Emass["<<j<<"] = " << Emass[j] << endl;
+    // std::cout << "Emass["<<j<<"] = " << Emass[j] << std::endl;
     eym[j]=Emass[j];
-    // cout << "Fwidth["<<j<<"] = " << Fwidth[j] << endl;
+    // std::cout << "Fwidth["<<j<<"] = " << Fwidth[j] << std::endl;
     yw[j]=Fwidth[j];
-    // cout << "Ewidth["<<j<<"] = " << Ewidth[j] << endl;
+    // std::cout << "Ewidth["<<j<<"] = " << Ewidth[j] << std::endl;
     eyw[j]=Ewidth[j];
-    // cout << "Fchi2["<<j<<"] = " << Fchi2[j] << endl;
+    // std::cout << "Fchi2["<<j<<"] = " << Fchi2[j] << std::endl;
     yc[j]=Fchi2[j];
     e[j]=0;
   }
@@ -425,7 +424,7 @@ void macroPlot( TString name, TString nameGen, const TString & nameFile1, const 
   
   /*****************PARABOLIC FIT (ETA)********************/
   if( name.Contains("Eta") ) {
-    cout << "Fitting eta" << endl;
+    std::cout << "Fitting eta" << std::endl;
     TF1 *fit1 = new TF1("fit1",onlyParabolic,-3.2,3.2,2);
     fit1->SetLineWidth(2);
     fit1->SetLineColor(1);
@@ -450,7 +449,7 @@ void macroPlot( TString name, TString nameGen, const TString & nameFile1, const 
   }
   /*****************SINUSOIDAL FIT (PHI)********************/
 //   if( name.Contains("Phi") ) {
-//     cout << "Fitting phi" << endl;
+//     std::cout << "Fitting phi" << std::endl;
 //     TF1 *fit1 = new TF1("fit1",sinusoidal,-3.2,3.2,3);
 //     fit1->SetParameters(9.45,1,1);
 //     fit1->SetParNames("offset","amplitude","phase");
@@ -482,7 +481,7 @@ void macroPlot( TString name, TString nameGen, const TString & nameFile1, const 
 //   }
   /*****************************************/ 
   if( name.Contains("Pt") ) {
-    cout << "Fitting pt" << endl;
+    std::cout << "Fitting pt" << std::endl;
     // TF1 * fit1 = new TF1("fit1", linear, 0., 150., 2);
     TF1 * fit1 = new TF1("fit1", "[0]", 0., 150.);
     fit1->SetParameters(0., 1.);

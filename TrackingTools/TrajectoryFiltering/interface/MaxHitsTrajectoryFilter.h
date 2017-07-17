@@ -3,15 +3,14 @@
 
 #include "TrackingTools/TrajectoryFiltering/interface/TrajectoryFilter.h"
 
-class MaxHitsTrajectoryFilter : public TrajectoryFilter {
+class MaxHitsTrajectoryFilter final : public TrajectoryFilter {
 public:
 
-  explicit MaxHitsTrajectoryFilter( int maxHits=-1): theMaxHits( maxHits) {}
+  explicit MaxHitsTrajectoryFilter( int maxHits=10000): theMaxHits( maxHits) {}
     
-  explicit MaxHitsTrajectoryFilter(const edm::ParameterSet & pset):
-    theMaxHits( pset.getParameter<int>("maxNumberOfHits")) {}
+  explicit MaxHitsTrajectoryFilter(const edm::ParameterSet & pset, edm::ConsumesCollector& iC):
+    theMaxHits( pset.getParameter<int>("maxNumberOfHits")) {if (theMaxHits<0) theMaxHits=10000;  }
 
-  
   virtual bool qualityFilter( const Trajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
   virtual bool qualityFilter( const TempTrajectory& traj) const { return TrajectoryFilter::qualityFilterIfNotContributing; }
 
@@ -22,12 +21,13 @@ public:
 
  protected:
 
-  template<class T> bool TBC(const T & traj) const{
-    if ( (traj.foundHits() < theMaxHits) || theMaxHits<0) return true;
-    else return false;
+  template<class T> bool TBC(T & traj) const{
+    bool ret = traj.foundHits() < theMaxHits ;
+    if (!ret) traj.setStopReason(StopReason::MAX_HITS);
+    return ret;
   }
 
-  float theMaxHits;
+  int theMaxHits;
 
 };
 

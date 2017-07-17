@@ -73,3 +73,7 @@
 <library   file="stubs/CSCReadChamberTimeCorrectionsAnalyzer.cc" name="CSCReadChamberTimeCorrectionsAnalyzer">
   <flags   EDM_PLUGIN="1"/>
 </library>
+
+<bin file="testSerializationCSCObjects.cpp">
+    <use   name="CondFormats/External"/>
+</bin>

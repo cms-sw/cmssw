@@ -13,3 +13,10 @@ MonitorTrackGLBMuons.doAllPlots = False
 MonitorTrackGLBMuons.doGeneralPropertiesPlots = True
 MonitorTrackGLBMuons.doHitPropertiesPlots = True
 MonitorTrackGLBMuons.doTrackerSpecific = True
+MonitorTrackGLBMuons.doDCAPlots = True
+MonitorTrackGLBMuons.doDCAwrtPVPlots = True
+MonitorTrackGLBMuons.doDCAwrt000Plots = False
+MonitorTrackGLBMuons.doSIPPlots  = True
+MonitorTrackGLBMuons.doEffFromHitPatternVsPU = False
+MonitorTrackGLBMuons.doEffFromHitPatternVsBX = False
+

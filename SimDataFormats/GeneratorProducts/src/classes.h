@@ -15,10 +15,11 @@
 #include "SimDataFormats/GeneratorProducts/interface/GenRunInfoProduct.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenFilterInfo.h"
 #include "SimDataFormats/GeneratorProducts/interface/GenEventInfoProduct.h"
-
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoProduct.h"
+#include "SimDataFormats/GeneratorProducts/interface/GenLumiInfoHeader.h"
 #include <HepMC/GenRanges.h>
 
-namespace {
+namespace SimDataFormats_GeneratorProducts {
 	struct dictionary {
 		// HepMC externals used in HepMCProduct
 
@@ -33,6 +34,8 @@ namespace {
 		std::map<int, HepMC::GenParticle*> m_particle_barcodes;
 		std::pair<const int, HepMC::GenVertex*> prgv1;
 		std::pair<const int, HepMC::GenParticle*> prgp1;
+		std::pair<int, HepMC::GenVertex*> prgv1_nc;
+		std::pair<int, HepMC::GenParticle*> prgp1_nc;
 		std::map<int, HepMC::GenVertex*, std::greater<int> > dummy777;
 		std::vector<HepMC::GenParticle*> m_particles_out;
 		std::vector<HepMC::GenParticle*> m_particles_in;
@@ -55,10 +58,13 @@ namespace {
 		edm::Wrapper<GenRunInfoProduct> wgenruninfo;
 		edm::Wrapper<GenFilterInfo> wgenfilterinfo;
 		edm::Wrapper<GenEventInfoProduct> wgeneventinfo;
-
+		edm::Wrapper<GenLumiInfoProduct> wgenlumiinfo;
+                edm::Wrapper<GenLumiInfoHeader> wgenlumiinfoh;
 		// LHE products
 
 		edm::Wrapper<LHERunInfoProduct>	wcommon;
+	        gen::WeightsInfo wwgtinfo;
+	        std::vector<gen::WeightsInfo> wvwgtinfo;
 		edm::Wrapper<LHEEventProduct>	wevent;
                 edm::Wrapper<LHEXMLStringProduct> wstring;
 	};

@@ -25,13 +25,13 @@ class RunLaserRunDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const RunLaserRunDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunLaserRunDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
   std::string m_laserSeqType;

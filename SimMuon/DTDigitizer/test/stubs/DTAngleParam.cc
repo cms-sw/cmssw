@@ -90,10 +90,10 @@ float DTAngleParam::time(float bwire, float xcoor) const {
 }
 
 
-int   DTAngleParam::table_num_terms[19] = { 
+const int   DTAngleParam::table_num_terms[19] = { 
       7,7,6,7,8,7,5,6,5,7,4,2,7,8,6,6,6,8,7 };
 
-int   DTAngleParam::table_pow_field[190] = {
+const int   DTAngleParam::table_pow_field[190] = {
       0, 0, 0, 0, 1, 1, 1,-1,-1,-1,
       0, 0, 0, 0, 1, 1, 1,-1,-1,-1,
       0, 0, 0, 0, 2, 2,-1,-1,-1,-1,
@@ -115,7 +115,7 @@ int   DTAngleParam::table_pow_field[190] = {
       0, 0, 0, 0, 1, 1, 1,-1,-1,-1 };
 
 
-int   DTAngleParam::table_pow_xcoor[190] = {
+const int   DTAngleParam::table_pow_xcoor[190] = {
       0, 1, 3, 2, 0, 1, 2,-1,-1,-1,
       0, 1, 3, 2, 0, 1, 2,-1,-1,-1,
       0, 1, 3, 2, 0, 1,-1,-1,-1,-1,
@@ -137,7 +137,7 @@ int   DTAngleParam::table_pow_xcoor[190] = {
       0, 1, 3, 2, 0, 1, 2,-1,-1,-1 };
 
 
-float DTAngleParam::table_offsc[19] = {
+const float DTAngleParam::table_offsc[19] = {
       -1.6341677E-03,
       -1.9150710E-03,
       -1.9032805E-03,
@@ -159,7 +159,7 @@ float DTAngleParam::table_offsc[19] = {
       -1.6865443E-03 };
       
 
-float DTAngleParam::table_coeff[190] = {
+const float DTAngleParam::table_coeff[190] = {
       0.32362    ,-0.10029    , 0.33372E-01,-0.97290E-01, 0.14761,
      -0.15878    , 0.43523E-01, 0          , 0          , 0,
 

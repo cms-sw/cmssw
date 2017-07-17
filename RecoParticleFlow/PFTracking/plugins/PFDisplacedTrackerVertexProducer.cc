@@ -1,7 +1,6 @@
 #include <memory>
 #include "RecoParticleFlow/PFTracking/plugins/PFDisplacedTrackerVertexProducer.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
-#include "DataFormats/ParticleFlowReco/interface/PFDisplacedTrackerVertex.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
@@ -14,11 +13,11 @@ PFDisplacedTrackerVertexProducer::PFDisplacedTrackerVertexProducer(const Paramet
   produces<reco::PFRecTrackCollection>();
   produces<reco::PFDisplacedTrackerVertexCollection>();
 
-  pfDisplacedVertexContainer_ = 
-    iConfig.getParameter< InputTag >("displacedTrackerVertexColl");
+  pfDisplacedVertexContainer_ = consumes<reco::PFDisplacedVertexCollection>(									    iConfig.getParameter< InputTag >("displacedTrackerVertexColl"));
 
-  pfTrackContainer_ =
-    iConfig.getParameter< InputTag >("trackColl");
+
+  pfTrackContainer_ =consumes<reco::TrackCollection>(
+    iConfig.getParameter< InputTag >("trackColl"));
 
 }
 
@@ -32,21 +31,19 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
 {
 
   //create the empty collections 
-  auto_ptr< reco::PFDisplacedTrackerVertexCollection > 
-    pfDisplacedTrackerVertexColl (new reco::PFDisplacedTrackerVertexCollection);
-  auto_ptr< reco::PFRecTrackCollection > 
-    pfRecTrackColl (new reco::PFRecTrackCollection);
+  auto pfDisplacedTrackerVertexColl = std::make_unique<reco::PFDisplacedTrackerVertexCollection>();
+  auto pfRecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
   
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
 
 
     
   Handle<reco::PFDisplacedVertexCollection> nuclCollH;
-  iEvent.getByLabel(pfDisplacedVertexContainer_, nuclCollH);
+  iEvent.getByToken(pfDisplacedVertexContainer_, nuclCollH);
   const reco::PFDisplacedVertexCollection& nuclColl = *(nuclCollH.product());
 
   Handle<reco::TrackCollection> trackColl;
-  iEvent.getByLabel(pfTrackContainer_, trackColl);
+  iEvent.getByToken(pfTrackContainer_, trackColl);
 
   int idx = 0;
 
@@ -92,8 +89,8 @@ PFDisplacedTrackerVertexProducer::produce(Event& iEvent, const EventSetup& iSetu
     pfDisplacedTrackerVertexColl->push_back( reco::PFDisplacedTrackerVertex( niRef, pfRecTkcoll ));
   }
  
-  iEvent.put(pfRecTrackColl);
-  iEvent.put(pfDisplacedTrackerVertexColl);
+  iEvent.put(std::move(pfRecTrackColl));
+  iEvent.put(std::move(pfDisplacedTrackerVertexColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

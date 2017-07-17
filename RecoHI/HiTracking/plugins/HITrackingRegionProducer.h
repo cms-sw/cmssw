@@ -2,6 +2,7 @@
 #define RecoHI_HiTracking_HITrackingRegionProducer_H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/GlobalTrackingRegion.h"
@@ -20,7 +21,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
   
  public:
   
-  HITrackingRegionProducer(const edm::ParameterSet& cfg) { 
+  HITrackingRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) { 
     
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
     
@@ -34,7 +35,8 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
     double zDir         = regionPSet.getParameter<double>("directionZCoord");
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
-    theSiPixelRecHits   = regionPSet.getParameter<std::string>("siPixelRecHits");
+    theSiPixelRecHits   = regionPSet.getParameter<edm::InputTag>("siPixelRecHits");
+    theSiPixelRecHitsToken = iC.consumes<SiPixelRecHitCollection> (theSiPixelRecHits);
     theOrigin = GlobalPoint(xPos,yPos,zPos);
     theDirection = GlobalVector(xDir, yDir, zDir);
   }   
@@ -46,7 +48,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
   {
     //rechits
     edm::Handle<SiPixelRecHitCollection> recHitColl;
-    ev.getByLabel(theSiPixelRecHits, recHitColl);
+    ev.getByToken(theSiPixelRecHitsToken, recHitColl);
     
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopo;
@@ -70,7 +72,7 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     return numRecHits;
   }
   
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, const edm::EventSetup& es) const {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     int estMult = estimateMultiplicity(ev, es);
     
@@ -100,20 +102,21 @@ class HITrackingRegionProducer : public TrackingRegionProducer {
     }
     
     // tracking region selection
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
     if(estTracks>regTracking) {  // regional tracking
-      result.push_back( new RectangularEtaPhiTrackingRegion(theDirection, theOrigin, thePtMin, theOriginRadius, theOriginHalfLength, etaB, phiB, 0, thePrecise) );
+      result.push_back( std::make_unique<RectangularEtaPhiTrackingRegion>(theDirection, theOrigin, thePtMin, theOriginRadius, theOriginHalfLength, etaB, phiB, RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever, thePrecise) );
     }
     else {                       // global tracking
       LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
-      result.push_back( new GlobalTrackingRegion(thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
+      result.push_back( std::make_unique<GlobalTrackingRegion>(thePtMin, theOrigin, theOriginRadius, theOriginHalfLength, thePrecise) );
     }
     return 
       result;
   }
   
  private:
-  std::string theSiPixelRecHits;
+  edm::InputTag theSiPixelRecHits;
+  edm::EDGetTokenT<SiPixelRecHitCollection> theSiPixelRecHitsToken;
   double thePtMin; 
   GlobalPoint theOrigin;
   double theOriginRadius; 

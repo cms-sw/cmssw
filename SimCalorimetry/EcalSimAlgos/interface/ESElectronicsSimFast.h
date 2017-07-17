@@ -10,7 +10,8 @@
 #include <vector>
 
 namespace CLHEP {
-   class RandGaussQ ; } 
+  class HepRandomEngine;
+}
 
 class ESElectronicsSimFast
 {
@@ -21,7 +22,7 @@ class ESElectronicsSimFast
       enum { MAXADC = 4095,
 	     MINADC =    0 } ;
   
-      ESElectronicsSimFast( bool addNoise ) ;
+      ESElectronicsSimFast( bool addNoise , bool PreMix1) ;
       ~ESElectronicsSimFast() ;
 
       void setPedestals( const ESPedestals* peds ) ;
@@ -30,24 +31,26 @@ class ESElectronicsSimFast
 
       void setMIPToGeV( double MIPToGeV ) ;
 
-      void analogToDigital( ESSamples&   cs , 
+      void analogToDigital( CLHEP::HepRandomEngine*,
+                            ESSamples&   cs ,
 			    ESDataFrame& df ,
 			    bool         isNoise = false ) const ;
 
       void newEvent() {}
 
+
+
    private :
 
       bool m_addNoise ;
+
+      bool m_PreMix1;
 
       double m_MIPToGeV ;
 
       const ESPedestals* m_peds ;
 
       const ESIntercalibConstants* m_mips ;
-
-      CLHEP::RandGaussQ* m_ranGau ;
 } ;
-
 
 #endif

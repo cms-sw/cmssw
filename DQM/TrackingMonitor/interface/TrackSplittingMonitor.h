@@ -21,6 +21,8 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHitBuilder.h"
 
 #include "Geometry/DTGeometry/interface/DTGeometry.h"
@@ -29,8 +31,9 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+
+
 class DQMStore;
-class TrackAnalyzer;
 class TProfile;
 
 #include "DataFormats/MuonReco/interface/Muon.h"
@@ -38,14 +41,13 @@ class TProfile;
 
 
 
-class TrackSplittingMonitor : public edm::EDAnalyzer {
+class TrackSplittingMonitor : public DQMEDAnalyzer {
 public:
 	explicit TrackSplittingMonitor(const edm::ParameterSet&);
 	~TrackSplittingMonitor();
-	virtual void beginJob(void);
-	virtual void endJob(void);
 	
-	virtual void analyze(const edm::Event&, const edm::EventSetup&);
+	virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+	void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 	
 private:
 	void doProfileX(TH2 * th2, MonitorElement* me);

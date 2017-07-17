@@ -22,11 +22,11 @@ public:
   explicit ConstrainedFitCandProducer(const edm::ParameterSet &);
 
 private:
-  edm::InputTag src_;
+  edm::EDGetTokenT<InputCollection> srcToken_;
   bool setLongLived_;
   bool setMassConstraint_;
   bool setPdgId_;
-  int pdgId_;  
+  int pdgId_;
   Fitter fitter_;
   void produce(edm::Event &, const edm::EventSetup &);
 };
@@ -42,7 +42,7 @@ private:
 
 template<typename Fitter, typename InputCollection, typename OutputCollection, typename Init>
 ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::ConstrainedFitCandProducer(const edm::ParameterSet & cfg) :
-  src_(cfg.template getParameter<edm::InputTag>("src")),
+  srcToken_(consumes<InputCollection>(cfg.template getParameter<edm::InputTag>("src"))),
   setLongLived_(false), setMassConstraint_(false), setPdgId_(false),
   fitter_(reco::modules::make<Fitter>(cfg)) {
   produces<OutputCollection>();
@@ -64,17 +64,17 @@ namespace reco {
   namespace fitHelper {
     template<typename C>
     struct Adder {
-      static void add(std::auto_ptr<C> & c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(*t); }
+      static void add(C* c, std::unique_ptr<reco::VertexCompositeCandidate> t) { c->push_back(*t); }
     };
 
     template<typename T>
     struct Adder<edm::OwnVector<T> > {
-      static void add(std::auto_ptr<edm::OwnVector<T> > & c, std::auto_ptr<reco::VertexCompositeCandidate> t) { c->push_back(t); }
+      static void add(edm::OwnVector<T>* c, std::unique_ptr<reco::VertexCompositeCandidate> t) { c->push_back(std::move(t)); }
     };
 
     template<typename C>
-      inline void add(std::auto_ptr<C> & c, std::auto_ptr<reco::VertexCompositeCandidate> t) {
-      Adder<C>::add(c, t);
+      inline void add(C* c, std::unique_ptr<reco::VertexCompositeCandidate> t) {
+      Adder<C>::add(c, std::move(t));
     }
   }
 }
@@ -83,18 +83,18 @@ template<typename Fitter, typename InputCollection, typename OutputCollection, t
 void ConstrainedFitCandProducer<Fitter, InputCollection, OutputCollection, Init>::produce(edm::Event & evt, const edm::EventSetup & es) {
   Init::init(fitter_, evt, es);
   edm::Handle<InputCollection> cands;
-  evt.getByLabel(src_, cands);
-  std::auto_ptr<OutputCollection> fitted(new OutputCollection);
+  evt.getByToken(srcToken_, cands);
+  auto fitted = std::make_unique<OutputCollection>();
   fitted->reserve(cands->size());
   for(typename InputCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c) {
-    std::auto_ptr<reco::VertexCompositeCandidate> clone(new reco::VertexCompositeCandidate(*c));
+    auto clone = std::make_unique<reco::VertexCompositeCandidate>(*c);
     fitter_.set(*clone);
     if(setLongLived_) clone->setLongLived();
     if(setMassConstraint_) clone->setMassConstraint();
     if(setPdgId_) clone->setPdgId(pdgId_);
-    reco::fitHelper::add(fitted, clone);
+    reco::fitHelper::add(fitted.get(), std::move(clone));
   }
-  evt.put(fitted);
+  evt.put(std::move(fitted));
 }
 
 #endif

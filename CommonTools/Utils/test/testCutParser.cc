@@ -8,7 +8,32 @@
 #include "FWCore/Utilities/interface/ObjectWithDict.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
 #include <typeinfo>
-#include "Cintex/Cintex.h"
+
+
+
+#include "DataFormats/GeometrySurface/interface/Surface.h" 
+#include "DataFormats/GeometrySurface/interface/BoundPlane.h"
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
+
+// A fake Det class
+
+class MyDet : public GeomDet {
+ public:
+  MyDet(BoundPlane * bp) :
+    GeomDet(bp){}
+  
+  virtual DetId geographicalId() const {return DetId();}
+  virtual std::vector< const GeomDet*> components() const {
+    return std::vector< const GeomDet*>();
+  }
+  
+  /// Which subdetector
+  virtual SubDetector subDetector() const {return GeomDetEnumerators::DT;}
+  
+};  
+
+
+
 
 class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE(testCutParser);
@@ -16,7 +41,7 @@ class testCutParser : public CppUnit::TestFixture {
   CPPUNIT_TEST_SUITE_END();
 
 public:
-  void setUp() {ROOT::Cintex::Cintex::Enable();}
+  void setUp() {}
   void tearDown() {}
   void checkAll(); 
   void check(const std::string &, bool);
@@ -82,8 +107,13 @@ void testCutParser::checkAll() {
                  1.5, 2.5, 3.5, 4.5, 5.5 };
   reco::TrackBase::CovarianceMatrix cov(e, e + 15);
   trk = reco::Track(chi2, ndof, v, p, -1, cov);
+  trk.setQuality(reco::Track::highPurity);
 
-  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), 0, SiStripRecHit2D::ClusterRef());
+  GlobalPoint gp(0,0,0);
+  BoundPlane* plane = new BoundPlane( gp, Surface::RotationType());
+  MyDet mdet(plane);
+ 
+  hitOk = SiStripRecHit2D(LocalPoint(1,1), LocalError(1,1,1), mdet, SiStripRecHit2D::ClusterRef());
 
   edm::TypeWithDict t(typeid(reco::Track));
   o = edm::ObjectWithDict(t, & trk);
@@ -149,6 +179,15 @@ void testCutParser::checkAll() {
   check( "test_bit(4, 2)", true  );
   check( "test_bit(4, 3)", false );
 
+  // check quality
+  check("quality('highPurity')", true );
+  check("quality('loose')", false );
+  check("quality('tight')", false );
+  check("quality('confirmed')", false );
+  check("quality('goodIterative')", true);
+  check("quality('looseSetWithPV')", false);
+  check("quality('highPuritySetWithPV')", false);
+
   // check handling of errors 
   //   first those who are the same in lazy and non lazy parsing
   for (int lazy = 0; lazy <= 1; ++lazy) {
@@ -188,6 +227,8 @@ void testCutParser::checkAll() {
   CPPUNIT_ASSERT(reco::parser::cutParser<reco::Track>("pt.pt < 1",sel, true));  // same for this
   CPPUNIT_ASSERT_THROW((*sel)(o), reco::parser::Exception);                     // it throws wen called
 
+  sel.reset();
+  CPPUNIT_ASSERT_THROW(reco::parser::cutParser<reco::Track>("quality('notAnEnum')",sel, false), edm::Exception);
 
   // check hits (for re-implemented virtual functions and exception handling)
   CPPUNIT_ASSERT(hitOk.hasPositionAndError());
@@ -196,14 +237,14 @@ void testCutParser::checkAll() {
   checkHit( "hasPositionAndError" , false, hitThrow );
   CPPUNIT_ASSERT(hitOk.localPosition().x() == 1);
   checkHit( ".99 < localPosition.x < 1.01", true, hitOk);
-  CPPUNIT_ASSERT_THROW(hitThrow.localPosition().x(), cms::Exception);
-  CPPUNIT_ASSERT_THROW( checkHit(".99 < localPosition.x < 1.01", true, hitThrow) , cms::Exception);
+  checkHit( ".99 < localPosition.x < 1.01", false, hitThrow);
 
-  // check underscores
-  checkHit("cluster_regional.isNull()",true,hitOk);
+  // check underscores (would be better to build your own stub...)
   checkHit("cluster.isNull()",true,hitOk);
-  checkHit("cluster_regional.isNonnull()",false,hitOk);
+  checkHit("cluster_strip.isNull()",true,hitOk);
   checkHit("cluster.isNonnull()",false,hitOk);  
+  checkHit("cluster_strip.isNonnull()",false,hitOk);
+
 
   // check short cirtcuit logics
   CPPUNIT_ASSERT( hitOk.hasPositionAndError() && (hitOk.localPosition().x() == 1) );

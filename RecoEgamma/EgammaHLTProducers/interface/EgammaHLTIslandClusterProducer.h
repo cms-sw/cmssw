@@ -17,11 +17,16 @@
 #include "DataFormats/L1Trigger/interface/L1EmParticle.h"
 #include "DataFormats/L1Trigger/interface/L1EmParticleFwd.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTIslandClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTIslandClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTIslandClusterProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
  private:
 

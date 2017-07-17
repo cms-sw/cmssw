@@ -3,26 +3,25 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/Event.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 
 MassKinFitterCandProducer::MassKinFitterCandProducer(const edm::ParameterSet & cfg, CandMassKinFitter * f) :
-  src_(cfg.getParameter<edm::InputTag>("src")),
+  srcToken_(consumes<reco::CandidateCollection>(cfg.getParameter<edm::InputTag>("src"))),
   fitter_(f) {
   if(f == 0) fitter_.reset(new CandMassKinFitter(cfg.getParameter<double>("mass")));
   produces<reco::CandidateCollection>();
 }
 
 void MassKinFitterCandProducer::produce( edm::Event & evt, const edm::EventSetup & es ) {
-  using namespace edm; 
+  using namespace edm;
   using namespace reco;
   Handle<CandidateCollection> cands;
-  evt.getByLabel(src_, cands);
-  std::auto_ptr<CandidateCollection> refitted( new CandidateCollection );
+  evt.getByToken(srcToken_, cands);
+  auto refitted = std::make_unique<CandidateCollection>();
   for( CandidateCollection::const_iterator c = cands->begin(); c != cands->end(); ++ c ) {
     Candidate * clone = c->clone();
     fitter_->set( * clone );
     refitted->push_back( clone );
   }
-  evt.put( refitted );
+  evt.put(std::move(refitted));
 }
 

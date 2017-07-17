@@ -24,9 +24,9 @@ public:
 
   GEMEtaPartitionSpecs( SubDetector rss, const std::string& name, const GEMSpecs& pars);
 
-  ~GEMEtaPartitionSpecs();
+  ~GEMEtaPartitionSpecs() override;
 
-  const Topology& topology() const;
+  const Topology& topology() const override;
 
   const StripTopology& specificTopology() const;
 
@@ -35,6 +35,8 @@ public:
   const StripTopology& specificPadTopology() const;
 
   const std::string& detName() const;
+
+  const GEMSpecs& parameters() const;
 
 private:
   

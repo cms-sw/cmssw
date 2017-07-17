@@ -208,7 +208,7 @@ def main():
 	pvy = pvdata.position[1]
 	pvz = pvdata.position[2]
 
-	if histox.has_key(bx) == False:
+	if (bx in histox) == False:
 	    print "bx: "+str(bx)
 	    histox[bx] = TH2F("x_"+str(bx),"x_"+str(bx),100,0,0.2,300,0,1500)#TH1F("x_"+str(bx),"x_"+str(bx),100,0,0.2)
 	    histoy[bx] = TH1F("y_"+str(bx),"y_"+str(bx),100,0,0.2)

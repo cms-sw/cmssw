@@ -24,6 +24,7 @@
 #include "FWCore/Framework/interface/ProducerBase.h"
 #include "FWCore/Framework/interface/EDConsumerBase.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "FWCore/Framework/interface/SharedResourcesAcquirer.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
 
@@ -32,6 +33,11 @@ namespace edm {
 
   class ModuleCallingContext;
   class PreallocationConfiguration;
+  class ActivityRegistry;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+  class WaitingTask;
+
   namespace maker {
     template<typename T> class ModuleHolderT;
   }
@@ -58,36 +64,45 @@ namespace edm {
       ModuleDescription const& moduleDescription() const { return moduleDescription_; }
 
     private:
-      bool doEvent(EventPrincipal& ep, EventSetup const& c,
+      bool doEvent(EventPrincipal const& ep, EventSetup const& c,
+                   ActivityRegistry*,
                    ModuleCallingContext const*);
-      void doPreallocate(PreallocationConfiguration const&) {}
+      //For now this is a placeholder
+      /*virtual*/ void preActionBeforeRunEventAsync(WaitingTask* iTask, ModuleCallingContext const& iModuleCallingContext, Principal const& iPrincipal) const {}
+
+      void doPreallocate(PreallocationConfiguration const&);
       void doBeginJob();
       void doEndJob();
 
-      void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+      void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                       ModuleCallingContext const*);
-      void doEndRun(RunPrincipal& rp, EventSetup const& c,
+      void doEndRun(RunPrincipal const& rp, EventSetup const& c,
                     ModuleCallingContext const*);
-      void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                   ModuleCallingContext const*);
-      void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp, EventSetup const& c,
+      void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp, EventSetup const& c,
                                 ModuleCallingContext const*);
 
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+      void doRegisterThinnedAssociations(ProductRegistry const&,
+                                         ThinnedAssociationsHelper&) { }
 
-      
       void registerProductsAndCallbacks(EDProducerBase* module, ProductRegistry* reg) {
         registerProducts(module, reg, moduleDescription_);
       }
       std::string workerType() const {return "WorkerT<EDProducer>";}
       
+      SharedResourcesAcquirer& sharedResourcesAcquirer() {
+        return resourcesAcquirer_;
+      }
+      
       virtual void produce(Event&, EventSetup const&) = 0;
       virtual void beginJob() {}
       virtual void endJob(){}
+
+      virtual void preallocThreads(unsigned int) {}
 
       virtual void doBeginRun_(Run const& rp, EventSetup const& c);
       virtual void doEndRun_(Run const& rp, EventSetup const& c);
@@ -99,6 +114,7 @@ namespace edm {
       virtual void doBeginLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
       virtual void doEndLuminosityBlockProduce_(LuminosityBlock& lbp, EventSetup const& c);
 
+      virtual SharedResourcesAcquirer createAcquirer();
       
       void setModuleDescription(ModuleDescription const& md) {
         moduleDescription_ = md;
@@ -107,6 +123,7 @@ namespace edm {
       std::vector<BranchID> previousParentage_;
       ParentageID previousParentageId_;
 
+      SharedResourcesAcquirer resourcesAcquirer_;
     };
     
   }

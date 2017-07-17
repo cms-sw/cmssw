@@ -7,7 +7,7 @@ class CSCTFAlignmentOnlineProd : public L1ConfigOnlineProdBase< L1MuCSCTFAlignme
       CSCTFAlignmentOnlineProd(const edm::ParameterSet& iConfig)
          : L1ConfigOnlineProdBase< L1MuCSCTFAlignmentRcd, L1MuCSCTFAlignment >( iConfig ) {}
       ~CSCTFAlignmentOnlineProd() {}
-      virtual boost::shared_ptr< L1MuCSCTFAlignment > newObject( const std::string& objectKey ) ;
+      virtual std::shared_ptr< L1MuCSCTFAlignment > newObject( const std::string& objectKey ) ;
    private:
 };
 

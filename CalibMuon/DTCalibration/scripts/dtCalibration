@@ -11,7 +11,7 @@ if __name__ == '__main__':
     parser.add_option("--label", dest="label", default="dtCalibration", help="label used in the naming of workflow output")
     parser.add_option("--trial", dest="trial", type="int", help="trial number used in the naming of output directories")
     parser.add_option("--datasetpath", dest="datasetpath", help="dataset name to process")
-    parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (without the '::All' string)")
+    parser.add_option("--globaltag", dest="globaltag", help="global tag identifier (with the '::All' string, if necessary)")
     parser.add_option("--preselection", dest="preselection", help="configuration fragment and sequence name, separated by a ':', defining a pre-selection filter")
     parser.add_option("--inputVDriftDB", dest="inputVDriftDB", help="uses local SQLITE vDrift DB (instead of using the one in the GT)")
     parser.add_option("--inputTTrigDB", dest="inputTTrigDB", help="uses local SQLITE tTrig DB (instead of using the one in the GT)")
@@ -137,7 +137,7 @@ if __name__ == '__main__':
     if hasattr(input,'runOnMC') and input.runOnMC: config.runOnMC = input.runOnMC
 
     config.globaltag = ''
-    if input.globaltag: config.globaltag = input.globaltag + '::All'
+    if input.globaltag: config.globaltag = input.globaltag
     config.digilabel = 'muonDTDigis'
     config.preselection = input.preselection 
     

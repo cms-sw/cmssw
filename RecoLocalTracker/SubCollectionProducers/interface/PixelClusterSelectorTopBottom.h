@@ -10,7 +10,7 @@
 
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -25,17 +25,17 @@
 #include "DataFormats/DetId/interface/DetId.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-class PixelClusterSelectorTopBottom : public edm::EDProducer {
+class PixelClusterSelectorTopBottom : public edm::global::EDProducer<> {
 
  public:
   explicit PixelClusterSelectorTopBottom( const edm::ParameterSet& cfg) :
-    label_( cfg.getParameter<edm::InputTag>( "label" ) ),
+    token_( consumes<SiPixelClusterCollectionNew>(cfg.getParameter<edm::InputTag>( "label" )) ),
     y_( cfg.getParameter<double>( "y" ) ) { produces<SiPixelClusterCollectionNew>(); }
   
-  void produce( edm::Event& event, const edm::EventSetup& setup);
+  void produce( edm::StreamID, edm::Event& event, const edm::EventSetup& setup) const override;
   
  private:
-  edm::InputTag label_;
+  edm::EDGetTokenT<SiPixelClusterCollectionNew> token_;
   double y_;
 };
 

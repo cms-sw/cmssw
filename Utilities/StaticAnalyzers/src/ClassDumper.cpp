@@ -1,5 +1,10 @@
 #include "ClassDumper.h"
-
+#include "CmsSupport.h"
+#include <iostream>
+#include <fstream>
+#include <iterator>
+#include <string>
+#include <algorithm>
 using namespace clang;
 using namespace clang::ento;
 using namespace llvm;
@@ -7,181 +12,217 @@ using namespace llvm;
 namespace clangcms {
 
 
-
-
 void ClassDumper::checkASTDecl(const clang::CXXRecordDecl *RD,clang::ento::AnalysisManager& mgr,
-                    clang::ento::BugReporter &BR ) const {
+                    clang::ento::BugReporter &BR, std::string tname ) const {
+     const char *sfile=BR.getSourceManager().getPresumedLoc(RD->getLocation()).getFilename();
+     if (!RD->hasDefinition()) return;
+     std::string rname = RD->getQualifiedNameAsString();
+     support::fixAnonNS(rname,sfile);
+     clang::LangOptions LangOpts;
+     LangOpts.CPlusPlus = true;
+     clang::PrintingPolicy Policy(LangOpts);
+     std::string crname("class '");
+     const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(RD);
+     if (SD) {
+          std::string buf;
+          llvm::raw_string_ostream os(buf);
+          SD->getNameForDiagnostic(os,Policy,1);
+          crname = crname+os.str()+"'";
+          support::writeLog(crname, tname);
+          for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+               if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+                    std::string taname;
+                    auto tt = SD->getTemplateArgs().get(J).getAsType().getTypePtr();
+                    if (tt->isRecordType()) {
+                         auto TAD = tt->getAsCXXRecordDecl();
+                         if (TAD) taname = TAD->getQualifiedNameAsString();
+                         support::fixAnonNS(taname,sfile);
+                         std::string sdname = SD->getQualifiedNameAsString();
+                         support::fixAnonNS(sdname,sfile);
+                         std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
+                         support::writeLog(crname+" "+cfname,tname);
+                    }
+                    if ( tt->isPointerType() || tt->isReferenceType() ) {
+                         auto TAD = tt->getPointeeCXXRecordDecl();
+                         if (TAD) taname = TAD->getQualifiedNameAsString();
+                         support::fixAnonNS(taname,sfile);
+                         std::string sdname = SD->getQualifiedNameAsString();
+                         support::fixAnonNS(sdname,sfile);
+                         std::string cfname = "templated data class '"+sdname+"' template type class '"+taname+"'";
+                         std::string cbname = "templated data class 'bare_ptr' template type class '"+taname+"'";
+                         support::writeLog(crname+" "+cfname,tname);
+                         support::writeLog(crname+" "+cbname,tname);
+                    }
+               }
+          }
 
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-//	if (  !m_exception.reportClass( DLoc, BR ) ) return;
-//Dump the template name and args
-	if (const ClassTemplateSpecializationDecl *SD = dyn_cast<ClassTemplateSpecializationDecl>(RD))
-		{
-			for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J)
-			{
-//			llvm::errs()<<"\nTemplate "<<SD->getSpecializedTemplate()->getQualifiedNameAsString()<<";";
-//			llvm::errs()<<"Template Argument ";
-//			llvm::errs()<<SD->getTemplateArgs().get(J).getAsType().getAsString();
-//			llvm::errs()<<"\n\n\t";
-			if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type && SD->getTemplateArgs().get(J).getAsType().getTypePtr()->isRecordType() )
-				{
-				const clang::CXXRecordDecl * D = SD->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl();
-				checkASTDecl( D, mgr, BR );
-				}
-			}
+     } else {
+// Dump the class name
+          crname = crname+rname+"'";
+          support::writeLog(crname,tname);
 
-		}
-	
-// Dump the class members.
-	std::string err;
-	const char * pPath = std::getenv("LOCALRT");
-	std::string dname(""); 
-	if ( pPath != NULL ) dname = std::string(pPath);
-	std::string fname("/tmp/classes.txt.unsorted");
-	std::string tname = dname + fname;
-	llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
-	std::string rname = RD->getQualifiedNameAsString();
-//	llvm::errs() <<"class " <<RD->getQualifiedNameAsString()<<"\n";
-	output <<"class " << rname <<"\n";
-	for (clang::RecordDecl::field_iterator I = RD->field_begin(), E = RD->field_end(); I != E; ++I)
-	{
-		clang::QualType qual;
-		if (I->getType().getTypePtr()->isAnyPointerType()) 
-			qual = I->getType().getTypePtr()->getPointeeType();
-		else 
-			qual = I->getType().getNonReferenceType();
+     }
 
-		if (!qual.getTypePtr()->isRecordType()) return;
-//		llvm::errs() <<"Class Member ";
-//		if (I->getType() == qual)
-//			{
-//			llvm::errs() <<"; "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
-//			}
-//		else
-//			{
-//			llvm::errs() <<"; "<<qual.getCanonicalType().getTypePtr()->getTypeClassName()<<" "<<I->getType().getCanonicalType().getTypePtr()->getTypeClassName();
-//			}
-//		llvm::errs() <<"; "<<I->getType().getCanonicalType().getAsString();
-//		llvm::errs() <<"; "<<I->getType().getAsString();
-//		llvm::errs() <<"; "<< I->getQualifiedNameAsString();
+// Dump the class member classes
+          for ( auto I = RD->field_begin(), E = RD->field_end(); I != E; ++I) {
+                    clang::QualType qual;
+                    clang::QualType type = I->getType();
+                    if (type.getTypePtr()->isAnyPointerType())
+                         qual = type.getTypePtr()->getPointeeType();
+                    else
+                         qual = type.getNonReferenceType();
+                    if (!qual.getTypePtr()->isRecordType()) continue;
+                    if (const CXXRecordDecl * TRD = qual.getTypePtr()->getAsCXXRecordDecl()) {
+                         std::string fname = TRD->getQualifiedNameAsString();
+                         support::fixAnonNS(fname, sfile);
+                         const ClassTemplateSpecializationDecl *SD = dyn_cast_or_null<ClassTemplateSpecializationDecl>(TRD);
+                         if (SD) {
+                                   std::string buf;
+                                   llvm::raw_string_ostream os(buf);
+                                   SD->getNameForDiagnostic(os,Policy,1);
+                                   std::string cfname ="member data class '"+os.str()+"'";
+                                   support::writeLog(crname+" "+cfname,tname);
+                         // Recurse the template args
+                                   for (unsigned J = 0, F = SD->getTemplateArgs().size(); J!=F; ++J) {
+                                        if (SD->getTemplateArgs().get(J).getKind() == clang::TemplateArgument::Type) {
+                                             std::string taname;
+                                             const Type * tt = SD->getTemplateArgs().get(J).getAsType().getTypePtr();
+                                             if ( tt->isRecordType() ) {
+                                                  const clang::CXXRecordDecl * TAD = tt->getAsCXXRecordDecl();
+                                                  if (TAD) taname = TAD->getQualifiedNameAsString();
+                                                  support::fixAnonNS(taname,sfile);
+                                                  std::string sdname = SD->getQualifiedNameAsString();
+                                                  support::fixAnonNS(sdname,sfile);
+                                                  std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
+                                                  support::writeLog(crname+" "+cfname,tname);
+                                             }
+                                             if ( tt->isPointerType() || tt->isReferenceType() ) {
+                                                  const clang::CXXRecordDecl * TAD = tt->getPointeeCXXRecordDecl();
+                                                  if (TAD) taname = TAD->getQualifiedNameAsString();
+                                                  support::fixAnonNS(taname,sfile);
+                                                  std::string sdname = SD->getQualifiedNameAsString();
+                                                  support::fixAnonNS(sdname,sfile);
+                                                  std::string cfname = "templated member data class '"+sdname+"' template type class '"+taname+"'";
+                                                  std::string cbname = "templated member data class 'bare_ptr' template type class '"+taname+"'";
+                                                  support::writeLog(crname+" "+cfname,tname);
+                                                  support::writeLog(crname+" "+cbname,tname);
+                                             }
+                                        }
+                                   }
+                         } else {
+                              if (type.getTypePtr()->isRecordType()) {
+                                   std::string cfname ="member data class '"+fname+"' ";
+                                   support::writeLog(crname+" "+cfname,tname);
+                                   }
+                              if (type.getTypePtr()->isAnyPointerType()) {
+                                   std::string cfname = "templated member data class 'bare_ptr' template type class '"+fname+"'";
+                                   support::writeLog(crname+" "+cfname,tname);
+                                   }
+                         }
+                    }
+               }
 
-//		llvm::errs() <<"\n\n";
-		if (const CXXRecordDecl * TRD = I->getType().getTypePtr()->getAsCXXRecordDecl()) 
-			{
-			if (RD->getNameAsString() == TRD->getNameAsString())
-				{
-				checkASTDecl( TRD, mgr, BR );
-				}
-			}
-	}
+
+
+
+
+// Dump the base classes
+
+          for ( auto J=RD->bases_begin(), F=RD->bases_end();J != F; ++J) {
+               auto BRD = J->getType()->getAsCXXRecordDecl();
+               if (!BRD) continue;
+               std::string bname = BRD->getQualifiedNameAsString();
+               support::fixAnonNS(bname,sfile);
+               std::string cbname = "base class '"+bname+"'";
+               support::writeLog(crname+" "+cbname,tname);
+          }
+
 
 } //end class
 
-
 void ClassDumperCT::checkASTDecl(const clang::ClassTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const {
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
-	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
-	
-	std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
-	if ( tname == "edm::Wrapper" || tname == "edm::RunCache" || tname == "edm::LuminosityBlockCache" || tname == "edm::GlobalCache" ) 
-		{
-//		llvm::errs()<<"\n";
-		for (ClassTemplateDecl::spec_iterator I = const_cast<clang::ClassTemplateDecl *>(TD)->spec_begin(), 
-			E = const_cast<clang::ClassTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
-			{
-			for (unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J)
-				{
-//				llvm::errs()<<"template class "<< TD->getTemplatedDecl()->getQualifiedNameAsString()<<"<" ;
-//				llvm::errs()<<I->getTemplateArgs().get(J).getAsType().getAsString();
-//				llvm::errs()<<">\n";
-				if (const clang::CXXRecordDecl * D = I->getTemplateArgs().get(J).getAsType().getTypePtr()->getAsCXXRecordDecl())
-					{
-					ClassDumper dumper;
-					dumper.checkASTDecl( D, mgr, BR );
-					}
-				}
-			} 		
-		};
+
+      const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
+      if (!support::isCmsLocalFile(sfile)) return;
+     std::string crname("class '");
+     std::string pname = "classes.txt.dumperct.unsorted";
+     std::string tname = TD->getTemplatedDecl()->getQualifiedNameAsString();
+
+     if ( tname == "edm::Wrapper" || tname == "edm::RunCache" || tname == "edm::LuminosityBlockCache" || tname == "edm::GlobalCache" ) {
+          for ( auto I = TD->spec_begin(),
+               E = TD->spec_end(); I != E; ++I) {
+               for ( unsigned J = 0, F = I->getTemplateArgs().size(); J!=F; ++J) {
+                         auto D = I->getTemplateArgs().get(J).getAsType()->getAsCXXRecordDecl();  
+                         if (D) {
+                                   ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );
+                                   std::string taname = D->getQualifiedNameAsString();
+                                   support::fixAnonNS(taname,sfile);
+                                   std::string tdname = TD->getQualifiedNameAsString();
+                                   support::fixAnonNS(tdname,sfile);
+                                   std::string cfname = "templated class '"+tdname+"' template type class '"+taname+"'";
+                                   support::writeLog(cfname,pname);
+                                   }
+                         auto E = I->getTemplateArgs().get(J).getAsType()->getPointeeCXXRecordDecl(); 
+                         if (E) {
+                                   ClassDumper dumper; dumper.checkASTDecl( E, mgr, BR,pname );
+                                   std::string taname = E->getQualifiedNameAsString();
+                                   support::fixAnonNS(taname,sfile);
+                                   std::string tdname = TD->getQualifiedNameAsString();
+                                   support::fixAnonNS(tdname,sfile);
+                                   std::string cfname = "templated class '"+tdname+"' template type class '"+taname+"'";
+                                   support::writeLog(cfname,pname);
+                                   std::string cbname = "templated class 'bare_ptr' template type class '"+taname+"'";
+                                   support::writeLog(crname+" "+cbname,pname);
+                                   }
+               }
+          }
+     }
 } //end class
 
 void ClassDumperFT::checkASTDecl(const clang::FunctionTemplateDecl *TD,clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR ) const {
-	const clang::SourceManager &SM = BR.getSourceManager();
-	clang::ento::PathDiagnosticLocation DLoc =clang::ento::PathDiagnosticLocation::createBegin( TD, SM );
-	if ( SM.isInSystemHeader(DLoc.asLocation()) || SM.isInExternCSystemHeader(DLoc.asLocation()) ) return;
-	if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup") != std::string::npos ) 
-		{
-//		llvm::errs()<<"\n";
-		for (FunctionTemplateDecl::spec_iterator I = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_begin(), 
-				E = const_cast<clang::FunctionTemplateDecl *>(TD)->spec_end(); I != E; ++I) 
-			{
-			for (unsigned J = 0, F = (*I)->getTemplateSpecializationArgs()->size(); J!=F;++J)
-				{
-//				llvm::errs()<<"template function " << TD->getTemplatedDecl()->getQualifiedNameAsString()<<"<";
-//				llvm::errs()<<(*I)->getTemplateSpecializationArgs()->get(J).getAsType().getAsString();
-//				llvm::errs()<<">\n";
-				if (const clang::CXXRecordDecl * D = (*I)->getTemplateSpecializationArgs()->get(J).getAsType().getTypePtr()->getAsCXXRecordDecl()) 
-					{
-					ClassDumper dumper;
-					dumper.checkASTDecl( D, mgr, BR );
-					}
-				}
-	
-			} 		
-		};
+
+      const char *sfile=BR.getSourceManager().getPresumedLoc(TD->getLocation()).getFilename();
+      if (!support::isCmsLocalFile(sfile)) return;
+     std::string crname("class '");
+     std::string pname = "classes.txt.dumperft.unsorted";
+     if (TD->getTemplatedDecl()->getQualifiedNameAsString().find("typelookup::className") != std::string::npos ) {
+          for ( auto I = TD->spec_begin(),
+                    E = TD->spec_end(); I != E; ++I) {
+               auto * SD = (*I); 
+               for (unsigned J = 0, F = SD->getTemplateSpecializationArgs()->size(); J!=F;++J) {
+                    auto D = SD->getTemplateSpecializationArgs()->get(J).getAsType()->getAsCXXRecordDecl();
+                    if (D) {
+                         ClassDumper dumper; dumper.checkASTDecl( D, mgr, BR,pname );
+                         std::string taname = D->getQualifiedNameAsString();
+                         support::fixAnonNS(taname,sfile);
+                         std::string sdname = SD->getQualifiedNameAsString();
+                         support::fixAnonNS(sdname,sfile);
+                         std::string cfname = "templated function '"+sdname+"' template type class '"+taname+"'";
+                         support::writeLog(cfname,pname);
+                         }
+                    auto E = SD->getTemplateSpecializationArgs()->get(J).getAsType()->getPointeeCXXRecordDecl();
+                    if (E) {
+                         ClassDumper dumper; dumper.checkASTDecl( E, mgr, BR,pname );
+                         std::string taname = E->getQualifiedNameAsString();
+                         support::fixAnonNS(taname,sfile);
+                         std::string sdname = SD->getQualifiedNameAsString();
+                         support::fixAnonNS(sdname,sfile);
+                         std::string cfname = "templated function '"+sdname+"' template type class '"+taname+"'";
+                         support::writeLog(cfname,pname);
+                         std::string cbname = "templated function 'bare_ptr' template type class '"+taname+"'";
+                         support::writeLog(crname+" "+cbname,pname);
+                         }
+
+               }
+          }
+      }
 } //end class
 
 void ClassDumperInherit::checkASTDecl(const clang::CXXRecordDecl *RD, clang::ento::AnalysisManager& mgr,
                     clang::ento::BugReporter &BR) const {
-
-	const clang::SourceManager &SM = BR.getSourceManager();
-	if (!RD->hasDefinition()) return;
-
-	clang::FileSystemOptions FSO;
-	clang::FileManager FM(FSO);
-	const char * pPath = std::getenv("LOCALRT");
-	std::string dname(""); 
-	if ( pPath != NULL ) dname = std::string(pPath);
-	std::string fname("/tmp/classes.txt.dumperft");
-	std::string tname = dname + fname;
-	if (!FM.getFile(tname) ) {
-		llvm::errs()<<"\n\nChecker cannot find $LOCALRT/tmp/classes.txt.dumperft \n";
-		exit(1);
-		}
-	llvm::MemoryBuffer * buffer = FM.getBufferForFile(FM.getFile(tname));
-//	llvm::errs()<<"class "<<RD->getQualifiedNameAsString()<<"\n";
-
-	for (clang::CXXRecordDecl::base_class_const_iterator J=RD->bases_begin(), F=RD->bases_end();J != F; ++J)
-	{  
-		const clang::CXXRecordDecl * BRD = J->getType()->getAsCXXRecordDecl();
-		if (!BRD) continue;
-		std::string name = BRD->getQualifiedNameAsString();
-		std::string ename = "edm::global::";
-		llvm::errs() << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
-		llvm::StringRef Rname("class "+name);
-		if ((buffer->getBuffer().find(Rname) != llvm::StringRef::npos )|| (name.substr(0,ename.length()) == ename) )
-			{
-			std::string err;
-			const char * pPath = std::getenv("LOCALRT");
-			std::string dname(""); 
-			if ( pPath != NULL ) dname = std::string(pPath);
-			std::string fname("/tmp/classes.txt.unsorted");
-			std::string tname = dname + fname;
-			llvm::raw_fd_ostream output(tname.c_str(),err,llvm::raw_fd_ostream::F_Append);
-			output <<"class " <<RD->getQualifiedNameAsString()<<"\n";
-			llvm::SmallString<100> buf;
-			llvm::raw_svector_ostream os(buf);
-//			os << " class " << RD->getQualifiedNameAsString() << " inherits from "<<name <<"\n";
-			llvm::errs()<<os.str();
-//			clang::ento::PathDiagnosticLocation ELoc =clang::ento::PathDiagnosticLocation::createBegin( RD, SM );
-//			clang::SourceLocation SL = RD->getLocStart();
-//			BR.EmitBasicReport(RD, "Class Checker : inherits from TYPELOOKUP_DATA_REG class","optional",os.str(),ELoc,SL);
-			}
-			
-	}
+  return;
 } //end of class
 
 

@@ -7,6 +7,9 @@
  *  \author cerati
  */
 
+
+#include "AlgoProductTraits.h"
+
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
@@ -16,38 +19,55 @@
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "RecoTracker/TransientTrackingRecHit/interface/TkTransientTrackingRecHitBuilder.h"
+#include "TrackingTools/TrackFitters/interface/TrajectoryFitter.h"
+
 
 class MagneticField;
 class TrackingGeometry;
-class TrajectoryFitter;
 class Propagator;
 class Trajectory;
 class TrajectoryStateOnSurface;
-class TransientTrackingRecHitBuilder;
+
+struct FitterCloner {
+   std::unique_ptr<TrajectoryFitter> fitter;
+   TkClonerImpl hitCloner;
+
+  FitterCloner(const TrajectoryFitter * theFitter,const TransientTrackingRecHitBuilder* builder):
+    fitter(theFitter->clone()),
+    hitCloner(static_cast<TkTransientTrackingRecHitBuilder const *>(builder)->cloner()){
+    fitter->setHitCloner(&hitCloner);
+  }
+};
 
 
 template <class T>
-class TrackProducerAlgorithm {
+class TrackProducerAlgorithm : public AlgoProductTraits<T> {
 public:
-  typedef std::vector<T> TrackCollection;
-  typedef std::pair<Trajectory*, std::pair<T*,PropagationDirection> > AlgoProduct; 
-  typedef std::vector< AlgoProduct >  AlgoProductCollection;
-  typedef edm::RefToBase<TrajectorySeed> SeedRef;
-  typedef edm::AssociationMap<edm::OneToOne<std::vector<T>,std::vector<VertexConstraint> > > 
-  VtxConstraintAssociationCollection;
- public:
+  using Base = AlgoProductTraits<T>;
+  using TrackCollection = typename Base::TrackCollection;
+  using TrackView = typename Base::TrackView;
+  using AlgoProductCollection = typename Base::AlgoProductCollection;
+
+  using SeedRef= edm::RefToBase<TrajectorySeed>;
+  using VtxConstraintAssociationCollection = edm::AssociationMap<edm::OneToOne<std::vector<T>,std::vector<VertexConstraint> > > ;
+  
+public:
 
   /// Constructor
   TrackProducerAlgorithm(const edm::ParameterSet& conf) : 
-    conf_(conf),
-    algoName_(conf_.getParameter<std::string>( "AlgorithmName" )),
-    algo_(reco::TrackBase::algoByName(algoName_)),
-    reMatchSplitHits_(false)
+    algo_(reco::TrackBase::algoByName(conf.getParameter<std::string>("AlgorithmName"))),
+    originalAlgo_(reco::TrackBase::undefAlgorithm),
+    stopReason_(0),
+    reMatchSplitHits_(false),
+    usePropagatorForPCA_(false)
       {
-        geometricInnerState_ = (conf_.exists("GeometricInnerState") ?
-	  conf_.getParameter<bool>( "GeometricInnerState" ) : true);
-	if (conf_.exists("reMatchSplitHits"))
-	  reMatchSplitHits_=conf_.getParameter<bool>("reMatchSplitHits");
+        geometricInnerState_ = (conf.exists("GeometricInnerState") ?
+	  conf.getParameter<bool>( "GeometricInnerState" ) : true);
+	if (conf.exists("reMatchSplitHits"))
+	  reMatchSplitHits_=conf.getParameter<bool>("reMatchSplitHits");
+        if (conf.exists("usePropagatorForPCA"))
+          usePropagatorForPCA_ = conf.getParameter<bool>("usePropagatorForPCA");
       }
 
   /// Destructor
@@ -66,7 +86,7 @@ public:
   /// Run the Final Fit taking Tracks as input (for Refitter)
   void runWithTrack(const TrackingGeometry *, 
 		    const MagneticField *, 
-		    const TrackCollection&,
+		    const TrackView&,
 		    const TrajectoryFitter *,
 		    const Propagator *,
 		    const TransientTrackingRecHitBuilder*,
@@ -118,12 +138,16 @@ public:
 		  int qualityMask=0,
 		  signed char nLoops=0);
 
+
  private:
-  edm::ParameterSet conf_;  
-  std::string algoName_;
   reco::TrackBase::TrackAlgorithm algo_;
+  reco::TrackBase::TrackAlgorithm originalAlgo_;
+  reco::TrackBase::AlgoMask algoMask_;
+  uint8_t stopReason_;
+
   bool reMatchSplitHits_;
   bool geometricInnerState_;
+  bool usePropagatorForPCA_;
 
   TrajectoryStateOnSurface getInitialState(const T * theT,
 					   TransientTrackingRecHit::RecHitContainer& hits,

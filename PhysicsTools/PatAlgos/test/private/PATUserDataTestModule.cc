@@ -2,14 +2,14 @@
 //
 // Package:    PatAlgos
 // Class:      PATUserDataTestModule
-// 
+//
 /**\class PATUserDataTestModule PATUserDataTestModule.cc PhysicsTools/PatAlgos/test/PATUserDataTestModule.cc
 
  Description: Test module for UserData in PAT
 
  Implementation:
- 
- this analyzer shows how to loop over PAT output. 
+
+ this analyzer shows how to loop over PAT output.
 */
 //
 // Original Author:  Freya Blekman
@@ -47,7 +47,7 @@ namespace edm { using ::std::advance; }
     1) edm::Ptr uses 'advance' free function to locate a given item within a collection
     2) 'advance' is defined in  the std::namespace for std containers (e.g. vector)
        http://www.sgi.com/tech/stl/advance.html
-    3) In edm::Ptr sources, we use 'advance'  without namespace prefix 
+    3) In edm::Ptr sources, we use 'advance'  without namespace prefix
        http://cmslxr.fnal.gov/lxr/source/DataFormats/Common/interface/Ptr.h?v=CMSSW_2_1_10#214
     4) This normally work because the container is std:: so the free function is resolved in the
        correct namespace (don't ask me why or how it works; Ask Marc, Bill or read C++ standards)
@@ -73,7 +73,7 @@ class PATUserDataTestModule : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
       // ----------member data ---------------------------
-      edm::InputTag muons_;
+      edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
       std::string   label_;
       enum TestMode { TestRead, TestWrite, TestExternal };
       TestMode mode_;
@@ -83,10 +83,10 @@ class PATUserDataTestModule : public edm::EDProducer {
 // constructors and destructor
 //
 PATUserDataTestModule::PATUserDataTestModule(const edm::ParameterSet& iConfig):
-  muons_(iConfig.getParameter<edm::InputTag>("muons")),
+  muonsToken_(consumes<edm::View<pat::Muon> >(iConfig.getParameter<edm::InputTag>("muons"))),
   label_(iConfig.existsAs<std::string>("label") ? iConfig.getParameter<std::string>("label") : ""),
-  mode_( iConfig.getParameter<std::string>("mode") == "write" ? TestWrite : 
-        (iConfig.getParameter<std::string>("mode") == "read"  ? TestRead  : 
+  mode_( iConfig.getParameter<std::string>("mode") == "write" ? TestWrite :
+        (iConfig.getParameter<std::string>("mode") == "read"  ? TestRead  :
          TestExternal
         ))
 
@@ -116,12 +116,12 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
    typedef std::pair<std::map<std::string,pat::Muon>, std::vector<math::XYZVector> > CrazyDataType;
 
    if (mode_ != TestExternal) {
-       edm::Handle<edm::View<pat::Muon> > muons;
-       iEvent.getByLabel(muons_,muons);
+       edm::Handle<View<pat::Muon> > muons;
+       iEvent.getByToken(muonsToken_,muons);
 
-       std::auto_ptr<std::vector<pat::Muon> > output(new std::vector<pat::Muon>());
+       auto output = std::make_unique<std::vector<pat::Muon> >();
 
-       for (edm::View<pat::Muon>::const_iterator muon = muons->begin(), end = muons->end(); muon != end; ++muon) {
+       for (View<pat::Muon>::const_iterator muon = muons->begin(), end = muons->end(); muon != end; ++muon) {
            if (mode_ == TestWrite) {
                pat::Muon myMuon = *muon; // copy
                myMuon.addUserInt("answer", 42);
@@ -136,7 +136,7 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                // myMuon.addUserData("tmp self", *muon, true);
                // myMuon.addUserData("tmp crazy", CrazyDataType(), true);
 
-               output->push_back(myMuon);
+               output->push_back(std::move(myMuon));
            } else {
                std::cout << "Muon #" << (muon - muons->begin()) << ":" << std::endl;
                std::cout << "\tanswer   = " << muon->userInt("answer") << std::endl;
@@ -163,34 +163,34 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
                }
            }
        }
-       iEvent.put(output);
-   } else { 
+       iEvent.put(std::move(output));
+   } else {
        using namespace std;
        Handle<View<reco::Muon> > recoMuons;
-       iEvent.getByLabel(muons_, recoMuons);
+       iEvent.getByToken(muonsToken_, recoMuons);
        std::cout << "Got " << recoMuons->size() << " muons" << std::endl;
 
        vector<int> ints(recoMuons->size(), 42);
-       auto_ptr<ValueMap<int> > answers(new ValueMap<int>());
+       auto answers = std::make_unique<ValueMap<int>>();
        ValueMap<int>::Filler intfiller(*answers);
        intfiller.insert(recoMuons, ints.begin(), ints.end());
        intfiller.fill();
-       iEvent.put(answers, label_);
+       iEvent.put(std::move(answers), label_);
        std::cout << "Filled in the answer" << std::endl;
 
        vector<float> floats(recoMuons->size(), 3.14);
-       auto_ptr<ValueMap<float> > pis(new ValueMap<float>());
+       auto pis = std::make_unique<ValueMap<float>>();
        ValueMap<float>::Filler floatfiller(*pis);
        floatfiller.insert(recoMuons, floats.begin(), floats.end());
        floatfiller.fill();
-       iEvent.put(pis);
+       iEvent.put(std::move(pis));
        std::cout << "Wrote useless floats into the event" << std::endl;
 
-       auto_ptr<OwnVector<pat::UserData> > halfp4s(new OwnVector<pat::UserData>());
+       auto halfp4s = std::make_unique<OwnVector<pat::UserData>>();
        for (size_t i = 0; i < recoMuons->size(); ++i) {
             halfp4s->push_back( pat::UserData::make( 0.5 * (*recoMuons)[i].p4() ) );
        }
-       OrphanHandle<OwnVector<pat::UserData> > handle = iEvent.put(halfp4s);
+       OrphanHandle<OwnVector<pat::UserData> > handle = iEvent.put(std::move(halfp4s));
        std::cout << "Wrote OwnVector of useless objects into the event" << std::endl;
        vector<Ptr<pat::UserData> > halfp4sPtr;
        for (size_t i = 0; i < recoMuons->size(); ++i) {
@@ -198,12 +198,12 @@ PATUserDataTestModule::produce(edm::Event& iEvent, const edm::EventSetup& iSetup
             halfp4sPtr.push_back(Ptr<pat::UserData>(handle, i));
        }
        std::cout << "   Made edm::Ptr<> to those useless objects" << std::endl;
-       auto_ptr<ValueMap<Ptr<pat::UserData> > > vmhalfp4s(new ValueMap<Ptr<pat::UserData> >());
+       auto vmhalfp4s = std::make_unique<ValueMap<Ptr<pat::UserData>>>();
        ValueMap<Ptr<pat::UserData> >::Filler filler(*vmhalfp4s);
        filler.insert(recoMuons, halfp4sPtr.begin(), halfp4sPtr.end());
        filler.fill();
        std::cout << "   Filled the ValueMap of edm::Ptr<> to those useless objects" << std::endl;
-       iEvent.put(vmhalfp4s);
+       iEvent.put(std::move(vmhalfp4s));
        std::cout << "   Wrote the ValueMap of edm::Ptr<> to those useless objects" << std::endl;
 
        std::cout << "So long, and thanks for all the muons.\n" << std::endl;

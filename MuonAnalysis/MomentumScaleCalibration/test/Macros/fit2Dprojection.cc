@@ -13,13 +13,12 @@
 #include <iostream>
 #include <sstream>
 #include <cmath>
-using namespace std;
 
 void setTDRStyle();
 
 /// Small function to simplify the creation of text in the TPaveText
 TString setText(const char * text, const double & num1, const char * divider = "", const double & num2 = 0) {
-  stringstream numString;
+  std::stringstream numString;
   TString textString(text);
   numString << num1;
   textString += numString.str();
@@ -72,13 +71,13 @@ class ProjectionFitter
   /// Take the projection and give it a suitable name and title
   TH1 * takeProjectionY( const TH2 * histo, const int index ) {
     // Name
-    stringstream number;
+    std::stringstream number;
     number << index;
     TString numberString(number.str());
     TString name = TString(histo->GetName()) + "_" + numberString;
     // Title
     double xBin = histo->GetXaxis()->GetBinCenter(index);
-    stringstream xBinString;
+    std::stringstream xBinString;
     xBinString << xBin;
     TString title("Projection of x = ");
     title += xBinString.str();
@@ -97,7 +96,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
                                                  TFile * outputFile, const unsigned int minEntries)
 {
   // Read the TH2 from file
-  // cout << "inputFileName = " << inputFileName << endl;
+  // std::cout << "inputFileName = " << inputFileName << std::endl;
   TFile *inputFile = new TFile(inputFileName);
   // FindObjectAny finds the object of the given name looking also in the subdirectories.
   // It does not change the current directory if it finds a matching (for that use FindKeyAny).
@@ -105,7 +104,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
   if( rebinX > 0 ) histo->RebinX(rebinX);
   if( rebinY > 0 ) histo->RebinY(rebinY);
 
-  vector<FitResult> fitResults;
+  std::vector<FitResult> fitResults;
 
   // Output file
   // TString outputFileName("fitCompare2"+histoName);
@@ -117,8 +116,8 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
   // All the fits are saved in a single canvas.
   unsigned int nBins = histo->GetXaxis()->GetNbins();
 
-  vector<TH1*> projections;
-  vector<TF1*> projectionsFits;
+  std::vector<TH1*> projections;
+  std::vector<TF1*> projectionsFits;
 
   for( unsigned int i=1; i<=nBins; ++i ) {
 
@@ -130,7 +129,7 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
     if( histoY->GetEntries() > minEntries ) {
 
       // Gaussian fit
-      stringstream ss;
+      std::stringstream ss;
       ss << i;
       TString fitFunctionName(fitName+"Fit_"+ss.str());
       TF1 * fitFunction = new TF1(fitFunctionName.Data(), fitName.Data(), fitXmin, fitXmax);
@@ -189,12 +188,12 @@ TGraphErrors * ProjectionFitter::fit2Dprojection(const TString & inputFileName, 
   int y = x;
   if( x*y < sizeCheck ) y += 1;
   if( x*y < sizeCheck ) x += 1;
-  cout << "sizeCheck = " << sizeCheck << endl;
-  cout << "x*y = " << x*y << endl;
+  std::cout << "sizeCheck = " << sizeCheck << std::endl;
+  std::cout << "x*y = " << x*y << std::endl;
   canvasYcheck->Divide(x, y);
 
-  vector<TH1*>::const_iterator it = projections.begin();
-  vector<TF1*>::const_iterator fit = projectionsFits.begin();
+  std::vector<TH1*>::const_iterator it = projections.begin();
+  std::vector<TF1*>::const_iterator fit = projectionsFits.begin();
   for( int i=1; it != projections.end(); ++it, ++fit, ++i ) {
     canvasYcheck->cd(i);
     (*it)->Draw();
@@ -282,8 +281,8 @@ void macroPlot( TString name, const TString & nameFile1, const TString & nameFil
 
   ProjectionFitter projectionFitter;
 
-  cout << "File 1 = " << nameFile1 << endl;
-  cout << "File 2 = " << nameFile2 << endl;
+  std::cout << "File 1 = " << nameFile1 << std::endl;
+  std::cout << "File 2 = " << nameFile2 << std::endl;
 
   double y[2];
   if( resonanceType == "JPsi" || resonanceType == "Psi2S" ) { y[0]=2.9; y[1]=3.3; }

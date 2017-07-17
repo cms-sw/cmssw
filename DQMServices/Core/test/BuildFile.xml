@@ -16,6 +16,9 @@
 <library   file="DQMSourceExampleConfig.cc" name="DQMServicesCoreSourceExample">
   <flags   EDM_PLUGIN="1"/>
 </library>
+<library   file="DQMTestMultiThread.cc" name="DQMTestMultiThread">
+  <flags   EDM_PLUGIN="1"/>
+</library>
 <bin   file="DQMQualityTestsExample.cc">
 </bin>
 <bin   file="DQMFastMatchTest.cc">

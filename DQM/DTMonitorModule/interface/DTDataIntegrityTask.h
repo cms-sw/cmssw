@@ -4,13 +4,12 @@
 /** \class DTDataIntegrityTask
  *
  * Class for DT Data Integrity.
- *  
+ *
  *
  * \author Marco Zanetti (INFN Padova), Gianluca Cerminara (INFN Torino)
  *
  */
 
-#include "EventFilter/DTRawToDigi/interface/DTDataMonitorInterface.h"
 #include "EventFilter/DTRawToDigi/interface/DTROChainCoding.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -18,9 +17,14 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include <FWCore/Framework/interface/LuminosityBlock.h>
 
+#include <DQMServices/Core/interface/DQMStore.h>
+#include <DQMServices/Core/interface/MonitorElement.h>
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
+#include "DataFormats/DTDigi/interface/DTControlData.h"
+
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <fstream>
@@ -33,21 +37,20 @@ class DTROS25Data;
 class DTDDUData;
 class DTTimeEvolutionHisto;
 
-
-class DTDataIntegrityTask : public DTDataMonitorInterface {
+class DTDataIntegrityTask: public DQMEDAnalyzer {
 
 public:
 
-  explicit DTDataIntegrityTask( const edm::ParameterSet& ps,edm::ActivityRegistry& reg);
-  
+  DTDataIntegrityTask( const edm::ParameterSet& ps);
+
   virtual ~DTDataIntegrityTask();
 
-  void TimeHistos(std::string histoType);
+  void TimeHistos(DQMStore::IBooker &, std::string histoType);
 
   void processROS25(DTROS25Data & data, int dduID, int ros);
   void processFED(DTDDUData & dduData, const std::vector<DTROS25Data> & rosData, int dduID);
 
-  // log number of times the payload of each fed is unpacked 
+  // log number of times the payload of each fed is unpacked
   void fedEntry(int dduID);
   // log number of times the payload of each fed is skipped (no ROS inside)
   void fedFatal(int dduID);
@@ -55,18 +58,21 @@ public:
   void fedNonFatal(int dduID);
 
   bool eventHasErrors() const;
-  void postBeginJob();
-  void postEndJob();
-  void preProcessEvent(const edm::EventID& iEvtid, const edm::Timestamp& iTime);
 
-  void preBeginLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime);
-  void preEndLumi(const edm::LuminosityBlockID& ls, const edm::Timestamp& iTime);
+  void beginLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& ls, const edm::EventSetup& es) override;
+
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
+
+protected:
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
 
-  void bookHistos(const int fedMin, const int fedMax);
-  void bookHistos(std::string folder, DTROChainCoding code);
-  void bookHistosROS25(DTROChainCoding code);
+  void bookHistos(DQMStore::IBooker &, const int fedMin, const int fedMax);
+  void bookHistos(DQMStore::IBooker &, std::string folder, DTROChainCoding code);
+  void bookHistosROS25(DQMStore::IBooker &, DTROChainCoding code);
 
   void channelsInCEROS(int cerosId, int chMask, std::vector<int>& channels);
   void channelsInROS(int cerosMask, std::vector<int>& channels);
@@ -85,20 +91,17 @@ private:
 
   int nevents;
 
-  // back-end interface
-  DQMStore * dbe;
-  
   DTROChainCoding coding;
 
   // Monitor Elements
   MonitorElement* nEventMonitor;
-  // <histoType, <index , histo> >    
+  // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > dduHistos;
-  // <histoType, histo> >    
+  // <histoType, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosSHistos;
-  // <histoType, <index , histo> >    
+  // <histoType, <index , histo> >
   std::map<std::string, std::map<int, MonitorElement*> > rosHistos;
-  // <histoType, <tdcID, histo> >   
+  // <histoType, <tdcID, histo> >
   std::map<std::string, std::map<int, MonitorElement*> > robHistos;
 
   // standard ME for monitoring of FED integrity
@@ -121,15 +124,19 @@ private:
   float trigger_counter;
   std::string outputFile;
   double rob_max[25];
-  
+
+  int FEDIDmin;
+  int FEDIDMax;
+
+
   //Event counter for the graphs VS time
   int myPrevEv;
-  
+
   //Monitor TTS,ROS,FIFO VS time
   int myPrevTtsVal;
   int myPrevRosVal;
   int myPrevFifoVal[7];
- 
+
   // event error flag: true when errors are detected
   // can be used for the selection of the debug stream
   bool eventErrorFlag;
@@ -142,8 +149,18 @@ private:
   int mode;
   std::string fedIntegrityFolder;
 
+  // The label to retrieve the digis
+  edm::EDGetTokenT<DTDDUCollection> dduToken;
+
+  edm::EDGetTokenT<DTROS25Collection> ros25Token;
+ 
 };
 
 
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

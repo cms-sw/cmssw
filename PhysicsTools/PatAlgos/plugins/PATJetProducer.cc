@@ -19,7 +19,6 @@
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
 
 #include "DataFormats/Candidate/interface/CandMatchMap.h"
-#include "SimDataFormats/JetMatching/interface/JetFlavourMatching.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -31,51 +30,62 @@
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
+#include "FWCore/Utilities/interface/transform.h"
+
 #include <vector>
 #include <memory>
 #include <algorithm>
-
 
 using namespace pat;
 
 
 PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
-  useUserData_(iConfig.exists("userData"))
+  useUserData_(iConfig.exists("userData")),
+  printWarning_(true)
 {
   // initialize configurables
-  jetsSrc_ = iConfig.getParameter<edm::InputTag>( "jetSource" );
+  jetsToken_ = consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>( "jetSource" ));
   embedCaloTowers_ = false; // parameter is optional
   if ( iConfig.exists("embedCaloTowers") ) {
     embedCaloTowers_ = iConfig.getParameter<bool>( "embedCaloTowers" );
   }
   embedPFCandidates_ = iConfig.getParameter<bool>( "embedPFCandidates" );
   getJetMCFlavour_ = iConfig.getParameter<bool>( "getJetMCFlavour" );
-  jetPartonMapSource_ = iConfig.getParameter<edm::InputTag>( "JetPartonMapSource" );
+  useLegacyJetMCFlavour_ = iConfig.getParameter<bool>( "useLegacyJetMCFlavour" );
+  addJetFlavourInfo_ = ( useLegacyJetMCFlavour_ ? false : iConfig.getParameter<bool>( "addJetFlavourInfo" ) );
+  if (getJetMCFlavour_ && useLegacyJetMCFlavour_)
+    jetPartonMapToken_ = consumes<reco::JetFlavourMatchingCollection>(iConfig.getParameter<edm::InputTag>( "JetPartonMapSource" ));
+  else if (getJetMCFlavour_ && !useLegacyJetMCFlavour_)
+    jetFlavourInfoToken_ = consumes<reco::JetFlavourInfoMatchingCollection>(iConfig.getParameter<edm::InputTag>( "JetFlavourInfoSource" ));
   addGenPartonMatch_ = iConfig.getParameter<bool>( "addGenPartonMatch" );
   embedGenPartonMatch_ = iConfig.getParameter<bool>( "embedGenPartonMatch" );
-  genPartonSrc_ = iConfig.getParameter<edm::InputTag>( "genPartonMatch" );
+  genPartonToken_ = mayConsume<edm::Association<reco::GenParticleCollection> >(iConfig.getParameter<edm::InputTag>( "genPartonMatch" ));
   addGenJetMatch_ = iConfig.getParameter<bool>( "addGenJetMatch" );
   embedGenJetMatch_ = iConfig.getParameter<bool>( "embedGenJetMatch" );
-  genJetSrc_ = iConfig.getParameter<edm::InputTag>( "genJetMatch" );
+  genJetToken_ = mayConsume<edm::Association<reco::GenJetCollection> >(iConfig.getParameter<edm::InputTag>( "genJetMatch" ));
   addPartonJetMatch_ = iConfig.getParameter<bool>( "addPartonJetMatch" );
-  partonJetSrc_ = iConfig.getParameter<edm::InputTag>( "partonJetSource" );
+//   partonJetToken_ = mayConsume<reco::SomePartonJetType>(iConfig.getParameter<edm::InputTag>( "partonJetSource" ));
   addJetCorrFactors_ = iConfig.getParameter<bool>( "addJetCorrFactors" );
-  jetCorrFactorsSrc_ = iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" );
+  if( addJetCorrFactors_ ) {
+    jetCorrFactorsTokens_ = edm::vector_transform(iConfig.getParameter<std::vector<edm::InputTag> >( "jetCorrFactorsSource" ), [this](edm::InputTag const & tag){return consumes<edm::ValueMap<JetCorrFactors> >(tag);});
+  }
   addBTagInfo_ = iConfig.getParameter<bool>( "addBTagInfo" );
   addDiscriminators_ = iConfig.getParameter<bool>( "addDiscriminators" );
   discriminatorTags_ = iConfig.getParameter<std::vector<edm::InputTag> >( "discriminatorSources" );
+  discriminatorTokens_ = edm::vector_transform(discriminatorTags_, [this](edm::InputTag const & tag){return mayConsume<reco::JetFloatAssociation::Container>(tag);});
   addTagInfos_ = iConfig.getParameter<bool>( "addTagInfos" );
   tagInfoTags_ = iConfig.getParameter<std::vector<edm::InputTag> >( "tagInfoSources" );
+  tagInfoTokens_ =edm::vector_transform(tagInfoTags_, [this](edm::InputTag const & tag){return mayConsume<edm::View<reco::BaseTagInfo> >(tag);});
   addAssociatedTracks_ = iConfig.getParameter<bool>( "addAssociatedTracks" );
-  trackAssociation_ = iConfig.getParameter<edm::InputTag>( "trackAssociationSource" );
+  trackAssociationToken_ = mayConsume<reco::JetTracksAssociation::Container>(iConfig.getParameter<edm::InputTag>( "trackAssociationSource" ));
   addJetCharge_ = iConfig.getParameter<bool>( "addJetCharge" );
-  jetCharge_ = iConfig.getParameter<edm::InputTag>( "jetChargeSource" );
+  jetChargeToken_ = mayConsume<reco::JetFloatAssociation::Container>(iConfig.getParameter<edm::InputTag>( "jetChargeSource" ));
   addJetID_ = iConfig.getParameter<bool>( "addJetID");
-  jetIDMapLabel_ = iConfig.getParameter<edm::InputTag>( "jetIDMap");
+  jetIDMapToken_ = mayConsume<reco::JetIDValueMap>(iConfig.getParameter<edm::InputTag>( "jetIDMap"));
   // Efficiency configurables
   addEfficiencies_ = iConfig.getParameter<bool>("addEfficiencies");
   if (addEfficiencies_) {
-     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"));
+     efficiencyLoader_ = pat::helper::EfficiencyLoader(iConfig.getParameter<edm::ParameterSet>("efficiencies"), consumesCollector());
   }
   // Resolution configurables
   addResolutions_ = iConfig.getParameter<bool>("addResolutions");
@@ -90,6 +100,9 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
         std::string::size_type pos = label.find("JetTags");
         if ((pos !=  std::string::npos) && (pos != label.length() - 7)) {
             label.erase(pos+7); // trim a tail after "JetTags"
+        }
+        if(it->instance().size()) {
+            label = (label+std::string(":")+it->instance()); 
         }
         discriminatorLabels_.push_back(label);
     }
@@ -109,7 +122,7 @@ PATJetProducer::PATJetProducer(const edm::ParameterSet& iConfig)  :
   if (!addBTagInfo_) { addDiscriminators_ = false; addTagInfos_ = false; }
   // Check to see if the user wants to add user data
   if ( useUserData_ ) {
-    userDataHelper_ = PATUserDataHelper<Jet>(iConfig.getParameter<edm::ParameterSet>("userData"));
+    userDataHelper_ = PATUserDataHelper<Jet>(iConfig.getParameter<edm::ParameterSet>("userData"), consumesCollector());
   }
   // produces vector of jets
   produces<std::vector<Jet> >();
@@ -130,6 +143,8 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // check whether dealing with MC or real data
   if (iEvent.isRealData()){
     getJetMCFlavour_   = false;
+    useLegacyJetMCFlavour_ = false;
+    addJetFlavourInfo_ = false;
     addGenPartonMatch_ = false;
     addGenJetMatch_    = false;
     addPartonJetMatch_ = false;
@@ -137,33 +152,35 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
   // Get the vector of jets
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(jetsSrc_, jets);
+  iEvent.getByToken(jetsToken_, jets);
 
   if (efficiencyLoader_.enabled()) efficiencyLoader_.newEvent(iEvent);
   if (resolutionLoader_.enabled()) resolutionLoader_.newEvent(iEvent, iSetup);
 
   // for jet flavour
   edm::Handle<reco::JetFlavourMatchingCollection> jetFlavMatch;
-  if (getJetMCFlavour_) iEvent.getByLabel (jetPartonMapSource_, jetFlavMatch);
+  edm::Handle<reco::JetFlavourInfoMatchingCollection> jetFlavInfoMatch;
+  if (getJetMCFlavour_ && useLegacyJetMCFlavour_) iEvent.getByToken (jetPartonMapToken_, jetFlavMatch);
+  else if (getJetMCFlavour_ && !useLegacyJetMCFlavour_) iEvent.getByToken (jetFlavourInfoToken_, jetFlavInfoMatch);
 
   // Get the vector of generated particles from the event if needed
   edm::Handle<edm::Association<reco::GenParticleCollection> > partonMatch;
-  if (addGenPartonMatch_) iEvent.getByLabel(genPartonSrc_,  partonMatch);
+  if (addGenPartonMatch_) iEvent.getByToken(genPartonToken_,  partonMatch);
   // Get the vector of GenJets from the event if needed
   edm::Handle<edm::Association<reco::GenJetCollection> > genJetMatch;
-  if (addGenJetMatch_) iEvent.getByLabel(genJetSrc_, genJetMatch);
+  if (addGenJetMatch_) iEvent.getByToken(genJetToken_, genJetMatch);
 /* TO BE IMPLEMENTED FOR >= 1_5_X
   // Get the vector of PartonJets from the event if needed
   edm::Handle<edm::View<reco::SomePartonJetType> > partonJets;
-  if (addPartonJetMatch_) iEvent.getByLabel(partonJetSrc_, partonJets);
+  if (addPartonJetMatch_) iEvent.getByToken(partonJetToken_, partonJets);
 */
 
   // read in the jet correction factors ValueMap
   std::vector<edm::ValueMap<JetCorrFactors> > jetCorrs;
   if (addJetCorrFactors_) {
-    for ( size_t i = 0; i < jetCorrFactorsSrc_.size(); ++i ) {
+    for ( size_t i = 0; i < jetCorrFactorsTokens_.size(); ++i ) {
       edm::Handle<edm::ValueMap<JetCorrFactors> > jetCorr;
-      iEvent.getByLabel(jetCorrFactorsSrc_[i], jetCorr);
+      iEvent.getByToken(jetCorrFactorsTokens_[i], jetCorr);
       jetCorrs.push_back( *jetCorr );
     }
   }
@@ -171,36 +188,36 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   // Get the vector of jet tags with b-tagging info
   std::vector<edm::Handle<reco::JetFloatAssociation::Container> > jetDiscriminators;
   if (addBTagInfo_ && addDiscriminators_) {
-    jetDiscriminators.resize(discriminatorTags_.size());
-    for (size_t i = 0; i < discriminatorTags_.size(); ++i) {
-        iEvent.getByLabel(discriminatorTags_[i], jetDiscriminators[i]);
+    jetDiscriminators.resize(discriminatorTokens_.size());
+    for (size_t i = 0; i < discriminatorTokens_.size(); ++i) {
+        iEvent.getByToken(discriminatorTokens_[i], jetDiscriminators[i]);
     }
   }
   std::vector<edm::Handle<edm::View<reco::BaseTagInfo> > > jetTagInfos;
   if (addBTagInfo_ && addTagInfos_) {
-    jetTagInfos.resize(tagInfoTags_.size());
-    for (size_t i = 0; i < tagInfoTags_.size(); ++i) {
-      iEvent.getByLabel(tagInfoTags_[i], jetTagInfos[i]);
+    jetTagInfos.resize(tagInfoTokens_.size());
+    for (size_t i = 0; i < tagInfoTokens_.size(); ++i) {
+      iEvent.getByToken(tagInfoTokens_[i], jetTagInfos[i]);
     }
   }
 
   // tracks Jet Track Association
   edm::Handle<reco::JetTracksAssociation::Container > hTrackAss;
-  if (addAssociatedTracks_) iEvent.getByLabel(trackAssociation_, hTrackAss);
+  if (addAssociatedTracks_) iEvent.getByToken(trackAssociationToken_, hTrackAss);
   edm::Handle<reco::JetFloatAssociation::Container > hJetChargeAss;
-  if (addJetCharge_) iEvent.getByLabel(jetCharge_, hJetChargeAss);
+  if (addJetCharge_) iEvent.getByToken(jetChargeToken_, hJetChargeAss);
 
   // jet ID handle
   edm::Handle<reco::JetIDValueMap> hJetIDMap;
-  if ( addJetID_ ) iEvent.getByLabel( jetIDMapLabel_, hJetIDMap );
+  if ( addJetID_ ) iEvent.getByToken( jetIDMapToken_, hJetIDMap );
 
   // loop over jets
-  std::auto_ptr< std::vector<Jet> > patJets ( new std::vector<Jet>() );
+  auto patJets = std::make_unique<std::vector<Jet>>();
 
-  std::auto_ptr<reco::GenJetCollection > genJetsOut ( new reco::GenJetCollection() );
-  std::auto_ptr<std::vector<CaloTower>  >  caloTowersOut( new std::vector<CaloTower> () );
-  std::auto_ptr<reco::PFCandidateCollection > pfCandidatesOut( new reco::PFCandidateCollection() );
-  std::auto_ptr<edm::OwnVector<reco::BaseTagInfo> > tagInfosOut ( new edm::OwnVector<reco::BaseTagInfo>() );
+  auto genJetsOut = std::make_unique<reco::GenJetCollection>();
+  auto caloTowersOut = std::make_unique<std::vector<CaloTower>>();
+  auto pfCandidatesOut = std::make_unique<reco::PFCandidateCollection>();
+  auto tagInfosOut = std::make_unique<edm::OwnVector<reco::BaseTagInfo>>();
 
 
   edm::RefProd<reco::GenJetCollection > h_genJetsOut = iEvent.getRefBeforePut<reco::GenJetCollection >( "genJets" );
@@ -208,7 +225,6 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   edm::RefProd<reco::PFCandidateCollection > h_pfCandidatesOut = iEvent.getRefBeforePut<reco::PFCandidateCollection > ( "pfCandidates" );
   edm::RefProd<edm::OwnVector<reco::BaseTagInfo> > h_tagInfosOut = iEvent.getRefBeforePut<edm::OwnVector<reco::BaseTagInfo> > ( "tagInfos" );
 
-  bool first=true; // this is introduced to issue warnings only for the first jet
   for (edm::View<reco::Jet>::const_iterator itJet = jets->begin(); itJet != jets->end(); itJet++) {
 
     // construct the Jet from the ref -> save ref to original object
@@ -265,7 +281,7 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
 
     if (addJetCorrFactors_) {
       // add additional JetCorrs to the jet
-      for ( unsigned int i=0; i<jetCorrFactorsSrc_.size(); ++i ) {
+      for ( unsigned int i=0; i<jetCorrFactorsTokens_.size(); ++i ) {
 	const JetCorrFactors& jcf = jetCorrs[i][jetRef];
 	// uncomment for debugging
 	// jcf.print();
@@ -280,17 +296,25 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
       }
       else{
 	ajet.initializeJEC(jetCorrs[0][jetRef].jecLevel("Uncorrected"));
-	if(first){
-	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the correction applied jetCorrFactors \n"
-						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << " jets will remain"
-						  << " uncorrected."; first=false;
+	if(printWarning_){
+	  edm::LogWarning("L3Absolute not found") << "L2L3Residual and L3Absolute are not part of the jetCorrFactors\n"
+						  << "of module " <<  jetCorrs[0][jetRef].jecSet() << ". Jets will remain"
+						  << " uncorrected."; printWarning_=false;
 	}
       }
     }
 
     // get the MC flavour information for this jet
-    if (getJetMCFlavour_) {
+    if (getJetMCFlavour_ && useLegacyJetMCFlavour_) {
         ajet.setPartonFlavour( (*jetFlavMatch)[edm::RefToBase<reco::Jet>(jetRef)].getFlavour() );
+    }
+    else if (getJetMCFlavour_ && !useLegacyJetMCFlavour_) {
+        if ( addJetFlavourInfo_ ) ajet.setJetFlavourInfo( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)] );
+        else
+        {
+          ajet.setPartonFlavour( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)].getPartonFlavour() );
+          ajet.setHadronFlavour( (*jetFlavInfoMatch)[edm::RefToBase<reco::Jet>(jetRef)].getHadronFlavour() );
+        }
     }
     // store the match to the generated partons
     if (addGenPartonMatch_) {
@@ -388,12 +412,12 @@ void PATJetProducer::produce(edm::Event & iEvent, const edm::EventSetup & iSetup
   std::sort(patJets->begin(), patJets->end(), pTComparator_);
 
   // put genEvt  in Event
-  iEvent.put(patJets);
+  iEvent.put(std::move(patJets));
 
-  iEvent.put( genJetsOut, "genJets" );
-  iEvent.put( caloTowersOut, "caloTowers" );
-  iEvent.put( pfCandidatesOut, "pfCandidates" );
-  iEvent.put( tagInfosOut, "tagInfos" );
+  iEvent.put(std::move(genJetsOut), "genJets" );
+  iEvent.put(std::move(caloTowersOut), "caloTowers" );
+  iEvent.put(std::move(pfCandidatesOut), "pfCandidates" );
+  iEvent.put(std::move(tagInfosOut), "tagInfos" );
 
 
 }
@@ -432,7 +456,7 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // track association
   iDesc.add<bool>("addAssociatedTracks", true);
-  iDesc.add<edm::InputTag>("trackAssociationSource", edm::InputTag("ic5JetTracksAssociatorAtVertex"));
+  iDesc.add<edm::InputTag>("trackAssociationSource", edm::InputTag("ak4JTA"));
 
   // tag info
   iDesc.add<bool>("addTagInfos", true);
@@ -450,7 +474,10 @@ void PATJetProducer::fillDescriptions(edm::ConfigurationDescriptions & descripti
 
   // jet flavour idetification configurables
   iDesc.add<bool>("getJetMCFlavour", true);
-  iDesc.add<edm::InputTag>("JetPartonMapSource", edm::InputTag("jetFlavourAssociation"));
+  iDesc.add<bool>("useLegacyJetMCFlavour", false);
+  iDesc.add<bool>("addJetFlavourInfo", false);
+  iDesc.add<edm::InputTag>("JetPartonMapSource", edm::InputTag("jetFlavourAssociationLegacy"));
+  iDesc.add<edm::InputTag>("JetFlavourInfoSource", edm::InputTag("jetFlavourAssociation"));
 
   pat::helper::KinResolutionsLoader::fillDescription(iDesc);
 

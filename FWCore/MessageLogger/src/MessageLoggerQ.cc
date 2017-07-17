@@ -107,16 +107,15 @@ namespace {
    }   
 
   // Changelog 14
-  boost::shared_ptr<StandAloneScribe> obtainStandAloneScribePtr() {   
-    static boost::shared_ptr<StandAloneScribe> 
-      standAloneScribe_ptr( new StandAloneScribe );
+  std::shared_ptr<StandAloneScribe> obtainStandAloneScribePtr() {   
+    static auto standAloneScribe_ptr = std::make_shared<StandAloneScribe>();
     return standAloneScribe_ptr;
   }
 
 
 } // end of anonymous namespace
 
-boost::shared_ptr<edm::service::AbstractMLscribe>  
+std::shared_ptr<edm::service::AbstractMLscribe>  
   MessageLoggerQ::mlscribe_ptr = obtainStandAloneScribePtr();  
   				// changeLog 8, 11, 14
 
@@ -131,13 +130,13 @@ MessageLoggerQ::~MessageLoggerQ()
 MessageLoggerQ *
   MessageLoggerQ::instance()
 {
-  static MessageLoggerQ queue;
+  [[cms::thread_safe]] static MessageLoggerQ queue;
   return &queue;
 }  // MessageLoggerQ::instance()
 
 void
   MessageLoggerQ::setMLscribe_ptr
-  	(boost::shared_ptr<edm::service::AbstractMLscribe> m) // changeLog 8, 14
+  	(std::shared_ptr<edm::service::AbstractMLscribe> m) // changeLog 8, 14
 {
   if (!m) { 
     mlscribe_ptr = obtainStandAloneScribePtr();
@@ -197,12 +196,6 @@ void
 {
   handshakedCommand(CONFIGURE, p, "CFG" );
 }  // MessageLoggerQ::CFG()
-
-void
-MessageLoggerQ::MLqEXT( service::NamedDestination* p )
-{
-  simpleCommand (EXTERN_DEST, static_cast<void *>(p)); 
-}
 
 void
   MessageLoggerQ::MLqSUM( )

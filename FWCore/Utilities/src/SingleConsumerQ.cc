@@ -28,7 +28,7 @@ namespace edm
   SingleConsumerQ::Buffer SingleConsumerQ::getProducerBuffer()
   {
     // get lock
-    boost::mutex::scoped_lock sl(pool_lock_);
+    std::unique_lock<std::mutex> sl(pool_lock_);
     // wait for buffer to appear
     while(pos_ < 0)
       {
@@ -42,7 +42,7 @@ namespace edm
   void SingleConsumerQ::releaseProducerBuffer(void* v)
   {
     // get lock
-    boost::mutex::scoped_lock sl(pool_lock_);
+    std::lock_guard<std::mutex> sl(pool_lock_);
     ++pos_;
     buffer_pool_[pos_] = v;
     pool_cond_.notify_all();
@@ -51,7 +51,7 @@ namespace edm
   void SingleConsumerQ::commitProducerBuffer(void* v, int len)
   {
     // get lock
-    boost::mutex::scoped_lock sl(queue_lock_);
+    std::unique_lock<std::mutex> sl(queue_lock_);
     // if full, wait for item to be removed
     while((bpos_+max_queue_depth_)==fpos_)
       {
@@ -68,7 +68,7 @@ namespace edm
   SingleConsumerQ::Buffer SingleConsumerQ::getConsumerBuffer()
   {
     // get lock
-    boost::mutex::scoped_lock sl(queue_lock_);
+    std::unique_lock<std::mutex> sl(queue_lock_);
     // if empty, wait for item to appear
     while(bpos_==fpos_)
       {

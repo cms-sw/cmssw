@@ -647,6 +647,7 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
   /* iphi (lower) starting index for each HO crate */
   int ihophis_loc[NHOCR]={71,17,35,53};
   memcpy( ihophis, ihophis_loc, sizeof(int)*NHOCR );
+
   //RM for the HO as a function of eta, phi and side as implemented in complete_ho_map.txt
   //There are only 24 phi columns because after that it begins to repeat. The relevant variable is phi mod 24.
   //HX as the 16th eta entry
@@ -688,6 +689,43 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
   //but the values won't be any different than when the regular loop is executed
   //int HO_RM_fi_etaYB0[2] = {4, 5}
   
+  //For |eta| 1 to 4, it is a function of phi, eta and side. eta 1-3 always have the same value given a side,
+  //eta 4 is separate and thus gets its own box
+  //threefold symmetry in iphi, repeats every three groups of 8 i.e., 1to8 == 25to32 == 49to56,
+  //similarly for the other iphi groups
+  //[iphi][ieta 1-3/4][side m/p]
+  //Actually has more modular structure which is not repetitive cyclicly
+  // groups of 4 in iphi repeat 1to4 == 17to20 == 21to24
+  // groups of 4 in iphi repeat 5to8 == 9to12 == 13to16
+  int HO_RM_fi_eta1to4_loc[24][2][2] = 
+    {           //side = -1            side = 1
+      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 1  to 8, Phi 25 to 32, Phi 49 to 56
+      {{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 9  to 16, Phi 33 to 40, Phi 57 to 64
+      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}} //Phi 17 to 24, Phi 41 to 48, Phi 65 to 72
+    };
+  memcpy( HO_RM_fi_eta1to4, HO_RM_fi_eta1to4_loc, sizeof(int)*24*2*2 );
+
+  /* new mapping with SiPMs in HO ring-0 */
+  //The mapping is different for HO ring-0 with HPDs (above) or SiPMs (here)
+  // as the SiPM mapping is not cyclic in the same way as before
+  //[iphi][ieta][side m/p]
+  //threefold symmetry in iphi, repeats every three lines i.e., 1to8 == 25to32 == 49to56,
+  //similarly for the other iphi groups
+  //(iphi-1)mod(24)
+  //ieta4,rm_fi5,fi_ch1 5 -> 3:{minus:evenphi,plus:oddphi}
+  //ieta4,rm_fi5,fi_ch2 5 -> 2:{minus:oddphi,plus:evenphi}
+  int HO_RM_fi_eta1to4_sipm_loc[24][4][2] = 
+    {           //side = -1            side = 1
+      {{5,3},{5,5},{7,3},{6,3}}, {{4,2},{7,4},{7,2},{6,2}}, {{5,3},{5,5},{7,3},{6,3}}, {{4,2},{7,4},{7,2},{6,2}}, //Phi 1   to  4
+      {{2,4},{4,7},{2,7},{2,6}}, {{3,5},{5,5},{3,7},{3,6}}, {{2,4},{4,7},{2,7},{2,6}}, {{3,5},{5,5},{3,7},{3,6}}, //Phi 5   to  8
+      {{2,4},{4,7},{2,7},{2,6}}, {{3,5},{5,5},{3,7},{3,6}}, {{2,4},{4,7},{2,7},{2,6}}, {{3,5},{5,5},{3,7},{3,6}}, //Phi 9   to 12
+      {{2,4},{4,7},{2,7},{2,6}}, {{3,5},{5,5},{3,7},{3,6}}, {{2,4},{4,7},{2,7},{2,6}}, {{3,5},{5,5},{3,7},{3,6}}, //Phi 13  to 16
+      {{5,3},{5,5},{7,3},{6,3}}, {{4,2},{7,4},{7,2},{6,2}}, {{5,3},{5,5},{7,3},{6,3}}, {{4,2},{7,4},{7,2},{6,2}}, //Phi 17 to 20
+      {{5,3},{5,5},{7,3},{6,3}}, {{4,2},{7,4},{7,2},{6,2}}, {{5,3},{5,5},{7,3},{6,3}}, {{4,2},{7,4},{7,2},{6,2}}, //Phi 21 to 24
+    };
+  memcpy( HO_RM_fi_eta1to4_sipm, HO_RM_fi_eta1to4_sipm_loc, sizeof(int)*24*4*2 );
+
+  // htr_fi
   int HO_htr_fi_450eta5to15_loc[2][11] = {{2, 2, 4, 6, 8, 2, 4, 6, 8, 4, 6},   //iside = -1
 					  {2, 8, 6, 4, 2, 8, 6, 4, 2, 4, 2}};  //iside = +1
   memcpy( HO_htr_fi_450eta5to15, HO_htr_fi_450eta5to15_loc, sizeof(int)*2*11 );
@@ -703,45 +741,82 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
   //for |eta| <= 4, htr_fi is a function of side and phmod6
   int HO_htr_fi_eta4_loc[2][6] = {{6, 6, 8, 8, 7, 7},   //iside = -1
 				  {4, 4, 5, 5, 3, 3}};  //iside = +1
-  memcpy( HO_htr_fi_eta4, HO_htr_fi_eta4_loc, sizeof(int)*2*6 );
-
+  if (mapIOV_<5)
+    memcpy( HO_htr_fi_eta4, HO_htr_fi_eta4_loc, sizeof(int)*2*6 );
+  
   int HO_htr_fi_eta123_loc[2][6] = {{6, 5, 4, 3, 8, 7},   //iside = -1
 				    {8, 7, 6, 5, 2, 1}};  //iside = +1
-  memcpy( HO_htr_fi_eta123, HO_htr_fi_eta123_loc, sizeof(int)*2*6 );
+  if (mapIOV_<5)
+    memcpy( HO_htr_fi_eta123, HO_htr_fi_eta123_loc, sizeof(int)*2*6 );
   
-  //HO_htr_fi_123eta5to15[2][11] is unnecessary because HO_htr_fi_123eta5to15[i][j] == int HO_htr_fi_450eta5to15[i][j] - 1
-    
-  //For |eta| 1 to 4, it is a function of phi, eta and side. eta 1-3 always have the same value given a side, eta 4 is separate
-  //and thus gets its own box
-  int HO_RM_fi_eta1to4_loc[72][2][2] = 
-    {           //side = -1            side = 1
-      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 1  to 8
-      {{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 9  to 16
-      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}}, //Phi 17 to 24
-      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 25 to 32
-      {{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 33 to 40
-      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}}, //Phi 41 to 48
-      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 49 to 56
-      {{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}},{{2,6},{5,4}},{{3,7},{5,4}}, //Phi 57 to 64
-      {{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}},{{7,3},{4,5}},{{6,2},{4,5}}  //Phi 65 to 72
-    };
-  memcpy( HO_RM_fi_eta1to4, HO_RM_fi_eta1to4_loc, sizeof(int)*72*2*2 );
+  //HO_htr_fi_123eta5to15[2][11] is unnecessary because
+  // HO_htr_fi_123eta5to15[i][j] == int HO_htr_fi_450eta5to15[i][j] - 1
 
-  //Pixel and letter code for the HO. Ring 0 is separate and goes into entry 0, Rings +/- 1,2 are all the same and go to entry 1.
-  //Pixel and let_code for HO ring 0 on the crosstalk channels: on rm_fi 4, pixel = 18, let_code = X
-  //Pixel and let_code for HO ring 0 on the crosstalk channels: on rm_fi 5, pixel = 2, let_code = X
-  //                    Fiber Channel       0        1       2         0       1       2          0       1       2
-  int ipixelHO_loc[NRMFIBR][NFCH][2] = {{{12,12},{ 7, 7},{ 6, 3}}, {{ 4, 4},{ 8, 8},{ 5, 1}}, {{19,11},{18, 6},{17, 2}},   //RM fibers 2,3,4
-					{{ 2, 9},{ 1,13},{ 3, 5}}, {{11,19},{16,18},{15,17}}, {{13,15},{ 9,14},{14,16}}}; //RM fibers 5,6,7
-  memcpy( ipixelHO, ipixelHO_loc, sizeof(int)*NRMFIBR*NFCH*2 );
-  //                            Fiber Channel        0         1         2            0         1         2            0       Y 1         2
-  std::string letterHO_loc[NRMFIBR][NFCH][2] = {{{"E","E"},{"G","L"},{"F","S"}}, {{"Q","M"},{"N","T"},{"P","F"}}, {{"A","C"},{"X","J"},{"J","Q"}},
-						{{"X","K"},{"R","R"},{"H","D"}}, {{"D","A"},{"C","G"},{"B","N"}}, {{"L","H"},{"M","P"},{"K","B"}}}; 
+  //post SiPM card swap
+  // htr_fi is a function of phmod6,eta,rm,side
+  // rm is a function of phimod6: rm = 1,4 for phimod6 > 3, and 2,3 otherwise
+  // to index the array, take rm/2 integer division
+  // cross-talk channels are separate
+  int HO_htr_fi_eta1234_sipm[6][5][2][2] = {
+    {   /*eta==1*/      /*eta==2*/     /*eta==3*/     /*eta==4*/     /*cross-talk*/
+      {{4,8},{6,4}}, {{4,4},{4,7}}, {{6,8},{6,7}}, {{5,8},{6,8}}, {{5,6},{-1,-1}} },//phm6==0
+    {
+      {{6,7},{5,6}}, {{6,6},{6,6}}, {{6,7},{5,7}}, {{5,7},{5,8}}, {{-1,-1},{4,8}} },//phm6==1
+    {
+      {{4,5},{5,6}}, {{5,5},{5,5}}, {{4,5},{4,6}}, {{4,6},{3,6}}, {{-1,-1},{3,8}} },//phm6==2
+    {
+      {{3,8},{8,5}}, {{8,8},{4,8}}, {{3,5},{4,5}}, {{3,6},{3,5}}, {{5,6},{-1,-1}} },//phm6==3
+    {////switches from rm 2/3 to rm 1/4
+     {{3,2},{8,3}}, {{3,3},{3,1}}, {{8,2},{8,1}}, {{7,2},{8,2}}, {{7,7},{-1,-1}} },//phm6==4
+    {
+     {{7,1},{7,7}}, {{8,7},{7,7}}, {{8,1},{7,1}}, {{7,1},{7,2}}, {{-1,-1},{3,2}} },//phm6==5
+  };
+
+  // Pixel and letter code for HO.
+  // Ring 0 is separate and goes into entry 0, Rings +/- 1,2 are all the same and go to entry 1.
+  // Pixel and let_code for HO ring 0 on the crosstalk channels: on rm_fi 4, pixel = 18, let_code = X
+  // Pixel and let_code for HO ring 0 on the crosstalk channels: on rm_fi 5, pixel = 2, let_code = X
+  //                    Fiber Channel       0        1       2
+  int ipixelHO_loc[NRMFIBR][NFCH][2] = {{{12,12},{ 7, 7},{ 6, 3}},  //RM fiber 2
+					{{ 4, 4},{ 8, 8},{ 5, 1}},  //RM fiber 3
+					{{19,11},{18, 6},{17, 2}},  //RM fiber 4
+					{{ 2, 9},{ 1,13},{ 3, 5}},  //RM fiber 5
+					{{11,19},{16,18},{15,17}},  //RM fiber 6
+					{{13,15},{ 9,14},{14,16}}}; //RM fiber 7
+  //changes for SiPM ring-0, interface card now identical to the cards in ring-1/2
+  int ipixelHO_sipm[NRMFIBR][NFCH][2] = {{{12,12},{ 7, 7},{ 3, 3}},  //RM fibers 2
+					 {{ 4, 4},{ 8, 8},{ 1, 1}},  //RM fibers 3
+					 {{11,11},{ 6, 6},{ 2, 2}},  //RM fibers 4
+					 {{ 9, 9},{13,13},{ 5, 5}},  //RM fibers 5
+					 {{19,19},{18,18},{17,17}},  //RM fibers 6
+					 {{15,15},{14,14},{16,16}}}; //RM fibers 7
+  if (mapIOV_ < 5)
+    memcpy( ipixelHO, ipixelHO_loc, sizeof(int)*NRMFIBR*NFCH*2 );
+  else
+    memcpy( ipixelHO, ipixelHO_sipm, sizeof(int)*NRMFIBR*NFCH*2 );
+
+  //                            Fiber Channel        0         1         2
+  std::string letterHO_loc[NRMFIBR][NFCH][2] = {{{"E","E"},{"G","L"},{"F","S"}},  //RM fiber 2
+						{{"Q","M"},{"N","T"},{"P","F"}},  //RM fiber 3
+						{{"A","C"},{"X","J"},{"J","Q"}},  //RM fiber 4
+						{{"X","K"},{"R","R"},{"H","D"}},  //RM fiber 5
+						{{"D","A"},{"C","G"},{"B","N"}},  //RM fiber 6
+						{{"L","H"},{"M","P"},{"K","B"}}}; //RM fiber 7
+  //changes for SiPM ring-0, interface card now identical to the cards in ring-1/2
+  std::string letterHO_sipm[NRMFIBR][NFCH][2] = {{{"E","E"},{"G","L"},{"H","S"}},  //RM fibers 2
+						 {{"Q","M"},{"N","T"},{"R","F"}},  //RM fibers 3
+						 {{"D","C"},{"F","J"},{"X","Q"}},  //RM fibers 4
+						 {{"M","K"},{"L","R"},{"P","D"}},  //RM fibers 5
+						 {{"A","A"},{"X","G"},{"J","N"}},  //RM fibers 6
+						 {{"B","H"},{"K","P"},{"C","B"}}}; //RM fibers 7
 
   for (int jj = 0; jj < NRMFIBR; jj++) {
     for (int kk = 0; kk < NFCH; kk++) {
       for (int ll = 0; ll < 2; ll++) {
-	letterHO[jj][kk][ll] = letterHO_loc[jj][kk][ll];
+	if (mapIOV_ < 5)
+	  letterHO[jj][kk][ll] = letterHO_loc[jj][kk][ll];
+	else
+	  letterHO[jj][kk][ll] = letterHO_sipm[jj][kk][ll];
       }
     }
   }
@@ -756,6 +831,8 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
   //    HO2P12 (phi=67) has not been active in 2009, and the cables have not been switched officially
   //  In the map, the inactive RBXs have been switched since the changes will be effected when the HO SiPMs
   //  are installed, also at that time, if it is possible, HO2M04 will be corrected as well.
+  // Following intervention in May 2009, the aforementioned changes have been implemented.
+  // All miscablings have been corrected
 
   //              switched HO RM's need reversed eta values
   if(mapIOV_==1) {
@@ -931,10 +1008,6 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
         //create values usable in arrays from side and fpga
         if   (iside == 1) sidear = 1;
         else              sidear = 0;
-        
-        if (fpga == "bot") itb = 1;//convention different than for the
-        else               itb = 0;//electronics id, modified in the 
-	//MapEntry code
 
         phmod24 = iph % 24;
         
@@ -945,45 +1018,32 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
         //  the new stuff for HX
         if          (ieta==16) irm_fi = HO_RM_fi_eta16;
         else if (ieta >= 5) irm_fi = HO_RM_fi_eta5to15[ieta - 5];
-        else if (ieta <= 3) irm_fi = HO_RM_fi_eta1to4[iph][0][sidear];
-        else if (ieta == 4) irm_fi = HO_RM_fi_eta1to4[iph][1][sidear];
-        else                irm_fi = -1000;
-        
-        //Determine which of HTR in the set belongs here. It depends only on eta and side.
-        //  the new stuff for HX
-        //if          (ieta==16)
-        //
-        if (ieta <= 3 || (ieta >= 14 && iside == 1))     ih = 0;
-        else if (ieta <= 13 && ieta >= 6 && iside == 1)  ih = 1;
-        else if (ieta <= 13 && ieta >= 6 && iside == -1) ih = 3;
-        else                                             ih = 2;
-        
-        //Each value of "is" covers 30 degrees (that is, 6 values of phi). To calculate which ones,
-        //I use phi % 18. Crates start at phi = 71, 17, 35, 53
-        
-        if (iphi % 18 == 17 || iphi % 18 <= 4)      is = 0;
-        else if (iphi % 18 >= 5 && iphi % 18 <= 10) is = 1;
-        else                                        is = 2;
-        
-        if ( ieta == 16 && iside > 0 ) ihtr=21;
-        else ihtr=ihslotho[is][ih];
-        
-        if ((ieta > 15 && iside > 0) && (icrate == 3 || icrate == 6))   ispigot = 12;
-        else if ((ieta > 15 && iside > 0) && (icrate == 7 || icrate == 13))   ispigot = 13;
-        else ispigot=ihtr<9?(ihtr-2)*2+itb:(ihtr-13)*2+itb;
-        idcc=ihtr<9?1:2;
-        idcc_sl = idcc == 1 ?10:20;
-        
-        ifed=fedhonum[ic][idcc-1];
+	else {
+	  if (mapIOV_ < 5) {
+	    if (ieta <= 3) irm_fi = HO_RM_fi_eta1to4[phmod24][0][sidear];
+	    else if (ieta == 4) irm_fi = HO_RM_fi_eta1to4[phmod24][1][sidear];
+	    else                irm_fi = -1000;
+	  }
+	  else if (mapIOV_ >= 5) {
+	    irm_fi = HO_RM_fi_eta1to4_sipm[phmod24][ieta-1][sidear];
+	  }
+	}
         
         //HTR fiber
         
         //
         if (ieta >= 5 && phmod6e450) ihtr_fi = HO_htr_fi_450eta5to15[sidear][ieta - 5];
         else if (ieta >= 5 && phmod6e123) ihtr_fi = HO_htr_fi_450eta5to15[sidear][ieta - 5] - 1;
-        else if (ieta == 4)               ihtr_fi = HO_htr_fi_eta4[sidear][phmod6];
-        else if (ieta <= 3)               ihtr_fi = HO_htr_fi_eta123[sidear][phmod6];
-        else                              ihtr_fi = -1000;
+	else if (ieta <= 4) {
+	  if (mapIOV_ < 5) {
+	    if (ieta == 4)      ihtr_fi = HO_htr_fi_eta4[sidear][phmod6];
+	    else if (ieta <= 3) ihtr_fi = HO_htr_fi_eta123[sidear][phmod6];
+	  }
+	  else if (mapIOV_ >= 5) {
+	    ihtr_fi = HO_htr_fi_eta1234_sipm[phmod6][ieta-1][(irm-1)/2][sidear];
+	  }
+	}
+	else                              ihtr_fi = -1000;
         
         //Fiber Channel
         //Eta >= 5 bools
@@ -1005,35 +1065,87 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
           else if (ieta % 2 == 1 && phi271011)     ifi_ch = 1;
           else if (ieta % 2 == 1 && phi1458)       ifi_ch = 2;
         }
-        else if (ieta == 4){
-          if (iside == -1){
-            if      (phir0v1)       ifi_ch = 0;
-            else if (phir0v4)       ifi_ch = 1;
-            else if (iphi % 2 == 1) ifi_ch = 2;
-          }
-          else{
-            if      (phir0v3)       ifi_ch = 0;
-            else if (phir0v2)       ifi_ch = 1;
-            else if (iphi % 2 == 0) ifi_ch = 2;
-          }
-        }
-        //eta = -3 and eta = +2
-        else if ((ieta == 3 && iside == -1) || (ieta == 2 && iside == 1)){
-          if      (phir0v4)            ifi_ch = 0;
-          else if (phir0v3)            ifi_ch = 1;
-          else if (phir0v1 || phir0v2) ifi_ch = 2;
-        }
-        //eta = -2 and eta = +3
-        else if ((ieta == 3 && iside == 1) || (ieta == 2 && iside == -1)){
-          if      (phir0v2)            ifi_ch = 0;
-          else if (phir0v1)            ifi_ch = 1;
-          else if (phir0v3 || phir0v4) ifi_ch = 2;
-        }
-        //ieta = 1
-        else if (ieta == 1){
-          if      (phir0v1 || phir0v3) ifi_ch = 0;
-          else if (phir0v2 || phir0v4) ifi_ch = 1;
-        }
+	else {
+	  if (mapIOV_ < 5) {
+	    if (ieta == 4){
+	      if (iside == -1){
+		if      (phir0v1)       ifi_ch = 0;
+		else if (phir0v4)       ifi_ch = 1;
+		else if (iphi % 2 == 1) ifi_ch = 2;
+	      }
+	      else{
+		if      (phir0v3)       ifi_ch = 0;
+		else if (phir0v2)       ifi_ch = 1;
+		else if (iphi % 2 == 0) ifi_ch = 2;
+	      }
+	    }
+	    //eta = -3 and eta = +2
+	    else if ((ieta == 3 && iside == -1) || (ieta == 2 && iside == 1)){
+	      if      (phir0v4)            ifi_ch = 0;
+	      else if (phir0v3)            ifi_ch = 1;
+	      else if (phir0v1 || phir0v2) ifi_ch = 2;
+	    }
+	    //eta = -2 and eta = +3
+	    else if ((ieta == 3 && iside == 1) || (ieta == 2 && iside == -1)){
+	      if      (phir0v2)            ifi_ch = 0;
+	      else if (phir0v1)            ifi_ch = 1;
+	      else if (phir0v3 || phir0v4) ifi_ch = 2;
+	    }
+	    //ieta = 1
+	    else if (ieta == 1){
+	      if      (phir0v1 || phir0v3) ifi_ch = 0;
+	      else if (phir0v2 || phir0v4) ifi_ch = 1;
+	    }
+	  }
+	  else {
+	    /*New code here for SiPM handling of rm fiber channel
+	      more challenging and requires some thought*/
+	    if (ieta == 4){
+	      if (iside == -1){
+		if      (phir0v1)       ifi_ch = 0;
+		else if (phir0v4)       ifi_ch = 2;
+		else if (iphi % 2 == 1) ifi_ch = 2;
+	      }
+	      else{
+		if      (phir0v3)       ifi_ch = 0;
+		else if (phir0v2)       ifi_ch = 2;
+		else if (iphi % 2 == 0) ifi_ch = 2;
+	      }
+	    }
+	    if (ieta == 2){
+	      if (iside == -1){
+		if (iphi % 2 == 0)      ifi_ch = 2;
+		else if (iphi % 2 == 1) ifi_ch = 1;
+	      }
+	      else{
+		if (iphi % 2 == 0)      ifi_ch = 1;
+		else if (iphi % 2 == 1) ifi_ch = 2;
+	      }
+	    }
+	    if (ieta == 3){
+	      if (iside == -1){
+		if (iphi % 2 == 0)      ifi_ch = 0;
+		else if (iphi % 2 == 1) ifi_ch = 1;
+	      }
+	      else{
+		if (iphi % 2 == 1)      ifi_ch = 0;
+		else if (iphi % 2 == 0) ifi_ch = 1;
+	      }
+	    }
+	    if (ieta == 1){
+	      if (iside == -1){
+		if      (phir0v1)       ifi_ch = 0;
+		else if (phir0v4)       ifi_ch = 1;
+		else if (iphi % 2 == 1) ifi_ch = 0;
+	      }
+	      else{
+		if      (phir0v3)       ifi_ch = 0;
+		else if (phir0v2)       ifi_ch = 1;
+		else if (iphi % 2 == 0) ifi_ch = 0;
+	      }
+	    }
+	  }
+	}        	
         	
         //Intentional integer truncation; iqie and iadc are the same across all subdetectors
         //(Although irm_fi for HF starts at 1 and for HO it starts at 2, so one can't just copy and paste)
@@ -1051,6 +1163,78 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
           ipixel = ipixelHO[irm_fi - 2][ifi_ch][1];
           letter = letterHO[irm_fi - 2][ifi_ch][1];
         }
+        
+	//special treatment for new ring-0 SiPMs fpga
+	int mytype = -1; //variable that allows grouping of channels
+	if (ieta <= 4 && mapIOV_ >= 5) {
+	  if (ipixel==3 || ipixel==7 || ipixel==12 || ipixel==14 || ipixel==17 || ipixel==18) {
+	    mytype = 1;
+	    if (phmod6==1 || phmod6==3)
+	      fpga = "top";
+	    else
+	      fpga = "bot";
+	  }
+	  else if (ipixel==1 || ipixel==4 || ipixel==8 || ipixel==15 || ipixel==16 || ipixel==19) {
+	    mytype = 2;
+	    if (phmod6==0 || phmod6==2)
+	      fpga = "top";
+	    else
+	      fpga = "bot";
+	  }
+	  else if (ipixel==2 || ipixel==5 || ipixel==6 || ipixel==9 || ipixel==11 || ipixel==13) {
+	    mytype = 3;
+	    fpga = "top";
+	  }
+        }
+
+        if (fpga == "bot") itb = 1;//convention different than for the
+        else               itb = 0;//electronics id, modified in the 
+	//MapEntry code
+
+        //Determine which of HTR in the set belongs here. It depends only on eta and side.
+        //  the new stuff for HX
+        if (ieta <= 3 || (ieta >= 14 && iside == 1))     ih = 0;
+        else if (ieta <= 13 && ieta >= 6 && iside == 1)  ih = 1;
+        else if (ieta <= 13 && ieta >= 6 && iside == -1) ih = 3;
+        else                                             ih = 2;
+        
+	////special treatment for new ring-0 SiPMs
+	// the htrs are grouped in chunks of ((ph+2) mod 18)/6
+	//71,72,1,2,3,4
+	// and indexed by the mytype variable previously defined
+	int php2mod18 = (iph+2)%18;
+	int php2mod18ov6 = php2mod18/6;
+	
+        //Each value of "is" covers 30 degrees (that is, 6 values of phi). To calculate which ones,
+        //I use phi % 18. Crates start at phi = 71, 17, 35, 53
+        
+        if (iphi % 18 == 17 || iphi % 18 <= 4)      is = 0;
+        else if (iphi % 18 >= 5 && iphi % 18 <= 10) is = 1;
+        else                                        is = 2;
+        
+        if ( ieta == 16 && iside > 0 ) ihtr=21;
+	else if (ieta > 4)
+	  ihtr=ihslotho[is][ih];
+        else {
+	  //special treatment only for ring-0
+	  if (mapIOV_ < 5)
+	    ihtr=ihslotho[is][ih];
+	  else {
+	    if (mytype == 1 || mytype == 2)
+	      ih = 0;
+	    else
+	      ih = 2;
+	    ihtr=ihslotho[php2mod18ov6][ih];
+	  }
+	}
+        
+        if ((ieta > 15 && iside > 0) && (icrate == 3 || icrate == 6))   ispigot = 12;
+        else if ((ieta > 15 && iside > 0) && (icrate == 7 || icrate == 13))   ispigot = 13;
+        else ispigot=ihtr<9?(ihtr-2)*2+itb:(ihtr-13)*2+itb;
+        idcc=ihtr<9?1:2;
+        idcc_sl = idcc == 1 ?10:20;
+        
+        ifed=fedhonum[ic][idcc-1];
         
         //RBX and sector
         
@@ -1160,7 +1344,25 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
           if (ipixel==1){
             ipixel = 2;
             iadc = 4;
-            ifi_ch = 0;
+	    if (mapIOV_ < 5)
+	      ifi_ch = 0;
+	    else {
+	      irm_fi = 4;
+	      ifi_ch = 2;
+	      if (irm_fi % 2 == 0) iadc = ifi_ch;
+	      else       	   iadc = NFCH + (ifi_ch + 1) % 3;
+	      iqie = (irm_fi - 2) / 2 + 1;
+	      ihtr_fi = HO_htr_fi_eta1234_sipm[phmod6][4][(irm-1)/2][sidear];
+	      itb = 0;
+	      fpga = "top";
+	      mytype = 3;
+	      ih = 2;
+	      ihtr=ihslotho[php2mod18ov6][ih];
+	      ispigot = ihtr<9?(ihtr-2)*2+itb:(ihtr-13)*2+itb;
+	      idcc=ihtr<9?1:2;
+	      idcc_sl = idcc == 1 ?10:20;
+	      ifed=fedhonum[ic][idcc-1];
+	    }
             letter = "X";
             det = "HOX";
             HOHXLogicalMapEntry hoxlmapentry(
@@ -1185,7 +1387,28 @@ void HcalLogicalMapGenerator::buildHOXMap(const HcalTopology* topo,
           else if (ipixel==17){
             ipixel = 18;
             iadc = 1;
-            ifi_ch = 1;
+	    if (mapIOV_ < 5)
+	      ifi_ch = 1;
+	    else {
+	      irm_fi = 6;
+	      ifi_ch = 1;
+	      if (irm_fi % 2 == 0) iadc = ifi_ch;
+	      else       	   iadc = NFCH + (ifi_ch + 1) % 3;
+	      iqie = (irm_fi - 2) / 2 + 1;
+	      ihtr_fi = HO_htr_fi_eta1234_sipm[phmod6][4][(irm-1)/2][sidear];
+	      if (phmod6==1 || phmod6==3) {
+		itb = 0;
+		fpga = "top";
+	      }
+	      else {
+		itb = 1;
+		fpga = "bot";
+	      }
+	      ispigot = ihtr<9?(ihtr-2)*2+itb:(ihtr-13)*2+itb;
+	      idcc=ihtr<9?1:2;
+	      idcc_sl = idcc == 1 ?10:20;
+	      ifed=fedhonum[ic][idcc-1];
+	    }
             letter = "X";
             det = "HOX";
             HOHXLogicalMapEntry hoxlmapentry(
@@ -1490,8 +1713,8 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
           
           (ieta==0) ? iphi=((iwedge*idphi)+71-idphi)%72 : iphi=(((iwedge/2)*idphi)+71-idphi)%72;
           //nothing on htr_fi=4 for the top
-          do {
-            if (iside==0&&ifb==3) break;
+          //do {
+	  if (iside==0&&ifb==3) continue; // adjust logic since no longer inside loop
             CALIBLogicalMapEntry caliblmapentry(
 						ifi_ch, ihtr_fi, ispigot, ifed, icrate, ihtr, fpga,
 						det, ieta, iphi, ich_type, 
@@ -1504,7 +1727,7 @@ void HcalLogicalMapGenerator::buildCALIBMap(const HcalTopology* topo,
 	    const HcalGenericDetId hgdi(caliblmapentry.getDetId());	  
 	    const unsigned int hashedId=topo->detId2denseIdCALIB(hgdi);
 	    if (hgdi.genericSubdet()==HcalGenericDetId::HcalGenCalibration) HxCalibHash2Entry.at(hashedId)=CALIBEntries.size();
-	  } while (ifb!=ifb);
+	  //} while (ifb!=ifb);
         }
       }
     }

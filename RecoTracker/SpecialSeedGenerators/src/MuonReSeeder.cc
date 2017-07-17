@@ -10,7 +10,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -25,10 +25,10 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryMeasurement.h"
 #include "CommonTools/Utils/interface/StringCutObjectSelector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
-class MuonReSeeder : public edm::EDProducer {
+class MuonReSeeder : public edm::stream::EDProducer<> {
     public:
       explicit MuonReSeeder(const edm::ParameterSet & iConfig);
       virtual ~MuonReSeeder() { }
@@ -37,7 +37,7 @@ class MuonReSeeder : public edm::EDProducer {
 
     private:
       /// Labels for input collections
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<reco::Muon> > src_;
 
       /// Muon selection
       StringCutObjectSelector<reco::Muon> selector_;
@@ -57,7 +57,7 @@ class MuonReSeeder : public edm::EDProducer {
 };
 
 MuonReSeeder::MuonReSeeder(const edm::ParameterSet & iConfig) :
-    src_(iConfig.getParameter<edm::InputTag>("src")),
+    src_(consumes<edm::View<reco::Muon> >(iConfig.getParameter<edm::InputTag>("src"))),
     selector_(iConfig.existsAs<std::string>("cut") ? iConfig.getParameter<std::string>("cut") : "", true),
     layersToKeep_(iConfig.getParameter<int32_t>("layersToKeep")),
     insideOut_(iConfig.getParameter<bool>("insideOut")),
@@ -75,13 +75,13 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
     refitter_.setServices(iSetup);
 
     Handle<View<reco::Muon> > src;
-    iEvent.getByLabel(src_, src);
+    iEvent.getByToken(src_, src);
 
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopo;
-    iSetup.get<IdealGeometryRecord>().get(tTopo);
+    iSetup.get<TrackerTopologyRcd>().get(tTopo);
 
-    auto_ptr<vector<TrajectorySeed> > out(new vector<TrajectorySeed>());
+    auto out = std::make_unique<std::vector<TrajectorySeed>>();
     unsigned int nsrc = src->size();
     out->reserve(nsrc);
 
@@ -146,7 +146,7 @@ MuonReSeeder::produce(edm::Event & iEvent, const edm::EventSetup & iSetup) {
         out->push_back(seed);
     }
 
-    iEvent.put(out);
+    iEvent.put(std::move(out));
 }
 
 

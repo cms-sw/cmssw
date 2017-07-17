@@ -9,7 +9,7 @@
 #include <vector>
 
 #include "DataFormats/SiStripDigi/interface/SiStripDigi.h"
-namespace {
+namespace DataFormats_SiStripDigi {
   struct dictionary1 {
     edm::Wrapper<SiStripDigi > zs0;
     edm::Wrapper<std::vector<SiStripDigi> > zs1;
@@ -22,7 +22,7 @@ namespace {
 
 #include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
 #include "boost/cstdint.hpp" 
-namespace {
+namespace DataFormats_SiStripDigi {
   struct dictionary2 {
     edm::Wrapper<SiStripRawDigi > raw0;
     edm::Wrapper<std::vector<SiStripRawDigi> > raw1;
@@ -34,7 +34,7 @@ namespace {
 }
 
 #include "DataFormats/SiStripDigi/interface/SiStripProcessedRawDigi.h"
-namespace {
+namespace DataFormats_SiStripDigi {
   struct dictionary3 {
     edm::Wrapper<SiStripProcessedRawDigi > praw0;
     edm::Wrapper<std::vector<SiStripProcessedRawDigi> > praw1;

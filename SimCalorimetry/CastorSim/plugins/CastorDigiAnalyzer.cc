@@ -38,7 +38,7 @@ e.getByLabel("mix", "g4SimHitsCastorFI", castorcf);
 
 
 //access to SimHits
-std::auto_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(castorcf.product()));
+std::unique_ptr<MixCollection<PCaloHit> > hits(new MixCollection<PCaloHit>(castorcf.product()));
 //  if (hits.isValid()) {
     castorHitAnalyzer_.fillHits(*hits);
     CastorDigiAnalyzerImpl::analyze<CastorDigiCollection>(e, castorDigiStatistics_, castorDigiCollectionTag_);

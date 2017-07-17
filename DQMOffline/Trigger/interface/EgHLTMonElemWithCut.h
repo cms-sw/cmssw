@@ -48,14 +48,14 @@ namespace egHLT {
     MonElemWithCut& operator=(const MonElemWithCut& rhs){return *this;}
   public:
     
-    MonElemWithCut(const std::string& name,const std::string& title,int nrBins,double xMin,double xMax,
+    MonElemWithCut(DQMStore::IBooker &iBooker,const std::string& name,const std::string& title,int nrBins,double xMin,double xMax,
 		   varTypeX (T::*varFunc)()const,const EgHLTDQMCut<T>* cut=NULL):
-      monElemMgr_(new MonElemManager<T,varTypeX>(name,title,nrBins,xMin,xMax,varFunc)),
+      monElemMgr_(new MonElemManager<T,varTypeX>(iBooker,name,title,nrBins,xMin,xMax,varFunc)),
       cut_(cut){}
     
-    MonElemWithCut(const std::string& name,const std::string& title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
+    MonElemWithCut(DQMStore::IBooker &iBooker,const std::string& name,const std::string& title,int nrBinsX,double xMin,double xMax,int nrBinsY,double yMin,double yMax,
 		   varTypeX (T::*varFuncX)()const,varTypeY (T::*varFuncY)()const,const EgHLTDQMCut<T>* cut=NULL):
-      monElemMgr_(new MonElemManager2D<T,varTypeX,varTypeY>(name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY)),
+      monElemMgr_(new MonElemManager2D<T,varTypeX,varTypeY>(iBooker,name,title,nrBinsX,xMin,xMax,nrBinsY,yMin,yMax,varFuncX,varFuncY)),
       cut_(cut){}
     ~MonElemWithCut();
     

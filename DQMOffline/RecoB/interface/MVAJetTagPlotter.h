@@ -13,20 +13,19 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 
-class MVAJetTagPlotter : public BaseTagInfoPlotter {
+class MVAJetTagPlotter: public BaseTagInfoPlotter {
 
  public:
 
   MVAJetTagPlotter (const std::string & tagName, const EtaPtBin & etaPtBin,
-	const edm::ParameterSet& pSet, const std::string& folderName, const bool& update, const unsigned int& mc);
+		    const edm::ParameterSet& pSet, const std::string& folderName, 
+		    unsigned int mc, bool willFinalize, DQMStore::IBooker & ibook);
 
   ~MVAJetTagPlotter ();
 
-  virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const int & jetFlavour);
-  virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, const int & jetFlavour, const float & w);
+  virtual void analyzeTag (const std::vector<const reco::BaseTagInfo *> & baseTagInfos, double jec, int jetFlavour, float w=1);
 
-  virtual void finalize ();
-
+  virtual void finalize (DQMStore::IBooker & ibook_, DQMStore::IGetter & igetter_);
 
   void epsPlot(const std::string & name);
 
@@ -41,7 +40,7 @@ class MVAJetTagPlotter : public BaseTagInfoPlotter {
   const GenericMVAJetTagComputer *computer;
 
   reco::TaggingVariableName categoryVariable;
-  std::vector<TaggingVariablePlotter*> categoryPlotters;
+  std::vector<std::unique_ptr<TaggingVariablePlotter>> categoryPlotters;
 };
 
 #endif

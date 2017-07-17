@@ -1,5 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
-dtDCSByLumiSummary = cms.EDAnalyzer("DTDCSByLumiSummary")
+dtDCSByLumiSummary = DQMEDHarvester("DTDCSByLumiSummary")
 
 

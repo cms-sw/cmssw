@@ -17,9 +17,9 @@
 // user include files
 #include "Alignment/MuonAlignment/interface/MuonAlignmentInputSurveyDB.h"
 #include "CondFormats/AlignmentRecord/interface/DTSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/DTSurveyErrorExtendedRcd.h"
 #include "CondFormats/AlignmentRecord/interface/CSCSurveyRcd.h"
-#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorRcd.h"
+#include "CondFormats/AlignmentRecord/interface/CSCSurveyErrorExtendedRcd.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
 
 //
@@ -63,17 +63,17 @@ MuonAlignmentInputSurveyDB::~MuonAlignmentInputSurveyDB() {}
 //
 
 AlignableMuon *MuonAlignmentInputSurveyDB::newAlignableMuon(const edm::EventSetup& iSetup) const {
-   boost::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
-   boost::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
+   std::shared_ptr<DTGeometry> dtGeometry = idealDTGeometry(iSetup);
+   std::shared_ptr<CSCGeometry> cscGeometry = idealCSCGeometry(iSetup);
 
    edm::ESHandle<Alignments> dtSurvey;
    edm::ESHandle<SurveyErrors> dtSurveyError;
    edm::ESHandle<Alignments> cscSurvey;
    edm::ESHandle<SurveyErrors> cscSurveyError;
    iSetup.get<DTSurveyRcd>().get(m_dtLabel, dtSurvey);
-   iSetup.get<DTSurveyErrorRcd>().get(m_dtLabel, dtSurveyError);
+   iSetup.get<DTSurveyErrorExtendedRcd>().get(m_dtLabel, dtSurveyError);
    iSetup.get<CSCSurveyRcd>().get(m_cscLabel, cscSurvey);
-   iSetup.get<CSCSurveyErrorRcd>().get(m_cscLabel, cscSurveyError);
+   iSetup.get<CSCSurveyErrorExtendedRcd>().get(m_cscLabel, cscSurveyError);
 
    AlignableMuon *output = new AlignableMuon(&(*dtGeometry), &(*cscGeometry));
 

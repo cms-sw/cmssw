@@ -15,7 +15,6 @@
 
 // system include files
 #include <memory>
-#include <boost/shared_ptr.hpp>
 
 // user include files
 
@@ -34,7 +33,7 @@ public:
   ~L1MuGMTParametersOnlineProducer();
   
   /// The method that actually implements the production of the parameter objects
-  virtual boost::shared_ptr<L1MuGMTParameters> newObject( const std::string& objectKey );
+  virtual std::shared_ptr<L1MuGMTParameters> newObject( const std::string& objectKey );
  protected:
 
   void checkCMSSWVersion(const coral::AttributeList& configRecord);

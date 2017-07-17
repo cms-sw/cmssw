@@ -2,6 +2,7 @@
 
 // Shows CMS tracker, calo and muon system.
 // Depth can be set for each part independently.
+#include "common_foos.C"
 
 TEveGeoTopNode *g_cms_tracker = 0;
 TEveGeoTopNode *g_cms_calo    = 0;

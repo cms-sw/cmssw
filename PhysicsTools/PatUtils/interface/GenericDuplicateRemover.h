@@ -24,7 +24,7 @@ namespace pat {
             ///      arbitrator(x1, x2) should return true if x1 is better, that is we want to keep x1 and delete x2
             /// Collection can be vector, View, or anything with the same interface
             template <typename Collection>
-            std::auto_ptr< std::vector<size_t> >
+            std::unique_ptr< std::vector<size_t> >
             duplicates(const Collection &items) const ;
 
         private:
@@ -36,7 +36,7 @@ namespace pat {
 
 template<typename Comparator, typename Arbitrator>
 template<typename Collection>
-std::auto_ptr< std::vector<size_t> >
+std::unique_ptr< std::vector<size_t> >
 pat::GenericDuplicateRemover<Comparator,Arbitrator>::duplicates(const Collection &items) const 
 {
     size_t size = items.size();
@@ -57,7 +57,7 @@ pat::GenericDuplicateRemover<Comparator,Arbitrator>::duplicates(const Collection
         }
     }
 
-    std::auto_ptr< std::vector<size_t> > ret(new std::vector<size_t>());
+    auto ret = std::make_unique<std::vector<size_t>>();
 
     for (size_t i = 0; i < size; ++i) {
         if (bad[i]) ret->push_back(i);

@@ -32,7 +32,7 @@ namespace npstat {
         // Minimum is set to Numeric(), maximum to the given argument.
         // An exception is thrown if the argument is smaller than Numeric().
         */
-        inline Interval(const Numeric max)
+        inline explicit Interval(const Numeric max)
             : min_(Numeric()), max_(max)
         {
             if (min_ > max_) throw npstat::NpstatInvalidArgument(

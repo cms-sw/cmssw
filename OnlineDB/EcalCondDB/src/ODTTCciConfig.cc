@@ -40,7 +40,7 @@ ODTTCciConfig::~ODTTCciConfig()
 {
 }
 
-int ODTTCciConfig::fetchNextId()  throw(std::runtime_error) {
+int ODTTCciConfig::fetchNextId()  noexcept(false) {
 
   int result=0;
   try {
@@ -65,7 +65,7 @@ int ODTTCciConfig::fetchNextId()  throw(std::runtime_error) {
 
 
 void ODTTCciConfig::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -161,7 +161,7 @@ void ODTTCciConfig::setParameters(const std::map<string,string>& my_keys_map){
 
 
 void ODTTCciConfig::writeDB()
-  throw(std::runtime_error)
+  noexcept(false)
 {
 
 
@@ -205,7 +205,7 @@ void ODTTCciConfig::writeDB()
 
 
 void ODTTCciConfig::fetchData(ODTTCciConfig * result)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   result->clear();
@@ -259,7 +259,7 @@ void ODTTCciConfig::fetchData(ODTTCciConfig * result)
 
 
 
-int ODTTCciConfig::fetchID()    throw(std::runtime_error)
+int ODTTCciConfig::fetchID()    noexcept(false)
 {
   if (m_ID!=0) {
     return m_ID;

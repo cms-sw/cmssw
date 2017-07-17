@@ -11,10 +11,7 @@ class G4Track;
 class G4TrackToParticleID
 {
 public:
-    G4TrackToParticleID();
-    ~G4TrackToParticleID();
-    int particleID(const G4Track *);
-private:
+  static int particleID(const G4Track *);
 };
 
 #endif

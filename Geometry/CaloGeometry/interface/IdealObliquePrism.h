@@ -23,7 +23,6 @@
   is encoded in the sign of the thickness.  (positive = parallel to
   z-axis, negative = perpendicular)
 
-  $Revision: 1.10 $
   \author J. Mans - Minnesota
   */
 class IdealObliquePrism : public CaloCellGeometry 
@@ -40,12 +39,10 @@ public:
   IdealObliquePrism& operator=( const IdealObliquePrism& idop ) ;
 	 
   IdealObliquePrism( const GlobalPoint& faceCenter, 
-		     const CornersMgr*  mgr       ,
+		     CornersMgr*        mgr       ,
 		     const CCGFloat*    parm       ) ;
 
-  virtual ~IdealObliquePrism() ;
-
-  virtual const CornersVec& getCorners() const ;
+  ~IdealObliquePrism() override ;
 
   CCGFloat dEta() const ;
   CCGFloat dPhi() const ;
@@ -57,11 +54,12 @@ public:
 			    const CCGFloat* pv  ,
 			    Pt3D&           ref  ) ;
 
-  virtual void vocalCorners( Pt3DVec&        vec ,
+  void vocalCorners( Pt3DVec&        vec ,
 			     const CCGFloat* pv  ,
-			     Pt3D&           ref  ) const ;
+			     Pt3D&           ref  ) const override;
 
 private:
+  void initCorners(CornersVec&)  override;
 
   static GlobalPoint etaPhiPerp( float eta, float phi, float perp ) ;
   static GlobalPoint etaPhiZ(float eta, float phi, float z) ;

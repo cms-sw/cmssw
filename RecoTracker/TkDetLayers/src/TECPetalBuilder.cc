@@ -22,10 +22,10 @@ TECPetal* TECPetalBuilder::build(const GeometricDet* aTECPetal,
 
   for(vector<const GeometricDet*>::const_iterator it=theGeometricWedges.begin();
       it!=theGeometricWedges.end();it++){
-    if( fabs((*it)->positionBounds().z()) < fabs(meanZ) ) 
+    if( std::abs((*it)->positionBounds().z()) < std::abs(meanZ) ) 
       theInnerWedges.push_back(myWedgeBuilder.build(*it,theGeomDetGeometry));
     
-    if( fabs((*it)->positionBounds().z()) > fabs(meanZ) ) 
+    if( std::abs((*it)->positionBounds().z()) > std::abs(meanZ) ) 
       theOuterWedges.push_back(myWedgeBuilder.build(*it,theGeomDetGeometry));
   }
   

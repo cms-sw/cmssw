@@ -382,6 +382,7 @@ void  popcon::EcalTPGLutGroupHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGLutGroupHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

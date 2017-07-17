@@ -2,7 +2,6 @@
 #define SiStripApvGainBuilderFromTag_H
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "CondCore/DBCommon/interface/Exception.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -40,8 +39,6 @@ class SiStripApvGainBuilderFromTag : public edm::EDAnalyzer
   virtual void analyze(const edm::Event& , const edm::EventSetup& );
 
  private:
-  /// Given the map and the detid it returns the corresponding layer/ring
-  std::pair<int, int> subDetAndLayer(const uint32_t detit, const TrackerTopology* tTopo) const;
   /// Fills the parameters read from cfg and matching the name in the given map
   void fillParameters(std::map<int, std::vector<double> > & mapToFill, const std::string & parameterName) const;
   /**

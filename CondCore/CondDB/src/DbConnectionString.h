@@ -1,14 +1,17 @@
 #ifndef CondCore_CondDB_DbConnectionString_h
 #define CondCore_CondDB_DbConnectionString_h
 
+#include "CondCore/CondDB/interface/Utils.h"
 //
 #include <string>
 
-namespace conddb {
+namespace cond {
 
-    std::string getRealConnectionString( const std::string& initialConnection );
+  namespace persistency {
 
-    std::string getRealConnectionString( const std::string& initialConnection, const std::string& transId );
+    std::pair<std::string,std::string> getConnectionParams( const std::string& initialConnection, const std::string& transId, const std::string& signature );
+
+  }
 
 }
 

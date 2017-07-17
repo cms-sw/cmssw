@@ -27,6 +27,9 @@
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
+#include "CLHEP/Units/GlobalPhysicalConstants.h"
+#include "CLHEP/Units/GlobalSystemOfUnits.h"
+
 #include <math.h>
 
 //#define DebugLog

@@ -1,7 +1,7 @@
 #
 # Misc functions to manipulate Ecal records
 # author: Stefano Argiro
-# id: $Id: EcalCondTools.py,v 1.12 2009/11/03 17:40:07 yma Exp $
+# id: $Id: EcalCondTools.py,v 1.14 2013/05/06 08:29:44 argiro Exp $
 #
 #
 # WARNING: we assume that the list of iovs for a given tag
@@ -18,7 +18,7 @@ from math import sqrt
 def listTags(db):
     '''List all available tags for a given db '''
     try:
-        db.startTransaction()
+        db.startReadOnlyTransaction()
         tags = db.allTags()
         db.commitTransaction()
         for tag in tags.split():
@@ -36,14 +36,14 @@ def listIovs(db,tag):
        for p in iovlist:
            print "  Since " , p[1], " Till " , p[2]
      
-    except Exception,er :
+    except Exception as er :
         print " listIovs exception ",er 
 
 def dumpXML(db,tag,since,filename='dump.xml'):
     '''Dump record in XML format for a given tag '''
     try :
        iov = inspect.Iov(db,tag)
-       db.startTransaction()
+       db.startReadOnlyTransaction()
        Plug = __import__(str(db.payloadModules(tag)[0]))
        payload = Plug.Object(db)
        listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
@@ -58,7 +58,7 @@ def dumpXML(db,tag,since,filename='dump.xml'):
        out = open(filename,'w')
        print >> out, payload
       
-    except Exception,er :
+    except Exception as er :
         print " dumpXML exception ",er
 
 def plot (db, tag,since,filename='plot.root'):
@@ -67,7 +67,7 @@ def plot (db, tag,since,filename='plot.root'):
    
     try :
        iov = inspect.Iov(db,tag)
-       db.startTransaction()
+       db.startReadOnlyTransaction()
        Plug = __import__(str(db.payloadModules(tag)[0]))
        payload = Plug.Object(db)
        listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
@@ -81,7 +81,7 @@ def plot (db, tag,since,filename='plot.root'):
        payload = inspect.PayLoad(db, tag, elem)
        payload.plot(filename,"",[],[])
             
-    except Exception,er :
+    except Exception as er :
         print " plot exception ",er
         
 
@@ -100,7 +100,7 @@ def compare(tag1,db1,since1,
   if  tag1.find(".xml") < 0:
       found=0
       try:
-        db1.startTransaction()
+        db1.startReadOnlyTransaction()
         Plug = __import__(str(db1.payloadModules(tag1)[0]))
         payload = Plug.Object(db1)
         listOfIovElem= [iovElem for iovElem in db1.iov(tag1).elements]
@@ -123,7 +123,7 @@ def compare(tag1,db1,since1,
             coeff_1_e = [i for i in exe.values()]
         db1.commitTransaction()
 
-      except Exception,er :
+      except Exception as er :
         print " compare first set exception ",er
       if not found :
         print "Could not retrieve payload for tag: " , tag1, " since: ", since1
@@ -135,7 +135,7 @@ def compare(tag1,db1,since1,
   if  tag2.find(".xml")<0:
       found=0
       try:  
-        db2.startTransaction()
+        db2.startReadOnlyTransaction()
         Plug = __import__(str(db2.payloadModules(tag2)[0]))
         what = {'how':'barrel'}
         w = inspect.setWhat(Plug.What(),what)
@@ -155,7 +155,7 @@ def compare(tag1,db1,since1,
             coeff_2_e = [i for i in exe.values()]
         db2.commitTransaction()
      
-      except Exception, er :
+      except Exception as er :
           print " compare second set exception ",er
       if not found :
         print "Could not retrieve payload for tag: " , tag2, " since: ", since2
@@ -242,7 +242,7 @@ def histo (db, tag,since,filename='histo.root'):
       found=0
       try:  
 #          exec('import '+db.moduleName(tag)+' as Plug')
-        db.startTransaction()
+        db.startReadOnlyTransaction()
         Plug = __import__(str(db.payloadModules(tag)[0]))
         payload = Plug.Object(db)
         listOfIovElem= [iovElem for iovElem in db.iov(tag).elements]
@@ -262,7 +262,7 @@ def histo (db, tag,since,filename='histo.root'):
             coeff_endc = [i for i in exe.values()]
         db.commitTransaction()
 
-      except Exception, er :
+      except Exception as er :
           print " histo exception ",er
       if not found :
         print "Could not retrieve payload for tag: " , tag, " since: ", since
@@ -341,7 +341,7 @@ def getToken(db,tag,since):
        print "Could not retrieve token for tag: " , tag, " since: ", since
        sys.exit(0)
        
-    except Exception, er :
+    except Exception as er :
        print er
 
 
@@ -364,7 +364,7 @@ def getObject(db,tag,since):
 #               return Plug.Object(elem)
                return elem
            
-    except Exception, er :
+    except Exception as er :
         print " getObject exception ",er
 
     if not found :

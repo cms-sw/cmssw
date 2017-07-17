@@ -11,12 +11,12 @@ using namespace btag;
 
 LeptonSelector::LeptonSelector(const edm::ParameterSet &params) :
   m_sign(option(params.getParameter<std::string>("ipSign"))),
-  m_leptonId(reco::SoftLeptonProperties::quality::btagLeptonCands),
+  m_leptonId(reco::SoftLeptonProperties::Quality::btagLeptonCands),
   m_qualityCut(0.5)
 {
   if (params.exists("leptonId") || params.exists("qualityCut")) {
     std::string leptonId = params.getParameter<std::string>("leptonId");
-    m_leptonId = reco::SoftLeptonProperties::quality::byName<reco::SoftLeptonProperties::quality::Generic>(leptonId.c_str());
+    m_leptonId = reco::SoftLeptonProperties::Quality::byName<reco::SoftLeptonProperties::Quality::Generic>(leptonId.c_str());
     m_qualityCut = params.getParameter<double>("qualityCut");
   }
 }
@@ -27,14 +27,14 @@ LeptonSelector::~LeptonSelector()
 
 bool LeptonSelector::operator() (const reco::SoftLeptonProperties &properties, bool use3d) const
 {
-  float sip = use3d ? properties.sip3d : properties.sip2d;
-  if ((isPositive() && sip <= 0.0) ||
-      (isNegative() && sip >= 0.0))
+  float sipsig = use3d ? properties.sip3dsig : properties.sip2dsig;
+  if ((isPositive() && sipsig <= 0.0) ||
+      (isNegative() && sipsig >= 0.0))
     return false;
 
-  bool candSelection = (m_leptonId == reco::SoftLeptonProperties::quality::btagLeptonCands);
+  bool candSelection = (m_leptonId == reco::SoftLeptonProperties::Quality::btagLeptonCands);
   float quality = properties.quality(m_leptonId, !candSelection);
-  if (candSelection && quality == reco::SoftLeptonProperties::quality::undef)
+  if (candSelection && quality == reco::SoftLeptonProperties::Quality::undef)
    return true;		// for backwards compatibility
 
   return quality > m_qualityCut;

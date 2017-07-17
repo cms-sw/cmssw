@@ -1,6 +1,6 @@
 #include "RecoLocalCalo/HcalRecAlgos/interface/HcalSeverityLevelComputer.h"
 #include "CondFormats/HcalObjects/interface/HcalChannelStatus.h"
-#include "RecoLocalCalo/HcalRecAlgos/interface/HcalCaloFlagLabels.h"
+#include "DataFormats/METReco/interface/HcalCaloFlagLabels.h"
 #include "DataFormats/HcalDetId/interface/HcalGenericDetId.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -44,7 +44,11 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit == "HBHEFlatNoise")     setBit(HcalCaloFlagLabels::HBHEFlatNoise, mydef.HBHEFlagMask);
   else if (mybit == "HBHESpikeNoise")    setBit(HcalCaloFlagLabels::HBHESpikeNoise, mydef.HBHEFlagMask);
   else if (mybit == "HBHETriangleNoise") setBit(HcalCaloFlagLabels::HBHETriangleNoise, mydef.HBHEFlagMask);
-  else if (mybit == "HBHETS4TS5Noise") setBit(HcalCaloFlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
+  else if (mybit == "HBHETS4TS5Noise")   setBit(HcalCaloFlagLabels::HBHETS4TS5Noise, mydef.HBHEFlagMask);
+  else if (mybit == "HBHENegativeNoise") setBit(HcalCaloFlagLabels::HBHENegativeNoise, mydef.HBHEFlagMask);
+  else if (mybit == "HBHEPulseFitBit")   setBit(HcalCaloFlagLabels::HBHEPulseFitBit, mydef.HBHEFlagMask);
+  else if (mybit == "HBHEOOTPU")         setBit(HcalCaloFlagLabels::HBHEOOTPU, mydef.HBHEFlagMask);
+
 
   // These are multi-bit counters; we may have to revisit how to set them in the SLComputer in the future
   else if (mybit=="HBHETimingTrustBits") setBit(HcalCaloFlagLabels::HBHETimingTrustBits, mydef.HBHEFlagMask );
@@ -76,9 +80,7 @@ bool HcalSeverityLevelComputer::getRecHitFlag(HcalSeverityDefinition& mydef,
   else if (mybit== "AddedSimHcalNoise")     setAllRHMasks(HcalCaloFlagLabels::AddedSimHcalNoise,   mydef);
 
   else if (mybit == "UserDefinedBit0")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit0,     mydef);
-  else if (mybit == "UserDefinedBit1")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit1,     mydef);
-  else if (mybit == "UserDefinedBit2")      setAllRHMasks(HcalCaloFlagLabels::UserDefinedBit2,     mydef);
-  
+    
 
   // additional defined diagnostic bits; not currently used for rejection
   else if (mybit == "PresampleADC")         setAllRHMasks(HcalCaloFlagLabels::PresampleADC,     mydef);
@@ -226,7 +228,11 @@ HcalSeverityLevelComputer::HcalSeverityLevelComputer( const edm::ParameterSet& i
 } // HcalSeverityLevelComputer::HcalSeverityLevelComputer
 
 
-HcalSeverityLevelComputer::~HcalSeverityLevelComputer() {}
+HcalSeverityLevelComputer::~HcalSeverityLevelComputer()
+{
+    delete DropChannel_;
+    delete RecoveredRecHit_;
+}
 
   
 int HcalSeverityLevelComputer::getSeverityLevel(const DetId& myid, const uint32_t& myflag, 

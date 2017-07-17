@@ -130,28 +130,28 @@ process.source = cms.Source(
 zSelection = cms.PSet(
     cut = cms.string("charge = 0 & daughter(0).pt > 20 & daughter(1).pt > 20 & abs(daughter(0).eta)<2.0 & abs(daughter(1).eta)<2.0 & mass > 20"),
     isoCut = cms.double(3.),
-    ptThreshold = cms.untracked.double("1.5"),
-    etEcalThreshold = cms.untracked.double("0.2"),
-    etHcalThreshold = cms.untracked.double("0.5"),
-    deltaRVetoTrk = cms.untracked.double("0.015"),
-    deltaRTrk = cms.untracked.double("0.3"),
-    deltaREcal = cms.untracked.double("0.25"),
-    deltaRHcal = cms.untracked.double("0.25"),
-    alpha = cms.untracked.double("0."),
-    beta = cms.untracked.double("-0.75"),
+    ptThreshold = cms.untracked.double(1.5),
+    etEcalThreshold = cms.untracked.double(0.2),
+    etHcalThreshold = cms.untracked.double(0.5),
+    deltaRVetoTrk = cms.untracked.double(0.015),
+    deltaRTrk = cms.untracked.double(0.3),
+    deltaREcal = cms.untracked.double(0.25),
+    deltaRHcal = cms.untracked.double(0.25),
+    alpha = cms.untracked.double(0.),
+    beta = cms.untracked.double(-0.75),
     relativeIsolation = cms.bool(False)
 
 # For standard isolation (I_Tkr<3GeV) choose this configuration:
 #   isoCut = cms.double(3.),
-#   ptThreshold = cms.untracked.double("1.5"),
-#   etEcalThreshold = cms.untracked.double("0.2"),
-#   etHcalThreshold = cms.untracked.double("0.5"),
-#   deltaRVetoTrk = cms.untracked.double("0.015"),
-#   deltaRTrk = cms.untracked.double("0.3"),
-#   deltaREcal = cms.untracked.double("0.25"),
-#   deltaRHcal = cms.untracked.double("0.25"),
-#   alpha = cms.untracked.double("0."),
-#   beta = cms.untracked.double("-0.75"),
+#   ptThreshold = cms.untracked.double(1.5),
+#   etEcalThreshold = cms.untracked.double(0.2),
+#   etHcalThreshold = cms.untracked.double(0.5),
+#   deltaRVetoTrk = cms.untracked.double(0.015),
+#   deltaRTrk = cms.untracked.double(0.3),
+#   deltaREcal = cms.untracked.double(0.25),
+#   deltaRHcal = cms.untracked.double(0.25),
+#   alpha = cms.untracked.double(0.),
+#   beta = cms.untracked.double(-0.75),
 #   relativeIsolation = cms.bool(False)
 
 
@@ -274,44 +274,44 @@ goodZToMuMuTemplate = cms.EDFilter(
 process.DimuGlobalNotIsoStat = cms.EDAnalyzer(
     "DimuonStatistics",
     src = cms.InputTag("dimuonsGlobal"), # dimuonsOneTrack, dimuonsOneStandAlone
-    ptMin = cms.untracked.double("20.0"),
-    massMin = cms.untracked.double("60.0"),
-    massMax = cms.untracked.double("120.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("2.0"),
-    trkIso = cms.untracked.double("10000")
+    ptMin = cms.untracked.double(20.0),
+    massMin = cms.untracked.double(60.0),
+    massMax = cms.untracked.double(120.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(2.0),
+    trkIso = cms.untracked.double(10000)
     )
 
 process.DimuGlobalIsoStat = cms.EDAnalyzer(
     "DimuonStatistics",
     src = cms.InputTag("dimuonsGlobal"), 
-    ptMin = cms.untracked.double("20.0"),
-    massMin = cms.untracked.double("60.0"),
-    massMax = cms.untracked.double("120.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("2.0"),
-    trkIso = cms.untracked.double("3.0")
+    ptMin = cms.untracked.double(20.0),
+    massMin = cms.untracked.double(60.0),
+    massMax = cms.untracked.double(120.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(2.0),
+    trkIso = cms.untracked.double(3.0)
     )
 
 process.DimuOneTrackIsoStat=cms.EDAnalyzer(
     "DimuonStatistics",
     src = cms.InputTag("dimuonsOneTrack"), 
-    ptMin = cms.untracked.double("20.0"),
-    massMin = cms.untracked.double("60.0"),
-    massMax = cms.untracked.double("120.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("2.0"),
-    trkIso = cms.untracked.double("3.0")
+    ptMin = cms.untracked.double(20.0),
+    massMin = cms.untracked.double(60.0),
+    massMax = cms.untracked.double(120.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(2.0),
+    trkIso = cms.untracked.double(3.0)
     )
 process.DimuOneStaIsoStat=cms.EDAnalyzer(
     "DimuonStatistics",
     src = cms.InputTag("dimuonsOneStandAloneMuon"), 
-    ptMin = cms.untracked.double("20.0"),
-    massMin = cms.untracked.double("60.0"),
-    massMax = cms.untracked.double("120.0"),
-    etaMin = cms.untracked.double("-1.0"),
-    etaMax = cms.untracked.double("2.0"),
-    trkIso = cms.untracked.double("3.0")
+    ptMin = cms.untracked.double(20.0),
+    massMin = cms.untracked.double(60.0),
+    massMax = cms.untracked.double(120.0),
+    etaMin = cms.untracked.double(-1.0),
+    etaMax = cms.untracked.double(2.0),
+    trkIso = cms.untracked.double(3.0)
     )
  
 

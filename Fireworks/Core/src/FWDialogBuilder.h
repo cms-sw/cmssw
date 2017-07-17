@@ -46,6 +46,7 @@ protected:
    TGLayoutHints *nextHints();
    TGCompositeFrame *nextFrame();
    TGVerticalFrame  *verticalFrame();
+   void            frameForTab();
 
 private:   
    TGCompositeFrame *m_window;

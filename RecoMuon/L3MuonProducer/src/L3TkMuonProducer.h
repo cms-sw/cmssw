@@ -10,7 +10,7 @@
  */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -22,7 +22,7 @@
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class L3TkMuonProducer : public edm::EDProducer {
+class L3TkMuonProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -33,7 +33,7 @@ class L3TkMuonProducer : public edm::EDProducer {
   virtual ~L3TkMuonProducer(); 
   
   /// produce candidates
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
   typedef edm::Ref<L3MuonTrajectorySeedCollection> SeedRef;
   
@@ -41,6 +41,9 @@ class L3TkMuonProducer : public edm::EDProducer {
   
   // L3/GLB Collection Label
   edm::InputTag theL3CollectionLabel; 
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+
+
 
   //psuedo ref is L2 or L1 ref.
   typedef std::pair<unsigned int,unsigned int> pseudoRef;

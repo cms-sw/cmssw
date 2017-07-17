@@ -1,17 +1,13 @@
-#ifndef PhysicsTools_CandAlgos_EventShapeVarsProducer_h  
+#ifndef PhysicsTools_CandAlgos_EventShapeVarsProducer_h
 #define PhysicsTools_CandAlgos_EventShapeVarsProducer_h
 
 /** \class EventShapeVarsProducer
  *
  * Produce set of event shape variables.
  * The values of different event shape variables are stored as doubles in the event.
- * They can be retrieved via:
- *
- *   edm::Handle<double> specificEventShapeVar;
- *   evt.getByLabel("moduleName::instanceName", specificEventShapeVar);
- *
- * where moduleName corresponds to "eventShapeVarsProducer" per default
- * and instance name specifies an individual event shape variable which you wish to retrieve from the event:
+ * They can be retrieved with InputTags like "moduleName::instanceName", where moduleName corresponds to
+ * "eventShapeVarsProducer" per default and instance name specifies an individual event shape variable
+ * which you wish to retrieve from the event:
  *
  *  - thrust
  *  - oblateness
@@ -38,16 +34,18 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "PhysicsTools/CandUtils/interface/EventShapeVariables.h"
+
 class EventShapeVarsProducer : public edm::EDProducer
 {
  public:
-  
+
   explicit EventShapeVarsProducer(const edm::ParameterSet&);
   ~EventShapeVarsProducer() {}
-  
+
  private:
 
-  edm::InputTag src_;
+  edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
   double r_;
 
   void beginJob() {}
@@ -56,6 +54,6 @@ class EventShapeVarsProducer : public edm::EDProducer
 
 };
 
-#endif  
+#endif
 
 

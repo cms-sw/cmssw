@@ -7,7 +7,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/Framework/interface/Event.h"
@@ -18,8 +18,8 @@
 
 #include "CommonTools/ParticleFlow/interface/PFPileUpAlgo.h"
 
-/**\class PFPileUp 
-\brief Identifies pile-up candidates from a collection of PFCandidates, and 
+/**\class PFPileUp
+\brief Identifies pile-up candidates from a collection of PFCandidates, and
 produces the corresponding collection of PileUpCandidates.
 
 \author Colin Bernet
@@ -31,7 +31,7 @@ produces the corresponding collection of PileUpCandidates.
 
 
 
-class PFPileUp : public edm::EDProducer {
+class PFPileUp : public edm::stream::EDProducer<> {
  public:
 
   typedef std::vector< edm::FwdPtr<reco::PFCandidate> >  PFCollection;
@@ -41,20 +41,20 @@ class PFPileUp : public edm::EDProducer {
   explicit PFPileUp(const edm::ParameterSet&);
 
   ~PFPileUp();
-  
-  virtual void produce(edm::Event&, const edm::EventSetup&);
 
-  virtual void beginJob();
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
-  
+
   PFPileUpAlgo    pileUpAlgo_;
-  
+
   /// PFCandidates to be analyzed
-  edm::InputTag   inputTagPFCandidates_;
-  
+  edm::EDGetTokenT<PFCollection>   tokenPFCandidates_;
+  /// fall-back token
+  edm::EDGetTokenT<PFView>   tokenPFCandidatesView_;
+
   /// vertices
-  edm::InputTag   inputTagVertices_;
+  edm::EDGetTokenT<reco::VertexCollection>   tokenVertices_;
 
   /// enable PFPileUp selection
   bool   enable_;

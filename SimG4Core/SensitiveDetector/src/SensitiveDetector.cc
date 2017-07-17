@@ -11,8 +11,9 @@
 
 using std::string;
 
-SensitiveDetector::SensitiveDetector(string & iname, const DDCompactView & cpv,
-				     SensitiveDetectorCatalog & clg, 
+SensitiveDetector::SensitiveDetector(std::string & iname, 
+				     const DDCompactView & cpv,
+				     const SensitiveDetectorCatalog & clg,
 				     edm::ParameterSet const & p) :
   G4VSensitiveDetector(iname), name(iname) {}
 
@@ -26,14 +27,14 @@ void SensitiveDetector::Register()
   SDman->AddNewDetector(this);
 }
 
-void SensitiveDetector::AssignSD(string & vname)
+void SensitiveDetector::AssignSD(const std::string & vname)
 {
-    G4LogicalVolumeStore * theStore = G4LogicalVolumeStore::GetInstance();
-    G4LogicalVolumeStore::const_iterator it;
-    for (it = theStore->begin(); it != theStore->end(); it++)
+  G4LogicalVolumeStore * theStore = G4LogicalVolumeStore::GetInstance();
+  G4LogicalVolumeStore::const_iterator it;
+  for (it = theStore->begin(); it != theStore->end(); it++)
     {
-	G4LogicalVolume * v = *it;
-	if (vname==v->GetName()) v->SetSensitiveDetector(this);
+      G4LogicalVolume * v = *it;
+      if (vname==v->GetName()) { v->SetSensitiveDetector(this); }
     }
 }
 
@@ -76,14 +77,14 @@ Local3DPoint SensitiveDetector::ConvertToLocal3DPoint(const G4ThreeVector& p)
 void SensitiveDetector::NaNTrap( G4Step* aStep )
 {
 
-    if ( aStep == NULL ) return ;
+    if ( aStep == nullptr ) return ;
     
     G4Track* CurrentTrk = aStep->GetTrack() ;
     G4ThreeVector CurrentPos = CurrentTrk->GetPosition() ;
     G4ThreeVector CurrentMom = CurrentTrk->GetMomentum() ;
     G4VPhysicalVolume* pCurrentVol = CurrentTrk->GetVolume() ;
     G4String NameOfVol ;
-    if ( pCurrentVol != NULL )
+    if ( pCurrentVol != nullptr )
     {
        NameOfVol = pCurrentVol->GetName() ;
     }
@@ -92,8 +93,9 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
        NameOfVol = "CorruptedVolumeInfo" ;
     }
     
-    // for simplicity... maybe edm::isNotFinite() will work on the 3-vector directly...
-    //
+    // for simplicity... maybe edm::isNotFinite() will work on the 
+    // 3-vector directly...
+
     double xyz[3] ;
     xyz[0] = CurrentPos.x() ;
     xyz[1] = CurrentPos.y() ;
@@ -106,23 +108,19 @@ void SensitiveDetector::NaNTrap( G4Step* aStep )
     // if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) )
     if( edm::isNotFinite(xyz[0]+xyz[1]+xyz[2]) != 0 )
     {
-       // std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
-       throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position)" ) ;
+      throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (position) in volume " + NameOfVol);
     }
 
     xyz[0] = CurrentMom.x() ;
     xyz[1] = CurrentMom.y() ;
     xyz[2] = CurrentMom.z() ;
     if ( !(xyz[0]==xyz[0]) || !(xyz[1]==xyz[1]) || !(xyz[2]==xyz[2]) ||
-         edm::isNotFinite(xyz[0]) != 0 || edm::isNotFinite(xyz[1]) != 0 || edm::isNotFinite(xyz[2]) != 0 )
+         edm::isNotFinite(xyz[0]) != 0 || edm::isNotFinite(xyz[1]) != 0 || 
+	 edm::isNotFinite(xyz[2]) != 0 )
     {
-       std::cout << " NaN detected in volume " << NameOfVol << std::endl ;
-       throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum)" ) ;
+      throw SimG4Exception( "SimG4CoreSensitiveDetector: Corrupted Event - NaN detected (3-momentum) in volume " + NameOfVol);
     }
 
-   return ;
+   return;
 
 }
-
-
-

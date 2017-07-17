@@ -3,7 +3,7 @@
 
 /** \class HLTGlobalSums
  *
- *  
+ *
  *  This class is an HLTFilter (-> EDFilter) implementing cuts on
  *  global sums such as the scalar sum of Et (a.k.a. H_T), available
  *  in the T=CaloMET or T=MET object.
@@ -30,7 +30,7 @@ class HLTGlobalSums : public HLTFilter {
       explicit HLTGlobalSums(const edm::ParameterSet&);
       ~HLTGlobalSums();
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
    private:
       // configuration

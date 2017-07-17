@@ -7,7 +7,7 @@
  **
  ***/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -24,7 +24,6 @@
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
 #include "RecoEcal/EgammaCoreTools/interface/PositionCalc.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "RecoEgamma/PhotonIdentification/interface/PhotonIsolationCalculator.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
@@ -35,7 +34,7 @@
 #include "RecoEgamma/EgammaPhotonAlgos/interface/PhotonEnergyCorrector.h"
 
 // PhotonProducer inherits from EDProducer, so it can be a module:
-class PhotonProducer : public edm::EDProducer {
+class PhotonProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -44,7 +43,7 @@ class PhotonProducer : public edm::EDProducer {
 
   virtual void beginRun (edm::Run const& r, edm::EventSetup const & es) override final;
   virtual void endRun(edm::Run const&,  edm::EventSetup const&) override final;
-  virtual void produce(edm::Event& evt, const edm::EventSetup& es);
+  virtual void produce(edm::Event& evt, const edm::EventSetup& es) override;
 
  private:
 
@@ -63,11 +62,11 @@ class PhotonProducer : public edm::EDProducer {
 
   // std::string PhotonCoreCollection_;
   std::string PhotonCollection_;
-  edm::InputTag photonCoreProducer_;
-  edm::InputTag barrelEcalHits_;
-  edm::InputTag endcapEcalHits_;
-
-  edm::InputTag hcalTowers_;
+  edm::EDGetTokenT<reco::PhotonCoreCollection> photonCoreProducer_;
+  edm::EDGetTokenT<EcalRecHitCollection> barrelEcalHits_;
+  edm::EDGetTokenT<EcalRecHitCollection> endcapEcalHits_;
+  edm::EDGetTokenT<CaloTowerCollection> hcalTowers_;
+  edm::EDGetTokenT<reco::VertexCollection> vertexProducer_;
 
   std::string conversionProducer_;
   std::string conversionCollection_;
@@ -91,7 +90,7 @@ class PhotonProducer : public edm::EDProducer {
 
   bool validConversions_;
   std::string pixelSeedProducer_;
-  std::string vertexProducer_;
+  
   bool usePrimaryVertex_;
   edm::ParameterSet conf_;
 

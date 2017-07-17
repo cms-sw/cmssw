@@ -35,6 +35,9 @@
 //
 // class declaration
 //
+namespace edm {
+  class HepMCProduct;
+}
 
 class HZZ4lFilter : public edm::EDFilter {
    public:
@@ -47,7 +50,7 @@ class HZZ4lFilter : public edm::EDFilter {
       
       // ----------member data ---------------------------
 
-       std::string label_;
+       edm::EDGetTokenT<edm::HepMCProduct> token_;
        
        double minPtElectronMuon;
        double maxEtaElectronMuon;

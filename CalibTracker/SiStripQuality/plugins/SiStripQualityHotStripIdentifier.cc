@@ -8,6 +8,7 @@
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackingRecHit/interface/TrackingRecHit.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -85,7 +86,7 @@ SiStripBadStrip* SiStripQualityHotStripIdentifier::getNewObject(){
 void SiStripQualityHotStripIdentifier::algoBeginRun(const edm::Run& run, const edm::EventSetup& iSetup){
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   tTopo = tTopoHandle.product();
  
   resetHistos(); 

@@ -1,45 +1,15 @@
 import FWCore.ParameterSet.Config as cms
 
+# online trigger objects monitoring
+from DQM.HLTEvF.HLTObjectsMonitor_cfi import *
 
-# HLT Online -----------------------------------
-# AlCa
-#from DQM.HLTEvF.HLTAlCaMonPi0_cfi import *
-#from DQM.HLTEvF.HLTAlCaMonEcalPhiSym_cfi import *
-# JetMET
-#from DQM.HLTEvF.HLTMonJetMETDQMSource_cfi import *
-# Electron
-#from DQM.HLTEvF.HLTMonEleBits_cfi import *
-# Muon
-#from DQM.HLTEvF.HLTMonMuonDQM_cfi import *
-#from DQM.HLTEvF.HLTMonMuonBits_cfi import *
-# Photon
-#from DQM.HLTEvF.HLTMonPhotonBits_cfi import *
-# Tau
-#from DQM.HLTEvF.HLTMonTau_cfi import *
-#from DQM.HLTEvF.hltMonBTagIPSource_cfi import *
-#from DQM.HLTEvF.hltMonBTagMuSource_cfi import *
-# hltMonjmDQM  bombs
-# hltMonMuDQM dumps names of all histograms in the directory
-# hltMonPhotonBits in future releases
-# *hltMonJetMET makes a log file, need to learn how to turn it off
-# *hltMonEleBits causes SegmentFaults in HARVESTING(step3) in inlcuded in step2
-
-#import DQMServices.Components.DQMEnvironment_cfi
-#dqmEnvHLTOnline = DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
-#dqmEnvHLTOnline.subSystemFolder = 'HLT'
-
-#onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonEleBits*hltMonMuBits*hltMonTauReco*hltMonBTagIPSource*hltMonBTagMuSource*dqmEnvHLTOnline)
-#onlineHLTSource = cms.Sequence(EcalPi0Mon*EcalPhiSymMon*hltMonMuBits*dqmEnvHLTOnline)
-
-# HLT Offline -----------------------------------
-
-# FourVector
-#from DQMOffline.Trigger.FourVectorHLTOffline_cfi import *
+# lumi
+from DQMOffline.Trigger.DQMOffline_LumiMontiroring_cff import *
 # Egamma
 from DQMOffline.Trigger.HLTGeneralOffline_cfi import *
-
+# Egamma
 from DQMOffline.Trigger.EgHLTOfflineSource_cfi import *
-#from DQMOffline.Trigger.TopElectronHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.EgammaMonitoring_cff import *
 # Muon
 from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Top
@@ -47,38 +17,119 @@ from DQMOffline.Trigger.MuonOffline_Trigger_cff import *
 # Tau
 from DQMOffline.Trigger.HLTTauDQMOffline_cff import *
 # JetMET
-#from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 from DQMOffline.Trigger.JetMETHLTOfflineAnalyzer_cff import *
+
+# BTV
+from DQMOffline.Trigger.BTVHLTOfflineSource_cfi import *
+
+from DQMOffline.Trigger.FSQHLTOfflineSource_cfi import *
+from DQMOffline.Trigger.HILowLumiHLTOfflineSource_cfi import *
+
 # TnP
 #from DQMOffline.Trigger.TnPEfficiency_cff import *
 # Inclusive VBF
 from DQMOffline.Trigger.HLTInclusiveVBFSource_cfi import *
 
-import DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi
-TrackerCollisionTrackMonHLT = DQM.TrackingMonitor.TrackerCollisionTrackingMonitor_cfi.TrackerCollisionTrackMon.clone()
-TrackerCollisionTrackMonHLT.FolderName    = 'HLT/Tracking'
-TrackerCollisionTrackMonHLT.TrackProducer    = 'hltPixelTracks'
+# vertexing
+from DQMOffline.Trigger.PrimaryVertexMonitoring_cff import *
+
+# tracking
+from DQMOffline.Trigger.TrackingMonitoring_cff import *
+from DQMOffline.Trigger.TrackingMonitoringPA_cff import*
+
+# hcal
+from DQMOffline.Trigger.HCALMonitoring_cff import *
+
+# strip
+from DQMOffline.Trigger.SiStrip_OfflineMonitoring_cff import *
+
+# pixel
+from DQMOffline.Trigger.SiPixel_OfflineMonitoring_cff import *
+
+# photon jet
+from DQMOffline.Trigger.HigPhotonJetHLTOfflineSource_cfi import * 
+
+#hotline 
+from DQMOffline.Trigger.hotlineDQM_cfi import *
+
+#eventshape
+from DQMOffline.Trigger.eventshapeDQM_cfi import *
+
+#UCC
+from DQMOffline.Trigger.heavyionUCCDQM_cfi import *
 
 import DQMServices.Components.DQMEnvironment_cfi
 dqmEnvHLT= DQMServices.Components.DQMEnvironment_cfi.dqmEnv.clone()
 dqmEnvHLT.subSystemFolder = 'HLT'
 
-#offlineHLTSource = cms.Sequence(hltResults*egHLTOffDQMSource*topElectronHLTOffDQMSource*muonFullOfflineDQM*quadJetAna*HLTTauDQMOffline*jetMETHLTOfflineSource*TnPEfficiency*dqmEnvHLT)
+# EXO
+from DQMOffline.Trigger.ExoticaMonitoring_cff import *
+# SUS
+from DQMOffline.Trigger.SusyMonitoring_cff import *
+# B2G
+from DQMOffline.Trigger.B2GMonitoring_cff import *
+# HIG
+from DQMOffline.Trigger.HiggsMonitoring_cff import *
+# SMP
+from DQMOffline.Trigger.StandardModelMonitoring_cff import *
+# TOP
+from DQMOffline.Trigger.TopMonitoring_cff import *
 
-# Remove topElectronHLTOffDQMSource
+# BTV
+from DQMOffline.Trigger.BTaggingMonitoring_cff import *
+# BPH
+from DQMOffline.Trigger.BPHMonitor_cff import *
 # remove quadJetAna
+from DQMOffline.Trigger.topHLTOfflineDQM_cff import *
 offlineHLTSource = cms.Sequence(
     hltResults *
+    lumiMonitorHLTsequence *
+    hcalMonitoringSequence *
     egHLTOffDQMSource *
     muonFullOfflineDQM *
     HLTTauDQMOffline *
-    #jetMETHLTOfflineSource *
-    jetMETHLTOfflineAnalyzer *
-    #TnPEfficiency *
+    jetMETHLTOfflineAnalyzer * 
+    fsqHLTOfflineSourceSequence *
+    HILowLumiHLTOfflineSourceSequence *
     hltInclusiveVBFSource *
-    TrackerCollisionTrackMonHLT *
-    dqmEnvHLT)
+    higPhotonJetHLTOfflineSource*
+    dqmEnvHLT *
+    topHLTriggerOfflineDQM *
+    eventshapeDQMSequence *
+    HeavyIonUCCDQMSequence *
+    hotlineDQMSequence *
+    egammaMonitorHLT * 
+    exoticaMonitorHLT *
+    susyMonitorHLT *
+    b2gMonitorHLT *
+    higgsMonitorHLT *
+    smpMonitorHLT *
+    topMonitorHLT *
+    btagMonitorHLT *
+    bphMonitorHLT *
+    hltObjectsMonitor
+    )
 
-#triggerOfflineDQMSource =  cms.Sequence(onlineHLTSource*offlineHLTSource)
+# offline DQM for the HLTMonitoring stream
+dqmInfoHLTMon = cms.EDAnalyzer("DQMEventInfo",
+    subSystemFolder = cms.untracked.string('HLT')
+    )
+
+OfflineHLTMonitoring = cms.Sequence(
+    dqmInfoHLTMon *
+    lumiMonitorHLTsequence * # lumi
+    sistripMonitorHLTsequence * # strip
+    sipixelMonitorHLTsequence * # pixel
+    BTVHLTOfflineSource *
+    trackingMonitorHLT * # tracking
+    egmTrackingMonitorHLT * # egm tracking
+    vertexingMonitorHLT # vertexing
+    )
+OfflineHLTMonitoringPA = cms.Sequence(
+    dqmInfoHLTMon *
+    trackingMonitorHLT *
+    PAtrackingMonitorHLT  
+    )
+
 triggerOfflineDQMSource =  cms.Sequence(offlineHLTSource)
  

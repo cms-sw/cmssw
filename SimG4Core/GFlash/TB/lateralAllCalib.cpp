@@ -1183,7 +1183,7 @@ int main ( int argc, char **argv)
       // gaussian fit to initialize
       TF1 *gausa = new TF1 ("gausa","[0]*exp(-1*(x-[1])*(x-[1])/2/[2]/[2])",h_peak-10*h_rms,h_peak+10*h_rms);
       gausa->SetParameters(h_norm,h_peak,h_rms);
-      H_eMatrix[ii][myXib]->Fit("gausa","","",h_peak-3*h_rms,h_peak+3*h_rms);
+      H_eMatrix[ii][myXib]->Fit(gausa,"","",h_peak-3*h_rms,h_peak+3*h_rms);
       double gausNorm  = gausa->GetParameter(0);
       double gausMean  = gausa->GetParameter(1);
       double gausSigma = fabs(gausa->GetParameter(2));
@@ -1204,7 +1204,7 @@ int main ( int argc, char **argv)
       // cb_p->FixParameter(3, 3.);     // solo x caso 500 no Birk
       cb_p->SetParameter(4, gausNorm);
       cb_p->SetParLimits(2, 0.1, 5.);
-      H_eMatrix[ii][myXib]->Fit("cb_p","lR","",myXmin,myXmax);
+      H_eMatrix[ii][myXib]->Fit(cb_p,"lR","",myXmin,myXmax);
 
       double matrix_gmean      = cb_p->GetParameter(0);
       double matrix_gsigma     = cb_p->GetParameter(1); 
@@ -1250,7 +1250,7 @@ int main ( int argc, char **argv)
       // gaussian fit to initialize
       TF1 *gausa = new TF1 ("gausa","[0]*exp(-1*(x-[1])*(x-[1])/2/[2]/[2])",h_peak-10*h_rms,h_peak+10*h_rms);
       gausa->SetParameters(h_norm,h_peak,h_rms);
-      H_eRatio[ii][myXib]->Fit("gausa","","",h_peak-3*h_rms,h_peak+3*h_rms);
+      H_eRatio[ii][myXib]->Fit(gausa,"","",h_peak-3*h_rms,h_peak+3*h_rms);
       double gausNorm  = gausa->GetParameter(0);
       double gausMean  = gausa->GetParameter(1);
       double gausSigma = fabs(gausa->GetParameter(2));
@@ -1269,7 +1269,7 @@ int main ( int argc, char **argv)
       cb_p->FixParameter(3, 5.);
       cb_p->SetParameter(4, gausNorm);
       cb_p->SetParLimits(2, 0.1, 5.);
-      H_eRatio[ii][myXib]->Fit("cb_p","lR","",myXmin,myXmax);
+      H_eRatio[ii][myXib]->Fit(cb_p,"lR","",myXmin,myXmax);
 
       double ratio_gmean      = cb_p->GetParameter(0);
       double ratio_gsigma     = cb_p->GetParameter(1); 

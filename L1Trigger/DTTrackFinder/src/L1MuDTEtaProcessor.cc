@@ -60,8 +60,9 @@ using namespace std;
 // Constructors --
 //----------------
 
-L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id) :
-      m_tf(tf), m_epid(id), m_foundPattern(0), m_tseta(15) {
+L1MuDTEtaProcessor::L1MuDTEtaProcessor(const L1MuDTTrackFinder& tf, int id, edm::ConsumesCollector&& iC) :
+      m_tf(tf), m_epid(id), m_foundPattern(0), m_tseta(15),
+      m_DTDigiToken(iC.consumes<L1MuDTChambThContainer>(m_tf.config()->getDTDigiInputTag())) {
 
   m_tseta.reserve(15);
   
@@ -84,7 +85,7 @@ L1MuDTEtaProcessor::~L1MuDTEtaProcessor() {}
 //
 void L1MuDTEtaProcessor::run(int bx, const edm::Event& e, const edm::EventSetup& c) {
 
-  if ( L1MuDTTFConfig::getEtaTF() ) {
+  if ( m_tf.config()->getEtaTF() ) {
     receiveData(bx,e,c);
     runEtaTrackFinder(c);
   }
@@ -217,7 +218,7 @@ void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::Eve
   c.get< L1MuDTTFMasksRcd >().get( msks );
 
   edm::Handle<L1MuDTChambThContainer> dttrig;
-  e.getByLabel(L1MuDTTFConfig::getDTDigiInputTag(),dttrig);
+  e.getByToken(m_DTDigiToken,dttrig);
 
   // const int bx_offset = dttrig->correctBX();
   int bx_offset=0;
@@ -229,7 +230,7 @@ void L1MuDTEtaProcessor::receiveData(int bx, const edm::Event& e, const edm::Eve
   int sector = m_epid;
   for ( int stat = 1; stat <= 3; stat++ ) {
     for ( int wheel = -2; wheel <= 2; wheel++ ) {
-      L1MuDTChambThDigi* tseta = dttrig->chThetaSegm(wheel,stat,sector,bx);
+      L1MuDTChambThDigi const* tseta = dttrig->chThetaSegm(wheel,stat,sector,bx);
       bitset<7> pos;
       bitset<7> qual;
 

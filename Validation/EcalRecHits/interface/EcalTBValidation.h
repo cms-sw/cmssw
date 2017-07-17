@@ -10,27 +10,25 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBHodoscopeRecInfo.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBTDCRecInfo.h"
+#include "TBDataFormats/EcalTBObjects/interface/EcalTBEventHeader.h"
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-//#include "TFile.h" 
-//#include "TH1.h"
-//#include "TH2.h"
-
-class EcalTBValidation : public edm::EDAnalyzer {
+class EcalTBValidation : public DQMEDAnalyzer {
  public:
   explicit EcalTBValidation( const edm::ParameterSet& );
   ~EcalTBValidation();
   
-  virtual void analyze( const edm::Event&, const edm::EventSetup& );
-  virtual void beginJob();
-  virtual void endJob();
+  void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+  virtual void analyze( const edm::Event&, const edm::EventSetup& ) override;
   
  private:
 
   bool verbose_;
-  DQMStore* dbe_;
 
   int data_;
   int xtalInBeam_;
@@ -45,7 +43,12 @@ class EcalTBValidation : public edm::EDAnalyzer {
   std::string tdcRecInfoProducer_;
   std::string eventHeaderCollection_;
   std::string eventHeaderProducer_;
-  
+  // fix for consumes
+  edm::EDGetTokenT<EBDigiCollection> digi_Token_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> hit_Token_;
+  edm::EDGetTokenT<EcalTBHodoscopeRecInfo> hodoRec_Token_;
+  edm::EDGetTokenT<EcalTBTDCRecInfo> tdcRec_Token_;
+  edm::EDGetTokenT<EcalTBEventHeader> eventHeader_Token_;
   // histos
   //TH2F *h_xib,   *h_ampltdc, *h_Shape;
   //TH1F *h_hodoX, *h_hodoY;

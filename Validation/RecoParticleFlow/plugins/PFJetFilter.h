@@ -8,6 +8,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "RecoParticleFlow/Benchmark/interface/PFBenchmarkAlgo.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 
 class PFJetFilter: public edm::EDFilter {
  public:
@@ -32,8 +33,9 @@ class PFJetFilter: public edm::EDFilter {
   double deltaR_max;
   double eta_min;
   double eta_max;
-  edm::InputTag inputTruthLabel_;
-  edm::InputTag inputRecoLabel_;
+  edm::EDGetTokenT< edm::View<reco::Candidate> > inputTruthLabel_;
+  edm::EDGetTokenT< edm::View<reco::Candidate> > inputRecoLabel_;
+
   unsigned int entry;
   bool verbose;
   

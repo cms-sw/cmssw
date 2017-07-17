@@ -24,18 +24,21 @@ class HcalDetIdAssociator: public CaloDetIdAssociator{
  public:
    HcalDetIdAssociator():CaloDetIdAssociator(72, 70 ,0.087){};
 
-   HcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet){};
+   HcalDetIdAssociator(const edm::ParameterSet& pSet):CaloDetIdAssociator(pSet)
+    ,hcalReg_(pSet.getParameter<int> ("hcalRegion"))
+    {};
    
-   virtual const char* name() const { return "HCAL"; }
+   virtual const char* name() const override { return "HCAL"; }
 
  protected:
-
-   virtual const unsigned int getNumberOfSubdetectors() const { return 2;}
-   virtual const std::vector<DetId>& getValidDetIds(unsigned int subDetectorIndex) const {
+    
+   int hcalReg_;
+   virtual const unsigned int getNumberOfSubdetectors() const override { return hcalReg_;}
+   void getValidDetIds(unsigned int subDetectorIndex, std::vector<DetId>& validIds) const override {
      if ( subDetectorIndex == 0 )
-       return geometry_->getValidDetIds(DetId::Hcal, HcalBarrel);//HB
+       validIds = geometry_->getValidDetIds(DetId::Hcal, HcalBarrel);//HB
      else
-       return geometry_->getValidDetIds(DetId::Hcal, HcalEndcap);//HE
+       validIds = geometry_->getValidDetIds(DetId::Hcal, HcalEndcap);//HE
    };
 };
 #endif

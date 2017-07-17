@@ -2,6 +2,11 @@
  *  The class to access recHits and TrajectoryMeasurements from DetLayer.
  *
  *  \author C. Liu, R. Bellan, N. Amapane
+ *   \modified by C. Calabria to include GEMs
+ *  \modified by D. Nash to include ME0s
+ *
+ *  \modified by C. Calabria & A.Sharma to include GEMs
+ *
  *
  */
 
@@ -13,7 +18,7 @@
 #include "TrackingTools/PatternTools/interface/TrajMeasLessEstim.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/UpdaterService.h"
+
 
 
 typedef MuonTransientTrackingRecHit::MuonRecHitPointer MuonRecHitPointer;
@@ -21,33 +26,52 @@ typedef MuonTransientTrackingRecHit::MuonRecHitContainer MuonRecHitContainer;
 
 
 
-MuonDetLayerMeasurements::MuonDetLayerMeasurements(const edm::InputTag& dtlabel, 
-						   const edm::InputTag& csclabel, 
-						   const edm::InputTag& rpclabel,
-						   bool enableDT, bool enableCSC, bool enableRPC): 
-  theDTRecHitLabel(dtlabel),
-  theCSCRecHitLabel(csclabel),
-  theRPCRecHitLabel(rpclabel),
+MuonDetLayerMeasurements::MuonDetLayerMeasurements(edm::InputTag dtlabel, 
+						   edm::InputTag csclabel, 
+						   edm::InputTag rpclabel,
+ 						   edm::InputTag gemlabel,
+						   edm::InputTag me0label,
+						   edm::ConsumesCollector& iC,
+						   bool enableDT, bool enableCSC, bool enableRPC, bool enableGEM, bool enableME0): 
   enableDTMeasurement(enableDT),
   enableCSCMeasurement(enableCSC),
   enableRPCMeasurement(enableRPC),
+  enableGEMMeasurement(enableGEM),
+  enableME0Measurement(enableME0),
   theDTRecHits(),
   theCSCRecHits(),
   theRPCRecHits(),
-  theDTEventID(),
-  theCSCEventID(),
-  theRPCEventID(),
-  theEvent(0){
+  theGEMRecHits(),
+  theDTEventCacheID(0),
+  theCSCEventCacheID(0),
+  theRPCEventCacheID(0),
+  theGEMEventCacheID(0),
+  theME0EventCacheID(0),
+  theEvent(0)
+{
+
+  dtToken_ = iC.consumes<DTRecSegment4DCollection>(dtlabel);
+  cscToken_ = iC.consumes<CSCSegmentCollection>(csclabel);
+  rpcToken_ = iC.consumes<RPCRecHitCollection>(rpclabel);
+  gemToken_ = iC.consumes<GEMRecHitCollection>(gemlabel);
+  me0Token_ = iC.consumes<ME0SegmentCollection>(me0label);
+
   static int procInstance(0);
   std::ostringstream sDT;
   sDT<<"MuonDetLayerMeasurements::checkDTRecHits::" << procInstance;
-  theDTCheckName = sDT.str();
+  //  theDTCheckName = sDT.str();
   std::ostringstream sRPC;
   sRPC<<"MuonDetLayerMeasurements::checkRPCRecHits::" << procInstance;
-  theRPCCheckName = sRPC.str();
+  //theRPCCheckName = sRPC.str();
   std::ostringstream sCSC;
   sCSC<<"MuonDetLayerMeasurements::checkCSCRecHits::" << procInstance;
-  theCSCCheckName = sCSC.str();
+  //theCSCCheckName = sCSC.str();
+  std::ostringstream sGEM;
+  sGEM<<"MuonDetLayerMeasurements::checkGEMRecHits::" << procInstance;
+  //theGEMCheckName = sGEM.str();
+  std::ostringstream sME0;
+  sME0<<"MuonDetLayerMeasurements::checkME0RecHits::" << procInstance;
+  //theME0CheckName = sME0.str();
   procInstance++;
 }
 
@@ -67,7 +91,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
     
       // Create the ChamberId
       DTChamberId chamberId(geoId.rawId());
-      // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
+      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(DT): "<<chamberId<<std::endl;
     
       // Get the DT-Segment which relies on this chamber
       DTRecSegment4DCollection::range range = theDTRecHits->get(chamberId);
@@ -86,7 +110,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 
       // Create the chamber Id
       CSCDetId chamberId(geoId.rawId());
-      //    LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
+      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(CSC): "<<chamberId<<std::endl;
 
       // Get the CSC-Segment which relies on this chamber
       CSCSegmentCollection::range range = theCSCRecHits->get(chamberId);
@@ -105,7 +129,7 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 
       // Create the chamber Id
       RPCDetId chamberId(geoId.rawId());
-      // LogTrace("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
+      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(RPC): "<<chamberId<<std::endl;
     
       // Get the RPC-Segment which relies on this chamber
       RPCRecHitCollection::range range = theRPCRecHits->get(chamberId);
@@ -116,9 +140,66 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
         result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
     }
   }
+  else if (geoId.subdetId()  == MuonSubdetId::GEM) {
+    if(enableGEMMeasurement)
+      {
+	checkGEMRecHits(); 
+
+	// Create the chamber Id
+	GEMDetId chamberId(geoId.rawId());
+
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(GEM): "<<chamberId<<std::endl;
+
+	// Get the GEM-Segment which relies on this chamber
+	GEMRecHitCollection::range range = theGEMRecHits->get(chamberId);
+
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits available =  " << theGEMRecHits->size()
+							   <<", from chamber: "<< chamberId<<std::endl;
+
+	// Create the MuonTransientTrackingRecHit
+	for (GEMRecHitCollection::const_iterator rechit = range.first; 
+	     rechit!=range.second; ++rechit)
+	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of GEM rechits = " << result.size()<<std::endl;
+      }
+  }
+
+  else if (geoId.subdetId()  == MuonSubdetId::ME0) {
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): identified"<<std::endl;
+    if(enableME0Measurement)
+      {
+	checkME0RecHits(); 
+
+	// Create the chamber Id
+	ME0DetId chamberId(geoId.rawId());
+    
+	// Get the ME0-Segment which relies on this chamber
+	// Getting rechits right now, not segments - maybe it should be segments?
+	ME0SegmentCollection::range range = theME0RecHits->get(chamberId);
+
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits available =  " << theME0RecHits->size()
+							   <<", from chamber: "<< chamberId<<std::endl;
+
+	// Create the MuonTransientTrackingRecHit
+	for (ME0SegmentCollection::const_iterator rechit = range.first; 
+	     rechit!=range.second; ++rechit){
+	  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "On ME0 iteration " <<std::endl;
+	  result.push_back(MuonTransientTrackingRecHit::specificBuild(geomDet,&*rechit));
+	}
+	LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Number of ME0 rechits = " << result.size()<<std::endl;
+      }
+  }
   else {
     // wrong type
     throw cms::Exception("MuonDetLayerMeasurements") << "The DetLayer with det " << geoId.det() << " subdet " << geoId.subdetId() << " is not a valid Muon DetLayer. ";
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements")<< "The DetLayer with det " << geoId.det() << " subdet " << geoId.subdetId() << " is not a valid Muon DetLayer. ";
+  }
+  if (enableME0Measurement){
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(ME0): enabled"<<std::endl;
+  }
+
+  if (enableGEMMeasurement){
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "(GEM): enabled"<<std::endl;
   }
   return result;
 }
@@ -127,11 +208,11 @@ MuonRecHitContainer MuonDetLayerMeasurements::recHits(const GeomDet* geomDet,
 void MuonDetLayerMeasurements::checkDTRecHits()
 {
   checkEvent();
-  if (!edm::Service<UpdaterService>()->checkOnce(theDTCheckName)) return;
+  auto const cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theDTEventCacheID) return;
 
   {
-    theDTEventID = theEvent->id();
-    theEvent->getByLabel(theDTRecHitLabel, theDTRecHits);
+    theEvent->getByToken(dtToken_, theDTRecHits);
   }
   if(!theDTRecHits.isValid())
   {
@@ -143,11 +224,12 @@ void MuonDetLayerMeasurements::checkDTRecHits()
 void MuonDetLayerMeasurements::checkCSCRecHits()
 {
   checkEvent();
-  if (!edm::Service<UpdaterService>()->checkOnce(theCSCCheckName)) return;
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theCSCEventCacheID) return;
 
   {
-    theCSCEventID = theEvent->id();
-    theEvent->getByLabel(theCSCRecHitLabel, theCSCRecHits);
+    theEvent->getByToken(cscToken_, theCSCRecHits);
+    theCSCEventCacheID = cacheID;
   }
   if(!theCSCRecHits.isValid())
   {
@@ -159,11 +241,12 @@ void MuonDetLayerMeasurements::checkCSCRecHits()
 void MuonDetLayerMeasurements::checkRPCRecHits()
 {
   checkEvent();
-  if (!edm::Service<UpdaterService>()->checkOnce(theRPCCheckName)) return;
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theRPCEventCacheID) return;
 
   {
-    theRPCEventID = theEvent->id();
-    theEvent->getByLabel(theRPCRecHitLabel, theRPCRecHits);
+    theEvent->getByToken(rpcToken_, theRPCRecHits);
+    theRPCEventCacheID = cacheID;
   }
   if(!theRPCRecHits.isValid())
   {
@@ -171,6 +254,39 @@ void MuonDetLayerMeasurements::checkRPCRecHits()
   }
 }
 
+void MuonDetLayerMeasurements::checkGEMRecHits()
+{
+  checkEvent();
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theGEMEventCacheID) return;
+
+  {
+    theEvent->getByToken(gemToken_, theGEMRecHits);
+    theGEMEventCacheID = cacheID;
+  }
+  if(!theGEMRecHits.isValid())
+  {
+    throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get GEM RecHits";
+  }
+}
+
+void MuonDetLayerMeasurements::checkME0RecHits()
+{
+  LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Checking ME0 RecHits";
+  checkEvent();
+  auto cacheID = theEvent->cacheIdentifier();
+  if (cacheID == theME0EventCacheID) return;
+
+  {
+    theEvent->getByToken(me0Token_, theME0RecHits);
+    theME0EventCacheID = cacheID;
+  }
+  if(!theME0RecHits.isValid())
+  {
+    throw cms::Exception("MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
+    LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "Cannot get ME0 RecHits";
+  }
+}
 
 ///measurements method if already got the Event 
 MeasurementContainer
@@ -192,8 +308,9 @@ MuonDetLayerMeasurements::measurements(const DetLayer* layer,
   
   MeasurementContainer result;
   
+
   std::vector<DetWithState> dss = layer->compatibleDets(startingState, prop, est);
-  LogTrace("RecoMuon")<<"compatibleDets: "<<dss.size()<<std::endl;
+  LogDebug("RecoMuon")<<"compatibleDets: "<<dss.size()<<std::endl;
   
   for(std::vector<DetWithState>::const_iterator detWithStateItr = dss.begin();
       detWithStateItr != dss.end(); ++detWithStateItr){
@@ -217,6 +334,16 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
 					const MeasurementEstimator& est,
 					const edm::Event& iEvent) {
   MeasurementContainer result;
+
+  DetId geoId = det->geographicalId();
+  //no chamber here that is actually an me0....
+  if (geoId.subdetId()  == MuonSubdetId::ME0) {
+    if(enableME0Measurement) {
+      ME0DetId chamberId(geoId.rawId());
+      LogDebug("Muon|RecoMuon|MuonDetLayerMeasurements") << "ME0 Chamber ID in measurements: "<<chamberId<<std::endl;
+    }
+  }
+  
   
   // Get the Segments which relies on the GeomDet given by compatibleDets
   MuonRecHitContainer muonRecHits = recHits(det, iEvent);
@@ -226,10 +353,10 @@ MuonDetLayerMeasurements::measurements( const DetLayer* layer,
       rechit != muonRecHits.end(); ++rechit) {
 
     MeasurementEstimator::HitReturnType estimate = est.estimate(stateOnDet,**rechit);
-    LogTrace("RecoMuon")<<"Dimension: "<<(*rechit)->dimension()
+    LogDebug("RecoMuon")<<"Dimension: "<<(*rechit)->dimension()
 			<<" Chi2: "<<estimate.second<<std::endl;
     if (estimate.first) {
-      result.push_back(TrajectoryMeasurement(stateOnDet, rechit->get(),
+      result.push_back(TrajectoryMeasurement(stateOnDet, *rechit,
 					     estimate.second,layer));
     }
   }
@@ -254,7 +381,7 @@ MuonDetLayerMeasurements::fastMeasurements( const DetLayer* layer,
     MeasurementEstimator::HitReturnType estimate = est.estimate(theStateOnDet, (**irh));
     if (estimate.first)
     {
-      result.push_back(TrajectoryMeasurement(theStateOnDet,(*irh).get(),
+      result.push_back(TrajectoryMeasurement(theStateOnDet,(*irh),
                                              estimate.second,layer));
     }
   }

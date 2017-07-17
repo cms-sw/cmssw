@@ -40,7 +40,7 @@ class FP420ClusterMain
 //       	   const std::vector<ClusterNoiseFP420>& noise 
 //     	   );
     void run(edm::Handle<DigiCollectionFP420> &input,
-       	   std::auto_ptr<ClusterCollectionFP420> &soutput,
+       	   ClusterCollectionFP420 *soutput,
        	   std::vector<ClusterNoiseFP420>& noise 
      	   );
 
@@ -60,8 +60,6 @@ class FP420ClusterMain
   double BadElectrodeProbability_;
   bool UseNoiseBadElectrodeFlagFromDB_;
 
-  FP420NumberingScheme * theFP420NumberingScheme;
-  
   double ChannelThreshold;
   double SeedThreshold;
   double ClusterThreshold;

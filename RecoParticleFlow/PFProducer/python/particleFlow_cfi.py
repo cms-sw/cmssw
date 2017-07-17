@@ -24,12 +24,13 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     useHO = cms.bool(True),                                 
 
     # Use electron identification in PFAlgo
-    usePFElectrons = cms.bool(True),
+    usePFElectrons = cms.bool(False),
     pf_electron_output_col=cms.string('electrons'),
     pf_electronID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_PfElectrons23Jan_IntToFloat.txt'),
+    pf_electron_mvaCut = cms.double(-0.1),
 
     # Use Photon identification in PFAlgo (for now this has NO impact, algo is swicthed off hard-coded
-    usePFPhotons = cms.bool(True),
+    usePFPhotons = cms.bool(False),
     usePhotonReg=cms.bool(False),
     useRegressionFromDB=cms.bool(True),                                 
     pf_convID_mvaWeightFile = cms.string('RecoParticleFlow/PFProducer/data/MVAnalysis_BDT.weights_pfConversionAug0411.txt'),        
@@ -41,8 +42,52 @@ particleFlowTmp = cms.EDProducer("PFProducer",
     sumPtTrackIsoForPhoton=cms.double(2.0),
     sumPtTrackIsoSlopeForPhoton=cms.double(0.001),
 
-                              
-    pf_electron_mvaCut = cms.double(-0.1),
+    useEGammaFilters = cms.bool(True),
+    useProtectionsForJetMET = cms.bool(True),    
+    # New electron selection cuts for CMSSW_700
+    electron_iso_pt = cms.double(10.0),
+    electron_iso_mva_barrel  = cms.double( -0.1875),
+    electron_iso_mva_endcap = cms.double( -0.1075),
+    electron_iso_combIso_barrel = cms.double(10.0),
+    electron_iso_combIso_endcap = cms.double(10.0),
+    electron_noniso_mvaCut = cms.double(-0.1),                            
+    electron_missinghits = cms.uint32(1), 
+    isolatedElectronID_mvaWeightFile = cms.string('RecoEgamma/ElectronIdentification/data/TMVA_BDTSimpleCat_17Feb2011.weights.xml'),
+    # maxNtracks,maxHcalE,maxTrackPOverEele,maxE,maxEleHcalEOverEcalE,maxEcalEOverPRes
+    # maxEeleOverPoutRes,maxHcalEOverP,maxHcalEOverEcalE,maxEcalEOverP_cut1,axEcalEOverP_cut2,maxEeleOverPout,maxDPhiIN;                             
+    electron_protectionsForJetMET = cms.PSet(
+    maxNtracks = cms.double(3.0), #max tracks pointing at Ele cluster
+    maxHcalE = cms.double(10.0),
+    maxTrackPOverEele = cms.double(1.0),
+    maxE = cms.double(50.0), #for dphi cut
+    maxEleHcalEOverEcalE = cms.double(0.1),
+    maxEcalEOverPRes = cms.double(0.2),
+    maxEeleOverPoutRes = cms.double(0.5),
+    maxHcalEOverP = cms.double(1.0),
+    maxHcalEOverEcalE = cms.double(0.1),
+    maxEcalEOverP_1 = cms.double(0.5), #pion rejection
+    maxEcalEOverP_2 = cms.double(0.2), #weird events
+    maxEeleOverPout = cms.double(0.2),
+    maxDPhiIN = cms.double(0.1)    
+    ),
+    # New photon selection cuts for CMSSW_700
+    photon_MinEt = cms.double(10.),
+    photon_combIso = cms.double(10.),
+    photon_HoE =  cms.double(0.05),
+    photon_SigmaiEtaiEta_barrel = cms.double(0.0125),
+    photon_SigmaiEtaiEta_endcap = cms.double(0.034),                             
+
+    # sumPtTrackIso, sumPtTrackIsoSlope                          
+    photon_protectionsForJetMET = cms.PSet(
+    sumPtTrackIso = cms.double(4.0),
+    sumPtTrackIsoSlope = cms.double(0.001)
+    ),
+    PFEGammaCandidates = cms.InputTag("particleFlowEGamma"),
+    GedElectronValueMap = cms.InputTag("gedGsfElectronsTmp"),
+    GedPhotonValueMap = cms.InputTag("gedPhotonsTmp","valMapPFEgammaCandToPhoton"),
+
+
+                                 
     # apply the crack corrections                             
     pf_electronID_crackCorrection = cms.bool(False),
     usePFSCEleCalib = cms.bool(True),
@@ -160,9 +205,8 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # Check HF cleaning
     cleanedHF = cms.VInputTag(
-                cms.InputTag("particleFlowRecHitHCAL","Cleaned"),
-                cms.InputTag("particleFlowClusterHFHAD","Cleaned"),
-                cms.InputTag("particleFlowClusterHFEM","Cleaned")
+                cms.InputTag("particleFlowRecHitHF","Cleaned"),
+                cms.InputTag("particleFlowClusterHF","Cleaned")
                 ),
     
     # number of sigmas for neutral energy detection
@@ -171,6 +215,7 @@ particleFlowTmp = cms.EDProducer("PFProducer",
 
     # ECAL/HCAL PF cluster calibration : take it from global tag ?
     useCalibrationsFromDB = cms.bool(True),
+    calibrationsLabel = cms.string(''),
 
     # calibration parameters for HF:
     calibHF_use = cms.bool(False),

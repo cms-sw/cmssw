@@ -27,7 +27,7 @@ class PFTauViewRefMerger : public edm::EDProducer {
         }
   private:
     void produce(edm::Event & evt, const edm::EventSetup &) override {
-      std::auto_ptr<reco::PFTauRefVector> out(new reco::PFTauRefVector());
+      auto out = std::make_unique<reco::PFTauRefVector>();
       BOOST_FOREACH(const edm::InputTag& inputSrc, src_) {
         edm::Handle<reco::CandidateView> src;
         evt.getByLabel(inputSrc, src);
@@ -38,7 +38,7 @@ class PFTauViewRefMerger : public edm::EDProducer {
           out->push_back(tau);
         }
       }
-      evt.put(out);
+      evt.put(std::move(out));
     }
     std::vector<edm::InputTag> src_;
 };

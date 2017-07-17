@@ -7,6 +7,7 @@
 
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
+#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -91,12 +92,16 @@ namespace spr{
   // Returns a vector of DetID's of closest cell on the ECAL/HCAL surface of
   // all the tracks in the collection. Also saves a boolean if extrapolation
   // is satisfactory
+  std::vector<spr::propagatedTrackID> propagateCosmicCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug=false);
   std::vector<spr::propagatedTrackID> propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, bool debug=false);
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackID>& vdets, bool debug=false);
   void propagateCALO(edm::Handle<reco::TrackCollection>& trkCollection, const CaloGeometry* geo, const MagneticField* bField, std::string & theTrackQuality, std::vector<spr::propagatedTrackDirection>& trkDir, bool debug=false);
+  spr::propagatedTrackID propagateCALO(const reco::Track*, const CaloGeometry* geo, const MagneticField* bField, bool debug=false);
   std::vector<spr::propagatedGenTrackID> propagateCALO(const HepMC::GenEvent * genEvent, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax=3.0, bool debug=false);
   std::vector<spr::propagatedGenParticleID> propagateCALO(edm::Handle<reco::GenParticleCollection>& genParticles, edm::ESHandle<ParticleDataTable>& pdt, const CaloGeometry* geo, const MagneticField* bField, double etaMax=3.0, bool debug=false);
   spr::propagatedTrackDirection propagateCALO(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const CaloGeometry* geo, const MagneticField* bField, bool debug=false);
+  spr::propagatedTrackDirection propagateHCALBack(unsigned int thisTrk, edm::Handle<edm::SimTrackContainer>& SimTk, edm::Handle<edm::SimVertexContainer>& SimVtx, const CaloGeometry* geo, const MagneticField* bField, bool debug=false);
+  std::pair<bool,HcalDetId> propagateHCALBack(const reco::Track*, const CaloGeometry* geo, const MagneticField* bField, bool debug=false);
 
   // Propagate tracks to the ECAL surface and optionally returns the 
   // extrapolated point (and the track direction at point of extrapolation)

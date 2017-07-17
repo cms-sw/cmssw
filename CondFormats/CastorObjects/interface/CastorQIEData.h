@@ -12,6 +12,8 @@ $Date: 2008/07/15 13:00:16 $
 $Revision: 1.9 $
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 
@@ -20,20 +22,17 @@ $Revision: 1.9 $
 #include "CondFormats/CastorObjects/interface/CastorQIECoder.h"
 #include "DataFormats/DetId/interface/DetId.h"
 
-namespace
-{
-  CastorQIEShape shape_;
-}
-
 class CastorQIEData: public CastorCondObjectContainer<CastorQIECoder>
 {
+ private:
+  static const CastorQIEShape shape_;
  public:
 
   // constructor, destructor, and all methods stay the same
  CastorQIEData():CastorCondObjectContainer<CastorQIECoder>() {}
-
   /// get basic shape
   //   const CastorQIEShape& getShape () const {return mShape;}
+
   const CastorQIEShape& getShape () const { return shape_;}
   /// get QIE parameters
   const CastorQIECoder* getCoder (DetId fId) const { return getValues(fId); }
@@ -49,6 +48,8 @@ class CastorQIEData: public CastorCondObjectContainer<CastorQIECoder>
 
   //not needed/not used  CastorQIEData(const CastorQIEData&);
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

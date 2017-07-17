@@ -17,7 +17,7 @@
 #                                     cmssw/CMSSW_2_1_19/CalibCalorimetry/EcalCorrelatedNoiseAnalysisModules/data \
 #                                     150 EcnaPythonSource_Run_80875
 #
-#    Update: 18/03/10
+#    Update: 29/07/11
 #    
 #--------------------------------------------------------------------------------------------------------------------
 
@@ -75,6 +75,9 @@ else
   if( -f cna_one_line_tempo_source_h ) then
    \rm cna_one_line_tempo_source_h
   endif
+#  if( -f cna_one_line_tempo_source_i ) then
+#   \rm cna_one_line_tempo_source_i
+#  endif
 
 #--------------------------- Source for Python
 
@@ -90,6 +93,8 @@ else
   echo "                            )" > cna_one_line_tempo_source_g
 
   echo "process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(-1))" > cna_one_line_tempo_source_h
+
+#  echo "process.SkipEvent = cms.untracked.PSet( input = cms.untracked.vstring('ProductNotFound'))" > cna_one_line_tempo_source_i
 
 #-------------------------------------------------------- Copy EcnaSystemPythonModuleInsert_2 ("simul" if RunNumber < 10000)
   if( -f cna_one_line_tempo_insert_2 ) then
@@ -167,6 +172,7 @@ else
       cna_one_line_tempo_source_f \
       cna_one_line_tempo_source_g \
       cna_one_line_tempo_source_h \
+#      cna_one_line_tempo_source_i \
       cna_one_line_tempo_insert_2 \
       cna_one_line_tempo_getpar_a \
       cna_one_line_tempo_getpar_b \
@@ -198,6 +204,7 @@ else
   \rm cna_one_line_tempo_source_f
   \rm cna_one_line_tempo_source_g
   \rm cna_one_line_tempo_source_h
+#  \rm cna_one_line_tempo_source_i
 
   \rm cna_one_line_tempo_insert_2
 

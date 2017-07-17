@@ -26,7 +26,7 @@ electronEcalRecHitIsolationLcone = cms.EDProducer("EgammaEcalRecHitIsolationProd
     subtract  = cms.bool(False),
     vetoClustered  = cms.bool(False),
 
-    emObjectProducer = cms.InputTag("gsfElectrons")
+    emObjectProducer = cms.InputTag("gedGsfElectrons")
 )
 
 

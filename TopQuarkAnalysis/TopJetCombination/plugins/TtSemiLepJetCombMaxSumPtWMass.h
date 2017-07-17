@@ -9,10 +9,10 @@
 class TtSemiLepJetCombMaxSumPtWMass : public edm::EDProducer {
 
  public:
-  
+
   explicit TtSemiLepJetCombMaxSumPtWMass(const edm::ParameterSet&);
   ~TtSemiLepJetCombMaxSumPtWMass();
-  
+
  private:
 
   virtual void beginJob() {};
@@ -21,8 +21,8 @@ class TtSemiLepJetCombMaxSumPtWMass : public edm::EDProducer {
 
   bool isValid(const int& idx, const edm::Handle<std::vector<pat::Jet> >& jets){ return (0<=idx && idx<(int)jets->size()); };
 
-  edm::InputTag jets_;
-  edm::InputTag leps_;
+  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT< edm::View<reco::RecoCandidate> > lepsToken_;
   int maxNJets_;
   double wMass_;
   bool useBTagging_;

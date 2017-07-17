@@ -4,20 +4,23 @@
 /** \class L3MuonTrajectoryBuilder
  *  class to build muon trajectory
  *
- *
- *  \author N. Neumeister 	 Purdue University
- *  \author C. Liu 		 Purdue University
- *  \author A. Everett 		 Purdue University
+ *  \author N. Neumeister   Purdue University
+ *  \author C. Liu          Purdue University
+ *  \author A. Everett      Purdue University
  */
 
-
 #include "DataFormats/TrackCandidate/interface/TrackCandidateCollection.h"
-
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalTrajectoryBuilderBase.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
-
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
@@ -29,29 +32,39 @@ class L3MuonTrajectoryBuilder : public GlobalTrajectoryBuilderBase {
 
   public:
 
-    /// constructor with Parameter Set and MuonServiceProxy
-    L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*);
-          
-    /// destructor
+    /// Constructor with Parameter Set and MuonServiceProxy
+	L3MuonTrajectoryBuilder(const edm::ParameterSet&, const MuonServiceProxy*, edm::ConsumesCollector&);
+
+    /// Destructor
     ~L3MuonTrajectoryBuilder();
 
-    /// reconstruct trajectories from standalone and tracker only Tracks    
+    /// Reconstruct trajectories from standalone and tracker only Tracks
+    using GlobalTrajectoryBuilderBase::trajectories;
     MuonTrajectoryBuilder::CandidateContainer trajectories(const TrackCand&);
 
-    /// pass the Event to the algo at each event
+    /// Pass the Event to the algo at each event
     virtual void setEvent(const edm::Event&);
 
-  private:
-  
-    /// make a TrackCand collection using tracker Track, Trajectory information
-    std::vector<TrackCand> makeTkCandCollection(const TrackCand&);
+    /// Add default values for fillDescriptions
+    static void fillDescriptions(edm::ParameterSetDescription& descriptions);
 
   private:
-  
+
+    /// Make a TrackCand collection using tracker Track, Trajectory information
+    std::vector<TrackCand> makeTkCandCollection(const TrackCand&);
+
     TrajectoryCleaner* theTrajectoryCleaner;
-    
     edm::InputTag theTkCollName;
     edm::Handle<reco::TrackCollection> allTrackerTracks;
-    
+    reco::BeamSpot beamSpot;
+    edm::Handle<reco::BeamSpot> beamSpotHandle;
+    edm::InputTag theBeamSpotInputTag;
+    reco::Vertex vtx;
+    edm::Handle<reco::VertexCollection> pvHandle;
+    edm::InputTag theVertexCollInputTag;
+    bool theUseVertex;
+    double theMaxChi2;
+    double theDXYBeamSpot;
+    edm::EDGetTokenT<reco::TrackCollection> theTrackToken;
 };
 #endif

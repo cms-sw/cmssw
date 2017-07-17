@@ -64,6 +64,8 @@ FFTGenericScaleCalculator::FFTGenericScaleCalculator(const edm::ParameterSet& ps
       int_param(driftSpeed),
       int_param(magSpeed),
       int_param(lifetime),
+      int_param(splitTime),
+      int_param(mergeTime),
       int_param(scale),
       int_param(logScale),
       int_param(nearestNeighborDistance),
@@ -138,6 +140,8 @@ FFTGenericScaleCalculator::FFTGenericScaleCalculator(const edm::ParameterSet& ps
     check_param(driftSpeed);
     check_param(magSpeed);
     check_param(lifetime);
+    check_param(splitTime);
+    check_param(mergeTime);
     check_param(scale);
     check_param(logScale);
     check_param(nearestNeighborDistance);
@@ -330,6 +334,12 @@ void FFTGenericScaleCalculator::mapFFTJet(
 
     if (m_lifetime >= 0)
         buf[m_lifetime] = preclus.lifetime();
+
+    if (m_splitTime >= 0)
+        buf[m_splitTime] = preclus.splitTime();
+
+    if (m_mergeTime >= 0)
+        buf[m_mergeTime] = preclus.mergeTime();
 
     if (m_scale >= 0)
         buf[m_scale] = scale;

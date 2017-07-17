@@ -8,15 +8,12 @@
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
 //#include "DataFormats/SiStripDetId/interface/SiStripDetId.h"
-#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimator.h"
 #include "TrackingTools/GeomPropagators/interface/AnalyticalPropagator.h"
 
 #include "TrackingTools/DetLayers/interface/NavigationSchool.h"
 #include "RecoTracker/Record/interface/NavigationSchoolRecord.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
@@ -38,7 +35,7 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
   // This is also needed to extrapolate amongst the tracker layers.
   edm::ESHandle<NavigationSchool> theSchool;
   iSetup.get<NavigationSchoolRecord>().get("SimpleNavigationSchool",theSchool);
-  NavigationSetter junk(*theSchool);
+  // NavigationSetter junk(*theSchool);  // FIXME FIXME
 
   // Get the magnetic field and use it to define a propagator for extrapolating the track trajectory.
   edm::ESHandle<MagneticField> magField;
@@ -64,16 +61,16 @@ std::vector< GetTrackTrajInfo::Result > GetTrackTrajInfo::analyze(const edm::Eve
   bool posSide = track.eta() > 0;
 
   // Get hit patterns of this track
-  const reco::HitPattern& hp = track.hitPattern(); 
+  const reco::HitPattern &hp = track.hitPattern(); 
 
   // Loop over info for each hit
   // N.B. Hits are sorted according to increasing distance from origin by
   // RecoTracker/TrackProducer/src/TrackProducerBase.cc
-  for (int i = 0; i < hp.numberOfHits(); i++) {
-    uint32_t hit = hp.getHitPattern(i);
-    if (hp.trackerHitFilter(hit) && hp.validHitFilter(hit)) {
-      uint32_t subDet = hp.getSubStructure(hit);
-      uint32_t layer = hp.getLayer(hit);
+  for (int i = 0; i < hp.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+    uint32_t hit = hp.getHitPattern(reco::HitPattern::TRACK_HITS, i);
+    if (reco::HitPattern::trackerHitFilter(hit) && reco::HitPattern::validHitFilter(hit)) {
+      uint32_t subDet = reco::HitPattern::getSubStructure(hit);
+      uint32_t layer = reco::HitPattern::getLayer(hit);
       // subdet: PixelBarrel=1, PixelEndcap=2, TIB=3, TID=4, TOB=5, TEC=6
       LogDebug("GTTI")<<"    hit in subdet="<<subDet<<" layer="<<layer;
 

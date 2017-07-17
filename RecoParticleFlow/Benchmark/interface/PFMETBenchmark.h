@@ -19,9 +19,6 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidateFwd.h"
 #include "DataFormats/JetReco/interface/CaloJetCollection.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-#include "DQMServices/Core/interface/MonitorElement.h"
-
 //#include "FWCore/ServiceRegistry/interface/Service.h" 
 
 #include "TH1F.h"
@@ -30,12 +27,7 @@
 #include <TFile.h>
 
 
-class PFMETBenchmark;
-
-class TH1F;
-class TH2F;
-
-//class DQMStore; // CMSSW_2_X_X not needed here?
+class DQMStore;
 
 class PFMETBenchmark {
 	

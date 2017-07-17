@@ -56,24 +56,11 @@ class TreeReader {
 
 	static const double	kOptVal;
 
-    private:
-	TTree				*tree;
-
 	struct Bool {
 		inline Bool() : value(0) {}
 		inline operator Bool_t() const { return value; }
 		Bool_t	value;
 	};
-
-	std::vector<std::pair<void*, std::vector<Double_t> > >	multiDouble;
-	std::vector<std::pair<void*, std::vector<Float_t> > >	multiFloat;
-	std::vector<std::pair<void*, std::vector<Int_t> > >	multiInt;
-	std::vector<std::pair<void*, std::vector<Bool_t> > >	multiBool;
-
-	std::vector<Double_t>		singleDouble;
-	std::vector<Float_t>		singleFloat;
-	std::vector<Int_t>		singleInt;
-	std::vector<Bool>		singleBool;
 
 	class Value {
 	    public:
@@ -104,6 +91,19 @@ class TreeReader {
 	};
 
 	friend class Value;
+
+    private:
+	TTree				*tree;
+
+	std::vector<std::pair<void*, std::vector<Double_t> > >	multiDouble;
+	std::vector<std::pair<void*, std::vector<Float_t> > >	multiFloat;
+	std::vector<std::pair<void*, std::vector<Int_t> > >	multiInt;
+	std::vector<std::pair<void*, std::vector<Bool_t> > >	multiBool;
+
+	std::vector<Double_t>		singleDouble;
+	std::vector<Float_t>		singleFloat;
+	std::vector<Int_t>		singleInt;
+	std::vector<Bool>		singleBool;
 
 	std::map<AtomicId, Value>	valueMap;
 	Variable::ValueList		values;

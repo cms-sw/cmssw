@@ -9,12 +9,15 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class L3MuonCandidateProducerFromMuons : public edm::EDProducer {
+class L3MuonCandidateProducerFromMuons : public edm::global::EDProducer<> {
 
  public:
 
@@ -25,12 +28,13 @@ class L3MuonCandidateProducerFromMuons : public edm::EDProducer {
   virtual ~L3MuonCandidateProducerFromMuons(); 
   
   /// produce candidates
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
   
  private:
   
   // L3/GLB Collection Label
   edm::InputTag m_L3CollectionLabel; 
+  edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 };
 
 #endif

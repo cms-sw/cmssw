@@ -336,7 +336,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
     numAli += this->add(theTracker->subStructures(substructName), paramSel);
   }
   ////////////////////////////////////
-  // Old hardcoded (i.e. deprecated) tracker section (NOTE: no check on theTracker != 0)
+  // Old hardcoded, but geometry-independent tracker section (NOTE: no check on theTracker != 0)
   ////////////////////////////////////
   else if (name == "AllDets")       numAli += this->addAllDets(paramSel);
   else if (name == "AllRods")       numAli += this->addAllRods(paramSel);
@@ -375,6 +375,7 @@ unsigned int AlignmentParameterSelector::addSelection(const std::string &nameInp
   else if (name == "PXECDets") numAli += this->add(theTracker->pixelEndcapGeomDets(), paramSel);
   else if (name == "PXECPetals") numAli += this->add(theTracker->pixelEndcapPetals(), paramSel);
   else if (name == "PXECLayers") numAli += this->add(theTracker->pixelEndcapLayers(), paramSel);
+  else if (name == "PXECHalfCylinders") numAli += this->add(theTracker->pixelEndcapHalfCylinders(), paramSel);
   else if (name == "PXEndCaps") numAli += this->add(theTracker->pixelEndCaps(), paramSel);
   //
   // Pixel Barrel+endcap
@@ -583,6 +584,8 @@ bool AlignmentParameterSelector::outsideDetIdRanges(const Alignable *alignable) 
   const DetId detId(alignable->id());
   const int subdetId = detId.subdetId();
   
+  if (alignableTracker()) {
+
   const TrackerTopology* tTopo = alignableTracker()->trackerTopology();
 
   if (!theDetIds.empty() &&
@@ -663,7 +666,7 @@ bool AlignmentParameterSelector::outsideDetIdRanges(const Alignable *alignable) 
       if (!theTECDetIdRanges.theSideRanges.empty() && 
 	  !this->insideRanges<int>(tTopo->tecSide(detId), theTECDetIdRanges.theSideRanges)) return true;
     }
-    
+  }
   }
   
   return false;

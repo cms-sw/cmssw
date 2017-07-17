@@ -12,6 +12,9 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
+
 TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   KfTrackProducerBase(iConfig.getParameter<bool>("TrajectoryInEvent"),
 		      iConfig.getParameter<bool>("useHitsSplitting")),
@@ -19,7 +22,8 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
 {
   setConf(iConfig);
   setSrc( consumes<TrackCandidateCollection>(iConfig.getParameter<edm::InputTag>( "src" )), 
-          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )));
+          consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>( "beamSpot" )),
+          consumes<MeasurementTrackerEvent>(iConfig.getParameter<edm::InputTag>( "MeasurementTrackerEvent") ));
   setAlias( iConfig.getParameter<std::string>( "@module_label" ) );
 
   if ( iConfig.exists("clusterRemovalInfo") ) {
@@ -32,6 +36,7 @@ TrackProducer::TrackProducer(const edm::ParameterSet& iConfig):
   produces<reco::TrackExtraCollection>().setBranchAlias( alias_ + "TrackExtras" );
   produces<TrackingRecHitCollection>().setBranchAlias( alias_ + "RecHits" );
   produces<std::vector<Trajectory> >() ;
+  produces<std::vector<int> >() ;
   produces<TrajTrackAssociationCollection>();
 
 }
@@ -43,10 +48,12 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   //
   // create empty output collections
   //
-  std::auto_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
-  std::auto_ptr<reco::TrackCollection>       outputTColl(new reco::TrackCollection);
-  std::auto_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
-  std::auto_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<TrackingRecHitCollection>    outputRHColl (new TrackingRecHitCollection);
+  std::unique_ptr<reco::TrackCollection>       outputTColl(new reco::TrackCollection);
+  std::unique_ptr<reco::TrackExtraCollection>  outputTEColl(new reco::TrackExtraCollection);
+  std::unique_ptr<std::vector<Trajectory> >    outputTrajectoryColl(new std::vector<Trajectory>);
+  std::unique_ptr<std::vector<int> >           outputIndecesInputColl(new std::vector<int>);
+
 
   //
   //declare and get stuff to be retrieved from ES
@@ -58,6 +65,9 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   edm::ESHandle<MeasurementTracker>  theMeasTk;
   edm::ESHandle<TransientTrackingRecHitBuilder> theBuilder;
   getFromES(setup,theG,theMF,theFitter,thePropagator,theMeasTk,theBuilder);
+
+  edm::ESHandle<TrackerTopology> httopo;
+  setup.get<TrackerTopologyRcd>().get(httopo);
 
   //
   //declare and get TrackColection to be retrieved from the event
@@ -78,7 +88,7 @@ void TrackProducer::produce(edm::Event& theEvent, const edm::EventSetup& setup)
   }
   
   //put everything in the event
-  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, algoResults);
+  putInEvt(theEvent, thePropagator.product(),theMeasTk.product(), outputRHColl, outputTColl, outputTEColl, outputTrajectoryColl, outputIndecesInputColl, algoResults, theBuilder.product(), httopo.product());
   LogDebug("TrackProducer") << "end" << "\n";
 }
 
@@ -120,9 +130,9 @@ std::vector<reco::TransientTrack> TrackProducer::getTransient(edm::Event& theEve
     }
     catch (cms::Exception &e){ edm::LogError("TrackProducer") << "cms::Exception caught during theAlgo.runWithCandidate." << "\n" << e << "\n"; throw; }
   }
-  
-  for (AlgoProductCollection::iterator prod=algoResults.begin();prod!=algoResults.end(); prod++){
-    ttks.push_back( reco::TransientTrack(*((*prod).second.first),thePropagator.product()->magneticField() ));
+  ttks.reserve(algoResults.size());  
+  for (auto & prod : algoResults){
+    ttks.push_back( reco::TransientTrack(*(prod.track),thePropagator.product()->magneticField() ));
   }
 
   LogDebug("TrackProducer") << "end" << "\n";

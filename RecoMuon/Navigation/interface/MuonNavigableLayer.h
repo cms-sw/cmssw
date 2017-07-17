@@ -41,10 +41,10 @@ class MuonNavigableLayer : public NavigableLayer {
                                                PropagationDirection dir) const=0;
 
     /// return DetLayer
-    virtual DetLayer* detLayer() const=0;
+    virtual const DetLayer* detLayer() const=0;
 
     /// set DetLayer
-    virtual void setDetLayer(DetLayer*)=0;
+    virtual void setDetLayer(const DetLayer*)=0;
 
     MuonEtaRange trackingRange(const FreeTrajectoryState& fts) const;
 

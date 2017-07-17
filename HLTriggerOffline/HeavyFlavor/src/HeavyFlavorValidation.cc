@@ -38,6 +38,7 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
 
 #include "CommonTools/Utils/interface/PtComparator.h"
 
@@ -49,36 +50,42 @@ using namespace reco;
 using namespace l1extra;
 using namespace trigger;
 
-class HeavyFlavorValidation : public edm::EDAnalyzer {
+class HeavyFlavorValidation : public DQMEDAnalyzer {
   public:
     explicit HeavyFlavorValidation(const edm::ParameterSet&);
     ~HeavyFlavorValidation();
-  private:
-    virtual void beginRun(const Run & iRun, const EventSetup & iSetup) override;
+  protected:
+    void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
     virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-    virtual void endJob() override;
+  private:
     int getMotherId( const Candidate * p );
     void match( MonitorElement * me, vector<LeafCandidate> & from, vector<LeafCandidate> & to, double deltaRMatchingCut, vector<int> & map );
-    void myBook2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel, TString title);
-    void myBook2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel){
-      myBook2D( name, xBins, xLabel, yBins, yLabel, name);
+    void myBook2D(DQMStore::IBooker & ibooker, TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel, TString title);
+    void myBook2D(DQMStore::IBooker & ibooker, TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel){
+      myBook2D(ibooker, name, xBins, xLabel, yBins, yLabel, name);
     }
-    void myBookProfile2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel, TString title);
-    void myBookProfile2D( TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel){
-      myBookProfile2D( name, xBins, xLabel, yBins, yLabel, name);
+    void myBookProfile2D(DQMStore::IBooker & ibooker, TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel, TString title);
+    void myBookProfile2D(DQMStore::IBooker & ibooker, TString name, vector<double> &xBins, TString xLabel, vector<double> &yBins, TString yLabel){
+      myBookProfile2D(ibooker, name, xBins, xLabel, yBins, yLabel, name);
     }
-    void myBook1D( TString name, vector<double> &xBins, TString label, TString title );
-    void myBook1D( TString name, vector<double> &xBins, TString label ){
-      myBook1D( name, xBins, label, name );
+    void myBook1D(DQMStore::IBooker & ibooker, TString name, vector<double> &xBins, TString label, TString title );
+    void myBook1D(DQMStore::IBooker & ibooker, TString name, vector<double> &xBins, TString label ){
+      myBook1D(ibooker, name, xBins, label, name );
     }
     string dqmFolder;
     string triggerProcessName;
     string triggerPathName;
-    InputTag triggerSummaryRAWTag;
-    InputTag triggerSummaryAODTag;
-    InputTag triggerResultsTag;
-    InputTag recoMuonsTag;
-    InputTag genParticlesTag;   
+
+    EDGetTokenT<TriggerEventWithRefs>  triggerSummaryRAWTag;
+    EDGetTokenT<TriggerEvent>          triggerSummaryAODTag;
+    InputTag                           triggerResultsTag;
+    EDGetTokenT<TriggerResults>        triggerResultsToken;
+    InputTag                           recoMuonsTag;
+    EDGetTokenT<MuonCollection>        recoMuonsToken;
+    InputTag                           genParticlesTag;
+    EDGetTokenT<GenParticleCollection> genParticlesToken;
+
     vector<int> motherIDs;
     double genGlobDeltaRMatchingCut;
     double globL1DeltaRMatchingCut;
@@ -103,11 +110,6 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
   dqmFolder(pset.getUntrackedParameter<string>("DQMFolder")),
   triggerProcessName(pset.getUntrackedParameter<string>("TriggerProcessName")),
   triggerPathName(pset.getUntrackedParameter<string>("TriggerPathName")),
-  triggerSummaryRAWTag(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryRAW"), "", triggerProcessName)),
-  triggerSummaryAODTag(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryAOD"), "", triggerProcessName)),
-  triggerResultsTag(InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName)),
-  recoMuonsTag(pset.getParameter<InputTag>("RecoMuons")),
-  genParticlesTag(pset.getParameter<InputTag>("GenParticles")),
   motherIDs(pset.getUntrackedParameter<vector<int> >("MotherIDs")),
   genGlobDeltaRMatchingCut(pset.getUntrackedParameter<double>("GenGlobDeltaRMatchingCut")),
   globL1DeltaRMatchingCut(pset.getUntrackedParameter<double>("GlobL1DeltaRMatchingCut")),
@@ -122,170 +124,175 @@ HeavyFlavorValidation::HeavyFlavorValidation(const ParameterSet& pset):
   dimuonEtaBins(pset.getUntrackedParameter<vector<double> >("DimuonEtaBins")),
   dimuonDRBins(pset.getUntrackedParameter<vector<double> >("DimuonDRBins")),
   muonMass(0.106)
-{}
-  
-void HeavyFlavorValidation::beginRun(const Run & iRun, const EventSetup & iSetup){
-//discover HLT configuration
-  HLTConfigProvider hltConfig;
-  bool isChanged;
-  if(hltConfig.init(iRun, iSetup, triggerProcessName, isChanged)){
-    LogDebug("HLTriggerOfflineHeavyFlavor") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
-  }else{
-    LogWarning("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
-    return;
-  }
-  stringstream os;
-  vector<string> triggerNames = hltConfig.triggerNames();
-  for( size_t i = 0; i < triggerNames.size(); i++) {
-    TString triggerName = triggerNames[i];
-    if (triggerName.Contains(triggerPathName)){ 
-      vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
-      for( size_t j = 0; j < moduleNames.size(); j++) {
-        TString name = moduleNames[j];
-        if(name.Contains("Filter")){
-          int level = 0;
-          if(name.Contains("L1"))
-            level = 1;
-          else if(name.Contains("L2"))
-            level = 2;
-          else if(name.Contains("L3"))
-            level = 3;
-          else if(name.Contains("mumuFilter") || name.Contains("JpsiTrackMass"))
-            level = 4;
-          filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
-          os<<" "<<moduleNames[j];
-        }
-      }
-      break;
-    }
-  }
-  if(filterNamesLevels.size()==0){
-    LogDebug("HLTriggerOfflineHeavyFlavor")<<"Bad Trigger Path: "<<triggerPathName<<endl;
-    return;
-  }else{
-    LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<triggerPathName<<" has filters:"<<os.str();
-  }
+{
+  triggerSummaryRAWTag = consumes<TriggerEventWithRefs>(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryRAW"), "", triggerProcessName));
+  triggerSummaryAODTag = consumes<TriggerEvent>(InputTag( pset.getUntrackedParameter<string>("TriggerSummaryAOD"), "", triggerProcessName));
+  triggerResultsTag = InputTag( pset.getUntrackedParameter<string>("TriggerResults"), "", triggerProcessName);
+  triggerResultsToken = consumes<TriggerResults>(triggerResultsTag);
+  recoMuonsTag = pset.getParameter<InputTag>("RecoMuons");
+  recoMuonsToken = consumes<MuonCollection>(recoMuonsTag);
+  genParticlesTag = pset.getParameter<InputTag>("GenParticles");
+  genParticlesToken = consumes<GenParticleCollection>(genParticlesTag);
+}
 
-//create Monitor Elements
-  dqmStore = Service<DQMStore>().operator->();  
-  if( !dqmStore ){
-    LogError("HLTriggerOfflineHeavyFlavor") << "Could not find DQMStore service\n";
-    return;
-  }
-  dqmStore->setVerbose(0);
-  dqmStore->setCurrentFolder((dqmFolder+"/")+triggerProcessName+"/"+triggerPathName);
-// Eta Pt Single  
-  myBook2D( "genMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
-  myBook2D( "globMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
-  myBook2D( "globMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dMuon_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
-  }
-  myBook2D( "pathMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
-  myBook2D( "resultMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
-// Eta Pt Single Resolution
-  myBookProfile2D( "resGlobGen_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBookProfile2D( TString::Format("resFilt%dGlob_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
-  }
-  myBookProfile2D( "resPathGlob_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
-// Eta Pt Double  
-  myBook2D( "genDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
-  myBook2D( "globDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
-  myBook2D( "globDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-  }  
-  myBook2D( "pathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
-  myBook2D( "resultDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-  }  
-  myBook2D( "diPathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
-// Eta Phi Single
-  myBook2D( "genMuon_genEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
-  myBook2D( "globMuon_genEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
-  myBook2D( "globMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dMuon_recoEtaPhi",int(i+1)), muonEtaBins, "#mu eta", muonPhiBins, "#mu phi", filterNamesLevels[i].first);
-  }
-  myBook2D( "pathMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi", triggerPathName);
-  myBook2D( "resultMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
-// Rap Pt Double
-  myBook2D( "genDimuon_genRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
-  myBook2D( "globDimuon_genRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
-  myBook2D( "globDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-  }  
-  myBook2D( "pathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
-  myBook2D( "resultDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
-  }  
-  myBook2D( "diPathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
-// Pt DR Double  
-  myBook2D( "genDimuon_genPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
-  myBook2D( "globDimuon_genPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
-  myBook2D( "globDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoPtDR",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
-  }
-  myBook2D( "pathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoPtDR",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
-  }  
-  myBook2D( "diPathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
-  myBook2D( "resultDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
-// Pt DRpos Double  
-//   myBook2D( "genDimuon_genPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
-//   myBook2D( "globDimuon_genPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
-  myBook2D( "globDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
-  }
-  myBook2D( "pathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("diFilt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
-  }  
-  myBook2D( "diPathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
-  myBook2D( "resultDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
+void HeavyFlavorValidation::dqmBeginRun(const edm::Run& iRun, const edm::EventSetup & iSetup ) {
+	//discover HLT configuration
+	HLTConfigProvider hltConfig;
+	bool isChanged;
+	if(hltConfig.init(iRun, iSetup, triggerProcessName, isChanged)){
+		LogDebug("HLTriggerOfflineHeavyFlavor") << "Successfully initialized HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+	}else{
+		LogWarning("HLTriggerOfflineHeavyFlavor") << "Could not initialize HLTConfigProvider with process name: "<<triggerProcessName<<endl;
+		return;
+	}
+	stringstream os;
+	vector<string> triggerNames = hltConfig.triggerNames();
+	for( size_t i = 0; i < triggerNames.size(); i++) {
+		TString triggerName = triggerNames[i];
+		if (triggerName.Contains(triggerPathName)){ 
+			vector<string> moduleNames = hltConfig.moduleLabels( triggerNames[i] );
+			for( size_t j = 0; j < moduleNames.size(); j++) {
+				TString name = moduleNames[j];
+                                // MK 2016-12-09: added requirement for the module EDM type to be
+                                // EDFilter, as without it the name check can match also any EDProducer
+                                // (and would be fragile; ok I think it is still fragile, but the added
+                                // check allows PR #16792 to go forward)
+				if(name.Contains("Filter") && hltConfig.moduleEDMType(moduleNames[j]) == "EDFilter"){
+					int level = 0;
+					if(name.Contains("L1"))
+						level = 1;
+					if(name.Contains("L2"))
+						level = 2;
+					if(name.Contains("L3"))
+						level = 3;
+					if(name.Contains("mumuFilter") || name.Contains("DiMuon") || name.Contains("MuonL3Filtered") || name.Contains("TrackMassFiltered"))
+						level = 4;
+					if(name.Contains("Vertex") || name.Contains("Dz"))
+						level = 5;
+					filterNamesLevels.push_back( pair<string,int>(moduleNames[j],level) );
+					os<<" "<<moduleNames[j];
+				}
+			}
+			break;
+		}
+	}
+	if(filterNamesLevels.size()==0){
+		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Bad Trigger Path: "<<triggerPathName<<endl;
+		return;
+	}else{
+		LogDebug("HLTriggerOfflineHeavyFlavor")<<"Trigger Path: "<<triggerPathName<<" has filters:"<<os.str();
+	}  
+}
 
-/*  ME["genDimuon_genPt+Pt-"] = myBook2D( "genDimuon_genPt+Pt-", muonPtBins, "#mu+ pt (GeV)", muonPtBins, "#mu- pT (GeV)");
-  ME["genGlobDimuon_genPt+Pt-"] = myBook2D( "genGlobDimuon_genPt+Pt-", muonPtBins, "#mu+ pt (GeV)", muonPtBins, "#mu- pT (GeV)");
-  ME["genGlobDimuon_recoPt+Pt-"] = myBook2D( "genGlobDimuon_recoPt+Pt-", muonPtBins, "#mu+ pt (GeV)", muonPtBins, "#mu- pT (GeV)");
-  ME["genGlobL1Dimuon_recoPt+Pt-"] = myBook2D( "genGlobL1Dimuon_recoPt+Pt-", muonPtBins, "#mu+ pt (GeV)", muonPtBins, "#mu- pT (GeV)");
-  ME["genGlobL1L2Dimuon_recoPt+Pt-"] = myBook2D( "genGlobL1L2Dimuon_recoPt+Pt-", muonPtBins, "#mu+ pt (GeV)", muonPtBins, "#mu- pT (GeV)");
-  ME["genGlobL1L2L3Dimuon_recoPt+Pt-"] = myBook2D( "genGlobL1L2L3Dimuon_recoPt+Pt-", muonPtBins, "#mu+ pt (GeV)", muonPtBins, "#mu- pT (GeV)");*/
 
-// Matching
-  myBook2D( "globGen_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi");
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook2D( TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1)), deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", filterNamesLevels[i].first);
-  }    
-  myBook2D( "pathGlob_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", triggerPathName);
-// Size of containers
-  vector<double> sizeBins; sizeBins.push_back(10); sizeBins.push_back(0); sizeBins.push_back(10);
-  myBook1D( "genMuon_size", sizeBins, "container size" );
-  myBook1D( "globMuon_size", sizeBins, "container size" );
-  for(size_t i=0; i<filterNamesLevels.size(); i++){
-    myBook1D( TString::Format("filt%dMuon_size",int(i+1)), sizeBins, "container size", filterNamesLevels[i].first);
-  }    
-  myBook1D( "pathMuon_size", sizeBins, "container size", triggerPathName );
+
+void HeavyFlavorValidation::bookHistograms(DQMStore::IBooker & ibooker,
+                                edm::Run const & iRun,
+                                edm::EventSetup const & iSetup) {
+          ibooker.cd();
+          ibooker.setCurrentFolder((dqmFolder+"/")+triggerProcessName+"/"+triggerPathName);
+
+	// create Monitor Elements
+	// Eta Pt Single  
+	  myBook2D(ibooker, "genMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
+	  myBook2D(ibooker, "globMuon_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
+	  myBook2D(ibooker, "globMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
+
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("filt%dMuon_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
+	  }
+	  myBook2D(ibooker, "pathMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
+	  myBook2D(ibooker, "resultMuon_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
+	// Eta Pt Single Resolution
+	  myBookProfile2D(ibooker, "resGlobGen_genEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBookProfile2D(ibooker, TString::Format("resFilt%dGlob_recoEtaPt",int(i+1)), muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", filterNamesLevels[i].first);
+	  }
+	  myBookProfile2D(ibooker, "resPathGlob_recoEtaPt", muonEtaBins, "#mu eta", muonPtBins, " #mu pT (GeV)", triggerPathName);
+	// Eta Pt Double  
+	  myBook2D(ibooker, "genDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
+	  myBook2D(ibooker, "globDimuon_genEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
+	  myBook2D(ibooker, "globDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("filt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+	  }  
+	  myBook2D(ibooker, "pathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
+	  myBook2D(ibooker, "resultDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoEtaPt",int(i+1)), dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+	  }  
+	  myBook2D(ibooker, "diPathDimuon_recoEtaPt", dimuonEtaBins, "#mu#mu eta", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
+	// Eta Phi Single
+	  myBook2D(ibooker, "genMuon_genEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
+	  myBook2D(ibooker, "globMuon_genEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
+	  myBook2D(ibooker, "globMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("filt%dMuon_recoEtaPhi",int(i+1)), muonEtaBins, "#mu eta", muonPhiBins, "#mu phi", filterNamesLevels[i].first);
+	  }
+	  myBook2D(ibooker, "pathMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi", triggerPathName);
+	  myBook2D(ibooker, "resultMuon_recoEtaPhi", muonEtaBins, "#mu eta", muonPhiBins, "#mu phi");
+	// Rap Pt Double
+	  myBook2D(ibooker, "genDimuon_genRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
+	  myBook2D(ibooker, "globDimuon_genRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
+	  myBook2D(ibooker, "globDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("filt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+	  }  
+	  myBook2D(ibooker, "pathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
+	  myBook2D(ibooker, "resultDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoRapPt",int(i+1)), dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", filterNamesLevels[i].first);
+	  }  
+	  myBook2D(ibooker, "diPathDimuon_recoRapPt", dimuonEtaBins, "#mu#mu rapidity", dimuonPtBins, " #mu#mu pT (GeV)", triggerPathName);
+	// Pt DR Double  
+	  myBook2D(ibooker, "genDimuon_genPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
+	  myBook2D(ibooker, "globDimuon_genPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
+	  myBook2D(ibooker, "globDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("filt%dDimuon_recoPtDR",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
+	  }
+	  myBook2D(ibooker, "pathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoPtDR",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", filterNamesLevels[i].first);
+	  }  
+	  myBook2D(ibooker, "diPathDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP", triggerPathName);
+	  myBook2D(ibooker, "resultDimuon_recoPtDR", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R at IP");
+	// Pt DRpos Double  
+	  myBook2D(ibooker, "globDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("filt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
+	  }
+	  myBook2D(ibooker, "pathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("diFilt%dDimuon_recoPtDRpos",int(i+1)), dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", filterNamesLevels[i].first);
+	  }  
+	  myBook2D(ibooker, "diPathDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS", triggerPathName);
+	  myBook2D(ibooker, "resultDimuon_recoPtDRpos", dimuonPtBins, " #mu#mu pT (GeV)", dimuonDRBins, "#mu#mu #Delta R in MS");
+
+	// Matching
+	  myBook2D(ibooker, "globGen_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi");
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook2D(ibooker, TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1)), deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", filterNamesLevels[i].first);
+	  }    
+	  myBook2D(ibooker, "pathGlob_deltaEtaDeltaPhi", deltaEtaBins, "#Delta eta", deltaPhiBins, "#Delta phi", triggerPathName);
+	// Size of containers
+	  vector<double> sizeBins; sizeBins.push_back(10); sizeBins.push_back(0); sizeBins.push_back(10);
+	  myBook1D(ibooker, "genMuon_size", sizeBins, "container size" );
+	  myBook1D(ibooker, "globMuon_size", sizeBins, "container size" );
+	  for(size_t i=0; i<filterNamesLevels.size(); i++){
+	    myBook1D(ibooker, TString::Format("filt%dMuon_size",int(i+1)), sizeBins, "container size", filterNamesLevels[i].first);
+	  }    
+	  myBook1D(ibooker, "pathMuon_size", sizeBins, "container size", triggerPathName );
 }
 
 void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetup){
-  if( !dqmStore ){
-    LogDebug("HLTriggerOfflineHeavyFlavor")<<"Could not access DQM Store service"<<endl;
+  if(filterNamesLevels.size()==0){ 
     return;
-  }
-  if(filterNamesLevels.size()==0){
-    return;
-  }
+  } 
 //access the containers and create LeafCandidate copies
   vector<LeafCandidate> genMuons;
   Handle<GenParticleCollection> genParticles;
-  iEvent.getByLabel(genParticlesTag, genParticles);
+  iEvent.getByToken(genParticlesToken, genParticles);
   if(genParticles.isValid()){
     for(GenParticleCollection::const_iterator p=genParticles->begin(); p!= genParticles->end(); ++p){
       if( p->status() == 1 && std::abs(p->pdgId())==13 && 
@@ -303,7 +310,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   vector<LeafCandidate> globMuons;
   vector<LeafCandidate> globMuons_position;
   Handle<MuonCollection> recoMuonsHandle;
-  iEvent.getByLabel(recoMuonsTag, recoMuonsHandle);
+  iEvent.getByToken(recoMuonsToken, recoMuonsHandle);
   if(recoMuonsHandle.isValid()){
     for(MuonCollection::const_iterator p=recoMuonsHandle->begin(); p!= recoMuonsHandle->end(); ++p){
       if(p->isGlobalMuon()){
@@ -325,7 +332,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     muonPositionsAtFilter.push_back(vector<LeafCandidate>());
   }
   Handle<TriggerEventWithRefs> rawTriggerEvent;
-  iEvent.getByLabel( triggerSummaryRAWTag, rawTriggerEvent );
+  iEvent.getByToken( triggerSummaryRAWTag, rawTriggerEvent );
   if( rawTriggerEvent.isValid() ){
     for(size_t i=0; i<filterNamesLevels.size(); i++){
       size_t index = rawTriggerEvent->filterIndex(InputTag( filterNamesLevels[i].first, "", triggerProcessName ));
@@ -357,7 +364,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 // access AOD trigger event  
   vector<LeafCandidate> pathMuons;
   Handle<TriggerEvent> aodTriggerEvent;
-  iEvent.getByLabel(triggerSummaryAODTag,aodTriggerEvent);
+  iEvent.getByToken(triggerSummaryAODTag,aodTriggerEvent);
   if(aodTriggerEvent.isValid()){
     TriggerObjectCollection allObjects = aodTriggerEvent->getObjects();
     for(int i=0; i<aodTriggerEvent->sizeFilters(); i++){         
@@ -377,7 +384,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
 // access Trigger Results
   bool triggerFired = false;
   Handle<TriggerResults> triggerResults;
-  iEvent.getByLabel(triggerResultsTag,triggerResults);
+  iEvent.getByToken(triggerResultsToken,triggerResults);
   if(triggerResults.isValid()){
     LogDebug("HLTriggerOfflineHeavyFlavor")<<"Successfully initialized "<<triggerResultsTag<<endl;
     const edm::TriggerNames & triggerNames = iEvent.triggerNames(*triggerResults);
@@ -407,7 +414,7 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonsAtFilter[i] ,globL1DeltaRMatchingCut, filt_glob[i] );
     }else if( filterNamesLevels[i].second == 2 ){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons_position, muonPositionsAtFilter[i] ,globL2DeltaRMatchingCut, filt_glob[i] );
-    }else if( filterNamesLevels[i].second == 3 || filterNamesLevels[i].second == 4){
+    }else if( filterNamesLevels[i].second > 2){
       match( ME[TString::Format("filt%dGlob_deltaEtaDeltaPhi",int(i+1))], globMuons, muonsAtFilter[i] ,globL3DeltaRMatchingCut, filt_glob[i] );
     }
   }
@@ -416,23 +423,23 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons_position, pathMuons ,globL1DeltaRMatchingCut, path_glob );
   }else if( (filterNamesLevels.end()-1)->second == 2 ){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL2DeltaRMatchingCut, path_glob );
-  }else if( (filterNamesLevels.end()-1)->second == 3 || (filterNamesLevels.end()-1)->second == 4){
+  }else if( (filterNamesLevels.end()-1)->second > 2){
     match( ME["pathGlob_deltaEtaDeltaPhi"], globMuons, pathMuons ,globL3DeltaRMatchingCut, path_glob );
   }
     
 //fill histos
   bool first = true;
-  for(size_t i=0; i<genMuons.size(); i++){
+  for(size_t i=0; i<genMuons.size(); i++){ 
     ME["genMuon_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt());
     ME["genMuon_genEtaPhi"]->Fill(genMuons[i].eta(), genMuons[i].phi());
-    if(glob_gen[i] != -1){
+    if(glob_gen[i] != -1) { 
       ME["resGlobGen_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt(), (globMuons[glob_gen[i]].pt()-genMuons[i].pt())/genMuons[i].pt() );
       ME["globMuon_genEtaPt"]->Fill(genMuons[i].eta(), genMuons[i].pt());
       ME["globMuon_genEtaPhi"]->Fill(genMuons[i].eta(), genMuons[i].phi());
       ME["globMuon_recoEtaPt"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
       ME["globMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
-      for(size_t f=0; f<filterNamesLevels.size(); f++){
-        if(filt_glob[f][glob_gen[i]] != -1){
+      for(size_t f=0; f<filterNamesLevels.size(); f++) { 
+        if(filt_glob[f][glob_gen[i]] != -1) { 
           ME[TString::Format("resFilt%dGlob_recoEtaPt",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt(), (muonsAtFilter[f][filt_glob[f][glob_gen[i]]].pt()-globMuons[glob_gen[i]].pt())/globMuons[glob_gen[i]].pt() );
           ME[TString::Format("filt%dMuon_recoEtaPt",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].pt());
           ME[TString::Format("filt%dMuon_recoEtaPhi",int(f+1))]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
@@ -453,9 +460,9 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
           ME["resultMuon_recoEtaPhi"]->Fill(globMuons[glob_gen[i]].eta(), globMuons[glob_gen[i]].phi());
         }
       }
-    }
+    } 
   }  
-
+ 
 //fill dimuon histograms (highest pT, opposite charge) 
   int secondMuon = 0;
   for(size_t j=1; j<genMuons.size(); j++){
@@ -465,8 +472,6 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
     }
   }
   if(secondMuon > 0){
-//    int pos = genMuons[0].charge()>0 ? 0 : secondMuon ;
-//    int neg = genMuons[0].charge()<0 ? 0 : secondMuon ;
 //two generated
     double genDimuonPt = (genMuons[0].p4()+genMuons[secondMuon].p4()).pt();
     double genDimuonEta = (genMuons[0].p4()+genMuons[secondMuon].p4()).eta();
@@ -537,9 +542,6 @@ void HeavyFlavorValidation::analyze(const Event& iEvent, const EventSetup& iSetu
   }
 }
 
-void HeavyFlavorValidation::endJob(){
-}
-
 int HeavyFlavorValidation::getMotherId( const Candidate * p ){
   const Candidate* mother = p->mother();
   if( mother ){
@@ -590,7 +592,7 @@ void HeavyFlavorValidation::match( MonitorElement * me, vector<LeafCandidate> & 
   }
 }
 
-void HeavyFlavorValidation::myBook2D( TString name, vector<double> &ptBins, TString ptLabel, vector<double> &etaBins, TString etaLabel, TString title )
+void HeavyFlavorValidation::myBook2D(DQMStore::IBooker & ibooker, TString name, vector<double> &ptBins, TString ptLabel, vector<double> &etaBins, TString etaLabel, TString title )
 {
 //   dqmStore->setCurrentFolder(dqmFolder+"/"+folder);
   int ptN = ptBins.size()==3 ? (int)ptBins[0]+1 : ptBins.size();
@@ -607,11 +609,11 @@ void HeavyFlavorValidation::myBook2D( TString name, vector<double> &ptBins, TStr
   h->SetXTitle(ptLabel);
   h->SetYTitle(etaLabel);
   h->SetTitle(title);
-  ME[name] = dqmStore->book2D( name.Data(), h );
+  ME[name] = ibooker.book2D( name.Data(), h );
   delete h;
 }
 
-void HeavyFlavorValidation::myBookProfile2D( TString name, vector<double> &ptBins, TString ptLabel, vector<double> &etaBins, TString etaLabel, TString title )
+void HeavyFlavorValidation::myBookProfile2D(DQMStore::IBooker & ibooker, TString name, vector<double> &ptBins, TString ptLabel, vector<double> &etaBins, TString etaLabel, TString title )
 {
 //   dqmStore->setCurrentFolder(dqmFolder+"/"+folder);
   int ptN = ptBins.size()==3 ? (int)ptBins[0]+1 : ptBins.size();
@@ -628,11 +630,11 @@ void HeavyFlavorValidation::myBookProfile2D( TString name, vector<double> &ptBin
   h->SetXTitle(ptLabel);
   h->SetYTitle(etaLabel);
   h->SetTitle(title);
-  ME[name] = dqmStore->bookProfile2D( name.Data(), h );
+  ME[name] = ibooker.bookProfile2D( name.Data(), h );
   delete h;
 }
 
-void HeavyFlavorValidation::myBook1D( TString name, vector<double> &bins, TString label, TString title )
+void HeavyFlavorValidation::myBook1D(DQMStore::IBooker & ibooker, TString name, vector<double> &bins, TString label, TString title )
 {
 //   dqmStore->setCurrentFolder(dqmFolder+"/"+folder);
   int binsN = bins.size()==3 ? (int)bins[0]+1 : bins.size();
@@ -643,7 +645,7 @@ void HeavyFlavorValidation::myBook1D( TString name, vector<double> &bins, TStrin
   TH1F *h = new TH1F( name, name, binsN-1, myBins );
   h->SetXTitle(label);
   h->SetTitle(title);
-  ME[name] = dqmStore->book1D( name.Data(), h );
+  ME[name] = ibooker.book1D( name.Data(), h );
   delete h;
 }
 

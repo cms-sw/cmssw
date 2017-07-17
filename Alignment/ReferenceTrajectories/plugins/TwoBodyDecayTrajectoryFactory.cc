@@ -9,8 +9,7 @@
 
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 
-#include "DataFormats/GeometryCommonDetAlgo/interface/ErrorFrameTransformer.h"
-#include "DataFormats/TrackingRecHit/interface/AlignmentPositionError.h"
+#include "Geometry/CommonDetUnit/interface/TrackerGeomDet.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h" 
 
@@ -61,7 +60,7 @@ protected:
   bool match(const TrajectoryStateOnSurface &state,
 	     const TransientTrackingRecHit::ConstRecHitPointer &recHit) const;
     
-  TwoBodyDecayFitter* theFitter;
+  TwoBodyDecayFitter theFitter;
 
   double thePrimaryMass;
   double thePrimaryWidth;
@@ -79,8 +78,8 @@ protected:
 ////////////////////////////////////////////////////////////////////////////////
 
 TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::ParameterSet& config )
-  : TrajectoryFactoryBase( config ),
-    theFitter( new TwoBodyDecayFitter( config ) )
+  : TrajectoryFactoryBase(config, 2),
+    theFitter(config)
 {
   const edm::ParameterSet ppc = config.getParameter< edm::ParameterSet >( "ParticleProperties" );
   thePrimaryMass = ppc.getParameter< double >( "PrimaryMass" );
@@ -95,7 +94,6 @@ TwoBodyDecayTrajectoryFactory::TwoBodyDecayTrajectoryFactory( const edm::Paramet
 
 TwoBodyDecayTrajectoryFactory::~TwoBodyDecayTrajectoryFactory()
 {
-  delete theFitter;
 }
 
 const TrajectoryFactoryBase::ReferenceTrajectoryCollection
@@ -121,7 +119,7 @@ TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
 
     // estimate the decay parameters
     VirtualMeasurement vm( thePrimaryMass, thePrimaryWidth, theSecondaryMass, beamSpot );
-    TwoBodyDecay tbd = theFitter->estimate( transientTracks, vm );
+    TwoBodyDecay tbd = theFitter.estimate( transientTracks, vm );
 
     if ( !tbd.isValid() || ( tbd.chi2() > theChi2CutValue ) )
     {
@@ -169,7 +167,7 @@ TwoBodyDecayTrajectoryFactory::trajectories(const edm::EventSetup &setup,
       // the external tsos, but this is o.k., because the only information retrieved from them
       // is the magnetic field.
       VirtualMeasurement vm( thePrimaryMass, thePrimaryWidth, theSecondaryMass, beamSpot );
-      TwoBodyDecay tbd = theFitter->estimate( transientTracks, external, vm );
+      TwoBodyDecay tbd = theFitter.estimate(transientTracks, external, vm);
 
       if ( !tbd.isValid()  || ( tbd.chi2() > theChi2CutValue ) )
       {
@@ -222,11 +220,17 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
   }
 
   // always use the refitted trajectory state for matching
-  TransientTrackingRecHit::ConstRecHitPointer updatedRecHit1( recHits.first.front()->clone( tsos.first ) );
+  // FIXME FIXME CLONE
+  //TrackingRecHit::ConstRecHitPointer updatedRecHit1( recHits.first.front()->clone( tsos.first ) );
+  // TrackingRecHit::ConstRecHitPointer updatedRecHit2( recHits.second.front()->clone( tsos.second ) );
+
+  TrackingRecHit::ConstRecHitPointer updatedRecHit1( recHits.first.front() );
+  TrackingRecHit::ConstRecHitPointer updatedRecHit2( recHits.second.front() );
+
+
   bool valid1 = match( trajectoryState.trajectoryStates( true ).first,
 		       updatedRecHit1 );
 
-  TransientTrackingRecHit::ConstRecHitPointer updatedRecHit2( recHits.second.front()->clone( tsos.second ) );
   bool valid2 = match( trajectoryState.trajectoryStates( true ).second,
 		       updatedRecHit2 );
 
@@ -236,11 +240,19 @@ TwoBodyDecayTrajectoryFactory::constructTrajectories( const ConstTrajTrackPairCo
     return trajectories;
   }
 
+  ReferenceTrajectoryBase::Config config(materialEffects(), propagationDirection());
+  config.useBeamSpot = useBeamSpot_;
+  config.includeAPEs = includeAPEs_;
+  config.allowZeroMaterial = allowZeroMaterial_;
+  config.useRefittedState = theUseRefittedStateFlag;
+  config.constructTsosWithErrors = theConstructTsosWithErrorsFlag;
   // set the flag for reversing the RecHits to false, since they are already in the correct order.
-  TwoBodyDecayTrajectory* result = new TwoBodyDecayTrajectory( trajectoryState, recHits, magField,
-							       materialEffects(), propagationDirection(),
-							       false, beamSpot, theUseRefittedStateFlag,
-							       theConstructTsosWithErrorsFlag );
+  config.hitsAreReverse = false;
+  TwoBodyDecayTrajectory* result = new TwoBodyDecayTrajectory(trajectoryState,
+                                                              recHits,
+                                                              magField,
+                                                              beamSpot,
+                                                              config);
   if ( setParameterErrors && tbd.hasError() ) result->setParameterErrors( tbd.covariance() );
   trajectories.push_back( ReferenceTrajectoryPtr( result ) );
   return trajectories;
@@ -260,16 +272,6 @@ bool TwoBodyDecayTrajectoryFactory::match( const TrajectoryStateOnSurface& state
 
   double varX = le.xx();
   double varY = le.yy();
-
-  AlignmentPositionError* gape = recHit->det()->alignmentPositionError();
-  if ( gape )
-  {
-    ErrorFrameTransformer eft;
-    LocalError lape = eft.transform( gape->globalError(), recHit->det()->surface() );
-
-    varX += lape.xx();
-    varY += lape.yy();
-  }
 
   return ( ( fabs(deltaX)/sqrt(varX) < theNSigmaCutValue ) && ( fabs(deltaY)/sqrt(varY) < theNSigmaCutValue ) );
 }

@@ -1,6 +1,6 @@
 #ifndef SiStripZeroSuppression_h
 #define SiStripZeroSuppression_h
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -13,7 +13,7 @@
 class SiStripDigi;
 class SiStripRawDigi;
 
-class SiStripZeroSuppression : public edm::EDProducer
+class SiStripZeroSuppression : public edm::stream::EDProducer<>
 {
   
  public:
@@ -34,8 +34,8 @@ class SiStripZeroSuppression : public edm::EDProducer
   void MergeCollectionsZeroSuppression(edm::Event&);
 
   std::vector<edm::InputTag> inputTags;
-  edm::InputTag DigisToMergeZS;
-  edm::InputTag DigisToMergeVR;
+  edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> > DigisToMergeZS;
+  edm::EDGetTokenT< edm::DetSetVector<SiStripRawDigi> > DigisToMergeVR;
 
   typedef std::vector<edm::InputTag>::const_iterator tag_iterator_t;
   std::vector<edm::DetSet<SiStripDigi> > output_base; 
@@ -44,7 +44,11 @@ class SiStripZeroSuppression : public edm::EDProducer
   std::vector< edm::DetSet<SiStripProcessedRawDigi> > output_baseline;
   std::vector< edm::DetSet<SiStripDigi> > output_baseline_points;
   std::auto_ptr<SiStripRawProcessingAlgorithms> algorithms;
-  
+  typedef edm::EDGetTokenT< edm::DetSetVector<SiStripRawDigi> > token_t;
+  typedef std::vector<token_t> token_v;
+  typedef token_v::const_iterator token_iterator_t;
+  token_v inputTokens;
+
   bool storeCM;
   bool produceRawDigis;
   bool produceCalculatedBaseline;

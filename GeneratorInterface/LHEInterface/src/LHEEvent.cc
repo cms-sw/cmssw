@@ -35,7 +35,9 @@ namespace lhef {
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    std::istream &in) :
-	runInfo(runInfo), counted(false), readAttemptCounter(0)
+  runInfo(runInfo), weights_(0), counted(false), 
+  readAttemptCounter(0), npLO_(-99), npNLO_(-99)
+  
 {
 	hepeup.NUP = 0;
 	hepeup.XPDWUP.first = hepeup.XPDWUP.second = 0.0;
@@ -47,10 +49,13 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 			<< "Les Houches file contained invalid"
 			   " event header." << std::endl;
 
+	// store the original value of XWGTUP for the user
+	originalXWGTUP_ = hepeup.XWGTUP;
+
 	int idwtup = runInfo->getHEPRUP()->IDWTUP;
 	if (idwtup >= 0 && hepeup.XWGTUP < 0) {
 		edm::LogWarning("Generator|LHEInterface")
-			<< "Non-allowed egative event weight encountered."
+			<< "Non-allowed negative event weight encountered."
 			<< std::endl;
 		hepeup.XWGTUP = std::abs(hepeup.XWGTUP);
 	}
@@ -79,47 +84,39 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
 	}
 
 	while(skipWhitespace(in) == '#') {
-		std::string line;
-		std::getline(in, line);
-		std::istringstream ss(line);
-		std::string tag;
-		ss >> tag;
-		if (tag == "#pdf") {
-			pdf.reset(new PDF);
-			ss >> pdf->id.first >> pdf->id.second
-			   >> pdf->x.first >> pdf->x.second
-			   >> pdf->scalePDF
-			   >> pdf->xPDF.first >> pdf->xPDF.second;
-			if (ss.bad()) {
-				edm::LogWarning("Generator|LHEInterface")
-					<< "Les Houches event contained"
-					   " unparseable PDF information."
+	  std::string line;
+	  std::getline(in, line);
+	  std::istringstream ss(line);
+	  std::string tag;
+	  ss >> tag;
+	  if (tag == "#pdf") {
+	    pdf.reset(new PDF);
+	    ss >> pdf->id.first >> pdf->id.second
+	       >> pdf->x.first >> pdf->x.second
+	       >> pdf->scalePDF
+	       >> pdf->xPDF.first >> pdf->xPDF.second;
+	    if (ss.bad()) {
+	      edm::LogWarning("Generator|LHEInterface")
+		<< "Les Houches event contained"
+		" unparseable PDF information."
 					<< std::endl;
-				pdf.reset();
-			} else
-				continue;
-		}
-                size_t found = line.find("amcatnlo");
-                double NEVT = 1.0;
-                if ( found != std::string::npos) {
-                    std::string avalue = line.substr(found+1,line.size());
-                    found = avalue.find("_");
-                    avalue = avalue.substr(found+1,avalue.size());
-                    NEVT = atof(avalue.c_str());
-                }
-                hepeup.XWGTUP = hepeup.XWGTUP*NEVT; 
-		comments.push_back(line + "\n");
+	      pdf.reset();
+	    } else
+	      continue;
+	  }	  
+	  comments.push_back(line + "\n");
 	}
-
+	
 	if (!in.eof())
-		edm::LogWarning("Generator|LHEInterface")
-			<< "Les Houches file contained spurious"
-			   " content after event data." << std::endl;
+	  edm::LogWarning("Generator|LHEInterface")
+	    << "Les Houches file contained spurious"
+	    " content after event data." << std::endl;
 }
 
 LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const HEPEUP &hepeup) :
-	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0)
+	runInfo(runInfo), hepeup(hepeup), counted(false), readAttemptCounter(0),
+        npLO_(-99), npNLO_(-99)
 {
 }
 
@@ -128,7 +125,8 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct::PDF *pdf,
                    const std::vector<std::string> &comments) :
 	runInfo(runInfo), hepeup(hepeup), pdf(pdf ? new PDF(*pdf) : 0),
-	comments(comments), counted(false), readAttemptCounter(0)
+	comments(comments), counted(false), readAttemptCounter(0),
+	npLO_(-99), npNLO_(-99)
 {
 }
 
@@ -136,8 +134,11 @@ LHEEvent::LHEEvent(const boost::shared_ptr<LHERunInfo> &runInfo,
                    const LHEEventProduct &product) :
 	runInfo(runInfo), hepeup(product.hepeup()),
 	pdf(product.pdf() ? new PDF(*product.pdf()) : 0),
+	weights_(product.weights()),
 	comments(product.comments_begin(), product.comments_end()),
-	counted(false), readAttemptCounter(0)
+	counted(false), readAttemptCounter(0),
+	originalXWGTUP_(product.originalXWGTUP()), scales_(product.scales()),
+	npLO_(product.npLO()), npNLO_(product.npNLO())
 {
 }
 
@@ -289,25 +290,25 @@ std::auto_ptr<HepMC::GenEvent> LHEEvent::asHepMCEvent() const
 		// current particle has a mother? --- Sorry, parent! We're PC.
 		if (mother1) {
 			mother1--;      // FORTRAN notation!
-		if (mother2)
-			mother2--;
-		else
-			mother2 = mother1;
+			if (mother2)
+				mother2--;
+			else
+				mother2 = mother1;
 
-		HepMC::GenParticle *in_par = genParticles.at(mother1);
-		HepMC::GenVertex *current_vtx = in_par->end_vertex();  // vertex of first mother
+			HepMC::GenParticle *in_par = genParticles.at(mother1);
+			HepMC::GenVertex *current_vtx = in_par->end_vertex();  // vertex of first mother
 
-		if (!current_vtx) {
-			current_vtx = new HepMC::GenVertex(
-					HepMC::FourVector(0, 0, 0, cTau));
+			if (!current_vtx) {
+				current_vtx = new HepMC::GenVertex(
+						HepMC::FourVector(0, 0, 0, cTau));
 
-			// add vertex to event
-			genVertices.push_back(current_vtx);
-		}
+				// add vertex to event
+				genVertices.push_back(current_vtx);
+			}
 
-		for(unsigned int j = mother1; j <= mother2; j++)	// set mother-daughter relations
-			if (!genParticles.at(j)->end_vertex())
-				current_vtx->add_particle_in(genParticles.at(j));
+			for(unsigned int j = mother1; j <= mother2; j++) // set mother-daughter relations
+				if (!genParticles.at(j)->end_vertex())
+					current_vtx->add_particle_in(genParticles.at(j));
 
 			// connect THIS outgoing particle to current vertex
 			current_vtx->add_particle_out(genParticles.at(i));

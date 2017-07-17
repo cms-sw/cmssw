@@ -3,11 +3,33 @@
 
 /// \class ParametersToParametersDerivatives
 ///
-/// Class for calculating derivatives for hierarchies between different kind
-/// of alignment parameters (note that not all combinations might be supported!),
-/// needed e.g. to formulate constraints to remove the additional degrees of
-/// freedom introduced if larger structure and their components are aligned
-/// simultaneously.
+/// Class for getting the jacobian d_mother/d_component for various kinds
+/// of alignment parametrisations, i.e. the derivatives expressing the influence
+/// of the parameters of the 'component' on the parameters of its 'mother'.
+/// This is needed e.g. to formulate constraints to remove the additional
+/// degrees of freedom introduced if larger structures and their components
+/// are aligned simultaneously.
+/// The jacobian matrix is
+///
+/// / dp1_l/dp1_i dp1_l/dp2_i  ...  dp1_l/dpn_i |
+/// | dp2_l/dp1_i dp2_l/dp2_i  ...  dp2_l/dpn_i |
+/// |      .           .                 .      |
+/// |      .           .                 .      |
+/// |      .           .                 .      |
+/// \ dpm_l/dpm_i dpm_l/dpm_i  ...  dpm_l/dpn_i /
+///
+/// where 
+/// p1_l, p2_l, ..., pn_l are the n parameters of the composite 'mother' object
+/// and
+/// p1_i, p2_i, ..., pm_i are the m parameters of its component.
+///
+/// Note that not all combinations of parameters are supported:
+/// Please check method isOK() before accessing the derivatives via 
+/// operator(unsigned int indParMother, unsigned int indParComp).
+///
+/// Currently these parameters are supported:
+/// - mother: rigid body parameters,
+/// - component: rigid body, bowed surface or two bowed surfaces parameters.
 ///
 ///  $Date: 2010/12/09 19:53:42 $
 ///  $Revision: 1.1 $
@@ -26,8 +48,9 @@ class ParametersToParametersDerivatives
   /// Indicate whether able to provide the derivatives.
   bool isOK() const { return isOK_;}
 
-  /// Return the derivative DeltaParam(object)/DeltaParam(composedobject), indices start with 0.
-  /// But check isOK() first!
+  /// Return the derivative DeltaParam(mother)/DeltaParam(component).
+  /// Indices start with 0 - but check isOK() first!
+  /// See class description about matrix.
   double operator() (unsigned int indParMother, unsigned int indParComp) const; 
 
   // Not this - would make the internals public:
@@ -45,8 +68,10 @@ class ParametersToParametersDerivatives
   bool init2BowedRigid(const Alignable &component, const Alignable &mother);
 
   typedef ROOT::Math::SMatrix<double,6,9,ROOT::Math::MatRepStd<double,6,9> > AlgebraicMatrix69;
-  AlgebraicMatrix69 dBowed_dRigid(const AlgebraicMatrix66 &f2f,
-				  double halfWidth, double halfLength) const;
+  /// from d(rigid_mother)/d(rigid_component) to d(rigid_mother)/d(bowed_component)
+  /// for bad input (length or width zero), set object to invalid: isOK_ = false
+  AlgebraicMatrix69 dRigid_dBowed(const AlgebraicMatrix66 &dRigidM2dRigidC,
+				  double halfWidth, double halfLength);
 
   /// data members
   bool            isOK_; /// can we provide the desired?

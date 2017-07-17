@@ -5,8 +5,10 @@
 <use   name="SimCalorimetry/EcalSimAlgos"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/Utilities"/>
-<use   name="CondCore/DBCommon"/>
 <use   name="CondCore/DBOutputService"/>
+<use   name="Geometry/Records"/>
+<use   name="Geometry/CaloTopology"/>
+<use   name="Geometry/EcalMapping"/>
 <export>
   <lib   name="1"/>
 </export>

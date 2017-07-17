@@ -32,8 +32,8 @@ using namespace reco ;
 GsfElectronCoreProducer::GsfElectronCoreProducer( const edm::ParameterSet & config )
  : GsfElectronCoreBaseProducer(config)
  {
-  edCoresTag_ = config.getParameter<edm::InputTag>("ecalDrivenGsfElectronCoresTag") ;
-  pfCoresTag_ = config.getParameter<edm::InputTag>("pflowGsfElectronCoresTag") ;
+   edCoresTag_ = consumes<reco::GsfElectronCoreCollection>(config.getParameter<edm::InputTag>("ecalDrivenGsfElectronCoresTag"));
+   pfCoresTag_ = consumes<reco::GsfElectronCoreCollection>(config.getParameter<edm::InputTag>("pflowGsfElectronCoresTag"));
 //  pfSuperClustersTag_ = config.getParameter<edm::InputTag>("pfSuperClusters") ;
 //  pfSuperClusterTrackMapTag_ = config.getParameter<edm::InputTag>("pfSuperClusterTrackMap") ;
  }
@@ -47,10 +47,10 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
   std::list<GsfElectronCore *> electrons ;
 
   // event input
-  event.getByLabel(edCoresTag_,edCoresH_) ;
-  event.getByLabel(pfCoresTag_,pfCoresH_) ;
-//  event.getByLabel(pfSuperClustersTag_,pfClustersH_) ;
-//  event.getByLabel(pfSuperClusterTrackMapTag_,pfClusterTracksH_) ;
+  event.getByToken(edCoresTag_,edCoresH_) ;
+  event.getByToken(pfCoresTag_,pfCoresH_) ;
+//  event.getByToken(pfSuperClustersTag_,pfClustersH_) ;
+//  event.getByToken(pfSuperClusterTrackMapTag_,pfClusterTracksH_) ;
 
   // loop on pure tracker driven tracks
   if (useGsfPfRecTracks_)
@@ -91,7 +91,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
   bool found ;
   for ( eleCore = electrons.begin() ; eleCore != electrons.end() ; eleCore++ )
    {
-//    (*eleCore)->setPflowSuperCluster((*pfClusterTracksH_)[(*eleCore)->gsfTrack()]) ;
+//    (*eleCore)->setParentSuperCluster((*pfClusterTracksH_)[(*eleCore)->gsfTrack()]) ;
     found = false ;
     for
      ( pfCoreIter = pfCoresCollection->begin() ;
@@ -107,14 +107,14 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
         else
          {
           found = true ;
-          (*eleCore)->setPflowSuperCluster(pfCoreIter->pflowSuperCluster()) ;
+          (*eleCore)->setParentSuperCluster(pfCoreIter->parentSuperCluster()) ;
          }
        }
      }
    }
 
   // store
-  std::auto_ptr<GsfElectronCoreCollection> collection(new GsfElectronCoreCollection) ;
+  auto collection = std::make_unique<GsfElectronCoreCollection>();
   for ( eleCore = electrons.begin() ; eleCore != electrons.end() ; eleCore++ )
    {
     if ((*eleCore)->superCluster().isNull())
@@ -123,7 +123,7 @@ void GsfElectronCoreProducer::produce( edm::Event & event, const edm::EventSetup
      { collection->push_back(**eleCore) ; }
     delete (*eleCore) ;
    }
-  event.put(collection) ;
+  event.put(std::move(collection));
  }
 
 void GsfElectronCoreProducer::produceTrackerDrivenCore( const GsfTrackRef & gsfTrackRef, std::list<GsfElectronCore *> & electrons )

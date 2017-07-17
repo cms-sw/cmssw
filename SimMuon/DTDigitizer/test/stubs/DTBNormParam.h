@@ -47,8 +47,8 @@ class DTBNormParam{
 
   private:
     // tables of function parameters for 10 normal B filed values
-    static float table_offsc[11];
-    static float table_coeff[11];
+    const static float table_offsc[11];
+    const static float table_coeff[11];
 
     /// private class to hold parameters for a Bnorm bin
     class ParamFunc {
@@ -76,8 +76,8 @@ class DTBNormParam{
       private:
 
         float  bin_bnorm;
-        float* offsc;
-        float* coeff;
+        const float* offsc;
+        const float* coeff;
 
     };
 

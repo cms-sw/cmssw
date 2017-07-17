@@ -124,7 +124,7 @@ namespace edm {
     size_type capacity() const { return MAX_SIZE;}
     template <typename D> void push_back(D*& d);
     template <typename D> void push_back(D* const& d);
-    template <typename D> void push_back(std::auto_ptr<D> d);
+    template <typename D> void push_back(std::unique_ptr<D> d);
     void push_back(T const& valueToCopy);
     bool is_back_safe() const;
     void pop_back();
@@ -144,7 +144,7 @@ namespace edm {
     
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
-                  helper_vector& helpers) const;
+                  FillViewHelperVector& helpers) const;
     
     void setPtr(std::type_info const& toType,
                 unsigned long index,
@@ -284,7 +284,7 @@ namespace edm {
   
   template<typename T, unsigned int M, typename P>
   template<typename D>
-  inline void OwnArray<T, M, P>::push_back(std::auto_ptr<D> d) {
+  inline void OwnArray<T, M, P>::push_back(std::unique_ptr<D> d) {
     data_[size_++]=d.release();
   }
   
@@ -402,7 +402,7 @@ namespace edm {
    template<typename T, unsigned int M, typename P>
   void OwnArray<T, M, P>::fillView(ProductID const& id,
                                  std::vector<void const*>& pointers,
-                                 helper_vector& helpers) const {
+                                 FillViewHelperVector& helpers) const {
     typedef Ref<OwnArray>      ref_type ;
     typedef reftobase::RefHolder<ref_type> holder_type;
 
@@ -441,7 +441,7 @@ namespace edm {
   fillView(OwnArray<T,M,P> const& obj,
            ProductID const& id,
            std::vector<void const*>& pointers,
-           helper_vector& helpers) {
+           FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

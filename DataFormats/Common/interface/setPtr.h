@@ -22,7 +22,7 @@
 #include "DataFormats/Common/interface/FillView.h"
 #include "DataFormats/Common/interface/fwd_setPtr.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-#include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/OffsetToBase.h"
 
 // system include files
 #include <typeinfo>
@@ -41,23 +41,20 @@ namespace edm {
       typedef COLLECTION                            product_type;
       typedef typename GetProduct<product_type>::element_type     element_type;
       typedef typename product_type::const_iterator iter;
-      typedef typename product_type::size_type      size_type;
 
       if(iToType == typeid(element_type)) {
         iter it = coll.begin();
         std::advance(it,iIndex);
-        element_type const* address = GetProduct<product_type>::address( it );
+        element_type const* address = GetProduct<product_type>::address(it);
         oPtr = address;
       } else {
-        static TypeWithDict const s_type(TypeWithDict(typeid(element_type)));
-
         iter it = coll.begin();
         std::advance(it,iIndex);
-        element_type const* address = GetProduct<product_type>::address( it );
+        element_type const* address = GetProduct<product_type>::address(it);
 
-        oPtr = TypeWithDict(iToType).pointerToBaseType(address, s_type);
+        oPtr = pointerToBase(iToType,address);
 
-        if(0 == oPtr) {
+        if(nullptr == oPtr) {
           Exception::throwThis(errors::LogicError,
             "TypeConversionError"
              "edm::Ptr<> : unable to convert type ",

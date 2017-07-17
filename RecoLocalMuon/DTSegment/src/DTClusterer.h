@@ -26,6 +26,7 @@ namespace edm {
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/DTRecHit/interface/DTSLRecCluster.h"
 #include "DataFormats/DTRecHit/interface/DTRecHit1DPair.h"
+#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 class DTSuperLayer;
 
 /* C++ Headers */
@@ -74,7 +75,7 @@ class DTClusterer : public edm::EDProducer {
 
     unsigned int theMinHits; // min number of hits to build a cluster
     unsigned int theMinLayers; // min number of layers to build a cluster
-    edm::InputTag theRecHits1DLabel;
+    edm::EDGetTokenT<DTRecHitCollection> recHits1DToken_;
   protected:
 
 };

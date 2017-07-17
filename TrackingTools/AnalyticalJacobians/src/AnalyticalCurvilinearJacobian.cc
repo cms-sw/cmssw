@@ -1,5 +1,7 @@
 #include "TrackingTools/AnalyticalJacobians/interface/AnalyticalCurvilinearJacobian.h"
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
+#include <vdt/vdtMath.h>
+
 
 AnalyticalCurvilinearJacobian::AnalyticalCurvilinearJacobian 
 (const GlobalTrajectoryParameters& globalParameters,
@@ -87,7 +89,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double qp = -h.mag();
 //   double q = -h.mag()*qbp;
   double q = qp*qbp;
-  double theta = q*absS; double sint = sin(theta); double cost = cos(theta);
+  double theta = q*absS; double sint,cost;   vdt::fast_sincos(theta,sint,cost);
   double hn1 = hn.x(); double hn2 = hn.y(); double hn3 = hn.z();
   double dx1 = dx.x(); double dx2 = dx.y(); double dx3 = dx.z();
   double gamma = hn1*t21 + hn2*t22 + hn3*t23;
@@ -119,7 +121,7 @@ AnalyticalCurvilinearJacobian::computeFullJacobian
   double hv3 = hn1*v12 - hn2*v11;
   
   //   1/p - doesn't change since |p1| = |p2|
-  
+  theJacobian(0,0) = 1.;  for (auto i=1;i<5; ++i) theJacobian(0,i)=0.;  
   //   lambda
   
   theJacobian(1,0) = -qp*anv*(t21*dx1 + t22*dx2 + t23*dx3);
@@ -284,6 +286,8 @@ void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian
   double b2=-h.x()*sinp+h.y()*cosp;
   double b3=-b0*sinl+h.z()*cosl;
 
+  theJacobian = AlgebraicMatrixID();
+
   theJacobian(3,2)=absS*cosl;
   theJacobian(4,1)=absS;
 
@@ -310,12 +314,13 @@ void AnalyticalCurvilinearJacobian::computeInfinitesimalJacobian
 void
 AnalyticalCurvilinearJacobian::computeStraightLineJacobian
 (const GlobalTrajectoryParameters& globalParameters,
- const GlobalPoint& x, const GlobalVector& p, const double& s)
+ const GlobalPoint&, const GlobalVector&, const double& s)
 {
   //
   // matrix: elements =1 on diagonal and =0 are already set
   // in initialisation
   //
+  theJacobian = AlgebraicMatrixID();
   GlobalVector p1 = globalParameters.momentum().unit();
   double cosl0 = p1.perp();
   theJacobian(3,2) = cosl0 * s;

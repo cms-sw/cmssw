@@ -3,10 +3,10 @@
 
 /// default constructor
 TtFullLepHypothesis::TtFullLepHypothesis(const edm::ParameterSet& cfg):
-  elecs_(cfg.getParameter<edm::InputTag>("electrons")),
-  mus_  (cfg.getParameter<edm::InputTag>("muons")),
-  jets_ (cfg.getParameter<edm::InputTag>("jets")),
-  mets_ (cfg.getParameter<edm::InputTag>("mets")),
+  elecsToken_(consumes<std::vector<pat::Electron> >(cfg.getParameter<edm::InputTag>("electrons"))),
+  musToken_  (consumes<std::vector<pat::Muon> >(cfg.getParameter<edm::InputTag>("muons"))),
+  jetsToken_ (consumes<std::vector<pat::Jet> >(cfg.getParameter<edm::InputTag>("jets"))),
+  metsToken_ (consumes<std::vector<pat::MET> >(cfg.getParameter<edm::InputTag>("mets"))),
 
   lepton_(0), leptonBar_(0), b_(0),
   bBar_(0), neutrino_(0), neutrinoBar_(0)
@@ -14,7 +14,7 @@ TtFullLepHypothesis::TtFullLepHypothesis(const edm::ParameterSet& cfg):
   getMatch_ = false;
   if( cfg.exists("match") ) {
     getMatch_ = true;
-    match_ = cfg.getParameter<edm::InputTag>("match");
+    matchToken_ = consumes<std::vector<std::vector<int> > >(cfg.getParameter<edm::InputTag>("match"));
   }
   // if no other correction is given apply L3 (abs) correction
   jetCorrectionLevel_ = "abs";
@@ -45,21 +45,21 @@ void
 TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
 {
   edm::Handle<std::vector<pat::Electron> > elecs;
-  evt.getByLabel(elecs_, elecs);
+  evt.getByToken(elecsToken_, elecs);
 
   edm::Handle<std::vector<pat::Muon> > mus;
-  evt.getByLabel(mus_, mus);
+  evt.getByToken(musToken_, mus);
 
   edm::Handle<std::vector<pat::Jet> > jets;
-  evt.getByLabel(jets_, jets);
+  evt.getByToken(jetsToken_, jets);
 
   edm::Handle<std::vector<pat::MET> > mets;
-  evt.getByLabel(mets_, mets);
+  evt.getByToken(metsToken_, mets);
 
   std::vector<std::vector<int> > matchVec;
   if( getMatch_ ) {
     edm::Handle<std::vector<std::vector<int> > > matchHandle;
-    evt.getByLabel(match_, matchHandle);;
+    evt.getByToken(matchToken_, matchHandle);;
     matchVec = *matchHandle;
   }
   else {
@@ -69,15 +69,15 @@ TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
     matchVec.push_back( dummyMatch );
   }
 
-  // declare auto_ptr for products
-  std::auto_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >
+  // declare unique_ptr for products
+  std::unique_ptr<std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > >
     pOut( new std::vector<std::pair<reco::CompositeCandidate, std::vector<int> > > );
-  std::auto_ptr<int> pKey(new int);
+  std::unique_ptr<int> pKey(new int);
 
   // build and feed out key
   buildKey();
   *pKey=key();
-  evt.put(pKey, "Key");
+  evt.put(std::move(pKey), "Key");
 
   // go through given vector of jet combinations
   unsigned int idMatch = 0;
@@ -90,7 +90,7 @@ TtFullLepHypothesis::produce(edm::Event& evt, const edm::EventSetup& setup)
     pOut->push_back( std::make_pair(hypo(), *match) );
   }
   // feed out hyps and matches
-  evt.put(pOut);
+  evt.put(std::move(pOut));
 }
 
 /// reset candidate pointers before hypo build process

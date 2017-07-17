@@ -17,13 +17,13 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include <typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 //
 // constructors and destructor
 //
 template<typename T>
-HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig), 
+HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilter(iConfig),
   inputTag_    (iConfig.template getParameter<edm::InputTag>("inputTag")),
   inputToken_  (consumes<std::vector<T> >(inputTag_)),
   triggerType_ (iConfig.template getParameter<int>("triggerType")),
@@ -39,11 +39,9 @@ HLTSmartSinglet<T>::HLTSmartSinglet(const edm::ParameterSet& iConfig) : HLTFilte
 }
 
 template<typename T>
-HLTSmartSinglet<T>::~HLTSmartSinglet()
-{
-}
+HLTSmartSinglet<T>::~HLTSmartSinglet() = default;
 
-template<typename T> 
+template<typename T>
 void
 HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
@@ -52,7 +50,7 @@ HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& description
   desc.add<int>("triggerType",0);
   desc.add<std::string>("cut","1>0");
   desc.add<int>("MinN",1);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTSmartSinglet<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTSmartSinglet<T>>(), desc);
 }
 
 //
@@ -60,9 +58,9 @@ HLTSmartSinglet<T>::fillDescriptions(edm::ConfigurationDescriptions& description
 //
 
 // ------------ method called to produce the data  ------------
-template<typename T> 
+template<typename T>
 bool
-HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTSmartSinglet<T>::hltFilter(edm::Event& iEvent, const edm::EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
    using namespace std;
    using namespace edm;

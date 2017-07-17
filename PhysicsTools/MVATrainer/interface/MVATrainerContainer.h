@@ -5,8 +5,6 @@
 #include <string>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-
 #include "CondFormats/PhysicsToolsObjects/interface/MVAComputer.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVATrainer/interface/MVATrainerLooper.h"
@@ -25,6 +23,14 @@ class MVATrainerContainer : public Calibration::MVAComputerContainer {
 			return *pos->second.get();
 
 		return Calibration::MVAComputerContainer::find(label);
+	}
+
+	virtual bool
+	contains(const std::string &label) const
+	{
+		Map_t::const_iterator pos = trainCalibs.find(label);
+		if (pos != trainCalibs.end()) return true;
+		return Calibration::MVAComputerContainer::contains(label);
 	}
 
 	void addTrainer(const std::string &label, const Value_t &calibration)

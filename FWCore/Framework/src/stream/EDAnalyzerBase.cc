@@ -34,7 +34,7 @@ using namespace edm::stream;
 //
 // constructors and destructor
 //
-EDAnalyzerBase::EDAnalyzerBase()
+EDAnalyzerBase::EDAnalyzerBase(): moduleDescriptionPtr_(nullptr)
 {
 }
 

@@ -10,7 +10,6 @@
 
 #include <TString.h>
 
-#include <Cintex/Cintex.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -108,7 +107,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	ROOT::Cintex::Cintex::Enable();
 
 	std::vector<std::string> names;
 	for(int i = 3; i < argc; i++)

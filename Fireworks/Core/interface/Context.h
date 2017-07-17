@@ -88,12 +88,17 @@ public:
    void  voteMaxEtAndEnergy(float Et, float energy) const;
    void  resetMaxEtAndEnergy() const;
 
+   bool getHidePFBuilders() const { return m_hidePFBuilders; }
+   void setHidePFBuilders( bool x ) { m_hidePFBuilders = x; } 
+
    // ---------- member functions ---------------------------
   
    void initEveElements();
    void deleteEveElements();
 
    // ---------- static member  ---------------------------
+
+   static Context* getInstance();
 
    static float  caloR1(bool offset = true);
    static float  caloR2(bool offset = true);
@@ -129,8 +134,12 @@ private:
    mutable float                 m_maxEt;
    mutable float                 m_maxEnergy;
 
+   mutable bool          m_hidePFBuilders;
+
    TEveCaloDataHist     *m_caloData;
    TEveCaloDataVec      *m_caloDataHF;
+
+   static Context* s_fwContext;
 
    // calo data
    static const float s_caloTransEta;

@@ -68,6 +68,7 @@ namespace popcon {
       std::string m_location;
       std::string m_runtype;
       std::string m_gentag;
+      bool        m_debug;
     };
 }
 #endif

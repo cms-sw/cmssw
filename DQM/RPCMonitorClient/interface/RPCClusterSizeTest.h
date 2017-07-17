@@ -4,11 +4,6 @@
 #include "DQM/RPCMonitorClient/interface/RPCClient.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 
-#include <map>
-#include <memory>
-#include <string>
-#include <vector>
-
 
 class RPCClusterSizeTest:public RPCClient{
  public:
@@ -18,30 +13,11 @@ class RPCClusterSizeTest:public RPCClient{
 
   /// Destructor
   virtual ~RPCClusterSizeTest();
+ void clientOperation();
+ void getMonitorElements(std::vector<MonitorElement *> &, std::vector<RPCDetId> &, std::string &);
+ void beginJob(std::string & );
+ void myBooker(DQMStore::IBooker & );
 
-  /// BeginJob
-  void beginJob(DQMStore *, std::string);
-
-  //Begin Run
-  void endRun(const edm::Run& r, const edm::EventSetup& c );
-
-
-  /// Begin Lumi block
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Analyze
-  void analyze(const edm::Event& iEvent, const edm::EventSetup& c);
-
-  /// End Lumi Block
-  void endLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& c);
-
-  void  endJob(void);
-
-  void  beginRun(const edm::Run& r, const edm::EventSetup& c);
-
-  void  clientOperation(edm::EventSetup const& c);
-
-  void  getMonitorElements(std::vector<MonitorElement *> & , std::vector<RPCDetId> &);
 
  private:
 
@@ -50,7 +26,6 @@ class RPCClusterSizeTest:public RPCClient{
   int numberOfRings_;
   int prescaleFactor_;
   bool testMode_;
-  DQMStore* dbe_;
   bool useRollInfo_;
   std::vector<MonitorElement *>  myClusterMe_;
   std::vector<RPCDetId>   myDetIds_;

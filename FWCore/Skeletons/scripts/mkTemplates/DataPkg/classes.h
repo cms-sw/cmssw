@@ -4,7 +4,7 @@
 #include "__subsys__/__pkgname__/interface/YOUR_CLASS_GOES_HERE.h"
 #include <vector>
 
-namespace {
+namespace FWCore_Skeletons {
    struct __subsys_____class__ {
       //add 'dummy' Wrapper variable for each class type you put into the Event
       edm::Wrapper<YOUR_CLASS_GOES_HERE> dummy1;

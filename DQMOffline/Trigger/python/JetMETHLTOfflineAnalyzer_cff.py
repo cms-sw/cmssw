@@ -1,18 +1,14 @@
 import FWCore.ParameterSet.Config as cms
 
-from JetMETCorrections.Configuration.JetCorrectionProducers_cff import *
-
-#ak5CaloJetsL1FastL2L3         = ak5CaloJetsL1.clone(correctors = ['ak5CaloL1FastL2L3'])
-#ak5PFJetsL1FastL2L3           = ak5PFJetsL1.clone(correctors   = ['ak5PFL1FastL2L3'])
-#ak5CaloJetsL1FastL2L3Residual = ak5CaloJetsL1.clone(correctors = ['ak5CaloL1FastL2L3Residual'])
-#ak5PFJetsL1FastL2L3Residual   = ak5PFJetsL1.clone(correctors   = ['ak5PFL1FastL2L3Residual'])
-
+from JetMETCorrections.Configuration.JetCorrectorsAllAlgos_cff import *
 from DQMOffline.Trigger.JetMETHLTOfflineSource_cfi import *
 
 jetMETHLTOfflineAnalyzer = cms.Sequence(
-    #ak5CaloJetsL1FastL2L3
-    #* ak5PFJetsL1FastL2L3
-    #* ak5CaloJetsL1FastL2L3Residual
-    #* ak5PFJetsL1FastL2L3Residual
-    jetMETHLTOfflineSource
+    ak4CaloL1FastL2L3ResidualCorrectorChain
+    * ak4PFL1FastL2L3ResidualCorrectorChain
+    * jetMETHLTOfflineSourceAK4
+#    * ak8PFCHSL1FastjetL2L3ResidualCorrectorChain #not working in all matrix tests, yet
+    * jetMETHLTOfflineSourceAK8
+    * jetMETHLTOfflineSourceAK4Fwd
+    * jetMETHLTOfflineSourceAK8Fwd
 )

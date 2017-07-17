@@ -9,7 +9,7 @@
 #include "DQM/SiStripMonitorClient/interface/SiStripUtility.h"
 #include "DQM/SiStripCommon/interface/SiStripFolderOrganizer.h"
 
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 //Run Info
 #include "CondFormats/DataRecord/interface/RunSummaryRcd.h"
@@ -31,7 +31,9 @@
 //
 // -- Contructor
 //
-SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) {
+SiStripDaqInfo::SiStripDaqInfo(edm::ParameterSet const& pSet) :
+  m_cacheID_(0) {
+
   // Create MessageSender
   edm::LogInfo( "SiStripDaqInfo") << "SiStripDaqInfo::Deleting SiStripDaqInfo ";
 
@@ -179,15 +181,15 @@ void SiStripDaqInfo::readFedIds(const edm::ESHandle<SiStripFedCabling>& fedcabli
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
-  const std::vector<uint16_t>& feds = fedCabling_->feds(); 
+  auto feds = fedCabling_->fedIds(); 
 
   nFedTotal = feds.size();
   for(std::vector<unsigned short>::const_iterator ifed = feds.begin(); ifed != feds.end(); ifed++){
-    const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections( *ifed );
-    for (std::vector<FedChannelConnection>::const_iterator iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
+    auto fedChannels = fedCabling_->fedConnections( *ifed );
+    for (auto iconn = fedChannels.begin(); iconn < fedChannels.end(); iconn++){
       if (!iconn->isConnected()) continue;
       uint32_t detId = iconn->detId();
       if (detId == 0 || detId == 0xFFFFFFFF)  continue;
@@ -205,7 +207,7 @@ void SiStripDaqInfo::readSubdetFedFractions(std::vector<int>& fed_ids, edm::Even
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  iSetup.get<IdealGeometryRecord>().get(tTopoHandle);
+  iSetup.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   const int siStripFedIdMin = FEDNumbering::MINSiStripFEDID;
@@ -261,7 +263,7 @@ void SiStripDaqInfo::findExcludedModule(unsigned short fed_id, const TrackerTopo
     dqmStore_->setCurrentFolder("SiStrip/"+mdir);
   }
   std::string mechanical_dir = dqmStore_->pwd();
-  const std::vector<FedChannelConnection> fedChannels = fedCabling_->connections(fed_id);
+  auto fedChannels = fedCabling_->fedConnections(fed_id);
   int ichannel = 0;
   std::string tag = "ExcludedFedChannel";
   std::string bad_module_folder;

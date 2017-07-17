@@ -7,9 +7,7 @@ class PFClusterWidthAlgo
 {
  public:
   //constructor
-  PFClusterWidthAlgo(const std::vector<const reco::PFCluster* >& pfclust,
-		     const EBRecHitCollection * ebRecHits=0,
-		     const EERecHitCollection * eeRecHits=0);
+  PFClusterWidthAlgo(const std::vector<const reco::PFCluster* >& pfclust);
 
   
   //destructor

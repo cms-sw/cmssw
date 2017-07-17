@@ -19,25 +19,19 @@
  */
 
 #include "DataFormats/DetId/interface/DetId.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include <vector>
-// #include <map>
-#include <ext/hash_map>
-
-class GeomDetType;
-class GeomDetUnit;
-class GeomDet;
+#include <unordered_map>
 
 class TrackingGeometry
 {
 public:
-  typedef std::vector<GeomDetType*>          DetTypeContainer;
-  typedef std::vector<GeomDet*>              DetContainer;
-  typedef std::vector<GeomDetUnit*>          DetUnitContainer;
+  typedef std::vector<GeomDetType const*>          DetTypeContainer;
+  typedef std::vector<GeomDet const*>              DetContainer;
+  typedef std::vector<GeomDetUnit const*>          DetUnitContainer;
   typedef std::vector<DetId>                 DetIdContainer;
-  //  typedef std::map<DetId,GeomDetUnit*>       mapIdToDetUnit;
-  // typedef std::map<DetId,GeomDet*>           mapIdToDet;
-  typedef  __gnu_cxx::hash_map< unsigned int, GeomDetUnit*> mapIdToDetUnit;
-  typedef  __gnu_cxx::hash_map< unsigned int, GeomDet*>     mapIdToDet;
+  typedef  std::unordered_map< unsigned int, GeomDetUnit const*> mapIdToDetUnit;
+  typedef  std::unordered_map< unsigned int, GeomDet const*>     mapIdToDet;
 
   // Default constructor
   //  virtual TrackingGeometry() {}

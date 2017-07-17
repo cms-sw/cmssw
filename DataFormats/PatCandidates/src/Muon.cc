@@ -4,7 +4,7 @@
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 #include "FWCore/Utilities/interface/Exception.h"
-
+#include "DataFormats/Common/interface/RefToPtr.h"
 #include <limits>
 
 using namespace pat;
@@ -13,6 +13,8 @@ using namespace pat;
 /// default constructor
 Muon::Muon() :
     Lepton<reco::Muon>(),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -24,12 +26,10 @@ Muon::Muon() :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(false),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -37,6 +37,8 @@ Muon::Muon() :
 /// constructor from reco::Muon
 Muon::Muon(const reco::Muon & aMuon) :
     Lepton<reco::Muon>(aMuon),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -48,12 +50,10 @@ Muon::Muon(const reco::Muon & aMuon) :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(false),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -61,6 +61,8 @@ Muon::Muon(const reco::Muon & aMuon) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -72,12 +74,10 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(0),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -85,6 +85,8 @@ Muon::Muon(const edm::RefToBase<reco::Muon> & aMuonRef) :
 /// constructor from ref to reco::Muon
 Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     Lepton<reco::Muon>(aMuonRef),
+    embeddedMuonBestTrack_(false),
+    embeddedTunePMuonBestTrack_(false),
     embeddedTrack_(false),
     embeddedStandAloneMuon_(false),
     embeddedCombinedMuon_(false),
@@ -96,12 +98,10 @@ Muon::Muon(const edm::Ptr<reco::Muon> & aMuonRef) :
     embeddedPFCandidate_(false),
     pfCandidateRef_(),
     cachedNormChi2_(false),
-    cachedDB_(false),
-    cachedNumberOfValidHits_(0),
     normChi2_(0.0),
-    dB_(0.0),
-    edB_(0.0),
-    numberOfValidHits_(0)
+    cachedNumberOfValidHits_(0),
+    numberOfValidHits_(0),
+    pfEcalEnergy_(0)
 {
   initImpactParameters();
 }
@@ -129,11 +129,9 @@ reco::operator<<(std::ostream& out, const pat::Muon& obj)
 
 // initialize impact parameter container vars
 void Muon::initImpactParameters() {
-  for (int i_ = 0; i_<5; ++i_){
-    ip_.push_back(0.0);
-    eip_.push_back(0.0);
-    cachedIP_.push_back(false);
-  }
+  std::fill(ip_, ip_+IpTypeSize, 0.0f);
+  std::fill(eip_, eip_+IpTypeSize, 0.0f);
+  cachedIP_ = 0;
 }
 
 
@@ -193,6 +191,29 @@ reco::TrackRef Muon::dytTrack() const {
   }
 }
 
+/// reference to Track giving best momentum (global PFlow algo) 
+reco::TrackRef Muon::muonBestTrack() const {
+  if (!muonBestTrack_.empty()) {
+    return reco::TrackRef(&muonBestTrack_, 0);
+  } else {
+    return reco::Muon::muonBestTrack();
+  }
+}
+
+/// reference to Track giving best momentum (muon only) 
+reco::TrackRef Muon::tunePMuonBestTrack() const {
+  if (!tunePMuonBestTrack_.empty()) {
+    return reco::TrackRef(&tunePMuonBestTrack_, 0);
+  } else if (muonBestTrackType() == tunePMuonBestTrackType()) {
+    return muonBestTrack();
+  } else {
+    return reco::Muon::tunePMuonBestTrack();
+  }
+}
+
+
+
+
 /// reference to the source IsolatedPFCandidates
 reco::PFCandidateRef Muon::pfCandidateRef() const {
   if (embeddedPFCandidate_) {
@@ -204,22 +225,58 @@ reco::PFCandidateRef Muon::pfCandidateRef() const {
 
 /// reference to the parent PF candidate for use in TopProjector
 reco::CandidatePtr Muon::sourceCandidatePtr( size_type i ) const {
-  if (embeddedPFCandidate_) {
-    return reco::CandidatePtr( pfCandidateRef_.id(), pfCandidateRef_.get(), pfCandidateRef_.key() ); 
-  } else {
-    return reco::CandidatePtr();
-  }
+  if(pfCandidateRef_.isNonnull() && i==0 ) return reco::CandidatePtr(edm::refToPtr(pfCandidateRef_) );
+  if(refToOrig_.isNonnull() &&  pfCandidateRef_.isNonnull() && i==1 ) return refToOrig_;
+  if(refToOrig_.isNonnull() && ! pfCandidateRef_.isNonnull() && i==0 ) return refToOrig_;
+  return reco::CandidatePtr();
 }
 
 /// embed the Track selected to be the best measurement of the muon parameters
-void Muon::embedMuonBestTrack() {
+void Muon::embedMuonBestTrack(bool force) {
   muonBestTrack_.clear();
-  if (reco::Muon::muonBestTrack().isNonnull()) {
+  embeddedMuonBestTrack_ = false;
+  bool alreadyEmbedded = false;
+  if (!force) {
+      switch (muonBestTrackType()) {
+        case None: alreadyEmbedded = true; break;
+        case InnerTrack: if (embeddedTrack_) alreadyEmbedded = true; break;
+        case OuterTrack: if (embeddedStandAloneMuon_) alreadyEmbedded = true; break;
+        case CombinedTrack: if (embeddedCombinedMuon_) alreadyEmbedded = true; break;
+        case TPFMS: if (embeddedTpfmsMuon_) alreadyEmbedded = true; break;
+        case Picky: if (embeddedPickyMuon_) alreadyEmbedded = true; break;
+        case DYT: if (embeddedDytMuon_) alreadyEmbedded = true; break;
+      }
+  }
+  if (force || !alreadyEmbedded) {
       muonBestTrack_.push_back(*reco::Muon::muonBestTrack());
       embeddedMuonBestTrack_ = true;
   }
 }
 
+/// embed the Track selected to be the best measurement of the muon parameters
+void Muon::embedTunePMuonBestTrack(bool force) {
+  tunePMuonBestTrack_.clear();
+  bool alreadyEmbedded = false;
+  embeddedTunePMuonBestTrack_ = false;
+  if (!force) {
+      switch (tunePMuonBestTrackType()) {
+          case None: alreadyEmbedded = true; break;
+          case InnerTrack: if (embeddedTrack_) alreadyEmbedded = true; break;
+          case OuterTrack: if (embeddedStandAloneMuon_) alreadyEmbedded = true; break;
+          case CombinedTrack: if (embeddedCombinedMuon_) alreadyEmbedded = true; break;
+          case TPFMS: if (embeddedTpfmsMuon_) alreadyEmbedded = true; break;
+          case Picky: if (embeddedPickyMuon_) alreadyEmbedded = true; break;
+          case DYT: if (embeddedDytMuon_) alreadyEmbedded = true; break;
+      }
+      if (muonBestTrackType() == tunePMuonBestTrackType()) {
+          if (embeddedMuonBestTrack_) alreadyEmbedded = true;
+      }
+  }
+  if (force || !alreadyEmbedded) {
+      tunePMuonBestTrack_.push_back(*reco::Muon::tunePMuonBestTrack());
+      embeddedTunePMuonBestTrack_ = true;
+  }
+}
 
 
 /// embed the Track reconstructed in the tracker only
@@ -338,22 +395,9 @@ unsigned int Muon::numberOfValidHits() const {
 
 // embed various impact parameters with errors
 // IpType defines the type of the impact parameter
-// None is default and reverts to old behavior controlled by 
-// patMuons.usePV = True/False
 double Muon::dB(IpType type_) const {
-  
-  // preserve old functionality exactly
-  if (type_ == None){
-    if ( cachedDB_ ) {
-      return dB_;
-    }
-    else {
-      return std::numeric_limits<double>::max();
-    }
-  }
-  
   // more IP types (new)
-  else if ( cachedIP_[type_] ) {
+  if ( cachedIP_ & (1 << int(type_))) {
     return ip_[type_];
   } else {
     return std::numeric_limits<double>::max();
@@ -363,22 +407,9 @@ double Muon::dB(IpType type_) const {
 
 // embed various impact parameters with errors
 // IpType defines the type of the impact parameter
-// None is default and reverts to old behavior controlled by 
-// patMuons.usePV = True/False
 double Muon::edB(IpType type_) const {
-
-  // preserve old functionality exactly
-  if (type_ == None){
-    if ( cachedDB_ ) {
-      return edB_;
-    }
-    else {
-      return std::numeric_limits<double>::max();
-    }
-  }
-
   // more IP types (new)
-  else if ( cachedIP_[type_] ) {
+  if ( cachedIP_ & (1 << int(type_))) {
     return eip_[type_];
   } else {
     return std::numeric_limits<double>::max();
@@ -397,6 +428,11 @@ bool Muon::isTightMuon(const reco::Vertex&vtx) const {
 
 bool Muon::isLooseMuon() const {
   return muon::isLooseMuon(*this);
+
+}
+
+bool Muon::isMediumMuon() const {
+  return muon::isMediumMuon(*this);
 
 }
 

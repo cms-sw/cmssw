@@ -30,8 +30,6 @@
 #include "TCanvas.h"
 #include "TF1.h"
 
-using namespace std;
-
 // Use this with the ResolutionAnalyzer files
 // TString mainNamePt("PtResolutionGenVSMu");
 // TString mainNameCotgTheta("CotgThetaResolutionGenVSMu");
@@ -40,7 +38,7 @@ TString mainNamePt("hResolPtGenVSMu");
 TString mainNameCotgTheta("hResolCotgThetaGenVSMu");
 TString mainNamePhi("hResolPhiGenVSMu");
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames,
+void draw( TDirectory *target, TList *sourcelist, const std::vector<TString> & vecNames,
 	   const bool doHalfEta, const int minEntries = 100, const int rebinX = 0, const int rebinY = 0 );
 
 void ResolDraw(const TString numString = "0", const bool doHalfEta = false,
@@ -53,7 +51,7 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false,
 
   TList *FileList;
   // vector of names of the histograms to fit
-  vector<TString> vecNames;
+  std::vector<TString> vecNames;
 
   TFile *Target;
 
@@ -102,17 +100,17 @@ void ResolDraw(const TString numString = "0", const bool doHalfEta = false,
   Target->Close();
 }
 
-void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNames,
+void draw( TDirectory *target, TList *sourcelist, const std::vector<TString> & vecNames,
 	   const bool doHalfEta, const int minEntries, const int rebinX, const int rebinY )
 {
-  //  cout << "Target path: " << target->GetPath() << endl;
+  //  std::cout << "Target path: " << target->GetPath() << std::endl;
   TString path( (char*)strstr( target->GetPath(), ":" ) );
   path.Remove( 0, 2 );
 
   TFile *first_source = (TFile*)sourcelist->First();
 
   // Stores all the fits
-  map<TString, vector<TH1D*> > fitHistograms;
+  std::map<TString, std::vector<TH1D*> > fitHistograms;
 
   first_source->cd( path );
   TDirectory *current_sourcedir = gDirectory;
@@ -136,10 +134,10 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
       // descendant of TH1 -> redraw it
 
       TString objName = obj->GetName();
-      vector<TString>::const_iterator namesIt = vecNames.begin();
+      std::vector<TString>::const_iterator namesIt = vecNames.begin();
       for( ; namesIt != vecNames.end(); ++namesIt ) {
         if( *namesIt == objName ) {
-          cout << "found histogram: " << *namesIt << endl;
+          std::cout << "found histogram: " << *namesIt << std::endl;
 
           TDirectory * fits = (TDirectory*) target->Get("fits");
           if( fits == 0 ) fits = target->mkdir("fits");
@@ -175,10 +173,10 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
           // with greater precision assuming symmetry in eta and putting all values in
           // -3,0 (as if -fabs(eta) is used).
           if( *namesIt == mainNamePt+"_ResoVSEta" && doHalfEta ) {
-            cout << mainNamePt+"_ResoVSEta" << endl;
-            cout << "bins%2 = " << xBins%2 << endl;
+            std::cout << mainNamePt+"_ResoVSEta" << std::endl;
+            std::cout << "bins%2 = " << xBins%2 << std::endl;
             for( int x=1; x<=xBins/2; ++x ) {
-              stringstream fitNum;
+              std::stringstream fitNum;
               fitNum << x;
               TString fitName(*namesIt);
               fitName += "_fit_"; 
@@ -192,19 +190,19 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
                 double sigmaError = temp->GetFunction("gaus")->GetParError(2);
                 double rms = temp->GetRMS();
                 double rmsError = temp->GetRMSError();
-                // cout << "sigma = " << rms << endl;
-                // cout << "sigma error = " << rmsError << endl;
-                // cout << "rms = " << rms << endl;
-                // cout << "rms error = " << rmsError << endl;
+                // std::cout << "sigma = " << rms << std::endl;
+                // std::cout << "sigma error = " << rmsError << std::endl;
+                // std::cout << "rms = " << rms << std::endl;
+                // std::cout << "rms error = " << rmsError << std::endl;
                 // Reverse x in the first half to the second half.
                 int xToFill = x;
                 // Bin 0 corresponds to bin=binNumber(the last bin, which is also considered in the loop).
                 if( *namesIt == mainNamePt+"_ResoVSEta" ) {
-                  cout << mainNamePt+"_ResoVSEta" << endl;
+                  std::cout << mainNamePt+"_ResoVSEta" << std::endl;
                   if( x<xBins/2+1 ) xToFill = xBins+1 - x;
                 }
-                // cout << "x = " << x << ", xToFill = " << xToFill << endl;
-                // cout << "rms = " << rms << ", rmsError = " << rmsError << endl;
+                // std::cout << "x = " << x << ", xToFill = " << xToFill << std::endl;
+                // std::cout << "rms = " << rms << ", rmsError = " << rmsError << std::endl;
                 h1->SetBinContent(x, sigma);
                 h1->SetBinError(x, sigmaError);
                 h1->SetBinContent(xBins+1-x, 0);
@@ -228,14 +226,14 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
             target->cd();
             profile->Write();
             // for ( int i=1; i<=h1->GetNbinsX(); ++i ) {
-            //   cout << "bin["<<i<<"] = " << h1->GetBinContent(i) << endl;
+            //   std::cout << "bin["<<i<<"] = " << h1->GetBinContent(i) << std::endl;
             // }
             h1->Write();
             h1RMS->Write();
           }
           else {
             for( int x=1; x<=xBins; ++x ) {
-              stringstream fitNum;
+              std::stringstream fitNum;
               fitNum << x;
               TString fitName(*namesIt);
               fitName += "_fit_";
@@ -251,11 +249,11 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
                 double sigmaError = temp->GetFunction("gaus")->GetParError(2);
                 double rms = temp->GetRMS();
                 double rmsError = temp->GetRMSError();
-                if( sigma != sigma ) cout << "value is NaN: rms = " << rms << endl; 
+                if( sigma != sigma ) std::cout << "value is NaN: rms = " << rms << std::endl; 
                 if( sigma == sigma ) {
 
-                  cout << "rms = " << rms << endl;
-                  cout << "rms error = " << rmsError << endl;
+                  std::cout << "rms = " << rms << std::endl;
+                  std::cout << "rms error = " << rmsError << std::endl;
 
                   // NaN is the only value different from itself. Infact NaN is "not a number"
                   // and it is not equal to any value, including itself.
@@ -286,7 +284,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
     else if ( obj->IsA()->InheritsFrom( "TDirectory" ) ) {
       // it's a subdirectory
 
-      // cout << "Found subdirectory " << obj->GetName() << endl;
+      // std::cout << "Found subdirectory " << obj->GetName() << std::endl;
 
       // create a new subdir of same name and title in the target file
       target->cd();
@@ -299,8 +297,8 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
     }
     else {
       // object is of no type that we know or can handle
-      // cout << "Unknown object type, name: "
-      //      << obj->GetName() << " title: " << obj->GetTitle() << endl;
+      // std::cout << "Unknown object type, name: "
+      //      << obj->GetName() << " title: " << obj->GetTitle() << std::endl;
     }
 
     // now write the compared histograms (which are "in" obj) to the target file
@@ -319,7 +317,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
   } // while ( ( TKey *key = (TKey*)nextkey() ) )
 
   // Save canvases of the fitted histograms
-  map<TString, vector<TH1D*> >::const_iterator mapIt = fitHistograms.begin();
+  std::map<TString, std::vector<TH1D*> >::const_iterator mapIt = fitHistograms.begin();
   for( ; mapIt != fitHistograms.end(); ++mapIt ) {
     TCanvas * canvas = new TCanvas(mapIt->first, mapIt->first, 1000, 800);
 
@@ -329,7 +327,7 @@ void draw( TDirectory *target, TList *sourcelist, const vector<TString> & vecNam
     if( x*y < sizeCheck ) y += 1;
     if( x*y < sizeCheck ) x += 1;
     canvas->Divide(x,y);
-    vector<TH1D*>::const_iterator histoIt = mapIt->second.begin();
+    std::vector<TH1D*>::const_iterator histoIt = mapIt->second.begin();
     int histoNum = 1;
     for( ; histoIt != mapIt->second.end(); ++histoIt, ++histoNum ) {
       canvas->cd(histoNum);

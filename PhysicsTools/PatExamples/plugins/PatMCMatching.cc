@@ -11,6 +11,8 @@
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "Math/VectorUtil.h"
 
+#include "DataFormats/PatCandidates/interface/Muon.h"
+
 
 class PatMCMatching : public edm::EDAnalyzer {
 
@@ -19,29 +21,27 @@ public:
   explicit PatMCMatching(const edm::ParameterSet&);
   /// default destructor
   ~PatMCMatching();
-  
+
 private:
 
   virtual void beginJob() override ;
   virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob() override ;
-  
-  // simple map to contain all histograms; 
-  // histograms are booked in the beginJob() 
-  // method
-  std::map<std::string,TH1F*> histContainer_; 
 
-  // input tags  
-  edm::InputTag muonSrc_;
+  // simple map to contain all histograms;
+  // histograms are booked in the beginJob()
+  // method
+  std::map<std::string,TH1F*> histContainer_;
+
+  // input tags
+  edm::EDGetTokenT<edm::View<pat::Muon> > muonSrcToken_;
 };
 
-
-#include "DataFormats/PatCandidates/interface/Muon.h"
 
 
 PatMCMatching::PatMCMatching(const edm::ParameterSet& iConfig):
   histContainer_(),
-  muonSrc_(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc"))
+  muonSrcToken_(consumes<edm::View<pat::Muon> >(iConfig.getUntrackedParameter<edm::InputTag>("muonSrc")))
 {
 }
 
@@ -55,21 +55,21 @@ PatMCMatching::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get muon collection
   edm::Handle<edm::View<pat::Muon> > muons;
-  iEvent.getByLabel(muonSrc_,muons);
+  iEvent.getByToken(muonSrcToken_,muons);
 
   for(edm::View<pat::Muon>::const_iterator muon=muons->begin(); muon!=muons->end(); ++muon){
-  
+
       for(unsigned int i = 0 ; i < muon->genParticleRefs().size() ; ++i ){
 
-	  switch( muon->genParticle(i)->status() ){	
+	  switch( muon->genParticle(i)->status() ){
 	      case 1:
-		  histContainer_["DR_status1Match"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , muon->genParticle(i)->p4() ) ); 
+		  histContainer_["DR_status1Match"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , muon->genParticle(i)->p4() ) );
 		  break;
 	      case 3:
-		  histContainer_["DR_status3Match"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , muon->genParticle(i)->p4() ) ); 
+		  histContainer_["DR_status3Match"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , muon->genParticle(i)->p4() ) );
 		  break;
 	      default:
-		  histContainer_["DR_defaultMatch"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , muon->genParticle(i)->p4() ) ); 
+		  histContainer_["DR_defaultMatch"]->Fill( ROOT::Math::VectorUtil::DeltaR(muon->p4() , muon->genParticle(i)->p4() ) );
 		  break;
 	  }
       }
@@ -77,12 +77,12 @@ PatMCMatching::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
 }
 
-void 
+void
 PatMCMatching::beginJob()
 {
   // register to the TFileService
   edm::Service<TFileService> fs;
-  
+
   // book histograms:
   histContainer_["DR_defaultMatch"  ]=fs->make<TH1F>("DR_defaultMatch",   "DR_defaultMatch", 100,  0.,  0.02);
   histContainer_["DR_status1Match"  ]=fs->make<TH1F>("DR_status1Match",   "DR_status1Match", 100,  0.,  0.02);
@@ -90,8 +90,8 @@ PatMCMatching::beginJob()
 
 }
 
-void 
-PatMCMatching::endJob() 
+void
+PatMCMatching::endJob()
 {
 }
 

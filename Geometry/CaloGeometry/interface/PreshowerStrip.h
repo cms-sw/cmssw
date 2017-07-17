@@ -15,7 +15,6 @@
 
    \brief A base class to handle the shape of preshower strips.
 
-$Revision: 1.12 $
 \author F. Cossutti
    
 */
@@ -37,30 +36,30 @@ public:
   PreshowerStrip& operator=( const PreshowerStrip& tr ) ;
 
   PreshowerStrip( const GlobalPoint& po   ,
-		  const CornersMgr*  mgr  ,
+		        CornersMgr*  mgr  ,
 		  const CCGFloat*    parm  ) :
-    CaloCellGeometry ( po , mgr, parm ) {}
+    CaloCellGeometry ( po , mgr, parm ) {initSpan();}
 
-  virtual ~PreshowerStrip();
-
-  virtual const CornersVec& getCorners() const ;
+  ~PreshowerStrip() override;
 
   CCGFloat dx() const { return param()[0] ; }
   CCGFloat dy() const { return param()[1] ; }
   CCGFloat dz() const { return param()[2] ; }
   CCGFloat tilt() const { return param()[3] ; }
 
-  virtual void vocalCorners( Pt3DVec&        vec ,
+  void vocalCorners( Pt3DVec&        vec ,
 			     const CCGFloat* pv  ,
-			     Pt3D&           ref  ) const 
+			     Pt3D&           ref  ) const override 
     { localCorners( vec, pv, ref ) ; }
 
   static void localCorners( Pt3DVec&        vec ,
 			    const CCGFloat* pv  , 
 			    Pt3D&           ref  ) ;
 
-  virtual Tr3D getTransform( Pt3DVec* /*lptr*/ ) const
-    { return Tr3D() ; }
+  void getTransform( Tr3D& tr, Pt3DVec* /*lptr*/ ) const override
+    { }
+ private:
+  void initCorners(CaloCellGeometry::CornersVec&) override;
 };
 
 std::ostream& operator<<( std::ostream& s , const PreshowerStrip& cell) ;

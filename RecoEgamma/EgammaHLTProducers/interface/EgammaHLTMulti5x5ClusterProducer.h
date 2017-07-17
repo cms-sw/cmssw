@@ -19,12 +19,17 @@
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
+namespace edm {
+  class ConfigurationDescriptions;
+}
+
 class EgammaHLTMulti5x5ClusterProducer : public edm::EDProducer {
  public:
   EgammaHLTMulti5x5ClusterProducer(const edm::ParameterSet& ps);
   ~EgammaHLTMulti5x5ClusterProducer();
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  
+  void produce(edm::Event&, const edm::EventSetup&) override;
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
+
  private:
   int nMaxPrintout_; // max # of printouts
   int nEvt_;         // internal counter of events

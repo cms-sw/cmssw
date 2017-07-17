@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 WZInterestingEventSelector = cms.EDFilter(
     "WZInterestingEventSelector",
-    electronCollection = cms.untracked.InputTag('gsfElectrons'),
+    electronCollection = cms.untracked.InputTag('gedGsfElectrons'),
     pfMetCollection = cms.untracked.InputTag('pfMet'),
     offlineBSCollection = cms.untracked.InputTag('offlineBeamSpot'),
     ptCut = cms.double(20.),

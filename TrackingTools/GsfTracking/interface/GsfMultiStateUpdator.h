@@ -4,7 +4,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
 class TrajectoryStateOnSurface;
-class TransientTrackingRecHit;
+class TrackingRecHit;
 
 /** Class which updates a Gaussian mixture trajectory state 
  *  with the information from a
@@ -20,7 +20,7 @@ public:
   GsfMultiStateUpdator() {}
 
   TrajectoryStateOnSurface update(const TrajectoryStateOnSurface&,
-                                  const TransientTrackingRecHit&) const;
+                                  const TrackingRecHit&) const;
 
   virtual GsfMultiStateUpdator * clone() const {
     return new GsfMultiStateUpdator(*this);

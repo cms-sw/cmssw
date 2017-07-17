@@ -21,6 +21,7 @@
 
 #include "HLTrigger/HLTcore/interface/HLTFilter.h"
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template <class OColl>
 class HLTCountNumberOfObject : public HLTFilter {
@@ -32,7 +33,7 @@ public:
   {
     srcToken_ = consumes<OColl>(src_);
   }
-  
+
   ~HLTCountNumberOfObject() { }
 
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions)
@@ -42,11 +43,11 @@ public:
       desc.add<edm::InputTag>("src",edm::InputTag(""));
       desc.add<int>("MinN",0);
       desc.add<int>("MaxN",99999);
-      descriptions.add(std::string("hlt")+std::string(typeid(HLTCountNumberOfObject<OColl>).name()),desc);
+      descriptions.add(defaultModuleLabel<HLTCountNumberOfObject<OColl>>(), desc);
     }
-  
+
 private:
-  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct)
+  virtual bool hltFilter(edm::Event& iEvent, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override
   {
     edm::Handle<OColl> oHandle;
     iEvent.getByToken(srcToken_, oHandle);
@@ -58,7 +59,7 @@ private:
 
     return answer;
   }
- 
+
   edm::InputTag src_;
   edm::EDGetTokenT<OColl> srcToken_;
   int minN_,maxN_;

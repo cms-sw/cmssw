@@ -64,7 +64,7 @@ class aod2patFilterZee : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
   //bool isInFiducial(double eta);
-      
+
       // ----------member data ---------------------------
   //double ETCut_;
   //double METCut_;
@@ -74,7 +74,9 @@ class aod2patFilterZee : public edm::EDFilter {
   //std::string hltpath_;
   //edm::InputTag hltpathFilter_;
   edm::InputTag electronCollectionTag_;
+  edm::EDGetTokenT<reco::GsfElectronCollection> electronCollectionToken_;
   edm::InputTag metCollectionTag_;
+  edm::EDGetTokenT<reco::CaloMETCollection> metCollectionToken_;
 
   //double BarrelMaxEta_;
   //double EndCapMaxEta_;
@@ -89,13 +91,13 @@ class aod2patFilterZee : public edm::EDFilter {
 aod2patFilterZee::aod2patFilterZee(const edm::ParameterSet& iConfig)
 {
 
-  electronCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("electronCollectionTag");
-  metCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>
-    ("metCollectionTag");
+  electronCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>("electronCollectionTag");
+  electronCollectionToken_=consumes<reco::GsfElectronCollection>(electronCollectionTag_);
+  metCollectionTag_=iConfig.getUntrackedParameter<edm::InputTag>("metCollectionTag");
+  metCollectionToken_=consumes<reco::CaloMETCollection>(metCollectionTag_);
 
 
-  produces< pat::ElectronCollection > 
+  produces< pat::ElectronCollection >
     ("patElectrons").setBranchAlias("patElectrons");
 
   produces< pat::METCollection>("patCaloMets").setBranchAlias("patCaloMets");
@@ -107,7 +109,7 @@ aod2patFilterZee::aod2patFilterZee(const edm::ParameterSet& iConfig)
 
 aod2patFilterZee::~aod2patFilterZee()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -124,7 +126,7 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // ELECTRONS
   // *************************************************************************
   edm::Handle<reco::GsfElectronCollection> gsfElectrons;
-  iEvent.getByLabel(electronCollectionTag_, gsfElectrons);
+  iEvent.getByToken(electronCollectionToken_, gsfElectrons);
   if (!gsfElectrons.isValid()) {
     std::cout <<"aod2patFilterZee: Could not get electron collection with label: "
 	      <<electronCollectionTag_ << std::endl;
@@ -132,7 +134,7 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   const reco::GsfElectronCollection *pElecs = gsfElectrons.product();
   // calculate your electrons
-  auto_ptr<pat::ElectronCollection> patElectrons(new pat::ElectronCollection);
+  unique_ptr<pat::ElectronCollection> patElectrons(new pat::ElectronCollection);
   for (reco::GsfElectronCollection::const_iterator elec = pElecs->begin();
        elec != pElecs->end(); ++elec) {
     reco::GsfElectron mygsfelec = *elec;
@@ -148,14 +150,14 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   // METs
   // *************************************************************************
   edm::Handle<reco::CaloMETCollection> calomets;
-  iEvent.getByLabel(metCollectionTag_, calomets);
+  iEvent.getByToken(metCollectionToken_, calomets);
   if (! calomets.isValid()) {
     std::cout << "aod2patFilterZee: Could not get met collection with label: "
 	      << metCollectionTag_ << std::endl;
     return false;
   }
   const  reco::CaloMETCollection *mycalomets =  calomets.product();
-  auto_ptr<pat::METCollection> patCaloMets(new pat::METCollection);
+  unique_ptr<pat::METCollection> patCaloMets(new pat::METCollection);
   for (reco::CaloMETCollection::const_iterator met = mycalomets->begin();
        met != mycalomets->end(); ++ met ) {
     pat::MET mymet(*met);
@@ -165,8 +167,8 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
   //
   // put everything in the event
   //
-  iEvent.put( patElectrons, "patElectrons");
-  iEvent.put( patCaloMets, "patCaloMets");
+  iEvent.put(std::move(patElectrons), "patElectrons");
+  iEvent.put(std::move(patCaloMets), "patCaloMets");
   //
 
   return true;
@@ -174,12 +176,12 @@ aod2patFilterZee::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
 }
 
 // ------------ method called once each job just before starting event loop  -
-void 
+void
 aod2patFilterZee::beginJob() {
 }
 
 // ------------ method called once each job just after ending the event loop  -
-void 
+void
 aod2patFilterZee::endJob() {
 }
 

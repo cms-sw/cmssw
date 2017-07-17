@@ -8,20 +8,19 @@
 //
 // Original Author:  Chris Jones
 //         Created:  Mon Feb 11 11:06:40 EST 2008
-
-
-//
-
 // system include files
 #include <boost/bind.hpp>
 #include <stdexcept>
 #include <iostream>
 #include <cstdio>
 #include <sstream>
+#include <thread>
+#include <future>
 
 #include "TGButton.h"
 #include "TGLabel.h"
 #include "TSystem.h"
+#include "TGLIncludes.h"
 #include "TGLViewer.h"
 #include "TEveBrowser.h"
 #include "TEveManager.h"
@@ -37,6 +36,7 @@
 #include "Fireworks/Core/interface/FWGUIManager.h"
 #include "Fireworks/Core/interface/Context.h"
 #include "Fireworks/Core/interface/FWGUISubviewArea.h"
+#include "Fireworks/Core/interface/FWTEveViewer.h"
 
 #include "Fireworks/Core/interface/FWSelectionManager.h"
 #include "Fireworks/Core/interface/FWEventItemsManager.h"
@@ -62,6 +62,7 @@
 #include "Fireworks/Core/interface/ActionsList.h"
 
 #include "Fireworks/Core/interface/CmsShowEDI.h"
+#include "Fireworks/Core/interface/CmsShowCommon.h"
 #include "Fireworks/Core/interface/CmsShowCommonPopup.h"
 #include "Fireworks/Core/interface/CmsShowModelPopup.h"
 #include "Fireworks/Core/interface/CmsShowViewPopup.h"
@@ -78,7 +79,15 @@
 
 #include "Fireworks/Core/interface/fwLog.h"
 
+#include "Fireworks/Core/interface/FWEventItem.h"
+#include "Fireworks/Core/interface/FW3DViewBase.h"
+#include "Fireworks/Core/interface/FWExpressionException.h"
+
 #include "FWCore/Common/interface/EventBase.h"
+
+#include "CommonTools/Utils/src/Grammar.h"
+#include "CommonTools/Utils/interface/Exception.h"
+
 
 
 // constants, enums and typedefs
@@ -91,6 +100,8 @@ FWGUIManager* FWGUIManager::m_guiManager = 0;
 //
 // constructors and destructor
 //
+
+
 FWGUIManager::FWGUIManager(fireworks::Context* ctx,
                            const FWViewManagerManager* iVMMgr,
                            FWNavigatorBase* navigator):
@@ -126,21 +137,11 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
    TEveCompositeFrame::SetupFrameMarkup(foo, 20, 4, false);
 
    {
-      //NOTE: by making sure we defaultly open to a fraction of the full screen size we avoid
-      // causing the program to go into full screen mode under default SL4 window manager
-      UInt_t width = gClient->GetDisplayWidth();
-      UInt_t height = static_cast<UInt_t>(gClient->GetDisplayHeight()*.8);
-      //try to deal with multiple horizontally placed monitors.  Since present monitors usually
-      // have less than 2000 pixels horizontally, when we see more it is a good indicator that
-      // we are dealing with more than one monitor.
-      while(width > 2000) {
-         width /= 2;
-      }
-      width = static_cast<UInt_t>(width*.8);
       m_cmsShowMainFrame = new CmsShowMainFrame(gClient->GetRoot(),
-                                                width,
-                                                height,
+                                                950,
+                                                750,
                                                 this);
+     
       m_cmsShowMainFrame->SetCleanup(kDeepCleanup);
     
       /*
@@ -151,20 +152,26 @@ FWGUIManager::FWGUIManager(fireworks::Context* ctx,
 
       for (int i = 0 ; i < FWViewType::kTypeSize; ++i)
       {
+         if (m_context->getHidePFBuilders() && (i == FWViewType::kLegoPFECAL || i == FWViewType::kRhoPhiPF))
+             continue;
+
          bool separator = (i == FWViewType::kGlimpse || i == FWViewType::kTableHLT || i ==  FWViewType::kLegoPFECAL);
          CSGAction* action = m_cmsShowMainFrame->createNewViewerAction(FWViewType::idToName(i), separator);
          action->activated.connect(boost::bind(&FWGUIManager::newViewSlot, this, FWViewType::idToName(i)));
       }
 
-      m_detailViewManager  = new FWDetailViewManager(m_context->colorManager());
+      m_detailViewManager  = new FWDetailViewManager(m_context);
       m_contextMenuHandler = new FWModelContextMenuHandler(m_context->selectionManager(), m_detailViewManager, m_context->colorManager(), this);
 
 
       getAction(cmsshow::sExportImage)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImageOfMainView));
       getAction(cmsshow::sExportAllImages)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::exportImagesOfAllViews));
       getAction(cmsshow::sLoadConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForLoadConfigurationFile));
+      getAction(cmsshow::sLoadPartialConfig)->activated.connect(sigc::mem_fun(*this, &FWGUIManager::promptForPartialLoadConfigurationFile));
       getAction(cmsshow::sSaveConfig)->activated.connect(writeToPresentConfigurationFile_);
+      getAction(cmsshow::sSavePartialConfig)->activated.connect(sigc::mem_fun(this, &FWGUIManager::savePartialToConfigurationFile));
       getAction(cmsshow::sSaveConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForSaveConfigurationFile));
+      getAction(cmsshow::sSavePartialConfigAs)->activated.connect(sigc::mem_fun(*this,&FWGUIManager::promptForPartialSaveConfigurationFile));
       getAction(cmsshow::sShowEventDisplayInsp)->activated.connect(boost::bind( &FWGUIManager::showEDIFrame,this,-1));
       getAction(cmsshow::sShowMainViewCtl)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showViewPopup));
       getAction(cmsshow::sShowObjInsp)->activated.connect(sigc::mem_fun(*m_guiManager, &FWGUIManager::showModelPopup));
@@ -336,6 +343,18 @@ FWGUIManager::eventChangedCallback() {
          ev->GetGLViewer()->DeleteOverlayAnnotations();
    }
    
+   for (auto reg : m_regionViews)
+   {
+       for(ViewMap_i it = m_viewMap.begin(); it != m_viewMap.end(); ++it)
+       {
+           if (it->second == reg) {
+               m_viewMap.erase(it);
+               reg->destroy();
+               break;
+           }
+       }
+   }
+
    m_cmsShowMainFrame->loadEvent(*getCurrentEvent());
    m_detailViewManager->newEventCallback();
 }
@@ -633,12 +652,44 @@ FWGUIManager::showEDIFrame(int iToShow)
    m_ediFrame->MapRaised();
 }
 
+
+void
+FWGUIManager::open3DRegion()
+{
+   try {
+      FWModelId id = *(m_context->selectionManager()->selected().begin());
+      float theta =0, phi = 0;
+      edm::TypeWithDict type = edm::TypeWithDict((TClass*)id.item()->modelType());
+      using namespace boost::spirit::classic;
+      reco::parser::ExpressionPtr tmpPtr;
+      reco::parser::Grammar grammar(tmpPtr,type);
+      edm::ObjectWithDict o(type, (void*)id.item()->modelData(id.index()));
+      if (parse("theta()", grammar.use_parser<1>() >> end_p, space_p).full)
+         theta = tmpPtr->value(o);
+      else
+         throw FWExpressionException("syntax error", -1);
+      if (parse("phi()", grammar.use_parser<1>() >> end_p, space_p).full)
+         phi = tmpPtr->value(o);
+      else
+         throw FWExpressionException("syntax error", -1);
+      ViewMap_i it = createView( "3D Tower", m_viewSecPack->NewSlot());
+      FW3DViewBase* v = static_cast<FW3DViewBase*>(it->second);
+      v->setClip(theta, phi);
+      it->first->UndockWindow();
+   }
+   catch(const reco::parser::BaseException& e)
+   {
+      std::cout <<" FWModelFilter failed to base "<< e.what() << std::endl;
+   }
+}
+
 void
 FWGUIManager::showCommonPopup()
 {
    if (! m_commonPopup)
    {
       m_commonPopup = new CmsShowCommonPopup(m_context->commonPrefs(), m_cmsShowMainFrame, 200, 200);
+      m_context->commonPrefs()->setView(m_commonPopup);
       m_cmsShowMainFrame->bindCSGActionKeys(m_commonPopup);
    }
    m_commonPopup->MapRaised();
@@ -819,6 +870,20 @@ FWGUIManager::promptForLoadConfigurationFile()
    loadFromConfigurationFile_(name);
 }
 
+
+void
+FWGUIManager::promptForPartialLoadConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDOpen))
+      return;
+  
+   
+   loadPartialFromConfigurationFile_(name);
+   //
+}
+
+
 /** Emits the signal which requests to save the current configuration in the 
     file picked up in the dialog.
   */
@@ -828,7 +893,24 @@ FWGUIManager::promptForSaveConfigurationFile()
    std::string name;
    if (!promptForConfigurationFile(name, kFDSave))
       return;
+
    writeToConfigurationFile_(name);
+}
+
+void
+FWGUIManager::promptForPartialSaveConfigurationFile()
+{
+   std::string name;
+   if (!promptForConfigurationFile(name, kFDSave))
+      return;
+
+   writePartialToConfigurationFile_(name);
+}
+
+void
+FWGUIManager::savePartialToConfigurationFile()
+{
+   writePartialToConfigurationFile_("current");
 }
 
 void
@@ -874,33 +956,33 @@ FWGUIManager::exportImagesOfAllViews()
             name += ext;
          // now add format trailing before the extension
          name.insert(name.rfind('.'), "-%u_%u_%u_%s");
-         exportAllViews(name);
+         exportAllViews(name, -1);
       }
    }
    catch (std::runtime_error &e) { std::cout << e.what() << std::endl; }
 }
 
 void
-FWGUIManager::exportAllViews(const std::string& format)
+FWGUIManager::exportAllViews(const std::string& format, int height)
 {
    // Save all GL views.
-   // Expects format to have "%d %d %d %s" which are replaced with
+   // Expects format to have "%u %u %llu %s" which are replaced with
    //   run-number, event number, lumi block and view-name.
    // Blanks in view-name are removed.
    // If several views shave the same name, they are post-fixed
    // with "_%d". They are sorted by view diagonal.
 
-   typedef std::list<TEveViewer*>           viewer_list_t;
-   typedef viewer_list_t::iterator          viewer_list_i;
+   typedef std::list<FWTEveViewer*>           viewer_list_t;
+   typedef viewer_list_t::iterator            viewer_list_i;
 
-   typedef std::map<TString, viewer_list_t> name_map_t;
-   typedef name_map_t::iterator             name_map_i;
+   typedef std::map<TString, viewer_list_t>   name_map_t;
+   typedef name_map_t::iterator               name_map_i;
 
    name_map_t vls;
 
    for (ViewMap_i i = m_viewMap.begin(); i != m_viewMap.end(); ++i)
    {
-      TEveViewer *ev = dynamic_cast<TEveViewer*>(i->first);
+      FWTEveViewer *ev = dynamic_cast<FWTEveViewer*>(i->first);
       if (ev)
       {
          TString name(ev->GetElementName());
@@ -913,6 +995,8 @@ FWGUIManager::exportAllViews(const std::string& format)
       }
    }
 
+   std::vector<std::future<int>> futures;
+   
    const edm::EventBase *event = getCurrentEvent();
    for (name_map_i i = vls.begin(); i != vls.end(); ++i)
    {
@@ -929,8 +1013,26 @@ FWGUIManager::exportAllViews(const std::string& format)
          TString file;
          file.Form(format.c_str(), event->id().run(), event->id().event(),
                    event->luminosityBlock(), view_name.Data());
-         (*j)->GetGLViewer()->SavePicture(file);
+
+         if (GLEW_EXT_framebuffer_object)
+         {
+            // Multi-threaded save
+            futures.push_back((*j)->CaptureAndSaveImage(file, height));
+         }
+         else
+         {
+            // Single-threaded save
+            if (height == -1)
+               (*j)->GetGLViewer()->SavePicture(file);
+            else 
+               (*j)->GetGLViewer()->SavePictureHeight(file, height);
+         }
       }
+   }
+
+   for (auto &f : futures)
+   {
+      f.get();
    }
 }
 
@@ -1176,6 +1278,7 @@ FWGUIManager::setWindowInfoFrom(const FWConfiguration& iFrom,
 
 void
 FWGUIManager::setFrom(const FWConfiguration& iFrom) {
+   gEve->DisableRedraw();
    // main window
    if (m_viewSecPack) subviewDestroyAll();
 
@@ -1183,11 +1286,6 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
    assert(mw != 0);
    // Window needs to mapped before moving, otherwise move can lead
    // to wrong results on some window managers.
-   m_cmsShowMainFrame->MapWindow();
-   setWindowInfoFrom(*mw, m_cmsShowMainFrame);
-   m_cmsShowMainFrame->MapSubwindows();
-   m_cmsShowMainFrame->Layout();
-   m_cmsShowMainFrame->MapRaised();
 
    // set from view reading area info nd view info
    float_t leftWeight =1;
@@ -1300,10 +1398,16 @@ FWGUIManager::setFrom(const FWConfiguration& iFrom) {
       }
    }
 
+   gEve->EnableRedraw();
    // disable first docked view
    checkSubviewAreaIconState(0);
 
- 
+   m_cmsShowMainFrame->MapWindow();
+   setWindowInfoFrom(*mw, m_cmsShowMainFrame);
+   m_cmsShowMainFrame->MapSubwindows();
+   m_cmsShowMainFrame->Layout();
+   m_cmsShowMainFrame->MapRaised();
+
 }
 
 void
@@ -1331,21 +1435,36 @@ FWGUIManager::setDelayBetweenEvents(Float_t val)
 
 void FWGUIManager::runIdChanged()
 {
+   if (m_cmsShowMainFrame->m_runEntry->GetUIntNumber() == edm::invalidRunNumber)
+   {
+      m_cmsShowMainFrame->m_runEntry->SetUIntNumber(1);
+   }
+
    m_cmsShowMainFrame->m_lumiEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_lumiEntry->SetFocus();
 }
 
 void FWGUIManager::lumiIdChanged()
 {
+   if (m_cmsShowMainFrame->m_lumiEntry->GetUIntNumber() == edm::invalidLuminosityBlockNumber)
+   {
+      m_cmsShowMainFrame->m_lumiEntry->SetUIntNumber(1);
+   }
+
    m_cmsShowMainFrame->m_eventEntry->SetText("", kFALSE);
    m_cmsShowMainFrame->m_eventEntry->SetFocus();
 }
 
 void FWGUIManager::eventIdChanged()
 {
+   if (m_cmsShowMainFrame->m_eventEntry->GetUIntNumber() == edm::invalidEventNumber)
+   {
+      m_cmsShowMainFrame->m_eventEntry->SetULong64Number(1);
+   }
+
    changedEventId_.emit(m_cmsShowMainFrame->m_runEntry->GetUIntNumber(),
                         m_cmsShowMainFrame->m_lumiEntry->GetUIntNumber(),
-                        m_cmsShowMainFrame->m_eventEntry->GetUIntNumber());
+                        m_cmsShowMainFrame->m_eventEntry->GetULong64Number());
 }
 
 void
@@ -1428,4 +1547,20 @@ void
 FWGUIManager::resetWMOffsets()
 {
    m_WMOffsetX = m_WMOffsetY = m_WMDecorH = 0;
+}
+
+void
+FWGUIManager::initEmpty()
+{   
+   int x = 150 + m_WMOffsetX ;
+   int y = 50 +  m_WMOffsetY;
+   m_cmsShowMainFrame->Move(x, y);
+   m_cmsShowMainFrame->SetWMPosition(x, y < m_WMDecorH ? m_WMDecorH : y);
+  
+   createView("Rho Phi"); 
+   createView("Rho Z"); 
+
+   m_cmsShowMainFrame->MapSubwindows();
+   m_cmsShowMainFrame->Layout();
+   m_cmsShowMainFrame->MapRaised();
 }

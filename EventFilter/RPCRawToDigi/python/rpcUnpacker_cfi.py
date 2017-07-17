@@ -1,8 +1,6 @@
 import FWCore.ParameterSet.Config as cms
+import EventFilter.RPCRawToDigi.rpcUnpackingModule_cfi
 
-rpcunpacker = cms.EDProducer("RPCUnpackingModule",
-    InputLabel = cms.InputTag("rawDataCollector"),
-    doSynchro = cms.bool(True)
-)
-
-
+rpcunpacker =  EventFilter.RPCRawToDigi.rpcUnpackingModule_cfi.rpcUnpackingModule.clone()
+rpcunpacker.InputLabel = cms.InputTag("rawDataCollector")
+rpcunpacker.doSynchro = cms.bool(True)

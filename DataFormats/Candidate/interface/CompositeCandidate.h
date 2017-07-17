@@ -12,7 +12,6 @@
  *
  */
 
-#include "DataFormats/Candidate/interface/iterator_imp_specific.h"
 #include "DataFormats/Candidate/interface/CompositeCandidateFwd.h"
 #include <string>
 #include <vector> 
@@ -48,14 +47,6 @@ namespace reco {
     void                    setRoles( const role_collection & roles ) { roles_.clear(); roles_ = roles; }
     /// returns a clone of the candidate
     virtual CompositeCandidate * clone() const;
-    /// first daughter const_iterator
-    virtual const_iterator begin() const;
-    /// last daughter const_iterator
-    virtual const_iterator end() const;
-    /// first daughter iterator
-    virtual iterator begin();
-    /// last daughter const_iterator
-    virtual iterator end();
     /// number of daughters
     virtual size_type numberOfDaughters() const;
     /// return daughter at a given position, i = 0, ... numberOfDaughters() - 1 (read only mode)
@@ -68,7 +59,7 @@ namespace reco {
     /// add a clone of the passed candidate as daughter 
     void addDaughter( const Candidate &, const std::string& s="" );
     /// add a clone of the passed candidate as daughter 
-    void addDaughter( std::auto_ptr<Candidate>, const std::string& s="" );
+    void addDaughter( std::unique_ptr<Candidate>, const std::string& s="" );
     /// clear daughters
     void clearDaughters() { dau.clear(); }
     // clear roles
@@ -81,10 +72,6 @@ namespace reco {
     virtual const Candidate * mother( size_type i = 0 ) const;
 
   private:
-    // const iterator implementation
-    typedef candidate::const_iterator_imp_specific<daughters> const_iterator_imp_specific;
-    // iterator implementation
-    typedef candidate::iterator_imp_specific<daughters> iterator_imp_specific;
     /// collection of daughters
     daughters dau;
     /// check overlap with another daughter

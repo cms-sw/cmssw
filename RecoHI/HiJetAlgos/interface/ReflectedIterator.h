@@ -5,7 +5,7 @@
 
 class ReflectedIterator : public PileUpSubtractor {
  public:
-   ReflectedIterator(const edm::ParameterSet& iConfig) : PileUpSubtractor(iConfig),
+ ReflectedIterator(const edm::ParameterSet& iConfig, edm::ConsumesCollector && iC) : PileUpSubtractor(iConfig, std::move(iC)),
      sumRecHits_(iConfig.getParameter<bool>("sumRecHits")),
      dropZeroTowers_(iConfig.getUntrackedParameter<bool>("dropZeroTowers",true))
        {;}

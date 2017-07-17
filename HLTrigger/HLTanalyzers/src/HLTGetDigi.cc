@@ -152,8 +152,7 @@ HLTGetDigi::HLTGetDigi(const edm::ParameterSet& ps)
 
 }
 
-HLTGetDigi::~HLTGetDigi()
-{ }
+HLTGetDigi::~HLTGetDigi() = default;
 
 void
 HLTGetDigi::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -222,9 +221,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<L1GctEtMiss> GctEtMiss ; 
     edm::Handle<L1GctEtTotal> GctEtTotal ; 
 
-    const L1GctEtHad*   etHad   = 0 ; 
-    const L1GctEtMiss*  etMiss  = 0 ; 
-    const L1GctEtTotal* etTotal = 0 ;
+    const L1GctEtHad*   etHad   = nullptr ; 
+    const L1GctEtMiss*  etMiss  = nullptr ; 
+    const L1GctEtTotal* etTotal = nullptr ;
 
     if (getGctEtDigis_) {
         iEvent.getByToken(GctEtHadToken_,GctEtHad) ; 
@@ -242,8 +241,8 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<L1GctEmCandCollection> GctIsoEM ; 
     edm::Handle<L1GctEmCandCollection> GctNonIsoEM ; 
 
-    const L1GctEmCandCollection* isoEMdigis = 0 ; 
-    const L1GctEmCandCollection* nonIsoEMdigis = 0 ; 
+    const L1GctEmCandCollection* isoEMdigis = nullptr ; 
+    const L1GctEmCandCollection* nonIsoEMdigis = nullptr ; 
     if (getGctEmDigis_) {
         iEvent.getByToken(GctIsoEmToken_,GctIsoEM) ;
         isoEMdigis = GctIsoEM.product() ; 
@@ -258,10 +257,10 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<L1GctJetCandCollection> GctTauJets ; 
     edm::Handle<L1GctJetCounts> GctJetCounts ; 
 
-    const L1GctJetCandCollection* cenJetDigis = 0 ; 
-    const L1GctJetCandCollection* forJetDigis = 0 ; 
-    const L1GctJetCandCollection* tauJetDigis = 0 ;
-    std::auto_ptr<L1GctJetCounts> newCounts( new L1GctJetCounts() ) ;
+    const L1GctJetCandCollection* cenJetDigis = nullptr ; 
+    const L1GctJetCandCollection* forJetDigis = nullptr ; 
+    const L1GctJetCandCollection* tauJetDigis = nullptr ;
+    std::unique_ptr<L1GctJetCounts> newCounts( new L1GctJetCounts() ) ;
     L1GctJetCounts* counts = newCounts.get() ; 
         
     if (getGctJetDigis_) {
@@ -284,8 +283,8 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     edm::Handle<L1CaloEmCollection> GctCaloEm ; 
     edm::Handle<L1CaloRegionCollection> GctCaloRegion ; 
     
-    const L1CaloEmCollection* caloEm = 0 ; 
-    const L1CaloRegionCollection* caloRegion = 0 ; 
+    const L1CaloEmCollection* caloEm = nullptr ; 
+    const L1CaloRegionCollection* caloRegion = nullptr ; 
 
     if (getL1Calo_) {
         iEvent.getByToken(GctCaloEmToken_,GctCaloEm) ; 
@@ -306,9 +305,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     iSetup.get< L1GtParametersRcd >().get( l1GtPar ) ;
     int nBx = l1GtPar->gtTotalBxInEvent() ; 
     
-    std::auto_ptr<L1GlobalTriggerEvmReadoutRecord> newGtEvm( new L1GlobalTriggerEvmReadoutRecord(nBx) ) ; 
-    std::auto_ptr<L1GlobalTriggerObjectMapRecord> newGtMap( new L1GlobalTriggerObjectMapRecord() ) ; 
-    std::auto_ptr<L1GlobalTriggerReadoutRecord> newGtRR( new L1GlobalTriggerReadoutRecord(nBx) ) ; 
+    std::unique_ptr<L1GlobalTriggerEvmReadoutRecord> newGtEvm( new L1GlobalTriggerEvmReadoutRecord(nBx) ) ; 
+    std::unique_ptr<L1GlobalTriggerObjectMapRecord> newGtMap( new L1GlobalTriggerObjectMapRecord() ) ; 
+    std::unique_ptr<L1GlobalTriggerReadoutRecord> newGtRR( new L1GlobalTriggerReadoutRecord(nBx) ) ; 
     L1GlobalTriggerEvmReadoutRecord* evm = newGtEvm.get() ; 
     L1GlobalTriggerObjectMapRecord* map = newGtMap.get() ; 
     L1GlobalTriggerReadoutRecord* rr = newGtRR.get() ; 
@@ -328,8 +327,8 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     
     edm::Handle< std::vector<L1MuGMTCand> > GmtCands ;
     edm::Handle<L1MuGMTReadoutCollection> GmtMuCollection ; 
-    std::auto_ptr<std::vector<L1MuGMTCand> > cands( new std::vector<L1MuGMTCand> ) ;
-    std::auto_ptr<L1MuGMTReadoutCollection> muCollection(new L1MuGMTReadoutCollection(nBx)) ;
+    std::unique_ptr<std::vector<L1MuGMTCand> > cands( new std::vector<L1MuGMTCand> ) ;
+    std::unique_ptr<L1MuGMTReadoutCollection> muCollection(new L1MuGMTReadoutCollection(nBx)) ;
  
     if (getGmtCands_) {
         iEvent.getByToken(GmtCandsToken_,GmtCands) ; 
@@ -343,7 +342,7 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
     
     edm::Handle< DetSetVector<PixelDigi> >  input;
-    auto_ptr<DetSetVector<PixelDigi> > NewPixelDigi(new DetSetVector<PixelDigi> );
+    unique_ptr<DetSetVector<PixelDigi> > NewPixelDigi(new DetSetVector<PixelDigi> );
     DetSetVector<PixelDigi>* tt = NewPixelDigi.get();
     if (getPixelDigis_) {
         iEvent.getByToken(PXLdigiToken_, input);
@@ -351,7 +350,7 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     }
 
     edm::Handle< edm::DetSetVector<SiStripDigi> >  input2;
-    auto_ptr<DetSetVector<SiStripDigi> > NewSiDigi(new DetSetVector<SiStripDigi> );
+    unique_ptr<DetSetVector<SiStripDigi> > NewSiDigi(new DetSetVector<SiStripDigi> );
     DetSetVector<SiStripDigi>* uu = NewSiDigi.get();
     if (getStripDigis_) {
         iEvent.getByToken(SSTdigiToken_, input2);
@@ -361,9 +360,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Handle<EBDigiCollection> EcalDigiEB;
     Handle<EEDigiCollection> EcalDigiEE;
     Handle<ESDigiCollection> EcalDigiES;
-    const EBDigiCollection* EBdigis = 0;
-    const EEDigiCollection* EEdigis = 0;
-    const ESDigiCollection* ESdigis = 0; 
+    const EBDigiCollection* EBdigis = nullptr;
+    const EEDigiCollection* EEdigis = nullptr;
+    const ESDigiCollection* ESdigis = nullptr; 
 
     if (getEcalDigis_) {
         iEvent.getByToken( EBdigiToken_, EcalDigiEB );
@@ -384,9 +383,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     Handle<HBHEDigiCollection> HcalDigiHBHE ; 
     Handle<HODigiCollection> HcalDigiHO ; 
     Handle<HFDigiCollection> HcalDigiHF ; 
-    const HBHEDigiCollection* HBHEdigis = 0 ;
-    const HODigiCollection* HOdigis = 0 ;
-    const HFDigiCollection* HFdigis = 0 ; 
+    const HBHEDigiCollection* HBHEdigis = nullptr ;
+    const HODigiCollection* HOdigis = nullptr ;
+    const HFDigiCollection* HFdigis = nullptr ; 
 
     if (getHcalDigis_) {
         iEvent.getByToken( HBHEdigiToken_, HcalDigiHBHE );
@@ -410,17 +409,15 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByToken( CSCWiredigiToken_,  CSCDigiWire );
 
         int numDigis = 0 ; 
-        for (CSCStripDigiCollection::DigiRangeIterator iter=CSCDigiStrip->begin();
-             iter!=CSCDigiStrip->end(); iter++) {
-            for ( vector<CSCStripDigi>::const_iterator digiIter = (*iter).second.first;
-                  digiIter != (*iter).second.second; digiIter++) numDigis++ ;
+        for (auto && iter : *CSCDigiStrip) {
+            for ( auto digiIter = iter.second.first;
+                  digiIter != iter.second.second; digiIter++) numDigis++ ;
         }
         LogDebug("DigiInfo") << "total # CSCstripdigis: " << numDigis ;
         numDigis = 0 ; 
-        for (CSCWireDigiCollection::DigiRangeIterator iter=CSCDigiWire->begin();
-             iter!=CSCDigiWire->end(); iter++) {
-            for ( vector<CSCWireDigi>::const_iterator digiIter = (*iter).second.first;
-                  digiIter != (*iter).second.second; digiIter++) numDigis++ ;
+        for (auto && iter : *CSCDigiWire) {
+            for ( auto digiIter = iter.second.first;
+                  digiIter != iter.second.second; digiIter++) numDigis++ ;
         }
         LogDebug("DigiInfo") << "total # CSCwiredigis: " << numDigis ;
     }
@@ -431,10 +428,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByToken( DTdigiToken_, DTDigiHandle );
     
         int numDigis = 0 ; 
-        for (DTDigiCollection::DigiRangeIterator iter=DTDigiHandle->begin();
-             iter!=DTDigiHandle->end(); iter++) {
-            for ( vector<DTDigi>::const_iterator digiIter = (*iter).second.first;
-                  digiIter != (*iter).second.second; digiIter++) numDigis++ ;
+        for (auto && iter : *DTDigiHandle) {
+            for ( auto digiIter = iter.second.first;
+                  digiIter != iter.second.second; digiIter++) numDigis++ ;
         }
         LogDebug("DigiInfo") << "total # DTdigis: " << numDigis ;
     }
@@ -445,10 +441,9 @@ HLTGetDigi::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
         iEvent.getByToken( RPCdigiToken_, RPCDigiHandle );
 
         int numDigis = 0 ; 
-        for (RPCDigiCollection::DigiRangeIterator iter=RPCDigiHandle->begin();
-             iter!=RPCDigiHandle->end(); iter++) {
-            for ( vector<RPCDigi>::const_iterator digiIter = (*iter).second.first;
-                  digiIter != (*iter).second.second; digiIter++) numDigis++ ;
+        for (auto && iter : *RPCDigiHandle) {
+            for ( auto digiIter = iter.second.first;
+                  digiIter != iter.second.second; digiIter++) numDigis++ ;
         }
         LogDebug("DigiInfo") << "total # RPCdigis: " << numDigis ;
     }

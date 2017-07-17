@@ -20,6 +20,10 @@
 #include <vector>
 #include <math.h>
 
+namespace CLHEP {
+  class HepRandomEngine;
+}
+
 namespace HepMC {
   class GenEvent;
   class GenParticle;
@@ -50,6 +54,12 @@ namespace gen
     const char* classname() const;
 
   private:
+
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+
+    static const std::vector<std::string> theSharedResources;
+
     void					add_heavy_ion_rec(HepMC::GenEvent *evt);
     HepMC::GenParticle*	                        build_hyjet( int index, int barcode );	
     HepMC::GenVertex*                           build_hyjet_vertex(int i, int id);
@@ -63,6 +73,7 @@ namespace gen
     HepMC::GenEvent   *evt;
     edm::ParameterSet  pset_;
     double             abeamtarget_;           // beam/target atomic mass number 
+    int 	       angularspecselector_;   // angular emitted gluon spectrum selection
     double             bfixed_;                // fixed impact param (fm); valid only if cflag_=0
     double             bmax_;                  // max impact param; 
                                                // units of nucl radius

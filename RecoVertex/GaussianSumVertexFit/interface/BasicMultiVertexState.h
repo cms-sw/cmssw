@@ -32,10 +32,27 @@ public:
   GlobalPoint position() const;
 
   /**
+   * Mean time of the mixture (time of the collapsed state)
+   */
+  double time() const;
+
+  /**
    * Mean covariance matrix of the mixture
    * (covariance matrix of the collapsed state)
    */
   GlobalError error() const;
+
+  /**
+   * Mean covariance matrix of the mixture
+   * (covariance matrix of the collapsed state)
+   */
+  double timeError() const;
+
+  /**
+   * Mean covariance matrix of the mixture
+   * (covariance matrix of the collapsed state)
+   */
+  GlobalError error4D() const;
 
   /**
    * Mean weight matrix (inverse of covariance) of the mixture
@@ -44,9 +61,20 @@ public:
   GlobalWeight weight() const;
 
   /**
+   * Mean weight matrix (inverse of covariance) of the mixture
+   * ( weight matrix of the collapsed state)
+   */
+  GlobalWeight weight4D() const;
+
+  /**
    * Mean (weight*position) matrix of the mixture
    */
   AlgebraicVector3 weightTimesPosition() const;
+
+  /**
+   * Mean (weight*position) matrix of the mixture
+   */
+  AlgebraicVector4 weightTimesPosition4D() const;
 
   /**
    * The weight of this state. It will be the sum of the weights of the
@@ -65,6 +93,8 @@ public:
    * The validity of the vertex
    */
   bool isValid() const {return valid;}
+
+  bool is4D() const { checkCombinedState(); return theCombinedState.is4D(); }
 
 private:
 

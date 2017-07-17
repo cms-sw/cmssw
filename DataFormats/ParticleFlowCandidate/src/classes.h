@@ -20,6 +20,7 @@
 #include "DataFormats/ParticleFlowCandidate/interface/PileUpPFCandidateFwd.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Common/interface/Association.h"
 
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
@@ -29,9 +30,9 @@
 #include "DataFormats/Common/interface/OneToManyWithQualityGeneric.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
+#include "DataFormats/Common/interface/RefVectorHolder.h"
 
-
-namespace {
+namespace DataFormats_ParticleFlowCandidate {
   struct dictionary {
 
     reco::PFCandidateRef c_r;
@@ -46,12 +47,19 @@ namespace {
     edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > bla333;
     edm::ValueMap<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > >  bla334;
     std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > bla335;
+    edm::Wrapper<edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > > > valueMap_iso_wr;
+    edm::ValueMap<std::vector<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> > > >  valueMap_iso; 
+    edm::reftobase::RefVectorHolder<reco::PFCandidateRefVector > bla3351;
+
     edm::Wrapper<edm::ValueMap<edm::Ptr<reco::PFCandidate> > > bla336;
     edm::ValueMap<edm::Ptr<std::vector<reco::PFCandidate> > >  bla337;
     std::vector<edm::Ptr<std::vector<reco::PFCandidate> > > bla338;
     edm::ValueMap<edm::Ptr<reco::PFCandidate> > bla339;
     reco::PFCandidate::ElementInBlock jo1;
     reco::PFCandidate::ElementsInBlocks jo2;  
+
+    edm::PtrVector<reco::PFCandidate> mm1;
+    edm::Wrapper<edm::PtrVector<reco::PFCandidate> > mm2;
 
     reco::IsolatedPFCandidateRef ic_r;
     reco::IsolatedPFCandidateRefProd ic_rp;
@@ -89,7 +97,8 @@ namespace {
     edm::Wrapper<reco::PFCandidateEGammaExtra> eg_cand_w1;  
     edm::Wrapper<std::vector<reco::PFCandidateEGammaExtra> > eg_w1;    
 
-
+    edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
+ 
     //Association Map classes
     edm::helpers::KeyVal<edm::RefProd<std::vector<reco::Vertex> >,edm::RefProd<std::vector<reco::PFCandidate> > > pm0;
     edm::helpers::KeyVal<edm::Ref<std::vector<reco::Vertex>,reco::Vertex,edm::refhelper::FindUsingAdvance<std::vector<reco::Vertex>,reco::Vertex> >,std::vector<std::pair<edm::Ref<std::vector<reco::PFCandidate>,reco::PFCandidate,edm::refhelper::FindUsingAdvance<std::vector<reco::PFCandidate>,reco::PFCandidate> >,float> > > pmf1;

@@ -1,7 +1,7 @@
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 #include "PhysicsTools/MVATrainer/interface/TreeTrainer.h"
 
-namespace { // anonymous
+namespace PhysicsTools_MVATrainer { // anonymous
   struct dictionary {
 
   };

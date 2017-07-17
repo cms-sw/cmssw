@@ -62,7 +62,7 @@ runTheTest(const PSet& test) {
 
 void ClusterizerUnitTester::
 constructDigis(const VPSet& stripset, edmNew::DetSetVector<SiStripDigi>& digis) {
-  edmNew::DetSetVector<SiStripDigi>::FastFiller digisFF(digis, detId);
+  edmNew::DetSetVector<SiStripDigi>::TSFastFiller digisFF(digis, detId);
   for(iter_t strip = stripset.begin(); strip < stripset.end(); strip++) {
     digisFF.push_back( SiStripDigi(strip->getParameter<unsigned>("Strip"),
 				   strip->getParameter<unsigned>("ADC") ));
@@ -72,12 +72,12 @@ constructDigis(const VPSet& stripset, edmNew::DetSetVector<SiStripDigi>& digis) 
 
 void ClusterizerUnitTester::
 constructClusters(const VPSet& clusterset, output_t& clusters) {
-  output_t::FastFiller clustersFF(clusters, detId);
+  output_t::TSFastFiller clustersFF(clusters, detId);
   for(iter_t c = clusterset.begin(); c<clusterset.end(); c++) {
     uint16_t firststrip =  c->getParameter<unsigned>("FirstStrip");
     std::vector<unsigned> amplitudes =  c->getParameter<std::vector<unsigned> >("Amplitudes");
     std::vector<uint16_t> a16(amplitudes.begin(),amplitudes.end());
-    clustersFF.push_back(SiStripCluster(detId, firststrip, a16.begin(),a16.end()));
+    clustersFF.push_back(SiStripCluster(firststrip, a16.begin(),a16.end()));
   }
   if(clustersFF.empty()) clustersFF.abort();
 }
@@ -148,7 +148,7 @@ printCluster(const SiStripCluster & cluster) {
   std::stringstream s;
   s  << "\t" << cluster.firstStrip() << " [ ";
   for(unsigned i=0; i<cluster.amplitudes().size(); i++) {
-    s << static_cast<int>(cluster.amplitudes().at(i)) << " ";
+    s << static_cast<int>(cluster.amplitudes()[i]) << " ";
   }
   s << "]" << std::endl;
   return s.str();

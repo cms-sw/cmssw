@@ -46,7 +46,7 @@ public:
 
 private:
 
-  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time);
+  virtual bool setRunAndEventInfo(edm::EventID& id, edm::TimeValue_t& time, edm::EventAuxiliary::ExperimentType&);
   virtual void produce(edm::Event& event);
   uint32_t synchronizeEvents();
 
@@ -60,6 +60,6 @@ private:
   uint32_t m_globaleventnumber;
   int32_t m_eventnumber_shift;
   int getEventNumberFromFillWords(const std::vector<uint64_t>& data, uint32_t &totword);
-  std::auto_ptr<FEDRawDataCollection> buffers;
+  std::unique_ptr<FEDRawDataCollection> buffers;
 };
 #endif

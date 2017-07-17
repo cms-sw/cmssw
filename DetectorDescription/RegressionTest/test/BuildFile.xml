@@ -1,4 +1,3 @@
-
 <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDDErrorReport">
   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DDErrorReport.sh" />
   <use   name="FWCore/Utilities" />
@@ -7,14 +6,6 @@
 <bin file="TestIntegration.cpp" name="DetectorDescriptionRegressionTestDOMCount">
   <flags TEST_RUNNER_ARGS=" /bin/bash DetectorDescription/RegressionTest/test run_DOMCount.sh" />
   <use   name="FWCore/Utilities" />
-</bin>
-
-<bin file="DDErrorReport.cpp">
-  <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Core"/>
-  <use name="DetectorDescription/Parser"/>
-  <use name="boost_program_options"/>
-  <use name="DetectorDescription/RegressionTest"/>
 </bin>
 
 <bin file="DDCompareCPV.cpp">
@@ -28,9 +19,43 @@
 <bin file="html_ddd.cpp">
   <flags NO_TESTRUN="1"/>
   <use name="FWCore/PluginManager"/>
-  <use name="DetectorDescription/Base"/>
   <use name="DetectorDescription/Core"/>
   <use name="DetectorDescription/Parser"/>
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
+<bin file="simple_dom_parser.cpp">
+  <flags NO_TESTRUN="1"/>
+  <use name="xerces-c"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
+<bin file="simple_dom_parser2.cpp">
+  <flags NO_TESTRUN="1"/>
+  <use name="xerces-c"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
+<bin file="named_types.cpp">
+  <flags NO_TESTRUN="1"/>
+  <use name="FWCore/PluginManager"/>
+  <use name="DetectorDescription/Core"/>
+  <use name="DetectorDescription/Parser"/>
+  <use name="DetectorDescription/RegressionTest"/>
+</bin>
+
+<library file="test_module.cc" name="DetectorDescriptionTestAlgorithmPlugins">
+  <use name="DetectorDescription/Core"/>
+  <flags EDM_PLUGIN="1"/>
+</library>
+
+<bin file="algorithm_plugin_test.cpp">
   <use name="DetectorDescription/RegressionTest"/>
 </bin>
 
@@ -48,8 +73,6 @@
 
 <bin file="const_dump.cpp">
  <use name="DetectorDescription/Core"/>
- <use name="DetectorDescription/ExprAlgo"/>
- <use name="DetectorDescription/Algorithm"/>
  <use name="DetectorDescription/RegressionTest"/>
  <use name="DetectorDescription/Parser"/>
  <use name="xerces-c"/>
@@ -61,3 +84,7 @@
  <use name="FWCore/ServiceRegistry"/>
  <use name="FWCore/MessageLogger"/>
 </bin>
+
+<library file="tutorial.cc"  name="DetectorDescriptionTutorial">
+  <use name="DetectorDescription/RegressionTest"/>
+</library>

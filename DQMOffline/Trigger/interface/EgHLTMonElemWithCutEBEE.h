@@ -25,15 +25,15 @@ namespace egHLT {
     MonElemWithCut<T,varType> endcap_;
     
   public: 
-    MonElemWithCutEBEE(const std::string& name,const std::string& title,int nrBins,float min,float max,
+    MonElemWithCutEBEE(DQMStore::IBooker &iBooker,const std::string& name,const std::string& title,int nrBins,float min,float max,
 		       varType (T::*varFunc)()const):
-      barrel_(name+"_eb","Barrel "+title,nrBins,min,max,varFunc,NULL),
-      endcap_(name+"_ee","Endcap "+title,nrBins,min,max,varFunc,NULL){}
+      barrel_(iBooker,name+"_eb","Barrel "+title,nrBins,min,max,varFunc,NULL),
+      endcap_(iBooker,name+"_ee","Endcap "+title,nrBins,min,max,varFunc,NULL){}
     
-    MonElemWithCutEBEE(const std::string& name,const std::string& title,int nrBins,float min,float max,
+    MonElemWithCutEBEE(DQMStore::IBooker &iBooker,const std::string& name,const std::string& title,int nrBins,float min,float max,
 		       varType (T::*varFunc)()const,const EgHLTDQMCut<T>* cut):
-      barrel_(name+"_eb","Barrel "+title,nrBins,min,max,varFunc,cut),
-      endcap_(name+"_ee","Endcap "+title,nrBins,min,max,varFunc,cut ? cut->clone() : NULL){}
+      barrel_(iBooker,name+"_eb","Barrel "+title,nrBins,min,max,varFunc,cut),
+      endcap_(iBooker,name+"_ee","Endcap "+title,nrBins,min,max,varFunc,cut ? cut->clone() : NULL){}
     ~MonElemWithCutEBEE(){}
     
     void fill(const T& obj,const OffEvt& evt,float weight);

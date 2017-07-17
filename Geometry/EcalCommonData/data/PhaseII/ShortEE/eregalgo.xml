@@ -1,0 +1,125 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+	<ConstantsSection label="eregalgo.xml" eval="true">
+		
+		
+	</ConstantsSection>
+	<SolidSection label="eregalgo.xml">
+		<Polycone name="ECAL" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="-[eecon:EEzBack]"  rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-[eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-([escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF])" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="-([escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF])" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF]" rMin="[eecon:EBRMin]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2. + [eecon:EEzMagF]" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+			<ZSection z="  [eecon:EEzBack] + 8.9*cm"  rMin="[eecon:EEIRECR]" rMax="[eecon:EBRMax]"/>
+		</Polycone>
+		<Polycone name="EREG" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="[escon:PRESH_Z_OFFSET] - [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_FRONT]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_MID_Z]"      rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[escon:PRESH_Z_OFFSET] + [escon:PRESH_Z_TOTAL]/2." rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[escon:PRESH_RMAX_BACK]"/>
+			<ZSection z="[eecon:EEzFront]" rMin="[eecon:EEIRECR]" rMax="[eecon:EErMax1]"/>
+			<ZSection z="[eecon:EEzBack]"  rMin="[eecon:EEIRECR]" rMax="[eecon:EErMax2]"/>
+			<ZSection z="[eecon:EEzBack] + 10.5*cm" rMin="[eecon:EEIRECR]" rMax="[eecon:EErMax2]"/>
+		</Polycone>
+		<Polycone name="EEBackMaterial" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="359.5*cm"  rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax2]"/>
+			<ZSection z="370.0*cm" rMin="[eecon:EEIREREG]" rMax="[eecon:EErMax2]"/>
+		</Polycone>		
+		<Polycone name="EEPolyMaterial" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="359.5*cm"  rMin="42.*cm" rMax="130.*cm"/>
+			<ZSection z="359.5*cm + 4.*cm" rMin="42.*cm" rMax="130.*cm"/>
+		</Polycone>		
+		<Polycone name="EECoolQMaterial" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="359.5*cm + 4.*cm"  rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+			<ZSection z="370.0*cm - 0.9*cm - 1.*cm - 0.2*cm" rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+		</Polycone>		
+		<Polycone name="EERMCPMaterial" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="370.0*cm - 0.9*cm - 1.*cm - 0.2*cm"  rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+			<ZSection z="370.0*cm - 0.9*cm - 1.*cm" rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+		</Polycone>		
+		<Polycone name="EEIModPolyMaterial" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="359.5*cm" rMin="36.5*cm" rMax="42.*cm"/>
+			<ZSection z="370.0*cm" rMin="36.5*cm" rMax="42.*cm"/>
+		</Polycone>		
+		<Polycone name="EECableMaterial" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="370.0*cm - 0.9*cm - 1.*cm"  rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+			<ZSection z="370.0*cm - 0.9*cm" rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+		</Polycone>		
+		<Polycone name="EEBackPolyMaterial" startPhi="0*deg" deltaPhi="360*deg">
+			<ZSection z="370.0*cm - 0.9*cm"  rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+			<ZSection z="370.0*cm" rMin="42.*cm" rMax="[eecon:EErMax2]"/>
+		</Polycone>		
+	</SolidSection>
+	<LogicalPartSection label="eregalgo.xml">
+		<LogicalPart name="ECAL" category="unspecified">
+			<rSolid name="ECAL"/>
+			<rMaterial name="materials:Air"/>
+		</LogicalPart>
+		<LogicalPart name="EREG" category="unspecified">
+			<rSolid name="EREG"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="EEBackMaterial" category="unspecified">
+			<rSolid name="EEBackMaterial"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="EECoolQMaterial" category="unspecified">
+			<rSolid name="EECoolQMaterial"/>
+			<rMaterial name="materials:E_Air"/>
+		</LogicalPart>
+		<LogicalPart name="EERMCPMaterial" category="unspecified">
+			<rSolid name="EERMCPMaterial"/>
+			<rMaterial name="materials:Aluminium"/>
+		</LogicalPart>
+		<LogicalPart name="EECableMaterial" category="unspecified">
+			<rSolid name="EECableMaterial"/>
+			<rMaterial name="materials:DD_E_Cables"/>
+		</LogicalPart>
+		<LogicalPart name="EEPolyMaterial" category="unspecified">
+			<rSolid name="EEPolyMaterial"/>
+			<rMaterial name="materials:DD_Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="EEIModPolyMaterial" category="unspecified">
+			<rSolid name="EEIModPolyMaterial"/>
+			<rMaterial name="materials:Polyethylene"/>
+		</LogicalPart>
+		<LogicalPart name="EEBackPolyMaterial" category="unspecified">
+			<rSolid name="EEBackPolyMaterial"/>
+			<rMaterial name="materials:DD_Polyethylene"/>
+		</LogicalPart>
+	</LogicalPartSection>
+	<PosPartSection label="eregalgo.xml">
+		<PosPart copyNumber="1">
+			<rParent name="caloBase:CALO"/>
+			<rChild name="eregalgo:ECAL"/>
+			<rRotation name="rotations:000D"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:EEBackMaterial"/>
+			<rChild name="eregalgo:EEPolyMaterial"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:EEBackMaterial"/>
+			<rChild name="eregalgo:EEIModPolyMaterial"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:EEBackMaterial"/>
+			<rChild name="eregalgo:EECoolQMaterial"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:EEBackMaterial"/>
+			<rChild name="eregalgo:EECableMaterial"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:EEBackMaterial"/>
+			<rChild name="eregalgo:EERMCPMaterial"/>
+		</PosPart>
+		<PosPart copyNumber="1">
+			<rParent name="eregalgo:EEBackMaterial"/>
+			<rChild name="eregalgo:EEBackPolyMaterial"/>
+		</PosPart>
+	</PosPartSection>
+</DDDefinition>

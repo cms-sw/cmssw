@@ -9,12 +9,14 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "PhysicsTools/RecoUtils/interface/CandMassKinFitter.h"
 
+#include "DataFormats/Candidate/interface/Candidate.h"
+
 class MassKinFitterCandProducer : public edm::EDProducer {
 public:
   explicit MassKinFitterCandProducer(const edm::ParameterSet&, CandMassKinFitter * = 0);
 private:
-  edm::InputTag src_;
-  std::auto_ptr<CandMassKinFitter> fitter_;
+  edm::EDGetTokenT<reco::CandidateCollection> srcToken_;
+  std::unique_ptr<CandMassKinFitter> fitter_;
   void produce( edm::Event &, const edm::EventSetup & );
 };
 

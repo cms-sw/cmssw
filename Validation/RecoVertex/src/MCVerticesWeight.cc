@@ -23,7 +23,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -46,39 +46,29 @@
 // class declaration
 //
 
-class MCVerticesWeight : public edm::EDFilter {
+class MCVerticesWeight : public edm::global::EDFilter<> {
    public:
       explicit MCVerticesWeight(const edm::ParameterSet&);
       ~MCVerticesWeight();
 
    private:
-      virtual void beginJob() ;
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual bool filter(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
       // ----------member data ---------------------------
 
-  edm::InputTag m_pileupcollection;
-  edm::InputTag m_mctruthcollection;
+  edm::EDGetTokenT< std::vector<PileupSummaryInfo> > m_vecPileupSummaryInfoToken;
+  edm::EDGetTokenT< edm::HepMCProduct > m_hepMCProductToken;
   const VertexWeighter m_weighter;
 
 };
 
 //
-// constants, enums and typedefs
-//
-
-//
-// static data member definitions
-//
-
-//
 // constructors and destructor
 //
-MCVerticesWeight::MCVerticesWeight(const edm::ParameterSet& iConfig):
-  m_pileupcollection(iConfig.getParameter<edm::InputTag>("pileupSummaryCollection")),
-  m_mctruthcollection(iConfig.getParameter<edm::InputTag>("mcTruthCollection")),
-  m_weighter(iConfig.getParameter<edm::ParameterSet>("weighterConfig"))
+MCVerticesWeight::MCVerticesWeight(const edm::ParameterSet& iConfig)
+  : m_vecPileupSummaryInfoToken( consumes< std::vector<PileupSummaryInfo> >( iConfig.getParameter< edm::InputTag >( "pileupSummaryCollection" ) ) )
+  , m_hepMCProductToken( consumes< edm::HepMCProduct >( iConfig.getParameter< edm::InputTag >( "mcTruthCollection" ) ) )
+  , m_weighter( iConfig.getParameter<edm::ParameterSet>( "weighterConfig" ) )
 {
 
   produces<double>();
@@ -87,10 +77,6 @@ MCVerticesWeight::MCVerticesWeight(const edm::ParameterSet& iConfig):
 
 MCVerticesWeight::~MCVerticesWeight()
 {
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
 }
 
 
@@ -100,16 +86,15 @@ MCVerticesWeight::~MCVerticesWeight()
 
 // ------------ method called on each new Event  ------------
 bool
-MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
+MCVerticesWeight::filter(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-  using namespace edm;
   
-  bool selected = true;
-  
-  double computed_weight(1);
-
-  Handle<std::vector<PileupSummaryInfo> > pileupinfos;
-   iEvent.getByLabel(m_pileupcollection,pileupinfos);
+   bool selected = true;
+   
+   double computed_weight(1);
+   
+   edm::Handle<std::vector<PileupSummaryInfo> > pileupinfos;
+   iEvent.getByToken( m_vecPileupSummaryInfoToken, pileupinfos );
 
 
   // look for the intime PileupSummaryInfo
@@ -135,8 +120,8 @@ MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
      // main interaction part
      
-     Handle< HepMCProduct > EvtHandle ;
-     iEvent.getByLabel(m_mctruthcollection, EvtHandle ) ;
+     edm::Handle< edm::HepMCProduct > EvtHandle ;
+     iEvent.getByToken( m_hepMCProductToken, EvtHandle );
      
      const HepMC::GenEvent* Evt = EvtHandle->GetEvent();
      
@@ -154,24 +139,13 @@ MCVerticesWeight::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
      
    }
    
-   std::auto_ptr<double> weight(new double(computed_weight));
+   std::unique_ptr<double> weight(new double(computed_weight));
    
-   iEvent.put(weight);
+   iEvent.put(std::move(weight));
    
    //
    
   return selected;
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-MCVerticesWeight::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-MCVerticesWeight::endJob() {
 }
 
 //define this as a plug-in

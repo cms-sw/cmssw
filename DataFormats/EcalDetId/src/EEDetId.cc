@@ -303,7 +303,7 @@ EEDetId::isc( int jx, int jy )
       const int iCol = ( 1 == iquad || 4 == iquad ? jx - 10 : 11 - jx ) ;
       const int iRow = ( 1 == iquad || 2 == iquad ? jy - 10 : 11 - jy ) ;
 
-      static int nSCinQuadrant = ISC_MAX/4;
+      static const int nSCinQuadrant = ISC_MAX/4;
 
       const int yOff ( iYoffset[iCol] ) ;
 

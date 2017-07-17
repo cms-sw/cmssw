@@ -97,7 +97,7 @@ void IntegralOverPhiFunction::SetParameterAlpha(double alpha)
   alpha_ = alpha;
 }
 
-void IntegralOverPhiFunction::SetParameters(double* param)
+void IntegralOverPhiFunction::SetParameters(const double* param)
 {
   theta0_ = param[0];
   phi0_ = param[1];

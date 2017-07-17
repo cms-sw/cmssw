@@ -14,9 +14,6 @@
 #include "DataFormats/Scalers/interface/Level1TriggerRates.h"
 #include "DataFormats/Scalers/interface/Level1TriggerScalers.h"
 
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
-#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
-
 #include "DataFormats/Common/interface/ConditionsInEdm.h" // Parameters associated to Run, LS and Event
 
 #include "CondFormats/L1TObjects/interface/L1GtTriggerMenuFwd.h"
@@ -40,14 +37,14 @@ using namespace std;
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
-L1TSync::L1TSync(const ParameterSet & pset){
+L1TSync::L1TSync(const ParameterSet & pset) :
+  m_l1GtUtils(pset, consumesCollector(), false, *this){
 
   m_parameters = pset;
   
   // Mapping parameter input variables
-  m_scalersSource       = pset.getParameter         <InputTag>("inputTagScalersResults");
-  m_l1GtDataDaqInputTag = pset.getParameter         <InputTag>("inputTagL1GtDataDaq");
-  m_l1GtEvmSource       = pset.getParameter         <InputTag>("inputTagtEvmSource");
+  m_l1GtDataDaqInputTag = consumes<L1GlobalTriggerReadoutRecord>(pset.getParameter         <InputTag>("inputTagL1GtDataDaq"));
+  m_l1GtEvmSource       = consumes<L1GlobalTriggerEvmReadoutRecord>(pset.getParameter      <InputTag>("inputTagtEvmSource"));
   m_verbose             = pset.getUntrackedParameter<bool>    ("verbose",false);
   m_refPrescaleSet      = pset.getParameter         <int>     ("refPrescaleSet");  
 
@@ -185,11 +182,6 @@ L1TSync::L1TSync(const ParameterSet & pset){
   }
 
 
-  if (pset.getUntrackedParameter < bool > ("dqmStore", false)) {
-    dbe = Service < DQMStore > ().operator->();
-    dbe->setVerbose(0);
-  }
-
   m_outputFile = pset.getUntrackedParameter < std::string > ("outputFile","");
 
   if (m_outputFile.size() != 0) {
@@ -199,51 +191,22 @@ L1TSync::L1TSync(const ParameterSet & pset){
   bool disable = pset.getUntrackedParameter < bool > ("disableROOToutput", false);
   if (disable) {m_outputFile = "";}
 
-  if (dbe != NULL) {dbe->setCurrentFolder("L1T/L1TSync");}
-
 }
 
 //-------------------------------------------------------------------------------------
 //-------------------------------------------------------------------------------------
 L1TSync::~L1TSync(){}
 
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-void L1TSync::beginJob(void){
-
-  if (m_verbose){cout << "[L1TSync] Called beginJob." << endl;}
-
-  // get hold of back-end interface
-  DQMStore *dbe = 0;
-  dbe = Service < DQMStore > ().operator->();
-
-  if (dbe) {
-    dbe->setCurrentFolder("L1T/L1TSync");
-    dbe->rmdir("L1T/L1TSync");
-  }
- 
-}
-
-//-------------------------------------------------------------------------------------
-//-------------------------------------------------------------------------------------
-void L1TSync::endJob(void){
-
-  if (m_verbose){cout << "[L1TSync] Called endJob." << endl;}
-
-  if (m_outputFile.size() != 0 && dbe)
-    dbe->save(m_outputFile);
-
-  return;
-
-}
 
 //-------------------------------------------------------------------------------------
 /// BeginRun
-//-------------------------------------------------------------------------------------
-void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
-
+void L1TSync::dqmBeginRun(edm::Run const&, edm::EventSetup const&){
+  //
   if (m_verbose){cout << "[L1TSync] Called beginRun." << endl;}
-
+}
+//-------------------------------------------------------------------------------------
+void L1TSync::bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup& iSetup){
+  
   // Initializing variables
   int maxNbins = 2501;
 
@@ -267,7 +230,7 @@ void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
   //Handle<ConditionsInRunBlock> runConditions;
   //iRun.getByType(runConditions);
   //int lhcFillNumber = runConditions->lhcFillNumber;
-  //
+
   //ESHandle<L1GtPrescaleFactors> l1GtPfAlgo;
   //iSetup.get<L1GtPrescaleFactorsAlgoTrigRcd>().get(l1GtPfAlgo);
   //const L1GtPrescaleFactors* m_l1GtPfAlgo = l1GtPfAlgo.product();
@@ -276,12 +239,13 @@ void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
          
   m_selectedTriggers = myMenuHelper.testAlgos(m_selectedTriggers);
 
-  map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect,m_refPrescaleSet);
+  m_l1GtUtils.retrieveL1EventSetup(iSetup);
+  map<string,string> tAutoSelTrig = myMenuHelper.getLUSOTrigger(m_algoAutoSelect, m_refPrescaleSet, m_l1GtUtils);
   m_selectedTriggers.insert(tAutoSelTrig.begin(),tAutoSelTrig.end());
 
   // Initializing DQM Monitor Elements
-  dbe->setCurrentFolder("L1T/L1TSync");
-  m_ErrorMonitor = dbe->book1D("ErrorMonitor","ErrorMonitor",7,0,7);
+  ibooker.setCurrentFolder("L1T/L1TSync");
+  m_ErrorMonitor = ibooker.book1D("ErrorMonitor","ErrorMonitor",7,0,7);
   m_ErrorMonitor->setBinLabel(UNKNOWN                      ,"UNKNOWN");
   m_ErrorMonitor->setBinLabel(WARNING_DB_CONN_FAILED       ,"WARNING_DB_CONN_FAILED");        // Errors from L1TOMDSHelper
   m_ErrorMonitor->setBinLabel(WARNING_DB_QUERY_FAILED      ,"WARNING_DB_QUERY_FAILED");       // Errors from L1TOMDSHelper
@@ -301,12 +265,12 @@ void L1TSync::beginRun(const edm::Run& iRun, const edm::EventSetup& iSetup){
     m_certLastLS [(*i).second] = 0;
 
     // Initializing DQM Monitors 
-    dbe->setCurrentFolder("L1T/L1TSync/AlgoVsBunchStructure/");
-    m_algoVsBunchStructure[tTrigger] = dbe->book2D(tCategory,"min #Delta("+tTrigger+",Bunch)",maxNbins,-0.5,double(maxNbins)-0.5,5,-2.5,2.5);
+    ibooker.setCurrentFolder("L1T/L1TSync/AlgoVsBunchStructure/");
+    m_algoVsBunchStructure[tTrigger] = ibooker.book2D(tCategory,"min #Delta("+tTrigger+",Bunch)",maxNbins,-0.5,double(maxNbins)-0.5,5,-2.5,2.5);
     m_algoVsBunchStructure[tTrigger] ->setAxisTitle("Lumi Section" ,1);
     
-    dbe->setCurrentFolder("L1T/L1TSync/Certification/");
-    m_algoCertification[tTrigger] = dbe->book1D(tCategory, "fraction of in sync: "+tTrigger,maxNbins,-0.5,double(maxNbins)-0.5);
+    ibooker.setCurrentFolder("L1T/L1TSync/Certification/");
+    m_algoCertification[tTrigger] = ibooker.book1D(tCategory, "fraction of in sync: "+tTrigger,maxNbins,-0.5,double(maxNbins)-0.5);
     m_algoCertification[tTrigger] ->setAxisTitle("Lumi Section" ,1);
 
  }   
@@ -417,17 +381,6 @@ void L1TSync::endLuminosityBlock(LuminosityBlock const& lumiBlock, EventSetup co
 }
 
 //_____________________________________________________________________
-void L1TSync::endRun(const edm::Run& run, const edm::EventSetup& iSetup){
-  
-  if(m_verbose){cout << "[L1TSync] Called endRun." << endl;}
-  
-  // When the run end for closing of the LS certification blocks and evaluation
-  // of synchronization for that block
-  doFractionInSync(true,false);    
-
-}
-
-//_____________________________________________________________________
 void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
  
   if(m_verbose){cout << "[L1TSync] Called analyze." << endl;}
@@ -439,7 +392,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
     
     // Retriving information from GT
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtEvmReadoutRecord;
-    iEvent.getByLabel(m_l1GtEvmSource, gtEvmReadoutRecord);
+    iEvent.getByToken(m_l1GtEvmSource, gtEvmReadoutRecord);
 
     // Determining beam mode and fill number
     if(gtEvmReadoutRecord.isValid()){
@@ -470,7 +423,7 @@ void L1TSync::analyze(const Event & iEvent, const EventSetup & eventSetup){
 
     // Getting Final Decision Logic (FDL) Data from GT
     edm::Handle<L1GlobalTriggerReadoutRecord> gtReadoutRecordData;
-    iEvent.getByLabel(m_l1GtDataDaqInputTag, gtReadoutRecordData);
+    iEvent.getByToken(m_l1GtDataDaqInputTag, gtReadoutRecordData);
 
     if(gtReadoutRecordData.isValid()){
 
@@ -742,6 +695,3 @@ void L1TSync::certifyLSBlock(string iTrigger, int iInitLs, int iEndLs ,float iVa
   }
 
 }
-
-//define this as a plug-in
-DEFINE_FWK_MODULE(L1TSync);

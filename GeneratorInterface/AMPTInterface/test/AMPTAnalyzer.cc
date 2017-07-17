@@ -43,7 +43,6 @@
 using namespace std;
 
 static const int MAXPARTICLES = 5000000;
-static const int MAXVTX = 1000;
 static const int ETABINS = 3; // Fix also in branch string
 
 //
@@ -147,7 +146,7 @@ AMPTAnalyzer::AMPTAnalyzer(const edm::ParameterSet& iConfig)
    }
    etaMax_ = iConfig.getUntrackedParameter<double>("etaMax", 2);
    ptMin_ = iConfig.getUntrackedParameter<double>("ptMin", 0);
-   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("generator"));
+   src_ = iConfig.getUntrackedParameter<edm::InputTag>("src",edm::InputTag("VtxSmeared"));
 }
 
 

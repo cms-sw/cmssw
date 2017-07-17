@@ -2,10 +2,8 @@
 #include "CalibTracker/SiStripCommon/interface/ShallowTools.h"
 
 #include "FWCore/Framework/interface/Event.h"
-#include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByChi2.h"
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorByHits.h"
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/RecoCandidate/interface/TrackAssociation.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -13,9 +11,9 @@
 ShallowSimTracksProducer::ShallowSimTracksProducer(const edm::ParameterSet& conf) 
   : Prefix( conf.getParameter<std::string>("Prefix") ),
     Suffix( conf.getParameter<std::string>("Suffix") ),
-    trackingParticles_tag( conf.getParameter<edm::InputTag>("TrackingParticles")),
-    associator_tag( conf.getParameter<edm::ESInputTag>("Associator")),
-    tracks_tag( conf.getParameter<edm::InputTag>("Tracks"))
+    trackingParticles_token_(consumes<TrackingParticleCollection>(conf.getParameter<edm::InputTag>("TrackingParticles"))),
+    associator_token_( consumes<reco::TrackToTrackingParticleAssociator>(conf.getParameter<edm::InputTag>("Associator"))),
+    tracks_token_(consumes<edm::View<reco::Track> >(conf.getParameter<edm::InputTag>("Tracks")))
 {
   produces <std::vector<unsigned> >     ( Prefix + "multi"      + Suffix );
   produces <std::vector<int> >          ( Prefix + "type"      + Suffix );
@@ -35,27 +33,27 @@ ShallowSimTracksProducer::ShallowSimTracksProducer(const edm::ParameterSet& conf
 void ShallowSimTracksProducer::
 produce(edm::Event& event, const edm::EventSetup& setup) {
 
-  edm::Handle<edm::View<reco::Track> >                tracks ;   event.getByLabel( tracks_tag, tracks);
-  edm::Handle<TrackingParticleCollection>  trackingParticles ;   event.getByLabel( trackingParticles_tag, trackingParticles );  
-  edm::ESHandle<TrackAssociatorBase>              associator ;   setup.get<TrackAssociatorRecord>().get( associator_tag, associator);
+  edm::Handle<edm::View<reco::Track> >                     tracks ;   event.getByToken(tracks_token_, tracks);
+  edm::Handle<TrackingParticleCollection>       trackingParticles ;   event.getByToken(trackingParticles_token_, trackingParticles );  
+  edm::Handle<reco::TrackToTrackingParticleAssociator> associator ;   event.getByToken(associator_token_, associator);
 
   unsigned size = tracks->size();
-  std::auto_ptr<std::vector<unsigned> > multi        ( new std::vector<unsigned>(size,    0));
-  std::auto_ptr<std::vector<int> >      type         ( new std::vector<int>     (size,    0));
-  std::auto_ptr<std::vector<float> >    charge       ( new std::vector<float>   (size,    0));
-  std::auto_ptr<std::vector<float> >    momentum     ( new std::vector<float>   (size,   -1));
-  std::auto_ptr<std::vector<float> >    pt           ( new std::vector<float>   (size,   -1));
-  std::auto_ptr<std::vector<double> >   theta        ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   phi          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   eta          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   dxy          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   dsz          ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   qoverp       ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   vx           ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   vy           ( new std::vector<double>  (size,-1000));
-  std::auto_ptr<std::vector<double> >   vz           ( new std::vector<double>  (size,-1000));
+  auto   multi        = std::make_unique<std::vector<unsigned>>(size,    0);
+  auto   type         = std::make_unique<std::vector<int>>     (size,    0);
+  auto   charge       = std::make_unique<std::vector<float>>   (size,    0);
+  auto   momentum     = std::make_unique<std::vector<float>>   (size,   -1);
+  auto   pt           = std::make_unique<std::vector<float>>   (size,   -1);
+  auto   theta        = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   phi          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   eta          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   dxy          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   dsz          = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   qoverp       = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   vx           = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   vy           = std::make_unique<std::vector<double>>  (size,-1000);
+  auto   vz           = std::make_unique<std::vector<double>>  (size,-1000);
 
-  reco::RecoToSimCollection associations = associator->associateRecoToSim( tracks, trackingParticles, &event, &setup );
+  reco::RecoToSimCollection associations = associator->associateRecoToSim( tracks, trackingParticles);
   
   for( reco::RecoToSimCollection::const_iterator association = associations.begin(); 
        association != associations.end(); association++) {
@@ -83,17 +81,17 @@ produce(edm::Event& event, const edm::EventSetup& setup) {
     }
   }
   
-  event.put(  multi    ,Prefix + "multi"     + Suffix );
-  event.put(  type     ,Prefix + "type"      + Suffix );
-  event.put(  charge   ,Prefix + "charge"    + Suffix );
-  event.put(  momentum ,Prefix + "momentum"  + Suffix );
-  event.put(  pt       ,Prefix + "pt"        + Suffix );
-  event.put(  theta    ,Prefix + "theta"     + Suffix );
-  event.put(  phi      ,Prefix + "phi"       + Suffix );
-  event.put(  eta      ,Prefix + "eta"       + Suffix );
-  event.put(  qoverp   ,Prefix + "qoverp"    + Suffix );
-  event.put(  vx       ,Prefix + "vx"        + Suffix );
-  event.put(  vy       ,Prefix + "vy"        + Suffix );
-  event.put(  vz       ,Prefix + "vz"        + Suffix );
+  event.put(std::move(multi   ), Prefix + "multi"     + Suffix );
+  event.put(std::move(type    ), Prefix + "type"      + Suffix );
+  event.put(std::move(charge  ), Prefix + "charge"    + Suffix );
+  event.put(std::move(momentum), Prefix + "momentum"  + Suffix );
+  event.put(std::move(pt      ), Prefix + "pt"        + Suffix );
+  event.put(std::move(theta   ), Prefix + "theta"     + Suffix );
+  event.put(std::move(phi     ), Prefix + "phi"       + Suffix );
+  event.put(std::move(eta     ), Prefix + "eta"       + Suffix );
+  event.put(std::move(qoverp  ), Prefix + "qoverp"    + Suffix );
+  event.put(std::move(vx      ), Prefix + "vx"        + Suffix );
+  event.put(std::move(vy      ), Prefix + "vy"        + Suffix );
+  event.put(std::move(vz      ), Prefix + "vz"        + Suffix );
   
 }

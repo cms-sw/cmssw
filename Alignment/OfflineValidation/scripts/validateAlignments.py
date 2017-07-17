@@ -13,29 +13,43 @@ import Alignment.OfflineValidation.TkAlAllInOneTool.crabWrapper as crabWrapper
 from Alignment.OfflineValidation.TkAlAllInOneTool.TkAlExceptions \
     import AllInOneError
 from Alignment.OfflineValidation.TkAlAllInOneTool.helperFunctions \
-    import replaceByMap, getCommandOutput2
+    import replaceByMap, getCommandOutput2, addIndex
 from Alignment.OfflineValidation.TkAlAllInOneTool.betterConfigParser \
     import BetterConfigParser
 from Alignment.OfflineValidation.TkAlAllInOneTool.alignment import Alignment
 
 from Alignment.OfflineValidation.TkAlAllInOneTool.genericValidation \
-    import GenericValidation
+    import GenericValidation, ParallelValidation, ValidationWithComparison, ValidationWithPlots
 from Alignment.OfflineValidation.TkAlAllInOneTool.geometryComparison \
     import GeometryComparison
 from Alignment.OfflineValidation.TkAlAllInOneTool.offlineValidation \
-    import OfflineValidation, OfflineValidationDQM, OfflineValidationParallel
+    import OfflineValidation, OfflineValidationDQM
 from Alignment.OfflineValidation.TkAlAllInOneTool.monteCarloValidation \
     import MonteCarloValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.trackSplittingValidation \
     import TrackSplittingValidation
 from Alignment.OfflineValidation.TkAlAllInOneTool.zMuMuValidation \
     import ZMuMuValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.primaryVertexValidation \
+    import PrimaryVertexValidation
+from Alignment.OfflineValidation.TkAlAllInOneTool.preexistingValidation \
+    import *
+from Alignment.OfflineValidation.TkAlAllInOneTool.plottingOptions \
+    import PlottingOptions
 import Alignment.OfflineValidation.TkAlAllInOneTool.globalDictionaries \
     as globalDictionaries
 
 
 ####################--- Classes ---############################
 class ValidationJob:
+
+    # these count the jobs of different varieties that are being run
+    crabCount = 0
+    interactCount = 0
+    batchCount = 0
+    batchJobIds = []
+    jobCount = 0
+
     def __init__( self, validation, config, options ):
         if validation[1] == "":
             # intermediate syntax
@@ -57,13 +71,19 @@ class ValidationJob:
         self.__valName = valString[1]
         self.__commandLineOptions = options
         self.__config = config
+        self.__preexisting = ("preexisting" in self.__valType)
+        if self.__valType[0] == "*":
+            self.__valType = self.__valType[1:]
+            self.__preexisting = True
+
         # workaround for intermediate parallel version
         if self.__valType == "offlineParallel":
-            section = "offline" + ":" + self.__valName
-        else:
-            section = self.__valType + ":" + self.__valName
+            print ("offlineParallel and offline are now the same.  To run an offline parallel validation,\n"
+                   "just set parallelJobs to something > 1.  There is no reason to call it offlineParallel anymore.")
+            self.__valType = "offline"            
+        section = self.__valType + ":" + self.__valName
         if not self.__config.has_section( section ):
-            raise AllInOneError, ("Validation '%s' of type '%s' is requested in"
+            raise AllInOneError("Validation '%s' of type '%s' is requested in"
                                   " '[validation]' section, but is not defined."
                                   "\nYou have to add a '[%s]' section."
                                   %( self.__valName, self.__valType, section ))
@@ -77,7 +97,7 @@ class ValidationJob:
             firstAlignList = alignmentsList[0].split()
             firstAlignName = firstAlignList[0].strip()
             if firstAlignName == "IDEAL":
-                raise AllInOneError, ("'IDEAL' has to be the second (reference)"
+                raise AllInOneError("'IDEAL' has to be the second (reference)"
                                       " alignment in 'compare <val_name>: "
                                       "<alignment> <reference>'.")
             if len( firstAlignList ) > 1:
@@ -85,6 +105,7 @@ class ValidationJob:
             else:
                 firstRun = "1"
             firstAlign = Alignment( firstAlignName, self.__config, firstRun )
+            firstAlignName = firstAlign.name
             secondAlignList = alignmentsList[1].split()
             secondAlignName = secondAlignList[0].strip()
             if len( secondAlignList ) > 1:
@@ -96,49 +117,47 @@ class ValidationJob:
             else:
                 secondAlign = Alignment( secondAlignName, self.__config,
                                          secondRun )
-            # check if alignment was already compared previously
-            try:
-                randomWorkdirPart = \
-                    globalDictionaries.alignRandDict[firstAlignName]
-            except KeyError:
-                randomWorkdirPart = None
+                secondAlignName = secondAlign.name
                 
             validation = GeometryComparison( name, firstAlign, secondAlign,
                                              self.__config,
-                                             self.__commandLineOptions.getImages,
-                                             randomWorkdirPart )
-            globalDictionaries.alignRandDict[firstAlignName] = \
-                validation.randomWorkdirPart
-            if not secondAlignName == "IDEAL":
-                globalDictionaries.alignRandDict[secondAlignName] = \
-                    validation.randomWorkdirPart
+                                             self.__commandLineOptions.getImages)
         elif valType == "offline":
             validation = OfflineValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "preexistingoffline":
+            validation = PreexistingOfflineValidation(name, self.__config)
         elif valType == "offlineDQM":
             validation = OfflineValidationDQM( name, 
-                Alignment( alignments.strip(), self.__config ), self.__config )
-        elif valType == "offlineParallel":
-            validation = OfflineValidationParallel( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
         elif valType == "mcValidate":
             validation = MonteCarloValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "preexistingmcValidate":
+            validation = PreexistingMonteCarloValidation(name, self.__config)
         elif valType == "split":
             validation = TrackSplittingValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "preexistingsplit":
+            validation = PreexistingTrackSplittingValidation(name, self.__config)
         elif valType == "zmumu":
             validation = ZMuMuValidation( name, 
                 Alignment( alignments.strip(), self.__config ), self.__config )
+        elif valType == "primaryvertex":
+            validation = PrimaryVertexValidation( name, 
+                Alignment( alignments.strip(), self.__config ), self.__config )
         else:
-            raise AllInOneError, "Unknown validation mode '%s'"%valType
+            raise AllInOneError("Unknown validation mode '%s'"%valType)
+
         return validation
 
     def __createJob( self, jobMode, outpath ):
         """This private method creates the needed files for the validation job.
            """
         self.validation.createConfiguration( outpath )
-        self.__scripts = self.validation.createScript( outpath )
+        if self.__preexisting:
+            return
+        self.__scripts = sum([addIndex(script, self.validation.NJobs) for script in self.validation.createScript( outpath )], [])
         if jobMode.split( ',' )[0] == "crab":
             self.validation.createCrabCfg( outpath )
         return None
@@ -149,10 +168,21 @@ class ValidationJob:
                           os.path.abspath( self.__commandLineOptions.Name) )
 
     def runJob( self ):
+        if self.__preexisting:
+            if self.validation.jobid:
+                self.batchJobIds.append(self.validation.jobid)
+            log = ">             " + self.validation.name + " is already validated."
+            print log
+            return log
+        else:
+            if self.validation.jobid:
+                print "jobid {} will be ignored, since the validation {} is not preexisting".format(self.validation.jobid, self.validation.name)
+
         general = self.__config.getGeneral()
         log = ""
         for script in self.__scripts:
             name = os.path.splitext( os.path.basename( script) )[0]
+            ValidationJob.jobCount += 1
             if self.__commandLineOptions.dryRun:
                 print "%s would run: %s"%( name, os.path.basename( script) )
                 continue
@@ -160,6 +190,7 @@ class ValidationJob:
             print ">             Validating "+name
             if self.validation.jobmode == "interactive":
                 log += getCommandOutput2( script )
+                ValidationJob.interactCount += 1
             elif self.validation.jobmode.split(",")[0] == "lxBatch":
                 repMap = { 
                     "commands": self.validation.jobmode.split(",")[1],
@@ -168,10 +199,20 @@ class ValidationJob:
                     "script": script,
                     "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub"
                     }
-                log+=getCommandOutput2("%(bsub)s %(commands)s -J %(jobName)s "
-                                       "-o %(logDir)s/%(jobName)s.stdout -e "
-                                       "%(logDir)s/%(jobName)s.stderr "
-                                       "%(script)s"%repMap)
+                for ext in ("stdout", "stderr", "stdout.gz", "stderr.gz"):
+                    oldlog = "%(logDir)s/%(jobName)s."%repMap + ext
+                    if os.path.exists(oldlog):
+                        os.remove(oldlog)
+                bsubOut=getCommandOutput2("%(bsub)s %(commands)s "
+                                          "-J %(jobName)s "
+                                          "-o %(logDir)s/%(jobName)s.stdout "
+                                          "-e %(logDir)s/%(jobName)s.stderr "
+                                          "%(script)s"%repMap)
+                #Attention: here it is assumed that bsub returns a string
+                #containing a job id like <123456789>
+                ValidationJob.batchJobIds.append(bsubOut.split("<")[1].split(">")[0])
+                log+=bsubOut
+                ValidationJob.batchCount += 1
             elif self.validation.jobmode.split( "," )[0] == "crab":
                 os.chdir( general["logdir"] )
                 crabName = "crab." + os.path.basename( script )[:-3]
@@ -181,11 +222,13 @@ class ValidationJob:
                             "-submit": "" }
                 try:
                     theCrab.run( options )
-                except AllInOneError, e:
+                except AllInOneError as e:
                     print "crab:", str(e).split("\n")[0]
                     exit(1)
+                ValidationJob.crabCount += 1
+
             else:
-                raise AllInOneError, ("Unknown 'jobmode'!\n"
+                raise AllInOneError("Unknown 'jobmode'!\n"
                                       "Please change this parameter either in "
                                       "the [general] or in the ["
                                       + self.__valType + ":" + self.__valName
@@ -193,149 +236,108 @@ class ValidationJob:
                                       "values:\n"
                                       "\tinteractive\n\tlxBatch, -q <queue>\n"
                                       "\tcrab, -q <queue>")
+
         return log
 
     def getValidation( self ):
         return self.validation
 
+    @property
+    def needsproxy(self):
+        return self.validation.needsproxy and not self.__preexisting and not self.__commandLineOptions.dryRun
+
 
 ####################--- Functions ---############################
-def createOfflineJobsMergeScript(offlineValidationList, outFilePath):
-    repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "mergeOfflinParJobsInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
-    
-    theFile = open( outFilePath, "w" )
-    theFile.write( replaceByMap( configTemplates.mergeOfflineParJobsTemplate ,repMap ) )
-    theFile.close()
-
-def createExtendedValidationScript(offlineValidationList, outFilePath):
-    repMap = offlineValidationList[0].getRepMap() # bit ugly since some special features are filled
-    repMap[ "extendedInstantiation" ] = "" #give it a "" at first in order to get the initialisation back
-
-    for validation in offlineValidationList:
-        repMap[ "extendedInstantiation" ] = validation.appendToExtendedValidation( repMap[ "extendedInstantiation" ] )
-    
-    theFile = open( outFilePath, "w" )
-    # theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
-    theFile.write( replaceByMap( configTemplates.extendedValidationTemplate ,repMap ) )
-    theFile.close()
-    
 def createMergeScript( path, validations ):
     if(len(validations) == 0):
-        msg = "Cowardly refusing to merge nothing!"
-        raise AllInOneError(msg)
+        raise AllInOneError("Cowardly refusing to merge nothing!")
 
-    repMap = validations[0].getRepMap() #FIXME - not nice this way
+    config = validations[0].config
+    repMap = config.getGeneral()
     repMap.update({
             "DownloadData":"",
             "CompareAlignments":"",
-            "RunExtendedOfflineValidation":""
+            "RunValidationPlots":"",
+            "CMSSW_BASE": os.environ["CMSSW_BASE"],
+            "SCRAM_ARCH": os.environ["SCRAM_ARCH"],
+            "CMSSW_RELEASE_BASE": os.environ["CMSSW_RELEASE_BASE"],
             })
 
     comparisonLists = {} # directory of lists containing the validations that are comparable
     for validation in validations:
         for referenceName in validation.filesToCompare:
-            validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
-            validationName = validationName.split(".%s"%GenericValidation.defaultReferenceName )[0]
-            if validationName in comparisonLists:
-                comparisonLists[ validationName ].append( validation )
+            validationtype = type(validation)
+            if isinstance(validationtype, PreexistingValidation):
+                #find the actual validationtype
+                for parentclass in validationtype.mro():
+                    if not issubclass(parentclass, PreexistingValidation):
+                        validationtype = parentclass
+                        break
+            key = (validationtype, referenceName)
+            if key in comparisonLists:
+                comparisonLists[key].append(validation)
             else:
-                comparisonLists[ validationName ] = [ validation ]
+                comparisonLists[key] = [validation]
 
-    if "OfflineValidation" in comparisonLists:
-        repMap["extendeValScriptPath"] = \
-            os.path.join(path, "TkAlExtendedOfflineValidation.C")
-        createExtendedValidationScript(comparisonLists["OfflineValidation"],
-                                       repMap["extendeValScriptPath"] )
-        repMap["RunExtendedOfflineValidation"] = \
-            replaceByMap(configTemplates.extendedValidationExecution, repMap)
+    # introduced to merge individual validation outputs separately
+    #  -> avoids problems with merge script
+    repMap["doMerge"] = "mergeRetCode=0\n"
+    repMap["rmUnmerged"] = ("if [[ mergeRetCode -eq 0 ]]; then\n"
+                            "    echo -e \\n\"Merging succeeded, removing original files.\"\n")
+    repMap["beforeMerge"] = ""
+    repMap["mergeParallelFilePrefixes"] = ""
+
+    anythingToMerge = []
+    
+    for (validationType, referencename), validations in comparisonLists.iteritems():
+        for validation in validations:
+            if (isinstance(validation, PreexistingValidation)
+              or validation.NJobs == 1
+              or not isinstance(validation, ParallelValidation)):
+                continue
+            if validationType not in anythingToMerge:
+                anythingToMerge += [validationType]
+                repMap["doMerge"] += '\n\n\n\necho -e "\n\nMerging results from %s jobs"\n\n' % validationType.valType
+                repMap["beforeMerge"] += validationType.doInitMerge()
+            repMap["doMerge"] += validation.doMerge()
+            for f in validation.getRepMap()["outputFiles"]:
+                longName = os.path.join("/store/caf/user/$USER/",
+                                         validation.getRepMap()["eosdir"], f)
+                repMap["rmUnmerged"] += "    $eos rm "+longName+"\n"
+    repMap["rmUnmerged"] += ("else\n"
+                             "    echo -e \\n\"WARNING: Merging failed, unmerged"
+                             " files won't be deleted.\\n"
+                             "(Ignore this warning if merging was done earlier)\"\n"
+                             "fi\n")
+
+    if anythingToMerge:
+        repMap["DownloadData"] += replaceByMap( configTemplates.mergeParallelResults, repMap )
+    else:
+        repMap["DownloadData"] = ""
+
+    repMap["RunValidationPlots"] = ""
+    for (validationType, referencename), validations in comparisonLists.iteritems():
+        if issubclass(validationType, ValidationWithPlots):
+            repMap["RunValidationPlots"] += validationType.doRunPlots(validations)
 
     repMap["CompareAlignments"] = "#run comparisons"
-    for validationId in comparisonLists:
-        compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
-            
-        repMap.update({"validationId": validationId,
-                       "compareStrings": " , ".join(compareStrings) })
-        
-        repMap["CompareAlignments"] += \
-            replaceByMap(configTemplates.compareAlignmentsExecution, repMap)
-      
+    for (validationType, referencename), validations in comparisonLists.iteritems():
+        if issubclass(validationType, ValidationWithComparison):
+            repMap["CompareAlignments"] += validationType.doComparison(validations)
+                
     filePath = os.path.join(path, "TkAlMerge.sh")
     theFile = open( filePath, "w" )
     theFile.write( replaceByMap( configTemplates.mergeTemplate, repMap ) )
     theFile.close()
-    os.chmod(filePath,0755)
-    
-    return filePath
-    
-def createParallelMergeScript( path, validations ):
-    if( len(validations) == 0 ):
-        raise AllInOneError, "cowardly refusing to merge nothing!"
-
-    repMap = validations[0].getRepMap() #FIXME - not nice this way
-    repMap.update({
-            "DownloadData":"",
-            "CompareAlignments":"",
-            "RunExtendedOfflineValidation":""
-            })
-
-    comparisonLists = {} # directory of lists containing the validations that are comparable
-    for validation in validations:
-        for referenceName in validation.filesToCompare:    
-            validationName = "%s.%s"%(validation.__class__.__name__, referenceName)
-            validationName = validationName.split(".%s"%GenericValidation.defaultReferenceName )[0]
-            if validationName in comparisonLists:
-                comparisonLists[ validationName ].append( validation )
-            else:
-                comparisonLists[ validationName ] = [ validation ]
-
-    if "OfflineValidationParallel" in comparisonLists:
-        repMap["extendeValScriptPath"] = os.path.join(path, "TkAlExtendedOfflineValidation.C")
-        createExtendedValidationScript( comparisonLists["OfflineValidationParallel"], repMap["extendeValScriptPath"] )
-        repMap["mergeOfflineParJobsScriptPath"] = os.path.join(path, "TkAlOfflineJobsMerge.C")
-        createOfflineJobsMergeScript( comparisonLists["OfflineValidationParallel"],
-                                      repMap["mergeOfflineParJobsScriptPath"] )
-
-        # introduced to merge individual validation outputs separately
-        #  -> avoids problems with merge script
-        repMap["haddLoop"] = ""
-        for validation in comparisonLists["OfflineValidationParallel"]:
-            repMap["haddLoop"] = validation.appendToMergeParJobs(repMap["haddLoop"])
-            repMap["haddLoop"] += ("cmsStage -f "
-                                   +validation.getRepMap()["outputFile"]
-                                   +" "
-                                   +validation.getRepMap()["resultFile"]
-                                   +"\n")
-
-        repMap["RunExtendedOfflineValidation"] = \
-            replaceByMap(configTemplates.extendedValidationExecution, repMap)
-
-        # DownloadData is the section which merges output files from parallel jobs
-        # it uses the file TkAlOfflineJobsMerge.C
-        repMap["DownloadData"] += replaceByMap("rfcp .oO[mergeOfflineParJobsScriptPath]Oo. .", repMap)
-        repMap["DownloadData"] += replaceByMap( configTemplates.mergeOfflineParallelResults, repMap )
-
-    repMap["CompareAlignments"] = "#run comparisons"
-    for validationId in comparisonLists:
-        compareStrings = [ val.getCompareStrings(validationId) for val in comparisonLists[validationId] ]
-            
-        repMap.update({"validationId": validationId,
-                       "compareStrings": " , ".join(compareStrings) })
-        
-        repMap["CompareAlignments"] += \
-            replaceByMap(configTemplates.compareAlignmentsExecution, repMap)
-      
-    filePath = os.path.join(path, "TkAlMerge.sh")
-    theFile = open( filePath, "w" )
-    theFile.write( replaceByMap( configTemplates.mergeTemplate, repMap ) )
-    theFile.close()
-    os.chmod(filePath,0755)
+    os.chmod(filePath,0o755)
     
     return filePath
     
 def loadTemplates( config ):
     if config.has_section("alternateTemplates"):
         for templateName in config.options("alternateTemplates"):
+            if templateName == "AutoAlternates":
+                continue
             newTemplateName = config.get("alternateTemplates", templateName )
             #print "replacing default %s template by %s"%( templateName, newTemplateName)
             configTemplates.alternateTemplate(templateName, newTemplateName)
@@ -346,17 +348,15 @@ def main(argv = None):
     if argv == None:
        argv = sys.argv[1:]
     optParser = optparse.OptionParser()
-    optParser.description = """ all-in-one alignment Validation 
-    This will run various validation procedures either on batch queues or interactviely. 
-    
-    If no name is given (-N parameter) a name containing time and date is created automatically
-    
-    To merge the outcome of all validation procedures run TkAlMerge.sh in your validation's directory.
-    """
+    optParser.description = """All-in-one Alignment Validation.
+This will run various validation procedures either on batch queues or interactively.
+If no name is given (-N parameter) a name containing time and date is created automatically.
+To merge the outcome of all validation procedures run TkAlMerge.sh in your validation's directory.
+"""
     optParser.add_option("-n", "--dryRun", dest="dryRun", action="store_true", default=False,
                          help="create all scripts and cfg File but do not start jobs (default=False)")
-    optParser.add_option( "--getImages", dest="getImages", action="store_true", default=False,
-                          help="get all Images created during the process (default= False)")
+    optParser.add_option( "--getImages", dest="getImages", action="store_true", default=True,
+                          help="get all Images created during the process (default= True)")
     defaultConfig = "TkAlConfig.ini"
     optParser.add_option("-c", "--config", dest="config", default = defaultConfig,
                          help="configuration to use (default TkAlConfig.ini) this can be a comma-seperated list of all .ini file you want to merge", metavar="CONFIG")
@@ -368,14 +368,17 @@ def main(argv = None):
                          help="get the status of the crab jobs", metavar="STATUS")
     optParser.add_option("-d", "--debug", dest="debugMode", action="store_true",
                          default = False,
-                         help="Run the tool to get full traceback of errors.",
+                         help="run the tool to get full traceback of errors",
                          metavar="DEBUG")
+    optParser.add_option("-m", "--autoMerge", dest="autoMerge", action="store_true", default = False,
+                         help="submit TkAlMerge.sh to run automatically when all jobs have finished (default=False)."
+                              " Works only for batch jobs")
 
     (options, args) = optParser.parse_args(argv)
 
     if not options.restrictTo == None:
         options.restrictTo = options.restrictTo.split(",")
-    
+
     options.config = [ os.path.abspath( iniFile ) for iniFile in \
                        options.config.split( "," ) ]
     config = BetterConfigParser()
@@ -386,20 +389,20 @@ def main(argv = None):
     if options.config == [ os.path.abspath( defaultConfig ) ]:
         if ( not options.crabStatus ) and \
                ( not os.path.exists( defaultConfig ) ):
-                raise AllInOneError, ( "Default 'ini' file '%s' not found!\n"
+                raise AllInOneError( "Default 'ini' file '%s' not found!\n"
                                        "You can specify another name with the "
                                        "command line option '-c'/'--config'."
                                        %( defaultConfig ))
     else:
         for iniFile in failedIniFiles:
             if not os.path.exists( iniFile ):
-                raise AllInOneError, ( "'%s' does not exist. Please check for "
+                raise AllInOneError( "'%s' does not exist. Please check for "
                                        "typos in the filename passed to the "
                                        "'-c'/'--config' option!"
-                                       %( iniFile ) )
+                                       %( iniFile ))
             else:
-                raise AllInOneError, ( "'%s' does exist, but parsing of the "
-                                       "content failed!" )
+                raise AllInOneError(( "'%s' does exist, but parsing of the "
+                                       "content failed!" ) % iniFile)
 
     # get the job name
     if options.Name == None:
@@ -441,7 +444,7 @@ def main(argv = None):
                             "-c": crabLogDir }
             try:
                 theCrab.run( crabOptions )
-            except AllInOneError, e:
+            except AllInOneError as e:
                 print "crab:  No output retrieved for this task."
             crabOptions = { "-status": "",
                             "-c": crabLogDir }
@@ -450,19 +453,15 @@ def main(argv = None):
 
     general = config.getGeneral()
     config.set("internals","workdir",os.path.join(general["workdir"],options.Name) )
+    config.set("internals","scriptsdir",outPath)
     config.set("general","datadir",os.path.join(general["datadir"],options.Name) )
     config.set("general","logdir",os.path.join(general["logdir"],options.Name) )
     config.set("general","eosdir",os.path.join("AlignmentValidation", general["eosdir"], options.Name) )
 
-    # clean up of log directory to avoid cluttering with files with different
-    # random numbers for geometry comparison
-    if os.path.isdir( outPath ):
-        shutil.rmtree( outPath )
-    
     if not os.path.exists( outPath ):
         os.makedirs( outPath )
     elif not os.path.isdir( outPath ):
-        raise AllInOneError,"the file %s is in the way rename the Job or move it away"%outPath
+        raise AllInOneError("the file %s is in the way rename the Job or move it away"%outPath)
 
     # replace default templates by the ones specified in the "alternateTemplates" section
     loadTemplates( config )
@@ -471,25 +470,57 @@ def main(argv = None):
     backupConfigFile = open( os.path.join( outPath, "usedConfiguration.ini" ) , "w"  )
     config.write( backupConfigFile )
 
+    #copy proxy, if there is one
+    try:
+        proxyexists = int(getCommandOutput2("voms-proxy-info --timeleft")) > 10
+    except RuntimeError:
+        proxyexists = False
+
+    if proxyexists:
+        shutil.copyfile(getCommandOutput2("voms-proxy-info --path").strip(), os.path.join(outPath, ".user_proxy"))
+
     validations = []
     for validation in config.items("validation"):
-        alignmentList = validation[1].split(config.getSep())
+        alignmentList = [validation[1]]
         validationsToAdd = [(validation[0],alignment) \
                                 for alignment in alignmentList]
         validations.extend(validationsToAdd)
     jobs = [ ValidationJob( validation, config, options) \
                  for validation in validations ]
+    for job in jobs:
+        if job.needsproxy and not proxyexists:
+            raise AllInOneError("At least one job needs a grid proxy, please init one.")
     map( lambda job: job.createJob(), jobs )
     validations = [ job.getValidation() for job in jobs ]
 
-    if "OfflineValidationParallel" not in [val.__class__.__name__ for val in validations]:
-        createMergeScript(outPath, validations)
-    else:
-        createParallelMergeScript( outPath, validations )
+    createMergeScript(outPath, validations)
 
     print
     map( lambda job: job.runJob(), jobs )
-    
+
+    if options.autoMerge:
+        # if everything is done as batch job, also submit TkAlMerge.sh to be run
+        # after the jobs have finished
+        if ValidationJob.jobCount == ValidationJob.batchCount and config.getGeneral()["jobmode"].split(",")[0] == "lxBatch":
+            print ">             Automatically merging jobs when they have ended"
+            repMap = {
+                "commands": config.getGeneral()["jobmode"].split(",")[1],
+                "jobName": "TkAlMerge",
+                "logDir": config.getGeneral()["logdir"],
+                "script": "TkAlMerge.sh",
+                "bsub": "/afs/cern.ch/cms/caf/scripts/cmsbsub",
+                "conditions": '"' + " && ".join(["ended(" + jobId + ")" for jobId in ValidationJob.batchJobIds]) + '"'
+                }
+            for ext in ("stdout", "stderr", "stdout.gz", "stderr.gz"):
+                oldlog = "%(logDir)s/%(jobName)s."%repMap + ext
+                if os.path.exists(oldlog):
+                    os.remove(oldlog)
+
+            getCommandOutput2("%(bsub)s %(commands)s "
+                              "-o %(logDir)s/%(jobName)s.stdout "
+                              "-e %(logDir)s/%(jobName)s.stderr "
+                              "-w %(conditions)s "
+                              "%(logDir)s/%(script)s"%repMap)
 
 if __name__ == "__main__":        
     # main(["-n","-N","test","-c","defaultCRAFTValidation.ini,latestObjects.ini","--getImages"])
@@ -498,6 +529,6 @@ if __name__ == "__main__":
     else:
         try:
             main()
-        except AllInOneError, e:
+        except AllInOneError as e:
             print "\nAll-In-One Tool:", str(e)
             exit(1)

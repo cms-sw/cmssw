@@ -6,6 +6,10 @@
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/EgammaCandidates/interface/ConversionFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlock.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockFwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementTrack.h"
+#include "DataFormats/ParticleFlowReco/interface/PFBlockElementCluster.h"
 
 #include <iosfwd>
 
@@ -15,6 +19,9 @@ namespace reco {
  * extra information on the photon/electron particle candidate from particle flow
  *
  */
+  typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
+  typedef std::vector< ElementInBlock > ElementsInBlocks;
+
   class PFCandidateEGammaExtra { 
   public:    
     enum StatusFlag {
@@ -47,6 +54,21 @@ namespace reco {
       MVA_LAST
     };
 
+    enum ElectronVetoes {
+      kFailsMVA,
+      kKFTracksOnGSFCluster, // any number of additional tracks on GSF cluster
+      kFailsTrackAndHCALIso, // > 3 kfs on Gsf-cluster, bad h/e
+      kKillAdditionalKFs,    // tracks with hcal linkbut good gsf etot/p_in 
+      kItIsAPion,            // bad H/P_in, H/H+E, and E_tot/P_in
+      kCrazyEoverP,          // screwey track linking / weird GSFs
+      kTooLargeAngle,        // angle between GSF and RSC centroid too large
+      kN_EVETOS
+    };
+
+    enum PhotonVetoes {
+      kFailsTrackIso, // the photon fails tracker isolation
+      kN_PHOVETOS
+    };
 
   public:
     /// constructor
@@ -62,41 +84,52 @@ namespace reco {
     /// set kf track reference
     void setKfTrackRef(const reco::TrackRef & ref);
 
+    /// set gsf electron cluster ref
+    void setGsfElectronClusterRef(const reco::PFBlockRef& blk,
+				  const reco::PFBlockElementCluster& ref) {
+      eleGsfCluster_ = ElementInBlock(blk,ref.index());
+    }
+
     /// return a reference to the corresponding GSF track
     reco::GsfTrackRef gsfTrackRef() const { return gsfTrackRef_; }     
 
     /// return a reference to the corresponding KF track
-    reco::TrackRef kfTrackRef() const { return kfTrackRef_; }     
+    reco::TrackRef kfTrackRef() const { return kfTrackRef_; }
+
+    /// return a reference to the electron cluster ref
+    const ElementInBlock& gsfElectronClusterRef() const { 
+      return eleGsfCluster_; 
+    }
 
     /// return a reference to the corresponding supercluster
     reco::SuperClusterRef superClusterRef() const {return scRef_ ; }
 
     /// return a reference to the corresponding box supercluster
-    reco::SuperClusterRef superClusterBoxRef() const {return scBoxRef_ ; }    
+    reco::SuperClusterRef superClusterPFECALRef() const {return scPFECALRef_ ; }    
     
     /// set reference to the corresponding supercluster
     void setSuperClusterRef(reco::SuperClusterRef sc) { scRef_ = sc; }
 
     /// set reference to the corresponding supercluster
-    void setSuperClusterBoxRef(reco::SuperClusterRef sc) { scBoxRef_ = sc; }   
+    void setSuperClusterPFECALRef(reco::SuperClusterRef sc) { scPFECALRef_ = sc; }   
     
     /// add Single Leg Conversion TrackRef 
-    void addSingleLegConvTrackRef(const reco::TrackRef& trackref);
+    void addSingleLegConvTrackRefMva(const std::pair<reco::TrackRef, float> &trackrefmva);
 
     /// return vector of Single Leg Conversion TrackRef from 
-    const std::vector<reco::TrackRef>& singleLegConvTrackRef() const {return assoSingleLegRefTrack_;}
-
-    /// add Single Leg Conversion mva
-    void addSingleLegConvMva(const float& mvasingleleg);
-
-    /// return Single Leg Conversion mva
-    const std::vector<float>& singleLegConvMva() const {return assoSingleLegMva_;}
+    const std::vector<std::pair<reco::TrackRef, float > > &singleLegConvTrackRefMva() const {return assoSingleLeg_;}
 
     /// add Conversions from PF
     void addConversionRef(const reco::ConversionRef& convref);
 
     /// return Conversions from PF
     reco::ConversionRefVector conversionRef() const {return assoConversionsRef_;}     
+    
+    /// add Conversions from PF
+    void addSingleLegConversionRef(const reco::ConversionRef& convref);
+
+    /// return Conversions from PF
+    reco::ConversionRefVector singleLegConversionRef() const {return singleLegConversions_;}
     
     /// set LateBrem
     void setLateBrem(float val); 
@@ -143,6 +176,16 @@ namespace reco {
     float hadEnergy() const {return hadEnergy_;}
     float sigmaEtaEta() const {return sigmaEtaEta_;}
 
+    /// track counting for electrons and photons
+    void addExtraNonConvTrack(const reco::PFBlockRef& blk,
+			      const reco::PFBlockElementTrack& tkref) {
+      if( !tkref.trackType(reco::PFBlockElement::T_FROM_GAMMACONV) ) {
+	assoNonConvExtraTracks_.push_back(std::make_pair(blk,tkref.index()));
+      }
+    }
+    const ElementsInBlocks& extraNonConvTracks() const {
+      return assoNonConvExtraTracks_;
+    }        
 
  private:
     void  setVariable(MvaVariable type,float var);
@@ -152,23 +195,29 @@ namespace reco {
     reco::GsfTrackRef gsfTrackRef_;
     /// Ref to the KF track
     reco::TrackRef kfTrackRef_;
+    /// Ref to the electron gsf cluster;
+    ElementInBlock eleGsfCluster_;
 
     /// Ref to (refined) supercluster
     reco::SuperClusterRef scRef_;
 
-    /// Ref to box supercluster
-    reco::SuperClusterRef scBoxRef_;    
+    /// Ref to PF-ECAL only supercluster
+    reco::SuperClusterRef scPFECALRef_;    
     
-    ///  vector of TrackRef from Single Leg conversions
-    std::vector<reco::TrackRef> assoSingleLegRefTrack_;
-
-    ///  vector of Mvas from Single Leg conversions
-    std::vector<float> assoSingleLegMva_;
+    ///  vector of TrackRef from Single Leg conversions and associated mva value                                                                                                                                                                                                                      
+    std::vector<std::pair<reco::TrackRef, float> > assoSingleLeg_;
+    
+    // information for track matching
+    ElementsInBlocks assoNonConvExtraTracks_;    
 
     /// vector of ConversionRef from PF
     reco::ConversionRefVector assoConversionsRef_;    
     
-    /// energy of individual clusters (corrected). The first cluster is the seed
+    //associated single leg conversions
+    reco::ConversionRefVector singleLegConversions_;
+    
+    /// energy of individual clusters (corrected). 
+    /// The first cluster is the seed
     std::vector<float> clusterEnergies_;
 
     /// mva variables  -  transient !

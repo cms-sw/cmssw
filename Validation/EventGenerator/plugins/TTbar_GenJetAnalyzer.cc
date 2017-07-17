@@ -1,13 +1,10 @@
 #include "Validation/EventGenerator/interface/TTbar_GenJetAnalyzer.h"
-
+#include "Validation/EventGenerator/interface/DQMHelper.h"
 
 TTbar_GenJetAnalyzer::TTbar_GenJetAnalyzer(const edm::ParameterSet& iConfig):
   jets_(iConfig.getParameter<edm::InputTag>("jets")),
   genEventInfoProductTag_(iConfig.getParameter<edm::InputTag>("genEventInfoProductTag"))
 {
-   //now do what ever initialization is needed
-  dbe = 0;
-  dbe = edm::Service<DQMStore>().operator->();
 
   genEventInfoProductTagToken_=consumes<GenEventInfoProduct>(genEventInfoProductTag_);
   jetsToken_=consumes<std::vector<reco::GenJet> >(jets_);
@@ -15,23 +12,10 @@ TTbar_GenJetAnalyzer::TTbar_GenJetAnalyzer(const edm::ParameterSet& iConfig):
 }
 
 
-TTbar_GenJetAnalyzer::~TTbar_GenJetAnalyzer()
-{
- 
-   // do anything here that needs to be done at desctruction time
-   // (e.g. close files, deallocate resources etc.)
-
-}
+TTbar_GenJetAnalyzer::~TTbar_GenJetAnalyzer(){}
 
 
-//
-// member functions
-//
-
-// ------------ method called for each event  ------------
-void
-
-TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
+void TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   using namespace edm;
  
@@ -72,62 +56,18 @@ TTbar_GenJetAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& i
 }
 
 
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TTbar_GenJetAnalyzer::beginJob()
-{
-  if(!dbe) return;
-  dbe->setCurrentFolder("Generator/TTbar");
-  hists_["jetPtAll" ] = dbe->book1D("TTbar_jetPtAll" , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt1"   ] = dbe->book1D("TTbar_jetPt1"   , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt2"   ] = dbe->book1D("TTbar_jetPt2"   , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt3"   ] = dbe->book1D("TTbar_jetPt3"   , "pt" , 1000,  0., 1000.); 
-  hists_["jetPt4"   ] = dbe->book1D("TTbar_jetPt4"   , "pt" , 1000,  0., 1000.); 
+void TTbar_GenJetAnalyzer::bookHistograms(DQMStore::IBooker &i, edm::Run const &, edm::EventSetup const &){
+  DQMHelper dqm(&i); i.setCurrentFolder("Generator/TTbar");
+  hists_["jetPtAll" ] = dqm.book1dHisto("TTbar_jetPtAll" , "pt" , 1000,  0., 1000.,"P_{t}^{All-Jets} (GeV)","Number of Events"); 
+  hists_["jetPt1"   ] = dqm.book1dHisto("TTbar_jetPt1"   , "pt" , 1000,  0., 1000.,"P_{t}^{1st-Jet} (GeV)","Number of Events"); 
+  hists_["jetPt2"   ] = dqm.book1dHisto("TTbar_jetPt2"   , "pt" , 1000,  0., 1000.,"P_{t}^{2nd-Jet} (GeV)","Number of Events"); 
+  hists_["jetPt3"   ] = dqm.book1dHisto("TTbar_jetPt3"   , "pt" , 1000,  0., 1000.,"P_{t}^{3rd-Jet} (GeV)","Number of Events"); 
+  hists_["jetPt4"   ] = dqm.book1dHisto("TTbar_jetPt4"   , "pt" , 1000,  0., 1000.,"P_{t}^{4th-Jet} (GeV)","Number of Events"); 
                                                                                     
-  hists_["jetEtaAll"] = dbe->book1D("TTbar_jetEtaAll", "eta",  100, -5.,    5.); 
-  hists_["jetEta1"  ] = dbe->book1D("TTbar_jetEta1"  , "eta",  100, -5.,    5.); 
-  hists_["jetEta2"  ] = dbe->book1D("TTbar_jetEta2"  , "eta",  100, -5.,    5.); 
-  hists_["jetEta3"  ] = dbe->book1D("TTbar_jetEta3"  , "eta",  100, -5.,    5.); 
-  hists_["jetEta4"  ] = dbe->book1D("TTbar_jetEta4"  , "eta",  100, -5.,    5.); 
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TTbar_GenJetAnalyzer::endJob() 
-{
-}
-
-// ------------ method called when starting to processes a run  ------------
-void 
-TTbar_GenJetAnalyzer::beginRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a run  ------------
-void 
-TTbar_GenJetAnalyzer::endRun(edm::Run const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when starting to processes a luminosity block  ------------
-void 
-TTbar_GenJetAnalyzer::beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method called when ending the processing of a luminosity block  ------------
-void 
-TTbar_GenJetAnalyzer::endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&)
-{
-}
-
-// ------------ method fills 'descriptions' with the allowed parameters for the module  ------------
-void
-TTbar_GenJetAnalyzer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
-  edm::ParameterSetDescription desc;
-  desc.setUnknown();
-  descriptions.addDefault(desc);
+  hists_["jetEtaAll"] = dqm.book1dHisto("TTbar_jetEtaAll", "eta",  100, -5.,    5.,"#eta^{All-Jets}","Number of Events"); 
+  hists_["jetEta1"  ] = dqm.book1dHisto("TTbar_jetEta1"  , "eta",  100, -5.,    5.,"#eta^{1st-Jet}","Number of Events"); 
+  hists_["jetEta2"  ] = dqm.book1dHisto("TTbar_jetEta2"  , "eta",  100, -5.,    5.,"#eta^{2nd-Jet}","Number of Events"); 
+  hists_["jetEta3"  ] = dqm.book1dHisto("TTbar_jetEta3"  , "eta",  100, -5.,    5.,"#eta^{3rd-Jet}","Number of Events"); 
+  hists_["jetEta4"  ] = dqm.book1dHisto("TTbar_jetEta4"  , "eta",  100, -5.,    5.,"#eta^{4th-Jet}","Number of Events"); 
 }
 

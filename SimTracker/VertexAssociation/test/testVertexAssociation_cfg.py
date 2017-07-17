@@ -20,8 +20,8 @@ secFiles.extend( (
 
 
 # Track Associators
-process.load("SimTracker.TrackAssociation.TrackAssociatorByChi2_cfi")
-process.load("SimTracker.TrackAssociation.TrackAssociatorByHits_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByChi2_cfi")
+process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
 process.load("SimTracker.VertexAssociation.VertexAssociatorByTracks_cfi")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
 

@@ -126,7 +126,8 @@ class HcalLogicalMapGenerator {
     int HO_htr_fi_eta4[2][6];
     int HO_htr_fi_eta123[2][6];
     //static const int HO_Block3_LC[][6];
-    int HO_RM_fi_eta1to4[72][2][2];
+    int HO_RM_fi_eta1to4[24][2][2];
+    int HO_RM_fi_eta1to4_sipm[24][4][2];
     int ipixelHO[NRMFIBR][NFCH][2];
     std::string letterHO[NRMFIBR][NFCH][2];
     int rmspecialeta[6][6];

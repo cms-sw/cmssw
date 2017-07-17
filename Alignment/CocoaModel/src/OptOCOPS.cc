@@ -2,7 +2,7 @@
 //Id:  OptOCops.cc
 //CAT: Model
 //
-//   History: v1.0 
+//   History: v1.0
 //   Pedro Arce
 
 #include "Alignment/CocoaModel/interface/OptOCOPS.h"
@@ -22,7 +22,7 @@
 #include <iostream>
 #include <iomanip>
 #include <fstream>
-#include <math.h>     		// I have added a new library for edm::isNotFinite() function
+#include <cmath>  // among others include also floating-point std::abs functions
 #include <cstdlib>
 
 using namespace CLHEP;
@@ -40,20 +40,20 @@ void OptOCOPS::defaultBehaviour( LightRay& lightray, Measurement& meas )
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 //@@  Make measurement as distance to previous object 'screen'
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas ) 
+void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
 {
 
-  if (ALIUtils::debug >= 4) std::cout << "***** OptOCOPS::makeMeasurement(lightray, meas) " << std::endl; 
-  //---------- Centre of COPS is at dowel point 2 
+  if (ALIUtils::debug >= 4) std::cout << "***** OptOCOPS::makeMeasurement(lightray, meas) " << std::endl;
+  //---------- Centre of COPS is at dowel point 2
   CLHEP::Hep3Vector dowel2 = centreGlob();
   //---------- Coordinates of dowel point 1 are given with respect to dowel point 2 (in local reference frame)
   ALIdouble posx12 = findExtraEntryValue("dowel1X");
 // Changed default value to .045 from .03
   if(posx12 == 0. ) posx12 = -0.045; //samir changed sign to correct the dowel 1st pixel
   CLHEP::Hep3Vector dowel1(posx12,findExtraEntryValue("dowel1Y"), 0.);
-  CLHEP::HepRotation rmt = rmGlob(); 
+  CLHEP::HepRotation rmt = rmGlob();
   dowel1 = rmt*dowel1;
-  dowel1 += dowel2;  
+  dowel1 += dowel2;
   if (ALIUtils::debug >= 3) {
     ALIUtils::dump3v(dowel2, " dowel2");
     ALIUtils::dump3v(dowel1, " dowel1");
@@ -62,14 +62,14 @@ void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
   //---------- Get line joining dowel1-dowel2 and perpendicular to it inside cops
 //  CLHEP::Hep3Vector line_dowel21 = - (dowel1-dowel2 ); //////
   CLHEP::Hep3Vector line_dowel21 =  (dowel1-dowel2 ); // samir changed sign to correct the dowel 1st pixel
-  CLHEP::Hep3Vector ZAxis(0.,0,1.); 
-  ZAxis = rmt * ZAxis; 
-  CLHEP::Hep3Vector line_dowel21_perp = ZAxis.cross( line_dowel21 ); 
+  CLHEP::Hep3Vector ZAxis(0.,0,1.);
+  ZAxis = rmt * ZAxis;
+  CLHEP::Hep3Vector line_dowel21_perp = ZAxis.cross( line_dowel21 );
   if (ALIUtils::debug >= 3) {
     ALIUtils::dump3v(line_dowel21," line_dowel21");
     ALIUtils::dump3v(line_dowel21_perp," line_dowel21_perp");
   }
- 
+
   //---------- Position four CCDs (locally, i.e. with respect to centre)
   //----- Get first CCD length, that will be used to give a default placement to the CCDs
   ALIdouble CCDlength = findExtraEntryValue("CCDlength");
@@ -90,23 +90,23 @@ void OptOCOPS::makeMeasurement( LightRay& lightray, Measurement& meas )
   //if(!eexists) posY =  0.004;
   CLHEP::Hep3Vector posxy( posX, posY, 0);
   if(ALIUtils::debug>= 3) std::cout << " %%%% CCD distances to Dowel2: " << std::endl;
-  if(ALIUtils::debug>= 3) std::cout << "   up ccd in local RF " << posxy << std::endl; 
+  if(ALIUtils::debug>= 3) std::cout << "   up ccd in local RF " << posxy << std::endl;
   posxy = rmt * posxy;
-  if(ALIUtils::debug>= 3) std::cout << "   up ccd in global RF " << posxy << std::endl; 
- // ALILine upCCD( dowel2 + posxy, -line_dowel21 ); 
+  if(ALIUtils::debug>= 3) std::cout << "   up ccd in global RF " << posxy << std::endl;
+ // ALILine upCCD( dowel2 + posxy, -line_dowel21 );
  // ccds[0] = ALILine( posxy, -line_dowel21 );
    ALILine upCCD( dowel2 + posxy, line_dowel21 );// Samir changed sign to correct the dowel 1st pixel
   ccds[0] = ALILine( posxy, line_dowel21 ); // samir changed sign to correct the dowel 1st pixel
   //----- Lower CCD (leftmost point & direction dowel2-dowel1)
-  if(ALIUtils::debug>= 3) std::cout << std::endl << "***** DOWN CCD *****" << std::endl 
+  if(ALIUtils::debug>= 3) std::cout << std::endl << "***** DOWN CCD *****" << std::endl
                             << "********************" << std::endl << std::endl ;
   posX = findExtraEntryValue("downCCDXtoDowel2");
   eexists = findExtraEntryValueIfExists("downCCDYtoDowel2", posY);
   if(!eexists) posY = 0.002;
   posxy = CLHEP::Hep3Vector( posX, posY, 0);
-  if(ALIUtils::debug>= 3) std::cout << "   down ccd in local RF " << posxy << std::endl; 
+  if(ALIUtils::debug>= 3) std::cout << "   down ccd in local RF " << posxy << std::endl;
   posxy = rmt * posxy;
-  if(ALIUtils::debug>= 3) std::cout << "   down ccd in global RF " << posxy << std::endl; 
+  if(ALIUtils::debug>= 3) std::cout << "   down ccd in global RF " << posxy << std::endl;
 //  ALILine downCCD( dowel2 + posxy, -line_dowel21 );
  // ccds[1] = ALILine( posxy, -line_dowel21 );
 
@@ -122,9 +122,9 @@ ALILine downCCD( dowel2 + posxy, line_dowel21 );//samir changed signto correct t
   if(!eexists) posX = -CCDlength - 0.002; // Samir changed sign to correct the dowel 1st pixel
   posY = findExtraEntryValue("leftCCDYtoDowel2");
   posxy = CLHEP::Hep3Vector( posX, posY, 0);
-  if(ALIUtils::debug>= 3) std::cout << "   left ccd in local RF " << posxy << std::endl; 
+  if(ALIUtils::debug>= 3) std::cout << "   left ccd in local RF " << posxy << std::endl;
   posxy = rmt * posxy;
-  if(ALIUtils::debug>= 3) std::cout << "   left ccd in global RF " << posxy << std::endl; 
+  if(ALIUtils::debug>= 3) std::cout << "   left ccd in global RF " << posxy << std::endl;
  // ALILine leftCCD( dowel2 + posxy, line_dowel21_perp );
  // ccds[2] = ALILine(  posxy, line_dowel21_perp );
 
@@ -132,19 +132,19 @@ ALILine downCCD( dowel2 + posxy, line_dowel21 );//samir changed signto correct t
   ccds[2] = ALILine(  posxy, -line_dowel21_perp );//samir changed sign to correct the dowel 1st pixel
 
   //----- right CCD (uppermost point & direction perpendicular to dowel2-dowel1)
-  if(ALIUtils::debug>= 3) std::cout << std::endl << "***** RIGHT CCD *****" << std::endl 
+  if(ALIUtils::debug>= 3) std::cout << std::endl << "***** RIGHT CCD *****" << std::endl
                             << "*********************" << std::endl<< std::endl ;
   eexists = findExtraEntryValueIfExists("rightCCDXtoDowel2", posX);
  // if(!eexists) posX = -CCDlength - 0.004;
   if(!eexists) posX =  - 0.004; // samir tried to change in order to adjust the position of 1 st pixel.
   posY = findExtraEntryValue("rightCCDYtoDowel2");
   posxy = CLHEP::Hep3Vector( posX, posY, 0);
-  if(ALIUtils::debug>= 3) std::cout << "   right ccd in local RF " << posxy << std::endl; 
+  if(ALIUtils::debug>= 3) std::cout << "   right ccd in local RF " << posxy << std::endl;
   posxy = rmt * posxy;
-  if(ALIUtils::debug>= 3) std::cout << "   right ccd in global RF " << posxy  << std::endl << std::endl; 
+  if(ALIUtils::debug>= 3) std::cout << "   right ccd in global RF " << posxy  << std::endl << std::endl;
  // ALILine rightCCD( dowel2 + posxy, line_dowel21_perp );
  // ccds[3] = ALILine(  posxy, line_dowel21_perp );
-  
+
 ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to correct the dowel 1st pixel
   ccds[3] = ALILine(  posxy, -line_dowel21_perp ); //samir changed sign to correct the dowel 1st pixel
 
@@ -159,7 +159,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   //---------- Intersect x-hair laser with COPS
   if (ALIUtils::debug >= 3) std::cout << " %%%  Intersecting x-hair laser with COPS: " << std::endl;
   ALIPlane copsPlane(centreGlob(), ZAxis);
-  lightray.intersect( *this ); 
+  lightray.intersect( *this );
   CLHEP::Hep3Vector inters = lightray.point();
   if (ALIUtils::debug >= 3) {
      ALIUtils::dump3v(inters, " Intersection of x-hair laser with COPS ");
@@ -167,12 +167,12 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
 
   //---------- Get cross of x-hair laser:
    if (ALIUtils::debug >= 5) std::cout << "1. Get the OptO x-hair laser from the measurement list of OptOs" << std::endl;
-   
+
   OpticalObject* xhairOptO = *(meas.OptOList().begin());
 
   if (ALIUtils::debug >= 35) std::cout << "2. Get the Y of the laser and project it on the COPS" << std::endl;
   CLHEP::Hep3Vector YAxis_xhair(0.,1.,0.);
-  CLHEP::HepRotation rmtx = xhairOptO->rmGlob(); 
+  CLHEP::HepRotation rmtx = xhairOptO->rmGlob();
   YAxis_xhair = rmtx * YAxis_xhair;
   ALILine Yline_xhair( inters, copsPlane.project( YAxis_xhair ));
   if (ALIUtils::debug >= 3) {
@@ -182,7 +182,7 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   }
 
   if (ALIUtils::debug >= 5) std::cout << " 3. Get the X of the laser (correct it if cross is not 90o) and project it on the COPS" << std::endl;
-  
+
   ALIdouble anglebx;
   eexists = xhairOptO->findExtraEntryValueIfExists("angleBetweenAxis", anglebx);
   if(!eexists) anglebx = PI/2.;
@@ -198,9 +198,9 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
     ALIUtils::dump3v(XAxis_xhair," X direction of laser ");
     std::cout << " X line of laser projected on COPS " <<  Xline_xhair << std::endl;
   }
- 
 
-  //---------- Get measurement as intersection with four CCDs 
+
+  //---------- Get measurement as intersection with four CCDs
   if(ALIUtils::debug >= 3) std::cout << "  Getting measurements as intersection with four CCDs: " << std::endl;
 
   if(ALIUtils::debug >= 4)std::cout << "intersecting with upCCD " << std::endl;
@@ -212,14 +212,14 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   measv[0][0] = getMeasFromInters( Yline_xhair, upCCD, line_dowel21 );
   if(ALIUtils::debug >= 5)std::cout << "$@$@ measv[0][1] upccd " << std::endl;
   measv[0][1] = getMeasFromInters( Xline_xhair, upCCD, line_dowel21 );
-  
-  //---- check if postive or negative: 
+
+  //---- check if postive or negative:
   if(ALIUtils::debug >= 4) std::cout << "intersecting with downCCD " << std::endl;
   measv[1][0] = getMeasFromInters(Yline_xhair, downCCD, line_dowel21 );
   measv[1][1] = getMeasFromInters(Xline_xhair, downCCD, line_dowel21 );
-  
-//  
-  
+
+//
+
   if(ALIUtils::debug >= 4) std::cout << "intersecting with leftCCD " << std::endl;
   measv[2][0] = getMeasFromInters(Xline_xhair, leftCCD, line_dowel21_perp );
   measv[2][1] = getMeasFromInters(Yline_xhair, leftCCD, line_dowel21_perp );
@@ -227,24 +227,24 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
   measv[3][0] = getMeasFromInters(Xline_xhair, rightCCD, line_dowel21_perp );
   measv[3][1] = getMeasFromInters(Yline_xhair, rightCCD, line_dowel21_perp );
 
-  /* Both X and Y axis of the x-laser are intersected with each CCD and it checks that one of 
-  the two is inside the CCD(less than CCDlength/2). If no one is inside, it will give an 
-  exception. If both are inside (a strange case where, for example, the laser centre is very 
+  /* Both X and Y axis of the x-laser are intersected with each CCD and it checks that one of
+  the two is inside the CCD(less than CCDlength/2). If no one is inside, it will give an
+  exception. If both are inside (a strange case where, for example, the laser centre is very
   close and forms 45 degrees with the CCD) it will also make an exception (if you prefer, I can
   put a warning saying that you have two measurements, but I guess this should never happen for
   you, so I better give an exception and you don't risk to overpass this warning).
 
-  Then it is mandatory that you put the CCDlength parameter (I could put a default one if 
-  you prefer). 
-  
+  Then it is mandatory that you put the CCDlength parameter (I could put a default one if
+  you prefer).
+
 
   ALIbool measInCCD[2];
   ALIuint ii,jj;
   for( ii = 0; ii < 4; ii++ ) {
     for( jj = 0; jj < 2; jj++ ) {
-      measInCCD[jj] =  fabs( measv[ii][jj] ) < CCDlength/2;
+      measInCCD[jj] =  std::abs( measv[ii][jj] ) < CCDlength/2;
     }
-    if (ALIUtils::debug >= 2) std::cout << "$@$@ CHECK CCD = " << ii << std::endl; 
+    if (ALIUtils::debug >= 2) std::cout << "$@$@ CHECK CCD = " << ii << std::endl;
     if( measInCCD[0] && measInCCD[1] ){
       std::cerr << "!!!EXITING: both lasers lines of x-hair laser intersect with same CCD " << measNames[ii] << " one at " << measv[ii][0] << " another one at " << measv[ii][1] << "CCDhalfLegth " << CCDlength/2 << std::endl;
       exit(1);
@@ -253,54 +253,54 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
       exit(1);
     } else {
       measInCCD[0] ?  meas.setValueSimulated( ii, measv[ii][0] ) :
-	meas.setValueSimulated( ii, measv[ii][1] );
+        meas.setValueSimulated( ii, measv[ii][1] );
     }
   }
   */
 
   ALIstring measNames[4] ={"up","down","left","right"};
-  ALIbool laserLine; 
-  if (ALIUtils::debug >= 2) std::cout << std::endl << "--> Now comparing measurement in ccds by x and y laser lines (will always choose the smaller one) " <<std::endl; 
-     
+  ALIbool laserLine;
+  if (ALIUtils::debug >= 2) std::cout << std::endl << "--> Now comparing measurement in ccds by x and y laser lines (will always choose the smaller one) " <<std::endl;
+
   unsigned int ii;
   for( ii = 0; ii < 4; ii++ ) {
     if (ALIUtils::debug >= 2) std::cout << "\tmeas CCD " << measNames[ii] << " ii=(" << ii << ") \t Values: "
-     //<< (fabs( measv[ii][0] ) <  fabs( measv[ii][1]) 
-       << " " << fabs( measv[ii][0] ) << " " <<  fabs( measv[ii][1] ) << "  edm::isNotFinite() = " <<
+     //<< (std::abs( measv[ii][0] ) <  std::abs( measv[ii][1])
+       << " " << std::abs( measv[ii][0] ) << " " <<  std::abs( measv[ii][1] ) << "  edm::isNotFinite() = " <<
        edm::isNotFinite(measv[ii][1]) << std::endl;
 
-    if( meas.xlaserLine( ii ) != -1 ) { 
+    if( meas.xlaserLine( ii ) != -1 ) {
       laserLine = ALIbool( meas.xlaserLine( ii ) );
-    } else { 
-    
+    } else {
+
     //  Problem here !!!
     //
     //  Somehow measv[][1] can occasionally return value of 'nan'
     //  which is interpretted as less than any real value
     //
       if(edm::isNotFinite(measv[ii][1]) != 0){
-      		measv[ii][1] = 1e99;
-		if (ALIUtils::debug >= 2) std::cout << "  --> Swapping for " << measv[ii][1] << "(inf)" << std::endl;
-				  }
-				   
-      laserLine = fabs( measv[ii][0] ) <  fabs( measv[ii][1] );
-      
+                measv[ii][1] = 1e99;
+                if (ALIUtils::debug >= 2) std::cout << "  --> Swapping for " << measv[ii][1] << "(inf)" << std::endl;
+                                  }
+
+      laserLine = std::abs( measv[ii][0] ) <  std::abs( measv[ii][1] );
+
       meas.setXlaserLine( ii, int(laserLine) );
     }
-    laserLine ? meas.setValueSimulated( ii, measv[ii][0] ) 
+    laserLine ? meas.setValueSimulated( ii, measv[ii][0] )
       : meas.setValueSimulated( ii, measv[ii][1] );
   }
-  
-    if (ALIUtils::debug >= 2) std::cout << std::endl; 	//Keep format of debug output reasonable
 
-  // try to identify pathological cases: up and down CCD are intersected by the same 
+    if (ALIUtils::debug >= 2) std::cout << std::endl;   //Keep format of debug output reasonable
+
+  // try to identify pathological cases: up and down CCD are intersected by the same
   // laser line (say X) and the same for the left and right CCD
 
   if(ALIUtils::debug >= 2) std::cout << "***** OptOCOPS::makeMeasurement  - identify pathological cases U and D intersected by same line" <<std::endl;
   ALIbool xlaserDir[4];
   for( ii = 0; ii < 4; ii++ ) {
-    //    xlaserDir[ii] = fabs( measv[ii][0] ) <  fabs( measv[ii][1] );
-    xlaserDir[ii] = ALIbool( meas.xlaserLine( ii ) ); 
+    //    xlaserDir[ii] = std::abs( measv[ii][0] ) <  std::abs( measv[ii][1] );
+    xlaserDir[ii] = ALIbool( meas.xlaserLine( ii ) );
   }
   if( xlaserDir[0] ^ xlaserDir[1] ) {
     std::cerr << "!!EXITING up and down CCDs intersected by different x-laser line " << xlaserDir[0] << " " <<  xlaserDir[1] << std::endl;
@@ -315,24 +315,24 @@ ALILine rightCCD( dowel2 + posxy, -line_dowel21_perp ); //samir changed sign to 
 
   if (ALIUtils::debug >= 1) {
     ALIstring chrg = "";
-    std::cout << "REAL value: " << chrg <<"U: " << 1000*meas.value()[0] << chrg 
-	 << " D: " << 1000*meas.value()[1] 
-	 << " L: " << 1000*meas.value()[2] 
-	 << " R: " << 1000*meas.value()[3]  
-	 << " (mm)  " << (this)->name() << std::endl;
-    ALIdouble detU =  1000*meas.valueSimulated(0); if(fabs(detU) <= 1.e-9 ) detU = 0.;
-    ALIdouble detD =  1000*meas.valueSimulated(1); if(fabs(detD) <= 1.e-9 ) detD = 0.;
-    ALIdouble detL =  1000*meas.valueSimulated(2); if(fabs(detL) <= 1.e-9 ) detL = 0.;
-    ALIdouble detR =  1000*meas.valueSimulated(3); if(fabs(detR) <= 1.e-9 ) detR = 0.;
+    std::cout << "REAL value: " << chrg <<"U: " << 1000*meas.value()[0] << chrg
+         << " D: " << 1000*meas.value()[1]
+         << " L: " << 1000*meas.value()[2]
+         << " R: " << 1000*meas.value()[3]
+         << " (mm)  " << (this)->name() << std::endl;
+    ALIdouble detU =  1000*meas.valueSimulated(0); if(std::abs(detU) <= 1.e-9 ) detU = 0.;
+    ALIdouble detD =  1000*meas.valueSimulated(1); if(std::abs(detD) <= 1.e-9 ) detD = 0.;
+    ALIdouble detL =  1000*meas.valueSimulated(2); if(std::abs(detL) <= 1.e-9 ) detL = 0.;
+    ALIdouble detR =  1000*meas.valueSimulated(3); if(std::abs(detR) <= 1.e-9 ) detR = 0.;
     std::cout << "SIMU value: " << chrg << "U: "
       // << setprecision(3) << setw(4)
-	 << detU
-	 << chrg << " D: " << detD
-	 << chrg << " L: " << detL
-	 << chrg << " R: " << detR
-	 << " (mm)  " << (this)->name() << std::endl;
+         << detU
+         << chrg << " D: " << detD
+         << chrg << " L: " << detL
+         << chrg << " R: " << detR
+         << " (mm)  " << (this)->name() << std::endl;
   }
-  
+
 
 }
 
@@ -346,7 +346,7 @@ void OptOCOPS::fastTraversesLightRay( LightRay& lightray )
   if(ALIUtils::debug >= 5) std::cout << "***** OptOCOPS::fastTraversesLightRay" <<std::endl;
   if (ALIUtils::debug >= 2) std::cout << "LR: FAST TRAVERSES COPS  " << name() << std::endl;
 
-  //---------- Get intersection 
+  //---------- Get intersection
   CLHEP::Hep3Vector ZAxis(0.,0,1.);
   CLHEP::HepRotation rmt = rmGlob();
   ZAxis = rmt * ZAxis;
@@ -358,7 +358,7 @@ void OptOCOPS::fastTraversesLightRay( LightRay& lightray )
     lightray.dumpData(" after COPS ");
   }
 
-}     
+}
 
 
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -376,7 +376,7 @@ ALIdouble* OptOCOPS::convertPointToLocalCoordinates( const CLHEP::Hep3Vector& po
   //t  ALIUtils::dump3v(point - (this)->centreGlob() , "inters - (this)->centreGlob()");
   //t  ALIUtils::dump3v(XAxism , "XAxism");
   interslc[0] = (point - (this)->centreGlob() ) * XAxism;
-  
+
   //----- Y value
   CLHEP::Hep3Vector YAxism(0.,1.,0.);
   YAxism*=rmt;
@@ -395,10 +395,10 @@ ALIdouble OptOCOPS::getMeasFromInters( ALILine& line_xhair, ALILine& ccd, CLHEP:
 {
 
   if(ALIUtils::debug >= 5) std::cout << "***** OptOCOPS::getMeasFromInters" <<std::endl;
-  CLHEP::Hep3Vector inters = line_xhair.intersect( ccd, 0 ) - ccd.pt(); 
-  ALIdouble sign = inters*ccd.vec(); 
+  CLHEP::Hep3Vector inters = line_xhair.intersect( ccd, 0 ) - ccd.pt();
+  ALIdouble sign = inters*ccd.vec();
   if( sign != 0 ){
-    sign = fabs(sign)/sign;
+    sign = std::abs(sign)/sign;
     //    std::cout << "  @@@@@@@@@@@@ sign = " << sign << std::endl;
     //   ALIUtils::dump3v(inters, " intersection " );
     //   ALIUtils::dump3v( ccd.vec(), " cops_line ");
@@ -411,7 +411,7 @@ ALIdouble OptOCOPS::getMeasFromInters( ALILine& line_xhair, ALILine& ccd, CLHEP:
 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 void OptOCOPS::fillVRML()
 {
- 
+
   ALIVRMLMgr& vrmlmgr = ALIVRMLMgr::getInstance();
 
   //---------- Position four CCDs (locally, i.e. with respect to centre)
@@ -438,7 +438,7 @@ void OptOCOPS::fillVRML()
   //  same in the drawing, CCDwidth parameters must be the same
   // x, y , z , color
 
-  //----- Upper CCD 
+  //----- Upper CCD
   vrmlmgr.AddBoxDisplaced( *this, CCDdim, CCDwidth, CCDwidth, ccdsize*(ccds[0].pt()+0.5*CCDlength*ccds[0].vec()), &colup);
   //----- Lower CCD (leftmost point & direction dowel2-dowel1)
   vrmlmgr.AddBoxDisplaced( *this, CCDdim, CCDwidth, CCDwidth, ccdsize*(ccds[1].pt()+0.5*CCDlength*ccds[1].vec()), &coldown );
@@ -447,7 +447,7 @@ void OptOCOPS::fillVRML()
   //----- right CCD (uppermost point & direction perpendicular to dowel2-dowel1)
   vrmlmgr.AddBoxDisplaced( *this, CCDwidth, CCDdim, CCDwidth, ccdsize*(ccds[3].pt()+0.5*CCDlength*ccds[3].vec()), &colright );
 
-  vrmlmgr.SendReferenceFrame( *this, CCDdim); 
+  vrmlmgr.SendReferenceFrame( *this, CCDdim);
   vrmlmgr.SendName( *this, 0.01 );
 
 }
@@ -481,7 +481,7 @@ void OptOCOPS::fillIguana()
   spar.push_back(CCDdim);
   spar.push_back(CCDwidth);
   spar.push_back(CCDwidth);
-  //----- Upper CCD 
+  //----- Upper CCD
  IgCocoaFileMgr::getInstance().addSolid( *this, "BOX", spar, &colup, ccdsize*(ccds[0].pt()+0.5*CCDlength*ccds[0].vec()));
   //----- Lower CCD (leftmost point & direction dowel2-dowel1)
  IgCocoaFileMgr::getInstance().addSolid( *this, "BOX", spar, &coldown, ccdsize*(ccds[1].pt()+0.5*CCDlength*ccds[1].vec()) );

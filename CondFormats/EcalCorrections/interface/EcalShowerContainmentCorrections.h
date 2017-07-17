@@ -32,6 +32,8 @@
  * \id           $Id: EcalShowerContainmentCorrections.h,v 1.1 2007/05/15 20:37:22 argiro Exp $
 */
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
 #include <algorithm>
 #include <map>
@@ -80,7 +82,9 @@ class EcalShowerContainmentCorrections {
 
     double data[kSize];
 
-  };
+  
+ COND_SERIALIZABLE;
+};
 
 
   /// Get the correction coefficients for the given xtal
@@ -142,6 +146,8 @@ class EcalShowerContainmentCorrections {
   /// Holds the coeffiecients. The index corresponds to the group
   std::vector<Coefficients> coefficients_;  
 
+
+ COND_SERIALIZABLE;
 };
 
 #endif

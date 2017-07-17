@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("SiPixelMonitorDigiProcess")
 ##----## Geometry and other global parameters:
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cff')
 process.load("DQM.SiPixelMonitorDigi.SiPixelMonitorDigi_cfi")
 process.load("DQMServices.Core.DQM_cfg")
@@ -21,9 +21,6 @@ process.source = cms.Source("PoolSource",
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_R_42_V22A::All"
 
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 process.MessageLogger = cms.Service("MessageLogger",
     debugModules = cms.untracked.vstring('siPixelDigis'),
     cout = cms.untracked.PSet(

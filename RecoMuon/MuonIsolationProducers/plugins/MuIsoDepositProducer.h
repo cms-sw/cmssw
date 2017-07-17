@@ -1,7 +1,7 @@
 #ifndef MuonIsolationProducers_MuIsoDepositProducer_H
 #define MuonIsolationProducers_MuIsoDepositProducer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
@@ -10,7 +10,7 @@
 namespace edm { class Event; }
 namespace edm { class EventSetup; }
 
-class MuIsoDepositProducer : public edm::EDProducer {
+class MuIsoDepositProducer : public edm::stream::EDProducer<> {
 
 public:
 
@@ -34,7 +34,7 @@ private:
   bool theExtractForCandidate;
 
   std::string theMuonTrackRefType;
-  edm::InputTag theMuonCollectionTag;
+  edm::EDGetToken theMuonCollectionTag;
   std::vector<std::string> theDepositNames;
   bool theMultipleDepositsFlag;
   reco::isodeposit::IsoDepositExtractor * theExtractor;

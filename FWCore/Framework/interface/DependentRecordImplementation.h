@@ -21,6 +21,7 @@
 // system include files
 #include "boost/mpl/begin_end.hpp"
 #include "boost/mpl/find.hpp"
+#include <sstream>
 
 // user include files
 #include "FWCore/Framework/interface/EventSetupRecordImplementation.h"
@@ -44,28 +45,31 @@ class DependentRecordImplementation : public EventSetupRecordImplementation<Reco
       // ---------- const member functions ---------------------
       template<class DepRecordT>
       const DepRecordT& getRecord() const {
-	 //Make sure that DepRecordT is a type in ListT
-	 typedef typename boost::mpl::end< ListT >::type EndItrT;
-	 typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT; 
-	 BOOST_STATIC_ASSERT((! boost::is_same<FoundItrT, EndItrT>::value));
-	 EventSetup const& eventSetupT = this->eventSetup();
-	 //can't do the following because of a compiler error in gcc 3.*
-	 // return eventSetupT.get<DepRecordT>();
-	 const DepRecordT* temp = 0;
-	 try { 
-	    eventSetupT.getAvoidCompilerBug(temp);
-	 } catch(NoRecordException<DepRecordT>&) {
-	    //rethrow but this time with dependent information.
-	    throw NoRecordException<DepRecordT>(this->key());
-	 } catch(cms::Exception& e) {  
-	    e<<"Exception occurred while getting dependent record from record \""<<
-	       this->key().type().name()<<"\""<<std::endl;
-	    throw;
-	 }
-	 
-	 return *temp;
+        //Make sure that DepRecordT is a type in ListT
+        typedef typename boost::mpl::end< ListT >::type EndItrT;
+        typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
+        BOOST_STATIC_ASSERT((! boost::is_same<FoundItrT, EndItrT>::value));
+        try {
+          EventSetup const& eventSetupT = this->eventSetup();
+          return eventSetupT.get<DepRecordT>();
+        } catch(cms::Exception& e) {
+          std::ostringstream sstrm;
+          sstrm <<"While getting dependent Record from Record "<<this->key().type().name();
+          e.addContext(sstrm.str());
+          throw;
+        }
       }
-      
+
+      template<class DepRecordT>
+      const DepRecordT* tryToGetRecord() const {
+        //Make sure that DepRecordT is a type in ListT
+        typedef typename boost::mpl::end< ListT >::type EndItrT;
+        typedef typename boost::mpl::find< ListT, DepRecordT>::type FoundItrT;
+        BOOST_STATIC_ASSERT((! boost::is_same<FoundItrT, EndItrT>::value));
+        EventSetup const& eventSetupT = this->eventSetup();
+        return eventSetupT.tryToGet<DepRecordT>();
+      }
+
       // ---------- static member functions --------------------
 
       // ---------- member functions ---------------------------

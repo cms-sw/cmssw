@@ -24,6 +24,7 @@
 import sys, os, re, operator
 import optparse as opt
 from cmsPerfCommons import Candles, CandDesc, FileName, KeywordToCfi, CustomiseFragment, CandFname, EventContents
+from functools import reduce
 ################
 # Global variables
 #
@@ -440,7 +441,7 @@ def pythonFragment(step,cmsdriverOptions):
     
     if "--pileup" in cmsdriverOptions and not (step == "HLT" or step.startswith("RAW2DIGI")):
         return CustomiseFragment['DIGI-PILEUP']
-    elif CustomiseFragment.has_key(step):
+    elif step in CustomiseFragment:
         return CustomiseFragment[step] 
     else:
         #This is a safe default in any case,

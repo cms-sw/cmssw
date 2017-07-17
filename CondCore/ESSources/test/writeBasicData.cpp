@@ -7,6 +7,7 @@
 #include "CondFormats/Calibration/interface/Pedestals.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
+#include <iostream>
 
 int main(){
   try{

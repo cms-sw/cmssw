@@ -1,8 +1,10 @@
 #ifndef CondFormats_PCaloGeometry_h
 #define CondFormats_PCaloGeometry_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <vector>
-#include <stdint.h>
+#include <cstdint>
 
 class PCaloGeometry{
 
@@ -25,6 +27,8 @@ class PCaloGeometry{
   std::vector<float>    m_dimension   ;
   std::vector<uint32_t> m_indexes     ;
   std::vector<uint32_t> m_dins        ;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

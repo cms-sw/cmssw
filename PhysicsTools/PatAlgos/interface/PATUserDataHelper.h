@@ -17,9 +17,9 @@
 	    * ValueMap<Ptr<UserData> >
 	    * ValueMap<CandidatePtr>
 
-	    This is accomplished by using PATUserDataMergers. 
+	    This is accomplished by using PATUserDataMergers.
 
-	    This also can add "in situ" string-parser-based methods directly. 
+	    This also can add "in situ" string-parser-based methods directly.
 
   \author   Salvatore Rappoccio
   \version  $Id: PATUserDataHelper.h,v 1.8 2010/02/20 21:00:13 wmtan Exp $
@@ -28,6 +28,7 @@
 
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "DataFormats/Common/interface/View.h"
@@ -50,13 +51,13 @@ namespace pat {
 
   template<class ObjectType>
   class PATUserDataHelper {
-    
+
   public:
 
     typedef StringObjectFunction<ObjectType>                      function_type;
 
     PATUserDataHelper() {}
-    PATUserDataHelper(const edm::ParameterSet & iConfig);
+    PATUserDataHelper(const edm::ParameterSet & iConfig, edm::ConsumesCollector && iC);
     ~PATUserDataHelper() {}
 
     static void fillDescription(edm::ParameterSetDescription & iDesc);
@@ -76,7 +77,7 @@ namespace pat {
     pat::PATUserDataMerger<ObjectType, pat::helper::AddUserInt>      userIntMerger_;
     // User candidate ptrs
     pat::PATUserDataMerger<ObjectType, pat::helper::AddUserCand>     userCandMerger_;
-    
+
     // Inline functions that operate on ObjectType
     std::vector<std::string>                                          functionNames_;
     std::vector<std::string>                                          functionLabels_;
@@ -86,11 +87,11 @@ namespace pat {
 
 // Constructor: Initilize user data src
 template<class ObjectType>
-PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConfig) :
-  userDataMerger_   (iConfig.getParameter<edm::ParameterSet>("userClasses")),
-  userFloatMerger_  (iConfig.getParameter<edm::ParameterSet>("userFloats")),
-  userIntMerger_    (iConfig.getParameter<edm::ParameterSet>("userInts")),
-  userCandMerger_   (iConfig.getParameter<edm::ParameterSet>("userCands")),
+PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConfig, edm::ConsumesCollector && iC) :
+  userDataMerger_   (iConfig.getParameter<edm::ParameterSet>("userClasses"), iC),
+  userFloatMerger_  (iConfig.getParameter<edm::ParameterSet>("userFloats"), iC),
+  userIntMerger_    (iConfig.getParameter<edm::ParameterSet>("userInts"), iC),
+  userCandMerger_   (iConfig.getParameter<edm::ParameterSet>("userCands"), iC),
   functionNames_    (iConfig.getParameter<std::vector<std::string> >("userFunctions")),
   functionLabels_   (iConfig.getParameter<std::vector<std::string> >("userFunctionLabels"))
 {
@@ -99,7 +100,7 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
   if ( functionNames_.size() != functionLabels_.size() ) {
     throw cms::Exception("Size mismatch") << "userFunctions and userFunctionLabels do not have the same size, they must be the same\n";
   }
-  // Loop over the function names, create a new string-parser function object 
+  // Loop over the function names, create a new string-parser function object
   // with all of them. This operates on ObjectType
   std::vector<std::string>::const_iterator funcBegin = functionNames_.begin(),
     funcEnd = functionNames_.end(),
@@ -111,7 +112,7 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
 
 
 /* ==================================================================================
-     PATUserDataHelper::add 
+     PATUserDataHelper::add
             This expects four inputs:
 	        patObject:         PATObject<ObjectType> to add to
 		recoObject:        The base for the value maps
@@ -123,8 +124,8 @@ PATUserDataHelper<ObjectType>::PATUserDataHelper(const edm::ParameterSet & iConf
 
 template<class ObjectType>
 void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
-					edm::Event const & iEvent, 
-					const edm::EventSetup& iSetup) 
+					edm::Event const & iEvent,
+					const edm::EventSetup& iSetup)
 {
 
   // Add "complex" user data to the PAT object
@@ -144,7 +145,7 @@ void PATUserDataHelper<ObjectType>::add(ObjectType & patObject,
     }
   }
 
-  
+
 }
 
 

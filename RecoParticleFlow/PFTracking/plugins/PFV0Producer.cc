@@ -2,14 +2,12 @@
 #include "RecoParticleFlow/PFTracking/plugins/PFV0Producer.h"
 #include "DataFormats/ParticleFlowReco/interface/PFV0.h"
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrackFwd.h"
-#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
 #include "RecoParticleFlow/PFTracking/interface/PFTrackTransformer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
-#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 using namespace std;
 using namespace edm;
@@ -21,8 +19,10 @@ PFV0Producer::PFV0Producer(const ParameterSet& iConfig):
   produces<reco::PFV0Collection>();
   produces<reco::PFRecTrackCollection>();
 
-  V0list_ = 
-    iConfig.getParameter< vector < InputTag > >("V0List");
+  std::vector<edm::InputTag> tags =     iConfig.getParameter< vector < InputTag > >("V0List");
+
+  for (unsigned int i=0;i<tags.size();++i)
+    V0list_.push_back(consumes<reco::VertexCompositeCandidateCollection>(tags[i])); 
 }
 
 PFV0Producer::~PFV0Producer()
@@ -36,9 +36,9 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
   LogDebug("PFV0Producer")<<"START event: "<<iEvent.id().event()
 			  <<" in run "<<iEvent.id().run();
   //create the empty collections 
-  auto_ptr< PFV0Collection > pfV0Coll (new PFV0Collection);
+  auto pfV0Coll = std::make_unique<PFV0Collection>();
 
-  auto_ptr<reco::PFRecTrackCollection> pfV0RecTrackColl(new reco::PFRecTrackCollection);
+  auto pfV0RecTrackColl = std::make_unique<reco::PFRecTrackCollection>();
 
 
   reco::PFRecTrackRefProd pfTrackRefProd = iEvent.getRefBeforePut<reco::PFRecTrackCollection>();
@@ -46,8 +46,8 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
 
   for (unsigned int il=0; il<V0list_.size(); il++){
     Handle<VertexCompositeCandidateCollection> V0coll;
-    iEvent.getByLabel(V0list_[il],V0coll);
-    LogDebug("PFV0Producer")<<V0list_[il]<<" contains "<<V0coll->size()<<" V0 candidates ";
+    iEvent.getByToken(V0list_[il],V0coll);
+    LogDebug("PFV0Producer")<< "V0list_[" << il <<"] contains "<<V0coll->size()<<" V0 candidates ";
     for (unsigned int iv=0;iv<V0coll->size();iv++){
       VertexCompositeCandidateRef V0(V0coll, iv);
       vector<TrackRef> Tracks;
@@ -81,8 +81,8 @@ PFV0Producer::produce(Event& iEvent, const EventSetup& iSetup)
   }
   
   
-  iEvent.put(pfV0Coll);
-  iEvent.put(pfV0RecTrackColl);
+  iEvent.put(std::move(pfV0Coll));
+  iEvent.put(std::move(pfV0RecTrackColl));
 }
 
 // ------------ method called once each job just before starting event loop  ------------

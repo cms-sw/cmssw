@@ -15,8 +15,6 @@
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbRecord.h"
 
-#include "RecoLocalCalo/EcalDeadChannelRecoveryAlgos/interface/EcalDeadChannelRecoveryAlgos.h"
-
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 
@@ -24,7 +22,7 @@
 EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps, edm::ConsumesCollector&  c) :
   EcalRecHitWorkerBaseClass(ps,c)
 {
-        rechitMaker_ = new EcalRecHitSimpleAlgo();
+        rechitMaker_ = std::make_unique<EcalRecHitSimpleAlgo>();
         // isolated channel recovery
         singleRecoveryMethod_    = ps.getParameter<std::string>("singleChannelRecoveryMethod");
         singleRecoveryThreshold_ = ps.getParameter<double>("singleChannelRecoveryThreshold");
@@ -38,11 +36,12 @@ EcalRecHitWorkerRecover::EcalRecHitWorkerRecover(const edm::ParameterSet&ps, edm
 
 	dbStatusToBeExcludedEE_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEE");
 	dbStatusToBeExcludedEB_ = ps.getParameter<std::vector<int> >("dbStatusToBeExcludedEB");
-	
-        tpDigiToken_        = 
-	  c.consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection"));
+
         logWarningEtThreshold_EB_FE_ = ps.getParameter<double>("logWarningEtThreshold_EB_FE");
         logWarningEtThreshold_EE_FE_ = ps.getParameter<double>("logWarningEtThreshold_EE_FE");
+
+        tpDigiToken_ = 
+          c.consumes<EcalTrigPrimDigiCollection>(ps.getParameter<edm::InputTag>("triggerPrimitiveDigiCollection"));
 }
 
 
@@ -56,12 +55,10 @@ void EcalRecHitWorkerRecover::set(const edm::EventSetup& es)
         ecalMapping_ = pEcalMapping_.product();
         // geometry...
         es.get<EcalBarrelGeometryRecord>().get("EcalBarrel",pEBGeom_);
-        es.get<EcalEndcapGeometryRecord>().get("EcalEndcap",pEEGeom_);
 	es.get<CaloGeometryRecord>().get(caloGeometry_);
 	es.get<EcalChannelStatusRcd>().get(chStatus_);
         geo_ = caloGeometry_.product();
         ebGeom_ = pEBGeom_.product();
-        eeGeom_ = pEEGeom_.product();
         es.get<IdealGeometryRecord>().get(ttMap_);
         recoveredDetIds_EB_.clear();
         recoveredDetIds_EE_.clear();
@@ -129,19 +126,36 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
         }
 
         if ( flags == EcalRecHitWorkerRecover::EB_single ) {
-                // recover as single dead channel
-                const EcalRecHitCollection * hit_collection = &result;
-                EcalDeadChannelRecoveryAlgos deadChannelCorrector(caloTopology_.product());
+                    // recover as single dead channel
+                    ebDeadChannelCorrector.setCaloTopology(caloTopology_.product());
 
-                // channel recovery
-                EcalRecHit hit = deadChannelCorrector.correct( detId, hit_collection, singleRecoveryMethod_, singleRecoveryThreshold_ );
-                if ( hit.energy() != 0 ) {
-		  hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
-                } else {
-		  // recovery failed
-		  hit.setFlag( EcalRecHit::kDead ) ;
-                }
-                insertRecHit( hit, result );
+                    // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
+                    bool AcceptRecHit=true;
+                    EcalRecHit hit = ebDeadChannelCorrector.correct( detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+
+                    if ( hit.energy() != 0 and AcceptRecHit == true ) {
+                        hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
+                    } else {
+                        // recovery failed
+                        hit.setFlag( EcalRecHit::kDead ) ;
+                    }
+                    insertRecHit( hit, result );
+                
+        } else if ( flags == EcalRecHitWorkerRecover::EE_single ) {
+                    // recover as single dead channel
+		    eeDeadChannelCorrector.setCaloTopology(caloTopology_.product());
+
+                    // channel recovery. Accepted new RecHit has the flag AcceptRecHit=TRUE
+                    bool AcceptRecHit=true;
+                    EcalRecHit hit = eeDeadChannelCorrector.correct( detId, result, singleRecoveryMethod_, singleRecoveryThreshold_, &AcceptRecHit);
+                    if ( hit.energy() != 0 and AcceptRecHit == true ) {
+                        hit.setFlag( EcalRecHit::kNeighboursRecovered ) ;
+                    } else {
+                       // recovery failed
+                       hit.setFlag( EcalRecHit::kDead ) ;
+                    }
+                    insertRecHit( hit, result );
+                
         } else if ( flags == EcalRecHitWorkerRecover::EB_VFE ) {
                 // recover as dead VFE
                 EcalRecHit hit( detId, 0., 0.);
@@ -305,7 +319,6 @@ EcalRecHitWorkerRecover::run( const edm::Event & evt,
 				  float energy = jt->energy(); // Correct conversion to Et
 				  float eta = geo_->getPosition(jt->id()).eta();
 				  float pf = 1.0/cosh(eta);
-				  //float theta = eeGeom_->getGeometry( *it )->getPosition().theta();
 				  // use Et instead of E, consistent with the Et estimation of the associated TT
 				  totE -= energy*pf;
                                 }
@@ -414,6 +427,7 @@ float EcalRecHitWorkerRecover::recCheckCalib(float eTT, int ieta){
 
 // return false is the channel has status  in the list of statusestoexclude
 // true otherwise (channel ok)
+// Careful: this function works on raw (encoded) channel statuses
 bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id, 
 						 const std::vector<int>& statusestoexclude){
   
@@ -425,7 +439,7 @@ bool EcalRecHitWorkerRecover::checkChannelStatus(const DetId& id,
   EcalChannelStatus::const_iterator chIt = chStatus_->find( id );
   uint16_t dbStatus = 0;
   if ( chIt != chStatus_->end() ) {
-    dbStatus = chIt->getStatusCode();
+    dbStatus = chIt->getEncodedStatusCode();
   } else {
     edm::LogError("ObjectNotFound") << "No channel status found for xtal " 
 				    << id.rawId() 

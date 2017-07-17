@@ -19,8 +19,9 @@
 #include "FWCore/Utilities/interface/BranchType.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/ConvertException.h"
+#include "FWCore/Utilities/interface/make_sentry.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <string>
 #include <vector>
@@ -28,16 +29,17 @@
 #include <exception>
 #include <sstream>
 
-#include "FWCore/Framework/src/RunStopwatch.h"
-
 namespace edm {
   class EventPrincipal;
+  class EventSetup;
   class ModuleDescription;
+  class PathStatusInserter;
   class RunPrincipal;
   class LuminosityBlockPrincipal;
   class EarlyDeleteHelper;
   class StreamContext;
   class StreamID;
+  class WaitingTask;
 
   class Path {
   public:
@@ -45,35 +47,34 @@ namespace edm {
 
     typedef std::vector<WorkerInPath> WorkersInPath;
     typedef WorkersInPath::size_type        size_type;
-    typedef boost::shared_ptr<HLTGlobalStatus> TrigResPtr;
+    typedef std::shared_ptr<HLTGlobalStatus> TrigResPtr;
 
     Path(int bitpos, std::string const& path_name,
          WorkersInPath const& workers,
          TrigResPtr trptr,
          ExceptionToActionTable const& actions,
-         boost::shared_ptr<ActivityRegistry> reg,
+         std::shared_ptr<ActivityRegistry> reg,
          StreamContext const* streamContext,
+         std::atomic<bool>* stopProcessEvent,
          PathContext::PathType pathType);
 
     Path(Path const&);
 
     template <typename T>
-    void processOneOccurrence(typename T::MyPrincipal&, EventSetup const&,
+    void processOneOccurrence(typename T::MyPrincipal const&, EventSetup const&,
                               StreamID const&, typename T::Context const*);
 
+    template <typename T>
+    void runAllModulesAsync(WaitingTask*,
+                            typename T::MyPrincipal const&,
+                            EventSetup  const&,
+                            StreamID const&,
+                            typename T::Context const*);
+
+    void processOneOccurrenceAsync(WaitingTask*, EventPrincipal const&, EventSetup const&, StreamID const&, StreamContext const*);
+    
     int bitPosition() const { return bitpos_; }
-    std::string const& name() const { return name_; }
-
-    std::pair<double, double> timeCpuReal() const {
-      if(stopwatch_) {
-        return std::pair<double, double>(stopwatch_->cpuTime(), stopwatch_->realTime());
-      }
-      return std::pair<double, double>(0., 0.);
-    }
-
-    std::pair<double, double> timeCpuReal(unsigned int const i) const {
-      return workers_.at(i).timeCpuReal();
-    }
+    std::string const& name() const { return pathContext_.pathName(); }
 
     void clearCounters();
 
@@ -93,14 +94,15 @@ namespace edm {
     
     void setEarlyDeleteHelpers(std::map<const Worker*,EarlyDeleteHelper*> const&);
 
-    void useStopwatch();
+    void setPathStatusInserter(PathStatusInserter* pathStatusInserter,
+                               Worker* pathStatusInserterWorker);
+
   private:
 
     // If you define this be careful about the pointer in the
     // PlaceInPathContext object in the contained WorkerInPath objects.
     Path const& operator=(Path const&) = delete; // stop default
 
-    RunStopwatch::StopwatchPointer stopwatch_;
     int timesRun_;
     int timesPassed_;
     int timesFailed_;
@@ -109,15 +111,19 @@ namespace edm {
     State state_;
 
     int bitpos_;
-    std::string name_;
     TrigResPtr trptr_;
-    boost::shared_ptr<ActivityRegistry> actReg_;
+    std::shared_ptr<ActivityRegistry> actReg_; // We do not use propagate_const because the registry itself is mutable.
     ExceptionToActionTable const* act_table_;
 
     WorkersInPath workers_;
     std::vector<EarlyDeleteHelper*> earlyDeleteHelpers_;
 
     PathContext pathContext_;
+    WaitingTaskList waitingTasks_;
+    std::atomic<bool>* stopProcessingEvent_;
+
+    PathStatusInserter* pathStatusInserter_;
+    Worker* pathStatusInserterWorker_;
 
     // Helper functions
     // nwrwue = numWorkersRunWithoutUnhandledException (really!)
@@ -138,9 +144,25 @@ namespace edm {
     void recordStatus(int nwrwue, bool isEvent);
     void updateCounters(bool succeed, bool isEvent);
     
-    void handleEarlyFinish(EventPrincipal&);
-    void handleEarlyFinish(RunPrincipal&) {}
-    void handleEarlyFinish(LuminosityBlockPrincipal&) {}
+    void finished(int iModuleIndex, bool iSucceeded, std::exception_ptr,
+                  StreamContext const*,
+                  EventPrincipal const& iEP,
+                  EventSetup const& iES,
+                  StreamID const& streamID);
+
+    void handleEarlyFinish(EventPrincipal const&);
+    void handleEarlyFinish(RunPrincipal const&) {}
+    void handleEarlyFinish(LuminosityBlockPrincipal const&) {}
+    
+    //Handle asynchronous processing
+    void workerFinished(std::exception_ptr const* iException,
+                        unsigned int iModuleIndex,
+                        EventPrincipal const& iEP, EventSetup const& iES,
+                        StreamID const& iID, StreamContext const* iContext);
+    void runNextWorkerAsync(unsigned int iNextModuleIndex,
+                            EventPrincipal const&, EventSetup const&,
+                            StreamID const&, StreamContext const*);
+
   };
 
   namespace {
@@ -148,20 +170,18 @@ namespace edm {
     class PathSignalSentry {
     public:
       PathSignalSentry(ActivityRegistry *a,
-                       std::string const& name,
                        int const& nwrwue,
                        hlt::HLTState const& state,
                        PathContext const* pathContext) :
-        a_(a), name_(name), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
-        if (a_) T::prePathSignal(a_, name_, pathContext_);
+        a_(a), nwrwue_(nwrwue), state_(state), pathContext_(pathContext) {
+        if (a_) T::prePathSignal(a_, pathContext_);
       }
       ~PathSignalSentry() {
         HLTPathStatus status(state_, nwrwue_);
-        if(a_) T::postPathSignal(a_, name_, status, pathContext_);
+        if(a_) T::postPathSignal(a_, status, pathContext_);
       }
     private:
-      ActivityRegistry* a_;
-      std::string const& name_;
+      ActivityRegistry* a_; // We do not use propagate_const because the registry itself is mutable.
       int const& nwrwue_;
       hlt::HLTState const& state_;
       PathContext const* pathContext_;
@@ -169,16 +189,22 @@ namespace edm {
   }
 
   template <typename T>
-  void Path::processOneOccurrence(typename T::MyPrincipal& ep, EventSetup const& es,
+  void Path::runAllModulesAsync(WaitingTask* task,
+                          typename T::MyPrincipal const& p,
+                          EventSetup  const& es,
+                          StreamID const& streamID,
+                                typename T::Context const* context) {
+    for(auto& worker: workers_) {
+      worker.runWorkerAsync<T>(task,p,es,streamID,context);
+    }
+  }
+
+  template <typename T>
+  void Path::processOneOccurrence(typename T::MyPrincipal const& ep, EventSetup const& es,
                                   StreamID const& streamID, typename T::Context const* context) {
 
-    //Create the PathSignalSentry before the RunStopwatch so that
-    // we only record the time spent in the path not from the signal
     int nwrwue = -1;
-    PathSignalSentry<T> signaler(actReg_.get(), name_, nwrwue, state_, &pathContext_);
-
-    // A RunStopwatch, but only if we are processing an event.
-    RunStopwatch stopwatch(T::isEvent_ ? stopwatch_ : RunStopwatch::StopwatchPointer());
+    PathSignalSentry<T> signaler(actReg_.get(), nwrwue, state_, &pathContext_);
 
     if (T::isEvent_) {
       ++timesRun_;
@@ -187,25 +213,21 @@ namespace edm {
 
     // nwrue =  numWorkersRunWithoutUnhandledException
     bool should_continue = true;
-
-    for (WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
+    WorkersInPath::iterator i = workers_.begin(), end = workers_.end();
+    
+    auto earlyFinishSentry = make_sentry(this,[&i,end, &ep](Path*){
+      for(auto j=i; j!= end;++j) {
+        j->skipWorker(ep);
+      }
+    });
+    for (;
           i != end && should_continue;
           ++i) {
       ++nwrwue;
       try {
-        try {
-          if(T::isEvent_) {
+        convertException::wrap([&]() {
             should_continue = i->runWorker<T>(ep, es, streamID, context);
-          } else {
-            should_continue = i->runWorker<T>(ep, es, streamID, context);
-          }
-        }
-        catch (cms::Exception& e) { throw; }
-        catch(std::bad_alloc& bda) { convertException::badAllocToEDM(); }
-        catch (std::exception& e) { convertException::stdToEDM(e); }
-        catch(std::string& s) { convertException::stringToEDM(s); }
-        catch(char const* c) { convertException::charPtrToEDM(c); }
-        catch (...) { convertException::unknownToEDM(); }
+        });
       }
       catch(cms::Exception& ex) {
         // handleWorkerFailure may throw a new exception.
@@ -213,6 +235,8 @@ namespace edm {
         ost << ep.id();
         should_continue = handleWorkerFailure(ex, nwrwue, T::isEvent_, T::begin_, T::branchType_,
                                               i->getWorker()->description(), ost.str());
+        //If we didn't rethrow, then we effectively skipped
+        i->skipWorker(ep);
       }
     }
     if (not should_continue) {

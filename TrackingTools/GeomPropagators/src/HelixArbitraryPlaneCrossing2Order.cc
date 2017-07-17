@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cfloat>
 #include "FWCore/Utilities/interface/Likely.h"
+#include "FWCore/Utilities/interface/isFinite.h"
 
 HelixArbitraryPlaneCrossing2Order::HelixArbitraryPlaneCrossing2Order(const PositionType& point,
 								     const DirectionType& direction,
@@ -59,18 +60,18 @@ HelixArbitraryPlaneCrossing2Order::pathLength(const Plane& plane) {
   //   curvature, forward plane or direction perp. to plane)
   //
   double dS1,dS2;
-  if likely( fabs(ceq1)>FLT_MIN ) {
+  if likely( std::abs(ceq1)>FLT_MIN ) {
     double deq1 = ceq2*ceq2;
     double deq2 = ceq1*ceq3;
-    if ( fabs(deq1)<FLT_MIN || fabs(deq2/deq1)>1.e-6 ) {
+    if ( std::abs(deq1)<FLT_MIN || std::abs(deq2/deq1)>1.e-6 ) {
       //
       // Standard solution for quadratic equations
       //
       double deq = deq1+2*deq2;
-      if likely( deq<0. )  return std::pair<bool,double>(false,0);
-      double ceq = -0.5*(ceq2+(ceq2>0?1:-1)*sqrt(deq));
-      dS1 = -2*(ceq/ceq1)*theSinThetaI;
-      dS2 = (ceq3/ceq)*theSinThetaI;
+      if unlikely( deq<0. )  return std::pair<bool,double>(false,0);
+      double ceq =  ceq2+std::copysign(std::sqrt(deq),ceq2);
+      dS1 = (ceq/ceq1)*theSinThetaI;
+      dS2 = -2.*(ceq3/ceq)*theSinThetaI;
     }
     else {
       //
@@ -153,13 +154,9 @@ HelixArbitraryPlaneCrossing2Order::solutionByDirection(const double dS1,
     double s1(propSign*dS1);
     double s2(propSign*dS2);
     // sort
-    if ( s1 > s2 ) {
-      double aux = s1;
-      s1 = s2;
-      s2 = aux;
-    }
+    if ( s1 > s2 ) std::swap(s1,s2);
     // choose solution (if any with positive sign)
-    if ( s1<0 && s2>=0 ) {
+    if ( (s1<0) & (s2>=0) ) {
       // First solution in backward direction: choose second one.
       valid = true;
       path = propSign*s2;
@@ -170,5 +167,6 @@ HelixArbitraryPlaneCrossing2Order::solutionByDirection(const double dS1,
       path = propSign*s1;
     }
   }
+  if (edm::isNotFinite(path)) valid = false;
   return std::pair<bool,double>(valid,path);
 }

@@ -19,7 +19,7 @@ AlignableCSCRing::AlignableCSCRing( const std::vector<AlignableCSCChamber*>& csc
   theCSCChambers.insert( theCSCChambers.end(), cscChambers.begin(), cscChambers.end() );
 
   setSurface( computeSurface() );
-   
+  compConstraintType_ = Alignable::CompConstraintType::POSITION_Z;
 }
       
 

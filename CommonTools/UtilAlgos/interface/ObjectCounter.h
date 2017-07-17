@@ -4,7 +4,7 @@
  *
  * Counts the number of objects in a collection and prints a
  * summary report at the end of a job.
- * 
+ *
  * Template parameters:
  * - C : collection type
  *
@@ -34,7 +34,7 @@ private:
   /// event processing
   virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
   /// label of source collection
-  std::string src_;
+  edm::EDGetTokenT<C> srcToken_;
   /// verbosity flag
   bool verbose_;
   /// partial statistics
@@ -42,8 +42,8 @@ private:
 };
 
 template<typename C>
-ObjectCounter<C>::ObjectCounter( const edm::ParameterSet& par ) : 
-  src_( par.template getParameter<std::string>( "src" ) ), 
+ObjectCounter<C>::ObjectCounter( const edm::ParameterSet& par ) :
+  srcToken_( consumes<C>( edm::InputTag( par.template getParameter<std::string>( "src" ) ) ) ),
   verbose_( par.template getUntrackedParameter<bool>( "verbose", true ) ),
   n_( 0 ), nSum_( 0 ), n2Sum_( 0 ) {
 }
@@ -58,8 +58,8 @@ void ObjectCounter<C>::endJob() {
   s = sqrt( n2 - n * n );
   if ( verbose_ ) {
     edm::TypeID id( typeid( typename C::value_type ) );
-    std::cout << ">>> collection \"" << src_ << "\" contains (" 
-	      << n << " +/- " << s << ") "  
+    std::cout << ">>> collection \"" << srcToken_ << "\" contains ("
+	      << n << " +/- " << s << ") "
 	      << id.friendlyClassName() << " objects" << std::endl;
   }
 }
@@ -67,9 +67,9 @@ void ObjectCounter<C>::endJob() {
 template<typename C>
 void ObjectCounter<C>::analyze( const edm::Event& evt, const edm::EventSetup& ) {
   edm::Handle<C> h;
-  evt.getByLabel( src_, h );
+  evt.getByToken( srcToken_, h );
   if (!h.isValid()) {
-    std::cerr << ">>> product: " << src_ << " not found" << std::endl;
+    std::cerr << ">>> product: " << srcToken_ << " not found" << std::endl;
   } else {
     int n = h->size();
     nSum_ += n;

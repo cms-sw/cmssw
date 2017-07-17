@@ -2,6 +2,7 @@
 #define RecoHI_HiTracking_HIMuonTrackingRegionProducer_H
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "RecoTracker/TkTrackingRegions/interface/TrackingRegionProducer.h"
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
@@ -18,14 +19,15 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
   
  public:
   
-  HIMuonTrackingRegionProducer(const edm::ParameterSet& cfg) { 
+  HIMuonTrackingRegionProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) { 
         
     // get parameters from PSet
     theMuonSource                         = cfg.getParameter<edm::InputTag>("MuonSrc");
+    theMuonSourceToken                    = iC.consumes<reco::TrackCollection>(theMuonSource);
     
     // initialize region builder
     edm::ParameterSet regionBuilderPSet   = cfg.getParameter<edm::ParameterSet>("MuonTrackingRegionBuilder");
-    theRegionBuilder                      = new MuonTrackingRegionBuilder(regionBuilderPSet);
+    theRegionBuilder                      = new MuonTrackingRegionBuilder(regionBuilderPSet,iC);
 
     // initialize muon service proxy
     edm::ParameterSet servicePSet         = cfg.getParameter<edm::ParameterSet>("ServiceParameters");
@@ -37,19 +39,34 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
   virtual ~HIMuonTrackingRegionProducer(){}
   
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, const edm::EventSetup& es) const {
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<edm::InputTag>("MuonSrc", edm::InputTag(""));
+
+    edm::ParameterSetDescription descRegion;
+    MuonTrackingRegionBuilder::fillDescriptionsOffline(descRegion);
+    desc.add("MuonTrackingRegionBuilder", descRegion);
+
+    edm::ParameterSetDescription descService;
+    descService.setAllowAnything();
+    desc.add<edm::ParameterSetDescription>("ServiceParameters", descService);
+
+    descriptions.add("HiTrackingRegionEDProducer", desc);
+  }
+
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const override {
     
     // initialize output vector of tracking regions
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // initialize the region builder
     theService->update(es);
-    theRegionBuilder->init(theService);
     theRegionBuilder->setEvent(ev);
 
     // get stand-alone muon collection
     edm::Handle<reco::TrackCollection> muonH;
-    ev.getByLabel(theMuonSource ,muonH);
+    ev.getByToken(theMuonSourceToken ,muonH);
     
     // loop over all muons and add a tracking region for each
     // that passes the requirements specified to theRegionBuilder
@@ -62,8 +79,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
     for(unsigned int imu=0; imu<nMuons; imu++) {
       reco::TrackRef muRef(muonH, imu);
       //std::cout << "muon #" << imu << ": pt=" << muRef->pt() << std::endl;
-      RectangularEtaPhiTrackingRegion *etaphiRegion = theRegionBuilder->region(muRef);
-      result.push_back(etaphiRegion);
+      result.push_back(theRegionBuilder->region(muRef));
     }
 
     return result;
@@ -74,6 +90,7 @@ class HIMuonTrackingRegionProducer : public TrackingRegionProducer {
  private:
   
   edm::InputTag theMuonSource;
+  edm::EDGetTokenT<reco::TrackCollection> theMuonSourceToken;
   MuonTrackingRegionBuilder* theRegionBuilder;
   MuonServiceProxy* theService;
   

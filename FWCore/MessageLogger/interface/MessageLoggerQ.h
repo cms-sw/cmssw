@@ -3,7 +3,7 @@
 
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <string>
 #include <map>
@@ -17,7 +17,6 @@ class ErrorObj;
 class ParameterSet;
 class ELdestination;
 namespace service {
-class NamedDestination;
 class AbstractMLscribe;
 }
 
@@ -46,7 +45,6 @@ public:
   static  void  MLqEND();
   static  void  MLqLOG( ErrorObj * p );
   static  void  MLqCFG( ParameterSet * p );
-  static  void  MLqEXT( service::NamedDestination* p );
   static  void  MLqSUM();
   static  void  MLqMOD( std::string * jm );
   static  void  MLqSHT();
@@ -56,7 +54,7 @@ public:
 
   // ---  bookkeeping for single-thread mode
   static  void  setMLscribe_ptr
-     (boost::shared_ptr<edm::service::AbstractMLscribe>  m);
+     (std::shared_ptr<edm::service::AbstractMLscribe>  m);
 
   // ---  helper for scribes
   static bool handshaked ( const OpCode & op );
@@ -83,9 +81,9 @@ private:
   void  operator = ( MessageLoggerQ const & );
 
   // --- data:
-  static  boost::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
-  static  edm::ELseverityLevel threshold;
-  static  std::set<std::string> squelchSet;
+  [[cms::thread_safe]] static  std::shared_ptr<edm::service::AbstractMLscribe> mlscribe_ptr;
+  [[cms::thread_safe]] static  edm::ELseverityLevel threshold;
+  [[cms::thread_safe]] static  std::set<std::string> squelchSet;
   
 };  // MessageLoggerQ
 

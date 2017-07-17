@@ -20,7 +20,7 @@
 #include "TTree.h"
 
 // user include files
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "FWCore/Utilities/interface/Exception.h"
 
 
@@ -31,7 +31,6 @@ static char const* const kBranchNameOpt = "branchName";
 static char const* const kFileNameOpt = "fileName";
 static char const* const kHelpOpt = "help";
 static char const* const kHelpCommandOpt="help,h";
-static char const* const kProgramName = "edmBranchStorageSize";
 static char const* const kEntryNumberCommandOpt = "entryNumber,e";
 static char const* const kEntryNumberOpt = "entryNumber";
 
@@ -89,36 +88,36 @@ int main(int argc, char* argv[]) try
    std::string fileName(vm[kFileNameOpt].as<std::string>());
    
    TFile* file = TFile::Open(fileName.c_str());
-   if (0 == file) {
+   if (nullptr == file) {
       std::cerr <<"failed to open '"<<fileName<<"'";
       return 1;
    }
    
    TTree* eventTree = dynamic_cast<TTree*> (file->Get("Events"));
    
-   if(0 == eventTree) {
+   if(nullptr == eventTree) {
       std::cerr <<"The file '"<<fileName<<"' does not contain an 'Events' TTree";
       return 1;
    }
    
    TBranch* branch = eventTree->GetBranch(branchName.c_str());
    
-   if(0==branch) {
+   if(nullptr == branch) {
       std::cerr <<"The Events TTree does not contain the branch "<<branchName;
       return 1;
    }
    
    
-   AutoLibraryLoader::enable();
+   FWLiteEnabler::enable();
 
    TClass* cls = TClass::GetClass(branch->GetClassName());
-   if(0==cls) {
+   if(nullptr == cls) {
       std::cerr <<"class '"<<branch->GetClassName()<<"' is unknown by ROOT\n";
       return 1;
    }
    
    void* objInstance = cls->New();
-   if(0==objInstance) {
+   if(nullptr == objInstance) {
       std::cerr <<"unable to create a default instance of the class "<<branch->GetClassName();
       return 1;
    }

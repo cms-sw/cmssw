@@ -9,7 +9,7 @@ class HcalSubdetDigiMonitor
 {
 public:
 
-  HcalSubdetDigiMonitor(DQMStore* dbe, const std::string & subdet, int noise);
+  HcalSubdetDigiMonitor(DQMStore::IBooker & ibooker, const std::string & subdet, int noise);
 
   // Ndigis 
   void fillmeNdigis(double v1)
@@ -344,13 +344,12 @@ private:
   };
  
   // utilities to create MonitorElements
-  MonitorElement * book1D(const std::string & name, HistLim lim);
-  MonitorElement * book2D(const std::string & name, HistLim lim1,
+  MonitorElement * book1D(DQMStore::IBooker &ib, const std::string & name, HistLim lim);
+  MonitorElement * book2D(DQMStore::IBooker &ib, const std::string & name, HistLim lim1,
                                                     HistLim lim2);
-  MonitorElement * bookProfile(const std::string & name, HistLim lim1, 
+  MonitorElement * bookProfile(DQMStore::IBooker &ib, const std::string & name, HistLim lim1, 
                                                          HistLim lim2);
 
-  DQMStore* dbe_;
   std::string subdet_;
   int noise_;
 

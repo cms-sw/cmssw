@@ -44,7 +44,7 @@ using namespace edm;
 using namespace std;
 
 HerwigMaxPtPartonFilter::HerwigMaxPtPartonFilter(const edm::ParameterSet& iConfig) :
-  label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+  token_(consumes<edm::HepMCProduct>(iConfig.getUntrackedParameter("moduleLabel",edm::InputTag("generator","unsmeared")))),
   minptcut(iConfig.getUntrackedParameter("MinPt", 0.)),
   maxptcut(iConfig.getUntrackedParameter("MaxPt", 10000.)),
   processID(iConfig.getUntrackedParameter("ProcessID", 0)){
@@ -88,7 +88,7 @@ bool HerwigMaxPtPartonFilter::filter(edm::Event& iEvent, const edm::EventSetup& 
   long counter = 0; //keeps track of the particle index in the event
   
   Handle<HepMCProduct> evt;
-  iEvent.getByLabel(label_, evt);
+  iEvent.getByToken(token_, evt);
   
   const HepMC::GenEvent * myGenEvent = evt->GetEvent();
   

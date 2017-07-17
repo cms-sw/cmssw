@@ -1,13 +1,5 @@
 <lcgdict>
 <selection>
-  <class pattern="ROOT::Math::PtEtaPhiE4D<*>" />
-  <class pattern="ROOT::Math::PxPyPzE4D<*>" />
-  <class pattern="ROOT::Math::Cartesian3D<*>" />
-  <class pattern="ROOT::Math::CylindricalEta3D<*>" />
-  <class pattern="ROOT::Math::Polar3D<*>" />
-  <class pattern="ROOT::Math::LorentzVector<*>" />
-  <class pattern="ROOT::Math::DisplacementVector3D<*>" />
-  <class pattern="ROOT::Math::PositionVector3D<*>" />
   <class pattern="ROOT::Math::SMatrix<*>" />
   <class pattern="ROOT::Math::MatRepStd<*>" />
   <class pattern="ROOT::Math::MatRepSym<*>" >
@@ -18,7 +10,53 @@
   <class pattern="std::vector<ROOT::Math::*>" />
   <class pattern="edm::Wrapper<*>" />
   <class pattern="edm::RefVector<*>" />
-  <class pattern="std::pair<ROOT::Math::PositionVector3D<*>,float>"/>
+  <class pattern="edm::ValueMap<*>" />
   <class pattern="std::vector<std::pair<ROOT::Math::PositionVector3D<*>,float> >"/>
 </selection>
+<exclusion>
+  <!-- Excluded to avoid duplicate warnings because these dictionaries are defined in ROOT -->
+  <class pattern="std::pair<ROOT::Math::PositionVector3D<*>,float>"/>
+  <class name= "ROOT::Math::MatRepSym<double,2>"/>
+  <class name= "ROOT::Math::MatRepSym<double,3>"/>
+  <class name= "ROOT::Math::MatRepSym<double,4>"/>
+  <class name= "ROOT::Math::MatRepSym<double,5>"/>
+  <class name= "ROOT::Math::MatRepSym<double,6>"/>
+  <class name= "ROOT::Math::MatRepSym<double,7>"/>
+  <class name= "ROOT::Math::MatRepSym<float,2>"/>
+  <class name= "ROOT::Math::MatRepSym<float,3>"/>
+  <class name= "ROOT::Math::MatRepSym<float,4>"/>
+  <class name= "ROOT::Math::MatRepSym<float,5>"/>
+  <class name= "ROOT::Math::MatRepSym<float,6>"/>
+  <class name= "ROOT::Math::MatRepSym<float,7>"/>
+  <class name= "ROOT::Math::RowOffsets<2>"/>
+  <class name= "ROOT::Math::RowOffsets<3>"/>
+  <class name= "ROOT::Math::RowOffsets<4>"/>
+  <class name= "ROOT::Math::RowOffsets<5>"/>
+  <class name= "ROOT::Math::RowOffsets<6>"/>
+  <class name= "ROOT::Math::RowOffsets<7>"/>
+  <class name= "ROOT::Math::SMatrix<double,2,2,ROOT::Math::MatRepSym<double,2> >"/>
+  <class name= "ROOT::Math::SMatrix<double,3,3,ROOT::Math::MatRepSym<double,3> >"/>
+  <class name= "ROOT::Math::SMatrix<double,4,4,ROOT::Math::MatRepSym<double,4> >"/>
+  <class name= "ROOT::Math::SMatrix<double,5,5,ROOT::Math::MatRepSym<double,5> >"/>
+  <class name= "ROOT::Math::SMatrix<double,6,6,ROOT::Math::MatRepSym<double,6> >"/>
+  <class name= "ROOT::Math::SMatrix<double,7,7,ROOT::Math::MatRepSym<double,7> >"/>
+  <class name= "ROOT::Math::SMatrix<float,2,2,ROOT::Math::MatRepSym<float,2> >"/>
+  <class name= "ROOT::Math::SMatrix<float,3,3,ROOT::Math::MatRepSym<float,3> >"/>
+  <class name= "ROOT::Math::SMatrix<float,4,4,ROOT::Math::MatRepSym<float,4> >"/>
+  <class name= "ROOT::Math::SMatrix<float,5,5,ROOT::Math::MatRepSym<float,5> >"/>
+  <class name= "ROOT::Math::SMatrix<float,6,6,ROOT::Math::MatRepSym<float,6> >"/>
+  <class name= "ROOT::Math::SMatrix<float,7,7,ROOT::Math::MatRepSym<float,7> >"/>
+  <class name= "ROOT::Math::SVector<double,2>"/>
+  <class name= "ROOT::Math::SVector<double,3>"/>
+  <class name= "ROOT::Math::SVector<double,4>"/>
+  <class name= "ROOT::Math::SVector<double,5>"/>
+  <class name= "ROOT::Math::SVector<double,6>"/>
+  <class name= "ROOT::Math::SVector<float,2>"/>
+  <class name= "ROOT::Math::SVector<float,3>"/>
+  <class name= "ROOT::Math::SVector<float,4>"/>
+  <class name= "ROOT::Math::SVector<float,5>"/>
+  <class name= "ROOT::Math::SVector<float,6>"/>
+  <class name= "ROOT::Math::SVector<float,7>"/>
+
+</exclusion>
 </lcgdict>

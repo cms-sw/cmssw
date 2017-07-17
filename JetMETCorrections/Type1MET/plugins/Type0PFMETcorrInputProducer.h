@@ -12,17 +12,21 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+
+#include "CommonTools/RecoUtils/interface/PFCand_AssoMapAlgos.h"
+
 #include <TFormula.h>
 
 #include <string>
 
-class Type0PFMETcorrInputProducer : public edm::EDProducer  
+class Type0PFMETcorrInputProducer : public edm::stream::EDProducer<>  
 {
  public:
 
@@ -35,8 +39,8 @@ class Type0PFMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag srcPFCandidateToVertexAssociations_; // key = vertex, value = list of PFCandidates
-  edm::InputTag srcHardScatterVertex_;
+  edm::EDGetTokenT<reco::VertexCollection> hardScatterVertexToken_;
+  edm::EDGetTokenT<PFCandToVertexAssMap> pfCandidateToVertexAssociationsToken_;
 
   TFormula* correction_;
 

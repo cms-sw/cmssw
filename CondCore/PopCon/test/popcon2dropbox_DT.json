@@ -1,0 +1,27 @@
+{
+  "destinationDatabase": "oracle://cms_orcoff_prep/CMS_COND_TEMP",
+  "authenticationPath": "/nfshome0/popcondev/conddb/",
+  "authenticationSystem": 2, 
+  "logDbFileName": "log.db",
+  "records": {    
+	"DTCCBConfigRcd":{
+		"destinationTag":"DTCCBConfig_TESTPOPCON",
+		"timetype":"runnumber",
+		"outputRecord":"DTCCBConfigRcd",
+		"comment":"upload #0"	
+	},
+	"DTKeyedConfigListRcd":{
+		"destinationTag":"DTKeyedConfigList_TESTPOPCON",	
+		"timetype":"runnumber",	
+		"outputRecord":"keyedConfListIOV",
+		"sqliteTag":"DTKeyedConfigList_V06_hlt",
+		"comment":"upload #1"
+        },
+	"DTKeyedConfigContainerRcd":{
+	        "destinationTag":"DTKeyedConfig_TESTPOPCON",
+		"timetype":"hash",	
+		"outputRecord":"keyedConfBricks",
+		"comment":"upload #2"
+        }
+  }	
+}

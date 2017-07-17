@@ -1,30 +1,30 @@
 #include "PhysicsTools/PatAlgos/interface/VertexingHelper.h"
 #include <algorithm>
 
-#include <iostream> 
+#include <iostream>
 
 #include "TrackingTools/Records/interface/TransientTrackRecord.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
-pat::helper::VertexingHelper::VertexingHelper(const edm::ParameterSet &iConfig) 
+pat::helper::VertexingHelper::VertexingHelper(const edm::ParameterSet &iConfig, edm::ConsumesCollector && iC)
 {
-    if (!iConfig.empty()) { 
+    if (!iConfig.empty()) {
         enabled_ = true;
         if ( iConfig.existsAs<edm::InputTag>("vertexAssociations") == iConfig.existsAs<edm::InputTag>("vertices")) {
             throw cms::Exception("Configuration") <<
                 "VertexingHelper: you must configure either 'vertices' (to produce associations) or 'vertexAssociations' (to read them from disk), " <<
                 "you can't specify both, nor you can specify none!\n";
         }
-            
+
         if (iConfig.existsAs<edm::InputTag>("vertexAssociations")) {
             playback_ = true;
-            vertexAssociations_ = iConfig.getParameter<edm::InputTag>("vertexAssociations");
+            vertexAssociationsToken_ = iC.consumes<edm::ValueMap<pat::VertexAssociation> >(iConfig.getParameter<edm::InputTag>("vertexAssociations"));
         }
         if (iConfig.existsAs<edm::InputTag>("vertices")) { // vertex have been specified, so run on the fly
             playback_ = false;
-            vertices_ = iConfig.getParameter<edm::InputTag>("vertices");
+            verticesToken_ =  iC.consumes<reco::VertexCollection>(iConfig.getParameter<edm::InputTag>("vertices"));
             // ------ MODE ------------------
             useTracks_ = iConfig.getParameter<bool>("useTracks");
             // ------ CUTS (fully optional) ------------------
@@ -38,9 +38,9 @@ pat::helper::VertexingHelper::VertexingHelper(const edm::ParameterSet &iConfig)
 void
 pat::helper::VertexingHelper::newEvent(const edm::Event &iEvent) {
     if (playback_) {
-        iEvent.getByLabel(vertexAssociations_, vertexAssoMap_);
+        iEvent.getByToken(vertexAssociationsToken_, vertexAssoMap_);
     } else {
-        iEvent.getByLabel(vertices_, vertexHandle_);
+        iEvent.getByToken(verticesToken_, vertexHandle_);
     }
 }
 
@@ -53,17 +53,17 @@ pat::helper::VertexingHelper::newEvent(const edm::Event &iEvent, const edm::Even
 
 pat::VertexAssociation
 pat::helper::VertexingHelper::associate(const reco::Candidate &c) const {
-    if (playback_) throw cms::Exception("Configuration") << "VertexingHelper: if this module was configured to read associations from the event," << 
+    if (playback_) throw cms::Exception("Configuration") << "VertexingHelper: if this module was configured to read associations from the event," <<
                                                             " you must use 'operator()' passing a candidate ref, and not 'associate()' directly!\n";
 
     reco::VertexCollection::const_iterator vtx, end;
     size_t ivtx;
-    reco::TrackBaseRef tk; 
+    reco::TrackBaseRef tk;
     reco::TransientTrack tt;
-    if (useTracks_) { 
+    if (useTracks_) {
         if (!ttBuilder_.isValid()) throw cms::Exception("Configuration") << "VertexingHelper: If you use 'useTracks', you must call newEvent(iEvent,iSetup)!\n";
-        tk = getTrack_(c); 
-        if (tk.isNull()) return pat::VertexAssociation(); 
+        tk = getTrack_(c);
+        if (tk.isNull()) return pat::VertexAssociation();
         tt = ttBuilder_->build(*tk);
     }
     for (vtx = vertexHandle_->begin(), end = vertexHandle_->end(), ivtx = 0; vtx != end; ++vtx, ++ivtx) {
@@ -72,7 +72,7 @@ pat::helper::VertexingHelper::associate(const reco::Candidate &c) const {
             association.setDistances(c.vertex(), vtx->position(), vtx->error());
         } else {
             GlobalPoint vtxGP(vtx->x(), vtx->y(), vtx->z()); // need to convert XYZPoint to GlobalPoint
-            TrajectoryStateClosestToPoint tscp = tt.trajectoryStateClosestToPoint(vtxGP); 
+            TrajectoryStateClosestToPoint tscp = tt.trajectoryStateClosestToPoint(vtxGP);
             GlobalPoint          trackPos = tscp.theState().position();
             AlgebraicSymMatrix33 trackErr = tscp.theState().cartesianError().matrix().Sub<AlgebraicSymMatrix33>(0,0);
             association.setDistances(trackPos, vtx->position(), trackErr + vtx->error());

@@ -28,12 +28,24 @@ ecalSeverityLevel = cms.ESProducer("EcalSeverityLevelESProducer",
  
  # map ChannelStatus flags into EcalSeverityLevel
  dbstatusMask=cms.PSet(
-    kGood       = cms.vuint32(0),
-    kProblematic= cms.vuint32(1,2,3,4,5,6,7,8,9,10),
-    kRecovered  = cms.vuint32(),
-    kTime       = cms.vuint32(),
-    kWeird      = cms.vuint32(),
-    kBad        = cms.vuint32(11,12,13,14,15,16)
+    kGood       = cms.vstring('kOk'),
+    kProblematic= cms.vstring('kDAC',
+                              'kNoLaser',
+                              'kNoisy',
+                              'kNNoisy',
+                              'kNNNoisy',
+                              'kNNNNoisy',
+                              'kNNNNNoisy',
+                              'kFixedG6',
+                              'kFixedG1',
+                              'kFixedG0',),
+    kRecovered  = cms.vstring(),
+    kTime       = cms.vstring(),
+    kWeird      = cms.vstring(),
+    kBad        = cms.vstring('kNonRespondingIsolated',
+                              'kDeadVFE',
+                              'kDeadFE',
+                              'kNoDataNoTP')
      ),
 
  #return kTime only if the rechit is above this threshold            

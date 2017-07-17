@@ -33,6 +33,7 @@ namespace edmplugin {
     PluginManager::Config config();
     
     const boost::filesystem::path& cachefileName();
+    const boost::filesystem::path& poisonedCachefileName();
     
     const std::string& pluginPrefix();
   }

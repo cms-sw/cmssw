@@ -1,15 +1,17 @@
 #ifndef PFV0Producer_H
 #define PFV0Producer_H
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
+#include "DataFormats/ParticleFlowReco/interface/PFV0Fwd.h"
+#include "DataFormats/Candidate/interface/VertexCompositeCandidate.h"
 
 
 class PFTrackTransformer;
-class PFV0Producer : public edm::EDProducer {
+class PFV0Producer : public edm::stream::EDProducer<> {
 public:
   
   ///Constructor
@@ -27,7 +29,7 @@ private:
 
   ///PFTrackTransformer
   PFTrackTransformer *pfTransformer_; 
-  std::vector < edm::InputTag > V0list_;
+  std::vector < edm::EDGetTokenT<reco::VertexCompositeCandidateCollection> > V0list_;
 
 };
 #endif

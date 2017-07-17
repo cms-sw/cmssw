@@ -1,26 +1,27 @@
 #include <utility>
 #include <vector>
 
-#include "Rtypes.h" 
-#include "Math/Cartesian3D.h" 
-#include "Math/CylindricalEta3D.h" 
-#include "Math/Polar3D.h" 
-#include "Math/PxPyPzE4D.h" 
+#include "Rtypes.h"
+#include "Math/Cartesian3D.h"
+#include "Math/CylindricalEta3D.h"
+#include "Math/Polar3D.h"
+#include "Math/PxPyPzE4D.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/AssociationMap.h"
-#include "DataFormats/Common/interface/RefProd.h" 
+#include "DataFormats/Common/interface/RefProd.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/Common/interface/FwdRef.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
 #include "DataFormats/Common/interface/OwnVector.h"
 #include "DataFormats/Common/interface/ValueMap.h"
+#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h" 
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/JetReco/interface/PFJet.h"
-#include "DataFormats/JetReco/interface/PFJetCollection.h"  
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
 #include "DataFormats/ParticleFlowCandidate/interface/PFCandidate.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
-#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h" 
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
 #include "DataFormats/BTauReco/interface/JetCrystalsAssociation.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
 #include "DataFormats/BTauReco/interface/TaggingVariable.h"
@@ -30,14 +31,21 @@
 #include "DataFormats/BTauReco/interface/EMIsolatedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/CombinedTauTagInfo.h"
 #include "DataFormats/BTauReco/interface/SecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSecondaryVertexTagInfo.h"
+#include "DataFormats/BTauReco/interface/BoostedDoubleSVTagInfo.h"
+#include "DataFormats/BTauReco/interface/ShallowTagInfo.h"
 #include "DataFormats/BTauReco/interface/SoftLeptonTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandSoftLeptonTagInfo.h"
 #include "DataFormats/BTauReco/interface/TauImpactParameterInfo.h"
 #include "DataFormats/BTauReco/interface/TauMassTagInfo.h"
 #include "DataFormats/BTauReco/interface/JetEisolAssociation.h"
 #include "DataFormats/BTauReco/interface/TrackIPTagInfo.h"
+#include "DataFormats/BTauReco/interface/CandIPTagInfo.h"
 #include "DataFormats/BTauReco/interface/BaseTagInfo.h"
 #include "DataFormats/BTauReco/interface/JTATagInfo.h"
 #include "DataFormats/BTauReco/interface/JetTagInfo.h"
+#include "DataFormats/BTauReco/interface/CATopJetTagInfo.h"
+#include "DataFormats/BTauReco/interface/HTTTopJetTagInfo.h"
 
 namespace reco {
     typedef TrackTauImpactParameterAssociationCollection::map_type          TrackTauImpactParameterAssociationMapType;
@@ -46,14 +54,15 @@ namespace reco {
     typedef TauMassTagInfo::ClusterTrackAssociationCollection::ref_type     TauMassTagInfo_ClusterTrackAssociationRefType;
 }
 
-namespace {
+namespace DataFormats_BTauReco {
   struct dictionary {
 
-    reco::SecondaryVertexTagInfo::TrackData                             sv_td;
+    reco::btag::TrackData                                               sv_td;
+    reco::btag::IndexedTrackData                                        sv_itd;
+    std::vector<reco::btag::IndexedTrackData>                           sv_itdv;
+
     reco::SecondaryVertexTagInfo::VertexData                            sv_vd;
     std::vector<reco::SecondaryVertexTagInfo::VertexData>               sv_vdv;
-    reco::SecondaryVertexTagInfo::IndexedTrackData                      sv_itd;
-    std::vector<reco::SecondaryVertexTagInfo::IndexedTrackData>         sv_itdv;
     reco::SecondaryVertexTagInfo                                        sv;
     reco::SecondaryVertexTagInfoCollection                              sv_c;
     reco::SecondaryVertexTagInfoRef                                     sv_r;
@@ -61,6 +70,32 @@ namespace {
     reco::SecondaryVertexTagInfoRefProd                                 sv_rp;
     reco::SecondaryVertexTagInfoRefVector                               sv_rv;
     edm::Wrapper<reco::SecondaryVertexTagInfoCollection>                sv_wc;
+
+    reco::CandSecondaryVertexTagInfo::VertexData                        casv_vd;
+    std::vector<reco::CandSecondaryVertexTagInfo::VertexData>           casv_vdv;
+    reco::CandSecondaryVertexTagInfo                                    casv;
+    reco::CandSecondaryVertexTagInfoCollection                          casv_c;
+    reco::CandSecondaryVertexTagInfoRef                                 casv_r;
+    reco::CandSecondaryVertexTagInfoFwdRef                              casv_fr;
+    reco::CandSecondaryVertexTagInfoRefProd                             casv_rp;
+    reco::CandSecondaryVertexTagInfoRefVector                           casv_rv;
+    edm::Wrapper<reco::CandSecondaryVertexTagInfoCollection>            casv_wc;
+
+    reco::BoostedDoubleSVTagInfo                                        bdsv;
+    reco::BoostedDoubleSVTagInfoCollection                              bdsv_c;
+    reco::BoostedDoubleSVTagInfoRef                                     bdsv_r;
+    reco::BoostedDoubleSVTagInfoFwdRef                                  bdsv_fr;
+    reco::BoostedDoubleSVTagInfoRefProd                                 bdsv_rp;
+    reco::BoostedDoubleSVTagInfoRefVector                               bdsv_rv;
+    edm::Wrapper<reco::BoostedDoubleSVTagInfoCollection>                bdsv_wc;
+
+    reco::ShallowTagInfo                                                 dnn;
+    reco::ShallowTagInfoCollection                                       dnn_c;
+    reco::ShallowTagInfoRef                                              dnn_r;
+    reco::ShallowTagInfoFwdRef                                           dnn_fr;
+    reco::ShallowTagInfoRefProd                                          dnn_rp;
+    reco::ShallowTagInfoRefVector                                        dnn_rv;
+    edm::Wrapper<reco::ShallowTagInfoCollection>                         dnn_wc;
 
     reco::CombinedTauTagInfo                                            ct;
     reco::CombinedTauTagInfoCollection                                  ct_c;
@@ -89,9 +124,9 @@ namespace {
 
 
     reco::SoftLeptonProperties                                          slp;
+
     std::pair<edm::RefToBase<reco::Track>, reco::SoftLeptonProperties>  slp_p;
     reco::SoftLeptonTagInfo::LeptonMap                                  slp_m;
-
     reco::SoftLeptonTagInfo                                             sl;
     reco::SoftLeptonTagInfoCollection                                   sl_c;
     reco::SoftLeptonTagInfoRef                                          sl_r;
@@ -99,6 +134,16 @@ namespace {
     reco::SoftLeptonTagInfoRefProd                                      sl_rp;
     reco::SoftLeptonTagInfoRefVector                                    sl_rv;
     edm::Wrapper<reco::SoftLeptonTagInfoCollection>                     sl_wc;
+
+    std::pair<edm::Ptr<reco::Candidate>, reco::SoftLeptonProperties>    cslp_p;
+    reco::CandSoftLeptonTagInfo::LeptonMap                                  cslp_m;
+    reco::CandSoftLeptonTagInfo                                             csl;
+    reco::CandSoftLeptonTagInfoCollection                                   csl_c;
+    reco::CandSoftLeptonTagInfoRef                                          csl_r;
+    reco::CandSoftLeptonTagInfoFwdRef                                       csl_fr;
+    reco::CandSoftLeptonTagInfoRefProd                                      csl_rp;
+    reco::CandSoftLeptonTagInfoRefVector                                    csl_rv;
+    edm::Wrapper<reco::CandSoftLeptonTagInfoCollection>                     csl_wc;
 
     std::pair< reco::btau::TaggingVariableName, float >                 ptt1;
     std::vector<std::pair<reco::btau::TaggingVariableName,float> >      vptt1;
@@ -170,17 +215,25 @@ namespace {
     edm::Wrapper<reco::JetEisolAssociationCollection>                   jea_wc;
 
 
+    reco::btag::TrackIPData                                             tip_data;
+    std::vector<reco::btag::TrackIPData>                                tip_datav;
 
     reco::TrackIPTagInfo                                                tcip;
-    reco::TrackIPTagInfo::TrackIPData                                   tcip_data;
-    std::vector<reco::TrackIPTagInfo::TrackIPData>                      tcip_datav;
     reco::TrackIPTagInfoCollection                                      tcip_c;
     reco::TrackIPTagInfoRef                                             tcip_r;
     reco::TrackIPTagInfoFwdRef                                          tcip_fr;
     reco::TrackIPTagInfoRefProd                                         tcip_rp;
     reco::TrackIPTagInfoRefVector                                       tcip_rv;
-
     edm::Wrapper<reco::TrackIPTagInfoCollection>                        tcip_wc;
+
+    reco::CandIPTagInfo                                                 cdip;
+    reco::CandIPTagInfoCollection                                       cdip_c;
+    reco::CandIPTagInfoRef                                              cdip_r;
+    reco::CandIPTagInfoFwdRef                                           cdip_fr;
+    reco::CandIPTagInfoRefProd                                          cdip_rp;
+    reco::CandIPTagInfoRefVector                                        cdip_rv;
+    edm::Wrapper<reco::CandIPTagInfoCollection>                         cdip_wc;
+
 
     reco::BaseTagInfo                                                   bti;
     reco::BaseTagInfoCollection                                         bti_c;
@@ -189,7 +242,7 @@ namespace {
     reco::BaseTagInfoRefProd                                            bti_rp;
     reco::BaseTagInfoRefVector                                          bti_rv;
     edm::Wrapper<reco::BaseTagInfoCollection>                           bti_wc;
-    
+
     reco::JetTagInfo                                                    jti;
     reco::JetTagInfoCollection                                          jti_c;
     reco::JetTagInfoRef                                                 jti_r;
@@ -206,8 +259,29 @@ namespace {
     reco::JTATagInfoRefVector                                           jtati_rv;
     edm::Wrapper<reco::JTATagInfoCollection>                            jtati_wc;
 
+    reco::CATopJetProperties                                            catopjetp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::CATopJetProperties>      catopjetp_p;
+    reco::CATopJetTagInfo                                               catopjet;
+    reco::CATopJetTagInfoCollection                                     catopjet_c;
+    reco::CATopJetTagInfoRef                                            catopjet_r;
+    reco::CATopJetTagInfoRefProd                                        catopjet_rp;
+    reco::CATopJetTagInfoRefVector                                      catopjet_rv;
+    edm::Wrapper<reco::CATopJetTagInfoCollection>                       catopjet_wc;
+
+    reco::HTTTopJetProperties                                            htttopjetp;
+    std::pair<edm::RefToBase<reco::Jet>, reco::HTTTopJetProperties>      htttopjetp_p;
+
+    reco::HTTTopJetTagInfo                                               htttopjet;
+    reco::HTTTopJetTagInfoCollection                                     htttopjet_c;
+    reco::HTTTopJetTagInfoRef                                            htttopjet_r;
+    reco::HTTTopJetTagInfoRefProd                                        htttopjet_rp;
+    reco::HTTTopJetTagInfoRefVector                                      htttopjet_rv;
+    edm::Wrapper<reco::HTTTopJetTagInfoCollection>                       htttopjet_wc;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::HTTTopJetTagInfoRef> rb_htttopjet;
+    edm::reftobase::RefHolder<reco::HTTTopJetTagInfoRef>                 rbh_htttopjet; 
+
     std::vector<Measurement1D>                                          vm1d;
-	    
+
     // RefToBase Holders for TagInfos
     edm::RefToBase<reco::BaseTagInfo>                                           rb;
     edm::reftobase::IndirectHolder<reco::BaseTagInfo>                           rbh;
@@ -223,14 +297,24 @@ namespace {
     edm::reftobase::RefHolder<reco::TrackCountingTagInfoRef>                    rbh_tc;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoRef>          rb_tcip;
     edm::reftobase::RefHolder<reco::TrackIPTagInfoRef>                          rbh_tcip;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandIPTagInfoRef>           rb_cdip;
+    edm::reftobase::RefHolder<reco::CandIPTagInfoRef>                           rbh_cdip;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoRef>  rb_sv;
     edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoRef>                  rbh_sv;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSecondaryVertexTagInfoRef>  rb_casv;
+    edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoRef>                  rbh_casv;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoRef>  rb_bdsv;
+    edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoRef>                  rbh_bdsv;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoRef>           rb_dnn;
+    edm::reftobase::RefHolder<reco::ShallowTagInfoRef>                           rbh_dnn;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoRef>      rb_ct;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoRef>                      rbh_ct;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoRef>      rb_it;
     edm::reftobase::RefHolder<reco::IsolatedTauTagInfoRef>                      rbh_it;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoRef>       rb_sl;
     edm::reftobase::RefHolder<reco::SoftLeptonTagInfoRef>                       rbh_sl;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoRef>   rb_csl;
+    edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoRef>                   rbh_csl;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoRef>          rb_tmt;
     edm::reftobase::RefHolder<reco::TauMassTagInfoRef>                          rbh_tmt;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoRef> rb_tp;
@@ -246,18 +330,30 @@ namespace {
     edm::reftobase::RefHolder<reco::TrackCountingTagInfoFwdRef>                    rbh_tcf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackIPTagInfoFwdRef>          rb_tcipf;
     edm::reftobase::RefHolder<reco::TrackIPTagInfoFwdRef>                          rbh_tcipf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandIPTagInfoFwdRef>           rb_cdipf;
+    edm::reftobase::RefHolder<reco::CandIPTagInfoFwdRef>                           rbh_cdipf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SecondaryVertexTagInfoFwdRef>  rb_svf;
     edm::reftobase::RefHolder<reco::SecondaryVertexTagInfoFwdRef>                  rbh_svf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSecondaryVertexTagInfoFwdRef>  rb_casvf;
+    edm::reftobase::RefHolder<reco::CandSecondaryVertexTagInfoFwdRef>                  rbh_casvf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::BoostedDoubleSVTagInfoFwdRef>  rb_bdsvf;
+    edm::reftobase::RefHolder<reco::BoostedDoubleSVTagInfoFwdRef>                  rbh_bdsvf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::ShallowTagInfoFwdRef>          rb_dnnf;
+    edm::reftobase::RefHolder<reco::ShallowTagInfoFwdRef>                          rbh_dnnf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::CombinedTauTagInfoFwdRef>      rb_ctf;
     edm::reftobase::RefHolder<reco::CombinedTauTagInfoFwdRef>                      rbh_ctf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::IsolatedTauTagInfoFwdRef>      rb_itf;
     edm::reftobase::RefHolder<reco::IsolatedTauTagInfoFwdRef>                      rbh_itf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::SoftLeptonTagInfoFwdRef>       rb_slf;
     edm::reftobase::RefHolder<reco::SoftLeptonTagInfoFwdRef>                       rbh_slf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CandSoftLeptonTagInfoFwdRef>   rb_cslf;
+    edm::reftobase::RefHolder<reco::CandSoftLeptonTagInfoFwdRef>                   rbh_cslf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TauMassTagInfoFwdRef>          rb_tmtf;
     edm::reftobase::RefHolder<reco::TauMassTagInfoFwdRef>                          rbh_tmtf;
     edm::reftobase::Holder<reco::BaseTagInfo, reco::TrackProbabilityTagInfoFwdRef> rb_tpf;
     edm::reftobase::RefHolder<reco::TrackProbabilityTagInfoFwdRef>                 rbh_tpf;
+    edm::reftobase::Holder<reco::BaseTagInfo, reco::CATopJetTagInfoRef>            rb_catopjet;
+    edm::reftobase::RefHolder<reco::CATopJetTagInfoRef>                            rbh_catopjet;
 
     edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > vm_ptr_bti;
     edm::Wrapper<edm::ValueMap<edm::Ptr<reco::BaseTagInfo> > > w_vm_ptr_bti;
@@ -286,6 +382,9 @@ namespace {
     edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::SecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::Vertex> > > > dummy04;
     edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::SecondaryVertexTagInfo>, std::vector<reco::Vertex>, unsigned int > > > dummy06;
 
+    edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > >  dummy07;
+    edm::AssociationMap<edm::OneToMany<reco::CandSecondaryVertexTagInfoCollection, std::vector<reco::VertexCompositePtrCandidate> > > dummy08;
+    edm::Wrapper<edm::helpers::KeyVal<edm::RefProd<std::vector<reco::CandSecondaryVertexTagInfo> >, edm::RefProd<std::vector<reco::VertexCompositePtrCandidate> > > > dummy09;
+    edm::Wrapper<edm::AssociationMap<edm::OneToMany<std::vector<reco::CandSecondaryVertexTagInfo>, std::vector<reco::VertexCompositePtrCandidate>, unsigned int > > > dummy10;
   };
 }
-

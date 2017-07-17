@@ -13,8 +13,9 @@
 using namespace reco;
 
 namespace {
+#ifndef __clang__
 	static inline double sqr(double arg) { return arg * arg; }
-
+#endif
 	using namespace ROOT::Math;
 
 	typedef SVector<double, 3> Vector3;

@@ -281,6 +281,7 @@ void  popcon::EcalTPGLutIdMapHandler::readFromFile(const char* inputFile) {
   inpFile = fopen(inputFile,"r");
   if(!inpFile) {
     edm::LogError("EcalTPGLutIdMapHandler")<<"*** Can not open file: "<<inputFile;
+    return;
   }
 
   char line[256];

@@ -13,15 +13,20 @@
 #ifndef DTTFRawToDigi_DTTFFEDSim_h
 #define DTTFRawToDigi_DTTFFEDSim_h
 
-#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
-#include <FWCore/Framework/interface/EDProducer.h>
+#include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambPhContainer.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTChambThContainer.h>
+#include <DataFormats/L1DTTrackFinder/interface/L1MuDTTrackContainer.h>
+
+#include <FWCore/Framework/interface/stream/EDProducer.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
 #include <FWCore/Utilities/interface/InputTag.h>
 
 #include <string>
 
-class DTTFFEDSim : public edm::EDProducer {
+class DTTFFEDSim : public edm::stream::EDProducer<> {
 
  public:
 
@@ -32,7 +37,7 @@ class DTTFFEDSim : public edm::EDProducer {
   virtual ~DTTFFEDSim();
 
   /// Produce digis out of raw data
-  void produce(edm::Event & e, const edm::EventSetup& c);
+  void produce(edm::Event & e, const edm::EventSetup& c) override;
 
   /// Generate and fill FED raw data for a full event
   bool fillRawData(edm::Event& e,
@@ -58,6 +63,11 @@ class DTTFFEDSim : public edm::EDProducer {
 
   edm::InputTag getDTDigiInputTag() { return DTDigiInputTag; }
   edm::InputTag getDTPHTFInputTag() { return DTPHTFInputTag; }
+
+  edm::EDGetTokenT<L1MuDTChambPhContainer> ChPh_tok;
+  edm::EDGetTokenT<L1MuDTChambThContainer> ChTh_tok;
+  edm::EDGetTokenT<L1MuDTTrackContainer>   Trk_tok;
+
 
 };
 #endif

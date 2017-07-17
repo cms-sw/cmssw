@@ -41,5 +41,6 @@ int main( int argc, char* argv[] )
   // Outputs the name of each test when it is executed.
   CppUnit::BriefTestProgressListener progress;
   runner.eventManager().addListener( &progress );
-  runner.run();
+  if (!runner.run()) { return 1; }
+  return 0;
 }

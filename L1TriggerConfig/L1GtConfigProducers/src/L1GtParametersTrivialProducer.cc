@@ -18,7 +18,6 @@
 // system include files
 #include <memory>
 
-#include "boost/shared_ptr.hpp"
 #include <boost/cstdint.hpp>
 
 
@@ -94,15 +93,14 @@ L1GtParametersTrivialProducer::~L1GtParametersTrivialProducer()
 // member functions
 
 // method called to produce the data
-boost::shared_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParameters(
+std::shared_ptr<L1GtParameters> L1GtParametersTrivialProducer::produceGtParameters(
     const L1GtParametersRcd& iRecord)
 {
 
     using namespace edm::es;
 
 
-    boost::shared_ptr<L1GtParameters> pL1GtParameters =
-        boost::shared_ptr<L1GtParameters>( new L1GtParameters() );
+    auto pL1GtParameters = std::make_shared<L1GtParameters>();
 
 
     // set total Bx's in the event

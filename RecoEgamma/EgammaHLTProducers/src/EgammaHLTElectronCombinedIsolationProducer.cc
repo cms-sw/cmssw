@@ -7,6 +7,8 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronCombinedIsolationProducer.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 EgammaHLTElectronCombinedIsolationProducer::EgammaHLTElectronCombinedIsolationProducer(const edm::ParameterSet& config) : conf_(config) {
 
@@ -32,6 +34,18 @@ EgammaHLTElectronCombinedIsolationProducer::EgammaHLTElectronCombinedIsolationPr
 EgammaHLTElectronCombinedIsolationProducer::~EgammaHLTElectronCombinedIsolationProducer()
 {}
 
+void EgammaHLTElectronCombinedIsolationProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>("electronProducer", edm::InputTag(""));
+  desc.add<edm::InputTag>("recoEcalCandidateProducer", edm::InputTag(""));
+  desc.add<std::vector<edm::InputTag> >("CaloIsolationMapTags", std::vector<edm::InputTag>());
+  desc.add<edm::InputTag>("TrackIsolationMapTag", edm::InputTag(""));
+desc.add<std::vector<double> >("CaloIsolationWeight", std::vector<double>());
+  desc.add<double>("TrackIsolationWeight", 0);
+  descriptions.add("hltEgammaHLTElectronCombinedIsolationProducer", desc);  
+}
+
 void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   
   edm::Handle<reco::ElectronCollection> electronHandle;
@@ -53,7 +67,7 @@ void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, con
   if(TrackIsolWeight_ != 0) 
     iEvent.getByToken(TrackIsolTag_,TrackIsoMap);
   
-  reco::ElectronIsolationMap TotalIsolMap;
+  reco::ElectronIsolationMap TotalIsolMap(electronHandle);
   double TotalIso=0;
   for(reco::ElectronCollection::const_iterator iElectron = electronHandle->begin(); iElectron != electronHandle->end(); iElectron++){
     TotalIso=0; 
@@ -83,8 +97,7 @@ void EgammaHLTElectronCombinedIsolationProducer::produce(edm::Event& iEvent, con
     
   }
 
-  std::auto_ptr<reco::ElectronIsolationMap> isolMap(new reco::ElectronIsolationMap(TotalIsolMap));
-  iEvent.put(isolMap);
+  iEvent.put(std::make_unique<reco::ElectronIsolationMap>(TotalIsolMap));
 
 }
 

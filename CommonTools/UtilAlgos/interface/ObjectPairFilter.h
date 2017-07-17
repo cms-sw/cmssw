@@ -3,7 +3,7 @@
 /** \class ObjectPairFilter
  *
  * Filters an event if one or more pairs of objects passes a given selection
- * 
+ *
  * \author Luca Lista, INFN
  *
  * \version $Revision: 1.3 $
@@ -23,10 +23,10 @@
 template<typename C, typename S>
 class ObjectPairFilter : public edm::EDFilter {
 public:
-  /// constructor 
+  /// constructor
   explicit ObjectPairFilter( const edm::ParameterSet & cfg ) :
     select_( reco::modules::make<S>( cfg ) ),
-    src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
+    srcToken_( consumes<C>( cfg.template getParameter<edm::InputTag>( "src" ) ) ),
     minNumber_( 1 ) {
     std::vector<std::string> ints = cfg.template getParameterNamesForType<unsigned int>();
     const std::string minNumber( "minNumber" );
@@ -34,12 +34,12 @@ public:
     if ( foundMinNumber )
       minNumber_ = cfg.template getParameter<unsigned int>( minNumber );
   }
- 
+
 private:
   /// process one event
   bool filter( edm::Event& evt, const edm::EventSetup&) override {
     edm::Handle<C> source;
-    evt.getByLabel( src_, source );
+    evt.getByToken( srcToken_, source );
     size_t n = 0;
     for( typename C::const_iterator i = source->begin(); i != source->end(); ++ i )
       for( typename C::const_iterator j = i + 1; j != source->end(); ++ j ) {
@@ -51,7 +51,7 @@ private:
   /// object filter
   S select_;
   /// source collection label
-  edm::InputTag src_;
+  edm::EDGetTokenT<C> srcToken_;
   /// minimum number of entries in a collection
   unsigned int minNumber_;
 };

@@ -46,12 +46,11 @@ class SiPixelConfigWriter{
  private:
 	 
 	xercesc::DOMElement* theTopElement;
-	xercesc::DOMElement* lastLayout;
-	xercesc::DOMElement* lastRow;
+	xercesc::DOMElement* theLastLayout;
+	xercesc::DOMElement* theLastRow;
 	xercesc::DOMDocument* theDoc ;
-        xercesc::DOMImplementation* domImpl;
-        xercesc::DOMWriter* domWriter;
-
+        xercesc::DOMLSSerializer* theDomWriter;
+	xercesc::DOMLSOutput* theOutput;
 };
 
 

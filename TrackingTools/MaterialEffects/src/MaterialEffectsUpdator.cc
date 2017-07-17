@@ -6,7 +6,7 @@ using namespace SurfaceSideDefinition;
 
 /** Constructor with explicit mass hypothesis
  */
-MaterialEffectsUpdator::MaterialEffectsUpdator ( double mass ) :
+MaterialEffectsUpdator::MaterialEffectsUpdator ( float mass ) :
   theMass(mass) {}
 
 MaterialEffectsUpdator::~MaterialEffectsUpdator () {}
@@ -59,11 +59,11 @@ bool MaterialEffectsUpdator::updateStateInPlace (TrajectoryStateOnSurface& TSoS,
     AlgebraicSymMatrix55 eloc = TSoS.localError().matrix();
     effect.deltaCov.add(eloc);
     //TSoS = TrajectoryStateOnSurface(lp,LocalTrajectoryError(eloc),surface, &(TSoS.globalParameters().magneticField()),side);
-    TSoS.update(lp,LocalTrajectoryError(eloc),surface,
-                &(TSoS.globalParameters().magneticField()),side);
+    //TSoS.update(lp,LocalTrajectoryError(eloc),side);
+    TSoS.update(lp,eloc,side);
   }
   else {
-    TSoS.update(lp,surface,&(TSoS.globalParameters().magneticField()),side);
+    TSoS.update(lp,side);
     //TSoS = TrajectoryStateOnSurface(lp,surface,&(TSoS.globalParameters().magneticField()),side);
   }
   return true;

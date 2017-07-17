@@ -2,15 +2,13 @@ import FWCore.ParameterSet.Config as cms
 
 ##______________________________________________________ Full Event content __||
 RecoMETFEVT = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
-                                           'keep recoCaloMETs_metNoHF_*_*',
-                                           'keep recoCaloMETs_metHO_*_*',
-                                           'keep recoCaloMETs_corMetGlobalMuons_*_*',
-                                           'keep recoMETs_tcMet_*_*',
-                                           'keep recoMETs_tcMetWithPFclusters_*_*',                                           
+    outputCommands = cms.untracked.vstring('keep recoCaloMETs_caloMet_*_*',
+                                           'keep recoCaloMETs_caloMetBE_*_*',
+                                           'keep recoCaloMETs_caloMetBEFO_*_*',
+                                           'keep recoCaloMETs_caloMetM_*_*',
                                            'keep recoPFMETs_pfMet_*_*',
+                                           'keep recoPFMETs_pfChMet_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
-                                           'keep recoMuonMETCorrectionDataedmValueMap_muonTCMETValueMapProducer_*_*',                                           
                                            'keep recoHcalNoiseRBXs_hcalnoise_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*',
                                            'keep *HaloData_*_*_*',
@@ -30,19 +28,22 @@ RecoHcalNoiseFEVT = cms.PSet(
 
 ##____________________________________________________________ RECO content __||
 RecoMETRECO = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
-                                           'keep recoCaloMETs_metNoHF_*_*',
-                                           'keep recoCaloMETs_metHO_*_*',
-                                           'keep recoCaloMETs_corMetGlobalMuons_*_*',
-                                           'keep recoMETs_tcMet_*_*',    
-                                           'keep recoMETs_tcMetWithPFclusters_*_*',                                                                                  
+    outputCommands = cms.untracked.vstring('keep recoCaloMETs_caloMet_*_*',
+                                           'keep recoCaloMETs_caloMetBE_*_*',
+                                           'keep recoCaloMETs_caloMetBEFO_*_*',
+                                           'keep recoCaloMETs_caloMetM_*_*',
                                            'keep recoPFMETs_pfMet_*_*',
+                                           'keep recoPFMETs_pfChMet_*_*',
+                                           'keep recoPFMETs_pfMetEI_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
-                                           'keep recoMuonMETCorrectionDataedmValueMap_muonTCMETValueMapProducer_*_*',                                           
                                            'keep recoHcalNoiseRBXs_hcalnoise_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*',
-                                           'keep *HaloData_*_*_*',
-                                           'keep *BeamHaloSummary_BeamHaloSummary_*_*'
+                                           #'keep *HaloData_*_*_*',
+                                           'keep recoCSCHaloData_CSCHaloData_*_*',
+                                           'keep recoEcalHaloData_EcalHaloData_*_*',
+                                           'keep recoGlobalHaloData_GlobalHaloData_*_*',
+                                           'keep recoHcalHaloData_HcalHaloData_*_*',
+                                           'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
 
@@ -58,19 +59,20 @@ RecoHcalNoiseRECO = cms.PSet(
 
 ##_____________________________________________________________ AOD content __||
 RecoMETAOD = cms.PSet(
-    outputCommands = cms.untracked.vstring('keep recoCaloMETs_met_*_*',
-                                           'keep recoCaloMETs_metNoHF_*_*',
-                                           'keep recoCaloMETs_metHO_*_*',
-                                           'keep recoCaloMETs_corMetGlobalMuons_*_*',
-                                           'keep recoMETs_tcMet_*_*',  
-                                           'keep recoMETs_tcMetWithPFclusters_*_*',                                                                                                                           
+    outputCommands = cms.untracked.vstring('keep recoCaloMETs_caloMet_*_*',
+                                           'keep recoCaloMETs_caloMetBE_*_*',
+                                           'keep recoCaloMETs_caloMetBEFO_*_*',
+                                           'keep recoCaloMETs_caloMetM_*_*',
                                            'keep recoPFMETs_pfMet_*_*',
+                                           'keep recoPFMETs_pfChMet_*_*',
+                                           'keep recoPFMETs_pfMetEI_*_*',
                                            'keep recoMuonMETCorrectionDataedmValueMap_muonMETValueMapProducer_*_*',
-                                           'keep recoMuonMETCorrectionDataedmValueMap_muonTCMETValueMapProducer_*_*',                                           
                                            'drop recoHcalNoiseRBXs_*_*_*',
                                            'keep HcalNoiseSummary_hcalnoise_*_*',
-                                           'keep *GlobalHaloData_*_*_*',
-                                           'keep *BeamHaloSummary_BeamHaloSummary_*_*'
+                                           #'keep *GlobalHaloData_*_*_*',
+                                           'keep recoGlobalHaloData_GlobalHaloData_*_*',
+                                           'keep recoCSCHaloData_CSCHaloData_*_*',
+                                           'keep recoBeamHaloSummary_BeamHaloSummary_*_*'
                                            )
     )
 

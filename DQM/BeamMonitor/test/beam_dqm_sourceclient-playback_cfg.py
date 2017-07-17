@@ -57,7 +57,7 @@ process.load("DQM.BeamMonitor.BeamConditionsMonitor_cff")
 #-------------------------------------------------
 # GEOMETRY
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-----------------------------
 # Magnetic Field
@@ -67,7 +67,7 @@ process.load('Configuration.StandardSequences.MagneticField_AutoFromDBCurrent_cf
 #--------------------------
 # Calibration
 #--------------------------
-process.load("DQM.Integration.test.FrontierCondition_GT_cfi")
+process.load("DQM.Integration.config.FrontierCondition_GT_cfi")
 
 #-----------------------
 #  Reconstruction Modules

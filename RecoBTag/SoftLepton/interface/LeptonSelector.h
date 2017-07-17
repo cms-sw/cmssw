@@ -32,7 +32,7 @@ class LeptonSelector {
     static sign option(const std::string & election);
 
     sign                                         m_sign;
-    reco::SoftLeptonProperties::quality::Generic m_leptonId;
+    reco::SoftLeptonProperties::Quality::Generic m_leptonId;
     float                                        m_qualityCut;
 };
 

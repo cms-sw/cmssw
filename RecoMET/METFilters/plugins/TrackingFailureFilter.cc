@@ -1,15 +1,16 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/View.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/JetReco/interface/Jet.h"
 
 
-class TrackingFailureFilter : public edm::EDFilter {
+class TrackingFailureFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -18,9 +19,11 @@ class TrackingFailureFilter : public edm::EDFilter {
 
   private:
 
-    virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
-    
-    const edm::InputTag jetSrc_, trackSrc_, vertexSrc_;
+    virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
+
+    edm::EDGetTokenT<edm::View<reco::Jet> > jetSrcToken_;
+    edm::EDGetTokenT<std::vector<reco::Track> > trackSrcToken_;
+    edm::EDGetTokenT<std::vector<reco::Vertex> > vertexSrcToken_;
     const double dzTrVtxMax_, dxyTrVtxMax_, minSumPtOverHT_;
 
     const bool taggingMode_, debug_;
@@ -29,9 +32,9 @@ class TrackingFailureFilter : public edm::EDFilter {
 
 
 TrackingFailureFilter::TrackingFailureFilter(const edm::ParameterSet & iConfig)
-  : jetSrc_          (iConfig.getParameter<edm::InputTag>("JetSource"))
-  , trackSrc_        (iConfig.getParameter<edm::InputTag>("TrackSource"))
-  , vertexSrc_       (iConfig.getParameter<edm::InputTag>("VertexSource"))
+  : jetSrcToken_          (consumes<edm::View<reco::Jet> >(iConfig.getParameter<edm::InputTag>("JetSource")))
+  , trackSrcToken_        (consumes<std::vector<reco::Track> >(iConfig.getParameter<edm::InputTag>("TrackSource")))
+  , vertexSrcToken_       (consumes<std::vector<reco::Vertex> >(iConfig.getParameter<edm::InputTag>("VertexSource")))
   , dzTrVtxMax_      (iConfig.getParameter<double>("DzTrVtxMax"))
   , dxyTrVtxMax_     (iConfig.getParameter<double>("DxyTrVtxMax"))
   , minSumPtOverHT_  (iConfig.getParameter<double>("MinSumPtOverHT"))
@@ -43,14 +46,14 @@ TrackingFailureFilter::TrackingFailureFilter(const edm::ParameterSet & iConfig)
 }
 
 
-bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool TrackingFailureFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
   edm::Handle<edm::View<reco::Jet> > jets;
-  iEvent.getByLabel(jetSrc_, jets);
+  iEvent.getByToken(jetSrcToken_, jets);
   edm::Handle<std::vector<reco::Track> > tracks;
-  iEvent.getByLabel(trackSrc_, tracks);
+  iEvent.getByToken(trackSrcToken_, tracks);
   edm::Handle<std::vector<reco::Vertex> > vtxs;
-  iEvent.getByLabel(vertexSrc_, vtxs);
+  iEvent.getByToken(vertexSrcToken_, vtxs);
 
   double ht = 0;
   for (edm::View<reco::Jet>::const_iterator j = jets->begin(); j != jets->end(); ++j) {
@@ -76,13 +79,13 @@ bool TrackingFailureFilter::filter(edm::Event & iEvent, const edm::EventSetup & 
   const bool pass = (sumpt/ht) > minSumPtOverHT_;
 
   if( !pass && debug_ )
-    std::cout << "TRACKING FAILURE: "
+    edm::LogInfo("TrackingFailureFilter")
+              << "TRACKING FAILURE: "
               << iEvent.id().run() << " : " << iEvent.id().luminosityBlock() << " : " << iEvent.id().event()
               << " HT=" << ht
-              << " SumPt=" << sumpt
-              << std::endl;
-  
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+              << " SumPt=" << sumpt;
+
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass; // return false if filtering and not enough tracks in event
 

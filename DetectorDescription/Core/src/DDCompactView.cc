@@ -1,21 +1,21 @@
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+
+#include <stdlib.h>
+
+#include "DetectorDescription/Core/interface/DDRotationMatrix.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDCompactViewImpl.h"
 #include "DetectorDescription/Core/interface/DDLogicalPart.h"
 #include "DetectorDescription/Core/interface/DDMaterial.h"
+#include "DetectorDescription/Core/interface/DDPosData.h"
 #include "DetectorDescription/Core/interface/DDSolid.h"
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/ExprAlgo/interface/AlgoPos.h"
-
 #include "DetectorDescription/Core/interface/DDSpecifics.h"
-#include "DetectorDescription/Base/interface/DDRotationMatrix.h"
-
+#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Material.h"
 #include "DetectorDescription/Core/src/Solid.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Core/src/Specific.h"
 
-#include <iostream>
-
-//DDCompactViewmpl * DDCompactView::global_ = 0;
+class DDDivision;
 
 /** 
    Compact-views can be created only after an appropriate geometrical hierarchy
@@ -35,7 +35,8 @@
 */    
 // 
 DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
-  : rep_(new DDCompactViewImpl(rootnodedata))
+  : rep_( new DDCompactViewImpl( rootnodedata )),
+    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
 {
   // 2010-01-27 I am leaving this here so that we are sure the global stores
   // are open when a new DDCompactView is being made.  Eventually I want to
@@ -48,11 +49,7 @@ DDCompactView::DDCompactView(const DDLogicalPart & rootnodedata)
 }
 
 DDCompactView::~DDCompactView() 
-{  
-  if (rep_ != 0) {
-    delete rep_;
-  }
-}
+{}
 
 /** 
    The compact-view is kept in an acyclic directed multigraph represented
@@ -70,10 +67,14 @@ DDCompactView::graph_type & DDCompactView::writeableGraph()
 }
 
 const DDLogicalPart & DDCompactView::root() const
-{ 
+{
   return rep_->root(); 
 } 
-
+  
+const DDPosData* DDCompactView::worldPosition() const
+{
+  return worldpos_.get();
+}
 
 DDCompactView::walker_type DDCompactView::walker() const
 {
@@ -103,34 +104,6 @@ double DDCompactView::weight(const DDLogicalPart & p) const
 {
   return rep_->weight(p);
 }  
-
-void DDCompactView::algoPosPart(const DDLogicalPart & self,
-				const DDLogicalPart & parent,
-				DDAlgo & algo
-				) {
-  if (algo.rep().numRegistered() == 0) {
-    std::string e;
-    e = "DDalgoPosPart: algorithmic positioning\n";
-    e += "\t[" + algo.name().ns() 
-               + ":" 
-	       + algo.name().name() 
-	       + "] is not defined!\n";
-    throw cms::Exception("DDException") << e;
-  }
-  
-  LogDebug ("AlgoPos")  << "DDCompactView, algo=" << std::endl << algo << std::endl;
-  int inner=0;
-  do { 
-    ++inner;
-    DDRotationMatrix * rmp = new DDRotationMatrix(algo.rotation());
-    DDRotation anonymRot = DDanonymousRot(rmp);
-    DDTranslation tr(algo.translation());
-    position(self, parent, algo.label(), tr, anonymRot); 
-    algo.next();
-  } 
-  while(algo.go());
-
-}
 
 void DDCompactView::position (const DDLogicalPart & self, 
 			      const DDLogicalPart & parent,
@@ -166,7 +139,10 @@ void DDCompactView::swap( DDCompactView& repToSwap ) {
   rep_->swap ( *(repToSwap.rep_) );
 }
 
-DDCompactView::DDCompactView() : rep_(new DDCompactViewImpl) { }
+DDCompactView::DDCompactView()
+  : rep_(new DDCompactViewImpl),
+    worldpos_( new DDPosData( DDTranslation(), DDRotation(), 0 ))
+{ }
 
 void DDCompactView::lockdown() {
   // at this point we should have a valid store of DDObjects and we will move these

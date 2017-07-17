@@ -6,6 +6,7 @@
  *
  *  \author: D. Fortin - UC Riverside 
  *  \modified by J. Babb - UC Riverside
+ *  Updated Tim Cox - UC Davis Feb-2015 - factored out segment fit
  *                                      
  * Handle case where too many hits are reconstructed in the chamber, even after preclustering
  * for normal segment reconstruction to properly handle these.
@@ -18,8 +19,9 @@
 #include <DataFormats/CSCRecHit/interface/CSCSegment.h>
 #include <Geometry/CSCGeometry/interface/CSCChamber.h>
 #include <FWCore/ParameterSet/interface/ParameterSet.h>
-
 #include <vector>
+
+class CSCSegFit;
 
 class CSCSegAlgoShowering {
 
@@ -41,26 +43,16 @@ class CSCSegAlgoShowering {
   /// Utility functions 	
   bool isHitNearSegment(const CSCRecHit2D* h) const;
   bool addHit(const CSCRecHit2D* hit, int layer);
-  void updateParameters(void);
   bool hasHitOnLayer(int layer) const;
   void compareProtoSegment(const CSCRecHit2D* h, int layer);
-  CLHEP::HepMatrix derivativeMatrix(void) const;
-  AlgebraicSymMatrix weightMatrix(void) const;
-  AlgebraicSymMatrix calculateError(void) const;
-  void flipErrors(AlgebraicSymMatrix&) const;
-
-  void pruneFromResidual();
+  void pruneFromResidual(void);
+  void updateParameters(void);
 
   // Member variables
   const std::string myName; 
   const CSCChamber* theChamber;
 
   ChamberHitContainer protoSegment;
-  float       protoSlope_u;
-  float       protoSlope_v;
-  LocalPoint  protoIntercept;		
-  double      protoChi2;
-  LocalVector protoDirection;
 
   // input from .cfi file
   bool   debug;
@@ -75,6 +67,7 @@ class CSCSegAlgoShowering {
   float  maxDTheta;
   float  maxDPhi;
 
+  CSCSegFit* sfit_; // current fit
 };
 #endif
 

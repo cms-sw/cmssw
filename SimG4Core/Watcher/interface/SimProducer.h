@@ -19,14 +19,20 @@
 //
 
 // system include files
+#include <algorithm>
 #include <string>
 #include <vector>
-#include "boost/bind.hpp"
-#include "boost/shared_ptr.hpp"
+#include <functional>
+#include <memory>
 
 // user include files
 #include "SimG4Core/Watcher/interface/SimWatcher.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/ProducerBase.h"
+
+namespace edm {
+   class Event;
+   class EventSetup;
+}
 
 // forward declarations
 namespace simproducer {
@@ -40,7 +46,7 @@ namespace simproducer {
 	 const std::string& instanceName() const {
 	    return m_instanceName; }
 
-	 virtual void registerProduct(edm::EDProducer*) const = 0;
+	 virtual void registerProduct(edm::ProducerBase*) const = 0;
       private:
 	 std::string m_instanceName;
    };
@@ -51,7 +57,7 @@ namespace simproducer {
 	 ProductInfo(const std::string& iInstanceName) :
 	    ProductInfoBase(iInstanceName) {}
 
-	 void registerProduct(edm::EDProducer* iProd) const {
+         void registerProduct(edm::ProducerBase* iProd) const {
 	    (*iProd). template produces<T>(this->instanceName());
 	 }
    };
@@ -71,9 +77,9 @@ class SimProducer : public SimWatcher
       // ---------- member functions ---------------------------
       virtual void produce(edm::Event&, const edm::EventSetup&) = 0;
       
-      void registerProducts(edm::EDProducer& iProd) {
+      void registerProducts(edm::ProducerBase& iProd) {
 	 std::for_each(m_info.begin(), m_info.end(),
-		       boost::bind(&simproducer::ProductInfoBase::registerProduct,_1, &iProd));
+                       std::bind(&simproducer::ProductInfoBase::registerProduct, std::placeholders::_1, &iProd));
       }
    protected:
       template<class T>
@@ -84,7 +90,7 @@ class SimProducer : public SimWatcher
       template<class T>
       void produces(const std::string& instanceName) {
 	 m_info.push_back( 
-			  boost::shared_ptr<simproducer::ProductInfo<T> >(new simproducer::ProductInfo<T>(instanceName) ));
+			  std::make_shared<simproducer::ProductInfo<T> >(instanceName) );
       }
 
    private:
@@ -93,7 +99,7 @@ class SimProducer : public SimWatcher
       const SimProducer& operator=(const SimProducer&); // stop default
 
       // ---------- member data --------------------------------
-      std::vector<boost::shared_ptr< simproducer::ProductInfoBase> > m_info;
+      std::vector<std::shared_ptr< simproducer::ProductInfoBase> > m_info;
 };
 
 

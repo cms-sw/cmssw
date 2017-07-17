@@ -66,7 +66,7 @@ void L3MuonIsolationAnalyzer::beginJob(){
 
   hEffVsPtArray.clear();
   char chnam[256];
-  char chtit[256];
+  char chtit[1000];
   for (unsigned int j=0; j<theConeCases.size() ; j++) {
       for (unsigned int k=0; k<theCuts.size() ; k++) {
             snprintf(chnam,sizeof(chnam),"effVsPt-%.2d-%.2d", j, k);
@@ -211,7 +211,7 @@ void L3MuonIsolationAnalyzer::analyze(const Event & event, const EventSetup& eve
     }
 
   }
-  Puts("L3MuonIsolationAnalyzer>>> Run: %ld, Event %ld, number of muons %d"
+  Puts("L3MuonIsolationAnalyzer>>> Run: %llu, Event %llu, number of muons %d"
                  , event.id().run(), event.id().event(), depMap->size());
 }
 

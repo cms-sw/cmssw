@@ -18,8 +18,9 @@
 #include <memory>
 
 // user include files
+#include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -28,6 +29,15 @@
 #include "RecoMET/METAlgorithms/interface/HcalNoiseRBXArray.h"
 #include "DataFormats/METReco/interface/HcalNoiseSummary.h"
 
+#include "RecoMET/METProducers/interface/HcalNoiseInfoProducer.h"
+#include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+
+#include "Geometry/CaloTopology/interface/HcalTopology.h"
 
 namespace reco {
 
@@ -35,7 +45,7 @@ namespace reco {
   // class declaration
   //
   
-  class HcalNoiseInfoProducer : public edm::EDProducer {
+  class HcalNoiseInfoProducer : public edm::stream::EDProducer<> {
   public:
     explicit HcalNoiseInfoProducer(const edm::ParameterSet&);
     ~HcalNoiseInfoProducer();
@@ -59,6 +69,7 @@ namespace reco {
     void filldigis(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&);
     void fillcalotwrs(edm::Event&, const edm::EventSetup&, HcalNoiseRBXArray&, HcalNoiseSummary&) const;
     void filltracks(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
+    void filljetinfo(edm::Event&, const edm::EventSetup&, HcalNoiseSummary&) const;
 
     // other helper functions
     void fillOtherSummaryVariables(HcalNoiseSummary& summary, const CommonHcalNoiseRBXData& data) const;
@@ -80,15 +91,27 @@ namespace reco {
     int maxCaloTowerIEta_;      // maximum caloTower ieta
     double maxTrackEta_;        // maximum eta of the track
     double minTrackPt_;         // minimum track Pt
-    
+    double maxNHF_;
+    int maxjetindex_;
+
+    const HcalTopology* theHcalTopology_;    
+
     std::string digiCollName_;         // name of the digi collection
     std::string recHitCollName_;       // name of the rechit collection
     std::string caloTowerCollName_;    // name of the caloTower collection
     std::string trackCollName_;        // name of the track collection
+    std::string jetCollName_;          // name of the jet collection
+
+    edm::EDGetTokenT<HBHEDigiCollection> hbhedigi_token_;
+    edm::EDGetTokenT<HcalCalibDigiCollection> hcalcalibdigi_token_;
+    edm::EDGetTokenT<HBHERecHitCollection> hbherechit_token_;
+    edm::EDGetTokenT<CaloTowerCollection> calotower_token_;
+    edm::EDGetTokenT<reco::TrackCollection> track_token_;
+    edm::EDGetTokenT<reco::PFJetCollection> jet_token_;
 
     double TotalCalibCharge;    // placeholder to calculate total charge in calibration channels
 
-    double minRecHitE_, minLowHitE_, minHighHitE_; // parameters used to determine noise status
+    double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_; // parameters used to determine noise status
     HcalNoiseAlgo algo_; // algorithms to determine if an RBX is noisy
 
     bool useCalibDigi_;

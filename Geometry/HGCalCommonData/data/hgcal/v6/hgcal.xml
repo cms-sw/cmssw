@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../../DetectorDescription/Schema/DDLSchema.xsd">
+
+<ConstantsSection label="hgcal.xml" eval="true">
+  <Constant name="slope2"      value="tan(19.3*deg)"/>
+  <Constant name="slope3"      value="tan(53.0*deg)"/>
+  <Constant name="z1Beam"      value="2412.7*mm"/>
+  <Constant name="zHGCal10"    value="2990.0*mm"/>
+  <Constant name="zHGCal1"     value="3170.0*mm"/>
+  <Constant name="rMaxHGCal10" value="29.5*cm"/>
+  <Constant name="rMaxHGCal1"  value="1534.5*mm"/>
+  <Constant name="zHGCal2"     value="3887.85*mm"/>
+  <Constant name="rMaxHGCal2"  value="([rMaxHGCal1]+(([zHGCal2]-[zHGCal1])*[slope2]))"/>
+  <Constant name="zHGCal3"     value="4174.85*mm"/>
+  <Constant name="rMaxHGCal3"  value="([rMaxHGCal2]+(([zHGCal3]-[zHGCal2])*[slope3]))"/>
+  <Constant name="rMaxHGCal4"  value="2458.0*mm"/>
+  <Constant name="zHGCal4"     value="4870.85*mm"/>
+  <Constant name="zHGCal44"    value="4109.85*mm"/>
+  <Constant name="zHGCal45"    value="[zHGCal3]"/>
+  <Constant name="zMinEE"      value="[zHGCal1]"/>
+  <Constant name="zMaxEE"      value="3488.85*mm"/>
+  <Constant name="zMinHE"      value="[zMaxEE]"/>
+  <Constant name="rMinHGCal1"  value="[etaMax:slope]*[zHGCal1]"/>
+  <Constant name="rMinHGCal2"  value="[etaMax:slope]*[zHGCal2]"/>    
+  <Constant name="rMinHGCal3"  value="[etaMax:slope]*[zHGCal3]"/>
+  <Constant name="rMinHGCal44" value="[etaMax:slope]*[zHGCal44]"/>
+  <Constant name="rMinHGCal45" value="[etaMax:slope]*[zHGCal45]"/>
+  <Constant name="rMinEEMin"   value="[etaMax:slope]*[zMinEE]"/>
+  <Constant name="rMinEEMax"   value="[etaMax:slope]*[zMaxEE]"/>
+  <Constant name="rMinHEMin"   value="[etaMax:slope]*[zMinHE]"/>
+  <Constant name="rMaxEEMin"   value="[rMaxHGCal1]"/>
+  <Constant name="rMaxEEMax"   value="([rMaxHGCal1]+(([zMaxEE]-[zHGCal1])*[slope2]))"/>
+  <Constant name="rMaxHEMin"   value="[rMaxEEMax]"/>
+  <Constant name="factor1"     value="cos(10*deg)"/>
+  <Constant name="factor2"     value="cos(10*deg)"/>
+  <Constant name="rMapEEMin"   value="[rMaxEEMin]*[factor1]"/>
+  <Constant name="rMapEEMax"   value="[rMaxEEMax]*[factor1]"/>
+  <Constant name="rMapHEMin"   value="[rMaxHEMin]*[factor1]"/>
+  <Constant name="rMapHGCal2"  value="[rMaxHGCal2]*[factor1]"/>
+  <Constant name="rMapHGCal3"  value="[rMaxHGCal3]*[factor2]"/>
+  <Constant name="d1"          value="0.1*cm"/>
+  <Constant name="d2"          value="0.3*cm"/>
+  <Constant name="d3"          value="1.9*cm"/>
+  <Constant name="d4"          value="2.1*cm"/>
+  <Constant name="d5"          value="2.7*cm"/>
+  <Constant name="d6"          value="([d5]-[d4])"/>
+</ConstantsSection>
+
+<SolidSection label="hgcal.xml">
+  <Polycone name="HGCal" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]" rMin="[rMinHGCal1]-[d4]" rMax="[rMaxHGCal1]"/>
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]-[d4]" rMax="[rMaxHGCal2]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]-[d4]" rMax="[rMaxHGCal3]"/>
+  </Polycone>
+  <Polycone name="HGCalBottomScreenCover1" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]"  rMin="[rMinHGCal1]-[d2]"  rMax="[rMinHGCal1]-[d1]"/>
+    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-[d2]" rMax="[rMinHGCal44]-[d1]"/>
+  </Polycone>
+  <Polycone name="HGCalBottomScreen" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]"  rMin="[rMinHGCal1]-[d3]"  rMax="[rMinHGCal1]-[d2]"/>
+    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-[d3]" rMax="[rMinHGCal44]-[d2]"/>
+  </Polycone>
+  <Polycone name="HGCalBottomScreenCover2" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal1]"  rMin="[rMinHGCal1]-[d4]"  rMax="[rMinHGCal1]-[d3]"/>
+    <ZSection z="[zHGCal44]" rMin="[rMinHGCal44]-[d4]" rMax="[rMinHGCal44]-[d3]"/>
+  </Polycone>
+  <Polyhedra name="HGCalEE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinEE]" rMin="[rMinEEMin]" rMax="[rMapEEMin]"/>
+    <ZSection z="[zMaxEE]" rMin="[rMinEEMax]" rMax="[rMapEEMax]"/>
+  </Polyhedra>
+  <Polyhedra name="HGCalHE" numSide="18" startPhi="350*deg" deltaPhi="360*deg">
+    <ZSection z="[zMinHE]"  rMin="[rMinHEMin]"  rMax="[rMapHEMin]"/>
+    <ZSection z="[zHGCal2]" rMin="[rMinHGCal2]" rMax="[rMapHGCal2]"/>
+    <ZSection z="[zHGCal3]" rMin="[rMinHGCal3]" rMax="[rMapHGCal3]"/>
+  </Polyhedra>
+  <Polycone name="HGCalSupport" startPhi="0*deg" deltaPhi="360*deg">
+    <ZSection z="[zHGCal10]" rMin="([rMaxHGCal10]-[d6])" rMax="[rMaxHGCal10]"/>
+    <ZSection z="[zHGCal1]"  rMin="([rMaxHGCal10]-[d6])" rMax="[rMaxHGCal10]"/>
+    <ZSection z="[zHGCal45]" rMin="([rMinHGCal45]-[d5])" rMax="([rMinHGCal45]-[d4])"/>
+  </Polycone>
+</SolidSection>
+
+<LogicalPartSection label="hgcal.xml">
+  <LogicalPart name="HGCal" category="unspecified">
+    <rSolid name="HGCal"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBottomScreen" category="unspecified">
+    <rSolid name="HGCalBottomScreen"/>
+    <rMaterial name="materials:Foam"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBottomScreenCover1" category="unspecified">
+    <rSolid name="HGCalBottomScreenCover1"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalBottomScreenCover2" category="unspecified">
+    <rSolid name="HGCalBottomScreenCover2"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalEE" category="unspecified">
+    <rSolid name="HGCalEE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalHE" category="unspecified">
+    <rSolid name="HGCalHE"/>
+    <rMaterial name="materials:Air"/>
+  </LogicalPart>
+  <LogicalPart name="HGCalSupport" category="unspecified">
+    <rSolid name="HGCalSupport"/>
+    <rMaterial name="materials:Aluminium"/>
+  </LogicalPart>
+</LogicalPartSection>
+
+<PosPartSection label="hgcal.xml">
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCal"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCal"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalBottomScreenCover1"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalBottomScreen"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalBottomScreenCover2"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalEE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="HGCal"/>
+    <rChild name="HGCalHE"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="1">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCalSupport"/>
+    <rRotation name="rotations:000D"/>
+  </PosPart>
+  <PosPart copyNumber="2">
+    <rParent name="caloBase:CALO"/>
+    <rChild name="HGCalSupport"/>
+    <rRotation name="rotations:180D"/>
+  </PosPart>
+</PosPartSection>
+</DDDefinition>

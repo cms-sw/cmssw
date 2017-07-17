@@ -38,12 +38,14 @@ class SiStripFecCabling {
   
   /** */
   inline const std::vector<SiStripFecCrate>& crates() const;
+  inline std::vector<SiStripFecCrate>& crates();
   /** */
   inline const std::vector<SiStripFec>& fecs() const; //@@ TEMPORARY: to maintain backward compatibility!
   /** */
   void connections( std::vector<FedChannelConnection>& ) const;
   /** */
   const SiStripModule& module( const FedChannelConnection& conn ) const;
+  SiStripModule* module( const FedChannelConnection& conn );
   /** */
   const SiStripModule& module( const uint32_t& dcu_id ) const;
   /** */
@@ -76,24 +78,28 @@ class SiStripFecCabling {
 // ---------- Inline methods ----------
 
 const std::vector<SiStripFecCrate>& SiStripFecCabling::crates() const { return crates_; }
+std::vector<SiStripFecCrate>& SiStripFecCabling::crates() { return crates_; }
 
 // TEMPORARY method to maintain backward compatibility!
 const std::vector<SiStripFec>& SiStripFecCabling::fecs() const { 
-  static std::vector<SiStripFec> my_fecs;
+  const static std::vector<SiStripFec> my_fecs;
   if ( !crates_.empty() ) { return crates_[0].fecs(); }
   else { return my_fecs; }
 }
 
 void SiStripFecCabling::dcuId( const FedChannelConnection& conn ) { 
-  const_cast<SiStripModule&>(module(conn)).dcuId(conn.dcuId()); 
+  auto m = module(conn);
+  if(m) {m->dcuId(conn.dcuId());}
 }
 
 void SiStripFecCabling::detId( const FedChannelConnection& conn ) { 
-  const_cast<SiStripModule&>(module(conn)).detId(conn.detId()); 
+  auto m = module(conn);
+  if(m) { m->detId(conn.detId()); }
 }
 
 void SiStripFecCabling::nApvPairs( const FedChannelConnection& conn ) { 
-  const_cast<SiStripModule&>(module(conn)).nApvPairs(conn.nApvPairs()); 
+  auto m = module(conn);
+  if(m) { m->nApvPairs(conn.nApvPairs()); }
 }
 
 #endif // CalibTracker_SiStripObjects_SiStripFecCabling_H

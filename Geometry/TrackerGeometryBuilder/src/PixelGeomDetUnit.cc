@@ -1,18 +1,17 @@
-#include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 
 #include "Geometry/CommonTopologies/interface/SurfaceDeformation.h"
 
-PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType* type,const GeometricDet* gd) : 
-  GeomDetUnit(sp), theTopology(new ProxyPixelTopology(type, sp)), theGD(gd)
+PixelGeomDetUnit::PixelGeomDetUnit( BoundPlane* sp, PixelGeomDetType const * type, DetId id) : 
+  TrackerGeomDet(sp), theTopology(new ProxyPixelTopology(type, sp))
 {
-  setDetId(theGD->geographicalID());
+  setDetId(id);
 }
 
 const GeomDetType& PixelGeomDetUnit::type() const { return theTopology->type(); }
 
-PixelGeomDetType& PixelGeomDetUnit::specificType() const { return theTopology->specificType(); }
+const PixelGeomDetType& PixelGeomDetUnit::specificType() const { return theTopology->specificType(); }
 
 const Topology& PixelGeomDetUnit::topology() const { return *theTopology; }
 

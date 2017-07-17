@@ -13,12 +13,10 @@ process.load("DQMServices.Core.DQM_cfg")
 #
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("DQMServices.Components.DQMEnvironment_cfi")
 
-process.load("DQMOffline.Trigger.FourVectorHLTOffline_cfi")
-process.load("DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.JetMETHLTOfflineSource_cfi")
 process.load("DQMOffline.Trigger.JetMETHLTOfflineClient_cfi")
 process.load("DQMOffline.Trigger.HLTJetMETQualityTester_cfi")
@@ -30,16 +28,10 @@ process.load('HLTrigger/HLTfilters/hltLevel1GTSeed_cfi')
 process.hltLevel1GTSeed.L1TechTriggerSeeding = cms.bool(True)
 process.hltLevel1GTSeed.L1SeedsLogicalExpression = cms.string('40 OR 41')
 
-from DQMOffline.Trigger.FourVectorHLTOfflineClient_cfi import *
 from DQMOffline.Trigger.JetMETHLTOfflineClient_cfi import *
 
 process.load("DQMServices.Components.DQMStoreStats_cfi")
 
-process.hltclient = cms.Sequence(hltFourVectorClient)
-
-hltFourVectorClient.prescaleLS = cms.untracked.int32(-1)
-hltFourVectorClient.monitorDir = cms.untracked.string('')
-hltFourVectorClient.prescaleEvt = cms.untracked.int32(1)
 
 process.maxEvents = cms.untracked.PSet(
     input = cms.untracked.int32(-1)

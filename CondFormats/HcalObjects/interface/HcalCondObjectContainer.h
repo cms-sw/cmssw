@@ -1,6 +1,9 @@
 #ifndef HcalCondObjectContainer_h
 #define HcalCondObjectContainer_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+#include "CondFormats/HcalObjects/interface/HcalDetIdRelationship.h"
+
 #include <vector>
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
 #include "DataFormats/HcalDetId/interface/HcalOtherDetId.h"
@@ -16,17 +19,25 @@ class HcalCondObjectContainerBase {
 public:
   const HcalTopology* topo() const { return topo_; }
   int getCreatorPackedIndexVersion() const { return packedIndexVersion_; }
-  void setTopo(const HcalTopology* topo) const;
-  void setTopo(const HcalTopology* topo);
+  void setTopo(const HcalTopology* topo) ;
 protected:
+  HcalCondObjectContainerBase(HcalCondObjectContainerBase const & o) : packedIndexVersion_(o.packedIndexVersion_), topo_(o.topo()) {}
+  HcalCondObjectContainerBase & operator = (HcalCondObjectContainerBase const & o) {  topo_=o.topo();	packedIndexVersion_=o.packedIndexVersion_; return *this;}
+#ifndef __GCCXML__
+  HcalCondObjectContainerBase(HcalCondObjectContainerBase &&) = default;
+  HcalCondObjectContainerBase & operator = (HcalCondObjectContainerBase &&) = default;
+#endif
+
   HcalCondObjectContainerBase(const HcalTopology*);
   unsigned int indexFor(DetId) const;
   unsigned int sizeFor(DetId) const;
-  int packedIndexVersion_;
+  int packedIndexVersion_ COND_TRANSIENT;
   inline HcalOtherSubdetector extractOther(const DetId& id) const { return HcalOtherSubdetector((id.rawId()>>20)&0x1F); }
   std::string textForId(const DetId& id) const;
 private:
-  mutable const HcalTopology* topo_;
+  const HcalTopology* topo_ COND_TRANSIENT;
+
+  COND_SERIALIZABLE;
 };
 
 template<class Item>
@@ -81,9 +92,8 @@ public:
   std::vector<Item> CALIBcontainer;
   std::vector<Item> CASTORcontainer;
   
-  //volatile const HcalTopology* topo_; // This needs to not be in the DB
 
-
+ COND_SERIALIZABLE;
 };
 
 
@@ -93,21 +103,33 @@ HcalCondObjectContainer<Item>::~HcalCondObjectContainer()
 }
 
 template<class Item> void
-HcalCondObjectContainer<Item>::initContainer(DetId fId)
-{
+HcalCondObjectContainer<Item>::initContainer(DetId fId) {
   Item emptyItem;
 
   if (fId.det()==DetId::Hcal) {
     switch (HcalSubdetector(fId.subdetId())) {
-    case(HcalBarrel) : for (unsigned int i=0; i<sizeFor(fId); i++) HBcontainer.push_back(emptyItem); break;
-    case(HcalEndcap) : for (unsigned int i=0; i<sizeFor(fId); i++) HEcontainer.push_back(emptyItem); break;
-    case(HcalOuter) : for (unsigned int i=0; i<sizeFor(fId); i++) HOcontainer.push_back(emptyItem); break;
-    case(HcalForward) : for (unsigned int i=0; i<sizeFor(fId); i++) HFcontainer.push_back(emptyItem); break;
-    case(HcalTriggerTower) : for (unsigned int i=0; i<sizeFor(fId); i++) HTcontainer.push_back(emptyItem); break;
-    case(HcalOther) : if (extractOther(fId)==HcalCalibration) 
-	for (unsigned int i=0; i<sizeFor(fId); i++) CALIBcontainer.push_back(emptyItem); break;
-      break; 
-    default: break;
+      case HcalBarrel:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HBcontainer.push_back(emptyItem);
+        break;
+      case HcalEndcap:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HEcontainer.push_back(emptyItem);
+        break;
+      case HcalOuter:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HOcontainer.push_back(emptyItem);
+        break;
+      case HcalForward:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HFcontainer.push_back(emptyItem);
+        break;
+      case HcalTriggerTower:
+        for (unsigned int i = 0; i < sizeFor(fId); i++) HTcontainer.push_back(emptyItem);
+        break;
+      case HcalOther:
+        if (extractOther(fId) == HcalCalibration) {
+          for (unsigned int i = 0; i < sizeFor(fId); i++) CALIBcontainer.push_back(emptyItem);
+        }
+        break;
+      default:
+        break;
     }
   } else if (fId.det()==DetId::Calo) {
     if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
@@ -120,8 +142,7 @@ HcalCondObjectContainer<Item>::initContainer(DetId fId)
 
 
 template<class Item> const Item*
-HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
-{
+HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const {
   unsigned int index=indexFor(fId);
   
   const Item* cell = NULL;
@@ -129,15 +150,26 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
   if (index<0xFFFFFFFu) {
     if (fId.det()==DetId::Hcal) {
       switch (HcalSubdetector(fId.subdetId())) {
-      case(HcalBarrel) : if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
-      case(HcalEndcap) : if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
-      case(HcalForward) : if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );   break; 
-      case(HcalOuter) : if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );    break;
-      case(HcalTriggerTower) : if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );    break;
-      case(HcalOther) : if (extractOther(fId)==HcalCalibration) 
-	  if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
-	break; 
-      default: break;
+	case HcalBarrel:
+	  if (index < HBcontainer.size()) cell = &(HBcontainer.at(index));
+	  break;
+	case HcalEndcap:
+	  if (index < HEcontainer.size()) cell = &(HEcontainer.at(index));
+	  break;
+	case HcalForward:
+	  if (index < HFcontainer.size()) cell = &(HFcontainer.at(index));
+	  break; 
+	case HcalOuter:
+	  if (index < HOcontainer.size()) cell = &(HOcontainer.at(index));
+	  break;
+	case HcalTriggerTower:
+	  if (index < HTcontainer.size()) cell = &(HTcontainer.at(index));
+	  break;
+	case HcalOther:
+	  if (extractOther(fId) == HcalCalibration && index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index)); 
+	  break; 
+	default:
+	  break;
       }
     } else if (fId.det()==DetId::Calo) {
       if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
@@ -148,14 +180,12 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
     }
   }
   
-  //  Item emptyItem;
-  //  if (cell->rawId() == emptyItem.rawId() ) 
   if ((!cell)) {
     if (throwOnFail) {
       throw cms::Exception ("Conditions not found") 
 	<< "Unavailable Conditions of type " << myname() << " for cell " << textForId(fId);
     } 
-  } else if (cell->rawId() != fId) {
+  } else if (!hcalEqualDetId(cell,fId)) {
     if (throwOnFail) {
       throw cms::Exception ("Conditions mismatch") 
 	<< "Requested conditions of type " << myname() << " for cell " << textForId(fId) << " got conditions for cell " << textForId(DetId(cell->rawId()));
@@ -167,20 +197,18 @@ HcalCondObjectContainer<Item>::getValues(DetId fId, bool throwOnFail) const
 }
 
 template<class Item> const bool
-HcalCondObjectContainer<Item>::exists(DetId fId) const
-{
+HcalCondObjectContainer<Item>::exists(DetId fId) const {
   const Item* cell = getValues(fId,false);
 
-  if (cell)
-    if (cell->rawId() == fId ) 
+  if (cell) {
+    if (hcalEqualDetId(cell,fId))
       return true;
-  
+  }
   return false;
 }
 
 template<class Item> bool
-HcalCondObjectContainer<Item>::addValues(const Item& myItem)
-{
+HcalCondObjectContainer<Item>::addValues(const Item& myItem) {
   bool success = false;
   DetId fId(myItem.rawId());
   unsigned int index=indexFor(fId);
@@ -190,22 +218,34 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem)
   if (index<0xFFFFFFFu) {
     if (fId.det()==DetId::Hcal) {
       switch (HcalSubdetector(fId.subdetId())) {
-      case(HcalBarrel) : if (!HBcontainer.size() ) initContainer(fId);
-      	if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );  break;
-      case(HcalEndcap) : if (!HEcontainer.size() ) initContainer(fId);
-      	if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );  break;
-      case(HcalForward) : if (!HFcontainer.size() ) initContainer(fId);
-      	if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );  break;
-      case(HcalOuter) : if (!HOcontainer.size() ) initContainer(fId);
-      	if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );  break;
-      case(HcalTriggerTower) : if (!HTcontainer.size() ) initContainer(fId);
-      	if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );  break;  
-      case(HcalOther) : if (extractOther(fId)==HcalCalibration) {
-	  if (!CALIBcontainer.size() ) initContainer(fId);
-	  if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
-	}
-	break; 
-      default: break;
+	case HcalBarrel:
+	  if (!HBcontainer.size() ) initContainer(fId);
+	  if (index < HBcontainer.size()) cell = &(HBcontainer.at(index) );
+	  break;
+	case HcalEndcap:
+	  if (!HEcontainer.size() ) initContainer(fId);
+	  if (index < HEcontainer.size()) cell = &(HEcontainer.at(index) );
+	  break;
+	case HcalForward:
+	  if (!HFcontainer.size() ) initContainer(fId);
+	  if (index < HFcontainer.size()) cell = &(HFcontainer.at(index) );
+	  break;
+	case HcalOuter:
+	  if (!HOcontainer.size() ) initContainer(fId);
+	  if (index < HOcontainer.size()) cell = &(HOcontainer.at(index) );
+	  break;
+	case HcalTriggerTower:
+	  if (!HTcontainer.size() ) initContainer(fId);
+	  if (index < HTcontainer.size()) cell = &(HTcontainer.at(index) );
+	  break;  
+	case HcalOther:
+	  if (extractOther(fId)==HcalCalibration) {
+	    if (!CALIBcontainer.size() ) initContainer(fId);
+	    if (index < CALIBcontainer.size()) cell = &(CALIBcontainer.at(index) );  
+	  }
+	  break; 
+	default:
+	  break;
       }
     } else if (fId.det()==DetId::Calo) {
       if (fId.subdetId()==HcalCastorDetId::SubdetectorId) {
@@ -230,53 +270,43 @@ HcalCondObjectContainer<Item>::addValues(const Item& myItem)
 }
 
 template<class Item> std::vector<DetId>
-HcalCondObjectContainer<Item>::getAllChannels() const
-{
+HcalCondObjectContainer<Item>::getAllChannels() const {
   std::vector<DetId> channels;
   Item emptyItem;
-  for (unsigned int i=0; i<HBcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HBcontainer.at(i).rawId() )
-	channels.push_back( DetId(HBcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HEcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HEcontainer.at(i).rawId() )
-	channels.push_back( DetId(HEcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HOcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HOcontainer.at(i).rawId() )
-	channels.push_back( DetId(HOcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HFcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HFcontainer.at(i).rawId() )
-	channels.push_back( DetId(HFcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<HTcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != HTcontainer.at(i).rawId() )
-	channels.push_back( DetId(HTcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<ZDCcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != ZDCcontainer.at(i).rawId() )
-	channels.push_back( DetId(ZDCcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<CALIBcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != CALIBcontainer.at(i).rawId() )
-	channels.push_back( DetId(CALIBcontainer.at(i).rawId()) );
-    }
-  for (unsigned int i=0; i<CASTORcontainer.size(); i++)
-    {
-      if (emptyItem.rawId() != CASTORcontainer.at(i).rawId() )
-	channels.push_back( DetId(CASTORcontainer.at(i).rawId()) );
-    }
+  for (unsigned int i=0; i<HBcontainer.size(); i++) {
+    if (emptyItem.rawId() != HBcontainer.at(i).rawId() )
+      channels.push_back( DetId(HBcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HEcontainer.size(); i++) {
+    if (emptyItem.rawId() != HEcontainer.at(i).rawId() )
+      channels.push_back( DetId(HEcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HOcontainer.size(); i++) {
+    if (emptyItem.rawId() != HOcontainer.at(i).rawId() )
+      channels.push_back( DetId(HOcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HFcontainer.size(); i++) {
+    if (emptyItem.rawId() != HFcontainer.at(i).rawId() )
+      channels.push_back( DetId(HFcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<HTcontainer.size(); i++) {
+    if (emptyItem.rawId() != HTcontainer.at(i).rawId() )
+      channels.push_back( DetId(HTcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<ZDCcontainer.size(); i++) {
+    if (emptyItem.rawId() != ZDCcontainer.at(i).rawId() )
+      channels.push_back( DetId(ZDCcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<CALIBcontainer.size(); i++) {
+    if (emptyItem.rawId() != CALIBcontainer.at(i).rawId() )
+      channels.push_back( DetId(CALIBcontainer.at(i).rawId()) );
+  }
+  for (unsigned int i=0; i<CASTORcontainer.size(); i++) {
+    if (emptyItem.rawId() != CASTORcontainer.at(i).rawId() )
+      channels.push_back( DetId(CASTORcontainer.at(i).rawId()) );
+  }
 
   return channels;
 }
-
 
 #endif

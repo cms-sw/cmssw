@@ -25,7 +25,7 @@ class MuonChi2MeasurementEstimator : public Chi2MeasurementEstimatorBase {
   
   /// Chi2 estimator
   virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-					  const TransientTrackingRecHit&) const;
+					  const TrackingRecHit&) const;
 
 
  private:

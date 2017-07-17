@@ -8,7 +8,10 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
+#include "CLHEP/Random/RandFlat.h"
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
 using namespace edm;
 
@@ -23,7 +26,7 @@ FlatRandomOneOverPtGunProducer::FlatRandomOneOverPtGunProducer(const edm::Parame
   fMinOneOverPt = pgun_params.getParameter<double>("MinOneOverPt");
   fMaxOneOverPt = pgun_params.getParameter<double>("MaxOneOverPt");
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 
   edm::LogInfo("ParticleGun") << "FlatRandomOneOverPtGunProducer: initialized with minimum and maximum 1/pt " << fMinOneOverPt << ":" << fMaxOneOverPt;
@@ -34,6 +37,9 @@ FlatRandomOneOverPtGunProducer::~FlatRandomOneOverPtGunProducer() {
 }
 
 void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
 
   LogDebug("ParticleGun") << " FlatRandomOneOverPtGunProducer : Begin New Event Generation"; 
 
@@ -57,11 +63,11 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
   int barcode = 1 ;
   for (unsigned int ip=0; ip<fPartIDs.size(); ++ip) {
 
-    double xx     = fRandomGenerator->fire(0.0,1.0);
+    double xx     = CLHEP::RandFlat::shoot(engine, 0.0, 1.0);
     double pt     = std::exp((1.-xx)*std::log(fMinOneOverPt)+
 			     xx*std::log(fMaxOneOverPt)) ;
-    double eta    = fRandomGenerator->fire(fMinEta, fMaxEta) ;
-    double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
+    double eta    = CLHEP::RandFlat::shoot(engine, fMinEta, fMaxEta) ;
+    double phi    = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi) ;
     if (pt != 0) pt = 1./pt;
     int PartID = fPartIDs[ip] ;
     const HepPDT::ParticleData* 
@@ -103,12 +109,12 @@ void FlatRandomOneOverPtGunProducer::produce(Event &e, const EventSetup& es) {
     fEvt->print() ;  
   }
 
-  std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct);
+  e.put(std::move(BProduct), "unsmeared");
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(genEventInfo);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  e.put(std::move(genEventInfo));
     
   LogDebug("ParticleGun") << " FlatRandomOneOverPtGunProducer : Event Generation Done ";
 }

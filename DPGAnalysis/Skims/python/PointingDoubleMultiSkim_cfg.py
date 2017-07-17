@@ -28,7 +28,7 @@ process.load("Configuration.StandardSequences.ReconstructionCosmics_cff")
 ################ Tracker Pointing ################ 
 
 process.cosmicMuonsBarrelOnlyTkFilter = cms.EDFilter("HLTMuonPointingFilter",
-                                                     SALabel = cms.string("cosmicMuonsBarrelOnly"),
+                                                     SALabel = cms.InputTag("cosmicMuonsBarrelOnly"),
                                                      PropagatorName = cms.string("SteppingHelixPropagatorAny"),
                                                      radius = cms.double(90.0),
                                                      maxZ = cms.double(130.0)

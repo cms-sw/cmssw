@@ -34,12 +34,12 @@ class HLTMuonPtFilter : public HLTFilter {
 /// Destructorquer
     ~HLTMuonPtFilter() ;
 
-/* Operations */ 
-    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+/* Operations */
+    virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
 
   private:
-    std::string theSTAMuonLabel; // label of muons 
-    double theMinPt;    // minimum pt required 
+    std::string theSTAMuonLabel; // label of muons
+    double theMinPt;    // minimum pt required
 
 
 };

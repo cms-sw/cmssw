@@ -29,17 +29,16 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/makeRefToBaseProdFrom.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/EDMException.h"
 
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/BTauReco/interface/JetTag.h"
-
-#include "RecoBTau/JetTagComputer/interface/JetTagComputer.h"
-#include "RecoBTau/JetTagComputer/interface/JetTagComputerRecord.h"
 
 #include "JetTagProducer.h"
 
@@ -51,7 +50,6 @@ using namespace edm;
 // constructors and destructor
 //
 JetTagProducer::JetTagProducer(const ParameterSet& iConfig) :
-  m_computer(0),
   m_jetTagComputer(iConfig.getParameter<string>("jetTagComputer"))
 {
   std::vector<edm::InputTag> m_tagInfos = iConfig.getParameter< vector<InputTag> >("tagInfos");
@@ -70,30 +68,6 @@ JetTagProducer::~JetTagProducer()
 //
 // member functions
 //
-// internal method called on first event to locate and setup JetTagComputer
-void JetTagProducer::setup(const edm::EventSetup& iSetup)
-{
-  edm::ESHandle<JetTagComputer> computer;
-  iSetup.get<JetTagComputerRecord>().get( m_jetTagComputer, computer );
-  m_computer = computer.product();
-  m_computer->setEventSetup(iSetup);
-
-  // finalize the JetTagProducer <-> JetTagComputer glue setup
-  vector<string> inputLabels(m_computer->getInputLabels());
-
-  // backward compatible case, use default tagInfo
-  if (inputLabels.empty())
-    inputLabels.push_back("tagInfo");
-
-  if (nTagInfos != inputLabels.size()) {
-    std::string message("VInputTag size mismatch - the following taginfo "
-                        "labels are needed:\n");
-    for(vector<string>::const_iterator iter = inputLabels.begin();
-        iter != inputLabels.end(); ++iter)
-      message += "\"" + *iter + "\"\n";
-    throw edm::Exception(errors::Configuration) << message;
-  }
-}
 
 // map helper - for some reason RefToBase lacks operator < (...)
 namespace {
@@ -109,10 +83,26 @@ namespace {
 void
 JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 {
-  if (m_computer)
-    m_computer->setEventSetup(iSetup);
-  else
-    setup(iSetup);
+  edm::ESHandle<JetTagComputer> computer;
+  iSetup.get<JetTagComputerRecord>().get( m_jetTagComputer, computer );
+
+  if (recordWatcher_.check(iSetup) ) {
+    unsigned int nLabels = computer->getInputLabels().size();
+    if (nLabels == 0) ++nLabels;
+    if (nTagInfos != nLabels) {
+
+      vector<string> inputLabels(computer->getInputLabels());
+      // backward compatible case, use default tagInfo
+      if (inputLabels.empty())
+        inputLabels.push_back("tagInfo");
+      std::string message("VInputTag size mismatch - the following taginfo "
+                          "labels are needed:\n");
+      for(vector<string>::const_iterator iter = inputLabels.begin();
+          iter != inputLabels.end(); ++iter)
+        message += "\"" + *iter + "\"\n";
+      throw edm::Exception(errors::Configuration) << message;
+    }
+  }
 
   // now comes the tricky part:
   // we need to collect all requested TagInfos belonging to the same jet
@@ -141,12 +131,12 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   // take first tagInfo
   Handle< View<BaseTagInfo> > &tagInfoHandle = tagInfoHandles[0];
-  auto_ptr<JetTagCollection> jetTagCollection;
+  std::unique_ptr<JetTagCollection> jetTagCollection;
   if (tagInfoHandle.product()->size() > 0) {
     RefToBase<Jet> jj = tagInfoHandle->begin()->jet();
-    jetTagCollection.reset(new JetTagCollection(RefToBaseProd<Jet>(jj)));
+    jetTagCollection = std::make_unique<JetTagCollection>(edm::makeRefToBaseProdFrom(jj, iEvent));
   } else
-    jetTagCollection.reset(new JetTagCollection());
+    jetTagCollection = std::make_unique<JetTagCollection>();
 
   // now loop over the map and compute all JetTags
   for(JetToTagInfoMap::const_iterator iter = jetToTagInfos.begin();
@@ -154,12 +144,29 @@ JetTagProducer::produce(Event& iEvent, const EventSetup& iSetup)
     const TagInfoPtrs &tagInfoPtrs = iter->second;
 
     JetTagComputer::TagInfoHelper helper(tagInfoPtrs);
-    float discriminator = (*m_computer)(helper);
+    float discriminator = (*computer)(helper);
 
     (*jetTagCollection)[iter->first] = discriminator;
   }
 
-  iEvent.put(jetTagCollection);
+  iEvent.put(std::move(jetTagCollection));
+}
+
+// ------------ method fills 'descriptions' with the allowed parameters for the module ------------
+void
+JetTagProducer::fillDescriptions(edm::ConfigurationDescriptions & descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("jetTagComputer","combinedMVAComputer");
+  {
+    std::vector<edm::InputTag> tagInfos;
+    tagInfos.push_back(edm::InputTag("impactParameterTagInfos"));
+    tagInfos.push_back(edm::InputTag("inclusiveSecondaryVertexFinderTagInfos"));
+    tagInfos.push_back(edm::InputTag("softPFMuonsTagInfos"));
+    tagInfos.push_back(edm::InputTag("softPFElectronsTagInfos"));
+    desc.add<std::vector<edm::InputTag> >("tagInfos",tagInfos);
+  }
+  descriptions.addDefault(desc);
 }
 
 // define it as plugin

@@ -7,6 +7,7 @@
  */
 
 #include "DataFormats/CSCDigi/interface/CSCCorrelatedLCTDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 
 /// Constructors
@@ -54,6 +55,11 @@ void CSCCorrelatedLCTDigi::clear() {
   cscID   = 0;
 }
 
+/// return the fractional strip
+float CSCCorrelatedLCTDigi::getFractionalStrip() const{
+  return 0.5f * (getStrip() + 1) - 0.25f;
+}
+
 /// Comparison
 bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi &rhs) const {
   return ((trknmb == rhs.trknmb)   && (quality == rhs.quality) &&
@@ -65,7 +71,8 @@ bool CSCCorrelatedLCTDigi::operator==(const CSCCorrelatedLCTDigi &rhs) const {
 /// Debug
 void CSCCorrelatedLCTDigi::print() const {
   if (isValid()) {
-    std::cout << "CSC LCT #"        << getTrknmb() 
+    edm::LogVerbatim("CSCDigi")
+              << "CSC LCT #"        << getTrknmb() 
 	      << ": Valid = "       << isValid()
 	      << " Quality = "      << getQuality()
 	      << " Key Wire = "     << getKeyWG()
@@ -73,10 +80,10 @@ void CSCCorrelatedLCTDigi::print() const {
               << " Pattern = "      << getPattern()
 	      << " Bend = "         << ( (getBend() == 0) ? 'L' : 'R' )
 	      << " BX = "           << getBX() 
-	      << " MPC Link = "     << getMPCLink() << std::endl;
+	      << " MPC Link = "     << getMPCLink();
   }
   else {
-    std::cout << "Not a valid correlated LCT." << std::endl;
+    edm::LogVerbatim("CSCDigi") << "Not a valid correlated LCT.";
   }
 }
 

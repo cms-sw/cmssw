@@ -29,6 +29,8 @@
 #include "G4VProcess.hh"
 #include "G4VTouchable.hh"
 
+#include "CLHEP/Units/SystemOfUnits.h"
+
 // forward declarations
 class DDDWorld;
 class BeginOfJob;
@@ -106,18 +108,22 @@ class EcalTBH4Trigger : public SimWatcher,
 	const G4Track* theTrack = iStep->GetTrack();
 	const G4ThreeVector pos = post->GetPosition();
 	std::cout << "( "<<pos.x()<<","<<pos.y()<<","<<pos.z()<<") ";
-	std::cout << " released energy (MeV) " <<  iStep->GetTotalEnergyDeposit()/MeV  ;
+	std::cout << " released energy (MeV) " 
+		  <<  iStep->GetTotalEnergyDeposit()/CLHEP::MeV  ;
 	if (theTrack)
 	  {
 	    const G4ThreeVector mom = theTrack->GetMomentum();
-	    std::cout << " track length (cm) " << theTrack->GetTrackLength()/cm
+	    std::cout << " track length (cm) " << theTrack->GetTrackLength()/CLHEP::cm
 		      << " particle type " << theTrack->GetDefinition()->GetParticleName()
 		      << " momentum " << "( "<<mom.x()<<","<<mom.y()<<","<<mom.z()<<") ";
-	    if (theTrack->GetCreatorProcess())
-	      std::cout << " created by " << theTrack->GetCreatorProcess()->GetProcessName();
+	    if (theTrack->GetCreatorProcess()) {
+	      std::cout << " created by " 
+			<< theTrack->GetCreatorProcess()->GetProcessName();
+	    }
 	  }
 	if(post->GetPhysicalVolume()) {
-	  std::cout << " " << pre->GetPhysicalVolume()->GetName() << "->" << post->GetPhysicalVolume()->GetName();
+	  std::cout << " " << pre->GetPhysicalVolume()->GetName() 
+		    << "->" << post->GetPhysicalVolume()->GetName();
 	}
 	std::cout <<std::endl; 
       }

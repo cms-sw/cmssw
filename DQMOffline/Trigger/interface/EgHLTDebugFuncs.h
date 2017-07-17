@@ -1,5 +1,5 @@
 #ifndef DQMOFFLINE_TRIGGER_DEBUGFUNCS
-#define DQMOFFLINE_TRIGGER_DEGUGFUNCS
+#define DQMOFFLINE_TRIGGER_DEBUGFUNCS
 
 //collection of usefull functions adding to debug namespace
 //
@@ -16,6 +16,9 @@
 
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Framework/interface/Event.h"
+
+#include <iostream>
+
 namespace egHLT {
   namespace debug {
     

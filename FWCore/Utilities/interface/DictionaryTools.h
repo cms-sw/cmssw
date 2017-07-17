@@ -12,57 +12,59 @@ the CMS event model.
 #include <string>
 #include <vector>
 
+class TClass;
+
 namespace edm {
 
+  class Exception;
+  class TypeID;
   class TypeWithDict;
-  typedef std::set<std::string> StringSet;
 
-  bool
-  find_nested_type_named(std::string const& nested_type,
-			 TypeWithDict const& type_to_search,
-			 TypeWithDict& found_type);
-  bool
-  find_nested_type_named(std::string const& nested_type,
-			 TypeWithDict const& type_to_search,
-			 TypeWithDict& found_type);
+  bool checkDictionary(std::vector<std::string>& missingDictionaries,
+                       TypeID const& typeID);
 
-  inline
-  bool
-  value_type_of(TypeWithDict const& t, TypeWithDict& found_type) {
-    return find_nested_type_named("value_type", t, found_type);
-  }
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                    TypeID const& unwrappedTypeID);
 
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                    std::string const& unwrappedName);
 
-  inline
-  bool
-  wrapper_type_of(TypeWithDict const& possible_wrapper,
-		  TypeWithDict& found_wrapped_type) {
-    return find_nested_type_named("wrapped_type",
-				  possible_wrapper,
-				  found_wrapped_type);
-  }
+  bool checkDictionary(std::vector<std::string>& missingDictionaries,
+                       std::string const& name,
+                       TypeWithDict const& typeWithDict);
 
-  bool
-  is_RefVector(TypeWithDict const& possible_ref_vector,
-	       TypeWithDict& value_type);
+  bool checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                              TypeID const& typeID);
 
-  bool
-  is_PtrVector(TypeWithDict const& possible_ref_vector,
-	       TypeWithDict& value_type);
-  bool
-  is_RefToBaseVector(TypeWithDict const& possible_ref_vector,
-		     TypeWithDict& value_type);
+  bool checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                              std::string const& name,
+                              TypeWithDict const& typeWithDict);
 
-  void checkDictionaries(std::string const& name, bool noComponents = false);
-  void throwMissingDictionariesException();
-  void loadMissingDictionaries();
-  StringSet& missingTypes();
-  StringSet& foundTypes();
+  void addToMissingDictionariesException(edm::Exception& exception,
+                                         std::vector<std::string>& missingDictionaries,
+                                         std::string const& context);
 
-  void public_base_classes(TypeWithDict const& type,
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context);
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context,
+                                         std::vector<std::string>& producedTypes);
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context,
+                                         std::vector<std::string>& producedTypes,
+                                         std::vector<std::string>& branchNames,
+                                         bool fromStreamerSource = false);
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context,
+                                         std::set<std::string>& producedTypes,
+                                         bool consumedWithView);
+
+  bool public_base_classes(std::vector<std::string>& missingDictionaries,
+                           TypeID const& typeID,
                            std::vector<TypeWithDict>& baseTypes);
+} // namespace edm
 
-  std::string const& dictionaryPlugInPrefix();
-}
-
-#endif
+#endif // FWCore_Utilities_DictionaryTools_h

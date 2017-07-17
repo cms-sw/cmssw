@@ -129,8 +129,8 @@ class DDHtmlLpDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlLpDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -138,8 +138,8 @@ class DDHtmlMaDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlMaDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -147,8 +147,8 @@ class DDHtmlSoDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlSoDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -156,8 +156,8 @@ class DDHtmlRoDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlRoDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 
@@ -165,8 +165,8 @@ class DDHtmlSpDetails : public DDHtmlDetails
 {
 public: 
   DDHtmlSpDetails(const std::string & cat, const std::string & txt) : DDHtmlDetails(cat,txt) {}
-  bool details(std::ostream & os, const DDName &);
-  ns_type & names();
+  bool details(std::ostream & os, const DDName &) override;
+  ns_type & names() override;
   
 };
 

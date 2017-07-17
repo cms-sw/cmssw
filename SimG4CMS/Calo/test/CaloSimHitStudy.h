@@ -58,6 +58,7 @@ private:
   edm::EDGetTokenT<edm::PSimHitContainer> toks_tkLow_[6];
   std::string    muonLab[3], tkHighLab[6], tkLowLab[6];
   double         tmax_, eMIP_;
+  bool           storeRL_;
 
   TH1F           *hit_[9],  *time_[9], *edepEM_[9], *edepHad_[9], *edep_[9];
   TH1F           *etot_[9], *etotg_[9], *timeAll_[9], *hitMu, *hitHigh;

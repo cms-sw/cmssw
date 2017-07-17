@@ -42,7 +42,9 @@ namespace reco {
       HFEM=8,
       HFHAD=9,
       SC=10,
-      HO=11
+      HO=11,
+      HGCAL=12,
+      kNBETypes=13
     };
 
     enum TrackType {
@@ -58,7 +60,9 @@ namespace reco {
     PFBlockElement(Type type=NONE) :  
       type_(type), 
       locked_(false),
-      index_( static_cast<unsigned>(-1) ) {
+      index_( static_cast<unsigned>(-1) ),
+      time_(0.f), timeError_(-1.f)
+    {
     }
 
 
@@ -97,13 +101,13 @@ namespace reco {
     /// \return index
     unsigned index() const {return index_;} 
 
-    virtual reco::TrackRef trackRef()  const {return reco::TrackRef(); }
-    virtual PFRecTrackRef trackRefPF()  const {return PFRecTrackRef(); }
-    virtual PFClusterRef clusterRef() const {return PFClusterRef(); }
-    virtual PFDisplacedTrackerVertexRef displacedVertexRef(TrackType trType) const { return PFDisplacedTrackerVertexRef(); }
-    virtual ConversionRef    convRef() const { return ConversionRef();}
-    virtual MuonRef muonRef() const { return MuonRef(); }
-    virtual VertexCompositeCandidateRef V0Ref()  const { return VertexCompositeCandidateRef(); }
+    virtual const reco::TrackRef& trackRef()  const {return nullTrack_; }
+    virtual const PFRecTrackRef& trackRefPF()  const {return nullPFRecTrack_; }
+    virtual const PFClusterRef& clusterRef() const {return nullPFCluster_; }
+    virtual const PFDisplacedTrackerVertexRef& displacedVertexRef(TrackType trType) const { return nullPFDispVertex_; }
+    virtual const ConversionRefVector&    convRefs() const { return nullConv_;}
+    virtual const MuonRef& muonRef() const { return nullMuon_; }
+    virtual const VertexCompositeCandidateRef& V0Ref()  const { return nullVertex_; }
     virtual void setDisplacedVertexRef(const PFDisplacedTrackerVertexRef& niref, TrackType trType) { 
       std::cout << "Error in PFBlockElement::setDisplacedVertexRef : this base class method is not implemented" << std::endl;}
     virtual void setConversionRef(const ConversionRef& convRef, TrackType trType) { 
@@ -120,9 +124,6 @@ namespace reco {
     virtual bool isPrimary() const { return false; }
     virtual bool isLinkedToDisplacedVertex() const {return false;}
 
-    friend std::ostream& operator<<( std::ostream& out, 
-                                     const PFBlockElement& element );
-
     // Glowinski & Gouzevitch
     void setMultilinks(const PFMultiLinksTC& ml) {multilinks_ = ml;}
     void setIsValidMultilinks(bool isVal) {multilinks_.isValid = isVal;}
@@ -131,6 +132,15 @@ namespace reco {
     bool isMultilinksValide() const {return multilinks_.isValid;}
     const PFMultilinksType& getMultilinks() const {return multilinks_.linkedClusters;}
     // ! Glowinski & Gouzevitch
+
+    /// do we have a valid time information
+    bool isTimeValid() const { return timeError_ >= 0.f; }
+    /// \return the timing
+    float time() const { return time_; }
+    /// \return the timing uncertainty
+    float timeError() const { return timeError_; }
+    /// \set the timing information
+    void setTime(float time, float timeError = 0.f) { time_ = time; timeError_ = timeError; }
 
   protected:  
 
@@ -149,7 +159,24 @@ namespace reco {
     // Glowinski & Gouzevitch
     PFMultiLinksTC multilinks_;
     // ! Glowinski & Gouzevitch
+    
+    /// timing information (valid if timeError_ >= 0)
+    float time_;
+    /// timing information uncertainty (<0 if timing not available)
+    float timeError_;
+
+    const static reco::TrackRef nullTrack_;
+    const static PFRecTrackRef nullPFRecTrack_;
+    const static PFClusterRef nullPFCluster_;
+    const static PFDisplacedTrackerVertexRef nullPFDispVertex_;
+    const static ConversionRefVector nullConv_;
+    const static MuonRef nullMuon_;
+    const static VertexCompositeCandidateRef nullVertex_;
   
   };
+
+    std::ostream& operator<<( std::ostream& out, 
+                              const PFBlockElement& element );
+
 }
 #endif

@@ -3,7 +3,8 @@
 
 #include <map>
 #include <vector>
-#include "boost/thread.hpp"
+#include <ostream>
+#include <mutex>
 
 // ----------------------------------------------------------------------
 
@@ -28,18 +29,14 @@
 #pragma GCC visibility push(default)
 namespace edm {
   namespace detail {
-    struct empty { };
 
-    template <typename KEY, typename T, typename E=empty>
+    template <typename KEY, typename T>
     class ThreadSafeRegistry {
     public:
       typedef KEY   key_type;
       typedef T     value_type;
-      typedef E     extra_type;
       typedef typename std::map<key_type, value_type> collection_type;
       typedef typename collection_type::size_type      size_type;
-
-      typedef typename collection_type::const_iterator const_iterator;
 
       typedef typename std::vector<value_type> vector_type;
 
@@ -80,142 +77,88 @@ namespace edm {
       /// Return the number of contained value_type objects.
       size_type size() const;
 
-      /// Allow iteration through the contents of the registry. Only
-      /// const access is provided to the entries of the registry.
-      const_iterator begin() const;
-      const_iterator end() const;
-
       /// Print the contents of this registry to the given ostream.
       void print(std::ostream& os) const;
-
-      /// Provide access to the contained collection
-      collection_type& dataForUpdate();
-      collection_type const& data() const;
-
-      /// Provide access to the appendage "extra". The
-      /// ThreadSafeRegistry doesn't know what this is for, but
-      /// instantiations of the template can use it.
-      extra_type& extraForUpdate();
-      extra_type const& extra() const;      
 
     private:
       ThreadSafeRegistry();
       ~ThreadSafeRegistry();
 
       // The following two are not implemented.
-      ThreadSafeRegistry(ThreadSafeRegistry<KEY,T,E> const&); 
+      ThreadSafeRegistry(ThreadSafeRegistry<KEY,T> const&); 
     
-      ThreadSafeRegistry<KEY,T,E>& 
-      operator= (ThreadSafeRegistry<KEY,T,E> const&);
+      ThreadSafeRegistry<KEY,T>& 
+      operator= (ThreadSafeRegistry<KEY,T> const&);
 
+      mutable std::mutex mutex_;
       collection_type data_;
-      extra_type      extra_;
     };
 
     template <typename KEY, typename T, typename E>
     inline
     std::ostream&
-    operator<< (std::ostream& os, ThreadSafeRegistry<KEY,T,E> const& reg) {
+    operator<< (std::ostream& os, ThreadSafeRegistry<KEY,T> const& reg) {
       reg.print(os);
       return os;
     }
 
-    template <typename KEY, typename T, typename E>
+    template <typename KEY, typename T>
     void 
-    ThreadSafeRegistry<KEY,T,E>::insertCollection(collection_type const& c) {
-      for (typename collection_type::const_iterator it = c.begin(), itEnd = c.end(); it != itEnd; ++it) {
-	insertMapped(it->second);
+    ThreadSafeRegistry<KEY,T>::insertCollection(collection_type const& c) {
+      for (auto const& item: c ) {
+	insertMapped(item.second);
       }
     }
 
-    template <typename KEY, typename T, typename E>
+    template <typename KEY, typename T>
     void 
-    ThreadSafeRegistry<KEY,T,E>::insertCollection(vector_type const& c) {
-      for (typename vector_type::const_iterator it = c.begin(), itEnd = c.end(); it != itEnd; ++it) {
-	insertMapped(*it);
+    ThreadSafeRegistry<KEY,T>::insertCollection(vector_type const& c) {
+      for (auto const& item: c) {
+	insertMapped(item);
       }
     }
 
-    template <typename KEY, typename T, typename E>
+    template <typename KEY, typename T>
     inline
     bool
-    ThreadSafeRegistry<KEY,T,E>::empty() const {
+    ThreadSafeRegistry<KEY,T>::empty() const {
+      std::lock_guard<std::mutex> guard(mutex_);
       return data_.empty();
     }
     
-    template <typename KEY, typename T, typename E>
+    template <typename KEY, typename T>
     inline
     bool
-    ThreadSafeRegistry<KEY,T,E>::notEmpty() const {
+    ThreadSafeRegistry<KEY,T>::notEmpty() const {
       return !empty();
     }
 
-    template <typename KEY, typename T, typename E>
+    template <typename KEY, typename T>
     inline
-    typename ThreadSafeRegistry<KEY,T,E>::size_type
-    ThreadSafeRegistry<KEY,T,E>::size() const {
+    typename ThreadSafeRegistry<KEY,T>::size_type
+    ThreadSafeRegistry<KEY,T>::size() const {
+      std::lock_guard<std::mutex> guard(mutex_);
       return data_.size();
     }
 
-    template <typename KEY, typename T, typename E>
-    inline
-    typename ThreadSafeRegistry<KEY,T,E>::const_iterator
-    ThreadSafeRegistry<KEY,T,E>::begin() const {
-      return data_.begin();
-    }
-
-    template <typename KEY, typename T, typename E>
-    inline
-    typename ThreadSafeRegistry<KEY,T,E>::const_iterator
-    ThreadSafeRegistry<KEY,T,E>::end() const {
-      return data_.end();
-    }
-    
-    template <typename KEY, typename T, typename E>
+    template <typename KEY, typename T>
     void
-    ThreadSafeRegistry<KEY,T,E>::print(std::ostream& os) const {
+    ThreadSafeRegistry<KEY,T>::print(std::ostream& os) const {
+      std::lock_guard<std::mutex> guard(mutex_);
       os << "Registry with " << size() << " entries\n";
-      for (const_iterator i=begin(), e=end(); i!=e; ++i) {
-	  os << i->first << " " << i->second << '\n';
+      for (auto const& item: data_) {
+	  os << item.first << " " << item.second << '\n';
       }
     }
 
-    template <typename KEY, typename T, typename E>
-    inline
-    typename ThreadSafeRegistry<KEY,T,E>::collection_type&
-    ThreadSafeRegistry<KEY,T,E>::dataForUpdate() {
-      return data_;
-    }
-
-    template <typename KEY, typename T, typename E>
-    inline
-    typename ThreadSafeRegistry<KEY,T,E>::extra_type&
-    ThreadSafeRegistry<KEY,T,E>::extraForUpdate() {
-      return extra_;
-    }
-
-    template <typename KEY, typename T, typename E>
-    inline
-    typename ThreadSafeRegistry<KEY,T,E>::extra_type const&
-    ThreadSafeRegistry<KEY,T,E>::extra() const {
-      return extra_;
-    }
-
-    template <typename KEY, typename T, typename E>
-    inline
-    typename ThreadSafeRegistry<KEY,T,E>::collection_type const&
-    ThreadSafeRegistry<KEY,T,E>::data() const {
-      return data_;
-    }
-
-    template <typename KEY, typename T, typename E> 
-    ThreadSafeRegistry<KEY,T,E>::ThreadSafeRegistry() : 
+    template <typename KEY, typename T> 
+    ThreadSafeRegistry<KEY,T>::ThreadSafeRegistry() : 
       data_()
     { }
 
 
-    template <typename KEY, typename T, typename E> 
-    ThreadSafeRegistry<KEY,T,E>::~ThreadSafeRegistry() 
+    template <typename KEY, typename T> 
+    ThreadSafeRegistry<KEY,T>::~ThreadSafeRegistry() 
     { }
 
   } // namespace detail

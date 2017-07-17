@@ -26,13 +26,13 @@ class RunCommentDat : public IDataItem {
 
  private:
   void prepareWrite() 
-    throw(std::runtime_error);
+    noexcept(false);
 
   void writeDB(const EcalLogicID* ecid, const RunCommentDat* item, RunIOV* iov )
-    throw(std::runtime_error);
+    noexcept(false);
 
   void fetchData(std::map< EcalLogicID, RunCommentDat >* fillMap, RunIOV* iov)
-     throw(std::runtime_error);
+     noexcept(false);
 
   // User data
  std::string m_source ;

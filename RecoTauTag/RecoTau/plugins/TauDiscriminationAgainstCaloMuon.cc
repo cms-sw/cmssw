@@ -42,6 +42,8 @@
 
 #include <string>
 
+namespace {
+
 using namespace reco;
 
 // define acess to lead. track for CaloTaus
@@ -76,7 +78,7 @@ class TauLeadTrackExtractor<reco::PFTau>
   double getTrackPtSum(const reco::PFTau& tau) const
   {
     double trackPtSum = 0.;
-    for ( PFCandidateRefVector::const_iterator signalTrack = tau.signalPFChargedHadrCands().begin();
+    for ( std::vector<PFCandidatePtr>::const_iterator signalTrack = tau.signalPFChargedHadrCands().begin();
 	  signalTrack != tau.signalPFChargedHadrCands().end(); ++signalTrack ) {
       trackPtSum += (*signalTrack)->pt();
     }
@@ -85,7 +87,7 @@ class TauLeadTrackExtractor<reco::PFTau>
 };
 
 template<class TauType, class TauDiscriminator>
-class TauDiscriminationAgainstCaloMuon : public TauDiscriminationProducerBase<TauType, TauDiscriminator>
+class TauDiscriminationAgainstCaloMuon final : public TauDiscriminationProducerBase<TauType, TauDiscriminator>
 {
  public:
   // setup framework types for this tautype
@@ -96,9 +98,9 @@ class TauDiscriminationAgainstCaloMuon : public TauDiscriminationProducerBase<Ta
   ~TauDiscriminationAgainstCaloMuon() {} 
 
   // called at the beginning of every event
-  void beginEvent(const edm::Event&, const edm::EventSetup&);
+  void beginEvent(const edm::Event&, const edm::EventSetup&) override;
 
-  double discriminate(const TauRef&);
+  double discriminate(const TauRef&) const override;
 
  private:  
   edm::InputTag srcEcalRecHitsBarrel_;
@@ -272,7 +274,7 @@ double compHcalEnergySum(const HBHERecHitCollection& hcalRecHits,
 }
 
 template<class TauType, class TauDiscriminator>
-double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate(const TauRef& tau)
+double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate(const TauRef& tau) const
 {
   if ( !(trackBuilder_ && caloGeometry_) ) return 0.;
 
@@ -307,6 +309,8 @@ double TauDiscriminationAgainstCaloMuon<TauType, TauDiscriminator>::discriminate
   }
 
   return 1.;
+}
+
 }
 
 #include "FWCore/Framework/interface/MakerMacros.h"

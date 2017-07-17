@@ -1,0 +1,142 @@
+<?xml version="1.0"?>
+<DDDefinition xmlns="http://www.cern.ch/cms/DDL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.cern.ch/cms/DDL ../../../DetectorDescription/Schema/DDLSchema.xsd">
+  <SpecParSection label="orcaME.xml">
+    <!--      DATA        CHRPC/'RCAX','RCBX',                       !barrel MB1,MB1''
+         &                  'RCCX','RCDX',                       !barrel MB2,MB2''
+         &                  'RCEX',                              !barrel MB3
+         &                  'RCFX','RCGX','RCHX','RCIX',         !barrel MB4
+         &                  'REAX','REBX','RECX',                !forward...
+         &                  'REDX','REEX','REFX',
+         &                  'REGX','REHX'/
+         
+         INTEGER NSTR_CH(NRPC)
+         DATA    NSTR_CH /  90,      84,
+         &                   90,      84,
+         &                   42,
+         &                   48,      36,     48,    60,
+         &                   32,      32,     32,       
+         &                   64,      32,     32,
+         &                   64,      64/
+         -->
+    <SpecPar name="nStrips90" eval="true">
+      <PartSelector path="//MB/MBWheel_0/MB1N0P/MB1RPC_IP/MB1RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB1P0/MB1RPC_IP/MB1RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB2N32P/MB23RPC_IN/MB23RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB2P32P/MB23RPC_IP/MB23RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB1ChimN/MB1ChimRPC_IN/MB1ChimRPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_IN/MB1RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB2ChimN/MB2ChimRPC_IN/MB2ChimRPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB2N32N/MB23RPC_IN/MB23RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB1ChimP/MB1ChimRPC_IP/MB1ChimRPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_IP/MB1RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB2ChimP/MB2ChimRPC_IP/MB2ChimRPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB2P32P/MB23RPC_IP/MB23RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB1N/MB1RPC_IN/MB1RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB2N23N/MB22RPC_IN/MB22RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB1P/MB1RPC_IP/MB1RPC_IGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB2P23P/MB22RPC_IP/MB22RPC_IGas.*"/>
+      <Parameter name="nStrips" value="90"/>
+    </SpecPar>
+    <SpecPar name="nStrips84" eval="true">
+      <PartSelector path="//MB/MBWheel_0/MB1N0P/MB1RPC_OP/MB1RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB1P0/MB1RPC_OP/MB1RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB2N32P/MB22RPC_ON/MB22RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB2P32P/MB22RPC_OP/MB22RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB1ChimN/MB1ChimRPC_ON/MB1ChimRPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB1N/MB1RPC_ON/MB1RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB2ChimN/MB2ChimRPC_ON/MB2ChimRPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB2N32N/MB22RPC_ON/MB22RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB1ChimP/MB1ChimRPC_OP/MB1ChimRPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB1P/MB1RPC_OP/MB1RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB2ChimP/MB2ChimRPC_OP/MB2ChimRPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB2P32P/MB22RPC_OP/MB22RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB1N/MB1RPC_ON/MB1RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB2N23N/MB23RPC_ON/MB23RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB1P/MB1RPC_OP/MB1RPC_OGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB2P23P/MB23RPC_OP/MB23RPC_OGas.*"/>
+      <Parameter name="nStrips" value="84"/>
+    </SpecPar>
+    <SpecPar name="nStrips42" eval="true">
+      <PartSelector path="//MB/MBWheel_0/MB3N/MB3RPC_N/MB3RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB3P/MB3RPC_P/MB3RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB3ChimN/MB3ChimRPC_N/MB3ChimRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB3N/MB3RPC_N/MB3RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB3ChimP/MB3ChimRPC_P/MB3ChimRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB3P/MB3RPC_P/MB3RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB3N/MB3RPC_N/MB3RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB3P/MB3RPC_P/MB3RPC_Gas.*"/>
+      <Parameter name="nStrips" value="42"/>
+    </SpecPar>
+    <SpecPar name="nStrips48" eval="true">
+      <PartSelector path="//MB/MBWheel_0/MB4BigLeftN/MB4RPC_N/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4BigLeftP/MB4RPC_P/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4BigRightN/MB4RPC_N/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4BigRightP/MB4RPC_P/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4BigChimN/MB4BigChimRPC_N/MB4BigChimRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4BigLeftN/MB4RPC_N/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4BigRightN/MB4RPC_N/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4BigLeftP/MB4RPC_P/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4BigRightP/MB4RPC_P/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4BigLeftN/MB4RPC_N/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4BigRightN/MB4RPC_N/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4FeetN/MB4FeetRPC_N/MB4FeetRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4BigLeftP/MB4RPC_P/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4BigRightP/MB4RPC_P/MB4RPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4FeetP/MB4FeetRPC_P/MB4FeetRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_BiggerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_BiggerGas.*"/>
+      <Parameter name="nStrips" value="48"/>
+    </SpecPar>
+    <SpecPar name="nStrips36" eval="true">
+      <PartSelector path="//MB/MBWheel_0/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_0/MB4TopN/MB4TopRPC_N/MB4TopRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1N/MB4TopN/MB4TopRPC_N/MB4TopRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_1P/MB4TopChimP/MB4TopChimRPC_P/MB4TopChimRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4SmallLeftN/MB4SmallRPC_NS12/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4SmallRightN/MB4SmallRPC_NS8/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2N/MB4TopN/MB4TopRPC_N/MB4TopRPC_Gas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4SmallLeftP/MB4SmallRPC_PS8/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4SmallRightP/MB4SmallRPC_PS12/MB4SmallRPC_SmallerGas.*"/>
+      <PartSelector path="//MB/MBWheel_2P/MB4TopP/MB4TopRPC_P/MB4TopRPC_Gas.*"/>
+      <Parameter name="nStrips" value="36"/>
+    </SpecPar>
+    <SpecPar name="nStrips60" eval="true">
+      <PartSelector path="//MB4BottomRPC.*/MB.*RPC.*Gas.*"/>
+      <Parameter name="nStrips" value="60"/>
+    </SpecPar>
+    <SpecPar name="nStrips32" eval="true">
+      <PartSelector path="//REC."/>
+      <PartSelector path="//REE."/>
+      <PartSelector path="//REF."/>
+      <Parameter name="nStrips" value="32"/>
+    </SpecPar>
+    <SpecPar name="nStrips28" eval="true">
+      <PartSelector path="//REB."/>
+      <!-- B1,2,3 -->
+      <Parameter name="nStrips" value="32"/>
+    </SpecPar>
+    <SpecPar name="nStrips192" eval="true">
+      <!-- D1,2,3,4; G1,2; H1,2 -->
+      <PartSelector path="//REG."/>
+      <PartSelector path="//REH."/>
+      <Parameter name="nStrips" value="192"/>
+    </SpecPar>
+  </SpecParSection>
+</DDDefinition>

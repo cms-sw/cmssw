@@ -16,7 +16,7 @@ class PFRecoTauDiscriminationByFlight : public PFTauDiscriminationProducerBase {
     PFRecoTauDiscriminationByFlight(const edm::ParameterSet& pset);
     virtual ~PFRecoTauDiscriminationByFlight(){}
     void beginEvent(const edm::Event& evt, const edm::EventSetup& es) override;
-    double discriminate(const reco::PFTauRef&) override;
+    double discriminate(const reco::PFTauRef&) const override;
   private:
     edm::InputTag vertexSource_;
     edm::InputTag bsSource_;
@@ -51,18 +51,18 @@ void PFRecoTauDiscriminationByFlight::beginEvent(
 }
 
 double PFRecoTauDiscriminationByFlight::discriminate(
-    const reco::PFTauRef& tau) {
+    const reco::PFTauRef& tau) const {
 
   KalmanVertexFitter kvf(true);
-  const reco::PFCandidateRefVector& signalTracks =
+  const std::vector<reco::PFCandidatePtr>& signalTracks =
     tau->signalPFChargedHadrCands();
   std::vector<reco::TransientTrack> signalTransTracks;
-  std::vector<reco::TrackRef> signalTrackRefs;
-  BOOST_FOREACH(const reco::PFCandidateRef& pftrack, signalTracks) {
+  std::vector<reco::TrackRef> signalTrackPtrs;
+  BOOST_FOREACH(const reco::PFCandidatePtr& pftrack, signalTracks) {
     if (pftrack->trackRef().isNonnull()) {
       signalTransTracks.push_back(
           builder_->build(pftrack->trackRef()));
-      signalTrackRefs.push_back(pftrack->trackRef());
+      signalTrackPtrs.push_back(pftrack->trackRef());
     }
   }
 
@@ -75,12 +75,12 @@ double PFRecoTauDiscriminationByFlight::discriminate(
       pvTrackRefs.push_back(pvTrack->castTo<reco::TrackRef>());
     }
     // Get PV tracks not associated to the tau
-    std::sort(signalTrackRefs.begin(), signalTrackRefs.end());
+    std::sort(signalTrackPtrs.begin(), signalTrackPtrs.end());
     std::sort(pvTrackRefs.begin(), pvTrackRefs.end());
     std::vector<reco::TrackRef> uniquePVTracks;
     uniquePVTracks.reserve(pvTrackRefs.size());
     std::set_difference(pvTrackRefs.begin(), pvTrackRefs.end(),
-        signalTrackRefs.begin(), signalTrackRefs.end(),
+        signalTrackPtrs.begin(), signalTrackPtrs.end(),
         std::back_inserter(uniquePVTracks));
     // Check if we need to refit
     if (uniquePVTracks.size() != pvTrackRefs.size()) {

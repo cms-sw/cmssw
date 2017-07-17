@@ -1,0 +1,15 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="CondTools/L1TriggerExt"/>
+<use   name="L1Trigger/L1TCalorimeter"/>
+<use   name="L1Trigger/L1TCommon"/>
+<use   name="L1Trigger/L1TGlobal"/>
+<use   name="L1Trigger/L1TMuonBarrel"/>
+<use   name="L1Trigger/L1TMuonEndCap"/>
+<use   name="L1Trigger/L1TMuonOverlap"/>
+<use   name="xerces-c"/>
+<use   name="utm"/>
+<flags   EDM_PLUGIN="1"/>

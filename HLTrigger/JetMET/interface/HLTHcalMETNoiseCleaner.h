@@ -7,7 +7,7 @@
  *
  */
 
-#include "HLTrigger/HLTcore/interface/HLTFilter.h"
+#include "FWCore/Framework/interface/EDFilter.h"
 #include "RecoMET/METAlgorithms/interface/HcalNoiseAlgo.h"
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 #include "DataFormats/METReco/interface/CaloMET.h"
@@ -49,7 +49,7 @@ class HLTHcalMETNoiseCleaner : public edm::EDFilter {
   double maxRBXEMF_;
 
   // imported from the RecoMET/METProducers/python/hcalnoiseinfoproducer_cfi
-  double minRecHitE_, minLowHitE_, minHighHitE_;
+  double minRecHitE_, minLowHitE_, minHighHitE_, minR45HitE_;
 
   double TS4TS5EnergyThreshold_;
   std::vector<std::pair<double, double> > TS4TS5UpperCut_;

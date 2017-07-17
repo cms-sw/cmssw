@@ -4,7 +4,7 @@
 #include <vector>
 #include <map>
 
-namespace{ 
+namespace SimDataFormats_DigiSimLinks {
   struct dictionary {
 
   DTDigiSimLink dummy0;

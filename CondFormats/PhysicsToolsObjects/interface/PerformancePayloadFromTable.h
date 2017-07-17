@@ -1,6 +1,8 @@
 #ifndef PerformancePayloadFromTable_h
 #define PerformancePayloadFromTable_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "CondFormats/PhysicsToolsObjects/interface/PhysicsPerformancePayload.h"
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayload.h"
 
@@ -14,7 +16,7 @@ class PerformancePayloadFromTable : public PerformancePayload {
 //  class PerformancePayloadFromTable : public PerformancePayload, public PhysicsPerformancePayload {
  public:
 
-  static int InvalidPos;
+  static const int InvalidPos;
 
   //PerformancePayloadFromTable(int stride_, std::string columns_,std::vector<float> table) : PerformancePayload(stride_, columns_, table) {}
 
@@ -68,6 +70,8 @@ const PhysicsPerformancePayload & payLoad() const {return pl;}
   std::vector<PerformanceResult::ResultType> results_;
   std::vector<BinningVariables::BinningVariablesType> binning_;
   
+
+ COND_SERIALIZABLE;
 };
 
 #endif

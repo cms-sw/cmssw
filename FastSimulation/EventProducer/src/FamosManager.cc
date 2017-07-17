@@ -3,8 +3,6 @@
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Provenance/interface/EventID.h"
@@ -30,16 +28,15 @@
 //#include "HepMC/GenEvent.h"
 
 // FAMOS Header
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
 #include "FastSimulation/EventProducer/interface/FamosManager.h"
 #include "FastSimulation/TrajectoryManager/interface/TrajectoryManager.h"
-#include "FastSimulation/PileUpProducer/interface/PileUpSimulator.h"
 #include "FastSimulation/Event/interface/FSimEvent.h"
 #include "FastSimulation/ParticlePropagator/interface/MagneticFieldMap.h"
 #include "FastSimulation/Particle/interface/ParticleTable.h"
 #include "FastSimulation/Calorimetry/interface/CalorimetryManager.h"
 #include "FastSimulation/CaloGeometryTools/interface/CaloGeometryHelper.h"  
 #include "SimDataFormats/CrossingFrame/interface/CrossingFrame.h"
+#include "FastSimulation/ShowerDevelopment/interface/FastHFShowerLibrary.h"
 #include <iostream>
 #include <memory>
 #include <vector>
@@ -48,7 +45,6 @@ using namespace HepMC;
 
 FamosManager::FamosManager(edm::ParameterSet const & p)
     : iEvent(0),
-      myPileUpSimulator(0),
       myCalorimetry(0),
       m_pUseMagneticField(p.getParameter<bool>("UseMagneticField")),
       m_Tracking(p.getParameter<bool>("SimulateTracking")),
@@ -57,35 +53,16 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
       m_pRunNumber(p.getUntrackedParameter<int>("RunNumber",1)),
       m_pVerbose(p.getUntrackedParameter<int>("Verbosity",1))
 {
-
-  // Initialize the random number generator service
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable() ) {
-    throw cms::Exception("Configuration")
-      << "FamosManager requires the RandomGeneratorService\n"
-         "which is not present in the configuration file.\n"
-         "You must add the service in the configuration file\n"
-         "or remove the module that requires it";
-  }
-
-  random = new RandomEngine(&(*rng));
-
   // Initialize the FSimEvent
   mySimEvent = 
-    new FSimEvent(p.getParameter<edm::ParameterSet>("VertexGenerator"),
-		  p.getParameter<edm::ParameterSet>("ParticleFilter"),
-		  random);
+    new FSimEvent(p.getParameter<edm::ParameterSet>("ParticleFilter"));
 
   /// Initialize the TrajectoryManager
   myTrajectoryManager = 
     new TrajectoryManager(mySimEvent,
 			  p.getParameter<edm::ParameterSet>("MaterialEffects"),
 			  p.getParameter<edm::ParameterSet>("TrackerSimHits"),
-			  p.getParameter<edm::ParameterSet>("ActivateDecays"),
-			  random);
-
-  // Initialize PileUp Producer (if requested)
-  myPileUpSimulator = new PileUpSimulator(mySimEvent);
+			  p.getParameter<edm::ParameterSet>("ActivateDecays"));
 
   // Initialize Calorimetry Fast Simulation (if requested)
   if ( m_Calorimetry) 
@@ -94,18 +71,14 @@ FamosManager::FamosManager(edm::ParameterSet const & p)
 			     p.getParameter<edm::ParameterSet>("Calorimetry"),			     
 			     p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInECAL"),
 			     p.getParameter<edm::ParameterSet>("MaterialEffectsForMuonsInHCAL"),
-                             p.getParameter<edm::ParameterSet>("GFlash"),
-			     random);
-
+                             p.getParameter<edm::ParameterSet>("GFlash"));
 }
 
 FamosManager::~FamosManager()
 { 
   if ( mySimEvent ) delete mySimEvent; 
   if ( myTrajectoryManager ) delete myTrajectoryManager; 
-  if ( myPileUpSimulator ) delete myPileUpSimulator;
   if ( myCalorimetry) delete myCalorimetry;
-  delete random;
 }
 
 void 
@@ -115,8 +88,7 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   es.getData(pdt);
   mySimEvent->initializePdt(&(*pdt));
-  ParticleTable::instance(&(*pdt));
-
+  
   // Initialize the full (misaligned) tracker geometry 
   // (only if tracking is requested)
   std::string misAligned = m_Alignment ? "MisAligned" : "";
@@ -164,6 +136,8 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
     es.get<CaloTopologyRecord>().get(theCaloTopology);     
     myCalorimetry->getCalorimeter()->setupTopology(*theCaloTopology);
     myCalorimetry->getCalorimeter()->initialize(bField000);
+
+    myCalorimetry->getHFShowerLibrary()->initHFShowerLibrary(es);
   }
 
   m_pRunNumber = run.run();
@@ -173,71 +147,27 @@ FamosManager::setupGeometryAndField(edm::Run const& run, const edm::EventSetup &
 
 void 
 FamosManager::reconstruct(const HepMC::GenEvent* evt,
-			  const reco::GenParticleCollection* particles,
-			  const HepMC::GenEvent* pu,
-			  const TrackerTopology *tTopo)
+			  const TrackerTopology *tTopo,
+                          RandomEngineAndDistribution const* random)
 {
-
   //  myGenEvent = evt;
   
-  if (evt != 0 || particles != 0) {
-    iEvent++;
-    edm::EventID id(m_pRunNumber,1U,iEvent);
-
-
-    // Fill the event from the original generated event
-    if (evt ) 
-      mySimEvent->fill(*evt,id);
-    
-    else 
-      mySimEvent->fill(*particles,id);
-    
-    //    mySimEvent->printMCTruth(*evt);
-    /*
-      mySimEvent->print();
-      std::cout << "----------------------------------------" << std::endl;
-    */
-    
-    // Get the pileup events and add the particles to the main event
-    myPileUpSimulator->produce(pu);
-    /*
-      mySimEvent->print();
-    std::cout << "----------------------------------------" << std::endl;
-    */
-    
-    // And propagate the particles through the detector
-    myTrajectoryManager->reconstruct(tTopo);
-    /*
-      mySimEvent->print();
-      std::cout << "=========================================" 
-      << std::endl
-      << std::endl;
-    */
-    
-    if ( myCalorimetry ) myCalorimetry->reconstruct();
-    
-  }
-  
-  // Should be moved to LogInfo
-  edm::LogInfo("FamosManager")  << " saved : Event  " << iEvent 
-				<< " of weight " << mySimEvent->weight()
-				<< " with " << mySimEvent->nTracks() 
-				<< " tracks and " << mySimEvent->nVertices()
-				<< " vertices, generated by " 
-				<< mySimEvent->nGenParts() << " particles " << std::endl;
-  
-}
-
-void FamosManager::reconstruct(const reco::GenParticleCollection* particles, const TrackerTopology *tTopo){
   iEvent++;
   edm::EventID id(m_pRunNumber,1U,iEvent);
-  mySimEvent->fill(*particles,id);
-  myTrajectoryManager->reconstruct(tTopo);
-  if ( myCalorimetry ) myCalorimetry->reconstruct();
 
-  
 
+  // Fill the event from the original generated event
+  mySimEvent->fill(*evt,id);
+        
+  // And propagate the particles through the detector
+  myTrajectoryManager->reconstruct(tTopo, random);
+
+  if ( myCalorimetry ) myCalorimetry->reconstruct(random);
+
+  edm::LogInfo("FamosManager")  << " saved : Event  " << iEvent
+				<< " of weight " << mySimEvent->weight()
+				<< " with " << mySimEvent->nTracks()
+				<< " tracks and " << mySimEvent->nVertices()
+				<< " vertices, generated by "
+				<< mySimEvent->nGenParts() << " particles " << std::endl;
 }
-
-
-

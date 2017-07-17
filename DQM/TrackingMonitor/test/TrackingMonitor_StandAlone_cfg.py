@@ -50,7 +50,7 @@ process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(5))
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 process.GlobalTag.globaltag = "GR_R_43_V3::All"
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
 process.load("Configuration.StandardSequences.RawToDigi_Data_cff")
 process.load("RecoTracker.Configuration.RecoTracker_cff")
@@ -76,8 +76,6 @@ process.TrackMon.beamSpot               = cms.InputTag("offlineBeamSpot")
 
 # properties
 process.TrackMon.AlgoName               = cms.string('GenTk')
-process.TrackMon.OutputFileName 	= cms.string('TrackingMonitor.root')
-process.TrackMon.OutputMEsInRootFile 	= cms.bool(True)
 
 process.TrackMon.FolderName             = cms.string('Track/GlobalParameters')
 process.TrackMon.BSFolderName           = cms.string('Track/BeamSpotParameters')

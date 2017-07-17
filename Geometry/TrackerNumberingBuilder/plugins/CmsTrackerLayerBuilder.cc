@@ -39,14 +39,14 @@ void CmsTrackerLayerBuilder::buildComponent(DDFilteredView& fv, GeometricDet* g,
 
 void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
 
-  GeometricDet::GeometricDetContainer comp = det->components();
+  GeometricDet::ConstGeometricDetContainer& comp = det->components();
 
   // TIB
   // SubDetector Side: 2 bits [TIB-:1 TIB+:2]
   // Layer Part      : 2 bits [internal:1 external:0]
   // String Number   : 6 bits [1,...,56 (at most)]
   //
-  if(det->components().front()->type()== GeometricDet::strng){
+  if(comp.front()->type()== GeometricDet::strng){
     float layerRadius = (det->params()[2]+det->params()[1])/2.;
 
     GeometricDet::GeometricDetContainer neg;
@@ -62,30 +62,30 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     extpos.clear();
     intpos.clear();
 
-
-    for(GeometricDet::GeometricDetContainer::iterator i=comp.begin();i!=comp.end();i++){
-      if((*i)->translation().z()<0.){
-	neg.push_back(*i);
+    for(size_t i = 0; i< comp.size(); ++i) {
+      auto component = det->component(i);
+      if(component->translation().z()<0.){
+	neg.push_back(component);
       }else{
-	pos.push_back(*i);
+	pos.push_back(component);
       }
     }
 
-    for(GeometricDet::GeometricDetContainer::iterator i=neg.begin();i!=neg.end();i++){
-      double rPos = (*i)->translation().Rho();
+    for(auto & i : neg){
+      double rPos = i->translation().Rho();
       if(rPos > layerRadius ){ 
-	extneg.push_back(*i);
+	extneg.push_back(i);
       }else{
-	intneg.push_back(*i);
+	intneg.push_back(i);
       }
     }
 
-    for(GeometricDet::GeometricDetContainer::iterator i=pos.begin();i!=pos.end();i++){
-      double rPos = (*i)->translation().Rho();
+    for(auto & po : pos){
+      double rPos = po->translation().Rho();
       if(rPos > layerRadius ){ 
-	extpos.push_back(*i);
+	extpos.push_back(po);
       }else{
-	intpos.push_back(*i);
+	intpos.push_back(po);
       }
     }
 
@@ -129,17 +129,18 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     det->addComponents(intpos);
     det->addComponents(extpos);
     
-  }else if(det->components().front()->type()== GeometricDet::rod){
+  }else if(comp.front()->type()== GeometricDet::rod){
     GeometricDet::GeometricDetContainer neg;
     GeometricDet::GeometricDetContainer pos;
     neg.clear();
     pos.clear();
     
-    for(GeometricDet::GeometricDetContainer::iterator i=comp.begin();i!=comp.end();i++){
-      if((*i)->translation().z()<0.){
-	neg.push_back(*i);
+    for(size_t i=0; i<comp.size(); ++i) {
+      auto component = det->component(i);
+      if(component->translation().z()<0.){
+	neg.push_back(component);
       }else{
-	pos.push_back(*i);
+	pos.push_back(component);
       }
     }
 
@@ -167,11 +168,9 @@ void CmsTrackerLayerBuilder::sortNS(DDFilteredView& fv, GeometricDet* det){
     TrackerStablePhiSort(comp.begin(), comp.end(), ExtractPhi());
 	
     for(uint32_t i=0; i<comp.size();i++){
-      comp[i]->setGeographicalID(DetId(i+1));
+      det->component(i)->setGeographicalID(DetId(i+1));
     }    
-    
-    det->clearComponents();
-    det->addComponents(comp);
+
   }else{
     edm::LogError("CmsTrackerLayerBuilder")<<"ERROR - wrong SubDet to sort..... "<<det->components().front()->type();
   }

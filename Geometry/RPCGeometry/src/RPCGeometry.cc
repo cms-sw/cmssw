@@ -4,7 +4,7 @@
  */
 
 #include <Geometry/RPCGeometry/interface/RPCGeometry.h>
-#include <Geometry/CommonDetUnit/interface/GeomDetUnit.h>
+#include <Geometry/CommonDetUnit/interface/GeomDet.h>
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 RPCGeometry::RPCGeometry(){}
@@ -60,11 +60,11 @@ const GeomDet* RPCGeometry::idToDet(DetId id) const{
   return geom;   
 }
 
-const std::vector<RPCChamber*>& RPCGeometry::chambers() const {
+const std::vector<const RPCChamber*>& RPCGeometry::chambers() const {
   return allChambers;
 }
 
-const std::vector<RPCRoll*>& RPCGeometry::rolls() const{
+const std::vector<const RPCRoll*>& RPCGeometry::rolls() const{
   return allRolls;
 }
 

@@ -1,4 +1,4 @@
-#ifndef _FWPFAPATJETLEGOPROXYBUILDER_H_
+#ifndef _FWPFPATJETLEGOPROXYBUILDER_H_
 #define _FWPFPATJETLEGOPROXYBUILDER_H_
 
 // -*- C++ -*-
@@ -33,17 +33,23 @@ class FWPFPatJetLegoProxyBuilder : public FWSimpleProxyBuilderTemplate<T>
       virtual ~FWPFPatJetLegoProxyBuilder();
 
    // --------------------- Member Functions --------------------------
+      using FWProxyBuilderBase::havePerViewProduct;
       virtual bool havePerViewProduct(FWViewType::EType) const { return true; }
+
+      using FWProxyBuilderBase::scaleProduct;
       virtual void scaleProduct(TEveElementList* parent, FWViewType::EType, const FWViewContext* vc);
+
+      using FWProxyBuilderBase::localModelChanges;
       virtual void localModelChanges(const FWModelId& iId, TEveElement* iCompound, FWViewType::EType viewType, const FWViewContext* vc);
 
+      using FWSimpleProxyBuilderTemplate<T>::build;
+      void build( const T&, unsigned int, TEveElement&, const FWViewContext* );
    private:
       FWPFPatJetLegoProxyBuilder(const FWPFPatJetLegoProxyBuilder&);             //stop default
       const FWPFPatJetLegoProxyBuilder& operator=(FWPFPatJetLegoProxyBuilder&);  //stop default
 
    // --------------------- Member Functions --------------------------
-      void build( const T&, unsigned int, TEveElement&, const FWViewContext* );
 
 };
-#endif
+#endif // FWPFPATJETLEGOPROXYBUILDER
 //=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_=_

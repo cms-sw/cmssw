@@ -2,7 +2,7 @@
 //
 // Package:    Validation/RecoVertex
 // Class:      AnotherBeamSpotAnalyzer
-// 
+//
 /**\class AnotherBeamSpotAnalyzer BeamSpotAnalyzer.cc Validation/RecoVertex/plugins/BeamSpotAnalyzer.cc
 
  Description: <one line class summary>
@@ -61,7 +61,7 @@ private:
       // ----------member data ---------------------------
 
   BeamSpotHistogramMaker _bshm;
-  edm::InputTag _bscollection;
+  edm::EDGetTokenT<reco::BeamSpot> _recoBeamSpotToken;
 
 
 };
@@ -77,9 +77,9 @@ private:
 //
 // constructors and destructor
 //
-AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfig):
-  _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet")),
-  _bscollection(iConfig.getParameter<edm::InputTag>("bsCollection"))
+AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfig)
+  : _bshm(iConfig.getParameter<edm::ParameterSet>("bsHistogramMakerPSet"), consumesCollector())
+  , _recoBeamSpotToken(consumes<reco::BeamSpot>(iConfig.getParameter<edm::InputTag>("bsCollection")))
 {
    //now do what ever initialization is needed
 
@@ -92,7 +92,7 @@ AnotherBeamSpotAnalyzer::AnotherBeamSpotAnalyzer(const edm::ParameterSet& iConfi
 
 AnotherBeamSpotAnalyzer::~AnotherBeamSpotAnalyzer()
 {
- 
+
    // do anything here that needs to be done at desctruction time
    // (e.g. close files, deallocate resources etc.)
 
@@ -107,19 +107,18 @@ AnotherBeamSpotAnalyzer::~AnotherBeamSpotAnalyzer()
 void
 AnotherBeamSpotAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-  using namespace edm;
-  
+
   // get BS
 
-  Handle<reco::BeamSpot> bs;
-  iEvent.getByLabel(_bscollection,bs);
+  edm::Handle<reco::BeamSpot> bs;
+  iEvent.getByToken(_recoBeamSpotToken,bs);
   _bshm.fill(iEvent.orbitNumber(),*bs);
 
 }
 
 
 // ------------ method called once each job just before starting event loop  ------------
-void 
+void
 AnotherBeamSpotAnalyzer::beginJob()
 { }
 
@@ -135,7 +134,7 @@ AnotherBeamSpotAnalyzer::endRun(const edm::Run& iRun, const edm::EventSetup& iSe
 
 }
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 AnotherBeamSpotAnalyzer::endJob() {
 }
 

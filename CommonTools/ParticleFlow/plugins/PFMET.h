@@ -15,7 +15,7 @@
 
 #include "CommonTools/ParticleFlow/interface/PFMETAlgo.h"
 
-/**\class PFMET 
+/**\class PFMET
 \brief Computes the MET from a collection of PFCandidates. HF missing!
 
 \todo Add HF energy to the MET calculation (access HF towers)
@@ -33,15 +33,16 @@ class PFMET : public edm::EDProducer {
   explicit PFMET(const edm::ParameterSet&);
 
   ~PFMET();
-  
+
   virtual void produce(edm::Event&, const edm::EventSetup&);
 
   virtual void beginJob();
 
  private:
- 
+
   /// Input PFCandidates
   edm::InputTag       inputTagPFCandidates_;
+  edm::EDGetTokenT<reco::PFCandidateCollection> tokenPFCandidates_;
 
   pf2pat::PFMETAlgo   pfMETAlgo_;
 };

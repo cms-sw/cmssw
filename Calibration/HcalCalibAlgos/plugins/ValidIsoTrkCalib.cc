@@ -44,7 +44,7 @@ https://twiki.cern.ch/twiki/bin/view/CMS/ValidIsoTrkCalib
 #include "Geometry/CaloGeometry/interface/CaloCellGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "CondFormats/HcalObjects/interface/HcalRespCorrs.h"
 #include "CondFormats/DataRecord/interface/HcalRespCorrsRcd.h"
 
@@ -233,7 +233,8 @@ ValidIsoTrkCalib::ValidIsoTrkCalib(const edm::ParameterSet& iConfig)
   maxPNear = iConfig.getParameter<double>("maxPNear");
 
   edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  parameters_.loadParameters( parameters );
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters( parameters, iC );
   trackAssociator_.useDefaultPropagator();
 
   // taECALCone_=iConfig.getUntrackedParameter<double>("TrackAssociatorECALCone",0.5);

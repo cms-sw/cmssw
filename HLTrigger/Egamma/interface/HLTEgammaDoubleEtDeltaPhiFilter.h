@@ -24,18 +24,16 @@ class HLTEgammaDoubleEtDeltaPhiFilter : public HLTFilter {
    public:
       explicit HLTEgammaDoubleEtDeltaPhiFilter(const edm::ParameterSet&);
       ~HLTEgammaDoubleEtDeltaPhiFilter();
-      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+      virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
       static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
    private:
       edm::InputTag inputTag_; // input tag identifying product contains filtered candidates
       edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>  inputToken_;
-      double etcut_;           // Et threshold in GeV 
+      double etcut_;           // Et threshold in GeV
       double minDeltaPhi_;    // minimum deltaPhi
- //   int    ncandcut_;        // number of egammas required 
-      bool   relaxed_;
-      edm::InputTag L1IsoCollTag_; 
-      edm::InputTag L1NonIsoCollTag_;
+ //   int    ncandcut_;        // number of egammas required
+      edm::InputTag l1EGTag_;
 };
 
 #endif //HLTEgammaDoubleEtDeltaPhiFilter_h

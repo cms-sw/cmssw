@@ -3,6 +3,7 @@
 
 namespace edm {class EventSetup; }
 #include "RecoTracker/TkMSParametrization/interface/LongitudinalBendingCorrection.h"
+#include "RecoTracker/TkMSParametrization/interface/MultipleScatteringParametrisation.h"
 
 class DetLayer;
 
@@ -17,6 +18,25 @@ public:
 
   ThirdHitCorrection(){}
 
+  void init(
+      const edm::EventSetup &es,
+      float pt,
+      const DetLayer & layer1,
+      const DetLayer & layer2,
+      const DetLayer & layer3,
+      bool useMultipleScattering,
+      bool useBendingCorrection
+  );
+
+  void init(
+      const edm::EventSetup &es,
+      float pt,
+      const DetLayer & layer3,
+      bool useMultipleScattering,
+      bool useBendingCorrection
+  );
+
+
   ThirdHitCorrection( 
       const edm::EventSetup &es, 
       float pt, 
@@ -24,24 +44,22 @@ public:
       const PixelRecoLineRZ & line,
       const PixelRecoPointRZ & constraint, int ol,
       bool useMultipleScattering,
-      bool useBendingCorrection = false) 
+      bool useBendingCorrection) 
   { 
-    init(es, pt, layer, line, constraint, ol, useMultipleScattering, useBendingCorrection);
+    init(es, pt, *layer, useMultipleScattering, useBendingCorrection);
+    init(line, constraint, ol);
   }
 
   void init( 
-	    const edm::EventSetup &es, 
-      float pt, 
-      const DetLayer * layer,
       const PixelRecoLineRZ & line,
-      const PixelRecoPointRZ & constraint, int ol,
-      bool useMultipleScattering,
-      bool useBendingCorrection = false);
+      const PixelRecoPointRZ & constraint, int ol);
 
-
-  ~ThirdHitCorrection(){}
  
-  void correctRPhiRange( Range & range) const;
+  void correctRPhiRange( Range & range) const {
+    range.first -= theMultScattCorrRPhi;
+    range.second += theMultScattCorrRPhi;
+  }
+
   void correctRZRange( Range & range) const;
 
 private:
@@ -51,10 +69,12 @@ private:
   bool theUseBendingCorrection;
 
   PixelRecoLineRZ theLine;
-  float theMultScattCorrRPhi;
-  float theMScoeff;
+  float theMultScattCorrRPhi=0;
+  float theMScoeff=0;
+  float thePt;
 
   pixelrecoutilities::LongitudinalBendingCorrection theBendingCorrection;
+  MultipleScatteringParametrisation sigmaRPhi;
   
 };
 

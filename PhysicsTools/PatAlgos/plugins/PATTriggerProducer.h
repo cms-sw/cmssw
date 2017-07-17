@@ -37,19 +37,25 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
+#include "FWCore/Framework/interface/GetterOfProducts.h"
 
 #include <string>
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
-#include "L1Trigger/GlobalTriggerAnalyzer/interface/L1GtUtils.h"
+#include "HLTrigger/HLTcore/interface/HLTPrescaleProvider.h"
 #include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerObjectMaps.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/HLTReco/interface/TriggerEvent.h"
+#include "DataFormats/PatCandidates/interface/TriggerObjectStandAlone.h"
 
 namespace pat {
 
-  class PATTriggerProducer : public edm::EDProducer {
+  class PATTriggerProducer : public edm::stream::EDProducer<> {
 
     public:
 
@@ -67,18 +73,26 @@ namespace pat {
       bool        onlyStandAlone_;  // configuration
       bool        firstInRun_;
       // L1
-      L1GtUtils           l1GtUtils_;
       edm::ParameterSet * l1PSet_;
       bool                addL1Algos_;                    // configuration (optional with default)
       edm::InputTag       tagL1GlobalTriggerObjectMaps_;  // configuration (optional with default)
+      edm::EDGetTokenT< L1GlobalTriggerObjectMaps > l1GlobalTriggerObjectMapsToken_;
       edm::InputTag       tagL1ExtraMu_;                  // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1MuonParticleCollection > l1ExtraMuGetter_;
       edm::InputTag       tagL1ExtraNoIsoEG_;             // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1EmParticleCollection > l1ExtraNoIsoEGGetter_;
       edm::InputTag       tagL1ExtraIsoEG_;               // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1EmParticleCollection > l1ExtraIsoEGGetter_;
       edm::InputTag       tagL1ExtraCenJet_;              // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1JetParticleCollection > l1ExtraCenJetGetter_;
       edm::InputTag       tagL1ExtraForJet_;              // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1JetParticleCollection > l1ExtraForJetGetter_;
       edm::InputTag       tagL1ExtraTauJet_;              // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1JetParticleCollection > l1ExtraTauJetGetter_;
       edm::InputTag       tagL1ExtraETM_;                 // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1EtMissParticleCollection > l1ExtraETMGetter_;
       edm::InputTag       tagL1ExtraHTM_;                 // configuration (optional)
+      edm::GetterOfProducts< l1extra::L1EtMissParticleCollection > l1ExtraHTMGetter_;
       bool                autoProcessNameL1ExtraMu_;
       bool                autoProcessNameL1ExtraNoIsoEG_;
       bool                autoProcessNameL1ExtraIsoEG_;
@@ -90,16 +104,24 @@ namespace pat {
       bool                mainBxOnly_;                    // configuration (optional with default)
       bool                saveL1Refs_;                    // configuration (optional with default)
       // HLT
-      HLTConfigProvider         hltConfig_;
+      HLTPrescaleProvider hltPrescaleProvider_;
       bool                      hltConfigInit_;
       edm::InputTag             tagTriggerResults_;     // configuration (optional with default)
+      edm::GetterOfProducts< edm::TriggerResults > triggerResultsGetter_;
       edm::InputTag             tagTriggerEvent_;       // configuration (optional with default)
+      edm::GetterOfProducts< trigger::TriggerEvent > triggerEventGetter_;
       std::string               hltPrescaleLabel_;      // configuration (optional)
       std::string               labelHltPrescaleTable_; // configuration (optional)
+      edm::GetterOfProducts< trigger::HLTPrescaleTable > hltPrescaleTableRunGetter_;
+      edm::GetterOfProducts< trigger::HLTPrescaleTable > hltPrescaleTableLumiGetter_;
+      edm::GetterOfProducts< trigger::HLTPrescaleTable > hltPrescaleTableEventGetter_;
       trigger::HLTPrescaleTable hltPrescaleTableRun_;
       trigger::HLTPrescaleTable hltPrescaleTableLumi_;
       bool                       addPathModuleLabels_;  // configuration (optional with default)
       std::vector< std::string > exludeCollections_;    // configuration (optional)
+      bool                      packPathNames_;         // configuration (optional width default)
+      bool                      packLabels_;         // configuration (optional width default)
+      bool                      packPrescales_;         // configuration (optional width default)
 
       class ModuleLabelToPathAndFlags {
           public:
@@ -111,7 +133,7 @@ namespace pat {
                 bool lastFilter;
                 bool l3Filter;
               };
-              void init(const HLTConfigProvider &conf) ;
+              void init(const HLTConfigProvider &) ;
               void clear() { map_.clear(); }
               const std::vector<PathAndFlags> & operator[](const std::string & filter) const {
                   std::map<std::string,std::vector<PathAndFlags> >::const_iterator it = map_.find(filter);

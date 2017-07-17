@@ -1,5 +1,5 @@
 #include "RecoTracker/TkSeedGenerator/interface/ClusterChecker.h"
-namespace {
+namespace RecoTracker_TkSeedGenerator {
     struct dictionary {
         reco::utils::ClusterTotals totals;
     };

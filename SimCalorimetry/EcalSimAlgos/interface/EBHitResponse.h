@@ -7,6 +7,10 @@
 
 class APDSimParameters ;
 
+namespace CLHEP {
+   class HepRandomEngine;
+}
+
 class EBHitResponse : public EcalHitResponse
 {
    public:
@@ -25,39 +29,42 @@ class EBHitResponse : public EcalHitResponse
 
       virtual ~EBHitResponse() ;
 
+      void initialize(CLHEP::HepRandomEngine*);
+
       virtual bool keepBlank() const { return false ; }
 
       void setIntercal( const EcalIntercalibConstantsMC* ical ) ;
 
-      const VecD& offsets() const { return m_timeOffVec ; }
 
-      virtual void add( const PCaloHit&  hit ) ;
+      virtual void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) override;
 
-      virtual void initializeHits() ;
+      virtual void initializeHits() override;
 
-      virtual void finalizeHits() ;
+      virtual void finalizeHits() override;
 
-      virtual void run( MixCollection<PCaloHit>& hits ) ;
+      virtual void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) override;
 
-      virtual unsigned int samplesSize() const ;
+      virtual unsigned int samplesSize() const override;
 
-      virtual EcalSamples* operator[]( unsigned int i ) ;
+      virtual EcalSamples* operator[]( unsigned int i ) override;
 
-      virtual const EcalSamples* operator[]( unsigned int i ) const ;
+      virtual const EcalSamples* operator[]( unsigned int i ) const override;
 
    protected:
 
-      virtual unsigned int samplesSizeAll() const ;
+      virtual unsigned int samplesSizeAll() const override;
 
-      virtual EcalSamples* vSamAll( unsigned int i ) ;
+      virtual EcalSamples* vSamAll( unsigned int i ) override;
 
-      virtual const EcalSamples* vSamAll( unsigned int i ) const ;
+      virtual const EcalSamples* vSamAll( unsigned int i ) const override;
 
-      virtual EcalSamples* vSam( unsigned int i ) ;
+      virtual EcalSamples* vSam( unsigned int i ) override ;
 
       void putAPDSignal( const DetId& detId, double npe, double time ) ;
 
    private:
+
+      const VecD& offsets() const { return m_timeOffVec ; }
 
       const double nonlFunc( double enr ) const {
 	 return ( pelo > enr ? pext :
@@ -73,7 +80,7 @@ class EBHitResponse : public EcalHitResponse
       const APDSimParameters* apdParameters() const ;
       const CaloVShape*       apdShape()      const ;
 
-      double apdSignalAmplitude( const PCaloHit& hit ) const ;
+      double apdSignalAmplitude( const PCaloHit& hit, CLHEP::HepRandomEngine* ) const ;
 
       void findIntercalibConstant( const DetId& detId, 
 				   double&      icalconst ) const ;
@@ -91,6 +98,8 @@ class EBHitResponse : public EcalHitResponse
       const double pcub, pqua, plin, pcon, pelo, pehi, pasy, pext, poff, pfac ;
 
       std::vector<EBSamples> m_vSam ;
+
+      bool m_isInitialized;
 };
 #endif
 

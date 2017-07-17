@@ -240,7 +240,7 @@
 
 	  // loop over tracks  
 	  //int t_counter = 0;
-	  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs_;
+	  const ConstTrajTrackPairCollection &tracks = eventInfo.trajTrackPairs();
 	  for( ConstTrajTrackPairCollection::const_iterator it=tracks.begin();
 	       it!=tracks.end();it++) {
 
@@ -254,7 +254,9 @@
 	    //int   ndof = track->ndof();
 	    int   nhit  = track->numberOfValidHits();
 
-	    if (0) edm::LogInfo("Alignment") << "New track pt,eta,phi,chi2n,hits: " << pt <<","<< eta <<","<< phi <<","<< chi2n << ","<<nhit;
+	    LogDebug("Alignment")
+	      << "New track pt,eta,phi,chi2n,hits: "
+	      << pt << "," << eta << "," << phi << "," << chi2n << "," << nhit;
 
 	    //Accept or not accept the track
 	    if( pt > ptCut && chi2n < chi2nCut ) 

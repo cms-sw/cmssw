@@ -1,10 +1,13 @@
+#include "SimDataFormats/CaloHit/interface/CastorShowerEvent.h"
+#include "SimDataFormats/CaloHit/interface/CastorShowerLibraryInfo.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerLibraryEventInfo.h"
 #include "SimDataFormats/CaloHit/interface/HFShowerPhoton.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
+#include "SimDataFormats/CaloHit/interface/PassiveHit.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace SimDataFormats_CaloHit {
   struct dictionary {
     HFShowerLibraryEventInfo                             rv1;
     edm::Wrapper<HFShowerLibraryEventInfo>               p1;
@@ -22,5 +25,10 @@ namespace {
 
     HFShowerPhotonCollection                             rv4;
     edm::Wrapper<HFShowerPhotonCollection>               wc4;
+
+    PassiveHit                                           rv5;
+    edm::PassiveHitContainer                             v5;
+    std::vector<const PassiveHit*>                       vcp5;
+    edm::Wrapper<edm::PassiveHitContainer>               wc5;
   };
 }

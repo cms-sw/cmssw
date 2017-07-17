@@ -612,7 +612,7 @@ void GetOptimization() {
   }
 
   TH1F *timingSig = new TH1F("timingSig", "Timing of Single Electron Filters in Signal Events", 6, 0, 6);
-  timingSig->SetBit(TH1::kCanRebin);
+  timingSig->SetCanExtend(TH1::kAllAxes);
   timingSig->SetStats(0);
   TTreeFormula *l1MatchTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.l1Match",sigEvents);
   TTreeFormula *EtTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.Et",sigEvents);
@@ -646,7 +646,7 @@ void GetOptimization() {
   timingSig->LabelsOption("v");
 
   TH1F *timingBkg = new TH1F("timingBkg", "Timing of Single Electron Filters in Background Events", 6, 0, 6);
-  timingBkg->SetBit(TH1::kCanRebin);
+  timingBkg->SetCanExtend(TH1::kAllAxes);
   timingBkg->SetStats(0);
   avgL1Match = 0.;
   avgEt = 0.;
@@ -693,7 +693,7 @@ void GetOptimization() {
   delete timingBkg;
 
   timingSig = new TH1F("timingSig", "Timing of Single Photon Filters in Signal Events", 6, 0, 6);
-  timingSig->SetBit(TH1::kCanRebin);
+  timingSig->SetCanExtend(TH1::kAllAxes);
   timingSig->SetStats(0);
   delete l1MatchTiming; l1MatchTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.l1Match",sigEvents);
   delete EtTiming; EtTiming = new TTreeFormula("Timing","HLTTiming_hltCutVars_IsoTiming_EGAMMAHLT.obj.Et",sigEvents);
@@ -723,7 +723,7 @@ void GetOptimization() {
   timingSig->LabelsOption("v");
 
   timingBkg = new TH1F("timingBkg", "Timing of Single Photon Filters in Background Events", 6, 0, 6);
-  timingBkg->SetBit(TH1::kCanRebin);
+  timingBkg->SetCanExtend(TH1::kAllAxes);
   timingBkg->SetStats(0);
   avgL1Match = 0.;
   avgEt = 0.;

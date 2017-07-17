@@ -669,6 +669,22 @@ cylinder in the PXB volume: PixelBarrelSupTubCables with MCvolume 13757
 * 5 "cooling pipes steel"          "Steel-008"                 161      1   COL
 * 6 "coolant"                      "C6F14_F2_-10C"             424      1   COL
 
+o Phase I Pixel Barrel module cables
+  --------------------------
+.....................................................................
+# "Power Cable (CCA15)"    "micro_twisted_power_cable"          1   -1.
+* 1 "Copper"                "Copper"                          0.15   1   CAB
+* 2 "Aluminium"             "Aluminium"                       0.85   1   CAB
+
+# "Phase I BPIX module cables L1"   "micro_twisted_boundle_1"      146   -1.
+* 1 "Signal Cable"                "Copper"                       0.123  18  CAB
+* 2 "Power Cable"                 "micro_twisted_power_cable"    0.877  128 CAB
+
+# "Phase I BPIX module cables L2-4"   "micro_twisted_boundle_2"      110   -1.
+* 1 "Signal Cable"                "Copper"                        0.127  14  CAB
+* 2 "Power Cable"                 "micro_twisted_power_cable"     0.873  96  CAB
+=====================================================================
+
 
 # "end"  "END"  0.  0.   
 this has to be the last line !

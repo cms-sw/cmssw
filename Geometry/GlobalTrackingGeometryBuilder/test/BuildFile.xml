@@ -1,4 +1,5 @@
 <use   name="Geometry/CommonDetUnit"/>
+<use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="Geometry/Records"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>

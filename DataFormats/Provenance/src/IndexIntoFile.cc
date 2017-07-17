@@ -42,7 +42,7 @@ namespace edm {
     currentRun_ = invalidRun;
     currentLumi_ = invalidLumi;
     numberOfEvents_ = 0;
-    eventFinder_.reset();
+    eventFinder_ = nullptr; // propagate_const<T> has no reset() function
     runOrLumiIndexes_.clear();
     eventNumbers_.clear();
     eventEntries_.clear();
@@ -254,8 +254,8 @@ namespace edm {
 
       long long beginEventNumbers = 0;
       long long endEventNumbers = 0;
-      EntryNumber_t beginEventEntry = -1LL;
-      EntryNumber_t endEventEntry = -1LL;
+      EntryNumber_t beginEventEntry = invalidEntry;
+      EntryNumber_t endEventEntry = invalidEntry;
       runOrLumi.getRange(beginEventNumbers, endEventNumbers, beginEventEntry, endEventEntry);
 
       // This is true each time one hits a new lumi section (except if the previous lumi had
@@ -733,12 +733,12 @@ namespace edm {
 
   bool
   IndexIntoFile::containsItem(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-        return event ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
+    return (event != 0) ? containsEvent(run, lumi, event) : (lumi ? containsLumi(run, lumi) : containsRun(run));
   }
 
   bool
   IndexIntoFile::containsEvent(RunNumber_t run, LuminosityBlockNumber_t lumi, EventNumber_t event) const {
-        return findEventPosition(run, lumi, event).getEntryType() != kEnd;
+    return findEventPosition(run, lumi, event).getEntryType() != kEnd;
   }
 
   bool

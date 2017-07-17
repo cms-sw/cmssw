@@ -19,10 +19,14 @@
 //
 
 // system include files
+#include <map>
+#include <string>
+#include <vector>
+#include <unordered_map>
 
 // user include files
 #include "DataFormats/Provenance/interface/BranchType.h"
-#include "FWCore/Utilities/interface/ProductHolderIndex.h"
+#include "FWCore/Utilities/interface/ProductResolverIndex.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "DataFormats/Provenance/interface/ModuleDescription.h"
 #include "FWCore/ParameterSet/interface/ParameterSetfwd.h"
@@ -32,16 +36,20 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "FWCore/Framework/interface/LuminosityBlock.h"
+#include "FWCore/ServiceRegistry/interface/ConsumesInfo.h"
 
 // forward declarations
 
 namespace edm {
   class Event;
   class ModuleCallingContext;
-  class ProductHolderIndexHelper;
+  class ProductResolverIndexHelper;
   class EDConsumerBase;
   class PreallocationConfiguration;
-  
+  class ProductResolverIndexAndSkipBit;
+  class ProductRegistry;
+  class ThinnedAssociationsHelper;
+
   namespace maker {
     template<typename T> class ModuleHolderT;
   }
@@ -63,33 +71,51 @@ namespace edm {
       // ---------- static member functions --------------------
       
       // ---------- member functions ---------------------------
-      const ModuleDescription& moduleDescription() { return moduleDescription_;}
+      const ModuleDescription& moduleDescription() const { return moduleDescription_;}
       
       void
       registerProductsAndCallbacks(ProducingModuleAdaptorBase const*, ProductRegistry* reg);
       
-      void itemsToGet(BranchType, std::vector<ProductHolderIndex>&) const;
-      void itemsMayGet(BranchType, std::vector<ProductHolderIndex>&) const;
-      void updateLookup(BranchType iBranchType,
-                        ProductHolderIndexHelper const&);
+      void itemsToGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+      void itemsMayGet(BranchType, std::vector<ProductResolverIndexAndSkipBit>&) const;
+      std::vector<ProductResolverIndexAndSkipBit> const& itemsToGetFrom(BranchType) const;
 
+      void updateLookup(BranchType iBranchType,
+                        ProductResolverIndexHelper const&,
+                        bool iPrefetchMayGet);
+
+      void modulesWhoseProductsAreConsumed(std::vector<ModuleDescription const*>& modules,
+                                           ProductRegistry const& preg,
+                                           std::map<std::string, ModuleDescription const*> const& labelsToDesc,
+                                           std::string const& processName) const;
+
+      void convertCurrentProcessAlias(std::string const& processName);
+
+      std::vector<ConsumesInfo> consumesInfo() const;
+
+      void resolvePutIndicies(BranchType iBranchType,
+                              std::unordered_multimap<std::string, edm::ProductResolverIndex> const& iIndicies,
+                              std::string const& moduleLabel);
+      
+      std::vector<edm::ProductResolverIndex> const& indiciesForPutProducts(BranchType iBranchType) const;
 
     protected:
       template<typename F> void createStreamModules(F iFunc) {
         for(auto& m: m_streamModules) {
           m = iFunc();
+          m->setModuleDescriptionPtr(&moduleDescription_);
         }
       }
       
       void commit(Run& iRun) {
-        iRun.commit_();
+        iRun.commit_(m_streamModules[0]->indiciesForPutProducts(InRun));
       }
       void commit(LuminosityBlock& iLumi) {
-        iLumi.commit_();
+        iLumi.commit_(m_streamModules[0]->indiciesForPutProducts(InLumi));
       }
       template<typename L, typename I>
       void commit(Event& iEvent, L* iList, I* iID) {
-        iEvent.commit_(iList,iID);
+        iEvent.commit_(m_streamModules[0]->indiciesForPutProducts(InEvent), iList,iID);
       }
 
       const EDConsumerBase* consumer() {
@@ -108,44 +134,44 @@ namespace edm {
       void doBeginStream(StreamID id);
       void doEndStream(StreamID id);
       void doStreamBeginRun(StreamID id,
-                            RunPrincipal& ep,
+                            RunPrincipal const& ep,
                             EventSetup const& c,
                             ModuleCallingContext const*);
       virtual void setupRun(T*, RunIndex) = 0;
       void doStreamEndRun(StreamID id,
-                          RunPrincipal& ep,
+                          RunPrincipal const& ep,
                           EventSetup const& c,
                           ModuleCallingContext const*);
       virtual void streamEndRunSummary(T*,edm::Run const&, edm::EventSetup const&) = 0;
 
       void doStreamBeginLuminosityBlock(StreamID id,
-                                        LuminosityBlockPrincipal& ep,
+                                        LuminosityBlockPrincipal const& ep,
                                         EventSetup const& c,
                                         ModuleCallingContext const*);
       virtual void setupLuminosityBlock(T*, LuminosityBlockIndex) = 0;
       void doStreamEndLuminosityBlock(StreamID id,
-                                      LuminosityBlockPrincipal& ep,
+                                      LuminosityBlockPrincipal const& ep,
                                       EventSetup const& c,
                                       ModuleCallingContext const*);
       virtual void streamEndLuminosityBlockSummary(T*,edm::LuminosityBlock const&, edm::EventSetup const&) = 0;
       
       
-      virtual void doBeginRun(RunPrincipal& rp, EventSetup const& c,
+      virtual void doBeginRun(RunPrincipal const& rp, EventSetup const& c,
                               ModuleCallingContext const*)=0;
-      virtual void doEndRun(RunPrincipal& rp, EventSetup const& c,
+      virtual void doEndRun(RunPrincipal const& rp, EventSetup const& c,
                             ModuleCallingContext const*)=0;
-      virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal& lbp,
+      virtual void doBeginLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                           EventSetup const& c,
                                           ModuleCallingContext const*)=0;
-      virtual void doEndLuminosityBlock(LuminosityBlockPrincipal& lbp,
+      virtual void doEndLuminosityBlock(LuminosityBlockPrincipal const& lbp,
                                         EventSetup const& c,
                                         ModuleCallingContext const*)=0;
       
       //For now, the following are just dummy implemenations with no ability for users to override
       void doRespondToOpenInputFile(FileBlock const& fb);
       void doRespondToCloseInputFile(FileBlock const& fb);
-      void doPreForkReleaseResources();
-      void doPostForkReacquireResources(unsigned int iChildIndex, unsigned int iNumberOfChildren);
+      void doRegisterThinnedAssociations(ProductRegistry const&,
+                                         ThinnedAssociationsHelper&);
 
       // ---------- member data --------------------------------
       void setModuleDescription(ModuleDescription const& md) {

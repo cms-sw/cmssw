@@ -31,7 +31,7 @@
 #include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 class PatBJetVertexAnalyzer : public edm::EDAnalyzer  {
-    public: 
+    public:
 	/// constructor and destructor
 	PatBJetVertexAnalyzer(const edm::ParameterSet &params);
 	~PatBJetVertexAnalyzer();
@@ -42,7 +42,7 @@ class PatBJetVertexAnalyzer : public edm::EDAnalyzer  {
 
     private:
 	// configuration parameters
-	edm::InputTag jets_;
+	edm::EDGetTokenT<pat::JetCollection> jetsToken_;
 
 	double jetPtCut_;		// minimum (uncorrected) jet energy
 	double jetEtaCut_;		// maximum |eta| for jet
@@ -70,7 +70,7 @@ class PatBJetVertexAnalyzer : public edm::EDAnalyzer  {
 };
 
 PatBJetVertexAnalyzer::PatBJetVertexAnalyzer(const edm::ParameterSet &params) :
-	jets_(params.getParameter<edm::InputTag>("jets")),
+	jetsToken_(consumes<pat::JetCollection>(params.getParameter<edm::InputTag>("jets"))),
 	jetPtCut_(params.getParameter<double>("jetPtCut")),
 	jetEtaCut_(params.getParameter<double>("jetEtaCut"))
 {
@@ -146,10 +146,10 @@ void PatBJetVertexAnalyzer::beginJob()
 // helper function to sort the tracks by impact parameter significance
 
 void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
-{  
+{
 	// handle to the jets collection
 	edm::Handle<pat::JetCollection> jetsHandle;
-	event.getByLabel(jets_, jetsHandle);
+	event.getByToken(jetsToken_, jetsHandle);
 
 	// now go through all jets
 	for(pat::JetCollection::const_iterator jet = jetsHandle->begin();
@@ -255,7 +255,7 @@ void PatBJetVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSet
 		plots_[flavour].mass->Fill(vertexMass);
 	}
 }
-	
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PatBJetVertexAnalyzer);

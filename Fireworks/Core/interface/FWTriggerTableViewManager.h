@@ -48,7 +48,7 @@ protected:
 
    void updateProcessList();
 
-   std::vector<boost::shared_ptr<FWTriggerTableView> > m_views;
+   std::vector<std::shared_ptr<FWTriggerTableView> > m_views;
 
 private:
    FWTriggerTableViewManager(const FWTriggerTableViewManager&);      // stop default

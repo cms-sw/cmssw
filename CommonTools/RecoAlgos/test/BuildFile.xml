@@ -1,0 +1,5 @@
+<use   name="cppunit"/>
+<use   name="CommonTools/RecoAlgos"/>
+<bin   file="FKDTree_t.cpp">
+
+</bin>

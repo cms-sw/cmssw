@@ -6,7 +6,9 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 
 #include "RecoTauTag/TauTagTools/interface/ElementsInCone.h"
+#include "RecoTauTag/TauTagTools/interface/ElementsInConeRef.h"
 #include "RecoTauTag/TauTagTools/interface/ElementsInAnnulus.h"
+#include "RecoTauTag/TauTagTools/interface/ElementsInAnnulusRef.h"
 
 #include "PhysicsTools/IsolationUtils/interface/FixedAreaIsolationCone.h"
 #include "DataFormats/Math/interface/deltaR.h"
@@ -56,12 +58,12 @@ class TauElementsOperators{
   // template objects for DR and Angle metrics
   DeltaR<math::XYZVector> metricDR_;
   Angle<math::XYZVector> metricAngle_;
-  ElementsInCone<math::XYZVector,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinCone_DRmetric_;
-  ElementsInCone<math::XYZVector,Angle<math::XYZVector>,reco::TrackCollection> TracksinCone_Anglemetric_; 
-  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerDRouterDRmetrics_;
-  ElementsInAnnulus<math::XYZVector,DeltaR<math::XYZVector>,Angle<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerDRouterAnglemetrics_; 
-  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,Angle<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterAnglemetrics_;
-  ElementsInAnnulus<math::XYZVector,Angle<math::XYZVector>,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterDRmetrics_; 
+  ElementsInConeRef<math::XYZVector,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinCone_DRmetric_;
+  ElementsInConeRef<math::XYZVector,Angle<math::XYZVector>,reco::TrackCollection> TracksinCone_Anglemetric_; 
+  ElementsInAnnulusRef<math::XYZVector,DeltaR<math::XYZVector>,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerDRouterDRmetrics_;
+  ElementsInAnnulusRef<math::XYZVector,DeltaR<math::XYZVector>,Angle<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerDRouterAnglemetrics_; 
+  ElementsInAnnulusRef<math::XYZVector,Angle<math::XYZVector>,Angle<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterAnglemetrics_;
+  ElementsInAnnulusRef<math::XYZVector,Angle<math::XYZVector>,DeltaR<math::XYZVector>,reco::TrackCollection> TracksinAnnulus_innerAngleouterDRmetrics_; 
 };
 
 

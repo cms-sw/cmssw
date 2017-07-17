@@ -29,7 +29,7 @@ CaliHVScanRatioDat::~CaliHVScanRatioDat()
 
 
 void CaliHVScanRatioDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   
@@ -47,7 +47,7 @@ void CaliHVScanRatioDat::prepareWrite()
 
 
 void CaliHVScanRatioDat::writeDB(const EcalLogicID* ecid, const CaliHVScanRatioDat* item, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -75,7 +75,7 @@ void CaliHVScanRatioDat::writeDB(const EcalLogicID* ecid, const CaliHVScanRatioD
 
 
 void CaliHVScanRatioDat::fetchData(std::map< EcalLogicID, CaliHVScanRatioDat >* fillMap, CaliIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

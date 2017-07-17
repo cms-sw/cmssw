@@ -91,6 +91,12 @@ class RPCRecHit : public RecHit2DLocalPos {
     theLocalPosition = pos;
     theLocalError = err;
   }
+
+  /// Set the time and its error
+  void setTimeAndError(float time, float err ) {
+    theTime = time;
+    theTimeError = err;
+  }
   
 
   /// Return the rpcId
@@ -110,6 +116,14 @@ class RPCRecHit : public RecHit2DLocalPos {
     return theClusterSize;
   }
 
+  float time() const {
+    return theTime;
+  }
+
+  float timeError() const {
+    return theTimeError;
+  }
+
   /// Comparison operator, based on the rpcId and the digi time
   bool operator==(const RPCRecHit& hit) const;
 
@@ -121,6 +135,7 @@ class RPCRecHit : public RecHit2DLocalPos {
   // Position and error in the Local Ref. Frame of the RPCLayer
   LocalPoint theLocalPosition;
   LocalError theLocalError;
+  float theTime, theTimeError;
 
 };
 #endif

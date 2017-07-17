@@ -73,9 +73,9 @@ std::vector<double> RecoTauDiscriminationBinnedIsolation::operator()(
   // Create our output spectrum
   std::vector<double> output(bins->size(), 0.0);
   // Get the desired isolation objects
-  reco::PFCandidateRefVector isoObjects = extractIsoObjects(tau);
+  std::vector<reco::PFCandidatePtr> isoObjects = extractIsoObjects(tau);
   // Loop over each and histogram their pt
-  BOOST_FOREACH(const reco::PFCandidateRef& cand, isoObjects) {
+  BOOST_FOREACH(const reco::PFCandidatePtr& cand, isoObjects) {
     int highestBinLessThan = -1;
     for (size_t ibin = 0; ibin < bins->size(); ++ibin) {
       if (cand->pt() > bins->at(ibin)) {

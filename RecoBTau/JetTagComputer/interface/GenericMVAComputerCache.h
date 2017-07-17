@@ -17,10 +17,9 @@ class GenericMVAComputerCache {
 	bool
 	update(const PhysicsTools::Calibration::MVAComputerContainer *calib);
 
-	inline GenericMVAComputer *getComputer(int index) const
-	{ return index >= 0 ? computers[index].computer.get() : 0; }
+	GenericMVAComputer const* getComputer(int index) const;
 
-	inline bool isEmpty() const { return empty; }
+	bool isEmpty() const;
 
     private:
 	struct IndividualComputer {
@@ -37,6 +36,7 @@ class GenericMVAComputerCache {
 	PhysicsTools::Calibration::MVAComputerContainer::CacheId	cacheId;
 	bool								initialized;
 	bool								empty;
+        std::string errorUpdatingLabel;
 };
 
 #endif // RecoBTau_JetTagComputer_GenericMVAComputerCache_h

@@ -15,8 +15,8 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      elecs = cms.InputTag("gedGsfElectrons"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
@@ -58,17 +58,17 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets                                            
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
+      select = cms.string("pt>30 & abs(eta)<2.5"),
     ),
     ## [optional] : when omitted no mass window will be applied
     ## for the W mass befor filling the event monitoring plots
@@ -95,10 +95,10 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ##
   preselection = cms.PSet(
     ## [optional] : when omitted no preselection is applied
-    trigger = cms.PSet(
-      src    = cms.InputTag("TriggerResults","","HLT"),
-      select = cms.vstring(['HLT_Mu11', 'HLT_Ele15_LW_L1R', 'HLT_QuadJet30'])
-    ),
+    #trigger = cms.PSet(
+    #  src    = cms.InputTag("TriggerResults","","HLT"),
+    #  select = cms.vstring(['HLT_Mu11', 'HLT_Ele15_LW_L1R', 'HLT_QuadJet30'])
+    #),
     ## [optional] : when omitted no preselection is applied
     vertex = cms.PSet(
       src    = cms.InputTag("offlinePrimaryVertices"),
@@ -116,13 +116,14 @@ topSingleLeptonDQM = cms.EDAnalyzer("TopSingleLeptonDQM",
   ##    
   selection = cms.VPSet(
     cms.PSet(
-      label  = cms.string("jets/calo:step0"),
-      src    = cms.InputTag("ak5CaloJets"),
-      select = cms.string("pt>20 & abs(eta)<2.1 & 0.05<emEnergyFraction"),
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+      label  = cms.string("jets/pf:step0"),
+      src    = cms.InputTag("ak5PFJetsCHS"),
+      #select = cms.string("pt>20 & abs(eta)<2.1 & 0.05<emEnergyFraction"),
+      select = cms.string("pt>20 & abs(eta)<2.1 "),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       min = cms.int32(2),
     ),
   )
@@ -143,8 +144,8 @@ topSingleMuonLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      elecs = cms.InputTag("gedGsfElectrons"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
     ),
@@ -172,30 +173,35 @@ topSingleMuonLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets                                               
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                                                                                     
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),                                                    
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),                                                    
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
+      select = cms.string("pt>30 & abs(eta)<2.5"),
       ## when omitted monitor histograms for b-tagging will not be filled 
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.00)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
+	    ),
+		cvsVertex = cms.PSet(
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),
     ),
@@ -298,8 +304,8 @@ topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      elecs = cms.InputTag("gedGsfElectrons"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -330,30 +336,24 @@ topSingleMuonMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                                                                   
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets                                                
-      select = cms.string("pt>15 & abs(eta)<2.5& emEnergyFraction>0.01"),
+      #select = cms.string("pt>15 & abs(eta)<2.5& emEnergyFraction>0.01"),
+      select = cms.string("pt>30 & abs(eta)<2.5"),
       ## when omitted monitor histograms for b-tagging will not be filled                                                                                                   
       jetBTaggers  = cms.PSet(
-        trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
-          workingPoint = cms.double(1.25)
-        ),
-        trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
-          workingPoint = cms.double(3.00)
-        ),
-        secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
-          workingPoint = cms.double(2.05)
+		cvsVertex = cms.PSet(
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),                                                
     ),
@@ -457,8 +457,8 @@ topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      elecs = cms.InputTag("gedGsfElectrons"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -491,30 +491,35 @@ topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID                                                   
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"), 
+      select = cms.string("pt>30 & abs(eta)<2.5"), 
       ## when omitted monitor histograms for b-tagging will not be filled                                                   
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.00)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
+	    ),
+		cvsVertex = cms.PSet(
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),
     ),
@@ -561,9 +566,9 @@ topSingleElectronLooseDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   selection = cms.VPSet(
     cms.PSet(
       label  = cms.string("elecs:step0"),
-      src    = cms.InputTag("gsfElectrons"),
+      src    = cms.InputTag("gedGsfElectrons"),
       electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
-      select = cms.string("pt>15 & abs(eta)<2.5"),
+      select = cms.string("pt>30 & abs(eta)<2.5"),
       min    = cms.int32(1),
     ),
     cms.PSet(
@@ -614,8 +619,8 @@ topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     ## [mandatory]
     sources = cms.PSet(
       muons = cms.InputTag("muons"),
-      elecs = cms.InputTag("gsfElectrons"),
-      jets  = cms.InputTag("ak5CaloJets"),
+      elecs = cms.InputTag("gedGsfElectrons"),
+      jets  = cms.InputTag("ak5PFJetsCHS"),
       mets  = cms.VInputTag("met", "tcMet", "pfMet"),
       pvs   = cms.InputTag("offlinePrimaryVertices")
 
@@ -648,30 +653,35 @@ topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     jetExtras = cms.PSet(
       ## when omitted monitor plots for pt will be filled from uncorrected
       ## jets
-      jetCorrector = cms.string("ak5CaloL2L3"),
+      jetCorrector = cms.string("ak5PFL2L3"),
       ## when omitted monitor plots will be filled w/o additional cut on
       ## jetID
-      jetID  = cms.PSet(
-        label  = cms.InputTag("ak5JetID"),
-        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
-      ),
+#      jetID  = cms.PSet(
+#        label  = cms.InputTag("ak5JetID"),
+#        select = cms.string("fHPD < 0.98 & n90Hits>1 & restrictedEMF<1")
+#      ),
       ## when omitted no extra selection will be applied on jets before
       ## filling the monitor histograms; if jetCorrector is present the
       ## selection will be applied to corrected jets 
-      select = cms.string("pt>15 & abs(eta)<2.5 & emEnergyFraction>0.01"),
+      select = cms.string("pt>30 & abs(eta)<2.5"),
       ## when omitted monitor histograms for b-tagging will not be filled
       jetBTaggers  = cms.PSet(
         trackCountingEff = cms.PSet(
-          label = cms.InputTag("trackCountingHighEffBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighEffBJetTags" ),
           workingPoint = cms.double(1.25)
         ),
         trackCountingPur = cms.PSet(
-          label = cms.InputTag("trackCountingHighPurBJetTags" ),
+          label = cms.InputTag("pfTrackCountingHighPurBJetTags" ),
           workingPoint = cms.double(3.00)
         ),
         secondaryVertex  = cms.PSet(
-          label = cms.InputTag("simpleSecondaryVertexHighEffBJetTags"),
+          label = cms.InputTag("pfSimpleSecondaryVertexHighEffBJetTags"),
           workingPoint = cms.double(2.05)
+	    ),
+		cvsVertex = cms.PSet(
+          label = cms.InputTag("pfCombinedInclusiveSecondaryVertexV2BJetTags"),
+	          workingPoint = cms.double(0.970)
+	          # CSV Tight from https://twiki.cern.ch/twiki/bin/viewauth/CMS/BtagRecommendation74X
         )
       ),
     ),
@@ -718,7 +728,7 @@ topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
   selection = cms.VPSet(
     cms.PSet(
       label = cms.string("elecs:step0"),
-      src   = cms.InputTag("gsfElectrons"),
+      src   = cms.InputTag("gedGsfElectrons"),
       electronId = cms.PSet( src = cms.InputTag("simpleEleId70cIso"), pattern = cms.int32(1) ),
       select = cms.string("pt>25 & abs(eta)<2.5 & (dr03TkSumPt+dr03EcalRecHitSumEt+dr03HcalTowerSumEt)/pt<0.1"),
       min = cms.int32(1),
@@ -756,3 +766,4 @@ topSingleElectronMediumDQM_PU = cms.EDAnalyzer("TopSingleLeptonDQM",
     ),
   )
 )
+

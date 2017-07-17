@@ -3,7 +3,7 @@
 // user include files
 
 #include "Calibration/HcalAlCaRecoProducers/src/ProducerAnalyzer.h"
-#include "FWCore/Common/interface/Provenance.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 #include "DataFormats/MuonReco/interface/Muon.h"
 #include "TrackingTools/TransientTrack/interface/TransientTrack.h"
 #include "Geometry/Records/interface/CaloGeometryRecord.h" 
@@ -90,13 +90,12 @@ ProducerAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetu
    geo = pG.product();
    
 
-  std::vector<Provenance const*> theProvenance;
-  iEvent.getAllProvenance(theProvenance);
-  for( std::vector<Provenance const*>::const_iterator ip = theProvenance.begin();
-                                                      ip != theProvenance.end(); ip++)
+  std::vector<StableProvenance const*> theProvenance;
+  iEvent.getAllStableProvenance(theProvenance);
+  for(auto const& provenance : theProvenance)
   {
-     cout<<" Print all module/label names "<<moduleName(**ip)<<" "<<(**ip).moduleLabel()<<
-     " "<<(**ip).productInstanceName()<<endl;
+     cout<<" Print all module/label names "<<provenance->moduleName()<<" "<<provenance->moduleLabel()<<
+     " "<<provenance->productInstanceName()<<endl;
   }
   
   

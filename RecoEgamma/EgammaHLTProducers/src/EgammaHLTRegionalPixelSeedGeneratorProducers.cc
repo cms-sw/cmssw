@@ -15,6 +15,7 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
@@ -33,28 +34,44 @@
 // Math
 #include "Math/GenVector/VectorUtil.h"
 #include "Math/GenVector/PxPyPzE4D.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 using namespace std;
 using namespace reco;
 
-EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGeneratorProducers(edm::ParameterSet const& conf) :   conf_(conf),combinatorialSeedGenerator(0)
+EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGeneratorProducers(edm::ParameterSet const& conf)
 {
 
   produces<TrajectorySeedCollection>();
 
-  ptmin_       = conf_.getParameter<double>("ptMin");
-  vertexz_     = conf_.getParameter<double>("vertexZ");
-  originradius_= conf_.getParameter<double>("originRadius");
-  halflength_  = conf_.getParameter<double>("originHalfLength");
-  deltaEta_    = conf_.getParameter<double>("deltaEtaRegion");
-  deltaPhi_    = conf_.getParameter<double>("deltaPhiRegion");
+  ptmin_       = conf.getParameter<double>("ptMin");
+  vertexz_     = conf.getParameter<double>("vertexZ");
+  originradius_= conf.getParameter<double>("originRadius");
+  halflength_  = conf.getParameter<double>("originHalfLength");
+  deltaEta_    = conf.getParameter<double>("deltaEtaRegion");
+  deltaPhi_    = conf.getParameter<double>("deltaPhiRegion");
 
-  candTag_     = consumes<reco::RecoEcalCandidateCollection>(conf_.getParameter< edm::InputTag > ("candTag"));
-  candTagEle_  = consumes<reco::ElectronCollection>(conf_.getParameter< edm::InputTag > ("candTagEle"));
+  candTag_     = consumes<reco::RecoEcalCandidateCollection>(conf.getParameter< edm::InputTag > ("candTag"));
+  candTagEle_  = consumes<reco::ElectronCollection>(conf.getParameter< edm::InputTag > ("candTagEle"));
   BSProducer_  = consumes<reco::BeamSpot>(conf.getParameter<edm::InputTag>("BSProducer"));
   
-  useZvertex_  = conf_.getParameter<bool>("UseZInVertex");
+  useZvertex_  = conf.getParameter<bool>("UseZInVertex");
 
+  edm::ParameterSet hitsfactoryPSet = conf.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
+  std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
+
+  // get orderd hits generator from factory
+  edm::ConsumesCollector iC = consumesCollector();
+  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet, iC);
+
+  // start seed generator
+  edm::ParameterSet creatorPSet;
+  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
+
+  combinatorialSeedGenerator.reset(new SeedGeneratorFromRegionHits( hitsGenerator, 0,
+                                                                    SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
+                                                                    ));
   // setup orderedhits setup (in order to tell seed generator to use pairs/triplets, which layers)
 }
 
@@ -62,28 +79,35 @@ EgammaHLTRegionalPixelSeedGeneratorProducers::EgammaHLTRegionalPixelSeedGenerato
 EgammaHLTRegionalPixelSeedGeneratorProducers::~EgammaHLTRegionalPixelSeedGeneratorProducers() { 
 }  
 
-void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run const&run, const edm::EventSetup& es)
-{
-  delete combinatorialSeedGenerator;
-  combinatorialSeedGenerator=0;
+void EgammaHLTRegionalPixelSeedGeneratorProducers::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<double>("ptMin", 1.5);
+  desc.add<double>("vertexZ", 0);
+  desc.add<double>("originRadius", 0.02);
+  desc.add<double>("originHalfLength", 15.0);
+  desc.add<double>("deltaEtaRegion", 0.3);
+  desc.add<double>("deltaPhiRegion", 0.3);
+  desc.add<edm::InputTag>(("candTag"), edm::InputTag("hltL1SeededRecoEcalCandidate"));
+  desc.add<edm::InputTag>(("candTagEle"), edm::InputTag("pixelMatchElectrons"));
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<bool>(("UseZInVertex"), false);
+  desc.add<std::string>("TTRHBuilder", "WithTrackAngle");
+
+  edm::ParameterSetDescription orderedHitsPSET;
+  orderedHitsPSET.add<std::string>("ComponentName", "StandardHitPairGenerator");
+  orderedHitsPSET.add<edm::InputTag>("SeedingLayers", edm::InputTag("PixelLayerPairs"));
+  orderedHitsPSET.add<unsigned int>("maxElement", 0);
+  desc.add<edm::ParameterSetDescription>("OrderedHitsFactoryPSet", orderedHitsPSET);
+  
+  descriptions.add(("hltEgammaHLTRegionalPixelSeedGeneratorProducers"), desc);  
 }
+
+void EgammaHLTRegionalPixelSeedGeneratorProducers::endRun(edm::Run const&run, const edm::EventSetup& es) {}
 
 
 void EgammaHLTRegionalPixelSeedGeneratorProducers::beginRun(edm::Run const&run, const edm::EventSetup& es)
 {
-  edm::ParameterSet hitsfactoryPSet = conf_.getParameter<edm::ParameterSet>("OrderedHitsFactoryPSet");
-  std::string hitsfactoryName = hitsfactoryPSet.getParameter<std::string>("ComponentName");
-  
-  // get orderd hits generator from factory
-  OrderedHitsGenerator*  hitsGenerator = OrderedHitsGeneratorFactory::get()->create( hitsfactoryName, hitsfactoryPSet);
-  
-  // start seed generator
-  edm::ParameterSet creatorPSet;
-  creatorPSet.addParameter<std::string>("propagator","PropagatorWithMaterial");
-  
-  combinatorialSeedGenerator = new SeedGeneratorFromRegionHits( hitsGenerator, 0, 
-								SeedCreatorFactory::get()->create("SeedFromConsecutiveHitsCreator", creatorPSet)
-								);
 }
 
 // Functions that gets called by framework every event
@@ -91,7 +115,7 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
 {
 
   // resulting collection
-  std::auto_ptr<TrajectorySeedCollection> output(new TrajectorySeedCollection());    
+  auto output = std::make_unique< TrajectorySeedCollection>();    
 
   // Get the recoEcalCandidates
   edm::Handle<reco::RecoEcalCandidateCollection> recoecalcands;
@@ -139,5 +163,5 @@ void EgammaHLTRegionalPixelSeedGeneratorProducers::produce(edm::Event& iEvent, c
     
   }
 
-    iEvent.put(output);
+    iEvent.put(std::move(output));
 }

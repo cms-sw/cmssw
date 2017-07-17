@@ -11,7 +11,7 @@
  *
  **/
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -27,14 +27,14 @@
 #include "DataFormats/EcalDigi/interface/EcalDigiCollections.h"
 
 
-class EcalDetIdToBeRecoveredProducer : public edm::EDProducer {
+class EcalDetIdToBeRecoveredProducer : public edm::stream::EDProducer<> {
 
         public:
                 explicit EcalDetIdToBeRecoveredProducer(const edm::ParameterSet& ps);
                 ~EcalDetIdToBeRecoveredProducer();
                 virtual void produce(edm::Event& evt, const edm::EventSetup& es) override final;
                 virtual void beginRun(edm::Run const& run, const edm::EventSetup& es) override final;
-
+		static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
         private:
 
                 //edm::InputTag eeUncalibRecHitCollection_; // secondary name given to collection of EE uncalib rechits

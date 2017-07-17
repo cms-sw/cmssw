@@ -1,12 +1,31 @@
 
 #ifndef Validation_RecoEgamma_ElectronMcFakeValidator_h
-#define Validation_RecoEgamma_ElectronMcFakeValidator_h
+#define Validation_RecoEgamma_ElectronMcFakeValidator_h 
 
 #include "DQMOffline/EGamma/interface/ElectronDqmAnalyzerBase.h"
-//#include "Validation/RecoEgamma/interface/ElectronValidator.h"
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 class MagneticField;
+
+#include "DataFormats/GsfTrackReco/interface/GsfTrack.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
+#include "DataFormats/EgammaCandidates/interface/GsfElectronCore.h"
+#include "DataFormats/EgammaReco/interface/BasicClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeed.h"
+#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
+#include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/JetReco/interface/GenJetCollection.h"
+ 
+#include "DataFormats/Common/interface/Handle.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -18,28 +37,28 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
 
     explicit ElectronMcFakeValidator( const edm::ParameterSet & conf ) ;
     virtual ~ElectronMcFakeValidator() ;
-    virtual void book() ;
-    virtual void analyze( const edm::Event& e, const edm::EventSetup & c ) ;
+    virtual void bookHistograms( DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) ;
+    virtual void analyze( const edm::Event & e, const edm::EventSetup & c ) ;
 
   private:
 
-    edm::InputTag electronCollection_;
-    edm::InputTag electronCoreCollection_;
-    edm::InputTag electronTrackCollection_;
-    edm::InputTag electronSeedCollection_;
-    edm::InputTag  matchingObjectCollection_;
-    edm::InputTag beamSpotTag_;
+    edm::EDGetTokenT<reco::GsfElectronCollection> electronCollection_;
+    edm::EDGetTokenT<reco::GsfElectronCoreCollection> electronCoreCollection_;
+    edm::EDGetTokenT<reco::GsfTrackCollection> electronTrackCollection_;
+    edm::EDGetTokenT<reco::ElectronSeedCollection> electronSeedCollection_;
+    edm::EDGetTokenT<reco::GenJetCollection>  matchingObjectCollection_;
+    edm::EDGetTokenT<reco::VertexCollection> offlineVerticesCollection_;    // new 2015.04.02 
+    edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
     bool readAOD_;
-    //std::string outputFile_ ;
 
-    edm::InputTag isoFromDepsTk03Tag_ ;
-    edm::InputTag isoFromDepsTk04Tag_ ;
-    edm::InputTag isoFromDepsEcalFull03Tag_ ;
-    edm::InputTag isoFromDepsEcalFull04Tag_ ;
-    edm::InputTag isoFromDepsEcalReduced03Tag_ ;
-    edm::InputTag isoFromDepsEcalReduced04Tag_ ;
-    edm::InputTag isoFromDepsHcal03Tag_ ;
-    edm::InputTag isoFromDepsHcal04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsTk03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsTk04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalFull03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalFull04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalReduced03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsEcalReduced04Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsHcal03Tag_ ;
+    edm::EDGetTokenT<edm::ValueMap<double>> isoFromDepsHcal04Tag_ ;
 
     edm::ESHandle<TrackerGeometry> pDD ;
     edm::ESHandle<MagneticField> theMagField ;
@@ -51,6 +70,11 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     double maxPt_;
     double maxAbsEta_;
     double deltaR_;
+
+    std::string inputFile_ ;
+    std::string outputFile_ ;
+    std::string inputInternalPath_ ;
+    std::string outputInternalPath_ ;
 
     // histos limits and binning
 
@@ -69,6 +93,7 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     int mee_nbin ; double mee_min ; double mee_max ;
     int hoe_nbin ; double hoe_min ; double hoe_max ;
     int popmatching_nbin ; double popmatching_min ; double popmatching_max ;
+    bool set_EfficiencyFlag ; bool set_StatOverflowFlag ;
 
     // histos
 
@@ -77,6 +102,8 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_recCoreNum_ ;
     MonitorElement *h1_recTrackNum_ ;
     MonitorElement *h1_recSeedNum_ ;
+    
+    MonitorElement *h1_recOfflineVertices_; // new 2015.04.02
 
     MonitorElement *h1_matchingObjectEta;
     MonitorElement *h1_matchingObjectAbsEta;
@@ -157,12 +184,12 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_scl_Eta_ ;
     MonitorElement *h1_scl_Phi_ ;
 
-//    MonitorElement *h1_scl_SigEtaEta_ ;
-//    MonitorElement *h1_scl_SigEtaEta_barrel_ ;
-//    MonitorElement *h1_scl_SigEtaEta_endcaps_ ;
     MonitorElement *h1_scl_SigIEtaIEta_ ;
     MonitorElement *h1_scl_SigIEtaIEta_barrel_ ;
     MonitorElement *h1_scl_SigIEtaIEta_endcaps_ ;
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_; // new 2014.01.12
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_barrel_; // new 2014.01.12
+    MonitorElement *h1_scl_full5x5_sigmaIetaIeta_endcaps_; // new 2014.01.12
     MonitorElement *h1_scl_E1x5_ ;
     MonitorElement *h1_scl_E1x5_barrel_ ;
     MonitorElement *h1_scl_E1x5_endcaps_ ;
@@ -215,36 +242,24 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_EoP;
     MonitorElement *h1_ele_EoP_barrel;
     MonitorElement *h1_ele_EoP_endcaps;
-    MonitorElement *h1_ele_EoP_eg;
-    MonitorElement *h1_ele_EoP_eg_barrel;
-    MonitorElement *h1_ele_EoP_eg_endcaps;
     MonitorElement *h2_ele_EoPVsEta;
     MonitorElement *h2_ele_EoPVsPhi;
     MonitorElement *h2_ele_EoPVsE;
     MonitorElement *h1_ele_EseedOP;
     MonitorElement *h1_ele_EseedOP_barrel;
     MonitorElement *h1_ele_EseedOP_endcaps;
-    MonitorElement *h1_ele_EseedOP_eg;
-    MonitorElement *h1_ele_EseedOP_eg_barrel;
-    MonitorElement *h1_ele_EseedOP_eg_endcaps;
     MonitorElement *h2_ele_EseedOPVsEta;
     MonitorElement *h2_ele_EseedOPVsPhi;
     MonitorElement *h2_ele_EseedOPVsE;
     MonitorElement *h1_ele_EoPout;
     MonitorElement *h1_ele_EoPout_barrel;
     MonitorElement *h1_ele_EoPout_endcaps;
-    MonitorElement *h1_ele_EoPout_eg;
-    MonitorElement *h1_ele_EoPout_eg_barrel;
-    MonitorElement *h1_ele_EoPout_eg_endcaps;
     MonitorElement *h2_ele_EoPoutVsEta;
     MonitorElement *h2_ele_EoPoutVsPhi;
     MonitorElement *h2_ele_EoPoutVsE;
     MonitorElement *h1_ele_EeleOPout;
     MonitorElement *h1_ele_EeleOPout_barrel;
     MonitorElement *h1_ele_EeleOPout_endcaps;
-    MonitorElement *h1_ele_EeleOPout_eg;
-    MonitorElement *h1_ele_EeleOPout_eg_barrel;
-    MonitorElement *h1_ele_EeleOPout_eg_endcaps;
     MonitorElement *h2_ele_EeleOPoutVsEta;
     MonitorElement *h2_ele_EeleOPoutVsPhi;
     MonitorElement *h2_ele_EeleOPoutVsE;
@@ -252,54 +267,36 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_dEtaSc_propVtx;
     MonitorElement *h1_ele_dEtaSc_propVtx_barrel;
     MonitorElement *h1_ele_dEtaSc_propVtx_endcaps;
-    MonitorElement *h1_ele_dEtaSc_propVtx_eg;
-    MonitorElement *h1_ele_dEtaSc_propVtx_eg_barrel;
-    MonitorElement *h1_ele_dEtaSc_propVtx_eg_endcaps;
     MonitorElement *h2_ele_dEtaScVsEta_propVtx;
     MonitorElement *h2_ele_dEtaScVsPhi_propVtx;
     MonitorElement *h2_ele_dEtaScVsPt_propVtx;
     MonitorElement *h1_ele_dPhiSc_propVtx;
     MonitorElement *h1_ele_dPhiSc_propVtx_barrel;
     MonitorElement *h1_ele_dPhiSc_propVtx_endcaps;
-    MonitorElement *h1_ele_dPhiSc_propVtx_eg;
-    MonitorElement *h1_ele_dPhiSc_propVtx_eg_barrel;
-    MonitorElement *h1_ele_dPhiSc_propVtx_eg_endcaps;
     MonitorElement *h2_ele_dPhiScVsEta_propVtx;
     MonitorElement *h2_ele_dPhiScVsPhi_propVtx;
     MonitorElement *h2_ele_dPhiScVsPt_propVtx;
     MonitorElement *h1_ele_dEtaCl_propOut;
     MonitorElement *h1_ele_dEtaCl_propOut_barrel;
     MonitorElement *h1_ele_dEtaCl_propOut_endcaps;
-    MonitorElement *h1_ele_dEtaCl_propOut_eg;
-    MonitorElement *h1_ele_dEtaCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dEtaCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dEtaClVsEta_propOut;
     MonitorElement *h2_ele_dEtaClVsPhi_propOut;
     MonitorElement *h2_ele_dEtaClVsPt_propOut;
     MonitorElement *h1_ele_dPhiCl_propOut;
     MonitorElement *h1_ele_dPhiCl_propOut_barrel;
     MonitorElement *h1_ele_dPhiCl_propOut_endcaps;
-    MonitorElement *h1_ele_dPhiCl_propOut_eg;
-    MonitorElement *h1_ele_dPhiCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dPhiCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dPhiClVsEta_propOut;
     MonitorElement *h2_ele_dPhiClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiClVsPt_propOut;
     MonitorElement *h1_ele_dEtaEleCl_propOut;
     MonitorElement *h1_ele_dEtaEleCl_propOut_barrel;
     MonitorElement *h1_ele_dEtaEleCl_propOut_endcaps;
-    MonitorElement *h1_ele_dEtaEleCl_propOut_eg;
-    MonitorElement *h1_ele_dEtaEleCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dEtaEleCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dEtaEleClVsEta_propOut;
     MonitorElement *h2_ele_dEtaEleClVsPhi_propOut;
     MonitorElement *h2_ele_dEtaEleClVsPt_propOut;
     MonitorElement *h1_ele_dPhiEleCl_propOut;
     MonitorElement *h1_ele_dPhiEleCl_propOut_barrel;
     MonitorElement *h1_ele_dPhiEleCl_propOut_endcaps;
-    MonitorElement *h1_ele_dPhiEleCl_propOut_eg;
-    MonitorElement *h1_ele_dPhiEleCl_propOut_eg_barrel;
-    MonitorElement *h1_ele_dPhiEleCl_propOut_eg_endcaps;
     MonitorElement *h2_ele_dPhiEleClVsEta_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPhi_propOut;
     MonitorElement *h2_ele_dPhiEleClVsPt_propOut;
@@ -335,18 +332,19 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_HoE_endcaps;
     MonitorElement *h1_ele_HoE_bc_barrel;
     MonitorElement *h1_ele_HoE_bc_endcaps;
-    MonitorElement *h1_ele_HoE_eg;
-    MonitorElement *h1_ele_HoE_eg_barrel;
-    MonitorElement *h1_ele_HoE_eg_endcaps;
     MonitorElement *h1_ele_HoE_fiducial;
     MonitorElement *h2_ele_HoEVsEta;
     MonitorElement *h2_ele_HoEVsPhi;
     MonitorElement *h2_ele_HoEVsE;
+//    MonitorElement *h1_scl_ESFrac;
+    MonitorElement *h1_scl_ESFrac_endcaps;
 
     MonitorElement *h1_ele_fbrem;
     MonitorElement *h1_ele_fbrem_barrel;
     MonitorElement *h1_ele_fbrem_endcaps;
-
+    MonitorElement *h1_ele_superclusterfbrem;
+    MonitorElement *h1_ele_superclusterfbrem_barrel;
+    MonitorElement *h1_ele_superclusterfbrem_endcaps;
     MonitorElement *p1_ele_fbremVsEta_mode;
     MonitorElement *p1_ele_fbremVsEta_mean;
 
@@ -366,6 +364,9 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_mva;
     MonitorElement *h1_ele_mva_barrel;
     MonitorElement *h1_ele_mva_endcaps;
+    MonitorElement *h1_ele_mva_isolated;
+    MonitorElement *h1_ele_mva_barrel_isolated;
+    MonitorElement *h1_ele_mva_endcaps_isolated;
     MonitorElement *h1_ele_provenance;
     MonitorElement *h1_ele_provenance_barrel;
     MonitorElement *h1_ele_provenance_endcaps;
@@ -380,6 +381,16 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_photonIso;
     MonitorElement *h1_ele_photonIso_barrel;
     MonitorElement *h1_ele_photonIso_endcaps;
+	// -- pflow over pT
+	MonitorElement *h1_ele_chargedHadronRelativeIso;
+	MonitorElement *h1_ele_chargedHadronRelativeIso_barrel;
+    MonitorElement *h1_ele_chargedHadronRelativeIso_endcaps;
+	MonitorElement *h1_ele_neutralHadronRelativeIso;
+	MonitorElement *h1_ele_neutralHadronRelativeIso_barrel;
+    MonitorElement *h1_ele_neutralHadronRelativeIso_endcaps;
+	MonitorElement *h1_ele_photonRelativeIso;
+	MonitorElement *h1_ele_photonRelativeIso_barrel;
+    MonitorElement *h1_ele_photonRelativeIso_endcaps;
 
     MonitorElement *h1_ele_tkSumPt_dr03;
     MonitorElement *h1_ele_tkSumPt_dr03_barrel;
@@ -401,15 +412,6 @@ class ElectronMcFakeValidator : public ElectronDqmAnalyzerBase
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1_barrel;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth1_endcaps;
     MonitorElement *h1_ele_hcalTowerSumEt_dr04_depth2;
-
-    MonitorElement *h1_ele_dIso_tkSumPt_dr03;
-    MonitorElement *h1_ele_dIso_tkSumPt_dr04;
-    MonitorElement *h1_ele_dIso_ecalFullRecHitSumEt_dr03;
-    MonitorElement *h1_ele_dIso_ecalFullRecHitSumEt_dr04;
-    MonitorElement *h1_ele_dIso_ecalReducedRecHitSumEt_dr03;
-    MonitorElement *h1_ele_dIso_ecalReducedRecHitSumEt_dr04;
-    MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr03;
-    MonitorElement *h1_ele_dIso_hcalTowerSumEt_dr04;
 
     MonitorElement *h1_ele_hcalDepth1OverEcalBc;
     MonitorElement *h1_ele_hcalDepth1OverEcalBc_barrel;

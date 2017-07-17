@@ -15,6 +15,11 @@
 #include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/CompositeCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
+#include "DataFormats/JetReco/interface/PFJet.h"
+#include "DataFormats/JetReco/interface/CaloJet.h"
+#include "DataFormats/JetReco/interface/PFJetCollection.h"
+#include "DataFormats/JetReco/interface/CaloJetCollection.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
 
 //#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
@@ -61,11 +66,13 @@ class WenuPlots : public edm::EDAnalyzer {
   Int_t  maxNumberOfExpectedMissingHits_;
   Bool_t usePreselection_;
   std::string outputFile_;
-  edm::InputTag wenuCollectionTag_;
+  edm::EDGetTokenT<pat::CompositeCandidateCollection> wenuCollectionToken_;
   edm::InputTag caloJetCollectionTag_;
+  edm::EDGetTokenT< reco::CaloJetCollection > caloJetCollectionToken_;
   edm::InputTag pfJetCollectionTag_;
-  edm::InputTag   PrimaryVerticesCollection_;
-  edm::InputTag   PrimaryVerticesCollectionBS_;
+  edm::EDGetTokenT< reco::PFJetCollection > pfJetCollectionToken_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> >   PrimaryVerticesCollectionToken_;
+  edm::EDGetTokenT< std::vector<reco::Vertex> >   PrimaryVerticesCollectionBSToken_;
   TFile *histofile;
   //
   //  math::XYZPoint bspotPosition_; // comment out only if you don't use pat

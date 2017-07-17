@@ -6,6 +6,8 @@
 // Framework
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -84,6 +86,30 @@ EgammaHLTIslandClusterProducer::EgammaHLTIslandClusterProducer(const edm::Parame
 
 EgammaHLTIslandClusterProducer::~EgammaHLTIslandClusterProducer() {
   delete island_p;
+}
+
+void EgammaHLTIslandClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<std::string>("VerbosityLevel", "ERROR");
+  desc.add<bool>("doBarrel", true);
+  desc.add<bool>("doEndcaps", true);
+  desc.add<bool>("doIsolated", true);
+  desc.add<edm::InputTag>("barrelHitProducer", edm::InputTag("islandEndcapBasicClusters", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>("endcapHitProducer", edm::InputTag("islandEndcapBasicClusters", "EcalRecHitsEB"));
+  desc.add<std::string>("barrelClusterCollection", "islandBarrelBasicClusters");
+  desc.add<std::string>("endcapClusterCollection", "islandEndcapBasicClusters");
+  desc.add<double>("IslandBarrelSeedThr", 0.5);
+  desc.add<double>("IslandEndcapSeedThr", 0.18);
+  desc.add<edm::InputTag>("l1TagIsolated", edm::InputTag("l1extraParticles","Isolated"));
+  desc.add<edm::InputTag>("l1TagNonIsolated", edm::InputTag("l1extraParticles","NonIsolated"));
+  desc.add<double>("l1LowerThr", 0.0);
+  desc.add<double>("l1UpperThr", 9999.0);
+  desc.add<double>("l1LowerThrIgnoreIsolation", 9999.0);
+  desc.add<double>("regionEtaMargin", 0.3);
+  desc.add<double>("regionPhiMargin", 0.4);
+  //desc.add<edm::ParameterSet>("posCalcParameters"), edm::ParameterSet());
+  descriptions.add("hltEgammaHLTIslandClusterProducer", desc);  
 }
 
 void EgammaHLTIslandClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
@@ -267,14 +293,14 @@ void EgammaHLTIslandClusterProducer::clusterizeECALPart(edm::Event &evt, const e
   reco::BasicClusterCollection clusters;
   clusters = island_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, ecalPart, true, regions);
 
-  // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  // create an unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (ecalPart == IslandClusterAlgo::barrel) 
-    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
-    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
 
   delete topology_p;
 }

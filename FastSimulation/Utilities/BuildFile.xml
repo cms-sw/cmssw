@@ -1,3 +1,5 @@
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="FWCore/Utilities"/>
 <use   name="clhep"/>
 <use   name="root"/>
 <use   name="rootmath"/>

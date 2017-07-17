@@ -1,117 +1,176 @@
 ## import skeleton process
 from PhysicsTools.PatAlgos.patTemplate_cfg import *
-## switch to uncheduled mode
-process.options.allowUnscheduled = cms.untracked.bool(True)
 
 ## to run in un-scheduled mode uncomment the following lines
 process.load("PhysicsTools.PatAlgos.producersLayer1.patCandidates_cff")
-process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.patCandidatesTask)
 
-# FIXME BEGIN: needed as long as new input not available in input RelVals
-process.load("RecoJets.JetAssociationProducers.ak5JTA_cff")
-process.load("RecoJets.JetAssociationProducers.ak7JTA_cff")
-process.patJets.discriminatorSources = cms.VInputTag(
-        cms.InputTag("jetBProbabilityBJetTags::RECO"),
-        cms.InputTag("jetProbabilityBJetTags::RECO"),
-        cms.InputTag("trackCountingHighPurBJetTags::RECO"),
-        cms.InputTag("trackCountingHighEffBJetTags::RECO"),
-        cms.InputTag("simpleSecondaryVertexHighEffBJetTags::RECO"),
-        cms.InputTag("simpleSecondaryVertexHighPurBJetTags::RECO"),
-        cms.InputTag("combinedSecondaryVertexBJetTags::RECO")
-    )
-process.patJets.trackAssociationSource = cms.InputTag("ak5JetTracksAssociatorAtVertex::RECO")
-process.patJets.jetIDMap = cms.InputTag("ak5JetID::RECO")
-# FIXME END
+process.load("PhysicsTools.PatAlgos.selectionLayer1.selectedPatCandidates_cff")
+patAlgosToolsTask.add(process.selectedPatCandidatesTask)
 
 ## uncomment the following line to add different jet collections
 ## to the event content
 from PhysicsTools.PatAlgos.tools.jetTools import addJetCollection
 
-# uncomment the following lines to add ak5PFJets with new b-tags to your PAT output
+# b-tag discriminators
+btagDiscriminators = [
+     # legacy framework (no longer supported, work with RECO/AOD but not MiniAOD)
+     'jetBProbabilityBJetTags'
+    ,'jetProbabilityBJetTags'
+    ,'positiveOnlyJetBProbabilityBJetTags'
+    ,'positiveOnlyJetProbabilityBJetTags'
+    ,'negativeOnlyJetBProbabilityBJetTags'
+    ,'negativeOnlyJetProbabilityBJetTags'
+    ,'trackCountingHighPurBJetTags'
+    ,'trackCountingHighEffBJetTags'
+    ,'negativeTrackCountingHighEffBJetTags'
+    ,'negativeTrackCountingHighPurBJetTags'
+    ,'simpleSecondaryVertexHighEffBJetTags'
+    ,'simpleSecondaryVertexHighPurBJetTags'
+    ,'negativeSimpleSecondaryVertexHighEffBJetTags'
+    ,'negativeSimpleSecondaryVertexHighPurBJetTags'
+    ,'combinedSecondaryVertexV2BJetTags'
+    ,'positiveCombinedSecondaryVertexV2BJetTags'
+    ,'negativeCombinedSecondaryVertexV2BJetTags'
+    ,'simpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'simpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'negativeSimpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'negativeSimpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'doubleSecondaryVertexHighEffBJetTags'
+    ,'combinedInclusiveSecondaryVertexV2BJetTags'
+    ,'positiveCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'negativeCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'combinedMVAV2BJetTags'
+    ,'negativeCombinedMVAV2BJetTags'
+    ,'positiveCombinedMVAV2BJetTags'
+     # new candidate-based framework (supported with RECO/AOD/MiniAOD)
+    ,'pfJetBProbabilityBJetTags'
+    ,'pfJetProbabilityBJetTags'
+    ,'pfPositiveOnlyJetBProbabilityBJetTags'
+    ,'pfPositiveOnlyJetProbabilityBJetTags'
+    ,'pfNegativeOnlyJetBProbabilityBJetTags'
+    ,'pfNegativeOnlyJetProbabilityBJetTags'
+    ,'pfTrackCountingHighPurBJetTags'
+    ,'pfTrackCountingHighEffBJetTags'
+    ,'pfNegativeTrackCountingHighPurBJetTags'
+    ,'pfNegativeTrackCountingHighEffBJetTags'
+    ,'pfSimpleSecondaryVertexHighEffBJetTags'
+    ,'pfSimpleSecondaryVertexHighPurBJetTags'
+    ,'pfNegativeSimpleSecondaryVertexHighEffBJetTags'
+    ,'pfNegativeSimpleSecondaryVertexHighPurBJetTags'
+    ,'pfSimpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'pfSimpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'pfNegativeSimpleInclusiveSecondaryVertexHighEffBJetTags'
+    ,'pfNegativeSimpleInclusiveSecondaryVertexHighPurBJetTags'
+    ,'pfCombinedSecondaryVertexV2BJetTags'
+    ,'pfPositiveCombinedSecondaryVertexV2BJetTags'
+    ,'pfNegativeCombinedSecondaryVertexV2BJetTags'
+    ,'pfCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'pfPositiveCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'pfNegativeCombinedInclusiveSecondaryVertexV2BJetTags'
+    ,'pfGhostTrackBJetTags'
+    ,'softPFMuonBJetTags'
+    ,'softPFMuonByPtBJetTags'
+    ,'softPFMuonByIP3dBJetTags'
+    ,'softPFMuonByIP2dBJetTags'
+    ,'positiveSoftPFMuonBJetTags'
+    ,'positiveSoftPFMuonByPtBJetTags'
+    ,'positiveSoftPFMuonByIP3dBJetTags'
+    ,'positiveSoftPFMuonByIP2dBJetTags'
+    ,'negativeSoftPFMuonBJetTags'
+    ,'negativeSoftPFMuonByPtBJetTags'
+    ,'negativeSoftPFMuonByIP3dBJetTags'
+    ,'negativeSoftPFMuonByIP2dBJetTags'
+    ,'softPFElectronBJetTags'
+    ,'softPFElectronByPtBJetTags'
+    ,'softPFElectronByIP3dBJetTags'
+    ,'softPFElectronByIP2dBJetTags'
+    ,'positiveSoftPFElectronBJetTags'
+    ,'positiveSoftPFElectronByPtBJetTags'
+    ,'positiveSoftPFElectronByIP3dBJetTags'
+    ,'positiveSoftPFElectronByIP2dBJetTags'
+    ,'negativeSoftPFElectronBJetTags'
+    ,'negativeSoftPFElectronByPtBJetTags'
+    ,'negativeSoftPFElectronByIP3dBJetTags'
+    ,'negativeSoftPFElectronByIP2dBJetTags'
+    ,'pfCombinedMVAV2BJetTags'
+    ,'pfNegativeCombinedMVAV2BJetTags'
+    ,'pfPositiveCombinedMVAV2BJetTags'
+     # CTagging
+    ,'pfCombinedCvsLJetTags'
+    ,'pfCombinedCvsBJetTags'
+     # ChargeTagging
+    ,'pfChargeBJetTags'
+     #Deep Flavour
+    ,'pfDeepCSVJetTags:probb'
+    ,'pfDeepCSVJetTags:probc'
+    ,'pfDeepCSVJetTags:probudsg'
+    ,'pfDeepCSVJetTags:probbb'
+     # DeepCMVA
+    ,'pfDeepCMVAJetTags:probb'
+    ,'pfDeepCMVAJetTags:probc'
+    ,'pfDeepCMVAJetTags:probudsg'
+    ,'pfDeepCMVAJetTags:probbb'
+    ,'pfDeepCMVAJetTags:probcc'
+]
+
+# uncomment the following lines to add ak4PFJets with new b-tags to your PAT output
 addJetCollection(
    process,
-   labelName = 'AK5PF',
-   jetSource = cms.InputTag('ak5PFJets'),
-   jetCorrections = ('AK5PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
-   btagDiscriminators = [
-       'jetBProbabilityBJetTags'
-      ,'jetProbabilityBJetTags'
-      ,'trackCountingHighPurBJetTags'
-      ,'trackCountingHighEffBJetTags'
-      ,'negativeOnlyJetBProbabilityJetTags'
-      ,'negativeOnlyJetProbabilityJetTags'
-      ,'negativeTrackCountingHighEffJetTags'
-      ,'negativeTrackCountingHighPurJetTags'
-      ,'positiveOnlyJetBProbabilityJetTags'
-      ,'positiveOnlyJetProbabilityJetTags'
-      ,'simpleSecondaryVertexHighEffBJetTags'
-      ,'simpleSecondaryVertexHighPurBJetTags'
-      ,'simpleSecondaryVertexNegativeHighEffBJetTags'
-      ,'simpleSecondaryVertexNegativeHighPurBJetTags'
-      ,'combinedSecondaryVertexBJetTags'
-      ,'combinedSecondaryVertexPositiveBJetTags'
-      #,'combinedSecondaryVertexV1BJetTags'
-      #,'combinedSecondaryVertexV1PositiveBJetTags'
-      ,'combinedSecondaryVertexMVABJetTags'
-      ,'combinedSecondaryVertexNegativeBJetTags'
-      #,'combinedSecondaryVertexV1NegativeBJetTags'
-      ,'softPFMuonBJetTags'
-      ,'softPFMuonByPtBJetTags'
-      ,'softPFMuonByIP3dBJetTags'
-      ,'softPFMuonByIP2dBJetTags'
-      ,'positiveSoftPFMuonBJetTags'
-      ,'positiveSoftPFMuonByPtBJetTags'
-      ,'positiveSoftPFMuonByIP3dBJetTags'
-      ,'positiveSoftPFMuonByIP2dBJetTags'
-      ,'negativeSoftPFMuonBJetTags'
-      ,'negativeSoftPFMuonByPtBJetTags'
-      ,'negativeSoftPFMuonByIP3dBJetTags'
-      ,'negativeSoftPFMuonByIP2dBJetTags'
-      ,'softPFElectronBJetTags'
-      ,'softPFElectronByPtBJetTags'
-      ,'softPFElectronByIP3dBJetTags'
-      ,'softPFElectronByIP2dBJetTags'
-      ,'positiveSoftPFElectronBJetTags'
-      ,'positiveSoftPFElectronByPtBJetTags'
-      ,'positiveSoftPFElectronByIP3dBJetTags'
-      ,'positiveSoftPFElectronByIP2dBJetTags'
-      ,'negativeSoftPFElectronBJetTags'
-      ,'negativeSoftPFElectronByPtBJetTags'
-      ,'negativeSoftPFElectronByIP3dBJetTags'
-      ,'negativeSoftPFElectronByIP2dBJetTags'
-      ,'simpleInclusiveSecondaryVertexHighEffBJetTags'
-      ,'simpleInclusiveSecondaryVertexHighPurBJetTags'
-      ,'doubleSecondaryVertexHighEffBJetTags'
-      ,'combinedInclusiveSecondaryVertexBJetTags'
-      ,'combinedInclusiveSecondaryVertexPositiveBJetTags'
-      #,'combinedMVABJetTags'
-      ,'positiveCombinedMVABJetTags'
-      ,'negativeCombinedMVABJetTags'
-      #,'combinedSecondaryVertexSoftPFLeptonV1BJetTags'
-      #,'positiveCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
-      #,'negativeCombinedSecondaryVertexSoftPFLeptonV1BJetTags'
-    ],
-  )
-process.patJetsAK5PF.addTagInfos = True
-process.patJetsAK5PF.addJetID    = True
-process.patJetsAK5PF.jetIDMap    = "ak5JetID"
-process.out.outputCommands.append( 'drop *_selectedPatJetsAK5PF_caloTowers_*' )
-
-## let it run
-process.p = cms.Path(
-    process.selectedPatCandidates
+   labelName = 'AK4PF',
+   jetSource = cms.InputTag('ak4PFJets'),
+   jetCorrections = ('AK4PF', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   btagDiscriminators = btagDiscriminators
 )
+process.patJetsAK4PF.addTagInfos = True
+
+# uncomment the following lines to add ak8PFJetsCHS with new b-tags to your PAT output
+addJetCollection(
+   process,
+   labelName = 'AK8PFCHS',
+   jetSource = cms.InputTag('ak8PFJetsCHS'),
+   jetCorrections = ('AK8PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'),
+   algo = 'AK',
+   rParam = 0.8,
+   btagDiscriminators = ['pfBoostedDoubleSecondaryVertexAK8BJetTags']
+)
+process.patJetsAK8PFCHS.addTagInfos = True
+
+# uncomment the following lines to add subjets of ak8PFJetsCHSSoftDrop with new b-tags to your PAT output
+from pdb import set_trace
+addJetCollection(
+   process,
+   labelName = 'AK8PFCHSSoftDropSubjets',
+   jetSource = cms.InputTag('ak8PFJetsCHSSoftDrop','SubJets'),
+   jetCorrections = ('AK4PFchs', cms.vstring(['L1FastJet', 'L2Relative', 'L3Absolute']), 'Type-2'), # Using AK4 JECs for subjets which might not be completely appropriate
+   algo = 'AK',  # needed for subjet flavor clustering
+   btagDiscriminators = btagDiscriminators,
+   explicitJTA = True,  # needed for subjet b tagging
+   svClustering = True, # needed for subjet b tagging
+   fatJets = cms.InputTag("ak8PFJetsCHS"),               # needed for subjet flavor clustering
+   groomedFatJets = cms.InputTag("ak8PFJetsCHSSoftDrop"), # needed for subjet flavor clustering
+   rParam = 0.8, # needed for subjet flavor clustering
+)
+process.patJetsAK8PFCHSSoftDropSubjets.addTagInfos = True
+
+## JetID works only with RECO input for the CaloTowers (s. below for 'process.source.fileNames')
+#process.patJets.addJetID=True
+#process.load("RecoJets.JetProducers.ak4JetID_cfi")
+#process.patJets.jetIDMap="ak4JetID"
+process.out.outputCommands.append( 'drop *_selectedPatJetsAK4PF_caloTowers_*' )
 
 ## ------------------------------------------------------
 #  In addition you usually want to change the following
 #  parameters:
 ## ------------------------------------------------------
 #
-#   process.GlobalTag.globaltag =  ...    ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
+#process.GlobalTag.globaltag =  'MCRUN1_74_V2::All'     ##  (according to https://twiki.cern.ch/twiki/bin/view/CMS/SWGuideFrontierConditions)
 #                                         ##
 ## switch to RECO input
 from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValProdTTbarAODSIM
 process.source.fileNames = filesRelValProdTTbarAODSIM
+#from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
+#process.source.fileNames = filesRelValTTbarGENSIMRECO
 #                                         ##
 process.maxEvents.input = 10
 #                                         ##
@@ -119,4 +178,4 @@ process.maxEvents.input = 10
 #                                         ##
 process.out.fileName = 'patTuple_addBTagging.root'
 #                                         ##
-#   process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)
+process.options.wantSummary = False   ##  (to suppress the long output at the end of the job)

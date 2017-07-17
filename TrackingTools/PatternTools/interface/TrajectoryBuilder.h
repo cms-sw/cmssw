@@ -26,8 +26,8 @@ public:
   virtual TrajectoryContainer trajectories(const TrajectorySeed&) const = 0;
 
   virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &out) const {
-        TrajectoryContainer ret = trajectories(seed);
-        out.swap(ret);
+        TrajectoryContainer && ret = trajectories(seed);
+        out = std::move(ret);
   }
 
   /** Interface for trajectories re-building in the seeding region method.

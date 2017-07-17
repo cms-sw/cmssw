@@ -21,7 +21,7 @@
     foos.getByLabel(ev, "myFoos");
  }
  \endcode
- The above example will work for both CINT and compiled code. However, it is possible to exactly
+ The above example will work for both ROOT and compiled code. However, it is possible to exactly
  match the full framework if you only intend to compile your code.  In that case the access
  would look like
 
@@ -41,7 +41,6 @@
 // Original Author:  Chris Jones
 //         Created:  Tue May  8 15:01:20 EDT 2007
 //
-#if !defined(__CINT__) && !defined(__MAKECINT__)
 // system include files
 #include <typeinfo>
 #include <map>
@@ -49,7 +48,6 @@
 #include <memory>
 #include <cstring>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 #include "Rtypes.h"
 
@@ -66,7 +64,7 @@
 
 // forward declarations
 namespace edm {
-   class WrapperHolder;
+   class WrapperBase;
    class ProductRegistry;
    class BranchDescription;
    class EDProductGetter;
@@ -93,7 +91,7 @@ namespace fwlite {
          virtual ~Event();
 
          ///Advance to next event in the TFile
-         Event const& operator++();
+         Event const& operator++() override;
 
          ///Find index of given event-id
          Long64_t indexFromEventId(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
@@ -107,19 +105,18 @@ namespace fwlite {
          bool to(edm::RunNumber_t run, edm::LuminosityBlockNumber_t lumi, edm::EventNumber_t event);
 
          /// Go to the very first Event.
-         Event const& toBegin();
+         Event const& toBegin() override;
 
          // ---------- const member functions ---------------------
          ///Return the branch name in the TFile which contains the data
          virtual std::string const getBranchNameFor(std::type_info const&,
                                                     char const* iModuleLabel,
                                                     char const* iProductInstanceLabel,
-                                                    char const* iProcessName) const;
+                                                    char const* iProcessName) const override;
 
          using fwlite::EventBase::getByLabel;
          /// This function should only be called by fwlite::Handle<>
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const;
-         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, edm::WrapperHolder&) const;
+         virtual bool getByLabel(std::type_info const&, char const*, char const*, char const*, void*) const override;
          //void getByBranchName(std::type_info const&, char const*, void*&) const;
 
          ///Properly setup for edm::Ref, etc and then call TTree method
@@ -130,12 +127,12 @@ namespace fwlite {
 
          bool isValid() const;
          operator bool () const;
-         virtual bool atEnd() const;
+         virtual bool atEnd() const override;
 
          ///Returns number of events in the file
          Long64_t size() const;
 
-         virtual edm::EventAuxiliary const& eventAuxiliary() const;
+         virtual edm::EventAuxiliary const& eventAuxiliary() const override;
 
          std::vector<edm::BranchDescription> const& getBranchDescriptions() const {
             return branchMap_.getBranchDescriptions();
@@ -145,13 +142,19 @@ namespace fwlite {
             return branchMap_.getFile();
          }
 
-         edm::WrapperHolder getByProductID(edm::ProductID const&) const;
+         virtual edm::ParameterSet const* parameterSet(edm::ParameterSetID const& psID) const override;
 
-         virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const;
+         virtual edm::WrapperBase const* getByProductID(edm::ProductID const&) const override;
+         edm::WrapperBase const* getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const;
+         void getThinnedProducts(edm::ProductID const& pid,
+                                 std::vector<edm::WrapperBase const*>& foundContainers,
+                                 std::vector<unsigned int>& keys) const;
 
-         virtual edm::TriggerResultsByName triggerResultsByName(std::string const& process) const;
+         virtual edm::TriggerNames const& triggerNames(edm::TriggerResults const& triggerResults) const override;
 
-         virtual edm::ProcessHistory const& processHistory() const {return history();}
+         virtual edm::TriggerResultsByName triggerResultsByName(edm::TriggerResults const& triggerResults) const override;
+
+         virtual edm::ProcessHistory const& processHistory() const override {return history();}
 
          fwlite::LuminosityBlock const& getLuminosityBlock() const;
          fwlite::Run             const& getRun() const;
@@ -172,15 +175,15 @@ namespace fwlite {
          edm::ProcessHistory const& history() const;
          void updateAux(Long_t eventIndex) const;
          void fillParameterSetRegistry() const;
-         void setGetter(boost::shared_ptr<edm::EDProductGetter> getter) { return dataHelper_.setGetter(getter);}
+         void setGetter(std::shared_ptr<edm::EDProductGetter const> getter) { return dataHelper_.setGetter(getter);}
 
          // ---------- member data --------------------------------
-         TFile* file_;
+         mutable TFile* file_;
          // TTree* eventTree_;
          TTree* eventHistoryTree_;
          // Long64_t eventIndex_;
-         mutable boost::shared_ptr<fwlite::LuminosityBlock>  lumi_;
-         mutable boost::shared_ptr<fwlite::Run>  run_;
+         mutable std::shared_ptr<fwlite::LuminosityBlock>  lumi_;
+         mutable std::shared_ptr<fwlite::Run>  run_;
          mutable fwlite::BranchMapReader branchMap_;
 
          //takes ownership of the strings used by the DataKey keys in data_
@@ -190,16 +193,15 @@ namespace fwlite {
          mutable std::vector<std::string> procHistoryNames_;
          mutable edm::EventAuxiliary aux_;
          mutable EntryFinder entryFinder_;
-         edm::EventAuxiliary* pAux_;
-         edm::EventAux* pOldAux_;
+         edm::EventAuxiliary const* pAux_;
+         edm::EventAux const* pOldAux_;
          TBranch* auxBranch_;
          int fileVersion_;
          mutable bool parameterSetRegistryFilled_;
 
          fwlite::DataGetterHelper dataHelper_;
-         mutable boost::shared_ptr<RunFactory> runFactory_;
+         mutable std::shared_ptr<RunFactory> runFactory_;
    };
 
 }
-#endif /*__CINT__ */
 #endif

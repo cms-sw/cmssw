@@ -1,5 +1,6 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -14,36 +15,36 @@ using namespace std;
 
 namespace reco {
   namespace modules {
-    
+
     class MCMatchCandRefSelector {
     public:
-      explicit MCMatchCandRefSelector(const InputTag& src) : 
-	src_(src) { }
-      void newEvent(const Event& evt, const EventSetup&); 
+      explicit MCMatchCandRefSelector(const EDGetTokenT<GenParticleMatch>& srcToken) :
+	srcToken_(srcToken) { }
+      void newEvent(const Event& evt, const EventSetup&);
       bool operator()(const CandidateBaseRef &) const;
     private:
-      InputTag src_;
+      EDGetTokenT<GenParticleMatch> srcToken_;
       const GenParticleMatch * match_;
     };
-    
+
     void MCMatchCandRefSelector::newEvent(const Event& evt, const EventSetup&) {
       Handle<GenParticleMatch> match;
-      evt.getByLabel(src_, match);
+      evt.getByToken(srcToken_, match);
       match_ = match.product();
-    } 
-    
+    }
+
     bool MCMatchCandRefSelector::operator()(const CandidateBaseRef & c) const {
       GenParticleRef m = (*match_)[c];
       return m.isNonnull();
     }
-  
+
     template<>
     struct ParameterAdapter<MCMatchCandRefSelector> {
-      static MCMatchCandRefSelector make(const ParameterSet & cfg) {
-	return MCMatchCandRefSelector(cfg.getParameter<InputTag>("match"));
+      static MCMatchCandRefSelector make(const ParameterSet & cfg, edm::ConsumesCollector & iC) {
+	return MCMatchCandRefSelector(iC.consumes<GenParticleMatch>(cfg.getParameter<InputTag>("match")));
       }
     };
-    
+
   }
 }
 

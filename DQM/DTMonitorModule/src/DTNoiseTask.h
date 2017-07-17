@@ -7,12 +7,22 @@
  *  \authors G. Mila , G. Cerminara - INFN Torino
  */
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <FWCore/Framework/interface/EDAnalyzer.h>
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
 #include <DataFormats/MuonDetId/interface/DTChamberId.h>
 #include <DataFormats/MuonDetId/interface/DTSuperLayerId.h>
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
+
+#include <CondFormats/DTObjects/interface/DTTtrig.h>
+
+// RecHit
+#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
+
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -27,7 +37,8 @@ class DQMStore;
 class DTGeometry;
 
 
-class DTNoiseTask : public edm::EDAnalyzer {
+//-class DTNoiseTask : public edm::EDAnalyzer {
+class DTNoiseTask : public DQMEDAnalyzer {
 public:
   /// Constructor
   DTNoiseTask(const edm::ParameterSet& ps);
@@ -36,41 +47,38 @@ public:
   virtual ~DTNoiseTask();
 
   // Operations
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
 
 protected:
-  /// BeginJob
-  void beginJob();
 
-  void beginRun(const edm::Run&, const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
 
-  void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context);
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup);
-  
+  void beginLuminosityBlock(const edm::LuminosityBlock&  lumiSeg, const edm::EventSetup& context) override;
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& setup) override;
+
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
-  
-  /// Endjob
-  void endJob();
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
-  
-  void bookHistos(DTChamberId chId);
-  void bookHistos(DTSuperLayerId slId);
 
-  // The label to retrieve the digis 
-  edm::InputTag dtDigiLabel;
+  void bookHistos(DQMStore::IBooker &, DTChamberId chId);
+  void bookHistos(DQMStore::IBooker &, DTSuperLayerId slId);
+
+  // The label to retrieve the digis
+  edm::EDGetTokenT<DTDigiCollection> dtDigiToken_;
   // counter of processed events
   int evtNumber;
   //switch for time boxes filling
   bool doTimeBoxHistos;
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
   //switch for segment veto
   bool doSegmentVeto;
 
-  DQMStore *dbe;
   edm::ESHandle<DTGeometry> dtGeom;
+  edm::ESHandle<DTTtrig> tTrigMap;
 
   //tTrig map per Station
   std::map<DTChamberId, double> tTrigStMap;
@@ -92,3 +100,8 @@ private:
 };
 #endif
 
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

@@ -9,7 +9,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 #include "DataFormats/EgammaReco/interface/ElectronSeed.h"
-#include "DataFormats/EgammaReco/interface/ElectronSeedFwd.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "TrackingTools/Records/interface/TransientRecHitRecord.h"  
 #include <string>
@@ -24,10 +23,10 @@ ElectronSeedMerger::ElectronSeedMerger(const ParameterSet& iConfig):
 {
   LogInfo("ElectronSeedMerger")<<"Electron SeedMerger  started  ";
   
-  
-  ecalBasedSeeds_=iConfig.getParameter<InputTag>("EcalBasedSeeds");
-  tkBasedSeeds_=iConfig.getParameter<InputTag>("TkBasedSeeds");
- 
+
+  ecalSeedToken_ = consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("EcalBasedSeeds"));
+  tkSeedToken_ = consumes<ElectronSeedCollection>(iConfig.getParameter<InputTag>("TkBasedSeeds"));
+   
   produces<ElectronSeedCollection>();
 
 }
@@ -51,15 +50,15 @@ void
 ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
 {
   //CREATE OUTPUT COLLECTION
-  auto_ptr<ElectronSeedCollection> output(new ElectronSeedCollection);
+  auto output = std::make_unique<ElectronSeedCollection>();
 
   //HANDLE THE INPUT SEED COLLECTIONS
   Handle<ElectronSeedCollection> EcalBasedSeeds;
-  iEvent.getByLabel(ecalBasedSeeds_,EcalBasedSeeds);
+  iEvent.getByToken(ecalSeedToken_,EcalBasedSeeds);
   ElectronSeedCollection ESeed = *(EcalBasedSeeds.product());
 
   Handle<ElectronSeedCollection> TkBasedSeeds;
-  iEvent.getByLabel(tkBasedSeeds_,TkBasedSeeds);
+  iEvent.getByToken(tkSeedToken_,TkBasedSeeds);
   ElectronSeedCollection TSeed = *(TkBasedSeeds.product());
 
 
@@ -125,6 +124,6 @@ ElectronSeedMerger::produce(Event& iEvent, const EventSetup& iSetup)
   }
   
   //PUT THE MERGED COLLECTION IN THE EVENT
-  iEvent.put(output);
+  iEvent.put(std::move(output));
   
 }

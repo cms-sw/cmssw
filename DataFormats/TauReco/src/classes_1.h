@@ -23,12 +23,21 @@
 #include "DataFormats/TauReco/interface/L2TauInfoAssociation.h"
 #include "DataFormats/TauReco/interface/HLTTau.h"
 #include "DataFormats/Common/interface/FwdPtr.h"
+#include "DataFormats/Common/interface/RefToPtr.h"
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadron.h"
+#include "DataFormats/TauReco/interface/PFRecoTauChargedHadronFwd.h"
+#include "DataFormats/TauReco/interface/PFJetChargedHadronAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterAssociation.h"
+#include "DataFormats/TauReco/interface/PFTauTransverseImpactParameterFwd.h"
+#include "DataFormats/TauReco/interface/PFTau3ProngSummaryFwd.h"
+#include "DataFormats/TauReco/interface/PFTau3ProngSummaryAssociation.h"
 
 #include <vector>
 #include <map>
+#include "TLorentzVector.h"
 
-namespace {
-  struct dictionary {
+namespace DataFormats_TauReco {
+  struct dictionary1 {
     reco::L2TauIsolationInfo                                    l2iI;
     reco::L2TauInfoAssociation                                  l2ts;
     edm::Wrapper<reco::L2TauInfoAssociation>                    wl2ts;
@@ -67,7 +76,6 @@ namespace {
     edm::reftobase::Holder<reco::BaseTau,reco::CaloTauRef>      calot_rb;
     edm::RefToBaseVector<reco::CaloTau> calot_rftbv;
     edm::Wrapper<edm::RefToBaseVector<reco::CaloTau> > calot_rftbv_w;
-
 
 
   };

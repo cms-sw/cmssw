@@ -19,15 +19,16 @@ for testing purposes only.
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
+#include "FWCore/Framework/interface/TriggerNamesService.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
 #include "FWCore/Utilities/interface/EDMException.h"
-
-
 
 namespace edmtest {
 namespace stream {
 
-namespace {
+// anonymous namespace here causes build warnings
+namespace cache {
 struct Cache { 
    Cache():value(0),run(0),lumi(0) {}
    //Using mutable since we want to update the value.
@@ -35,20 +36,19 @@ struct Cache {
    mutable std::atomic<unsigned int> run;
    mutable std::atomic<unsigned int> lumi;
 };
-} //end anonymous namespace
+} //end cache namespace
 
-
-
+  using Cache = cache::Cache;
 
   class GlobalIntAnalyzer : public edm::stream::EDAnalyzer<edm::GlobalCache<Cache>> {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
+    static std::atomic<unsigned int> cvalue_;
    
     static std::unique_ptr<Cache> initializeGlobalCache(edm::ParameterSet const& p) {
       ++m_count;
-      return std::unique_ptr<Cache>{ new Cache };
+      return std::make_unique<Cache>();
     }
 
     GlobalIntAnalyzer(edm::ParameterSet const& p, Cache const * iGlobal)  {
@@ -84,9 +84,9 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
     bool br;
     bool er;
 
@@ -96,7 +96,11 @@ struct Cache {
       m_count = 0;
     }
     
-    void analyze(edm::Event const&, edm::EventSetup const&) {
+    void analyze(edm::Event const&, edm::EventSetup const&) override {
+      if(moduleDescription().processName() != edm::Service<edm::service::TriggerNamesService>()->getProcessName()) {
+        throw cms::Exception("LogicError")
+          << "module description not properly initialized in stream analyzer";
+      }
       ++m_count;
       ++(runCache()->value);
        
@@ -106,7 +110,7 @@ struct Cache {
       ++m_count;
       gbr = true;
       ger = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
     }
@@ -158,11 +162,11 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
-    static bool bl;
-    static bool el;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
+    static std::atomic<bool> bl;
+    static std::atomic<bool> el;
 
     LumiIntAnalyzer(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -181,7 +185,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
    }
@@ -232,15 +236,15 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbr;
-    static bool ger;
-    static bool gbrs;
-    static bool gers;
-    static bool brs;
-    static bool ers;
-    static bool br;
-    static bool er;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbr;
+    static std::atomic<bool> ger;
+    static std::atomic<bool> gbrs;
+    static std::atomic<bool> gers;
+    static std::atomic<bool> brs;
+    static std::atomic<bool> ers;
+    static std::atomic<bool> br;
+    static std::atomic<bool> er;
 
     RunSummaryIntAnalyzer(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -263,7 +267,7 @@ struct Cache {
       ++m_count;
       gbr=true;
       ger=false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->run);
       return pCache;
    }
@@ -278,7 +282,7 @@ struct Cache {
         throw cms::Exception("begin out of sequence")
           << "globalBeginRunSummary seen before globalBeginRun";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
     }
 
    void endRunSummary(edm::Run const&, edm::EventSetup const&, Cache* gCache) const override {
@@ -336,15 +340,15 @@ struct Cache {
   public:
     static std::atomic<unsigned int> m_count;
     unsigned int trans_;
-    static unsigned int cvalue_;
-    static bool gbl;
-    static bool gel;
-    static bool gbls;
-    static bool gels;
-    static bool bls;
-    static bool els;
-    static bool bl;
-    static bool el;
+    static std::atomic<unsigned int> cvalue_;
+    static std::atomic<bool> gbl;
+    static std::atomic<bool> gel;
+    static std::atomic<bool> gbls;
+    static std::atomic<bool> gels;
+    static std::atomic<bool> bls;
+    static std::atomic<bool> els;
+    static std::atomic<bool> bl;
+    static std::atomic<bool> el;
 
     LumiSummaryIntAnalyzer(edm::ParameterSet const&p){
       trans_= p.getParameter<int>("transitions");
@@ -367,7 +371,7 @@ struct Cache {
       ++m_count;
       gbl = true;
       gel = false;
-      std::shared_ptr<Cache> pCache{ new Cache };
+      auto pCache = std::make_shared<Cache>();
       ++(pCache->lumi);
       return pCache;
     }
@@ -383,7 +387,7 @@ struct Cache {
        throw cms::Exception("begin out of sequence")
          << "globalBeginLuminosityBlockSummary seen before globalBeginLuminosityBlock";
       }
-      return std::shared_ptr<Cache>{ new Cache };
+      return std::make_shared<Cache>();
    }
    
    
@@ -449,33 +453,33 @@ std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::RunSummaryIntAnalyzer::m_count{0};
 std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::m_count{0};
-unsigned int edmtest::stream::GlobalIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::RunIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::LumiIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::RunSummaryIntAnalyzer::cvalue_ = 0;
-unsigned int edmtest::stream::LumiSummaryIntAnalyzer::cvalue_ = 0;
-bool edmtest::stream::RunIntAnalyzer::gbr=false;
-bool edmtest::stream::RunIntAnalyzer::ger=false;
-bool edmtest::stream::LumiIntAnalyzer::gbl=false;
-bool edmtest::stream::LumiIntAnalyzer::gel=false;
-bool edmtest::stream::LumiIntAnalyzer::bl=false;
-bool edmtest::stream::LumiIntAnalyzer::el=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::gbr=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::ger=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::gbrs=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::gers=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::brs=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::ers=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::br=false;
-bool edmtest::stream::RunSummaryIntAnalyzer::er=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gbl=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gel=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gbls=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::gels=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::bls=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::els=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::bl=false;
-bool edmtest::stream::LumiSummaryIntAnalyzer::el=false;
+std::atomic<unsigned int> edmtest::stream::GlobalIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::RunIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::LumiIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::RunSummaryIntAnalyzer::cvalue_{0};
+std::atomic<unsigned int> edmtest::stream::LumiSummaryIntAnalyzer::cvalue_{0};
+std::atomic<bool> edmtest::stream::RunIntAnalyzer::gbr{false};
+std::atomic<bool> edmtest::stream::RunIntAnalyzer::ger{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::gbl{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::gel{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::bl{false};
+std::atomic<bool> edmtest::stream::LumiIntAnalyzer::el{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gbr{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::ger{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gbrs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::gers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::brs{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::ers{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::br{false};
+std::atomic<bool> edmtest::stream::RunSummaryIntAnalyzer::er{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gbl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gel{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gbls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::gels{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::bls{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::els{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::bl{false};
+std::atomic<bool> edmtest::stream::LumiSummaryIntAnalyzer::el{false};
 DEFINE_FWK_MODULE(edmtest::stream::GlobalIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::RunIntAnalyzer);
 DEFINE_FWK_MODULE(edmtest::stream::LumiIntAnalyzer);

@@ -1,5 +1,3 @@
-
-
 /*
  *  See header file for a description of this class.
  *
@@ -25,8 +23,6 @@
 #include "Geometry/Records/interface/MuonGeometryRecord.h"
 
 //RecHit
-#include "DataFormats/DTRecHit/interface/DTRecSegment4DCollection.h"
-#include "DataFormats/DTRecHit/interface/DTRecHitCollection.h"
 #include "DataFormats/DTRecHit/interface/DTRangeMapAccessor.h"
 
 #include "CondFormats/DataRecord/interface/DTStatusFlagRcd.h"
@@ -41,30 +37,106 @@ using namespace std;
 DTEfficiencyTask::DTEfficiencyTask(const ParameterSet& pset) {
 
   debug = pset.getUntrackedParameter<bool>("debug",false);
-
-  // Get the DQM needed services
-  theDbe = edm::Service<DQMStore>().operator->();
-  theDbe->setCurrentFolder("DT/DTEfficiencyTask");
+  // the name of the 4D rec hits collection
+  recHits4DToken_ = consumes<DTRecSegment4DCollection>(
+      edm::InputTag(pset.getParameter<string>("recHits4DLabel")));
+  // the name of the rechits collection
+  recHitToken_    = consumes<DTRecHitCollection>(
+      edm::InputTag(pset.getParameter<string>("recHitLabel")));
 
   parameters = pset;
 }
 
 
 DTEfficiencyTask::~DTEfficiencyTask(){
-}  
+}
 
+void DTEfficiencyTask::dqmBeginRun(const edm::Run& run, const edm::EventSetup& context) {
 
-void DTEfficiencyTask::beginJob(){
-  // the name of the 4D rec hits collection
-  theRecHits4DLabel = parameters.getParameter<string>("recHits4DLabel");
-  // the name of the rechits collection
-  theRecHitLabel = parameters.getParameter<string>("recHitLabel");
+  // Get the geometry
+  context.get<MuonGeometryRecord>().get(muonGeom);
+
 }
 
 
+void DTEfficiencyTask::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & iRun, edm::EventSetup const & context) {
+
+  ibooker.setCurrentFolder("DT/DTEfficiencyTask");
+
+  cout<<"[DTTestPulseTask]: booking"<<endl;
+
+
+  //here put the static booking loop
+
+ // Loop over all the chambers
+  vector<const DTChamber*>::const_iterator ch_it = muonGeom->chambers().begin();
+  vector<const DTChamber*>::const_iterator ch_end = muonGeom->chambers().end();
+
+  for (; ch_it != ch_end; ++ch_it) {
+
+    // Loop over the SLs
+    vector<const DTSuperLayer*>::const_iterator sl_it = (*ch_it)->superLayers().begin();
+    vector<const DTSuperLayer*>::const_iterator sl_end = (*ch_it)->superLayers().end();
+
+    for(; sl_it != sl_end; ++sl_it) {
+	DTSuperLayerId sl = (*sl_it)->id();
+	stringstream superLayer; superLayer << sl.superlayer();
+
+	// Loop over the Ls
+	vector<const DTLayer*>::const_iterator l_it = (*sl_it)->layers().begin();
+	vector<const DTLayer*>::const_iterator l_end = (*sl_it)->layers().end();
+
+	for(; l_it != l_end; ++l_it) {
+
+	  DTLayerId layerId = (*l_it)->id();
+          if(debug) cout << "   Booking histos for L: " << layerId << endl;
+
+  // Compose the chamber name
+	  stringstream layer; layer << layerId.layer();
+          stringstream superLayer; superLayer << layerId.superlayer();
+          stringstream station; station << layerId.superlayerId().chamberId().station();
+          stringstream sector; sector << layerId.superlayerId().chamberId().sector();
+          stringstream wheel; wheel << layerId.superlayerId().chamberId().wheel();
+
+          const int firstWire = (*l_it)->specificTopology().firstChannel();
+          const int lastWire = (*l_it)->specificTopology().lastChannel();
+
+          string lHistoName =
+              "_W" + wheel.str() +
+              "_St" + station.str() +
+              "_Sec" + sector.str() +
+              "_SL" + superLayer.str()+
+              "_L" + layer.str();
+
+          ibooker.setCurrentFolder("DT/DTEfficiencyTask/Wheel" + wheel.str() +
+			   "/Station" + station.str() +
+			   "/Sector" + sector.str() +
+			   "/SuperLayer" +superLayer.str());
+
+
+          // Create the monitor elements
+          vector<MonitorElement *> histos;
+          // histo for hits associated to the 4D reconstructed segment
+          histos.push_back(ibooker.book1D(
+           "hEffOccupancy"+lHistoName, "4D segments recHits occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+          // histo for hits not associated to the segment
+          histos.push_back(ibooker.book1D(
+            "hEffUnassOccupancy"+lHistoName, "4D segments recHits and Hits not associated occupancy",
+            lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+          // histo for cells associated to the 4D reconstructed segment
+           histos.push_back(ibooker.book1D(
+            "hRecSegmOccupancy"+lHistoName, "4D segments cells occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
+
+          histosPerL[layerId] = histos;
+
+	} // layer
+    } // superlayer
+  } // chambers
+}
+
 void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, EventSetup const& context) {
 
-  
+
   if(lumiSeg.id().luminosityBlock()%parameters.getUntrackedParameter<int>("ResetCycle", 3) == 0) {
     for(map<DTLayerId, vector<MonitorElement*> > ::const_iterator histo = histosPerL.begin();
 	histo != histosPerL.end();
@@ -75,14 +147,8 @@ void DTEfficiencyTask::beginLuminosityBlock(LuminosityBlock const& lumiSeg, Even
       }
     }
   }
-  
-}
 
-
-void DTEfficiencyTask::endJob(){
-  theDbe->rmdir("DT/DTEfficiencyTask");
 }
-  
 
 void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& setup) {
 
@@ -94,11 +160,11 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 
   // Get the 4D segment collection from the event
   edm::Handle<DTRecSegment4DCollection> all4DSegments;
-  event.getByLabel(theRecHits4DLabel, all4DSegments);
+  event.getByToken(recHits4DToken_, all4DSegments);
 
   // Get the rechit collection from the event
   Handle<DTRecHitCollection> dtRecHits;
-  event.getByLabel(theRecHitLabel, dtRecHits);
+  event.getByToken(recHitToken_, dtRecHits);
 
   // Get the DT Geometry
   ESHandle<DTGeometry> dtGeom;
@@ -111,7 +177,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
        ++chamberId) {
 
     // Get the chamber
-    const DTChamber* chamber = dtGeom->chamber(*chamberId); 
+    const DTChamber* chamber = dtGeom->chamber(*chamberId);
 
     // Get all 1D RecHits to be used for searches of hits not associated to segments and map them by wire
     const vector<const DTSuperLayer*> SLayers = chamber->superLayers();
@@ -136,7 +202,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
       cout << "   Chamber: " << *chamberId << " has " << nsegm
 	   << " 4D segments" << endl;
 
-    
+
     // Loop over the rechits of this ChamerId
     for (DTRecSegment4DCollection::const_iterator segment4D = range.first;
 	 segment4D!=range.second;
@@ -144,7 +210,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
       if(debug)
 	cout << "   == RecSegment dimension: " << (*segment4D).dimension() << endl;
 
-      // If Statio != 4 skip RecHits with dimension != 4
+      // If Station != 4 skip RecHits with dimension != 4
       // For the Station 4 consider 2D RecHits
       if((*chamberId).station() != 4 && (*segment4D).dimension() != 4) {
 	if(debug)
@@ -158,7 +224,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	continue;
       }
 
-      vector<DTRecHit1D> recHits1D;   
+      vector<DTRecHit1D> recHits1D;
       bool rPhi = false;
       bool rZ = false;
 
@@ -184,11 +250,11 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 		 << " hits, skipping" << endl; // FIXME: info output
 	  continue;
 	}
-	copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D));
+        copy(zRecHits.begin(), zRecHits.end(), back_inserter(recHits1D));
       }
 
       // Skip the segment if it has more than 1 hit on the same layer
-      vector<DTWireId> wireMap; 
+      vector<DTWireId> wireMap;
       for(vector<DTRecHit1D>::const_iterator recHit1D = recHits1D.begin();
 	  recHit1D != recHits1D.end();
 	  recHit1D++) {
@@ -254,7 +320,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 
 	// Find the layer without RecHits ----------------------------------------
 	const vector<const DTSuperLayer*> SupLayers = chamber->superLayers();
-        map<DTLayerId, bool> layerMap; 
+        map<DTLayerId, bool> layerMap;
 	map<DTWireId, float> wireAndPosInChamberAtLayerZ;
 	// Loop over layers and wires to fill a map
 	for(vector<const DTSuperLayer*>::const_iterator superlayer = SupLayers.begin();
@@ -268,11 +334,11 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	    const int firstWire = dtGeom->layer((*layer)->id())->specificTopology().firstChannel();
 	    const int lastWire = dtGeom->layer((*layer)->id())->specificTopology().lastChannel();
 	    for(int i=firstWire; i - lastWire <= 0; i++) {
-	      DTWireId wireId((*layer)->id(), i);	     
+	      DTWireId wireId((*layer)->id(), i);
 	      float wireX = (*layer)->specificTopology().wirePosition(wireId.wire());
 	      LocalPoint wirePosInLay(wireX,0,0);
 	      GlobalPoint wirePosGlob = (*layer)->toGlobal(wirePosInLay);
-	      LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob); 
+	      LocalPoint wirePosInChamber = chamber->toLocal(wirePosGlob);
 	      if((*superlayer)->id().superlayer() == 1 || (*superlayer)->id().superlayer() == 3) {
 		wireAndPosInChamberAtLayerZ.insert(make_pair(wireId, wirePosInChamber.x()));
 	      } else {
@@ -283,7 +349,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	}
 
 	// Loop over segment 1D RecHit
-	map<DTLayerId, int> NumWireMap; 
+	map<DTLayerId, int> NumWireMap;
 	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
 	    recHit != recHits1D.end();
 	    recHit++) {
@@ -301,16 +367,14 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  cout << "[DTEfficiencyTask] Layer without recHits is: " << missLayerId << endl;
 	// -------------------------------------------------------
 
-
-
 	const DTLayer* missLayer = chamber->layer(missLayerId);
-	
+
 	LocalPoint missLayerPosInChamber = chamber->toLocal(missLayer->toGlobal(LocalPoint(0,0,0)));
-	
+
 	// Segment position at Wire z in chamber local frame
 	LocalPoint segPosAtZLayer = (*segment4D).localPosition()
 	  + (*segment4D).localDirection()*missLayerPosInChamber.z()/cos((*segment4D).localDirection().theta());
-	
+
 	DTWireId missWireId;
 
 	// Find the id of the cell without hit ---------------------------------------------------
@@ -321,7 +385,7 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	  if(wireId.layerId() == missLayerId) {
 	    if(missLayerId.superlayerId().superlayer() == 1 || missLayerId.superlayerId().superlayer() == 3 ) {
 	      if(fabs(segPosAtZLayer.x() - (*wireAndPos).second) < 2.1)
-		missWireId = wireId;  
+		missWireId = wireId;
 	    } else {
 	      if(fabs(segPosAtZLayer.y() - (*wireAndPos).second) < 2.1)
 		missWireId = wireId;
@@ -331,7 +395,6 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 	if(debug)
 	  cout << "[DTEfficiencyTask] Cell without hit is: " << missWireId << endl;
 	// ----------------------------------------------------------
-
 
 	bool foundUnAssRechit = false;
 
@@ -345,16 +408,16 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 
 	for(map<DTLayerId, bool>::const_iterator iter = layerMap.begin();
 	    iter != layerMap.end(); iter++) {
-	  if((*iter).second) 
+	  if((*iter).second)
 	    fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), NumWireMap[(*iter).first]);
 	  else
 	    fillHistos((*iter).first, dtGeom->layer((*iter).first)->specificTopology().firstChannel(), dtGeom->layer((*iter).first)->specificTopology().lastChannel(), missWireId.wire(), foundUnAssRechit);
 	}
 
       } // End of the loop for segment with 7 or 11 recHits
-      
+
       if((rPhi && recHits1D.size() == 8) || (rZ && recHits1D.size() == 12)) {
-	map<DTLayerId, int> NumWireMap; 
+	map<DTLayerId, int> NumWireMap;
 	DTLayerId LayerID;
 	for(vector<DTRecHit1D>::const_iterator recHit = recHits1D.begin();
 	    recHit != recHits1D.end();
@@ -373,50 +436,12 @@ void DTEfficiencyTask::analyze(const edm::Event& event, const edm::EventSetup& s
 }
 
 
-// Book a set of histograms for a given Layer
-void DTEfficiencyTask::bookHistos(DTLayerId lId, int firstWire, int lastWire) {
-  if(debug)
-    cout << "   Booking histos for L: " << lId << endl;
-
-  // Compose the chamber name
-  stringstream wheel; wheel << lId.superlayerId().chamberId().wheel();	
-  stringstream station; station << lId.superlayerId().chamberId().station();	
-  stringstream sector; sector << lId.superlayerId().chamberId().sector();	
-  stringstream superLayer; superLayer << lId.superlayerId().superlayer();	
-  stringstream layer; layer << lId.layer();
-
-  string lHistoName =
-    "_W" + wheel.str() +
-    "_St" + station.str() +
-    "_Sec" + sector.str() +
-    "_SL" + superLayer.str()+
-    "_L" + layer.str();
-  
-  theDbe->setCurrentFolder("DT/DTEfficiencyTask/Wheel" + wheel.str() +
-			   "/Station" + station.str() +
-			   "/Sector" + sector.str() +
-			   "/SuperLayer" +superLayer.str());
-  // Create the monitor elements
-  vector<MonitorElement *> histos;
-  // histo for hits associated to the 4D reconstructed segment
-  histos.push_back(theDbe->book1D("hEffOccupancy"+lHistoName, "4D segments recHits occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
-  // histo for hits not associated to the segment
-  histos.push_back(theDbe->book1D("hEffUnassOccupancy"+lHistoName, "4D segments recHits and Hits not associated occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
-  // histo for cells associated to the 4D reconstructed segment
-  histos.push_back(theDbe->book1D("hRecSegmOccupancy"+lHistoName, "4D segments cells occupancy",lastWire-firstWire+1, firstWire-0.5, lastWire+0.5));
-  
-  histosPerL[lId] = histos;
-}
-
-
-// Fill a set of histograms for a given Layer 
+// Fill a set of histograms for a given Layer
 void DTEfficiencyTask::fillHistos(DTLayerId lId,
 				  int firstWire, int lastWire,
 				  int numWire) {
-  if(histosPerL.find(lId) == histosPerL.end()){
-      bookHistos(lId, firstWire, lastWire);
-  }
-  vector<MonitorElement *> histos =  histosPerL[lId]; 
+
+  vector<MonitorElement *> histos =  histosPerL[lId];
   histos[0]->Fill(numWire);
   histos[1]->Fill(numWire);
   histos[2]->Fill(numWire);
@@ -427,11 +452,14 @@ void DTEfficiencyTask::fillHistos(DTLayerId lId,
 				  int firstWire, int lastWire,
 				  int missingWire,
 				  bool unassHit) {
- if(histosPerL.find(lId) == histosPerL.end()){
-      bookHistos(lId, firstWire, lastWire);
-  }
+
  vector<MonitorElement *> histos =  histosPerL[lId];
- if(unassHit) 
+ if(unassHit)
    histos[1]->Fill(missingWire);
  histos[2]->Fill(missingWire);
 }
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

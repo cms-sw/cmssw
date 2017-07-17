@@ -18,7 +18,7 @@
 
 class CSCDetId;
 
-class CSCSegment GCC11_FINAL : public RecSegment {
+class CSCSegment final : public RecSegment {
 
 public:
 

@@ -29,11 +29,13 @@ namespace IOFlags
 				    file exists.  */
     OpenTruncate	= 128,	/*< If the file exists, truncate it to
 				    zero size.  */
-    OpenNotCTTY		= 256	/*< If the specified file is a
+    OpenNotCTTY		= 256,	/*< If the specified file is a
 				    terminal device, do not make it
 				    the controlling terminal for the
 				    process even if the process does
 				    not have one yet.  */
+    OpenWrap		= 512	/*< Wrap the file if at all possible
+				    with a local file.  */
   };
 } // namespace IOFlags
 

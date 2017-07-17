@@ -16,13 +16,13 @@ class PFRecoTauDiscriminationByLeadingObjectPtCut : public PFTauDiscriminationPr
          minPtLeadObject_ = iConfig.getParameter<double>("MinPtLeadingObject");
       }
       ~PFRecoTauDiscriminationByLeadingObjectPtCut(){} 
-      double discriminate(const PFTauRef& pfTau) override;
+      double discriminate(const PFTauRef& pfTau) const override;
    private:
       bool chargedOnly_;
       double minPtLeadObject_;
 };
 
-double PFRecoTauDiscriminationByLeadingObjectPtCut::discriminate(const PFTauRef& thePFTauRef)
+double PFRecoTauDiscriminationByLeadingObjectPtCut::discriminate(const PFTauRef& thePFTauRef) const
 {
    double leadObjectPt = -1.;
    if( chargedOnly_ )
@@ -58,7 +58,7 @@ void PFRecoTauDiscriminationByLeadingPionPtCut::produce(edm::Event& iEvent,const
    iEvent.getByLabel(PFTauProducer_,thePFTauCollection);
 
 
-   auto_ptr<PFTauDiscriminator> thePFTauDiscriminatorByLeadingPionPtCut(new PFTauDiscriminator(PFTauRefProd(thePFTauCollection)));
+   auto thePFTauDiscriminatorByLeadingPionPtCut = std::make_unique<PFTauDiscriminator(PFTauRefProd>(thePFTauCollection));
 
    //loop over the PFTau candidates
    for(size_t iPFTau=0;iPFTau<thePFTauCollection->size();++iPFTau) {
@@ -75,7 +75,7 @@ void PFRecoTauDiscriminationByLeadingPionPtCut::produce(edm::Event& iEvent,const
       thePFTauDiscriminatorByLeadingPionPtCut->setValue(iPFTau,theleadTrackPtCutDiscriminator);
    }
 
-   iEvent.put(thePFTauDiscriminatorByLeadingPionPtCut);
+   iEvent.put(std::move(thePFTauDiscriminatorByLeadingPionPtCut));
 
 }
    

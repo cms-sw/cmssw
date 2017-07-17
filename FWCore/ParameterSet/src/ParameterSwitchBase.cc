@@ -152,7 +152,7 @@ namespace edm {
 
   bool
   ParameterSwitchBase::
-  hasNestedContent_() {
+  hasNestedContent_() const {
     return true;
   }
 
@@ -161,7 +161,7 @@ namespace edm {
   printNestedContentBase(std::ostream& os,
                          DocFormatHelper& dfh,
                          DocFormatHelper& new_dfh,
-                         std::string const& switchLabel) {
+                         std::string const& switchLabel) const {
 
     int indentation = dfh.indentation();
     if(dfh.parent() != DocFormatHelper::TOP) {

@@ -15,6 +15,12 @@ public:
 
   PixelRecoRange() { }
 
+
+  template<class U>
+  PixelRecoRange(PixelRecoRange<U> other) : 
+  std::pair<T,T> (other.min(),other.max()) { }
+
+
   PixelRecoRange(T  aMin, T aMax) 
       : std::pair<T,T> (aMin,aMax) { }
 
@@ -23,12 +29,15 @@ public:
 
   T min() const { return this->first; }
   T max() const { return this->second; }
-  T mean() const { return 0.5*(this->first+this->second); }
+  T mean() const { return T(0.5)*(this->first+this->second); }
 
   bool empty() const { return (this->second < this->first); }
 
+  PixelRecoRange<T> & swap() { std::swap(this->second,this->first); return *this;}
+
+
   bool inside(const T & value) const {
-    return !(value < this->first || this->second < value);
+    return !( (value < this->first) | (this->second < value) );
   }
 
   bool hasIntersection( const PixelRecoRange<T> & r) const {
@@ -48,7 +57,8 @@ public:
                         ); 
   }
 
-  void sort() { if (empty() ) std::swap(this->first,this->second); }
+  PixelRecoRange<T> & sort() { if (empty() ) std::swap(this->first,this->second); return *this;}
+
 };
 
 template <class T> std::ostream & operator<<( 

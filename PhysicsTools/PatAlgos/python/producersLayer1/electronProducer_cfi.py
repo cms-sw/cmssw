@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 patElectrons = cms.EDProducer("PATElectronProducer",
     # input collection
-    electronSource = cms.InputTag("gsfElectrons"),
+    electronSource = cms.InputTag("gedGsfElectrons"),
 
     # use particle flow instead of std reco
     useParticleFlow  =  cms.bool( False ),
@@ -35,6 +35,8 @@ patElectrons = cms.EDProducer("PATElectronProducer",
       userFunctions = cms.vstring(),
       userFunctionLabels = cms.vstring()
     ),
+
+
 
     # embedding of AOD items
     embedGsfElectronCore = cms.bool(True),  ## embed in AOD externally stored gsf electron core
@@ -85,7 +87,21 @@ patElectrons = cms.EDProducer("PATElectronProducer",
 
     # high level selections
     embedHighLevelSelection = cms.bool(True),
-    usePV                   = cms.bool(True),
     beamLineSrc             = cms.InputTag("offlineBeamSpot"),
-    pvSrc                   = cms.InputTag("offlinePrimaryVertices")
+    pvSrc                   = cms.InputTag("offlinePrimaryVertices"),
+
+    # PFClusterIso
+    addPFClusterIso = cms.bool(False),
+    addPuppiIsolation = cms.bool(False),
+
+    # Compute and store Mini-Isolation.
+    # Implemention and a description of parameters can be found in:
+    # PhysicsTools/PatUtils/src/PFIsolation.cc
+    # only works in miniaod, so set to True in miniAOD_tools.py
+    computeMiniIso = cms.bool(False),
+    pfCandsForMiniIso = cms.InputTag("packedPFCandidates"),
+     # veto on candidates in deadcone only in endcap
+    miniIsoParamsE = cms.vdouble(0.05, 0.2, 10.0, 0.0, 0.015, 0.015, 0.08, 0.0, 0.0),
+    miniIsoParamsB = cms.vdouble(0.05, 0.2, 10.0, 0.0, 0.000, 0.000, 0.00, 0.0, 0.0),
+
 )

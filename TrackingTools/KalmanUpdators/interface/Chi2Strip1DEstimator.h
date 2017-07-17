@@ -11,7 +11,7 @@
 
 #include "TrackingTools/KalmanUpdators/interface/Chi2MeasurementEstimatorBase.h"
 
-class Chi2Strip1DEstimator GCC11_FINAL : public Chi2MeasurementEstimatorBase {
+class Chi2Strip1DEstimator final : public Chi2MeasurementEstimatorBase {
 
 public:
 
@@ -19,7 +19,7 @@ public:
     Chi2MeasurementEstimatorBase( maxChi2, nSigma) {}
 
   virtual std::pair<bool,double> estimate(const TrajectoryStateOnSurface&,
-				     const TransientTrackingRecHit&) const;
+				     const TrackingRecHit&) const;
 
   virtual Chi2Strip1DEstimator* clone() const {
     return new Chi2Strip1DEstimator(*this);

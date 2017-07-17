@@ -22,7 +22,8 @@ namespace gs {
         }
     }
 
-    std::istream& StringArchive::inputStream(const unsigned long long id)
+    std::istream& StringArchive::inputStream(const unsigned long long id,
+                                             long long* sz)
     {
         if (!id) throw gs::IOInvalidArgument(
             "In gs::StringArchive::inputStream: invalid item id");
@@ -36,6 +37,8 @@ namespace gs {
                << "failed to locate item with id " << id;
             throw gs::IOInvalidArgument(os.str());
         }
+        if (sz)
+            *sz = -1LL;
         stream_.seekg(pos);
         return stream_;
     }

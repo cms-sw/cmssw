@@ -21,9 +21,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTVDriftSegmentCalibration.h"
 #include "CalibMuon/DTCalibration/plugins/DTResidualCalibration.h"
 
-#include "CalibMuon/DTCalibration/plugins/DTFakeTTrigESProducer.h"
 #include "CalibMuon/DTCalibration/plugins/DTFakeT0ESProducer.h"
-#include "CalibMuon/DTCalibration/plugins/DTFakeVDriftESProducer.h"
 
 #include "CalibMuon/DTCalibration/interface/DTTTrigCorrectionFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTTTrigT0SegCorrection.h"
@@ -37,6 +35,7 @@
 #include "CalibMuon/DTCalibration/plugins/DTT0FillChamberFromDB.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0WireInChamberReferenceCorrection.h"
 #include "CalibMuon/DTCalibration/plugins/DTT0AbsoluteReferenceCorrection.h"
+#include "CalibMuon/DTCalibration/plugins/DTT0FEBPathCorrection.h"
 
 #include "CalibMuon/DTCalibration/interface/DTVDriftPluginFactory.h"
 #include "CalibMuon/DTCalibration/plugins/DTVDriftMeanTimer.h"
@@ -60,9 +59,7 @@ DEFINE_FWK_MODULE(DTTTrigOffsetCalibration);
 DEFINE_FWK_MODULE(DTVDriftSegmentCalibration);
 DEFINE_FWK_MODULE(DTResidualCalibration);
 
-DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeTTrigESProducer);
 DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeT0ESProducer);
-DEFINE_FWK_EVENTSETUP_SOURCE(DTFakeVDriftESProducer);
 
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigT0SegCorrection,"DTTTrigT0SegCorrection");
 DEFINE_EDM_PLUGIN(DTTTrigCorrectionFactory,dtCalibration::DTTTrigResidualCorrection,"DTTTrigResidualCorrection");
@@ -74,6 +71,7 @@ DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillDefaultFromDB,"DT
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FillChamberFromDB,"DTT0FillChamberFromDB");
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0WireInChamberReferenceCorrection,"DTT0WireInChamberReferenceCorrection");
 DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0AbsoluteReferenceCorrection,"DTT0AbsoluteReferenceCorrection");
+DEFINE_EDM_PLUGIN(DTT0CorrectionFactory,dtCalibration::DTT0FEBPathCorrection, "DTT0FEBPathCorrection");
 
 DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,dtCalibration::DTVDriftMeanTimer,"DTVDriftMeanTimer");
 DEFINE_EDM_PLUGIN(DTVDriftPluginFactory,dtCalibration::DTVDriftSegment,"DTVDriftSegment");

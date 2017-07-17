@@ -124,6 +124,10 @@ class HcalNoiseSummary
   float TS4TS5NoiseSumE(void) const;
   float TS4TS5NoiseSumEt(void) const;
 
+  int numNegativeNoiseChannels(void) const;
+  float NegativeNoiseSumE(void) const;
+  float NegativeNoiseSumEt(void) const;
+
   int GetRecHitCount(void) const;
   int GetRecHitCount15(void) const;
   double GetRecHitEnergy(void) const;
@@ -132,6 +136,9 @@ class HcalNoiseSummary
   double GetTotalCalibCharge(void) const;
 
   bool HasBadRBXTS4TS5(void) const;
+  bool HasBadRBXRechitR45Loose(void) const;
+  bool HasBadRBXRechitR45Tight(void) const;
+  bool goodJetFoundInLowBVRegion(void) const;
 
   double GetCalibChargeHF(void) const;
   int    GetCalibCountHF(void)  const;
@@ -179,6 +186,8 @@ class HcalNoiseSummary
   float trianglenoisee_, trianglenoiseet_;
   int nts4ts5noise_;
   float ts4ts5noisee_, ts4ts5noiseet_;
+  int nnegativenoise_;
+  float negativenoisee_, negativenoiseet_;
 
   int rechitCount_;
   int rechitCount15_;
@@ -187,6 +196,9 @@ class HcalNoiseSummary
   double calibCharge_;
 
   bool hasBadRBXTS4TS5_;
+  bool hasBadRBXRechitR45Loose_;
+  bool hasBadRBXRechitR45Tight_;
+  bool goodJetFoundInLowBVRegion_;
 
   int calibCountTS45_;
   int calibCountgt15TS45_;
@@ -206,7 +218,6 @@ class HcalNoiseSummary
   edm::RefVector<CaloTowerCollection> loosenoisetwrs_;
   edm::RefVector<CaloTowerCollection> tightnoisetwrs_;
   edm::RefVector<CaloTowerCollection> hlnoisetwrs_;
-
 };
 
 #endif

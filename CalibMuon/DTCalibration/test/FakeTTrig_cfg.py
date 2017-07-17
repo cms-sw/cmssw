@@ -1,9 +1,10 @@
 import FWCore.ParameterSet.Config as cms
  
 process = cms.Process("fakeDB")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Geometry.DTGeometry.dtGeometry_cfi")
 process.DTGeometryESModule.applyAlignment = False
+process.DTGeometryESModule.fromDDD = False
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
  
@@ -36,10 +37,9 @@ process.calibDB = cms.ESSource("PoolDBESSource",
 #)
 
 process.RandomNumberGeneratorService = cms.Service("RandomNumberGeneratorService",
-    moduleSeeds = cms.PSet(
-        FaketTrig = cms.untracked.uint32(563)
-    ),
-    sourceSeed = cms.untracked.uint32(98765)
+    FaketTrig = cms.PSet(
+        initialSeed = cms.untracked.uint32(563)
+    )
 )
  
 process.PoolDBOutputService = cms.Service("PoolDBOutputService",

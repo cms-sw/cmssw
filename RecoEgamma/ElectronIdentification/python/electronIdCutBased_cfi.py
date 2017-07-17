@@ -5,7 +5,7 @@ eidCutBased = cms.EDFilter("EleIdCutBasedRef",
     filter = cms.bool(False),
     threshold = cms.double(0.5),
 
-    src = cms.InputTag("gsfElectrons"),
+    src = cms.InputTag("gedGsfElectrons"),
     verticesCollection = cms.InputTag("offlinePrimaryVerticesWithBS"),
     reducedBarrelRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("ecalRecHit","EcalRecHitsEE"),

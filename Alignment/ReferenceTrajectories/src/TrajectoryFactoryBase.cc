@@ -7,29 +7,36 @@
 #include "Alignment/ReferenceTrajectories/interface/TrajectoryFactoryBase.h"
 
 
-TrajectoryFactoryBase::TrajectoryFactoryBase( const edm::ParameterSet & config ) : 
-  theConfig(config)
+TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config) :
+  TrajectoryFactoryBase(config, 1)
 {
-  const std::string strMaterialEffects = config.getParameter< std::string >( "MaterialEffects" );
-  theMaterialEffects = this->materialEffects( strMaterialEffects );
-  
-  const std::string strPropagationDirection = config.getParameter< std::string >( "PropagationDirection" );
-  thePropDir = this->propagationDirection( strPropagationDirection );
+}
 
-  theUseWithoutDet = config.getParameter< bool >( "UseHitWithoutDet" );
-  theUseInvalidHits = config.getParameter< bool >( "UseInvalidHits" );
-  theUseProjectedHits = config.getParameter< bool >( "UseProjectedHits" );
-  theUseBeamSpot = config.getParameter< bool >( "UseBeamSpot" );
-
-  edm::LogInfo("Alignment") << "@SUB=TrajectoryFactoryBase"
-                            << "TrajectoryFactory '" << config.getParameter<std::string>("TrajectoryFactoryName")
-                            << "' with following settings:"
-                            << "\nmaterial effects: " << strMaterialEffects
-                            << "\npropagation: " << strPropagationDirection
-                            << "\nuse hits without det: " << (theUseWithoutDet ? "yes" : "no")
-                            << "\nuse invalid hits: " << (theUseInvalidHits ? "yes" : "no")
-                            << "\nuse projected hits: " << (theUseProjectedHits ? "yes" : "no")
-                            << "\nuse beamspot: " << (theUseBeamSpot ? "yes" : "no");
+TrajectoryFactoryBase::TrajectoryFactoryBase(const edm::ParameterSet& config,
+                                             unsigned int tracksPerTrajectory) :
+  cfg_(config),
+  tracksPerTrajectory_(tracksPerTrajectory),
+  materialEffects_(materialEffects(config.getParameter<std::string>("MaterialEffects"))),
+  propDir_(propagationDirection(config.getParameter<std::string>("PropagationDirection"))),
+  useWithoutDet_(config.getParameter<bool>("UseHitWithoutDet")),
+  useInvalidHits_(config.getParameter<bool>("UseInvalidHits")),
+  useProjectedHits_(config.getParameter<bool>("UseProjectedHits")),
+  useBeamSpot_(config.getParameter<bool>("UseBeamSpot")),
+  includeAPEs_(config.getParameter<bool>("IncludeAPEs")),
+  allowZeroMaterial_(config.getParameter<bool>("AllowZeroMaterial"))
+{
+  edm::LogInfo("Alignment")
+    << "@SUB=TrajectoryFactoryBase"
+    << "TrajectoryFactory '" << cfg_.getParameter<std::string>("TrajectoryFactoryName")
+    << "' with following settings:"
+    << "\nmaterial effects: " << cfg_.getParameter<std::string>("MaterialEffects")
+    << "\npropagation: " << cfg_.getParameter<std::string>("PropagationDirection")
+    << "\nuse hits without det: " << (useWithoutDet_ ? "yes" : "no")
+    << "\nuse invalid hits: " << (useInvalidHits_ ? "yes" : "no")
+    << "\nuse projected hits: " << (useProjectedHits_ ? "yes" : "no")
+    << "\nuse beamspot: " << (useBeamSpot_ ? "yes" : "no")
+    << "\ninclude APEs: " << (includeAPEs_ ? "yes" : "no")
+    << "\nallow zero material: " << (allowZeroMaterial_ ? "yes" : "no");
 }
 
 
@@ -70,7 +77,7 @@ const Trajectory::DataContainer
 TrajectoryFactoryBase::orderedTrajectoryMeasurements( const Trajectory & trajectory ) const
 {
   const PropagationDirection dir = trajectory.direction();
-  const bool hitsAreReverse = ( ( dir == thePropDir || thePropDir == anyDirection ) ? false : true );
+  const bool hitsAreReverse = ( ( dir == propDir_ || propDir_ == anyDirection ) ? false : true );
 
   const Trajectory::DataContainer & original = trajectory.measurements();
 
@@ -105,14 +112,13 @@ bool
 TrajectoryFactoryBase::useRecHit( const TransientTrackingRecHit::ConstRecHitPointer& hitPtr ) const
 {
   const GeomDet* det = hitPtr->det();
-  if ( !det && !theUseWithoutDet ) return false;
+  if ( !det && !useWithoutDet_ ) return false;
   
-  if ( !( theUseInvalidHits || hitPtr->isValid() ) ) return false;
+  if ( !( useInvalidHits_ || hitPtr->isValid() ) ) return false;
 
-  if ( !theUseProjectedHits )
+  if ( !useProjectedHits_ )
   {
-    const ProjectedRecHit2D* projectedHit = dynamic_cast< const ProjectedRecHit2D* >( hitPtr.get() );
-    if ( projectedHit != 0 ) return false;
+    if(trackerHitRTTI::isProjected(*hitPtr)) return false;
   }
 
   return true;
@@ -130,7 +136,9 @@ TrajectoryFactoryBase::materialEffects( const std::string & strME ) const
   if ( strME == "BrokenLines" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
   if ( strME == "BrokenLinesCoarse" ) return ReferenceTrajectoryBase::brokenLinesCoarse;
   if ( strME == "BrokenLinesFine" ) return ReferenceTrajectoryBase::brokenLinesFine;
-          
+  if ( strME == "LocalGBL" ) return ReferenceTrajectoryBase::localGBL;
+  if ( strME == "CurvlinGBL" ) return ReferenceTrajectoryBase::curvlinGBL;
+            
   throw cms::Exception("BadConfig")
     << "[TrajectoryFactoryBase::materialEffects] Unknown parameter: " << strME;
 }

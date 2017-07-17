@@ -22,7 +22,7 @@
 
 // user include files
 
-#include "FWCore/Framework/interface/SourceFactory.h"
+#include "FWCore/Framework/interface/ModuleFactory.h"
 #include "FWCore/Framework/interface/ESProducer.h"
 #include "FWCore/Framework/interface/EventSetupRecordIntervalFinder.h"
 
@@ -31,24 +31,25 @@
 #include "FWCore/Framework/interface/ValidityInterval.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
+#include "FWCore/Framework/interface/ESHandle.h"
+#include "CondFormats/HcalObjects/interface/HcalLutMetadata.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalTrigTowerGeometry.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 
 //
 // class decleration
 //
 
-class CaloTPGTranscoderULUTs : public edm::ESProducer,
-			 public edm::EventSetupRecordIntervalFinder {
+class CaloTPGTranscoderULUTs : public edm::ESProducer {
 public:
   CaloTPGTranscoderULUTs(const edm::ParameterSet&);
   ~CaloTPGTranscoderULUTs();
   
-  typedef std::auto_ptr<CaloTPGTranscoder> ReturnType;
+  typedef std::unique_ptr<CaloTPGTranscoder> ReturnType;
   
   ReturnType produce(const CaloTPGRecord&);
 
-  void setIntervalFor(const edm::eventsetup::EventSetupRecordKey& iKey, const edm::IOVSyncValue& iTime, edm::ValidityInterval& oInterval ) override {
-    oInterval = edm::ValidityInterval (edm::IOVSyncValue::beginOfTime(), edm::IOVSyncValue::endOfTime()); //infinite
-  }
 private:
   // ----------member data ---------------------------
   edm::FileInPath hfilename1_;
@@ -61,6 +62,8 @@ private:
   std::vector<int> LUTfactor;
   double nominal_gain;
   double RCTLSB;
+  int NCTScaleShift;
+  int RCTScaleShift;  
 };
 
 //
@@ -81,7 +84,6 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
    //the following line is needed to tell the framework what
    // data is being produced
    setWhatProduced(this);
-   findingRecord<CaloTPGRecord>();
 
    //now do what ever other initialization is needed
    read_Ascii_Compression = false;
@@ -96,6 +98,9 @@ CaloTPGTranscoderULUTs::CaloTPGTranscoderULUTs(const edm::ParameterSet& iConfig)
    nominal_gain = iConfig.getParameter<double>("nominal_gain");
    RCTLSB = iConfig.getParameter<double>("RCTLSB");
 
+   edm::ParameterSet hfSS=iConfig.getParameter<edm::ParameterSet>("HFTPScaleShift");
+   NCTScaleShift = hfSS.getParameter<int>("NCT");
+   RCTScaleShift = hfSS.getParameter<int>("RCT");
 }
 
 
@@ -144,9 +149,22 @@ CaloTPGTranscoderULUTs::produce(const CaloTPGRecord& iRecord)
 	 //return pTCoder;
    }
    //std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(ietal, ietah, ZS, LUTfactor, RCTLSB, nominal_gain, file1, file2));
-   std::auto_ptr<CaloTPGTranscoder> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
-   return pTCoder;
+   
+   edm::ESHandle<HcalLutMetadata> lutMetadata;
+   iRecord.getRecord<HcalLutMetadataRcd>().get(lutMetadata);
+   edm::ESHandle<HcalTrigTowerGeometry> theTrigTowerGeometry;
+   iRecord.getRecord<CaloGeometryRecord>().get(theTrigTowerGeometry);
+
+   edm::ESHandle<HcalTopology> htopo;
+   iRecord.getRecord<HcalLutMetadataRcd>().getRecord<HcalRecNumberingRecord>().get(htopo);
+
+   HcalLutMetadata fullLut{ *lutMetadata };
+   fullLut.setTopo(htopo.product());
+
+   std::auto_ptr<CaloTPGTranscoderULUT> pTCoder(new CaloTPGTranscoderULUT(file1, file2));
+   pTCoder->setup(fullLut, *theTrigTowerGeometry, NCTScaleShift, RCTScaleShift);
+   return std::auto_ptr<CaloTPGTranscoder>( pTCoder );
 }
 
 //define this as a plug-in
-DEFINE_FWK_EVENTSETUP_SOURCE(CaloTPGTranscoderULUTs);
+DEFINE_FWK_EVENTSETUP_MODULE(CaloTPGTranscoderULUTs);

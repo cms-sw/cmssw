@@ -50,9 +50,9 @@ HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) 
 {
 
    LogDebug("HLTMuonL1toL3TkPreFilter")
-      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt/NSigmaPt : " 
+      << " CandTag/MinN/MaxEta/MinNhits/MaxDr/MaxDz/MinPt/NSigmaPt : "
       << candTag_.encode()
-      << " " << min_N_ 
+      << " " << min_N_
       << " " << max_Eta_
       << " " << min_Nhits_
       << " " << max_Dr_
@@ -64,9 +64,7 @@ HLTMuonL1toL3TkPreFilter::HLTMuonL1toL3TkPreFilter(const ParameterSet& iConfig) 
    produces<TriggerFilterObjectWithRefs>();
 }
 
-HLTMuonL1toL3TkPreFilter::~HLTMuonL1toL3TkPreFilter()
-{
-}
+HLTMuonL1toL3TkPreFilter::~HLTMuonL1toL3TkPreFilter() = default;
 
 //
 // member functions
@@ -90,7 +88,7 @@ HLTMuonL1toL3TkPreFilter::fillDescriptions(edm::ConfigurationDescriptions& descr
 
 // ------------ method called to produce the data  ------------
 bool
-HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct)
+HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
 
    // All HLT filters must create and fill an HLT filter object,
@@ -121,21 +119,21 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
    beamSpot = *recoBeamSpotHandle;
 
 
-   //needed to compare to L1 
+   //needed to compare to L1
    vector<l1extra::L1MuonParticleRef> vl1cands;
    previousLevelCands->getObjects(TriggerL1Mu,vl1cands);
 
-   std::map<l1extra::L1MuonParticleRef, std::vector<RecoChargedCandidateRef> > ::iterator L1toL3s_it = L1toL3s.begin();
-   std::map<l1extra::L1MuonParticleRef, std::vector<RecoChargedCandidateRef> > ::iterator L1toL3s_end = L1toL3s.end();
+   auto L1toL3s_it = L1toL3s.begin();
+   auto L1toL3s_end = L1toL3s.end();
    for (; L1toL3s_it!=L1toL3s_end; ++L1toL3s_it){
-     
+
      if (!triggeredAtL1(L1toL3s_it->first,vl1cands)) continue;
-     
+
      //loop over the L3Tk reconstructed for this L1.
      unsigned int iTk=0;
      unsigned int maxItk=L1toL3s_it->second.size();
      for (; iTk!=maxItk; iTk++){
-       
+
        RecoChargedCandidateRef & cand=L1toL3s_it->second[iTk];
        TrackRef tk = cand->track();
 
@@ -163,7 +161,7 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
       if (ptLx<min_Pt_) continue;
 
       //one good L3Tk
-      filterproduct.addObject(TriggerMuon,cand);      
+      filterproduct.addObject(TriggerMuon,cand);
       break; // and go on with the next L1 association
      }
 
@@ -172,29 +170,30 @@ HLTMuonL1toL3TkPreFilter::hltFilter(Event& iEvent, const EventSetup& iSetup, tri
 
    vector<RecoChargedCandidateRef> vref;
    filterproduct.getObjects(TriggerMuon,vref);
-   for (unsigned int i=0; i<vref.size(); i++ ) {
-     TrackRef tk = vref[i]->track();
+   for (auto & i : vref) {
+     TrackRef tk = i->track();
      LogDebug("HLTMuonL1toL3TkPreFilter")
-       << " Track passing filter: pt= " << tk->pt() << ", eta: " 
+       << " Track passing filter: pt= " << tk->pt() << ", eta: "
        << tk->eta();
    }
-   
+
    // filter decision
    const bool accept ((int)n >= min_N_);
-   
-   LogDebug("HLTMuonL1toL3TkPreFilter") << " >>>>> Result of HLTMuonL1toL3TkPreFilter is " << accept << ", number of muons passing thresholds= " << n; 
-   
+
+   LogDebug("HLTMuonL1toL3TkPreFilter") << " >>>>> Result of HLTMuonL1toL3TkPreFilter is " << accept << ", number of muons passing thresholds= " << n;
+
    return accept;
 }
+
 bool
-HLTMuonL1toL3TkPreFilter::triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands)
+HLTMuonL1toL3TkPreFilter::triggeredAtL1(const l1extra::L1MuonParticleRef & l1mu,std::vector<l1extra::L1MuonParticleRef>& vcands) const
 {
   bool ok=false;
 
   // compare to previously triggered L1
-  for (unsigned int i=0; i<vcands.size(); i++) {
+  for (auto & vcand : vcands) {
     //    l1extra::L1MuonParticleRef candref =  L1MuonParticleRef(vcands[i]);
-    if (vcands[i] == l1mu){
+    if (vcand == l1mu){
       ok=true;
       LogDebug("HLTMuonL1toL3TkPreFilter") << "The L1 mu triggered";
       break;}

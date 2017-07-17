@@ -1,4 +1,5 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("SIPIXELDQM")
 process.load("Geometry.TrackerSimData.trackerSimGeometryXML_cfi")
@@ -118,7 +119,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 
 process.AdaptorConfig = cms.Service("AdaptorConfig")
 
-process.sipixelEDAClient = cms.EDAnalyzer("SiPixelEDAClient",
+process.sipixelEDAClient = DQMEDHarvester("SiPixelEDAClient",
     EventOffsetForInit = cms.untracked.int32(10),
     ActionOnLumiSection = cms.untracked.bool(False),
     ActionOnRunEnd = cms.untracked.bool(True),
@@ -134,10 +135,6 @@ process.qTester = cms.EDAnalyzer("QualityTester",
 )
 
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 
 process.Reco = cms.Sequence(process.siPixelDigis)
 process.Calibration = cms.Sequence(process.siPixelCalibDigis*process.siPixelGainCalibrationAnalysis*process.siPixelIsAliveCalibration)

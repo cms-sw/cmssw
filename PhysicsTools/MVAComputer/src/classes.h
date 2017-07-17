@@ -6,7 +6,7 @@
 #include "PhysicsTools/MVAComputer/interface/TreeReader.h"
 
 #ifdef __GCCXML__
-namespace { // anonymous
+namespace PhysicsTools_MVAComputer { // anonymous
 struct dictionary {
 
 std::vector<PhysicsTools::Variable::Value> vv;

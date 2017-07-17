@@ -28,7 +28,7 @@ RunTPGConfigDat::~RunTPGConfigDat()
 
 
 void RunTPGConfigDat::prepareWrite()
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
 
@@ -46,7 +46,7 @@ void RunTPGConfigDat::prepareWrite()
 
 
 void RunTPGConfigDat::writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* item, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -73,7 +73,7 @@ void RunTPGConfigDat::writeDB(const EcalLogicID* ecid, const RunTPGConfigDat* it
 
 
 void RunTPGConfigDat::fetchData(map< EcalLogicID, RunTPGConfigDat >* fillMap, RunIOV* iov)
-  throw(std::runtime_error)
+  noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

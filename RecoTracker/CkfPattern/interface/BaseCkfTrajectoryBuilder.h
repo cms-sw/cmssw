@@ -5,6 +5,7 @@
 #include "TrackingTools/PatternTools/interface/TrajectoryBuilder.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
 
 #include<cassert>
 #include "TrackingTools/PatternTools/interface/TempTrajectory.h"
@@ -16,12 +17,12 @@ class FreeTrajectoryState;
 class IntermediateTrajectoryCleaner;
 class LayerMeasurements;
 class MeasurementTracker;
+class MeasurementTrackerEvent;
 class MeasurementEstimator;
 class NavigationSchool;
 class Propagator;
 class TrajectoryStateUpdator;
 class TrajectoryMeasurement;
-class TrajectorySeed;
 class TrajectoryContainer;
 class TrajectoryStateOnSurface;
 class TrajectoryFitter;
@@ -32,9 +33,15 @@ class TrajectoryFilter;
 class TrackingRegion;
 class TrajectoryMeasurementGroup;
 class TrajectoryCleaner;
+class TrackingComponentsRecord;
+namespace edm {
+  class ConsumesCollector;
+}
 
 #include "TrackingTools/PatternTools/interface/bqueue.h"
 #include "RecoTracker/CkfPattern/interface/PrintoutHelper.h"
+
+#include <string>
 
 /** The component of track reconstruction that, strating from a seed,
  *  reconstructs all possible trajectories.
@@ -56,17 +63,13 @@ public:
   typedef std::vector<Trajectory> TrajectoryContainer;
   typedef std::vector<TempTrajectory> TempTrajectoryContainer;
   typedef TrajectoryContainer::iterator TrajectoryIterator;
-  
-  BaseCkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-			   const TrajectoryStateUpdator*         updator,
-			   const Propagator*                     propagatorAlong,
-			   const Propagator*                     propagatorOpposite,
-			   const Chi2MeasurementEstimatorBase*   estimator,
-			   const TransientTrackingRecHitBuilder* RecHitBuilder,
-			   const MeasurementTracker*             measurementTracker,
-			   const TrajectoryFilter*               filter,
-			   const TrajectoryFilter*               inOutFilter = 0);
 
+  // Claims ownership of TrajectoryFilter pointers
+  BaseCkfTrajectoryBuilder(const edm::ParameterSet& conf,
+                           TrajectoryFilter *filter,
+                           TrajectoryFilter *inOutFilter=nullptr);
+  BaseCkfTrajectoryBuilder(const BaseCkfTrajectoryBuilder &) = delete;
+  BaseCkfTrajectoryBuilder& operator=(const BaseCkfTrajectoryBuilder&) = delete;
   virtual ~BaseCkfTrajectoryBuilder();
 
   // new interface returning the start Trajectory...
@@ -79,8 +82,12 @@ public:
 				    TrajectoryContainer& result) const { assert(0==1);}
 
 
-  virtual void setEvent(const edm::Event& event) const;
+  void setNavigationSchool(NavigationSchool const * nv) { theNavigationSchool=nv;}
+
+  virtual void setEvent(const edm::Event& event) const ;
   virtual void unset() const;
+
+  void setEvent(const edm::Event& iEvent, const edm::EventSetup& iSetup, const MeasurementTrackerEvent *data);
 
   virtual void setDebugger( CkfDebugger * dbg) const {;}
  
@@ -90,15 +97,22 @@ public:
   /** Maximum number of consecutive lost hits per trajectory candidate. */
   //  int 		maxConsecLostHit()	{return theMaxConsecLostHit;}
 
+
+  const TransientTrackingRecHitBuilder* hitBuilder() const { return theTTRHBuilder;}
+
  protected:    
+  static TrajectoryFilter *createTrajectoryFilter(const edm::ParameterSet& pset, edm::ConsumesCollector& iC);
+
+  virtual void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) = 0;
+
   //methods for dubugging 
   virtual bool analyzeMeasurementsDebugger(Trajectory& traj, const std::vector<TrajectoryMeasurement>& meas,
-					   const MeasurementTracker* theMeasurementTracker, 
+					   const MeasurementTrackerEvent* theMeasurementTracker, 
 					   const Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
   virtual bool analyzeMeasurementsDebugger(TempTrajectory& traj, const std::vector<TrajectoryMeasurement>& meas,
-					   const MeasurementTracker* theMeasurementTracker, 
+					   const MeasurementTrackerEvent* theMeasurementTracker, 
 					   const Propagator* theForwardPropagator, 
 					   const Chi2MeasurementEstimatorBase* theEstimator, 
 					   const TransientTrackingRecHitBuilder * theTTRHBuilder) const {return true;} 
@@ -127,20 +141,27 @@ public:
  private:
   void seedMeasurements(const TrajectorySeed& seed, TempTrajectory & result) const;
 
+ protected:
+  void setData(const MeasurementTrackerEvent *data) ;
 
+  const Propagator *forwardPropagator(const TrajectorySeed& seed) const {
+    return seed.direction() == alongMomentum ? thePropagatorAlong : thePropagatorOpposite;
+  }
+  const Propagator *backwardPropagator(const TrajectorySeed& seed) const {
+    return seed.direction() == alongMomentum ? thePropagatorOpposite : thePropagatorAlong;
+  }
 
  protected:
+  typedef TrackingComponentsRecord Chi2MeasurementEstimatorRecord;
+
   const TrajectoryStateUpdator*         theUpdator;
   const Propagator*                     thePropagatorAlong;
   const Propagator*                     thePropagatorOpposite;
   const Chi2MeasurementEstimatorBase*   theEstimator;
   const TransientTrackingRecHitBuilder* theTTRHBuilder;
-  const MeasurementTracker*             theMeasurementTracker;
-  const LayerMeasurements*              theLayerMeasurements;
+  const MeasurementTrackerEvent*        theMeasurementTracker;
+  const NavigationSchool *              theNavigationSchool = nullptr;
 
-  // these may change from seed to seed
-  mutable const Propagator*             theForwardPropagator;
-  mutable const Propagator*             theBackwardPropagator;
 
  private:
   //  int theMaxLostHit;            /**< Maximum number of lost hits per trajectory candidate.*/
@@ -151,11 +172,15 @@ public:
 
   //  TrajectoryFilter*              theMinPtCondition;
   //  TrajectoryFilter*              theMaxHitsCondition;
-  const TrajectoryFilter* theFilter; /** Filter used at end of complete tracking */
-  const TrajectoryFilter* theInOutFilter; /** Filter used at end of in-out tracking */
+  std::unique_ptr<TrajectoryFilter> theFilter; /** Filter used at end of complete tracking */
+  std::unique_ptr<TrajectoryFilter> theInOutFilter; /** Filter used at end of in-out tracking */
 
-  bool skipClusters_;
-  edm::InputTag clustersToSkip_;
+  // for EventSetup
+  const std::string theUpdatorName;
+  const std::string thePropagatorAlongName;
+  const std::string thePropagatorOppositeName;
+  const std::string theEstimatorName;
+  const std::string theRecHitBuilderName;
 };
 
 

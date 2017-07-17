@@ -1,12 +1,15 @@
 #ifndef DDL_Cone_H
 #define DDL_Cone_H
 
+#include <string>
+
 // -------------------------------------------------------------------------
 // Includes
 // -------------------------------------------------------------------------
 #include "DDLSolid.h"
 
-#include <string>
+class DDCompactView;
+class DDLElementRegistry;
 
 /// DDLCone processes all Cone elements.
 /** @class DDLCone
@@ -21,16 +24,13 @@
  *                                                                         
  */
 
-class DDLCone : public DDLSolid
+class DDLCone final : public DDLSolid
 {
-public:
+ public:
 
-  /// Constructor
   DDLCone( DDLElementRegistry* myreg );
 
-  /// Destructor
-  virtual ~DDLCone( void );
-
-  virtual void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ); 
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override; 
 };
+
 #endif

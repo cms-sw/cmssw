@@ -3,7 +3,7 @@ import FWCore.ParameterSet.Config as cms
 ## test for electronId
 simpleEleId70cIso = cms.EDProducer(
     "EleIdCutBasedExtProducer",
-    src = cms.InputTag("gsfElectrons"),
+    src = cms.InputTag("gedGsfElectrons"),
     reducedBarrelRecHitCollection = cms.InputTag("reducedEcalRecHitsEB"),
     reducedEndcapRecHitCollection = cms.InputTag("reducedEcalRecHitsEE"),
     verticesCollection = cms.InputTag("offlineBeamSpot"),

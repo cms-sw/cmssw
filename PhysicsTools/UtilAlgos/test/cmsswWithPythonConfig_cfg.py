@@ -2,10 +2,9 @@ import FWCore.ParameterSet.Config as cms
 
 process = cms.Process("Test")
 
+from PhysicsTools.PatAlgos.patInputFiles_cff import filesRelValTTbarGENSIMRECO
 process.source = cms.Source("PoolSource",
-  fileNames = cms.untracked.vstring(
-    "/store/relval/CMSSW_6_2_0_pre8/RelValZTT/GEN-SIM-RECO/PRE_ST62_V8-v1/00000/9ABFC689-F9E0-E211-9DD2-02163E008EAE.root"
-  )
+  fileNames = filesRelValTTbarGENSIMRECO
 )
 process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(100) )
 

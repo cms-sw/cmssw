@@ -1,7 +1,17 @@
+<use   name="CondFormats/HcalObjects"/>
+<use   name="CondFormats/EcalObjects"/>
+<use   name="CondFormats/EgammaObjects"/>
+<use   name="CondFormats/DataRecord"/>
 <use   name="DataFormats/Common"/>
 <use   name="DataFormats/ParticleFlowReco"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="RecoLocalCalo/HcalRecAlgos"/>
 <use   name="DataFormats/HcalDetId"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
+<use   name="RecoParticleFlow/PFClusterTools"/>
+<use   name="Calibration/Tools"/>
+<use   name="CalibCalorimetry/EcalTPGTools"/>
+<use   name="vdt_headers"/>
 <use   name="rootmath"/>
 <use   name="root"/>
 <export>

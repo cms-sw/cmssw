@@ -20,7 +20,7 @@
 
 #include "DataFormats/HLTReco/interface/HLTPerformanceInfo.h"
 #include "DataFormats/Provenance/interface/EventAuxiliary.h"
-#include "FWCore/FWLite/interface/AutoLibraryLoader.h"
+#include "FWCore/FWLite/interface/FWLiteEnabler.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 
 //--- Created by:  
@@ -64,7 +64,7 @@ bool usePathByName(HLTPerformanceInfo::Path path,
                      std::vector<std::string> skip) {
   for (unsigned int i=0; i<skip.size(); i++)
     if (path.name() == skip.at(i)) return false; 
-    return true; 
+  return true; 
 }
 
 //initialize the following parameters
@@ -630,7 +630,7 @@ int main(int argc, char ** argv) {
     
   //-- Load libraries ---//
   gSystem->Load("libFWCoreFWLite") ;
-  AutoLibraryLoader::enable () ;
+  FWLiteEnabler::enable () ;
 
   //--- Default arguments ---//
   std::string filename = "hlt.root" ;
@@ -1014,11 +1014,11 @@ int main(int argc, char ** argv) {
   std::vector<int> longestEventByModule ; 
   std::vector<int> pathFilterModule ; 
 
-  std::vector< std::pair<unsigned int,unsigned int> > slowEventSummaryVector ; 
-  std::vector< std::pair<unsigned int,unsigned int> > slowPathSummaryVector ; 
-  std::vector< std::pair<unsigned int,unsigned int> > slowModuleSummaryVector ; 
+  std::vector< std::pair<unsigned int,unsigned long long> > slowEventSummaryVector ; 
+  std::vector< std::pair<unsigned int,unsigned long long> > slowPathSummaryVector ; 
+  std::vector< std::pair<unsigned int,unsigned long long> > slowModuleSummaryVector ; 
   std::vector<int> modIdxInterested;
-  std::vector < std::vector< std::pair<unsigned int,unsigned int> > > slowModInterestedVector ; 
+  std::vector < std::vector< std::pair<unsigned int,unsigned long long> > > slowModInterestedVector ; 
   
   //--- One loop through all events ---//
   bool init = false ; int nSkips = 0 ; 
@@ -1047,8 +1047,8 @@ int main(int argc, char ** argv) {
       for (int k=0; k<numberOfspecificTotalTime; k++) {
       	specificPathTimeSummaryVector.push_back(specificPathTimeSummaryVectorAtK);
       }
-      std::pair<unsigned int,unsigned int> pair ;
-      std::vector <std::pair<unsigned int,unsigned int> > slowModInterestedVectorAtK;
+      //      std::pair<unsigned int,unsigned int> pair ;
+      std::vector <std::pair<unsigned int,unsigned long long> > slowModInterestedVectorAtK;
       for (unsigned k=0; k<modInterested.size(); k++) {
       	slowModInterestedVector.push_back(slowModInterestedVectorAtK);
       }
@@ -1612,7 +1612,7 @@ int main(int argc, char ** argv) {
     // Needed to get run/event numbers
     TBEvtAux->GetEntry(ievt) ;
     //std::pair<int,int> eventInfo ;
-    std::pair<unsigned int,unsigned int> eventInfo ;
+    std::pair<unsigned int,unsigned long long> eventInfo ;
     eventInfo.first  = EvtAuxWrapper->id().run() ; 
     eventInfo.second = EvtAuxWrapper->id().event() ;
 
@@ -1880,16 +1880,16 @@ int main(int argc, char ** argv) {
       }
     }
     
-    char value[10] ; 
+    char value[330] ; 
     sumfile << "Average path times are as follows (all in msec): " << std::endl ;
     for (int i=1; i<=pathTimeSummary->GetNbinsX(); i++) {
-      snprintf(value, 10, "%9.4f",pathTimeSummary->GetBinContent(i)) ; 
+      snprintf(value, sizeof(value), "%9.4f",pathTimeSummary->GetBinContent(i)) ; 
       sumfile << value << " (path " << pathTimeSummary->GetXaxis()->GetBinLabel(i) << ")" ;
       sumfile << std::endl ; 
     }
     sumfile << std::endl ; 
         
-    snprintf(value, 10, "%9.4f",(1000.*longestEventTime)) ; 
+    snprintf(value, sizeof(value), "%9.4f",(1000.*longestEventTime)) ; 
     sumfile << "The slowest event (" << longestEvent
 	    << ") took " << value << " msec" << std::endl ;
     sumfile << std::endl ; 
@@ -1906,7 +1906,7 @@ int main(int argc, char ** argv) {
       
     for (unsigned int i=0; i<3; i++) {
       if (slowTime.at(i) > 0) {
-	snprintf(value, 10, "%9.4f", slowTime.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f", slowTime.at(i)) ; 
 	sumfile << "Module " << slowMinP.at(i) 
 		<< ", with average per event time: " << value << " msec" << std::endl ;
       }
@@ -1921,7 +1921,7 @@ int main(int argc, char ** argv) {
       
     for (unsigned int i=0; i<3; i++) {
       if (slowTime.at(i) > 0) {
-	snprintf(value, 10, "%9.4f", slowTime.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f", slowTime.at(i)) ; 
 	sumfile << "Module " << slowMinP.at(i) << " in path " << slowPath.at(i)
 		<< ", with average per event time: " << value << " msec" << std::endl ;
       }
@@ -1939,7 +1939,7 @@ int main(int argc, char ** argv) {
 
     for (unsigned int i=0; i<3; i++) {
       if (slowTime.at(i) > 0) {
-	snprintf(value, 10, "%9.4f", slowTime.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f", slowTime.at(i)) ; 
 	sumfile << "Module " << slowMinP.at(i) << " in path " << slowPath.at(i)
 		<< ", with average running time: " << value << " msec" << std::endl ;
       }
@@ -1949,7 +1949,7 @@ int main(int argc, char ** argv) {
     sumfile << "A given module took the longest time to run in the following events:" << std::endl ;
     for (unsigned int i=0; i<unsigned(numberOfModules); i++) {
       if (longestEventTimeByModule.at(i) > 0) {
-	snprintf(value, 10, "%9.4f",longestEventTimeByModule.at(i)) ; 
+	snprintf(value, sizeof(value), "%9.4f",longestEventTimeByModule.at(i)) ; 
 	sumfile << "Module " << moduleNames.at(i)
 		<< " was slowest in event " << longestEventByModule.at(i)
 		<< ", with time: " << value << " msec" << std::endl ;

@@ -10,14 +10,13 @@
 #include "DataFormats/Scalers/interface/DcsStatus.h"
 #include "DataFormats/Scalers/interface/BeamSpotOnline.h"
 #include "DataFormats/Scalers/interface/TimeSpec.h"
+#include "DataFormats/Scalers/interface/BSTRecord.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/Ref.h"
 #include "DataFormats/Common/interface/RefProd.h"
 
-namespace 
-{
-  struct dictionary 
-  {
+namespace DataFormats_Scalers {
+  struct dictionary {
     L1AcceptBunchCrossing l1AcceptBunchCrossing;
     L1TriggerScalers l1TriggerScalers;
     L1TriggerRates l1TriggerRates;
@@ -26,6 +25,7 @@ namespace
     LumiScalers lumiScalers;
     DcsStatus dcsStatus;
     BeamSpotOnline beamSpotOnline;
+    BSTRecord bstRecord;
 
     edm::Wrapper<L1AcceptBunchCrossing> w_l1AcceptBunchCrossing;
     edm::Wrapper<L1TriggerScalers> w_l1TriggerScalers;
@@ -35,6 +35,7 @@ namespace
     edm::Wrapper<LumiScalers> w_lumiScalers;
     edm::Wrapper<DcsStatus> w_dcsStatus;
     edm::Wrapper<BeamSpotOnline> w_beamSpotOnline;
+    edm::Wrapper<BSTRecord> w_bstRecord;
 
     edm::RefProd<L1AcceptBunchCrossing> l1AcceptBunchCrossingRef ;
     edm::RefProd<L1TriggerScalers> l1TriggerScalersRef ;
@@ -44,6 +45,7 @@ namespace
     edm::RefProd<LumiScalers> lumiScalersRef ;
     edm::RefProd<DcsStatus> dcsStatusRef ;
     edm::RefProd<BeamSpotOnline> beamSpotOnlineRef ;
+    edm::RefProd<BSTRecord> bstRecordRef ;
 
     L1AcceptBunchCrossingCollection l1AcceptBunchCrossingCollection;
     edm::Wrapper<L1AcceptBunchCrossingCollection> 

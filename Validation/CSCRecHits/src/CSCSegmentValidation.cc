@@ -1,33 +1,39 @@
 #include "Validation/CSCRecHits/src/CSCSegmentValidation.h"
-#include "DataFormats/CSCRecHit/interface/CSCSegmentCollection.h"
 #include <algorithm>
 #include "DQMServices/Core/interface/DQMStore.h"
 
 
-
-CSCSegmentValidation::CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & inputTag)
-: CSCBaseValidation(dbe, inputTag),
+CSCSegmentValidation::CSCSegmentValidation(const edm::InputTag & inputTag, edm::ConsumesCollector && iC)
+: CSCBaseValidation(inputTag),
   theLayerHitsPerChamber(),
   theChamberSegmentMap(),
-  theShowerThreshold(10),
-  theNPerEventPlot( dbe_->book1D("CSCSegmentsPerEvent", "Number of CSC segments per event", 100, 0, 50) ),
-  theNRecHitsPlot( dbe_->book1D("CSCRecHitsPerSegment", "Number of CSC rec hits per segment" , 8, 0, 7) ),
-  theNPerChamberTypePlot( dbe_->book1D("CSCSegmentsPerChamberType", "Number of CSC segments per chamber type", 11, 0, 10) ),
-  theTypePlot4HitsNoShower( dbe_->book1D("CSCSegments4HitsNoShower", "", 100, 0, 10) ),
-  theTypePlot4HitsNoShowerSeg( dbe_->book1D("CSCSegments4HitsNoShowerSeg", "", 100, 0, 10) ),
-  theTypePlot4HitsShower( dbe_->book1D("CSCSegments4HitsShower", "", 100, 0, 10) ),
-  theTypePlot4HitsShowerSeg( dbe_->book1D("CSCSegments4HitsShowerSeg", "", 100, 0, 10) ),
-  theTypePlot5HitsNoShower( dbe_->book1D("CSCSegments5HitsNoShower", "", 100, 0, 10) ),
-  theTypePlot5HitsNoShowerSeg( dbe_->book1D("CSCSegments5HitsNoShowerSeg", "", 100, 0, 10) ),
-  theTypePlot5HitsShower( dbe_->book1D("CSCSegments5HitsShower", "", 100, 0, 10) ),
-  theTypePlot5HitsShowerSeg( dbe_->book1D("CSCSegments5HitsShowerSeg", "", 100, 0, 10) ),
-  theTypePlot6HitsNoShower( dbe_->book1D("CSCSegments6HitsNoShower", "", 100, 0, 10) ),
-  theTypePlot6HitsNoShowerSeg( dbe_->book1D("CSCSegments6HitsNoShowerSeg", "", 100, 0, 10) ),
-  theTypePlot6HitsShower( dbe_->book1D("CSCSegments6HitsShower", "", 100, 0, 10) ),
-  theTypePlot6HitsShowerSeg( dbe_->book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10) )
+  theShowerThreshold(10)
 {
-   dbe_->setCurrentFolder("CSCRecHitsV/CSCRecHitTask");
-   for(int i = 0; i < 10; ++i)
+   segments_Token_ = iC.consumes<CSCSegmentCollection>(inputTag);
+}
+
+CSCSegmentValidation::~CSCSegmentValidation()
+{
+}
+
+void CSCSegmentValidation::bookHistograms(DQMStore::IBooker & iBooker)
+{
+  theNPerEventPlot =            iBooker.book1D("CSCSegmentsPerEvent", "Number of CSC segments per event", 100, 0, 50);
+  theNRecHitsPlot =             iBooker.book1D("CSCRecHitsPerSegment", "Number of CSC rec hits per segment" , 8, 0, 7);
+  theNPerChamberTypePlot =      iBooker.book1D("CSCSegmentsPerChamberType", "Number of CSC segments per chamber type", 11, 0, 10);
+  theTypePlot4HitsNoShower =    iBooker.book1D("CSCSegments4HitsNoShower", "", 100, 0, 10);
+  theTypePlot4HitsNoShowerSeg = iBooker.book1D("CSCSegments4HitsNoShowerSeg", "", 100, 0, 10);
+  theTypePlot4HitsShower =      iBooker.book1D("CSCSegments4HitsShower", "", 100, 0, 10);
+  theTypePlot4HitsShowerSeg =   iBooker.book1D("CSCSegments4HitsShowerSeg", "", 100, 0, 10);
+  theTypePlot5HitsNoShower =    iBooker.book1D("CSCSegments5HitsNoShower", "", 100, 0, 10);
+  theTypePlot5HitsNoShowerSeg = iBooker.book1D("CSCSegments5HitsNoShowerSeg", "", 100, 0, 10);
+  theTypePlot5HitsShower =      iBooker.book1D("CSCSegments5HitsShower", "", 100, 0, 10);
+  theTypePlot5HitsShowerSeg =   iBooker.book1D("CSCSegments5HitsShowerSeg", "", 100, 0, 10);
+  theTypePlot6HitsNoShower =    iBooker.book1D("CSCSegments6HitsNoShower", "", 100, 0, 10);
+  theTypePlot6HitsNoShowerSeg = iBooker.book1D("CSCSegments6HitsNoShowerSeg", "", 100, 0, 10);
+  theTypePlot6HitsShower =      iBooker.book1D("CSCSegments6HitsShower", "", 100, 0, 10);
+  theTypePlot6HitsShowerSeg =   iBooker.book1D("CSCSegments6HitsShowerSeg", "", 100, 0, 10);
+  for(int i = 0; i < 10; ++i)
   {
     char title1[200], title2[200], title3[200], title4[200],  
          title5[200], title6[200], title7[200], title8[200];
@@ -40,16 +46,14 @@ CSCSegmentValidation::CSCSegmentValidation(DQMStore* dbe, const edm::InputTag & 
     sprintf(title7, "CSCSegmentdYdZResolution%d", i+1);
     sprintf(title8, "CSCSegmentdYdZPull%d", i+1);
 
-
-    theRdPhiResolutionPlots[i] = dbe_->book1D(title1, title1, 100, -0.4, 0.4);
-    theRdPhiPullPlots[i] = dbe_->book1D(title2, title2, 100, -5, 5);
-    theThetaResolutionPlots[i] = dbe_->book1D(title3, title3, 100, -1, 1);
-    theThetaPullPlots[i] = dbe_->book1D(title4, title4, 100, -5, 5);
-    thedXdZResolutionPlots[i] = dbe_->book1D(title5, title5, 100, -1, 1);
-    thedXdZPullPlots[i] = dbe_->book1D(title6, title6, 100, -5, 5);
-    thedYdZResolutionPlots[i] = dbe_->book1D(title7, title7, 100, -1, 1);
-    thedYdZPullPlots[i] = dbe_->book1D(title8, title8, 100, -5, 5);
-
+    theRdPhiResolutionPlots[i] = iBooker.book1D(title1, title1, 100, -0.4, 0.4);
+    theRdPhiPullPlots[i] =       iBooker.book1D(title2, title2, 100, -5, 5);
+    theThetaResolutionPlots[i] = iBooker.book1D(title3, title3, 100, -1, 1);
+    theThetaPullPlots[i] =       iBooker.book1D(title4, title4, 100, -5, 5);
+    thedXdZResolutionPlots[i] =  iBooker.book1D(title5, title5, 100, -1, 1);
+    thedXdZPullPlots[i] =        iBooker.book1D(title6, title6, 100, -5, 5);
+    thedYdZResolutionPlots[i] =  iBooker.book1D(title7, title7, 100, -1, 1);
+    thedYdZPullPlots[i] =        iBooker.book1D(title8, title8, 100, -5, 5);
   }
 }
 
@@ -57,7 +61,7 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
 {
   // get the collection of CSCRecHsegmentItrD
   edm::Handle<CSCSegmentCollection> hRecHits;
-  e.getByLabel(theInputTag, hRecHits);
+  e.getByToken(segments_Token_, hRecHits);
   const CSCSegmentCollection * cscRecHits = hRecHits.product();
 
   theChamberSegmentMap.clear();
@@ -87,7 +91,6 @@ void CSCSegmentValidation::analyze(const edm::Event&e, const edm::EventSetup& ev
   fillLayerHitsPerChamber();
   fillEfficiencyPlots();
 }
-
 
 void CSCSegmentValidation::fillEfficiencyPlots()
 {
@@ -240,4 +243,3 @@ const PSimHit * CSCSegmentValidation::keyHit(int chamberId) const
   }
   return result;
 }   
-

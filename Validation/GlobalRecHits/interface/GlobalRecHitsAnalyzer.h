@@ -63,7 +63,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -124,7 +124,7 @@
 // general info 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 
 #include <iostream>
 #include <stdlib.h>
@@ -136,9 +136,10 @@
 
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 
-class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
+class GlobalRecHitsAnalyzer : public DQMEDAnalyzer 
 {
 
  public:
@@ -147,9 +148,10 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 
   explicit GlobalRecHitsAnalyzer(const edm::ParameterSet&);
   virtual ~GlobalRecHitsAnalyzer();
-  virtual void beginJob();
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+
+ protected:
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
 
@@ -176,8 +178,6 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   bool printProvenanceInfo;
   std::string hitsProducer;
 
-  DQMStore *dbe;
-
   // Electromagnetic info
   // ECal info
  
@@ -189,6 +189,14 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   edm::InputTag ECalEESrc_;
   edm::InputTag ECalUncalEESrc_;
   edm::InputTag ECalESSrc_;
+  edm::EDGetTokenT<EBRecHitCollection> ECalEBSrc_Token_;
+  edm::EDGetTokenT<EERecHitCollection> ECalEESrc_Token_;
+  edm::EDGetTokenT<ESRecHitCollection> ECalESSrc_Token_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> ECalUncalEBSrc_Token_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> ECalUncalEESrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
 
   // HCal info
 
@@ -196,6 +204,7 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   MonitorElement *mehHcalRes[4];
 
   edm::InputTag HCalSrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
 
   // Tracker info
   // SiStrip
@@ -205,13 +214,14 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   MonitorElement *mehSiStripResY[19];
 
   edm::InputTag SiStripSrc_;
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> SiStripSrc_Token_;
 
   std::vector<PSimHit> matched;
   std::pair<LocalPoint,LocalVector> 
     projectHit( const PSimHit& hit,
 		const StripGeomDetUnit* stripDet,
 		const BoundPlane& plane);
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   // SiPxl
 
@@ -220,6 +230,7 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   MonitorElement *mehSiPixelResY[7];
 
   edm::InputTag SiPxlSrc_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> SiPxlSrc_Token_;
 
   // Muon info
   // DT
@@ -233,6 +244,8 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 
   edm::InputTag MuDTSrc_;
   edm::InputTag MuDTSimSrc_;
+  edm::EDGetTokenT<DTRecHitCollection> MuDTSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuDTSimSrc_Token_;
 
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
@@ -268,6 +281,8 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
   //Defined above....
 
   edm::InputTag MuCSCSrc_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> MuCSCSrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit>> MuCSCHits_Token_;
 
   std::map<int, edm::PSimHitContainer> theMap;
   void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit,
@@ -279,6 +294,8 @@ class GlobalRecHitsAnalyzer : public edm::EDAnalyzer
 
   edm::InputTag MuRPCSrc_;
   edm::InputTag MuRPCSimSrc_;
+  edm::EDGetTokenT<RPCRecHitCollection> MuRPCSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuRPCSimSrc_Token_;
 
   // private statistics information
   unsigned int count;

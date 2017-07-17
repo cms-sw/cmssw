@@ -3,6 +3,7 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -16,12 +17,14 @@ class ElectronIDSelectorCutBased
 {
  public:
 
-  explicit ElectronIDSelectorCutBased (const edm::ParameterSet& conf) ;
+  explicit ElectronIDSelectorCutBased (const edm::ParameterSet& conf, edm::ConsumesCollector && iC) :
+    ElectronIDSelectorCutBased(conf, iC) {}
+  explicit ElectronIDSelectorCutBased (const edm::ParameterSet& conf, edm::ConsumesCollector & iC) ;
   virtual ~ElectronIDSelectorCutBased () ;
 
   void newEvent (const edm::Event&, const edm::EventSetup&) ;
   double operator() (const reco::GsfElectron& , const edm::Event& , const edm::EventSetup& ) ;
-   
+
  private:
 
   ElectronIDAlgo* electronIDAlgo_;

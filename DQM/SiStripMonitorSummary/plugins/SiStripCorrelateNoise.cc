@@ -1,7 +1,7 @@
 #include "DQM/SiStripMonitorSummary/plugins/SiStripCorrelateNoise.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "FWCore/Framework/interface/Run.h"
 #include "TCanvas.h"
 
@@ -122,7 +122,7 @@ SiStripCorrelateNoise::DoAnalysis(const edm::EventSetup& es, const SiStripNoises
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<TH1F *>histos;

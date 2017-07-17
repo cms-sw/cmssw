@@ -1,4 +1,3 @@
-
 #include "DQMServices/Core/interface/Standalone.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/QTest.h"
@@ -6,6 +5,9 @@
 #include <TRandom.h>
 
 #include <iostream>
+
+// Applies all the QTest available to a reference histograma and the histogram to be tested, 
+// both taken as two randomly generated gaussian distributions with the same mean and deviation
 
 const int sample_int_value = 5;
 float mean, sigma; // gaussian parameters for generated distribution
@@ -24,7 +26,7 @@ class DQMQualityTest
     edm::ServiceRegistry::Operate operate(services);
 
     //dbe_ = edm::Service<DQMStore>().operator->();
-    DQMStore* dbe_ = new DQMStore(emptyps);	
+    dbe_ = new DQMStore(emptyps);	
 
     xmin_ = XMIN; xmax_ = XMAX;
     // distribution: gaussian w/ parameters: mean, sigma

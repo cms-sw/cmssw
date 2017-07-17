@@ -1,4 +1,4 @@
-<use   name="CondCore/DBCommon"/>
+<use   name="CondCore/CondDB"/>
 <use   name="CondFormats/DTObjects"/>
 <use   name="CondFormats/DataRecord"/>
 <use   name="CoralBase"/>
@@ -8,7 +8,7 @@
 <use   name="FWCore/ServiceRegistry"/>
 <use   name="CondCore/DBOutputService"/>
 <use   name="RelationalAccess"/>
-<use   name="rootrflx"/>
+
 <export>
   <lib   name="1"/>
 </export>

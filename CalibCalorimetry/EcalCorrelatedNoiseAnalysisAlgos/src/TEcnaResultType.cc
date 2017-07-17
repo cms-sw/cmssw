@@ -4,7 +4,6 @@
 
 #include "CalibCalorimetry/EcalCorrelatedNoiseAnalysisAlgos/interface/TEcnaResultType.h"
 #include "Riostream.h"
-using namespace std;
 
 //--------------------------------------
 //  TEcnaResultType.cc
@@ -23,7 +22,7 @@ ClassImp(TEcnaResultType)
 TEcnaResultType::TEcnaResultType()
 {
   
-  // cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << std::endl;
 
   fMatMat.ReSet(1,1);
   fMatHis.ReSet(1,1);
@@ -32,7 +31,7 @@ TEcnaResultType::TEcnaResultType()
 TEcnaResultType::TEcnaResultType(TEcnaObject* pObjectManager)
 {
   
-  // cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << std::endl;
 
   Long_t i_this = (Long_t)this;
   pObjectManager->RegisterPointer("TEcnaResultType", i_this);
@@ -50,7 +49,7 @@ TEcnaResultType::TEcnaResultType(CnaResultTyp  typ,          Int_t   i,
 {
 //constructor
 
-  // cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaResultType.    CREATE OBJECT: this = " << this << std::endl;
 
   fTypOfCnaResult = typ;
   fIthElement     = i;
@@ -74,7 +73,7 @@ TEcnaResultType::TEcnaResultType(CnaResultTyp  typ,          Int_t   i,
 TEcnaResultType::~TEcnaResultType() {
 //destructor
 
-  // cout << "[Info Management] CLASS: TEcnaResultType.    DESTROY OBJECT: this = " << this << endl;
+  // std::cout << "[Info Management] CLASS: TEcnaResultType.    DESTROY OBJECT: this = " << this << std::endl;
 }
 
 void TEcnaResultType::SetSizeMat(Int_t nrow, Int_t ncol) {

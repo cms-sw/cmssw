@@ -6,7 +6,7 @@ validSimHit = cms.EDAnalyzer("MuonSimHitsValidAnalyzer",
     DT_outputFile = cms.untracked.string(''),
     Name = cms.untracked.string('MuonSimHitsValidAnalyzer'),
     RPCHitsSrc = cms.InputTag("g4SimHits","MuonRPCHits"),
-    Verbosity = cms.untracked.int32(0), 
+    Verbosity = cms.untracked.int32(0),
     ProvenanceLookup = cms.PSet(
         PrintProvenanceInfo = cms.untracked.bool(False),
         GetAllProvenances = cms.untracked.bool(False)
@@ -16,4 +16,9 @@ validSimHit = cms.EDAnalyzer("MuonSimHitsValidAnalyzer",
     Label = cms.string('Hits')
 )
 
-
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
+    validSimHit.DTHitsSrc = cms.InputTag("MuonSimHits","MuonDTHits")
+    validSimHit.CSCHitsSrc = cms.InputTag("MuonSimHits","MuonCSCHits")
+    validSimHit.RPCHitsSrc = cms.InputTag("MuonSimHits","MuonRPCHits")
+    

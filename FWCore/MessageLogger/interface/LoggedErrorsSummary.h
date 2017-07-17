@@ -1,5 +1,5 @@
-#ifndef MessageLogger_LoggedErrorsSummaryy_h
-#define MessageLogger_LoggedErrorsSummaryEntry_h
+#ifndef MessageLogger_LoggedErrorsSummary_h
+#define MessageLogger_LoggedErrorsSummary_h
 
 // ----------------------------------------------------------------------
 //
@@ -50,12 +50,12 @@ namespace edm {
 
 bool EnableLoggedErrorsSummary();
 bool DisableLoggedErrorsSummary();
-bool FreshErrorsExist();
-std::vector<ErrorSummaryEntry> LoggedErrorsSummary();     // Errors and Warnings
-std::vector<ErrorSummaryEntry> LoggedErrorsOnlySummary(); // Errors only
+bool FreshErrorsExist(unsigned int iStreamID);
+std::vector<ErrorSummaryEntry> LoggedErrorsSummary( unsigned int iStreamID);     // Errors and Warnings
+std::vector<ErrorSummaryEntry> LoggedErrorsOnlySummary(unsigned int iStreamID); // Errors only
 
 }        // end of namespace edm
 
 
-#endif  // MessageLogger_ErrorSummaryEntry_h
+#endif  // MessageLogger_LoggedErrorsSummary_h
 

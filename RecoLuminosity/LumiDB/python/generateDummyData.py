@@ -43,7 +43,7 @@ def lumiSummary(schema,nlumils):
         bxlumivalueBlob=CommonUtil.packArraytoBlob(bxlumivalue)
         bxlumierrorBlob=CommonUtil.packArraytoBlob(bxlumierror)
         bxlumiqualityBlob=CommonUtil.packArraytoBlob(bxlumiquality)
-        if not perlsdata.has_key(lumilsnum):
+        if lumilsnum not in perlsdata:
             perlsdata[lumilsnum]=[]
         perlsdata[lumilsnum].extend([cmslsnum,instlumi,instlumierror,instlumiquality,beamstatus,beamenergy,numorbit,startorbit,cmsbxindexBlob,beam1intensityBlob,beam2intensityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob,bxlumivalueBlob,bxlumierrorBlob,bxlumiqualityBlob])
     o.append(perlsdata)
@@ -97,7 +97,7 @@ def trg(schema,nls):
             prescalecounts.append(17)
         trgcountsBlob=CommonUtil.packArraytoBlob(trgcounts)
         prescalecountsBlob=CommonUtil.packArraytoBlob(prescalecounts)
-        if not perlsdata.has_key(cmslsnum):
+        if cmslsnum not in perlsdata:
             perlsdata[cmslsnum]=[]
         perlsdata[cmslsnum].extend([deadtime,bitzerocount,bitzeroprescale,trgcountsBlob,prescalecountsBlob])
     o.append(perlsdata)
@@ -122,7 +122,7 @@ def hlt(schema,nls):
         inputcountsBlob=CommonUtil.packArraytoBlob(inputcounts)
         acceptcountsBlob=CommonUtil.packArraytoBlob(acceptcounts)
         prescalecountsBlob=CommonUtil.packArraytoBlob(prescalecounts)
-        if not perlsdata.has_key(cmslsnum):
+        if cmslsnum not in perlsdata:
             perlsdata[cmslsnum]=[]
         perlsdata[cmslsnum].extend([inputcountsBlob,acceptcountsBlob,prescalecountsBlob])
     o.append(perlsdata)

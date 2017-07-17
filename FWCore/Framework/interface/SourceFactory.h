@@ -19,8 +19,8 @@
 //
 
 // system include files
+#include <memory>
 #include <string>
-#include "boost/shared_ptr.hpp"
 
 // user include files
 #include "FWCore/Framework/interface/ComponentFactory.h"
@@ -38,16 +38,16 @@ namespace edm {
       class EventSetupsController;
       
       template<class T>
-         void addProviderTo(EventSetupProvider& iProvider, boost::shared_ptr<T> iComponent, const DataProxyProvider*) 
+         void addProviderTo(EventSetupProvider& iProvider, std::shared_ptr<T> iComponent, const DataProxyProvider*) 
       {
-            boost::shared_ptr<DataProxyProvider> pProvider(iComponent);
+            std::shared_ptr<DataProxyProvider> pProvider(iComponent);
             ComponentDescription description = pProvider->description();
             description.isSource_=true;
             pProvider->setDescription(description);
             iProvider.add(pProvider);
       }
       template<class T>
-         void addProviderTo(EventSetupProvider& /* iProvider */, boost::shared_ptr<T> /*iComponent*/, const void*) 
+         void addProviderTo(EventSetupProvider& /* iProvider */, std::shared_ptr<T> /*iComponent*/, const void*) 
       {
             //do nothing
       }
@@ -57,7 +57,7 @@ namespace edm {
          static std::string name();
          template<class T>
          static void addTo(EventSetupProvider& iProvider,
-                           boost::shared_ptr<T> iComponent,
+                           std::shared_ptr<T> iComponent,
                            ParameterSet const& iConfiguration,
                            bool matchesPreceding)
             {
@@ -66,17 +66,17 @@ namespace edm {
                }
                //a source does not always have to be a provider
                addProviderTo(iProvider, iComponent, static_cast<const T*>(nullptr));
-               boost::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
+               std::shared_ptr<EventSetupRecordIntervalFinder> pFinder(iComponent);
                iProvider.add(pFinder);
             }
-         static void replaceExisting(EventSetupProvider& iProvider, boost::shared_ptr<EventSetupRecordIntervalFinder> iComponent); 
+         static void replaceExisting(EventSetupProvider& iProvider, std::shared_ptr<EventSetupRecordIntervalFinder> iComponent); 
                
-         static boost::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
+         static std::shared_ptr<base_type> getComponentAndRegisterProcess(EventSetupsController& esController,
                                                                             ParameterSet const& iConfiguration);
 
          static void putComponent(EventSetupsController& esController,
                                   ParameterSet const& iConfiguration,
-                                  boost::shared_ptr<base_type> const& component);
+                                  std::shared_ptr<base_type> const& component);
 
          static void logInfoWhenSharing(ParameterSet const& iConfiguration);
       };

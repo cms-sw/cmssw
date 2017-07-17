@@ -4,6 +4,7 @@
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <iostream>
 
 SiPixelCPEGenericErrorParmUploader::SiPixelCPEGenericErrorParmUploader(const edm::ParameterSet& iConfig):
 	theFileName( iConfig.getParameter<edm::FileInPath>("fileName") ),

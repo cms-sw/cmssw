@@ -2,8 +2,8 @@
 #define RecoAlgos_ObjectSelector_h
 /** \class ObjectSelector
  *
- * selects a subset of a collection. 
- * 
+ * selects a subset of a collection.
+ *
  * \author Luca Lista, INFN
  *
  * \version $Revision: 1.3 $
@@ -14,6 +14,7 @@
 
 #include "FWCore/Framework/interface/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "CommonTools/UtilAlgos/interface/ParameterAdapter.h"
@@ -27,24 +28,25 @@
 #include <memory>
 #include <algorithm>
 
-template<typename Selector, 
+template<typename Selector,
          typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<typename Selector::collection>::type,
 	 typename SizeSelector = NonNullNumberSelector,
-	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection>,
-	 typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection>::type,
-	 typename Base = typename ::helper::StoreManagerTrait<OutputCollection>::base,
+	 typename PostProcessor = ::helper::NullPostProcessor<OutputCollection, edm::EDFilter>,
+	 typename StoreManager = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::type,
+	 typename Base = typename ::helper::StoreManagerTrait<OutputCollection, edm::EDFilter>::base,
 	 typename Init = typename ::reco::modules::EventSetupInit<Selector>::type
 	 >
 class ObjectSelector : public Base {
 public:
-  /// constructor 
+  /// constructor
+  // ObjectSelector()=default;
   explicit ObjectSelector(const edm::ParameterSet & cfg) :
     Base(cfg),
-    src_(cfg.template getParameter<edm::InputTag>("src")),
+    srcToken_( this-> template consumes<typename Selector::collection>(cfg.template getParameter<edm::InputTag>("src"))),
     filter_(false),
-    selector_(cfg),
+    selector_(cfg, this->consumesCollector()),
     sizeSelector_(reco::modules::make<SizeSelector>(cfg)),
-    postProcessor_(cfg) {
+    postProcessor_(cfg, this->consumesCollector()) {
     const std::string filter("filter");
     std::vector<std::string> bools = cfg.template getParameterNamesForType<bool>();
     bool found = std::find(bools.begin(), bools.end(), filter) != bools.end();
@@ -53,14 +55,14 @@ public:
    }
   /// destructor
   virtual ~ObjectSelector() { }
-  
+
 private:
   /// process one event
   bool filter(edm::Event& evt, const edm::EventSetup& es) {
     Init::init(selector_, evt, es);
     using namespace std;
     edm::Handle<typename Selector::collection> source;
-    evt.getByLabel(src_, source);
+    evt.getByToken(srcToken_, source);
     StoreManager manager(source);
     selector_.select(source, evt, es);
     manager.cloneAndStore(selector_.begin(), selector_.end(), evt);
@@ -70,7 +72,7 @@ private:
     return result;
   }
   /// source collection label
-  edm::InputTag src_;
+  edm::EDGetTokenT<typename Selector::collection> srcToken_;
   /// filter event
   bool filter_;
   /// Object collection selector

@@ -1,8 +1,10 @@
 <use   name="MagneticField/Engine"/>
 <use   name="MagneticField/Records"/>
+<use   name="CondFormats/EgammaObjects"/>
 <use   name="DataFormats/Math"/>
 <use   name="DataFormats/TauReco"/>
 <use   name="DataFormats/VertexReco"/>
+<use   name="DataFormats/PatCandidates"/>
 <use   name="DataFormats/ParticleFlowCandidate"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="FWCore/Framework"/>
@@ -17,11 +19,14 @@
 <use   name="TrackingTools/IPTools"/>
 <use   name="RecoTauTag/TauTagTools"/>
 <use   name="RecoVertex/KalmanVertexFit"/>
+<use   name="RecoVertex/AdaptiveVertexFit"/>
 <use   name="RecoParticleFlow/PFClusterTools"/>
 <use   name="TrackingTools/TrackAssociator"/>
 <use   name="PhysicsTools/JetMCUtils"/>
 <use   name="CommonTools/Utils"/>
-<use name="roottmva"/>
+<use   name="FastSimulation/BaseParticlePropagator"/>
+<use   name="FastSimulation/Particle"/>
+<use   name="roottmva"/>
 <export>
   <lib   name="1"/>
 </export>

@@ -1,6 +1,7 @@
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-#include "CommonTools/UtilAlgos/interface/ObjectSelector.h"
+#include "CommonTools/UtilAlgos/interface/ObjectSelectorStream.h"
 #include "Alignment/CommonAlignmentProducer/interface/AlignmentCSCBeamHaloSelector.h"
 
 // the following include is necessary to clone all track branches
@@ -13,10 +14,12 @@ struct CSCBeamHaloConfigSelector {
 
   typedef std::vector<const reco::Track*> container;
   typedef container::const_iterator const_iterator;
-  typedef reco::TrackCollection collection; 
+  typedef reco::TrackCollection collection;
 
-  CSCBeamHaloConfigSelector( const edm::ParameterSet & cfg ) :
-    theSelector(cfg) {}
+  CSCBeamHaloConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector && iC ) :
+    CSCBeamHaloConfigSelector(cfg, iC) {}
+  CSCBeamHaloConfigSelector( const edm::ParameterSet & cfg, edm::ConsumesCollector & iC ) :
+    theSelector(cfg, iC) {}
 
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
@@ -39,6 +42,6 @@ private:
   AlignmentCSCBeamHaloSelector theSelector;
 };
 
-typedef ObjectSelector<CSCBeamHaloConfigSelector>  AlignmentCSCBeamHaloSelectorModule;
+typedef ObjectSelectorStream<CSCBeamHaloConfigSelector>  AlignmentCSCBeamHaloSelectorModule;
 
 DEFINE_FWK_MODULE( AlignmentCSCBeamHaloSelectorModule );

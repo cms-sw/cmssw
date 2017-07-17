@@ -9,13 +9,14 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
+#include <DQMServices/Core/interface/DQMEDHarvester.h>
 
 #include <map>
 
 class DQMStore;
 class MonitorElement;
 
-class DTCertificationSummary : public edm::EDAnalyzer {
+class DTCertificationSummary : public  DQMEDHarvester {
 public:
   /// Constructor
   DTCertificationSummary(const edm::ParameterSet& pset);
@@ -28,16 +29,17 @@ public:
 protected:
   
 private:
-  virtual void beginJob();
-  virtual void beginRun(const edm::Run& run, const  edm::EventSetup& setup);
-  virtual void beginLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void analyze(const edm::Event& event, const edm::EventSetup& setup);
-  virtual void endLuminosityBlock(const edm::LuminosityBlock& lumi, const  edm::EventSetup& setup);
-  virtual void endRun(const edm::Run& run, const  edm::EventSetup& setup);
-  virtual void endJob() ;
-  
-  DQMStore *theDbe;  
-  
+
+    void beginRun(const edm::Run& run, const  edm::EventSetup& setup);
+
+    /// DQM Client Diagnostic in online mode
+    void dqmEndLuminosityBlock(DQMStore::IBooker &, DQMStore::IGetter &, edm::LuminosityBlock const &, edm::EventSetup const&);
+
+    void endRun(const edm::Run& run, const edm::EventSetup& setup);
+
+    /// DQM Client Diagnostic in offline mode
+    void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &);
+    
   MonitorElement*  totalCertFraction;
   MonitorElement*  certMap;
   std::map<int, MonitorElement*> certFractions;

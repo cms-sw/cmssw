@@ -1,9 +1,7 @@
 
 #include "HLTrigger/btau/src/HLTJetPairDzMatchFilter.h"
-
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/Common/interface/RefToBase.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
@@ -13,12 +11,11 @@
 #include "DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h"
 #include "DataFormats/HLTReco/interface/TriggerTypeDefs.h"
 #include "DataFormats/Math/interface/deltaPhi.h"
-
-#include<typeinfo>
+#include "HLTrigger/HLTcore/interface/defaultModuleLabel.h"
 
 template<typename T>
 HLTJetPairDzMatchFilter<T>::HLTJetPairDzMatchFilter(const edm::ParameterSet& conf) : HLTFilter(conf)
-{ 
+{
   m_jetTag	= conf.getParameter<edm::InputTag>("JetSrc");
   m_jetToken    = consumes<std::vector<T> >(m_jetTag);
   m_jetMinPt	= conf.getParameter<double>("JetMinPt");
@@ -27,15 +24,15 @@ HLTJetPairDzMatchFilter<T>::HLTJetPairDzMatchFilter(const edm::ParameterSet& con
   m_jetMaxDZ	= conf.getParameter<double>("JetMaxDZ");
   m_triggerType = conf.getParameter<int>("TriggerType");
 
-  // set the minimum DR between jets, so that one never has a chance 
+  // set the minimum DR between jets, so that one never has a chance
   // to create a pair out of the same Jet replicated with two
   // different vertices
   if (m_jetMinDR < 0.1) m_jetMinDR = 0.1;
-  
+
 }
 
 template<typename T>
-void 
+void
 HLTJetPairDzMatchFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
   edm::ParameterSetDescription desc;
   makeHLTFilterDescription(desc);
@@ -45,19 +42,19 @@ HLTJetPairDzMatchFilter<T>::fillDescriptions(edm::ConfigurationDescriptions& des
   desc.add<double>("JetMinDR",0.2);
   desc.add<double>("JetMaxDZ",0.2);
   desc.add<int>("TriggerType",84);
-  descriptions.add(std::string("hlt")+std::string(typeid(HLTJetPairDzMatchFilter<T>).name()),desc);
+  descriptions.add(defaultModuleLabel<HLTJetPairDzMatchFilter<T>>(), desc);
 }
 
 template<typename T>
-HLTJetPairDzMatchFilter<T>::~HLTJetPairDzMatchFilter(){}
+HLTJetPairDzMatchFilter<T>::~HLTJetPairDzMatchFilter()= default;
 
 template<typename T>
-bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct)
+bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup& es, trigger::TriggerFilterObjectWithRefs & filterproduct) const
 {
   using namespace std;
   using namespace edm;
   using namespace reco;
-  
+
   typedef vector<T> TCollection;
   typedef Ref<TCollection> TRef;
 
@@ -79,9 +76,9 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
 
   size_t npairs = 0, nfail_dz = 0;
   if (n_jets > 1) for(size_t j1 = 0; j1 < n_jets; ++j1)
-  { 
+  {
     if ( jets[j1].pt() < m_jetMinPt || std::abs(jets[j1].eta()) > m_jetMaxEta ) continue;
-    
+
     float mindz = 99.f;
     for(size_t j2 = j1+1; j2 < n_jets; ++j2)
     {
@@ -96,7 +93,7 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
       if ( dr2 < m_jetMinDR*m_jetMinDR ) {
 	continue;
       }
-      
+
       if (std::abs(dz) < std::abs(mindz)) mindz = dz;
 
       // do not form a pair if dz is too large
@@ -104,20 +101,20 @@ bool HLTJetPairDzMatchFilter<T>::hltFilter(edm::Event& ev, const edm::EventSetup
 	++nfail_dz;
 	continue;
       }
-      
+
       // add references to both jets
       ref = TRef(jetsHandle, j1);
       filterproduct.addObject(m_triggerType, ref);
-      
+
       ref = TRef(jetsHandle, j2);
       filterproduct.addObject(m_triggerType, ref);
 
       ++npairs;
-      
+
     }
 
   }
-  
+
   return npairs>0;
 
 }

@@ -17,11 +17,9 @@ class GEDGsfElectronCoreProducer : public GsfElectronCoreBaseProducer
 
   private:
 
-    void produceElectronCore( const reco::PFCandidate & pfCandidate, reco::GsfElectronCoreCollection * electrons ) ;
+    void produceElectronCore( const reco::PFCandidate & pfCandidate, reco::GsfElectronCoreCollection * electrons ) ;    
 
-    edm::Handle<reco::PFCandidateCollection> gedEMUnbiasedH_;
-
-    edm::InputTag gedEMUnbiasedTag_ ;
+    edm::EDGetTokenT<reco::PFCandidateCollection> gedEMUnbiasedTag_ ;
  } ;
 
 #endif

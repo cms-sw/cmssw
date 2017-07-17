@@ -2,6 +2,7 @@
 #include "DataFormats/Common/interface/Association.h"
 #include "DataFormats/Common/interface/Wrapper.h"
 #include "DataFormats/Common/interface/PtrVector.h"
+#include "DataFormats/Common/interface/FwdPtr.h"
 
 #include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
@@ -16,9 +17,14 @@
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "DataFormats/PatCandidates/interface/Hemisphere.h"
 #include "DataFormats/PatCandidates/interface/Conversion.h"
+#include "DataFormats/PatCandidates/interface/PackedCandidate.h"
+#include "DataFormats/PatCandidates/interface/IsolatedTrack.h"
+#include "DataFormats/PatCandidates/interface/PFIsolation.h"
+#include "DataFormats/PatCandidates/interface/PackedGenParticle.h"
+#include "DataFormats/PatCandidates/interface/PATTauDiscriminator.h"
 
-namespace {
-  struct dictionary {
+namespace DataFormats_PatCandidates {
+  struct dictionaryobjects {
 
   /*   PAT Object Collection Iterators   */
   std::vector<pat::Electron>::const_iterator	    v_p_e_ci;
@@ -34,6 +40,8 @@ namespace {
   std::vector<pat::GenericParticle>::const_iterator v_p_gp_ci;
   std::vector<pat::Hemisphere>::const_iterator	    v_p_h_ci;
   std::vector<pat::Conversion>::const_iterator      v_p_c_ci;
+  std::vector<pat::PackedCandidate>::const_iterator      v_p_pc_ci;
+  std::vector<pat::PackedGenParticle>::const_iterator      v_p_pgc_ci;
 
   /*   PAT Object Collection Wrappers   */
   edm::Wrapper<std::vector<pat::Electron> >	    w_v_p_e;
@@ -49,6 +57,8 @@ namespace {
   edm::Wrapper<std::vector<pat::GenericParticle> >  w_v_p_gp;
   edm::Wrapper<std::vector<pat::Hemisphere> >	    w_v_p_h;
   edm::Wrapper<std::vector<pat::Conversion> >       w_v_p_c;
+  edm::Wrapper<std::vector<pat::PackedCandidate> >       w_v_pc_c;
+  edm::Wrapper<std::vector<pat::PackedGenParticle> >       w_v_pgc_c;
 
   /*   PAT Object References   */
   pat::ElectronRef	    p_r_e;
@@ -63,6 +73,8 @@ namespace {
   pat::GenericParticleRef   p_r_gp;
   pat::HemisphereRef	    p_r_h;
   pat::ConversionRef        p_r_c;
+  pat::PackedCandidateRef        p_r_pc;
+  pat::PackedGenParticleRef        p_r_pcg;
 
   /*   PAT Object Ref Vector Wrappers   */
   edm::Wrapper<pat::ElectronRefVector>	        p_rv_e;
@@ -77,6 +89,8 @@ namespace {
   edm::Wrapper<pat::GenericParticleRefVector>   p_rv_gp;
   edm::Wrapper<pat::HemisphereRefVector>	p_rv_h;
   edm::Wrapper<pat::ConversionRefVector>        p_rv_c;
+  edm::Wrapper<pat::PackedCandidateRefVector>        p_rv_pc;
+  edm::Wrapper<pat::PackedGenParticleRefVector>        p_rv_pcg;
 
   /*   RefToBase<Candidate> from PATObjects   */
     /*   With direct Holder   */
@@ -154,7 +168,33 @@ namespace {
   edm::Ptr<pat::Conversion> ptr_Conversion;
   edm::Ptr<pat::Muon> ptr_Muon;
   edm::Ptr<pat::Tau> ptr_Tau;
+  edm::Ptr<pat::PackedCandidate> ptr_PackedCandidate;
 
+  edm::FwdPtr<pat::PackedCandidate> fwdptr_pc;
+  edm::Wrapper< edm::FwdPtr<pat::PackedCandidate> > w_fwdptr_pc;
+  std::vector< edm::FwdPtr<pat::PackedCandidate> > v_fwdptr_pc;
+  edm::Wrapper< std::vector< edm::FwdPtr<pat::PackedCandidate> > > wv_fwdptr_pc;
+
+  edm::Wrapper<edm::Association<pat::PackedCandidateCollection > > w_asso_pc;
+  edm::Wrapper<edm::Association<reco::PFCandidateCollection > >    w_asso_pfc;
+  edm::Wrapper<edm::Association<std::vector<pat::PackedGenParticle> > > asso_pgp;
+
+
+  std::vector< edm::Ptr<pat::Jet> > vptr_jet;
+  std::vector< std::vector< edm::Ptr<pat::Jet> > > vvptr_jet;
+  edm::Wrapper< std::vector< edm::Ptr<pat::Jet> > > wvptr_jet; 
+  edm::Wrapper< std::vector< std::vector< edm::Ptr<pat::Jet> > > > wvvptr_jet;
+
+  pat::PATTauDiscriminatorBase                     pattdiscr_b;
+  pat::PATTauDiscriminator                         pattdiscr_o;
+  pat::PATTauDiscriminatorRef                      pattdiscr_r;
+  pat::PATTauDiscriminatorRefProd                  pattdiscr_rp;
+  pat::PATTauDiscriminatorRefVector                pattdiscr_rv;
+  edm::Wrapper<pat::PATTauDiscriminator>           pattdiscr_w;
+   
+  std::pair<pat::TauRef, float>                              pattdiscr_p;
+  std::vector<std::pair<pat::TauRef, float> >                pattdiscr_v; 
+  edm::RefProd<std::vector<pat::Tau> >                       patt_rp;   
   };
 
 }

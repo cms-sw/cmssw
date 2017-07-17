@@ -2,56 +2,47 @@ import FWCore.ParameterSet.Config as cms
 
 from RecoJets.JetProducers.PileupJetIDParams_cfi import * 
 
-_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
+#_stdalgos_4x = cms.VPSet(full,   cutbased,PhilV1)
 _stdalgos_5x = cms.VPSet(full_5x,cutbased,PhilV1)
 
-_chsalgos_4x = cms.VPSet(full,   cutbased)
+#_chsalgos_4x = cms.VPSet(full,   cutbased) 
 _chsalgos_5x = cms.VPSet(full_5x_chs,cutbased)
-_chsalgos = _chsalgos_5x
+_chsalgos_74x = cms.VPSet(full_74x_chs,cutbased)
+_chsalgos_76x = cms.VPSet(full_76x_chs,cutbased)
+_chsalgos_80x = cms.VPSet(full_80x_chs,cutbased)
+_chsalgos_81x = cms.VPSet(full_81x_chs,cutbased)
 
-import os
-try:
-    cmssw_version = os.environ["CMSSW_VERSION"].replace("CMSSW_","")
-except:
-    cmssw_version = "5_X"
+_stdalgos    = _chsalgos_81x
 
-if cmssw_version.startswith("4"):
-    _stdalgos    = _stdalgos_4x
-    _chsalgos    = _chsalgos_4x
-else:
-    _stdalgos    = _stdalgos_5x
-    _chsalgos    = _chsalgos_5x
-
-pileupJetIdProducer = cms.EDProducer('PileupJetIdProducer',
-                         produceJetIds = cms.bool(True),
-                         jetids = cms.InputTag(""),
-                         runMvas = cms.bool(True),
-                         jets = cms.InputTag("selectedPatJetsPFlow"),
-                         vertexes = cms.InputTag("offlinePrimaryVertices"),
-                         algos = cms.VPSet(_stdalgos),
-                                     
-                         rho     = cms.InputTag("kt6PFJets","rho"),
-                         jec     = cms.string("AK5PF"),
-                         applyJec = cms.bool(False),
-                         inputIsCorrected = cms.bool(True),                                     
-                         residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
+# Calculate+store variables and run MVAs
+pileupJetId = cms.EDProducer('PileupJetIdProducer',
+     produceJetIds = cms.bool(True),
+     jetids = cms.InputTag(""),
+     runMvas = cms.bool(True),
+     jets = cms.InputTag("ak4PFJetsCHS"),
+     vertexes = cms.InputTag("offlinePrimaryVertices"),
+     algos = cms.VPSet(_stdalgos),
+     rho     = cms.InputTag("fixedGridRhoFastjetAll"),
+     jec     = cms.string("AK4PFchs"),
+     applyJec = cms.bool(True),
+     inputIsCorrected = cms.bool(False),
+     residualsFromTxt = cms.bool(False),
+#     residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/download.url") # must be an existing file
 )
 
-pileupJetIdProducerChs = cms.EDProducer('PileupJetIdProducer',
-                         produceJetIds = cms.bool(True),
-                         jetids = cms.InputTag(""),
-                         runMvas = cms.bool(True),
-                         jets = cms.InputTag("selectedPatJetsPFlow"),
-                         vertexes = cms.InputTag("offlinePrimaryVertices"),
-                         algos = cms.VPSet(_chsalgos),
-                                        
-                         rho     = cms.InputTag("kt6PFJets","rho"),
-                         jec     = cms.string("AK5PFchs"),
-                         applyJec = cms.bool(False),
-                         inputIsCorrected = cms.bool(True),
-                         residualsFromTxt = cms.bool(False),
-                         residualsTxt     = cms.FileInPath("RecoJets/JetProducers/data/dummy.txt"),
-
+# Calculate variables, but don't run MVAs
+pileupJetIdCalculator = pileupJetId.clone(
+    runMvas = cms.bool(False),
+    algos = cms.VPSet(cutbased),
 )
 
+# Run MVAs on precalculated variables
+pileupJetIdEvaluator = pileupJetId.clone(
+    produceJetIds = cms.bool(False),
+    jetids = cms.InputTag("pileupJetIdCalculator"),
+)
+
+pileUpJetIDTask = cms.Task(pileupJetId,
+                           pileupJetIdCalculator,
+                           pileupJetIdEvaluator
+)

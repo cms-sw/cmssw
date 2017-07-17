@@ -39,15 +39,12 @@ public:
 
   typedef TransientTrackingRecHit::ConstRecHitContainer ConstRecHitContainer;
 
-  DualReferenceTrajectory( const TrajectoryStateOnSurface &referenceTsos,
-			   const ConstRecHitContainer &forwardRecHits,
-			   const ConstRecHitContainer &backwardRecHits,
-			   const MagneticField *magField,
-			   MaterialEffects materialEffects,
-			   PropagationDirection propDir,
-			   double mass,
-			   bool useBeamSpot,
-			   const reco::BeamSpot &beamSpot);
+  DualReferenceTrajectory(const TrajectoryStateOnSurface& tsos,
+                          const ConstRecHitContainer& forwardRecHits,
+                          const ConstRecHitContainer& backwardRecHits,
+                          const MagneticField* magField,
+                          const reco::BeamSpot& beamSpot,
+                          const ReferenceTrajectoryBase::Config& config);
 
   virtual ~DualReferenceTrajectory() {}
 
@@ -55,32 +52,33 @@ public:
 
 protected:
 
-  DualReferenceTrajectory( unsigned int nPar, unsigned int nHits);
+  DualReferenceTrajectory(unsigned int nPar, unsigned int nHits,
+                          const ReferenceTrajectoryBase::Config& config);
 
   /** internal method to calculate members
    */
   virtual bool construct(const TrajectoryStateOnSurface &referenceTsos, 
 			 const ConstRecHitContainer &forwardRecHits,
 			 const ConstRecHitContainer &backwardRecHits,
-			 double mass, MaterialEffects materialEffects,
-			 const PropagationDirection propDir,
 			 const MagneticField *magField,
-			 bool useBeamSpot,
 			 const reco::BeamSpot &beamSpot);
 
   virtual ReferenceTrajectory* construct(const TrajectoryStateOnSurface &referenceTsos, 
 					 const ConstRecHitContainer &recHits,
-					 double mass, MaterialEffects materialEffects,
-					 const PropagationDirection propDir,
 					 const MagneticField *magField,
-					 bool useBeamSpot,
-					 const reco::BeamSpot &beamSpot) const;
+					 const reco::BeamSpot &beamSpot,
+					 const bool revertDirection = false) const;
 
   virtual AlgebraicVector extractParameters(const TrajectoryStateOnSurface &referenceTsos) const;
 
   inline const PropagationDirection oppositeDirection( const PropagationDirection propDir ) const
   { return ( propDir == anyDirection ) ? anyDirection : ( ( propDir == alongMomentum ) ? oppositeToMomentum : alongMomentum ); }
 
+private:
+  const double mass_;
+  const MaterialEffects materialEffects_;
+  const PropagationDirection propDir_;
+  const bool useBeamSpot_;
 };
 
 #endif

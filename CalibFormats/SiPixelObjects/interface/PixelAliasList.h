@@ -9,6 +9,7 @@
 #include "CalibFormats/SiPixelObjects/interface/PixelConfigAlias.h"
 #include "CalibFormats/SiPixelObjects/interface/PixelVersionAlias.h"
 
+#include <stdlib.h>
 
 namespace pos{
 /*! \class PixelAliasList PixelAliasList.h "interface/PixelAliasList.h"

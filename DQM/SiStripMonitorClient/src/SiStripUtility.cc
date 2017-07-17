@@ -4,7 +4,7 @@
 
 #include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+
 //
 // Get a list of MEs in a folder
 //
@@ -225,7 +225,8 @@ bool SiStripUtility::goToDir(DQMStore * dqm_store, std::string name) {
     if (
 	(fname.find("Reference") != std::string::npos) ||
 	(fname.find("AlCaReco")  != std::string::npos) ||
-	(fname.find("HLT")       != std::string::npos) 
+	(fname.find("HLT")       != std::string::npos) ||
+	(fname.find("IsolatedBunches")       != std::string::npos) 
 	) continue;
     dqm_store->cd(fname);
     if (!goToDir(dqm_store, name))  dqm_store->goUp();
@@ -301,36 +302,20 @@ void SiStripUtility::getBadModuleStatus(uint16_t flag, std::string & message){
 //
 // -- Set Event Info Folder
 //
-void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, std::string type, std::string& path) {
-  if (type != "SiStrip" && type != "Tracking") return;
+void SiStripUtility::getTopFolderPath(DQMStore * dqm_store, std::string top_dir, std::string& path) {
+
   path = ""; 
   dqm_store->cd();
-  if (type == "SiStrip") {
-    if (dqm_store->dirExists(type)) {
-      dqm_store->cd(type);
-      path = dqm_store->pwd();
-    } else {
-      if (SiStripUtility::goToDir(dqm_store, type)) {
-	std::string mdir = "MechanicalView";
-	if (SiStripUtility::goToDir(dqm_store, mdir)) {
-	  path = dqm_store->pwd(); 
-	  path = path.substr(0, path.find(mdir)-1);
-        }
+  if (dqm_store->dirExists(top_dir)) {
+    dqm_store->cd(top_dir);
+    path = dqm_store->pwd();
+  } else {
+    if (SiStripUtility::goToDir(dqm_store, top_dir)) {
+      std::string mdir = "MechanicalView";
+      if (SiStripUtility::goToDir(dqm_store, mdir)) {
+	path = dqm_store->pwd(); 
+	path = path.substr(0, path.find(mdir)-1);
       }
-    }
-  } else if (type == "Tracking") {
-    std::string top_dir = "Tracking";
-    if (dqm_store->dirExists(top_dir)) {
-      dqm_store->cd(top_dir);
-      path = dqm_store->pwd();
-    } else {
-      if (SiStripUtility::goToDir(dqm_store, top_dir)) {
-	std::string tdir = "TrackParameters";
-	if (SiStripUtility::goToDir(dqm_store, tdir)) {
-	  path = dqm_store->pwd(); 
-	  path = path.substr(0, path.find(tdir)-1);
-        }
-      }	
     }
   }
 } 

@@ -74,9 +74,9 @@ void PFTrack::calculatePositionREP() {
 
  
 const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) const {
-  
+  const unsigned offset_layerid = nTrajectoryMeasurements() + layerid;
   if( layerid >= reco::PFTrajectoryPoint::NLayers ||
-      nTrajectoryMeasurements() + layerid >= trajectoryPoints_.size() ) {
+      offset_layerid >= trajectoryPoints_.size() ) {
 
     // cout<<(*this)<<endl;
     // cout<<"lid "<<layerid<<" "<<nTrajectoryMeasurements()<<" "<<trajectoryPoints_.size()<<endl;
@@ -92,7 +92,7 @@ const reco::PFTrajectoryPoint& PFTrack::extrapolatedPoint(unsigned layerid) cons
   if (layerid < indexInnermost_)
     return trajectoryPoints_[ layerid ];
   else
-    return trajectoryPoints_[ nTrajectoryMeasurements() + layerid ];  
+    return trajectoryPoints_[ offset_layerid ];  
 }
 
 
@@ -110,8 +110,8 @@ ostream& reco::operator<<(ostream& out,
      <<" Z0 = "<<closestApproach.position().Z()<<endl
      <<"\tnumber of tracker measurements = " 
      <<track.nTrajectoryMeasurements()<<endl;
-  for(unsigned i=0; i<track.trajectoryPoints_.size(); i++) 
-    out<<track.trajectoryPoints_[i]<<endl;
+  for(unsigned i=0; i<track.trajectoryPoints().size(); i++) 
+    out<<track.trajectoryPoints()[i]<<endl;
   
 
   return out;

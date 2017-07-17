@@ -12,7 +12,7 @@
 #include "DataFormats/HcalDetId/interface/CastorElectronicsId.h"
 #include <vector>
 
-namespace { 
+namespace DataFormats_HcalDetId {
   struct dictionary {
     std::vector<HcalElectronicsId> eids;
     std::vector<HcalFrontEndId> feids;

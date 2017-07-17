@@ -45,7 +45,7 @@ process.printGenParticles = cms.EDAnalyzer("ParticleListDrawer",
 # Example corresponds to approximate weights to study
 # systematic effects due to ISR uncertainties (Z boson as fake example)
 process.isrWeight = cms.EDProducer("ISRWeightProducer",
-      GenTag = cms.untracked.InputTag("generator"),
+      GenTag = cms.untracked.InputTag("VtxSmeared"),
       ISRBinEdges = cms.untracked.vdouble(
                0.,  1.,  2.,  3.,  4.,  5.,  6.,  7.,  8.,  9.
             , 10., 11., 12., 13., 14., 15., 16., 17., 18., 19.
@@ -70,12 +70,12 @@ process.isrWeight = cms.EDProducer("ISRWeightProducer",
 
 # Produce event weights to estimate missing O(alpha) terms + NLO QED terms
 process.fsrWeight = cms.EDProducer("FSRWeightProducer",
-      GenTag = cms.untracked.InputTag("generator"),
+      GenTag = cms.untracked.InputTag("VtxSmeared"),
 )
 
 # Produce event weights to estimate missing QED ISR terms
 process.isrGammaWeight = cms.EDProducer("ISRGammaWeightProducer",
-      GenTag = cms.untracked.InputTag("generator"),
+      GenTag = cms.untracked.InputTag("VtxSmeared"),
 )
 
 # Produce weights for systematics

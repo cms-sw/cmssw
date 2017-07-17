@@ -14,12 +14,17 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "DataFormats/VertexReco/interface/Vertex.h"
+#include "DataFormats/VertexReco/interface/VertexFwd.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoVertex/BeamSpotProducer/interface/BSTrkParameters.h"
 #include "RecoVertex/BeamSpotProducer/interface/BeamFitter.h"
 #include <fstream>
-
 
 //
 // class declaration
@@ -34,20 +39,20 @@ class BeamMonitor : public edm::EDAnalyzer {
   protected:
 
     // BeginJob
-    void beginJob();
+    void beginJob() override;
 
     // BeginRun
-    void beginRun(const edm::Run& r, const edm::EventSetup& c);
+    void beginRun(const edm::Run& r, const edm::EventSetup& c) override;
 
-    void analyze(const edm::Event& e, const edm::EventSetup& c) ;
+    void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
     void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-        const edm::EventSetup& context) ;
+        const edm::EventSetup& context) override;
 
     void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg,
-        const edm::EventSetup& c);
+        const edm::EventSetup& c) override;
     // EndRun
-    void endRun(const edm::Run& r, const edm::EventSetup& c);
+    void endRun(const edm::Run& r, const edm::EventSetup& c) override;
     // Endjob
     void endJob(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& c);
 
@@ -57,13 +62,13 @@ class BeamMonitor : public edm::EDAnalyzer {
     void RestartFitting();
     void scrollTH1(TH1 *, std::time_t);
     bool testScroll(std::time_t &, std::time_t &);
-    const char * formatFitTime( const std::time_t &);
+    void formatFitTime(char *, const std::time_t&);
     edm::ParameterSet parameters_;
     std::string monitorName_;
-    edm::InputTag bsSrc_; // beam spot
-    edm::InputTag tracksLabel_;
-    edm::InputTag pvSrc_; // primary vertex
-    edm::InputTag hltSrc_;//hlt collection
+    edm::EDGetTokenT<reco::BeamSpot> bsSrc_; // beam spot
+    edm::EDGetTokenT<reco::TrackCollection> tracksLabel_;
+    edm::EDGetTokenT<reco::VertexCollection> pvSrc_; // primary vertex
+    edm::EDGetTokenT<edm::TriggerResults> hltSrc_;//hlt collection
 
     int fitNLumi_;
     int fitPVNLumi_;
@@ -112,6 +117,8 @@ class BeamMonitor : public edm::EDAnalyzer {
 
     // MonitorElements:
     MonitorElement * h_nTrk_lumi;
+    MonitorElement * h_nVtx_lumi;
+    MonitorElement * h_nVtx_lumi_all;
     MonitorElement * h_d0_phi0;
     MonitorElement * h_trk_z0;
     MonitorElement * h_vx_vy;
@@ -170,3 +177,8 @@ class BeamMonitor : public edm::EDAnalyzer {
 
 #endif
 
+
+// Local Variables:
+// show-trailing-whitespace: t
+// truncate-lines: t
+// End:

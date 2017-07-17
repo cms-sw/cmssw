@@ -1,6 +1,7 @@
 /** See header file for a class description
  *
  *  \author S. Bolognesi - INFN Torino / T. Dorigo, M. De Mattia - INFN Padova
+ * Revised S. Casasso, E. Migliore - UniTo & INFN Torino
  */
 // Some notes:
 // - M(Z) after simulation needs to be extracted as a function of |y_Z| in order to be
@@ -164,10 +165,13 @@ std::vector<std::vector<double> > MuScleFitUtils::parvalue;
 int MuScleFitUtils::FitStrategy = 1; // Strategy in likelihood fit (1 or 2)
 bool MuScleFitUtils::speedup = false; // Whether to cut corners (no sim study, fewer histos)
 
-std::vector<std::pair<lorentzVector,lorentzVector> > MuScleFitUtils::SavedPair; // Pairs of reconstructed muons making resonances
-std::vector<std::pair<lorentzVector,lorentzVector> > MuScleFitUtils::ReducedSavedPair; // Pairs of reconstructed muons making resonances inside smaller windows
-std::vector<std::pair<lorentzVector,lorentzVector> > MuScleFitUtils::genPair; // Pairs of generated muons making resonances
-std::vector<std::pair<lorentzVector,lorentzVector> > MuScleFitUtils::simPair; // Pairs of simulated muons making resonances
+std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::SavedPair; // Pairs of reconstructed muons making resonances
+std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::ReducedSavedPair; // Pairs of reconstructed muons making resonances inside smaller windows
+std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::genPair; // Pairs of generated muons making resonances
+std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> > MuScleFitUtils::SavedPairMuScleFitMuons; // Pairs of reconstructed muons making resonances
+std::vector<std::pair<MuScleFitMuon, MuScleFitMuon> > MuScleFitUtils::genMuscleFitPair; // Pairs of generated muons making resonances
+//std::vector<GenMuonPair> MuScleFitUtils::genPairMuScleMuons; // Pairs of generated muons making resonances
+std::vector<std::pair<lorentzVector, lorentzVector> > MuScleFitUtils::simPair; // Pairs of simulated muons making resonances
 
 // Smearing parameters
 // -------------------
@@ -301,93 +305,101 @@ std::pair<SimTrack,SimTrack> MuScleFitUtils::findBestSimuRes (const std::vector<
 // Find the best reconstructed resonance from a collection of reconstructed muons
 // (MuonCollection) and return its decay muons
 // ------------------------------------------------------------------------------
-std::pair<lorentzVector,lorentzVector> MuScleFitUtils::findBestRecoRes( const std::vector<reco::LeafCandidate>& muons ){
+std::pair<MuScleFitMuon, MuScleFitMuon> MuScleFitUtils::findBestRecoRes(const std::vector<MuScleFitMuon>& muons){
   // NB this routine returns the resonance, but it also sets the ResFound flag, which
   // is used in MuScleFit to decide whether to use the event or not.
   // --------------------------------------------------------------------------------
   if (debug>0) std::cout << "In findBestRecoRes" << std::endl;
   ResFound = false;
-  std::pair<lorentzVector, lorentzVector> recMuFromBestRes;
+  std::pair<MuScleFitMuon, MuScleFitMuon> recMuFromBestRes;
 
   // Choose the best resonance using its mass probability
   // ----------------------------------------------------
   double maxprob = -0.1;
   double minDeltaMass = 999999;
-  std::pair<reco::LeafCandidate,reco::LeafCandidate> bestMassMuons;
-  for (std::vector<reco::LeafCandidate>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {
+  std::pair<MuScleFitMuon, MuScleFitMuon> bestMassMuons;
+  for (std::vector<MuScleFitMuon>::const_iterator Muon1=muons.begin(); Muon1!=muons.end(); ++Muon1) {
     //rc2010
     if (debug>0) std::cout << "muon_1_charge:"<<(*Muon1).charge() << std::endl;
-    for (std::vector<reco::LeafCandidate>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) {
-   //rc2010
+    for (std::vector<MuScleFitMuon>::const_iterator Muon2=Muon1+1; Muon2!=muons.end(); ++Muon2) {
+      //rc2010
       if (debug>0) std::cout << "after_2" << std::endl;
-      if (((*Muon1).charge()*(*Muon2).charge())>0) {
-	continue; // This also gets rid of Muon1==Muon2...
+      if ((((*Muon1).charge())*((*Muon2).charge()))>0) {
+        continue; // This also gets rid of Muon1==Muon2...
       }
       // To allow the selection of ranges at negative and positive eta independently we define two
       // ranges of eta: (minMuonEtaFirstRange_, maxMuonEtaFirstRange_) and (minMuonEtaSecondRange_, maxMuonEtaSecondRange_).
-      // If the interval selected is simmetric, one only needs to specify the first range. The second has
-      // default values that accept all muons (minMuonEtaSecondRange_ = -100., maxMuonEtaSecondRange_ = 100.).
-      double pt1 = (*Muon1).p4().Pt();
-      double pt2 = (*Muon2).p4().Pt();
-      double eta1 = (*Muon1).p4().Eta();
-      double eta2 = (*Muon2).p4().Eta();
-      if( pt1 >= minMuonPt_ && pt1 < maxMuonPt_ &&
-	  pt2 >= minMuonPt_ && pt2 < maxMuonPt_ &&
-	  ( (eta1 >= minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ &&
-	     eta2 >= minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_) ||
-	    (eta1 >= minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ &&
-	     eta2 >= minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_) ) ) {
+      double ch1 = (*Muon1).charge();
+      double ch2 = (*Muon2).charge();
+      double pt1 = (*Muon1).Pt();
+      double pt2 = (*Muon2).Pt();
+      double eta1 = (*Muon1).Eta();
+      double eta2 = (*Muon2).Eta();
+      if (
+        pt1 >= minMuonPt_ && pt1 < maxMuonPt_ &&
+        pt2 >= minMuonPt_ && pt2 < maxMuonPt_ &&
+        (
+        (
+        eta1 >= minMuonEtaFirstRange_ && eta1 < maxMuonEtaFirstRange_ && eta2 >= minMuonEtaSecondRange_ && eta2 < maxMuonEtaSecondRange_ && ch1>=ch2 // In the configuration file, MuonOne==MuonPlus
+        ) || (
+        eta1 >= minMuonEtaSecondRange_ && eta1 < maxMuonEtaSecondRange_ && eta2 >= minMuonEtaFirstRange_ && eta2 < maxMuonEtaFirstRange_ && ch1<ch2
+        )
+        )
+        ){
         double mcomb = ((*Muon1).p4()+(*Muon2).p4()).mass();
-	double Y = ((*Muon1).p4()+(*Muon2).p4()).Rapidity();
-	if (debug>1) {
-	  std::cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<std::endl;
-	  std::cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<std::endl;
-	  std::cout<<"mcomb "<<mcomb<<std::endl;}
-	double massResol = 0.;
-	if( useProbsFile_ ) {
-	  massResol = massResolution ((*Muon1).p4(), (*Muon2).p4(), parResol);
-	}
-	double prob = 0;
-	for( int ires=0; ires<6; ires++ ) {
-	  if( resfind[ires]>0 ) {
-	    if( useProbsFile_ ) {
-	      prob = massProb( mcomb, Y, ires, massResol );
-	    }
-	    if( prob>maxprob ) {
-	      if( (*Muon1).charge()<0 ) { // store first the mu minus and then the mu plus
-		recMuFromBestRes.first = (*Muon1).p4();
-		recMuFromBestRes.second = (*Muon2).p4();
-	      } else {
-		recMuFromBestRes.first = (*Muon2).p4();
-		recMuFromBestRes.second = (*Muon1).p4();
-	      }
-	      ResFound = true; // NNBB we accept "resonances" even outside mass bounds
-	      maxprob = prob;
-	    }
-	    // if( ResMass[ires] == 0 ) {
-	    //   std::cout << "Error: ResMass["<<ires<<"] = " << ResMass[ires] << std::endl;
-	    //   exit(1);
-	    // }
-	    double deltaMass = fabs(mcomb-ResMass[ires])/ResMass[ires];
-	    if( deltaMass<minDeltaMass ){
-	      bestMassMuons = std::make_pair((*Muon1),(*Muon2));
-	      minDeltaMass = deltaMass;
-	    }
-	  }
-	}
+        double Y = ((*Muon1).p4()+(*Muon2).p4()).Rapidity();
+        if (debug>1) {
+          std::cout<<"muon1 "<<(*Muon1).p4().Px()<<", "<<(*Muon1).p4().Py()<<", "<<(*Muon1).p4().Pz()<<", "<<(*Muon1).p4().E()<<", "<<(*Muon1).charge()<<std::endl;
+          std::cout<<"muon2 "<<(*Muon2).p4().Px()<<", "<<(*Muon2).p4().Py()<<", "<<(*Muon2).p4().Pz()<<", "<<(*Muon2).p4().E()<<", "<<(*Muon2).charge()<<std::endl;
+          std::cout<<"mcomb "<<mcomb<<std::endl;
+        }
+        double massResol = 0.;
+        if (useProbsFile_) {
+          massResol = massResolution((*Muon1).p4(), (*Muon2).p4(), parResol);
+        }
+        double prob = 0;
+        for (int ires=0; ires<6; ires++) {
+          if (resfind[ires]>0) {
+            if (useProbsFile_) {
+              prob = massProb(mcomb, Y, ires, massResol);
+            }
+            if (prob>maxprob) {
+              if (ch1<0) { // store first the mu minus and then the mu plus
+                recMuFromBestRes.first = (*Muon1);
+                recMuFromBestRes.second = (*Muon2);
+              }
+              else {
+                recMuFromBestRes.first = (*Muon2);
+                recMuFromBestRes.second = (*Muon1);
+              }
+              if (debug>0) std::cout << "muon_1_charge (after swapping):"<<recMuFromBestRes.first.charge() << std::endl;
+              ResFound = true; // NNBB we accept "resonances" even outside mass bounds
+              maxprob = prob;
+            }
+            // if( ResMass[ires] == 0 ) {
+            //   std::cout << "Error: ResMass["<<ires<<"] = " << ResMass[ires] << std::endl;
+            //   exit(1);
+            // }
+            double deltaMass = std::abs(mcomb-ResMass[ires])/ResMass[ires];
+            if (deltaMass<minDeltaMass){
+              bestMassMuons = std::make_pair((*Muon1), (*Muon2));
+              minDeltaMass = deltaMass;
+            }
+          }
+        }
       }
     }
   }
   //If outside mass window (maxprob==0) then take the two muons with best invariant mass
   //(anyway they will not be used in the likelihood calculation, only to fill plots)
-  if(!maxprob){
-    if(bestMassMuons.first.charge()<0){
-      recMuFromBestRes.first = bestMassMuons.first.p4();
-      recMuFromBestRes.second = bestMassMuons.second.p4();
+  if (!maxprob){
+    if (bestMassMuons.first.charge()<0){
+      recMuFromBestRes.first = bestMassMuons.first;
+      recMuFromBestRes.second = bestMassMuons.second;
     }
     else{
-      recMuFromBestRes.second = bestMassMuons.first.p4();
-      recMuFromBestRes.first = bestMassMuons.second.p4();
+      recMuFromBestRes.second = bestMassMuons.first;
+      recMuFromBestRes.first = bestMassMuons.second;
     }
   }
   return recMuFromBestRes;
@@ -402,7 +414,7 @@ lorentzVector MuScleFitUtils::applySmearing (const lorentzVector& muon)
   double phi = muon.Phi();
   double E = muon.E();
 
-  double y[7];
+  double y[7] = {};
   for (int i=0; i<SmearType+3; i++) {
     y[i] = x[i][goodmuon%10000];
   }
@@ -626,7 +638,7 @@ double MuScleFitUtils::massResolution( const lorentzVector& mu1,
   // ----------
   bool didit = false;
   for (int ires=0; ires<6; ires++) {
-    if (!didit && resfind[ires]>0 && fabs(mass-ResMass[ires])<ResHalfWidth[ires]) {
+    if (!didit && resfind[ires]>0 && std::abs(mass-ResMass[ires])<ResHalfWidth[ires]) {
       if (mass_res>ResMaxSigma[ires] && counter_resprob<100) {
 	counter_resprob++;
 	LogDebug("MuScleFitUtils") << "RESOLUTION PROBLEM: ires=" << ires << std::endl;
@@ -968,10 +980,10 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
         //                     backgroundHandler->resMass( useBackgroundWindow, 0 ),
         //                     windowFactors.first, windowFactors.second )
         && checkMassWindow( mass, windowBorders.first, windowBorders.second )
-        // && fabs(rapidity)<2.4
+        // && std::abs(rapidity)<2.4
         ) {
 
-      int iY = (int)(fabs(rapidity)*10.);
+      int iY = (int)(std::abs(rapidity)*10.);
       if( iY > 23 ) iY = 23;
 
       if (MuScleFitUtils::debug>1) std::cout << "massProb:resFound = 0, rapidity bin =" << iY << std::endl;
@@ -1000,10 +1012,11 @@ double MuScleFitUtils::massProb( const double & mass, const double & resEta, con
       if( PB != PB ) PB = 0;
       PStot[0] = (1-Bgrp1)*PS[0] + Bgrp1*PB;
 
+
       // PStot[0] *= crossSectionHandler->crossSection(0);
       // PStot[0] *= parval[crossSectionParShift];
       PStot[0] *= relativeCrossSections[0];
-      // std::cout << "PStot["<<0<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[0]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[0] << std::endl;
+      if ( MuScleFitUtils::debug > 0 ) std::cout << "PStot["<<0<<"] = " << "(1-"<<Bgrp1<<")*"<<PS[0]<<" + "<<Bgrp1<<"*"<<PB<<" = " << PStot[0] << " (reletiveXS = )" << relativeCrossSections[0] << std::endl;
     }
     else {
       if( debug > 0 ) {
@@ -1487,7 +1500,7 @@ void MuScleFitUtils::minimizeLikelihood()
 
       // Maximum number of iterations
       arglis[0] = 100000;
-      // tolerance 
+      // tolerance
       arglis[1] = 0.1;
 
       // Run simplex first to get an initial estimate of the minimum
@@ -1495,7 +1508,7 @@ void MuScleFitUtils::minimizeLikelihood()
 	rmin.mnexcm( "SIMPLEX", arglis, 0, ierror );
       }
 
-      rmin.mnexcm( "MIGRAD", arglis, 2, ierror ); 
+      rmin.mnexcm( "MIGRAD", arglis, 2, ierror );
 
 
 
@@ -1554,7 +1567,7 @@ void MuScleFitUtils::minimizeLikelihood()
       if (errp!=0) {
 	parerr[3*ipar] = errp;
       } else {
-	parerr[3*ipar] = (((errh)>(fabs(errl)))?(errh):(fabs(errl)));
+	parerr[3*ipar] = (((errh)>(std::abs(errl)))?(errh):(std::abs(errl)));
       }
       parerr[3*ipar+1] = errl;
       parerr[3*ipar+2] = errh;
@@ -1745,7 +1758,7 @@ extern "C" void likelihood( int& npar, double* grad, double& fval, double* xval,
 // 	std::cout << "Original pt2 = " << corrMu2.Pt() << std::endl;
         corrMu1 = MuScleFitUtils::applyScale(*recMu1, xval, -1);
         corrMu2 = MuScleFitUtils::applyScale(*recMu2, xval,  1);
-        
+
 //         if( (corrMu1.Pt() != corrMu1.Pt()) || (corrMu2.Pt() != corrMu2.Pt()) ) {
 //           std::cout << "Rescaled pt1 = " << corrMu1.Pt() << std::endl;
 //           std::cout << "Rescaled pt2 = " << corrMu2.Pt() << std::endl;
@@ -1933,7 +1946,7 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
     if (cont>cont_min) {
       histoY->Fit ("fitFcn", "0", "", 70, 110);
       double *par = fitFcn->GetParameters();
-      double *err = fitFcn->GetParErrors();
+      const double *err = fitFcn->GetParErrors();
 
       Ftop.push_back(par[0]);
       Fwidth.push_back(par[1]);
@@ -1989,13 +2002,13 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitMass (TH2F* histo) {
 
   // Cleanup
   // -------
-  delete x;
-  delete ym;
-  delete eym;
-  delete yw;
-  delete eyw;
-  delete yc;
-  delete e;
+  delete[] x;
+  delete[] ym;
+  delete[] eym;
+  delete[] yw;
+  delete[] eyw;
+  delete[] yc;
+  delete[] e;
   delete fitFcn;
 
   results.push_back(grM);
@@ -2042,7 +2055,7 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
     if (cont>cont_min) {
       histoY->Fit ("fitFunc", "0", "", -0.2, 0.2);
       double *par = fitFcn->GetParameters();
-      double *err = fitFcn->GetParErrors();
+      const double *err = fitFcn->GetParErrors();
 
       maxs.push_back (par[0]);
       means.push_back (par[1]);
@@ -2099,13 +2112,13 @@ std::vector<TGraphErrors*> MuScleFitUtils::fitReso (TH2F* histo) {
 
   // Cleanup
   // -------
-  delete x;
-  delete ym;
-  delete eym;
-  delete yw;
-  delete eyw;
-  delete yc;
-  delete e;
+  delete[] x;
+  delete[] ym;
+  delete[] eym;
+  delete[] yw;
+  delete[] eyw;
+  delete[] yc;
+  delete[] e;
   delete fitFcn;
 
   results.push_back (grM);
@@ -2181,7 +2194,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findSimMuFromRes( const 
   std::pair<lorentzVector, lorentzVector> simMuFromRes;
   for( edm::SimTrackContainer::const_iterator simTrack=simTracks->begin(); simTrack!=simTracks->end(); ++simTrack ) {
     //Chose muons
-    if (fabs((*simTrack).type())==13) {
+    if (std::abs((*simTrack).type())==13) {
       //If tracks from IP than find mother
       if ((*simTrack).genpartIndex()>0) {
 	HepMC::GenParticle* gp = evtMC->GetEvent()->barcode_to_particle ((*simTrack).genpartIndex());
@@ -2219,7 +2232,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const 
   //Loop on generated particles
   for (HepMC::GenEvent::particle_const_iterator part=Evt->particles_begin();
        part!=Evt->particles_end(); part++) {
-    if (fabs((*part)->pdg_id())==13 && (*part)->status()==1) {
+    if (std::abs((*part)->pdg_id())==13 && (*part)->status()==1) {
       bool fromRes = false;
       for (HepMC::GenVertex::particle_iterator mother = (*part)->production_vertex()->particles_begin(HepMC::ancestors);
 	   mother != (*part)->production_vertex()->particles_end(HepMC::ancestors); ++mother) {
@@ -2257,7 +2270,7 @@ std::pair<lorentzVector, lorentzVector> MuScleFitUtils::findGenMuFromRes( const 
   //Loop on generated particles
   if( debug>0 ) std::cout << "Starting loop on " << genParticles->size() << " genParticles" << std::endl;
   for( reco::GenParticleCollection::const_iterator part=genParticles->begin(); part!=genParticles->end(); ++part ) {
-    if (fabs(part->pdgId())==13 && part->status()==1) {
+    if (std::abs(part->pdgId())==13 && part->status()==1) {
       bool fromRes = false;
       unsigned int motherPdgId = part->mother()->pdgId();
       if( debug>0 ) {

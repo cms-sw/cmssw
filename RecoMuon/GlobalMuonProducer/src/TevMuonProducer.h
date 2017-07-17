@@ -13,16 +13,30 @@
  *   \author  R.Bellan - INFN TO
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "RecoMuon/GlobalTrackingTools/interface/GlobalMuonRefitter.h"
 #include "RecoMuon/TrackingTools/interface/MuonTrackLoader.h"
+
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+// Input and output collection
+
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "TrackingTools/PatternTools/interface/TrajTrackAssociation.h"
+#include "DataFormats/TrackReco/interface/TrackToTrackMap.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
+typedef edm::ValueMap<reco::DYTInfo> DYTestimators;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
 class MuonTrackFinder;
 class MuonServiceProxy;
 
-class TevMuonProducer : public edm::EDProducer {
+class TevMuonProducer : public edm::stream::EDProducer<> {
 
  public:
 
@@ -33,12 +47,16 @@ class TevMuonProducer : public edm::EDProducer {
   virtual ~TevMuonProducer(); 
   
   /// reconstruct muons
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
   
  private:
     
   /// STA Label
   edm::InputTag theGLBCollectionLabel;
+  edm::EDGetTokenT<reco::TrackCollection> glbMuonsToken;
+  edm::EDGetTokenT<std::vector<Trajectory> > glbMuonsTrajToken;
+  
+
 
   /// the event setup proxy, it takes care the services update
   MuonServiceProxy* theService;

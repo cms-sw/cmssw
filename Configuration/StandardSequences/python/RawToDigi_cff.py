@@ -1,21 +1,7 @@
 import FWCore.ParameterSet.Config as cms
 
-from CondCore.DBCommon.CondDBSetup_cfi import *
-
-import EventFilter.CSCTFRawToDigi.csctfunpacker_cfi
-csctfDigis = EventFilter.CSCTFRawToDigi.csctfunpacker_cfi.csctfunpacker.clone()
-
-import EventFilter.DTTFRawToDigi.dttfunpacker_cfi
-dttfDigis = EventFilter.DTTFRawToDigi.dttfunpacker_cfi.dttfunpacker.clone()
-
-import EventFilter.GctRawToDigi.l1GctHwDigis_cfi
-gctDigis = EventFilter.GctRawToDigi.l1GctHwDigis_cfi.l1GctHwDigis.clone()
-
-import EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi
-gtDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtUnpack_cfi.l1GtUnpack.clone()
-
-import EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi
-gtEvmDigis = EventFilter.L1GlobalTriggerRawToDigi.l1GtEvmUnpack_cfi.l1GtEvmUnpack.clone()
+# This object is used to selectively make changes for different running
+# scenarios. In this case it makes changes for Run 2.
 
 from EventFilter.SiPixelRawToDigi.SiPixelRawToDigi_cfi import *
 
@@ -42,15 +28,18 @@ import EventFilter.RPCRawToDigi.rpcUnpacker_cfi
 muonRPCDigis = EventFilter.RPCRawToDigi.rpcUnpacker_cfi.rpcunpacker.clone()
 
 from EventFilter.CastorRawToDigi.CastorRawToDigi_cff import *
-castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692) )
+castorDigis = EventFilter.CastorRawToDigi.CastorRawToDigi_cfi.castorDigis.clone( FEDs = cms.untracked.vint32(690,691,692, 693,722) )
 
 from EventFilter.ScalersRawToDigi.ScalersRawToDigi_cfi import *
 
-RawToDigi = cms.Sequence(csctfDigis
-                         +dttfDigis
-                         +gctDigis
-                         +gtDigis
-                         +gtEvmDigis
+from EventFilter.Utilities.tcdsRawToDigi_cfi import *
+tcdsDigis = EventFilter.Utilities.tcdsRawToDigi_cfi.tcdsRawToDigi.clone()
+
+from L1Trigger.Configuration.L1TRawToDigi_cff import *
+
+from EventFilter.CTPPSRawToDigi.ctppsRawToDigi_cff import *
+
+RawToDigi = cms.Sequence(L1TRawToDigi
                          +siPixelDigis
                          +siStripDigis
                          +ecalDigis
@@ -60,13 +49,11 @@ RawToDigi = cms.Sequence(csctfDigis
                          +muonDTDigis
                          +muonRPCDigis
                          +castorDigis
-                         +scalersRawToDigi)
+                         +scalersRawToDigi
+                         +tcdsDigis
+                         )
 
-RawToDigi_noTk = cms.Sequence(csctfDigis
-                              +dttfDigis
-                              +gctDigis
-                              +gtDigis
-                              +gtEvmDigis
+RawToDigi_noTk = cms.Sequence(L1TRawToDigi
                               +ecalDigis
                               +ecalPreshowerDigis
                               +hcalDigis
@@ -74,13 +61,11 @@ RawToDigi_noTk = cms.Sequence(csctfDigis
                               +muonDTDigis
                               +muonRPCDigis
                               +castorDigis
-                              +scalersRawToDigi)
+                              +scalersRawToDigi
+                              +tcdsDigis
+                              )
     
 scalersRawToDigi.scalersInputTag = 'rawDataCollector'
-csctfDigis.producer = 'rawDataCollector'
-dttfDigis.DTTF_FED_Source = 'rawDataCollector'
-gctDigis.inputLabel = 'rawDataCollector'
-gtDigis.DaqGtInputTag = 'rawDataCollector'
 siPixelDigis.InputLabel = 'rawDataCollector'
 #false by default anyways ecalDigis.DoRegional = False
 ecalDigis.InputLabel = 'rawDataCollector'
@@ -89,7 +74,27 @@ hcalDigis.InputLabel = 'rawDataCollector'
 muonCSCDigis.InputObjects = 'rawDataCollector'
 muonDTDigis.inputLabel = 'rawDataCollector'
 muonRPCDigis.InputLabel = 'rawDataCollector'
-gtEvmDigis.EvmGtInputTag = 'rawDataCollector'
 castorDigis.InputLabel = 'rawDataCollector'
 
+from Configuration.Eras.Modifier_phase2_common_cff import phase2_common
+phase2_common.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([castorDigis]))
 
+# until we have hcal raw data for phase 2...
+from Configuration.Eras.Modifier_phase2_hcal_cff import phase2_hcal
+phase2_hcal.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([hcalDigis]))
+
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+# Remove siPixelDigis until we have phase1 pixel digis
+phase2_tracker.toReplaceWith(RawToDigi, RawToDigi.copyAndExclude([siPixelDigis])) # FIXME
+
+
+# add CTPPS 2016 raw-to-digi modules
+from Configuration.Eras.Modifier_ctpps_2016_cff import ctpps_2016
+
+_ctpps_2016_RawToDigi = RawToDigi.copy()
+_ctpps_2016_RawToDigi += ctppsRawToDigi
+ctpps_2016.toReplaceWith(RawToDigi, _ctpps_2016_RawToDigi)
+
+_ctpps_2016_RawToDigi_noTk = RawToDigi_noTk.copy()
+_ctpps_2016_RawToDigi_noTk += ctppsRawToDigi
+ctpps_2016.toReplaceWith(RawToDigi_noTk, _ctpps_2016_RawToDigi_noTk)

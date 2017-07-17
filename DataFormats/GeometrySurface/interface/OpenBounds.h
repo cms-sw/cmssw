@@ -7,7 +7,7 @@
 
 /// Unlimited (trivial) bounds.
 
-class OpenBounds GCC11_FINAL : public Bounds {
+class OpenBounds final : public Bounds {
 public:
   
   virtual float length() const  { return 1000000.; } 
@@ -15,6 +15,8 @@ public:
   virtual float thickness() const { return 1000000.; }
 
   // basic bounds function
+
+  using Bounds::inside;
 
   virtual bool inside( const Local3DPoint& p ) const { return true;}
 

@@ -48,7 +48,8 @@
 // Needed for the FED raw data processing
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBuffer.h"
 #include "EventFilter/SiStripRawToDigi/interface/SiStripFEDBufferGenerator.h"
-#include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
+
+// #include "EventFilter/SiStripRawToDigi/interface/SiStripDigiToRaw.h"
 
 //for cabling
 #include "DQM/SiStripMonitorHardware/interface/SiStripSpyUtilities.h"
@@ -304,6 +305,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
 
         // Loop over the channels found with the detID and add directories.
         for (uint32_t ch = 0; ch<conns.size(); ch++) {
+	  if(conns[ch] && conns[ch]->isConnected()) {
             
             // Name of channel histogram directory
             stringstream ssss; ssss << sss.str() << "_APVpair_" << ch;
@@ -351,6 +353,7 @@ SiStripSpyDisplayModule::analyze(const edm::Event& iEvent, const edm::EventSetup
                 iEvent.getByToken( inputReorderedPayloadRawDigiToken_, rrp_rawdigis );
                 if (!(MakeRawDigiHist_(rrp_rawdigis, fedkey, chan_dir, REORDERED_PAYLOAD_RAW))) { ; }
             }
+	  }
         } // end of loop over channels
         //
         // Module Reordered Raw (RR)

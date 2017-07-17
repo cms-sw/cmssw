@@ -79,6 +79,7 @@ namespace reco {
     
     // sum of the energy of rechits in the RBX with E>threshold
     double recHitEnergy(double theshold=1.5) const;
+    double recHitEnergyFailR45(double threshold=1.5) const;
 
     // minimum and maximum time for rechits in the RBX with E>threshold
     double minRecHitTime(double threshold=20.0) const;
@@ -86,6 +87,7 @@ namespace reco {
 
     // total number of rechits above some threshold in the RBX
     int numRecHits(double threshold=1.5) const;
+    int numRecHitsFailR45(double threshold=1.5) const;
     
     // calotower properties integrated over the entire RBX
     double caloTowerHadE(void) const;
@@ -93,6 +95,14 @@ namespace reco {
     double caloTowerTotalE(void) const;
     double caloTowerEmFraction(void) const;
     
+    // helper function to get the unique calotowers
+    struct twrcomp {
+      inline bool operator() ( const CaloTower & t1, const CaloTower & t2 ) {
+	return t1.id() < t2.id();
+      }
+    };
+    typedef std::set<CaloTower, twrcomp> towerset_t;
+
   private:
     
     // members
@@ -103,14 +113,6 @@ namespace reco {
 
     // the charge
     std::vector<float> allCharge_;
-
-    // helper function to get the unique calotowers
-    struct twrcomp {
-      inline bool operator() ( const CaloTower & t1, const CaloTower & t2 ) {
-	return t1.id() < t2.id();
-      }
-    };
-    typedef std::set<CaloTower, twrcomp> towerset_t;
 
     void uniqueTowers(towerset_t& twrs_) const;
   };

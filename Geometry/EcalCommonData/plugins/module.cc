@@ -6,7 +6,7 @@
 #include "Geometry/EcalCommonData/interface/DDEcalEndcapAlgo.h"
 #include "Geometry/EcalCommonData/interface/DDEcalPreshowerAlgo.h"
 #include "Geometry/EcalCommonData/interface/DDEcalAPDAlgo.h"
-#include "DetectorDescription/Algorithm/interface/DDAlgorithmFactory.h"
+#include "DetectorDescription/Core/interface/DDAlgorithmFactory.h"
 
 //DEFINE_SEAL_PLUGIN (DDAlgorithmFactory, DDTestAlgorithm, "DDTestAlgorithm");
 

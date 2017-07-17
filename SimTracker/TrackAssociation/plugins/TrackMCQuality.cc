@@ -22,7 +22,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -30,8 +30,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "SimTracker/TrackAssociation/interface/TrackAssociatorBase.h"
-#include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+#include "SimDataFormats/Associations/interface/TrackToTrackingParticleAssociator.h"
 
 #include "SimDataFormats/TrackingAnalysis/interface/TrackingParticle.h"
 #include "DataFormats/TrackReco/interface/Track.h"
@@ -40,22 +39,22 @@
 // class decleration
 //
 
-class TrackMCQuality : public edm::EDProducer {
+class TrackMCQuality final : public edm::global::EDProducer<> {
    public:
       explicit TrackMCQuality(const edm::ParameterSet&);
       ~TrackMCQuality();
 
    private:
-      virtual void beginJob() override ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
+      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
       
       // ----------member data ---------------------------
 
-  edm::ESHandle<TrackAssociatorBase> theAssociator;
-  edm::InputTag label_tr;
-  edm::InputTag label_tp;
-  std::string associator;
+  edm::EDGetTokenT<reco::TrackToTrackingParticleAssociator> label_assoc;
+  edm::EDGetTokenT<TrackingParticleCollection> label_tp;
+  edm::EDGetTokenT<edm::View<reco::Track> > label_tr;
+
+  using Product=std::vector<float>;  
+ 
 };
 
 //
@@ -71,12 +70,11 @@ class TrackMCQuality : public edm::EDProducer {
 // constructors and destructor
 //
 TrackMCQuality::TrackMCQuality(const edm::ParameterSet& pset):
-  label_tr(pset.getParameter< edm::InputTag >("label_tr")),
-  label_tp(pset.getParameter< edm::InputTag >("label_tp")),
-  associator(pset.getParameter< std::string >("associator"))
+  label_assoc(consumes<reco::TrackToTrackingParticleAssociator>(pset.getParameter< edm::InputTag >("associator"))),
+  label_tp(consumes<TrackingParticleCollection>(pset.getParameter< edm::InputTag >("trackingParticles"))),
+  label_tr(consumes<edm::View<reco::Track> >(pset.getParameter< edm::InputTag >("tracks")))
 {
-  
-  produces<reco::TrackCollection>();
+  produces<Product>();
 }
 
 
@@ -91,58 +89,46 @@ TrackMCQuality::~TrackMCQuality()
 
 // ------------ method called to produce the data  ------------
 void
-TrackMCQuality::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+TrackMCQuality::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
-
-  iSetup.get<TrackAssociatorRecord>().get(associator,theAssociator);
-
 
    using namespace edm;
+   Handle<reco::TrackToTrackingParticleAssociator> associator;
+   iEvent.getByToken(label_assoc,associator);
+
    Handle<TrackingParticleCollection>  TPCollection ;
-   iEvent.getByLabel(label_tp, TPCollection);
+   iEvent.getByToken(label_tp, TPCollection);
      
    Handle<edm::View<reco::Track> > trackCollection;
-   iEvent.getByLabel (label_tr, trackCollection );
+   iEvent.getByToken(label_tr, trackCollection );
 
-   reco::RecoToSimCollection recSimColl=theAssociator->associateRecoToSim(trackCollection,
-									  TPCollection,
-									  &iEvent,&iSetup);
+   reco::RecoToSimCollection recSimColl=associator->associateRecoToSim(trackCollection,
+                                                                       TPCollection);
    
    //then loop the track collection
-   std::auto_ptr<reco::TrackCollection> outTracks(new reco::TrackCollection(trackCollection->size()));
+   std::unique_ptr<Product> product(new Product(trackCollection->size(),0));
+
    
    for (unsigned int iT=0;iT!=trackCollection->size();++iT){
-     edm::RefToBase<reco::Track> track(trackCollection, iT);
-     bool matched=false;
-     //find it in the map
-     if (recSimColl.find(track)!=recSimColl.end()){
-       // you can get the data if you want
-       std::vector<std::pair<TrackingParticleRef, double> > tp= recSimColl[track];
-       matched=true;
-     }
-     else{
-       matched=false;
-     }     
+     auto & prod = (*product)[iT];
 
-     //copy the track into the new container
-     (*outTracks)[iT] = reco::Track(*track);
-     if (matched){
-       (*outTracks)[iT].setQuality(reco::TrackBase::qualitySize); //is not assigned to any quality. use it as a fake/matched flag
-     }
+     edm::RefToBase<reco::Track> track(trackCollection, iT);
+
+     //find it in the map
+     if (recSimColl.find(track)==recSimColl.end()) continue;
+       
+     auto const & tp = recSimColl[track];
+
+     if (tp.empty()) continue;  // can it be?
+     // nSimHits = tp[0].first->numberOfTrackerHits();
+     prod = tp[0].second;
+     // if (tp[0].first->charge() != track->charge()) isChargeMatched = false;
+     if ( (tp[0].first->eventId().event() != 0) || (tp[0].first->eventId().bunchCrossing() != 0) ) prod=-prod;
+
+       
    }
    
-   iEvent.put(outTracks);
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-TrackMCQuality::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-TrackMCQuality::endJob() {
+   iEvent.put(std::move(product));
 }
 
 //define this as a plug-in

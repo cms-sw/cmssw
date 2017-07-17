@@ -31,14 +31,6 @@ CompositeCandidate::~CompositeCandidate() { }
 
 CompositeCandidate * CompositeCandidate::clone() const { return new CompositeCandidate(* this); }
 
-Candidate::const_iterator CompositeCandidate::begin() const { return const_iterator(new const_iterator_imp_specific(dau.begin())); }
-
-Candidate::const_iterator CompositeCandidate::end() const { return const_iterator(new const_iterator_imp_specific(dau.end())); }    
-
-Candidate::iterator CompositeCandidate::begin() { return iterator(new iterator_imp_specific(dau.begin())); }
-
-Candidate::iterator CompositeCandidate::end() { return iterator(new iterator_imp_specific(dau.end())); }    
-
 const Candidate * CompositeCandidate::daughter(size_type i) const { 
   return (i < numberOfDaughters()) ? & dau[ i ] : 0; // i >= 0, since i is unsigned
 }
@@ -141,7 +133,7 @@ void CompositeCandidate::addDaughter(const Candidate & cand, const std::string& 
   dau.push_back(c);
 }
 
-void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, const std::string& s) {
+void CompositeCandidate::addDaughter(std::unique_ptr<Candidate> cand, const std::string& s) {
   if (s != "") {
     role_collection::iterator begin = roles_.begin(), end = roles_.end();
     bool isFound = (find(begin, end, s) != end);
@@ -156,7 +148,7 @@ void CompositeCandidate::addDaughter(std::auto_ptr<Candidate> cand, const std::s
       c1->setName(s);
     }
   }
-  dau.push_back(cand);
+  dau.push_back(std::move(cand));
 }
 
 

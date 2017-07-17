@@ -1,38 +1,29 @@
-/***************************************************************************
-                          DDLSolid.cc  -  description
-                             -------------------
-    begin                : Wed Oct 3 2002
-    email                : case@ucdhep.ucdavis.edu
- ***************************************************************************/
-
-/***************************************************************************
- *                                                                         *
- *           DDDParser sub-component of DDD                                *
- *                                                                         *
- ***************************************************************************/
-
 #include "DetectorDescription/Parser/src/DDLSolid.h"
 
-#include "DetectorDescription/Base/interface/DDdebug.h"
+#include <map>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/Parser/interface/DDLElementRegistry.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+
+class DDCompactView;
 
 DDLSolid::DDLSolid( DDLElementRegistry* myreg )
   : DDXMLElement( myreg )
-{}
-
-DDLSolid::~DDLSolid( void )
 {}
 
 void
 DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
 {
   // in case it was a BooleanSolid or a ReflectionSolid, clear rSolid.
-  DDXMLElement* myrSolid = myRegistry_->getElement("rSolid");
+  auto myrSolid = myRegistry_->getElement("rSolid");
   myrSolid->clear();
 
   // Make sure Solid elements are in LogicalPart elements.
   if (parent() == "LogicalPart")
   {
-    DDXMLElement* refsol = myRegistry_->getElement("rSolid");
+    auto refsol = myRegistry_->getElement("rSolid");
     std::vector<std::string> names;
     std::vector<std::string> values;
     names.push_back("name");
@@ -42,6 +33,4 @@ DDLSolid::setReference( const std::string& nmspace, DDCompactView& cpv )
 
   // clear THIS solid's values.
   clear();
-
-  DCOUT_V('P', "DDLSolid::setReference completed");
 }

@@ -56,11 +56,7 @@ class L1MuGMTReadoutCollection {
     for (iter=m_Records.begin(); iter!=m_Records.end(); iter++) {
       if ((*iter).getBxCounter() == bx) return (*iter);
     }
-    // if bx not found return empty readout record
-    static std::map<int, L1MuGMTReadoutRecord> empty_record_cache;
-    if (empty_record_cache.find(bx) == empty_record_cache.end())
-      empty_record_cache.insert( std::make_pair(bx, L1MuGMTReadoutRecord(bx)) );
-    return empty_record_cache[bx];
+    return getDefaultFor(bx);
   };
 
   // add record
@@ -69,6 +65,7 @@ class L1MuGMTReadoutCollection {
   };
 
  private:
+  static L1MuGMTReadoutRecord const& getDefaultFor(int bx);
 
   std::vector<L1MuGMTReadoutRecord> m_Records;
 

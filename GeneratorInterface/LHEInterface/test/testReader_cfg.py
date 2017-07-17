@@ -16,11 +16,17 @@ process.configurationMetadata = cms.untracked.PSet(
 )
 
 process.load("FWCore.MessageService.MessageLogger_cfi")
-process.MessageLogger.cerr.threshold = 'INFO'
+#process.MessageLogger.cerr.threshold = 'INFO'
+process.MessageLogger.cout = cms.untracked.PSet( threshold = cms.untracked.string('INFO') )
 
 process.LHE = cms.OutputModule("PoolOutputModule",
 	dataset = cms.untracked.PSet(dataTier = cms.untracked.string('LHE')),
 	fileName = cms.untracked.string('lhe.root')
 )
+
+#process.lhedump = cms.EDAnalyzer("DummyLHEAnalyzer",
+#                                 src = cms.InputTag("source")
+#                                 )
+
 
 process.outpath = cms.EndPath(process.LHE)

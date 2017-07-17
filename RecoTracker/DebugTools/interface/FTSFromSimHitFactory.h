@@ -4,7 +4,7 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 
 class PSimHit;
-class GeomDetUnit;
+class GeomDet;
 class MagneticField;
 
 /** Produces a FreeTrajectoryState from a SimHit.
@@ -17,7 +17,7 @@ class MagneticField;
 class FTSFromSimHitFactory {
 public:
 
-  FreeTrajectoryState operator()( const PSimHit& hit, const GeomDetUnit& det,
+  FreeTrajectoryState operator()( const PSimHit& hit, const GeomDet& det,
 				  const MagneticField& field) const;
 
 private:

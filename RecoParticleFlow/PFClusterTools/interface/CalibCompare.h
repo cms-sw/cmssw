@@ -1,5 +1,5 @@
 #ifndef CALIBCOMPARE_H_
-#define CALIBCOMAPRE_H_
+#define CALIBCOMPARE_H_
 
 #include "DataFormats/ParticleFlowReco/interface/Calibratable.h"
 #include "RecoParticleFlow/PFClusterTools/interface/Calibrator.h"

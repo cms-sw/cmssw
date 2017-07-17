@@ -1,7 +1,6 @@
 #ifndef SimG4Core_CheckSecondary_TreatSecondary_H
 #define SimG4Core_CheckSecondary_TreatSecondary_H
 
-#include "SimG4Core/Physics/interface/G4ProcessTypeEnumerator.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 
@@ -12,6 +11,7 @@
 
 class G4Step;
 class G4Track;
+class G4ProcessTypeEnumerator;
 
 class TreatSecondary {
 

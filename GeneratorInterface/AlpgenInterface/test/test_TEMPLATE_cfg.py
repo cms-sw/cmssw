@@ -44,12 +44,12 @@ process.p0 = cms.Path(process.generator)
 #process.load("Configuration.StandardSequences.VtxSmearedGauss_cff")
 
 #process.VtxSmeared.src = 'generator'
-#process.genParticles.src = 'generator'
-#process.genParticleCandidates.src = 'generator'
+#process.genParticles.src = 'VtxSmeared'
+#process.genParticleCandidates.src = 'VtxSmeared'
 
 # Needed for the SIM step.
-#process.g4SimHits.Generator.HepMCProductLabel = 'generator'
-#process.mergedtruth.HepMCDataLabels.append('generator')
+#process.g4SimHits.Generator.HepMCProductLabel = 'VtxSmeared'
+#process.mergedtruth.HepMCDataLabels.append('VtxSmeared')
 
 # Comment the path above if you want to use this one.
 #process.p0 = cms.Path(process.generator * process.pgen)

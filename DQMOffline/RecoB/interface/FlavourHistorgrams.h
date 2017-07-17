@@ -13,6 +13,7 @@
 #include "TROOT.h"
 #include "TSystem.h"
 #include "TStyle.h"
+#include "TEfficiency.h"
 
 #include "DQMOffline/RecoB/interface/Tools.h"
 #include "DQMOffline/RecoB/interface/HistoProviderDQM.h"
@@ -28,18 +29,19 @@ template <class T>
 class FlavourHistograms {
 
 public:
+  FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
+             const int& nBins_ , const double& lowerBound_ , const double& upperBound_ , 
+             const std::string& plotFirst_ , const std::string& folder, 
+             const unsigned int& mc, DQMStore::IGetter & iget) ;
 
   FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
-		     const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
-		     const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-		     const std::string& plotFirst_ , const bool& update, const std::string& folder, const unsigned int& mc) ;
+             const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
+             const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
+             const std::string& plotFirst_ , const std::string& folder, 
+             const unsigned int& mc, DQMStore::IBooker & ibook) ;
 
   virtual ~FlavourHistograms () ;
 
-
-  // define arrays (if needed)
-//   void defineArray ( int * dimension , int max , int indexToPlot ) ;
-  
   // fill entry
   // For single variables and arrays (for arrays only a single index can be filled)
   void fill ( const int & flavour,  const T & variable) const;
@@ -55,9 +57,8 @@ public:
 
   void epsPlot(const std::string& name);
 
-  // needed for efficiency computations -> this / b
-  // (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
-  void divide ( const FlavourHistograms<T> & bHD ) const ;
+  void divide ( const FlavourHistograms<T> & bHD ) ;
+  void setEfficiencyFlag();
 
   inline void SetMaximum(const double& max) { theMax = max;}
   inline void SetMinimum(const double& min) { theMin = min;}
@@ -88,6 +89,7 @@ public:
   inline TH1F * histo_ni   () const { return theHisto_ni->getTH1F()   ; }
   inline TH1F * histo_dus  () const { return theHisto_dus->getTH1F()  ; }
   inline TH1F * histo_dusg () const { return theHisto_dusg->getTH1F() ; }
+  inline TH1F * histo_pu () const { return theHisto_pu->getTH1F() ; }
 
   std::vector<TH1F*> getHistoVector() const;
   
@@ -95,6 +97,8 @@ public:
 protected:
 
   void fillVariable ( const int & flavour , const T & var , const T & w) const;
+  double ClopperPearsonUnc(double num, double den);
+  void ComputeEfficiency(TH1F* num, TH1F* den, int bin);
   
   //
   // the data members
@@ -129,6 +133,7 @@ protected:
   MonitorElement *theHisto_ni   ;
   MonitorElement *theHisto_dus  ;
   MonitorElement *theHisto_dusg ;
+  MonitorElement *theHisto_pu ;
 
   //  DQMStore * dqmStore_; 
 
@@ -143,12 +148,74 @@ protected:
 } ;
 
 template <class T>
+FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_, const std::string& baseNameDescription_ ,
+                     const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
+                     const std::string& plotFirst_, const std::string& folder, 
+                     const unsigned int& mc, DQMStore::IGetter & iget) :
+  theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
+  theNBins ( nBins_ ) , theLowerBound ( lowerBound_ ) , theUpperBound ( upperBound_ ) ,
+  theStatistics ( false ) , thePlotLog ( false ) , thePlotNormalized ( false ) ,
+  thePlotFirst ( plotFirst_ ), theMin(-1.), theMax(-1.), mcPlots_(mc)
+{
+  // defaults for array dimensions
+  theArrayDimension = 0  ;
+    
+  // check plot order string 
+  if ( thePlotFirst == "l" || thePlotFirst == "c" || thePlotFirst == "b" ) {
+    // OK
+  }
+  else {
+    // not correct: print warning and set default (l)
+    std::cout << "FlavourHistograms::FlavourHistograms : thePlotFirst was not correct : " << thePlotFirst << std::endl ;
+    std::cout << "FlavourHistograms::FlavourHistograms : Set it to default value (l)! " << std::endl ;
+    thePlotFirst = "l" ;
+  }
+
+  if(mcPlots_%2==0) theHisto_all = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "ALL" ) ; 
+  else theHisto_all = 0;
+  if (mcPlots_) {  
+    if (mcPlots_>2 ) {
+      theHisto_d     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "D"   ) ; 
+      theHisto_u     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "U"   ) ; 
+      theHisto_s     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "S"   ) ;
+      theHisto_g     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "G"   ) ; 
+      theHisto_dus   = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "DUS" ) ; 
+    } 
+    else{
+      theHisto_d = 0;
+      theHisto_u = 0;
+      theHisto_s = 0;
+      theHisto_g = 0;
+      theHisto_dus = 0;
+    }
+    theHisto_c     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "C"   ) ; 
+    theHisto_b     = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "B"   ) ; 
+    theHisto_ni    = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "NI"  ) ; 
+    theHisto_dusg  = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "DUSG") ;
+    theHisto_pu    = iget.get("Btag/" + folder + "/" +theBaseNameTitle + "PU") ;
+  }
+  else{
+    theHisto_d = 0;
+    theHisto_u = 0;
+    theHisto_s = 0;
+    theHisto_c = 0;
+    theHisto_b = 0;
+    theHisto_g = 0;
+    theHisto_ni = 0;
+    theHisto_dus = 0;
+    theHisto_dusg = 0;
+    theHisto_pu = 0;
+  }
+  // defaults for other data members
+  theCanvas = 0 ;
+}
+
+template <class T>
 FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , const std::string& baseNameDescription_ ,
-					 const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
-					 const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
-					 const std::string& plotFirst_, const bool& update, const std::string& folder, const unsigned int& mc) :
-  // BaseFlavourHistograms () ,
-  // theVariable ( variable_ ) ,
+                     const int& nBins_ , const double& lowerBound_ , const double& upperBound_ ,
+                     const bool& statistics_ , const bool& plotLog_ , const bool& plotNormalized_ ,
+                     const std::string& plotFirst_, const std::string& folder, 
+                     const unsigned int& mc, DQMStore::IBooker & ibook) :
   theMaxDimension(-1), theIndexToPlot(-1), theBaseNameTitle ( baseNameTitle_ ) , theBaseNameDescription ( baseNameDescription_ ) ,
   theNBins ( nBins_ ) , theLowerBound ( lowerBound_ ) , theUpperBound ( upperBound_ ) ,
   theStatistics ( statistics_ ) , thePlotLog ( plotLog_ ) , thePlotNormalized ( plotNormalized_ ) ,
@@ -168,77 +235,61 @@ FlavourHistograms<T>::FlavourHistograms (const std::string& baseNameTitle_ , con
     thePlotFirst = "l" ;
   }
 
-  if (!update) {
-    // book histos
-    HistoProviderDQM prov("Btag",folder);
-    if(mcPlots_%2==0) theHisto_all   = (prov.book1D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBins , theLowerBound , theUpperBound )) ; 
-    else theHisto_all = 0;
-    if (mcPlots_) {
-      if(mcPlots_>2) {
-	theHisto_d     = (prov.book1D ( theBaseNameTitle + "D"    , theBaseNameDescription + " d-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-	theHisto_u     = (prov.book1D ( theBaseNameTitle + "U"    , theBaseNameDescription + " u-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-	theHisto_s     = (prov.book1D ( theBaseNameTitle + "S"    , theBaseNameDescription + " s-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-	theHisto_g     = (prov.book1D ( theBaseNameTitle + "G"    , theBaseNameDescription + " g-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-	theHisto_dus   = (prov.book1D ( theBaseNameTitle + "DUS"  , theBaseNameDescription + " dus-jets"  , theNBins , theLowerBound , theUpperBound )) ; 
-      }
-      else{
-	theHisto_d = 0;
-	theHisto_u = 0;
-	theHisto_s = 0;
-	theHisto_g = 0;
-	theHisto_dus = 0;
-      }
-      theHisto_c     = (prov.book1D ( theBaseNameTitle + "C"    , theBaseNameDescription + " c-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-      theHisto_b     = (prov.book1D ( theBaseNameTitle + "B"    , theBaseNameDescription + " b-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
-      theHisto_ni    = (prov.book1D ( theBaseNameTitle + "NI"   , theBaseNameDescription + " ni-jets"   , theNBins , theLowerBound , theUpperBound )) ; 
-      theHisto_dusg  = (prov.book1D ( theBaseNameTitle + "DUSG" , theBaseNameDescription + " dusg-jets" , theNBins , theLowerBound , theUpperBound )) ;
-    }else{
+  // book histos
+  HistoProviderDQM prov("Btag",folder,ibook);
+  if(mcPlots_%2==0) theHisto_all   = (prov.book1D( theBaseNameTitle + "ALL"  , theBaseNameDescription + " all jets"  , theNBins , theLowerBound , theUpperBound )) ; 
+  else theHisto_all = 0;
+  if (mcPlots_) {
+    if(mcPlots_>2) {
+      theHisto_d     = (prov.book1D ( theBaseNameTitle + "D"    , theBaseNameDescription + " d-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+      theHisto_u     = (prov.book1D ( theBaseNameTitle + "U"    , theBaseNameDescription + " u-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+      theHisto_s     = (prov.book1D ( theBaseNameTitle + "S"    , theBaseNameDescription + " s-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+      theHisto_g     = (prov.book1D ( theBaseNameTitle + "G"    , theBaseNameDescription + " g-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+      theHisto_dus   = (prov.book1D ( theBaseNameTitle + "DUS"  , theBaseNameDescription + " dus-jets"  , theNBins , theLowerBound , theUpperBound )) ; 
+    }
+    else{
       theHisto_d = 0;
       theHisto_u = 0;
       theHisto_s = 0;
-      theHisto_c = 0;
-      theHisto_b = 0;
       theHisto_g = 0;
-      theHisto_ni = 0;
       theHisto_dus = 0;
-      theHisto_dusg = 0;
     }
-
-      // statistics if requested
-    if ( theStatistics ) {
-      if(theHisto_all) theHisto_all ->getTH1F()->Sumw2() ; 
-      if (mcPlots_ ) {  
-	if (mcPlots_>2 ) {
-	  theHisto_d   ->getTH1F()->Sumw2() ; 
-	  theHisto_u   ->getTH1F()->Sumw2() ; 
-	  theHisto_s   ->getTH1F()->Sumw2() ;
-	  theHisto_g   ->getTH1F()->Sumw2() ; 
-	  theHisto_dus ->getTH1F()->Sumw2() ; 
-	} 
-	theHisto_c   ->getTH1F()->Sumw2() ; 
-	theHisto_b   ->getTH1F()->Sumw2() ; 
-	theHisto_ni  ->getTH1F()->Sumw2() ; 
-	theHisto_dusg->getTH1F()->Sumw2() ;
-      }
-    }
-  } else {
-    HistoProviderDQM prov("Btag",folder);
-    if(theHisto_all) theHisto_all   = prov.access(theBaseNameTitle + "ALL" ) ; 
-    if (mcPlots_) {  
-      if (mcPlots_>2 ) {
-	theHisto_d     = prov.access(theBaseNameTitle + "D"   ) ; 
-	theHisto_u     = prov.access(theBaseNameTitle + "U"   ) ; 
-	theHisto_s     = prov.access(theBaseNameTitle + "S"   ) ;
-	theHisto_g     = prov.access(theBaseNameTitle + "G"   ) ; 
-	theHisto_dus   = prov.access(theBaseNameTitle + "DUS" ) ; 
-      } 
-      theHisto_c     = prov.access(theBaseNameTitle + "C"   ) ; 
-      theHisto_b     = prov.access(theBaseNameTitle + "B"   ) ; 
-      theHisto_ni    = prov.access(theBaseNameTitle + "NI"  ) ; 
-      theHisto_dusg  = prov.access(theBaseNameTitle + "DUSG") ;
-    }
+    theHisto_c     = (prov.book1D ( theBaseNameTitle + "C"    , theBaseNameDescription + " c-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+    theHisto_b     = (prov.book1D ( theBaseNameTitle + "B"    , theBaseNameDescription + " b-jets"    , theNBins , theLowerBound , theUpperBound )) ; 
+    theHisto_ni    = (prov.book1D ( theBaseNameTitle + "NI"   , theBaseNameDescription + " ni-jets"   , theNBins , theLowerBound , theUpperBound )) ; 
+    theHisto_dusg  = (prov.book1D ( theBaseNameTitle + "DUSG" , theBaseNameDescription + " dusg-jets" , theNBins , theLowerBound , theUpperBound )) ;
+    theHisto_pu    = (prov.book1D ( theBaseNameTitle + "PU"   , theBaseNameDescription + " pu-jets"   , theNBins , theLowerBound , theUpperBound )) ; 
+  }else{
+    theHisto_d = 0;
+    theHisto_u = 0;
+    theHisto_s = 0;
+    theHisto_c = 0;
+    theHisto_b = 0;
+    theHisto_g = 0;
+    theHisto_ni = 0;
+    theHisto_dus = 0;
+    theHisto_dusg = 0;
+    theHisto_pu = 0;
   }
 
+  // statistics if requested
+  if ( theStatistics ) {
+    if(theHisto_all) theHisto_all ->getTH1F()->Sumw2() ; 
+    if (mcPlots_ ) {  
+      if (mcPlots_>2 ) {
+        theHisto_d   ->getTH1F()->Sumw2() ; 
+        theHisto_u   ->getTH1F()->Sumw2() ; 
+        theHisto_s   ->getTH1F()->Sumw2() ;
+        theHisto_g   ->getTH1F()->Sumw2() ; 
+        theHisto_dus ->getTH1F()->Sumw2() ; 
+      } 
+      theHisto_c   ->getTH1F()->Sumw2() ; 
+      theHisto_b   ->getTH1F()->Sumw2() ; 
+      theHisto_ni  ->getTH1F()->Sumw2() ; 
+      theHisto_dusg->getTH1F()->Sumw2() ;
+      theHisto_pu  ->getTH1F()->Sumw2() ;
+    }
+  }
   // defaults for other data members
   theCanvas = 0 ;
 }
@@ -250,16 +301,6 @@ FlavourHistograms<T>::~FlavourHistograms () {
   delete theCanvas ;
 }
 
-
-// define arrays (if needed)
-// template <class T>
-// void FlavourHistograms<T>::defineArray ( int * dimension , int max , int indexToPlot ) {
-//   // indexToPlot < 0 if all to be plotted
-//   theArrayDimension = dimension ;
-//   theMaxDimension   = max ;
-//   theIndexToPlot    = indexToPlot ;
-// }
-  
 // fill entry
 template <class T> void
 FlavourHistograms<T>::fill ( const int & flavour,  const T & variable) const 
@@ -288,7 +329,7 @@ FlavourHistograms<T>::fill ( const int & flavour,  const T * variable) const
     for ( int i = 0 ; i != iMax ; ++i ) {
       // check if only one index to be plotted (<0: switched off -> plot all)
       if ( ( theIndexToPlot < 0 ) || ( i == theIndexToPlot ) ) { 
-	fillVariable ( flavour , *(variable+i) , 1.) ;
+        fillVariable ( flavour , *(variable+i) , 1.) ;
       }
     }
 
@@ -307,16 +348,17 @@ void FlavourHistograms<T>::settitle(const char* title) {
  if(theHisto_all) theHisto_all ->setAxisTitle(title) ;
     if (mcPlots_) {  
       if (mcPlots_>2 ) {
-	theHisto_d   ->setAxisTitle(title) ;
-	theHisto_u   ->setAxisTitle(title) ;
-	theHisto_s   ->setAxisTitle(title) ;
-	theHisto_g   ->setAxisTitle(title) ;
-	theHisto_dus ->setAxisTitle(title) ;
+        theHisto_d   ->setAxisTitle(title) ;
+        theHisto_u   ->setAxisTitle(title) ;
+        theHisto_s   ->setAxisTitle(title) ;
+        theHisto_g   ->setAxisTitle(title) ;
+        theHisto_dus ->setAxisTitle(title) ;
       }
       theHisto_c   ->setAxisTitle(title) ;
       theHisto_b   ->setAxisTitle(title) ;
       theHisto_ni  ->setAxisTitle(title) ;
       theHisto_dusg->setAxisTitle(title) ;
+      theHisto_pu->setAxisTitle(title) ;
     }
 }
 
@@ -337,7 +379,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
 //   
 //   // here: plot histograms in a canvas
 //   theCanvas = new TCanvas ( "C" + theBaseNameTitle , "C" + theBaseNameDescription ,
-// 			    btppXCanvas , btppYCanvas ) ;
+//                 btppXCanvas , btppYCanvas ) ;
 //   theCanvas->SetFillColor ( 0 ) ;
 //   theCanvas->cd  ( 1 ) ;
   gPad->SetLogy  ( 0 ) ;
@@ -440,9 +482,7 @@ void FlavourHistograms<T>::plot (TPad * theCanvas /* = 0 */) {
   }
 
   if ( thePlotNormalized ) {
-//   cout <<histo[0]->GetEntries() <<" "<< histo[1]->GetEntries() <<" "<< histo[2]->GetEntries()<<" "<<histo[3]->GetEntries()<<endl;
-    if (histo[0]->getTH1F()->GetEntries() != 0) {histo[0]->getTH1F() ->DrawNormalized() ;} else {    histo[0]->getTH1F() ->SetMaximum(1.0);
-histo[0] ->getTH1F()->Draw() ;}
+    if (histo[0]->getTH1F()->GetEntries() != 0) {histo[0]->getTH1F() ->DrawNormalized() ;} else {    histo[0]->getTH1F() ->SetMaximum(1.0); histo[0] ->getTH1F()->Draw() ;}
     if (histo[1]->getTH1F()->GetEntries() != 0) histo[1] ->getTH1F()->DrawNormalized("Same") ;
     if (histo[2]->getTH1F()->GetEntries() != 0) histo[2]->getTH1F() ->DrawNormalized("Same") ;
     if ((histo[3] != 0) && (histo[3]->getTH1F()->GetEntries() != 0))  histo[3] ->getTH1F()->DrawNormalized("Same") ;
@@ -467,32 +507,68 @@ void FlavourHistograms<T>::epsPlot(const std::string& name)
    tc.Print((name + theBaseNameTitle + ".eps").c_str());
 }
 
-
-// needed for efficiency computations -> this / b
-// (void : alternative would be not to overwrite the histos but to return a cloned HistoDescription)
 template <class T>
-void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) const {
-  // divide histos using binomial errors
-  //
-  // ATTENTION: It's the responsability of the user to make sure that the HistoDescriptions
-  //            involved in this operation have been constructed with the statistics option switched on!!
-  //
-  if(theHisto_all) theHisto_all  ->getTH1F()-> Divide ( theHisto_all->getTH1F()  , bHD.histo_all () , 1.0 , 1.0 , "b" ) ;    
+double FlavourHistograms<T>::ClopperPearsonUnc(double num, double den){
+  double effVal = num / den;
+  double errLo = TEfficiency::ClopperPearson(static_cast<int>(den), static_cast<int>(num), 0.683, false);
+  double errUp = TEfficiency::ClopperPearson(static_cast<int>(den), static_cast<int>(num), 0.683, true);
+  return std::max(effVal - errLo, errUp - effVal);
+}
+
+template <class T>
+void FlavourHistograms<T>::ComputeEfficiency(TH1F* num, TH1F* den, int bin){
+  double effVal = 1.;
+  double errVal = 0.;
+  double numVal = num->GetBinContent(bin);
+  double denVal = den->GetBinContent(bin);
+  if (denVal > 0 && numVal <= denVal) {
+    effVal = numVal / denVal; 
+    errVal = ClopperPearsonUnc(numVal, denVal);
+  }
+  num->SetBinContent(bin, effVal);
+  num->SetBinError(bin, errVal);
+}
+
+template <class T>
+void FlavourHistograms<T>::divide ( const FlavourHistograms<T> & bHD ) {
+  for(int bin = 0; bin < theNBins+2; bin++){
+    if(theHisto_all) ComputeEfficiency(theHisto_all  ->getTH1F(), bHD.histo_all(), bin);
     if (mcPlots_) {
       if (mcPlots_>2 ) {
-	theHisto_d    ->getTH1F()-> Divide ( theHisto_d ->getTH1F()   , bHD.histo_d   () , 1.0 , 1.0 , "b" ) ;    
-	theHisto_u    ->getTH1F()-> Divide ( theHisto_u ->getTH1F()   , bHD.histo_u   () , 1.0 , 1.0 , "b" ) ;
-	theHisto_s    ->getTH1F()-> Divide ( theHisto_s ->getTH1F()   , bHD.histo_s   () , 1.0 , 1.0 , "b" ) ;
-	theHisto_g    ->getTH1F()-> Divide ( theHisto_g  ->getTH1F()  , bHD.histo_g   () , 1.0 , 1.0 , "b" ) ;
-	theHisto_dus  ->getTH1F()-> Divide ( theHisto_dus->getTH1F()  , bHD.histo_dus () , 1.0 , 1.0 , "b" ) ;
+        ComputeEfficiency(theHisto_d    ->getTH1F(), bHD.histo_d   (), bin) ;    
+        ComputeEfficiency(theHisto_u    ->getTH1F(), bHD.histo_u   (), bin) ;
+        ComputeEfficiency(theHisto_s    ->getTH1F(), bHD.histo_s   (), bin) ;
+        ComputeEfficiency(theHisto_g    ->getTH1F(), bHD.histo_g   (), bin) ;
+        ComputeEfficiency(theHisto_dus  ->getTH1F(), bHD.histo_dus (), bin) ;
       }
-      theHisto_c    ->getTH1F()-> Divide ( theHisto_c ->getTH1F()   , bHD.histo_c   () , 1.0 , 1.0 , "b" ) ;
-      theHisto_b    ->getTH1F()-> Divide ( theHisto_b ->getTH1F()   , bHD.histo_b   () , 1.0 , 1.0 , "b" ) ;
-      theHisto_ni   ->getTH1F()-> Divide ( theHisto_ni->getTH1F()   , bHD.histo_ni  () , 1.0 , 1.0 , "b" ) ;
-      theHisto_dusg ->getTH1F()-> Divide ( theHisto_dusg->getTH1F() , bHD.histo_dusg() , 1.0 , 1.0 , "b" ) ;
+      ComputeEfficiency(theHisto_c    ->getTH1F(), bHD.histo_c   (), bin) ;
+      ComputeEfficiency(theHisto_b    ->getTH1F(), bHD.histo_b   (), bin) ;
+      ComputeEfficiency(theHisto_ni   ->getTH1F(), bHD.histo_ni  (), bin) ;
+      ComputeEfficiency(theHisto_dusg ->getTH1F(), bHD.histo_dusg(), bin) ;
+      ComputeEfficiency(theHisto_pu   ->getTH1F(), bHD.histo_pu  (), bin) ;
     }
+  }
 }
-  
+
+template <class T>
+void FlavourHistograms<T>::setEfficiencyFlag(){
+  if(theHisto_all) theHisto_all  ->setEfficiencyFlag();
+  if (mcPlots_) {
+    if (mcPlots_>2 ) {
+      theHisto_d    ->setEfficiencyFlag();
+      theHisto_u    ->setEfficiencyFlag();
+      theHisto_s    ->setEfficiencyFlag();
+      theHisto_g    ->setEfficiencyFlag();
+      theHisto_dus  ->setEfficiencyFlag();
+    }
+    theHisto_c    ->setEfficiencyFlag();
+    theHisto_b    ->setEfficiencyFlag();
+    theHisto_ni   ->setEfficiencyFlag();
+    theHisto_dusg ->setEfficiencyFlag();
+    theHisto_pu   ->setEfficiencyFlag();
+  }
+
+}
 
 template <class T>
 void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , const T & w) const {
@@ -506,22 +582,22 @@ void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , 
   switch(flavour) {
     case 1:
       if (mcPlots_>2 ) {
-	theHisto_d->Fill( var ,w);
-	if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
+    theHisto_d->Fill( var ,w);
+    if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
       }
       if(theBaseNameDescription != "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
     case 2:
       if (mcPlots_>2 ) {
-	theHisto_u->Fill( var ,w);
-	if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
+    theHisto_u->Fill( var ,w);
+    if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
       }
       if(theBaseNameDescription != "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
     case 3:
       if (mcPlots_>2 ) {
-	theHisto_s->Fill( var ,w);
-	if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
+    theHisto_s->Fill( var ,w);
+    if(theBaseNameDescription != "Jet Multiplicity") theHisto_dus->Fill( var ,w);
       }
       if(theBaseNameDescription != "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
@@ -541,6 +617,9 @@ void FlavourHistograms<T>::fillVariable ( const int & flavour , const T & var , 
     case 12321:
       if (theBaseNameDescription == "Jet Multiplicity") theHisto_dusg->Fill( var ,w);
       return;
+    case 20:
+      theHisto_pu->Fill( var ,w);
+      return;
     default:
       theHisto_ni->Fill( var ,w);
       return;
@@ -554,16 +633,17 @@ std::vector<TH1F*> FlavourHistograms<T>::getHistoVector() const
   if(theHisto_all) histoVector.push_back ( theHisto_all->getTH1F() );
     if (mcPlots_) {  
       if (mcPlots_>2 ) {
-	histoVector.push_back ( theHisto_d->getTH1F()   );
-	histoVector.push_back ( theHisto_u->getTH1F()   );
-	histoVector.push_back ( theHisto_s->getTH1F()   );
-	histoVector.push_back ( theHisto_g ->getTH1F()  );
-	histoVector.push_back ( theHisto_dus->getTH1F() );
+        histoVector.push_back ( theHisto_d->getTH1F()   );
+        histoVector.push_back ( theHisto_u->getTH1F()   );
+        histoVector.push_back ( theHisto_s->getTH1F()   );
+        histoVector.push_back ( theHisto_g ->getTH1F()  );
+        histoVector.push_back ( theHisto_dus->getTH1F() );
       }
       histoVector.push_back ( theHisto_c->getTH1F()   );
       histoVector.push_back ( theHisto_b->getTH1F()   );
       histoVector.push_back ( theHisto_ni->getTH1F()  );
       histoVector.push_back ( theHisto_dusg->getTH1F());
+      histoVector.push_back ( theHisto_pu->getTH1F());
     }
   return histoVector;
 }

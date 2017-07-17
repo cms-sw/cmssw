@@ -4,7 +4,6 @@
 #include "BoundDiskSector.h"
 #include "DiskSectorBounds.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include <utility>
 #include <vector>
@@ -17,18 +16,7 @@
 #pragma GCC visibility push(hidden)
 class BladeShapeBuilderFromDet {
  public:
-  BoundDiskSector* operator()( const std::vector<const GeomDet*>& dets) const;
-  
-
- private:
-  std::pair<DiskSectorBounds*, GlobalVector>
-  computeBounds( const std::vector<const GeomDet*>& dets,
-		 const Plane& plane) const;
-
-  Surface::RotationType
-  computeRotation( const std::vector<const GeomDet*>& dets,
-		   const Surface::PositionType& pos) const;
-
+  static BoundDiskSector * build( const std::vector<const GeomDet*>& dets) __attribute__ ((cold));
 };
 
 #pragma GCC visibility pop

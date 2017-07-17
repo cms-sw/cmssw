@@ -16,35 +16,31 @@ MatchMETBenchmarkAnalyzer::MatchMETBenchmarkAnalyzer(const edm::ParameterSet& pa
   BenchmarkAnalyzer(parameterSet),
   MatchMETBenchmark( (Benchmark::Mode) parameterSet.getParameter<int>("mode") )
 {
-  matchedinputLabel_=parameterSet.getParameter<edm::InputTag>("MatchCollection");
-//  setRange( parameterSet.getParameter<double>("ptMin"),
-//	    parameterSet.getParameter<double>("ptMax"),
-//	    -0.1, 0.1, // range in eta for MET. 
-//	    parameterSet.getParameter<double>("phiMin"),
-//	    parameterSet.getParameter<double>("phiMax") );
+  matchedInputLabel_ = parameterSet.getParameter<edm::InputTag>("MatchCollection");
+
+  myColl_ = consumes< View<MET> >(inputLabel_);
+  myMatchColl_ = consumes< View<MET> >(matchedInputLabel_);
+
 }
 
-void 
-MatchMETBenchmarkAnalyzer::beginJob()
+
+void MatchMETBenchmarkAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+					       edm::Run const & iRun,
+					       edm::EventSetup const & iSetup )
 {
-
-  BenchmarkAnalyzer::beginJob();
-  setup();
+  BenchmarkAnalyzer::bookHistograms(ibooker, iRun, iSetup);
+  setup(ibooker);
 }
 
-void 
-MatchMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
-				      const edm::EventSetup& iSetup) {
-  
-  
+void MatchMETBenchmarkAnalyzer::analyze(const edm::Event& iEvent, 
+					const edm::EventSetup& iSetup) {
+   
   Handle< View<MET> > collection; 
-  iEvent.getByLabel( inputLabel_, collection); 
+  iEvent.getByToken(myColl_, collection);
 
-  Handle< View<MET> > matchedcollection; 
-  iEvent.getByLabel( matchedinputLabel_, matchedcollection); 
+  Handle< View<MET> > matchedCollection; 
+  iEvent.getByToken(myMatchColl_, matchedCollection);
 
-  fillOne( (*collection)[0] , (*matchedcollection)[0]);
+  fillOne( (*collection)[0] , (*matchedCollection)[0]);
 }
 
-void MatchMETBenchmarkAnalyzer::endJob() {
-}

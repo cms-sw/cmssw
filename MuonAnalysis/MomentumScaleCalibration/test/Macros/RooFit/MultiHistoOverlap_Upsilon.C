@@ -5,16 +5,13 @@
  #include "TNtuple.h"
  #include "TLegend.h"
  #include "TCanvas.h"
- #include <fstream>
- #include <string>
- #include <sstream> 
  #include "TCutG.h"
  #include "TFile.h"
  #include "TH2.h"
  #include "TPad.h"
 
+ extern void setTDRStyle();
         
- using namespace std;
  using namespace ROOT::Math;
  
  //  gSystem->Load("libRooFit");
@@ -72,8 +69,7 @@
  histo1->Draw();
  leg->AddEntry(histo1,"this validation","L");  
  //--- fit ----------------------------------------------
- TF1 * f1 = 0;
- f1 = new TF1("cosinusoidal1", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
+ TF1 * f1 = new TF1("cosinusoidal1", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
  f1->SetParameter(0, 90.5);
  f1->SetParameter(1, 1.);
  f1->SetParameter(2, 1.);
@@ -90,8 +86,7 @@
  histo2->Draw("same");
  leg->AddEntry(histo2,"reference","L");   
  //--- fit ----------------------------------------------
- TF1 * f2 = 0;
- f2 = new TF1("cosinusoidal2", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
+ TF1 * f2 = new TF1("cosinusoidal2", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
  f2->SetParameter(0, 90.5);
  f2->SetParameter(1, 1.);
  f2->SetParameter(2, 1.);
@@ -123,7 +118,6 @@
  histo1->GetXaxis()->SetRangeUser(-3.14,3.14);
  histo1->Draw();
  //--- fit ----------------------------------------------
- TF1 * f1 = 0;
  f1 = new TF1("cosinusoidal1", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
  f1->SetParameter(0, 90.5);
  f1->SetParameter(1, 1.);
@@ -141,7 +135,6 @@
  histo2->SetMarkerColor(2);
  histo2->Draw("same");
  //--- fit ----------------------------------------------
- TF1 * f2 = 0;
  f2 = new TF1("cosinusoidal2", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
  f2->SetParameter(0, 90.5);
  f2->SetParameter(1, 1.);
@@ -173,7 +166,6 @@
  histo1->GetXaxis()->SetRangeUser(-2.6,2.6);
  histo1->Draw();
  //--- fit ----------------------------------------------
- TF1 * f1 = 0;
  f1 = new TF1("linear1", "[0]+[1]*x", -2.6, 2.6);
  f1->SetParameter(0, 90.5);
  f1->SetParameter(1, 1.);
@@ -190,7 +182,6 @@
  histo2->SetMarkerColor(2);
  histo2->Draw("same");
  //--- fit ----------------------------------------------
- TF1 * f2 = 0;
  f2 = new TF1("linear2", "[0]+[1]*x", -2.6, 2.6);
  f2->SetParameter(0, 90.5);
  f2->SetParameter(1, 1.);
@@ -221,7 +212,6 @@
  histo1->GetXaxis()->SetRangeUser(-2.6,2.6);
  histo1->Draw();
  //--- fit ----------------------------------------------
- TF1 * f1 = 0;
  f1 = new TF1("linear1", "[0]+[1]*x", -2.6, 2.6);
  f1->SetParameter(0, 0.);
  f1->SetParameter(1, 0.);
@@ -238,7 +228,6 @@
  histo2->SetMarkerColor(2);
  histo2->Draw("same");
  //--- fit ----------------------------------------------
- TF1 * f2 = 0;
  f2 = new TF1("linear2", "[0]+[1]*x", -2.6, 2.6);
  f2->SetParameter(0, 0.);
  f2->SetParameter(1, 0.);
@@ -269,7 +258,6 @@
  histo1->GetXaxis()->SetRangeUser(-3.2,3.2);
  histo1->Draw();
  //--- fit ----------------------------------------------
- TF1 * f1 = 0;
  f1 = new TF1("linear1", "[0]+[1]*x", -3.2, 3.2);
  f1->SetParameter(0, 0.);
  f1->SetParameter(1, 0.);
@@ -286,7 +274,6 @@
  histo2->SetMarkerColor(2);
  histo2->Draw("same");
  //--- fit ----------------------------------------------
- TF1 * f2 = 0;
  f2 = new TF1("linear1", "[0]+[1]*x", -3.2, 3.2);
  f2->SetParameter(0, 0.);
  f2->SetParameter(1, 0.);
@@ -318,7 +305,6 @@
  histo1->GetXaxis()->SetRangeUser(-1.1,1.1);
  histo1->Draw();
  //--- fit ----------------------------------------------
- TF1 * f1 = 0; 
  f1 = new TF1("cosinusoidal1", "[0]+[1]*cos(x+[2])", -1.1, 1.1);
  f1->SetParameter(0, 90.5);
  f1->SetParameter(1, 1.);
@@ -336,7 +322,6 @@
  histo2->SetMarkerColor(2);
  histo2->Draw("same");
  //--- fit ----------------------------------------------
- TF1 * f2 = 0; 
  f2 = new TF1("cosinusoidal2", "[0]+[1]*cos(x+[2])", -1.1, 1.1);
  f2->SetParameter(0, 90.5);
  f2->SetParameter(1, 1.);
@@ -368,7 +353,6 @@
  histo1->GetXaxis()->SetRangeUser(-3.14,3.14);
  histo1->Draw();
  //--- fit ----------------------------------------------
- TF1 * f1 = 0; 
  f1 = new TF1("cosinusoidal1", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
  f1->SetParameter(0, 90.5);
  f1->SetParameter(1, 1.);
@@ -386,7 +370,6 @@
  histo2->SetMarkerColor(2);
  histo2->Draw("same");
  //--- fit ----------------------------------------------
- TF1 * f2 = 0; 
  f2 = new TF1("cosinusoidal2", "[0]+[1]*cos(x+[2])", -3.14, 3.14);
  f2->SetParameter(0, 90.5);
  f2->SetParameter(1, 1.);

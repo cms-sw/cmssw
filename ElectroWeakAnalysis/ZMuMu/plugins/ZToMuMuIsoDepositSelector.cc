@@ -44,6 +44,7 @@ private:
   double cut_;
 };
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/PatCandidates/interface/Muon.h"
 #include "DataFormats/PatCandidates/interface/GenericParticle.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -60,7 +61,7 @@ using namespace isodeposit;
 template<typename Isolator>
 class ZToMuMuIsoDepositSelector {
 public:
-  ZToMuMuIsoDepositSelector(const edm::ParameterSet & cfg) :
+  ZToMuMuIsoDepositSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector & iC) :
     isolator_(cfg.template getParameter<double>("isoCut")),
     ptThreshold(cfg.getUntrackedParameter<double>("ptThreshold")),
     etEcalThreshold(cfg.getUntrackedParameter<double>("etEcalThreshold")),
@@ -78,18 +79,18 @@ public:
   double isolation(const T * t) const {
     const pat::IsoDeposit * trkIso = t->isoDeposit(pat::TrackIso);
     const pat::IsoDeposit * ecalIso = t->isoDeposit(pat::EcalIso);
-    const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);   
-    
+    const pat::IsoDeposit * hcalIso = t->isoDeposit(pat::HcalIso);
+
     Direction dir = Direction(t->eta(), t->phi());
-    
+
     IsoDeposit::AbsVetos vetosTrk;
     vetosTrk.push_back(new ConeVeto( dir, dRVetoTrk ));
     vetosTrk.push_back(new ThresholdVeto( ptThreshold ));
-    
+
     IsoDeposit::AbsVetos vetosEcal;
     vetosEcal.push_back(new ConeVeto( dir, 0.));
     vetosEcal.push_back(new ThresholdVeto( etEcalThreshold ));
-    
+
     IsoDeposit::AbsVetos vetosHcal;
     vetosHcal.push_back(new ConeVeto( dir, 0. ));
     vetosHcal.push_back(new ThresholdVeto( etHcalThreshold ));
@@ -97,7 +98,7 @@ public:
     double isovalueTrk = (trkIso->sumWithin(dRTrk,vetosTrk));
     double isovalueEcal = (ecalIso->sumWithin(dREcal,vetosEcal));
     double isovalueHcal = (hcalIso->sumWithin(dRHcal,vetosHcal));
-    
+
 
     double iso = alpha*( ((1+beta)/2*isovalueEcal) + ((1-beta)/2*isovalueHcal) ) + ((1-alpha)*isovalueTrk) ;
     if(relativeIsolation) iso /= t->pt();
@@ -109,56 +110,56 @@ public:
     if(mu != 0) return isolation(mu);
     const pat::GenericParticle * trk = dynamic_cast<const pat::GenericParticle*>(c);
     if(trk != 0) return isolation(trk);
-    throw edm::Exception(edm::errors::InvalidReference) 
-      << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";      
+    throw edm::Exception(edm::errors::InvalidReference)
+      << "Candidate daughter #0 is neither pat::Muons nor pat::GenericParticle\n";
     return -1;
   }
   bool operator()(const reco::Candidate & z) const {
-    if(z.numberOfDaughters()!=2) 
-      throw edm::Exception(edm::errors::InvalidReference) 
+    if(z.numberOfDaughters()!=2)
+      throw edm::Exception(edm::errors::InvalidReference)
 	<< "Candidate has " << z.numberOfDaughters() << " daughters, 2 expected\n";
     const reco::Candidate * dau0 = z.daughter(0);
     const reco::Candidate * dau1 = z.daughter(1);
     if(!(dau0->hasMasterClone()&&dau1->hasMasterClone()))
-      throw edm::Exception(edm::errors::InvalidReference) 
-	<< "Candidate daughters have no master clone\n"; 
+      throw edm::Exception(edm::errors::InvalidReference)
+	<< "Candidate daughters have no master clone\n";
     const reco::Candidate * m0 = &*dau0->masterClone(), * m1 = &*dau1->masterClone();
     return isolator_(candIsolation(m0), candIsolation(m1));
   }
 private:
   Isolator isolator_;
-  double ptThreshold,etEcalThreshold,etHcalThreshold, dRVetoTrk, dRTrk, dREcal, dRHcal, alpha, beta;  
+  double ptThreshold,etEcalThreshold,etHcalThreshold, dRVetoTrk, dRTrk, dREcal, dRHcal, alpha, beta;
   bool relativeIsolation;
-  
+
 };
 
 #include "CommonTools/UtilAlgos/interface/SingleObjectSelector.h"
 #include "CommonTools/UtilAlgos/interface/AndSelector.h"
 #include "CommonTools/UtilAlgos/interface/StringCutObjectSelector.h"
 
-typedef SingleObjectSelector<reco::CandidateView, 
-    AndSelector<ZToMuMuIsoDepositSelector<IsolatedSelector>, 
-		StringCutObjectSelector<reco::Candidate> 
-    > 
+typedef SingleObjectSelector<reco::CandidateView,
+    AndSelector<ZToMuMuIsoDepositSelector<IsolatedSelector>,
+		StringCutObjectSelector<reco::Candidate>
+    >
   > ZToMuMuIsolatedIDSelector;
 
-typedef SingleObjectSelector<reco::CandidateView, 
-    AndSelector<ZToMuMuIsoDepositSelector<NonIsolatedSelector>, 
-		StringCutObjectSelector<reco::Candidate> 
-    > 
+typedef SingleObjectSelector<reco::CandidateView,
+    AndSelector<ZToMuMuIsoDepositSelector<NonIsolatedSelector>,
+		StringCutObjectSelector<reco::Candidate>
+    >
   > ZToMuMuNonIsolatedIDSelector;
 
 
-typedef SingleObjectSelector<reco::CandidateView, 
-    AndSelector<ZToMuMuIsoDepositSelector<OneNonIsolatedSelector>, 
-		StringCutObjectSelector<reco::Candidate> 
-    > 
+typedef SingleObjectSelector<reco::CandidateView,
+    AndSelector<ZToMuMuIsoDepositSelector<OneNonIsolatedSelector>,
+		StringCutObjectSelector<reco::Candidate>
+    >
   > ZToMuMuOneNonIsolatedIDSelector;
 
-typedef SingleObjectSelector<reco::CandidateView, 
-    AndSelector<ZToMuMuIsoDepositSelector<TwoNonIsolatedSelector>, 
-		StringCutObjectSelector<reco::Candidate> 
-    > 
+typedef SingleObjectSelector<reco::CandidateView,
+    AndSelector<ZToMuMuIsoDepositSelector<TwoNonIsolatedSelector>,
+		StringCutObjectSelector<reco::Candidate>
+    >
   > ZToMuMuTwoNonIsolatedIDSelector;
 
 

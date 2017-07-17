@@ -1,7 +1,8 @@
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 
-SusyPostProcessor = cms.EDAnalyzer("SusyPostProcessor",
+SusyPostProcessor = DQMEDHarvester("SusyPostProcessor",
                                    folderName = cms.string("JetMET/SUSYDQM/"),
                                    quantile = cms.double(0.05)
                                    )

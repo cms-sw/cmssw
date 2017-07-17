@@ -81,7 +81,7 @@ namespace sistrip
 
     static const char* messageLabel_;
   
-    std::auto_ptr<SiStripRawProcessingAlgorithms> algorithms_; //!< object for zero-suppression
+    std::unique_ptr<SiStripRawProcessingAlgorithms> algorithms_; //!< object for zero-suppression
 
     //utilities for cabling etc...
     SpyUtilities utility_;
@@ -149,11 +149,9 @@ namespace sistrip {
     edm::Handle<edm::DetSetVector<SiStripRawDigi> > lDigisHandle;
     try { //to get the digis from the event
       if (!byModule_) {
-	//	iEvent.getByLabel(spyReorderedDigisTag_, lDigisHandle);
 	iEvent.getByToken(spyReorderedDigisToken_, lDigisHandle);
       }
       else { //digis supplied by module
-	//	iEvent.getByLabel(spyVirginRawDigisTag_, lDigisHandle);
 	iEvent.getByToken(spyVirginRawDigisToken_, lDigisHandle);
       }//end of by module check
     } catch (const cms::Exception& e) {
@@ -218,7 +216,7 @@ namespace sistrip {
 	uint16_t lFedChannel = 0;
 	sistrip::SpyUtilities::fedIndex(lDetId, lFedId, lFedChannel);
     		
-	const FedChannelConnection & lConnection = lCabling->connection(lFedId,lFedChannel);
+	const FedChannelConnection & lConnection = lCabling->fedConnection(lFedId,lFedChannel);
 	lDetId = lConnection.detId();
 	lNPairs = lConnection.nApvPairs();
 	lPair = lConnection.apvPairNumber();
@@ -253,32 +251,32 @@ namespace sistrip {
     }//loop on input channels
 
 
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > lPeds(new edm::DetSetVector<SiStripRawDigi>(pedsData,true));
-    std::auto_ptr<edm::DetSetVector<SiStripProcessedRawDigi> > lNoises(new edm::DetSetVector<SiStripProcessedRawDigi>(noiseData,true));
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > lPeds(new edm::DetSetVector<SiStripRawDigi>(pedsData,true));
+    std::unique_ptr<edm::DetSetVector<SiStripProcessedRawDigi> > lNoises(new edm::DetSetVector<SiStripProcessedRawDigi>(noiseData,true));
 
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > lOutputPedSubtr(new edm::DetSetVector<SiStripRawDigi>(pedSubtrData,true));
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > lOutputPedSubtr(new edm::DetSetVector<SiStripRawDigi>(pedSubtrData,true));
 
-    std::auto_ptr<edm::DetSetVector<SiStripRawDigi> > lOutputCMSubtr(new edm::DetSetVector<SiStripRawDigi>(cmSubtrData,true));
+    std::unique_ptr<edm::DetSetVector<SiStripRawDigi> > lOutputCMSubtr(new edm::DetSetVector<SiStripRawDigi>(cmSubtrData,true));
 
-    std::auto_ptr<std::map<uint32_t,std::vector<uint32_t> > > lMedians(new std::map<uint32_t,std::vector<uint32_t> >(medsData));
+    std::unique_ptr<std::map<uint32_t,std::vector<uint32_t> > > lMedians(new std::map<uint32_t,std::vector<uint32_t> >(medsData));
   
     //zero suppressed digis
-    std::auto_ptr< edm::DetSetVector<SiStripDigi> > lOutputZS(new edm::DetSetVector<SiStripDigi>(zsData));
+    std::unique_ptr< edm::DetSetVector<SiStripDigi> > lOutputZS(new edm::DetSetVector<SiStripDigi>(zsData));
     
     if (!byModule_) {
-      iEvent.put(lMedians,"Medians");
-      iEvent.put(lPeds,"PedestalsOrdered");
-      iEvent.put(lNoises,"NoisesOrdered");
-      iEvent.put(lOutputPedSubtr,"PedSubtrDigisOrdered");
-      iEvent.put(lOutputCMSubtr,"CMSubtrDigisOrdered");
+      iEvent.put(std::move(lMedians),"Medians");
+      iEvent.put(std::move(lPeds),"PedestalsOrdered");
+      iEvent.put(std::move(lNoises),"NoisesOrdered");
+      iEvent.put(std::move(lOutputPedSubtr),"PedSubtrDigisOrdered");
+      iEvent.put(std::move(lOutputCMSubtr),"CMSubtrDigisOrdered");
     }
     else {
-      iEvent.put(lPeds,"ModulePedestals");
-      iEvent.put(lNoises,"ModuleNoises");
-      iEvent.put(lOutputPedSubtr,"PedSubtrModuleDigis");
-      iEvent.put(lMedians,"ModuleMedians");
-      iEvent.put(lOutputCMSubtr,"CMSubtrModuleDigis");
-      iEvent.put(lOutputZS,"ZSModuleDigis");
+      iEvent.put(std::move(lPeds),"ModulePedestals");
+      iEvent.put(std::move(lNoises),"ModuleNoises");
+      iEvent.put(std::move(lOutputPedSubtr),"PedSubtrModuleDigis");
+      iEvent.put(std::move(lMedians),"ModuleMedians");
+      iEvent.put(std::move(lOutputCMSubtr),"CMSubtrModuleDigis");
+      iEvent.put(std::move(lOutputZS),"ZSModuleDigis");
     }
 
   }//produce method

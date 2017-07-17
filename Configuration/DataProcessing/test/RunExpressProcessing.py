@@ -9,6 +9,8 @@ it into cmsRun for testing with a few input files etc from the command line
 
 import sys
 import getopt
+import traceback
+import pickle
 
 from Configuration.DataProcessing.GetScenario import getScenario
 
@@ -18,89 +20,118 @@ class RunExpressProcessing:
 
     def __init__(self):
         self.scenario = None
-        self.writeRaw = False
-        self.writeReco = False
-        self.writeFevt = False
-        self.writeAlca = False
-        self.writeDqm = False
+        self.writeRAW = False
+        self.writeRECO = False
+        self.writeFEVT = False
+        self.writeDQM = False
+        self.writeDQMIO = False
         self.noOutput = False
         self.globalTag = None
         self.inputLFN = None
+        self.alcaRecos = None
 
     def __call__(self):
         if self.scenario == None:
             msg = "No --scenario specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         if self.globalTag == None:
-            msg = "No --globaltag specified"
-            raise RuntimeError, msg
+            msg = "No --global-tag specified"
+            raise RuntimeError(msg)
         if self.inputLFN == None:
             msg = "No --lfn specified"
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
         
         try:
             scenario = getScenario(self.scenario)
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error getting Scenario implementation for %s\n" % (
                 self.scenario,)
             msg += str(ex)
-            raise RuntimeError, msg
+            raise RuntimeError(msg)
 
         print "Retrieved Scenario: %s" % self.scenario
         print "Using Global Tag: %s" % self.globalTag
 
         dataTiers = []
-        if self.writeRaw:
+        if self.writeRAW:
             dataTiers.append("RAW")
-            print "Configuring to Write out Raw..."
-        if self.writeReco:
+            print "Configuring to Write out RAW"
+        if self.writeRECO:
             dataTiers.append("RECO")
-            print "Configuring to Write out Reco..."
-        if self.writeFevt:
+            print "Configuring to Write out RECO"
+        if self.writeFEVT:
             dataTiers.append("FEVT")
-            print "Configuring to Write out Fevt..."
-        if self.writeAlca:
-            dataTiers.append("ALCARECO")
-            print "Configuring to Write out Alca..."
-        if self.writeDqm:
+            print "Configuring to Write out FEVT"
+        if self.writeDQM:
             dataTiers.append("DQM")
-            print "Configuring to Write out Dqm..."
+            print "Configuring to Write out DQM"
+        if self.writeDQMIO:
+            dataTiers.append("DQMIO")
+            print "Configuring to Write out DQMIO"
+        if self.alcaRecos:
+            dataTiers.append("ALCARECO")
+            print "Configuring to Write out ALCARECO"
+
 
         try:
+            kwds = {}
+
             if self.noOutput:
-                # get config without any output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = [])
-            elif len(dataTiers) > 0:
-                # get config with specified output
-                process = scenario.expressProcessing(globalTag = self.globalTag, writeTiers = dataTiers)
+                kwds['outputs'] = []
             else:
-                # use default output data tiers
-                process = scenario.expressProcessing(self.globalTag)
-        except NotImplementedError, ex:
+                outputs = []
+                for dataTier in dataTiers:
+                    outputs.append({ 'dataTier' : dataTier,
+                                     'eventContent' : dataTier,
+                                     'moduleLabel' : "write_%s" % dataTier })
+                kwds['outputs'] = outputs
+
+                if self.alcaRecos:
+                    kwds['skims'] = self.alcaRecos
+
+
+            process = scenario.expressProcessing(self.globalTag, **kwds)
+
+        except NotImplementedError as ex:
             print "This scenario does not support Express Processing:\n"
             return
-        except Exception, ex:
+        except Exception as ex:
             msg = "Error creating Express Processing config:\n"
-            msg += str(ex)
-            raise RuntimeError, msg
+            msg += traceback.format_exc()
+            raise RuntimeError(msg)
 
-        process.source.fileNames.append(self.inputLFN)
+        process.source.fileNames = [self.inputLFN]
 
         import FWCore.ParameterSet.Config as cms
 
         process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(10) )
 
+        pklFile = open("RunExpressProcessingCfg.pkl", "w")
         psetFile = open("RunExpressProcessingCfg.py", "w")
-        psetFile.write(process.dumpPython())
-        psetFile.close()
+        try:
+            pickle.dump(process, pklFile)
+            psetFile.write("import FWCore.ParameterSet.Config as cms\n")
+            psetFile.write("import pickle\n")
+            psetFile.write("handle = open('RunExpressProcessingCfg.pkl')\n")
+            psetFile.write("process = pickle.load(handle)\n")
+            psetFile.write("handle.close()\n")
+            psetFile.close()
+        except Exception as ex:
+            print("Error writing out PSet:")
+            print(traceback.format_exc())
+            raise ex
+        finally:
+            psetFile.close()
+            pklFile.close()
+
         cmsRun = "cmsRun -e RunExpressProcessingCfg.py"
         print "Now do:\n%s" % cmsRun
 
 
 
 if __name__ == '__main__':
-    valid = ["scenario=", "raw", "reco", "fevt", "alca", "dqm", "no-output",
-             "global-tag=", "lfn="]
+    valid = ["scenario=", "raw", "reco", "fevt", "dqm", "dqmio", "no-output",
+             "global-tag=", "lfn=", 'alcarecos=']
     usage = \
 """
 RunExpressProcessing.py <options>
@@ -110,20 +141,22 @@ Where options are:
  --raw (to enable RAW output)
  --reco (to enable RECO output)
  --fevt (to enable FEVT output)
- --alca (to enable ALCARECO output)
  --dqm (to enable DQM output)
  --no-output (create config with no output, overrides other settings)
  --global-tag=GlobalTag
  --lfn=/store/input/lfn
+ --alcarecos=plus_seprated_list
 
+Examples:
 
-Example:
-python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --lfn /store/whatever --fevt --alca --dqm
+python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlCosmics0T+SiStripCalZeroBias
+
+python RunExpressProcessing.py --scenario pp --global-tag GLOBALTAG --lfn /store/whatever --fevt --dqmio --alcarecos=TkAlMinBias+SiStripCalZeroBias
 
 """
     try:
         opts, args = getopt.getopt(sys.argv[1:], "", valid)
-    except getopt.GetoptError, ex:
+    except getopt.GetoptError as ex:
         print usage
         print str(ex)
         sys.exit(1)
@@ -135,20 +168,22 @@ python RunExpressProcessing.py --scenario cosmics --global-tag GLOBALTAG::ALL --
         if opt == "--scenario":
             expressinator.scenario = arg
         if opt == "--raw":
-            expressinator.writeRaw = True
+            expressinator.writeRAW = True
         if opt == "--reco":
-            expressinator.writeReco = True
+            expressinator.writeRECO = True
         if opt == "--fevt":
-            expressinator.writeFevt = True
-        if opt == "--alca":
-            expressinator.writeAlca = True
+            expressinator.writeFEVT = True
         if opt == "--dqm":
-            expressinator.writeDqm = True
+            expressinator.writeDQM = True
+        if opt == "--dqmio":
+            expressinator.writeDQMIO = True
         if opt == "--no-output":
             expressinator.noOutput = True
         if opt == "--global-tag":
             expressinator.globalTag = arg
         if opt == "--lfn" :
             expressinator.inputLFN = arg
+        if opt == "--alcarecos":
+            expressinator.alcaRecos = [ x for x in arg.split('+') if len(x) > 0 ]
 
     expressinator()

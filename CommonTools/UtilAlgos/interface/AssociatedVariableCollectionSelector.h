@@ -7,6 +7,7 @@
  * \version $Id: AssociatedVariableCollectionSelector.h,v 1.2 2010/02/20 20:55:13 wmtan Exp $
  *
  */
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
@@ -23,7 +24,7 @@ namespace reco {
 }
 
 template<typename InputCollection, typename VarCollection, typename Selector,
-	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type, 
+	 typename OutputCollection = typename ::helper::SelectedOutputCollectionTrait<InputCollection>::type,
 	 typename StoreContainer = typename ::helper::StoreContainerTrait<OutputCollection>::type,
 	 typename RefAdder = typename ::helper::SelectionAdderTrait<InputCollection, StoreContainer>::type>
 class AssociatedVariableCollectionSelector {
@@ -32,22 +33,22 @@ public:
   typedef StoreContainer container;
   typedef Selector selector;
   typedef typename container::const_iterator const_iterator;
-  AssociatedVariableCollectionSelector(const edm::ParameterSet & cfg) : 
-    var_(cfg.template getParameter<edm::InputTag>("var")),
-    select_(reco::modules::make<Selector>(cfg)) { }
+  AssociatedVariableCollectionSelector(const edm::ParameterSet & cfg, edm::ConsumesCollector && iC) :
+    varToken_(iC.consumes<VarCollection>(cfg.template getParameter<edm::InputTag>("var"))),
+    select_(reco::modules::make<Selector>(cfg, iC)) { }
   const_iterator begin() const { return selected_.begin(); }
   const_iterator end() const { return selected_.end(); }
   void select(const edm::Handle<InputCollection>& c, const edm::Event& evt, const edm::EventSetup&) {
-    selected_.clear();    
+    selected_.clear();
     edm::Handle<VarCollection> var;
-    evt.getByLabel(var_, var);
+    evt.getByToken(varToken_, var);
     for(size_t idx = 0; idx < c->size(); ++idx) {
-      if (select_((*c)[idx], (*var)[edm::getRef(c,idx)])) 
+      if (select_((*c)[idx], (*var)[edm::getRef(c,idx)]))
 	addRef_(selected_, c, idx);
     }
   }
 private:
-  edm::InputTag var_;
+  edm::EDGetTokenT<VarCollection> varToken_;
   container selected_;
   selector select_;
   RefAdder addRef_;
@@ -61,7 +62,7 @@ namespace reco {
   namespace modules {
     template<typename S>
     struct AssociatedVariableCollectionSelectorEventSetupInit {
-      static void init(S & s, const edm::Event& evt, const edm::EventSetup& es) { 
+      static void init(S & s, const edm::Event& evt, const edm::EventSetup& es) {
 	typedef typename EventSetupInit<typename S::selector>::type ESI;
 	ESI::init(s.select_, evt, es);
       }

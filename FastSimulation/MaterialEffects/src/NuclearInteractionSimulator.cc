@@ -3,7 +3,7 @@
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
 #include "FastSimulation/MaterialEffects/interface/NuclearInteractionSimulator.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include "FastSimDataFormats/NuclearInteractions/interface/NUEvent.h"
 
@@ -17,43 +17,43 @@
 #include "TTree.h"
 #include "TROOT.h"
 
+// Internal variable and vectors with name started frm "thePion" means
+// vectors/variable not only for pions but for all type of hadrons
+// treated inside this code
+
 NuclearInteractionSimulator::NuclearInteractionSimulator(
-  std::vector<double>& pionEnergies,
-  std::vector<int>& pionTypes,
-  std::vector<std::string>& pionNames,
-  std::vector<double>& pionMasses,
-  std::vector<double>& pionPMin,
+  std::vector<double>& hadronEnergies,
+  std::vector<int>& hadronTypes,
+  std::vector<std::string>& hadronNames,
+  std::vector<double>& hadronMasses,
+  std::vector<double>& hadronPMin,
   double pionEnergy,
   std::vector<double>& lengthRatio,
   std::vector< std::vector<double> >& ratios,
   std::map<int,int >& idMap,
   std::string inputFile,
   unsigned int distAlgo,
-  double distCut,
-  const RandomEngine* engine) 
+  double distCut)
   :
-  MaterialEffectsSimulator(engine),
-  thePionEN(pionEnergies),
-  thePionID(pionTypes),
-  thePionNA(pionNames),
-  thePionMA(pionMasses),
-  thePionPMin(pionPMin),
+  MaterialEffectsSimulator(),
+  thePionEN(hadronEnergies),
+  thePionID(hadronTypes),
+  thePionNA(hadronNames),
+  thePionMA(hadronMasses),
+  thePionPMin(hadronPMin),
   thePionEnergy(pionEnergy),
   theLengthRatio(lengthRatio),
   theRatios(ratios),
   theIDMap(idMap),
   theDistAlgo(distAlgo),
-  theDistCut(distCut)
-
+  theDistCut(distCut),
+  currentValuesWereSet(false)
 {
-
-  gROOT->cd();
-
   std::string fullPath;
 
   // Prepare the map of files
   // Loop over the particle names
-  std::vector<TFile*> aVFile(thePionEN.size(),static_cast<TFile*>(0));
+  TFile* aVFile=0;
   std::vector<TTree*> aVTree(thePionEN.size(),static_cast<TTree*>(0));
   std::vector<TBranch*> aVBranch(thePionEN.size(),static_cast<TBranch*>(0));
   std::vector<NUEvent*> aVNUEvents(thePionEN.size(),static_cast<NUEvent*>(0));
@@ -63,7 +63,7 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   std::vector<unsigned> aVNumberOfInteractions(thePionEN.size(),static_cast<unsigned>(0));
   std::vector<std::string> aVFileName(thePionEN.size(),static_cast<std::string>(""));
   std::vector<double> aVPionCM(thePionEN.size(),static_cast<double>(0));
-  theFiles.resize(thePionNA.size());
+
   theTrees.resize(thePionNA.size());
   theBranches.resize(thePionNA.size());
   theNUEvents.resize(thePionNA.size());
@@ -73,8 +73,8 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   theNumberOfInteractions.resize(thePionNA.size());
   theFileNames.resize(thePionNA.size());
   thePionCM.resize(thePionNA.size());
+  theFile = aVFile;
   for ( unsigned iname=0; iname<thePionNA.size(); ++iname ) { 
-    theFiles[iname] = aVFile;
     theTrees[iname] = aVTree;
     theBranches[iname] = aVBranch;
     theNUEvents[iname] = aVNUEvents;
@@ -87,8 +87,8 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   } 
 
   // Read the information from a previous run (to keep reproducibility)
-  bool input = this->read(inputFile);
-  if ( input ) 
+  currentValuesWereSet = this->read(inputFile);
+  if ( currentValuesWereSet )
     std::cout << "***WARNING*** You are reading nuclear-interaction information from the file "
 	      << inputFile << " created in an earlier run."
 	      << std::endl;
@@ -100,6 +100,11 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
 
   // Open the root files
   //  for ( unsigned file=0; file<theFileNames.size(); ++file ) {
+  edm::FileInPath myDataFile("FastSimulation/MaterialEffects/data/NuclearInteractions.root");
+
+  fullPath = myDataFile.fullPath();
+  theFile = TFile::Open(fullPath.c_str());
+
   unsigned fileNb = 0;
   for ( unsigned iname=0; iname<thePionNA.size(); ++iname ) {
     for ( unsigned iene=0; iene<thePionEN.size(); ++iene ) {
@@ -110,17 +115,12 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
       theFileNames[iname][iene] = filename.str();
       //std::cout << "thePid/theEne " << thePionID[iname] << " " << theEne << std::endl; 
 
-      edm::FileInPath myDataFile("FastSimulation/MaterialEffects/data/"+theFileNames[iname][iene]);
-      fullPath = myDataFile.fullPath();
-      //    theFiles[file] = TFile::Open(theFileNames[file].c_str());
-      theFiles[iname][iene] = TFile::Open(fullPath.c_str());
-      if ( !theFiles[iname][iene] ) throw cms::Exception("FastSimulation/MaterialEffects") 
-	<< "File " << theFileNames[iname][iene] << " " << fullPath <<  " not found ";
       ++fileNb;
+      std::string treeName="NuclearInteractions_"+thePionNA[iname]+"_E"+std::to_string(int(theEne));
       //
-      theTrees[iname][iene] = (TTree*) theFiles[iname][iene]->Get("NuclearInteractions"); 
+      theTrees[iname][iene] = (TTree*) theFile->Get(treeName.c_str()); 
       if ( !theTrees[iname][iene] ) throw cms::Exception("FastSimulation/MaterialEffects") 
-	<< "Tree with name NuclearInteractions not found in " << theFileNames[iname][iene];
+				      << "Tree with name " << treeName << " not found ";
       //
       theBranches[iname][iene] = theTrees[iname][iene]->GetBranch("nuEvent");
       //std::cout << "The branch = " << theBranches[iname][iene] << std::endl;
@@ -133,25 +133,12 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
       //
       theNumberOfEntries[iname][iene] = theTrees[iname][iene]->GetEntries();
 
-      // Add some randomness (if there was no input file)
-      if ( !input )
-	theCurrentEntry[iname][iene] = (unsigned) (theNumberOfEntries[iname][iene] * random->flatShoot());
+      if(currentValuesWereSet) {
+        theTrees[iname][iene]->GetEntry(theCurrentEntry[iname][iene]);
+        unsigned NInteractions = theNUEvents[iname][iene]->nInteractions();
+        theNumberOfInteractions[iname][iene] = NInteractions;
+      }
 
-      theTrees[iname][iene]->GetEntry(theCurrentEntry[iname][iene]);
-      unsigned NInteractions = theNUEvents[iname][iene]->nInteractions();
-      theNumberOfInteractions[iname][iene] = NInteractions;
-      // Add some randomness (if there was no input file)
-      if ( !input )
-	theCurrentInteraction[iname][iene] = (unsigned) (theNumberOfInteractions[iname][iene] * random->flatShoot());
-
-      /*
-      std::cout << "File " << theFileNames[iname][iene]
-		<< " is opened with " << theNumberOfEntries[iname][iene] 
-		<< " entries and will be read from Entry/Interaction "
-		<< theCurrentEntry[iname][iene] << "/" << theCurrentInteraction[iname][iene] 
-		<< std::endl;
-      */
-      
       //
       // Compute the corresponding cm energies of the nuclear interactions
       XYZTLorentzVector Proton(0.,0.,0.,0.986);
@@ -171,7 +158,6 @@ NuclearInteractionSimulator::NuclearInteractionSimulator(
   ien4 = 0;
   while ( thePionEN[ien4] < 4.0 ) ++ien4;
 
-  // Return Loot in the same state as it was when entering. 
   gROOT->cd();
 
   // Information (Should be on LogInfo)
@@ -195,25 +181,38 @@ NuclearInteractionSimulator::~NuclearInteractionSimulator() {
   // Close all local files
   // Among other things, this allows the TROOT destructor to end up 
   // without crashing, while trying to close these files from outside
-  for ( unsigned ifile=0; ifile<theFiles.size(); ++ifile ) { 
-    for ( unsigned iene=0; iene<theFiles[ifile].size(); ++iene ) {
-      // std::cout << "Closing file " << iene << " with name " << theFileNames[ifile][iene] << std::endl;
-      theFiles[ifile][iene]->Close(); 
+  theFile->Close();
+  delete theFile;
+
+  for(auto& vEvents: theNUEvents) {
+    for(auto evtPtr: vEvents) {
+      delete evtPtr;
     }
   }
 
   // Close the output file
   myOutputFile.close();
 
-  // And return Loot in the same state as it was when entering. 
-  gROOT->cd();
-
   //  dbe->save("test.root");
 
 }
 
-void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
+void NuclearInteractionSimulator::compute(ParticlePropagator& Particle, RandomEngineAndDistribution const* random)
 {
+  if(!currentValuesWereSet) {
+    currentValuesWereSet = true;
+    for ( unsigned iname=0; iname<thePionNA.size(); ++iname ) {
+      for ( unsigned iene=0; iene<thePionEN.size(); ++iene ) {
+        theCurrentEntry[iname][iene] = (unsigned) (theNumberOfEntries[iname][iene] * random->flatShoot());
+
+        theTrees[iname][iene]->GetEntry(theCurrentEntry[iname][iene]);
+        unsigned NInteractions = theNUEvents[iname][iene]->nInteractions();
+        theNumberOfInteractions[iname][iene] = NInteractions;
+
+        theCurrentInteraction[iname][iene] = (unsigned) (theNumberOfInteractions[iname][iene] * random->flatShoot());
+      }
+    }
+  }
 
   // Read a Nuclear Interaction in a random manner
 
@@ -503,6 +502,10 @@ void NuclearInteractionSimulator::compute(ParticlePropagator& Particle)
 	    hAfter3->Fill(eBefore,eAfter/eBefore);
 	  }
 	  */
+
+         // ERROR The way this loops through the events breaks
+         // replay. Which events are retrieved depends on
+         // which previous events were processed.
 
 	  // Increment for next time
 	  ++aCurrentInteraction[ene];

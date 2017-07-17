@@ -71,9 +71,8 @@ class EcalContainer {
 		  //	  std::cout << "resizing to " << DetId::kSizeForDenseIndexing << std::endl;
                   //              m_items.resize((size_t) DetId::kSizeForDenseIndexing);
                   //      }
-                        static Item dummy;
                         DetId id(rawId);
-                        if ( !isValidId(id) ) return dummy;
+                        if ( !isValidId(id) ) return dummy_item();
                         return m_items[id.hashedIndex()];
                 }
 
@@ -95,8 +94,21 @@ class EcalContainer {
                         return m_items.size();
                 }
 
+                void setItems(const std::vector<Item> & items) {
+                    m_items = items;
+                }
         private:
 
+		//Cint can't parse the new C++11 initialization syntax
+#if !defined(__CINT__) && !defined(__MAKECINT__) && !defined(__REFLEX__)
+
+		static const Item& dummy_item() {
+		  static const Item s_dummy{};
+		  return s_dummy;
+		}
+#else
+		static const Item& dummy_item();
+#endif
                 // not protected on EB <--> EE swap -- FIXME?
                 inline bool isValidId(const DetId id) const {
                         return id.det() == ::DetId::Ecal;

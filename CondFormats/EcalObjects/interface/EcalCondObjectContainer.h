@@ -1,6 +1,8 @@
 #ifndef ECAL_COND_OBJECT_CONTAINER_HH
 #define ECAL_COND_OBJECT_CONTAINER_HH
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include "DataFormats/EcalDetId/interface/EcalContainer.h"
 #include "DataFormats/EcalDetId/interface/EBDetId.h"
 #include "DataFormats/EcalDetId/interface/EEDetId.h"
@@ -106,30 +108,16 @@ class EcalCondObjectContainer {
                 // add coherent operator++, not needed now -- FIXME
 
                 inline
-                Item & operator[]( uint32_t rawId ) {
+                Item & operator[]( uint32_t rawId ) 
+                {
                         DetId id(rawId);
-                        static Item dummy;
-                        switch (id.subdetId()) {
-                                case EcalBarrel :
-                                        { 
-                                                return eb_[rawId];
-                                        }
-                                        break;
-                                case EcalEndcap :
-                                        { 
-                                                return ee_[rawId];
-                                        }
-                                        break;
-                                default:
-                                        // FIXME (add throw)
-                                        return dummy;
-                        }
+                        return (id.subdetId()==EcalBarrel) ? eb_[rawId] : ee_[rawId];
+
                 }
-                
+
                 inline
-                Item const & operator[]( uint32_t rawId ) const {
+                Item operator[]( uint32_t rawId ) const {
                         DetId id(rawId);
-                        static Item dummy;
                         switch (id.subdetId()) {
                                 case EcalBarrel :
                                         { 
@@ -143,13 +131,17 @@ class EcalCondObjectContainer {
                                         break;
                                 default:
                                         // FIXME (add throw)
-                                        return dummy;
+                                        // sizeof(Item) <= sizeof(int64_t) for all Items.
+                                        return Item();
                         }
                 }
                 
         private:
+                
                 EcalContainer< EBDetId, Item > eb_;
                 EcalContainer< EEDetId, Item > ee_;
+
+        COND_SERIALIZABLE;
 };
 
 typedef EcalCondObjectContainer<float> EcalFloatCondObjectContainer;

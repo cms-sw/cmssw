@@ -9,7 +9,7 @@
 /**\class PrincipalGetAdapter PrincipalGetAdapter.h FWCore/Framework/interface/PrincipalGetAdapter.h
 
 Description: This is the implementation for accessing EDProducts and 
-inserting new EDproducts.
+inserting new EDProducts.
 
 Usage:
 
@@ -41,19 +41,17 @@ event.getByLabel("market", "apple", fruits);
 Putting Data
 
 \code
-std::auto_ptr<AppleCollection> pApples(new AppleCollection);
   
 //fill the collection
 ...
-event.put(pApples);
+event.put(std::make_unique<AppleCollection>());
 \endcode
 
 \code
-std::auto_ptr<FruitCollection> pFruits(new FruitCollection);
 
 //fill the collection
 ...
-event.put("apple", pFruits);
+event.put(std::make_unique<FruitCollection>());
 \endcode
 
 
@@ -63,7 +61,7 @@ NOTE: The edm::RefProd returned will not work until after the
 edm::PrincipalGetAdapter has been committed (which happens after the
 EDProducer::produce method has ended)
 \code
-std::auto_ptr<AppleCollection> pApples(new AppleCollection);
+auto pApples = std::make_unique<AppleCollection>();
 
 edm::RefProd<AppleCollection> refApples = event.getRefBeforePut<AppleCollection>();
 
@@ -86,6 +84,7 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include <typeinfo>
 #include <string>
 #include <vector>
+#include <type_traits>
 
 #include "DataFormats/Common/interface/EDProductfwd.h"
 #include "DataFormats/Provenance/interface/ProvenanceFwd.h"
@@ -104,16 +103,16 @@ edm::Ref<AppleCollection> ref(refApples, index);
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/Utilities/interface/EDGetToken.h"
 #include "FWCore/Utilities/interface/ProductKindOfType.h"
+#include "FWCore/Utilities/interface/ProductLabels.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 
 namespace edm {
 
   class ModuleCallingContext;
+  class SharedResourcesAcquirer;
 
   namespace principal_get_adapter_detail {
-    struct deleter {
-      void operator()(std::pair<WrapperOwningHolder, BranchDescription const*> const p) const;
-    };
     void
     throwOnPutOfNullProduct(char const* principalType, TypeID const& productType, std::string const& productInstanceName);
     void
@@ -127,7 +126,7 @@ namespace edm {
   }
   class PrincipalGetAdapter {
   public:
-    PrincipalGetAdapter(Principal & pcpl,
+    PrincipalGetAdapter(Principal const& pcpl,
 		 ModuleDescription const& md);
 
     ~PrincipalGetAdapter();
@@ -140,6 +139,11 @@ namespace edm {
     void setConsumer(EDConsumerBase const* iConsumer) {
       consumer_ = iConsumer;
     }
+    
+    void setSharedResourcesAcquirer(SharedResourcesAcquirer* iSra) {
+      resourcesAcquirer_ = iSra;
+    }
+
 
     bool isComplete() const;
 
@@ -154,7 +158,6 @@ namespace edm {
     ProcessHistory const&
     processHistory() const;
 
-    Principal& principal() {return principal_;}
     Principal const& principal() const {return principal_;}
 
     BranchDescription const&
@@ -205,6 +208,8 @@ namespace edm {
     // from the Principal class.
     EDProductGetter const* prodGetter() const;
 
+    void labelsForToken(EDGetToken const& iToken, ProductLabels& oLabels) const;
+
   private:
     // Is this an Event, a LuminosityBlock, or a Run.
     BranchType const& branchType() const;
@@ -222,14 +227,14 @@ namespace edm {
 
     // Each PrincipalGetAdapter must have an associated Principal, used as the
     // source of all 'gets' and the target of 'puts'.
-    Principal & principal_;
+    Principal const& principal_;
 
     // Each PrincipalGetAdapter must have a description of the module executing the
     // "transaction" which the PrincipalGetAdapter represents.
     ModuleDescription const& md_;
     
     EDConsumerBase const* consumer_;
-
+    SharedResourcesAcquirer* resourcesAcquirer_; // We do not use propagate_const because the acquirer is itself mutable.
   };
 
   template <typename PROD>
@@ -256,8 +261,8 @@ namespace edm {
   // no such member function.
 
   namespace detail {
-    typedef char (& no_tag)[1]; // type indicating FALSE
-    typedef char (& yes_tag)[2]; // type indicating TRUE
+    using no_tag = std::false_type; // type indicating FALSE
+    using yes_tag = std::true_type; // type indicating TRUE
 
     // Definitions forthe following struct and function templates are
     // not needed; we only require the declarations.
@@ -268,9 +273,8 @@ namespace edm {
 
     template<typename T>
     struct has_postinsert {
-      static bool const value = 
-	sizeof(has_postinsert_helper<T>(nullptr)) == sizeof(yes_tag) &&
-	!boost::is_base_of<DoNotSortUponInsertion, T>::value;
+      static constexpr bool value = std::is_same<decltype(has_postinsert_helper<T>(nullptr)), yes_tag>::value &&
+	!std::is_base_of<DoNotSortUponInsertion, T>::value;
     };
 
 
@@ -279,8 +283,8 @@ namespace edm {
 
     template <typename T>
     struct has_donotrecordparents {
-      static bool const value = 
-	boost::is_base_of<DoNotRecordParents,T>::value;
+      static constexpr bool value =
+	std::is_base_of<DoNotRecordParents,T>::value;
     };
 
   }
@@ -334,12 +338,12 @@ namespace edm {
     // for this function, since it is *not* to be used by EDProducers?
     std::vector<Handle<PROD> > products;
 
-    typename BasicHandleVec::const_iterator it = bhv.begin();
-    typename BasicHandleVec::const_iterator end = bhv.end();
+    typename BasicHandleVec::iterator it = bhv.begin();
+    typename BasicHandleVec::iterator end = bhv.end();
 
     while (it != end) {
       Handle<PROD> result;
-      convert_handle(*it, result);  // throws on conversion error
+      convert_handle(std::move(*it), result);  // throws on conversion error
       products.push_back(result);
       ++it;
     }

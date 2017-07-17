@@ -31,30 +31,10 @@
 //              ---------------------
 
 class DTSequentialCellNumber {
-
- public:
-
-  DTSequentialCellNumber();
-  ~DTSequentialCellNumber();
-
+public:
   static int id( int      wheel, int station, int sector,
                  int superlayer, int   layer, int cell );
   static int max();
-
- private:
-
-  static int cellsPerWheel;
-  static int cellsPerSector;
-  static int cellsIn13Sectors;
-  static int cellsInTheta;
-  static int cellsInMB1;
-  static int cellsInMB2;
-  static int cellsInMB3;
-  static int cellsInMB4;
-
-  static int* offsetChamber;
-  static int* cellsPerLayer;
-
 };
 
 

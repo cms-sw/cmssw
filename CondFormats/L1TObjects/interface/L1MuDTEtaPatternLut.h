@@ -19,6 +19,8 @@
 // C++ Headers --
 //---------------
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include <map>
 
 //----------------------
@@ -71,10 +73,12 @@ class L1MuDTEtaPatternLut {
     /// return iterator which points to the one-past-last entry of the LUT
     inline ETFLut_iter end() const { return m_lut.end(); }
 
-  private:
+  public:
 
     LUT m_lut;
     
+
+  COND_SERIALIZABLE;
 };
 
 #endif

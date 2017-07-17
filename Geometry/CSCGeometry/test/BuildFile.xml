@@ -1,8 +1,6 @@
 <use   name="Geometry/CSCGeometry"/>
 <use   name="Geometry/Records"/>
 <use   name="DataFormats/GeometryVector"/>
-<use   name="MagneticField/Engine"/>
-<use   name="MagneticField/Records"/>
 <use   name="FWCore/Framework"/>
 <use   name="FWCore/ParameterSet"/>
 <use   name="FWCore/ServiceRegistry"/>
@@ -27,6 +25,8 @@
   <flags   EDM_PLUGIN="1"/>
 </library>
 <library   file="stubs/CSCGACwithB.cc" name="testCSCGACwithB">
+  <use   name="MagneticField/Engine"/>
+  <use   name="MagneticField/Records"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 

@@ -1,3 +1,4 @@
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
@@ -86,9 +87,9 @@ private:
 
       std::string final(format);
       final = replace(final, "%I", nrecord_);
-      final = replace(final, "%E", nevent_);
-      final = replace(final, "%R", nrun_);
-      final = replace(final, "%L", nlumi_);
+      final = replaceU64(final, "%E", nevent_);
+      final = replaceU64(final, "%R", nrun_);
+      final = replaceU64(final, "%L", nlumi_);
       final = replace(final, "%F", nfile_);
       dump_(final.c_str());
     }
@@ -109,6 +110,22 @@ private:
       return result;
     }
 
+  static std::string replaceU64(const std::string &s, const char *pat, unsigned long long val)
+    {
+      size_t pos = 0;
+      size_t patlen = strlen(pat);
+      std::string result = s;
+      while ((pos = result.find(pat, pos)) != std::string::npos)
+      {
+	char buf[64];
+	int n = sprintf(buf, "%llu", val);
+	result.replace(pos, patlen, buf);
+	pos = pos - patlen + n;
+      }
+
+      return result;
+    }
+
   void (*dump_)(const char *);
   std::string atBeginJob_;
   std::string atEndJob_;
@@ -120,9 +137,9 @@ private:
   std::string atEvent_;
   int prescale_;
   int nrecord_;
-  int nevent_;
-  int nrun_;
-  int nlumi_;
+  edm::EventNumber_t nevent_;
+  edm::RunNumber_t nrun_;
+  edm::LuminosityBlockNumber_t nlumi_;
   int nfile_;
 };
 

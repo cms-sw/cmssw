@@ -48,10 +48,8 @@ namespace edmtest {
   ToyDoubleProducer::produce(edm::Event& e, edm::EventSetup const&) {
 
     // Make output
-    std::auto_ptr<DoubleProduct> p(new DoubleProduct(value_));
-    e.put(p);
+    e.put(std::make_unique<DoubleProduct>(value_));
   }
-
 }
 
 using edmtest::ToyDoubleProducer;

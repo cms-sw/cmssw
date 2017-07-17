@@ -12,7 +12,7 @@ exoticaHPTEHLT.throw = cms.bool( False )
 #Define the Reco quality cut
 exoticaRecoDiHPTEFilter = cms.EDFilter(
     "PtMinGsfElectronCountFilter",
-    src = cms.InputTag("gsfElectrons"),
+    src = cms.InputTag("gedGsfElectrons"),
     ptMin = cms.double(30.0),
     minNumber = cms.uint32(2)
     )

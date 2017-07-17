@@ -2,8 +2,8 @@
 #define Alignment_CommonAlignment_AlignableDetUnit_H
 
 #include "Alignment/CommonAlignment/interface/Alignable.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
-class GeomDetUnit;
 
 /// A concrete class that allows to (mis)align a DetUnit.
 ///
@@ -20,6 +20,10 @@ public:
   
   /// Destructor
   virtual ~AlignableDetUnit();
+
+  /// Updater from GeomDetUnit
+  /// The given GeomDetUnit id has to match the current id.
+  void update(const GeomDetUnit* geomDetUnit);
 
   /// No components here => exception!
   virtual void addComponent( Alignable* );
@@ -68,7 +72,7 @@ public:
   virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// Return surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;
@@ -76,8 +80,14 @@ public:
   /// cache the current position, rotation and other parameters (e.g. surface deformations)
   virtual void cacheTransformation();
 
+  /// cache for the given run the current position, rotation and other parameters (e.g. surface deformations)
+  virtual void cacheTransformation(const align::RunNumber&);
+
   /// restore the previously cached transformation
   virtual void restoreCachedTransformation();
+
+  /// restore for the given run the previously cached transformation
+  virtual void restoreCachedTransformation(const align::RunNumber&);
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}
@@ -87,6 +97,7 @@ private:
   AlignmentPositionError* theAlignmentPositionError;
   SurfaceDeformation* theSurfaceDeformation;
   SurfaceDeformation* theCachedSurfaceDeformation;
+  Cache<SurfaceDeformation*> surfaceDeformationsCache_;
 };
 
 #endif 

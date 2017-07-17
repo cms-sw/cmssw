@@ -27,24 +27,40 @@
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateOnSurface.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config)
-{
-  recoEcalCandTag_         = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"));
-  inputCollectionTag1_     = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("inputCollection"));
-  inputCollectionTag2_     = consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("inputCollection"));
-  beamSpotTag_             = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"));
-  upperTrackNrToRemoveCut_ = config.getParameter<int>("upperTrackNrToRemoveCut"); 
-  lowerTrackNrToRemoveCut_ = config.getParameter<int>("lowerTrackNrToRemoveCut");
+EgammaHLTGsfTrackVarProducer::EgammaHLTGsfTrackVarProducer(const edm::ParameterSet& config):
+  recoEcalCandTag_         (consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  inputCollectionTag1_     (consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("inputCollection"))),
+  inputCollectionTag2_     (consumes<reco::GsfTrackCollection>(config.getParameter<edm::InputTag>("inputCollection"))),
+  beamSpotTag_             (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("beamSpotProducer"))),
+  upperTrackNrToRemoveCut_ (config.getParameter<int>("upperTrackNrToRemoveCut")),
+  lowerTrackNrToRemoveCut_ (config.getParameter<int>("lowerTrackNrToRemoveCut")) {
  
   //register your products
   produces < reco::RecoEcalCandidateIsolationMap >( "Deta" ).setBranchAlias( "deta" );
-  produces < reco::RecoEcalCandidateIsolationMap >( "Dphi" ).setBranchAlias( "dphi" ); 
+  produces < reco::RecoEcalCandidateIsolationMap >( "DetaSeed" ).setBranchAlias( "detaseed" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "Dphi" ).setBranchAlias( "dphi" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "OneOESuperMinusOneOP" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "OneOESeedMinusOneOP" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "MissingHits" ).setBranchAlias( "missinghits" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "Chi2" ).setBranchAlias( "chi2" );
+  produces < reco::RecoEcalCandidateIsolationMap >( "ValidHits" ).setBranchAlias( "validhits" );
 }
 
 EgammaHLTGsfTrackVarProducer::~EgammaHLTGsfTrackVarProducer()
 {}
 
+void EgammaHLTGsfTrackVarProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag("hltRecoEcalSuperClusterActivityCandidate"));
+  desc.add<edm::InputTag>(("inputCollection"), edm::InputTag("hltActivityElectronGsfTracks"));
+  desc.add<edm::InputTag>(("beamSpotProducer"), edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<int>(("upperTrackNrToRemoveCut"), 9999); 
+  desc.add<int>(("lowerTrackNrToRemoveCut"), -1);
+  descriptions.add("hltEgammaHLTGsfTrackVarProducer", desc);
+}
 void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
 
   trackExtrapolator_.setup(iSetup);
@@ -68,9 +84,15 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  reco::RecoEcalCandidateIsolationMap dEtaMap;
-  reco::RecoEcalCandidateIsolationMap dPhiMap;
-  
+  reco::RecoEcalCandidateIsolationMap dEtaMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap dEtaSeedMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap dPhiMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap oneOverESuperMinusOneOverPMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap oneOverESeedMinusOneOverPMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap missingHitsMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap validHitsMap(recoEcalCandHandle);
+  reco::RecoEcalCandidateIsolationMap chi2Map(recoEcalCandHandle);
+
   for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
     reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());
    
@@ -96,15 +118,30 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
       }
       
     }
+
+    int validHitsValue = 9999999;
+    float chi2Value = 9999999.;
+    float missingHitsValue = 9999999;
     float dEtaInValue=999999;
+    float dEtaSeedInValue=999999;
     float dPhiInValue=999999;
+    float oneOverESuperMinusOneOverPValue=999999;
+    float oneOverESeedMinusOneOverPValue=999999;
     
     if(static_cast<int>(gsfTracks.size())>=upperTrackNrToRemoveCut_){
       dEtaInValue=0;
+      dEtaSeedInValue=0;
       dPhiInValue=0;
+      missingHitsValue = 0;
+      validHitsValue = 0;
+      chi2Value = 0;
     }else if(static_cast<int>(gsfTracks.size())<=lowerTrackNrToRemoveCut_){
       dEtaInValue=0;
+      dEtaSeedInValue=0;
       dPhiInValue=0;
+      missingHitsValue = 0;
+      validHitsValue = 0;
+      chi2Value = 0;
     }else{
       for(size_t trkNr=0;trkNr<gsfTracks.size();trkNr++){
       
@@ -112,21 +149,63 @@ void EgammaHLTGsfTrackVarProducer::produce(edm::Event& iEvent, const edm::EventS
 	GlobalPoint trackExtrapToSC = trackExtrapolator_.extrapolateTrackPosToPoint(*gsfTracks[trkNr],scPos);
 	EleRelPointPair scAtVtx(scRef->position(),trackExtrapToSC,beamSpot.position());
 	
-	if(fabs(scAtVtx.dEta())<dEtaInValue) dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
-	if(fabs(scAtVtx.dPhi())<dPhiInValue) dPhiInValue=fabs(scAtVtx.dPhi());//we are allowing them to come from different tracks
+	float trkP = gsfTracks[trkNr]->p();
+	if(scRef->energy()!=0 && trkP!=0){
+	  if(fabs(1/scRef->energy() - 1/trkP)<oneOverESuperMinusOneOverPValue) oneOverESuperMinusOneOverPValue =fabs(1/scRef->energy() - 1/trkP);
+	}
+	if(scRef->seed().isNonnull() && scRef->seed()->energy()!=0 && trkP!=0){
+	  if(fabs(1/scRef->seed()->energy() - 1/trkP)<oneOverESeedMinusOneOverPValue) oneOverESeedMinusOneOverPValue =fabs(1/scRef->seed()->energy() - 1/trkP);
+	}
+
+
+	if (gsfTracks[trkNr]->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS) < missingHitsValue) 
+	  missingHitsValue = gsfTracks[trkNr]->hitPattern().numberOfHits(reco::HitPattern::MISSING_INNER_HITS);
+	
+	if (gsfTracks[trkNr]->numberOfValidHits() < validHitsValue)
+	  validHitsValue = gsfTracks[trkNr]->numberOfValidHits();
+
+	if (gsfTracks[trkNr]->numberOfValidHits() < chi2Value)
+	  chi2Value = gsfTracks[trkNr]->normalizedChi2();
+
+	if (fabs(scAtVtx.dEta())<dEtaInValue) 
+	  dEtaInValue=fabs(scAtVtx.dEta()); //we are allowing them to come from different tracks
+
+	if (fabs(scAtVtx.dEta())<dEtaSeedInValue) 
+	  dEtaSeedInValue = fabs(scAtVtx.dEta()-scRef->position().eta()+scRef->seed()->position().eta());
+
+	if (fabs(scAtVtx.dPhi())<dPhiInValue) 
+	  dPhiInValue=fabs(scAtVtx.dPhi());//we are allowing them to come from different tracks
       }	
     }
-    
+   
     dEtaMap.insert(recoEcalCandRef, dEtaInValue);
+    dEtaSeedMap.insert(recoEcalCandRef, dEtaSeedInValue);
     dPhiMap.insert(recoEcalCandRef, dPhiInValue);
+    oneOverESuperMinusOneOverPMap.insert(recoEcalCandRef,oneOverESuperMinusOneOverPValue);   
+    oneOverESeedMinusOneOverPMap.insert(recoEcalCandRef,oneOverESeedMinusOneOverPValue);
+    missingHitsMap.insert(recoEcalCandRef, missingHitsValue);
+    validHitsMap.insert(recoEcalCandRef, validHitsValue);
+    chi2Map.insert(recoEcalCandRef, chi2Value);
   }
 
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dEtaMapForEvent(new reco::RecoEcalCandidateIsolationMap(dEtaMap));
-  std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dPhiMapForEvent(new reco::RecoEcalCandidateIsolationMap(dPhiMap));
-  iEvent.put(dEtaMapForEvent, "Deta" );
-  iEvent.put(dPhiMapForEvent, "Dphi" );
-}
+  auto dEtaMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(dEtaMap);
+  auto dEtaSeedMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(dEtaSeedMap);
+  auto dPhiMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(dPhiMap);
+  auto oneOverESuperMinusOneOverPMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(oneOverESuperMinusOneOverPMap);
+  auto oneOverESeedMinusOneOverPMapForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(oneOverESeedMinusOneOverPMap);
+  auto missingHitsForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(missingHitsMap);
+  auto validHitsForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(validHitsMap);
+  auto chi2ForEvent = std::make_unique<reco::RecoEcalCandidateIsolationMap>(chi2Map);
 
+  iEvent.put(std::move(dEtaMapForEvent), "Deta" );
+  iEvent.put(std::move(dEtaSeedMapForEvent), "DetaSeed" );
+  iEvent.put(std::move(dPhiMapForEvent), "Dphi" );
+  iEvent.put(std::move(oneOverESuperMinusOneOverPMapForEvent), "OneOESuperMinusOneOP");
+  iEvent.put(std::move(oneOverESeedMinusOneOverPMapForEvent), "OneOESeedMinusOneOP");
+  iEvent.put(std::move(missingHitsForEvent), "MissingHits");
+  iEvent.put(std::move(validHitsForEvent), "ValidHits");
+  iEvent.put(std::move(chi2ForEvent), "Chi2");
+}
 
 
 EgammaHLTGsfTrackVarProducer::TrackExtrapolator::TrackExtrapolator(const EgammaHLTGsfTrackVarProducer::TrackExtrapolator& rhs):

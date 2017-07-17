@@ -23,7 +23,7 @@ namespace reco { namespace tau {
 
 class RecoTauElectronRejectionPlugin : public RecoTauModifierPlugin {
   public:
-    explicit RecoTauElectronRejectionPlugin(const edm::ParameterSet& pset);
+  explicit RecoTauElectronRejectionPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector && iC);
     virtual ~RecoTauElectronRejectionPlugin() {}
     void operator()(PFTau&) const override;
   private:
@@ -37,7 +37,7 @@ class RecoTauElectronRejectionPlugin : public RecoTauModifierPlugin {
 };
 
 RecoTauElectronRejectionPlugin::RecoTauElectronRejectionPlugin(
-    const edm::ParameterSet& pset):RecoTauModifierPlugin(pset) {
+  const edm::ParameterSet& pset, edm::ConsumesCollector && iC):RecoTauModifierPlugin(pset,std::move(iC)) {
   // Load parameters
   ElecPreIDLeadTkMatch_maxDR_ =
     pset.getParameter<double>("ElecPreIDLeadTkMatch_maxDR");
@@ -83,9 +83,9 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
   typedef std::pair<reco::PFBlockRef, unsigned> ElementInBlock;
   typedef std::vector< ElementInBlock > ElementsInBlocks;
 
-  PFCandidateRef myleadPFChargedCand = tau.leadPFChargedHadrCand();
+  PFCandidatePtr myleadPFChargedCand = tau.leadPFChargedHadrCand();
   // Build list of PFCands in tau
-  PFCandidateRefVector myPFCands;
+  std::vector<PFCandidatePtr> myPFCands;
   myPFCands.reserve(tau.isolationPFCands().size()+tau.signalPFCands().size());
 
   std::copy(tau.isolationPFCands().begin(), tau.isolationPFCands().end(),
@@ -116,7 +116,7 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
 
           double deltaR   = ROOT::Math::VectorUtil::DeltaR(myElecTrkEcalPos,candPos);
           double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,candPos);
-          double deltaEta = abs(myElecTrkEcalPos.eta()-candPos.eta());
+          double deltaEta = std::abs(myElecTrkEcalPos.eta()-candPos.eta());
           double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
 
           if (myPFCands[i]->ecalEnergy() >= EcalStripSumE_minClusEnergy_ && deltaEta < EcalStripSumE_deltaEta_ &&
@@ -173,7 +173,7 @@ void RecoTauElectronRejectionPlugin::operator()(PFTau& tau) const {
                 ecalPosV.push_back(clusPos);
                 myECALenergy += en;
                 double deltaPhi = ROOT::Math::VectorUtil::DeltaPhi(myElecTrkEcalPos,clusPos);
-                double deltaEta = abs(myElecTrkEcalPos.eta()-clusPos.eta());
+                double deltaEta = std::abs(myElecTrkEcalPos.eta()-clusPos.eta());
                 double deltaPhiOverQ = deltaPhi/(double)myElecTrk->charge();
                 if (en >= EcalStripSumE_minClusEnergy_ && deltaEta<EcalStripSumE_deltaEta_ && deltaPhiOverQ > EcalStripSumE_deltaPhiOverQ_minValue_ && deltaPhiOverQ < EcalStripSumE_deltaPhiOverQ_maxValue_) {
                   myStripClusterE += en;

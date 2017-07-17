@@ -63,8 +63,8 @@ XERCES_CPP_NAMESPACE_USE
     }
     virtual void startElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname, const Attributes &attrs) override;
     virtual void endElement (const XMLCh *const uri, const XMLCh *const localname, const XMLCh *const qname) override;
-    virtual void characters(const   XMLCh* const    chars, const unsigned int length) override;
-    virtual void ignorableWhitespace(const   XMLCh* chars, const unsigned int length) override;
+    virtual void characters (const XMLCh *const chars, const XMLSize_t length) override;
+    virtual void ignorableWhitespace (const XMLCh *const chars, const XMLSize_t length) override;
   private:
     inline bool cvt2String(const XMLCh* val, std::string& ou) {
       if (val==0) return false;
@@ -155,11 +155,11 @@ XERCES_CPP_NAMESPACE_USE
 
     m_mode=md_Idle;
   }
-  void ConfigurationDBHandler::ignorableWhitespace(const   XMLCh* chars, const unsigned int length) {
+  void ConfigurationDBHandler::ignorableWhitespace(const   XMLCh* chars, const XMLSize_t length) {
     if (m_mode==md_Idle) return;
     m_text+=' ';
   }
-  void ConfigurationDBHandler::characters(const XMLCh* chars, const unsigned int length) {
+  void ConfigurationDBHandler::characters(const XMLCh* chars, const XMLSize_t length) {
     if (m_mode==md_Idle) return;
     unsigned int offset=0;
     while (offset<length) {
@@ -172,7 +172,7 @@ XERCES_CPP_NAMESPACE_USE
     }
   }
 
-void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocument, std::map<std::string,std::string>& parameters, std::vector<std::string>& items, std::string& encoding) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocument, std::map<std::string,std::string>& parameters, std::vector<std::string>& items, std::string& encoding) noexcept(false) {
   // uses XERCES SAX2 parser
   std::list<Item> theItems;
   ConfigurationDBHandler handler(theItems);
@@ -201,7 +201,7 @@ void ConfigurationDatabaseStandardXMLParser::parse(const std::string& xmlDocumen
 
 
 
-void ConfigurationDatabaseStandardXMLParser::parseMultiple(const std::string& xmlDocument, std::list<Item>& items) throw (hcal::exception::ConfigurationDatabaseException) {
+void ConfigurationDatabaseStandardXMLParser::parseMultiple(const std::string& xmlDocument, std::list<Item>& items) noexcept(false) {
   // uses XERCES SAX2 parser
   ConfigurationDBHandler handler(items);
     

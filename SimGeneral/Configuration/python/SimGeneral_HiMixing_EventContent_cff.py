@@ -2,22 +2,22 @@ import FWCore.ParameterSet.Config as cms
 
 HiMixRAW = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_hiSignal_*_*',
-        'keep *_hiSignalG4SimHits_*_*',
-        'keep *_hiGenParticles_*_*'
-    )
+        'keep CrossingFramePlaybackInfoNew_mix_*_*',
+        'keep *_heavyIon_*_*',
+        )
 )
 
 HiMixRECO = cms.PSet(
     outputCommands = cms.untracked.vstring(
-        'keep *_hiSignal_*_*',
-	'keep *_hiGenParticles_*_*'
+        'keep CrossingFramePlaybackInfoNew_mix_*_*',
+        'keep *_heavyIon_*_*',
     )
 )
 
 HiMixAOD = cms.PSet(
     outputCommands = cms.untracked.vstring(
-	'keep *_hiGenParticles_*_*'
-    )
+        'keep CrossingFramePlaybackInfoNew_mix_*_*',
+        'keep *_heavyIon_*_*',
+        )
 )
 

@@ -274,11 +274,10 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 			      <<  " uncleaned SC: "   << uncleanSize ;
         //
         // export the clusters to the event from the clean clusters
-        std::auto_ptr< reco::BasicClusterCollection> 
-                basicClusters_p(new reco::BasicClusterCollection);
+        auto basicClusters_p = std::make_unique<reco::BasicClusterCollection>();
         basicClusters_p->assign(basicClusters.begin(), basicClusters.end());
         edm::OrphanHandle<reco::BasicClusterCollection> bccHandle =  
-                evt.put(basicClusters_p, bcCollection_);
+                evt.put(std::move(basicClusters_p), bcCollection_);
         if (!(bccHandle.isValid())) {
               
 	  edm::LogWarning("MissingInput")<< "could not handle the new BasicClusters!";
@@ -289,12 +288,11 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 	LogTrace("UnifiedSC")<< "Got the BasicClusters from the event again" ;
         //
         // export the clusters to the event: from the unclean only clusters
-        std::auto_ptr< reco::BasicClusterCollection> 
-                basicClustersUncleanOnly_p(new reco::BasicClusterCollection);
+        auto basicClustersUncleanOnly_p = std::make_unique<reco::BasicClusterCollection>();
         basicClustersUncleanOnly_p->assign(basicClustersUncleanOnly.begin(), 
                                            basicClustersUncleanOnly.end());
         edm::OrphanHandle<reco::BasicClusterCollection> bccHandleUncleanOnly =  
-                evt.put(basicClustersUncleanOnly_p, bcCollectionUncleanOnly_);
+                evt.put(std::move(basicClustersUncleanOnly_p), bcCollectionUncleanOnly_);
         if (!(bccHandleUncleanOnly.isValid())) {
 
 	  edm::LogWarning("MissingInput")<< "could not handle the new BasicClusters (Unclean Only)!" ;
@@ -398,20 +396,18 @@ void UnifiedSCCollectionProducer::produce(edm::Event& evt,
 
 	LogTrace("UnifiedSC")<< "New SC collection was created";
 
-        std::auto_ptr< reco::SuperClusterCollection> 
-                superClusters_p(new reco::SuperClusterCollection);
+        auto superClusters_p = std::make_unique<reco::SuperClusterCollection>();
         superClusters_p->assign(superClusters.begin(), superClusters.end());
 
-        evt.put(superClusters_p, scCollection_);
+        evt.put(std::move(superClusters_p), scCollection_);
 	
 	LogTrace("UnifiedSC") << "Clusters (Basic/Super) added to the Event! :-)";
 
-        std::auto_ptr< reco::SuperClusterCollection> 
-                superClustersUncleanOnly_p(new reco::SuperClusterCollection);
+        auto superClustersUncleanOnly_p = std::make_unique<reco::SuperClusterCollection>();
         superClustersUncleanOnly_p->assign(superClustersUncleanOnly.begin(), 
                                            superClustersUncleanOnly.end());
 
-        evt.put(superClustersUncleanOnly_p, scCollectionUncleanOnly_);
+        evt.put(std::move(superClustersUncleanOnly_p), scCollectionUncleanOnly_);
 
         // ----- debugging ----------
         // print the new collection SC quantities

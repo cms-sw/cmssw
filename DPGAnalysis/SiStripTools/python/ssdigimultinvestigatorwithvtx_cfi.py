@@ -6,11 +6,7 @@ ssdigimultinvestigatorwithvtx = cms.EDAnalyzer('MultiplicityInvestigator',
                                                wantVtxCorrHist = cms.bool(True),
                                                wantLumiCorrHist = cms.bool(False),
                                                wantPileupCorrHist = cms.bool(False),
-                                               digiLumiCorrConfig = cms.PSet(lumiProducer=cms.InputTag("")),
-                                               digiPileupCorrConfig = cms.PSet(
-                                                                               pileupSummaryCollection=cms.InputTag(""),
-                                                                               useVisibleVertices = cms.bool(False)
-                                                                               ),
+                                               wantVtxPosCorrHist = cms.bool(False),
                                                digiVtxCorrConfig = cms.PSet(
     wantedSubDets = cms.untracked.VPSet(    
     cms.PSet(detSelection = cms.uint32(0),detLabel = cms.string("TK"),  binMax = cms.int32(9523712))

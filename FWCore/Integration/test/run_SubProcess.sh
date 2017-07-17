@@ -10,7 +10,7 @@ pushd ${LOCAL_TMP_DIR}
   rm -f ${test}.log
 
   echo cmsRun testSubProcess_cfg.py
-  cmsRun -p ${LOCAL_TEST_DIR}/${test}_cfg.py > ${test}.log 2>&1 || die "cmsRun ${test}_cfg.py" $?
+  cmsRun -p ${LOCAL_TEST_DIR}/${test}_cfg.py >& ${test}.log 2>&1 || die "cmsRun ${test}_cfg.py" $?
   grep Doodad ${test}.log > testSubProcess.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcess.grep.txt testSubProcess.grep.txt || die "comparing testSubProcess.grep.txt" $?
   grep "++" ${test}.log > testSubProcess.grep2.txt
@@ -33,6 +33,12 @@ pushd ${LOCAL_TMP_DIR}
   grep "ESTestAnalyzerK: p" testSubProcessEventSetup1.log >> testSubProcessEventSetup1.grep.txt
   grep "Sharing" testSubProcessEventSetup1.log >> testSubProcessEventSetup1.grep.txt
   diff ${LOCAL_TEST_DIR}/unit_test_outputs/testSubProcessEventSetup1.grep.txt  testSubProcessEventSetup1.grep.txt || die "comparing testSubProcessEventSetup1.grep.txt" $?
+
+  echo cmsRun testSubProcessUnscheduled_cfg.py
+  cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessUnscheduled_cfg.py || die "cmsRun testSubProcessUnscheduled_cfg.py" $?
+
+  echo cmsRun testSubProcessUnscheduledRead_cfg.py
+  cmsRun -p ${LOCAL_TEST_DIR}/testSubProcessUnscheduledRead_cfg.py || die "cmsRun testSubProcessUnscheduledRead_cfg.py" $?
 
 popd
 

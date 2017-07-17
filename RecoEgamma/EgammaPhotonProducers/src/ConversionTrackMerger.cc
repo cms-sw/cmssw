@@ -26,20 +26,22 @@
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 //#include "DataFormats/TrackReco/src/classes.h"
 
-#include "RecoTracker/TrackProducer/interface/ClusterRemovalRefSetter.h"
 #include "CommonTools/Statistics/interface/ChiSquaredProbability.h"
 
     
   ConversionTrackMerger::ConversionTrackMerger(edm::ParameterSet const& conf) : 
     conf_(conf)
   {
+    // retrieve producer name of input TrackCollection(s)
+    trackProducer1 = consumes<reco::ConversionTrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer1"));
+    trackProducer2 = consumes<reco::ConversionTrackCollection>(conf_.getParameter<edm::InputTag>("TrackProducer2"));
+
     produces<reco::ConversionTrackCollection>();
    
   }
@@ -51,9 +53,7 @@
   // Functions that gets called by framework every event
   void ConversionTrackMerger::produce(edm::Event& e, const edm::EventSetup& es)
   {
-    // retrieve producer name of input TrackCollection(s)
-    std::string trackProducer1 = conf_.getParameter<std::string>("TrackProducer1");
-    std::string trackProducer2 = conf_.getParameter<std::string>("TrackProducer2");
+    
 
     double shareFrac =  conf_.getParameter<double>("ShareFrac");
     bool allowFirstHitShare = conf_.getParameter<bool>("allowFirstHitShare");
@@ -74,30 +74,34 @@
     const reco::ConversionTrackCollection *TC1 = 0;
     static const reco::ConversionTrackCollection s_empty1, s_empty2;
     edm::Handle<reco::ConversionTrackCollection> trackCollection1;
-    e.getByLabel(trackProducer1, trackCollection1);
+    e.getByToken(trackProducer1, trackCollection1);
     if (trackCollection1.isValid()) {
       TC1 = trackCollection1.product();
       //std::cout << "1st collection " << trackProducer1 << " has "<< TC1->size() << " tracks" << std::endl ;
     } else {
       TC1 = &s_empty1;
-      edm::LogWarning("ConversionTrackMerger") << "1st TrackCollection " << trackProducer1 << " not found; will only clean 2nd TrackCollection " << trackProducer2 ;
+      edm::LogWarning("ConversionTrackMerger") 
+	<< "1st TrackCollection not found;"
+	<< " will only clean 2nd TrackCollection ";
     }
     reco::ConversionTrackCollection tC1 = *TC1;
 
     const reco::ConversionTrackCollection *TC2 = 0;
     edm::Handle<reco::ConversionTrackCollection> trackCollection2;
-    e.getByLabel(trackProducer2, trackCollection2);
+    e.getByToken(trackProducer2, trackCollection2);
     if (trackCollection2.isValid()) {
       TC2 = trackCollection2.product();
       //std::cout << "2nd collection " << trackProducer2 << " has "<< TC2->size() << " tracks" << std::endl ;
     } else {
         TC2 = &s_empty2;
-        edm::LogWarning("ConversionTrackMerger") << "2nd TrackCollection " << trackProducer2 << " not found; will only clean 1st TrackCollection " << trackProducer1 ;
+        edm::LogWarning("ConversionTrackMerger") 
+	  << "2nd TrackCollection not found;"
+	  <<" will only clean 1st TrackCollection ";
     }
     reco::ConversionTrackCollection tC2 = *TC2;
 
     // Step B: create empty output collection
-    outputTrks = std::auto_ptr<reco::ConversionTrackCollection>(new reco::ConversionTrackCollection);
+    outputTrks = std::make_unique<reco::ConversionTrackCollection>();
     int i;
 
     std::vector<int> selected1; for (unsigned int i=0; i<tC1.size(); ++i){selected1.push_back(1);}
@@ -241,7 +245,7 @@
     }//end faux loop over tracks
    }//end more than 0 track
   
-    e.put(outputTrks);
+    e.put(std::move(outputTrks));
     return;
 
   }//end produce

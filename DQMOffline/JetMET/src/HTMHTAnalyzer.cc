@@ -36,8 +36,11 @@ HTMHTAnalyzer::HTMHTAnalyzer(const edm::ParameterSet& pSet) {
 // ***********************************************************
 HTMHTAnalyzer::~HTMHTAnalyzer() { }
 
-void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
 
+
+void HTMHTAnalyzer::bookHistograms(DQMStore::IBooker & ibooker,
+				     edm::Run const & iRun,
+				     edm::EventSetup const & ) {
   evtCounter = 0;
   metname = "HTMHTAnalyzer";
 
@@ -46,7 +49,7 @@ void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
   _source                       = parameters.getParameter<std::string>("Source");
 
   LogTrace(metname)<<"[HTMHTAnalyzer] Parameters initialization";
-  dbe->setCurrentFolder("JetMET/MET/"+_source);
+  ibooker.setCurrentFolder("JetMET/MET/"+_source);
 
   HLTPathsJetMBByName_ = parameters.getParameter<std::vector<std::string > >("HLTPathsJetMB");
 
@@ -54,16 +57,16 @@ void HTMHTAnalyzer::beginJob(DQMStore * dbe) {
   _verbose     = parameters.getParameter<int>("verbose");
   _ptThreshold = parameters.getParameter<double>("ptThreshold");
 
-  jetME = dbe->book1D("metReco", "metReco", 4, 1, 5);
+  jetME = ibooker.book1D("metReco", "metReco", 4, 1, 5);
   jetME->setBinLabel(4,"HTMHT",1);
 
-  hNevents = dbe->book1D("METTask_Nevents",   "METTask_Nevents",   1,0,1);
-  hNJets   = dbe->book1D("METTask_NJets",     "METTask_NJets",     100, 0, 100);
-  hMHx     = dbe->book1D("METTask_MHx",       "METTask_MHx",       500,-500,500);
-  hMHy     = dbe->book1D("METTask_MHy",       "METTask_MHy",       500,-500,500);
-  hMHT     = dbe->book1D("METTask_MHT",       "METTask_MHT",       500,0,1000);
-  hMHTPhi  = dbe->book1D("METTask_MhTPhi",    "METTask_MhTPhi",    80,-4,4);
-  hHT      = dbe->book1D("METTask_HT",        "METTask_HT",        500,0,2000);
+  hNevents = ibooker.book1D("METTask_Nevents",   "METTask_Nevents",   1,0,1);
+  hNJets   = ibooker.book1D("METTask_NJets",     "METTask_NJets",     100, 0, 100);
+  hMHx     = ibooker.book1D("METTask_MHx",       "METTask_MHx",       500,-500,500);
+  hMHy     = ibooker.book1D("METTask_MHy",       "METTask_MHy",       500,-500,500);
+  hMHT     = ibooker.book1D("METTask_MHT",       "METTask_MHT",       500,0,1000);
+  hMHTPhi  = ibooker.book1D("METTask_MhTPhi",    "METTask_MhTPhi",    80,-4,4);
+  hHT      = ibooker.book1D("METTask_HT",        "METTask_HT",        500,0,2000);
 
 }
 
@@ -79,44 +82,35 @@ void HTMHTAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSe
   // ==========================================================  
   // Trigger information 
   //
-  if(&triggerResults) {   
 
-    /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
+  /////////// Analyzing HLT Trigger Results (TriggerResults) //////////
 
-    //
-    //
-    // Check how many HLT triggers are in triggerResults 
-    int ntrigs = triggerResults.size();
-    if (_verbose) std::cout << "ntrigs=" << ntrigs << std::endl;
-    
-    //
-    //
-    // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
-    const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
-    
-    //
-    //
-    // count number of requested Jet or MB HLT paths which have fired
-    for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
-      unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
-      if (triggerIndex<triggerResults.size()) {
-	if (triggerResults.accept(triggerIndex)) {
-	  _trig_JetMB++;
-	}
+  //
+  //
+  // Check how many HLT triggers are in triggerResults 
+  int ntrigs = triggerResults.size();
+  if (_verbose) std::cout << "ntrigs=" << ntrigs << std::endl;
+  
+  //
+  //
+  // If index=ntrigs, this HLT trigger doesn't exist in the HLT table for this data.
+  const edm::TriggerNames & triggerNames = iEvent.triggerNames(triggerResults);
+  
+  //
+  //
+  // count number of requested Jet or MB HLT paths which have fired
+  for (unsigned int i=0; i!=HLTPathsJetMBByName_.size(); i++) {
+    unsigned int triggerIndex = triggerNames.triggerIndex(HLTPathsJetMBByName_[i]);
+    if (triggerIndex<triggerResults.size()) {
+      if (triggerResults.accept(triggerIndex)) {
+        _trig_JetMB++;
       }
     }
-    // for empty input vectors (n==0), take all HLT triggers!
-    if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
-
-    if (_trig_JetMB==0) return;
-
-  } else {
-
-    edm::LogInfo("CaloMetAnalyzer") << "TriggerResults::HLT not found, "
-      "automatically select events"; 
-    //return;
-    
   }
+  // for empty input vectors (n==0), take all HLT triggers!
+  if (HLTPathsJetMBByName_.size()==0) _trig_JetMB=triggerResults.size()-1;
+
+  if (_trig_JetMB==0) return;
    
   // ==========================================================
 

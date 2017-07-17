@@ -12,7 +12,7 @@ process = cms.Process("GlobalAlignment")
 #        )
 #)
 
-process.load("CondCore.DBCommon.CondDBSetup_cfi")
+process.load("CondCore.CondDB.CondDB_cfi")
 
 ###  number of events ###
 #process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
@@ -58,7 +58,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 #process.load("Configuration/StandardSequences/MagneticField_38T_cff")
 
 # Geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.Geometry.GeometryRecoDB_cff")
 #from Configuration.StandardSequences.GeometryExtended_cff import *
 
 # Gloabal Tag
@@ -126,23 +126,23 @@ process.CondDBSetup.DBParameters.messageLevel = 2
 # )
 
 #### read Muon Geometry ###  Pablo cff
-#import CondCore.DBCommon.CondDBSetup_cfi
+#import CondCore.CondDB.CondDB_cfi
 #process.muonAlignment = cms.ESSource("PoolDBESSource",
 #connect = cms.string('sqlite_file:/afs/cern.ch/user/s/scodella/public/Databases/Barrel_1125_PG_20100313_LINKFIT_NOOMRON_BOTH_PG_Err.db'),
-#DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
+#DBParameters = CondCore.CondDB.CondDB_cfi.CondDBSetup.DBParameters,
 #toGet = cms.VPSet(cms.PSet(record = cms.string("DTAlignmentRcd"),       tag = cms.string("DTAlignmentRcd")),
-#                  cms.PSet(record = cms.string("DTAlignmentErrorRcd"),  tag = cms.string("DTAlignmentErrorRcd")),
+#                  cms.PSet(record = cms.string("DTAlignmentErrorExtendedRcd"),  tag = cms.string("DTAlignmentErrorExtendedRcd")),
 #                  cms.PSet(record = cms.string("CSCAlignmentRcd"),      tag = cms.string("CSCAlignmentRcd")),
-#                  cms.PSet(record = cms.string("CSCAlignmentErrorRcd"), tag = cms.string("CSCAlignmentErrorRcd"))
+#                  cms.PSet(record = cms.string("CSCAlignmentErrorExtendedRcd"), tag = cms.string("CSCAlignmentErrorExtendedRcd"))
 #                  ))
 #process.es_prefer_muonAlignment = cms.ESPrefer("PoolDBESSource", "muonAlignment")
 
 ### read TrackerGeometry ### Publo cff
 #process.trackerAlignment = cms.ESSource("PoolDBESSource",
 #connect = cms.string("sqlite_file:/afs/cern.ch/cms/CAF/CMSALCA/ALCA_TRACKERALIGN/PayLoads/CRAFT09/TrackerAlignment_2009_v1_prompt/131020-infty/TrackerAlignment_2009_v1_prompt.db"),
-#DBParameters = CondCore.DBCommon.CondDBSetup_cfi.CondDBSetup.DBParameters,
+#DBParameters = CondCore.CondDB.CondDB_cfi.CondDBSetup.DBParameters,
 #toGet = cms.VPSet(cms.PSet(record = cms.string("TrackerAlignmentRcd"), tag = cms.string("Alignments")),
-#                  cms.PSet(record = cms.string("TrackerAlignmentErrorRcd"), tag = cms.string("AlignmentErrors"))
+#                  cms.PSet(record = cms.string("TrackerAlignmentErrorExtendedRcd"), tag = cms.string("AlignmentErrorsExtended"))
 #      ))
 #process.es_prefer_trackerAlignment = cms.ESPrefer("PoolDBESSource", "trackerAlignment")
 

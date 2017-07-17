@@ -246,9 +246,9 @@ LumiProducer::
 LumiProducer::LumiProducer(const edm::ParameterSet& iConfig):m_cachedrun(0),m_isNullRun(false),m_cachesize(0)
 {
   // register your products
-  produces<LumiSummaryRunHeader, edm::InRun>();
-  produces<LumiSummary, edm::InLumi>();
-  produces<LumiDetails, edm::InLumi>();
+  produces<LumiSummaryRunHeader, edm::Transition::EndRun>();
+  produces<LumiSummary, edm::Transition::BeginLuminosityBlock>();
+  produces<LumiDetails, edm::Transition::BeginLuminosityBlock>();
   // set up cache
   std::string connectStr=iConfig.getParameter<std::string>("connect");
   m_cachesize=iConfig.getUntrackedParameter<unsigned int>("ncacheEntries",5);
@@ -420,7 +420,7 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
     if( !mydbservice.isAvailable() ){
       throw cms::Exception("Non existing service lumi::service::DBService");
     }
-    coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+    auto session=mydbservice->connectReadOnly(m_connectStr);
     try{
       session->transaction().start(true);
       m_cachedlumidataid=getLumiDataId(session->nominalSchema(),runnumber);
@@ -434,10 +434,8 @@ LumiProducer::beginRun(edm::Run const& run,edm::EventSetup const &iSetup)
       session->transaction().commit();
     }catch(const coral::Exception& er){
       session->transaction().rollback();
-      mydbservice->disconnect(session);
       throw cms::Exception("DatabaseError ")<<er.what();
     }
-    mydbservice->disconnect(session);
   }
   //std::cout<<"end of beginRun "<<runnumber<<std::endl;
 }
@@ -449,14 +447,8 @@ void LumiProducer::beginLuminosityBlockProduce(edm::LuminosityBlock &iLBlock, ed
   //std::cout<<"beg of beginLuminosityBlock "<<luminum<<std::endl;
   //if is null run, fill empty values and return
   if(m_isNullRun){
-    std::auto_ptr<LumiSummary> pOut1;
-    std::auto_ptr<LumiDetails> pOut2;
-    LumiSummary* pIn1=new LumiSummary;
-    LumiDetails* pIn2=new LumiDetails;
-    pOut1.reset(pIn1);
-    iLBlock.put(pOut1);
-    pOut2.reset(pIn2);
-    iLBlock.put(pOut2);
+    iLBlock.put(std::make_unique<LumiSummary>());
+    iLBlock.put(std::make_unique<LumiDetails>());
     return;
   }
   if(m_lscache.find(luminum)==m_lscache.end()){
@@ -472,10 +464,10 @@ LumiProducer::endRun(edm::Run const& run,edm::EventSetup const &iSetup)
 void 
 LumiProducer::endRunProduce(edm::Run& run,edm::EventSetup const &iSetup)
 {
-  std::auto_ptr<LumiSummaryRunHeader> lsrh(new LumiSummaryRunHeader());
+  auto lsrh = std::make_unique<LumiSummaryRunHeader>();
   lsrh->swapL1Names(m_runcache.TRGBitNames);
   lsrh->swapHLTNames(m_runcache.HLTPathNames);
-  run.put(lsrh);
+  run.put(std::move(lsrh));
   m_runcache.TRGBitNameToIndex.clear();
   m_runcache.HLTPathNameToIndex.clear();
 }
@@ -570,7 +562,7 @@ LumiProducer::fillLSCache(unsigned int luminum){
   if( !mydbservice.isAvailable() ){
     throw cms::Exception("Non existing service lumi::service::DBService");
   }
-  coral::ISessionProxy* session=mydbservice->connectReadOnly(m_connectStr);
+  auto session=mydbservice->connectReadOnly(m_connectStr);
   try{
     session->transaction().start(true);
     coral::ISchema& schema=session->nominalSchema();
@@ -810,25 +802,19 @@ LumiProducer::fillLSCache(unsigned int luminum){
     session->transaction().commit();
   }catch(const coral::Exception& er){
     session->transaction().rollback();
-    mydbservice->disconnect(session);
     throw cms::Exception("DatabaseError ")<<er.what();
   }
-  mydbservice->disconnect(session);
 }
 void
 LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int runnumber,unsigned int luminum){
   //std::cout<<"writing runnumber,luminum "<<runnumber<<" "<<luminum<<std::endl;
-  std::auto_ptr<LumiSummary> pOut1;
-  std::auto_ptr<LumiDetails> pOut2;
-  LumiSummary* pIn1=new LumiSummary;
-  LumiDetails* pIn2=new LumiDetails;
+  auto pIn1 = std::make_unique<LumiSummary>();
+  auto pIn2 = std::make_unique<LumiDetails>();
   if(m_isNullRun){
     pIn1->setLumiVersion("-1");
     pIn2->setLumiVersion("-1");
-    pOut1.reset(pIn1);
-    iLBlock.put(pOut1);
-    pOut2.reset(pIn2);
-    iLBlock.put(pOut2);
+    iLBlock.put(std::move(pIn1));
+    iLBlock.put(std::move(pIn2));
     return;
   }
   PerLSData& lsdata=m_lscache[luminum];
@@ -873,10 +859,8 @@ LumiProducer::writeProductsForEntry(edm::LuminosityBlock & iLBlock,unsigned int 
     }
   }
   pIn2->setLumiVersion(m_lumiversion);
-  pOut1.reset(pIn1);
-  iLBlock.put(pOut1);
-  pOut2.reset(pIn2);
-  iLBlock.put(pOut2);
+  iLBlock.put(std::move(pIn1));
+  iLBlock.put(std::move(pIn2));
 }
 #include "FWCore/Framework/interface/MakerMacros.h"
 DEFINE_FWK_MODULE(LumiProducer);

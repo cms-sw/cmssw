@@ -10,7 +10,7 @@
 
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
 
-class KFStrip1DUpdator GCC11_FINAL : public TrajectoryStateUpdator {
+class KFStrip1DUpdator final : public TrajectoryStateUpdator {
 
 private:
   
@@ -24,7 +24,7 @@ public:
 
   ~KFStrip1DUpdator() {}
 
-  virtual TSOS update(const TSOS& aTsos, const TransientTrackingRecHit& aHit) const;
+  virtual TSOS update(const TSOS& aTsos, const TrackingRecHit& aHit) const;
 
   virtual KFStrip1DUpdator * clone() const 
   {

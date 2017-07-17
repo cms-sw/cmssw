@@ -13,6 +13,7 @@
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "AnalysisDataFormats/TrackInfo/interface/TrackInfo.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit1D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2D.h"
 #include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHit.h"
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiStripRecHit2DLocalPos.h"
@@ -98,7 +99,7 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
     bool firstTakenHit=false;
 
     for (trackingRecHit_iterator ith = ittrk->recHitsBegin(), edh = ittrk->recHitsEnd(); ith != edh; ++ith) {
-      const TrackingRecHit *hit = ith->get(); // ith is an iterator on edm::Ref to rechit
+      const TrackingRecHit *hit = *ith; // ith is an iterator on edm::Ref to rechit
       if(! hit->isValid()){
        	nhit++;
 	continue;
@@ -222,17 +223,17 @@ void AlignmentPrescaler::produce(edm::Event &iEvent, const edm::EventSetup &iSet
 
   //save the asso map, tracks...
   // prepare output 
-  std::auto_ptr<AliClusterValueMap> OutVM( new AliClusterValueMap);
+  auto OutVM = std::make_unique<AliClusterValueMap>();
   *OutVM=InValMap;
 
-  iEvent.put(OutVM);
+  iEvent.put(std::move(OutVM));
   
   
-  std::auto_ptr<AliTrackTakenClusterValueMap> trkVM( new AliTrackTakenClusterValueMap);
+  auto trkVM = std::make_unique<AliTrackTakenClusterValueMap>();
   AliTrackTakenClusterValueMap::Filler trkmapfiller(*trkVM);
   trkmapfiller.insert(Tracks,trackflags.begin(),trackflags.end() );
   trkmapfiller.fill();
-  iEvent.put(trkVM);
+  iEvent.put(std::move(trkVM));
 
 
 }//end produce

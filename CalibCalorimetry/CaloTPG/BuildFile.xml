@@ -5,6 +5,7 @@
 <use   name="CalibFormats/HcalObjects"/>
 <use   name="Geometry/CaloTopology"/>
 <use   name="Geometry/HcalTowerAlgo"/>
+<use   name="CalibCalorimetry/HcalTPGAlgos"/>
 <export>
   <lib   name="1"/>
 </export>

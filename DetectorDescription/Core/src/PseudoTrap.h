@@ -2,6 +2,9 @@
 #define DDI_PseudoTrap_h
 
 #include <iostream>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
 #include "Solid.h"
 
 namespace DDI {
@@ -21,11 +24,11 @@ namespace DDI {
        p_.push_back(minusZ);
      }
     
-    ~PseudoTrap(){ }
+    ~PseudoTrap() override{ }
     
-    double volume() const { return -1; }
+    double volume() const override { return -1; }
     
-    void stream(std::ostream & os) const;
+    void stream(std::ostream & os) const override;
   };
    
 }

@@ -16,14 +16,14 @@
 
    \brief   Module to analyze the performance of muon reconstruction on the example of Z->mumu events
 
-   Module to analyze the performance of muon reconstruction on the example of Z->mumu events: transverse 
+   Module to analyze the performance of muon reconstruction on the example of Z->mumu events: transverse
    momentum and eta of the muon candidates and the mass of the Z boson candidate are plotted from inner,
-   outer and global tracks. The mass is recalculated by an extra finction. The difference of the outer 
+   outer and global tracks. The mass is recalculated by an extra finction. The difference of the outer
    track and the global track are plotted for the transverse momentum, eta and phi of the two muon candi-
-   dates, for global muons as far as available. The only input parameters are: 
-   
+   dates, for global muons as far as available. The only input parameters are:
+
    _muons_  --> indicating the muon collection of choice.
-   _shift_  --> indicating the relative shift of the transverse momentum for the estimate of the effect 
+   _shift_  --> indicating the relative shift of the transverse momentum for the estimate of the effect
                 on the invariant mass.
 
    The shift is applied to all mass calculations.
@@ -31,7 +31,7 @@
 
 
 class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
-  
+
  public:
   /// typedef's to simplify get functions
   typedef math::XYZVector Vector;
@@ -41,7 +41,7 @@ class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
   explicit PatZToMuMuAnalyzer(const edm::ParameterSet& cfg);
   /// default destructor
   ~PatZToMuMuAnalyzer(){};
-  
+
  private:
   /// everything that needs to be done during the event loop
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
@@ -56,7 +56,7 @@ class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
   void fill(std::string hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const;
 
   /// input for muons
-  edm::InputTag muons_;
+  edm::EDGetTokenT<edm::View<pat::Muon> > muonsToken_;
   /// shift in transverse momentum to determine a
   /// rough uncertainty on the Z mass estimation
   double shift_;
@@ -64,7 +64,7 @@ class PatZToMuMuAnalyzer : public edm::EDAnalyzer {
   std::map< std::string, TH1D* > hists_;
 };
 
-inline double 
+inline double
 PatZToMuMuAnalyzer::mass(const Vector& t1,  const Vector& t2) const
 {
   return (LorentzVector(shift_*t1.x(), shift_*t1.y(), t1.z(), sqrt((0.1057*0.1057)+t1.mag2())) + LorentzVector(shift_*t2.x(), shift_*t2.y(), t2.z(), sqrt((0.1057*0.1057)+t2.mag2()))).mass();
@@ -74,11 +74,11 @@ PatZToMuMuAnalyzer::mass(const Vector& t1,  const Vector& t2) const
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 PatZToMuMuAnalyzer::PatZToMuMuAnalyzer(const edm::ParameterSet& cfg):
-  muons_(cfg.getParameter< edm::InputTag >("muons")),
+  muonsToken_(consumes<edm::View<pat::Muon> >(cfg.getParameter< edm::InputTag >("muons"))),
   shift_(cfg.getParameter< double >("shift"))
 {
   edm::Service< TFileService > fileService;
-  
+
   // mass plot around Z peak from global tracks
   hists_[ "globalMass"] = fileService->make< TH1D >( "globalMass" , "Mass_{Z} (global) (GeV)",   90,    30.,   120.);
   // eta from global tracks
@@ -105,7 +105,7 @@ PatZToMuMuAnalyzer::PatZToMuMuAnalyzer(const edm::ParameterSet& cfg):
   hists_[ "deltaPhi"  ] = fileService->make< TH1D >( "deltaPhi"   , "#Delta #phi"            ,  100,   -0.2,    0.2);
 }
 
-void PatZToMuMuAnalyzer::fill(std::string hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const 
+void PatZToMuMuAnalyzer::fill(std::string hists, const reco::TrackRef& t1, const reco::TrackRef& t2) const
 {
   if( t1.isAvailable() ){
     // fill pt from global track for first muon
@@ -129,19 +129,19 @@ void PatZToMuMuAnalyzer::analyze(const edm::Event& event, const edm::EventSetup&
 {
   // pat candidate collection
   edm::Handle< edm::View<pat::Muon> > muons;
-  event.getByLabel(muons_, muons);
+  event.getByToken(muonsToken_, muons);
 
-  // Fill some basic muon quantities as 
-  // reconstructed from inner and outer 
-  // tack 
+  // Fill some basic muon quantities as
+  // reconstructed from inner and outer
+  // tack
   for(edm::View<pat::Muon>::const_iterator mu1=muons->begin(); mu1!=muons->end(); ++mu1){
     for(edm::View<pat::Muon>::const_iterator mu2=muons->begin(); mu2!=muons->end(); ++mu2){
       if(mu2>mu1){ // prevent double conting
-	if( mu1->charge()*mu2->charge()<0 ){ // check only muon pairs of unequal charge 
+	if( mu1->charge()*mu2->charge()<0 ){ // check only muon pairs of unequal charge
 	  fill(std::string("inner" ), mu1->innerTrack (), mu2->innerTrack ());
 	  fill(std::string("outer" ), mu1->outerTrack (), mu2->outerTrack ());
 	  fill(std::string("global"), mu1->globalTrack(), mu2->globalTrack());
-	  
+
 	  if(mu1->isGlobalMuon()){
 	    fill("deltaPt" , mu1->outerTrack()->pt ()-mu1->globalTrack()->pt ());
 	    fill("deltaEta", mu1->outerTrack()->eta()-mu1->globalTrack()->eta());

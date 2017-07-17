@@ -21,14 +21,19 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
   if ( !surface.mediumProperties().isValid() )  return TSoS;
   SurfaceSide side = propDir==alongMomentum ? afterSurface : beforeSurface;
   // single input state?
-  if ( TSoS.components().size()>1 )
+  if (!TSoS.singleState() )
     throw cms::Exception("LogicError") << "GsfMaterialEffectsUpdator::updateState used with MultiTSOS";
-  double weight = TSoS.weight();
+  auto weight = TSoS.weight();
   //
   // Get components (will force recalculation, if necessary)
   //
+  #if __clang__
+  std::vector<Effect> effects(size());
+  compute(TSoS,propDir,effects.data());
+  #else
   Effect effects[size()];
   compute(TSoS,propDir,effects);
+  #endif
 
   //
   // prepare output vector
@@ -37,13 +42,13 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
   //
   // loop over components
   //
-  //   edm::LogDebug("GsfMaterialEffectsUpdator") << "found " << Ws.size() << " components\n"
-  // 					     << "  input state has weight " << TSoS.weight();
+  LogDebug("GsfMaterialEffectsUpdator") << "found " << size() << " components "
+   					     << "  input state has weight " << TSoS.weight();
   for ( auto const & effect : effects ) {
-    //      edm::LogDebug("GsfMaterialEffectsUpdator") << "w, dp, sigp = "
-    //  	 << Ws[ic] << ", "
-    //  	 << dPs[ic] << ", "
-    //  	 << sqrt((deltaErrors[ic])[0][0]);
+          LogDebug("GsfMaterialEffectsUpdatorDETAIL") << "w, dp, sigp = "
+      	 << effect.weight << ", "
+      	 << effect.deltaP << ", "
+      	 << std::sqrt(effect.deltaCov[materialEffect::elos]);
     //
     // Update momentum. In case of failure: return invalid state.
     // Use deltaP method to ensure update of cache, if necessary!
@@ -57,14 +62,14 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
     if ( TSoS.hasError() ) {
       AlgebraicSymMatrix55 eloc = TSoS.localError().matrix();
       effect.deltaCov.add(eloc);
-      result.addState(TrajectoryStateOnSurface(lp,
+      result.addState(TrajectoryStateOnSurface(weight*effect.weight,
+                                               lp,
 					       LocalTrajectoryError(eloc),
 					       surface,
 					       &(TSoS.globalParameters().magneticField()),
-					       side,
-					       weight*effect.weight));
-      //       edm::LogDebug("GsfMaterialEffectsUpdator") 
-      // 	<< "adding state with weight " << weight*Ws[ic];
+					       side));
+           LogDebug("GsfMaterialEffectsUpdatorDETAIL") 
+         	<< "adding state with weight " << weight*effect.weight;
     }
     else {
       result.addState(TrajectoryStateOnSurface(lp,surface,
@@ -72,8 +77,8 @@ GsfMaterialEffectsUpdator::updateState (const TrajectoryStateOnSurface& TSoS,
 					       side));
     }
   }
-  //   edm::LogDebug("GsfMaterialEffectsUpdator") 
-  //     << "  output state has weight " << result.combinedState().weight();
+  LogDebug("GsfMaterialEffectsUpdator") 
+       << "  output state has weight " << result.combinedState().weight();
   return result.combinedState();
 }
 

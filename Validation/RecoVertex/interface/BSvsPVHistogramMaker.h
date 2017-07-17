@@ -2,6 +2,7 @@
 #define Validation_RecoVertex_BSvsPVHistogramMaker_H
 
 #include <string>
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DPGAnalysis/SiStripTools/interface/RunHistogramManager.h"
@@ -24,9 +25,9 @@ class TFileDirectory;
 class BSvsPVHistogramMaker {
 
  public:
-  BSvsPVHistogramMaker();
-  BSvsPVHistogramMaker(const edm::ParameterSet& iConfig);
- 
+  BSvsPVHistogramMaker(edm::ConsumesCollector&& iC);
+  BSvsPVHistogramMaker(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
+
   ~BSvsPVHistogramMaker();
 
   void book(const std::string dirname="");

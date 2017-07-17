@@ -11,7 +11,7 @@
 #define _FittedEntriesSet_HH
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "time.h"
+#include <ctime>
 #include <vector>
 #include "Alignment/CocoaFit/interface/FittedEntry.h"
 //#ifdef MAT_MESCHACH

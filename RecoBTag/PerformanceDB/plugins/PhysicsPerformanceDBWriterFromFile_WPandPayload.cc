@@ -82,6 +82,11 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload::beginJob()
   std::cout <<" Results: " << nres<<" Binning variables: "<<nbin<<std::endl;
 
   stride = nres+nbin*2;
+  if (! stride)
+  {
+    std::cout << " Malformed input file" << std::endl;
+    exit(1);
+  }
   
   int number=0;
   

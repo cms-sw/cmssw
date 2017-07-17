@@ -1,5 +1,5 @@
-#ifndef MuonNumbering_GEMNumberingScheme_h
-#define MuonNumbering_GEMNumberingScheme_h
+#ifndef Geometry_MuonNumbering_GEMNumberingScheme_h
+#define Geometry_MuonNumbering_GEMNumberingScheme_h
 
 #include "Geometry/MuonNumbering/interface/MuonNumberingScheme.h"
 
@@ -14,9 +14,9 @@ public:
   GEMNumberingScheme( const DDCompactView& cpv );
   GEMNumberingScheme( const MuonDDDConstants& muonConstants );
 
-  virtual ~GEMNumberingScheme(){};
+  ~GEMNumberingScheme() override{};
   
-  virtual int baseNumberToUnitNumber(const MuonBaseNumber&);
+  int baseNumberToUnitNumber(const MuonBaseNumber&) override;
   
 private:
   void initMe ( const MuonDDDConstants& muonConstants );

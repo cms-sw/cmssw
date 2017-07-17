@@ -17,8 +17,10 @@
 #include "G4Track.hh"
 #include "G4VProcess.hh"
 
+#include "G4SystemOfUnits.hh"
+
 EcalTBH4BeamSD::EcalTBH4BeamSD(G4String name, const DDCompactView & cpv,
-			       SensitiveDetectorCatalog & clg, 
+			       const SensitiveDetectorCatalog & clg,
 			       edm::ParameterSet const & p, 
 			       const SimTrackManager* manager) : 
   CaloSD(name, cpv, clg, p, manager), numberingScheme(0) {

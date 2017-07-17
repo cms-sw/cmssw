@@ -9,5 +9,4 @@
 <use   name="RecoTracker/Record"/>
 <use   name="TrackingTools/TrajectoryCleaning"/>
 <use   name="TrackingTools/TrajectoryFiltering"/>
-<use   name="boost"/>
 <flags   EDM_PLUGIN="1"/>

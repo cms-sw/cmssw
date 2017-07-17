@@ -47,6 +47,7 @@
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
 #include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include <memory>
 #include <vector>
@@ -78,28 +79,27 @@ class CaloSubdetectorGeometry;
 // class declaration
 //
 
-class ECALRecHitAnalyzer : public edm::EDAnalyzer {
+class ECALRecHitAnalyzer : public DQMEDAnalyzer {
 public:
 
   ECALRecHitAnalyzer(const edm::ParameterSet&);
   //~ECALRecHitAnalyzer();
 
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   //  virtual void beginJob(void) ;
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&) ;
-  virtual void endJob() ;
+  virtual void dqmbeginRun(const edm::Run&, const edm::EventSetup&) ;
 
   void WriteECALRecHits(const edm::Event&, const edm::EventSetup&);
   void FillGeometry(const edm::EventSetup&);
-  void BookHistos();
- 
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+
  private:
-  // DAQ Tools
-  DQMStore* dbe_;
+
 
   // Inputs from Configuration
-  edm::InputTag EBRecHitsLabel_;
-  edm::InputTag EERecHitsLabel_;
+  edm::EDGetTokenT<EBRecHitCollection> EBRecHitsLabel_;
+  edm::EDGetTokenT<EERecHitCollection> EERecHitsLabel_;
+
   bool debug_;
   bool finebinning_;
   std::string FolderName_;

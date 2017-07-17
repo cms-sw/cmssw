@@ -12,7 +12,7 @@ namespace edmtest
 int  MemoryTestClient_A::nevent = 0;
 
 MemoryTestClient_A::MemoryTestClient_A( edm::ParameterSet const & ps)
-  : memoryPattern(), vsize(0), last_allocation(0) 
+  : memoryPattern(), vsize(0), last_allocation(nullptr) 
 {
   int pattern = ps.getUntrackedParameter<int>("pattern",1);
   edm::LogWarning("memoryPattern") << "Memory Pattern selected: " << pattern;

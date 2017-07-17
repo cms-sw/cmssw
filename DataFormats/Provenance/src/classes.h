@@ -29,8 +29,10 @@
 #include "DataFormats/Provenance/interface/ProductRegistry.h"
 #include "DataFormats/Provenance/interface/RunAuxiliary.h"
 #include "DataFormats/Provenance/interface/RunID.h"
+#include "DataFormats/Provenance/interface/ThinnedAssociationsHelper.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 #include "DataFormats/Provenance/interface/ESRecordAuxiliary.h"
+#include "DataFormats/Provenance/interface/ViewTypeChecker.h"
 #include "FWCore/Utilities/interface/typedefs.h"
 #include <map>
 #include <set>
@@ -55,7 +57,7 @@ namespace edm {
   typedef Hash<ModuleDescriptionType> ModuleDescriptionID;
 }
 
-namespace {
+namespace DataFormats_Provenance {
   struct dictionary {
   std::pair<edm::BranchKey, edm::BranchDescription> dummyPairBranch;
   std::map<edm::ParameterSetID, edm::ParameterSetBlob> dummyMapParam;

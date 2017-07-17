@@ -11,6 +11,7 @@ class TEveGeoShape;
 class TGeoVolume;
 class TGeoShape;
 class TFile;
+class TObjArray;
 
 #include "TEveVSDStructs.h"
 #include "TGeoMatrix.h"
@@ -27,7 +28,7 @@ public:
    static const int kSubdetOffset       = 25;
 
    enum Detector { Tracker = 1, Muon = 2, Ecal = 3, Hcal = 4, Calo = 5 };
-   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10 };
+   enum SubDetector { PixelBarrel = 1, PixelEndcap = 2, TIB = 3, TID = 4, TOB = 5, TEC = 6, CSC = 7, DT = 8, RPCBarrel = 9, RPCEndcap = 10, GEM = 11, ME0 = 12};
 
    struct Range {
       double min1;
@@ -36,6 +37,16 @@ public:
       double max2;
       Range( void ) : min1( 9999 ), max1( -9999 ), min2( 9999 ), max2( -9999 ) {
       }
+   };
+
+   class VersionInfo {
+   public:
+      TNamed* productionTag;
+      TNamed* cmsswVersion;
+      TObjArray* extraDetectors;
+
+      VersionInfo() : productionTag(0), cmsswVersion(0), extraDetectors(0) {}
+      bool haveExtraDet(const char*)const;
    };
 
    FWGeometry( void );
@@ -70,8 +81,8 @@ public:
    // get reco topology/parameters
    const float* getParameters( unsigned int id ) const;
 
-   void localToGlobal( unsigned int id, const float* local, float* global ) const;
-   void localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2 ) const;
+   void localToGlobal( unsigned int id, const float* local,  float* global, bool translatep=true ) const;
+   void localToGlobal( unsigned int id, const float* local1, float* global1, const float* local2, float* global2, bool translatep=true ) const;
 
    struct GeomDetInfo
    {
@@ -95,20 +106,35 @@ public:
    typedef std::vector<FWGeometry::GeomDetInfo> IdToInfo;
    typedef std::vector<FWGeometry::GeomDetInfo>::const_iterator IdToInfoItr;
 
+
    bool contains( unsigned int id ) const {
      return FWGeometry::find( id ) != m_idToInfo.end();
    }
 
+   IdToInfoItr mapEnd() const {return m_idToInfo.end();}
+
    void clear( void ) { m_idToInfo.clear(); m_idToMatrix.clear(); }
    IdToInfoItr find( unsigned int ) const;
-   void localToGlobal( const GeomDetInfo& info, const float* local, float* global ) const;
- 
+   void localToGlobal( const GeomDetInfo& info, const float* local, float* global, bool translatep=true ) const;
+
+   const VersionInfo& versionInfo() const { return m_versionInfo; }
+
+   int getProducerVersion() const {return m_producerVersion;}
+   
+   TGeoShape* getShape( const GeomDetInfo& info ) const;
+
+
 private:
    mutable std::map<unsigned int, TGeoMatrix*> m_idToMatrix;
 
    IdToInfo m_idToInfo;
 
-   TGeoShape* getShape( const GeomDetInfo& info ) const;
+   std::string m_prodTag;
+
+   VersionInfo  m_versionInfo;
+
+   int m_producerVersion;
+
 };
 
 #endif

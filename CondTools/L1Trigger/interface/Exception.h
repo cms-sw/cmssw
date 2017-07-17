@@ -23,7 +23,7 @@
 #include <string>
 
 // user include files
-#include "CondCore/DBCommon/interface/Exception.h"
+#include "CondCore/CondDB/interface/Exception.h"
 
 // forward declarations
 

@@ -17,6 +17,10 @@ public:
   /// Destructor
   virtual ~AlignableDet();
 
+  /// Updater from GeomDet
+  /// The given GeomDet id has to match the current id.
+  void update(const GeomDet* geomDet, bool updateComponents = true);
+
   /// Set the AlignmentPositionError and, if (propagateDown), to all components
   virtual void setAlignmentPositionError(const AlignmentPositionError &ape, bool propagateDown);
 
@@ -37,7 +41,7 @@ public:
   virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// alignment position error - for checking only, otherwise use alignmentErrors() above!  
   const AlignmentPositionError* alignmentPositionError() const { return theAlignmentPositionError;}

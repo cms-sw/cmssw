@@ -114,7 +114,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob()
   while (!in.eof()){
     float temp;
     in >> temp;
-    std::cout <<" Intersing "<<temp<< " in position "<<number<<std::endl;
+    std::cout <<" Inserting "<<temp<< " in position "<<number<<std::endl;
     number++;
     pl.push_back(temp);
   }
@@ -125,7 +125,7 @@ void PhysicsPerformanceDBWriterFromFile_WPandPayload_IOV::beginJob()
   if (stride != nbin*2+nres){
     std::cout <<" Table not well formed"<<std::endl;
   }
-  if ((number % stride) != 0){
+  if (stride != 0 && (number % stride) != 0){
     std::cout <<" Table not well formed"<<std::endl;
   }
 

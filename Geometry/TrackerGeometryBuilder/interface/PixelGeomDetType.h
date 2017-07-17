@@ -9,7 +9,7 @@
  * Generic DetType for the Pixels. Specialized in SiPixelGeomDetType.
  */
 
-class PixelGeomDetType GCC11_FINAL: public GeomDetType {
+class PixelGeomDetType final: public GeomDetType {
 
 public:
   typedef  PixelTopology        TopologyType;
@@ -18,12 +18,12 @@ public:
     GeomDetType(name,det),
     theTopology(t){}
 
-  virtual ~PixelGeomDetType() {
+  ~PixelGeomDetType() override {
     delete theTopology;
   }
 
   // Access to topologies
-  virtual const  Topology& topology() const { return *theTopology;}
+  const  Topology& topology() const override { return *theTopology;}
 
 
   virtual const TopologyType& specificTopology() const  { return *theTopology;}

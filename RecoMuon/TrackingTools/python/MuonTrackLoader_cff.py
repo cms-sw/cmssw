@@ -3,14 +3,14 @@ import FWCore.ParameterSet.Config as cms
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 from TrackingTools.GeomPropagators.SmartPropagator_cff import *
 from RecoMuon.TrackingTools.MuonUpdatorAtVertex_cff import *
-Chi2EstimatorForMuonTrackLoader = cms.ESProducer("Chi2MeasurementEstimatorESProducer",
-    ComponentName = cms.string('Chi2EstimatorForMuonTrackLoader'),
-    nSigma = cms.double(3.0),
-    MaxChi2 = cms.double(100000.0)
-)
+import TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi
+Chi2EstimatorForMuonTrackLoader = TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi.Chi2MeasurementEstimator.clone()
+Chi2EstimatorForMuonTrackLoader.ComponentName = cms.string('Chi2EstimatorForMuonTrackLoader')
+Chi2EstimatorForMuonTrackLoader.nSigma = 3.0
+Chi2EstimatorForMuonTrackLoader.MaxChi2 = 100000.0
 
-import TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi
-KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone(
+import TrackingTools.TrackFitters.KFTrajectorySmoother_cfi
+KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
     errorRescaling = cms.double(10.0),
     minHits = cms.int32(3),
     ComponentName = cms.string('KFSmootherForMuonTrackLoader'),
@@ -19,7 +19,7 @@ KFSmootherForMuonTrackLoader = TrackingTools.TrackFitters.KFTrajectorySmootherES
     Propagator = cms.string('SmartPropagatorAnyRK')
 )
 
-KFSmootherForMuonTrackLoaderL3 = TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi.KFTrajectorySmoother.clone(
+KFSmootherForMuonTrackLoaderL3 = TrackingTools.TrackFitters.KFTrajectorySmoother_cfi.KFTrajectorySmoother.clone(
     errorRescaling = cms.double(10.0),
     minHits = cms.int32(3),
     ComponentName = cms.string('KFSmootherForMuonTrackLoaderL3'),
@@ -34,7 +34,8 @@ MuonTrackLoaderForSTA = cms.PSet(
         Smoother = cms.string('KFSmootherForMuonTrackLoader'),
         DoSmoothing = cms.bool(False),
         VertexConstraint = cms.bool(True),
-        beamSpot = cms.InputTag("offlineBeamSpot")
+        beamSpot = cms.InputTag("offlineBeamSpot"),
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForGLB = cms.PSet(
@@ -43,7 +44,8 @@ MuonTrackLoaderForGLB = cms.PSet(
         Smoother = cms.string('KFSmootherForMuonTrackLoader'),
         DoSmoothing = cms.bool(True),
         VertexConstraint = cms.bool(False),
-        beamSpot = cms.InputTag("offlineBeamSpot")
+        beamSpot = cms.InputTag("offlineBeamSpot"),
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForL2 = cms.PSet(
@@ -52,7 +54,8 @@ MuonTrackLoaderForL2 = cms.PSet(
         Smoother = cms.string('KFSmootherForMuonTrackLoader'),
         DoSmoothing = cms.bool(False),
         VertexConstraint = cms.bool(True),
-        beamSpot = cms.InputTag("hltOfflineBeamSpot")
+        beamSpot = cms.InputTag("hltOfflineBeamSpot"),
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForL3 = cms.PSet(
@@ -64,7 +67,8 @@ MuonTrackLoaderForL3 = cms.PSet(
         MuonSeededTracksInstance = cms.untracked.string('L2Seeded'),
         VertexConstraint = cms.bool(False),
         DoSmoothing = cms.bool(True),
-        beamSpot = cms.InputTag("hltOfflineBeamSpot")
+        beamSpot = cms.InputTag("hltOfflineBeamSpot"),
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
 MuonTrackLoaderForCosmic = cms.PSet(
@@ -75,7 +79,13 @@ MuonTrackLoaderForCosmic = cms.PSet(
         AllowNoVertex = cms.untracked.bool(True),
         Smoother = cms.string('KFSmootherForMuonTrackLoader'),
         DoSmoothing = cms.bool(False),
-        beamSpot = cms.InputTag("offlineBeamSpot")
+        beamSpot = cms.InputTag("offlineBeamSpot"),
+        TTRHBuilder = cms.string('WithAngleAndTemplate')
     )
 )
+
+# This customization will be removed once we get the templates for
+# phase2 pixel
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify(MuonTrackLoaderForGLB, TrackLoaderParameters = dict(TTRHBuilder = 'WithTrackAngle')) # FIXME
 

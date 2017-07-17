@@ -1,54 +1,35 @@
-#ifndef DDL_ElementRegistry_H
-#define DDL_ElementRegistry_H
-// -------------------------------------------------------------------------
-// Includes
-// -------------------------------------------------------------------------
+#ifndef DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
+#define DETECTOR_DESCRIPTION_PARSER_DDL_ELEMENT_REGISTRY_H
 
+#include "DetectorDescription/Core/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/Singleton.icc"
+#include "DetectorDescription/Core/interface/ClhepEvaluator.h"
+
+#include <CLHEP/Evaluator/Evaluator.h>
 #include <string>
 #include <map>
-
-#include <DetectorDescription/Base/interface/Singleton.h>
-#include <DetectorDescription/Base/interface/Singleton.icc>
-//#include <DetectorDescription/interface/DDXMLElement.h>
+#include <memory>
 
 class DDXMLElement;
-
-// CLHEP Dependencies
-#include <CLHEP/Evaluator/Evaluator.h>
-#include "DetectorDescription/ExprAlgo/interface/ExprEvalSingleton.h"
-
-// -------------------------------------------------------------------------
-// Class declaration
-// -------------------------------------------------------------------------
-
 
 /// The main class for processing parsed elements.
 /** \class DDLElementRegistry
  *                                                                         
- *
- *  DDLElementRegistry.h  -  description
- *  -------------------
- *  begin                : Wed Oct 24 2001
- *  email                : case@ucdhep.ucdavis.edu
- *
  *  This class is designed to serve as a registry of all DDL XML elements.
- *  It inherits from DDXMLElementRegistry.
  *
  *  This class is responsible for constructing and destructing
  *  any necessary DDL element.
  *
  */
 
-class DDLElementRegistry //: public DDXMLElementRegistry
+class DDLElementRegistry
 {
 
  public:
-  typedef std::map <std::string, DDXMLElement*> RegistryMap;
+  typedef std::map <std::string, std::shared_ptr<DDXMLElement> > RegistryMap;
 
-  /// Constructor
   DDLElementRegistry();
 
-  /// Destructor
   ~DDLElementRegistry();
   
   /// This allows other Elements to register themselves with the static registry
@@ -60,11 +41,9 @@ class DDLElementRegistry //: public DDXMLElementRegistry
    *  return a pointer if already registered or NULL, no instantiating.
    *
    */
-  DDXMLElement* getElement(const std::string& name); 
+  std::shared_ptr<DDXMLElement> getElement(const std::string& name); 
 
-  /// Get the name given a pointer.  This may not be needed...
-  const std::string& getElementName(DDXMLElement* theElement) const;
-  ClhepEvaluator &evaluator() { return ExprEval::instance(); }
+  ClhepEvaluator &evaluator() { return DDI::Singleton<ClhepEvaluator>::instance(); }
 
  private:
   RegistryMap registry_;

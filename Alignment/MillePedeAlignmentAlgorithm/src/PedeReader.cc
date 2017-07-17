@@ -23,6 +23,8 @@
 
 #include "Alignment/MillePedeAlignmentAlgorithm/interface/MillePedeVariables.h"
 
+#include "Alignment/TrackerAlignment/interface/AlignableTracker.h"
+
 #include <set>
 #include <string>
 #include <sstream>
@@ -273,7 +275,9 @@ AlignmentParameters* PedeReader::checkAliParams(Alignable *alignable, bool creat
     edm::LogInfo("Alignment") << "@SUB=PedeReader::checkAliParams"
                               << "Add user variables for alignable with label " 
                               << myLabels.alignableLabel(alignable);
-    params->setUserVariables(new MillePedeVariables(params->size(), myLabels.alignableLabel(alignable)));
+    params->setUserVariables(new MillePedeVariables(params->size(),
+                                                    myLabels.alignableLabel(alignable),
+                                                    myLabels.alignableTracker()->objectIdProvider().typeToName(alignable->alignableObjectId())));
   }
   
   return params;

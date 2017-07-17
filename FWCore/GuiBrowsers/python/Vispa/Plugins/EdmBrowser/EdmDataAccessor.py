@@ -180,7 +180,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                         value="ERROR: Could not get "+self.getType(object)
                     else:
                         ref=True
-            except Exception, message:
+            except Exception as message:
                 value="ERROR: "+str(message)
         return value,ref
 
@@ -221,7 +221,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
             try:
                 object=object()
                 value=object
-            except Exception, message:
+            except Exception as message:
                 value="ERROR: "+str(message)
             if "Buffer" in str(type(value)):
                 return "ERROR: Cannot display object of type "+typ
@@ -288,7 +288,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                         if not id(daughter) in self._edmMotherRelations.keys():
                             self._edmMotherRelations[id(daughter)]=[]
                         self._edmMotherRelations[id(daughter)]+=[mother]
-                except Exception, message:
+                except Exception as message:
                     logging.error("Cannot read candidate relations: "+str(message))
         return objects
 
@@ -450,7 +450,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     logging.info("Branch is not valid: "+object.branchtuple[0]+".")
                     object.invalid=True
                     return object
-            except Exception, e:
+            except Exception as e:
                 self._edmChildrenObjects[id(object)]=[("ERROR","ERROR: Unable to read branch : "+str(e),False,True)]
                 object.unreadable=True
                 logging.warning("Unable to read branch "+object.branchtuple[0]+" : "+exception_traceback())
@@ -518,7 +518,7 @@ class EdmDataAccessor(BasicDataAccessor, RelativeDataAccessor, ParticleDataAcces
                     branchname=branch.friendlyClassName()+"_"+branch.moduleLabel()+"_"+branch.productInstanceName()+"_"+branch.processName()
                     handle=Handle(branch.fullClassName())
                     self._branches+=[(branchname,handle,branch.moduleLabel(),branch.productInstanceName(),branch.processName())]
-                except Exception, e:
+                except Exception as e:
                     logging.warning("Cannot read branch "+branchname+":"+str(e))
         self._branches.sort(lambda x, y: cmp(x[0], y[0]))
         self._filteredBranches=self._branches[:]

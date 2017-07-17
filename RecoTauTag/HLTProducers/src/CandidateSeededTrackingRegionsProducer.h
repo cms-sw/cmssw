@@ -9,6 +9,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "DataFormats/VertexReco/interface/Vertex.h"
@@ -46,7 +47,8 @@ public:
 
   typedef enum {BEAM_SPOT_FIXED, BEAM_SPOT_SIGMA, VERTICES_FIXED, VERTICES_SIGMA } Mode;
 
-  explicit CandidateSeededTrackingRegionsProducer(const edm::ParameterSet& conf)
+  explicit CandidateSeededTrackingRegionsProducer(const edm::ParameterSet& conf,
+	edm::ConsumesCollector && iC)
   {
     edm::ParameterSet regPSet = conf.getParameter<edm::ParameterSet>("RegionPSet");
 
@@ -59,14 +61,13 @@ public:
     else  edm::LogError ("CandidateSeededTrackingRegionsProducer")<<"Unknown mode string: "<<modeString;
 
     // basic inputs
-    m_input            = regPSet.getParameter<edm::InputTag>("input");
+    token_input        = iC.consumes<reco::CandidateView>(regPSet.getParameter<edm::InputTag>("input"));
     m_maxNRegions      = regPSet.getParameter<int>("maxNRegions");
-    m_beamSpot         = regPSet.getParameter<edm::InputTag>("beamSpot");
-    m_vertexCollection = edm::InputTag();
+    token_beamSpot     = iC.consumes<reco::BeamSpot>(regPSet.getParameter<edm::InputTag>("beamSpot"));
     m_maxNVertices     = 1;
     if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA)
     {
-      m_vertexCollection = regPSet.getParameter<edm::InputTag>("vertexCollection");
+      token_vertex       = iC.consumes<reco::VertexCollection>(regPSet.getParameter<edm::InputTag>("vertexCollection"));
       m_maxNVertices     = regPSet.getParameter<int>("maxNVertices");
     }
 
@@ -77,13 +78,9 @@ public:
     m_deltaEta         = regPSet.getParameter<double>("deltaEta");
     m_deltaPhi         = regPSet.getParameter<double>("deltaPhi");
     m_precise          = regPSet.getParameter<bool>("precise");
-    m_measurementTrackerName       = "";
-    m_whereToUseMeasurementTracker = 0;
-    if (regPSet.exists("measurementTrackerName"))
-    {
-      m_measurementTrackerName = regPSet.getParameter<std::string>("measurementTrackerName");
-      if (regPSet.exists("whereToUseMeasurementTracker"))
-        m_whereToUseMeasurementTracker = regPSet.getParameter<double>("whereToUseMeasurementTracker");
+    m_whereToUseMeasurementTracker = RectangularEtaPhiTrackingRegion::stringToUseMeasurementTracker(regPSet.getParameter<std::string>("whereToUseMeasurementTracker"));
+    if(m_whereToUseMeasurementTracker != RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever) {
+      token_measurementTracker = iC.consumes<MeasurementTrackerEvent>(regPSet.getParameter<edm::InputTag>("measurementTrackerName"));
     }
     m_searchOpt = false;
     if (regPSet.exists("searchOpt")) m_searchOpt = regPSet.getParameter<bool>("searchOpt");
@@ -102,20 +99,54 @@ public:
   
   virtual ~CandidateSeededTrackingRegionsProducer() {}
     
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
 
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& e, const edm::EventSetup& es) const
+    desc.add<std::string>("mode", "BeamSpotFixed");
+
+    desc.add<edm::InputTag>("input", edm::InputTag(""));
+    desc.add<int>("maxNRegions", 10);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("hltOnlineBeamSpot"));
+    desc.add<edm::InputTag>("vertexCollection", edm::InputTag("hltPixelVertices"));
+    desc.add<int>("maxNVertices", 1);
+
+    desc.add<double>("ptMin", 0.9);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("zErrorBeamSpot", 24.2);
+    desc.add<double>("deltaEta", 0.5);
+    desc.add<double>("deltaPhi", 0.5);
+    desc.add<bool>("precise", true);
+
+    desc.add<double>("nSigmaZVertex", 3.);
+    desc.add<double>("zErrorVetex", 0.2);
+    desc.add<double>("nSigmaZBeamSpot", 4.);
+
+    desc.add<std::string>("whereToUseMeasurementTracker", "ForSiStrips");
+    desc.add<edm::InputTag>("measurementTrackerName", edm::InputTag(""));
+
+    desc.add<bool>("searchOpt", false);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("seededTrackingRegionsFromBeamSpotFixedZLength", descRegion);
+  }
+
+
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& e, const edm::EventSetup& es) const override
   {
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
 
     // pick up the candidate objects of interest
     edm::Handle< reco::CandidateView > objects;
-    e.getByLabel( m_input, objects );
+    e.getByToken( token_input, objects );
     size_t n_objects = objects->size();
     if (n_objects == 0) return result;
 
     // always need the beam spot (as a fall back strategy for vertex modes)
     edm::Handle< reco::BeamSpot > bs;
-    e.getByLabel( m_beamSpot, bs );
+    e.getByToken( token_beamSpot, bs );
     if( !bs.isValid() ) return result;
 
     // this is a default origin for all modes
@@ -135,7 +166,7 @@ public:
     else if (m_mode == VERTICES_FIXED || m_mode == VERTICES_SIGMA)
     {
       edm::Handle< reco::VertexCollection > vertices;
-      e.getByLabel( m_vertexCollection, vertices );
+      e.getByToken( token_vertex, vertices );
       int n_vert = 0;
       for (reco::VertexCollection::const_iterator v = vertices->begin(); v != vertices->end() && n_vert < m_maxNVertices; ++v)
       {
@@ -157,6 +188,13 @@ public:
       }
     }
     
+    const MeasurementTrackerEvent *measurementTracker = nullptr;
+    if(!token_measurementTracker.isUninitialized()) {
+      edm::Handle<MeasurementTrackerEvent> hmte;
+      e.getByToken(token_measurementTracker, hmte);
+      measurementTracker = hmte.product();
+    }
+
     // create tracking regions (maximum MaxNRegions of them) in directions of the
     // objects of interest (we expect that the collection was sorted in decreasing pt order)
     int n_regions = 0;
@@ -167,7 +205,7 @@ public:
 
       for (size_t  j=0; j<origins.size() && n_regions < m_maxNRegions; ++j)
       {
-        result.push_back( new RectangularEtaPhiTrackingRegion(
+        result.push_back(std::make_unique<RectangularEtaPhiTrackingRegion>(
           direction,
           origins[j].first,
           m_ptMin,
@@ -177,7 +215,7 @@ public:
           m_deltaPhi,
           m_whereToUseMeasurementTracker,
           m_precise,
-          m_measurementTrackerName,
+          measurementTracker,
           m_searchOpt
         ));
         ++n_regions;
@@ -193,10 +231,10 @@ private:
 
   Mode m_mode;
 
-  edm::InputTag m_input;
   int m_maxNRegions;
-  edm::InputTag m_beamSpot;
-  edm::InputTag m_vertexCollection;
+  edm::EDGetTokenT<reco::VertexCollection> token_vertex; 
+  edm::EDGetTokenT<reco::BeamSpot> token_beamSpot; 
+  edm::EDGetTokenT<reco::CandidateView> token_input; 
   int m_maxNVertices;
 
   float m_ptMin;
@@ -205,8 +243,8 @@ private:
   float m_deltaEta;
   float m_deltaPhi;
   bool m_precise;
-  std::string m_measurementTrackerName;
-  float m_whereToUseMeasurementTracker;
+  edm::EDGetTokenT<MeasurementTrackerEvent> token_measurementTracker;
+  RectangularEtaPhiTrackingRegion::UseMeasurementTracker m_whereToUseMeasurementTracker;
   bool m_searchOpt;
 
   float m_nSigmaZVertex;

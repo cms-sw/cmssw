@@ -540,7 +540,7 @@ void inline SiStripAPVRestorer::Cleaner_LocalMinimumAdder(const std::vector<int1
 	  	float m = (adc2 -adc1)/(strip2 -strip1);
     
 		//2,4
-        	if((strip2 - strip1) >slopeX_ && abs(adc1 -adc2) >slopeY_){
+        	if((strip2 - strip1) >slopeX_ && std::abs(adc1 -adc2) >slopeY_){
 		       	float itStrip = 1;
         		float strip = itStrip + strip1;
  			while(strip < strip2){

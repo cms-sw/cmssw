@@ -10,33 +10,33 @@
 
 /*
   \class   TtFullHadKinFitProducer TtFullHadKinFitProducer.h "TopQuarkAnalysis/TopKinFitter/plugins/TtFullHadKinFitProducer.h"
-  
+
   \brief   Retrieve kinFit result from TtFullHadKinFitter and put it into the event
 
   Get jet collection and if wanted match from the event content and do the kinematic fit
   of the event with this objects using the kinFit class from TtFullHadKinFitter and put
   the result into the event content
-  
+
 **/
 
 class TtFullHadKinFitProducer : public edm::EDProducer {
-  
+
  public:
-  /// default constructor  
+  /// default constructor
   explicit TtFullHadKinFitProducer(const edm::ParameterSet& cfg);
   /// default destructor
   ~TtFullHadKinFitProducer();
-  
+
  private:
   /// produce fitted object collections and meta data describing fit quality
   virtual void produce(edm::Event& event, const edm::EventSetup& setup);
 
  private:
   /// input tag for jets
-  edm::InputTag jets_;
+  edm::EDGetTokenT<std::vector<pat::Jet> > jetsToken_;
   /// input tag for matches (in case the fit should be performed on certain matches)
-  edm::InputTag match_;
-  /// switch to tell whether all possible combinations should be used for the fit 
+  edm::EDGetTokenT<std::vector<std::vector<int> > > matchToken_;
+  /// switch to tell whether all possible combinations should be used for the fit
   /// or only a certain combination
   bool useOnlyMatch_;
   /// input tag for b-tagging algorithm
@@ -79,7 +79,7 @@ class TtFullHadKinFitProducer : public edm::EDProducer {
 
   /// kinematic fit interface
   TtFullHadKinFitter::KinFit* kinFitter;
- 
+
 };
 
 #endif

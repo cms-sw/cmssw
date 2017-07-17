@@ -1,6 +1,7 @@
 <TESTSCONFIGURATION> 
 <QTEST name="MeanWithinExpectedRange:nFEDErrors" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="minEntries">0</PARAM> 
       <PARAM name="error">0.05</PARAM>
       <PARAM name="warning">0.3</PARAM>
       <PARAM name="mean">1.0</PARAM>
@@ -12,6 +13,7 @@
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:nBadChannelStatusBits" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="minEntries">0</PARAM> 
       <PARAM name="error">0.05</PARAM>
       <PARAM name="warning">0.3</PARAM>
       <PARAM name="mean">1.0</PARAM>
@@ -23,6 +25,7 @@
 </QTEST>
 <QTEST name="MeanWithinExpectedRange:nBadActiveChannelStatusBits" activate="true">
       <TYPE>MeanWithinExpected</TYPE>
+      <PARAM name="minEntries">0</PARAM> 
       <PARAM name="error">0.05</PARAM>
       <PARAM name="warning">0.3</PARAM>
       <PARAM name="mean">1.0</PARAM>
@@ -46,6 +49,7 @@
 </QTEST>
 <QTEST name="CompareToMedian:TkHistoNumberOfCluster" activate="true">
 	<TYPE>CompareToMedian</TYPE>
+        <PARAM name="minEntries">0</PARAM> 
 	<PARAM name="MinRel">0.1</PARAM>
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
@@ -57,6 +61,7 @@
 </QTEST>
 <QTEST name="CompareToMedian:TkHistoNumberOfDigi" activate="true">
         <TYPE>CompareToMedian</TYPE>
+        <PARAM name="minEntries">0</PARAM> 
         <PARAM name="MinRel">0.1</PARAM>
         <PARAM name="MaxRel">5.</PARAM>
         <PARAM name="UseEmptyBins">0</PARAM>
@@ -121,53 +126,6 @@
      <PARAM name="xmin">0</PARAM> 
      <PARAM name="xmax">10.0</PARAM> 
 </QTEST>
-<QTEST name="XrangeWithin:NumberOfTracks" activate="true">
-      <TYPE>ContentsXRange</TYPE>
-      <PARAM name="error">0.85</PARAM>
-      <PARAM name="warning">0.95</PARAM>
-      <PARAM name="xmin">0.0</PARAM>
-      <PARAM name="xmax">800.0</PARAM>
-</QTEST>
-<QTEST name="XrangeWithin:GoodTrackNumberOfRecHitsPerTrack" activate="true"> 
-     <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.80</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="xmin">5.0</PARAM> 
-     <PARAM name="xmax">35.0</PARAM> 
-</QTEST>
-<QTEST name="XrangeWithin:GoodTrackChi2oNDF" activate="true"> 
-     <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.85</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="xmin">0</PARAM> 
-     <PARAM name="xmax">10.0</PARAM> 
-</QTEST>
-<QTEST name="XrangeWithin:GoodTrackPt" activate="true"> 
-     <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.85</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="xmin">0</PARAM> 
-     <PARAM name="xmax">200.0</PARAM> 
-</QTEST>
-<QTEST name="XrangeWithin:FractionOfGoodTracks" activate="true"> 
-     <TYPE>ContentsXRange</TYPE> 
-     <PARAM name="error">0.85</PARAM> 
-     <PARAM name="warning">0.95</PARAM> 
-     <PARAM name="xmin">0.7</PARAM> 
-     <PARAM name="xmax">1.1</PARAM> 
-</QTEST>
-<QTEST name="MeanWithinExpected:TrackSeed" activate="true"> 
-     <TYPE>MeanWithinExpected</TYPE> 
-     <PARAM name="error">0.75</PARAM> 
-     <PARAM name="warning">0.90</PARAM> 
-     <PARAM name="mean">1.0</PARAM>
-     <PARAM name="useRMS">0</PARAM>
-     <PARAM name="useSigma">0</PARAM>
-     <PARAM name="useRange">1</PARAM>
-     <PARAM name="minEntries">0</PARAM>
-     <PARAM name="xmin">0.5</PARAM>
-     <PARAM name="xmax">50000.0</PARAM>
-</QTEST>
 <LINK name="*nFEDErrors">
   <TestName activate="true">MeanWithinExpectedRange:nFEDErrors</TestName>
 </LINK>
@@ -203,23 +161,5 @@
 </LINK>
 <LINK name="*Summary_ClusterStoNCorr__OnTrack__TID__PLUS__wheel__*">
   <TestName activate="true">MeanWithinExpectedRange:StoNTID</TestName>
-</LINK>
-<LINK name="*TrackParameters/GeneralProperties/GoodTracks/NumberOfGoodTracks_GenTk">
-  <TestName activate="true">XrangeWithin:NumberOfTracks</TestName>
-</LINK>
-<LINK name="*TrackParameters/HitProperties/GoodTracks/GoodTrackNumberOfRecHitsPerTrack_GenTk">
-  <TestName activate="true">XrangeWithin:GoodTrackNumberOfRecHitsPerTrack</TestName>
-</LINK>
-<LINK name="*TrackParameters/GeneralProperties/GoodTracks/GoodTrackChi2oNDF_GenTk">
-  <TestName activate="true">XrangeWithin:GoodTrackChi2oNDF</TestName>
-</LINK>
-<LINK name="*TrackParameters/GeneralProperties/GoodTracks/GoodTrackPt_ImpactPoint_GenTk">
-  <TestName activate="true">XrangeWithin:GoodTrackPt</TestName>
-</LINK>
-<LINK name="*TrackParameters/GeneralProperties/GoodTracks/FractionOfGoodTracks_GenTk">
-  <TestName activate="true">XrangeWithin:FractionOfGoodTracks</TestName>
-</LINK>
-<LINK name="*TrackParameters/TrackBuilding/NumberOfSeeds_*">
-  <TestName activate="true">MeanWithinExpected:TrackSeed</TestName>
 </LINK>
 </TESTSCONFIGURATION>

@@ -6,35 +6,23 @@
 FSimEvent::FSimEvent(const edm::ParameterSet& kine) 
     : FBaseSimEvent(kine), id_(edm::EventID(0,0,0)), weight_(0)
 {}
- 
-FSimEvent::FSimEvent(const edm::ParameterSet& vtx,
-		     const edm::ParameterSet& kine,
-		     const RandomEngine* engine) 
-    : FBaseSimEvent(vtx,kine,engine), id_(edm::EventID(0,0,0)), weight_(0)
-{}
- 
+  
 FSimEvent::~FSimEvent()
 {}
 
 void 
-FSimEvent::fill(const reco::GenParticleCollection& parts, edm::EventID& Id) { 
-  FBaseSimEvent::fill(parts); 
+FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id) {
+  FBaseSimEvent::fill(hev);
   id_ = Id;
 }
-    
-void 
-FSimEvent::fill(const HepMC::GenEvent& hev, edm::EventID& Id) { 
-  FBaseSimEvent::fill(hev); 
-  id_ = Id;
-}
-    
+
 void
 FSimEvent::fill(const std::vector<SimTrack>& simTracks, 
 		const std::vector<SimVertex>& simVertices) {
   FBaseSimEvent::fill(simTracks,simVertices);
   id_ = edm::EventID();
 } 
-
+    
 edm::EventID 
 FSimEvent::id() const { 
   return id_; 
@@ -73,7 +61,7 @@ FSimEvent::load(edm::SimTrackContainer & c, edm::SimTrackContainer & m) const
 	 fabs(t.momentum().eta()) < 3.0 &&
 	 track(i).noEndVertex() ) {
       // Actually save the muon mother (and the attached muon) in case
-      if ( track(i).mother().closestDaughterId() == (int)i ) {
+      if ( !track(i).noMother() && track(i).mother().closestDaughterId() == (int)i ) {
 	const SimTrack& T = embdTrack(track(i).mother().id());
 	m.push_back(T);
       } 

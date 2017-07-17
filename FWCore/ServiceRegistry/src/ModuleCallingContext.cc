@@ -70,6 +70,25 @@ namespace edm {
     return mcc;
   }
 
+  unsigned
+  ModuleCallingContext::depth() const {
+    unsigned depth = 0;
+    ModuleCallingContext const* mcc = this;
+    while(mcc->type() == ParentContext::Type::kModule) {
+      ++depth;
+      mcc = mcc->moduleCallingContext();
+    }
+    if(mcc->type() == ParentContext::Type::kInternal) {
+      ++depth;
+      mcc = mcc->internalContext()->moduleCallingContext();
+    }
+    while(mcc->type() == ParentContext::Type::kModule) {
+      ++depth;
+      mcc = mcc->moduleCallingContext();
+    }
+    return depth;
+  }
+
   std::ostream& operator<<(std::ostream& os, ModuleCallingContext const& mcc) {
     os << "ModuleCallingContext state = ";
     switch (mcc.state()) {

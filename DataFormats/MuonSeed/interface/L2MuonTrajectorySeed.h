@@ -7,9 +7,10 @@
  *
  *  \author R. Bellan - INFN Torino <riccardo.bellan@cern.ch>
  */
-
-#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+   
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"  
 #include "DataFormats/L1Trigger/interface/L1MuonParticleFwd.h"
+#include "DataFormats/L1Trigger/interface/Muon.h"
 #include "DataFormats/TrajectorySeed/interface/PropagationDirection.h"
 #include "DataFormats/TrajectoryState/interface/PTrajectoryStateOnDet.h"
 
@@ -26,18 +27,26 @@ public:
 		       PropagationDirection  dir,
 		       l1extra::L1MuonParticleRef l1Ref);
 
+  /// Constructor for stage2 L1
+  L2MuonTrajectorySeed(PTrajectoryStateOnDet const & ptsos, 
+		       RecHitContainer const & rh, 
+		       PropagationDirection  dir,
+		       l1t::MuonRef l1Ref);
+
   /// Destructor
   virtual ~L2MuonTrajectorySeed(){};
 
   // Operations
 
   /// Get L1 info
-  inline l1extra::L1MuonParticleRef l1Particle() const {return theL1Particle;}
+  inline l1extra::L1MuonParticleRef l1Particle()  const {return theL1Particle; }
+  inline l1t::MuonRef               l1tParticle() const {return theL1TParticle;}
 
 protected:
 
 private:
   l1extra::L1MuonParticleRef theL1Particle;
+  l1t::MuonRef               theL1TParticle;
 };
 #endif
 

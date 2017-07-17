@@ -39,23 +39,15 @@ DTtTrigDBValidation::DTtTrigDBValidation(const ParameterSet& pset):
  {
 
   LogVerbatim(metname_) << "[DTtTrigDBValidation] Constructor called!";
-
-  // Get the DQM needed services
-  dbe_ = edm::Service<DQMStore>().operator->();
-  dbe_->setCurrentFolder("DT/DtCalib/TTrigDBValidation");
-
-  outputMEsInRootFile_ = false;
-  if( pset.exists("OutputFileName") ){
-     outputMEsInRootFile_ = true;
-     outputFileName_ = pset.getParameter<std::string>("OutputFileName");
-  }
 }
 
 DTtTrigDBValidation::~DTtTrigDBValidation(){}
 
-void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup) {
+void DTtTrigDBValidation::bookHistograms(DQMStore::IBooker &iBooker,
+  edm::Run const &, edm::EventSetup const &setup) {
 
   LogVerbatim(metname_) << "[DTtTrigDBValidation] Parameters initialization";
+  iBooker.setCurrentFolder("DT/DtCalib/TTrigDBValidation");
  
   ESHandle<DTTtrig> tTrig_Ref;
   setup.get<DTTtrigRcd>().get(labelDBRef_, tTrig_Ref);
@@ -69,7 +61,7 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
 
   //book&reset the summary histos
   for(int wheel=-2; wheel<=2; wheel++){
-    bookHistos(wheel);
+    bookHistos(iBooker, wheel);
     tTrigDiffWheel_[wheel]->Reset();
   }
 
@@ -130,7 +122,7 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
       //book histo
       int wheel = (*it).first.chamberId().wheel();
       int sector = (*it).first.chamberId().sector();	
-      if(tTrigDiffHistos_.find(make_pair(wheel,sector)) == tTrigDiffHistos_.end()) bookHistos(wheel,sector);
+      if(tTrigDiffHistos_.find(make_pair(wheel,sector)) == tTrigDiffHistos_.end()) bookHistos(iBooker, wheel, sector);
 			
       LogTrace(metname_) << "Filling histos for super-layer: " << (*it).first << "  difference: " << difference;
  
@@ -159,17 +151,7 @@ void DTtTrigDBValidation::beginRun(const edm::Run& run, const EventSetup& setup)
   
 }
 
-void DTtTrigDBValidation::endRun(edm::Run const& run, edm::EventSetup const& setup) {}
-
-void DTtTrigDBValidation::endJob(){
-
-  if(outputMEsInRootFile_){
-     // write the histos on a file
-     dbe_->save(outputFileName_);
-  }
-}
-
-void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
+void DTtTrigDBValidation::bookHistos(DQMStore::IBooker &iBooker, int wheel, int sector) {
 
   LogTrace(metname_) << "   Booking histos for Wheel, Sector: " << wheel << ", " << sector;
 
@@ -179,11 +161,11 @@ void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
 
   string lHistoName = "_W" + str_wheel.str() + "_Sec" + str_sector.str();
 
-  dbe_->setCurrentFolder("DT/DtCalib/TTrigDBValidation/Wheel" + str_wheel.str());
+  iBooker.setCurrentFolder("DT/DtCalib/TTrigDBValidation/Wheel" + str_wheel.str());
 
   // Create the monitor elements
   MonitorElement * hDifference;
-  hDifference = dbe_->book1D("TTrigDifference"+lHistoName, "difference between the two tTrig values",11,0,11);
+  hDifference = iBooker.book1D("TTrigDifference"+lHistoName, "difference between the two tTrig values",11,0,11);
 
   pair<int,int> mypair(wheel,sector);
   tTrigDiffHistos_[mypair] = hDifference;
@@ -203,12 +185,12 @@ void DTtTrigDBValidation::bookHistos(int wheel, int sector) {
 }
 
 // Book the summary histos
-void DTtTrigDBValidation::bookHistos(int wheel) {
+void DTtTrigDBValidation::bookHistos(DQMStore::IBooker &iBooker, int wheel) {
 
   stringstream wh; wh << wheel;
 
-  dbe_->setCurrentFolder("DT/DtCalib/TTrigDBValidation");
-  tTrigDiffWheel_[wheel] = dbe_->book2D("TTrigDifference_W"+wh.str(), "W"+wh.str()+": summary of tTrig differences",11,1,12,14,1,15);
+  iBooker.setCurrentFolder("DT/DtCalib/TTrigDBValidation");
+  tTrigDiffWheel_[wheel] = iBooker.book2D("TTrigDifference_W"+wh.str(), "W"+wh.str()+": summary of tTrig differences",11,1,12,14,1,15);
   tTrigDiffWheel_[wheel]->setBinLabel(1,"MB1_SL1",1);
   tTrigDiffWheel_[wheel]->setBinLabel(2,"MB1_SL2",1);
   tTrigDiffWheel_[wheel]->setBinLabel(3,"MB1_SL3",1);
@@ -234,3 +216,6 @@ int DTtTrigDBValidation::slFromBin(int bin) const {
   
   return ret;
 }
+
+
+void DTtTrigDBValidation::analyze( const edm::Event&, const edm::EventSetup&) {}

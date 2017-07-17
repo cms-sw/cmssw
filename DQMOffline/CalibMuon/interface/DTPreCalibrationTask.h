@@ -10,23 +10,24 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
-#include <FWCore/Framework/interface/EDAnalyzer.h>
 #include <FWCore/Framework/interface/ESHandle.h>
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "DQMServices/Core/interface/DQMStore.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "RecoMuon/TrackingTools/interface/MuonServiceProxy.h"
+
+#include <DataFormats/DTDigi/interface/DTDigi.h>
+#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 
 #include <string>
 #include <map>
 #include <vector>
 
-
 class DQMStore;
 class MonitorElement;
 
-class DTPreCalibrationTask: public edm::EDAnalyzer{
+class DTPreCalibrationTask: public DQMEDAnalyzer{
 
 public:
 
@@ -36,27 +37,17 @@ public:
   /// Destructor
   virtual ~DTPreCalibrationTask();
 
-  /// BeginJob
-  void beginJob();
- 
-  /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze( const edm::Event&, const edm::EventSetup&) override;
 
   /// Book histos
-  void bookTimeBoxes(int wheel, int sector);
-  void bookOccupancyPlot(int wheel, int sector);
-
-  ///EndJob
-  void endJob();
+  void bookTimeBoxes(DQMStore::IBooker &, int wheel, int sector);
+  void bookOccupancyPlot(DQMStore::IBooker &, int wheel, int sector);
 
 private:
-
-  DQMStore* dbe;
-  std::string digiLabel;
+  edm::EDGetTokenT<DTDigiCollection> digiLabel;
   int  minTriggerWidth;
   int  maxTriggerWidth;
-  bool saveFile;
-  std::string outputFileName;
   std::string folderName;
 
   // Time boxes map

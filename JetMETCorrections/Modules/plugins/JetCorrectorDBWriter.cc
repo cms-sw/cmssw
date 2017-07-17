@@ -11,6 +11,7 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/EDMException.h"
 #include "CondCore/DBOutputService/interface/PoolDBOutputService.h"
 #include "CondFormats/JetMETObjects/interface/JetCorrectorParameters.h"
 
@@ -26,6 +27,7 @@ class  JetCorrectorDBWriter : public edm::EDAnalyzer
  private:
   std::string era;
   std::string algo;
+  std::string path;
   std::string inputTxtFile;
   std::string payloadTag;
 };
@@ -35,6 +37,7 @@ JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet)
 {
   era    = pSet.getUntrackedParameter<std::string>("era");
   algo   = pSet.getUntrackedParameter<std::string>("algo");
+  path   = pSet.getUntrackedParameter<std::string>("path");
   //payloadTag = "JetCorrectorParametersCollection_"+era+"_"+algo;
   payloadTag = algo;
 }
@@ -42,7 +45,7 @@ JetCorrectorDBWriter::JetCorrectorDBWriter(const edm::ParameterSet& pSet)
 // Begin Job
 void JetCorrectorDBWriter::beginJob()
 {
-  std::string path("CondFormats/JetMETObjects/data/");
+//  std::string path("CondFormats/JetMETObjects/data/");
 
   JetCorrectorParametersCollection *payload = new JetCorrectorParametersCollection();
   std::cout << "Starting to import payload " << payloadTag << " from text files." << std::endl;
@@ -55,13 +58,12 @@ void JetCorrectorDBWriter::beginJob()
     append += algo;
     append += ".txt"; 
     inputTxtFile = path+era+append;
-    std::ifstream input( ("../../../"+inputTxtFile).c_str() );
-    if ( input.good() ) {
+    try {
       edm::FileInPath fip(inputTxtFile);
       std::cout << "Opened file " << inputTxtFile << std::endl;
       // create the parameter object from file 
       std::vector<std::string> sections;
-      JetCorrectorParametersCollection::getSections("../../../"+inputTxtFile, sections );
+      JetCorrectorParametersCollection::getSections(fip.fullPath(), sections );
       if ( sections.size() == 0 ) {
 	payload->push_back( i, JetCorrectorParameters(fip.fullPath(),"") );
       }
@@ -73,7 +75,8 @@ void JetCorrectorDBWriter::beginJob()
 	}
       }
       std::cout << "Added record " << i << std::endl;
-    } else {
+    }
+    catch(edm::Exception ex) {
       std::cout << "Did not find JEC file " << inputTxtFile << std::endl;
     }
     

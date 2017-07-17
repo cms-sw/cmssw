@@ -17,33 +17,36 @@
 
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "SimDataFormats/Track/interface/SimTrackContainer.h"
+#include "SimDataFormats/CrossingFrame/interface/PCrossingFrame.h"
+
 //
 // class decleration
 //
 namespace edm
 {
-class InputAnalyzer : public edm::EDAnalyzer {
+  class InputAnalyzer : public edm::one::EDAnalyzer<> {
    public:
       explicit InputAnalyzer(const edm::ParameterSet&);
-      ~InputAnalyzer();
-
+      virtual ~InputAnalyzer();
 
    private:
-      virtual void beginJob() ;
+      virtual void beginJob() override ;
       virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
+      virtual void endJob() override ;
 
       // ----------member data ---------------------------
       
       bool dataStep2_;
-      edm::InputTag label_;
+  edm::EDGetTokenT<PCrossingFrame<SimTrack>> labelPCF_;
+  edm::EDGetTokenT<SimTrackContainer> labelSimTr_;
 
   
 };

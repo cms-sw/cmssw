@@ -8,6 +8,14 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "CLHEP/Random/RandFlat.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 using namespace edm;
 
@@ -23,7 +31,7 @@ FlatRandomEThetaGunProducer::FlatRandomEThetaGunProducer(const edm::ParameterSet
   fMinE = pgun_params.getParameter<double>("MinE");
   fMaxE = pgun_params.getParameter<double>("MaxE"); 
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 
 //  edm::LogInfo("FlatThetaGun") << "Internal FlatRandomEThetaGun is initialzed"
@@ -38,7 +46,10 @@ void FlatRandomEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup&
   if ( fVerbosity > 0 ) {
     LogDebug("FlatThetaGun") << "FlatRandomEThetaGunProducer : Begin New Event Generation"; 
   }
-   
+
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
   // event loop (well, another step in it...)
           
   // no need to clean up GenEvent memory - done in HepMCProduct
@@ -58,9 +69,9 @@ void FlatRandomEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup&
   //
   int barcode = 1;
   for (unsigned int ip=0; ip<fPartIDs.size(); ip++) {
-    double energy = fRandomGenerator->fire(fMinE, fMaxE) ;
-    double theta  = fRandomGenerator->fire(fMinTheta, fMaxTheta) ;
-    double phi    = fRandomGenerator->fire(fMinPhi, fMaxPhi) ;
+    double energy = CLHEP::RandFlat::shoot(engine, fMinE, fMaxE);
+    double theta  = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
+    double phi    = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
     int PartID = fPartIDs[ip] ;
     const HepPDT::ParticleData* 
       PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
@@ -99,12 +110,12 @@ void FlatRandomEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup&
     fEvt->print() ;  
   }  
 
-  std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct);
+  e.put(std::move(BProduct), "unsmeared");
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(genEventInfo);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  e.put(std::move(genEventInfo));
 
   if ( fVerbosity > 0 ) {
     LogDebug("FlatThetaGun") << "FlatRandomEThetaGunProducer : Event Generation Done";

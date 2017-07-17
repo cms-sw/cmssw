@@ -1,6 +1,7 @@
 ////////// Header section /////////////////////////////////////////////
 #include "FWCore/Framework/interface/EDProducer.h"
-#include "FWCore/Utilities/interface/InputTag.h"
+
+#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
 
 class WeakEffectsWeightProducer: public edm::EDProducer {
 public:
@@ -10,7 +11,7 @@ public:
       virtual void produce(edm::Event &, const edm::EventSetup&) override;
       virtual void endJob() override ;
 private:
-      edm::InputTag genParticlesTag_;
+      edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
       double rhoParameter_;
 
       double alphaQED(double q2);
@@ -26,12 +27,11 @@ private:
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Common/interface/Handle.h"
 
-#include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-
 /////////////////////////////////////////////////////////////////////////////////////
 WeakEffectsWeightProducer::WeakEffectsWeightProducer(const edm::ParameterSet& pset) :
-      genParticlesTag_(pset.getUntrackedParameter<edm::InputTag> ("GenParticlesTag", edm::InputTag("genParticles"))), 
-      rhoParameter_(pset.getUntrackedParameter<double> ("RhoParameter", 1.004)) 
+//       genParticlesToken_(consumes<reco::GenParticleCollection>(pset.getUntrackedParameter<edm::InputTag> ("GenParticlesTag", edm::InputTag("genParticles")))),
+      genParticlesToken_(consumes<reco::GenParticleCollection>(edm::InputTag("genParticles"))),
+      rhoParameter_(pset.getUntrackedParameter<double> ("RhoParameter", 1.004))
 {
       produces<double>();
 }
@@ -52,10 +52,10 @@ void WeakEffectsWeightProducer::produce(edm::Event & iEvent, const edm::EventSet
       if (iEvent.isRealData()) return;
 
       edm::Handle<reco::GenParticleCollection> genParticles;
-      iEvent.getByLabel("genParticles", genParticles);
+      iEvent.getByToken(genParticlesToken_, genParticles);
       unsigned int gensize = genParticles->size();
 
-      std::auto_ptr<double> weight (new double);
+      std::unique_ptr<double> weight (new double);
 
       // Set default weight
       (*weight) = 1.;
@@ -79,8 +79,8 @@ void WeakEffectsWeightProducer::produce(edm::Event & iEvent, const edm::EventSet
             break;
       }
 
-      //printf(" \t >>>>> WeakEffectsWeightProducer: Final weight = %f\n", (*weight)); 
-      iEvent.put(weight);
+      //printf(" \t >>>>> WeakEffectsWeightProducer: Final weight = %f\n", (*weight));
+      iEvent.put(std::move(weight));
 }
 
 double WeakEffectsWeightProducer::alphaQED(double q2) {
@@ -102,7 +102,7 @@ double WeakEffectsWeightProducer::sigma0_qqbarll(unsigned int quark_id, double Q
       double alphaW = 2.7e-3 * pow(log(Q*Q/80.4/80.4),2);
       double alphaZ = 2.7e-3 * pow(log(Q*Q/MZ/MZ),2);
       double sudakov_factor = 1.;
-      if (abs(quark_id)%2==1) {
+      if (quark_id%2==1) {
             qq = -1./3.;
             vq = -0.5 - 2.*qq*sin2eff;
             aq = -0.5;

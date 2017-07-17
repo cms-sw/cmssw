@@ -12,23 +12,22 @@
  *
  */
 
-#include "DataFormats/Common/interface/TriggerResults.h"
-
 #include "FWCore/Framework/interface/Event.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/one/EDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
 #include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
-#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
 #include "FWCore/Common/interface/TriggerNames.h"
-#include<vector>
-#include<string>
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "HLTrigger/HLTcore/interface/HLTConfigProvider.h"
+#include <vector>
+#include <string>
 
 //
 // class declaration
 //
 
-class HLTrigReport : public edm::EDAnalyzer {
+class HLTrigReport : public edm::one::EDAnalyzer<edm::one::WatchRuns,edm::one::WatchLuminosityBlocks> {
    private:
       enum ReportEvery {
         NEVER       = 0,
@@ -46,16 +45,16 @@ class HLTrigReport : public edm::EDAnalyzer {
       static
       ReportEvery decode(const std::string & value);
 
-      virtual void beginJob();
-      virtual void endJob();
+      virtual void beginJob() override;
+      virtual void endJob() override;
 
-      virtual void beginRun(edm::Run const &, edm::EventSetup const&);
-      virtual void endRun(edm::Run const &, edm::EventSetup const&);
+      virtual void beginRun(edm::Run const &, edm::EventSetup const&) override;
+      virtual void endRun(edm::Run const &, edm::EventSetup const&) override;
 
-      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+      virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+      virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
 
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
       void reset(bool changed = false);     // reset all counters
 
@@ -104,10 +103,10 @@ class HLTrigReport : public edm::EDAnalyzer {
       unsigned int refIndex_;                                   // index of the reference path for rate calculation
       double refRate_;                                         // rate of the reference path, the rate of all other paths will be normalized to this
 
-      ReportEvery reportBy_;        // dump report for every never/event/lumi/run/job
-      ReportEvery resetBy_;         // reset counters  every never/event/lumi/run/job
-      ReportEvery serviceBy_;       // call to service every never/event/lumi/run/job
-      HLTConfigProvider hltConfig_; // to get configuration for L1s/Pre
+      const ReportEvery reportBy_;          // dump report for every never/event/lumi/run/job
+      const ReportEvery resetBy_;           // reset counters  every never/event/lumi/run/job
+      const ReportEvery serviceBy_;         // call to service every never/event/lumi/run/job
+      HLTConfigProvider hltConfig_;         // to get configuration for L1s/Pre
 };
 
 #endif //HLTrigReport_h

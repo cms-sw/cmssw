@@ -27,18 +27,6 @@ class HCALForwardProperties : public HCALProperties
 
   virtual ~HCALForwardProperties() { }
 
-  /// Radiation length in cm
-  inline double radLenIncm()  const { return radiationLengthIncm(); }
-
-  /// Radiation length in cm but static 
-  static inline double radiationLengthIncm() { return 1.43; }
- 
-  /// Radiation length in g/cm^2
-  inline double radLenIngcm2() const { return 12.86; }
-
-  ///Interaction length in cm
-  inline double interactionLength() const { return 15.05; }
-
   double getHcalDepth(double);
 
   double thickness(double eta) const { 

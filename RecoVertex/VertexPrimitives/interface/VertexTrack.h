@@ -5,6 +5,9 @@
 #include "RecoVertex/VertexPrimitives/interface/VertexState.h"
 #include "RecoVertex/VertexPrimitives/interface/RefittedTrackState.h"
 #include "RecoVertex/VertexPrimitives/interface/VertexException.h"
+
+
+#define SMATRIX_USE_CONSTEXPR
 #include "Math/SMatrix.h"
 
 /** Track information relative to a track-to-vertex association. 
@@ -13,7 +16,7 @@
  */
 
 template <unsigned int N>
-class VertexTrack : public ReferenceCounted {
+class VertexTrack final : public ReferenceCounted {
 
 public:
 
@@ -28,23 +31,23 @@ public:
 
   /** Constructor with the linearized track data, vertex seed and weight
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight);
 
   /** Constructor with the linearized track data, vertex seed and weight
    *  and state at vertex, constrained by vertex
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
 	      float smoothedChi2);
 
   /** Constructor with the linearized track data, vertex seed and weight
    *  and state and covariance at vertex, constrained by vertex
    */     
-  VertexTrack(const RefCountedLinearizedTrackState lt, 
-	      const VertexState v, 
+  VertexTrack(RefCountedLinearizedTrackState lt, 
+	      VertexState v, 
 	      float weight, const RefCountedRefittedTrackState & refittedState,
 	      float smoothedChi2, const AlgebraicSymMatrixOO & fullCov);
 

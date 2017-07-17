@@ -5,11 +5,10 @@
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "CalibFormats/HcalObjects/interface/HcalDbService.h"
-#include "DQMServices/Core/interface/DQMStore.h"
 #include <map>
 #include "Validation/HcalDigis/src/HcalSubdetDigiMonitor.h"
 
@@ -19,16 +18,17 @@
 #include "DataFormats/HcalDigi/interface/HcalDigiCollections.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 
-class HcalDigiTester : public edm::EDAnalyzer {
+class HcalDigiTester : public DQMEDAnalyzer {
 public:
 
   explicit HcalDigiTester(const edm::ParameterSet&);
   ~HcalDigiTester();
   virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void beginJob() ;
   template<class Digi>  void reco(const edm::Event&, const edm::EventSetup&, const edm::EDGetTokenT<edm::SortedCollection<Digi>  >  &);
   virtual void endRun() ;  
-  virtual void endJob() ; 
+
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &);
+
 
  private:
 
@@ -38,8 +38,8 @@ public:
   // choose the correct subdet
   HcalSubdetDigiMonitor * monitor();
 
-  DQMStore* dbe_;
-  
+  void constructMonitor(DQMStore::IBooker &);
+
   edm::InputTag inputTag_;
   edm::EDGetTokenT<edm::PCaloHitContainer> tok_mc_;
   edm::EDGetTokenT<edm::SortedCollection<HBHEDataFrame> > tok_hbhe_;

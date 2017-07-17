@@ -3,10 +3,9 @@ import FWCore.ParameterSet.Config as cms
 from RecoTauTag.Configuration.RecoPFTauTag_cff import *
 from RecoTauTag.TauTagTools.PFTauSelector_cfi  import pfTauSelector
 import RecoTauTag.RecoTau.RecoTauCleanerPlugins as cleaners
-#from CommonTools.ParticleFlow.pfJets_cff import pfJets
-from RecoJets.JetProducers.ak5PFJets_cfi import ak5PFJets
+import RecoJets.JetProducers.ak4PFJets_cfi as jetConfig
 
-''' 
+'''
 
 pfTaus_cff
 
@@ -29,20 +28,22 @@ selection is constructed by:
 
 # PiZeroProducers
 
-pfJetsLegacyHPSPiZeros = ak5PFJetsLegacyHPSPiZeros.clone()
+pfJetsLegacyHPSPiZeros = ak4PFJetsLegacyHPSPiZeros.clone()
+pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak4PFJets")
 
-pfJetsLegacyHPSPiZeros.jetSrc = cms.InputTag("ak5PFJets")
+pfTauPFJetsRecoTauChargedHadrons = ak4PFJetsRecoTauChargedHadrons.clone()
 
-pfTauPFJets08Region = recoTauAK5PFJets08Region.clone()
-pfTauPFJets08Region.src = cms.InputTag("ak5PFJets")
-pfTauPFJets08Region.pfSrc = cms.InputTag("particleFlow")
-pfJetsLegacyHPSPiZeros.jetRegionSrc = 'pfTauPFJets08Region'
+pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
+pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
+pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
 # Clone tau producer
 pfTausProducer = hpsPFTauProducer.clone()
 pfTausCombiner = combinatoricRecoTaus.clone()
-pfTausCombiner.jetSrc= cms.InputTag("ak5PFJets")
+pfTausCombiner.jetSrc= cms.InputTag("ak4PFJets")
 pfTausCombiner.piZeroSrc= "pfJetsLegacyHPSPiZeros"
+pfTausCombiner.chargedHadronSrc='pfTauPFJetsRecoTauChargedHadrons'
+pfTausCombiner.modifiers[3].pfTauTagInfoSrc=cms.InputTag("pfTauTagInfoProducer")
 pfTausSelectionDiscriminator = hpsSelectionDiscriminator.clone()
 pfTausSelectionDiscriminator.PFTauProducer = cms.InputTag("pfTausCombiner")
 pfTausProducerSansRefs = hpsPFTauProducerSansRefs.clone()
@@ -93,6 +94,7 @@ pfTausDiscriminationByIsolation.Prediscriminants=pfTausrequireDecayMode.clone()
 # Sequence to reproduce taus and compute our cloned discriminants
 pfTausBaseSequence = cms.Sequence(
    pfJetsLegacyHPSPiZeros +
+   pfTauPFJetsRecoTauChargedHadrons +
    pfTausCombiner +
    pfTausSelectionDiscriminator +
    pfTausProducerSansRefs +
@@ -102,9 +104,8 @@ pfTausBaseSequence = cms.Sequence(
     )
 
 # Associate track to pfJets
-#from RecoJets.JetAssociationProducers.j2tParametersVX_cfi import *
-pfJetTracksAssociatorAtVertex = ak5PFJetTracksAssociatorAtVertex.clone()
-pfJetTracksAssociatorAtVertex.jets= cms.InputTag("ak5PFJets")
+pfJetTracksAssociatorAtVertex = ak4PFJetTracksAssociatorAtVertex.clone()
+pfJetTracksAssociatorAtVertex.jets= cms.InputTag("ak4PFJets")
 
 pfTauPileUpVertices = cms.EDFilter(
     "RecoTauPileUpVertexSelector",
@@ -115,13 +116,11 @@ pfTauPileUpVertices = cms.EDFilter(
 
 
 pfTauTagInfoProducer = pfRecoTauTagInfoProducer.clone()
-pfTauTagInfoProducer.PFCandidateProducer = ak5PFJets.src
+pfTauTagInfoProducer.PFCandidateProducer = jetConfig.ak4PFJets.src
 pfTauTagInfoProducer.PFJetTracksAssociatorProducer = 'pfJetTracksAssociatorAtVertex'
 
-
 pfTausPreSequence = cms.Sequence(
-    pfJetTracksAssociatorAtVertex + 
-    pfTauPFJets08Region +
+    pfJetTracksAssociatorAtVertex +
     pfTauPileUpVertices +
     pfTauTagInfoProducer
 )
@@ -130,20 +129,18 @@ pfTausPreSequence = cms.Sequence(
 pfTaus = pfTauSelector.clone()
 pfTaus.src = cms.InputTag("pfTausProducer")
 pfTaus.discriminators = cms.VPSet(
-    cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByDecayModeFinding"),selectionCut=cms.double(0.5) ),
-    cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByIsolation"),selectionCut=cms.double(0.5) )
-    )
-
+        cms.PSet( discriminator=cms.InputTag("pfTausDiscriminationByDecayModeFinding"),selectionCut=cms.double(0.5) ),
+            )
 
 pfTausPtrs = cms.EDProducer("PFTauFwdPtrProducer",
-                            src=cms.InputTag("pfTaus")
-                            )
+                             src=cms.InputTag("pfTaus")
+                                                        )
 
 pfTauSequence = cms.Sequence(
     pfTausPreSequence +
-    pfTausBaseSequence + 
+    pfTausBaseSequence +
     pfTaus +
-    pfTausPtrs 
-    )
+    pfTausPtrs
+ )
 
 

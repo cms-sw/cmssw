@@ -7,6 +7,7 @@ Holder for an input TFile.
 ----------------------------------------------------------------------*/
 #include "FWCore/MessageLogger/interface/JobReport.h"
 #include "FWCore/Utilities/interface/InputType.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
 #include "TFile.h"
 
@@ -47,7 +48,7 @@ namespace edm {
     void SetCacheRead(TFileCacheRead* tfcr) {file_->SetCacheRead(tfcr, NULL, TFile::kDoNotDisconnect);}
     void logFileAction(char const* msg, char const* fileName) const;
   private:
-    std::unique_ptr<TFile> file_;
+    edm::propagate_const<std::unique_ptr<TFile>> file_;
     std::string fileName_;
     JobReport::Token reportToken_;
     InputType inputType_;

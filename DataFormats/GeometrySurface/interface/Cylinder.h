@@ -16,7 +16,7 @@
 #include "DataFormats/GeometrySurface/interface/Plane.h"
 #include "DataFormats/GeometrySurface/interface/SimpleCylinderBounds.h"
 
-class Cylinder GCC11_FINAL  : public Surface {
+class Cylinder final  : public Surface {
 public:
 
   template<typename... Args>
@@ -72,9 +72,9 @@ public:
   virtual Side side( const LocalPoint& p, Scalar toler) const;
 
   /// tangent plane to surface from global point
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const;
   /// tangent plane to surface from local point
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
 
   /// tangent plane to surface from global point
   Plane fastTangent(const GlobalPoint& aPoint) const{

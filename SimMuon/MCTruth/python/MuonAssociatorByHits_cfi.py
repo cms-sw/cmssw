@@ -2,7 +2,7 @@ import FWCore.ParameterSet.Config as cms
 
 
 muonAssociatorByHitsCommonParameters = cms.PSet(
-    dumpInputCollections = cms.bool(False),
+    dumpInputCollections = cms.untracked.bool(False),
     #
     #....... general input parameters
     #
@@ -60,10 +60,20 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     RPCsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonRPCHits"),
     RPCdigisimlinkTag = cms.InputTag("simMuonRPCDigis","RPCDigiSimLink"),
     #
+    # for GEM Hit associator
+    useGEMs = cms.bool(False),
+    GEMsimhitsTag = cms.InputTag("g4SimHits","MuonGEMHits"),
+    GEMsimhitsXFTag = cms.InputTag("mix","g4SimHitsMuonGEMHits"),
+    GEMdigisimlinkTag = cms.InputTag("simMuonGEMDigis","GEM"),
+    #
     # for Tracker Hit associator
     #
     associatePixel = cms.bool(True),
     associateStrip = cms.bool(True),
+    usePhase2Tracker = cms.bool(False),
+    pixelSimLinkSrc = cms.InputTag("simSiPixelDigis"),
+    stripSimLinkSrc = cms.InputTag("simSiStripDigis"),
+    phase2TrackerSimLinkSrc  = cms.InputTag("simSiPixelDigis","Tracker"),
     associateRecoTracks = cms.bool(True),
     #                                
     ROUList = cms.vstring('TrackerHitsTIBLowTof', 
@@ -84,6 +94,22 @@ muonAssociatorByHitsCommonParameters = cms.PSet(
     inputCSCSegmentCollection = cms.InputTag("cscSegments"),
 )
 
+
+from Configuration.Eras.Modifier_fastSim_cff import fastSim
+if fastSim.isChosen():
+#if True:
+    obj = muonAssociatorByHitsCommonParameters
+    obj.simtracksTag = "famosSimHits"
+    obj.DTsimhitsTag  = "MuonSimHits:MuonDTHits"
+    obj.CSCsimHitsTag = "MuonSimHits:MuonCSCHits"
+    obj.RPCsimhitsTag = "MuonSimHits:MuonRPCHits"
+    obj.simtracksXFTag = "mix:famosSimHits"
+    obj.DTsimhitsXFTag  = "mix:MuonSimHitsMuonDTHits"
+    obj.CSCsimHitsXFTag = "mix:MuonSimHitsMuonCSCHits"
+    obj.RPCsimhitsXFTag = "mix:MuonSimHitsMuonRPCHits"
+    obj.ROUList = ['famosSimHitsTrackerHits']
+
+  
 muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     # COMMON CONFIGURATION
     muonAssociatorByHitsCommonParameters,
@@ -114,4 +140,9 @@ muonAssociatorByHits = cms.EDProducer("MuonAssociatorEDProducer",
     tpTag = cms.InputTag("mix","MergedTrackTruth"),
     ignoreMissingTrackCollection = cms.untracked.bool(False),
 )
- 
+
+from Configuration.Eras.Modifier_run3_GEM_cff import run3_GEM
+run3_GEM.toModify( muonAssociatorByHits, useGEMs = cms.bool(True) )
+from Configuration.Eras.Modifier_phase2_tracker_cff import phase2_tracker
+phase2_tracker.toModify( muonAssociatorByHits, usePhase2Tracker = cms.bool(True) )
+phase2_tracker.toModify( muonAssociatorByHits, pixelSimLinkSrc = "simSiPixelDigis:Pixel" )

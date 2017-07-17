@@ -18,15 +18,12 @@
 #include <memory>
 
 // user include files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "FWCore/Framework/interface/stream/EDAnalyzer.h"
 
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
-
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 
 #include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
@@ -43,7 +40,7 @@
 #include "FastSimulation/CaloHitMakers/interface/EcalHitMaker.h"
 #include "FastSimulation/CaloGeometryTools/interface/Crystal.h"
 #include "FastSimulation/Utilities/interface/Histos.h"
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 
 #include <TH3F.h>
 #include <TPolyLine3D.h>
@@ -57,7 +54,7 @@
 typedef math::XYZVector XYZVector;
 typedef math::XYZVector XYZPoint;
 
-class testCaloGeometryTools : public edm::EDAnalyzer {
+class testCaloGeometryTools : public edm::stream::EDAnalyzer <> {
 public:
   explicit testCaloGeometryTools( const edm::ParameterSet& );
   ~testCaloGeometryTools();
@@ -66,7 +63,7 @@ public:
   virtual void analyze( const edm::Event&, const edm::EventSetup& );
 private:
   // ----------member data ---------------------------
-  void testpoint(const XYZPoint& , std::string name, bool barrel);
+  void testpoint(const XYZPoint& , std::string name, bool barrel, RandomEngineAndDistribution const*);
   void checkSM();
   void checkSC();
   void testBorderCrossing();
@@ -74,9 +71,6 @@ private:
 
   Histos * myHistos;
   CaloGeometryHelper myGeometry;
-
-  const RandomEngine* random;
-
 };
 
 //
@@ -112,17 +106,8 @@ void
 testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup& iSetup )
 {
    using namespace edm;
-   
-  // Initialize the random number generator service
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable() ) {
-    throw cms::Exception("Configuration")
-      << "prod requires the RandomGeneratorService\n"
-         "which is not present in the configuration file.\n"
-         "You must add the service in the configuration file\n"
-         "or remove the module that requires it";
-  }
-  random = new RandomEngine(&(*rng));
+
+   RandomEngineAndDistribution random(iEvent.streamID());
 
    edm::ESHandle<CaloTopology> theCaloTopology;
    iSetup.get<CaloTopologyRecord>().get(theCaloTopology);     
@@ -140,9 +125,9 @@ testCaloGeometryTools::analyze( const edm::Event& iEvent, const edm::EventSetup&
    
    // Take a point in the barrel
    XYZPoint p1(129,0.,-50);
-   testpoint(p1,"barrel",true);
+   testpoint(p1,"barrel",true,&random);
    XYZPoint p2(60,60,-317);
-   testpoint(p1,"endcap",false);
+   testpoint(p1,"endcap",false,&random);
 
    checkSM();
    checkSC();
@@ -197,7 +182,8 @@ void testCaloGeometryTools::checkSC()
 
 
 
-void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, bool barrel)
+void testCaloGeometryTools::testpoint(const XYZPoint& point, std::string name, bool barrel,
+                                      RandomEngineAndDistribution const* random)
 {
    DetId myCell = myGeometry.getClosestCell(point,true,barrel);
    EcalHitMaker myGrid(&myGeometry,point,myCell,1,7,0,random);
@@ -245,7 +231,7 @@ void testCaloGeometryTools::testBorderCrossing()
   unsigned counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec[ic]);
+      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;
@@ -272,7 +258,7 @@ void testCaloGeometryTools::testBorderCrossing()
   counter=0;
   for(unsigned ic=0;ic<size;++ic)
     {
-      std::vector<DetId> neighbours=myGeometry.getNeighbours(vec2[ic]);
+      CaloGeometryHelper::NeiVect neighbours=myGeometry.getNeighbours(vec2[ic]);
       for(unsigned in=0;in<8;++in)
 	{
 	  if(neighbours[in].null()) continue;

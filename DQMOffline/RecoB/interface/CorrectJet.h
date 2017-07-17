@@ -5,7 +5,7 @@
 
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "DataFormats/JetReco/interface/Jet.h"
-#include "JetMETCorrections/Objects/interface/JetCorrector.h"
+#include "JetMETCorrections/JetCorrector/interface/JetCorrector.h"
 
 /** \class CorrectJet
  *
@@ -17,18 +17,9 @@ class CorrectJet {
 
  public:
   CorrectJet() {}
-  CorrectJet(const std::string &corrector) :
-  			m_corrector(0), m_correctorName(corrector) {}
-
-  void setEventSetup(const edm::EventSetup & es)
-  {
-    if (!m_correctorName.empty())
-      m_corrector = JetCorrector::getJetCorrector(m_correctorName, es);
-    else
-      m_corrector = 0;
-  }
 
   /// Returns the corrected jet
+  void setCorrector(const reco::JetCorrector *corrector) {m_corrector=corrector;}
   reco::Jet operator() (const reco::Jet & jet) const
   {
     reco::Jet correctedJet(jet.p4(), jet.vertex());
@@ -38,8 +29,7 @@ class CorrectJet {
   }
 
  private:
-  const JetCorrector *m_corrector;
-  std::string m_correctorName;
+  const reco::JetCorrector *m_corrector;
 };
 
 #endif

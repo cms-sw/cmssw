@@ -54,7 +54,11 @@ namespace edm {
       memset(&tmpact,0,sizeof(tmpact));
       tmpact.sa_handler = SIG_IGN;
 
-      for(int num = SIGRTMIN; num < SIGRTMAX; ++num) {
+      for(int num = SIGRTMIN; num <= SIGRTMAX; ++num) {
+          // signal 38 is used by Intel Amplifier
+          if( num == 38) continue;
+
+
 	  MUST_BE_ZERO(sigaddset(&myset,num));
 	  MUST_BE_ZERO(sigaction(num,&tmpact,NULL));
       }

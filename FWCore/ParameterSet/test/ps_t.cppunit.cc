@@ -234,19 +234,19 @@ void testps::eventIDTest()
   testbody<edm::EventID>(edm::EventID::firstValidEvent());
   testbody<edm::EventID>(edm::EventID(2,3,4));
   testbody<edm::EventID>(edm::EventID(2,3,edm::EventID::maxEventNumber()));
-  testbody<edm::EventID>(edm::EventID(edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber()));
+  testbody<edm::EventID>(edm::EventID(edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
 }
 
 void testps::eventRangeTest()
 {
   testbody<edm::EventRange>(edm::EventRange());
   testbody<edm::EventRange>(edm::EventRange(1,1,1,
-                                            edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber(),edm::EventID::maxEventNumber()));
+                                            edm::EventID::maxRunNumber(), edm::EventID::maxLuminosityBlockNumber(), edm::EventID::maxEventNumber()));
   testbody<edm::EventRange>(edm::EventRange(2,3,4,2,3,10));
 
 
   testbody<edm::EventRange>(edm::EventRange(1,0,1,
-                                            edm::EventID::maxEventNumber(),0,edm::EventID::maxEventNumber()));
+                                            edm::EventID::maxRunNumber(),0,edm::EventID::maxEventNumber()));
   testbody<edm::EventRange>(edm::EventRange(2,0,4,2,0,10));
 }
 
@@ -255,13 +255,13 @@ void testps::vEventRangeTest()
   testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>());
   testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>(1, 
                                                                        edm::EventRange(1,1,1,
-                                                                                       edm::EventID::maxEventNumber(),
-                                                                                       edm::EventID::maxEventNumber(),
+                                                                                       edm::EventID::maxRunNumber(),
+                                                                                       edm::EventID::maxLuminosityBlockNumber(),
                                                                                        edm::EventID::maxEventNumber())));
 
   testbody<std::vector<edm::EventRange> >(std::vector<edm::EventRange>(1, 
                                                                        edm::EventRange(1,0,1,
-                                                                                       edm::EventID::maxEventNumber(),
+                                                                                       edm::EventID::maxRunNumber(),
                                                                                        0,
                                                                                        edm::EventID::maxEventNumber())));
 

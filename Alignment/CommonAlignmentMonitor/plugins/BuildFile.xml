@@ -69,6 +69,7 @@
   <use   name="Alignment/MuonAlignment"/>
   <use   name="CondFormats/AlignmentRecord"/>
   <use   name="CondFormats/Alignment"/>
+  <use   name="CondFormats/GeometryObjects"/>
   <flags   EDM_PLUGIN="1"/>
 </library>
 
@@ -106,6 +107,7 @@
   <use   name="DataFormats/Alignment"/>
   <use   name="DataFormats/TrackReco"/>
   <use   name="DataFormats/TrackerRecHit2D"/>
+  <use   name="Utilities/General"/>
   <use   name="rootcore"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

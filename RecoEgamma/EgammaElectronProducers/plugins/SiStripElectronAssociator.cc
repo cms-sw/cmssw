@@ -23,7 +23,6 @@
 #include "SiStripElectronAssociator.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-#include "DataFormats/EgammaCandidates/interface/SiStripElectronFwd.h"
 #include "DataFormats/EgammaCandidates/interface/SiStripElectron.h"
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
@@ -55,10 +54,8 @@ SiStripElectronAssociator::SiStripElectronAssociator(const edm::ParameterSet& iC
   produces<reco::ElectronCollection>(electronsLabel_.label());
 
    //now do what ever other initialization is needed
-  //siStripElectronProducer_ = iConfig.getParameter<edm::InputTag>("siStripElectronProducer");
-  siStripElectronCollection_ = iConfig.getParameter<edm::InputTag>("siStripElectronCollection");
-  //trackProducer_ = iConfig.getParameter<edm::InputTag>("trackProducer");
-  trackCollection_ = iConfig.getParameter<edm::InputTag>("trackCollection");
+  siStripElectronCollection_ = consumes<reco::SiStripElectronCollection>(iConfig.getParameter<edm::InputTag>("siStripElectronCollection"));
+  trackCollection_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
 }
 
 
@@ -74,10 +71,10 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
   static const double positionTol = 1e-3 ; 
 
    edm::Handle<reco::SiStripElectronCollection> siStripElectrons;
-   iEvent.getByLabel(siStripElectronCollection_, siStripElectrons);
+   iEvent.getByToken(siStripElectronCollection_, siStripElectrons);
 
    edm::Handle<reco::TrackCollection> tracks;
-   iEvent.getByLabel(trackCollection_, tracks);
+   iEvent.getByToken(trackCollection_, tracks);
 
    std::map<const reco::SiStripElectron*, bool> alreadySeen;
    for (reco::SiStripElectronCollection::const_iterator strippyIter = siStripElectrons->begin();  strippyIter != siStripElectrons->end();  ++strippyIter) {
@@ -85,7 +82,7 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    }
 
    // Output the high-level Electrons
-   std::auto_ptr<reco::ElectronCollection> output(new reco::ElectronCollection);
+   auto output = std::make_unique<reco::ElectronCollection>();
 
    LogDebug("SiStripElectronAssociator") << " About to loop over tracks " << std::endl ;
    LogDebug("SiStripElectronAssociator") << " Number of tracks in Associator " << tracks.product()->size() ;
@@ -193,11 +190,7 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
       
       if (!foundElectron) {
         throw cms::Exception("Configuration")
-          << " It is possible that the trackcollection used '"
-          << trackCollection_ << "' from producer '" << trackProducer_
-          << "' is not consistent with '"<< siStripElectronCollection_ 
-          << "' from the producer '"<< siStripElectronProducer_
-          << "' --- Please check your cfg file " << "\n";
+          << " Inconsistent track collection!"; 
       }
       
       LogDebug("SiStripElectronAssociator") << "At end of track loop \n" << std::endl; 
@@ -207,5 +200,5 @@ SiStripElectronAssociator::produce(edm::Event& iEvent, const edm::EventSetup& iS
    
    LogDebug("SiStripElectronAssociator") << " Number of SiStripElectrons returned with a good fit " 
                                          << countSiElFit << "\n"<<  std::endl ;
-   iEvent.put(output, electronsLabel_.label());
+   iEvent.put(std::move(output), electronsLabel_.label());
 }

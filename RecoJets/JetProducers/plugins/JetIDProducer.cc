@@ -17,10 +17,13 @@
 //
 JetIDProducer::JetIDProducer(const edm::ParameterSet& iConfig) :
   src_       ( iConfig.getParameter<edm::InputTag>("src") ),
-  helper_    ( iConfig ),
-  muHelper_  ( iConfig )
+  helper_    ( iConfig, consumesCollector() ),
+  muHelper_  ( iConfig, consumesCollector() )
 {
   produces< reco::JetIDValueMap >();
+
+  input_jet_token_ = consumes<edm::View<reco::CaloJet> >(src_);
+
 }
 
 
@@ -40,10 +43,10 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   // get the input jets
   edm::Handle< edm::View<reco::CaloJet> > h_jets;
-  iEvent.getByLabel( src_, h_jets );
+  iEvent.getByToken( input_jet_token_, h_jets );
 
   // allocate the jet--->jetid value map
-  std::auto_ptr<reco::JetIDValueMap> jetIdValueMap( new reco::JetIDValueMap );
+  auto jetIdValueMap = std::make_unique<reco::JetIDValueMap>();
   // instantiate the filler with the map
   reco::JetIDValueMap::Filler filler(*jetIdValueMap);
   
@@ -98,18 +101,7 @@ JetIDProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
   filler.fill();
 
   // write map to the event
-  iEvent.put( jetIdValueMap );
-}
-
-// ------------ method called once each job just before starting event loop  ------------
-void 
-JetIDProducer::beginJob()
-{
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void 
-JetIDProducer::endJob() {
+  iEvent.put(std::move(jetIdValueMap));
 }
 
 //define this as a plug-in

@@ -16,8 +16,8 @@
 /* C++ Headers */
 
 /* ====================================================================== */
-double DTSegmentCand::chi2max=20.; // to be tuned!!
-unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
+const double DTSegmentCand::chi2max=20.; // to be tuned!!
+const unsigned int DTSegmentCand::nHitsMin=3; // to be tuned!!
 
 /// Constructor
 DTSegmentCand::DTSegmentCand(AssPointCont& hits,
@@ -58,8 +58,13 @@ bool DTSegmentCand::operator<(const DTSegmentCand& seg){
   return (nHits()<seg.nHits());
 }
 
-void DTSegmentCand::add(DTHitPairForFit* hit, DTEnums::DTCellSide code) {
-  theHits.insert(AssPoint(hit,code));
+void DTSegmentCand::add(AssPoint newHit) {
+  theHits.insert(newHit);
+}
+
+void DTSegmentCand::add(std::shared_ptr<DTHitPairForFit> hit, DTEnums::DTCellSide code) {
+  AssPoint newHit(hit,code);
+  theHits.insert(newHit);
 }
 
 void DTSegmentCand::removeHit(AssPoint badHit) {
@@ -68,12 +73,11 @@ void DTSegmentCand::removeHit(AssPoint badHit) {
 
 int DTSegmentCand::nSharedHitPairs(const DTSegmentCand& seg) const{
   int result=0;
-  AssPointCont hitsCont = seg.hits();
 
   for (AssPointCont::const_iterator hit=theHits.begin(); 
        hit!=theHits.end() ; ++hit) {
-    for (AssPointCont::const_iterator hit2=hitsCont.begin();
-         hit2!=hitsCont.end() ; ++hit2) {
+    for (AssPointCont::const_iterator hit2=seg.hits().begin();
+         hit2!=seg.hits().end() ; ++hit2) {
       //  if(result) return result ; // TODO, uncomm this line or move it in another func
       if ((*(*hit).first)==(*(*hit2).first)) {
         ++result;
@@ -88,7 +92,7 @@ DTSegmentCand::AssPointCont
 DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
   AssPointCont result;
   const AssPointCont & hits2 = seg.theHits;
-  
+
 //  if (nSharedHitPairs(seg)==0) return result;
 
   AssPointCont::const_iterator hitBegin2 = hits2.begin(),   hitEnd2 = hits2.end();
@@ -107,6 +111,7 @@ DTSegmentCand::conflictingHitPairs(const DTSegmentCand& seg) const{
 
 bool DTSegmentCand::good() const
 {
+  // std::cout << NDOF() << "  " << chi2()/NDOF() << "   " << nHits() << std::endl;
   if(NDOF() == 0) return false;
   if(chi2()/NDOF() > chi2max || nHits() < nHitsMin) return false;
 
@@ -117,17 +122,20 @@ bool DTSegmentCand::good() const
 
 bool DTSegmentCand::hitsShareLayer() const
 {
-  std::vector<int> layerN;
+  int layerN[20];
+  int i=0;
+  
+  // we don't expect so many 1D hits, if such a segment arrives just drop it
+  if (theHits.size()>20) return false;
 
   for(DTSegmentCand::AssPointCont::iterator assHit=theHits.begin();
       assHit!=theHits.end(); ++assHit) {
-    layerN.push_back((*assHit).first->id().layerId().layer());
-
-    //std::cout << (*assHit).first->id().layerId().layer() << std::endl;
+    layerN[i]=(*assHit).first->id().layerId().layer()+10*(*assHit).first->id().superlayerId().superlayer();
+    i++;
   }
 
-  for(int i=0;i<(int)layerN.size();i++){
-    for(int j=i+1;j<(int)layerN.size();j++){
+  for(int i=0;i<(int)theHits.size();i++){
+    for(int j=0;j<i;j++){
       if(layerN[i] == layerN[j]) return true;
     }
   }
@@ -191,7 +199,7 @@ DTSegmentCand::operator DTChamberRecSegment2D*() const{
     GlobalPoint hitGlobalPos =
       theSL->toGlobal( (*assHit).first->localPosition((*assHit).second) );
     
-    LocalPoint hitPosInLayer = 
+    LocalPoint hitPosInLayer =
       theSL->chamber()
       ->superLayer((*assHit).first->id().superlayerId())
       ->layer( (*assHit).first->id().layerId() )->toLocal(hitGlobalPos);
@@ -219,8 +227,9 @@ bool DTSegmentCand::AssPointLessZ::operator()(const AssPoint& pt1,
 }
 
 std::ostream& operator<<(std::ostream& out, const DTSegmentCand& seg) {
-  out <<  " pos: " << seg.position() << " dir: " << seg.direction() 
-      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits() << "/" << seg.nHits();
+  out <<  " pos: " << seg.position() << " dir: " << seg.direction()
+      << " chi2/nHits: " << seg.chi2() << "/" << seg.DTSegmentCand::nHits()
+      << " t0: " << seg.t0();
   return out;
 }
 

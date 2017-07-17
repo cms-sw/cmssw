@@ -1,18 +1,22 @@
-#include "FWCore/PluginManager/interface/PluginManager.h"
-#include "FWCore/PluginManager/interface/standard.h"
+#include <cstdlib>
+#include <fstream>
+#include <map>
+#include <set>
+#include <string>
+#include <utility>
+
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/src/DDCheck.h"
+#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/Parser/interface/DDLParser.h"
 #include "DetectorDescription/Parser/interface/DDLSAX2FileHandler.h"
 #include "DetectorDescription/Parser/interface/FIPConfiguration.h"
-#include "DetectorDescription/Core/src/DDCheck.h"
-#include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
-#include "DetectorDescription/Core/src/LogicalPart.h"
 #include "DetectorDescription/RegressionTest/interface/DDErrorDetection.h"
-
-#include <iostream>
-#include <string>
-#include <cstdlib>
-#include <fstream>
+#include "DetectorDescription/RegressionTest/interface/DDHtmlFormatter.h"
+#include "FWCore/PluginManager/interface/PluginManager.h"
+#include "FWCore/PluginManager/interface/standard.h"
+#include "FWCore/Utilities/interface/Exception.h"
 
 int main(int argc, char *argv[])
 {
@@ -35,7 +39,7 @@ int main(int argc, char *argv[])
 
     std::cout << "about to set configuration" << std::endl;
     //  std::string configfile("configuration.xml");
-    std::string configfile("DetectorDescription/RegressionTest/test/dddhtml/");
+    std::string configfile("DetectorDescription/RegressionTest/test/");
     if (argc==2) {
       configfile += argv[1];
     } else {

@@ -18,6 +18,8 @@ for testing purposes only.
 #include "FWCore/ServiceRegistry/interface/StreamContext.h"
 #include "FWCore/Utilities/interface/GlobalIdentifier.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/Run.h"
+#include "FWCore/Framework/interface/LuminosityBlock.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/EDMException.h"
@@ -49,7 +51,7 @@ struct UnsafeCache {
     
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID iID) const override {
       ++m_count;
-      std::unique_ptr<UnsafeCache> pCache(new UnsafeCache);
+      auto pCache = std::make_unique<UnsafeCache>();
       pCache->value = iID.value();
       return pCache;
     }
@@ -129,7 +131,7 @@ struct UnsafeCache {
     
     std::shared_ptr<Cache> globalBeginRun(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<Cache>(new Cache);
+      return std::make_shared<Cache>();
     }
 
     void analyze(edm::StreamID iID, const edm::Event& iEvent, const edm::EventSetup&) const override {
@@ -169,7 +171,7 @@ struct UnsafeCache {
    
     std::shared_ptr<Cache> globalBeginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<Cache>(new Cache);
+      return std::make_shared<Cache>();
     }
 
     void analyze(edm::StreamID, const edm::Event& iEvent, const edm::EventSetup&) const override {
@@ -208,12 +210,12 @@ struct UnsafeCache {
 
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<UnsafeCache>(new UnsafeCache);
+      return std::make_unique<UnsafeCache>();
     }
 
     std::shared_ptr<UnsafeCache> globalBeginRunSummary(edm::Run const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<UnsafeCache>(new UnsafeCache);
+      return std::make_shared<UnsafeCache>();
     }
   
     void analyze(edm::StreamID iID, const edm::Event&, const edm::EventSetup&) const override {
@@ -258,12 +260,12 @@ struct UnsafeCache {
 
     std::unique_ptr<UnsafeCache> beginStream(edm::StreamID) const override {
       ++m_count;
-      return std::unique_ptr<UnsafeCache>(new UnsafeCache);
+      return std::make_unique<UnsafeCache>();
     }
 
     std::shared_ptr<UnsafeCache> globalBeginLuminosityBlockSummary(edm::LuminosityBlock const&, edm::EventSetup const&) const override {
       ++m_count;
-      return std::shared_ptr<UnsafeCache>(new UnsafeCache);
+      return std::make_shared<UnsafeCache>();
     }
     
     void analyze(edm::StreamID iID, const edm::Event& iEvent, const edm::EventSetup&) const override {

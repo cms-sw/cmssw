@@ -24,7 +24,7 @@
 #include "DataFormats/HepMCCandidate/interface/GenParticleFwd.h"
 
 class PatVertexAnalyzer : public edm::EDAnalyzer  {
-    public: 
+    public:
 	/// constructor and destructor
 	PatVertexAnalyzer(const edm::ParameterSet &params);
 	~PatVertexAnalyzer();
@@ -35,8 +35,8 @@ class PatVertexAnalyzer : public edm::EDAnalyzer  {
 
     private:
 	// configuration parameters
-	edm::InputTag src_;
-	edm::InputTag genParticles_;
+	edm::EDGetTokenT<reco::VertexCollection> srcToken_;
+	edm::EDGetTokenT<reco::GenParticleCollection> genParticlesToken_;
 
 	TH1 *nVertices_, *nTracks_;
 	TH1 *x_, *y_, *z_;
@@ -46,8 +46,8 @@ class PatVertexAnalyzer : public edm::EDAnalyzer  {
 };
 
 PatVertexAnalyzer::PatVertexAnalyzer(const edm::ParameterSet &params) :
-	src_(params.getParameter<edm::InputTag>("src")),
-	genParticles_(params.getParameter<edm::InputTag>("mc"))
+	srcToken_(consumes<reco::VertexCollection>(params.getParameter<edm::InputTag>("src"))),
+	genParticlesToken_(consumes<reco::GenParticleCollection>(params.getParameter<edm::InputTag>("mc")))
 {
 }
 
@@ -78,14 +78,14 @@ void PatVertexAnalyzer::beginJob()
 }
 
 void PatVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &es)
-{  
+{
 	// handle to the primary vertex collection
 	edm::Handle<reco::VertexCollection> pvHandle;
-	event.getByLabel(src_, pvHandle);
+	event.getByToken(srcToken_, pvHandle);
 
 	// handle to the generator particles (i.e. the MC truth)
 	edm::Handle<reco::GenParticleCollection> genParticlesHandle;
-	event.getByLabel(genParticles_, genParticlesHandle);
+	event.getByToken(genParticlesToken_, genParticlesHandle);
 
 	// extract the position of the simulated vertex
 	math::XYZPoint simPV = (*genParticlesHandle)[2].vertex();
@@ -119,7 +119,7 @@ void PatVertexAnalyzer::analyze(const edm::Event &event, const edm::EventSetup &
 		// pv.tracks_begin() ... pv.tracks_end() iterators
 	}
 }
-	
+
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 DEFINE_FWK_MODULE(PatVertexAnalyzer);

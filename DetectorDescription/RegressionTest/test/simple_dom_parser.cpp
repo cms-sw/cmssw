@@ -1,15 +1,24 @@
-#include "DetectorDescription/RegressionTest/src/SaxToDom.h"
-#include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
-#include "DetectorDescription/RegressionTest/src/StrX.h"
-
-#include "FWCore/Concurrency/interface/Xerces.h"
+#include <stdlib.h>
+#include <string.h>
 #include <xercesc/sax2/SAX2XMLReader.hpp>
 #include <xercesc/sax2/XMLReaderFactory.hpp>
 #include <fstream>
 #include <map>
-#include <stdlib.h>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "DetectorDescription/RegressionTest/src/SaxToDom.h"
+#include "DetectorDescription/RegressionTest/src/TagName.h"
+#include "DetectorDescription/RegressionTest/src/TinyDom.h"
+#include "DetectorDescription/RegressionTest/src/TinyDomTest.h"
+#include "FWCore/Concurrency/interface/Xerces.h"
+#include "xercesc/util/PlatformUtils.hpp"
+#include "xercesc/util/XMLException.hpp"
+#include "xercesc/util/XMLUni.hpp"
 
 using namespace std;
+using namespace xercesc;
 
 class ADummy
 {
@@ -54,9 +63,11 @@ int main(int argC, char* argV[])
 
     catch (const XMLException& toCatch)
     {
-        cerr << "Error during initialization! Message:\n"
-            << StrX(toCatch.getMessage()) << endl;
-        return 1;
+      char* message = XMLString::transcode(toCatch.getMessage());
+      cerr << "Error during initialization! Message:\n"
+	   << message << endl;
+      XMLString::release(&message);
+      return 1;
     }
 
     // Check command line and extract arguments.
@@ -244,10 +255,12 @@ int main(int argC, char* argV[])
 
         catch (const XMLException& e)
         {
-            cerr << "\nError during parsing: '" << xmlFile << "'\n"
-                << "Exception message is:  \n"
-                << StrX(e.getMessage()) << "\n" << endl;
+	  char* message = XMLString::transcode(e.getMessage());
+	  cerr << "\nError during parsing: '" << xmlFile << "'\n"
+	       << "Exception message is:  \n"
+	       << message << "\n" << endl;
             errorOccurred = true;
+	    XMLString::release(&message);
             continue;
         }
 
@@ -275,7 +288,8 @@ int main(int argC, char* argV[])
 	      }
 	      cout << endl;
 	   }
-	   cout << "dom-size=" << handler.dom().size() << endl;
+	   cout << "dom-size=" << handler.dom().size()
+		<< "duration " << duration << endl;
 	   /*
 	   TinyDomWalker walker(handler.dom());
 	   bool go = true;

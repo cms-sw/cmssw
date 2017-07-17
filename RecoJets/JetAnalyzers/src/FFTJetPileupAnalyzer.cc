@@ -42,6 +42,8 @@
 
 #include "DataFormats/JetReco/interface/DiscretizedEnergyFlow.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #define init_param(type, varname) varname (ps.getParameter< type >( #varname ))
 
 //
@@ -73,6 +75,16 @@ private:
     edm::InputTag gridLabel;
     edm::InputTag srcPVs;
     std::string pileupLabel;
+
+    edm::EDGetTokenT<TH2D> histoToken;
+    edm::EDGetTokenT<reco::FFTJetPileupSummary> summaryToken;
+    edm::EDGetTokenT<double> fastJetRhoToken;
+    edm::EDGetTokenT<double> fastJetSigmaToken;
+    edm::EDGetTokenT<reco::DiscretizedEnergyFlow> gridToken;
+    edm::EDGetTokenT<reco::VertexCollection> srcPVsToken;
+    edm::EDGetTokenT<std::vector<PileupSummaryInfo> > pileupToken;
+    edm::EDGetTokenT<std::pair<double,double> > etSumToken;
+
     std::string ntupleName;
     std::string ntupleTitle;
     bool collectHistos;
@@ -124,6 +136,29 @@ FFTJetPileupAnalyzer::FFTJetPileupAnalyzer(const edm::ParameterSet& ps)
       totalNPV(-1),
       counter(0)
 {
+    if (collectPileup || collectOOTPileup)
+        pileupToken = consumes<std::vector<PileupSummaryInfo> >(pileupLabel);
+
+    if (collectHistos)
+        histoToken = consumes<TH2D>(histoLabel);
+
+    if (collectSummaries)
+        summaryToken = consumes<reco::FFTJetPileupSummary>(summaryLabel);
+
+    if (collectFastJetRho)
+    {
+        fastJetRhoToken = consumes<double>(fastJetRhoLabel);
+        fastJetSigmaToken = consumes<double>(fastJetSigmaLabel);
+    }
+
+    if (collectGrids)
+        gridToken = consumes<reco::DiscretizedEnergyFlow>(gridLabel);
+
+    if (collectGridDensity)
+        etSumToken = consumes<std::pair<double,double> >(histoLabel);
+
+    if (collectVertexInfo)
+        srcPVsToken = consumes<reco::VertexCollection>(srcPVs);
 }
 
 
@@ -256,8 +291,8 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     totalNpu = -1;
     totalNPV = -1;
 
-    const long runnumber = iEvent.id().run();
-    const long eventnumber = iEvent.id().event();
+    edm::RunNumber_t const runnumber = iEvent.id().run();
+    edm::EventNumber_t const eventnumber = iEvent.id().event();
     ntupleData.push_back(runnumber);
     ntupleData.push_back(eventnumber);
 
@@ -265,7 +300,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     if (collectPileup || collectOOTPileup)
     {
         edm::Handle<std::vector<PileupSummaryInfo> > puInfo;
-        if (iEvent.getByLabel(pileupLabel, puInfo))
+        if (iEvent.getByToken(pileupToken, puInfo))
             analyzePileup(*puInfo);
         else
         {
@@ -289,7 +324,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     if (collectHistos)
     {
         edm::Handle<TH2D> input;
-        iEvent.getByLabel(histoLabel, input);
+        iEvent.getByToken(histoToken, input);
 
         edm::Service<TFileService> fs;
         TH2D* copy = new TH2D(*input);
@@ -306,7 +341,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     if (collectSummaries)
     {
         edm::Handle<reco::FFTJetPileupSummary> summary;
-        iEvent.getByLabel(summaryLabel, summary);
+        iEvent.getByToken(summaryToken, summary);
 
         ntupleData.push_back(summary->uncalibratedQuantile());
         ntupleData.push_back(summary->pileupRho());
@@ -317,8 +352,8 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     if (collectFastJetRho)
     {
         edm::Handle<double> fjrho, fjsigma;
-        iEvent.getByLabel(fastJetRhoLabel, fjrho);
-        iEvent.getByLabel(fastJetSigmaLabel, fjsigma);
+        iEvent.getByToken(fastJetRhoToken, fjrho);
+        iEvent.getByToken(fastJetSigmaToken, fjsigma);
 
         ntupleData.push_back(*fjrho);
         ntupleData.push_back(*fjsigma);
@@ -327,7 +362,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     if (collectGrids)
     {
         edm::Handle<reco::DiscretizedEnergyFlow> input;
-        iEvent.getByLabel(gridLabel, input);
+        iEvent.getByToken(gridToken, input);
 
         // Make sure the input grid is reasonable
         const double* data = input->data();
@@ -359,7 +394,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     if (collectGridDensity)
     {
         edm::Handle<std::pair<double,double> > etSum;
-        iEvent.getByLabel(histoLabel, etSum);
+        iEvent.getByToken(etSumToken, etSum);
 
         ntupleData.push_back(etSum->first);
         ntupleData.push_back(etSum->second);
@@ -368,7 +403,7 @@ void FFTJetPileupAnalyzer::analyze(const edm::Event& iEvent,
     if (collectVertexInfo)
     {
         edm::Handle<reco::VertexCollection> pvCollection;
-        iEvent.getByLabel(srcPVs, pvCollection);
+        iEvent.getByToken(srcPVsToken, pvCollection);
         totalNPV = 0;
         if (!pvCollection->empty())
             for (reco::VertexCollection::const_iterator pv = pvCollection->begin();

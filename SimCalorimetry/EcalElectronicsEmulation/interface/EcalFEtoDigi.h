@@ -9,7 +9,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/one/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
@@ -31,9 +31,9 @@
 
 struct TCCinput; 
 typedef std::vector<TCCinput> TCCInputData;
-const int N_SM = 36; //number of ecal barrel supermodules
+static const int N_SM = 36; //number of ecal barrel supermodules
 
-class EcalFEtoDigi : public edm::EDProducer {
+class EcalFEtoDigi : public edm::one::EDProducer<> {
 
 public:
 

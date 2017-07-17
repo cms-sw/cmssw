@@ -7,16 +7,18 @@
 
 #include "FWCore/ParameterSet/interface/FileInPath.h"
 
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
+
 #include <fstream>
 
 class MultiEventFilter : public edm::EDFilter {
 
   class Event {
     public:
-      Event(unsigned int r, unsigned int l, unsigned int e) : run(r), lumi(l), event(e) {}
-      unsigned int run;
-      unsigned int lumi;
-      unsigned int event;
+      Event(edm::RunNumber_t r, edm::LuminosityBlockNumber_t l, edm::EventNumber_t e) : run(r), lumi(l), event(e) {}
+      edm::RunNumber_t run;
+      edm::LuminosityBlockNumber_t lumi;
+      edm::EventNumber_t event;
   };
 
   public:
@@ -77,7 +79,7 @@ bool MultiEventFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetu
         events_[i].lumi == iEvent.id().luminosityBlock()) pass = false; 
   }
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   return taggingMode_ || pass;
 

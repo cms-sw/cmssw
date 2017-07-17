@@ -17,6 +17,6 @@
 
 namespace edm {
    namespace es {
-      eventsetup::produce::Produce produced;
+      const eventsetup::produce::Produce produced;
    }
 }

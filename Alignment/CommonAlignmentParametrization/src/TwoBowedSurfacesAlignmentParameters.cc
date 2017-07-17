@@ -191,31 +191,34 @@ void TwoBowedSurfacesAlignmentParameters::apply()
   align::rectify(rot);
   alignable->rotateInGlobalFrame(rot);
 
-  // Fill surface structures with mean bows and half differences for all parameters:
-  std::vector<align::Scalar> deformations; deformations.reserve(13);
-  // first part: average bows
-  deformations.push_back((params[dsagittaX1 ] + params[dsagittaX2 ]) * 0.5);
-  deformations.push_back((params[dsagittaXY1] + params[dsagittaXY2]) * 0.5);
-  deformations.push_back((params[dsagittaY1 ] + params[dsagittaY2 ]) * 0.5);
-  // second part: half difference of all corrections
-  for (unsigned int i = 0; i < BowedDerivs::N_PARAM; ++i) { 
-    // sign means that we have to apply e.g.
-    // - sagittaX for sensor 1: deformations[0] + deformations[9]
-    // - sagittaX for sensor 2: deformations[0] - deformations[9]
-    // - additional dx for sensor 1:  deformations[3]
-    // - additional dx for sensor 2: -deformations[3]
-    deformations.push_back((rigidBowPar1[i] - rigidBowPar2[i]) * 0.5);
+  // only update the surface deformations if they were selected for alignment
+  if (selector()[dsagittaX1] || selector()[dsagittaXY1] || selector()[dsagittaY1] ||
+      selector()[dsagittaX2] || selector()[dsagittaXY2] || selector()[dsagittaY2]) {
+    // Fill surface structures with mean bows and half differences for all parameters:
+    std::vector<align::Scalar> deformations; deformations.reserve(13);
+    // first part: average bows
+    deformations.push_back((params[dsagittaX1 ] + params[dsagittaX2 ]) * 0.5);
+    deformations.push_back((params[dsagittaXY1] + params[dsagittaXY2]) * 0.5);
+    deformations.push_back((params[dsagittaY1 ] + params[dsagittaY2 ]) * 0.5);
+    // second part: half difference of all corrections
+    for (unsigned int i = 0; i < BowedDerivs::N_PARAM; ++i) {
+      // sign means that we have to apply e.g.
+      // - sagittaX for sensor 1: deformations[0] + deformations[9]
+      // - sagittaX for sensor 2: deformations[0] - deformations[9]
+      // - additional dx for sensor 1:  deformations[3]
+      // - additional dx for sensor 2: -deformations[3]
+      deformations.push_back((rigidBowPar1[i] - rigidBowPar2[i]) * 0.5);
+    }
+    // finally: keep track of where we have split the module
+    deformations.push_back(ySplit_); // index is 12
+
+    const TwoBowedSurfacesDeformation deform{deformations};
+
+    // FIXME: true to propagate down?
+    //        Needed for hierarchy with common deformation parameter,
+    //        but that is not possible now anyway.
+    alignable->addSurfaceDeformation(&deform, false);
   }
-  // finally: keep track of where we have split the module
-  deformations.push_back(ySplit_); // index is 12
-
-  //  const SurfaceDeformation deform(SurfaceDeformation::kTwoBowedSurfaces, deformations);
-  const TwoBowedSurfacesDeformation deform(deformations);
-
-  // FIXME: true to propagate down?
-  //        Needed for hierarchy with common deformation parameter,
-  //        but that is not possible now anyway.
-  alignable->addSurfaceDeformation(&deform, false);
 }
 
 //_________________________________________________________________________________________________

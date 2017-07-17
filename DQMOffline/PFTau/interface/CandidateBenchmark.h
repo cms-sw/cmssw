@@ -16,9 +16,8 @@ class CandidateBenchmark : public Benchmark {
   virtual ~CandidateBenchmark();
 
   /// book histograms
-  void setup();
-  /// book histograms
-  void setup(const edm::ParameterSet& parameterSet);
+  void setup(DQMStore::IBooker& b);
+  void setup(DQMStore::IBooker& b, const edm::ParameterSet& parameterSet);
 
   template< class C>
   void fill( const C& candidates); 
@@ -29,12 +28,12 @@ class CandidateBenchmark : public Benchmark {
  protected:
   
 
-  TH1F*   pt_; 
-  TH1F*   eta_; 
-  TH1F*   phi_; 
-  TH1F*   charge_;
+  TH1F* pt_; 
+  TH1F* eta_; 
+  TH1F* phi_; 
+  TH1F* charge_;
   ///COLIN add this histo
-  TH1F*   pdgId_; 
+  TH1F* pdgId_; 
 
   bool histogramBooked_;
 };

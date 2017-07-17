@@ -17,13 +17,12 @@
 #include <functional>
 #include <typeinfo>
 #include <vector>
-#include "FWCore/Utilities/interface/GCC11Compatibility.h"
 
 namespace edm {
   class ProductID;
   template <typename T, typename P = ClonePolicy<T> >
   class OwnVector {
-  private:
+  public:
 #if defined(CMS_USE_DEBUGGING_ALLOCATOR)
     typedef std::vector<T*, debugging_allocator<T> > base;
 #else
@@ -46,7 +45,6 @@ namespace edm {
       typedef T const& reference;
       typedef ptrdiff_t difference_type;
       typedef typename base::const_iterator::iterator_category iterator_category;
-      const_iterator(typename base::const_iterator const& it) : i(it) { }
       const_iterator(iterator const& it) : i(it.i) { }
       const_iterator() {}
       const_iterator& operator++() { ++i; return *this; }
@@ -66,7 +64,10 @@ namespace edm {
       const_iterator & operator -=(difference_type d) { i -= d; return *this; }
       reference operator[](difference_type d) const { return *const_iterator(i+d); } // for boost::iterator_range []
     private:
+      const_iterator(typename base::const_iterator const& it) : i(it) { }
+      typename base::const_iterator base_iter() const { return i; }
       typename base::const_iterator i;
+      friend class OwnVector<T,P>;
     };
     class iterator {
     public:
@@ -75,7 +76,6 @@ namespace edm {
       typedef T & reference;
       typedef ptrdiff_t difference_type;
       typedef typename base::iterator::iterator_category iterator_category;
-      iterator(typename base::iterator const& it) : i(it) { }
       iterator() {}
       iterator& operator++() { ++i; return *this; }
       iterator operator++(int) { iterator ci = *this; ++i; return ci; }
@@ -95,6 +95,7 @@ namespace edm {
       iterator & operator -=(difference_type d) { i -= d; return *this; }
       reference operator[](difference_type d) const { return *iterator(i+d); } // for boost::iterator_range []
     private:
+      iterator(typename base::iterator const& it) : i(it) { }
       typename base::iterator i;
       friend class const_iterator;
       friend class OwnVector<T, P>;
@@ -124,12 +125,27 @@ namespace edm {
     OwnVector<T, P>& operator=(OwnVector<T, P>&&) noexcept;
 #endif
 
+    void shrink_to_fit() {
+      data_.shrink_to_fit();
+    }
+
 
     void reserve(size_t);
     template <typename D> void push_back(D*& d);
     template <typename D> void push_back(D* const& d);
-    template <typename D> void push_back(std::auto_ptr<D> d);
+    template <typename D> void push_back(std::unique_ptr<D> d);
     void push_back(T const& valueToCopy);
+
+    template <typename D> void set(size_t i, D*& d);
+    template <typename D> void set(size_t i, D* const & d);
+    template <typename D> void set(size_t i, std::unique_ptr<D> d);
+    void set(size_t i, T const& valueToCopy);
+
+    template <typename D> void insert(const_iterator i, D*& d);
+    template <typename D> void insert(const_iterator i, D* const & d);
+    template <typename D> void insert(const_iterator i, std::unique_ptr<D> d);
+    void insert(const_iterator i, T const& valueToCopy);
+
     bool is_back_safe() const;
     void pop_back();
     reference back();
@@ -140,6 +156,7 @@ namespace edm {
     void clear();
     iterator erase(iterator pos);
     iterator erase(iterator first, iterator last);
+    void reverse() { std::reverse(data_.begin(),data_.end());}
     template<typename S>
     void sort(S s);
     void sort();
@@ -148,7 +165,7 @@ namespace edm {
 
     void fillView(ProductID const& id,
                   std::vector<void const*>& pointers,
-                  helper_vector& helpers) const;
+                  FillViewHelperVector& helpers) const;
 
     void setPtr(std::type_info const& toType,
                 unsigned long index,
@@ -289,18 +306,76 @@ namespace edm {
     data_.push_back(d);
   }
 
-
   template<typename T, typename P>
   template<typename D>
-  inline void OwnVector<T, P>::push_back(std::auto_ptr<D> d) {
+  inline void OwnVector<T, P>::push_back(std::unique_ptr<D> d) {
     data_.push_back(d.release());
   }
-
 
   template<typename T, typename P>
   inline void OwnVector<T, P>::push_back(T const& d) {
     data_.push_back(policy_type::clone(d));
   }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::set(size_t i, D*& d) {
+    // see push_back for documentation
+    if (d == data_[i]) return; 
+    delete data_[i];
+    data_[i] = d;
+    d = 0;
+  }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::set(size_t i, D* const& d) {
+    // see push_back for documentation
+    if (d == data_[i]) return; 
+    delete data_[i];
+    data_[i] = d;
+  }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::set(size_t i, std::unique_ptr<D> d) {
+    if (d.get() == data_[i]) return; 
+    delete data_[i];
+    data_[i] = d.release();
+  }
+
+  template<typename T, typename P>
+  inline void OwnVector<T, P>::set(size_t i, T const& d) {
+    if (&d == data_[i]) return; 
+    delete data_[i];
+    data_[i] = policy_type::clone(d);
+  }
+
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::insert(const_iterator it, D*& d) {
+    data_.insert(it.base_iter(), d);
+    d = 0;
+  }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::insert(const_iterator it, D* const& d) {
+    data_.insert(it.base_iter(), d);
+  }
+
+  template<typename T, typename P>
+  template<typename D>
+  inline void OwnVector<T, P>::insert(const_iterator it, std::unique_ptr<D> d) {
+    data_.insert(it.base_iter(), d.release());
+  }
+
+  template<typename T, typename P>
+  inline void OwnVector<T, P>::insert(const_iterator it, T const& d) {
+    data_.insert(it.base_iter(), policy_type::clone(d));
+  }
+
 
 
   template<typename T, typename P>
@@ -401,13 +476,11 @@ namespace edm {
     data_.swap(other.data_);
   }
 
+#if defined(__GXX_EXPERIMENTAL_CXX0X__)
   template<typename T, typename P>
   void OwnVector<T, P>::fillView(ProductID const& id,
                                  std::vector<void const*>& pointers,
-                                 helper_vector& helpers) const {
-    typedef Ref<OwnVector>      ref_type ;
-    typedef reftobase::RefHolder<ref_type> holder_type;
-
+                                 FillViewHelperVector& helpers) const {
     size_type numElements = this->size();
     pointers.reserve(numElements);
     helpers.reserve(numElements);
@@ -422,11 +495,11 @@ namespace edm {
       }
       else {
         pointers.push_back(*i);
-        holder_type h(ref_type(id, *i, key,this));
-        helpers.push_back(&h);
+        helpers.emplace_back(id,key);
       }
     }
   }
+#endif
 
   template<typename T, typename P>
   inline void swap(OwnVector<T, P>& a, OwnVector<T, P>& b) noexcept {
@@ -443,7 +516,7 @@ namespace edm {
   fillView(OwnVector<T,P> const& obj,
            ProductID const& id,
            std::vector<void const*>& pointers,
-           helper_vector& helpers) {
+           FillViewHelperVector& helpers) {
     obj.fillView(id, pointers, helpers);
   }
 

@@ -430,6 +430,12 @@ if __name__ == '__main__':
                 ff.close()
             f.write(putAtTheEnd)
         f.close()
+
+        #moving the logs in the unix time folder
+        for fname in glob.glob(cwd+"/*.log"):
+            list = fname.split("/")
+            os.rename(fname,cwd+"/"+str(ts)+"/"+list[-1])
+
         if not parser.noMail():
             send_mail(mailFile)
     except:

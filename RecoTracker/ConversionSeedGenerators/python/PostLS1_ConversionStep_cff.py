@@ -1,21 +1,23 @@
+### who is using this python file ?
+### I found it obsolete, at least in terms of the TrackClusterRemover setting
+### now, it is ok, but ....
 import FWCore.ParameterSet.Config as cms
 
 from RecoTracker.ConversionSeedGenerators.PostLS1_PhotonConversionTrajectorySeedProducerFromSingleLeg_cfi import *
 from RecoTracker.ConversionSeedGenerators.ConversionStep2_cff import *
 
-convClusters = cms.EDProducer("TrackClusterRemover",
-                              clusterLessSolution = cms.bool(True),
-                              oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
-                              trajectories = cms.InputTag("tobTecStepTracks"),
-                              overrideTrkQuals = cms.InputTag('tobTecStepSelector','tobTecStep'),
-                              TrackQuality = cms.string('highPurity'),
-                              pixelClusters = cms.InputTag("siPixelClusters"),
-                              stripClusters = cms.InputTag("siStripClusters"),
-                              Common = cms.PSet(maxChi2 = cms.double(30.0))
-                              )
+from RecoLocalTracker.SubCollectionProducers.trackClusterRemover_cfi import *
+convClusters = trackClusterRemover.clone(
+   maxChi2               = cms.double(30.0),
+   trajectories          = cms.InputTag("tobTecStepTracks"),
+   pixelClusters         = cms.InputTag("siPixelClusters"),
+   stripClusters         = cms.InputTag("siStripClusters"),
+   oldClusterRemovalInfo = cms.InputTag("tobTecStepClusters"),
+   overrideTrkQuals      = cms.InputTag('tobTecStepSelector','tobTecStep'),
+   TrackQuality          = cms.string('highPurity'),
+)
 
-convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
-                                ComponentName = cms.string('convLayerPairs'),
+convLayerPairs = cms.EDProducer("SeedingLayersEDProducer",
                                 layerList = cms.vstring('BPix1+BPix2', 
 
                                                         'BPix2+BPix3', 
@@ -102,19 +104,13 @@ convLayerPairs = cms.ESProducer("SeedingLayersESProducer",
                                                         ),
 
                                 BPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.006),
-                                    hitErrorRPhi = cms.double(0.0027),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('siPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 FPix = cms.PSet(
-                                    hitErrorRZ = cms.double(0.0036),
-                                    hitErrorRPhi = cms.double(0.0051),
                                     TTRHBuilder = cms.string('TTRHBuilderWithoutAngle4PixelPairs'),
                                     HitProducer = cms.string('siPixelRecHits'),
-                                    useErrorsFromParam = cms.bool(True),
                                     skipClusters = cms.InputTag('convClusters'),
                                     ),
                                 TIB1 = cms.PSet(
@@ -217,21 +213,17 @@ photonConvTrajSeedFromSingleLeg.primaryVerticesTag = cms.InputTag('pixelVertices
 # TRACKER DATA CONTROL
 
 # QUALITY CUTS DURING TRACK BUILDING
-import TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi
-convCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.clone(
-    ComponentName = 'convCkfTrajectoryFilter',
-    filterPset = TrackingTools.TrajectoryFiltering.TrajectoryFilterESProducer_cfi.trajectoryFilterESProducer.filterPset.clone(
+import TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff
+convCkfTrajectoryFilter = TrackingTools.TrajectoryFiltering.TrajectoryFilter_cff.CkfBaseTrajectoryFilter_block.clone(
         maxLostHits = 1,
         minimumNumberOfHits = 3,
         minPt = 0.1
-        )
     )
 
 # TRACK BUILDING
-import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi
-convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESProducer_cfi.GroupedCkfTrajectoryBuilder.clone(
-    ComponentName = 'convCkfTrajectoryBuilder',
-    trajectoryFilterName = 'convCkfTrajectoryFilter',
+import RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi
+convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilder_cfi.GroupedCkfTrajectoryBuilder.clone(
+    trajectoryFilter = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryFilter')),
     minNrOfHitsForRebuild = 3,
     clustersToSkip = cms.InputTag('convClusters'),
     maxCand = 2
@@ -241,7 +233,7 @@ convCkfTrajectoryBuilder = RecoTracker.CkfPattern.GroupedCkfTrajectoryBuilderESP
 import RecoTracker.CkfPattern.CkfTrackCandidates_cfi
 convTrackCandidates = RecoTracker.CkfPattern.CkfTrackCandidates_cfi.ckfTrackCandidates.clone(
     src = cms.InputTag('photonConvTrajSeedFromSingleLeg:convSeedCandidates'),
-    TrajectoryBuilder = 'convCkfTrajectoryBuilder'
+    TrajectoryBuilderPSet = cms.PSet(refToPSet_ = cms.string('convCkfTrajectoryBuilder'))
 )
 
 import TrackingTools.TrackFitters.RungeKuttaFitters_cff
@@ -261,7 +253,7 @@ convStepRKTrajectorySmoother = TrackingTools.TrackFitters.RungeKuttaFitters_cff.
 import RecoTracker.TrackProducer.TrackProducer_cfi
 convStepTracks = RecoTracker.TrackProducer.TrackProducer_cfi.TrackProducer.clone(
     src = 'convTrackCandidates',
-    AlgorithmName = cms.string('iter8'),
+    AlgorithmName = cms.string('conversionStep'),
     Fitter = 'convStepFitterSmoother',
     )
 
@@ -313,6 +305,7 @@ convStepSelector = RecoTracker.FinalTrackSelectors.multiTrackSelector_cfi.multiT
     ) #end of clone
 
 ConvStep = cms.Sequence( convClusters 
+                         + convLayerPairs
                          + photonConvTrajSeedFromSingleLeg 
                          + convTrackCandidates
                          + convStepTracks

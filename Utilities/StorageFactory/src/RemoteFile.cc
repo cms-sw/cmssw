@@ -86,7 +86,7 @@ RemoteFile::local (const std::string &tmpdir, std::string &temp)
   return fd;
 }
 
-Storage *
+std::unique_ptr<Storage>
 RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
 {
   // FIXME: On write, create a temporary local file open for write;
@@ -119,7 +119,7 @@ RemoteFile::get (int localfd, const std::string &name, char **cmd, int mode)
   }
 
   if (WIFEXITED(rc) && WEXITSTATUS(rc) == 0)
-    return new RemoteFile (localfd, name);
+    return std::unique_ptr<Storage> ( static_cast<Storage*>( new RemoteFile(localfd, name) ) );
   else
   {
     ::close (localfd);

@@ -12,15 +12,19 @@
  *
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
+#include "DataFormats/MuonReco/interface/MuonMETCorrectionData.h"
+#include "DataFormats/Common/interface/ValueMap.h"
+
 #include <string>
 
-class MuonMETcorrInputProducer : public edm::EDProducer  
+class MuonMETcorrInputProducer : public edm::stream::EDProducer<>  
 {
  public:
 
@@ -33,9 +37,9 @@ class MuonMETcorrInputProducer : public edm::EDProducer
 
   std::string moduleLabel_;
 
-  edm::InputTag src_; // collection of muon candidates
+  edm::EDGetTokenT<reco::MuonCollection> token_;
+  edm::EDGetTokenT<edm::ValueMap<reco::MuonMETCorrectionData> > muonCorrectionMapToken_;
 
-  edm::InputTag srcMuonCorrections_; // collection of CaloMET muon corrections
 };
 
 #endif

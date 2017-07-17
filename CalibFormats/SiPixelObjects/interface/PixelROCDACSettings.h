@@ -19,6 +19,9 @@ namespace pos{
   typedef unsigned char bits8;
   typedef unsigned char bits4;
 
+  class PixelROCDACSettings;
+  std::ostream& operator<<(std::ostream& s, const PixelROCDACSettings& dacs);
+
 /*! \class PixelROCDACSettings PixelROCDACSettings.h "interface/PixelROCDACSettings.h"
 *   \brief This class implements..
 *
@@ -29,6 +32,7 @@ namespace pos{
   public:
 
     PixelROCDACSettings();
+    virtual ~PixelROCDACSettings(){;};
 
     PixelROCDACSettings(const PixelROCName& rocid){rocid_= rocid;}
 

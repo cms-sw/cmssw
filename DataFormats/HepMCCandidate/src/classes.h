@@ -10,7 +10,7 @@
 #include "DataFormats/HepMCCandidate/interface/FlavorHistoryEvent.h"
 #include <vector>
 
-namespace {
+namespace DataFormats_HepMCCandidate {
   struct dictionary {
     reco::CompositeRefCandidateT<reco::GenParticleRefVector> v1;
     edm::Wrapper<reco::GenParticleCollection> w2;
@@ -38,6 +38,8 @@ namespace {
     edm::Wrapper<edm::ValueMap<reco::FlavorHistoryEvent> > wvmfhe1;
     std::vector<reco::GenParticleRef>	v_gpr;
     edm::RefVectorIterator<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > rvigp;
+    edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > > vmgr;
+    edm::Wrapper<edm::ValueMap<edm::Ref<std::vector<reco::GenParticle>,reco::GenParticle,edm::refhelper::FindUsingAdvance<std::vector<reco::GenParticle>,reco::GenParticle> > > > wvmgr;
   };
 }
 

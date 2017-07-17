@@ -8,6 +8,7 @@
 <use   name="DataFormats/HLTReco"/>
 <use   name="DataFormats/MuonReco"/>
 <use   name="DataFormats/EgammaReco"/>
+<use   name="DataFormats/EgammaCandidates"/>
 <use   name="DataFormats/TrackReco"/>
 <use   name="DataFormats/TrajectorySeed"/>
 <use   name="DataFormats/BTauReco"/>
@@ -15,13 +16,14 @@
 <use   name="DataFormats/METReco"/>
 <use   name="DataFormats/JetReco"/>
 <use   name="DataFormats/CaloTowers"/>
+<use   name="DataFormats/HeavyIonEvent"/>
 <use   name="CommonTools/Utils"/>
+<use   name="CommonTools/TriggerUtils"/>
 <use   name="RecoEcal/EgammaCoreTools"/>
 <use   name="RecoEgamma/EgammaHLTAlgos"/>
 <use   name="RecoEgamma/EgammaIsolationAlgos"/>
 <use   name="HLTrigger/HLTcore"/>
 <use   name="CondFormats/DataRecord"/>
-<use   name="DQM/HLTEvF"/>
 <use   name="RecoJets/JetAssociationAlgorithms"/>
 <use   name="RecoJets/JetAlgorithms"/>
 <use   name="RecoJets/JetProducers"/>

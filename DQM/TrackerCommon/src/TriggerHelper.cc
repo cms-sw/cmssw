@@ -290,7 +290,7 @@ bool TriggerHelper::acceptL1( const edm::Event & event, const edm::EventSetup & 
   if ( ! onL1_ || l1LogicalExpressions_.empty() ) return ( ! andOr_ ); // logically neutral, depending on base logical connective
 
   // Getting the L1 event setup
-  l1Gt_.retrieveL1EventSetup( setup ); // FIXME This can possibly go to initRun()
+  l1Gt_->retrieveL1EventSetup( setup ); // FIXME This can possibly go to initRun()
 
   // Determine decision of L1 logical expression combination and return
   if ( andOrL1_ ) { // OR combination
@@ -330,7 +330,7 @@ bool TriggerHelper::acceptL1LogicalExpression( const edm::Event & event, std::st
   for ( size_t iAlgorithm = 0; iAlgorithm < l1AlgoLogicParser.operandTokenVector().size(); ++iAlgorithm ) {
     const std::string l1AlgoName( l1AlgoLogicParser.operandTokenVector().at( iAlgorithm ).tokenName );
     int error( -1 );
-    const bool decision( l1Gt_.decision( event, l1AlgoName, error ) );
+    const bool decision( l1Gt_->decision( event, l1AlgoName, error ) );
     // Error checks
     if ( error != 0 ) {
       if ( error == 1 ) edm::LogError( "TriggerHelper" ) << "L1 algorithm \"" << l1AlgoName << "\" does not exist in the L1 menu ==> decision: "                                          << errorReplyL1_;

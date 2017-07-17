@@ -13,10 +13,10 @@
 static const double CBOLTZ_over_e_SI = 1.38E-23/1.6E-19;
 static const double noDiffusionMultiplier = 1.0e-3;
 
-SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
+SiHitDigitizer::SiHitDigitizer(const edm::ParameterSet& conf) :
   depletionVoltage(conf.getParameter<double>("DepletionVoltage")),
   chargeMobility(conf.getParameter<double>("ChargeMobility")),
-  theSiChargeDivider(new SiLinearChargeDivider(conf, eng)),
+  theSiChargeDivider(new SiLinearChargeDivider(conf)),
   theSiChargeCollectionDrifter(new SiLinearChargeCollectionDrifter(
          CBOLTZ_over_e_SI * chargeMobility * conf.getParameter<double>("Temperature") * (conf.getParameter<bool>("noDiffusion") ? noDiffusionMultiplier : 1.0),
          conf.getParameter<double>("ChargeDistributionRMS"),
@@ -31,7 +31,7 @@ SiHitDigitizer::~SiHitDigitizer(){
 void 
 SiHitDigitizer::processHit(const PSimHit* hit, const StripGeomDetUnit& det, GlobalVector bfield,float langle,
 			   std::vector<float>& locAmpl, size_t& firstChannelWithSignal, size_t& lastChannelWithSignal,
-			   const TrackerTopology *tTopo){
+			   const TrackerTopology *tTopo, CLHEP::HepRandomEngine* engine){
   
   // Compute the drift direction for this det
   double moduleThickness = det.specificSurface().bounds().thickness(); // active detector thicness
@@ -41,7 +41,7 @@ SiHitDigitizer::processHit(const PSimHit* hit, const StripGeomDetUnit& det, Glob
   // Fully process one SimHit
   theSiInduceChargeOnStrips->induce(
       theSiChargeCollectionDrifter->drift(
-          theSiChargeDivider->divide(hit, driftDir, moduleThickness, det),
+                                          theSiChargeDivider->divide(hit, driftDir, moduleThickness, det, engine),
           driftDir,moduleThickness,timeNormalisation),
       det,locAmpl,firstChannelWithSignal,lastChannelWithSignal,tTopo);
 }

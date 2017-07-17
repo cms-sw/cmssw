@@ -34,60 +34,46 @@
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalSeverityLevelAlgoRcd.h"
 
-IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) {
+IsolatedTracksCone::IsolatedTracksCone(const edm::ParameterSet& iConfig) :
+   trackerHitAssociatorConfig_(consumesCollector()) {
 
   //now do what ever initialization is needed
   doMC            = iConfig.getUntrackedParameter<bool>  ("DoMC", false); 
-  myverbose_      = 
-    iConfig.getUntrackedParameter<int>( "Verbosity", 5 );
-  useJetTrigger_  = 
-    iConfig.getUntrackedParameter<bool>( "useJetTrigger", false);
-  drLeadJetVeto_  = 
-    iConfig.getUntrackedParameter<double>( "drLeadJetVeto",  1.2 );
-  ptMinLeadJet_   = 
-    iConfig.getUntrackedParameter<double>( "ptMinLeadJet",  15.0 );
+  myverbose_      = iConfig.getUntrackedParameter<int>( "Verbosity", 5 );
+  useJetTrigger_  = iConfig.getUntrackedParameter<bool>( "useJetTrigger", false);
+  drLeadJetVeto_  = iConfig.getUntrackedParameter<double>( "drLeadJetVeto",  1.2 );
+  ptMinLeadJet_   = iConfig.getUntrackedParameter<double>( "ptMinLeadJet",  15.0 );
 
-  debugTrks_          = 
-    iConfig.getUntrackedParameter<int>("DebugTracks");
-  printTrkHitPattern_ = 
-    iConfig.getUntrackedParameter<bool>("PrintTrkHitPattern");
+  debugTrks_          = iConfig.getUntrackedParameter<int>("DebugTracks");
+  printTrkHitPattern_ = iConfig.getUntrackedParameter<bool>("PrintTrkHitPattern");
   
-  minTrackP_     = 
-    iConfig.getUntrackedParameter<double>( "minTrackP", 10.0);
-  maxTrackEta_    = 
-    iConfig.getUntrackedParameter<double>( "maxTrackEta", 5.0);
-  maxNearTrackP_  = 
-    iConfig.getUntrackedParameter<double>( "maxNearTrackP", 1.0);
+  minTrackP_      = iConfig.getUntrackedParameter<double>( "minTrackP", 10.0);
+  maxTrackEta_    = iConfig.getUntrackedParameter<double>( "maxTrackEta", 5.0);
+  maxNearTrackP_  = iConfig.getUntrackedParameter<double>( "maxNearTrackP", 1.0);
 
-  debugEcalSimInfo_   = 
-    iConfig.getUntrackedParameter<int>("DebugEcalSimInfo");
+  debugEcalSimInfo_   = iConfig.getUntrackedParameter<int>("DebugEcalSimInfo");
 
-  applyEcalIsolation_ = 
-    iConfig.getUntrackedParameter<bool>("ApplyEcalIsolation");
+  applyEcalIsolation_ = iConfig.getUntrackedParameter<bool>("ApplyEcalIsolation");
 
-  tok_L1extTauJet_ = 
-    consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraTauJetSource"));
-  tok_L1extCenJet_ = 
-    consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraCenJetSource"));
-  tok_L1extFwdJet_ = 
-    consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraFwdJetSource"));
+  tok_L1extTauJet_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraTauJetSource"));
+  tok_L1extCenJet_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraCenJetSource"));
+  tok_L1extFwdJet_ = consumes<l1extra::L1JetParticleCollection>(iConfig.getParameter<edm::InputTag>("L1extraFwdJetSource"));
 
   // hard coded collection access
-  tok_EB_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
-  tok_EE_ = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
+  tok_EB_   = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEB"));
+  tok_EE_   = consumes<EcalRecHitCollection>(edm::InputTag("ecalRecHit","EcalRecHitsEE"));
   tok_hbhe_ = consumes<HBHERecHitCollection>(edm::InputTag("hbhereco"));
   tok_genTrack_ = consumes<reco::TrackCollection>(edm::InputTag("generalTracks"));
-  tok_simTk_ = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
-  tok_simVtx_ = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
-  tok_caloEB_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
-  tok_caloEE_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
-  tok_caloHH_ = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
-  tok_trigger_ = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","","HLT"));
+  tok_simTk_    = consumes<edm::SimTrackContainer>(edm::InputTag("g4SimHits"));
+  tok_simVtx_   = consumes<edm::SimVertexContainer>(edm::InputTag("g4SimHits"));
+  tok_caloEB_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEB"));
+  tok_caloEE_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "EcalHitsEE"));
+  tok_caloHH_   = consumes<edm::PCaloHitContainer>(edm::InputTag("g4SimHits", "HcalHits"));
+  tok_trigger_  = consumes<edm::TriggerResults>(edm::InputTag("TriggerResults","","HLT"));
 
-
-  edm::ParameterSet parameters = 
-    iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
-  parameters_.loadParameters( parameters );
+  edm::ParameterSet parameters = iConfig.getParameter<edm::ParameterSet>("TrackAssociatorParameters");
+  edm::ConsumesCollector iC = consumesCollector();
+  parameters_.loadParameters( parameters, iC );
   trackAssociator_ =  new TrackDetectorAssociator();
   trackAssociator_->useDefaultPropagator();
 
@@ -196,7 +182,7 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   //  const CaloSubdetectorTopology* theEETopology   = theCaloTopology->getSubdetectorTopology(DetId::Ecal,EcalEndcap);
   
   edm::ESHandle<HcalTopology> htopo;
-  iSetup.get<IdealGeometryRecord>().get(htopo);
+  iSetup.get<HcalRecNumberingRecord>().get(htopo);
   const HcalTopology* theHBHETopology = htopo.product();
   
   edm::Handle<EcalRecHitCollection> barrelRecHitsHandle;
@@ -304,8 +290,8 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   ////////////////////////////
   // Primary loop over tracks
   ////////////////////////////
-  TrackerHitAssociator* associate=0;
-  if (doMC) associate = new TrackerHitAssociator(iEvent);
+  std::unique_ptr<TrackerHitAssociator> associate;
+  if (doMC) associate.reset(new TrackerHitAssociator(iEvent, trackerHitAssociatorConfig_));
   
 
   nTRK      = 0;
@@ -931,13 +917,11 @@ void IsolatedTracksCone::analyze(const edm::Event& iEvent,
   ntp->Fill();
   nEVT++;
   
-  
-  delete associate;
 }
   
 
 
-void IsolatedTracksCone::beginJob(const edm::EventSetup&) {
+void IsolatedTracksCone::beginJob() {
 
   //   hbScale = 120.0;
   //   heScale = 135.0;
@@ -1432,8 +1416,8 @@ void IsolatedTracksCone::printTrack(const reco::Track* pTrack) {
   if( printTrkHitPattern_ ) {
     const reco::HitPattern& p = pTrack->hitPattern();
     
-    for (int i=0; i<p.numberOfHits(); i++) {
-      p.printHitPattern(i, std::cout);
+    for (int i=0; i<p.numberOfHits(reco::HitPattern::TRACK_HITS); i++) {
+      p.printHitPattern(reco::HitPattern::TRACK_HITS, i, std::cout);
     }
   }
 

@@ -6,7 +6,7 @@ root -l -b << EOF
   TString dummy = makeshared.ReplaceAll("-Wshadow ", "");
   gSystem->SetMakeSharedLib(makeshared);
   gSystem->Load("libFWCoreFWLite");
-  AutoLibraryLoader::enable();
+  FWLiteEnabler::enable();;
   gSystem->Load("libDataFormatsFWLite.so");
   gSystem->Load("libDataFormatsHepMCCandidate.so");
   gSystem->Load("libDataFormatsCommon.so");

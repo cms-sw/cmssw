@@ -6,7 +6,7 @@ static int const* g_ptr_staticConst = &g_staticConst;
 
 
 // results in a warning by GlobalStaticChecker
-static int g_static;
+[[cms::thread_safe]] static int g_static;
 static int * g_ptr_static = &g_static;
 
 class ClassTest {
@@ -42,6 +42,19 @@ ClassTest::testConst() const
     //int * localPtrToInt = &m_testInteger;
 } 
 
+class Thing
+{
+private:
+
+int num;
+
+public:
+
+Thing(): num{0} {}
+int getnum() {return num;}
+void putnum(int x) {num=x;}
+};
+
 class Foo
 {
 
@@ -50,10 +63,11 @@ private:
 int Var_;
 int & RVar_=Var_;
 int * PVar_=&RVar_;
+Thing * T_p;
 
 public:
 
-Foo(): Var_{0}{}
+Foo(): Var_{0}{T_p= new Thing;}
 void func1(int  x) {return;} //OK
 void func2(int &x) {return;} // cound be bad 
 void func3(int *x) {return;} // could be bad
@@ -66,12 +80,13 @@ int * nonConstAccess() const {return PVar_;} //bad
 int & nonConstRefAccess() const { return  RVar_; } //bad ?
 int const * constAccess() const {return PVar_;} //OK
 int const & constRefAccess() const { return RVar_; } //OK ?
+Thing * getThing() { return T_p; }
 
 };
 
 class Bar
 {
-static int si_;
+[[cms::thread_safe]] static int si_;
 static void const modifyStatic(int &x) {si_=x;}
 private:
 Bar(): ci_{0},ipc_{&i_},icp_{&i_},ir_{i_},icr_{ci_} {}
@@ -111,6 +126,8 @@ void produce()
 	foo->nonConstFunc();
 	foo_.nonConstFunc(); //should fail member data (object) call non const functions 
 	foo_.constFunc(); //OK because const won't modify self
+	foo->getThing()->getnum();
+	foo_.getThing()->getnum();
 	method1(i_);
 	method1(I);
 	modifyStatic(I);
@@ -152,7 +169,7 @@ void method3() const
 // must not produce a warning
 	int const& ira = (int const&)(icr_);
 // will produce a warning by StaticLocalChecker
-        static int evilStaticLocal = 0;
+        [[cms::thread_safe]] static int evilStaticLocal = 0;
 	static int & intRef = evilStaticLocal;
 	static int * intPtr = & evilStaticLocal;
 // no warnings here

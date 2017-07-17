@@ -25,7 +25,7 @@
 
 #include "DataFormats/Common/interface/Wrapper.h"
 
-namespace {
+namespace DataFormats_EgammaTrackReco {
   struct dictionary {
 
     reco::TrackCandidateSuperClusterAssociationCollection v5;

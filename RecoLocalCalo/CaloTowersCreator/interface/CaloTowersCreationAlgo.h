@@ -23,9 +23,11 @@
 
 // need if we want to store the handles
 #include "FWCore/Framework/interface/ESHandle.h"
+#include <tuple>
 
 
 #include <map>
+class CaloTowerTopology;
 class HcalTopology;
 class CaloGeometry;
 class CaloSubdetectorGeometry;
@@ -46,6 +48,9 @@ class DetId;
 
 class CaloTowersCreationAlgo {
 public:
+
+  int nalgo=-1;
+
   CaloTowersCreationAlgo();
 
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
@@ -67,7 +72,8 @@ public:
     double momHBDepth,
     double momHEDepth,
     double momEBDepth,
-    double momEEDepth
+    double momEEDepth,
+	int hcalPhase=0
     );
   
   CaloTowersCreationAlgo(double EBthreshold, double EEthreshold, 
@@ -97,10 +103,11 @@ public:
     double momHBDepth,
     double momHEDepth,
     double momEBDepth,
-    double momEEDepth
+    double momEEDepth,
+	int hcalPhase=0
 );
   
-  void setGeometry(const CaloTowerConstituentsMap* cttopo, const HcalTopology* htopo, const CaloGeometry* geo);
+  void setGeometry(const CaloTowerTopology* cttopo, const CaloTowerConstituentsMap* ctmap, const HcalTopology* htopo, const CaloGeometry* geo);
 
   // pass the containers of channels status from the event record (stored in DB)
   // these are called in  CaloTowersCreator
@@ -110,6 +117,8 @@ public:
   // Kake a map of number of channels not used in RecHit production.
   // The key is the calotower id.
   void makeHcalDropChMap();
+
+  void makeEcalBadChs();
 
   void begin();
   void process(const HBHERecHitCollection& hbhe);
@@ -139,7 +148,7 @@ public:
   // Called in assignHit to check if the energy should be added to
   // calotower, and how to flag the channel
   unsigned int hcalChanStatusForCaloTower(const CaloRecHit* hit);
-  unsigned int ecalChanStatusForCaloTower(const CaloRecHit* hit);
+  std::tuple<unsigned int,bool> ecalChanStatusForCaloTower(const EcalRecHit* hit);
 
   // Channel flagging is based on acceptable severity levels specified in the
   // configuration file. These methods are used to pass the values read in
@@ -192,9 +201,9 @@ public:
   GlobalPoint hadSegmentShwrPos(DetId detId, float fracDepth);
   // "effective" point for the EM/HAD shower in CaloTower
   //  position based on non-zero energy cells
-  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,double> >& metaContains,
+  GlobalPoint hadShwrPos(const std::vector<std::pair<DetId,float> >& metaContains,
     float fracDepth, double hadE);
-  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrPos(const std::vector<std::pair<DetId,float> >& metaContains, 
     float fracDepth, double totEmE);
 
   // overloaded function to get had position based on all had cells in the tower
@@ -202,26 +211,29 @@ public:
   GlobalPoint hadShwPosFromCells(DetId frontCell, DetId backCell, float fracDepth);
 
   // for Chris
-  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,double> >& metaContains, 
+  GlobalPoint emShwrLogWeightPos(const std::vector<std::pair<DetId,float> >& metaContains, 
     float fracDepth, double totEmE);
 
 
 private:
 
   struct MetaTower {
-    MetaTower();
-    double E, E_em, E_had, E_outer;
+    MetaTower(){}
+    bool empty() const { return metaConstituents.empty();}
     // contains also energy of RecHit
-    std::vector< std::pair<DetId, double> > metaConstituents;
-    double emSumTimeTimesE, hadSumTimeTimesE, emSumEForTime, hadSumEForTime; // Sum(Energy x Timing) : intermediate container
+    std::vector< std::pair<DetId, float> > metaConstituents;
+    CaloTowerDetId id;
+    float E=0, E_em=0, E_had=0, E_outer=0;
+    float emSumTimeTimesE=0, hadSumTimeTimesE=0, emSumEForTime=0, hadSumEForTime=0; // Sum(Energy x Timing) : intermediate container
 
     // needed to set CaloTower status word
-    int numBadEcalCells, numRecEcalCells, numProbEcalCells, numBadHcalCells, numRecHcalCells, numProbHcalCells; 
+    int numBadEcalCells=0, numRecEcalCells=0, numProbEcalCells=0, numBadHcalCells=0, numRecHcalCells=0, numProbHcalCells=0; 
 
  };
 
   /// adds a single hit to the tower
-  void assignHit(const CaloRecHit * recHit);
+  void assignHitEcal(const EcalRecHit* recHit);
+  void assignHitHcal(const CaloRecHit* recHit);
 
   void rescale(const CaloTower * ct);
 
@@ -261,6 +273,7 @@ private:
   double theHOEScale;
   double theHF1EScale;
   double theHF2EScale;
+  const CaloTowerTopology* theTowerTopology;
   const HcalTopology* theHcalTopology;
   const CaloGeometry* theGeometry;
   const CaloTowerConstituentsMap* theTowerConstituentsMap;
@@ -315,13 +328,18 @@ private:
   
 
   // internal map
-  typedef std::map<CaloTowerDetId, MetaTower> MetaTowerMap;
+  typedef std::vector<MetaTower> MetaTowerMap;
   MetaTowerMap theTowerMap;
+  unsigned int theTowerMapSize=0;
 
   // Number of channels in the tower that were not used in RecHit production (dead/off,...).
   // These channels are added to the other "bad" channels found in the recHit collection. 
   typedef std::map<CaloTowerDetId, int> HcalDropChMap;
   HcalDropChMap hcalDropChMap;
+
+  // Number of bad Ecal channel in each tower
+  //unsigned short ecalBadChs[CaloTowerDetId::kSizeForDenseIndexing];
+  std::vector<unsigned short> ecalBadChs;
 
   // clasification of channels in tower construction: the category definition is
   // affected by the setting in the configuration file
@@ -333,9 +351,16 @@ private:
    
   edm::Handle<EcalRecHitCollection> theEbHandle;
   edm::Handle<EcalRecHitCollection> theEeHandle;
+  
+  int theHcalPhase;
 
+  //store merged depths for tower 28/29 (for 2 types of RBX's)
+  std::vector<int> mergedDepths, mergedDepthsOne;
+  //Subdetector type and phi/depth for special RBX 
+  int              subdetOne;
+  std::vector<std::pair<int,int>> phizOne;
 
-
+  std::vector<HcalDetId>          ids_;
 };
 
 #endif

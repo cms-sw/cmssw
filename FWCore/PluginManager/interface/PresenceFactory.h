@@ -18,7 +18,7 @@ namespace edm {
 
     static PresenceFactory* get();
 
-    std::auto_ptr<Presence>
+    std::unique_ptr<Presence>
       makePresence(std::string const & presence_type) const;
 
   private:

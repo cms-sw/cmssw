@@ -14,7 +14,7 @@
 #include <DataFormats/Common/interface/ClonePolicy.h>
 
 
-namespace { 
+namespace FastSimDataFormats_NuclearInteractions {
   struct dictionary {
     
     FSimVertexType                                        dummy0;

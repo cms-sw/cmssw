@@ -9,141 +9,223 @@
 namespace reco { namespace tau {
 
 namespace {
-  // Get the KF track if it exists.  Otherwise, see if it has a GSF track.
-  reco::Track const * getTrack(const PFCandidate& cand) {
-    reco::Track const * ret = cand.trackRef().get();
-    if (!ret) ret = cand.gsfTrackRef().get();
-    return ret;
+  // Get the KF track if it exists.  Otherwise, see if PFCandidate has a GSF track.
+  const reco::TrackBaseRef getTrackRef(const PFCandidate& cand) 
+  {
+    if ( cand.trackRef().isNonnull() ) return reco::TrackBaseRef(cand.trackRef());
+    else if ( cand.gsfTrackRef().isNonnull() ) return reco::TrackBaseRef(cand.gsfTrackRef());
+    else return reco::TrackBaseRef();
   }
-  // slow!
-  const reco::TrackBaseRef getTrackRef(const PFCandidate& cand) {
-    if (cand.trackRef().isNonnull())
-      return reco::TrackBaseRef(cand.trackRef());
-    else if (cand.gsfTrackRef().isNonnull()) {
-      return reco::TrackBaseRef(cand.gsfTrackRef());
-    }
-    return reco::TrackBaseRef();
+
+  // Translate GsfTrackRef to TrackBaseRef
+  template <typename T>
+  reco::TrackBaseRef convertRef(const T& ref) {
+    return reco::TrackBaseRef(ref);
   }
 }
 
 // Quality cut implementations
 namespace qcuts {
 
-bool ptMin(const PFCandidate& cand, double cut) {
-  return cand.pt() > cut;
+bool ptMin(const TrackBaseRef& track, double cut) 
+{
+  LogDebug("TauQCuts") << "<ptMin>: Pt = " << track->pt() << ", cut = " << cut ;
+  return (track->pt() > cut);
 }
 
-bool etMin(const PFCandidate& cand, double cut) {
-  return cand.et() > cut;
+bool ptMin_cand(const PFCandidate& cand, double cut) 
+{
+  LogDebug("TauQCuts") << "<ptMin_cand>: Pt = " << cand.pt() << ", cut = " << cut ;
+  return (cand.pt() > cut);
 }
 
-bool trkPixelHits(const PFCandidate& cand, int cut) {
+bool etMin_cand(const PFCandidate& cand, double cut) 
+{
+  LogDebug("TauQCuts") << "<etMin_cand>: Et = " << cand.et() << ", cut = " << cut ;
+  return (cand.et() > cut);
+}
+
+bool trkPixelHits(const TrackBaseRef& track, int cut) 
+{
   // For some reason, the number of hits is signed
-  auto trk = getTrack(cand);
-  if (!trk) return false;
-  return trk->hitPattern().numberOfValidPixelHits() >= cut;
+  LogDebug("TauQCuts") << "<trkPixelHits>: #Pxl hits = " << track->hitPattern().numberOfValidPixelHits() << ", cut = " << cut ;
+  return (track->hitPattern().numberOfValidPixelHits() >= cut);
 }
 
-bool trkTrackerHits(const PFCandidate& cand, int cut) {
-  auto trk = getTrack(cand);
-  if (!trk) return false;
-  return trk->hitPattern().numberOfValidHits() >= cut;
-}
-
-bool trkTransverseImpactParameter(const PFCandidate& cand,
-                                  const reco::VertexRef* pv,
-                                  double cut) {
-  if (pv->isNull()) {
-    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
+bool trkPixelHits_cand(const PFCandidate& cand, int cut) 
+{
+  // For some reason, the number of hits is signed
+  auto track = getTrackRef(cand);
+  if ( track.isNonnull() ) {
+    LogDebug("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = " << trkPixelHits(track, cut) << ", cut = " << cut ;
+    return trkPixelHits(track, cut);
+  } else {
+    LogDebug("TauQCuts") << "<trkPixelHits_cand>: #Pxl hits = N/A, cut = " << cut ;
     return false;
   }
-  auto trk = getTrack(cand);
-  if (!trk) return false;
-  return std::abs(trk->dxy((*pv)->position())) <= cut;
 }
 
-bool trkLongitudinalImpactParameter(const PFCandidate& cand,
-                                    const reco::VertexRef* pv,
-                                    double cut) {
-  if (pv->isNull()) {
-    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
+bool trkTrackerHits(const TrackBaseRef& track, int cut) 
+{
+  LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
+  return (track->hitPattern().numberOfValidHits() >= cut);
+}
+
+bool trkTrackerHits_cand(const PFCandidate& cand, int cut) 
+{
+  auto track = getTrackRef(cand);
+  if ( track.isNonnull() ) {
+    LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = " << track->hitPattern().numberOfValidHits() << ", cut = " << cut ;
+    return trkTrackerHits(track, cut);
+  } else {
+    LogDebug("TauQCuts") << "<trkTrackerHits>: #Trk hits = N/A, cut = " << cut ;
     return false;
   }
-  auto trk = getTrack(cand);
-  if (!trk) return false;
-  double difference = std::abs(trk->dz((*pv)->position()));
-  //std::cout << "QCUTS LIP: track vz: " << trk->vz() <<
-    //" diff: " << difference << " cut: " << cut << std::endl;
-  return difference <= cut;
+}
+
+bool trkTransverseImpactParameter(const TrackBaseRef& track, const reco::VertexRef* pv, double cut) 
+{
+  if ( pv->isNull() ) {
+    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+      "RecoTauQualityCuts is invalid. - trkTransverseImpactParameter";
+    return false;
+  }
+  LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> dxy = " << std::fabs(track->dxy((*pv)->position())) << " (cut = " << cut << ")" ;
+  return (std::fabs(track->dxy((*pv)->position())) <= cut);
+}
+
+bool trkTransverseImpactParameter_cand(const PFCandidate& cand, const reco::VertexRef* pv, double cut) 
+{
+  auto track = getTrackRef(cand);
+  if ( track.isNonnull() ) {
+    return trkTransverseImpactParameter(track, pv, cut);
+  } else {
+    LogDebug("TauQCuts") << "<trkTransverseImpactParameter_cand>: dXY = N/A, cut = " << cut ;
+    return false;
+  }
+}
+
+bool trkLongitudinalImpactParameter(const TrackBaseRef& track, const reco::VertexRef* pv, double cut) 
+{
+  if ( pv->isNull() ) {
+    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+      "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameter";
+    return false;
+  }
+  LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> dz = " << std::fabs(track->dz((*pv)->position())) << " (cut = " << cut << ")" ;
+  return (std::fabs(track->dz((*pv)->position())) <= cut);
+}
+
+bool trkLongitudinalImpactParameter_cand(const PFCandidate& cand, const reco::VertexRef* pv, double cut) 
+{
+  auto track = getTrackRef(cand);
+  if ( track.isNonnull() ) {
+    return trkLongitudinalImpactParameter(track, pv, cut);
+  } else {
+    LogDebug("TauQCuts") << "<trkLongitudinalImpactParameter_cand>: dZ = N/A, cut = " << cut ;
+    return false;
+  }
 }
 
 /// DZ cut, with respect to the current lead rack
-bool trkLongitudinalImpactParameterWrtTrack(const PFCandidate& cand,
-    const reco::TrackBaseRef* trk, double cut) {
-  if (trk->isNull()) {
+bool trkLongitudinalImpactParameterWrtTrack(const TrackBaseRef& track, const reco::TrackBaseRef* leadTrack, const reco::VertexRef* pv, double cut) 
+{
+  if ( leadTrack->isNull()) {
     edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
-        "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameterWrtTrack";
+      "RecoTauQualityCuts is invalid. - trkLongitudinalImpactParameterWrtTrack";
     return false;
   }
-  auto candTrk = getTrack(cand);
-  if (!candTrk) return false;
-  double difference = std::abs((*trk)->vz() - candTrk->vz());
-  return difference <= cut;
+  return (std::fabs(track->dz((*pv)->position()) - (*leadTrack)->dz((*pv)->position())) <= cut);
 }
 
+bool trkLongitudinalImpactParameterWrtTrack_cand(const PFCandidate& cand, const reco::TrackBaseRef* leadTrack, const reco::VertexRef* pv, double cut) 
+{
+  auto track = getTrackRef(cand);
+  if ( track.isNonnull() ) return trkLongitudinalImpactParameterWrtTrack(track, leadTrack, pv, cut);
+  else return false;
+}
 
-bool minTrackVertexWeight(const PFCandidate& cand, const reco::VertexRef* pv,
-    double cut) {
-  if (pv->isNull()) {
+bool minTrackVertexWeight(const TrackBaseRef& track, const reco::VertexRef* pv, double cut) 
+{
+  if ( pv->isNull() ) {
     edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
-        "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
+      "RecoTauQualityCuts is invalid. - minTrackVertexWeight";
     return false;
   }
-  auto trk = getTrackRef(cand);
-  if (!trk) return false;
-  double weight = (*pv)->trackWeight(trk);
-  return weight >= cut;
+  LogDebug("TauQCuts") << " track: Pt = " << track->pt() << ", eta = " << track->eta() << ", phi = " << track->phi() ;
+  LogDebug("TauQCuts") << " vertex: x = " << (*pv)->position().x() << ", y = " << (*pv)->position().y() << ", z = " << (*pv)->position().z() ;
+  LogDebug("TauQCuts") << "--> trackWeight = " << (*pv)->trackWeight(track) << " (cut = " << cut << ")" ;
+  return ((*pv)->trackWeight(track) >= cut);
 }
 
-bool trkChi2(const PFCandidate& cand, double cut) {
-  auto trk = getTrack(cand);
-  if (!trk) return false;
-  return trk->normalizedChi2() <= cut;
+bool minTrackVertexWeight_cand(const PFCandidate& cand, const reco::VertexRef* pv, double cut) 
+{
+  auto track = getTrackRef(cand);
+  if ( track.isNonnull() ) {
+    return minTrackVertexWeight(track, pv, cut);
+  } else {
+    LogDebug("TauQCuts") << "<minTrackVertexWeight_cand>: weight = N/A, cut = " << cut ;
+    return false;
+  }
+}
+
+bool trkChi2(const TrackBaseRef& track, double cut) 
+{
+  LogDebug("TauQCuts") << "<trkChi2>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut ;
+  return (track->normalizedChi2() <= cut);
+}
+
+bool trkChi2_cand(const PFCandidate& cand, double cut) 
+{
+  auto track = getTrackRef(cand);
+  if ( track.isNonnull() ) {
+    LogDebug("TauQCuts") << "<trkChi2_cand>: chi^2 = " << track->normalizedChi2() << ", cut = " << cut ;
+    return trkChi2(track, cut);
+  } else {
+    LogDebug("TauQCuts") << "<trkChi2_cand>: chi^2 = N/A, cut = " << cut ;
+    return false;
+  }
 }
 
 // And a set of qcuts
-bool AND(const PFCandidate& cand,
-         const RecoTauQualityCuts::QCutFuncCollection& cuts) {
-  BOOST_FOREACH(const RecoTauQualityCuts::QCutFunc& func, cuts) {
-    if (!func(cand))
-      return false;
+bool AND(const TrackBaseRef& track, const RecoTauQualityCuts::TrackQCutFuncCollection& cuts) 
+{
+  BOOST_FOREACH( const RecoTauQualityCuts::TrackQCutFunc& func, cuts ) {
+    if ( !func(track) ) return false;
+  }
+  return true;
+}
+
+bool AND_cand(const PFCandidate& cand, const RecoTauQualityCuts::CandQCutFuncCollection& cuts) 
+{
+  BOOST_FOREACH( const RecoTauQualityCuts::CandQCutFunc& func, cuts ) {
+    if ( !func(cand) ) return false;
   }
   return true;
 }
 
 // Get the set of Q cuts for a given type (i.e. gamma)
-bool mapAndCutByType(const PFCandidate& cand,
-                     const RecoTauQualityCuts::QCutFuncMap& funcMap) {
+bool mapAndCutByType(const PFCandidate& cand, const RecoTauQualityCuts::CandQCutFuncMap& funcMap) 
+{
   // Find the cuts that for this particle type
-  RecoTauQualityCuts::QCutFuncMap::const_iterator cuts =
-      funcMap.find(cand.particleId());
-  // Return false if we dont' know how to deal w/ this particle type
-  if (cuts == funcMap.end())
-    return false;
-  else
-    // Otherwise AND all the cuts
-    return AND(cand, cuts->second);
+  RecoTauQualityCuts::CandQCutFuncMap::const_iterator cuts = funcMap.find(cand.particleId());
+  // Return false if we dont' know how to deal with this particle type
+  if ( cuts == funcMap.end() ) return false; 
+  return AND_cand(cand, cuts->second); // Otherwise AND all the cuts
 }
 
-}  // end qcuts implementation namespace
+} // end qcuts implementation namespace
 
-    RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) {
+RecoTauQualityCuts::RecoTauQualityCuts(const edm::ParameterSet &qcuts) 
+{
   // Setup all of our predicates
-  QCutFuncCollection chargedHadronCuts;
-  QCutFuncCollection gammaCuts;
-  QCutFuncCollection neutralHadronCuts;
+  CandQCutFuncCollection chargedHadronCuts;
+  CandQCutFuncCollection gammaCuts;
+  CandQCutFuncCollection neutralHadronCuts;
 
   // Make sure there are no extra passed options
   std::set<std::string> passedOptionSet;
@@ -153,104 +235,71 @@ bool mapAndCutByType(const PFCandidate& cand,
     passedOptionSet.insert(option);
   }
 
+  unsigned int nCuts = 0;
+  auto getDouble = [&qcuts, &passedOptionSet, &nCuts](const std::string& name) {
+    if(qcuts.exists(name)) {
+      ++nCuts;
+      passedOptionSet.erase(name);
+      return qcuts.getParameter<double>(name);
+    }
+    return -1.0;
+  };
+  auto getUint = [&qcuts, &passedOptionSet, &nCuts](const std::string& name) -> unsigned int {
+    if(qcuts.exists(name)) {
+      ++nCuts;
+      passedOptionSet.erase(name);
+      return qcuts.getParameter<unsigned int>(name);
+    }
+    return 0;
+  };
+
   // Build all the QCuts for tracks
-  if (qcuts.exists("minTrackPt")) {
-    chargedHadronCuts.push_back(
-        boost::bind(qcuts::ptMin, _1,
-                    qcuts.getParameter<double>("minTrackPt")));
-    passedOptionSet.erase("minTrackPt");
-  }
-
-  if (qcuts.exists("maxTrackChi2")) {
-    chargedHadronCuts.push_back(
-        boost::bind(qcuts::trkChi2, _1,
-                    qcuts.getParameter<double>("maxTrackChi2")));
-    passedOptionSet.erase("maxTrackChi2");
-  }
-
-  if (qcuts.exists("minTrackPixelHits")) {
-    chargedHadronCuts.push_back(boost::bind(
-            qcuts::trkPixelHits, _1,
-            qcuts.getParameter<uint32_t>("minTrackPixelHits")));
-    passedOptionSet.erase("minTrackPixelHits");
-  }
-
-  if (qcuts.exists("minTrackHits")) {
-    chargedHadronCuts.push_back(boost::bind(
-            qcuts::trkTrackerHits, _1,
-            qcuts.getParameter<uint32_t>("minTrackHits")));
-    passedOptionSet.erase("minTrackHits");
-  }
-
-  // The impact parameter functions are bound to our member PV, since they
-  // need it to compute the discriminant value.
-  if (qcuts.exists("maxTransverseImpactParameter")) {
-    chargedHadronCuts.push_back(boost::bind(
-            qcuts::trkTransverseImpactParameter, _1, &pv_,
-            qcuts.getParameter<double>("maxTransverseImpactParameter")));
-    passedOptionSet.erase("maxTransverseImpactParameter");
-  }
-
-  if (qcuts.exists("maxDeltaZ")) {
-    chargedHadronCuts.push_back(boost::bind(
-            qcuts::trkLongitudinalImpactParameter, _1, &pv_,
-            qcuts.getParameter<double>("maxDeltaZ")));
-    passedOptionSet.erase("maxDeltaZ");
-  }
-
-  if (qcuts.exists("maxDeltaZToLeadTrack")) {
-    chargedHadronCuts.push_back(boost::bind(
-            qcuts::trkLongitudinalImpactParameterWrtTrack, _1, &leadTrack_,
-            qcuts.getParameter<double>("maxDeltaZToLeadTrack")));
-    passedOptionSet.erase("maxDeltaZToLeadTrack");
-  }
-
+  minTrackPt_ = getDouble("minTrackPt");
+  maxTrackChi2_ = getDouble("maxTrackChi2");
+  minTrackPixelHits_ = getUint("minTrackPixelHits");
+  minTrackHits_ = getUint("minTrackHits");
+  maxTransverseImpactParameter_ = getDouble("maxTransverseImpactParameter");
+  maxDeltaZ_ = getDouble("maxDeltaZ");
+  maxDeltaZToLeadTrack_ = getDouble("maxDeltaZToLeadTrack");
   // Require tracks to contribute a minimum weight to the associated vertex.
-  if (qcuts.exists("minTrackVertexWeight")) {
-    chargedHadronCuts.push_back(boost::bind(
-          qcuts::minTrackVertexWeight, _1, &pv_,
-          qcuts.getParameter<double>("minTrackVertexWeight")));
-    passedOptionSet.erase("minTrackVertexWeight");
-  }
+  minTrackVertexWeight_ = getDouble("minTrackVertexWeight");
+  
+  // Use bit-wise & to avoid conditional code
+  checkHitPattern_ = (minTrackHits_ > 0) || (minTrackPixelHits_ > 0);
+  checkPV_ = (maxTransverseImpactParameter_ >= 0) ||
+             (maxDeltaZ_ >= 0) ||
+             (maxDeltaZToLeadTrack_ >= 0) ||
+             (minTrackVertexWeight_ >= 0);
 
   // Build the QCuts for gammas
-  if (qcuts.exists("minGammaEt")) {
-    gammaCuts.push_back(boost::bind(
-            qcuts::etMin, _1, qcuts.getParameter<double>("minGammaEt")));
-    passedOptionSet.erase("minGammaEt");
-  }
+  minGammaEt_ = getDouble("minGammaEt");
 
   // Build QCuts for netural hadrons
-  if (qcuts.exists("minNeutralHadronEt")) {
-    neutralHadronCuts.push_back(boost::bind(
-            qcuts::etMin, _1,
-            qcuts.getParameter<double>("minNeutralHadronEt")));
-    passedOptionSet.erase("minNeutralHadronEt");
-  }
+  minNeutralHadronEt_ = getDouble("minNeutralHadronEt");
 
   // Check if there are any remaining unparsed QCuts
-  if (passedOptionSet.size()) {
+  if ( passedOptionSet.size() ) {
     std::string unParsedOptions;
     bool thereIsABadParameter = false;
-    BOOST_FOREACH(const std::string& option, passedOptionSet) {
+    BOOST_FOREACH( const std::string& option, passedOptionSet ) {
       // Workaround for HLT - TODO FIXME
-      if (option == "useTracksInsteadOfPFHadrons") {
+      if ( option == "useTracksInsteadOfPFHadrons" ) {
         // Crash if true - no one should have this option enabled.
-        if (qcuts.getParameter<bool>("useTracksInsteadOfPFHadrons")) {
+        if ( qcuts.getParameter<bool>("useTracksInsteadOfPFHadrons") ) {
           throw cms::Exception("DontUseTracksInQcuts")
             << "The obsolete exception useTracksInsteadOfPFHadrons "
             << "is set to true in the quality cut config." << std::endl;
         }
         continue;
       }
-
+      
       // If we get to this point, there is a real unknown parameter
       thereIsABadParameter = true;
-
+      
       unParsedOptions += option;
       unParsedOptions += "\n";
     }
-    if (thereIsABadParameter) {
+    if ( thereIsABadParameter ) {
       throw cms::Exception("BadQualityCutConfig")
         << " The PSet passed to the RecoTauQualityCuts class had"
         << " the following unrecognized options: " << std::endl
@@ -259,35 +308,22 @@ bool mapAndCutByType(const PFCandidate& cand,
   }
 
   // Make sure there are at least some quality cuts
-  size_t nCuts = chargedHadronCuts.size() + gammaCuts.size()
-    + neutralHadronCuts.size();
-  if (!nCuts) {
+  if ( !nCuts ) {
     throw cms::Exception("BadQualityCutConfig")
       << " No options were passed to the quality cut class!" << std::endl;
   }
-
-  // Map our QCut collections to the particle Ids they are associated to.
-  qcuts_[PFCandidate::h] = chargedHadronCuts;
-  qcuts_[PFCandidate::gamma] = gammaCuts;
-  qcuts_[PFCandidate::h0] = neutralHadronCuts;
-  // We use the same qcuts for muons/electrons and charged hadrons.
-  qcuts_[PFCandidate::e] = chargedHadronCuts;
-  qcuts_[PFCandidate::mu] = chargedHadronCuts;
-
-  // Build a final level predicate that works on any PFCand
-  predicate_ = boost::bind(qcuts::mapAndCutByType, _1, boost::cref(qcuts_));
 }
 
-std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
-    const edm::ParameterSet& input) {
-
+std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(const edm::ParameterSet& input) 
+{
   edm::ParameterSet puCuts;
   edm::ParameterSet nonPUCuts;
 
   std::vector<std::string> inputNames = input.getParameterNames();
-  BOOST_FOREACH(const std::string& cut, inputNames) {
-    if (cut == "minTrackVertexWeight" || cut == "maxDeltaZ"
-        || cut == "maxDeltaZToLeadTrack") {
+  BOOST_FOREACH( const std::string& cut, inputNames ) {
+    if ( cut == "minTrackVertexWeight" || 
+	 cut == "maxDeltaZ"            ||
+	 cut == "maxDeltaZToLeadTrack" ) {
       puCuts.copyFrom(input, cut);
     } else {
       nonPUCuts.copyFrom(input, cut);
@@ -296,15 +332,112 @@ std::pair<edm::ParameterSet, edm::ParameterSet> factorizePUQCuts(
   return std::make_pair(puCuts, nonPUCuts);
 }
 
+bool RecoTauQualityCuts::filterTrack(const reco::TrackBaseRef& track) const
+{
+  return filterTrack_(track);
+}
 
-void RecoTauQualityCuts::setLeadTrack(
-    const reco::PFCandidate& leadCand) const {
+bool RecoTauQualityCuts::filterTrack(const reco::TrackRef& track) const
+{
+  return filterTrack_(track);
+}
+
+template <typename T>
+bool RecoTauQualityCuts::filterTrack_(const T& trackRef) const
+{
+  const Track *track = trackRef.get();
+  if(minTrackPt_ >= 0 && !(track->pt() > minTrackPt_)) return false;
+  if(maxTrackChi2_ >= 0 && !(track->normalizedChi2() <= maxTrackChi2_)) return false;
+  if(checkHitPattern_) {
+    const reco::HitPattern &hitPattern = track->hitPattern();
+    if(minTrackPixelHits_ > 0 && !(hitPattern.numberOfValidPixelHits() >= minTrackPixelHits_)) return false;
+    if(minTrackHits_ > 0 && !(hitPattern.numberOfValidHits() >= minTrackHits_)) return false;
+  }
+  if(checkPV_ && pv_.isNull()) {
+    edm::LogError("QCutsNoPrimaryVertex") << "Primary vertex Ref in " <<
+      "RecoTauQualityCuts is invalid. - filterTrack";
+    return false;
+  }
+
+  if(maxTransverseImpactParameter_ >= 0 &&
+     !(std::fabs(track->dxy(pv_->position())) <= maxTransverseImpactParameter_))
+      return false;
+  if(maxDeltaZ_ >= 0 && !(std::fabs(track->dz(pv_->position())) <= maxDeltaZ_)) return false;
+  if(maxDeltaZToLeadTrack_ >= 0) {
+    if ( leadTrack_.isNull()) {
+      edm::LogError("QCutsNoValidLeadTrack") << "Lead track Ref in " <<
+        "RecoTauQualityCuts is invalid. - filterTrack";
+      return false;
+    }
+
+    if(!(std::fabs(track->dz(pv_->position()) - leadTrack_->dz(pv_->position())) <= maxDeltaZToLeadTrack_))
+      return false;
+  }
+  if(minTrackVertexWeight_ > -1.0 && !(pv_->trackWeight(convertRef(trackRef)) >= minTrackVertexWeight_)) return false;
+
+  return true;
+}
+
+bool RecoTauQualityCuts::filterGammaCand(const reco::PFCandidate& cand) const {
+  if(minGammaEt_ >= 0 && !(cand.et() > minGammaEt_)) return false;
+  return true;
+}
+
+bool RecoTauQualityCuts::filterNeutralHadronCand(const reco::PFCandidate& cand) const {
+  if(minNeutralHadronEt_ >= 0 && !(cand.et() > minNeutralHadronEt_)) return false;
+  return true;
+}
+
+bool RecoTauQualityCuts::filterCandByType(const reco::PFCandidate& cand) const {
+  switch(cand.particleId()) {
+  case PFCandidate::gamma:
+    return filterGammaCand(cand);
+  case PFCandidate::h0:
+    return filterNeutralHadronCand(cand);
+  // We use the same qcuts for muons/electrons and charged hadrons.
+  case PFCandidate::h:
+  case PFCandidate::e:
+  case PFCandidate::mu:
+    // no cuts ATM (track cuts applied in filterCand)
+    return true;
+  // Return false if we dont' know how to deal with this particle type
+  default:
+    return false;
+  };
+  return false;
+}
+
+bool RecoTauQualityCuts::filterCand(const reco::PFCandidate& cand) const 
+{
+  auto trackRef = cand.trackRef();
+  bool result = true;
+  if(trackRef.isNonnull()) {
+    result = filterTrack_(trackRef);
+  }
+  else {
+    auto gsfTrackRef = cand.gsfTrackRef();
+    if(gsfTrackRef.isNonnull()) {
+      result = filterTrack_(gsfTrackRef);
+    }
+  }
+  if(result)
+    result = filterCandByType(cand);
+  return result;
+}
+
+void RecoTauQualityCuts::setLeadTrack(const reco::TrackRef& leadTrack) const 
+{
+  leadTrack_ = reco::TrackBaseRef(leadTrack);
+}
+
+void RecoTauQualityCuts::setLeadTrack(const reco::PFCandidate& leadCand) const 
+{
   leadTrack_ = getTrackRef(leadCand);
 }
 
-void RecoTauQualityCuts::setLeadTrack(
-    const reco::PFCandidateRef& leadCand) const {
-  if (leadCand.isNonnull()) {
+void RecoTauQualityCuts::setLeadTrack(const reco::PFCandidateRef& leadCand) const 
+{
+  if ( leadCand.isNonnull() ) {
     leadTrack_ = getTrackRef(*leadCand);
   } else {
     // Set null
@@ -312,5 +445,4 @@ void RecoTauQualityCuts::setLeadTrack(
   }
 }
 
-
-}}  // end namespace reco::tau
+}} // end namespace reco::tau

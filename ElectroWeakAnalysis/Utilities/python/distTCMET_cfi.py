@@ -6,13 +6,8 @@ import FWCore.ParameterSet.Config as cms
 #
 # Form Track Corrected MET
 
-disttcMet = cms.EDProducer("METProducer",
-    src = cms.InputTag("towerMaker"), #This parameter does not get used for TCMET
-    METType = cms.string('TCMET'),
+disttcMet = cms.EDProducer("TCMETProducer",
     alias = cms.string('TCMET'),
-    noHF = cms.bool(False),
-    globalThreshold = cms.double(0.0),
-    InputType = cms.string('CaloMET:Electron:Muon:Track'),  #This parameter does not get used for TCMET
     electronInputTag  = cms.InputTag("gsfElectrons"),
     muonInputTag      = cms.InputTag("distortedMuons"),
     trackInputTag     = cms.InputTag("generalTracks"),
@@ -29,7 +24,7 @@ disttcMet = cms.EDProducer("METProducer",
     d0_max = cms.double(0.1),
     ptErr_max = cms.double(0.2),
     track_quality = cms.vint32(2),
-    track_algos = cms.vint32(), 
+    track_algos = cms.vstring(),
     isCosmics = cms.bool(False),
     rf_type = cms.int32(1),
     correctShowerTracks = cms.bool(False),
@@ -47,7 +42,7 @@ disttcMet = cms.EDProducer("METProducer",
     chi2_tight_max = cms.double(3.0),
     nhits_tight_min = cms.double(11),
     ptErr_tight_max = cms.double(0.1),
-    maxTrackAlgo = cms.int32(8)
+    trackAlgos = cms.vstring("undefAlgorithm", "ctf", "rs", "cosmics", "initialStep", "lowPtTripletStep", "pixelPairStep", "detachedTripletStep"),
 )
 
 

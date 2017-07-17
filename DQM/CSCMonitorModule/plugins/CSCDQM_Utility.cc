@@ -31,24 +31,24 @@ namespace cscdqm {
     * @return chamber y-axis position
     */
   int Utility::getCSCTypeBin(const std::string& cstr) {
-    if (cstr.compare("ME-4/2") == 0) return 0;
-    if (cstr.compare("ME-4/1") == 0) return 1;
-    if (cstr.compare("ME-3/2") == 0) return 2;
-    if (cstr.compare("ME-3/1") == 0) return 3;
-    if (cstr.compare("ME-2/2") == 0) return 4;
-    if (cstr.compare("ME-2/1") == 0) return 5;
-    if (cstr.compare("ME-1/3") == 0) return 6;
-    if (cstr.compare("ME-1/2") == 0) return 7;
-    if (cstr.compare("ME-1/1") == 0) return 8;
-    if (cstr.compare("ME+1/1") == 0) return 9;
-    if (cstr.compare("ME+1/2") == 0) return 10;
-    if (cstr.compare("ME+1/3") == 0) return 11;
-    if (cstr.compare("ME+2/1") == 0) return 12;
-    if (cstr.compare("ME+2/2") == 0) return 13;
-    if (cstr.compare("ME+3/1") == 0) return 14;
-    if (cstr.compare("ME+3/2") == 0) return 15;
-    if (cstr.compare("ME+4/1") == 0) return 16;
-    if (cstr.compare("ME+4/2") == 0) return 17;
+    if (cstr == "ME-4/2") return 0;
+    if (cstr == "ME-4/1") return 1;
+    if (cstr == "ME-3/2") return 2;
+    if (cstr == "ME-3/1") return 3;
+    if (cstr == "ME-2/2") return 4;
+    if (cstr == "ME-2/1") return 5;
+    if (cstr == "ME-1/3") return 6;
+    if (cstr == "ME-1/2") return 7;
+    if (cstr == "ME-1/1") return 8;
+    if (cstr == "ME+1/1") return 9;
+    if (cstr == "ME+1/2") return 10;
+    if (cstr == "ME+1/3") return 11;
+    if (cstr == "ME+2/1") return 12;
+    if (cstr == "ME+2/2") return 13;
+    if (cstr == "ME+3/1") return 14;
+    if (cstr == "ME+3/2") return 15;
+    if (cstr == "ME+4/1") return 16;
+    if (cstr == "ME+4/2") return 17;
     return 0;
   }
   
@@ -173,7 +173,7 @@ namespace cscdqm {
     TString s(message); 
     TPRegexp *re = const_cast<TPRegexp*>(&re_expression);
     re->Substitute(s, replace);
-    message = s;
+    message = static_cast<const char *>(s);
   }
 
   /**
@@ -356,5 +356,29 @@ namespace cscdqm {
     double no = 1.0 * n, ne = 1.0 * N;
     return sqrt(2.0 * (no * (log(no / ne) - 1) + ne));
   }
+
+  /**
+   * @brief Get RUI Number from DDU source ID for post LS1 configuration
+   * @param ddu_id DDI Source ID
+   */
+  int Utility::getRUIfromDDUId(unsigned ddu_id) {
+    int rui = -1;
+    const unsigned postLS1_map [] = { 841, 842, 843, 844, 845, 846, 847, 848, 849,
+                                     831, 832, 833, 834, 835, 836, 837, 838, 839,
+                                     861, 862, 863, 864, 865, 866, 867, 868, 869,
+                                     851, 852, 853, 854, 855, 856, 857, 858, 859 };
+    if ( (ddu_id >= FEDNumbering::MINCSCDDUFEDID) && (ddu_id <= FEDNumbering::MAXCSCDDUFEDID) )
+      {
+        for ( int i = 0; i < 36; i++)
+        {
+          if (ddu_id == postLS1_map[i]) { rui = i+1; return rui;}
+        }
+      } else {
+        rui = ddu_id & 0xFF;
+      }
+    return rui;
+  }
+
+ 
 
 }

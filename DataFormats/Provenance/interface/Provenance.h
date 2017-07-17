@@ -8,15 +8,11 @@ existence.
 
 ----------------------------------------------------------------------*/
 
-#include "DataFormats/Provenance/interface/BranchDescription.h"
-#include "DataFormats/Provenance/interface/ProductProvenanceRetriever.h"
 #include "DataFormats/Provenance/interface/ParameterSetID.h"
-#include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "DataFormats/Provenance/interface/Parentage.h"
-#include "DataFormats/Provenance/interface/ProductID.h"
-#include "DataFormats/Provenance/interface/ReleaseVersion.h"
+#include "DataFormats/Provenance/interface/StableProvenance.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 #include <iosfwd>
 /*
@@ -32,72 +28,65 @@ existence.
 
 namespace edm {
   class ProductProvenance;
+  class ProductProvenanceRetriever;
   class Provenance {
   public:
     Provenance();
 
-    Provenance(boost::shared_ptr<BranchDescription const> const& p, ProductID const& pid);
+    Provenance(std::shared_ptr<BranchDescription const> const& p, ProductID const& pid);
 
-    Parentage const& event() const {return parentage();}
-    BranchDescription const& product() const {return *branchDescription_;}
+    Provenance(StableProvenance const&);
 
-    BranchDescription const& branchDescription() const {return *branchDescription_;}
-    BranchDescription const& constBranchDescription() const {return *branchDescription_;}
-    boost::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return branchDescription_;}
+    StableProvenance const& stable() const {return stableProvenance_;}
+    StableProvenance& stable() {return stableProvenance_;}
 
-    ProductProvenance* resolve() const;
-    ProductProvenance* productProvenance() const {
-      if (productProvenanceValid_) return productProvenancePtr_.get();
-      return resolve();
-    }
-    bool productProvenanceValid() const {
-      return productProvenanceValid_;
-    }
-    Parentage const& parentage() const {return productProvenance()->parentage();}
-    BranchID const& branchID() const {return product().branchID();}
-    std::string const& branchName() const {return product().branchName();}
-    std::string const& className() const {return product().className();}
-    std::string const& moduleLabel() const {return product().moduleLabel();}
-    std::string const& processName() const {return product().processName();}
-    std::string const& productInstanceName() const {return product().productInstanceName();}
-    std::string const& friendlyClassName() const {return product().friendlyClassName();}
-    boost::shared_ptr<ProductProvenanceRetriever> const& store() const {return store_;}
-    ProcessHistory const& processHistory() const {return *processHistory_;}
-    bool getProcessConfiguration(ProcessConfiguration& pc) const;
-    ReleaseVersion releaseVersion() const;
-    std::set<std::string> const& branchAliases() const {return product().branchAliases();}
+    BranchDescription const& branchDescription() const {return stable().branchDescription();}
+    std::shared_ptr<BranchDescription const> const& constBranchDescriptionPtr() const {return stable().constBranchDescriptionPtr();}
 
-    std::vector<BranchID> const& parents() const {return parentage().parents();}
+    ProductProvenance const* productProvenance() const;
+    BranchID const& branchID() const {return stable().branchID();}
+    std::string const& branchName() const {return stable().branchName();}
+    std::string const& className() const {return stable().className();}
+    std::string const& moduleLabel() const {return stable().moduleLabel();}
+    std::string const& moduleName() const {return stable().moduleName();}
+    std::string const& processName() const {return stable().processName();}
+    std::string const& productInstanceName() const {return stable().productInstanceName();}
+    std::string const& friendlyClassName() const {return stable().friendlyClassName();}
+    ProductProvenanceRetriever const* store() const {return store_;}
+    ProcessHistory const& processHistory() const {return stable().processHistory();}
+    bool getProcessConfiguration(ProcessConfiguration& pc) const {return stable().getProcessConfiguration(pc);}
+    ReleaseVersion releaseVersion() const {return stable().releaseVersion();}
+    std::set<std::string> const& branchAliases() const {return stable().branchAliases();}
+
+    // Usually branchID() and originalBranchID() return exactly the same result.
+    // The return values can differ only in cases where an EDAlias is involved.
+    // For example, if you "get" a product and then get the Provenance object
+    // available through the Handle, you will find that branchID() and originalBranchID()
+    // will return different values if and only if an EDAlias was used to specify
+    // the desired product and in a previous process the EDAlias was kept and
+    // the original branch name was dropped. In that case, branchID() returns
+    // the BranchID of the EDAlias and originalBranchID() returns the BranchID
+    // of the branch name that was dropped. One reason the original BranchID can
+    // be useful is that Parentage information is stored using the original BranchIDs.
+    BranchID const& originalBranchID() const {return stable().originalBranchID();}
 
     void write(std::ostream& os) const;
 
-    void setStore(boost::shared_ptr<ProductProvenanceRetriever> store) const {store_ = store;}
+    void setStore(ProductProvenanceRetriever const* store) {store_ = store;}
 
-    void setProcessHistory(ProcessHistory const& ph) {processHistory_ = &ph;}
+    void setProcessHistory(ProcessHistory const& ph) {stable().setProcessHistory(ph);}
 
-    ProductID const& productID() const {return productID_;}
+    ProductID const& productID() const {return stable().productID();}
 
-    void setProductProvenance(ProductProvenance const& prov) const;
+    void setProductID(ProductID const& pid) {stable().setProductID(pid);}
 
-    void setProductID(ProductID const& pid) {
-      productID_ = pid;
-    }
-
-    void setBranchDescription(boost::shared_ptr<BranchDescription const> const& p) {
-      branchDescription_ = p;
-    }
-
-    void resetProductProvenance() const;
+    void setBranchDescription(std::shared_ptr<BranchDescription const> const& p) {stable().setBranchDescription(p);}
 
     void swap(Provenance&);
 
   private:
-    boost::shared_ptr<BranchDescription const> branchDescription_;
-    ProductID productID_;
-    ProcessHistory const* processHistory_; // We don't own this
-    mutable bool productProvenanceValid_;
-    mutable boost::shared_ptr<ProductProvenance> productProvenancePtr_;
-    mutable boost::shared_ptr<ProductProvenanceRetriever> store_;
+    StableProvenance stableProvenance_;
+    ProductProvenanceRetriever const* store_;
   };
 
   inline

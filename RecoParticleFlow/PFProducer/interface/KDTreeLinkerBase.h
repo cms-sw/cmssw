@@ -13,6 +13,22 @@ class KDTreeLinkerBase
 
   virtual ~KDTreeLinkerBase();
 
+  void setTargetType(const reco::PFBlockElement::Type& tgt) { 
+    _targetType = tgt; 
+  }
+
+  void setFieldType(const reco::PFBlockElement::Type& fld) { 
+    _fieldType = fld;
+  }
+
+  const reco::PFBlockElement::Type& targetType() const { 
+    return _targetType; 
+  }
+
+  const reco::PFBlockElement::Type& fieldType() const { 
+    return _fieldType; 
+  }
+
   // Get/Set of the maximal size of the cristal (ECAL, HCAL,...) in phi/eta and
   // X/Y. By default, thus value are set for the ECAL cristal.
   void setCristalPhiEtaMaxSize(float size);
@@ -56,6 +72,8 @@ class KDTreeLinkerBase
   virtual void process();
 
  protected:
+  // target and field
+  reco::PFBlockElement::Type _targetType,_fieldType;
   // Cristal maximal size. By default, thus value are set for the ECAL cristal.
   float			cristalPhiEtaMaxSize_;
   float			cristalXYMaxSize_;
@@ -70,5 +88,10 @@ class KDTreeLinkerBase
   bool			debug_;
 };
 
+
+
+
+#include "FWCore/PluginManager/interface/PluginFactory.h"
+typedef edmplugin::PluginFactory< KDTreeLinkerBase* () > KDTreeLinkerFactory;
 
 #endif /* !KDTreeLinkerBase_h */

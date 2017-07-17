@@ -27,21 +27,21 @@ namespace edmtest {
 {
     produces<Thing>("event");
     produces<Thing, edm::InLumi>("beginLumi");
-    produces<Thing, edm::InLumi>("endLumi");
+    produces<Thing, edm::Transition::EndLuminosityBlock>("endLumi");
     produces<Thing, edm::InRun>("beginRun");
-    produces<Thing, edm::InRun>("endRun");
+    produces<Thing, edm::Transition::EndRun>("endRun");
 
     produces<ThingWithMerge>("event");
-    produces<ThingWithMerge, edm::InLumi>("beginLumi");
-    produces<ThingWithMerge, edm::InLumi>("endLumi");
-    produces<ThingWithMerge, edm::InRun>("beginRun");
-    produces<ThingWithMerge, edm::InRun>("endRun");
+    produces<ThingWithMerge, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    produces<ThingWithMerge, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<ThingWithMerge, edm::Transition::BeginRun>("beginRun");
+    produces<ThingWithMerge, edm::Transition::EndRun>("endRun");
 
     produces<ThingWithIsEqual>("event");
-    produces<ThingWithIsEqual, edm::InLumi>("beginLumi");
-    produces<ThingWithIsEqual, edm::InLumi>("endLumi");
-    produces<ThingWithIsEqual, edm::InRun>("beginRun");
-    produces<ThingWithIsEqual, edm::InRun>("endRun");
+    produces<ThingWithIsEqual, edm::Transition::BeginLuminosityBlock>("beginLumi");
+    produces<ThingWithIsEqual, edm::Transition::EndLuminosityBlock>("endLumi");
+    produces<ThingWithIsEqual, edm::Transition::BeginRun>("beginRun");
+    produces<ThingWithIsEqual, edm::Transition::EndRun>("endRun");
 
     const std::string s_prod("PROD");
     for(auto const& label: labelsToGet_) {
@@ -66,83 +66,83 @@ namespace edmtest {
       e.getByLabel(tag, h);
     }
 
-    std::auto_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 11;
-    if (!noPut_) e.put(result, std::string("event"));
+    if (!noPut_) e.put(std::move(result), std::string("event"));
 
-    std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 12;
-    if (!noPut_) e.put(result2, std::string("event"));
+    if (!noPut_) e.put(std::move(result2), std::string("event"));
 
-    std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 13;
     if (changeIsEqualValue_) result3->a = 14;
-    if (!noPut_) e.put(result3, std::string("event"));
+    if (!noPut_) e.put(std::move(result3), std::string("event"));
   }
 
   void ThingWithMergeProducer::beginLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
-    std::auto_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 101;
-    if (!noPut_) lb.put(result, "beginLumi");
+    if (!noPut_) lb.put(std::move(result), "beginLumi");
 
-    std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 102;
-    if (!noPut_) lb.put(result2, "beginLumi");
+    if (!noPut_) lb.put(std::move(result2), "beginLumi");
 
-    std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 103;
     if (changeIsEqualValue_) result3->a = 104;
-    if (!noPut_) lb.put(result3, "beginLumi");
+    if (!noPut_) lb.put(std::move(result3), "beginLumi");
   }
 
   void ThingWithMergeProducer::endLuminosityBlockProduce(edm::LuminosityBlock& lb, edm::EventSetup const&) {
 
-    std::auto_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 1001;
-    if (!noPut_) lb.put(result, "endLumi");
+    if (!noPut_) lb.put(std::move(result), "endLumi");
 
-    std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 1002;
-    if (!noPut_) lb.put(result2, "endLumi");
+    if (!noPut_) lb.put(std::move(result2), "endLumi");
 
-    std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 1003;
     if (changeIsEqualValue_) result3->a = 1004;
-    if (!noPut_) lb.put(result3, "endLumi");
+    if (!noPut_) lb.put(std::move(result3), "endLumi");
   }
 
   // Functions that gets called by framework every run
   void ThingWithMergeProducer::beginRunProduce(edm::Run& r, edm::EventSetup const&) {
 
-    std::auto_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 10001;
-    if (!noPut_) r.put(result, "beginRun");
+    if (!noPut_) r.put(std::move(result), "beginRun");
 
-    std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 10002;
-    if (!noPut_) r.put(result2, "beginRun");
+    if (!noPut_) r.put(std::move(result2), "beginRun");
 
-    std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 10003;
     if (changeIsEqualValue_) result3->a = 10004;
-    if (!noPut_) r.put(result3, "beginRun");
+    if (!noPut_) r.put(std::move(result3), "beginRun");
   }
 
   void ThingWithMergeProducer::endRunProduce(edm::Run& r, edm::EventSetup const&) {
 
-    std::auto_ptr<Thing> result(new Thing);
+    auto result = std::make_unique<Thing>();
     result->a = 100001;
-    if (!noPut_) r.put(result, "endRun");
+    if (!noPut_) r.put(std::move(result), "endRun");
 
-    std::auto_ptr<ThingWithMerge> result2(new ThingWithMerge);
+    auto result2 = std::make_unique<ThingWithMerge>();
     result2->a = 100002;
-    if (!noPut_) r.put(result2, "endRun");
+    if (!noPut_) r.put(std::move(result2), "endRun");
 
-    std::auto_ptr<ThingWithIsEqual> result3(new ThingWithIsEqual);
+    auto result3 = std::make_unique<ThingWithIsEqual>();
     result3->a = 100003;
     if (changeIsEqualValue_) result3->a = 100004;
-    if (!noPut_) r.put(result3, "endRun");
+    if (!noPut_) r.put(std::move(result3), "endRun");
   }
 
   void ThingWithMergeProducer::beginLuminosityBlock(edm::LuminosityBlock const& lb, edm::EventSetup const&) {

@@ -7,22 +7,23 @@
  *  \author Chang Liu - Purdue University 
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
 #include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
 #include "RecoMuon/TransientTrackingRecHit/interface/MuonTransientTrackingRecHit.h"
+#include "RecoMuon/MeasurementDet/interface/MuonDetLayerMeasurements.h"
 
 #include <vector>
 
 class MuonDetLayerGeometry;
 
-class TrajectoryStateTransform;
+struct TrajectoryStateTransform;
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class CosmicMuonSeedGenerator: public edm::EDProducer {
+class CosmicMuonSeedGenerator: public edm::stream::EDProducer<> {
  public:
 
   /// Constructor
@@ -34,7 +35,7 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   // Operations
 
   /// reconstruct muon's seeds
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
  private:
 
@@ -76,6 +77,7 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
                                          const edm::EventSetup&) const;
 
   TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t) const;
+  TrajectorySeed tsosToSeed(const TrajectoryStateOnSurface&, uint32_t, edm::OwnVector<TrackingRecHit>&) const;
 
   /// check if two rechits are correlated
   bool areCorrelated(const MuonTransientTrackingRecHit::MuonRecHitPointer&,
@@ -111,12 +113,13 @@ class CosmicMuonSeedGenerator: public edm::EDProducer {
   /// the maximum chi2 required for dt and csc rechits
   double theMaxDTChi2;
   double theMaxCSCChi2;
+  bool theForcePointDownFlag;
   edm::ESHandle<MuonDetLayerGeometry> theMuonLayers;
   edm::ESHandle<MagneticField> theField;
 
-  TrajectoryStateTransform* theTSTransform;
-
   std::map<std::string, float> theParameters;
+
+  MuonDetLayerMeasurements* muonMeasurements;
 
 };
 #endif

@@ -13,7 +13,11 @@
 #include "PhysicsTools/MVAComputer/interface/HelperMacros.h"
 #include "PhysicsTools/MVAComputer/interface/MVAComputerCache.h"
 
+#include "AnalysisDataFormats/TopObjects/interface/TtEvent.h"
+#include "DataFormats/PatCandidates/interface/MET.h"
 #include "DataFormats/PatCandidates/interface/Jet.h"
+#include "DataFormats/PatCandidates/interface/Muon.h"
+#include "DataFormats/PatCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoCandidate.h"
 
 #ifndef TtSemiLepSignalSelMVARcd_defined  // to avoid conflicts with the TtSemiSignalSelMVAComputer
@@ -22,14 +26,14 @@ MVA_COMPUTER_CONTAINER_DEFINE(TtSemiLepSignalSelMVA);  // defines TtSemiLepSigna
 #endif
 
 class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
-  
+
  public:
-  
+
   explicit TtSemiLepSignalSelMVATrainer(const edm::ParameterSet&);
   ~TtSemiLepSignalSelMVATrainer();
-  
+
  private:
-  
+
   virtual void analyze(const edm::Event& evt, const edm::EventSetup& setup);
   virtual void beginJob();
 
@@ -43,10 +47,11 @@ class TtSemiLepSignalSelMVATrainer : public edm::EDAnalyzer {
     };
   };
 
-  edm::InputTag muons_;
-  edm::InputTag electrons_;
-  edm::InputTag jets_;
-  edm::InputTag METs_;
+  edm::EDGetTokenT< edm::View<pat::Muon> > muonsToken_;
+  edm::EDGetTokenT< edm::View<pat::Electron> > electronsToken_;
+  edm::EDGetTokenT< std::vector<pat::Jet> > jetsToken_;
+  edm::EDGetTokenT<edm::View<pat::MET> > METsToken_;
+  edm::EDGetTokenT<TtGenEvent> genEvtToken_;
 
   int lepChannel_;
   int whatData_;

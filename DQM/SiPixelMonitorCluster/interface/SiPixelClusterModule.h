@@ -23,18 +23,21 @@
 #include "DataFormats/SiPixelCluster/interface/SiPixelCluster.h"
 #include "DataFormats/Common/interface/DetSetVectorNew.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "DQMServices/Core/interface/DQMStore.h"
 #include <boost/cstdint.hpp>
 
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/CommonTopologies/interface/PixelTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+
 class SiPixelClusterModule {        
 
  public:
@@ -51,10 +54,16 @@ class SiPixelClusterModule {
   typedef edmNew::DetSet<SiPixelCluster>::const_iterator    ClusterIterator;
 
   /// Book histograms
-  void book(const edm::ParameterSet& iConfig, int type=0, bool twoD=true, bool reducedSet=false);
+  void book(const edm::ParameterSet& iConfig, const edm::EventSetup& iSetup, DQMStore::IBooker & iBooker, int type=0, bool twoD=true, bool reducedSet=false, bool isUpgrade=false);
   /// Fill histograms
   int fill(const edmNew::DetSetVector<SiPixelCluster> & input, 
-            const TrackerGeometry* tracker,
+	    const TrackerGeometry* tracker,
+	    int *barrelClusterTotal,
+	    int *fpixPClusterTotal,
+	    int *fpixMClusterTotal,
+	    std::vector<MonitorElement*>& layers,
+	    std::vector<MonitorElement*>& diskspz,
+	    std::vector<MonitorElement*>& disksmz,
             bool modon=true, 
 	    bool ladon=false, 
 	    bool layon=false, 
@@ -64,10 +73,12 @@ class SiPixelClusterModule {
 	    bool ringon=false, 
 	    bool twoD=true,
 	    bool reducedSet=false,
-	    bool smileyon=false);
+	    bool smileyon=false,
+	    bool isUpgrade=false);
   
  private:
 
+  const TrackerTopology *pTT;
   uint32_t id_;
   int ncols_;
   int nrows_;
@@ -90,10 +101,13 @@ class SiPixelClusterModule {
   MonitorElement* meClPosLayer1;
   MonitorElement* meClPosLayer2;
   MonitorElement* meClPosLayer3;
+  MonitorElement* meClPosLayer4;
   MonitorElement* meClPosDisk1pz;
   MonitorElement* meClPosDisk2pz;
+  MonitorElement* meClPosDisk3pz;
   MonitorElement* meClPosDisk1mz;
   MonitorElement* meClPosDisk2mz;
+  MonitorElement* meClPosDisk3mz;
   
   //barrel
   MonitorElement* meNClustersLad_;

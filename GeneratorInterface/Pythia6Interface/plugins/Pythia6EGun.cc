@@ -34,7 +34,7 @@ Pythia6EGun::~Pythia6EGun()
 {
 }
 
-void Pythia6EGun::generateEvent()
+void Pythia6EGun::generateEvent(CLHEP::HepRandomEngine*)
 {
    
    Pythia6Service::InstanceWrapper guard(fPy6Service);	// grab Py6 instance

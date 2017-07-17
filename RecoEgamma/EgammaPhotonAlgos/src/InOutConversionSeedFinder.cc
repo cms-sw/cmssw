@@ -12,12 +12,14 @@
 #include "TrackingTools/TrajectoryParametrization/interface/GlobalTrajectoryParameters.h"
 #include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
+
 //
 //
 //
 
-InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf ):
-  ConversionSeedFinder( conf ), conf_(conf)  
+InOutConversionSeedFinder::InOutConversionSeedFinder( const edm::ParameterSet& conf,edm::ConsumesCollector && iC ):
+  ConversionSeedFinder( conf,iC ), conf_(conf)  
 {
   
   
@@ -203,7 +205,8 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
     }
     
     //PropagatorWithMaterial reversePropagator(oppositeToMomentum, 0.000511, &(*theMF_) );
-    FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
+    assert(myPointer);
+    const FreeTrajectoryState * fts = myPointer->updatedState().freeTrajectoryState();
     
    //std::cout << " InOutConversionSeedFinder::fillClusterSeeds First FTS charge " << fts->charge() << " Position " << fts->position() << " momentum " << fts->momentum() << " R " << sqrt(fts->position().x()*fts->position().x() + fts->position().y()* fts->position().y() ) << " Z " << fts->position().z() << " phi " << fts->position().phi() << " fts parameters " << fts->parameters() << "\n";
     
@@ -308,7 +311,7 @@ void InOutConversionSeedFinder::fillClusterSeeds() const {
 
 
 
-void InOutConversionSeedFinder::startSeed( FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int ilayer  )  const {
+void InOutConversionSeedFinder::startSeed( const FreeTrajectoryState * fts, const TrajectoryStateOnSurface & stateAtPreviousLayer, int charge, int ilayer  )  const {
   
   //std::cout << "InOutConversionSeedFinder::startSeed ilayer " << ilayer <<  "\n";
   // Get a list of basic clusters that are consistent with a track 
@@ -318,7 +321,7 @@ void InOutConversionSeedFinder::startSeed( FreeTrajectoryState * fts, const Traj
   std::vector<const reco::CaloCluster*> bcVec;
  //std::cout << "InOutConversionSeedFinder::startSeed charge assumed for the in-out track  " << track2Charge_ <<  "\n";
   
-  Geom::Phi<float> theConvPhi( stateAtPreviousLayer.globalPosition().phi());
+ // Geom::Phi<float> theConvPhi( stateAtPreviousLayer.globalPosition().phi());
  //std::cout << "InOutConversionSeedFinder::startSeed  stateAtPreviousLayer phi " << stateAtPreviousLayer.globalPosition().phi() << " R " <<  stateAtPreviousLayer.globalPosition().perp() << " Z " << stateAtPreviousLayer.globalPosition().z() << "\n";
   
   bcVec = getSecondCaloClusters(stateAtPreviousLayer.globalPosition(),track2Charge_);
@@ -469,7 +472,7 @@ void InOutConversionSeedFinder::findSeeds(const TrajectoryStateOnSurface & start
     
    //std::cout << "InOutConversionSeedFinder::findSeed propagationDirection " << int(thePropagatorAlongMomentum_->propagationDirection() ) << "\n";               
     /// Rememeber that this alwyas give back at least one dummy-innvalid it which prevents from everything getting stopped
-    LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+    LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
 
     theFirstMeasurements_ = theLayerMeasurements_.measurements( *layer, tsos, *thePropagatorAlongMomentum_, *newEstimator);
     
@@ -641,7 +644,8 @@ void InOutConversionSeedFinder::completeSeed(const TrajectoryMeasurement & m1,
  //std::cout << "InOutConversionSeedFinder::completeSeed TSOS " << tsos << "\n";   
  //std::cout << "InOutConversionSeedFinder::completeSeed propagationDirection  " << int(propagator->propagationDirection() ) << "\n";               
  //std::cout << "InOutConversionSeedFinder::completeSeed pointer to estimator " << newEstimator << "\n";
-  LayerMeasurements theLayerMeasurements_(this->getMeasurementTracker() );
+
+  LayerMeasurements theLayerMeasurements_( *this->getMeasurementTracker(), *theTrackerData_ );
   std::vector<TrajectoryMeasurement> measurements = theLayerMeasurements_.measurements( *layer, tsos, *propagator, *newEstimator);
  //std::cout << "InOutConversionSeedFinder::completeSeed Found " << measurements.size() << " second hits " <<  "\n"; 
   delete newEstimator;

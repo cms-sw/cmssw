@@ -41,15 +41,15 @@ public:
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
   virtual void endJob() override;
-  InputTag src_muons;
+  EDGetTokenT<CandidateView> srcToken_;
   int counter;
   double min, max;
   int Nbin;
   TH1F * ZMassSa;
-  void histo(const TH1F* hist, char* cx, char* cy) const;
+  void histo(TH1F* hist, char* cx, char* cy) const;
 };
 
-void ZMuMuSaMassHistogram::histo(const TH1F* hist,char* cx, char*cy) const{
+void ZMuMuSaMassHistogram::histo(TH1F* hist,char* cx, char*cy) const{
   hist->GetXaxis()->SetTitle(cx);
   hist->GetYaxis()->SetTitle(cy);
   hist->GetXaxis()->SetTitleOffset(1);
@@ -62,7 +62,7 @@ void ZMuMuSaMassHistogram::histo(const TH1F* hist,char* cx, char*cy) const{
 
 
 ZMuMuSaMassHistogram::ZMuMuSaMassHistogram(const ParameterSet& pset):
-  src_muons(pset.getParameter<InputTag>("src_m")),
+  srcToken_(consumes<CandidateView>(pset.getParameter<InputTag>("src_m"))),
   counter(0),
   min(pset.getUntrackedParameter<double>("min")),
   max(pset.getUntrackedParameter<double>("max")),
@@ -75,7 +75,7 @@ ZMuMuSaMassHistogram::ZMuMuSaMassHistogram(const ParameterSet& pset):
 
 void ZMuMuSaMassHistogram::analyze(const edm::Event& event, const edm::EventSetup& setup) {
   Handle<CandidateView> dimuons;
-  event.getByLabel(src_muons, dimuons);
+  event.getByToken(srcToken_, dimuons);
   for(unsigned int i=0; i< dimuons->size(); ++ i ) {
     const Candidate & zmm = (* dimuons)[i];
     const Candidate * dau0 = zmm.daughter(0);
@@ -100,12 +100,12 @@ void ZMuMuSaMassHistogram::analyze(const edm::Event& event, const edm::EventSetu
     ZMassSa->Fill(mass);
     ++counter;
 
-  }    
-  
+  }
+
 
 }
-  
- 
+
+
 void ZMuMuSaMassHistogram::endJob() {
 }
 

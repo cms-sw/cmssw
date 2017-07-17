@@ -1,15 +1,20 @@
 #ifndef DDL_Map_H
 #define DDL_Map_H
 
-#include "DetectorDescription/Parser/src/DDXMLElement.h"
-#include "DetectorDescription/Core/interface/DDMap.h"
-
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
+#include "DetectorDescription/Core/interface/DDReadMapType.h"
+#include "DetectorDescription/Core/interface/DDMap.h"
+#include "DetectorDescription/Parser/src/DDXMLElement.h"
+#include "boost/spirit/home/classic/core/non_terminal/grammar.hpp"
 // Boost parser, spirit, for parsing the std::vector elements.
 #include "boost/spirit/include/classic.hpp"
+#include "boost/thread/pthread/once_atomic.hpp"
+
+class DDCompactView;
+class DDLElementRegistry;
 
 namespace boost { namespace spirit { namespace classic { } } }
 
@@ -55,7 +60,7 @@ public:
  *  has a name associated with the Map for the DDD name-reference system.
  *
  */
-class DDLMap : public DDXMLElement
+class DDLMap final : public DDXMLElement
 {
   friend class MapPair;
   friend class MapMakeName;
@@ -65,11 +70,8 @@ public:
 
   DDLMap( DDLElementRegistry* myreg );
 
-  virtual ~DDLMap( void );
-
-  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
-
-  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv );
+  void preProcessElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
+  void processElement( const std::string& name, const std::string& nmspace, DDCompactView& cpv ) override;
 
   ReadMapType<std::map<std::string,double> > & getMapOfMaps( void );
 

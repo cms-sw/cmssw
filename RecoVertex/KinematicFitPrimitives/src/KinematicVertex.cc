@@ -120,7 +120,7 @@ KinematicVertex::operator reco::Vertex()
 
   reco::Vertex vertex(reco::Vertex::Point(theState.position()),
 // 	RecoVertex::convertError(theVertexState.error()), 
-	theState.error().matrix_new(), 
+	theState.error().matrix(), 
 	chiSquared(), degreesOfFreedom(), daughters.size() );
 
   for (std::vector<RefCountedKinematicParticle>::const_iterator i = daughters.begin();

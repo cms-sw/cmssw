@@ -34,6 +34,9 @@ class TEveScene;
 class TEveWindowSlot;
 class TEveCaloViz;
 
+class FWTGLViewer;
+class FWTEveViewer;
+
 class FWEventAnnotation;
 class CmsAnnotation;
 class FWViewContextMenuHandlerGL;
@@ -70,10 +73,14 @@ public:
    virtual void saveImageTo(const std::string& iName) const;
    virtual void populateController(ViewerParameterGUI&) const;
 
-   TGLViewer*  viewerGL() const;
-   TEveViewer* viewer()      { return m_viewer; }
-   TEveScene*  eventScene()  { return m_eventScene;}
-   TEveScene*  geoScene()    { return m_geoScene; }
+   TGLViewer*    viewerGL()    const;
+   TEveViewer*   viewer();
+
+   FWTGLViewer*  fwViewerGL()  const;
+   FWTEveViewer* fwViewer()    { return m_viewer; }
+
+   TEveScene*    eventScene()  { return m_eventScene;}
+   TEveScene*    geoScene()    { return m_geoScene; }
 
    TEveElement*   ownedProducts()  { return m_ownedProducts; }
    FWViewContext* viewContext() { return m_viewContext.get(); }
@@ -100,6 +107,9 @@ protected:
    void addToPerspectiveCamera(TGLPerspectiveCamera*, const std::string&, FWConfiguration&) const;
    void setFromPerspectiveCamera(TGLPerspectiveCamera*,  const std::string&, const FWConfiguration&);
 
+protected:
+   const fireworks::Context*  m_context;
+
 private:
    FWEveView(const FWEveView&);    // stop default
    const FWEveView& operator=(const FWEveView&);    // stop default
@@ -107,7 +117,7 @@ private:
 
    // ---------- member data --------------------------------
 
-   TEveViewer*          m_viewer;
+   FWTEveViewer*        m_viewer;
    TEveScene*           m_eventScene;
    TEveElement*         m_ownedProducts;
    TEveScene*           m_geoScene;
@@ -116,10 +126,6 @@ private:
    CmsAnnotation*       m_overlayLogo;
    ScaleAnnotation*     m_energyMaxValAnnotation;
    TGLCameraGuide*      m_cameraGuide;
-
-   const fireworks::Context*  m_context;
-
-
 
 private:
    // style parameters
@@ -139,7 +145,7 @@ private:
    FWBoolParameter   m_showCameraGuide;
    FWBoolParameter   m_useGlobalEnergyScale;
 
-   boost::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
+   std::shared_ptr<FWViewContextMenuHandlerGL>   m_viewContextMenu;
    std::auto_ptr<FWViewContext> m_viewContext;
    std::auto_ptr<FWViewEnergyScale> m_localEnergyScale;
 

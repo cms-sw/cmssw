@@ -32,6 +32,11 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+#include "DataFormats/Common/interface/DetSetVector.h"
+#include "DataFormats/SiStripDigi/interface/SiStripRawDigi.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "boost/cstdint.hpp"
 #include <iostream>
 #include <string>
@@ -41,15 +46,15 @@ class MonitorElement;
 class DQMStore;
 class SiStripDetCabling;
 
-class SiStripMonitorRawData : public edm::EDAnalyzer {
+class SiStripMonitorRawData : public DQMEDAnalyzer {
  public:
   explicit SiStripMonitorRawData(const edm::ParameterSet&);
   ~SiStripMonitorRawData();
   
   virtual void beginJob() ;
-  virtual void beginRun(edm::Run const& run, edm::EventSetup const& eSetup);
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  virtual void endRun(edm::Run const& run, edm::EventSetup const& eSetup) override;
   virtual void endJob() ;
   
   

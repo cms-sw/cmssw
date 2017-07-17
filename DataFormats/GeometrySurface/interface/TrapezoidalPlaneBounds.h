@@ -13,7 +13,7 @@
  *  and pointing in the direction of top_edge.
  */
 
-class TrapezoidalPlaneBounds /* GCC11_FINAL */ : public Bounds {
+class TrapezoidalPlaneBounds /* final */ : public Bounds {
 public:
 
   /** constructed from:
@@ -40,6 +40,8 @@ public:
   virtual float widthAtHalfLength() const {return hbotedge+htopedge;}
 
   virtual int yAxisOrientation() const;
+
+  using Bounds::inside;
 
   virtual bool inside( const Local2DPoint& p) const;
 

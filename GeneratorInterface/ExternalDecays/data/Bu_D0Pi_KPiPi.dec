@@ -9,7 +9,7 @@ Alias      Myanti-D0   anti-D0
 ChargeConj MyD0   Myanti-D0 
 #
 Decay MyB+
-1.000      anti-D0  pi+                        PHSP;
+1.000      Myanti-D0  pi+                        PHSP;
 Enddecay
 CDecay MyB-
 #

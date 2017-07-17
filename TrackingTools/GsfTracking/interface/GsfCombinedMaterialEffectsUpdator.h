@@ -7,7 +7,7 @@
 /** Combines two GsfMaterialEffectsUpdators (for multiple scattering
  *  and energy loss).
  */
-class GsfCombinedMaterialEffectsUpdator GCC11_FINAL : public GsfMaterialEffectsUpdator
+class GsfCombinedMaterialEffectsUpdator final : public GsfMaterialEffectsUpdator
 {  
  public:
   virtual GsfCombinedMaterialEffectsUpdator* clone() const

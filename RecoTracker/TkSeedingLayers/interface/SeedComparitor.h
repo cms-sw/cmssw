@@ -8,32 +8,27 @@
  *  \author Aaron Dominguez (UNL)
  */
 
-class TrajectorySeed; 
-class SeedingHitSet;
+
+#include "SeedingHitSet.h"
+
+class TrajectorySeed;
 class TrackingRegion;
 class TrajectoryStateOnSurface;
 class FastHelix;
 class GlobalTrajectoryParameters;
 
-namespace edm { class EventSetup; }
-
-#include "TrackingTools/TransientTrackingRecHit/interface/TransientTrackingRecHit.h"
+namespace edm { class Event; class EventSetup; class ConsumesCollector;}
 
 class SeedComparitor {
  public:
   virtual ~SeedComparitor() {}
-  virtual void init(const edm::EventSetup& es) = 0;
-  virtual bool compatible(const SeedingHitSet  &hits, const TrackingRegion & region) const = 0;
-  virtual bool compatible(const TrajectorySeed &seed) const = 0;
+  virtual void init(const edm::Event& ev, const edm::EventSetup& es) = 0;
+  virtual bool compatible(const SeedingHitSet  &hits) const = 0;
   virtual bool compatible(const TrajectoryStateOnSurface &,  
-                          const TransientTrackingRecHit::ConstRecHitPointer &hit) const = 0;
+                          SeedingHitSet::ConstRecHitPointer hit) const = 0;
   virtual bool compatible(const SeedingHitSet  &hits, 
                           const GlobalTrajectoryParameters &helixStateAtVertex,
-                          const FastHelix                  &helix,
-                          const TrackingRegion & region) const = 0;
-  virtual bool compatible(const SeedingHitSet  &hits, 
-                          const GlobalTrajectoryParameters &straightLineStateAtVertex,
-                          const TrackingRegion & region) const = 0;
+                          const FastHelix                  &helix) const = 0;
 };
 
 #endif

@@ -13,7 +13,8 @@ PropagatorWithMaterialForLoopers = cms.ESProducer("PropagatorWithMaterialESProdu
 # (By default, it is neglected). However, it will also be assumed that the track pt can't be below specified value,
 # to prevent this scattering angle becoming too big.                                    
     ptMin = cms.double(-1),
-
+    SimpleMagneticField = cms.string(''),
+#    SimpleMagneticField = cms.string('ParabolicMf'),
     # Use new AnalyticalPropagator's logic for intersection between plane and helix (for loopers)
     useOldAnalPropLogic = cms.bool(False)
 )
@@ -29,7 +30,8 @@ PropagatorWithMaterialForLoopersOpposite = cms.ESProducer("PropagatorWithMateria
 # (By default, it is neglected). However, it will also be assumed that the track pt can't be below specified value,
 # to prevent this scattering angle becoming too big.                                    
     ptMin = cms.double(-1),
-
+    SimpleMagneticField = cms.string(''),
+#    SimpleMagneticField = cms.string('ParabolicMf'),
     # Use new AnalyticalPropagator's logic for intersection between plane and helix (for loopers)
     useOldAnalPropLogic = cms.bool(False)
 )

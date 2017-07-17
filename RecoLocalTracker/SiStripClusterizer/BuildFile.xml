@@ -8,6 +8,7 @@
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CalibFormats/SiStripObjects"/>
 <use   name="CalibTracker/Records"/>
+<use   name="EventFilter/SiStripRawToDigi"/>
 <export>
   <lib name="1"/>
 </export>

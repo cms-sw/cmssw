@@ -8,6 +8,7 @@ from DQMOffline.Trigger.HLTTauCertifier_cfi import *
 HLTTauDQMOffline = cms.Sequence(TauRefProducer
                                 +hltTauOfflineMonitor_PFTaus
                                 +hltTauOfflineMonitor_Inclusive
+                                +hltTauOfflineMonitor_TagAndProbe
                                 )
 
 HLTTauDQMOfflineHarvesting = cms.Sequence(HLTTauPostSeq)

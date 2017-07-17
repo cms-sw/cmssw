@@ -1,7 +1,6 @@
-import FWCore.ParameterSet.Config as cms
+# This cff is obsolete and will eventually be deprecated.
+# Please replace it with 
+# Configuration.StandardSequences.MagneticField_cff.py
+# in your setup.
 
-#this will load the auto magnetic field producer reading the current from the DB
-# and loading the best map available for that current as specified in the file 
-from MagneticField.Engine.autoMagneticFieldProducer_cfi import *
-
-
+from Configuration.StandardSequences.MagneticField_cff import *

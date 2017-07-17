@@ -257,7 +257,7 @@ EcalEleCalibLooper::duringLoop (const edm::Event& iEvent,
      double pTk = 0 ;
      std::map<int , double> xtlMap;
      DetId Max =0;
-     if (fabs(eleIt->eta()<1.49))
+     if (std::abs(eleIt->eta())<1.49)
 	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),barrelHitsCollection).first;
      else 
 	     Max = EcalClusterTools::getMaximum(eleIt->superCluster()->hitsAndFractions(),endcapHitsCollection).first;

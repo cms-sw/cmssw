@@ -1,7 +1,7 @@
 #include "DQM/SiStripMonitorSummary/plugins/SiStripPlotGain.h"
 
 #include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
-#include "Geometry/Records/interface/IdealGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 
 
@@ -50,7 +50,7 @@ SiStripPlotGain::DoAnalysis(const edm::EventSetup& es, const SiStripApvGain& gai
 
   //Retrieve tracker topology from geometry
   edm::ESHandle<TrackerTopology> tTopoHandle;
-  es.get<IdealGeometryRecord>().get(tTopoHandle);
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
   const TrackerTopology* const tTopo = tTopoHandle.product();
 
   std::vector<TH1F *>histos;

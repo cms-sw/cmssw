@@ -1,6 +1,8 @@
 #ifndef HcalTimeCorr_h
 #define HcalTimeCorr_h
 
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 /*
 \class HcalTimeCorr
 \author Radek Ofierzynski
@@ -20,6 +22,8 @@ class HcalTimeCorr
  private:
   uint32_t mId;
   float mValue;
+
+ COND_SERIALIZABLE;
 };
 
 #endif

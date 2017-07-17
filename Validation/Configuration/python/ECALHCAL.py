@@ -24,7 +24,7 @@ def customise(process):
 
     # use directly the generator output, no Hector
 
-    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generator')
+    process.g4SimHits.Generator.HepMCProductLabel = cms.string('generatorSmeared')
 
     # modify the content
 
@@ -38,14 +38,15 @@ def customise(process):
     process.schedule.append(process.generation_step)
     process.schedule.append(process.simulation_step)
 
-    process.ecalGlobalUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
-    process.ecalGlobalUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
+    process.ecalMultiFitUncalibRecHit.EBdigiCollection = cms.InputTag("simEcalDigis","ebDigis")
+    process.ecalMultiFitUncalibRecHit.EEdigiCollection = cms.InputTag("simEcalDigis","eeDigis")
     process.ecalPreshowerRecHit.ESdigiCollection = cms.InputTag("simEcalPreshowerDigis") 
 
     delattr(process,"hbhereco")
     process.hbhereco = process.hbheprereco.clone()
     process.hcalLocalRecoSequence.replace(process.hbheprereco,process.hbhereco)
-    process.hbhereco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbhereco.digiLabelQIE8 = cms.InputTag("simHcalUnsuppressedDigis")
+    process.hbhereco.digiLabelQIE11 = cms.InputTag("simHcalUnsuppressedDigis","HBHEQIE11DigiCollection")
     process.horeco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.hfreco.digiLabel = cms.InputTag("simHcalUnsuppressedDigis")
     process.ecalRecHit.recoverEBIsolatedChannels = cms.bool(False)
@@ -53,11 +54,20 @@ def customise(process):
     process.ecalRecHit.recoverEBFE = cms.bool(False)
     process.ecalRecHit.recoverEEFE = cms.bool(False)
 
-    process.reducedEcalRecHitsSequence.remove( process.interestingTrackEcalDetIds )
-
 #    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalLocalRecoSequence * process.hbhereco * process.hfreco * process.horeco * (process.ecalClusters+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
 
-    process.local_digireco = cms.Path(process.mix * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequence )
+    process.reducedEcalRecHitsEB.interestingDetIdCollections = cms.VInputTag(
+            # ecal
+            cms.InputTag("interestingEcalDetIdEB"),
+            cms.InputTag("interestingEcalDetIdEBU"),
+            )
+            
+    process.reducedEcalRecHitsEE.interestingDetIdCollections = cms.VInputTag(
+            # ecal
+            cms.InputTag("interestingEcalDetIdEE"),
+            )            
+
+    process.local_digireco = cms.Path(process.mix * process.addPileupInfo * process.bunchSpacingProducer * process.calDigi * process.ecalPacker * process.esDigiToRaw * process.hcalRawData * process.rawDataCollector * process.ecalDigis * process.ecalPreshowerDigis * process.hcalDigis * process.calolocalreco *(process.ecalClustersNoPFBox+process.caloTowersRec) * process.reducedEcalRecHitsSequenceEcalOnly )
 
     process.schedule.append(process.local_digireco)
 

@@ -5,6 +5,8 @@
 
 #include "CommonTools/Utils/interface/StringToEnumValue.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
 // Reconstruction Classes
 #include "DataFormats/EcalRecHit/interface/EcalRecHit.h"
@@ -82,6 +84,41 @@ EgammaHLTMulti5x5ClusterProducer::EgammaHLTMulti5x5ClusterProducer(const edm::Pa
 
 EgammaHLTMulti5x5ClusterProducer::~EgammaHLTMulti5x5ClusterProducer() {
   delete Multi5x5_p;
+}
+
+void EgammaHLTMulti5x5ClusterProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+
+  edm::ParameterSetDescription desc;
+  desc.add<bool>(("doBarrel"), false);
+  desc.add<bool>(("doEndcaps"), true);
+  desc.add<bool>(("doIsolated"), true);
+  desc.add<std::string>("VerbosityLevel" ,"ERROR");
+
+  edm::ParameterSetDescription posCalcPSET;
+  posCalcPSET.add<double>("T0_barl", 7.4);
+  posCalcPSET.add<double>("T0_endc", 3.1);
+  posCalcPSET.add<double>("T0_endcPresh", 1.2);
+  posCalcPSET.add<double>("W0", 4.2);
+  posCalcPSET.add<double>("X0", 0.89);
+  posCalcPSET.add<bool>("LogWeighted", true);
+  desc.add<edm::ParameterSetDescription>("posCalcParameters", posCalcPSET);
+
+  desc.add<edm::InputTag>(("barrelHitProducer"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEB"));
+  desc.add<edm::InputTag>(("endcapHitProducer"), edm::InputTag("hltEcalRegionalEgammaRecHit", "EcalRecHitsEE"));
+  desc.add<std::string>(("barrelClusterCollection"), "notused");
+  desc.add<std::string>(("endcapClusterCollection"), "multi5x5EndcapBasicClusters");
+  desc.add<double>(("Multi5x5BarrelSeedThr"), 0.5);
+  desc.add<double>(("Multi5x5EndcapSeedThr"), 0.5);
+  desc.add<edm::InputTag>(("l1TagIsolated"), edm::InputTag("hltL1extraParticles","Isolated"));
+  desc.add<edm::InputTag>(("l1TagNonIsolated"), edm::InputTag("hltL1extraParticles","NonIsolated"));
+  desc.add<double>(("l1LowerThr"), 5.0);
+  desc.add<double>(("l1UpperThr"), 9999.);
+  desc.add<double>(("l1LowerThrIgnoreIsolation"), 999.0);
+  desc.add<double>(("regionEtaMargin"), 0.3);
+  desc.add<double>(("regionPhiMargin"), 0.4);
+
+  desc.add<std::vector<std::string> >(("RecHitFlagToBeExcluded"), std::vector<std::string>());
+  descriptions.add(("hltEgammaHLTMulti5x5ClusterProducer"), desc);  
 }
 
 void EgammaHLTMulti5x5ClusterProducer::produce(edm::Event& evt, const edm::EventSetup& es) {
@@ -264,14 +301,14 @@ void EgammaHLTMulti5x5ClusterProducer::clusterizeECALPart(edm::Event &evt, const
   reco::BasicClusterCollection clusters;
   clusters = Multi5x5_p->makeClusters(hitCollection_p, geometry_p, topology_p, geometryES_p, detector, true, regions);
 
-  // create an auto_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
-  std::auto_ptr< reco::BasicClusterCollection > clusters_p(new reco::BasicClusterCollection);
+  // create an unique_ptr to a BasicClusterCollection, copy the barrel clusters into it and put in the Event:
+  auto clusters_p = std::make_unique<reco::BasicClusterCollection>();
   clusters_p->assign(clusters.begin(), clusters.end());
   edm::OrphanHandle<reco::BasicClusterCollection> bccHandle;
   if (detector == reco::CaloID::DET_ECAL_BARREL) 
-    bccHandle = evt.put(clusters_p, barrelClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), barrelClusterCollection_);
   else
-    bccHandle = evt.put(clusters_p, endcapClusterCollection_);
+    bccHandle = evt.put(std::move(clusters_p), endcapClusterCollection_);
 
   delete topology_p;
 }

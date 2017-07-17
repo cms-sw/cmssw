@@ -28,6 +28,9 @@ DiJetVarProducer::DiJetVarProducer(const edm::ParameterSet& iConfig) :
   //register your products
   //produces<std::vector<double> >("dijetvariables");
   produces<std::vector<math::PtEtaPhiMLorentzVector> >("widejets");
+
+  //set Token(-s)
+  inputJetTagToken_ = consumes<reco::CaloJetCollection>(iConfig.getParameter<edm::InputTag>("inputJetTag"));
   
   LogDebug("") << "Input Jet Tag: " << inputJetTag_.encode() << " ";
   LogDebug("") << "Radius Parameter Wide Jet: " << wideJetDeltaR_ << ".";
@@ -46,12 +49,12 @@ DiJetVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace reco;
 
    // ## The output collections        
-   //std::auto_ptr<std::vector<double> > dijetvariables(new std::vector<double>); 
-   std::auto_ptr<std::vector<math::PtEtaPhiMLorentzVector> > widejets(new std::vector<math::PtEtaPhiMLorentzVector>); 
+   //std::unique_ptr<std::vector<double> > dijetvariables(new std::vector<double>); 
+   std::unique_ptr<std::vector<math::PtEtaPhiMLorentzVector> > widejets(new std::vector<math::PtEtaPhiMLorentzVector>); 
 
    // ## Get jet collection
    edm::Handle<reco::CaloJetCollection> calojets_handle;
-   iEvent.getByLabel(inputJetTag_,calojets_handle);
+   iEvent.getByToken(inputJetTagToken_, calojets_handle);
    //cout << "size: " << calojets_handle->size() << endl;              
    
    // ## Wide Jet Algorithm
@@ -139,8 +142,8 @@ DiJetVarProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
    //      }
 
    // ## Put objects in the Event
-   //iEvent.put(dijetvariables, "dijetvariables");
-   iEvent.put(widejets, "widejets");
+   //iEvent.put(std::move(dijetvariables), "dijetvariables");
+   iEvent.put(std::move(widejets), "widejets");
 
 }
 

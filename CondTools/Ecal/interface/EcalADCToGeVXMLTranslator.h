@@ -10,14 +10,8 @@
 #ifndef __EcalADCToGeVXMLTranslator_h_
 #define __EcalADCToGeVXMLTranslator_h_
 
-
-#include "CondTools/Ecal/interface/XercesString.h"
 #include "CondTools/Ecal/interface/EcalCondHeader.h"
 #include <string>
-
-
-static const char CVSId__EcalADCToGeVXMLTranslator[] = 
-"$Id: EcalADCToGeVXMLTranslator.h,v 1.1 2008/11/14 15:46:05 argiro Exp $";
 
 
 class EcalADCToGeVConstant;
@@ -33,7 +27,8 @@ public:
   static int writeXML (const std::string& filename,
 		       const EcalCondHeader& header,
 		       const EcalADCToGeVConstant& record);
-
+private:
+  
   static std::string dumpXML(const EcalCondHeader& header,
 			     const EcalADCToGeVConstant& record);
 };

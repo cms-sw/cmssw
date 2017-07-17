@@ -14,8 +14,9 @@
 //
 // Original Author:  Bernard Fabbro
 //         Created:  Fri Jun  2 10:27:01 CEST 2006
+// $Id: EcnaAnalyzer.cc,v 1.4 2013/04/05 20:17:20 wmtan Exp $
 //
-//          Update: 02/03/2011  
+//          Update: 21/07/2011  
 
 // CMSSW include files
 
@@ -126,7 +127,7 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   //===========================================================================================
 
   fRunTypeCounter = 0;
-  fMaxRunTypeCounter = 25;
+  fMaxRunTypeCounter = 26;
   fRunTypeCounter = new Int_t[fMaxRunTypeCounter];
   for(Int_t i=0; i<fMaxRunTypeCounter; i++){fRunTypeCounter[i] = 0;}
 
@@ -286,6 +287,8 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   //   
   //                  AnalysisName  RunType         Gain    DBLS (Dynamic BaseLine Substraction)
   //
+  //                  AdcAny        any run type       0    no
+  //
   //                  AdcPed1       fPEDESTAL_STD      3    No
   //                  AdcPed6       fPEDESTAL_STD      2    No
   //                  AdcPed12      fPEDESTAL_STD      1    No
@@ -294,6 +297,8 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   //
   //                  AdcLaser      fLASER_STD         0    No
   //                  AdcPes12      fPEDSIM            0    No
+  //
+  //                  AdcPhys       fPHYSICS_GLOBAL    0    No
   //
   //
   //                  AdcSPed1      fPEDESTAL_STD      3    Yes
@@ -308,34 +313,44 @@ EcnaAnalyzer::EcnaAnalyzer(const edm::ParameterSet& pSet) :
   //--------------------------------------------------------------------------------------------------
 
   //................ Run type list
-  fLASER_STD    =  4;
-  fPEDESTAL_STD =  9;
-  fPEDESTAL_GAP = 18;
-  fPEDSIM       = 24;
+
+  fLASER_STD      =  4;
+  fPEDESTAL_STD   =  9;
+  fPHYSICS_GLOBAL = 13;
+  fPEDESTAL_GAP   = 18;
+  fPEDSIM         = 24;
+
+  fANY_RUN        = 25;
  
   //................ Chozen run type from analysis name
-  fChozenRunTypeNumber = fPEDESTAL_STD;   // default
+  fChozenRunTypeNumber = fANY_RUN;   // default
+  if( fAnalysisName == "AdcAny"  ){fChozenRunTypeNumber = fANY_RUN;}
   if( fAnalysisName == "AdcPed1"  || fAnalysisName == "AdcPed6"  || fAnalysisName == "AdcPed12" ||
       fAnalysisName == "AdcSPed1" || fAnalysisName == "AdcSPed6" || fAnalysisName == "AdcSPed12" )
     {fChozenRunTypeNumber = fPEDESTAL_STD;}
   if( fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" )
     {fChozenRunTypeNumber = fPEDESTAL_GAP;}
   if( fAnalysisName == "AdcLaser"  || fAnalysisName == "AdcSLaser"  ){fChozenRunTypeNumber = fLASER_STD;}
+  if( fAnalysisName == "AdcPhys" ){fChozenRunTypeNumber = fPHYSICS_GLOBAL;}
   if( fAnalysisName == "AdcPes12 " || fAnalysisName == "AdcSPes12 " ){fChozenRunTypeNumber = fPEDSIM;}
 
   //................ Gains from analysis name
   fChozenGainNumber = 0;   // default => event always accepted if fChozenGainNumber = 0 ( see USER's Analysis cut in ::analyze(...) )
+  if( fAnalysisName == "AdcAny" ){fChozenGainNumber = 0;}
   if( fAnalysisName == "AdcPed1"   || fAnalysisName == "AdcSPed1"  ){fChozenGainNumber = 3;}
   if( fAnalysisName == "AdcPed6"   || fAnalysisName == "AdcSPed6"  ){fChozenGainNumber = 2;}
   if( fAnalysisName == "AdcPed12"  || fAnalysisName == "AdcSPed12" ){fChozenGainNumber = 1;}
   if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" ){fChozenGainNumber = 0;}
   if( fAnalysisName == "AdcLaser"  || fAnalysisName == "AdcSLaser" ){fChozenGainNumber = 0;}
   if( fAnalysisName == "AdcPes12 " || fAnalysisName == "AdcSPes12 "){fChozenGainNumber = 0;}
+  if( fAnalysisName == "AdcPhys" ){fChozenGainNumber = 0;}
 
   //............... Flag for Dynamic BaseLine Substraction from analysis name
   fDynBaseLineSub = "no";   // default
-  if( fAnalysisName == "AdcPed1"   || fAnalysisName == "AdcPed6"  || fAnalysisName == "AdcPed12" ||
-      fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcLaser" || fAnalysisName == "AdcPes12 " )
+  if( fAnalysisName == "AdcAny"   ||
+      fAnalysisName == "AdcPed1"  || fAnalysisName == "AdcPed6"  || fAnalysisName == "AdcPed12"  ||
+      fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcLaser" ||
+      fAnalysisName == "AdcPhys"  || fAnalysisName == "AdcPes12 " )
     {fDynBaseLineSub = "no";}
   if( fAnalysisName == "AdcSPed1"  || fAnalysisName == "AdcSPed6"  || fAnalysisName == "AdcSPed12" ||
       fAnalysisName == "AdcSPeg12" || fAnalysisName == "AdcSLaser" || fAnalysisName == "AdcSPes12 " )
@@ -406,12 +421,12 @@ EcnaAnalyzer::~EcnaAnalyzer()
 
   using namespace std;
   //..................................... format numerical values
-  cout << setiosflags(ios::showpoint | ios::uppercase);
-  cout << setprecision(3) << setw(6);
-  cout.setf(ios::dec, ios::basefield);
-  cout.setf(ios::fixed, ios::floatfield);
-  cout.setf(ios::left, ios::adjustfield);
-  cout.setf(ios::right, ios::adjustfield);
+  std::cout << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
+  std::cout << std::setprecision(3) << std::setw(6);
+  cout.setf(std::ios::dec, std::ios::basefield);
+  cout.setf(std::ios::fixed, std::ios::floatfield);
+  cout.setf(std::ios::left, std::ios::adjustfield);
+  cout.setf(std::ios::right, std::ios::adjustfield);
 
   std::cout << "EcnaAnalyzer::~EcnaAnalyzer()> destructor is going to be executed." << std::endl;
 
@@ -423,9 +438,12 @@ EcnaAnalyzer::~EcnaAnalyzer()
   if( fMyCnaEBSM == 0 && fStexName == "SM" )
     {
       std::cout << std::endl << "!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEBSM = " << fMyCnaEBSM
-		<< ". !===> ECNA HAS NOT BEEN INITIALIZED. Last event run type = " << runtype(fRunTypeNumber)
-		<< ", last event fFedId(+601) = " << fFedId+601 << std::endl 
-		<< ", last event Mgpa gain = " << gainvalue(fMgpaGainNumber) << std::endl << std::endl;
+		<< ". !===> ECNA HAS NOT BEEN INITIALIZED." << std::endl
+		<< "  Last event run type = " << runtype(fRunTypeNumber)
+		<< ", fRunTypeNumber = " << fRunTypeNumber
+		<< ", last event Mgpa gain = " << gainvalue(fMgpaGainNumber)
+		<< ", fMgpaGainNumber = " << fMgpaGainNumber
+		<< ", last event fFedId(+601) = " << fFedId+601 << std::endl << std::endl;
     }
   else
     {
@@ -461,9 +479,12 @@ EcnaAnalyzer::~EcnaAnalyzer()
   if( fMyCnaEEDee == 0 && fStexName == "Dee" )
     {
       std::cout << std::endl << "!EcnaAnalyzer-destructor> **** ERROR **** fMyCnaEEDee = " << fMyCnaEEDee
-		<< ". !===> ECNA HAS NOT BEEN INITIALIZED. Last event run type = " << runtype(fRunTypeNumber)
-		<< ", last event fFedId(+601) = " << fFedId+601 << std::endl 
-		<< ", last event Mgpa gain = " << gainvalue(fMgpaGainNumber) << std::endl << std::endl;
+		<< ". !===> ECNA HAS NOT BEEN INITIALIZED." << std::endl
+		<< "  Last event run type = " << runtype(fRunTypeNumber)
+		<< ", fRunTypeNumber = " << fRunTypeNumber
+		<< ", last event Mgpa gain = " << gainvalue(fMgpaGainNumber)
+		<< ", fMgpaGainNumber = " << fMgpaGainNumber
+		<< ", last event fFedId(+601) = " << fFedId+601 << std::endl << std::endl;
     }
   else
     {
@@ -494,7 +515,7 @@ EcnaAnalyzer::~EcnaAnalyzer()
 	}
       delete fMyCnaEEDee;
     }
-  std::cout <<std::endl;
+  std::cout <<endl;
 
   //-----------------------------------------------------------------------------------
 
@@ -577,12 +598,12 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 {
   using namespace std;
   //..................................... format numerical values
-  cout << setiosflags(ios::showpoint | ios::uppercase);
-  cout << setprecision(3) << setw(6);
-  cout.setf(ios::dec, ios::basefield);
-  cout.setf(ios::fixed, ios::floatfield);
-  cout.setf(ios::left, ios::adjustfield);
-  cout.setf(ios::right, ios::adjustfield);
+  std::cout << std::setiosflags(std::ios::showpoint | std::ios::uppercase);
+  std::cout << std::setprecision(3) << std::setw(6);
+  cout.setf(std::ios::dec, std::ios::basefield);
+  cout.setf(std::ios::fixed, std::ios::floatfield);
+  cout.setf(std::ios::left, std::ios::adjustfield);
+  cout.setf(std::ios::right, std::ios::adjustfield);
 
   using namespace edm;
 
@@ -644,8 +665,8 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       
       if( !(
 	    fRunNumber > 0 &&
-	    fRunTypeNumber == fChozenRunTypeNumber &&
-	    ( fMgpaGainNumber == fChozenGainNumber || fChozenGainNumber == 0 )
+	    ( fRunTypeNumber  == fChozenRunTypeNumber || fChozenRunTypeNumber == fANY_RUN ) &&
+	    ( fMgpaGainNumber == fChozenGainNumber    || fChozenGainNumber    == 0 )
 	    )
 	  ) return;
       
@@ -656,7 +677,8 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
       //---- Accelerating selection with "FED-TCC" number [ from headerItr->getDccInTCCCommand() ]
       //     Arrays fSMFromFedTcc[] and fESFromFedTcc[] are initialised in Init()
 
-      if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+      if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" ||
+	  fAnalysisName == "AdcPhys"   || fAnalysisName == "AdcAny" )
 	{
 	  fFedTcc = (Int_t)headerItr->getDccInTCCCommand();
 
@@ -678,7 +700,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 		      fFedNbOfTreatedEvents[fESFromFedTcc[fFedTcc-1]-1] >= fReqNbOfEvts )return;
 		}
 	    } // end of if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
-	} // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+	} // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12"  ...)
       
       //.................. Increment FedId counters     
       if( fFedId >= 0 && fFedId < fMaxFedIdCounter ){fFedIdCounter[fFedId]++;}
@@ -950,7 +972,8 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 			{
 			  Bool_t cOKForTreatment = kFALSE;
 
-			  if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+			  if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12"  ||
+			      fAnalysisName == "AdcPhys"   || fAnalysisName == "AdcAny" )
 			    {
 			      if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
 				{
@@ -997,7 +1020,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 					}
 				    }
 				} // end of if( fFedTcc >= 1 && fFedTcc <= MaxSMAndDS )
-			    } // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+			    } // end of if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" .... )
 			  else
 			    {
 			      fStexDigiOK[i0Dee]++;
@@ -1016,10 +1039,12 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 			      const time_t*  p_current_ev_time = &i_current_ev_time;
 			      char*          astime            = ctime(p_current_ev_time);
 
-			      if( ( !(fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12") &&
+			      if( ( !(fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ||
+				      fAnalysisName == "AdcPhys"  || fAnalysisName == "AdcAny" ) &&
 				    fStexDigiOK[i0Dee] == 1 &&
 				    fStexNbOfTreatedEvents[i0Dee] == 1 ) ||
-				  (  (fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12") && 
+				  (  (fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ||
+				      fAnalysisName == "AdcPhys"  || fAnalysisName == "AdcAny" ) && 
 				     fFedDigiOK[fESFromFedTcc[fFedTcc-1]-1] == 1 &&
 				     fStexNbOfTreatedEvents[i0Dee] == 1 &&
 				     fMemoDateFirstEvent[i0Dee] == 0 ) )
@@ -1094,7 +1119,8 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
                   //             digiItr != digisEB->end(); ++digiItr)
 
 	      // reset fStexDigiOK[i0Dee] or fFedDigiOK[i0Dee] to zero after loop on digis
-	      if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+	      if( fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ||
+		  fAnalysisName == "AdcPhys"  || fAnalysisName == "AdcAny"  )
 		{
 		  for(Int_t i0FedES=0; i0FedES<fMaxFedUnitCounter; i0FedES++)
 		    {fFedDigiOK[i0FedES] = 0;}
@@ -1123,7 +1149,8 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // (take into account the "Accelerating selection with FED number" section - see above -)
   if( fStexName == "SM" ||
-      ( fStexName == "Dee" && !( fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ) )
+      ( fStexName == "Dee" && !( fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ||
+				 fAnalysisName == "AdcPhys"  || fAnalysisName == "AdcAny" ) )
       )  // one FED = one SM = one Stex
     {
       for(Int_t i0Stex=fStexIndexBegin; i0Stex<fStexIndexStop; i0Stex++)
@@ -1139,7 +1166,8 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 
   // one FED = one Data Sector (DS or ES)
   if( fStexName == "Dee" &&
-      ( fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ) )
+      ( fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ||
+	fAnalysisName == "AdcPhys"  || fAnalysisName == "AdcAny" ) )
     {
       for(Int_t i0FedES=0; i0FedES<fMaxFedUnitCounter; i0FedES++)
 	{
@@ -1192,7 +1220,7 @@ void EcnaAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSet
 	}
     
     } // end of if( fStexName == "Dee" &&
-      // ( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" ) )
+      // ( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" ... ) )
 
   //----------------------------------------------------------------------------------------------
   for(Int_t i0Stex=fStexIndexBegin; i0Stex<fStexIndexStop; i0Stex++)
@@ -1408,7 +1436,8 @@ void EcnaAnalyzer::CheckMsg(const Int_t& MsgNum, const Int_t& i0Stex)
 	    << "         Chozen gain = " << gainvalue(fChozenGainNumber) << std::endl 
 	    << "           Mgpa Gain = " << gainvalue(fMgpaGainNumber) << std::endl << std::endl;
 	  
-  if( fAnalysisName == "AdcPeg12"  || fAnalysisName == "AdcSPeg12" )
+  if( fAnalysisName == "AdcPeg12" || fAnalysisName == "AdcSPeg12" ||
+      fAnalysisName == "AdcPhys"  || fAnalysisName == "AdcAny" )
     {
       if( fStexName == "SM" )
 	{
@@ -1494,7 +1523,9 @@ TString EcnaAnalyzer::runtype(const Int_t& numtype)
   if( numtype == 22 ){cType = "HALO_LOCAL";}
   if( numtype == 23 ){cType = "CALIB_LOCAL";}
 
-  if( numtype == 24 ){cType = "PEDSIM";}
+  //.......................................... non-CMS types
+  if( numtype == 24 ){cType = "PEDSIM";}     // SIMULATION
+  if( numtype == 25 ){cType = "ANY_RUN";}    // ANY RUN (ALL TYPES ACCEPTED)
 
   return cType;
 }

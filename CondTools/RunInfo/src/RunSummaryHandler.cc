@@ -73,7 +73,7 @@ void RunSummaryHandler::getNewObjects() {
   
   // transfer fake run for 1 to since for the first time
   if (tagInfo().size==0){
- m_to_transfer.push_back(std::make_pair((RunSummary*) (r->Fake_RunSummary()),1));
+    m_to_transfer.push_back(std::make_pair((RunSummary*) (r->Fake_RunSummary()),1));
   }
 
   // transfer also empty run if tag already existing 

@@ -2,6 +2,7 @@
 #define DataFormats_Provenance_Hash_h
 
 #include <string>
+#include <functional>
 
 /*----------------------------------------------------------------------
   
@@ -76,8 +77,8 @@ namespace edm {
     size_t smallHash() const;
     
     //Used by ROOT storage
-    // CMS_CLASS_VERSION(10) // This macro is not defined here, so expand it.
-    static short Class_Version() {return 10;}
+    // CMS_CLASS_VERSION(11) // This macro is not defined here, so expand it.
+    static short Class_Version() {return 11;}
 
   private:
 

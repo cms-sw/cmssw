@@ -152,12 +152,12 @@ private:
   /**
      Left hand side of the constraint.
    */
-  std::auto_ptr<Constraint_Intermed> _lhs;
+  std::unique_ptr<Constraint_Intermed> _lhs;
 
   /**
      Right hand side of the constraint.
    */
-  std::auto_ptr<Constraint_Intermed> _rhs;
+  std::unique_ptr<Constraint_Intermed> _rhs;
 };
 
 

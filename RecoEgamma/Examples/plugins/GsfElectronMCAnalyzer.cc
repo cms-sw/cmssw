@@ -2017,7 +2017,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 
 	// supercluster related distributions
 	reco::SuperClusterRef sclRef = bestGsfElectron.superCluster();
-	if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed()) sclRef = bestGsfElectron.pflowSuperCluster();
+	if (!bestGsfElectron.ecalDrivenSeed()&&bestGsfElectron.trackerDrivenSeed()) sclRef = bestGsfElectron.parentSuperCluster();
         histSclEn_->Fill(sclRef->energy());
         double R=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y() +sclRef->z()*sclRef->z());
         double Rt=TMath::Sqrt(sclRef->x()*sclRef->x() + sclRef->y()*sclRef->y());
@@ -2076,7 +2076,7 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
         if (bestGsfElectron.isEE() && bestGsfElectron.ecalDrivenSeed())histSclE5x5_eg_endcaps_->Fill(bestGsfElectron.scE5x5());
         float pfEnergy=0., egEnergy=0.;
 	if (!bestGsfElectron.superCluster().isNull()) egEnergy = bestGsfElectron.superCluster()->energy();
-	if (!bestGsfElectron.pflowSuperCluster().isNull()) pfEnergy = bestGsfElectron.pflowSuperCluster()->energy();
+	if (!bestGsfElectron.parentSuperCluster().isNull()) pfEnergy = bestGsfElectron.parentSuperCluster()->energy();
 	histSclEoEtruePfVsEg->Fill(egEnergy/mcIter->p(),pfEnergy/mcIter->p());
 
 	// track related distributions
@@ -2284,8 +2284,8 @@ GsfElectronMCAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& 
 	   h_ele_PtinVsPtoutShowering_mean ->  Fill(bestGsfElectron.gsfTrack()->outerMomentum().Rho(), bestGsfElectron.gsfTrack()->innerMomentum().Rho());
         }
 
-        h_ele_mva->Fill(bestGsfElectron.mva());
-        if (bestGsfElectron.ecalDrivenSeed()) h_ele_mva_eg->Fill(bestGsfElectron.mva());
+        h_ele_mva->Fill(bestGsfElectron.mva_e_pi());
+        if (bestGsfElectron.ecalDrivenSeed()) h_ele_mva_eg->Fill(bestGsfElectron.mva_e_pi());
 	if (bestGsfElectron.ecalDrivenSeed()) h_ele_provenance->Fill(1.);
 	if (bestGsfElectron.trackerDrivenSeed()) h_ele_provenance->Fill(-1.);
 	if (bestGsfElectron.trackerDrivenSeed()||bestGsfElectron.ecalDrivenSeed()) h_ele_provenance->Fill(0.);

@@ -21,6 +21,8 @@
 #include "DataFormats/Provenance/interface/ProcessHistory.h"
 #include "FWCore/Common/interface/TriggerResultsByName.h"
 
+#include <algorithm>
+
 namespace fwlite {
 
   namespace internal {
@@ -29,9 +31,20 @@ namespace fwlite {
 public:
       MultiProductGetter(MultiChainEvent const* iEvent) : event_(iEvent) {}
 
-      virtual edm::WrapperHolder
+      virtual edm::WrapperBase const*
       getIt(edm::ProductID const& iID) const override {
         return event_->getByProductID(iID);
+      }
+
+      virtual edm::WrapperBase const*
+      getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const override {
+        return event_->getThinnedProduct(pid, key);
+      }
+
+      virtual void getThinnedProducts(edm::ProductID const& pid,
+                                      std::vector<edm::WrapperBase const*>& foundContainers,
+                                      std::vector<unsigned int>& keys) const override {
+        event_->getThinnedProducts(pid, foundContainers, keys);
       }
 
 private:
@@ -56,16 +69,23 @@ private:
 // constructors and destructor
 //
   MultiChainEvent::MultiChainEvent(std::vector<std::string> const& iFileNames1,
-				   std::vector<std::string> const& iFileNames2,
-				   bool useSecFileMapSorted)
+                                   std::vector<std::string> const& iFileNames2,
+                                   bool useSecFileMapSorted)
 {
-  event1_ = boost::shared_ptr<ChainEvent> (new ChainEvent(iFileNames1));
-  event2_ = boost::shared_ptr<ChainEvent> (new ChainEvent(iFileNames2));
+  event1_ = std::make_shared<ChainEvent>(iFileNames1);
+  event2_ = std::make_shared<ChainEvent>(iFileNames2);
 
-  getter_ = boost::shared_ptr<internal::MultiProductGetter>(new internal::MultiProductGetter(this));
+  getter_ = std::make_shared<internal::MultiProductGetter>(this);
 
-  event1_->setGetter(getter_);
-  event2_->setGetter(getter_);
+  if (event1_->size() == 0) {
+    std::cout << "------------------------------------------------------------------------" << std::endl;
+    std::cout << "WARNING! MultiChainEvent: all primary files have zero events."        << std::endl;
+    std::cout << "Trying to access the events may lead to a crash.  "  << std::endl;
+    std::cout << "------------------------------------------------------------------------" << std::endl;
+  } else {
+    event1_->setGetter(getter_);
+    event2_->setGetter(getter_);
+  }
 
   useSecFileMapSorted_ = useSecFileMapSorted;
 
@@ -96,35 +116,35 @@ private:
 
     // Loop over events, when a new file is encountered, store the first run number from this file,
     // and the last run number from the last file.
-    TFile * lastFile = 0;
+    TFile * lastFile = nullptr;
     std::pair<event_id_range,Long64_t> eventRange;
     bool firstFile = true;
 
     bool foundAny = false;
 
     for(event2_->toBegin();
-	 ! event2_->atEnd();
-	 ++(*event2_)) {
+         ! event2_->atEnd();
+         ++(*event2_)) {
       // if we have a new file, cache the "first"
       if (lastFile != event2_->getTFile()) {
 
-	// if this is not the first file, we have an entry.
-	// Add it to the list.
-	if (!firstFile) {
-	  foundAny = true;
-	  event_id_range toAdd = eventRange.first;
-	  secFileMapSorted_[ toAdd ] = eventRange.second;
-	}
-	// always add the "first" event id to the cached event range
-	eventRange.first.first = event2_->event()->id();
-	lastFile = event2_->getTFile();
+        // if this is not the first file, we have an entry.
+        // Add it to the list.
+        if (!firstFile) {
+          foundAny = true;
+          event_id_range toAdd = eventRange.first;
+          secFileMapSorted_[ toAdd ] = eventRange.second;
+        }
+        // always add the "first" event id to the cached event range
+        eventRange.first.first = event2_->event()->id();
+        lastFile = event2_->getTFile();
       }
       // otherwise, cache the "second" event id in the cached event range.
       // Upon the discovery of a new file, this will be used as the
       // "last" event id in the cached event range.
       else {
-	eventRange.first.second = event2_->event()->id();
-	eventRange.second = event2_->eventIndex();
+        eventRange.first.second = event2_->event()->id();
+        eventRange.second = event2_->eventIndex();
       }
       firstFile = false;
     }
@@ -136,17 +156,17 @@ private:
     }
 //     std::cout << "Dumping run range to event id list:" << std::endl;
 //     for (sec_file_range_index_map::const_iterator mBegin = secFileMapSorted_.begin(),
-// 	    mEnd = secFileMapSorted_.end(),
-// 	    mit = mBegin;
-// 	  mit != mEnd; ++mit) {
+//          mEnd = secFileMapSorted_.end(),
+//          mit = mBegin;
+//        mit != mEnd; ++mit) {
 //       char buff[1000];
 //       event2_->to(mit->second);
 //       sprintf(buff, "[%10d,%10d - %10d,%10d] ---> %10d",
-// 	      mit->first.first.run(),
-// 	      mit->first.first.event(),
-// 	      mit->first.second.run(),
-// 	      mit->first.second.event(),
-// 	      mit->second);
+//            mit->first.first.run(),
+//            mit->first.first.event(),
+//            mit->first.second.run(),
+//            mit->first.second.event(),
+//            mit->second);
 //       std::cout << buff << std::endl;
 //     }
   }
@@ -359,37 +379,40 @@ MultiChainEvent::getByLabel(
   return true;
 }
 
-bool
-MultiChainEvent::getByLabel(
-                       std::type_info const& iType,
-                       char const* iModule,
-                       char const* iInstance,
-                       char const* iProcess,
-                       edm::WrapperHolder& holder) const {
-  bool ret1 = event1_->getByLabel(iType, iModule, iInstance, iProcess, holder);
-  if(!ret1) {
-    (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
-    bool ret2 = event2_->getByLabel(iType, iModule, iInstance, iProcess, holder);
-    if(!ret2) return false;
-  }
-  return true;
-}
-
-edm::WrapperHolder MultiChainEvent::getByProductID(edm::ProductID const&iID) const
+edm::WrapperBase const* MultiChainEvent::getByProductID(edm::ProductID const&iID) const
 {
   // First try the first file
-  edm::WrapperHolder edp = event1_->getByProductID(iID);
+  edm::WrapperBase const* edp = event1_->getByProductID(iID);
   // Did not find the product, try secondary file
-  if (!edp.isValid()) {
+  if (edp == nullptr) {
     (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
     edp = event2_->getByProductID(iID);
-    if (!edp.isValid()) {
-      throw cms::Exception("ProductNotFound") << "Cannot find product " << iID;
-    }
   }
   return edp;
 }
 
+edm::WrapperBase const* MultiChainEvent::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  // First try the first file
+  edm::WrapperBase const* edp = event1_->getThinnedProduct(pid, key);
+  // Did not find the product, try secondary file
+  if (edp == nullptr) {
+    (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
+    edp = event2_->getThinnedProduct(pid, key);
+  }
+  return edp;
+}
+
+void MultiChainEvent::getThinnedProducts(edm::ProductID const& pid,
+                                         std::vector<edm::WrapperBase const*>& wrappers,
+                                         std::vector<unsigned int>& keys) const {
+  // First try the first file
+  event1_->getThinnedProducts(pid, wrappers, keys);
+  // Did not find all the products, try secondary file
+  if(std::find(wrappers.begin(), wrappers.end(), nullptr) != wrappers.end()) {
+    (const_cast<MultiChainEvent*>(this))->toSec(event1_->id());
+    event2_->getThinnedProducts(pid, wrappers, keys);
+  }
+}
 
 bool
 MultiChainEvent::isValid() const
@@ -417,18 +440,18 @@ edm::TriggerNames const&
 MultiChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
 {
   edm::TriggerNames const* names = triggerNames_(triggerResults);
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   event1_->fillParameterSetRegistry();
   names = triggerNames_(triggerResults);
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   // If we cannot find it in the primary file, this probably will
   // not help but try anyway
   event2_->to(event1_->id());
   event2_->fillParameterSetRegistry();
   names = triggerNames_(triggerResults);
-  if (names != 0) return *names;
+  if (names != nullptr) return *names;
 
   throw cms::Exception("TriggerNamesNotFound")
     << "TriggerNames not found in ParameterSet registry";
@@ -436,30 +459,32 @@ MultiChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
 }
 
 edm::TriggerResultsByName
-MultiChainEvent::triggerResultsByName(std::string const& process) const {
+MultiChainEvent::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
 
-  fwlite::Handle<edm::TriggerResults> hTriggerResults;
-  hTriggerResults.getByLabel(*this,"TriggerResults","",process.c_str());
-  if (!hTriggerResults.isValid()) {
-    return edm::TriggerResultsByName(0,0);
-  }
+  edm::TriggerNames const* names = triggerNames_(triggerResults);
 
-  edm::TriggerNames const* names = triggerNames_(*hTriggerResults);
-
-  if (names == 0) {
+  if (names == nullptr) {
     event1_->fillParameterSetRegistry();
-    names = triggerNames_(*hTriggerResults);
+    names = triggerNames_(triggerResults);
   }
 
-  if (names == 0) {
+  if (names == nullptr) {
     event2_->to(event1_->id());
     event2_->fillParameterSetRegistry();
-    names = triggerNames_(*hTriggerResults);
+    names = triggerNames_(triggerResults);
   }
 
-  return edm::TriggerResultsByName(hTriggerResults.product(), names);
+  return edm::TriggerResultsByName(&triggerResults, names);
 }
 
+edm::ParameterSet const*
+MultiChainEvent::parameterSet(edm::ParameterSetID const& psID) const {
+  auto pset = event1_->parameterSet(psID);
+  if(nullptr ==pset) {
+      pset = event2_->parameterSet(psID);
+  }
+  return pset;
+}
 //
 // static member functions
 //

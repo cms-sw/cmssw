@@ -27,10 +27,12 @@ Monitoring source for general quantities related to track dEdx.
 #include "DataFormats/TrackReco/interface/Track.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 class DQMStore;
 class GenericTriggerEventFlag;
 
-class dEdxAnalyzer : public edm::EDAnalyzer {
+class dEdxAnalyzer : public DQMEDAnalyzer {
  public:
   explicit dEdxAnalyzer(const edm::ParameterSet&);
   ~dEdxAnalyzer();
@@ -38,14 +40,16 @@ class dEdxAnalyzer : public edm::EDAnalyzer {
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
   
   virtual void beginJob();
-  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup);
+  virtual void analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
   virtual void endJob() ;
 
   double mass(double P, double I);
   
-  virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
-  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
-  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&);
+  //  virtual void beginRun(const edm::Run&, const edm::EventSetup&); 
+  virtual void beginLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+  virtual void endLuminosityBlock(edm::LuminosityBlock const&, edm::EventSetup const&) override;
+
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
   
  private:
   // ----------member data ---------------------------
@@ -63,17 +67,21 @@ class dEdxAnalyzer : public edm::EDAnalyzer {
     MonitorElement* ME_MipDeDxNSatHits;
     MonitorElement* ME_MipDeDxMass;
     MonitorElement* ME_HipDeDxMass;
-    
+    MonitorElement* ME_MipHighPtDeDx;
+    MonitorElement* ME_MipHighPtDeDxNHits;
+  
     dEdxMEs()
       :ME_MipDeDx(NULL)
       ,ME_MipDeDxNHits(NULL)
       ,ME_MipDeDxNSatHits(NULL)
       ,ME_MipDeDxMass(NULL)
       ,ME_HipDeDxMass(NULL)
+      ,ME_MipHighPtDeDx(NULL)
+      ,ME_MipHighPtDeDxNHits(NULL)
     {}
   };
   
-  double TrackHitMin, HIPdEdxMin;
+  double TrackHitMin, HIPdEdxMin, HighPtThreshold;
   double dEdxK, dEdxC;
   
   edm::InputTag trackInputTag_;

@@ -15,12 +15,9 @@ namespace {
 }
 
 TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
-					      const PixelClusterParameterEstimator* cpe) : 
+					      PxMeasurementConditionSet & conditions ) : 
     MeasurementDet (gdet),
-    theCPE(cpe),
-    skipClusters_(0),
-    empty(true),
-    activeThisEvent_(true), activeThisPeriod_(true)
+    theDetConditions(&conditions)
   {
     if ( dynamic_cast<const PixelGeomDetUnit*>(gdet) == 0) {
       throw MeasurementDetException( "TkPixelMeasurementDet constructed with a GeomDet which is not a PixelGeomDetUnit");
@@ -28,16 +25,35 @@ TkPixelMeasurementDet::TkPixelMeasurementDet( const GeomDet* gdet,
   }
 
 bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateOnThisDet,
-					  const MeasurementEstimator& est,
+					  const MeasurementEstimator& est, const MeasurementTrackerEvent & data,
 					  TempMeasurements & result) const {
 
-  if (!isActive()) {
-    result.add(InvalidTransientRecHit::build(&geomDet(), TrackingRecHit::inactive), 0.F);
+  if (!isActive(data)) {
+    result.add(theInactiveHit, 0.F);
     return true;
+   }
+  
+  auto xl = 100.f;
+  auto yl = 100.f;
+   // do not apply for iteration not cutting on propagation
+  if (est.maxSagitta() >=0 ) {
+    // do not use this as it does not account for APE...
+    // auto xyLimits = est.maximalLocalDisplacement(stateOnThisDet,fastGeomDet().specificSurface());
+    auto le = stateOnThisDet.localError().positionError();
+    LocalError lape = static_cast<TrackerGeomDet const &>(fastGeomDet()).localAlignmentError();
+    xl = le.xx();
+    yl = le.yy();
+    if (lape.valid()) {
+      xl+=lape.xx();
+      yl+=lape.yy();
+    }
+    // 5 sigma to be on the safe side
+    xl = 5.f*std::sqrt(xl);
+    yl = 5.f*std::sqrt(yl);
   }
   
   auto oldSize = result.size();
-  MeasurementDet::RecHitContainer && allHits = recHits(stateOnThisDet);
+  MeasurementDet::RecHitContainer && allHits = compHits(stateOnThisDet, data,xl,yl);
   for (auto && hit : allHits) {
     std::pair<bool,double> diffEst = est.estimate( stateOnThisDet, *hit);
     if ( diffEst.first)
@@ -47,47 +63,83 @@ bool TkPixelMeasurementDet::measurements( const TrajectoryStateOnSurface& stateO
   if (result.size()>oldSize) return true;
 
   // create a TrajectoryMeasurement with an invalid RecHit and zero estimate
-  bool inac = hasBadComponents(stateOnThisDet);
-  TrackingRecHit::Type type = inac ? TrackingRecHit::inactive : TrackingRecHit::missing;
-  result.add(InvalidTransientRecHit::build(&fastGeomDet(), type), 0.F);
+  bool inac = hasBadComponents(stateOnThisDet, data);
+  result.add(inac ? theInactiveHit : theMissingHit, 0.F);
   return inac;
 
 }
 
 
-TransientTrackingRecHit::RecHitPointer
+TrackingRecHit::RecHitPointer
 TkPixelMeasurementDet::buildRecHit( const SiPixelClusterRef & cluster,
 				    const LocalTrajectoryParameters & ltp) const
 {
-  const GeomDetUnit& gdu( specificGeomDet());
-  LocalValues lv = theCPE->localParameters( * cluster, gdu, ltp );
-  return TSiPixelRecHit::build( lv.first, lv.second, &fastGeomDet(), cluster, theCPE);
+  const GeomDetUnit& gdu(specificGeomDet());
+
+  auto && params = cpe()->getParameters( * cluster, gdu, ltp );
+  return std::make_shared<SiPixelRecHit>( std::get<0>(params), std::get<1>(params), std::get<2>(params), fastGeomDet(), cluster);
 }
 
+
+TkPixelMeasurementDet::RecHitContainer
+TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data) const {
+  float xl = 100.f; // larger than any detector
+  float yl = 100.f;
+  return compHits(ts,data,xl,yl);
+}
+
+
 TkPixelMeasurementDet::RecHitContainer 
-TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
+TkPixelMeasurementDet::compHits( const TrajectoryStateOnSurface& ts, const MeasurementTrackerEvent & data, float xl, float yl  ) const
 {
   RecHitContainer result;
-  if (empty == true ) return result;
-  if (isActive() == false) return result;
+  if (isEmpty(data.pixelData())== true ) return result;
+  if (isActive(data) == false) return result;
   const SiPixelCluster* begin=0;
-  if(0!=handle_->data().size()) {
-     begin = &(handle_->data().front());
+  if (0 != data.pixelData().handle()->data().size()) {
+     begin = &(data.pixelData().handle()->data().front());
   }
-  result.reserve(detSet_.size());
-  for ( const_iterator ci = detSet_.begin(); ci != detSet_.end(); ++ ci ) {
-    
+  const detset & detSet = data.pixelData().detSet(index());
+  result.reserve(detSet.size());
+
+  // pixel topology is rectangular, all positions are independent
+  LocalVector  maxD(xl,yl,0);
+  auto PMinus = specificGeomDet().specificTopology().measurementPosition(ts.localPosition()-maxD);
+  auto PPlus =  specificGeomDet().specificTopology().measurementPosition(ts.localPosition()+maxD);
+
+  int xminus = PMinus.x();
+  int yminus = PMinus.y();
+  int xplus = PPlus.x()+0.5f;
+  int yplus = PPlus.y()+0.5f;
+
+
+  // rechits are sorted in x...
+  auto rightCluster = 
+    std::find_if( detSet.begin(), detSet.end(), [xplus](const SiPixelCluster& cl) { return cl.minPixelRow() > xplus; });
+
+  // std::cout << "px xlim " << xl << ' ' << xminus << '/' << xplus << ' ' << rightCluster-detSet.begin() << ',' << detSet.end()-rightCluster << std::endl;
+  
+
+  // consider only compatible clusters
+ for (auto ci = detSet.begin(); ci != rightCluster; ++ci ) {    
+
     if (ci < begin){
       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch.";
       return result;
     }
      unsigned int index = ci-begin;
-     if (skipClusters_!=0 && skipClusters_->size()!=0 &&  index>=skipClusters_->size()){
-       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch. i.e "<<index<<" >= "<<skipClusters_->size();
+     if (!data.pixelClustersToSkip().empty() &&  index>=data.pixelClustersToSkip().size()){
+       edm::LogError("IndexMisMatch")<<"TkPixelMeasurementDet cannot create hit because of index mismatch. i.e "<<index<<" >= "<<data.pixelClustersToSkip().size();
        return result;
      }
-     if(0==skipClusters_ or skipClusters_->empty() or (not (*skipClusters_)[index]) ) {
-       SiPixelClusterRef cluster = edmNew::makeRefTo( handle_, ci );
+
+     if (ci->maxPixelRow()<xminus) continue;
+     // also check compatibility in y... (does not add much)
+     if (ci->minPixelCol()>yplus) continue;
+     if (ci->maxPixelCol()<yminus) continue;
+
+     if(data.pixelClustersToSkip().empty() or (not data.pixelClustersToSkip()[index]) ) {
+       SiPixelClusterRef cluster = detSet.makeRefTo( data.pixelData().handle(), ci );
        result.push_back( buildRecHit( cluster, ts.localParameters() ) );
      }else{   
        LogDebug("TkPixelMeasurementDet")<<"skipping this cluster from last iteration on "<<fastGeomDet().geographicalId().rawId()<<" key: "<<index;
@@ -97,7 +149,7 @@ TkPixelMeasurementDet::recHits( const TrajectoryStateOnSurface& ts ) const
 }
 
 bool
-TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos ) const {
+TkPixelMeasurementDet::hasBadComponents( const TrajectoryStateOnSurface &tsos, const MeasurementTrackerEvent & data ) const {
     if (badRocPositions_.empty()) return false;
     LocalPoint lp = tsos.localPosition();
     LocalError le = tsos.localError().positionError();

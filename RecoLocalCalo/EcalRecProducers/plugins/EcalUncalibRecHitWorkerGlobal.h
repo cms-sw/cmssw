@@ -9,11 +9,10 @@
  *  \author R. Bruneliere - A. Zabi
  */
 
-#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerBaseClass.h"
+#include "RecoLocalCalo/EcalRecProducers/interface/EcalUncalibRecHitWorkerRunOneDigiBase.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecWeightsAlgo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRecChi2Algo.h"
 #include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitRatioMethodAlgo.h"
-#include "RecoLocalCalo/EcalRecAlgos/interface/EcalUncalibRecHitLeadingEdgeAlgo.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeCalibConstants.h"
 #include "CondFormats/EcalObjects/interface/EcalTimeOffsetConstant.h"
@@ -22,6 +21,7 @@
 #include "CondFormats/EcalObjects/interface/EcalWeightXtalGroups.h"
 #include "CondFormats/EcalObjects/interface/EcalTBWeights.h"
 #include "CondFormats/EcalObjects/interface/EcalSampleMask.h"
+#include "CondFormats/EcalObjects/interface/EcalTimeBiasCorrections.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EBShape.h"
 #include "SimCalorimetry/EcalSimAlgos/interface/EEShape.h"
 
@@ -30,18 +30,21 @@ namespace edm {
         class Event;
         class EventSetup;
         class ParameterSet;
+	class ParameterSetDescription;
 }
 
-class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
+class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerRunOneDigiBase {
 
         public:
                 EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&, edm::ConsumesCollector& c);
-				EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
+		EcalUncalibRecHitWorkerGlobal(const edm::ParameterSet&);
+		EcalUncalibRecHitWorkerGlobal() {};
                 virtual ~EcalUncalibRecHitWorkerGlobal() {};
 
                 void set(const edm::EventSetup& es);
                 bool run(const edm::Event& evt, const EcalDigiCollection::const_iterator & digi, EcalUncalibratedRecHitCollection & result);
 
+		edm::ParameterSetDescription getAlgoDescription();
         protected:
 
                 double pedVec[3];
@@ -53,8 +56,8 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
 
                 template < class C > int isSaturated(const C & digi);
 
-		double timeCorrectionEB(float ampliEB);
-		double timeCorrectionEE(float ampliEE);
+                double timeCorrection(float ampli,
+                    const std::vector<float>& amplitudeBins, const std::vector<float>& shiftBins);
 
                 // weights method
                 edm::ESHandle<EcalWeightXtalGroups>  grps;
@@ -76,12 +79,7 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 std::vector<double> EEamplitudeFitParameters_; 
                 std::pair<double,double> EBtimeFitLimits_;  
                 std::pair<double,double> EEtimeFitLimits_;  
-		bool                doEBtimeCorrection_;
-		bool                doEEtimeCorrection_;
-                std::vector<double> EBtimeCorrAmplitudeBins_; 
-                std::vector<double> EBtimeCorrShiftBins_; 
-                std::vector<double> EEtimeCorrAmplitudeBins_; 
-                std::vector<double> EEtimeCorrShiftBins_; 
+
                 EcalUncalibRecHitRatioMethodAlgo<EBDataFrame> ratioMethod_barrel_;
                 EcalUncalibRecHitRatioMethodAlgo<EEDataFrame> ratioMethod_endcap_;
 
@@ -101,13 +99,12 @@ class EcalUncalibRecHitWorkerGlobal : public EcalUncalibRecHitWorkerBaseClass {
                 double amplitudeThreshEE_;
                 double ebSpikeThresh_;
 
-                // leading edge method
+                edm::ESHandle<EcalTimeBiasCorrections> timeCorrBias_;
+
                 edm::ESHandle<EcalTimeCalibConstants> itime;
 		edm::ESHandle<EcalTimeOffsetConstant> offtime;
                 std::vector<double> ebPulseShape_;
                 std::vector<double> eePulseShape_;
-                EcalUncalibRecHitLeadingEdgeAlgo<EBDataFrame> leadingEdgeMethod_barrel_;
-                EcalUncalibRecHitLeadingEdgeAlgo<EEDataFrame> leadingEdgeMethod_endcap_;
 
                 // chi2 method
 		bool kPoorRecoFlagEB_;

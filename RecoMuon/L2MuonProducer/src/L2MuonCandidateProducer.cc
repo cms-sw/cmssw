@@ -16,7 +16,6 @@
  */
 
 // Framework
-#include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
@@ -26,8 +25,6 @@
 #include "RecoMuon/L2MuonProducer/src/L2MuonCandidateProducer.h"
 
 // Input and output collections
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
 #include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
 
@@ -43,7 +40,7 @@ L2MuonCandidateProducer::L2MuonCandidateProducer(const ParameterSet& parameterSe
 
   // StandAlone Collection Label
   theSACollectionLabel = parameterSet.getParameter<InputTag>("InputObjects");
-
+  tracksToken = consumes<reco::TrackCollection>(theSACollectionLabel);
   produces<RecoChargedCandidateCollection>();
 }
   
@@ -54,17 +51,17 @@ L2MuonCandidateProducer::~L2MuonCandidateProducer(){
 
 
 /// reconstruct muons
-void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup){
+void L2MuonCandidateProducer::produce(edm::StreamID sid, Event& event, const EventSetup& eventSetup) const {
   const string metname = "Muon|RecoMuon|L2MuonCandidateProducer";
   
   // Take the SA container
   LogTrace(metname)<<" Taking the StandAlone muons: "<<theSACollectionLabel;
   Handle<TrackCollection> tracks; 
-  event.getByLabel(theSACollectionLabel,tracks);
+  event.getByToken(tracksToken,tracks);
 
   // Create a RecoChargedCandidate collection
   LogTrace(metname)<<" Creating the RecoChargedCandidate collection";
-  auto_ptr<RecoChargedCandidateCollection> candidates( new RecoChargedCandidateCollection());
+  auto candidates = std::make_unique<RecoChargedCandidateCollection>();
 
   for (unsigned int i=0; i<tracks->size(); i++) {
       TrackRef tkref(tracks,i);
@@ -79,7 +76,7 @@ void L2MuonCandidateProducer::produce(Event& event, const EventSetup& eventSetup
       candidates->push_back(cand);
   }
   
-  event.put(candidates);
+  event.put(std::move(candidates));
  
   LogTrace(metname)<<" Event loaded"
 		   <<"================================";

@@ -2,7 +2,7 @@
 //
 // Package:     FwkIO
 // Class  :     DQMRootOutputModule
-// 
+//
 // Implementation:
 //     [Notes on implementation]
 //
@@ -18,6 +18,7 @@
 #include <memory>
 #include <vector>
 #include <boost/shared_ptr.hpp>
+#include <boost/filesystem.hpp>
 #include "TFile.h"
 #include "TTree.h"
 #include "TString.h"
@@ -27,8 +28,9 @@
 
 // user include files
 #include "FWCore/Framework/interface/OutputModule.h"
-#include "FWCore/Framework/interface/RunPrincipal.h"
-#include "FWCore/Framework/interface/LuminosityBlockPrincipal.h"
+#include "FWCore/Framework/interface/one/OutputModule.h"
+#include "FWCore/Framework/interface/RunForOutput.h"
+#include "FWCore/Framework/interface/LuminosityBlockForOutput.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
@@ -50,8 +52,8 @@ namespace {
     TreeHelperBase(): m_wasFilled(false), m_firstIndex(0),m_lastIndex(0) {}
     virtual ~TreeHelperBase(){}
     void fill(MonitorElement* iElement) {
-      doFill(iElement); 
-      if(m_wasFilled) {++m_lastIndex;} 
+      doFill(iElement);
+      if(m_wasFilled) {++m_lastIndex;}
       m_wasFilled = true; }
     bool wasFilled() const { return m_wasFilled;}
     void getRangeAndReset(ULong64_t& iFirstIndex, ULong64_t& iLastIndex) {
@@ -67,7 +69,7 @@ namespace {
     ULong64_t m_firstIndex;
     ULong64_t m_lastIndex;
   };
-  
+
   template<class T>
   class TreeHelper : public TreeHelperBase {
   public:
@@ -81,13 +83,13 @@ namespace {
        //std::cout <<"#entries: "<<m_bufferPtr->GetEntries()<<std::endl;
        m_tree->Fill();
      }
-     
-     
+
+
   private:
     void setup() {
       m_tree->Branch(kFullNameBranch,&m_fullNameBufferPtr);
       m_tree->Branch(kFlagBranch,&m_flagBuffer);
-      
+
       m_bufferPtr = 0;
       m_tree->Branch(kValueBranch,&m_bufferPtr,128*1024,0);
     }
@@ -96,7 +98,7 @@ namespace {
     std::string* m_fullNameBufferPtr;
     T* m_bufferPtr;
   };
-  
+
   class IntTreeHelper: public TreeHelperBase {
   public:
     IntTreeHelper(TTree* iTree, std::string* iFullNameBufferPtr):
@@ -139,7 +141,7 @@ namespace {
       m_tree->Branch(kFlagBranch,&m_flagBuffer);
       m_tree->Branch(kValueBranch,&m_buffer);
     }
-    
+
     TTree* m_tree;
     uint32_t m_flagBuffer;
     std::string* m_fullNameBufferPtr;
@@ -163,7 +165,7 @@ namespace {
       m_tree->Branch(kFlagBranch,&m_flagBuffer);
       m_tree->Branch(kValueBranch,&m_bufferPtr);
     }
-    
+
     TTree* m_tree;
     uint32_t m_flagBuffer;
     std::string* m_fullNameBufferPtr;
@@ -177,16 +179,17 @@ namespace edm {
   class ModuleCallingContext;
 }
 
-class DQMRootOutputModule : public edm::OutputModule {
+class DQMRootOutputModule : public edm::one::OutputModule<> {
 public:
   explicit DQMRootOutputModule(edm::ParameterSet const& pset);
+  virtual void beginJob() override;
   virtual ~DQMRootOutputModule();
   static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
 private:
-  virtual void write(edm::EventPrincipal const& e, edm::ModuleCallingContext const*) override;
-  virtual void writeLuminosityBlock(edm::LuminosityBlockPrincipal const&, edm::ModuleCallingContext const*) override;
-  virtual void writeRun(edm::RunPrincipal const&, edm::ModuleCallingContext const*) override;
+  virtual void write(edm::EventForOutput const& e) override;
+  virtual void writeLuminosityBlock(edm::LuminosityBlockForOutput const&) override;
+  virtual void writeRun(edm::RunForOutput const&) override;
   virtual bool isFileOpen() const override;
   virtual void openFile(edm::FileBlock const&) override;
   virtual void reallyCloseFile() override;
@@ -197,7 +200,7 @@ private:
   std::string m_logicalFileName;
   std::auto_ptr<TFile> m_file;
   std::vector<boost::shared_ptr<TreeHelperBase> > m_treeHelpers;
-  
+
   unsigned int m_run;
   unsigned int m_lumi;
   unsigned int m_type;
@@ -207,12 +210,13 @@ private:
   ULong64_t m_firstIndex;
   ULong64_t m_lastIndex;
   unsigned int m_filterOnRun;
-  
+  bool m_enableMultiThread;
+
   std::string m_fullNameBuffer;
   std::string* m_fullNameBufferPtr;
   std::map<unsigned int, unsigned int> m_dqmKindToTypeIndex;
   TTree* m_indicesTree;
-  
+
   std::vector<edm::ProcessHistoryID> m_seenHistories;
   edm::ProcessHistoryRegistry m_processHistoryRegistry;
   edm::JobReport::Token m_jrToken;
@@ -224,7 +228,7 @@ private:
 
 static TreeHelperBase*
 makeHelper(unsigned int iTypeIndex,
-           TTree* iTree, 
+           TTree* iTree,
            std::string* iFullNameBufferPtr) {
   switch(iTypeIndex) {
     case kIntIndex:
@@ -264,13 +268,15 @@ makeHelper(unsigned int iTypeIndex,
 // constructors and destructor
 //
 DQMRootOutputModule::DQMRootOutputModule(edm::ParameterSet const& pset):
-edm::OutputModule(pset),
+edm::one::OutputModuleBase::OutputModuleBase(pset),
+edm::one::OutputModule<>(pset),
 m_fileName(pset.getUntrackedParameter<std::string>("fileName")),
-m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName","")),
+m_logicalFileName(pset.getUntrackedParameter<std::string>("logicalFileName")),
 m_file(0),
 m_treeHelpers(kNIndicies,boost::shared_ptr<TreeHelperBase>()),
 m_presentHistoryIndex(0),
-m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun",0)),
+m_filterOnRun(pset.getUntrackedParameter<unsigned int>("filterOnRun")),
+m_enableMultiThread(false),
 m_fullNameBufferPtr(&m_fullNameBuffer),
 m_indicesTree(0)
 {
@@ -280,6 +286,14 @@ m_indicesTree(0)
 // {
 //    // do actual copying here;
 // }
+
+void
+DQMRootOutputModule::beginJob()
+{
+  // Determine if we are running multithreading asking to the DQMStore. Not to be moved in the ctor
+  edm::Service<DQMStore> dstore;
+  m_enableMultiThread = dstore->enableMultiThread_;
+}
 
 DQMRootOutputModule::~DQMRootOutputModule()
 {
@@ -300,21 +314,21 @@ DQMRootOutputModule::~DQMRootOutputModule()
 //
 // member functions
 //
-bool 
+bool
 DQMRootOutputModule::isFileOpen() const
 {
   return nullptr!=m_file.get();
 }
 
-void 
+void
 DQMRootOutputModule::openFile(edm::FileBlock const&)
 {
   //NOTE: I need to also set the I/O performance settings
-  
+
   m_file = std::auto_ptr<TFile>(new TFile(m_fileName.c_str(),"RECREATE",
                                 "1" //This is the file format version number
-                                ));  
-  
+                                ));
+
   edm::Service<edm::JobReport> jr;
   cms::Digest branchHash;
   m_jrToken = jr->outputFileOpened(m_fileName,
@@ -339,7 +353,7 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
   m_indicesTree->Branch(kFirstIndex,&m_firstIndex);
   m_indicesTree->Branch(kLastIndex,&m_lastIndex);
   m_indicesTree->SetDirectory(m_file.get());
-  
+
   unsigned int i = 0;
   for(std::vector<boost::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
   it != itEnd;
@@ -349,7 +363,7 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
     *it = boost::shared_ptr<TreeHelperBase>(makeHelper(i,tree,m_fullNameBufferPtr));
     tree->SetDirectory(m_file.get()); //TFile takes ownership
   }
-  
+
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_INT]=kIntIndex;
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_REAL]=kFloatIndex;
   m_dqmKindToTypeIndex[MonitorElement::DQM_KIND_STRING]=kStringIndex;
@@ -365,15 +379,16 @@ DQMRootOutputModule::openFile(edm::FileBlock const&)
 }
 
 
-void 
-DQMRootOutputModule::write(edm::EventPrincipal const&, edm::ModuleCallingContext const*){
-  
+void
+DQMRootOutputModule::write(edm::EventForOutput const&){
 }
-void 
-DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& iLumi, edm::ModuleCallingContext const*) {
+
+
+void
+DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockForOutput const& iLumi) {
   //std::cout << "DQMRootOutputModule::writeLuminosityBlock"<< std::endl;
   edm::Service<DQMStore> dstore;
-  m_run=iLumi.id().run();
+  m_run = iLumi.id().run();
   m_lumi = iLumi.id().value();
   m_beginTime = iLumi.beginTime().value();
   m_endTime = iLumi.endTime().value();
@@ -382,7 +397,9 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
 
   if (! shouldWrite)
     return;
-  std::vector<MonitorElement *> items(dstore->getAllContents(""));
+  std::vector<MonitorElement *> items(dstore->getAllContents("",
+                                                             m_enableMultiThread ? m_run : 0,
+                                                             m_enableMultiThread ? m_lumi : 0));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
       it!=itEnd;
       ++it) {
@@ -424,15 +441,15 @@ DQMRootOutputModule::writeLuminosityBlock(edm::LuminosityBlockPrincipal const& i
     m_lastIndex=0;
     m_indicesTree->Fill();
   }
-  
+
   edm::Service<edm::JobReport> jr;
   jr->reportLumiSection(m_jrToken, m_run, m_lumi);
 }
 
-void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun, edm::ModuleCallingContext const*){
+void DQMRootOutputModule::writeRun(edm::RunForOutput const& iRun){
   //std::cout << "DQMRootOutputModule::writeRun"<< std::endl;
   edm::Service<DQMStore> dstore;
-  m_run=iRun.id().run();
+  m_run = iRun.id().run();
   m_lumi = 0;
   m_beginTime = iRun.beginTime().value();
   m_endTime = iRun.endTime().value();
@@ -442,7 +459,8 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun, edm::ModuleCal
   if (! shouldWrite)
     return;
 
-  std::vector<MonitorElement *> items(dstore->getAllContents(""));
+  std::vector<MonitorElement*> items(dstore->getAllContents("",
+                                                            m_enableMultiThread ? m_run : 0));
   for(std::vector<MonitorElement*>::iterator it = items.begin(), itEnd=items.end();
       it!=itEnd;
       ++it) {
@@ -462,7 +480,7 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun, edm::ModuleCal
   } else {
     m_presentHistoryIndex = itFind - m_seenHistories.begin();
   }
-  
+
   //Now store the relationship between run/lumi and indices in the other TTrees
   unsigned int typeIndex = 0;
   for(std::vector<boost::shared_ptr<TreeHelperBase> >::iterator it = m_treeHelpers.begin(), itEnd = m_treeHelpers.end();
@@ -474,12 +492,12 @@ void DQMRootOutputModule::writeRun(edm::RunPrincipal const& iRun, edm::ModuleCal
       m_indicesTree->Fill();
     }
   }
-  
+
   edm::Service<edm::JobReport> jr;
-  jr->reportRunNumber(m_jrToken, m_run);  
+  jr->reportRunNumber(m_jrToken, m_run);
 }
 
-void 
+void
 DQMRootOutputModule::reallyCloseFile() {
    startEndFile();
    finishEndFile();
@@ -496,7 +514,7 @@ void DQMRootOutputModule::startEndFile() {
   //Write out the Process History
   TTree* processHistoryTree = new TTree(kProcessHistoryTree,kProcessHistoryTree);
   processHistoryTree->SetDirectory(metaDataDirectory);
-  
+
   unsigned int index = 0;
   processHistoryTree->Branch(kPHIndexBranch,&index);
   std::string processName;
@@ -524,13 +542,13 @@ void DQMRootOutputModule::startEndFile() {
       processHistoryTree->Fill();
     }
   }
-  
+
   //Store the ParameterSets
   TTree* parameterSetsTree = new TTree(kParameterSetTree,kParameterSetTree);
   parameterSetsTree->SetDirectory(metaDataDirectory);
   std::string blob;
   parameterSetsTree->Branch(kParameterSetBranch,&blob);
-  
+
   edm::pset::Registry* psr = edm::pset::Registry::instance();
   assert(0!=psr);
   for(edm::pset::Registry::const_iterator it = psr->begin(), itEnd = psr->end();
@@ -540,7 +558,7 @@ void DQMRootOutputModule::startEndFile() {
     it->second.toString(blob);
     parameterSetsTree->Fill();
   }
-  
+
 }
 
 void DQMRootOutputModule::finishEndFile() {
@@ -560,14 +578,24 @@ void DQMRootOutputModule::finishEndFile() {
 //
 void
 DQMRootOutputModule::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
-  //The following says we do not know what parameters are allowed so do no validation
-  // Please change this to state exactly what you do use, even if it is no parameters
   edm::ParameterSetDescription desc;
-  desc.setUnknown();
+
+  desc.addUntracked<std::string>("fileName");
+  desc.addUntracked<std::string>("logicalFileName","");
+  desc.addUntracked<unsigned int>("filterOnRun",0)
+    ->setComment("Only write the run with this run number. 0 means write all runs.");
+  desc.addOptionalUntracked<int>("splitLevel", 99)
+    ->setComment("UNUSED Only here to allow older configurations written for PoolOutputModule to work.");
+  const std::vector<std::string> keep = {"drop *", "keep DQMToken_*_*_*"};
+  edm::OutputModule::fillDescription(desc, keep);
+
+  edm::ParameterSetDescription dataSet;
+  dataSet.setAllowAnything();
+  desc.addUntracked<edm::ParameterSetDescription>("dataset", dataSet)
+    ->setComment("PSet is only used by Data Operations and not by this module.");
+
   descriptions.addDefault(desc);
 
-  //NOTE: when actually filling this in, do not forget to add a untracked PSet 'dataset'
-  // which is used for bookkeeping by the DMWM
 }
 
 

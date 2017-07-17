@@ -51,40 +51,40 @@ L1ScalesTrivialProducer::~L1ScalesTrivialProducer()
 //
 
 // ------------ method called to produce the data  ------------
-std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceEmScale(const L1EmEtScaleRcd& iRecord)
+std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceEmScale(const L1EmEtScaleRcd& iRecord)
 {
    using namespace edm::es;
 
-   std::auto_ptr<L1CaloEtScale> emScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(m_emEtScaleInputLsb, m_emEtThresholds) );
+   std::unique_ptr<L1CaloEtScale> emScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(m_emEtScaleInputLsb, m_emEtThresholds) );
 
    return emScale ;
 }
 
-std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceJetScale(const L1JetEtScaleRcd& iRecord)
+std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceJetScale(const L1JetEtScaleRcd& iRecord)
 {
    using namespace edm::es;
 
-   std::auto_ptr<L1CaloEtScale> jetEtScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds) );
+   std::unique_ptr<L1CaloEtScale> jetEtScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(m_jetEtScaleInputLsb, m_jetEtThresholds) );
 
    return jetEtScale ;
 }
 
 
-std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHtMissScale(const L1HtMissScaleRcd& iRecord)
+std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHtMissScale(const L1HtMissScaleRcd& iRecord)
 {
    using namespace edm::es;
 
-   std::auto_ptr<L1CaloEtScale> htMissScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(0, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds) );
+   std::unique_ptr<L1CaloEtScale> htMissScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(0, 0x7f, m_jetEtScaleInputLsb, m_htMissThresholds) );
 
    return htMissScale ;
 }
 
 
-std::auto_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHfRingScale(const L1HfRingEtScaleRcd& iRecord)
+std::unique_ptr<L1CaloEtScale> L1ScalesTrivialProducer::produceHfRingScale(const L1HfRingEtScaleRcd& iRecord)
 {
    using namespace edm::es;
 
-   std::auto_ptr<L1CaloEtScale> hfRingEtScale = std::auto_ptr<L1CaloEtScale>( new L1CaloEtScale(0xff, 0x7, m_jetEtScaleInputLsb, m_hfRingThresholds) );
+   std::unique_ptr<L1CaloEtScale> hfRingEtScale = std::unique_ptr<L1CaloEtScale>( new L1CaloEtScale(0xff, 0x7, m_jetEtScaleInputLsb, m_hfRingThresholds) );
 
    return hfRingEtScale ;
 }

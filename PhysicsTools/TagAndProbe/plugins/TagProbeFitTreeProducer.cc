@@ -2,8 +2,8 @@
 //
 // Package:    TagProbeFitTreeProducer
 // Class:      TagProbeFitTreeProducer
-// 
-/**\class TagProbeFitTreeProducer TagProbeFitTreeProducer.cc 
+//
+/**\class TagProbeFitTreeProducer TagProbeFitTreeProducer.cc
 
  Description: <one line class summary>
 
@@ -41,8 +41,6 @@
 
 #include <set>
 
-#include "FWCore/ParameterSet/interface/Registry.h"
-
 //
 // class decleration
 //
@@ -59,9 +57,9 @@ class TagProbeFitTreeProducer : public edm::EDAnalyzer {
 
       //---- MC truth information
       /// Is this sample MC?
-      bool isMC_; 
-      /// InputTag to an edm::Association<reco::GenParticle> from tags & probes to MC truth
-      edm::InputTag tagMatches_, probeMatches_;
+      bool isMC_;
+      /// Token foran edm::Association<reco::GenParticle> from tags & probes to MC truth
+      edm::EDGetTokenT<edm::Association<std::vector<reco::GenParticle> > > tagMatchesToken_, probeMatchesToken_;
       /// Possible pdgids for the mother. If empty, any truth-matched mu will be considered good
       std::set<int32_t> motherPdgId_;
       /// Return true if ref is not null and has an ancestor with pdgId inside 'motherPdgId_'
@@ -73,18 +71,18 @@ class TagProbeFitTreeProducer : public edm::EDAnalyzer {
       /// Check mother pdgId in unbiased inefficiency measurement
       bool checkMotherInUnbiasEff_;
       /// InputTag to the collection of all probes
-      edm::InputTag allProbes_;
+      edm::EDGetTokenT<reco::CandidateView> allProbesToken_;
 
       /// The object that produces pairs of tags and probes, making any arbitration needed
       tnp::TagProbePairMaker tagProbePairMaker_;
       /// The object that actually computes variables and fills the tree for T&P
-      std::auto_ptr<tnp::TPTreeFiller> treeFiller_; 
+      std::unique_ptr<tnp::TPTreeFiller> treeFiller_;
       /// The object that actually computes variables and fills the tree for unbiased MC
-      std::auto_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> oldTagFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> tagFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> pairFiller_;
-      std::auto_ptr<tnp::BaseTreeFiller> mcFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> mcUnbiasFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> oldTagFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> tagFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> pairFiller_;
+      std::unique_ptr<tnp::BaseTreeFiller> mcFiller_;
 };
 
 //
@@ -94,14 +92,14 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
     isMC_(iConfig.getParameter<bool>("isMC")),
     makeMCUnbiasTree_(isMC_ ? iConfig.getParameter<bool>("makeMCUnbiasTree") : false),
     checkMotherInUnbiasEff_(makeMCUnbiasTree_ ? iConfig.getParameter<bool>("checkMotherInUnbiasEff") : false),
-    tagProbePairMaker_(iConfig),
-    treeFiller_(new tnp::TPTreeFiller(iConfig)),
-    oldTagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig) : 0)
+    tagProbePairMaker_(iConfig, consumesCollector()),
+    treeFiller_(new tnp::TPTreeFiller(iConfig, consumesCollector())),
+    oldTagFiller_((iConfig.existsAs<bool>("fillTagTree") && iConfig.getParameter<bool>("fillTagTree")) ? new tnp::BaseTreeFiller("tag_tree",iConfig, consumesCollector()) : 0)
 {
-    if (isMC_) { 
+    if (isMC_) {
         // For mc efficiency we need the MC matches for tags & probes
-        tagMatches_ = iConfig.getParameter<edm::InputTag>("tagMatches");
-        probeMatches_ = iConfig.getParameter<edm::InputTag>("probeMatches");
+        tagMatchesToken_ = consumes<edm::Association<std::vector<reco::GenParticle> > >(iConfig.getParameter<edm::InputTag>("tagMatches"));
+        probeMatchesToken_ = consumes<edm::Association<std::vector<reco::GenParticle> > >(iConfig.getParameter<edm::InputTag>("probeMatches"));
         //.. and the pdgids of the possible mothers
         if (iConfig.existsAs<int32_t>("motherPdgId")) {
             motherPdgId_.insert(iConfig.getParameter<int32_t>("motherPdgId"));
@@ -112,23 +110,23 @@ TagProbeFitTreeProducer::TagProbeFitTreeProducer(const edm::ParameterSet& iConfi
 
         // For unbiased efficiency we also need the collection of all probes
         if (makeMCUnbiasTree_) {
-            allProbes_ = iConfig.getParameter<edm::InputTag>("allProbes");
-            mcUnbiasFiller_.reset(new tnp::BaseTreeFiller("mcUnbias_tree",iConfig));
+            allProbesToken_ = consumes<reco::CandidateView>(iConfig.getParameter<edm::InputTag>("allProbes"));
+            mcUnbiasFiller_.reset(new tnp::BaseTreeFiller("mcUnbias_tree",iConfig, consumesCollector()));
         }
     }
 
     edm::ParameterSet tagPSet;
     if (iConfig.existsAs<edm::ParameterSet>("tagVariables")) tagPSet.addParameter<edm::ParameterSet>("variables", iConfig.getParameter<edm::ParameterSet>("tagVariables"));
     if (iConfig.existsAs<edm::ParameterSet>("tagFlags"    )) tagPSet.addParameter<edm::ParameterSet>("flags",     iConfig.getParameter<edm::ParameterSet>("tagFlags"));
-    if (!tagPSet.empty()) { tagFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, tagPSet, "tag_")); }
+    if (!tagPSet.empty()) { tagFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, tagPSet, consumesCollector(), "tag_")); }
     edm::ParameterSet mcPSet;
     if (iConfig.existsAs<edm::ParameterSet>("mcVariables")) mcPSet.addParameter<edm::ParameterSet>("variables", iConfig.getParameter<edm::ParameterSet>("mcVariables"));
     if (iConfig.existsAs<edm::ParameterSet>("mcFlags"    )) mcPSet.addParameter<edm::ParameterSet>("flags",     iConfig.getParameter<edm::ParameterSet>("mcFlags"));
-    if (!mcPSet.empty()) { mcFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, mcPSet, "mc_")); }
+    if (!mcPSet.empty()) { mcFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, mcPSet, consumesCollector(), "mc_")); }
     edm::ParameterSet pairPSet;
     if (iConfig.existsAs<edm::ParameterSet>("pairVariables")) pairPSet.addParameter<edm::ParameterSet>("variables", iConfig.getParameter<edm::ParameterSet>("pairVariables"));
     if (iConfig.existsAs<edm::ParameterSet>("pairFlags"    )) pairPSet.addParameter<edm::ParameterSet>("flags",     iConfig.getParameter<edm::ParameterSet>("pairFlags"));
-    if (!pairPSet.empty()) { pairFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, pairPSet, "pair_")); }
+    if (!pairPSet.empty()) { pairFiller_.reset(new tnp::BaseTreeFiller(*treeFiller_, pairPSet, consumesCollector(), "pair_")); }
 }
 
 
@@ -145,43 +143,46 @@ TagProbeFitTreeProducer::~TagProbeFitTreeProducer()
 void
 TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
-    using namespace edm; using namespace std; 
+    using namespace edm; using namespace std;
     Handle<reco::CandidateView> src, allProbes;
     Handle<Association<vector<reco::GenParticle> > > tagMatches, probeMatches;
-
     treeFiller_->init(iEvent); // read out info from the event if needed (external vars, list of passing probes, ...)
     if (oldTagFiller_.get()) oldTagFiller_->init(iEvent);
     if (tagFiller_.get())    tagFiller_->init(iEvent);
     if (pairFiller_.get())   pairFiller_->init(iEvent);
     if (mcFiller_.get())     mcFiller_->init(iEvent);
-
+    
     // on mc we want to load also the MC match info
     if (isMC_) {
-        iEvent.getByLabel(tagMatches_, tagMatches);
-        iEvent.getByLabel(probeMatches_, probeMatches);
+        iEvent.getByToken(tagMatchesToken_, tagMatches);
+        iEvent.getByToken(probeMatchesToken_, probeMatches);
     }
 
-    // get the list of (tag+probe) pairs, performing arbitration 
+    // get the list of (tag+probe) pairs, performing arbitration
     tnp::TagProbePairs pairs = tagProbePairMaker_.run(iEvent);
     // loop on them to fill the tree
     for (tnp::TagProbePairs::const_iterator it = pairs.begin(), ed = pairs.end(); it != ed; ++it) {
         // on mc, fill mc info (on non-mc, let it to 'true', the treeFiller will ignore it anyway
         bool mcTrue = false;
+	float mcMass = 0.f;
         if (isMC_) {
             reco::GenParticleRef mtag = (*tagMatches)[it->tag], mprobe = (*probeMatches)[it->probe];
             mcTrue = checkMother(mtag) && checkMother(mprobe);
-            if (mcTrue && mcFiller_.get()) mcFiller_->fill(reco::CandidateBaseRef(mprobe));
-        }
+	    if (mcTrue) {
+	      mcMass = (mtag->p4() + mprobe->p4()).mass();
+	      if (mcFiller_.get()) mcFiller_->fill(reco::CandidateBaseRef(mprobe));
+	    }
+	}
         // fill in the variables for this t+p pair
 	if (tagFiller_.get())    tagFiller_->fill(it->tag);
 	if (oldTagFiller_.get()) oldTagFiller_->fill(it->tag);
 	if (pairFiller_.get())   pairFiller_->fill(it->pair);
-	treeFiller_->fill(it->probe, it->mass, mcTrue);
-    } 
+	treeFiller_->fill(it->probe, it->mass, mcTrue, mcMass);
+    }
 
     if (isMC_ && makeMCUnbiasTree_) {
         // read full collection of probes
-        iEvent.getByLabel(allProbes_, allProbes);
+        iEvent.getByToken(allProbesToken_, allProbes);
         // init the tree filler
         mcUnbiasFiller_->init(iEvent);
         // loop on probes
@@ -194,7 +195,7 @@ TagProbeFitTreeProducer::analyze(const edm::Event& iEvent, const edm::EventSetup
             if (probeOk) mcUnbiasFiller_->fill(probe);
         }
     }
-   
+
 }
 
 bool
@@ -211,10 +212,10 @@ TagProbeFitTreeProducer::checkMother(const reco::GenParticleRef &ref) const {
 
 
 // ------------ method called once each job just after ending the event loop  ------------
-void 
+void
 TagProbeFitTreeProducer::endJob() {
     // ask to write the current PSet info into the TTree header
-    treeFiller_->writeProvenance(edm::getProcessParameterSet());
+    treeFiller_->writeProvenance(edm::getProcessParameterSetContainingModule(moduleDescription()));
 }
 
 //define this as a plug-in

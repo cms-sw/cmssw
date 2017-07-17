@@ -1,291 +1,399 @@
+
+/*
+
+This file defines functions used to check if ROOT dictionaries
+are missing for those types that require dictionaries.
+Also there is a utility function named public_base_classes that
+is used to find the base classes of classes used as elements in
+container products. These base classes are needed to setup the
+product lookup tables to support Views. That function also checks
+for dictionaries of that contained class and its base classes as
+it finds them.
+
+As of this writing, the dictionary checking functions are used
+in the following circumstances:
+
+1. All produced products.
+
+2. All products in the main ProductRegistry and that are present
+in the input.
+
+3. All consumed product types. Also for consumed element types (used by
+View). But for consumed element types there is only a requirement that
+the element type and its base classes have dictionaries (because there
+is no way to know if the containing product type is transient or not).
+
+4. Products declared as kept by an output module.
+
+Transient classes are an exception to the above requirements. For
+transients classes the only classes that are required to have dictionaries
+are the top level type and its wrapped type. Also if it is a container
+that can be accessed by Views, then its contained type and the base classes
+of that contained type must also have dictionaries.  But only that.
+Other contituents types of a transient type are not required to have
+dictionaries. This special treatment of transients is genuinely needed
+because there are multiple transient types in CMSSW which do not have
+dictionaries for many of their constituent types.
+
+For persistent types it checks the unwrapped type, the wrapped type, and
+all the constituent types. It uses the TClass::GetMissingDictionaries
+function from ROOT to check constituent types and depends on that.
+(Currently, there is a JIRA ticket submitted related to bugs in that
+ROOT function, JIRA-8208. We are trying to use the ROOT function for
+that instead of creating our own CMS specific code that we need to
+develop and maintain.). For transient types, TClass::GetMissingDictionaries
+is not used because it requires too many of the constituent types
+to have dictionaries.
+
+*/
+
 #include "FWCore/Utilities/interface/DictionaryTools.h"
+
 #include "FWCore/Utilities/interface/Algorithms.h"
-#include "FWCore/Utilities/interface/EDMException.h"
 #include "FWCore/Utilities/interface/BaseWithDict.h"
-#include "FWCore/Utilities/interface/MemberWithDict.h"
+#include "FWCore/Utilities/interface/EDMException.h"
+#include "FWCore/Utilities/interface/TypeID.h"
 #include "FWCore/Utilities/interface/TypeWithDict.h"
+#include "FWCore/Utilities/interface/WrappedClassName.h"
 
-#include "Api.h" // for G__ClassInfo
-
-#include "TROOT.h"
-
-#include "boost/algorithm/string.hpp"
-#include "boost/thread/tss.hpp"
+#include "TClass.h"
+#include "THashTable.h"
 
 #include <algorithm>
 #include <sstream>
 
 namespace edm {
 
-  std::string const& dictionaryPlugInPrefix() {
-    static std::string const prefix("LCGReflex/");
-    return prefix;
+  bool
+  checkDictionary(std::vector<std::string>& missingDictionaries,
+                  TypeID const& typeID) {
+
+    TClass::GetClass(typeID.typeInfo());
+    if (!hasDictionary(typeID.typeInfo())) {
+      // a second attempt to load
+      TypeWithDict::byName(typeID.className());
+    }
+    if (!hasDictionary(typeID.typeInfo())) {
+      missingDictionaries.emplace_back(typeID.className());
+      return false;
+    }
+    return true;
   }
 
-  static StringSet foundTypes_;
-  static StringSet missingTypes_;
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                    TypeID const& unwrappedTypeID) {
+    std::string wrappedName = wrappedClassName(unwrappedTypeID.className());
+    TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
+    return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
+  }
+
+  bool checkDictionaryOfWrappedType(std::vector<std::string>& missingDictionaries,
+                                    std::string const& unwrappedName) {
+    std::string wrappedName = wrappedClassName(unwrappedName);
+    TypeWithDict wrappedTypeWithDict = TypeWithDict::byName(wrappedName);
+    return checkDictionary(missingDictionaries, wrappedName, wrappedTypeWithDict);
+  }
 
   bool
-  find_nested_type_named(std::string const& nested_type,
-                         TypeWithDict const& typeToSearch,
-                         TypeWithDict& found_type) {
-    // Look for a sub-type named 'nested_type'
-    TypeWithDict foundType = typeToSearch.nestedType(nested_type);
-    if(bool(foundType)) {
-      found_type = foundType;
+  checkDictionary(std::vector<std::string>& missingDictionaries,
+                  std::string const& name,
+                  TypeWithDict const& typeWithDict) {
+    if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
+      missingDictionaries.emplace_back(name);
+      return false;
+    }
+    return true;
+  }
+
+  bool
+  checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                         TypeID const& typeID) {
+
+    // For a class type with a dictionary the TClass* will be
+    // non-null and hasDictionary will return true.
+    // For a type like "int", the TClass* pointer will be a
+    // nullptr and hasDictionary will return true.
+    // For a class type without a dictionary it is possible for
+    // TClass* to be non-null and hasDictionary to return false.
+
+    TClass* tClass = TClass::GetClass(typeID.typeInfo());
+    if (!hasDictionary(typeID.typeInfo())) {
+      // a second attempt to load
+      TypeWithDict::byName(typeID.className());
+      tClass = TClass::GetClass(typeID.typeInfo());
+    }
+    if (!hasDictionary(typeID.typeInfo())) {
+      missingDictionaries.emplace_back(typeID.className());
+      return false;
+    }
+
+    if (tClass == nullptr) {
       return true;
     }
-    return false;
+
+    bool result = true;
+
+    THashTable hashTable;
+    bool recursive = true;
+    tClass->GetMissingDictionaries(hashTable, recursive);
+
+    for(auto const& item : hashTable) {
+      TClass const* cl = static_cast<TClass const*>(item);
+      missingDictionaries.emplace_back(cl->GetName());
+      result = false;
+    }
+    return result;
   }
 
   bool
-  is_RefVector(TypeWithDict const& possibleRefVector,
-               TypeWithDict& value_type) {
-
-    static std::string const template_name("edm::RefVector");
-    static std::string const member_type("member_type");
-    if(template_name == possibleRefVector.templateName()) {
-      return find_nested_type_named(member_type, possibleRefVector, value_type);
-    }
-    return false;
-  }
-
-  bool
-  is_PtrVector(TypeWithDict const& possibleRefVector,
-               TypeWithDict& value_type) {
-
-    static std::string const template_name("edm::PtrVector");
-    static std::string const member_type("member_type");
-    static std::string const val_type("value_type");
-    if(template_name == possibleRefVector.templateName()) {
-      TypeWithDict ptrType;
-      if(find_nested_type_named(val_type, possibleRefVector, ptrType)) {
-        return find_nested_type_named(val_type, ptrType, value_type);
-      }
-    }
-    return false;
-  }
-
-  bool
-  is_RefToBaseVector(TypeWithDict const& possibleRefVector,
-                     TypeWithDict& value_type) {
-
-    static std::string const template_name("edm::RefToBaseVector");
-    static std::string const member_type("member_type");
-    if(template_name == possibleRefVector.templateName()) {
-      return find_nested_type_named(member_type, possibleRefVector, value_type);
-    }
-    return false;
-  }
-
-  namespace {
-
-    int const oneParamArraySize = 6;
-    std::string const oneParam[oneParamArraySize] = {
-      "vector",
-      "basic_string",
-      "set",
-      "list",
-      "deque",
-      "multiset"
-    };
-    int const twoParamArraySize = 3;
-    std::string const twoParam[twoParamArraySize] = {
-      "map",
-      "pair",
-      "multimap"
-    };
-
-
-    bool
-    hasCintDictionary(std::string const& name) {
-      std::auto_ptr<G__ClassInfo> ci(new G__ClassInfo(name.c_str()));
-        return(ci.get() && ci->IsLoaded());
+  checkClassDictionaries(std::vector<std::string>& missingDictionaries,
+                         std::string const& name,
+                         TypeWithDict const& typeWithDict) {
+    if (!bool(typeWithDict) || typeWithDict.invalidTypeInfo()) {
+      missingDictionaries.emplace_back(name);
+      return false;
     }
 
-    // Checks if there is a dictionary for the Type t.
-    // If noComponents is false, checks members and base classes recursively.
-    // If noComponents is true, checks Type t only.
-    void
-    checkType(TypeWithDict t, bool noComponents = false) {
-
-      // ToType strips const, volatile, array, pointer, reference, etc.,
-      // and also translates typedefs.
-      // To be safe, we do this recursively until we either get a void type or the same type.
-      for(TypeWithDict x(t.toType()); x != t && x.typeInfo() != typeid(void); t = x, x = t.toType()) {}
-
-      std::string name(t.name());
-      boost::trim(name);
-
-      if(foundTypes().end() != foundTypes().find(name) || missingTypes().end() != missingTypes().find(name)) {
-        // Already been processed. Prevents infinite loop.
-        return;
-      }
-
-      if(name.empty() || t.isFundamental() || t.isEnum() || t.typeInfo() == typeid(void)) {
-        foundTypes().insert(name);
-        return;
-      }
-
-      if(!bool(t)) {
-        if(hasCintDictionary(name)) {
-          foundTypes().insert(name);
-        } else {
-          missingTypes().insert(name);
-        }
-        return;
-      }
-
-      foundTypes().insert(name);
-      if(noComponents) return;
-
-      if(name.find("std::") == 0) {
-        if(t.isTemplateInstance()) {
-          std::string::size_type n = name.find('<');
-          int cnt = 0;
-          if(std::find(oneParam, oneParam + oneParamArraySize, name.substr(5, n - 5)) != oneParam + oneParamArraySize) {
-            cnt = 1;
-          } else if(std::find(twoParam, twoParam + twoParamArraySize, name.substr(5, n - 5)) != twoParam + twoParamArraySize) {
-            cnt = 2;
-          }
-          for(int i = 0; i < cnt; ++i) {
-            checkType(t.templateArgumentAt(i));
-          }
-        }
-      } else {
-        TypeDataMembers members(t);
-        for(auto const& member : members) {
-          MemberWithDict m(member);
-          if(!m.isTransient() && !m.isStatic()) {
-            checkType(m.typeOf());
-          }
-        }
-        TypeBases bases(t);
-        for(auto const& base : bases) {
-          BaseWithDict b(base);
-          checkType(b.typeOf());
-        }
-      }
+    TClass *tClass = typeWithDict.getClass();
+    if (tClass == nullptr) {
+      missingDictionaries.emplace_back(name);
+      return false;
     }
-  } // end unnamed namespace
 
-  StringSet& missingTypes() {
-    return missingTypes_;
-  }
+    THashTable hashTable;
+    bool recursive = true;
+    tClass->GetMissingDictionaries(hashTable, recursive);
 
-  StringSet& foundTypes() {
-    // The only purpose of this cache is to stop infinite recursion.
-    // ROOT maintains its own internal cache.
-    return foundTypes_;
-  }
+    bool result = true;
 
-  void checkDictionaries(std::string const& name, bool noComponents) {
-    TypeWithDict null;
-    TypeWithDict t(TypeWithDict::byName(name));
-    if(t == null) {
-      if(name == std::string("void")) {
-        foundTypes().insert(name);
-      } else {
-        missingTypes().insert(name);
-      }
-      return;
+    for(auto const& item : hashTable) {
+      TClass const* cl = static_cast<TClass const*>(item);
+      missingDictionaries.emplace_back(cl->GetName());
+      result = false;
     }
-    checkType(t, noComponents);
+    return result;
   }
 
-  void throwMissingDictionariesException() {
-    if(!missingTypes().empty()) {
+  void addToMissingDictionariesException(edm::Exception& exception,
+                                         std::vector<std::string>& missingDictionaries,
+                                         std::string const& context) {
+
+    std::sort(missingDictionaries.begin(), missingDictionaries.end());
+    missingDictionaries.erase(std::unique(missingDictionaries.begin(), missingDictionaries.end()), missingDictionaries.end());
+
+    std::ostringstream ostr;
+    for(auto const& item : missingDictionaries) {
+      ostr << "  " << item << "\n";
+    }
+    exception << "No data dictionary found for the following classes:\n\n"
+              << ostr.str() << "\n"
+              << "Most likely each dictionary was never generated, but it may\n"
+              << "be that it was generated in the wrong package. Please add\n"
+              << "(or move) the specification \'<class name=\"whatever\"/>\' to\n"
+              << "the appropriate classes_def.xml file along with any other\n"
+              << "information needed there. For example, if this class has any\n"
+              << "transient members, you need to specify them in classes_def.xml.\n"
+              << "Also include the class header in classes.h\n";
+
+    if (!context.empty()) {
+      exception.addContext(context);
+    }
+  }
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context) {
+    std::vector<std::string> empty;
+    throwMissingDictionariesException(missingDictionaries, context, empty);
+  }
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context,
+                                         std::vector<std::string>& producedTypes) {
+
+    edm::Exception exception(errors::DictionaryNotFound);
+    addToMissingDictionariesException(exception, missingDictionaries, context);
+
+    if (!producedTypes.empty()) {
+      std::sort(producedTypes.begin(), producedTypes.end());
+      producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()), producedTypes.end());
+
       std::ostringstream ostr;
-      for (StringSet::const_iterator it = missingTypes().begin(), itEnd = missingTypes().end();
-           it != itEnd; ++it) {
-        ostr << *it << "\n\n";
+      for(auto const& item : producedTypes) {
+        ostr << "  " << item << "\n";
       }
-      throw Exception(errors::DictionaryNotFound)
-        << "No REFLEX data dictionary found for the following classes:\n\n"
-        << ostr.str()
-        << "Most likely each dictionary was never generated,\n"
-        << "but it may be that it was generated in the wrong package.\n"
-        << "Please add (or move) the specification\n"
-        << "<class name=\"whatever\"/>\n"
-        << "to the appropriate classes_def.xml file.\n"
-        << "If the class is a template instance, you may need\n"
-        << "to define a dummy variable of this type in classes.h.\n"
-        << "Also, if this class has any transient members,\n"
-        << "you need to specify them in classes_def.xml.";
+      exception << "\nA type listed above might or might not be the same as a\n"
+                << "type declared by a producer module with the function \'produces\'.\n"
+                << "Instead it might be the type of a data member, base class,\n"
+                << "wrapped type, or other object needed by a produced type. Below\n"
+                << "is some additional information which lists the types declared\n"
+                << "to be produced by a producer module that are associated with\n"
+                << "the types whose dictionaries were not found:\n\n"
+                << ostr.str() << "\n";
     }
+    throw exception;
   }
 
-  void loadMissingDictionaries() {
-    while (!missingTypes().empty()) {
-      StringSet missing(missingTypes());
-      for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
-         it != itEnd; ++it) {
-        try {
-          gROOT->GetClass(it->c_str(), kTRUE);
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context,
+                                         std::vector<std::string>& producedTypes,
+                                         std::vector<std::string>& branchNames,
+                                         bool fromStreamerSource) {
+
+
+    edm::Exception exception(errors::DictionaryNotFound);
+    addToMissingDictionariesException(exception, missingDictionaries, context);
+
+    if (!producedTypes.empty()) {
+      std::sort(producedTypes.begin(), producedTypes.end());
+      producedTypes.erase(std::unique(producedTypes.begin(), producedTypes.end()), producedTypes.end());
+
+      std::ostringstream ostr;
+      for(auto const& item : producedTypes) {
+        ostr << "  " << item << "\n";
+      }
+      if (fromStreamerSource) {
+        exception << "\nA type listed above might or might not be the same as a\n"
+                  << "type stored in the Event. Instead it might be the type of\n"
+                  << "a data member, base class, wrapped type, or other object\n"
+                  << "needed by a stored type. Below is some additional information\n"
+                  << "which lists the stored types associated with the types whose\n"
+                  << "dictionaries were not found:\n\n"
+                  << ostr.str() << "\n";
+      } else {
+        exception << "\nA type listed above might or might not be the same as a\n"
+                  << "type stored in the Event (or Lumi or Run). Instead it might\n"
+                  << "be the type of a data member, base class, wrapped type, or\n"
+                  << "other object needed by a stored type. Below is some additional\n"
+                  << "information which lists the stored types associated with the\n"
+                  << "types whose dictionaries were not found:\n\n"
+                  << ostr.str() << "\n";
+      }
+    }
+
+    if (!branchNames.empty()) {
+
+      std::sort(branchNames.begin(), branchNames.end());
+      branchNames.erase(std::unique(branchNames.begin(), branchNames.end()), branchNames.end());
+
+      std::ostringstream ostr;
+      for(auto const& item : branchNames) {
+        ostr << "  " << item << "\n";
+      }
+      if (fromStreamerSource) {
+        exception  << "Missing dictionaries are associated with these branch names:\n\n"
+                   << ostr.str() << "\n";
+      } else {
+        exception  << "Missing dictionaries are associated with these branch names:\n\n"
+                   << ostr.str() << "\n"
+                   << "If you do not need these branches and they are not produced\n"
+                   << "in the current process, an alternate solution to adding\n"
+                   << "dictionaries is to drop these branches on input using the\n"
+                   << "inputCommands parameter of the PoolSource.";
+      }
+    }
+    throw exception;
+  }
+
+  void throwMissingDictionariesException(std::vector<std::string>& missingDictionaries,
+                                         std::string const& context,
+                                         std::set<std::string>& producedTypes,
+                                         bool consumedWithView) {
+
+    edm::Exception exception(errors::DictionaryNotFound);
+    addToMissingDictionariesException(exception, missingDictionaries, context);
+
+    if (!producedTypes.empty()) {
+
+      std::ostringstream ostr;
+      for(auto const& item : producedTypes) {
+        ostr << "  " << item << "\n";
+      }
+      if (consumedWithView) {
+        exception << "\nThe list of types above was generated while checking for\n"
+                  << "dictionaries related to products declared to be consumed\n"
+                  << "using a View. They will be either the type or a base class\n"
+                  << "of the type declared in a consumes declaration as the template\n"
+                  << "parameter of a View. Below is some additional information\n"
+                  << "which lists the type of the template parameter of the View.\n"
+                  << "(It will be the same type unless the missing dictionary is\n"
+                  << "for a base type):\n\n"
+                  << ostr.str() << "\n";
+      } else {
+        exception << "\nThe list of types above was generated while checking for\n"
+                  << "dictionaries related to products declared to be consumed.\n"
+                  << "A type listed above might or might not be a type declared\n"
+                  << "to be consumed. Instead it might be the type of a data member,\n"
+                  << "base class, wrapped type or other object needed by a consumed\n"
+                  << "type.  Below is some additional information which lists\n"
+                  << "the types declared to be consumed by a module and which\n"
+                  << "are associated with the types whose dictionaries were not\n"
+                  << "found:\n\n"
+                  << ostr.str() << "\n";
+      }
+    }
+    throw exception;
+  }
+
+
+  bool
+  public_base_classes(std::vector<std::string>& missingDictionaries,
+                      TypeID const& typeID,
+                      std::vector<TypeWithDict>& baseTypes) {
+
+    if (!checkDictionary(missingDictionaries, typeID)) {
+      return false;
+    }
+    TypeWithDict typeWithDict(typeID.typeInfo());
+
+    if (!typeWithDict.isClass()) {
+      return true;
+    }
+
+    TypeBases bases(typeWithDict);
+    bool returnValue = true;
+    for (auto const& basex : bases) {
+      BaseWithDict base(basex);
+      if (!base.isPublic()) {
+        continue;
+      }
+      TypeWithDict baseRflxType = base.typeOf();
+      if (!checkDictionary(missingDictionaries, baseRflxType.name(), baseRflxType)) {
+        returnValue = false;
+        continue;
+      }
+      TypeWithDict baseType(baseRflxType.typeInfo());
+      // Check to make sure this base appears only once in the
+      // inheritance hierarchy.
+      if (!search_all(baseTypes, baseType)) {
+        // Save the type and recursive look for its base types
+        baseTypes.push_back(baseType);
+        if (!public_base_classes(missingDictionaries, TypeID(baseType.typeInfo()), baseTypes)) {
+          returnValue = false;
+          continue;
         }
-        // We don't want to fail if we can't load a plug-in.
-        catch(...) {}
       }
-      missingTypes().clear();
-      for (StringSet::const_iterator it = missing.begin(), itEnd = missing.end();
-         it != itEnd; ++it) {
-        checkDictionaries(*it);
-      }
-      if (missingTypes() == missing) {
-        break;
-      }
+      // For now just ignore it if the class appears twice,
+      // After some more testing we may decide to uncomment the following
+      // exception.
+      //
+      //else {
+      //  throw Exception(errors::UnimplementedFeature)
+      //    << "DataFormats/Common/src/DictionaryTools.cc in function public_base_classes.\n"
+      //    << "Encountered class that has a public base class that appears\n"
+      //    << "multiple times in its inheritance heirarchy.\n"
+      //    << "Please contact the EDM Framework group with details about\n"
+      //    << "this exception. It was our hope that this complicated situation\n"
+      //    << "would not occur. There are three possible solutions. 1. Change\n"
+      //    << "the class design so the public base class does not appear multiple\n"
+      //    << "times in the inheritance heirarchy. In many cases, this is a\n"
+      //    << "sign of bad design. 2. Modify the code that supports Views to\n"
+      //    << "ignore these base classes, but not supply support for creating a\n"
+      //    << "View of this base class. 3. Improve the View infrastructure to\n"
+      //    << "deal with this case. Class name of base class: " << baseType.Name() << "\n\n";
+      //}
     }
-    if (missingTypes().empty()) {
-      return;
-    }
-    throwMissingDictionariesException();
+    return returnValue;
   }
 
-  void public_base_classes(TypeWithDict const& typeID,
-                           std::vector<TypeWithDict>& baseTypes) {
-
-    TypeWithDict type(typeID.typeInfo());
-    if(type.isClass()) {
-
-      TypeBases bases(type);
-      for(auto const& basex : bases) {
-        BaseWithDict base(basex);
-        if(base.isPublic()) {
-
-          TypeWithDict baseRflxType = base.typeOf();
-          if(bool(baseRflxType)) {
-            TypeWithDict baseType(baseRflxType.typeInfo()); 
-
-            // Check to make sure this base appears only once in the
-            // inheritance heirarchy.
-            if(!search_all(baseTypes, baseType)) {
-              // Save the type and recursive look for its base types
-              baseTypes.push_back(baseType);
-              public_base_classes(baseType, baseTypes);
-            }
-            // For now just ignore it if the class appears twice,
-            // After some more testing we may decide to uncomment the following
-            // exception.
-            /*
-            else {
-              throw Exception(errors::UnimplementedFeature)
-                << "DataFormats/Common/src/DictionaryTools.cc in function public_base_classes.\n"
-                << "Encountered class that has a public base class that appears\n"
-                << "multiple times in its inheritance heirarchy.\n"
-                << "Please contact the EDM Framework group with details about\n"
-                << "this exception. It was our hope that this complicated situation\n"
-                << "would not occur. There are three possible solutions. 1. Change\n"
-                << "the class design so the public base class does not appear multiple\n"
-                << "times in the inheritance heirarchy. In many cases, this is a\n"
-                << "sign of bad design. 2. Modify the code that supports Views to\n"
-                << "ignore these base classes, but not supply support for creating a\n"
-                << "View of this base class. 3. Improve the View infrastructure to\n"
-                << "deal with this case. Class name of base class: " << baseType.Name() << "\n\n";
-            }
-            */
-          }
-        }
-      }
-    }
-  }
-}
+} // namespace edm

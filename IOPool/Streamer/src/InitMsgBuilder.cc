@@ -6,8 +6,6 @@
 #include <cstdint>
 #include <unistd.h>
 
-#define MAX_INITHOSTNAME_LEN 25
-
 InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                uint32 run, const Version& v,
                                const char* release_tag,
@@ -17,7 +15,7 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
                                const Strings& hlt_names,
                                const Strings& hlt_selections,
                                const Strings& l1_names,
-                               uint32 adler_chksum, const char* host_name):
+                               uint32 adler_chksum):
   buf_((uint8*)buf),size_(size)
 {
   InitHeader* h = (InitHeader*)buf_;
@@ -61,28 +59,6 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   convert(adler_chksum, pos);
   pos = pos + sizeof(uint32);
 
-  // put host name (Length and then Name) right after check sum
-  //uint32 host_name_len = strlen(host_name);
-  // actually make the host_name a fixed length as the init message header size appears in the
-  // Init message and only one goes to a file whereas events can come from any node
-  // We want the max length to be determined inside this Init Message Builder
-  uint32 host_name_len = MAX_INITHOSTNAME_LEN;
-  assert(host_name_len < 0x00ff);
-  //Put host_name_len
-  *pos++ = host_name_len;
-
-  //Put host_name
-  uint32 real_len = strlen(host_name);
-  if(real_len < host_name_len) {
-    char hostname_2use[MAX_INITHOSTNAME_LEN];
-    memset(hostname_2use,'\0',host_name_len);
-    memcpy(hostname_2use,host_name,real_len);
-    memcpy(pos,hostname_2use,host_name_len);
-  } else {
-    memcpy(pos,host_name,host_name_len);
-  }
-  pos += host_name_len;
-
   data_addr_ = pos + sizeof(char_uint32);
   setDataLength(0);
 
@@ -98,9 +74,9 @@ InitMsgBuilder::InitMsgBuilder(void* buf, uint32 size,
   const uint32 TEMP_BUFFER_SIZE = 256;
   char msgBuff[TEMP_BUFFER_SIZE];  // not large enough for a real event!
   uint32_t adler32 = 0;
-  //char host_name[255];
-  //int got_host = gethostname(host_name, 255);
-  //if(got_host != 0) strcpy(host_name, "noHostNameFoundOrTooLong");
+  char host_name[255];
+  int got_host = gethostname(host_name, 255);
+  if(got_host != 0) strcpy(host_name, "noHostNameFoundOrTooLong");
   EventMsgBuilder dummyMsg(&msgBuff[0], TEMP_BUFFER_SIZE, 0, 0, 0, 0, 0,
                            dummyL1Bits, (uint8*) &dummyHLTBits[0],
                            hlt_names.size(), adler32, host_name);

@@ -2,17 +2,53 @@
 #include "DataFormats/HcalDetId/interface/HcalSubdetector.h"
 #include "DataFormats/EcalDetId/interface/EcalSubdetector.h"
 #include "DataFormats/HcalDetId/interface/HcalDetId.h"
-
+ 
 CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
 
   tok_towers_ = consumes<CaloTowerCollection>(conf.getUntrackedParameter<edm::InputTag>("CaloTowerCollectionLabel"));
-
   // DQM ROOT output
+  
   outputFile_ = conf.getUntrackedParameter<std::string>("outputFile", "myfile.root");
 
   hcalselector_ = conf.getUntrackedParameter<std::string>("hcalselector", "all");
 
   useAllHistos_ = conf.getUntrackedParameter<bool>("useAllHistos", false);
+}
+
+void CaloTowersAnalyzer::dqmBeginRun(const edm::Run& run, const edm::EventSetup& es){
+  
+    edm::ESHandle<HcalDDDRecConstants> pHRNDC;
+    es.get<HcalRecNumberingRecord>().get( pHRNDC );
+    hcons = &(*pHRNDC);
+
+    //Get Phi segmentation from geometry, use the max phi number so that all iphi values are included.
+
+    int NphiMax = hcons->getNPhi(0);
+
+    NphiMax = (hcons->getNPhi(1) > NphiMax ? hcons->getNPhi(1) : NphiMax);
+    NphiMax = (hcons->getNPhi(2) > NphiMax ? hcons->getNPhi(2) : NphiMax);
+    NphiMax = (hcons->getNPhi(3) > NphiMax ? hcons->getNPhi(3) : NphiMax);
+
+    //Center the iphi bins on the integers
+    iphi_min_ = 0.5;
+    iphi_max_ = NphiMax + 0.5;
+    iphi_bins_ = (int) (iphi_max_ - iphi_min_);
+
+    //Retain classic behavior, all plots have same ieta range.
+
+    int iEtaMax = (hcons->getEtaRange(0).second > hcons->getEtaRange(1).second ? hcons->getEtaRange(0).second : hcons->getEtaRange(1).second);
+    iEtaMax = (iEtaMax > hcons->getEtaRange(2).second ? iEtaMax : hcons->getEtaRange(2).second);
+    iEtaMax = (iEtaMax > hcons->getEtaRange(3).second ? iEtaMax : hcons->getEtaRange(3).second);
+
+    //Give an empty bin around the subdet ieta range to make it clear that all ieta rings have been included
+    ieta_min_ = -iEtaMax - 1.5;
+    ieta_max_ = iEtaMax + 1.5;
+    ieta_bins_ = (int) (ieta_max_ - ieta_min_);
+
+}
+
+void CaloTowersAnalyzer::bookHistograms(DQMStore::IBooker & ibooker, edm::Run const & /* iRun*/, edm::EventSetup const & /* iSetup */)
+{  
 
   etaMin[0] = 0.;
   etaMax[0] = 1.4;
@@ -32,26 +68,21 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
     edm::LogInfo("OutputInfo") << " Hcal RecHit Task histograms will NOT be saved";
   }
   
-  dbe_ = 0;
-  // get hold of back-end interface
-  dbe_ = edm::Service<DQMStore>().operator->();
-   
-  // const char * sub = hcalselector_.c_str();
-
   Char_t histo[100];
 
-  if ( dbe_ ) {
-    dbe_->setCurrentFolder("CaloTowersD/CaloTowersTask");
-  }
+  
+  ibooker.setCurrentFolder("CaloTowersD/CaloTowersTask") ;
+  
+  
 
   //These two histos are not drawn by our macros, but they are used
   //in the EndJob for norms and such so I am leaving them alone for now
   //-------------------------------------------------------------------------------------------
   sprintf  (histo, "Ntowers_per_event_vs_ieta" );
-  Ntowers_vs_ieta = dbe_->book1D(histo, histo, 82, -41., 41.);
+  Ntowers_vs_ieta = ibooker.book1D(histo, histo, ieta_bins_, ieta_min_, ieta_max_);
   
   sprintf  (histo, "CaloTowersTask_map_Nentries" );
-  mapEnergy_N = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  mapEnergy_N = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
   //-------------------------------------------------------------------------------------------
 
   //These the single pion scan histos
@@ -59,246 +90,260 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
   //The first three are not used
   if (useAllHistos_){
     sprintf  (histo, "emean_vs_ieta_E" );
-    emean_vs_ieta_E = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+    emean_vs_ieta_E = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
     sprintf  (histo, "emean_vs_ieta_H" );
-    emean_vs_ieta_H = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+    emean_vs_ieta_H = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
     sprintf  (histo, "emean_vs_ieta_EH" );
-    emean_vs_ieta_EH = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+    emean_vs_ieta_EH = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   }
   //These are drawn
   sprintf  (histo, "emean_vs_ieta_E1" );
-  emean_vs_ieta_E1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+  emean_vs_ieta_E1 = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   sprintf  (histo, "emean_vs_ieta_H1" );
-  emean_vs_ieta_H1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+  emean_vs_ieta_H1 = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   sprintf  (histo, "emean_vs_ieta_EH1" );
-  emean_vs_ieta_EH1 = dbe_->bookProfile(histo, histo, 82, -41., 41., 2100, -100., 2000., "s");
+  emean_vs_ieta_EH1 = ibooker.bookProfile(histo, histo, ieta_bins_, ieta_min_, ieta_max_, 2100, -100., 2000.);
   //-------------------------------------------------------------------------------------------
 
   //Map energy histos are not drawn
   if (useAllHistos_){
     sprintf  (histo, "CaloTowersTask_map_energy_E" );
-    mapEnergy_E = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    mapEnergy_E = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
     sprintf  (histo, "CaloTowersTask_map_energy_H");
-    mapEnergy_H = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    mapEnergy_H = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
     sprintf  (histo, "CaloTowersTask_map_energy_EH" );
-    mapEnergy_EH = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+    mapEnergy_EH = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
   }
 
   //All ECAL cell histos are used
   // XXX: ECAL 0-25 [0-26, 26 bins]   HCAL 0-4 [0-5, 5 bins]
   sprintf  (histo, "number_of_bad_cells_Ecal_EB");
-  numBadCellsEcal_EB = dbe_->book1D(histo, histo, 26, 0, 26);
+  numBadCellsEcal_EB = ibooker.book1D(histo, histo, 26, 0, 26);
   sprintf  (histo, "number_of_bad_cells_Ecal_EE");
-  numBadCellsEcal_EE = dbe_->book1D(histo, histo, 26, 0, 26);
+  numBadCellsEcal_EE = ibooker.book1D(histo, histo, 26, 0, 26);
   sprintf  (histo, "number_of_recovered_cells_Ecal_EB");
-  numRcvCellsEcal_EB = dbe_->book1D(histo, histo, 26, 0, 26);
+  numRcvCellsEcal_EB = ibooker.book1D(histo, histo, 26, 0, 26);
   sprintf  (histo, "number_of_recovered_cells_Ecal_EE");
-  numRcvCellsEcal_EE = dbe_->book1D(histo, histo, 26, 0, 26);
+  numRcvCellsEcal_EE = ibooker.book1D(histo, histo, 26, 0, 26);
   sprintf  (histo, "number_of_problematic_cells_Ecal_EB");
-  numPrbCellsEcal_EB = dbe_->book1D(histo, histo, 26, 0, 26);
+  numPrbCellsEcal_EB = ibooker.book1D(histo, histo, 26, 0, 26);
   sprintf  (histo, "number_of_problematic_cells_Ecal_EE");
-  numPrbCellsEcal_EE = dbe_->book1D(histo, histo, 26, 0, 26); 
+  numPrbCellsEcal_EE = ibooker.book1D(histo, histo, 26, 0, 26); 
 
   //Occupancy vs. ieta is drawn, occupancy map is needed to draw it 
   sprintf  (histo, "CaloTowersTask_map_occupancy" );
-  occupancy_map = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+  occupancy_map = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
 
   sprintf  (histo, "CaloTowersTask_occupancy_vs_ieta" );
-  occupancy_vs_ieta = dbe_->book1D(histo, histo, 82, -41, 41);
+  occupancy_vs_ieta = ibooker.book1D(histo, histo, ieta_bins_, -41, 41);
   
   if( isub == 1 || isub == 0) {
     //All cell histos are used
     sprintf  (histo, "number_of_bad_cells_Hcal_HB");
-    numBadCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5);
+    numBadCellsHcal_HB = ibooker.book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HB");
-    numRcvCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5);
+    numRcvCellsHcal_HB = ibooker.book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_problematic_cells_Hcal_HB");
-    numPrbCellsHcal_HB = dbe_->book1D(histo, histo, 5, 0, 5); 
+    numPrbCellsHcal_HB = ibooker.book1D(histo, histo, 5, 0, 5); 
     
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HB" ) ;
-    meEnergyHcal_HB    = dbe_->book1D(histo, histo, 4100, -200, 8000);  
+    meEnergyHcal_HB    = ibooker.book1D(histo, histo, 4100, -200, 8000);  
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HB" ) ;
-    meEnergyEcal_HB    = dbe_->book1D(histo, histo, 3100, -200, 6000); 
+    meEnergyEcal_HB    = ibooker.book1D(histo, histo, 3100, -200, 6000); 
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HB" ) ;
-    meNumFiredTowers_HB = dbe_->book1D(histo, histo, 1000, 0, 2000); 
+    meNumFiredTowers_HB = ibooker.book1D(histo, histo, 1000, 0, 2000); 
 
     sprintf  (histo, "CaloTowersTask_MET_HB" ) ;
-    MET_HB = dbe_->book1D(histo, histo, 3000, 0. , 3000. ) ;
+    MET_HB = ibooker.book1D(histo, histo, 3000, 0. , 3000. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HB" ) ;
-    SET_HB = dbe_->book1D(histo, histo, 8000, 0. , 8000. ) ;
+    SET_HB = ibooker.book1D(histo, histo, 8000, 0. , 8000. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Timing histos and profiles -- all six are necessary
     //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HB" ) ;
-    emTiming_HB = dbe_->book1D(histo, histo, 110, -120., 100. ) ;
+    emTiming_HB = ibooker.book1D(histo, histo, 110, -120., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Timing_HB" ) ;
-    hadTiming_HB = dbe_->book1D(histo, histo, 70, -48., 92. ) ;
+    hadTiming_HB = ibooker.book1D(histo, histo, 70, -48., 92. ) ;
 
     //Energy-Timing histos are divided into low, medium and high to reduce memory usage
     //EM
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_Low_HB" ) ;
-    emEnergyTiming_Low_HB = dbe_->book2D(histo, histo, 40, 0. , 40., 110, -120., 100.  ) ;
+    emEnergyTiming_Low_HB = ibooker.book2D(histo, histo, 40, 0. , 40., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HB" ) ;
-    emEnergyTiming_HB = dbe_->book2D(histo, histo, 200, 0. , 400., 110, -120., 100.  ) ;
+    emEnergyTiming_HB = ibooker.book2D(histo, histo, 200, 0. , 400., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_High_HB" ) ;
-    emEnergyTiming_High_HB = dbe_->book2D(histo, histo, 200, 0. , 3000., 110, -120., 100.  ) ;
+    emEnergyTiming_High_HB = ibooker.book2D(histo, histo, 200, 0. , 3000., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_Low_HB" ) ;
-    emEnergyTiming_profile_Low_HB = dbe_->bookProfile(histo, histo, 40, 0. , 40., 110, -120., 100.  ) ;
+    emEnergyTiming_profile_Low_HB = ibooker.bookProfile(histo, histo, 40, 0. , 40., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HB" ) ;
-    emEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 200, 0. , 400., 110, -120., 100.  ) ;
+    emEnergyTiming_profile_HB = ibooker.bookProfile(histo, histo, 200, 0. , 400., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_High_HB" ) ;
-    emEnergyTiming_profile_High_HB = dbe_->bookProfile(histo, histo, 200, 0. , 3000., 110, -120., 100.  ) ;
+    emEnergyTiming_profile_High_HB = ibooker.bookProfile(histo, histo, 200, 0. , 3000., 110, -120., 100.  ) ;
 
     //HAD
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_Low_HB" ) ;
-    hadEnergyTiming_Low_HB = dbe_->book2D(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
+    hadEnergyTiming_Low_HB = ibooker.book2D(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HB" ) ;
-    hadEnergyTiming_HB = dbe_->book2D(histo, histo, 100, 0. , 200., 70, -48., 92. ) ;
+    hadEnergyTiming_HB = ibooker.book2D(histo, histo, 100, 0. , 200., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_High_HB" ) ;
-    hadEnergyTiming_High_HB = dbe_->book2D(histo, histo, 300, 0. , 3000., 70, -48., 92. ) ;
+    hadEnergyTiming_High_HB = ibooker.book2D(histo, histo, 300, 0. , 3000., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_Low_HB" ) ;
-    hadEnergyTiming_profile_Low_HB = dbe_->bookProfile(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
+    hadEnergyTiming_profile_Low_HB = ibooker.bookProfile(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HB" ) ;
-    hadEnergyTiming_profile_HB = dbe_->bookProfile(histo, histo, 100, 0. , 200., 70, -48., 92. ) ;
+    hadEnergyTiming_profile_HB = ibooker.bookProfile(histo, histo, 100, 0. , 200., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_High_HB" ) ;
-    hadEnergyTiming_profile_High_HB = dbe_->bookProfile(histo, histo, 300, 0. , 3000., 70, -48., 92. ) ;
+    hadEnergyTiming_profile_High_HB = ibooker.bookProfile(histo, histo, 300, 0. , 3000., 70, -48., 92. ) ;
+    //-------------------------------------------------------------------------------------------
+
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HBP" ) ;
+    meIphiHcalTower_HBP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HBM" ) ;
+    meIphiHcalTower_HBM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+        
     //-------------------------------------------------------------------------------------------
 
     //Everything else is not drawn
     if (useAllHistos_){
       sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HB") ;
-      meEnergyHcalvsEcal_HB    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
+      meEnergyHcalvsEcal_HB    = ibooker.book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
       
       sprintf (histo, "CaloTowersTask_energy_OUTER_HB" ) ;
-      meEnergyHO_HB    = dbe_->book1D(histo, histo, 1640, -200, 8000);   
+      meEnergyHO_HB    = ibooker.book1D(histo, histo, 1640, -200, 8000);   
       
       sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HB" ) ;
-      meEnergyEcalTower_HB = dbe_->book1D(histo, histo, 440, -200, 2000); 
+      meEnergyEcalTower_HB = ibooker.book1D(histo, histo, 440, -200, 2000); 
       
       sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HB" ) ;
-      meEnergyHcalTower_HB = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
+      meEnergyHcalTower_HB = ibooker.book1D(histo, histo, 440 , -200 , 2000); 
       
       sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HB" ) ;
-      meTotEnergy_HB = dbe_->book1D(histo, histo,400, 0., 2000.) ;
+      meTotEnergy_HB = ibooker.book1D(histo, histo,400, 0., 2000.) ;
       
       sprintf  (histo, "CaloTowersTask_map_energy_HB" );
-      mapEnergy_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergy_HB = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HB");
-      mapEnergyHcal_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyHcal_HB = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HB" );
-      mapEnergyEcal_HB = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyEcal_HB = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       
       sprintf  (histo, "CaloTowersTask_phi_MET_HB" ) ;
-      phiMET_HB = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+      phiMET_HB = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
     }
   } 
   
   if( isub == 2 || isub == 0) {
     //All cell histos are used
     sprintf  (histo, "number_of_bad_cells_Hcal_HE");
-    numBadCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5);
+    numBadCellsHcal_HE = ibooker.book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HE");
-    numRcvCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5);
+    numRcvCellsHcal_HE = ibooker.book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_problematic_cells_Hcal_HE");
-    numPrbCellsHcal_HE = dbe_->book1D(histo, histo, 5, 0, 5); 
+    numPrbCellsHcal_HE = ibooker.book1D(histo, histo, 5, 0, 5); 
 
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HE" ) ;
-    meEnergyHcal_HE    = dbe_->book1D(histo, histo, 440, -200, 2000);  
+    meEnergyHcal_HE    = ibooker.book1D(histo, histo, 1240, -200, 6000);
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HE" ) ;
-    meEnergyEcal_HE    = dbe_->book1D(histo, histo, 440, -200, 2000); 
+    meEnergyEcal_HE    = ibooker.book1D(histo, histo, 1240, -200, 6000);
     
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HE" ) ;
-    meNumFiredTowers_HE = dbe_->book1D(histo, histo, 1000, 0, 2000); 
+    meNumFiredTowers_HE = ibooker.book1D(histo, histo, 1000, 0, 2000); 
 
     sprintf  (histo, "CaloTowersTask_MET_HE" ) ;
-    MET_HE = dbe_->book1D(histo, histo, 1000, 0. , 1000. ) ;
+    MET_HE = ibooker.book1D(histo, histo, 1000, 0. , 1000. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HE" ) ;
-    SET_HE = dbe_->book1D(histo, histo, 2000, 0. , 2000. ) ;
+    SET_HE = ibooker.book1D(histo, histo, 2000, 0. , 2000. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Timing histos and profiles -- all six are necessary
     //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HE" ) ;
-    emTiming_HE = dbe_->book1D(histo, histo, 110, -120., 100. ) ;
+    emTiming_HE = ibooker.book1D(histo, histo, 110, -120., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Timing_HE" ) ;
-    hadTiming_HE = dbe_->book1D(histo, histo, 70, -48., 92. ) ;
+    hadTiming_HE = ibooker.book1D(histo, histo, 70, -48., 92. ) ;
 
     //Energy-Timing histos are divided into low and normal to reduce memory usage
     //EM
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_Low_HE" ) ;
-    emEnergyTiming_Low_HE = dbe_->book2D(histo, histo, 160, 0. , 160., 110, -120., 100.  ) ;
+    emEnergyTiming_Low_HE = ibooker.book2D(histo, histo, 160, 0. , 160., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HE" ) ;
-    emEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 800., 110, -120., 100.  ) ;
+    emEnergyTiming_HE = ibooker.book2D(histo, histo, 200, 0. , 800., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_Low_HE" ) ;
-    emEnergyTiming_profile_Low_HE = dbe_->bookProfile(histo, histo, 160, 0. , 160., 110, -120., 100.  ) ;
+    emEnergyTiming_profile_Low_HE = ibooker.bookProfile(histo, histo, 160, 0. , 160., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HE" ) ;
-    emEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 800., 110, -120., 100.  ) ;
+    emEnergyTiming_profile_HE = ibooker.bookProfile(histo, histo, 200, 0. , 800., 110, -120., 100.  ) ;
 
     //HAD
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_Low_HE" ) ;
-    hadEnergyTiming_Low_HE = dbe_->book2D(histo, histo, 160, 0. , 160., 70, -48., 92. ) ;
+    hadEnergyTiming_Low_HE = ibooker.book2D(histo, histo, 160, 0. , 160., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HE" ) ;
-    hadEnergyTiming_HE = dbe_->book2D(histo, histo, 200, 0. , 800., 70, -48., 92. ) ;
+    hadEnergyTiming_HE = ibooker.book2D(histo, histo, 200, 0. , 800., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_Low_HE" ) ;
-    hadEnergyTiming_profile_Low_HE = dbe_->bookProfile(histo, histo, 160, 0. , 160., 70, -48., 92. ) ;
+    hadEnergyTiming_profile_Low_HE = ibooker.bookProfile(histo, histo, 160, 0. , 160., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HE" ) ;
-    hadEnergyTiming_profile_HE = dbe_->bookProfile(histo, histo, 200, 0. , 800., 70, -48., 92. ) ;
+    hadEnergyTiming_profile_HE = ibooker.bookProfile(histo, histo, 200, 0. , 800., 70, -48., 92. ) ;
+    //-------------------------------------------------------------------------------------------
+
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HEP" ) ;
+    meIphiHcalTower_HEP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+    sprintf (histo, "CaloTowersTask_Iphi_HCAL_component_of_tower_HEM" ) ;
+    meIphiHcalTower_HEM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+
     //-------------------------------------------------------------------------------------------
 
     //Everything else is not drawn
     if (useAllHistos_){
       sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HE") ;
-      meEnergyHcalvsEcal_HE    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
+      meEnergyHcalvsEcal_HE    = ibooker.book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
       
       sprintf (histo, "CaloTowersTask_energy_OUTER_HE" ) ;
-      meEnergyHO_HE    = dbe_->book1D(histo, histo, 440, -200, 2000);   
+      meEnergyHO_HE    = ibooker.book1D(histo, histo, 440, -200, 2000);   
       
       sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HE" ) ;
-      meEnergyEcalTower_HE = dbe_->book1D(histo, histo, 1100, -200, 2000); 
+      meEnergyEcalTower_HE = ibooker.book1D(histo, histo, 1100, -200, 2000); 
       
       sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HE" ) ;
-      meEnergyHcalTower_HE = dbe_->book1D(histo, histo, 1100 , -200 , 2000); 
+      meEnergyHcalTower_HE = ibooker.book1D(histo, histo, 1100 , -200 , 2000); 
       
       sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HE" ) ;
-      meTotEnergy_HE = dbe_->book1D(histo, histo,400, 0., 2000.) ;
+      meTotEnergy_HE = ibooker.book1D(histo, histo,400, 0., 2000.) ;
       
       sprintf  (histo, "CaloTowersTask_map_energy_HE" );
-      mapEnergy_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergy_HE = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HE");
-      mapEnergyHcal_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyHcal_HE = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HE" );
-      mapEnergyEcal_HE = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyEcal_HE = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       
       sprintf  (histo, "CaloTowersTask_phi_MET_HE" ) ;
-      phiMET_HE = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+      phiMET_HE = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
     }
   }
 
@@ -306,101 +351,103 @@ CaloTowersAnalyzer::CaloTowersAnalyzer(edm::ParameterSet const& conf){
   if( isub == 3 || isub == 0) {
     //All cell histos are used
     sprintf  (histo, "number_of_bad_cells_Hcal_HF");
-    numBadCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5);
+    numBadCellsHcal_HF = ibooker.book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_recovered_cells_Hcal_HF");
-    numRcvCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5);
+    numRcvCellsHcal_HF = ibooker.book1D(histo, histo, 5, 0, 5);
     sprintf  (histo, "number_of_problematic_cells_Hcal_HF");
-    numPrbCellsHcal_HF = dbe_->book1D(histo, histo, 5, 0, 5); 
+    numPrbCellsHcal_HF = ibooker.book1D(histo, histo, 5, 0, 5); 
 
     //These are the five oldest CaloTower histos used: NTowers, E in HCAL/ECAL, MET and SET
     //-------------------------------------------------------------------------------------------
     sprintf (histo, "CaloTowersTask_energy_HCAL_HF" ) ;
-    meEnergyHcal_HF    = dbe_->book1D(histo, histo, 440, -200, 2000);  
+    meEnergyHcal_HF    = ibooker.book1D(histo, histo, 4040, -200, 20000);
     
     sprintf (histo, "CaloTowersTask_energy_ECAL_HF" ) ;
-    meEnergyEcal_HF    = dbe_->book1D(histo, histo, 440, -200, 2000); 
+    meEnergyEcal_HF    = ibooker.book1D(histo, histo, 2440, -200, 12000);
 
     sprintf (histo, "CaloTowersTask_number_of_fired_towers_HF" ) ;
-    meNumFiredTowers_HF = dbe_->book1D(histo, histo, 1000, 0, 2000); 
+    meNumFiredTowers_HF = ibooker.book1D(histo, histo, 1000, 0, 2000); 
 
     sprintf  (histo, "CaloTowersTask_MET_HF" ) ;
-    MET_HF = dbe_->book1D(histo, histo, 500, 0. , 500. ) ;
+    MET_HF = ibooker.book1D(histo, histo, 500, 0. , 500. ) ;
     
     sprintf  (histo, "CaloTowersTask_SET_HF" ) ;
-    SET_HF = dbe_->book1D(histo, histo, 200, 0. , 200. ) ;
+    SET_HF = ibooker.book1D(histo, histo, 2000, 0. , 2000. ) ;
     //-------------------------------------------------------------------------------------------
 
     //Timing histos and profiles -- all six are necessary
     //-------------------------------------------------------------------------------------------
     sprintf  (histo, "CaloTowersTask_EM_Timing_HF" ) ;
-    emTiming_HF = dbe_->book1D(histo, histo, 110, -120., 100. ) ;
+    emTiming_HF = ibooker.book1D(histo, histo, 110, -120., 100. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Timing_HF" ) ;
-    hadTiming_HF = dbe_->book1D(histo, histo, 70, -48., 92. ) ;
+    hadTiming_HF = ibooker.book1D(histo, histo, 70, -48., 92. ) ;
 
     //EM
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_HF" ) ;
-    emEnergyTiming_HF = dbe_->book2D(histo, histo, 150, 0. , 300., 110, -120., 100.  ) ;
+    emEnergyTiming_HF = ibooker.book2D(histo, histo, 150, 0. , 300., 110, -120., 100.  ) ;
 
     sprintf  (histo, "CaloTowersTask_EM_Energy_Timing_profile_HF" ) ;
-    emEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 150, 0. , 300., 110, -120., 100.  ) ;
+    emEnergyTiming_profile_HF = ibooker.bookProfile(histo, histo, 150, 0. , 300., 110, -120., 100.  ) ;
 
     //HAD (requires two different sets of histograms to lower RAM usage)
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_Low_HF" ) ;
-    hadEnergyTiming_Low_HF = dbe_->book2D(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
+    hadEnergyTiming_Low_HF = ibooker.book2D(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_HF" ) ;
-    hadEnergyTiming_HF = dbe_->book2D(histo, histo, 200, 0. , 600., 70, -48., 92. ) ;
+    hadEnergyTiming_HF = ibooker.book2D(histo, histo, 200, 0. , 600., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_Low_HF" ) ;
-    hadEnergyTiming_profile_Low_HF = dbe_->bookProfile(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
+    hadEnergyTiming_profile_Low_HF = ibooker.bookProfile(histo, histo, 40, 0. , 40., 70, -48., 92. ) ;
 
     sprintf  (histo, "CaloTowersTask_HAD_Energy_Timing_profile_HF" ) ;
-    hadEnergyTiming_profile_HF = dbe_->bookProfile(histo, histo, 200, 0. , 600., 70, -48., 92. ) ;
+    hadEnergyTiming_profile_HF = ibooker.bookProfile(histo, histo, 200, 0. , 600., 70, -48., 92. ) ;
+    //-------------------------------------------------------------------------------------------
+
+    sprintf (histo, "CaloTowersTask_Iphi_tower_HFP" ) ;
+    meIphiCaloTower_HFP = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+    sprintf (histo, "CaloTowersTask_Iphi_tower_HFM" ) ;
+    meIphiCaloTower_HFM = ibooker.book1D(histo, histo, iphi_bins_, iphi_min_, iphi_max_); 
+
     //-------------------------------------------------------------------------------------------
 
     //Everything else is not drawn
     if (useAllHistos_){
       sprintf (histo, "CaloTowersTask_sum_of_energy_HCAL_vs_ECAL_HF") ;
-      meEnergyHcalvsEcal_HF    = dbe_->book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
+      meEnergyHcalvsEcal_HF    = ibooker.book2D(histo, histo, 500, 0., 500., 500, 0., 500.);
       
       sprintf (histo, "CaloTowersTask_energy_OUTER_HF" ) ;
-      meEnergyHO_HF    = dbe_->book1D(histo, histo, 440, -200, 2000);   
+      meEnergyHO_HF    = ibooker.book1D(histo, histo, 440, -200, 2000);   
       
       sprintf (histo, "CaloTowersTask_energy_of_ECAL_component_of_tower_HF" ) ;
-      meEnergyEcalTower_HF = dbe_->book1D(histo, histo, 440, -200, 2000); 
+      meEnergyEcalTower_HF = ibooker.book1D(histo, histo, 440, -200, 2000); 
       
       sprintf (histo, "CaloTowersTask_energy_of_HCAL_component_of_tower_HF" ) ;
-      meEnergyHcalTower_HF = dbe_->book1D(histo, histo, 440 , -200 , 2000); 
+      meEnergyHcalTower_HF = ibooker.book1D(histo, histo, 440 , -200 , 2000); 
       
       sprintf  (histo, "CaloTowersTask_energy_HcalPlusEcalPlusHO_HF" ) ;
-      meTotEnergy_HF = dbe_->book1D(histo, histo, 400, 0., 2000.) ;
+      meTotEnergy_HF = ibooker.book1D(histo, histo, 400, 0., 2000.) ;
       
       sprintf  (histo, "CaloTowersTask_map_energy_HF" );
-      mapEnergy_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergy_HF = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_HCAL_HF");
-      mapEnergyHcal_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyHcal_HF = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       sprintf  (histo, "CaloTowersTask_map_energy_ECAL_HF" );
-      mapEnergyEcal_HF = dbe_->book2D(histo, histo, 82, -41., 41., 72, 0., 72.);
+      mapEnergyEcal_HF = ibooker.book2D(histo, histo, ieta_bins_, ieta_min_, ieta_max_, iphi_bins_, iphi_min_, iphi_max_);
       
       sprintf  (histo, "CaloTowersTask_phi_MET_HF" ) ;
-      phiMET_HF = dbe_->book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
+      phiMET_HF = ibooker.book1D(histo, histo, 72, -3.1415926535898, 3.1415926535898 ) ;
     }
   }
 
 }
 
 
-void CaloTowersAnalyzer::beginRun() {}
-
-void CaloTowersAnalyzer::endRun() {}
-
 CaloTowersAnalyzer::~CaloTowersAnalyzer() {
   
 }
 
 void CaloTowersAnalyzer::endJob() {
-  if ( outputFile_.size() != 0 && dbe_ ) dbe_->save(outputFile_);
 }
 
 void CaloTowersAnalyzer::beginJob(){ nevent = 0; }
@@ -423,7 +470,9 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
   //double Hcone  = 0.;
   //double Ee1    = 0.;
   //double Eh1    = 0.;
-
+  double ieta_MC = 9999;
+  double iphi_MC = 9999;
+ 
   // HB   
   double sumEnergyHcal_HB = 0.;
   double sumEnergyEcal_HB = 0.;
@@ -478,7 +527,6 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
     // cell properties    
     CaloTowerDetId idT = cal->id();
     int ieta = idT.ieta();
-    if(ieta > 0) ieta -= 1;
     int iphi = idT.iphi();
 
     // ecal:  0 EcalBarrel  1 EcalEndcap
@@ -511,8 +559,7 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
     
     //Ntowers is used in EndJob, occupancy_map is used for occupancy vs ieta
     Ntowers_vs_ieta -> Fill(double(ieta),1.);
-    occupancy_map -> Fill(double(ieta),double(iphi));
-    
+    occupancy_map -> Fill(double(ieta),double(iphi)); 
 
     if((isub == 0 || isub == 1) 
        && (fabs(etaT) <  etaMax[0] && fabs(etaT) >= etaMin[0] )) {
@@ -530,13 +577,18 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
       }
       //      std::cout << " e_ecal = " << eE << std::endl;
       
+      if (eH>0.){  // iphi of HCAL component of calotower
+      if (ieta>0) meIphiHcalTower_HBP -> Fill(double(iphi)); 
+      else        meIphiHcalTower_HBM -> Fill(double(iphi)); 
+      }
+
       //  simple sums
       sumEnergyHcal_HB += eH;
       sumEnergyEcal_HB += eE;
       sumEnergyHO_HB   += eHO;
       
       numFiredTowers_HB++;
-      
+
       //Not used
       if (useAllHistos_){
 	meEnergyEcalTower_HB->Fill(eE);
@@ -584,6 +636,11 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
       }
       //      std::cout << " e_ecal = " << eE << std::endl;
       
+      if (eH>0.){  // iphi of HCAL component of calotower
+      if (ieta>0) meIphiHcalTower_HEP -> Fill(double(iphi)); 
+      else        meIphiHcalTower_HEM -> Fill(double(iphi)); 
+      }
+
       //  simple sums
       sumEnergyHcal_HE += eH;
       sumEnergyEcal_HE += eE;
@@ -632,14 +689,17 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
 	mapEnergyEcal_HF -> Fill(double(ieta), double(iphi), eE); 
       }
       //      std::cout << " e_ecal = " << eE << std::endl;
-      
+
+      if (ieta>0) meIphiCaloTower_HFP -> Fill(double(iphi)); 
+      else        meIphiCaloTower_HFM -> Fill(double(iphi)); 
+
       //  simple sums
       sumEnergyHcal_HF += eH;
       sumEnergyEcal_HF += eE;
       sumEnergyHO_HF   += eHO;
       
       numFiredTowers_HF++;
-      
+     
       //Not used
       if (useAllHistos_){
 	meEnergyEcalTower_HF->Fill(eE);
@@ -668,6 +728,8 @@ void CaloTowersAnalyzer::analyze(edm::Event const& event, edm::EventSetup const&
   } // end of Towers cycle 
 
   //These are the six single pion histos; only the second set is used
+
+  mapEnergy_N  -> Fill(double(ieta_MC), double(iphi_MC), 1.); 
 
   if(isub == 0 || isub == 1) {
     met    = sqrt(metx_HB*metx_HB + mety_HB*mety_HB);

@@ -13,7 +13,7 @@
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
-#include "DataFormats/CaloTowers/interface/CaloTowerFwd.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerDefs.h"
 
 namespace reco {
 
@@ -57,6 +57,12 @@ namespace reco {
     enum TrackType { noTrackType, recoTrackType, gsfTrackType };
     ///track type
     virtual TrackType bestTrackType() const;
+    /// uncertainty on dz 
+    virtual float dzError() const; 
+    /// uncertainty on dxy
+    virtual float dxyError() const; 
+
+
   protected:
     /// check if two components overlap
     template<typename R>

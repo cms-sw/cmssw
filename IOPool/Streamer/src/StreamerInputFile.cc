@@ -20,7 +20,7 @@ namespace edm {
   }
 
   StreamerInputFile::StreamerInputFile(std::string const& name,
-                                       boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID) :
     startMsg_(),
     currentEvMsg_(),
     headerBuf_(1000*1000),
@@ -41,7 +41,7 @@ namespace edm {
   }
 
   StreamerInputFile::StreamerInputFile(std::vector<std::string> const& names,
-                                       boost::shared_ptr<EventSkipperByID> eventSkipperByID) :
+                                       std::shared_ptr<EventSkipperByID> eventSkipperByID) :
     startMsg_(),
     currentEvMsg_(),
     headerBuf_(1000*1000),
@@ -74,8 +74,8 @@ namespace edm {
     IOOffset size = -1;
     if(StorageFactory::get()->check(name.c_str(), &size)) {
       try {
-        storage_.reset(StorageFactory::get()->open(name.c_str(),
-                                                   IOFlags::OpenRead));
+        storage_ =StorageFactory::get()->open(name.c_str(),
+                                                   IOFlags::OpenRead);
       }
       catch(cms::Exception& e) {
         Exception ex(errors::FileOpenError, "", e);
@@ -162,7 +162,7 @@ namespace edm {
         << "Failed reading streamer file, init header size from data too small\n";
     }
 
-    startMsg_.reset(new InitMsgView(&headerBuf_[0]));
+    startMsg_ = std::make_shared<InitMsgView>(&headerBuf_[0]); // propagate_const<T> has no reset() function
   }
 
   bool StreamerInputFile::next() {
@@ -229,6 +229,11 @@ namespace edm {
 
       IOSize nWant = sizeof(EventHeader);
       IOSize nGot = readBytes(&eventBuf_[0], nWant);
+      if(nGot == 0) {
+        // no more data available
+        endOfFile_ = true;
+        return 0;
+      }
       if(nGot != nWant) {
         throw edm::Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
           << "Failed reading streamer file, first read in readEventMessage\n"
@@ -237,13 +242,7 @@ namespace edm {
       HeaderView head(&eventBuf_[0]);
       uint32 code = head.code();
 
-      // When we get the EOF record we know we have read all events
-      // normally and are at the end, return 0 to indicate this
-      if(code == Header::EOFRECORD) {
-        endOfFile_ = true;
-        return 0;
-      }
-      // If it is not an event nor EOFRECORD then something is wrong.
+      // If it is not an event then something is wrong.
       if(code != Header::EVENT) {
         throw Exception(errors::FileReadError, "StreamerInputFile::readEventMessage")
           << "Failed reading streamer file, unknown code in event header\n"
@@ -257,7 +256,7 @@ namespace edm {
       eventRead = true;
       if(eventSkipperByID_) {
         EventHeader *evh = (EventHeader *)(&eventBuf_[0]);
-        if(eventSkipperByID_->skipIt(convert32(evh->run_), convert32(evh->lumi_), convert32(evh->event_))) {
+        if(eventSkipperByID_->skipIt(convert32(evh->run_), convert32(evh->lumi_), convert64(evh->event_))) {
           eventRead = false;
         }
       }
@@ -279,33 +278,8 @@ namespace edm {
         }
       }
     }
-    currentEvMsg_.reset(new EventMsgView((void*)&eventBuf_[0]));
+    currentEvMsg_ = std::make_shared<EventMsgView>((void*)&eventBuf_[0]); // propagate_const<T> has no reset() function
     return 1;
-  }
-
-  bool StreamerInputFile::eofRecordMessage(uint32 const& hlt_path_cnt, EOFRecordView*& view) {
-    if(!endOfFile_) return false;
-
-    HeaderView head(&eventBuf_[0]);
-    uint32 code = head.code();
-    
-    if(code != Header::EOFRECORD) {
-      return false;
-    }
-    
-    uint32 eofSize = head.size();
-    IOSize nWant = eofSize - sizeof(EventHeader);
-    if(nWant>0) {
-      IOSize nGot = readBytes(&eventBuf_[sizeof(EventHeader)], nWant);
-      if(nGot != nWant) {
-          throw Exception(errors::FileReadError, "StreamerInputFile::eofRecordMessage")
-            << "Failed reading streamer file, second read in eofRecordMessage\n"
-            << "Requested " << nWant << " bytes, read function returned " << nGot << " bytes\n";
-      }
-    }
-
-    view = new EOFRecordView(&eventBuf_[0], hlt_path_cnt);
-    return true;
   }
 
   void StreamerInputFile::logFileAction(char const* msg) {

@@ -34,7 +34,6 @@ private:
   int nEtaPartitions_;
 };
 
-
 GEMFakeEvent::GEMFakeEvent(const edm::ParameterSet& config) 
 {
   cout <<"Initialize the Event Dump"<<endl;
@@ -52,7 +51,7 @@ GEMFakeEvent::produce(edm::Event & ev, const edm::EventSetup& es)
   edm::ESHandle<GEMGeometry> gemGeom;
   es.get<MuonGeometryRecord>().get(gemGeom);
 
-  auto_ptr<GEMDigiCollection> pDigis(new GEMDigiCollection());
+  unique_ptr<GEMDigiCollection> pDigis(new GEMDigiCollection());
 
   for (int e = -1; e <= 1; e += 2)
   {
@@ -79,7 +78,7 @@ GEMFakeEvent::produce(edm::Event & ev, const edm::EventSetup& es)
   }
 
   cout<<"Will put GEMDigiCollection into event..."<<endl;
-  ev.put(pDigis);
+  ev.put(std::move(pDigis));
   cout<<"Done with event!"<<endl;
 }
 

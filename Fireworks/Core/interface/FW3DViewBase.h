@@ -23,6 +23,7 @@
 // user include files
 #include "Rtypes.h"
 #include "Fireworks/Core/interface/FWEveView.h"
+#include "Fireworks/Core/interface/fwLog.h"
 #include "Fireworks/Core/interface/FWLongParameter.h"
 #include "Fireworks/Core/interface/FWBoolParameter.h"
 // forward declarations
@@ -34,13 +35,14 @@ class FW3DViewGeometry;
 class FWColorManager;
 class TGLClip;
 class TEveLine;
+class TEveBoxSet;
 
 class FW3DViewDistanceMeasureTool;
 
 class FW3DViewBase : public FWEveView
 {
 public:
-   FW3DViewBase(TEveWindowSlot*, FWViewType::EType);
+   FW3DViewBase(TEveWindowSlot*, FWViewType::EType, unsigned int version = 8);
    virtual ~FW3DViewBase();
 
    // ---------- const member functions ---------------------
@@ -61,6 +63,10 @@ public:
    virtual bool requestGLHandlerPick() const;
    void setCurrentDMTVertex(double x, double y, double z);
 
+   void showEcalBarrel(bool);
+
+   void setClip(float eta, float phi);
+
 private:
    FW3DViewBase(const FW3DViewBase&);    // stop default
 
@@ -78,17 +84,30 @@ private:
    FWBoolParameter m_showTrackerBarrel;
    FWBoolParameter m_showTrackerEndcap;
 
+   TEveBoxSet* m_ecalBarrel;
+   FWBoolParameter m_showEcalBarrel;
+
    FWEnumParameter m_rnrStyle;
-   FWBoolParameter m_clipParam;
    FWBoolParameter m_selectable;
 
    FWEnumParameter m_cameraType;
+
+   FWBoolParameter m_clipEnable;
+   FWDoubleParameter m_clipTheta;
+   FWDoubleParameter m_clipPhi;
+   FWDoubleParameter m_clipDelta1;
+   FWDoubleParameter m_clipDelta2;
+   FWLongParameter   m_clipAppexOffset;
+
 
    FW3DViewDistanceMeasureTool* m_DMT;
    TEveLine* m_DMTline;
 
    void selectable( bool );
-   void sceneClip( bool );
+
+   void enableSceneClip( bool );
+   void updateClipPlanes(bool resetCamera);
+
    void rnrStyle(long);
    void showMuonBarrel( long );
    void setCameraType(long);

@@ -9,6 +9,7 @@
 #include "DataFormats/TrackCandidate/interface/TrackCandidate.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h" 
 #include "TrackingTools/PatternTools/interface/Trajectory.h"
+#include "TrackingTools/PatternTools/interface/TrajAnnealing.h"
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h" 
 #include "DataFormats/GeometrySurface/interface/Surface.h" 
 #include "DataFormats/CLHEP/interface/Migration.h" 
@@ -25,11 +26,14 @@
 #include "TrackingTools/PatternTools/interface/TrackConstraintAssociation.h"
 #include <vector>
 
-namespace {
+namespace TrackingTools_PatternTools {
   struct dictionary {
     std::vector<Trajectory> kk;
     edm::Wrapper<std::vector<Trajectory> > trajCollWrapper;
-    
+   
+    std::vector<TrajAnnealing> ta;
+    edm::Wrapper<std::vector<TrajAnnealing> > trajAnnCollaction;
+  
     TrajTrackAssociationCollection ttam;
     edm::Wrapper<TrajTrackAssociationCollection> wttam;
     TrajTrackAssociation vttam;

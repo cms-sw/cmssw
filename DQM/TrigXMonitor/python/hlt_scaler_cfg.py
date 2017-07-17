@@ -9,7 +9,7 @@ process.load("DQMServices.Core.DQM_cfg")
 
 process.load("CondCore.DBCommon.CondDBSetup_cfi")
 
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 process.load("Geometry.MuonCommonData.muonIdealGeometryXML_cfi")
 
@@ -70,10 +70,6 @@ process.load("DQM.TrigXMonitor.run58738")
 #     input = cms.untracked.int32(-1)
 # )
 process.ModuleWebRegistry = cms.Service("ModuleWebRegistry")
-
-process.LockService = cms.Service("LockService",
-    labels = cms.untracked.vstring('source')
-)
 
 process.MessageLogger = cms.Service("MessageLogger",
     detailedInfo = cms.untracked.PSet(

@@ -1,4 +1,4 @@
-<flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -ftemplate-depth=600 -O0"/>
+<flags CXXFLAGS="-Wno-sign-compare -Wno-unused-variable -Os"/>
 <use   name="FWCore/Utilities"/>
 <use   name="FWCore/PluginManager"/>
 <use   name="FWCore/MessageLogger"/>
@@ -6,11 +6,6 @@
 <use   name="FWCore/Concurrency"/>
 <use   name="boost"/>
 <use   name="boost_program_options"/>
-<use   name="CondCore/ORA"/>
-<use   name="CondCore/DBCommon"/>
-<use   name="CondCore/IOVService"/>
-<use   name="CondCore/MetaDataService"/>
-<use   name="CondCore/TagCollection"/>
 <use   name="CondCore/CondDB"/>
 <use   name="CondFormats/HLTObjects"/>
 <use   name="CondFormats/Alignment"/>
@@ -28,13 +23,16 @@
 <use   name="CondFormats/L1TObjects"/>
 <use   name="CondFormats/PhysicsToolsObjects"/>
 <use   name="CondFormats/GeometryObjects"/>
+<use   name="CondFormats/RecoMuonObjects"/>
 <use   name="CondFormats/RPCObjects"/>
 <use   name="CondFormats/RunInfo"/>
 <use   name="CondFormats/SiPixelObjects"/>
 <use   name="CondFormats/SiStripObjects"/>
 <use   name="CondFormats/Common"/>
 <use   name="CondFormats/BTauObjects"/>
-<use   name="rootcintex"/>
+<use   name="CondFormats/MFObjects"/>
+<use   name="CondFormats/PCLConfig"/>
+<use   name="CondFormats/CTPPSReadoutObjects"/>
 <export>
   <lib   name="1"/>
 </export>

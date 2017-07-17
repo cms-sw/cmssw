@@ -1,6 +1,6 @@
 /** \class HiggsToWW2LeptonsSkim
  *
- *  
+ *
  *  This class is an EDFilter for HWW events
  *
  *
@@ -11,15 +11,12 @@
 #include "HiggsAnalysis/Skimming/interface/HiggsToWW2LeptonsSkim.h"
 
 #include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
 
 // Muons:
 #include <DataFormats/TrackReco/interface/Track.h>
 
 // Electrons
 #include "DataFormats/EgammaCandidates/interface/GsfElectron.h"
-#include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 
 #include "DataFormats/Candidate/interface/Candidate.h"
 
@@ -37,9 +34,8 @@ HiggsToWW2LeptonsSkim::HiggsToWW2LeptonsSkim(const edm::ParameterSet& iConfig) :
 {
 
   // Reconstructed objects
-  recTrackLabel     = iConfig.getParameter<edm::InputTag>("RecoTrackLabel");
-  theGLBMuonLabel   = iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel");
-  theGsfELabel      = iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel");
+  theGLBMuonToken   = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("GlobalMuonCollectionLabel"));
+  theGsfEToken      = consumes<reco::GsfElectronCollection>(iConfig.getParameter<edm::InputTag>("ElectronCollectionLabel"));
 
   singleTrackPtMin_ = iConfig.getParameter<double>("SingleTrackPtMin");
   diTrackPtMin_     = iConfig.getParameter<double>("DiTrackPtMin");
@@ -52,12 +48,12 @@ HiggsToWW2LeptonsSkim::~HiggsToWW2LeptonsSkim()
 {
 }
 
-void HiggsToWW2LeptonsSkim::endJob() 
+void HiggsToWW2LeptonsSkim::endJob()
 {
-  edm::LogVerbatim("HiggsToWW2LeptonsSkim") 
-	    << "Events read " << nEvents_ 
-            << " Events accepted " << nAccepted_ 
-            << "\nEfficiency " << ((double)nAccepted_)/((double)nEvents_) 
+  edm::LogVerbatim("HiggsToWW2LeptonsSkim")
+	    << "Events read " << nEvents_
+            << " Events accepted " << nAccepted_
+            << "\nEfficiency " << ((double)nAccepted_)/((double)nEvents_)
 	    << std::endl;
 }
 
@@ -77,8 +73,8 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
 
   // Get the muon track collection from the event
   edm::Handle<reco::TrackCollection> muTracks;
-  event.getByLabel(theGLBMuonLabel.label(), muTracks);
-  
+  event.getByToken(theGLBMuonToken, muTracks);
+
   if ( muTracks.isValid() ) {
 
     reco::TrackCollection::const_iterator muons;
@@ -88,22 +84,22 @@ bool HiggsToWW2LeptonsSkim::filter(edm::Event& event, const edm::EventSetup& iSe
     for ( muons = muTracks->begin(); muons != muTracks->end(); ++muons ) {
       if ( muons->eta() > etaMin_ && muons->eta() < etaMax_ ) {
         if ( muons->pt() > singleTrackPtMin_ ) accepted1 = true;
-        if ( muons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++; 
+        if ( muons->pt() > diTrackPtMin_ ) nTrackOver2ndCut++;
       }
     }
-  } 
+  }
 
   // Now look at electrons:
 
   // Get the electron track collection from the event
   edm::Handle<reco::GsfElectronCollection> pTracks;
 
-  event.getByLabel(theGsfELabel.label(),pTracks);
+  event.getByToken(theGsfEToken,pTracks);
 
   if ( pTracks.isValid() ) {
 
     const reco::GsfElectronCollection* eTracks = pTracks.product();
-   
+
     reco::GsfElectronCollection::const_iterator electrons;
 
     // Loop over electron collections and count how many muons there are,

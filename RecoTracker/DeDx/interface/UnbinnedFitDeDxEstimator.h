@@ -2,6 +2,7 @@
 #define RecoTrackerDeDx_UnbinnedFitDeDxEstimator_h
 
 #include "DataFormats/TrackReco/interface/DeDxHit.h"
+#include "RecoTracker/DeDx/interface/BaseDeDxEstimator.h"
 #include "RecoTracker/DeDx/interface/DeDxTools.h"
 #include "RecoTracker/DeDx/interface/UnbinnedLikelihoodFit.h"
 
@@ -14,7 +15,7 @@ class UnbinnedFitDeDxEstimator: public BaseDeDxEstimator
 {
  public: 
 
-  UnbinnedFitDeDxEstimator() {
+  UnbinnedFitDeDxEstimator(const edm::ParameterSet& iConfig) {
     fitter.setFunction((f1 = new TF1("myLandau","TMath::Landau(x,[0],[1],1)",0,255)));
   }
   

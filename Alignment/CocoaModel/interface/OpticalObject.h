@@ -11,7 +11,7 @@
 #define _OPTICALOBJECT_HH
 
 #include "Alignment/CocoaUtilities/interface/CocoaGlobals.h"
-#include "stdint.h"
+#include <cstdint>
 
 class LightRay;
 class Measurement;

@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -42,7 +42,7 @@
 // class declaration
 //
 
-class ExtraFromSeeds : public edm::EDProducer {
+class ExtraFromSeeds : public edm::global::EDProducer<> {
    public:
       explicit ExtraFromSeeds(const edm::ParameterSet&);
       ~ExtraFromSeeds();
@@ -50,11 +50,9 @@ class ExtraFromSeeds : public edm::EDProducer {
       static void fillDescriptions(edm::ConfigurationDescriptions& descriptions);
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() ;
-      
-  edm::InputTag tracks_;
+      virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
+
+  edm::EDGetTokenT<reco::TrackCollection> tracks_;
   typedef std::vector<unsigned int> ExtremeLight;
 
       // ----------member data ---------------------------

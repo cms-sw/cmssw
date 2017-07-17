@@ -34,7 +34,8 @@ PhysDecl::PhysDecl(const edm::ParameterSet& iConfig)
 {
   applyfilter = iConfig.getUntrackedParameter<bool>("applyfilter",true);
   debugOn     = iConfig.getUntrackedParameter<bool>("debugOn",false);
-  hlTriggerResults_ = iConfig.getParameter<edm::InputTag> ("HLTriggerResults");
+  hlTriggerResults_ = consumes<TriggerResults>(iConfig.getParameter<edm::InputTag> ("HLTriggerResults"));
+  gtDigis_ = consumes<L1GlobalTriggerReadoutRecord>(iConfig.getUntrackedParameter<edm::InputTag> ("gtDigis",edm::InputTag("gtDigis")));
   init_ = false;
 }
 
@@ -55,7 +56,7 @@ bool PhysDecl::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   //hlt info
   edm::Handle<TriggerResults> HLTR;
-  iEvent.getByLabel(hlTriggerResults_,HLTR);
+  iEvent.getByToken(hlTriggerResults_,HLTR);
 
   if(HLTR.isValid())
     {
@@ -83,7 +84,7 @@ bool PhysDecl::filter( edm::Event& iEvent, const edm::EventSetup& iSetup)
   // trigger info
 
   edm::Handle<L1GlobalTriggerReadoutRecord> gtrr_handle;
-  iEvent.getByLabel("gtDigis", gtrr_handle);
+  iEvent.getByToken(gtDigis_, gtrr_handle);
   L1GlobalTriggerReadoutRecord const* gtrr = gtrr_handle.product();
  
   L1GtFdlWord fdlWord = gtrr->gtFdlWord();

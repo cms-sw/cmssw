@@ -28,16 +28,21 @@
 
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
 #include "DataFormats/METReco/interface/HcalNoiseRBX.h"
 
+//Hcal Hoise Summary
+#include "DataFormats/METReco/interface/HcalNoiseSummary.h"
+
 //
 // class declaration
 //
 
-class HcalNoiseRates : public edm::EDAnalyzer {
+class HcalNoiseRates : public DQMEDAnalyzer {
  public:
   explicit HcalNoiseRates(const edm::ParameterSet&);
   ~HcalNoiseRates();
@@ -45,10 +50,10 @@ class HcalNoiseRates : public edm::EDAnalyzer {
   
  private:
   virtual void beginJob();
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
   virtual void endJob();
+  virtual void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
-  DQMStore* dbe_;
   std::string outputFile_;
 
   // parameters
@@ -57,6 +62,9 @@ class HcalNoiseRates : public edm::EDAnalyzer {
   double minRBXEnergy_;                // RBX energy threshold
   double minHitEnergy_;                // RecHit energy threshold
   bool   useAllHistos_;
+
+  //Hcal Noise Summary Parameters
+  edm::EDGetTokenT<HcalNoiseSummary> noisetoken_;
 
   MonitorElement* hLumiBlockCount_;
   MonitorElement* hRBXEnergy_;
@@ -67,6 +75,24 @@ class HcalNoiseRates : public edm::EDAnalyzer {
 
   // count lumi segments
   std::map<int, int> lumiCountMap_;
+
+  //Hcal Noise Summary Plots
+
+  MonitorElement* nNNumChannels_;
+  MonitorElement* nNSumE_;
+  MonitorElement* nNSumEt_;
+
+  MonitorElement* sNNumChannels_;
+  MonitorElement* sNSumE_;
+  MonitorElement* sNSumEt_;
+
+  MonitorElement* iNNumChannels_;
+  MonitorElement* iNSumE_;
+  MonitorElement* iNSumEt_;
+
+  MonitorElement* hNoise_maxZeros_;
+  MonitorElement* hNoise_maxHPDHits_;
+  MonitorElement* hNoise_maxHPDNoOtherHits_;
 
 };
 

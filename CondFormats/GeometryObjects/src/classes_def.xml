@@ -15,7 +15,7 @@
    <field name="m_translation" mapping="blob"/>
    <field name="m_dimension" mapping="blob"/>
    <field name="m_indexes" mapping="blob"/>
-   <field name="m_dins" mapping="blob"/>
+   <field name="m_dins" mapping="blob" persistency="loose_on_reading" />
  </class>
   
  <class name="RecoIdealGeometry" class_version="0">
@@ -34,5 +34,116 @@
    <field name="pChamberType" mapping="blob"/>
    <field name="pfupars" mapping="blob"/>
  </class>
+ 
+ <class name="PTrackerParameters" class_version="0"> 
+   <field name="vitems" mapping="blob"/>
+   <field name="vpars" mapping="blob"/>
+ </class>
+ <class name="PTrackerParameters::Item"/>
+ <class name="std::vector<PTrackerParameters::Item>"/>
 
+ <class name="HcalParameters" class_version="0"> 
+   <field name="rHB"              mapping="blob"/>
+   <field name="drHB"             mapping="blob"/>
+   <field name="zHE"              mapping="blob"/>
+   <field name="dzHE"             mapping="blob"/>
+   <field name="zHO"              mapping="blob"/>
+   <field name="rhoxHB"           mapping="blob"/>
+   <field name="zxHB"             mapping="blob"/>
+   <field name="dyHB"             mapping="blob"/>
+   <field name="dxHB"             mapping="blob"/>
+   <field name="rhoxHE"           mapping="blob"/>
+   <field name="zxHE"             mapping="blob"/>
+   <field name="dyHE"             mapping="blob"/>
+   <field name="dx1HE"            mapping="blob"/>
+   <field name="dx2HE"            mapping="blob"/>
+   <field name="rHO"              mapping="blob"/>
+   <field name="phioff"           mapping="blob"/>
+   <field name="etaTable"         mapping="blob"/>
+   <field name="rTable"           mapping="blob"/>
+   <field name="phibin"           mapping="blob"/>
+   <field name="phitable"         mapping="blob"/>
+   <field name="etaRange"         mapping="blob"/>
+   <field name="gparHF"           mapping="blob"/>
+   <field name="Layer0Wt"         mapping="blob"/>
+   <field name="HBGains"          mapping="blob"/>
+   <field name="HEGains"          mapping="blob"/>
+   <field name="HFGains"          mapping="blob"/>
+   <field name="modHB"            mapping="blob"/>
+   <field name="modHE"            mapping="blob"/>
+   <field name="maxDepth"         mapping="blob"/>
+   <field name="layHB"            mapping="blob"/>
+   <field name="layHE"            mapping="blob"/>
+   <field name="etaMin"           mapping="blob"/>
+   <field name="etaMax"           mapping="blob"/>
+   <field name="noff"             mapping="blob"/>
+   <field name="HBShift"          mapping="blob"/>
+   <field name="HEShift"          mapping="blob"/>
+   <field name="HFShift"          mapping="blob"/>
+   <field name="etagroup"         mapping="blob"/>
+   <field name="phigroup"         mapping="blob"/>
+   <field name="layerGroupEtaSim" mapping="blob"/>
+   <field name="layerGroupEtaRec" mapping="blob"/>
+   <field name="etaTableHF"       mapping="blob"/>
+ </class>
+ <class name="HcalParameters::LayerItem"/>
+ <class name="std::vector<HcalParameters::LayerItem>"/>
+ <class name="PHGCalParameters" class_version="0"> 
+   <field name="name_"            mapping="blob"/>
+   <field name="cellSize_"        mapping="blob"/>
+   <field name="moduleBlS_"       mapping="blob"/>
+   <field name="moduleTlS_"       mapping="blob"/>
+   <field name="moduleHS_"        mapping="blob"/>
+   <field name="moduleDzS_"       mapping="blob"/>
+   <field name="moduleAlphaS_"    mapping="blob"/>
+   <field name="moduleCellS_"     mapping="blob"/>
+   <field name="moduleBlR_"       mapping="blob"/>
+   <field name="moduleTlR_"       mapping="blob"/>
+   <field name="moduleHR_"        mapping="blob"/> 
+   <field name="moduleDzR_"       mapping="blob"/>
+   <field name="moduleAlphaR_"    mapping="blob"/>
+   <field name="moduleCellR_"     mapping="blob"/> 
+   <field name="trformTranX_"     mapping="blob"/> 
+   <field name="trformTranY_"     mapping="blob"/> 
+   <field name="trformTranZ_"     mapping="blob"/> 
+   <field name="trformRotXX_"     mapping="blob"/> 
+   <field name="trformRotYX_"     mapping="blob"/> 
+   <field name="trformRotZX_"     mapping="blob"/> 
+   <field name="trformRotXY_"     mapping="blob"/> 
+   <field name="trformRotYY_"     mapping="blob"/> 
+   <field name="trformRotZY_"     mapping="blob"/> 
+   <field name="trformRotXZ_"     mapping="blob"/> 
+   <field name="trformRotYZ_"     mapping="blob"/> 
+   <field name="trformRotZZ_"     mapping="blob"/> 
+   <field name="zLayerHex_"       mapping="blob"/> 
+   <field name="rMinLayHex_"      mapping="blob"/>
+   <field name="rMaxLayHex_"      mapping="blob"/> 
+   <field name="waferPosX_"       mapping="blob"/> 
+   <field name="waferPosY_"       mapping="blob"/> 
+   <field name="cellFineX_"       mapping="blob"/> 
+   <field name="cellFineY_"       mapping="blob"/> 
+   <field name="cellCoarseX_"     mapping="blob"/>
+   <field name="cellCoarseY_"     mapping="blob"/>
+   <field name="boundR_"          mapping="blob"/>  
+   <field name="moduleLayS_"      mapping="blob"/>
+   <field name="moduleLayR_"      mapping="blob"/>    
+   <field name="layer_"           mapping="blob"/>
+   <field name="layerIndex_"      mapping="blob"/> 
+   <field name="layerGroup_"      mapping="blob"/> 
+   <field name="cellFactor_"      mapping="blob"/>
+   <field name="depth_"           mapping="blob"/> 
+   <field name="depthIndex_"      mapping="blob"/> 
+   <field name="depthLayerF_"     mapping="blob"/> 
+   <field name="waferCopy_"       mapping="blob"/> 
+   <field name="waferTypeL_"      mapping="blob"/> 
+   <field name="waferTypeT_"      mapping="blob"/>
+   <field name="layerGroupM_"     mapping="blob"/>  
+   <field name="layerGroupO_"     mapping="blob"/>  
+   <field name="trformIndex_"     mapping="blob"/> 
+   <field name="waferR_"          mapping="blob"/>  
+   <field name="nCells_"          mapping="blob"/>
+   <field name="nSectors_"        mapping="blob"/>
+   <field name="mode_"            mapping="blob"/>
+   <field name="copiesInLayers_"  mapping="blob"/>
+ </class>
 </lcgdict> 

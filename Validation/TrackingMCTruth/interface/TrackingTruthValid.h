@@ -3,22 +3,18 @@
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
-#include "FWCore/Framework/interface/Event.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
-#include "DQMServices/Core/interface/DQMStore.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/InputTag.h"
-
-#include <iostream>
 #include <string>
-#include <TH1F.h>
-#include <TH2F.h>
-#include "DQMServices/Core/interface/MonitorElement.h"
 
-class TrackingTruthValid  : public edm::EDAnalyzer {
+class DQMStore;
+class MonitorElement;
+class TrackingParticle;
+
+class TrackingTruthValid  : public  DQMEDAnalyzer {
  public:
+  typedef std::vector<TrackingParticle> TrackingParticleCollection;
   //Constructor
   explicit TrackingTruthValid(const edm::ParameterSet& conf) ;
   //Destructor
@@ -26,15 +22,15 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   
   virtual void analyze(const edm::Event&, const edm::EventSetup& );
 
+  void bookHistograms(DQMStore::IBooker & ibooker,const edm::Run& run, const edm::EventSetup& es);
   void beginJob(const edm::ParameterSet& conf);
   void endJob();
   
  private:
-  DQMStore* dbe_;
-  edm::ParameterSet conf_;
+  bool runStandalone;
   std::string outputFile;
-  edm::InputTag src_;
   
+  DQMStore* dbe_;
   MonitorElement* meTPMass;
   MonitorElement* meTPCharge; 
   MonitorElement* meTPId;
@@ -49,7 +45,8 @@ class TrackingTruthValid  : public edm::EDAnalyzer {
   MonitorElement* meTPVtxZ; 
   MonitorElement* meTPtip;
   MonitorElement* meTPlip;
-  
+
+  edm::EDGetTokenT<TrackingParticleCollection> vec_TrackingParticle_Token_;
 };
 
 #endif

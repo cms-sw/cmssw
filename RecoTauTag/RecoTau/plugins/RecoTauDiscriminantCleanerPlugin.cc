@@ -14,7 +14,7 @@ namespace reco { namespace tau {
 
 class RecoTauDiscriminantCleanerPlugin : public RecoTauCleanerPlugin {
   public:
-    RecoTauDiscriminantCleanerPlugin(const edm::ParameterSet& pset);
+  RecoTauDiscriminantCleanerPlugin(const edm::ParameterSet& pset, edm::ConsumesCollector &&iC);
     virtual ~RecoTauDiscriminantCleanerPlugin(){}
 
     // Get discriminant value for a given tau Ref
@@ -25,16 +25,18 @@ class RecoTauDiscriminantCleanerPlugin : public RecoTauCleanerPlugin {
   private:
     edm::InputTag discriminatorSrc_;
     edm::Handle<PFTauDiscriminator> discriminator_;
+  edm::EDGetTokenT<PFTauDiscriminator> discriminator_token;
 };
 
 RecoTauDiscriminantCleanerPlugin::RecoTauDiscriminantCleanerPlugin(
-    const edm::ParameterSet& pset):RecoTauCleanerPlugin(pset) {
+								   const edm::ParameterSet& pset, edm::ConsumesCollector &&iC):RecoTauCleanerPlugin(pset,std::move(iC)) {
   discriminatorSrc_ = pset.getParameter<edm::InputTag>("src");
+  discriminator_token = iC.consumes<PFTauDiscriminator>(discriminatorSrc_);
 }
 
 void RecoTauDiscriminantCleanerPlugin::beginEvent() {
   // Load our handle to the discriminators from the event
-  evt()->getByLabel(discriminatorSrc_, discriminator_);
+  evt()->getByToken(discriminator_token, discriminator_);
 }
 
 double RecoTauDiscriminantCleanerPlugin::operator()(

@@ -25,6 +25,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include <vector>
+#include <array>
 
 class CSCLayer;
 class CSCStripDigi;
@@ -35,7 +36,7 @@ class CSCHitFromStripOnly
   
  public:
 
-  typedef std::vector<CSCStripData> PulseHeightMap;
+  typedef std::array<CSCStripData,100> PulseHeightMap;
   
   explicit CSCHitFromStripOnly( const edm::ParameterSet& ps );
   
@@ -67,10 +68,10 @@ class CSCHitFromStripOnly
   CSCStripHitData makeStripData( int centerStrip, int offset );
 
   /// Is either neighbour 'bad'?
-  bool isNearDeadStrip(const CSCDetId& id, int centralStrip); 
+  bool isNearDeadStrip(const CSCDetId& id, int centralStrip, int nstrips); 
 
   /// Is the strip 'bad'?
-  bool isDeadStrip(const CSCDetId& id, int centralStrip); 
+  bool isDeadStrip(const CSCDetId& id, int centralStrip, int nstrips); 
 
   /// Find position of hit in strip cluster in terms of strip #
   float findHitOnStripPosition( const std::vector<CSCStripHitData>& data, const int& centerStrip );
@@ -88,7 +89,7 @@ class CSCHitFromStripOnly
   float gainWeight[80];
 
   // The specific pedestal calculator
-	CSCPedestalChoice* calcped_;
+  CSCPedestalChoice* calcped_;
 
   // The cuts for forming the strip hits are described in the config file
   bool useCalib;

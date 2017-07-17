@@ -52,6 +52,12 @@ public:
   double genParticleP() const              { return genParticleP_; }
   void   setGenParticleP(double p)         { genParticleP_ = p; }
 
+  // remember the PID of particle entering the CASTOR detector. This is needed
+  // in order to scale the hadronic response
+  bool hasCastorHit() const { return hasCastorHit_; }
+  void setCastorHitPID(const int pid) { hasCastorHit_=true; castorHitPID_ = pid; }
+  int getCastorHitPID() const { return castorHitPID_; }
+
   virtual void Print() const;
 private:
   bool   storeTrack_;    
@@ -67,25 +73,31 @@ private:
   int    genParticlePID_, caloSurfaceParticlePID_;
   double genParticleP_, caloSurfaceParticleP_;
 
+  bool hasCastorHit_;
+  int castorHitPID_;
+
   // Restrict construction to friends
   TrackInformation() :G4VUserTrackInformation(),storeTrack_(false),isPrimary_(false),
     hasHits_(false),isGeneratedSecondary_(false),isInHistory_(false),
     flagAncestor_(false),idOnCaloSurface_(0),idCaloVolume_(-1),
     idLastVolume_(-1),caloIDChecked_(false), genParticlePID_(-1),
-    caloSurfaceParticlePID_(0), genParticleP_(0), caloSurfaceParticleP_(0) {}
+    caloSurfaceParticlePID_(0), genParticleP_(0), caloSurfaceParticleP_(0),
+    hasCastorHit_(false), castorHitPID_(0) {}
     friend class NewTrackAction;
 };
 
-extern G4Allocator<TrackInformation> TrackInformationAllocator;
+extern G4ThreadLocal G4Allocator<TrackInformation> *fpTrackInformationAllocator;
 
 inline void * TrackInformation::operator new(size_t)
 {
-    void * trkInfo;
-    trkInfo = (void *) TrackInformationAllocator.MallocSingle();
-    return trkInfo;
+  if (!fpTrackInformationAllocator) fpTrackInformationAllocator = 
+    new G4Allocator<TrackInformation>;
+  return (void*)fpTrackInformationAllocator->MallocSingle();
 }
 
 inline void TrackInformation::operator delete(void * trkInfo)
-{  TrackInformationAllocator.FreeSingle((TrackInformation*) trkInfo); }
+{  
+  fpTrackInformationAllocator->FreeSingle((TrackInformation*) trkInfo); 
+}
 
 #endif

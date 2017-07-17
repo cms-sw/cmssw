@@ -55,8 +55,7 @@
 #include "DataFormats/ParticleFlowReco/interface/PFRecTrack.h"
 #include "DataFormats/TrackReco/interface/Track.h" 
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2D.h" 
-#include "DataFormats/TrackerRecHit2D/interface/SiTrackerGSMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/FastTrackerRecHit.h" 
 
 #include <set>
 #include <sstream>
@@ -71,25 +70,28 @@ PFSimParticleProducer::PFSimParticleProducer(const edm::ParameterSet& iConfig)
   processParticles_ = 
     iConfig.getUntrackedParameter<bool>("process_Particles",true);
     
-
-  inputTagSim_ 
-    = iConfig.getParameter<InputTag>("sim");
+  
+  inputTagSim_ = iConfig.getParameter<InputTag>("sim"); 
+  tokenSim_    = consumes<std::vector<SimTrack> >(inputTagSim_);
+  tokenSimVertices_    = consumes<std::vector<SimVertex> >(inputTagSim_);
 
   //retrieving collections for MC Truth Matching
 
   //modif-beg
-  inputTagFamosSimHits_ 
-    = iConfig.getUntrackedParameter<InputTag>("famosSimHits");
+  inputTagFamosSimHits_  = iConfig.getUntrackedParameter<InputTag>("famosSimHits");
+  tokenFamosSimHits_  = consumes<edm::PCaloHitContainer>(inputTagFamosSimHits_);
   mctruthMatchingInfo_ = 
     iConfig.getUntrackedParameter<bool>("MCTruthMatchingInfo",false);
   //modif-end
 
-  inputTagRecTracks_ 
-    = iConfig.getParameter<InputTag>("RecTracks");
-  inputTagEcalRecHitsEB_ 
-    = iConfig.getParameter<InputTag>("ecalRecHitsEB");
-  inputTagEcalRecHitsEE_ 
-    = iConfig.getParameter<InputTag>("ecalRecHitsEE");
+  inputTagRecTracks_ = iConfig.getParameter<InputTag>("RecTracks");
+  tokenRecTracks_    = consumes<reco::PFRecTrackCollection>(inputTagRecTracks_);
+
+  inputTagEcalRecHitsEB_ = iConfig.getParameter<InputTag>("ecalRecHitsEB");
+  tokenEcalRecHitsEB_    = consumes<EcalRecHitCollection>(inputTagEcalRecHitsEB_);
+  inputTagEcalRecHitsEE_ = iConfig.getParameter<InputTag>("ecalRecHitsEE");
+  tokenEcalRecHitsEE_ 
+    = consumes<EcalRecHitCollection>(inputTagEcalRecHitsEE_);
 
   verbose_ = 
     iConfig.getUntrackedParameter<bool>("verbose",false);
@@ -111,26 +113,16 @@ PFSimParticleProducer::~PFSimParticleProducer()
   delete mySimEvent; 
 }
 
-
-void 
-PFSimParticleProducer::beginRun(const edm::Run& run,
-				const edm::EventSetup & es)
-{
-  
+void PFSimParticleProducer::produce(Event& iEvent, 
+				    const EventSetup& iSetup) 
+{  
   // init Particle data table (from Pythia)
   edm::ESHandle < HepPDT::ParticleDataTable > pdt;
   //  edm::ESHandle < DefaultConfig::ParticleDataTable > pdt;
-  es.getData(pdt);
-  if ( !ParticleTable::instance() ) ParticleTable::instance(&(*pdt));
+  iSetup.getData(pdt);
   mySimEvent->initializePdt(&(*pdt));
 
-}
-
-
-void PFSimParticleProducer::produce(Event& iEvent, 
-				    const EventSetup& iSetup) 
-{
-  
+  ParticleTable::Sentry ptable(mySimEvent->theTable());
   LogDebug("PFSimParticleProducer")<<"START event: "<<iEvent.id().event()
 				   <<" in run "<<iEvent.id().run()<<endl;
  
@@ -158,7 +150,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
     // 			pcalohits);  
     //modif-beg
     bool found_phit 
-      = iEvent.getByLabel(inputTagFamosSimHits_,pcalohits);
+      = iEvent.getByToken(tokenFamosSimHits_,pcalohits);
     //modif-end
     
     if(!found_phit) {
@@ -208,7 +200,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
     Handle< reco::PFRecTrackCollection > recTracks;
     try{      
       LogDebug("PFSimParticleProducer")<<"getting PFRecTracks"<<endl;
-      iEvent.getByLabel(inputTagRecTracks_, recTracks);
+      iEvent.getByToken(tokenRecTracks_, recTracks);
       
     } catch (cms::Exception& err) { 
       LogError("PFSimParticleProducer")<<err
@@ -227,11 +219,10 @@ void PFSimParticleProducer::produce(Event& iEvent,
   // deal with true particles 
   if( processParticles_) {
 
-    auto_ptr< reco::PFSimParticleCollection > 
-      pOutputPFSimParticleCollection(new reco::PFSimParticleCollection ); 
+    auto pOutputPFSimParticleCollection = std::make_unique<reco::PFSimParticleCollection>(); 
 
     Handle<vector<SimTrack> > simTracks;
-    bool found = iEvent.getByLabel(inputTagSim_,simTracks);
+    bool found = iEvent.getByToken(tokenSim_,simTracks);
     if(!found) {
 
       ostringstream err;
@@ -244,7 +235,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
     
     
     Handle<vector<SimVertex> > simVertices;
-    found = iEvent.getByLabel(inputTagSim_,simVertices);
+    found = iEvent.getByToken(tokenSimVertices_,simVertices);
     if(!found) {
       LogError("PFSimParticleProducer")
 	<<"cannot find sim vertices: "<<inputTagSim_<<endl;
@@ -300,7 +291,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
 	
 	// get the ecalBarrel rechits for MC truth matching tool
 	edm::Handle<EcalRecHitCollection> rhcHandle;
-	bool found = iEvent.getByLabel(inputTagEcalRecHitsEB_, 
+	bool found = iEvent.getByToken(tokenEcalRecHitsEB_, 
 				       rhcHandle);
 	if(!found) {
 	  ostringstream err;
@@ -525,7 +516,7 @@ void PFSimParticleProducer::produce(Event& iEvent,
       pOutputPFSimParticleCollection->push_back( particle );
     }
     
-    iEvent.put(pOutputPFSimParticleCollection);
+    iEvent.put(std::move(pOutputPFSimParticleCollection));
   }
 
   
@@ -558,17 +549,19 @@ void PFSimParticleProducer::getSimIDs( const TrackHandle& trackh,
       for (trackingRecHit_iterator it = rhitbeg;  
 	   it != rhitend; it++){
 
-	if( it->get()->isValid() ){
+	if( (*it)->isValid() ){
 
-	  const SiTrackerGSMatchedRecHit2D * rechit 
-	    = (const SiTrackerGSMatchedRecHit2D*) (it->get());
+	  const FastTrackerRecHit * rechit 
+	    = (const FastTrackerRecHit*) (*it);
 	  
 // 	  cout <<  "rechit" 	       
 // 	       << " corresponding simId " 
 // 	       << rechit->simtrackId() 
 // 	       << endl;
 
-	  recTrackSimID.push_back( rechit->simtrackId() );
+	  for(unsigned int st_index=0;st_index<rechit->nSimTrackIds();++st_index){
+	      recTrackSimID.push_back(rechit->simTrackId(st_index));
+	  }
 	  break;
 	}
       }//loop track rechit

@@ -2,41 +2,35 @@
 
 #include "SimGeneral/NoiseGenerators/interface/CorrelatedNoisifier.icc"
 
+#include "CLHEP/Random/RandGaussQ.h"
+
 template class CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix > ;
 
 template
 void
 CorrelatedNoisifier< CSCStripConditions::CSCCorrelatedNoiseMatrix
 		     >::noisify(CSCAnalogSignal&,
+                                CLHEP::HepRandomEngine*,
 				const std::vector<double>* rangau) const ;
 
 
 CSCStripConditions::CSCStripConditions()
-  : theNoisifier(0),
-    theRandGaussQ(0)
+  : theNoisifier(0)
  {}
 
 
 CSCStripConditions::~CSCStripConditions() 
 {
-  delete theRandGaussQ;
 }
 
 
-void CSCStripConditions::setRandomEngine(CLHEP::HepRandomEngine& engine)
+float CSCStripConditions::smearedGain(const CSCDetId & detId, int channel, CLHEP::HepRandomEngine* engine) const
 {
-  if(theRandGaussQ) delete theRandGaussQ;
-  theRandGaussQ = new CLHEP::RandGaussQ(engine);
+  return CLHEP::RandGaussQ::shoot(engine, gain(detId, channel), gainSigma(detId, channel) );
 }
 
 
-float CSCStripConditions::smearedGain(const CSCDetId & detId, int channel) const
-{
-  return theRandGaussQ->fire( gain(detId, channel), gainSigma(detId, channel) );
-}
-
-
-void CSCStripConditions::noisify(const CSCDetId & detId, CSCAnalogSignal & signal)
+void CSCStripConditions::noisify(const CSCDetId & detId, CSCAnalogSignal & signal, CLHEP::HepRandomEngine* engine)
 {
   const int nScaBins = 8;
   const float scaBinSize = 50.;
@@ -47,7 +41,7 @@ void CSCStripConditions::noisify(const CSCDetId & detId, CSCAnalogSignal & signa
                             0., signal.getTimeOffset());
 
   fetchNoisifier(detId, channel );
-  theNoisifier->noisify(tmpSignal);
+  theNoisifier->noisify(tmpSignal, engine);
   // noise matrix is in ADC counts. onvert to fC
   tmpSignal *= 1./gain(detId, channel);
   signal.superimpose(tmpSignal);

@@ -8,7 +8,7 @@
 // Description:
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -28,7 +28,7 @@ namespace edm
 #include "DataFormats/GsfTrackReco/interface/GsfTrackFwd.h"
 #include "DataFormats/TrackReco/interface/TrackFwd.h"
 
-class GsfElectronCoreBaseProducer : public edm::EDProducer
+class GsfElectronCoreBaseProducer : public edm::stream::EDProducer<>
  {
   public:
 
@@ -51,9 +51,9 @@ class GsfElectronCoreBaseProducer : public edm::EDProducer
 
   private:
 
-    edm::InputTag gsfPfRecTracksTag_ ;
-    edm::InputTag gsfTracksTag_ ;
-    edm::InputTag ctfTracksTag_ ;
+    edm::EDGetTokenT<reco::GsfPFRecTrackCollection> gsfPfRecTracksTag_ ;
+    edm::EDGetTokenT<reco::GsfTrackCollection> gsfTracksTag_ ;
+    edm::EDGetTokenT<reco::TrackCollection> ctfTracksTag_ ;
 
     // From Puneeth Kalavase : returns the CTF track that has the highest fraction
     // of shared hits in Pixels and the inner strip tracker with the electron Track

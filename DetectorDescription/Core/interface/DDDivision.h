@@ -53,18 +53,24 @@
     DDAlgorithm (i.e. load up the appropriate parameters and put run the DDAlgorithm.
 */
 
-#include "DetectorDescription/Core/interface/DDName.h"
-#include "DetectorDescription/Core/interface/DDLogicalPart.h"
-#include "DetectorDescription/Core/interface/DDBase.h"
+#include <iosfwd>
+#include <map>
+#include <string>
+#include <vector>
+
+#include "DetectorDescription/Core/interface/Singleton.h"
 #include "DetectorDescription/Core/interface/DDAxes.h"
-#include "DetectorDescription/Base/interface/Singleton.h"
+#include "DetectorDescription/Core/interface/DDBase.h"
+#include "DetectorDescription/Core/interface/DDLogicalPart.h"
+#include "DetectorDescription/Core/interface/DDName.h"
 
-namespace DDI { class Division; }
-
-class DDMaterial;
-class DDSolid;
 class DDDivision;
+class DDMaterial;
 class DDPartSelection;
+class DDSolid;
+namespace DDI {
+class Division;
+}  // namespace DDI
 
 std::ostream & operator<<( std::ostream &, const DDDivision &);
 

@@ -9,7 +9,7 @@ class EventMsgBuilder
 {
 public:
   EventMsgBuilder(void* buf, uint32 size,
-                  uint32 run, uint32 event, uint32 lumi, uint32 outModId,
+                  uint32 run, uint64 event, uint32 lumi, uint32 outModId,
                   uint32 droppedEventsCount,
                   std::vector<bool>& l1_bits,
                   uint8* hlt_bits, uint32 hlt_bit_count, 

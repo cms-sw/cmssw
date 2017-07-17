@@ -7,13 +7,15 @@
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
-#include "DataFormats/Common/interface/Handle.h" 
+#include "DataFormats/Common/interface/Handle.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
+#include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloTopology/interface/CaloTopology.h"
@@ -31,7 +33,7 @@
 class BetaCalculatorECAL {
 
    public:
-       BetaCalculatorECAL(const edm::ParameterSet& iConfig);
+       BetaCalculatorECAL(const edm::ParameterSet& iConfig, edm::ConsumesCollector&& iC);
        void  addInfoToCandidate(susybsm::HSCParticle& candidate, edm::Handle<reco::TrackCollection>& tracks, edm::Event& iEvent, const edm::EventSetup& iSetup, susybsm::HSCPCaloInfo& caloInfo);
 
    private:
@@ -53,10 +55,10 @@ class BetaCalculatorECAL {
            const CaloSubdetectorGeometry* theSubdetGeometry);
 
       // Data members
-      TrackDetectorAssociator trackAssociator_; 
-      TrackAssociatorParameters parameters_; 
-      edm::InputTag EBRecHitCollection_;
-      edm::InputTag EERecHitCollection_;
+      TrackDetectorAssociator trackAssociator_;
+      TrackAssociatorParameters parameters_;
+      edm::EDGetTokenT<EBRecHitCollection> EBRecHitCollectionToken_;
+      edm::EDGetTokenT<EERecHitCollection> EERecHitCollectionToken_;
 
       edm::ESHandle<DetIdAssociator> ecalDetIdAssociator_;
       edm::ESHandle<MagneticField> bField_;

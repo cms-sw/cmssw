@@ -9,10 +9,6 @@
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "FWCore/MessageLogger/interface/MessageDrop.h"
 
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidate.h"
-#include "DataFormats/RecoCandidate/interface/RecoChargedCandidateFwd.h"
-#include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/TrackReco/interface/TrackFwd.h"
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -30,6 +26,12 @@ QuarkoniaTrackSelector::QuarkoniaTrackSelector(const edm::ParameterSet& iConfig)
   minTrackP_(iConfig.getParameter<double>("MinTrackP")),
   maxTrackEta_(iConfig.getParameter<double>("MaxTrackEta"))
 {
+
+
+  muonToken_ = consumes<reco::RecoChargedCandidateCollection>(muonTag_);
+  trackToken_ = consumes<reco::TrackCollection>(trackTag_);
+
+
   //register your products
   produces<reco::TrackCollection>();
   //
@@ -66,27 +68,27 @@ QuarkoniaTrackSelector::QuarkoniaTrackSelector(const edm::ParameterSet& iConfig)
 
 
 void
-QuarkoniaTrackSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetup)
+QuarkoniaTrackSelector::produce(edm::StreamID, edm::Event& iEvent, const edm::EventSetup& iSetup) const
 {
   //
   // the product
   //
-  std::auto_ptr<reco::TrackCollection> product(new reco::TrackCollection);
+  auto product = std::make_unique<reco::TrackCollection>();
   //
   // Muons
   //
   edm::Handle<reco::RecoChargedCandidateCollection> muonHandle;
-  iEvent.getByLabel(muonTag_,muonHandle);
+  iEvent.getByToken(muonToken_,muonHandle);
   //
   // Tracks
   //
   edm::Handle<reco::TrackCollection> trackHandle;
-  iEvent.getByLabel(trackTag_,trackHandle);
+  iEvent.getByToken(trackToken_,trackHandle);
   //
   // Verification
   //
   if ( !muonHandle.isValid() || !trackHandle.isValid() || minMasses_.empty() ) {
-    iEvent.put(product);
+    iEvent.put(std::move(product));
     return;
   }
   //
@@ -172,7 +174,7 @@ QuarkoniaTrackSelector::produce(edm::Event& iEvent, const edm::EventSetup& iSetu
     LogDebug("QuarkoniaTrackSelector") << stream.str();
   }
   //
-  iEvent.put(product);
+  iEvent.put(std::move(product));
 }
 
 

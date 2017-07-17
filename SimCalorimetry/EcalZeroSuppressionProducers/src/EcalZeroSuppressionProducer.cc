@@ -17,6 +17,9 @@ EcalZeroSuppressionProducer::EcalZeroSuppressionProducer(const edm::ParameterSet
   produces<EBDigiCollection>(EBZSdigiCollection_);
   produces<EEDigiCollection>(EEZSdigiCollection_);
 
+  EB_token = consumes<EBDigiCollection>(edm::InputTag(digiProducer_));
+  EE_token = consumes<EEDigiCollection>(edm::InputTag(digiProducer_));;
+
 }
 
 
@@ -37,7 +40,7 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
   const EBDigiCollection* fullBarrelDigis =0;
   const EEDigiCollection* fullEndcapDigis =0;
   
-  event.getByLabel( digiProducer_, pEBDigis);
+  event.getByToken( EB_token, pEBDigis);
   if (pEBDigis.isValid()){ 
     fullBarrelDigis = pEBDigis.product(); // get a ptr to the produc
     edm::LogInfo("ZeroSuppressionInfo") << "total # fullBarrelDigis: " << fullBarrelDigis->size() ;
@@ -45,7 +48,7 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
     edm::LogError("ZeroSuppressionError") << "Error! can't get the product " << EBdigiCollection_.c_str() ;
   }
   
-  event.getByLabel( digiProducer_, pEEDigis);
+  event.getByToken( EE_token, pEEDigis);
   if (pEEDigis.isValid()){ 
     fullEndcapDigis = pEEDigis.product(); // get a ptr to the product
     edm::LogInfo("ZeroSuppressionInfo") << "total # fullEndcapDigis: " << fullEndcapDigis->size() ;
@@ -55,8 +58,8 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
 
   // collection of zero suppressed digis to put in the event
   
-  std::auto_ptr< EBDigiCollection > gzsBarrelDigis(new EBDigiCollection());
-  std::auto_ptr< EEDigiCollection > gzsEndcapDigis(new EEDigiCollection());
+  std::unique_ptr< EBDigiCollection > gzsBarrelDigis(new EBDigiCollection());
+  std::unique_ptr< EEDigiCollection > gzsEndcapDigis(new EEDigiCollection());
 
   CaloDigiCollectionSorter sorter(5);
 
@@ -110,8 +113,8 @@ void EcalZeroSuppressionProducer::produce(edm::Event& event, const edm::EventSet
   
   }
   // Step D: Put outputs into event
-  event.put(gzsBarrelDigis, EBZSdigiCollection_);
-  event.put(gzsEndcapDigis, EEZSdigiCollection_);
+  event.put(std::move(gzsBarrelDigis), EBZSdigiCollection_);
+  event.put(std::move(gzsEndcapDigis), EEZSdigiCollection_);
 
 }
 

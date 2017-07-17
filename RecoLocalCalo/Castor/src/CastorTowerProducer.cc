@@ -26,7 +26,7 @@
 
 // user include 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/Framework/interface/ESHandle.h"
@@ -48,15 +48,13 @@
 // class declaration
 //
 
-class CastorTowerProducer : public edm::EDProducer {
+class CastorTowerProducer : public edm::stream::EDProducer<> {
    public:
       explicit CastorTowerProducer(const edm::ParameterSet&);
       ~CastorTowerProducer();
 
    private:
-      virtual void beginJob() override ;
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
-      virtual void endJob() override ;
       virtual void ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth);
       
       // member data
@@ -76,7 +74,6 @@ class CastorTowerProducer : public edm::EDProducer {
 // constants, enums and typedefs
 //
 
-const double MYR2D = 180/M_PI;
 
 //
 // static data member definitions
@@ -121,7 +118,7 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
   edm::Handle<CastorRecHitCollection> InputRecHits;
   iEvent.getByToken(tok_input_,InputRecHits);
 
-  std::auto_ptr<CastorTowerCollection> OutputTowers (new CastorTowerCollection);
+  auto OutputTowers = std::make_unique<CastorTowerCollection>();
    
   // get and check input size
   int nRecHits = InputRecHits->size();
@@ -263,21 +260,9 @@ void CastorTowerProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSe
     
   } // end loop over the 16 towers possibilities
   
-  iEvent.put(OutputTowers);
+  iEvent.put(std::move(OutputTowers));
 } 
 
-
-// ------------ method called once each job just before starting event loop  ------------
-void CastorTowerProducer::beginJob() {
-  LogDebug("CastorTowerProducer")
-    <<"Starting CastorTowerProducer";
-}
-
-// ------------ method called once each job just after ending the event loop  ------------
-void CastorTowerProducer::endJob() {
-  LogDebug("CastorTowerProducer")
-    <<"Ending CastorTowerProducer";
-}
 
 void CastorTowerProducer::ComputeTowerVariable(const edm::RefVector<edm::SortedCollection<CastorRecHit> >& usedRecHits, double&  Ehot, double& depth) {
 

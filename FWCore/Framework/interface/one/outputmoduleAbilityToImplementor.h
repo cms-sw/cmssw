@@ -39,14 +39,14 @@ namespace edm {
         RunWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet){}
         RunWatcher(RunWatcher const&) = delete;
         RunWatcher& operator=(RunWatcher const&) = delete;
+        ~RunWatcher() noexcept(false) {};
         
       private:
-        void doBeginRun_(RunPrincipal const& rp, ModuleCallingContext const*) override final;
-        void doEndRun_(RunPrincipal const& rp, ModuleCallingContext const*) override final;
+        virtual void doBeginRun_(RunForOutput const& r) override final;
+        virtual void doEndRun_(RunForOutput const& r) override final;
         
-        
-        virtual void beginRun(edm::RunPrincipal const&, ModuleCallingContext const*) = 0;
-        virtual void endRun(edm::RunPrincipal const&, ModuleCallingContext const*) = 0;
+        virtual void beginRun(edm::RunForOutput const&) = 0;
+        virtual void endRun(edm::RunForOutput const&) = 0;
       };
       
       class LuminosityBlockWatcher : public virtual OutputModuleBase {
@@ -54,13 +54,14 @@ namespace edm {
         LuminosityBlockWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
         LuminosityBlockWatcher(LuminosityBlockWatcher const&) = delete;
         LuminosityBlockWatcher& operator=(LuminosityBlockWatcher const&) = delete;
+        ~LuminosityBlockWatcher() noexcept(false) {};
         
       private:
-        void doBeginLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*) override final;
-        void doEndLuminosityBlock_(LuminosityBlockPrincipal const& lbp, ModuleCallingContext const*) override final;
+        virtual void doBeginLuminosityBlock_(LuminosityBlockForOutput const& lb) override final;
+        virtual void doEndLuminosityBlock_(LuminosityBlockForOutput const& lb) override final;
         
-        virtual void beginLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
-        virtual void endLuminosityBlock(edm::LuminosityBlockPrincipal const&, ModuleCallingContext const*) = 0;
+        virtual void beginLuminosityBlock(edm::LuminosityBlockForOutput const&) = 0;
+        virtual void endLuminosityBlock(edm::LuminosityBlockForOutput const&) = 0;
       };
 
       class InputFileWatcher : public virtual OutputModuleBase {
@@ -68,6 +69,7 @@ namespace edm {
         InputFileWatcher(edm::ParameterSet const&iPSet): OutputModuleBase(iPSet) {}
         InputFileWatcher(InputFileWatcher const&) = delete;
         InputFileWatcher& operator=(InputFileWatcher const&) = delete;
+        ~InputFileWatcher() noexcept(false) {};
         
       private:
         void doRespondToOpenInputFile_(FileBlock const&) override final;
@@ -81,7 +83,7 @@ namespace edm {
       
       template<>
       struct AbilityToImplementor<edm::one::SharedResources> {
-        typedef edm::one::impl::SharedResourcesUser Type;
+        typedef edm::one::impl::SharedResourcesUser<edm::one::OutputModuleBase> Type;
       };
       
       template<>

@@ -2,41 +2,45 @@
 #include "DataFormats/SiStripCluster/interface/SiStripCluster.h"
 #include "RecoLocalTracker/SiStripClusterizer/interface/StripClusterizerAlgorithmFactory.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Utilities/interface/transform.h"
 #include "boost/foreach.hpp"
+
 
 SiStripClusterizer::
 SiStripClusterizer(const edm::ParameterSet& conf) 
   : inputTags( conf.getParameter<std::vector<edm::InputTag> >("DigiProducersList") ),
     algorithm( StripClusterizerAlgorithmFactory::create(conf.getParameter<edm::ParameterSet>("Clusterizer")) ) {
   produces< edmNew::DetSetVector<SiStripCluster> > ();
+  inputTokens = edm::vector_transform( inputTags, [this](edm::InputTag const & tag) { return consumes< edm::DetSetVector<SiStripDigi> >(tag);} );
 }
 
 void SiStripClusterizer::
 produce(edm::Event& event, const edm::EventSetup& es)  {
 
-  std::auto_ptr< edmNew::DetSetVector<SiStripCluster> > output(new edmNew::DetSetVector<SiStripCluster>());
+  auto output = std::make_unique<edmNew::DetSetVector<SiStripCluster>>();
   output->reserve(10000,4*10000);
 
   edm::Handle< edm::DetSetVector<SiStripDigi> >     inputOld;  
-  edm::Handle< edmNew::DetSetVector<SiStripDigi> >  inputNew;  
+//   edm::Handle< edmNew::DetSetVector<SiStripDigi> >  inputNew;  
 
   algorithm->initialize(es);  
 
-  BOOST_FOREACH( const edm::InputTag& tag, inputTags) {
-    if(      findInput( tag, inputOld, event) ) algorithm->clusterize(*inputOld, *output); 
-    else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
-    else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] " << tag;
+  BOOST_FOREACH( const edm::EDGetTokenT< edm::DetSetVector<SiStripDigi> >& token, inputTokens) {
+    if(      findInput( token, inputOld, event) ) algorithm->clusterize(*inputOld, *output); 
+//     else if( findInput( tag, inputNew, event) ) algorithm->clusterize(*inputNew, *output);
+    else edm::LogError("Input Not Found") << "[SiStripClusterizer::produce] ";// << tag;
   }
 
   LogDebug("Output") << output->dataSize() << " clusters from " 
 		     << output->size()     << " modules";
-  event.put(output);
+  output->shrink_to_fit();
+  event.put(std::move(output));
 }
 
 template<class T>
 inline
 bool SiStripClusterizer::
-findInput(const edm::InputTag& tag, edm::Handle<T>& handle, const edm::Event& e) {
-    e.getByLabel( tag, handle);
+findInput(const edm::EDGetTokenT<T>& tag, edm::Handle<T>& handle, const edm::Event& e) {
+    e.getByToken( tag, handle);
     return handle.isValid();
 }

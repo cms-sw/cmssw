@@ -1,4 +1,3 @@
-
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelHitMatcher.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/PixelMatchNextLayers.h"
 #include "RecoEgamma/EgammaElectronAlgos/interface/ElectronUtilities.h"
@@ -6,11 +5,13 @@
 #include "TrackingTools/DetLayers/interface/DetLayer.h"
 #include "TrackingTools/MeasurementDet/interface/LayerMeasurements.h"
 #include "RecoTracker/MeasurementDet/interface/MeasurementTracker.h"
+#include "RecoTracker/MeasurementDet/interface/MeasurementTrackerEvent.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "DataFormats/GeometryCommonDetAlgo/interface/PerpendicularBoundPlaneBuilder.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include <typeinfo>
+#include <bitset>
 
 using namespace reco ;
 using namespace std ;
@@ -24,7 +25,7 @@ PixelHitMatcher::PixelHitMatcher
    meas1stBLayer(phi1min,phi1max,0.,0.), meas2ndBLayer(phi2minB,phi2maxB,z2minB,z2maxB),
    meas1stFLayer(phi1min,phi1max,0.,0.), meas2ndFLayer(phi2minF,phi2maxF,r2minF,r2maxF),
    startLayers(),
-   prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theLayerMeasurements(0),vertex_(0.),
+   prop1stLayer(0), prop2ndLayer(0),theGeometricSearchTracker(0),theTrackerEvent(0),theTracker(0),vertex_(0.),
    searchInTIDTEC_(searchInTIDTEC), useRecoVertex_(false)
  {
   meas1stFLayer.setRRangeI(rMinI,rMaxI) ;
@@ -35,7 +36,6 @@ PixelHitMatcher::~PixelHitMatcher()
  {
   delete prop1stLayer ;
   delete prop2ndLayer ;
-  delete theLayerMeasurements ;
  }
 
 void PixelHitMatcher::set1stLayer( float dummyphi1min, float dummyphi1max )
@@ -59,6 +59,11 @@ void PixelHitMatcher::set2ndLayer( float dummyphi2minB, float dummyphi2maxB, flo
 void PixelHitMatcher::setUseRecoVertex( bool val )
  { useRecoVertex_ = val ; }
 
+void PixelHitMatcher::setEvent( const MeasurementTrackerEvent & trackerData ) 
+ {
+    theTrackerEvent = & trackerData;
+    theLayerMeasurements = LayerMeasurements(*theTracker,*theTrackerEvent);
+ }
 void PixelHitMatcher::setES
  ( const MagneticField * magField,
    const MeasurementTracker * theMeasurementTracker,
@@ -66,10 +71,9 @@ void PixelHitMatcher::setES
  {
   if (theMeasurementTracker)
    {
+    theTracker = theMeasurementTracker;
     theGeometricSearchTracker=theMeasurementTracker->geometricSearchTracker() ;
     startLayers.setup(theGeometricSearchTracker) ;
-    if (theLayerMeasurements ) delete theLayerMeasurements ;
-    theLayerMeasurements = new LayerMeasurements(theMeasurementTracker) ;
    }
 
   theMagField = magField ;
@@ -90,157 +94,146 @@ vector<CLHEP::Hep3Vector> PixelHitMatcher::predicted2Hits()
 float PixelHitMatcher::getVertex()
  { return vertex_ ; }
 
-//CLHEP::Hep3Vector point_to_vector( const GlobalPoint & p )
-// { return CLHEP::Hep3Vector(p.x(),p.y(),p.z()) ; }
 
 std::vector<SeedWithInfo>
 PixelHitMatcher::compatibleSeeds
  ( TrajectorySeedCollection * seeds, const GlobalPoint & xmeas,
    const GlobalPoint & vprim, float energy, float fcharge )
  {
-  int charge = int(fcharge) ;
+   typedef std::unordered_map<const GeomDet *, TrajectoryStateOnSurface> DetTsosAssoc;
+   typedef std::unordered_map<std::pair<const GeomDet*,GlobalPoint>, TrajectoryStateOnSurface> PosTsosAssoc;
+   const int charge = int(fcharge) ;
 
-  FreeTrajectoryState fts = myFTS(theMagField,xmeas, vprim, energy, charge);
+   // auto xmeas_phi = xmeas.barePhi();
+   auto xmeas_r = xmeas.perp();
+   
+   const float phicut = std::cos(2.5);
+
+
+  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField, xmeas, vprim, energy, charge);
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
-
+  
   std::vector<SeedWithInfo> result ;
-  mapTsos_.clear() ;
-  mapTsos2_.clear() ;
-  mapTsos_.reserve(seeds->size()) ;
-  mapTsos2_.reserve(seeds->size()) ;
+  
+  //mapTsos_fast_.clear();  
+  mapTsos2_fast_.clear();  
+  // mapTsos_fast_.reserve(seeds->size()) ;
+  mapTsos2_fast_.reserve(seeds->size()) ;
 
-  for (unsigned int i=0;i<seeds->size();++i)
-   {
-    if ((*seeds)[i].nHits()>9)
-     {
+  // std::vector<TrajectoryStateOnSurface> vTsos(theTrackerGeometry->dets().size());
+  // TrajectoryStateOnSurface vTsos[theTrackerGeometry->dets().size()];
+
+  auto ndets = theTrackerGeometry->dets().size();
+
+  int iTsos[ndets];
+  for ( auto & i : iTsos) i=-1;
+  std::vector<TrajectoryStateOnSurface> vTsos; vTsos.reserve(seeds->size());
+
+  for(const auto& seed : *seeds) {
+    hit_gp_map_.clear();
+    if( seed.nHits() > 9 ) {
       edm::LogWarning("GsfElectronAlgo|UnexpectedSeed") <<"We cannot deal with seeds having more than 9 hits." ;
-      continue ;
-     }
-    TrajectorySeed::range rhits=(*seeds)[i].recHits() ;
+      continue;
+    }
+    
+    const TrajectorySeed::range& hits = seed.recHits();
+    // cache the global points
+   
+    for( auto it = hits.first; it != hits.second; ++it ) {
+      hit_gp_map_.emplace_back(it->globalPosition());      
+    }
 
-    // build all possible pairs
-    unsigned char rank1, rank2, hitsMask ;
-    TrajectorySeed::const_iterator it1, it2 ;
-    for ( rank1=0, it1=rhits.first ; it1!=rhits.second ; rank1++, it1++ )
-     {
-      for ( rank2=rank1+1, it2=it1+1 ; it2!=rhits.second ; rank2++, it2++ )
-       {
-        //TrajectorySeed::range r(it1,it2) ;
+    //iterate on the hits 
+    auto he =  hits.second -1;   
+    for( auto it1 = hits.first; it1 < he; ++it1 ) {
+      if( !it1->isValid() ) continue;
+      auto  idx1 = std::distance(hits.first,it1);
+      const DetId id1 = it1->geographicalId();
+      const GeomDet *geomdet1 = it1->det();
 
-        // first Hit
-        TrajectorySeed::const_iterator it=it1 ;
-        if (!(*it).isValid()) continue;
-        DetId id=(*it).geographicalId();
-        const GeomDet *geomdet=theTrackerGeometry->idToDet((*it).geographicalId());
-        LocalPoint lp=(*it).localPosition() ;
-        GlobalPoint hitPos=geomdet->surface().toGlobal(lp) ;
+      auto ix1 = geomdet1->gdetIndex();
 
-        TrajectoryStateOnSurface tsos1;
-        bool found = false;
-        std::vector<std::pair<const GeomDet *, TrajectoryStateOnSurface> >::iterator itTsos ;
-        for (itTsos=mapTsos_.begin();itTsos!=mapTsos_.end();++itTsos)
-         {
-          if ((*itTsos).first==geomdet)
-           { found=true ; break ; }
-         }
-        if (!found)
-         {
-          tsos1 = prop1stLayer->propagate(tsos,geomdet->surface()) ;
-          mapTsos_.push_back(std::pair<const GeomDet *, TrajectoryStateOnSurface>(geomdet,tsos1));
-         }
-        else
-         { tsos1=(*itTsos).second ; }
+      /*  VI: this generates regression (other cut is just in phi). in my opinion it is safe and makes sense
+      auto away = geomdet1->position().basicVector().dot(xmeas.basicVector()) <0;
+      if (away) continue;
+      */
 
-        if (tsos1.isValid())
-         {
-          std::pair<bool,double> est;
-          if (id.subdetId()%2==1) est=meas1stBLayer.estimate(vprim, tsos1,hitPos);
-          else est=meas1stFLayer.estimate(vprim, tsos1,hitPos);
-          if (!est.first) continue ;
+      const GlobalPoint& hit1Pos = hit_gp_map_[idx1];
+      auto dt = hit1Pos.x()*xmeas.x()+hit1Pos.y()*xmeas.y();
+      if (dt<0) continue;
+      if (dt<phicut*(xmeas_r*hit1Pos.perp())) continue;
 
-          if (std::abs(normalized_phi(hitPos.phi()-xmeas.phi()))>2.5) continue ;
-          EleRelPointPair pp1(hitPos,tsos1.globalParameters().position(),vprim) ;
-          int subDet1 = id.subdetId() ;
-          float dRz1 = (subDet1%2==1)?pp1.dZ():pp1.dPerp() ;
-          float dPhi1 = pp1.dPhi() ;
+      if(iTsos[ix1]<0)   {
+        iTsos[ix1] = vTsos.size();
+        vTsos.push_back(prop1stLayer->propagate(tsos,geomdet1->surface()));
+      }
+      auto tsos1 = &vTsos[iTsos[ix1]];
 
-          // now second Hit
-          //CC@@
-          //it++;
-          it=it2 ;
-          if (!(*it).isValid()) continue ;
+      if( !tsos1->isValid() ) continue;
+      std::pair<bool, double> est = ( id1.subdetId() % 2 ? 
+				      meas1stBLayer.estimate(vprim, *tsos1, hit1Pos) :
+				      meas1stFLayer.estimate(vprim, *tsos1, hit1Pos)  );
+      if( !est.first ) continue;
+      EleRelPointPair pp1(hit1Pos,tsos1->globalParameters().position(),vprim);
+      const math::XYZPoint relHit1Pos(hit1Pos-vprim), relTSOSPos(tsos1->globalParameters().position() - vprim);
+      const int subDet1 = id1.subdetId();
+      const float dRz1 = ( id1.subdetId()%2 ? pp1.dZ() : pp1.dPerp() );
+      const float dPhi1 = pp1.dPhi();
+      // setup our vertex
+      double zVertex;
+      if (!useRecoVertex_) {
+	// we don't know the z vertex position, get it from linear extrapolation
+	// compute the z vertex from the cluster point and the found pixel hit
+	const double pxHit1z = hit1Pos.z();
+	const double pxHit1x = hit1Pos.x();
+	const double pxHit1y = hit1Pos.y();
+	const double r1diff = std::sqrt( (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + 
+					 (pxHit1y-vprim.y())*(pxHit1y-vprim.y())   );
+	const double r2diff = std::sqrt( (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + 
+					 (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y)   );
+	zVertex = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
+      } else { 
+	// here use rather the reco vertex z position
+	zVertex = vprim.z(); 
+      }
+      GlobalPoint vertex(vprim.x(),vprim.y(),zVertex);
+      FreeTrajectoryState fts2 = FTSFromVertexToPointFactory::get(*theMagField, hit1Pos, vertex, energy, charge) ;
+      // now find the matching hit
+      for( auto it2 = it1+1; it2 != hits.second; ++it2 ) {
+	if( !it2->isValid() ) continue;
+	auto idx2 = std::distance(hits.first,it2);
+	const DetId id2 = it2->geographicalId();
+	const GeomDet *geomdet2 = it2->det();
+	const std::pair<const GeomDet *,GlobalPoint> det_key(geomdet2,hit1Pos);	
+	const TrajectoryStateOnSurface* tsos2;
+	auto tsos2_itr = mapTsos2_fast_.find(det_key);
+	if( tsos2_itr != mapTsos2_fast_.end() ) {
+	  tsos2 = &(tsos2_itr->second);
+	} else {
+	  auto empl_result =
+	    mapTsos2_fast_.emplace(det_key,prop2ndLayer->propagate(fts2,geomdet2->surface()));
+	  tsos2 = &(empl_result.first->second);
+	}
+	if( !tsos2->isValid() ) continue;
+	const GlobalPoint& hit2Pos = hit_gp_map_[idx2];
+	std::pair<bool,double> est2  = ( id2.subdetId()%2 ? 
+					 meas2ndBLayer.estimate(vertex, *tsos2,hit2Pos) :
+					 meas2ndFLayer.estimate(vertex, *tsos2,hit2Pos)   );
+	if (est2.first) {
+	  EleRelPointPair pp2(hit2Pos,tsos2->globalParameters().position(),vertex) ;
+	  const int subDet2 = id2.subdetId();
+	  const float dRz2 = (subDet2%2==1)?pp2.dZ():pp2.dPerp();
+	  const float dPhi2 = pp2.dPhi();
+	  const unsigned char hitsMask = (1<<idx1)|(1<<idx2);
+	  result.push_back(SeedWithInfo(seed,hitsMask,subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
+	}
+      }// inner loop on hits
+    }// outer loop on hits
+  }// loop on seeds  
 
-          DetId id2=(*it).geographicalId();
-          const GeomDet *geomdet2=theTrackerGeometry->idToDet((*it).geographicalId());
-          TrajectoryStateOnSurface tsos2;
-
-          double zVertex;
-          if (!useRecoVertex_) // we don't know the z vertex position, get it from linear extrapolation
-           {
-            // compute the z vertex from the cluster point and the found pixel hit
-            double pxHit1z = hitPos.z();
-            double pxHit1x = hitPos.x();
-            double pxHit1y = hitPos.y();
-            double r1diff = (pxHit1x-vprim.x())*(pxHit1x-vprim.x()) + (pxHit1y-vprim.y())*(pxHit1y-vprim.y()) ;
-            r1diff=sqrt(r1diff) ;
-            double r2diff = (xmeas.x()-pxHit1x)*(xmeas.x()-pxHit1x) + (xmeas.y()-pxHit1y)*(xmeas.y()-pxHit1y) ;
-            r2diff=sqrt(r2diff);
-            zVertex = pxHit1z - r1diff*(xmeas.z()-pxHit1z)/r2diff;
-           }
-          else // here use rather the reco vertex z position
-           { zVertex = vprim.z() ; }
-
-          GlobalPoint vertex(vprim.x(),vprim.y(),zVertex) ;
-          FreeTrajectoryState fts2 = myFTS(theMagField,hitPos,vertex,energy, charge) ;
-
-          found = false;
-          std::vector<std::pair< std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> >::iterator itTsos2 ;
-          for (itTsos2=mapTsos2_.begin();itTsos2!=mapTsos2_.end();++itTsos2)
-           {
-            if (((*itTsos2).first).first==geomdet2 &&
-                (((*itTsos2).first).second).x()==hitPos.x() &&
-                (((*itTsos2).first).second).y()==hitPos.y() &&
-                (((*itTsos2).first).second).z()==hitPos.z()  )
-             {
-              found=true;
-              break;
-             }
-           }
-          if (!found)
-           {
-            tsos2 = prop2ndLayer->propagate(fts2,geomdet2->surface()) ;
-            std::pair<const GeomDet *,GlobalPoint> pair(geomdet2,hitPos);
-            mapTsos2_.push_back(std::pair<std::pair<const GeomDet *,GlobalPoint>, TrajectoryStateOnSurface> (pair,tsos2));
-           }
-          else
-           { tsos2=(*itTsos2).second ; }
-
-          if (tsos2.isValid())
-           {
-            LocalPoint lp2=(*it).localPosition() ;
-            GlobalPoint hitPos2=geomdet2->surface().toGlobal(lp2) ;
-            std::pair<bool,double> est2 ;
-            if (id2.subdetId()%2==1) est2=meas2ndBLayer.estimate(vertex, tsos2,hitPos2) ;
-            else est2=meas2ndFLayer.estimate(vertex, tsos2,hitPos2) ;
-            if (est2.first)
-             {
-              EleRelPointPair pp2(hitPos2,tsos2.globalParameters().position(),vertex) ;
-              int subDet2 = id2.subdetId() ;
-              float dRz2 = (subDet2%2==1)?pp2.dZ():pp2.dPerp() ;
-              float dPhi2 = pp2.dPhi() ;
-              hitsMask = (1<<rank1)|(1<<rank2) ;
-              result.push_back(SeedWithInfo((*seeds)[i],hitsMask,subDet2,dRz2,dPhi2,subDet1,dRz1,dPhi1)) ;
-             }
-           }
-         } // end tsos1 is valid
-       } // end loop on second seed hit
-     } // end loop on first seed hit
-   } // end loop on seeds
-
-  mapTsos_.clear() ;
-  mapTsos2_.clear() ;
-
+  mapTsos2_fast_.clear() ;
+ 
   return result ;
  }
 
@@ -251,7 +244,8 @@ PixelHitMatcher::compatibleHits
  ( const GlobalPoint & xmeas,
    const GlobalPoint & vprim,
    float energy, float fcharge,
-   const TrackerTopology *tTopo)
+   const TrackerTopology *tTopo,
+   const NavigationSchool& navigationSchool)
  {
   float SCl_phi = xmeas.phi();
 
@@ -268,24 +262,23 @@ PixelHitMatcher::compatibleHits
   pred1Meas.clear();
   pred2Meas.clear();
 
-  typedef vector<BarrelDetLayer*>::const_iterator BarrelLayerIterator;
+  typedef vector<const BarrelDetLayer*>::const_iterator BarrelLayerIterator;
   BarrelLayerIterator firstLayer = startLayers.firstBLayer();
 
-  FreeTrajectoryState fts =myFTS(theMagField,xmeas, vprim,
-				 energy, charge);
+  FreeTrajectoryState fts = FTSFromVertexToPointFactory::get(*theMagField,xmeas, vprim, energy, charge);
 
   PerpendicularBoundPlaneBuilder bpb;
   TrajectoryStateOnSurface tsos(fts, *bpb(fts.position(), fts.momentum()));
 
   if (tsos.isValid()) {
     vector<TrajectoryMeasurement> pixelMeasurements =
-      theLayerMeasurements->measurements(**firstLayer,tsos,
+      theLayerMeasurements.measurements(**firstLayer,tsos,
 					 *prop1stLayer, meas1stBLayer);
 
     LogDebug("") <<"[PixelHitMatcher::compatibleHits] nbr of hits compatible with extrapolation to first layer: " << pixelMeasurements.size();
     for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
      if (m->recHit()->isValid()) {
-       float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi()) ;
+       float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
        if(std::abs(localDphi)>2.5)continue;
 	CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
@@ -310,12 +303,12 @@ PixelHitMatcher::compatibleHits
     firstLayer++;
 
     vector<TrajectoryMeasurement> pixel2Measurements =
-      theLayerMeasurements->measurements(**firstLayer,tsos,
+      theLayerMeasurements.measurements(**firstLayer,tsos,
 					 *prop1stLayer, meas1stBLayer);
 
     for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
       if (m->recHit()->isValid()) {
-	float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi()) ;
+	float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
 	if(std::abs(localDphi)>2.5)continue;
         CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 			      m->forwardPredictedState().globalPosition().y(),
@@ -338,7 +331,7 @@ PixelHitMatcher::compatibleHits
 
 
   // check if there are compatible 1st hits the forward disks
-  typedef vector<ForwardDetLayer*>::const_iterator ForwardLayerIterator;
+  typedef vector<const ForwardDetLayer*>::const_iterator ForwardLayerIterator;
   ForwardLayerIterator flayer;
 
   TrajectoryStateOnSurface tsosfwd(fts, *bpb(fts.position(), fts.momentum()));
@@ -351,12 +344,12 @@ PixelHitMatcher::compatibleHits
       if (i==1 && xmeas.z() > 100. ) continue;
 
       vector<TrajectoryMeasurement> pixelMeasurements =
-	theLayerMeasurements->measurements(**flayer, tsosfwd,
+	theLayerMeasurements.measurements(**flayer, tsosfwd,
 					   *prop1stLayer, meas1stFLayer);
 
       for (aMeas m=pixelMeasurements.begin(); m!=pixelMeasurements.end(); m++){
 	if (m->recHit()->isValid()) {
-	  float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi());
+	  float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi());
 	  if(std::abs(localDphi)>2.5)continue;
 	  CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				m->forwardPredictedState().globalPosition().y(),
@@ -372,12 +365,12 @@ PixelHitMatcher::compatibleHits
 	flayer++;
 
 	vector<TrajectoryMeasurement> pixel2Measurements =
-	  theLayerMeasurements->measurements(**flayer, tsosfwd,
+	  theLayerMeasurements.measurements(**flayer, tsosfwd,
 					     *prop1stLayer, meas1stFLayer);
 
 	for (aMeas m=pixel2Measurements.begin(); m!=pixel2Measurements.end(); m++){
 	  if (m->recHit()->isValid()) {
-	    float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().phi()) ;
+	    float localDphi = normalized_phi(SCl_phi-m->forwardPredictedState().globalPosition().barePhi()) ;
 	    if(std::abs(localDphi)>2.5)continue;
 	    CLHEP::Hep3Vector prediction(m->forwardPredictedState().globalPosition().x(),
 				  m->forwardPredictedState().globalPosition().y(),
@@ -426,11 +419,11 @@ PixelHitMatcher::compatibleHits
     GlobalPoint vertexPred(vprim.x(),vprim.y(),zVertex) ;
     GlobalPoint hitPos( validMeasurements[i].recHit()->det()->surface().toGlobal( validMeasurements[i].recHit()->localPosition() ) ) ;
 
-    FreeTrajectoryState secondFTS=myFTS(theMagField,hitPos,vertexPred,energy, charge);
+    FreeTrajectoryState secondFTS = FTSFromVertexToPointFactory::get(*theMagField, hitPos, vertexPred, energy, charge);
 
-    PixelMatchNextLayers secondHit(theLayerMeasurements, newLayer, secondFTS,
+    PixelMatchNextLayers secondHit(&theLayerMeasurements, newLayer, secondFTS,
 				   prop2ndLayer, &meas2ndBLayer,&meas2ndFLayer,
-				   tTopo,searchInTIDTEC_);
+				   tTopo,navigationSchool,searchInTIDTEC_);
     vector<CLHEP::Hep3Vector> predictions = secondHit.predictionInNextLayers();
 
     for (unsigned it = 0; it < predictions.size(); it++) pred2Meas.push_back(predictions[it]);
@@ -442,7 +435,7 @@ PixelHitMatcher::compatibleHits
     if(!secondHit.measurementsInNextLayers().empty()){
       for(unsigned int shit=0; shit<secondHit.measurementsInNextLayers().size(); shit++)
       	{
-	  float dphi = normalized_phi(pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().phi()) ;
+	  float dphi = normalized_phi(pred1Meas[i].phi()-validMeasurements[i].recHit()->globalPosition().barePhi()) ;
 	  if (std::abs(dphi)<2.5)
 	    {
 	      ConstRecHitPointer pxrh = validMeasurements[i].recHit();
@@ -460,5 +453,4 @@ PixelHitMatcher::compatibleHits
   }
   return result;
 }
-
 

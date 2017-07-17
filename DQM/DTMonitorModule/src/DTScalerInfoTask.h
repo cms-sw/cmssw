@@ -23,7 +23,11 @@
 #include "DQMServices/Core/interface/MonitorElement.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include "DataFormats/DTDigi/interface/DTLocalTriggerCollection.h"
+#include "DataFormats/Luminosity/interface/LumiDetails.h"
+#include "DataFormats/Scalers/interface/LumiScalers.h"
 
 #include <vector>
 #include <string>
@@ -31,50 +35,43 @@
 
 class DTTimeEvolutionHisto;
 
-class DTScalerInfoTask: public edm::EDAnalyzer{
-  
+class DTScalerInfoTask: public DQMEDAnalyzer{
+
   friend class DTMonitorModule;
-  
+
  public:
-  
+
   /// Constructor
   DTScalerInfoTask(const edm::ParameterSet& ps );
-  
+
   /// Destructor
   virtual ~DTScalerInfoTask();
-  
+
  protected:
-  
-  // BeginJob
-  void beginJob();
+
+  // Book the histograms
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
   ///Beginrun
-  void beginRun(const edm::Run& , const edm::EventSetup&);
+  void dqmBeginRun(const edm::Run& , const edm::EventSetup&) override;
 
   /// Analyze
-  void analyze(const edm::Event& e, const edm::EventSetup& c);
+  void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
+  void beginLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)  override;
 
   /// Perform trend plot operations
-  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context) ;
-  
-  /// EndJob
-  void endJob(void);
-  
- private:
+  void endLuminosityBlock(const edm::LuminosityBlock& lumiSeg, const edm::EventSetup& context)  override;
 
-  /// Book the histograms
-  void bookHistos();
+ private:
 
   int nEvents;
   int nEventsInLS;
-  
-  DQMStore* theDQMStore;
+
   edm::ParameterSet theParams;
 
-  edm::InputTag theScalerTag;
+  edm::EDGetTokenT<LumiScalersCollection> scalerToken_;
 
   std::map<std::string ,DTTimeEvolutionHisto* > trendHistos;
   MonitorElement* nEventMonitor;
@@ -82,3 +79,8 @@ class DTScalerInfoTask: public edm::EDAnalyzer{
 };
 
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

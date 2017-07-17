@@ -14,6 +14,8 @@
 
 #include "PhysicsTools/MVATrainer/interface/MVATrainer.h"
 
+#include "FWCore/ParameterSet/interface/FileInPath.h"
+
 using namespace PhysicsTools;
 
 static double gauss()
@@ -57,16 +59,17 @@ static void train(MVAComputer *computer)
 
 void test()
 {
-	MVATrainer trainer("testMVATrainer.xml");
+	edm::FileInPath file("PhysicsTools/MVATrainer/test/testMVATrainer.xml");
+	MVATrainer trainer(file.fullPath());
 
 	for(;;) {
-		std::auto_ptr<Calibration::MVAComputer> calib(
+		std::unique_ptr<Calibration::MVAComputer> calib(
 					trainer.getTrainCalibration());
 
 		if (!calib.get())
 			break;
 
-		std::auto_ptr<MVAComputer> computer(
+		std::unique_ptr<MVAComputer> computer(
 					new MVAComputer(calib.get()));
 
 		train(computer.get());

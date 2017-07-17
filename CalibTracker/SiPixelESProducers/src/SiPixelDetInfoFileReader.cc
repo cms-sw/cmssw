@@ -118,7 +118,7 @@ const std::pair<int, int> & SiPixelDetInfoFileReader::getDetUnitDimensions(uint3
   }
   else{
 
-    static std::pair< int, int> defaultValue(0,0);
+    static const std::pair< int, int> defaultValue(0,0);
     edm::LogWarning("SiPixelDetInfoFileReader::getDetUnitDimensions - Unable to find requested detid. Returning invalid data ")<<endl; 
     return defaultValue;
 

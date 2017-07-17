@@ -16,7 +16,7 @@
 */
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
@@ -39,7 +39,7 @@
 
 namespace pat {
 
-  class PATGenericParticleProducer : public edm::EDProducer {
+  class PATGenericParticleProducer : public edm::stream::EDProducer<> {
 
     public:
 
@@ -51,28 +51,29 @@ namespace pat {
     private:
 
       // configurables
-      edm::InputTag src_;
+      edm::EDGetTokenT<edm::View<reco::Candidate> > srcToken_;
 
       // embed RECo objects
       bool embedSuperCluster_, embedTrack_, embedTracks_, embedGsfTrack_, embedCaloTower_, embedStandalone_, embedCombined_;
 
       bool addQuality_;
-      edm::InputTag qualitySrc_;
+      edm::EDGetTokenT<edm::ValueMap<float> > qualitySrcToken_;
 
       bool addGenMatch_;
       bool embedGenMatch_;
-      std::vector<edm::InputTag> genMatchSrc_;
+      std::vector<edm::EDGetTokenT<edm::Association<reco::GenParticleCollection> > > genMatchTokens_;
 
       // tools
       GreaterByEt<GenericParticle> eTComparator_;
 
-      pat::helper::MultiIsolator isolator_; 
+      pat::helper::MultiIsolator isolator_;
       pat::helper::MultiIsolator::IsolationValuePairs isolatorTmpStorage_; // better here than recreate at each event
       std::vector<std::pair<pat::IsolationKeys,edm::InputTag> > isoDepositLabels_;
+      std::vector<edm::EDGetTokenT<edm::ValueMap<IsoDeposit> > > isoDepositTokens_;
 
       bool addEfficiencies_;
       pat::helper::EfficiencyLoader efficiencyLoader_;
-      
+
       bool addResolutions_;
       pat::helper::KinResolutionsLoader resolutionLoader_;
 

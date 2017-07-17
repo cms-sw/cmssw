@@ -38,7 +38,7 @@ MuDetRod::components() const {
 
   // FIXME dummy impl.
   cout << "temporary dummy implementation of MuDetRod::components()!!" << endl;
-  static vector<const GeometricSearchDet*> result;
+  static const vector<const GeometricSearchDet*> result;
   return result;
 }
 

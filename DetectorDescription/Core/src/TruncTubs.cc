@@ -1,6 +1,11 @@
 #include "DetectorDescription/Core/src/TruncTubs.h"
 
+#include <vector>
+
 #include "CLHEP/Units/GlobalSystemOfUnits.h"
+#include "CLHEP/Units/SystemOfUnits.h"
+#include "DetectorDescription/Core/interface/DDSolidShapes.h"
+#include "DetectorDescription/Core/src/Solid.h"
 
 DDI::TruncTubs::TruncTubs(double zHalf,
               double rIn, double rOut,

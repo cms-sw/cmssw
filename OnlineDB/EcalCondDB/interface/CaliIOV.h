@@ -29,8 +29,8 @@ class CaliIOV : public IIOV {
 
   // Methods from IUniqueDBObject
   int getID(){ return m_ID;} ;
-  int fetchID() throw(std::runtime_error);
-  void setByID(int id) throw(std::runtime_error);
+  int fetchID() noexcept(false);
+  void setByID(int id) noexcept(false);
 
   // Operators
   inline bool operator==(const CaliIOV &m) const
@@ -49,8 +49,8 @@ class CaliIOV : public IIOV {
   Tm m_till;
   CaliTag m_caliTag;
 
-  int writeDB() throw(std::runtime_error);
-  void setByTm(CaliTag* tag, const Tm& time) throw(std::runtime_error);
+  int writeDB() noexcept(false);
+  void setByTm(CaliTag* tag, const Tm& time) noexcept(false);
 };
 
 #endif

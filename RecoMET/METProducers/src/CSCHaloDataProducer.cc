@@ -1,5 +1,6 @@
 #include "RecoMET/METProducers/interface/CSCHaloDataProducer.h"
 #include "FWCore/Common/interface/TriggerNames.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 /*
   [class]:  CSCHaloDataProducer
@@ -24,6 +25,10 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   //RecHit Level
   IT_CSCRecHit   = iConfig.getParameter<edm::InputTag>("CSCRecHitLabel");
 
+  //Calo RecHit
+  IT_HBHErh = iConfig.getParameter<edm::InputTag>("HBHErhLabel");
+  IT_ECALBrh= iConfig.getParameter<edm::InputTag>("ECALBrhLabel");
+  IT_ECALErh= iConfig.getParameter<edm::InputTag>("ECALErhLabel");
   //Higher Level Reco 
   IT_CSCSegment = iConfig.getParameter<edm::InputTag>("CSCSegmentLabel");  
   IT_CosmicMuon = iConfig.getParameter<edm::InputTag>("CosmicMuonLabel"); 
@@ -32,10 +37,9 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   IT_ALCT = iConfig.getParameter<edm::InputTag>("ALCTDigiLabel"); 
 
   //Muon to Segment Matching
-  edm::ParameterSet serviceParameters = iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
-  TheService = new MuonServiceProxy(serviceParameters);
   edm::ParameterSet matchParameters = iConfig.getParameter<edm::ParameterSet>("MatchParameters");
-  TheMatcher = new MuonSegmentMatcher(matchParameters, TheService);
+  edm::ConsumesCollector iC = consumesCollector();
+  TheMatcher = new MuonSegmentMatcher(matchParameters, iC);
 
   // Cosmic track selection parameters
   CSCAlgo.SetDetaThreshold( (float) iConfig.getParameter<double>("DetaParam"));
@@ -60,6 +64,18 @@ CSCHaloDataProducer::CSCHaloDataProducer(const edm::ParameterSet& iConfig)
   CSCAlgo.SetMatchingDEtaThreshold( (float)iConfig.getParameter<double>("MatchingDEtaThreshold") );
   CSCAlgo.SetMatchingDWireThreshold(iConfig.getParameter<int>("MatchingDWireThreshold") );
 
+  cosmicmuon_token_ = consumes<reco::MuonCollection>(IT_CosmicMuon);
+  csctimemap_token_ = consumes<reco::MuonTimeExtraMap>(edm::InputTag(IT_CosmicMuon.label(), "csc"));
+  muon_token_       = consumes<reco::MuonCollection>(IT_Muon);
+  cscsegment_token_ = consumes<CSCSegmentCollection>(IT_CSCSegment);
+  cscrechit_token_  = consumes<CSCRecHit2DCollection>(IT_CSCRecHit);
+  cscalct_token_    = consumes<CSCALCTDigiCollection>(IT_ALCT);
+  l1mugmtro_token_  = consumes<L1MuGMTReadoutCollection>(IT_L1MuGMTReadout);
+  hbhereco_token_   = consumes<HBHERecHitCollection>(IT_HBHErh);
+  EcalRecHitsEB_token_ = consumes<EcalRecHitCollection>(IT_ECALBrh);
+  EcalRecHitsEE_token_ = consumes<EcalRecHitCollection>(IT_ECALErh);
+  hltresult_token_  = consumes<edm::TriggerResults>(IT_HLTResult);
+
   produces<CSCHaloData>();
 }
 
@@ -71,44 +87,60 @@ void CSCHaloDataProducer::produce(Event& iEvent, const EventSetup& iSetup)
 
   //Get Muons Collection from Cosmic Reconstruction 
   edm::Handle< reco::MuonCollection > TheCosmics;
-  iEvent.getByLabel(IT_CosmicMuon, TheCosmics);
-  
+  //  iEvent.getByLabel(IT_CosmicMuon, TheCosmics);
+  iEvent.getByToken(cosmicmuon_token_, TheCosmics);
+
   //Get Muon Time Information from Cosmic Reconstruction
   edm::Handle<reco::MuonTimeExtraMap> TheCSCTimeMap;
-  iEvent.getByLabel(IT_CosmicMuon.label(),"csc",TheCSCTimeMap);
+  //  iEvent.getByLabel(IT_CosmicMuon.label(),"csc",TheCSCTimeMap);
+  iEvent.getByToken(csctimemap_token_, TheCSCTimeMap);
 
  //Collision Muon Collection
   edm::Handle< reco::MuonCollection> TheMuons;
-  iEvent.getByLabel(IT_Muon, TheMuons);
+  //  iEvent.getByLabel(IT_Muon, TheMuons);
+  iEvent.getByToken(muon_token_, TheMuons);
 
   //Get CSC Segments
   edm::Handle<CSCSegmentCollection> TheCSCSegments;
-  iEvent.getByLabel(IT_CSCSegment, TheCSCSegments);
+  //  iEvent.getByLabel(IT_CSCSegment, TheCSCSegments);
+  iEvent.getByToken(cscsegment_token_, TheCSCSegments);
 
   //Get CSC RecHits
   Handle<CSCRecHit2DCollection> TheCSCRecHits;
-  iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits);
+  //  iEvent.getByLabel(IT_CSCRecHit, TheCSCRecHits);
+  iEvent.getByToken(cscrechit_token_, TheCSCRecHits);
 
   //Get L1MuGMT 
   edm::Handle < L1MuGMTReadoutCollection > TheL1GMTReadout ;
-  iEvent.getByLabel (IT_L1MuGMTReadout, TheL1GMTReadout);
+  //  iEvent.getByLabel (IT_L1MuGMTReadout, TheL1GMTReadout);
+  iEvent.getByToken(l1mugmtro_token_, TheL1GMTReadout);
 
   //Get Chamber Anode Trigger Information
   edm::Handle<CSCALCTDigiCollection> TheALCTs;
-  iEvent.getByLabel (IT_ALCT, TheALCTs);
+  //  iEvent.getByLabel (IT_ALCT, TheALCTs);
+  iEvent.getByToken(cscalct_token_, TheALCTs);
 
+  //Calo rec hits
+  Handle<HBHERecHitCollection> hbhehits;
+  iEvent.getByToken(hbhereco_token_,hbhehits);
+  Handle<EcalRecHitCollection> ecalebhits;
+  iEvent.getByToken(EcalRecHitsEB_token_, ecalebhits);
+  Handle<EcalRecHitCollection> ecaleehits;
+  iEvent.getByToken(EcalRecHitsEE_token_,ecaleehits);
+  
   //Get HLT Results                                                                                                                                                       
   edm::Handle<edm::TriggerResults> TheHLTResults;
-  iEvent.getByLabel( IT_HLTResult , TheHLTResults);
+  //  iEvent.getByLabel( IT_HLTResult , TheHLTResults);
+  iEvent.getByToken(hltresult_token_, TheHLTResults);
 
   const edm::TriggerNames * triggerNames = 0;
   if (TheHLTResults.isValid()) {
     triggerNames = &iEvent.triggerNames(*TheHLTResults);
   }
 
-  std::auto_ptr<CSCHaloData> TheCSCData(new CSCHaloData( CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent) ) );
+
   // Put it in the event                                                                                                                                                
-  iEvent.put(TheCSCData);
+  iEvent.put(std::make_unique<CSCHaloData>(CSCAlgo.Calculate(*TheCSCGeometry, TheCosmics, TheCSCTimeMap, TheMuons, TheCSCSegments, TheCSCRecHits, TheL1GMTReadout, hbhehits,ecalebhits,ecaleehits,TheHLTResults, triggerNames, TheALCTs, TheMatcher, iEvent, iSetup)));
   return;
 }
 

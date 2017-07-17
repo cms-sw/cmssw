@@ -1,0 +1,14 @@
+<use   name="Geometry/CaloGeometry"/>
+<use   name="RecoLocalFastTime/FTLCommonAlgos"/>
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="DataFormats/HGCDigi"/>
+<use   name="DataFormats/HGCRecHit"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="FWCore/MessageLogger"/>
+<use   name="FWCore/MessageService"/>
+<use   name="Geometry/HGCalGeometry"/>
+<use   name="DataFormats/FTLRecHit"/>
+<library   file="*.cc" name="RecoLocalFastTimeFTLCommonAlgosPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

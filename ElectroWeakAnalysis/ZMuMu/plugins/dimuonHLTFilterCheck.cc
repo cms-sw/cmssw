@@ -1,5 +1,5 @@
 /* \class dimuonHLTFilterCheck
- * 
+ *
  * author: Davide Piccolo
  *
  * check HLTFilter for dimuon studies:
@@ -8,7 +8,7 @@
 
 #include "DataFormats/Common/interface/AssociationVector.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
-#include "DataFormats/Candidate/interface/CandMatchMap.h" 
+#include "DataFormats/Candidate/interface/CandMatchMap.h"
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "DataFormats/Candidate/interface/Particle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
@@ -25,7 +25,7 @@
 // access trigger results
 #include "FWCore/Common/interface/TriggerNames.h"
 #include <DataFormats/Common/interface/TriggerResults.h>
-#include <DataFormats/HLTReco/interface/TriggerEvent.h> 
+#include <DataFormats/HLTReco/interface/TriggerEvent.h>
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
 #include "TH1.h"
@@ -44,24 +44,24 @@ public:
   dimuonHLTFilterCheck(const edm::ParameterSet& pset);
 private:
   virtual void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
-  vector<int> nDimuonsByType(const Handle<CandidateView> d);   
-  vector<int> nMuonsByType(const Handle<CandidateView> d);   
+  vector<int> nDimuonsByType(const Handle<CandidateView> d);
+  vector<int> nMuonsByType(const Handle<CandidateView> d);
   virtual void endJob() override;
-  //  edm::InputTag zMuMu_, zMuMuMatchMap_; 
-  InputTag triggerResultsTag, tracksTag, muonTag, anyDimuonTag;
- 
- 
+  EDGetTokenT<TriggerResults> triggerResultsToken;
+  EDGetTokenT<CandidateView> tracksToken;
+  EDGetTokenT<CandidateView> muonToken;
+  EDGetTokenT<CandidateView> anyDimuonToken;
+
+
   // general histograms
-  
+
   // global counters
-  int counterMatrix[5][5];  
+  int counterMatrix[5][5];
 };
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Candidate/interface/Particle.h"
-#include "DataFormats/Candidate/interface/Candidate.h"
 #include "DataFormats/Common/interface/ValueMap.h"
 #include "DataFormats/Candidate/interface/CandAssociation.h"
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
@@ -70,22 +70,19 @@ private:
 #include <iostream>
 #include <iterator>
 #include <cmath>
-using namespace std;
-using namespace reco;
-using namespace edm;
 
-dimuonHLTFilterCheck::dimuonHLTFilterCheck(const ParameterSet& pset) : 
+dimuonHLTFilterCheck::dimuonHLTFilterCheck(const ParameterSet& pset) :
   // trigger results
-  triggerResultsTag(pset.getParameter<InputTag>("triggerResults")),
-  tracksTag(pset.getParameter<InputTag>("tracks")), 
-  muonTag(pset.getParameter<InputTag>("muons")), 
-  anyDimuonTag(pset.getParameter<InputTag>("anyDimuon")) 
+  triggerResultsToken(consumes<TriggerResults>(pset.getParameter<InputTag>("triggerResults"))),
+  tracksToken(consumes<CandidateView>(pset.getParameter<InputTag>("tracks"))),
+  muonToken(consumes<CandidateView>(pset.getParameter<InputTag>("muons"))),
+  anyDimuonToken(consumes<CandidateView>(pset.getParameter<InputTag>("anyDimuon")))
 {
   Service<TFileService> fs;
-  
-  
+
+
 // general histograms
-  
+
 // general counters
   for (int i=0; i<5; i++) {
     for (int j=0;j<5;j++) {
@@ -100,11 +97,11 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
   Handle<CandidateView> anyDimuon;         // any dimuon pair
   Handle<CandidateView> tracks;            // any track
   Handle<CandidateView> muons;             // any muon
-  
-  event.getByLabel( triggerResultsTag, triggerResults );
-  event.getByLabel( anyDimuonTag, anyDimuon );
-  event.getByLabel( tracksTag, tracks );
-  event.getByLabel( muonTag, muons );
+
+  event.getByToken( triggerResultsToken, triggerResults );
+  event.getByToken( anyDimuonToken, anyDimuon );
+  event.getByToken( tracksToken, tracks );
+  event.getByToken( muonToken, muons );
 
   const edm::TriggerNames & triggerNames = event.triggerNames(*triggerResults);
 
@@ -154,11 +151,11 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
 
   if ( triggerResults.product()->wasrun() ){
       //      cout << "at least one path out of " << triggerResults.product()->size() << " ran? " << triggerResults.product()->wasrun() << endl;
-      
-    if ( triggerResults.product()->accept() ) 
+
+    if ( triggerResults.product()->accept() )
       {
 	//  cout << endl << "at least one path accepted? " << triggerResults.product()->accept() << endl;
-	
+
 	const unsigned int n_TriggerResults( triggerResults.product()->size() );
 	for ( unsigned int itrig( 0 ); itrig < n_TriggerResults; ++itrig )
 	  {
@@ -173,7 +170,7 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
 		if (iterjetHLT != jetHLT_triggers.end()) {
 		  cout << "ecco la chiave jet HLT " << (*iterjetHLT).second << endl;
 		  }   // end if key found
-		
+
 	      }  // end if trigger accepted
 	  }   // end loop on triggerResults
       } // end if at least one triggerResult accepted
@@ -185,12 +182,12 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
       TrackRef muStaComponentRef = muCand.get<TrackRef,reco::StandAloneMuonTag>();  // standalone part of muon
       TrackRef muTrkComponentRef = muCand.get<TrackRef>();  // track part of muon
       if (muCandRef->isGlobalMuon()) {
-	cout << "muCand : " << i << "  pt " << muCandRef->pt() << "  eta " << muCandRef->eta() << endl; 
-	cout << "muCandStaComponent : " << i << "  pt " << muStaComponentRef->pt() << "  eta " << muStaComponentRef->eta() << endl; 
+	cout << "muCand : " << i << "  pt " << muCandRef->pt() << "  eta " << muCandRef->eta() << endl;
+	cout << "muCandStaComponent : " << i << "  pt " << muStaComponentRef->pt() << "  eta " << muStaComponentRef->eta() << endl;
       }
     }
   }
-  
+
   // fill counterMatrix
   for (int i=0; i<5; i++) {
     for (int j=0; j<5; j++) {
@@ -198,7 +195,7 @@ void dimuonHLTFilterCheck::analyze(const Event& event, const EventSetup& setup) 
     }
   }
 }  // end analyze
-  
+
 vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) {
   vector<int> n_;
   int nCat = 10;    // number of dimuon categories (0 = glb-glb, 1 = glb-trkSta, 2 = glb-sta, 3 = glb-trk, 4 = trkSta-trkSta, 5 = trkSta-sta, 6 = trkSta-trk, 7 = sta-sta, 8 = sta-trk, 9  trk-trk)
@@ -225,7 +222,7 @@ vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) 
     if (! mu1->isGlobalMuon() && mu1->isStandAloneMuon() && mu1->isTrackerMuon()) mu1trackerSta=true;
     if (! mu1->isGlobalMuon() && mu1->isStandAloneMuon() && ! mu1->isTrackerMuon()) mu1sta=true;
     if (! mu1->isGlobalMuon() && ! mu1->isStandAloneMuon() && mu1->isTrackerMuon()) mu1tracker=true;
-    
+
     if (mu0global && mu1global) n_[0]++;
     if ( (mu0global && mu1trackerSta) || (mu1global && mu0trackerSta) ) n_[1]++;
     if ( (mu0global && mu1sta) || (mu1global && mu0sta) ) n_[2]++;
@@ -236,11 +233,11 @@ vector<int> dimuonHLTFilterCheck::nDimuonsByType(const Handle<CandidateView> d) 
     if (mu0sta && mu1sta) n_[7]++;
     if ( (mu0sta && mu1tracker) || (mu1sta && mu0tracker) ) n_[8]++;
     if (mu0tracker && mu1tracker) n_[9]++;
-    
+
   }
   return n_;
-} 
-  
+}
+
 vector<int> dimuonHLTFilterCheck::nMuonsByType(const Handle<CandidateView> d) {
   vector<int> n_;
   int nCat = 4;    // number of muon categories (0 = glb, 1 = trkSta, 2 = sta, 3 = trk)
@@ -262,13 +259,13 @@ vector<int> dimuonHLTFilterCheck::nMuonsByType(const Handle<CandidateView> d) {
     if (mutrackerSta) n_[1]++;
     if (musta) n_[2]++;
     if (mutracker) n_[3]++;
-    
+
   }
   return n_;
-} 
-  
+}
+
 void dimuonHLTFilterCheck::endJob() {
-  
+
   cout << "------------------------------------  Counters  --------------------------------" << endl;
   for (int i=0; i<5; i++) {
     cout << "trg " << i << ": ";

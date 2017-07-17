@@ -60,6 +60,9 @@ GenericBenchmarkAnalyzer::GenericBenchmarkAnalyzer(const edm::ParameterSet& iCon
     edm::LogInfo("OutputInfo") << " ParticleFLow Task histograms will be saved to '" << outputFile_.c_str()<< "'";
   else edm::LogInfo("OutputInfo") << " ParticleFlow Task histograms will NOT be saved";
 
+  myTruth_ = consumes< edm::View<reco::Candidate> >(inputTruthLabel_);
+  myReco_ = consumes< edm::View<reco::Candidate> >(inputRecoLabel_);
+
 }
 
 GenericBenchmarkAnalyzer::~GenericBenchmarkAnalyzer() { }
@@ -73,7 +76,8 @@ GenericBenchmarkAnalyzer::beginJob()
   
   if (dbe_) {
     //dbe_->setVerbose(1);
-    string path = "PFTask/Benchmarks/" + benchmarkLabel_ + "/";
+    //string path = "PFTask/Benchmarks/" + benchmarkLabel_ + "/";
+    std::string path = "ParticleFlow/" + benchmarkLabel_ + "/" ;
     if (plotAgainstRecoQuantities_) path += "Reco"; else path += "Gen";
     dbe_->setCurrentFolder(path.c_str());
     setup(dbe_, plotAgainstRecoQuantities_, minDeltaEt_, maxDeltaEt_, minDeltaPhi_, maxDeltaPhi_, doMetPlots_);
@@ -101,7 +105,8 @@ GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
   { 
     // Get Truth Candidates (GenCandidates, GenJets, etc.)
     Handle<candidateCollection> truth_hnd;
-    bool isGen = iEvent.getByLabel(inputTruthLabel_, truth_hnd);
+    bool isGen = iEvent.getByToken(myTruth_, truth_hnd);   
+
     if ( !isGen ) { 
       std::cout << "Warning : no Gen jets in input !" << std::endl;
       return;
@@ -111,7 +116,7 @@ GenericBenchmarkAnalyzer::analyze(const edm::Event& iEvent,
 
     // Get Reco Candidates (PFlow, CaloJet, etc.)
     Handle<candidateCollection> reco_hnd;
-    bool isReco = iEvent.getByLabel(inputRecoLabel_, reco_hnd);
+    bool isReco = iEvent.getByToken(myReco_, reco_hnd);
     if ( !isReco ) { 
       std::cout << "Warning : no Reco jets in input !" << std::endl;
       return; 

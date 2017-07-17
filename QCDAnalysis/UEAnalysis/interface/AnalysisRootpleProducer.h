@@ -34,23 +34,23 @@
 
 // access trigger results
 #include <DataFormats/Common/interface/TriggerResults.h>
-#include <DataFormats/HLTReco/interface/TriggerEvent.h> 
+#include <DataFormats/HLTReco/interface/TriggerEvent.h>
 #include <DataFormats/HLTReco/interface/TriggerFilterObjectWithRefs.h>
 
 class AnalysisRootpleProducer : public edm::EDAnalyzer
 {
-  
+
 public:
-  
+
   //
   explicit AnalysisRootpleProducer( const edm::ParameterSet& ) ;
   virtual ~AnalysisRootpleProducer() {} // no need to delete ROOT stuff
   // as it'll be deleted upon closing TFile
-  
+
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob() ;
   virtual void endJob() ;
-  
+
   void fillEventInfo(int);
   void fillMCParticles(float, float, float, float);
   void fillTracks(float, float, float, float);
@@ -61,17 +61,17 @@ public:
   void store();
 
 private:
-  
+
   bool onlyRECO;
 
-  edm::InputTag mcEvent; // label of MC event
-  edm::InputTag genJetCollName; // label of Jet made with MC particles
-  edm::InputTag chgJetCollName; // label of Jet made with only charged MC particles
-  edm::InputTag chgGenPartCollName; // label of charged MC particles
-  edm::InputTag tracksJetCollName;
-  edm::InputTag recoCaloJetCollName;
-  edm::InputTag tracksCollName;
-  edm::InputTag triggerResultsTag;
+  edm::EDGetTokenT< edm::HepMCProduct         > mcEventToken; // label of MC event
+  edm::EDGetTokenT< reco::GenJetCollection    > genJetCollToken; // label of Jet made with MC particles
+  edm::EDGetTokenT< reco::GenJetCollection    > chgJetCollToken; // label of Jet made with only charged MC particles
+  edm::EDGetTokenT< std::vector<reco::GenParticle> > chgGenPartCollToken; // label of charged MC particles
+  edm::EDGetTokenT< reco::BasicJetCollection  > tracksJetCollToken;
+  edm::EDGetTokenT< reco::CaloJetCollection   > recoCaloJetCollToken;
+  edm::EDGetTokenT< reco::CandidateCollection > tracksCollToken;
+  edm::EDGetTokenT< edm::TriggerResults       > triggerResultsToken;
 
   edm::Handle< edm::HepMCProduct         > EvtHandle ;
   edm::Handle< std::vector<reco::GenParticle> > CandHandleMC ;
@@ -89,7 +89,7 @@ private:
 
   TTree* AnalysisTree;
 
-  static const int NMCPMAX = 10000;   
+  static const int NMCPMAX = 10000;
   static const int NTKMAX = 10000;
   static const int NIJMAX = 10000;
   static const int NCJMAX = 10000;
@@ -97,7 +97,7 @@ private:
   static const int NEHJMAX = 10000;
 
   int EventKind,NumberMCParticles,NumberTracks,NumberInclusiveJet,NumberChargedJet,NumberTracksJet,NumberCaloJet;
-  
+
   float MomentumMC[NMCPMAX],TransverseMomentumMC[NMCPMAX],EtaMC[NMCPMAX],PhiMC[NMCPMAX];
   float MomentumTK[NTKMAX],TransverseMomentumTK[NTKMAX],EtaTK[NTKMAX],PhiTK[NTKMAX];
   float MomentumIJ[NIJMAX],TransverseMomentumIJ[NIJMAX],EtaIJ[NIJMAX],PhiIJ[NIJMAX];

@@ -9,6 +9,11 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
+
+#include "CLHEP/Random/RandFlat.h"
+#include "CLHEP/Random/RandomEngine.h"
 
 using namespace edm;
 
@@ -53,7 +58,7 @@ FileRandomKEThetaGunProducer::FileRandomKEThetaGunProducer(const edm::ParameterS
       <<  file << "\n";
 
   
-  produces<HepMCProduct>();
+  produces<HepMCProduct>("unsmeared");
   produces<GenEventInfoProduct>();
 }
 
@@ -64,6 +69,9 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
   if (fVerbosity > 0) 
     LogDebug("FlatThetaGun") << "FileRandomKEThetaGunProducer : Begin New Event Generation"; 
    
+  edm::Service<edm::RandomNumberGenerator> rng;
+  CLHEP::HepRandomEngine* engine = &rng->getEngine(e.streamID());
+
   // event loop (well, another step in it...)
           
   // no need to clean up GenEvent memory - done in HepMCProduct
@@ -85,7 +93,7 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
   for (int ip=0; ip<particleN; ip++) {
     double keMin=kineticE[0], keMax=kineticE[1];
     double rMin=fdistn[0], rMax=fdistn[1];
-    double r1 = fRandomGenerator->fire();
+    double r1 = engine->flat();
     for (unsigned int ii=kineticE.size()-2; ii>0; --ii) {
       if (r1 > fdistn[ii]) {
 	keMin = kineticE[ii]; keMax = kineticE[ii+1]; 
@@ -97,8 +105,8 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
       LogDebug("FlatThetaGun") << "FileRandomKEThetaGunProducer: KE " << ke
 			       << " in range " << keMin << ":" << keMax 
 			       << " with " << r1 <<" in " << rMin <<":" <<rMax;
-    double theta = fRandomGenerator->fire(fMinTheta, fMaxTheta);
-    double phi   = fRandomGenerator->fire(fMinPhi, fMaxPhi);
+    double theta = CLHEP::RandFlat::shoot(engine, fMinTheta, fMaxTheta);
+    double phi   = CLHEP::RandFlat::shoot(engine, fMinPhi, fMaxPhi);
     int PartID   = fPartIDs[0];
     const HepPDT::ParticleData* 
       PData = fPDGTable->particle(HepPDT::ParticleID(abs(PartID))) ;
@@ -126,12 +134,12 @@ void FileRandomKEThetaGunProducer::produce(edm::Event & e, const edm::EventSetup
     fEvt->print() ;  
   }  
 
-  std::auto_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
+  std::unique_ptr<HepMCProduct> BProduct(new HepMCProduct()) ;
   BProduct->addHepMCData( fEvt );
-  e.put(BProduct);
+  e.put(std::move(BProduct), "unsmeared");
 
-  std::auto_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
-  e.put(genEventInfo);
+  std::unique_ptr<GenEventInfoProduct> genEventInfo(new GenEventInfoProduct(fEvt));
+  e.put(std::move(genEventInfo));
 
   if ( fVerbosity > 0 ) 
     LogDebug("FlatThetaGun") << "FileRandomKEThetaGunProducer : Event Generation Done";

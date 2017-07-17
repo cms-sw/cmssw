@@ -21,12 +21,10 @@
 //
 
 // CMSSW headers 
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
 
 // Fast Simulation headers
-#include "FastSimulation/Utilities/interface/RandomEngine.h"
+#include "FastSimulation/Utilities/interface/RandomEngineAndDistribution.h"
 #include "FastSimulation/MuonSimHitProducer/interface/MuonSimHitProducer.h"
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
 #include "FastSimulation/MaterialEffects/interface/MultipleScatteringSimulator.h"
@@ -58,6 +56,8 @@
 #include "DataFormats/GeometrySurface/interface/PlaneBuilder.h"
 #include "DataFormats/GeometrySurface/interface/TangentPlane.h"
 
+// for particle table
+#include "FastSimulation/Particle/interface/ParticleTable.h"
 
 ////////////////////////////////////////////////////////////////////////////
 // Geometry, Magnetic Field
@@ -82,20 +82,6 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   propagatorWithoutMaterial(0)
  {
 
-  //
-  //  Initialize the random number generator service
-  //
-  edm::Service<edm::RandomNumberGenerator> rng;
-  if ( ! rng.isAvailable() ) {
-    throw cms::Exception("Configuration") <<
-      "MuonSimHitProducer requires the RandomGeneratorService \n"
-      "which is not present in the configuration file. \n"
-      "You must add the service in the configuration file\n"
-      "or remove the module that requires it.";
-  }
-
-  random = new RandomEngine(&(*rng));
-
   // Read relevant parameters
   readParameters(iConfig.getParameter<edm::ParameterSet>("MUONS"),
 		 iConfig.getParameter<edm::ParameterSet>("TRACKS"),
@@ -111,6 +97,11 @@ MuonSimHitProducer::MuonSimHitProducer(const edm::ParameterSet& iConfig):
   edm::ParameterSet serviceParameters =
      iConfig.getParameter<edm::ParameterSet>("ServiceParameters");
   theService = new MuonServiceProxy(serviceParameters);
+
+  // consumes
+  simMuonToken  = consumes<std::vector<SimTrack> >(simMuonLabel);
+  simVertexToken = consumes<std::vector<SimVertex> >(simVertexLabel);
+
 }
 
 // ---- method called once each job just before starting event loop ----
@@ -148,10 +139,6 @@ MuonSimHitProducer::~MuonSimHitProducer()
 {
   // do anything here that needs to be done at destruction time
   // (e.g. close files, deallocate resources etc.)
-  
-  if ( random ) { 
-    delete random;
-  }
 
   if ( theMaterialEffects ) delete theMaterialEffects;
   if ( propagatorWithoutMaterial) delete propagatorWithoutMaterial;
@@ -168,6 +155,11 @@ void
 MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   // using namespace edm;
   // using namespace std;
+  edm::ESHandle < HepPDT::ParticleDataTable > pdg;
+  iSetup.getData(pdg);
+  ParticleTable::Sentry ptable(pdg.product());
+
+  RandomEngineAndDistribution random(iEvent.streamID());
 
   MuonPatternRecoDumper dumper;
 
@@ -178,8 +170,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   std::vector<PSimHit> theRPCHits;
 
   DirectMuonNavigation navigation(theService->detLayerGeometry());
-  iEvent.getByLabel(theSimModuleLabel_,theSimModuleProcess_,simMuons);
-  iEvent.getByLabel(theSimModuleLabel_,simVertices);
+  iEvent.getByToken(simMuonToken,simMuons);
+  iEvent.getByToken(simVertexToken,simVertices);
 
   for ( unsigned int itrk=0; itrk<simMuons->size(); itrk++ ) {
     const SimTrack &mySimTrack = (*simMuons)[itrk];
@@ -299,8 +291,8 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 
       // Propagate with material effects (dE/dx average only)
       SteppingHelixStateInfo shsStart(*(propagatedState.freeTrajectoryState()));
-      const SteppingHelixStateInfo& shsDest = 
-	((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface());
+      SteppingHelixStateInfo shsDest;
+      ((const SteppingHelixPropagator*)propagatorWithMaterial)->propagate(shsStart,navLayers[ilayer]->surface(),shsDest);
       std::pair<TrajectoryStateOnSurface,double> next(shsDest.getStateOnSurface(navLayers[ilayer]->surface()),
 						      shsDest.path());
       // No need to continue if there is no valid propagation available.
@@ -323,7 +315,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
       // Insert dE/dx fluctuations and multiple scattering
       // Skip this step if nextNoMaterial.first is not valid 
       // This happens rarely (~0.02% of ttbar events)
-      if ( theMaterialEffects && nextNoMaterial.first.isValid() ) applyMaterialEffects(propagatedState,nextNoMaterial.first,radPath);
+      if ( theMaterialEffects && nextNoMaterial.first.isValid() ) applyMaterialEffects(propagatedState, nextNoMaterial.first, radPath, &random);
       // Check that the 'shaken' propagatedState is still valid, otherwise continue
       if ( !propagatedState.isValid() ) continue; 
       // (No evidence that this ever happens)
@@ -389,7 +381,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	    // (Not fully satisfactory patch, but it seems to work...)
 	    double pmu = lmom.mag();
 	    double theDTHitIneff = pmu>0? exp(kDT*log(pmu)+fDT):0.;
-	    if (random->flatShoot()<theDTHitIneff) continue;
+	    if (random.flatShoot()<theDTHitIneff) continue;
 
             double eloss = 0;
             double pz = fabs(lmom.z());
@@ -445,7 +437,7 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
 	  double theCSCHitIneff = pmu>0? exp(kCSC*log(pmu)+fCSC):0.;
 	  // Take into account the different geometry in ME11:
 	  if (id.station()==1 && id.ring()==1)  theCSCHitIneff = theCSCHitIneff*0.442;
-	  if (random->flatShoot()<theCSCHitIneff) continue;
+	  if (random.flatShoot()<theCSCHitIneff) continue;
 
 	  double eloss = 0;
           double pz = fabs(lmom.z());
@@ -510,32 +502,32 @@ MuonSimHitProducer::produce(edm::Event& iEvent,const edm::EventSetup& iSetup) {
   }
   }
 
-  std::auto_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> pcsc(new edm::PSimHitContainer);
   int n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theCSCHits.begin();
         i != theCSCHits.end(); i++ ) {
     pcsc->push_back(*i);
     n += 1;
   }
-  iEvent.put(pcsc,"MuonCSCHits");
+  iEvent.put(std::move(pcsc),"MuonCSCHits");
 
-  std::auto_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> pdt(new edm::PSimHitContainer);
   n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theDTHits.begin();
         i != theDTHits.end(); i++ ) {
     pdt->push_back(*i);
     n += 1;
   }
-  iEvent.put(pdt,"MuonDTHits");
+  iEvent.put(std::move(pdt),"MuonDTHits");
 
-  std::auto_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
+  std::unique_ptr<edm::PSimHitContainer> prpc(new edm::PSimHitContainer);
   n = 0;
   for ( std::vector<PSimHit>::const_iterator i = theRPCHits.begin();
         i != theRPCHits.end(); i++ ) {
     prpc->push_back(*i);
     n += 1;
   }
-  iEvent.put(prpc,"MuonRPCHits");
+  iEvent.put(std::move(prpc),"MuonRPCHits");
 
 }
 
@@ -544,9 +536,11 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
 				   const edm::ParameterSet& fastTracks,
 				   const edm::ParameterSet& matEff) {
   // Muons
-  theSimModuleLabel_   = fastMuons.getParameter<std::string>("simModuleLabel");
-  theSimModuleProcess_ = fastMuons.getParameter<std::string>("simModuleProcess");
-  theTrkModuleLabel_   = fastMuons.getParameter<std::string>("trackModuleLabel");
+  std::string _simModuleLabel = fastMuons.getParameter<std::string>("simModuleLabel");
+  std::string _simModuleProcess = fastMuons.getParameter<std::string>("simModuleProcess");
+  simMuonLabel = edm::InputTag(_simModuleLabel,_simModuleProcess);
+  simVertexLabel = edm::InputTag(_simModuleLabel);
+ 
   std::vector<double> simHitIneffDT  = fastMuons.getParameter<std::vector<double> >("simHitDTIneffParameters");
   std::vector<double> simHitIneffCSC = fastMuons.getParameter<std::vector<double> >("simHitCSCIneffParameters");
   kDT = simHitIneffDT[0];
@@ -572,14 +566,14 @@ MuonSimHitProducer::readParameters(const edm::ParameterSet& fastMuons,
        matEff.getParameter<bool>("MuonBremsstrahlung") ||
        matEff.getParameter<bool>("EnergyLoss") || 
        matEff.getParameter<bool>("MultipleScattering") )
-    theMaterialEffects = new MaterialEffects(matEff,random);
-
+    theMaterialEffects = new MaterialEffects(matEff);
 }
 
 void	
 MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
 					 TrajectoryStateOnSurface& tsos,
-					 double radPath) { 
+					 double radPath,
+                                         RandomEngineAndDistribution const* random) {
 
   // The energy loss simulator
   EnergyLossSimulator* energyLoss = theMaterialEffects->energyLossSimulator();
@@ -620,7 +614,7 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
 	       gMomWithdEdx.z()-gMom.z(), enWithdEdx      -en);
 
     // Energy loss in iron (+ fluctuations)
-    energyLoss->updateState(theMuon,radPath);
+    energyLoss->updateState(theMuon, radPath, random);
 
     // Correcting factors to account for slight differences in material descriptions
     // (Material description is more accurate in the stepping helix propagator)
@@ -644,13 +638,13 @@ MuonSimHitProducer::applyMaterialEffects(TrajectoryStateOnSurface& tsosWithdEdx,
     GlobalVector normal = nextSurface.tangentPlane(tsos.globalPosition())->normalVector();
     multipleScattering->setNormalVector(normal);
     // Compute the amount of multiple scattering after a given path length
-    multipleScattering->updateState(theMuon,radPath);
+    multipleScattering->updateState(theMuon, radPath, random);
   }
   
   // Muon Bremsstrahlung
   if ( bremsstrahlung ) {
     // Compute the amount of Muon Bremsstrahlung after given path length
-    bremsstrahlung->updateState(theMuon,radPath);
+    bremsstrahlung->updateState(theMuon, radPath, random);
   }
 
 

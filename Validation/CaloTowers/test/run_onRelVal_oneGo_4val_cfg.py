@@ -1,9 +1,10 @@
 import os
 import FWCore.ParameterSet.Config as cms
+from DQMServices.Core.DQMEDHarvester import DQMEDHarvester
 
 process = cms.Process("hcalval")
 process.load("Configuration.StandardSequences.Reconstruction_cff")
-#process.load("Configuration.Geometry.GeometryIdeal_cff")
+#process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 process.load('Configuration/StandardSequences/DigiToRaw_cff')
 process.load('Configuration/StandardSequences/RawToDigi_cff')
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
@@ -68,7 +69,7 @@ process.hcalTowerAnalyzer = cms.EDAnalyzer("CaloTowersValidation",
     useAllHistos             = cms.untracked.bool(False)                         
 )
 
-process.hcalNoiseRates = cms.EDAnalyzer('NoiseRates',
+process.hcalNoiseRates = DQMEDHarvester('NoiseRates',
     outputFile   = cms.untracked.string('NoiseRatesRelVal.root'),
     rbxCollName  = cms.untracked.InputTag('hcalnoise'),
 
@@ -87,7 +88,6 @@ process.hcalRecoAnalyzer = cms.EDAnalyzer("HcalRecHitsValidation",
     ecalselector              = cms.untracked.string('yes'),
     hcalselector              = cms.untracked.string('all'),
     mc                        = cms.untracked.string('no'),
-    useAllHistos              = cms.untracked.bool(False)                                                                                                          
 )
 
 
@@ -98,22 +98,22 @@ cmssw_version = os.environ.get('CMSSW_VERSION','CMSSW_X_Y_Z')
 Workflow = '/HcalValidation/'+'Harvesting/'+str(cmssw_version)
 process.dqmSaver.workflow = Workflow
 
-process.calotowersClient = cms.EDAnalyzer("CaloTowersClient", 
+process.calotowersClient = DQMEDHarvester("CaloTowersClient", 
      outputFile = cms.untracked.string('CaloTowersHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.noiseratesClient = cms.EDAnalyzer("NoiseRatesClient", 
+process.noiseratesClient = DQMEDHarvester("NoiseRatesClient", 
      outputFile = cms.untracked.string('NoiseRatesHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcalrechitsClient = cms.EDAnalyzer("HcalRecHitsClient", 
+process.hcalrechitsClient = DQMEDHarvester("HcalRecHitsClient", 
      outputFile = cms.untracked.string('HcalRecHitsHarvestingME.root'),
      DQMDirName = cms.string("/") # root directory
 )
 
-process.hcaldigisClient = cms.EDAnalyzer("HcalDigisClient",
+process.hcaldigisClient = DQMEDHarvester("HcalDigisClient",
      outputFile	= cms.untracked.string('HcalDigisHarvestingME.root'),
      DQMDirName	= cms.string("/") # root directory
 )   

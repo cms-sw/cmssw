@@ -8,10 +8,6 @@
 
 #include "RecoEgamma/EgammaHLTProducers/interface/EgammaHLTElectronDetaDphiProducer.h"
 
-//#include "FWCore/Framework/interface/ESHandle.h"
-//#include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "FWCore/Utilities/interface/Exception.h"
-
 #include "DataFormats/EgammaCandidates/interface/Electron.h"
 #include "DataFormats/RecoCandidate/interface/RecoEcalCandidate.h"
 #include "DataFormats/EgammaCandidates/interface/ElectronIsolationAssociation.h"
@@ -29,16 +25,16 @@
 #include "RecoEgamma/EgammaTools/interface/ECALPositionCalculator.h"
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 #include "MagneticField/Engine/interface/MagneticField.h"
+#include "FWCore/ParameterSet/interface/ConfigurationDescriptions.h"
+#include "FWCore/ParameterSet/interface/ParameterSetDescription.h"
 
-EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet& config) {
-
-  electronProducer_          = consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("electronProducer"));
-  bsProducer_                = consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BSProducer"));
-  recoEcalCandidateProducer_ = consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer")); 
-
-  useSCRefs_                 = config.getParameter<bool>("useSCRefs");
-  useTrackProjectionToEcal_  = config.getParameter<bool>("useTrackProjectionToEcal");
-  variablesAtVtx_            = config.getParameter<bool>("variablesAtVtx");
+EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::ParameterSet& config):
+  electronProducer_          (consumes<reco::ElectronCollection>(config.getParameter<edm::InputTag>("electronProducer"))),
+  bsProducer_                (consumes<reco::BeamSpot>(config.getParameter<edm::InputTag>("BSProducer"))),
+  recoEcalCandidateProducer_ (consumes<reco::RecoEcalCandidateCollection>(config.getParameter<edm::InputTag>("recoEcalCandidateProducer"))),
+  useSCRefs_                 (config.getParameter<bool>("useSCRefs")),
+  useTrackProjectionToEcal_  (config.getParameter<bool>("useTrackProjectionToEcal")),
+  variablesAtVtx_            (config.getParameter<bool>("variablesAtVtx")) {
 
   //register your products
   if(!useSCRefs_){
@@ -53,6 +49,17 @@ EgammaHLTElectronDetaDphiProducer::EgammaHLTElectronDetaDphiProducer(const edm::
 EgammaHLTElectronDetaDphiProducer::~EgammaHLTElectronDetaDphiProducer()
 {}
 
+void EgammaHLTElectronDetaDphiProducer::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+  edm::ParameterSetDescription desc;
+  desc.add<edm::InputTag>(("electronProducer"), edm::InputTag("hltEleAnyWP80PixelMatchElectronsL1Seeded"));
+  desc.add<edm::InputTag>(("BSProducer"), edm::InputTag("hltOnlineBeamSpot"));
+  desc.add<edm::InputTag>(("recoEcalCandidateProducer"), edm::InputTag()); 
+  desc.add<bool>(("useSCRefs"), false);
+  desc.add<bool>(("useTrackProjectionToEcal"), false);
+  desc.add<bool>(("variablesAtVtx"), true);
+  descriptions.add(("hltEgammaHLTElectronDetaDphiProducer"), desc);  
+}
+  
 void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::EventSetup& iSetup) {
   // Get the HLT filtered objects
   edm::Handle<reco::ElectronCollection> electronHandle;
@@ -66,10 +73,8 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
   edm::ESHandle<MagneticField> theMagField;
   iSetup.get<IdealMagneticFieldRecord>().get(theMagField);
 
-  reco::ElectronIsolationMap detaMap;
-  reco::ElectronIsolationMap dphiMap;
-  reco::RecoEcalCandidateIsolationMap detaCandMap;
-  reco::RecoEcalCandidateIsolationMap dphiCandMap;
+  reco::ElectronIsolationMap detaMap(electronHandle);
+  reco::ElectronIsolationMap dphiMap(electronHandle);
   
   if(!useSCRefs_){
 
@@ -84,6 +89,9 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
   }else { //we loop over reco ecal candidates
      edm::Handle<reco::RecoEcalCandidateCollection> recoEcalCandHandle;
      iEvent.getByToken(recoEcalCandidateProducer_,recoEcalCandHandle);
+     reco::RecoEcalCandidateIsolationMap detaCandMap(recoEcalCandHandle);
+     reco::RecoEcalCandidateIsolationMap dphiCandMap(recoEcalCandHandle);
+
      for(reco::RecoEcalCandidateCollection::const_iterator iRecoEcalCand = recoEcalCandHandle->begin(); iRecoEcalCand != recoEcalCandHandle->end(); iRecoEcalCand++){
     
        reco::RecoEcalCandidateRef recoEcalCandRef(recoEcalCandHandle,iRecoEcalCand-recoEcalCandHandle->begin());
@@ -94,19 +102,16 @@ void EgammaHLTElectronDetaDphiProducer::produce(edm::Event& iEvent, const edm::E
        detaCandMap.insert(recoEcalCandRef, dEtaDPhi.first);
        dphiCandMap.insert(recoEcalCandRef, dEtaDPhi.second);
      }//end loop over reco ecal candidates
+
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(detaCandMap), "Deta" );
+    iEvent.put(std::make_unique<reco::RecoEcalCandidateIsolationMap>(dphiCandMap), "Dphi" );
+
   }//end if between electrons or reco ecal candidates
 
   if(!useSCRefs_){
-    std::auto_ptr<reco::ElectronIsolationMap> detMap(new reco::ElectronIsolationMap(detaMap));
-    std::auto_ptr<reco::ElectronIsolationMap> dphMap(new reco::ElectronIsolationMap(dphiMap));
-    iEvent.put(detMap, "Deta" );
-    iEvent.put(dphMap, "Dphi" );
-  }else{
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> detaCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(detaCandMap));
-    std::auto_ptr<reco::RecoEcalCandidateIsolationMap> dphiCandMapForEvent(new reco::RecoEcalCandidateIsolationMap(dphiCandMap));
-    iEvent.put(detaCandMapForEvent, "Deta" );
-    iEvent.put(dphiCandMapForEvent, "Dphi" );
-  }     
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(detaMap), "Deta" );
+    iEvent.put(std::make_unique<reco::ElectronIsolationMap>(dphiMap), "Dphi" );
+  }
 }
 
 std::pair<float,float> EgammaHLTElectronDetaDphiProducer::calDEtaDPhiSCTrk(reco::ElectronRef& eleref, const reco::BeamSpot::Point& bsPosition,const MagneticField *magField) {

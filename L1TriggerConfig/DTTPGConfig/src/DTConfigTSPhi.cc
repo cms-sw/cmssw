@@ -399,7 +399,7 @@ DTConfigTSPhi::setDefaults(const edm::ParameterSet& ps) {
 }
 
 int 
-DTConfigTSPhi::TSSinTSMD(int stat, int sect) { //CB it should set value when constructor is called (it should be done when we have station by station config)  
+DTConfigTSPhi::TSSinTSMD(int stat, int sect) const { //CB it should set value when constructor is called (it should be done when we have station by station config)  
 
   // Number of TSS for each TSMD (it changes from station to station) The DT stations are indicated in parenthesis
   // in the DT column.
@@ -420,13 +420,9 @@ DTConfigTSPhi::TSSinTSMD(int stat, int sect) { //CB it should set value when con
       stat==2 ||
       ( stat==4 && (sect==9 || sect==11 ||
 		    sect==10))) {
-    m_ntsstsmd = 2;
-  } else {
-    m_ntsstsmd = 3;
+    return 2;
   }
-
-  return (int)m_ntsstsmd;
-
+  return 3;
 }
 
 void 
@@ -465,7 +461,7 @@ DTConfigTSPhi::print() const {
   
 
 int 
-DTConfigTSPhi::nValidTSS() {
+DTConfigTSPhi::nValidTSS() const{
 
   bool isMaskValid = checkMask(TssMasking(0)) && checkMask(TssMasking(1));
   bool isGsValid = (TssGhost1Flag()>=0 && TssGhost1Flag()<3) && (TssGhost2Flag()>=0 &&  TssGhost2Flag()<5);
@@ -475,7 +471,7 @@ DTConfigTSPhi::nValidTSS() {
 }
 
 int 
-DTConfigTSPhi::nValidTSM() {
+DTConfigTSPhi::nValidTSM() const{
 
   bool isMaskValid = checkMask( TsmMasking(0)) && checkMask(TsmMasking(1));
   bool isGsValid = (TsmGhost1Flag()>=0 && TsmGhost1Flag()<3) && (TsmGhost2Flag()>=0 &&  TsmGhost2Flag()<5);
@@ -487,7 +483,7 @@ DTConfigTSPhi::nValidTSM() {
 }
 
 bool
-DTConfigTSPhi::checkMask(unsigned short msk){
+DTConfigTSPhi::checkMask(unsigned short msk) const{
   
   bool hasone = false;
   bool hastwo = false;

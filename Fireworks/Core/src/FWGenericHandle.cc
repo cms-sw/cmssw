@@ -25,13 +25,13 @@ void convert_handle(BasicHandle const& orig,
     return;
   }
 
-  WrapperHolder originalWrap = orig.wrapperHolder();
-  if(!originalWrap.isValid()) {
+  WrapperBase const* originalWrap = orig.wrapper();
+  if(originalWrap == nullptr) {
     throw edm::Exception(edm::errors::InvalidReference,"NullPointer")
       << "edm::BasicHandle has null pointer to Wrapper";
   }
   
-  edm::ObjectWithDict wrap(edm::TypeWithDict(originalWrap.wrappedTypeInfo()), const_cast<void*>(originalWrap.wrapper()));
+  edm::ObjectWithDict wrap(edm::TypeWithDict(originalWrap->wrappedTypeInfo()), const_cast<void*>(static_cast<void const*>(originalWrap)));
   assert(bool(wrap));
   
   edm::ObjectWithDict product(wrap.get("obj"));

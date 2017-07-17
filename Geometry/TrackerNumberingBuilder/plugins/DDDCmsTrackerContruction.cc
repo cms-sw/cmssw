@@ -12,16 +12,12 @@ DDDCmsTrackerContruction::DDDCmsTrackerContruction( void )
 {}
 
 const GeometricDet*
-DDDCmsTrackerContruction::construct( const DDCompactView* cpv, unsigned int layerNumberPXB, unsigned int totalBlade )
+DDDCmsTrackerContruction::construct( const DDCompactView* cpv, std::vector<int> detidShifts)
 {
   attribute = "TkDDDStructure"; // could come from .orcarc
-  std::string value = "any";
-  DDSpecificsFilter filter;
-  DDValue ddv( attribute, value, 0 );
-  filter.setCriteria( ddv, DDSpecificsFilter::not_equals );
+  DDSpecificsHasNamedValueFilter filter{ attribute };
   
-  DDFilteredView fv( *cpv ); 
-  fv.addFilter( filter );
+  DDFilteredView fv( *cpv, filter ); 
   if( theCmsTrackerStringToEnum.type( ExtractStringFromDDD::getString(attribute,&fv)) != GeometricDet::Tracker )
   {
     fv.firstChild();
@@ -33,10 +29,10 @@ DDDCmsTrackerContruction::construct( const DDCompactView* cpv, unsigned int laye
   }
   
   GeometricDet* tracker = new GeometricDet( &fv, GeometricDet::Tracker );
-  CmsTrackerBuilder theCmsTrackerBuilder( totalBlade );
+  CmsTrackerBuilder theCmsTrackerBuilder;
   theCmsTrackerBuilder.build( fv, tracker, attribute );
   
-  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( layerNumberPXB );
+  CmsTrackerDetIdBuilder theCmsTrackerDetIdBuilder( detidShifts );
   
   tracker = theCmsTrackerDetIdBuilder.buildId( tracker );
   fv.parent();

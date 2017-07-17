@@ -4,7 +4,7 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 
-SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf, CLHEP::HepRandomEngine& eng) :
+SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf) :
   // Run APV in peak instead of deconvolution mode, which degrades the time resolution.
   peakMode(conf.getParameter<bool>("APVpeakmode")),
   // Enable interstrip Landau fluctuations within a cluster.
@@ -19,16 +19,15 @@ SiLinearChargeDivider::SiLinearChargeDivider(const edm::ParameterSet& conf, CLHE
   //for the cosimc generation (Considering only the tracker the value is 11 ns)
   cosmicShift(conf.getUntrackedParameter<double>("CosmicDelayShift")),
   theParticleDataTable(0),
-  rndEngine(eng),
   // Geant4 engine used to fluctuate the charge from segment to segment
-  fluctuate(new SiG4UniversalFluctuation(rndEngine)) {
+  fluctuate(new SiG4UniversalFluctuation()) {
 }
 
 SiLinearChargeDivider::~SiLinearChargeDivider(){
 }
 
 SiChargeDivider::ionization_type 
-SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det) {
+SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, double moduleThickness, const StripGeomDetUnit& det, CLHEP::HepRandomEngine* engine) {
 
   // signal after pulse shape correction
   float const decSignal = TimeResponse(hit, det);
@@ -74,7 +73,7 @@ SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, d
   }else {
     float eLossVector[NumberOfSegmentation];
     if( fluctuateCharge ) {
-      fluctuateEloss(particleMass, hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector);   
+      fluctuateEloss(particleMass, hit->pabs(), eLoss, direction.mag(), NumberOfSegmentation, eLossVector, engine);
       // Save the energy of each segment
       for ( int i = 0; i != NumberOfSegmentation; i++) {
 	// take energy value from vector eLossVector, 
@@ -95,7 +94,8 @@ SiLinearChargeDivider::divide(const PSimHit* hit, const LocalVector& driftdir, d
 
 void SiLinearChargeDivider::fluctuateEloss(double particleMass, float particleMomentum, 
                                            float eloss, float length, 
-                                           int NumberOfSegs,float elossVector[]) {
+                                           int NumberOfSegs,float elossVector[],
+                                           CLHEP::HepRandomEngine* engine) {
 
 
   // Generate charge fluctuations.
@@ -110,7 +110,7 @@ void SiLinearChargeDivider::fluctuateEloss(double particleMass, float particleMo
     // Returns fluctuated eloss in MeV
     // the cutoff is sometimes redefined inside, so fix it.
     deltaCutoff = deltaCut;
-    sum += (elossVector[i] = fluctuate->SampleFluctuations(mom,particleMass,deltaCutoff,seglen,segeloss)/1000.);
+    sum += (elossVector[i] = fluctuate->SampleFluctuations(mom,particleMass,deltaCutoff,seglen,segeloss, engine)/1000.);
   }
   
   if(sum>0.) {  // If fluctuations give eloss>0.
@@ -144,7 +144,7 @@ float SiLinearChargeDivider::DeconvolutionShape(const PSimHit* hit, const StripG
 // That pulse shapes correspond to the ones described in CMS NOTE 2007/027
 // with tau=50ns and delta=20ns
 // It is fairly similar to the previous analytical forms, except in the tails
-float SiLinearChargeDivider::decoValues[651] = 
+float const SiLinearChargeDivider::decoValues[651] = 
                            { 0.00924234, 0.00994226, 0.0106394, 0.0115231, 0.0127115
                            , 0.0138952, 0.015074, 0.0162481, 0.0174175, 0.0185821
                            , 0.019742, 0.0208972, 0.0220476, 0.0231934, 0.0243346
@@ -277,7 +277,7 @@ float SiLinearChargeDivider::decoValues[651] =
                            , 0.00862127, 0.00813344, 0.00764753, 0.00716353, 0.00668143
                            , 0.00620122 };
 
-float SiLinearChargeDivider::peakValues[921] = 
+float const SiLinearChargeDivider::peakValues[921] = 
                            { 0.000598718, 0.00179789, 0.00380417, 0.00622833, 0.00934726
                            , 0.0133483, 0.0172689, 0.0225072, 0.0282688, 0.0339136
                            , 0.040572, 0.0482572, 0.0557854, 0.063159, 0.0727605

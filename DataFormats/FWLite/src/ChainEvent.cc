@@ -43,19 +43,17 @@ ChainEvent::ChainEvent(std::vector<std::string> const& iFileNames):
   accumulatedSize_.reserve(iFileNames.size()+1);
   fileNames_.reserve(iFileNames.size());
     
-  for (std::vector<std::string>::const_iterator it= iFileNames.begin(), itEnd = iFileNames.end();
-      it!=itEnd;
-      ++it) {
-    TFile *tfilePtr = TFile::Open(it->c_str());
-    file_ = boost::shared_ptr<TFile>(tfilePtr);
+  for (auto const& fileName : iFileNames) {
+    TFile *tfilePtr = TFile::Open(fileName.c_str());
+    file_ = std::shared_ptr<TFile>(tfilePtr);
     gROOT->GetListOfFiles()->Remove(tfilePtr);
     TTree* tree = dynamic_cast<TTree*>(file_->Get(edm::poolNames::eventTreeName().c_str()));
-    if (0 == tree) {
-      throw cms::Exception("NotEdmFile")<<"The file "<<*it<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
+    if (nullptr == tree) {
+      throw cms::Exception("NotEdmFile")<<"The file "<<fileName<<" has no 'Events' TTree and therefore is not an EDM ROOT file";
     }
     Long64_t nEvents = tree->GetEntries();
     if (nEvents > 0) { // skip empty files
-      fileNames_.push_back(*it);
+      fileNames_.push_back(fileName);
       // accumulatedSize_ is the entry # at the beginning of this file
       accumulatedSize_.push_back(summedSize);
       summedSize += nEvents;
@@ -199,6 +197,7 @@ ChainEvent::to(edm::RunNumber_t run, edm::EventNumber_t event)
 ChainEvent const&
 ChainEvent::toBegin()
 {
+   if (!size()) return *this;
    if (eventIndex_ != 0)
    {
       switchToFile(0);
@@ -212,9 +211,9 @@ ChainEvent::switchToFile(Long64_t iIndex)
 {
   eventIndex_= iIndex;
   TFile *tfilePtr = TFile::Open(fileNames_[iIndex].c_str());
-  file_ = boost::shared_ptr<TFile>(tfilePtr);
+  file_ = std::shared_ptr<TFile>(tfilePtr);
   gROOT->GetListOfFiles()->Remove(tfilePtr);
-  event_ = boost::shared_ptr<Event>(new Event(file_.get()));
+  event_ = std::make_shared<Event>(file_.get());
 }
 
 //
@@ -273,19 +272,19 @@ ChainEvent::getByLabel(std::type_info const& iType,
   return event_->getByLabel(iType, iModule, iInstance, iProcess, iValue);
 }
 
-bool
-ChainEvent::getByLabel(std::type_info const& iType,
-                       char const* iModule,
-                       char const* iInstance,
-                       char const* iProcess,
-                       edm::WrapperHolder& holder) const
-{
-  return event_->getByLabel(iType, iModule, iInstance, iProcess, holder);
-}
-
-edm::WrapperHolder ChainEvent::getByProductID(edm::ProductID const& iID) const
+edm::WrapperBase const* ChainEvent::getByProductID(edm::ProductID const& iID) const
 {
   return event_->getByProductID(iID);
+}
+
+edm::WrapperBase const* ChainEvent::getThinnedProduct(edm::ProductID const& pid, unsigned int& key) const {
+  return event_->getThinnedProduct(pid, key);
+}
+
+void ChainEvent::getThinnedProducts(edm::ProductID const& pid,
+                                    std::vector<edm::WrapperBase const*>& foundContainers,
+                                    std::vector<unsigned int>& keys) const {
+  event_->getThinnedProducts(pid, foundContainers, keys);
 }
 
 bool
@@ -301,6 +300,7 @@ ChainEvent::operator bool() const
 bool
 ChainEvent::atEnd() const
 {
+  if (!size()) return true;
   if (eventIndex_ == static_cast<Long64_t>(fileNames_.size())-1) {
     return event_->atEnd();
   }
@@ -310,7 +310,7 @@ ChainEvent::atEnd() const
 Long64_t
 ChainEvent::size() const
 {
-  return accumulatedSize_.back();
+  return accumulatedSize_.empty() ? 0 : accumulatedSize_.back();
 }
 
 edm::TriggerNames const&
@@ -319,6 +319,11 @@ ChainEvent::triggerNames(edm::TriggerResults const& triggerResults) const
   return event_->triggerNames(triggerResults);
 }
 
+edm::ParameterSet const*
+ChainEvent::parameterSet(edm::ParameterSetID const& psID) const {
+  return event_->parameterSet(psID);
+}
+  
 void
 ChainEvent::fillParameterSetRegistry() const
 {
@@ -326,8 +331,8 @@ ChainEvent::fillParameterSetRegistry() const
 }
 
 edm::TriggerResultsByName
-ChainEvent::triggerResultsByName(std::string const& process) const {
-  return event_->triggerResultsByName(process);
+ChainEvent::triggerResultsByName(edm::TriggerResults const& triggerResults) const {
+  return event_->triggerResultsByName(triggerResults);
 }
 
 //

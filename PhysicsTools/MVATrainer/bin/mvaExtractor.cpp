@@ -5,7 +5,6 @@
 #include <string>
 #include <vector>
 
-#include <Cintex/Cintex.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
 
@@ -54,7 +53,6 @@ int main(int argc, char **argv)
 		return 1;
 	}
 
-	ROOT::Cintex::Cintex::Enable();
 
 	try {
 		Calibration::MVAComputer *calib =

@@ -42,7 +42,7 @@ process.options = cms.untracked.PSet(
 
 
 # source
-process.source = cms.Source("PoolSource", 
+process.source = cms.Source("PoolSource",
      fileNames = cms.untracked.vstring(
     # SOME DATA FILE TO BE PUT HERE
     #'rfio:/castor/cern.ch/user/r/rompotis/DATA_STUDIES/Spring10/sample_WminusToENu-CTEQ66-powheg_Spring10-START3X_V26_AODSIM-v2.root',
@@ -56,7 +56,7 @@ process.maxEvents = cms.untracked.PSet( input = cms.untracked.int32(1000) )
 process.load("Configuration.StandardSequences.Geometry_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 ## global tags:
-process.GlobalTag.globaltag = cms.string('START39_V3::All') 
+process.GlobalTag.globaltag = cms.string('START39_V3::All')
 
 process.load("Configuration.StandardSequences.MagneticField_cff")
 
@@ -120,7 +120,7 @@ process.patElectrons.electronIDSources = cms.PSet(
     simpleEleId85cIso= cms.InputTag("simpleEleId85cIso"),
     simpleEleId80cIso= cms.InputTag("simpleEleId80cIso"),
     simpleEleId70cIso= cms.InputTag("simpleEleId70cIso"),
-    simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),    
+    simpleEleId60cIso= cms.InputTag("simpleEleId60cIso"),
     )
 ##
 process.patElectrons.addGenMatch = cms.bool(False)
@@ -157,7 +157,7 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   tcMetCollectionTag = cms.untracked.InputTag(myTcMetCollection,"","PAT"),
                                   triggerCollectionTag = cms.untracked.InputTag("TriggerResults","",HLT_process_name),
                                   triggerEventTag = cms.untracked.InputTag("hltTriggerSummaryAOD","",HLT_process_name),
-                                  hltpath = cms.untracked.string(HLT_path_name), 
+                                  hltpath = cms.untracked.string(HLT_path_name),
                                   hltpathFilter = cms.untracked.InputTag(HLT_filter_name,"",HLT_process_name),
                                   ebRecHits = cms.untracked.InputTag("reducedEcalRecHitsEB"),
                                   eeRecHits = cms.untracked.InputTag("reducedEcalRecHitsEE"),
@@ -180,7 +180,7 @@ process.wenuFilter = cms.EDFilter('WenuCandidateFilter',
                                   hltObjectETCut = cms.untracked.double(15.),
                                   useExtraTrigger = cms.untracked.bool(False),
                                   # ET Cut in the SC
-                                  ETCut = cms.untracked.double(20.),                                  
+                                  ETCut = cms.untracked.double(20.),
                                   METCut = cms.untracked.double(0.),
                                   # reject events with a 2nd electron with ET > 20 that passes the WP95%
                                   vetoSecondElectronEvents = cms.untracked.bool(False),
@@ -211,8 +211,8 @@ selection_inverse = cms.PSet (
 ####################################################################################
 #
 # we need to store jet information, hence we have to produce the jets:
-process.load("JetMETCorrections.Configuration.DefaultJEC_cff")
-#process.load("JetMETCorrections.Configuration.JetCorrectionProducers_cff")
+process.load("JetMETCorrections.Configuration.CorrectedJetProducersDefault_cff")
+#process.load("JetMETCorrections.Configuration.CorrectedJetProducers_cff")
 process.jetSequence = cms.Sequence( process.ak5CaloJetsL2L3  )
 process.pfjetAK5Sequence = cms.Sequence( process.ak5PFJetsL2L3 )
 

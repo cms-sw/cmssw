@@ -3,7 +3,6 @@
   <use   name="TopQuarkAnalysis/TopTools"/>
   <use   name="FWCore/FWLite"/>
   <use   name="FWCore/Framework"/>
-  <use   name="rootcintex"/>
   <use   name="root"/>
   <bin   file="TtSemiLRJetComb_SoverSplusBLoop.cpp">
   </bin>

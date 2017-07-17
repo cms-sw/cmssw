@@ -17,7 +17,7 @@ InsideBoundsMeasurementEstimator::maximalLocalDisplacement( const TrajectoryStat
 
 std::pair<bool,double> 
 InsideBoundsMeasurementEstimator::estimate(const TrajectoryStateOnSurface& tsos,
-					   const TransientTrackingRecHit& aRecHit) const 
+					   const TrackingRecHit& aRecHit) const 
 {
   bool inside = aRecHit.det()->surface().bounds().inside(tsos.localPosition());
   return HitReturnType (inside,0);

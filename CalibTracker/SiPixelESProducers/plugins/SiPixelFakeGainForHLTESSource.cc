@@ -44,7 +44,7 @@ SiPixelFakeGainForHLTESSource::~SiPixelFakeGainForHLTESSource()
 
 }
 
-std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produce(const SiPixelGainCalibrationForHLTRcd & )
+std::unique_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produce(const SiPixelGainCalibrationForHLTRcd & )
 {
 
    using namespace edm::es;
@@ -95,7 +95,7 @@ std::auto_ptr<SiPixelGainCalibrationForHLT> SiPixelFakeGainForHLTESSource::produ
    
 
    // 
-   return std::auto_ptr<SiPixelGainCalibrationForHLT>(obj);
+   return std::unique_ptr<SiPixelGainCalibrationForHLT>(obj);
 
 
 }

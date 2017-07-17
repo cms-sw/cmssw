@@ -31,8 +31,9 @@
 FWEDProductRepresentationChecker::FWEDProductRepresentationChecker(const std::string& iTypeidName,
                                                                    const std::string& iPurpose,
                                                                    unsigned int iBitPackedViews,
-                                                                   bool iRepresentsSubPart) :
-   FWRepresentationCheckerBase(iPurpose, iBitPackedViews,iRepresentsSubPart),
+                                                                   bool iRepresentsSubPart,
+                                                                   bool iRequiresFF) :
+   FWRepresentationCheckerBase(iPurpose,iBitPackedViews,iRepresentsSubPart, iRequiresFF),
    m_typeidName(iTypeidName)
 {
 }
@@ -73,7 +74,7 @@ FWEDProductRepresentationChecker::infoFor(const std::string& iTypeName) const
       return FWRepresentationInfo();
    }
    if(clss->GetTypeInfo()->name() == m_typeidName) {
-      return FWRepresentationInfo(purpose(),0,bitPackedViews(), representsSubPart());
+      return FWRepresentationInfo(purpose(),0,bitPackedViews(), representsSubPart(), requiresFF());
    }
    return FWRepresentationInfo();
 }

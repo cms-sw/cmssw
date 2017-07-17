@@ -14,6 +14,9 @@
 <use name="clhep"/>
 <use name="CommonTools/Statistics"/>
 <use name="CommonTools/UtilAlgos"/>
+<use name="root"/>
+<use name="roofit"/>
+<use name="boost"/>
 <library name="DQMOfflineEGammaPlugins" file="*.cc">
   <flags EDM_PLUGIN="1"/>
 </library>

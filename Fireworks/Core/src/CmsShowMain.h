@@ -26,7 +26,6 @@
 #include <vector>
 #include <string>
 #include <memory>
-#include <boost/shared_ptr.hpp>
 #include "Rtypes.h"
 
 
@@ -93,10 +92,12 @@ private:
    void setupDataHandling();
    void setupSocket(unsigned int);
    void connectSocket();
+   void setLoadedAnyInputFileAfterStartup();
 
    virtual void autoLoadNewEvent();
    virtual void checkPosition();
    virtual void stopPlaying();
+    virtual void checkKeyBindingsOnPLayEventsStateChanged();
 
    void reachedEnd();
    void reachedBeginning();

@@ -33,7 +33,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 #-------------------------------------------------
 # Geometry
 #-------------------------------------------------
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 #-------------------------------------------------
 # Calibration
@@ -68,34 +68,30 @@ process.SiStripMonitorDigi.CreateTrendMEs = True
 
 process.SiStripMonitorDigi.TkHistoMap_On = True
 process.SiStripMonitorDigi.TkHistoMapNApvShots_On = True
-process.SiStripMonitorDigi.TkHistoMapNStripApvShots_On= True
-process.SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= True
+process.SiStripMonitorDigi.TkHistoMapNStripApvShots_On= False
+process.SiStripMonitorDigi.TkHistoMapMedianChargeApvShots_On= False
 
-
-process.SiStripMonitorDigi.OutputMEsInRootFile = True
 
 process.SiStripMonitorDigi.TH1NApvShots.subdetswitchon = True
 process.SiStripMonitorDigi.TH1NApvShots.globalswitchon = True
 
-process.SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = True
-process.SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = True
+process.SiStripMonitorDigi.TH1ChargeMedianApvShots.subdetswitchon = False
+process.SiStripMonitorDigi.TH1ChargeMedianApvShots.globalswitchon = False
 
-process.SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = True
-process.SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = True
+process.SiStripMonitorDigi.TH1NStripsApvShots.subdetswitchon = False
+process.SiStripMonitorDigi.TH1NStripsApvShots.globalswitchon = False
 
-process.SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = True
-process.SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = True
+process.SiStripMonitorDigi.TH1ApvNumApvShots.subdetswitchon = False
+process.SiStripMonitorDigi.TH1ApvNumApvShots.globalswitchon = False
 
-process.SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = True
-process.SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = True
+process.SiStripMonitorDigi.TProfNShotsVsTime.subdetswitchon = False
+process.SiStripMonitorDigi.TProfNShotsVsTime.globalswitchon = False
 
 process.SiStripMonitorDigi.TProfTotalNumberOfDigis.subdetswitchon = True
 process.SiStripMonitorDigi.TProfDigiApvCycle.subdetswitchon = True
 
 #process.SiStripMonitorDigi.TH2DigiApvCycle.subdetswitchon = True
 #process.SiStripMonitorDigi.TH2DigiApvCycle.yfactor = 0.005
-
-process.SiStripMonitorDigi.OutputFileName = 'SiStripMonitorDigi_RealData.root'
 
 process.SiStripMonitorDigi.SelectAllDetectors = True
 

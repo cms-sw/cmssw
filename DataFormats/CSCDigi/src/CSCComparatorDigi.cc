@@ -3,7 +3,8 @@
  *
  * \author M.Schmitt, Northwestern
  */
-#include <DataFormats/CSCDigi/interface/CSCComparatorDigi.h>
+#include "DataFormats/CSCDigi/interface/CSCComparatorDigi.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include <iostream>
 #include <algorithm>
 #include <iterator>
@@ -66,6 +67,18 @@ int CSCComparatorDigi::getTimeBin() const {
   return tbin;
 }
 
+// This definition is consistent with the one used in
+// the function CSCCLCTData::add() in EventFilter/CSCRawToDigi
+// The halfstrip counts from 0!
+int CSCComparatorDigi::getHalfStrip() const {
+  return (getStrip() - 1) * 2 + getComparator();
+}
+
+// Return the fractional half-strip
+float CSCComparatorDigi::getFractionalStrip() const {
+  return getStrip() + getComparator() * 0.5f - 0.75f;
+}
+
 std::vector<int> CSCComparatorDigi::getTimeBinsOn() const {
   std::vector<int> tbins;
   uint16_t tbit = timeBinWord_;
@@ -92,14 +105,13 @@ void CSCComparatorDigi::setComparator(int comparator) {
 
 void
 CSCComparatorDigi::print() const {
-  std::cout << "CSCComparatorDigi strip: " << getStrip() 
-       << " comparator: " << getComparator() 
-	    << " first time bin: "<< getTimeBin()
-       << " time bins on: ";
+  std::ostringstream ost;
+  ost << "CSCComparatorDigi | strip " << getStrip()
+      << " | comparator " << getComparator() 
+      << " | first time bin "  << getTimeBin() << " | time bins on ";
   std::vector<int> tbins=getTimeBinsOn();
-  std::copy( tbins.begin(), tbins.end(), 
-     std::ostream_iterator<int>( std::cout, " "));
-  std::cout << std::endl; 
+  for(unsigned int i=0; i<tbins.size();i++) {ost << tbins[i] << " ";}
+  edm::LogVerbatim("CSCDigi") << ost.str();
 }
 
 //@@ Doesn't print all time bins

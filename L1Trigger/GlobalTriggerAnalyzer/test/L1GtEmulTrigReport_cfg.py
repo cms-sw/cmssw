@@ -11,6 +11,7 @@ import sys
 
 process = cms.Process("L1GtEmulTrigReport")
 
+# import number of events, sample and global tag 
 print '\n'
 from L1Trigger.GlobalTriggerAnalyzer.UserOptions_cff import *
 if errorUserOptions == True :

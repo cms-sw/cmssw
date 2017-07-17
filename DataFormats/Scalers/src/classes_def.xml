@@ -2,16 +2,19 @@
   <class name="L1AcceptBunchCrossing" ClassVersion="10">
    <version ClassVersion="10" checksum="2158810149"/>
   </class>
-  <class name="L1TriggerScalers" ClassVersion="10">
+  <class name="L1TriggerScalers" ClassVersion="11">
+   <version ClassVersion="11" checksum="2922897410"/>
    <version ClassVersion="10" checksum="2108701177"/>
   </class>
   <class name="L1TriggerRates" ClassVersion="10">
    <version ClassVersion="10" checksum="1983467977"/>
   </class>
-  <class name="Level1TriggerScalers" ClassVersion="10">
+  <class name="Level1TriggerScalers" ClassVersion="11">
+   <version ClassVersion="11" checksum="1969787996"/>
    <version ClassVersion="10" checksum="733799432"/>
   </class>
-  <class name="Level1TriggerRates" ClassVersion="10">
+  <class name="Level1TriggerRates" ClassVersion="11">
+   <version ClassVersion="11" checksum="1342807468"/>
    <version ClassVersion="10" checksum="1930374175"/>
   </class>
   <class name="LumiScalers" ClassVersion="16">
@@ -25,6 +28,9 @@
   </class>
   <class name="TimeSpec" ClassVersion="10">
    <version ClassVersion="10" checksum="3936062714"/>
+  </class>
+  <class name="BSTRecord" ClassVersion="3">
+   <version ClassVersion="3" checksum="1274227912"/>
   </class>
   <class name="std::vector<L1AcceptBunchCrossing>"/>
   <class name="std::vector<L1TriggerScalers>"/>
@@ -42,6 +48,7 @@
   <class name="edm::RefProd<LumiScalers>"/>
   <class name="edm::RefProd<DcsStatus>"/>
   <class name="edm::RefProd<BeamSpotOnline>"/>
+  <class name="edm::RefProd<BSTRecord>"/>
   <class name="edm::Wrapper<L1AcceptBunchCrossing>"/>
   <class name="edm::Wrapper<L1TriggerScalers>"/>
   <class name="edm::Wrapper<L1TriggerRates>"/>
@@ -50,6 +57,7 @@
   <class name="edm::Wrapper<LumiScalers>"/>
   <class name="edm::Wrapper<DcsStatus>"/>
   <class name="edm::Wrapper<BeamSpotOnline>"/>
+  <class name="edm::Wrapper<BSTRecord>"/>
   <class name="edm::Wrapper<std::vector<L1AcceptBunchCrossing>>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerScalers>>"/>
   <class name="edm::Wrapper<std::vector<L1TriggerRates>>"/>

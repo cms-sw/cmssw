@@ -21,7 +21,7 @@ process.MessageLogger.cerr.FwkReport.reportEvery = 1000
 # magnetic field
 process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load('Configuration.StandardSequences.Services_cff')
-process.load('Configuration.StandardSequences.Geometry_cff')
+process.load("Configuration.Geometry.GeometryDB_cff")
 
 # including global tag
 #process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_noesprefer_cff")
@@ -68,7 +68,7 @@ process.trackerAlignment = cms.ESSource("PoolDBESSource",
 process.ZeroAPE = cms.ESSource("PoolDBESSource",
     process.CondDBSetup,
     toGet = cms.VPSet(cms.PSet(
-        record = cms.string('TrackerAlignmentErrorRcd'),
+        record = cms.string('TrackerAlignmentErrorExtendedRcd'),
         tag = cms.string('TrackerSurveyLASOnlyErrors_def_210_mc')
 		#tag = cms.string('TrackerCRAFTReRecoErrors_v1.10a_offline')
     )),

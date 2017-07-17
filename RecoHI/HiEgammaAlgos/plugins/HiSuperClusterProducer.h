@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
 
@@ -17,7 +17,7 @@
 //
 
 
-class HiSuperClusterProducer : public edm::EDProducer 
+class HiSuperClusterProducer : public edm::stream::EDProducer<> 
 {
   
   public:
@@ -26,7 +26,7 @@ class HiSuperClusterProducer : public edm::EDProducer
 
       ~HiSuperClusterProducer();
 
-      virtual void produce(edm::Event&, const edm::EventSetup&);
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob();
 
    private:
@@ -36,14 +36,11 @@ class HiSuperClusterProducer : public edm::EDProducer
  
       HiBremRecoveryClusterAlgo::VerbosityLevel verbosity;
 
-      std::string endcapClusterCollection_;
-      std::string barrelClusterCollection_;
-
-      std::string endcapClusterProducer_;
-      std::string barrelClusterProducer_;
-
       std::string endcapSuperclusterCollection_;
       std::string barrelSuperclusterCollection_;
+
+      edm::EDGetTokenT<reco::BasicClusterCollection>  eeClustersToken_;
+      edm::EDGetTokenT<reco::BasicClusterCollection>  ebClustersToken_;
 
       float barrelEtaSearchRoad_;
       float barrelPhiSearchRoad_;
@@ -62,11 +59,10 @@ class HiSuperClusterProducer : public edm::EDProducer
       int noSuperClusters;
 
       
-      void getClusterPtrVector(edm::Event& evt, std::string clusterProducer_, std::string clusterCollection_, reco::CaloClusterPtrVector *);
+      void getClusterPtrVector(edm::Event& evt, const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken, reco::CaloClusterPtrVector *);
   
       void produceSuperclustersForECALPart(edm::Event& evt, 
-					   std::string clusterProducer, 
-					   std::string clusterCollection,
+					   const edm::EDGetTokenT<reco::BasicClusterCollection>& clustersToken,
 					   std::string superclusterColection);
 
       void outputValidationInfo(reco::SuperClusterCollection &superclusterCollection);

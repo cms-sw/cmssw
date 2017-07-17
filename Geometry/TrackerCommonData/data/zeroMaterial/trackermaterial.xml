@@ -446,6 +446,20 @@
         <rMaterial name="materials:C6F14" />
       </MaterialFraction>
     </CompositeMaterial>
+    <CompositeMaterial name="Tk_panels_mid1b" density="1.17876e-06*g/cm3" method="mixture by weight" symbol=" ">
+      <MaterialFraction fraction="1e-05">
+         <rMaterial name="materials:Quartz"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.08405">
+         <rMaterial name="materials:Polyethylene"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.84501">
+         <rMaterial name="trackermaterial:T_Copper"/>
+      </MaterialFraction>
+      <MaterialFraction fraction="0.07094">
+         <rMaterial name="materials:C6F14"/>
+      </MaterialFraction>
+    </CompositeMaterial>
     <CompositeMaterial name="Tk_panels_mid2" density="3.586564134e-06*g/cm3" method="mixture by weight" pork="true" symbol=" ">
       <MaterialFraction fraction="1.0000100001e-05">
         <rMaterial name="materials:Quartz" />

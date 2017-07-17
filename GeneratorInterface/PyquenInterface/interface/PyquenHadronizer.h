@@ -13,9 +13,16 @@
 #include "GeneratorInterface/HiGenCommon/interface/BaseHiGenEvtSelector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+
 #include <map>
 #include <string>
+#include <vector>
+
 #include "HepMC/GenEvent.h"
+
+namespace CLHEP {
+  class HepRandomEngine;
+}
 
 namespace gen
 {
@@ -36,12 +43,18 @@ namespace gen
     bool initializeForInternalPartons();
     bool declareStableParticles( const std::vector<int>& );
     bool declareSpecialSettings( const std::vector<std::string>& ) { return true; }
-    virtual bool select(HepMC::GenEvent* evtTry) const { return selector_->filter(evtTry); }
+    virtual bool select(HepMC::GenEvent* evtTry) const override { return selector_->filter(evtTry); }
     void finalizeEvent();
     void statistics();
     const char* classname() const;
 
   private:
+
+    virtual void doSetRandomEngine(CLHEP::HepRandomEngine* v) override;
+    virtual std::vector<std::string> const& doSharedResources() const override { return theSharedResources; }
+
+    static const std::vector<std::string> theSharedResources;
+
     void	     add_heavy_ion_rec(HepMC::GenEvent *evt);
 
     bool	     pyqpythia_init(const edm::ParameterSet &pset);

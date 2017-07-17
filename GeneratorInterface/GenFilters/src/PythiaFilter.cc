@@ -9,7 +9,7 @@ using namespace std;
 
 
 PythiaFilter::PythiaFilter(const edm::ParameterSet& iConfig) :
-label_(iConfig.getUntrackedParameter("moduleLabel",std::string("generator"))),
+token_(consumes<edm::HepMCProduct>(edm::InputTag(iConfig.getUntrackedParameter("moduleLabel",std::string("generator")),"unsmeared"))),
 particleID(iConfig.getUntrackedParameter("ParticleID", 0)),
 minpcut(iConfig.getUntrackedParameter("MinP", 0.)),
 maxpcut(iConfig.getUntrackedParameter("MaxP", 10000.)),
@@ -49,7 +49,7 @@ bool PythiaFilter::filter(edm::Event& iEvent, const edm::EventSetup& iSetup)
    using namespace edm;
    bool accepted = false;
    Handle<HepMCProduct> evt;
-   iEvent.getByLabel(label_, evt);
+   iEvent.getByToken(token_, evt);
 
    const HepMC::GenEvent * myGenEvent = evt->GetEvent();
     

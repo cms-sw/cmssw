@@ -37,6 +37,11 @@
 #include "DataFormats/L1GlobalTrigger/interface/L1GtObject.h"
 #include "CondFormats/L1TObjects/interface/L1GtDefinitions.h"
 
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerReadoutRecord.h"
+#include "DataFormats/L1GlobalTrigger/interface/L1GlobalTriggerEvmReadoutRecord.h"
+
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
+
 // forward declarations
 class L1GtfeWord;
 class L1GtFdlWord;
@@ -48,8 +53,7 @@ class L1GtTriggerMask;
 
 // class declaration
 
-class L1GtHwValidation: public edm::EDAnalyzer
-{
+class L1GtHwValidation: public DQMEDAnalyzer  {
 
 public:
     explicit L1GtHwValidation(const edm::ParameterSet&);
@@ -84,7 +88,7 @@ private:
     virtual void compareGt_Gct(const edm::Event&, const edm::EventSetup&);
 
     /// book all histograms for the module
-    void bookHistograms();
+    //void bookhistograms(DQMStore::IBooker &ibooker);
 
     /// return true if an algorithm has a condition of that category
     /// for CondNull, it returns always true
@@ -104,13 +108,14 @@ private:
     /// exclusion status for algorithm with bit i
     bool excludedAlgo(const int&) const;
 
-    virtual void beginJob();
-    void beginRun(const edm::Run& run, const edm::EventSetup& c);
+    virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
 
-    virtual void analyze(const edm::Event&, const edm::EventSetup&);
-
-    void endRun(const edm::Run& run, const edm::EventSetup& c);
-    virtual void endJob();
+protected:
+    
+    virtual void bookHistograms(DQMStore::IBooker &ibooker, const edm::Run&, const edm::EventSetup&) override;
+    virtual void beginLuminosityBlock(const edm::LuminosityBlock&, const edm::EventSetup&) override;
+    virtual void dqmBeginRun(const edm::Run&, const edm::EventSetup&) override;
+    //virtual void analyze(DQMStore::IBooker &ibooker, const edm::Event&, const edm::EventSetup&);
 
 private:
 
@@ -191,8 +196,6 @@ private:
 private:
 
     /// internal members
-
-    DQMStore* m_dbe;
 
     bool m_agree;
     bool m_dataOnly;
@@ -276,6 +279,11 @@ private:
 
     std::vector<int> m_excludedAlgoList;
 
+    //define Token(-s)
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtDataDaqInputToken_;
+    edm::EDGetTokenT<L1GlobalTriggerReadoutRecord> m_l1GtEmulDaqInputToken_;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtDataEvmInputToken_;
+    edm::EDGetTokenT<L1GlobalTriggerEvmReadoutRecord> m_l1GtEmulEvmInputToken_;
 
 };
 

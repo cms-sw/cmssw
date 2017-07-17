@@ -236,7 +236,7 @@ int RecoBTag::findBinClosestYValue ( const TH1F * histo , const float& yVal , co
   // the given value yVal where the value yVal has to be in the range yLow < yVal < yHigh.
   // If it is outside this range the corresponding bin number is returned as negative value.
   // Currently, there is no protection if there are many bins with the same value!
-  // Teh user has to take care to interpret the output correctly.
+  // The user has to take care to interpret the output correctly.
   //
 
   // init
@@ -282,6 +282,65 @@ int RecoBTag::findBinClosestYValue ( const TH1F * histo , const float& yVal , co
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+vector<int> RecoBTag::findBinClosestYValueAtFixedZ ( const TH2F * histoY , const float& yVal , const float& yLow , const float& yHigh , const TH2F * histoZ , const vector<double>& zVal ) {
+  //
+  // Find the bin in a 2-dim. histogram which has its y-value closest to
+  // the given value yVal where the value yVal has to be in the range yLow < yVal < yHigh.
+  // If it is outside this range the corresponding bin number is returned as negative value.
+  // The bin should also correspond to a value of z=zVal within the same precision as yVal.
+  // Currently, there is no protection if there are many bins with the same value!
+  // The user has to take care to interpret the output correctly.
+  //
+
+  // init
+  const int& nBinsX = histoY->GetNbinsX() - 2 ; // -2 because we don't include under/overflow alos in this loop
+  const int& nBinsY = histoY->GetNbinsY() - 2 ; // -2 because we don't include under/overflow alos in this loop
+  int iBinClosestInit = 0    ;
+  // init start value properly: must avoid that the real one is not filled
+  vector<float> yClosestInit(zVal.size()) ;
+  //
+  const float& maxInHisto = histoY->GetMaximum() ;
+  const float& minInHisto = histoY->GetMinimum() ;
+  //
+  // if yVal is smaller than max -> take any value well above the maximum
+  for (unsigned int i=0; i<yClosestInit.size(); i++){
+    if ( yVal <= maxInHisto ) {
+      yClosestInit[i] = maxInHisto + 1 ; }
+    else {
+      // if yVal is greater than max value -> take a value < minimum
+      yClosestInit[i] = minInHisto - 1.0 ;
+    }
+  }
+
+  vector<int> iBinClosest(zVal.size(), iBinClosestInit);
+  vector<float> yClosest(yClosestInit);
+
+  // loop over bins of histogram
+  for ( int iBinX = 1 ; iBinX <= nBinsX ; ++iBinX ) {
+    for ( int iBinY = 1 ; iBinY <= nBinsY ; ++iBinY ) {
+      const float& yBin = histoY->GetBinContent(iBinX,iBinY);
+      for (unsigned int i = 0; i < zVal.size(); i++){
+	if ( fabs(yBin-yVal) < fabs(yClosest[i]-yVal) ) {
+	  const float& zLow = zVal[i] - (yVal - yLow);
+	  const float& zHigh = zVal[i] + (yHigh - yVal);
+	  const float& zBin = histoZ->GetBinContent(iBinX,iBinY) ;
+	  if(zBin < zLow  || zBin > zHigh) continue;
+	  yClosest[i] = yBin  ;
+	  iBinClosest[i] = histoY->GetBin(iBinX,iBinY) ;
+	}
+      }
+    }
+  }
+  // check if in interval
+  for (unsigned int i = 0; i < yClosest.size(); i++){
+    if ( yClosest[i] < yLow  || yClosest[i] > yHigh )
+      iBinClosest[i] *= -1 ;
+  }
+
+  return iBinClosest ;
+}
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 
 TStyle* RecoBTag::setTDRStyle() {

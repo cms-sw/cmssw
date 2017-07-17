@@ -11,7 +11,10 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtGenEvent.h"
 
 // constructor with path; default should not be used
-TtSemiLRJetCombObservables::TtSemiLRJetCombObservables() {}
+TtSemiLRJetCombObservables::TtSemiLRJetCombObservables(edm::ConsumesCollector && iC, const edm::EDGetTokenT<std::vector<pat::Jet> > & jetSourceToken)
+: jetSourceToken_( jetSourceToken )
+, genEvtToken_( iC.consumes<TtGenEvent>( edm::InputTag( "genEvt" ) ) )
+{}
 
 
 // destructor
@@ -44,7 +47,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   double drLepl=0, drLepn=0, drHadb=0, drLepb=0, drHadp=0, drHadq=0, drHadpq=0, drHadqp=0; // drHadt=0, drLept=0, drLepW=0, drHadW=0;
 
   edm::Handle<TtGenEvent> genEvent;
-  iEvent.getByLabel ("genEvt",genEvent);
+  iEvent.getByToken(genEvtToken_,genEvent);
 
   if (genEvent.failedToGet()) {
     if(debug) std::cout << "== not found genEvent " << std::endl;
@@ -122,7 +125,7 @@ TtSemiLRJetCombObservables::operator() (TtSemiEvtSolution &solution, const edm::
   if(debug) std::cout << "== objects matched" <<std::endl;
 
   edm::Handle<std::vector<pat::Jet> > jets;
-  iEvent.getByLabel(jetSource_, jets);
+  iEvent.getByToken(jetSourceToken_, jets);
 
   if(debug) std::cout << "== start calculating observables" << std::endl;
 

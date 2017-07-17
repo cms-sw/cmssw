@@ -2,11 +2,12 @@
 #define _SiPixelDataQuality_h_
 
 #include "DQMServices/Core/interface/MonitorElement.h"
-
+#include "DQMServices/Core/interface/DQMStore.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigParser.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelConfigWriter.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelActionExecutor.h"
 #include "DQM/SiPixelMonitorClient/interface/SiPixelLayoutParser.h"
+
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -34,10 +35,7 @@
 #include <map>
 #include <boost/cstdint.hpp>
 
-class DQMStore;
 class SiPixelEDAClient;
-class SiPixelWebInterface;
-class SiPixelHistoPlotter;
 class SiPixelDataQuality {
 
  public:
@@ -47,16 +45,17 @@ class SiPixelDataQuality {
 
   int getDetId(                 MonitorElement                          * mE) ;				
 
-  void bookGlobalQualityFlag    (DQMStore                               * bei,
+  void bookGlobalQualityFlag    (DQMStore::IBooker                      & iBooker,
 				 bool                                     Tier0Flag,
 				 int                                      nFEDs);
 
-  void computeGlobalQualityFlag (DQMStore                               * bei,
+  void computeGlobalQualityFlag (DQMStore::IBooker                      & iBooker,
+				 DQMStore::IGetter                      & iGetter, 
                                  bool                                     init,
 				 int                                      nFEDs,
 				 bool                                     Tier0Flag);
   
-  void computeGlobalQualityFlagByLumi (DQMStore                         * bei,
+  void computeGlobalQualityFlagByLumi (DQMStore::IGetter                & iGetter,
                                        bool                               init,
 				       int                                nFEDs,
 				       bool                               Tier0Flag,
@@ -64,9 +63,10 @@ class SiPixelDataQuality {
 				       int                                nErrorsBarrel_lastLS_,
 				       int                                nErrorsEndcap_lastLS_);
   
-  void fillGlobalQualityPlot    (DQMStore                               * bei,
+  void fillGlobalQualityPlot    (DQMStore::IBooker                      & iBooker,
+				 DQMStore::IGetter                      & iGetter,
                                  bool                                     init,
-                                 edm::EventSetup const                  & eSetup,
+				 edm::ESHandle<SiPixelFedCablingMap>      theCablingMap,
 				 int                                      nFEDs,
 				 bool                                     Tier0Flag,
 				 int                                      lumisec);

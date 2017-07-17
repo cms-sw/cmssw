@@ -44,6 +44,10 @@ hlt_count 4 | hltbits hlt_count/4 |
 adler32_chksum 4 | host name length 1 | host name {Fixed size}
 eventdatalength 4 | eventdata blob {variable} 
 
+Protocol Version 10: identical to version 9, but incremented to keep in sync with init msg version 
+
+Protocol Version 11: identical to version 10, except event changed from 4 bytes to 8 bytes
+
 */
 
 #ifndef IOPool_Streamer_EventMessage_h
@@ -59,7 +63,7 @@ struct EventHeader
   Header header_;
   uint8 protocolVersion_;
   char_uint32 run_;
-  char_uint32 event_;
+  char_uint64 event_;
   char_uint32 lumi_;
   char_uint32 origDataSize_;
   char_uint32 outModId_;
@@ -81,7 +85,7 @@ public:
   uint32 headerSize() const {return event_start_-buf_;}
   uint32 protocolVersion() const;
   uint32 run() const;
-  uint32 event() const;
+  uint64 event() const;
   uint32 lumi() const;
   uint32 origDataSize() const;
   uint32 outModId() const;
@@ -113,4 +117,3 @@ private:
 };
 
 #endif
-

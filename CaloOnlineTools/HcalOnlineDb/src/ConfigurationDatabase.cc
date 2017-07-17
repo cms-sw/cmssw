@@ -16,7 +16,7 @@ namespace hcal {
     m_implementation=0;
   }
 
-  void ConfigurationDatabase::open(const std::string& accessor) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabase::open(const std::string& accessor) noexcept(false) {
     if (m_implementationOptions.empty()) {
       std::vector<hcal::AbstractPluginFactory*> facts;
       hcal::PluginManager::getFactories("hcal::ConfigurationDatabaseImpl",facts);
@@ -49,7 +49,7 @@ namespace hcal {
     if (m_implementation!=0) m_implementation->disconnect();
   }
 
-  unsigned int ConfigurationDatabase::getFirmwareChecksum(const std::string& board, unsigned int version) throw (hcal::exception::ConfigurationDatabaseException) {
+  unsigned int ConfigurationDatabase::getFirmwareChecksum(const std::string& board, unsigned int version) noexcept(false) {
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
@@ -57,7 +57,7 @@ namespace hcal {
     return m_implementation->getFirmwareChecksum(board,version);
   }
 
-  ConfigurationDatabase::ApplicationConfig ConfigurationDatabase::getApplicationConfig(const std::string& tag, const std::string& classname, int instance) throw (hcal::exception::ConfigurationDatabaseException) {
+  ConfigurationDatabase::ApplicationConfig ConfigurationDatabase::getApplicationConfig(const std::string& tag, const std::string& classname, int instance) noexcept(false) {
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
@@ -66,14 +66,14 @@ namespace hcal {
   }
 
 
-  std::string ConfigurationDatabase::getConfigurationDocument(const std::string& tag) throw (hcal::exception::ConfigurationDatabaseException) {
+  std::string ConfigurationDatabase::getConfigurationDocument(const std::string& tag) noexcept(false) {
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
     return m_implementation->getConfigurationDocument(tag);
   }
 
-  void ConfigurationDatabase::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabase::getFirmwareMCS(const std::string& board, unsigned int version, std::vector<std::string>& mcsLines) noexcept(false) {
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
     }
@@ -82,7 +82,7 @@ namespace hcal {
 
   }
 
-  void ConfigurationDatabase::getLUTs(const std::string& tag, int crate, int slot, std::map<LUTId, LUT >& LUTs) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabase::getLUTs(const std::string& tag, int crate, int slot, std::map<LUTId, LUT >& LUTs) noexcept(false) {
 
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
@@ -97,7 +97,7 @@ namespace hcal {
     }
   }
 
-  void ConfigurationDatabase::getLUTChecksums(const std::string& tag, std::map<LUTId, MD5Fingerprint>& checksums) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabase::getLUTChecksums(const std::string& tag, std::map<LUTId, MD5Fingerprint>& checksums) noexcept(false) {
     checksums.clear();
 
     if (m_implementation==0) {
@@ -107,7 +107,7 @@ namespace hcal {
     m_implementation->getLUTChecksums(tag, checksums);
   }
 
-  void ConfigurationDatabase::getPatterns(const std::string& tag, int crate, int slot, std::map<PatternId, HTRPattern>& patterns) throw (hcal::exception::ConfigurationDatabaseException) {
+  void ConfigurationDatabase::getPatterns(const std::string& tag, int crate, int slot, std::map<PatternId, HTRPattern>& patterns) noexcept(false) {
 
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
@@ -125,7 +125,7 @@ namespace hcal {
 					 const std::string& rbx,
 					 RBXdatumType dtype,
 					 std::map<RBXdatumId, RBXdatum>& RBXdata)
-    throw (hcal::exception::ConfigurationDatabaseException) {
+    noexcept(false) {
 
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
@@ -137,7 +137,7 @@ namespace hcal {
   void ConfigurationDatabase::getRBXpatterns(const std::string& tag,
 					     const std::string& rbx,
 					     std::map<RBXdatumId, RBXpattern>& patterns)
-    throw (hcal::exception::ConfigurationDatabaseException) {
+    noexcept(false) {
 
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
@@ -147,7 +147,7 @@ namespace hcal {
   }
 
   void ConfigurationDatabase::getZSThresholds(const std::string& tag, int crate, int slot, std::map<ZSChannelId, int>& thresholds)
-    throw (hcal::exception::ConfigurationDatabaseException) {
+    noexcept(false) {
 
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
@@ -157,7 +157,7 @@ namespace hcal {
   }
 
   void ConfigurationDatabase::getHLXMasks(const std::string& tag, int crate, int slot, std::map<FPGAId, HLXMasks>& m)
-    throw (hcal::exception::ConfigurationDatabaseException) {
+    noexcept(false) {
 
     if (m_implementation==0) {
       XCEPT_RAISE(hcal::exception::ConfigurationDatabaseException,"Database connection not open");
@@ -169,41 +169,64 @@ namespace hcal {
 
 
   bool ConfigurationDatabase::FPGAId::operator<(const FPGAId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
+    if (crate<a.crate) return true; 
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true; 
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true; 
+    if (fpga>a.fpga) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::LUTId::operator<(const LUTId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
-    if (fiber_slb<a.fiber_slb) return true; if (fiber_slb>a.fiber_slb) return false;
-    if (channel<a.channel) return true; if (channel>a.channel) return false;
-    if (lut_type<a.lut_type) return true; if (lut_type>a.lut_type) return false;
+    if (crate<a.crate) return true; 
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true; 
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true; 
+    if (fpga>a.fpga) return false;
+    if (fiber_slb<a.fiber_slb) return true; 
+    if (fiber_slb>a.fiber_slb) return false;
+    if (channel<a.channel) return true; 
+    if (channel>a.channel) return false;
+    if (lut_type<a.lut_type) return true; 
+    if (lut_type>a.lut_type) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::PatternId::operator<(const PatternId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
-    if (fiber<a.fiber) return true; if (fiber>a.fiber) return false;
+    if (crate<a.crate) return true; 
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true;
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true;
+    if (fpga>a.fpga) return false;
+    if (fiber<a.fiber) return true;
+    if (fiber>a.fiber) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::ZSChannelId::operator<(const ZSChannelId& a) const {
-    if (crate<a.crate) return true; if (crate>a.crate) return false;
-    if (slot<a.slot) return true; if (slot>a.slot) return false;
-    if (fpga<a.fpga) return true; if (fpga>a.fpga) return false;
-    if (fiber<a.fiber) return true; if (fiber>a.fiber) return false;
-    if (channel<a.channel) return true; if (channel>a.channel) return false;
+    if (crate<a.crate) return true;
+    if (crate>a.crate) return false;
+    if (slot<a.slot) return true;
+    if (slot>a.slot) return false;
+    if (fpga<a.fpga) return true;
+    if (fpga>a.fpga) return false;
+    if (fiber<a.fiber) return true; 
+    if (fiber>a.fiber) return false;
+    if (channel<a.channel) return true; 
+    if (channel>a.channel) return false;
     return false; // equal is not less
   }
   bool ConfigurationDatabase::RBXdatumId::operator<(const RBXdatumId& a) const {
-    if (rm<a.rm) return true; if (rm>a.rm) return false;
-    if (card<a.card) return true; if (card>a.card) return false;
-    if (qie_or_gol<a.qie_or_gol) return true; if (qie_or_gol>a.qie_or_gol) return false;
-    if (dtype<a.dtype) return true; if (dtype>a.dtype) return false;
-    if (ltype<a.ltype) return true; if (ltype>a.ltype) return false;
+    if (rm<a.rm) return true; 
+    if (rm>a.rm) return false;
+    if (card<a.card) return true; 
+    if (card>a.card) return false;
+    if (qie_or_gol<a.qie_or_gol) return true; 
+    if (qie_or_gol>a.qie_or_gol) return false;
+    if (dtype<a.dtype) return true; 
+    if (dtype>a.dtype) return false;
+    if (ltype<a.ltype) return true; 
+    if (ltype>a.ltype) return false;
     return false; // equal is not less
   }
 

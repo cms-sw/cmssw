@@ -26,10 +26,13 @@
 #include "CondFormats/RunInfo/interface/RunInfo.h"
 #include <vector>
 
+#include "FWCore/Utilities/interface/GCC11Compatibility.h"
+
 class SiStripDetCabling;
 class SiStripDetInfoFileReader;
+class TrackerTopology;
 
-class SiStripQuality: public SiStripBadStrip {
+class SiStripQuality final : public SiStripBadStrip {
 
  public:
 
@@ -121,6 +124,10 @@ class SiStripQuality: public SiStripBadStrip {
   inline void setPrintDebugOutput(const bool printDebug) { printDebug_ = printDebug; }
   inline void setUseEmptyRunInfo(const bool useEmptyRunInfo) { useEmptyRunInfo_ = useEmptyRunInfo; }
 
+
+  SiStripDetCabling const * cabling() const { return SiStripDetCabling_;}
+
+
  private:
 
   void compact(std::vector<unsigned int>&,std::vector<unsigned int>&,unsigned short&);
@@ -135,7 +142,7 @@ class SiStripQuality: public SiStripBadStrip {
   void turnOffFeds(const std::vector<int> & fedsList, const bool turnOffStrips, const bool printDebug);
 
   /// Prints debug output for a given detId
-  void printDetInfo(const uint32_t &detId, const uint32_t &apvPairNumber, std::stringstream &ss);
+  void printDetInfo(const TrackerTopology* const tTopo, const uint32_t &detId, const uint32_t &apvPairNumber, std::stringstream &ss);
   /// Prints debug output for the active feds comparing the list in RunInfo and FedCabling
   void printActiveFedsInfo( const std::vector<uint16_t> & activeFedsFromCabling,
                             const std::vector<int> & activeFedsFromRunInfo,

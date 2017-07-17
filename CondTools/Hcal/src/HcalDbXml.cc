@@ -19,8 +19,10 @@
 #include <xercesc/dom/DOMText.hpp>
 #include <xercesc/dom/DOMImplementation.hpp>
 #include <xercesc/dom/DOMImplementationRegistry.hpp>
+#include <xercesc/dom/DOMConfiguration.hpp>
 #include <xercesc/dom/DOMDocument.hpp>
-#include <xercesc/dom/DOMWriter.hpp>
+#include <xercesc/dom/DOMLSOutput.hpp>
+#include <xercesc/dom/DOMLSSerializer.hpp>
 
 #include "FWCore/Concurrency/interface/Xerces.h"
 #include "CondTools/Hcal/interface/StreamOutFormatTarget.h"
@@ -296,10 +298,15 @@ private:
   const DOMDocument* XMLDocument::document () {return mDoc;}
 
   void XMLDocument::streamOut (std::ostream& fOut) {
-    StreamOutFormatTarget formTaget (fOut);
-    DOMWriter* domWriter = mDom->createDOMWriter();
-    domWriter->setFeature(XMLUni::fgDOMWRTFormatPrettyPrint, true);
-    domWriter->writeNode (&formTaget, *(root()));
+    StreamOutFormatTarget formTarget (fOut);
+    DOMLSSerializer* domWriter = mDom->createLSSerializer();
+    DOMConfiguration* dc = domWriter->getDomConfig();
+    dc->setParameter(XMLUni::fgDOMWRTFormatPrettyPrint, true);
+
+    DOMLSOutput* outputDesc = ((DOMImplementationLS*)mDom)->createLSOutput();
+    outputDesc->setByteStream(&formTarget);
+
+    domWriter->write (root(), outputDesc);
     mDoc->release ();
   }
 

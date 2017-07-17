@@ -374,7 +374,6 @@ void TreeReader::Value::update(TreeReader *reader) const
 			break;
 		    case 'B':
 			reader->multiBool[index].first = value;
-				&reader->multiBool[index].second;
 			value = &reader->multiBool[index].first;
 			break;
 		}

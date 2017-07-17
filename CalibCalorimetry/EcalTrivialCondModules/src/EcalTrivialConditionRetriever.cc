@@ -100,6 +100,18 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
   sampleMaskEB_ = ps.getUntrackedParameter<unsigned int>("sampleMaskEB",1023);
   sampleMaskEE_ = ps.getUntrackedParameter<unsigned int>("sampleMaskEB",1023);
 
+  EBtimeCorrAmplitudeBins_ = ps.getUntrackedParameter< std::vector<double> >("EBtimeCorrAmplitudeBins", std::vector<double>() );
+  EBtimeCorrShiftBins_ = ps.getUntrackedParameter< std::vector<double> >("EBtimeCorrShiftBins", std::vector<double>() );
+  EEtimeCorrAmplitudeBins_ = ps.getUntrackedParameter< std::vector<double> >("EEtimeCorrAmplitudeBins", std::vector<double>() );
+  EEtimeCorrShiftBins_ = ps.getUntrackedParameter< std::vector<double> >("EEtimeCorrShiftBins", std::vector<double>() );
+
+  EBG12samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EBG12samplesCorrelation", std::vector<double>() );
+  EBG6samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EBG6samplesCorrelation", std::vector<double>() );
+  EBG1samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EBG1samplesCorrelation", std::vector<double>() );
+  EEG12samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG12samplesCorrelation", std::vector<double>() );
+  EEG6samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG6samplesCorrelation", std::vector<double>() );
+  EEG1samplesCorrelation_ = ps.getUntrackedParameter< std::vector<double> >("EEG1samplesCorrelation", std::vector<double>() );
+
   nTDCbins_ = 1;
 
   weightsForAsynchronousRunning_ = ps.getUntrackedParameter<bool>("weightsForTB",false);
@@ -325,12 +337,29 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     // set all constants to 1. or smear as specified by user
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAlphas ) ;
     findingRecord<EcalLaserAlphasRcd> () ;
-    getLaserAlphaFromFile_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFile",false);
-    std::cout << " getLaserAlphaFromFile_ " <<  getLaserAlphaFromFile_ << std::endl;
-    if(getLaserAlphaFromFile_) {
-      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt");
-      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt");
-      std::cout << " EELaserAlphaFile_ " <<  EELaserAlphaFile_.c_str() << std::endl;
+    getLaserAlphaFromFileEB_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFileEB",false);
+    getLaserAlphaFromFileEE_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromFileEE",false);
+    getLaserAlphaFromTypeEB_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromTypeEB",false);
+    getLaserAlphaFromTypeEE_ = ps.getUntrackedParameter<bool>("getLaserAlphaFromTypeEE",false);
+    std::cout << " getLaserAlphaFromFileEB_ " <<  getLaserAlphaFromFileEB_ << std::endl;
+    std::cout << " getLaserAlphaFromFileEE_ " <<  getLaserAlphaFromFileEE_ << std::endl;
+    std::cout << " getLaserAlphaFromTypeEB_ " <<  getLaserAlphaFromTypeEB_ << std::endl;
+    std::cout << " getLaserAlphaFromTypeEE_ " <<  getLaserAlphaFromTypeEE_ << std::endl;
+    if(getLaserAlphaFromFileEB_) {
+      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt"); // file is used to read the alphas
+    }
+    if(getLaserAlphaFromFileEE_) {
+      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt"); // file is used to read the alphas
+    } 
+    if(getLaserAlphaFromTypeEB_) {
+      laserAlphaMeanEBR_  = ps.getUntrackedParameter<double>("laserAlphaMeanEBR",1.55); // alpha russian crystals in EB
+      laserAlphaMeanEBC_  = ps.getUntrackedParameter<double>("laserAlphaMeanEBC",1.00); // alpha chinese crystals in EB
+      EBLaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EBLaserAlphaFile",path+"EBLaserAlpha.txt"); // file to find out which one is russian/chinese
+    }
+    if(getLaserAlphaFromTypeEE_) {
+      laserAlphaMeanEER_  = ps.getUntrackedParameter<double>("laserAlphaMeanEER",1.16); // alpha russian crystals in EE
+      laserAlphaMeanEEC_  = ps.getUntrackedParameter<double>("laserAlphaMeanEEC",1.00); // alpha chinese crystals in EE
+      EELaserAlphaFile_ = ps.getUntrackedParameter<std::string>("EELaserAlphaFile",path+"EELaserAlpha.txt"); // file is used to find out which one is russian or chinese
     }
     setWhatProduced (this, &EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef ) ;
     findingRecord<EcalLaserAPDPNRatiosRefRcd> () ;
@@ -421,6 +450,20 @@ EcalTrivialConditionRetriever::EcalTrivialConditionRetriever( const edm::Paramet
     setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalSampleMask );
     findingRecord<EcalSampleMaskRcd>();
   }
+  producedEcalTimeBiasCorrections_ = ps.getUntrackedParameter<bool>("producedEcalTimeBiasCorrections", false);
+  if (producedEcalTimeBiasCorrections_) {
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalTimeBiasCorrections );
+    findingRecord<EcalTimeBiasCorrectionsRcd>();
+  }
+  producedEcalSamplesCorrelation_ = ps.getUntrackedParameter<bool>("producedEcalSamplesCorrelation", false);
+  if (producedEcalSamplesCorrelation_) {
+    setWhatProduced(this, &EcalTrivialConditionRetriever::produceEcalSamplesCorrelation );
+    findingRecord<EcalSamplesCorrelationRcd>();
+    getSamplesCorrelationFromFile_ = ps.getUntrackedParameter<bool>("getSamplesCorrelationFromFile",false);
+    if(getSamplesCorrelationFromFile_) {
+      SamplesCorrelationFile_ = ps.getUntrackedParameter<std::string>("SamplesCorrelationFile","EcalSamplesCorrelation.txt");
+    }
+  }
 }
 
 EcalTrivialConditionRetriever::~EcalTrivialConditionRetriever()
@@ -441,9 +484,9 @@ EcalTrivialConditionRetriever::setIntervalFor( const edm::eventsetup::EventSetup
 }
 
 //produce methods
-std::auto_ptr<EcalPedestals>
+std::unique_ptr<EcalPedestals>
 EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
-  std::auto_ptr<EcalPedestals>  peds = std::auto_ptr<EcalPedestals>( new EcalPedestals() );
+  auto peds = std::make_unique<EcalPedestals>();
   EcalPedestals::Item EBitem;
   EcalPedestals::Item EEitem;
   
@@ -512,16 +555,16 @@ EcalTrivialConditionRetriever::produceEcalPedestals( const EcalPedestalsRcd& ) {
     }
   }
 
-  //return std::auto_ptr<EcalPedestals>( peds );
+  //return std::unique_ptr<EcalPedestals>( peds );
   return peds;
 }
 
 
 
-std::auto_ptr<EcalWeightXtalGroups>
+std::unique_ptr<EcalWeightXtalGroups>
 EcalTrivialConditionRetriever::produceEcalWeightXtalGroups( const EcalWeightXtalGroupsRcd& )
 {
-  std::auto_ptr<EcalWeightXtalGroups> xtalGroups = std::auto_ptr<EcalWeightXtalGroups>( new EcalWeightXtalGroups() );
+  auto xtalGroups = std::make_unique<EcalWeightXtalGroups>();
   EcalXtalGroupId defaultGroupId(1);
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
@@ -555,10 +598,10 @@ EcalTrivialConditionRetriever::produceEcalWeightXtalGroups( const EcalWeightXtal
 }
 
 
-std::auto_ptr<EcalLinearCorrections>
+std::unique_ptr<EcalLinearCorrections>
 EcalTrivialConditionRetriever::produceEcalLinearCorrections( const EcalLinearCorrectionsRcd& )
 {
-  std::auto_ptr<EcalLinearCorrections>  ical = std::auto_ptr<EcalLinearCorrections>( new EcalLinearCorrections() );
+  auto ical = std::make_unique<EcalLinearCorrections>();
 
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
@@ -629,10 +672,10 @@ EcalTrivialConditionRetriever::produceEcalLinearCorrections( const EcalLinearCor
 
 //------------------------------
 
-std::auto_ptr<EcalIntercalibConstants>
+std::unique_ptr<EcalIntercalibConstants>
 EcalTrivialConditionRetriever::produceEcalIntercalibConstants( const EcalIntercalibConstantsRcd& )
 {
-  std::auto_ptr<EcalIntercalibConstants>  ical = std::auto_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
+  auto ical = std::make_unique<EcalIntercalibConstants>();
 
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
@@ -668,10 +711,10 @@ EcalTrivialConditionRetriever::produceEcalIntercalibConstants( const EcalInterca
   return ical;
 }
 
-std::auto_ptr<EcalIntercalibConstantsMC>
+std::unique_ptr<EcalIntercalibConstantsMC>
 EcalTrivialConditionRetriever::produceEcalIntercalibConstantsMC( const EcalIntercalibConstantsMCRcd& )
 {
-  std::auto_ptr<EcalIntercalibConstantsMC>  ical = std::auto_ptr<EcalIntercalibConstantsMC>( new EcalIntercalibConstantsMC() );
+  auto ical = std::make_unique<EcalIntercalibConstantsMC>();
 
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
@@ -707,10 +750,10 @@ EcalTrivialConditionRetriever::produceEcalIntercalibConstantsMC( const EcalInter
   return ical;
 }
 
-std::auto_ptr<EcalIntercalibErrors>
+std::unique_ptr<EcalIntercalibErrors>
 EcalTrivialConditionRetriever::produceEcalIntercalibErrors( const EcalIntercalibErrorsRcd& )
 {
-  std::auto_ptr<EcalIntercalibErrors>  ical = std::auto_ptr<EcalIntercalibErrors>( new EcalIntercalibErrors() );
+  auto ical = std::make_unique<EcalIntercalibErrors>();
 
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
@@ -743,10 +786,10 @@ EcalTrivialConditionRetriever::produceEcalIntercalibErrors( const EcalIntercalib
   return ical;
 }
 
-std::auto_ptr<EcalTimeCalibConstants>
+std::unique_ptr<EcalTimeCalibConstants>
 EcalTrivialConditionRetriever::produceEcalTimeCalibConstants( const EcalTimeCalibConstantsRcd& )
 {
-  std::auto_ptr<EcalTimeCalibConstants>  ical = std::auto_ptr<EcalTimeCalibConstants>( new EcalTimeCalibConstants() );
+  auto ical = std::make_unique<EcalTimeCalibConstants>();
 
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
@@ -782,10 +825,10 @@ EcalTrivialConditionRetriever::produceEcalTimeCalibConstants( const EcalTimeCali
   return ical;
 }
 
-std::auto_ptr<EcalTimeCalibErrors>
+std::unique_ptr<EcalTimeCalibErrors>
 EcalTrivialConditionRetriever::produceEcalTimeCalibErrors( const EcalTimeCalibErrorsRcd& )
 {
-  std::auto_ptr<EcalTimeCalibErrors>  ical = std::auto_ptr<EcalTimeCalibErrors>( new EcalTimeCalibErrors() );
+  auto ical = std::make_unique<EcalTimeCalibErrors>();
 
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA ;++ieta) {
     if(ieta==0) continue;
@@ -818,18 +861,18 @@ EcalTrivialConditionRetriever::produceEcalTimeCalibErrors( const EcalTimeCalibEr
   return ical;
 }
 
-std::auto_ptr<EcalTimeOffsetConstant>
+std::unique_ptr<EcalTimeOffsetConstant>
 EcalTrivialConditionRetriever::produceEcalTimeOffsetConstant( const EcalTimeOffsetConstantRcd& )
 {
   std::cout << " produceEcalTimeOffsetConstant: " << std::endl;
   std::cout << "  EB " << timeOffsetEBConstant_ << " EE " <<  timeOffsetEEConstant_<< std::endl;
-  return std::auto_ptr<EcalTimeOffsetConstant>( new EcalTimeOffsetConstant(timeOffsetEBConstant_,timeOffsetEEConstant_) );
+  return std::make_unique<EcalTimeOffsetConstant>(timeOffsetEBConstant_,timeOffsetEEConstant_);
 }
 
-std::auto_ptr<EcalGainRatios>
+std::unique_ptr<EcalGainRatios>
 EcalTrivialConditionRetriever::produceEcalGainRatios( const EcalGainRatiosRcd& )
 {
-  std::auto_ptr<EcalGainRatios> gratio = std::auto_ptr<EcalGainRatios>( new EcalGainRatios() );
+  auto gratio = std::make_unique<EcalGainRatios>();
   EcalMGPAGainRatio gr;
   gr.setGain12Over6( gainRatio12over6_ );
   gr.setGain6Over1( gainRatio6over1_ );
@@ -864,17 +907,17 @@ EcalTrivialConditionRetriever::produceEcalGainRatios( const EcalGainRatiosRcd& )
   return gratio;
 }
 
-std::auto_ptr<EcalADCToGeVConstant>
+std::unique_ptr<EcalADCToGeVConstant>
 EcalTrivialConditionRetriever::produceEcalADCToGeVConstant( const EcalADCToGeVConstantRcd& )
 {
-  return std::auto_ptr<EcalADCToGeVConstant>( new EcalADCToGeVConstant(adcToGeVEBConstant_,adcToGeVEEConstant_) );
+  return std::make_unique<EcalADCToGeVConstant>(adcToGeVEBConstant_,adcToGeVEEConstant_);
 }
 
-std::auto_ptr<EcalTBWeights>
+std::unique_ptr<EcalTBWeights>
 EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
 {
   // create weights for the test-beam
-  std::auto_ptr<EcalTBWeights> tbwgt = std::auto_ptr<EcalTBWeights>( new EcalTBWeights() );
+  auto tbwgt = std::make_unique<EcalTBWeights>();
 
   // create weights for each distinct group ID
   //  int nMaxTDC = 10;
@@ -959,46 +1002,46 @@ EcalTrivialConditionRetriever::produceEcalTBWeights( const EcalTBWeightsRcd& )
 
 
 // cluster functions/corrections
-std::auto_ptr<EcalClusterLocalContCorrParameters>
+std::unique_ptr<EcalClusterLocalContCorrParameters>
 EcalTrivialConditionRetriever::produceEcalClusterLocalContCorrParameters( const EcalClusterLocalContCorrParametersRcd &)
 {
-        std::auto_ptr<EcalClusterLocalContCorrParameters> ipar = std::auto_ptr<EcalClusterLocalContCorrParameters>( new EcalClusterLocalContCorrParameters() );
+        auto ipar = std::make_unique<EcalClusterLocalContCorrParameters>();
         for (size_t i = 0; i < localContCorrParameters_.size(); ++i ) {
                 ipar->params().push_back( localContCorrParameters_[i] );
         }
         return ipar;
 }
-std::auto_ptr<EcalClusterCrackCorrParameters>
+std::unique_ptr<EcalClusterCrackCorrParameters>
 EcalTrivialConditionRetriever::produceEcalClusterCrackCorrParameters( const EcalClusterCrackCorrParametersRcd &)
 {
-        std::auto_ptr<EcalClusterCrackCorrParameters> ipar = std::auto_ptr<EcalClusterCrackCorrParameters>( new EcalClusterCrackCorrParameters() );
+        auto ipar = std::make_unique<EcalClusterCrackCorrParameters>();
         for (size_t i = 0; i < crackCorrParameters_.size(); ++i ) {
                 ipar->params().push_back( crackCorrParameters_[i] );
         }
         return ipar;
 }
-std::auto_ptr<EcalClusterEnergyCorrectionParameters>
+std::unique_ptr<EcalClusterEnergyCorrectionParameters>
 EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionParameters( const EcalClusterEnergyCorrectionParametersRcd &)
 {
-        std::auto_ptr<EcalClusterEnergyCorrectionParameters> ipar = std::auto_ptr<EcalClusterEnergyCorrectionParameters>( new EcalClusterEnergyCorrectionParameters() );
+        auto ipar = std::make_unique<EcalClusterEnergyCorrectionParameters>();
         for (size_t i = 0; i < energyCorrectionParameters_.size(); ++i ) {
                 ipar->params().push_back( energyCorrectionParameters_[i] );
         }
         return ipar;
 }
-std::auto_ptr<EcalClusterEnergyUncertaintyParameters>
+std::unique_ptr<EcalClusterEnergyUncertaintyParameters>
 EcalTrivialConditionRetriever::produceEcalClusterEnergyUncertaintyParameters( const EcalClusterEnergyUncertaintyParametersRcd &)
 {
-        std::auto_ptr<EcalClusterEnergyUncertaintyParameters> ipar = std::auto_ptr<EcalClusterEnergyUncertaintyParameters>( new EcalClusterEnergyUncertaintyParameters() );
+        auto ipar = std::make_unique<EcalClusterEnergyUncertaintyParameters>();
         for (size_t i = 0; i < energyUncertaintyParameters_.size(); ++i ) {
                 ipar->params().push_back( energyUncertaintyParameters_[i] );
         }
         return ipar;
 }
-std::auto_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>
+std::unique_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>
 EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionObjectSpecificParameters( const EcalClusterEnergyCorrectionObjectSpecificParametersRcd &)
 {
-  std::auto_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters> ipar = std::auto_ptr<EcalClusterEnergyCorrectionObjectSpecificParameters>( new EcalClusterEnergyCorrectionObjectSpecificParameters() );
+  auto ipar = std::make_unique<EcalClusterEnergyCorrectionObjectSpecificParameters>();
   for (size_t i = 0; i < energyCorrectionObjectSpecificParameters_.size(); ++i ) {
     ipar->params().push_back( energyCorrectionObjectSpecificParameters_[i] );
   }
@@ -1007,25 +1050,22 @@ EcalTrivialConditionRetriever::produceEcalClusterEnergyCorrectionObjectSpecificP
 
 
 // laser records
-std::auto_ptr<EcalLaserAlphas>
+std::unique_ptr<EcalLaserAlphas>
 EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd& )
 {
 
   std::cout << " produceEcalLaserAlphas " << std::endl;
-  std::auto_ptr<EcalLaserAlphas> ical = std::auto_ptr<EcalLaserAlphas>( new EcalLaserAlphas() );
-  if(getLaserAlphaFromFile_) {
+  auto ical = std::make_unique<EcalLaserAlphas>();
+
+  // get Barrel alpha from type
+  if(getLaserAlphaFromTypeEB_) {
     std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
     int SMpos[36] = {-10, 4, -7, -16, 6, -9, 11, -17, 5, 18, 3, -8, 1, -3, -13, 14, -6, 2,
 		     15, -18, 8, 17, -2, 9, -1, 10, -5, 7, -12, -11, 16, -4, -15, -14, 12, 13};
     // check!
     int SMCal[36] = {12,17,10, 1, 8, 4,27,20,23,25, 6,34,35,15,18,30,21, 9,
 		     24,22,13,31,26,16, 2,11, 5, 0,29,28,14,33,32, 3, 7,19};
-    /*
-  int slot_to_constr[37]={-1,12,17,10,1,8,4,27,20,23,25,6,34,35,15,18,30,21,9
-			  ,24,22,13,31,26,16,2,11,5,0,29,28,14,33,32,3,7,19};
-  int constr_to_slot[36]={28,4,25,34,6,27,11,35,5,18,3,26,1,21,31,14,24,2,15,
-			  36,8,17,20,9,19,10,23,7,30,29,16,22,33,32,12,13  };
-    */
+
     for(int SMcons = 0; SMcons < 36; SMcons++) {
       int SM = SMpos[SMcons];
       if(SM < 0) SM = 17 + abs(SM);
@@ -1034,7 +1074,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	 std::cout << " SM pb : read SM " <<  SMcons<< " SMpos " << SM
 		   << " SMCal " << SMCal[SM] << std::endl;
     }
-    // check
+
     std::string type, batch;
     int readSM, pos, bar, bar2;
     float alpha = 0;
@@ -1042,29 +1082,56 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
       int SM = SMpos[SMcons];
       for(int ic = 0; ic < 1700; ic++) {
 	fEB >> readSM >> pos >> bar >>  bar2 >> type >> batch;
-	//	if(ic == 0) std::cout << readSM << " " << pos << " " << bar << " " << bar2 << " " 
-	//			      << type << " " << batch << std::endl;
+
 	if(readSM != SMcons || pos != ic + 1) 
 	  std::cout << " barrel read pb read SM " << readSM << " const SM " << SMcons
 		    << " read pos " << pos << " ic " << ic << std::endl;
 	if(SM < 0) SM = 18 + abs(SM);
 	EBDetId ebdetid(SM, pos, EBDetId::SMCRYSTALMODE);
 	if(bar == 33101 || bar == 30301 )
-	  alpha = 1.52;
+	  alpha = laserAlphaMeanEBR_;
 	else if(bar == 33106) {
 	  if(bar2 <= 2000)
-	    alpha = 1.0;
+	    alpha = laserAlphaMeanEBC_;
 	  else {
 	    std::cout << " problem with barcode first " << bar << " last " << bar2 
 		      << " read SM " << readSM << " read pos " << pos << std::endl;
-	    alpha = 0.0;
+	    alpha = laserAlphaMeanEBR_;
 	  }
 	}
 	ical->setValue( ebdetid, alpha );
+
+	if((ic==1650 )){
+	  std::cout << " ic/alpha "<<ic<<"/"<<alpha<<std::endl; 
+	}
+
       }
     }  // loop over SMcons
-  }   // laserAlpha from a file
-  else {
+    fEB.close(); 
+    // end laserAlpha from type 
+  }    else if(getLaserAlphaFromFileEB_) { 
+    // laser alpha from file 
+    std::cout <<"Laser alpha for EB will be taken from File"<<std::endl; 
+    int ieta, iphi;
+    float alpha;
+    std::ifstream fEB(edm::FileInPath(EBLaserAlphaFile_).fullPath().c_str());
+    //    std::ifstream fEB(EBLaserAlphaFile_.c_str());
+    for(int ic = 0; ic < 61200; ic++) {
+      fEB >> ieta>> iphi>>alpha;
+
+      if (EBDetId::validDetId(ieta,iphi)) {
+	EBDetId ebid(ieta,iphi);
+	ical->setValue( ebid, alpha );
+	std::cout << " ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
+      }
+      if((ieta==10)){
+	std::cout << "I will print some alphas from the file... ieta/iphi/alpha "<<ieta<<"/"<<iphi<<"/"<<alpha<<std::endl; 
+      }
+    }
+    fEB.close(); 
+
+  } else {
+    // laser alpha from mean and smearing 
     for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
       if(ieta==0) continue;
       for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
@@ -1078,12 +1145,9 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
   }   // do not read a file
 
   std::cout << " produceEcalLaserAlphas EE" << std::endl;
-  if(getLaserAlphaFromFile_) {
+  if(getLaserAlphaFromTypeEE_) {
     std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
-    int check[101][101];
-    for(int x = 1; x < 101; x++)
-      for(int y = 1; y < 101; y++)
-	check[x][y] = -1;
+
     for(int crystal = 0; crystal < 14648; crystal++) {
       int x, y ,z, bid, bar, bar2;
       float LY, alpha = 0;
@@ -1092,17 +1156,15 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	std::cout << " wrong coordinates for barcode " << bar 
 		  << " x " << x << " y " << y << " z " << z << std::endl;
       else {
-	if(z == 1) check[x][y] = 1;
-	else check[x][y] = 0;
 	if(bar == 33201 || (bar == 30399 && bar2 < 568))
-	  alpha = 1.52;
+	    alpha = laserAlphaMeanEER_;
 	else if((bar == 33106 && bar2 > 2000 && bar2 < 4669) 
 		|| (bar == 30399 && bar2 > 567))
-	  alpha = 1.0;
+	  alpha = laserAlphaMeanEEC_;
 	else {
 	  std::cout << " problem with barcode " << bar << " " << bar2 
 		    << " x " << x << " y " << y << " z " << z << std::endl;
-	  alpha = 0.0;
+	  alpha = laserAlphaMeanEER_;
 	}
       } 
       if (EEDetId::validDetId(x, y, z)) {
@@ -1111,12 +1173,37 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
       }
       else // should not occur
 	std::cout << " problem with EEDetId " << " x " << x << " y " << y << " z " << z << std::endl;
-    }  // loop over crystal in file
-    for(int x = 1; x < 101; x++)
-      for(int y = 1; y < 101; y++)
-	if(check[x][y] == 1) std::cout << " missing x " << x << " y " << y << std::endl;
-  }  // laserAlpha from a file
-  else {
+    }  
+    fEE.close(); 
+
+    // end laserAlpha from type EE
+
+  } else if (getLaserAlphaFromFileEE_) {
+
+    std::ifstream fEE(edm::FileInPath(EELaserAlphaFile_).fullPath().c_str());
+
+    for(int crystal = 0; crystal < 14648; crystal++) {
+      int x, y ,z;
+      float alpha = 1;
+      fEE >> z >> x >> y >> alpha;
+      if(x < 1 || x > 100 || y < 1 || y > 100 || z==0 || z>1 || z<-1 ) {
+	std::cout << "ERROR: wrong coordinates for crystal " 
+		  << " x " << x << " y " << y << " z " << z << std::endl;
+	std::cout << " the format of the file should be z x y alpha " << std::endl;
+      } else {
+	if (EEDetId::validDetId(x, y, z)) {
+	  EEDetId eedetidpos(x, y, z);
+	  ical->setValue( eedetidpos, alpha );
+	}
+	else // should not occur
+	  std::cout << " problem with EEDetId " << " x " << x << " y " << y << " z " << z << std::endl;
+      }  
+    }
+    fEE.close(); 
+
+    // end laser alpha from file EE
+  }  else {
+    // alphas from python config file
     for(int iX=EEDetId::IX_MIN; iX<=EEDetId::IX_MAX ;++iX) {
       for(int iY=EEDetId::IY_MIN; iY<=EEDetId::IY_MAX; ++iY) {
 	// make an EEDetId since we need EEDetId::rawId() to be used as the key for the pedestals
@@ -1125,7 +1212,6 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	  EEDetId eedetidpos(iX,iY,1);
 	  ical->setValue( eedetidpos, laserAlphaMean_ + r*laserAlphaSigma_ );
 	}
-
 	if (EEDetId::validDetId(iX,iY,-1)) {
 	  double r1 = (double)std::rand()/( double(RAND_MAX)+double(1) );
 	  EEDetId eedetidneg(iX,iY,-1);
@@ -1133,16 +1219,16 @@ EcalTrivialConditionRetriever::produceEcalLaserAlphas( const EcalLaserAlphasRcd&
 	}
       } // loop over iY
     } // loop over iX
-  }  // do not read a file
+  }  
   
   return ical;
 }
 
 
-std::auto_ptr<EcalLaserAPDPNRatiosRef>
+std::unique_ptr<EcalLaserAPDPNRatiosRef>
 EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAPDPNRatiosRefRcd& )
 {
-  std::auto_ptr<EcalLaserAPDPNRatiosRef>  ical = std::auto_ptr<EcalLaserAPDPNRatiosRef>( new EcalLaserAPDPNRatiosRef() );
+  auto ical = std::make_unique<EcalLaserAPDPNRatiosRef>();
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
     for(int iphi=EBDetId::MIN_IPHI; iphi<=EBDetId::MAX_IPHI; ++iphi) {
@@ -1175,7 +1261,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatiosRef( const EcalLaserAP
 }
 
 
-std::auto_ptr<EcalLaserAPDPNRatios>
+std::unique_ptr<EcalLaserAPDPNRatios>
 EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPNRatiosRcd& )
 {
   EnergyResolutionVsLumi ageing;
@@ -1183,7 +1269,7 @@ EcalTrivialConditionRetriever::produceEcalLaserAPDPNRatios( const EcalLaserAPDPN
   ageing.setInstLumi(instLumi_);
 
 
-  std::auto_ptr<EcalLaserAPDPNRatios>  ical = std::auto_ptr<EcalLaserAPDPNRatios>( new EcalLaserAPDPNRatios() );
+  auto ical = std::make_unique<EcalLaserAPDPNRatios>();
   for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
     if(ieta==0) continue;
 
@@ -1887,10 +1973,10 @@ void EcalTrivialConditionRetriever::getWeightsFromConfiguration(const edm::Param
 
 // --------------------------------------------------------------------------------
 
-std::auto_ptr<EcalChannelStatus>
+std::unique_ptr<EcalChannelStatus>
 EcalTrivialConditionRetriever::getChannelStatusFromConfiguration (const EcalChannelStatusRcd&)
 {
-  std::auto_ptr<EcalChannelStatus> ecalStatus = std::auto_ptr<EcalChannelStatus>( new EcalChannelStatus() );
+  auto ecalStatus = std::make_unique<EcalChannelStatus>();
   
 
   // start by setting all statuses to 0
@@ -1977,11 +2063,11 @@ EcalTrivialConditionRetriever::getChannelStatusFromConfiguration (const EcalChan
 
 
 
-std::auto_ptr<EcalChannelStatus>
+std::unique_ptr<EcalChannelStatus>
 EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatusRcd& )
 {
 
-        std::auto_ptr<EcalChannelStatus>  ical = std::auto_ptr<EcalChannelStatus>( new EcalChannelStatus() );
+        auto ical = std::make_unique<EcalChannelStatus>();
         // barrel
         for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
                 if(ieta==0) continue;
@@ -2010,12 +2096,12 @@ EcalTrivialConditionRetriever::produceEcalChannelStatus( const EcalChannelStatus
 }
 
 // --------------------------------------------------------------------------------
-std::auto_ptr<EcalDQMChannelStatus>
+std::unique_ptr<EcalDQMChannelStatus>
 EcalTrivialConditionRetriever::produceEcalDQMChannelStatus( const EcalDQMChannelStatusRcd& )
 {
   uint32_t sta(0);
 
-        std::auto_ptr<EcalDQMChannelStatus>  ical = std::auto_ptr<EcalDQMChannelStatus>( new EcalDQMChannelStatus() );
+        auto ical = std::make_unique<EcalDQMChannelStatus>();
         // barrel
         for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
                 if(ieta==0) continue;
@@ -2044,11 +2130,11 @@ EcalTrivialConditionRetriever::produceEcalDQMChannelStatus( const EcalDQMChannel
 }
 // --------------------------------------------------------------------------------
 
-std::auto_ptr<EcalDQMTowerStatus>
+std::unique_ptr<EcalDQMTowerStatus>
 EcalTrivialConditionRetriever::produceEcalDQMTowerStatus( const EcalDQMTowerStatusRcd& )
 {
 
-        std::auto_ptr<EcalDQMTowerStatus>  ical = std::auto_ptr<EcalDQMTowerStatus>( new EcalDQMTowerStatus() );
+        auto ical = std::make_unique<EcalDQMTowerStatus>();
 
 	uint32_t sta(0);
 	
@@ -2087,11 +2173,11 @@ EcalTrivialConditionRetriever::produceEcalDQMTowerStatus( const EcalDQMTowerStat
 }
 
 // --------------------------------------------------------------------------------
-std::auto_ptr<EcalDCSTowerStatus>
+std::unique_ptr<EcalDCSTowerStatus>
 EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStatusRcd& )
 {
 
-        std::auto_ptr<EcalDCSTowerStatus>  ical = std::auto_ptr<EcalDCSTowerStatus>( new EcalDCSTowerStatus() );
+        auto ical = std::make_unique<EcalDCSTowerStatus>();
 
 	int status(0);
 	
@@ -2130,11 +2216,11 @@ EcalTrivialConditionRetriever::produceEcalDCSTowerStatus( const EcalDCSTowerStat
 }
 // --------------------------------------------------------------------------------
 
-std::auto_ptr<EcalDAQTowerStatus>
+std::unique_ptr<EcalDAQTowerStatus>
 EcalTrivialConditionRetriever::produceEcalDAQTowerStatus( const EcalDAQTowerStatusRcd& )
 {
 
-        std::auto_ptr<EcalDAQTowerStatus>  ical = std::auto_ptr<EcalDAQTowerStatus>( new EcalDAQTowerStatus() );
+        auto ical = std::make_unique<EcalDAQTowerStatus>();
 
 	int status(0);
 	
@@ -2173,10 +2259,10 @@ EcalTrivialConditionRetriever::produceEcalDAQTowerStatus( const EcalDAQTowerStat
 }
 // --------------------------------------------------------------------------------
 
-std::auto_ptr<EcalTPGCrystalStatus>
+std::unique_ptr<EcalTPGCrystalStatus>
 EcalTrivialConditionRetriever::getTrgChannelStatusFromConfiguration (const EcalTPGCrystalStatusRcd&)
 {
-  std::auto_ptr<EcalTPGCrystalStatus> ecalStatus = std::auto_ptr<EcalTPGCrystalStatus>( new EcalTPGCrystalStatus() );
+  auto ecalStatus = std::make_unique<EcalTPGCrystalStatus>();
   
 
   // start by setting all statuses to 0
@@ -2263,11 +2349,11 @@ EcalTrivialConditionRetriever::getTrgChannelStatusFromConfiguration (const EcalT
 
 
 
-std::auto_ptr<EcalTPGCrystalStatus>
+std::unique_ptr<EcalTPGCrystalStatus>
 EcalTrivialConditionRetriever::produceEcalTrgChannelStatus( const EcalTPGCrystalStatusRcd& )
 {
 
-        std::auto_ptr<EcalTPGCrystalStatus>  ical = std::auto_ptr<EcalTPGCrystalStatus>( new EcalTPGCrystalStatus() );
+        auto ical = std::make_unique<EcalTPGCrystalStatus>();
         // barrel
         for(int ieta=-EBDetId::MAX_IETA; ieta<=EBDetId::MAX_IETA; ++ieta) {
                 if(ieta==0) continue;
@@ -2298,12 +2384,12 @@ EcalTrivialConditionRetriever::produceEcalTrgChannelStatus( const EcalTPGCrystal
 
 
 
-std::auto_ptr<EcalIntercalibConstants> 
+std::unique_ptr<EcalIntercalibConstants> 
 EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration 
 ( const EcalIntercalibConstantsRcd& )
 {
-  std::auto_ptr<EcalIntercalibConstants>  ical;
-  //        std::auto_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
+  std::unique_ptr<EcalIntercalibConstants> ical;
+  //        std::make_unique<EcalIntercalibConstants>();
 
   // Read the values from a txt file
   // -------------------------------
@@ -2423,7 +2509,6 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 	      double eta= -log(tan(0.5*atan(sqrt((iX-50.0)*(iX-50.0)+(iY-50.0)*(iY-50.0))*2.98/328.)));
 	      eta = fabs(eta);
 	      double constantTerm=ageing.calcresolutitonConstantTerm(eta);
-	      EcalIntercalibConstants::const_iterator idref=mymap.find(eedetidneg);
 	      EcalIntercalibConstant icalconstant=1;
 
 
@@ -2440,7 +2525,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 	}
       }
       
-      ical = std::auto_ptr<EcalIntercalibConstants> (rcd);
+      ical = std::unique_ptr<EcalIntercalibConstants>(rcd);
 
       delete gRandom;
 
@@ -2449,7 +2534,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 
   } else {
 
-    ical =std::auto_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
+    ical = std::make_unique<EcalIntercalibConstants>();
 
     FILE *inpFile ;
     inpFile = fopen (intercalibConstantsFile_.c_str (),"r") ;
@@ -2557,12 +2642,12 @@ EcalTrivialConditionRetriever::getIntercalibConstantsFromConfiguration
 
 }
 
-std::auto_ptr<EcalIntercalibConstantsMC> 
+std::unique_ptr<EcalIntercalibConstantsMC> 
 EcalTrivialConditionRetriever::getIntercalibConstantsMCFromConfiguration 
 ( const EcalIntercalibConstantsMCRcd& )
 {
-  std::auto_ptr<EcalIntercalibConstantsMC>  ical;
-  //        std::auto_ptr<EcalIntercalibConstants>( new EcalIntercalibConstants() );
+  std::unique_ptr<EcalIntercalibConstantsMC> ical;
+  //        std::make_unique<EcalIntercalibConstants>();
 
   // Read the values from a xml file
   // -------------------------------
@@ -2578,7 +2663,7 @@ EcalTrivialConditionRetriever::getIntercalibConstantsMCFromConfiguration
     EcalIntercalibConstantsMC * rcd = new EcalIntercalibConstantsMC;
     EcalIntercalibConstantsMCXMLTranslator::readXML(intercalibConstantsMCFile_,h,*rcd);
 
-      ical = std::auto_ptr<EcalIntercalibConstants> (rcd);
+      ical = std::unique_ptr<EcalIntercalibConstants>(rcd);
 
   } else {
 
@@ -2591,12 +2676,11 @@ EcalTrivialConditionRetriever::getIntercalibConstantsMCFromConfiguration
 }
 
 
-std::auto_ptr<EcalIntercalibErrors> 
+std::unique_ptr<EcalIntercalibErrors> 
 EcalTrivialConditionRetriever::getIntercalibErrorsFromConfiguration 
 ( const EcalIntercalibErrorsRcd& )
 {
-  std::auto_ptr<EcalIntercalibErrors>  ical = 
-      std::auto_ptr<EcalIntercalibErrors>( new EcalIntercalibErrors() );
+  auto ical = std::make_unique<EcalIntercalibErrors>();
 
   // Read the values from a txt file
   // -------------------------------
@@ -2712,12 +2796,11 @@ EcalTrivialConditionRetriever::getIntercalibErrorsFromConfiguration
 // --------------------------------------------------------------------------------
 
 
-std::auto_ptr<EcalTimeCalibConstants> 
+std::unique_ptr<EcalTimeCalibConstants> 
 EcalTrivialConditionRetriever::getTimeCalibConstantsFromConfiguration 
 ( const EcalTimeCalibConstantsRcd& )
 {
-  std::auto_ptr<EcalTimeCalibConstants>  ical = 
-      std::auto_ptr<EcalTimeCalibConstants>( new EcalTimeCalibConstants() );
+  auto ical = std::make_unique<EcalTimeCalibConstants>();
 
   // Read the values from a txt file
   // -------------------------------
@@ -2826,12 +2909,11 @@ EcalTrivialConditionRetriever::getTimeCalibConstantsFromConfiguration
 }
 
 
-std::auto_ptr<EcalTimeCalibErrors> 
+std::unique_ptr<EcalTimeCalibErrors> 
 EcalTrivialConditionRetriever::getTimeCalibErrorsFromConfiguration 
 ( const EcalTimeCalibErrorsRcd& )
 {
-  std::auto_ptr<EcalTimeCalibErrors>  ical = 
-      std::auto_ptr<EcalTimeCalibErrors>( new EcalTimeCalibErrors() );
+  auto ical = std::make_unique<EcalTimeCalibErrors>();
 
   // Read the values from a txt file
   // -------------------------------
@@ -2941,10 +3023,10 @@ EcalTrivialConditionRetriever::getTimeCalibErrorsFromConfiguration
 
 // --------------------------------------------------------------------------------
 
-std::auto_ptr<EcalMappingElectronics>
+std::unique_ptr<EcalMappingElectronics>
 EcalTrivialConditionRetriever::getMappingFromConfiguration (const EcalMappingElectronicsRcd&)
 {
-  std::auto_ptr<EcalMappingElectronics> mapping = std::auto_ptr<EcalMappingElectronics>( new EcalMappingElectronics() );
+  auto mapping = std::make_unique<EcalMappingElectronics>();
   edm::LogInfo("EcalTrivialConditionRetriever") << "Reading mapping from file " << edm::FileInPath(mappingFile_).fullPath().c_str() ;
   
   std::ifstream f(edm::FileInPath(mappingFile_).fullPath().c_str());
@@ -2988,17 +3070,17 @@ EcalTrivialConditionRetriever::getMappingFromConfiguration (const EcalMappingEle
 
 
 
-std::auto_ptr<EcalMappingElectronics>
+std::unique_ptr<EcalMappingElectronics>
 EcalTrivialConditionRetriever::produceEcalMappingElectronics( const EcalMappingElectronicsRcd& )
 {
 
-        std::auto_ptr<EcalMappingElectronics>  ical = std::auto_ptr<EcalMappingElectronics>( new EcalMappingElectronics() );
+        auto ical = std::make_unique<EcalMappingElectronics>();
         return ical;
 }
 
 // --------------------------------------------------------------------------------
 
-std::auto_ptr<Alignments>
+std::unique_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentEB( const EBAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
@@ -3051,11 +3133,10 @@ EcalTrivialConditionRetriever::produceEcalAlignmentEB( const EBAlignmentRcd& ) {
   Alignments a; 
   a.m_align = my_align; 
 
-  std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
-  return ical;
+  return std::make_unique<Alignments>(a);
 }
 
-std::auto_ptr<Alignments>
+std::unique_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentEE( const EEAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
@@ -3086,11 +3167,10 @@ EcalTrivialConditionRetriever::produceEcalAlignmentEE( const EEAlignmentRcd& ) {
   }
   Alignments a; 
   a.m_align = my_align; 
-  std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
-  return ical;
+  return std::make_unique<Alignments>(a);
 }
 
-std::auto_ptr<Alignments>
+std::unique_ptr<Alignments>
 EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
   double mytrans[3] = {0., 0., 0.};
   double myeuler[3] = {0., 0., 0.};
@@ -3121,14 +3201,73 @@ EcalTrivialConditionRetriever::produceEcalAlignmentES( const ESAlignmentRcd& ) {
   }
   Alignments a; 
   a.m_align = my_align; 
-  std::auto_ptr<Alignments> ical = std::auto_ptr<Alignments>( new Alignments(a) );
-  return ical;
+  return std::make_unique<Alignments>(a);
 }
 
-std::auto_ptr<EcalSampleMask>
+std::unique_ptr<EcalSampleMask>
 EcalTrivialConditionRetriever::produceEcalSampleMask( const EcalSampleMaskRcd& )
 {
-  return std::auto_ptr<EcalSampleMask>( new EcalSampleMask(sampleMaskEB_, sampleMaskEE_) );
+  return std::unique_ptr<EcalSampleMask>( new EcalSampleMask(sampleMaskEB_, sampleMaskEE_) );
 }
 
+std::unique_ptr<EcalTimeBiasCorrections>
+EcalTrivialConditionRetriever::produceEcalTimeBiasCorrections( const EcalTimeBiasCorrectionsRcd &) {
+  auto ipar = std::make_unique<EcalTimeBiasCorrections>();
+  copy(EBtimeCorrAmplitudeBins_.begin(), EBtimeCorrAmplitudeBins_.end(),
+       back_inserter(ipar->EBTimeCorrAmplitudeBins));
+  copy(EBtimeCorrShiftBins_.begin(), EBtimeCorrShiftBins_.end(),
+       back_inserter(ipar->EBTimeCorrShiftBins));
+  copy(EEtimeCorrAmplitudeBins_.begin(), EEtimeCorrAmplitudeBins_.end(),
+       back_inserter(ipar->EETimeCorrAmplitudeBins));
+  copy(EEtimeCorrShiftBins_.begin(), EEtimeCorrShiftBins_.end(),
+       back_inserter(ipar->EETimeCorrShiftBins));
+  return ipar;
+}
 
+std::unique_ptr<EcalSamplesCorrelation>
+EcalTrivialConditionRetriever::produceEcalSamplesCorrelation( const EcalSamplesCorrelationRcd &) {
+  if(getSamplesCorrelationFromFile_) {
+    std::ifstream f;
+    f.open(edm::FileInPath(SamplesCorrelationFile_).fullPath().c_str());
+    float ww;
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EBG12samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EBG6samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EBG1samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EEG12samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EEG6samplesCorrelation_.push_back(ww);
+    }
+    for(int j = 0; j < 10; ++j) {
+      f >> ww;
+      EEG1samplesCorrelation_.push_back(ww);
+    }
+   f.close();
+  }
+  auto ipar = std::make_unique<EcalSamplesCorrelation>();
+  copy(EBG12samplesCorrelation_.begin(), EBG12samplesCorrelation_.end(),
+       back_inserter(ipar->EBG12SamplesCorrelation));
+  copy(EBG6samplesCorrelation_.begin(), EBG6samplesCorrelation_.end(),
+       back_inserter(ipar->EBG6SamplesCorrelation));
+  copy(EBG1samplesCorrelation_.begin(), EBG1samplesCorrelation_.end(),
+       back_inserter(ipar->EBG1SamplesCorrelation));
+  copy(EEG12samplesCorrelation_.begin(), EEG12samplesCorrelation_.end(),
+       back_inserter(ipar->EEG12SamplesCorrelation));
+  copy(EEG6samplesCorrelation_.begin(), EEG6samplesCorrelation_.end(),
+       back_inserter(ipar->EEG6SamplesCorrelation));
+  copy(EEG1samplesCorrelation_.begin(), EEG1samplesCorrelation_.end(),
+       back_inserter(ipar->EEG1SamplesCorrelation));
+  return ipar;
+}

@@ -36,6 +36,12 @@ public:
   /// deleting its components
   virtual ~AlignableComposite();
 
+  /// Updater for a composite with given rotation.
+  /// The given id and structure type have to match the current ones.
+  void update(align::ID,
+              StructureType aType,
+              const RotationType& rot = RotationType());
+
   /// Add a component and set its mother to this alignable.
   /// (Note: The component will be adopted, e.g. later deleted.)
   /// Also find average position of this composite from its modules' positions.
@@ -92,7 +98,7 @@ public:
   virtual Alignments* alignments() const;
 
   /// Return vector of alignment errors
-  virtual AlignmentErrors* alignmentErrors() const;
+  virtual AlignmentErrorsExtended* alignmentErrors() const;
 
   /// Return surface deformations
   virtual int surfaceDeformationIdPairs(std::vector<std::pair<int,SurfaceDeformation*> > &) const;
@@ -100,6 +106,13 @@ public:
 protected:
   /// Constructor from GeomDet, only for use in AlignableDet
   explicit AlignableComposite( const GeomDet* geomDet );
+
+  /// Updater from GeomDet, only for use in AlignableDet
+  /// The given GeomDetUnit id has to match the current id.
+  void update(const GeomDet* geomDet);
+
+  // avoid implicit cast of not explicitely defined version to the defined ones
+  template<class T> void update(T) = delete;
 
   void setSurface( const AlignableSurface& s) { theSurface = s; }
   

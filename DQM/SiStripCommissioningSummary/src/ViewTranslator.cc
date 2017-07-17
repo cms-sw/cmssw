@@ -25,12 +25,10 @@ void ViewTranslator::buildMaps( const SiStripFedCabling& cabling,
 //   }
   
   // Iterator through cabling, construct keys and push back into std::map
-  std::vector<uint16_t>::const_iterator ifed = cabling.feds().begin();
-  for ( ; ifed != cabling.feds().end(); ifed++ ) { 
+  for ( auto ifed = cabling.fedIds().begin() ; ifed != cabling.fedIds().end(); ++ifed ) { 
 
-    const std::vector<FedChannelConnection>& conns = cabling.connections( *ifed );
-    std::vector<FedChannelConnection>::const_iterator ichan;
-    for( ichan = conns.begin(); ichan != conns.end(); ichan++ ) {
+    auto conns = cabling.fedConnections( *ifed );
+    for( auto ichan = conns.begin(); ichan != conns.end(); ichan++ ) {
       if( ichan->fedId() ) { 
 	
 	uint32_t fed = SiStripFedKey( *ifed, 

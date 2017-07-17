@@ -11,21 +11,13 @@ namespace edm {
 
     template <typename T, typename REF>
     struct InvalidHolderToVector {
-      static std::auto_ptr<BaseVectorHolder<T> > makeVectorHolder() {
+      static std::unique_ptr<BaseVectorHolder<T> > makeVectorHolder() {
 	Exception::throwThis(errors::InvalidReference,
 	  "InvalidHolderToVector: trying to use RefToBase built with "
 	  "an internal type. RefToBase should be built passing an "
 	  "object of type edm::Ref<C>. This exception should never "
 	  "be thrown if a RefToBase was built from a RefProd<C>.");
-        return std::auto_ptr<BaseVectorHolder<T> >();
-      }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	Exception::throwThis(errors::InvalidReference,
-	  "InvalidHolderToVector: trying to use RefToBase built with "
-	  "an internal type. RefToBase should be built passing an "
-	  "object of type edm::Ref<C>. This exception should never "
-	  "be thrown if a RefToBase was built from a RefProd<C>.");
-        return std::auto_ptr<RefVectorHolderBase>();
+        return std::unique_ptr<BaseVectorHolder<T> >();
       }
     };
 
@@ -37,19 +29,12 @@ namespace edm {
 
     template <typename REF>
     struct InvalidRefHolderToRefVector {
-      static std::auto_ptr<RefVectorHolderBase> makeVectorHolder() {
+      static std::unique_ptr<RefVectorHolderBase> makeVectorHolder() {
 	Exception::throwThis(errors::InvalidReference,
 	  "InvalidRefHolderToRefVector: trying to use RefToBaseVector built with "
 	  "an internal type. RefToBase should be built passing an "
 	  "object of type edm::RefVector<C>");
-        return std::auto_ptr<RefVectorHolderBase>();
-      }
-      static std::auto_ptr<RefVectorHolderBase> makeVectorBaseHolder() {
-	Exception::throwThis(errors::InvalidReference,
-	  "InvalidRefHolderToRefVector: trying to use RefToBaseVector built with "
-	  "an internal type. RefToBase should be built passing an "
-	  "object of type edm::RefVector<C>");
-        return std::auto_ptr<RefVectorHolderBase>();
+        return std::unique_ptr<RefVectorHolderBase>();
       }
     };
     
@@ -61,5 +46,10 @@ namespace edm {
 
   }
 }
+
+//Handle specialization here
+#include "DataFormats/Common/interface/HolderToVectorTrait_Ref_specialization.h"
+#include "DataFormats/Common/interface/HolderToVectorTrait_Ptr_specialization.h"
+#include "DataFormats/Common/interface/HolderToVectorTrait_RefProd_specialization.h"
 
 #endif

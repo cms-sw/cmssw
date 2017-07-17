@@ -19,7 +19,7 @@
 
 //____________________________________________________________________________||
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "DataFormats/Common/interface/Handle.h"
@@ -38,7 +38,7 @@ class TCMETAlgo;
 namespace cms
 {
 
-class MuonTCMETValueMapProducer : public edm::EDProducer
+class MuonTCMETValueMapProducer : public edm::stream::EDProducer<>
 {
 
 public:
@@ -47,9 +47,7 @@ public:
 
 
 private:
-  virtual void beginJob() ;
-  virtual void produce(edm::Event&, const edm::EventSetup&);
-  virtual void endJob() ;
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
   edm::Handle<reco::MuonCollection>    muons_;
   edm::Handle<reco::BeamSpot>          beamSpot_;
@@ -79,7 +77,7 @@ private:
   double  vertexMaxDZ_;
   double  maxpt_eta25_;
   double  maxpt_eta20_;
-  int     maxTrackAlgo_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trackAlgos_;
   double  minpt_;
   double  maxpt_;
   double  maxeta_;
@@ -94,7 +92,7 @@ private:
   double  d0cutb_;
   bool    usePvtxd0_;
   std::vector<int> trkQuality_;
-  std::vector<int> trkAlgos_;
+  std::vector<reco::TrackBase::TrackAlgorithm> trkAlgos_;
 
   int     muonMinValidStaHits_;
   double  muonpt_;

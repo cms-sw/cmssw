@@ -24,8 +24,6 @@ void BaseCrystal::setCorners(const CaloCellGeometry::CornersVec& vec,const Globa
     {
       if(pos.z()>0.)
 	{
-	  corners_.clear();
-	  corners_.resize(8);
 	  for(unsigned ic=0;ic<8;++ic)
 	    {
 	      corners_[ic]=XYZPoint(vec[ic].x(),vec[ic].y(),vec[ic].z());
@@ -33,8 +31,6 @@ void BaseCrystal::setCorners(const CaloCellGeometry::CornersVec& vec,const Globa
 	}
       else
 	{
-	  corners_.clear();
-	  corners_.resize(8);
 	  corners_[0]=XYZPoint(vec[2].x(),vec[2].y(),vec[2].z());
 	  corners_[1]=XYZPoint(vec[3].x(),vec[3].y(),vec[3].z());
 	  corners_[2]=XYZPoint(vec[0].x(),vec[0].y(),vec[0].z());
@@ -76,8 +72,6 @@ void BaseCrystal::setCorners(const CaloCellGeometry::CornersVec& vec,const Globa
 	    offset=1;
 	  zsign=-1;
 	}
-      corners_.clear();
-      corners_.resize(8);
       for(unsigned ic=0;ic<4;++ic)
 	{
 	  unsigned i1=(unsigned)((zsign*ic+offset)%4);
@@ -91,7 +85,7 @@ void BaseCrystal::setCorners(const CaloCellGeometry::CornersVec& vec,const Globa
 
 void BaseCrystal::computeBasicProperties()
 {
-  if(corners_.size()==0) return;
+  //if(corners_.size()==0) return;
   center_=XYZPoint(0.,0.,0.);  
   for(unsigned ic=0;ic<8;++ic)
     {
@@ -106,7 +100,6 @@ void BaseCrystal::computeBasicProperties()
   crystalaxis_ = backcenter_-frontcenter_;
   firstedgedirection_=-(corners_[1]-corners_[0]).Unit();
   fifthedgedirection_=-(corners_[5]-corners_[4]).Unit();
-  lateraldirection_.resize(4);
   //  std::cout << " Direction laterales " << std::endl;
   for(unsigned il=0;il<4;++il)
     {
@@ -115,7 +108,6 @@ void BaseCrystal::computeBasicProperties()
   
   Plane3D frontPlane((Point)corners_[0],(Point)corners_[1],(Point)corners_[2]);
   Plane3D backPlane ((Point)corners_[4],(Point)corners_[5],(Point)corners_[6]);
-  lateralPlane_.resize(6);
   for(unsigned i=0;i<4;++i)
     {
       lateralPlane_[i]=
@@ -126,7 +118,6 @@ void BaseCrystal::computeBasicProperties()
   // Back plane i =5 (DOWN)
   lateralPlane_[5] = backPlane;
 
-  exitingNormal_.resize(6);
   for(unsigned i=0;i<6;++i)
     {
       exitingNormal_[i] = 
@@ -281,13 +272,13 @@ void BaseCrystal::getSide(const CaloDirection& side, XYZPoint &a,XYZPoint &b,XYZ
 void BaseCrystal::print() const{
   std::cout << "CellID " << cellid_.rawId() << std::endl;
   std::cout << " Corners " << std::endl;
-  for(unsigned ic=0;ic<corners_.size();++ic)
+  for(unsigned ic=0;ic<8;++ic)
     std::cout << corners_[ic] << std::endl;
   std::cout << " Center " << center_ << std::endl;
   std::cout << " Front Center " << frontcenter_ << std::endl;
   std::cout << " Back Center " << backcenter_ << std::endl;
   std::cout << " Normales sortantes " << std::endl;
-  for(unsigned id=0;id<exitingNormal_.size();++id)
+  for(unsigned id=0;id<6;++id)
     std::cout << exitingNormal_[id] << std::endl;
 }
 

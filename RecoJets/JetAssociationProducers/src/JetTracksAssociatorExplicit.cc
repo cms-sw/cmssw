@@ -16,10 +16,10 @@
 #include "JetTracksAssociatorExplicit.h"
 
 JetTracksAssociatorExplicit::JetTracksAssociatorExplicit(const edm::ParameterSet& fConfig)
-  : mJets (fConfig.getParameter<edm::InputTag> ("jets")),
-    mTracks (fConfig.getParameter<edm::InputTag> ("tracks")),
-    mAssociatorExplicit ()
+  : mAssociatorExplicit ()
 {
+  mJets = consumes<edm::View <reco::Jet> >(fConfig.getParameter<edm::InputTag> ("jets"));
+  mTracks = consumes<reco::TrackCollection>(fConfig.getParameter<edm::InputTag>("tracks"));
 
   produces<reco::JetTracksAssociation::Container> ();
 }
@@ -28,11 +28,11 @@ JetTracksAssociatorExplicit::~JetTracksAssociatorExplicit() {}
 
 void JetTracksAssociatorExplicit::produce(edm::Event& fEvent, const edm::EventSetup& fSetup) {
   edm::Handle <edm::View <reco::Jet> > jets_h;
-  fEvent.getByLabel (mJets, jets_h);
+  fEvent.getByToken (mJets, jets_h);
   edm::Handle <reco::TrackCollection> tracks_h;
-  fEvent.getByLabel (mTracks, tracks_h);
+  fEvent.getByToken (mTracks, tracks_h);
   
-  std::auto_ptr<reco::JetTracksAssociation::Container> jetTracks (new reco::JetTracksAssociation::Container (reco::JetRefBaseProd(jets_h)));
+  auto jetTracks = std::make_unique<reco::JetTracksAssociation::Container>(reco::JetRefBaseProd(jets_h));
 
   // format inputs
   std::vector <edm::RefToBase<reco::Jet> > allJets;
@@ -50,5 +50,5 @@ void JetTracksAssociatorExplicit::produce(edm::Event& fEvent, const edm::EventSe
 
 
   // store output
-  fEvent.put (jetTracks);
+  fEvent.put(std::move(jetTracks));
 }

@@ -72,11 +72,14 @@ class CSCRecoConditions
   /// returns gas-gain correction
   float gasGainCorrection( const CSCDetId& id, int strip, int wireGroup ) const;
 
+  /// fill bad strip & bad wiregroup bitsets from conditions data
+  void fillBadChannelWords( const CSCDetId& id );
+
   /// Is a neighbour bad?
-  bool nearBadStrip( const CSCDetId& id, int geomStrip ) const;
+  bool nearBadStrip( const CSCDetId& id, int geomStrip, int nstrips ) const;
 
   /// Is the strip bad?
-  bool badStrip( const CSCDetId& id, int geomStrip ) const;
+  bool badStrip( const CSCDetId& id, int geomStrip, int nstrips ) const;
 
   /// Get bad wiregroup word
   const std::bitset<112>& badWireWord( const CSCDetId& id ) const;

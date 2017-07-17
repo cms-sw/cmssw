@@ -76,6 +76,10 @@
 #include "TrackingTools/TrajectoryState/interface/FreeTrajectoryState.h"
 #include "TrackingTools/TrackAssociator/interface/TrackDetectorAssociator.h"
 #include "SimTracker/Records/interface/TrackAssociatorRecord.h"
+
+// tracker hit associator
+#include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h"
+
 // ecal / hcal
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
 #include "Geometry/CaloGeometry/interface/CaloSubdetectorGeometry.h"
@@ -131,27 +135,23 @@ private:
   spr::trackSelectionParameters selectionParameters;
   double      a_mipR, a_coneR, a_charIsoR, a_neutIsoR;
   double      tMinE_, tMaxE_;
-  //   static const size_t nL1BitsMax=128;
-  // std::string algoBitToName[nL1BitsMax];
-  // std::map <std::string,bool> l1TriggerMap;
-  // std::map<std::string,bool>::iterator trig_iter;
 
-  // double pvTracksPtMin_;
-  // bool   debugL1Info_;
-  // int    debugTrks_;
-  // bool   printTrkHitPattern_;
-  // int    myverbose;
-  //  edm::InputTag L1extraTauJetSource_,  L1extraCenJetSource_,    L1extraFwdJetSource_;
-  //  edm::InputTag L1extraMuonSource_,    L1extraIsoEmSource_,     L1extraNonIsoEmSource_;
-  //  edm::InputTag L1GTReadoutRcdSource_, L1GTObjectMapRcdSource_;
-  //  edm::InputTag JetExtender_, JetSrc_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
+
+  edm::EDGetTokenT<reco::TrackCollection>   tok_genTrack_;
+  edm::EDGetTokenT<reco::VertexCollection>  tok_recVtx_;
+  edm::EDGetTokenT<reco::BeamSpot>          tok_bs_;
+  edm::EDGetTokenT<EcalRecHitCollection>    tok_EB_;
+  edm::EDGetTokenT<EcalRecHitCollection>    tok_EE_;
+  edm::EDGetTokenT<HBHERecHitCollection>    tok_hbhe_;
+
+  edm::EDGetTokenT<edm::SimTrackContainer>  tok_simTk_;
+  edm::EDGetTokenT<edm::SimVertexContainer> tok_simVtx_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEB_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloEE_;
+  edm::EDGetTokenT<edm::PCaloHitContainer>  tok_caloHH_;
 
   int    nEventProc;
-
-  // track associator to detector parameters 
-  //TrackAssociatorParameters parameters_;
-  //mutable TrackDetectorAssociator* trackAssociator_;
-
   const MagneticField *bField;
 
   double genPartEtaBins[4];

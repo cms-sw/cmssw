@@ -1,0 +1,24 @@
+<use   name="FWCore/Framework"/>
+<use   name="FWCore/PluginManager"/>
+<use   name="FWCore/ParameterSet"/>
+<use   name="FWCore/Utilities"/>
+<use   name="FWCore/ServiceRegistry"/>
+<use   name="CommonTools/UtilAlgos"/>
+<use   name="DataFormats/EcalDigi"/>
+<use   name="DataFormats/EcalDetId"/>
+<use   name="DataFormats/HcalDigi"/>
+<use   name="DataFormats/HcalDetId"/>
+<use   name="CalibFormats/CaloTPG"/>
+<use   name="CalibCalorimetry/EcalTPGTools"/>
+<use   name="DataFormats/L1Trigger"/>
+<use   name="DataFormats/L1CaloTrigger"/>
+<use   name="DataFormats/L1TCalorimeter"/>
+<use   name="DataFormats/JetReco"/>
+<use   name="DataFormats/METReco"/>
+<use   name="CondFormats/L1TObjects"/>
+<use   name="CondFormats/DataRecord"/>
+<use   name="L1Trigger/L1TCalorimeter"/>
+<use   name="CondTools/L1Trigger"/>
+<library   file="*.cc" name="L1TriggerL1TCalorimeterPlugins">
+  <flags   EDM_PLUGIN="1"/>
+</library>

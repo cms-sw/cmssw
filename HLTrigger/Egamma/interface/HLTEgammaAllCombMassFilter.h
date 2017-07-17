@@ -20,10 +20,10 @@ class HLTEgammaAllCombMassFilter : public HLTFilter {
  public:
   explicit HLTEgammaAllCombMassFilter(const edm::ParameterSet&);
   ~HLTEgammaAllCombMassFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
   static void getP4OfLegCands(const edm::Event& iEvent, const edm::EDGetTokenT<trigger::TriggerFilterObjectWithRefs>& filterToken, std::vector<math::XYZTLorentzVector>& p4s);
   static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
-  
+
  private:
   edm::InputTag firstLegLastFilterTag_;
   edm::InputTag secondLegLastFilterTag_;
@@ -32,6 +32,6 @@ class HLTEgammaAllCombMassFilter : public HLTFilter {
   double minMass_;
 };
 
-#endif 
+#endif
 
 

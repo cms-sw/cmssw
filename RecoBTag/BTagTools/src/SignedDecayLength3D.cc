@@ -24,7 +24,7 @@ pair<bool,Measurement1D> SignedDecayLength3D::apply(const TransientTrack & trans
 
   //TrajectoryStateOnSurface TSOS = (aRecTrack).impactPointStateOnSurface();
   TrajectoryStateOnSurface TSOS = transientTrack.impactPointState();
-  FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
+  const FreeTrajectoryState * FTS = TSOS.freeTrajectoryState();
 
   TrajectoryStateOnSurface theTSOS = closestApproachToJet(*FTS, vertex, direction,transientTrack.field());
   theIsValid= theTSOS.isValid();

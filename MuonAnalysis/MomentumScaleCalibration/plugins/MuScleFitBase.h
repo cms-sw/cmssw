@@ -27,7 +27,7 @@ public:
     theGenInfoRootFileName_( iConfig.getUntrackedParameter<std::string>("OutputGenInfoFileName", "genSimRecoPlots.root") ),
     debug_( iConfig.getUntrackedParameter<int>("debug",0) )
   {}
-  virtual ~MuScleFitBase() {}
+  virtual ~MuScleFitBase() noexcept(false) {}
 protected:
   /// Create the histograms map
   void fillHistoMap(TFile* outputFile, unsigned int iLoop);

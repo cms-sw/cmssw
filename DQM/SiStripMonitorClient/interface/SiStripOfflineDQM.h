@@ -33,6 +33,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <TTree.h>
 
 class DQMStore;
 class SiStripActionExecutor;
@@ -78,6 +79,7 @@ private:
   SiStripActionExecutor* actionExecutor_;
 
   bool createSummary_;
+  bool createTkInfoFile_;
   std::string inputFileName_;
   std::string outputFileName_;
   int globalStatusFilling_; 
@@ -85,6 +87,7 @@ private:
   int nEvents_;
   bool trackerFEDsFound_;
   bool printFaultyModuleList_;
+  TTree* tkinfoTree_;
 
   edm::ParameterSet configPar_;
 

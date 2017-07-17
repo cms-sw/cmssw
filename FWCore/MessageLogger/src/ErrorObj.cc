@@ -69,7 +69,7 @@ namespace edm
 
   // ---  class-wide serial number stamper:
   //
-static std::atomic<int>  ourSerial(  0 );
+[[cms::thread_safe]] static std::atomic<int>  ourSerial(  0 );
 const unsigned int  maxIDlength( 200 );		// changed 4/28/06 from 20
 
 

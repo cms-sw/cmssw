@@ -22,6 +22,7 @@
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/EgammaReco/interface/BasicCluster.h"
 #include "DataFormats/EgammaReco/interface/SuperCluster.h"
+#include "DataFormats/EgammaReco/interface/SuperClusterFwd.h"
 #include "RecoEcal/EgammaCoreTools/interface/EcalClusterTools.h"
 #include "Geometry/CaloEventSetup/interface/CaloTopologyRecord.h"
 //
@@ -59,12 +60,12 @@ class ContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
   std::vector<EcalSimPhotonMCTruth> findMcTruth(std::vector<SimTrack>& theSimTracks, std::vector<SimVertex>& theSimVertices);
   void fillMcTruth(std::vector<SimTrack>& theSimTracks, std::vector<SimVertex>& theSimVertices);  
 
-  edm::InputTag SimTrackCollection_;
-  edm::InputTag SimVertexCollection_;
-  edm::InputTag BarrelSuperClusterCollection_;
-  edm::InputTag EndcapSuperClusterCollection_;
-  edm::InputTag reducedBarrelRecHitCollection_;
-  edm::InputTag reducedEndcapRecHitCollection_;
+  edm::EDGetTokenT<edm::SimTrackContainer> SimTrackCollection_;
+  edm::EDGetTokenT<edm::SimVertexContainer> SimVertexCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> BarrelSuperClusterCollection_;
+  edm::EDGetTokenT<reco::SuperClusterCollection> EndcapSuperClusterCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> reducedBarrelRecHitCollection_;
+  edm::EDGetTokenT<EcalRecHitCollection> reducedEndcapRecHitCollection_;
   
   int nMCphotons;
   std::vector<float> mcEnergy, mcEta, mcPhi, mcPt;
@@ -91,3 +92,4 @@ class ContainmentCorrectionAnalyzer : public edm::EDAnalyzer {
 
 };
 #endif
+

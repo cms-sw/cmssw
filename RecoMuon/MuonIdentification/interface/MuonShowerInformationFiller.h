@@ -37,6 +37,8 @@
 
 #include "DataFormats/MuonReco/interface/MuonShower.h"
 
+#include "FWCore/Framework/interface/ConsumesCollector.h"
+
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 namespace reco {class TransientTrack; class MuonShower;}
 
@@ -64,10 +66,10 @@ class MuonShowerInformationFiller {
 
     ///constructors
     MuonShowerInformationFiller() {};
-    MuonShowerInformationFiller(const edm::ParameterSet&);
+    MuonShowerInformationFiller(const edm::ParameterSet&,edm::ConsumesCollector&);
 
     ///destructor
-    ~MuonShowerInformationFiller();
+    virtual ~MuonShowerInformationFiller();
    
     /// fill muon shower variables  
     reco::MuonShower fillShowerInformation( const reco::Muon& muon, const edm::Event&, const edm::EventSetup&);
@@ -101,7 +103,6 @@ class MuonShowerInformationFiller {
     std::vector<const GeomDet*> dtPositionToDets(const GlobalPoint&) const;
     std::vector<const GeomDet*> cscPositionToDets(const GlobalPoint&) const;
     MuonRecHitContainer findPerpCluster(MuonRecHitContainer& muonRecHits) const;
-    MuonRecHitContainer findPhiCluster(MuonRecHitContainer&, const GlobalPoint&) const;
     TransientTrackingRecHit::ConstRecHitContainer findThetaCluster(TransientTrackingRecHit::ConstRecHitContainer&, const GlobalPoint&) const;
     TransientTrackingRecHit::ConstRecHitContainer hitsFromSegments(const GeomDet*,edm::Handle<DTRecSegment4DCollection>, edm::Handle<CSCSegmentCollection>) const;
     std::vector<const GeomDet*> getCompatibleDets(const reco::Track&) const;
@@ -123,7 +124,7 @@ class MuonShowerInformationFiller {
         LessDPhi(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return deltaPhi(lhs->globalPosition().phi(), thePoint.phi()) < deltaPhi(rhs->globalPosition().phi(), thePoint.phi());
+           return deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi()) < deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi());
         }
       GlobalPoint thePoint;
     };
@@ -132,7 +133,7 @@ class MuonShowerInformationFiller {
         AbsLessDPhi(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return ( fabs(deltaPhi(lhs->globalPosition().phi(), thePoint.phi())) < fabs(deltaPhi(rhs->globalPosition().phi(), thePoint.phi())) );
+           return ( fabs(deltaPhi(lhs->globalPosition().barePhi(), thePoint.barePhi())) < fabs(deltaPhi(rhs->globalPosition().barePhi(), thePoint.barePhi())) );
         }
       GlobalPoint thePoint;
     };
@@ -141,7 +142,7 @@ class MuonShowerInformationFiller {
         AbsLessDTheta(const GlobalPoint& point) : thePoint(point) {}
         bool operator()(const TransientTrackingRecHit::ConstRecHitPointer& lhs,
                        const TransientTrackingRecHit::ConstRecHitPointer& rhs) const{
-           return ( fabs(lhs->globalPosition().phi() - thePoint.phi()) < fabs(rhs->globalPosition().phi() - thePoint.phi()) );
+           return ( fabs(lhs->globalPosition().bareTheta() - thePoint.bareTheta()) < fabs(rhs->globalPosition().bareTheta() - thePoint.bareTheta()) );
         }
       GlobalPoint thePoint;
     };
@@ -150,7 +151,7 @@ class MuonShowerInformationFiller {
         LessPhi() : thePoint(0,0,0) {}
         bool operator()(const MuonTransientTrackingRecHit::MuonRecHitPointer& lhs,
                        const MuonTransientTrackingRecHit::MuonRecHitPointer& rhs) const{
-           return (lhs->globalPosition().phi() < rhs->globalPosition().phi());
+           return (lhs->globalPosition().barePhi() < rhs->globalPosition().barePhi());
         }
         GlobalPoint thePoint;
     };
@@ -188,10 +189,19 @@ class MuonShowerInformationFiller {
     edm::InputTag theCSCRecHitLabel;
     edm::InputTag theCSCSegmentsLabel;
     edm::InputTag theDT4DRecSegmentLabel;
+
     edm::Handle<DTRecHitCollection> theDTRecHits;
     edm::Handle<CSCRecHit2DCollection> theCSCRecHits;
     edm::Handle<CSCSegmentCollection> theCSCSegments;
     edm::Handle<DTRecSegment4DCollection> theDT4DRecSegments;
+
+    edm::EDGetTokenT<DTRecHitCollection> theDTRecHitToken;
+    edm::EDGetTokenT<CSCRecHit2DCollection> theCSCRecHitToken;
+    edm::EDGetTokenT<CSCSegmentCollection> theCSCSegmentsToken;
+    edm::EDGetTokenT<DTRecSegment4DCollection> theDT4DRecSegmentToken;
+
+
+
 
     // geometry
     edm::ESHandle<GeometricSearchTracker> theTracker;

@@ -21,7 +21,6 @@
 <use name="boost_regex"/>
 <use name="boost_system"/>
 <use name="opengl"/>
-<use name="rootcintex"/>
 <use name="rootinteractive"/>
 <use name="rootgraphics"/>
 <use name="sigcpp"/>
@@ -30,8 +29,15 @@
 <lib name="Geom"/>
 <lib name="GeomPainter"/>
 <lib name="GuiHtml"/>
+<architecture name="!amd64_clang8">
 <lib name="GX11"/>
+</architecture>
+<architecture name="amd64_clang8">
+<lib name="GCocoa"/>
+</architecture>
 <lib name="RGL"/>
+<lib name="GLEW"/>
+<lib name="Gui"/>
 <export>
   <lib name="1"/>
 </export>

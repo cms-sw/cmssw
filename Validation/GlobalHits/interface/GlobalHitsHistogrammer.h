@@ -9,7 +9,6 @@
  */
 
 // framework & common header files
-#include "FWCore/Framework/interface/EDAnalyzer.h"
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -19,10 +18,11 @@
 #include "FWCore/Framework/interface/MakerMacros.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
-//#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+//#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 //#include "DataFormats/DetId/interface/DetId.h"
 
 //DQM services
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 #include "DQMServices/Core/interface/DQMStore.h"
 #include "FWCore/ServiceRegistry/interface/Service.h"
 
@@ -71,19 +71,18 @@
 #include "TString.h"
 #include "DQMServices/Core/interface/MonitorElement.h"
 
-class GlobalHitsHistogrammer : public edm::EDAnalyzer
-{
-  
+class GlobalHitsHistogrammer : public DQMEDAnalyzer {
+
  public:
 
   //typedef std::vector<float> FloatVector;
 
   explicit GlobalHitsHistogrammer(const edm::ParameterSet&);
   virtual ~GlobalHitsHistogrammer();
-  virtual void beginJob( void );
-  virtual void endJob();  
-  virtual void analyze(const edm::Event&, const edm::EventSetup&);
-  
+  virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
+  void bookHistograms(DQMStore::IBooker &,
+      edm::Run const &, edm::EventSetup const &) override;
+
  private:
 
   //  parameter information
@@ -95,11 +94,11 @@ class GlobalHitsHistogrammer : public edm::EDAnalyzer
   bool getAllProvenances;
   bool printProvenanceInfo;
 
-  DQMStore *dbe;
   std::string outputfile;
   bool doOutput;
 
   edm::InputTag GlobalHitSrc_;
+  edm::EDGetTokenT<PGlobalSimHit> GlobalHitSrc_Token_;
 
   // G4MC info
   MonitorElement *meMCRGP[2];

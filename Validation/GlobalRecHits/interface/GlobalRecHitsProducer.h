@@ -66,7 +66,7 @@
 #include "SimTracker/TrackerHitAssociation/interface/TrackerHitAssociator.h" 
 #include "Geometry/CommonTopologies/interface/StripTopology.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 #include "Geometry/TrackerNumberingBuilder/interface/GeometricDet.h"
@@ -129,7 +129,7 @@
 // general info 
 #include "DataFormats/DetId/interface/DetId.h"
 #include "Geometry/CommonDetUnit/interface/GeomDetType.h" 
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h" 
+#include "Geometry/CommonDetUnit/interface/GeomDet.h" 
 
 // helper files
 //#include <CLHEP/Vector/LorentzVector.h>
@@ -204,6 +204,14 @@ class GlobalRecHitsProducer : public edm::EDProducer
   edm::InputTag ECalEESrc_;
   edm::InputTag ECalUncalEESrc_;
   edm::InputTag ECalESSrc_;
+  edm::EDGetTokenT<EBRecHitCollection> ECalEBSrc_Token_;
+  edm::EDGetTokenT<EERecHitCollection> ECalEESrc_Token_;
+  edm::EDGetTokenT<ESRecHitCollection> ECalESSrc_Token_;
+  edm::EDGetTokenT<EBUncalibratedRecHitCollection> ECalUncalEBSrc_Token_;
+  edm::EDGetTokenT<EEUncalibratedRecHitCollection> ECalUncalEESrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EBHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> EEHits_Token_;
+  edm::EDGetTokenT<CrossingFrame<PCaloHit>> ESHits_Token_;
 
   // HCal info
 
@@ -224,6 +232,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector HFCalSHE;
 
   edm::InputTag HCalSrc_;
+  edm::EDGetTokenT<edm::PCaloHitContainer> HCalSrc_Token_;
 
   // Tracker info
   // SiStrip
@@ -253,13 +262,14 @@ class GlobalRecHitsProducer : public edm::EDProducer
     TECW8SY;
 
   edm::InputTag SiStripSrc_;
+  edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> SiStripSrc_Token_;
 
   std::vector<PSimHit> matched;
   std::pair<LocalPoint,LocalVector> 
     projectHit( const PSimHit& hit,
 		const StripGeomDetUnit* stripDet,
 		const BoundPlane& plane);
-  edm::ParameterSet conf_;
+  TrackerHitAssociator::Config trackerHitAssociatorConfig_;
 
   // SiPxl
 
@@ -274,6 +284,7 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector FWD1pSY, FWD1nSY, FWD2pSY, FWD2nSY;
 
   edm::InputTag SiPxlSrc_;
+  edm::EDGetTokenT<SiPixelRecHitCollection> SiPxlSrc_Token_;
 
   // Muon info
   // DT
@@ -283,6 +294,8 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   edm::InputTag MuDTSrc_;
   edm::InputTag MuDTSimSrc_;
+  edm::EDGetTokenT<DTRecHitCollection> MuDTSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuDTSimSrc_Token_;
 
   // Return a map between DTRecHit1DPair and wireId
   std::map<DTWireId, std::vector<DTRecHit1DPair> >
@@ -321,6 +334,8 @@ class GlobalRecHitsProducer : public edm::EDProducer
   FloatVector CSCSHPHI;
 
   edm::InputTag MuCSCSrc_;
+  edm::EDGetTokenT<CSCRecHit2DCollection> MuCSCSrc_Token_;
+  edm::EDGetTokenT<CrossingFrame<PSimHit>> MuCSCHits_Token_;
 
   std::map<int, edm::PSimHitContainer> theMap;
   void plotResolution(const PSimHit &simHit, const CSCRecHit2D &recHit,
@@ -333,6 +348,8 @@ class GlobalRecHitsProducer : public edm::EDProducer
 
   edm::InputTag MuRPCSrc_;
   edm::InputTag MuRPCSimSrc_;
+  edm::EDGetTokenT<RPCRecHitCollection> MuRPCSrc_Token_;
+  edm::EDGetTokenT<edm::PSimHitContainer> MuRPCSimSrc_Token_;
 
   // private statistics information
   unsigned int count;

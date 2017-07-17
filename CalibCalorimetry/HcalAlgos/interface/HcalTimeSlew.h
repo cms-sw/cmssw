@@ -1,6 +1,7 @@
 #ifndef CALIBCALORIMETRY_HCALALGOS_HCALTIMESLEW_H
 #define CALIBCALORIMETRY_HCALALGOS_HCALTIMESLEW_H 1
 
+#include <iostream>
 
 /** \class HcalTimeSlew
   * 
@@ -15,13 +16,16 @@
   * \author J. Mans - Minnesota
   */
 class HcalTimeSlew {
-public:
+ public:
+  enum ParaSource { TestStand=0, Data=1, MC=2, InputPars=3 };
   enum BiasSetting { Slow=0, Medium=1, Fast=2 };
-
+  static constexpr double tspar[3] = {12.2999, -2.19142, 0};
+  
   /** \brief Returns the amount (ns) by which a pulse of the given
    number of fC will be delayed by the timeslew effect, for the
    specified bias setting. */
   static double delay(double fC, BiasSetting bias=Medium);
+  static double delay(double fC, ParaSource source=InputPars, BiasSetting bias=Medium, double par0=tspar[0], double par1=tspar[1], double par2=tspar[2], bool isHPD=true);
 };
 
 #endif

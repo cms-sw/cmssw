@@ -20,7 +20,6 @@
 
 namespace cscdqm {
 
-
   /**
    * @brief  Constructor.
    * @param  p_config Pointer to Global Configuration.
@@ -32,6 +31,29 @@ namespace cscdqm {
     fCloseL1As = true;
 
   }
+
+#ifdef DQMGLOBAL
+
+  /**
+   * @brief  Constructor.
+   * @param  p_config Pointer to Global Configuration.
+   * @param  itag InputTag for input raw data.
+   * @param  coco ref to ConsumesCollector received from caller (Dispatcher).
+   */
+  EventProcessor::EventProcessor(Configuration* const p_config, const edm::InputTag& itag, 
+      edm::ConsumesCollector& coco) {
+
+    config = p_config;
+
+    // set token for data access
+    frdtoken = coco.consumes<FEDRawDataCollection>(itag);
+
+    // fFirstEvent = true;
+    fCloseL1As = true;
+
+  }
+
+#endif
 
   /**
    * @brief  Initialize EventProcessor: reading out config information.

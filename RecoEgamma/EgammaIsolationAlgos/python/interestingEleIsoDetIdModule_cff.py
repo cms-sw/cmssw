@@ -5,7 +5,7 @@ from RecoEcal.EgammaClusterProducers.multi5x5BasicClusters_cfi import *
 
 interestingEleIsoDetId = cms.EDProducer("EleIsoDetIdCollectionProducer",
     recHitsLabel = cms.InputTag("ecalRecHit","EcalRecHitsEB"),
-    emObjectLabel = cms.InputTag("gsfElectrons"),
+    emObjectLabel = cms.InputTag("gedGsfElectrons"),
     etCandCut = cms.double(0.0),
     energyCut = cms.double(0.040),
     etCut = cms.double(0),

@@ -4,7 +4,7 @@
 
 /** \class DTChamberEfficiencyTask
  *  DQM Analysis of 4D DT segments, it produces plots about: <br>
- *      - single chamber efficiency 
+ *      - single chamber efficiency
  *  All histos are produced per Chamber
  *
  *  Class based on the code written by S. Lacaprara :
@@ -26,6 +26,12 @@
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 
+#include "DQMServices/Core/interface/DQMStore.h"
+#include "FWCore/ServiceRegistry/interface/Service.h"
+#include "DQMServices/Core/interface/MonitorElement.h"
+
+#include <DQMServices/Core/interface/DQMEDAnalyzer.h>
+
 #include <string>
 #include <map>
 #include <vector>
@@ -34,7 +40,7 @@ class DQMStore;
 class MonitorElement;
 
 
-class DTChamberEfficiencyTask: public edm::EDAnalyzer{
+class DTChamberEfficiencyTask: public DQMEDAnalyzer{
 public:
   /// Constructor
   DTChamberEfficiencyTask(const edm::ParameterSet& pset);
@@ -42,23 +48,18 @@ public:
   /// Destructor
   virtual ~DTChamberEfficiencyTask();
 
-  /// BeginJob
-  void beginJob();
-
   /// BeginRun
-  void beginRun(const edm::Run& run, const edm::EventSetup& setup);
+  void dqmBeginRun(const edm::Run& run, const edm::EventSetup& setup) override;
 
   /// To reset the MEs
-  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) ;
-
-  /// Endjob
-  void endJob();
+  void beginLuminosityBlock(edm::LuminosityBlock const& lumiSeg, edm::EventSetup const& context) override;
 
   // Operations
-  void analyze(const edm::Event& event, const edm::EventSetup& setup);
+  void analyze(const edm::Event& event, const edm::EventSetup& setup) override;
 
-protected:
-
+ protected:
+// Book the histograms
+void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
 private:
 
@@ -69,11 +70,9 @@ private:
   LocalPoint interpolate(const DTRecSegment4D& seg1,
 			 const DTRecSegment4D& seg3,
 			 const DTChamberId& MB2) const;
-  void bookHistos(DTChamberId chId); 
 
+  void bookHistos(DQMStore::IBooker & ibooker, DTChamberId chId);
 
-  DQMStore* theDbe;
-  
   // Switch for verbosity
   bool debug;
   // The running mode
@@ -82,7 +81,7 @@ private:
   bool detailedAnalysis;
 
   // Lable of 4D segments in the event
-  std::string theRecHits4DLabel;
+  edm::EDGetTokenT<DTRecSegment4DCollection> recHits4DToken_;
 
   edm::ParameterSet parameters;
 
@@ -97,3 +96,8 @@ private:
 
 };
 #endif
+
+/* Local Variables: */
+/* show-trailing-whitespace: t */
+/* truncate-lines: t */
+/* End: */

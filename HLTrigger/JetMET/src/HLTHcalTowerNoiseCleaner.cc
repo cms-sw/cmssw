@@ -29,6 +29,9 @@
 #include "DataFormats/JetReco/interface/Jet.h"
 #include "DataFormats/JetReco/interface/CaloJet.h"
 #include "DataFormats/CaloTowers/interface/CaloTowerDetId.h"
+#include "DataFormats/CaloTowers/interface/CaloTowerCollection.h"
+#include "Geometry/CaloTopology/interface/CaloTowerTopology.h"
+#include "Geometry/Records/interface/HcalRecNumberingRecord.h"
 #include "DataFormats/Math/interface/LorentzVector.h"
 #include "DataFormats/Math/interface/Point3D.h"
 
@@ -67,6 +70,7 @@ HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iCon
     minRecHitE_(iConfig.getParameter<double>("minRecHitE")),
     minLowHitE_(iConfig.getParameter<double>("minLowHitE")),
     minHighHitE_(iConfig.getParameter<double>("minHighHitE")),
+    minR45HitE_(5.0),
     TS4TS5EnergyThreshold_(iConfig.getParameter<double>("TS4TS5EnergyThreshold"))
 {
 
@@ -86,11 +90,14 @@ HLTHcalTowerNoiseCleaner::HLTHcalTowerNoiseCleaner(const edm::ParameterSet& iCon
   m_theHcalNoiseToken = consumes<reco::HcalNoiseRBXCollection>(HcalNoiseRBXCollectionTag_);
   m_theCaloTowerCollectionToken = consumes<CaloTowerCollection>(TowerCollectionTag_);
 
+  if(iConfig.existsAs<double>("minR45HitE"))
+     minR45HitE_ = iConfig.getParameter<double>("minR45HitE");
+
   produces<CaloTowerCollection>();
 }
 
 
-HLTHcalTowerNoiseCleaner::~HLTHcalTowerNoiseCleaner(){}
+HLTHcalTowerNoiseCleaner::~HLTHcalTowerNoiseCleaner()= default;
 
 void
 HLTHcalTowerNoiseCleaner::fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
@@ -115,6 +122,7 @@ HLTHcalTowerNoiseCleaner::fillDescriptions(edm::ConfigurationDescriptions& descr
   desc.add<double>("minRecHitE",1.5);
   desc.add<double>("minLowHitE",10.0);
   desc.add<double>("minHighHitE",25.0);
+  desc.add<double>("minR45HitE",5.0);
   desc.add<double>("TS4TS5EnergyThreshold",50.0);
 
   double TS4TS5UpperThresholdArray[5] = {70, 90, 100, 400, 4000 };
@@ -152,6 +160,9 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
     return;
   }
 
+  //get the calotower topology
+  edm::ESHandle<CaloTowerTopology> caloTowerTopology;
+  iSetup.get<HcalRecNumberingRecord>().get(caloTowerTopology);
   
   // get the RBXs produced by RecoMET/METProducers/HcalNoiseInfoProducer
   edm::Handle<HcalNoiseRBXCollection> rbxs_h;
@@ -164,35 +175,32 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
 		
   // create a sorted set of the RBXs, ordered by energy
   noisedataset_t data;
-  for(HcalNoiseRBXCollection::const_iterator it=rbxs_h->begin(); it!=rbxs_h->end(); ++it) {
-    const HcalNoiseRBX &rbx=(*it);
+  for(auto const & rbx : *rbxs_h) {
     CommonHcalNoiseRBXData d(rbx, minRecHitE_, minLowHitE_, minHighHitE_, TS4TS5EnergyThreshold_,
-			     TS4TS5UpperCut_, TS4TS5LowerCut_);
+			     TS4TS5UpperCut_, TS4TS5LowerCut_, minR45HitE_);
     data.insert(d);
   }
 		
   // data is now sorted by RBX energy
   // only consider top N=numRBXsToConsider_ energy RBXs
   if(severity_>0){
-    for(noisedataset_t::const_iterator it=data.begin();
-	it!=data.end();
-	it++) {
+    for(auto const & it : data) {
       
       
       bool passFilter=true;
       bool passEMF=true;
-      if(it->energy()>minRBXEnergy_) {
-	if(it->validRatio() && it->ratio()<minRatio_)        passFilter=false;
-	else if(it->validRatio() && it->ratio()>maxRatio_)   passFilter=false;
-	else if(it->numHPDHits()>=minHPDHits_)               passFilter=false;
-	else if(it->numRBXHits()>=minRBXHits_)               passFilter=false;
-	else if(it->numHPDNoOtherHits()>=minHPDNoOtherHits_) passFilter=false;
-	else if(it->numZeros()>=minZeros_)                   passFilter=false;
-	else if(it->minHighEHitTime()<minHighEHitTime_)      passFilter=false;
-	else if(it->maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
-	else if(!it->PassTS4TS5())                           passFilter=false;
+      if(it.energy()>minRBXEnergy_) {
+	if(it.validRatio() && it.ratio()<minRatio_)        passFilter=false;
+	else if(it.validRatio() && it.ratio()>maxRatio_)   passFilter=false;
+	else if(it.numHPDHits()>=minHPDHits_)               passFilter=false;
+	else if(it.numRBXHits()>=minRBXHits_)               passFilter=false;
+	else if(it.numHPDNoOtherHits()>=minHPDNoOtherHits_) passFilter=false;
+	else if(it.numZeros()>=minZeros_)                   passFilter=false;
+	else if(it.minHighEHitTime()<minHighEHitTime_)      passFilter=false;
+	else if(it.maxHighEHitTime()>maxHighEHitTime_)      passFilter=false;
+	else if(!it.PassTS4TS5())                           passFilter=false;
 	
-	if(it->RBXEMF()<maxRBXEMF_){
+	if(it.RBXEMF()<maxRBXEMF_){
 	  passEMF=false;
 	}
       }
@@ -200,41 +208,41 @@ void HLTHcalTowerNoiseCleaner::produce(edm::Event& iEvent, const edm::EventSetup
       if((needEMFCoincidence_ && !passEMF && !passFilter) ||
 	 (!needEMFCoincidence_ && !passFilter)) { // check for noise
 	LogDebug("") << "HLTHcalTowerNoiseCleaner debug: Found a noisy RBX: "
-		     << "energy=" << it->energy() << "; "
-		     << "ratio=" << it->ratio() << "; "
-		     << "# RBX hits=" << it->numRBXHits() << "; "
-		     << "# HPD hits=" << it->numHPDHits() << "; "
-		     << "# Zeros=" << it->numZeros() << "; "
-		     << "min time=" << it->minHighEHitTime() << "; "
-		     << "max time=" << it->maxHighEHitTime() << "; "
-		     << "passTS4TS5=" << it->PassTS4TS5() << "; "
-		     << "RBX EMF=" << it->RBXEMF()
+		     << "energy=" << it.energy() << "; "
+		     << "ratio=" << it.ratio() << "; "
+		     << "# RBX hits=" << it.numRBXHits() << "; "
+		     << "# HPD hits=" << it.numHPDHits() << "; "
+		     << "# Zeros=" << it.numZeros() << "; "
+		     << "min time=" << it.minHighEHitTime() << "; "
+		     << "max time=" << it.maxHighEHitTime() << "; "
+		     << "passTS4TS5=" << it.PassTS4TS5() << "; "
+		     << "RBX EMF=" << it.RBXEMF()
 		     << std::endl;
 	// add calotowers associated with this RBX to the noise list
-	edm::RefVector<CaloTowerCollection> noiseTowers = it->rbxTowers();
+	edm::RefVector<CaloTowerCollection> noiseTowers = it.rbxTowers();
 	edm::RefVector<CaloTowerCollection>::const_iterator noiseTowersIt;
 	//add these calotowers to the noisy list
 	for( noiseTowersIt = noiseTowers.begin(); noiseTowersIt != noiseTowers.end(); noiseTowersIt++){
 	  edm::Ref<edm::SortedCollection<CaloTower> > tower_ref = *noiseTowersIt;
 	  CaloTowerDetId id = tower_ref->id();
-	  noisyTowers.insert( id.denseIndex() );
+	  noisyTowers.insert( caloTowerTopology->denseIndex(id) );
 	}}
     } // done with noise loop
   }//if(severity_>0)
   
   //output collection
-  std::auto_ptr<CaloTowerCollection> OutputTowers(new CaloTowerCollection() );
+  std::unique_ptr<CaloTowerCollection> OutputTowers(new CaloTowerCollection() );
 
   CaloTowerCollection::const_iterator inTowersIt;
   
   for(inTowersIt = tower_h->begin(); inTowersIt != tower_h->end(); inTowersIt++){
     const CaloTower & tower = (*inTowersIt);
     CaloTowerDetId id = tower.id();
-    if(noisyTowers.find( id.denseIndex() ) == noisyTowers.end()){ // the tower is not noisy
+    if(noisyTowers.find( caloTowerTopology->denseIndex(id) ) == noisyTowers.end()){ // the tower is not noisy
       OutputTowers->push_back(*inTowersIt);
     }
   }
-  iEvent.put(OutputTowers);
+  iEvent.put(std::move(OutputTowers));
 
 }
 

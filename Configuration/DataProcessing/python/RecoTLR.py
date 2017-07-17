@@ -1,8 +1,62 @@
 import FWCore.ParameterSet.Config as cms
 
-#gone with the fact that there is no difference between production and development sequence
-#def customiseCommon(process):
-#    return (process)
+##############################################################################
+# common utilities
+##############################################################################
+def _swapOfflineBSwithOnline(process):
+    from RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi import onlineBeamSpotProducer
+    process.offlineBeamSpot = onlineBeamSpotProducer.clone()
+    return process
+
+def _addLumiProducer(process):
+    if not hasattr(process,'lumiProducer'):
+        #unscheduled.. 
+        from RecoLuminosity.LumiProducer.lumiProducer_cff import lumiProducer,LumiDBService
+        process.lumiProducer=lumiProducer
+    #if it's scheduled
+    if hasattr(process, 'reconstruction_step'):
+        process.reconstruction_step+=process.lumiProducer
+
+    return process
+
+def _overridesFor50ns(process):
+    process.bunchSpacingProducer.bunchSpacingOverride = cms.uint32(50)
+    process.bunchSpacingProducer.overrideBunchSpacing = cms.bool(True)
+    
+    return process
+
+##############################################################################
+# post-era customizations
+# these are here instead of generating Data-specific eras
+##############################################################################
+def _hcalCustoms25ns(process):
+    import RecoLocalCalo.HcalRecAlgos.RemoveAddSevLevel as HcalRemoveAddSevLevel
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HFDigiTime",8)
+    HcalRemoveAddSevLevel.AddFlag(process.hcalRecAlgos,"HBHEFlatNoise",8)
+    return process
+
+def customisePostEra_Run2_25ns(process):
+    _hcalCustoms25ns(process)
+    return process
+
+def customisePostEra_Run2_2016(process):
+    _hcalCustoms25ns(process)
+    return process
+
+def customisePostEra_Run2_2017(process):
+    _hcalCustoms25ns(process)
+    return process
+
+def customisePostEra_Run2_2017_express_trackingOnly(process):
+    customisePostEra_Run2_2017(process)
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
+    return process
+
+def customisePostEra_Run2_2017_harvesting_trackingOnly(process):
+    from Calibration.TkAlCaRecoProducers.PCLHPbeamspot_custom import customise_HPbeamspot as _customise_HPbeamspot
+    _customise_HPbeamspot(process)
+    return process
 
 
 ##############################################################################
@@ -21,12 +75,11 @@ def customisePPMC(process):
 
 ##############################################################################
 def customiseCosmicData(process):
-
     return process
+
 
 ##############################################################################
 def customiseCosmicMC(process):
-    
     return process
         
 ##############################################################################
@@ -35,116 +88,109 @@ def customiseVALSKIM(process):
     print "this method is outdated, please use RecoTLR.customisePPData"
     process= customisePPData(process)
     return process
+
                 
 ##############################################################################
 def customiseExpress(process):
     process= customisePPData(process)
-
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
+    process = _swapOfflineBSwithOnline(process)
     return process
 
 ##############################################################################
 def customisePrompt(process):
     process= customisePPData(process)
+    process = _addLumiProducer(process)
 
-    #add the lumi producer in the prompt reco only configuration
-    process.reconstruction_step+=process.lumiProducer
     return process
 
 ##############################################################################
+# Heavy Ions
 ##############################################################################
-
-#gone with the fact that there is no difference between production and development sequence
-#def customiseCommonHI(process):
-#    return process
+# keep it in case modification is needed
+def customiseCommonHI(process):
+    return process
 
 ##############################################################################
 def customiseExpressHI(process):
-    #deprecated process= customiseCommonHI(process)
-
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
+    process = customiseCommonHI(process)
+    process = _swapOfflineBSwithOnline(process)
     
     return process
 
 ##############################################################################
 def customisePromptHI(process):
-    #deprecated process= customiseCommonHI(process)
+    process = customiseCommonHI(process)
 
-    import RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi
-    process.offlineBeamSpot = RecoVertex.BeamSpotProducer.BeamSpotOnline_cfi.onlineBeamSpotProducer.clone()
-    
+    process = _addLumiProducer(process)
+
     return process
 
 ##############################################################################
+##############################################################################
+##
+##  ALL FUNCTIONS BELOW ARE GOING TO BE REMOVED IN 81X
+##
+##############################################################################
+##############################################################################
+# this is supposed to be added on top of other (Run1) data customs
+def customiseDataRun2Common(process):
+    from SLHCUpgradeSimulations.Configuration.muonCustoms import unganged_me1a_geometry,customise_csc_LocalReco
+    process = unganged_me1a_geometry(process)
+    process = customise_csc_LocalReco(process)
 
-def planBTracking(process):
+    if hasattr(process,'valCscTriggerPrimitiveDigis'):
+        #this is not doing anything at the moment
+        process.valCscTriggerPrimitiveDigis.commonParam.gangedME1a = cms.bool(False)
+    if hasattr(process,'valCsctfTrackDigis'):
+        process.valCsctfTrackDigis.gangedME1a = cms.untracked.bool(False)
 
-    # stuff from LowPtTripletStep_cff
-    process.lowPtTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.3
-
-    # stuff from PixelLessStep_cff
-    process.pixelLessStepClusters.oldClusterRemovalInfo=cms.InputTag("tobTecStepClusters")
-    process.pixelLessStepClusters.trajectories= cms.InputTag("tobTecStepTracks")
-    process.pixelLessStepClusters.overrideTrkQuals=cms.InputTag('tobTecStepSelector','tobTecStep')
-    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.7
-    process.pixelLessStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 1.5
-
-    # stuff from PixelPairStep_cff
-    process.pixelPairStepSeeds.RegionFactoryPSet.RegionPSet.ptMin = 0.6
-
-    # stuff from TobTecStep_cff
-    process.tobTecStepClusters.oldClusterRemovalInfo=cms.InputTag("detachedTripletStepClusters")
-    process.tobTecStepClusters.trajectories= cms.InputTag("detachedTripletStepTracks")
-    process.tobTecStepClusters.overrideTrkQuals=cms.InputTag('detachedTripletStep')
-    process.tobTecStepSeeds.RegionFactoryPSet.RegionPSet.originRadius = 5.0
-
-    # stuff from DetachedTripletStep_cff
-    process.detachedTripletStepSeeds.RegionFactoryPSet.RegionPSet.ptMin=0.35
-
-    # stuff from iterativeTk_cff
-    process.iterTracking = cms.Sequence(process.InitialStep*
-                                        process.LowPtTripletStep*
-                                        process.PixelPairStep*
-                                        process.DetachedTripletStep*
-                                        process.TobTecStep*
-                                        process.PixelLessStep*
-                                        process.generalTracks*
-                                        process.ConvStep*
-                                        process.conversionStepTracks
-                                        )
-    
-    
-    # stuff from RecoTracker_cff
-    process.newCombinedSeeds.seedCollections=cms.VInputTag(
-        cms.InputTag('initialStepSeeds'),
-        cms.InputTag('pixelPairStepSeeds'),
-    #    cms.InputTag('mixedTripletStepSeeds'),
-        cms.InputTag('pixelLessStepSeeds')
-        )
-
-    # stuff from Kevin's fragment
-    process.generalTracks.TrackProducers = (cms.InputTag('initialStepTracks'),
-                                            cms.InputTag('lowPtTripletStepTracks'),
-                                            cms.InputTag('pixelPairStepTracks'),
-                                            cms.InputTag('detachedTripletStepTracks'),
-                                            cms.InputTag('pixelLessStepTracks'),
-                                            cms.InputTag('tobTecStepTracks'))
-    process.generalTracks.hasSelector=cms.vint32(1,1,1,1,1,1)
-    process.generalTracks.selectedTrackQuals = cms.VInputTag(cms.InputTag("initialStepSelector","initialStep"),
-                                                             cms.InputTag("lowPtTripletStepSelector","lowPtTripletStep"),
-                                                             cms.InputTag("pixelPairStepSelector","pixelPairStep"),
-                                                             cms.InputTag("detachedTripletStep"),
-                                                             cms.InputTag("pixelLessStepSelector","pixelLessStep"),
-                                                             cms.InputTag("tobTecStepSelector","tobTecStep")
-                                                             )
-    process.generalTracks.setsToMerge = cms.VPSet( cms.PSet( tLists=cms.vint32(0,1,2,3,4,5), pQual=cms.bool(True) ) )
-
-
+    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_Reco,customise_RawToDigi,customise_DQM
+    if hasattr(process,'RawToDigi'):
+        process=customise_RawToDigi(process)
+    if hasattr(process,'reconstruction'):
+        process=customise_Reco(process)
     if hasattr(process,'dqmoffline_step'):
-        process.dqmoffline_step.remove(process.TrackMonStep4)
-        #process.dqmoffline_step.remove(process.TrackMonStep5)
-        
+        process=customise_DQM(process)
+
+    return process
+
+# add stage1
+def customiseDataRun2Common_withStage1(process):
+    process = customiseDataRun2Common(process)
+
+    from L1Trigger.L1TCommon.customsPostLS1 import customiseL1RecoForStage1
+    process=customiseL1RecoForStage1(process)
+
+    return process 
+
+##############################################################################
+# common+ "25ns" Use this for data daking starting from runs in 2015C (>= 253256 )
+def customiseDataRun2Common_25ns(process):
+    process = customiseDataRun2Common_withStage1(process)
+
+    _hcalCustoms25ns(process)
+
+    from SLHCUpgradeSimulations.Configuration.postLS1Customs import customise_DQM_25ns
+    if hasattr(process,'dqmoffline_step'):
+        process=customise_DQM_25ns(process)
+    return process
+
+# common+50ns. Needed only for runs >= 253000 if taken with 50ns
+def customiseDataRun2Common_50nsRunsAfter253000(process):
+    process = customiseDataRun2Common_withStage1(process)
+
+    process = _overridesFor50ns(process)
+
+    return process
+
+##############################################################################
+# keep it in case modification is needed
+def customiseRun2CommonHI(process):
+    process = customiseDataRun2Common_withStage1(process)
+    
+    process = _overridesFor50ns(process)
+    # HI Specific additional customizations:
+    # from L1Trigger.L1TCommon.customsPostLS1 import customiseSimL1EmulatorForPostLS1_Additional_HI
+    # process = customiseSimL1EmulatorForPostLS1_Additional_HI(process)
+
     return process

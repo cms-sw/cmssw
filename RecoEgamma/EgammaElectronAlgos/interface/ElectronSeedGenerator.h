@@ -17,7 +17,6 @@
 
 #include "TrackingTools/TrajectoryState/interface/TrajectoryStateTransform.h"
 #include "TrackingTools/PatternTools/interface/TrajectoryStateUpdator.h"
-#include "TrackingTools/DetLayers/interface/NavigationSetter.h"
 
 #include "RecoTracker/TransientTrackingRecHit/interface/TSiPixelRecHit.h"
 #include "RecoTracker/TkDetLayers/interface/GeometricSearchTracker.h"
@@ -37,6 +36,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
+#include "FWCore/Framework/interface/EDConsumerBase.h"
 
 
 class PropagatorWithMaterial;
@@ -50,12 +50,19 @@ class ElectronSeedGenerator
 {
  public:
 
+  struct Tokens {
+    edm::EDGetTokenT<std::vector<reco::Vertex> > token_vtx;
+    edm::EDGetTokenT<reco::BeamSpot> token_bs;
+    edm::EDGetTokenT<MeasurementTrackerEvent> token_measTrkEvt;
+  };
+
   typedef edm::OwnVector<TrackingRecHit> PRecHitContainer;
   typedef TransientTrackingRecHit::ConstRecHitPointer   ConstRecHitPointer;
   typedef TransientTrackingRecHit::RecHitPointer        RecHitPointer;
   typedef TransientTrackingRecHit::RecHitContainer      RecHitContainer;
 
-  ElectronSeedGenerator(const edm::ParameterSet&);
+  ElectronSeedGenerator(const edm::ParameterSet&,
+			const Tokens&);
   ~ElectronSeedGenerator();
 
   void setupES(const edm::EventSetup& setup);
@@ -74,13 +81,13 @@ class ElectronSeedGenerator
 
   bool dynamicphiroad_;
   bool fromTrackerSeeds_;
-  //  edm::InputTag initialSeeds_;
+  //  edm::EDGetTokenT<SomeClass> initialSeeds_;
   bool useRecoVertex_;
   edm::Handle<std::vector<reco::Vertex> > theVertices;
-  edm::InputTag verticesTag_;
+  edm::EDGetTokenT<std::vector<reco::Vertex> > verticesTag_;
 
   edm::Handle<reco::BeamSpot> theBeamSpot;
-  edm::InputTag beamSpotTag_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotTag_;
 
   float lowPtThreshold_;
   float highPtThreshold_;
@@ -113,6 +120,8 @@ class ElectronSeedGenerator
 
   std::string theMeasurementTrackerName;
   const MeasurementTracker*     theMeasurementTracker;
+  edm::EDGetTokenT<MeasurementTrackerEvent> theMeasurementTrackerEventTag;
+
   const NavigationSchool*       theNavigationSchool;
 
   const edm::EventSetup *theSetup;

@@ -16,7 +16,6 @@
 //
 // Original Author:  Pablo Martinez Ruiz Del Arbol
 //         Created:  Wed Mar 28 09:50:08 CEST 2007
-// $Id: DTSurveyConvert.cpp,v 1.5 2007/12/06 01:53:29 ratnik Exp $
 //
 //
 
@@ -30,8 +29,7 @@ class DTSurveyConvert : public edm::EDAnalyzer
       explicit DTSurveyConvert(const edm::ParameterSet&);
 
    private:
-      virtual void analyze(const edm::Event&, const edm::EventSetup&);
-      virtual void endJob(const edm::EventSetup&);
+      virtual void analyze(const edm::Event&, const edm::EventSetup&) override;
       std::vector<DTSurvey *> wheelList;
       std::string nameWheel_m2; 
       std::string nameWheel_m1; 

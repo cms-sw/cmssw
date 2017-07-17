@@ -9,6 +9,7 @@ hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
         minPixelLayersWithHits = cms.int32(2),   ## >=2 (was 2 for generalTracks)
         maxD0Significance = cms.double(3.0),     ## keep most primary tracks (was 5.0)
         minPt = cms.double(0.0),                 ## better for softish events
+        maxEta = cms.double(100.),
         trackQuality = cms.string("any"),
         numTracksThreshold = cms.int32(2)
     ),
@@ -25,6 +26,7 @@ hiPixelAdaptiveVertex = cms.EDProducer("PrimaryVertexProducer",
     vertexCollections = cms.VPSet(
       cms.PSet(
         label = cms.string(''),
+        chi2cutoff = cms.double(3.0),
         algorithm = cms.string('AdaptiveVertexFitter'),
         useBeamConstraint = cms.bool(False),
         maxDistanceToBeam = cms.double(0.1),

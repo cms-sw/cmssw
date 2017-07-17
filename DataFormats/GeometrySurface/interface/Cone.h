@@ -14,7 +14,7 @@
 
 #include "DataFormats/GeometrySurface/interface/Surface.h"
 
-class Cone  GCC11_FINAL  : public Surface {
+class Cone  final  : public Surface {
 public:
 
   template<typename... Args>
@@ -64,9 +64,9 @@ public:
   virtual Side side( const GlobalPoint& p, Scalar tolerance) const;
 
   // Tangent plane to surface from global point
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const GlobalPoint&) const;
   // Tangent plane to surface from local point
-  virtual ReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
+  virtual ConstReferenceCountingPointer<TangentPlane> tangentPlane (const LocalPoint&) const;
 
 
 private:

@@ -10,12 +10,16 @@
  *  \author R. Bellan - CERN <riccardo.bellan@cern.ch>
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+// Data Formats 
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeed.h"
+#include "DataFormats/TrajectorySeed/interface/TrajectorySeedCollection.h"
+#include "DataFormats/Common/interface/View.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class MuonSeedMerger : public edm::EDProducer {
+class MuonSeedMerger : public edm::stream::EDProducer<> {
 public:
   /// Constructor
   MuonSeedMerger(const edm::ParameterSet&);
@@ -25,12 +29,14 @@ public:
 
   // Operations
 
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::Event&, const edm::EventSetup&) override;
 
 protected:
 
 private:
   std::vector<edm::InputTag> theSeedCollectionLabels;
+  std::vector<edm::EDGetTokenT<edm::View<TrajectorySeed> > > seedTokens;
+
 };
 #endif
 

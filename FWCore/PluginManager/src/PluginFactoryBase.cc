@@ -72,7 +72,7 @@ PluginFactoryBase::newPlugin(const std::string& iName)
 }
 
 
-PluginFactoryBase::Plugins::const_iterator 
+void*
 PluginFactoryBase::findPMaker(const std::string& iName) const
 {
   //do we already have it?
@@ -85,13 +85,16 @@ PluginFactoryBase::findPMaker(const std::string& iName) const
       <<lib<<"'\n but was not there.  This means the plugin cache is incorrect.  Please run 'EdmPluginRefresh "<<lib<<"'";
     }
   } else {
-    checkProperLoadable(iName,itFound->second.front().second);
+    //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last
+    auto const& value= itFound->second.front();
+    while(value.m_ptr.load(std::memory_order_acquire)==nullptr) {}
+    checkProperLoadable(iName,value.m_name);
   }
-  return itFound;
+  return itFound->second.front().m_ptr.load(std::memory_order_acquire);
 }
 
 
-PluginFactoryBase::Plugins::const_iterator 
+void*
 PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
 {
   //do we already have it?
@@ -107,9 +110,12 @@ PluginFactoryBase::tryToFindPMaker(const std::string& iName) const
       }
     }
   } else {
-    checkProperLoadable(iName,itFound->second.front().second);
+    //The item in the container can still be under construction so wait until the m_ptr has been set since that is done last
+    auto const& value= itFound->second.front();
+    while(value.m_ptr.load(std::memory_order_acquire)==nullptr) {}
+    checkProperLoadable(iName,value.m_name);
   }
-  return itFound;
+  return itFound != m_plugins.end()? itFound->second.front().m_ptr.load(std::memory_order_acquire) : nullptr;
 }
 
 void 
@@ -119,7 +125,8 @@ PluginFactoryBase::fillInfo(const PMakers &makers,
   for(PMakers::const_iterator it = makers.begin();
       it != makers.end();
       ++it) {
-    iInfo.loadable_ = it->second;
+    while (nullptr ==it->m_ptr.load(std::memory_order_acquire)) ;
+    iInfo.loadable_ = it->m_name;
     iReturn.push_back(iInfo);
   }
 }
@@ -156,7 +163,8 @@ PluginFactoryBase::checkProperLoadable(const std::string& iName, const std::stri
 
 void 
 PluginFactoryBase::registerPMaker(void* iPMaker, const std::string& iName) {
-  m_plugins[iName].push_back(std::pair<void*,std::string>(iPMaker,PluginManager::loadingFile()));
+  assert(0!= iPMaker);
+  m_plugins[iName].push_back(PluginMakerInfo(iPMaker,PluginManager::loadingFile()));
   newPlugin(iName);
 }
 

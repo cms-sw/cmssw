@@ -38,30 +38,24 @@ public:
   typedef std::vector<Trajectory>         TrajectoryContainer;
   typedef std::vector<TempTrajectory>     TempTrajectoryContainer;
 
-  CkfTrajectoryBuilder(const edm::ParameterSet&              conf,
-		       const TrajectoryStateUpdator*         updator,
-		       const Propagator*                     propagatorAlong,
-		       const Propagator*                     propagatorOpposite,
-		       const Chi2MeasurementEstimatorBase*   estimator,
-		       const TransientTrackingRecHitBuilder* recHitBuilder,
-		       const MeasurementTracker*             measurementTracker,
-		       const TrajectoryFilter*               filter);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, edm::ConsumesCollector& iC);
+  CkfTrajectoryBuilder(const edm::ParameterSet& conf, TrajectoryFilter *filter);
 
   ~CkfTrajectoryBuilder() {}
-  
+
   /// trajectories building starting from a seed
-  virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const;
+  virtual TrajectoryContainer trajectories(const TrajectorySeed& seed) const override;
   /// trajectories building starting from a seed
-  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const;
+  virtual void trajectories(const TrajectorySeed& seed, TrajectoryContainer &ret) const override;
 
   // new interface returning the start Trajectory...
   TempTrajectory buildTrajectories (const TrajectorySeed&,
 				    TrajectoryContainer &ret,
-				    const TrajectoryFilter*) const;
+				    const TrajectoryFilter*) const override;
   
   
   void  rebuildTrajectories(TempTrajectory const& startingTraj, const TrajectorySeed&,
-			    TrajectoryContainer& result) const {}
+			    TrajectoryContainer& result) const override {}
 
   /// set Event for the internal MeasurementTracker data member
   //  virtual void setEvent(const edm::Event& event) const;
@@ -78,12 +72,14 @@ public:
 
 
  protected:
+  void setEvent_(const edm::Event& iEvent, const edm::EventSetup& iSetup) override;
+
   virtual void findCompatibleMeasurements(const TrajectorySeed&seed, const TempTrajectory& traj, std::vector<TrajectoryMeasurement> & result) const;
 
   void limitedCandidates(const TrajectorySeed&seed, TempTrajectory& startingTraj, TrajectoryContainer& result) const;
   void limitedCandidates(const boost::shared_ptr<const TrajectorySeed> & sharedSeed, TempTrajectoryContainer &candidates, TrajectoryContainer& result) const;
   
-  void updateTrajectory( TempTrajectory& traj, const TM& tm) const;
+  void updateTrajectory( TempTrajectory& traj, TM && tm) const;
 
   /*  
       //not mature for integration.  

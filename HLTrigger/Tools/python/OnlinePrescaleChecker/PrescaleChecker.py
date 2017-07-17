@@ -16,7 +16,7 @@ def usage():
 def main():
     try:
         opt, args = getopt.getopt(sys.argv[1:],"",["IgnoreCols="])
-    except getopt.GetoptError, err:
+    except getopt.GetoptError as err:
         print str(err)
         usage()
         sys.exit(2)

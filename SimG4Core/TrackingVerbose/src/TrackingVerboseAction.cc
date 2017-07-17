@@ -24,6 +24,8 @@
 
 #include<algorithm>
 
+using namespace CLHEP;
+
 TrackingVerboseAction::TrackingVerboseAction(edm::ParameterSet const & p) :
   theTrackingManager(0), fVerbose(0) {
 

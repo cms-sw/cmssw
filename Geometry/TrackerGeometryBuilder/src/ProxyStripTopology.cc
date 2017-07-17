@@ -5,7 +5,7 @@
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-ProxyStripTopology::ProxyStripTopology(StripGeomDetType* type, BoundPlane * bp)
+ProxyStripTopology::ProxyStripTopology(StripGeomDetType const * type, BoundPlane * bp)
   :theType(type), theLength(bp->bounds().length()), theWidth(bp->bounds().width())
 {
 }
@@ -179,7 +179,7 @@ float ProxyStripTopology::localStripLength( const LocalPoint& lp, const Topology
 ////////////////////////////////////////////////////////////////////////////////
 void ProxyStripTopology::setSurfaceDeformation(const SurfaceDeformation * deformation)
 { 
-  theSurfaceDeformation = deformation;
+  theSurfaceDeformation.reset(deformation);
 }
 
 ////////////////////////////////////////////////////////////////////////////////

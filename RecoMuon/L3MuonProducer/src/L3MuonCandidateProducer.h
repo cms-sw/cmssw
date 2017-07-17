@@ -18,12 +18,16 @@
  *   \author  J.Alcaraz
  */
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/global/EDProducer.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "DataFormats/TrackReco/interface/Track.h"
+#include "DataFormats/TrackReco/interface/TrackFwd.h"
+#include "DataFormats/MuonReco/interface/MuonTrackLinks.h"
+#include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 namespace edm {class ParameterSet; class Event; class EventSetup;}
 
-class L3MuonCandidateProducer : public edm::EDProducer {
+class L3MuonCandidateProducer : public edm::global::EDProducer<> {
 
  public:
   enum MuonTrackType {InnerTrack, OuterTrack, CombinedTrack};
@@ -35,14 +39,19 @@ class L3MuonCandidateProducer : public edm::EDProducer {
   virtual ~L3MuonCandidateProducer(); 
   
   /// produce candidates
-  virtual void produce(edm::Event&, const edm::EventSetup&);
+  virtual void produce(edm::StreamID, edm::Event&, const edm::EventSetup&) const override;
 
  private:
   // L3/GLB Collection Label
   edm::InputTag theL3CollectionLabel; 
   edm::InputTag theL3LinksLabel; 
+  edm::EDGetTokenT<reco::TrackCollection> trackToken_;
+  edm::EDGetTokenT<reco::MuonTrackLinksCollection> linkToken_;
+
   enum MuonTrackType theType;
   bool theUseLinks;
+
+
 };
 
 #endif

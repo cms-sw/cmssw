@@ -1,6 +1,6 @@
 #include "CondFormats/PhysicsToolsObjects/interface/PerformancePayloadFromTable.h"
 
-int PerformancePayloadFromTable::InvalidPos=-1;
+const int PerformancePayloadFromTable::InvalidPos=-1;
 
 #include <iostream>
 

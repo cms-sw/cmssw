@@ -10,43 +10,40 @@
 //____________________________________________________________________________||
 #include "RecoMET/METAlgorithms/interface/METAlgo.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
-#include <cmath>
-
-CommonMETData METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, double globalThreshold)
-{
-  CommonMETData met;
-  run(candidates, &met, globalThreshold);
-  return met;
-}
+#include "DataFormats/Math/interface/LorentzVector.h"
 
 //____________________________________________________________________________||
-void METAlgo::run(edm::Handle<edm::View<reco::Candidate> > candidates, CommonMETData *met, double globalThreshold)
-{ 
-  double px = 0.0;
-  double py = 0.0;
-  double pz = 0.0;
+CommonMETData METAlgo::run(const edm::View<reco::Candidate>& candidates, double globalThreshold)
+{
+  math::XYZTLorentzVector p4;
+  for(auto cand = candidates.begin(); cand != candidates.end(); ++cand)
+    {
+      if( !(cand->et() > globalThreshold) ) continue;
+      p4 += cand->p4();
+    }
+  math::XYZTLorentzVector met = -p4;
+
+
+  CommonMETData ret;
+  ret.mex   = met.Px();
+  ret.mey   = met.Py();
+
+  ret.mez   = met.Pz(); // included here since it might be useful
+                        // for Data Quality Monitering as it should be
+                        // symmetrically distributed about the origin
+
+  ret.met   = met.Pt();
+
   double et = 0.0;
+  for(auto cand = candidates.begin(); cand != candidates.end(); ++cand)
+    {
+      if( !(cand->et() > globalThreshold) ) continue;
+      et += cand->et();
+    }
 
-  for (unsigned int i = 0; i < candidates->size(); ++i)
-  {
-    const reco::Candidate &cand = (*candidates)[i];
-    if( !(cand.et() > globalThreshold) ) continue;
-    px += cand.px();
-    py += cand.py();
-    pz += cand.pz();
-    et += cand.energy()*sin(cand.theta());
-  }
+  ret.sumet = et;
 
-  met->mex   = -px;
-  met->mey   = -py;
-
-  met->mez   = -pz; // included here since it might be useful
-                    // for Data Quality Monitering as it should be 
-                    // symmetrically distributed about the origin
-
-  met->met   = sqrt( px*px + py*py );
-  met->sumet = et;
-  met->phi   = atan2( -py, -px ); // no longer needed as MET is now a candidate
+  return ret;
 }
 
 //____________________________________________________________________________||

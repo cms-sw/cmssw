@@ -16,8 +16,7 @@ process.GlobalTag = GlobalTag( process.GlobalTag, 'auto:com10' )
 
 ## Source
 process.source = cms.Source( "PoolSource"
-#, fileNames  = cms.untracked.vstring( '/store/relval/CMSSW_6_1_0_pre3-GR_R_60_V7_RelVal_mu2011A/SingleMu/RECO/v1/00000/16461657-910C-E211-BD66-0026189438CB.root'
-, fileNames  = cms.untracked.vstring( '/store/relval/CMSSW_6_1_0_pre3-GR_R_60_V7_RelVal_mu2012B/SingleMu/RECO/v1/00000/08491D7D-CE0C-E211-A9BB-003048678D86.root'
+, fileNames  = cms.untracked.vstring( '/store/relval/CMSSW_6_2_0_pre8/SingleMu/RECO/PRE_62_V8_RelVal_mu2012D-v1/00000/005835E9-05E0-E211-BA7B-003048F1C7C0.root'
                                     )
 #, skipEvents = cms.untracked.uint32( 0 )
 )

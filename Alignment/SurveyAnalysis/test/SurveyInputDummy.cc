@@ -2,6 +2,7 @@
 #include "FWCore/Framework/interface/EventSetup.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 
 #include "Alignment/CommonAlignment/interface/AlignableObjectId.h"
 #include "Alignment/CommonAlignment/interface/SurveyDet.h"
@@ -19,11 +20,15 @@ SurveyInputDummy::SurveyInputDummy(const edm::ParameterSet& cfg):
 
   unsigned int nError = errors.size();
 
+  // FIXME: - currently defaulting to RunI as this was the previous behaviour
+  //        - check this, when resurrecting this code in the future
+  AlignableObjectId alignableObjectId{AlignableObjectId::Geometry::General};
+
   for (unsigned int i = 0; i < nError; ++i)
   {
     const edm::ParameterSet& error = errors[i];
 
-    theErrors[AlignableObjectId::stringToId( error.getParameter<std::string>("level") )]
+    theErrors[alignableObjectId.stringToId( error.getParameter<std::string>("level") )]
       = error.getParameter<double>("value");
   }
 }
@@ -33,7 +38,7 @@ void SurveyInputDummy::analyze(const edm::Event&, const edm::EventSetup& setup)
   if (theFirstEvent) {
     //Retrieve tracker topology from geometry
     edm::ESHandle<TrackerTopology> tTopoHandle;
-    setup.get<IdealGeometryRecord>().get(tTopoHandle);
+    setup.get<TrackerTopologyRcd>().get(tTopoHandle);
     const TrackerTopology* const tTopo = tTopoHandle.product();
 
     edm::ESHandle<TrackerGeometry> tracker;

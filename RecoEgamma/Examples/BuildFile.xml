@@ -16,7 +16,13 @@
 <use   name="DataFormats/DetId"/>
 <use   name="DataFormats/TrackingRecHit"/>
 <use   name="hepmc"/>
-<use   name="clhep"/>
+<use   name="CLHEP"/>
 <use   name="root"/>
+
 <export>
+  <use name="FWCore/Framework"/>
+  <use name="FWCore/ParameterSet"/>
+  <use name="DQMServices/Components"/>
+  <use name="DQMServices/Core"/>
+  <lib name="1"/>
 </export>

@@ -8,8 +8,6 @@
 #include <vector>
 #include <memory>
 
-#include <boost/shared_ptr.hpp>
-
 #include <TClass.h>
 
 #include "FWCore/Utilities/interface/Exception.h"
@@ -26,7 +24,7 @@
 
 class BeamSpotFakeConditions : public edm::ESProducer, public edm::EventSetupRecordIntervalFinder {
 public:
-	typedef boost::shared_ptr<BeamSpotObjects> ReturnType;
+	typedef std::shared_ptr<BeamSpotObjects> ReturnType;
 	BeamSpotFakeConditions(const edm::ParameterSet &params);
 	virtual ~BeamSpotFakeConditions();
 	ReturnType produce(const BeamSpotObjectsRcd &record);

@@ -49,14 +49,14 @@
 //
 // ----------------------------------------------------------------------
 
-#include "FWCore/MessageService/interface/ELdestControl.h"
-
 #include "FWCore/MessageLogger/interface/ELstring.h"
 #include "FWCore/MessageLogger/interface/ELlist.h"
 #include "FWCore/MessageLogger/interface/ELseverityLevel.h"
 #include "FWCore/MessageLogger/interface/ErrorObj.h"
+#include "FWCore/MessageService/interface/ELdestination.h"
+#include "FWCore/Utilities/interface/propagate_const.h"
 
-#include "boost/shared_ptr.hpp"
+#include <memory>
 
 namespace edm {       
 namespace service {       
@@ -93,8 +93,7 @@ public:
   
   // ---  furnish/recall destinations:
   //
-  ELdestControl attach( const ELdestination & sink );
-  ELdestControl attach( const ELdestination & sink, const ELstring & name );
+  std::shared_ptr<ELdestination> attach( std::shared_ptr<ELdestination> sink );
 
   // ---  handle severity information:
   //
@@ -124,7 +123,6 @@ protected:
   //
   const ELseverityLevel       & abortThreshold() const;
   const ELseverityLevel       &  exitThreshold() const;
-  std::list<boost::shared_ptr<ELdestination> >  & sinks();
   const ELseverityLevel       & highSeverity() const;
   int                           severityCounts( int lev ) const;
 
@@ -137,11 +135,11 @@ private:
 
   // ---  traditional member data:
   //
-  std::list<boost::shared_ptr<ELdestination> > sinks_;		
+  std::list<edm::propagate_const<std::shared_ptr<ELdestination>>> sinks_;		
   ELseverityLevel            highSeverity_;
   int                        severityCounts_[ ELseverityLevel::nLevels ];
 
-  std::map < ELstring, boost::shared_ptr<ELdestination> > attachedDestinations_;
+  std::map<ELstring, edm::propagate_const<std::shared_ptr<ELdestination>>> attachedDestinations_;
 
 };  // ELadministrator
 

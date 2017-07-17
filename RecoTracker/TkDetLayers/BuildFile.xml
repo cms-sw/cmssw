@@ -1,3 +1,4 @@
+<flags   CXXFLAGS="-Ofast"/>
 <export>
   <lib   name="1"/>
 </export>
@@ -10,4 +11,3 @@
 <use   name="DataFormats/SiPixelDetId"/>
 <use   name="Geometry/TrackerGeometryBuilder"/>
 <use   name="FWCore/MessageLogger"/>
-

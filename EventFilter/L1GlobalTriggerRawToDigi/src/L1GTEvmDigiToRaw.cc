@@ -55,6 +55,7 @@
 L1GTEvmDigiToRaw::L1GTEvmDigiToRaw(const edm::ParameterSet& pSet) :
     m_evmGtFedId(pSet.getUntrackedParameter<int>("EvmGtFedId",
             FEDNumbering::MINTriggerGTPFEDID)),
+    m_evmGtInputToken(consumes<L1GlobalTriggerEvmReadoutRecord>(pSet.getParameter<edm::InputTag>("EvmGtInputTag"))),
     m_evmGtInputTag(pSet.getParameter<edm::InputTag>("EvmGtInputTag")),
     m_activeBoardsMaskGt(pSet.getParameter<unsigned int>("ActiveBoardsMask")),
     m_totalBxInEvent(0),
@@ -103,7 +104,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // define new FEDRawDataCollection
     // it contains ALL FEDs in an event
-    std::auto_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
+    std::unique_ptr<FEDRawDataCollection> allFedRawData(new FEDRawDataCollection);
 
     FEDRawData& gtRawData = allFedRawData->FEDData(m_evmGtFedId);
 
@@ -140,7 +141,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // get L1GlobalTriggerEvmReadoutRecord
     edm::Handle<L1GlobalTriggerEvmReadoutRecord> gtReadoutRecord;
-    iEvent.getByLabel(m_evmGtInputTag, gtReadoutRecord);
+    iEvent.getByToken(m_evmGtInputToken, gtReadoutRecord);
 
     if (!gtReadoutRecord.isValid()) {
         edm::LogWarning("L1GTEvmDigiToRaw")
@@ -149,7 +150,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
                 << "\nQuit packing this event" << std::endl;
 
         // put the raw data in the event
-        iEvent.put(allFedRawData);
+        iEvent.put(std::move(allFedRawData));
 
         return;
     }
@@ -444,7 +445,7 @@ void L1GTEvmDigiToRaw::produce(edm::Event& iEvent, const edm::EventSetup& evSetu
 
     // put the raw data in the event
 
-    iEvent.put(allFedRawData);
+    iEvent.put(std::move(allFedRawData));
 
 
 }

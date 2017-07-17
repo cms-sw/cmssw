@@ -1,4 +1,4 @@
- /*
+/**
  * \class L1TBeamConfiguration
  *
  *

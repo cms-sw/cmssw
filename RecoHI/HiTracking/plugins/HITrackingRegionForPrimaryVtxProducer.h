@@ -8,6 +8,7 @@
 #include "RecoTracker/TkTrackingRegions/interface/RectangularEtaPhiTrackingRegion.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 
 #include "DataFormats/BeamSpot/interface/BeamSpot.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -15,7 +16,8 @@
 #include "DataFormats/VertexReco/interface/Vertex.h"
 #include "DataFormats/VertexReco/interface/VertexFwd.h"
 
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerLayerIdAccessor.h" 	 
+#include "DataFormats/TrackerCommon/interface/TrackerTopology.h"
+#include "Geometry/Records/interface/TrackerTopologyRcd.h"
 #include "DataFormats/Common/interface/DetSetAlgorithm.h"
 
 #include "DataFormats/Common/interface/DetSetVector.h"    
@@ -27,15 +29,17 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
   
  public:
   
-  HITrackingRegionForPrimaryVtxProducer(const edm::ParameterSet& cfg) { 
+  HITrackingRegionForPrimaryVtxProducer(const edm::ParameterSet& cfg, edm::ConsumesCollector && iC) { 
     
     edm::ParameterSet regionPSet = cfg.getParameter<edm::ParameterSet>("RegionPSet");
     thePtMin            = regionPSet.getParameter<double>("ptMin");
     theOriginRadius     = regionPSet.getParameter<double>("originRadius");
     theNSigmaZ          = regionPSet.getParameter<double>("nSigmaZ");
     theBeamSpotTag      = regionPSet.getParameter<edm::InputTag>("beamSpot");
+    theBeamSpotToken    = iC.consumes<reco::BeamSpot>(theBeamSpotTag); 
     thePrecise          = regionPSet.getParameter<bool>("precise"); 
-    theSiPixelRecHits   = regionPSet.getParameter<edm::InputTag>("siPixelRecHits");  
+    theSiPixelRecHits   = regionPSet.getParameter<edm::InputTag>("siPixelRecHits");
+    theSiPixelRecHitsToken = iC.consumes<SiPixelRecHitCollection> (theSiPixelRecHits);     
     doVariablePtMin     = regionPSet.getParameter<bool>("doVariablePtMin"); 
     double xDir         = regionPSet.getParameter<double>("directionXCoord");
     double yDir         = regionPSet.getParameter<double>("directionYCoord");
@@ -48,25 +52,56 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     theUseFoundVertices = regionPSet.getParameter<bool>("useFoundVertices");
     theUseFixedError    = regionPSet.getParameter<bool>("useFixedError");
     vertexCollName      = regionPSet.getParameter<edm::InputTag>("VertexCollection");
+    vertexCollToken     = iC.consumes<reco::VertexCollection>(vertexCollName);
   }   
   
   virtual ~HITrackingRegionForPrimaryVtxProducer(){}
+
+  static void fillDescriptions(edm::ConfigurationDescriptions& descriptions) {
+    edm::ParameterSetDescription desc;
+
+    desc.add<double>("ptMin", 0.7);
+    desc.add<bool>("doVariablePtMin", true);
+    desc.add<double>("originRadius", 0.2);
+    desc.add<double>("nSigmaZ", 3.0);
+    desc.add<edm::InputTag>("beamSpot", edm::InputTag("offlineBeamSpot"));
+    desc.add<bool>("precise", true);
+    desc.add<bool>("useMultipleScattering", false);
+    desc.add<bool>("useFakeVertices", false);
+    desc.add<edm::InputTag>("siPixelRecHits", edm::InputTag("siPixelRecHits"));
+    desc.add<double>("directionXCoord", 1.0);
+    desc.add<double>("directionYCoord", 1.0);
+    desc.add<double>("directionZCoord", 0.0);
+    desc.add<bool>("useFoundVertices", true);
+    desc.add<edm::InputTag>("VertexCollection", edm::InputTag("hiPixelClusterVertex"));
+    desc.add<bool>("useFixedError", true);
+    desc.add<double>("fixedError", 3.0);
+    desc.add<double>("sigmaZVertex", 3.0);
+
+    // Only for backwards-compatibility
+    edm::ParameterSetDescription descRegion;
+    descRegion.add<edm::ParameterSetDescription>("RegionPSet", desc);
+
+    descriptions.add("hiTrackingRegionFromClusterVtx", descRegion);
+  }
   
   int estimateMultiplicity
     (const edm::Event& ev, const edm::EventSetup& es) const
     {
       //rechits
       edm::Handle<SiPixelRecHitCollection> recHitColl;
-      ev.getByLabel(theSiPixelRecHits, recHitColl);
+      ev.getByToken(theSiPixelRecHitsToken, recHitColl);
+
+      edm::ESHandle<TrackerTopology> httopo;
+      es.get<TrackerTopologyRcd>().get(httopo);
       
       std::vector<const TrackingRecHit*> theChosenHits; 	 
-      TrackerLayerIdAccessor acc; 	 
-      edmNew::copyDetSetRange(*recHitColl,theChosenHits,acc.pixelBarrelLayer(1)); 	 
+      edmNew::copyDetSetRange(*recHitColl,theChosenHits, httopo->pxbDetIdLayerComparator(1));
       return theChosenHits.size(); 	 
       
     }
   
-  virtual std::vector<TrackingRegion* > regions(const edm::Event& ev, const edm::EventSetup& es) const {
+  virtual std::vector<std::unique_ptr<TrackingRegion> > regions(const edm::Event& ev, const edm::EventSetup& es) const {
     
     int estMult = estimateMultiplicity(ev, es);
     
@@ -103,11 +138,11 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     }
     
     // tracking region selection
-    std::vector<TrackingRegion* > result;
+    std::vector<std::unique_ptr<TrackingRegion> > result;
     double halflength;
     GlobalPoint origin;
     edm::Handle<reco::BeamSpot> bsHandle;
-    ev.getByLabel( theBeamSpotTag, bsHandle);
+    ev.getByToken(theBeamSpotToken, bsHandle);
     if(bsHandle.isValid()) {
       const reco::BeamSpot & bs = *bsHandle; 
       origin=GlobalPoint(bs.x0(), bs.y0(), bs.z0()); 
@@ -116,7 +151,7 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
     if(theUseFoundVertices)
     {
       edm::Handle<reco::VertexCollection> vertexCollection;
-      ev.getByLabel(vertexCollName,vertexCollection);
+      ev.getByToken(vertexCollToken,vertexCollection);
 
       for(reco::VertexCollection::const_iterator iV=vertexCollection->begin(); 
 	  iV != vertexCollection->end() ; iV++) {
@@ -128,12 +163,12 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
 
       if(estTracks>regTracking) {  // regional tracking
         result.push_back( 
-	  new RectangularEtaPhiTrackingRegion(theDirection, origin, thePtMin, theOriginRadius, halflength, etaB, phiB, 0, thePrecise) );
+          std::make_unique<RectangularEtaPhiTrackingRegion>(theDirection, origin, thePtMin, theOriginRadius, halflength, etaB, phiB, RectangularEtaPhiTrackingRegion::UseMeasurementTracker::kNever, thePrecise) );
       }
       else {                       // global tracking
         LogTrace("heavyIonHLTVertexing")<<" [HIVertexing: Global Tracking]";
         result.push_back( 
-	  new GlobalTrackingRegion(minpt, origin, theOriginRadius, halflength, thePrecise) );
+          std::make_unique<GlobalTrackingRegion>(minpt, origin, theOriginRadius, halflength, thePrecise) );
       }
     } 
     return result;
@@ -144,9 +179,11 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
   double theOriginRadius; 
   double theNSigmaZ;
   edm::InputTag theBeamSpotTag;	
+  edm::EDGetTokenT<reco::BeamSpot> theBeamSpotToken;
   bool thePrecise;
   GlobalVector theDirection;
   edm::InputTag theSiPixelRecHits;
+  edm::EDGetTokenT<SiPixelRecHitCollection> theSiPixelRecHitsToken;
   bool doVariablePtMin;
 
   double theSigmaZVertex;
@@ -154,6 +191,7 @@ class HITrackingRegionForPrimaryVtxProducer : public TrackingRegionProducer {
   bool theUseFoundVertices;
   bool theUseFixedError;
   edm::InputTag vertexCollName;
+  edm::EDGetTokenT<reco::VertexCollection> vertexCollToken;
 
 
 };

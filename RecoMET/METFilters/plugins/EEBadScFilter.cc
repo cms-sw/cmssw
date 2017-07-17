@@ -2,11 +2,11 @@
 //
 // Package:    EcalBadScFilter
 // Class:      EcalBadScFilter
-// 
+//
 /**\class EcalBadSCFilter EcalBadScFilter.cc
 
  Description: <one line class summary>
- Event filtering to remove events with anomalous energy in EE supercrystals 
+ Event filtering to remove events with anomalous energy in EE supercrystals
 */
 //
 // Original Authors:  K. Theofilatos and D. Petyt
@@ -14,13 +14,12 @@
 
 
 // include files
-#include <iostream>
-
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/global/EDFilter.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
 #include "DataFormats/DetId/interface/DetId.h"
@@ -34,7 +33,7 @@
 
 #include "TVector3.h"
 
-class EEBadScFilter : public edm::EDFilter {
+class EEBadScFilter : public edm::global::EDFilter<> {
 
   public:
 
@@ -45,16 +44,16 @@ class EEBadScFilter : public edm::EDFilter {
 
   // main filter function
 
-  virtual bool filter(edm::Event & iEvent, const edm::EventSetup & iSetup) override;
+  virtual bool filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const override;
 
-  // function to calculate 5x5 energy and check rechit flags 
+  // function to calculate 5x5 energy and check rechit flags
 
-  virtual void scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt);
+  virtual void scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt) const;
 
   // input parameters
 
   // ee rechit collection (from AOD)
-  const edm::InputTag  eeRHSrc_;
+  const edm::EDGetTokenT<EcalRecHitCollection>  eeRHSrcToken_;
 
   //config parameters (defining the cuts on the bad SCs)
   const double Emin_;               // rechit energy threshold (check for !kGood rechit flags)
@@ -62,7 +61,7 @@ class EEBadScFilter : public edm::EDFilter {
   const int side_;                  // supercrystal size  (default = 5x5 crystals)
   const int nBadHitsSC_;            // number of bad hits in the SC to reject the event
   const std::vector<int> badsc_;    // crystal coordinates of the bad SCs (central xtal in the 5x5)
-  
+
   const bool taggingMode_;
   const bool debug_;                // prints out debug info if set to true
 
@@ -70,7 +69,7 @@ class EEBadScFilter : public edm::EDFilter {
 
 // read the parameters from the config file
 EEBadScFilter::EEBadScFilter(const edm::ParameterSet & iConfig)
-  : eeRHSrc_     (iConfig.getParameter<edm::InputTag>("EERecHitSource"))
+  : eeRHSrcToken_     (consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitSource")))
   , Emin_        (iConfig.getParameter<double>("EminHit"))
   , EtminSC_     (iConfig.getParameter<double>("EtminSC"))
   , side_        (iConfig.getParameter<int>("SCsize"))
@@ -83,14 +82,14 @@ EEBadScFilter::EEBadScFilter(const edm::ParameterSet & iConfig)
 }
 
 
-void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt)
+void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitCollection> &hits, const edm::ESHandle<CaloTopology>  &caloTopo, const edm::ESHandle<CaloGeometry>  &geometry, int &nHits, float & totEt) const
 {
 
   // function to compute:  total transverse energy in a given supercrystal (totEt)
   //                       number of hits with E>Emin_ and rechit flag != kGood (nHits)
-  // bad events have large totEt and many high energy hits with rechit flags !kGood 
+  // bad events have large totEt and many high energy hits with rechit flags !kGood
 
-  nHits = 0; 
+  nHits = 0;
   totEt = 0;
 
   // navigator to define a 5x5 region around the input DetId
@@ -109,16 +108,16 @@ void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitColle
 	    {
 	      EcalRecHit tmpHit = *hits->find(*cursor); // get rechit with detID at cursor
 
-	
+
 	      const GlobalPoint p ( geometry->getPosition(*cursor) ) ; // calculate Et of the rechit
 	      TVector3 hitPos(p.x(),p.y(),p.z());
 	      hitPos *= 1.0/hitPos.Mag();
 	      hitPos *= tmpHit.energy();
 	      float rechitEt =  hitPos.Pt();
-        
+
 	      //--- add rechit E_t to the total for this supercrystal
-	      totEt += rechitEt;  
-   
+	      totEt += rechitEt;
+
 	      // increment nHits if E>Emin and rechit flag is not kGood
 	      if(tmpHit.energy()>Emin_ && !tmpHit.checkFlag(EcalRecHit::kGood))nHits++;
 
@@ -133,7 +132,7 @@ void EEBadScFilter::scan5x5(const DetId & det, const edm::Handle<EcalRecHitColle
 
 
 
-bool EEBadScFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) {
+bool EEBadScFilter::filter(edm::StreamID, edm::Event & iEvent, const edm::EventSetup & iSetup) const {
 
 
   // load required collections
@@ -141,7 +140,7 @@ bool EEBadScFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 
   // EE rechit collection
   edm::Handle<EcalRecHitCollection> eeRHs;
-  iEvent.getByLabel(eeRHSrc_, eeRHs);
+  iEvent.getByToken(eeRHSrcToken_, eeRHs);
 
   // Calo Geometry - needed for computing E_t
   edm::ESHandle<CaloGeometry> pG;
@@ -174,10 +173,10 @@ bool EEBadScFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
 
   for (std::vector<int>::const_iterator scit = badsc_.begin(); scit != badsc_.end(); ++ scit) {
 
- 
- 
+
+
     // unpack the SC coordinates from the python file into ix,iy,iz
-    
+
     iz=int(*scit/1000000);
     iy=*scit%100*iz;
     ix=int((*scit-iy-1000000*iz)/1000)*iz;
@@ -193,9 +192,9 @@ bool EEBadScFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
     // print some debug info
 
     if (debug_) {
-      std::cout << "EEBadScFilter.cc:  SCID=" <<  *scit << std::endl;
-      std::cout << "EEBadScFilter.cc:  ix=" << ix << " iy=" << iy << " iz=" << iz << std::endl;
-      std::cout << "EEBadScFilter.cc:  Et(5x5)=" << totEt << " nbadhits=" << nhits << std::endl;
+      edm::LogInfo("EEBadScFilter") << "SCID=" <<  *scit;
+      edm::LogInfo("EEBadScFilter") << "ix=" << ix << " iy=" << iy << " iz=" << iz;
+      edm::LogInfo("EEBadScFilter") << "Et(5x5)=" << totEt << " nbadhits=" << nhits;
     }
 
 
@@ -208,10 +207,10 @@ bool EEBadScFilter::filter(edm::Event & iEvent, const edm::EventSetup & iSetup) 
   }
 
   // print the decision if event is bad
-  if (pass==false && debug_) std::cout << "EEBadScFilter.cc:  REJECT EVENT!!!" << std::endl;
+  if (pass==false && debug_) edm::LogInfo("EEBadScFilter") << "REJECT EVENT!!!";
 
 
-  iEvent.put( std::auto_ptr<bool>(new bool(pass)) );
+  iEvent.put(std::make_unique<bool>(pass));
 
   // return the decision
 

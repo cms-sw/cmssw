@@ -33,19 +33,15 @@ class FEConfigLinDat : public IDataItem {
   inline int getShift1() const { return m_shift1; }
 
  private:
-  void prepareWrite() 
-    throw(std::runtime_error);
+  void prepareWrite() noexcept(false);
 
-  void writeDB(const EcalLogicID* ecid, const FEConfigLinDat* item, FEConfigLinInfo* iconf)
-    throw(std::runtime_error);
+  void writeDB(const EcalLogicID* ecid, const FEConfigLinDat* item, FEConfigLinInfo* iconf) noexcept(false);
 
 
-  void writeArrayDB(const std::map< EcalLogicID, FEConfigLinDat>* data, FEConfigLinInfo* iconf)
-  throw(std::runtime_error);
+  void writeArrayDB(const std::map< EcalLogicID, FEConfigLinDat>* data, FEConfigLinInfo* iconf) noexcept(false);
 
 
-  void fetchData(std::map< EcalLogicID, FEConfigLinDat >* fillMap, FEConfigLinInfo* iconf)
-     throw(std::runtime_error);
+  void fetchData(std::map< EcalLogicID, FEConfigLinDat >* fillMap, FEConfigLinInfo* iconf) noexcept(false);
 
   // User data
   int m_multx12;

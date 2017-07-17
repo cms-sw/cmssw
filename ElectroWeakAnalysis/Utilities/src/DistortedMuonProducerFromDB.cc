@@ -4,6 +4,9 @@
 #include "FWCore/Framework/interface/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+
 #include "MuonAnalysis/MomentumScaleCalibration/interface/MomentumScaleCorrector.h"
 #include "MuonAnalysis/MomentumScaleCalibration/interface/ResolutionFunction.h"
 
@@ -20,22 +23,19 @@ class DistortedMuonProducerFromDB : public edm::EDProducer {
       virtual void produce(edm::Event&, const edm::EventSetup&) override;
       virtual void endJob() override ;
 
-      edm::InputTag muonTag_;
-      edm::InputTag genMatchMapTag_;
+      edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
 
       std::string dbScaleLabel_;
       std::string dbDataResolutionLabel_;
       std::string dbMCResolutionLabel_;
 
-      std::auto_ptr<MomentumScaleCorrector> momCorrector_;
-      std::auto_ptr<ResolutionFunction> momResolutionData_;
-      std::auto_ptr<ResolutionFunction> momResolutionMC_;
+      std::unique_ptr<MomentumScaleCorrector> momCorrector_;
+      std::unique_ptr<ResolutionFunction> momResolutionData_;
+      std::unique_ptr<ResolutionFunction> momResolutionMC_;
 };
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
 #include "DataFormats/Common/interface/Handle.h"
-#include "DataFormats/Common/interface/View.h"
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonFwd.h"
 
 #include <CLHEP/Random/RandGauss.h>
@@ -54,12 +54,12 @@ DistortedMuonProducerFromDB::DistortedMuonProducerFromDB(const edm::ParameterSet
       produces<std::vector<reco::Muon> >();
 
   // Input products
-      muonTag_ = pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"));
+      muonToken_ = consumes<edm::View<reco::Muon> >(pset.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons")));
       dbScaleLabel_ = pset.getUntrackedParameter<std::string> ("DBScaleLabel", "scale");
       dbDataResolutionLabel_ = pset.getUntrackedParameter<std::string> ("DBDataResolutionLabel", "datareso");
       dbMCResolutionLabel_ = pset.getUntrackedParameter<std::string> ("DBMCResolutionLabel", "mcreso");
 
-} 
+}
 
 /////////////////////////////////////////////////////////////////////////////////////
 DistortedMuonProducerFromDB::~DistortedMuonProducerFromDB(){
@@ -95,30 +95,30 @@ void DistortedMuonProducerFromDB::produce(edm::Event& ev, const edm::EventSetup&
 
       // Muon collection
       edm::Handle<edm::View<reco::Muon> > muonCollection;
-      if (!ev.getByLabel(muonTag_, muonCollection)) {
+      if (!ev.getByToken(muonToken_, muonCollection)) {
             edm::LogError("") << ">>> Muon collection does not exist !!!";
             return;
       }
       unsigned int muonCollectionSize = muonCollection->size();
 
-      std::auto_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
+      std::unique_ptr<reco::MuonCollection> newmuons (new reco::MuonCollection);
 
       for (unsigned int i=0; i<muonCollectionSize; i++) {
             edm::RefToBase<reco::Muon> mu = muonCollection->refAt(i);
 
             // Set shift
             double shift = (*momCorrector_)(*mu) - mu->pt();
-            LogTrace("") << "\tmomentumScaleShift= " << shift << " [GeV]"; 
+            LogTrace("") << "\tmomentumScaleShift= " << shift << " [GeV]";
 
             // Set resolutions
             double sigma = pow(momResolutionData_->sigmaPt(*mu),2) -
                               pow(momResolutionMC_->sigmaPt(*mu),2);
             if (sigma>0.) sigma = sqrt(sigma); else sigma = 0.;
-            LogTrace("") << "\tPt additional smearing= " << sigma << " [GeV]"; 
+            LogTrace("") << "\tPt additional smearing= " << sigma << " [GeV]";
 
             // Gaussian Random number for smearing
             double rndg = CLHEP::RandGauss::shoot();
-            
+
             // New muon
             double ptmu = mu->pt();
             ptmu += shift + sigma*rndg;
@@ -132,7 +132,7 @@ void DistortedMuonProducerFromDB::produce(edm::Event& ev, const edm::EventSetup&
 
       }
 
-      ev.put(newmuons);
+      ev.put(std::move(newmuons));
 }
 
 DEFINE_FWK_MODULE(DistortedMuonProducerFromDB);

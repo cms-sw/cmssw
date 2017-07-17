@@ -63,6 +63,7 @@ private:
   unsigned int xTotal_;
   double xSumPt_;
   double xSumR_;
+  double xSumCtau_;
   unsigned int totalEvents_;
   unsigned int rejectedEvents_;
 };

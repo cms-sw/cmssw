@@ -3,6 +3,7 @@
 
 #include "G4ParticleDefinition.hh"
 #include "globals.hh"
+#include "G4SystemOfUnits.hh"
 
 // ######################################################################
 // ###                       Monopole                                 ###

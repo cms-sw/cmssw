@@ -10,6 +10,7 @@
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/CPUTimer.h"
 #include "CondFormats/DataRecord/interface/SiPixelFedCablingMapRcd.h"
 #include "CondFormats/SiPixelObjects/interface/SiPixelFrameReverter.h"
 #include "DataFormats/Common/interface/DetSetVector.h"
@@ -18,9 +19,8 @@
 class SiPixelFedCablingTree;
 class SiPixelFrameReverter;
 class TH1D;
-class R2DTimerObserver;
 
-class SiPixelDigiToRaw : public edm::EDProducer {
+class SiPixelDigiToRaw final : public edm::EDProducer {
 public:
 
   /// ctor
@@ -31,18 +31,18 @@ public:
 
 
   /// dummy end of job 
-  virtual void endJob() {}
+  virtual void endJob() override {}
 
   /// get data, convert to raw event, attach again to Event
-  virtual void produce( edm::Event&, const edm::EventSetup& );
+  virtual void produce( edm::Event&, const edm::EventSetup& ) override;
 
 private:
 
-  SiPixelFedCablingTree * cablingTree_;
+  std::unique_ptr<SiPixelFedCablingTree> cablingTree_;
   SiPixelFrameReverter* frameReverter_;
   edm::ParameterSet config_;
   TH1D *hCPU, *hDigi;
-  R2DTimerObserver * theTimer;
+  std::unique_ptr<edm::CPUTimer> theTimer;
   unsigned long eventCounter;
   edm::InputTag label;  //label of input digi data
   int allDigiCounter;
@@ -51,5 +51,7 @@ private:
   edm::ESWatcher<SiPixelFedCablingMapRcd> recordWatcher;
   bool debug;
   edm::EDGetTokenT<edm::DetSetVector<PixelDigi>> tPixelDigi; 
+  bool usePilotBlade;
+  bool usePhase1;
 };
 #endif

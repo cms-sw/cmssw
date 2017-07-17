@@ -53,8 +53,7 @@ ITimingDat()
   
 
  private:
-void prepareWrite()
-  throw(std::runtime_error)
+void prepareWrite() noexcept(false)
 {
   this->checkConnection();
 
@@ -71,8 +70,7 @@ void prepareWrite()
 
 
   template<class DATT, class IOVT>
-  void writeDB(const EcalLogicID* ecid, const DATT* item, IOVT* iov)
-    throw(std::runtime_error)
+  void writeDB(const EcalLogicID* ecid, const DATT* item, IOVT* iov) noexcept(false)
 {
   this->checkConnection();
   this->checkPrepare();
@@ -99,9 +97,7 @@ void prepareWrite()
 }
 
   template<class DATT, class IOVT>
-    void writeArrayDB(const std::map< EcalLogicID, DATT >* data, IOVT* iov)
-    throw(std::runtime_error)
-
+    void writeArrayDB(const std::map< EcalLogicID, DATT >* data, IOVT* iov) noexcept(false)
 {
   using oracle::occi::OCCIINT;
   using oracle::occi::OCCIFLOAT;
@@ -194,8 +190,7 @@ void prepareWrite()
 
 
   template<class DATT, class IOVT>
-  void fetchData(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov)
-  throw(std::runtime_error)
+  void fetchData(std::map< EcalLogicID, DATT >* fillMap, IOVT* iov) noexcept(false)
 {
   this->checkConnection();
   fillMap->clear();

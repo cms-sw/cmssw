@@ -1,3 +1,7 @@
+#ifndef FWCore_PArameterSet_IllegalParameters_h
+#define FWCore_PArameterSet_IllegalParameters_h
+
+#include <atomic>
 
 namespace edm {
 
@@ -7,7 +11,7 @@ namespace edm {
 
   class IllegalParameters {
   private:
-    static bool throwAnException_;
+    static std::atomic<bool> throwAnException_;
     static bool throwAnException() { return throwAnException_; }
     static void setThrowAnException(bool v) { throwAnException_ = v; }
 
@@ -16,3 +20,5 @@ namespace edm {
     friend class ParameterSetDescription;
   };
 }
+
+#endif

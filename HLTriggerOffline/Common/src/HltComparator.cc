@@ -30,8 +30,8 @@ enum {
 
 // Analyser constructor
 HltComparator::HltComparator(const edm::ParameterSet & iConfig):
-  hltOnlineResults_(iConfig.getParameter<edm::InputTag>("OnlineResults")),
-  hltOfflineResults_(iConfig.getParameter<edm::InputTag>("OfflineResults")),
+  hltOnlineResults_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("OnlineResults"))),
+  hltOfflineResults_(consumes<edm::TriggerResults>(iConfig.getParameter<edm::InputTag>("OfflineResults"))),
   init_(false),
   verbose_(iConfig.getUntrackedParameter<bool>("verbose")),
   skipPathList_(iConfig.getUntrackedParameter<std::vector<std::string> >("skipPaths")),
@@ -161,10 +161,10 @@ HltComparator::filter(edm::Event & event,
   // Get trigger results
   edm::Handle<edm::TriggerResults> onlineResults;
   edm::Handle<edm::TriggerResults> offlineResults;
-  event.getByLabel(hltOnlineResults_, onlineResults);
-  event.getByLabel(hltOfflineResults_, offlineResults);
+  event.getByToken(hltOnlineResults_, onlineResults);
+  event.getByToken(hltOfflineResults_, offlineResults);
 
-  std::auto_ptr<StringCollection> resultDescription(new StringCollection);
+  std::unique_ptr<StringCollection> resultDescription(new StringCollection);
   
   // Initialise comparator if required
   if (!init_) {
@@ -267,7 +267,7 @@ HltComparator::filter(edm::Event & event,
   }
 
   //std::cout << " HERE I STAY " << std::endl;
-  event.put(resultDescription,"failedTriggerDescription");
+  event.put(std::move(resultDescription),"failedTriggerDescription");
   //std::cout << " HERE I WENT " << std::endl;
 
   if ( hasDisagreement ) 

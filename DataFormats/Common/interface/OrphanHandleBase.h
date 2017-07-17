@@ -8,7 +8,7 @@ OrphanHandle: Non-owning "smart pointer" for reference to EDProducts.
 This is a very preliminary version, and lacks safety features and
 elegance.
 
-If the pointed-to EDProduct is destroyed, use of the OrphanHandle
+If the pointed-to WrapperBase is destroyed, use of the OrphanHandle
 becomes undefined. There is no way to query the OrphanHandle to
 discover if this has happened.
 

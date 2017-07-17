@@ -72,14 +72,16 @@ namespace edm {
       void EventSetupRecord::getImplementation<fwliteeswriter::DummyType>(fwliteeswriter::DummyType const *& iData ,
                                                                           const char* iName,
                                                                           const ComponentDescription*& iDesc,
-                                                                          bool iTransientAccessOnly) const {
+                                                                          bool iTransientAccessOnly,
+                                                                          std::shared_ptr<ESHandleExceptionFactory>& whyFailedFactory) const {
          DataKey dataKey(*(iData->m_tag),
                          iName,
                          DataKey::kDoNotCopyMemory);
          
          const void* pValue = this->getFromProxy(dataKey,iDesc,iTransientAccessOnly);
          if(0==pValue) {
-            throw cms::Exception("NoProxyException");
+	   throw cms::Exception("NoProxyException")<<"No data of type \""<<iData->m_tag->name()<<"\" with label \""<<
+	     iName<<"\" in record \""<<this->key().name()<<"\"";
          }
          iData->m_data = pValue;
       }
@@ -90,7 +92,8 @@ namespace edm {
          t.m_tag = &(iHolder.m_info->m_tag);
          const fwliteeswriter::DummyType* value = &t;
          const ComponentDescription* desc = 0;
-         this->getImplementation(value, iName.c_str(),desc,true);
+         std::shared_ptr<ESHandleExceptionFactory> dummy;
+         this->getImplementation(value, iName.c_str(),desc,true, dummy);
          iHolder.m_data = t.m_data;
          iHolder.m_desc = desc;
       }
@@ -160,7 +163,7 @@ class FWLiteESRecordWriterAnalyzer : public edm::EDAnalyzer {
       void update(const edm::EventSetup&);
 
       // ----------member data ---------------------------
-   std::vector<boost::shared_ptr<RecordHandler> > m_handlers;
+   std::vector<std::shared_ptr<RecordHandler> > m_handlers;
    
    std::map<std::string, std::vector<std::pair<std::string,std::string> > > m_recordToDataNames;
    TFile* m_file;
@@ -264,11 +267,11 @@ FWLiteESRecordWriterAnalyzer::update(const edm::EventSetup& iSetup)
             }
             dataInfos.push_back(DataInfo(tt,itData->second));
          }
-         m_handlers.push_back( boost::shared_ptr<RecordHandler>( new RecordHandler(rKey,m_file,dataInfos) ) );
+         m_handlers.push_back( std::make_shared<RecordHandler>(rKey,m_file,dataInfos) );
       }
    }
    
-   for(std::vector<boost::shared_ptr<RecordHandler> >::iterator it = m_handlers.begin(),itEnd = m_handlers.end();
+   for(std::vector<std::shared_ptr<RecordHandler> >::iterator it = m_handlers.begin(),itEnd = m_handlers.end();
        it != itEnd;
        ++it) {
       (*it)->update(iSetup);

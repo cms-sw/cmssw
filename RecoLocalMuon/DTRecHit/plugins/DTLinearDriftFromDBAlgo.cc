@@ -14,27 +14,28 @@
 #include "FWCore/Utilities/interface/Exception.h"
 #include "CondFormats/DTObjects/interface/DTMtime.h"
 #include "CondFormats/DataRecord/interface/DTMtimeRcd.h"
+#include "CondFormats/DTObjects/interface/DTRecoConditions.h"
+#include "CondFormats/DataRecord/interface/DTRecoConditionsUncertRcd.h"
+#include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
 
 using namespace std;
 using namespace edm;
 
 DTLinearDriftFromDBAlgo::DTLinearDriftFromDBAlgo(const ParameterSet& config) :
-  DTRecHitBaseAlgo(config) {
-
-    minTime = config.getParameter<double>("minTime"); 
-
-    maxTime = config.getParameter<double>("maxTime"); 
-
-    doVdriftCorr = config.getParameter<bool>("doVdriftCorr");
-
-    // Option to force going back to digi time at Step 2 
-    stepTwoFromDigi = config.getParameter<bool>("stepTwoFromDigi");
-
-    // Set verbose output
-    debug = config.getUntrackedParameter<bool>("debug");
-    if(debug)
-      cout<<"[DTLinearDriftFromDBAlgo] Constructor called"<<endl;
-  }
+  DTRecHitBaseAlgo(config),
+  mTimeMap(0),
+  field(0),
+  nominalB(-1),
+  minTime(config.getParameter<double>("minTime")),
+  maxTime(config.getParameter<double>("maxTime")),
+  doVdriftCorr(config.getParameter<bool>("doVdriftCorr")),
+  // Option to force going back to digi time at Step 2 
+  stepTwoFromDigi(config.getParameter<bool>("stepTwoFromDigi")),
+  useUncertDB(config.getParameter<bool>("useUncertDB")),
+  // Set verbose output
+  debug(config.getUntrackedParameter<bool>("debug")){}
 
 
 
@@ -50,9 +51,24 @@ void DTLinearDriftFromDBAlgo::setES(const EventSetup& setup) {
   ESHandle<DTMtime> mTimeHandle;
   setup.get<DTMtimeRcd>().get(mTimeHandle);
   mTimeMap = &*mTimeHandle;
+
+  ESHandle<MagneticField> magfield;
+  setup.get<IdealMagneticFieldRecord>().get(magfield);
+  field = &*magfield;
+  nominalB = field->nominalValue();
+
+  if (useUncertDB) {
+    ESHandle<DTRecoConditions> uncerts;
+    setup.get<DTRecoConditionsUncertRcd>().get(uncerts);
+    uncertMap = &*uncerts;
+    if (uncertMap->version()>1) edm::LogError("NotImplemented") << "DT Uncertainty DB version unsupported: " << uncertMap->version();
+  }
   
-  if(debug) 
+  if(debug) {
     cout << "[DTLinearDriftFromDBAlgo] meanTimer version: " << mTimeMap->version()<<endl;
+    if (useUncertDB) cout << "                          uncertDB  version: " << uncertMap->version()<<endl;
+  }
+  
 }
 
 
@@ -141,15 +157,21 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
 
   // Read the vDrift and reso for this wire
   float vDrift = 0;
-  float hitResolution = 0;//FIXME: should use this!
+  float hitResolution = 0; 
   // vdrift is cm/ns , resolution is cm
   mTimeMap->get(wireId.superlayerId(),
 	        vDrift,
-	        hitResolution,
+	        hitResolution,  // Value from vdrift DB; replaced below if useUncertDB card is set
 	        DTVelocityUnits::cm_per_ns);
 
+  if (useUncertDB) {
+    // Read the uncertainty from the DB for the given channel and step
+    double args[1] = {double(step-1)};
+    hitResolution = uncertMap->get(wireId, args);
+  }
+  
   //only in step 3
-  if(doVdriftCorr && step == 3){
+  if(doVdriftCorr && step == 3 && nominalB !=0){
     if (abs(wireId.wheel()) == 2 && 
 	wireId.station() == 1 &&
 	wireId.superLayer() != 2) {
@@ -240,11 +262,3 @@ bool DTLinearDriftFromDBAlgo::compute(const DTLayer* layer,
     return false;
   }
 }
-
-float DTLinearDriftFromDBAlgo::minTime;
-
-  
-float DTLinearDriftFromDBAlgo::maxTime;
-
-  
-bool DTLinearDriftFromDBAlgo::debug;

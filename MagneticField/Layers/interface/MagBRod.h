@@ -31,7 +31,7 @@ public:
   virtual ~MagBRod();
 
   /// Find the volume containing a point, with a given tolerance
-  MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
+  const MagVolume * findVolume(const GlobalPoint & gp, double tolerance) const;
 
   /// Phi of rod start
   Geom::Phi<float> minPhi() const {return thePhiMin;}

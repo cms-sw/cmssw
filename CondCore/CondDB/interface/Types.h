@@ -13,41 +13,53 @@
 //
 
 #include <boost/date_time/posix_time/posix_time.hpp>
+#include <boost/functional/hash.hpp>
 //
 #include "CondCore/CondDB/interface/Time.h"
 
-namespace conddb {
+namespace cond {
+
+  struct UserLogInfo{
+    std::string provenance;
+    std::string usertext;
+  };
+
+
 
   typedef enum { 
-    SYNCHRONIZATION_UNKNOWN = -1,
-    OFFLINE=0, 
-    HLT, 
-    PROMPT, 
-    PCL 
+    SYNCH_ANY = 0,
+    SYNCH_VALIDATION,
+    SYNCH_OFFLINE,
+    SYNCH_MC,
+    SYNCH_RUNMC,
+    SYNCH_HLT, 
+    SYNCH_EXPRESS,
+    SYNCH_PROMPT, 
+    SYNCH_PCL 
   } SynchronizationType;
 
   std::string synchronizationTypeNames( SynchronizationType type );
 
   SynchronizationType synchronizationTypeFromName( const std::string& name );
 
-  template <typename T> 
-  std::pair<const std::string,T> enumPair( std::string name, T value ){
-    return std::make_pair( name, value );
-  }
-
   typedef std::string Hash;
   static constexpr unsigned int HASH_SIZE = 40;
 
   // Basic element of the IOV sequence.
   struct Iov_t {
-    void clear();
+    Iov_t(): since(time::MAX_VAL),till(time::MIN_VAL),payloadId(""){}
+    virtual ~Iov_t() = default;
+    virtual void clear();
+    bool isValid() const;
+    bool isValidFor( Time_t target ) const;
     Time_t since;
     Time_t till;
     Hash payloadId;
   };
 
   struct Tag_t {
-    void clear();
+    virtual ~Tag_t() = default;
+    virtual void clear();
     std::string tag;
     std::string payloadType;
     TimeType timeType;
@@ -55,11 +67,48 @@ namespace conddb {
     Time_t lastValidatedTime;
   };
 
+  struct TagInfo_t {
+    // FIX ME: to be simplyfied, currently keeping the same interface as CondCore/DBCommon/interface/TagInfo.h
+    TagInfo_t(): name(""),token(""),lastInterval(0,0), lastPayloadToken(""),size(0){}
+    std::string name;
+    std::string token;
+    cond::ValidityInterval lastInterval;
+    std::string lastPayloadToken;
+    size_t size;
+  };
+
+  // temporarely, to minimize changes in the clients code
+  typedef TagInfo_t TagInfo;
+
   struct TagMetadata_t {
     SynchronizationType synchronizationType;
     std::string description;
     boost::posix_time::ptime insertionTime;
     boost::posix_time::ptime modificationTime;
+  };
+
+  // temporarely replacement for cond::LogDBEntry
+  struct LogDBEntry_t {
+    unsigned long long logId;
+    std::string destinationDB;   
+    std::string provenance;
+    std::string usertext;
+    std::string iovtag;
+    std::string iovtimetype;
+    unsigned int payloadIdx;
+    unsigned long long lastSince;
+    std::string payloadClass;
+    std::string payloadToken;
+    std::string exectime;
+    std::string execmessage;
+  };
+
+  struct GTMetadata_t {
+    Time_t validity;
+    std::string description;
+    std::string release;
+    boost::posix_time::ptime insertionTime;
+    boost::posix_time::ptime snapshotTime;
   };
 
   class GTEntry_t {
@@ -88,10 +137,33 @@ namespace conddb {
     const std::string& tagName() const {
       return std::get<2>(m_data);
     }
+    std::size_t hashvalue()const{
+      // Derived from CondDB v1 TagMetadata implementation. 
+      // Unique Keys constructed with Record and Labels - allowing for multiple references of the same Tag in a GT
+      boost::hash<std::string> hasher;
+      std::string key = recordName();
+      if( !recordLabel().empty() ) key = key +"_"+recordLabel();
+      std::size_t result=hasher(key);
+      return result;
+    }
+    bool operator<(const GTEntry_t& toCompare ) const {
+      return this->hashvalue()<toCompare.hashvalue();
+    }
+
   private:
     std::tuple<std::string,std::string,std::string> m_data; 
   };
 
+  struct RunInfo_t {
+    RunInfo_t( const std::tuple<long long unsigned int, boost::posix_time::ptime,boost::posix_time::ptime>& data ):
+      run( std::get<0>(data) ),
+      start( std::get<1>(data) ),
+      end( std::get<2>(data) ){
+    }
+    Time_t run;
+    boost::posix_time::ptime start;
+    boost::posix_time::ptime end;
+  };
 
 }
 

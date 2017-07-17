@@ -17,9 +17,10 @@ MeasurementEstimator::Local2DVector
 Chi2MeasurementEstimatorBase::maximalLocalDisplacement( const TrajectoryStateOnSurface& ts,
 							const Plane& plane) const
 {
+  const float emax = theMaxDisplacement;
   if ( ts.hasError()) {
     LocalError le = ts.localError().positionError();
-    return Local2DVector( sqrt(le.xx())*nSigmaCut(), sqrt(le.yy())*nSigmaCut());
+    return Local2DVector( std::min(emax,std::sqrt(float(le.xx())))*nSigmaCut(), std::min(emax,std::sqrt(float(le.yy())))*nSigmaCut());
   }
-  else return Local2DVector(0,0);
+  else return Local2DVector(emax,emax);
 }

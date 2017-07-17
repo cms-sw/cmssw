@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <numeric>
-#include <cstdlib>
 #include <cstring>
 
 namespace edm {
@@ -35,7 +34,7 @@ namespace edm {
     }
     {
       //      std::transform(indices.begin(),indices.end(),indices.begin(),
-      //	     boost::bind(std::multiplies<int>(),m_stride,_1));
+      //	     std::bind(std::multiplies<int>(),m_stride,std::placeholders::_1));
       DataContainer tmp(m_data.size());
       size_type s = m_stride*sizeof(data_type);
       for(size_type j=0, i=0; i!=indices.size(); ++i, j+=m_stride)

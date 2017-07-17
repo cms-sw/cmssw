@@ -32,6 +32,8 @@
 #include "DataFormats/EgammaCandidates/interface/GsfElectronFwd.h"
 #include "RecoParticleFlow/PFProducer/interface/PFCandConnector.h"
 #include "RecoParticleFlow/PFProducer/interface/PFMuonAlgo.h"
+#include "RecoParticleFlow/PFProducer/interface/PFEGammaFilters.h"
+#include "DataFormats/Common/interface/ValueMap.h"
 
 /// \brief Particle Flow Algorithm
 /*!
@@ -110,8 +112,32 @@ class PFAlgo {
 			     std::string X0_Map,
 			     const boost::shared_ptr<PFEnergyCalibration>& thePFEnergyCalibration,
 			     double sumPtTrackIsoForPhoton,
-			     double sumPtTrackIsoSlopeForPhoton
-);  
+			     double sumPtTrackIsoSlopeForPhoton);
+
+  void setEGammaParameters(bool use_EGammaFilters,
+			   std::string ele_iso_path_mvaWeightFile,
+			   double ele_iso_pt,
+			   double ele_iso_mva_barrel,
+			   double ele_iso_mva_endcap,
+			   double ele_iso_combIso_barrel,
+			   double ele_iso_combIso_endcap,
+			   double ele_noniso_mva,
+			   unsigned int ele_missinghits,
+			   bool useProtectionsForJetMET,
+			   const edm::ParameterSet& ele_protectionsForJetMET,
+			   double ph_MinEt,
+			   double ph_combIso,
+			   double ph_HoE,
+			   double ph_sietaieta_eb,
+			   double ph_sietaieta_ee,
+			   const edm::ParameterSet& ph_protectionsForJetMET);
+
+  
+  void setEGammaCollections(const edm::View<reco::PFCandidate> & pfEgammaCandidates,
+			    const edm::ValueMap<reco::GsfElectronRef> & valueMapGedElectrons, 
+ 			    const edm::ValueMap<reco::PhotonRef> & valueMapGedPhotons); 
+  
+  
 
   // void setPFPhotonRegWeights(
   //		     const GBRForest *LCorrForest,
@@ -167,40 +193,40 @@ class PFAlgo {
   void setPhotonExtraRef(const edm::OrphanHandle<reco::PFCandidatePhotonExtraCollection >& pf_extrah);	
 
   /// \return collection of candidates
-  const std::auto_ptr< reco::PFCandidateCollection >& pfCandidates() const {
+  const std::unique_ptr<reco::PFCandidateCollection>& pfCandidates() const {
     return pfCandidates_;
   }
 
   /// \return the unfiltered electron collection
-  std::auto_ptr< reco::PFCandidateCollection> transferElectronCandidates()  {
-    return pfElectronCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferElectronCandidates() {
+    return std::move(pfElectronCandidates_);
   }
 
   /// \return the unfiltered electron extra collection
-  // done this way because the pfElectronExtra is needed later in the code to create the Refs and with an auto_ptr, it would be destroyed
-  std::auto_ptr< reco::PFCandidateElectronExtraCollection> transferElectronExtra()  {
-    std::auto_ptr< reco::PFCandidateElectronExtraCollection> result(new reco::PFCandidateElectronExtraCollection);
+  // done this way because the pfElectronExtra is needed later in the code to create the Refs and with a unique_ptr, it would be destroyed
+  std::unique_ptr<reco::PFCandidateElectronExtraCollection> transferElectronExtra() {
+    auto result = std::make_unique<reco::PFCandidateElectronExtraCollection>();
     result->insert(result->end(),pfElectronExtra_.begin(),pfElectronExtra_.end());
     return result;
   }
 
 
   /// \return the unfiltered photon extra collection
-  // done this way because the pfPhotonExtra is needed later in the code to create the Refs and with an auto_ptr, it would be destroyed
-  std::auto_ptr< reco::PFCandidatePhotonExtraCollection> transferPhotonExtra()  {
-    std::auto_ptr< reco::PFCandidatePhotonExtraCollection> result(new reco::PFCandidatePhotonExtraCollection);
+  // done this way because the pfPhotonExtra is needed later in the code to create the Refs and with a unique_ptr, it would be destroyed
+  std::unique_ptr< reco::PFCandidatePhotonExtraCollection> transferPhotonExtra()  {
+    auto result = std::make_unique<reco::PFCandidatePhotonExtraCollection>();
     result->insert(result->end(),pfPhotonExtra_.begin(),pfPhotonExtra_.end());
     return result;
   }
 
 
   /// \return collection of cleaned HF candidates
-  std::auto_ptr< reco::PFCandidateCollection >& transferCleanedCandidates() {
-    return pfCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection> transferCleanedCandidates() {
+    return std::move(pfCleanedCandidates_);
   }
   
-    /// \return auto_ptr to the collection of candidates (transfers ownership)
-  std::auto_ptr< reco::PFCandidateCollection >  transferCandidates() {
+    /// \return unique_ptr to the collection of candidates (transfers ownership)
+  std::unique_ptr< reco::PFCandidateCollection> transferCandidates() {
     return connector_.connect(pfCandidates_);
   }
   
@@ -255,13 +281,13 @@ class PFAlgo {
   double nSigmaHCAL( double clusterEnergy, 
 		     double clusterEta ) const;
 
-  std::auto_ptr< reco::PFCandidateCollection >    pfCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfCandidates_;
   /// the unfiltered electron collection 
-  std::auto_ptr< reco::PFCandidateCollection >    pfElectronCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfElectronCandidates_;
   /// the unfiltered photon collection 
-  std::auto_ptr< reco::PFCandidateCollection >    pfPhotonCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfPhotonCandidates_;
   // the post-HF-cleaned candidates
-  std::auto_ptr< reco::PFCandidateCollection >    pfCleanedCandidates_;
+  std::unique_ptr<reco::PFCandidateCollection>    pfCleanedCandidates_;
 
   /// the unfiltered electron collection 
   reco::PFCandidateElectronExtraCollection    pfElectronExtra_;
@@ -330,6 +356,16 @@ class PFAlgo {
   PFPhotonAlgo *pfpho_;
   PFMuonAlgo *pfmu_;
 
+
+  /// Variables for NEW EGAMMA selection
+  bool useEGammaFilters_;
+  PFEGammaFilters *pfegamma_;
+  bool useProtectionsForJetMET_;
+  const edm::View<reco::PFCandidate> * pfEgammaCandidates_;
+  const edm::ValueMap<reco::GsfElectronRef> * valueMapGedElectrons_;
+  const edm::ValueMap<reco::PhotonRef> * valueMapGedPhotons_;  
+
+
   // Option to let PF decide the muon momentum
   bool usePFMuonMomAssign_;
 
@@ -345,7 +381,7 @@ class PFAlgo {
   /// Maximal relative uncertainty on the tracks going to or incoming from the 
   /// displcaed vertex to be used in the PFAlgo
   double dptRel_DispVtx_;
-
+  int nVtx_;
 
   /// A tool used for a postprocessing of displaced vertices
   /// based on reconstructed PFCandidates

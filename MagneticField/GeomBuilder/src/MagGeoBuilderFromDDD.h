@@ -12,6 +12,7 @@
 #include "MagneticField/Interpolation/interface/MagProviderInterpol.h"
 
 #include "DetectorDescription/Core/interface/DDCompactView.h"
+#include "CondFormats/MFObjects/interface/MagFieldConfig.h"
 
 #include <string>
 #include <vector>
@@ -24,9 +25,8 @@ class MagESector;
 class MagVolume6Faces;
 namespace magneticfield {
   class VolumeBasedMagneticFieldESProducer;
+  class VolumeBasedMagneticFieldESProducerFromDB;
   class AutoMagneticFieldESProducer;
-
-  typedef std::map<unsigned, std::pair<std::string, int> > TableFileMap;
 }
 
 
@@ -43,7 +43,7 @@ public:
   /// "values" are the corresponding scaling factors 
   void setScaling(const std::vector<int>& keys, const std::vector<double>& values);
 
-  void setGridFiles(const std::auto_ptr<magneticfield::TableFileMap> gridFiles);
+  void setGridFiles(const magneticfield::TableFileMap& gridFiles);
 
   /// Get barrel layers
   std::vector<MagBLayer*> barrelLayers() const;
@@ -67,6 +67,7 @@ private:
   friend class TestMagVolume;
   friend class MagGeometry;
   friend class magneticfield::VolumeBasedMagneticFieldESProducer;
+  friend class magneticfield::VolumeBasedMagneticFieldESProducerFromDB;
   friend class magneticfield::AutoMagneticFieldESProducer;
 
 
@@ -127,7 +128,7 @@ private:
   int geometryVersion;  // Version of MF geometry 
 
   std::map<int, double> theScalingFactors;
-  std::auto_ptr<magneticfield::TableFileMap> theGridFiles;
+  const magneticfield::TableFileMap* theGridFiles; // Non-owned pointer assumed to be valid until build() is called 
 
   static bool debug;
 

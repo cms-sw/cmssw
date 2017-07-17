@@ -2,13 +2,15 @@
 #define EcalSimAlgos_EcalHitResponse_h
 
 #include "CalibFormats/CaloObjects/interface/CaloTSamplesBase.h"
+#include "CalibFormats/CaloObjects/interface/CaloSamples.h"
 #include "DataFormats/DetId/interface/DetId.h"
 #include "SimDataFormats/CrossingFrame/interface/MixCollection.h"
 #include "SimDataFormats/CaloHit/interface/PCaloHit.h"
 #include "CalibCalorimetry/EcalLaserCorrection/interface/EcalLaserDbService.h"
 #include "DataFormats/Provenance/interface/Timestamp.h"
 
-#include<vector>
+#include <unordered_map>
+#include <vector>
 
 typedef unsigned long long TimeValue_t;
 
@@ -21,8 +23,6 @@ class CaloSubdetectorGeometry ;
 class CaloVPECorrection       ;
 namespace CLHEP 
 { 
-   class RandPoissonQ         ; 
-   class RandGaussQ           ; 
    class HepRandomEngine      ;
 }
 
@@ -33,6 +33,8 @@ class EcalHitResponse
       typedef CaloTSamplesBase<float> EcalSamples ;
 
       typedef std::vector< unsigned int > VecInd ;
+
+      typedef std::unordered_map<uint32_t,double> CalibCache;
 
       enum { BUNCHSPACE = 25 } ;
 
@@ -60,13 +62,15 @@ class EcalHitResponse
 
       void add( const EcalSamples* pSam ) ;
 
-      virtual void add( const PCaloHit&  hit ) ;
+      virtual void add( const PCaloHit&  hit, CLHEP::HepRandomEngine* ) ;
+
+      virtual void add( const CaloSamples&  hit ) ;
 
       virtual void initializeHits() ;
 
       virtual void finalizeHits() ;
 
-      virtual void run( MixCollection<PCaloHit>& hits ) ;
+      virtual void run( MixCollection<PCaloHit>& hits, CLHEP::HepRandomEngine* ) ;
 
       virtual unsigned int samplesSize() const = 0 ;
 
@@ -88,21 +92,17 @@ class EcalHitResponse
 
       virtual const EcalSamples* vSamAll( unsigned int i ) const = 0 ;
 
-      virtual void putAnalogSignal( const PCaloHit& inputHit) ;
+      virtual void putAnalogSignal( const PCaloHit& inputHit, CLHEP::HepRandomEngine*) ;
 
       double findLaserConstant(const DetId& detId) const;
 
       EcalSamples* findSignal( const DetId& detId ) ;
 
-      double analogSignalAmplitude( const DetId& id, float energy ) const;
+      double analogSignalAmplitude( const DetId& id, double energy, CLHEP::HepRandomEngine* );
 
       double timeOfFlight( const DetId& detId ) const ;
 
       double phaseShift() const ;
-
-      CLHEP::RandPoissonQ* ranPois() const ;
-
-      CLHEP::RandGaussQ* ranGauss() const ;
 
       void blankOutUsedSamples() ;
 
@@ -132,15 +132,13 @@ class EcalHitResponse
       const CaloSubdetectorGeometry* m_geometry      ;
       const EcalLaserDbService*      m_lasercals     ;
 
-      mutable CLHEP::RandPoissonQ*   m_RandPoisson   ;
-      mutable CLHEP::RandGaussQ*     m_RandGauss     ;
-
       int    m_minBunch   ;
       int    m_maxBunch   ;
       double m_phaseShift ;
 
       edm::TimeValue_t               m_iTime;
       bool                           m_useLCcorrection;
+      CalibCache                     m_laserCalibCache;
 
       VecInd m_index ;
 };

@@ -8,6 +8,11 @@
 #include "RecoTracker/TkTrackingRegions/interface/OrderedHitsGenerator.h"
 #include "RecoTracker/TkSeedingLayers/interface/OrderedMultiHits.h"
 
+#include "DataFormats/TrackerRecHit2D/interface/BaseTrackerRecHit.h"
+#include "DataFormats/TrackingRecHit/interface/mayown_ptr.h"
+#include "FWCore/Utilities/interface/RunningAverage.h"
+
+
 class TrackingRegion;
 namespace edm { class Event; class EventSetup; }
 #include <vector>
@@ -15,12 +20,14 @@ namespace edm { class Event; class EventSetup; }
 class MultiHitGenerator : public OrderedHitsGenerator {
 public:
 
-  MultiHitGenerator(unsigned int size=500);
+  MultiHitGenerator(unsigned int size=400) : localRA(size){}
+  MultiHitGenerator( MultiHitGenerator const & other) : localRA(other.localRA.mean()){}
+
 
   virtual ~MultiHitGenerator() { }
 
   virtual const OrderedMultiHits & run(
-    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es);
+    const TrackingRegion& region, const edm::Event & ev, const edm::EventSetup& es) final;
 
   // temporary interface, for bckwd compatibility
   virtual void hitSets( const TrackingRegion& reg, OrderedMultiHits & prs,
@@ -34,6 +41,8 @@ public:
 private:
   OrderedMultiHits theHitSets;
 
+protected:
+  edm::RunningAverage localRA;
 };
 
 

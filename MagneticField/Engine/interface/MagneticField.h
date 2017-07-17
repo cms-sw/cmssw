@@ -12,11 +12,13 @@
 #include "DataFormats/GeometryVector/interface/GlobalPoint.h"
 #include "FWCore/Utilities/interface/Visibility.h"
 #include "FWCore/Utilities/interface/Likely.h"
+#include <atomic>
 
 class MagneticField
 {
  public:
   MagneticField();
+  MagneticField(const MagneticField& orig);
   virtual ~MagneticField();
 
   /// Derived classes can implement cloning without ownership of the 
@@ -25,7 +27,6 @@ class MagneticField
     return 0;
   }
   
-
   /// Field value ad specified global point, in Tesla
   virtual GlobalVector inTesla (const GlobalPoint& gp) const = 0;
 
@@ -41,7 +42,7 @@ class MagneticField
 
   /// True if the point is within the region where the concrete field
   // engine is defined.
-  virtual bool isDefined(const GlobalPoint& gp) const {
+  virtual bool isDefined(const GlobalPoint& /*gp*/) const {
     return true;
   }
   
@@ -52,18 +53,19 @@ class MagneticField
   }
   
   /// The nominal field value for this map in kGauss
-  int nominalValue() const {
-    if unlikely(!nominalValueCompiuted) { 
-      theNominalValue = computeNominalValue();
-      nominalValueCompiuted=true;
-    }
-    return theNominalValue;
-  }
+  int nominalValue() const {  
+     if(kSet==nominalValueCompiuted.load()) return theNominalValue;
+     return computeNominalValue();
+  }     
+
 private:
   //nominal field value 
   virtual int computeNominalValue() const;
-  mutable bool nominalValueCompiuted;
-  mutable int theNominalValue;
+  mutable std::atomic<char> nominalValueCompiuted;
+//  [[cms::thread_guard("nominalValueCompiuted")]] mutable int theNominalValue;
+//  PG temporary fix for clang 3.4 which is not parsing thread_guard correctly
+  [[cms::thread_safe]] mutable int theNominalValue;
+  enum FooStates {kUnset, kSetting, kSet};
 };
 
 #endif

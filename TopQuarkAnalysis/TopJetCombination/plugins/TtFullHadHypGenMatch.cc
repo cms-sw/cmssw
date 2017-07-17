@@ -2,15 +2,16 @@
 #include "AnalysisDataFormats/TopObjects/interface/TtFullHadEvtPartons.h"
 
 TtFullHadHypGenMatch::TtFullHadHypGenMatch(const edm::ParameterSet& cfg):
-  TtFullHadHypothesis( cfg ) 
-{  
+  TtFullHadHypothesis( cfg ),
+  genEvtToken_( consumes<TtGenEvent>( edm::InputTag( "genEvt" ) ) )
+{
 }
 
 TtFullHadHypGenMatch::~TtFullHadHypGenMatch() { }
 
 void
 TtFullHadHypGenMatch::buildHypo(edm::Event& evt,
-			        const edm::Handle<std::vector<pat::Jet> >& jets, 
+			        const edm::Handle<std::vector<pat::Jet> >& jets,
 			        std::vector<int>& match,
 				const unsigned int iComb)
 {
@@ -18,7 +19,7 @@ TtFullHadHypGenMatch::buildHypo(edm::Event& evt,
   // get genEvent (to distinguish between uds and c quarks)
   // -----------------------------------------------------
   edm::Handle<TtGenEvent> genEvt;
-  evt.getByLabel("genEvt", genEvt);
+  evt.getByToken(genEvtToken_, genEvt);
 
   // -----------------------------------------------------
   // add jets
@@ -53,7 +54,7 @@ TtFullHadHypGenMatch::buildHypo(edm::Event& evt,
 	  setCandidate(jets, match[idx], lightPBar_, jetCorrectionLevel("udsQuark"));
 	break;
       case TtFullHadEvtPartons::BBar:
-	setCandidate(jets, match[idx], bBar_       , jetCorrectionLevel("bQuark")); break;	
+	setCandidate(jets, match[idx], bBar_       , jetCorrectionLevel("bQuark")); break;
       }
     }
   }

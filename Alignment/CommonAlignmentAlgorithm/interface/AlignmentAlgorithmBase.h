@@ -2,11 +2,21 @@
 #ifndef Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 #define Alignment_CommonAlignmentAlgorithm_AlignmentAlgorithmBase_h
 
-///
-/// Base class for the alignment algorithm
-///
-/// Any algorithm should derive from this class
-///
+/**
+ * @package   Alignment/CommonAlignmentAlgorithm
+ * @file      AlignmentAlgorithmBase.h
+ *
+ * @author    ???
+ *
+ * Last update:
+ * @author    Max Stark (max.stark@cern.ch)
+ * @date      2015/07/16
+ *
+ * @brief     Interface/Base class for alignment algorithms, each alignment
+ *            algorithm has to be derived from this class
+ */
+
+
 
 #include <vector>
 #include <utility>
@@ -23,50 +33,79 @@ class Trajectory;
 // class TsosVectorCollection;
 // class TkFittedLasBeamCollection;
 // class AliClusterValueMap;
-#include "CondCore/DBCommon/interface/Time.h"
+#include "Alignment/CommonAlignment/interface/Utilities.h"
 #include "Alignment/LaserAlignment/interface/TsosVectorCollection.h"
 #include "DataFormats/Alignment/interface/TkFittedLasBeamCollectionFwd.h"
 #include "DataFormats/Alignment/interface/AliClusterValueMapFwd.h"
+#include "FWCore/Framework/interface/Event.h"
 
-namespace edm { class EventID; class RunID; class EventSetup; class ParameterSet; }
+namespace edm { class EventSetup; class ParameterSet; }
 namespace reco { class Track; class BeamSpot; }
+
+/*** Global typedefs part I (see EOF for part II) ***/
+typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair;
+typedef std::vector< ConstTrajTrackPair >                ConstTrajTrackPairs;
+
+typedef std::vector<IntegratedCalibrationBase*> Calibrations;
+
+
 
 class AlignmentAlgorithmBase
 {
 
 public:
-
+  // TODO: DEPRECATED: For not breaking the interface, used in serveral files.
+  //                   If possible use the global typedefs above.
+  // With global typedefs one does not have to typedef again like
+  // 'typedef AlignmentAlgorithmBase::ConstTrajTrackPair ConstTrajTrackPair;'
+  // in other files.
   typedef std::pair<const Trajectory*, const reco::Track*> ConstTrajTrackPair; 
   typedef std::vector< ConstTrajTrackPair >  ConstTrajTrackPairCollection;
-  typedef cond::RealTimeType<cond::runnumber>::type RunNumber;
-  typedef std::pair<RunNumber,RunNumber> RunRange;
+  using RunNumber = align::RunNumber;
+  using RunRange = align::RunRange;
 
   /// define event information passed to algorithms
-  struct EventInfo {
-    EventInfo(const edm::EventID &eventId, 
-	      const ConstTrajTrackPairCollection &trajTrackPairs,
-	      const reco::BeamSpot &beamSpot,
-	      const AliClusterValueMap *clusterValueMap) 
-      : eventId_(eventId), trajTrackPairs_(trajTrackPairs), beamSpot_(beamSpot), clusterValueMap_(clusterValueMap) {}
+  class EventInfo {
+  public:
+    EventInfo(const edm::EventID &theEventId, 
+	      const ConstTrajTrackPairCollection &theTrajTrackPairs,
+	      const reco::BeamSpot &theBeamSpot,
+	      const AliClusterValueMap *theClusterValueMap) 
+      : eventId_(theEventId), trajTrackPairs_(theTrajTrackPairs), beamSpot_(theBeamSpot), clusterValueMap_(theClusterValueMap) {}
 
-    const edm::EventID                 &eventId_;
+    const edm::EventID eventId() const { return eventId_; }
+    const ConstTrajTrackPairCollection& trajTrackPairs() const { return trajTrackPairs_; }
+    const reco::BeamSpot& beamSpot() const { return beamSpot_; }
+    const AliClusterValueMap* clusterValueMap() const { return clusterValueMap_; }///might be null!
+    
+
+  private:
+    const edm::EventID                 eventId_;
     const ConstTrajTrackPairCollection &trajTrackPairs_;
     const reco::BeamSpot               &beamSpot_;
     const AliClusterValueMap           *clusterValueMap_;///might be null!
   };
   
   /// define run information passed to algorithms (in endRun)
-  struct EndRunInfo {
-    EndRunInfo(const edm::RunID &runId, const TkFittedLasBeamCollection *tkLasBeams,
-	       const TsosVectorCollection *tkLasBeamTsoses)
-      : runId_(runId), tkLasBeams_(tkLasBeams), tkLasBeamTsoses_(tkLasBeamTsoses) {}
-    const edm::RunID &runId_;
+  class EndRunInfo {
+  public:
+    EndRunInfo(const edm::RunID &theRunId, const TkFittedLasBeamCollection *theTkLasBeams,
+	       const TsosVectorCollection *theTkLasBeamTsoses)
+      : runId_(theRunId), tkLasBeams_(theTkLasBeams), tkLasBeamTsoses_(theTkLasBeamTsoses) {}
+
+    const edm::RunID runId() const { return runId_; }
+    const TkFittedLasBeamCollection* tkLasBeams() const { return tkLasBeams_; } /// might be null!
+    const TsosVectorCollection* tkLasBeamTsoses() const { return tkLasBeamTsoses_; } /// might be null!
+
+
+  private:
+    const edm::RunID runId_;
     const TkFittedLasBeamCollection *tkLasBeams_; /// might be null!
     const TsosVectorCollection *tkLasBeamTsoses_; /// might be null!
   };
   
   /// Constructor
-  AlignmentAlgorithmBase(const edm::ParameterSet& cfg);
+  AlignmentAlgorithmBase(const edm::ParameterSet&) {};
   
   /// Destructor
   virtual ~AlignmentAlgorithmBase() {};
@@ -77,24 +116,36 @@ public:
                            AlignableMuon* muon,
                            AlignableExtras* extras,
                            AlignmentParameterStore* store ) = 0;
-  /// Pass integrated calibrations to algorithm, to be called after initialize(..).
-  /// (Calibrations' ownership is NOT passed to algorithm.)
-  /// Return whether feature is supported by algorithm, 
-  /// default implementation returns false.
-  virtual bool addCalibrations(const std::vector<IntegratedCalibrationBase*> &iCals){return false;}
 
-   /// Call at start of loop
-   /// Default implementation is dummy for non-iterative algorithms
+  /// Returns whether calibrations is supported by algorithm,
+  /// default implementation returns false.
+  virtual bool supportsCalibrations() { return false; }
+  /// Pass integrated calibrations to algorithm, to be called after initialize()
+  /// Calibrations' ownership is NOT passed to algorithm
+  virtual bool addCalibrations(const Calibrations&) { return false; }
+
+  /// Returns whether algorithm proccesses events in current configuration
+  virtual bool processesEvents() { return true; }
+
+  /// Returns whether algorithm produced results to be stored
+  virtual bool storeAlignments() { return true; }
+
+  // TODO: DEPRECATED: Actually, there are no iterative algorithms, use
+  //                   initialze() and terminate()
+  /// Called at start of loop, default implementation is dummy for
+  /// non-iterative algorithms
   virtual void startNewLoop() {}
 
   /// Call at end of each loop (must be implemented in derived class)
   virtual void terminate(const edm::EventSetup& iSetup) = 0;
+  /// Called at end of job (must be implemented in derived class)
+  virtual void terminate() {}
 
   /// Run the algorithm (must be implemented in derived class)
   virtual void run( const edm::EventSetup &setup, const EventInfo &eventInfo) = 0;
 
   /// called at begin of run
-  virtual void beginRun(const edm::EventSetup &setup) {};
+  virtual void beginRun(const edm::Run&, const edm::EventSetup&, bool changed) {};
 
   /// called at end of run - order of arguments like in EDProducer etc.
   virtual void endRun(const EndRunInfo &runInfo, const edm::EventSetup &setup) {};
@@ -109,5 +160,9 @@ public:
   /// range in case the algorithm supports run range dependent alignment.
   virtual bool setParametersForRunRange(const RunRange& rr) { return false; };
 };
+
+/*** Global typedefs part II ***/
+typedef AlignmentAlgorithmBase::EventInfo  EventInfo;
+typedef AlignmentAlgorithmBase::EndRunInfo EndRunInfo;
 
 #endif

@@ -38,6 +38,20 @@ void testfriendlyName::test()
   classToFriendly.insert( Values("bar::Foo","barFoo") );
   classToFriendly.insert( Values("std::vector<Foo>","Foos") );
   classToFriendly.insert( Values("std::vector<bar::Foo>","barFoos") );
+  classToFriendly.insert( Values("std::shared_ptr<Foo>","FooSharedPtr"));
+  classToFriendly.insert( Values("std::shared_ptr<bar::Foo>","barFooSharedPtr"));
+  classToFriendly.insert( Values("std::basic_string<char>","String"));
+  classToFriendly.insert( Values("std::string","String"));
+  classToFriendly.insert( Values("std::__cxx11::basic_string<char>","String"));
+  classToFriendly.insert( Values("std::__cxx11::basic_string<char,std::char_traits<char> >","String"));
+  classToFriendly.insert( Values("std::list<int>","intstdlist"));
+  classToFriendly.insert( Values("std::__cxx11::list<int>","intstdlist"));
+  classToFriendly.insert( Values("std::vector<std::shared_ptr<bar::Foo>>","barFooSharedPtrs"));
+  classToFriendly.insert( Values("std::vector<std::basic_string<char>>","Strings"));
+  classToFriendly.insert( Values("std::__cxx11::vector<std::__cxx11::basic_string<char>>","Strings"));
+  classToFriendly.insert( Values("std::unique_ptr<Foo>","FooUniquePtr"));
+  classToFriendly.insert( Values("std::unique_ptr<bar::Foo>","barFooUniquePtr"));
+  classToFriendly.insert( Values("std::vector<std::unique_ptr<bar::Foo>>","barFooUniquePtrs"));
   classToFriendly.insert( Values("V<A,B>","ABV") );
   classToFriendly.insert( Values("edm::ExtCollection<std::vector<reco::SuperCluster>,reco::SuperClusterRefProds>","recoSuperClustersrecoSuperClusterRefProdsedmExtCollection") );
   classToFriendly.insert( Values("edm::SortedCollection<EcalUncalibratedRecHit,edm::StrictWeakOrdering<EcalUncalibratedRecHit> >","EcalUncalibratedRecHitsSorted") );
@@ -78,7 +92,9 @@ void testfriendlyName::test()
                                  "recoCandidateedmRefToBaseProdTodoublesAssociationVector"));
   classToFriendly.insert( Values("edm::RefVector<edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >,edm::helpers::KeyVal<edm::Ref<std::vector<reco::BasicCluster>,reco::BasicCluster,edm::refhelper::FindUsingAdvance<std::vector<reco::BasicCluster>,reco::BasicCluster> >,edm::Ref<std::vector<reco::ClusterShape>,reco::ClusterShape,edm::refhelper::FindUsingAdvance<std::vector<reco::ClusterShape>,reco::ClusterShape> > >,edm::AssociationMap<edm::OneToOne<std::vector<reco::BasicCluster>,std::vector<reco::ClusterShape>,unsigned int> >::Find>",
                                  "recoBasicClustersToOnerecoClusterShapesAssociationRefs"));
-                                 
+  classToFriendly.insert( Values("std::vector<std::pair<const pat::Muon *, TLorentzVector>>","constpatMuonptrTLorentzVectorstdpairs") );
+  
+  
   for(std::map<std::string, std::string>::iterator itInfo = classToFriendly.begin(),
       itInfoEnd = classToFriendly.end();
       itInfo != itInfoEnd;

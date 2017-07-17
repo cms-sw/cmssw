@@ -1,0 +1,10 @@
+<library   name="PhysicsToolsPatExamples_testplugin" file="MuonVIDCITKAnalyzer.cc">
+  <use   name="FWCore/Framework"/>
+  <use   name="FWCore/ParameterSet"/>
+  <use   name="FWCore/Utilities"/>
+  <use   name="DataFormats/Common"/>
+  <use   name="PhysicsTools/CandUtils"/>
+  <use   name="PhysicsTools/UtilAlgos"/>
+  <use   name="root"/>
+  <flags   EDM_PLUGIN="1"/>
+</library>

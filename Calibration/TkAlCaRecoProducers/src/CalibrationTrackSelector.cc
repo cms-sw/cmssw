@@ -197,7 +197,7 @@ bool CalibrationTrackSelector::detailedHitsCheck(const reco::Track *trackp, cons
                                           << "DetId.det() != DetId::Tracker (=" << DetId::Tracker
                                           << "), but " << detId.det() << ".";
       }
-      const TrackingRecHit* therechit = (*iHit).get();
+      const TrackingRecHit* therechit = (*iHit);
       if (chargeCheck_ && !(this->isOkCharge(therechit))) return false;
       if (applyIsolation_ && (!this->isIsolated(therechit, evt))) return false;
       if      (StripSubdetector::TIB == detId.subdetId()) ++nhitinTIB;
@@ -253,7 +253,6 @@ bool CalibrationTrackSelector::isHit2D(const TrackingRecHit &hit) const
 
 bool CalibrationTrackSelector::isOkCharge(const TrackingRecHit* therechit) const
 {
-  // const TrackingRecHit* therechit = hit.get();
   float charge1 = 0;
   float charge2 = 0;
   const SiStripMatchedRecHit2D* matchedhit = dynamic_cast<const SiStripMatchedRecHit2D*>(therechit);

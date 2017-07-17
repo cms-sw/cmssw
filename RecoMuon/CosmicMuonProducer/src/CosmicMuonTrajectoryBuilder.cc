@@ -41,13 +41,14 @@
 using namespace edm;
 using namespace std;
 
-CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet& par, const MuonServiceProxy* service) : theService(service) { 
+CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet& par, const MuonServiceProxy* service, edm::ConsumesCollector& iC) : theService(service) { 
 
   thePropagatorName = par.getParameter<string>("Propagator");
 
   bool enableDTMeasurement = par.getParameter<bool>("EnableDTMeasurement");
   bool enableCSCMeasurement = par.getParameter<bool>("EnableCSCMeasurement");
   bool enableRPCMeasurement = par.getParameter<bool>("EnableRPCMeasurement");
+
 
 //  if(enableDTMeasurement)
   InputTag DTRecSegmentLabel = par.getParameter<InputTag>("DTRecSegmentLabel");
@@ -58,12 +59,20 @@ CosmicMuonTrajectoryBuilder::CosmicMuonTrajectoryBuilder(const edm::ParameterSet
 //  if(enableRPCMeasurement)
   InputTag RPCRecSegmentLabel = par.getParameter<InputTag>("RPCRecSegmentLabel");
 
+//  if(enableGEMMeasurement)
+//  InputTag GEMRecSegmentLabel = par.getParameter<InputTag>("GEMRecSegmentLabel");
+  
   theLayerMeasurements= new MuonDetLayerMeasurements(DTRecSegmentLabel,
                                                      CSCRecSegmentLabel,
                                                      RPCRecSegmentLabel,
+                                                     edm::InputTag(),
+						     edm::InputTag(),
+						     iC,
 						     enableDTMeasurement,
 						     enableCSCMeasurement,
-						     enableRPCMeasurement);
+						     enableRPCMeasurement,
+						     false,
+                                                     false);
 
   ParameterSet muonUpdatorPSet = par.getParameter<ParameterSet>("MuonTrajectoryUpdatorParameters");
   
@@ -122,8 +131,6 @@ void CosmicMuonTrajectoryBuilder::setEvent(const edm::Event& event) {
     theNavigation = new DirectMuonNavigation(theService->detLayerGeometry(), theNavigationPSet);
   }
 
-//  event.getByLabel("csc2DRecHits", cschits_);
-//  event.getByLabel("dt1DRecHits", dthits_);
 
 }
 
@@ -474,7 +481,7 @@ void CosmicMuonTrajectoryBuilder::build(const TrajectoryStateOnSurface& ts,
 
   if ( !ts.isValid() ) return;
 
-  FreeTrajectoryState* fts = ts.freeState();
+  const FreeTrajectoryState* fts = ts.freeState();
   if ( !fts ) return;
 
   vector<const DetLayer*> navLayers;
@@ -666,7 +673,7 @@ void CosmicMuonTrajectoryBuilder::selectHits(MuonTransientTrackingRecHit::MuonRe
 //
 bool CosmicMuonTrajectoryBuilder::selfDuplicate(const Trajectory& traj) const {
 
-  TransientTrackingRecHit::ConstRecHitContainer hits = traj.recHits();
+  TransientTrackingRecHit::ConstRecHitContainer const & hits = traj.recHits();
 
   if (traj.empty()) return true;
 
@@ -695,13 +702,20 @@ void CosmicMuonTrajectoryBuilder::reverseTrajectory(Trajectory& traj) const {
   ? oppositeToMomentum : alongMomentum;
   Trajectory newTraj(traj.seed(), newDir);
   
- const std::vector<TrajectoryMeasurement>& meas = traj.measurements();
+  /* does not work in gcc4.8?)
+  std::vector<TrajectoryMeasurement> & meas = traj.measurements();
+  for (auto itm = meas.rbegin(); itm != meas.rend(); ++itm ) {
+    newTraj.push(std::move(*itm));
+  }
+  traj = std::move(newTraj);
+  */
 
-  for (std::vector<TrajectoryMeasurement>::const_reverse_iterator itm = meas.rbegin();
-       itm != meas.rend(); ++itm ) {
+  std::vector<TrajectoryMeasurement> const & meas = traj.measurements();
+  for (auto itm = meas.rbegin(); itm != meas.rend(); ++itm ) {
     newTraj.push(*itm);
   }
   traj = newTraj;
+
 
 }
 

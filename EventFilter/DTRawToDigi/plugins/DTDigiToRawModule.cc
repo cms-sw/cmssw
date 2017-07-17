@@ -2,7 +2,6 @@
 #include "EventFilter/DTRawToDigi/plugins/DTDigiToRaw.h"
 #include "DataFormats/FEDRawData/interface/FEDRawDataCollection.h"
 #include "DataFormats/FEDRawData/interface/FEDNumbering.h"
-#include "DataFormats/DTDigi/interface/DTDigiCollection.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/Event.h"
 
@@ -23,7 +22,7 @@ DTDigiToRawModule::DTDigiToRawModule(const edm::ParameterSet& ps) {
   
   dduID = ps.getUntrackedParameter<int>("dduID", 770);
   debug = ps.getUntrackedParameter<bool>("debugMode", false);
-  digicoll = ps.getParameter<edm::InputTag>("digiColl");
+  digicoll = consumes<DTDigiCollection>(ps.getParameter<edm::InputTag>("digiColl"));
   
   useStandardFEDid_ = ps.getUntrackedParameter<bool>("useStandardFEDid", true);
   minFEDid_ = ps.getUntrackedParameter<int>("minFEDid", 770);
@@ -41,11 +40,11 @@ DTDigiToRawModule::~DTDigiToRawModule(){
 
 void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
 
-  auto_ptr<FEDRawDataCollection> fed_buffers(new FEDRawDataCollection);
+  auto fed_buffers = std::make_unique<FEDRawDataCollection>();
   
   // Take digis from the event
   Handle<DTDigiCollection> digis;
-  e.getByLabel(digicoll, digis);
+  e.getByToken(digicoll, digis);
 
   // Load DTMap
   edm::ESHandle<DTReadOutMapping> map;
@@ -79,7 +78,7 @@ void DTDigiToRawModule::produce(Event & e, const EventSetup& iSetup) {
 
   }
   // Put the raw data to the event
-  e.put(fed_buffers);
+  e.put(std::move(fed_buffers));
   
 }
 

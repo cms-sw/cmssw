@@ -1,9 +1,9 @@
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //                                                                                                                      //
 //                                    WMuNuSelector based on WMuNuCandidates                                            //
-//                                                                                                                      //    
+//                                                                                                                      //
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//                                                                                                                      //      
+//                                                                                                                      //
 //    Filter of WMuNuCandidates for Analysis                                                                            //
 //    --> From a WMuNuCandidate collection                                                                              //
 //    --> Pre-Selection of events based in event cuts (trigger, Z rejection, ttbar rejection)                           //
@@ -23,6 +23,12 @@
 #include "FWCore/Utilities/interface/InputTag.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "DataFormats/Common/interface/TriggerResults.h"
+#include "DataFormats/Common/interface/View.h"
+#include "DataFormats/MuonReco/interface/Muon.h"
+#include "DataFormats/JetReco/interface/Jet.h"
+#include "DataFormats/BeamSpot/interface/BeamSpot.h"
+#include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
 #include "TH1D.h"
 #include "TH2D.h"
 
@@ -35,10 +41,11 @@ public:
   void init_histograms();
 private:
   bool plotHistograms_;
-  edm::InputTag trigTag_;
-  edm::InputTag muonTag_;
-  edm::InputTag jetTag_;
-  edm::InputTag WMuNuCollectionTag_;
+  edm::EDGetTokenT<edm::TriggerResults> trigToken_;
+  edm::EDGetTokenT<edm::View<reco::Muon> > muonToken_;
+  edm::EDGetTokenT<edm::View<reco::Jet> > jetToken_;
+  edm::EDGetTokenT<reco::BeamSpot> beamSpotToken_;
+  edm::EDGetTokenT<reco::WMuNuCandidateCollection> WMuNuCollectionToken_;
   const std::string muonTrig_;
   double ptThrForZ1_;
   double ptThrForZ2_;
@@ -62,7 +69,7 @@ private:
 
   int selectByCharge_;
 
-  double nall; 
+  double nall;
   double ntrig, npresel;
   double nsel;
   double ncharge;
@@ -81,24 +88,16 @@ private:
 #include "CommonTools/UtilAlgos/interface/TFileService.h"
 
 #include "DataFormats/TrackReco/interface/Track.h"
-#include "DataFormats/BeamSpot/interface/BeamSpot.h"
 
-#include "DataFormats/MuonReco/interface/Muon.h"
 #include "DataFormats/MuonReco/interface/MuonSelectors.h"
 
 #include "DataFormats/METReco/interface/MET.h"
-#include "DataFormats/JetReco/interface/Jet.h"
 
 #include "DataFormats/GeometryVector/interface/Phi.h"
 
 #include "FWCore/Common/interface/TriggerNames.h"
-#include "DataFormats/Common/interface/TriggerResults.h"
 
-#include "DataFormats/Common/interface/View.h"
 
-#include "AnalysisDataFormats/EWK/interface/WMuNuCandidate.h"
-
-  
 using namespace edm;
 using namespace std;
 using namespace reco;
@@ -106,15 +105,16 @@ using namespace reco;
 WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       // Fast selection (no histograms)
       plotHistograms_(cfg.getUntrackedParameter<bool> ("plotHistograms", true)),
-      
+
       // Input collections
-      trigTag_(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT"))),
-      muonTag_(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons"))),
-      jetTag_(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets"))),
-      WMuNuCollectionTag_(cfg.getUntrackedParameter<edm::InputTag> ("WMuNuCollectionTag", edm::InputTag("WMuNus"))),
+      trigToken_(consumes<TriggerResults>(cfg.getUntrackedParameter<edm::InputTag> ("TrigTag", edm::InputTag("TriggerResults::HLT")))),
+      muonToken_(consumes<View<Muon> >(cfg.getUntrackedParameter<edm::InputTag> ("MuonTag", edm::InputTag("muons")))),
+      jetToken_(consumes<View<Jet> >(cfg.getUntrackedParameter<edm::InputTag> ("JetTag", edm::InputTag("sisCone5CaloJets")))),
+      beamSpotToken_(consumes<reco::BeamSpot>(edm::InputTag("offlineBeamSpot"))),
+      WMuNuCollectionToken_(consumes<reco::WMuNuCandidateCollection>(cfg.getUntrackedParameter<edm::InputTag> ("WMuNuCollectionTag", edm::InputTag("WMuNus")))),
 
 
-      // Preselection cuts 
+      // Preselection cuts
       muonTrig_(cfg.getUntrackedParameter<std::string>("MuonTrig", "HLT_Mu9")),
       ptThrForZ1_(cfg.getUntrackedParameter<double>("PtThrForZ1", 20.)),
       ptThrForZ2_(cfg.getUntrackedParameter<double>("PtThrForZ2", 10.)),
@@ -122,7 +122,7 @@ WMuNuSelector::WMuNuSelector( const ParameterSet & cfg ) :
       nJetMax_(cfg.getUntrackedParameter<int>("NJetMax", 999999)),
 
 
-      // Main cuts 
+      // Main cuts
       ptCut_(cfg.getUntrackedParameter<double>("PtCut", 25.)),
       etaCut_(cfg.getUntrackedParameter<double>("EtaCut", 2.1)),
       isRelativeIso_(cfg.getUntrackedParameter<bool>("IsRelativeIso", true)),
@@ -164,7 +164,7 @@ void WMuNuSelector::beginJob() {
      h1_["hd0_sel"]                      =fs->make<TH1D>("d0_sel","Impact parameter",1000,-1.,1.);
      h1_["hNHits_sel"]                   =fs->make<TH1D>("NumberOfValidHits_sel","Number of Hits in Silicon",100,0.,100.);
      h1_["hNormChi2_sel"]                =fs->make<TH1D>("NormChi2_sel","Chi2/ndof of global track",1000,0.,50.);
-     h1_["hTracker_sel"]                 =fs->make<TH1D>("isTrackerMuon_sel","is Tracker Muon?",2,0.,2.); 
+     h1_["hTracker_sel"]                 =fs->make<TH1D>("isTrackerMuon_sel","is Tracker Muon?",2,0.,2.);
      h1_["hMET_sel"]                     =fs->make<TH1D>("MET_sel","Missing Transverse Energy (GeV)", 300,0.,300.);
      h1_["hTMass_sel"]                   =fs->make<TH1D>("TMass_sel","Rec. Transverse Mass (GeV)",300,0.,300.);
      h1_["hAcop_sel"]                    =fs->make<TH1D>("Acop_sel","Mu-MET acoplanarity",50,0.,M_PI);
@@ -216,7 +216,7 @@ void WMuNuSelector::endJob() {
       LogVerbatim("") << "\n>>>>>> W+(-) SELECTION >>>>>>>>>>>>>>>";
       LogVerbatim("") << "Total number of W+(-) events pre-selected: " << ncharge << " [events]";
       LogVerbatim("") << "Total number of events selected: " << nsel << " [events]";
-      LogVerbatim("") << "Selection Efficiency only W+(-): " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/ncharge)*100. << ")%";    
+      LogVerbatim("") << "Selection Efficiency only W+(-): " << "(" << setprecision(4) << esel*100. <<" +/- "<< setprecision(2) << sqrt(esel*(1-esel)/ncharge)*100. << ")%";
      }
       LogVerbatim("") << ">>>>>> W SELECTION SUMMARY END   >>>>>>>>>>>>>>>\n";
 }
@@ -227,7 +227,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       // Repeat Pre-Selection Cuts just in case...
       // Muon collection
       Handle<View<Muon> > muonCollection;
-      if (!ev.getByLabel(muonTag_, muonCollection)) {
+      if (!ev.getByToken(muonToken_, muonCollection)) {
             LogError("") << ">>> Muon collection does not exist !!!";
             return 0;
       }
@@ -235,7 +235,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Trigger
       Handle<TriggerResults> triggerResults;
-      if (!ev.getByLabel(trigTag_, triggerResults)) {
+      if (!ev.getByToken(trigToken_, triggerResults)) {
             LogError("") << ">>> TRIGGER collection does not exist !!!";
             return 0;
       }
@@ -260,7 +260,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Jet collection
       Handle<View<Jet> > jetCollection;
-      if (!ev.getByLabel(jetTag_, jetCollection)) {
+      if (!ev.getByToken(jetToken_, jetCollection)) {
             LogError("") << ">>> JET collection does not exist !!!";
             return 0;
       }
@@ -276,7 +276,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // Beam spot
       Handle<reco::BeamSpot> beamSpotHandle;
-      if (!ev.getByLabel(InputTag("offlineBeamSpot"), beamSpotHandle)) {
+      if (!ev.getByToken(beamSpotToken_, beamSpotHandle)) {
             LogTrace("") << ">>> No beam spot found !!!";
             return false;
       }
@@ -286,25 +286,25 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
       // Get WMuNu candidates from file:
 
       Handle<reco::WMuNuCandidateCollection> WMuNuCollection;
-      if (!ev.getByLabel(WMuNuCollectionTag_,WMuNuCollection) ) {
+      if (!ev.getByToken(WMuNuCollectionToken_,WMuNuCollection) ) {
             LogTrace("") << ">>> WMuNu not found !!!";
             return false;
       }
-  
+
       if(WMuNuCollection->size() < 1) {LogTrace("")<<"No WMuNu Candidates in the Event!"; return 0;}
-      if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}  
+      if(WMuNuCollection->size() > 1) {LogTrace("")<<"This event contains more than one W Candidate";}
 
       // W->mu nu selection criteria
 
       LogTrace("") << "> WMuNu Candidate with: ";
       const WMuNuCandidate& WMuNu = WMuNuCollection->at(0);
-      // WMuNuCandidates are ordered by Pt! 
-      // The Inclusive Selection WMuNu Candidate is the first one 
-     
+      // WMuNuCandidates are ordered by Pt!
+      // The Inclusive Selection WMuNu Candidate is the first one
+
       const reco::Muon & mu = WMuNu.getMuon();
       const reco::MET  & met =WMuNu.getNeutrino();
             if(plotHistograms_){
-            h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());  
+            h1_["hNWCand_sel"]->Fill(WMuNuCollection->size());
             }
 
 
@@ -325,7 +325,7 @@ bool WMuNuSelector::filter (Event & ev, const EventSetup &) {
 
       // W->mu nu selection criteria
 
-            if (!mu.isGlobalMuon()) return 0; 
+            if (!mu.isGlobalMuon()) return 0;
 
             reco::TrackRef gm = mu.globalTrack();
             //reco::TrackRef tk = mu.innerTrack();

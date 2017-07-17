@@ -8,13 +8,13 @@ import FWCore.ParameterSet.Config as cms
 # KFUpdatoerESProducer
 from TrackingTools.KalmanUpdators.KFUpdatorESProducer_cfi import *
 # Chi2MeasurementEstimatorESProducer
-from TrackingTools.KalmanUpdators.Chi2MeasurementEstimatorESProducer_cfi import *
+from TrackingTools.KalmanUpdators.Chi2MeasurementEstimator_cfi import *
 # KFTrajectoryFitterESProducer
-from TrackingTools.TrackFitters.KFTrajectoryFitterESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectoryFitter_cfi import *
 # KFTrajectorySmootherESProducer
-from TrackingTools.TrackFitters.KFTrajectorySmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFTrajectorySmoother_cfi import *
 # KFFittingSmootherESProducer
-from TrackingTools.TrackFitters.KFFittingSmootherESProducer_cfi import *
+from TrackingTools.TrackFitters.KFFittingSmoother_cfi import *
 # AnalyticalPropagatorESProducer
 from TrackingTools.GeomPropagators.AnalyticalPropagator_cfi import *
 # AnalyticalPropagatorESProducer

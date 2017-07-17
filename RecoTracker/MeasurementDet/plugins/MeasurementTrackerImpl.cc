@@ -5,8 +5,8 @@
 
 #include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
 #include "Geometry/CommonDetUnit/interface/GeomDet.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
-#include "Geometry/TrackerGeometryBuilder/interface/GluedGeomDet.h"
+#include "Geometry/CommonDetUnit/interface/GluedGeomDet.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StackGeomDet.h"
 #include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
 
 #include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
@@ -30,13 +30,12 @@
 #include "RecoTracker/Record/interface/TrackerRecoGeometryRecord.h"
 #include "TkStripMeasurementDet.h"
 #include "TkPixelMeasurementDet.h"
+#include "TkPhase2OTMeasurementDet.h"
 #include "TkGluedMeasurementDet.h"
+#include "TkStackMeasurementDet.h"
 
 #include "CondFormats/SiStripObjects/interface/SiStripNoises.h"
 #include "CondFormats/DataRecord/interface/SiStripNoisesRcd.h"
-
-#include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Services/interface/UpdaterService.h"
 
 #include <iostream>
 #include <typeinfo>
@@ -49,6 +48,12 @@
 using namespace std;
 
 namespace {
+
+  class StrictWeakOrdering{
+    public:
+     bool operator() ( uint32_t p,const uint32_t& i) const {return p < i;}
+  };
+
 
   struct CmpTKD {
     bool operator()(MeasurementDet const* rh, MeasurementDet const * lh) {
@@ -75,6 +80,7 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
 				       const PixelClusterParameterEstimator* pixelCPE,
 				       const StripClusterParameterEstimator* stripCPE,
 				       const SiStripRecHitMatcher*  hitMatcher,
+				       const TrackerTopology*  trackerTopology,
 				       const TrackerGeometry*  trackerGeom,
 				       const GeometricSearchTracker* geometricSearchTracker,
                                        const SiStripQuality *stripQuality,
@@ -84,124 +90,227 @@ MeasurementTrackerImpl::MeasurementTrackerImpl(const edm::ParameterSet&         
                                        const SiPixelFedCabling *pixelCabling,
                                        int   pixelQualityFlags,
                                        int   pixelQualityDebugFlags,
-				       bool isRegional) :
+		                       const ClusterParameterEstimator<Phase2TrackerCluster1D>* phase2OTCPE):
   MeasurementTracker(trackerGeom,geometricSearchTracker),
   pset_(conf),
   name_(conf.getParameter<std::string>("ComponentName")),
-  theStDets(hitMatcher,stripCPE,isRegional),
-  thePixelCPE(pixelCPE),
-  theInactivePixelDetectorLabels(conf.getParameter<std::vector<edm::InputTag> >("inactivePixelDetectorLabels")),
-  theInactiveStripDetectorLabels(conf.getParameter<std::vector<edm::InputTag> >("inactiveStripDetectorLabels"))
+  theStDetConditions(hitMatcher,stripCPE),
+  thePxDetConditions(pixelCPE),
+  thePhase2DetConditions(phase2OTCPE)
 {
-  this->initialize();
+  this->initialize(trackerTopology);
   this->initializeStripStatus(stripQuality, stripQualityFlags, stripQualityDebugFlags);
   this->initializePixelStatus(pixelQuality, pixelCabling, pixelQualityFlags, pixelQualityDebugFlags);
-  //the measurement tracking is set to skip clusters, the other option is set from outside
-  selfUpdateSkipClusters_=conf.exists("skipClusters");
-  if (selfUpdateSkipClusters_)
-    {
-      edm::InputTag skip=conf.getParameter<edm::InputTag>("skipClusters");
-      if (skip==edm::InputTag("")) selfUpdateSkipClusters_=false;
-    }
-
-
-  LogDebug("MeasurementTracker")<<"skipping clusters: "<<selfUpdateSkipClusters_;
 }
 
 MeasurementTrackerImpl::~MeasurementTrackerImpl()
 {
-  for(vector<TkPixelMeasurementDet*>::const_iterator it=thePixelDets.begin(); it!=thePixelDets.end(); ++it){
-    delete *it;
-  }
-  
 }
 
 
-void MeasurementTrackerImpl::initialize()
-{  
-  addPixelDets( theTrackerGeom->detsPXB());
-  addPixelDets( theTrackerGeom->detsPXF());
+void MeasurementTrackerImpl::initialize(const TrackerTopology* trackerTopology)
+{ 
 
-  addStripDets( theTrackerGeom->detsTIB());
-  addStripDets( theTrackerGeom->detsTID());
-  addStripDets( theTrackerGeom->detsTOB());
-  addStripDets( theTrackerGeom->detsTEC());  
+  bool subIsPixel = false;
+  //FIXME:just temporary solution for phase2 :
+  //the OT is defined as PixelSubDetector!
+  bool subIsOT = false;
+
+  //if the TkGeometry has the subDet vector filled, the theDetMap is filled, otherwise nothing should happen
+  if(theTrackerGeom->detsPXB().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXB().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsPXB(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsPXF().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsPXF().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsPXF(), subIsPixel, subIsOT);
+  }
+
+  subIsOT = true;
+
+  if(theTrackerGeom->detsTIB().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTIB().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTIB(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsTID().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTID().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTID(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsTOB().size()!=0) {
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTOB().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTOB(), subIsPixel, subIsOT);
+  }
+
+  if(theTrackerGeom->detsTEC().size()!=0) { 
+    subIsPixel = GeomDetEnumerators::isTrackerPixel(theTrackerGeom->geomDetSubDetector(theTrackerGeom->detsTEC().front()->geographicalId().subdetId()));
+    addDets(theTrackerGeom->detsTEC(), subIsPixel, subIsOT);
+  }
 
   // fist all stripdets
   sortTKD(theStripDets);
-  theStDets.init(theStripDets);
+  initStMeasurementConditionSet(theStripDets);
   for (unsigned int i=0; i!=theStripDets.size(); ++i)
-    theDetMap[theStDets.id(i)] = &theStripDets[i];
+    theDetMap[theStDetConditions.id(i)] = &theStripDets[i];
   
   // now the glued dets
   sortTKD(theGluedDets);
   for (unsigned int i=0; i!=theGluedDets.size(); ++i)
-    initGluedDet(theGluedDets[i]);
+    initGluedDet(theGluedDets[i], trackerTopology);
 
+  // then the pixels
   sortTKD(thePixelDets);
+  initPxMeasurementConditionSet(thePixelDets);
+  for (unsigned int i=0; i!=thePixelDets.size(); ++i)
+    theDetMap[thePxDetConditions.id(i)] = &thePixelDets[i];
 
+  // then the phase2 dets
+  sortTKD(thePhase2Dets);
+  initPhase2OTMeasurementConditionSet(thePhase2Dets);
+  for (unsigned int i=0; i!=thePhase2Dets.size(); ++i)
+    theDetMap[thePhase2DetConditions.id(i)] = &thePhase2Dets[i];
+
+  // and then the stack dets, at last
+  sortTKD(theStackDets);
+  for (unsigned int i=0; i!=theStackDets.size(); ++i)
+    initStackDet(theStackDets[i]);
+
+  if(!checkDets())
+    throw MeasurementDetException("Number of dets in MeasurementTracker not consistent with TrackerGeometry!");
 
 }
 
-
-void MeasurementTrackerImpl::addPixelDets( const TrackingGeometry::DetContainer& dets)
+void MeasurementTrackerImpl::initStMeasurementConditionSet(std::vector<TkStripMeasurementDet> & stripDets)
 {
-  for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
-       gd != dets.end(); gd++) {
-    addPixelDet(*gd, thePixelCPE);
-  }  
+  // assume vector is full and ordered!
+  int size = stripDets.size();
+  theStDetConditions.init(size);
+  for (int i=0; i!=size; ++i) {
+    auto & mdet =  stripDets[i]; 
+    mdet.setIndex(i);
+    //intialize the detId !
+    theStDetConditions.id_[i] = mdet.specificGeomDet().geographicalId().rawId();
+    theStDetConditions.subId_[i]=SiStripDetId(theStDetConditions.id_[i]).subdetId()-3;
+    //initalize the total number of strips
+    theStDetConditions.totalStrips_[i] =  mdet.specificGeomDet().specificTopology().nstrips();
+  }
 }
 
-void MeasurementTrackerImpl::addStripDets( const TrackingGeometry::DetContainer& dets)
+void MeasurementTrackerImpl::initPxMeasurementConditionSet(std::vector<TkPixelMeasurementDet> & pixelDets)
 {
+  // assume vector is full and ordered!
+  int size = pixelDets.size();
+  thePxDetConditions.init(size);
+
+  for (int i=0; i!=size; ++i) {
+    auto & mdet =  pixelDets[i]; 
+    mdet.setIndex(i);
+    thePxDetConditions.id_[i] = mdet.specificGeomDet().geographicalId().rawId();
+  }
+}
+
+void MeasurementTrackerImpl::initPhase2OTMeasurementConditionSet(std::vector<TkPhase2OTMeasurementDet> & phase2Dets)
+{
+  // assume vector is full and ordered!
+  int size = phase2Dets.size();
+  thePhase2DetConditions.init(size);
+
+  for (int i=0; i!=size; ++i) {
+    auto & mdet =  phase2Dets[i]; 
+    mdet.setIndex(i);
+    thePhase2DetConditions.id_[i] = mdet.specificGeomDet().geographicalId().rawId();
+  }
+}
+
+void MeasurementTrackerImpl::addDets( const TrackingGeometry::DetContainer& dets, bool subIsPixel, bool subIsOT){
+
+  //in phase2, we can have composed subDetector made by Pixel or Strip
   for (TrackerGeometry::DetContainer::const_iterator gd=dets.begin();
        gd != dets.end(); gd++) {
 
     const GeomDetUnit* gdu = dynamic_cast<const GeomDetUnit*>(*gd);
 
-    //    StripSubdetector stripId( (**gd).geographicalId());
-    //     bool isDetUnit( gdu != 0);
-    //     cout << "StripSubdetector glued? " << stripId.glued() 
-    // 	 << " is DetUnit? " << isDetUnit << endl;
-
-    if (gdu != 0) {
-      addStripDet(*gd);
-    }
-    else {
-      const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
-      if (gluedDet == 0) {
-	throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet");
+    //Pixel or Strip GeomDetUnit
+    if (gdu->isLeaf()) {
+      if(subIsPixel) {
+        if(!subIsOT) {
+          addPixelDet(*gd);
+        } else {
+          addPhase2Det(*gd);
+        }
+      } else {
+        addStripDet(*gd);
       }
-      addGluedDet(gluedDet);
-    }  
+    } else {
+
+      //Glued or Stack GeomDet
+      const GluedGeomDet* gluedDet = dynamic_cast<const GluedGeomDet*>(*gd);
+      const StackGeomDet* stackDet = dynamic_cast<const StackGeomDet*>(*gd);
+
+      if ((gluedDet == 0 && stackDet == 0) || (gluedDet != 0 && stackDet != 0)) {
+        throw MeasurementDetException("MeasurementTracker ERROR: GeomDet neither DetUnit nor GluedDet nor StackDet");
+      }
+      if(gluedDet != 0)
+        addGluedDet(gluedDet);
+      else
+        addStackDet(stackDet);
+
+    }
   }
+
+}
+
+bool MeasurementTrackerImpl::checkDets(){
+  if(theTrackerGeom->dets().size() == theDetMap.size())
+    return true;
+  return false;
 }
 
 void MeasurementTrackerImpl::addStripDet( const GeomDet* gd)
 {
   try {
-    theStripDets.push_back(TkStripMeasurementDet( gd, theStDets));
+    theStripDets.push_back(TkStripMeasurementDet( gd, theStDetConditions ));
   }
   catch(MeasurementDetException& err){
     edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what() ;
   }
 }
 
-void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd,
-				      const PixelClusterParameterEstimator* cpe)
+void MeasurementTrackerImpl::addPixelDet( const GeomDet* gd)
 {
-  TkPixelMeasurementDet* det = new TkPixelMeasurementDet( gd, cpe);
-  thePixelDets.push_back(det);
-  det->setClusterToSkip(&thePixelsToSkip);
-  theDetMap[gd->geographicalId()] = det;
+  try {
+    thePixelDets.push_back(TkPixelMeasurementDet( gd, thePxDetConditions ));
+  }
+  catch(MeasurementDetException& err){
+    edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what() ;
+  }
+}
+
+void MeasurementTrackerImpl::addPhase2Det( const GeomDet* gd)
+{
+  try {
+    thePhase2Dets.push_back(TkPhase2OTMeasurementDet( gd, thePhase2DetConditions ));
+  }
+  catch(MeasurementDetException& err){
+    edm::LogError("MeasurementDet") << "Oops, got a MeasurementDetException: " << err.what() ;
+  }
 }
 
 void MeasurementTrackerImpl::addGluedDet( const GluedGeomDet* gd)
 {
-  theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDets.matcher(), theStDets.stripCPE()));
+  theGluedDets.push_back(TkGluedMeasurementDet( gd, theStDetConditions.matcher(), theStDetConditions.stripCPE() ));
 }
 
-void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
+void MeasurementTrackerImpl::addStackDet( const StackGeomDet* gd)
+{
+  //since the Stack will be composed by PS or 2S, 
+  //both cluster parameter estimators are needed? - right now just the thePixelCPE is used.
+  theStackDets.push_back(TkStackMeasurementDet( gd, thePxDetConditions.pixelCPE() ));
+}
+
+void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det, const TrackerTopology* trackerTopology)
 {
   const GluedGeomDet& gd = det.specificGeomDet();
   const MeasurementDet* monoDet = findDet( gd.monoDet()->geographicalId());
@@ -210,340 +319,123 @@ void MeasurementTrackerImpl::initGluedDet( TkGluedMeasurementDet & det)
     edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: GluedDet components not found as MeasurementDets ";
     throw MeasurementDetException("MeasurementTracker ERROR: GluedDet components not found as MeasurementDets");
   }
-  det.init(monoDet,stereoDet);
+  det.init(monoDet, stereoDet, trackerTopology);
   theDetMap[gd.geographicalId()] = &det;
 }
 
-
-void MeasurementTrackerImpl::update( const edm::Event& event) const
+void MeasurementTrackerImpl::initStackDet( TkStackMeasurementDet & det)
 {
-  updatePixels(event);
-  updateStrips(event);
-  
-  /*
-  for (std::vector<TkStripMeasurementDet>::const_iterator i=theStripDets.begin();
-       i!=theStripDets.end(); i++) {
-    if( (*i).isEmpty()){
-      std::cout << "stripDet id, #hits: " 
-		<<  (*i).geomDet().geographicalId().rawId() << " , "
-		<< 0 << std::endl;
-    }else{
-      std::cout << "stripDet id, #hits: " 
-		<<  (*i).geomDet().geographicalId().rawId() << " , "
-		<< (*i).size() << " " << (*i).detSet().size() std::endl;
-    }
+  const StackGeomDet& gd = det.specificGeomDet();
+  const MeasurementDet* lowerDet = findDet( gd.lowerDet()->geographicalId());
+  const MeasurementDet* upperDet = findDet( gd.upperDet()->geographicalId());
+  if (lowerDet == 0 || upperDet == 0) {
+    edm::LogError("MeasurementDet") << "MeasurementTracker ERROR: StackDet components not found as MeasurementDets ";
+    throw MeasurementDetException("MeasurementTracker ERROR: StackDet components not found as MeasurementDets");
   }
-  */
+  det.init(lowerDet,upperDet);
+  theDetMap[gd.geographicalId()] = &det;
 }
-void MeasurementTrackerImpl::setClusterToSkip(const edm::InputTag & cluster, const edm::Event& event) const
-{
-  //method called by user of the measurement tracker to tell what needs to be skiped from the event.
-  //there it is incompatible with a configuration in which the measurement tracker already knows what to skip
-  // i.e selfUpdateSkipClusters_=True
-
-  LogDebug("MeasurementTracker")<<"setClusterToSkip";
-  if (selfUpdateSkipClusters_)
-    edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
-
-  edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > > pixelClusterMask;
-  event.getByLabel(cluster,pixelClusterMask);
-
-
-  thePixelsToSkip.resize(pixelClusterMask->size());
-  pixelClusterMask->copyMaskTo(thePixelsToSkip);
-    
-  edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
-  event.getByLabel(cluster,stripClusterMask);
-
-  theStDets.theStripsToSkip.resize(stripClusterMask->size());
-  stripClusterMask->copyMaskTo(theStDets.theStripsToSkip);
-  
-}
-
-void MeasurementTrackerImpl::unsetClusterToSkip() const {
-  //method called by user of the measurement tracker to tell what needs to be skiped from the event.
-  //there it is incompatible with a configuration in which the measurement tracker already knows what to skip
-  // i.e selfUpdateSkipClusters_=True
-  
-  LogDebug("MeasurementTracker")<<"unsetClusterToSkip";
-  if (selfUpdateSkipClusters_)
-    edm::LogError("MeasurementTracker")<<"this mode of operation is not supported, either the measurement tracker is set to skip clusters, or is being told to skip clusters. not both";
-
-  thePixelsToSkip.clear();
-  theStDets.theStripsToSkip.clear();
-}
-
-void MeasurementTrackerImpl::updatePixels( const edm::Event& event) const
-{
-  // avoid to update twice from the same event
-  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTrackerImpl::updatePixels::"+name_)) return;
-
-  typedef edmNew::DetSet<SiPixelCluster> PixelDetSet;
-
-  bool switchOffPixelsIfEmpty = (!pset_.existsAs<bool>("switchOffPixelsIfEmpty")) ||
-                                (pset_.getParameter<bool>("switchOffPixelsIfEmpty"));
-
-  std::vector<uint32_t> rawInactiveDetIds; 
-  if (!theInactivePixelDetectorLabels.empty()) {
-    edm::Handle<DetIdCollection> detIds;
-    for (std::vector<edm::InputTag>::const_iterator itt = theInactivePixelDetectorLabels.begin(), edt = theInactivePixelDetectorLabels.end(); 
-            itt != edt; ++itt) {
-      if (event.getByLabel(*itt, detIds)){
-        rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
-      }else{
-        static bool iFailedAlready=false;
-        if (!iFailedAlready){
-          edm::LogError("MissingProduct")<<"I fail to get the list of inactive pixel modules, because of 4.2/4.4 event content change.";
-          iFailedAlready=true;
-        }
-      }
-    }
-    if (!rawInactiveDetIds.empty()) std::sort(rawInactiveDetIds.begin(), rawInactiveDetIds.end());
-  }
-  // Pixel Clusters
-  std::string pixelClusterProducer = pset_.getParameter<std::string>("pixelClusterProducer");
-  if( pixelClusterProducer.empty() ) { //clusters have not been produced
-    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-    i!=thePixelDets.end(); i++) {
-      if (switchOffPixelsIfEmpty) {
-        (**i).setActiveThisEvent(false);
-      }else{
-        (**i).setEmpty();
-      }
-    }
-  }else{  
-
-    edm::Handle<edmNew::DetSetVector<SiPixelCluster> > pixelClusters;
-    event.getByLabel(pixelClusterProducer, pixelClusters);
-    const  edmNew::DetSetVector<SiPixelCluster>* pixelCollection = pixelClusters.product();
-   
-    if (switchOffPixelsIfEmpty && pixelCollection->empty()) {
-        for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-             i!=thePixelDets.end(); i++) {
-              (**i).setActiveThisEvent(false);
-        }
-    } else { 
-
-       //std::cout <<"updatePixels "<<pixelCollection->dataSize()<<std::endl;
-       thePixelsToSkip.resize(pixelCollection->dataSize());
-       std::fill(thePixelsToSkip.begin(),thePixelsToSkip.end(),false);
-       
-       if(selfUpdateSkipClusters_) {
-          edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiPixelCluster> > > pixelClusterMask;
-         //and get the collection of pixel ref to skip
-         event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),pixelClusterMask);
-         LogDebug("MeasurementTracker")<<"getting pxl refs to skip";
-         if (pixelClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the pixel clusters to skip";
-	 if (pixelClusterMask->refProd().id()!=pixelClusters.id()){
-	   edm::LogError("ProductIdMismatch")<<"The pixel masking does not point to the proper collection of clusters: "<<pixelClusterMask->refProd().id()<<"!="<<pixelClusters.id();
-	 }
-	 pixelClusterMask->copyMaskTo(thePixelsToSkip);
-       }
-          
-       for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
-       i!=thePixelDets.end(); i++) {
-
-	 // foreach det get cluster range
-	 unsigned int id = (**i).geomDet().geographicalId().rawId();
-	 if (!rawInactiveDetIds.empty() && std::binary_search(rawInactiveDetIds.begin(), rawInactiveDetIds.end(), id)) {
-	   (**i).setActiveThisEvent(false); continue;
-	 }
-	 //FIXME
-	 //fill the set with what needs to be skipped
-	 edmNew::DetSetVector<SiPixelCluster>::const_iterator it = pixelCollection->find( id );
-	 if ( it != pixelCollection->end() ){            
-           // push cluster range in det
-           (**i).update( *it, pixelClusters, id );
-	 } else{
-           (**i).setEmpty();
-	 }
-       }
-    }
-  }
-}
-
-void MeasurementTrackerImpl::getInactiveStrips(const edm::Event& event,
-					       std::vector<uint32_t> & rawInactiveDetIds) const {
-  if (!theInactiveStripDetectorLabels.empty()) {
-    edm::Handle<DetIdCollection> detIds;
-    for (std::vector<edm::InputTag>::const_iterator itt = theInactiveStripDetectorLabels.begin(), edt = theInactiveStripDetectorLabels.end(); 
-	 itt != edt; ++itt) {
-      event.getByLabel(*itt, detIds);
-      rawInactiveDetIds.insert(rawInactiveDetIds.end(), detIds->begin(), detIds->end());
-    }
-    if (!rawInactiveDetIds.empty()) std::sort(rawInactiveDetIds.begin(), rawInactiveDetIds.end());
-  }
-}
-
-void MeasurementTrackerImpl::updateStrips( const edm::Event& event) const
-{
-  // avoid to update twice from the same event
-  if (!edm::Service<UpdaterService>()->checkOnce("MeasurementTrackerImpl::updateStrips::"+name_)) return;
-
-  typedef edmNew::DetSet<SiStripCluster>   StripDetSet;
-
-  std::vector<uint32_t> rawInactiveDetIds;
-  getInactiveStrips(event,rawInactiveDetIds);
-
-  // Strip Clusters
-  std::string stripClusterProducer = pset_.getParameter<std::string>("stripClusterProducer");
-  //first clear all of them
-  theStDets.setEmpty();
-
-
-  if( !stripClusterProducer.compare("") )  return;  //clusters have not been produced
-
-  const int endDet = theStDets.id_.size();
- 
-
-  // mark as inactive if in rawInactiveDetIds
-  int i=0;
-  unsigned int idp=0;
-  for ( auto id : rawInactiveDetIds) {
-    if (id==idp) continue; // skip multiple id
-    idp=id;
-    i=theStDets.find(id,i);
-    assert(i!=endDet && id == theStDets.id(i));
-    theStDets.setActiveThisEvent(i,false);
-  }
-
-  //=========  actually load cluster =============
-  if(!theStDets.isRegional()){
-    edm::Handle<edmNew::DetSetVector<SiStripCluster> > clusterHandle;
-    event.getByLabel(stripClusterProducer, clusterHandle);
-    const edmNew::DetSetVector<SiStripCluster>* clusterCollection = clusterHandle.product();
-    
-    
-    if (selfUpdateSkipClusters_){
-      edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
-      //and get the collection of pixel ref to skip
-      LogDebug("MeasurementTracker")<<"getting strp refs to skip";
-      event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterMask);
-      if (stripClusterMask.failedToGet())  edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
-      if (stripClusterMask->refProd().id()!=clusterHandle.id()){
-	edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<clusterHandle.id();
-      }
-      stripClusterMask->copyMaskTo(theStDets.theStripsToSkip);
-    }
-    
-    theStDets.handle_ = clusterHandle;
-    int i=0;
-    edmNew::DetSetVector<SiStripCluster>::const_iterator it = (*clusterCollection).begin();
-    edmNew::DetSetVector<SiStripCluster>::const_iterator endColl = (*clusterCollection).end();
-    // cluster and det and in order (both) and unique so let's use set intersection
-    for (;it!=endColl; ++it) {
-      StripDetSet detSet = *it;
-      unsigned int id = detSet.id();
-      while ( id != theStDets.id(i)) { // eventually change to lower_bound
-	++i;
-	if (endDet==i) throw "we have a problem!!!!";
-      }
-      
-      // push cluster range in det
-      if ( theStDets.isActive(i) )
-	theStDets.update(i,detSet);
-    }
-
-  }else{   // regional
-    
-    //then set the not-empty ones only
-    edm::Handle<edm::RefGetter<SiStripCluster> > refClusterHandle;
-    event.getByLabel(stripClusterProducer, refClusterHandle);
-    
-    std::string lazyGetter = pset_.getParameter<std::string>("stripLazyGetterProducer");
-    edm::Handle<edm::LazyGetter<SiStripCluster> > lazyClusterHandle;
-    event.getByLabel(lazyGetter,lazyClusterHandle);
-    
-    if(selfUpdateSkipClusters_){
-      edm::Handle<edm::ContainerMask<edmNew::DetSetVector<SiStripCluster> > > stripClusterMask;
-      LogDebug("MeasurementTracker")<<"getting reg strp refs to skip";
-      event.getByLabel(pset_.getParameter<edm::InputTag>("skipClusters"),stripClusterMask);
-      if (stripClusterMask.failedToGet())edm::LogError("MeasurementTracker")<<"not getting the strip clusters to skip";
-      if (stripClusterMask->refProd().id()!=lazyClusterHandle.id()){
-	edm::LogError("ProductIdMismatch")<<"The strip masking does not point to the proper collection of clusters: "<<stripClusterMask->refProd().id()<<"!="<<lazyClusterHandle.id();
-      }       
-      stripClusterMask->copyMaskTo(theStDets.theStripsToSkip);
-    }
-    
-    theStDets.regionalHandle_ =  lazyClusterHandle;
-    
-    uint32_t tmpId=0;
-    vector<SiStripCluster>::const_iterator beginIterator;
-    edm::RefGetter<SiStripCluster>::const_iterator iregion = refClusterHandle->begin();
-    for(;iregion!=refClusterHandle->end();++iregion) {
-      const edm::RegionIndex<SiStripCluster>& region = *iregion;
-      vector<SiStripCluster>::const_iterator icluster = region.begin();
-      const vector<SiStripCluster>::const_iterator endIterator = region.end();
-      tmpId = icluster->geographicalId();
-      beginIterator = icluster;
-      
-      //std::cout << "== tmpId ad inizio loop dentro region: " << tmpId << std::endl;
-      
-      for (;icluster!=endIterator;icluster++) {
-	//std::cout << "===== cluster id,pos " 
-	//  << icluster->geographicalId() << " , " << icluster->barycenter()
-	//  << std::endl;
-	//std::cout << "=====making ref in recHits() " << std::endl;
-	if( icluster->geographicalId() != tmpId){ 
-	  //std::cout << "geo!=tmpId" << std::endl;
-	  
-	  //cannot we avoid to update the det with detId of itself??  (sure we can!, done!)
-	  theStDets.update(concreteDetUpdatable(tmpId)->index(),beginIterator,icluster);
-	  
-	  tmpId = icluster->geographicalId();
-	  beginIterator = icluster;
-	  if( icluster == (endIterator-1)){
-	    theStDets.update(concreteDetUpdatable(tmpId)->index(),icluster,endIterator);
-	  }   
-	}else if( icluster == (endIterator-1)){	   
-	  theStDets.update(concreteDetUpdatable(tmpId)->index(),beginIterator,endIterator);	 
-	}
-      }//end loop cluster in one ragion
-    }
-  }//end of block for updating with regional clusters 
-}
-
-
-TkStripMeasurementDet * MeasurementTrackerImpl::concreteDetUpdatable(DetId id) const {
-#ifdef EDM_DEBUG //or similar
-  const TkStripMeasurementDet* theConcreteDet = 
-    dynamic_cast<const TkStripMeasurementDet*>(findDet(id));
-  if(theConcreteDet == 0)
-    throw MeasurementDetException("failed casting to TkStripMeasurementDet*");	    
-#endif
-  // will trigger ondemand unpacking
-  return const_cast<TkStripMeasurementDet*>(static_cast<const TkStripMeasurementDet*>(idToDet(id)));
-}
-
 
 void MeasurementTrackerImpl::initializeStripStatus(const SiStripQuality *quality, int qualityFlags, int qualityDebugFlags) {
   edm::ParameterSet cutPset = pset_.getParameter<edm::ParameterSet>("badStripCuts");
-   theStDets.initializeStripStatus(quality, qualityFlags, qualityDebugFlags, cutPset);
+  if (qualityFlags & BadStrips) {
+     typedef StMeasurementConditionSet::BadStripCuts BadStripCuts;
+     theStDetConditions.badStripCuts_[SiStripDetId::TIB-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TIB"));
+     theStDetConditions.badStripCuts_[SiStripDetId::TOB-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TOB"));
+     theStDetConditions.badStripCuts_[SiStripDetId::TID-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TID"));
+     theStDetConditions.badStripCuts_[SiStripDetId::TEC-3] = BadStripCuts(cutPset.getParameter<edm::ParameterSet>("TEC"));
+  }
+  theStDetConditions.setMaskBad128StripBlocks((qualityFlags & MaskBad128StripBlocks) != 0);
+  
+  
+  if ((quality != 0) && (qualityFlags != 0))  {
+    edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
+    unsigned int on = 0, tot = 0; 
+    unsigned int foff = 0, ftot = 0, aoff = 0, atot = 0; 
+    for (int i=0; i!= theStDetConditions.nDet(); i++) {
+      uint32_t detid = theStDetConditions.id(i);
+      if (qualityFlags & BadModules) {
+	bool isOn = quality->IsModuleUsable(detid);
+	theStDetConditions.setActive(i,isOn);
+	tot++; on += (unsigned int) isOn;
+	if (qualityDebugFlags & BadModules) {
+	  edm::LogInfo("MeasurementTracker")<< "MeasurementTrackerImpl::initializeStripStatus : detid " << detid << " is " << (isOn ?  "on" : "off");
+	}
+      } else {
+	theStDetConditions.setActive(i,true);
+      }
+      // first turn all APVs and fibers ON
+      theStDetConditions.set128StripStatus(i,true); 
+      if (qualityFlags & BadAPVFibers) {
+	short badApvs   = quality->getBadApvs(detid);
+	short badFibers = quality->getBadFibers(detid);
+	for (int j = 0; j < 6; j++) {
+	  atot++;
+	  if (badApvs & (1 << j)) {
+	    theStDetConditions.set128StripStatus(i,false, j);
+	    aoff++;
+	  }
+	}
+	for (int j = 0; j < 3; j++) {
+	  ftot++;
+             if (badFibers & (1 << j)) {
+	       theStDetConditions.set128StripStatus(i,false, 2*j);
+	       theStDetConditions.set128StripStatus(i,false, 2*j+1);
+	       foff++;
+             }
+	}
+      } 
+      auto & badStrips = theStDetConditions.getBadStripBlocks(i);
+       badStrips.clear();
+       if (qualityFlags & BadStrips) {
+	 SiStripBadStrip::Range range = quality->getRange(detid);
+	 for (SiStripBadStrip::ContainerIterator bit = range.first; bit != range.second; ++bit) {
+	   badStrips.push_back(quality->decode(*bit));
+	 }
+       }
+    }
+    if (qualityDebugFlags & BadModules) {
+      edm::LogInfo("MeasurementTracker StripModuleStatus") << 
+	" Total modules: " << tot << ", active " << on <<", inactive " << (tot - on);
+    }
+    if (qualityDebugFlags & BadAPVFibers) {
+      edm::LogInfo("MeasurementTracker StripAPVStatus") << 
+	" Total APVs: " << atot << ", active " << (atot-aoff) <<", inactive " << (aoff);
+        edm::LogInfo("MeasurementTracker StripFiberStatus") << 
+	  " Total Fibers: " << ftot << ", active " << (ftot-foff) <<", inactive " << (foff);
+    }
+  } else {
+    for (int i=0; i!=theStDetConditions.nDet(); i++) {
+      theStDetConditions.setActive(i,true);          // module ON
+      theStDetConditions.set128StripStatus(i,true);  // all APVs and fibers ON
+    }
+  }
+
 }
 
 void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality *quality, const SiPixelFedCabling *pixelCabling, int qualityFlags, int qualityDebugFlags) {
   if ((quality != 0) && (qualityFlags != 0))  {
     edm::LogInfo("MeasurementTracker") << "qualityFlags = " << qualityFlags;
     unsigned int on = 0, tot = 0, badrocs = 0; 
-    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+    for (std::vector<TkPixelMeasurementDet>::iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
-      uint32_t detid = ((**i).geomDet().geographicalId()).rawId();
+      uint32_t detid = ((*i).geomDet().geographicalId()).rawId();
       if (qualityFlags & BadModules) {
           bool isOn = quality->IsModuleUsable(detid);
-          (*i)->setActive(isOn);
+          (i)->setActive(isOn);
           tot++; on += (unsigned int) isOn;
           if (qualityDebugFlags & BadModules) {
 	    edm::LogInfo("MeasurementTracker")<< "MeasurementTrackerImpl::initializePixelStatus : detid " << detid << " is " << (isOn ?  "on" : "off");
           }
        } else {
-          (*i)->setActive(true);
+          (i)->setActive(true);
        }
        if ((qualityFlags & BadROCs) && (quality->getBadRocs(detid) != 0)) {
           std::vector<LocalPoint> badROCs = quality->getBadRocPositions(detid, *theTrackerGeom, pixelCabling);
           badrocs += badROCs.size();
-          (*i)->setBadRocPositions(badROCs);
+          (i)->setBadRocPositions(badROCs);
        } else {
-          (*i)->clearBadRocPositions();  
+          (i)->clearBadRocPositions();  
        }
     }
     if (qualityDebugFlags & BadModules) {
@@ -554,9 +446,9 @@ void MeasurementTrackerImpl::initializePixelStatus(const SiPixelQuality *quality
         edm::LogInfo("MeasurementTracker PixelROCStatus") << " Total of bad ROCs: " << badrocs ;
     }
   } else {
-    for (std::vector<TkPixelMeasurementDet*>::const_iterator i=thePixelDets.begin();
+    for (std::vector<TkPixelMeasurementDet>::iterator i=thePixelDets.begin();
 	 i!=thePixelDets.end(); i++) {
-      (*i)->setActive(true);          // module ON
+      (i)->setActive(true);          // module ON
     }
   }
 }

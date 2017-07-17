@@ -144,7 +144,7 @@ def manipulate_log(outdir,logfile_name,startevt):
         mycanvas.cd()
         graph.Draw("ALP")
     
-        mycanvas.Print("%s/%s_graph.gif"%(outdir,value),"gif")
+        mycanvas.Print("%s/%s_graph.png"%(outdir,value),"png")
         
         # write it on file
         graph.Write()
@@ -170,10 +170,10 @@ def manipulate_log(outdir,logfile_name,startevt):
     html_file.write('<html>\n<body>\n'+\
                     titlestring)
     html_file.write('<table>\n'+\
-                    '<tr>\n<td><img  src=vsize_graph.gif></img></td>\n'+\
-                    '<td><img src=rss_graph.gif></img></td>\n</tr>\n'+\
-                    '<tr>\n<td><img  src=delta_vsize_graph.gif></img></td>\n'+\
-                    '<td><img  src=delta_rss_graph.gif></img></td>\n</tr>\n' +\
+                    '<tr>\n<td><img  src=vsize_graph.png></img></td>\n'+\
+                    '<td><img src=rss_graph.png></img></td>\n</tr>\n'+\
+                    '<tr>\n<td><img  src=delta_vsize_graph.png></img></td>\n'+\
+                    '<td><img  src=delta_rss_graph.png></img></td>\n</tr>\n' +\
                     '</table>\n')
     html_file.write('<hr>\n<h1>Memory Checker Report</h1>\n<pre>\n' + report + '</pre>')
     html_file.write('\n</body>\n</html>')

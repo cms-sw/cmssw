@@ -13,7 +13,7 @@
  *  surface types. 
  */
 
-class GeneralNSurfaceDelimitedBounds GCC11_FINAL : public Bounds {
+class GeneralNSurfaceDelimitedBounds final : public Bounds {
 public:
 
     typedef std::pair<const Surface*, SurfaceOrientation::Side>  SurfaceAndSide;
@@ -27,6 +27,8 @@ public:
   virtual float width()     const { return 0;}
   virtual float thickness() const { return 0;}
 
+
+  using Bounds::inside;
 
   virtual bool inside( const Local3DPoint& lp) const {
     return myInside(lp,0);

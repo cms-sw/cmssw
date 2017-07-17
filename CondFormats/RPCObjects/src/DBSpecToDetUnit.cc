@@ -13,7 +13,6 @@ using namespace edm;
 uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch, 
    const FebLocationSpec & feb)
 {
-  static bool debug = edm::MessageDrop::instance()->debugEnabled;
   // REGION
   int region = -2;
   bool barrel = (ch.barrelOrEndcap==1);
@@ -37,7 +36,7 @@ uint32_t DBSpecToDetUnit::operator()(const ChamberLocationSpec & ch,
     return dn.rawId();
   } 
   catch(cms::Exception & e) {
-    if (debug) LogDebug ("CondFormas/DBSpecToDetInit") 
+    LogDebug ("CondFormas/DBSpecToDetInit") 
       <<" Problem with RPCDetId, got exception!! " 
       <<"DB Chamber "<<ch.chamberLocationName()<<" roll "<<nroll
       <<e;

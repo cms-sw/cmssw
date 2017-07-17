@@ -35,8 +35,8 @@
 */
 
 #include <vector>
-#include "boost/thread/mutex.hpp"
-#include "boost/thread/condition.hpp"
+#include <mutex>
+#include <condition_variable>
 
 namespace edm {
 
@@ -126,11 +126,11 @@ namespace edm {
     Queue queue_;
     unsigned int fpos_, bpos_; // positions for queue - front and back
 
-    boost::mutex pool_lock_;
-    boost::mutex queue_lock_;
-    boost::condition pool_cond_;
-    boost::condition pop_cond_;
-    boost::condition push_cond_;
+    std::mutex pool_lock_;
+    std::mutex queue_lock_;
+    std::condition_variable pool_cond_;
+    std::condition_variable pop_cond_;
+    std::condition_variable push_cond_;
 
   };
 

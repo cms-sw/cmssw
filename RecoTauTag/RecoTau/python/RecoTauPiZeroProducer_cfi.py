@@ -2,11 +2,31 @@ import FWCore.ParameterSet.Config as cms
 
 import RecoTauTag.RecoTau.RecoTauPiZeroBuilderPlugins_cfi as builders
 import RecoTauTag.RecoTau.RecoTauPiZeroQualityPlugins_cfi as ranking
+from RecoTauTag.RecoTau.PFRecoTauPFJetInputs_cfi import PFRecoTauPFJetInputs
 
-ak5PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
+
+ak4PFJetsLegacyHPSPiZeros = cms.EDProducer(
     "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+    jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    minJetPt = PFRecoTauPFJetInputs.minJetPt,
+    maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
+    massHypothesis = cms.double(0.136),
+    outputSelection = cms.string('pt > 0'),
+    builders = cms.VPSet(
+        #builders.strips
+        #builders.modStrips
+        builders.modStrips2
+    ),
+    ranking = cms.VPSet(
+        ranking.isInStrip
+    )
+)
+
+
+ak4PFJetsRecoTauGreedyPiZeros = ak4PFJetsLegacyHPSPiZeros.clone( 
+    jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    minJetPt = PFRecoTauPFJetInputs.minJetPt,
+    maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
@@ -17,16 +37,17 @@ ak5PFJetsRecoTauGreedyPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsRecoTauPiZeros = cms.EDProducer(
-    "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+ak4PFJetsRecoTauPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
+    jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    minJetPt = PFRecoTauPFJetInputs.minJetPt,
+    maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
         builders.combinatoricPhotonPairs,
         #builders.strips
-        builders.modStrips 
+        #builders.modStrips
+        builders.modStrips2
     ),
     ranking = cms.VPSet(
         ranking.nearPiZeroMassBarrel, # Prefer pi zeros +- 0.05 GeV correct mass
@@ -35,10 +56,10 @@ ak5PFJetsRecoTauPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
-    "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
+ak4PFJetsLegacyTaNCPiZeros = ak4PFJetsLegacyHPSPiZeros.clone(
+    jetSrc = PFRecoTauPFJetInputs.inputJetCollection,
+    minJetPt = PFRecoTauPFJetInputs.minJetPt,
+    maxJetAbsEta = PFRecoTauPFJetInputs.maxJetAbsEta,
     massHypothesis = cms.double(0.136),
     outputSelection = cms.string('pt > 1.5'),
     builders = cms.VPSet(
@@ -50,18 +71,4 @@ ak5PFJetsLegacyTaNCPiZeros = cms.EDProducer(
     ),
 )
 
-ak5PFJetsLegacyHPSPiZeros = cms.EDProducer(
-    "RecoTauPiZeroProducer",
-    jetSrc = cms.InputTag("ak5PFJets"),
-    jetRegionSrc = cms.InputTag("recoTauAK5PFJets08Region"),
-    massHypothesis = cms.double(0.136),
-    outputSelection = cms.string('pt > 0'),
-    builders = cms.VPSet(
-        #builders.strips
-        builders.modStrips 
-    ),
-    ranking = cms.VPSet(
-        ranking.isInStrip
-    )
-)
 

@@ -14,6 +14,11 @@ process.source = cms.Source("EmptyIOVSource",
                             interval = cms.uint64(1)
                             )
 
+# the DB Geometry is NOT used because in this cfg only one tag is taken from the DB and no GT is used. To be fixed if this is a problem
+process.load('Configuration.Geometry.GeometryExtended_cff')
+process.TrackerTopologyEP = cms.ESProducer("TrackerTopologyEP")
+process.load("Geometry.TrackerGeometryBuilder.trackerParameters_cfi")
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(-1))
 
 process.poolDBESSource = cms.ESSource(
@@ -36,6 +41,8 @@ process.poolDBESSource = cms.ESSource(
 
 process.SiStripQualityESProducer = cms.ESProducer("SiStripQualityESProducer",
                                                   ReduceGranularity = cms.bool(False),
+                                                  PrintDebugOutput = cms.bool(False),
+                                                  UseEmptyRunInfo = cms.bool(False),
                                                   ListOfRecordToMerge = cms.VPSet(cms.PSet(record = cms.string('SiStripBadChannelRcd'),
                                                                                            tag = cms.string('')
                                                                                            )

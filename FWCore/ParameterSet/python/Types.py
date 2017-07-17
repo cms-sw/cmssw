@@ -1,4 +1,4 @@
-from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable
+from Mixins import PrintOptions, _SimpleParameterTypeBase, _ParameterTypeBase, _Parameterizable, _ConfigureComponent, _Labelable, _TypedParameterizable, _Unlabelable, _modifyParametersFromDict
 from Mixins import _ValidatingParameterListBase
 from ExceptionHandling import format_typename, format_outerframe
 
@@ -39,6 +39,8 @@ class int32(_SimpleParameterTypeBase):
         return int32(int(value))
     def insertInto(self, parameterSet, myname):
         parameterSet.addInt32(self.isTracked(), myname, self.value())
+    def __nonzero__(self):
+        return self.value()!=0
 
 
 class uint32(_SimpleParameterTypeBase):
@@ -54,6 +56,8 @@ class uint32(_SimpleParameterTypeBase):
         return uint32(long(value))
     def insertInto(self, parameterSet, myname):
         parameterSet.addUInt32(self.isTracked(), myname, self.value())
+    def __nonzero__(self):
+        return self.value()!=0
 
 
 
@@ -71,6 +75,8 @@ class int64(_SimpleParameterTypeBase):
         return int64(long(value))
     def insertInto(self, parameterSet, myname):
         parameterSet.addInt64(self.isTracked(), myname, self.value())
+    def __nonzero__(self):
+        return self.value()!=0
 
 
 
@@ -87,30 +93,30 @@ class uint64(_SimpleParameterTypeBase):
         return uint64(long(value))
     def insertInto(self, parameterSet, myname):
         parameterSet.addUInt64(self.isTracked(), myname, self.value())
+    def __nonzero__(self):
+        return self.value()!=0
 
 
 
 class double(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        try:
-            tmp = float(value)
-            return True
-        except:
-            return False
+        return isinstance(value, (int, long, float))
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
         return double(float(value))
     def insertInto(self, parameterSet, myname):
         parameterSet.addDouble(self.isTracked(), myname, float(self.value()))
+    def __nonzero__(self):
+        return self.value()!=0.
 
 
 import __builtin__
 class bool(_SimpleParameterTypeBase):
     @staticmethod
     def _isValid(value):
-        return (isinstance(value,type(False)) or isinstance(value(type(True))))
+        return (isinstance(value,type(False)) or isinstance(value,type(True)))
     @staticmethod
     def _valueFromString(value):
         """only used for cfg-parsing"""
@@ -125,6 +131,8 @@ class bool(_SimpleParameterTypeBase):
         raise RuntimeError('can not make bool from string '+value)
     def insertInto(self, parameterSet, myname):
         parameterSet.addBool(self.isTracked(), myname, self.value())
+    def __nonzero__(self):
+        return self.value()
 
 
 
@@ -159,6 +167,8 @@ class string(_SimpleParameterTypeBase):
         #if value == '\0':
         #    value = ''
         parameterSet.addString(self.isTracked(), myname, value)
+    def __nonzero__(self):
+        return len(self.value()) !=0
 
 
 class EventID(_ParameterTypeBase):
@@ -190,7 +200,7 @@ class EventID(_ParameterTypeBase):
     @staticmethod
     def _valueFromString(value):
         parts = value.split(":")
-	run = parts[0]
+        run = parts[0]
         try:
             lumi = parts[1]
             event = parts[2]
@@ -252,7 +262,7 @@ class LuminosityBlockRange(_ParameterTypeBase):
         if self.__end < self.__start:
             raise RuntimeError('LuminosityBlockRange '+str(self.__start)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endSub)+' out of order')
         # 0 luminosity block number is a special case that means no limit
-        if self.__end == self.__start and (self.__endSub <> 0 and self.__endSub < self.__startSub):
+        if self.__end == self.__start and (self.__endSub != 0 and self.__endSub < self.__startSub):
             raise RuntimeError('LuminosityBlockRange '+str(self.__start)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endSub)+' out of order')
     def start(self):
         return self.__start
@@ -326,7 +336,7 @@ class EventRange(_ParameterTypeBase):
         if self.__end < self.__start or (self.__end == self.__start and self.__endLumi < self.__startLumi):
             raise RuntimeError('EventRange '+str(self.__start)+':'+str(self.__startLumi)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endLumi)+':'+str(self.__endSub)+' out of order')
         # 0 event number is a special case that means no limit
-        if self.__end == self.__start and self.__endLumi == self.__startLumi and (self.__endSub <> 0 and self.__endSub < self.__startSub):
+        if self.__end == self.__start and self.__endLumi == self.__startLumi and (self.__endSub != 0 and self.__endSub < self.__startSub):
             raise RuntimeError('EventRange '+str(self.__start)+':'+str(self.__startLumi)+':'+str(self.__startSub)+'-'+str(self.__end)+':'+str(self.__endLumi)+':'+str(self.__endSub)+' out of order')
     def start(self):
         return self.__start
@@ -383,6 +393,8 @@ class EventRange(_ParameterTypeBase):
             eevent = endParts[1]             
         else:
             raise RuntimeError('EventRange ctor must have 4 or 6 arguments')
+        # note int will return a long if the value is too large to fit in
+        # a smaller type
         return EventRange(int(brun), int(blumi), int(bevent),
                           int(erun), int(elumi), int(eevent))
 
@@ -425,6 +437,12 @@ class InputTag(_ParameterTypeBase):
             when looking backwards in time for the data product.
         """
         return "@skipCurrentProcess"
+    @staticmethod
+    def currentProcess():
+        """When used as the process name this value will make the framework use the current process
+            as the process when looking for the data product.
+        """
+        return "@currentProcess"
     def configValue(self, options=PrintOptions()):
         result = self.__moduleLabel
         if self.__productInstance != "" or self.__processName != "":
@@ -446,11 +464,11 @@ class InputTag(_ParameterTypeBase):
     def _isValid(value):
         return True
     def __cmp__(self,other):
-        v = self.__moduleLabel <> other.__moduleLabel
+        v = self.__moduleLabel != other.__moduleLabel
         if not v:
-            v= self.__productInstance <> other.__productInstance
+            v= self.__productInstance != other.__productInstance
             if not v:
-                v=self.__processName <> other.__processName
+                v=self.__processName != other.__processName
         return v
     def value(self):
         "Return the string rep"
@@ -522,9 +540,9 @@ class ESInputTag(_ParameterTypeBase):
     def _isValid(value):
         return True
     def __cmp__(self,other):
-        v = self.__moduleLabel <> other.__moduleLabel
+        v = self.__moduleLabel != other.__moduleLabel
         if not v:
-            v= self.__data <> other.__data
+            v= self.__data != other.__data
         return v
     def value(self):
         "Return the string rep"
@@ -606,6 +624,10 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         _Parameterizable.__init__(self,*arg,**args)
     def value(self):
         return self
+    def isRef_(self):
+        """Returns true if this PSet is actually a reference to a different PSet
+            """
+        return hasattr(self,"refToPSet_")
     @staticmethod
     def _isValid(value):
         return True
@@ -623,19 +645,7 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         return self.pythonTypeName()+"(\n"+_Parameterizable.dumpPython(self, options)+options.indentation()+")"
     def clone(self, *args, **params):
         myparams = self.parameters_()
-        if len(params):
-            #need to treat items both in params and myparams specially
-            for key,value in params.iteritems():
-                if key in myparams:
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key] =value
-                    else:
-                        myparams[key].setValue(value)
-                else:
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key]=value
-                    else:
-                        self._Parameterizable__raiseBadSetAttr(key)
+        _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
         returnValue = PSet(**myparams)
         returnValue.setIsTracked(self.isTracked())
         returnValue._isModified = False
@@ -651,6 +661,12 @@ class PSet(_ParameterTypeBase,_Parameterizable,_ConfigureComponent,_Labelable):
         newpset = parameterSet.newPSet()
         self.insertContentsInto(newpset)
         parameterSet.addPSet(self.isTracked(), myname, newpset)
+    def insertContentsInto(self, parameterSet):
+        if self.isRef_():
+            ref = parameterSet.getTopPSet_(self.refToPSet_.value())
+            ref.insertContentsInto(parameterSet)
+        else:
+            super(PSet, self).insertContentsInto(parameterSet)
 
 
 class vint32(_ValidatingParameterListBase):
@@ -1118,6 +1134,11 @@ class EDAlias(_ConfigureComponent,_Labelable):
         self.__dict__[name]=value
         self.__parameterNames.append(name)
 
+    def __delattr__(self,attr):
+        if attr in self.__parameterNames:
+            self.__parameterNames.remove(attr)
+        return super(EDAlias,self).__delattr__(attr)
+
     def __setParameters(self,parameters):
         for name,value in parameters.iteritems():
             self.__addParameter(name, value)
@@ -1186,15 +1207,19 @@ if __name__ == "__main__":
         def testint32(self):
             i = int32(1)
             self.assertEqual(i.value(),1)
+            self.assert_(i)
             self.assertRaises(ValueError,int32,"i")
             i = int32._valueFromString("0xA")
             self.assertEqual(i.value(),10)
+            self.assert_(not int32(0))
 
         def testuint32(self):
             i = uint32(1)
             self.assertEqual(i.value(),1)
+            self.assert_(i)
             i = uint32(0)
             self.assertEqual(i.value(),0)
+            self.assert_(not i)
             self.assertRaises(ValueError,uint32,"i")
             self.assertRaises(ValueError,uint32,-1)
             i = uint32._valueFromString("0xA")
@@ -1203,9 +1228,11 @@ if __name__ == "__main__":
         def testvint32(self):
             v = vint32()
             self.assertEqual(len(v),0)
+            self.assert_(not v)
             v.append(1)
             self.assertEqual(len(v),1)
             self.assertEqual(v[0],1)
+            self.assert_(v)
             v.append(2)
             v.insert(1,3)
             self.assertEqual(v[1],3)
@@ -1219,20 +1246,25 @@ if __name__ == "__main__":
         def testbool(self):
             b = bool(True)
             self.assertEqual(b.value(),True)
+            self.assert_(b)
             b = bool(False)
             self.assertEqual(b.value(),False)
+            self.assert_(not b)
             b = bool._valueFromString("2")
             self.assertEqual(b.value(),True)
             self.assertEqual(repr(b), "cms.bool(True)")
+            self.assertRaises(ValueError, lambda: bool("False"))
         def testString(self):
             s=string('this is a test')
             self.assertEqual(s.value(),'this is a test')
             self.assertEqual(repr(s), "cms.string(\'this is a test\')")
+            self.assert_(s)
             s=string('\0')
             self.assertEqual(s.value(),'\0')
             self.assertEqual(s.configValue(),"'\\0'")
             s2=string('')
             self.assertEqual(s2.value(),'')
+            self.assert_(not s2)
         def testvstring(self):
             a = vstring("", "Barack", "John", "Sarah", "Joe")
             self.assertEqual(len(a), 5)
@@ -1334,6 +1366,13 @@ if __name__ == "__main__":
             self.assertFalse(p4.b.isTracked())
             self.assertFalse(p4.a.b.isTracked())
             self.assert_(p4.b.b.isTracked())
+            p4 = p3.clone( i = None, b = dict(b = 5))
+            self.assertEqual(p3.i.value(), 1)
+            self.assertEqual(hasattr(p4,"i"), False)
+            self.assertEqual(p3.b.b.value(), 1)
+            self.assertEqual(p4.b.b.value(), 5)
+            self.assertEqual(p4.a.b.value(), 1)
+            self.assertEqual(p4.ui.value(), 2)
         def testVPSet(self):
             p1 = VPSet(PSet(anInt = int32(1)), PSet(anInt=int32(2)))
             self.assertEqual(len(p1),2)
@@ -1344,22 +1383,26 @@ if __name__ == "__main__":
             self.assertRaises(SyntaxError, lambda : VPSet(foo=PSet()))
         def testEDAlias(self):
             aliasfoo2 = EDAlias(foo2 = VPSet(PSet(type = string("Foo2"))))
+            self.assert_(hasattr(aliasfoo2,"foo2"))
+            del aliasfoo2.foo2
+            self.assert_(not hasattr(aliasfoo2,"foo2"))
+            self.assert_("foo2" not in aliasfoo2.parameterNames_())
 
         def testFileInPath(self):
             f = FileInPath("FWCore/ParameterSet/python/Types.py")
             self.assertEqual(f.configValue(), "'FWCore/ParameterSet/python/Types.py'")
         def testSecSource(self):
-            s1 = SecSource("PoolSource", fileNames = vstring("foo.root"))
-            self.assertEqual(s1.type_(), "PoolSource")
+            s1 = SecSource("EmbeddedRootSource", fileNames = vstring("foo.root"))
+            self.assertEqual(s1.type_(), "EmbeddedRootSource")
             self.assertEqual(s1.configValue(),
-"""PoolSource { """+"""
+"""EmbeddedRootSource { """+"""
     vstring fileNames = {
         'foo.root'
     }
 
 }
 """)
-            s1=SecSource("PoolSource",type=int32(1))
+            s1=SecSource("EmbeddedRootSource",type=int32(1))
             self.assertEqual(s1.type.value(),1)
         def testEventID(self):
             eid = EventID(2, 0, 3)
@@ -1482,5 +1525,44 @@ if __name__ == "__main__":
             self.assertEqual(v[0].a,convert.pset.v[0].a)
             self.assertEqual(v[1].b,convert.pset.v[1].b)
             self.assertEqual(v[1].p.a, convert.pset.v[1].p.a)
+
+    class testInequalities(unittest.TestCase):
+        def testnumbers(self):
+            self.assertGreater(int32(5), int32(-1))
+            self.assertGreater(int64(100), 99)
+            self.assertLess(3, uint32(4))
+            self.assertLess(6.999999999, uint64(7))
+            self.assertLessEqual(-5, int32(-5))
+            self.assertLessEqual(int32(-5), uint32(1))
+            self.assertGreaterEqual(double(5.3), uint32(5))
+            self.assertGreater(double(5.3), uint64(5))
+            self.assertGreater(double(5.3), uint64(5))
+            self.assertGreater(6, double(5))
+            self.assertLess(uint64(0xFFFFFFFFFFFFFFFF), 0xFFFFFFFFFFFFFFFF+1)
+            self.assertEqual(double(5.0), double(5))
+        def teststring(self):
+            self.assertGreater(string("I am a string"), "I am a strinf")
+            self.assertGreaterEqual("I am a string", string("I am a string"))
+            self.assertLess(5, string("I am a string"))
+        def testincompatibletypes(self):
+            import sys
+            if sys.version_info < (3, 0): #python 2, comparing incompatible types compares the class name
+                self.assertLess(double(3), "I am a string")
+                self.assertLess(3, string("I am a string"))
+                self.assertLess(double(5), "4")
+            else:                         #python 3, comparing incompatible types fails
+                with self.assertRaises(TypeError):
+                    double(3) < "I am a string"
+                with self.assertRaises(TypeError):
+                    3 < string("I am a string")
+        def testinfinity(self):
+            self.assertLess(1e99, double(float("inf")))
+            self.assertLess(double(1e99), float("inf"))
+            self.assertGreater(1e99, double(float("-inf")))
+            self.assertEqual(double(float("inf")), float("inf"))
+        def testnan(self):
+            nan = double(float("nan"))
+            self.assertNotEqual(nan, nan)
+            self.assertFalse(nan > 3 or nan < 3 or nan == 3)
 
     unittest.main()

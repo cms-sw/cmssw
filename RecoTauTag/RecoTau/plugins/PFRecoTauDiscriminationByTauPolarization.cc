@@ -1,5 +1,4 @@
 #include "RecoTauTag/RecoTau/interface/TauDiscriminationProducerBase.h"
-#include "RecoTauTag/TauTagTools/interface/PFTauQualityCutWrapper.h"
 
 /* class PFRecoTauDiscriminationByTauPolarization
  * created : May 26 2010,
@@ -23,7 +22,7 @@ class PFRecoTauDiscriminationByTauPolarization :
     ~PFRecoTauDiscriminationByTauPolarization(){}
 
     void beginEvent(const Event&, const EventSetup&) override;
-    double discriminate(const PFTauRef&) override;
+    double discriminate(const PFTauRef&) const override;
 
   private:
     bool booleanOutput;
@@ -34,7 +33,7 @@ void PFRecoTauDiscriminationByTauPolarization::beginEvent(
     const Event& event, const EventSetup& eventSetup){}
 
 double
-PFRecoTauDiscriminationByTauPolarization::discriminate(const PFTauRef& tau){
+PFRecoTauDiscriminationByTauPolarization::discriminate(const PFTauRef& tau) const{
 
   double rTau = 0;
   // rtau for PFTau has to be calculated for leading PF charged hadronic candidate

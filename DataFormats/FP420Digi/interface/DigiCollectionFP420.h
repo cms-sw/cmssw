@@ -37,10 +37,10 @@ class DigiCollectionFP420 {
   void clear();
  private:
 
-  mutable std::vector<HDigiFP420> container_;
-  mutable Registry map_;
+  std::vector<HDigiFP420> container_;
+  Registry map_;
 
-  mutable HDigiFP420Container digiMap_; 
+  HDigiFP420Container digiMap_; 
 
 
 };

@@ -27,8 +27,36 @@ muonClientsQualityTests = cms.EDAnalyzer("QualityTester",
     qtList = cms.untracked.FileInPath('DQMOffline/Muon/data/QualityTests2.xml')
 )
 
-cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*ClientTrackEfficiencySTACosmicMuons*muonSourcesQualityTests*muTrackResidualsTest*muRecoTest*muonClientsQualityTests*muonComp2RefQualityTests*muonComp2RefKolmoQualityTests*muonCosmicTestSummary)
+cosmicMuonQualityTests = cms.Sequence(ClientTrackEfficiencyTkTracks*
+                                      ClientTrackEfficiencySTACosmicMuons*
+                                      muonSourcesQualityTests*
+                                      muTrackResidualsTest*
+                                      muRecoTest*
+                                      muonClientsQualityTests*
+                                      muonComp2RefQualityTests*
+                                      muonComp2RefKolmoQualityTests*
+                                      muonCosmicTestSummary)
 
-muonQualityTests = cms.Sequence(muonSourcesQualityTests*muTrackResidualsTest*effPlotter*muRecoTest*muonClientsQualityTests*muonComp2RefQualityTests*muonComp2RefKolmoQualityTests*muonTestSummary)
+muonQualityTests = cms.Sequence(muonSourcesQualityTests*
+                                muTrackResidualsTest*
+                                effPlotterLoose*
+                                effPlotterMedium*
+                                effPlotterTight*
+                                muRecoTest*
+                                muonClientsQualityTests*
+                                muonComp2RefQualityTests*
+                                muonComp2RefKolmoQualityTests*
+                                muonTestSummary)
+
+muonQualityTests_miniAOD = cms.Sequence(muonSourcesQualityTests*
+                                        muTrackResidualsTest*
+                                        effPlotterLooseMiniAOD*
+                                        effPlotterMediumMiniAOD*
+                                        effPlotterTightMiniAOD*
+                                        muRecoTest*
+                                        muonClientsQualityTests*
+                                        muonComp2RefQualityTests*
+                                        muonComp2RefKolmoQualityTests*
+                                        muonTestSummary)
 
 

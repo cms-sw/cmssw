@@ -35,7 +35,6 @@ protected:
     ModuleDescription createModuleDescription(MakeModuleParams const& p) const;
 
     void throwConfigurationException(ModuleDescription const& md,
-                                     signalslot::Signal<void(ModuleDescription const&)>& post,
                                      cms::Exception & iException) const;
 
     void throwValidationException(MakeModuleParams const& p,
@@ -83,9 +82,7 @@ protected:
     typedef typename UserType::ModuleType ModuleType;
     typedef MakeModuleHelper<ModuleType> MakerHelperType;
     
-    
-    
-    return std::shared_ptr<maker::ModuleHolder>(new maker::ModuleHolderT<ModuleType>{MakerHelperType::template makeModule<UserType>(p).release(),this});
+    return std::shared_ptr<maker::ModuleHolder>(std::make_shared<maker::ModuleHolderT<ModuleType> >(MakerHelperType::template makeModule<UserType>(p),this));
   }
   
   template <class T>
@@ -96,7 +93,7 @@ protected:
     typedef edm::WorkerT<ModuleType> WorkerType;
 
     maker::ModuleHolderT<ModuleType> const* h = dynamic_cast<maker::ModuleHolderT<ModuleType> const*>(mod);
-    return std::unique_ptr<Worker>(new WorkerType(h->module(), md, actions));
+    return std::make_unique<WorkerType>(h->module(), md, actions);
   }
   
 

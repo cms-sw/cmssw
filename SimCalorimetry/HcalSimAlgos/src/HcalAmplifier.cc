@@ -15,26 +15,23 @@
 
 #include "CalibFormats/HcalObjects/interface/HcalCalibrations.h"
 
-#include<iostream>
+#include "CLHEP/Random/RandGaussQ.h"
+#include "CLHEP/Random/RandFlat.h"
+
 #include <cmath>
 #include <math.h>
 
-HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise) :
-  theDbService(0), 
-  theRandGaussQ(0),
-  theRandFlat(0),
+HcalAmplifier::HcalAmplifier(const CaloVSimParameterMap * parameters, bool addNoise, bool PreMix1, bool PreMix2) :
+  theDbService(nullptr),
   theParameterMap(parameters),
-  theNoiseSignalGenerator(0),
-  theIonFeedbackSim(0),
-  theTimeSlewSim(0),
-  theStartingCapId(0), 
+  theNoiseSignalGenerator(nullptr),
+  theIonFeedbackSim(nullptr),
+  theTimeSlewSim(nullptr),
+  theStartingCapId(0),
   addNoise_(addNoise),
-  useOldHB(false),
-  useOldHE(false),
-  useOldHF(false),
-  useOldHO(false)
-{
-}
+  preMixDigi_(PreMix1),
+  preMixAdd_(PreMix2)
+{ }
 
 
 void HcalAmplifier::setDbService(const HcalDbService * service) {
@@ -43,28 +40,22 @@ void HcalAmplifier::setDbService(const HcalDbService * service) {
 }
 
 
-void HcalAmplifier::setRandomEngine(CLHEP::HepRandomEngine & engine)
-{
-  theRandGaussQ = new CLHEP::RandGaussQ(engine);
-  theRandFlat = new CLHEP::RandFlat(engine);
-  if(theIonFeedbackSim) theIonFeedbackSim->setRandomEngine(engine);
-}
-
-
-void HcalAmplifier::amplify(CaloSamples & frame) const {
+void HcalAmplifier::amplify(CaloSamples & frame, CLHEP::HepRandomEngine* engine) const {
   if(theIonFeedbackSim)
   {
-    theIonFeedbackSim->addThermalNoise(frame);
+    theIonFeedbackSim->addThermalNoise(frame, engine);
   }
   pe2fC(frame);
   // don't bother for blank signals
-  if(theTimeSlewSim && frame[4] > 1.e-6)
+  if(theTimeSlewSim && frame.size()>4 && frame[4] > 1.e-6)
   {
-    theTimeSlewSim->delay(frame);
+    theTimeSlewSim->delay(frame, engine);
   }
-  if(theNoiseSignalGenerator==0 || !theNoiseSignalGenerator->contains(frame.id()))
+
+  // if we are combining pre-mixed digis, we need noise and peds
+  if(theNoiseSignalGenerator==0 || preMixAdd_ || !theNoiseSignalGenerator->contains(frame.id()) )
   {
-    addPedestals(frame);
+    addPedestals(frame, engine);
   }
   LogDebug("HcalAmplifier") << frame;
 }
@@ -76,55 +67,11 @@ void HcalAmplifier::pe2fC(CaloSamples & frame) const
   frame *= parameters.photoelectronsToAnalog(frame.id());
 }
 
-void HcalAmplifier::setHBtuningParameter(double tp) { HB_ff = tp; }
-void HcalAmplifier::setHEtuningParameter(double tp) { HE_ff = tp; }
-void HcalAmplifier::setHFtuningParameter(double tp) { HF_ff = tp; }
-void HcalAmplifier::setHOtuningParameter(double tp) { HO_ff = tp; }
-void HcalAmplifier::setUseOldHB(bool useOld) { useOldHB = useOld; }
-void HcalAmplifier::setUseOldHE(bool useOld) { useOldHE = useOld; }
-void HcalAmplifier::setUseOldHF(bool useOld) { useOldHF = useOld; }
-void HcalAmplifier::setUseOldHO(bool useOld) { useOldHO = useOld; }
-
-void HcalAmplifier::addPedestals(CaloSamples & frame) const
+void HcalAmplifier::addPedestals(CaloSamples & frame, CLHEP::HepRandomEngine* engine) const
 {
-   assert(theDbService != 0);
-   HcalGenericDetId hcalGenDetId(frame.id());
-   HcalGenericDetId::HcalGenericSubdetector hcalSubDet = hcalGenDetId.genericSubdet();
-
-   bool useOld=false;
-   if(hcalSubDet==HcalGenericDetId::HcalGenBarrel) useOld = useOldHB;
-   if(hcalSubDet==HcalGenericDetId::HcalGenEndcap) useOld = useOldHE;
-   if(hcalSubDet==HcalGenericDetId::HcalGenForward) useOld = useOldHF;
-   if(hcalSubDet==HcalGenericDetId::HcalGenOuter) useOld = useOldHO;
-   
-   if(useOld)
-   {
-     const HcalCalibrationWidths & calibWidths =
-       theDbService->getHcalCalibrationWidths(hcalGenDetId);
-     const HcalCalibrations& calibs = theDbService->getHcalCalibrations(hcalGenDetId);
-   
-     double noise [32] = {0.}; //big enough
-     if(addNoise_)
-     {
-       double gauss [32]; //big enough
-       for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
-       makeNoiseOld(hcalSubDet, calibWidths, frame.size(), gauss, noise);
-     }
-   
-     for (int tbin = 0; tbin < frame.size(); ++tbin) {
-       int capId = (theStartingCapId + tbin)%4;
-       double pedestal = calibs.pedestal(capId) + noise[tbin];
-       frame[tbin] += pedestal;
-     }
-     return;
-   }
-
-
-  double fudgefactor = 1;
-  if(hcalSubDet==HcalGenericDetId::HcalGenBarrel) fudgefactor = HB_ff;
-  if(hcalSubDet==HcalGenericDetId::HcalGenEndcap) fudgefactor = HE_ff;
-  if(hcalSubDet==HcalGenericDetId::HcalGenForward) fudgefactor = HF_ff;
-  if(hcalSubDet==HcalGenericDetId::HcalGenOuter) fudgefactor = HO_ff;
+  assert(theDbService != 0);
+  HcalGenericDetId hcalGenDetId(frame.id());
+  HcalGenericDetId::HcalGenericSubdetector hcalSubDet = hcalGenDetId.genericSubdet();
 
   if ( !( (frame.id().subdetId()==HcalGenericDetId::HcalGenBarrel) ||
 	  (frame.id().subdetId()==HcalGenericDetId::HcalGenEndcap) ||
@@ -134,47 +81,27 @@ void HcalAmplifier::addPedestals(CaloSamples & frame) const
   if(hcalGenDetId.isHcalCastorDetId()) return;
   if(hcalGenDetId.isHcalZDCDetId()) return;
 
-  const HcalCholeskyMatrix * thisChanCholesky = myCholeskys->getValues(hcalGenDetId,false);
-  if ( !thisChanCholesky) {
-    std::cout << "no Cholesky " << hcalSubDet << " " << hcalGenDetId.rawId() << " " << frame.id().subdetId() <<std::endl;
-    return;
-  }
-  const HcalPedestal * thisChanADCPeds = myADCPeds->getValues(hcalGenDetId);
-  int theStartingCapId_2 = (int)floor(theRandFlat->fire(0.,4.));
+  const HcalCalibrationWidths & calibWidths = theDbService->getHcalCalibrationWidths(hcalGenDetId);
+  const HcalCalibrations& calibs = theDbService->getHcalCalibrations(hcalGenDetId);
 
   double noise [32] = {0.}; //big enough
   if(addNoise_)
   {
     double gauss [32]; //big enough
-    for (int i = 0; i < frame.size(); i++) gauss[i] = theRandGaussQ->fire(0., 1.);
-    makeNoise(*thisChanCholesky, frame.size(), gauss, noise, (int)theStartingCapId_2);
+    for (int i = 0; i < frame.size(); i++) gauss[i] = CLHEP::RandGaussQ::shoot(engine, 0., 1.);
+    makeNoise(hcalSubDet, calibWidths, frame.size(), gauss, noise);
   }
-
-  const HcalQIECoder* coder = theDbService->getHcalCoder(hcalGenDetId);
-  const HcalQIEShape* shape = theDbService->getHcalShape(coder);
-
-  for (int tbin = 0; tbin < frame.size(); ++tbin) {
-    int capId = (theStartingCapId_2 + tbin)%4;
-    double x = noise[tbin] * fudgefactor + thisChanADCPeds->getValue(capId);//*(values+capId); //*.70 goes here!
-    int x1=(int)std::floor(x);
-    int x2=(int)std::floor(x+1);
-    float y2=coder->charge(*shape,x2,capId);
-    float y1=coder->charge(*shape,x1,capId);
-    frame[tbin] = (y2-y1)*(x-x1)+y1;
+   
+  if(!preMixDigi_){  // if we are doing initial premix, no pedestals
+    for (int tbin = 0; tbin < frame.size(); ++tbin) {
+      int capId = (theStartingCapId + tbin)%4;
+      double pedestal = calibs.pedestal(capId) + noise[tbin];
+      frame[tbin] += pedestal;
+    }
   }
 }
 
-void HcalAmplifier::makeNoise (const HcalCholeskyMatrix & thisChanCholesky, int fFrames, double* fGauss, double* fNoise, int m) const {
-   if(fFrames > 10) return;
-
-   for(int i = 0; i != 10; i++){
-      for(int j = 0; j != 10; j++){ //fNoise is initialized to zero in function above! Must be zero before this step
-         fNoise[i] += thisChanCholesky.getValue(m,i,j) * fGauss[j];
-      }
-   }
-}
-
-void HcalAmplifier::makeNoiseOld (HcalGenericDetId::HcalGenericSubdetector hcalSubDet, const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const 
+void HcalAmplifier::makeNoise(HcalGenericDetId::HcalGenericSubdetector hcalSubDet, const HcalCalibrationWidths& width, int fFrames, double* fGauss, double* fNoise) const 
 {
   // This is a simplified noise generation scheme using only the diagonal elements
   // (proposed by Salavat Abduline).

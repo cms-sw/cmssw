@@ -30,16 +30,16 @@
 
 class AnalysisRootpleProducerOnlyMC : public edm::EDAnalyzer
 {
-  
+
 public:
-  
+
   explicit AnalysisRootpleProducerOnlyMC( const edm::ParameterSet& ) ;
-  virtual ~AnalysisRootpleProducerOnlyMC() {} 
+  virtual ~AnalysisRootpleProducerOnlyMC() {}
 
   virtual void analyze( const edm::Event&, const edm::EventSetup& ) ;
   virtual void beginJob() ;
   virtual void endJob() ;
-  
+
   void fillEventInfo(int);
   void fillMCParticles(float, float, float, float);
   void fillInclusiveJet(float, float, float, float);
@@ -47,25 +47,25 @@ public:
   void store();
 
 private:
-  
-  edm::InputTag mcEvent; // label of MC event
-  edm::InputTag genJetCollName; // label of Jet made with MC particles
-  edm::InputTag chgJetCollName; // label of Jet made with only charged MC particles
-  edm::InputTag chgGenPartCollName; // label of charged MC particles
+
+  edm::EDGetTokenT< edm::HepMCProduct         > mcEventToken; // label of MC event
+  edm::EDGetTokenT< reco::GenJetCollection    > genJetCollToken; // label of Jet made with MC particles
+  edm::EDGetTokenT< reco::GenJetCollection    > chgJetCollToken; // label of Jet made with only charged MC particles
+  edm::EDGetTokenT< std::vector<reco::GenParticle> > chgGenPartCollToken; // label of charged MC particles
 
   edm::Handle< edm::HepMCProduct         > EvtHandle        ;
   edm::Handle< std::vector<reco::GenParticle> > CandHandleMC     ;
   edm::Handle< reco::GenJetCollection    > GenJetsHandle    ;
   edm::Handle< reco::GenJetCollection    > ChgGenJetsHandle ;
 
-  
+
   float piG;
 
   edm::Service<TFileService> fs;
 
   TTree* AnalysisTree;
 
-  static const int NMCPMAX = 10000;   
+  static const int NMCPMAX = 10000;
   static const int NTKMAX = 10000;
   static const int NIJMAX = 10000;
   static const int NCJMAX = 10000;
@@ -73,7 +73,7 @@ private:
   static const int NEHJMAX = 10000;
 
   int EventKind,NumberMCParticles,NumberTracks,NumberInclusiveJet,NumberChargedJet,NumberTracksJet,NumberCaloJet;
-  
+
   float MomentumMC[NMCPMAX],TransverseMomentumMC[NMCPMAX],EtaMC[NMCPMAX],PhiMC[NMCPMAX];
   float MomentumTK[NTKMAX],TransverseMomentumTK[NTKMAX],EtaTK[NTKMAX],PhiTK[NTKMAX];
   float MomentumIJ[NIJMAX],TransverseMomentumIJ[NIJMAX],EtaIJ[NIJMAX],PhiIJ[NIJMAX];
@@ -84,7 +84,7 @@ private:
   TClonesArray* MonteCarlo;
   TClonesArray* InclusiveJet;
   TClonesArray* ChargedJet;
-  
+
 };
 
 #endif

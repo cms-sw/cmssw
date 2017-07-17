@@ -17,8 +17,9 @@
 using namespace reco;
 
 namespace {
+#ifndef __clang__
   inline double sqr(double arg) { return arg * arg; }
-  
+#endif  
   typedef ROOT::Math::SMatrix<double, 3, 4> Matrix34;
   typedef ROOT::Math::SMatrix<double, 4, 5> Matrix45;
   typedef ROOT::Math::SMatrix<double, 5, 4> Matrix54;
@@ -95,8 +96,8 @@ void GhostTrackPrediction::init(
 	jacobian(2, 5) = 1.;
 
 	Matrix6S origCov;
-	origCov.Place_at(priorError.matrix_new(), 0, 0);
-	origCov.Place_at(directionError.matrix_new() / perp2, 3, 3);
+	origCov.Place_at(priorError.matrix(), 0, 0);
+	origCov.Place_at(directionError.matrix() / perp2, 3, 3);
 
 	covariance_ =  ROOT::Math::Similarity(jacobian, origCov);
 }

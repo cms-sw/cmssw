@@ -4,6 +4,7 @@
 //DataFormats
 #include "SimDataFormats/TrackingHit/interface/PSimHit.h"
 #include "SimDataFormats/TrackingHit/interface/PSimHitContainer.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 //FAMOS Headers
 #include "FastSimulation/MaterialEffects/interface/MaterialEffects.h"
@@ -42,11 +43,9 @@ class TrackerLayer;
 class ParticlePropagator;
 class FSimEvent;
 //class Histos;
-class RandomEngine;
+class RandomEngineAndDistribution;
 class TrajectoryStateOnSurface;
 class DetLayer;
-class GeomDet;
-class GeomDetUnit;
 class MagneticField;
 class MagneticFieldMap;
 class GeometricSearchTracker;
@@ -71,14 +70,13 @@ class TrajectoryManager
   TrajectoryManager(FSimEvent* aSimEvent, 
 		    const edm::ParameterSet& matEff,
 		    const edm::ParameterSet& simHits,
-		    const edm::ParameterSet& decays,
-		    const RandomEngine* engine);
+		    const edm::ParameterSet& decays);
 
   /// Default Destructor
   ~TrajectoryManager();
   
   /// Does the real job
-  void reconstruct(const TrackerTopology *tTopo);
+  void reconstruct(const TrackerTopology *tTopo, RandomEngineAndDistribution const*);
 
   /// Create a vector of PSimHits 
   void createPSimHits(const TrackerLayer& layer,
@@ -87,9 +85,9 @@ class TrajectoryManager
 		      int trackID, int partID, const TrackerTopology *tTopo);
 
 /// Propagate the particle through the calorimeters
-  void propagateToCalorimeters(ParticlePropagator& PP, 
-			       int fsimi);
-
+  void propagateToCalorimeters(ParticlePropagator& PP,
+                               int fsimi,
+                               RandomEngineAndDistribution const*);
 
   /// Propagate a particle to a given tracker layer 
   /// (for electron pixel matching mostly)
@@ -112,7 +110,7 @@ class TrajectoryManager
  private:
 
   /// Decay the particle and update the SimEvent with daughters 
-  void updateWithDaughters(ParticlePropagator& PP, int fsimi);
+  void updateWithDaughters(ParticlePropagator& PP, int fsimi, RandomEngineAndDistribution const*);
 
   /// Move, rescale and rotate all daughters after propagation, material effects and decay of the mother.
   void moveAllDaughters(int fsimi, const Rotation& r, double rescale);
@@ -160,8 +158,6 @@ class TrajectoryManager
   int                                         theNegLayerOffset;
 
   //  Histos* myHistos;
-
-  const RandomEngine* random;
 
   bool use_hardcoded;
 

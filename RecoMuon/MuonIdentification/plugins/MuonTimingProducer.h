@@ -25,7 +25,7 @@
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -40,18 +40,17 @@
 // class decleration
 //
 
-class MuonTimingProducer : public edm::EDProducer {
+class MuonTimingProducer : public edm::stream::EDProducer<> {
    public:
       explicit MuonTimingProducer(const edm::ParameterSet&);
       ~MuonTimingProducer();
 
    private:
-      virtual void beginJob() ;
-      virtual void produce(edm::Event&, const edm::EventSetup&);
-      virtual void endJob() ;
+      virtual void produce(edm::Event&, const edm::EventSetup&) override;
       
       // ----------member data ---------------------------
       edm::InputTag m_muonCollection;
+      edm::EDGetTokenT<reco::MuonCollection> muonToken_;
 
       MuonTimingFiller* theTimingFiller_;
 

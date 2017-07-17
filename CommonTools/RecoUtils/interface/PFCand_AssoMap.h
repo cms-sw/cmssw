@@ -5,7 +5,7 @@
 //
 // Package:    PFCand_AssoMap
 // Class:      PFCand_AssoMap
-// 
+//
 /**\class PFCand_AssoMap PFCand_AssoMap.cc CommonTools/RecoUtils/plugins/PFCand_AssoMap.cc
 
   Description: Produces a map with association between pf candidates and their particular most probable vertex with a quality of this association
@@ -18,7 +18,7 @@
 //
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -34,7 +34,7 @@
 // class declaration
 //
 
-class PFCand_AssoMap : public edm::EDProducer, public PFCand_AssoMapAlgos {
+class PFCand_AssoMap : public edm::stream::EDProducer<>, public PFCand_AssoMapAlgos {
    public:
       explicit PFCand_AssoMap(const edm::ParameterSet&);
       ~PFCand_AssoMap();
@@ -48,7 +48,7 @@ class PFCand_AssoMap : public edm::EDProducer, public PFCand_AssoMapAlgos {
 
       edm::InputTag input_AssociationType_;
 
-      edm::InputTag input_PFCandidates_;
+      edm::EDGetTokenT<reco::PFCandidateCollection> token_PFCandidates_;
 };
 
 

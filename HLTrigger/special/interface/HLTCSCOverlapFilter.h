@@ -18,8 +18,8 @@ class HLTCSCOverlapFilter : public HLTFilter {
  public:
   explicit HLTCSCOverlapFilter(const edm::ParameterSet&);
   ~HLTCSCOverlapFilter();
-  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct);
-  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);   
+  virtual bool hltFilter(edm::Event&, const edm::EventSetup&, trigger::TriggerFilterObjectWithRefs & filterproduct) const override;
+  static void fillDescriptions(edm::ConfigurationDescriptions & descriptions);
 
  private:
   edm::InputTag m_input;
@@ -31,4 +31,4 @@ class HLTCSCOverlapFilter : public HLTFilter {
   TH1F *m_nhitsNoWindowCut, *m_xdiff, *m_ydiff, *m_pairsWithWindowCut;
 };
 
-#endif 
+#endif

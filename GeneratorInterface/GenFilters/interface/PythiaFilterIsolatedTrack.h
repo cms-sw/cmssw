@@ -9,17 +9,21 @@
  * 
  * \author O.Kodolova, SINP
  *
- * Cleaned up code, and added pixel efficiency functionality
+ * Cleaned up code
  * \author J.P. Chou, Brown University
  *
  ************************************************************/
 
 // system include files
+#include <atomic>
 #include <memory>
+
+// Root objects
+#include "TH1F.h"
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDFilter.h"
+#include "FWCore/Framework/interface/stream/EDFilter.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"
@@ -27,33 +31,45 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
 #include "FWCore/ServiceRegistry/interface/Service.h"
-#include "FWCore/Utilities/interface/RandomNumberGenerator.h"
-#include "CLHEP/Random/RandFlat.h"
+#include "SimDataFormats/GeneratorProducts/interface/HepMCProduct.h"
 
-class PythiaFilterIsolatedTrack : public edm::EDFilter {
-   public:
-      explicit PythiaFilterIsolatedTrack(const edm::ParameterSet&);
-      ~PythiaFilterIsolatedTrack();
+namespace PythiaFilterIsoTracks {
+  struct Counters {
+    Counters() : nAll_(0), nGood_(0) {}
+    mutable std::atomic<unsigned int> nAll_, nGood_;
+  };
+}
 
-      virtual bool filter(edm::Event&, const edm::EventSetup&);
+class PythiaFilterIsolatedTrack : public edm::stream::EDFilter<edm::GlobalCache<PythiaFilterIsoTracks::Counters> > {
 
+public:
+  explicit PythiaFilterIsolatedTrack(const edm::ParameterSet&, const PythiaFilterIsoTracks::Counters* count);
+  ~PythiaFilterIsolatedTrack();
 
-      // helper functions
-      static std::pair<double,double> GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ);
-      static double getDistInCM(double eta1, double phi1, double eta2, double phi2);
+  static std::unique_ptr<PythiaFilterIsoTracks::Counters> initializeGlobalCache(edm::ParameterSet const& ) {
+    return std::unique_ptr<PythiaFilterIsoTracks::Counters>(new PythiaFilterIsoTracks::Counters());
+  }
 
-   private:
+  virtual bool filter(edm::Event&, edm::EventSetup const&) override;
+  virtual void endStream() override;
+  static  void globalEndJob(const PythiaFilterIsoTracks::Counters* counters);
+
+  // helper functions
+  std::pair<double,double> GetEtaPhiAtEcal(double etaIP, double phiIP, double pT, int charge, double vtxZ);
+  double getDistInCM(double eta1, double phi1, double eta2, double phi2);
+
+private:
       
-      // parameters
-      std::string ModuleLabel_; // label to get the generated particles
-      double MaxSeedEta_;       // maximum eta of the isolated track seed
-      double MinSeedMom_;       // minimum momentum of the isolated track seed
-      double MinIsolTrackMom_;  // minimum prohibited momentum of a nearby track
-      double IsolCone_;         // cone size (in mm) around the seed to consider a track "nearby"
-      double PixelEfficiency_;  // efficiency to reconstruct a pixel track (used to throw out nearby tracks, randomly)
+  // parameters
+  edm::EDGetTokenT<edm::HepMCProduct> token_; // token to get the generated particles
+  double MaxSeedEta_;       // maximum eta of the isolated track seed
+  double MinSeedMom_;       // minimum momentum of the isolated track seed
+  double MinIsolTrackMom_;  // minimum prohibited momentum of a nearby track
+  double IsolCone_;         // cone size (in mm) around the seed to consider a track "nearby"
+  bool   onlyHadrons_;      // select only isolated hadrons 
 
-      // to get a random number
-      edm::Service<edm::RandomNumberGenerator> rng_;
-      CLHEP::RandFlat *flatDistribution_;
+  unsigned int nAll_, nGood_;
+  double ecDist_;           //distance to ECAL andcap from IP (cm)
+  double ecRad_;            //radius of ECAL barrel (cm)
 };
 #endif

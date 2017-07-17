@@ -9,6 +9,7 @@
 #include "DataFormats/Provenance/interface/LuminosityBlockID.h"
 #include "DataFormats/Provenance/interface/LuminosityBlockRange.h"
 #include "DataFormats/Provenance/interface/EventID.h"
+#include "DataFormats/Provenance/interface/RunLumiEventNumber.h"
 #include "FWCore/Utilities/interface/ESInputTag.h"
 #include "FWCore/Utilities/interface/Exception.h"
 #include "FWCore/Utilities/interface/InputTag.h"
@@ -25,14 +26,14 @@
 // to add module type and label context to the messages being caught
 // here. At this point we did not think it worth the time to implement.
 namespace {
-  void translator(cms::Exception const& ex) {
+  void translatorlibFWCorePythonParameterSet(cms::Exception const& ex) {
     PyErr_SetString(PyExc_RuntimeError, ex.message().c_str());
   }
 }
 
-BOOST_PYTHON_MODULE(libFWCoreParameterSet)
+BOOST_PYTHON_MODULE(libFWCorePythonParameterSet)
 {
-  boost::python::register_exception_translator<cms::Exception>(translator);
+  boost::python::register_exception_translator<cms::Exception>(translatorlibFWCorePythonParameterSet);
 
   boost::python::class_<edm::InputTag>("InputTag", boost::python::init<std::string>())
       .def(boost::python::init<std::string, std::string, std::string>())
@@ -48,7 +49,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
    .def("data",  &edm::ESInputTag::data, boost::python::return_value_policy<boost::python::copy_const_reference>())
    ;
 
-   boost::python::class_<edm::EventID>("EventID", boost::python::init<unsigned int, unsigned int, unsigned int>())
+   boost::python::class_<edm::EventID>("EventID", boost::python::init<edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t>())
       .def("run",   &edm::EventID::run)
       .def("luminosityBlock", &edm::EventID::luminosityBlock)
       .def("event", &edm::EventID::event)
@@ -62,7 +63,6 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
   boost::python::class_<edm::FileInPath>("FileInPath", boost::python::init<std::string>())
       .def("fullPath",     &edm::FileInPath::fullPath)
       .def("relativePath", &edm::FileInPath::relativePath)
-      .def("isLocal",      &edm::FileInPath::isLocal)
   ;
 
   boost::python::class_<edm::LuminosityBlockRange>("LuminosityBlockRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int>())
@@ -72,7 +72,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
       .def("endSub",   &edm::LuminosityBlockRange::endLumi)
   ;
 
-  boost::python::class_<edm::EventRange>("EventRange", boost::python::init<unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int>())
+  boost::python::class_<edm::EventRange>("EventRange", boost::python::init<edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t, edm::RunNumber_t, edm::LuminosityBlockNumber_t, edm::EventNumber_t>())
       .def("start",     &edm::EventRange::startRun)
       .def("startLumi", &edm::EventRange::startLumi)
       .def("startSub",  &edm::EventRange::startEvent)
@@ -152,6 +152,7 @@ BOOST_PYTHON_MODULE(libFWCoreParameterSet)
   boost::python::class_<PythonProcessDesc>("ProcessDesc", boost::python::init<>())
     .def(boost::python::init<std::string>())
     .def("newPSet", &PythonProcessDesc::newPSet)
+  .def("pset", &PythonProcessDesc::pset, boost::python::return_value_policy<boost::python::reference_existing_object>())
     .def("dump", &PythonProcessDesc::dump)
   ;
 }

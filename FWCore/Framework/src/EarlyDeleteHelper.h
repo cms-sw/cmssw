@@ -20,13 +20,26 @@
 
 // system include files
 #include <vector>
+#include <atomic>
 
 // user include files
-
+#include "DataFormats/Provenance/interface/BranchID.h"
 // forward declarations
 namespace edm {
-  class BranchID;
   class EventPrincipal;
+  
+  struct BranchToCount {
+    edm::BranchID const branch;
+    std::atomic<unsigned int> count;
+    
+    BranchToCount(edm::BranchID id, unsigned int count):
+    branch(id),
+    count(count) {}
+    
+    BranchToCount(BranchToCount const& iOther):
+    branch(iOther.branch),
+    count(iOther.count.load()) {}
+  };
   
   class EarlyDeleteHelper
   {
@@ -34,8 +47,8 @@ namespace edm {
   public:
     EarlyDeleteHelper(unsigned int* iBeginIndexItr,
                       unsigned int* iEndIndexItr,
-                      std::vector<std::pair<edm::BranchID,unsigned int>>* iBranchCounts);
-    EarlyDeleteHelper(const EarlyDeleteHelper&) = default;
+                      std::vector<BranchToCount>* iBranchCounts);
+    EarlyDeleteHelper(const EarlyDeleteHelper&);
         EarlyDeleteHelper& operator=(const EarlyDeleteHelper&) = default;
     //virtual ~EarlyDeleteHelper();
     
@@ -45,8 +58,8 @@ namespace edm {
     
     // ---------- member functions ---------------------------
     void reset() {pathsLeftToComplete_ = nPathsOn_;}
-    void moduleRan(EventPrincipal&);
-    void pathFinished(EventPrincipal&);
+    void moduleRan(EventPrincipal const&);
+    void pathFinished(EventPrincipal const&);
     void addedToPath() { ++nPathsOn_;}
     void appendIndex(unsigned int index);
     void shiftIndexPointers(unsigned int iShift);
@@ -59,8 +72,8 @@ namespace edm {
     // ---------- member data --------------------------------
     unsigned int* pBeginIndex_;
     unsigned int* pEndIndex_;
-    std::vector<std::pair<edm::BranchID,unsigned int>>* pBranchCounts_;
-    unsigned int pathsLeftToComplete_;
+    std::vector<BranchToCount>* pBranchCounts_;
+    std::atomic<unsigned int> pathsLeftToComplete_;
     unsigned int nPathsOn_;
     
   };

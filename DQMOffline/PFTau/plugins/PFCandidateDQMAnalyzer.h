@@ -6,29 +6,36 @@
 #include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "FWCore/Utilities/interface/InputTag.h"
+#include "FWCore/Utilities/interface/EDGetToken.h"
 
 #include "DQMOffline/PFTau/interface/PFCandidateMonitor.h"
 
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class PFCandidateDQMAnalyzer: public edm::EDAnalyzer {
+class PFCandidateDQMAnalyzer: public DQMEDAnalyzer {
  public:
   
   PFCandidateDQMAnalyzer(const edm::ParameterSet& parameterSet);
   
  private:
-  void analyze(edm::Event const&, edm::EventSetup const&);
-  void beginJob() ;
-  void endJob();
+  void analyze(edm::Event const&, edm::EventSetup const&) override;
 
-  void storeBadEvents(edm::Event const&, float& val);
+  void bookHistograms(DQMStore::IBooker &, edm::Run const &, edm::EventSetup const &) override;
 
+  MonitorElement * eventId_;
+
+  edm::EDGetTokenT< edm::View<reco::Candidate> > myCand_;
+  edm::EDGetTokenT< edm::View<reco::Candidate> > myMatchedCand_;
   edm::InputTag matchLabel_;
   edm::InputTag inputLabel_;
   std::string benchmarkLabel_;
-  
+  bool createEfficiencyHistos_;
+
   PFCandidateMonitor pfCandidateMonitor_;
 
   edm::ParameterSet pSet_;
+  std::string eventInfoFolder_;
+  std::string subsystemname_;
 
   int nBadEvents_;
 };

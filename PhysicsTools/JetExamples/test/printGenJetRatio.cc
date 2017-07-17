@@ -28,8 +28,8 @@ class printGenJetRatio : public edm::EDAnalyzer {
 
   private:
 
-    edm::InputTag sourceBratio_;
-    edm::InputTag sourceCratio_;
+    edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceBratioToken_;
+    edm::EDGetTokenT<JetBCEnergyRatioCollection> sourceCratioToken_;
     edm::Handle<JetBCEnergyRatioCollection>   theBratioValue;
     edm::Handle<JetBCEnergyRatioCollection>   theCratioValue;
 
@@ -47,32 +47,32 @@ using namespace edm;
 
 printGenJetRatio::printGenJetRatio(const edm::ParameterSet& iConfig)
 {
-  sourceBratio_  = iConfig.getParameter<InputTag> ("srcBratio" );
-  sourceCratio_  = iConfig.getParameter<InputTag> ("srcCratio" );
+  sourceBratioToken_  = consumes<JetBCEnergyRatioCollection>(iConfig.getParameter<InputTag> ("srcBratio" ));
+  sourceCratioToken_  = consumes<JetBCEnergyRatioCollection>(iConfig.getParameter<InputTag> ("srcCratio" ));
 }
 
 void printGenJetRatio::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 {
   cout << "[printGenJetRatio] analysing event " << iEvent.id() << endl;
-  
+
   try {
-    iEvent.getByLabel (sourceBratio_ , theBratioValue);
-    iEvent.getByLabel (sourceCratio_ , theCratioValue);
+    iEvent.getByToken (sourceBratioToken_ , theBratioValue);
+    iEvent.getByToken (sourceCratioToken_ , theCratioValue);
   } catch(std::exception& ce) {
     cerr << "[printJetFlavour] caught std::exception " << ce.what() << endl;
     return;
   }
-  
+
   cout << "-------------------- GenJet Bratio ------------------------" << endl;
-  for ( JetBCEnergyRatioCollection::const_iterator itB  = theBratioValue->begin(); 
+  for ( JetBCEnergyRatioCollection::const_iterator itB  = theBratioValue->begin();
                                                    itB != theBratioValue->end();
-                                                   itB ++) {  
+                                                   itB ++) {
     const Jet &jetB = *(itB->first);
     float cR = 0;
     for ( JetBCEnergyRatioCollection::const_iterator itC  = theCratioValue->begin();
                                                      itC != theCratioValue->end();
                                                      itC ++) {
-   
+
       if( itB->first == itC->first ) cR=itC->second;
     }
     printf("printGenJetRatio] (pt,eta,phi) jet = %7.3f %6.3f %6.3f | bcRatio = %7.5f - %7.5f \n",

@@ -208,6 +208,13 @@ std::string const & FillInfo::injectionScheme() const {
   return m_injectionScheme;
 }
 
+//returns a boolean, true if the injection scheme has a leading 25ns
+//TODO: parse the circulating bunch configuration, instead of the string.
+bool FillInfo::is25nsBunchSpacing() const {
+  const std::string prefix( "25ns" );
+  return std::equal( prefix.begin(), prefix.end(), m_injectionScheme.begin() );
+}
+
 //returns a boolean, true if the bunch slot number is in the circulating bunch configuration
 bool FillInfo::isBunchInBeam1( size_t const & bunch ) const {
   if( bunch == 0 )

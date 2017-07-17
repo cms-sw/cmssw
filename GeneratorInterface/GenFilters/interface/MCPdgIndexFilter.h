@@ -17,6 +17,9 @@
 
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 
+namespace edm {
+  class HepMCProduct;
+}
 
 class MCPdgIndexFilter : public edm::EDFilter {
    public:
@@ -26,7 +29,7 @@ class MCPdgIndexFilter : public edm::EDFilter {
       virtual bool filter(edm::Event&, const edm::EventSetup&);
    private:
       bool pass(const edm::Event&);
-      const std::string label_;
+      const edm::EDGetTokenT<edm::HepMCProduct> token_;
       const std::vector<int> pdgID;
       const std::vector<unsigned> index;
       const unsigned maxIndex;

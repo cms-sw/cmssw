@@ -9,7 +9,7 @@ process.load("Configuration.StandardSequences.MagneticField_cff")
 
 # geometry 
 #process.load("Geometry.EcalCommonData.EcalOnly_cfi")
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Configuration.StandardSequences.GeometryPilot2_cff")
 #process.load("Alignment.CommonAlignmentProducer.test.GlobalPositionRcd_read_cfg.py") 
 process.load("Geometry.MuonNumbering.muonNumberingInitialization_cfi")

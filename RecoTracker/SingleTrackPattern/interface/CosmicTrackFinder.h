@@ -6,7 +6,7 @@
 // Original Author:  Michele Pioppi-INFN perugia
 
 
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
 #include "DataFormats/Common/interface/Handle.h"
 #include "FWCore/Framework/interface/EventSetup.h"
@@ -33,11 +33,10 @@ namespace cms
       // std::cout<<"chi "<<t1.chiSquared()<<" "<<t2.chiSquared()<<std::endl;
       // return false;
     }
-    void  AnalHits(const std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >& hits){
+    void  AnalHits(const std::vector< TransientTrackingRecHit::ConstRecHitPointer >& hits){
       ltob1=false; ltob2=false; ltib1=false; ltib2=false;
-      std::vector< ConstReferenceCountingPointer< TransientTrackingRecHit> >::const_iterator hit;
       //     ConstRecHitIterator hit;
-      for(hit=hits.begin();hit!=hits.end();hit++){
+      for(auto hit=hits.begin();hit!=hits.end();hit++){
 	unsigned int iid=(*hit)->hit()->geographicalId().rawId();
 	
 	int sub=(iid>>25)&0x7 ;
@@ -65,7 +64,7 @@ namespace cms
       return t1->chiSquared()< t2->chiSquared();  
     }
   };
-  class CosmicTrackFinder : public edm::EDProducer
+  class CosmicTrackFinder : public edm::stream::EDProducer<>
   {
 
     typedef TrajectoryStateOnSurface     TSOS;
@@ -84,6 +83,11 @@ namespace cms
     std::string geometry;
     bool trinevents;
     bool useHitsSplitting_;
+    edm::EDGetTokenT<SiStripMatchedRecHit2DCollection> matchedrecHitsToken_;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> rphirecHitsToken_;
+    edm::EDGetTokenT<SiStripRecHit2DCollection> stereorecHitsToken_;
+    edm::EDGetTokenT<SiPixelRecHitCollection> pixelRecHitsToken_;
+    edm::EDGetTokenT<TrajectorySeedCollection> seedToken_;
   };
 }
 

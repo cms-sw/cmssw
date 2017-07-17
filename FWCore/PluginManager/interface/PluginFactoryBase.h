@@ -23,6 +23,10 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <atomic>
+#include "tbb/concurrent_unordered_map.h"
+#include "tbb/concurrent_vector.h"
+
 #include "FWCore/Utilities/interface/Signal.h"
 // user include files
 #include "FWCore/PluginManager/interface/PluginInfo.h"
@@ -36,8 +40,32 @@ class PluginFactoryBase
       PluginFactoryBase() {}
       virtual ~PluginFactoryBase();
 
-      typedef std::vector<std::pair<void*, std::string> > PMakers;
-      typedef std::map<std::string, PMakers > Plugins;
+      struct PluginMakerInfo {
+        PluginMakerInfo(void* iPtr, const std::string& iName):
+        m_name(iName),
+        m_ptr() {
+          m_ptr.store(iPtr,std::memory_order_release);}
+        
+        PluginMakerInfo(const PluginMakerInfo& iOther):
+        m_name(iOther.m_name),
+        m_ptr() {
+          m_ptr.store(iOther.m_ptr.load(std::memory_order_acquire),
+                      std::memory_order_release);
+        }
+        
+        PluginMakerInfo& operator=(const PluginMakerInfo& iOther) {
+          m_name = iOther.m_name;
+          m_ptr.store(iOther.m_ptr.load(std::memory_order_acquire),std::memory_order_release);
+          return *this;
+        }
+        std::string m_name;
+        //NOTE: this has to be last since once it is non zero it signals
+        // that the construction has finished
+        std::atomic<void*> m_ptr;
+      };
+  
+      typedef tbb::concurrent_vector<PluginMakerInfo> PMakers;
+      typedef tbb::concurrent_unordered_map<std::string, PMakers > Plugins;
 
       // ---------- const member functions ---------------------
 
@@ -66,10 +94,10 @@ class PluginFactoryBase
       //since each inheriting class has its own Container type to hold their PMakers
       // this function allows them to share the same code when doing the lookup
       // this routine will throw an exception if iName is unknown therefore the return value is always valid
-      Plugins::const_iterator findPMaker(const std::string& iName) const;
+      void* findPMaker(const std::string& iName) const;
 
       //similar to findPMaker but will return 'end()' if iName is known
-      Plugins::const_iterator tryToFindPMaker(const std::string& iName) const;
+      void* tryToFindPMaker(const std::string& iName) const;
       
       void fillInfo(const PMakers &makers,
                     PluginInfo& iInfo,
@@ -79,8 +107,6 @@ class PluginFactoryBase
 
       void registerPMaker(void* iPMaker, const std::string& iName);
       
-      Plugins m_plugins;
-      
    private:
       PluginFactoryBase(const PluginFactoryBase&); // stop default
 
@@ -88,6 +114,8 @@ class PluginFactoryBase
 
       void checkProperLoadable(const std::string& iName, const std::string& iLoadedFrom) const;
       // ---------- member data --------------------------------
+      Plugins m_plugins;
+  
 
 };
 

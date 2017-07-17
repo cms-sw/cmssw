@@ -12,7 +12,7 @@ process.MessageLogger = cms.Service("MessageLogger",
 )
 
 # geometry
-process.load("Configuration.StandardSequences.Geometry_cff")
+process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 
 # tracker numbering
 process.load("Geometry.TrackerNumberingBuilder.trackerNumberingGeometry_cfi")

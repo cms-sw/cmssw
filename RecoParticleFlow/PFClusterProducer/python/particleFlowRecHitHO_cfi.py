@@ -1,18 +1,56 @@
 import FWCore.ParameterSet.Config as cms
+particleFlowRecHitHO = cms.EDProducer("PFRecHitProducer",
+    navigator = cms.PSet(
+        name = cms.string("PFRecHitHCALNavigator")
+    ),
+    producers = cms.VPSet(
+           cms.PSet(
+             name = cms.string("PFHORecHitCreator"),
+             src  = cms.InputTag("horeco",""),
+             qualityTests = cms.VPSet(
+                  cms.PSet(
+                    name = cms.string("PFRecHitQTestHOThreshold"),
+                    threshold_ring0 = cms.double(0.4),
+                    threshold_ring12 = cms.double(1.0)
+                  ),
+#                  cms.PSet(
+#                  name = cms.string("PFRecHitQTestThreshold"),
+#                  threshold = cms.double(0.05) # new threshold for SiPM HO
+#                  ),
+                  cms.PSet(
+                      name = cms.string("PFRecHitQTestHCALChannel"),
+                      maxSeverities      = cms.vint32(11),
+                      cleaningThresholds = cms.vdouble(0.0),
+                      flags              = cms.vstring('Standard')
+                  )
+             )
+           )
+    )
 
-particleFlowRecHitHO = cms.EDProducer("PFRecHitProducerHO",
-    # verbosity 
-    verbose = cms.untracked.bool(False),
-    # The collection of HO rechits
-    recHitsHO = cms.InputTag("horeco", ""), # for RECO
-    # The threshold for rechit energies in ring0
-    thresh_Barrel = cms.double(0.4),
-    # The threshold for rechit energies in rings +/-1 and +/-2
-    thresh_Endcap = cms.double(1.0),
-
-    # Maximum allowed severity of HO rechits.  Hits above the given severity level will be rejected.  Default max value is 11 (the same value as used for allowing hits in PF caloTowers, and the expected acceptance value of any PF HCAL hits)
-    HOMaxAllowedSev = cms.int32(11),
-                                        
 )
 
+#
+# Need to change the quality tests for Run 2
+#
 
+def _modifyParticleFlowRecHitHOForRun2( object ) :
+    """
+    Customises PFRecHitProducer for Run 2 by lowering the
+    HO threshold for SiPM
+    """
+    for prod in object.producers:
+        prod.qualityTests = cms.VPSet(
+            cms.PSet(
+                name = cms.string("PFRecHitQTestThreshold"),
+                threshold = cms.double(0.05) # new threshold for SiPM HO
+            ),
+            cms.PSet(
+                name = cms.string("PFRecHitQTestHCALChannel"),
+                maxSeverities      = cms.vint32(11),
+                cleaningThresholds = cms.vdouble(0.0),
+                flags              = cms.vstring('Standard')
+            )
+        )
+
+from Configuration.Eras.Modifier_run2_common_cff import run2_common
+run2_common.toModify( particleFlowRecHitHO, func=_modifyParticleFlowRecHitHOForRun2 )

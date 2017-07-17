@@ -4,7 +4,7 @@
 #include "TrackingTools/DetLayers/interface/ForwardDetLayer.h"
 #include "DataFormats/GeometrySurface/interface/BoundSurface.h"
 #include "DataFormats/GeometrySurface/interface/MediumProperties.h"
-#include "Geometry/CommonDetUnit/interface/GeomDetUnit.h"
+#include "Geometry/CommonDetUnit/interface/GeomDet.h"
 
 #include <vector>
 
@@ -49,8 +49,8 @@ void MSLayersKeeperX0DetLayer::init(const edm::EventSetup &iSetup)
     setDataX0(*it, dataX0);
     theLayersData.update(*it);
   }
-  cout << "MSLayersKeeperX0DetLayer LAYERS: "<<endl;
-  theLayersData.print();
+  //cout << "MSLayersKeeperX0DetLayer LAYERS: "<<endl;
+  //theLayersData.print();
 }
 
 // vector<MSLayer>

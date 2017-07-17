@@ -39,9 +39,6 @@ public:
 			 const MeasurementEstimator& est) const;
 
 
-  virtual bool hasGroups() const;
-
-
   // DetLayer interface
   virtual SubDetector subDetector() const;
 

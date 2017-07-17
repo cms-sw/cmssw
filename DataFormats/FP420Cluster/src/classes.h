@@ -12,7 +12,7 @@
 
 #include "DataFormats/FP420Cluster/interface/ClusterFP420.h"
 #include "DataFormats/FP420Cluster/interface/ClusterCollectionFP420.h"
-namespace {
+namespace DataFormats_FP420Cluster {
   struct dictionary {
     edm::Wrapper<ClusterFP420 > zc0;
     edm::Wrapper<std::vector<ClusterFP420> > zc1;
@@ -28,7 +28,7 @@ namespace {
 
 #include "DataFormats/FP420Cluster/interface/TrackFP420.h"
 #include "DataFormats/FP420Cluster/interface/TrackCollectionFP420.h"
-namespace {
+namespace DataFormats_FP420Cluster {
   struct dictionary2 {
     edm::Wrapper<TrackFP420 > zt0;
     edm::Wrapper<std::vector<TrackFP420> > zt1;
@@ -44,7 +44,7 @@ namespace {
 
 #include "DataFormats/FP420Cluster/interface/RecoFP420.h"
 #include "DataFormats/FP420Cluster/interface/RecoCollectionFP420.h"
-namespace {
+namespace DataFormats_FP420Cluster {
   struct dictionary3 {
     edm::Wrapper<RecoFP420 > zr0;
     edm::Wrapper<std::vector<RecoFP420> > zr1;

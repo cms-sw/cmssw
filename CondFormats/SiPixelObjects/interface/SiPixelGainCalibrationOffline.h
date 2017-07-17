@@ -19,6 +19,8 @@
 // $Id: SiPixelGainCalibrationOffline.h,v 1.5 2009/02/10 17:26:50 rougny Exp $
 //
 //
+#include "CondFormats/Serialization/interface/Serializable.h"
+
 #include<vector>
 #include<map>
 #include<iostream>
@@ -37,7 +39,9 @@ class SiPixelGainCalibrationOffline {
     uint32_t ibegin;
     uint32_t iend;
     int ncols;
-  };
+  
+  COND_SERIALIZABLE;
+};
   
   class StrictWeakOrdering{
   public:
@@ -52,7 +56,10 @@ class SiPixelGainCalibrationOffline {
   // Constructors
   SiPixelGainCalibrationOffline();
   SiPixelGainCalibrationOffline(float minPed, float maxPed, float minGain, float maxGain);
-  virtual ~SiPixelGainCalibrationOffline(){};
+  ~SiPixelGainCalibrationOffline(){}
+
+  void initialize(){}
+
 
   bool  put(const uint32_t& detID,Range input, const int& nCols);
   const Range getRange(const uint32_t& detID) const;
@@ -99,6 +106,8 @@ class SiPixelGainCalibrationOffline {
   unsigned int deadFlag_;
   unsigned int noisyFlag_;
 
+
+ COND_SERIALIZABLE;
 };
     
 #endif

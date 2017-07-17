@@ -11,7 +11,7 @@
  */
 
 #include "FWCore/Framework/interface/Frameworkfwd.h"
-#include "FWCore/Framework/interface/EDAnalyzer.h"
+#include "DQMServices/Core/interface/DQMEDHarvester.h"
 #include <set>
 #include <string>
 #include <vector>
@@ -23,32 +23,40 @@
 #include <TGraphAsymmErrors.h>
 #endif
 
-class DQMStore;
 class MonitorElement;
 
-class DQMGenericClient : public edm::EDAnalyzer
+class DQMGenericClient : public DQMEDHarvester
 {
  public:
   DQMGenericClient(const edm::ParameterSet& pset);
   ~DQMGenericClient() {};
 
-  void analyze(const edm::Event& event, const edm::EventSetup& eventSetup) {};
-  void endJob();
+  void dqmEndJob(DQMStore::IBooker &, DQMStore::IGetter &) override;
 
-  /// EndRun
-  void endRun(const edm::Run& r, const edm::EventSetup& c);
+  enum class EfficType {
+    none = 0,
+    efficiency,
+    fakerate,
+    simpleratio
+  };
 
   struct EfficOption
   {
     std::string name, title;
     std::string numerator, denominator;
-    int type;
+    EfficType type;
     bool isProfile;
   };
 
   struct ResolOption
   {
     std::string namePrefix, titlePrefix;
+    std::string srcName;
+  };
+
+  struct ProfileOption
+  {
+    std::string name, title;
     std::string srcName;
   };
 
@@ -60,21 +68,39 @@ class DQMGenericClient : public edm::EDAnalyzer
   struct CDOption
   {
     std::string name;
+    bool ascending;
   };
 
-  void computeEfficiency(const std::string& startDir, 
+  void computeEfficiency(DQMStore::IBooker& ibooker,
+			 DQMStore::IGetter& igetter,
+			 const std::string& startDir, 
                          const std::string& efficMEName, 
                          const std::string& efficMETitle,
                          const std::string& recoMEName, 
                          const std::string& simMEName, 
-                         const int type=1,
+                         const EfficType type=EfficType::efficiency,
                          const bool makeProfile = false);
-  void computeResolution(const std::string& startDir, 
+  void computeResolution(DQMStore::IBooker& ibooker,
+			 DQMStore::IGetter& igetter,
+			 const std::string& startDir, 
                          const std::string& fitMEPrefix, const std::string& fitMETitlePrefix, 
                          const std::string& srcMEName);
+  void computeProfile(DQMStore::IBooker& ibooker,
+                      DQMStore::IGetter& igetter,
+                      const std::string& startDir,
+                      const std::string& profileMEName, const std::string& profileMETitle,
+                      const std::string& srcMEName);
 
-  void normalizeToEntries(const std::string& startDir, const std::string& histName, const std::string& normHistName);
-  void makeCumulativeDist(const std::string& startDir, const std::string& cdName);
+  void normalizeToEntries(DQMStore::IBooker& ibooker,
+			  DQMStore::IGetter& igetter,
+			  const std::string& startDir,
+			  const std::string& histName,
+			  const std::string& normHistName);
+  void makeCumulativeDist(DQMStore::IBooker& ibooker,
+			  DQMStore::IGetter& igetter,
+			  const std::string& startDir,
+			  const std::string& cdName,
+                          bool ascending=true);
 
   void limitedFit(MonitorElement * srcME, MonitorElement * meanME, MonitorElement * sigmaME);
 
@@ -89,12 +115,17 @@ class DQMGenericClient : public edm::EDAnalyzer
 
   std::vector<EfficOption> efficOptions_;
   std::vector<ResolOption> resolOptions_;
+  std::vector<ProfileOption> profileOptions_;
   std::vector<NormOption> normOptions_;
   std::vector<CDOption> cdOptions_;
 
-  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const int type=1);
+  void generic_eff (TH1 * denom, TH1 * numer, MonitorElement * efficiencyHist, const EfficType type=EfficType::efficiency);
 
-  void findAllSubdirectories (std::string dir, std::set<std::string> * myList, const TString& pattern);
+  void findAllSubdirectories (DQMStore::IBooker& ibooker,
+			      DQMStore::IGetter& igetter,
+			      std::string dir,
+			      std::set<std::string> * myList,
+			      const TString& pattern);
 
 #if ROOT_VERSION_CODE >= ROOT_VERSION(5,27,0)
 

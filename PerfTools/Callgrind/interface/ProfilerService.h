@@ -5,10 +5,16 @@
 //FIXME only forward declarations???
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/ServiceRegistry/interface/ActivityRegistry.h"
+#include "FWCore/ServiceRegistry/interface/PathContext.h"
 
 #include <vector>
 #include <string>
 
+// Unit test for ProfilerService
+namespace test {
+  class TestProfilerService;
+  struct CheckPaths;
+}
 
 /** \class  ProfilerService
  * A Service to start and stop calgrind profiling on demand...
@@ -16,11 +22,15 @@
  * (in the same service to avoid dependency between service)
  */
 class ProfilerService {
+  // For tests
+  friend class test::TestProfilerService;
+  friend struct test::CheckPaths;
+
 public:
 
   /// Standard Service Constructor
   ProfilerService(edm::ParameterSet const& pset, 
-		  edm::ActivityRegistry  & activity);
+		  edm::ActivityRegistry& activity);
 
   /// Destructor
   ~ProfilerService();
@@ -56,22 +66,22 @@ public:
 
   // ---- Service Interface: to  be called only by the Framework ----
   
-  void preSourceI() {
+  void preSourceI(edm::StreamID) {
     fullEvent();
   }
 
-  void beginEventI(const edm::EventID&, const edm::Timestamp&) {
+  void beginEventI(edm::StreamContext const& stream) {
     beginEvent();
   }
 
-  void endEventI(const edm::Event&, const edm::EventSetup&) {
+  void endEventI(edm::StreamContext const& stream) {
     endEvent();
   }
-  void beginPathI(std::string const & path) {
-    beginPath(path);
+  void beginPathI(edm::StreamContext const& stream, edm::PathContext const& path) {
+    beginPath(path.pathName());
   }
-  void endPathI(std::string const & path,  const edm::HLTPathStatus&) {
-    endPath(path);
+  void endPathI(edm::StreamContext const& stream, edm::PathContext const& path, edm::HLTPathStatus const&) {
+    endPath(path.pathName());
   }
 
 private:
@@ -81,8 +91,8 @@ private:
   void beginEvent();
   void endEvent();
   
-  void beginPath(std::string const & path);
-  void endPath(std::string const & path);
+  void beginPath(std::string const& path);
+  void endPath(std::string const& path);
 
   void newEvent();
 

@@ -2,7 +2,8 @@ import inspect
 
 class _ConfigureComponent(object):
     """Denotes a class that can be used by the Processes class"""
-    pass
+    def _isTaskComponent(self):
+        return False
 
 class PrintOptions(object):
     def __init__(self):
@@ -74,6 +75,22 @@ class _SimpleParameterTypeBase(_ParameterTypeBase):
         if isinstance(other,_SimpleParameterTypeBase):
             return self._value != other._value
         return self._value != other
+    def __lt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value < other._value
+        return self._value < other
+    def __le__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value <= other._value
+        return self._value <= other
+    def __gt__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value > other._value
+        return self._value > other
+    def __ge__(self,other):
+        if isinstance(other,_SimpleParameterTypeBase):
+            return self._value >= other._value
+        return self._value >= other
 
 
 class UsingBlock(_SimpleParameterTypeBase):
@@ -98,7 +115,7 @@ class UsingBlock(_SimpleParameterTypeBase):
         #if value == '\0':
         #    value = ''
         parameterSet.addString(self.isTracked(), myname, value)
-    def dumpPython(self, options):
+    def dumpPython(self, options=PrintOptions()):
         if options.isCfg:
             return "process."+self.value()
         else:
@@ -229,9 +246,58 @@ class _Parameterizable(object):
     def __raiseBadSetAttr(name):
         raise TypeError(name+" does not already exist, so it can only be set to a CMS python configuration type")
     def dumpPython(self, options=PrintOptions()):
+        sortedNames = sorted(self.parameterNames_())
+        if len(sortedNames) > 200:
+        #Too many parameters for a python function call
+        # The solution is to create a temporary dictionary which
+        # is constructed by concatenating long lists (with maximum
+        # 200 entries each) together.
+        # This looks like
+        #  **dict( [(...,...), ...] + [...] + ... )
+            others = []
+            usings = []
+            for name in sortedNames:
+                param = self.__dict__[name]
+                # we don't want minuses in names
+                name2 = name.replace('-','_')
+                options.indent()
+                #_UsingNodes don't get assigned variables
+                if name.startswith("using_"):
+                    usings.append(options.indentation()+param.dumpPython(options))
+                else:
+                    others.append((name2, param.dumpPython(options)))
+                options.unindent()
+
+            resultList = ',\n'.join(usings)
+            longOthers = options.indentation()+"**dict(\n"
+            options.indent()
+            longOthers += options.indentation()+"[\n"
+            entriesInList = 0
+            options.indent()
+            for n,v in others:
+                entriesInList +=1
+                if entriesInList > 200:
+                    #need to start a new list
+                    options.unindent()
+                    longOthers += options.indentation()+"] +\n"+options.indentation()+"[\n"
+                    entriesInList = 0
+                    options.indent()
+                longOthers += options.indentation()+'("'+n+'" , '+v+' ),\n'
+            
+            longOthers += options.indentation()+"]\n"
+            options.unindent()
+            longOthers +=options.indentation()+")\n"
+            options.unindent()
+            ret = []
+            if resultList:
+                ret.append(resultList)
+            if longOthers:
+                ret.append(longOthers)
+            return ",\n".join(ret)
+        #Standard case, small number of parameters
         others = []
         usings = []
-        for name in self.parameterNames_():
+        for name in sortedNames:
             param = self.__dict__[name]
             # we don't want minuses in names
             name2 = name.replace('-','_')
@@ -286,24 +352,19 @@ class _TypedParameterizable(_Parameterizable):
         New parameters may be added by specify the exact type
         Modifying existing parameters can be done by just specifying the new
           value without having to specify the type.
+        A parameter may be removed from the clone using the value None.
+           #remove the parameter foo.fred
+           mod.toModify(foo, fred = None)
+        A parameter embedded within a PSet may be changed via a dictionary
+           #change foo.fred.pebbles to 3 and foo.fred.friend to "barney"
+           mod.toModify(foo, fred = dict(pebbles = 3, friend = "barney)) )
         """
         returnValue =_TypedParameterizable.__new__(type(self))
         myparams = self.parameters_()
         if len(myparams) == 0 and len(params) and len(args):
             args.append(None)
-        if len(params):
-            #need to treat items both in params and myparams specially
-            for key,value in params.iteritems():
-                if key in myparams:                    
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key] =value
-                    else:
-                        myparams[key].setValue(value)
-                else:
-                    if isinstance(value,_ParameterTypeBase):
-                        myparams[key]=value
-                    else:
-                        self._Parameterizable__raiseBadSetAttr(key)
+        
+        _modifyParametersFromDict(myparams, params, self._Parameterizable__raiseBadSetAttr)
 
         returnValue.__init__(self.__type,*args,
                              **myparams)
@@ -358,25 +419,14 @@ class _TypedParameterizable(_Parameterizable):
         nparam = len(self.parameterNames_())
         if nparam == 0:
             result += ")\n"
-        elif nparam < 256:
-            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
         else:
-            # too big.  Need to dump externally
-            #NOTE: in future should explore just creating a dict
-            #  {'foo':cms.uint32(1), .... }
-            # and pass it to the constructor using the **{...} notation
-            label = ""
-            try:
-               label = "process."+self.label_()
-            except:
-               label = "FIX-THIS"
-            result += ")\n" + self.dumpPythonAttributes(label, options)
+            result += ",\n"+_Parameterizable.dumpPython(self,options)+options.indentation() + ")\n"
         return result
 
     def dumpPythonAttributes(self, myname, options):
         """ dumps the object with all attributes declared after the constructor"""
         result = ""
-        for name in self.parameterNames_():
+        for name in sorted(self.parameterNames_()):
             param = self.__dict__[name]
             result += options.indentation() + myname + "." + name + " = " + param.dumpPython(options) + "\n"
         return result
@@ -431,7 +481,7 @@ class _Labelable(object):
         return str(self.__label)
     def dumpSequenceConfig(self):
         return str(self.__label)
-    def dumpSequencePython(self):
+    def dumpSequencePython(self, options=PrintOptions()):
         return 'process.'+str(self.__label)
     def _findDependencies(self,knownDeps,presentDeps):
         #print 'in labelled'
@@ -577,6 +627,47 @@ def saveOrigin(obj, level):
     obj._filename = frame[0]
     obj._lineNumber = frame[1]
 
+def _modifyParametersFromDict(params, newParams, errorRaiser, keyDepth=""):
+    if len(newParams):
+        #need to treat items both in params and myparams specially
+        for key,value in newParams.iteritems():
+            if key in params:
+                if value is None:
+                    del params[key]
+                elif isinstance(value, dict):
+                    if isinstance(params[key],_Parameterizable):
+                        pset = params[key]
+                        p =pset.parameters_()
+                        _modifyParametersFromDict(p,
+                                                  value,errorRaiser,
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
+                        for k,v in p.iteritems():
+                            setattr(pset,k,v)
+                    elif isinstance(params[key],_ValidatingParameterListBase):
+                        if any(type(k) != int for k in value.keys()):
+                            raise TypeError("Attempted to change a list using a dict whose keys are not integers")
+                        plist = params[key]
+                        if any((k < 0 or k >= len(plist)) for k in value.keys()):
+                            raise IndexError("Attempted to set an index which is not in the list")
+                        p = dict(enumerate(plist))
+                        _modifyParametersFromDict(p,
+                                                  value,errorRaiser,
+                                                  ("%s.%s" if type(key)==str else "%s[%s]")%(keyDepth,key))
+                        for k,v in p.iteritems():
+                            plist[k] = v
+                    else:
+                        raise ValueError("Attempted to change non PSet value "+keyDepth+" using a dictionary")
+                elif isinstance(value,_ParameterTypeBase) or (type(key) == int):
+                    params[key] = value
+                else:
+                    params[key].setValue(value)
+            else:
+                if isinstance(value,_ParameterTypeBase):
+                    params[key]=value
+                else:
+                    errorRaiser(key)
+
+
 if __name__ == "__main__":
 
     import unittest
@@ -643,13 +734,34 @@ if __name__ == "__main__":
             class __TestType(_SimpleParameterTypeBase):
                 def _isValid(self,value):
                     return True
-            a = __Test("MyType",t=__TestType(1), u=__TestType(2))
-            b = a.clone(t=3, v=__TestType(4))
+            class __PSet(_ParameterTypeBase,_Parameterizable):
+                def __init__(self,*arg,**args):
+                    #need to call the inits separately
+                    _ParameterTypeBase.__init__(self)
+                    _Parameterizable.__init__(self,*arg,**args)
+            a = __Test("MyType",
+                       t=__TestType(1),
+                       u=__TestType(2),
+                       w = __TestType(3),
+                       x = __PSet(a = __TestType(4),
+                                  b = __TestType(6),
+                                  c = __PSet(gamma = __TestType(5))))
+            b = a.clone(t=3,
+                        v=__TestType(4),
+                        w= None,
+                        x = dict(a = 7,
+                                 c = dict(gamma = 8),
+                                 d = __TestType(9)))
             self.assertEqual(a.t.value(),1)
             self.assertEqual(a.u.value(),2)
             self.assertEqual(b.t.value(),3)
             self.assertEqual(b.u.value(),2)
             self.assertEqual(b.v.value(),4)
+            self.assertEqual(b.x.a.value(),7)
+            self.assertEqual(b.x.b.value(),6)
+            self.assertEqual(b.x.c.gamma.value(),8)
+            self.assertEqual(b.x.d.value(),9)
+            self.assertEqual(hasattr(b,"w"), False)
             self.assertRaises(TypeError,a.clone,None,**{"v":1})
         def testModified(self):
             class __TestType(_SimpleParameterTypeBase):
@@ -663,4 +775,17 @@ if __name__ == "__main__":
             self.assertEqual(a.isModified(),True)
             a.resetModified()
             self.assertEqual(a.isModified(),False)
+        def testLargeParameterizable(self):
+            class tLPTest(_TypedParameterizable):
+                pass
+            class tLPTestType(_SimpleParameterTypeBase):
+                def _isValid(self,value):
+                    return True
+            class __DummyModule(object):
+                def __init__(self):
+                    self.tLPTest = tLPTest
+                    self.tLPTestType = tLPTestType
+            p = tLPTest("MyType",** dict( [ ("a"+str(x), tLPTestType(x)) for x in xrange(0,300) ] ) )
+            #check they are the same
+            self.assertEqual(p.dumpPython(), eval(p.dumpPython(),{"cms": __DummyModule()}).dumpPython())
     unittest.main()

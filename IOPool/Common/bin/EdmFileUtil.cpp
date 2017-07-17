@@ -17,7 +17,6 @@
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/PluginManager/interface/PluginManager.h"
 #include "FWCore/PluginManager/interface/standard.h"
-#include "FWCore/RootAutoLibraryLoader/interface/RootAutoLibraryLoader.h"
 #include "FWCore/Services/src/SiteLocalConfigService.h"
 #include "FWCore/Utilities/interface/Adler32Calculator.h"
 #include "FWCore/Utilities/interface/Exception.h"
@@ -81,8 +80,8 @@ int main(int argc, char* argv[]) {
 
   int rc = 0;
   try {
-    std::auto_ptr<edm::SiteLocalConfig> slcptr(new edm::service::SiteLocalConfigService(edm::ParameterSet()));
-    boost::shared_ptr<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> > slc(new edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig>(slcptr));
+    std::unique_ptr<edm::SiteLocalConfig> slcptr = std::make_unique<edm::service::SiteLocalConfigService>(edm::ParameterSet());
+    auto slc = std::make_shared<edm::serviceregistry::ServiceWrapper<edm::SiteLocalConfig> >(std::move(slcptr));
     edm::ServiceToken slcToken = edm::ServiceRegistry::createContaining(slc);
     edm::ServiceRegistry::Operate operate(slcToken);
 
@@ -126,7 +125,6 @@ int main(int argc, char* argv[]) {
         std::cout << "exception caught in EdmFileUtil while configuring the PluginManager\n" << e.what();
         return 1;
       }
-      edm::RootAutoLibraryLoader::enable();
     }
 
     edm::InputFileCatalog catalog(in, catalogIn, true);
@@ -150,8 +148,8 @@ int main(int argc, char* argv[]) {
       // open a data file
       if (!json) std::cout << in[j] << "\n";
       std::string const& lfn = in[j];
-      TFile *tfile = edm::openFileHdl(filesIn[j]);
-      if (tfile == 0) return 1;
+      std::unique_ptr<TFile> tfile{edm::openFileHdl(filesIn[j])};
+      if (tfile == nullptr) return 1;
 
       std::string const& pfn = filesIn[j];
 
@@ -227,9 +225,9 @@ int main(int argc, char* argv[]) {
       }
 
       // Ok. How many events?
-      int nruns = edm::numEntries(tfile, edm::poolNames::runTreeName());
-      int nlumis = edm::numEntries(tfile, edm::poolNames::luminosityBlockTreeName());
-      int nevents = edm::numEntries(tfile, edm::poolNames::eventTreeName());
+      int nruns = edm::numEntries(tfile.get(), edm::poolNames::runTreeName());
+      int nlumis = edm::numEntries(tfile.get(), edm::poolNames::luminosityBlockTreeName());
+      int nevents = edm::numEntries(tfile.get(), edm::poolNames::eventTreeName());
       if (json) {
         if (j > 0) std::cout << ',' << std::endl;
         std::cout << "{\"file\":\"" << datafile << '"'
@@ -256,7 +254,7 @@ int main(int argc, char* argv[]) {
 
       // Look at the collection contents
       if (ls) {
-        if (tfile != 0) tfile->ls();
+        if (tfile != nullptr) tfile->ls();
       }
 
       // Print out each tree
@@ -282,11 +280,11 @@ int main(int argc, char* argv[]) {
 
       // Print out event lists
       if (events) {
-        edm::printEventLists(tfile);
+        edm::printEventLists(tfile.get());
       }
 
       if(eventsInLumis) {
-        edm::printEventsInLumis(tfile);
+        edm::printEventsInLumis(tfile.get());
       }
       
       tfile->Close();

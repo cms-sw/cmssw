@@ -1,5 +1,7 @@
 <lcgdict>
-  <class name="TrackCandidate" ClassVersion="11">
+  <class name="TrackCandidate" ClassVersion="13">
+   <version ClassVersion="13" checksum="2316831923"/>
+   <version ClassVersion="12" checksum="2330668139"/>
    <version ClassVersion="11" checksum="3750078709"/>
    <version ClassVersion="10" checksum="1620910795"/>
   </class>
@@ -10,7 +12,6 @@
   <class name="edm::AssociationMap<edm::OneToOne<std::vector<TrackCandidate>, std::vector<TrajectorySeed>, unsigned int > >" >
     <field name="transientMap_" transient="true" />
   </class>
-  <class pattern="edm::KeyVal<*>" />
   <class pattern="edm::Wrapper<edm::AssociationMap<*>" />
   <class pattern="edm::Ref<edm::AssociationMap<*>" />
   <class pattern="edm::RefProd<edm::AssociationMap<*>" />

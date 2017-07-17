@@ -24,7 +24,7 @@ SteppingHelixPropagatorESProducer::SteppingHelixPropagatorESProducer(const edm::
 
 SteppingHelixPropagatorESProducer::~SteppingHelixPropagatorESProducer() {}
 
-boost::shared_ptr<Propagator> 
+std::shared_ptr<Propagator> 
 SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRecord){ 
 //   if (_propagator){
 //     delete _propagator;
@@ -106,6 +106,6 @@ SteppingHelixPropagatorESProducer::produce(const TrackingComponentsRecord & iRec
     shProp->setEndcapShiftsInZPosNeg(valPos, valNeg);
   }
 
-  _propagator  = boost::shared_ptr<Propagator>(shProp);
+  _propagator  = std::shared_ptr<Propagator>(shProp);
   return _propagator;
 }

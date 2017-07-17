@@ -48,40 +48,42 @@ namespace edm {
   class EventSetup;
 }
 
-namespace popcon
-{
+namespace popcon {
 
+  class EcalPedestalsHandler : public popcon::PopConSourceHandler<EcalPedestals> {
 
-	class EcalPedestalsHandler : public popcon::PopConSourceHandler<EcalPedestals>
-	{
+  public:
+    EcalPedestalsHandler(edm::ParameterSet const & );
+    ~EcalPedestalsHandler(); 
+    bool checkPedestal(EcalPedestals::Item* item);
+    void getNewObjects();
+    void getNewObjectsP5();
+    void getNewObjectsH2();
+    void readPedestalFile();
+    void readPedestalTree();
+    void readPedestalTimestamp();
+    void readPedestal2017();
+    std::string id() const { return m_name;}
+    EcalCondDBInterface* econn;
 
-		public:
-                        EcalPedestalsHandler(edm::ParameterSet const & );
-			~EcalPedestalsHandler(); 
-			bool checkPedestal(EcalPedestals::Item* item);
-			void getNewObjects();
-			void getNewObjectsP5();
-			void getNewObjectsH2();
-			std::string id() const { return m_name;}
-			EcalCondDBInterface* econn;
+  private:
+    const EcalPedestals * mypedestals;
 
-		private:
-			const EcalPedestals * mypedestals;
-
-			unsigned int m_firstRun ;
-			unsigned int m_lastRun ;
+    unsigned int m_firstRun ;
+    unsigned int m_lastRun ;
 			
-			std::string m_location;
-			std::string m_gentag;
-			std::string m_sid;
-			std::string m_user;
-			std::string m_pass;
-                        std::string m_locationsource;
-                        std::string m_name;
+    std::string m_location;
+    std::string m_gentag;
+    std::string m_runtag;
+    std::string m_sid;
+    std::string m_user;
+    std::string m_pass;
+    std::string m_locationsource;
+    std::string m_name;
+    std::string m_filename;
+    int m_runtype;
 
-
-
-	};
+  };
 }
 #endif
 

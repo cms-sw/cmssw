@@ -16,11 +16,11 @@
 #include "FWCore/Framework/interface/ESHandle.h"
 #include "DataFormats/Candidate/interface/Candidate.h"
 #include "Geometry/CaloGeometry/interface/CaloGeometry.h"
-#include "RecoCaloTools/MetaCollections/interface/CaloRecHitMetaCollections.h"
 #include "RecoCaloTools/Selectors/interface/CaloDualConeSelector.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/EventSetup.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -29,6 +29,7 @@
 
 #include "PhysicsTools/IsolationAlgos/interface/IsoDepositExtractor.h"
 #include "DataFormats/RecoCandidate/interface/IsoDeposit.h"
+#include "DataFormats/HcalRecHit/interface/HcalRecHitCollections.h"
 
 
 
@@ -37,15 +38,17 @@ namespace egammaisolation {
 
    class EgammaHcalExtractor  : public reco::isodeposit::IsoDepositExtractor {
       public:
-         EgammaHcalExtractor ( const edm::ParameterSet& par ); 
+         EgammaHcalExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector && iC ) :
+           EgammaHcalExtractor(par, iC) {}
+         EgammaHcalExtractor ( const edm::ParameterSet& par, edm::ConsumesCollector & iC );
 
          virtual ~EgammaHcalExtractor() ;
 
-         virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup, 
+         virtual void fillVetos(const edm::Event & ev, const edm::EventSetup & evSetup,
                                  const reco::TrackCollection & tracks) { }
          virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
                                              const reco::Track & track) const {
-            throw cms::Exception("Configuration Error") << 
+            throw cms::Exception("Configuration Error") <<
                      "This extractor " << (typeid(this).name()) << " is not made for tracks";
          }
          virtual reco::IsoDeposit deposit(const edm::Event & ev, const edm::EventSetup & evSetup,
@@ -56,9 +59,7 @@ namespace egammaisolation {
          double intRadius_ ;
          double etLow_ ;
 
-         edm::InputTag hcalRecHitProducer_;
-         //HBHERecHitMetaCollection* mhbhe_ ;    // to recover later when we add begin(), end()
-
+         edm::EDGetTokenT<HBHERecHitCollection> hcalRecHitProducerToken_;
    };
 }
 #endif

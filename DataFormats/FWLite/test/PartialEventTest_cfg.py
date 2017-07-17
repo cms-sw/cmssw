@@ -24,7 +24,7 @@ process.filter = cms.EDFilter("TestFilterModule",
 process.OtherThing = cms.EDProducer("OtherThingProducer")
 
 process.out = cms.OutputModule("PoolOutputModule",
-    fileName = cms.untracked.string('partialEvent.root')
+    fileName = cms.untracked.string('partialEventDataFormatsFWLite.root')
 )
 
 process.p = cms.Path( (process.Thing+process.filter)*process.OtherThing)

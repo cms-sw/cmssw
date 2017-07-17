@@ -3,8 +3,8 @@
 /** \class TrackFullCloneSelectorBase
  *
  * selects a subset of a track collection, copying extra information on demand
- * 
- * \author Giovanni Petrucciani 
+ *
+ * \author Giovanni Petrucciani
  *
  * \version $Revision: 1.3 $
  *
@@ -17,8 +17,9 @@
 #include <memory>
 #include <algorithm>
 #include <map>
-#include "FWCore/Framework/interface/EDProducer.h"
+#include "FWCore/Framework/interface/stream/EDProducer.h"
 #include "FWCore/Framework/interface/Event.h"
+#include "FWCore/Framework/interface/ConsumesCollector.h"
 #include "FWCore/ParameterSet/interface/ParameterSet.h"
 #include "FWCore/Utilities/interface/InputTag.h"
 
@@ -32,14 +33,16 @@
 namespace reco { namespace modules {
 
 template<typename Selector>
-class TrackFullCloneSelectorBase : public edm::EDProducer {
+class TrackFullCloneSelectorBase : public edm::stream::EDProducer<> {
 public:
-  /// constructor 
+  /// constructor
   explicit TrackFullCloneSelectorBase( const edm::ParameterSet & cfg ) :
-    src_( cfg.template getParameter<edm::InputTag>( "src" ) ),
+    hSrcTrackToken_( consumes<reco::TrackCollection>( cfg.template getParameter<edm::InputTag>( "src" ) ) ),
+    hTrajToken_( mayConsume< std::vector<Trajectory> >( cfg.template getParameter<edm::InputTag>( "src" ) ) ),
+    hTTAssToken_( mayConsume< TrajTrackAssociationCollection >( cfg.template getParameter<edm::InputTag>( "src" ) ) ),
     copyExtras_(cfg.template getUntrackedParameter<bool>("copyExtras", false)),
     copyTrajectories_(cfg.template getUntrackedParameter<bool>("copyTrajectories", false)),
-    selector_( cfg ) {
+    selector_( cfg, consumesCollector() ) {
       std::string alias( cfg.getParameter<std::string>( "@module_label" ) );
       produces<reco::TrackCollection>().setBranchAlias( alias + "Tracks" );
       if (copyExtras_) {
@@ -53,22 +56,20 @@ public:
    }
   /// destructor
   virtual ~TrackFullCloneSelectorBase() { }
-  
+
 private:
   /// process one event
   void produce( edm::Event& evt, const edm::EventSetup& es) override {
       edm::Handle<reco::TrackCollection> hSrcTrack;
-      edm::Handle< std::vector<Trajectory> > hTraj;
-      edm::Handle< TrajTrackAssociationCollection > hTTAss;
-      evt.getByLabel( src_, hSrcTrack );
+      evt.getByToken( hSrcTrackToken_, hSrcTrack );
 
-      selTracks_ = std::auto_ptr<reco::TrackCollection>(new reco::TrackCollection());
+      selTracks_ = std::unique_ptr<reco::TrackCollection>(new reco::TrackCollection());
       if (copyExtras_) {
-          selTrackExtras_ = std::auto_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
-          selHits_ = std::auto_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
+          selTrackExtras_ = std::unique_ptr<reco::TrackExtraCollection>(new reco::TrackExtraCollection());
+          selHits_ = std::unique_ptr<TrackingRecHitCollection>(new TrackingRecHitCollection());
       }
 
-      TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>();      
+      TrackRefProd rTracks = evt.template getRefBeforePut<TrackCollection>();
 
       TrackingRecHitRefProd rHits;
       TrackExtraRefProd rTrackExtras;
@@ -81,9 +82,12 @@ private:
       std::map<TrackRefKey, reco::TrackRef  > goodTracks;
       TrackRefKey current = 0;
 
-      for (reco::TrackCollection::const_iterator it = hSrcTrack->begin(), ed = hSrcTrack->end(); it != ed; ++it, ++current) {
-          const reco::Track & trk = * it;
-          if (!selector_(trk, evt)) continue;
+      selector_.init(evt,es);
+      auto tkBegin = hSrcTrack->begin();
+      for (reco::TrackCollection::const_iterator it = tkBegin, ed = hSrcTrack->end(); it != ed; ++it, ++current) {
+	  const reco::Track & trk = * it;
+	  const reco::TrackRef tkref(hSrcTrack,std::distance(tkBegin,it));
+          if (!selector_(tkref)) continue;
 
           selTracks_->push_back( Track( trk ) ); // clone and store
           if (!copyExtras_) continue;
@@ -97,10 +101,13 @@ private:
           selTracks_->back().setExtra( TrackExtraRef( rTrackExtras, selTrackExtras_->size() - 1) );
           TrackExtra & tx = selTrackExtras_->back();
           // TrackingRecHits
+          auto const firstHitIndex = selHits_->size();
           for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
               selHits_->push_back( (*hit)->clone() );
-              tx.add( TrackingRecHitRef( rHits, selHits_->size() - 1) );
           }
+          tx.setHits( rHits, firstHitIndex, selHits_->size() - firstHitIndex );
+          tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
+          assert(tx.trajParams().size()==tx.recHitsSize());
           if (copyTrajectories_) {
               goodTracks[current] = reco::TrackRef(rTracks, selTracks_->size() - 1);
           }
@@ -108,18 +115,18 @@ private:
       if ( copyTrajectories_ ) {
           edm::Handle< std::vector<Trajectory> > hTraj;
           edm::Handle< TrajTrackAssociationCollection > hTTAss;
-          evt.getByLabel(src_, hTTAss);
-          evt.getByLabel(src_, hTraj);
+          evt.getByToken(hTTAssToken_, hTTAss);
+          evt.getByToken(hTrajToken_, hTraj);
           edm::RefProd< std::vector<Trajectory> > TrajRefProd = evt.template getRefBeforePut< std::vector<Trajectory> >();
-          selTrajs_ = std::auto_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>()); 
-          selTTAss_ = std::auto_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
+          selTrajs_ = std::unique_ptr< std::vector<Trajectory> >(new std::vector<Trajectory>());
+          selTTAss_ = std::unique_ptr< TrajTrackAssociationCollection >(new TrajTrackAssociationCollection());
           for (size_t i = 0, n = hTraj->size(); i < n; ++i) {
               edm::Ref< std::vector<Trajectory> > trajRef(hTraj, i);
               TrajTrackAssociationCollection::const_iterator match = hTTAss->find(trajRef);
               if (match != hTTAss->end()) {
-                  const edm::Ref<reco::TrackCollection> &trkRef = match->val; 
+                  const edm::Ref<reco::TrackCollection> &trkRef = match->val;
                   TrackRefKey oldKey = trkRef.key();
-                  std::map<TrackRefKey, reco::TrackRef>::iterator getref = goodTracks.find(oldKey);        
+                  std::map<TrackRefKey, reco::TrackRef>::iterator getref = goodTracks.find(oldKey);
                   if (getref != goodTracks.end()) {
                       // do the clone
                       selTrajs_->push_back( Trajectory(*trajRef) );
@@ -129,19 +136,21 @@ private:
               }
           }
       }
-      
-      evt.put(selTracks_);
+
+      evt.put(std::move(selTracks_));
       if (copyExtras_) {
-            evt.put(selTrackExtras_); 
-            evt.put(selHits_);
+            evt.put(std::move(selTrackExtras_));
+            evt.put(std::move(selHits_));
             if ( copyTrajectories_ ) {
-                evt.put(selTrajs_);
-                evt.put(selTTAss_);
+                evt.put(std::move(selTrajs_));
+                evt.put(std::move(selTTAss_));
             }
       }
   }
   /// source collection label
-  edm::InputTag src_;
+  edm::EDGetTokenT<reco::TrackCollection> hSrcTrackToken_;
+  edm::EDGetTokenT< std::vector<Trajectory> > hTrajToken_;
+  edm::EDGetTokenT< TrajTrackAssociationCollection > hTTAssToken_;
   /// copy only the tracks, not extras and rechits (for AOD)
   bool copyExtras_;
   /// copy also trajectories and trajectory->track associations
@@ -149,11 +158,11 @@ private:
   /// filter event
   Selector selector_;
   // some space
-  std::auto_ptr<reco::TrackCollection> selTracks_;
-  std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
-  std::auto_ptr<TrackingRecHitCollection> selHits_;
-  std::auto_ptr< std::vector<Trajectory> > selTrajs_;
-  std::auto_ptr< TrajTrackAssociationCollection > selTTAss_;
+  std::unique_ptr<reco::TrackCollection> selTracks_;
+  std::unique_ptr<reco::TrackExtraCollection> selTrackExtras_;
+  std::unique_ptr<TrackingRecHitCollection> selHits_;
+  std::unique_ptr< std::vector<Trajectory> > selTrajs_;
+  std::unique_ptr< TrajTrackAssociationCollection > selTTAss_;
 };
 
 } }

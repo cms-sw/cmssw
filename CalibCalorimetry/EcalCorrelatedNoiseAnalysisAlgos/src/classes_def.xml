@@ -1,0 +1,17 @@
+<lcgdict>
+  <class name="TEcnaObject"/>
+  <class name="TEcnaParEcal"/>
+  <class name="TEcnaNumbering"/>
+  <class name="TEcnaNArrayD"/>
+  <class name="TEcnaWrite"/>
+  <class name="TEcnaParCout"/>
+  <class name="TEcnaParPaths"/>
+  <class name="TEcnaParHistos"/>
+  <class name="TEcnaResultType"/>
+  <class name="TEcnaRootFile"/>
+  <class name="TEcnaHeader"/>
+  <class name="TEcnaRun"/>
+  <class name="TEcnaRead"/>
+  <class name="TEcnaHistos"/>
+  <class name="TEcnaGui"/>
+</lcgdict>

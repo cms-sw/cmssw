@@ -23,8 +23,9 @@
 #include <vector>
 #include <map>
 #include "DQMServices/Core/interface/MonitorElement.h"
+#include "DQMServices/Core/interface/DQMEDAnalyzer.h"
 
-class EcalPreshowerNoiseDistrib: public edm::EDAnalyzer{
+class EcalPreshowerNoiseDistrib: public DQMEDAnalyzer{
 
     typedef std::map<uint32_t,float,std::less<uint32_t> >  MapType;
 
@@ -33,21 +34,20 @@ public:
 /// Constructor
 EcalPreshowerNoiseDistrib(const edm::ParameterSet& ps);
 
+void bookHistograms(DQMStore::IBooker &i, edm::Run const&, edm::EventSetup const&) override;
+
 protected:
 
 /// Analyze
-void analyze(const edm::Event& e, const edm::EventSetup& c);
+void analyze(const edm::Event& e, const edm::EventSetup& c) override;
 
 private:
 
  bool verbose_;
  
- DQMStore* dbe_;
- 
  std::string outputFile_;
 
- edm::InputTag ESdigiCollection_;
-
+ edm::EDGetTokenT<ESDigiCollection> ESdigiCollectionToken_;
 
  MonitorElement* meESDigiADC_[3];
  MonitorElement* meESDigiCorr_[3];

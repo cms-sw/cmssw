@@ -19,7 +19,7 @@ process.source = cms.Source("EmptySource", numberEventsInRun = cms.untracked.uin
 
 elements = c.createElements()
 
-process.filler = cms.EDAnalyzer("DummyBookFillDQMStore",
+process.filler = cms.EDAnalyzer("DummyBookFillDQMStore" + b.mt_postfix(),
                                 folder    = cms.untracked.string("TestFolder/"),
                                 elements  = cms.untracked.VPSet(*elements),
                                 fillRuns  = cms.untracked.bool(True),
@@ -41,8 +41,13 @@ process.out = cms.OutputModule("PoolOutputModule",
 process.p = cms.Path(process.filler)
 process.o = cms.EndPath(process.endOfProcess+process.out)
 
+process.add_(cms.Service("DQMStore"))
+
+if b.multithread():
+    process.MEtoEDMConverter.enableMultiThread = cms.untracked.bool(True)
+    process.DQMStore.enableMultiThread = cms.untracked.bool(True)
+
 process.maxEvents = cms.untracked.PSet(input = cms.untracked.int32(10))
 
-process.add_(cms.Service("DQMStore"))
 #process.add_(cms.Service("Tracer"))
 

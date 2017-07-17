@@ -11,7 +11,7 @@
 
 SurveyDBUploader::SurveyDBUploader(const edm::ParameterSet& cfg):
   theValueRcd( cfg.getParameter<std::string>("valueRcd") ),
-  theErrorRcd( cfg.getParameter<std::string>("errorRcd") ),
+  theErrorExtendedRcd( cfg.getParameter<std::string>("errorRcd") ),
   theValues(0),
   theErrors(0)
 {
@@ -34,7 +34,7 @@ void SurveyDBUploader::endJob()
     poolDbService->writeOne<SurveyValues>
       (theValues, poolDbService->currentTime(), theValueRcd);
     poolDbService->writeOne<SurveyErrors>
-      (theErrors, poolDbService->currentTime(), theErrorRcd);
+      (theErrors, poolDbService->currentTime(), theErrorExtendedRcd);
   }
   else
     throw cms::Exception("ConfigError")

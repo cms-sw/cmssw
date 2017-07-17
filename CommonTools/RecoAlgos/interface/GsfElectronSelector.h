@@ -62,10 +62,15 @@ namespace helper {
 						  trk.seedDirection() ) );
 	  selGsfTrackExtras_->push_back( GsfTrackExtra( *(trk.gsfExtra()) ) );
   	  TrackExtra & tx = selTrackExtras_->back();
+          unsigned int nHitsToAdd = 0;
 	  for( trackingRecHit_iterator hit = trk.recHitsBegin(); hit != trk.recHitsEnd(); ++ hit ) {
 	    selHits_->push_back( (*hit)->clone() );
-	    tx.add( TrackingRecHitRef( rHits, hidx ++ ) );
+            ++nHitsToAdd;
 	  }
+          tx.setHits( rHits, hidx, nHitsToAdd );
+          tx.setTrajParams(trk.extra()->trajParams(),trk.extra()->chi2sX5());
+          assert(tx.trajParams().size()==tx.recHitsSize());
+          hidx += nHitsToAdd;
  	  trk.setGsfExtra( GsfTrackExtraRef( rGsfTrackExtras, tidx ) ); 
  	  trk.setExtra( TrackExtraRef( rTrackExtras, tidx ++ ) ); 
 	} 
@@ -73,25 +78,25 @@ namespace helper {
     }
 
     edm::OrphanHandle<reco::GsfElectronCollection> put( edm::Event & evt ) {
-      edm::OrphanHandle<reco::GsfElectronCollection> h = evt.put( selElectrons_ );
-      evt.put( selElectronCores_ );
-      evt.put( selSuperClusters_ );
-      evt.put( selTracks_ );
-      evt.put( selTrackExtras_ );
-      evt.put( selGsfTrackExtras_ );
-      evt.put( selHits_ );
+      edm::OrphanHandle<reco::GsfElectronCollection> h = evt.put(std::move(selElectrons_));
+      evt.put(std::move(selElectronCores_ ));
+      evt.put(std::move(selSuperClusters_ ));
+      evt.put(std::move(selTracks_ ));
+      evt.put(std::move(selTrackExtras_ ));
+      evt.put(std::move(selGsfTrackExtras_ ));
+      evt.put(std::move(selHits_ ));
       return h;
     }
 
     size_t size() const { return selElectrons_->size(); }
   private:
-    std::auto_ptr<reco::GsfElectronCollection> selElectrons_;
-    std::auto_ptr<reco::GsfElectronCoreCollection> selElectronCores_;
-    std::auto_ptr<reco::SuperClusterCollection> selSuperClusters_;
-    std::auto_ptr<reco::GsfTrackCollection> selTracks_;
-    std::auto_ptr<reco::TrackExtraCollection> selTrackExtras_;
-    std::auto_ptr<reco::GsfTrackExtraCollection> selGsfTrackExtras_;
-    std::auto_ptr<TrackingRecHitCollection> selHits_;
+    std::unique_ptr<reco::GsfElectronCollection> selElectrons_;
+    std::unique_ptr<reco::GsfElectronCoreCollection> selElectronCores_;
+    std::unique_ptr<reco::SuperClusterCollection> selSuperClusters_;
+    std::unique_ptr<reco::GsfTrackCollection> selTracks_;
+    std::unique_ptr<reco::TrackExtraCollection> selTrackExtras_;
+    std::unique_ptr<reco::GsfTrackExtraCollection> selGsfTrackExtras_;
+    std::unique_ptr<TrackingRecHitCollection> selHits_;
   };
 
   class GsfElectronSelectorBase : public edm::EDFilter {
