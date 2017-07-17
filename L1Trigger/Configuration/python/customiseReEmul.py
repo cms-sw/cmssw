@@ -119,6 +119,10 @@ def L1TReEmulFromRAW(process):
         cms.InputTag('hcalDigis'),
         cms.InputTag('hcalDigis')
     )
+    process.simHcalTriggerPrimitiveDigis.inputUpgradeLabel = cms.VInputTag(
+                cms.InputTag('hcalDigis'),
+                cms.InputTag('hcalDigis')
+    )
     process.simCscTriggerPrimitiveDigis.CSCComparatorDigiProducer = cms.InputTag( 'muonCSCDigis', 'MuonCSCComparatorDigi')
     process.simCscTriggerPrimitiveDigis.CSCWireDigiProducer       = cms.InputTag( 'muonCSCDigis', 'MuonCSCWireDigi' )  
     process.L1TReEmul = cms.Sequence(process.simEcalTriggerPrimitiveDigis * process.simHcalTriggerPrimitiveDigis * process.SimL1Emulator)
