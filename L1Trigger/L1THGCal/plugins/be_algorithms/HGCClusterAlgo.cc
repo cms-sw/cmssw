@@ -159,8 +159,8 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
             break;
     }
 
-    /*compute shower shape variables*/
-    clustering_.showerShape2D( triggerCellsPtrs );
+    /*compute shower shape variables
+    clustering_.showerShape2D( triggerCellsPtrs );*/
 
 
     /* retrieve the orphan handle to the clusters collection and put the collection in the event */

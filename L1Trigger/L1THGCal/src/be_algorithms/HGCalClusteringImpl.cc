@@ -272,19 +272,6 @@ void HGCalClusteringImpl::clusterizeNN( const edm::PtrVector<l1t::HGCalTriggerCe
 }
 
 
-void HGCalClusteringImpl::showerShape2D( const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs){
-
-    sigmaEtaEta_=0;
-    sigmaPhiPhi_=0;
-
-    HGCalShowerShape *shape=new HGCalShowerShape();
-    //shape->Init2D(triggerCellsPtrs);
-    shape->make2DshowerShape(triggerCellsPtrs);
-    sigmaEtaEta_=shape->SigmaEtaEta();
-    sigmaPhiPhi_=shape->SigmaPhiPhi();
-
-
-}
 
 
 
