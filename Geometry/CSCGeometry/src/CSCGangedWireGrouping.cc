@@ -5,6 +5,7 @@
 #include <iostream>
 #include <iomanip>
 #include <algorithm>
+#include <cstddef>
 
 CSCGangedWireGrouping::CSCGangedWireGrouping( 
   const Container& consecutiveGroups, 
