@@ -454,7 +454,7 @@ void TopMonitor::bookHistograms(DQMStore::IBooker     & ibooker,
     histname = "bjetEtaPhi_"; histtitle = "b-jet #eta - #phi - ";
     histname.append(index); histtitle.append(index);
     bookME(ibooker,bjetEtaPhi_.at(iBJet),histname,histtitle, jetEta_variable_binning_2D_, phi_variable_binning_2D_);
-    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet p_{T} [GeV]","b-jet #eta");
+    setMETitle(bjetEtaPhi_.at(iBJet),"b-jet #phi","b-jet #eta");
 
     histname = "bjetCSVHT_"; histtitle = "HT - b-jet CSV - ";
     histname.append(index); histtitle.append(index);
