@@ -4,14 +4,16 @@
 #include <numeric>
 #include <algorithm>
 #include <iostream>
-//#include "TH1.h"
+#include "TMath.h"
+#include "TH1.h"
+#include "TF1.h"
 
 //*************************************************************
 void PVValHelper::add(std::map<std::string, TH1*>& h, TH1* hist)
 //*************************************************************
 { 
   h[hist->GetName()]=hist; 
-  //hist->StatOverflows(kTRUE);
+  hist->StatOverflows(kTRUE);
 }
 
 //*************************************************************
@@ -57,10 +59,10 @@ void PVValHelper::shrinkHistVectorToFit(std::vector<TH1F*>&h, unsigned int desir
 }
 
 //*************************************************************
-std::tuple<std::string,std::string,std::string> PVValHelper::getTypeString (PVValHelper::residualType type)
+PVValHelper::plotLabels PVValHelper::getTypeString (PVValHelper::residualType type)
 //*************************************************************
 {
-  std::tuple<std::string,std::string,std::string> returnType;
+  PVValHelper::plotLabels returnType;
   switch(type)
     {
     // absoulte
@@ -126,10 +128,10 @@ std::tuple<std::string,std::string,std::string> PVValHelper::getTypeString (PVVa
 }
 
 //*************************************************************
-std::tuple<std::string,std::string,std::string> PVValHelper::getVarString (PVValHelper::plotVariable var)
+PVValHelper::plotLabels PVValHelper::getVarString (PVValHelper::plotVariable var)
 //*************************************************************
 {
-  std::tuple<std::string,std::string,std::string> returnVar;
+  PVValHelper::plotLabels returnVar;
   switch(var)
     {
     case PVValHelper::phi  :
@@ -175,4 +177,100 @@ std::vector<float> PVValHelper::generateBins(int n, float start,float range)
 
   return v;
 
+}
+
+//*************************************************************
+Measurement1D PVValHelper::getMedian(TH1F *histo)
+//*************************************************************
+{
+  double median = 999;
+  int nbins = histo->GetNbinsX();
+
+  //extract median from histogram
+  double *x = new double[nbins];
+  double *y = new double[nbins];
+  for (int j = 0; j < nbins; j++) {
+    x[j] = histo->GetBinCenter(j+1);
+    y[j] = histo->GetBinContent(j+1);
+  }
+  median = TMath::Median(nbins, x, y);
+  
+  delete[] x; x = nullptr;
+  delete[] y; y = nullptr;  
+
+  Measurement1D result(median,median/TMath::Sqrt(histo->GetEntries()));
+
+  return result;
+
+}
+
+//*************************************************************
+Measurement1D PVValHelper::getMAD(TH1F *histo)
+//*************************************************************
+{
+
+  int nbins = histo->GetNbinsX();
+  double median = getMedian(histo).value();
+  double x_lastBin = histo->GetBinLowEdge(nbins+1);
+  const char *HistoName =histo->GetName();
+  TString Finalname = Form("resMed%s",HistoName);
+  TH1F *newHisto = new TH1F(Finalname,Finalname,nbins,0.,x_lastBin);
+  double *residuals = new double[nbins];
+  double *weights = new double[nbins];
+
+  for (int j = 0; j < nbins; j++) {
+    residuals[j] = std::abs(median - histo->GetBinCenter(j+1));
+    weights[j]=histo->GetBinContent(j+1);
+    newHisto->Fill(residuals[j],weights[j]);
+  }
+  
+  double theMAD = (PVValHelper::getMedian(newHisto).value())*1.4826;
+  
+  delete[] residuals; residuals=nullptr;
+  delete[] weights; weights=nullptr;
+  newHisto->Delete("");
+  
+  Measurement1D result(theMAD,theMAD/histo->GetEntries());
+  return result;
+}
+
+
+//*************************************************************
+std::pair<Measurement1D, Measurement1D> PVValHelper::fitResiduals(TH1 *hist)
+//*************************************************************
+{
+  //float fitResult(9999);
+  //if (hist->GetEntries() < 20) return ;
+  
+  float mean  = hist->GetMean();
+  float sigma = hist->GetRMS();
+  
+  TF1 func("tmp", "gaus", mean - 1.5*sigma, mean + 1.5*sigma); 
+  if (0 == hist->Fit(&func,"QNR")) { // N: do not blow up file by storing fit!
+    mean  = func.GetParameter(1);
+    sigma = func.GetParameter(2);
+    // second fit: three sigma of first fit around mean of first fit
+    func.SetRange(mean - 2*sigma, mean + 2*sigma);
+      // I: integral gives more correct results if binning is too wide
+      // L: Likelihood can treat empty bins correctly (if hist not weighted...)
+    if (0 == hist->Fit(&func, "Q0LR")) {
+      if (hist->GetFunction(func.GetName())) { // Take care that it is later on drawn:
+	hist->GetFunction(func.GetName())->ResetBit(TF1::kNotDraw);
+      }
+    }
+  }
+
+  float res_mean  = func.GetParameter(1);
+  float res_width = func.GetParameter(2);
+  
+  float res_mean_err  = func.GetParError(1);
+  float res_width_err = func.GetParError(2);
+
+  Measurement1D resultM(res_mean,res_mean_err);
+  Measurement1D resultW(res_width,res_width_err);
+
+  std::pair<Measurement1D, Measurement1D> result;
+  
+  result = std::make_pair(resultM,resultW);
+  return result;
 }

@@ -9,6 +9,7 @@
 #include "TH1.h"
 
 #include "FWCore/MessageLogger/interface/MessageLogger.h"
+#include "DataFormats/GeometryCommonDetAlgo/interface/Measurement1D.h"
 
 namespace PVValHelper {
 
@@ -92,6 +93,8 @@ namespace PVValHelper {
     }
   };
 
+  typedef std::tuple<std::string,std::string,std::string>  plotLabels;
+
   // helper methods
   
   void add(std::map<std::string,TH1*>& h, TH1* hist);
@@ -104,11 +107,17 @@ namespace PVValHelper {
   
   void shrinkHistVectorToFit(std::vector<TH1F*>&h, unsigned int desired_size);
     
-  std::tuple<std::string,std::string,std::string> getTypeString (residualType type);  
+  plotLabels getTypeString (residualType type);  
 
-  std::tuple<std::string,std::string,std::string> getVarString (PVValHelper::plotVariable var);
+  plotLabels getVarString (plotVariable var);
 
   std::vector<float> generateBins(int n, float start, float range);
+
+  Measurement1D getMedian(TH1F *histo);
+
+  Measurement1D getMAD(TH1F *histo);
+
+  std::pair<Measurement1D, Measurement1D> fitResiduals(TH1 *hist);
 
 };
 
