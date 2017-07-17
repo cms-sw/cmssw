@@ -25,6 +25,8 @@ process.dqmEnv.subSystemFolder = 'DT'
 process.dqmSaver.tag = "DT"
 #-----------------------------
 
+#Enable HLT*Mu* filtering to monitor only on Muon events
+process.source.SelectEvents = cms.untracked.vstring("HLT*Mu*")
 
 # DT reco and DQM sequences
 process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
