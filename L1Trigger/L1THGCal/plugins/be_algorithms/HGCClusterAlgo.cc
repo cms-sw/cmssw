@@ -2,6 +2,7 @@
 #include "DataFormats/L1THGCal/interface/HGCalTriggerCell.h"
 #include "DataFormats/L1THGCal/interface/HGCalCluster.h"
 #include "DataFormats/L1THGCal/interface/HGCalMulticluster.h"
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerBackendAlgorithmBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodec.h"
@@ -114,7 +115,7 @@ void HGCClusterAlgo<FECODEC,DATA>::run(const l1t::HGCFETriggerDigiCollection & c
  
     es.get<IdealGeometryRecord>().get( HGCalEESensitive_,        hgceeTopoHandle_ );
     es.get<IdealGeometryRecord>().get( HGCalHESiliconSensitive_, hgchefTopoHandle_ );
-    es.get<IdealGeometryRecord>().get("", triggerGeometry_);
+    es.get<CaloGeometryRecord>().get("", triggerGeometry_);
 
     for( const auto& digi : coll ){
         

@@ -176,10 +176,10 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std
         switch(cellid.subdetId())
         {
             case ForwardSubdetector::HGCEE:
-                thickness = geometry.cellInfo().topo_ee->dddConstants().waferTypeL(cellid.wafer())-1;
+                thickness = geometry.eeTopology().dddConstants().waferTypeL(cellid.wafer())-1;
                 break;
             case ForwardSubdetector::HGCHEF:
-                thickness = geometry.cellInfo().topo_fh->dddConstants().waferTypeL(cellid.wafer())-1;
+                thickness = geometry.fhTopology().dddConstants().waferTypeL(cellid.wafer())-1;
                 break;
             default:
                 break;
