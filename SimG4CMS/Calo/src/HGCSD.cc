@@ -43,6 +43,7 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
 
   edm::ParameterSet m_HGC = p.getParameter<edm::ParameterSet>("HGCSD");
   eminHit          = m_HGC.getParameter<double>("EminHit")*CLHEP::MeV;
+  storeAllG4Hits_  = m_HGC.getParameter<bool>("StoreAllG4Hits");
   rejectMB_        = m_HGC.getParameter<bool>("RejectMouseBite");
   waferRot_        = m_HGC.getParameter<bool>("RotatedWafer");
   angles_          = m_HGC.getUntrackedParameter<std::vector<double>>("WaferAngles");
@@ -77,6 +78,8 @@ HGCSD::HGCSD(G4String name, const DDCompactView & cpv,
 #endif
   edm::LogInfo("HGCSim") << "HGCSD:: Threshold for storing hits: " << eminHit
 			 << " for " << nameX << " subdet " << myFwdSubdet_;
+  edm::LogInfo("HGCSim") << "Flag for storing individual Geant4 Hits "
+			 << storeAllG4Hits_;
   edm::LogInfo("HGCSim") << "Reject MosueBite Flag: " << rejectMB_ 
 			 << " Size of wafer " << waferSize << " Mouse Bite "
 			 << mouseBite << ":" << mouseBiteCut_ << " along "
@@ -112,8 +115,8 @@ bool HGCSD::ProcessHits(G4Step * aStep, G4TouchableHistory * ) {
     // Apply fiducial cuts
     if (r/z >= slopeMin_) {
       if (getStepInfo(aStep)) {
-	if (hitExists() == false && edepositEM+edepositHAD>0.) 
-	  currentHit = createNewHit();
+	if ((storeAllG4Hits_ || (hitExists() == false)) && 
+	    (edepositEM+edepositHAD>0.)) currentHit = createNewHit();
       }
     }
     return true;

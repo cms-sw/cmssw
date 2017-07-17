@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_2_0/HIon/V15 (CMSSW_9_2_2)
+# /dev/CMSSW_9_2_0/HIon/V26 (CMSSW_9_2_2)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTHIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/HIon/V15')
+  tableName = cms.string('/dev/CMSSW_9_2_0/HIon/V26')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2056,7 +2056,7 @@ process.GlobalParametersRcdSource = cms.ESSource( "EmptyESSource",
     firstValid = cms.vuint32( 1 )
 )
 process.GlobalTag = cms.ESSource( "PoolDBESSource",
-    globaltag = cms.string( "92X_dataRun2_HLT_v2" ),
+    globaltag = cms.string( "92X_dataRun2_HLT_v4" ),
     RefreshEachRun = cms.untracked.bool( False ),
     snapshotTime = cms.string( "" ),
     toGet = cms.VPSet( 

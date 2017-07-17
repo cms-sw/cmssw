@@ -22,7 +22,7 @@ SUSY_HLT_MET_HT_MUON = cms.EDAnalyzer("SUSY_HLT_Muon_Hadronic",
 )
 
 
-SUSY_HLT_MET_HT_MUON_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToMEToHToMUONoPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
     subDirs        = cms.untracked.vstring("HLT/SUSYBSM/HLT_Mu6_PFHT200_PFMET100_v"),
     verbose        = cms.untracked.uint32(2), # Set to 2 for all messages
     resolution     = cms.vstring(""),

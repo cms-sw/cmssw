@@ -219,11 +219,10 @@ void
 DDXMLElement::stream( std::ostream & os ) const
 {
   os << "Output of current element attributes:" << std::endl;
-  for (std::vector<DDXMLAttribute>::const_iterator itv = attributes_.begin();
-       itv != attributes_.end(); ++itv)
+  for (const auto & attribute : attributes_)
   {
-    for (DDXMLAttribute::const_iterator it = itv->begin(); 
-	 it != itv->end(); ++it)
+    for (DDXMLAttribute::const_iterator it = attribute.begin(); 
+	 it != attribute.end(); ++it)
       os << it->first <<  " = " << it->second << "\t";
     os << std::endl;
   }

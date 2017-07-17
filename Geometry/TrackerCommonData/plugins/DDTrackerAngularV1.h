@@ -12,15 +12,15 @@ class DDTrackerAngularV1 : public DDAlgorithm {
 public:
   //Constructor and Destructor
   DDTrackerAngularV1(); 
-  virtual ~DDTrackerAngularV1();
+  ~DDTrackerAngularV1() override;
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 private:
 

@@ -32,7 +32,7 @@ HcalGeomParameters::~HcalGeomParameters() {
 void HcalGeomParameters::getConstRHO( std::vector<double>& rHO ) const {
 
   rHO.push_back(rminHO);
-  for (int i=0; i<4; ++i) rHO.push_back(etaHO[i]);
+  for (double i : etaHO) rHO.push_back(i);
 }
 
 std::vector<int> HcalGeomParameters::getModHalfHBHE(const int type) const {
@@ -134,8 +134,8 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	}
 	if (lay < 17) {
 	  bool found = false;
-	  for (unsigned int k=0; k<rxb.size(); k++) {
-	    if (std::abs(rxb[k]-t.Rho()) < 0.01) {
+	  for (double k : rxb) {
+	    if (std::abs(k-t.Rho()) < 0.01) {
 	      found = true;
 	      break;
 	    }
@@ -215,8 +215,8 @@ void HcalGeomParameters::loadGeometry(const DDFilteredView& _fv,
 	rmaxHE[lay] += routHE;
 #endif
 	bool found = false;
-	for (unsigned int k=0; k<php.zxHE.size(); k++) {
-	  if (std::abs(php.zxHE[k]-std::abs(t.z())) < 0.01) {
+	for (double k : php.zxHE) {
+	  if (std::abs(k-std::abs(t.z())) < 0.01) {
 	    found = true;
 	    break;
 	  }

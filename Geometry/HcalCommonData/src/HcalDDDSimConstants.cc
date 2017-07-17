@@ -612,16 +612,16 @@ std::vector<HcalCellType> HcalDDDSimConstants::HcalCellTypes(const HcalSubdetect
 	    HcalCellType temp3(subdet, eta, zside+2, depth, temp1,
 			       shift, gain, hsize);
 	    std::vector<int> phiMiss3;
-	    for (unsigned int k=0; k<phis.size(); ++k) {
+	    for (auto & phi : phis) {
 	      bool ok(false);
-	      for (unsigned int l=0; l<idHF2QIE.size(); ++l) {
-		if ((eta*zside     == idHF2QIE[l].ieta()) && 
-		    (phis[k].first == idHF2QIE[l].iphi())) {
+	      for (auto l : idHF2QIE) {
+		if ((eta*zside     == l.ieta()) && 
+		    (phi.first == l.iphi())) {
 		  ok = true;
 		  break;
 		}
 	      }
-	      if (!ok) phiMiss3.push_back(phis[k].first);
+	      if (!ok) phiMiss3.push_back(phi.first);
 	    }
 	    dphi  = hpar->phitable[eta-hpar->etaMin[2]];
 	    unit  = unitPhi(dphi);
@@ -640,8 +640,8 @@ int HcalDDDSimConstants::maxHFDepth(const int eta, const int iphi) const {
   int mxdepth = maxDepth[2];
   if (idHF2QIE.size() > 0) {
     bool ok(false);
-    for (unsigned int k=0; k<idHF2QIE.size(); ++k) {
-      if ((eta == idHF2QIE[k].ieta()) && (iphi == idHF2QIE[k].iphi())) {
+    for (auto k : idHF2QIE) {
+      if ((eta == k.ieta()) && (iphi == k.iphi())) {
 	ok = true; break;
       }
     }
@@ -654,8 +654,8 @@ unsigned int HcalDDDSimConstants::numberOfCells(const HcalSubdetector subdet) co
 
   unsigned int num = 0;
   std::vector<HcalCellType> cellTypes = HcalCellTypes(subdet);
-  for (unsigned int i=0; i<cellTypes.size(); i++) {
-    num += (unsigned int)(cellTypes[i].nPhiBins());
+  for (auto & cellType : cellTypes) {
+    num += (unsigned int)(cellType.nPhiBins());
   }
 #ifdef EDM_ML_DEBUG
   std::cout << "HcalDDDSimConstants:numberOfCells " 

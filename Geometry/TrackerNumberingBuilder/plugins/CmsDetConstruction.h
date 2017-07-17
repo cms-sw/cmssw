@@ -8,7 +8,7 @@
  */
 class CmsDetConstruction : public CmsTrackerLevelBuilder {
  public:
-  void  buildComponent(DDFilteredView& , GeometricDet*, std::string);
+  void  buildComponent(DDFilteredView& , GeometricDet*, std::string) override;
  private:
   void buildDets(DDFilteredView& , GeometricDet* , std::string);
   void buildSmallDetsforGlued(DDFilteredView& , GeometricDet* , std::string);

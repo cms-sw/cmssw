@@ -17,7 +17,7 @@ process.load('CalibTracker.SiStripCommon.ShallowRechitClustersProducer_cfi')
 process.load('RecoTracker.TrackProducer.TrackRefitters_cff')
 process.load('SimGeneral.TrackingAnalysis.simHitTPAssociation_cfi')
 process.load("SimTracker.TrackAssociatorProducers.trackAssociatorByHits_cfi")
-add_rawRelVals(process)
+#add_rawRelVals(process)
 
 process.tracksRefit = process.TrackRefitter.clone()
 process.shallowGainCalibration.Tracks = 'tracksRefit'
@@ -42,17 +42,17 @@ process.testTree = cms.EDAnalyzer(
 process.p = cms.Path(
    process.MeasurementTrackerEvent*
    process.tracksRefit*
-   process.simHitTPAssocProducer*
-   process.trackAssociatorByHits*
+   #process.simHitTPAssocProducer*
+   #process.trackAssociatorByHits*
    process.siStripMatchedRecHits*
    # Shallow stuff
    process.shallowEventRun*
-   process.shallowSimTracks*
+   #process.shallowSimTracks*
    process.shallowTrackClusters*
    process.shallowGainCalibration*
    process.shallowDigis*
    process.shallowTracks*
-   process.shallowSimhitClusters*
+   #process.shallowSimhitClusters*
    process.shallowClusters*
    process.shallowRechitClusters*
    #tree dumping

@@ -1,13 +1,5 @@
 <lcgdict>
 <selection>
-  <class pattern="ROOT::Math::PtEtaPhiE4D<*>" />
-  <class pattern="ROOT::Math::PtEtaPhiM4D<*>" />
-  <class pattern="ROOT::Math::PxPyPzE4D<*>" />
-  <class pattern="ROOT::Math::Cartesian3D<*>" />
-  <class pattern="ROOT::Math::CylindricalEta3D<*>" />
-  <class pattern="ROOT::Math::LorentzVector<*>" />
-  <class pattern="ROOT::Math::DisplacementVector3D<*>" />
-  <class pattern="ROOT::Math::PositionVector3D<*>" />
   <class pattern="ROOT::Math::SMatrix<*>" />
   <class pattern="ROOT::Math::MatRepStd<*>" />
   <class pattern="ROOT::Math::MatRepSym<*>" >
@@ -24,17 +16,6 @@
 <exclusion>
   <!-- Excluded to avoid duplicate warnings because these dictionaries are defined in ROOT -->
   <class pattern="std::pair<ROOT::Math::PositionVector3D<*>,float>"/>
-  <class name= "ROOT::Math::PtEtaPhiE4D<double>"/>
-  <class name= "ROOT::Math::PtEtaPhiM4D<double>"/>
-  <class name= "ROOT::Math::PxPyPzE4D<double>"/>
-  <class name= "ROOT::Math::Cartesian3D<double>"/>
-  <class name= "ROOT::Math::CylindricalEta3D<double>"/>
-  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PxPyPzE4D<double> >"/>
-  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiE4D<double> >"/>
-  <class name= "ROOT::Math::LorentzVector<ROOT::Math::PtEtaPhiM4D<double> >"/>
-  <class name= "ROOT::Math::DisplacementVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
-  <class name= "ROOT::Math::DisplacementVector3D<ROOT::Math::CylindricalEta3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
-  <class name= "ROOT::Math::PositionVector3D<ROOT::Math::Cartesian3D<double>,ROOT::Math::DefaultCoordinateSystemTag>"/>
   <class name= "ROOT::Math::MatRepSym<double,2>"/>
   <class name= "ROOT::Math::MatRepSym<double,3>"/>
   <class name= "ROOT::Math::MatRepSym<double,4>"/>

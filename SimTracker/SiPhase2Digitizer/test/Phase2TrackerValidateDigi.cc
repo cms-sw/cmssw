@@ -72,7 +72,7 @@ Phase2TrackerValidateDigi::Phase2TrackerValidateDigi(const edm::ParameterSet& iC
   etaCut_  = config_.getParameter<double>("EtaCutOff");
   ptCut_  = config_.getParameter<double>("PtCutOff");
   tofUpperCut_ = config_.getParameter<double>("TOFUpperCutOff");
-  tofLowerCut_ = config_.getParameter<double>("TOFUpperCutOff");
+  tofLowerCut_ = config_.getParameter<double>("TOFLowerCutOff");
 
   edm::LogInfo("Phase2TrackerValidateDigi") << ">>> Construct Phase2TrackerValidateDigi ";
 }

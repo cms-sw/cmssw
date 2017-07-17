@@ -49,8 +49,8 @@ set BASE2RD  = auto:run2_data
 
 set NNPPMC = 100
 set NNPPRD = 100
-set NNHIMC = 25
-set NNHIRD = 25
+set NNPRMC = 20
+set NNPRRD = 20
 
 set EraRun1        = " "
 set EraRun25ns     = " --era=Run2_25ns "
@@ -87,7 +87,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1HLT
     set BASE2  = $BASE2HLT
     set NNPP   = $NNPPRD
-    set NNHI   = $NNHIRD
+    set NNPR   = $NNPRRD
     set DATAMC = --data
     set PNAME  = HLT1
     set RNAME  = RECO1
@@ -95,7 +95,7 @@ foreach gtag ( MC DATA )
     set BASE1  = $BASE1MC
     set BASE2  = $BASE2MC
     set NNPP   = $NNPPMC
-    set NNHI   = $NNHIMC
+    set NNPR   = $NNPRMC
     set DATAMC = --mc
     set PNAME  = HLT
     set RNAME  = RECO
@@ -203,7 +203,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:HIon
       set GTAG = ${BASE2}_HIon
       set RTAG = ${BASE2RD}_HIon
-      set NN   = $NNHI
+      set NN   = $NNPP
       set SCEN = HeavyIons
       set InputGenSim = $InputGenSimHIon1
       set InputLHCRaw = $InputLHCRawHIon1
@@ -227,7 +227,7 @@ foreach gtag ( MC DATA )
       set XHLT = HLT:PRef
       set GTAG = ${BASE2}_PRef
       set RTAG = ${BASE2RD}_PRef
-      set NN   = $NNPP
+      set NN   = $NNPR
       set SCEN = pp
       set InputGenSim = $InputGenSimPRef3
       set InputLHCRaw = $InputLHCRawPRef3

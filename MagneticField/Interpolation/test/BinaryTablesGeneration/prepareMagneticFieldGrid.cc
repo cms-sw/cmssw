@@ -115,6 +115,9 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
   int    nSteps[3] = {0,0,0};
   double x1,x2,x3,Bx,By,Bz,perm,poten;
   std::ifstream file(name.c_str());
+  int n_air  = 0;
+  int n_iron = 0;
+  
   if (file.good()) {
     while (file.good()){
       file >> x1 >> x2 >> x3 >> Bx >> By >> Bz >> perm >> poten;
@@ -147,6 +150,10 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
 	
 	//	cerr << fixed << x1 << " " <<  x2 << " " <<  x3 << " " <<  Bx << " " <<  By << " " <<  Bz << " " <<  perm << " " <<  poten << " " << endl;
 
+	// Check that the table is homogeneous (ie does not mix perm=1 with perm>>1)	
+	if (perm>1.) ++n_iron;
+	else ++n_air;
+
         XBVector.putI3(index[0], index[1], index[2]);
         XBVector.putV6(x1, x2, x3, Bx, By, Bz);
         XBValues.push_back(XBVector);
@@ -175,6 +182,7 @@ void prepareMagneticFieldGrid::fillFromFile(const std::string& name){
         }
       }
     }
+    if (n_air && n_iron)  cout << "WARNING: table " << name << " contains "<< n_air << " points with perm=1 and " << n_iron << " with perm>1" << endl;
   }
   else return;
 

@@ -8,6 +8,10 @@ HLTBTagHarvestingAnalyzer::HLTBTagHarvestingAnalyzer(const edm::ParameterSet& iC
 	m_mcLabels				= mc.getParameterNamesForType<std::vector<unsigned int> >();
 	m_histoName				= iConfig.getParameter<std::vector<std::string> >("histoName");
 	m_minTag				= iConfig.getParameter<double>("minTag");
+
+	HCALSpecialsNames[HEP17] = "HEP17";
+	HCALSpecialsNames[HEP18] = "HEP18";
+	HCALSpecialsNames[HEM17] = "HEM17";
 }
 
 HLTBTagHarvestingAnalyzer::~HLTBTagHarvestingAnalyzer()
@@ -27,11 +31,14 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 	{
 		dqmFolder_hist = Form("HLT/BTag/Discriminator/%s",hltPathNames_[ind].c_str());
 		std::string effDir = Form("HLT/BTag/Discriminator/%s/efficiency",hltPathNames_[ind].c_str());
+		std::string relationsDir = Form("HLT/BTag/Discriminator/%s/HEP17_HEM17",hltPathNames_[ind].c_str());
 		ibooker.setCurrentFolder(effDir);
 		TH1 *den =NULL;
 		TH1 *num =NULL; 
 		std::map<TString,TH1F> effics;
 		std::map<TString,bool> efficsOK;
+		std::map<std::string,std::map<HCALSpecials,TH1F> > efficsmod;
+		std::map<std::string,std::map<HCALSpecials,bool> > efficsmodOK;
 		for (unsigned int i = 0; i < m_mcLabels.size(); ++i)
 		{
 			bool isOK=false;
@@ -45,6 +52,18 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 				effics[flavour]=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_disc").Data());
 				efficsOK[flavour]=isOK;
 			}
+			//for modules (HEP17 etc.)
+			for (auto j: HCALSpecialsNames){
+				ibooker.setCurrentFolder(dqmFolder_hist+"/"+j.second+"/efficiency");
+				isOK=GetNumDenumerators(ibooker,igetter,(TString(dqmFolder_hist)+"/"+j.second+"/"+label).Data(),(TString(dqmFolder_hist)+"/"+j.second+"/"+label).Data(),num,den,0);
+				if (isOK){
+			
+					//do the 'b-tag efficiency vs discr' plot
+					efficsmod[flavour.Data()][j.first]=calculateEfficiency1D(ibooker,igetter,*num,*den,(label+"_efficiency_vs_disc").Data());
+					efficsmodOK[flavour.Data()][j.first]=isOK;
+				}
+			}
+			ibooker.setCurrentFolder(effDir);
 			label= m_histoName.at(ind)+std::string("___");
 			std::string labelEta = label.Data();
 			std::string labelPhi = label.Data();
@@ -69,12 +88,37 @@ HLTBTagHarvestingAnalyzer::dqmEndJob(DQMStore::IBooker & ibooker, DQMStore::IGet
 				//do the 'b-tag efficiency vs Phi' plot
 				TH1F eff=calculateEfficiency1D(ibooker,igetter,*num,*den,labelPhi+"_efficiency_vs_phi");
 			}
+
+			///save efficiency_vs_disc_HEP17 / efficiency_vs_disc_HEM17 plots
+			ibooker.setCurrentFolder(relationsDir);
+			if (efficsmodOK[flavour.Data()][HEP17] && efficsmodOK[flavour.Data()][HEM17]) 
+				modulesrate(ibooker,igetter,&efficsmod[flavour.Data()][HEP17], &efficsmod[flavour.Data()][HEM17], m_histoName.at(ind)+"_"+flavour.Data()+"_HEP17_HEM17_effs_vs_disc_rate" );
+			ibooker.setCurrentFolder(effDir);
+
 		} /// for mc labels
 		
 		///save mistagrate vs b-eff plots
 		if (efficsOK["b"] && efficsOK["c"])      mistagrate(ibooker,igetter,&effics["b"], &effics["c"], m_histoName.at(ind)+"_b_c_mistagrate" );
 		if (efficsOK["b"] && efficsOK["light"])  mistagrate(ibooker,igetter,&effics["b"], &effics["light"], m_histoName.at(ind)+"_b_light_mistagrate" );
 		if (efficsOK["b"] && efficsOK["g"])      mistagrate(ibooker,igetter,&effics["b"], &effics["g"], m_histoName.at(ind)+"_b_g_mistagrate" );
+
+		///save mistagrate vs b-eff plots for modules (HEP17 etc.)
+		for (auto j: HCALSpecialsNames){
+			ibooker.setCurrentFolder(dqmFolder_hist+"/"+j.second+"/efficiency");
+			if (efficsmodOK["b"][j.first] && efficsmodOK["c"][j.first])      mistagrate(ibooker,igetter,&efficsmod["b"][j.first], &efficsmod["c"][j.first], m_histoName.at(ind)+"_b_c_mistagrate" );
+			if (efficsmodOK["b"][j.first] && efficsmodOK["light"][j.first])  mistagrate(ibooker,igetter,&efficsmod["b"][j.first], &efficsmod["light"][j.first], m_histoName.at(ind)+"_b_light_mistagrate" );
+			if (efficsmodOK["b"][j.first] && efficsmodOK["g"][j.first])      mistagrate(ibooker,igetter,&efficsmod["b"][j.first], &efficsmod["g"][j.first], m_histoName.at(ind)+"_b_g_mistagrate" );
+		}
+		
+		///save mistagrate_HEP17 / mistagrate_HEM17 plots
+		ibooker.setCurrentFolder(relationsDir);
+		bool isOK=false;
+		isOK=GetNumDenumerators(ibooker,igetter,dqmFolder_hist+"/HEP17/efficiency/"+m_histoName.at(ind)+"_b_c_mistagrate",dqmFolder_hist+"/HEM17/efficiency/"+m_histoName.at(ind)+"_b_c_mistagrate",num,den,3);
+		if (isOK) modulesrate(ibooker,igetter,(TH1F*)num, (TH1F*)den, m_histoName.at(ind)+"_HEP17_HEM17_b_c_mistagrate" );
+		isOK=GetNumDenumerators(ibooker,igetter,dqmFolder_hist+"/HEP17/efficiency/"+m_histoName.at(ind)+"_b_light_mistagrate",dqmFolder_hist+"/HEM17/efficiency/"+m_histoName.at(ind)+"_b_light_mistagrate",num,den,3);
+		if (isOK) modulesrate(ibooker,igetter,(TH1F*)num, (TH1F*)den, m_histoName.at(ind)+"_HEP17_HEM17_b_light_mistagrate" );
+		isOK=GetNumDenumerators(ibooker,igetter,dqmFolder_hist+"/HEP17/efficiency/"+m_histoName.at(ind)+"_b_g_mistagrate",dqmFolder_hist+"/HEM17/efficiency/"+m_histoName.at(ind)+"_b_g_mistagrate",num,den,3);
+		if (isOK) modulesrate(ibooker,igetter,(TH1F*)num, (TH1F*)den, m_histoName.at(ind)+"_HEP17_HEM17_b_g_mistagrate" );
 	} /// for triggers
 }
 
@@ -86,6 +130,7 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
    type =0 for eff_vs_discriminator
    type =1 for eff_vs_pT
    type =2 for eff_vs_eta or eff_vs_phi
+   type =3 for HEP17 / HEM17 mistagrate relation
  */
 	MonitorElement *denME = NULL;
 	MonitorElement *numME = NULL;
@@ -163,6 +208,12 @@ bool HLTBTagHarvestingAnalyzer::GetNumDenumerators(DQMStore::IBooker& ibooker, D
 		delete cutg_num;
 		delete cutg_den;
 	}
+
+	if (type==3) //mistagrate HEP17 / HEM17 relation: fill "ptrnum" with HEP17 mistagrate and "ptrden" with HEM17 mistagrate
+	{
+		ptrden=denME->getTH1();
+		ptrnum=numME->getTH1();
+	}
 	return true;
 }
 
@@ -193,6 +244,31 @@ void HLTBTagHarvestingAnalyzer::mistagrate(DQMStore::IBooker& ibooker, DQMStore:
 		eff->SetBinContent(binX,miseff);
 		eff->SetBinError(binX,miseffErr);
 	}
+	MonitorElement *me;
+	me = ibooker.book1D(effName.c_str(),eff);
+	me->setEfficiencyFlag();
+
+	delete eff;
+	return;
+}
+
+void HLTBTagHarvestingAnalyzer::modulesrate(DQMStore::IBooker& ibooker, DQMStore::IGetter& igetter, TH1F* num, TH1F* den, std::string effName ){
+	//do the eff_vs_disc_HEP17 / eff_vs_disc_HEM17 plot
+	TH1F* eff=new TH1F(*num);
+	//eff = new TH1F(effName.c_str(),effName.c_str(),100,0,1);
+	eff->Divide(den);
+	eff->SetTitle(effName.c_str());
+	eff->SetXTitle(num->GetXaxis()->GetTitle());
+	eff->SetYTitle("");
+	eff->SetOption("E");
+	eff->SetLineColor(2);
+	eff->SetLineWidth(2);
+	eff->SetMarkerStyle(20);
+	eff->SetMarkerSize(0.8);
+	eff->GetYaxis()->SetRangeUser(0.001,2.001);
+	//eff->GetXaxis()->SetRangeUser(-0.001,1.001);
+	eff->SetStats(kFALSE);
+	
 	MonitorElement *me;
 	me = ibooker.book1D(effName.c_str(),eff);
 	me->setEfficiencyFlag();
