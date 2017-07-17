@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_2_0/PIon/V84 (CMSSW_9_2_5_patch1)
+# /dev/CMSSW_9_2_0/PIon/V85 (CMSSW_9_2_5_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/PIon/V84')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PIon/V85')
 )
 
 process.transferSystem = cms.PSet( 
