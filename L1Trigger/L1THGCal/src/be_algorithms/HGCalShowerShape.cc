@@ -22,7 +22,7 @@
 #include <string>
 
 
-
+/*
 void HGCalShowerShape::Init2D(const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs){
 
     std::vector<float> tc_energy ; 
@@ -42,12 +42,12 @@ void HGCalShowerShape::Init2D(const edm::PtrVector<l1t::HGCalTriggerCell> & trig
     tc_phi_ = tc_phi;
 
 }
-
+*/
 ////////////////////////////////////////////////////////////////////////////////////////////
 
 
 
-
+/*
 void HGCalShowerShape::Init3D(const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs){
 
     std::vector<int> layer ; // Size : ncl2D
@@ -89,7 +89,7 @@ void HGCalShowerShape::Init3D(const edm::PtrVector<l1t::HGCalCluster> & clusters
   tc_phi_ = tc_phi;
 
 }
-
+*/
 
 
 
@@ -248,27 +248,93 @@ float HGCalShowerShape::Zmean(std::vector<float> energy, std::vector<float> z){
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HGCalShowerShape::make2DshowerShape(){
+void HGCalShowerShape::make2DshowerShape(const edm::PtrVector<l1t::HGCalTriggerCell> & triggerCellsPtrs){
 
-    SigmaEtaEta_=SigmaEtaEta(tc_energy_,tc_eta_);	
-    SigmaPhiPhi_=SigmaPhiPhi(tc_energy_,tc_phi_);	
+    std::vector<float> tc_energy ; 
+    std::vector<float> tc_eta ;
+    std::vector<float> tc_phi ;
+
+    for( edm::PtrVector<l1t::HGCalTriggerCell>::const_iterator tc = triggerCellsPtrs.begin(); tc != triggerCellsPtrs.end(); ++tc){
+   
+	tc_energy.emplace_back((*tc)->energy());
+	tc_eta.emplace_back((*tc)->eta());
+	tc_phi.emplace_back((*tc)->phi());
+
+    }
+
+    SigmaEtaEta_=SigmaEtaEta(tc_energy,tc_eta);	
+    SigmaPhiPhi_=SigmaPhiPhi(tc_energy,tc_phi);	
 
 }
 
 ////////////////////////////////////////////////////////////////////////////////////////////////
 
-void HGCalShowerShape::makeHGCalProfile(){
+void HGCalShowerShape::makeHGCalProfile(const edm::PtrVector<l1t::HGCalCluster> & clustersPtrs){
 
-		
-		if(subdetID_.at(0)==3) firstLayer_=layer_.at(0);//EE
-		if(subdetID_.at(0)==4) firstLayer_=layer_.at(0)+28;//FH
 
-		if(subdetID_.at(ncl2D_-1)==3) lastLayer_=layer_.at(ncl2D_-1);
-		if(subdetID_.at(ncl2D_-1)==4) lastLayer_=layer_.at(ncl2D_-1)+28;
+    std::vector<int> layer ; // Size : ncl2D
+    std::vector<int> subdetID ;
+    std::vector<float> cl2D_energy ;
+    std::vector<int> nTC ;
+    std::vector<float> tc_energy ; // Size : ncl2D*nTCi
+    std::vector<float> tc_eta ;
+    std::vector<float> tc_phi ;
+    std::vector<float> tc_z ;
 
-		nLayers_=lastLayer_-firstLayer_+1;
+    for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
+        
+        	layer.emplace_back((*clu)->layer());
+        	subdetID.emplace_back((*clu)->subdetId());
+        	cl2D_energy.emplace_back((*clu)->energy());
 
-		for(int ilayer=0;ilayer<40;ilayer++){   //Loop on HGCal layers
+		    const edm::PtrVector<l1t::HGCalTriggerCell> triggerCells = (*clu)->constituents();
+    		unsigned int ncells = triggerCells.size();
+		    nTC.emplace_back(ncells);
+		    for(unsigned int itc=0; itc<ncells;itc++){
+
+    			l1t::HGCalTriggerCell thistc = *triggerCells[itc];
+
+        		tc_energy.emplace_back(thistc.energy());
+        		tc_eta.emplace_back(thistc.eta());
+        		tc_phi.emplace_back(thistc.phi());
+        		tc_z.emplace_back(thistc.position().z());
+
+		    }
+    }
+
+    int ncl2D=layer.size();		
+
+    std::vector<float> EnergyVector; // Size : 40 (HGCal layers)
+    std::vector<float> SigmaEtaEtaVector; // Size : 40 (HGCal layers)
+    std::vector<float> SigmaPhiPhiVector; // Size : 40 (HGCal layers)
+    
+
+   //Auxiliary Containers to compute shower shapes
+    std::vector<float> energy_layer ;
+    std::vector<float> eta_layer ;
+    std::vector<float> phi_layer ;
+    std::vector<float> energy ;
+    std::vector<float> eta ;
+    std::vector<float> phi ;
+    std::vector<float> x ;
+    std::vector<float> y ;
+    std::vector<float> z ;
+
+	if(subdetID.at(0)==3) firstLayer_=layer.at(0);//EE
+	if(subdetID.at(0)==4) firstLayer_=layer.at(0)+28;//FH
+
+	if(subdetID.at(ncl2D-1)==3) lastLayer_=layer.at(ncl2D-1);
+	if(subdetID.at(ncl2D-1)==4) lastLayer_=layer.at(ncl2D-1)+28;
+
+	nLayers_=lastLayer_-firstLayer_+1;
+
+    SigmaEtaEtaMax_=0;
+    SigmaPhiPhiMax_=0;
+    EMax_=0;
+
+    //std::cout<<" 1st layer "<<firstLayer_<<" Last layer "<<lastLayer_<<" Nlayers "<<nLayers_<<endl;
+
+	for(int ilayer=0;ilayer<40;ilayer++){   //Loop on HGCal layers
 
 			int Layer_found=0;
 			float Layer_energy=0;
@@ -279,30 +345,30 @@ void HGCalShowerShape::makeHGCalProfile(){
 
 		    int tc_index=0; // trigger cell index inside cl2D vector
 
-			for(int i2d=0;i2d<ncl2D_;i2d++){   // Loop on cl2D inside 3DC
+			for(int i2d=0;i2d<ncl2D;i2d++){   // Loop on cl2D inside 3DC
 	
 				int cl2D_layer=-999;
 
-				if(subdetID_.at(i2d)==3) cl2D_layer=layer_.at(i2d);
-				if(subdetID_.at(i2d)==4) cl2D_layer=layer_.at(i2d)+28;
+				if(subdetID.at(i2d)==3) cl2D_layer=layer.at(i2d);
+				if(subdetID.at(i2d)==4) cl2D_layer=layer.at(i2d)+28;
 
 				if (cl2D_layer==ilayer){
 
 					Layer_found=1; //+=1 il want to count cl2D per layer
 
-					Layer_energy+=cl2D_energy_.at(i2d);
+					Layer_energy+=cl2D_energy.at(i2d);
 
-					int ntc=nTC_.at(i2d);
+					int ntc=nTC.at(i2d);
 
 			        	for(int itc=0; itc<ntc ; itc++) {   //Loop on TC inside cl2D
 
-						    energy_layer_.emplace_back(tc_energy_.at(tc_index));
-						    energy_.emplace_back(tc_energy_.at(tc_index));
-						    eta_layer_.emplace_back(tc_eta_.at(tc_index));
-						    phi_layer_.emplace_back(tc_phi_.at(tc_index));
-                            eta_.emplace_back(tc_eta_.at(tc_index));
-						    phi_.emplace_back(tc_phi_.at(tc_index));
-						    z_.emplace_back(tc_z_.at(tc_index));
+						    energy_layer.emplace_back(tc_energy.at(tc_index));
+						    energy.emplace_back(tc_energy.at(tc_index));
+						    eta_layer.emplace_back(tc_eta.at(tc_index));
+						    phi_layer.emplace_back(tc_phi.at(tc_index));
+                            eta.emplace_back(tc_eta.at(tc_index));
+						    phi.emplace_back(tc_phi.at(tc_index));
+						    z.emplace_back(tc_z.at(tc_index));
 						    tc_index++;
 
 			        	}
@@ -312,14 +378,14 @@ void HGCalShowerShape::makeHGCalProfile(){
 				else{
 
 					if (Layer_found==1) break; //Go to next ilayer
-					tc_index+=nTC_.at(i2d);
+					tc_index+=nTC.at(i2d);
 		
 				}
 
 			}
 		
 
-            EnergyVector_.emplace_back(Layer_energy);
+            EnergyVector.emplace_back(Layer_energy);
 
 			if(Layer_energy>EMax_){
 				EMax_=Layer_energy;
@@ -327,14 +393,17 @@ void HGCalShowerShape::makeHGCalProfile(){
 			}
 
 			if(Layer_found==1){
-                Layer_See=SigmaEtaEta(energy_layer_,eta_layer_);	
-			    Layer_Spp=SigmaPhiPhi(energy_layer_,phi_layer_);	
-                Layer_dEta=dEta(energy_layer_,eta_layer_);	
-			    Layer_dPhi=dPhi(energy_layer_,phi_layer_);
+                Layer_See=SigmaEtaEta(energy_layer,eta_layer);	
+			    Layer_Spp=SigmaPhiPhi(energy_layer,phi_layer);	
+                Layer_dEta=dEta(energy_layer,eta_layer);	
+			    Layer_dPhi=dPhi(energy_layer,phi_layer);
+
+            //std::cout<<"Layer "<<ilayer<<" See "<<Layer_See<<" See Max "<<SigmaEtaEtaMax_<<endl;
+            //std::cout<<"Layer "<<ilayer<<" Spp "<<Layer_Spp<<" Spp Max "<<SigmaPhiPhiMax_<<endl;
             }	
 
-            SigmaEtaEtaVector_.emplace_back(Layer_See);
-            SigmaPhiPhiVector_.emplace_back(Layer_Spp);
+            SigmaEtaEtaVector.emplace_back(Layer_See);
+            SigmaPhiPhiVector.emplace_back(Layer_Spp);
 
 			if(Layer_See>SigmaEtaEtaMax_){
 				SigmaEtaEtaMax_=Layer_See;
@@ -349,27 +418,47 @@ void HGCalShowerShape::makeHGCalProfile(){
             if(Layer_dEta>dEtaMax_) dEtaMax_=Layer_dEta;
             if(Layer_dPhi>dPhiMax_) dPhiMax_=Layer_dPhi;
 
-			energy_layer_.clear();
-			eta_layer_.clear();
-			phi_layer_.clear();
+			energy_layer.clear();
+			eta_layer.clear();
+			phi_layer.clear();
 		
 		}
 
 
-        E0_=EnergyVector_.at(firstLayer_);
         
-        SigmaEtaEta0_=SigmaEtaEtaVector_.at(firstLayer_);
-        SigmaPhiPhi0_=SigmaPhiPhiVector_.at(firstLayer_);
 
-        Zmean_=Zmean(energy_,z_);
-        SigmaZZ_=SigmaZZ(energy_,z_);
-        SigmaEtaEta_=SigmaEtaEta(energy_,eta_);
-        SigmaPhiPhi_=SigmaPhiPhi(energy_,phi_);
+        E0_=EnergyVector.at(firstLayer_-1);
+        
+        SigmaEtaEta0_=SigmaEtaEtaVector.at(firstLayer_-1);
+        SigmaPhiPhi0_=SigmaPhiPhiVector.at(firstLayer_-1);
 
-        energy_.clear();
-        z_.clear();
-        eta_.clear();
-        phi_.clear();
+        EnergyVector.clear();
+        SigmaEtaEtaVector.clear();
+        SigmaPhiPhiVector.clear();
+
+        Zmean_=Zmean(energy,z);
+        SigmaZZ_=SigmaZZ(energy,z);
+        SigmaEtaEta_=SigmaEtaEta(energy,eta);
+        SigmaPhiPhi_=SigmaPhiPhi(energy,phi);
+
+        //std::cout<<" See Tot "<<SigmaEtaEta_<<endl;
+        //std::cout<<" Spp Tot "<<SigmaPhiPhi_<<endl;
+
+        energy.clear();
+        z.clear();
+        eta.clear();
+        phi.clear();
+
+        layer.clear();
+		subdetID.clear();
+		cl2D_energy.clear();
+		nTC.clear();
+		tc_energy.clear();
+		tc_eta.clear();
+		tc_phi.clear();
+		tc_z.clear();
+
+			
 
 }
 

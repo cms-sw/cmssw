@@ -27,12 +27,12 @@ class HGCalTriggerNtupleHGCMulticlusters : public HGCalTriggerNtupleBase
     std::vector<float> cl3d_eta_;
     std::vector<float> cl3d_phi_;
     std::vector<int> cl3d_nclu_;
-    //std::vector<int> cl3d_nlayers_;
-    // std::vector<int> cl3d_emaxe_;
-    //std::vector<int> cl3d_seemax_;
-    //std::vector<int> cl3d_sppmax_;
-    //std::vector<int> cl3d_seetot_;
-    //std::vector<int> cl3d_spptot_;
+    std::vector<int> cl3d_nlayers_;
+    std::vector<float> cl3d_emaxe_;
+    std::vector<float> cl3d_seemax_;
+    std::vector<float> cl3d_sppmax_;
+    std::vector<float> cl3d_seetot_;
+    std::vector<float> cl3d_spptot_;
     std::vector<std::vector<unsigned>> cl3d_clusters_;   
 };
 
@@ -58,12 +58,12 @@ initialize(TTree& tree, const edm::ParameterSet& conf, edm::ConsumesCollector&& 
   tree.Branch("cl3d_eta", &cl3d_eta_);
   tree.Branch("cl3d_phi", &cl3d_phi_);
   tree.Branch("cl3d_nclu", &cl3d_nclu_);
-  //tree.Branch("cl3d_nlayers", &cl3d_nlayers_);
-  //tree.Branch("cl3d_emaxe", &cl3d_emaxe_);
-  //tree.Branch("cl3d_seetot", &cl3d_seetot_);
-  //tree.Branch("cl3d_spptot", &cl3d_spptot_);
-  //tree.Branch("cl3d_seemax", &cl3d_seemax_);
-  //tree.Branch("cl3d_sppmax", &cl3d_sppmax_);
+  tree.Branch("cl3d_nlayers", &cl3d_nlayers_);
+  tree.Branch("cl3d_emaxe", &cl3d_emaxe_);
+  tree.Branch("cl3d_seetot", &cl3d_seetot_);
+  tree.Branch("cl3d_spptot", &cl3d_spptot_);
+  tree.Branch("cl3d_seemax", &cl3d_seemax_);
+  tree.Branch("cl3d_sppmax", &cl3d_sppmax_);
   tree.Branch("cl3d_clusters", &cl3d_clusters_);
 
 }
@@ -91,7 +91,12 @@ fill(const edm::Event& e, const edm::EventSetup& es)
     cl3d_energy_.emplace_back(cl3d_itr->energy());
     cl3d_eta_.emplace_back(cl3d_itr->eta());
     cl3d_phi_.emplace_back(cl3d_itr->phi());
-    //cl3d_nlayers_.emplace_back(cl3d_itr->Nlayers());
+    cl3d_nlayers_.emplace_back(cl3d_itr->Nlayers());
+    cl3d_emaxe_.emplace_back(cl3d_itr->Emax()*1./cl3d_itr->energy());
+    cl3d_seetot_.emplace_back(cl3d_itr->SeeTot());
+    cl3d_spptot_.emplace_back(cl3d_itr->SppTot());
+    cl3d_seemax_.emplace_back(cl3d_itr->SeeMax());
+    cl3d_sppmax_.emplace_back(cl3d_itr->SppMax());
     cl3d_nclu_.emplace_back(cl3d_itr->constituents().size());
     // Retrieve indices of trigger cells inside cluster
     cl3d_clusters_.emplace_back(cl3d_itr->constituents().size());
@@ -112,6 +117,12 @@ clear()
   cl3d_eta_.clear();
   cl3d_phi_.clear();
   cl3d_nclu_.clear();
+  cl3d_nlayers_.clear();
+  cl3d_emaxe_.clear();
+  cl3d_seetot_.clear();
+  cl3d_seemax_.clear();
+  cl3d_spptot_.clear();
+  cl3d_sppmax_.clear();
   cl3d_clusters_.clear();
   
 }
