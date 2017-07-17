@@ -238,6 +238,8 @@ unsigned int njets_;
   unsigned int nelectrons_;
   unsigned int nmuons_;
   double leptJetDeltaRmin_;
+  double bJetMuDeltaRmax_;
+  double bJetDeltaEtaMax_;
   double HTcut_;
   // Marina
   unsigned int nbjets_;
