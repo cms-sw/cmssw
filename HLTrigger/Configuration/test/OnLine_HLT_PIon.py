@@ -1,11 +1,11 @@
-# /dev/CMSSW_9_2_0/PIon/V48 (CMSSW_9_2_4_HLT1)
+# /dev/CMSSW_9_2_0/PIon/V84 (CMSSW_9_2_5_patch1)
 
 import FWCore.ParameterSet.Config as cms
 
 process = cms.Process( "HLTPIon" )
 
 process.HLTConfigVersion = cms.PSet(
-  tableName = cms.string('/dev/CMSSW_9_2_0/PIon/V48')
+  tableName = cms.string('/dev/CMSSW_9_2_0/PIon/V84')
 )
 
 process.transferSystem = cms.PSet( 
@@ -2070,12 +2070,12 @@ process.streams = cms.PSet(
     'ZeroBias' )
 )
 process.datasets = cms.PSet( 
-  HLTPhysics = cms.vstring( 'HLT_Physics_v6' ),
-  OnlineMonitor = cms.vstring( 'HLT_Physics_v6',
-    'HLT_Random_v2',
-    'HLT_ZeroBias_v5' ),
-  ZeroBias = cms.vstring( 'HLT_Random_v2',
-    'HLT_ZeroBias_v5' )
+  HLTPhysics = cms.vstring( 'HLT_Physics_v7' ),
+  OnlineMonitor = cms.vstring( 'HLT_Physics_v7',
+    'HLT_Random_v3',
+    'HLT_ZeroBias_v6' ),
+  ZeroBias = cms.vstring( 'HLT_Random_v3',
+    'HLT_ZeroBias_v6' )
 )
 
 process.CSCChannelMapperESSource = cms.ESSource( "EmptyESSource",
@@ -4191,7 +4191,7 @@ process.hltTrigReport = cms.EDAnalyzer( "HLTrigReport",
     serviceBy = cms.untracked.string( "never" ),
     resetBy = cms.untracked.string( "never" ),
     reportBy = cms.untracked.string( "job" ),
-    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLTX' )
 )
 process.hltPrePhysicsCommissioningOutput = cms.EDFilter( "HLTPrescaler",
     L1GtReadoutRecordTag = cms.InputTag( "hltGtStage2Digis" ),
@@ -4204,9 +4204,9 @@ process.hltPreDQMOutput = cms.EDFilter( "HLTPrescaler",
 process.hltPreDQMOutputSmart = cms.EDFilter( "TriggerResultsFilter",
     hltResults = cms.InputTag( "TriggerResults" ),
     l1tResults = cms.InputTag( "" ),
-    triggerConditions = cms.vstring( 'HLT_Physics_v6',
-      'HLT_Random_v2 / 3',
-      'HLT_ZeroBias_v5 / 3' ),
+    triggerConditions = cms.vstring( 'HLT_Physics_v7',
+      'HLT_Random_v3 / 3',
+      'HLT_ZeroBias_v6 / 3' ),
     l1tIgnoreMaskAndPrescale = cms.bool( False ),
     throw = cms.bool( True )
 )
@@ -4218,9 +4218,9 @@ process.hltOutputPhysicsCommissioning = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Physics_v6',
-  'HLT_Random_v2',
-  'HLT_ZeroBias_v5' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Physics_v7',
+  'HLT_Random_v3',
+  'HLT_ZeroBias_v6' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep FEDRawDataCollection_rawDataCollector_*_*',
       'keep FEDRawDataCollection_source_*_*',
@@ -4235,9 +4235,9 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
         filterName = cms.untracked.string( "" ),
         dataTier = cms.untracked.string( "RAW" )
     ),
-    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Physics_v6',
-  'HLT_Random_v2',
-  'HLT_ZeroBias_v5' ) ),
+    SelectEvents = cms.untracked.PSet(  SelectEvents = cms.vstring( 'HLT_Physics_v7',
+  'HLT_Random_v3',
+  'HLT_ZeroBias_v6' ) ),
     outputCommands = cms.untracked.vstring( 'drop *',
       'keep *_hltCombinedSecondaryVertexBJetTagsCalo_*_*',
       'keep *_hltCombinedSecondaryVertexBJetTagsPF_*_*',
@@ -4253,8 +4253,10 @@ process.hltOutputDQM = cms.OutputModule( "PoolOutputModule",
       'keep *_hltIter2HighPtTkMuTrackSelectionHighPurity_*_*',
       'keep *_hltIter2Merged_*_*',
       'keep *_hltL3NoFiltersNoVtxMuonCandidates_*_*',
+      'keep *_hltMergedTracks_*_*',
       'keep *_hltOnlineBeamSpot_*_*',
       'keep *_hltPFJetForBtag_*_*',
+      'keep *_hltPixelTracksMerged_*_*',
       'keep *_hltPixelTracks_*_*',
       'keep *_hltPixelVertices_*_*',
       'keep *_hltSelector8CentralJetsL1FastJet_*_*',
@@ -4275,9 +4277,9 @@ process.HLTBeginSequenceRandom = cms.Sequence( process.hltRandomEventsFilter + p
 process.HLTBeginSequence = cms.Sequence( process.hltTriggerType + process.HLTL1UnpackerSequence + process.HLTBeamSpot )
 
 process.HLTriggerFirstPath = cms.Path( process.hltGetConditions + process.hltGetRaw + process.hltBoolFalse )
-process.HLT_Physics_v6 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
-process.HLT_Random_v2 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
-process.HLT_ZeroBias_v5 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
+process.HLT_Physics_v7 = cms.Path( process.HLTBeginSequenceL1Fat + process.hltPrePhysics + process.HLTEndSequence )
+process.HLT_Random_v3 = cms.Path( process.HLTBeginSequenceRandom + process.hltPreRandom + process.HLTEndSequence )
+process.HLT_ZeroBias_v6 = cms.Path( process.HLTBeginSequence + process.hltL1sZeroBias + process.hltPreZeroBias + process.HLTEndSequence )
 process.HLTriggerFinalPath = cms.Path( process.hltGtStage2Digis + process.hltScalersRawToDigi + process.hltFEDSelector + process.hltTriggerSummaryAOD + process.hltTriggerSummaryRAW + process.hltBoolFalse )
 process.HLTAnalyzerEndpath = cms.EndPath( process.hltGtStage2Digis + process.hltPreHLTAnalyzerEndpath + process.hltL1TGlobalSummary + process.hltTrigReport )
 process.PhysicsCommissioningOutput = cms.EndPath( process.hltGtStage2Digis + process.hltPrePhysicsCommissioningOutput + process.hltOutputPhysicsCommissioning )
@@ -4292,7 +4294,7 @@ process.dqmOutput = cms.OutputModule("DQMRootOutputModule",
 process.DQMOutput = cms.EndPath( process.dqmOutput + process.hltGtStage2Digis + process.hltPreDQMOutput + process.hltPreDQMOutputSmart + process.hltOutputDQM )
 
 
-process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v6, process.HLT_Random_v2, process.HLT_ZeroBias_v5, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsCommissioningOutput, process.DQMOutput ))
+process.HLTSchedule = cms.Schedule( *(process.HLTriggerFirstPath, process.HLT_Physics_v7, process.HLT_Random_v3, process.HLT_ZeroBias_v6, process.HLTriggerFinalPath, process.HLTAnalyzerEndpath, process.PhysicsCommissioningOutput, process.DQMOutput ))
 
 
 process.source = cms.Source( "PoolSource",
