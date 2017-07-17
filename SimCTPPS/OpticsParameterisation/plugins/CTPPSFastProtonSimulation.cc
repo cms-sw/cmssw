@@ -88,7 +88,7 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
     std::vector<edm::ParameterSet> detectorPackages_;
 
     std::vector<CTPPSPotInfo> pots_;
-    std::unordered_map<unsigned int, std::vector<CTPPSDetId> > pots_list_;
+    std::unordered_map<unsigned int, std::vector<CTPPSDetId> > strips_list_;
 
     CLHEP::HepRandomEngine* rnd_;
 
@@ -153,14 +153,18 @@ CTPPSFastProtonSimulation::beginRun( const edm::Run&, const edm::EventSetup& iSe
   // get geometry
   iSetup.get<VeryForwardMisalignedGeometryRecord>().get( geometry_ );
 
+  std::ostringstream os;
   for ( const auto& rp : pots_ ) {
-    std::vector<CTPPSDetId>& list = pots_list_[rp.detid.rawId()];
+    std::vector<CTPPSDetId>& list = strips_list_[rp.detid.rawId()];
+    os << "\npot " << rp.detid << ":";
     for ( TotemRPGeometry::mapType::const_iterator it=geometry_->beginDet(); it!=geometry_->endDet(); ++it ) {
       const CTPPSDetId detid( it->first );
       if ( detid.getRPId()!=rp.detid ) continue;
       list.push_back( detid );
+      os << "\n* " << TotemRPDetId( detid );
     }
   }
+  edm::LogWarning("CTPPSFastProtonSimulation::beginRun") << "Hierarchy of DetIds for each pot" << os.str();
 }
 
 void
@@ -203,47 +207,47 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
   /// xi is positive for diffractive protons, thus proton momentum p = (1-xi) * p_nom
   /// horizontal component of proton momentum: p_x = th_x * (1-xi) * p_nom
 
+  const HepMC::GenVertex* vtx = in_trk->production_vertex();
+  const HepMC::FourVector mom = in_trk->momentum();
+
+  // convert physics kinematics to the LHC reference frame
+  double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
+  if ( mom.z()<0.0 ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
+  double vtx_x = vtx->position().x()*1.e-3, vtx_y = vtx->position().y()*1.e-3; // express in metres
+
+  const double xi = 1.-mom.e()/sqrtS_*2.0;
+
   // transport the proton into each pot
   for ( const auto& rp : pots_ ) {
+    // first check the side
+    if ( rp.detid.arm()==0 && mom.z()>0.0 ) continue; // sector 45
+    if ( rp.detid.arm()==1 && mom.z()<0.0 ) continue; // sector 56
+
     // so far only works for strips
     if ( rp.detid.subdetId()!=CTPPSDetId::sdTrackingStrip ) continue;
-    if ( pots_list_.find( rp.detid.rawId() )==pots_list_.end() ) continue;
+    if ( strips_list_.find( rp.detid.rawId() )==strips_list_.end() ) continue;
+
+    const double optics_z0 = rp.z_position*1.e3; // in mm
+    double half_cr_angle = 0.0, vtx_y_offset = 0.0;
+    int z_sign = 0;
+    if ( rp.detid.arm()==0 ) {
+      z_sign = -1; //FIXME LHC or CMS convention?
+      half_cr_angle = halfCrossingAngleSector45_;
+      vtx_y_offset = yOffsetSector45_;
+    }
+    if ( rp.detid.arm()==1 ) {
+      z_sign = +1;
+      half_cr_angle = halfCrossingAngleSector56_;
+      vtx_y_offset = yOffsetSector56_;
+    }
 
     // retrieve the sensor from geometry
-    for ( const auto& detid : pots_list_[rp.detid.rawId()] ) {
-
-      const HepMC::FourVector mom = in_trk->momentum();
-
-      // first check the side
-      if ( detid.arm()==0 && mom.z()<0.0 ) continue;
-      if ( detid.arm()==1 && mom.z()>0.0 ) continue;
+    for ( const auto& detid : strips_list_[rp.detid.rawId()] ) {
 
       edm::DetSet<TotemRPRecHit>& hits = out_hits.find_or_insert( detid );
 
       // get geometry
-      const CLHEP::Hep3Vector gl_o = geometry_->LocalToGlobal( detid, CLHEP::Hep3Vector() ); // in mm
-      const double optics_z0 = rp.z_position*1.e3; // in mm
-
-      const HepMC::GenVertex* vtx = in_trk->production_vertex();
-      // convert physics kinematics to the LHC reference frame
-      double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
-      if ( mom.z()<0.0 ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
-      double vtx_x = vtx->position().x()*1.e-3, vtx_y = vtx->position().y()*1.e-3; // express in metres
-
-      double half_cr_angle = 0.0, vtx_y_offset = 0.0;
-      int z_sign = 0;
-      if ( detid.arm()==0 ) {
-        z_sign = -1; //FIXME LHC or CMS convention?
-        half_cr_angle = halfCrossingAngleSector45_;
-        vtx_y_offset = yOffsetSector45_;
-      }
-      if ( detid.arm()==1 ) {
-        z_sign = +1;
-        half_cr_angle = halfCrossingAngleSector56_;
-        vtx_y_offset = yOffsetSector56_;
-      }
-
-      const double xi = 1.-mom.e()/sqrtS_*2.0;
+      const double gl_oz = geometry_->LocalToGlobal( detid, CLHEP::Hep3Vector() ).z(); // in mm
 
       // transport proton to its corresponding RP
       std::array<double,5> kin_in_tr = { { vtx_x, ( th_x + half_cr_angle ) * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } }, kin_out_tr;
@@ -253,6 +257,12 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
       // stop if proton not transportable
       if ( !tr_proton_transported ) return;
 
+      // simulate detector resolution
+      if ( simulateDetectorsResolution_ ) {
+        kin_out_tr[0] += CLHEP::RandGauss::shoot( rnd_ ) * rp.resolution; // vtx_x
+        kin_out_tr[2] += CLHEP::RandGauss::shoot( rnd_ ) * rp.resolution; // vtx_y
+      }
+
       const double a_x_tr = kin_out_tr[1]/( 1.-xi );
       const double a_y_tr = kin_out_tr[3]/( 1.-xi );
       const double b_x_tr = kin_out_tr[0];
@@ -261,13 +271,13 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
       //printf("    track: ax=%f, bx=%f, ay=%f, by=%f\n", a_x_tr, b_x_tr, a_y_tr, b_y_tr);
 
       // evaluate positions (in mm) of track and beam
-      const double de_z = ( gl_o.z()-optics_z0 ) * z_sign;
+      const double de_z = ( gl_oz-optics_z0 ) * z_sign;
 
       const double x_tr = a_x_tr * de_z + b_x_tr * 1.e3;
       const double y_tr = a_y_tr * de_z + b_y_tr * 1.e3;
 
       // global hit in coordinates "aligned to beam" (as in the RP alignment)
-      CLHEP::Hep3Vector h_glo( x_tr, y_tr, gl_o.z() );
+      CLHEP::Hep3Vector h_glo( x_tr, y_tr, gl_oz );
 
       if ( produceHitsRelativeToBeam_ ) {
         std::array<double,5> kin_in_be = { { 0.0, half_cr_angle, vtx_y_offset, 0.0, 0.0 } }, kin_out_be;
@@ -286,7 +296,7 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
           const double x_be = a_x_be * de_z + b_x_be * 1.e3;
           const double y_be = a_y_be * de_z + b_y_be * 1.e3;
 
-          /*std::cout << detid << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - optics_z0) <<
+          /*std::cout << detid << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0) <<
             " | track: x=" << x_tr << ", y=" << y_tr <<
             " | beam: x=" << x_be << ", y=" << y_be <<
             std::endl;*/
@@ -294,16 +304,11 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
           h_glo -= CLHEP::Hep3Vector( x_be, y_be, 0.0 );
         }
       }
-      //std::cout << detid << ", z = " << gl_o.z() << ", de z = " << (gl_o.z() - optics_z0) << " | track: x=" << x_tr << ", y=" << y_tr << std::endl;
+      //std::cout << detid << ", z = " << gl_oz << ", de z = " << (gl_oz - optics_z0) << " | track: x=" << x_tr << ", y=" << y_tr << std::endl;
 
       TotemRPRecHit hit; // all coordinates in mm
       if ( produceHit( h_glo, detid, hit ) ) hits.push_back( hit );
     }
-    /*const double rp_resol = ( simulateDetectorsResolution_ ) ? rp.resolution : 0.0;
-
-    // simulate detector resolution
-    kin_out[0] += CLHEP::RandGauss::shoot( rnd_ ) * rp_resol; // vtx_x
-    kin_out[2] += CLHEP::RandGauss::shoot( rnd_ ) * rp_resol; // vtx_y*/
   }
 }
 

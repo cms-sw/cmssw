@@ -43,6 +43,11 @@ process.RandomNumberGeneratorService.lhcBeamProducer = cms.PSet( initialSeed = c
 # for detectors resolution smearing
 process.RandomNumberGeneratorService.ctppsFastProtonSimulation = cms.PSet( initialSeed = cms.untracked.uint32(1) )
 
+process.Timing = cms.Service('Timing',
+    summaryOnly = cms.untracked.bool(True),
+    useJobReport = cms.untracked.bool(True),
+)
+
 #process.geomInfo = cms.EDAnalyzer("GeometryInfoModule")
 #process.eca = cms.EDAnalyzer("EventContentAnalyzer")
  
