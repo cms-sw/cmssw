@@ -100,7 +100,6 @@ CSCMotherboardME21GEM::CSCMotherboardME21GEM(unsigned endcap, unsigned station,
   // debug gem matching
   debug_gem_matching = me21tmbParams.getParameter<bool>("debugMatching");
   debug_luts = me21tmbParams.getParameter<bool>("debugLUTs");
-  debug_gem_dphi = me21tmbParams.getParameter<bool>("debugGEMDphi");
 
   //  deltas used to match to GEM pads
   maxDeltaBXPad_ = me21tmbParams.getParameter<int>("maxDeltaBXPad");
