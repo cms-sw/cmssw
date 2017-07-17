@@ -45,12 +45,13 @@ GEMCoPadProcessor::run(const GEMPadDigiCollection* in_pads)
 {
   const int region((theEndcap == 1) ? 1: -1);
 
+  clear();
   // Build coincidences
   std::cout << "In copad processor: print all pads" << std::endl;
   for (auto det_range = in_pads->begin(); det_range != in_pads->end(); ++det_range) {
     const auto& pads_range1 = (*det_range).second;
     for (auto p = pads_range1.first; p != pads_range1.second; ++p) {
-      std::cout << "++pad " << GEMDetId((*det_range).first) << " " << *p << std::endl;
+      //std::cout << "++pad " << GEMDetId((*det_range).first) << " " << *p << std::endl;
     }
 
     const GEMDetId& id = (*det_range).first;
