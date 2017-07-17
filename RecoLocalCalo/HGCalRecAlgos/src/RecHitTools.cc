@@ -132,30 +132,27 @@ unsigned int RecHitTools::getLayer(const ForwardSubdetector type) const {
 
   int layer;
   switch (type) {
-  case(ForwardSubdetector::HGCEE): {
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
-    layer       = (geomEE->topology().dddConstants()).layers(true);
-    break;
-  }
-  case (ForwardSubdetector::HGCHEF): {
-    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
-    layer       = (geomFH->topology().dddConstants()).layers(true);
-    break;
-  } 
-  case (ForwardSubdetector::HGCHEB): {
-    auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
-    layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
-    break;
-  } 
-  case (ForwardSubdetector::ForwardEmpty): {
-    auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
-    layer       = (geomEE->topology().dddConstants()).layers(true);
-    auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
-    layer      += (geomFH->topology().dddConstants()).layers(true);
-    auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
-    layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
-  }
-  default: layer = 0;
+    case(ForwardSubdetector::HGCEE): {
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      layer       = (geomEE->topology().dddConstants()).layers(true);
+    }
+    case (ForwardSubdetector::HGCHEF): {
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      layer       = (geomFH->topology().dddConstants()).layers(true);
+    } 
+    case (ForwardSubdetector::HGCHEB): {
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      layer       = (geomBH->topology().dddConstants())->getMaxDepth(1);
+    } 
+    case (ForwardSubdetector::ForwardEmpty): {
+      auto geomEE = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCEE));
+      layer       = (geomEE->topology().dddConstants()).layers(true);
+      auto geomFH = static_cast<const HGCalGeometry*>(geom_->getSubdetectorGeometry(DetId::Forward,ForwardSubdetector::HGCHEF));
+      layer      += (geomFH->topology().dddConstants()).layers(true);
+      auto geomBH = static_cast<const HcalGeometry*>(geom_->getSubdetectorGeometry(DetId::Hcal,HcalSubdetector::HcalEndcap));
+      layer      += (geomBH->topology().dddConstants())->getMaxDepth(1);
+    }
+    default: layer = 0;
   }
   return (unsigned int)(layer);
 }
