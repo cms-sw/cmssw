@@ -562,7 +562,7 @@ fullyhadronic_DoubleBTag_DeepCSV_all.histoPSet.htPSet = cms.PSet(nbins=cms.uint3
 fullyhadronic_DoubleBTag_DeepCSV_all.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200)
 fullyhadronic_DoubleBTag_DeepCSV_all.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers 
-fullyhadronic_DoubleBTag_DeepCSV_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagDeepCSV_p051_v*')
+fullyhadronic_DoubleBTag_DeepCSV_all.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v*')
 fullyhadronic_DoubleBTag_DeepCSV_all.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_IsoMu27_v*')
 
 fullyhadronic_DoubleBTag_DeepCSV_jet = hltTOPmonitoring.clone()
@@ -582,7 +582,7 @@ fullyhadronic_DoubleBTag_DeepCSV_jet.histoPSet.htPSet = cms.PSet(nbins=cms.uint3
 fullyhadronic_DoubleBTag_DeepCSV_jet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200)
 fullyhadronic_DoubleBTag_DeepCSV_jet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
-fullyhadronic_DoubleBTag_DeepCSV_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagDeepCSV_p051_v*')
+fullyhadronic_DoubleBTag_DeepCSV_jet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v*')
 fullyhadronic_DoubleBTag_DeepCSV_jet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT370_v*')
 
 fullyhadronic_DoubleBTag_DeepCSV_bjet = hltTOPmonitoring.clone()
@@ -602,7 +602,7 @@ fullyhadronic_DoubleBTag_DeepCSV_bjet.histoPSet.htPSet = cms.PSet(nbins=cms.uint
 fullyhadronic_DoubleBTag_DeepCSV_bjet.histoPSet.jetPtBinning = cms.vdouble(0,5,10,15,20,25,30,35,40,45,50,55,60,65,70,75,80,90,100,120,140,160,200)
 fullyhadronic_DoubleBTag_DeepCSV_bjet.histoPSet.HTBinning    = cms.vdouble(0,420,440,460,480,500,520,540,560,580,600,650,700,750,800,850,900)
 # Triggers
-fullyhadronic_DoubleBTag_DeepCSV_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_DoubleBTagDeepCSV_p051_v*')
+fullyhadronic_DoubleBTag_DeepCSV_bjet.numGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixPFJet32_DoublePFBTagDeepCSV_2p2_v*')
 fullyhadronic_DoubleBTag_DeepCSV_bjet.denGenericTriggerEventPSet.hltPaths = cms.vstring('HLT_PFHT380_SixJet32_v*')
 
 
