@@ -21,8 +21,8 @@ public:
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& pos);
+		  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& pos) override;
 
 private:
 

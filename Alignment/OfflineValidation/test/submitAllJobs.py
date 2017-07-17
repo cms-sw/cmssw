@@ -334,8 +334,8 @@ class Job:
         fout.write("cd $LXBATCH_DIR \n") 
         fout.write("cmsRun "+os.path.join(self.cfg_dir,self.outputCfgName)+" \n")
         fout.write("ls -lh . \n")
-        fout.write("for RootOutputFile in $(ls *root ); do eos cp -f ${RootOutputFile}  ${OUT_DIR}/${RootOutputFile} ; done \n")
-        fout.write("for TxtOutputFile in $(ls *txt ); do eos cp -f ${TxtOutputFile}  ${OUT_DIR}/${TxtOutputFile} ; done \n")
+        fout.write("for RootOutputFile in $(ls *root ); do xrdcp -f ${RootOutputFile}  root://eoscms//eos/cms${OUT_DIR}/${RootOutputFile} ; done \n")
+        fout.write("for TxtOutputFile in $(ls *txt ); do xrdcp -f ${TxtOutputFile}  root://eoscms//eos/cms${OUT_DIR}/${TxtOutputFile} ; done \n")
 
         fout.close()
 
@@ -681,7 +681,7 @@ def main():
             aJob.createTheCfgFile(theSrcFiles)
             aJob.createTheLSFFile()
 
-            output_file_list1.append("eos cp "+aJob.getOutputFileName()+" /tmp/$USER/"+opts.taskname+" \n")
+            output_file_list1.append("xrdcp root://eoscms//eos/cms"+aJob.getOutputFileName()+" /tmp/$USER/"+opts.taskname+" \n")
             if jobN == 0:
                 output_file_list2.append("/tmp/$USER/"+opts.taskname+"/"+aJob.getOutputBaseName()+".root ")
             output_file_list2.append("/tmp/$USER/"+opts.taskname+"/"+os.path.split(aJob.getOutputFileName())[1]+" ")    
@@ -705,7 +705,9 @@ def main():
         fout.write("mkdir -p /tmp/$USER/"+opts.taskname+" \n")
         fout.writelines(output_file_list1)
         fout.writelines(output_file_list2)
-        fout.write("eos cp -f $FILE $OUT_DIR \n")
+        fout.write("\n")
+        fout.write("echo \"xrdcp -f $FILE root://eoscms//eos/cms$OUT_DIR\" \n")
+        fout.write("xrdcp -f root://eoscms//eos/cms$FILE $OUT_DIR \n")
         fout.write("echo \"Harvesting for complete; please find output at $OUT_DIR \" | mail -s \"Harvesting for" +opts.taskname +" compled\" $MAIL \n")
 
         os.system("chmod u+x "+hadd_script_file)

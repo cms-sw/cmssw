@@ -122,7 +122,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cOccupancyvsLS_Subdet.initialize(_name, "OccupancyvsLS",
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to4000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),0);
 	_cOccupancy_depth.initialize(_name, "Occupancy",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
@@ -133,7 +133,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 	_cOccupancyCutvsLS_Subdet.initialize(_name, "OccupancyCutvsLS",
 		hcaldqm::hashfunctions::fSubdet,
 		new hcaldqm::quantity::LumiSection(_maxLS),
-		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to4000),0);
+		new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),0);
 	_cOccupancyCut_depth.initialize(_name, "OccupancyCut",
 		hcaldqm::hashfunctions::fdepth,
 		new hcaldqm::quantity::DetectorQuantity(hcaldqm::quantity::fieta),
@@ -235,11 +235,11 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		_cOccupancyCutvsLS_Subdet.initialize(_name, "OccupancyCutvsLS",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::LumiSection(_maxLS),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to4000),0);
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),0);
 		_cOccupancyCutvsBX_Subdet.initialize(_name, "OccupancyCutvsBX",
 			hcaldqm::hashfunctions::fSubdet,
 			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fBX),
-			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to4000),0);
+			new hcaldqm::quantity::ValueQuantity(hcaldqm::quantity::fN_to8000),0);
 //		_cOccupancyCutvsSlotvsLS_HFPM.initialize(_name, 
 //			"OccupancyCutvsSlotvsLS", hcaldqm::hashfunctions::fSubdetPM,
 //			new hcaldqm::quantity::LumiSection(_maxLS),
@@ -761,7 +761,7 @@ DigiTask::DigiTask(edm::ParameterSet const& ps):
 		if (sumQ>_cutSumQ_HEP17)
 		{
 			//double timing = hcaldqm::utilities::aveTS_v10<QIE11DataFrame>(digi, 2.5, 0,digi.samples()-1);
-			double timing = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.size()-1);
+			double timing = hcaldqm::utilities::aveTSDB<QIE11DataFrame>(_dbService, digi_fC, did, digi, 0, digi.samples()-1);
 
 			_cOccupancyCut_depth.fill(did);
 			_cTimingCut_depth.fill(did, timing);

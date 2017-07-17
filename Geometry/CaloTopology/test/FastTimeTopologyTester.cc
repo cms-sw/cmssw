@@ -22,10 +22,10 @@
 class FastTimeTopologyTester : public edm::EDAnalyzer {
 public:
   explicit FastTimeTopologyTester(const edm::ParameterSet& );
-  ~FastTimeTopologyTester();
+  ~FastTimeTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const FastTimeTopology& topology);
 
 private:
@@ -60,20 +60,20 @@ void FastTimeTopologyTester::doTest(const FastTimeTopology& topology) {
 	  std::vector<DetId> idN = topology.north(id);
 	  std::vector<DetId> idS = topology.south(id);
 	  std::cout << "          " << idE.size() << " sets along East:";
-	  for (unsigned int i=0; i<idE.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idE[i]());
+	  for (auto & i : idE) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	  std::cout << "          " << idW.size() << " sets along West:";
-	  for (unsigned int i=0; i<idW.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idW[i]());
+	  for (auto & i : idW) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	  std::cout << "          " << idN.size() << " sets along North:";
-	  for (unsigned int i=0; i<idN.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idN[i]());
+	  for (auto & i : idN) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	  std::cout << "          " << idS.size() << " sets along South:";
-	  for (unsigned int i=0; i<idS.size(); ++i) 
-	    std::cout << " " << (FastTimeDetId)(idS[i]());
+	  for (auto & i : idS) 
+	    std::cout << " " << (FastTimeDetId)(i());
 	  std::cout << std::endl;
 	}
 	phi += 10;

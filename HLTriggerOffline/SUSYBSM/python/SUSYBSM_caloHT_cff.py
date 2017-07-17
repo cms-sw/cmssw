@@ -67,7 +67,7 @@ SUSY_HLT_CaloHT400 = cms.EDAnalyzer("SUSY_HLT_InclusiveHT",
 )
 
 
-SUSY_HLT_CaloHT_POSTPROCESSING = DQMEDHarvester("DQMGenericClient",
+SUSYoHLToCaloHToPOSTPROCESSING = DQMEDHarvester("DQMGenericClient",
   subDirs = cms.untracked.vstring(
   "HLT/SUSYBSM/HLT_HT200_v",
   "HLT/SUSYBSM/HLT_HT250_v",

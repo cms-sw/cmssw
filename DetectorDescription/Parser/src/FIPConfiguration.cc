@@ -49,8 +49,8 @@ FIPConfiguration::dumpFileList(void) const
 {
   std::cout << "File List:" << std::endl;
   std::cout << "  number of files=" << files_.size() << std::endl;
-  for (std::vector<std::string>::const_iterator it = files_.begin(); it != files_.end(); ++it)
-    std::cout << *it << std::endl;
+  for (const auto & file : files_)
+    std::cout << file << std::endl;
 }
 
 //-----------------------------------------------------------------------

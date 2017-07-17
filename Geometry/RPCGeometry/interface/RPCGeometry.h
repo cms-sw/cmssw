@@ -26,28 +26,28 @@ class RPCGeometry : public TrackingGeometry {
   RPCGeometry();
 
   /// Destructor
-  virtual ~RPCGeometry();
+  ~RPCGeometry() override;
 
   // Return a vector of all det types
-  virtual const DetTypeContainer&  detTypes() const override;
+  const DetTypeContainer&  detTypes() const override;
 
   // Return a vector of all GeomDetUnit
-  virtual const DetUnitContainer& detUnits() const override;
+  const DetUnitContainer& detUnits() const override;
 
   // Return a vector of all GeomDet
-  virtual const DetContainer& dets() const override;
+  const DetContainer& dets() const override;
   
   // Return a vector of all GeomDetUnit DetIds
-  virtual const DetIdContainer& detUnitIds() const override;
+  const DetIdContainer& detUnitIds() const override;
 
   // Return a vector of all GeomDet DetIds
-  virtual const DetIdContainer& detIds() const override;
+  const DetIdContainer& detIds() const override;
 
   // Return the pointer to the GeomDetUnit corresponding to a given DetId
-  virtual const GeomDetUnit* idToDetUnit(DetId) const override;
+  const GeomDetUnit* idToDetUnit(DetId) const override;
 
   // Return the pointer to the GeomDet corresponding to a given DetId
-  virtual const GeomDet* idToDet(DetId) const override;
+  const GeomDet* idToDet(DetId) const override;
 
 
   //---- Extension of the interface

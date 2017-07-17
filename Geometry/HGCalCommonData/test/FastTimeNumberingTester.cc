@@ -45,7 +45,7 @@
 class FastTimeNumberingTester : public edm::one::EDAnalyzer<> {
 public:
   explicit FastTimeNumberingTester( const edm::ParameterSet& );
-  ~FastTimeNumberingTester();
+  ~FastTimeNumberingTester() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

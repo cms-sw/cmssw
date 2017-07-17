@@ -8,12 +8,12 @@ DST_Physics_v*	#	skim
 HLT_Random_v*	#	CMSHLT-1231
 HLT_EcalCalibration_v*	#	CMSHLT-1231
 HLT_HcalCalibration_v*	#	CMSHLT-1231
-AlCa_LumiPixels_ZeroBias_v*	#	CMSHLT-1231
-AlCa_LumiPixels_Random_v*	#	CMSHLT-1231
-AlCa_EcalPhiSym_v*	#	CMSHLT-1231
-HLT_HcalPhiSym_v*	#	CMSHLT-1231, CMSHLT-1332
-HLT_HcalNZS_v*	#	CMSHLT-1231, CMSHLT-1342
-AlCa_RPCMuonNormalisation_v*	#	CMSHLT-1231
+AlCa_LumiPixels_ZeroBias_v*	#	
+AlCa_LumiPixels_Random_v*	#	
+AlCa_EcalPhiSym_v*	#	CMSHLT-1245
+HLT_HcalPhiSym_v*	#	CMSHLT-1332
+HLT_HcalNZS_v*	#	CMSHLT-1342
+AlCa_RPCMuonNormalisation_v*	#	CMSHLT-1353
 HLT_DoubleEle33_CaloIdL_MW_v*	#	CMSHLT-1254
 HLT_DoublePhoton33_CaloIdL_v*	#	CMSHLT-1254
 HLT_Photon33_v*	#	CMSHLT-1254
@@ -270,7 +270,7 @@ HLT_Mu8_DiEle12_CaloIdL_TrackIdL_v*	#	CMSHLT-1311
 HLT_DiMu9_Ele9_CaloIdL_TrackIdL_DZ_v*	#	CMSHLT-1311
 HLT_DiMu9_Ele9_CaloIdL_TrackIdL_v*	#	CMSHLT-1311
 HLT_Mu8_TrkIsoVVL_Ele23_CaloIdL_TrackIdL_IsoVL_DZ_v*	#	CMSHLT-1358
-
+DST_ZeroBias_v*
 
 ## EndPath ##
 

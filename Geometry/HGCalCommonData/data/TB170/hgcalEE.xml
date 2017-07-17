@@ -18,14 +18,15 @@
     <Vector name="WaferName" type="string" nEntries="2">
       hgcalwafer:HGCalEEWaferFine, hgcalwafer:HGCalEEWaferCoarse</Vector>
     <Vector name="CoverName" type="string" nEntries="3">
-      hgcal:HGCalEEPCB, hgcal:HGCalEEKapton, hgcal:HGCalEEAbsorber</Vector>
+      hgcal:HGCalEESiliconPCB, hgcal:HGCalEESiliconKapton, 
+      hgcal:HGCalEESiliconCuW</Vector>
     <Vector name="MaterialNames" type="string" nEntries="8">
       materials:Air, materials:Air, materials:Air, materials:Air, 
       materials:StainlessSteel, materials:Lead, materials:Copper,
       materials:Air</Vector>
     <Vector name="VolumeNames" type="string" nEntries="8">
-      EEPCB1,      EEKapton1,   EEAirGap,     EEShield1, 
-      EEAbsorber1, EEAbsorber2, EEHeatShield, EESensitive</Vector>
+      EEPCB1,     EEKapton1, EEAirGap, EECuW, 
+      EEAbsSteel, EEAbsLead, EEAbsCu,  EESensitive</Vector>
     <Vector name="Thickness" type="numeric" nEntries="8">
       [hgcal:thPCB], [hgcal:thKapton], 3.0*mm, [hgcal:thAbsEE], 0.3*mm,
       4.9*mm, 6.0*mm, 0.10*mm</Vector>

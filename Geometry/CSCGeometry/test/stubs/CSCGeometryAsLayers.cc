@@ -17,7 +17,7 @@ class CSCGeometryAsLayers : public edm::one::EDAnalyzer<> {
 public:
  
   explicit CSCGeometryAsLayers( const edm::ParameterSet& );
-  ~CSCGeometryAsLayers();
+  ~CSCGeometryAsLayers() override;
 
   void beginJob() override {}
   void analyze(edm::Event const&, edm::EventSetup const&) override;
@@ -72,10 +72,8 @@ void
 
    int icount = 0;
 
-   for( auto it = vl.begin(); it != vl.end(); ++it ){
+   for(auto layer : vl){
 
-      const CSCLayer* layer = *it;
-     
       if( layer ){
         ++icount;
 

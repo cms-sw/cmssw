@@ -31,7 +31,7 @@ class GEMGeometryAnalyzer : public edm::one::EDAnalyzer<> {
 public: 
   GEMGeometryAnalyzer( const edm::ParameterSet& pset);
 
-  ~GEMGeometryAnalyzer();
+  ~GEMGeometryAnalyzer() override;
 
   void beginJob() override {}
   void analyze(edm::Event const& iEvent, edm::EventSetup const&) override;

@@ -68,7 +68,7 @@ public:
   // Constructors & Destructor :  --------------------------------------------------------
 
   DDPixFwdBlades(); 
-  virtual ~DDPixFwdBlades();
+  ~DDPixFwdBlades() override;
   
   // Initialization & Execution :  -------------------------------------------------------
   
@@ -76,9 +76,9 @@ public:
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
   
   // -------------------------------------------------------------------------------------
 

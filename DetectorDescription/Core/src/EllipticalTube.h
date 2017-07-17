@@ -20,11 +20,11 @@ namespace DDI {
       p_.push_back(ySemiAxis);
       p_.push_back(zHeight);
     }  
-    ~EllipticalTube() { }
+    ~EllipticalTube() override { }
 
     /// Not as flexible and possibly less accurate than G4 volume.
-    double volume() const ;
-    void stream(std::ostream & os) const;
+    double volume() const override ;
+    void stream(std::ostream & os) const override;
   };
 
 }

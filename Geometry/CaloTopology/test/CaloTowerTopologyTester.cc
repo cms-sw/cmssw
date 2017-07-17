@@ -22,10 +22,10 @@
 class CaloTowerTopologyTester : public edm::EDAnalyzer {
 public:
   explicit CaloTowerTopologyTester(const edm::ParameterSet& );
-  ~CaloTowerTopologyTester();
+  ~CaloTowerTopologyTester() override;
 
   
-  virtual void analyze(const edm::Event&, const edm::EventSetup& );
+  void analyze(const edm::Event&, const edm::EventSetup& ) override;
   void doTest(const CaloTowerTopology& topology);
 
 private:
@@ -57,20 +57,20 @@ void CaloTowerTopologyTester::doTest(const CaloTowerTopology& topology) {
         std::vector<DetId> idS = topology.south(id);
         std::cout << "Neighbours for : Tower " << id << std::endl;
         std::cout << "          " << idE.size() << " sets along East:";
-        for (unsigned int i=0; i<idE.size(); ++i) 
-          std::cout << " " << (CaloTowerDetId)(idE[i]());
+        for (auto & i : idE) 
+          std::cout << " " << (CaloTowerDetId)(i());
         std::cout << std::endl;
         std::cout << "          " << idW.size() << " sets along West:";
-        for (unsigned int i=0; i<idW.size(); ++i) 
-          std::cout << " " << (CaloTowerDetId)(idW[i]());
+        for (auto & i : idW) 
+          std::cout << " " << (CaloTowerDetId)(i());
         std::cout << std::endl;
         std::cout << "          " << idN.size() << " sets along North:";
-        for (unsigned int i=0; i<idN.size(); ++i) 
-          std::cout << " " << (CaloTowerDetId)(idN[i]());
+        for (auto & i : idN) 
+          std::cout << " " << (CaloTowerDetId)(i());
         std::cout << std::endl;
         std::cout << "          " << idS.size() << " sets along South:";
-        for (unsigned int i=0; i<idS.size(); ++i) 
-          std::cout << " " << (CaloTowerDetId)(idS[i]());
+        for (auto & i : idS) 
+          std::cout << " " << (CaloTowerDetId)(i());
         std::cout << std::endl;
       }
     }

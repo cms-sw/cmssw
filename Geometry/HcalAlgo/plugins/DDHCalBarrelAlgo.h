@@ -11,7 +11,7 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
  public:
   //Constructor and Destructor
   DDHCalBarrelAlgo(); //const std::string & name);
-  virtual ~DDHCalBarrelAlgo();
+  ~DDHCalBarrelAlgo() override;
   
   //Get Methods
   std::string getGenMaterial()                const {return genMaterial;}
@@ -80,9 +80,9 @@ class DDHCalBarrelAlgo : public DDAlgorithm {
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
+		  const DDStringVectorArguments & vsArgs) override;
 
-  void execute(DDCompactView& cpv);
+  void execute(DDCompactView& cpv) override;
 
 protected:
 

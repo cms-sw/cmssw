@@ -54,15 +54,15 @@ public:
       Ph2SS
    };
 
-  virtual ~TrackerGeometry() ;
+  ~TrackerGeometry() override ;
 
-  const DetTypeContainer&  detTypes()         const {return theDetTypes;}
-  const DetUnitContainer&  detUnits()         const {return theDetUnits;}
-  const DetContainer&      dets()             const {return theDets;}
-  const DetIdContainer&    detUnitIds()       const {return theDetUnitIds;}
-  const DetIdContainer&    detIds()           const { return theDetIds;}
-  const TrackerGeomDet*    idToDetUnit(DetId) const;
-  const TrackerGeomDet*    idToDet(DetId)     const;
+  const DetTypeContainer&  detTypes()         const override {return theDetTypes;}
+  const DetUnitContainer&  detUnits()         const override {return theDetUnits;}
+  const DetContainer&      dets()             const override {return theDets;}
+  const DetIdContainer&    detUnitIds()       const override {return theDetUnitIds;}
+  const DetIdContainer&    detIds()           const override { return theDetIds;}
+  const TrackerGeomDet*    idToDetUnit(DetId) const override;
+  const TrackerGeomDet*    idToDet(DetId)     const override;
 
   const GeomDetEnumerators::SubDetector geomDetSubDetector(int subdet) const;
   unsigned int numberOfLayers(int subdet) const;

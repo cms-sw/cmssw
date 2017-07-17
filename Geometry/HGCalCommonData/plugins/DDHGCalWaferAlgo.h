@@ -12,14 +12,14 @@ class DDHGCalWaferAlgo : public DDAlgorithm {
 public:
   //Constructor and Destructor
   DDHGCalWaferAlgo();
-  virtual ~DDHGCalWaferAlgo();
+  ~DDHGCalWaferAlgo() override;
   
   void initialize(const DDNumericArguments & nArgs,
 		  const DDVectorArguments & vArgs,
 		  const DDMapArguments & mArgs,
 		  const DDStringArguments & sArgs,
-		  const DDStringVectorArguments & vsArgs);
-  void execute(DDCompactView& cpv);
+		  const DDStringVectorArguments & vsArgs) override;
+  void execute(DDCompactView& cpv) override;
 
 private:
 

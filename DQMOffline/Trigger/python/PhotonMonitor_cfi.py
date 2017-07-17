@@ -33,4 +33,3 @@ hltPhotonmonitoring.denGenericTriggerEventPSet.dcsPartitions = cms.vint32 ( 24, 
 hltPhotonmonitoring.denGenericTriggerEventPSet.andOrDcs      = cms.bool( False )
 hltPhotonmonitoring.denGenericTriggerEventPSet.errorReplyDcs = cms.bool( True )
 hltPhotonmonitoring.denGenericTriggerEventPSet.verbosityLevel = cms.uint32(1)
-

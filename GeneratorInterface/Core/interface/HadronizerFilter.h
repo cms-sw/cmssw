@@ -257,8 +257,8 @@ namespace edm
       ++naccept;
       
       //keep the LAST accepted event (which is equivalent to choosing randomly from the accepted events)
-      finalEvent.reset(event.release());
-      finalGenEventInfo.reset(genEventInfo.release());
+      finalEvent = std::move(event);
+      finalGenEventInfo = std::move(genEventInfo);
       
     }
     

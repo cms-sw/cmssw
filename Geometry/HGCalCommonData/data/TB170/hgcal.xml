@@ -101,27 +101,27 @@
     <rSolid name="HGCalBlock"/>
     <rMaterial name="materials:StainlessSteel"/>
   </LogicalPart>
-  <LogicalPart name="HGCalEEPCB" category="unspecified">
+  <LogicalPart name="HGCalEESiliconPCB" category="unspecified">
     <rSolid name="HGCalPCB"/>
     <rMaterial name="materials:G10"/>
   </LogicalPart>
-  <LogicalPart name="HGCalHEPCB" category="unspecified">
+  <LogicalPart name="HGCalHESiliconPCB" category="unspecified">
     <rSolid name="HGCalPCB"/>
     <rMaterial name="materials:G10"/>
   </LogicalPart>
-  <LogicalPart name="HGCalEEKapton" category="unspecified">
+  <LogicalPart name="HGCalEESiliconKapton" category="unspecified">
     <rSolid name="HGCalKapton"/>
     <rMaterial name="materials:Kapton"/>
   </LogicalPart>
-  <LogicalPart name="HGCalHEKapton" category="unspecified">
+  <LogicalPart name="HGCalHESiliconKapton" category="unspecified">
     <rSolid name="HGCalKapton"/>
     <rMaterial name="materials:Kapton"/>
   </LogicalPart>
-  <LogicalPart name="HGCalEEAbsorber" category="unspecified">
+  <LogicalPart name="HGCalEESiliconCuW" category="unspecified">
     <rSolid name="HGCalEEAbs"/>
     <rMaterial name="hgcal:WCu"/>
   </LogicalPart>
-  <LogicalPart name="HGCalHEAbsorber" category="unspecified">
+  <LogicalPart name="HGCalHESiliconCu" category="unspecified">
     <rSolid name="HGCalHEAbs"/>
     <rMaterial name="materials:Copper"/>
   </LogicalPart>

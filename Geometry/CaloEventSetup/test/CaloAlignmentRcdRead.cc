@@ -19,7 +19,7 @@ public:
 
   explicit CaloAlignmentRcdRead( const edm::ParameterSet& /*iConfig*/ )
     :nEventCalls_(0) {}
-  ~CaloAlignmentRcdRead() {}
+  ~CaloAlignmentRcdRead() override {}
   
   template<typename T>
   void dumpAlignments(const edm::EventSetup& evtSetup);
@@ -43,12 +43,10 @@ void CaloAlignmentRcdRead::dumpAlignments(const edm::EventSetup& evtSetup)
 
   LogDebug("CaloAlignmentRcdRead") << "Dumping alignments: " << recordName;
 
-  for (std::vector<AlignTransform>::const_iterator i = alignments->m_align.begin();
-       i != alignments->m_align.end();  
-       ++i) {
-    LogDebug("CaloAlignmentRcdRead") << "entry " << i->rawId() 
-	      << " translation " << i->translation() 
-	      << " angles " << i->rotation().eulerAngles();
+  for (const auto & i : alignments->m_align) {
+    LogDebug("CaloAlignmentRcdRead") << "entry " << i.rawId() 
+	      << " translation " << i.translation() 
+	      << " angles " << i.rotation().eulerAngles();
   }
 }
 
