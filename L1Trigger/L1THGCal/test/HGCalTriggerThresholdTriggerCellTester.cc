@@ -53,7 +53,7 @@ class HGCalTriggerThresholdTriggerCellTester : public edm::EDAnalyzer
     private:
         void checkSelectedCells(const edm::Event&, const edm::EventSetup&);
         void rerunThresholdFragments(const edm::Event&, const edm::EventSetup&);
-        void fillModule(const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>&, const std::vector<std::pair<HGCalDetId, uint32_t > >&, const HGCalTriggerCellThresholdDataPayload&,  const HGCalTriggerCellThresholdDataPayload&,const HGCalTriggerCellThresholdDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
+        void fillModule(const std::vector<HGCDataFrame<DetId,HGCSample>>&, const std::vector<std::pair<DetId, uint32_t > >&, const HGCalTriggerCellThresholdDataPayload&,  const HGCalTriggerCellThresholdDataPayload&,const HGCalTriggerCellThresholdDataPayload&,   const std::map <HGCalDetId,double>&, const std::unordered_map<uint32_t, double>& );
 
         // inputs
         edm::EDGetToken inputee_, inputfh_, inputbh_, inputbeall_, inputbeselect_;
@@ -361,8 +361,8 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
     for( const auto& module_hits : hit_modules_ee ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over EE and fill digis belonging to that module
         for(const auto& eedata : module_hits.second)
         {
@@ -402,8 +402,8 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
     for( const auto& module_hits : hit_modules_fh ) 
     {        
         // prepare input data
-        std::vector<HGCDataFrame<HGCalDetId,HGCSample>> dataframes;
-        std::vector<std::pair<HGCalDetId, uint32_t > > linearized_dataframes;
+        std::vector<HGCDataFrame<DetId,HGCSample>> dataframes;
+        std::vector<std::pair<DetId, uint32_t > > linearized_dataframes;
         // loop over FH digis and fill digis belonging to that module
         for(const auto& fhdata : module_hits.second)
         {
@@ -444,7 +444,7 @@ void HGCalTriggerThresholdTriggerCellTester::rerunThresholdFragments(const edm::
 }
 
 
-void HGCalTriggerThresholdTriggerCellTester::fillModule( const std::vector<HGCDataFrame<HGCalDetId,HGCSample>>& dataframes,  const std::vector<std::pair<HGCalDetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_woThreshold, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_Threshold, const HGCalTriggerCellThresholdDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
+void HGCalTriggerThresholdTriggerCellTester::fillModule( const std::vector<HGCDataFrame<DetId,HGCSample>>& dataframes,  const std::vector<std::pair<DetId, uint32_t > >& linearized_dataframes, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_woThreshold, const HGCalTriggerCellThresholdDataPayload& fe_payload_TCsums_Threshold, const HGCalTriggerCellThresholdDataPayload& fe_payload, const std::map <HGCalDetId,double>& simhit_energies, const std::unordered_map<uint32_t, double>& TC_simhit_energies)
 {
 
     // HGC cells part

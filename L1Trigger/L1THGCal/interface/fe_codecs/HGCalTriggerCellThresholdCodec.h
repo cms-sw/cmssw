@@ -26,7 +26,7 @@ class HGCalTriggerCellThresholdCodec : public HGCalTriggerFE::Codec<HGCalTrigger
 
         void setDataPayloadImpl(const HGCEEDigiCollection& ee,
                 const HGCHEDigiCollection& fh,
-                const HGCHEDigiCollection& bh );
+                const HGCBHDigiCollection& bh );
 
         void setDataPayloadImpl(const l1t::HGCFETriggerDigi& digi);
 
