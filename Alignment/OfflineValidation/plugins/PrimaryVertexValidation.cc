@@ -147,7 +147,7 @@ PrimaryVertexValidation::PrimaryVertexValidation(const edm::ParameterSet& iConfi
     std::cout<<std::setw(10) << std::get<0>(PVValHelper::getTypeString(it.first.first)) << " "<< std::setw(10)<< std::get<0>(PVValHelper::getVarString(it.first.second)) << " (" << std::setw(5)<< it.second.first << ";" <<std::setw(5)<< it.second.second << ")"<<std::endl;
   }
 
-  theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-TMath::Pi(),2*TMath::Pi());
+  theDetails_.trendbins[PVValHelper::phi] = PVValHelper::generateBins(nBins_+1,-180.,360.);
   theDetails_.trendbins[PVValHelper::eta] = PVValHelper::generateBins(nBins_+1,-etaOfProbe_,2*etaOfProbe_);
 
   if(debug_){
@@ -402,12 +402,12 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	
 	for(int i=0; i<nBins_; i++){
 	  
-	  float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-	  float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
+	  float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+	  float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
 	  
-	  float etaF=-etaOfProbe_+i*etaSect_;
-	  float etaL=-etaOfProbe_+(i+1)*etaSect_;
-	  
+	  float etaF = theDetails_.trendbins[PVValHelper::eta][i];
+	  float etaL = theDetails_.trendbins[PVValHelper::eta][i+1];
+
 	  if(tracketa >= etaF && tracketa < etaL ){
 
 	    PVValHelper::fillByIndex(a_dxyEtaBiasResiduals,i,dxyRes*cmToum);
@@ -426,8 +426,8 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 	    
 	    for(int j=0; j<nBins_; j++){
 	      
-	      float etaJ=-etaOfProbe_+j*etaSect_;
-	      float etaK=-etaOfProbe_+(j+1)*etaSect_;
+	      float etaJ = theDetails_.trendbins[PVValHelper::eta][j];
+	      float etaK = theDetails_.trendbins[PVValHelper::eta][j+1];
 	      
 	      if(tracketa >= etaJ && tracketa < etaK ){
 		
@@ -955,13 +955,13 @@ PrimaryVertexValidation::analyze(const edm::Event& iEvent, const edm::EventSetup
 
 		// filling the binned distributions
 		for(int i=0; i<nBins_; i++){
-		  
-		  float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-		  float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
-		  
-		  float etaF=-etaOfProbe_+i*etaSect_;
-		  float etaL=-etaOfProbe_+(i+1)*etaSect_;
+		
+		  float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+		  float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
 
+		  float etaF = theDetails_.trendbins[PVValHelper::eta][i];
+		  float etaL = theDetails_.trendbins[PVValHelper::eta][i+1];
+  
 		  if(tracketa >= etaF && tracketa < etaL ){
 
 		    PVValHelper::fillByIndex(a_dxyEtaResiduals,i,dxyFromMyVertex*cmToum,"1");
@@ -1481,21 +1481,21 @@ void PrimaryVertexValidation::beginJob()
 
   // book residuals as function of phi and eta
 
-  for ( int i=0; i<nBins_; ++i ) {
+  for (int i=0; i<nBins_; ++i ) {
 
-    float phiF = (-TMath::Pi()+i*phiSect_)*(180/TMath::Pi());
-    float phiL = (-TMath::Pi()+(i+1)*phiSect_)*(180/TMath::Pi());
-    
-    float etaF=-etaOfProbe_+i*etaSect_;
-    float etaL=-etaOfProbe_+(i+1)*etaSect_;
-                                                                                          
+    float phiF = theDetails_.trendbins[PVValHelper::phi][i];
+    float phiL = theDetails_.trendbins[PVValHelper::phi][i+1];
+                                                                                    
     //  ___           _    _     ___  _  __  __   ___        _    _           _    
     // |   \ ___ _  _| |__| |___|   \(_)/ _|/ _| | _ \___ __(_)__| |_  _ __ _| |___
     // | |) / _ \ || | '_ \ / -_) |) | |  _|  _| |   / -_|_-< / _` | || / _` | (_-<
     // |___/\___/\_,_|_.__/_\___|___/|_|_| |_|   |_|_\___/__/_\__,_|\_,_\__,_|_/__/
     
     for ( int j=0; j<nBins_; ++j ) {
- 
+
+      float etaF = theDetails_.trendbins[PVValHelper::eta][j];
+      float etaL = theDetails_.trendbins[PVValHelper::eta][j+1];
+
       a_dxyResidualsMap[i][j] = AbsDoubleDiffRes.make<TH1F>(Form("histo_dxy_eta_plot%i_phi_plot%i",i,j),
 							    Form("%.2f<#eta_{tk}<%.2f %.2f#circ<#varphi_{tk}<%.2f#circ;d_{xy};tracks",etaF,etaL,phiF,phiL),
 							    theDetails_.histobins,-dzmax_eta,dzmax_eta);
@@ -2579,7 +2579,7 @@ void PrimaryVertexValidation::fillTrendPlotByIndex(TH1F* trendPlot,std::vector<T
       trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
     } else if(plotVar == PVValHelper::phi){
       auto phiBins = theDetails_.trendbins[PVValHelper::phi];
-      sprintf(bincenter,"%.1f",180.*(phiBins[bin-1]+phiBins[bin])/(2.*TMath::Pi()));
+      sprintf(bincenter,"%.1f",(phiBins[bin-1]+phiBins[bin])/2.);
       trendPlot->GetXaxis()->SetBinLabel(bin,bincenter); 
     } else {
       //edm::LogWarning("PrimaryVertexValidation")<<"fillTrendPlotByIndex() "<< plotVar <<" unknown track parameter!"<<std::endl;
