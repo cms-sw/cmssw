@@ -205,7 +205,7 @@ ProtonReconstructionAlgorithm::ChiSquareCalculator::operator() ( const double* p
     // transport proton to the RP
     auto oit = m_rp_optics->find( detid );
 
-    double kin_in[5] = { vtx_x,	( th_x+crossing_angle ) * ( 1.-xi ), vtx0_y+vtx_y, th_y * ( 1.-xi ), -xi };
+    double kin_in[5] = { vtx_x, ( th_x+crossing_angle ) * ( 1.-xi ), vtx0_y+vtx_y, th_y * ( 1.-xi ), -xi };
     double kin_out[5];
     oit->second.optics->Transport( kin_in, kin_out, check_apertures, true );
 

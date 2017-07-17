@@ -19,4 +19,11 @@ ctppsFastProtonSimulation = cms.EDProducer('CTPPSFastProtonSimulation',
 
     opticsFileBeam1 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2016_preTS2/version4-vale1/beam1/parametrization_6500GeV_0p4_185_reco.root'),
     opticsFileBeam2 = cms.FileInPath('CondFormats/CTPPSOpticsObjects/data/2016_preTS2/version4-vale1/beam2/parametrization_6500GeV_0p4_185_reco.root'),
+
+    scatteringAngle = cms.double(25.e-6), # in rad
+    simulateVertexX = cms.bool(True),
+    simulateVertexY = cms.bool(True),
+    simulateScatteringAngleX = cms.bool(True),
+    simulateScatteringAngleY = cms.bool(True),
+    simulateBeamDivergence = cms.bool(True),
 )

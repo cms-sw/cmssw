@@ -45,18 +45,9 @@ namespace edm
       edm::ParameterSet partGunParams_;
       std::vector<int> partIds_;
       double sqrtS_;
-      edm::ParameterSet beamConditions_;
 
       double minXi_, maxXi_;
       //double minPhi_, maxPhi_;
-
-      double thetaPhys_;
-      double vertexSize_;
-      double beamDivergence_;
-
-      bool simulateVertexX_, simulateVertexY_;
-      bool simulateScatteringAngleX_, simulateScatteringAngleY_;
-      bool simulateBeamDivergence_;
   };
 }
 

@@ -70,6 +70,8 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 
     edm::ParameterSet beamConditions_;
     double sqrtS_;
+    double vertexSize_;
+    double beamDivergence_;
     double halfCrossingAngleSector45_, halfCrossingAngleSector56_;
     double yOffsetSector45_, yOffsetSector56_;
 
@@ -86,6 +88,12 @@ class CTPPSFastProtonSimulation : public edm::stream::EDProducer<>
 
     edm::FileInPath opticsFileBeam1_, opticsFileBeam2_;
     std::vector<edm::ParameterSet> detectorPackages_;
+
+    double thetaPhys_;
+
+    bool simulateVertexX_, simulateVertexY_;
+    bool simulateScatteringAngleX_, simulateScatteringAngleY_;
+    bool simulateBeamDivergence_;
 
     std::vector<CTPPSPotInfo> pots_;
     std::unordered_map<unsigned int, std::vector<CTPPSDetId> > strips_list_;
@@ -106,6 +114,8 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
   protonsToken_( consumes<edm::HepMCProduct>( iConfig.getParameter<edm::InputTag>( "beamParticlesTag" ) ) ),
   beamConditions_             ( iConfig.getParameter<edm::ParameterSet>( "beamConditions" ) ),
   sqrtS_                      ( beamConditions_.getParameter<double>( "sqrtS" ) ),
+  vertexSize_                 ( beamConditions_.getParameter<double>( "vertexSize" ) ),
+  beamDivergence_             ( beamConditions_.getParameter<double>( "beamDivergence" ) ),
   halfCrossingAngleSector45_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector45" ) ),
   halfCrossingAngleSector56_  ( beamConditions_.getParameter<double>( "halfCrossingAngleSector56" ) ),
   yOffsetSector45_            ( beamConditions_.getParameter<double>( "yOffsetSector45" ) ),
@@ -119,6 +129,12 @@ CTPPSFastProtonSimulation::CTPPSFastProtonSimulation( const edm::ParameterSet& i
   opticsFileBeam1_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam1" ) ),
   opticsFileBeam2_            ( iConfig.getParameter<edm::FileInPath>( "opticsFileBeam2" ) ),
   detectorPackages_           ( iConfig.getParameter< std::vector<edm::ParameterSet> >( "detectorPackages" ) ),
+  thetaPhys_                  ( iConfig.getParameter<double>( "scatteringAngle" ) ),
+  simulateVertexX_            ( iConfig.getParameter<bool>( "simulateVertexX" ) ),
+  simulateVertexY_            ( iConfig.getParameter<bool>( "simulateVertexY" ) ),
+  simulateScatteringAngleX_   ( iConfig.getParameter<bool>( "simulateScatteringAngleX" ) ),
+  simulateScatteringAngleY_   ( iConfig.getParameter<bool>( "simulateScatteringAngleY" ) ),
+  simulateBeamDivergence_     ( iConfig.getParameter<bool>( "simulateBeamDivergence" ) ),
   rnd_( 0 )
 {
   produces< edm::DetSetVector<TotemRPRecHit> >();
@@ -209,13 +225,41 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
 
   const HepMC::GenVertex* vtx = in_trk->production_vertex();
   const HepMC::FourVector mom = in_trk->momentum();
+  const double xi = 1.-mom.e()/sqrtS_*2.0;
+
+  double vtx_x = vtx->position().x(), vtx_y = vtx->position().y(); // express in metres
+  if ( simulateVertexX_ ) vtx_x += CLHEP::RandGauss::shoot( rnd_ ) * vertexSize_;
+  if ( simulateVertexY_ ) vtx_y += CLHEP::RandGauss::shoot( rnd_ ) * vertexSize_;
 
   // convert physics kinematics to the LHC reference frame
   double th_x = atan2( mom.x(), mom.z() ), th_y = atan2( mom.y(), mom.z() );
   if ( mom.z()<0.0 ) { th_x = M_PI-th_x; th_y = M_PI-th_y; }
-  double vtx_x = vtx->position().x()*1.e-3, vtx_y = vtx->position().y()*1.e-3; // express in metres
 
-  const double xi = 1.-mom.e()/sqrtS_*2.0;
+  // generate scattering angles
+  if ( simulateScatteringAngleX_ ) th_x += CLHEP::RandGauss::shoot( rnd_ ) * thetaPhys_;
+  if ( simulateScatteringAngleY_ ) th_y += CLHEP::RandGauss::shoot( rnd_ ) * thetaPhys_;
+
+  // generate beam divergence
+  if ( simulateBeamDivergence_ ) {
+    th_x += CLHEP::RandGauss::shoot( rnd_ ) * beamDivergence_;
+    th_y += CLHEP::RandGauss::shoot( rnd_ ) * beamDivergence_;
+  }
+
+  double half_cr_angle = 0.0, vtx_y_offset = 0.0;
+  int z_sign = 0;
+  //FIXME LHC or CMS convention?
+  if ( mom.z()>0.0 ) { // sector 45
+    z_sign = -1;
+    half_cr_angle = halfCrossingAngleSector45_;
+    vtx_y_offset = yOffsetSector45_;
+  }
+  if ( mom.z()<0.0 ) { // sector 56
+    z_sign = +1;
+    half_cr_angle = halfCrossingAngleSector56_;
+    vtx_y_offset = yOffsetSector56_;
+  }
+
+  th_x += half_cr_angle;
 
   // transport the proton into each pot
   for ( const auto& rp : pots_ ) {
@@ -228,21 +272,9 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
     if ( strips_list_.find( rp.detid.rawId() )==strips_list_.end() ) continue;
 
     const double optics_z0 = rp.z_position*1.e3; // in mm
-    double half_cr_angle = 0.0, vtx_y_offset = 0.0;
-    int z_sign = 0;
-    if ( rp.detid.arm()==0 ) {
-      z_sign = -1; //FIXME LHC or CMS convention?
-      half_cr_angle = halfCrossingAngleSector45_;
-      vtx_y_offset = yOffsetSector45_;
-    }
-    if ( rp.detid.arm()==1 ) {
-      z_sign = +1;
-      half_cr_angle = halfCrossingAngleSector56_;
-      vtx_y_offset = yOffsetSector56_;
-    }
 
     // retrieve the sensor from geometry
-    for ( const auto& detid : strips_list_[rp.detid.rawId()] ) {
+    for ( const auto& detid : strips_list_.at( rp.detid.rawId() ) ) {
 
       edm::DetSet<TotemRPRecHit>& hits = out_hits.find_or_insert( detid );
 
@@ -250,7 +282,7 @@ CTPPSFastProtonSimulation::transportProtonTrack( const HepMC::GenParticle* in_tr
       const double gl_oz = geometry_->LocalToGlobal( detid, CLHEP::Hep3Vector() ).z(); // in mm
 
       // transport proton to its corresponding RP
-      std::array<double,5> kin_in_tr = { { vtx_x, ( th_x + half_cr_angle ) * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } }, kin_out_tr;
+      std::array<double,5> kin_in_tr = { { vtx_x, th_x * ( 1.-xi ), vtx_y + vtx_y_offset, th_y * ( 1.-xi ), -xi } }, kin_out_tr;
 
       bool tr_proton_transported = rp.approximator->Transport( kin_in_tr.data(), kin_out_tr.data(), checkApertures_, invertBeamCoordinatesSystem_ );
 
