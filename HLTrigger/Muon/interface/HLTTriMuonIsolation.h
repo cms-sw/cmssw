@@ -118,13 +118,13 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
         // Create the 3-muon candidates
         // loop over L3/Trk muons and create all combinations
         auto AllMuCands_end = AllMuCands->end();
-        for (auto i = AllMuCands->begin(); i != AllMuCands_end; ++i) {
+        for (auto i = AllMuCands->begin(); i != AllMuCands_end-2; ++i) {
             // check that muon_i passes the previous filter
             bool passingPreviousFilter_1 = false;
             for (const auto & imu : PassedL3Muons){
                 if (reco::deltaR2(i->momentum(), imu->momentum()) < (MatchingConeSize_*MatchingConeSize_)) passingPreviousFilter_1 = true;
             }
-            for (auto j = i+1; j != AllMuCands_end; ++j) {
+            for (auto j = i+1; j != AllMuCands_end-1; ++j) {
                 // check that muon_j passes the previous filter
                 bool passingPreviousFilter_2 = false;
                 for (const auto & jmu : PassedL3Muons){
@@ -217,8 +217,8 @@ HLTTriMuonIsolation::produce(edm::StreamID sid, edm::Event & iEvent, edm::EventS
             }
             
             // apply the isolation cut
-            if ((std::max(0., sumPt) > (EnableAbsIso_ * ChargedAbsIsoCut_)) || 
-                (std::max(0., sumPt) > (EnableRelIso_ * ChargedRelIsoCut_ * itau.pt()))) continue;
+            if ((sumPt > (EnableAbsIso_ * ChargedAbsIsoCut_)) || 
+                (sumPt > (EnableRelIso_ * ChargedRelIsoCut_ * itau.pt()))) continue;
             
             SelectedTaus->push_back(itau); 
         }
