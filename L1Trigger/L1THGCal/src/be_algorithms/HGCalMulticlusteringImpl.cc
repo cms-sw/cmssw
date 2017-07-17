@@ -77,14 +77,31 @@ void HGCalMulticlusteringImpl::clusterize( const edm::PtrVector<l1t::HGCalCluste
                                                0. );
         // overwriting the 4p with the calibrated 4p     
         multiclustersTmp.at(i).setP4( calibP4 );
+        /*float SeeTot=shape->SigmaEtaEta();
+        float SppTot=shape->SigmaPhiPhi();
+        float EMax= shape->EMax();
+        float SeeMax= shape->SigmaEtaEtaMax();
+        float SppMax= shape->SigmaPhiPhiMax();*/
         if( multiclustersTmp.at(i).pt() > ptC3dThreshold_ ){
+
+            //compute shower shape
+            const edm::PtrVector<l1t::HGCalCluster> & clustersPtr = multiclustersTmp.at(i).constituents();
+	    HGCalShowerShape *shape=new HGCalShowerShape();
+            shape->makeHGCalProfile(clustersPtr);
+            multiclustersTmp.at(i).setNlayers(shape->nLayers());
+            multiclustersTmp.at(i).setEmax(shape->EMax());
+            multiclustersTmp.at(i).setSeeMax(shape->SigmaEtaEtaMax());
+            multiclustersTmp.at(i).setSppMax(shape->SigmaPhiPhiMax());
+            multiclustersTmp.at(i).setSeeTot(shape->SigmaEtaEta());
+            multiclustersTmp.at(i).setSppTot(shape->SigmaPhiPhi());
+
             multiclusters.push_back( 0, multiclustersTmp.at(i));  
         }
     }
     
 }
 
-
+/*
 void HGCalMulticlusteringImpl::showerShape3D(const edm::PtrVector<l1t::HGCalCluster> & clustersPtr){
 
     Nlayers_=0;
@@ -94,54 +111,20 @@ void HGCalMulticlusteringImpl::showerShape3D(const edm::PtrVector<l1t::HGCalClus
     SppTot_=0; //same but for SigmaPhiPhi
     SppMax_=0;
 
-/*    std::vector<int> layer ; // Size : ncl2D
-    std::vector<int> subdetID ;
-    std::vector<float> cl2D_energy ;
-    std::vector<int> nTC ;
-    std::vector<float> tc_energy ; // Size : ncl2D*nTCi
-    std::vector<float> tc_eta ;
-    std::vector<float> tc_phi ;
-
-    for(edm::PtrVector<l1t::HGCalCluster>::const_iterator clu = clustersPtrs.begin(); clu != clustersPtrs.end(); ++clu){
-        
-        	layer.emplace_back((*clu)->layer());
-        	subdetID.emplace_back((*clu)->subdetId());
-        	cl2D_energy.emplace_back((*clu)->energy());
-
-		const edm::PtrVector<l1t::HGCalTriggerCell> triggerCells = (*clu)->constituents();
-    		unsigned int ncells = triggerCells.size();
-		nTC.emplace_back(ncells);
-		for(unsigned int itc=0; itc<ncells;itc++){
-
-    			l1t::HGCalTriggerCell thistc = *triggerCells[itc];
-
-        		tc_energy.emplace_back(thistc.energy());
-        		tc_eta.emplace_back(thistc.eta());
-        		tc_phi.emplace_back(thistc.phi());
-
-		}
-    }
-*/
     HGCalShowerShape *shape=new HGCalShowerShape();
-    shape->Init3D(clustersPtr);
-    shape->makeHGCalProfile();
+    //shape->Init3D(clustersPtr);
+    shape->makeHGCalProfile(clustersPtr);
     Nlayers_=shape->nLayers();
+    cout<<" MulticlusteringImpl : Nlayers "<<Nlayers_<<endl;
     SeeTot_=shape->SigmaEtaEta();
     SppTot_=shape->SigmaPhiPhi();
-    std::vector<float> Energy=shape->EnergyVector();
-    std::vector<float> See=shape->SigmaEtaEtaVector();
-    std::vector<float> Spp=shape->SigmaPhiPhiVector();
+    EMax_= shape->EMax();
+    SeeMax_= shape->SigmaEtaEtaMax();
+    SppMax_= shape->SigmaPhiPhiMax();
 
-
-    for(int ilayer=0;ilayer<Nlayers_;ilayer++){
-    	if(Energy[ilayer]>EMax_) EMax_= Energy[ilayer];
-    	if(See[ilayer]>SeeMax_) SeeMax_= See[ilayer];
-    	if(Spp[ilayer]>SppMax_) SppMax_= Spp[ilayer];
-
-    }
 
 
 }
 
-
+*/
 
