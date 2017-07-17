@@ -24,6 +24,27 @@ SiPixelPhase1TrackEfficiencyValid = DefaultHistoTrack.clone(
   )
 )
 
+SiPixelPhase1TrackEfficiencyInactive = DefaultHistoTrack.clone(
+  name = "inactive",
+  title = "Inactive Hits",
+  xlabel = "inactive hits",
+  dimensions = 0,
+
+  specs = VPSet(
+    StandardSpecifications1D_Num,
+    StandardSpecification2DProfile_Num,
+
+    Specification().groupBy("PXBarrel/PXLayer/Event") #this will produce inclusive counts per Layer/Disk
+                             .reduce("COUNT")    
+                             .groupBy("PXBarrel/PXLayer")
+                             .save(nbins=100, xmin=0, xmax=100),
+    Specification().groupBy("PXForward/PXDisk/Event")
+                             .reduce("COUNT")    
+                             .groupBy("PXForward/PXDisk/")
+                             .save(nbins=100, xmin=0, xmax=100),
+  )
+)
+
 SiPixelPhase1TrackEfficiencyMissing = DefaultHistoTrack.clone(
   name = "missing",
   title = "Missing Hits",
@@ -79,6 +100,7 @@ SiPixelPhase1TrackEfficiencyVertices= DefaultHistoTrack.clone(
 SiPixelPhase1TrackEfficiencyConf = cms.VPSet(
   SiPixelPhase1TrackEfficiencyValid,
   SiPixelPhase1TrackEfficiencyMissing,
+  SiPixelPhase1TrackEfficiencyInactive,
   SiPixelPhase1TrackEfficiencyEfficiency,
   SiPixelPhase1TrackEfficiencyVertices
 )
