@@ -28,6 +28,8 @@
 #include "SimDataFormats/CaloHit/interface/PCaloHitContainer.h"
 #include "SimDataFormats/CaloTest/interface/HGCalTestNumbering.h"
 
+#include "Geometry/Records/interface/CaloGeometryRecord.h"
+
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerGeometryBase.h"
 #include "L1Trigger/L1THGCal/interface/HGCalTriggerFECodecBase.h"
 #include "L1Trigger/L1THGCal/interface/fe_codecs/HGCalTriggerCellBestChoiceCodecImpl.h"
@@ -160,7 +162,7 @@ HGCalTriggerBestChoiceTriggerCellTester::~HGCalTriggerBestChoiceTriggerCellTeste
 void HGCalTriggerBestChoiceTriggerCellTester::beginRun(const edm::Run& /*run*/, 
         const edm::EventSetup& es)
 {
-    es.get<IdealGeometryRecord>().get(triggerGeometry_);
+    es.get<CaloGeometryRecord>().get(triggerGeometry_);
 
     const std::string& ee_sd_name = triggerGeometry_->eeSDName();
     const std::string& fh_sd_name = triggerGeometry_->fhSDName();

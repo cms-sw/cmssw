@@ -10,6 +10,7 @@
 <library   name="L1TriggerL1THGCalPlugins_geometries" file="geometries/*.cc">
   <use   name="Geometry/HGCalGeometry"/>
   <use   name="Geometry/CaloTopology"/>
+  <use   name="Geometry/HcalTowerAlgo"/>
   <use   name="L1Trigger/L1THGCal"/>  
   <flags   EDM_PLUGIN="1"/>
 </library>
@@ -30,5 +31,8 @@
   <use   name="CommonTools/UtilAlgos"/>
   <use   name="SimDataFormats/CaloTest"/>
   <use   name="DataFormats/JetReco"/>
+  <use   name="Geometry/HcalTowerAlgo"/>
+  <use   name="Geometry/CaloGeometry"/>
+  <use   name="Geometry/Records"/>
   <flags   EDM_PLUGIN="1"/>
 </library>

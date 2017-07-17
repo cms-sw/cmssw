@@ -12,6 +12,8 @@
 
 #include "Geometry/HGCalGeometry/interface/HGCalGeometry.h"
 #include "Geometry/CaloTopology/interface/HGCalTopology.h"
+#include "Geometry/CaloGeometry/interface/CaloGeometry.h"
+#include "Geometry/HcalTowerAlgo/interface/HcalGeometry.h"
 
 
 
@@ -39,9 +41,16 @@ class HGCalTriggerGeometryBase
         const std::string& fhSDName() const { return fh_sd_name_; } 
         const std::string& bhSDName() const { return bh_sd_name_; } 
         const es_info& cellInfo() const {return es_info_;}
+        const edm::ESHandle<CaloGeometry>& caloGeometry() const {return calo_geometry_;}
+        const HGCalGeometry& eeGeometry() const {return *static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCEE));}
+        const HGCalGeometry& fhGeometry() const {return *static_cast<const HGCalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Forward,HGCHEF));}
+        const HcalGeometry& bhGeometry() const {return *static_cast<const HcalGeometry*>(calo_geometry_->getSubdetectorGeometry(DetId::Hcal,HcalEndcap));}
+        const HGCalTopology& eeTopology() const {return eeGeometry().topology();}
+        const HGCalTopology& fhTopology() const {return fhGeometry().topology();}
+       const HcalTopology& bhTopology() const {return bhGeometry().topology();}
 
         // non-const access to the geometry class
-        virtual void initialize( const es_info& ) = 0;
+        virtual void initialize(const edm::ESHandle<CaloGeometry>&) = 0;
         virtual void reset();
 
         // const access to the geometry class
@@ -65,6 +74,7 @@ class HGCalTriggerGeometryBase
 
     protected:
         void setCellInfo(const es_info& es) {es_info_=es;}
+        void setCaloGeometry(const edm::ESHandle<CaloGeometry>& geom) {calo_geometry_=geom;}
 
 
     private:
@@ -74,6 +84,7 @@ class HGCalTriggerGeometryBase
         const std::string bh_sd_name_;  
 
         es_info es_info_;
+        edm::ESHandle<CaloGeometry> calo_geometry_;
 
 };
 
