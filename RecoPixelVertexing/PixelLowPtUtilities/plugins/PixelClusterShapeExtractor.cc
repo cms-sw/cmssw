@@ -81,7 +81,8 @@ class PixelClusterShapeExtractor final : public edm::global::EDAnalyzer<>
      (SiPixelRecHitCollection::DataContainer const & recHits, 
       TrackerHitAssociator const & theAssociator,
       ClusterShapeHitFilter const & theFilter, 
-      SiPixelClusterShapeCache const & clusterShapeCache) const;
+      SiPixelClusterShapeCache const & clusterShapeCache,
+      const TrackerTopology & tkTpl) const;
 
 
    void analyzeSimHits  (const edm::Event& ev, const edm::EventSetup& es) const;
@@ -91,6 +92,7 @@ class PixelClusterShapeExtractor final : public edm::global::EDAnalyzer<>
 
    const bool hasSimHits;
    const bool hasRecTracks;
+   const bool noBPIX1;
 
    const edm::EDGetTokenT<reco::TrackCollection> tracks_token;
    const edm::EDGetTokenT<edmNew::DetSetVector<SiPixelRecHit>> pixelRecHits_token;
@@ -133,6 +135,7 @@ void PixelClusterShapeExtractor::init()
 PixelClusterShapeExtractor::PixelClusterShapeExtractor(const edm::ParameterSet& pset) :
   hasSimHits(pset.getParameter<bool>("hasSimHits")),
   hasRecTracks(pset.getParameter<bool>("hasRecTracks")),
+  noBPIX1(pset.getParameter<bool>("noBPIX1")),
   tracks_token(hasRecTracks ?
                consumes<reco::TrackCollection>(pset.getParameter<edm::InputTag>("tracks")) :
                edm::EDGetTokenT<reco::TrackCollection>()
@@ -208,13 +211,13 @@ void PixelClusterShapeExtractor::processRec(const SiPixelRecHit & recHit, Cluste
 #ifdef DO_DEBUG
       if (meas.front().second==0 && std::abs(pred.second)>3)
       {
-        Lock(theMutex[0]);
+        Lock lock(theMutex[0]);
         int id = recHit.geographicalId();
         std::cout << id << " bigpred " << meas.front().first << '/'<<meas.front().second 
                   << ' ' << pred.first << '/' << pred.second << ' ' << ldir << ' ' << ldir.mag()<< std::endl;
       }
 #endif
-      Lock(theMutex[i]);
+      Lock lock(theMutex[i]);
       histo[i]->Fill(pred.first, pred.second);
     }
 }
@@ -254,7 +257,8 @@ void PixelClusterShapeExtractor::processPixelRecHits(
    const SiPixelRecHitCollection::DataContainer & recHits,
    TrackerHitAssociator const & theHitAssociator, 
    ClusterShapeHitFilter const & theFilter,
-   const SiPixelClusterShapeCache& clusterShapeCache) const
+   const SiPixelClusterShapeCache& clusterShapeCache,
+   const TrackerTopology & tkTpl) const
 {
   struct Elem { const SiPixelRecHit * rhit; PSimHit shit; unsigned int size;};
   std::map<pair<unsigned int, float>, Elem> simHitMap;
@@ -264,6 +268,7 @@ void PixelClusterShapeExtractor::processPixelRecHits(
   unsigned int ss;
 
   for(auto const & recHit : recHits) {
+    if(noBPIX1 && tkTpl.pxbLayer(recHit.geographicalId())==1) continue;
     if(!checkSimHits(recHit, theHitAssociator, simHit, key,ss)) continue;
           // Fill map
           if(simHitMap.count(key) == 0)
@@ -299,6 +304,10 @@ void PixelClusterShapeExtractor::analyzeSimHits
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
   auto const & theClusterShape = *shape.product();
 
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  auto const & tkTpl = *tTopoHandle;
+
 
   edm::Handle<SiPixelClusterShapeCache> clusterShapeCache;
   ev.getByToken(clusterShapeCache_token, clusterShapeCache);
@@ -315,7 +324,7 @@ void PixelClusterShapeExtractor::analyzeSimHits
     ev.getByToken(clusterShapeCache_token, clusterShapeCache);
 
     auto const & recHits = coll.product()->data();
-    processPixelRecHits(recHits, *theHitAssociator, theClusterShape, *clusterShapeCache);
+    processPixelRecHits(recHits, *theHitAssociator, theClusterShape, *clusterShapeCache,tkTpl);
   }
 
 }
@@ -328,6 +337,10 @@ void PixelClusterShapeExtractor::analyzeRecTracks
   edm::ESHandle<ClusterShapeHitFilter> shape;
   es.get<CkfComponentsRecord>().get("ClusterShapeHitFilter",shape);
   auto const & theClusterShape = *shape.product();
+
+  edm::ESHandle<TrackerTopology> tTopoHandle;
+  es.get<TrackerTopologyRcd>().get(tTopoHandle);
+  auto const & tkTpl = *tTopoHandle;  
 
 
   // Get tracks
@@ -349,6 +362,7 @@ void PixelClusterShapeExtractor::analyzeRecTracks
       auto recHit = *(hb+h);
       if (!recHit->isValid()) continue;
       auto id = recHit->geographicalId();
+      if(noBPIX1 && tkTpl.pxbLayer(id)==1) continue;
 
       // check that we are in the pixel
       auto subdetid = (id.subdetId());

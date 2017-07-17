@@ -6,6 +6,7 @@ clusterShapeExtractor = cms.EDAnalyzer("PixelClusterShapeExtractor",
     pixelSimLinkSrc = cms.InputTag('simSiPixelDigis'),
     hasSimHits     = cms.bool(True),
     hasRecTracks   = cms.bool(False),
+    noBPIX1   = cms.bool(False),
 # for the associator
     associateStrip      = cms.bool(False),
     associatePixel      = cms.bool(True),
