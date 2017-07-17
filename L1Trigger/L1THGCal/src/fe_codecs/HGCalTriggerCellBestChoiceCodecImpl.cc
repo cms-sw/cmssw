@@ -189,20 +189,23 @@ triggerCellSums(const HGCalTriggerGeometryBase& geometry,  const std::vector<std
         payload.insert( std::make_pair(triggercellid, 0) ); // do nothing if key exists already
         uint32_t value = frame.second; 
         // equalize value among cell thicknesses
-        int thickness = 0;
-        switch(cellid.subdetId())
+        if(cellid.det()==DetId::Forward)
         {
-            case ForwardSubdetector::HGCEE:
-                thickness = geometry.cellInfo().topo_ee->dddConstants().waferTypeL(cellid.wafer())-1;
-                break;
-            case ForwardSubdetector::HGCHEF:
-                thickness = geometry.cellInfo().topo_fh->dddConstants().waferTypeL(cellid.wafer())-1;
-                break;
-            default:
-                break;
-        };
-        double thickness_correction = thickness_corrections_.at(thickness);
-        value = (double)value*thickness_correction;
+            int thickness = 0;
+            switch(cellid.subdetId())
+            {
+                case ForwardSubdetector::HGCEE:
+                    thickness = geometry.eeTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
+                    break;
+                case ForwardSubdetector::HGCHEF:
+                    thickness = geometry.fhTopology().dddConstants().waferTypeL(HGCalDetId(cellid).wafer())-1;
+                    break;
+                default:
+                    break;
+            };
+            double thickness_correction = thickness_corrections_.at(thickness);
+            value = (double)value*thickness_correction;
+        }
         payload[triggercellid] += value; // 32 bits integer should be largely enough 
 
     }
