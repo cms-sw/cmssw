@@ -361,7 +361,7 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
   for (int c=0;c<20;++c) used_clct_mask[c]=0;
 
   const bool hasPads(pads_.size()!=0);
-  const bool hasCoPads(hasPads and coPads_.size()!=0);
+  //const bool hasCoPads(hasPads and coPads_.size()!=0);
   bool hasLCTs = false;
 
   // ALCT centric matching
@@ -517,6 +517,8 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
           copads.reserve(copads1.size() +
                          copads2.size()
                          );
+	  if (debug_gem_matching)
+	      std::cout <<"CoPad1 size "<< copads1.size() <<" CoPad2 size "<< copads2.size() << std::endl;
           copads.insert(std::end(copads), std::begin(copads1), std::end(copads1));
           copads.insert(std::end(copads), std::begin(copads2), std::end(copads2));
 
@@ -693,6 +695,11 @@ CSCMotherboardME21GEM::run(const CSCWireDigiCollection* wiredc,
     if (debug_gem_matching)
       std::cout << "LCT "<<n<<"  " << p <<std::endl;
   }
+ 
+    if (debug_gem_matching){
+	std::cout << "Summarize LCTs, ME21 nLCT "<< n << std::endl;
+	std::cout << "========================================================================" << std::endl;
+    }
 }
 
 
@@ -874,7 +881,7 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& 
                                                           const GEMPadDigi& gem,
                                                           bool oldDataFormat)
 {
-  std::cout << "Constructing ALCT-GEM LCT" << std::endl;
+  std::cout << "Constructing ALCT-GEM LCT in ME21" << std::endl;
   if (oldDataFormat){
     // CLCT pattern number - set it to a highest value
     // hack to get LCTs in the CSCTF
@@ -894,7 +901,9 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCALCTDigi& 
     int wg = alct.getKeyWG();
 
      // construct correlated LCT; temporarily assign track number of 0.
+    std::cout <<"ALCT-GEM ALCT wg "<< wg <<" keyStrip "<< keyStrip <<" pad "<< gem.pad() <<" bx "<< bx << std::endl;
     return CSCCorrelatedLCTDigi(0, 1, quality, wg, keyStrip, pattern, 0, bx, 0, 0, 0, theTrigChamber);
+    
   }
   else {
     // CLCT pattern number - no pattern
@@ -920,7 +929,7 @@ CSCCorrelatedLCTDigi CSCMotherboardME21GEM::constructLCTsGEM(const CSCCLCTDigi& 
                                                           const GEMPadDigi& gem, int roll,
                                                           bool oldDataFormat)
 {
-  std::cout << "Constructing CLCT-GEM LCT" << std::endl;
+  std::cout << "Constructing CLCT-GEM LCT in ME21 " << std::endl;
   if (oldDataFormat){
     // CLCT pattern number - for the time being, do not include GEMs in the pattern
     unsigned int pattern = encodePattern(clct.getPattern(), clct.getStripType());
@@ -1083,7 +1092,7 @@ void CSCMotherboardME21GEM::retrieveGEMCoPads()
     auto detId1(GEMDetId(region, 1, 2, 1, gemChamber, copad.roll()));
     auto detId2(GEMDetId(region, 1, 2, 2, gemChamber, copad.roll()));
     coPads_[lct_central_bx + copad.bx(1)].push_back(std::make_pair(detId1, copad.first()));
-    coPads_[lct_central_bx + copad.bx(1)].push_back(std::make_pair(detId2, copad.second()));
+    //coPads_[lct_central_bx + copad.bx(1)].push_back(std::make_pair(detId2, copad.second()));
   }
 }
 
@@ -1122,6 +1131,7 @@ CSCMotherboardME21GEM::GEMPadsBX
 CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX& pads, bool isCoPad, bool first)
 {
   CSCMotherboardME21GEM::GEMPadsBX result;
+  if (not clct.isValid()) return result;
 
   // fetch the low and high pad edges for the long superchambers
   int deltaPad(isCoPad ? maxDeltaPadCoPad_ : maxDeltaPadPad_);
@@ -1130,14 +1140,14 @@ CSCMotherboardME21GEM::matchingGEMPads(const CSCCLCTDigi& clct, const GEMPadsBX&
   const int lowPad(cscHsToGemPad_[clct.getKeyStrip()].first);
   const int highPad(cscHsToGemPad_[clct.getKeyStrip()].second);
   const bool debug(true);
-  if (debug) std::cout << "CLCT lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<std::endl;
+  if (debug) std::cout << "CLCT lowpad " << lowPad << " highpad " << highPad << " delta pad " << deltaPad <<" bx "<< clct_bx <<std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
       continue;
     }
     auto padRoll((p.second).pad());
     int pad_bx = (p.second).bx()+lct_central_bx;
-    if (debug) std::cout << "Candidate CLCT: " << p.second << std::endl;
+    if (debug) std::cout << "Candidate GEMPad (CLCT): " << p.second << std::endl;
     if (std::abs(clct_bx-pad_bx)>deltaBX) continue;
     if (std::abs(lowPad - padRoll) <= deltaPad or std::abs(padRoll - highPad) <= deltaPad){
       if (debug) std::cout << "++Matches! " << std::endl;
@@ -1153,18 +1163,20 @@ CSCMotherboardME21GEM::GEMPadsBX
 CSCMotherboardME21GEM::matchingGEMPads(const CSCALCTDigi& alct, const GEMPadsBX& pads, bool isCoPad, bool first)
 {
   CSCMotherboardME21GEM::GEMPadsBX result;
+  if (not alct.isValid()) return result;
+
   int deltaBX(isCoPad ? maxDeltaBXCoPad_ : maxDeltaBXPad_);
   int alct_bx = alct.getBX();
   auto alctRoll(cscWgToGemRoll_[alct.getKeyWG()]);
   const bool debug(true);
-  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", roll " << alctRoll << std::endl;
+  if (debug) std::cout << "ALCT keyWG " << alct.getKeyWG() << ", roll " << alctRoll <<" bx "<< alct_bx << std::endl;
   for (const auto& p: pads){
     if (DetId(p.first).subdetId() != MuonSubdetId::GEM or DetId(p.first).det() != DetId::Muon) {
       continue;
     }
     auto padRoll(GEMDetId(p.first).roll());
     int pad_bx = (p.second).bx()+lct_central_bx;
-    if (debug) std::cout << "Candidate ALCT: " << p.second << std::endl;
+    if (debug) std::cout << "Candidate GEMPad (ALCT): " << p.second << std::endl;
     if (std::abs(alct_bx-pad_bx)>deltaBX) continue;
     if (std::abs(alctRoll -  padRoll)>1) continue;
     if (debug) std::cout << "++Matches! " << std::endl;
